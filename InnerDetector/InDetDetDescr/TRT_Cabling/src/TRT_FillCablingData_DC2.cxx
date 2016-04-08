@@ -253,86 +253,86 @@ void TRT_FillCablingData_DC2::printParameters() const
     // Get message service
   MsgStream log(msgSvc(), name());
 
-  log << MSG::DEBUG << endmsg;
+  log << MSG::DEBUG << endreq;
   log << MSG::DEBUG << "***** TRT_IdentifierConversion::printParameters *****" 
-      <<  endmsg;
+      <<  endreq;
 
-  log << MSG::DEBUG << "End-cap parameters:" << endmsg;
-  log << MSG::DEBUG << "  numberOfWheelsA=" << m_numberOfWheelsA << endmsg;
-  log << MSG::DEBUG << "  numberOfWheelsAB=" << m_numberOfWheelsAB << endmsg;
-  log << MSG::DEBUG << "  numberOfWheelsABC=" << m_numberOfWheelsABC << endmsg;
-  log << MSG::DEBUG << "  numberOfPlanesAB=" << m_numberOfPlanesAB << endmsg;
+  log << MSG::DEBUG << "End-cap parameters:" << endreq;
+  log << MSG::DEBUG << "  numberOfWheelsA=" << m_numberOfWheelsA << endreq;
+  log << MSG::DEBUG << "  numberOfWheelsAB=" << m_numberOfWheelsAB << endreq;
+  log << MSG::DEBUG << "  numberOfWheelsABC=" << m_numberOfWheelsABC << endreq;
+  log << MSG::DEBUG << "  numberOfPlanesAB=" << m_numberOfPlanesAB << endreq;
   log << MSG::DEBUG << "  totalNumberOfPlanes=" << m_totalNumberOfPlanes 
-      << endmsg;
+      << endreq;
   log << MSG::DEBUG << "  numberOfPhiSectorsInIDSector=" 
-      << m_numberOfPhiSectorsInIDSector << endmsg;
+      << m_numberOfPhiSectorsInIDSector << endreq;
   log << MSG::DEBUG << "  numberOfStrawsInPhiSectorAB=" 
-      << m_numberOfStrawsInPhiSectorAB << endmsg;
+      << m_numberOfStrawsInPhiSectorAB << endreq;
   log << MSG::DEBUG << "  numberOfStrawsInPhiSectorC=" 
-      << m_numberOfStrawsInPhiSectorC << endmsg;
+      << m_numberOfStrawsInPhiSectorC << endreq;
   log << MSG::DEBUG << "  totalNumberOfStrawsInPhiSectorsAB="
-      << m_totalNumberOfStrawsInPhiSectorsAB << endmsg;
+      << m_totalNumberOfStrawsInPhiSectorsAB << endreq;
   log << MSG::DEBUG << "  numberOfStrawsAInRod=" << m_numberOfStrawsAInRod 
-      << endmsg;
+      << endreq;
   log << MSG::DEBUG << "  numberOfStrawsABInRod=" << m_numberOfStrawsABInRod 
-      << endmsg;
+      << endreq;
   log << MSG::DEBUG << "  numberOfStrawsInWheelAForRod=" 
-      << m_numberOfStrawsInWheelAForRod << endmsg;
+      << m_numberOfStrawsInWheelAForRod << endreq;
   log << MSG::DEBUG << "  numberOfStrawsInWheelBForRod="  
-      << m_numberOfStrawsInWheelBForRod << endmsg;
+      << m_numberOfStrawsInWheelBForRod << endreq;
   log << MSG::DEBUG << "  numberOfStrawsInWheelCForRod=" 
-      << m_numberOfStrawsInWheelCForRod << endmsg;
+      << m_numberOfStrawsInWheelCForRod << endreq;
 
-  log << MSG::DEBUG << "Barrel parameters:" << endmsg; 
-  log << MSG::DEBUG << "  numberOfRings=" << m_numberOfRings << endmsg;
-  log << MSG::DEBUG << "  numberOfStrawsA=" << m_numberOfStrawsA << endmsg;
-  log << MSG::DEBUG << "  numberOfStrawsAB=" << m_numberOfStrawsAB << endmsg;
-  log << MSG::DEBUG << "  numberOfLayersA=" << m_numberOfLayersA << endmsg;
-  log << MSG::DEBUG << "  numberOfLayersB=" << m_numberOfLayersB << endmsg;
-  log << MSG::DEBUG << "  numberOfLayersC=" << m_numberOfLayersC << endmsg;
-  log << MSG::DEBUG << "  numberOfLayersAB=" << m_numberOfLayersAB << endmsg;
+  log << MSG::DEBUG << "Barrel parameters:" << endreq; 
+  log << MSG::DEBUG << "  numberOfRings=" << m_numberOfRings << endreq;
+  log << MSG::DEBUG << "  numberOfStrawsA=" << m_numberOfStrawsA << endreq;
+  log << MSG::DEBUG << "  numberOfStrawsAB=" << m_numberOfStrawsAB << endreq;
+  log << MSG::DEBUG << "  numberOfLayersA=" << m_numberOfLayersA << endreq;
+  log << MSG::DEBUG << "  numberOfLayersB=" << m_numberOfLayersB << endreq;
+  log << MSG::DEBUG << "  numberOfLayersC=" << m_numberOfLayersC << endreq;
+  log << MSG::DEBUG << "  numberOfLayersAB=" << m_numberOfLayersAB << endreq;
   log << MSG::DEBUG << "  numberOfLayersInPhiSector="  
-      << m_numberOfLayersInPhiSector << endmsg;
+      << m_numberOfLayersInPhiSector << endreq;
   log << MSG::DEBUG << "  numberOfStrawsInPhiSector=" 
-      << m_numberOfStrawsInPhiSector << endmsg;
+      << m_numberOfStrawsInPhiSector << endreq;
 
   log << MSG::DEBUG << "  numberOfStrawsInROD=" << m_numberOfStrawsInROD 
-      << endmsg;
+      << endreq;
   log << MSG::DEBUG << "  numberOfStrawsInBarrelROD="  
-      << m_numberOfStrawsInBarrelROD << endmsg;
+      << m_numberOfStrawsInBarrelROD << endreq;
   log << MSG::DEBUG << "  numberOfIdentifierSector=" 
-      << m_numberOfIdentifierSectors << endmsg;
+      << m_numberOfIdentifierSectors << endreq;
   log << MSG::DEBUG << "  numberOfEndCapPhiSectors="  
-      << m_numberOfEndCapPhiSectors << endmsg;
+      << m_numberOfEndCapPhiSectors << endreq;
 
   int i;
   for (i = 0; i < m_numberOfStrawsInPhiSector; i++)
-    log << MSG::DEBUG << "  layerID[" << i << "]=" << m_layerID[i] << endmsg;
-  log << MSG::DEBUG << endmsg;
+    log << MSG::DEBUG << "  layerID[" << i << "]=" << m_layerID[i] << endreq;
+  log << MSG::DEBUG << endreq;
 
   for (i = 0; i < m_numberOfStrawsInPhiSector; i++)
     log << MSG::DEBUG << "  strawIDInLayer[" << i << "]=" << m_strawIDInLayer[i] 
-        << endmsg;
-  log << MSG::DEBUG << endmsg;
+        << endreq;
+  log << MSG::DEBUG << endreq;
 
   for (i = 0; i < m_numberOfLayersInPhiSector; i++)
     log << MSG::DEBUG << "  numberOfStrawsInPreviousLayers[" << i << "]="
-         << m_numberOfStrawsInPreviousLayers[i] << endmsg;
-  log << MSG::DEBUG << endmsg;
+         << m_numberOfStrawsInPreviousLayers[i] << endreq;
+  log << MSG::DEBUG << endreq;
 
-  log << MSG::DEBUG << "Shifts for subdetectors:" << endmsg; 
-  log << MSG::DEBUG << "  shiftForLeftEndCap=" << m_shiftForLeftEndCap << endmsg;
-  log << MSG::DEBUG << "  shiftForLeftBarrel=" << m_shiftForLeftBarrel << endmsg;
-  log << MSG::DEBUG << "  shiftForRightBarrel=" << m_shiftForRightBarrel << endmsg; 
-  log << MSG::DEBUG << "  shiftForRightEndCap=" << m_shiftForRightEndCap << endmsg;
+  log << MSG::DEBUG << "Shifts for subdetectors:" << endreq; 
+  log << MSG::DEBUG << "  shiftForLeftEndCap=" << m_shiftForLeftEndCap << endreq;
+  log << MSG::DEBUG << "  shiftForLeftBarrel=" << m_shiftForLeftBarrel << endreq;
+  log << MSG::DEBUG << "  shiftForRightBarrel=" << m_shiftForRightBarrel << endreq; 
+  log << MSG::DEBUG << "  shiftForRightEndCap=" << m_shiftForRightEndCap << endreq;
   log << MSG::DEBUG << "  shiftForLeftEndCapStraws=" 
-      << m_shiftForLeftEndCapStraws << endmsg;
+      << m_shiftForLeftEndCapStraws << endreq;
   log << MSG::DEBUG << "  shiftForLeftBarrelStraws="  
-      << m_shiftForLeftBarrelStraws << endmsg;
+      << m_shiftForLeftBarrelStraws << endreq;
   log << MSG::DEBUG << "  shiftForRightBarrelStraws=" 
-      << m_shiftForRightBarrelStraws << endmsg;
+      << m_shiftForRightBarrelStraws << endreq;
   log << MSG::DEBUG << "  shiftForRightEndCapStraws=" 
-      << m_shiftForRightEndCapStraws << endmsg;
+      << m_shiftForRightEndCapStraws << endreq;
 
 }
 
@@ -424,7 +424,7 @@ void TRT_FillCablingData_DC2::defineTables()
   }
   
 //  log << MSG::DEBUG << " m_identfierForAllStraws size " 
-//      << m_identfierForAllStraws.size() << endmsg;
+//      << m_identfierForAllStraws.size() << endreq;
 
     // Initialize m_allRobs
   //eformat::ModuleType type = eformat::ROD_TYPE;
