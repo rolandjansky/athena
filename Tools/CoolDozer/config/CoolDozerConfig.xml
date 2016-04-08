@@ -1,0 +1,118 @@
+<?xml version="1.0" ?>
+<!-- 
+ CoolDozer API configuration file
+ author: Krzysztof Daniel Ciba
+ date: November 14th, 2007
+ purpose: holds configuration for CoolDozerClient
+
+ cibak @ 19/01/2009: added CMTCONFIG for SLC5 
+ 
+-->
+<cooldozer version="1.0">
+
+<!-- path to CoolDozer server directory -->
+<server>/afs/cern.ch/user/c/cibak/scratch2</server>
+<!-- path to the authentication.xml file -->
+<auth>/afs/cern.ch/user/c/cibak/scratch2/xml/authentication.xml</auth>
+
+<!-- connection strings, only for SQLite  -->
+<connect db="TEST">sqlite://;schema=CoolDozer_TEST.db;dbname=%s</connect>
+
+<!-- PROD server-->
+
+<connect db="PROD_OWNER">ATLAS_COOLPROD(owner)/ATLR</connect>
+<connect db="PROD_WRITE">ATLAS_COOLPROD(writer)/ATLR</connect>
+<connect db="PROD">ATLAS_COOLPROD(writer)/ATLR</connect>
+<connect db="PROD_READ">ATLAS_COOLPROD/ATLR</connect>
+
+<!-- known actions -->
+<action>db-read</action>
+<action>db-write</action>
+<action>create-db</action>
+<action>generate-cfg</action>
+
+<!-- known db names -->
+<testFramework>RTT</testFramework>
+<testFramework>FCT</testFramework>
+<testFramework>ATN</testFramework>
+
+<!-- known nightlies -->
+<nightly>dev</nightly>
+<nightly>devval</nightly>
+<nightly>bugfix</nightly>
+<nightly>point1</nightly>
+<nightly re="\d{2}\.\d{1}\.\d{1}X$">NN.N.NX</nightly>
+<nightly re="\d{2}\.\d{1}\.\d{1}X\.Y$">NN.N.NX.Y</nightly>
+<nightly re="\d{2}\.\d{1}\.\d{1}X\.Y\-VAL$">NN.N.NX.Y-VAL</nightly>
+<nightly re="\d{2}\.\d{1}\.OLD\.Y$">NN.N.OLD.Y</nightly>
+<nightly re="\d{2}\.\d{1}\.X.Y">NN.N.X.Y</nightly>
+<nightly re="\d{2}\.\d{1}\.X.Y\-VAL">NN.N.X.Y-VAL</nightly>
+<nightly re="\d{2}\.\d{1}\.\d{1}\.Y">NN.N.N.Y</nightly>
+<nightly re="\d{2}\.\d{1}\.\d{1}\.Y-VAL">NN.N.N.Y-VAL</nightly>
+<nightly re="\d{2}\.\d{1}\.X">NN.N.X</nightly>
+<nightly re="\d{2}\.\d{1}\.X-VAL">NN.N.X-VAL</nightly>
+<nightly>val</nightly>
+<nightly>mig0</nightly>
+<nightly>mig1</nightly>
+<nightly>mig2</nightly>
+<nightly>mig3</nightly>
+<nightly>mig4</nightly>
+<nightly>mig5</nightly>
+<nightly>mig6</nightly>
+<nightly re="(^(?:\d{1,2}\.){3}\d{1,2}$)|(^(?:\d{1,2}\.){2}\d{1,2}$)">numbered</nightly>
+<nightly re="(^(?:\d{1,2}\.){3}Y$)|(^pcache$)">pcache</nightly>
+<!-- this one matches to ALL -->
+<nightly re='.+'>*</nightly>
+
+<!-- AFS or KIT installation?-->
+<install>build</install>
+<install>kit</install>
+<!-- this one matches to ALL -->
+<install>*</install>
+
+<!-- known CMTCONFIG values -->
+<cmt>i686-slc3-gcc323-dbg</cmt>
+<cmt>i686-slc3-gcc323-opt</cmt>
+<cmt>i686-slc4-gcc34-dbg</cmt>
+<cmt>i686-slc4-gcc34-opt</cmt>
+<cmt>i686-slc4-gcc43-dbg</cmt>
+<cmt>i686-slc4-gcc43-opt</cmt>
+<cmt>x86_64-slc4-gcc34-dbg</cmt>
+<cmt>x86_64-slc4-gcc34-opt</cmt>
+<cmt>i686-slc5-gcc34-dbg</cmt>
+<cmt>i686-slc5-gcc34-opt</cmt>
+<cmt>i686-slc5-gcc43-dbg</cmt>
+<cmt>i686-slc5-gcc43-opt</cmt>
+<cmt>x86_64-slc5-gcc34-dbg</cmt>
+<cmt>x86_64-slc5-gcc34-opt</cmt>
+<cmt>x86_64-slc5-gcc43-dbg</cmt>
+<cmt>x86_64-slc5-gcc43-opt</cmt>
+<!-- this one matches to ALL -->
+<cmt>*</cmt>
+
+
+<!-- known projects -->
+<project>AtlasProduction</project>
+<project>AtlasOffline</project>
+<project>AtlasAnalysis</project> 
+<project>AtlasTrigger</project>
+<project>AtlasReconstruction</project>      
+<project>AtlasSimulation</project>
+<project>AtlasEvent</project>
+<project>AtlasConditions</project>
+<project>AtlasCore</project>
+<project>AtlasTier0</project>
+<project>AtlasP1HLT</project>
+<project>AtlasHLT</project>
+<!-- this one matches to ALL -->
+<project>*</project>
+                    
+<!-- <project>offline</project>  -->
+<!-- <project>hlt</project>  -->
+<!-- <project>point1</project>  -->
+<!-- <project>p1hlt</project>  -->
+<!-- <project>tier0</project>  -->
+<!-- this one matches to ALL -->
+<!-- <project>*</project>  -->
+
+</cooldozer>

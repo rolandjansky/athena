@@ -1,0 +1,14 @@
+<style>
+div .dozerInfo { color: #000033;  background-color: #ccccff !important;  }
+div .dozerInfoLabel { position: relative;  top: 0pt; left: 0pt; font-size: 20pt; width: 80pt; padding: 2pt 5pt; color: #ccccff; background-color: #000033; float: left; font-weight: bold; }
+div .dozerInfoText { font-family: Courier;  position: relative; top: 0pt; left: 10pt; padding: 15pt 10pt 15pt 100pt; }
+div .dozerTrick { color: #666600; background-color: #ffff99; } 
+div .dozerTrickLabel { position: relative; top: 0pt; left: 0pt; font-size: 20pt; width: 80pt; padding: 2pt 5pt; color: #ffff99; background-color: #666600; float: left; font-weight: bold; }
+div .dozerTrickText { font-family: Courier; position: relative; top: 0pt; left: 10pt; padding: 15pt 10pt 15pt 100pt; }
+div .dozerWarn { color: #660000; background-color: #ff9999; }
+div .dozerWarnLabel { position: relative; top: 0pt; left: 0pt; font-size: 20pt; width: 80pt; padding: 2pt 5pt; color: #ff9999; background-color: #660000; float: left; font-weight: bold; }
+div .dozerWarnText { font-family: Courier; position: relative; top: 0pt; left: 10pt; padding: 15pt 10pt 15pt 100pt; }
+div .dozerCode { color: #333333; background-color: #cccccc; }
+div .dozerCodeLabel { position: relative; top: 0pt; left: 0pt; font-size: 20pt; width: 80pt; padding: 2pt 5pt; color: #cccccc; background-color: #333333; float: left; font-weight: bold; }
+div .dozerCodeText { font-family: Courier; position: relative; top: 0pt; left: 10pt; padding: 15pt 10pt 15pt 100pt; }
+</style> 

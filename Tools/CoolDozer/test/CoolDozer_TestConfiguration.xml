@@ -1,0 +1,96 @@
+<?xml version="1.0"?> 
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd"> 
+
+<unifiedTestConfiguration>
+
+<rtt  xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+
+   <rttContactPerson>Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)</rttContactPerson>
+   <refRelease>10.3.0</refRelease>
+
+<jobList>
+  <classification>
+    <displayClass>OfflineValidation</displayClass>
+    <displayProcess>Core</displayProcess>
+    <displayComponent>Athena-Core</displayComponent>
+  </classification>
+  <athena userJobId="rttStandaloneCoolDozer" doMonitoring="True">
+    <doc>CoolDozer API self-test</doc>
+    <doclink>http://test-cooldozer.web.cern.ch/test-cooldozer/doc/html/index.html</doclink>
+    <options>CoolDozer/CoolDozer_jobOptions</options>
+    <package>Tools/CoolDozer</package>
+    <group>CoolDozer</group>
+    <queue>short</queue>
+   
+    <action position="1" runInAtlasEnv="y"> <!-- -->
+      <modulename>RandomDozerAppStandalone</modulename>
+      <testname>RandomDozerAppStandalone</testname>
+      <arg>
+	<argname>DryRun</argname> <!-- only one argument for dry run, should be python True/False -->
+	<argvalue>False</argvalue>
+      </arg>
+    </action>
+    <keepFilePattern>*.log</keepFilePattern>
+    <keepFilePattern>*.xml</keepFilePattern>
+    <keepFilePattern>*.png</keepFilePattern>
+  </athena>
+  
+  <athena userJobId='rttSimpleCoolDozer' doMonitoring="True"> 
+    <doc>CoolDozer API self-test</doc>
+    <options>CoolDozer/CoolDozer_jobOptions</options>
+    <package>Tools/CoolDozer</package>
+    <group>CoolDozer</group>
+    <queue>short</queue>
+    <action position="1"  runInAtlasEnv="y">
+      <modulename>RTTRandomDozerApp</modulename>
+      <testname>RTTRandomDozerApp</testname>
+      <arg>
+	<argname>DryRun</argname> <!-- for chosing PROD(=False) or TEST(=True) db-->
+	<argvalue>False</argvalue>
+      </arg>
+      <arg>
+	<argname>LastNDays</argname> <!--how many days to monitor, default = 30-->
+	<argvalue>30</argvalue>
+      </arg>
+      <arg>
+	<argname>Fit</argname> <!-- flag for fitting trend plots -->
+	<argvalue>True</argvalue>
+      </arg>
+      <arg>
+	<argname>Histos</argname> <!-- flag for plotting histograms as well, default=False  -->
+	<argvalue>True</argvalue>
+      </arg>
+      <arg>
+	<argname>Style</argname> <!-- CoolDozer + CSS style, one of Dozer (defualt), Dolphin, Orca, Seagull or Seal  -->
+	<argvalue>Dozer</argvalue>
+      </arg>
+    </action>
+    <keepFilePattern>*.log</keepFilePattern>
+    <keepFilePattern>*.xml</keepFilePattern>
+    <keepFilePattern>*.png</keepFilePattern>
+    <keepFilePattern>*.html</keepFilePattern>
+  </athena>
+ 
+  <athena userJobId="fakePerfMonDozer" doMonitoring="True">
+    <doc>Fake PerfMonDozer test</doc>
+    <options>CoolDozer/CoolDozer_fakePerfMon_jobOptions</options>
+    <package>Tools/CoolDozer</package>
+    <group>CoolDozer</group>
+    <queue>short</queue>
+  </athena>
+</jobList>
+
+<jobGroups>
+  <jobGroup name="AthenaCoolDozer" parent="Athena">
+    <keepFilePattern>*.log</keepFilePattern>
+    <keepFilePattern>*.xml</keepFilePattern>
+    <keepFilePattern>*.png</keepFilePattern>
+    <keepFilePattern>*.html</keepFilePattern>
+    <testToRemove>
+      <jobGroupName>RTT:Top</jobGroupName>
+      <testidentifier>CheckFileRunner0</testidentifier>
+    </testToRemove>
+  </jobGroup>
+</jobGroups>
+</rtt>
+</unifiedTestConfiguration>
