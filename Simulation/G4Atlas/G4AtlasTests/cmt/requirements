@@ -22,7 +22,7 @@ use GeoPrimitives       GeoPrimitives-*         DetectorDescription
 use EventInfo           EventInfo-*             Event
 use GeneratorObjects    GeneratorObjects-*      Generators
 
-use FadsActions         FadsActions-*           Simulation/G4Sim/FADS
+use G4AtlasTools	G4AtlasTools-*          Simulation/G4Atlas
 use HitManagement       HitManagement-*         Simulation
 use MCTruth             MCTruth-*               Simulation/G4Sim
 use TrackRecord         TrackRecord-*           Simulation/G4Sim
