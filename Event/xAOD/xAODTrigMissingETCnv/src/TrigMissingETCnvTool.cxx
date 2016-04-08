@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigMissingETCnvTool.cxx 592539 2014-04-11 10:17:29Z krasznaa $
+// $Id: TrigMissingETCnvTool.cxx 625610 2014-11-02 04:39:31Z florianb $
 
 // System include(s):
 #include <vector>
@@ -65,6 +65,11 @@ namespace xAODMaker {
        // Transfer the simple items
        xMET->setEx( ( *aod_itr )->ex() );
        xMET->setEy( ( *aod_itr )->ey() );
+       xMET->setEz( ( *aod_itr )->ez() );
+       xMET->setSumEt( ( *aod_itr )->sumEt() ); 
+       xMET->setSumE( ( *aod_itr )->sumE() );
+       xMET->setFlag( ( *aod_itr )->getFlag() );
+       xMET->setRoiWord( ( *aod_itr )->RoIword() );
        // ...
 
        // Get the list of components
@@ -76,6 +81,15 @@ namespace xAODMaker {
        xMET->defineComponents( componentNames );
        for (unsigned int i = 0; i < nComp; i++) {
           xMET->setExComponent( i, ( *aod_itr )->getExComponent( i ) );
+          xMET->setEyComponent( i, ( *aod_itr )->getEyComponent( i ) );
+          xMET->setEzComponent( i, ( *aod_itr )->getEzComponent( i ) );
+          xMET->setSumEtComponent( i, ( *aod_itr )->getSumEtComponent( i ) );
+          xMET->setSumEComponent( i, ( *aod_itr )->getSumEComponent( i ) );
+          xMET->setCalib0Component( i, ( *aod_itr )->getComponentCalib0( i ) );
+          xMET->setCalib1Component( i, ( *aod_itr )->getComponentCalib1( i ) );
+          xMET->setSumOfSignsComponent( i, ( *aod_itr )->getSumOfSigns( i ) );
+          xMET->setUsedChannelsComponent( i, ( *aod_itr )->getUsedChannels( i ) );
+          xMET->setStatusComponent( i, ( *aod_itr )->getStatus( i ) );
        }
 
     }
