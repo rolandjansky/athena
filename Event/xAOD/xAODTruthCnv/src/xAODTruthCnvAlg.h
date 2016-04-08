@@ -66,6 +66,9 @@ namespace xAODMaker {
     bool m_doAllPileUp;
     bool m_doInTimePileUp;
 
+    /// a flag to force rerunning (useful for rerunning on ESDs)
+    bool m_forceRerun;
+
   }; // class xAODTruthCnvAlg
 
 
