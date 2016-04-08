@@ -53,7 +53,7 @@
                <doc>PYTHIA6 R-Hadrons stable generic stop 600GeV</doc>
                <jobTransformJobName>StableRHadronEvgen114865</jobTransformJobName>
                <jobTransformCmd>
-Generate_tf.py --ecmEnergy='8000' --runNumber='114865' --firstEvent='1' --maxEvents='6000' --randomSeed='50097493' --jobConfig='MC14JobOptions/MC14.114865.PythiaRhad_AUET2B_CTEQ6L1_regge_stop_600GeV.py' --outputEVNTFile='evgen.pool.root'
+export DATAPATH=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests:$DATAPATH; Generate_tf.py --ecmEnergy='8000' --runNumber='114865' --firstEvent='1' --maxEvents='6000' --randomSeed='50097493' --jobConfig='/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.114865.PythiaRhad_AUET2B_CTEQ6L1_regge_stop_600GeV.py' --outputEVNTFile='evgen.pool.root'
 </jobTransformCmd>
                <group>ExoticGenJobTransforms</group>
                <queue>short</queue>
@@ -100,7 +100,7 @@ AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.ro
                <doc>PYTHIA6 R-Hadrons stable generic sbottom 600GeV</doc>
                <jobTransformJobName>StableRHadronEvgen114875</jobTransformJobName>
                <jobTransformCmd>
-Generate_tf.py --ecmEnergy='8000' --runNumber='114875' --firstEvent='1' --maxEvents='6000' --randomSeed='50097493' --jobConfig='MC14JobOptions/MC14.114875.PythiaRhad_AUET2B_CTEQ6L1_regge_sbottom_600GeV.py' --outputEVNTFile='evgen.pool.root'
+export DATAPATH=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests:$DATAPATH; Generate_tf.py --ecmEnergy='8000' --runNumber='114875' --firstEvent='1' --maxEvents='6000' --randomSeed='50097493' --jobConfig='/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.114875.PythiaRhad_AUET2B_CTEQ6L1_regge_sbottom_600GeV.py' --outputEVNTFile='evgen.pool.root'
                </jobTransformCmd>
                <group>ExoticGenJobTransforms</group>
                <queue>short</queue>
@@ -147,7 +147,7 @@ AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.ro
                <doc>PYTHIA6 R-Hadrons stable generic gluino gball0.1 1000GeV</doc>
                <jobTransformJobName>StableRHadronEvgen176089</jobTransformJobName>
                <jobTransformCmd>
-Generate_tf.py --ecmEnergy='8000' --runNumber='176089' --firstEvent='1' --maxEvents='6000' --randomSeed='50097493' --jobConfig='MC14JobOptions/MC14.176089.PythiaRhad_AUET2B_CTEQ6L1_gener_gluino_0p1_1000GeV.py' --outputEVNTFile='evgen.pool.root'
+export DATAPATH=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests:$DATAPATH; Generate_tf.py --ecmEnergy='8000' --runNumber='176089' --firstEvent='1' --maxEvents='6000' --randomSeed='50097493' --jobConfig='/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.176089.PythiaRhad_AUET2B_CTEQ6L1_gener_gluino_0p1_1000GeV.py' --outputEVNTFile='evgen.pool.root'
                </jobTransformCmd>
                <group>ExoticGenJobTransforms</group>
                <queue>short</queue>
@@ -233,7 +233,7 @@ Generate_trf.py ecmEnergy=8000 runNumber=114685 randomSeed=7744445 firstEvent=1 
                <doc>Evgen AMSB 500GeV Charginos 1ns lifetime</doc>
                <jobTransformJobName>AMSB_500GeV_Chargino_1nsEvgen</jobTransformJobName>
                <jobTransformCmd>
-Generate_tf.py --ecmEnergy=8000 --runNumber=174309 --firstEvent=1 --randomSeed=1 --jobConfig=MC14JobOptions/MC14.174309.Herwigpp_UEEE3_CTEQ6L1_mAMSB_EW_1000_175000_5_P_LL1p0_1jet.py --outputEVNTFile=evgen.pool.root --maxEvents=500
+export DATAPATH=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests:$DATAPATH; Generate_tf.py --ecmEnergy=8000 --runNumber=174309 --firstEvent=1 --randomSeed=1 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.174309.Herwigpp_UEEE3_CTEQ6L1_mAMSB_EW_1000_175000_5_P_LL1p0_1jet.py --outputEVNTFile=evgen.pool.root --maxEvents=500
                </jobTransformCmd>
                <group>ExoticGenJobTransforms</group>
                <queue>short</queue>
@@ -281,7 +281,7 @@ AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.ro
                <doc>Evgen GMSB stable stau</doc>
                <jobTransformJobName>GMSB_Stable_Stau_Evgen</jobTransformJobName>
                <jobTransformCmd>
-Generate_tf.py --ecmEnergy=8000 --runNumber=142646 --firstEvent=1 --randomSeed=1 --jobConfig=MC14JobOptions/MC14.142646.Herwigpp_UEEE3_CTEQ6L1_GMSB_StableStau_lambda_100_tanb_10.py --outputEVNTFile=evgen.pool.root
+export DATAPATH=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests:$DATAPATH; Generate_tf.py --ecmEnergy=8000 --runNumber=142646 --firstEvent=1 --randomSeed=1 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.142646.Herwigpp_UEEE3_CTEQ6L1_GMSB_StableStau_lambda_100_tanb_10.py --outputEVNTFile=evgen.pool.root
                </jobTransformCmd>
                <group>ExoticGenJobTransforms</group>
                <queue>short</queue>
@@ -329,7 +329,7 @@ AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.ro
                <doc>Evgen Monopole</doc>
                <jobTransformJobName>Monopole_Evgen</jobTransformJobName>
                <jobTransformCmd>
-Generate_tf.py --ecmEnergy='8000' --runNumber='188762' --firstEvent='1' --maxEvents='5000' --randomSeed='1' --jobConfig='MC14JobOptions/MC14.188762.ParticleGenerator_SingleMonopole.py' --outputEVNTFile='evgen.pool.root'
+export DATAPATH=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests:$DATAPATH; Generate_tf.py --ecmEnergy='8000' --runNumber='188762' --firstEvent='1' --maxEvents='5000' --randomSeed='1' --jobConfig='/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.188762.ParticleGenerator_SingleMonopole.py' --outputEVNTFile='evgen.pool.root'
                </jobTransformCmd>
                <group>ExoticGenJobTransforms</group>
                <queue>short</queue>
