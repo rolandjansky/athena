@@ -24,12 +24,9 @@
 // Athena includes
 #include "AtlasDetDescr/AtlasRegion.h"
 
-#include "G4DetectorEnvelopes/EnvelopeGeometryManager.h"
-
 #include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackInformation.h"
-#include "MCTruth/TruthStrategyManager.h"
 #include "MCTruth/VTrackInformation.h"
 
 #include "SimHelpers/StepHelper.h"
@@ -49,17 +46,13 @@
 iGeant4::TrackProcessorUserActionFullG4::TrackProcessorUserActionFullG4(const std::string& type,
                                                                         const std::string& name,
                                                                         const IInterface* parent)
-  : ITrackProcessorUserAction(name),
-    TrackProcessorUserActionBase(name),
-    AthAlgTool(type,name,parent),
+  : TrackProcessorUserActionBase(type,name,parent),
     m_entryLayerTool(""),
     m_entryLayerToolQuick(0),
     m_hasCavern(true)
 {
 
   ATH_MSG_DEBUG("create TrackProcessorUserActionFullG4 name: "<<name);
-
-  declareInterface<ITrackProcessorUserAction>(this);
 
   declareProperty("EntryLayerTool", m_entryLayerTool, "ISF Entry Layer Tool");
   declareProperty("TruthVolumeLevel", m_truthVolLevel=1, "Level in geo hierarchy for the truth volumes");

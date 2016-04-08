@@ -2,12 +2,6 @@
 
 ## -----------------------------------------------------------------------------
 ### Base Version
-def getSDActivateUserAction(name='ISFSDActivateUserAction', **kwargs):
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__SDActivateUserAction
-    return iGeant4__SDActivateUserAction(name, **kwargs)
-
-## -----------------------------------------------------------------------------
-### Base Version
 def getMCTruthUserAction(name='ISFMCTruthUserAction', **kwargs):
     from ISF_Config.ISF_jobProperties import ISF_Flags
     kwargs.setdefault('TruthRecordSvc',  ISF_Flags.TruthService.get_Value())
@@ -75,7 +69,6 @@ def getG4TransportTool(name='ISFG4TransportTool', **kwargs):
     kwargs.setdefault('RandomNumberService', simFlags.RandomSvc())
     kwargs.setdefault('PhysicsValidationUserAction', 'ISFG4PhysicsValidationUserAction')
     kwargs.setdefault('MCTruthUserAction', 'ISFMCTruthUserAction')
-    kwargs.setdefault('SDActivateUserAction', 'ISFSDActivateUserAction')
     from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__G4TransportTool
     return iGeant4__G4TransportTool(name, **kwargs)
 ### Specialized Versions

@@ -5,7 +5,9 @@
 #ifndef ISF_GEANT4TOOLS_TRACKPROCESSORUSERACTIONBASE_H
 #define ISF_GEANT4TOOLS_TRACKPROCESSORUSERACTIONBASE_H
 
-#include "ISF_Geant4Interfaces/ITrackProcessorUserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
+
+//#include "ISF_Geant4Interfaces/ITrackProcessorUserAction.h"
 
 #include <string>
 
@@ -16,21 +18,19 @@ namespace ISF {
 
 namespace iGeant4 {
 
-  class TrackProcessorUserActionBase: virtual public ITrackProcessorUserAction {
+  class TrackProcessorUserActionBase: public UserActionBase {
 
   public:
-    TrackProcessorUserActionBase(const std::string& name);
+    TrackProcessorUserActionBase(const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~TrackProcessorUserActionBase() {}
 
-    void BeginOfEventAction(const G4Event*);
-    void EndOfEventAction(const G4Event*);
-    void BeginOfRunAction(const G4Run*);
-    void EndOfRunAction(const G4Run*);
+    virtual StatusCode queryInterface(const InterfaceID&, void**) override;
 
-    void SteppingAction(const G4Step*);
+    virtual void BeginOfEvent(const G4Event*) override;
 
-    void PreUserTrackingAction(const G4Track* aTrack);
-    void PostUserTrackingAction(const G4Track* aTrack);
+    virtual void PreTracking(const G4Track* aTrack) override;
+
+    virtual void Step(const G4Step*) override;
 
     /** This method is called by TrackProcessorUserActionBase after the
      *  G4Track->ISFParticle association has been established for the current G4Track */

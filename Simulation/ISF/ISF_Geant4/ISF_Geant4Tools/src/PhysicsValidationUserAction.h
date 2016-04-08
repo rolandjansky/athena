@@ -7,14 +7,17 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "FadsActions/UserAction.h"
-#include "FadsActions/TrackingAction.h"
+//#include "FadsActions/UserAction.h"
+//#include "FadsActions/TrackingAction.h"
+
+#include "G4AtlasInterfaces/IUserActionSvc.h"
+#include "G4AtlasTools/UserActionBase.h"
 
 #include "ISF_Interfaces/IParticleBroker.h"
 #include "ISF_Interfaces/IParticleHelper.h"
 #include "ISF_Interfaces/IGeoIDSvc.h"
 
-#include "ISF_Geant4Interfaces/IPhysicsValidationUserAction.h"
+//#include "ISF_Geant4Interfaces/IPhysicsValidationUserAction.h"
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -39,7 +42,7 @@ namespace ISF {
 
 namespace iGeant4 {
 
-  class PhysicsValidationUserAction: virtual public IPhysicsValidationUserAction, public AthAlgTool {
+  class PhysicsValidationUserAction final:  public UserActionBase {
     
   public:
     PhysicsValidationUserAction(const std::string& type,
@@ -50,17 +53,18 @@ namespace iGeant4 {
     StatusCode initialize();
     StatusCode finalize();
 
-    void BeginOfEventAction(const G4Event*);
-    void EndOfEventAction(const G4Event*);
-    void BeginOfRunAction(const G4Run*);
-    void EndOfRunAction(const G4Run*);
+    void BeginOfEvent(const G4Event*) override;
+    void EndOfEvent(const G4Event*) override;
+    void BeginOfRun(const G4Run*) override;
 
-    void SteppingAction(const G4Step*);
+    void Step(const G4Step*) override;
 
-    void PreUserTrackingAction(const G4Track* aTrack);
-    void PostUserTrackingAction(const G4Track* aTrack);
-    
+    void PreTracking(const G4Track* aTrack) override;
+
+    virtual StatusCode queryInterface(const InterfaceID&, void**) override;
+
   private:
+    ServiceHandle<IUserActionSvc>  m_UASvc;
 
     SecondaryTracksHelper m_sHelper;
     

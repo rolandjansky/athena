@@ -9,24 +9,18 @@
 // class header
 #include "Geant4TruthIncident.h"
 
-// ISF includes
-//#include "ISF_Event/ISFParticle.h"
+// Atlas G4 Helpers
+#include "MCTruth/EventInformation.h"
+#include "MCTruth/TrackBarcodeInfo.h"
+#include "MCTruth/TrackHelper.h"
+#include "MCTruth/TrackInformation.h"
+#include "SimHelpers/SecondaryTracksHelper.h"
 
 // Units
 #include "GaudiKernel/PhysicalConstants.h"
 
 // HepMC includes
 #include "HepMC/GenParticle.h"
-
-// Atlas G4 Helpers
-#include "SimHelpers/SecondaryTracksHelper.h"
-#include "MCTruth/TrackInformation.h"
-#include "MCTruth/TrackBarcodeInfo.h"
-#include "MCTruth/TrackHelper.h"
-
-#include "MCTruth/EventInformation.h"
-#include "FadsActions/FadsTrackingAction.h"
-
 
 // Geant4 includes
 #include "G4Step.hh"
@@ -39,6 +33,9 @@
 #include "G4EmProcessSubType.hh"
 #include "G4DynamicParticle.hh"
 #include "G4PrimaryParticle.hh"
+
+#include "G4EventManager.hh"
+#include "G4Event.hh"
 
 /*
   Comments:
@@ -262,8 +259,8 @@ HepMC::GenParticle* ISF::Geant4TruthIncident::childParticle(unsigned short i,
 
   hepParticle = convert( thisChild );
 
-   // Normal situation - no parent particle
-   hepParticle->suggest_barcode( newBarcode );
+  // Normal situation - no parent particle
+  hepParticle->suggest_barcode( newBarcode );
 
   // get last (parent) ISFParticle link
   const G4Track *track = m_step->GetTrack();

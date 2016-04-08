@@ -24,8 +24,6 @@
 // Athena includes
 #include "AtlasDetDescr/AtlasRegion.h"
 
-#include "G4DetectorEnvelopes/EnvelopeGeometryManager.h"
-
 #include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackBarcodeInfo.h"
 #include "MCTruth/TrackHelper.h"
@@ -49,9 +47,7 @@
 iGeant4::TrackProcessorUserActionPassBack::TrackProcessorUserActionPassBack(const std::string& type,
                                                             const std::string& name,
                                                             const IInterface* parent)
-  : ITrackProcessorUserAction(name),
-    TrackProcessorUserActionBase(name),
-    AthAlgTool(type,name,parent),
+  : TrackProcessorUserActionBase(type,name,parent),
     m_particleBroker("",name),
     m_particleBrokerQuick(0),
     m_geoIDSvc("",name),
@@ -61,8 +57,6 @@ iGeant4::TrackProcessorUserActionPassBack::TrackProcessorUserActionPassBack(cons
 {
 
   ATH_MSG_DEBUG("create TrackProcessorUserActionPassBack name: "<<name);
-
-  declareInterface<ITrackProcessorUserAction>(this);
 
   declareProperty("ParticleBroker", m_particleBroker, "ISF Particle Broker Svc");
   declareProperty("GeoIDSvc"      , m_geoIDSvc      , "ISF GeoID Svc"          );

@@ -6,7 +6,7 @@
 #define ISF_Geant4Interfaces_MCTruthUserAction_H
 
 
-#include "ISF_Geant4Interfaces/IMCTruthUserAction.h"
+//#include "ISF_Geant4Interfaces/IMCTruthUserAction.h"
 
 #include <string>
 
@@ -14,8 +14,10 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "FadsActions/UserAction.h"
-#include "FadsActions/TrackingAction.h"
+//#include "FadsActions/UserAction.h"
+//#include "FadsActions/TrackingAction.h"
+#include "G4AtlasInterfaces/IUserActionSvc.h"
+#include "G4AtlasTools/UserActionBase.h"
 #include "ISF_Interfaces/ITruthSvc.h"
 
 // Atlas G4 Helpers
@@ -44,7 +46,7 @@ namespace iGeant4 {
 
   class ITransportTool;
 
-  class MCTruthUserAction : virtual public IMCTruthUserAction, public  FADS::UserAction, public FADS::TrackingAction, public AthAlgTool {
+  class MCTruthUserAction : public  UserActionBase {
 
  public:
     MCTruthUserAction(const std::string& type,
@@ -59,10 +61,14 @@ namespace iGeant4 {
     //void EndOfEventAction(const G4Event*);
     //void BeginOfRunAction(const G4Run*);
     //void EndOfRunAction(const G4Run*);
-    void PreUserTrackingAction(const G4Track* aTrack);
-    void PostUserTrackingAction(const G4Track* aTrack);
+    void PreTracking(const G4Track* aTrack);
+    void PostTracking(const G4Track* aTrack);
+
+    virtual StatusCode queryInterface(const InterfaceID&, void**) override;
 
   private:
+
+    ServiceHandle<IUserActionSvc>    m_UASvc;
     SecondaryTracksHelper m_sHelper;
 
     /** the ISF truth service */

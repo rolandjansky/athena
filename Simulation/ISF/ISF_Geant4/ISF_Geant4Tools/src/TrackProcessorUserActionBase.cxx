@@ -24,8 +24,6 @@
 // Athena includes
 #include "AtlasDetDescr/AtlasRegion.h"
 
-#include "G4DetectorEnvelopes/EnvelopeGeometryManager.h"
-
 #include "MCTruth/EventInformation.h"
 #include "MCTruth/PrimaryParticleInformation.h"
 #include "MCTruth/TrackBarcodeInfo.h"
@@ -43,56 +41,31 @@
 #include "G4Step.hh"
 #include "G4TransportationManager.hh"
 #include "G4LogicalVolumeStore.hh"
+
+#include "G4EventManager.hh"
+#include "G4Event.hh"
+#include "G4PrimaryParticle.hh"
+
 //#include "G4VPhysicalVolume.hh"
 
 #include <iostream>
 
-iGeant4::TrackProcessorUserActionBase::TrackProcessorUserActionBase(const std::string& name)
-  : ITrackProcessorUserAction(name)
-  , m_curTrackID(-1)
-  , m_curISP(nullptr)
-    //ELLI , AthMessaging( msgSvc(), name)
+iGeant4::TrackProcessorUserActionBase::TrackProcessorUserActionBase(const std::string& type, const std::string& name, const IInterface* parent)
+  : UserActionBase(type,name,parent),
+    m_curTrackID(-999),
+    m_curISP(0)
 {
-
-  //ELLI ATH_MSG_DEBUG("create TrackProcessorUserActionBase name: "<<name);
-
+    //  declareInterface<IUserAction>(this);
 }
 
-void iGeant4::TrackProcessorUserActionBase::BeginOfRunAction(const G4Run*)
-{
-  // FIXME: the m_volumeOffset and m_minHistoryDepth variables don't seem to be used anywhere
-  //
-  //// get the geometry manager and check how many layers are present.
-  //G4TransportationManager *transportationManager(G4TransportationManager::GetTransportationManager());
-  //G4LogicalVolume *world((*(transportationManager->GetWorldsIterator()))->GetLogicalVolume());
-  //ATH_MSG_VERBOSE("World G4LogicalVolume Name: " << world->GetName() << " has " << world->GetNoDaughters() << " daughters.");
-  //if ("World::World"==world->GetName())
-  //  {
-  //    ATH_MSG_INFO("Atlas::Atlas is not the world volume, so assume we are in a cosmics job.");
-  //    //Cosmics-specific configuration.
-  //    m_volumeOffset=2;
-  //    m_minHistoryDepth=1;
-  //  }
-}
-
-void iGeant4::TrackProcessorUserActionBase::EndOfRunAction(const G4Run*)
-{
-
-}
-
-void iGeant4::TrackProcessorUserActionBase::BeginOfEventAction(const G4Event*)
+void iGeant4::TrackProcessorUserActionBase::BeginOfEvent(const G4Event*)
 {
   //std::cout<<"clearing ISFParticle map"<<std::endl;
   m_curISP     =    0;
   m_curTrackID = -999;
 }
 
-void iGeant4::TrackProcessorUserActionBase::EndOfEventAction(const G4Event*)
-{
-
-}
-
-void iGeant4::TrackProcessorUserActionBase::SteppingAction(const G4Step* aStep)
+void iGeant4::TrackProcessorUserActionBase::Step(const G4Step* aStep)
 {
   G4Track*           aTrack   = aStep->GetTrack();
   int               aTrackID  = aTrack->GetTrackID();
@@ -142,13 +115,7 @@ void iGeant4::TrackProcessorUserActionBase::SteppingAction(const G4Step* aStep)
   return;
 }
 
-void iGeant4::TrackProcessorUserActionBase::PostUserTrackingAction(const G4Track* /*aTrack*/)
-{
-
-  return;
-}
-
-void iGeant4::TrackProcessorUserActionBase::PreUserTrackingAction(const G4Track* aTrack)
+void iGeant4::TrackProcessorUserActionBase::PreTracking(const G4Track* aTrack)
 {
   G4Track* inT = const_cast<G4Track*> (aTrack);
   TrackHelper trackHelper(inT);
@@ -200,3 +167,15 @@ void iGeant4::TrackProcessorUserActionBase::PreUserTrackingAction(const G4Track*
   return;
 }
 
+
+StatusCode iGeant4::TrackProcessorUserActionBase::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
+}

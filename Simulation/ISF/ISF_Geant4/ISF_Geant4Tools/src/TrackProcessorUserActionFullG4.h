@@ -26,7 +26,7 @@ class G4LogicalVolume;
 
 namespace iGeant4 {
 
-  class TrackProcessorUserActionFullG4: virtual public TrackProcessorUserActionBase, public AthAlgTool {
+  class TrackProcessorUserActionFullG4 final: public TrackProcessorUserActionBase {
 
   public:
     TrackProcessorUserActionFullG4(const std::string& type,
@@ -39,7 +39,7 @@ namespace iGeant4 {
 
     /** Called by the base class after the G4Track->ISFParticle association
      *  has been established */
-    void ISFSteppingAction(const G4Step*, ISF::ISFParticle *curISP);
+    void ISFSteppingAction(const G4Step*, ISF::ISFParticle *curISP) override;
 
   private:
 
