@@ -62,7 +62,7 @@ StatusCode xAODTrigVertexCountsContainerCnv::createObj(IOpaqueAddress* pAddr,
     
     // Get the key of the container that we'll be creating:
     m_key = *( pAddr->par() + 1 );
-    ATH_MSG_INFO( "Key of xAOD::TrigVertexCountsContainer: " << m_key );
+    ATH_MSG_VERBOSE( "Key of xAOD::TrigVertexCountsContainer: " << m_key );
     
     // Let the base class do its thing now:
     return AthenaPoolConverter::createObj( pAddr, pObj );
