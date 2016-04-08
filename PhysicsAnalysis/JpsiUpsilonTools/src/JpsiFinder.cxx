@@ -340,7 +340,7 @@ namespace Analysis {
             std::vector<int> listToDelete;
             std::vector<int>::reverse_iterator ii;
             for (jpsiItr = jpsiCandidates.begin(); jpsiItr!=jpsiCandidates.end(); ++jpsiItr,++index) {
-                if ( ((*jpsiItr).muonTypes==TT)) listToDelete.push_back(index);
+                if ( (*jpsiItr).muonTypes==TT) listToDelete.push_back(index);
             }
             for (ii=listToDelete.rbegin(); ii!=listToDelete.rend(); ++ii) {
                 jpsiCandidates.erase(jpsiCandidates.begin() + (*ii) );
@@ -552,7 +552,9 @@ namespace Analysis {
                 }
             } else { // fit failed
                 ATH_MSG_DEBUG("Fitter failed!");
-                delete myVxCandidate;
+                // Don't try to delete the object, since we arrived here,
+                // because this pointer is null...
+                //delete myVxCandidate;
             }
         }
         ATH_MSG_DEBUG("vxContainer size " << vxContainer->size());

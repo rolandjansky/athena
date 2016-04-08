@@ -1,7 +1,7 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "JpsiUpsilonTools/JpsiFinder.h"
 //#include "JpsiUpsilonTools/JpsiEEFinder.h"
-//#include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
+#include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
 #include "JpsiUpsilonTools/JpsiAlg.h"
 #include "JpsiUpsilonTools/JpsiExample.h"
 //#include "JpsiUpsilonTools/JpsiEEAlg.h"
@@ -12,7 +12,7 @@ using namespace Analysis;
 
 DECLARE_TOOL_FACTORY( JpsiFinder )
 //DECLARE_TOOL_FACTORY( JpsiEEFinder )
-//DECLARE_TOOL_FACTORY( PrimaryVertexRefitter )
+DECLARE_TOOL_FACTORY( PrimaryVertexRefitter )
 DECLARE_ALGORITHM_FACTORY( JpsiAlg )
 //DECLARE_ALGORITHM_FACTORY( JpsiEEAlg ) 
 DECLARE_ALGORITHM_FACTORY( JpsiExample )
@@ -27,6 +27,6 @@ DECLARE_FACTORY_ENTRIES( JpsiUpsilonTools ) {
     //DECLARE_ALGORITHM( JpsiJpsiEEExample )
     DECLARE_TOOL( Analysis::JpsiFinder )
     //DECLARE_TOOL( Analysis::JpsiEEFinder )
-//    DECLARE_TOOL( Analysis::PrimaryVertexRefitter )
+    DECLARE_TOOL( Analysis::PrimaryVertexRefitter )
 }
 
