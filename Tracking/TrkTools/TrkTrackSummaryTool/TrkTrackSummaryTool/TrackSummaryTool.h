@@ -18,6 +18,7 @@ class Identifier;
 
 #include <vector>
 
+class ITRT_ToT_dEdx;
 
 namespace Trk {
   class ITRT_ElectronPidTool;
@@ -100,6 +101,10 @@ namespace Trk {
   /**tool to calculate electron probabilities*/
   // Troels.Petersen@cern.ch:
       ToolHandle< ITRT_ElectronPidTool > m_eProbabilityTool;
+      /** tool to calculate the TRT_ToT_dEdx.
+       */
+      ToolHandle<ITRT_ToT_dEdx>          m_trt_dEdxTool;
+
 
   /**tool to calculate dE/dx using pixel clusters*/
       ToolHandle< IPixelToTPIDTool > m_dedxtool;
@@ -110,8 +115,19 @@ namespace Trk {
   /** tool to search holes in the InDet */
       ToolHandle< ITrackHoleSearchTool > m_idHoleSearch;
 
+      /** Only compute TRT dE/dx if there are at least this number of TRT hits or outliers.
+       */
+      int m_minTRThitsForTRTdEdx;
+
   /** switch to deactivate Pixel info init */
       bool m_pixelExists;
+
+      /** Parameters for the TRT dE/dx compution see @ref ITRT_ToT_dEdx for details.*/
+      bool m_TRTdEdx_DivideByL;
+      /** Parameters for the TRT dE/dx compution see @ref ITRT_ToT_dEdx for details.*/
+      bool m_TRTdEdx_useHThits;
+      /** Parameters for the TRT dE/dx compution see @ref ITRT_ToT_dEdx for details.*/
+      bool m_TRTdEdx_corrected;
 
   /**loops over TrackStatesOnSurface and uses this to produce the summary information
       Fills 'information', 'eProbability', and 'hitPattern'*/

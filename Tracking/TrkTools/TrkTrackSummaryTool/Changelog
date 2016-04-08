@@ -1,3 +1,15 @@
+2015-10-06 Goetz Gaycken
+	* Removed debug flags.
+
+2015-10-02 Goetz Gaycken
+        * resolve ATLASRECTS-2045: add TRT dE/dx and number of hits used
+	  for the dE/dx value to the track summary as electron probability
+	  and summary information.
+
+2015-06-27 Miriam Diamond
+	* add DBM
+	* tagged as TrkTrackSummaryTool-01-02-06
+	
 2014-12-22 Nick Styles
 	* Fix to split hit on layer intialisation
 	* Tagged as TrkTrackSummaryTool-01-02-05

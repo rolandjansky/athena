@@ -23,6 +23,7 @@ use TrkRIO_OnTrack TrkRIO_OnTrack-* Tracking/TrkEvent
 use TrkMeasurementBase TrkMeasurementBase-* Tracking/TrkEvent
 use TrkCompetingRIOsOnTrack TrkCompetingRIOsOnTrack-* Tracking/TrkEvent
 use TrkTrack TrkTrack-* Tracking/TrkEvent
+use TRT_ToT_Tools               TRT_ToT_Tools-*          InnerDetector/InDetRecTools
 
 
 public
