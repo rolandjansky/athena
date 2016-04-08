@@ -1,0 +1,36 @@
+package TrkDetDescrUnitTests
+
+manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
+author  Andreas Salzburger <Andreas.Salzburger@cern.ch>
+
+use AtlasPolicy           AtlasPolicy-*
+use AthenaBaseComps       AthenaBaseComps-*       Control
+use GaudiInterface        GaudiInterface-*        External
+use TrkDetDescrInterfaces TrkDetDescrInterfaces-* Tracking/TrkDetDescr
+
+private
+use AtlasROOT             AtlasROOT-*             External
+use GeoPrimitives         GeoPrimitives-*         DetectorDescription
+use TrkGeometry	          TrkGeometry-*           Tracking/TrkDetDescr
+use TrkVolumes            TrkVolumes-*            Tracking/TrkDetDescr
+use TrkSurfaces           TrkSurfaces-*           Tracking/TrkDetDescr
+use TrkDetDescrUtils      TrkDetDescrUtils-*      Tracking/TrkDetDescr
+use TrkValidationUtils    TrkValidationUtils-*    Tracking/TrkUtilityPackages
+use TrkNeutralParameters  TrkNeutralParameters-*  Tracking/TrkEvent
+
+library TrkDetDescrUnitTests *.cxx components/*.cxx
+apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
+
+
+# comment this line out if you do want to build in CLHEP mode
+apply_tag  use_new_tracking_edm 
+
+macro_append TrkAmgBasedGeometry " -DTRKAMGBASEDGEOMETRY "
+ 
+macro_append  use_pp_cppflags                "" \
+              use_new_tracking_edm $(TrkAmgBasedGeometry)
+              
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
