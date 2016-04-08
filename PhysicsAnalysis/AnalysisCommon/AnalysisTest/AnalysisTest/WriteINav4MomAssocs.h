@@ -21,7 +21,8 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "SGTools/ClassName.h"
+// DataModel includes
+#include "DataModel/ClassName.h"
 
 // NqvFourMom includes
 #include "NavFourMom/INavigable4MomentumCollection.h"

@@ -17,7 +17,8 @@
 // CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "AthContainers/DataVector.h"
+// DataModel includes
+#include "DataModel/DataVector.h"
 
 // EventKernel
 #include "EventKernel/I4Momentum.h"

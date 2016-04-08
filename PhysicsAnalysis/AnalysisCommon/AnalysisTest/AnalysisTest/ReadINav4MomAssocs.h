@@ -20,7 +20,8 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "SGTools/ClassName.h"
+// DataModel includes
+#include "DataModel/ClassName.h"
 
 class ReadINav4MomAssocs : public AthAlgorithm
 { 

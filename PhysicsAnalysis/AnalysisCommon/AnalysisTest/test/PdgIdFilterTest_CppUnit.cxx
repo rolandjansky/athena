@@ -18,7 +18,8 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "HepMC/GenParticle.h"
 
-#include "AthContainers/DataVector.h"
+// DataModel includes
+#include "DataModel/DataVector.h"
 
 // EventKernel includes
 #include "EventKernel/IParticle.h"

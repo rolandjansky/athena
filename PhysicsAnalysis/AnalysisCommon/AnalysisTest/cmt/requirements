@@ -8,8 +8,7 @@ use GaudiInterface        GaudiInterface-*        External
 use TestTools             *                       AtlasTest 
 
 use StoreGate             StoreGate-*             Control
-use SGTools               SGTools-*               Control
-use AthContainers         AthContainers-*         Control
+use DataModel             DataModel-*             Control
 use AthenaBaseComps       AthenaBaseComps-*       Control
 
 use NavFourMom            NavFourMom-*            Event
@@ -27,7 +26,6 @@ private
 use AtlasCLHEP            *   External
 use AtlasHepMC            *   External
 use AthenaBaseComps       AthenaBaseComps-* Control
-use AthenaKernel          AthenaKernel-*    Control
 
 use EventKernel           *   Event
 use FourMom               *   Event
