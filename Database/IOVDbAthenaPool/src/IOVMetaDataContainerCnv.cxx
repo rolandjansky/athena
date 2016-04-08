@@ -27,9 +27,9 @@ IOVMetaDataContainer_PERS* IOVMetaDataContainerCnv::createPersistent(IOVMetaData
 	
 
 
-    MsgStream log(msgSvc(), "IOVMetaDataContainerConverter" ); 
+    MsgStream log(messageService(), "IOVMetaDataContainerConverter" ); 
     IOVMetaDataContainer_PERS *persObj = TPconverter.createPersistent( transObj, log );
-    log << MSG::DEBUG << "Success" << endmsg;
+    log << MSG::DEBUG << "Success" << endreq;
     return persObj; 
 }
     
@@ -39,8 +39,8 @@ IOVMetaDataContainer* IOVMetaDataContainerCnv::createTransient() {
     if( compareClassGuid(p1_guid) ) {
         // using auto_ptr ensures deletion of the persistent object
         std::auto_ptr< IOVMetaDataContainer_p1 > col_vect( poolReadObject< IOVMetaDataContainer_p1 >() );
-        MsgStream log(msgSvc(), "IOVMetaDataContainerCnv" );
-        log << MSG::DEBUG << "Reading IOVMetaDataContainer_p1" << endmsg; 
+        MsgStream log(messageService(), "IOVMetaDataContainerCnv" );
+        log << MSG::DEBUG << "Reading IOVMetaDataContainer_p1" << endreq; 
         return TPconverter.createTransient( col_vect.get(), log );
     }
     throw std::runtime_error("Unsupported persistent version of IOVMetaDataContainer");
