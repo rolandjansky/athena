@@ -5,6 +5,9 @@ author P. Bussey, P. Sherwood
 use AtlasPolicy AtlasPolicy-*
 use AtlasBoost AtlasBoost-* External
 
+# Specify required Boost components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(Boost COMPONENTS program_options)"
+
 library FPTracker *.cxx
 apply_pattern installed_library 
 
