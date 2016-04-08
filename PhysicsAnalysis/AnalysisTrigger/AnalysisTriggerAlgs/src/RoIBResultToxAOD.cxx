@@ -2,11 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBResultToxAOD.cxx 669988 2015-05-26 17:36:24Z watsona $
+// $Id: RoIBResultToxAOD.cxx 679933 2015-07-02 21:37:29Z watsona $
 
 // STL include(s):
 #include <algorithm>
 #include <cmath>
+
+// Local include(s):
+#include "RoIBResultToxAOD.h"
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -24,16 +27,16 @@
 #include "TrigT1Interfaces/RecJetRoI.h"
 #include "TrigT1Interfaces/RecEnergyRoI.h"
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
-#include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Result/CTPResult.h"
 #include "TrigT1CaloToolInterfaces/IL1CPMTools.h"
-#include "TrigT1CaloToolInterfaces/IL1JetTools.h"
+#include "TrigT1CaloToolInterfaces/IL1JEMJetTools.h"
 #include "xAODTrigL1Calo/CPMTowerContainer.h"
-#include "TrigT1CaloEvent/JetElementCollection.h"
+#include "xAODTrigL1Calo/JetElementContainer.h"
 #include "TrigT1CaloEvent/JetInput.h"
 #include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
 // Trigger configuration interface includes:
 #include "TrigConfL1Data/CTPConfig.h"
@@ -63,10 +66,11 @@
 
 
 // Local include(s):
-#include "RoIBResultToxAOD.h"
+//#include "RoIBResultToxAOD.h"
 
 using namespace TrigConf;
 using namespace xAODMaker;
+using namespace LVL1;
 
 RoIBResultToxAOD::RoIBResultToxAOD( const std::string& name, ISvcLocator* pSvcLocator )
   : AthAlgorithm( name, pSvcLocator ),
@@ -74,7 +78,7 @@ RoIBResultToxAOD::RoIBResultToxAOD( const std::string& name, ISvcLocator* pSvcLo
     m_recRPCRoiSvc( LVL1::ID_RecRpcRoiSvc, name ),
     m_recTGCRoiSvc( LVL1::ID_RecTgcRoiSvc, name ),
     m_EmTauTool( "LVL1::L1CPMTools/L1CPMTools" ),
-    m_JetTool( "LVL1::L1JetTools/L1JetTools" ),
+    m_JetTool( "LVL1::L1JEMJetTools/L1JEMJetTools" ),
     m_MuCnvTool( "xAODMaker::MuonRoICnvTool/MuonRoICnvTool", this )
  {
 
@@ -86,7 +90,7 @@ RoIBResultToxAOD::RoIBResultToxAOD( const std::string& name, ISvcLocator* pSvcLo
    // tools
    declareProperty( "L1CPMTools", m_EmTauTool,
                     "Tool for calculation of EmTau trigger sums per RoI");
-   declareProperty( "L1JetTools", m_JetTool,
+   declareProperty( "L1JEMJetTools", m_JetTool,
                     "Tool for calculation of Jet cluster sums per RoI");
 
    // Properties: input selection
@@ -576,15 +580,15 @@ StatusCode RoIBResultToxAOD::addJetEnergyRoI( const ROIB::RoIBResult* result ) {
 
    // Tool to reconstruct Jet cluster ET sums
    //   - form input map ready for analysis
-   const DataVector< LVL1::JetElement >* storedJEs;
+   const DataVector< xAOD::JetElement >* storedJEs;
    std::map< int, LVL1::JetInput* > jetInputs;
    if( m_retrievedJetTool ) {
-      if( evtStore()->contains< JetElementCollection >( m_JetElementLocation ) ) {
+      if( evtStore()->contains< xAOD::JetElementContainer >( m_JetElementLocation ) ) {
          StatusCode sc = evtStore()->retrieve( storedJEs, m_JetElementLocation );
          if( sc.isSuccess() ) m_JetTool->mapJetInputs( storedJEs, &jetInputs );
          else ATH_MSG_WARNING( "Error retrieving JetElements" );
       }
-      else ATH_MSG_DEBUG( "No JetElementCollection found at "
+      else ATH_MSG_DEBUG( "No JetElementContainer found at "
                           << m_JetElementLocation );
    }
 
