@@ -9,6 +9,8 @@
 #include <cmath>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
+
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <string>
@@ -166,7 +168,7 @@ int CosmicTrackValidation::Analyze(TDirectory *ref_file){
 	TCanvas **c1;	
 	int nplots = PlotAll(&c1,0,"*h",1);
 
-	CosmicTrackValidation *reference;
+	CosmicTrackValidation *reference = 0;
 	if(ref_file != 0 ){
 		ref_file->cd();
 		reference = new CosmicTrackValidation();
@@ -175,9 +177,25 @@ int CosmicTrackValidation::Analyze(TDirectory *ref_file){
 	}
 
 	char *currpath = getcwd(NULL,0);
-        mkdir(globaldirname.c_str(),S_IRWXU | S_IRWXG | S_IRWXO);
-	chdir(globaldirname.c_str());
-	for(int i = 0 ; i < nplots ; i++) c1[i]->Print(".pdf");
+        if (mkdir(globaldirname.c_str(),S_IRWXU | S_IRWXG | S_IRWXO)!=0) {
+          std::stringstream message;
+          message << "Failed to create directory: " << globaldirname;
+          throw std::runtime_error(message.str());
+        }
+	if (chdir(globaldirname.c_str())!=0) {
+          std::stringstream message;
+          message << "Failed to enter directory: " << globaldirname;
+          throw std::runtime_error(message.str());
+        }
+	// AA20150108
+        // Clean up temporay canvases and reference object.
+	// (Fix for coverity errors 16787 and 16788 
+	for(int i = 0 ; i < nplots ; i++) {
+	  c1[i]->Print(".pdf");
+	  delete c1[i];
+	}
+	delete[] c1;
+        delete reference;
 	chdir(currpath);
 	delete currpath;
 

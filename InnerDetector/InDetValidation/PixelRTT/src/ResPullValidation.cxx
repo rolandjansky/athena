@@ -10,6 +10,8 @@
 #include <cmath>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
+
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <TROOT.h>
@@ -54,19 +56,21 @@ ResPullValidation::ResPullValidation(std::string etaORphi, std::string pullORres
 	BinsDiv.push_back(clusterSizeBins);
 	
 	// these change according to the direction: 
-	int nangleBins;
-	double *angleBins;
+        // AA20150110: Fix compilation warning: nangleBins and angleBins
+	// are not used.
+ 	// int nangleBins;
+	// double *angleBins;
 	double lim;
 	if(anglename == "eta"){
 		anglename = "eta";
-		nangleBins = 10;
-		angleBins = IntegerBins(nangleBins,-2.5,0.5);
+		// nangleBins = 10;
+		// angleBins = IntegerBins(nangleBins,-2.5,0.5);
 		if (respullname == "res" && datatype != "cosmic") lim = 0.5;
 		else lim = 2;
 	}else{
 		anglename = "phi";
-		nangleBins = 10;
-		angleBins = IntegerBins(nangleBins,-6,2);
+		// nangleBins = 10;
+		// angleBins = IntegerBins(nangleBins,-6,2);
 		if (respullname == "res" && datatype != "cosmic") lim = 0.2;
 		else lim = 2;
 	}
@@ -197,8 +201,16 @@ int ResPullValidation::Analyze(TDirectory *ref_file){
 	}
 
 	char *currpath = getcwd(NULL,0);
-        mkdir(globaldirname.c_str(),S_IRWXU | S_IRWXG | S_IRWXO);
-	chdir(globaldirname.c_str());
+        if (mkdir(globaldirname.c_str(),S_IRWXU | S_IRWXG | S_IRWXO)!=0) {
+          std::stringstream message;
+          message << "Failed to create directory: " << globaldirname;
+          throw std::runtime_error(message.str());
+        }
+	if (chdir(globaldirname.c_str())!=0) {
+          std::stringstream message;
+          message << "Failed to enter directory: " << globaldirname;
+          throw std::runtime_error(message.str());
+        }
 	
 	
 	int npthistos =  PtProfile->GetNhistos();
