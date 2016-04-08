@@ -217,9 +217,9 @@
       CovVertTrk[12] =(*CovMtx)(4,2);
       CovVertTrk[13] =(*CovMtx)(4,3);
       CovVertTrk[14] =(*CovMtx)(4,4);
-//std::cout<<" extrapPoint="<<endPer->position()<<'\n';
-//std::cout<<" extrapCov="<<CovMtx.fast(1,1)<<", "<<CovMtx.fast(2,2)<<", "<<CovMtx.fast(3,3)<<
-//                                            ", "<<CovMtx.fast(4,4)<<", "<<CovMtx.fast(5,5)<<'\n';          
+//std::cout<<" extrapPoint="<<endPer->position().x()<<", "<<endPer->position().y()<<", "<<endPer->position().y()<<'\n';
+//std::cout<<" extrapCov="<<(*CovMtx)(0,0)<<", "<<(*CovMtx)(1,1)<<", "<<(*CovMtx)(2,2)<<
+//                                          ", "<<(*CovMtx)(3,3)<<", "<<(*CovMtx)(4,4)<<'\n';          
 
       if(CovNew != 0) {
          vkalFitSvc->VKalTransform( m_BMAG_FIXED, VectPerig(0), VectPerig(1),
