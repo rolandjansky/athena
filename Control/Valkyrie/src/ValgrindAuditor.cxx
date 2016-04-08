@@ -27,7 +27,8 @@ ValgrindAuditor::ValgrindAuditor(const std::string& name,
                                  ISvcLocator* pSvcLocator)
   : Auditor(name, pSvcLocator),
     m_valSvc("ValgrindSvc", this->name()),
-    m_msg(msgSvc(), name)
+    m_msg(msgSvc(), name),
+    m_eventCounter(0)
 {
   declareProperty("ProfiledAlgs", m_algs,
                   "List of algorithms to run in valgrind");
