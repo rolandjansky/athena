@@ -17,7 +17,6 @@ m_log(msgSvc(), name) {
   declareProperty("Max_eta", m_max_eta = -1.0); // eta
   declareProperty("Required_ntrks", m_required_ntrks = 1); // (#)
   declareProperty("MaxRequired_ntrks", m_max_required_ntrks = -1); // (#)
-  declareProperty("CutMinAndMax", m_cutMinAndMax = false); 
   declareProperty("AcceptAll_EF", m_acceptAll = false );
   
   // Monitoring
@@ -36,13 +35,18 @@ TrigTrackCounterHypo::~TrigTrackCounterHypo(){;}
 HLT::ErrorCode TrigTrackCounterHypo::hltInitialize() {
   m_log.setLevel( outputLevel() );
   
-  ATH_MSG_INFO("Initialising TrigTrackCounterHypo, name = " << name());
-  ATH_MSG_INFO("max_z0 = " << m_max_z0 << " mm");
-  ATH_MSG_INFO("min_pt = " << m_min_pt << " GeV");
-  ATH_MSG_INFO("required_ntrks = " << m_required_ntrks << " #");
-  ATH_MSG_INFO("Max required_ntrks = " << m_max_required_ntrks << " #");
-  ATH_MSG_INFO("Apply min and max cuts = " << (m_cutMinAndMax==true ? "True" : "False"));
-  ATH_MSG_INFO("AcceptAll = " << (m_acceptAll==true ? "True" : "False"));
+  if (msgLvl() <= MSG::INFO) {
+    m_log << MSG::INFO << "Initialising TrigTrackCounterHypo, name = " << name() << endreq;
+  }
+  
+  if( msgLvl() <= MSG::INFO ) {
+    m_log << MSG::INFO << "max_z0 = " << m_max_z0 << " mm" << endreq;
+    m_log << MSG::INFO << "min_pt = " << m_min_pt << " GeV" << endreq;
+    m_log << MSG::INFO << "required_ntrks = " << m_required_ntrks << " #" << endreq;
+    m_log << MSG::INFO << "Max required_ntrks = " << m_max_required_ntrks << " #" << endreq;
+    m_log << MSG::INFO << "AcceptAll = "
+    << (m_acceptAll==true ? "True" : "False") << endreq; 
+  }
   
   return HLT::OK;
 }
@@ -52,7 +56,9 @@ HLT::ErrorCode TrigTrackCounterHypo::hltInitialize() {
 HLT::ErrorCode TrigTrackCounterHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
   pass=false;
   
-  ATH_MSG_DEBUG("Executing this TrigTrackCounterHypo " << name());
+  if( msgLvl() <= MSG::DEBUG ) {
+    m_log << MSG::DEBUG << "Executing this TrigTrackCounterHypo " << name() << endreq;
+  }
   
   if( m_acceptAll ){
     pass = true;
@@ -63,7 +69,10 @@ HLT::ErrorCode TrigTrackCounterHypo::hltExecute(const HLT::TriggerElement* outpu
   m_trigTrackCounts = 0;
   HLT::ErrorCode hltStatus = getFeature(outputTE, m_trigTrackCounts, "trackcounts");
   if(hltStatus != HLT::OK || !m_trigTrackCounts){
-    ATH_MSG_WARNING("Failed to retrieve features from TE.");
+    if( msgLvl() <= MSG::WARNING ){
+      m_log << MSG::WARNING << "Failed to retrieve features from TE." << endreq;
+    }
+    
     return HLT::OK;
   }
   
@@ -97,34 +106,26 @@ HLT::ErrorCode TrigTrackCounterHypo::hltExecute(const HLT::TriggerElement* outpu
     m_ntrksSelected = m_ntrksSelected_low-m_ntrksSelected_up;
   }
   
-  ATH_MSG_DEBUG("There are " << m_ntrksSelected << " tracks within selection window.  ");
-
-  // min and max logic
-  if (m_cutMinAndMax == true) {
-
-    // Double sided cut. 
-    // Check the trigger condition.
-    if((m_ntrksSelected >= m_required_ntrks) && (m_ntrksSelected <= m_max_required_ntrks)) {
-      pass=true;
-      ATH_MSG_DEBUG("The event passes double-sided cut.");
-    } else {
-      ATH_MSG_DEBUG("The event fails double-sided cut.");
-    }
-
-
-  } else { // m_cutMinAndMax == false
-
-    // single sided cut. 
-    // Check the trigger condition.
-    if(((m_ntrksSelected >= m_required_ntrks) && m_max_required_ntrks==-1) || 
-       (m_ntrksSelected <= m_max_required_ntrks) ) {
-      pass=true;
-      ATH_MSG_DEBUG("The event passes single-sided cut.");
-    } else {
-      ATH_MSG_DEBUG("The event fails single-sided cut.");
-    }
-    
+  
+  
+  if(msgLvl() <= MSG::DEBUG) {
+    m_log << MSG::DEBUG << "There are " << m_ntrksSelected << " tracks within selection window.  ";
   }
+  
+  // Check the trigger condition.
+  if(((m_ntrksSelected >= m_required_ntrks) && m_max_required_ntrks==-1) || 
+     (m_ntrksSelected <= m_max_required_ntrks) ) {
+    pass=true;
+    if(msgLvl() <= MSG::DEBUG) {
+      m_log << MSG::DEBUG << "The event passes." << endreq;
+    }
+  }
+  else{
+    if(msgLvl() <= MSG::DEBUG) {
+      m_log << MSG::DEBUG << "The event fails." << endreq;
+    }
+  }
+  
   
   // for monitoring
   m_ntrksHypo = m_ntrksSelected;
@@ -139,6 +140,8 @@ HLT::ErrorCode TrigTrackCounterHypo::hltExecute(const HLT::TriggerElement* outpu
 //---------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigTrackCounterHypo::hltFinalize() {
-  ATH_MSG_INFO(" Finalizing this TrigTrackCounterHypo" << name() << "."); 
+  
+  if( msgLvl() <= MSG::INFO )
+    m_log << MSG::INFO << " Finalizing this TrigTrackCounterHypo" << name() <<"." << endreq; 
   return HLT::OK;  
 }
