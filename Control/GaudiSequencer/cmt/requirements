@@ -9,7 +9,7 @@ use GaudiInterface  GaudiInterface-*	External
 use AthenaKernel    AthenaKernel-*	Control
 use AthenaBaseComps AthenaBaseComps-*	Control
 use CxxUtils        CxxUtils-*          Control
-use PATCore         PATCore-*           PhysicsAnalysis/AnalysisCommon
+use AtlasValgrind   AtlasValgrind-*	External
 end_private
 
 branches src share python

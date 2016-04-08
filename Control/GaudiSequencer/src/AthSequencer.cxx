@@ -31,6 +31,8 @@
 #include <execinfo.h>
 #endif
 
+#include "valgrind/valgrind.h"
+
 /**
  ** static variables to handle signals and save the FPE state
  **/
@@ -80,7 +82,13 @@ AthSequencer::~AthSequencer()
 StatusCode
 AthSequencer::initialize()
 {
-  m_timeoutMilliseconds = int(m_timeout / 1000000.0);
+  m_timeoutMilliseconds = int(m_timeout * 1e-6);
+  
+  if ( RUNNING_ON_VALGRIND )
+    {
+      ATH_MSG_WARNING ("### detected running inside Valgrind, disabling algorithm timeout ###");
+      m_timeoutMilliseconds = 0;
+    }
   
   std::vector<Algorithm*>* theAlgs;
   std::vector<Algorithm*>::iterator it;
@@ -533,13 +541,16 @@ AthSequencer::decodeNames( StringArrayProperty& theNames,
   // Print membership list
   if ( result.isSuccess() && !theAlgs->empty() ) {
     msg(MSG::INFO) << "Member list: ";
-    std::vector<Algorithm*>::iterator ai;
-    for ( ai = theAlgs->begin(); ai != theAlgs->end(); ai++ ) {
-      if ( (*ai)->name() == System::typeinfoName(typeid(**ai)) )
-        msg() << (*ai)->name();
+    bool first = true;
+    for (Algorithm* alg : *theAlgs) {
+      if (first)
+        first = false;
       else
-        msg() << System::typeinfoName(typeid(**ai)) << "/" << (*ai)->name();
-      if ( (ai + 1) != theAlgs->end() ) msg() << ", ";
+        msg() << ", ";
+      if ( alg->name() == System::typeinfoName(typeid(*alg)))
+        msg() << alg->name();
+      else
+        msg() << System::typeinfoName(typeid(*alg)) << "/" << alg->name();
     }
     msg(MSG::INFO) << endreq;
   }

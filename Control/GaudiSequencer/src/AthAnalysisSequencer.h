@@ -17,8 +17,8 @@
 // FrameWork includes
 #include "AthSequencer.h"
 
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
+//#include "GaudiKernel/ToolHandle.h"
+//#include "GaudiKernel/IJobOptionsSvc.h"
 
 class IAthHistogramTool;
 
@@ -27,9 +27,11 @@ class IAthHistogramTool;
  **
  ** Description: An AthAnalysisSequencer is a special version of the
  ** AthSequencer that provides additional convenience functionality
- ** for histogramming and cutflow making. Its functionality is
- ** intertwined with the HistogramTool functionality from
- ** HistogramUtils.
+ ** for histogramming and cutflow making. However, all the work
+ ** is actually done in the python configurable here:
+ ** Control/AthenaCommon/python/AlgSequence.py
+ ** We keep this empty C++ shell currently only for being able to do:
+ ** myAnaSeq = CfgMgr.AthAnalysisSequencer("MyAnalysisSeq")
  **/
 class AthAnalysisSequencer
   : public ::AthSequencer
@@ -49,25 +51,12 @@ class AthAnalysisSequencer
   virtual ~AthAnalysisSequencer(); 
 
   /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
  private: 
 
   /// Default constructor: 
-  AthAnalysisSequencer();
-
-  ServiceHandle<IJobOptionsSvc> m_jos;
-  
-  ToolHandleArray<IAthHistogramTool> m_histToolList;
-
+  //AthAnalysisSequencer();
 
 }; 
 
