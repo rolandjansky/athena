@@ -2,13 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetSimEvent/TRTUncompressedHit.h"
 #include "InDetSimEvent/TRTUncompressedHitCollection.h"
 #include "InDetSimEventTPCnv/InDetHits/TRT_HitCollection_p2.h"
-#undef private
-#undef protected
 #include "InDetSimEventTPCnv/InDetHits/TRT_HitCollectionCnv_p2.h"
 
 #include <cmath>
@@ -57,11 +53,11 @@ void TRT_HitCollectionCnv_p2::transToPers(const TRTUncompressedHitCollection* tr
   for (TRTUncompressedHitCollection::const_iterator it = transCont->begin(); it != transCont->end(); ++it) {
 
 
-    if ( it->m_partLink.barcode() != lastBarcode ) {
+    if ( it->particleLink().barcode() != lastBarcode ) {
 
       // store barcode once for set of consecutive hits with same barcode
 
-      lastBarcode = it->m_partLink.barcode();
+      lastBarcode = it->particleLink().barcode();
       persCont->m_barcode.push_back(lastBarcode);
 
       if (idx > 0) {
@@ -70,11 +66,11 @@ void TRT_HitCollectionCnv_p2::transToPers(const TRTUncompressedHitCollection* tr
       }
     }
 
-    if ( (int)it->particleEncoding != lastId ) {
+    if ( (int)it->GetParticleEncoding() != lastId ) {
 
       // store id once for set of consecutive hits with same id
 
-      lastId = it->particleEncoding;
+      lastId = it->GetParticleEncoding();
       persCont->m_id.push_back(lastId);
 
       if (idx > 0) {
@@ -83,8 +79,8 @@ void TRT_HitCollectionCnv_p2::transToPers(const TRTUncompressedHitCollection* tr
       }
     }
 
-    const HepGeom::Point3D<double> hitStart(it->preStepX, it->preStepY, it->preStepZ);
-    const double t = it->globalTime;
+    const HepGeom::Point3D<double> hitStart(it->GetPreStepX(), it->GetPreStepY(), it->GetPreStepZ());
+    const double t = it->GetGlobalTime();
 
     const double dRLast = lastEnd.distance(hitStart);  // dR between end of previous hit and start of current one
     const double dTLast = fabs(t - lastT);
@@ -103,16 +99,16 @@ void TRT_HitCollectionCnv_p2::transToPers(const TRTUncompressedHitCollection* tr
       }
     }
 
-    persCont->m_hitId.push_back( it->hitID );
-    persCont->m_kinEne.push_back( it->kineticEnergy );
+    persCont->m_hitId.push_back( it->GetHitID() );
+    persCont->m_kinEne.push_back( it->GetKineticEnergy() );
     persCont->m_meanTime.push_back( t );
 
-    persCont->m_hitEne.push_back( it->energyDeposit );
-    persCont->m_endX.push_back( it->postStepX );
-    persCont->m_endY.push_back( it->postStepY );
-    persCont->m_endZ.push_back( it->postStepZ );
+    persCont->m_hitEne.push_back( it->GetEnergyDeposit() );
+    persCont->m_endX.push_back( it->GetPostStepX() );
+    persCont->m_endY.push_back( it->GetPostStepY() );
+    persCont->m_endZ.push_back( it->GetPostStepZ() );
 
-    lastEnd = HepGeom::Point3D<double>(it->postStepX, it->postStepY, it->postStepZ);
+    lastEnd = HepGeom::Point3D<double>(it->GetPostStepX(), it->GetPostStepY(), it->GetPostStepZ());
     lastT = t;
     ++idx;
   }

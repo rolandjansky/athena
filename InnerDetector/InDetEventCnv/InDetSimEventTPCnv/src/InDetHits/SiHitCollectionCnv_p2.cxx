@@ -2,13 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetSimEvent/SiHit.h"
 #include "InDetSimEvent/SiHitCollection.h"
 #include "InDetSimEventTPCnv/InDetHits/SiHitCollection_p2.h"
-#undef private
-#undef protected
 #include "InDetSimEventTPCnv/InDetHits/SiHitCollectionCnv_p2.h"
 
 #include <cmath>
@@ -101,11 +97,11 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
     SiHitCollection::const_iterator siHit = it;
 
 
-    if ( siHit->m_partLink.barcode() != lastBarcode ) {
+    if ( siHit->particleLink().barcode() != lastBarcode ) {
 
       // store barcode once for set of consecutive hits with same barcode
 
-      lastBarcode = siHit->m_partLink.barcode();
+      lastBarcode = siHit->particleLink().barcode();
       persCont->m_barcode.push_back(lastBarcode);
 
       if (idx > 0) {
@@ -114,11 +110,11 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
       }
     }
 
-    if ( (int)siHit->m_ID != lastId ) {
+    if ( (int)siHit->identify() != lastId ) {
 
       // store id once for set of consecutive hits with same barcode
 
-      lastId = siHit->m_ID;
+      lastId = siHit->identify();
       persCont->m_id.push_back(lastId);
 
       if (idx > 0) {
@@ -127,10 +123,13 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
       }
     }
 
-    const double dx = siHit->m_stX - lastTransEnd.x();
-    const double dy = siHit->m_stY - lastTransEnd.y();
-    const double dz = siHit->m_stZ - lastTransEnd.z();
-    const double t = siHit->m_meanTime;
+    HepGeom::Point3D<double> st = siHit->localStartPosition();    
+    HepGeom::Point3D<double> en = siHit->localEndPosition();
+
+    const double dx = st.x() - lastTransEnd.x();
+    const double dy = st.y() - lastTransEnd.y();
+    const double dz = st.z() - lastTransEnd.z();
+    const double t = siHit->meanTime();
 
     const double dRLast = sqrt(dx * dx + dy * dy + dz * dz);  // dR between end of previous hit and start of current one
     const double dTLast = fabs(t - lastT);
@@ -144,7 +143,7 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
 
       // hit is part of existing string
 
-      direction = CLHEP::Hep3Vector( siHit->m_enX - lastPersEnd.x(), siHit->m_enY - lastPersEnd.y(), siHit->m_enZ - lastPersEnd.z() );
+      direction = CLHEP::Hep3Vector( en.x() - lastPersEnd.x(), en.y() - lastPersEnd.y(), en.z() - lastPersEnd.z() );
 
       theta = direction.theta();
       phi = phicorr( direction.phi() );
@@ -168,19 +167,19 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
 
       // begin new hit string
 
-      direction = CLHEP::Hep3Vector( siHit->m_enX - siHit->m_stX, siHit->m_enY - siHit->m_stY, siHit->m_enZ - siHit->m_stZ );
+      direction = CLHEP::Hep3Vector( en.x() - st.x(), en.y() - st.y(), en.z() - st.z() );
 
       theta = direction.theta();
       phi = phicorr( direction.phi() );
 
       persCont->m_hit1_meanTime.push_back(t);
-      persCont->m_hit1_x0.push_back(siHit->m_stX);
-      persCont->m_hit1_y0.push_back(siHit->m_stY);
-      persCont->m_hit1_z0.push_back(siHit->m_stZ);
+      persCont->m_hit1_x0.push_back(st.x());
+      persCont->m_hit1_y0.push_back(st.y());
+      persCont->m_hit1_z0.push_back(st.z());
       persCont->m_hit1_theta.push_back(theta);
       persCont->m_hit1_phi.push_back(phi);
 
-      lastPersEnd = HepGeom::Point3D<double>(siHit->m_stX, siHit->m_stY, siHit->m_stZ);
+      lastPersEnd = st;
 
       stringFirstTheta = theta;
       stringFirstPhi = phi;
@@ -191,8 +190,8 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
       }
     }
 
-    lastTransEnd = HepGeom::Point3D<double>(siHit->m_enX, siHit->m_enY, siHit->m_enZ);
-    transSumE += siHit->m_energyLoss;
+    lastTransEnd = en;
+    transSumE += siHit->energyLoss();
 
     const int eneLoss_2b = (int)((transSumE - persSumE) / m_persEneUnit + 0.5);  // calculated to allow recovery sum over
                                                                                  // whole hit string to chosen precision
@@ -203,7 +202,7 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
     double eneLoss = 0.0;
 
     if (eneLoss_2b >= m_2bMaximum) {
-      eneLoss = siHit->m_energyLoss;
+      eneLoss = siHit->energyLoss();
       persCont->m_hitEne_2b.push_back(m_2bMaximum);
       persCont->m_hitEne_4b.push_back(eneLoss);
     }
