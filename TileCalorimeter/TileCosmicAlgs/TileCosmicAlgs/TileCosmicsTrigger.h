@@ -67,15 +67,15 @@ class TileCosmicsTrigger: public AthAlgorithm {
 // Input variables
 //
     std::string m_ttl1Container;
-    std::vector<std::string> m_ConnectedDrawers[8];
-    std::vector<std::string> m_ConnectedDrawers1;
-    std::vector<std::string> m_ConnectedDrawers2;
-    std::vector<std::string> m_ConnectedDrawers3;
-    std::vector<std::string> m_ConnectedDrawers4;
-    std::vector<std::string> m_ConnectedDrawers5;
-    std::vector<std::string> m_ConnectedDrawers6;
-    std::vector<std::string> m_ConnectedDrawers7;
-    std::vector<std::string> m_ConnectedDrawers8;
+    std::vector<std::string> m_connectedDrawers[8];
+    std::vector<std::string> m_connectedDrawers1;
+    std::vector<std::string> m_connectedDrawers2;
+    std::vector<std::string> m_connectedDrawers3;
+    std::vector<std::string> m_connectedDrawers4;
+    std::vector<std::string> m_connectedDrawers5;
+    std::vector<std::string> m_connectedDrawers6;
+    std::vector<std::string> m_connectedDrawers7;
+    std::vector<std::string> m_connectedDrawers8;
     float m_TThreshold;
 
 // Constants and auxiliary variables
@@ -85,14 +85,14 @@ class TileCosmicsTrigger: public AthAlgorithm {
     int m_NDRAWERSPERBOARD;
     //int m_NTOWERSPERDRAWER;
 
-    bool m_ConnectedTowers[NMAXTOWERS];
-    bool m_FiredTowers[NMAXTOWERS];
-    float m_TowerSum[NMAXTOWERS];
-    int m_BoardOfTower[NMAXTOWERS];
+    bool m_connectedTowers[NMAXTOWERS];
+    bool m_firedTowers[NMAXTOWERS];
+    float m_towerSum[NMAXTOWERS];
+    int m_boardOfTower[NMAXTOWERS];
 
 // Store Gate & Auxiliary algorithms 
 //
-    std::string m_TileTriggerContainer;
+    std::string m_tileTriggerContainer;
 
     const CaloLVL1_ID* m_TT_ID;
     TileTTL1Hash* m_TTHash;
