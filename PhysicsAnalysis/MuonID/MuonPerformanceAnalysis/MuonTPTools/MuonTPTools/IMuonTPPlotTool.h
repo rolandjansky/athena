@@ -30,7 +30,7 @@ public:
 	 virtual StatusCode RegisterPlots (ToolHandleArray<IMuonTPSelectionTool> & probeTools, ToolHandleArray<IMuonTPEfficiencyTool> & effTools) = 0;
 
 	 // fill the histos
-	 virtual void fill(Probe& probe, ToolHandle <IMuonTPSelectionTool> & tp_tool, ToolHandle <IMuonTPEfficiencyTool> eff_tool) = 0;
+	 virtual void fill(Probe& probe, ToolHandle <IMuonTPSelectionTool> & tp_tool, ToolHandle <IMuonTPEfficiencyTool> & eff_tool) = 0;
 
 	 // fill the cut flow
 	 virtual void fillCutFlow (std::string stage, double weight, ToolHandle <IMuonTPSelectionTool> & tp_tool) = 0;

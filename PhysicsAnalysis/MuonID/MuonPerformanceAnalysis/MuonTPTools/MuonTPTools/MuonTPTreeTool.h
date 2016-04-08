@@ -12,6 +12,7 @@
 #ifndef MUONTPTreeTool_H_
 #define MUONTPTreeTool_H_
 #include "MuonTPTools/IMuonTPTreeTool.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "MuonTPTools/IMuonTPSelectionTool.h"
 #include "MuonTPTools/IMuonTPEfficiencyTool.h"
 #include "AsgTools/AsgTool.h"
@@ -24,39 +25,54 @@
 // define the plot classes to add in the HistUtils package
 
 class MuonTPTreeTool:
-		virtual public asg::AsgTool,
-		virtual public IMuonTPTreeTool {
-		ASG_TOOL_CLASS(MuonTPTreeTool, IMuonTPTreeTool)
+public asg::AsgTool,
+  virtual public IMuonTPTreeTool {
 
-public:
-    MuonTPTreeTool(std::string name);
+ public:
+  MuonTPTreeTool(std::string name);
+  virtual ~MuonTPTreeTool();
 
-    virtual StatusCode RegisterTrees (ToolHandleArray<IMuonTPSelectionTool> & probeTools, ToolHandleArray<IMuonTPEfficiencyTool> & effTools);
+  virtual StatusCode initialize();
 
+  virtual StatusCode RegisterTrees (ToolHandleArray<IMuonTPSelectionTool> & probeTools, ToolHandleArray<IMuonTPEfficiencyTool> & effTools);
 
-    virtual void updateMatch(Probe& probe, ToolHandle <IMuonTPEfficiencyTool> eff_tool);
-    virtual void fill(Probe& probe,ToolHandle <IMuonTPSelectionTool> sel_tool);
-    virtual void FillCustomStuff(Probe& probe);        // can override to fill custom branches
+  virtual void updateMatch(Probe& probe, ToolHandle <IMuonTPEfficiencyTool> & eff_tool);
+  virtual void fill(Probe& probe,ToolHandle <IMuonTPSelectionTool> & sel_tool);
+  virtual void FillCustomStuff(Probe& probe);        // can override to fill custom branches
     
+  /// retrieve booked histograms
+  std::vector< std::pair<TTree*, std::string> > retrieveBookedTrees();
 
-    /// retrieve booked histograms
-    std::vector< std::pair<TTree*, std::string> > retrieveBookedTrees();
+  virtual void FillTriggerInfo();
+  virtual void FillTagTriggerInfo(Probe & probe);
+  virtual void InitTree(TTree* tree);
+  virtual void AddCustomBranches(TTree* tree);        // can override to add custom branches
 
-    virtual void InitTree(TTree* tree);
-    virtual void AddCustomBranches(TTree* tree);        // can override to add custom branches
-
-    virtual void ForgetKnownProbes();
+  virtual void ForgetKnownProbes();
       
+ protected:
 
+  ToolHandle<Trig::TrigDecisionTool> m_trigTool;
 
-		virtual ~MuonTPTreeTool();
-protected:
-
-
-        std::string m_efficiencyFlag;
-		std::map<std::string, std::pair< TTree*, std::string> > m_trees;
-        std::map<std::string, bool> m_match_flags;
-        std::map<Probe*, std::map<std::string, bool> > m_match_flags_perProbe;
-};
+  std::string m_efficiencyFlag;
+        
+  std::map<std::string, std::pair< TTree*, std::string> > m_trees;
+        
+  std::map<std::string, bool> m_match_flags;
+  std::map<std::string, float> m_scale_factors;
+  std::map<std::string, float> m_match_dR;
+        
+  std::map<std::string, bool> m_triggers;
+  std::map<std::string, bool> m_tag_trigmatch;
+  std::map<std::string, float> m_tag_trig_dR;
+        
+  std::map<Probe*, std::map<std::string, bool> > m_match_flags_perProbe;
+  std::map<Probe*, std::map<std::string, float> > m_scale_factors_perProbe;
+  std::map<Probe*, std::map<std::string, float> > m_match_dR_perProbe;
+        
+  bool m_record_SF;
+  //         std::map<Probe*, std::map<std::string, bool> > m_tag_trigmatch_perProbe;
+  //         std::map<Probe*, std::map<std::string, float> > m_tag_trig_dR_perProbe;
+  };
 
 #endif /* MUONTPTreeTool_H_ */
