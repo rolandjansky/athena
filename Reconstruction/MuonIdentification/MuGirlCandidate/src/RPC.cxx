@@ -83,14 +83,14 @@ unsigned RPC::prepData(Chamber* pChamber, PrepDataList& array)
 {
     array.clear();
 
-    if (m_pPrepDataContainer == NULL)
+    if (m_pPrepDataContainer == NULL && m_pMuGirl->doDecoding())
     {
         std::vector<IdentifierHash> inhash, outhash;
         inhash.push_back(pChamber->hashId());
         // If conversion failed, then there are clearly no hits, so return 0.
         if (m_pMuGirl->rpcRdoToPrepDataTool().empty())
             return 0;
-        if (m_pMuGirl->doDecoding() && m_pMuGirl->rpcRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
+        if (m_pMuGirl->rpcRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
             return 0;
         // If conversion succeeds, then we must be able to get the container, so try it now.
         if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainer, m_sPrepDataCollection).isFailure() ||
@@ -104,13 +104,13 @@ unsigned RPC::prepData(Chamber* pChamber, PrepDataList& array)
     {
         Muon::RpcPrepDataContainer::const_iterator itColl = m_pPrepDataContainer->indexFind(pChamber->hashId());
         // If the container does not have a collection for this chamber, try the RdoToPrepData tool
-        if (itColl == m_pPrepDataContainer->end())
+        if (itColl == m_pPrepDataContainer->end() && m_pMuGirl->doDecoding())
         {
             std::vector<IdentifierHash> inhash, outhash;
             inhash.push_back(pChamber->hashId());
             if (m_pMuGirl->rpcRdoToPrepDataTool().empty())
                 return 0;
-            if (m_pMuGirl->doDecoding() && m_pMuGirl->rpcRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
+            if (m_pMuGirl->rpcRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
                 itColl = m_pPrepDataContainer->indexFind(outhash.front());
         }
         if (itColl != m_pPrepDataContainer->end())

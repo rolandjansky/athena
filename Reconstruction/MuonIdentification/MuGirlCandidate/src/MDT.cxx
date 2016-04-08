@@ -87,14 +87,14 @@ unsigned MDT::prepData(Chamber* pChamber, PrepDataList& array)
 {
     array.clear();
 
-    if (m_pPrepDataContainer == NULL)
+    if (m_pPrepDataContainer == NULL && m_pMuGirl->doDecoding())
     {
         std::vector<IdentifierHash> inhash, outhash;
         inhash.push_back(pChamber->hashId());
         // If conversion failed, then there are clearly no hits, so return 0.
         if (m_pMuGirl->mdtRdoToPrepDataTool().empty())
             return 0;
-        if (m_pMuGirl->doDecoding() && m_pMuGirl->mdtRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
+        if (m_pMuGirl->mdtRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
             return 0;
         // If conversion succeeds, then we must be able to get the container, so try it now.
         if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainer, m_sPrepDataCollection).isFailure() ||
@@ -108,13 +108,13 @@ unsigned MDT::prepData(Chamber* pChamber, PrepDataList& array)
     {
         Muon::MdtPrepDataContainer::const_iterator itColl = m_pPrepDataContainer->indexFind(pChamber->hashId());
         // If the container does not have a collection for this chamber, try the RdoToPrepData tool
-        if (itColl == m_pPrepDataContainer->end())
+        if (itColl == m_pPrepDataContainer->end() && m_pMuGirl->doDecoding())
         {
             std::vector<IdentifierHash> inhash, outhash;
             inhash.push_back(pChamber->hashId());
             if (m_pMuGirl->mdtRdoToPrepDataTool().empty())
                return 0;
-            if (m_pMuGirl->doDecoding() && m_pMuGirl->mdtRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
+            if (m_pMuGirl->mdtRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
                 itColl = m_pPrepDataContainer->indexFind(outhash.front());
         }
         if (itColl != m_pPrepDataContainer->end())
@@ -205,7 +205,7 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
     {
         Station* pStation = *itSta;
         ChamberList& fChamberList = stationChambers[pStation];
-    
+
       if (m_pMuGirl->msgLvl(MSG::DEBUG))
             m_pMuGirl->msg() << "Station " << pStation->toString()
                 << " has " << fChamberList.size() << " chambers with ";
@@ -220,8 +220,8 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
           const RIOList& rios = pChamber->RIOs();
           const Muon::MdtDriftCircleOnTrack* pMdcot = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(rios.at(0));
           if (pMdcot == NULL){
-            if (m_pMuGirl->msgLvl(MSG::DEBUG)) m_pMuGirl->msg(MSG::DEBUG) << "Cannot convert Trk::RIO_OnTrack to Muon::MdtDriftCircleOnTrack" << endreq;
-            return;
+            if (m_pMuGirl->msgLvl(MSG::DEBUG)) m_pMuGirl->msg(MSG::DEBUG) << "Cannot convert Trk::RIO_OnTrack to Muon::MdtDriftCircleOnTrack - continueing" << endreq;
+            continue;
           }
           Identifier chId = m_pMuGirl->muonIdHelperTool()->chamberId(pMdcot->identify());
           int sector = m_pMuGirl->muonIdHelperTool()->sector(chId);
@@ -236,13 +236,18 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
           for (ChamberList::const_iterator itCh = fChamberList.begin(); itCh != fChamberList.end(); itCh++){
             Chamber* pChamber = *itCh;
             const RIOList& rios = pChamber->RIOs();
-            const Muon::MdtDriftCircleOnTrack* pMdcot = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(rios.at(0));           
+            const Muon::MdtDriftCircleOnTrack* pMdcot = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(rios.at(0));
+            if (pMdcot == NULL){
+              if (m_pMuGirl->msgLvl(MSG::DEBUG))
+                m_pMuGirl->msg(MSG::DEBUG) << "Cannot convert Trk::RIO_OnTrack to Muon::MdtDriftCircleOnTrack - continuing" << endreq;
+              continue;
+            }
             Identifier chId = m_pMuGirl->muonIdHelperTool()->chamberId(pMdcot->identify());
-            int sector = m_pMuGirl->muonIdHelperTool()->sector(chId); 
+            int sector = m_pMuGirl->muonIdHelperTool()->sector(chId);
             if (sector == currentSector){
               firstSector->push_back(pChamber);
             } else {
-              secondSector->push_back(pChamber); 
+              secondSector->push_back(pChamber);
             }
           }
           sectorList.push_back(firstSector);
@@ -267,8 +272,8 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
                     if (pMdcot == NULL)
                     {
                         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                            m_pMuGirl->msg(MSG::DEBUG) << "Cannot convert Trk::RIO_OnTrack to Muon::MdtDriftCircleOnTrack" << endreq;
-                        return;
+                            m_pMuGirl->msg(MSG::DEBUG) << "Cannot convert Trk::RIO_OnTrack to Muon::MdtDriftCircleOnTrack - continuing" << endreq;
+                        continue;
                     }
                     mdcots.push_back(pMdcot);
                 }
@@ -417,7 +422,7 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
             delete firstSector;
             delete secondSector;
           }
-        } 
+        }
     }
 
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
