@@ -13,8 +13,9 @@
 /**
  * @short The class that represents the raw data received from an L1Topo board.
  *
- * This class encapsulated the status and data words received from an L1Topo board via its DAQ or ROI readout. 
- * 
+ * This class encapsulated the status and data words received from an L1Topo
+ *board via its DAQ or ROI readout.
+ *
  * It is also used in the RoIBResult:
  * @see L1TopoResult
  *
@@ -26,39 +27,45 @@
  */
 
 class L1TopoRDO {
-  
-public:
-
+ public:
   //! Constructor
   L1TopoRDO();
   //! Destructor
   ~L1TopoRDO();
 
   //! get the data words
-  const std::vector<uint32_t>& getDataWords () const;
-  //! set the data words 
-  void setDataWords (const std::vector<uint32_t>);
+  const std::vector<uint32_t>& getDataWords() const;
+  //! set the data words
+  void setDataWords(const std::vector<uint32_t>);
 
   //! get the status words
-  const std::vector<uint32_t>& getStatusWords () const;
+  const std::vector<uint32_t>& getStatusWords() const;
   //! set the status words
-  void setStatusWords (const std::vector<uint32_t>);
+  void setStatusWords(const std::vector<uint32_t>);
 
-  //! get a vector of Errors found during RAW to RDO conversion; see enum and print helpers
+  //! get a vector of Errors found during RAW to RDO conversion; see enum and
+  // print helpers
   std::vector<L1Topo::Error> getErrors() const;
   //! check if a certain error flag has been set
   bool checkError(L1Topo::Error) const;
   //! set a flag to record an error
   void setError(L1Topo::Error);
 
-  //! get the source identifier, i.e. the word representing the subdet type and module ID, of the ROD from which this RDO was filled
+  //! Return error bit vector
+  uint32_t getError() const { return m_error; }
+
+  //! get the source identifier, i.e. the word representing the subdet type and
+  // module ID, of the ROD from which this RDO was filled
   uint32_t getSourceID() const;
   //! set the source identifier
   void setSourceID(const uint32_t);
 
-  //! check the module type, derived from the source ID and the L1Topo module numbering convention; DAQ modules contain the full output
+  //! check the module type, derived from the source ID and the L1Topo module
+  // numbering convention; DAQ modules contain the full output
   bool isDAQModule() const;
-  //! check the module type, derived from the source ID and the L1Topo module numbering convention; ROI modules contain only the "L1Topo" TOB words and are intended for the RoIB. They are also unpacked into the RoIBResult
+  //! check the module type, derived from the source ID and the L1Topo module
+  // numbering convention; ROI modules contain only the "L1Topo" TOB words and
+  // are intended for the RoIB. They are also unpacked into the RoIBResult
   bool isROIModule() const;
 
   //! terse printout method used by RoIBResult
@@ -67,12 +74,12 @@ public:
  private:
   std::vector<uint32_t> m_dataWords;
   std::vector<uint32_t> m_statusWords;
-  //unsigned int m_versionNumber;
+  // unsigned int m_versionNumber;
   uint32_t m_error;
   uint32_t m_sourceID;
 };
 
 #include "CLIDSvc/CLASS_DEF.h"
-CLASS_DEF( L1TopoRDO, 138978439, 0 )
+CLASS_DEF(L1TopoRDO, 138978439, 0)
 
 #endif  // L1TOPORDO_L1TOPORDO_H
