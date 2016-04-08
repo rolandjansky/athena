@@ -4,7 +4,7 @@
 
 #include "CaloJiveXML/CaloLArRetriever.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 
 #include "EventContainers/SelectAllObject.h"
 
@@ -20,7 +20,7 @@
 #include "Identifier/HWIdentifier.h"
 #include "LArTools/LArCablingService.h"
 
-using CLHEP::GeV;
+using Athena::Units::GeV;
 
 namespace JiveXML {
 
@@ -32,7 +32,7 @@ namespace JiveXML {
    **/
   CaloLArRetriever::CaloLArRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("LAr"){
+    m_typeName("LAr"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -72,7 +72,7 @@ namespace JiveXML {
   /**
    * LAr data retrieval from default collection
    */
-  StatusCode CaloLArRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode CaloLArRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endreq;
 
@@ -104,7 +104,7 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getLArData()" << endreq;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect phi; phi.reserve(cellContainer->size());
     DataVect eta; eta.reserve(cellContainer->size());
@@ -131,29 +131,30 @@ namespace JiveXML {
 	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endreq;
       }
 
-    const ILArPedestal* larPedestal;
+    const ILArPedestal* larPedestal = nullptr;
     if(m_doLArCellDetails){
 	if( detStore()->retrieve(larPedestal).isFailure() ){
 	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArData(), Could not retrieve LAr Pedestal" << endreq;
 	}
       }
       
-    const LArOnlineID* m_onlineId;
-    if ( detStore()->retrieve(m_onlineId, "LArOnlineID").isFailure()) {
+    const LArOnlineID* onlineId = nullptr;
+    if ( detStore()->retrieve(onlineId, "LArOnlineID").isFailure()) {
      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArData(),Could not get LArOnlineID!" << endreq;
      }
     
       IAlgTool* algtool;
-      ILArADC2MeVTool* m_adc2mevTool=0;
+      ILArADC2MeVTool* adc2mevTool=0;
       if(m_doLArCellDetails){
 	if( m_toolSvc->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
 	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArData(), Could not retrieve LAr ADC2MeV Tool" <<endreq;
 	} else {
-	  m_adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
+	  adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
 	}
       }
 
       double energyGeV,cellTime;
+      double energyAllLArBarrel = 0.;
 
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Start iterator loop over cells" << endreq;
       
@@ -181,16 +182,17 @@ namespace JiveXML {
 	    }
 	    if (maskChannel) continue;  // continue loop over all channels
 	  }
-	  energyGeV = (*it1)->energy()/GeV;
+	  energyGeV = (*it1)->energy()*(1./GeV);
 	  if (energyGeV == 0) energyGeV = 0.001; // 1 MeV due to LegoCut > 0.0 (couldn't be >= 0.0) 
 	  energy.push_back(DataType( gcvt( energyGeV, m_cellEnergyPrec, rndStr) ));
+          energyAllLArBarrel += energyGeV;
 
           idVec.push_back(DataType((Identifier::value_type)(*it1)->ID().get_compact() ));
           phi.push_back(DataType((*it1)->phi()));
           eta.push_back(DataType((*it1)->eta()));
-          channel.push_back(DataType(m_onlineId->channel(LArhwid))); 
-          feedThrough.push_back(DataType(m_onlineId->feedthrough(LArhwid))); 
-       	  slot.push_back(DataType(m_onlineId->slot(LArhwid))); 
+          channel.push_back(DataType(onlineId->channel(LArhwid))); 
+          feedThrough.push_back(DataType(onlineId->feedthrough(LArhwid))); 
+       	  slot.push_back(DataType(onlineId->slot(LArhwid))); 
 
 	  //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cell with ID " << (Identifier::value_type)(*it1)->ID().get_compact() <<  
           //                 " retrieved" << endreq;
@@ -206,33 +208,39 @@ namespace JiveXML {
 	    if (pedestal >= (1.0+LArElecCalib::ERRORCODE)) pedvalue = pedestal;
 	    else pedvalue = 0;
 	    cellPedestal.push_back(DataType(pedvalue));
-	         
-	    const std::vector<float>* polynom_adc2mev = &(m_adc2mevTool->ADC2MEV(cellid,largain));
-	    if (polynom_adc2mev->size()==0){ adc2Mev.push_back(DataType(-1)); }
-	    else{ adc2Mev.push_back(DataType((*polynom_adc2mev)[1])); }
+
+            if (!adc2mevTool)
+              adc2Mev.push_back(DataType(-1));
+            else {
+              const std::vector<float>* polynom_adc2mev = &(adc2mevTool->ADC2MEV(cellid,largain));
+              if (polynom_adc2mev->size()==0){ adc2Mev.push_back(DataType(-1)); }
+              else{ adc2Mev.push_back(DataType((*polynom_adc2mev)[1])); }
+            }
 	  }
       }
 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Total energy in LAr barrel in GeV : " <<  energyAllLArBarrel << endreq;
+
     // write values into DataMap
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["energy"] = energy;
-    m_DataMap["id"] = idVec;
-    m_DataMap["channel"] = channel;
-    m_DataMap["feedThrough"] = feedThrough;
-    m_DataMap["slot"] = slot;
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["energy"] = energy;
+    DataMap["id"] = idVec;
+    DataMap["channel"] = channel;
+    DataMap["feedThrough"] = feedThrough;
+    DataMap["slot"] = slot;
 
     //Bad Cells
     if (m_doBadLAr==true) {
-      m_DataMap["BadCell"] = BadCell;
+      DataMap["BadCell"] = BadCell;
     }
 
    // adc counts
     if ( m_doLArCellDetails){
-       m_DataMap["cellTime"] = cellTimeVec;
-       m_DataMap["cellGain"] = cellGain;
-       m_DataMap["cellPedestal"] = cellPedestal;
-       m_DataMap["adc2Mev"] = adc2Mev;
+       DataMap["cellTime"] = cellTimeVec;
+       DataMap["cellGain"] = cellGain;
+       DataMap["cellPedestal"] = cellPedestal;
+       DataMap["adc2Mev"] = adc2Mev;
     }
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
@@ -241,7 +249,7 @@ namespace JiveXML {
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // getLArData
 

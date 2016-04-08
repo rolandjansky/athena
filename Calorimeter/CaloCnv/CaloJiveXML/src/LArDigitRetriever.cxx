@@ -33,7 +33,7 @@ namespace JiveXML {
    **/
   LArDigitRetriever::LArDigitRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("LArDigit"){
+    m_typeName("LArDigit"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -81,7 +81,7 @@ namespace JiveXML {
   /**
    * Tile data retrieval from chosen collection
    */
-  StatusCode LArDigitRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode LArDigitRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endreq;
 
@@ -145,7 +145,7 @@ namespace JiveXML {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getLArDigitData()" << endreq;
     
     char rndStr[30];
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect phi; phi.reserve(cellContainer->size());
     DataVect eta; eta.reserve(cellContainer->size());
@@ -165,8 +165,8 @@ namespace JiveXML {
     DataVect cellPedestal; cellPedestal.reserve(cellContainer->size());
     DataVect adc2Mev; adc2Mev.reserve(cellContainer->size());
      
-//    sub; sub.reserve(cellContainer->size());
-    sub.clear(); // need to clear before each event, otherwise appended
+//    m_sub; m_sub.reserve(cellContainer->size());
+    m_sub.clear(); // need to clear before each event, otherwise appended
 
     DataVect LArSampleIndexVec; LArSampleIndexVec.reserve(cellContainer->size());
 
@@ -196,18 +196,18 @@ namespace JiveXML {
       if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(), Could not retrieve LAr Pedestal" << endreq;
     }
     
-    const LArOnlineID* m_onlineId;
-    if ( detStore()->retrieve(m_onlineId, "LArOnlineID").isFailure()) {
+    const LArOnlineID* onlineId;
+    if ( detStore()->retrieve(onlineId, "LArOnlineID").isFailure()) {
      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(),Could not get LArOnlineID!" << endreq;
     }
      
     IAlgTool* algtool;
-    ILArADC2MeVTool* m_adc2mevTool=0;
+    ILArADC2MeVTool* adc2mevTool=0;
 
     if ( m_toolSvc->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
       if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(), Could not retrieve LAr ADC2MeV Tool" <<endreq;
     } else {
-      m_adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
+      adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
     }
    
 //------------------------------------------------------
@@ -242,17 +242,17 @@ namespace JiveXML {
         nLArSamples = (*itLAr)->nsamples();
         std::vector<short> LArSamples = (*itLAr)->samples(); 
         int largain = (*itLAr)->gain();
-        int FT = m_onlineId->feedthrough(LArHardwareId);
-        int slot = m_onlineId->slot(LArHardwareId);
-        int larchan = m_onlineId->channel(LArHardwareId);
+        int FT = onlineId->feedthrough(LArHardwareId);
+        int slot = onlineId->slot(LArHardwareId);
+        int larchan = onlineId->channel(LArHardwareId);
         float pedestal=larPedestal->pedestal(LArId,largain);
         float pedvalue=0;
         if (pedestal >= (1.0+LArElecCalib::ERRORCODE)) pedvalue = pedestal;
           else pedvalue = LArSamples[0];
 
         const std::vector<float>* polynom_adc2mev = 0;
-        if ( m_adc2mevTool ){
-          polynom_adc2mev = &(m_adc2mevTool->ADC2MEV(LArId,largain));
+        if ( adc2mevTool ){
+          polynom_adc2mev = &(adc2mevTool->ADC2MEV(LArId,largain));
 	}else{
 	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(), Could not access LAr ADC2MeV Tool" <<endreq;
 	}
@@ -279,7 +279,7 @@ namespace JiveXML {
             
               calcEMLayerSub(LArId);
               
-              energyGeV = (*cellContainer)[Index]->energy() / 1000.;
+              energyGeV = (*cellContainer)[Index]->energy() * (1./GeV);
               energy.push_back(DataType( gcvt( energyGeV, m_cellEnergyPrec, rndStr) ));
               idVec.push_back(DataType((*cellContainer)[Index]->ID().get_compact() ));
               phi.push_back(DataType((*cellContainer)[Index]->phi()));
@@ -292,7 +292,7 @@ namespace JiveXML {
               channel.push_back(DataType(larchan)); 
                     feedThrough.push_back(DataType(FT)); 
                      slotVec.push_back(DataType(slot)); 
-              if (!polynom_adc2mev && polynom_adc2mev->size()==0){
+              if (!polynom_adc2mev || polynom_adc2mev->size()==0){
 		adc2Mev.push_back(DataType(-1));
               }else{ 
 		adc2Mev.push_back(DataType((*polynom_adc2mev)[1]));	
@@ -306,7 +306,7 @@ namespace JiveXML {
             else if(datatype == "HEC" && m_calocell_id->is_hec(LArId)) {
             
               calcHECLayerSub(LArId);  
-              energyGeV = (*cellContainer)[Index]->energy() / 1000.;
+              energyGeV = (*cellContainer)[Index]->energy() * (1./GeV);
               energy.push_back(DataType( gcvt( energyGeV, m_cellEnergyPrec, rndStr) ));
               idVec.push_back(DataType((*cellContainer)[Index]->ID().get_compact() ));
               phi.push_back(DataType((*cellContainer)[Index]->phi()));
@@ -320,8 +320,10 @@ namespace JiveXML {
               channel.push_back(DataType(larchan)); 
               feedThrough.push_back(DataType(FT)); 
               slotVec.push_back(DataType(slot)); 
-              if (polynom_adc2mev->size()==0) adc2Mev.push_back(DataType(-1));
-                else adc2Mev.push_back(DataType((*polynom_adc2mev)[1]));
+              if (!polynom_adc2mev || polynom_adc2mev->size()==0)
+                adc2Mev.push_back(DataType(-1));
+              else
+                adc2Mev.push_back(DataType((*polynom_adc2mev)[1]));
               if (m_doHECDigit){
                 LArSampleIndexStr="adcCounts multiple=\""+DataType(nLArSamples).toString()+"\"";
                 for(int i=0; i<nLArSamples; i++) LArSampleIndexVec.push_back(DataType(LArSamples[i]));
@@ -330,19 +332,19 @@ namespace JiveXML {
 
             else if(datatype == "FCAL" && m_calocell_id->is_fcal(LArId)) {
           
-              energyGeV = (*cellContainer)[Index]->energy() / 1000.;
+              energyGeV = (*cellContainer)[Index]->energy() * (1./GeV);
               energy.push_back(DataType( gcvt( energyGeV, m_cellEnergyPrec, rndStr) ));
               idVec.push_back(DataType((*cellContainer)[Index]->ID().get_compact() ));
-              x.push_back(DataType((*cellContainer)[Index]->x() /10.));
-              y.push_back(DataType((*cellContainer)[Index]->y() /10.));
+              x.push_back(DataType((*cellContainer)[Index]->x() *0.1));
+              y.push_back(DataType((*cellContainer)[Index]->y() *0.1));
               
               const CaloDetDescrElement* elt = (*cellContainer)[Index]->caloDDE();
               
-              dx.push_back(DataType(elt->dx()/10.));
-              dy.push_back(DataType(elt->dy()/10.));
+              dx.push_back(DataType(elt->dx()*0.1));
+              dy.push_back(DataType(elt->dy()*0.1));
               
-              if (m_calocell_id->pos_neg(LArId)==2) sub.push_back(DataType(1));
-                else  sub.push_back(DataType(0));
+              if (m_calocell_id->pos_neg(LArId)==2) m_sub.push_back(DataType(1));
+                else  m_sub.push_back(DataType(0));
 
 
               cellTime = (*cellContainer)[Index]->time();
@@ -352,8 +354,10 @@ namespace JiveXML {
               channel.push_back(DataType(larchan)); 
               feedThrough.push_back(DataType(FT)); 
               slotVec.push_back(DataType(slot)); 
-              if (polynom_adc2mev->size()==0) adc2Mev.push_back(DataType(-1));
-                else adc2Mev.push_back(DataType((*polynom_adc2mev)[1]));
+              if (!polynom_adc2mev || polynom_adc2mev->size()==0)
+                adc2Mev.push_back(DataType(-1));
+              else
+                adc2Mev.push_back(DataType((*polynom_adc2mev)[1]));
               if (m_doFCalDigit){
                 LArSampleIndexStr="adcCounts multiple=\""+DataType(nLArSamples).toString()+"\"";
                 for(int i=0; i<nLArSamples; i++) LArSampleIndexVec.push_back(DataType(LArSamples[i]));
@@ -401,12 +405,12 @@ namespace JiveXML {
             if (maskChannel) continue;  // continue loop over all channels
           }
 
-          energyGeV = (*it1)->energy()/GeV;
+          energyGeV = (*it1)->energy()*(1./GeV);
           energy.push_back(DataType( gcvt( energyGeV, m_cellEnergyPrec, rndStr) ));
           idVec.push_back(DataType((*it1)->ID().get_compact() ));
-          channel.push_back(DataType(m_onlineId->channel(LArhwid))); 
-          feedThrough.push_back(DataType(m_onlineId->feedthrough(LArhwid))); 
-                 slotVec.push_back(DataType(m_onlineId->slot(LArhwid))); 
+          channel.push_back(DataType(onlineId->channel(LArhwid))); 
+          feedThrough.push_back(DataType(onlineId->feedthrough(LArhwid))); 
+                 slotVec.push_back(DataType(onlineId->slot(LArhwid))); 
 
           cellTime = (*it1)->time();
           cellTimeVec.push_back(DataType( gcvt( cellTime, m_cellTimePrec, rndStr) ) );
@@ -418,9 +422,16 @@ namespace JiveXML {
             else pedvalue = 0;
           cellPedestal.push_back(DataType(pedvalue));
 
-          const std::vector<float>* polynom_adc2mev = &(m_adc2mevTool->ADC2MEV(cellid,largain));
-          if (polynom_adc2mev->size()==0) adc2Mev.push_back(DataType(-1));
-          else adc2Mev.push_back(DataType((*polynom_adc2mev)[1]));
+          if (!adc2mevTool)
+            adc2Mev.push_back(DataType(-1));
+          else {
+            const std::vector<float>* polynom_adc2mev = &(adc2mevTool->ADC2MEV(cellid,largain));
+            if (!polynom_adc2mev || polynom_adc2mev->size()==0){
+	      adc2Mev.push_back(DataType(-1));
+            }else{
+	      adc2Mev.push_back(DataType((*polynom_adc2mev)[1]));
+	    }
+          }
             
 
           if (datatype == "LAr") { 
@@ -443,15 +454,15 @@ namespace JiveXML {
 
           else if (datatype == "FCAL") {
 
-            x.push_back(DataType( (*it1)->x()/10. ));
-            y.push_back(DataType( (*it1)->y()/10. ));
+            x.push_back(DataType( (*it1)->x()*0.1 ));
+            y.push_back(DataType( (*it1)->y()*0.1 ));
 
             const CaloDetDescrElement* elt = (*it1)->caloDDE();
-            dx.push_back(DataType( elt->dx()/10. ));
-            dy.push_back(DataType( elt->dy()/10. ));
+            dx.push_back(DataType( elt->dx()*0.1 ));
+            dy.push_back(DataType( elt->dy()*0.1 ));
               
-            if (m_calocell_id->pos_neg(cellid)==2) sub.push_back(DataType(1));
-              else sub.push_back(DataType(0));
+            if (m_calocell_id->pos_neg(cellid)==2) m_sub.push_back(DataType(1));
+              else m_sub.push_back(DataType(0));
             if (m_doFCalDigit){
               LArSampleIndexStr="adcCounts multiple=\""+DataType(nLArSamples).toString()+"\"";
               for(int i=0; i<nLArSamples; i++) LArSampleIndexVec.push_back(DataType(0));
@@ -467,28 +478,28 @@ namespace JiveXML {
     // write values into DataMap
 
     if(!(datatype=="FCAL")){
-      m_DataMap["phi"] = phi;
-      m_DataMap["eta"] = eta;
+      DataMap["phi"] = phi;
+      DataMap["eta"] = eta;
     } else {
-      m_DataMap["x"] = x;
-      m_DataMap["y"] = y;
-      m_DataMap["dx"] = dx;
-      m_DataMap["dy"] = dy;
+      DataMap["x"] = x;
+      DataMap["y"] = y;
+      DataMap["dx"] = dx;
+      DataMap["dy"] = dy;
     }
 
-    m_DataMap["energy"] = energy;
-    m_DataMap["id"] = idVec;
-    m_DataMap["channel"] = channel;
-    m_DataMap["feedThrough"] = feedThrough;
-    m_DataMap["slot"] = slotVec;
+    DataMap["energy"] = energy;
+    DataMap["id"] = idVec;
+    DataMap["channel"] = channel;
+    DataMap["feedThrough"] = feedThrough;
+    DataMap["slot"] = slotVec;
     
     // adc counts
-    m_DataMap["cellTime"] = cellTimeVec;
-    m_DataMap["cellGain"] = cellGain;
-    m_DataMap["cellPedestal"] = cellPedestal;
-    m_DataMap["adc2Mev"] = adc2Mev;
+    DataMap["cellTime"] = cellTimeVec;
+    DataMap["cellGain"] = cellGain;
+    DataMap["cellPedestal"] = cellPedestal;
+    DataMap["adc2Mev"] = adc2Mev;
 
-    m_DataMap[LArSampleIndexStr] = LArSampleIndexVec; // adcCounts
+    DataMap[LArSampleIndexStr] = LArSampleIndexVec; // adcCounts
 
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
@@ -496,7 +507,7 @@ namespace JiveXML {
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // getTileData
 
@@ -506,11 +517,11 @@ namespace JiveXML {
   void LArDigitRetriever::calcEMLayerSub(Identifier& cellid)
   {
     if(abs(m_calocell_id->pos_neg(cellid))==1)
-      sub.push_back(DataType(1));
+      m_sub.push_back(DataType(1));
     if(abs(m_calocell_id->pos_neg(cellid))==2)
-      sub.push_back(DataType(2));
+      m_sub.push_back(DataType(2));
     if(abs(m_calocell_id->pos_neg(cellid))==3)
-      sub.push_back(DataType(0));
+      m_sub.push_back(DataType(0));
     
   }
 
@@ -519,9 +530,9 @@ namespace JiveXML {
   void LArDigitRetriever::calcHECLayerSub(Identifier& cellid)
   {
     if(m_calocell_id->pos_neg(cellid)==2)
-      sub.push_back(DataType(1));
+      m_sub.push_back(DataType(1));
     else
-      sub.push_back(DataType(0));
+      m_sub.push_back(DataType(0));
   }
   
 

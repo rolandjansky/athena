@@ -7,9 +7,9 @@
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCell.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 
-using CLHEP::GeV;
+using Athena::Units::GeV;
 
 namespace JiveXML {
 
@@ -21,7 +21,7 @@ namespace JiveXML {
    **/
   CaloClusterRetriever::CaloClusterRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("Cluster"){
+    m_typeName("Cluster"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -39,7 +39,7 @@ namespace JiveXML {
    * 'Favourite' cluster collection first, then 'Other' collections.
    * @param FormatTool the tool that will create formated output from the DataMap
    */
-  StatusCode CaloClusterRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode CaloClusterRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
     
@@ -119,7 +119,7 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getData()" << endreq;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect phi; phi.reserve(ccc->size());
     DataVect eta; eta.reserve(ccc->size());
@@ -149,7 +149,7 @@ namespace JiveXML {
     for (; itr != ccc->end(); ++itr) {
       phi.push_back(DataType((*itr)->phi()));
       eta.push_back(DataType((*itr)->eta()));
-      et.push_back(DataType((*itr)->et()/GeV));
+      et.push_back(DataType((*itr)->et()*(1./GeV)));
       idVec.push_back(DataType( ++id ));
 
       int numCells = 0;
@@ -162,12 +162,12 @@ namespace JiveXML {
     }
 
     // Start with mandatory entries
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["et"] = et;
-    m_DataMap[tagCells] = cells;
-    m_DataMap["numCells"] = numCellsVec;
-    m_DataMap["id"] = idVec;
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["et"] = et;
+    DataMap[tagCells] = cells;
+    DataMap["numCells"] = numCellsVec;
+    DataMap["id"] = idVec;
 
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
@@ -176,7 +176,7 @@ namespace JiveXML {
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // retrieve
 

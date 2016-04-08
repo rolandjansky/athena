@@ -35,7 +35,7 @@ namespace JiveXML {
    **/
   CaloMBTSRetriever::CaloMBTSRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("MBTS") {
+    m_typeName("MBTS") {
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -65,7 +65,7 @@ namespace JiveXML {
   /**
    * MBTS data retrieval from chosen collection
    */
-  StatusCode CaloMBTSRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode CaloMBTSRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endreq;
 
@@ -97,7 +97,7 @@ namespace JiveXML {
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getMBTSData()" << endreq;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect energy; energy.reserve(tileMBTSCellContainer->size());
     DataVect label; label.reserve(tileMBTSCellContainer->size());
@@ -119,27 +119,27 @@ namespace JiveXML {
     StatusCode scTileRawChannel = StatusCode::FAILURE;
     const TileDigitsContainer *tileDigits;
     const TileRawChannelContainer* RawChannelCnt = 0;
-    const TileHWID* m_tileHWID;
-    const TileInfo* m_tileInfo;
-    const TileCablingService* m_cabling=0;
-    ToolHandle<TileCondToolEmscale> m_tileToolEmscale("TileCondToolEmscale"); //!< main Tile Calibration tool
-    TileRawChannelUnit::UNIT m_RChUnit = TileRawChannelUnit::ADCcounts;  //!< Unit for TileRawChannels (ADC, pCb, etc.)
-    m_cabling = TileCablingService::getInstance();
+    const TileHWID* tileHWID;
+    const TileInfo* tileInfo;
+    const TileCablingService* cabling=0;
+    ToolHandle<TileCondToolEmscale> tileToolEmscale("TileCondToolEmscale"); //!< main Tile Calibration tool
+    TileRawChannelUnit::UNIT RChUnit = TileRawChannelUnit::ADCcounts;  //!< Unit for TileRawChannels (ADC, pCb, etc.)
+    cabling = TileCablingService::getInstance();
     bool offlineRch = false;
 
     if ( detStore()->retrieve(m_tileTBID).isFailure() )
       if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<< "in getMBTSData(), Could not retrieve m_tileTBID" <<endreq;
 
-    if ( detStore()->retrieve(m_tileHWID).isFailure() )
+    if ( detStore()->retrieve(tileHWID).isFailure() )
       if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<< "in getMBTSData(), Could not retrieve TileHWID" <<endreq;
 
     //=== get TileInfo
-    if ( detStore()->retrieve(m_tileInfo, "TileInfo").isFailure() )
+    if ( detStore()->retrieve(tileInfo, "TileInfo").isFailure() )
       if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getMBTSData(), Could not retrieve TileInfo"<< endreq;
 
     //=== get TileCondToolEmscale
-    if ( m_tileToolEmscale.retrieve().isFailure())
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<< "in getMBTSData(), Could not retrieve " << m_tileToolEmscale << endreq;
+    if ( tileToolEmscale.retrieve().isFailure())
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<< "in getMBTSData(), Could not retrieve " << tileToolEmscale << endreq;
 
     std::string RchName[7] = {"TileRawChannelOpt2","TileRawChannelOpt","TileRawChannelFixed",
                               "TileRawChannelFitCool","TileRawChannelFit",
@@ -151,8 +151,8 @@ namespace JiveXML {
     if (icntr<7) {
       scTileRawChannel = evtStore()->retrieve(RawChannelCnt,RchName[icntr]);
       if (scTileRawChannel.isSuccess()) {
-        m_RChUnit = RawChannelCnt->get_unit();
-        offlineRch = (m_RChUnit<TileRawChannelUnit::OnlineADCcounts &&
+        RChUnit = RawChannelCnt->get_unit();
+        offlineRch = (RChUnit<TileRawChannelUnit::OnlineADCcounts &&
                       RawChannelCnt->get_type() != TileFragHash::OptFilterDsp);
       }
     }
@@ -175,7 +175,7 @@ namespace JiveXML {
     // from: TileCalorimeter/TileRec/src/TileCellToNtuple.cxx
 
     std::string MBTS_ID;
-    int m_nchan =0;
+    int nchan =0;
     int nTileSamples=0;
     const int max_chan=5216;
     double energyMeV = 0.;
@@ -211,18 +211,18 @@ namespace JiveXML {
             Identifier id = (*chItr)->cell_ID();
             cellid = id.get_identifier32().get_compact();
             HWIdentifier hwid=(*chItr)->adc_HWID();
-            int adc       = m_tileHWID->adc(hwid);
-            int channel   = m_tileHWID->channel(hwid);
-            int drawer    = m_tileHWID->drawer(hwid);
-            int ros       = m_tileHWID->ros(hwid);
+            int adc       = tileHWID->adc(hwid);
+            int channel   = tileHWID->channel(hwid);
+            int drawer    = tileHWID->drawer(hwid);
+            int ros       = tileHWID->ros(hwid);
             int drawerIdx = TileCalibUtils::getDrawerIdx(ros,drawer);
 
             amplitude = (*chItr)->amplitude();
             //Change amplitude units to ADC counts
-            if (TileRawChannelUnit::ADCcounts < m_RChUnit && m_RChUnit < TileRawChannelUnit::OnlineADCcounts) {
-              amplitude /= m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0, TileRawChannelUnit::ADCcounts, m_RChUnit);
-            } else if (m_RChUnit > TileRawChannelUnit::OnlineADCcounts) {
-              amplitude = m_tileToolEmscale->undoOnlCalib(drawerIdx, channel, adc, amplitude, m_RChUnit);
+            if (TileRawChannelUnit::ADCcounts < RChUnit && RChUnit < TileRawChannelUnit::OnlineADCcounts) {
+              amplitude /= tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0, TileRawChannelUnit::ADCcounts, RChUnit);
+            } else if (RChUnit > TileRawChannelUnit::OnlineADCcounts) {
+              amplitude = tileToolEmscale->undoOnlCalib(drawerIdx, channel, adc, amplitude, RChUnit);
             }
 
             theMbtspedestal.insert(std::make_pair( cellid, (*chItr)->pedestal() ) );
@@ -329,7 +329,7 @@ namespace JiveXML {
       }
       else { // don't have TileRawChannel container (for DPF input)
 
-        float maxTime = (m_tileInfo->NdigitSamples()/2) * 25;
+        float maxTime = (tileInfo->NdigitSamples()/2) * 25;
         int gain = cell->gain();
 
         if (gain<0 || gain>1) { //invalid gain - channel missing
@@ -339,20 +339,20 @@ namespace JiveXML {
         }
         else {
 
-          HWIdentifier hwid = m_tileHWID->adc_id(m_cabling->s2h_channel_id(id),gain);
-          int adc       = m_tileHWID->adc(hwid);
-          int channel   = m_tileHWID->channel(hwid);
-          int drawer    = m_tileHWID->drawer(hwid);
-          int ros       = m_tileHWID->ros(hwid);
+          HWIdentifier hwid = tileHWID->adc_id(cabling->s2h_channel_id(id),gain);
+          int adc       = tileHWID->adc(hwid);
+          int channel   = tileHWID->channel(hwid);
+          int drawer    = tileHWID->drawer(hwid);
+          int ros       = tileHWID->ros(hwid);
           int drawerIdx = TileCalibUtils::getDrawerIdx(ros,drawer);
-          float scale = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0,TileRawChannelUnit::ADCcounts, TileRawChannelUnit::MegaElectronVolts);
+          float scale = tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0,TileRawChannelUnit::ADCcounts, TileRawChannelUnit::MegaElectronVolts);
           float amp;
 
           if (  cell->energy() >= m_mbtsThreshold ) amp = cell->energy()/scale;
           else amp = 0.0;
           float time = cell->time();
 
-          if ((qual != 0 || amp != 0.0) && (fabs(time) < maxTime && time != 0.0)) time -= m_tileInfo->TimeCalib(hwid,0.0);
+          if ((qual != 0 || amp != 0.0) && (fabs(time) < maxTime && time != 0.0)) time -= tileInfo->TimeCalib(hwid,0.0);
 
           cellRawAmplitude.push_back(DataType(amp));
           cellRawTime.push_back(DataType(time));
@@ -378,12 +378,12 @@ namespace JiveXML {
       }
 
 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "MBTS no: " << m_nchan << ", type_chan_mod: " << MBTS_ID
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "MBTS no: " << nchan << ", type_chan_mod: " << MBTS_ID
                                                << ", energy MeV pC: " << energyMeV << endreq;
 
-      m_nchan++;
+      nchan++;
 
-      if (m_nchan >= max_chan) break;
+      if (nchan >= max_chan) break;
 
     }//TileCell Loop
 
@@ -392,20 +392,20 @@ namespace JiveXML {
     if (!theMbtsrawtime.empty())  theMbtsrawtime.clear();
 
     // write values into DataMap
-    m_DataMap["energy"] = energy;
-    m_DataMap["label"] = label;
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["sampling"] = sampling;
-    m_DataMap["time"] = timeVec;
-    m_DataMap["quality"] = quality;
-    m_DataMap["type"] = type;
-    m_DataMap["channel"] = channel;
-    m_DataMap["module"] = module;
-    m_DataMap["cellPedestal"] = cellPedestal;
-    m_DataMap["cellRawAmplitude"] = cellRawAmplitude;
-    m_DataMap["cellRawTime"] = cellRawTime;
-    m_DataMap[adcCountsStr] = adcCounts;
+    DataMap["energy"] = energy;
+    DataMap["label"] = label;
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["sampling"] = sampling;
+    DataMap["time"] = timeVec;
+    DataMap["quality"] = quality;
+    DataMap["type"] = type;
+    DataMap["channel"] = channel;
+    DataMap["module"] = module;
+    DataMap["cellPedestal"] = cellPedestal;
+    DataMap["cellRawAmplitude"] = cellRawAmplitude;
+    DataMap["cellRawTime"] = cellRawTime;
+    DataMap[adcCountsStr] = adcCounts;
 
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
@@ -413,7 +413,7 @@ namespace JiveXML {
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // getMBTSData
 

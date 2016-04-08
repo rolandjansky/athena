@@ -4,7 +4,7 @@
 
 #include "CaloJiveXML/BadTileRetriever.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 
 #include "EventContainers/SelectAllObject.h"
 
@@ -26,7 +26,7 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
-using CLHEP::GeV;
+using Athena::Units::GeV;
 
 namespace JiveXML {
 
@@ -38,7 +38,7 @@ namespace JiveXML {
    **/
   BadTileRetriever::BadTileRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("BadTILE"){
+    m_typeName("BadTILE"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -72,7 +72,7 @@ namespace JiveXML {
   /**
    * Tile data retrieval from chosen collection
    */
-  StatusCode BadTileRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode BadTileRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endreq;
 
@@ -106,15 +106,15 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getBadTileData()" << endreq;
     char rndStr[30];
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect phi; phi.reserve(cellContainer->size());
     DataVect eta; eta.reserve(cellContainer->size());
     DataVect idVec; idVec.reserve(cellContainer->size());
     DataVect energyVec; energyVec.reserve(cellContainer->size());
 
-//    sub; sub.reserve(cellContainer->size());
-    sub.clear();
+//    m_sub; m_sub.reserve(cellContainer->size());
+    m_sub.clear();
 //     msg(MSG::INFO)  << "Size of CellC =  " << cellContainer->size() << endreq;
 	  
 //Loop Over CaloCellContainer to retrieve TileCell information
@@ -138,7 +138,7 @@ namespace JiveXML {
 	//cellInd = cellContainer->findIndex(cell_hash);
 	calcTILELayerSub(cellid);
 
-        energyGeV = (*it1)->energy()/GeV;
+        energyGeV = (*it1)->energy()*(1./GeV);
 	energyVec.push_back(DataType( gcvt( energyGeV, m_cellEnergyPrec, rndStr) ));
 	
 	idVec.push_back(DataType( (Identifier::value_type)(*it1)->ID().get_compact() ));
@@ -150,11 +150,11 @@ namespace JiveXML {
     } // doBadTile
     
     // write values into DataMap
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["sub"] = sub;
-    m_DataMap["id"] = idVec;
-    m_DataMap["energy"] = energyVec;
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["sub"] = m_sub;
+    DataMap["id"] = idVec;
+    DataMap["energy"] = energyVec;
     
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
@@ -162,7 +162,7 @@ namespace JiveXML {
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // getTileData
 
@@ -173,24 +173,24 @@ namespace JiveXML {
     if(m_calocell_id->is_tile_barrel(cellid))
       {
 	if(m_calocell_id->is_tile_negative(cellid))
-	  sub.push_back(DataType(2));
+	  m_sub.push_back(DataType(2));
 	else
-	  sub.push_back(DataType(3));
+	  m_sub.push_back(DataType(3));
       }
     else if(m_calocell_id->is_tile_extbarrel(cellid))
       {
 	if(m_calocell_id->is_tile_negative(cellid))
-	  sub.push_back(DataType(0));
+	  m_sub.push_back(DataType(0));
 	else
-	  sub.push_back(DataType(5));
+	  m_sub.push_back(DataType(5));
       }
     //else in ITC or scint
     else
       {
 	if(m_calocell_id->is_tile_negative(cellid))
-	  sub.push_back(DataType(1));
+	  m_sub.push_back(DataType(1));
 	else
-	  sub.push_back(DataType(4));
+	  m_sub.push_back(DataType(4));
       }
   }
 

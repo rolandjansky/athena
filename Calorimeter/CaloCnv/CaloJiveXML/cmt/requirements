@@ -9,6 +9,7 @@ use AthenaBaseComps       AthenaBaseComps-*          Control
 private
 
 use AtlasCLHEP            AtlasCLHEP-*               External
+use AthenaKernel          AthenaKernel-*             Control
 
 use Identifier            Identifier-*               DetectorDescription
 
