@@ -509,26 +509,33 @@ StatusCode RawInfoSummaryForTagWriter::execute()
      const MBTSCollisionTime * mbtsTime;
      sc = m_storeGate->retrieve(mbtsTime,"MBTSCollisionTime");
      float timeDiff=-999.;
+     float timeSum=-999.;
      int m_MBTS_SideCut(2);
      if (!sc.isFailure()) {
-       if (mbtsTime->ncellA()>m_MBTS_SideCut && mbtsTime->ncellC()>m_MBTS_SideCut)	 {timeDiff=mbtsTime->time();}
+       if (mbtsTime->ncellA()>m_MBTS_SideCut && mbtsTime->ncellC()>m_MBTS_SideCut){
+    	   timeDiff=mbtsTime->time();
+       	   timeSum =mbtsTime->timeA() + mbtsTime->timeC();}
      }
      RISFTobject->setMBTStimeDiff(timeDiff);
- 
+     RISFTobject->setMBTStimeAvg(timeSum/2.);
 
      ////////////////////////////////////////////////////
      // LAr EC collision timing stuff (from Guillaume...)
 
      float LArECtimeDiff=-999.;
+     float LArECtimeSum=-999.;
      const  LArCollisionTime* tps;
      sc = m_storeGate->retrieve(tps,"LArCollisionTime");
      if (!sc.isFailure()) {
        const       int nMin=2;
-       if (tps->ncellA() > nMin && tps->ncellC() > nMin)       LArECtimeDiff =   tps->timeA()-tps->timeC();
+       if (tps->ncellA() > nMin && tps->ncellC() > nMin){
+    	   LArECtimeDiff =   tps->timeA()-tps->timeC();
+    	   LArECtimeSum =   tps->timeA()+tps->timeC();
+       }
      } 
 
      RISFTobject->setLArECtimeDiff(LArECtimeDiff);
-     
+     RISFTobject->setLArECtimeAvg(LArECtimeSum/2.);
      //////////////////////////////////
      // adding in TRT Event Phase
      // taken from: 
