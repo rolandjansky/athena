@@ -22,6 +22,10 @@ class ResPullValidation;
 
 class OfflineCalibOutputTrack: public PixelNtupleTracks {
 
+  //forbid copying
+  OfflineCalibOutputTrack(const OfflineCalibOutputTrack &) = delete;
+  OfflineCalibOutputTrack &operator=(const OfflineCalibOutputTrack &) = delete;
+
 public :
 	// Modified stuff
 	OfflineCalibOutputTrack(std::string input,
