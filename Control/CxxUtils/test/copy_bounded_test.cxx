@@ -38,7 +38,7 @@ struct arange
   const_iterator begin() const { return x; }
   const_iterator end() const { return x + N; }
 
-  arange(int) {}
+  arange(int) :x() {}
 };
 
 

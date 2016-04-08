@@ -39,12 +39,12 @@ using std::make_unique;
 #else
 /// std::make_unique for single objects
 // Copied from libstdc++
-template<typename _Tp, typename... _Args>
+template<typename Tp, typename... Args>
 //inline typename _MakeUniq<_Tp>::__single_object
 inline
-std::unique_ptr<_Tp>
-make_unique(_Args&&... __args)
-{ return std::unique_ptr<_Tp>(new _Tp(std::forward<_Args>(__args)...)); }
+std::unique_ptr<Tp>
+make_unique(Args&&... args)
+{ return std::unique_ptr<Tp>(new Tp(std::forward<Args>(args)...)); }
 #endif
 
 
