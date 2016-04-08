@@ -14,22 +14,15 @@
 #ifndef EVENTCOMMONTPCNV_IPARTICLELINKCONTAINER_P1_H
 #define EVENTCOMMONTPCNV_IPARTICLELINKCONTAINER_P1_H
 
-// STL includes
-#include <vector>
-
 // DataModel includes
-#include "DataModelAthenaPool/VectorElementLinkCnv_p1.h"
 #include "DataModelAthenaPool/VectorElementLink_p1.h"
-#include "NavFourMom/IParticleLinkContainer.h"
 
 /** Definition of the persistent version of IParticleLinkContainer */
-class IParticleLinkContainer_p1 : public GeneratePersVectorELinkType_p1< IParticleLinkContainer >::type
+// class IParticleLinkContainer_p1 : public GeneratePersVectorELinkType_p1< IParticleLinkContainer >::type
+// MN: avoid transient EDM in ROOT6 dicts
+class IParticleLinkContainer_p1 : public VectorElementLinkInt_p1
 {
-  /** Declare the converter as a friend class */
-  friend class IParticleLinkContainerCnv_p1;
-
 };
 
 
 #endif // EVENTCOMMONTPCNV_IPARTICLELINKCONTAINER_P1_H
-

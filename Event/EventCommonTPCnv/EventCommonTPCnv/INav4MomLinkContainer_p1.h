@@ -14,22 +14,15 @@
 #ifndef EVENTCOMMONTPCNV_INAV4MOMLINKCONTAINER_P1_H
 #define EVENTCOMMONTPCNV_INAV4MOMLINKCONTAINER_P1_H
 
-// STL includes
-#include <vector>
-
 // DataModel includes
-#include "DataModelAthenaPool/VectorElementLinkCnv_p1.h"
 #include "DataModelAthenaPool/VectorElementLink_p1.h"
-#include "NavFourMom/INav4MomLinkContainer.h"
 
 /** Definition of the persistent version of INav4MomLinkContainer */
-class INav4MomLinkContainer_p1 : public GeneratePersVectorELinkType_p1< INav4MomLinkContainer >::type
+// class INav4MomLinkContainer_p1 : public GeneratePersVectorELinkType_p1< INav4MomLinkContainer >::type
+// MN: avoid transient EDM in ROOT6 dicts
+class INav4MomLinkContainer_p1 : public VectorElementLinkInt_p1
 {
-  /** Declare the converter as a friend class */
-  friend class INav4MomLinkContainerCnv_p1;
-
 };
 
 
 #endif // EVENTCOMMONTPCNV_INAV4MOMLINKCONTAINER_P1_H
-
