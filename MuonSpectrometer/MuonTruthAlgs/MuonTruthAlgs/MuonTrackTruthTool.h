@@ -122,8 +122,8 @@ namespace Muon {
 
     const CscSimDataCollection* retrieveCscTruthCollection( std::string colName ) const;
 
-    void addSimDataToTree( const MuonSimDataCollection& simDataCol ) const;
-    void addSimDataToTree( const CscSimDataCollection& simDataCol ) const;
+    void addSimDataToTree( const std::string& name ) const;
+    void addCscSimDataToTree( const std::string& name ) const;
 
     void addMdtTruth( MuonTechnologyTruth& trackTruth, const Identifier& id, const Trk::MeasurementBase& meas, 
 		      const MuonSimDataCollection& simCol ) const;
@@ -143,6 +143,8 @@ namespace Muon {
 
     void clear() const;
 
+    bool selectPdg( int pdg ) const { return m_selectedPdgs.count(pdg); }
+
     /// Returns the initial particle of the particle with barcodeIn if it is found in the truth trajectory.
     /// For example a mu undergoing a mubrem would create a second mu, in which case this method returns the mu prior to bremsstrahlung.
     /// The number of such scatters is returned in the .second.
@@ -156,16 +158,8 @@ namespace Muon {
     ToolHandle<Muon::MuonIdHelperTool>           m_idHelperTool;
     ToolHandle<Trk::ITruthTrajectoryBuilder>     m_truthTrajectoryBuilder;
 
-    std::string m_MDT_SimDataMapName;
+    std::vector<std::string> m_simDataMapNames;
     std::string m_CSC_SimDataMapName;
-    std::string m_RPC_SimDataMapName;
-    std::string m_TGC_SimDataMapName;
-    std::string m_STGC_SimDataMapName;
-    std::string m_MM_SimDataMapName;
-
-    MsgStream* m_log;
-    bool m_debug;
-    bool m_verbose;
 
     mutable TruthTree m_truthTree;
     mutable std::vector<TruthTrajectory*> m_truthTrajectoriesToBeDeleted;
@@ -174,6 +168,9 @@ namespace Muon {
     bool m_doSummary;
     unsigned int  m_minHits;
     bool m_matchAllParticles;
+    
+    IntegerArrayProperty m_pdgsToBeConsidered;
+    std::set<int> m_selectedPdgs; // set storing particle PDG's considered for matching
   };
 
 }
