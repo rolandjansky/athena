@@ -1,0 +1,35 @@
+<ui version="4.0" >
+ <class>MCChannelWidgetForm</class>
+ <widget class="QWidget" name="MCChannelWidgetForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>417</width>
+    <height>427</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <property name="margin" >
+    <number>4</number>
+   </property>
+   <item>
+    <widget class="QTreeWidget" name="treeWidget" >
+     <column>
+      <property name="text" >
+       <string>1</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
