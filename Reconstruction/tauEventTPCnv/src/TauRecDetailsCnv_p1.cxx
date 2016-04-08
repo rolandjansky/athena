@@ -13,13 +13,7 @@
 ///
 /// $Id: TauRecDetailsCnv_p1.cxx,v 1.13 2009-01-20 17:19:01 tburgess Exp $
 
-//Trick to access private members in tau common details
-#define private public
-#define protected public
 #include "tauEvent/TauRecDetails.h"
-#undef private
-#undef protected
-
 #include "EventCommonTPCnv/HepLorentzVectorCnv_p1.h"
 #include "DataModelAthenaPool/ElementLinkVectorCnv_p1.h"
 #include "TrkEventTPCnv/VxVertex/RecVertexCnv_p1.h"
@@ -50,32 +44,41 @@ void TauRecDetailsCnv_p1::persToTrans(
     Analysis::TauRecDetails *trans,
     MsgStream &msg )
 {
-    trans->m_emRadius=pers->m_emRadius;
-    trans->m_hadRadius=pers->m_hadRadius;
-    trans->m_sumEmCellEt=pers->m_sumEmCellEt;
-    trans->m_sumHadCellEt=pers->m_sumHadCellEt;
-    trans->m_ET12Frac=pers->m_ET12Frac;
-    trans->m_centralityFraction=pers->m_centralityFraction;
-    trans->m_stripWidth2=pers->m_stripWidth2;
-    trans->m_numStripCells=pers->m_numStripCells;
-    trans->m_etEMCalib=pers->m_etEMCalib;
-    trans->m_etHadCalib=pers->m_etHadCalib;
-    AssignVector( trans->m_trackCaloEta, pers->m_trackCaloEta );
-    AssignVector( trans->m_trackCaloPhi, pers->m_trackCaloPhi );
-    trans->m_leadingTrackPT=pers->m_leadingTrackPT;
-    trans->m_trFlightPathSig=pers->m_trFlightPathSig;
-    hepLorentzVectorCnv.persToTrans( 
-	&pers->m_sumEM, &trans->m_sumEM, msg );
-    trans->m_secVertex=createTransFromPStore( 
-	&m_recVertexCnv, pers->m_secVertex, msg );
-    trans->m_etaCalo=pers->m_etaCalo;
-    trans->m_phiCalo=pers->m_phiCalo;
-    trans->m_ipSigLeadTrack=pers->m_ipSigLeadTrack;
-    trans->m_etOverPtLeadTrack=pers->m_etOverPtLeadTrack;
-    trans->m_nTracksdrdR=pers->m_nTracksdrdR;
-    trans->m_chargeLooseTracks=pers->m_chargeLooseTracks;
+    trans->setEMRadius (pers->m_emRadius);
+    trans->setHadRadius (pers->m_hadRadius);
+    trans->setSumEmCellEt (pers->m_sumEmCellEt);
+    trans->setSumHadCellEt (pers->m_sumHadCellEt);
+    trans->setIsolationFraction (pers->m_ET12Frac);
+    trans->setCentralityFraction (pers->m_centralityFraction);
+    trans->setStripWidth2 (pers->m_stripWidth2);
+    trans->setNumStripCells (pers->m_numStripCells);
+    trans->setETEMCalib (pers->m_etEMCalib);
+    trans->setETHadCalib (pers->m_etHadCalib);
+
+    trans->setNumTrack (pers->m_trackCaloEta.size());
+    for (size_t i = 0; i < pers->m_trackCaloEta.size(); i++) {
+      trans->setTrackCaloEta (i, pers->m_trackCaloEta[i]);
+      trans->setTrackCaloPhi (i, pers->m_trackCaloPhi[i]);
+    }
+
+    trans->setLeadingTrackPT (pers->m_leadingTrackPT);
+    trans->setTrFlightPathSig (pers->m_trFlightPathSig);
+
+    CLHEP::HepLorentzVector sumEM;
+    hepLorentzVectorCnv.persToTrans( &pers->m_sumEM, &sumEM, msg );
+    trans->setSumEM (sumEM);
+    trans->setSecVertex (createTransFromPStore 
+                         ( &m_recVertexCnv, pers->m_secVertex, msg ));
+
+    trans->setEtaCalo (pers->m_etaCalo);
+    trans->setPhiCalo (pers->m_phiCalo);
+    trans->setIpSigLeadTrack (pers->m_ipSigLeadTrack);
+    trans->setEtOverPtLeadTrack (pers->m_etOverPtLeadTrack);
+    trans->setNTracksdrdR (pers->m_nTracksdrdR);
+    trans->setChargeLooseTracks (pers->m_chargeLooseTracks);
+
     tracksCnv.persToTrans( 
-	&pers->m_looseTracks, &trans->m_looseTracks,msg );
+                          &pers->m_looseTracks, &trans->looseTracks(),msg );
 }
 
 void TauRecDetailsCnv_p1::transToPers

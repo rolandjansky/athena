@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __tauEventTPCnv_TAUPI0CANDIDATE_P1_H__
-#define __tauEventTPCnv_TAUPI0CANDIDATE_P1_H__
+#ifndef TAUEVENTTPCNV_TAUPI0CANDIDATE_P1_H
+#define TAUEVENTTPCNV_TAUPI0CANDIDATE_P1_H
 
 #include <vector>
 #include "AthenaPoolUtilities/TPObjRef.h"

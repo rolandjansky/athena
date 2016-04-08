@@ -15,8 +15,8 @@
 ///
 /// $Id: TauCommonExtraDetails_p1.h,v 1.3 2009-01-20 17:19:02 tburgess Exp $
 
-#ifndef __tauEventTPCnv_TAUCOMMONEXTRADETAILS_P1_H__
-#define __tauEventTPCnv_TAUCOMMONEXTRADETAILS_P1_H__
+#ifndef TAUEVENTTPCNV_TAUCOMMONEXTRADETAILS_P1_H
+#define TAUEVENTTPCNV_TAUCOMMONEXTRADETAILS_P1_H
 
 //Includes
 #include <vector>
@@ -97,4 +97,4 @@ private:
     unsigned short int m_looseTracks;
 }; 
 
-#endif // __tauEventTPCnv_TAUCOMMONEXTRADETAILS_P1_H__
+#endif // TAUEVENTTPCNV_TAUCOMMONEXTRADETAILS_P1_H

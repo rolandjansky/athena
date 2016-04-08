@@ -12,8 +12,8 @@
 /// @author Thomas Burgess  
 /// @author Ilija Vukotic
 
-#ifndef __tauEventTPCnv_TAUCOMMONDETAILSCNV_P2_H__
-#define __tauEventTPCnv_TAUCOMMONDETAILSCNV_P2_H__
+#ifndef TAUEVENTTPCNV_TAUCOMMONDETAILSCNV_P2_H
+#define TAUEVENTTPCNV_TAUCOMMONDETAILSCNV_P2_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "tauEvent/TauCommonDetails.h"
@@ -58,4 +58,4 @@ private:
     RecVertexCnv_p1 *m_recVertexCnv;
 };
 
-#endif // __tauEventTPCnv_TAUCOMMONDETAILSCNV_P1_H__
+#endif // TAUEVENTTPCNV_TAUCOMMONDETAILSCNV_P2_H

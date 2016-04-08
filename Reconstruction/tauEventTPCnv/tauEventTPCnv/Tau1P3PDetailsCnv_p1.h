@@ -15,8 +15,8 @@
 ///
 /// $Id: Tau1P3PDetailsCnv_p1.h,v 1.3 2009-01-20 17:19:02 tburgess Exp $
 
-#ifndef tauEventTPCnv_TAU1P3P_DETAILS_CNV_P1_H
-#define tauEventTPCnv_TAU1P3P_DETAILS_CNV_P1_H
+#ifndef TAUEVENTTPCNV_TAU1P3PDETAILSCNV_P1_H
+#define TAUEVENTTPCNV_TAU1P3PDETAILSCNV_P1_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "tauEvent/TauDetails.h"
@@ -71,4 +71,4 @@ private:
     RecVertexCnv_p1 *m_recVertexCnv;
 };
 
-#endif // tauEventTPCnv_TAU1P3P_DETAILS
+#endif // TAUEVENTTPCNV_TAU1P3PDETAILSCNV_P1_H

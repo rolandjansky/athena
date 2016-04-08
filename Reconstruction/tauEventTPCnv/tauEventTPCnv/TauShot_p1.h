@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __RECTPCNV_TAUSHOT_P1_H__
-#define __RECTPCNV_TAUSHOT_P1_H__
+#ifndef TAUEVENTTPCNV_TAUSHOT_P1_H
+#define TAUEVENTTPCNV_TAUSHOT_P1_H
 
 //#include <vector>
 #include "DataModelAthenaPool/ElementLink_p3.h"

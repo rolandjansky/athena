@@ -8,8 +8,8 @@
 /// for Analysis::TauDetailsContainer
 /// 
 
-#ifndef __tauEventTPCnv_TAU_DETAILS_CONTAINER_CNV_TLP4_H__
-#define __tauEventTPCnv_TAU_DETAILS_CONTAINER_CNV_TLP4_H__
+#ifndef TAUEVENTTPCNV_TAUDETAILSCONTAINERCNV_TLP4_H
+#define TAUEVENTTPCNV_TAUDETAILSCONTAINERCNV_TLP4_H
 
 #include "AthenaPoolCnvSvc/AthenaPoolTopLevelTPConverter.h"
 #include "TauDetailsContainer_tlp4.h"

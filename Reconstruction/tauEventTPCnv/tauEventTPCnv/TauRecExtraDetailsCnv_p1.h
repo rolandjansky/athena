@@ -15,8 +15,8 @@
 ///
 /// $Id: TauRecExtraDetailsCnv_p1.h,v 1.5 2009-01-20 17:19:02 tburgess Exp $
 
-#ifndef __tauEventTPCnv_TAUREC_EXTRA_DETAILS_CNV_P1_H__
-#define __tauEventTPCnv_TAUREC_EXTRA_DETAILS_CNV_P1_H__
+#ifndef TAUEVENTTPCNV_TAURECEXTRADETAILSCNV_P1_H
+#define TAUEVENTTPCNV_TAURECEXTRADETAILSCNV_P1_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "tauEvent/TauDetails.h"
@@ -69,4 +69,4 @@ private:
     tauAnalysisHelperObjectCnv_p1 *m_tauAnalysisHelperObjectCnv;
 };
 
-#endif //__tauEventTPCnv_TAUREC_EXTRA_DETAILS_CNV_P1_H__
+#endif // TAUEVENTTPCNV_TAURECEXTRADETAILSCNV_P1_H

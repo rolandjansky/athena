@@ -15,8 +15,8 @@
 ///
 /// $Id: TauCommonExtraDetailsCnv_p1.h,v 1.3 2009-01-20 17:19:02 tburgess Exp $
 
-#ifndef __tauEventTPCnv_TAUCOMMONEXTRADETAILSCNV_P1_H__
-#define __tauEventTPCnv_TAUCOMMONEXTRADETAILSCNV_P1_H__
+#ifndef TAUEVENTTPCNV_TAUCOMMONEXTRADETAILSCNV_P1_H
+#define TAUEVENTTPCNV_TAUCOMMONEXTRADETAILSCNV_P1_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "DataModelAthenaPool/ElementLinkCnv_p2.h"
@@ -60,4 +60,4 @@ private:
     ElementLinkCnv_p2<ElementLink<CaloCellContainer> > m_cellCnv;
 };
 
-#endif // __tauEventTPCnv_TAUCOMMONEXTRADETAILSCNV_P1_H__
+#endif // TAUEVENTTPCNV_TAUCOMMONEXTRADETAILSCNV_P1_H

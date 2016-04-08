@@ -8,12 +8,7 @@
 // date:   May 2008
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "tauEvent/TauJetContainer.h"
-#undef private
-#undef protected
-
 #include "tauEventTPCnv/TauJetContainerCnv_p5.h"
 #include "tauEventTPCnv/TauJetCnv_p5.h"
 
@@ -25,7 +20,7 @@ void TauJetContainerCnv_p5 :: persToTrans( const TauJetContainer_p5    *pers,
                                            MsgStream                   &msg )
 {
     trans->clear();
-    trans->m_ROIauthor = pers->m_ROIauthor;
+    trans->setROIAuthor (pers->m_ROIauthor);
     TauJetContainer_p5 :: const_iterator it = pers->begin();
     for( ; it != pers->end(); ++it )
     {
@@ -40,7 +35,7 @@ void TauJetContainerCnv_p5 :: transToPers( const Analysis :: TauJetContainer *tr
                                            MsgStream                         &msg )
 {
     pers->reserve( trans->size() ); // prevent re-alloc
-    pers->m_ROIauthor = trans->m_ROIauthor;
+    pers->m_ROIauthor = trans->getROIAuthor();
     Analysis :: TauJetContainer :: const_iterator it = trans->begin();
     for( ; it != trans->end(); ++it )
     {

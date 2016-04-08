@@ -16,13 +16,7 @@
 ///
 /// $Id: Tau1P3PExtraDetailsCnv_p1.cxx,v 1.3 2009-01-20 17:19:01 tburgess Exp $
 
-//Trick to access private members in tau common details
-#define private public
-#define protected public
 #include "tauEvent/Tau1P3PExtraDetails.h"
-#undef private
-#undef protected
-
 #include "tauEventTPCnv/Tau1P3PExtraDetailsCnv_p1.h"
 
 Tau1P3PExtraDetailsCnv_p1::Tau1P3PExtraDetailsCnv_p1() :
@@ -43,7 +37,7 @@ void Tau1P3PExtraDetailsCnv_p1::persToTrans(
     MsgStream &msg )
 {
     m_cellCnv.resetForCnv( pers->m_linkNames );
-    trans->m_sumPTTracks = pers->m_sumPTTracks;
+    trans->setSumPTTracks (pers->m_sumPTTracks);
     const unsigned int tracks = pers->m_tracks;
     if( tracks == 0 ) return;
     const unsigned int samplings = pers->m_closestPhiTrkCell.size()/tracks;
@@ -51,20 +45,25 @@ void Tau1P3PExtraDetailsCnv_p1::persToTrans(
     unsigned int ind = 0;
     for( unsigned int i = 0; i < tracks; ++i ) {
 	for( unsigned int j = 0; j < samplings; ++j ) {
+            ElementLink<CaloCellContainer> el;
 	    m_cellCnv.persToTrans( 
 		pers->m_closestEtaTrkVertCell[ind], 
-		trans->m_closestEtaTrkVertCell[i][j], msg );
+		el, msg );
+            trans->setClosestEtaTrkVertCellLink (el, i, j);
 	    m_cellCnv.persToTrans( 
 		pers->m_closestEtaTrkCell[ind], 
-		trans->m_closestEtaTrkCell[i][j], msg );
+		el, msg );
+            trans->setClosestEtaTrkCellLink (el, i, j);
 	    m_cellCnv.persToTrans( 
 		pers->m_closestPhiTrkVertCell[ind], 
-		trans->m_closestPhiTrkVertCell[i][j], msg );
+		el, msg );
+            trans->setClosestPhiTrkVertCellLink (el, i, j);
 	    m_cellCnv.persToTrans( 
 		pers->m_closestPhiTrkCell[ind], 
-		trans->m_closestPhiTrkCell[i][j], msg );
-	    trans->m_etaTrackCaloSamp[i][j] = pers->m_etaTrackCaloSamp[ind];
-	    trans->m_phiTrackCaloSamp[i][j] = pers->m_phiTrackCaloSamp[ind];
+		el, msg );
+            trans->setClosestPhiTrkCellLink (el, i, j);
+	    trans->setEtaTrackCaloSamp (i, j, pers->m_etaTrackCaloSamp[ind]);
+	    trans->setPhiTrackCaloSamp (i, j, pers->m_phiTrackCaloSamp[ind]);
 	    ++ind;
 	}
     }
