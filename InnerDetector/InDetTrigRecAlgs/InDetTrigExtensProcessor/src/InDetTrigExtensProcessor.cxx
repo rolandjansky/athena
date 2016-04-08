@@ -192,13 +192,12 @@ HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltExecute(const HLT::TriggerEle
 	for (;it!=itend;++it) {
 	  const Trk::RIO_OnTrack* rot = dynamic_cast <const Trk::RIO_OnTrack*> (*it);
 	  if (!rot) {
-	    if(outputLevel <= MSG::DEBUG)
-	      msg() << MSG::ERROR << "cast to ROT failed, should not happen here !"<<endreq; 
+	    ATH_MSG_ERROR ("cast to ROT failed, should not happen here !"); 
 	  } else {
 	    vecPrd.push_back(rot->prepRawData());
 	  }
 	}  
-
+	
 	// we have the PRD Vector, we need to refit the track and see if it is better
 	if(outputLevel <= MSG::DEBUG)
 	  msg() << MSG::VERBOSE << "fit track " << itEx->first 
@@ -213,7 +212,11 @@ HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltExecute(const HLT::TriggerEle
 	  DataVector<const Trk::MeasurementBase>::const_iterator RIOit=itEx->first->measurementsOnTrack()->begin();
           for ( ;RIOit!=itEx->first->measurementsOnTrack()->end();RIOit++) {
 	    const Trk::RIO_OnTrack* rot = dynamic_cast <const Trk::RIO_OnTrack*> (*RIOit);
-            vecPrd2.push_back(rot->prepRawData());
+	    if (rot) {
+	      vecPrd2.push_back(rot->prepRawData());
+	    } else {
+	      ATH_MSG_ERROR("Cast to ROT failed");
+	    }
           }
 	  for (unsigned int i=0;i<vecPrd.size();i++){
             double inprod=(vecPrd[i]->detectorElement()->surface(vecPrd[i]->identify()).center()-siliconper->position()).dot(siliconper->momentum());
