@@ -1,0 +1,75 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+namespace JetAnalysisEDM {
+
+  template <class Type>
+  class TypeHasInitialize
+  {
+    // This type won't compile if the second template parameter isn't of type T,
+    // so I can put a function pointer type in the first parameter and the function
+    // itself in the second thus checking that the function has a specific signature.
+    template <typename T, T> struct TypeCheck;
+
+    typedef char Yes;
+    typedef long No;
+
+    // A helper struct to hold the declaration of the function pointer.
+    // Change it if the function signature changes.
+    template <typename T> struct Initialize
+    {
+      typedef void (T::*fptr)(const ParticleContainer& );
+    };
+
+    template <typename T> static Yes HasInitialize(TypeCheck< typename Initialize<T>::fptr, &T::Initialize >*);
+    template <typename T> static No  HasInitialize(...);
+
+  public:
+    static bool const value = (sizeof(HasInitialize<Type>(0)) == sizeof(Yes));
+  };
+
+
+  template<typename T>
+  class AtomicSelectorWrapper {
+  public:
+    AtomicSelectorWrapper(const T& sel) : m_wrappedSel(sel){}
+    virtual bool operator()(const Particle& p){return m_wrappedSel(p);}
+    T & m_wrappedSel;
+  };
+
+  template<typename T>
+  class AtomicSelectorWrapperWithInit {
+  public:
+    AtomicSelectorWrapperWithInit(const T& sel) : m_wrappedSel(sel){}
+    virtual bool operator()(const Particle& p){return m_wrappedSel(p);}
+    virtual void init(const ParticleContainer & in){m_wrappedSel.init(in);}
+    T & m_wrappedSel;
+  };
+  
+  template<typename T, bool V> 
+  struct SelectorInitializer {
+    static AtomicSelector* buidSelector(T & sel){ return new AtomicSelectorWrapperWithInit<T>(sel);}
+  };
+  template<typename T> 
+  struct SelectorInitializer<T,false> {
+    static AtomicSelector* buidSelector(T & sel){ return new AtomicSelectorWrapper<T>(sel);}
+  };
+
+
+  template<typename T>
+  void ParticleSelector::addAtomicSel(T sel){    
+    m_selectors.push_back( new T(sel) );
+  }  
+
+  template<typename T>
+  void ParticleSelector::selectCustom(T& sel){    
+    m_selectors.push_back(SelectorInitializer<T, TypeHasInitialize<T>::value >::buidSelector(sel));
+  }
+
+
+
+}

@@ -1,0 +1,112 @@
+#--------------------------------------------------
+#
+
+
+# -------------------------------------------------------------
+# Section below doesn't needs to be changed.
+
+# -------------------------------------------------------------
+# General flags
+# -------------------------------------------------------------
+PACKAGE    = JetAnalysisEDM
+OUTPUTDIR  = ../StandAlone
+
+PACKAGE_CXXSRC  = ../Root/AttributeMap.cxx  ../Root/KinematicUtils.cxx     ../Root/Particle.cxx  ../Root/VarHandle.cxx ../Root/EventObject.cxx ../Root/EventManager.cxx   ../Root/ParticleContainer.cxx  ../Root/Utils.cxx     ../Root/VarHandleMap.cxx ../Root/ConstituentIterator.cxx
+PACKAGE_HEADERS = ../JetAnalysisEDM/AttributeMap.h ../JetAnalysisEDM/KinematicUtils.h   ../JetAnalysisEDM/Utils.h ../JetAnalysisEDM/EventObject.h ../JetAnalysisEDM/EventManager.h  ../JetAnalysisEDM/ParticleContainer.h  ../JetAnalysisEDM/VarHandle.h ../JetAnalysisEDM/JetAnalysisEDM.h  ../JetAnalysisEDM/Particle.h  ../JetAnalysisEDM/VarHandleMap.h ../JetAnalysisEDM/ConstituentIterator.h
+
+
+
+ifeq ($(wildcard $(ROOTSYS)/test/Makefile.arch),) 
+    include $(ROOTSYS)/etc/Makefile.arch 
+else
+    include $(ROOTSYS)/test/Makefile.arch 
+endif
+
+ROOTBIN := $(shell root-config --bindir)
+ROOTLIB := $(shell root-config --libdir)
+ROOTINC := $(shell root-config --incdir)
+
+
+
+# These warnings bother me, so I turn them off.
+CXXFLAGS := -DJETEDM_STANDALONE $(CXXFLAGS)
+
+# add utils subdirectories if needed
+INCLUDES   += -I.. -I${ROOTINC} 
+
+# Need these to avoid loading dependent libraries when ROOT starts
+LINKLIBS = -L${ROOTLIB} -lHist -lMatrix -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic 
+
+# -------------------------------------------------------------
+# ROOT Cint
+# -------------------------------------------------------------
+CINT       = JetAnalysisEDMCint
+LDEFFILE   = ../Root/LinkDef.h
+CINTFILE   = $(OUTPUTDIR)/JetAnalysisEDMCint.cxx
+CINTOBJ    = $(patsubst %.cxx,%.o,$(CINTFILE))
+
+# -------------------------------------------------------------
+# ProofAna source
+# -------------------------------------------------------------
+# add util subdirectories if needed
+CXXLIST = $(PACKAGE_CXXSRC)  $(CINTFILE)
+HLIST   = $(PACKAGE_HEADERS)
+OLIST   = $(patsubst %.cxx,%.o,$(CXXLIST))
+DLIST   = $(patsubst %.h,%.d,$(HLIST))
+
+
+# -------------------------------------------------------------
+# Libraries
+# -------------------------------------------------------------
+LIBFILE  = $(OUTPUTDIR)/libJetAnalysisEDM.so
+
+ifeq ($(PLATFORM),macosx)
+EXTRALDFLAGS = -install_name $(LIBFILE)
+endif
+
+# get libraries of ROOT
+define ldlinksuffixROOT
+   $(addsuffix $(LDLINKSUFFIX),$(Lib)) $(shell if [ "$(findstring -Ldlink2,$(OPTIONS))" ]; then echo $(addsuffix _pkgid_$(ROOTVER),$(Lib)); fi)
+endef
+
+# -------------------------------------------------------------
+# Compilation
+# -------------------------------------------------------------
+
+default: shlib
+
+# Implicit rule to compile all classes
+%.o : %.cxx
+	@echo "Compiling $<"
+	@$(CXX) -MD $(CXXFLAGS) $(INCLUDES) -c $< -o $*.o 
+
+# Rule to make ROOTCINT output file
+$(CINTOBJ) : $(HLIST) $(LDEFFILE)
+	@mkdir -p  ../StandAlone
+	@echo "Running rootcint" $(CXXFLAGS)
+	$(ROOTBIN)/rootcint -f $(CINTFILE)-tmp -c -p  $(CXXFLAGS) $(INCLUDES)  $(LDEFFILE)
+# copying a RootCore hack here. Not sure why it works better
+	grep include $(LDEFFILE) | cat - $(CINTFILE)-tmp >$(CINTFILE) || true
+	@echo "Compiling $(CINTFILE)"
+	@$(CXX) $(CXXFLAGS) $(INCLUDES) -c $(CINTFILE) -o $@
+
+rootcint : $(HLIST) $(LDEFFILE)
+	@echo "Running rootcint  __  " $(CINTFILE) -c -p  $(CXXFLAGS) $(INCLUDES) $(HLIST) $(LDEFFILE)
+	$(ROOTBIN)/rootcint -f $(CINTFILE) -c -p  $(CXXFLAGS) $(INCLUDES) $(HLIST) $(LDEFFILE)
+
+# Rule to combine objects into a shared library
+$(LIBFILE): $(OLIST)
+	@echo "Linking $(LIBFILE)"
+	@rm -f $(LIBFILE)
+	@$(LD) $(CXXFLAGS) $(SOFLAGS) $(LINKLIBS) $(EXTRALDFLAGS) $(OLIST) -o $(LIBFILE) 
+
+-include $(DLIST)
+
+JetAnalysisEDMCint: $(CINTOBJ)
+shlib: $(LIBFILE)
+
+clean:
+	@rm -f ../*/*.o ../*/*.d
+
+
+

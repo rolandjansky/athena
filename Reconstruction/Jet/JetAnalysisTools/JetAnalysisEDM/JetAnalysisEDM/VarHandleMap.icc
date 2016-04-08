@@ -1,0 +1,254 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+#ifndef JETANALYSISEDM_VARHANDLEMAP_ICC
+#define JETANALYSISEDM_VARHANDLEMAP_ICC
+namespace JetAnalysisEDM {
+
+
+  template<typename Type>
+  VarHandleMap<Type>::~VarHandleMap(){
+    iterator_t itr = m_handleMap.begin();
+    iterator_t end = m_handleMap.end();
+    for( ; itr != end; ++itr ) {   delete itr->second; }
+  }
+
+
+
+  /// Structure dedicated to copy content betwen map of vectors. The generic type, just does nothing, only here to allow compilation.
+  template<typename Type>     
+  struct VarHandleMapCopier{
+    // should not be called
+    static void copySingleValue(VarHandle<Type> * varSource , size_t pSource, Type & vDest, size_t pDest){}
+    static void copyManyValues(VarHandle<Type> * varSource , std::vector<int>& vecSource, Type & vDest){}
+  };
+
+  /// specialized version for map of vectors. This is where the actual work is done.
+  template<typename Type>     
+  struct VarHandleMapCopier<std::vector<Type> >{
+    static void copySingleValue(VarHandle<std::vector<Type> > * varSource , size_t pSource, std::vector<Type> & vDest, size_t pDest){
+      if(vDest.size()<=pDest) vDest.resize(pDest+1);      
+      if(varSource){
+        std::vector<Type> & vSource = varSource->operator()(); 
+        vDest[pDest] = vSource[pSource];
+      }
+    }
+
+    static void copyManyValues(VarHandle<std::vector<Type> > * varSource , std::vector<int>& vecSource, std::vector<Type> & vDest){
+      if(vDest.size() < vecSource.size() ) vDest.resize(vecSource.size());
+      
+      if(varSource){
+        std::vector<Type> &  valSource =  varSource->operator()();
+        for(size_t i=0; i<vecSource.size();i++) vDest[i] = valSource[vecSource[i]];
+      }              
+    }
+  };
+
+
+
+
+  struct VarHandleMapHelper{
+
+    template<typename Type>
+    static void copyFromPart(const Particle *p, const  string_t & s, Type &v, size_t dest){
+    }
+
+    template<typename Type>
+    static void copyFromPart(const Particle *p, const  string_t & s,  std::vector<Type> &v, size_t dest){
+      typedef typename std::vector<Type>::value_type basevalue_t;
+      if(v.size()<=dest) v.resize(dest+1);
+      bool valid;
+      v[dest] = p->accessAttFromSource< basevalue_t >(s,valid);       
+    }
+
+
+    template<typename Type>     
+    static void setValueFromPart(Type& v , const Particle *p, const string_t & s){      
+      bool valid;
+      const Type& vvv = p->accessAttFromSource< Type >(s,valid);
+      v=vvv;
+    }
+
+    template<typename Type>     
+    static void setValueFromPart(std::vector<std::vector<Type> >& v , const Particle *p, const string_t & s){
+      
+    }
+    
+  };
+
+
+
+  template<typename Type>
+  void VarHandleMap<Type>::copyFrom( VarHandleMap & oMap, size_t pSource, size_t pDest){
+
+      iterator_t itr = m_handleMap.begin();
+      iterator_t end = m_handleMap.end();
+      for( ; itr != end; ++itr ) {
+        // resize anyway so that all vectors have size pDest or more.
+        var_t & v = *(itr->second); 
+        var_t* oVar = oMap.request(itr->first);
+        Type  & vec = v();
+        VarHandleMapCopier<Type>::copySingleValue(oVar, pSource, vec, pDest);
+      }      
+    }
+    
+  template<typename Type>
+  void VarHandleMap<Type>::copyFrom( VarHandleMap & oMap, vector<int> & vSource){
+    iterator_t itr = m_handleMap.begin();
+    iterator_t end = m_handleMap.end();
+    for( ; itr != end; ++itr ) {
+      // resize anyway so that all vectors have size pDest or more.
+      Type &  v = (*itr->second)();
+      var_t* oVar = oMap.request(itr->first);
+      VarHandleMapCopier<Type>::copyManyValues( oVar, vSource, v); 
+    }
+  }
+
+
+  template<typename Type>
+  void VarHandleMap<Type>::copyFrom(const Particle*p, size_t destIndex){
+    iterator_t itr = m_handleMap.begin();
+    iterator_t end = m_handleMap.end();
+
+    for( ; itr != end; ++itr ) { 
+      Type & v = (*itr->second)();         
+      //std::cout << " copyFrom "<< itr->first << "  : "<< v.size() << " / "<< destIndex <<"  : " << &v << std::endl;
+      VarHandleMapHelper::copyFromPart( p , itr->first, v, destIndex);      
+    }
+  }
+
+
+  template<typename Type>
+  void VarHandleMap<Type>::copyFrom(const Particle*p){
+    iterator_t itr = m_handleMap.begin();
+    iterator_t end = m_handleMap.end();
+    for( ; itr != end; ++itr ) { 
+      Type & v = (*itr->second)();         
+      //std::cout << " copyFrom "<< itr->first << "  from  "<< p << " to "<< this <<std::endl;
+      // const Type& vvv = p->accessAttFromSource< Type >(itr->first);
+      // v = vvv;
+      VarHandleMapHelper::setValueFromPart<Type>(v,p,itr->first);
+    }
+  }
+
+
+
+
+
+
+
+  /// Structure dedicated to copy content betwen map of vectors. The generic type, just does nothing, only here to allow compilation.
+  template<typename Type>     
+  struct GenericMapCopier{
+
+    // should not be called
+    static void copySingleValue(Type * varSource , size_t pSource, Type & vDest, size_t pDest){}
+    static void copyManyValues(Type * varSource , std::vector<int>& vecSource, Type & vDest){}
+    static void copyFromPart(const Particle *p, const string_t & s, Type &v, size_t dest){ }
+    static void setValueFromPart(Type& v , const Particle *p, const string_t & s){      
+      bool valid;
+      const Type& vvv = p->accessAttFromSource< Type >(s,valid);
+      v=vvv;
+    }
+    
+
+  };
+
+  /// specialized version for map of vectors. This is where the actual work is done.
+  template<typename Type>     
+  struct GenericMapCopier<std::vector<Type> >{
+    
+    static void copySingleValue(std::vector<Type> * varSource , size_t pSource, std::vector<Type> & vDest, size_t pDest){
+      if(vDest.size()<=pDest) vDest.resize(pDest+1);      
+      if(varSource){
+        std::vector<Type> & vSource = *varSource;
+        vDest[pDest] = vSource[pSource];
+      }
+    }
+
+    static void copyManyValues(std::vector<Type>  * varSource , std::vector<int>& vecSource, std::vector<Type> & vDest){
+      if(vDest.size() < vecSource.size() ) vDest.resize(vecSource.size());
+      
+      if(varSource){
+        std::vector<Type> &  valSource =  *varSource;
+        for(size_t i=0; i<vecSource.size();i++) vDest[i] = valSource[vecSource[i]];
+      }              
+    }
+
+
+    static void copyFromPart(const Particle *p, const string_t & s,  std::vector<Type> &v, size_t dest){
+      typedef typename std::vector<Type>::value_type basevalue_t;
+      if(v.size()<=dest) v.resize(dest+1);
+      bool valid;
+      v[dest] = p->accessAttFromSource< basevalue_t >(s,valid);       
+    }
+
+    static void setValueFromPart(std::vector<Type>& v , const Particle *p, const string_t & s){ }        
+
+  };
+
+
+  template<typename Type>
+  void GenericMap<Type>::resizeVars(size_t n){
+    iterator_t it = m_ptrMap.begin();
+    iterator_t itE = m_ptrMap.end();
+    for( ; it!=itE; ++it){  VarHelper<Type>::resize( &it->second, n);}
+  }
+
+  template<typename Type>
+  void GenericMap<Type>::copyFrom( GenericMap & oMap, size_t pSource, size_t pDest){
+    iterator_t it = m_ptrMap.begin();
+    iterator_t itE = m_ptrMap.end();
+    for( ; it!=itE; ++it){
+      Type & thisVal = it->second;
+      iterator_t itO = oMap.m_ptrMap.find(it->first);
+      Type * otherVal = itO == oMap.m_ptrMap.end() ? NULL : &itO->second;
+      GenericMapCopier<Type>::copySingleValue( otherVal, pSource, thisVal, pDest);
+    }    
+  }
+
+  template<typename Type>
+  void GenericMap<Type>::copyFrom( GenericMap & oMap, vector<int> & vSource){
+    iterator_t it = m_ptrMap.begin();
+    iterator_t itE = m_ptrMap.end();
+    for( ; it != itE; ++it ) {
+      Type &  v = it->second;
+      iterator_t itO = oMap.m_ptrMap.find(it->first);
+      Type * otherVal = itO == oMap.m_ptrMap.end() ? NULL : &itO->second;
+      GenericMapCopier<Type>::copyManyValues( otherVal, vSource, v); 
+    }
+  }
+
+  template<typename Type>
+  void GenericMap<Type>::copyFrom(const Particle*p, size_t destIndex){
+    iterator_t itr = m_ptrMap.begin();
+    iterator_t end = m_ptrMap.end();
+
+    for( ; itr != end; ++itr ) { 
+      Type & v = itr->second;         
+      //std::cout << " copyFrom "<< itr->first << "  : "<< v.size() << " / "<< destIndex <<"  : " << &v << std::endl;
+      GenericMapCopier<Type>::copyFromPart( p , itr->first, v, destIndex);      
+    }
+  }
+
+
+  template<typename Type>
+  void GenericMap<Type>::copyFrom(const Particle*p){
+    iterator_t itr = m_ptrMap.begin();
+    iterator_t end = m_ptrMap.end();
+    for( ; itr != end; ++itr ) { 
+      Type & v = itr->second;         
+      //std::cout << " copyFrom "<< itr->first << "  from  "<< p << " to "<< this <<std::endl;
+      // const Type& vvv = p->accessAttFromSource< Type >(itr->first);
+      // v = vvv;
+      GenericMapCopier<Type>::setValueFromPart(v,p,itr->first);
+    }
+  }
+
+
+}
+#endif

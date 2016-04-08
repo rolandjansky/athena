@@ -1,0 +1,370 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: CodeGenerator_v2_constants.h 510583 2012-07-18 09:12:16Z krasznaa $
+#ifndef JETANALYSISEDM_VARHANDLE_ICC
+#define JETANALYSISEDM_VARHANDLE_ICC
+
+// System include(s):
+#include <string.h>
+#include <cxxabi.h>
+#include <cstdlib>
+
+// PA
+#include <iostream>
+#include <vector>
+
+// ROOT include(s):
+#include <TObject.h>
+#include <TClass.h>
+#include <TTree.h>
+#include <TBranch.h>
+#include <TBranchElement.h>
+#include "TChain.h"
+#include "TChainElement.h"
+#include "TList.h"
+#include <TFile.h>
+#include "TLeaf.h"
+
+#define ERROR VarHandleLog::vlog.Error
+namespace JetAnalysisEDM {
+
+  /// -------------------------------------------------------------
+  /// class VarHelper : helper to specialize only some methods of the VarHandle class.
+  template<class VTYPE>
+  struct VarHelper {
+    typedef VarHandle<VTYPE> var_t;
+    static VTYPE* getObjectAddress(var_t *v){ 
+      VTYPE* var=  (VTYPE*)  (  (TLeaf*)v->fInBranch->GetListOfLeaves()->At(0))->GetValuePointer();// assuming simple types here
+      // for simple types we must reset the output address every time in case it changed (not the case for vector<> thanks to Bronch)
+      if(v->fOutBranch) v->fOutBranch->SetAddress(var);
+      return var;
+    } 
+    static void clear(var_t *v){ v->operator()()=0;}
+    static void setType(var_t *v) {v->setType( v->RootCppType( typeid( VTYPE ).name() ) );}
+
+    static bool variableConnect( var_t *v){
+      // passing 0 as first argument : will be propagated to TBranch::SetAddress() meaning, the TBranch will OWN the variable
+      bool res =  v->ConnectVariable( 0, TClass::GetClass( typeid( VTYPE ) ),
+                                      TDataType::GetType( typeid( VTYPE ) ), kFALSE ) ;                
+      if(res) v->fVariable = getObjectAddress( v );
+
+      return res;
+    }
+
+    static TBranch* writeTBranch(var_t* v, TTree* tree){      
+      if(!v->fromInput()) v->build();
+      TBranch* branch = tree->Branch( v->getName().c_str(), v->fVariable,
+                                      ::TString::Format( "%s/%s", v->getName().c_str(),
+                                                         v->RootType( typeid( VTYPE ).name() ).c_str() ) );
+      if( ! branch ) {
+         ERROR( "writeTo",
+                "Couldn't add variable %s to tree %s",
+                v->getName().c_str(), tree->GetName() );
+      } else {
+         for( ::Long64_t i = 0; i < tree->GetEntries(); ++i ) {
+            branch->Fill();
+         }
+      }
+      return branch;
+    }
+
+    static VTYPE getAt(const var_t* var, size_t ){ return var->operator()(); }
+    static void  setAt(var_t* var, size_t, VTYPE v ){  var->operator()()=v; }
+    static void  extendTo(var_t* var, size_t  ){  }
+    static void  resize(VTYPE* , size_t  ){  }
+ 
+    static void debugVar(const var_t* v){ std::cout << "  --> "<< v->fVariable << "   "<< *(v->fVariable)<< std::endl; }
+
+  };  // end VarHandle<VTYPE >
+
+  /// -------------------------------------------------------------
+  template <class T>
+  float vectordumpAt0(std::vector<T> * v){ T * a = &(v->at(0));float* vv= (float*) a; return (float)*vv;}
+  template <>
+  inline float vectordumpAt0(std::vector<bool> * ){ return false;}
+
+
+  // Helper for VarHandle of vectors
+  template<class T>
+  struct VarHelper< std::vector<T> >{
+    typedef VarHandle<std::vector<T> > var_t;
+
+    static std::vector<T> * getObjectAddress(var_t *v){
+      TBranchElement * bel = dynamic_cast<TBranchElement*>(v->fInBranch);
+      return ( std::vector<T> * ) ( bel->GetObject() );
+    }
+
+    static void clear(var_t *v){ v->operator()().clear();}
+    static void setType(var_t *v) {
+      int status;
+      char* type_name = abi::__cxa_demangle( typeid( std::vector<T> ).name(), 0, 0, &status );
+      if( ! status ) {
+        v->setType( type_name );
+        ::free( type_name );
+      }
+    }
+
+    static bool variableConnect( var_t *v){
+      
+      // passing 0 as first argument : will be propagated to TBranch::SetAddress() meaning, the TBranch will OWN the variable
+      bool res =v->ConnectVariable( 0 , TClass::GetClass( typeid( std::vector<T> ) ),
+                          TDataType::GetType( typeid( std::vector<T> ) ), kTRUE ) ;
+      if(res) v->fVariable = getObjectAddress( v );
+      return res;
+    }    
+
+    static TBranch* writeTBranch(var_t* v, TTree* tree){
+
+      if( v->getType()== ""  ) {
+        ERROR( "writeTo",
+               "Couldn't demangle type name: %s",
+               typeid( std::vector<T> ).name() );
+        return 0;
+      }
+      //std::cout << "  write var "<< v->fName <<  " "<< v->getType() << " "<< " fromInput="<< v->fromInput() << " var="<<v->fVariable<< std::endl;
+      if(!v->fromInput() ) v->build(); // 
+      TBranch* branch = tree->Bronch( v->getName().c_str(), v->getType().c_str(), &v->fVariable );
+      if( ! branch ) {
+        ERROR( "writeTo",
+               "Couldn't add variable %s to tree %s",
+               v->getName().c_str(), tree->GetName() );
+      } else {
+         for( ::Long64_t i = 0; i < tree->GetEntries(); ++i ) {
+            branch->Fill();         }
+      }
+      
+      return branch;            
+    }
+    
+    static const T& getAt(const var_t* var, size_t i ){ 
+      const std::vector<T> &vv = var->operator()(); const T& r=vv[i];
+      return r; }
+    static void  setAt(var_t* var, size_t i,  const T& v ){ var->operator()()[i]=v; }
+    static void  extendTo(var_t* var, size_t s ){ std::vector<T>& v=var->operator()(); if(v.size()<s) v.resize(s); }
+    static void  resize(std::vector<T>* v , size_t n  ){ v->resize(n);  }
+
+
+    static void debugVar(const var_t* v){ std::cout << "  --> "<< v->fVariable << "   "<< v->fVariable->size() << " "<< vectordumpAt0(v->fVariable)  << std::endl; }
+
+  };
+
+  // end VarHandle<std::vector<T> >
+
+  template<typename T>
+  struct VarHelperDummy {
+    static T & get(){ dummyObj = 0; return dummyObj;}
+    static T dummyObj;
+  };
+  template<typename T> T VarHelperDummy< T >::dummyObj;
+
+  template<typename T>
+  struct VarHelperDummy< std::vector< T > > {
+    static std::vector<T> & get(){ dummyObj.resize(0); return dummyObj;}
+    static std::vector<T> dummyObj;
+  };
+  template<typename T> std::vector<T> VarHelperDummy< std::vector<T> >::dummyObj;
+
+
+  /// -------------------------------------------------------------
+
+
+
+
+   template< typename Type >
+   VarHandle< Type >::VarHandle(  const string_t name,
+                                 const ::Long64_t* master, ::TTree* inputTree )
+      : VarHandleBase(  name, master ),
+        fOwnVariable(false),
+        fVariable(0)
+      , m_createdVar(NULL) 
+    {
+
+     //setType( RootCppType( typeid( Type ).name() ) );
+     VarHelper<Type>::setType(this);
+     if( inputTree != NULL) readFrom(inputTree);
+   }
+
+   template< typename Type >
+   VarHandle< Type >::~VarHandle() {
+     //std::cout << "deleting ... " << fName<< "  branch="<< fInBranch  <<" own var = "<< fOwnVariable << " "<< m_createdVar << "  / "<< fVariable << std::endl;
+     if (fOwnVariable) delete m_createdVar; 
+     //if(fInBranch) fInBranch->ResetAddress();
+   }
+
+  template< typename Type >
+  void VarHandle<Type>::setParameters( const string_t name ,const ::Long64_t* master , ::TTree* inputTree ){
+    setName(name); setMaster(master); 
+     if( inputTree != NULL) readFrom(inputTree);
+  }
+
+   template< typename Type >
+   void VarHandle< Type >::readFrom( ::TTree* tree ) {
+     //std::cout << "readFrom "<< fName<< "  fOwnVariable "<< fOwnVariable<<std::endl;
+     m_inputTree = tree;
+     fVariable = 0;
+     fInBranch = 0;
+     
+     m_currentTree = tree->GetTree();
+     
+     return;
+   }
+
+   template< typename Type >
+   ::TBranch* VarHandle< Type >::writeTo( ::TTree* tree, bool forceOutputVar ) {
+     if ( ( ! outputVar() ) && (!forceOutputVar) ) return 0;
+
+      ::TBranch* branch = tree->GetBranch( getName().c_str() );
+      if( branch ) return branch;
+      
+      branch = VarHelper<Type>::writeTBranch(this, tree);
+      m_outputVar = true;
+      fOutBranch = branch;
+      return branch;
+   }
+
+
+  template< typename Type >
+  bool VarHandle< Type >::connectToTBranch(){
+
+    if(!m_currentTree) m_currentTree = m_inputTree->GetTree();
+       
+    // first try to retrieve an existing variable 
+    fInBranch = m_inputTree->GetBranch( getName().c_str() );
+    if ( !fInBranch ) {
+      if(m_branchNotFoundFirstTime) {
+        ERROR( ::TString( getName() ), "No such branch in tree \"%s\" in file:\n  %s. ",
+               m_inputTree->GetName(),m_inputTree->GetCurrentFile()->GetName());
+        m_branchNotFoundFirstTime = false;
+      }
+      return false;
+    }
+
+    //std::cout << "    --> got branch "<< fInBranch << std::endl;
+    // Ask fo an existing variable :
+    Type * tmp_fVariable = VarHelper<Type>::getObjectAddress(this);
+       
+
+    if( tmp_fVariable && (tmp_fVariable!= fVariable) ){
+      fVariable = tmp_fVariable;
+    } else {
+      bool connected = VarHelper<Type>::variableConnect( this );
+      if ( ! connected ) {
+        ERROR( ::TString( getName() ), " failed to connect this branch. (tree \"%s\" in file:\n  %s.) (won't repeat message).",
+               m_inputTree->GetName(),m_inputTree->GetCurrentFile()->GetName());
+        return false;
+      }
+            
+    }
+    //std::cout << "  existing var?? == "<< tmp_fVariable<<  " / fVariable = "<< fVariable<< std::endl;
+    return true;
+  }
+
+
+   template< typename Type> 
+   typename VarHandle< Type >::result_type VarHandle< Type >::operator()() {
+     //std::cout << " VarHandle::operator() "<< getName() << " fromInput "<< fromInput() << " fVariable="<< fVariable << "fInBranch "<< fInBranch << std::endl;
+
+     // if we're not an "input variable", we own our variable : just return it.
+     if( ! fromInput() ) return *fVariable;
+
+     // We're an "input variable". Check our TBranch exist, associate to our variable (non-intrusively) and 
+     // read event.     
+     if( ! fInBranch ) {
+       // no branch associated ! This means we need to connect everything.       
+       // connect our variable pointer to what it needs to be connected. In case of failure returns a dummy value
+       if (! connectToTBranch() ) return VarHelperDummy<Type>::get();
+       
+       // read-in this event        
+       m_currentEntry = *fMaster;
+       
+     }else if( (*fMaster != m_currentEntry) || (m_currentTreeIndex!=m_inputTree->GetTreeNumber()) ) {
+       // a branch exists and the entry has changed. Reload the entry, dealing with TTree changes when using TChain.
+
+       if (m_currentTreeIndex!=m_inputTree->GetTreeNumber()) {         
+         // possible when m_currentTree is a TChain : The actual TTree has changed. 
+         m_currentTree = m_inputTree->GetTree();
+         // clear our pointer to variable...
+         fVariable = NULL;
+         // ...and reconnect.
+         connectToTBranch();
+         m_currentTreeIndex = m_inputTree->GetTreeNumber();
+       }
+       
+       // It is possible that an other SetBranchAddress occured during last event
+       // so we have to re-set the address just in case.
+       //std::cout << "    __ reset adress from "<< fInBranch << "  ev="<< *fMaster << std::endl;
+       fVariable = VarHelper<Type>::getObjectAddress(this);
+       
+       //
+
+       m_currentEntry = *fMaster;       
+     }
+
+     // if the entry was not already read, read it.
+     if( m_currentEntry != fInBranch->GetReadEntry() ) {
+       fInBranch->GetEntry( m_currentEntry );
+     }
+     // finally return our content
+     return *fVariable;
+   }
+
+
+   template< typename Type >
+   typename VarHandle< Type >::const_result_type VarHandle< Type >::operator()() const {
+     const_cast< VarHandle<Type> *>(this)->operator()();      
+     return *fVariable;
+   }
+
+
+   template< typename Type >
+   void VarHandle< Type >::readCurrentEntry() const {
+     this->operator()();
+     return;
+   }
+
+
+   template< typename Type >
+   ::Long64_t VarHandle< Type >::lastReadEntry() const {
+     if(!fInBranch) this->operator()() ;
+     return fInBranch->GetReadEntry();
+  }
+
+
+
+   template< typename Type >
+   void VarHandle< Type >::clear() {
+     VarHelper<Type>::clear( this );
+   }
+
+
+  template< typename Type >  
+  void VarHandle<Type>::build()const{
+    if(fVariable) return;
+    fVariable = new Type();
+    m_createdVar = fVariable;
+    fOwnVariable = true;
+  }
+
+  template< typename Type >  
+  void VarHandle<Type>::resize(size_t n)const{
+    VarHelper<Type>::resize(fVariable, n);
+  }
+
+  template< typename Type >  
+  VarHandleBase* VarHandle<Type>::clone( const string_t name ,
+                                        const ::Long64_t* master , ::TTree* inputTree ) {
+    return new VarHandle<Type>(  name, master, inputTree );
+  }
+  
+
+  template< typename Type >  
+  typename VarHandle<Type>::result_type VarHandle<Type>::dummyValue(){ return VarHelperDummy<Type>::get(); }
+
+
+} // namespace JetAnalysisEDM
+
+#endif // D3PDREADER_VARHANDLE_ICC

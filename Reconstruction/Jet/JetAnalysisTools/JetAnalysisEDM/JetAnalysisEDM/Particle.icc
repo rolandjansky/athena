@@ -1,0 +1,266 @@
+// this file is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef JETANALYSISEDM_PARTICLE_ICC
+#define JETANALYSISEDM_PARTICLE_ICC
+
+namespace JetAnalysisEDM {   
+  
+  template<typename T>  
+  T& NonConstParticleAccessor< T >::operator[](const Particle &p) const {
+    return (this->*ParticleAccessor<T>::m_accessType)(p);
+  }           
+
+  template<typename T>  
+  const T& ParticleAccessor< T >::operator[](const Particle &p) const {
+    return (this->*ParticleAccessor<T>::m_accessType)(p);
+  }           
+
+  template<typename T>  
+  void ParticleAccessor<T>::readEvent(){
+    // could check if situation improved in the case, we're using fromPartGet...
+    m_sourceVector  = &(*m_handle)(); 
+  }
+
+  template<typename T>  
+  T& NonConstParticleAccessor< T >::unsafeAccess(const Particle& p) const {
+    return this->m_sourceVector->at(p.getIndex());
+  }
+  
+  
+  
+  template<typename TT>
+  inline typename tpl::const_if_ref_or_ptr<TT>::type Particle::get(const string_t & mName) const {
+    bool valid =true; 
+
+    typename tpl::to_const_ref< TT >::type  res = get< TT >(mName, valid);     
+    if(valid) return res;
+    // else abort.
+    VarHandleLog::vlog.Error("Particle::get"," can't retrieve %s. Will throw exception if non interactive mode",mName.c_str());    
+    if(!Session::isInteractive()) throw VarNotFound(string_t("Particle::get can't retrieve ")+mName);
+    return res;
+  }
+                                        
+  template<typename TT>
+  inline typename tpl::const_if_ref_or_ptr<TT>::type Particle::get(const string_t & mName, bool &valid) const {
+    return accessAtt< typename tpl::remove_ref<TT>::type  >(mName, valid);
+  }
+
+                                        
+  template<typename TT>
+  TT & Particle::accessAtt(const string_t& mName, bool &valid) const {
+    //std::cout<< this<< " : Particle::access "<< mName<< "  fContainer "<< fContainer<< " | "<< m_sourcePart << " "<< m_varMap<<std::endl;
+
+    // First look in this particle map if any
+    if(m_varMap){ 
+      TT& res = m_varMap->get<TT>(mName, valid);
+      if(valid) return res;
+    }
+    // Then look in this particle container if any
+    if(fContainer){
+      std::vector<TT>& vv = fContainer->m_attributes.get< TT >(mName, valid);
+      if(valid) return vv[getIndex()];
+    }
+    // Finally ask this particle source if any
+    if(m_sourcePart) {
+      return m_sourcePart->accessAtt<TT>(mName, valid);
+    }
+    // Else returns dummy (should issue an Error ?)
+    valid = false;
+    return VarHelperDummy<TT>::get();
+  }
+                                        
+  
+  template<typename TT>
+  TT & Particle::accessAttFromSource(const string_t& mName, bool &valid) const {
+    //std::cout<< this<< " : Particle::accessFS "<< mName<< "  fContainer "<< fContainer<< " | "<< m_sourcePart << std::endl;
+    if(m_sourcePart) return m_sourcePart->accessAtt<TT>(mName, valid);
+    if(fContainer){
+      std::vector<TT>& vv = fContainer->m_attributes.get< TT >(mName, valid);      
+      if(valid) return vv[getIndex()];
+    }
+    valid = false;
+    return VarHelperDummy<TT>::get();
+  //    static TT dummy; return dummy;      
+  }
+
+  // template<typename TT>
+  // void Particle::set(const string_t & mName, typename tpl::to_const_ref<TT>::type val) const {
+  //   if(fContainer){
+  //     bool valid;
+  //     std::vector<TT> & vv = fContainer->m_attributes.getNonInputVar<TT>(mName, valid);
+  //     if(valid){ 
+  //       vv[getIndex()] = const_cast< TT& >(val);
+  //     }
+  //   }
+  //   else{
+  //     VarHandleLog::vlog.Error("Particle::set()const ", "Won't set attribute %s to a const Part. Use ParticleContainer::declareOutPutBranch() before.",mName.c_str());
+  //   }
+  // }
+
+#ifndef __CINT__    
+  template<typename TT>
+  std::vector<string_t> Particle::getAttributeKeys() const {
+    std::vector<string_t> keys;    
+
+    // fill from local map and  containers map.
+    if(m_varMap) m_varMap->fillListOfKeys<TT>( keys );
+    if(fContainer) fContainer->m_attributes.fillListOfKeys<TT>( keys );
+    
+    // use a set to keep only unique keys
+    std::set<string_t> uni_keys; 
+    uni_keys.insert(keys.begin(), keys.end());
+   
+    // Finally ask this particle source if any
+    if(m_sourcePart) {
+      keys = m_sourcePart->getAttributeKeys<TT>();
+      uni_keys.insert(keys.begin(), keys.end());
+    }
+    keys.clear();
+    keys.insert(keys.begin(), uni_keys.begin(), uni_keys.end());
+    return keys;
+  }
+#endif
+
+  template<typename TT>
+  void Particle::set(const string_t & mName, typename tpl::to_const_ref<TT>::type val) const {
+
+    if(fContainer){
+      bool valid;
+      std::vector<TT> & vv = fContainer->m_attributes.getNonInputVar<TT>(mName, valid);
+      if(valid){ 
+        vv[getIndex()] = const_cast< TT& >(val);
+        return;
+      } else { // check why this is not there and print an error if needed
+        fContainer->m_attributes.get<TT>(mName, valid);
+        if(valid) {
+          VarHandleLog::vlog.Error("Particle::set()const ", "Won't set attribute %s : this is an input variable.",mName.c_str());
+          return;
+        }
+      }
+    }
+    if(m_varMap){
+      TT& res = m_varMap->getOrCreate<TT>(mName);
+      res = const_cast< TT &>(val);
+    }else{
+      // create a map
+      m_varMap = new SimpleAttributeMap(NULL,"");
+      m_varMap->getOrCreate<TT>(mName) = const_cast<TT&>(val);
+    }
+    
+  }
+
+
+
+
+#ifdef JETANALYSISEDM_PARTICLE_CXX  
+  template<>
+  bool & Particle::accessAtt(const string_t& mName, bool &valid) const {
+
+    if(m_varMap){
+      bool res = m_varMap->get<bool>(mName, valid);
+      m_workaround_vectorbool = res;
+      if(valid)return m_workaround_vectorbool;
+    }      
+    if(fContainer){
+      std::vector<bool>& vv = fContainer->m_attributes.get< bool >(mName, valid);
+      if(valid) {
+        m_workaround_vectorbool =  vv[getIndex()];
+        return m_workaround_vectorbool;
+      }
+    }    
+
+    if(m_sourcePart) return m_sourcePart->accessAtt<bool>(mName, valid);
+    //fContainer->Error("accessAtt", "no such bool %s", mName.c_str());
+    valid = false;
+    m_workaround_vectorbool = false;
+    return m_workaround_vectorbool; 
+  }
+
+  template<>
+  bool & Particle::accessAttFromSource(const string_t& mName, bool &valid) const {
+    if(m_sourcePart) return m_sourcePart->accessAtt<bool>(mName, valid);    
+    if(fContainer){
+      std::vector<bool>& vv = fContainer->m_attributes.get< bool >(mName, valid);
+      if(valid){
+        m_workaround_vectorbool =  vv[getIndex()];
+        return m_workaround_vectorbool;
+      }
+    }
+    valid = false;
+    m_workaround_vectorbool = false;
+    return m_workaround_vectorbool; 
+  }
+  
+                                        
+  template<>
+  TVector3 Particle::get<TVector3>(const string_t &mName, bool &valid) const {
+    const vector<float> & coord = get<vector<float>& >(mName, valid);    
+    if(valid) return TVector3( coord[0], coord[1], coord[2] );
+    return TVector3();
+  }
+
+  template<>
+  TVector3 Particle::get<TVector3>(const string_t &mName) const {
+    bool valid;
+    TVector3 v = get<TVector3>(mName, valid);
+    if(valid) return v;
+    VarHandleLog::vlog.Error("Particle::getVector3"," can't retrieve %s. Will throw exception if non interactive mode",mName.c_str());    
+    if(!Session::isInteractive()) throw VarNotFound(string_t("Particle::get can't retrieve ")+mName);
+    return v;
+  }
+
+
+
+  template<>
+  void Particle::set<TVector3>(const string_t & mName, const TVector3 & val) const {
+    vector<float> v(3); v[0] = val.Px(); v[1] = val.Py(); v[2] = val.Pz();
+    set< vector<float> >(mName, v);
+  }
+         
+  // template<>
+  // void Particle::set<TVector3>(const string_t & mName, const TVector3 & val) {
+  //   vector<float> v(3); v[0] = val.Px(); v[1] = val.Py(); v[2] = val.Pz();
+  //   set< vector<float> >(mName, v);
+  // }
+
+
+  template<>
+  LorentzVector_t Particle::get<LorentzVector_t>(const string_t &mName, bool &valid) const {
+    const vector<float> & coord = get<vector<float>& >(mName, valid);    
+    if(valid) return LorentzVector_t( coord[0], coord[1], coord[2], coord[3] );
+    return LorentzVector_t();
+  }
+
+  template<>
+  LorentzVector_t Particle::get<LorentzVector_t>(const string_t &mName) const {
+    bool valid;
+    LorentzVector_t v = get<LorentzVector_t>(mName, valid);
+    if(valid) return v;
+    VarHandleLog::vlog.Error("Particle::getVector3"," can't retrieve %s. Will throw exception if non interactive mode",mName.c_str());    
+    if(!Session::isInteractive())throw VarNotFound(string_t("Particle::get can't retrieve ")+mName);
+    return v;
+  }
+
+
+
+  template<>
+  void Particle::set<LorentzVector_t>(const string_t & mName, const LorentzVector_t & val) const {
+    vector<float> v(4); v[0] = val.Pt(); v[1] = val.Eta(); v[2] = val.Phi(); v[3] = val.E(); 
+    set< vector<float> >(mName, v);
+  }
+         
+  // template<>
+  // void Particle::set<LorentzVector_t>(const string_t & mName, const LorentzVector_t & val) {
+  //   vector<float> v(4); v[0] = val.Pt(); v[1] = val.Eta(); v[2] = val.Phi(); v[3] = val.E(); 
+  //   set< vector<float> >(mName, v);
+  // }
+  
+
+#endif
+  
+}   
+#endif
