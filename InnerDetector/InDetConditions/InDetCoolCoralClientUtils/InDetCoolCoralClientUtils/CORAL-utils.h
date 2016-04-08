@@ -44,7 +44,8 @@ template <typename T>
 bool FromString(T &aValue, const std::string &aStr)
 {
   std::stringstream ss(aStr);
-  return ss >> aValue;
+  ss >> aValue;
+  return !ss.fail();
 }
 
 template <typename T>

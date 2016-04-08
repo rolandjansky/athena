@@ -1983,7 +1983,7 @@ TTCobj_t* COOLCORALClient::GetTTC(int ttc_id){
     delete query1;query1=nullptr;
     
     //   was query 2    
-    int nrdtmrocs;
+    int nrdtmrocs = 0;
     if (part_nr<33) {
       nrdtmrocs = 104;
     }
@@ -3498,7 +3498,7 @@ TTCobj_t* COOLCORALClient::GetTTCOOL(int ttc_id){
     delete query1;query1=nullptr;
     
     //   was query 2    
-    int nrdtmrocs;
+    int nrdtmrocs = 0;
     if (part_nr<33) {
       nrdtmrocs = 104;
     }
