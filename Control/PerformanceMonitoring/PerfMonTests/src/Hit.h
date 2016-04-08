@@ -21,7 +21,7 @@ namespace PerfMonTest{
     DHit(double x, double y, unsigned int id) :
       IHit(), m_x(x), m_y(y), m_id(id) {}
     virtual unsigned int id() { return m_id; }
-  private:
+    //private:
     double m_x;
     double m_y;
     unsigned int m_id;    
@@ -36,7 +36,7 @@ namespace PerfMonTest{
     FHit(float x, float y, unsigned short id) :
       IHit(), m_x(x), m_y(y), m_id(id) {}
     virtual unsigned int id() { return m_id; }
-  private:
+    //private:
     float m_x;
     float m_y;
     unsigned short m_id;    

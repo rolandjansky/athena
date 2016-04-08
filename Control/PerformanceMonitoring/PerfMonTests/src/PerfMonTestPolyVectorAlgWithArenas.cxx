@@ -55,8 +55,8 @@ StatusCode PolyVectorAlgWithArenas::finalize()
 
 StatusCode PolyVectorAlgWithArenas::execute()
 {  
-  static DataPool<DHit> dhitPool;
-  static DataPool<FHit> fhitPool;
+  DataPool<DHit> dhitPool;
+  DataPool<FHit> fhitPool;
   ATH_MSG_DEBUG("Executing ");
   HitPtrContainer vptr(SG::VIEW_ELEMENTS);  //<<< NEW
   vptr.reserve(m_2bReserved.value());
