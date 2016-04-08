@@ -20,6 +20,7 @@ def setDefault(prop,value):
 class MdtCalib(JobPropertyContainer):
     def setDefaults(self):
         global globalflags,beamFlags
+        setDefault(self.applyRtScaling, False)
         if globalflags.DataSource == 'data' and beamFlags.beamType == 'collisions':
             setDefault(self.correctMdtRtForBField,True)
         else:
@@ -43,6 +44,7 @@ class readMDTCalibFromBlob(JobProperty):
 
 mdtCalibFlags.add_JobProperty(readMDTCalibFromBlob)
 
+
 # @brief Apply B-field correction to drift times
 class correctMdtRtForBField(JobProperty):
     statusOn=True
@@ -59,16 +61,7 @@ class correctMdtRtForTimeSlewing(JobProperty):
 
 mdtCalibFlags.add_JobProperty(correctMdtRtForTimeSlewing)
 
-# @brief use ML-RT functions from COOL
-class useMLRt(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
-
-mdtCalibFlags.add_JobProperty(useMLRt)
-
-# @brief Apply rt scaling correction (multilayer t_max diff)
-# Never used, replaced by using ML-RTs
+# @brief Aply rt scaling correction (multilayer t_max diff)
 class applyRtScaling(JobProperty):
     statusOn=True
     allowedTypes=['bool']
@@ -98,6 +91,7 @@ class mdtPropagationSpeedBeta(JobProperty):
     StoredValue=0.85
 
 mdtCalibFlags.add_JobProperty(mdtPropagationSpeedBeta)
+
 
 # now that all flags are added, set their default values
 mdtCalibFlags.setDefaults()
