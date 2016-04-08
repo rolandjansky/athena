@@ -40,7 +40,6 @@ namespace Muon {
   private:
     double tubeLength( int ml, int layer, int tube ) const;
     void init();
-    void fillDeadTubes(const MuonGM::MdtReadoutElement* mydetEl);
 
     Identifier                              m_chid;
     Amg::Transform3D                        m_transform;
@@ -51,8 +50,6 @@ namespace Muon {
     const MuonGM::MuonDetectorManager*      m_detMgr;
     IMDTConditionsSvc*                      m_mdtSummarySvc;
     const MdtIdHelper*                      m_mdtIdHelper;
-    std::set<Identifier>                    m_deadTubesML;
-    std::vector<Identifier>                 m_deadTubes;
   };
 
 }
