@@ -33,7 +33,7 @@
 // get cabling
 TileCablingService * s_cabling = TileCablingService::getInstance();
 
-TileHit::TileHit(Identifier & id, float energy, float time)
+TileHit::TileHit(const Identifier & id, float energy, float time)
     : m_pmt_id( id )
     , m_energy(1)
     , m_time(1)
@@ -42,7 +42,7 @@ TileHit::TileHit(Identifier & id, float energy, float time)
   m_time[0] = time;
 }
 
-TileHit::TileHit(Identifier & id, float energy, float time, float delta)
+TileHit::TileHit(const Identifier & id, float energy, float time, float delta)
     : m_pmt_id( id )
     , m_energy(1)
     , m_time(1)
