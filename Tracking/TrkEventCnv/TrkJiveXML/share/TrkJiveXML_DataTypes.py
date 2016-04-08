@@ -19,7 +19,7 @@ theTrackRetriever = JiveXML__TrackRetriever (name = "TrackRetriever")
 ### Switch to the general tracks:
 theTrackRetriever.PriorityTrackCollection = "Tracks"
 ### Select only assorted muon tracks:
-theTrackRetriever.OtherTrackCollections = ["CombinedFitMuonTracks","MuonSpectrometerTracks","ConvertedStacoTracks","ConvertedMuIdCBTracks","CombinedInDetTracks","GSFTracks"]
+theTrackRetriever.OtherTrackCollections = ["CombinedMuonTracks","MuonSpectrometerTracks","ConvertedStacoTracks","ConvertedMuIdCBTracks","CombinedInDetTracks","GSFTracks"]
 ### 
 ### The Event Filter track collections are not written to XML by default.
 ### To write them out, you must uncomment the following line:

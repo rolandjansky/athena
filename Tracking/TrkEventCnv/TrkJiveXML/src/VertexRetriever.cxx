@@ -150,7 +150,7 @@ namespace JiveXML {
    * - find index in track collection for each track associated with this vertex
    * @param FormatTool the tool that will create formated output from the DataMap
    */
-  StatusCode VertexRetriever::retrieve(ToolHandle<IFormatTool> FormatTool){
+  StatusCode VertexRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool){
 
     //Get an iterator over all vertex collections,
     //return if there are none

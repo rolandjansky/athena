@@ -35,7 +35,7 @@ namespace JiveXML {
    * - for each segment try to obtain hits and add as multiple collection
    * @param FormatTool the tool that will create formated output from the DataMap
    */
-  StatusCode SegmentRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode SegmentRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
     //be verbose
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endreq; 

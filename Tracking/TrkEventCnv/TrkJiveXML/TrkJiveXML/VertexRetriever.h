@@ -39,7 +39,7 @@ namespace JiveXML{
       VertexRetriever(const std::string& t,const std::string& n,const IInterface* p);
       
       /// Retrieve all the data
-      virtual StatusCode retrieve(ToolHandle<IFormatTool> FormatTool); 
+      virtual StatusCode retrieve(ToolHandle<IFormatTool> &FormatTool); 
 
       /// Return the name of the data type
       virtual std::string dataTypeName() const { return typeName; };
