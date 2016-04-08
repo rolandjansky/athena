@@ -364,9 +364,11 @@ namespace Trk
 			{
 				/* Store the vertex */
 				chi2 = chi2New;
-				const AmgMatrix(3,3) * newCovarianceMatrix = &cov_delta_V_mat ;
-				const AmgMatrix(3,3) newErrorMatrix = newCovarianceMatrix->inverse().eval();
-				fittedVertex = RecVertex ( linPoint.position(), newErrorMatrix, ndf, chi2 );
+//				const AmgMatrix(3,3) * newCovarianceMatrix = &cov_delta_V_mat ;
+//				const AmgMatrix(3,3) newErrorMatrix = newCovarianceMatrix->inverse().eval();
+//				fittedVertex = RecVertex ( linPoint.position(), newErrorMatrix, ndf, chi2 );
+                                // The cov_delta_V_mat does not need to be inverted.  -katy 2/3/16
+				fittedVertex = RecVertex ( linPoint.position(), cov_delta_V_mat, ndf, chi2 );
 
 				/* new go through vector and delete entries */
 				for ( std::vector<Trk::VxTrackAtVertex*>::const_iterator itr = tracksAtVertex.begin();
