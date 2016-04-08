@@ -26,24 +26,26 @@
 #include <string>
 #include <stdexcept>
 
-#include "LArG4Code/LArVCalculator.h"
 #include "LArG4Code/LArG4Identifier.h"
+#include "LArG4Code/LArVCalculator.h"
+
+#include "GeoSpecialShapes/LArWheelCalculator.h"
 
 #include "G4ThreeVector.hh"
 #include "globals.hh"
 
-#include "GeoSpecialShapes/LArWheelCalculator.h"
 
 class LArG4BirksLaw;
 class MsgStream;
+
 
 namespace LArG4 {
 	class VCalibrationCalculator;
 
 namespace EC {
 
-class EnergyCalculator
-	: public LArWheelCalculator, public LArVCalculator
+
+class EnergyCalculator : public LArVCalculator
 {
   public:
 /////////////////////////////////////////////
@@ -51,21 +53,27 @@ class EnergyCalculator
 	virtual G4float OOTcut() const { return m_OOTcut; }
 	virtual void SetOutOfTimeCut(G4double c) { m_OOTcut = c; }
 
-	virtual G4bool Process(const G4Step*);
-	virtual G4bool FindIdentifier(const G4Step *, G4ThreeVector &,
-								  G4ThreeVector &);
+	virtual G4bool Process(const G4Step* a_step){return Process(a_step, m_hdata);}
+        virtual G4bool Process(const G4Step*, std::vector<LArHitData>&);
+
+	virtual G4bool FindIdentifier(const G4Step *, std::vector<LArHitData>&,
+                                      G4ThreeVector &, G4ThreeVector &);
+
 	virtual const LArG4Identifier& identifier(int i = 0) const {
 		if(i != 0) throw std::range_error("Multiple hits not yet implemented");
-		return m_identifier;
+                if(m_hdata.size()<1) throw std::range_error("No hit yet");
+		return m_hdata[0].id;
 	}
 
 	virtual G4double time(int i = 0) const {
 		if(i != 0) throw std::range_error("Multiple hits not yet implemented");
-		return m_time;
+                if(m_hdata.size()<1) throw std::range_error("No hit yet");
+		return m_hdata[0].time;
 	}
 	virtual G4double energy(int i = 0) const {
 		if(i != 0) throw std::range_error("Multiple hits not yet implemented");
-		return m_energy;
+                if(m_hdata.size()<1) throw std::range_error("No hit yet");
+		return m_hdata[0].energy;
 	}
 	virtual G4bool isInTime(int i = 0) const {
 		if(i != 0) throw std::range_error("Multiple hits not yet implemented");
@@ -79,9 +87,11 @@ class EnergyCalculator
   private:
 
   // The results of the Process calculation:
-	LArG4Identifier m_identifier;
-	G4double m_time;
-	G4double m_energy;
+	//LArG4Identifier m_identifier;
+	//G4double m_time;
+	//G4double m_energy;
+        std::vector<LArHitData> m_hdata;
+
 	G4bool   m_isInTime;
 	G4int    m_compartment;
 
@@ -109,36 +119,37 @@ class EnergyCalculator
 
   private:
 
-	G4bool (EnergyCalculator::*Process_type) (const G4Step*);
+	G4bool (EnergyCalculator::*Process_type) (const G4Step*, std::vector<LArHitData>&);
 	G4bool (EnergyCalculator::*FindIdentifier_type) (
                                                           const G4Step *,
+                                                          std::vector<LArHitData>&,
                                                           G4ThreeVector &,
                                                           G4ThreeVector &);
-	G4double (EnergyCalculator::*GetHV_Value_type) (const G4ThreeVector &p);
-	G4double (EnergyCalculator::*GetGapSize_type)  (const G4ThreeVector &p);
-	G4double (EnergyCalculator::*distance_to_the_nearest_electrode_type) (G4ThreeVector &p);
+	G4double (EnergyCalculator::*GetHV_Value_type) (const G4ThreeVector &p) const;
+	G4double (EnergyCalculator::*GetGapSize_type) (const G4ThreeVector &p) const;
+	G4double (EnergyCalculator::*distance_to_the_nearest_electrode_type) (const G4ThreeVector &p) const;
 
-	G4bool Process_Default(const G4Step*);
-	G4bool Process_Barrett(const G4Step*);
-	G4bool FindIdentifier_Default(const G4Step *, G4ThreeVector &, G4ThreeVector &);
-	G4bool FindIdentifier_Barrett(const G4Step *, G4ThreeVector &, G4ThreeVector &);
-	G4bool FindDMIdentifier_Barrett(const G4Step* step);
+	G4bool Process_Default(const G4Step*, std::vector<LArHitData>&);
+	G4bool Process_Barrett(const G4Step*, std::vector<LArHitData>&);
+	G4bool FindIdentifier_Default(const G4Step *, std::vector<LArHitData>&, G4ThreeVector &, G4ThreeVector &);
+	G4bool FindIdentifier_Barrett(const G4Step *, std::vector<LArHitData>&, G4ThreeVector &, G4ThreeVector &);
+	G4bool FindDMIdentifier_Barrett(const G4Step* step, std::vector<LArHitData>&);
 	G4bool GetCompartment_Barrett(G4ThreeVector,G4double,G4double,G4double,
-				       G4int &, G4int &);
-	G4double GetHV_Value_Default(const G4ThreeVector& p) { return GetHV_Value(p);}
-	G4double GetHV_Value_Barrett(const G4ThreeVector& p);
-	G4double GetGapSize_Default(const G4ThreeVector &p)  { return GetGapSize(p);}
-	G4double GetGapSize_Barrett(const G4ThreeVector &p);
-	G4int GetPhiGap_Barrett(G4ThreeVector &p);
-	G4double distance_to_the_nearest_electrode_Default(G4ThreeVector &p)
-	  { return distance_to_the_nearest_electrode(p);}
-	G4double distance_to_the_nearest_electrode_Barrett(G4ThreeVector &p);
+				       G4int &, G4int &) const;
+	G4double GetHV_Value_Default(const G4ThreeVector& p) const { return GetHV_Value(p);}
+	G4double GetHV_Value_Barrett(const G4ThreeVector& p) const;
+	G4double GetGapSize_Default(const G4ThreeVector &p) const { return GetGapSize(p);}  // need to make const
+	G4double GetGapSize_Barrett(const G4ThreeVector &p) const; // need to make const
+	G4int GetPhiGap_Barrett(const G4ThreeVector &p) const;
+	G4double distance_to_the_nearest_electrode_Default(const G4ThreeVector &p) const
+	  { return distance_to_the_nearest_electrode(p); }
+	G4double distance_to_the_nearest_electrode_Barrett(const G4ThreeVector &p) const;
 
 	static VCalibrationCalculator* m_supportCalculator;
 
 	static void SetConst_OuterBarrett(void);
 	static void SetConst_InnerBarrett(void);
-	G4bool GetVolumeIndex(const G4Step *);
+	G4bool GetVolumeIndex(const G4Step *) const;
 	static       G4bool   SetConstOuterBarrett;
 	static       G4bool   SetConstInnerBarrett;
  	static const G4double LongBarThickness;//       =   20. *mm;
@@ -149,9 +160,9 @@ class EnergyCalculator
 	static const G4double DistOfEndofCuFromBack;//  =22.77*mm/ColdCorrection;
 	static const G4double DistOfStartofCuFromBack;//=31.*mm; // frontface of the barrette
 	static const G4double ZmaxOfSignal;// DistOfStartofCuFromBack - DistOfEndofCuFromBack + EdgeWidth;
-	static       G4double RefzDist;// = dElecFocaltoWRP+dWRPtoFrontFace+WheelThickness+
-	                               // +dWRPtoFrontFace+ LongBarThickness
-	                               // -DistOfEndofCuFromBack
+	static       G4double RefzDist; // = dElecFocaltoWRP+dWRPtoFrontFace+WheelThickness+  // used as const after initialization
+	                                // +dWRPtoFrontFace+ LongBarThickness
+	                                // -DistOfEndofCuFromBack
 	static const G4double S3_Etalim[21];
 	static const G4double Rmeas_outer[50];
 	static const G4double Zmeas_outer[2];
@@ -164,16 +175,17 @@ class EnergyCalculator
 // **************************************************************************
 
 	EnergyCorrection_t m_correction_type;
-	G4double (EnergyCalculator::*ecorr_method)(G4double, G4ThreeVector&, G4ThreeVector&);
-	G4double dummy_correction_method(G4double e, G4ThreeVector&, G4ThreeVector&)
+	
+	G4double (EnergyCalculator::*ecorr_method) (G4double, const G4ThreeVector&, const G4ThreeVector&); // need to make const
+	G4double dummy_correction_method(G4double e, const G4ThreeVector&, const G4ThreeVector&) // need to make const
 	{ return e; }
-	G4double GapAdjustment_old(G4double, G4ThreeVector&, G4ThreeVector&);
-	G4double GapAdjustment    (G4double, G4ThreeVector&, G4ThreeVector&);
-	G4double GapAdjustment_E  (G4double, G4ThreeVector&, G4ThreeVector&);
-	G4double GapAdjustment_s  (G4double, G4ThreeVector&, G4ThreeVector&);
-	G4double GapAdjustment__sE (G4double, G4ThreeVector&, G4ThreeVector&);
-	G4double CalculateChargeCollection(G4double, G4ThreeVector&, G4ThreeVector&);
-	G4double CalculateChargeCollection1(G4double, G4ThreeVector&, G4ThreeVector&);
+	G4double GapAdjustment_old(G4double, const G4ThreeVector&, const G4ThreeVector&); // need to make const
+	G4double GapAdjustment    (G4double, const G4ThreeVector&, const G4ThreeVector&); // need to make const
+	G4double GapAdjustment_E  (G4double, const G4ThreeVector&, const G4ThreeVector&); // need to make const
+	G4double GapAdjustment_s  (G4double, const G4ThreeVector&, const G4ThreeVector&); // need to make const
+	G4double GapAdjustment__sE (G4double, const G4ThreeVector&, const G4ThreeVector&); // need to make const
+	G4double CalculateChargeCollection(G4double, const G4ThreeVector&, const G4ThreeVector&); // need to make const !!!
+	G4double CalculateChargeCollection1(G4double, const G4ThreeVector&, const G4ThreeVector&); // need to make const !!!
 
 	G4double m_GApower;
 
@@ -227,7 +239,7 @@ class EnergyCalculator
   G4int PointFoldMapArea;
 
   void CreateArrays(Wheel_Efield_Map &, G4int);
-  inline G4int Index(Fold_Efield_Map* foldmap, G4int i, G4int j, G4int k )
+  inline G4int Index(Fold_Efield_Map* foldmap, G4int i, G4int j, G4int k ) const
     {return foldmap->pLayer[i]+j*foldmap->NofPointsinLayer[i]+k;};
   void SetFoldArea(G4double);
 
@@ -259,8 +271,8 @@ class EnergyCalculator
   G4int NumberOfElectrodesInPhiSection;
 
   void GetHVMap(const G4String);
-  G4double GetHV_Value(const G4ThreeVector& p);
-  G4double GetHV_Value_ChColl_Wheel( const G4ThreeVector& , G4int , G4int);
+  G4double GetHV_Value(const G4ThreeVector& p) const;
+  G4double GetHV_Value_ChColl_Wheel( const G4ThreeVector& , G4int , G4int) const;
 
 //Efield in [kv/cm], driftvelo in [mm/microsec], Temperature in [K]
 
@@ -286,14 +298,14 @@ class EnergyCalculator
 // functions specific for geometry
 
   void     SetHalfWave(G4double);
-  void     GetPhiGap(G4double *);
+  void     GetPhiGap(G4double *); // need to make const
   void     SetYlimitsofPhigapinWheel(G4double,G4double);
-  G4double YofSurface(G4double,G4double,G4double);
-  inline   G4double YofNeutralFibre(G4double alpha,G4double rho){
+  G4double YofSurface(G4double,G4double,G4double) const;
+  inline   G4double YofNeutralFibre(G4double alpha,G4double rho) const{
     return YofSurface(alpha,rho,0.);
   }
-  G4double FoldingAngle(G4double);
-  G4double HalfLArGapSize(G4double,G4double);
+  G4double FoldingAngle(G4double) const;
+  G4double HalfLArGapSize(G4double, G4double) const;
 
    //  functions specific for charge coll.
 
@@ -305,7 +317,7 @@ class EnergyCalculator
   void     SetYlimitsofPhigapinFieldMap(G4int);
   void     TransFromBarrtoWheel(G4double*, G4double*);
   G4double GetWeightfromFieldMap(G4int,G4double,G4double);
-  G4double HalfLArGapSizeOld(G4double);
+  G4double HalfLArGapSizeOld(G4double) const;
 
   static       G4double CHC_Esr;
   static const G4int    CHCMaxPrint=00;
@@ -321,25 +333,29 @@ class EnergyCalculator
      std::pair<double, double>DxToFans(Hep3Vector &p);
      double XDistanceToTheNeutralFibre(const Hep3Vector& P) const;
   */
-  G4double GetGapSize(const G4ThreeVector &p);
+	G4double GetGapSize(const G4ThreeVector &p) const;  // need to make const
 
-  //  public:
-  G4double distance_to_the_nearest_electrode(G4ThreeVector &p);
+	//  public:
+	G4double distance_to_the_nearest_electrode(const G4ThreeVector &p) const;
 
-  LArG4BirksLaw *birksLaw;
+	LArG4BirksLaw *birksLaw;
+	LArWheelCalculator *m_lwc;
+	const LArWheelCalculator * lwc() const { return m_lwc; }
 
-  MsgStream *m_msg;
+	MsgStream *m_msg;
 
 	void get_HV_map_from_DB(void);
 	G4bool m_DB_HV;
 
 // Aug 2007 AMS, lost Aug 2008, restored May 2009
 	LArWheelCalculator *m_electrode_calculator;
-	G4double GetCurrent1(G4ThreeVector &, G4ThreeVector &, G4double);
+	const LArWheelCalculator * elc() const { return m_electrode_calculator; }
+	
+	G4double GetCurrent1(const G4ThreeVector &, const G4ThreeVector &, G4double); // need to make const
 	G4double get_HV_value(const G4ThreeVector&, const std::pair<G4int, G4int> &) const;
 
-  EnergyCalculator (const EnergyCalculator&);
-  EnergyCalculator& operator= (const EnergyCalculator&);
+	EnergyCalculator (const EnergyCalculator&);
+	EnergyCalculator& operator= (const EnergyCalculator&);
 };
 
 } // namespace EC

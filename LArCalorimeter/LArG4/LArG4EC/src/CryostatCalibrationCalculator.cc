@@ -322,9 +322,9 @@ namespace LArG4 {
     typedef identifierMap_t::iterator                   identifierMap_ptr_t;
     typedef std::map < G4String, identifierMap_t > volumeMap_t;
     typedef volumeMap_t::iterator                  volumeMap_ptr_t;
-    static volumeMap_t volumeMap;
+    static volumeMap_t volumeMap; // used as const after initialization
 
-    static G4bool notInitialized = true;
+    static G4bool notInitialized = true;  // used as const after initialization
 
     ///////////////////////////////////////////////////////////
     // Methods
@@ -443,8 +443,8 @@ namespace LArG4 {
         // First, find the physical volume copy number, and the
         // logical volume name.
 
-        G4VPhysicalVolume* physical = a_step->GetPreStepPoint()->GetPhysicalVolume();
-        G4int copyNumber = physical->GetCopyNo();
+        const G4VPhysicalVolume* physical = a_step->GetPreStepPoint()->GetPhysicalVolume();
+        const G4int copyNumber = physical->GetCopyNo();
         G4String volumeName = physical->GetLogicalVolume()->GetName();
 
         if(volumeName.index("LArMgr::") == 0) volumeName.erase(0,8);
@@ -480,11 +480,11 @@ namespace LArG4 {
 
             // Find our (x,y,z) location from the G4Step.
 
-            G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
-            G4StepPoint* post_step_point = a_step->GetPostStepPoint();
-            G4ThreeVector startPoint = pre_step_point->GetPosition();
-            G4ThreeVector endPoint   = post_step_point->GetPosition();
-            G4ThreeVector p = (startPoint + endPoint) * 0.5;
+            const G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
+            const G4StepPoint* post_step_point = a_step->GetPostStepPoint();
+            const G4ThreeVector startPoint = pre_step_point->GetPosition();
+            const G4ThreeVector endPoint   = post_step_point->GetPosition();
+            const G4ThreeVector p = (startPoint + endPoint) * 0.5;
 
             // Determine the geometric eta and phi.  Note that we do not
             // adjust for any endcap shifts; the values are assigned to
@@ -501,7 +501,7 @@ namespace LArG4 {
             // list of regions within this IdentifierInfo record
             // to find which one has etaMin<eta<etaMax.
 
-            G4int regions = info->numberOfRegions;
+            const G4int regions = info->numberOfRegions;
             const RegionInfo_t* region = info->regionInfoArray;
 
 #ifdef DEBUG_HITS
@@ -540,7 +540,7 @@ namespace LArG4 {
               // Convert eta and phi to their integer equivalents for the
               // identifier.
 
-              G4int etaInteger = G4int( (eta - region->etaMin) / region->deltaEta );
+              const G4int etaInteger = G4int( (eta - region->etaMin) / region->deltaEta );
               G4int phiInteger = G4int( phi / region->deltaPhi );
               // to handle rounding error problem
               if(phiInteger > 63) phiInteger = 0;
@@ -582,7 +582,7 @@ namespace LArG4 {
 #endif
 #if defined (DEBUG_HITS) || defined (DEBUG_VOLUMES)
             static const G4int messageMax = 1000;
-            static G4int messageCount = 0;
+            static G4int messageCount = 0; // exists only if debug activated
             if ( messageCount++ < messageMax ) {
               G4ThreeVector p = (a_step->GetPreStepPoint()->GetPosition() + a_step->GetPostStepPoint()->GetPosition()) * 0.5;
               std::cout << "LArG4::EndcapCryostat::CalibrationCalculator::Process" << std::endl

@@ -98,10 +98,10 @@ namespace LArG4 {
     }
 
       // Obtain the geometry version information:
-    std::string AtlasVersion = geoModel->atlasVersion();
-    std::string LArVersion = geoModel->LAr_VersionOverride();
-    std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
-    std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
+    const std::string AtlasVersion = geoModel->atlasVersion();
+    const std::string LArVersion = geoModel->LAr_VersionOverride();
+    const std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
+    const std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
 
     pAccessSvc->connect();
       // getting HEC table
@@ -206,12 +206,12 @@ namespace LArG4 {
       static const double oneOverDphi = 32./M_PI;  //   1/Dphi
 
       // Calculate the mid-point of the step, and the simple geometry variables.
-      G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
-      G4StepPoint* post_step_point = a_step->GetPostStepPoint();
+      const G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
+      const G4StepPoint* post_step_point = a_step->GetPostStepPoint();
 
-      G4ThreeVector startPoint = pre_step_point->GetPosition();
-      G4ThreeVector endPoint   = post_step_point->GetPosition();
-      G4ThreeVector p = (startPoint + endPoint) * 0.5;
+      const G4ThreeVector startPoint = pre_step_point->GetPosition();
+      const G4ThreeVector endPoint   = post_step_point->GetPosition();
+      const G4ThreeVector p = (startPoint + endPoint) * 0.5;
 
       //G4double rho = p.perp();
       G4double eta = fabs( p.pseudoRapidity() );
@@ -220,7 +220,7 @@ namespace LArG4 {
 
       // Initialize identifier variables with (invalid) default
       // values (INT_MIN is defined in <climits>).
-      G4int subdet = ( p.z() > 0.) ? 4 : -4;
+      const G4int subdet = ( p.z() > 0.) ? 4 : -4;
       G4int type =  INT_MIN;
       G4int sampling = INT_MIN;
       G4int region = INT_MIN;
@@ -453,7 +453,7 @@ namespace LArG4 {
 #endif
 #if defined (DEBUG_VOLUMES) || defined (DEBUG_HITS)
        static const G4int messageMax = 1000;
-        static G4int messageCount = 0;
+        static G4int messageCount = 0; // exists only if debug activated
         if ( messageCount++ < messageMax ) {
           std::cout << "LArG4::EMECSupportCalibrationCalculator::Process"
             << " (error " << messageCount << " of " << messageMax << " max displayed)"

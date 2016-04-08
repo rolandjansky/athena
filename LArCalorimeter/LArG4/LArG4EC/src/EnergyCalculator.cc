@@ -119,7 +119,7 @@ const G4double EnergyCalculator::DistOfEndofCuFromBack  = 22.77*CLHEP::mm/ColdCo
 const G4double EnergyCalculator::DistOfStartofCuFromBack= 31.*CLHEP::mm; // frontface of the barrette
 const G4double EnergyCalculator::ZmaxOfSignal           = DistOfStartofCuFromBack
                                                                 - DistOfEndofCuFromBack + EdgeWidth;
-G4double EnergyCalculator::RefzDist               = 0.;
+G4double EnergyCalculator::RefzDist           = 0.;
 G4bool EnergyCalculator::SetConstOuterBarrett = false;
 G4bool EnergyCalculator::SetConstInnerBarrett = false;
 
@@ -153,13 +153,13 @@ static const G4String
 	CHC_Esr_option = "chcesr",
 	GApower_option = "gapower";
 
-static G4double zsep12[44];
-static G4double ziw[7];
-static G4double zsep23[22];
+static G4double zsep12[44]; // used as const after initialization
+static G4double ziw[7];     // used as const after initialization
+static G4double zsep23[22]; // used as const after initialization
 // ****************************************************************************
 
 #if 0
-static G4String extract_option(G4String &options, G4String option)
+s tatic G4String extract_option(G4String &options, G4String option) // Depracated? DM, 29 Jul 2015
 // ****************************************************************************
 {
 	size_t l = options.length();
@@ -177,9 +177,8 @@ static G4String extract_option(G4String &options, G4String option)
 }
 #endif
 // ****************************************************************************
-static G4double DistanceToEtaLine(const G4ThreeVector &p, G4double eta){
-// ****************************************************************************
-      	G4double sinTheta = 2. * exp(-eta) / (1. + exp(2. * -eta));
+static inline G4double DistanceToEtaLine(const G4ThreeVector &p, G4double eta) {
+	G4double sinTheta = 2. * exp(-eta) / (1. + exp(2. * -eta));
 	G4double cosTheta = (1. - exp(2. * -eta)) / (1. + exp(2. * -eta));
 	return p.perp() * cosTheta - p.z() * sinTheta;
 }
@@ -193,58 +192,66 @@ static G4double DistanceToEtaLine(const G4ThreeVector &p, G4double eta){
 
 
 // ****************************************************************************
-G4bool EnergyCalculator::Process(const G4Step* step){
+G4bool EnergyCalculator::Process(const G4Step* step, std::vector<LArHitData>& hdata){
 // ****************************************************************************
 
-  return (this->*Process_type)(step);
+  // make sure hdata is reset
+  hdata.resize(1); 
+  return (this->*Process_type)(step, hdata);
 }
 // ****************************************************************************
 
 // ****************************************************************************
 G4bool EnergyCalculator::FindIdentifier(
         const G4Step* step,
+        std::vector<LArHitData>& hdata,
 	G4ThreeVector &startPointLocal,
 	G4ThreeVector &endPointLocal
 	){
 // ****************************************************************************
 
-  return (this->*FindIdentifier_type) (step,startPointLocal,endPointLocal);
+  return (this->*FindIdentifier_type) (step,hdata,startPointLocal,endPointLocal);
 }
 // ****************************************************************************
 
 EnergyCalculator::~EnergyCalculator() {
-  if(birksLaw) delete birksLaw;
+  if(birksLaw) {
+	delete birksLaw;
+	birksLaw = 0;
+  }
+  delete m_lwc;
+  m_lwc = 0;
 }
 
 // ****************************************************************************
-G4bool EnergyCalculator::Process_Default(const G4Step* step)
+G4bool EnergyCalculator::Process_Default(const G4Step* step, std::vector<LArHitData>& hdata)
 // ****************************************************************************
 {
-	static G4ThreeVector startPointinLocal, endPointinLocal;
-	if(!FindIdentifier_Default(step, startPointinLocal, endPointinLocal)){
+	G4ThreeVector startPointinLocal, endPointinLocal;
+	if(!FindIdentifier_Default(step, hdata, startPointinLocal, endPointinLocal)){
 		return false;
 	}
 
 	G4double E = step->GetTotalEnergyDeposit();
-	if (birksLaw){
-		G4ThreeVector midpoint = (startPointinLocal + endPointinLocal) * 0.5;
-		G4double wholeStepLengthCm = step->GetStepLength() / CLHEP::cm;
-	 	G4double gap = (this->*GetGapSize_type)(midpoint);
-		G4double efield = 0.01 * (this->*GetHV_Value_type)(midpoint) / gap; // estimate Efield[KV/cm]
+	if (birksLaw) {
+		const G4ThreeVector midpoint = (startPointinLocal + endPointinLocal) * 0.5;
+		const G4double wholeStepLengthCm = step->GetStepLength() / CLHEP::cm;
+	 	const G4double gap = (this->*GetGapSize_type)(midpoint);
+		const G4double efield = 0.01 * (this->*GetHV_Value_type)(midpoint) / gap; // estimate Efield[KV/cm]
 		E = (*birksLaw)(E, wholeStepLengthCm,efield);
 	}
 
-	m_energy = (this->*ecorr_method)(E, startPointinLocal, endPointinLocal);
+	hdata[0].energy = (this->*ecorr_method)(E, startPointinLocal, endPointinLocal);
 	return true;
 }
 
 // ****************************************************************************
-G4bool EnergyCalculator::Process_Barrett(const G4Step* step){
+G4bool EnergyCalculator::Process_Barrett(const G4Step* step, std::vector<LArHitData>& hdata){
 // ****************************************************************************
-	static G4ThreeVector startPointinLocal, endPointinLocal;
-	if(!FindIdentifier_Barrett(step, startPointinLocal, endPointinLocal)){
+	G4ThreeVector startPointinLocal, endPointinLocal;
+	if(!FindIdentifier_Barrett(step, hdata, startPointinLocal, endPointinLocal)){
 	                                        //cell id is not found
-	  if(!m_isBarretteCalib) return false; // ==> normal calculator return false
+	  if(!lwc()->GetisBarretteCalib()) return false; // ==> normal calculator return false
 	  else{ // if Calibration Calculator for Barrett:
                 // compute DM identifier;
      	        // In calibration calculator mode this process is used as "geometry calculator".
@@ -254,26 +261,26 @@ G4bool EnergyCalculator::Process_Barrett(const G4Step* step){
 	        // DM identifier for Barrett is defined
 	        // by the EmecSupportCalibrationCalculator.( In general it is
 	        // activated  by the atlas_calo.py)
-	       G4bool status=FindDMIdentifier_Barrett(step);
+	       const G4bool status=FindDMIdentifier_Barrett(step, hdata);
 	       if(!status)
 	         std::cout<<" WARNING!!EnergyCalculator::Process_Barrett:"
 			  << " DM identifier not found????"
 			  <<std::endl;
 	       return status;
 	  } // end of calibr. calculator
-    	}  // end if cell id not found
+    }  // end if cell id not found
 
 	// compute signal in 'normal' calculator mode, if cellid is found
 	G4double E = step->GetTotalEnergyDeposit();
 	if (birksLaw){
-		G4ThreeVector midpoint = (startPointinLocal + endPointinLocal) * 0.5;
-		G4double wholeStepLengthCm = step->GetStepLength() / CLHEP::cm;
-	 	G4double gap = (this->*GetGapSize_type)(midpoint);
-		G4double efield = 0.01 * (this->*GetHV_Value_type)(midpoint) / gap; // estimate Efield[KV/cm]
+		const G4ThreeVector midpoint = (startPointinLocal + endPointinLocal) * 0.5;
+		const G4double wholeStepLengthCm = step->GetStepLength() / CLHEP::cm;
+	 	const G4double gap = (this->*GetGapSize_type)(midpoint);
+		const G4double efield = 0.01 * (this->*GetHV_Value_type)(midpoint) / gap; // estimate Efield[KV/cm]
 		E = (*birksLaw)(E, wholeStepLengthCm,efield);
 	}
 
-	m_energy = (this->*ecorr_method)(E, startPointinLocal, endPointinLocal);
+	hdata[0].energy = (this->*ecorr_method)(E, startPointinLocal, endPointinLocal);
 	return true;
 }
 // ****************************************************************************
@@ -281,7 +288,7 @@ EnergyCalculator::EnergyCalculator(
 	LArWheelCalculator::LArWheelCalculator_t solidtype,
 	EnergyCorrection_t corr,
 	G4int zside
-	) : LArWheelCalculator(solidtype, zside),
+	) : 
      m_correction_type(corr),
 	    PhiGapNumber(0),
 	    PhiHalfGapNumber(0),
@@ -298,6 +305,7 @@ EnergyCalculator::EnergyCalculator(
 	    calculatorPhiGap(0),
 	    chcollPhiGap(0),
     birksLaw(0),
+    m_lwc(new LArWheelCalculator(solidtype, zside) ),
 	m_DB_HV(false)
 // ****************************************************************************
 {
@@ -311,7 +319,7 @@ EnergyCalculator::EnergyCalculator(
 	}
 	(*m_msg) << MSG::DEBUG << "constructor started" << endreq;
 
-	if(m_isElectrode){
+	if(lwc()->GetisElectrode()){
 		(*m_msg) << MSG::FATAL
 		         << "energy caclculator must be of 'absorber' type,"
 		         << " while 'electrode' type is requested."
@@ -319,9 +327,9 @@ EnergyCalculator::EnergyCalculator(
 		throw std::runtime_error("wrong type for EnergyCalculator");
 	}
 
-	// static initialization doesn't work anymore
-	RefzDist = m_dElecFocaltoWRP + m_dWRPtoFrontFace+m_WheelThickness + m_dWRPtoFrontFace
-	         + LongBarThickness - DistOfEndofCuFromBack;
+	RefzDist = lwc()->GetElecFocaltoWRP() +
+	           lwc()->GetdWRPtoFrontFace() + lwc()->GetWheelThickness() +
+	           lwc()->GetdWRPtoFrontFace() + LongBarThickness - DistOfEndofCuFromBack;
 
 	StoreGateSvc* detStore;
 	LArG4EMECOptions   *emecOptions;
@@ -343,10 +351,10 @@ EnergyCalculator::EnergyCalculator(
 
 	(*m_msg) << MSG::DEBUG << "StoreGate interface is ready" << endreq;
 
-	m_identifier = LArG4Identifier();
+	//m_identifier = LArG4Identifier();
 	m_compartment = 0;
-	m_time = 0.;
-	m_energy = 0.;
+	//m_time = 0.;
+	//m_energy = 0.;
 	m_isInTime = false;
 
 	m_OOTcut = globalOptions->OutOfTimeCut();
@@ -418,62 +426,60 @@ EnergyCalculator::EnergyCalculator(
 	  //       cout<<"i,zsep23= "<<i<<" "<<zsep23[i]<<endl;
 	}
 
-	ElectrodeFanHalfThickness = GetFanHalfThickness(InnerElectrodWheel);
+	ElectrodeFanHalfThickness = LArWheelCalculator::GetFanHalfThickness(LArWheelCalculator::InnerElectrodWheel);
 	FanEleThickness = ElectrodeFanHalfThickness * 2.;
 	FanEleThicknessOld = 0.300*CLHEP::mm;
 	FanEleFoldRadiusOld = 3.*CLHEP::mm;
-	FanAbsThickness = GetFanHalfThickness() * 2.;
-	WaveLength = m_ActiveLength / m_NumberOfWaves;
+	FanAbsThickness = lwc()->GetFanHalfThickness() * 2.;
+	WaveLength = lwc()->GetActiveLength() / lwc()->GetNumberOfWaves();
 
-	assert(fabs((*emecGeometry)[0]->getDouble("GAP0")*CLHEP::cm - AverageGap)
-	       < 0.000001);
+	assert(fabs((*emecGeometry)[0]->getDouble("GAP0")*CLHEP::cm - AverageGap) < 0.000001);
 
 //Barrette treatment
-        if(m_isBarrette){
-          if(m_type == OuterAbsorberWheel || m_type == OuterAbsorberModule) SetConst_OuterBarrett();
-          else{
-           if(m_type == InnerAbsorberWheel   ||
-              m_type == InnerAbsorberModule ){
+     if(lwc()->GetisBarrette()){
+          if(lwc()->type() == LArWheelCalculator::OuterAbsorberWheel || lwc()->type() == LArWheelCalculator::OuterAbsorberModule) {
+			SetConst_OuterBarrett();
+		  } else{
+           if(lwc()->type() == LArWheelCalculator::InnerAbsorberWheel || lwc()->type() == LArWheelCalculator::InnerAbsorberModule ){
 
 	      (*m_msg) << MSG::FATAL
 		           << "EnergyCalculator: "
 				   << "Barrett section is not (yet) prepared for "
-				   << LArWheelCalculatorTypeString(m_type)
+				   << LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type())
 				   << endreq;
 	      G4ExceptionDescription description;
 	      description << G4String("Process_Barrett: ") + "Barrett section is not (yet) prepared for solidtype=" +
-		LArWheelCalculatorTypeString(m_type);
+		LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type());
 	      G4Exception("EnergyCalculator", "BarretteSectionNotPrepared", FatalException, description);
 	   }
 	   else{
 	      (*m_msg) << MSG::FATAL
 		        	   << "EnergyCalculator: "
 				   << "Unknown solidtype:"
-				   << LArWheelCalculatorTypeString(m_type)
+				   << LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type())
 				   << endreq;
 	      G4ExceptionDescription description;
 	      description << G4String("Process_Barrett: ") + "Unknown  solidtype=" +
-		LArWheelCalculatorTypeString(m_type);
+		          LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type());
 	      G4Exception("EnergyCalculator", "UnknownSolidType", FatalException, description);
 	   }
 	  }
 
 	  Process_type        = &EnergyCalculator::Process_Barrett;
-          FindIdentifier_type = &EnergyCalculator::FindIdentifier_Barrett;
-          GetHV_Value_type    = &EnergyCalculator::GetHV_Value_Barrett;
-          GetGapSize_type     = &EnergyCalculator::GetGapSize_Barrett;
-          distance_to_the_nearest_electrode_type =
+      FindIdentifier_type = &EnergyCalculator::FindIdentifier_Barrett;
+      GetHV_Value_type    = &EnergyCalculator::GetHV_Value_Barrett;
+      GetGapSize_type     = &EnergyCalculator::GetGapSize_Barrett;
+      distance_to_the_nearest_electrode_type =
               &EnergyCalculator::distance_to_the_nearest_electrode_Barrett;
 
-	  if(m_isBarretteCalib) m_supportCalculator= new LArG4::EMECSupportCalibrationCalculator();
+	  if(lwc()->GetisBarretteCalib()) m_supportCalculator= new LArG4::EMECSupportCalibrationCalculator();
 
-	}
-	else{
+	} else {
 	  Process_type        = &EnergyCalculator::Process_Default;
-          FindIdentifier_type = &EnergyCalculator::FindIdentifier_Default;
-          GetHV_Value_type    = &EnergyCalculator::GetHV_Value_Default;
-          GetGapSize_type     = &EnergyCalculator::GetGapSize_Default;
-          distance_to_the_nearest_electrode_type =
+      FindIdentifier_type = &EnergyCalculator::FindIdentifier_Default;
+      GetHV_Value_type    = &EnergyCalculator::GetHV_Value_Default;
+      GetGapSize_type     = &EnergyCalculator::GetGapSize_Default;
+      distance_to_the_nearest_electrode_type =
              &EnergyCalculator::distance_to_the_nearest_electrode_Default;
 	}
 
@@ -529,7 +535,7 @@ Bad ECORRTYPE");
 		ecorr_method = &EnergyCalculator::dummy_correction_method;
 		break;
 	case EMEC_ECOR_CHCL1:
-		if(m_isBarrette){
+		if(lwc()->GetisBarrette()){
 			ecorr_method = &EnergyCalculator::CalculateChargeCollection;
 			(*m_msg) << MSG::INFO << "CHCOLL energy correction is user for Barettes"
 			         << " instead of CHCOLL1" << endreq;
@@ -545,12 +551,6 @@ Bad ECORRTYPE");
 			    "Process_Barrett: unknown correction type");
 	}
 
-#ifdef LARWHEELCALCULATOR_PSA_DEVELOPMENT
-// set method for folding angle calculation, possibilities: "param" "table" "iter"
-	std::string optfold=emecOptions->EMECFoldA();
-	LArWheelCalculator::SetOptFoldA(optfold);
-#endif // LARWHEELCALCULATOR_PSA_DEVELOPMENT
-
 // get power of gap in signal calculation
 	m_GApower = emecOptions->EMECGapPower();
 
@@ -562,7 +562,7 @@ Bad ECORRTYPE");
         HVMapVersion = emecOptions->EMECHVMap();
         if(HVMapVersion == "v00" || HVMapVersion == "v01") NofPhiSections=32;
         else{
-             NofPhiSections=m_NumberOfFans;
+             NofPhiSections=lwc()->GetNumberOfFans();
              for(G4int i=0;i<NofAtlasSide;++i){
 	       for(G4int j=0;j<NofEtaSection;++j){
 		 for(G4int k=0;k<NofElectrodeSide;++k){
@@ -571,7 +571,7 @@ Bad ECORRTYPE");
                }
              }
 	}
- 	NumberOfElectrodesInPhiSection = m_NumberOfFans / NofPhiSections;
+ 	NumberOfElectrodesInPhiSection = lwc()->GetNumberOfFans() / NofPhiSections;
 
 	Ylimits[0]=Ylimits[1]=Ylimits[2]=Ylimits[3]=0;
 
@@ -591,7 +591,7 @@ Bad ECORRTYPE");
 
 // if charge collection is required
    if(m_correction_type == EMEC_ECOR_CHCL ||  m_correction_type ==  EMEC_ECOR_CHCL1){
-      if(!m_isElectrode){
+      if(!lwc()->GetisElectrode()){
 // get fieldmap from file
 
 	if(FieldMapsRead == false){
@@ -626,11 +626,12 @@ Bad ECORRTYPE");
 
 	if(FieldMapVersion != "v00"){
 	  FanEleThicknessOld  = FanEleThickness;
-	  FanEleFoldRadiusOld = m_FanFoldRadius;
+	  FanEleFoldRadiusOld = lwc()->GetFanFoldRadius();
 	}
 
-	if(m_isInner) ChCollWheelType=&ChCollInner;
+	if(lwc()->GetisInner()) ChCollWheelType=&ChCollInner;
 	else        ChCollWheelType=&ChCollOuter;
+	
 	if(ChCollWheelType->FieldMapPrepared == false){
 	   PrepareFieldMap();
 	   ChCollWheelType->FieldMapPrepared = true;
@@ -640,12 +641,12 @@ Bad ECORRTYPE");
 	(*m_msg) << MSG::FATAL
 	       << "EnergyCalculator: "
 	       << "Charge Collection cannot be prepared for "
-	       << LArWheelCalculatorTypeString(m_type)
+	       << LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type())
 	       << endreq;
 	G4ExceptionDescription description;
 	description << G4String("Process_Barrett: ") +
 	  "Charge Collection cannot be prepared for solidtype=" +
-	  LArWheelCalculatorTypeString(m_type);
+	  LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type());
 	G4Exception("EnergyCalculator", "IncorrectSolidType", FatalException, description);
       }
    }  // end if chcoll required
@@ -654,23 +655,21 @@ Bad ECORRTYPE");
 	  << "correction type " << m_correction_type << std::endl
 	  << "GA power = " << m_GApower << std::endl
 	  << "energy suppression range = " << CHC_Esr / CLHEP::mm << " [mm]"
-	  << std::endl
-#ifdef LARWHEELCALCULATOR_PSA_DEVELOPMENT
-	  << "method for computation of folding angle="
-	  << LArWheelCalculator::GetOptFoldA()
-#else
+	  << "\n"
       << "default method for computation of folding angle (param) - compiled in"
-#endif // LARWHEELCALCULATOR_PSA_DEVELOPMENT
 	  << endreq;
 // Aug 2007 AMS, lost Aug 2008, restored May 2009
 	m_electrode_calculator = 0;
-	if(m_correction_type == EMEC_ECOR_CHCL1 && !m_isBarrette){
-		LArWheelCalculator::LArWheelCalculator_t t = OuterElectrodWheel;
-		if(m_isModule){
-			if(m_isInner) t = InnerElectrodModule;
-			else t = OuterElectrodModule;
-		} else if(m_isInner) t = InnerElectrodWheel;
-		m_electrode_calculator = new LArWheelCalculator(t, m_AtlasZside);
+	if(m_correction_type == EMEC_ECOR_CHCL1 && !lwc()->GetisBarrette()){
+		LArWheelCalculator::LArWheelCalculator_t t = LArWheelCalculator::OuterElectrodWheel;
+		if(lwc()->GetisModule()){
+		  
+			if(lwc()->GetisInner()) t = LArWheelCalculator::InnerElectrodModule;
+			else t = LArWheelCalculator::OuterElectrodModule;
+			
+		} else if(lwc()->GetisInner()) t = LArWheelCalculator::InnerElectrodWheel;
+		
+		m_electrode_calculator = new LArWheelCalculator(t, lwc()->GetAtlasZside());
 		if(m_electrode_calculator == 0){
 			(*m_msg) << MSG::FATAL
 			         << "cannot create helper electrode calculator"
@@ -680,16 +679,16 @@ Bad ECORRTYPE");
 		}
 		(*m_msg) << MSG::DEBUG
 		       << "helper electrode calculator created ("
-			   << LArWheelCalculatorTypeString(t) << ")"
+			   << LArWheelCalculator::LArWheelCalculatorTypeString(t) << ")"
 			   << endreq;
 	}
-}
+} // end of EnergyCalculator::EnergyCalculator
 
 G4double EnergyCalculator::CalculateChargeCollection1(
-	G4double a_energy, G4ThreeVector &p1, G4ThreeVector &p2)
+	G4double a_energy, const G4ThreeVector &p1, const G4ThreeVector &p2)  // need to make const
 {
-	if(!m_isBarrette){   // should be wheel
-		G4double current1 = GetCurrent1(p1, p2, a_energy);
+	if(!lwc()->GetisBarrette()){   // should be wheel
+		G4double current1 = GetCurrent1(p1, p2, a_energy);  // need to make const
 
 		CHCEtotal += a_energy;
 		CHCStotal += current1;
@@ -710,37 +709,36 @@ G4double EnergyCalculator::CalculateChargeCollection1(
 
 // ****************************************************************************
 G4double EnergyCalculator::GapAdjustment_old(G4double a_energy,
-						G4ThreeVector& p1, G4ThreeVector &p2)
+						const G4ThreeVector& p1, const G4ThreeVector &p2) // need to make const
 // ****************************************************************************
 {
   //  std::cout<<"*** GapAdjustment_old is called, a_energy="<<a_energy
   //	   <<std::endl;
 
-	static G4ThreeVector p;
-	p = (p1 + p2) * .5;
+	const G4ThreeVector p = (p1 + p2) * .5;
 	return(a_energy / pow( ((this->*GetGapSize_type)(p)) / AverageGap, 1.3));
 }
 
 // ****************************************************************************
 G4double EnergyCalculator::GapAdjustment(G4double      a_energy,
-                                         G4ThreeVector& a_startPoint,
-                                         G4ThreeVector& a_endPoint)
+                                         const G4ThreeVector& a_startPoint,
+                                         const G4ThreeVector& a_endPoint) // need to make const
 // ****************************************************************************
 {
+	static const G4double substpsize = 0.1*CLHEP::mm;
   //  std::cout<<"*** GapAdjustment is called, a_energy="<<a_energy
   //	   <<std::endl;
 
-	static G4ThreeVector step, vstep;
-	static const G4double substpsize = 0.1*CLHEP::mm;
-	step = a_endPoint - a_startPoint;
-	G4int			 nofstep= int(step.mag()/substpsize)+1;
-	G4double		s_energy= a_energy/nofstep;
-	G4double	 corr_energy= 0;
+	const G4ThreeVector step( a_endPoint - a_startPoint );
+	const G4int	        nofstep= int(step.mag()/substpsize)+1;
+	const G4double		s_energy= a_energy/nofstep;
+	G4double	  corr_energy= 0;
+	G4ThreeVector vstep;
 
 	for(G4int i = 0; i < nofstep; ++ i){ // loop for substeps
-		G4double ds = (i + 0.5) / nofstep;
+		const G4double ds = (i + 0.5) / nofstep;
 	 	vstep = a_startPoint * (1. - ds) + a_endPoint * ds;
-		G4double gap = (this->*GetGapSize_type)(vstep);
+		const G4double gap = (this->*GetGapSize_type)(vstep);
 		corr_energy += s_energy / pow((gap / AverageGap), m_GApower);
 	}
 	return corr_energy;
@@ -748,25 +746,26 @@ G4double EnergyCalculator::GapAdjustment(G4double      a_energy,
 
 // ****************************************************************************
 G4double EnergyCalculator::GapAdjustment_E(G4double a_energy,
-                                                  G4ThreeVector& a_startPoint,
-                                                  G4ThreeVector& a_endPoint)
+                                                  const G4ThreeVector& a_startPoint,
+                                                  const G4ThreeVector& a_endPoint) // need to make const
 // ****************************************************************************
 {
+	static const G4double substpsize = 0.1*CLHEP::mm;
   //std::cout<<"*** GapAdjustment_E is called, a_energy="<<a_energy
   //	   <<std::endl;
 
-	static G4ThreeVector step, vstep;
-	step = a_endPoint - a_startPoint;
-	G4double substpsize = 0.1*CLHEP::mm;
-	G4int nofstep = G4int(step.mag()/substpsize) + 1;
-	G4double s_energy = a_energy / nofstep / AverageCurrent;
+	const G4ThreeVector step( a_endPoint - a_startPoint );
+	const G4int nofstep = G4int(step.mag()/substpsize) + 1;
+	const G4double s_energy = a_energy / nofstep / AverageCurrent;
 	G4double corr_energy = 0;
+	G4ThreeVector vstep;
+
 	for(G4int i = 0; i < nofstep; i ++){
-		G4double ds = (i + 0.5) / nofstep;
+		const G4double ds = (i + 0.5) / nofstep;
 		vstep = a_startPoint * (1. - ds) + a_endPoint * ds;
-		G4double gap = (this->*GetGapSize_type)(vstep);
-		G4double HV_value = (this->*GetHV_Value_type)(vstep);
-		G4double efield = (HV_value * CLHEP::volt) / (gap * CLHEP::mm) / (CLHEP::kilovolt / CLHEP::cm); // estimate Efield[KV/cm]
+		const G4double gap = (this->*GetGapSize_type)(vstep);
+		const G4double HV_value = (this->*GetHV_Value_type)(vstep);
+		const G4double efield = (HV_value * CLHEP::volt) / (gap * CLHEP::mm) / (CLHEP::kilovolt / CLHEP::cm); // estimate Efield[KV/cm]
 		corr_energy += s_energy / /* gap * gap / */ (gap - CHC_Esr)
 		             * IonReco(efield) * DriftVelo(LArTemperature_av, efield);
 	}
@@ -776,8 +775,8 @@ G4double EnergyCalculator::GapAdjustment_E(G4double a_energy,
 // ****************************************************************************
 G4double EnergyCalculator::CalculateChargeCollection(
 	G4double a_energy,
-	G4ThreeVector &a_startPoint,
-	G4ThreeVector &a_endPoint)
+	const G4ThreeVector &a_startPoint,
+	const G4ThreeVector &a_endPoint) // need to make const
 // ****************************************************************************
 {
   // std::cout<<"*** CalculateChargeCollection is called, a_energy="<<a_energy
@@ -790,13 +789,13 @@ G4double EnergyCalculator::CalculateChargeCollection(
 	     << ", startPoint = " << MSG_VECTOR(a_startPoint)
 	     << ", endPoint = " << MSG_VECTOR(a_endPoint)
 	     << ", wheel type: "
-	     << LArWheelCalculatorTypeString(m_type)
-	     << " m_isBarrette = " << m_isBarrette
-	     << " m_isBarretteCalib = " << m_isBarretteCalib
+	     << LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type())
+	     << " isBarrette = " << lwc()->GetisBarrette()
+	     << " isBarretteCalib = " << lwc()->GetisBarretteCalib()
 	     << endreq;
 
 //	calculatorPhiGap =
-//		PhiGapNumberForWheel(LArWheelCalculator::GetPhiGap(a_startPoint));
+//		lwc()->PhiGapNumberForWheel(LArWheelCalculator::GetPhiGap(a_startPoint));
 
   G4double pStart[3],pEnd[3];
   for(G4int i = 0; i <= 2; ++ i){
@@ -804,21 +803,21 @@ G4double EnergyCalculator::CalculateChargeCollection(
     pEnd  [i]=a_endPoint  [i];
   }
 
-  if(!m_isBarrette){   // should be wheel
+  if(!lwc()->GetisBarrette()){   // should be wheel
 
     assert(pStart[2] >= -0.0001 &&
 	     pEnd[2] >= -0.0001 &&
-	   pStart[2] <= m_WheelThickness+0.0001   &&
-	     pEnd[2] <= m_WheelThickness+0.0001);
+	   pStart[2] <= lwc()->GetWheelThickness()+0.0001   &&
+	     pEnd[2] <= lwc()->GetWheelThickness()+0.0001);
 
     if(pStart[2]<0.) pStart[2]=0.0001;
     if(  pEnd[2]<0.)   pEnd[2]=0.0001;
-    if(pStart[2]>m_WheelThickness) pStart[2]=m_WheelThickness-0.0001;
-    if(  pEnd[2]>m_WheelThickness)   pEnd[2]=m_WheelThickness-0.0001;
+    if(pStart[2]>lwc()->GetWheelThickness()) pStart[2]=lwc()->GetWheelThickness()-0.0001;
+    if(  pEnd[2]>lwc()->GetWheelThickness())   pEnd[2]=lwc()->GetWheelThickness()-0.0001;
   }
   else{               // should be Barrett (only BackOuterBarrett at the moment)
 
-    double thick=m_dWRPtoFrontFace * 0.5;
+    const double thick=lwc()->GetdWRPtoFrontFace() * 0.5;
     assert(fabs(pStart[2]) <= thick+0.0001 && fabs(pEnd[2]) <= thick+0.0001 );
     if(pStart[2]<-thick)  pStart[2]=-thick+0.0001;
     if(  pEnd[2]<-thick)    pEnd[2]=-thick+0.0001;
@@ -826,7 +825,7 @@ G4double EnergyCalculator::CalculateChargeCollection(
     if(  pEnd[2]> thick)    pEnd[2]= thick-0.0001;
   }
 
-  G4double current = GetCurrent(pStart, pEnd, a_energy);
+  const G4double current = GetCurrent(pStart, pEnd, a_energy);
 
   CHCEtotal=CHCEtotal+a_energy;
   CHCStotal=CHCStotal+current;
@@ -834,7 +833,7 @@ G4double EnergyCalculator::CalculateChargeCollection(
   if(m_msg->level()==MSG::DEBUG)
     (*m_msg) << MSG::DEBUG
 //  std::cout
-	     <<" isBarrett="<<m_isBarrette<<" isInner="<<m_isInner
+	     <<" isBarrett="<<lwc()->GetisBarrette()<<" isInner="<<lwc()->GetisInner()
 	     <<" chcoll: edep, current= "<<a_energy<<" "<<current
 	     <<" CHCEtotal= "<<CHCEtotal<<" CHCStotal= "<<CHCStotal
 	     <<" CHCIprint= "<<CHCIprint<<" CHCEbad= "<<CHCEbad
@@ -997,9 +996,9 @@ void EnergyCalculator::get_HV_map_from_DB(void)
 	const LArHVManager *manager = 0;
 	if(pDetStore->retrieve(manager) == StatusCode::SUCCESS){
 		const EMECHVManager* hvManager =
-			manager->getEMECHVManager(m_isInner? EMECHVModule::INNER: EMECHVModule::OUTER);
+			manager->getEMECHVManager(lwc()->GetisInner()? EMECHVModule::INNER: EMECHVModule::OUTER);
 		(*m_msg) << MSG::INFO << "got HV Manager for "
-		         << (m_isInner? "inner": "outer") << " wheel" << endreq;
+		         << (lwc()->GetisInner()? "inner": "outer") << " wheel" << endreq;
 		const EMECHVDescriptor* dsc = hvManager->getDescriptor();
 		unsigned int counter = 0;
       // loop over HV modules
@@ -1011,7 +1010,7 @@ void EnergyCalculator::get_HV_map_from_DB(void)
 				iEta < hvManager->endEtaIndex(); ++ iEta
 			){
 				unsigned int jEta = iEta;
-				if(m_isInner) jEta += 7;
+				if(lwc()->GetisInner()) jEta += 7;
 				for(unsigned int iPhi = hvManager->beginPhiIndex();
 					iPhi < hvManager->endPhiIndex(); ++ iPhi
 				){
@@ -1028,8 +1027,8 @@ void EnergyCalculator::get_HV_map_from_DB(void)
 							jElec += iSector*nElec;
 							jElec += iPhi*nElec*dsc->getSectorBinning().getNumDivisions();
 							if(jSide == 1){
-								jElec = m_NumberOfFans + m_HalfNumberOfFans - jElec;
-								if(jElec >= (unsigned int)m_NumberOfFans) jElec -= m_NumberOfFans;
+								jElec = lwc()->GetNumberOfFans() + lwc()->GetNumberOfFans() / 2 - jElec;
+								if(jElec >= (unsigned int)lwc()->GetNumberOfFans()) jElec -= lwc()->GetNumberOfFans();
 							}
 							for(unsigned int iGap = 0; iGap < 2; ++ iGap){
 								double hv = electrode->voltage(iGap);
@@ -1067,7 +1066,7 @@ void EnergyCalculator::get_HV_map_from_DB(void)
 	}
 }
 // ****************************************************************************
-G4double EnergyCalculator::GetHV_Value(const G4ThreeVector& p)
+G4double EnergyCalculator::GetHV_Value(const G4ThreeVector& p) const
 // ****************************************************************************
 {
 // pickup HV value from the data of power supplies;
@@ -1075,13 +1074,10 @@ G4double EnergyCalculator::GetHV_Value(const G4ThreeVector& p)
 // if it is not the same as the Atlas's one, adjustment is needed
 // either in this code or in the data file
 
-	G4int atlasside = m_AtlasZside;
-	if(atlasside > 0) atlasside = 0;
-	else atlasside = 1;
+	const G4int atlasside = (lwc()->GetAtlasZside() > 0) ? 0 : 1;
 
-	G4ThreeVector pforeta =
-		G4ThreeVector(p.x(), p.y(), p.z() + m_dElecFocaltoWRP + m_dWRPtoFrontFace);
-	G4double mideta = pforeta.pseudoRapidity();
+	const G4ThreeVector pforeta(p.x(), p.y(), p.z() + lwc()->GetElecFocaltoWRP() + lwc()->GetdWRPtoFrontFace());
+	const G4double mideta = pforeta.pseudoRapidity();
 	G4int etasection = -1;
 	for(G4int i = 1; i <= NofEtaSection; ++ i){
 	  if(mideta <= HV_Etalim[i]){
@@ -1093,15 +1089,16 @@ G4double EnergyCalculator::GetHV_Value(const G4ThreeVector& p)
 
 	//assert(etasection >= 0 && etasection <= NofEtaSection - 1);
 
-	std::pair<G4int, G4int> gap = GetPhiGapAndSide(p);
+	const std::pair<G4int, G4int> gap = lwc()->GetPhiGapAndSide(p);
 	G4int electrodeside = 0;  //left side of electrode(small phi)
 	if(gap.second > 0) electrodeside = 1;
 
-	G4int electrodenumber = PhiGapNumberForWheel(gap.first);
-	G4int firstelectrode  = HV_Start_phi[atlasside][etasection][electrodeside];
+	const G4int electrodenumber = lwc()->PhiGapNumberForWheel(gap.first);
+	const G4int firstelectrode  = HV_Start_phi[atlasside][etasection][electrodeside];
 	G4int electrodeindex  = electrodenumber-firstelectrode;
-	if(electrodeindex < 0) electrodeindex += m_NumberOfFans;
-	G4int phisection      = electrodeindex / NumberOfElectrodesInPhiSection;
+	if(electrodeindex < 0) electrodeindex += lwc()->GetNumberOfFans();
+
+	const G4int phisection      = electrodeindex / NumberOfElectrodesInPhiSection;
 	assert(phisection>=0 && phisection<=NofPhiSections-1);
 
 	G4double HV_value= HV_Values[atlasside][etasection][electrodeside][phisection];
@@ -1112,7 +1109,7 @@ G4double EnergyCalculator::GetHV_Value(const G4ThreeVector& p)
 		   <<"***GetHV::="<<HV_value<<" Asde="<<atlasside<<" eta="<<etasection
 		   <<" Esde="<<electrodeside
 		   <<" fi="<<phisection<<" xyz="<<p.x()<<" "<<p.y()<<" "<<p.z()
-		   <<" igap.first="<<PhiGapNumberForWheel(gap.first)
+		   <<" igap.first="<<lwc()->PhiGapNumberForWheel(gap.first)
 		   <<" gap.second="<<gap.second
 		   <<endreq;
 
@@ -1125,28 +1122,28 @@ is suppressed.
 */
 // ****************************************************************************
 G4double EnergyCalculator::GapAdjustment_s(G4double      a_energy,
-                                         G4ThreeVector& a_startPoint,
-                                         G4ThreeVector& a_endPoint)
+                                         const G4ThreeVector& a_startPoint,
+                                         const G4ThreeVector& a_endPoint) // need to make const
 // ****************************************************************************
 
 {
+	static const G4double substpsize = 0.1*CLHEP::mm;
   //  std::cout<<"*** GapAdjustment_s is called, a_energy="<<a_energy
   //	   <<std::endl;
 
-	static G4ThreeVector vstep, tmp, step;
-	static const G4double substpsize = 0.1*CLHEP::mm;
-	step = a_endPoint - a_startPoint;
-	G4int			 nofstep= int(step.mag()/substpsize)+1;
-	G4double		s_energy= a_energy/nofstep;
-	G4double	 corr_energy= 0.;
+	const G4ThreeVector step( a_endPoint - a_startPoint );
+	const G4int   nofstep= int(step.mag()/substpsize)+1;
+	const G4double	  s_energy= a_energy/nofstep;
+	G4double	  corr_energy= 0.;
+	G4ThreeVector vstep, tmp;
 
 	for(G4int i = 0; i < nofstep; ++ i){ // loop for substeps
-		G4double ds = (i + 0.5) / nofstep;
+		const G4double ds = (i + 0.5) / nofstep;
 		vstep = a_startPoint * (1. - ds) + a_endPoint * ds;
 		tmp = vstep;
-		G4double dte = (this->*distance_to_the_nearest_electrode_type)(tmp);
+		const G4double dte = (this->*distance_to_the_nearest_electrode_type)(tmp);
 		if(fabs(dte) < CHC_Esr) continue;
-		G4double gap = (this->*GetGapSize_type)(vstep);
+		const G4double gap = (this->*GetGapSize_type)(vstep);
 		corr_energy += s_energy / pow((gap / AverageGap), m_GApower)
 		               * gap / (gap - CHC_Esr);
 	}
@@ -1154,27 +1151,28 @@ G4double EnergyCalculator::GapAdjustment_s(G4double      a_energy,
 }
 // ****************************************************************************
 G4double EnergyCalculator::GapAdjustment__sE(G4double a_energy,
-                                                  G4ThreeVector& a_startPoint,
-                                                  G4ThreeVector& a_endPoint)
+                                                  const G4ThreeVector& a_startPoint,
+                                                  const G4ThreeVector& a_endPoint) // need to make const
 // ****************************************************************************
 {
+	static const G4double substpsize = 0.1*CLHEP::mm;
   //  std::cout<<"*** GapAdjustment__sE is called, a_energy="<<a_energy
   //	   <<std::endl;
 
-	static G4ThreeVector step, vstep, tmp;
-	step = a_endPoint - a_startPoint;
-	static const G4double substpsize = 0.1*CLHEP::mm;
-	G4int nofstep = G4int(step.mag()/substpsize) + 1;
-	G4double s_energy = a_energy / nofstep;
+	const G4ThreeVector step( a_endPoint - a_startPoint );
+	const G4int nofstep = G4int(step.mag()/substpsize) + 1;
+	const G4double s_energy = a_energy / nofstep;
 	G4double corr_energy = 0;
+	G4ThreeVector vstep, tmp;
+	
 	for(G4int i = 0; i < nofstep; i ++){
-		G4double ds = (i + 0.5) / nofstep;
+		const G4double ds = (i + 0.5) / nofstep;
 		vstep = a_startPoint * (1. - ds) + a_endPoint * ds;
 		tmp = vstep;
-		G4double dte = (this->*distance_to_the_nearest_electrode_type)(tmp);
+		const G4double dte = (this->*distance_to_the_nearest_electrode_type)(tmp);
 		if(fabs(dte) < CHC_Esr) continue;
-		G4double gap = (this->*GetGapSize_type)(vstep);
-		G4double efield = 0.01 * (this->*GetHV_Value_type)(vstep) / gap; // estimate Efield[KV/cm]
+		const G4double gap = (this->*GetGapSize_type)(vstep);
+		const G4double efield = 0.01 * (this->*GetHV_Value_type)(vstep) / gap; // estimate Efield[KV/cm]
 		corr_energy += s_energy / AverageCurrent / gap *
 		               IonReco(efield) * DriftVelo(LArTemperature_av, efield)
 		               * gap / (gap - CHC_Esr);
@@ -1222,22 +1220,21 @@ static const geometry_t geometry[] =
 // ****************************************************************************
 G4bool EnergyCalculator::FindIdentifier_Default(
 	const G4Step* step,
+        std::vector<LArHitData>& hdata,
 	G4ThreeVector &startPointLocal,
 	G4ThreeVector &endPointLocal
-)
+)  // need to make const. return m_identifier, not modify
 // ****************************************************************************
 {
 	G4bool validhit = true;
 
-	static G4ThreeVector startPoint, endPoint, p, pinLocal;
+	const G4StepPoint* pre_step_point = step->GetPreStepPoint();
+	const G4StepPoint* post_step_point = step->GetPostStepPoint();
 
-	G4StepPoint* pre_step_point = step->GetPreStepPoint();
-	G4StepPoint* post_step_point = step->GetPostStepPoint();
-
-	startPoint = pre_step_point->GetPosition();
-	endPoint   = post_step_point->GetPosition();
+	const G4ThreeVector startPoint = pre_step_point->GetPosition();
+	const G4ThreeVector endPoint   = post_step_point->GetPosition();
 //	p = (startPoint + endPoint) * 0.5;
-	p = startPoint;  // middle point may be out of volume
+	const G4ThreeVector p = startPoint;  // middle point may be out of volume
 
 	const G4AffineTransform transformation =
 		pre_step_point->GetTouchable()->GetHistory()->GetTopTransform();
@@ -1245,19 +1242,19 @@ G4bool EnergyCalculator::FindIdentifier_Default(
 	startPointLocal = transformation.TransformPoint(startPoint);
 	endPointLocal = transformation.TransformPoint(endPoint);
 //	pinLocal = (startPointLocal + endPointLocal) * 0.5;
-	pinLocal = startPointLocal;  // middle point may be out of volume
+	const G4ThreeVector pinLocal = startPointLocal;  // middle point may be out of volume
 
-	G4ThreeVector pforcell(pinLocal.x(), pinLocal.y() ,
-	                       pinLocal.z() + m_dElecFocaltoWRP + m_dWRPtoFrontFace);
+	const G4ThreeVector pforcell(pinLocal.x(), pinLocal.y() ,
+	                       pinLocal.z() + lwc()->GetElecFocaltoWRP() + lwc()->GetdWRPtoFrontFace());
 
-	G4double eta = pforcell.pseudoRapidity();
-	G4double   z = pforcell.z();
+	const G4double eta = pforcell.pseudoRapidity();
+	const G4double   z = pforcell.z();
 	G4double phi = pforcell.phi();
 	if(phi < 0.) phi += CLHEP::twopi;
 
 	m_compartment = 0;
 
-	if(m_isInner)
+	if(lwc()->GetisInner())
 	{
 		G4int ipad = G4int((eta - 2.5) / 0.1);
 		if(ipad > 6 || ipad < 0){
@@ -1317,7 +1314,7 @@ G4bool EnergyCalculator::FindIdentifier_Default(
 //	m_AtlasZside = geometry[c].zSide;
 //	if(p.z() < 0.) m_AtlasZside = -m_AtlasZside;
 //	G4int atlasside = m_AtlasZside;
-	G4int atlasside = m_AtlasZside * geometry[c].zSide;
+	const G4int atlasside = lwc()->GetAtlasZside() * geometry[c].zSide;
 
 	G4int sampling = geometry[c].sampling;
 	G4int region   = geometry[c].region;
@@ -1325,10 +1322,10 @@ G4bool EnergyCalculator::FindIdentifier_Default(
 	G4int etaBin = G4int(eta * geometry[c].etaScale - geometry[c].etaOffset);
 
 	if(etaBin < 0 || etaBin > geometry[c].maxEta) {
-           validhit=false;
-           if (etaBin<0) etaBin=0;
-           if (etaBin>geometry[c].maxEta) etaBin=geometry[c].maxEta;
-        }
+         validhit=false;
+         if (etaBin<0) etaBin=0;
+         if (etaBin>geometry[c].maxEta) etaBin=geometry[c].maxEta;
+    }
 
 // ===============
 // Treatment of the constraints on the electrodes' geometry,
@@ -1464,7 +1461,7 @@ G4bool EnergyCalculator::FindIdentifier_Default(
 
        break;
      case 2:
-       if(pinLocal.z() > m_WheelThickness-zEndofC8e2) {
+       if(pinLocal.z() > lwc()->GetWheelThickness()-zEndofC8e2) {
            validhit=false;
          }
        break;
@@ -1482,17 +1479,17 @@ G4bool EnergyCalculator::FindIdentifier_Default(
    case 9:
      switch(etaBin){
      case 18:
-       if(pinLocal.z() >  m_WheelThickness-zEndofC9e19 &&
-          pinLocal.z() <= m_WheelThickness-zSepofC9e18 &&
+       if(pinLocal.z() >  lwc()->GetWheelThickness()-zEndofC9e19 &&
+          pinLocal.z() <= lwc()->GetWheelThickness()-zSepofC9e18 &&
           pinLocal.perp() < r0aofC9e18 ) {
 //          G4cout<<" Skip of Hit in aC9e18"<<" r="<<pinLocal.perp()<<
 //                  " zinWheel="<<pinLocal.z()<<G4endl;
            validhit=false;
 
        }
-       if(pinLocal.z() > m_WheelThickness-zSepofC9e18 &&
+       if(pinLocal.z() > lwc()->GetWheelThickness()-zSepofC9e18 &&
           pinLocal.perp() <
-         r0cofC9e18+txofC9e18*(pinLocal.z()-(m_WheelThickness-zSepofC9e18))){
+         r0cofC9e18+txofC9e18*(pinLocal.z()-(lwc()->GetWheelThickness()-zSepofC9e18))){
 //          G4cout<<" Skip of Hit in cC9e18"<<" r="<<pinLocal.perp()<<
 //                  " zinWheel="<<pinLocal.z()<<G4endl;
            validhit=false;
@@ -1500,7 +1497,7 @@ G4bool EnergyCalculator::FindIdentifier_Default(
        }
        break;
      case 19:
-	if(pinLocal.z() > m_WheelThickness-zEndofC9e19) {
+	if(pinLocal.z() > lwc()->GetWheelThickness()-zEndofC9e19) {
 //           G4cout<<" Skip of Hit in z crack C9e19"<<" r="<<pinLocal.perp()<<
 //                  " zinWheel="<<pinLocal.z()<<G4endl;
            validhit=false;
@@ -1607,12 +1604,12 @@ G4bool EnergyCalculator::FindIdentifier_Default(
 //=== end of edge and HV bus treatment================
 
 
-	G4int phiGap = LArWheelCalculator::GetPhiGap(pinLocal);
-	if(m_isModule){
-		if(phiGap < m_FirstFan || phiGap >= m_LastFan){
+	G4int phiGap = lwc()->GetPhiGap(pinLocal);
+	if(lwc()->GetisModule()){
+		if(phiGap < lwc()->GetFirstFan() || phiGap >= lwc()->GetLastFan()){
         // this hit is beyond of edge absorbers of the module and should be ignored
-			if (phiGap < m_FirstFan) phiGap = m_FirstFan;
-			if (phiGap >= m_LastFan) phiGap = m_LastFan - 1;
+			if (phiGap < lwc()->GetFirstFan()) phiGap = lwc()->GetFirstFan();
+			if (phiGap >= lwc()->GetLastFan()) phiGap = lwc()->GetLastFan() - 1;
 			validhit = false;
 		}
 	}
@@ -1650,8 +1647,8 @@ G4bool EnergyCalculator::FindIdentifier_Default(
      validhit=false;
    }
 
-   m_identifier.clear();
-   m_identifier << 4 // LArCalorimeter
+   hdata[0].id.clear();
+   hdata[0].id  << 4 // LArCalorimeter
 		<< 1 // LArEM
 		<< atlasside
 		<< sampling
@@ -1661,8 +1658,8 @@ G4bool EnergyCalculator::FindIdentifier_Default(
 
    G4double timeOfFlight = (pre_step_point->GetGlobalTime() +
 			    post_step_point->GetGlobalTime()) * 0.5;
-   m_time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
-   if (m_time > m_OOTcut) m_isInTime = false;
+   hdata[0].time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
+   if (hdata[0].time > m_OOTcut) m_isInTime = false;
    else m_isInTime = true;
 
    return validhit;
@@ -1670,33 +1667,27 @@ G4bool EnergyCalculator::FindIdentifier_Default(
 
 /* gives the distance to the nearest electrode's surface */
 // ****************************************************************************
-G4double EnergyCalculator::distance_to_the_nearest_electrode(
-	G4ThreeVector &p)
+G4double EnergyCalculator::distance_to_the_nearest_electrode(const G4ThreeVector &p) const
 // ****************************************************************************
 {
-	static G4ThreeVector p1;
-	p1 = p;
-	int fan_number = G4int((p.phi() - M_PI_2 - m_ZeroFanPhi) / m_FanStepOnPhi);
-	G4double angle = m_FanStepOnPhi * fan_number + m_ZeroFanPhi;
+	G4ThreeVector p1( p );
+	int fan_number = G4int((p.phi() - M_PI_2 - lwc()->GetZeroFanPhi()) / lwc()->GetFanStepOnPhi());
+	G4double angle = lwc()->GetFanStepOnPhi() * fan_number + lwc()->GetZeroFanPhi();
 	p1.rotateZ(-angle);
-	set_m_fan_number(fan_number);
-	G4double d0 = DistanceToTheNeutralFibre(p1);
-	G4double d1;//, d2;
+	G4double d0 = lwc()->DistanceToTheNeutralFibre(p1, lwc()->adjust_fan_number(fan_number));
+	G4double d1;
 	d1 = d0;
 	G4int delta = 1;
 	if(d0 < 0.) delta = -1;
-	angle = - m_FanStepOnPhi * delta;
+	angle = - lwc()->GetFanStepOnPhi() * delta;
 	do{
-          //d2 = d1;
 		p1.rotateZ(angle);
 		fan_number += delta;
-		set_m_fan_number(fan_number);
-		d1 = DistanceToTheNeutralFibre(p1);
+		d1 = lwc()->DistanceToTheNeutralFibre(p1, lwc()->adjust_fan_number(fan_number));
 	} while(d0 * d1 > 0.);
 	p1.rotateZ(-angle / 2);
 	if(delta > 0) fan_number --;
-	set_m_fan_number(fan_number);
-	G4double d3 = DistanceToTheNeutralFibre(p1);
+	G4double d3 = lwc()->DistanceToTheNeutralFibre(p1, lwc()->adjust_fan_number(fan_number));
 	return(fabs(d3) - ElectrodeFanHalfThickness);
 }
 
@@ -1706,38 +1697,34 @@ G4double EnergyCalculator::distance_to_the_nearest_electrode(
 // returns size of gap between absorber's and electrode's surfaces
 
 // ****************************************************************************
-double EnergyCalculator::GetGapSize(const G4ThreeVector& p)
+double EnergyCalculator::GetGapSize(const G4ThreeVector& p) const
 // ****************************************************************************
 {
-	static G4ThreeVector p1;
-	p1 = p;
-	int fan_number = G4int((p.phi() - M_PI_2 - m_ZeroFanPhi) / m_FanStepOnPhi);
-	G4double angle = m_FanStepOnPhi * fan_number + m_ZeroFanPhi;
+	G4ThreeVector p1 ( p );
+	int fan_number = G4int((p.phi() - M_PI_2 - lwc()->GetZeroFanPhi()) / lwc()->GetFanStepOnPhi());
+	G4double angle = lwc()->GetFanStepOnPhi() * fan_number + lwc()->GetZeroFanPhi();
 	p1.rotateZ(-angle);
-	set_m_fan_number(fan_number);
-	G4double d0 = DistanceToTheNeutralFibre(p1);
-	G4double d1, d2;
-	d1 = d0;
-	G4int delta = 1;
-	if(d0 < 0.) delta = -1;
-	angle = - m_FanStepOnPhi * delta;
+	const G4double d0 = lwc()->DistanceToTheNeutralFibre(p1, lwc()->adjust_fan_number(fan_number));
+
+	const G4int delta = (d0 < 0.)? -1 : 1;
+	G4double d1(d0), d2;
+
+	angle = - lwc()->GetFanStepOnPhi() * delta;
 	do {
 		d2 = d1;
 		p1.rotateZ(angle);
 		fan_number += delta;
-		set_m_fan_number(fan_number);
-		d1 = DistanceToTheNeutralFibre(p1);
+		d1 = lwc()->DistanceToTheNeutralFibre(p1, lwc()->adjust_fan_number(fan_number));
 	} while(d0 * d1 > 0.);
 	p1.rotateZ(-angle / 2);
 	if(delta > 0) fan_number --;
-	set_m_fan_number(fan_number);
-	G4double d3 = DistanceToTheNeutralFibre(p1);
+	const G4double d3 = lwc()->DistanceToTheNeutralFibre(p1, lwc()->adjust_fan_number(fan_number));
 	if(d3 * d2 < 0.){
 		return(fabs(d2)
-		       - m_FanHalfThickness + fabs(d3) - ElectrodeFanHalfThickness);
+		       - lwc()->GetFanHalfThickness() + fabs(d3) - ElectrodeFanHalfThickness);
 	} else {
 		return(fabs(d1)
-		       - m_FanHalfThickness + fabs(d3) - ElectrodeFanHalfThickness);
+		       - lwc()->GetFanHalfThickness() + fabs(d3) - ElectrodeFanHalfThickness);
 	}
 }
 
@@ -1747,8 +1734,7 @@ void EnergyCalculator::SetConst_InnerBarrett(void){
   if(SetConstInnerBarrett) return;
      SetConstInnerBarrett=true;
 
-  std::cout <<" ===>>> ERROR!!  SetConst_InnerBarrett is called!!!"
-	    <<std::endl;
+  std::cout <<" ===>>> ERROR!!  SetConst_InnerBarrett is called!!!" <<std::endl;
   exit(99);
 }
 
@@ -1760,8 +1746,8 @@ void EnergyCalculator::SetConst_OuterBarrett(void){
      SetConstOuterBarrett=true;
 
   for(G4int i=0;i<=20;++i){
-  G4double         teta = 2.*atan( exp(-S3_Etalim[i]));
-             S3_Rlim[i] = RefzDist*tan(teta);
+	  const G4double teta = 2.*atan( exp(-S3_Etalim[i]));
+	  S3_Rlim[i] = RefzDist*tan(teta);
   }
 
   rlim[0] = S3_Rlim[3] + KapGap    +  Rmeas_outer[0] /*11.59 */  / ColdCorrection;
@@ -1843,7 +1829,7 @@ void EnergyCalculator::SetConst_OuterBarrett(void){
 // ****************************************************************************
 G4bool EnergyCalculator::GetCompartment_Barrett(
        G4ThreeVector pforcell, G4double r_inb, G4double z_inb, G4double eta_inb,
-       G4int &b_compartment, G4int &etabin){
+       G4int &b_compartment, G4int &etabin) const{
 // ****************************************************************************
 
    G4double d,d1,d2,rlim1,rlim2,rlim3,zlim1,zlim2,eta1,eta2;
@@ -2177,13 +2163,13 @@ label99:
         return validhit;
 }
 // ****************************************************************************
-G4bool EnergyCalculator::GetVolumeIndex(const G4Step *step){
+G4bool EnergyCalculator::GetVolumeIndex(const G4Step *step) const{
 // ****************************************************************************
   ModuleNumber = -999;
   PhiDivNumber = -999;
 
-  G4StepPoint*  pre_step_point = step->GetPreStepPoint();
-  G4int                 ndepth = pre_step_point->GetTouchable()->GetHistoryDepth();
+  const G4StepPoint*  pre_step_point = step->GetPreStepPoint();
+  const G4int         ndepth = pre_step_point->GetTouchable()->GetHistoryDepth();
 
   for(G4int i=0;i<=ndepth;++i){
    G4String ivolname=pre_step_point->GetTouchable()->GetVolume(i)->GetName();
@@ -2195,7 +2181,7 @@ G4bool EnergyCalculator::GetVolumeIndex(const G4Step *step){
     }
   }
 
-  if(!m_isModule){
+  if(!lwc()->GetisModule()){
     if(ModuleNumber < 0 || PhiDivNumber < 0) {return false;}
   }
   else if(PhiDivNumber < 0 ) {return false;}
@@ -2205,6 +2191,7 @@ G4bool EnergyCalculator::GetVolumeIndex(const G4Step *step){
 // ****************************************************************************
 G4bool EnergyCalculator::FindIdentifier_Barrett(
 	const G4Step* step,
+        std::vector<LArHitData>& hdata,
 	G4ThreeVector &startPointLocal,
 	G4ThreeVector &endPointLocal
 	){
@@ -2213,35 +2200,33 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
 //     at the back side of EMEC
 
 // check whether we are in the outer wheel
-        if(m_type != OuterAbsorberWheel && m_type != OuterAbsorberModule) {
-	  //	  std::cout
-	  (*m_msg) << MSG::FATAL
-		 <<" ERROR ::FindIdentifier_Barrett, not yet prepared for solidtype="
-		 <<LArWheelCalculatorTypeString(m_type)
-		 <<endreq;
-	  //	    <<std::endl;
+	if(lwc()->type() != LArWheelCalculator::OuterAbsorberWheel && lwc()->type() != LArWheelCalculator::OuterAbsorberModule) {
+		(*m_msg) << MSG::FATAL
+		<< " ERROR ::FindIdentifier_Barrett, not yet prepared for solidtype="
+		<< LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type())
+		<< endreq;
 	}
 
-        G4bool validhit=true;
+    G4bool validhit=true;
 
 // Get point coordinates in the Atlas coord. system
 
-        G4StepPoint*  pre_step_point = step->GetPreStepPoint();
-        G4StepPoint* post_step_point = step->GetPostStepPoint();
+	const G4StepPoint*  pre_step_point = step->GetPreStepPoint();
+	const G4StepPoint* post_step_point = step->GetPostStepPoint();
 
-        G4ThreeVector startPoint =  pre_step_point->GetPosition();
-        G4ThreeVector   endPoint = post_step_point->GetPosition();
+	const G4ThreeVector startPoint =  pre_step_point->GetPosition();
+	const G4ThreeVector   endPoint = post_step_point->GetPosition();
 	//	G4ThreeVector          p = 0.5 *(startPoint+endPoint);
-	G4ThreeVector     p = startPoint; // bec. middle point maybe out of volume
+	const G4ThreeVector     p = startPoint; // bec. middle point maybe out of volume
 
-// transform point to the coord system of Barrett::Module::Phidiv (alias local)
+    // transform point to the coord system of Barrett::Module::Phidiv (alias local)
 
-        const G4AffineTransform transformation =
-                pre_step_point->GetTouchable()->GetHistory()->GetTopTransform();
-        startPointLocal = transformation.TransformPoint(startPoint);
-          endPointLocal = transformation.TransformPoint(endPoint);
-	  //	G4ThreeVector  pinLocal = 0.5 * (startPointLocal + endPointLocal);
-	G4ThreeVector  pinLocal = startPointLocal;
+	const G4AffineTransform transformation =
+			pre_step_point->GetTouchable()->GetHistory()->GetTopTransform();
+	startPointLocal = transformation.TransformPoint(startPoint);
+	endPointLocal = transformation.TransformPoint(endPoint);
+    // G4ThreeVector  pinLocal = 0.5 * (startPointLocal + endPointLocal);
+	const G4ThreeVector  pinLocal = startPointLocal;
 
 // get Module and Phidiv number (result is put into static VolumeNumber and PhiDivNumber)
 
@@ -2257,61 +2242,65 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
 
 //z,r,eta,phi_inb : Specific for Barrette at the Back side of EMEC!!
 
-	G4double r_inb,z_inb,eta_inb,phi_inb=0.;
+	G4double phi_inb=0.;
 
-	z_inb= m_dWRPtoFrontFace/2.-pinLocal.z(); //dist. from front end of the Back Barrettes
-	r_inb= pinLocal.perp();                 //dist from the z axis
-        G4ThreeVector pforcell=G4ThreeVector( pinLocal.x(), pinLocal.y(),
-                 m_dElecFocaltoWRP+m_dWRPtoFrontFace+m_WheelThickness+z_inb );
-        eta_inb=pforcell.pseudoRapidity();    //eta in the system where electrodes were designed
+	const G4double z_inb= lwc()->GetdWRPtoFrontFace()/2.-pinLocal.z(); //dist. from front end of the Back Barrettes
+	const G4double r_inb= pinLocal.perp();                 //dist from the z axis
+    const G4ThreeVector pforcell=G4ThreeVector( pinLocal.x(), pinLocal.y(),
+                 lwc()->GetElecFocaltoWRP()+lwc()->GetdWRPtoFrontFace()+lwc()->GetWheelThickness()+z_inb );
+    const G4double eta_inb=pforcell.pseudoRapidity();    //eta in the system where electrodes were designed
 
-	if(m_type ==  OuterAbsorberWheel){ // for wheel calculation
-
-            PhiStartOfPhiDiv = m_FanStepOnPhi/2. + ModuleNumber * CLHEP::twopi/8.
-	                                   + PhiDivNumber * m_FanStepOnPhi;
-            phi_inb = PhiStartOfPhiDiv + pinLocal.phi();  //in ::BackOuterBarrettes
+	if(lwc()->type() ==  LArWheelCalculator::OuterAbsorberWheel){ // for wheel calculation
+        PhiStartOfPhiDiv = lwc()->GetFanStepOnPhi()/2. + ModuleNumber * CLHEP::twopi/8.
+	                                   + PhiDivNumber * lwc()->GetFanStepOnPhi();
+        phi_inb = PhiStartOfPhiDiv + pinLocal.phi();  //in ::BackOuterBarrettes
 	    if(phi_inb < 0.)      phi_inb = phi_inb + CLHEP::twopi;
 	    if(phi_inb > CLHEP::twopi) phi_inb = phi_inb - CLHEP::twopi;
 	    phi_inb =  CLHEP::twopi - phi_inb;        // phi in ::EmecMother system;
 	}
-	else if(m_type ==  OuterAbsorberModule){ // for TB modul calculation
+	else if(lwc()->type() ==  LArWheelCalculator::OuterAbsorberModule){ // for TB modul calculation
 
   	    G4double PhiStart = M_PI_2 - M_PI/8.; //this is from EMECSupportConstruction
-	    PhiStartOfPhiDiv = PhiStart + m_FanStepOnPhi/2 + PhiDivNumber * m_FanStepOnPhi;
+	    PhiStartOfPhiDiv = PhiStart + lwc()->GetFanStepOnPhi()/2 + PhiDivNumber * lwc()->GetFanStepOnPhi();
 
 	    phi_inb = PhiStartOfPhiDiv + pinLocal.phi(); //in BackOuterBarrettes;
 	    phi_inb =  M_PI - phi_inb;        // phi in ::EmecMother system;
-      	}
+    }
 
-	G4int c,compartment,sampling,region,etabin,phigap,etaBin,phiBin;
+	  G4int compartment,etabin,phigap,etaBin,phiBin;
 
 // get m_compartment and etaBin
 
-	validhit=GetCompartment_Barrett(pforcell,r_inb,z_inb,eta_inb,
-                                         compartment,etabin);
+	  validhit=GetCompartment_Barrett(pforcell, r_inb, z_inb, eta_inb, compartment, etabin);
 
-        m_compartment = compartment;
-	etaBin        = etabin;
-        if(!validhit){ m_compartment = 9;  // to have some 'reasonable' number
-                       etaBin        = 0;
-        }
+      m_compartment = compartment;
+	  etaBin        = etabin;
+      if (!validhit) {
+		m_compartment = 9;  // to have some 'reasonable' number
+		etaBin        = 0;
+      }
 
-	c             = m_compartment-1;
+	  const G4int c = m_compartment-1;
 
-        sampling = geometry[c].sampling;
-	region   = geometry[c].region;
+	  G4int sampling = geometry[c].sampling;
+	  G4int region   = geometry[c].region;
 
 // get m_AtlasZside, it is negative if z<0.
 
-        m_AtlasZside = geometry[c].zSide;
-        if(p.z() < 0.) m_AtlasZside = -m_AtlasZside;
-        G4int atlasside = m_AtlasZside;
+// DM 2015-07-30
+// copy of 
+// 19-04-2007 AMS    use constant m_AtlasZside obtained in constructor
+  // zSide is negative if z<0.
+//	m_AtlasZside = geometry[c].zSide;
+//	if(p.z() < 0.) m_AtlasZside = -m_AtlasZside;
+//	G4int atlasside = m_AtlasZside;
+	const G4int atlasside = lwc()->GetAtlasZside() * geometry[c].zSide;
 
-	if(m_isModule && atlasside < 0 ){
-	  (*m_msg) << MSG::FATAL
-		 <<"EnergyCalculator: TB modul should be at pos z"
-		 <<endreq;
-	}
+	  if(lwc()->GetisModule() && atlasside < 0 ) {
+		(*m_msg) << MSG::FATAL
+		  <<"EnergyCalculator: TB modul should be at pos z"
+		  <<endreq;
+	  }
 
 // In future version we may use constant m_AtlasZside set by constructor,
 // don't know if it is necessary for barettes
@@ -2319,18 +2308,18 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
 
 // get phiBin
 
-	phigap = GetPhiGap_Barrett(pinLocal); // in wheel numbering scheme
-	//int phigapwheel=phigap; //for check
+	  phigap = GetPhiGap_Barrett(pinLocal); // in wheel numbering scheme
+	  //int phigapwheel=phigap; //for check
 
-	if(m_isModule) {
-	  phigap=phigap-m_ZeroGapNumber+m_LastFan/2;  // in module numbering scheme
+	  if(lwc()->GetisModule()) {
+		phigap = phigap - lwc()->GetStartGapNumber() + lwc()->GetLastFan()/2;  // in module numbering scheme
 
 /*
 //CHECK!!in Module
 	  int phigapmodul=phigap;
 	  G4ThreeVector tmp=G4ThreeVector( r_inb*cos(phi_inb),r_inb*sin(phi_inb),0.01 );
 	  int phigapmodulx=LArWheelCalculator::GetPhiGap(tmp); // module numbering scheme
-	  int phigapwheelx=PhiGapNumberForWheel(phigapmodulx); // transformed to wheelnumbering
+	  int phigapwheelx=lwc()->PhiGapNumberForWheel(phigapmodulx); // transformed to wheelnumbering
 
       	  if(phigapwheel != phigapwheelx)
 	    std::cout<<"*** FindIdentifier_BArrett:ERROR:phigapwheel="
@@ -2346,9 +2335,9 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
 // --- end CHECK
 */
 
-	  if(phigap < m_FirstFan || phigap >= m_LastFan){
-	    if (phigap<m_FirstFan) phigap=m_FirstFan;
-	    if (phigap>=m_LastFan) phigap=m_LastFan-1;
+	  if(phigap < lwc()->GetFirstFan() || phigap >= lwc()->GetLastFan()){
+	    if (phigap<lwc()->GetFirstFan()) phigap=lwc()->GetFirstFan();
+	    if (phigap>=lwc()->GetLastFan()) phigap=lwc()->GetLastFan()-1;
 	    validhit=false;
 	  }
 	}
@@ -2398,8 +2387,8 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
 	  validhit=false;
         }
 
-        m_identifier.clear();
-        m_identifier << 4 // LArCalorimeter
+        hdata[0].id.clear();
+        hdata[0].id  << 4 // LArCalorimeter
                      << 1 // LArEM
                      << atlasside
                      << sampling
@@ -2410,96 +2399,94 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
         G4double timeOfFlight = 0.5 *
 	  ( pre_step_point->GetGlobalTime() +
 	    post_step_point->GetGlobalTime()    );
-        m_time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
-        if (m_time > m_OOTcut) m_isInTime = false;
+        hdata[0].time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
+        if (hdata[0].time > m_OOTcut) m_isInTime = false;
         else m_isInTime = true;
 
         return validhit;
 }
 // ****************************************************************************
-G4bool EnergyCalculator::FindDMIdentifier_Barrett(const G4Step* step){
+G4bool EnergyCalculator::FindDMIdentifier_Barrett(const G4Step* step, std::vector<LArHitData>& hdata){
 // ****************************************************************************
 
   G4bool validid = false;
-  m_identifier = LArG4Identifier();
+  hdata[0].id = LArG4Identifier();
 
   validid      = m_supportCalculator->Process(step,LArG4::VCalibrationCalculator::kOnlyID);
-  m_identifier = m_supportCalculator->identifier();
+  hdata[0].id = m_supportCalculator->identifier();
 
   return validid;
 }
 
 //****************************************************************************
-G4int EnergyCalculator::GetPhiGap_Barrett(G4ThreeVector& p){
+G4int EnergyCalculator::GetPhiGap_Barrett(const G4ThreeVector& p) const {
 // ****************************************************************************
   G4double phi=p.phi();           // in Module::Phidiv
   phi = PhiStartOfPhiDiv + phi;   // in Barrette
   if(phi < 0. )       phi=phi+CLHEP::twopi;
   if(phi >= CLHEP::twopi ) phi=phi-CLHEP::twopi;
 
-  if(m_isModule) phi =    M_PI - phi;     // in EMECMother; TB modul
+  if(lwc()->GetisModule()) phi =    M_PI - phi;     // in EMECMother; TB modul
   else          phi = CLHEP::twopi - phi;     // in EMECMother; full wheel
 
-  if(phi > CLHEP::twopi-m_FanStepOnPhi*0.5) {return 0;}
-  return (G4int( (phi+m_FanStepOnPhi*0.5)/m_FanStepOnPhi) );
+  if(phi > CLHEP::twopi-lwc()->GetFanStepOnPhi()*0.5) {return 0;}
+  return (G4int( (phi+lwc()->GetFanStepOnPhi()*0.5)/lwc()->GetFanStepOnPhi()) );
 }
 // ****************************************************************************
-G4double EnergyCalculator::GetGapSize_Barrett(const G4ThreeVector& p){
+G4double EnergyCalculator::GetGapSize_Barrett(const G4ThreeVector& p) const {
 // ****************************************************************************
-  G4double r=p.perp();
-  G4double ta1=1./ sqrt(4.*r/FanAbsThickness*r/FanAbsThickness - 1.);
-  G4double ta2=1./ sqrt(4.*r/FanEleThickness*r/FanEleThickness - 1.);
-  G4double phieff= m_FanStepOnPhi*0.5-atan(ta1)-atan(ta2);
+  const G4double r=p.perp();
+  const G4double ta1=1./ sqrt(4.*r/FanAbsThickness*r/FanAbsThickness - 1.);
+  const G4double ta2=1./ sqrt(4.*r/FanEleThickness*r/FanEleThickness - 1.);
+  const G4double phieff= lwc()->GetFanStepOnPhi()*0.5-atan(ta1)-atan(ta2);
   return (r*phieff);
 }
 // ****************************************************************************
 G4double EnergyCalculator::distance_to_the_nearest_electrode_Barrett(
-                                                             G4ThreeVector &p){
+                                                             const G4ThreeVector &p) const {
 // ****************************************************************************
   G4double phi=p.phi();           // in Module::Phidiv
   phi = PhiStartOfPhiDiv + phi;   // in Barrette
-  if(phi < 0. )       phi=phi+CLHEP::twopi;
+  if(phi < 0. ) phi=phi+CLHEP::twopi;
   if(phi >= CLHEP::twopi ) phi=phi-CLHEP::twopi;
 
-  if(m_isModule) phi =    M_PI - phi;     // in EMECMother; TB modul
+  if(lwc()->GetisModule()) phi =    M_PI - phi;     // in EMECMother; TB modul
   else          phi = CLHEP::twopi - phi;     // in EMECMother; full wheel
 
   G4double r=p.perp();
   G4int igap;
   G4double elephi,dphi;
-  if     (phi > CLHEP::twopi-m_FanStepOnPhi*0.5){dphi=phi-CLHEP::twopi;}
-  else{   igap=G4int( (phi+m_FanStepOnPhi*0.5)/m_FanStepOnPhi );
-          elephi=igap*m_FanStepOnPhi;
-	  dphi=phi-elephi;
+  if (phi > CLHEP::twopi-lwc()->GetFanStepOnPhi()*0.5) {
+	dphi=phi-CLHEP::twopi;
+  } else {
+	igap=G4int( (phi+lwc()->GetFanStepOnPhi()*0.5)/lwc()->GetFanStepOnPhi() );
+    elephi=igap*lwc()->GetFanStepOnPhi();
+	dphi=phi-elephi;
   }
   G4double dist=r*sin(fabs(dphi))-FanEleThickness*0.5;
 
-  return(fabs(dist));
+  return fabs(dist);
 }
 
 // ****************************************************************************
-G4double EnergyCalculator::GetHV_Value_Barrett(const G4ThreeVector& p){
+G4double EnergyCalculator::GetHV_Value_Barrett(const G4ThreeVector& p) const {
 // ****************************************************************************
 
 // get atlasside
 
-        G4int atlasside = m_AtlasZside;
-	if(atlasside>0) atlasside=0;
-	else atlasside=1;
-
+	const G4int atlasside = (lwc()->GetAtlasZside() > 0) ? 0 : 1;
+	
 // get etasection
 
-	G4double r_inb,z_inb,eta_inb;//,phi_inb;
-	z_inb= m_dWRPtoFrontFace * 0.5-p.z(); //dist. from front end of the Back Barrettes
-	r_inb= p.perp();                 //dist from the z axis
-        G4ThreeVector pforcell=G4ThreeVector( p.x(), p.y(),
-                 m_dElecFocaltoWRP+m_dWRPtoFrontFace+m_WheelThickness+z_inb );
-        eta_inb=pforcell.pseudoRapidity();    //eta in the system where electrodes were designed
+	const G4double z_inb = lwc()->GetdWRPtoFrontFace() * 0.5-p.z(); //dist. from front end of the Back Barrettes
+	const G4double r_inb= p.perp();                 //dist from the z axis
+    const G4ThreeVector pforcell=G4ThreeVector( p.x(), p.y(),
+                 lwc()->GetElecFocaltoWRP()+lwc()->GetdWRPtoFrontFace()+lwc()->GetWheelThickness()+z_inb );
+    const G4double eta_inb=pforcell.pseudoRapidity();    //eta in the system where electrodes were designed
 
 	G4int compartment=-99; G4int etabin=-99; G4int etasection=-99;
 
-	G4bool validhit=GetCompartment_Barrett(pforcell,r_inb,z_inb,eta_inb,
-                                         compartment,etabin);
+	G4bool validhit=GetCompartment_Barrett(pforcell, r_inb, z_inb, eta_inb, compartment, etabin);
 
 	if(!validhit) { return 0.;}  // p is not in the sens. region
 
@@ -2542,26 +2529,26 @@ G4double EnergyCalculator::GetHV_Value_Barrett(const G4ThreeVector& p){
   if(phi < 0. )       phi=phi+CLHEP::twopi;
   if(phi >= CLHEP::twopi ) phi=phi-CLHEP::twopi;
 
-  if(m_isModule) phi =    M_PI - phi;     // in EMECMother; TB modul
+  if(lwc()->GetisModule()) phi =    M_PI - phi;     // in EMECMother; TB modul
   else          phi = CLHEP::twopi - phi;     // in EMECMother; full wheel
 
   G4int igap,iside;
-  if     (phi > CLHEP::twopi-m_FanStepOnPhi*0.5){igap=0;iside=0;}
-  else{   igap=G4int( (phi+m_FanStepOnPhi*0.5)/m_FanStepOnPhi );
-          G4double elephi=igap*m_FanStepOnPhi;
+  if     (phi > CLHEP::twopi-lwc()->GetFanStepOnPhi()*0.5){igap=0;iside=0;}
+  else{   igap=G4int( (phi+lwc()->GetFanStepOnPhi()*0.5)/lwc()->GetFanStepOnPhi() );
+          G4double elephi=igap*lwc()->GetFanStepOnPhi();
 	  G4double dphi=phi-elephi;
 	  if(dphi <=0. ) iside=0;
 	  else iside=1;
   }
 
-  G4int electrodenumber = igap;
-  G4int electrodeside   = iside;
+  const G4int electrodenumber = igap;
+  const G4int electrodeside   = iside;
 
 // prepare indices for different versions of HV Map
 
   G4int firstelectrode  = HV_Start_phi[atlasside][etasection][electrodeside];
   G4int electrodeindex  = electrodenumber-firstelectrode;
-  if(electrodeindex < 0) electrodeindex += m_NumberOfFans;
+  if(electrodeindex < 0) electrodeindex += lwc()->GetNumberOfFans();
   G4int phisection      = electrodeindex / NumberOfElectrodesInPhiSection;
 
   assert(phisection>=0 && phisection<=NofPhiSections-1);

@@ -54,10 +54,10 @@ LArEndcapPresamplerCalculator::LArEndcapPresamplerCalculator() :
   // Constructor initializes the geometry.
 
   // Make sure we don't have any undefined values.
-  m_identifier = LArG4Identifier();
+  //m_identifier = LArG4Identifier();
 
-  m_time = 0.;
-  m_energy = 0.;
+  //m_time = 0.;
+  //m_energy = 0.;
   m_isInTime = false;
 
   StoreGateSvc* detStore;
@@ -112,8 +112,10 @@ LArEndcapPresamplerCalculator::~LArEndcapPresamplerCalculator() {
   if (birksLaw) delete birksLaw;
 }
 
-G4bool LArEndcapPresamplerCalculator::Process(const G4Step* a_step)
+G4bool LArEndcapPresamplerCalculator::Process(const G4Step* a_step, std::vector<LArHitData>& hdata)
 {
+  // make sure hdata is reset
+  hdata.resize(1);
   // Given a G4Step, find the identifier in the LAr EMEC associated
   // with that point.
 
@@ -130,7 +132,7 @@ G4bool LArEndcapPresamplerCalculator::Process(const G4Step* a_step)
 
 
   // First, get the energy.
-  m_energy = energy;
+  hdata[0].energy = energy;
 
   // Find out how long it took the energy to get here.
   G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
@@ -142,17 +144,17 @@ G4bool LArEndcapPresamplerCalculator::Process(const G4Step* a_step)
   G4ThreeVector p = (startPoint + endPoint) * 0.5;
 
   // Determine if the hit was in-time.
-  m_time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
-  if (m_time > m_OOTcut)
+  hdata[0].time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
+  if (hdata[0].time > m_OOTcut)
     m_isInTime = false;
   else
     m_isInTime = true;
 
   // Use the geometry routine to determine the identifier.
-  m_identifier = m_geometry->CalculateIdentifier( a_step );
+  hdata[0].id = m_geometry->CalculateIdentifier( a_step );
 
-  if ( m_identifier == LArG4Identifier() )
+  if ( hdata[0].id == LArG4Identifier() )
     return false;
-
-  return true;
+  else
+    return true;
 }
