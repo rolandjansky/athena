@@ -13,6 +13,7 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 class IRDBAccessSvc;
+class IGeoModelSvc;
 namespace LArGeo {
 
   class LArDetectorConstructionH62003 
@@ -39,6 +40,7 @@ namespace LArGeo {
       bool                 _axisVisState;
       
       IRDBAccessSvc        *pAccessSvc;
+      IGeoModelSvc         *geoModelSvc;
       
     };
   
