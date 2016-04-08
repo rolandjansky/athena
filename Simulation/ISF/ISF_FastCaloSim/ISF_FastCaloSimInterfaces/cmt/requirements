@@ -16,3 +16,7 @@ use ISF_Event           ISF_Event-*                  Simulation/ISF/ISF_Core
 #private
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
+
+# Declare this package as a metalibrary for cmake in order to allow its clients access to
+# libraries and header files from packages that this one depends on. Transparent to CMT
+apply_pattern cmake_add_command command=metalibrary
