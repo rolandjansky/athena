@@ -214,6 +214,7 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("TileRawChannelContainerFit", m_fitRawChannelContainer = "");      //
   declareProperty("TileRawChannelContainerFitCool", m_fitcRawChannelContainer = ""); // don't create
   declareProperty("TileRawChannelContainerOpt", m_optRawChannelContainer = "");      // by default
+  declareProperty("TileRawChannelContainerQIE", m_qieRawChannelContainer = "");      // processed QIE data
   declareProperty("TileRawChannelContainerOF1", m_of1RawChannelContainer = "");      //
   declareProperty("TileRawChannelContainerDsp", m_dspRawChannelContainer = "");      //
   declareProperty("TileRawChannelContainerMF", m_mfRawChannelContainer = "");      //
@@ -451,6 +452,7 @@ StatusCode TileAANtuple::execute() {
   empty &= storeRawChannels(m_fitRawChannelContainer,  m_eFit,  m_tFit,  m_chi2Fit, m_pedFit, false).isFailure();
   empty &= storeRawChannels(m_fitcRawChannelContainer, m_eFitc, m_tFitc, m_chi2Fitc,m_pedFitc,false).isFailure();
   empty &= storeRawChannels(m_optRawChannelContainer,  m_eOpt,  m_tOpt,  m_chi2Opt, m_pedOpt, false).isFailure();
+  empty &= storeRawChannels(m_qieRawChannelContainer,  m_eQIE,  m_tQIE,  m_chi2QIE, m_pedQIE, false).isFailure();
   empty &= storeRawChannels(m_of1RawChannelContainer,  m_eOF1,  m_tOF1,  m_chi2OF1, m_pedOF1, false).isFailure();
   
   // store TMDB data
@@ -745,6 +747,7 @@ TileAANtuple::storeRawChannels(std::string containerId
   // get named container
   const TileRawChannelContainer* rcCnt;
   CHECK( evtStore()->retrieve(rcCnt, containerId) );
+  ATH_MSG_VERBOSE( "Conteiner ID " << containerId );
   
   TileRawChannelUnit::UNIT rChUnit = rcCnt->get_unit();
   ATH_MSG_VERBOSE( "RawChannel unit is " << rChUnit );
@@ -1346,9 +1349,9 @@ StatusCode TileAANtuple::storeTMDBDecision() {
         int drawer = fragId & 0x3F;
         int ros    = (fragId>>8) - 1;
  
-        if (siz > N_TMDBCHANS) {
-          ATH_MSG_VERBOSE( "ONLY " << N_TMDBCHANS << " decisions saved to ntuple instead of " << siz);
-          siz = N_TMDBCHANS;
+        if (siz > N_TMDBDECISIONS) {
+          ATH_MSG_VERBOSE( "ONLY " << N_TMDBDECISIONS << " decisions saved to ntuple instead of " << siz);
+          siz = N_TMDBDECISIONS;
         }
 
         for (int n = 0; n < siz; ++n) {
@@ -2118,6 +2121,7 @@ void TileAANtuple::DIGI_addBranch(void)
             || m_fitRawChannelContainer.size() > 0
             || m_fitcRawChannelContainer.size() > 0
             || m_optRawChannelContainer.size() > 0
+            || m_qieRawChannelContainer.size() > 0
             || m_dspRawChannelContainer.size() > 0
             || m_mfRawChannelContainer.size() > 0
             || m_of1RawChannelContainer.size() > 0
@@ -2138,6 +2142,7 @@ void TileAANtuple::DIGI_addBranch(void)
                   || m_fitRawChannelContainer.size() > 0
                   || m_fitcRawChannelContainer.size() > 0
                   || m_optRawChannelContainer.size() > 0
+                  || m_qieRawChannelContainer.size() > 0
                   || m_of1RawChannelContainer.size() > 0
                   || m_dspRawChannelContainer.size() > 0
                   || m_bsInput) {
@@ -2203,6 +2208,13 @@ void TileAANtuple::DIGI_addBranch(void)
       m_ntuplePtr->Branch(NAME2("chi2Opt",f_suf), m_chi2Opt[ir],  NAME3("chi2Opt",f_suf,"[4][64][48]/F")); // float
     }
     
+    if (m_qieRawChannelContainer.size() > 0) {
+      m_ntuplePtr->Branch(NAME2("eQIE",f_suf),    m_eQIE[ir],        NAME3("eQIE",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("tQIE",f_suf),    m_tQIE[ir],        NAME3("tQIE",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("pedQIE",f_suf),  m_pedQIE[ir],    NAME3("pedQIE",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("chi2QIE",f_suf), m_chi2QIE[ir],  NAME3("chi2QIE",f_suf,"[4][64][48]/F")); // float
+    }
+
     if (m_of1RawChannelContainer.size() > 0) {
       m_ntuplePtr->Branch(NAME2("eOF1",f_suf),    m_eOF1[ir],        NAME3("eOF1",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("tOF1",f_suf),    m_tOF1[ir],        NAME3("tOF1",f_suf,"[4][64][48]/F")); // float
@@ -2324,6 +2336,14 @@ void TileAANtuple::DIGI_clearBranch(void) {
     CLEAR2(m_chi2Opt, size);
   }
   
+
+  if (m_qieRawChannelContainer.size() > 0) {
+    CLEAR2(m_eQIE, size);
+    CLEAR2(m_tQIE, size);
+    CLEAR2(m_pedQIE, size);
+    CLEAR2(m_chi2QIE, size);
+  }
+
   if (m_of1RawChannelContainer.size() > 0) {
     CLEAR2(m_eOF1, size);
     CLEAR2(m_tOF1, size);
@@ -2370,17 +2390,17 @@ void TileAANtuple::DIGI_clearBranch(void) {
 
 void TileAANtuple::TMDB_addBranch(void)
 {
-  
+
   if (m_tileMuRcvRawChannelContainer.size()>0) {
-    m_ntuplePtr->Branch("eTMDB", m_eTMDB, "eTMDB[4][64][4]/F");
+    m_ntuplePtr->Branch("eTMDB", m_eTMDB, "eTMDB[4][64][8]/F");  // float m_eTMDB[N_ROS][N_MODULES][N_TMDBCHANS]
   }
 
   if (m_tileMuRcvDigitsContainer.size()>0) {
-    m_ntuplePtr->Branch("sampleTMDB", m_sampleTMDB, "sampleTMDB[4][64][4][7]/b");
+    m_ntuplePtr->Branch("sampleTMDB", m_sampleTMDB, "sampleTMDB[4][64][8][7]/b"); // unsigned char m_sampleTMDB[N_ROS][N_MODULES][N_TMDBCHANS][N_SAMPLES]
   }
 
   if (m_tileMuRcvContainer.size()>0) {
-    m_ntuplePtr->Branch("decisionTMDB", m_decisionTMDB, "decisionTMDB[4][64][4]/b");
+    m_ntuplePtr->Branch("decisionTMDB", m_decisionTMDB, "decisionTMDB[4][64][4]/b"); // unsigned char m_decisionTMDB[N_ROS][N_MODULES][N_TMDBDECISIONS]
   }
 
 }
