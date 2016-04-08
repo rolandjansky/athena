@@ -318,7 +318,7 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
       std::string tag = m_tagTrigList.at(ilist);
       if(tdt()->isPassed(tag)){ 
-        if(m_doJpsiee){
+        if(m_tp){
           std::string p1trigger;
           std::string p2trigger;
           if(splitTriggerName(tag,p1trigger,p2trigger)){

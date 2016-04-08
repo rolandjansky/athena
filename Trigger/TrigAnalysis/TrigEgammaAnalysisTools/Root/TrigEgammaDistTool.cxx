@@ -56,13 +56,6 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
     if(pairObjs.size() == 0) return StatusCode::SUCCESS;
     const std::string dir = basePath+"/"+info.trigName+"/Distributions/";
    
-    for(const auto pairObj : pairObjs){
-        fillShowerShapes(dir+"Offline",pairObj.first); // Fill Offline shower shapes
-        if(xAOD::EgammaHelpers::isElectron(pairObj.first)) { // Fill offline tracking
-            const xAOD::Electron* elOff =static_cast<const xAOD::Electron*> (pairObj.first);
-            fillTracking(dir+"Offline",elOff);
-        }
-    }
     // Retrieve FeatureContainer for a given trigger
     ATH_MSG_DEBUG("Distributions:: Retrieve features for chain " << info.trigName << " type " << info.trigType);
     if (boost::starts_with(info.trigName, "L1" )){
@@ -80,130 +73,192 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
             hist1("roi_phi")->Fill(roi->phi());
             const auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(feat);
             const xAOD::EmTauRoI *l1 = itEmTau.cptr();
-            if(l1==NULL) continue;
-            cd(dir+"HLT");
-            hist1("rejection")->Fill("L1Calo",1);
             fillL1Calo(dir+"L1Calo",l1);
         }
     }
     else {
+        
+        for(const auto pairObj : pairObjs){
+            fillShowerShapes(dir+"Offline",pairObj.first); // Fill Offline shower shapes
+            if(xAOD::EgammaHelpers::isElectron(pairObj.first)) { // Fill offline tracking
+                const xAOD::Electron* elOff =static_cast<const xAOD::Electron*> (pairObj.first);
+                fillTracking(dir+"Offline",elOff);
+            }
+        }
         // Get the L1 features for all TEs
+
         const std::string l1trig=getL1Item(info.trigName);
         ATH_MSG_DEBUG("Distributions:: Retrieve features for chain " << info.trigName << " type " << info.trigType << l1trig);
         const auto fcl1 = (tdt()->features(l1trig, TrigDefs::alsoDeactivateTEs));
         const auto fc = (tdt()->features(info.trigName, TrigDefs::alsoDeactivateTEs));
-        const auto initRois = fcl1.get<TrigRoiDescriptor>();
-        ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());
-        for(const auto feat : initRois){
-            if(feat.te()==NULL) {
-                ATH_MSG_DEBUG("initial RoI feature NULL");
-                continue;
-            }
-            const TrigRoiDescriptor *roi = feat.cptr();
-            cd(dir+"RoI");
-            hist1("roi_eta")->Fill(roi->eta());
-            hist1("roi_phi")->Fill(roi->phi());
-            auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(feat);
-            const xAOD::EmTauRoI *l1 = itEmTau.cptr();
-            if(l1==NULL) continue;
-            cd(dir+"HLT");
-            hist1("rejection")->Fill("L1Calo",1);
-            fillL1Calo(dir+"L1Calo",l1);
-        }
-        const auto vec_l2em = fc.get<xAOD::TrigEMCluster>("",TrigDefs::alsoDeactivateTEs);
-        for (const auto feat : vec_l2em){
-            if(feat.te()==NULL) continue;
-            const auto* obj = getFeature<xAOD::TrigEMCluster>(feat.te());
-            //const auto *bits = getFeature<TrigPassBits>(feat.te());
-            // Only consider passing objects
-            if(!obj) continue;
-            if(!ancestorPassed<xAOD::TrigEMCluster>(feat.te())) continue;
-            cd(dir+"HLT");
-            hist1("rejection")->Fill("L2Calo",1);
-            //if(HLT::isPassing(bits,obj,cont)) continue;
-            fillL2Calo(dir+"L2Calo",obj); // Fill HLT shower shapes
-        }
-        // Should monitor the selected objects
-        // Currently not implemented for EFCalo
-        const auto vec_clus = fc.get<xAOD::CaloClusterContainer>("TrigEFCaloCalibFex",TrigDefs::alsoDeactivateTEs);
-        for(const auto feat : vec_clus){
-            if(feat.te()==NULL) continue;
-            const auto *cont = getFeature<xAOD::CaloClusterContainer>(feat.te());
-            if(cont==NULL) continue;
-            cd(dir+"HLT");
-            if(ancestorPassed<xAOD::CaloClusterContainer>(feat.te()))
-                hist1("rejection")->Fill("EFCalo",1);
-            for(const auto& clus : *cont){
-                if(clus==NULL) continue;
-                fillEFCalo(dir+"EFCalo",clus);           
+        if(m_detailedHists){
+            const auto initRois = fcl1.get<TrigRoiDescriptor>();
+            ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());
+            for(const auto feat : initRois){
+                if(feat.te()==NULL) {
+                    ATH_MSG_DEBUG("initial RoI feature NULL");
+                    continue;
+                }
+                const TrigRoiDescriptor *roi = feat.cptr();
+                cd(dir+"RoI");
+                hist1("roi_eta")->Fill(roi->eta());
+                hist1("roi_phi")->Fill(roi->phi());
+                auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(feat);
+                const xAOD::EmTauRoI *l1 = itEmTau.cptr();
+                if(l1==NULL) continue;
+                cd(dir+"HLT");
+                hist1("rejection")->Fill("L1Calo",1);
+                fillL1Calo(dir+"L1Calo",l1);
             }
         }
 
-        // Can we template some of the following
-        // Loop over features, get PassBits from TE for Electron
-        if(info.trigType=="electron"){
-            const auto vec_l2el = fc.get<xAOD::TrigElectronContainer>("",TrigDefs::alsoDeactivateTEs);
-            for (const auto feat : vec_l2el){
-                if(feat.te()==NULL) continue;
-                const auto* cont = getFeature<xAOD::TrigElectronContainer>(feat.te());
-                const auto *bits = getFeature<TrigPassBits>(feat.te());
-                if(bits==NULL) continue; 
-                if(cont==NULL) continue;
-                cd(dir+"HLT");
-                if(ancestorPassed<xAOD::TrigElectronContainer>(feat.te()))
-                    hist1("rejection")->Fill("L2",1);
-                for(const auto& obj : *cont){
-                    // Only consider passing objects
-                    if(!obj) continue;
-                    if(!HLT::isPassing(bits,obj,cont)) continue;
-                    fillL2Electron(dir+"L2Electron",obj); // Fill HLT shower shapes
-                }
-            }
-            const auto vec_el = fc.get<xAOD::ElectronContainer>("egamma_Electrons",TrigDefs::alsoDeactivateTEs);
-            for (const auto feat : vec_el){
-                if(feat.te()==NULL) continue;
-                const auto* cont = getFeature<xAOD::ElectronContainer>(feat.te());
-                const auto *bits = getFeature<TrigPassBits>(feat.te());
-                if(cont==NULL) continue; 
-                cd(dir+"HLT");
-                if(ancestorPassed<xAOD::ElectronContainer>(feat.te()))
-                    hist1("rejection")->Fill("HLT",1);
-                for(const auto& obj : *cont){
-                    if(!obj) continue;
-                    if(bits==NULL){
+        if(m_tp){
+            if(info.trigType=="electron"){
+                const auto vec_el = fc.get<xAOD::ElectronContainer>("egamma_Electrons",TrigDefs::alsoDeactivateTEs);
+                for (const auto feat : vec_el){
+                    if(feat.te()==NULL) continue;
+                    const auto* cont = getFeature<xAOD::ElectronContainer>(feat.te());
+                    const auto *bits = getFeature<TrigPassBits>(feat.te());
+                    if(cont==NULL) continue; 
+                    cd(dir+"HLT");
+                    if(ancestorPassed<xAOD::ElectronContainer>(feat.te()))
+                        hist1("rejection")->Fill("HLT",1);
+                    for(const auto& obj : *cont){
+                        if(!obj) continue;
+                        if(bits==NULL){
+                            fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
+                            fillTracking(dir+"HLT",obj); // Fill HLT shower shapes
+                        }
+                        // Only consider passing objects if bits available
+                        else if(!HLT::isPassing(bits,obj,cont)) continue;
                         fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
                         fillTracking(dir+"HLT",obj); // Fill HLT shower shapes
                     }
-                    // Only consider passing objects if bits available
-                    else if(!HLT::isPassing(bits,obj,cont)) continue;
-                    fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
-                    fillTracking(dir+"HLT",obj); // Fill HLT shower shapes
                 }
             }
-        }
-        else if(info.trigType=="photon"){
-            const auto vec_ph = fc.get<xAOD::PhotonContainer>("egamma_Photons",TrigDefs::alsoDeactivateTEs);
-            for (const auto feat : vec_ph){
-                if(feat.te()==NULL) continue;
-                const auto* cont = getFeature<xAOD::PhotonContainer>(feat.te());
-                const auto *bits = getFeature<TrigPassBits>(feat.te());
-                if(cont==NULL) continue;
-                cd(dir+"HLT");
-                if(ancestorPassed<xAOD::PhotonContainer>(feat.te()))
-                    hist1("rejection")->Fill("HLT",1);
-                for(const auto& obj : *cont){
-                    // Only consider passing objects
-                    if(!obj) continue;
-                    if(bits==NULL){
+            else if(info.trigType=="photon"){
+                const auto vec_ph = fc.get<xAOD::PhotonContainer>("egamma_Photons",TrigDefs::alsoDeactivateTEs);
+                for (const auto feat : vec_ph){
+                    if(feat.te()==NULL) continue;
+                    const auto* cont = getFeature<xAOD::PhotonContainer>(feat.te());
+                    const auto *bits = getFeature<TrigPassBits>(feat.te());
+                    if(cont==NULL) continue;
+                    cd(dir+"HLT");
+                    if(ancestorPassed<xAOD::PhotonContainer>(feat.te()))
+                        hist1("rejection")->Fill("HLT",1);
+                    for(const auto& obj : *cont){
+                        // Only consider passing objects
+                        if(!obj) continue;
+                        if(bits==NULL){
+                            fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
+                        }
+                        // Only consider passing objects if bits available
+                        else if(!HLT::isPassing(bits,obj,cont)) continue;
                         fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
                     }
-                    // Only consider passing objects if bits available
-                    else if(!HLT::isPassing(bits,obj,cont)) continue;
-                    fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
                 }
             }
+            else ATH_MSG_WARNING("Chain type not specified");
         }
-        else ATH_MSG_WARNING("Chain type not specified");
+        else {
+            const auto vec_l2em = fc.get<xAOD::TrigEMCluster>("",TrigDefs::alsoDeactivateTEs);
+            for (const auto feat : vec_l2em){
+                if(feat.te()==NULL) continue;
+                const auto* obj = getFeature<xAOD::TrigEMCluster>(feat.te());
+                //const auto *bits = getFeature<TrigPassBits>(feat.te());
+                // Only consider passing objects
+                if(!obj) continue;
+                if(!ancestorPassed<xAOD::TrigEMCluster>(feat.te())) continue;
+                cd(dir+"HLT");
+                hist1("rejection")->Fill("L2Calo",1);
+                //if(HLT::isPassing(bits,obj,cont)) continue;
+                fillL2Calo(dir+"L2Calo",obj); // Fill HLT shower shapes
+                if(boost::contains(info.trigName,"ringer") || info.trigEtcut || info.trigPerf)
+                    fillRinger(dir+"L2Calo",obj); // Fill HLT shower shapes
+            }
+            // Should monitor the selected objects
+            // Currently not implemented for EFCalo
+            const auto vec_clus = fc.get<xAOD::CaloClusterContainer>("TrigEFCaloCalibFex",TrigDefs::alsoDeactivateTEs);
+            for(const auto feat : vec_clus){
+                if(feat.te()==NULL) continue;
+                const auto *cont = getFeature<xAOD::CaloClusterContainer>(feat.te());
+                if(cont==NULL) continue;
+                cd(dir+"HLT");
+                if(ancestorPassed<xAOD::CaloClusterContainer>(feat.te()))
+                    hist1("rejection")->Fill("EFCalo",1);
+                for(const auto& clus : *cont){
+                    if(clus==NULL) continue;
+                    fillEFCalo(dir+"EFCalo",clus);           
+                }
+            }
+
+            // Can we template some of the following
+            // Loop over features, get PassBits from TE for Electron
+            if(info.trigType=="electron"){
+                const auto vec_l2el = fc.get<xAOD::TrigElectronContainer>("",TrigDefs::alsoDeactivateTEs);
+                for (const auto feat : vec_l2el){
+                    if(feat.te()==NULL) continue;
+                    const auto* cont = getFeature<xAOD::TrigElectronContainer>(feat.te());
+                    const auto *bits = getFeature<TrigPassBits>(feat.te());
+                    if(bits==NULL) continue; 
+                    if(cont==NULL) continue;
+                    cd(dir+"HLT");
+                    if(ancestorPassed<xAOD::TrigElectronContainer>(feat.te()))
+                        hist1("rejection")->Fill("L2",1);
+                    for(const auto& obj : *cont){
+                        // Only consider passing objects
+                        if(!obj) continue;
+                        if(!HLT::isPassing(bits,obj,cont)) continue;
+                        fillL2Electron(dir+"L2Electron",obj); // Fill HLT shower shapes
+                    }
+                }
+                const auto vec_el = fc.get<xAOD::ElectronContainer>("egamma_Electrons",TrigDefs::alsoDeactivateTEs);
+                for (const auto feat : vec_el){
+                    if(feat.te()==NULL) continue;
+                    const auto* cont = getFeature<xAOD::ElectronContainer>(feat.te());
+                    const auto *bits = getFeature<TrigPassBits>(feat.te());
+                    if(cont==NULL) continue; 
+                    cd(dir+"HLT");
+                    if(ancestorPassed<xAOD::ElectronContainer>(feat.te()))
+                        hist1("rejection")->Fill("HLT",1);
+                    for(const auto& obj : *cont){
+                        if(!obj) continue;
+                        if(bits==NULL){
+                            fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
+                            fillTracking(dir+"HLT",obj); // Fill HLT shower shapes
+                        }
+                        // Only consider passing objects if bits available
+                        else if(!HLT::isPassing(bits,obj,cont)) continue;
+                        fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
+                        fillTracking(dir+"HLT",obj); // Fill HLT shower shapes
+                    }
+                }
+            }
+            else if(info.trigType=="photon"){
+                const auto vec_ph = fc.get<xAOD::PhotonContainer>("egamma_Photons",TrigDefs::alsoDeactivateTEs);
+                for (const auto feat : vec_ph){
+                    if(feat.te()==NULL) continue;
+                    const auto* cont = getFeature<xAOD::PhotonContainer>(feat.te());
+                    const auto *bits = getFeature<TrigPassBits>(feat.te());
+                    if(cont==NULL) continue;
+                    cd(dir+"HLT");
+                    if(ancestorPassed<xAOD::PhotonContainer>(feat.te()))
+                        hist1("rejection")->Fill("HLT",1);
+                    for(const auto& obj : *cont){
+                        // Only consider passing objects
+                        if(!obj) continue;
+                        if(bits==NULL){
+                            fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
+                        }
+                        // Only consider passing objects if bits available
+                        else if(!HLT::isPassing(bits,obj,cont)) continue;
+                        fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
+                    }
+                }
+            }
+            else ATH_MSG_WARNING("Chain type not specified");
+        }
+
     }
     return StatusCode::SUCCESS;
 }
@@ -270,35 +325,45 @@ void TrigEgammaDistTool::fillL2Calo(const std::string dir, const xAOD::TrigEMClu
         hist1("phi")->Fill(emCluster->phi());
 
         ATH_MSG_DEBUG("L2 Calo distributions.");
+    }
+}
+
+void TrigEgammaDistTool::fillRinger(const std::string dir, const xAOD::TrigEMCluster *emCluster){
+    cd(dir);
+    if(!emCluster) ATH_MSG_DEBUG("Online pointer fails"); 
+    else{
         bool hasRings = false;
         std::vector<float> ringsE;
         hasRings = getTrigCaloRings(emCluster, ringsE );
         if(hasRings){
             hist2("ringer_etVsEta")->Fill(emCluster->eta(), emCluster->et()/1.e3);
             ///Fill rings pdf for each ring
-            for(unsigned layer =0; layer < 7; ++layer){
-                unsigned minRing, maxRing;  std::string strLayer;
-                parseCaloRingsLayers( layer, minRing, maxRing, strLayer );
-                cd(dir+"/rings_"+strLayer);
-                for(unsigned r=minRing; r<=maxRing; ++r){
-                    std::stringstream ss;
-                    ss << "ringer_ring#" << r;
-                    hist1(ss.str())->Fill( ringsE.at(r) );
-                }///loop into rings
-            }///loop for each calo layer
+            if(m_detailedHists){
+                for(unsigned layer =0; layer < 7; ++layer){
+                    unsigned minRing, maxRing;  std::string strLayer;
+                    parseCaloRingsLayers( layer, minRing, maxRing, strLayer );
+                    cd(dir+"/rings_"+strLayer);
+                    for(unsigned r=minRing; r<=maxRing; ++r){
+                        std::stringstream ss;
+                        ss << "ringer_ring#" << r;
+                        hist1(ss.str())->Fill( ringsE.at(r) );
+                    }///loop into rings
+                }///loop for each calo layer
+            }
         }
     }
 }
+
 void TrigEgammaDistTool::fillShowerShapes(const std::string dir,const xAOD::Egamma *eg){
     cd(dir);
     ATH_MSG_DEBUG("Fill SS distributions " << dir);
     if(!eg) ATH_MSG_WARNING("Egamma pointer fails"); 
     else {
         ATH_MSG_DEBUG("Shower Shapes");
-        hist1("e011")->Fill(getShowerShape_e011(eg)/1e3);
-        hist1("e132")->Fill(getShowerShape_e132(eg)/1e3);
-        hist1("e237")->Fill(getShowerShape_e237(eg)/1e3);
-        hist1("e277")->Fill(getShowerShape_e277(eg)/1e3);
+        //hist1("e011")->Fill(getShowerShape_e011(eg)/1e3);
+        //hist1("e132")->Fill(getShowerShape_e132(eg)/1e3);
+        //hist1("e237")->Fill(getShowerShape_e237(eg)/1e3);
+        //hist1("e277")->Fill(getShowerShape_e277(eg)/1e3);
         hist1("ethad")->Fill(getShowerShape_ethad(eg)/1e3);
         hist1("ethad1")->Fill(getShowerShape_ethad1(eg)/1e3);
         hist1("Rhad")->Fill(getShowerShape_Rhad(eg));
@@ -307,7 +372,7 @@ void TrigEgammaDistTool::fillShowerShapes(const std::string dir,const xAOD::Egam
         hist1("Rphi")->Fill(getShowerShape_Rphi(eg));
         hist1("weta1")->Fill(getShowerShape_weta1(eg));
         hist1("weta2")->Fill(getShowerShape_weta2(eg));
-        hist1("wtots1")->Fill(getShowerShape_wtots1(eg));
+        //hist1("wtots1")->Fill(getShowerShape_wtots1(eg));
         hist1("f1")->Fill(getShowerShape_f1(eg));
         hist1("f3")->Fill(getShowerShape_f3(eg));
         hist1("eratio")->Fill(getShowerShape_Eratio(eg));
@@ -346,6 +411,8 @@ void TrigEgammaDistTool::fillTracking(const std::string dir, const xAOD::Electro
         hist1("nscthits")->Fill(getTrackSummary_numberOfSCTHits(eg));
         hist1("charge")->Fill(eg->charge());
         hist1("ptcone20")->Fill(getIsolation_ptcone20(eg)/1e3);
+        hist1("topoetcone20")->Fill(getIsolation_topoetcone20(eg)/1e3);
+        hist1("ptvarcone20")->Fill(getIsolation_ptvarcone20(eg)/1e3);
         // Quantities directly from tracks
         ATH_MSG_DEBUG("Get track Quantities");
         hist1("d0")->Fill(getTrack_d0(eg));
@@ -353,6 +420,8 @@ void TrigEgammaDistTool::fillTracking(const std::string dir, const xAOD::Electro
         hist1("pt")->Fill(getTrack_pt(eg)/1e3);
         if (eg->pt() > 0) {
             hist1("ptcone20_rel")->Fill(getIsolation_ptcone20(eg)/eg->pt());
+            hist1("ptvarcone20_rel")->Fill(getIsolation_ptvarcone20(eg)/eg->pt());
+            hist1("topoetcone20_rel")->Fill(getIsolation_topoetcone20(eg)/eg->pt());
         }
         if (m_detailedHists ) {
             hist2("deta1_vs_clusterEta")->Fill(cleta,getCaloTrackMatch_deltaEta1(eg));

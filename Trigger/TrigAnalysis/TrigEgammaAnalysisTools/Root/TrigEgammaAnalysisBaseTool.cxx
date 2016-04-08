@@ -64,6 +64,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     declareProperty("DetailedHistograms", m_detailedHists=false)->declareUpdateHandler(&TrigEgammaAnalysisBaseTool::updateDetail,this);
     declareProperty("DefaultProbePid", m_defaultProbePid="Loose");
     declareProperty("doJpsiee",m_doJpsiee=false)->declareUpdateHandler(&TrigEgammaAnalysisBaseTool::updateAltBinning,this);
+    declareProperty("TPTrigger",m_tp=false)->declareUpdateHandler(&TrigEgammaAnalysisBaseTool::updateTP,this);
     declareProperty("isEMResultNames",m_isemname,"isEM");
     declareProperty("LHResultNames",m_lhname,"LH");
     m_storeGate = nullptr;
@@ -95,6 +96,12 @@ void TrigEgammaAnalysisBaseTool::updateDetail(Property& /*p*/){
 
 void TrigEgammaAnalysisBaseTool::updateAltBinning(Property& /*p*/){
     plot()->setAltBinning(m_doJpsiee);
+}
+void TrigEgammaAnalysisBaseTool::updateTP(Property& /*p*/){
+    plot()->setTP(m_tp);
+    for( const auto& tool : m_tools) {
+        tool->setTP(m_tp); 
+    }
 }
 
 //**********************************************************************
@@ -202,7 +209,6 @@ StatusCode TrigEgammaAnalysisBaseTool::execute() {
 StatusCode TrigEgammaAnalysisBaseTool::finalize() {
 
     ATH_MSG_VERBOSE( "Finalizing tool " << name() );
-
     StatusCode sc;
     for( const auto& tool : m_tools) {
         try {
@@ -642,7 +648,10 @@ GETTER(DeltaE)
     GETTER(topoetcone40)    
     GETTER(ptcone20)
     GETTER(ptcone30)
-GETTER(ptcone40)    
+    GETTER(ptcone40)    
+    GETTER(ptvarcone20)
+    GETTER(ptvarcone30)
+    GETTER(ptvarcone40)    
 #undef GETTER    
 
     // GETTERs for CaloCluster monitoring   
@@ -869,5 +878,4 @@ void TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex(){
    ATH_MSG_DEBUG("calculatePileupPrimaryVertex(): nPileupPrimaryVtx = " << m_nPileupPrimaryVtx);
 
 }
-
 

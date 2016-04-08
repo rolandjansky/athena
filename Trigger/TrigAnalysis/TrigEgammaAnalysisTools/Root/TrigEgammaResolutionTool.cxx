@@ -42,7 +42,10 @@ StatusCode TrigEgammaResolutionTool::childFinalize(){
 StatusCode TrigEgammaResolutionTool::toolExecute(const std::string basePath,TrigInfo info,
         std::vector<std::pair< const xAOD::Egamma*,const HLT::TriggerElement*>> pairObjs){
 
+    if(m_tp) return StatusCode::SUCCESS;
     const std::string dir = basePath+"/"+info.trigName;
+    bool filliso=false;
+    if(boost::contains(info.trigName,"iloose") || boost::contains(info.trigName,"ivarloose")) filliso=true;
     ATH_MSG_DEBUG("Executing resolution for " << dir);
     for(const auto pairObj : pairObjs){
         const xAOD::Egamma* eg =pairObj.first;
@@ -50,18 +53,30 @@ StatusCode TrigEgammaResolutionTool::toolExecute(const std::string basePath,Trig
 
         if ( feat!=NULL ) {
             // Final cuts done here
-            if(eg->type()==xAOD::Type::Electron){
-                const xAOD::Electron* el = static_cast<const xAOD::Electron *> (eg);
-                float et = getEt(el)/1e3;
-                if(et < info.trigThrHLT-5.0) continue; 
-                 if(!eg->auxdecor<bool>(info.trigPidDecorator)) continue; 
-                resolutionElectron(dir,pairObj);
-            } // Offline object Electron
-            else if(eg->type()==xAOD::Type::Photon){
-                float et = getCluster_et(eg)/1e3;
-                if(et < info.trigThrHLT-5.0) continue; 
-                resolutionPhoton(dir,pairObj);
-            } // Offline photon
+            if (info.trigL1) {
+                auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(feat);
+                const xAOD::EmTauRoI *l1 = itEmTau.cptr();
+                if (l1) {
+                    std::string dir7 = dir + "/Resolutions/L1Calo";
+                    std::string dir8 = dir + "/AbsResolutions/L1Calo";
+                    fillL1CaloResolution(dir7, l1, eg);
+                    fillL1CaloAbsResolution(dir8, l1, eg);
+                }
+            }
+            else {
+                if(eg->type()==xAOD::Type::Electron){
+                    const xAOD::Electron* el = static_cast<const xAOD::Electron *> (eg);
+                    float et = getEt(el)/1e3;
+                    if(et < info.trigThrHLT-5.0) continue; 
+                    if(!eg->auxdecor<bool>(info.trigPidDecorator)) continue; 
+                    resolutionElectron(dir,pairObj,filliso);
+                } // Offline object Electron
+                else if(eg->type()==xAOD::Type::Photon){
+                    float et = getCluster_et(eg)/1e3;
+                    if(et < info.trigThrHLT-5.0) continue; 
+                    resolutionPhoton(dir,pairObj);
+                } // Offline photon
+            }
         }
     }
     return StatusCode::SUCCESS;
@@ -106,13 +121,13 @@ void TrigEgammaResolutionTool::resolutionPhoton(const std::string basePath,std::
         } // Passed Hypo
         if(dRMax < 0.05){
             fillHLTResolution(dir1,phEF,phOff);
-            fillHLTAbsResolution(dir2,phEF,phOff);
+            if(m_detailedHists) fillHLTAbsResolution(dir2,phEF,phOff);
         }
     } // Feature Container
     else ATH_MSG_DEBUG("Feature Container NULL");
 }
 
-void TrigEgammaResolutionTool::resolutionElectron(const std::string basePath,std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
+void TrigEgammaResolutionTool::resolutionElectron(const std::string basePath,std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> pairObj,bool filliso){
     ATH_MSG_DEBUG("Resolution Electron " << basePath);
     std::string dir1 = basePath + "/Resolutions/HLT";
     std::string dir2 = basePath + "/AbsResolutions/HLT";
@@ -123,6 +138,8 @@ void TrigEgammaResolutionTool::resolutionElectron(const std::string basePath,std
 
     const xAOD::Electron* elOff =static_cast<const xAOD::Electron*> (pairObj.first);
     const HLT::TriggerElement *feat = pairObj.second; 
+    
+    
     bool passedEFEl = ancestorPassed<xAOD::ElectronContainer>(feat);
     double deltaR=0.;
     double dRMax = 100;
@@ -155,22 +172,25 @@ void TrigEgammaResolutionTool::resolutionElectron(const std::string basePath,std
         } // Passed Hypo
         if(dRMax < 0.05){
             fillHLTResolution(dir1,elEF,elOff);
-            fillHLTAbsResolution(dir2,elEF,elOff);
+            if(filliso) fillIsolationResolution(dir1,elEF,elOff);
+            if(m_detailedHists) fillHLTAbsResolution(dir2,elEF,elOff);
 	    const xAOD::TrigEMCluster* clus = getFeature<xAOD::TrigEMCluster>(feat);
 	    if ( clus != NULL ) {
-		fillL2CaloResolution(dir5,clus, elOff );
+		if(m_detailedHists) fillL2CaloResolution(dir5,clus, elOff );
 		fillL2CaloResolution(dir6,clus, elEF );
 	    }
         }
     } // EFEl Feature
     else ATH_MSG_DEBUG("NULL EFEl Feature");
     // L1 resolutions
-    if (feat) {
-        auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(feat);
-        const xAOD::EmTauRoI *l1 = itEmTau.cptr();
-        if (l1) {
-            fillL1CaloResolution(dir7, l1, elOff);
-            fillL1CaloAbsResolution(dir8, l1, elOff);
+    if(m_detailedHists){
+        if (feat) {
+            auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(feat);
+            const xAOD::EmTauRoI *l1 = itEmTau.cptr();
+            if (l1) {
+                fillL1CaloResolution(dir7, l1, elOff);
+                fillL1CaloAbsResolution(dir8, l1, elOff);
+            }
         }
     }
     else ATH_MSG_DEBUG("NULL L1 Feature");
@@ -308,34 +328,18 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
         if(val_off!=0.) hist1("res_dphi2")->Fill((getCaloTrackMatch_deltaPhi2(elonl)-val_off)/val_off);
         val_off=getCaloTrackMatch_deltaPhiRescaled2(eloff);
         hist1("res_dphiresc")->Fill((getCaloTrackMatch_deltaPhiRescaled2(elonl)-val_off)/val_off);
+
+        // Absolute resolution for impact parameter
         val_off=getTrack_d0(eloff);
-        if(val_off!=0.) hist1("res_d0")->Fill((getTrack_d0(elonl)-val_off)/val_off);
+        if(val_off!=0.) hist1("res_d0")->Fill(getTrack_d0(elonl)-val_off);
         val_off=getD0sig(eloff);
-        if(val_off!=0.) hist1("res_d0sig")->Fill((getD0sig(elonl)-val_off)/val_off);
-        // More specific check of eprobHT value needed 
+        if(val_off!=0.) hist1("res_d0sig")->Fill(getD0sig(elonl)-val_off);
+        
+        // Absolute resolution on track summary ints/floats 
         val_off=getTrackSummaryFloat_eProbabilityHT(eloff);
-        if(val_off!=0.) hist1("res_eprobht")->Fill( (getTrackSummaryFloat_eProbabilityHT(elonl)-val_off)/val_off);
+        if(val_off!=0.) hist1("res_eprobht")->Fill( (getTrackSummaryFloat_eProbabilityHT(elonl)-val_off));
         hist1("res_npixhits")->Fill(getTrackSummary_numberOfPixelHits(elonl)-getTrackSummary_numberOfPixelHits(elonl));
         hist1("res_nscthits")->Fill(getTrackSummary_numberOfSCTHits(elonl)-getTrackSummary_numberOfSCTHits(elonl));
-
-        // ptcone20 isolation
-        val_off=getIsolation_ptcone20(eloff);
-        if (val_off > 0.) {
-            hist1("res_ptcone20")->Fill((getIsolation_ptcone20(elonl)-val_off)/val_off);
-            if (getEt(elonl) > 0. && getEt(eloff) > 0.) {
-                const float reliso_onl=getIsolation_ptcone20(elonl)/getEt(elonl);
-                const float reliso_off=getIsolation_ptcone20(eloff)/getEt(eloff);
-                hist1("res_ptcone20_rel")->Fill((reliso_onl-reliso_off)/reliso_off);
-                hist2("res_ptcone20_relVsEta")->Fill(elonl->trackParticle()->eta(),
-                        (reliso_onl-reliso_off)/reliso_off);
-                hist2("res_ptcone20_relVsEt")->Fill(getEt(elonl)/1e3,
-                        (reliso_onl-reliso_off)/reliso_off);
-                hist2("res_ptcone20_relVsMu")->Fill(getAvgMu(),
-                        (reliso_onl-reliso_off)/reliso_off);
-                hist2("res_ptcone20VsMu")->Fill(getAvgMu(),
-                        (reliso_onl-reliso_off)/reliso_off);
-            }
-        }
 
     } else { 
         val_off=getCluster_et(off);
@@ -391,14 +395,14 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
         } // Cluster Energy !=0.
     }
 
-    val_off=getShowerShape_e011(off);
+    /*val_off=getShowerShape_e011(off);
     if(val_off!=0.) hist1("res_e011")->Fill((getShowerShape_e011(onl)-val_off)/val_off);
     val_off=getShowerShape_e132(off);
     if(val_off!=0.) hist1("res_e132")->Fill((getShowerShape_e132(onl)-val_off)/val_off);
     val_off=getShowerShape_e237(off);
     if(val_off!=0.) hist1("res_e237")->Fill((getShowerShape_e237(onl)-val_off)/val_off);
     val_off=getShowerShape_e277(off);
-    if(val_off!=0.) hist1("res_e277")->Fill((getShowerShape_e277(onl)-val_off)/val_off);
+    if(val_off!=0.) hist1("res_e277")->Fill((getShowerShape_e277(onl)-val_off)/val_off);*/
     val_off=getShowerShape_ethad(off);
     if(val_off!=0.) {
         hist1("res_ethad")->Fill((getShowerShape_ethad(onl)-val_off)/val_off);
@@ -522,6 +526,59 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
     }
 }
 
+void TrigEgammaResolutionTool::fillIsolationResolution(const std::string dir,const xAOD::Egamma *onl, const xAOD::Egamma *off){
+        // ptcone20 isolation
+    cd(dir);
+    if(xAOD::EgammaHelpers::isElectron(onl)){
+        const xAOD::Electron* elonl =static_cast<const xAOD::Electron*> (onl);
+        const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
+        float val_off=getIsolation_ptcone20(eloff);
+        if (val_off > 0.) {
+            hist1("res_ptcone20")->Fill((getIsolation_ptcone20(elonl)-val_off)/val_off);
+            hist2("res_ptcone20_onVsOff")->Fill(getIsolation_ptcone20(eloff),
+                    getIsolation_ptcone20(elonl));
+            if (getEt(elonl) > 0. && getEt(eloff) > 0.) {
+                const float reliso_onl=getIsolation_ptcone20(elonl)/getEt(elonl);
+                const float reliso_off=getIsolation_ptcone20(eloff)/getEt(eloff);
+                hist1("res_ptcone20_rel")->Fill((reliso_onl-reliso_off)/reliso_off);
+                hist2("res_ptcone20_relVsEta")->Fill(elonl->eta(),
+                        (reliso_onl-reliso_off)/reliso_off);
+                hist2("res_ptcone20_relVsEt")->Fill(getEt(elonl)/1e3,
+                        (reliso_onl-reliso_off)/reliso_off);
+                hist2("res_ptcone20_relVsMu")->Fill(getAvgMu(),
+                        (reliso_onl-reliso_off)/reliso_off);
+                hist2("res_ptcone20VsMu")->Fill(getAvgMu(),
+                        (reliso_onl-reliso_off)/reliso_off);
+                hist2("res_ptcone20_rel_onVsOff")->Fill(getIsolation_ptcone20(eloff)/getEt(eloff),
+                        getIsolation_ptcone20(elonl)/getEt(elonl));
+            }
+        }
+
+        // ptvarcone20 isolation
+        val_off=getIsolation_ptvarcone20(eloff);
+        if (val_off > 0.) {
+            hist1("res_ptcone20")->Fill((getIsolation_ptvarcone20(elonl)-val_off)/val_off);
+            hist2("res_ptcone20_onVsOff")->Fill(getIsolation_ptvarcone20(eloff),
+                    getIsolation_ptvarcone20(elonl));
+            if (getEt(elonl) > 0. && getEt(eloff) > 0.) {
+                const float reliso_onl=getIsolation_ptvarcone20(elonl)/getEt(elonl);
+                const float reliso_off=getIsolation_ptvarcone20(eloff)/getEt(eloff);
+                hist1("res_ptcone20_rel")->Fill((reliso_onl-reliso_off)/reliso_off);
+                hist2("res_ptcone20_relVsEta")->Fill(elonl->eta(),
+                        (reliso_onl-reliso_off)/reliso_off);
+                hist2("res_ptcone20_relVsEt")->Fill(getEt(elonl)/1e3,
+                        (reliso_onl-reliso_off)/reliso_off);
+                hist2("res_ptcone20_relVsMu")->Fill(getAvgMu(),
+                        (reliso_onl-reliso_off)/reliso_off);
+                hist2("res_ptcone20VsMu")->Fill(getAvgMu(),
+                        (reliso_onl-reliso_off)/reliso_off);
+                hist2("res_ptcone20_rel_onVsOff")->Fill(getIsolation_ptvarcone20(eloff)/getEt(eloff),
+                        getIsolation_ptvarcone20(elonl)/getEt(elonl));
+            }
+        }
+    }
+}
+
 void TrigEgammaResolutionTool::fillHLTAbsResolution(const std::string dir,const xAOD::Egamma *onl, const xAOD::Egamma *off){
    
     cd(dir);
@@ -538,7 +595,7 @@ void TrigEgammaResolutionTool::fillHLTAbsResolution(const std::string dir,const 
         hist1("res_eta")->Fill(onl_eta-off_eta);
         hist1("res_phi")->Fill((elonl->phi()-eloff->phi()));
 
-        hist2("res_etVsEta")->Fill(elonl->trackParticle()->eta(),
+        hist2("res_etVsEta")->Fill(elonl->eta(),
                                    (getEt(elonl)-getEt(eloff)));
         hist2("res_etVsEt")->Fill( getEt(elonl)/1e3,
                                    (getEt(elonl)-getEt(eloff)));
@@ -548,7 +605,7 @@ void TrigEgammaResolutionTool::fillHLTAbsResolution(const std::string dir,const 
         //ptcone20/pt
         if (getEt(elonl) > 0 && getEt(eloff) > 0) {
           hist1("res_ptcone20_rel")->Fill(getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff));
-          hist2("res_ptcone20_relVsEta")->Fill(elonl->trackParticle()->eta(),
+          hist2("res_ptcone20_relVsEta")->Fill(elonl->eta(),
                                                getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff));
           hist2("res_ptcone20_relVsEt")->Fill(getEt(elonl)/1e3,
                                               getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff));
@@ -604,10 +661,10 @@ void TrigEgammaResolutionTool::fillHLTAbsResolution(const std::string dir,const 
 	hist1("res_etInEta3")->Fill((getCluster_et(onl)-getCluster_et(off)));
     }
     
-    hist1("res_e011")->Fill((getShowerShape_e011(onl)-getShowerShape_e011(off)));
+    /*hist1("res_e011")->Fill((getShowerShape_e011(onl)-getShowerShape_e011(off)));
     hist1("res_e132")->Fill((getShowerShape_e132(onl)-getShowerShape_e132(off)));
     hist1("res_e237")->Fill((getShowerShape_e237(onl)-getShowerShape_e237(off)));
-    hist1("res_e277")->Fill((getShowerShape_e277(onl)-getShowerShape_e277(off)));
+    hist1("res_e277")->Fill((getShowerShape_e277(onl)-getShowerShape_e277(off)));*/
     hist1("res_ethad")->Fill((getShowerShape_ethad(onl)-getShowerShape_ethad(off)));
     hist1("res_ethad1")->Fill((getShowerShape_ethad1(onl)-getShowerShape_ethad1(off)));
     hist1("res_Rhad")->Fill((getShowerShape_Rhad(onl)-getShowerShape_Rhad(off)));

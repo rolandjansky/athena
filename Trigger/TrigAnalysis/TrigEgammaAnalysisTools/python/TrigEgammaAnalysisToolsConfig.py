@@ -24,23 +24,23 @@ from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElect
 from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import ElectronIsEMMap,electronPIDmenu
 
 # Offline selectors -- taken from latest conf
-LooseElectronSelector=CfgMgr.AsgElectronIsEMSelector("LooseElectronSelector")
+LooseElectronSelector=CfgMgr.AsgElectronIsEMSelector("T0HLTLooseElectronSelector")
 LooseElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMLooseSelectorCutDefs.conf"
 ToolSvc+=LooseElectronSelector
-MediumElectronSelector=CfgMgr.AsgElectronIsEMSelector("MediumElectronSelector")
+MediumElectronSelector=CfgMgr.AsgElectronIsEMSelector("T0HLTMediumElectronSelector")
 MediumElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMMediumSelectorCutDefs.conf"
 ToolSvc+=MediumElectronSelector
-TightElectronSelector=CfgMgr.AsgElectronIsEMSelector("TightElectronSelector")
+TightElectronSelector=CfgMgr.AsgElectronIsEMSelector("T0HLTTightElectronSelector")
 TightElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMTightSelectorCutDefs.conf"
 ToolSvc+=TightElectronSelector
 
-LooseLHSelector=CfgMgr.AsgElectronLikelihoodTool("LooseLHSelector")
+LooseLHSelector=CfgMgr.AsgElectronLikelihoodTool("T0HLTLooseLHSelector")
 LooseLHSelector.ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseOfflineConfig2015.conf"
 ToolSvc+=LooseLHSelector
-MediumLHSelector=CfgMgr.AsgElectronLikelihoodTool("MediumLHSelector")
+MediumLHSelector=CfgMgr.AsgElectronLikelihoodTool("T0HLTMediumLHSelector")
 MediumLHSelector.ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodMediumOfflineConfig2015.conf"
 ToolSvc+=MediumLHSelector
-TightLHSelector=CfgMgr.AsgElectronLikelihoodTool("TightLHSelector")
+TightLHSelector=CfgMgr.AsgElectronLikelihoodTool("T0HLTTightLHSelector")
 TightLHSelector.ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodTightOfflineConfig2015.conf"
 ToolSvc+=TightLHSelector
 
@@ -152,6 +152,7 @@ TrigEgammaNavTPAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgamma
         ForceProbePid=False, 
         OppositeCharge=True,
         doJpsiee=False,
+        TPTrigger=False,
         OfflineTagMinEt=25,
         OfflineProbeMinEt=24,
         RemoveCrack=True,
@@ -181,6 +182,7 @@ TrigEgammaNavTPJpsieeAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.Trig
          ForceProbePid=False, 
          OppositeCharge=True,
          doJpsiee=True,
+         TPTrigger=True,
          OfflineTagMinEt=5,
          OfflineProbeMinEt=5,
          RemoveCrack=True,

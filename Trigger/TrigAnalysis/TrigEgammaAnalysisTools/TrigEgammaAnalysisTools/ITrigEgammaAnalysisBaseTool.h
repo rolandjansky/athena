@@ -36,6 +36,7 @@ public:
   virtual void setParent(IHLTMonTool *)=0;
   virtual void setPlotTool(ToolHandle<ITrigEgammaPlotTool>)=0;
   virtual void setDetail(bool)=0;
+  virtual void setTP(bool)=0;
   virtual StatusCode childInitialize(){return StatusCode::SUCCESS;};
   virtual StatusCode childBook(){return StatusCode::SUCCESS;};
   virtual StatusCode childExecute(){return StatusCode::SUCCESS;};
