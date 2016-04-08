@@ -1,0 +1,32 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+#
+# -  Geant4 utilities at different time  
+#===============================================================================
+# macro name = ctb_g4utilities-action.mac 
+# called by  jobOptions.CTB_G4Sim.py (if needed)
+#
+# - General description -
+#    Enable the G4Utilities
+#
+# contacts: <Andrea.Dellacqua@cern.ch>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/echo "CTB_G4Sim: G4Utilities, timer "
+/Actions/List
+/load G4UserActions
+/Actions/List
+/Actions/RegisterForAction G4SimTimer BeginOfRun
+/Actions/RegisterForAction G4SimTimer EndOfRun
+/Actions/RegisterForAction G4SimTimer BeginOfEvent
+/Actions/RegisterForAction G4SimTimer EndOfEvent
+/echo "CTB_G4Sim: G4Utilities, timer done"
+#/echo "CTB_G4Sim: G4Utilities, memory "
+#/Actions/RegisterForAction G4SimMem BeginOfRun
+#/Actions/RegisterForAction G4SimMem EndOfRun
+#/Actions/RegisterForAction G4SimMem BeginOfEvent
+#/Actions/RegisterForAction G4SimMem EndOfEvent
+#/echo "CTB_G4Sim: G4Utilities, memory done"
+
+#===============================================================================

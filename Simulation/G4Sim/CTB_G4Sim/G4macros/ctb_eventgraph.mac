@@ -1,0 +1,26 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# - Event display 
+#===============================================================================
+# macro name = ctb_eventgraph.mac
+# called by  jobOptions.CTB_G4Sim.txt
+#
+# - General description -
+#    For the visualization of one event 
+#
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/echo "CTB_G4Sim: Drawing the event using G4EventGraphics"
+/load G4UserActions
+/load G4EventGraphics
+# mgallas--> next line must be added to avoid the crash of visualization 
+/MCTruth/SecondarySavingPolicy All
+/Actions/RegisterForAction DrawEventAction BeginOfEvent
+/Actions/RegisterForAction DrawEventAction EndOfEvent
+/Geometry/Volumes/SetMaxStep MBPSID::MBPSID .5 cm
+/EventGraphics/TrackDisplayLevel 3
+/EventGraphics/TrackColorScheme 3
+/EventGraphics/TrackPtCut .03 GeV
+/EventGraphics/NeutralTracks Off
+#===============================================================================

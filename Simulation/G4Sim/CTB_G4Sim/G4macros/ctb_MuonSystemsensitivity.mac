@@ -1,0 +1,26 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# -  MuonSystem detector
+#===============================================================================
+# macro name = ctb_MuonSystemsensitivity.mac
+# called by ctb_MuonSystem.mac
+#
+# - General description -
+#  MuonSystem sensitivity for the CTB attached to the MUON envelope
+#  defined in the ctb_envelopes.mac macro file
+#
+# contacts: Daniela Rebuzzi  <rebuzzi@pv.infn.it>
+#           Gabriella Gaudio <gabriella.gaudio@pv.infn.it>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/load MuonG4SD
+/SenDetector/UseSensitiveDetector MDTSens AMS
+/Geometry/AssignSD Muon Muon::SensitiveGas AMS
+/SenDetector/UseSensitiveDetector RPCSens RMS
+/Geometry/AssignSD Muon Muon::gazGap RMS
+/SenDetector/UseSensitiveDetector TGCSens TMS
+/Geometry/AssignSD Muon Muon::muo::TGCGas TMS
+/SenDetector/UseSensitiveDetector CSCSens CMS
+/Geometry/AssignSD Muon Muon::CscArCO2 CMS
+#===============================================================================

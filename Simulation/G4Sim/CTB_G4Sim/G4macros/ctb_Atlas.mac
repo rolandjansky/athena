@@ -1,0 +1,100 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation 
+# - Main macro file  
+#===============================================================================
+# macro name = ctb_Atlas.mac
+#
+# - General description -
+#    The CTB_G4Sim pseudo-package can run the Geant4 simulation of all the 
+# detectors and ancillary material included in the H8 experimental area or 
+# a sub-set of them. For a specific studies maybe the interest is concentrated 
+# in a set sun-detectors, you can switch on/off them commenting the appropriate 
+# line in this ctb_Atlas.mac file.
+# 
+# author: M. Gallas <mgallas@mail.cern.ch>  
+#===============================================================================
+
+
+#====================  Detector envelopes  =====================================
+# -- Detector envelopes -- (Always leave this one in)
+/echo "CTB_G4Sim: Building the envelopes"
+/macro/execute ctb_envelopes.mac 
+/echo "CTB_G4Sim: List of CTB detector envelopes"
+/Geometry/PrintVolumes
+
+#====================  Sub-detectors  ==========================================
+# Needed for all the sub-detectors using GeoModel. 
+/load GeoDetectorPlugIns 
+
+# PIXEL detector. Comment out the following line for no PIXEL
+/echo "CTB_G4Sim: Building the PIXEL"
+/macro/execute ctb_PIXEL.mac
+
+# SCT detector. Comment out the following line for no SCT
+/echo "CTB_G4Sim: Building the SCT"
+/macro/execute ctb_SCT.mac
+
+# TRT detector. Comment out the following line for no TRT
+/echo "CTB_G4Sim: Building the TRT"
+/macro/execute ctb_TRT.mac
+
+# LAr calorimeters. Comment out the following line for no LAr
+/echo "CTB_G4Sim: Building the LAr calorimeter"
+/macro/execute ctb_LArCal.mac
+ 
+# TileCal calo. Comment out the following line for no TileCal
+/echo "CTB_G4Sim: Building the TileCal calorimeter"
+/macro/execute ctb_TileCal.mac
+
+# Muon. Comment out following line for no Muon  
+/echo "CTB_G4Sim: Building the Muon"
+/macro/execute ctb_MuonSystem.mac
+
+#====================  Ancillary detectors  ====================================
+# Ancillary material. 
+/echo "CTB_G4Sim: Setting up the ancillary material"
+/macro/execute ctb_ancillary.mac
+# Ancillary detectors in the LAR-TILE table  
+/echo "CTB_G4Sim: Setting up the ancillary material in the LAR-Tile table"
+/macro/execute ctb_ancillaryLARTILE.mac  
+
+#===================  Muon Magnets & Dump & Muon ancillary  ====================
+# Note: the following lines need the Muon active
+/echo "CTB_G4Sim: Building the Magnets inside the Muon volume"
+/macro/execute ctb_envelopesMuonMagnets.mac
+/echo "CTB_G4Sim: Building the Dump inside the Muon volume"
+/macro/execute ctb_envelopesMuonDump.mac
+/echo "CTB_G4Sim: Building the ancillary inside the Muon volume"
+/macro/execute ctb_ancillaryMuons.mac
+
+#====================  Some verbosity  =========================================
+# Some verbosity:
+/echo "CTB_G4Sim: Print of CTB detectors volumes"
+/Geometry/PrintVolumes
+/echo "CTB_G4Sim: List of CTB detectors volumes"
+/Geometry/ListAllVolumes
+/echo "CTB_G4Sim: Print of sensitive volumes, PrintDetectors"
+/SenDetector/PrintDetectors
+/echo "CTB_G4Sim: Print of sensitive volumes, PrintEntries"
+/SenDetector/PrintEntries
+
+#====================  Magnetic Field  =========================================
+# Magnetic Field. comment out following line for no field
+# Preliminary version with a cte field. 
+# Note: the two last magnets need the Muon active
+/echo "CTB_G4Sim: Setting up the magnetic field"
+/macro/execute ctb_MagneticField.mac
+
+#====================  Hijing generator ========================================
+# For Inner detectors studies
+#/echo "CTB_G4Sim:  HIJING generator"
+#/macro/execute ctb_hijing.mac
+
+#====================  Physics List    =========================================
+# The Physics list is created in ctb_physicslist.mac and is 
+# called in the  jobOptions.CTB_G4Sim.txt file  
+#===============================================================================
+
+/echo "CTB_G4Sim: End of the CTB_G4Sim ctb_Atlas.mac macro file"
+#===============================================================================

@@ -1,0 +1,38 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# - Geometry of the ancillary material in the Muon area 
+#===============================================================================
+# macro name = ctb_ancillaryMuons.mac
+# called by ctb_Atlas.mac
+#
+# - General description -
+#  Material downstram the dumpdefined by B. Di Girolamo in the
+#  "Test Beam Layout Ancillary Detectors" Note:
+#     https://edms.cern.ch/file/467898/1/TB2004_ancillary_v02.pdf
+#  All the ancillary detectors here defined are called CTBANC+NAME where the
+#  NAME can be found in the previous note.
+#  The ancillary detectors are defined in the macro files:
+#     ctb_ancillary.mac            --> defined in the CTB volume
+#     ctb_ancillaryLARTILE.mac     --> defined in the LARTILE volume
+#    *ctb_ancillaryMuons.mac       --> defined in the MUON volume
+#
+# Note: Muon from GeoModel is the same as the volume MUON
+#      defined in ctb_envelopes.mac. That is a Box (4400x1200x1200) cm
+#      starting at x=1217.5 cm and this means that the center is at 
+#      x=+3417.5 cm 
+#
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/echo "CTB_G4Sim: Building the Geometry for Muon ancillary"
+/macro/execute ctb_ancillaryMuons-geometry.mac
+# (Some useful print options that we also have at general CTB level)
+#/Geometry/PrintVolumes
+#/Geometry/ListAllVolumes
+
+/echo "CTB_G4Sim: Building the Sensitivity for Muon ancillary"
+/macro/execute ctb_ancillaryMuons-sensitivity.mac
+# (Some useful print options that we also have at general CTB level)
+#/SenDetector/PrintEntries
+#/SenDetector/PrintDetectors
+#===============================================================================

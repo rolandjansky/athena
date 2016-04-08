@@ -1,0 +1,28 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# -  TRT detector
+#===============================================================================
+# macro name = ctb_TRT.mac
+# called by ctb_Atlas.mac
+#
+# - General description -
+#     TRT geometry and sensitive part
+#
+# contacts:Thomas Kittelman <kittel@nbi.dk>
+#          Mogens Dam  
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/echo "CTB_G4Sim: Building the Geometry for TRT"
+/macro/execute ctb_TRTgeometry.mac
+# (Some useful print options that we also have at general CTB level)
+#/Geometry/PrintVolumes
+#/Geometry/ListAllVolumes
+
+/echo "CTB_G4Sim: Building the Sensitivity for TRT"
+/macro/execute ctb_TRTsensitivity.mac
+# (Some useful print options that we also have at general CTB level)
+#/SenDetector/PrintEntries
+#/SenDetector/PrintDetectors
+#===============================================================================
+

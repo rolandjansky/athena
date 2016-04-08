@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <title></title>
+  <title>CTB_ATLAS test beam simulation: Old News </title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body text="#000000" bgcolor="#f5f5dc" link="#0000EE" vlink="#551a8b"
+alink="#ff0000">
+<!-- ------------------------------------------------------------Title Head -->
+<!-- -------------------------------------------------Title Head -->
+<body bgcolor="#FFFFFF">
+
+<table width="100%" bgcolor="#000080" cellpadding="30">
+  <tbody>
+    <tr>
+      <td align="center"><font color="#55AA00" size="+5"><!-- -----------------------------------------------------------------Title -->
+         <b><i>ATLAS CTB (2004)  Simulation with Geant4</i></b><br>
+        </font> <br>
+        <font color="#ddffff" size="+3"></font></td>
+    </tr>
+  </tbody>
+</table>
+<font="blue">
+<p></p>
+
+<center>
+Welcome to the official web page for the CTB (2004) Simulation with
+Geant4(<b>Athena </b>)</center>
+<!-- -----------------------------------------------------------------Histo -->
+<!-- $Id: ctb_old-news.html,v 1.6 2005-11-24 13:46:49 gallasm Exp $   -->
+<!-- editing history, most recent updates on top 
+20-02-2004, mgallas: initial version into CVS
+-->
+<!-- -----------------------------------------------------------------Index -->
+<hr color="blue">
+
+<p><b><a
+href="http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/simulation/geant4/index.html">ATLAS
+simulation with Geant4</a></b> - <b><a href="CTB.html"> CTB (2004)
+simulation</a></b>: <b> <a href="ctb_old-news.html">Old News</a></b></p>
+<hr color="blue">
+<font size="+2" color="#000080"><b>CTB_G4Sim: Old News </b></font>
+
+<p> </p>
+<ul>
+  <li>10/08/05: CTB ready to be used in 10.4.0.</li>
+</ul>
+<ul>
+  <li>08/07/05: CTB simulation is migrating from the 10.0.X branch (last used
+    release is 10.0.4) to the main branch and at the present status these are
+    the instructions in order to run CTB simulation with 10.3.0:
+    <p><span style="font-style: italic; font-size: 10pt">Release:
+    10.3.0</span></p>
+    <p style="font-style: italic; font-size: 10pt">1)Tags:</p>
+    <p
+    style="font-style: italic; font-size: 10pt">Simulation/G4Utilities/Geo2G4
+    Geo2G4-00-00-29</p>
+    <p
+    style="font-style: italic; font-size: 10pt">Simulation/G4Sim/GeoDetectorPlugIns
+    GeoDetectorPlugIns-00-00-11</p>
+    <p style="font-style: italic; font-size: 10pt">Simulation/G4Sim/G4Svc
+    G4Svc-00-02-41</p>
+    <p style="font-style: italic; font-size: 10pt">Simulation/G4Sim/CTB_G4Sim
+    CTB_G4Sim-00-02-37</p>
+    <p
+    style="font-style: italic; font-size: 10pt">Simulation/G4Atlas/G4AtlasApps
+    G4AtlasApps-00-00-37</p>
+    <p style="font-style: italic; font-size: 10pt">2) LAr problem with
+    persistency:</p>
+    <p style="font-style: italic; font-size: 10pt">cd
+    &lt;mytopdirectory&gt;/InstallArea/i686-slc3-gcc323-opt/lib</p>
+    <p><span style="font-style: italic; font-size: 10pt">ln -fs
+    /afs/cern.ch/user/h/hma/scratch0/table/libTable.so* libTable.so</span></p>
+  </li>
+</ul>
+<ul>
+  <li><u>01/05/05</u></blink>:CTB simulation in production mode for Rome
+  2005.</li>
+</ul>
+<ul>
+  <li><u>25/03/05</u>:<br>
+    - Altas 10.0.1 release includes the possibility to run the CTB_G4Sim
+    simulation using the new Python simulation infrastructure (in testing
+    mode). See the new User Manual.</li>
+  <li><u>21/02/05</u>: <br>
+    - Tile detector description with GeoModel.</li>
+  <li><u>10/02/05</u>: <br>
+    - Latest CTB Layout for the combined mode (period B), following the note:
+    "ATLAS Barrel Combined Run in 2004: Test Beam Setup and its
+  evolutions"</li>
+  <li>15/12/04: <br>
+    - New test beam layout ready for Atlas 9.1.1 CTB pre_prod and 9.3.0
+    releases (see tag CTB_G4Sim-00-02-16). It includes the shift in
+    X-coordinate (DeltaX=-475 mm) for the CTB reference system.<br>
+  </li>
+  <li><u>15/11/04</u>: <br>
+    - New test beam layout ready for Atlas 9.0.0 CTB pre_prod <br>
+    and CTB_G4Sim-00-02-12.<br>
+    - Magnetic Field Map ready (initial check done).</li>
+  <li><u>20/10/04</u>: <br>
+    - TGC and CSC muon digits available  <br>
+    - Persistency of test beam-layout in POOL <br>
+    - Hits in the Ancillary scintillators. <br>
+  </li>
+  <li><u>15/08/04</u> - MonteCarlo data with Atlas 8.6.0 available.</li>
+  <li><u>05/08/04</u> - New test beam layout using the MuonGeomodel,
+    available with CTB_G4Sim-00-02-01 tag. Tested with altrel_4 (29/07/04)
+    and in the production mode.</li>
+  <li><u>30/07/04</u> - Using Atlas 8.5.0 (Geant4-6.1), problems with the
+    G4-navigator were found in different points of the CTB setup (LAr and
+    Muons). Since that we are running with G4navigator check-mode on. This
+    makes that most of the jobs will crash using 8.5.0. The nightlies after
+    8.5.0 are using Geant4.6.2 and the situation is much better (you should
+    use CTB_G4Sim-00-01-14). <u>Please, try to be sure that the G4-geometry
+    of your subdetector is clean in terms of the G4-geometry recursive
+    test.</u></li>
+  <li><u>14/07/04</u> - A bug in Geant4-6.2 was found in the multiple
+    scattering process, do not use 8.4.0 Atlas release.</li>
+  <li><u>09/07/04</u> - CTB_G4Sim-00-01-11 works with Atlas 8.4.0 as it is
+    out of the box.</li>
+  <li><u>18/06/04</u> - CTB_G4Sim-00-01-08 works with Atlas 8.3.0 as it is
+    out of the box, with the python jobOption files.</li>
+  <li><u>07/06/04</u> -  Starting with the "CTB_G4Sim-00-01-06" tag,
+    CTB_G4Sim will use again the main Atlas line <b>8.X.0.</b>
+    "CTB_G4Sim-00-01-06" is the last tag that can be run in 8.X.0 and 8.0.X.
+    The next available tag "CTB_G4Sim-00-01-07" will run only in the 8.X.0
+    main Atlas release (nightly buildings at <a
+    href="http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/dist/nightlies/optwww/nightly_builds.html">ATLASSW_OPT</a>).</li>
+  <li><u>16/04/04 </u>-  Note that for the Atlas Combined test beam 2004
+    simulation we are using (since 15/04/04) the Atlas branch release
+    <b>8.0.X</b> and the associated nightly buildings are in NICOS under the
+    project <a
+    href="http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/dist/nightlies/atlaswwwProd/nightly_builds.html">ATLASSW_PROD</a>,
+    the path at CERN is
+    <em>"/afs/cern.ch/atlas/software/dist/nightlies/nightlies/rd/"</em>.</li>
+</ul>
+<!-- ------------------------------------------------------------------------>
+<hr color="blue">
+<!-- Created: Thu Jul 22 12:49:58 CEST 2004 -->
+<!-- hhmts start -->
+Last modified:  Thu May 19 14:18:02 CEST 2005 <!-- hhmts end -->
+ <br>
+$Revision: 1.6 $ $Author: gallasm $</body>
+</body>
+</html>

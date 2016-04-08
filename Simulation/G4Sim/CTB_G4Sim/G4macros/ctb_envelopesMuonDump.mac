@@ -1,0 +1,58 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+#
+# - Definition of the Muon dump 
+#===============================================================================
+# macro name = ctb_envelopesMuonDump.mac 
+# called by ctb_Atlas.mac, the MuonSystem must be active 
+#
+# contacts: <Andrea.Dellacqua@cern.ch>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+ 
+#==================  CTB beam line  ============================================
+# -- The Muon DUMP --
+/Geometry/GetFacility ResizeableBox DUMPCONCRETE
+# Box with a gap (320x320x400)cm, starting at 1337.47 cm. # Before shiftx04
+# Box with a gap (320x320x400)cm, starting at 1384.97 cm. # After shiftx04
+/DUMPCONCRETE/SetDx 160.0 cm
+/DUMPCONCRETE/SetDy 200.0 cm
+/DUMPCONCRETE/SetDz 160.0 cm
+/DUMPCONCRETE/SetMaterial  CTBConcrete 
+#/DUMPCONCRETE/MoveTo 1497.47 -70.0 0.  cm  # Before shiftx04
+/DUMPCONCRETE/MoveTo 1544.97 -70.0 0.  cm 
+# Central hole of the concrete dump 1 
+/DUMPCONCRETE/DefineSubtractionBox DUMPCONCRETEHOLE1
+/DUMPCONCRETE/SubtractionBoxDimensions DUMPCONCRETEHOLE1 1601 500 800 mm
+/DUMPCONCRETE/SubtractionBoxPosition DUMPCONCRETEHOLE1 0. 800. 0.  mm
+# Central hole of the concrete dump 2 
+/DUMPCONCRETE/DefineSubtractionBox DUMPCONCRETEHOLE2
+/DUMPCONCRETE/SubtractionBoxDimensions DUMPCONCRETEHOLE2 1601 800 400 mm
+/DUMPCONCRETE/SubtractionBoxPosition DUMPCONCRETEHOLE2 0 -400. 0. mm
+/Muon/AddDetector DUMPCONCRETE
+
+/Geometry/GetFacility ResizeableBox DUMPIRON
+# Box with a gap (320x120x160)cm, starting at 1337.47 cm. # Before shiftx04 
+# Box with a gap (320x320x400)cm, starting at 1384.97 cm. # After shiftx04
+/DUMPIRON/SetDx 160.0 cm
+/DUMPIRON/SetDy 60.0 cm
+/DUMPIRON/SetDz 80.0 cm
+/DUMPIRON/SetMaterial  Iron
+#/DUMPIRON/MoveTo 1497.47 0. 0.  cm  # Before shiftx04
+/DUMPIRON/MoveTo 1544.97 0. 0.  cm 
+# Central hole of the iron dump 
+/DUMPIRON/DefineSubtractionBox DUMPIRONHOLE
+/DUMPIRON/SubtractionBoxDimensions DUMPIRONHOLE 1604 400 400 mm
+/DUMPIRON/SubtractionBoxPosition DUMPIRONHOLE 0 0 0  cm
+# Corner of the iron block 
+/DUMPIRON/DefineSubtractionBox DUMPIRONCORNER1
+/DUMPIRON/SubtractionBoxDimensions DUMPIRONCORNER1 1604 100 200 mm
+/DUMPIRON/SubtractionBoxPosition DUMPIRONCORNER1 0. -501. 601.  mm
+# Corner of the iron block 
+/DUMPIRON/DefineSubtractionBox DUMPIRONCORNER2
+/DUMPIRON/SubtractionBoxDimensions DUMPIRONCORNER2 1604 100 200 mm
+/DUMPIRON/SubtractionBoxPosition DUMPIRONCORNER2 0. -501. -601.  mm
+/Muon/AddDetector DUMPIRON
+
+#===============================================================================

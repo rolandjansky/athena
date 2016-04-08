@@ -1,0 +1,28 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+#
+# -  Muon detector
+#===============================================================================
+# macro name = ctb_MuonSystem.mac
+# called by ctb_Atlas.mac
+#
+# - General description -
+#     Muon geometry and sensitive part
+#
+# contacts: Daniela Rebuzzi  <rebuzzi@pv.infn.it>
+#           Gabriella Gaudio <gabriella.gaudio@pv.infn.it>  
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/echo "CTB_G4Sim: Building the Geometry for Muon"
+/macro/execute ctb_MuonSystemgeometry.mac
+# (Some useful print options that we also have at general CTB level)
+#/Geometry/PrintVolumes
+#/Geometry/ListAllVolumes
+
+/echo "CTB_G4Sim: Building the Sensitivity for Muon"
+/macro/execute ctb_MuonSystemsensitivity.mac
+# (Some useful print options that we also have at general CTB level)
+#/SenDetector/PrintEntries
+#/SenDetector/PrintDetectors
+#===============================================================================

@@ -1,0 +1,100 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# - Geometry of the ancillary material in Inner and Calo area
+#===============================================================================
+# macro name = ctb_ancillaryLARTILE.mac
+# called by ctb_Atlas.mac
+#
+# - General description -
+#  Material upstream the point (x,y,z)-(0,0,0) defined by B. Di Girolamo in the
+#  "Test Beam Layout Ancillary Detectors" Note:
+#   https://edms.cern.ch/file/467898/1/TB2004_ancillary_v02.pdf
+#  All the ancillary detectors here defined are called CTBANC+NAME where the
+#  NAME can be found in the previous note.
+#  The ancillary detectors are defined in the macro files:
+#     ctb_ancillary.mac            --> defined in the CTB volume
+#    *ctb_ancillaryLARTILE.mac     --> defined in the LARTILE volume
+#     ctb_ancillaryMuons.mac       --> defined in the MUON volume
+#
+# contacts: Anna LUPI <anna.lupi@pi.infn.it> 
+#           F. Martin <martinfr@mail.cern.ch>
+#           Alexander Solodkov <Sanya.Solodkov@cern.ch> 
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+# phantom calorimeter 
+/load PhantomCalorimeter
+/echo "CTB_G4Sim: Setting up the ancillary Tile material Phantom Calorimeter"
+/Geometry/GetFacility PhantomBarrel PhantomBarrel
+/DetDescription/ReadFile phantombarrel.xml
+/PhantomBarrel/GetDescription PhantomBarrel
+/PhantomBarrel/MoveTo 1950.0 0.0 4350.0 mm
+/PhantomBarrel/RotateY  90.0  deg
+/CALO/AddDetector PhantomBarrel
+# phantom calorimeter: sensitive detector 
+/echo "CTB_G4Sim: Phantom Calorimeter sensitive detector"
+/echo "CTB_G4Sim: Setting up the ancillary material Phantom Calorimeter"
+/SenDetector/UseSensitiveDetector PhantomBarrelSD PhantomBarrelSD
+/Geometry/AssignSD PhantomBarrel ScintillatorLayer PhantomBarrelSD
+/PhantomBarrelSD/GetDescription PhantomBarrel
+
+# Muon Wall
+/load MuonWall
+/echo "CTB_G4Sim: Setting up the ancillary Tile material Muon Wall"
+/Geometry/GetFacility MuonWall MuonWall
+/DetDescription/ReadFile muonwall.xml
+/MuonWall/GetDescription MuonWall
+# MuonWall is supposed to be in his limit position (eta=0.45) 
+# in a next step we have to move this with eta 
+/MuonWall/MoveTo 5115.0 0.0 1870.0 mm
+/CALO/AddDetector MuonWall
+# Muon Wall: sensitive detector
+/echo "CTB_G4Sim: MuonWall sensitive detector"
+/SenDetector/UseSensitiveDetector MuonWallSD MuonWallSD
+/Geometry/AssignSD MuonWall MuScintillatorLayer MuonWallSD
+/MuonWallSD/GetDescription MuonWall
+
+## scintillator
+/load CombinedScintillator
+/echo "CTB_G4Sim: Setting up the ancillary Tile material CombinedScintillator"
+/Geometry/GetFacility CombinedScintillator CombinedScintillator
+/DetDescription/ReadFile combinedscintillator.xml
+/CombinedScintillator/GetDescription CombinedScintillator
+/CombinedScintillator/MoveTo -2.0 0.0 2200.0 mm
+/CALO/AddDetector CombinedScintillator
+# scintillator: sensitive detector
+/echo "CTB_G4Sim: CombinedScintillator sensitive detector"
+/SenDetector/UseSensitiveDetector CombinedScintillatorSD CombinedScintillatorSD
+/Geometry/AssignSD CombinedScintillator  CScintillatorLayer CombinedScintillatorSD
+/CombinedScintillatorSD/GetDescription CombinedScintillator
+
+## deadmaterial (to be discussed with LAr, it is in the LAr volume) 
+#/load DeadMaterial
+#/echo "CTB_G4Sim: Setting up the ancillary Tile material DeadMaterial"
+#/Geometry/GetFacility DeadMaterial DeadMaterial
+#/DetDescription/ReadFile deadmaterial.xml
+#/DeadMaterial/GetDescription DeadMaterial
+#/DeadMaterial/MoveTo 2048.0 50.0 3581.0 mm
+#/CALO/AddDetector DeadMaterial
+
+## LAr Crate
+#/load LarCrate
+#/echo "CTB_G4Sim: Setting up the ancillary Tile material LarCrate"
+#/Geometry/GetFacility LArCrate LArCrate
+#/DetDescription/ReadFile larcrate.xml 
+#/LArCrate/GetDescription LArCrate
+#/LArCrate/MoveTo 3075.0 -80.0 3255.0 mm
+#/CALO/AddDetector LArCrate
+## LAr Crate
+/control/ReadXML LArCrate_materials.xml                 
+/load LarCrate
+/echo "CTB_G4Sim: Setting up the ancillary Tile material LarCrate"
+/Geometry/GetFacility LArCrate LArCrate
+/DetDescription/ReadFile larcrate.xml
+/LArCrate/GetDescription LArCrate
+/LArCrate/MoveTo 3075.0 -80.0 3255.0 mm
+/CALO/AddDetector LArCrate
+
+
+
+#===============================================================================

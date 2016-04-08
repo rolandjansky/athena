@@ -1,0 +1,23 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+#
+# -  HIJING particle generator 
+#===============================================================================
+# macro name = ctb_hijing.mac
+# called by ctb_Atlas.mac
+#
+# - General description -
+#    Sets the vertex position for the HIJING particle generator and 
+#   rotates the the momentum of all the primay vertex created by HIJING. 
+#
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/echo "CTB_G4Sim: Setup the HIJING generator for the CTB conditions"
+/echo "CTB_G4Sim: HIJING --> Setting up Vertex position"
+/Filters/Vertex/toggle ON
+/Filters/Vertex/ReferencePosition 2. 0. 0.
+/echo "CTB_G4Sim: HIJING -->Setting up Primary Event rotation"
+/Filters/PrimaryEventRotation/toggle ON 
+/Filters/PrimaryEventRotation/YRotation 90.
+#===============================================================================

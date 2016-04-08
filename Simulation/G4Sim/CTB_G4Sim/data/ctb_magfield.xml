@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE FADS SYSTEM "ctb_magfield.dtd">
+
+<FADS>
+
+<ConstantFieldMBPSID
+        Bx="0.0 tesla" 
+        By="0.0 tesla"
+        Bz="1.4 tesla"
+        Xmin="0.0 cm"
+        Xmax="100. cm"/>
+
+
+<ConstantFieldMBPL
+        Bx="0.0 tesla"
+        By="0.0 tesla"
+        Bz="0.0 tesla"/>
+
+<ConstantFieldMBPS2
+        Bx="0.0 tesla"
+        By="0.0 tesla"
+        Bz="0.0 tesla"/>
+
+</FADS>

@@ -1,0 +1,41 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# - Event display
+#===============================================================================
+# macro name = ctb_vis.mac 
+# called by  jobOptions.CTB_G4Sim.txt
+#
+# - General description -
+#    For the visualization of one event
+#
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/echo "CTB_G4Sim: Basic visualization"
+# -- For the visualization of the complete CTB region  --
+#/Geometry/Volumes/SetInvisible   CTB
+# -- Minimal stuff to visualize the CTB layout 
+/Geometry/Volumes/SetInvisible TRT*
+/Geometry/Volumes/SetVisible TRT::Shell*
+/Geometry/Volumes/SetInvisible TileTB*
+/Geometry/Volumes/SetVisible TileTB::TileBarrel
+/Geometry/Volumes/SetVisible TileTB::TileModule0
+/Geometry/Volumes/SetVisible TileTB::TileExtended
+#/Geometry/Volumes/SetInvisible  MUON 
+/Geometry/Volumes/SetInvisible  Muon*
+/Geometry/Volumes/SetVisible  MuonWall
+/Geometry/Volumes/SetVisible Muon::Mdt
+/Geometry/Volumes/SetVisible Muon::Rpc
+/Geometry/Volumes/SetVisible Muon::Tgc
+
+# -- Visualization setup
+#/vis/open DAWNFILE
+/vis/open VRML1FILE
+/vis/scene/create
+/vis/sceneHandler/attach
+
+# --  Draw Setup
+/vis/drawVolume
+/vis/viewer/refresh
+/vis/viewer/update
+#===============================================================================

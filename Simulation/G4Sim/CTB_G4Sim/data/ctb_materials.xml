@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE FADS SYSTEM "material.dtd">
+<FADS>
+<!-- Mylar -->
+  <composite  name="CTBMylar" density="1.39">
+    <addmaterial material="H"> <natoms n="4"/> </addmaterial>
+    <addmaterial material="C"> <natoms n="5"/> </addmaterial>
+    <addmaterial material="O"> <natoms n="2"/> </addmaterial>
+  </composite>
+
+<!-- Scintillator -->
+  <composite  name="CTBScintillator" density="1.032">
+    <addmaterial material="C">   <natoms n="1"/> </addmaterial>
+    <addmaterial material="H"> <natoms n="1"/> </addmaterial>
+  </composite>
+
+<!-- Concrete -->
+  <composite  name="CTBConcrete" density="2.3">
+    <addmaterial material="Silicon">  <fractionmass fraction="0.227915"/> </addmaterial>
+    <addmaterial material="Oxygen">   <fractionmass fraction="0.605410"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <fractionmass fraction="0.099720"/> </addmaterial>
+    <addmaterial material="Calcium">  <fractionmass fraction="0.049860"/> </addmaterial>
+    <addmaterial material="Aluminum"> <fractionmass fraction="0.014245"/> </addmaterial>
+    <addmaterial material="Iron">     <fractionmass fraction="0.002850"/> </addmaterial>
+  </composite>
+
+</FADS>

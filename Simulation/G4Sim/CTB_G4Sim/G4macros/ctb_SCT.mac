@@ -1,0 +1,32 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+#
+# -  SCT detector
+#===============================================================================
+# macro name = ctb_SCT.mac
+# called by ctb_Atlas.mac
+#
+# - General description -
+#     SCT geometry and sensitive part
+#
+# contacts: Carlos Escobar <cescobar@hal.ific.uv.es>
+#           Peter Kodys <kodys@ific.uv.es>
+#           Thijs Cornelissen <tgcornel@nikhef.nl>
+#           Grant Gorfine <gorfine@nikhef.nl>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+
+#===============================================================================
+/echo "CTB_G4Sim: Building the Geometry for SCT"
+/macro/execute ctb_SCTgeometry.mac
+# (Some useful print options that we also have at general CTB level)
+#/Geometry/PrintVolumes
+#/Geometry/ListAllVolumes
+
+/echo "CTB_G4Sim: Building the Sensitivity for SCT"
+/macro/execute ctb_SCTsensitivity.mac
+# (Some useful print options that we also have at general CTB level)
+#/SenDetector/PrintEntries
+#/SenDetector/PrintDetectors
+#===============================================================================

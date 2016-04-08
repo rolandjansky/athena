@@ -1,0 +1,27 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+#
+# -  SCT detector
+#===============================================================================
+# macro name = ctb_SCTVis.mac
+# called by ctb_visualization.mac
+#
+# - General description -
+#     SCT visualization
+#
+# contacts: Carlos Escobar <cescobar@hal.ific.uv.es>
+#           Peter Kodys <kodys@ific.uv.es>
+#           Thijs Cornelissen <tgcornel@nikhef.nl>
+#           Grant Gorfine <gorfine@nikhef.nl>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#==============================================================================
+/Geometry/Volumes/SetColor  SCT::SCT SkyBlue
+/Geometry/Volumes/SetColor  SCT::SCT SkyBlue
+/Geometry/Volumes/SetColor  SCT::SCT_FwdHybrid0 orchid
+/Geometry/Volumes/SetColor  SCT::SCT_FwdSpine0 green1
+/Geometry/Volumes/SetColor  SCT::SCT_FwdSubSpineL0 SeaGreen1
+/Geometry/Volumes/SetColor  SCT::SCT_FwdSubSpineR0 SeaGreen1
+/Geometry/Volumes/SetColor  SCT::ECSensor0 BlueViolet
+/Geometry/Volumes/SetColor  SCT::Additional black
+#==============================================================================

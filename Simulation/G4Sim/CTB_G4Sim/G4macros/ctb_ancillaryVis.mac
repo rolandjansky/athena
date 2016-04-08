@@ -1,0 +1,42 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# - Visualization of the ancillary material in Inner and Calo area
+#===============================================================================
+# macro name = ctb_ancillaryVis.mac
+# called by ctb_visualization.mac
+#
+# - General description -
+#  Material upstream the point (x,y,z)-(0,0,0) defined by B. Di Girolamo in the
+#  "Test Beam Layout Ancillary Detectors" Note:
+#    https://edms.cern.ch/file/467898/1/TB2004_ancillary_v02.pdf
+#  All the ancillary detectors here defined are called CTBANC+NAME where the
+#  NAME can be found in the previous note.
+#
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+
+/Geometry/Volumes/SetVisible  SMV 
+/Geometry/Volumes/SetColor    SMV  black 
+
+/Geometry/Volumes/SetVisible  BEAMPIPE1 
+/Geometry/Volumes/SetColor    BEAMPIPE1  grey 
+
+/Geometry/Volumes/SetVisible  BEAMPIPE2 
+/Geometry/Volumes/SetColor    BEAMPIPE2  grey 
+
+/Geometry/Volumes/SetVisible  S1 
+/Geometry/Volumes/SetColor    S1  black 
+
+/Geometry/Volumes/SetVisible  S2 
+/Geometry/Volumes/SetColor    S2  black 
+
+/Geometry/Volumes/SetVisible  S3 
+/Geometry/Volumes/SetColor    S3  black 
+
+/Geometry/Volumes/SetVisible  SH 
+/Geometry/Volumes/SetColor    SH  black 
+
+/Geometry/Volumes/SetVisible  SNEW 
+/Geometry/Volumes/SetColor    SNEW  black 
+#==============================================================================

@@ -1,0 +1,26 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# -  Tile detector
+#===============================================================================
+# macro name = ctb_TileCal.mac
+# called by ctb_Atlas.mac
+#
+# - General description -
+#     Tile geometry and sensitive part
+#
+# contacts: Vakho Tsulaia <Vakhtang.Tsulaia@cern.ch>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/echo "CTB_G4Sim: Building the Geometry for Tile"
+/macro/execute ctb_TileCalgeometry.mac
+# (Some useful print options that we also have at general CTB level)
+#/Geometry/PrintVolumes
+#/Geometry/ListAllVolumes
+
+/echo "CTB_G4Sim: Building the Sensitivity for Tile"
+/macro/execute ctb_TileCalsensitivity.mac
+# (Some useful print options that we also have at general CTB level)
+#/SenDetector/PrintEntries
+#/SenDetector/PrintDetectors
+#===============================================================================

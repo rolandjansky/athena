@@ -1,0 +1,857 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<body text="#000000" BGCOLOR="#f5f5dc" link="#0000EE" vlink="#551a8b"
+alink="#ff0000">
+<!-- ------------------------------------------------------------ Title Head -->
+   <title>CTB_ATLAS test beam simulation: Test Beam Layout Description </title>
+<style>
+.example {
+   background: #F5FDDD;
+   border: solid 1px #4869a8;
+   padding: 10px;
+   margin-left: 10%;
+   margin-right: 10%;
+   margin-top: 5px;
+   margin-bottom: 5px;
+   font-size: smaller;
+}
+</style>
+
+</head>
+<body bgcolor="#FFFFFF">
+<table width="100%" bgcolor="#000080" cellpadding="30%">
+ <tbody>
+  <tr>
+  <td align="center">
+    <font color="#55AA00" size="+5">
+<!-- ----------------------------------------------------------------- Title -->
+    <b><i>ATLAS CTB (2004)  Simulation with Geant4</i></b><br>
+    </font>
+   <br>
+   <font color="#ddffff" size="+3"></font>
+  </td>
+  </tr>
+ </tbody>
+</table>
+ <font="blue">
+<p>
+<center>Welcome to the official web page for the CTB (2004)
+Simulation with Geant4(<b>Athena </b>)</center>
+</p>
+<a name="topOfPage" />
+<!-- ----------------------------------------------------------------- Histo -->
+<!-- editing history, most recent updates on top 
+    22-07-2004, mgallas: initial version into CVS
+    -->
+<!-- ----------------------------------------------------------------- Index -->       
+<p>
+<b><a href="http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/simulation/geant4/index.html">ATLAS simulation with Geant4</a></b>
+ - <b><a href="CTB.html"> CTB (2004) simulation</a></b>:
+   <b> <a href="ctb_testbeamLayout_simu.html"> Test Beam Layout Description</a></b>
+</p>
+
+<font size="+2" color="#000080">
+<b> Test Beam Layout Description </b></font>
+
+<table border="0" width="100%" cellpadding="10">
+<tr>
+<td width="50%" valign="top">
+<p>
+    <a href="#0Item">- Introduction</a><br>
+    <a href="#1Item">- Test beam layout version: ctb_sim-1.4 (10/02/05)</a><br>
+    <a href="#2Item">- Test beam layout version: ctb_sim-1.3 (15/12/04)</a><br>
+    <a href="#3Item">- Test beam layout version: ctb_sim-1.2 (15/11/04)</a><br>
+    <a href="#4Item">- Test beam layout version: ctb_sim-1.1 (05/08/04)</a><br>
+    <a href="#5Item">- Test beam layout version: ctb_sim-1.0 (29/07/04)</a><br>
+</p>
+</td>
+
+<td width="50%" valign="top">
+    <a href="#100Item">- AMI bookeeping DB related variables</a><br>
+</td>
+</tr>
+</table>
+
+<!-- ---------------------------------------------------------------------- -->
+<hr color="blue">
+<a name="0Item" />
+<font size="+1" color="#000080">
+<b> Introduction: </b></font>
+<p>
+To be completed. 
+</p>
+<p> 
+ The position of the different envelopes for the sub-detectors and ancillary 
+material is stored in the Pool file created with the simulation. The list of 
+envelopes can be found in CVS (TestBeam/TBDetDescr/src/TBDetDescrManager.cxx):<br>
+ <a href="http://atlas-sw.cern.ch/cgi-bin/viewcvs-atlas.cgi/offline/TestBeam/TBDetDescr/src/TBDetDescrManager.cxx?only_with_tag=MAIN">TestBeam/TBDetDescr/src/TBDetDescrManager.cxx</a>
+</p> 
+<p>
+With the Tile-Extended-Barrel, the maximun eta position is 1.2, other 
+common values are 0.7, 0.8, 1.0 and 1.1 
+</p>
+<a href="#topOfPage">return to top of page</a>
+
+<!-- ---------------------------------------------------------------------- -->
+<!-- ---------------------------------------------------------------------- -->
+<hr color="blue">
+<a name="1Item" />
+<font size="+1" color="#000080">
+<b> Test beam layout version: ctb_sim-1.3 (15/12/04): </b></font>
+<p>
+ Test beam layout with the CTB coordinate system at the beginning of the MBPS1 magnet. 
+The upstream ancillary detectors were placed in accordance with the test beam configuration 
+after 12/10/04 and the latest version of the Note: "ATLAS Barrel Combined Run in 2004: Test Beam Setup and its evolutions"  
+</p>
+<p>
+<pre class="example">
+<pre> 
+
+*********************************************************************************************************
+* G4Track Information:   Particle = geantino,   Track ID = 1,   Parent ID = 0
+*********************************************************************************************************
+Step#    X(mm)    Y(mm)    Z(mm) KinE(MeV)  dE(MeV) StepLeng TrackLeng  NextVolume ProcName
+    0 -2.75e+04    0.959        0   5.4e+04        0        0         0    CTB::CTB initStep
+    1 -1.87e+04    0.959  5.4e-13   5.4e+04        0 8.81e+03  8.81e+03    SMV::SMV Transportation
+    2 -1.87e+04    0.959 5.41e-13   5.4e+04        0       20  8.83e+03    CTB::CTB Transportation
+    3 -1.7e+04    0.959 6.44e-13   5.4e+04        0 1.68e+03  1.05e+04 BEAMPIPE1::BEAMPIPE1 Transportation
+    4 -1.4e+04    0.959 8.27e-13   5.4e+04        0    3e+03  1.35e+04    CTB::CTB Transportation
+    5 -1.23e+04    0.959 9.33e-13   5.4e+04        0 1.73e+03  1.52e+04 BEAMPIPE2::BEAMPIPE2 Transportation
+    6 -9.26e+03    0.959 1.12e-12   5.4e+04        0    3e+03  1.82e+04    CTB::CTB Transportation
+    7 -8.85e+03    0.959 1.14e-12   5.4e+04        0      409  1.87e+04      S1::S1 Transportation
+    8 -8.84e+03    0.959 1.14e-12   5.4e+04        0        6  1.87e+04    CTB::CTB Transportation
+    9 -7.57e+03    0.959 1.22e-12   5.4e+04        0 1.27e+03  1.99e+04      SH::SH Transportation
+   10 -7.57e+03    0.959 1.22e-12   5.4e+04        0        5  1.99e+04    CTB::CTB Transportation
+   11 -7.56e+03    0.959 1.22e-12   5.4e+04        0        7  1.99e+04      S2::S2 Transportation
+   12 -7.56e+03    0.959 1.22e-12   5.4e+04        0        5  1.99e+04    CTB::CTB Transportation
+   13 -7.53e+03    0.959 1.22e-12   5.4e+04        0       30     2e+04      S3::S3 Transportation
+   14 -7.52e+03    0.959 1.22e-12   5.4e+04        0        5     2e+04    CTB::CTB Transportation
+   15 -2.38e+03    0.959 1.54e-12   5.4e+04        0 5.14e+03  2.51e+04  IDET::IDET Transportation
+   16 -1.68e+03    0.959 1.58e-12   5.4e+04        0      700  2.58e+04  SNEW::SNEW Transportation
+   17 -1.67e+03    0.959 1.58e-12   5.4e+04        0       10  2.58e+04  IDET::IDET Transportation
+   18        0    0.959 1.68e-12   5.4e+04        0 1.67e+03  2.75e+04 MBPSID::MBPSID Transportation
+   19       76    0.959 1.69e-12   5.4e+04        0       76  2.76e+04 Pixel::Pixel Transportation
+   20      145    0.959 1.69e-12   5.4e+04        0       69  2.76e+04      Barrel Transportation
+   21      147    0.959 1.69e-12   5.4e+04        0     1.98  2.76e+04 PixelTB Service6 Transportation
+   22      147    0.959 1.69e-12   5.4e+04        0     0.05  2.76e+04      Barrel Transportation
+   23      181    0.959 1.69e-12   5.4e+04        0     33.8  2.77e+04 PixelTB Service1 Transportation
+   24      181    0.959 1.69e-12   5.4e+04        0    0.436  2.77e+04      Barrel Transportation
+   25      192    0.959  1.7e-12   5.4e+04        0     11.2  2.77e+04  InnerLayer Transportation
+   26      193    0.959  1.7e-12   5.4e+04        0     0.78  2.77e+04      Ladder Transportation
+   27      195    0.959  1.7e-12   5.4e+04        0     1.39  2.77e+04      Module Transportation
+   28      195    0.959  1.7e-12   5.4e+04        0   0.0644  2.77e+04      Hybrid Transportation
+   29      195    0.959  1.7e-12   5.4e+04        0    0.186  2.77e+04  Si Crystal Transportation
+   30      195    0.959  1.7e-12   5.4e+04        0    0.255  2.77e+04      Module Transportation
+   31      195    0.959  1.7e-12   5.4e+04        0   0.0204  2.77e+04        Chip Transportation
+   89      274    0.959  1.7e-12   5.4e+04        0    0.963  2.78e+04  OuterLayer Transportation
+   90      284    0.959  1.7e-12   5.4e+04        0       11  2.78e+04      Barrel Transportation
+   91      321    0.959  1.7e-12   5.4e+04        0     36.2  2.78e+04 PixelTB Service7 Transportation
+   92      321    0.959  1.7e-12   5.4e+04        0    0.641  2.78e+04      Barrel Transportation
+   93      322    0.959  1.7e-12   5.4e+04        0     0.68  2.78e+04 MBPSID::MBPSID Transportation
+   94      326    0.959  1.7e-12   5.4e+04        0      4.5  2.78e+04    SCT::SCT Transportation
+   95      347    0.959 1.71e-12   5.4e+04        0     20.5  2.78e+04 Additional block Transportation
+   96      357    0.959 1.71e-12   5.4e+04        0       10  2.79e+04    SCT::SCT Transportation
+   97      361    0.959 1.71e-12   5.4e+04        0     3.68  2.79e+04 Additional block Transportation
+  105      378    0.959 1.71e-12   5.4e+04        0    0.035  2.79e+04 SCT_FwdModule_00 Transportation
+  113      384    0.959 1.71e-12   5.4e+04        0     4.27  2.79e+04 SCT_FwdModule_01 Transportation
+  123      450    0.959 1.71e-12   5.4e+04        0    0.035  2.79e+04 SCT_FwdModule_10 Transportation
+  137      455    0.959 1.71e-12   5.4e+04        0    0.035   2.8e+04 SCT_FwdModule_11 Transportation
+  153      522    0.959 1.72e-12   5.4e+04        0    0.035   2.8e+04 SCT_FwdModule_20 Transportation
+  167      527    0.959 1.72e-12   5.4e+04        0    0.035   2.8e+04 SCT_FwdModule_21 Transportation
+  177      593    0.959 1.72e-12   5.4e+04        0     9.37  2.81e+04 SCT_FwdModule_30 Transportation
+  185      598    0.959 1.72e-12   5.4e+04        0    0.035  2.81e+04 SCT_FwdModule_31 Transportation
+  192      599    0.959 1.72e-12   5.4e+04        0    0.035  2.81e+04    SCT::SCT Transportation
+  193      667    0.959 1.72e-12   5.4e+04        0     67.7  2.82e+04 Additional block Transportation
+  194      677    0.959 1.73e-12   5.4e+04        0       10  2.82e+04    SCT::SCT Transportation
+  195      698    0.959 1.73e-12   5.4e+04        0     20.5  2.82e+04 MBPSID::MBPSID Transportation
+  196    1e+03    0.959 1.75e-12   5.4e+04        0      302  2.85e+04  IDET::IDET Transportation
+  197  1.7e+03    0.959 1.79e-12   5.4e+04        0      702  2.92e+04 CTBTRT::CTBTRT Transportation
+  198 1.71e+03    0.959 1.79e-12   5.4e+04        0        8  2.92e+04 TRT::BarrelInnerSupport Transportation
+  199 1.71e+03    0.959 1.79e-12   5.4e+04        0        2  2.92e+04 TRT::BarrelVolume Transportation
+  200 1.72e+03    0.959 1.79e-12   5.4e+04        0     4.75  2.92e+04 TRT::Shell0 Transportation
+  515 2.22e+03    0.959 1.82e-12   5.4e+04        0    0.338  2.97e+04 TRT::Radiator Transportation
+  516 2.22e+03    0.959 1.82e-12   5.4e+04        0     1.61  2.97e+04 TRT::Shell2 Transportation
+  517 2.22e+03    0.959 1.82e-12   5.4e+04        0    0.392  2.97e+04 TRT::BarrelVolume Transportation
+  518 2.23e+03    0.959 1.82e-12   5.4e+04        0      7.5  2.97e+04 TRT::BarrelOuterSupport Transportation
+  519 2.23e+03    0.959 1.82e-12   5.4e+04        0    0.037  2.97e+04 CTBTRT::CTBTRT Transportation
+  520 2.24e+03    0.959 1.82e-12   5.4e+04        0       10  2.97e+04  IDET::IDET Transportation
+  521 2.38e+03    0.959 1.83e-12   5.4e+04        0      138  2.99e+04    CTB::CTB Transportation
+  522 3.25e+03    0.959 1.88e-12   5.4e+04        0      868  3.07e+04 CTBLIARTILE::CTBLIARTILE Transportation
+  523 3.25e+03    0.959 1.88e-12   5.4e+04        0        5  3.08e+04 LAr::TBBarrel::Cryostat::Envelope Transportation
+  524 3.25e+03    0.959 1.88e-12   5.4e+04        0        2  3.08e+04 LAr::TBBarrel::Cryostat::Mother Transportation
+  525 3.28e+03    0.959 1.88e-12   5.4e+04        0     27.2  3.08e+04 LAr::TBBarrel::Cryostat::WarmTube Transportation
+  526 3.32e+03    0.959 1.89e-12   5.4e+04        0     40.2  3.08e+04 LAr::TBBarrel::Cryostat::VacTube Transportation
+  527 3.36e+03    0.959 1.89e-12   5.4e+04        0     32.7  3.09e+04 LAr::TBBarrel::Cryostat::ColdTube Transportation
+  528  3.4e+03    0.959 1.89e-12   5.4e+04        0     42.8  3.09e+04 LAr::TBBarrel::Cryostat::Mother Transportation
+  529 3.69e+03    0.959 1.91e-12   5.4e+04        0      295  3.12e+04 LAr::TBBarrel::Cryostat::LAr2 Transportation
+  530  3.7e+03    0.959 1.91e-12   5.4e+04        0      5.5  3.12e+04 LAr::Barrel::Presampler Transportation
+  531 3.73e+03    0.959 1.91e-12   5.4e+04        0       37  3.12e+04 LAr::TBBarrel::Cryostat::LAr Transportation
+  532 4.44e+03    0.959 1.96e-12   5.4e+04        0      703  3.19e+04 LAr::TBBarrel::Cryostat::ColdTube2 Transportation
+  533 4.49e+03    0.959 1.96e-12   5.4e+04        0       50   3.2e+04 LAr::TBBarrel::Cryostat::VacTube2 Transportation
+  534 4.52e+03    0.959 1.96e-12   5.4e+04        0       30   3.2e+04 LAr::TBBarrel::Cryostat::WarmTube2 Transportation
+  535 4.56e+03    0.959 1.96e-12   5.4e+04        0       40  3.21e+04 CTBLIARTILE::CTBLIARTILE Transportation
+  536 4.58e+03    0.959 1.96e-12   5.4e+04        0       20  3.21e+04 TileTB::TileTB Transportation
+  537 4.59e+03    0.959 1.96e-12   5.4e+04        0        8  3.21e+04 TileTB::TileBarrel Transportation
+  538 4.59e+03    0.959 1.96e-12   5.4e+04        0        2  3.21e+04 TileTB::TilePlateFront Transportation
+  539  4.6e+03    0.959 1.97e-12   5.4e+04        0       10  3.21e+04 TilePeriods_1 Transportation
+  540 6.16e+03    0.959 2.06e-12   5.4e+04        0 1.56e+03  3.37e+04 TileTB::GirderIron Transportation
+  541 6.24e+03    0.959 2.07e-12   5.4e+04        0     82.5  3.37e+04 TileTB::GirderIron Transportation
+  542 6.25e+03    0.959 2.07e-12   5.4e+04        0     12.5  3.38e+04 TileTB::TileGirder Transportation
+  543 6.32e+03    0.959 2.07e-12   5.4e+04        0     67.5  3.38e+04 TileTB::GirderElectronics Transportation
+  544 6.32e+03    0.959 2.07e-12   5.4e+04        0        3  3.38e+04 TileTB::GirderAluminum Transportation
+  545 6.34e+03    0.959 2.07e-12   5.4e+04        0     12.5  3.38e+04 TileTB::GirderIron Transportation
+  546 6.34e+03    0.959 2.07e-12   5.4e+04        0        9  3.38e+04 TileTB::GirderAluminum Transportation
+  547 6.36e+03    0.959 2.07e-12   5.4e+04        0     12.5  3.39e+04 TileTB::GirderElectronics Transportation
+  548 6.36e+03    0.959 2.07e-12   5.4e+04        0        3  3.39e+04 TileTB::TileGirder Transportation
+  549 6.43e+03    0.959 2.08e-12   5.4e+04        0     67.5  3.39e+04 TileTB::GirderIron Transportation
+  550 6.44e+03    0.959 2.08e-12   5.4e+04        0     12.5  3.39e+04 TileTB::GirderIron Transportation
+  551 6.53e+03    0.959 2.08e-12   5.4e+04        0     87.5   3.4e+04 TileTB::TileTB Transportation
+  552 6.55e+03    0.959 2.08e-12   5.4e+04        0       20   3.4e+04 CTBLIARTILE::CTBLIARTILE Transportation
+  553 7.44e+03    0.959 2.14e-12   5.4e+04        0      890  3.49e+04    CTB::CTB Transportation
+  554 1.22e+04    0.959 2.43e-12   5.4e+04        0 4.76e+03  3.97e+04 Muon::MuonSys Transportation
+  555 1.23e+04    0.959 2.44e-12   5.4e+04        0     86.9  3.98e+04 MDT04 MultiLayerFoam Transportation
+  556 1.23e+04    0.959 2.44e-12   5.4e+04        0        8  3.98e+04 MDT04 multilayer Transportation
+  582 1.28e+04    0.959 2.47e-12   5.4e+04        0     1.09  4.03e+04 MDT03 multilayer Transportation
+  583 1.28e+04    0.959 2.47e-12   5.4e+04        0     9.04  4.03e+04 MDT03 MultiLayerFoam Transportation
+  584 1.28e+04    0.959 2.47e-12   5.4e+04        0       15  4.03e+04 BOS2_station Transportation
+  585 1.28e+04    0.959 2.47e-12   5.4e+04        0       32  4.03e+04 Muon::RPC_AL_extsuppanel Transportation
+  586 1.28e+04    0.959 2.47e-12   5.4e+04        0      0.1  4.03e+04 Muon::RPC_honeyc_extsuppanel Transportation
+  587 1.28e+04    0.959 2.47e-12   5.4e+04        0      8.4  4.03e+04 Muon::RPC_AL_extsuppanel Transportation
+  588 1.28e+04    0.959 2.47e-12   5.4e+04        0      0.1  4.03e+04 RPC13 rpccomponent0 Transportation
+  644 1.92e+04    0.959 2.86e-12   5.4e+04        0 6.27e+03  4.67e+04 SCDUMP::SCDUMP Transportation
+  645 1.92e+04    0.959 2.86e-12   5.4e+04        0        4  4.67e+04 Muon::MuonSys Transportation
+  646 2.07e+04    0.959 2.95e-12   5.4e+04        0 1.46e+03  4.82e+04    SMT::SMT Transportation
+  647 2.07e+04    0.959 2.95e-12   5.4e+04        0       20  4.82e+04 Muon::MuonSys Transportation
+  648 2.41e+04    0.959 3.16e-12   5.4e+04        0 3.38e+03  5.16e+04 MDT01 MultiLayerFoam Transportation
+  649 2.41e+04    0.959 3.16e-12   5.4e+04        0       15  5.16e+04 MDT01 multilayer Transportation
+  674 2.45e+04    0.959 3.18e-12   5.4e+04        0       15   5.2e+04 Muon::MuonSys Transportation
+  675 2.65e+04    0.959 3.31e-12   5.4e+04        0 2.03e+03   5.4e+04 MUON10x10A::MUON10x10A Transportation
+  676 2.65e+04    0.959 3.31e-12   5.4e+04        0       10   5.4e+04 Muon::MuonSys Transportation
+  677 2.68e+04    0.959 3.32e-12   5.4e+04        0      275  5.43e+04 MUON10x10B::MUON10x10B Transportation
+  678 2.68e+04    0.959 3.32e-12   5.4e+04        0       10  5.43e+04 Muon::MuonSys Transportation
+  679 2.69e+04    0.959 3.33e-12   5.4e+04        0      118  5.44e+04 MUON10x10C::MUON10x10C Transportation
+  680 2.69e+04    0.959 3.33e-12   5.4e+04        0       15  5.44e+04 Muon::MuonSys Transportation
+  681  2.7e+04    0.959 3.33e-12   5.4e+04        0     27.5  5.45e+04 MAGBOXMBPL::MAGBOXMBPL Transportation
+  682  2.7e+04    0.959 3.33e-12   5.4e+04        0        0  5.45e+04 Muon::MuonSys Transportation
+  683  2.7e+04    0.959 3.34e-12   5.4e+04        0     82.5  5.45e+04 MUON10x10D::MUON10x10D Transportation
+  684  2.7e+04    0.959 3.34e-12   5.4e+04        0        5  5.45e+04 Muon::MuonSys Transportation
+  685  3.1e+04    0.959 3.58e-12   5.4e+04        0 3.96e+03  5.85e+04 MUONHODOSELECTOR::MUONHODOSELECTOR Transportation
+  686  3.1e+04    0.959 3.58e-12   5.4e+04        0        5  5.85e+04 MUONHODOPLANE14::MUONHODOPLANE14 Transportation
+  687  3.1e+04    0.959 3.58e-12   5.4e+04        0        5  5.85e+04 Muon::MuonSys Transportation
+  688 3.16e+04    0.959 3.62e-12   5.4e+04        0      575  5.91e+04 MUONHODOPLANE24::MUONHODOPLANE24 Transportation
+  689 3.16e+04    0.959 3.62e-12   5.4e+04        0        5  5.91e+04 Muon::MuonSys Transportation
+  984 4.24e+04    0.959 4.28e-12   5.4e+04        0    0.302  6.99e+04 MDT02 MultiLayerFoam Transportation
+  985 4.24e+04    0.959 4.28e-12   5.4e+04        0     15.5  6.99e+04 Muon::MuonSys Transportation
+  986 4.45e+04    0.959 4.41e-12   5.4e+04        0 2.02e+03   7.2e+04 MAGBOXMBPS2::MAGBOXMBPS2 Transportation
+ 1056 4.94e+04    0.959 4.71e-12   5.4e+04        0      2.9  7.69e+04 TGC16std::G10 Transportation
+ 1057 4.94e+04    0.959 4.71e-12   5.4e+04        0     1.66  7.69e+04 TGC16muo::Honeycomb Transportation
+ 1058 4.94e+04    0.959 4.71e-12   5.4e+04        0     5.18  7.69e+04 TGC16std::G10 Transportation
+ 1059 4.94e+04    0.959 4.71e-12   5.4e+04        0    0.104  7.69e+04 TGC16 tgccomponent Transportation
+ 1060 4.94e+04    0.959 4.71e-12   5.4e+04        0     3.83  7.69e+04 Muon::MuonSys Transportation
+ 1061 5.62e+04    0.959 5.12e-12   5.4e+04        0 6.81e+03  8.37e+04  MUON::MUON Transportation
+ 1062 5.76e+04    0.959 5.21e-12   5.4e+04        0 1.43e+03  8.51e+04    CTB::CTB Transportation
+ 1063  5.8e+04    0.959 5.24e-12   5.4e+04        0      398  8.55e+04  OutOfWorld Transportation
+</pre>
+</pre class="example">
+</p>
+<a href="#topOfPage">return to top of page</a>
+<!-- ---------------------------------------------------------------------- -->
+
+
+<!-- ---------------------------------------------------------------------- -->
+<hr color="blue">
+<a name="2Item" />
+<font size="+1" color="#000080">
+<b> Test beam layout version: ctb_sim-1.3 (15/12/04): </b></font>
+<p>
+ Test beam layout with the CTB coordinate system at the beginning of the MBPS1 magnet. 
+The upstream ancillary detectors were placed in accordance with the test beam configuration 
+after 12/10/04. 
+</p>
+<p>
+<pre class="example">
+<pre> 
+*********************************************************************************************************
+* G4Track Information:   Particle = geantino,   Track ID = 1,   Parent ID = 0
+*********************************************************************************************************
+
+Step#    X(mm)    Y(mm)    Z(mm) KinE(MeV)  dE(MeV) StepLeng TrackLeng  NextVolume ProcName
+    0 -2.75e+04        0        0   5.4e+04        0        0         0    CTB::CTB initStep
+    1 -1.9e+04        0  5.2e-13   5.4e+04        0  8.5e+03   8.5e+03 CTBANCBEAMPIPE1::CTBANCBEAMPIPE1 Transportation
+    2 -1.7e+04        0 6.43e-13   5.4e+04        0    2e+03  1.05e+04    CTB::CTB Transportation
+    3 -1.41e+04        0 8.19e-13   5.4e+04        0 2.88e+03  1.34e+04 CTBANCSMV::CTBANCSMV Transportation
+    4 -1.41e+04        0  8.2e-13   5.4e+04        0       20  1.34e+04    CTB::CTB Transportation
+    5 -1.25e+04        0 9.18e-13   5.4e+04        0  1.6e+03   1.5e+04 CTBANCBEAMPIPE2::CTBANCBEAMPIPE2 Transportation
+    6 -9.5e+03        0  1.1e-12   5.4e+04        0    3e+03   1.8e+04    CTB::CTB Transportation
+    7 -8.85e+03        0 1.14e-12   5.4e+04        0      654  1.87e+04 CTBANCS1::CTBANCS1 Transportation
+    8 -8.84e+03        0 1.14e-12   5.4e+04        0        6  1.87e+04    CTB::CTB Transportation
+    9   -8e+03        0 1.19e-12   5.4e+04        0      840  1.95e+04 CTBANCSH::CTBANCSH Transportation
+   10   -8e+03        0 1.19e-12   5.4e+04        0        5  1.95e+04    CTB::CTB Transportation
+   11 -2.38e+03        0 1.54e-12   5.4e+04        0 5.62e+03  2.51e+04  IDET::IDET Transportation
+   12 -1.68e+03        0 1.58e-12   5.4e+04        0      700  2.58e+04 CTBANCS3::CTBANCS3 Transportation
+   13 -1.67e+03        0 1.58e-12   5.4e+04        0       10  2.58e+04  IDET::IDET Transportation
+   14        0        0 1.68e-12   5.4e+04        0 1.67e+03  2.75e+04 MBPS1::MBPS1 Transportation
+   42      140        0 1.69e-12   5.4e+04        0        5  2.76e+04 MBPS1::MBPS1 User Limit
+   43      145        0 1.69e-12   5.4e+04        0        5  2.76e+04 MBPS1::MBPS1 User Limit
+   44      145        0 1.69e-12   5.4e+04        0        0  2.76e+04      Barrel Transportation
+   45      147        0 1.69e-12   5.4e+04        0     1.98  2.76e+04 PixelTB Service6 Transportation
+   46      147        0 1.69e-12   5.4e+04        0     0.05  2.76e+04      Barrel Transportation
+   47      181        0 1.69e-12   5.4e+04        0     33.8  2.77e+04 PixelTB Service1 Transportation
+   53      194        0  1.7e-12   5.4e+04        0    0.186  2.77e+04  Si Crystal Transportation
+   64      200        0  1.7e-12   5.4e+04        0    0.207  2.77e+04  Si Crystal Transportation
+   79      232        0  1.7e-12   5.4e+04        0    0.189  2.77e+04  Si Crystal Transportation
+   90      237        0  1.7e-12   5.4e+04        0      0.2  2.77e+04  Si Crystal Transportation
+  105      266        0  1.7e-12   5.4e+04        0     0.19  2.78e+04  Si Crystal Transportation
+  116      271        0  1.7e-12   5.4e+04        0    0.198  2.78e+04  Si Crystal Transportation
+  125      274        0  1.7e-12   5.4e+04        0     0.73  2.78e+04  OuterLayer Transportation
+  126      285        0  1.7e-12   5.4e+04        0     10.7  2.78e+04      Barrel Transportation
+  127      321        0  1.7e-12   5.4e+04        0     36.2  2.78e+04 PixelTB Service7 Transportation
+  128      321        0  1.7e-12   5.4e+04        0    0.641  2.78e+04      Barrel Transportation
+  129      322        0  1.7e-12   5.4e+04        0     0.68  2.78e+04 MBPS1::MBPS1 Transportation
+  130      326        0  1.7e-12   5.4e+04        0      4.5  2.78e+04    SCT::SCT Transportation
+  131      347        0 1.71e-12   5.4e+04        0     20.5  2.78e+04 Additional block Transportation
+  132      357        0 1.71e-12   5.4e+04        0       10  2.79e+04    SCT::SCT Transportation
+  141      378        0 1.71e-12   5.4e+04        0    0.035  2.79e+04 SCT_FwdModule_00 Transportation
+  149      384        0 1.71e-12   5.4e+04        0     4.27  2.79e+04 SCT_FwdModule_01 Transportation
+  159      450        0 1.71e-12   5.4e+04        0    0.035  2.79e+04 SCT_FwdModule_10 Transportation
+  173      455        0 1.71e-12   5.4e+04        0    0.035   2.8e+04 SCT_FwdModule_11 Transportation
+  189      522        0 1.72e-12   5.4e+04        0    0.035   2.8e+04 SCT_FwdModule_20 Transportation
+  203      527        0 1.72e-12   5.4e+04        0    0.035   2.8e+04 SCT_FwdModule_21 Transportation
+  213      593        0 1.72e-12   5.4e+04        0     9.37  2.81e+04 SCT_FwdModule_30 Transportation
+  221      598        0 1.72e-12   5.4e+04        0    0.035  2.81e+04 SCT_FwdModule_31 Transportation
+  228      599        0 1.72e-12   5.4e+04        0    0.035  2.81e+04    SCT::SCT Transportation
+  229      667        0 1.72e-12   5.4e+04        0     67.7  2.82e+04 Additional block Transportation
+  230      677        0 1.73e-12   5.4e+04        0       10  2.82e+04    SCT::SCT Transportation
+  231      698        0 1.73e-12   5.4e+04        0     20.5  2.82e+04 MBPS1::MBPS1 Transportation
+  232      702        0 1.73e-12   5.4e+04        0        5  2.82e+04 MBPS1::MBPS1 User Limit
+  292    1e+03        0 1.75e-12   5.4e+04        0      2.5  2.85e+04  IDET::IDET Transportation
+  293  1.7e+03        0 1.79e-12   5.4e+04        0      702  2.92e+04 CTBTRT::CTBTRT Transportation
+  294 1.71e+03        0 1.79e-12   5.4e+04        0        8  2.92e+04 TRT::BarrelInnerSupport Transportation
+  295 1.71e+03        0 1.79e-12   5.4e+04        0        2  2.92e+04 TRT::BarrelVolume Transportation
+  296 1.72e+03        0 1.79e-12   5.4e+04        0     4.73  2.92e+04 TRT::Shell0 Transportation
+  297 1.72e+03        0 1.79e-12   5.4e+04        0    0.386  2.92e+04 TRT::Radiator Transportation
+  298 1.72e+03        0 1.79e-12   5.4e+04        0     1.58  2.92e+04   TRT::Hole Transportation
+  299 1.72e+03        0 1.79e-12   5.4e+04        0    0.323  2.92e+04 TRT::StrawM Transportation
+  367 1.84e+03        0  1.8e-12   5.4e+04        0    0.316  2.93e+04 TRT::Radiator Transportation
+  368 1.85e+03        0  1.8e-12   5.4e+04        0     8.79  2.94e+04 TRT::Shell0 Transportation
+  369 1.85e+03        0  1.8e-12   5.4e+04        0    0.393  2.94e+04 TRT::BarrelVolume Transportation
+  370 1.85e+03        0  1.8e-12   5.4e+04        0     2.43  2.94e+04 TRT::Shell1 Transportation
+  371 1.85e+03        0  1.8e-12   5.4e+04        0    0.387  2.94e+04 TRT::Radiator Transportation
+  457 2.01e+03        0 1.81e-12   5.4e+04        0     3.99  2.95e+04 TRT::StrawM Transportation
+  458 2.01e+03        0 1.81e-12   5.4e+04        0   0.0851  2.95e+04   TRT::Hole Transportation
+  459 2.01e+03        0 1.81e-12   5.4e+04        0    0.315  2.95e+04 TRT::Radiator Transportation
+  460 2.01e+03        0 1.81e-12   5.4e+04        0     8.42  2.95e+04 TRT::Shell1 Transportation
+  461 2.02e+03        0 1.81e-12   5.4e+04        0    0.416  2.95e+04 TRT::BarrelVolume Transportation
+  462 2.02e+03        0 1.81e-12   5.4e+04        0     2.43  2.95e+04 TRT::Shell2 Transportation
+  463 2.02e+03        0 1.81e-12   5.4e+04        0    0.386  2.95e+04 TRT::Radiator Transportation
+  557 2.22e+03        0 1.82e-12   5.4e+04        0     3.99  2.97e+04 TRT::StrawM Transportation
+  558 2.22e+03        0 1.82e-12   5.4e+04        0   0.0852  2.97e+04   TRT::Hole Transportation
+  559 2.22e+03        0 1.82e-12   5.4e+04        0    0.316  2.97e+04 TRT::Radiator Transportation
+  560 2.22e+03        0 1.82e-12   5.4e+04        0     1.56  2.97e+04 TRT::Shell2 Transportation
+  561 2.22e+03        0 1.82e-12   5.4e+04        0    0.392  2.97e+04 TRT::BarrelVolume Transportation
+  562 2.23e+03        0 1.82e-12   5.4e+04        0     7.42  2.97e+04 TRT::BarrelOuterSupport Transportation
+  563 2.23e+03        0 1.82e-12   5.4e+04        0    0.037  2.97e+04 CTBTRT::CTBTRT Transportation
+  564 2.24e+03        0 1.82e-12   5.4e+04        0       10  2.97e+04  IDET::IDET Transportation
+  565 2.38e+03        0 1.83e-12   5.4e+04        0      138  2.99e+04    CTB::CTB Transportation
+  566 3.25e+03        0 1.88e-12   5.4e+04        0      868  3.07e+04 CTBLIARTILE::CTBLIARTILE Transportation
+  567 3.25e+03        0 1.88e-12   5.4e+04        0        5  3.08e+04 LAr::TBBarrel::Cryostat::Envelope Transportation
+  568 3.26e+03        0 1.88e-12   5.4e+04        0        2  3.08e+04 LAr::TBBarrel::Cryostat::Mother Transportation
+  569 3.28e+03        0 1.88e-12   5.4e+04        0       27  3.08e+04 LAr::TBBarrel::Cryostat::WarmTube Transportation
+  570 3.32e+03        0 1.89e-12   5.4e+04        0     40.2  3.08e+04 LAr::TBBarrel::Cryostat::VacTube Transportation
+  571 3.35e+03        0 1.89e-12   5.4e+04        0     32.7  3.09e+04 LAr::TBBarrel::Cryostat::ColdTube Transportation
+  572  3.4e+03        0 1.89e-12   5.4e+04        0     42.8  3.09e+04 LAr::TBBarrel::Cryostat::Mother Transportation
+  573 3.69e+03        0 1.91e-12   5.4e+04        0      295  3.12e+04 LAr::TBBarrel::Cryostat::LAr2 Transportation
+  574  3.7e+03        0 1.91e-12   5.4e+04        0      5.5  3.12e+04 LAr::Barrel::Presampler Transportation
+  575 3.73e+03        0 1.91e-12   5.4e+04        0       37  3.12e+04 LAr::TBBarrel::Cryostat::LAr Transportation
+  576 4.44e+03        0 1.96e-12   5.4e+04        0      703  3.19e+04 LAr::TBBarrel::Cryostat::ColdTube2 Transportation
+  577 4.49e+03        0 1.96e-12   5.4e+04        0       50   3.2e+04 LAr::TBBarrel::Cryostat::VacTube2 Transportation
+  578 4.52e+03        0 1.96e-12   5.4e+04        0       30   3.2e+04 LAr::TBBarrel::Cryostat::WarmTube2 Transportation
+  579 4.56e+03        0 1.96e-12   5.4e+04        0       40  3.21e+04 CTBLIARTILE::CTBLIARTILE Transportation
+  580 4.58e+03        0 1.96e-12   5.4e+04        0       20  3.21e+04 TileTB::TileTB Transportation
+  581 4.59e+03        0 1.96e-12   5.4e+04        0        8  3.21e+04 TileTB::TileBarrel Transportation
+  582 4.59e+03        0 1.96e-12   5.4e+04        0        2  3.21e+04 TileTB::TilePlateFront Transportation
+  583  4.6e+03        0 1.97e-12   5.4e+04        0       10  3.21e+04 TilePeriods_1 Transportation
+  584 6.16e+03        0 2.06e-12   5.4e+04        0 1.56e+03  3.37e+04 TileTB::GirderIron Transportation
+  585 6.24e+03        0 2.07e-12   5.4e+04        0     82.5  3.37e+04 TileTB::GirderIron Transportation
+  586 6.25e+03        0 2.07e-12   5.4e+04        0     12.5  3.38e+04 TileTB::TileGirder Transportation
+  587 6.32e+03        0 2.07e-12   5.4e+04        0     67.5  3.38e+04 TileTB::GirderElectronics Transportation
+  588 6.32e+03        0 2.07e-12   5.4e+04        0        3  3.38e+04 TileTB::GirderAluminum Transportation
+  589 6.34e+03        0 2.07e-12   5.4e+04        0     12.5  3.38e+04 TileTB::GirderIron Transportation
+  590 6.34e+03        0 2.07e-12   5.4e+04        0        9  3.38e+04 TileTB::GirderAluminum Transportation
+  591 6.36e+03        0 2.07e-12   5.4e+04        0     12.5  3.39e+04 TileTB::GirderElectronics Transportation
+  592 6.36e+03        0 2.07e-12   5.4e+04        0        3  3.39e+04 TileTB::TileGirder Transportation
+  593 6.43e+03        0 2.08e-12   5.4e+04        0     67.5  3.39e+04 TileTB::GirderIron Transportation
+  594 6.44e+03        0 2.08e-12   5.4e+04        0     12.5  3.39e+04 TileTB::GirderIron Transportation
+  595 6.53e+03        0 2.08e-12   5.4e+04        0     87.5   3.4e+04 TileTB::TileTB Transportation
+  596 6.55e+03        0 2.08e-12   5.4e+04        0       20   3.4e+04 CTBLIARTILE::CTBLIARTILE Transportation
+  597 7.44e+03        0 2.14e-12   5.4e+04        0      890  3.49e+04    CTB::CTB Transportation
+  598 1.22e+04        0 2.43e-12   5.4e+04        0 4.76e+03  3.97e+04 Muon::MuonSys Transportation
+  599 1.23e+04        0 2.44e-12   5.4e+04        0     86.9  3.98e+04 MDT04 MultiLayerFoam Transportation
+  600 1.23e+04        0 2.44e-12   5.4e+04        0        8  3.98e+04 MDT04 multilayer Transportation
+  613 1.24e+04        0 2.44e-12   5.4e+04        0     9.04  3.99e+04 BOS2_station Transportation
+  614 1.27e+04        0 2.46e-12   5.4e+04        0      317  4.02e+04 MDT03 multilayer Transportation
+  628 1.28e+04        0 2.47e-12   5.4e+04        0       15  4.03e+04 BOS2_station Transportation
+  629 1.28e+04        0 2.47e-12   5.4e+04        0       32  4.03e+04 Muon::RPC_AL_extsuppanel Transportation
+  630 1.28e+04        0 2.47e-12   5.4e+04        0      0.1  4.03e+04 Muon::RPC_honeyc_extsuppanel Transportation
+  631 1.28e+04        0 2.47e-12   5.4e+04        0      8.4  4.03e+04 Muon::RPC_AL_extsuppanel Transportation
+  632 1.28e+04        0 2.47e-12   5.4e+04        0      0.1  4.03e+04 RPC13 rpccomponent0 Transportation
+  633 1.28e+04        0 2.47e-12   5.4e+04        0     0.33  4.03e+04 Muon::RPC_StripPanelCuSkin Transportation
+  634 1.28e+04        0 2.47e-12   5.4e+04        0     0.04  4.03e+04 Muon::RPC_StripPanelFoam Transportation
+  635 1.28e+04        0 2.47e-12   5.4e+04        0     3.32  4.03e+04 Muon::RPC_StripPanelCuSkin Transportation
+  657 1.29e+04        0 2.47e-12   5.4e+04        0     0.33  4.04e+04 BOS2_station Transportation
+  658 1.29e+04        0 2.47e-12   5.4e+04        0        4  4.04e+04 RPC13 rpccomponent0 Transportation
+  686 1.29e+04        0 2.47e-12   5.4e+04        0      0.1  4.04e+04 BOS2_station Transportation
+  687 1.29e+04        0 2.48e-12   5.4e+04        0        7  4.04e+04 Muon::MuonSys Transportation
+  688 1.92e+04        0 2.86e-12   5.4e+04        0 6.27e+03  4.67e+04 CTBANCSCDUMP::CTBANCSCDUMP Transportation
+  689 1.92e+04        0 2.86e-12   5.4e+04        0        4  4.67e+04 Muon::MuonSys Transportation
+  690 2.07e+04        0 2.95e-12   5.4e+04        0 1.46e+03  4.82e+04 CTBANCSMT::CTBANCSMT Transportation
+  691 2.07e+04        0 2.95e-12   5.4e+04        0       20  4.82e+04 Muon::MuonSys Transportation
+  692 2.41e+04        0 3.16e-12   5.4e+04        0 3.38e+03  5.16e+04 MDT01 MultiLayerFoam Transportation
+  702 2.42e+04        0 3.16e-12   5.4e+04        0       26  5.17e+04 BIL3_station Transportation
+  708 2.44e+04        0 3.18e-12   5.4e+04        0        3  5.19e+04 MDT02 multilayer Transportation
+  717 2.45e+04        0 3.18e-12   5.4e+04        0   0.0175   5.2e+04 MDT02 MultiLayerFoam Transportation
+  718 2.45e+04        0 3.18e-12   5.4e+04        0       15   5.2e+04 Muon::MuonSys Transportation
+  719 2.65e+04        0 3.31e-12   5.4e+04        0 2.03e+03   5.4e+04 CTBANCMUON10x10A::CTBANCMUON10x10A Transportation
+  720 2.65e+04        0 3.31e-12   5.4e+04        0       10   5.4e+04 Muon::MuonSys Transportation
+  721 2.68e+04        0 3.32e-12   5.4e+04        0      275  5.43e+04 CTBANCMUON10x10B::CTBANCMUON10x10B Transportation
+  722 2.68e+04        0 3.32e-12   5.4e+04        0       10  5.43e+04 Muon::MuonSys Transportation
+  723 2.69e+04        0 3.33e-12   5.4e+04        0      118  5.44e+04 CTBANCMUON10x10C::CTBANCMUON10x10C Transportation
+  724 2.69e+04        0 3.33e-12   5.4e+04        0       15  5.44e+04 Muon::MuonSys Transportation
+  725  2.7e+04        0 3.33e-12   5.4e+04        0     27.5  5.45e+04 MAGBOXMBPL::MAGBOXMBPL Transportation
+  726  2.7e+04        0 3.33e-12   5.4e+04        0        0  5.45e+04 Muon::MuonSys Transportation
+  727  2.7e+04        0 3.34e-12   5.4e+04        0     82.5  5.45e+04 CTBANCMUON10x10D::CTBANCMUON10x10D Transportation
+  728  2.7e+04        0 3.34e-12   5.4e+04        0        5  5.45e+04 Muon::MuonSys Transportation
+  729  3.1e+04        0 3.58e-12   5.4e+04        0 3.96e+03  5.85e+04 CTBANCMUONHODOSELECTOR::CTBANCMUONHODOSELECTOR Transportation
+  730  3.1e+04        0 3.58e-12   5.4e+04        0        5  5.85e+04 CTBANCMUONHODOPLANE1D::CTBANCMUONHODOPLANE1D Transportation
+  731  3.1e+04        0 3.58e-12   5.4e+04        0        5  5.85e+04 CTBANCMUONHODOPLANE1C::CTBANCMUONHODOPLANE1C Transportation
+  732  3.1e+04        0 3.58e-12   5.4e+04        0        0  5.85e+04 CTBANCMUONHODOPLANE1D::CTBANCMUONHODOPLANE1D Transportation
+  733  3.1e+04        0 3.58e-12   5.4e+04        0        0  5.85e+04 Muon::MuonSys Transportation
+  734 3.43e+04        0 3.79e-12   5.4e+04        0 3.32e+03  6.18e+04 MDT01 MultiLayerFoam Transportation
+  752 3.45e+04        0 3.79e-12   5.4e+04        0    0.195   6.2e+04 BIL2_station Transportation
+  769 3.48e+04        0 3.81e-12   5.4e+04        0    0.405  6.23e+04 MDT02 multilayer Transportation
+  770 3.48e+04        0 3.81e-12   5.4e+04        0    0.119  6.23e+04 MDT02 MultiLayerFoam Transportation
+  771 3.48e+04        0 3.81e-12   5.4e+04        0     15.5  6.23e+04 Muon::MuonSys Transportation
+  772 3.64e+04        0 3.91e-12   5.4e+04        0 1.65e+03  6.39e+04 BML1_station Transportation
+  773 3.64e+04        0 3.91e-12   5.4e+04        0      8.8  6.39e+04 Muon::RPC_AL_extsuppanel Transportation
+  799 3.65e+04        0 3.92e-12   5.4e+04        0     3.44   6.4e+04 Muon::RPC_StripPanelCuSkin Transportation
+  800 3.65e+04        0 3.92e-12   5.4e+04        0   0.0414   6.4e+04 RPC10 rpccomponent0 Transportation
+  801 3.65e+04        0 3.92e-12   5.4e+04        0    0.342   6.4e+04 DED01 dedcomponent Transportation
+  802 3.65e+04        0 3.92e-12   5.4e+04        0    0.311   6.4e+04 BML1_station Transportation
+  803 3.65e+04        0 3.92e-12   5.4e+04        0     44.7   6.4e+04 Muon::DedModulehoneycomb Transportation
+  804 3.65e+04        0 3.92e-12   5.4e+04        0        0   6.4e+04 BML1_station Transportation
+  815 3.67e+04        0 3.93e-12   5.4e+04        0    0.128  6.42e+04 BML2_station Transportation
+  831 3.71e+04        0 3.95e-12   5.4e+04        0      9.7  6.46e+04 MDT04 MultiLayerFoam Transportation
+  832 3.71e+04        0 3.96e-12   5.4e+04        0     15.5  6.46e+04 BML2_station Transportation
+  839 3.72e+04        0 3.96e-12   5.4e+04        0    0.342  6.47e+04 Muon::RPC_StripPanelCuSkin Transportation
+  840 3.72e+04        0 3.96e-12   5.4e+04        0   0.0414  6.47e+04 Muon::RPC_StripPanelFoam Transportation
+  865 3.72e+04        0 3.96e-12   5.4e+04        0      8.7  6.47e+04 Muon::RPC_AL_extsuppanel Transportation
+  866 3.72e+04        0 3.96e-12   5.4e+04        0    0.104  6.47e+04 BML2_station Transportation
+  867 3.72e+04        0 3.96e-12   5.4e+04        0     7.77  6.47e+04 Muon::MuonSys Transportation
+  868  3.9e+04        0 4.07e-12   5.4e+04        0 1.76e+03  6.65e+04 MDT03 MultiLayerFoam Transportation
+  869  3.9e+04        0 4.07e-12   5.4e+04        0     15.5  6.65e+04 MDT03 multilayer Transportation
+  870  3.9e+04        0 4.07e-12   5.4e+04        0     5.47  6.65e+04  DriftTube4 Transportation
+  871  3.9e+04        0 4.07e-12   5.4e+04        0    0.996  6.65e+04 SensitiveGas Transportation
+  872  3.9e+04        0 4.07e-12   5.4e+04        0     10.9  6.65e+04  DriftTube4 Transportation
+  873  3.9e+04        0 4.07e-12   5.4e+04        0    0.996  6.65e+04 MDT03 multilayer Transportation
+  874  3.9e+04        0 4.07e-12   5.4e+04        0     8.72  6.65e+04 DriftTube76 Transportation
+  875  3.9e+04        0 4.07e-12   5.4e+04        0    0.434  6.65e+04 SensitiveGas Transportation
+  876 3.91e+04        0 4.08e-12   5.4e+04        0     26.8  6.66e+04 DriftTube76 Transportation
+  877 3.91e+04        0 4.08e-12   5.4e+04        0    0.434  6.66e+04 MDT03 multilayer Transportation
+  899 3.95e+04        0  4.1e-12   5.4e+04        0     15.5   6.7e+04 BOL2_station Transportation
+  900 3.96e+04        0 4.11e-12   5.4e+04        0     70.4  6.71e+04 DED01 dedcomponent Transportation
+  901 3.96e+04        0 4.11e-12   5.4e+04        0    0.311  6.71e+04 BOL2_station Transportation
+  902 3.96e+04        0 4.11e-12   5.4e+04        0     3.83  6.71e+04 RPC18 rpccomponent0 Transportation
+  903 3.96e+04        0 4.11e-12   5.4e+04        0    0.342  6.71e+04 Muon::RPC_StripPanelCuSkin Transportation
+  969 4.18e+04        0 4.24e-12   5.4e+04        0    0.467  6.93e+04 MDT01 multilayer Transportation
+  970 4.18e+04        0 4.24e-12   5.4e+04        0     3.95  6.93e+04 EIS1_station Transportation
+  971 4.19e+04        0 4.25e-12   5.4e+04        0      125  6.94e+04 MDT02 multilayer Transportation
+ 1008 4.22e+04        0 4.27e-12   5.4e+04        0     13.4  6.97e+04 EIL1_station Transportation
+ 1028 4.24e+04        0 4.28e-12   5.4e+04        0    0.259  6.99e+04 MDT02 MultiLayerFoam Transportation
+ 1029 4.24e+04        0 4.28e-12   5.4e+04        0     15.5  6.99e+04 Muon::MuonSys Transportation
+ 1030 4.35e+04        0 4.34e-12   5.4e+04        0 1.02e+03   7.1e+04 MAGBOXMBPS2::MAGBOXMBPS2 Transportation
+ 1031 4.35e+04        0 4.34e-12   5.4e+04        0        0   7.1e+04 Muon::MuonSys Transportation
+ 1032 4.73e+04        0 4.58e-12   5.4e+04        0 3.86e+03  7.48e+04 TGC05std::G10 Transportation
+ 1033 4.73e+04        0 4.58e-12   5.4e+04        0    0.104  7.48e+04 TGC05muo::Honeycomb Transportation
+ 1034 4.73e+04        0 4.58e-12   5.4e+04        0     5.18  7.48e+04 TGC05std::G10 Transportation
+ 1035 4.73e+04        0 4.58e-12   5.4e+04        0     1.66  7.48e+04 TGC05muo::TGCGas Transportation
+ 1061 4.86e+04        0 4.66e-12   5.4e+04        0     9.78  7.61e+04 DriftTube162 Transportation
+ 1062 4.86e+04        0 4.66e-12   5.4e+04        0     1.09  7.61e+04 MDT03 multilayer Transportation
+ 1063 4.86e+04        0 4.66e-12   5.4e+04        0     13.2  7.61e+04 EML2_station Transportation
+ 1075 4.89e+04        0 4.68e-12   5.4e+04        0     21.3  7.64e+04 DriftTube165 Transportation
+ 1076 4.89e+04        0 4.68e-12   5.4e+04        0    0.545  7.64e+04 MDT04 multilayer Transportation
+ 1077 4.89e+04        0 4.68e-12   5.4e+04        0     1.75  7.64e+04 MDT04 MultiLayerFoam Transportation
+ 1078 4.89e+04        0 4.68e-12   5.4e+04        0     15.5  7.64e+04 Muon::MuonSys Transportation
+ 1079 4.92e+04        0  4.7e-12   5.4e+04        0      275  7.67e+04 TGC10std::G10 Transportation
+ 1104 4.94e+04        0 4.71e-12   5.4e+04        0     3.83  7.69e+04 Muon::MuonSys Transportation
+ 1105 5.62e+04        0 5.12e-12   5.4e+04        0 6.81e+03  8.37e+04 CTBMUONSYSTEM::CTBMUONSYSTEM Transportation
+ 1106 5.76e+04        0 5.21e-12   5.4e+04        0 1.43e+03  8.51e+04    CTB::CTB Transportation
+ 1107  5.8e+04        0 5.24e-12   5.4e+04        0      398  8.55e+04  OutOfWorld Transportation
+</pre> 
+</pre class="example">
+</p>
+<a href="#topOfPage">return to top of page</a>
+<!-- ---------------------------------------------------------------------- -->
+<!-- ---------------------------------------------------------------------- -->
+<hr color="blue">
+<a name="3Item" />
+<font size="+1" color="#000080">
+<b> Test beam layout version: ctb_sim-1.2 (15/11/04) </b></font>
+<p>
+ Respect to the previous test beam layout the changes are concentrated in the 
+ LAR-TILE system and they are:
+<ul>
+<li> The center of the LAR-TILE table is now at X=5733 mm in the CTB system 
+<li> Changed the LAr envelope:<br> 
+       + now there is space for the phantom calo<br>
+       + the actual envelope goes from ri=965 to ro=2270 mm in the <br>
+         LAr projective reference system. In the CTBLIARTILE envelope <br>
+         these numbers are 955 and 2260 (So the LAr envelope is shifted <br> 
+         by -10 mm in the CTBLIARTILE)  <br>
+<li>  The LAr was changed, now the total size of the cryostat along beam 
+   line is 1275 mm. The LAr has also the lateral alu wall 
+<li> The phantom calo, MuonWall and scintillator wre added to the Tile 
+    simulation  
+</ul>
+</p>
+<p>
+ Note: <br>
+(1) the position of all the envelopes is now stored in POOL.<br>
+(2) the magnetic field map can be used.  
+</p>
+<a href="#topOfPage">return to top of page</a>
+<!-- ---------------------------------------------------------------------- -->
+<hr color="blue">
+<a name="4Item" />
+<font size="+1" color="#000080">
+<b> Test beam layout version: ctb_sim-1.1 (05/08/04) </b></font>
+<p>
+ This test beam layout differs from the previous (ctb_sim-1.0) in the 
+following items:
+<ul>
+<li> The Muon system is described using the MuonGeomodel and Nova 8.0.2
+  The first CTB_G4Sim tag that can use it is CTB_G4Sim-00-02-01 and you 
+  can use CTB_G4Sim-00-01-14 to compare with the old amdb encoded geometry.  
+<li> Position of the Muon DUMP and Muon Magnets corrected. 
+<li> Position of ancillary Muon10x10 is approximated. 
+</ul>
+To have an idea of the simulated test beam layout a geantino beam gives this result concerning 
+the position of some of the volumes/detectors/layers:
+<pre class="example">
+<pre> 
+*********************************************************************************************************
+* G4Track Information:   Particle = geantino,   Track ID = 1,   Parent ID = 0
+*********************************************************************************************************
+
+ Step#    X(mm)    Y(mm)    Z(mm) KinE(MeV)  dE(MeV) StepLeng TrackLeng  NextVolume ProcName
+
+    1 -2.7e+04        0 3.08e-14  5.43e+04        0      503       503 CTBANCSMV::CTBANCSMV Transportation
+    3 -9.32e+03        0 1.11e-12  5.43e+04        0 1.77e+04  1.82e+04 CTBANCS1::CTBANCS1 Transportation
+    5 -8.56e+03        0 1.16e-12  5.43e+04        0      752  1.89e+04 CTBANCSMH::CTBANCSMH Transportation
+    7 -8.04e+03        0 1.19e-12  5.43e+04        0      525  1.95e+04 CTBANCS2::CTBANCS2 Transportation
+    9   -8e+03        0 1.19e-12  5.43e+04        0       25  1.95e+04 CTBANCS3::CTBANCS3 Transportation
+   11     -575        0 1.65e-12  5.43e+04        0 7.42e+03  2.69e+04 MBPS1::MBPS1 Transportation
+   13    0.975        0 1.68e-12  5.43e+04        0     13.5  2.75e+04 PixelTB Service6 Transportation
+   21     48.4        0 1.69e-12  5.43e+04        0    0.186  2.75e+04  Si Crystal Transportation
+   23     48.7        0 1.69e-12  5.43e+04        0   0.0204  2.75e+04        Chip Transportation
+   32     53.8        0 1.69e-12  5.43e+04        0    0.207  2.76e+04  Si Crystal Transportation
+   34     54.1        0 1.69e-12  5.43e+04        0   0.0227  2.76e+04        Chip Transportation
+   49     86.2        0 1.69e-12  5.43e+04        0    0.189  2.76e+04  Si Crystal Transportation
+   51     86.4        0 1.69e-12  5.43e+04        0   0.0207  2.76e+04        Chip Transportation
+   60     91.5        0 1.69e-12  5.43e+04        0      0.2  2.76e+04  Si Crystal Transportation
+   62     91.8        0 1.69e-12  5.43e+04        0    0.022  2.76e+04        Chip Transportation
+   79      120        0 1.69e-12  5.43e+04        0     0.19  2.76e+04  Si Crystal Transportation
+   81      120        0 1.69e-12  5.43e+04        0   0.0209  2.76e+04        Chip Transportation
+   90      125        0 1.69e-12  5.43e+04        0    0.198  2.76e+04  Si Crystal Transportation
+   92      126        0 1.69e-12  5.43e+04        0   0.0218  2.76e+04        Chip Transportation
+  105      175        0 1.69e-12  5.43e+04        0     36.2  2.77e+04 PixelTB Service7 Transportation
+  107      188        0  1.7e-12  5.43e+04        0     12.2  2.77e+04 MBPS1::MBPS1 Transportation
+  108      264        0  1.7e-12  5.43e+04        0     76.8  2.78e+04    SCT::SCT Transportation
+  119      296        0  1.7e-12  5.43e+04        0    0.035  2.78e+04 SCT_FwdModule_00 Transportation
+  133      302        0  1.7e-12  5.43e+04        0    0.035  2.78e+04 SCT_FwdModule_01 Transportation
+  149      368        0 1.71e-12  5.43e+04        0    0.035  2.79e+04 SCT_FwdModule_10 Transportation
+  157      373        0 1.71e-12  5.43e+04        0     4.27  2.79e+04 SCT_FwdModule_11 Transportation
+  169      445        0 1.71e-12  5.43e+04        0    0.035  2.79e+04 SCT_FwdModule_21 Transportation
+  185      511        0 1.72e-12  5.43e+04        0    0.035   2.8e+04 SCT_FwdModule_30 Transportation
+  199      516        0 1.72e-12  5.43e+04        0    0.035   2.8e+04 SCT_FwdModule_31 Transportation
+  206      517        0 1.72e-12  5.43e+04        0    0.035   2.8e+04    SCT::SCT Transportation
+  209      595        0 1.72e-12  5.43e+04        0      0.5  2.81e+04 MBPS1::MBPS1 Transportation
+  210      625        0 1.72e-12  5.43e+04        0     29.7  2.81e+04    CTB::CTB Transportation
+  212 1.33e+03        0 1.77e-12  5.43e+04        0     8.11  2.88e+04 TRT::BarrelInnerSupport Transportation
+  214 1.34e+03        0 1.77e-12  5.43e+04        0     4.69  2.88e+04 TRT::Shell0 Transportation
+  500 1.85e+03        0  1.8e-12  5.43e+04        0     1.53  2.93e+04 TRT::Shell2 Transportation
+  502 1.86e+03        0  1.8e-12  5.43e+04        0     10.4  2.94e+04 TRT::BarrelOuterSupport Transportation
+  504 1.87e+03        0  1.8e-12  5.43e+04        0       10  2.94e+04    CTB::CTB Transportation
+  505 2.25e+03        0 1.82e-12  5.43e+04        0      378  2.97e+04 LAr::TBBarrel::Cryostat::Envelope Transportation
+  516  3.5e+03        0  1.9e-12  5.43e+04        0       30   3.1e+04 LAr::TBBarrel::Cryostat::WarmTube2 Transportation
+  517 3.55e+03        0  1.9e-12  5.43e+04        0       40   3.1e+04 CTBLIARTILE::CTBLIARTILE Transportation
+  518 3.56e+03        0  1.9e-12  5.43e+04        0       11  3.11e+04 TileTB::TileTB Transportation
+  553 5.51e+03        0 2.02e-12  5.43e+04        0     87.5   3.3e+04 TileTB::TileTB Transportation
+  554 5.53e+03        0 2.02e-12  5.43e+04        0       20   3.3e+04 CTBLIARTILE::CTBLIARTILE Transportation
+  555 5.77e+03        0 2.04e-12  5.43e+04        0      240  3.33e+04 MuonWall::MuScintillatorLayer Transportation
+  556 5.79e+03        0 2.04e-12  5.43e+04        0       20  3.33e+04 CTBLIARTILE::CTBLIARTILE Transportation
+  557 6.28e+03        0 2.07e-12  5.43e+04        0      490  3.38e+04    CTB::CTB Transportation
+  558 1.22e+04        0 2.43e-12  5.43e+04        0  5.9e+03  3.97e+04 BOS2_station Transportation
+  652 1.87e+04        0 2.83e-12  5.43e+04        0  5.9e+03  4.62e+04 CTBANCSCDUMP::CTBANCSCDUMP Transportation
+  654 2.02e+04        0 2.92e-12  5.43e+04        0 1.46e+03  4.77e+04 CTBANCSMT::CTBANCSMT Transportation
+  656  2.2e+04        0 3.03e-12  5.43e+04        0  1.8e+03  4.95e+04 MDT01 MultiLayerFoam Transportation
+  683 2.35e+04        0 3.12e-12  5.43e+04        0 1.11e+03   5.1e+04 CTBANCMUON10x10A::CTBANCMUON10x10A Transportation
+  685 2.38e+04        0 3.14e-12  5.43e+04        0      275  5.13e+04 CTBANCMUON10x10B::CTBANCMUON10x10B Transportation
+  687 2.39e+04        0 3.15e-12  5.43e+04        0      118  5.14e+04 CTBANCMUON10x10C::CTBANCMUON10x10C Transportation
+  689 2.41e+04        0 3.16e-12  5.43e+04        0      110  5.16e+04 CTBANCMUON10x10D::CTBANCMUON10x10D Transportation
+  691 2.55e+04        0 3.24e-12  5.43e+04        0 1.42e+03   5.3e+04 MAGBOXMBPL::MAGBOXMBPL Transportation
+  692 2.55e+04        0 3.24e-12  5.43e+04        0        0   5.3e+04 Muon::MuonSys Transportation
+  693 3.05e+04        0 3.55e-12  5.43e+04        0 5.05e+03   5.8e+04 CTBANCMUONHODOSELECTOR::CTBANCMUONHODOSELECTOR Transportation
+  694 3.05e+04        0 3.55e-12  5.43e+04        0        5   5.8e+04 CTBANCMUONHODOPLANE1D::CTBANCMUONHODOPLANE1D Transportation
+  695 3.05e+04        0 3.55e-12  5.43e+04        0        5   5.8e+04 CTBANCMUONHODOPLANE1C::CTBANCMUONHODOPLANE1C Transportation
+  696 3.05e+04        0 3.55e-12  5.43e+04        0        0   5.8e+04 CTBANCMUONHODOPLANE1D::CTBANCMUONHODOPLANE1D Transportation
+  697 3.05e+04        0 3.55e-12  5.43e+04        0        0   5.8e+04 Muon::MuonSys Transportation
+  698 3.23e+04        0 3.66e-12  5.43e+04        0 1.73e+03  5.98e+04 MDT01 MultiLayerFoam Transportation
+  738 3.43e+04        0 3.79e-12  5.43e+04        0 1.64e+03  6.18e+04 BML1_station Transportation
+  896 3.76e+04        0 3.99e-12  5.43e+04        0    0.311  6.51e+04 BOL2_station Transportation
+  916 3.93e+04        0 4.09e-12  5.43e+04        0     19.7  6.68e+04 Muon::CscMultilayer Transportation
+  918    4e+04        0 4.14e-12  5.43e+04        0      781  6.75e+04 MDT01 MultiLayerFoam Transportation
+  934  4.3e+04        0 4.32e-12  5.43e+04        0 2.78e+03  7.05e+04 MAGBOXMBPS2::MAGBOXMBPS2 Transportation
+  936 4.79e+04        0 4.61e-12  5.43e+04        0 4.87e+03  7.54e+04 TGC10std::G10 Transportation
+  949  4.8e+04        0 4.62e-12  5.43e+04        0     99.7  7.55e+04 TGC16std::G10 Transportation
+  962 5.48e+04        0 5.04e-12  5.43e+04        0 6.74e+03  8.23e+04 MDT03 MultiLayerFoam Transportation
+</pre> 
+</pre class="example">
+
+<p>
+ As an example of the AMI fields you can find in AMI here it is the default list:
+<p>
+
+<pre class="example">
+<pre>
+detectorLayout = ctb_sim-1.1
+beam_energy=
+beam_polarity=        [-1,+1,null]
+beam_particle=        (no beam,photon,electron,muon,pion,proton,unknow)
+magneticField_Type=   constant
+ID_magneticField=     -1.4
+MBPL_magneticField=    0.0
+MBPS_magneticField=    2.0
+eta=                  [0.2, 0.7, 0.8]
+z=                    [   ,    ,    ]
+theta=                [-11.380, -37.184, -41.609] deg
+Pix_StatusWord=         1
+SCT_StatusWord=         1
+TRT_StatusWord=         1
+LAr_StatusWord=         1
+Tile_StatusWord=        1
+TileEB_StatusWord=      1
+MDT_StatusWord=         1
+TGC_StatusWord=         0
+RPC_StatusWord=         1
+CSC_StatusWord=         0
+BEE_StatusWord =       -1
+Pix_xBeamPosition=      6.25
+SCT_xBeamPosition=     40.481
+TRT_xBeamPosition=     78.9
+TRT_yBeamPosition=      9.0
+TRT_zBeamPosition=     55.0
+LAr-Tile_xBeamPosition= 606.2
+Muon_xBeamPosition=    3417.5
+Muon-Bee_xBeamPosition= -999999
+comment=                CTB_G4Sim-00-02-01
+         On top of altrel_4 (29/07/04) we need:
+          Tracking/TrkDetDescr/TrkDetElementBase (tag TrkDetElementBase-00-01-00)
+          Tracking/TrkDetDescr/TrkSurfaces       (tag TrkSurfaces-00-02-12)
+          MuonSpectrometer/MuonGeoModel          (tag MuonGeoModel-00-01-22) 
+</pre>
+</pre class="example">
+
+<p>
+ The next variables may change in other Atlas releases:
+</p>
+<pre class="example">
+<pre>
+Other variables:
+softwareRelease=        Tested with altrel_4 (29/07/04) 
+physicsPackage=         geant4-06-02-patch-01 $   (27-July-2004) 
+</pre>
+</pre class="example">
+
+
+</p>
+<a href="#topOfPage">return to top of page</a>
+<!-- ---------------------------------------------------------------------- -->
+
+
+<!-- ---------------------------------------------------------------------- -->
+<hr color="blue">
+<a name="5Item" />
+<font size="+1" color="#000080">
+<b> Test beam layout version: ctb_sim-1.0 (29/07/04) </b></font>
+<p>
+   This is the initial simulation setup for the CTB production. It is needed 
+ to have in account the following items:
+<ul>
+ <li> For the upstream material only the following scintillators are included:
+ SMV Muon veto counter,  S1, SMH,  S2, S3. 
+ <li> For the ancillary material in the Calo region only Pahtom and MuonWall 
+      are included.
+ <li> All the ancillary material in the muon region is included. 
+ <li> The simulation will not be OK for eta values bigger than ~0.9. Still 
+      there is a missing material at large eta values.  
+ <li> Not BEE muon chamber in front of LAr. 
+ <li> Digitization for TGC and CSC muon chambers is not prepared. 
+ <li> The x-position of some of the muon chamber is not OK because 
+      we are using "amdb_simrec.H8_2004_CTB.a.02nobee". The rest of the 
+      detectors probably need to be re-checked. 
+</ul>
+<p>
+ As an example of the AMI fields you can find in AMI here it is the default list: 
+<p>
+ 
+<pre class="example">
+<pre>
+detectorLayout = ctb_sim-1.0 
+beam_energy= 
+beam_polarity=        [-1,+1,null]
+beam_particle=        (no beam,photon,electron,muon,pion,proton,unknow)
+magneticField_Type=   constant                                    
+ID_magneticField=     -1.4  
+MBPL_magneticField=    0.0 
+MBPS_magneticField=    2.0 
+eta=                  [0.2, 0.7, 0.8]  
+z=                    [   ,    ,    ]  
+theta=                [-11.380, -37.184, -41.609] deg  
+Pix_StatusWord=         1        
+SCT_StatusWord=         1        
+TRT_StatusWord=         1                    
+LAr_StatusWord=         1
+Tile_StatusWord=        1
+TileEB_StatusWord=      1
+MDT_StatusWord=         1
+TGC_StatusWord=         0
+RPC_StatusWord=         1
+CSC_StatusWord=         0 
+BEE_StatusWord =       -1 
+Pix_xBeamPosition=      6.25 
+SCT_xBeamPosition=     40.481  
+TRT_xBeamPosition=     78.9 
+TRT_yBeamPosition=      9.0 
+TRT_zBeamPosition=     55.0 
+LAr-Tile_xBeamPosition= 606.2 
+Muon_xBeamPosition=    3417.5  
+Muon-Bee_xBeamPosition= -999999 
+comment=                CTB_G4Sim-00-01-13 + TRT_TestBeamDetDescr-00-00-14 on top of Atlas 8.5.0
+</pre>
+</pre class="example">
+
+<p> 
+ The next variables may change in other Atlas releases:
+</p>
+<pre class="example">
+<pre>
+Other variables:
+softwareRelease=        8.5.0
+physicsPackage=         Geant4-6.1
+</pre>
+</pre class="example">
+
+</p>
+<a href="#topOfPage">return to top of page</a>
+<!-- ---------------------------------------------------------------------- -->
+<!-- ---------------------------------------------------------------------- -->
+<hr color="blue">
+<a name="100Item" />
+<font size="+1" color="#000080">
+<b> AMI bookeeping DB related variables </b></font>
+<p>
+ Some of the fields availables in the AMI bookeeping DB are related directly 
+with simulation parameters. Here you can find the list of these fields, for the complete list you can see in the <a href="http://isnpx1158.in2p3.fr:8180/AMI/index.html">AMI</a> database generic web search interface, you should choose: 
+<pre>
+<b>Project</b> = CTB_Montecarlo
+<b>Process</b> = Simulation 
+<b>Entity</b>  = dataset 
+</pre>
+<p>
+
+<p> <em> (I)</em> The first important field:  
+<pre class="example">
+<pre>
+detectorLayout = version number ("ctb_sim-a.b" described above in this document) 
+</pre>
+</pre class="example">
+
+tells you what is included in the simulation and what is missing in a given 
+version of the test beam layout simulation. The description of each version 
+is done in this document and saved in CTB_G4Sim/doc/ctb_testbeamLayout_simu.html, in CVS. 
+</p>
+
+<p><em>(II)</em> We have also fields "shared" with the CTB online dataset: 
+<pre class="example">
+<pre>
+beam_energy
+beam_polarity         (-1,+1,null)
+beam_particle         (no beam,photon,electron,muon,pion,proton,unknow)
+(*)magneticField_Type (constant or field map                      )
+ID_magneticField      (magnetic field in the Inner detector magnet)
+MBPL_magneticField    (magnetic field in the 1st Muon magnet      )
+MBPS_magneticField    (magnetic field in the 2nd Muon magnet      )
+eta                   (eta value for the LAr-Tile table           )
+z                     
+theta                 (rotation angle for LAr-Tile, Y axis        )
+
+ For the status of the detectors, we probably need to know if the detector
+is in the beam line and if is simulated:
+Pix_StatusWord        (-1 = not in the beam line,
+SCT_StatusWord          0 = in the beam line but not working,
+TRT_StatusWord          1 = in the beam line and working          )
+LAr_StatusWord
+Tile_StatusWord
+(*)TileEB_StatusWord
+MDT_StatusWord
+TGC_StatusWord
+RPC_StatusWord
+CSC_StatusWord
+(*)BEE_StatusWord    (This is needed because this chamber goes
+                      infront of the LAr and we need to know if
+                      it is present or not                       )
+
+<u>Note</u>: the fields with (*) we added to the online fields.
+</pre>
+</pre class="example">
+
+<p><em>(III)</em>
+ All the envelopes needed to host the subdetectors (with the TRT exception)
+are centered at Y=Z=0 and the X coordinate of the envelopes must be stored 
+in AMI, so we will have:
+<pre class="example">
+<pre>
+Pix_xBeamPosition      (x center position of the Pixel envelope)
+SCT_xBeamPosition      (x center position of the SCT envelope  )
+TRT_xBeamPosition      (x position of the center of the cylinder-envelope)
+TRT_yBeamPosition      (y position of the center of the cylinder-envelope)
+TRT_zBeamPosition      (z position of the center of the cylinder-envelope)
+LAr-Tile_xBeamPosition (x center position of the LAr-Tile table)
+Muon_xBeamPosition     (x center position of the big muon envelope)
+Muon-Bee_xBeamPosition (x center position of the BEE muon envelope)
+</pre>
+</pre class="example">
+To know about the sizes of a given envelope, you only need to take
+a given CTB_G4Sim tag and look into the file "G4macros/ctb_envelopes.mac". 
+To know more details concernig the implementation of each subdetector you 
+should go to the sub-detector people.
+</p>
+
+</p>
+<a href="#topOfPage">return to top of page</a>
+<!-- ---------------------------------------------------------------------- -->
+<!-- ---------------------------------------------------------------------- -->
+<hr color="blue">
+<a href="#topOfPage">return to top of page</a>
+<hr color="blue">
+<!-- Created: Thu Jul 22 14:25:48 CEST 2004 -->
+<!-- hhmts start -->
+Last modified: Mon Nov 15 11:24:39 CET 2004 
+<!-- hhmts end -->
+    <br />
+    $Revision: 1.9 $
+    $Author: gallasm $
+</body>
+</html>

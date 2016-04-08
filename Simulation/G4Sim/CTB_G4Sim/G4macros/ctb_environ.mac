@@ -1,0 +1,16 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# -  Environment for visualization 
+#===============================================================================
+# macro name = ctb_environ.mac
+# called by jobOptions.CTB_G4Sim.txt 
+#
+# - General description -
+#    Open the VRMLFILE file.  
+#
+# author: M. Gallas <mgallas@mail.cern.ch>
+#==============================================================================
+/echo "CTB_G4Sim: Using VRMLFILE as graphics driver"
+/vis/open VRML1FILE
+#==============================================================================

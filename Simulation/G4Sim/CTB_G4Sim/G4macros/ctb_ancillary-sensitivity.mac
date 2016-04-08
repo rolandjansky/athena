@@ -1,0 +1,41 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# - Geometry of the ancillary material in Inner and Calo area 
+#===============================================================================
+# macro name = ctb_ancillary-sensitivity.mac 
+# called by ctb_ancillary.mac 
+#
+# - General description -
+#  Material upstream the point (x,y,z)-(0,0,0) defined by B. Di Girolamo in the
+#  "Test Beam Layout Ancillary Detectors" Note:
+#   https://edms.cern.ch/file/467898/1/TB2004_ancillary_v02.pdf
+#  All the ancillary detectors here defined are called CTBANC+NAME where the 
+#  NAME can be found in the previous note.                   
+#  The ancillary detectors are defined in the macro files:
+#    *ctb_ancillary.mac            --> defined in the CTB volume
+#     ctb_ancillaryLARTILE.mac     --> defined in the LARTILE volume 
+#     ctb_ancillaryMuons.mac       --> defined in the MUON volume    
+# 
+# author: M. Gallas <mgallas@mail.cern.ch>
+#         T. Kittelmann <kittel@nbi.dk>
+#===============================================================================
+
+#==================== Upstream (0,0,0) =========================================
+/load G4AncillarySD
+/SenDetector/UseSensitiveDetector ScintillatorSD AncillarySD 
+/control/ReadXML ctb_ancillarySD.xml
+
+# -- SMV Muon veto counter -- 
+/Geometry/AssignSD SMV SMV  AncillarySD
+# -- S1 scintillator --
+/Geometry/AssignSD S1 S1    AncillarySD
+# -- S2 scintillator --
+/Geometry/AssignSD S2 S2    AncillarySD
+# -- S3 scintillator --
+/Geometry/AssignSD S3 S3    AncillarySD
+# -- SH scintillator --
+/Geometry/AssignSD SH SH    AncillarySD
+# -- SNEW scintillator --
+/Geometry/AssignSD SNEW SNEW  AncillarySD
+#===============================================================================

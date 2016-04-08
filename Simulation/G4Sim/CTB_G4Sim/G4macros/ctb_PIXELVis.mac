@@ -1,0 +1,96 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+#
+# -  PIXEL detector
+#===============================================================================
+# macro name = ctb_PIXELVis.mac
+# called by ctb_visualization.mac
+#
+# - General description -
+#     Pixel visualization 
+#
+# contacts: Sebastien Correard <correard@cppm.in2p3.fr>
+#           Jean-Baptiste de Vivie <devivie@lal.in2p3.fr>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#==============================================================================
+/Geometry/Volumes/SetInvisible  Pixel::Pixel
+/Geometry/Volumes/SetInvisible  Pixel::barrelLog
+/Geometry/Volumes/SetInvisible  Pixel::InnerLayerLog
+/Geometry/Volumes/SetInvisible  Pixel::OuterLayerLog
+/Geometry/Volumes/SetInvisible  Pixel::CenterLayerLog
+/Geometry/Volumes/SetInvisible  Pixel::LadderLog
+/Geometry/Volumes/SetInvisible  Pixel::moduleLog
+/Geometry/Volumes/SetInvisible  Pixel::omegaLog 
+#
+/Geometry/Volumes/SetColor  Pixel::trapLog1 blue1
+/Geometry/Volumes/SetColor  Pixel::trapLog2 blue1
+/Geometry/Volumes/SetColor  Pixel::trapLog3 blue1
+/Geometry/Volumes/SetColor  Pixel::trapLog4 blue1
+/Geometry/Volumes/SetColor  Pixel::trapLog5 blue1
+/Geometry/Volumes/SetColor  Pixel::trapLog6 blue1
+/Geometry/Volumes/SetColor  Pixel::trapLog7 blue1
+/Geometry/Volumes/SetColor  Pixel::trapLog8 blue1
+/Geometry/Volumes/SetColor  Pixel::siBLayLog red1
+/Geometry/Volumes/SetColor  Pixel::siLog red1
+/Geometry/Volumes/SetColor  Pixel::hybridBrlLog green1
+/Geometry/Volumes/SetColor  Pixel::chipLog green3
+
+/Geometry/Volumes/SetColor  Pixel::ParaLog1 cyan1
+/Geometry/Volumes/SetColor  Pixel::ParaLog2 cyan1
+/Geometry/Volumes/SetColor  Pixel::ParaLog3 cyan1
+/Geometry/Volumes/SetColor  Pixel::ParaLog4 cyan1
+/Geometry/Volumes/SetColor  Pixel::ParaLog5 cyan1
+/Geometry/Volumes/SetColor  Pixel::ParaLog6 cyan1
+/Geometry/Volumes/SetColor  Pixel::ParaLog7 cyan1
+/Geometry/Volumes/SetColor  Pixel::ParaLog8 cyan1
+/Geometry/Volumes/SetColor  Pixel::ParaLog9 cyan1
+/Geometry/Volumes/SetColor  Pixel::ParaLog10 cyan1
+/Geometry/Volumes/SetColor  Pixel::ParaLog11 IndianRed
+/Geometry/Volumes/SetColor  Pixel::ParaLog12 IndianRed
+/Geometry/Volumes/SetColor  Pixel::ParaLog13 IndianRed
+/Geometry/Volumes/SetColor  Pixel::ParaLog14 IndianRed
+/Geometry/Volumes/SetColor  Pixel::ParaLog15 lavender
+/Geometry/Volumes/SetColor  Pixel::ParaLog16 lavender
+/Geometry/Volumes/SetColor  Pixel::ParaLog17 lavender
+/Geometry/Volumes/SetColor  Pixel::ParaLog18 lavender
+/Geometry/Volumes/SetColor  Pixel::ParaLog19 lavender
+/Geometry/Volumes/SetColor  Pixel::ParaLog20 lavender
+/Geometry/Volumes/SetColor  Pixel::ParaLog21 cyan1
+
+/Geometry/Volumes/SetColor  Pixel::CyliLog1 cyan1
+/Geometry/Volumes/SetColor  Pixel::CyliLog2 cyan1
+/Geometry/Volumes/SetColor  Pixel::CyliLog3 cyan1
+/Geometry/Volumes/SetColor  Pixel::CyliLog4 cyan1
+/Geometry/Volumes/SetColor  Pixel::CyliLog5 cyan1
+/Geometry/Volumes/SetColor  Pixel::CyliLog6 cyan1
+#
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi1 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi2 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi3 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi4 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi5 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi6 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi7 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi8 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi9 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi10 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi11 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi12 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi13 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi14 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi15 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi16 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi17 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi18 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi19 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi20 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi21 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi22 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi23 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi24 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi25 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi26 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi27 blue1
+/Geometry/Volumes/SetColor  Pixel::GlobSerImi28 blue1
+#==============================================================================

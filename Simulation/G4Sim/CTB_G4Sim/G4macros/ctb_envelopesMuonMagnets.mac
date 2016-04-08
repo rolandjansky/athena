@@ -1,0 +1,76 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+#
+# - Definition of the magnets inside the Muon region 
+#
+#===============================================================================
+# macro name = ctb_envelopesMuonMagnets.mac 
+# called by ctb_Atlas.mac, the Muon must be active
+#
+# contacts: <Andrea.Dellacqua@cern.ch>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+
+#==================== Muon Magnets  ============================================
+# -- The CTB magnets volumes  (II) --  MBPL, MBPS2
+#
+# - For the moment the magnets are boxes that coincide with the magnets aperture
+# They have the same name as in the exp area and they are listed starting at the
+# origin. These boxes are encapsulated in a iron volume with the dimensions 
+# equal to the external dimensions of the magnet.
+# - The MBPL and MBPS2 magnets were defined originally in the MUON
+# volume but now they are defined in the MUON::Muon volume 
+# because the Muon extends over all the  MUON volume 
+ 
+/Geometry/GetFacility CTBMagnet MAGBOXMBPL
+# Box (267.0x113.0x174.0)cm (X,Y,Z) with center at x=+2829.6 cm
+#/MAGBOXMBPL/SetDx 133.5 cm
+#/MAGBOXMBPL/SetDy 56.5 cm
+#/MAGBOXMBPL/SetDz 87.0 cm
+# For the CTBMagnet axis is Z
+/MAGBOXMBPL/SetDx 87.0 cm
+/MAGBOXMBPL/SetDy 56.5 cm
+/MAGBOXMBPL/SetDz 133.5 cm
+/MAGBOXMBPL/SetBoreDx 26.1 cm
+/MAGBOXMBPL/SetBoreDy 5.6 cm
+/MAGBOXMBPL/RotateY -90. deg
+/MAGBOXMBPL/MoveTo 2829.6 0. 0.  cm
+/Muon/AddDetector MAGBOXMBPL
+/Geometry/GetFacility ResizeableBox MBPL
+# Box (200x11.0x52.0)cm (X,Y,Z)  MBPL magnet aperture shifted to x=+4.6 cm
+# due to asymetric magnet volume. 
+/MBPL/SetDx 100.0 cm
+/MBPL/SetDy 5.5 cm
+/MBPL/SetDz 26.0 cm
+# For the CTBMagnet axis is Z
+# asymmetric magnet volume, we need a shift in x but we put in z because axis 
+/MBPL/MoveTo 0. 0. 4.6  cm
+/MBPL/RotateY 90. deg
+/MAGBOXMBPL/AddDetector MBPL
+#
+/Geometry/GetFacility CTBMagnet MAGBOXMBPS2
+# Box (169.0x113.0x174.0)cm (X,Y,Z) with center at x=4529.9 cm 
+#/MAGBOXMBPS2/SetDx 84.5 cm 
+#/MAGBOXMBPS2/SetDy 56.5 cm 
+#/MAGBOXMBPS2/SetDz 87.0 cm 
+/MAGBOXMBPS2/SetDx 87.0 cm 
+/MAGBOXMBPS2/SetDy 56.5 cm 
+/MAGBOXMBPS2/SetDz 84.5 cm 
+/MAGBOXMBPS2/SetBoreDx 26.1 cm
+/MAGBOXMBPS2/SetBoreDy 5.6 cm
+/MAGBOXMBPS2/RotateY -90. deg
+/MAGBOXMBPS2/MoveTo 4529.9 0. 0.  cm
+/Muon/AddDetector MAGBOXMBPS2
+/Geometry/GetFacility ResizeableBox MBPS2
+# Box (100x11.0x52.0)cm (X,Y,Z), MBPS2 magnet aperture shifted to x=+2 cm 
+/MBPS2/SetDx 50.0 cm
+/MBPS2/SetDy 5.5 cm
+/MBPS2/SetDz 26.0 cm
+# For the CTBMagnet axis is Z
+# asymmetric magnet volume, we need a shift in x but we put in z because axis
+/MBPS2/MoveTo 0. 0. 2.2 cm 
+/MBPS2/RotateY 90. deg
+/MAGBOXMBPS2/AddDetector MBPS2
+#
+#===============================================================================

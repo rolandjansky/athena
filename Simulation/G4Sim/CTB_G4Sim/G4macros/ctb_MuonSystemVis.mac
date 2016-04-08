@@ -1,0 +1,118 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+#
+# -  Muon detector
+#===============================================================================
+# macro name = ctb_MuonSystem.mac
+# called by  ctb_visualization.mac
+#
+# - General description -
+#     Muon visualization
+#
+# contacts: Daniela Rebuzzi  <rebuzzi@pv.infn.it>
+#           Gabriella Gaudio <gabriella.gaudio@pv.infn.it>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#==============================================================================
+/Geometry/Volumes/SetInvisible  Muon*
+# mgallas: next line is needed, because of the MuonWall in the LAr-Tile table
+/Geometry/Volumes/SetVisible  MuonWall
+
+# -- MDT -- 
+
+
+
+#/Geometry/Volumes/SetVisible  Muon::Station
+#/Geometry/Volumes/SetColor Muon::Station black
+#/Geometry/Volumes/SetVisible Muon::Mdt
+#/Geometry/Volumes/SetColor Muon::Mdt CadetBlue
+/Geometry/Volumes/SetVisible Muon::MultiLayerFoam
+/Geometry/Volumes/SetColor Muon::MultiLayerFoam green
+#/Geometry/Volumes/SetVisible Muon::Endplug
+#/Geometry/Volumes/SetColor Muon::Endplug gold
+#/Geometry/Volumes/SetVisible Muon::SensitiveGas
+#/Geometry/Volumes/SetColor Muon::SensitiveGas IndianRed3
+#/Geometry/Volumes/SetVisible Muon::MDTDriftWall
+#/Geometry/Volumes/SetColor Muon::MDTDriftWall grey
+#/Geometry/Volumes/SetVisible Muon::CHV01
+#/Geometry/Volumes/SetColor Muon::CHV01 grey
+#/Geometry/Volumes/SetVisible Muon::CHV02
+#/Geometry/Volumes/SetColor Muon::CHV02 grey
+#/Geometry/Volumes/SetVisible Muon::CHV04
+#/Geometry/Volumes/SetColor Muon::CHV04 grey
+#/Geometry/Volumes/SetVisible Muon::CMI01
+#/Geometry/Volumes/SetColor Muon::CMI01 grey
+#/Geometry/Volumes/SetVisible Muon::CMI02
+#/Geometry/Volumes/SetColor Muon::CMI02 grey
+#/Geometry/Volumes/SetVisible Muon::CMI04
+#/Geometry/Volumes/SetColor Muon::CMI04 grey
+#/Geometry/Volumes/SetVisible Muon::CHV01
+#/Geometry/Volumes/SetColor Muon::CRO01 grey
+#/Geometry/Volumes/SetVisible Muon::CRO02
+#/Geometry/Volumes/SetColor Muon::CRO02 grey
+#/Geometry/Volumes/SetVisible Muon::CRO04
+#/Geometry/Volumes/SetColor Muon::CRO04 grey
+#/Geometry/Volumes/SetVisible Muon::LB01
+#/Geometry/Volumes/SetColor Muon::LB01 grey
+#/Geometry/Volumes/SetVisible Muon::LB02
+#/Geometry/Volumes/SetColor Muon::LB02 grey
+#/Geometry/Volumes/SetVisible Muon::LB03
+#/Geometry/Volumes/SetColor Muon::LB03 grey
+#/Geometry/Volumes/SetVisible Muon::LB04
+#/Geometry/Volumes/SetColor Muon::LB04 grey
+#/Geometry/Volumes/SetVisible Muon::ibeam
+#/Geometry/Volumes/SetColor Muon::ibeam grey
+#/Geometry/Volumes/SetVisible Muon::vbeam
+#/Geometry/Volumes/SetColor Muon::vbeam grey
+
+
+# -- RPC --
+/Geometry/Volumes/SetVisible Muon::RpcModule
+/Geometry/Volumes/SetColor Muon::RpcModule red
+#/Geometry/Volumes/SetVisible Muon::RPC_honeyc_extsuppanel
+#/Geometry/Volumes/SetVisible Muon::RPC_honeyc_extsuppanel
+#/Geometry/Volumes/SetColor Muon::RPC_honeyc_midsuppanel blue
+#/Geometry/Volumes/SetColor Muon::RPC_honeyc_midsuppanel blue
+#/Geometry/Volumes/SetVisible Muon::Rpclayer
+#/Geometry/Volumes/SetColor Muon::Rpclayer cyan
+#/Geometry/Volumes/SetVisible Muon::RPC_AL_extsuppanel
+#/Geometry/Volumes/SetColor Muon::RPC_AL_extsuppanel orange
+#/Geometry/Volumes/SetVisible Muon::RPC_AL_midsuppanel
+#/Geometry/Volumes/SetColor Muon::RPC_AL_midsuppanel orange
+#/Geometry/Volumes/SetVisible Muon::RPC_StripPanelCuSkin
+#/Geometry/Volumes/SetColor Muon::RPC_StripPanelCuSkin green
+#/Geometry/Volumes/SetVisible Muon::RPC_StripPanelFoam
+#/Geometry/Volumes/SetColor Muon::RPC_StripPanelFoam yellow
+#/Geometry/Volumes/SetVisible Muon::RpcPet
+#/Geometry/Volumes/SetColor Muon::RpcPet gold
+#/Geometry/Volumes/SetVisible Muon::Honeycomb
+#/Geometry/Volumes/SetColor Muon::Honeycomb grey
+#/Geometry/Volumes/SetVisible Muon::DedModuleSkin
+#/Geometry/Volumes/SetColor Muon::DedModuleSkin ivory
+#/Geometry/Volumes/SetVisible Muon::DedModulehoneycomb
+#/Geometry/Volumes/SetColor Muon::DedModulehoneycomb ivory
+
+
+
+# -- TGC --
+#/Geometry/Volumes/SetVisible Muon::Tgc
+#/Geometry/Volumes/SetColor Muon::Tgc gold
+#/Geometry/Volumes/SetVisible Muon::std::G10
+#/Geometry/Volumes/SetColor Muon::std::G10 white
+#/Geometry/Volumes/SetVisible Muon::muo::Honeycomb
+#/Geometry/Volumes/SetColor Muon::muo::Honeycomb blue
+#/Geometry/Volumes/SetVisible Muon::muo::TGCGas
+#/Geometry/Volumes/SetColor Muon::muo::TGCGas green
+#/Geometry/Volumes/SetVisible Muon::gazGap
+#/Geometry/Volumes/SetColor Muon::gazGap black
+
+# -- CSC --
+#/Geometry/Volumes/SetVisible Muon::Csc
+#/Geometry/Volumes/SetColor Muon::Csc white
+#/Geometry/Volumes/SetVisible Muon::CscMultilayer
+#/Geometry/Volumes/SetColor Muon::CscMultilayer gold
+#/Geometry/Volumes/SetVisible Muon::G10
+#/Geometry/Volumes/SetColor Muon::G10 IndianRed3
+#/Geometry/Volumes/SetVisible Muon::CscArCO2
+#/Geometry/Volumes/SetColor Muon::CscArCO2 cyan
+#==============================================================================

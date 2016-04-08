@@ -1,0 +1,67 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# - Visualization of the ancillary material in the Muon area 
+#===============================================================================
+# macro name = ctb_ancillaryMuonsVis.mac
+# called by ctb_visualization.mac
+#
+# - General description -
+#  Material downstram the dumpdefined by B. Di Girolamo in the
+#  "Test Beam Layout Ancillary Detectors" Note:
+#     https://edms.cern.ch/file/467898/1/TB2004_ancillary_v02.pdf
+#  All the ancillary detectors here defined are called CTBANC+NAME where the
+#  NAME can be found in the previous note.
+#
+# Note: MuonSystem from amdb file is the same as the volume MUON
+#      defined in ctb_envelopes.mac. That is a Box (4400x1200x1200) cm
+#      starting at x=1217.5 cm and this means that the center is at
+#      x=+3417.5 cm
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+
+/Geometry/Volumes/SetVisible  SCDUMP 
+/Geometry/Volumes/SetColor    SCDUMP  black 
+
+/Geometry/Volumes/SetVisible  SMT 
+/Geometry/Volumes/SetColor    SMT  black 
+
+/Geometry/Volumes/SetVisible  MUON10x10A 
+/Geometry/Volumes/SetColor    MUON10x10A  black 
+/Geometry/Volumes/SetVisible  MUON10x10B 
+/Geometry/Volumes/SetColor    MUON10x10B  black 
+/Geometry/Volumes/SetVisible  MUON10x10C 
+/Geometry/Volumes/SetColor    MUON10x10C  black 
+/Geometry/Volumes/SetVisible  MUON10x10D 
+/Geometry/Volumes/SetColor    MUON10x10D  black 
+
+/Geometry/Volumes/SetVisible  MUONHODOSELECTOR 
+/Geometry/Volumes/SetColor    MUONHODOSELECTOR  black 
+/Geometry/Volumes/SetVisible  MUONHODOPLANE11 
+/Geometry/Volumes/SetColor    MUONHODOPLANE11  black 
+/Geometry/Volumes/SetVisible  MUONHODOPLANE12 
+/Geometry/Volumes/SetColor    MUONHODOPLANE12  black 
+/Geometry/Volumes/SetVisible  MUONHODOPLANE13 
+/Geometry/Volumes/SetColor    MUONHODOPLANE13  black 
+/Geometry/Volumes/SetVisible  MUONHODOPLANE14 
+/Geometry/Volumes/SetColor    MUONHODOPLANE14  black 
+/Geometry/Volumes/SetVisible  MUONHODOPLANE15 
+/Geometry/Volumes/SetColor    MUONHODOPLANE15  black 
+/Geometry/Volumes/SetVisible  MUONHODOPLANE16 
+/Geometry/Volumes/SetColor    MUONHODOPLANE16  black 
+
+
+/Geometry/Volumes/SetVisible  MUONHODOPLANE21 
+/Geometry/Volumes/SetColor    MUONHODOPLANE21  black 
+/Geometry/Volumes/SetVisible  MUONHODOPLANE22 
+/Geometry/Volumes/SetColor    MUONHODOPLANE22  black 
+/Geometry/Volumes/SetVisible  MUONHODOPLANE23 
+/Geometry/Volumes/SetColor    MUONHODOPLANE23  black 
+/Geometry/Volumes/SetVisible  MUONHODOPLANE24 
+/Geometry/Volumes/SetColor    MUONHODOPLANE24  black 
+/Geometry/Volumes/SetVisible  MUONHODOPLANE25 
+/Geometry/Volumes/SetColor    MUONHODOPLANE25  black 
+/Geometry/Volumes/SetVisible  MUONHODOPLANE26 
+/Geometry/Volumes/SetColor    MUONHODOPLANE26  black 
+
+#==============================================================================

@@ -1,0 +1,20 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# - Checks: Geant4 navigator  
+#===============================================================================
+# macro name = ctb_g4navigator-check.mac 
+# called by  jobOptions.CTB_G4Sim.py (if needed)
+#
+# - General description -
+#    For the enable the Geant4 check navigator check  
+#
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/run/initialize
+/echo "CTB_G4Sim: setting G4 navigator check_mode true"
+#/geometry/navigator/verbose 1
+/geometry/navigator/check_mode true
+/echo "CTB_G4Sim: G4 navigator check_mode true, done"
+
+#===============================================================================

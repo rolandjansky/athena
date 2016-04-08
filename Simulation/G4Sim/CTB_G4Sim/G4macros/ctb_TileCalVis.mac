@@ -1,0 +1,52 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# -  Tile detector
+#===============================================================================
+# macro name = ctb_TileCalVis.mac
+# called by ctb_visualization.mac 
+#
+# - General description -
+#     Tile visualization
+#
+# contacts: Vakho Tsulaia <Vakhtang.Tsulaia@cern.ch>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#==============================================================================
+/Geometry/Volumes/SetInvisible  TileTB
+/Geometry/Volumes/SetColor      TileTB green
+/Geometry/Volumes/SetInvisible  TileBarrel
+/Geometry/Volumes/SetInvisible  TileEBarrel
+/Geometry/Volumes/SetColor      TileEBarrel red
+/Geometry/Volumes/SetInvisible  TileExtended
+/Geometry/Volumes/SetColor      TileExtended yellow
+/Geometry/Volumes/SetInvisible  TileGirder
+/Geometry/Volumes/SetColor      TileGirder gray
+/Geometry/Volumes/SetInvisible  TileAbsorberChild
+/Geometry/Volumes/SetInvisible  TilePlug1
+/Geometry/Volumes/SetColor      TilePlug1 yellow
+/Geometry/Volumes/SetInvisible  TilePlug2
+/Geometry/Volumes/SetColor      TilePlug2 yellow
+/Geometry/Volumes/SetVisible    TilePlate
+/Geometry/Volumes/SetColor      TilePlate green
+/Geometry/Volumes/SetVisible    TileAbsorber
+/Geometry/Volumes/SetColor      TileAbsorber yellow
+/Geometry/Volumes/SetInvisible  TileEPHole
+/Geometry/Volumes/SetColor      TileEPHole black
+/Geometry/Volumes/SetVisible    TileTB::GirderIron
+/Geometry/Volumes/SetColor      TileTB::GirderIron blue
+/Geometry/Volumes/SetInvisible  TileTB::GirderAluminum 
+/Geometry/Volumes/SetColor      TileTB::GirderAluminum magenta
+/Geometry/Volumes/SetInvisible  TileTB::GirderElectronics
+/Geometry/Volumes/SetColor      TileTB::GirderElectronics magenta
+/Geometry/Volumes/SetInvisible  TileTB::TilePeriod
+/Geometry/Volumes/SetColor      TileTB::TilePeriod gray
+/Geometry/Volumes/SetInvisible  TileTB::TileGlue
+/Geometry/Volumes/SetColor      TileTB::TileGlue yellow
+/Geometry/Volumes/SetInvisible  TileTB::TileScintillator
+/Geometry/Volumes/SetColor      TileTB::TileScintillator blue
+/Geometry/Volumes/SetInvisible  TileTB::TileWrapper
+/Geometry/Volumes/SetColor      TileTB::TileWrapper red
+
+#/Geometry/Volumes/SetInvisible TileTB*
+#/Geometry/Volumes/SetVisible TileTB
+#==============================================================================

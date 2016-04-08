@@ -1,0 +1,17 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+#
+# -  LAr detector
+#===============================================================================
+# macro name = ctb_LArCalVis.mac
+# called by ctb_visualization.mac
+#
+# - General description -
+#     LAr visualization
+#
+# contacts: Guillaume Unal <guillaume.unal@cern.ch>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/Geometry/Volumes/SetInvisible LAr::TBBarrel::Cryostat::Envelope
+#===============================================================================

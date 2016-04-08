@@ -1,0 +1,28 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+#
+# -  SCT detector
+#===============================================================================
+# macro name = ctb_SCTsensitivity.mac
+# called by ctb_SCT.mac
+#
+# - General description -
+#  SCT sensistivity  for the CTB attached to the CTBSCT envelope defined in the
+#  ctb_envelopes.mac macro file
+#
+# contacts: Carlos Escobar <cescobar@hal.ific.uv.es>
+#           Peter Kodys <kodys@ific.uv.es>
+#           Thijs Cornelissen <tgcornel@nikhef.nl>
+#           Grant Gorfine <gorfine@nikhef.nl>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/load SCT_G4_SD
+/SenDetector/UseSensitiveDetector SctSensor_CTB SCT_CTB_SD
+# ---> We use only ECSensor0 
+#/Geometry/AssignSD SCT SCT::BRLSensor SCT_CTB_SD
+/Geometry/AssignSD SCT SCT::ECSensor0 SCT_CTB_SD
+#/Geometry/AssignSD SCT SCT::ECSensor1 SCT_CTB_SD
+#/Geometry/AssignSD SCT SCT::ECSensor2 SCT_CTB_SD
+#/Geometry/AssignSD SCT SCT::ECSensor3 SCT_CTB_SD
+#===============================================================================

@@ -1,0 +1,30 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# - Magnetic Field 
+#===============================================================================
+# macro name = ctb_MagneticField.mac
+# called by ctb_Atlas.mac
+#
+# - General description -
+#   Sets the constant magnetic fields in the MBPSID, MBPL and MBPS2 magnets. 
+# The value of the field can be changed in the ctb_magfield.xml 
+#
+#author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/load G4Field
+#
+/echo "CTB_G4Sim: Setting the Magnetic Fields to the values in ctb_magfield.xml" 
+/MagneticField/Assign ConstantField ConstantFieldMBPSID MBPSID::MBPSID
+/MagneticField/Assign ConstantField ConstantFieldMBPL MBPL::MBPL
+/MagneticField/Assign ConstantField ConstantFieldMBPS2 MBPS2::MBPS2
+/control/ReadXML ctb_magfield.xml
+#
+#  If you want to use the magnetic field map use the next four lines instead of 
+# the previous five lines. You should also get mbps1-all-id-800-mbps2-muons-800.data 
+# in the run directory (use get_files). This is just a first trial. 
+#/echo "CTB_G4Sim: Setting the Magnetic Fields using the Atlas MagneticField"
+#/shell ln -s mbps1-all-id-800-mbps2-muons-800.data fieldmap.dat
+#/MagneticField/Select H8Field
+#/MagneticField/Initialize
+#===============================================================================

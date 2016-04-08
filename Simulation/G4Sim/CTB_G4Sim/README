@@ -1,0 +1,72 @@
+--------------------------------------------------------------
+CTB_G4Sim: Geant4 ATLAS simulation of the CTB 2004 
+             Atlas Combined Test Beam   
+--------------------------------------------------------------
+
+  This is a pseudo-package that contains the jobOptions in use 
+for the CTB 2004 simulation. The CTB simulation is using since 
+ATLAS 10.0.1 release the Python infrastructure for simulation 
+hosted by G4AtlasApps package. 
+
+  The "old" Geant4 macro file simulation description is kept 
+under CTB_G4Sim/G4macros/ and it is NOT SUPPORTED and OBSOLETE. 
+
+M. Gallas 
+
+NEWS: 
+     in ATLAS releases >= 13.0.10 the simulation of the muon 
+   system is not supported. 
+
+--------------
+Documentation:
+--------------
+1) Web documentation: 
+    http://atlas-computing.web.cern.ch/atlas-computing/packages/simulation/geant4/CTB_G4Sim/doc/CTB.html
+
+2) Web (user manual, doc for the simulation flags, news) for general 
+   pythonized ATLAS simulations (G4AtlasApps package): 
+    http://atlas-computing.web.cern.ch/atlas-computing/packages/simulation/geant4/G4AtlasApps/doc/index.html  
+
+-------------
+User support:
+-------------
+Please use Savannah for requirements, requests, online help
+
+  https://savannah.cern.ch/support/?group=atlas-sim
+
+---------
+Examples:
+---------
+(under CTB_G4Sim/share)
+
+jobOptions.G4Ctb_SimProd.py        ---> typical jobOption 
+                                       for simulation
+jobOptions.G4Ctb_SimProd_photon.py  ---> jobOption for the 
+                                        "selected" photon runs   
+jobOptions.G4Ctb_DigProd.py         ---> jobOption for 
+                                       digitization  
+jobOptions.G4Ctb_SimExamples.py     ---> examples for 
+                                       simulation  
+
+--------------------
+Run conditions data:
+--------------------
+(under CTB_G4Sim/share)
+
++ CtbRunConditionsData.py             
+run conditions for the _Combined CTB period_. This means in terms of
+real data:
+   from 2101725  to 2102986 and this range covers also the 
+   photon period that starts at 2102775
+In this file the 4 last digits are enough to identify the run
+
++ CaloRunConditionsData.py
+run conditions for the calo data period. 
+
+(under CTB_G4Sim/python)
+ 
++ CtbPhotonESpectrum.py 
+photon energy spectrum for the CTB photon runs. Not all the runs are 
+included.  
+  
+--------------------------------------------------------------

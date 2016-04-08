@@ -1,0 +1,1790 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <title></title>
+  <title>CTB_ATLAS test beam simulation: progress </title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body text="#000000" bgcolor="#f5f5dc" link="#0000EE" vlink="#551a8b"
+alink="#ff0000">
+<!-- ------------------------------------------------------------Title Head -->
+<!-- -------------------------------------------------Title Head -->
+<body bgcolor="#FFFFFF">
+
+<table width="100%" bgcolor="#000080" cellpadding="30">
+  <tbody>
+    <tr>
+      <td align="center"><font color="#55AA00" size="+5"><!-- -----------------------------------------------------------------Title -->
+         <b><i>ATLAS CTB (2004)  Simulation with Geant4</i></b><br>
+        </font> <br>
+        <font color="#ddffff" size="+3"></font></td>
+    </tr>
+  </tbody>
+</table>
+<font="blue">
+<p></p>
+
+<center>
+Welcome to the official web page for the CTB (2004) Simulation with
+Geant4(<b>Athena </b>)</center>
+<!-- -----------------------------------------------------------------Histo -->
+<!-- $Id: ctb_progress_old.html,v 1.1 2005-11-24 13:46:11 gallasm Exp $   -->
+<!-- editing history, most recent updates on top 
+20-02-2004, mgallas: initial version into CVS
+-->
+<!-- -----------------------------------------------------------------Index -->
+<hr color="blue">
+
+<p><b><a
+href="http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/simulation/geant4/index.html">ATLAS
+simulation with Geant4</a></b> - <b><a href="CTB.html"> CTB (2004)
+simulation</a></b>: <b> <a href="ctb_progress.html">progress</a></b></p>
+
+<h2><span style="color: #FF0000; background-color: #FFFFFF">OLD DEVELOPMET
+PHASE (not updated)!!</span></h2>
+
+<p></p>
+
+<p></p>
+
+<p></p>
+
+<p></p>
+
+<p><font size="+2" color="#000080"><b>CTB_G4Sim progress by tag:
+</b></font></p>
+<hr color="blue">
+
+<p>This page collects the progress on the Atlas CTB simulation with Geant4
+(Athena) and follows this progress using the tags of the <a
+href="http://atlas-sw.cern.ch/cgi-bin/viewcvs.cgi/offline/Simulation/G4Sim/CTB_G4Sim/">CTB_G4Sim</a>
+package.</p>
+
+<p>For a given tag CTB_G4Sim-00-YY-ZZ (and date) a functionality of a given
+package or feature from a specific sub-detector is considered "integrated" if
+the corresponding tag (for the package or sub-detector software) is available
+at the <a href="http://isnpx0168.in2p3.fr/athena/">Atlas Tag-Collector</a>
+and the nightly buildings  by <a
+href="http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/dist/nightlies/www/nightly_builds.html">NICOS</a>
+are successful.</p>
+
+<p>The first CTB_G4Sim tag in this page corresponds to  the incoming features
+and indeed not yet available. The different tags will be available at the end
+of the  specified date.</p>
+
+<p><!-- #####################################################   -->
+</p>
+<hr color="blue">
+
+<p style="text-align: center">For 10.0.4 patch CMT v1r16p20040901</p>
+
+<p style="text-align: center">slc3-linux</p>
+
+<p><span style="font-weight: bold">CTB_G4Sim-00-02-34</span></p>
+
+<p>30/05/05</p>
+<pre>
+- Calibration hits for Tile are available in 10.0.4 </pre>
+<hr color="blue">
+
+<p style="text-align: center">For 10.0.4 patch CMT v1r16p20040901</p>
+
+<p style="text-align: center">slc3-linux</p>
+
+<p><span style="font-weight: bold">CTB_G4Sim-00-02-33</span></p>
+
+<p>24/05/05</p>
+<pre>- Initial stuff for the Muon selector at the Muon volume 
+- Example of how to use custom distributions with the ParticleGenerator 
+- Macro files are not tagged</pre>
+<hr color="blue">
+
+<p style="text-align: center">For 10.0.4 patch CMT v1r16p20040901</p>
+
+<p style="text-align: center">slc3-linux</p>
+
+<p><span style="font-weight: bold">CTB_G4Sim-00-02-32</span></p>
+
+<p>17/05/05</p>
+<pre>17/05/05 --&gt; CTB_G4Sim-00-02-32
+
+- This tag is intended to be used mainly in the 10.0.x branch and you have 
+  to be sure that for a given release 10.0.1, 10.0.2 or 10.0.3 you have the
+  following tags:
+
+1) TileG4Calib-00-00-18
+2) TRT_Digitization-00-04-15
+3) G4AtlasApps-00-00-26
+4) G4AtlasControl-00-00-18
+5) LArG4TBSim-00-00-17 
+6) SCT_ConditionsAlgs-00-00-17    
+
+
+- Fix for the LAr digitization using the parabolic method. This is done 
+  here as a temporary fix with ../share/CTB-FIX1002-LArROD_G4_jobOptions.py
+
+- Corrected Muon stuff in CTB that breaks because MuonDetMgrDetDescrCnv are
+  not longer used.
+- Added two runs to the CtbRunConditions.py. The list is now frozen  
+
+</pre>
+<hr color="blue">
+
+<p style="text-align: center">For ATLAS 10.2.0 and 10.0.2 patch CMT
+v1r16p20040901</p>
+
+<p style="text-align: center">slc3-linux</p>
+
+<p><span style="font-weight: bold">CTB_G4Sim-00-02-31</span></p>
+
+<p>25/04/05</p>
+<pre>Note: this tag replaces the previous one for the grid production . To 
+use it with 10.0.1 for simulation the following tags are needed:
+1) TileG4Calib-00-00-18
+2) TRT_Digitization-00-04-15
+3) G4AtlasApps-00-00-26
+4) G4AtlasControl-00-00-18
+5) LArG4TBSim-00-00-07 
+
+- Correction for the MDT digitization (MDT_Digitizer. CheckSimHits = FALSE) 
+  to be used with 10.0.2 for the digitization of the events generated on the
+  GRID
+- Changed the ctb_TileCal_Calib.mac for the Tile calibration simulation runs. 
+  Calibration for the LAr is now available within the new Python infrastructure
+  Remember that "macro files" are not supported and all the production will be
+  done using the Python infrastructure. The Tile calibration needs at least
+  TileG4Calib-00-00-18 on top of 10.0.2
+ 
+- Applied the regions-cuts for LAr, SCT and Muon system. This needs 
+  G4AtlasApps-00-00-26 and G4AtlasControl-00-00-18</pre>
+<hr color="blue">
+
+<p style="text-align: center">ATLAS 10.2.0 CMT v1r16p20040901</p>
+
+<p style="text-align: center">slc3-linux</p>
+
+<p><span style="font-weight: bold">CTB_G4Sim-00-02-30</span></p>
+
+<p>15/04/05</p>
+<pre>
+- Calibration run support for the LAr 
+- Particle generator orders in the simulation jobOption 
+- Tag to be used in the first Grid production  
+</pre>
+<hr color="blue">
+
+<p style="text-align: center">For ATLAS 10.2.0 CMT v1r16p20040901</p>
+
+<p style="text-align: center">slc3-linux</p>
+
+<p><span style="font-weight: bold">CTB_G4Sim-00-02-29</span></p>
+
+<p>13/04/05</p>
+<pre>
+- Includes modifications in the TRT digitization and 
+LArDC2IOVDbTag = "InitLayout-A" for the LAr digitization. 
+
+- Python infrastructure prepared for the production on the GRID of the combined 
+  runs for the last period. Initial support for the LAr material studies and
+  photon runs.
+
+
+</pre>
+<hr color="blue">
+
+<p style="text-align: center">For ATLAS 10.2.0 CMT v1r16p20040901</p>
+
+<p style="text-align: center">slc3-linux</p>
+
+<p><span style="font-weight: bold">CTB_G4Sim-00-02-28</span></p>
+
+<p>08/04/05</p>
+<pre>- Removes dependences in AthenaRoot 
+</pre>
+<hr color="blue">
+
+<p style="text-align: center">For ATLAS 10.0.2 CMT v1r16p20040901</p>
+
+<p style="text-align: center">slc3-linux</p>
+
+<p><span style="font-weight: bold">CTB_G4Sim-00-02-27</span></p>
+
+<p>06/04/05</p>
+<pre>- All the following refers to the new Python infrastructure:
+
++ Included the MuonWall ans Scryo1 Tile ancillary material as function of 
+  eta</pre>
+<hr color="blue">
+
+<p style="text-align: center">ATLAS 10.0.1 CMT v1r16p20040901</p>
+
+<p style="text-align: center">slc3-linux</p>
+
+<p><span style="font-weight: bold">CTB_G4Sim-00-02-26</span></p>
+
+<p>03/04/05</p>
+<pre>- All the following refers to the new Python infrastructure:
+
++ Included the LAr current correction and the flag needed. It runs if you 
+  have LArG4TBSim-00-00-07
++ Included ancillary detectors for upstream (Period A,B,C), Muon ancillary 
+  scintillators, Tile ancillary
++ Photon beams simulation infrastructure
++ Changed HitAthenaPoolwriter to include the possibility to have in the future 
+  the geometry automatic generation based in POOL information.
++ SimFlags also availables in digits jobOption file. This is in use in the 
+  IDET geometry and magnetic field.
++ First import for the LAr material studies. 
+</pre>
+
+<p><!-- #####################################################   -->
+</p>
+<hr color="blue">
+
+<p style="text-align: center">ATLAS 10.0.1 CMT v1r16p20040901</p>
+
+<p style="text-align: center">slc3-linux</p>
+
+<p><span style="font-weight: bold">CTB_G4Sim-00-02-25</span></p>
+
+<p>21/03/05</p>
+<pre>GENERAL:
+--------
+ - Added the jobOptions files needed to run the preliminary version of the
+Python simulation infrastructure ncluding the constant magnetic field service.
+The main missing items respect to the simulation described by the G4 macro files 
+are:
+     - Tile ancillary detectors
+     - LAr current correction
+To run the new Pyhton stuff take a look into the new User Manual. G4 macro file
+description and the new Python interface can work in the same package and run
+directory.</pre>
+<hr color="blue">
+
+<p style="text-align: center">ATLAS 10.0.0 CMT v1r16p20040901</p>
+
+<p style="text-align: center">slc3-linux</p>
+
+<p><span style="font-weight: bold">CTB_G4Sim-00-02-24</span></p>
+
+<p>11/03/05</p>
+<pre>GENERAL:
+--------
+ - Added the jobOptions files needed to run the preliminary version of the 
+Python simulation infrastructure. The main missing items respect to the 
+simulation described by the G4 macro files are:
+ - Magnetic fields
+ - Tile ancillary detectors 
+ - LAr current correction  
+To run the new Pyhton stuff take a look into the new HowTo pages. G4 macro file
+description and the new Python interface can work in the same package and run 
+directory.</pre>
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">Prepared for ATLAS 10.0.0  CMT
+        v1r16p20040901<br>
+        slc3-linux</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-23</strong><br>
+        28/02/05</td>
+    </tr>
+  </tbody>
+</table>
+<pre>GENERAL:
+--------
+  - Changed jobOptions due to the changes in AtlasGeoModel 
+
+<!-- #####################################################   -->
+
+<hr color="blue">
+
+</pre>
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">Prepared for ATLAS 10.0.0  CMT
+        v1r16p20040901<br>
+        slc3-linux</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-22</strong><br>
+        25/02/05</td>
+    </tr>
+  </tbody>
+</table>
+<pre>TILE:
+-----
+   - Detector description using GeoModel, for the calibration studies we 
+     still have the old geometry. 
+   - LArCrate material in place
+GENERAL:
+--------
+   - CTBLIARTILE enveloped was renamed to CALO 
+   - Beam spot ---&gt; -10 mm to +15 mm in Y
+                    -20 mm to +40 mm in Z
+     to cover the Pixel sensors.
+   - At the running time it appears:
+        File S1CR0101.DATA was not found
+        File S1CR0102.DATA was not found
+        File S1CR0103.DATA was not found
+       from the LAr, the experts said that is not dangerous.
+
+
+<!-- #####################################################   -->
+
+<!-- #####################################################   -->
+
+<hr color="blue">
+
+</pre>
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 9.1.2  CMT v1r16p20040901<br>
+        slc3-linux</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-21</strong><br>
+        15/02/05</td>
+    </tr>
+  </tbody>
+</table>
+<pre>GENERAL:
+--------
+   - Fixing previous tag, SCT bad channels enabled and corrected the position 
+     of the SH scintillator. 
+   - MuonGeoModel-00-02-01 is needed on top of 9.1.2
+
+<!-- #####################################################   -->
+
+<!-- #####################################################   -->
+
+<hr color="blue">
+
+</pre>
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 9.1.2  CMT v1r16p20040901<br>
+        slc3-linux</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-20</strong><br>
+        10/02/05</td>
+    </tr>
+  </tbody>
+</table>
+<pre>SCT:
+---
+  - New digitization using ConDB
+TRT:
+----
+  - The Y coordinate for TRT is -8 cm as it should be with the 
+"InnerDetector-CTB-04" tag. This is correct since several tags. 
+This is only a remark, and if other InnerDetector tags are used 
+this must be checked. 
+    
+GENERAL:
+--------
+  - The name of the inner detector MBPS1 was changed to MBPSID as a requirement
+    of the inner detector people.
+  - The gap in Z of MBPSID magnet was changed from 220 mm to 230 mm.  
+  - The position of MBPS2 magnet was changed from 44301 mm to 45299 mm.  
+  - Beampipes: name changed to BEAMPIPE1 and BEAMPIPE2, position corrected.  
+  - Mylar equivalent included. 
+  - SMV (Muon Veto Counter) used at low energy: position corrected. 
+  - S2 scintillator in place for the period B 
+  - Upstream (MBPSID) scintillators included: SMV,S1,S2,S3,Sh,Snew.
+  - Renamed the muon ancillary detectors. 
+  - Muon envelope renamed to MUON (it was CTBMUONSYSTEM) </pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 9.1.2  CMT v1r16p20040901<br>
+        slc3-linux</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-19</strong><br>
+        04/02/05</td>
+    </tr>
+  </tbody>
+</table>
+<pre>LAr and TILE
+------------
+ - Rotation of LAr+Tile envelope commented out in jobOptions.CTB_G4Sim_Calib.py
+   to avoid double rotation (in case it is done in ctb_envelopes.mac)</pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 9.1.1  CMT v1r16p20040901<br>
+        prepared for Atlas 9.1.2 and slc3-linux</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-18</strong><br>
+        28/01/05</td>
+    </tr>
+  </tbody>
+</table>
+<pre>MUON:
+-----
+ - MDT_Digitizer.SignalSpeed = 180 #18 cm/ns this just set the propagation
+speed in the wire (Muons) to the correct value as measured at H8.
+
+GENERAL:
+--------
+ - Minor changes: added new eta value (0.35) corrected typo in
+ jobOptions.CTB_G4Sim.py (spread of the Y vertex).</pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 9.1.1  CMT v1r16p20040901<br>
+        prepared for the pre-production with Atlas 9.1.1 and slc3-linux</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-17</strong><br>
+        17/01/05</td>
+    </tr>
+  </tbody>
+</table>
+<pre>IDET:
+-----
+ - Corrected the position of the Pixel detector
+ - CondDB for the SCT digitization is not in use, it is needed to check
+ if it is OK.
+
+GENERAL:
+--------
+ - Minor changes compare to CTB_G4Sim-00-02-16, it is prepared for run the
+ pre-production it needs TBDetDescr-00-00-02 on top of 9.1.1 release.
+</pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 9.1.2  CMT v1r16p20040901<br>
+        slc3-linux</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-19</strong><br>
+        28/01/05</td>
+    </tr>
+  </tbody>
+</table>
+<pre>LAR-TILE:
+--------_
+ - Minor changes: added new eta value (0.35) corrected typo in
+ jobOptions.CTB_G4Sim.py (spread of the Y vertex).</pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 9.1.1  CMT v1r16p20040901<br>
+        prepared for Atlas 9.1.2 and slc3-linux</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-18</strong><br>
+        28/01/05</td>
+    </tr>
+  </tbody>
+</table>
+<pre>MUON:
+-----
+ - MDT_Digitizer.SignalSpeed = 180 #18 cm/ns this just set the propagation 
+speed in the wire (Muons) to the correct value as measured at H8.
+
+GENERAL:
+--------
+ - Minor changes: added new eta value (0.35) corrected typo in 
+ jobOptions.CTB_G4Sim.py (spread of the Y vertex). </pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 9.1.1  CMT v1r16p20040901<br>
+        prepared for the pre-production with Atlas 9.1.1 and slc3-linux</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-17</strong><br>
+        17/01/05</td>
+    </tr>
+  </tbody>
+</table>
+<pre>IDET:
+-----
+ - Corrected the position of the Pixel detector  
+ - CondDB for the SCT digitization is not in use, it is needed to check
+ if it is OK.
+
+GENERAL:
+--------
+ - Minor changes compare to CTB_G4Sim-00-02-16, it is prepared for run the 
+ pre-production it needs TBDetDescr-00-00-02 on top of 9.1.1 release. 
+</pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 9.2.0  CMT v1r16p20040901<br>
+        prepared for the Atlas 9.1.1 and 9.3.0 release</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-16</strong><br>
+        15/12/04</td>
+    </tr>
+  </tbody>
+</table>
+<pre>IDET:
+-----
+ - The geometry of the IDET was tested in the new placement in terms of G4 
+ geometry check and it is OK. 
+ - First attempt to use CondDB for the SCT digitization, it is needed to check 
+ if it is OK.  
+
+LAr and TILE:
+-------------
+ - Initial version of the calibration hits simulation setup. This can be run 
+ using the "jobOptions.CTB_G4Sim_Calib.py" under the "share" directory. This 
+ the initial version and some changes area expected after the full 
+ pythonization of the CTB simulation. 
+
+GENERAL:
+--------
+ - The CTB coordinate system was shifted by X=-475 mm. The Pixel and SCT are
+ in the correct position together with TRT, LAr, Tile and Muon chambers. 
+ This tag is the base for the "new" testbeam layout ctb_sim1.3. 
+ - The upstream ancillary detectors are in the configuration used after 
+ 12/10/04. Later, we will define two more configurations that will correspond 
+ with the layout before that date and with the phothon beam runs. 
+ - The position of the MBPL magnet in the MuonSytem was corrected in accordance
+ with the last meassurements. The ancillary detectors in the MuonSystem were 
+ also corrected. 
+ - The size of all the detector envelopes was reduced in order to reduce the 
+ CPU time. We are saving the MCTruth information for smaller volumes. 
+ - The CTBLIARTILE and CTBMUONSYSTEM envelopes were tuned to avoid clashes at
+ high eta (up to eta=1.2) runs with the Tile extended barrel.   
+ - In this new configuration the MagneticField map is not ready and it must 
+ wait for the next tag.  
+</pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 9.2.0  CMT v1r16p20040901<br>
+        prepared for the Atlas 9.1.1 and 9.3.0 release (first version, not
+        full tested)</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-15</strong><br>
+        10/12/04</td>
+    </tr>
+  </tbody>
+</table>
+<pre>INNER:
+-----
+ - We adopted the ORACLE db. (This needs PixelTestBeamDetDescr-00-00-22, 
+SCT_TestBeamDetDescr-00-00-42, TRT_TestBeamDetDescr-00-00-19 on top of 
+9.2.0) 
+
+SCT:
+----
+ - The option "SCT_Digitization.TBBadChannels = TRUE" in the digits JobOption
+file disables one of the SCT planes, the one that is also missing in reality.
+
+MUON:
+-----
+ - To work with the Muon system in the 9.2.0 main branch or in 9.1.X nightlies
+the MuonGeoModel-00-01-58 tag is needed (it works in 9.2.0 and the 9.1.X 
+nightlies built later than 04-12-04). Here we use NovaCnvSvc.Version = 7
+
+GENERAL:
+--------
+ The CTB coordinate system was shifted by X=-475 mm. The Pixel and SCT are 
+ in the correct position together with TRT, LAr, Tile and Muons. Ancillary 
+ detectors in the Muon system must be checked. This is a first version and 
+ must be tested!!. </pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 9.0.0  CMT v1r16p20040901<br>
+        prepared for the Atlas 9.1.1 and 9.2.0 release</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-14</strong><br>
+        29/11/04</td>
+    </tr>
+  </tbody>
+</table>
+<pre>GENERAL:
+-------- 
+  -  The MCTruth is enabled with the same strategies we have for the Atlas 
+ Simulation. The MCTruth will be run by default in the simulation and 
+ digitization jobs. (This requires MCTruth-00-00-22 on top Atlas 9.0.0 and 
+ all the tags needed in the previous CTB_G4Sim tag).  </pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 9.0.0  CMT v1r16p20040901<br>
+        prepared for the Atlas 9.0.2 release</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-13</strong><br>
+        17/11/04</td>
+    </tr>
+  </tbody>
+</table>
+<pre>To avoid problems in the distribution kit to be build with Atlas 9.0.2
+
+TRT:
+---
+- In order to avoid clashes with the same file that is in use in Atlas
+we renamed Digitization_parameters.txt to ctb_TRT_Digitization_parameters.txt
+and TRT_Digitization_management.txt to ctb_TRT_Digitization_management.txt
+The files we have here are different from the files in Atlas.
+- This needs the tag TRT_Digitization-00-04-08.
+- Because of TRT_Digitization-00-04-08 we have to copy here also the
+files:
+ctb_TRT_Digitization_geometry.txt
+ctb_TRT_Digitization_materials.txt
+These are the same files we have in Atlas.
+- The line
+TRTDigitization.ParameterFileName = "ctb_TRT_Digitization"
+must be added to the digits jobOption file
+
+*Note: On top of Atlas 9.0.0 we need the tags:
+
+LArG4TBBarrel-00-00-09          LArCalorimeter/LArG4TB/LArG4TBBarrel/LArG4TBBarrel-00-00-09
+G4Field-00-00-15                Simulation/G4Utilities/G4Field
+CombinedScintillator-00-00-10   TileCalorimeter/TileG4/TileAncillary/CombinedScintillator
+TileG4TestBeam-00-00-20         TileCalorimeter/TileG4/TileG4TestBeam
+CTB_G4Sim-00-02-12              Simulation/G4Sim/CTB_G4Sim
+TRT_Digitization-00-04-08       InnerDetector/InDetDigitization/TRT_Digitization/
+
+All this tags were tested with Atlas 9.0.0 and they are OK.  
+</pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 9.0.0  CMT v1r16p20040901<br>
+        prepared for the CTB pre-prod with Atlas 9.0.0 release</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-12</strong><br>
+        15/11/04</td>
+    </tr>
+  </tbody>
+</table>
+<pre>TRT:
+----
+ - Changes into TRT_Digitization_management.txt related to pileup in Atlas 
+
+LAr:
+----
+ - Changed the LAr envelope: 
+       + now there is space for the phantom calo
+       + the actual envelope goes from ri=965 to ro=2270 mm in the 
+         LAr projective reference system. In the CTBLIARTILE envelope 
+         these numbers are 955 and 2260 (So the LAr envelope is shifted 
+         by -10 mm in the CTBLIARTILE) 
+ - The LAr was changed, now the total size of the cryostat along beam 
+   line is 1275 mm. 
+ - The LAr has the lateral alu wall 
+
+ All this needs LArG4TBBarrel-00-00-09 
+
+TILE:
+-----
+ - The new tag for TileG4TestBeam is TileG4TestBeam-00-00-19. It takes in 
+   account that the distance (Z) between Tile and Extended barrel is 97 cm 
+   in the part next to LAr.  
+ - Other new tag for Tile TileG4TestBeam-00-00-20 reduces the DeltaPhi of
+   the Tile Calorimiter to have more space in the sides of the envelope near
+   to LAr
+ - CombinedScintillator-00-00-09, corrects the dimensions and shape of the 
+   Scryo scintillator
+
+GENERAL:
+--------
+ - Corrected the plugging for the Magnetic Field Map (now it is called 
+   H8Field and it needs G4Field-00-00-15 on top of Atlas 9.0.0) 
+ - The envelope CTBLIARTILE for LAr and Tile was changed following 
+   the last discussions concerning the position of both calo in CTB. 
+   There is a new test beam layout for the simulation "ctb_sim-1.2" </pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 8.8.0  CMT v1r16p20040901<br>
+        prepared for the Atlas 9.0.0 release</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-11</strong><br>
+        22/10/04</td>
+    </tr>
+  </tbody>
+</table>
+<pre>TILE:
+-----
+ - Corrected the name of the container for the digits in the ancillary 
+   detectors.  
+MUONS:
+------
+ - Change to Nova version 6 for simulation and digits </pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 8.8.0  CMT v1r16p20040901<br>
+        prepared for the next Atlas release</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-10</strong><br>
+        21/10/04</td>
+    </tr>
+  </tbody>
+</table>
+<pre>
+TILE:
+-----
+ - Corrected the distance between TileTB and Extended Barrel. Now the 
+distance is DeltaZ=97 cm. (This needs on top 8.8.0 the TileG4TestBeam-00-00-18
+tag). 
+ - Introduced the Dead Material between TileTB and Extended Barrel 
+(DeadMaterial-00-00-02). (It can not be used because it clashes with 
+LAr volumen) 
+ - Corrected position and bug fixing for  MuonWall, CombinedScintillator 
+(CombinedScintillator-00-00-03, MuonWall-00-00-03)
+ - Corrected position of PhantomCalorimeter (PhantomCalorimeter-00-00-04)
+
+Note: CombinedScintillator and MuonWall are not moving with eta 
+  
+MUONS:
+------
+ - TGC and CSC digits should be OK now. On top of 8.8.0 this needs the 
+tags: MuonGeoModel-00-01-47, CSC_Digitization-00-06-09, IdDictParser-00-01-05
+Now in the CTB_G4Sim we use the MuonDigiExample/MuonDigitization_jobOptions.py
+instead of CTB_G4Sim/MuonDigitization_jobOptions.py. 
+
+GENERAL :
+---------
+ - Less verbosity in the digit jobs. 
+ - Initial import of the SD for the ancillary detectors.  
+ - Positions of the detectors stored in the POOL file 
+ - Added three vacumm beam-pipes in the upstream part 
+</pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 8.7.0  CMT v1r16p20040901<br>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-09</strong><br>
+        04/10/04</td>
+    </tr>
+  </tbody>
+</table>
+<pre>
+MUONS:
+------
+-- RPC_Digitizer.CTB2004 = TRUE; (needs RPC_Digitizer-00-02-04)
+
+GENERAL :
+---------
+ - Tag for 8.8.0, TileAncillary is not in the good place
+ - Digitization jobOption files uses Detector Flags.  </pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 8.7.0  CMT v1r16p20040901<br>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-08</strong><br>
+        24/09/04</td>
+    </tr>
+  </tbody>
+</table>
+<pre>
+TRT:
+----
+Corrections in the files TRT_Digitization_management.txt and 
+TRT_Digitization_parameters.txt used for the CTB (../data)
+------
+MuonGeoModel-00-01-37.
+-  amdb version a.03 (NovaVersion = 5)
+
+GENERAL :
+---------
+  Tag for 8.8.0, still do not have the Tile ancillary well 
+in place </pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 8.7.0  CMT v1r16p20040901<br>
+        Prepared for data production with Atlas 8.7.0 release<br>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-07</strong><br>
+        16/09/04</td>
+    </tr>
+  </tbody>
+</table>
+<pre>PIXEL:
+------
+- Added PixelDigitization.ExtraNoiseProb = 0.
+
+TRT:
+----
+- Added the "TRT_Digitization_management.txt" run time file  which in 
+Atlas release 9.0.0 will allow to change the drifttime for the TRT 
+in the CTB to the value DriftTimeScaling = 0.875 . We remove the 
+"managment" and "geometry" files in data for the TRT. 
+
+LAr :
+----
+- The needed LAr tags (LArG4TBBarrel-00-00-05 and LArG4Barrell-00-00-40)
+ improve the recursive G4 geometry test and decrease the number of crashing
+ jobs due to problems with the G4Navigator. The LArG4Barrell-00-00-40 will 
+ solve more errors in the recursive test (Now the recursive-test only 
+ complains "The volume LAr::Barrel::Presampler::Cathode3[0] appears to extend 
+ outside the mother volume LAr::Barrel::Presampler::Module[0]. 
+
+GENERAL :
+---------
+- This tag replaces the previous one for the use in production mode 
+- We use Geant4-00-03-15 on top of Atlas 8.7.0 
+- The test-beam layout is "ctb_sim-1.1"
+- Added the G4Utilities timer at the end of each event 
+- By default we do not use G4Navigator-check-mode on </pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 8.7.0  CMT v1r16p20040701<br>
+        Prepared for data production with Atlas 8.7.0 release<br>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-06</strong><br>
+        13/09/04</td>
+    </tr>
+  </tbody>
+</table>
+<pre>LAr:
+----
+- The needed LAr tags (LArG4TBBarrel-00-00-05 and LArG4Barrell-00-00-39)
+ improve the recursive G4 geometry test and decrease the number of crashing 
+ jobs due to problems with the G4Navigator. 
+
+GENERAL :
+---------
+- Minor modifications, not changes in geometry. The test-beam layout is 
+  "ctb_sim-1.1" </pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td colspan="1" align="center">ATLAS 8.6.0  CMT v1r16p20040701<br>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-05</strong><br>
+        29/08/04 - Changes in  the "jobOptions.CTB_G4Dig.py" to introduce the
+        new dictionary for Inner detector (IdDictInnerDetector_CTB2004.xml)
+        and PixelDigitization.NoiseProb = 0.</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-04</strong><br>
+        29/08/04 - Changes in  the "requirements" file for TRT after the
+        organization of the Inner Detector Geant4 packages</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-03</strong><br>
+        26/08/04 - Cleanup of the "requirements" file after the organization
+        of the Inner Detector Geant4 packages</td>
+    </tr>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-02</strong><br>
+        04/08/04 - Change dependency on CLHEP to AtlasCLHEP to avoid a name
+        clash.</td>
+    </tr>
+  </tbody>
+</table>
+<pre>GENERAL :
+---------
+- Minor modifications</pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-02-01</strong><br>
+        04/08/04</td>
+      <td colspan="1" align="center">ATLAS altrel_4  (29/07/04)  CMT
+        v1r16p20040701<br>
+        Prepared for the first data production <br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<pre>
+MUONS:
+------
+ - Included the MuonGeomodel. Nova 8.0.2 version populated with the data in 
+ "amdb_simrec.H8_2004_CTB.a.02nobee".
+ - New physics-cuts for the Muon system.
+ - Digits from MDT and RPC.
+ - On top of altrel_4 (29/07/04) we need:
+    Tracking/TrkDetDescr/TrkDetElementBase (tag TrkDetElementBase-00-01-00)
+    Tracking/TrkDetDescr/TrkSurfaces (tag TrkSurfaces-00-02-12)
+    MuonSpectrometer/MuonGeoModel (tag MuonGeoModel-00-01-22)
+
+GENERAL :
+---------
+ - Corrected the position of the Muon DUMP
+ - Small correction in the position of the MBPL and MBPS2 magnets. 
+ - Updated the HowTo.
+ - Position of ancillary Muon10x10 is approximated. 
+ - The test beam layout description is:"ctb_sim-1.1". See the details in:
+    CTB_G4sim-00-02-01/doc/ctb_testbeamLayout_simu.html
+ - Includes the Geant4 check navigator by default.
+ - We use altrel_4 with geant4-06-02-patch-01 $   (27-July-2004)
+      </pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-01-14</strong><br>
+        01/08/04</td>
+      <td colspan="1" align="center">ATLAS release 8.5.0 CMT
+        v1r16p20040701<br>
+        Prepared for the first data production with Atlas 8.5.0 release<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<pre>
+MUONS:
+------
+ - Updated the name of the Muon digitization algorithms to work in the 
+   nigthlies after 8.5.0. Tested in atlrel_4 (29/07/04) and atlrel_6 (31/07/04)
+
+GENERAL :
+---------
+ - Values of the magnetic field area now by default MBPS1(Bz=-1.4), MBPS2(By=2).
+ - "ctb_envelopes.mac" includes the eta values: 0.0, 0.2, 0.5, 0.7, 0.8.
+ - The test beam layout description is:"ctb_sim-1.0". See the details in:
+    CTB_G4sim-00-01-14/doc/ctb_testbeamLayout_simu.html
+ - Includes the Geant4 check navigator by default.
+</pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-01-13</strong><br>
+        29/07/04</td>
+      <td colspan="1" align="center">ATLAS release 8.5.0 CMT
+        v1r16p20040701<br>
+        Prepared for the first data production with Atlas 8.5.0 release<br>
+        (preliminary)</td>
+    </tr>
+  </tbody>
+</table>
+<pre>TRT:
+----
+ - Shifted by Z=+55 cm and Y=9 cm respect the beam axis X. 
+ - Corrected the TRT-module angle. This needs TRT_TestBeamDetDescr-00-00-14
+
+TILE :
+------
+ - First import of the Tile ancillary material. Only the Phantom and 
+   MuonWall are included. For the Scryo1 and Scryo2 the Y dimension 
+   is too big and can not be hosted by the actual CTBLIARTILE envelope. 
+   Positions must be checked.   
+ 
+GENERAL :
+---------
+ - Better description of the Muon DUMP. 
+ - Values of the magnetic field area now by default MBPS1(Bz=-1.4), MBPS2(By=2).
+ - "ctb_envelopes.mac" includes the eta values: 0.0, 0.2, 0.5, 0.7, 0.8. 
+ - The test beam layout description is:"ctb_sim-1.0". See the details in:
+    CTB_G4sim-00-01-13/doc/ctb_testbeamLayout_simu.html
+ - Includes the Geant4 check navigator by default.
+ </pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-01-12</strong><br>
+        16/07/04</td>
+      <td colspan="1" align="center">ATLAS release 8.4.0 CMT
+        v1r14p20031120<br>
+        Prepared for the first data production</td>
+    </tr>
+  </tbody>
+</table>
+<pre>TILE :
+------
+ - To avoid the big digitization files created by the noise in all 
+  the Tile channels we have to use TileTBRec/TileTBG4ToRC_jobOptions.py 
+  instead TileRec/TileG4ToRC_jobOptions.py in the digitization jobOption 
+  file   
+
+GENERAL :
+---------
+ - Not more differences compared with CTB_G4Sim-00-01-11
+
+Going on:
+---------
+ - More on ancillary detectors
+ - Magnetic field map
+</pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-01-11</strong><br>
+        09/07/04</td>
+      <td colspan="1" align="center">ATLAS release 8.4.0 CMT
+        v1r14p20031120<br>
+        Prepared for the first data production</td>
+    </tr>
+  </tbody>
+</table>
+<pre>MUONS:
+------
+ - Digits containers for muons digits were set 
+ - MDT_Digitizer_new.OffsetTDC = 0. 
+ - MDT_Digitizer_new.BunchCountOffset = -200
+
+GENERAL:
+--------
+ - Uses Geant4 release: geant4-06-02-ref-00 (25-June-2004) included in 
+   Atlas 8.4.0. 
+ - The position of some of the upstream ancillary detectors was updated 
+ - T0 = -27500.0 ---&gt; X=0 =&gt; t=0 
+
+Going on:
+---------
+ - More on ancillary detectors 
+ - Magnetic field map  
+</pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-01-10</strong><br>
+        28/06/04</td>
+      <td colspan="1" align="center">ATLAS release 8.3.0 CMT
+        v1r14p20031120<br>
+        Prepared for the first data production</td>
+    </tr>
+  </tbody>
+</table>
+<pre>GENERAL:
+--------
+ - For the 8.4.0 Atlas release includes a small modification in the requirements 
+   file for the MuonTestBeam package </pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-01-09</strong><br>
+        25/06/04</td>
+      <td colspan="1" align="center">ATLAS release 8.3.0 CMT
+        v1r14p20031120<br>
+        Prepared for the first data production</td>
+    </tr>
+  </tbody>
+</table>
+<pre>
+INNER:
+ - Problems to get hits+digits using the ParticleGenerator options we have 
+   for the complete CTB simulation. 
+
+LAR:
+----
+ - Current collection simulation in LAr switched on
+ - LAr needs LArG4Barrel-00-00-34 on top of Atlas 8.3.0. This tag will 
+   be included in 8.4.0 
+
+MUONS:
+------
+ - Added options for the MDT digitization in the "jobOptions.CTB_G4Dig.py" 
+ file 
+
+
+GENERAL:
+--------
+ - Uses Atlas release 8.3.0 out of the box and it should produce hits 
+   for all the detectors and digits INNER, LAr, TILE, MDT and RPC.
+ - Does not include "txt" jobOptions files.
+ - Migrated to Python the randon seeds part of the ParticleGenerator in
+   the "jobOptions.CTB_G4Sim.py" file.
+ - Migrated to Python the Hijing generator in the "jobOptions.CTB_G4Sim.py" 
+   file. 
+ - Updated the macros for visualization.  
+ - Updated the HowTo information. </pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-01-08</strong><br>
+        18/06/04</td>
+      <td colspan="1" align="center">ATLAS release 8.3.0 CMT
+      v1r14p20031120</td>
+    </tr>
+  </tbody>
+</table>
+<pre>INNER DETECTOR:
+---------------
+ - Uses the IdTestBeam2004.xml dictionary  
+
+MUONS:
+------
+ - Digitization of the MDT and RPC chambers  
+
+GENERAL:
+--------
+ - Uses Atlas release 8.3.0 out of the box. 
+ - Does not include "txt" jobOptions files  </pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-01-07</strong><br>
+        07/06/04</td>
+      <td colspan="1" align="center">Intended for the Atlas 8.3.0 release <br>
+        ATLAS release 8.2.0 CMT v1r14p20031120</td>
+    </tr>
+  </tbody>
+</table>
+<pre>TILE:
+-----
+ - The central barrel modules are rotated by 180 deg about X axis,
+so +/- eta position is correct now. (This uses TileG4TestBeam-00-00-14).
+
+MUONS:
+------
+ - Muon system is described with the amdb_simrec.H8_2004_CTB.a.02nobee database 
+ - Hits present  for all technologies
+ - Solved problems with the recursive-test for MDT technology. 
+ - Solved the errors in the MDTIdHelper
+ (This uses: MuonG4Geometry-00-00-61, MuonG4testBeam-00-00-25, 
+  MuonG4SD-00-00-47 and the amdb_simrec.H8_2004_CTB.a.02nobee database)
+
+GENERAL:
+--------
+ - MBPS1 magnet was build in another way to avoid the rotation that prevents 
+  the hit production in Pixel and SCT detectors (This uses G4DetectorEnvelopes-00-00-22).
+</pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-01-06</strong><br>
+        07/06/04</td>
+      <td colspan="1" align="center">Preliminary <br>
+        ATLAS release 8.2.0 // 8.0.4, CMT v1r14p20031120</td>
+    </tr>
+  </tbody>
+</table>
+<pre>GENERAL:
+--------
+ - Includes a initial Python version of the jobOptions files needed to run 
+   the simulation and digitization. 
+
+ - This CTB_G4Sim tag can be run in 8.2.0 or 8.0.4 Atlas releases. In the  
+   8.0.4 Atlas release CTB_G4Sim can be used with the "*.txt" or with the 
+   "*.py" jobOption files. To run CTB_G4Sim in the 8.0.4 Atlas release 
+    with Python you should copy the contains of 
+   AthenaPoolCnvSvc/WriteAthenaPool_jobOptions.py at the header
+   of the  HitAthenaPoolWriteOptions.py python script (It seems that python 
+   migration was not complete in 8.0.x release). 
+ 
+ - TRT and LAr-TILE were shifted to follow the CTB layout described  in 
+    https://edms.cern.ch/file/406980/2/TB2004_layout_v02.pdf
+   There are differences between simulation and real world in case of the Muon
+   system desribed by  "amdb_simrec.H8_2004_CTB.a.01" database. These
+   differences have to be solved in the Muon side. 
+ 
+ - Improvements in the ancillary detector description but those in the 
+   LAr-Tile table are not included. 
+
+ - Includes a shell script that will simplify the user's life in case of 
+   interactive G4 run with Python. 
+
+ - Next tag will include a new description of the CTB magnets (in which 
+   we do not need to rotate them and this makes life easier for the Pixel 
+   and SCT detectors). This new description of the magnets needs tags that 
+   will not be available in the 8.0.X branch. 
+
+ - After this tag CTB_G4Sim will be back to the main Atlas 8.X.0.
+
+ - No other changes respect to the CTB_G4Sim-00-01-05 tag.</pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-01-05</strong><br>
+        01/06/04</td>
+      <td colspan="1" align="center">Preliminary <br>
+        ATLAS release 8.0.4, CMT v1r14p20031120</td>
+    </tr>
+  </tbody>
+</table>
+<pre>                     PIXEL SCT  TRT   LAR  TILE     MDT  CSC RPC  TGC
+ Geometry              X    X    X     X    X        X    X   X    X
+ Sensitive detectors   X    X    X     X    X        X    X   X    X
+ Tested geometry &amp; OK
+ recursive_test        X    X    X     e    X        e    e   e    e
+ Hits w/r in POOL      X    X    X     X    X        X    X   X    X
+ Digitization          c    c    c     c    c        c
+ Digits in POOL        c    c    c     c    c
+
+ e= errors that should be corrected or documented
+ c= to be checked
+
+GENERAL:
+--------
+ - Following the AtlasG4Sim strategy the run directory was cleaned. This 
+  implies also less time to setup the CTB_G4Sim simulation. The way to call
+  the macro files is now: 
+          "/macro/execute file.mac" 
+  instead 
+          "/control/execute file.mac" 
+  - No other changes respect to the CTB_G4Sim-00-01-04 tag. </pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-01-04</strong><br>
+        27/05/04</td>
+      <td colspan="1" align="center">Preliminary <br>
+        ATLAS release 8.0.3, CMT v1r14p20031120</td>
+    </tr>
+  </tbody>
+</table>
+<pre>                     PIXEL SCT  TRT   LAR  TILE     MDT  CSC RPC  TGC
+ Geometry              X    X    X     X    X        X    X   X    X
+ Sensitive detectors   X    X    X     X    X        X    X   X    X
+ Tested geometry &amp; OK
+ recursive_test        X    X    X     e    X        e    e   e    e
+ Hits w/r in POOL      X    X    X     X    X        X    X   X    X 
+ Digitization          c    c    c     c    c        c 
+ Digits in POOL        c    c    c     c    c         
+
+ e= errors that should be corrected or documented
+ c= to be checked 
+
+TRT:
+----
+Added the line in the jobOptions.CTB_G4Sim.txt file 
+GeoModelSvc.TRT_TBDetectorTool.OverallTranslationAlongX= 512.0;
+
+SCT:
+----
+  SCT_TestBeam2004.xml dictionary included 
+
+Going on:
+---------
+ - Digitization checks 
+ - Beam characteristics
+ - Upstream material 
+</pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-01-03</strong><br>
+        18/05/04</td>
+      <td colspan="1" align="center">Preliminary <br>
+        ATLAS release 8.0.2, CMT v1r14p20031120</td>
+    </tr>
+  </tbody>
+</table>
+<pre>                     PIXEL SCT  TRT   LAR  TILE     MDT  CSC RPC  TGC
+ Geometry              X    X    X     X    X        X    X   X    X
+ Sensitive detectors   X    X    X     X    X        X    X   X    X
+ Tested geometry &amp; OK
+ recursive_test        X    X    X     e    X        e    e   e    e
+ Hits w/r in POOL      X    X    X     X    X        X    X   X    X 
+ Digitization          c    c    c     c    c        c 
+ Digits in POOL        c    c    c     c    c         
+
+ e= errors that should be corrected or documented
+ c= to be checked 
+
+GENERAL:
+--------
+ - Ancillary detectors material, first preliminary version included 
+ - General jobOptions file for digitization done and includes all 
+   detectors except Muon detectors.
+    
+TRT:
+----
+  TRT process included. 
+LAr:
+----
+  Using a H8 dictionary for the ID (IdDictLArCalorimeter_H8_2004.xml)
+TILE:  
+-----
+     For digitization is needed the TileG4TestBeam-00-00-11 tag, not 
+  available in 8.0.2.  
+MUONS:
+------
+  They need the CVS head of MuonTestBeamCnv, MuonG4SD, MuonDigiExample, 
+  MDT_Digitization, MuonG4Geometry, IdDictParser to work over the 
+  Atlas 8.0.1 So some tags must be included in 8.0.2
+
+Going on:
+---------
+ - Digitization checks 
+ - Beam characteristics
+ - Upstream material 
+</pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-01-02</strong><br>
+        24/04/04</td>
+      <td colspan="1" align="center">Preliminary <br>
+        ATLAS release 8.0.1, CMT v1r14p20031120</td>
+    </tr>
+  </tbody>
+</table>
+<pre>                     PIXEL SCT  TRT   LAR  TILE     MDT  CSC RPC  TGC
+ Geometry              X    X    X     X    X        X    X   X    X
+ Sensitive detectors   X    X    X     X    X        X    X   X    X
+ Tested geometry &amp; OK
+ recursive_test        X    X    X     e    X        e    e   e    e
+ Hits w/r in POOL      X    X    X     X    X        X    X   X    X 
+ e= errors that should be corrected or documented
+
+SCT:
+----
+  Cut of 10 microns for delta electrons.
+
+LAR:
+----
+  Physics cuts installed in ctb_LArCalCuts.mac
+TRT:
+---
+  New location of the software in CVS:
+    InnerDetector/InDetTestBeam/InDetTestBeamDetDescr/TRT_TestBeamDetDescr/
+  Some barrel support structure included.
+
+MUONS:
+------
+  They need the CVS head of MuonTestBeamCnv, MuonG4SD, MuonDigiExample, 
+  MDT_Digitization, MuonG4Geometry, IdDictParser to work over the 
+  Atlas 8.0.1 So some tags must be included in 8.0.2
+
+MAGNETS 
+-------
+  Iron of the magnets included
+
+Going on:
+---------
+ - Digitization checks, preparing the jobOptions files. 
+ - Beam characteristics
+ - ancillary detectors/upstream material
+</pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-01-01</strong><br>
+        03/04/04</td>
+      <td colspan="1" align="center">Preliminary <br>
+        ATLAS release 8.0.0, CMT v1r14p20031120</td>
+    </tr>
+  </tbody>
+</table>
+<pre>                     PIXEL SCT        TRT   LAR  TILE            MDT  CSC RPC  TGC         
+ Geometry                X    X         X     X    X             X    X   X    X        
+ Sensitive detectors   X    X         X     X    X             X    X   X    X         
+ Tested geometry &amp; OK 
+ recursive_test               X    X         X     e    X             e    e   e    e        
+ Hits w/r in POOL      X    X    X     X    X        X    X   X    Xe 
+ e= errors that should be corrected or documented  
+
+ General: The magnet gap for the MBPS1 magnet was extended to host the  
+ ------- SCT box. The constant magnetic field is restricted to the 1 m 
+         gap region.  
+
+ PIXEL and SCT: they are in the final position, the geometry was updated in 
+ -------------- both cases and checked. Hits w/r  in pool are correct. 
+ 
+ LAR: error in the geometry recursive test has no effect and is in the  
+ ---- process to be corrected. Hits w/r in pool OK.  
+ 
+ TILE: changes in the SD and file name structure.   
+ -----
+
+ MUONS: working in the correction  of the geometry recursive_test errors.  
+ ------ working in the hit production and digitization. 
+
+Going on: 
+---------
+ - Digitization checks  
+ - Beam characteristics 
+ - ancillary detectors/upstream material  </pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-01-00</strong><br>
+        18/03/04</td>
+      <td colspan="1" align="center">Preliminary <br>
+        ATLAS release 7.7.0, CMT v1r14p20031120</td>
+    </tr>
+  </tbody>
+</table>
+<pre>- Changed the internal CVS distribution for the package CTB_G4Sim following 
+  the changes done in AtlasG4Sim (AtlasG4Sim-00-01-00).
+  +  The macros are now sitting in a G4macros directory and are correctly 
+    brought to run/ at run time. This makes the installation much more 
+    clean than in the past
+  +  The job must be run by prepending the package name to the job option 
+    file name athena AtlasG4Sim/jobOptions.AtlasG4Sim.txt
+  
+- No new added functionality respect to the CTB_G4Sim-00-00-07 tag. 
+</pre>
+<!-- #####################################################   -->
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-00-07</strong><br>
+        17/03/04</td>
+      <td colspan="1" align="center">Preliminary <br>
+        ATLAS release 7.7.0, CMT v1r14p20031120</td>
+    </tr>
+  </tbody>
+</table>
+<pre>                     PIXEL SCT        TRT   LAR  TILE            MDT  CSC RPC  TGC         
+ Geometry                X    X         X     X    X             X    X   X    X        
+ Sensitive detectors   X    X         X     X    X             X    X   X    X         
+ Tested geometry &amp; OK 
+ recursive_test               X    X         X     e    X             e    e   e    e        
+
+ e= errors that should be corrected or documented  
+
+ PIXEL:
+ ------
+ - A new envelope was defined for the PIXEL detector, and the position is 
+   almost the final one. 
+ - Geometry was checked and there is no errors 
+ - Hits write/read in POOL OK 
+
+ SCT:
+ ----
+ - Geometry errors ("recursive_test") were corrected 
+ - A new envelope was defined and its position is almost the final one
+
+ MUONS:
+ ------
+ - Muon sensitive detector 
+ - Hits write/read in POOL OK  
+
+ MORE:
+ -----
+ - Constant magnetic field for the three magnets. It needs the files   
+   ctb_MagneticField.mac
+   /data/ctb_magfield.dtd and /data/ctb_magfield.xml 
+
+Known problems: 
+---------------
+ - The "/geometry/check/recursive_test" reports some errors for the 
+    LAr and MUONS sub-detectors 
+ - A new geometry is expected for SCT (windows+rotation 180+no inclination 
+   for the SCT modules)
+ - A new SD is expected for the Tile sub-detector 
+ 
+Going on: 
+---------
+ - Hits + digitization (write/read in pool)
+ - Beam characteristics 
+ - ancillary detectors 
+</pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-00-06</strong><br>
+        01/03/04</td>
+      <td colspan="1" align="center">Preliminary<br>
+        ATLAS release 7.6.0, CMT v1r14p20031120</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+<pre>                              PIXEL        SCT        TRT        LAR        TILE        MUONS        
+ Detectors included                X         X         X         X         X          X         
+ Sensitive detectors included        X        X         X          X         X          -        
+ Tested geometry &amp; OK 
+ recursive_test                        e         e         X         e          X          e        
+
+ e= errors that should be corrected 
+
+New: 
+----
+ DOCUMENTATION:
+ --------------
+  - All the documentation is now in CVS /Simulation/G4Sim/CTB_G4Sim/doc/
+ and is copied to the web:
+http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/simulation/geant4/index.html
+  - Added to the howto: how to check the geometry, and how to
+  visualize the tracks.
+ PIXEL:
+ ------
+ - The envelope described inside the PIXEL stuff is
+ now a box inside the box defined in the CTB_G4Sim
+ TRT:
+ ----
+ - Sensitive part 
+ LAr:
+ ----
+ -The "/LArTBControl/EMBenergyCor off" option is the default in the
+ ctb_LArCal.mac macro file
+ - Calorimeter converters by bill Seligman included in the requirements
+  and jobOptions file
+ MUONS:
+ ------
+ - Muon  geometry for the CTB (2004) included. It needs
+   MuonG4Geometry-00-00-44, MuonG4TestBeam-00-00-18.
+ MORE:
+ -----
+ - First import of the constant magnetic field. Needed files: 
+   ctb_MagneticField.mac
+   /data/ctb_magfield.dtd and /data/ctb_magfield.xml 
+ - In the jobOptions.CTB_G4Sim.txt  we use the "HitAthenaPoolWriteOptions.txt" 
+ macro file to write with POOL the file  "ctb_MyOutputFile.root". This is the 
+ first import, so it is under check 
+
+Dependences: 
+------------ 
+
+Known problems: 
+---------------
+ - The "/geometry/check/recursive_test" reports some errors for the 
+ PIXEL,SCT,LAr and MUONS sub-detectors 
+ -  Magnetic field is set only in the MBPS1 magnet 
+ - Inter-distances between detectors is not definitive. We have an 
+ overlapping Pixel/SCT 
+</pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-00-05</strong><br>
+        17/02/04</td>
+      <td colspan="1" align="center">Preliminary<br>
+        ATLAS release 7.6.0, CMT v1r14p20031120</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+<pre>                              PIXEL        SCT        TRT    LAR        TILE        MUONS        
+ Detectors included             X +/-        X        X        X        X        +-         
+ Sensitive detectors included        X        X        -        X        X        -        
+ Tested geometry &amp; OK 
+ recursive_test                       -        -        X        -        X        -        
+
+New: 
+----
+ /geometry/test/recursive_test check passed in some sub-detectors 
+ First import of Simulation/G4Utilities/G4EventGraphics for the track display 
+
+Dependences: 
+------------ 
+ (InDetReadoutGeometry-01-03-08), (TRT_GeoModel-00-00-26) 
+ SCT_TestBeamDetDescr-00-00-07 
+ LArG4TBBarrel-00-00-03 
+ G4EventGraphics-00-00-02 
+ (G4Field-00-00-06), (FadsField-00-00-07) 
+
+ () = by the time of this CTB_ATLAS tag the enclosed packages tags are 
+included in the NICOS nightlies. So, you do not need to check out and compile 
+them in your local machine if you chose a good nightly created after the date 
+of the CTB_ATLAS tag. The other option is to check out the base Atlas release, 
+this CTB_ATLAS tag and the dependences listed above. 
+
+Known problems: 
+---------------
+ Pixel out of the envelope
+ MuonSystem has not the final form 
+</pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-00-03</strong><br>
+        06/02/04</td>
+      <td colspan="1" align="center">Preliminary, untested geometry<br>
+        ATLAS release 7.5.0, CMT v1r14p20031120</td>
+    </tr>
+  </tbody>
+</table>
+<pre>                              PIXEL        SCT        TRT    LAR        TILE        MUONS        
+ Detectors included             X +/-        X        X        X        X        +-         
+
+ Gap for the magnets and DUMP --&gt; included  
+
+Known problems: 
+ Pixel   --&gt; needs to be shifted into the CTBPIXEL envelope 
+ SCT     --&gt; OK with the SCT 07 tag 
+ TRT     --&gt; only geometry, sensitive part not ready. The geometry 
+             needs a rotation around Z 
+ Muons   --&gt; very preliminary version included </pre>
+<!-- #####################################################   -->
+<hr color="blue">
+
+<table width="80%">
+  <tbody>
+    <tr>
+      <td><strong>CTB_G4Sim-00-00-02</strong><br>
+        30/01/04</td>
+      <td colspan="1" align="center">Initial import of the CTB_ATLAS
+        pseudo-package to CVS <br>
+        ATLAS release 7.5.0, CMT v1r14p20031120</td>
+    </tr>
+  </tbody>
+</table>
+<pre>                              PIXEL        SCT        TRT         LAR        TILE        MUONS        
+ Detectors included                -         -          -          X          X          -         
+</pre>
+<!-- #####################################################   -->
+<hr color="blue">
+<strong>CTB_G4Sim-00-00-04</strong> not used <br>
+<strong>CTB_G4Sim-00-00-01</strong> not used <br>
+<!-- #####################################################   -->
+ <!-- ------------------------------------------------------------------------>
+
+<hr color="blue">
+<!-- Created: Fri Feb 20 11:52:26 CET 2004 -->
+<!-- hhmts start -->
+Last modified: <!--$date=-->24-11-2005 - 13:00<!--$-->
+
+
+<p>$Revision: 1.1 $ $Author: gallasm $</p>
+</body>
+</body>
+</html>

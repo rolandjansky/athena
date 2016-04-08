@@ -1,0 +1,93 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# -  TileCal detector
+#===============================================================================
+# macro name = ctb_TileCal_Calib.mac
+# called by ctb_Atlas_Calib.mac 
+#    Macro file for TileCal beam test simulation G4 
+#    TestBeam2000 setup, in use also for the CTB
+#
+# Author: Gia Khoriauli <gia.khoriauli@cern.ch>
+#===============================================================================
+# -- Miscelaneous files
+#/control/ReadXML color.xml             # readed in the ctb_envelopes.mac
+#/control/ReadXML standardmaterials.xml # readed in the ctb_envelopes.mac
+/control/ReadXML Tile_materials.xml
+
+# -- Geometry --
+/load TileG4Geometry
+/load TileG4TestBeam 
+/load TileG4Calib
+
+# get necessary Facility objects
+/Geometry/GetFacility TileTB TileTB
+
+#Select type of TileTB envelope
+# "0" - CTB, "1" - Standalone Tile TB 
+/TileTB/BuildMotherBox 0
+
+# read XML files describing readout system
+# of different types fo Tile modules
+/DetDescription/ReadFile Tile_proto_readout.xml
+/DetDescription/ReadFile Tile_module0_readout.xml
+
+/DetDescription/ReadFile Tile_barrel_readout.xml
+/DetDescription/ReadFile Tile_barrelDM_readout.xml
+/DetDescription/ReadFile Tile_barrelPlateDM_readout.xml
+/DetDescription/ReadFile Tile_barrelGirderDM_readout.xml
+
+/DetDescription/ReadFile Tile_extended_readout.xml
+/DetDescription/ReadFile Tile_extendedDM_readout.xml
+/DetDescription/ReadFile Tile_extendedPlateDM_readout.xml
+/DetDescription/ReadFile Tile_extendedGirderDM_readout.xml
+
+# read XML file describing geometry of 
+# all Tile modules
+/DetDescription/ReadFile Tile_girders.xml
+/DetDescription/ReadFile Tile_scintillators.xml
+/DetDescription/ReadFile Tile_modules.xml
+/DetDescription/ReadFile Tile_modulesDM.xml
+
+
+# read XML file describing Testbeam setup
+/DetDescription/ReadFile TileCombined.xml
+#/DetDescription/ReadFile TileCombined_barr.xml
+
+# FADS specific actions
+/TileTB/GetDescription TileTB
+
+/TileTB/MoveTo 0. 0. +178.025 cm
+/CALO/AddDetector TileTB
+
+
+/SenDetector/UseSensitiveDetector TileTBSDDM TileTBSDDM
+/Geometry/AssignSD TileTB TileScintillator   TileTBSDDM
+/Geometry/AssignSD TileTB TilePeriod         TileTBSDDM
+/Geometry/AssignSD TileTB TileGlue           TileTBSDDM
+/Geometry/AssignSD TileTB TileWrapper        TileTBSDDM
+/Geometry/AssignSD TileTB TilePlateFront     TileTBSDDM
+/Geometry/AssignSD TileTB TilePlateEnd       TileTBSDDM
+/Geometry/AssignSD TileTB TileGirder         TileTBSDDM
+/Geometry/AssignSD TileTB GirderIron         TileTBSDDM
+/Geometry/AssignSD TileTB GirderAluminum     TileTBSDDM
+/Geometry/AssignSD TileTB GirderElectronics  TileTBSDDM
+
+/Geometry/AssignSD TileTB TileTB             TileTBSDDM
+/Geometry/AssignSD TileTB TileBarrel         TileTBSDDM
+/Geometry/AssignSD TileTB TileEBarrel        TileTBSDDM
+/Geometry/AssignSD TileTB TileExtended       TileTBSDDM
+/Geometry/AssignSD TileTB TileEPHole         TileTBSDDM
+/Geometry/AssignSD TileTB TileAbsorber       TileTBSDDM
+/Geometry/AssignSD TileTB TileAbsorberChild  TileTBSDDM
+/Geometry/AssignSD TileTB TilePlug1          TileTBSDDM
+/Geometry/AssignSD TileTB TilePlug2          TileTBSDDM
+
+/TileTBSDDM/TileTBDescription TileTB
+
+
+# this user action can be used to separate such events
+#when initial pions get to TILE before they decay 
+#
+#/TileTBSDDM/TileUserActions
+#===============================================================================

@@ -1,0 +1,32 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# -  Muon cuts
+#===============================================================================
+# macro name = ctb_MuonSystemCuts.mac
+# called by ctb_physicslist.mac
+#
+# - General description -
+#    Cuts for the Muon System detector  
+#
+# contacts: Daniela Rebuzzi  <rebuzzi@pv.infn.it> 
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/Physics/Region/CreateNew DriftWall
+/Physics/Region/DriftWall/AddVolume Muon::MDTDriftWall
+/Physics/Region/DriftWall/SetParticleCut e- 0.005 mm
+/Physics/Region/DriftWall/SetParticleCut e+ 0.005 mm
+
+# the following is needed to set the Endplug and SensitiveGas cuts 
+# back to the default value (1 mm)
+/Physics/Region/CreateNew DriftWall1
+/Physics/Region/DriftWall1/AddVolume Muon::Endplug
+/Physics/Region/DriftWall1/SetParticleCut e- 1 mm
+/Physics/Region/DriftWall1/SetParticleCut e+ 1 mm
+
+/Physics/Region/CreateNew DriftWall2
+/Physics/Region/DriftWall2/AddVolume Muon::SensitiveGas
+/Physics/Region/DriftWall2/SetParticleCut e- 1 mm
+/Physics/Region/DriftWall2/SetParticleCut e+ 1 mm
+
+#===============================================================================

@@ -1,0 +1,21 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# -  TileCal detector
+#===============================================================================
+# macro name = ctb_TileCalsensitivity.mac
+# called by ctb_TileCal.mac
+#
+# - General description -
+#  TileCal sensitivity for the CTB attached to the CALO  envelope
+#  defined in the ctb_envelopes.mac macro file
+#
+# contacts: Vakho Tsulaia <Vakhtang.Tsulaia@cern.ch>
+#           Gia Khoriauli <gia.khoriauli@cern.ch>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/load TileGeoG4SD
+/SenDetector/UseSensitiveDetector TileGeoG4SD TileCTBGeoG4SD
+/Geometry/AssignSD Tile Tile::Scintillator TileCTBGeoG4SD
+
+#===============================================================================

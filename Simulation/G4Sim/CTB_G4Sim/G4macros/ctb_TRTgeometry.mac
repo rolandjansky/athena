@@ -1,0 +1,19 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# -  TRT detector
+#===============================================================================
+# macro name = ctb_TRTgeometry.mac
+# called by ctb_TRT.mac
+#
+# - General description -
+#  TRT geometry for the CTB attached to the CTBTRT envelope defined in the
+#  ctb_envelopes.mac macro file
+#
+# contacts:Thomas Kittelman <kittel@nbi.dk>
+#          Mogens Dam
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/Geometry/GetFacility  GeoDetector TRT:TRT
+/CTBTRT/AddDetector TRT
+#===============================================================================

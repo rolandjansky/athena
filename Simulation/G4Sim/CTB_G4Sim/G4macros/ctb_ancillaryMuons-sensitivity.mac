@@ -1,0 +1,71 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# - Geometry of the ancillary material in the Muon area 
+#===============================================================================
+# macro name = ctb_ancillaryMuons-sensitivity.mac 
+# called by ctb_ancillaryMuons.mac  
+#
+# - General description -
+#  Material downstram the dumpdefined by B. Di Girolamo in the
+#  "Test Beam Layout Ancillary Detectors" Note:
+#     https://edms.cern.ch/file/467898/1/TB2004_ancillary_v02.pdf
+#  All the ancillary detectors here defined are called NAME where the
+#  NAME can be found in the previous note.
+#  The ancillary detectors are defined in the macro files:
+#     ctb_ancillary.mac            --> defined in the CTB volume
+#     ctb_ancillaryLARTILE.mac     --> defined in the LARTILE volume
+#    *ctb_ancillaryMuons.mac       --> defined in the MUON volume
+#
+# Note: Muon from GeoModel is the same as the volume MUON
+#      defined in ctb_envelopes.mac. That is a Box (4400x1200x1200) cm
+#      starting at x=1217.5 cm and this means that the center is at 
+#      x=+3417.5 cm 
+#
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+#/load G4AncillarySD (already load in ctb_ancillary.mac)
+/SenDetector/UseSensitiveDetector ScintillatorSD AncillarySD
+/control/ReadXML ctb_ancillaryMuonsSD.xml
+
+
+# -- SCDump scintillator after the dump --
+# Box (4,14,7) cm in (X,Y,Z)  
+/Geometry/AssignSD SCDUMP SCDUMP    AncillarySD
+
+# -- SMT scintillator used as Muon Tag --
+# Box (2,40,40) cm in (X,Y,Z) 
+/Geometry/AssignSD SMT SMT    AncillarySD
+
+# -- MUON10x10 scintillator made of a set of 4 counters --
+# 4  Boxes  (1,10,10), (1,10,10), (1.5,6,6), (0.5,35,10) cm in (X,Y,Z)
+# mgallas this position is wrong and must be corrected but in a first 
+# try we will substract 2500 mm to all of them
+/Geometry/AssignSD MUON10x10A MUON10x10A    AncillarySD
+/Geometry/AssignSD MUON10x10B MUON10x10B    AncillarySD
+/Geometry/AssignSD MUON10x10C MUON10x10C    AncillarySD
+/Geometry/AssignSD MUON10x10D MUON10x10D    AncillarySD
+
+# -- MuonHodo scintillator made of a set of 2 wall counters --
+# 1 Box(0.5,65,10) in (X,Y,Z)  
+# 6 Boxes(0.5,10,100) in (X,Y,Z)
+# 6 Boxes(0.5,10,100) in (X,Y,Z)
+# --- Selector MUONHODOSELECTOR --
+/Geometry/AssignSD MUONHODOSELECTOR MUONHODOSELECTOR    AncillarySD
+
+# --- Selector MUONHODOPLANE1 --
+/Geometry/AssignSD MUONHODOPLANE11 MUONHODOPLANE11    AncillarySD
+/Geometry/AssignSD MUONHODOPLANE12 MUONHODOPLANE12    AncillarySD
+/Geometry/AssignSD MUONHODOPLANE13 MUONHODOPLANE13    AncillarySD
+/Geometry/AssignSD MUONHODOPLANE14 MUONHODOPLANE14    AncillarySD
+/Geometry/AssignSD MUONHODOPLANE15 MUONHODOPLANE15    AncillarySD
+/Geometry/AssignSD MUONHODOPLANE16 MUONHODOPLANE16    AncillarySD
+
+# --- Selector MUONHODOPLANE2 --
+/Geometry/AssignSD MUONHODOPLANE21 MUONHODOPLANE21    AncillarySD
+/Geometry/AssignSD MUONHODOPLANE22 MUONHODOPLANE22    AncillarySD
+/Geometry/AssignSD MUONHODOPLANE23 MUONHODOPLANE23    AncillarySD
+/Geometry/AssignSD MUONHODOPLANE24 MUONHODOPLANE24    AncillarySD
+/Geometry/AssignSD MUONHODOPLANE25 MUONHODOPLANE25    AncillarySD
+/Geometry/AssignSD MUONHODOPLANE26 MUONHODOPLANE26    AncillarySD
+#===============================================================================

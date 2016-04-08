@@ -1,0 +1,40 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# - Ancillary material in Inner area 
+#===============================================================================
+# macro name = ctb_ancillary.mac 
+# called by ctb_Atlas.mac
+#
+# - General description -
+#  Material upstream the point (x,y,z)-(0,0,0) defined by B. Di Girolamo in the
+#  "Test Beam Layout Ancillary Detectors" Note:
+#   https://edms.cern.ch/file/467898/1/TB2004_ancillary_v02.pdf
+#  All the ancillary detectors here defined are called CTBANC+NAME where the 
+#  NAME can be found in the previous note.                   
+#  The ancillary detectors are defined in the macro files:
+#    *ctb_ancillary.mac            --> defined in the CTB volume
+#     ctb_ancillaryLARTILE.mac     --> defined in the LARTILE volume 
+#     ctb_ancillaryMuons.mac       --> defined in the MUON volume    
+# 
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/echo "CTB_G4Sim: Building the Geometry for ancillary" 
+/macro/execute ctb_ancillary-geometry.mac
+# (Some useful print options that we also have at general CTB level)
+#/Geometry/PrintVolumes
+#/Geometry/ListAllVolumes
+
+/echo "CTB_G4Sim: Building the Sensitivity for ancillary"
+/macro/execute ctb_ancillary-sensitivity.mac 
+# (Some useful print options that we also have at general CTB level)
+#/SenDetector/PrintEntries
+#/SenDetector/PrintDetectors
+ 
+#===============================================================================
+#====================  Ancillary in the LAR-Tile table  ========================
+# (see ctb_ancillaryLARTILE.mac)
+#===============================================================================
+#====================  Ancillary in the Muon region  ===========================
+# (see ctb_ancillaryMuons.mac) 
+#===============================================================================

@@ -1,0 +1,31 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# -  SCT cuts
+#===============================================================================
+# macro name = ctb_LArCalCuts.mac
+# called by ctb_physicslist.mac
+#
+# - General description -
+#    Cuts for the SCT  
+#
+# contacts: Thijs Cornelissen <tgcornel@nikhef.nl> 
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+# Set the max step size to 50 micron for consistency with G3
+#/Geometry/Volumes/SetMaxStep SCT::BRLSensor  50 mum
+/Geometry/Volumes/SetMaxStep SCT::ECSensor0  50 mum
+#/Geometry/Volumes/SetMaxStep SCT::ECSensor1  50 mum
+#/Geometry/Volumes/SetMaxStep SCT::ECSensor2  50 mum
+#/Geometry/Volumes/SetMaxStep SCT::ECSensor3  50 mum
+
+# Set range cut on detla rays
+/Physics/Region/CreateNew SCTSiliconRegion
+#/Physics/Region/SCTSiliconRegion/SetParticleCut e- 10 mum
+/Physics/Region/SCTSiliconRegion/SetParticleCut e- 0.010 mm
+#/Physics/Region/SCTSiliconRegion/AddVolume SCT::BRLSensor
+/Physics/Region/SCTSiliconRegion/AddVolume SCT::ECSensor0
+#/Physics/Region/SCTSiliconRegion/AddVolume SCT::ECSensor1
+#/Physics/Region/SCTSiliconRegion/AddVolume SCT::ECSensor2
+#/Physics/Region/SCTSiliconRegion/AddVolume SCT::ECSensor3
+#===============================================================================

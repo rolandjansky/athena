@@ -1,0 +1,172 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# - Geometry of the ancillary material in the Muon area 
+#===============================================================================
+# macro name = ctb_ancillaryMuons-geometry.mac 
+# called by ctb_ancillaryMuons.mac
+#
+# - General description -
+#  Material downstram the dumpdefined by B. Di Girolamo in the
+#  "Test Beam Layout Ancillary Detectors" Note:
+#     https://edms.cern.ch/file/467898/1/TB2004_ancillary_v02.pdf
+#  All the ancillary detectors here defined are called NAME where the
+#  NAME can be found in the previous note.
+#  The ancillary detectors are defined in the macro files:
+#     ctb_ancillary.mac            --> defined in the CTB volume
+#     ctb_ancillaryLARTILE.mac     --> defined in the LARTILE volume
+#    *ctb_ancillaryMuons.mac       --> defined in the MUON volume
+#
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+
+# -- SCDump scintillator after the dump --
+# Box (4,14,7) cm in (X,Y,Z)  
+/Geometry/GetFacility ResizeableBox SCDUMP
+/SCDUMP/SetDx 0.2 cm
+/SCDUMP/SetDy 7.0 cm
+/SCDUMP/SetDz 3.5 cm
+/SCDUMP/SetMaterial CTBScintillator
+/Muon/AddDetector SCDUMP
+/SCDUMP/MoveTo  1919.9 0. 0. cm
+
+# -- SMT scintillator used as Muon Tag --
+# Box (2,40,40) cm in (X,Y,Z)  
+/Geometry/GetFacility ResizeableBox SMT
+/SMT/SetDx 1.0 cm
+/SMT/SetDy 20.0 cm
+/SMT/SetDz 20.0 cm
+/SMT/SetMaterial CTBScintillator
+/Muon/AddDetector SMT
+/SMT/MoveTo  2066.9  0. 0. cm
+
+# -- MUON10x10 scintillator made of a set of 4 counters --
+# 4  Boxes  (1,10,10), (1,10,10), (1.5,6,6), (0.5,35,10) cm in (X,Y,Z)
+/Geometry/GetFacility ResizeableBox MUON10x10A
+/MUON10x10A/SetDx 0.5 cm
+/MUON10x10A/SetDy 5.0 cm
+/MUON10x10A/SetDz 5.0 cm
+/MUON10x10A/SetMaterial CTBScintillator
+/Muon/AddDetector MUON10x10A
+/MUON10x10A/MoveTo  2651.1 0. 0. cm
+/Geometry/GetFacility ResizeableBox MUON10x10B
+/MUON10x10B/SetDx 0.5 cm
+/MUON10x10B/SetDy 5.0 cm
+/MUON10x10B/SetDz 5.0 cm
+/MUON10x10B/SetMaterial CTBScintillator
+/Muon/AddDetector MUON10x10B
+/MUON10x10B/MoveTo  2679.6 0. 0. cm
+/Geometry/GetFacility ResizeableBox MUON10x10C
+/MUON10x10C/SetDx 0.75 cm
+/MUON10x10C/SetDy 3.0 cm
+/MUON10x10C/SetDz 3.0 cm
+/MUON10x10C/SetMaterial CTBScintillator
+/Muon/AddDetector MUON10x10C
+/MUON10x10C/MoveTo  2692.6 0. 0. cm
+/Geometry/GetFacility ResizeableBox MUON10x10D
+/MUON10x10D/SetDx 0.25 cm
+/MUON10x10D/SetDy 17.5 cm
+/MUON10x10D/SetDz 5.0 cm
+/MUON10x10D/SetMaterial CTBScintillator
+/Muon/AddDetector MUON10x10D
+/MUON10x10D/MoveTo  2704.6 0. 0. cm
+
+# -- MuonHodo scintillator made of a set of 2 wall counters --
+# 1 Box(0.5,65,10) in (X,Y,Z), "Selector" at x=3053.9  (add 475 mm due to shiftX04)
+# 6 Boxes(0.5,10,100) in (X,Y,Z), "Plane1"  x=3054.4, y in(-30,30), z in(-50,50)
+# 6 Boxes(0.5,10,100) in (X,Y,Z), "Plane2"  x=3112.4, y in(-25,35), z in(-50,50)
+# --- Selector MUONHODOSELECTOR --
+/Geometry/GetFacility ResizeableBox MUONHODOSELECTOR
+/MUONHODOSELECTOR/SetDx 0.25 cm
+/MUONHODOSELECTOR/SetDy 32.5 cm
+/MUONHODOSELECTOR/SetDz 5.0 cm
+/MUONHODOSELECTOR/SetMaterial CTBScintillator
+/Muon/AddDetector MUONHODOSELECTOR
+/MUONHODOSELECTOR/MoveTo 3101.4 0. 0. cm
+# --- Selector MUONHODOPLANE1 --
+/Geometry/GetFacility ResizeableBox MUONHODOPLANE11
+/MUONHODOPLANE11/SetDx 0.25 cm
+/MUONHODOPLANE11/SetDy 5.0 cm
+/MUONHODOPLANE11/SetDz 50.0 cm
+/MUONHODOPLANE11/SetMaterial CTBScintillator
+/Muon/AddDetector MUONHODOPLANE11
+/MUONHODOPLANE11/MoveTo  3101.9 -25. 0. cm
+/Geometry/GetFacility ResizeableBox MUONHODOPLANE12
+/MUONHODOPLANE12/SetDx 0.25 cm
+/MUONHODOPLANE12/SetDy 5.0 cm
+/MUONHODOPLANE12/SetDz 50.0 cm
+/MUONHODOPLANE12/SetMaterial CTBScintillator
+/Muon/AddDetector MUONHODOPLANE12
+/MUONHODOPLANE12/MoveTo  3101.9 -15. 0. cm
+/Geometry/GetFacility ResizeableBox MUONHODOPLANE13
+/MUONHODOPLANE13/SetDx 0.25 cm
+/MUONHODOPLANE13/SetDy 5.0 cm
+/MUONHODOPLANE13/SetDz 50.0 cm
+/MUONHODOPLANE13/SetMaterial CTBScintillator
+/Muon/AddDetector MUONHODOPLANE13
+/MUONHODOPLANE13/MoveTo  3101.9 -5. 0. cm
+/Geometry/GetFacility ResizeableBox MUONHODOPLANE14
+/MUONHODOPLANE14/SetDx 0.25 cm
+/MUONHODOPLANE14/SetDy 5.0 cm
+/MUONHODOPLANE14/SetDz 50.0 cm
+/MUONHODOPLANE14/SetMaterial CTBScintillator
+/Muon/AddDetector MUONHODOPLANE14
+/MUONHODOPLANE14/MoveTo  3101.9 5. 0. cm
+/Geometry/GetFacility ResizeableBox MUONHODOPLANE15
+/MUONHODOPLANE15/SetDx 0.25 cm
+/MUONHODOPLANE15/SetDy 5.0 cm
+/MUONHODOPLANE15/SetDz 50.0 cm
+/MUONHODOPLANE15/SetMaterial CTBScintillator
+/Muon/AddDetector MUONHODOPLANE15
+/MUONHODOPLANE15/MoveTo  3101.9  15. 0. cm
+/Geometry/GetFacility ResizeableBox MUONHODOPLANE16
+/MUONHODOPLANE16/SetDx 0.25 cm
+/MUONHODOPLANE16/SetDy 5.0 cm
+/MUONHODOPLANE16/SetDz 50.0 cm
+/MUONHODOPLANE16/SetMaterial CTBScintillator
+/Muon/AddDetector MUONHODOPLANE16
+/MUONHODOPLANE16/MoveTo  3101.9  25. 0. cm
+# --- Selector MUONHODOPLANE2 --
+/Geometry/GetFacility ResizeableBox MUONHODOPLANE21
+/MUONHODOPLANE21/SetDx 0.25 cm
+/MUONHODOPLANE21/SetDy 5.0 cm
+/MUONHODOPLANE21/SetDz 50.0 cm
+/MUONHODOPLANE21/SetMaterial CTBScintillator
+/Muon/AddDetector MUONHODOPLANE21
+/MUONHODOPLANE21/MoveTo  3159.9 -25. 0. cm
+/Geometry/GetFacility ResizeableBox MUONHODOPLANE22
+/MUONHODOPLANE22/SetDx 0.25 cm
+/MUONHODOPLANE22/SetDy 5.0 cm
+/MUONHODOPLANE22/SetDz 50.0 cm
+/MUONHODOPLANE22/SetMaterial CTBScintillator
+/Muon/AddDetector MUONHODOPLANE22
+/MUONHODOPLANE22/MoveTo  3159.9 -15. 0. cm
+/Geometry/GetFacility ResizeableBox MUONHODOPLANE23
+/MUONHODOPLANE23/SetDx 0.25 cm
+/MUONHODOPLANE23/SetDy 5.0 cm
+/MUONHODOPLANE23/SetDz 50.0 cm
+/MUONHODOPLANE23/SetMaterial CTBScintillator
+/Muon/AddDetector MUONHODOPLANE23
+/MUONHODOPLANE23/MoveTo  3159.9 -5. 0. cm
+/Geometry/GetFacility ResizeableBox MUONHODOPLANE24
+/MUONHODOPLANE24/SetDx 0.25 cm
+/MUONHODOPLANE24/SetDy 5.0 cm
+/MUONHODOPLANE24/SetDz 50.0 cm
+/MUONHODOPLANE24/SetMaterial CTBScintillator
+/Muon/AddDetector MUONHODOPLANE24
+/MUONHODOPLANE24/MoveTo  3159.9 5. 0. cm
+/Geometry/GetFacility ResizeableBox MUONHODOPLANE25
+/MUONHODOPLANE25/SetDx 0.25 cm
+/MUONHODOPLANE25/SetDy 5.0 cm
+/MUONHODOPLANE25/SetDz 50.0 cm
+/MUONHODOPLANE25/SetMaterial CTBScintillator
+/Muon/AddDetector MUONHODOPLANE25
+/MUONHODOPLANE25/MoveTo  3159.9  15. 0. cm
+/Geometry/GetFacility ResizeableBox MUONHODOPLANE26
+/MUONHODOPLANE26/SetDx 0.25 cm
+/MUONHODOPLANE26/SetDy 5.0 cm
+/MUONHODOPLANE26/SetDz 50.0 cm
+/MUONHODOPLANE26/SetMaterial CTBScintillator
+/Muon/AddDetector MUONHODOPLANE26
+/MUONHODOPLANE26/MoveTo  3159.9  25. 0. cm
+#===============================================================================

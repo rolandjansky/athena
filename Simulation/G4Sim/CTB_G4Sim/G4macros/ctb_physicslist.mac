@@ -1,0 +1,34 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# -  Physics list
+#===============================================================================
+# macro name = ctb_physicslist.mac
+# called by jobOptions.CTB_G4Sim.txt 
+#
+# - General description -
+#   Physics settings. the Physics list is created here 
+#   (recommended for batch run). Also the detector cuts are plugged here.
+#    
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/echo "CTB_G4Sim: Created the Physics list"
+/load G4PhysicsLists
+/Physics/GetPhysicsList QGSP_GN
+/Physics/SetGeneralCut 1 mm
+/Physics/ConstructPhysicsList
+
+#====================  Detector cuts  ==========================================
+# Detector specific settings - this normally deals with cuts by region
+/echo "CTB_G4Sim: SCT cuts applied"
+/macro/execute ctb_SCTCuts.mac
+/echo "CTB_G4Sim: LAr cuts applied"
+/macro/execute ctb_LArCalCuts.mac
+/echo "CTB_G4Sim: Muon cuts applied"
+#  - The next set of cuts are  needed to reproduce the correct
+# amount of secondaries in the DriftWall
+/macro/execute ctb_MuonSystemCuts.mac
+
+/echo "CTB_G4Sim: Physics regions list "
+/Physics/Region/List
+#===============================================================================

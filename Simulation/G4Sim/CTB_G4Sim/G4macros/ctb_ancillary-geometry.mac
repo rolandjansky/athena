@@ -1,0 +1,121 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# - Geometry of the ancillary material in Inner  region
+#===============================================================================
+# macro name = ctb_ancillary-geometry.mac 
+# called by ctb_ancillary.mac 
+#
+# - General description -
+#  Material upstream the point (x,y,z)-(0,0,0) defined by B. Di Girolamo in the
+#  "Test Beam Layout Ancillary Detectors" Note:
+#   https://edms.cern.ch/file/467898/1/TB2004_ancillary_v02.pdf
+#  The ancillary detectors are defined in the macro files:
+#    *ctb_ancillary.mac            --> defined in the CTB volume
+#     ctb_ancillaryLARTILE.mac     --> defined in the LARTILE volume 
+#     ctb_ancillaryMuons.mac       --> defined in the MUON volume    
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+
+#==================== Upstream (0,0,0) =========================================
+# -- Vacuum beam pipe 1 -- 
+/Geometry/GetFacility ResizeableTubs BEAMPIPE1
+/BEAMPIPE1/SetRmin  0.0 cm 
+/BEAMPIPE1/SetRmax 10.0 cm 
+/BEAMPIPE1/SetDz   150.0 cm 
+/BEAMPIPE1/RotateY -90. deg 
+/BEAMPIPE1/SetMaterial Vacuum
+/CTB/AddDetector BEAMPIPE1
+/BEAMPIPE1/MoveTo -1548.6 0. 0. cm 
+
+# -- SMV Muon veto counter --
+#  To be used only during very low energy periods to remove unwanted high 
+# energy muon halo. 
+# Box (2,81,34) cm in (X,Y,Z)
+/Geometry/GetFacility ResizeableBox SMV 
+#     -> x,y,z  half length for envelope !!
+/SMV/SetDx 1.0 cm
+/SMV/SetDy 40.5 cm
+/SMV/SetDz 17.0 cm
+/SMV/SetMaterial CTBScintillator
+/CTB/AddDetector SMV
+/SMV/MoveTo  -2067.7  0. 0. cm
+
+# -- Vacuum beam pipe 2 -- 
+/Geometry/GetFacility ResizeableTubs BEAMPIPE2
+/BEAMPIPE2/SetRmin  0.0 cm 
+/BEAMPIPE2/SetRmax 10.0 cm 
+/BEAMPIPE2/SetDz   150.0 cm 
+/BEAMPIPE2/RotateY -90. deg 
+/BEAMPIPE2/SetMaterial Vacuum
+/CTB/AddDetector BEAMPIPE2
+/BEAMPIPE2/MoveTo -1075.5 0. 0. cm  
+
+# -- Mylar equivalent (14 windows with 120 micras) -- 
+/Geometry/GetFacility ResizeableTubs MYLAREQUIV
+/MYLAREQUIV/SetRmin  0.0 cm 
+/MYLAREQUIV/SetRmax 10.0 cm 
+/MYLAREQUIV/SetDz   0.00168 mm 
+/MYLAREQUIV/RotateY -90. deg 
+/MYLAREQUIV/SetMaterial CTBMylar
+/CTB/AddDetector MYLAREQUIV
+/MYLAREQUIV/MoveTo -1526.0 0. 0. cm  
+
+# -- S1 scintillator --
+# Box (0.6,10,10) cm in (X,Y,Z) 
+/Geometry/GetFacility ResizeableBox S1
+/S1/SetDx 0.3 cm
+/S1/SetDy 5.0 cm
+/S1/SetDz 5.0 cm
+/S1/SetMaterial CTBScintillator  
+/CTB/AddDetector S1
+/S1/MoveTo  -884.3 0. 0. cm
+
+# -- S2 scintillator --
+# Box (0.5,5,5) cm in (X,Y,Z) 
+/Geometry/GetFacility ResizeableBox S2
+/S2/SetDx 0.25 cm
+/S2/SetDy 2.5 cm
+/S2/SetDz 2.5 cm
+/S2/SetMaterial CTBScintillator
+/CTB/AddDetector S2
+/S2/MoveTo  -755.8 0. 0. cm
+
+# -- S3 scintillator --
+# Box (0.5,5,5) cm in (X,Y,Z) 
+/Geometry/GetFacility ResizeableBox S3
+/S3/SetDx 0.25 cm
+/S3/SetDy 2.5 cm
+/S3/SetDz 2.5 cm
+/S3/SetMaterial CTBScintillator
+/CTB/AddDetector S3
+/S3/MoveTo  -752.3 0. 0. cm
+
+# -- SH scintillator --
+# Box (0.5,10,10) cm in (X,Y,Z) 
+/Geometry/GetFacility ResizeableBox SH
+/SH/SetDx 0.25 cm
+/SH/SetDy 5.0 cm
+/SH/SetDz 5.0 cm
+/SH/SetMaterial CTBScintillator
+/CTB/AddDetector SH
+/SH/MoveTo  -755.0 0. 0. cm
+
+# -- Snew scintillator --
+# Box (1,3,3) cm in (X,Y,Z) 
+/Geometry/GetFacility ResizeableBox SNEW
+/SNEW/SetDx 0.5 cm
+/SNEW/SetDy 1.5 cm
+/SNEW/SetDz 1.5 cm
+/SNEW/SetMaterial CTBScintillator
+/IDET/AddDetector SNEW
+/SNEW/MoveTo  -167.5 0. 0. cm
+
+
+#===============================================================================
+#====================  Ancillary in the LAR-Tile table  ========================
+# (see ctb_ancillaryLARTILE.mac)
+#===============================================================================
+#====================  Ancillary in the Muon region  ===========================
+# (see ctb_ancillaryMuons.mac) 
+#===============================================================================

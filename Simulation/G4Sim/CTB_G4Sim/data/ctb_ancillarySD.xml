@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE FADS SYSTEM "scintillatorSD.dtd">
+ 
+<FADS>
+
+<ScintillatorParameters
+         DetectorPart            = "SMV"
+         VolumeName              = "SMV"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+ 
+<ScintillatorParameters
+         DetectorPart            = "S1"
+         VolumeName              = "S1"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "S2"
+         VolumeName              = "S2"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "S3"
+         VolumeName              = "S3"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "SH"
+         VolumeName              = "SH"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+ 
+<ScintillatorParameters
+         DetectorPart            = "SNEW"
+         VolumeName              = "SNEW"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+ 
+</FADS>

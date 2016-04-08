@@ -1,0 +1,25 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# -  MCTruth 
+#===============================================================================
+# macro name = ctb_mctruth.mac
+# called by jobOptions.CTB_G4Sim. py
+#
+# - General description -
+#       MCTruth
+#    
+# contacts: <Andrea.Dellacqua@cern.ch>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/echo "CTB_G4Sim: MCTruth strategies"
+/MCTruth/ListStrategies
+/MCTruth/ActivateStrategy CALOCatchAll CALO::CALO 1 
+/MCTruth/ActivateStrategy DMuonCatchAll MUON::MUON 1
+/MCTruth/ActivateStrategy IDETBrems IDET::IDET 1
+/MCTruth/ActivateStrategy IDETConversion IDET::IDET 1
+/MCTruth/ActivateStrategy IDETDecay IDET::IDET 1 
+/MCTruth/ActivateStrategy IDETIonization IDET::IDET 1
+/MCTruth/SecondarySavingPolicy All
+/MCTruth/ListStrategies
+#===============================================================================

@@ -1,0 +1,27 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# -  TRT detector
+#===============================================================================
+# macro name = ctb_TRTVis.mac
+# called by  ctb_visualization.mac
+#
+# - General description -
+#     TRT visualization 
+#
+# contacts:Thomas Kittelman <kittel@nbi.dk>
+#          Mogens Dam
+# author: M. Gallas <mgallas@mail.cern.ch>
+#==============================================================================
+/Geometry/Volumes/SetInvisible TRT*
+/Geometry/Volumes/SetVisible TRT::Shell*
+/Geometry/Volumes/SetVisible TRT::BarrelInnerSupport
+/Geometry/Volumes/SetVisible TRT::BarrelOuterSupport
+/Geometry/Volumes/SetVisible TRT::CoolingTube
+/Geometry/Volumes/SetColor     TRT::Shell0 red
+/Geometry/Volumes/SetColor     TRT::Shell1 red
+/Geometry/Volumes/SetColor     TRT::Shell2 red
+/Geometry/Volumes/SetColor     TRT::BarrelOuterSupport black
+/Geometry/Volumes/SetColor     TRT::BarrelInnerSupport black
+/Geometry/Volumes/SetColor     TRT::CoolingTube LightBlue
+#==============================================================================

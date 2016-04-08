@@ -1,0 +1,38 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# -  Tile detector
+#===============================================================================
+# macro name = ctb_ancillaryLARTILEVis.mac
+# called by ctb_visualization.mac
+#
+# - General description -
+#     Tile ancillary detectors visualization
+#
+# contacts: Anna LUPI <anna.lupi@pi.infn.it>
+#           Alexander Solodkov <Sanya.Solodkov@cern.ch>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#==============================================================================
+
+# Phanton Visualization
+/Geometry/Volumes/SetInvisible PhantomBarrel::IronLayerRL
+/Geometry/Volumes/SetInvisible PhantomBarrel::IronLayerTB
+/Geometry/Volumes/SetInvisible PhantomBarrel::IronLayerFE
+/Geometry/Volumes/SetInvisible PhantomBarrel::IronLayerBE
+/Geometry/Volumes/SetInvisible PhantomBarrel::AluLayerRL
+/Geometry/Volumes/SetInvisible PhantomBarrel::AluLayerTB
+/Geometry/Volumes/SetInvisible PhantomBarrel::AluLayerFE
+/Geometry/Volumes/SetInvisible PhantomBarrel::AluLayerBE
+/Geometry/Volumes/SetInvisible PhantomBarrel::PhantomBarrel
+/Geometry/Volumes/SetVisible PhantomBarrel::LeadLayer
+/Geometry/Volumes/SetColor PhantomBarrel::LeadLayer yellow
+/Geometry/Volumes/SetVisible PhantomBarrel::IronLayer
+/Geometry/Volumes/SetColor PhantomBarrel::IronLayer red
+/Geometry/Volumes/SetVisible PhantomBarrel::ScintillatorLayer
+/Geometry/Volumes/SetColor PhantomBarrel::ScintillatorLayer blue
+/Geometry/Volumes/SetVisible CombinedScintillator::CombinedScintillator
+/Geometry/Volumes/SetColor CombinedScintillator::CombinedScintillator blue
+#/Geometry/Volumes/SetInvisible MuonWall::MuonWall
+#/Geometry/Volumes/SetVisible MuonWall::MuScintillatorLayer
+#/Geometry/Volumes/SetColor MuonWall::MuScintillatorLayer red
+#==============================================================================

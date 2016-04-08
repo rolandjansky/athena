@@ -1,0 +1,24 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+#
+# -  SCT detector
+#===============================================================================
+# macro name = ctb_SCTgeometry.mac
+# called by ctb_SCT.mac
+#
+# - General description -
+#  SCT geometry for the CTB attached to the CTBSCT envelope defined in the
+#  ctb_envelopes.mac macro file
+#
+# contacts: Carlos Escobar <cescobar@hal.ific.uv.es>
+#           Peter Kodys <kodys@ific.uv.es>
+#           Thijs Cornelissen <tgcornel@nikhef.nl>
+#           Grant Gorfine <gorfine@nikhef.nl>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/Geometry/GetFacility GeoDetector SCT:SCT
+# After shiftx04 the SCT detector goes within the MBPSID volume
+/SCT/MoveTo  1.2 0.0 -0.9 cm 
+/MBPSID/AddDetector SCT
+#===============================================================================

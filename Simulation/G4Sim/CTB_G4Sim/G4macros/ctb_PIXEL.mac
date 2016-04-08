@@ -1,0 +1,28 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+#
+# -  PIXEL detector 
+#===============================================================================
+# macro name = ctb_PIXEL.mac 
+# called by ctb_Atlas.mac
+#
+# - General description -
+#     Pixel geometry and sensitive part 
+#
+# contacts: Sebastien Correard <correard@cppm.in2p3.fr>
+#           Jean-Baptiste de Vivie <devivie@lal.in2p3.fr>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/echo "CTB_G4Sim: Building the Geometry for Pixel"
+/macro/execute ctb_PIXELgeometry.mac
+# (Some useful print options that we also have at general CTB level)
+#/Geometry/PrintVolumes
+#/Geometry/ListAllVolumes
+
+/echo "CTB_G4Sim: Building the Sensitivity for Pixel"
+/macro/execute ctb_PIXELsensitivity.mac
+# (Some useful print options that we also have at general CTB level)
+#/SenDetector/PrintEntries
+#/SenDetector/PrintDetectors
+#===============================================================================

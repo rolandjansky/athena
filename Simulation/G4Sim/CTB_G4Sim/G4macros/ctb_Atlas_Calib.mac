@@ -1,0 +1,63 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam Calibration
+#                       Geant4 Simulation 
+# - Main macro file  
+#===============================================================================
+# macro name = ctb_Atlas_Calib.mac
+#
+# - General description -
+#    
+#     Using ctb_Atlas_Calib.mac in the CTB Simulation jobOptions-script 
+#     it's possible to make a Geant4 Simulation with Calibration Hits.
+#     Calibration Hits are necessary for Calorimeter (LAr+Tile) high level 
+#     Calibration study
+#
+# contacts: Gia Khoriaul <gia@mail.cern.ch>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+
+
+#====================  Detector envelopes  =====================================
+# -- Detector envelopes -- (Always leave this one in)
+/echo "CTB_G4Sim: Building the envelopes"
+/macro/execute ctb_envelopes.mac 
+/echo "CTB_G4Sim: List of CTB detector envelopes"
+/Geometry/PrintVolumes
+
+#====================  Sub-detectors  ==========================================
+# Needed for all the sub-detectors using GeoModel. 
+/load GeoDetectorPlugIns 
+
+# LAr calorimeters. Comment out the following line for no LAr
+/echo "CTB_G4Sim: Building the LAr calorimeter. CalibrationRun ON!"
+/macro/execute ctb_LArCal_Calib.mac 
+ 
+# TileCal calo. Comment out the following line for no TileCal
+/echo "CTB_G4Sim: Building the TileCal calorimeter. CalibrationRun ON!"
+/macro/execute ctb_TileCal_Calib.mac 
+
+
+#====================  Ancillary detectors  ====================================
+# Ancillary material. 
+/echo "CTB_G4Sim: Setting up the ancillary material"
+/macro/execute ctb_ancillary.mac
+# Ancillary detectors in the LAR-TILE table 
+/echo "CTB_G4Sim: Setting up the ancillary material in the LAR-Tile table"
+/macro/execute ctb_ancillaryLARTILE.mac  
+
+
+#====================  Some verbosity  =========================================
+# Some verbosity:
+/echo "CTB_G4Sim: Print of CTB detectors volumes"
+/Geometry/PrintVolumes
+/echo "CTB_G4Sim: List of CTB detectors volumes"
+/Geometry/ListAllVolumes
+/echo "CTB_G4Sim: Print of sensitive volumes, PrintDetectors"
+/SenDetector/PrintDetectors
+/echo "CTB_G4Sim: Print of sensitive volumes, PrintEntries"
+/SenDetector/PrintEntries
+
+
+#===============================================================================
+/echo "CTB_G4Sim: End of the CTB_G4Sim ctb_Atlas_Calib.mac macro file"
+#===============================================================================

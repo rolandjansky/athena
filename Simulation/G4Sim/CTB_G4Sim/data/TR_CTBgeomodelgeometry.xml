@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE FADS SYSTEM "TRgeometryinformation.dtd">
+
+<FADS>
+
+<TRRegionParameters 
+        DetectorPart            ="TRT"
+        RadiatorName		="TRT::Radiator" 
+        RadiatorFoilThickness	="0.012"
+        RadiatorGasThickness	="0.120"
+        RadiatorBARRELorENDCAP	="0"/>
+
+</FADS>

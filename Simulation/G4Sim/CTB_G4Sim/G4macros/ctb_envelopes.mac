@@ -1,0 +1,209 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam 
+#                       Geant4 Simulation
+# - Definition of the envelopes for sub-detectors, ancillary and magnets 
+#===============================================================================
+# macro name = ctb_envelopes.mac
+# called by ctb_Atlas.mac
+#
+#
+# - General description -
+# Volumes:
+#         CTB = The complete experimental hall set as World. The center of this
+#              volume coincides with the origin in the experimental area. 
+#         IDET     ---> for the inner-detector together with magnet MBPSID
+# Detector envelopes: 
+#         CTBTRT        ---> for TRT detector
+#         CALO          ---> for LAR and TILE detector (will be change in 10.0) 
+#         MUON          ---> for MUON system 
+# Magnets:
+#         MAGBOXMBPSID, MBPSID - magnet attached to the MORPURGO magnet 
+#         -  MAGBOXMBPSID is the iron of the magnet 
+#         -  MBPSID is the magnet-gap where we have the field. 
+#         -  The Pixel and SCT are defined within the MBPSID volume. 
+#         -> the two following magnets are defined in the
+#            "ctb_envelopesMuonMagnets.mac" macro file  
+#         MAGBOXMBPSL, MBPL  - magnet after the DUMP and in the Muon region
+#         MAGBOXMBPS2, MBPS2 - magnet in between EI and E0 Muon chambers
+#
+# Beam Line elements: 
+#         DUMP, it is defined in the "ctb_envelopesMuonDump.mac" file 
+#         Ancillary detectors and materials: are defined in the 
+#                   "ctb_ancillary.mac"  & "ctb_ancillaryMuons.mac" files 
+#         
+# NOTE:  
+# -The position of the different detectors and ancillary material is based on 
+# the Note:  https://edms.cern.ch/file/406980/2 by B. Di Girolamo
+# In here we already have some updates for the position of the trigger scintilla
+# slabs in the upstream MBPSID magnet (since CTB_G4Sim-00-01-12). 
+# -Starting with CTB_G4Sim-00-01-06 tag we have the test beam layout described 
+# in the update version of the previous note (17/05/04): 
+# https://edms.cern.ch/file/406980/2/TB2004_layout_v02.pdf
+#
+# NOTE: [08/12/04]
+#  - This version of the  macro file contains the old and new numbers 
+# for the different envelopes afte the x-shift (x=-475 mm) required 
+# by the inner reconstruction group. This new configuration will be apply 
+# in 9.1.1 , 9.3.0 anf later Atlas releases. 
+#   - In the next version of this macro file all the "old" numbers will be 
+#    deleted
+#  - All the changes can be found with the "shiftx04" label in the version
+#    1.26 of the ctb_envelopes.mac 
+# NOTE: [09/12/04] 
+#  - Together with the shift in X we decided to put Pixel and SCT in the 
+# MBPSID volume instead of put them in CTBPIXEL and CTBSCT.
+# NOTE: [10/12/04] 
+#  - This version clean the precious one and it also reduce the volumes as 
+# much as possible.  
+# Note: [07/02/05] 
+#  - The MBPS1 magnat is now called MBPSID and the gap of this magnet was 
+# increased from 220 to 230 mm.     
+# contacts: <Andrea.Dellacqua@cern.ch>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+
+#====================  Common stuff  ===========================================
+/load G4DetectorEnvelopes
+/control/ReadXML standardmaterials.xml
+/control/ReadXML color.xml
+/echo "CTB_G4Sim: Loading specific material description from ctb_materials.xml"
+/control/ReadXML ctb_materials.xml 
+
+#====================  CTB volume ==============================================
+#
+# -- The entire CTB volume -- 
+#  All the other detector-envelopes must be referred to this one. The dimensions
+# of the volume are such that the center of the volume will be the origin in the
+# exp area. The X, Y, Z coordinates are defined as in the experimental area. 
+# - The center  of the MBPSID magnet is placed at (50.0, 0.0, 0.0) cm  
+# - The beam line is at 2860.0 +- 0.5 mm from the ground. 
+/Geometry/GetFacility ResizeableBox CTB
+#     -> x,y,z  half length for envelope !!
+/CTB/SetDx 5800. cm 
+/CTB/SetDy  700. cm   
+/CTB/SetDz  700. cm 
+#
+#====================  IDET volume =============================================
+#
+# -- The entire inner detector volume -- 
+# This volume is created to work in a easy way with the MCTruth for the inner 
+# detectors. The CTBTRT detector envelopes, the magnet (MAGBOXMBPSID,MBPSID) 
+# are now included in this IDET volume, centered at (0,0,0)
+/Geometry/GetFacility ResizeableBox IDET 
+#     -> x,y,z  half length for envelope !!
+/IDET/SetDx 238. cm
+/IDET/SetDy 100. cm   
+/IDET/SetDz 130. cm 
+/CTB/AddDetector IDET
+#
+#====================  Magnet  Volumes  ========================================
+#
+# -- The CTB magnets volumes (I) -- MBPSID
+#
+#  For the moment the magnets are boxes that coincide with the magnets aperture
+# They have the same name as in the exp area and they are listed starting at the
+# origin. These boxes are encapsulated in a iron volume with the dimensions
+# equal to the external dimensions of the magnet.
+#
+# -- MBPSID magnet --
+#  Iron of the MBPSID magnet is represented by MAGBOXMBPSID volume
+# MAGBOXMBPSID = Box (169.0x174.0x113.0)cm (X,Y,Z) with center at x=+2.5cm
+#               and a hole inside to host the MBPSID magnet-gap.
+/Geometry/GetFacility ResizeableBox MAGBOXMBPSID
+/MAGBOXMBPSID/SetDx 84.5 cm
+/MAGBOXMBPSID/SetDy 87.0 cm
+/MAGBOXMBPSID/SetDz 56.5 cm
+/MAGBOXMBPSID/MoveTo 50.0 0. 0.  cm
+/MAGBOXMBPSID/DefineSubtractionBox MBPSIDHOLE
+/MAGBOXMBPSID/SubtractionBoxDimensions MBPSIDHOLE 1690 261 116 mm
+/MAGBOXMBPSID/SubtractionBoxPosition MBPSIDHOLE 0 0 0  cm
+/MAGBOXMBPSID/SetMaterial  Iron
+/IDET/AddDetector MAGBOXMBPSID
+# Magnet-gap of the MBPSID magnet is represented by MBPSID.
+# MBPSID = Box (100x52.0x22.0)cm (X,Y,Z), center shifted to +50. cm
+/Geometry/GetFacility ResizeableBox MBPSID
+/MBPSID/SetDx 50.0 cm
+/MBPSID/SetDy 26.0 cm
+/MBPSID/SetDz 11.5 cm
+/MBPSID/MoveTo 50.0 0. 0.  cm
+/IDET/AddDetector MBPSID
+# The other two magnets are in the MUON::Muon volumen
+# and they are defined in the ctb_envelopesMuonMagnets.mac
+#====================  CTB Detector envelopes ==================================
+# -- The Pixel detector envelope --
+# The Pixel detector facility is defined in the MBPSID magnet volume. 
+
+# -- The SCT detector envelope --
+# The Pixel detector facility is defined in the MBPSID magnet volume. 
+
+# -- The TRT detector envelope --
+/Geometry/GetFacility ResizeableTubs CTBTRT
+/CTBTRT/SetRmin  55.0    cm
+/CTBTRT/SetRmax 109.0    cm
+/CTBTRT/SetDz    71.275  cm
+# Updated on 27/07/04, asked by T. Kittelmann
+/CTBTRT/SetDeltaPhiAngle   31.0 deg
+/CTBTRT/SetStartPhiAngle  -19.0 deg
+# The TRT should be shifted in Z to avoid the dead central region
+/CTBTRT/MoveTo 115.2 -0.8 55.0  cm
+/IDET/AddDetector CTBTRT
+
+# The LAr+TileCal envelope --
+/Geometry/GetFacility GenericPCON CALO
+/CALO/SetPhiMin -27 deg
+/CALO/SetDeltaPhi 60 deg
+/CALO/SetNSurfaces 3
+/CALO/setZvalues -2830. -1050. 6310.
+/CALO/setInnerRadii 2269. 950. 950.
+/CALO/setOuterRadii 5140. 5140. 5140.
+# -- For the CTB layout described in:
+#  https://edms.cern.ch/file/406980/2/TB2004_layout_v02.pdf
+#the Position of the LaR-Tile table for a given eta value can be 
+#determined by a rotation (Thetay) in addition with a shift in the 
+#X coordinate. These are described by:  
+#Thetay=-pi/2 + 2ArcTan(exp(-eta)) --> eta is a rotation around Y axis
+#DeltaX=(2298-6208)/cosh(eta)+6208 --> shift in the X direction
+# The centre of the LAr-Tile table is at X=6208 mm 
+# --> For eta=0.0, the values are:
+/CALO/RotateY   0.0  deg 
+/CALO/MoveTo 229.80 0. 0. cm 
+# --> For eta=0.20, the values are:
+#/CALO/RotateY   -11.3835  deg 
+#/CALO/MoveTo 237.50 0. 0. cm 
+# --> For eta=0.25, the values are:
+#/CALO/RotateY   -14.177  deg 
+#/CALO/MoveTo 241.71 0. 0. cm 
+# --> For eta=0.35, the values are:
+#/CALO/RotateY   -19.65  deg 
+#/CALO/MoveTo 252.58 0. 0. cm 
+# --> For eta=0.45, the values are:
+#/CALO/RotateY   -24.9545  deg 
+#/CALO/MoveTo 266.30 0. 0. cm 
+# --> For eta=0.65, the values are:
+#/CALO/RotateY   -34.8666  deg 
+#/CALO/MoveTo 300.00 0. 0. cm 
+# --> For eta=0.90, the values are:
+#/CALO/RotateY   -45.7496  deg 
+#/CALO/MoveTo 347.96 0. 0. cm 
+# --> For eta=1.2, the values are:
+#/CALO/RotateY   -56.4760 deg
+#/CALO/MoveTo 404.856 0. 0. cm
+#
+#
+/CTB/AddDetector CALO
+#
+
+# -- The Muons envelope --
+# This envelope does not contain the Muon chamber in front of the LAr 
+/Geometry/GetFacility ResizeableBox MUON
+/MUON/SetDx 2270.2 cm
+/MUON/SetDy  410. cm
+/MUON/SetDz  280. cm
+/MUON/MoveTo 3490.0 0. 0.  cm
+/CTB/AddDetector MUON
+#
+
+/CTB/SetAsWorld
+#
+#===============================================================================
+

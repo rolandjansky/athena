@@ -1,0 +1,21 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# -  PIXEL detector 
+#===============================================================================
+# macro name = ctb_PIXELgeometry.mac 
+# called by ctb_PIXEL.mac
+#
+# - General description -
+#  PIXEL geometry for the CTB attached to the CTBPIXEL envelope defined in the 
+#  ctb_envelopes.mac macro file 
+#
+# contacts: Sebastien Correard <correard@cppm.in2p3.fr>
+#           Jean-Baptiste de Vivie <devivie@lal.in2p3.fr>
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/Geometry/GetFacility GeoDetector Pixel:Pixel
+# After shiftx04 the Pixel detector goes within the MBPSID volume
+/Pixel/MoveTo -35.4 0.0  0.8 cm 
+/MBPSID/AddDetector Pixel
+#===============================================================================

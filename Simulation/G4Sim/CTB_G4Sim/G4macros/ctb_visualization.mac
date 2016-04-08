@@ -1,0 +1,110 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+# - Visualization of the CTB experimental area 
+#===============================================================================
+# macro name = ctb_visualization.mac
+# called by  jobOptions.CTB_G4Sim.txt (if needed)
+#
+# - General description -
+#    For the visualization of the CTB setup  
+#
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/echo "CTB_G4Sim: Complete visualization"
+#==================== CTB region ===============================================
+# -- For the visualization of the complete CTB region  --
+/Geometry/Volumes/SetInvisible   CTB
+# -- For visualization of the B. Di Girolamo defined volumes  --
+#/Geometry/Volumes/SetVisible   CTBINNER  CTBINNER
+#/Geometry/Volumes/SetColor     CTBINNER  CTBINNER  yellow
+#/Geometry/Volumes/SetVisible   CTBCALOR  CTBCALOR
+#/Geometry/Volumes/SetColor     CTBCALOR  CTBCALOR  blue
+#/Geometry/Volumes/SetVisible   MUON   MUON
+#/Geometry/Volumes/SetColor     MUON   MUON   green
+
+#==================== Magnets ==================================================
+# -- For the visualization of the magnets --  
+/Geometry/Volumes/SetVisible    MAGBOXMBPSID  
+/Geometry/Volumes/SetColor      MAGBOXMBPSID ForestGreen 
+/Geometry/Volumes/SetVisible    MBPSID  
+/Geometry/Volumes/SetColor      MBPSID    lightgreen
+/Geometry/Volumes/SetVisible    MAGBOXMBPL
+/Geometry/Volumes/SetColor      MAGBOXMBPL  IndianRed4
+/Geometry/Volumes/SetVisible    MBPL
+/Geometry/Volumes/SetColor      MBPL   IndianRed4
+/Geometry/Volumes/SetVisible    MAGBOXMBPS2
+/Geometry/Volumes/SetColor      MAGBOXMBPS2  ForestGreen
+/Geometry/Volumes/SetVisible    MBPS2
+/Geometry/Volumes/SetColor      MBPS2  lightgreen
+
+#==================== DUMP =====================================================
+# -- For the visualization of the DUMP  
+/Geometry/Volumes/SetVisible    DUMPCONCRETE 
+/Geometry/Volumes/SetColor      DUMPCONCRETE  grey93 
+/Geometry/Volumes/SetVisible    DUMPIRON 
+/Geometry/Volumes/SetColor      DUMPIRON  OrangeRed1 
+
+#==================== Ancillary  ===============================================
+# -- For the visualization of the Ancillary material   
+/echo "CTB_G4Sim: Using ctb_ancillaryVis.mac for ancillary visualization A"
+/macro/execute  ctb_ancillaryVis.mac
+
+/echo "CTB_G4Sim: Using ctb_ancillaryLARTILEVis.mac for ancillary visualization B"
+/macro/execute  ctb_ancillaryLARTILEVis.mac
+
+/echo "CTB_G4Sim: Using ctb_ancillaryMuonsVis.mac for ancillary visualization C"
+/macro/execute  ctb_ancillaryMuonsVis.mac
+
+#==================== Pixel ====================================================
+# --- For the visualization of the PIXEL 
+/Geometry/Volumes/SetInvisible    CTBPIXEL 
+#/Geometry/Volumes/SetColor      CTBPIXEL    black
+/echo "CTB_G4Sim: Using ctb_PIXELVis.mac for Pixel visualization"
+/macro/execute ctb_PIXELVis.mac
+
+#==================== SCT ======================================================
+# --- For the visualization of the SCT 
+/Geometry/Volumes/SetInvisible   CTBSCT
+#/Geometry/Volumes/SetColor      CTBSCT    black
+/echo "CTB_G4Sim: Using ctb_SCTVis.mac for SCT visualization"
+/macro/execute ctb_SCTVis.mac
+
+#==================== TRT ======================================================
+# --- For the visualization of the TRT 
+/Geometry/Volumes/SetInvisible   CTBTRT
+#/Geometry/Volumes/SetColor      CTBTRT    black
+/echo "CTB_G4Sim: Using ctb_TRTVis.mac for TRT visualization"
+/macro/execute ctb_TRTVis.mac
+
+#==================== LAr ======================================================
+# --- For the visualization of the LAr 
+/Geometry/Volumes/SetInvisible   CALO    
+#/Geometry/Volumes/SetColor      CTBTRT    black
+/echo "CTB_G4Sim: Using ctb_LArCalVis.mac for LAr visualization"
+/macro/execute ctb_LArCalVis.mac
+
+#==================== TileCal ==================================================
+# --- For the visualization of the TileCal 
+/echo "CTB_G4Sim: Using ctb_TileCalVis.mac for TileCal visualization"
+/macro/execute ctb_TileCalVis.mac
+
+#==================== MuonSystem ===============================================
+# --- For the visualization of the MuonSystem  
+/Geometry/Volumes/SetInvisible    MUON
+#/Geometry/Volumes/SetColor      MUON    black
+/echo "CTB_G4Sim: Using ctb_MuonSystemVis.mac for MuonSystemVis visualization"
+/macro/execute ctb_MuonSystemVis.mac
+
+#==================== Visualization stuff ======================================
+# -- Visualization setup
+#/vis/open DAWNFILE
+/vis/open VRML1FILE
+/vis/scene/create
+/vis/sceneHandler/attach
+
+# --  Draw Setup
+/vis/drawVolume
+/vis/viewer/refresh
+/vis/viewer/update
+#===============================================================================

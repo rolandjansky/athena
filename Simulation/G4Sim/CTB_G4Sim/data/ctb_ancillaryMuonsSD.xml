@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE FADS SYSTEM "scintillatorSD.dtd">
+ 
+<FADS>
+<ScintillatorParameters
+         DetectorPart            = "SCDUMP"
+         VolumeName              = "SCDUMP"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "SMT"
+         VolumeName              = "SMT"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUON10x10A"
+         VolumeName              = "MUON10x10A"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUON10x10B"
+         VolumeName              = "MUON10x10B"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUON10x10C"
+         VolumeName              = "MUON10x10C"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUON10x10D"
+         VolumeName              = "MUON10x10D"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUONHODOSELECTOR"
+         VolumeName              = "MUONHODOSELECTOR"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUONHODOPLANE11"
+         VolumeName              = "MUONHODOPLANE11"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUONHODOPLANE12"
+         VolumeName              = "MUONHODOPLANE12"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUONHODOPLANE13"
+         VolumeName              = "MUONHODOPLANE13"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUONHODOPLANE14"
+         VolumeName              = "MUONHODOPLANE14"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUONHODOPLANE15"
+         VolumeName              = "MUONHODOPLANE15"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUONHODOPLANE16"
+         VolumeName              = "MUONHODOPLANE16"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUONHODOPLANE21"
+         VolumeName              = "MUONHODOPLANE21"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUONHODOPLANE22"
+         VolumeName              = "MUONHODOPLANE22"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUONHODOPLANE23"
+         VolumeName              = "MUONHODOPLANE23"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUONHODOPLANE24"
+         VolumeName              = "MUONHODOPLANE24"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUONHODOPLANE25"
+         VolumeName              = "MUONHODOPLANE25"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+<ScintillatorParameters
+         DetectorPart            = "MUONHODOPLANE26"
+         VolumeName              = "MUONHODOPLANE26"
+         HitCollectionName       = "SMVHits"
+         WriteHitsWithZeroEnergy = "FALSE"/>
+
+</FADS>

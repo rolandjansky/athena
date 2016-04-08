@@ -1,0 +1,21 @@
+#===============================================================================
+# CTB ATLAS (2004): ATLAS Combined Test Beam
+#                       Geant4 Simulation
+#
+# -  LAr detector
+#===============================================================================
+# macro name = ctb_LArCal.mac
+# called by ctb_Atlas.mac
+#
+# - General description -
+#     LAr geometry and sensitive part
+#
+# contacts: Guillaume Unal <guillaume.unal@cern.ch> 
+# author: M. Gallas <mgallas@mail.cern.ch>
+#===============================================================================
+/load LArG4TBSim:LArG4HitManagement
+/Geometry/GetFacility LArTBBarrel LArTBBarrel
+/LArTBControl/EMBenergyCor on
+/LArTBBarrel/MoveTo -1.0 0. 0. cm
+/CALO/AddDetector LArTBBarrel
+#===============================================================================
