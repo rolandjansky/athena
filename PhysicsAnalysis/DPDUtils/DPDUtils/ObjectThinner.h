@@ -18,8 +18,7 @@ Save TrackParticles and CaloClusters associated to Muon/Egamma/TauJet into the D
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Algorithm.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ObjectVector.h"
 
 #include "UserAnalysisUtils/UserAnalysisSelectionTool.h"
@@ -30,7 +29,7 @@ Save TrackParticles and CaloClusters associated to Muon/Egamma/TauJet into the D
 
 class IThinningSvc;
 
-class ObjectThinner : public Algorithm {
+class ObjectThinner : public AthAlgorithm {
  public:
   ObjectThinner(const std::string& name, ISvcLocator* pSvcLocator);
   ~ObjectThinner();
@@ -66,10 +65,6 @@ class ObjectThinner : public Algorithm {
   /** The thinning service */
   typedef ServiceHandle<IThinningSvc> IThinningSvc_t;
   IThinningSvc_t m_thinningSvc;
-
-  /** the event store */
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  StoreGateSvc_t m_storeGate;
 
   /** object selection tool */
   ToolHandle<UserAnalysisSelectionTool>       m_analysisSelectionTool;

@@ -46,17 +46,14 @@ class ZeeFilter : public AthAlgorithm
   // Protected methods: 
   /////////////////////////////////////////////////////////////////// 
  protected: 
-  int All;
-  int pass;
+  int m_All;
+  int m_pass;
  
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 
   /////////////////////////////////////////////////////////////////// 
  protected: 
-  int EventCounter;
-  //Services
-  MsgStream mLog;
-  StoreGateSvc* m_storeGate;
+  int m_EventCounter;
   //Collection Names
   std::string m_ElectronCollectionName;
   //cuts

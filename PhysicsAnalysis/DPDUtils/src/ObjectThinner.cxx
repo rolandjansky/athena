@@ -46,9 +46,8 @@ using namespace Rec;
 
 ObjectThinner::ObjectThinner(const std::string& name, 
 			           ISvcLocator* pSvcLocator) : 
-  Algorithm(name, pSvcLocator),  
+  AthAlgorithm(name, pSvcLocator),  
   m_thinningSvc( "ThinningSvc",  name ),
-  m_storeGate  ( "StoreGateSvc", name ),
   m_analysisSelectionTool( "UserAnalysisSelectionTool", this )
 {
 
@@ -81,14 +80,6 @@ StatusCode ObjectThinner::initialize() {
        << "Initializing ObjectThinner" 
        << endreq;
 
-  // Get pointer to StoreGateSvc and cache it :
-  if ( !m_storeGate.retrieve().isSuccess() ) {
-     log << MSG::ERROR         
-         << "Unable to retrieve pointer to StoreGateSvc"
-         << endreq;
-     return StatusCode::FAILURE;
-  }
-   
   // Get pointer to IThinningSvc and cache it :
   if ( !m_thinningSvc.retrieve().isSuccess() ) {
      log << MSG::ERROR         
@@ -129,7 +120,7 @@ StatusCode ObjectThinner::execute() {
   /** now do the Inner Detector TrackParticles. This one goes through the Thinning Service */
   std::vector<bool> selectedInDetTracks;
   const TrackParticleContainer* trackTES=0;
-  StatusCode sc=m_storeGate->retrieve( trackTES, m_inDetTrackParticleContainerName);
+  StatusCode sc=evtStore()->retrieve( trackTES, m_inDetTrackParticleContainerName);
   if( sc.isFailure()  ||  !trackTES ) {
      log << MSG::WARNING
          << "No InDet container found in TDS : "
@@ -140,7 +131,7 @@ StatusCode ObjectThinner::execute() {
   /** egamma clusters */
   std::vector<bool> selectedegClusters;
   const CaloClusterContainer* clusterTES=0;
-  sc=m_storeGate->retrieve( clusterTES, m_clusterContainerNames[0]);
+  sc=evtStore()->retrieve( clusterTES, m_clusterContainerNames[0]);
   if( sc.isFailure()  ||  !clusterTES ) {
      log << MSG::WARNING
          << "No AOD egamma cluster container found in TDS : "
@@ -223,7 +214,7 @@ StatusCode ObjectThinner::electronContainerThinning ( std::vector<bool>& selecte
   log << MSG::DEBUG << "starting ObjectThinner() - in electrons" << endreq;
 
   const ElectronContainer* electronTES=0;
-  StatusCode sc=m_storeGate->retrieve( electronTES, m_containerNames[1]);
+  StatusCode sc=evtStore()->retrieve( electronTES, m_containerNames[1]);
   if( sc.isFailure()  ||  !electronTES ) {
      log << MSG::WARNING
           << "No AOD electron container found in TDS"
@@ -239,7 +230,7 @@ StatusCode ObjectThinner::electronContainerThinning ( std::vector<bool>& selecte
 
   /** retrieve the softe cluster container */
   const CaloClusterContainer* clusterTES=0;
-  sc=m_storeGate->retrieve( clusterTES, m_clusterContainerNames[2]);
+  sc=evtStore()->retrieve( clusterTES, m_clusterContainerNames[2]);
   if( sc.isFailure()  ||  !clusterTES ) {
      log << MSG::WARNING
          << "No AOD softe cluster container found in TDS : "
@@ -319,7 +310,7 @@ StatusCode ObjectThinner::photonContainerThinning ( std::vector<bool>& selectedI
   log << MSG::DEBUG << "starting ObjectThinner() - in photons" << endreq;
 
   const PhotonContainer* photonTES=0;
-  StatusCode sc=m_storeGate->retrieve( photonTES, m_containerNames[0]);
+  StatusCode sc=evtStore()->retrieve( photonTES, m_containerNames[0]);
   if( sc.isFailure()  ||  !photonTES ) {
      log << MSG::WARNING
           << "No AOD photon container found in TDS"
@@ -387,7 +378,7 @@ StatusCode ObjectThinner::jetContainerThinning () {
 
   /** retrieve the AOD jet container */
   const JetCollection* jetTES=0;
-  StatusCode sc=m_storeGate->retrieve( jetTES, m_containerNames[4]);
+  StatusCode sc=evtStore()->retrieve( jetTES, m_containerNames[4]);
   if( sc.isFailure()  ||  !jetTES ) {
      log << MSG::WARNING
          << "No AOD jet container found in TDS : "
@@ -429,7 +420,7 @@ StatusCode ObjectThinner::taujetContainerThinning ( std::vector<bool>& selectedI
 
   /** retrieve the AOD taujet container */
   const TauJetContainer* taujetTES=0;
-  StatusCode sc=m_storeGate->retrieve( taujetTES, m_containerNames[3]);
+  StatusCode sc=evtStore()->retrieve( taujetTES, m_containerNames[3]);
   if( sc.isFailure()  ||  !taujetTES ) {
      log << MSG::WARNING
          << "No AOD taujet container found in TDS : "
@@ -439,7 +430,7 @@ StatusCode ObjectThinner::taujetContainerThinning ( std::vector<bool>& selectedI
 
   /** retrieve the taujet cluster container */
   const CaloClusterContainer* clusterTES=0;
-  sc=m_storeGate->retrieve( clusterTES, m_clusterContainerNames[4]);
+  sc=evtStore()->retrieve( clusterTES, m_clusterContainerNames[4]);
   if( sc.isFailure()  ||  !clusterTES ) {
      log << MSG::WARNING
          << "No AOD taujet cluster container found in TDS : "
@@ -517,7 +508,7 @@ StatusCode ObjectThinner::muonContainerThinning( std::vector<bool>& selectedInDe
 
   /** retrieve the AOD muon container and build the slim tracks */ 
   const MuonContainer* muonTES=0;
-  StatusCode sc=m_storeGate->retrieve( muonTES, m_containerNames[2]);
+  StatusCode sc=evtStore()->retrieve( muonTES, m_containerNames[2]);
   if( sc.isFailure()  ||  !muonTES ) {
      log << MSG::WARNING
          << "No AOD muon container found in TDS : "
@@ -527,7 +518,7 @@ StatusCode ObjectThinner::muonContainerThinning( std::vector<bool>& selectedInDe
 
   /** retrieve the muon cluster container */ 
   const CaloClusterContainer* clusterTES=0;
-  sc=m_storeGate->retrieve( clusterTES, m_clusterContainerNames[3]);
+  sc=evtStore()->retrieve( clusterTES, m_clusterContainerNames[3]);
   if( sc.isFailure()  ||  !clusterTES ) {
      log << MSG::WARNING
          << "No AOD muon cluster container found in TDS : "
@@ -555,7 +546,7 @@ StatusCode ObjectThinner::muonContainerThinning( std::vector<bool>& selectedInDe
   /** now select the muon spectrometer trackParticles to keep */
   for ( unsigned int i=0; i<m_muontpContainerNames.size(); ++i) {
       const TrackParticleContainer* tpTES=0;
-      sc=m_storeGate->retrieve( tpTES, m_muontpContainerNames[i]);
+      sc=evtStore()->retrieve( tpTES, m_muontpContainerNames[i]);
       if ( sc.isFailure()  ||  !tpTES ) {
          log << MSG::WARNING
              << "No AOD muon TrackParticle container found in TDS : "
@@ -564,10 +555,8 @@ StatusCode ObjectThinner::muonContainerThinning( std::vector<bool>& selectedInDe
       }
 
       tpContainers.push_back(tpTES);
-      if ( tpTES ) {
-         tpSize.push_back( tpTES->size() ) ;
-         muonTracks[i].resize( tpTES->size(), false);
-      } else tpSize.push_back( 0 );
+      tpSize.push_back( tpTES->size() ) ;
+      muonTracks[i].resize( tpTES->size(), false);
   } 
 
   MuonContainer::const_iterator muonItr  = muonTES->begin();

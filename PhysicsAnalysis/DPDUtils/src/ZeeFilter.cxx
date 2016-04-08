@@ -30,7 +30,11 @@
 ////////////////
 
 ZeeFilter::ZeeFilter( const std::string& name,ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm (name, pSvcLocator), mLog( msgSvc(),name ), m_storeGate(0)
+  AthAlgorithm (name, pSvcLocator),
+  m_All(0),
+  m_pass(0),
+  m_EventCounter(0),
+  m_ThinningSvc(nullptr)
 {
   //
   // Property declaration
@@ -52,18 +56,9 @@ ZeeFilter::~ZeeFilter()
 StatusCode ZeeFilter::initialize()
 {
 
-  All=0;
-  pass=0;
   StatusCode  sc;
 
   ATH_MSG_INFO( "Initializing ZeeFilter" );
-  
-  sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) 
-    {
-      ATH_MSG_ERROR("Unable to retrieve pointer to StoreGateSvc");
-      return sc;
-    }
   
   if ( !evtStore().retrieve().isSuccess() ) 
     {
@@ -83,13 +78,13 @@ StatusCode ZeeFilter::initialize()
 
 StatusCode ZeeFilter::finalize()
 {
-  ATH_MSG_INFO("Zee Filter PASSED "<<pass<<" FROM "<< All);
+  ATH_MSG_INFO("Zee Filter PASSED "<<m_pass<<" FROM "<< m_All);
   return StatusCode::SUCCESS;
 }
 
 StatusCode ZeeFilter::execute()
 {  
-  All++;
+  m_All++;
   StatusCode sc = StatusCode::SUCCESS;
   
   /// read the AOD electron container from persistecy storage
@@ -123,7 +118,7 @@ StatusCode ZeeFilter::execute()
     {
       ATH_MSG_DEBUG("Filter Passed");
       setFilterPassed(true);
-      pass++;
+      m_pass++;
       if (m_ThinningSvc->filter(*elecTES, vbool) != StatusCode::SUCCESS) {
 	ATH_MSG_ERROR("Error in Thinning");
       }
