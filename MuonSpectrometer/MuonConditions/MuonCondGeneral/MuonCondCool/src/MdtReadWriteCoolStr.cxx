@@ -57,14 +57,14 @@ MdtReadWriteCoolStr::~MdtReadWriteCoolStr() {}
 
 StatusCode MdtReadWriteCoolStr::initialize()
 {
-  m_log << MSG::INFO << "MdtReadWriteCoolStr::initialize() called" << endmsg;
+  m_log << MSG::INFO << "MdtReadWriteCoolStr::initialize() called" << endreq;
 
   if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-    m_log << MSG::FATAL << "Detector store not found" << endmsg;
+    m_log << MSG::FATAL << "Detector store not found" << endreq;
     return StatusCode::FAILURE;
   }
   if (StatusCode::SUCCESS!=service("MuonCalib::MdtCoolStrSvc",p_coolsvc)) {
-    m_log << MSG::ERROR << "Cannot get MdtCoolStrSvc" << endmsg;
+    m_log << MSG::ERROR << "Cannot get MdtCoolStrSvc" << endreq;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -107,77 +107,77 @@ StatusCode MdtReadWriteCoolStr::finalize() {
 
 void MdtReadWriteCoolStr::writeData() {
   m_log << MSG::INFO << "Write data from file " << par_wfile << " to folder "
-	<< par_folder << " at channel " << par_chan << endmsg;
+	<< par_folder << " at channel " << par_chan << endreq;
  if(par_calT0) {
   if (StatusCode::SUCCESS!=p_coolsvc->putFileT0(par_folder,par_wfile,par_chan,
        par_tech))
-    m_log << MSG::ERROR << "putFile T0 failed" << endmsg;
+    m_log << MSG::ERROR << "putFile T0 failed" << endreq;
  }
  if(par_calRT) {
   if (StatusCode::SUCCESS!=p_coolsvc->putFileRT(par_folder,par_wfile,par_chan,
        par_tech))
-    m_log << MSG::ERROR << "putFile RT failed" << endmsg;
+    m_log << MSG::ERROR << "putFile RT failed" << endreq;
  }
  if(par_alignCorr) {
   if (StatusCode::SUCCESS!=p_coolsvc->putFileAlignCorr(par_folder,par_wfile,par_chan,
        par_tech))
-    m_log << MSG::ERROR << "putFile Align corrections failed" << endmsg;
+    m_log << MSG::ERROR << "putFile Align corrections failed" << endreq;
  }
  if(par_alignasciiformat) {
   if (StatusCode::SUCCESS!=p_coolsvc->putAligFromFile(par_folder,par_wfile,par_chan,
        par_tech))
-    m_log << MSG::ERROR << "putFile Align corrections failed" << endmsg;
+    m_log << MSG::ERROR << "putFile Align corrections failed" << endreq;
  }
  if (par_deadTube){
    if (StatusCode::SUCCESS!=p_coolsvc->putFileTube(par_folder,par_wfile,par_chan,
 						   par_tech))
-     m_log << MSG::ERROR << "putFile Tube failed" << endmsg;
+     m_log << MSG::ERROR << "putFile Tube failed" << endreq;
  }
 
 }
 
 void MdtReadWriteCoolStr::readData() {
   m_log << MSG::INFO << "Read data from folder " << par_folder << " channel "
-	<< par_chan << endmsg;
+	<< par_chan << endreq;
   std::string data;
   if (StatusCode::SUCCESS!=p_coolsvc->getString(par_folder,par_chan,data)) {
     m_log << MSG::INFO << "MdtCoolStrSvc getString fails for folder " << 
-      par_folder << " channel " << par_chan << endmsg;
+      par_folder << " channel " << par_chan << endreq;
   } else {
-    m_log << MSG::INFO << "Data read is " << data << endmsg;
+    m_log << MSG::INFO << "Data read is " << data << endreq;
   }
   // interpret as string stream
   std::istringstream istr(data.c_str());
   std::string a,b,c;
   istr >> a >> b >> c;
   m_log << "Read string1:" << a << " string2:" << b << " string3:" << c 
-	<< endmsg;
+	<< endreq;
 
   // do read of data into file if requested on first event
   if (par_extract && !m_done) {
     if (StatusCode::SUCCESS!=p_coolsvc->getFile(par_folder,par_chan,par_rfile))
       m_log << MSG::ERROR << "MdtCoolStrSvc getFile fails for folder " << 
-       par_folder << " channel " << par_chan << endmsg;
+       par_folder << " channel " << par_chan << endreq;
   }
 }
 
 
 void MdtReadWriteCoolStr::loadData() {
   m_log << MSG::INFO << "Load data from folder " << par_folder << " channel "
-	<< par_chan << endmsg;
+	<< par_chan << endreq;
   std::string data;
   if (StatusCode::SUCCESS!=p_coolsvc->getString(par_folder,par_chan,data)) {
     m_log << MSG::INFO << "MdtCoolStrSvc getString fails for folder " << 
-      par_folder << " channel " << par_chan << endmsg;
+      par_folder << " channel " << par_chan << endreq;
   } else {
-    m_log << MSG::INFO << "Data load is " << data << endmsg;
+    m_log << MSG::INFO << "Data load is " << data << endreq;
   }
   // interpret as string stream
   std::istringstream istr(data.c_str());
   std::string a,b,c;
   istr >> a >> b >> c;
   m_log << "Read string1:" << a << " string2:" << b << " string3:" << c 
-	<< endmsg;
+	<< endreq;
   
 
   char * eta(NULL); char *phi(NULL);
@@ -206,21 +206,21 @@ void MdtReadWriteCoolStr::loadData() {
     if (i==2) eta= pch;
     if (i==4) region= pch;
     if (i==5) ntubesc= pch;
-    m_log  << MSG::INFO<< "region:" << region << endmsg;
-    if( eta != NULL ) m_log  << MSG::INFO<< "eta:" << eta << endmsg;
-    else m_log  << MSG::INFO<< "eta: NULL" << endmsg;
-    if( phi != NULL ) m_log  << MSG::INFO<< "phi:" << phi << endmsg;
-    else m_log  << MSG::INFO<< "phi: NULL" << endmsg;
+    m_log  << MSG::INFO<< "region:" << region << endreq;
+    if( eta != NULL ) m_log  << MSG::INFO<< "eta:" << eta << endreq;
+    else m_log  << MSG::INFO<< "eta: NULL" << endreq;
+    if( phi != NULL ) m_log  << MSG::INFO<< "phi:" << phi << endreq;
+    else m_log  << MSG::INFO<< "phi: NULL" << endreq;
   }
   
   int ntubes =atoi(ntubesc);
-  m_log  << MSG::INFO<< "number of tubes" << ntubesc << endmsg;
+  m_log  << MSG::INFO<< "number of tubes" << ntubesc << endreq;
 
   int ntubesLay = ntubes/(nml*nlayers);
-  //m_log << "number of tubes per layer  " << ntubesLay << endmsg;
+  //m_log << "number of tubes per layer  " << ntubesLay << endreq;
 //  int size = nml*nlayers*ntubes;
   //m_log << "name:" << name << " phi" << phi << " eta" << eta 
-  //<< endmsg;
+  //<< endreq;
   
   rName += name + seperator + eta + seperator + phi;
 
@@ -237,7 +237,7 @@ void MdtReadWriteCoolStr::loadData() {
       if (k==1) {
 	t0=atof(pch1);
 	std::cout << "t0  " << pch1 << std::endl;
-	m_log << MSG::INFO<< "t0:" << t0 << endmsg;
+	m_log << MSG::INFO<< "t0:" << t0 << endreq;
       }
       
 //      if (k==2) float statusCode = atof(pch1); 
@@ -245,7 +245,7 @@ void MdtReadWriteCoolStr::loadData() {
 
 	adcCal = atof(pch1);
 	inversePropSpeed = (1./300.);
-	m_log  << MSG::INFO<< "adc:" <<adcCal <<" speed= " <<inversePropSpeed  << endmsg;
+	m_log  << MSG::INFO<< "adc:" <<adcCal <<" speed= " <<inversePropSpeed  << endreq;
 	t++; k=0;
 
 	if (t>ntubesLay) {
@@ -264,7 +264,7 @@ void MdtReadWriteCoolStr::loadData() {
   if (par_extract && !m_done) {
     if (StatusCode::SUCCESS!=p_coolsvc->getFile(par_folder,par_chan,par_rfile))
       m_log << MSG::ERROR << "MdtCoolStrSvc getFile fails for folder " << 
-	par_folder << " channel " << par_chan << endmsg;
+	par_folder << " channel " << par_chan << endreq;
   }
 }
 
@@ -272,20 +272,20 @@ void MdtReadWriteCoolStr::loadData() {
 
 void MdtReadWriteCoolStr::loadDataRt() {
   m_log << MSG::INFO << "Load data from folder " << par_folder << " channel "
-	<< par_chan << endmsg;
+	<< par_chan << endreq;
   std::string data;
   if (StatusCode::SUCCESS!=p_coolsvc->getString(par_folder,par_chan,data)) {
     m_log << MSG::INFO << "MdtCoolStrSvc getString fails for folder " << 
-      par_folder << " channel " << par_chan << endmsg;
+      par_folder << " channel " << par_chan << endreq;
   } else {
-    m_log << MSG::INFO << "Data load is " << data << endmsg;
+    m_log << MSG::INFO << "Data load is " << data << endreq;
   }
   // interpret as string stream
   std::istringstream istr(data.c_str());
   std::string a,b,c;
   istr >> a >> b >> c;
   m_log << "Read string1:" << a << " string2:" << b << " string3:" << c 
-	<< endmsg;
+	<< endreq;
 
   
   char * parameters=const_cast<char*>(a.c_str());
@@ -296,7 +296,7 @@ void MdtReadWriteCoolStr::loadDataRt() {
   pch = strtok (parameters," _,");
   region=atoi(pch);
   //  std::cout << "region " << pch << std::endl;
-  m_log << MSG::INFO << "region == " << region <<endmsg; 
+  m_log << MSG::INFO << "region == " << region <<endreq; 
  while (pch != NULL)
   {
     pch = strtok (NULL, "_,"); 
@@ -333,7 +333,7 @@ void MdtReadWriteCoolStr::loadDataRt() {
      if (n==1) t_min=tim;
      if (n==2) bin_size=tim-t_min; 
      m_log << MSG::INFO<<" bin_size = " << 
-	 bin_size<< endmsg;
+	 bin_size<< endreq;
    }
    if (k==3) {
      float sigma= atof(pch1);
@@ -350,13 +350,13 @@ void MdtReadWriteCoolStr::loadDataRt() {
 // Align Corrections
 void MdtReadWriteCoolStr::loadDataAlign() {
   m_log << MSG::INFO << "Load data from folder " << par_folder << " channel "
-	<< par_chan << endmsg;
+	<< par_chan << endreq;
   std::string data;
   if (StatusCode::SUCCESS!=p_coolsvc->getString(par_folder,par_chan,data)) {
     m_log << MSG::INFO << "MdtCoolStrSvc getString fails for folder " << 
-      par_folder << " channel " << par_chan << endmsg;
+      par_folder << " channel " << par_chan << endreq;
   } else {
-    m_log << MSG::INFO << "Data load is " << data << endmsg;
+    m_log << MSG::INFO << "Data load is " << data << endreq;
   }
 
 
@@ -409,13 +409,13 @@ void MdtReadWriteCoolStr::loadDataAlign() {
 // Align Corrections From Ascii File
 void MdtReadWriteCoolStr::loadDataAlignAscii() {
   m_log << MSG::INFO << "Load data from folder " << par_folder << " channel "
-	<< par_chan << endmsg;
+	<< par_chan << endreq;
   std::string data;
   if (StatusCode::SUCCESS!=p_coolsvc->getString(par_folder,par_chan,data)) {
     m_log << MSG::INFO << "MdtCoolStrSvc getString fails for folder " << 
-      par_folder << " channel " << par_chan << endmsg;
+      par_folder << " channel " << par_chan << endreq;
   } else {
-    m_log << MSG::INFO << "Data load is " << data << endmsg;
+    m_log << MSG::INFO << "Data load is " << data << endreq;
   }
   
  
