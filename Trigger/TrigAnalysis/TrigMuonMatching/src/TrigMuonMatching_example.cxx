@@ -59,18 +59,14 @@ namespace Trig {
     const xAOD::MuonContainer* SelectedMuons = 0;
     ATH_CHECK(evtStore()->retrieve(SelectedMuons,"GoodMuon"));
     ATH_MSG_INFO( "Number of selected muons: " << SelectedMuons->size() );
-    Int_t index = 0;
-    const xAOD::Muon *mu1 = 0;
-    const xAOD::Muon *mu2 = 0;
     if(SelectedMuons->size()==2){
-      for(const auto* muon : *SelectedMuons){
-	if(index == 0) mu1 = muon;
-	if(index == 1) mu2 = muon;
-	index = index + 1;
+      const xAOD::Muon *mu1 = (*SelectedMuons)[0];
+      const xAOD::Muon *mu2 = (*SelectedMuons)[1];
+      if (mu1 && mu2) {
+        std::pair<Bool_t,Bool_t> result1, result2;
+        m_matchTool->matchDimuon(mu1, mu2, "HLT_2mu14", result1, result2);
+        if(result1.first && result2.first)std::cout << "HLT_2mu14 matched" << std::endl;
       }
-      std::pair<Bool_t,Bool_t> result1, result2;
-      m_matchTool->matchDimuon(mu1, mu2, "HLT_2mu14", result1, result2);
-      if(result1.first && result2.first)std::cout << "HLT_2mu14 matched" << std::endl;
     }
     
     return StatusCode::SUCCESS;
