@@ -5,8 +5,8 @@
 #ifndef TRKIPATFITTERUTILS_FITMATRIX_H
 # define TRKIPATFITTERUTILS_FITMATRIX_H
 
-#define     mxmeas      500
-#define     mxparam     128
+#define     mxmeas      1000
+#define     mxparam     256
 
 namespace Trk
 {
