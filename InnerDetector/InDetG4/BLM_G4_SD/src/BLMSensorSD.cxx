@@ -7,57 +7,35 @@
 //   Bostjan Macek 14.february.2008
 //###############################################
 
-#include "BLM_G4_SD/BLMSensorSD.h"
-// BLM Sensitive Detector.
-#include <fstream>
-#include "FadsSensitiveDetector/SensitiveDetectorEntryT.h"
-#include "FadsSensitiveDetector/SensitiveDetectorCatalog.h"
-//
-// Geant4 Stuff
-#include "G4HCofThisEvent.hh"
+// Class header
+#include "BLMSensorSD.h"
+
+// Athena headers
+#include "CxxUtils/make_unique.h" // For make unique
+#include "MCTruth/TrackHelper.h"
+
+// Geant4 headers
 #include "G4Step.hh"
 #include "G4ThreeVector.hh"
-#include "G4SDManager.hh"
-#include "G4VProcess.hh"
-#include "G4RunManager.hh"
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
 
-// CLHEP transform
+// CLHEP headers
 #include "CLHEP/Geometry/Transform3D.h"
-// Units
 #include "CLHEP/Units/SystemOfUnits.h"
 
-// to permit access to StoreGate
-#include "GaudiKernel/ISvcLocator.h"
-#include "SimHelpers/DetectorGeometryHelper.h"
-#include "MCTruth/TrackHelper.h"
 
-// logging
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-//////////////////////////////////////////////////////////////////////////////////
-// Initialize static data
-///////////////////////////////////////////////////////////////////////////////
-
-static FADS::SensitiveDetectorEntryT<BLMSensorSD> mdtsd("BLMSensorSD");
-
-BLMSensorSD::BLMSensorSD(G4String name) :
-  FADS::FadsSensitiveDetector(name),
-  BLM_HitColl(0)
+BLMSensorSD::BLMSensorSD(const std::string& name, const std::string& hitCollectionName)
+  : G4VSensitiveDetector( name )
+  , m_HitColl( hitCollectionName )
 {
 }
 
-BLMSensorSD::~BLMSensorSD()
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+// Initialize from G4 - necessary to new the write handle for now
+void BLMSensorSD::Initialize(G4HCofThisEvent *)
 {
-}
-
-void BLMSensorSD::Initialize(G4HCofThisEvent* /*HCE*/)
-{
-  ATH_MSG_DEBUG("Initializing BLM_SD");
-  // Create a fresh map to store the hits
-  //BLM_HitColl = new SiHitCollection("BLMHits");
-  BLM_HitColl = m_hitCollHelp.RetrieveNonconstCollection<SiHitCollection>("BLMHits");
+  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<SiHitCollection>();
 }
 
 G4bool BLMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
@@ -121,17 +99,8 @@ G4bool BLMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
       else if(aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() == "Pixel::blmWallLog")
         produced_in_diamond = 3;
 
-      SiHit newBLMHit(lP1, lP2, edep, aStep->GetPreStepPoint()->GetGlobalTime(), barcode, 0, 0, myTouch->GetVolume(1)->GetCopyNo()-222, 0, primaren, produced_in_diamond);
-      BLM_HitColl->Insert(newBLMHit);
+      m_HitColl->Emplace(lP1, lP2, edep, aStep->GetPreStepPoint()->GetGlobalTime(), barcode, 0, 0, 
+                           myTouch->GetVolume(1)->GetCopyNo()-222, 0, primaren, produced_in_diamond);
     }
   return true;
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void BLMSensorSD::EndOfEvent(G4HCofThisEvent* /*HCE*/)
-{
-  //exporting BCM hits
-  if (!m_allowMods)
-    m_hitCollHelp.SetConstCollection(BLM_HitColl);
 }
