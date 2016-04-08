@@ -16,8 +16,6 @@
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "BFieldCore/AbstractMagneticField.h"
-#include "BFieldAth/IMagFieldAthenaSvc.h"
 
 // forward declarations
 class ITHistSvc;
@@ -42,8 +40,6 @@ namespace MagField {
         void getFieldValue();           //!< get Field value either by G4 or by MagFieldSvc
         StatusCode fetchEnvironment();  //!< get environment either for g4 or for magFieldSvc
 
-        ServiceHandle<IMagFieldAthenaSvc>     m_magFieldAthenaSvc;  //!< old field service
-        MagFieldAthena*                       m_magField;           //!< old field service
         ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;        //!< new field svc
 
         ServiceHandle<ITHistSvc>  m_thistSvc;    //!< the histogram service

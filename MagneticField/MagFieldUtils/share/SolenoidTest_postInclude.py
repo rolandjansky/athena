@@ -2,11 +2,18 @@
 from AthenaCommon.AppMgr import ServiceMgr
 from GaudiSvc.GaudiSvcConf import THistSvc
 if not hasattr(ServiceMgr, 'THistSvc'):
-  ServiceMgr += THistSvc("THistSvc")
+    ServiceMgr += THistSvc("THistSvc")
 ServiceMgr.THistSvc.Output = ["SolenoidTest DATAFILE='hurz.root' OPT='RECREATE'"]
 
+# configure the field service
 #from MagFieldServices.MagFieldServicesConf import MagField__AtlasFieldSvc
 #ServiceMgr += MagField__AtlasFieldSvc("AtlasFieldSvc");
+ServiceMgr.AtlasFieldSvc.FullMapFile = "/afs/cern.ch/user/m/masahiro/public/BFieldMap/bfieldmap_7730_20400.root"
+ServiceMgr.AtlasFieldSvc.SoleMapFile = "/afs/cern.ch/user/m/masahiro/public/BFieldMap/bfieldmap_7730_0.root"
+ServiceMgr.AtlasFieldSvc.ToroMapFile = "/afs/cern.ch/user/m/masahiro/public/BFieldMap/bfieldmap_0_20400.root"
+ServiceMgr.AtlasFieldSvc.UseDCS = False
+ServiceMgr.AtlasFieldSvc.UseSoleCurrent = 7730
+ServiceMgr.AtlasFieldSvc.UseToroCurrent = 0 # 20400
 
 # (1.) setup the SolenoidTest algorithm
 from AthenaCommon.AlgSequence import AlgSequence
@@ -14,8 +21,8 @@ topSequence = AlgSequence()
 from MagFieldUtils.MagFieldUtilsConf import MagField__SolenoidTest
 testFull = 1000	# =1000 to measure the speed of the full 3d field
 testFast = 1000	# =1000 to measure the speed of the fast 2d field
-testOld  = 1000	# =1000 to measure the speed of the old field
-testHist = 0	# =100 to produce ROOT file to compare full vs. fast
+testOld  = 0	# =1000 to measure the speed of the old field
+testHist = 100	# =100 to produce ROOT file to compare full vs. fast
 if testFull:
     topSequence += MagField__SolenoidTest('SolenoidTestFull')
     topSequence.SolenoidTestFull.UseFullField = True
@@ -53,9 +60,11 @@ if testHist:
     topSequence.SolenoidTestHist.UseOldField = True
     topSequence.SolenoidTestHist.WriteNtuple = True
     topSequence.SolenoidTestHist.Derivatives = True
+    topSequence.SolenoidTestHist.MinimumZ = -3000.
+    topSequence.SolenoidTestHist.MaximumZ =  3000.
+    topSequence.SolenoidTestHist.MinimumR =     0.
+    topSequence.SolenoidTestHist.MaximumR =  1200.
     topSequence.SolenoidTestHist.StepsR = testHist
     topSequence.SolenoidTestHist.StepsZ = testHist
     topSequence.SolenoidTestHist.StepsPhi = testHist
-
-theApp.EvtMax = 2
 

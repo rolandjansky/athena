@@ -5,6 +5,7 @@ manager Niels van Eldik <niels.van.eldik@cern.ch>
 manager Robert Langenberg <robert.johannes.langenberg@cern.ch>
 manager Masahiro Morii <masahiro_morii@harvard.edu>
 manager Elmar Ritsch <elmar.ritsch@cern.ch>
+manager Valerio Ippolito <valerio.ippolito@cern.ch>
 
 #################################################################
 # public use statements
@@ -14,8 +15,7 @@ use AtlasPolicy                 AtlasPolicy-*
 use GaudiInterface              GaudiInterface-*              External
 use AthenaBaseComps             AthenaBaseComps-*             Control
 
-use BFieldCore                  BFieldCore-*                  MagneticField
-use BFieldAth                   BFieldAth-*                   MagneticField
+use MagFieldInterfaces          MagFieldInterfaces-*          MagneticField
 
 #################################################################
 # private use statements
@@ -24,7 +24,9 @@ private
 use Geant4                      Geant4-*                      External
 use AtlasROOT                   AtlasROOT-*                   External
 use AtlasCLHEP                  AtlasCLHEP-*                  External
-use MagFieldInterfaces          MagFieldInterfaces-*          MagneticField
+
+# Specify the required ROOT component for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS RIO MathCore)"
 
 public
 library MagFieldUtils *.cxx components/*.cxx

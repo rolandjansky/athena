@@ -14,6 +14,7 @@
 
 // Framework
 #include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/Chrono.h"
 
 // CLHEP
 #include "CLHEP/Vector/ThreeVector.h"
@@ -52,15 +53,14 @@ const double solenoidZhalf = 2820.;
 ////////////////
 MagField::MagFieldTestbedAlg::MagFieldTestbedAlg(const std::string& name,
 		ISvcLocator* pSvcLocator) :
-		::AthAlgorithm(name, pSvcLocator), m_magFieldAthenaSvc(
-				"MagFieldAthenaSvc", name), m_magFieldSvc("AtlasFieldSvc",
+		::AthAlgorithm(name, pSvcLocator), m_magFieldSvc("AtlasFieldSvc",
 				name), m_thistSvc("THistSvc", name), m_histStream(
-				"MagFieldTestbedAlg"), m_tree(0), m_treeName("field"), m_halfX(
-				11999.), m_halfY(11999.), m_halfZ(22999.), m_stepsX(200), m_stepsY(
+				"MagFieldTestbedAlg"), m_chronoSvc("ChronoStatSvc", name), m_tree(0), m_treeName("field"), m_generateBox(false), m_minX(-11999.),
+				m_halfX(11999.), m_halfY(11999.), m_halfZ(22999.), m_stepsX(200), m_stepsY(
 				200), m_stepsZ(200), m_numberOfReadings(0), m_refFile(""), m_refTreeName(
 				"field"), m_absTolerance(1e-7), m_relTolerance(0.01), m_xyzt(), m_field(), m_explicitX(
 				0), m_explicitY(0), m_explicitZ(0), m_complete(false), m_useG4Field(
-				false), m_useOldMagFieldSvc(false), m_recordReadings(true), m_onlyCheckSolenoid(
+				false), m_recordReadings(true), m_onlyCheckSolenoid(
 				false), m_coordsAlongBeam(false), m_explicitCoords(false) {
 	// histogram service
 	declareProperty("THistService", m_thistSvc, "The HistogramService");
@@ -72,6 +72,8 @@ MagField::MagFieldTestbedAlg::MagFieldTestbedAlg(const std::string& name,
 			"Name of the TTree object in the output file.");
 
 	// boundaries for the magfield validation
+	declareProperty("GenerateBox", m_generateBox = false, "generate a box centered in (0,0,0) using halfXYZ");
+	declareProperty("MinX", m_minX = -11998., "minimum x for box generation");
 	declareProperty("HalfX", m_halfX = 11998., "half-length along x-direction");
 	declareProperty("HalfY", m_halfY = 11998., "half-length along y-direction");
 	declareProperty("HalfZ", m_halfZ = 22998., "half-length along z-direction");
@@ -94,7 +96,6 @@ MagField::MagFieldTestbedAlg::MagFieldTestbedAlg(const std::string& name,
 	declareProperty("RelTolerance", m_relTolerance = 0.01,
 			"Numerical tolerance when comparing against reference.");
 	declareProperty("useG4Field", m_useG4Field);
-	declareProperty("useOldMagFieldSvc", m_useOldMagFieldSvc);
 	declareProperty("recordReadings", m_recordReadings = true);
 	declareProperty("numberOfReadings", m_numberOfReadings = 0);
 	declareProperty("useDerivatives", m_useDerivatives = false);
@@ -116,10 +117,12 @@ MagField::MagFieldTestbedAlg::~MagFieldTestbedAlg() {
 StatusCode MagField::MagFieldTestbedAlg::initialize() {
 	ATH_MSG_INFO("entering initialize()...");
 
-	if (m_useOldMagFieldSvc && m_magFieldAthenaSvc.retrieve().isFailure()) {
-		ATH_MSG_ERROR("Could not find MagFieldAthenaSvc");
-		return StatusCode::FAILURE;
-	} else if (!m_useG4Field && !m_useOldMagFieldSvc) {
+	if (m_chronoSvc.retrieve().isFailure()) {
+	   ATH_MSG_ERROR("Could not find chrono svc");
+	   return StatusCode::FAILURE;
+	}
+
+	if (!m_useG4Field) {
 		//TODO: DUMMY reading to initialize newMagFieldSvc
 		m_xyzt[3] = 0.;
 		getFieldValue();
@@ -215,37 +218,65 @@ StatusCode MagField::MagFieldTestbedAlg::execute() {
 			if (m_numberOfReadings != 0 && !m_coordsAlongBeam) {
 				TRandom3 ran;
 
-				for (long i = 0; i < m_numberOfReadings; i++) {
-					CLHEP::Hep3Vector *temp;
-					temp = new CLHEP::Hep3Vector();
-
-					double maxRadius = m_halfX;
-					double maxZ = m_halfZ;
-
-					if (m_onlyCheckSolenoid) {
-						maxRadius = solenoidRadius;
-						maxZ = solenoidZhalf;
-					}
-					temp->setX(ran.Uniform(maxRadius * (-1), maxRadius));
-					temp->setY(ran.Uniform(maxRadius * (-1), maxRadius));
-					temp->setZ(ran.Uniform(maxZ * (-1), maxZ));
-					//only generate values within radius < 11.998; for onlyCheckSolenoid radius < 1075
-
-					double radius = sqrt(
-							pow(temp->getX(), 2) + pow(temp->getY(), 2));
-					if (radius > m_halfX) {
-						i--;
-						continue;
-					}
-					coordinatesToBeChecked.push_back(*temp);
+				if (!m_generateBox) {
+                                   // generate inside a cylinder
+                                   Chrono chrono(&(*m_chronoSvc), "MFTBcylGen");
+                                   for (long i = 0; i < m_numberOfReadings; i++) {
+                                   	CLHEP::Hep3Vector temp;
+                                   
+                                   	double maxRadius = m_halfX;
+                                   	double maxZ = m_halfZ;
+                                   
+                                   	if (m_onlyCheckSolenoid) {
+                                   		maxRadius = solenoidRadius;
+                                   		maxZ = solenoidZhalf;
+                                   	}
+                                   	temp.setX(ran.Uniform(maxRadius * (-1), maxRadius));
+                                   	temp.setY(ran.Uniform(maxRadius * (-1), maxRadius));
+                                   	temp.setZ(ran.Uniform(maxZ * (-1), maxZ));
+                                   	//only generate values within radius < 11.998; for onlyCheckSolenoid radius < 1075
+                                   
+                                   	double radius = sqrt(
+                                   			pow(temp.getX(), 2) + pow(temp.getY(), 2));
+                                   	if (radius > m_halfX) {
+                                   		i--;
+                                   		continue;
+                                   	}
+                                   	coordinatesToBeChecked.push_back(temp);
+                                   }
+				} else {
+                                   // generate inside a box
+                                   Chrono chrono(&(*m_chronoSvc), "MFTBboxGen");
+                                   for (long i = 0; i < m_numberOfReadings; i++) {
+                                   	CLHEP::Hep3Vector temp;
+                                   
+                                   	double maxRadius = sqrt(pow(m_halfX, 2) + pow(m_halfY,2));
+                                   	double maxZ = m_halfZ;
+                                   
+                                   	if (m_onlyCheckSolenoid) {
+                                   		maxRadius = solenoidRadius;
+                                   		maxZ = solenoidZhalf;
+                                   	}
+                                   	temp.setX(ran.Uniform(m_minX, m_halfX)); // TODO: tidy this up...
+                                   	temp.setY(ran.Uniform(m_halfY * (-1), m_halfY));
+                                   	temp.setZ(ran.Uniform(maxZ * (-1), maxZ));
+                                   	//only generate values within radius < 11.998; for onlyCheckSolenoid radius < 1075
+                                   
+                                   	double radius = sqrt(
+                                   			pow(temp.getX(), 2) + pow(temp.getY(), 2));
+                                   	if (radius > maxRadius) {
+                                   		i--;
+                                   		continue;
+                                   	}
+                                   	coordinatesToBeChecked.push_back(temp);
+                                   }
 				}
 			}
 
 			if (m_coordsAlongBeam) {
 
 				TRandom3 rand;
-				CLHEP::Hep3Vector *temp;
-				temp = new CLHEP::Hep3Vector();
+				CLHEP::Hep3Vector temp;
 				double r, phi, theta;
 
 				for (long i = 0; i < m_numberOfReadings;) {
@@ -253,12 +284,12 @@ StatusCode MagField::MagFieldTestbedAlg::execute() {
 					phi = rand.Uniform(3.14 * (-1), 3.14);
 					theta = rand.Uniform(0, 3.14);
 					while (r < maxRadius) {
-						temp->setX(r * sin(theta) * cos(phi));
-						temp->setY(r * sin(phi) * sin(theta));
-						temp->setZ(r * cos(phi));
+						temp.setX(r * sin(theta) * cos(phi));
+						temp.setY(r * sin(phi) * sin(theta));
+						temp.setZ(r * cos(phi));
 						r += 10.;
 						i++;
-						coordinatesToBeChecked.push_back(*temp);
+						coordinatesToBeChecked.push_back(temp);
 					}
 				}
 			}
@@ -357,39 +388,13 @@ StatusCode MagField::MagFieldTestbedAlg::fetchEnvironment() {
 		if (!p_g4field) {
 			return StatusCode::FAILURE;
 		}
-	} else if (m_useOldMagFieldSvc) {
-		p_MagField = m_magFieldAthenaSvc->GetUpdatedMagFieldAthena();
-	}
+  }
 	return StatusCode::SUCCESS;
 }
 
 void MagField::MagFieldTestbedAlg::getFieldValue() {
 	if (m_useG4Field) {
 		p_g4field->GetFieldValue(m_xyzt, m_field);
-
-	} else if (m_useOldMagFieldSvc) {
-
-		// mm to cm unit conversion + double->float type conversion
-		float f_pos_in_cm[3];
-                for (int i = 0; i < 3; i++ ) {
-                        f_pos_in_cm[i] = (float) (m_xyzt[i] * 0.1);
-                }
-		float f_bfield[12];
-		if (!m_useDerivatives) {
-			p_MagField->field_tesla_cm(f_pos_in_cm, f_bfield);
-		} else {
-			p_MagField->fieldGradient_tesla_cm(f_pos_in_cm, f_bfield);
-		}
-		for (int i = 0; i < 3; i++) {
-			m_field[i] = (double) f_bfield[i] * CLHEP::tesla;
-		}
-		if (m_useDerivatives) {
-                        static const double tesla_cm( CLHEP::tesla / CLHEP::cm );
-			for (int i = 0; i < 9; i++) {
-				m_deriv[i] = (double) f_bfield[i+3] * tesla_cm;
-			}
-		}
-
 	} else {
 		// use new magnetic field service
 		m_magFieldSvc->getField(m_xyzt, m_field,
@@ -450,7 +455,7 @@ bool MagField::MagFieldTestbedAlg::checkWithReference() {
 	m_tree->Branch("fieldRelDiff", &fieldRelDiff, "diff/D");
 
 	if (m_useDerivatives) {
-		m_tree->Branch("ReferenceDerivatives", &m_deriv,
+		m_tree->Branch("ReferenceDerivatives", &refDerivatives,
 				"d1/D:d2/D:d3/D:d4/D:d5/D:d6/D:d7/D:d8/D:d9/D");
 	}
 

@@ -42,8 +42,6 @@
 ////////////////
 MagField::SolenoidTest::SolenoidTest( const std::string& name, ISvcLocator* pSvcLocator ) :
     ::AthAlgorithm( name, pSvcLocator ),
-    m_magFieldAthenaSvc( "MagFieldAthenaSvc", name ),
-    m_magField(0),
     m_magFieldSvc( "AtlasFieldSvc", name ),
     m_thistSvc( "THistSvc", name ),
     m_tree(0),
@@ -70,7 +68,6 @@ MagField::SolenoidTest::SolenoidTest( const std::string& name, ISvcLocator* pSvc
                      "Number of steps along phi (granularity)");
     declareProperty( "UseFullField", m_useFullField = true, "compute the full 3D field");
     declareProperty( "UseFastField", m_useFastField = true, "compute the fast 2D field");
-    declareProperty( "UseOldField", m_useOldField = false, "compute the old field");
     declareProperty( "WriteNtuple", m_writeNtuple = true, "produce the output ntuple");
     declareProperty( "Derivatives", m_derivatives = false, "compute the derivatives");
 }
@@ -84,11 +81,6 @@ MagField::SolenoidTest::~SolenoidTest()
 StatusCode MagField::SolenoidTest::initialize()
 {
     ATH_MSG_INFO("entering initialize()...");
-
-    if ( m_useOldField && m_magFieldAthenaSvc.retrieve().isFailure() ) {
-        ATH_MSG_ERROR( "Could not find MagFieldAthenaSvc" );
-        return StatusCode::FAILURE;
-    }
 
     if ( m_writeNtuple ) {
         // retrieve the histogram service
@@ -112,13 +104,6 @@ StatusCode MagField::SolenoidTest::initialize()
                 if ( m_derivatives ) {
                     m_tree->Branch( "derivZR", &m_derivZR,
                     "dBxdx2/D:dBxdy2/D:dBxdz2/D:dBydx2/D:dBydy2/D:dBydz2/D:dBzdx2/D:dBzdy2/D:dBzdz2/D" );
-                }
-            }
-            if ( m_useOldField ) {
-                m_tree->Branch( "fieldOld", &m_fieldOld, "BxO/D:ByO/D:BzO/D" );
-                if ( m_derivatives ) {
-                    m_tree->Branch( "derivOld", &m_derivOld,
-                    "dBxdxO/D:dBxdyO/D:dBxdzO/D:dBydxO/D:dBydyO/D:dBydzO/D:dBzdxO/D:dBzdyO/D:dBzdzO/D" );
                 }
             }
             // register this ROOT TTree to the THistSvc
@@ -147,10 +132,6 @@ StatusCode MagField::SolenoidTest::finalize() {
 // Athena hook:
 StatusCode MagField::SolenoidTest::execute() {
 
-    if ( m_useOldField ) {
-        m_magField = m_magFieldAthenaSvc->GetUpdatedMagFieldAthena();
-    }
-
     if( m_event==0 ) { // event #0
         // call field service once for initialization
         m_xyzt[0] = m_xyzt[1] = m_xyzt[2] = 0;
@@ -159,14 +140,6 @@ StatusCode MagField::SolenoidTest::execute() {
         // check the field status
         ATH_MSG_INFO("New service solenoidOn = " << m_magFieldSvc->solenoidOn());
         ATH_MSG_INFO("New service toroidOn   = " << m_magFieldSvc->toroidOn());
-        if ( m_magField ) {
-            ATH_MSG_INFO("Old service getToroidBarrelOn = " << m_magField->getToroidBarrelOn());
-            ATH_MSG_INFO("Old service getToroidECTAOn   = " << m_magField->getToroidECTAOn());
-            ATH_MSG_INFO("Old service getToroidECTCOn   = " << m_magField->getToroidECTCOn());
-            ATH_MSG_INFO("Old service getSolenoidOn     = " << m_magField->getSolenoidOn());
-            ATH_MSG_INFO("Old service getAllToroidOn    = " << m_magField->getAllToroidOn());
-            ATH_MSG_INFO("Old service getFieldStatusOn  = " << m_magField->getFieldStatusOn());
-        }
     }
     else if ( m_event==1 ) { // event #1
 
@@ -197,27 +170,6 @@ StatusCode MagField::SolenoidTest::execute() {
                           m_magFieldSvc->getFieldZR( m_xyzt, m_fieldZR, m_derivZR );
                       else
                           m_magFieldSvc->getFieldZR( m_xyzt, m_fieldZR, 0 );
-                  }
-                  // old field
-                  if ( m_useOldField ) {
-                      // unit conversion from mm to cm
-                      float f_pos_in_cm[3] = { (float)(m_xyzt[0]*.1), (float)(m_xyzt[1]*.1), (float)(m_xyzt[2]*.1) };
-                      float f_bfield[12];
-                      if ( !m_derivatives ) {
-                          m_magField->field_tesla_cm( f_pos_in_cm, f_bfield );
-                      } else {
-                          m_magField->fieldGradient_tesla_cm( f_pos_in_cm, f_bfield );
-                      }
-                      // unit conversion from kG to kT
-                      for ( int i = 0; i < 3; i++ ) {
-                          m_fieldOld[i] = (double)(f_bfield[i]*10.*CLHEP::kilogauss);
-                      }
-                      if ( m_derivatives ) {
-                          // unit conversion from kG/mm to kT/mm
-                          for ( int i = 0; i < 9; i++ ) {
-                              m_derivOld[i] = (double)(f_bfield[i+3]*CLHEP::kilogauss);
-			  }
-                      }
                   }
 
                   // fill the ROOT Tree

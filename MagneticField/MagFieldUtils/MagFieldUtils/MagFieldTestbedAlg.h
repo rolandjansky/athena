@@ -16,8 +16,7 @@
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "BFieldCore/AbstractMagneticField.h"
-#include "BFieldAth/IMagFieldAthenaSvc.h"
+#include "GaudiKernel/IChronoStatSvc.h"
 
 // forward declarations
 class ITHistSvc;
@@ -53,18 +52,20 @@ namespace MagField {
       void        getFieldValue();					   //!< get Field value either by G4 or by MagFieldSvc
       StatusCode  fetchEnvironment();				   //!< get environment either for g4 or for magFieldSvc
 
-      ServiceHandle<IMagFieldAthenaSvc>     m_magFieldAthenaSvc;  //!< service to get vanilla field svc
       ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;  //!< service to get vanilla field svc
 
-      MagFieldAthena* p_MagField;								//!< vanilla field service
       const G4Field *p_g4field;								//!< field service from G4
 
       ServiceHandle<ITHistSvc>        m_thistSvc;    //!< the histogram service
       std::string                     m_histStream;  //!< THistSvc stream name
 
+      ServiceHandle<IChronoStatSvc>        m_chronoSvc;    //!< the chrono service
+
       TTree                          *m_tree;        //!< the ROOT tree containing the output
       std::string                     m_treeName;    //!< name of the Tree object
 
+      bool                            m_generateBox;       //!< generate box
+      double                          m_minX;       //!< the minimum x for box generation
       double                          m_halfX;       //!< the half-lenght along x
       double                          m_halfY;       //!< the half-length along y
       double                          m_halfZ;       //!< the half-length along y
@@ -94,7 +95,6 @@ namespace MagField {
       
       bool                          m_complete;          //!< validation completed already?
       bool							m_useG4Field;        //!< G4
-      bool							m_useOldMagFieldSvc; //!< MagFieldSvc
       bool							m_recordReadings;    //!< record readings (for reproducability) or not (for speed tests)
       bool							m_useDerivatives;    //!< only outer detector values will be tested
       bool 							m_onlyCheckSolenoid; //!< only scan solenoid field
