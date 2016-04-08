@@ -21,6 +21,5 @@ use AthenaKernel        AthenaKernel-*         Control
 # Pattern to build the dict lib. User should create a single header
 # file: <package>Dict.h which includes all other .h files. See EventInfoDict
 apply_pattern lcgdict dict=G4SimTPCnv  selectionfile=selection.xml headerfiles="../G4SimTPCnv/G4SimTPCnvDict.h"
-apply_pattern lcgdict dict=ARA_G4SimTPCnv  selectionfile=ARA_selection.xml headerfiles="../G4SimTPCnv/G4SimTPCnvDict.h"
 apply_pattern lcgdict dict=OLD_G4SimTPCnv  selectionfile=OLD_selection.xml headerfiles="../G4SimTPCnv/G4SimTPCnvDict.h"
 end_private
