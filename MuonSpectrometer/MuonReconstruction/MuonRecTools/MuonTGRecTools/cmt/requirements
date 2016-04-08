@@ -14,7 +14,7 @@ use AthenaBaseComps     AthenaBaseComps-*       Control
 use MuonIdHelpers	MuonIdHelpers-*		         MuonSpectrometer
 use MuonReadoutGeometry	*       		         MuonSpectrometer/MuonDetDescr
 use MuonPrepRawData	MuonPrepRawData-*	         MuonSpectrometer/MuonReconstruction/MuonRecEvent
-use MuonPrepRawData	MuonPrepRawData-*	         MuonSpectrometer/MuonReconstruction/MuonRecEvent
+
 use MuonTrackMakerUtils MuonTrackMakerUtils-*            MuonSpectrometer/MuonReconstruction/MuonTrackMakers
 
 use EventPrimitives     EventPrimitives-*       Event
@@ -35,6 +35,7 @@ use TrkTrack             TrkTrack-*             Tracking/TrkEvent
 
 use GeneratorObjects    GeneratorObjects-*      Generators
 
+
 #--- activate for easier development with cmt broadcast
 
 library MuonTGRecTools *.cxx components/*.cxx
@@ -54,8 +55,11 @@ use TrkMaterialOnTrack   TrkMaterialOnTrack-*   Tracking/TrkEvent
 use TrkRIO_OnTrack       TrkRIO_OnTrack-*       Tracking/TrkEvent
 use TrkParameters       TrkParameters-*         Tracking/TrkEvent	
 use TrkMeasurementBase  TrkMeasurementBase-*    Tracking/TrkEvent
-
-
+use MuonLayerEvent      MuonLayerEvent-*                 MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use xAODTracking         xAODTracking-*         Event/xAOD
+use MuonRecToolInterfaces MuonRecToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonRecTools
+use RecoToolInterfaces  RecoToolInterfaces-*    Reconstruction/RecoTools
+use MuonDetDescrUtils MuonDetDescrUtils-* MuonSpectrometer/MuonDetDescr
 
 
 private
