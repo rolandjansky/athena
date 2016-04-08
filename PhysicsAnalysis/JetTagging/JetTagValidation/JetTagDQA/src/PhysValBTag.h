@@ -71,16 +71,15 @@ namespace JetTagDQA {
     /// Default constructor:
     PhysValBTag();
 
+    // isData flag
+    bool m_isData;
+
     // Containers
     std::string m_jetName1;
     std::string m_jetName2;
-    //  std::string m_jetName3;
+    std::string m_jetName3;
     std::string m_jetName4;
     std::string m_jetName5;
-    std::string m_jetName7;
-    std::string m_jetName6;
-    std::string m_jetName8;
-    std::string m_jetName9;
 
     std::string m_trackName;
     std::string m_vertexName;
@@ -90,20 +89,16 @@ namespace JetTagDQA {
     //  PhysVal::TrkAndVtxPlots m_trkvtxPlots;
 
     std::map<std::string, JetTagDQA::BTaggingValidationPlots> m_btagplots;
-    JetTagDQA::BTaggingValidationPlots m_antiKt4EMTopoPlots;
-    JetTagDQA::BTaggingValidationPlots m_antiKt4LCTopoPlots;
-    //  JetTagDQA::BTaggingValidationPlots m_antiKt4TruthPlots;
-    JetTagDQA::BTaggingValidationPlots m_antiKt4TruthWZPlots;
-    JetTagDQA::BTaggingValidationPlots m_antiKt10LCTopoPlots;
-    //  JetTagDQA::BTaggingValidationPlots m_antiKt10TruthPlots;
-    JetTagDQA::BTaggingValidationPlots m_antiKt10TruthWZPlots;
+
     JetTagDQA::BTaggingValidationPlots m_antiKt2PV0TrackJetPlots;
     JetTagDQA::BTaggingValidationPlots m_antiKt3PV0TrackJetPlots;
     JetTagDQA::BTaggingValidationPlots m_antiKt4PV0TrackJetPlots;
+    JetTagDQA::BTaggingValidationPlots m_antiKt4EMTopoPlots;
+    JetTagDQA::BTaggingValidationPlots m_antiKt4LCTopoPlots;
 
     int m_nevents;
-    int m_nTruthB;
-    int m_nTruthNonB;
+    //int m_nTruthB;
+    //int m_nTruthNonB;
 
     StatusCode book(PlotBase& plots);
   };

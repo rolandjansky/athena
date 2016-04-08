@@ -40,28 +40,23 @@ namespace JetTagDQA {
     ManagedMonitorToolBase( type, name, parent ),
     //   m_jetPlots(0, "Summary/Jet/", "Jet"),
     //    m_trkvtxPlots(0, "Summary/TrackAndVertex/"),
-    m_antiKt4EMTopoPlots(0, "BTag/AntiKt4EMTopo/", "antiKt4EMTopo"),
-    m_antiKt4LCTopoPlots(0, "BTag/AntiKt4LCTopo/", "antiKt4LCTopo"),
-    //    m_antiKt4TruthPlots(0, "BTag/AntiKt4Truth/", "antiKt4Truth"),
-    m_antiKt4TruthWZPlots(0, "BTag/AntiKt4TruthWZ/", "antiKt4TruthWZ"),
-    m_antiKt10LCTopoPlots(0, "BTag/AntiKt10LCTopo/", "antiKt10LCTopo"),
-    //    m_antiKt10TruthPlots(0, "BTag/AntiKt10Truth/", "antiKt10Truth"),
-    m_antiKt10TruthWZPlots(0, "BTag/AntiKt10TruthWZ/", "antiKt10TruthWZ"),
+    m_isData(false),
     m_antiKt2PV0TrackJetPlots(0, "BTag/AntiKt2PV0TrackJets/", "antiKt2PV0TrackJets"),
     m_antiKt3PV0TrackJetPlots(0, "BTag/AntiKt3PV0TrackJets/", "antiKt3PV0TrackJets"),
-    m_antiKt4PV0TrackJetPlots(0, "BTag/AntiKt4PV0TrackJets/", "antiKt4PV0TrackJets")
+    m_antiKt4PV0TrackJetPlots(0, "BTag/AntiKt4PV0TrackJets/", "antiKt4PV0TrackJets"),
+    m_antiKt4EMTopoPlots     (0, "BTag/AntiKt4EMTopo/"      , "antiKt4EMTopo"),
+    m_antiKt4LCTopoPlots     (0, "BTag/AntiKt4LCTopo/"      , "antiKt4LCTopo"),
+    m_nevents(0)
   {
 
-    declareProperty( "JetContainerName1", m_jetName1 = "AntiKt4EMTopoJets" );
-    declareProperty( "JetContainerName2", m_jetName2 = "AntiKt4LCTopoJets");
-    //    declareProperty( "JetContainerName3", m_jetName3 = "AntiKt4TruthJets");
-    declareProperty( "JetContainerName4", m_jetName4 = "AntiKt4TruthWZJets");
-    declareProperty( "JetContainerName5", m_jetName5 = "AntiKt10LCTopoJets");
-    //    declareProperty( "JetContainerName6", m_jetName6 = "AntiKt10TruthJets");
-    declareProperty( "JetContainerName7", m_jetName7 = "AntiKt10TruthWZJets");
-    declareProperty( "JetContainerName8", m_jetName6 = "AntiKt2PV0TrackJets");
-    declareProperty( "JetContainerName8", m_jetName8 = "AntiKt3PV0TrackJets");
-    declareProperty( "JetContainerName9", m_jetName9 = "AntiKt4PV0TrackJets");
+    declareProperty( "isData", m_isData );
+
+    declareProperty( "JetContainerName1", m_jetName1 = "AntiKt2PV0TrackJets");
+    declareProperty( "JetContainerName2", m_jetName2 = "AntiKt3PV0TrackJets");
+    declareProperty( "JetContainerName3", m_jetName3 = "AntiKt4PV0TrackJets");
+    declareProperty( "JetContainerName4", m_jetName4 = "AntiKt4EMTopoJets" );
+    declareProperty( "JetContainerName5", m_jetName5 = "AntiKt4LCTopoJets");
+
     declareProperty( "TrackContainerName", m_trackName = "InDetTrackParticles" );
     declareProperty( "VertexContainerName", m_vertexName = "PrimaryVertices" );
   }
@@ -78,18 +73,13 @@ namespace JetTagDQA {
 	ATH_MSG_INFO ("Initializing " << name() << "...");
 	ATH_CHECK(ManagedMonitorToolBase::initialize());
 
-	m_btagplots.insert(std::make_pair(m_jetName1, m_antiKt4EMTopoPlots));
-	m_btagplots.insert(std::make_pair(m_jetName2, m_antiKt4LCTopoPlots));
-    //	m_btagplots.insert(std::make_pair(m_jetName3, m_antiKt4TruthPlots));
-	m_btagplots.insert(std::make_pair(m_jetName4, m_antiKt4TruthWZPlots));
-	m_btagplots.insert(std::make_pair(m_jetName5, m_antiKt10LCTopoPlots));
-    //	m_btagplots.insert(std::make_pair(m_jetName6, m_antiKt10TruthPlots));
-	m_btagplots.insert(std::make_pair(m_jetName7, m_antiKt10TruthWZPlots));
-	m_btagplots.insert(std::make_pair(m_jetName6, m_antiKt2PV0TrackJetPlots));
-	m_btagplots.insert(std::make_pair(m_jetName8, m_antiKt3PV0TrackJetPlots));
-	m_btagplots.insert(std::make_pair(m_jetName9, m_antiKt4PV0TrackJetPlots));
-    //	m_nevents = 0;
-    return StatusCode::SUCCESS;
+	m_btagplots.insert(std::make_pair(m_jetName1, m_antiKt2PV0TrackJetPlots));
+	m_btagplots.insert(std::make_pair(m_jetName2, m_antiKt3PV0TrackJetPlots));
+	m_btagplots.insert(std::make_pair(m_jetName3, m_antiKt4PV0TrackJetPlots));
+	m_btagplots.insert(std::make_pair(m_jetName4, m_antiKt4EMTopoPlots));
+	m_btagplots.insert(std::make_pair(m_jetName5, m_antiKt4LCTopoPlots));
+   
+        return StatusCode::SUCCESS;
   }
 
   StatusCode PhysValBTag::book(PlotBase& plots)
@@ -152,11 +142,14 @@ namespace JetTagDQA {
         int label(1000);
         //double dR(1000);
 
-        if(jet->pt() > 20000 && abs(jet->eta()) < 2.5){
+        if(jet->pt() > 20000 && std::abs(jet->eta()) < 2.5){
           (plot_i->second).fill(jet);
 
-          if(jet->isAvailable<int>("ConeTruthLabelID")) label = jetFlavourLabel(jet, xAOD::JetFlavourLabelType::GAFinalHadron);
-          else jet->getAttribute("TruthLabelID",label);
+	  if(!m_isData) {
+	    //if(jet->isAvailable<int>("HadronConeExclTruthLabelID")) label = jetFlavourLabel(jet, xAOD::JetFlavourLabelType::GAFinalHadron);
+	    if(jet->isAvailable<int>("HadronConeExclTruthLabelID")) label = jetFlavourLabel(jet, xAOD::ConeFinalParton);
+	    else jet->getAttribute("TruthLabelID",label);
+	  }
 
           (plot_i->second).fill(label);
           if (btag){
