@@ -22,18 +22,8 @@
 
 SCT_DistortionsTool::SCT_DistortionsTool(const std::string& type, const std::string& name, const IInterface* parent):
   AthAlgTool(type,name,parent),
-  m_sctID(nullptr),
-  m_doCorrections(true),
-  m_dataJap1_S0(nullptr),
-  m_dataJap2_S0(nullptr),
-  m_dataUK_S0(nullptr),
-  m_dataUSA_S0(nullptr),
-  m_dataScand_S0(nullptr),
-  m_dataJap1_S1(nullptr),
-  m_dataJap2_S1(nullptr),
-  m_dataUK_S1(nullptr),
-  m_dataUSA_S1(nullptr),
-  m_dataScand_S1(nullptr)
+  m_sctID(0),
+  m_doCorrections(1)
 {
   declareInterface<ISCT_ModuleDistortionsTool>(this);
   declareProperty("TextFileName1",m_textFileNameJ1="HashJap1.txt","Read this file for hash id"); 
@@ -46,11 +36,11 @@ SCT_DistortionsTool::SCT_DistortionsTool(const std::string& type, const std::str
 }
 
 StatusCode SCT_DistortionsTool::initialize(){
-  ATH_MSG_DEBUG("initialize()");
+  msg(MSG::INFO)<< "initialize()"<< endreq;
   
   // Get the SCT helper
   if (detStore()->retrieve(m_sctID, "SCT_ID").isFailure()) {
-    ATH_MSG_FATAL( "Could not get SCT ID helper");
+    if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -68,7 +58,7 @@ StatusCode SCT_DistortionsTool::initialize(){
   
   bool readFiles = loadData();
   if (!readFiles){
-    ATH_MSG_FATAL( "Could not Read Files" );
+    if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Could not Read Files" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -76,14 +66,14 @@ StatusCode SCT_DistortionsTool::initialize(){
 }
 
 StatusCode SCT_DistortionsTool::execute() {
-  ATH_MSG_DEBUG( "execute()");
-  ATH_MSG_INFO( "SCT_DistortionsTool successfully installed");
+  msg(MSG::INFO)<< "execute()"<< endreq;
+  msg(MSG::INFO)<< "SCT_DistortionsTool successfully installed"<< endreq;
   return StatusCode::SUCCESS;
 }
 
 double SCT_DistortionsTool::correctReconstruction( const Trk::TrackParameters & trackPar, const InDetDD::SiDetectorElement & Element, Trk::LocalParameters & LocPar, const Amg::Vector2D & loct) const 
 {
-  ATH_MSG_DEBUG( "*** Including Distortions In Reconstruction ***");
+  msg(MSG::DEBUG) << "*** Including Distortions In Reconstruction ***"<<endreq;
   Trk::LocalParameters * locpar(&LocPar);
   Amg::Vector2D locpos( loct.y(),(*locpar)[Trk::locX] );
 
@@ -104,16 +94,16 @@ double SCT_DistortionsTool::correctReconstruction( const Trk::TrackParameters & 
   Amg::Vector3D dir(ydir ,xdir ,zdir );
   Amg::Vector2D Corr = correction(id, locpos, dir);// Correction gives X, Y shift
 
-  ATH_MSG_DEBUG( "correction = "<<Corr);
+  msg(MSG::DEBUG)<< "correction = "<<Corr<< endreq;
   return (Corr.y());
 }
 
 Amg::Vector2D SCT_DistortionsTool::correctSimulation(IdentifierHash id, double xhit, double yhit, double cEta, double cPhi, double cDep ) const 
 {
-  ATH_MSG_DEBUG( "*** Including Distortions In Digitization ***");
+  msg(MSG::DEBUG) << "*** Including Distortions In Digitization ***"<<endreq;
   Identifier waferIdHash = m_sctID->wafer_id(id);
   int sctSide   = m_sctID->side(waferIdHash);
-  ATH_MSG_DEBUG( "hash = "<< id <<" side = "<<sctSide <<" xhit = "<< xhit<< " yhit = " << yhit << "cEta = " << cEta << " cPhi = " << cPhi << "cDep = " << cDep );
+  msg(MSG::DEBUG) << "hash = "<< id <<" side = "<<sctSide <<" xhit = "<< xhit<< " yhit = " << yhit << "cEta = " << cEta << " cPhi = " << cPhi << "cDep = " << cDep <<endreq;
   double Dx = cEta, Dy = cPhi, Dz = cDep;
   double NewX = xhit, NewY = yhit;
   if(sctSide == 0)NewY = -yhit;
@@ -123,12 +113,12 @@ Amg::Vector2D SCT_DistortionsTool::correctSimulation(IdentifierHash id, double x
 
   Amg::Vector2D TempCorrSim;
   TempCorrSim = correction(id, newlocpos, Direction);// Correction gives X, Y shift
-  ATH_MSG_DEBUG( "TempCorrSim = " << TempCorrSim );
+  msg(MSG::DEBUG) << "TempCorrSim = " << TempCorrSim << endreq;
   xhit += TempCorrSim.x();
   if(sctSide == 1)yhit += TempCorrSim.y();
   if(sctSide == 0)yhit -= TempCorrSim.y();
   Amg::Vector2D NewPos( xhit, yhit);
-  ATH_MSG_DEBUG( " newpos = "<<NewPos );
+  msg(MSG::DEBUG) << " newpos = "<<NewPos <<endreq;
   return NewPos;
 }
 // **********************************************
@@ -152,12 +142,12 @@ Amg::Vector2D SCT_DistortionsTool::correction(IdentifierHash id, const Amg::Vect
   if( Side != 0) ID = ID - 1;
   Region = identifyRegion(ID);
   if (Region != 0) {
-    ATH_MSG_DEBUG( " Hash = "<< id<< " ID = " << ID <<" Side = "<< Side <<" Region = "<< Region );
+    msg(MSG::DEBUG)<< " Hash = "<< id<< " ID = " << ID <<" Side = "<< Side <<" Region = "<< Region <<endreq;
     // ***** Read in appropriate Z profile *****
     const std::vector<float>* ZVec = readDistortions(Region,Side);
     // ***** Find shift in Z for x,y position *****
     float delZ = zShift(xhit, yhit, ZVec );
-    ATH_MSG_DEBUG( " x = "<< xhit<< " y = " << yhit<<" delZ = "<< delZ );
+    msg(MSG::DEBUG)<< " x = "<< xhit<< " y = " << yhit<<" delZ = "<< delZ <<endreq;
     // ***** Calculate correction *****
     float tanThetaX = xdir/zdir; 
     float tanThetaY = ydir/zdir;
@@ -195,7 +185,7 @@ float SCT_DistortionsTool::zShift(const double xhit,const double yhit,const std:
   int k = 0;
   for(; ZVecFirst != ZVecLast; ++ZVecFirst){
     zGrid[k] = (*ZVecFirst) * m_distortionsScale;
-    ATH_MSG_DEBUG( "zvec =  " <<(*ZVecFirst)  ); 
+    msg(MSG::DEBUG) << "zvec =  " <<(*ZVecFirst)  << endreq; 
     k++;
   }
 
@@ -342,12 +332,12 @@ bool SCT_DistortionsTool::loadData() const
   // ***** Jap1 *****
   std::string file_name =  PathResolver::find_file(m_textFileNameJ1, "DATAPATH");
   if (file_name.size()==0) {
-    msg(MSG::WARNING) << "Hash file " << m_textFileNameJ1   << " not found! " << endmsg; 
+    msg(MSG::WARNING) << "Hash file " << m_textFileNameJ1   << " not found! " << endreq; 
     return false;
   }
   std::ifstream input(file_name.c_str());
   if ( !input.good() ) {
-    msg(MSG::WARNING) <<"Cannot open " << file_name   << " not found! "  << endmsg;
+    msg(MSG::WARNING) <<"Cannot open " << file_name   << " not found! "  << endreq;
     return false;
   }
   while ( input >> temp ) {
@@ -358,12 +348,12 @@ bool SCT_DistortionsTool::loadData() const
   // ***** Jap2 *****  
   std::string file_name2 =  PathResolver::find_file(m_textFileNameJ2, "DATAPATH");
   if (file_name2.size()==0) {
-    msg(MSG::WARNING) <<"Hash file " << m_textFileNameJ2   << " not found! "  << endmsg;
+    msg(MSG::WARNING) <<"Hash file " << m_textFileNameJ2   << " not found! "  << endreq;
     return false;
   }
   std::ifstream input2(file_name2.c_str());
   if ( !input2.good() ) {
-    msg(MSG::WARNING)<< "Cannot open " << file_name2   << " not found! " << endmsg;
+    msg(MSG::WARNING)<< "Cannot open " << file_name2   << " not found! " << endreq;
     return false;
   }
 
@@ -375,12 +365,12 @@ bool SCT_DistortionsTool::loadData() const
   // ***** UK *****
   std::string file_name3 =  PathResolver::find_file(m_textFileNameUK, "DATAPATH");
   if (file_name3.size()==0) {
-    msg(MSG::WARNING) << "Hash file " << m_textFileNameUK   << " not found! " << endmsg;
+    msg(MSG::WARNING) << "Hash file " << m_textFileNameUK   << " not found! " << endreq;
     return false;
   }
   std::ifstream input3(file_name3.c_str());
   if ( !input3.good() ) {
-    msg(MSG::WARNING) << "Cannot open " << file_name3   << " not found! " << endmsg;
+    msg(MSG::WARNING) << "Cannot open " << file_name3   << " not found! " << endreq;
     return false;
   }
 
@@ -392,12 +382,12 @@ bool SCT_DistortionsTool::loadData() const
   // ***** USA *****
   std::string file_name4 =  PathResolver::find_file(m_textFileNameUSA, "DATAPATH");
   if (file_name4.size()==0) {
-    msg(MSG::WARNING)<< "Hash file " << m_textFileNameUSA   << " not found! " << endmsg;
+    msg(MSG::WARNING)<< "Hash file " << m_textFileNameUSA   << " not found! " << endreq;
     return false;
   }
   std::ifstream input4(file_name4.c_str());
   if ( !input4.good() ) {
-     msg(MSG::WARNING) << "Cannot open " << file_name4   << " not found! " << endmsg;
+     msg(MSG::WARNING) << "Cannot open " << file_name4   << " not found! " << endreq;
     return false;
   }
   while ( input4 >> temp ) {
@@ -408,12 +398,12 @@ bool SCT_DistortionsTool::loadData() const
   // ***** Scand *****
   std::string file_name5 =  PathResolver::find_file(m_textFileNameScand, "DATAPATH");
   if (file_name5.size()==0) {
-     msg(MSG::WARNING) << "Hash file " << m_textFileNameScand   << " not found! " << endmsg;
+     msg(MSG::WARNING) << "Hash file " << m_textFileNameScand   << " not found! " << endreq;
     return false;
   }
   std::ifstream input5(file_name5.c_str());
   if ( !input5.good() ) {
-    msg(MSG::WARNING) << "Cannot open " << file_name5   << " not found! " << endmsg;
+    msg(MSG::WARNING) << "Cannot open " << file_name5   << " not found! " << endreq;
     return false;
   }
   while ( input5 >> temp ) {
@@ -423,11 +413,11 @@ bool SCT_DistortionsTool::loadData() const
 
   std::string pro_file_name =  PathResolver::find_file(m_textFileNameProfiles, "DATAPATH");
   if (pro_file_name.size()==0) {
-    msg(MSG::WARNING) << "Profile file " << m_textFileNameProfiles   << " not found! "  << endmsg;
+    msg(MSG::WARNING) << "Profile file " << m_textFileNameProfiles   << " not found! "  << endreq;
   }
   std::ifstream inputProfile(pro_file_name.c_str());
   if ( !inputProfile.good() ) {
-    msg(MSG::WARNING) <<"Cannot open " << pro_file_name   << " not found! "  << endmsg;
+    msg(MSG::WARNING) <<"Cannot open " << pro_file_name   << " not found! "  << endreq;
   }
  
   for ( int lines = 1; lines < 560; lines++ ) {
@@ -532,7 +522,7 @@ bool SCT_DistortionsTool::loadData() const
    
 int SCT_DistortionsTool::identifyRegion(IdentifierHash id) const 
 {  
-  ATH_MSG_DEBUG( "Identifying module common profile region: " ); 
+  msg(MSG::DEBUG) << "Identifying module common profile region: " << endreq; 
   //int REGION=0;//1=J1,2=J2,3=UK,4=USA,5=Scand
   //Identifier::value_type ID = id.get_compact();
   std::map<int,int>::iterator it;
@@ -549,7 +539,7 @@ int SCT_DistortionsTool::identifyRegion(IdentifierHash id) const
 }
 
 StatusCode SCT_DistortionsTool::finalize() {
-  ATH_MSG_INFO("finalize()");
+  msg(MSG::INFO)<<"finalize()"<< endreq;
   
   delete  m_dataJap1_S0;
   delete  m_dataJap2_S0;
