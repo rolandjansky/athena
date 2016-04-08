@@ -19,7 +19,7 @@
 #include "Identifier/Identifier.h"
 
 InDet::DiscOverlapDescriptor::DiscOverlapDescriptor(const Trk::BinnedArray<Trk::Surface>* bin_array, 
-						    const std::vector<Trk::BinUtility*>* singleBinUtils):
+						    std::vector<Trk::BinUtility*>* singleBinUtils):
   m_bin_array(bin_array),
   m_singleBinUtils(singleBinUtils)
 {}
