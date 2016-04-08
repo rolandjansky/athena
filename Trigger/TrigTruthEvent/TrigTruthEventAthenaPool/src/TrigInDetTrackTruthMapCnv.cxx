@@ -50,9 +50,9 @@ TrigInDetTrackTruthMap* TrigInDetTrackTruthMapCnv::createTransient() {
   }
   else if( compareClassGuid(tlp1_guid) ) {    
     mlog << MSG::DEBUG << "TrigInDetTrackTruthMapCnv::reading tlp1 persistent object" << endreq;
-    TrigInDetTrackTruthMapCnv_tlp1  m_tlp1_Converter;
-    poolReadObject< TrigInDetTrackTruthMap_tlp1 >(m_tlp1_Converter);
-    transObj = m_tlp1_Converter.createTransient( mlog );
+    TrigInDetTrackTruthMapCnv_tlp1  tlp1_Converter;
+    poolReadObject< TrigInDetTrackTruthMap_tlp1 >(tlp1_Converter);
+    transObj = tlp1_Converter.createTransient( mlog );
   }
   else if( compareClassGuid(p0_guid) ) {
     
