@@ -674,6 +674,9 @@ void Muon::TgcRdoToPrepDataTool::selectDecoder(const TgcRdo::const_iterator& itD
     } else if(((*itD)->type()==TgcRawData::TYPE_HIPT) && 
 	      ((*itD)->isHipt())) {
       status = decodeHiPt(itD);
+    } else if(((*itD)->type()==TgcRawData::TYPE_HIPT) && 
+	      (((*itD)->sector() & 4) != 0)) { // inner
+      status = decodeInner(itD);
     } else if(((*itD)->type()==TgcRawData::TYPE_SL)) {
       status = decodeSL(itD, rdoColl);
     }
@@ -1316,10 +1319,8 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
     return StatusCode::SUCCESS;
   }
 
-  bool isInner = (((*itD)->sector() & 4) != 0 ); // Inner flag for EIFI and Tilecal
-
   // Protection against invalid hitId
-  if((*itD)->hitId()==0 && !isInner ) {
+  if((*itD)->hitId()==0) {
     ATH_MSG_DEBUG("Invalid hitId_rdo_hipt, hitId == 0!! skip to convert this RDO to PRD");
     return StatusCode::SUCCESS;
   }
@@ -1367,7 +1368,6 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
   const MuonGM::TgcReadoutElement* descriptor_oo = 0;
 
   //*** TGC3 start ***//
-  //if (!isInner){
   // RDOHighPtID --> (Sim)HighPtID --> OfflineID --> ReadoutID --> getSLBID
   found = getHiPtIds(itD, sswId_o, sbLoc_o, slbId_o);
   if(!found) {
@@ -1394,7 +1394,6 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
   //*** TGC3 end ***//
 
   //*** TGC1 start ***//
-  //if (!isInner){
   // get the OfflineID of cernter of ROI of TGC1
   if(!((*itD)->isStrip())) { // wire
     getBitPosInWire(itD, DeltaBeforeConvert, bitpos_i, slbchannel_i, slbId_in, sbLoc_in, sswId_i, bitpos_o, 
@@ -1434,11 +1433,10 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
   
   //*** TGC3 start ***// 
   // Get geometry of pivot plane 
-  //if (!isInner){
   const MuonGM::TgcReadoutElement* descriptor_o[2] = {m_muonMgr->getTgcReadoutElement(channelIdOut[0]), 
                                                       m_muonMgr->getTgcReadoutElement(channelIdOut[1])};
   for(int i=0; i<2; i++) {
-    if(!isOfflineIdOKForTgcReadoutElement(descriptor_o[i], channelIdOut[i]) && !isInner ) {
+    if(!isOfflineIdOKForTgcReadoutElement(descriptor_o[i], channelIdOut[i])) {
       return StatusCode::SUCCESS;
     }
   }
@@ -1477,7 +1475,6 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
   
   //*** TGC1 start ***// 
   // Get geometry of non-pivot plane 
-  //if (!isInner){
   const MuonGM::TgcReadoutElement* descriptor_i[4] = {m_muonMgr->getTgcReadoutElement(channelIdIn[0]), 
                                                       m_muonMgr->getTgcReadoutElement(channelIdIn[1]), 
                                                       m_muonMgr->getTgcReadoutElement(channelIdIn[2]), 
@@ -1550,7 +1547,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
   if(!hitPos_o) ATH_MSG_WARNING("Muon::TgcRdoToPrepDataTool::decodeHiPt Amg::Vector2D* hitPos_o is null");
   const Amg::Vector2D* hitPos_i = new Amg::Vector2D(tmp_hitPos_i);
   if(!hitPos_i) ATH_MSG_WARNING("Muon::TgcRdoToPrepDataTool::decodeHiPt Amg::Vector2D* hitPos_i is null");
-  
+ 
   TgcCoinData* newCoinData = new TgcCoinData(channelIdIn_tmp,
 					     channelIdOut_tmp,
 					     tgcHashId, // determined from channelIdOut[1]
@@ -1559,7 +1556,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
 					     TgcCoinData::TYPE_HIPT, // Coincidence type
 					     ((*itD)->subDetectorId()==ASIDE), // isAside
 					     static_cast<int>(m_tgcHelper->stationPhi(channelIdOut_tmp)), // phi
-                                             isInner,
+                                             0, // isInner
 					     static_cast<bool>((*itD)->isForward()), // isForward
 					     static_cast<bool>((*itD)->isStrip()), // isStrip
 					     trackletId, // trackletId
@@ -1575,6 +1572,99 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
   coincollection->push_back(newCoinData);
 
   ATH_MSG_DEBUG("coincollection->push_back done (for HIPT)");
+
+  m_nHiPtPRDs++; // Count the number of output HiPt PRDs. 
+  
+  return StatusCode::SUCCESS;
+}
+
+StatusCode Muon::TgcRdoToPrepDataTool::decodeInner(const TgcRdo::const_iterator& itD)
+{
+  m_nHiPtRDOs++; // Count the number of input HiPt RDOs. 
+
+  if(!m_tgcCabling) {
+    StatusCode status = getCabling();
+    if(!status.isSuccess()) return status;
+  }
+
+  int subDetectorId = (*itD)->subDetectorId();
+  // Protection against invalid subDetectorId and isForward
+  if(subDetectorId!=ASIDE && subDetectorId!=CSIDE) {
+    ATH_MSG_DEBUG("TgcRdoToPrepDataTool::decodeHiPt::Unknown subDetectorId!!");
+    return StatusCode::SUCCESS;
+  }
+
+  bool isInner = (((*itD)->sector() & 4) != 0 ); // Inner flag for EIFI and Tilecal
+
+  TgcCoinDataCollection* coincollection = 0;
+  IdentifierHash tgcHashId;
+  IdContext tgcContext = m_tgcHelper->module_context();
+ 
+  Identifier channelIdIn; 
+  Identifier channelIdOut; 
+  int sswId_o = 9;
+  int sbLoc_o = (*itD)->sector() & 3;
+  int inner   = (*itD)->inner();
+  
+  int phi = 0; bool isAside = false; bool isEndcap;
+  m_tgcCabling->getSLIDfromReadoutID(phi, isAside, isEndcap, subDetectorId, 
+      (*itD)->rodId(), sswId_o, sbLoc_o);
+  
+  int locId = ((*itD)->bcTag()==TgcDigit::BC_CURRENT || (*itD)->bcTag()==TgcDigit::BC_UNDEFINED) 
+    ? 1 : (*itD)->bcTag()-1;
+  
+  Amg::Vector2D tmp_hitPos_i(0., 0.);
+  Amg::Vector2D tmp_hitPos_o(0., 0.);
+  const Amg::Vector2D* hitPos_o = new Amg::Vector2D(tmp_hitPos_o);
+  const Amg::Vector2D* hitPos_i = new Amg::Vector2D(tmp_hitPos_i);
+  
+  const MuonGM::TgcReadoutElement* descriptor_ii = 0;
+  const MuonGM::TgcReadoutElement* descriptor_oo = 0;
+
+  std::string stationName = "T3E"; 
+  int stationEta = isAside ? 1 : -1;
+  int stationPhi = phi;
+
+  Identifier elementId = m_tgcHelper->elementID(stationName, stationEta, stationPhi, true);
+  if(m_tgcHelper->get_hash(elementId, tgcHashId, &tgcContext)) {
+    ATH_MSG_WARNING("Unable to get TGC hash id from TGC RDO collection "
+		    << "context begin_index = " << tgcContext.begin_index()
+		    << " context end_index  = " << tgcContext.end_index()
+		    << " the identifier is ");
+    elementId.show();
+  }
+  
+  coincollection = Muon::IDC_Helper::getCollection<TgcCoinDataContainer, TgcIdHelper>
+    (elementId, m_tgcCoinDataContainer[locId], m_tgcHelper, msg());
+  
+  ATH_MSG_DEBUG("Inner Data Word, phi: " << phi << " isAside: " << isAside << " isEndcap: " << isEndcap
+                << " subDetectorId: " << subDetectorId << " isStrip: " << (*itD)->isStrip()
+                << " rodId: " << (*itD)->rodId() << " slbId: " << sbLoc_o << " inner:"<< (*itD)->inner());
+
+  TgcCoinData* newCoinData = new TgcCoinData(channelIdIn,  // empty
+					     channelIdOut, // empty
+					     tgcHashId, // determined from channelIdOut[1]
+					     descriptor_ii, // determined from channelIdIn_tmp
+					     descriptor_oo, // determined from channelIdOut_tmp
+					     TgcCoinData::TYPE_HIPT, // Coincidence type
+					     isAside, // isAside
+					     phi, // phi
+                                             isInner,
+					     0, // isForward
+					     static_cast<bool>((*itD)->isStrip()), // isStrip, Inner or Tile
+					     0, // trackletId
+					     hitPos_i, 
+					     hitPos_o,
+					     0., // width_i,
+					     0., // width_o,
+					     0, // delta,
+					     0, // hsub,
+                                             inner);
+  // add the digit to the collection
+  newCoinData->setHashAndIndex(coincollection->identifyHash(), coincollection->size());  
+  coincollection->push_back(newCoinData);
+
+  ATH_MSG_DEBUG("coincollection->push_back done (for Inner)");
 
   m_nHiPtPRDs++; // Count the number of output HiPt PRDs. 
   
