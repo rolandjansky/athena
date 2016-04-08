@@ -2,18 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigFTK_RawData/FTK_RawTrack.h"
-#undef private
-#undef protected
-
 #include "TrigFTK_RawDataTPCnv/FTK_RawTrackCnv_p1.h"
 #include "TrigFTK_RawDataTPCnv/FTK_RawTrack_p1.h"
 
 void FTK_RawTrackCnv_p1::persToTrans(const FTK_RawTrack_p1* persObj,
 				     FTK_RawTrack* transObj,
-				     MsgStream &log)
+				     MsgStream &/*log*/)
 {
   //  log << MSG::INFO << "FTK_RawTrackCnv_p1::persToTrans called" << endreq;
   //  log << MSG::ATH << "FTK_RawTrackCnv_p1:: m_pars[th1] = " << persObj->m_pars[th1] << endreq;
@@ -28,6 +23,7 @@ void FTK_RawTrackCnv_p1::persToTrans(const FTK_RawTrack_p1* persObj,
   transObj->setTH3(persObj->m_pars[th3]);
   transObj->setTH4(persObj->m_pars[th4]);
   transObj->setTH5(persObj->m_pars[th5]);
+  transObj->setTH6(persObj->m_pars[th6]);
   transObj->setBarcode(persObj->m_barcode);
 
   // Pixel Clusters //
@@ -136,6 +132,7 @@ void FTK_RawTrackCnv_p1::transToPers(const FTK_RawTrack* transObj,
   persObj->m_pars[th3] = transObj->getTH3();
   persObj->m_pars[th4] = transObj->getTH4();
   persObj->m_pars[th5] = transObj->getTH5();
+  persObj->m_pars[th6] = transObj->getTH6();
   persObj->m_barcode   = transObj->getBarcode();
 
   // Pixel Clusters //
@@ -180,53 +177,51 @@ void FTK_RawTrackCnv_p1::transToPers(const FTK_RawTrack* transObj,
   persObj->m_pars_sct[7]     = transObj->getSCTCluster(7).getWord();
   persObj->m_barcodes_sct[7] = transObj->getSCTCluster(7).getBarcode();*/
 
-  FTK_RawTrack trans_track = *(const_cast<FTK_RawTrack*>(transObj));
-
   // Pixel Clusters //
-  //  persObj->m_pars_pix[0]     = trans_track.getPixelCluster(0).getWordA();
-  //  persObj->m_pars_pix[1]     = trans_track.getPixelCluster(0).getWordB();
-  //  persObj->m_barcodes_pix[0] = trans_track.getPixelCluster(0).getBarcode();
-  persObj->m_pars_pix[0]     = trans_track.getPixelWordA(0);
-  persObj->m_pars_pix[1]     = trans_track.getPixelWordB(0);
-  persObj->m_barcodes_pix[0] = trans_track.getPixelBarcode(0);
-  //  log << MSG::INFO << "FTK_RawTrackCnv_p1::pixel barcode" << trans_track.getPixelCluster(0)->getBarcode() << endreq;
+  //  persObj->m_pars_pix[0]     = transObj->getPixelCluster(0).getWordA();
+  //  persObj->m_pars_pix[1]     = transObj->getPixelCluster(0).getWordB();
+  //  persObj->m_barcodes_pix[0] = transObj->getPixelCluster(0).getBarcode();
+  persObj->m_pars_pix[0]     = transObj->getPixelWordA(0);
+  persObj->m_pars_pix[1]     = transObj->getPixelWordB(0);
+  persObj->m_barcodes_pix[0] = transObj->getPixelBarcode(0);
+  //  log << MSG::INFO << "FTK_RawTrackCnv_p1::pixel barcode" << transObj->getPixelCluster(0)->getBarcode() << endreq;
   //  log << MSG::INFO << "FTK_RawTrackCnv_p1::pixel barcode" << persObj->m_barcodes_pix[0] << endreq;
-  persObj->m_pars_pix[2]     = trans_track.getPixelCluster(1).getWordA();
-  persObj->m_pars_pix[3]     = trans_track.getPixelCluster(1).getWordB();
-  persObj->m_barcodes_pix[1] = trans_track.getPixelCluster(1).getBarcode();
+  persObj->m_pars_pix[2]     = transObj->getPixelCluster(1).getWordA();
+  persObj->m_pars_pix[3]     = transObj->getPixelCluster(1).getWordB();
+  persObj->m_barcodes_pix[1] = transObj->getPixelCluster(1).getBarcode();
 
-  persObj->m_pars_pix[4]     = trans_track.getPixelCluster(2).getWordA();
-  persObj->m_pars_pix[5]     = trans_track.getPixelCluster(2).getWordB();
-  persObj->m_barcodes_pix[2] = trans_track.getPixelCluster(2).getBarcode();
+  persObj->m_pars_pix[4]     = transObj->getPixelCluster(2).getWordA();
+  persObj->m_pars_pix[5]     = transObj->getPixelCluster(2).getWordB();
+  persObj->m_barcodes_pix[2] = transObj->getPixelCluster(2).getBarcode();
 
-  persObj->m_pars_pix[6]     = trans_track.getPixelCluster(3).getWordA();
-  persObj->m_pars_pix[7]     = trans_track.getPixelCluster(3).getWordB();
-  persObj->m_barcodes_pix[3] = trans_track.getPixelCluster(3).getBarcode();
+  persObj->m_pars_pix[6]     = transObj->getPixelCluster(3).getWordA();
+  persObj->m_pars_pix[7]     = transObj->getPixelCluster(3).getWordB();
+  persObj->m_barcodes_pix[3] = transObj->getPixelCluster(3).getBarcode();
 
   // SCT Clusters //
-  persObj->m_pars_sct[0]     = trans_track.getSCTCluster(0).getWord();
-  persObj->m_barcodes_sct[0] = trans_track.getSCTCluster(0).getBarcode();
+  persObj->m_pars_sct[0]     = transObj->getSCTCluster(0).getWord();
+  persObj->m_barcodes_sct[0] = transObj->getSCTCluster(0).getBarcode();
   
-  persObj->m_pars_sct[1]     = trans_track.getSCTCluster(1).getWord();
-  persObj->m_barcodes_sct[1] = trans_track.getSCTCluster(1).getBarcode();
+  persObj->m_pars_sct[1]     = transObj->getSCTCluster(1).getWord();
+  persObj->m_barcodes_sct[1] = transObj->getSCTCluster(1).getBarcode();
 
-  persObj->m_pars_sct[2]     = trans_track.getSCTCluster(2).getWord();
-  persObj->m_barcodes_sct[2] = trans_track.getSCTCluster(2).getBarcode();
+  persObj->m_pars_sct[2]     = transObj->getSCTCluster(2).getWord();
+  persObj->m_barcodes_sct[2] = transObj->getSCTCluster(2).getBarcode();
 
-  persObj->m_pars_sct[3]     = trans_track.getSCTCluster(3).getWord();
-  persObj->m_barcodes_sct[3] = trans_track.getSCTCluster(3).getBarcode();
+  persObj->m_pars_sct[3]     = transObj->getSCTCluster(3).getWord();
+  persObj->m_barcodes_sct[3] = transObj->getSCTCluster(3).getBarcode();
 
-  persObj->m_pars_sct[4]     = trans_track.getSCTCluster(4).getWord();
-  persObj->m_barcodes_sct[4] = trans_track.getSCTCluster(4).getBarcode();
+  persObj->m_pars_sct[4]     = transObj->getSCTCluster(4).getWord();
+  persObj->m_barcodes_sct[4] = transObj->getSCTCluster(4).getBarcode();
 
-  persObj->m_pars_sct[5]     = trans_track.getSCTCluster(5).getWord();
-  persObj->m_barcodes_sct[5] = trans_track.getSCTCluster(5).getBarcode();
+  persObj->m_pars_sct[5]     = transObj->getSCTCluster(5).getWord();
+  persObj->m_barcodes_sct[5] = transObj->getSCTCluster(5).getBarcode();
 
-  persObj->m_pars_sct[6]     = trans_track.getSCTCluster(6).getWord();
-  persObj->m_barcodes_sct[6] = trans_track.getSCTCluster(6).getBarcode();
+  persObj->m_pars_sct[6]     = transObj->getSCTCluster(6).getWord();
+  persObj->m_barcodes_sct[6] = transObj->getSCTCluster(6).getBarcode();
 
-  persObj->m_pars_sct[7]     = trans_track.getSCTCluster(7).getWord();
-  persObj->m_barcodes_sct[7] = trans_track.getSCTCluster(7).getBarcode();
+  persObj->m_pars_sct[7]     = transObj->getSCTCluster(7).getWord();
+  persObj->m_barcodes_sct[7] = transObj->getSCTCluster(7).getBarcode();
 }
 
 
