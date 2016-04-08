@@ -72,8 +72,7 @@ private:
     const Trk::Surface*			m_caloForwardDisc;
     double				m_etaSafetyFactor;
     std::string				m_inDetTracksLocation;
-    // FIXME: mutable
-    mutable ToolHandle<Trk::IIntersector>	m_intersector;
+    ToolHandle<Trk::IIntersector>	m_intersector;
     mutable double			m_maxP;
     double				m_minPt;
     double				m_trackCone;
