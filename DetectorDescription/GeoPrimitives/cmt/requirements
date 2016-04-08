@@ -9,6 +9,9 @@ use EventPrimitives     EventPrimitives-*        Event
 use AtlasCLHEP          AtlasCLHEP-*             External
 use CxxUtils            CxxUtils-*                       Control
 
+# Generate an interface library for the package for CMake:
+apply_pattern cmake_add_command command=metalibrary
+
 private
 use AtlasROOT          AtlasROOT-*              External
 use AtlasReflex        AtlasReflex-*        External -no_auto_imports
