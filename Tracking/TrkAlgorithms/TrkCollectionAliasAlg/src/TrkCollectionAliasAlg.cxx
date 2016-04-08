@@ -49,14 +49,14 @@ StatusCode Trk::TrkCollectionAliasAlg::execute()
   sc = evtStore()->retrieve(trkColPtr,m_collectionName);
   if (sc.isFailure())
     {
-      msg(MSG::ERROR) << "Could not retrieve TrackCollection " << m_collectionName << endmsg;
+      msg(MSG::ERROR) << "Could not retrieve TrackCollection " << m_collectionName << endreq;
       return StatusCode::FAILURE;
     }
 
   sc = evtStore()->setAlias(trkColPtr,m_aliasName);
   if (sc.isFailure())
     {
-      msg(MSG::ERROR) << "Could not alias TrackCollection " << m_collectionName << " to " << m_aliasName << endmsg;
+      msg(MSG::ERROR) << "Could not alias TrackCollection " << m_collectionName << " to " << m_aliasName << endreq;
       return StatusCode::FAILURE;
     }
 
