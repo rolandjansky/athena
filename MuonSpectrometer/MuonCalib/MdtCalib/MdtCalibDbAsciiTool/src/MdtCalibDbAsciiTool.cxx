@@ -597,7 +597,7 @@ bool MdtCalibDbAsciiTool :: interpret_chamber_name(const std::string &nm, const 
   station=std::string(cutout, 0, uscore_pos);
 //get eta and phi
   std::string cutout2(cutout, uscore_pos+1);
-  if(sscanf(cutout2.c_str(), "%d_%d", &phi, &eta)!=2) return false;
+  if(sscanf(cutout2.c_str(), "%80d_%80d", &phi, &eta)!=2) return false;
   return true;	
 }
 
