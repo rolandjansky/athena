@@ -59,10 +59,6 @@ class TRTHitIdHelper : HitIdHelper {
   //
   // Initialize the helper, only called by the constructor
   void Initialize();  
- private:
-  //
-  // private data:
-  static TRTHitIdHelper* m_help;
 };
 
 #endif // INDETSIMEVENT_TRTHITIDHELPER

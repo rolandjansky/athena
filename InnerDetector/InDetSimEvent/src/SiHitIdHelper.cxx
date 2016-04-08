@@ -2,31 +2,49 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <mutex>
+
 #include "InDetSimEvent/SiHitIdHelper.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
 #include "InDetIdentifier/PixelID.h"
 
-SiHitIdHelper* SiHitIdHelper::m_help = 0;
+#ifdef ATHENAHIVE
+#  include "GaudiKernel/ContextSpecificPtr.h"
+#endif
 
-// 
+static std::mutex _sgMutex;
+
+//
 // private constructor
 SiHitIdHelper::SiHitIdHelper() :HitIdHelper() {
   Initialize();
 }
 
 SiHitIdHelper* SiHitIdHelper::GetHelper() {
-  if(m_help == 0) m_help = new SiHitIdHelper();
-  return m_help;
+#ifdef ATHENAHIVE
+  // Context-specific singleton
+  static Gaudi::Hive::ContextSpecificPtr<SiHitIdHelper> helperPtr;
+  if(!helperPtr) helperPtr = new SiHitIdHelper();
+  return helperPtr.get();
+#else
+  static SiHitIdHelper helper;
+  return &helper;
+#endif
 }
 
 void SiHitIdHelper::Initialize() {
 
   // determine whether hits were created with an SLHC dictionary
-  // in which case eta module field is expanded
-  StoreGateSvc* detStore = StoreGate::pointer("DetectorStore");
+  // in which case eta module field is expanded.
+  // Need to lock this thread-unsafe retrieval
   const PixelID* pix;
-  if (detStore->retrieve(pix, "PixelID").isFailure()) pix = 0;
+  StoreGateSvc* detStore(nullptr);
+  {
+    std::lock_guard<std::mutex> lock(_sgMutex);
+    detStore = StoreGate::pointer("DetectorStore");
+    if (detStore->retrieve(pix, "PixelID").isFailure()) { pix = 0; }
+  }
   bool isSLHC = (pix != 0 && pix->dictionaryVersion() == "SLHC");
   bool isDBM  = (pix != 0 && pix->dictionaryVersion() == "IBL-DBM");
 
@@ -40,8 +58,8 @@ void SiHitIdHelper::Initialize() {
   InitializeField("Side",0,3);
 }
 
-  // Info retrieval:
-  // Pixel or SCT
+// Info retrieval:
+// Pixel or SCT
 bool SiHitIdHelper::isPixel(const int& hid){
   this->SetID(hid);
   int ps = this->GetFieldValue("PixelSCT");
@@ -54,7 +72,7 @@ bool SiHitIdHelper::isSCT(const int& hid){
   int ps = this->GetFieldValue("PixelSCT");
   if (ps ==0 ) return false;
   else return true;
-}  
+}
 
 // Barrel or Endcap
 int SiHitIdHelper::getBarrelEndcap(const int& hid){
@@ -66,7 +84,7 @@ int SiHitIdHelper::getBarrelEndcap(const int& hid){
 int SiHitIdHelper::getLayerDisk(const int& hid) {
   this->SetID(hid);
   return this->GetFieldValue("LayerDisk");
-}  
+}
 
 // eta module
 int SiHitIdHelper::getEtaModule(const int& hid)  {
@@ -79,7 +97,7 @@ int SiHitIdHelper::getPhiModule(const int& hid) {
   this->SetID(hid);
   return this->GetFieldValue("PhiModule");
 }
-  
+
 // side
 int SiHitIdHelper::getSide(const int& hid) {
   this->SetID(hid);
@@ -90,7 +108,7 @@ int SiHitIdHelper::getSide(const int& hid) {
 //
 // Info packing:
 int SiHitIdHelper::buildHitId(const int Pixel_SCT, const int BrlECap, const int LayerDisk,
-			      const int etaM, const int phiM, const int side) {
+                              const int etaM, const int phiM, const int side) {
   this->SetID(0);
   this->SetFieldValue("PixelSCT",       Pixel_SCT);
   this->SetFieldValue("BarrelEndcap",   BrlECap);
@@ -100,5 +118,3 @@ int SiHitIdHelper::buildHitId(const int Pixel_SCT, const int BrlECap, const int 
   this->SetFieldValue("Side",           side);
   return this->GetID();
 }
-
-
