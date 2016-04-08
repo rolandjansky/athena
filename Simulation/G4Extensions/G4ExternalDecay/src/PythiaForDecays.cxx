@@ -7,7 +7,7 @@
 #include "G4ExternalDecay/PythiaForDecays.h"
 #include "Pythia_i/Pythia.h"
 #include "Pythia_i/Pydat3.h"
-//#include "Pythia_i/Pydat2.h"
+#include "Pythia_i/Pydat2.h"
 #include "Pythia_i/Pydat1.h"
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/GenEvent.h"
@@ -95,7 +95,7 @@ void PythiaForDecays::Py1ent(int ip, int kf, double pe, double theta, double phi
 }
 
 void PythiaForDecays::DecayRhadrons(int pdgid){
-  std::cout<<"ACH start DecayRhadrons for pdgid "<<pdgid<<std::endl;
+  //std::cout<<"ACH start DecayRhadrons for pdgid "<<pdgid<<std::endl;
   int pyl=3;//level to list to output text
 
   //only decay daughter particles from the decay that are "near" the hadron
@@ -106,7 +106,7 @@ void PythiaForDecays::DecayRhadrons(int pdgid){
 
   //Deal with standard hadrons first...
   if (abs(pdgid)<1000000){
-    std::cout<<"ACH decay standard hadron for pdgid "<<pdgid<<std::endl;
+    //std::cout<<"ACH decay standard hadron for pdgid "<<pdgid<<std::endl;
     pyjets_.k[0][0]=5;//make it decay right away!
     //pylist_(&pyl);
     pyexec_();
@@ -117,31 +117,39 @@ void PythiaForDecays::DecayRhadrons(int pdgid){
   //Real Rhadron stuff...
   pdgid=abs(pdgid);
   pyjets_.k[0][0]=6;
+  Pydat3 m_pydat3;
+  Pydat2 m_pydat2;
   //pylist_(&pyl);
   if ( pdgid/10000==109 || pdgid/1000==1009 || pdgid/100==10009 ){
-    std::cout<<"ACH decay gluino rhadron .."<<std::endl;
-    Pydat3 m_pydat3;
+    //std::cout<<"ACH decay gluino rhadron .."<<std::endl;
     int kfgl = 1000021;//gluino
     m_pydat3.mdcy(pycomp_(&kfgl),1)=1;// MDCY(PYCOMP(KFGL),1)=1 //unstable gluino
+    float oldl=m_pydat2.pmas(pycomp_(&kfgl),4);//remember lifetime
+    m_pydat2.pmas(pycomp_(&kfgl),4)=0;//decay it promptly!
     pygldc_();//gluino DECAY
+    m_pydat2.pmas(pycomp_(&kfgl),4)=oldl;//set lifetime back to what it was
     //pylist_(&pyl);
   }
   else if ( pdgid/1000==1006 || pdgid/100==10006 ){
-    std::cout<<"ACH decay stop rhadron .."<<std::endl;
+    //std::cout<<"ACH decay stop rhadron .."<<std::endl;
     Pydat3 m_pydat3;
     int kfgl = 1000006;//stop
     m_pydat3.mdcy(pycomp_(&kfgl),1)=1;// MDCY(PYCOMP(KFGL),1)=1 //unstable stop
-    int sq=1000006;
-    pysqdc_(&sq);//stop DECAY!
+    float oldl=m_pydat2.pmas(pycomp_(&kfgl),4);//remember lifetime
+    m_pydat2.pmas(pycomp_(&kfgl),4)=0;//decay it promptly!
+    pysqdc_(&kfgl);//stop DECAY!
+    m_pydat2.pmas(pycomp_(&kfgl),4)=oldl;//set lifetime back to what it was
     //pylist_(&pyl);
   }
   else if ( pdgid/1000==1005 || pdgid/100==10005 ){
-    std::cout<<"ACH decay sbottom rhadron .."<<std::endl;
+    //std::cout<<"ACH decay sbottom rhadron .."<<std::endl;
     Pydat3 m_pydat3;
     int kfgl = 1000005;//sbottom
     m_pydat3.mdcy(pycomp_(&kfgl),1)=1;// MDCY(PYCOMP(KFGL),1)=1 //unstable sbottom
-    int sq=1000005;
-    pysqdc_(&sq);//sbottom DECAY!
+    float oldl=m_pydat2.pmas(pycomp_(&kfgl),4);//remember lifetime
+    m_pydat2.pmas(pycomp_(&kfgl),4)=0;//decay it promptly!    
+    pysqdc_(&kfgl);//sbottom DECAY!
+    m_pydat2.pmas(pycomp_(&kfgl),4)=oldl;//set lifetime back to what it was
     //pylist_(&pyl);
   }
   else{
@@ -168,6 +176,8 @@ void PythiaForDecays::ImportParticles( std::vector<G4DynamicParticle*> & particl
 
   for (HepMC::GenEvent::particle_const_iterator p=evt->particles_begin(); p!=evt->particles_end(); ++p){
     if (! (*p) ) continue;
+
+    /*
     double r=0;
     if ((*p)->production_vertex()) {
       double x=(*p)->production_vertex()->position().x();
@@ -175,6 +185,8 @@ void PythiaForDecays::ImportParticles( std::vector<G4DynamicParticle*> & particl
       r=sqrt(x*x+y*y);
     }
     std::cout<<"ImportParticles: "<<(*p)->pdg_id()<<", vertex r "<<r<<", status "<<(*p)->status()<<std::endl;
+    */
+
     if ( (*p)->status()!=1 ) continue; // stable only
     //if ( std::abs((*p)->pdg_id())==12 || std::abs((*p)->pdg_id())==14 || std::abs((*p)->pdg_id())==16 ) continue; // skip neutrinos
     G4ThreeVector momentum( (*p)->momentum().x() , (*p)->momentum().y() , (*p)->momentum().z() );
