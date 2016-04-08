@@ -386,6 +386,7 @@ RegStream1.Regi...  DEBUG  Closed collection
 GlobalEventTagB...  DEBUG in stop()
 GlobalEventTagB...   INFO Event sum copied to MetaDataStore for GlobalEventTagBuilder.GlobalEventTagTool
 ApplicationMgr       INFO Application Manager Stopped successfully
+GlobalEventTagB...  DEBUG Calling destructor
 RegStream1          DEBUG In finalize
 RegStream1.Regi...  DEBUG In finalize: 5
 RegStream1.Regi...  DEBUG Calling destructor

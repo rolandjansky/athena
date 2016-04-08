@@ -786,6 +786,7 @@ RegStream3.TagT...VERBOSE ServiceLocatorHelper::service: found service StoreGate
 ApplicationMgr       INFO Application Manager Stopped successfully
 EventTagWriter      DEBUG Finalizing EventTagWriter
 DefaultCollMeta     DEBUG In finalize 
+EventTagWriter      DEBUG Calling destructor
 DefaultCollMeta     DEBUG Calling destructor
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully

@@ -452,5 +452,6 @@ EventTagReader      DEBUG NAME TEST2_ref TYPE string VALUE TEST2_ref (string) : 
 EventTagReader      DEBUG NAME eventRef TYPE string VALUE eventRef (string) : [DB=7C35CFCE-CB62-DA11-8DA1-000E0C4DE51A][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000005-0000000000000004]
 ApplicationMgr       INFO Application Manager Stopped successfully
 EventTagReader      DEBUG Finalizing EventTagReader
+EventTagReader      DEBUG Calling destructor
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
