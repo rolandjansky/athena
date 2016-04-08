@@ -7,12 +7,7 @@
 // Author: David Cote, July 2009 <david.cote@cern.ch>
 ///////////////////////////////////////////////////////////////////
 
-#define private public
-#define protected public
 #include "EventBookkeeperMetaData/EventBookkeeper.h"
-#undef private
-#undef protected
-
 #include "EventBookkeeperTPCnv/EventBookkeeperCnv_p2.h"
 
 void EventBookkeeperCnv_p2::transToPers(const EventBookkeeper* trans, EventBookkeeper_p2* pers, MsgStream &log) {
