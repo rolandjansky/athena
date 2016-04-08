@@ -9,7 +9,8 @@
 
 NtupleAlgorithm::NtupleAlgorithm(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm (name, pSvcLocator),
-  m_tree(0),
+  m_tree(nullptr),
+  m_treeRun(nullptr),
   m_activeStore("ActiveStoreSvc", name),
   m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool", this)
 {
