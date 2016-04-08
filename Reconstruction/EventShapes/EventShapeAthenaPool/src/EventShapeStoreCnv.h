@@ -3,7 +3,7 @@
 */
 
 #ifndef EVENTSHAPEATHENAPOOL_EVENTSHAPESTORECNV_H
-#define SHAPEEVENTATHENAPOOL_EVENTSHAPESTORECNV_H
+#define EVENTSHAPEATHENAPOOL_EVENTSHAPESTORECNV_H
 
 #include "EventShapeTPCnv/EventShapeStoreCnv_p1.h"
 
@@ -32,4 +32,4 @@ class EventShapeStoreCnv : public EventShapeStoreCnvBase
   
 };
 
-#endif
+#endif // EVENTSHAPEATHENAPOOL_EVENTSHAPESTORECNV_H
