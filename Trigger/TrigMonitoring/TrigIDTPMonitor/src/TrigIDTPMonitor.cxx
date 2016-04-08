@@ -57,6 +57,7 @@ TrigIDTPMonitor::TrigIDTPMonitor(const std::string& name, ISvcLocator* pSvcLocat
   declareMonitoredStdContainer("LinesPhi", m_linesphi, AutoClear);
 
   //verification of 2D histograms
+  declareMonitoredVariable("InvMassBeforeSelection",   m_invBS,        -1);
   declareMonitoredVariable("InvMassD",   m_invD,        -1);
   declareMonitoredVariable("InvMassN",   m_invN,        -1);
   declareMonitoredVariable("InvMassTPD", m_invTPD,      -1);
@@ -71,6 +72,8 @@ TrigIDTPMonitor::TrigIDTPMonitor(const std::string& name, ISvcLocator* pSvcLocat
   declareMonitoredVariable("ProbePhiN",  m_phiN,       -10);
   declareMonitoredVariable("deltaMass",  m_massDiff,-99999);
   declareMonitoredVariable("ID-TagMass", m_IDTmass,     -1);
+  declareMonitoredVariable("PTfound",    m_PTfound,      0);
+  declareMonitoredVariable("FTFfound",   m_FTFfound,     0);
 
 
   declareMonitoredStdContainer("Efficiencies", m_eff,  AutoClear);
@@ -94,7 +97,7 @@ HLT::ErrorCode TrigIDTPMonitor::hltBeginRun() {
   return HLT::OK;
 }
 
-HLT::ErrorCode TrigIDTPMonitor::acceptInput(const HLT::TriggerElement* inputTE, bool& pass){
+HLT::ErrorCode TrigIDTPMonitor::acceptInput(const HLT::TriggerElement* /*inputTE*/, bool& pass){
   ATH_MSG_DEBUG( "Running TrigIDTPMonitor::acceptInputs" );
   pass = true;
   return HLT::OK;
@@ -188,6 +191,8 @@ HLT::ErrorCode TrigIDTPMonitor::hltExecute(const HLT::TriggerElement* inputTE, H
       }
   }
 
+  m_invBS = invMass;
+
   if(abs(invMass-m_mumuMass)>m_massAcceptanceTP)
     {
       ATH_MSG_DEBUG( "Invalid Candidate from TrigEFBPhys mass" );
@@ -216,90 +221,6 @@ HLT::ErrorCode TrigIDTPMonitor::hltExecute(const HLT::TriggerElement* inputTE, H
 
   TrigConf::HLTTriggerElement::getLabel( tes.back()->getId(), teInLabel2 );
   ATH_MSG_DEBUG( "Name2: " << teInLabel2 );
-
-
-  //Is this section necessary
-
-  //Muon ID Tracks
-
-  const xAOD::TrackParticleContainer *muon1TrkContainer(NULL);
-  const xAOD::TrackParticleContainer *muon2TrkContainer(NULL);
-
-  ATH_MSG_DEBUG( "FTF get" );
-
-  if ( getFeature(tes.front(), muon1TrkContainer, "InDetTrigTrackingxAODCnv_Muon_FTF") != HLT::OK){//,"InDetTrigParticleCreation_Muon_EFID") != HLT::OK ) {
-    ATH_MSG_WARNING( "Navigation error while getting TrackParticleContainer 1 - FTF" );
-    return HLT::OK;
-  }
-
-  if (muon1TrkContainer == NULL ){
-    ATH_MSG_DEBUG( "Navigation error whilst getting TrackParticleContainer 1. Received null pointer" );
-    return HLT::OK;
-  }
-
-  ATH_MSG_DEBUG( "Got Particle collection 1 with " << muon1TrkContainer->size() << " particles" );
-
-  if ( getFeature(tes.back(), muon2TrkContainer, "InDetTrigTrackingxAODCnv_Muon_FTF") != HLT::OK){//,"InDetTrigParticleCreation_Muon_EFID") != HLT::OK ) {
-    ATH_MSG_WARNING( "Navigation error while getting TrackParticleContainer 2 - FTF" );
-    return HLT::OK;
-  }
-
-  if (muon1TrkContainer == NULL ){
-    ATH_MSG_DEBUG( "Navigation error whilst getting TrackParticleContainer 2. Received null pointer" );
-    return HLT::OK;
-  }
-
-  ATH_MSG_DEBUG( "Got Particle collection 2 with " << muon2TrkContainer->size() << " particles" );
-  
-  for(auto p1 : *muon1TrkContainer){
-    for(auto p2 : *muon2TrkContainer){
-      double invm = TrackInvMass(p1,p2);
-      ATH_MSG_DEBUG( "FTF Inv Mass = " << invm );
-      if(abs(invm-m_mumuMass) > m_massAcceptanceTID)
-	ATH_MSG_DEBUG( "Inefficient event from EF" );
-    }
-  }
-
-  ATH_MSG_DEBUG( "PT get" );
-
-  if ( getFeature(tes.front(), muon1TrkContainer, "InDetTrigTrackingxAODCnv_Muon_EFID") != HLT::OK){//,"InDetTrigParticleCreation_Muon_EFID") != HLT::OK ) {
-    //if( getFeature(tes.front(), muon1TrkContainer, "InDetTrigTrackingxAODCnv_Bphysics_IDTrig") != HLT::OK){
-    ATH_MSG_WARNING( "Navigation error while getting TrackParticleContainer 1 - PT" );
-    return HLT::OK;
-    // }
-  }
-
-  if (muon1TrkContainer == NULL ){
-    ATH_MSG_DEBUG( "Navigation error whilst getting TrackParticleContainer 1. Received null pointer" );
-    return HLT::OK;
-  }
-
-  ATH_MSG_DEBUG( "Got Particle collection 1 with " << muon1TrkContainer->size() << " particles" );
-
-  if ( getFeature(tes.back(), muon2TrkContainer, "InDetTrigTrackingxAODCnv_Muon_EFID") != HLT::OK){//,"InDetTrigParticleCreation_Muon_EFID") != HLT::OK ) {
-    //if( getFeature(tes.front(), muon1TrkContainer, "InDetTrigTrackingxAODCnv_Bphysics_IDTrig") != HLT::OK){
-    ATH_MSG_WARNING( "Navigation error while getting TrackParticleContainer 2 - PT" );
-    return HLT::OK;
-    //}
-  }
-
-  if (muon1TrkContainer == NULL ){
-    ATH_MSG_DEBUG( "Navigation error whilst getting TrackParticleContainer 2. Received null pointer" );
-    return HLT::OK;
-  }
-
-  ATH_MSG_DEBUG( "Got Particle collection 2 with " << muon2TrkContainer->size() << " particles" );
-  
-  for(auto p1 : *muon1TrkContainer){
-    for(auto p2 : *muon2TrkContainer){
-      double invm = TrackInvMass(p1,p2);
-      ATH_MSG_DEBUG( "PT Inv Mass = " << invm );
-      if(abs(invm-m_mumuMass) > m_massAcceptanceTID)
-	ATH_MSG_DEBUG( "Inefficient event from EF" );
-    }
-  }
-
-  //endis
 
   const TrigRoiDescriptor *roi1(0);
   const TrigRoiDescriptor *roi2(0);
@@ -484,6 +405,10 @@ HLT::ErrorCode TrigIDTPMonitor::hltExecute(const HLT::TriggerElement* inputTE, H
 	  ATH_MSG_DEBUG( "Muon outside corresponding region" );
 	}
       }
+      else{
+	ATH_MSG_WARNING( "No primaryTrackParticle for muon container 2");
+	return HLT::OK;
+      }
     }
   }
   else if(tag2probe1){
@@ -559,6 +484,10 @@ HLT::ErrorCode TrigIDTPMonitor::hltExecute(const HLT::TriggerElement* inputTE, H
 	  ATH_MSG_DEBUG( "Muon outside corresponding region" );
 	}
       }
+      else{
+	ATH_MSG_WARNING( "No primaryTrackParticle for muon container 1" );
+	return HLT::OK;
+      }
     }   
   }
   else{
@@ -593,29 +522,27 @@ HLT::ErrorCode TrigIDTPMonitor::hltExecute(const HLT::TriggerElement* inputTE, H
   const xAOD::TrackParticleContainer* PTTrkContainer(NULL);
 
   if(tag1probe2){
-    if(getFeature(tes.back(), PTTrkContainer, "InDetTrigTrackingxAODCnv_Muon_EFID") != HLT::OK){
-      if(getFeature(tes.back(), PTTrkContainer, "InDetTrigTrackingxAODCnv_Muon_IDTrig") != HLT::OK){
-        if(getFeature(tes.back(), PTTrkContainer, "InDetTrigTrackingxAODCnv_Bphysics_IDTrig") != HLT::OK){
-	  ATH_MSG_WARNING( "There was an error retrieving Probe's ID TrackParticleContainer" );
-	  return HLT::OK;
-	}
-      }
+    if(getFeature(tes.back(), PTTrkContainer, "InDetTrigTrackingxAODCnv_Muon_IDTrig") != HLT::OK){
+      //if(getFeature(tes.back(), PTTrkContainer, "InDetTrigTrackingxAODCnv_Bphysics_IDTrig") != HLT::OK){
+      ATH_MSG_WARNING( "There was an error retrieving Probe's ID TrackParticleContainer" );
+      //return HLT::OK;
     }
   }
   else if(tag2probe1){
-    if(getFeature(tes.front(), PTTrkContainer, "InDetTrigTrackingxAODCnv_Muon_EFID") != HLT::OK){
-      if(getFeature(tes.front(), PTTrkContainer, "InDetTrigTrackingxAODCnv_Muon_IDTrig") != HLT::OK){
-        if(getFeature(tes.front(), PTTrkContainer, "InDetTrigTrackingxAODCnv_Bphysics_IDTrig") != HLT::OK){
-	  ATH_MSG_WARNING( "There was an error retrieving Probe's ID TrackParticleContainer" );
-	  return HLT::OK;
-	}
-      }
-    } 
+    if(getFeature(tes.front(), PTTrkContainer, "InDetTrigTrackingxAODCnv_Muon_IDTrig") != HLT::OK){
+      //if(getFeature(tes.front(), PTTrkContainer, "InDetTrigTrackingxAODCnv_Bphysics_IDTrig") != HLT::OK){
+      ATH_MSG_WARNING( "There was an error retrieving Probe's ID TrackParticleContainer" );
+      //return HLT::OK;
+    }
+  }
+  else{
+    ATH_MSG_WARNING( "Tag and probe muons not set" );
+    return HLT::OK;
   }
 
   if( PTTrkContainer == NULL ){
     ATH_MSG_DEBUG( "Navigation error whilst getting Probe ID TrackParticleContainer (retrieved null pointer)" );
-    return HLT::OK;
+    //return HLT::OK;
   }
 
   ATH_MSG_DEBUG( "Retrieved ID track collection with " << PTTrkContainer->size() << " particles" );
@@ -709,20 +636,20 @@ HLT::ErrorCode TrigIDTPMonitor::hltExecute(const HLT::TriggerElement* inputTE, H
 	    m_invTP.push_back(TrackInvMass(tagTrack,probeTrack));
 	    m_linesTP.push_back(1.5);
 
-	    //m_pt.push_back(probeTrack->pt());
-	    m_pt.push_back(particle->pt());
+	    m_pt.push_back(probeTrack->pt());
+	    //m_pt.push_back(particle->pt());
 	    m_linespt.push_back(1.5);
 
-	    //m_eta.push_back(probeTrack->eta());
-	    m_eta.push_back(particle->eta());
+	    m_eta.push_back(probeTrack->eta());
+	    //m_eta.push_back(particle->eta());
 	    m_lineseta.push_back(1.5);
 
-	    //m_d0.push_back(probeTrack->d0());
-	    m_d0.push_back(particle->d0());
+	    m_d0.push_back(probeTrack->d0());
+	    //m_d0.push_back(particle->d0());
 	    m_linesd0.push_back(1.5);
 
-	    //m_phi.push_back(probeTrack->phi());
-	    m_phi.push_back(particle->phi());
+	    m_phi.push_back(probeTrack->phi());
+	    //m_phi.push_back(particle->phi());
 	    m_linesphi.push_back(1.5);
 
 	    m_eff.push_back(1.5);
@@ -735,6 +662,7 @@ HLT::ErrorCode TrigIDTPMonitor::hltExecute(const HLT::TriggerElement* inputTE, H
 	    m_phiN=probeTrack->phi();
 	    m_invTPN=TrackInvMass(tagTrack,probeTrack);
 	    m_IDTmass=compatibleIDTrack(tagTrack, probeTrack, particle);
+	    m_PTfound = 1;
 
 	    ATH_MSG_INFO( "Found probe ID candidate from Precision Tracking" );
 	    found = true;
@@ -774,20 +702,25 @@ HLT::ErrorCode TrigIDTPMonitor::hltExecute(const HLT::TriggerElement* inputTE, H
 	      m_invTP.push_back(TrackInvMass(tagTrack, probeTrack));
 	      m_linesTP.push_back(2.5);
 	      
-	      m_pt.push_back(FTFTrack->pt());
+	      //m_pt.push_back(FTFTrack->pt());
+	      m_pt.push_back(probeTrack->pt());
 	      m_linespt.push_back(2.5);
 	      
-	      m_eta.push_back(FTFTrack->eta());
+	      //m_eta.push_back(FTFTrack->eta());
+	      m_eta.push_back(probeTrack->eta());
 	      m_lineseta.push_back(2.5);
 	      
-	      m_d0.push_back(FTFTrack->d0());
+	      //m_d0.push_back(FTFTrack->d0());
+	      m_d0.push_back(probeTrack->d0());
 	      m_linesd0.push_back(2.5);
 	      
-	      m_phi.push_back(FTFTrack->phi());
+	      //m_phi.push_back(FTFTrack->phi());
+	      m_phi.push_back(probeTrack->phi());
 	      m_linesphi.push_back(2.5);
 	      
 	      m_eff.push_back(2.5);
-	  
+	      m_FTFfound = 1;
+
 	      FTFfound = true;
 	      ATH_MSG_INFO( "Found probe ID candidate from FTF" );
 	    }
