@@ -10,7 +10,7 @@
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 
 class StoreGateSvc;
-class IGeoDbTagSvc;
+class IGeoModelSvc;
 class IRDBAccessSvc;
 
 namespace InDetDD {
@@ -25,7 +25,7 @@ public:
 
   StoreGateSvc * detStore() const {return m_athenaComps->detStore();}
 
-  IGeoDbTagSvc * geoDbTagSvc() const {return m_athenaComps->geoDbTagSvc();}
+  IGeoModelSvc * geoModelSvc() const {return m_athenaComps->geoModelSvc();}
 
   IRDBAccessSvc * rdbAccessSvc() const {return m_athenaComps->rdbAccessSvc();}
   

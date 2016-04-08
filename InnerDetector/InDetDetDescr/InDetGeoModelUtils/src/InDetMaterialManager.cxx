@@ -17,7 +17,6 @@
 #include <iostream>
 #include <iomanip>
 #include <cmath>
-#include <stdexcept>
 
 // Constructor 
 InDetMaterialManager::InDetMaterialManager(const std::string & managerName,
@@ -118,10 +117,6 @@ InDetMaterialManager::getMaterial(const std::string & materialName)
   return extraScaledMaterial(materialName, getMaterialInternal(materialName));
 }
 
-bool InDetMaterialManager::hasMaterial(const std::string &materialName) const {
-	return  m_store.find(materialName) != m_store.end();
-}
-
 const GeoMaterial* 
 InDetMaterialManager::getMaterialInternal(const std::string & materialName) const
 { 
@@ -159,8 +154,8 @@ InDetMaterialManager::getCompositeMaterialForVolume(const std::string & newMatNa
   baseMaterials.reserve(2);
   fracWeight.reserve(2);
 
-  msg(MSG::DEBUG)<<"Composite material : "<<volumeTot/CLHEP::cm3<<" = "<<volume1/CLHEP::cm3<<" + "<<volume2/CLHEP::cm3<<endmsg;
-  msg(MSG::DEBUG)<<"Composite material : "<<matName1<<" "<<matName2<<endmsg;
+  msg(MSG::INFO)<<"Composite material : "<<volumeTot/CLHEP::cm3<<" = "<<volume1/CLHEP::cm3<<" + "<<volume2/CLHEP::cm3<<endreq;
+  msg(MSG::INFO)<<"Composite material : "<<matName1<<" "<<matName2<<endreq;
   
   double density1, density2;
   
@@ -168,23 +163,23 @@ InDetMaterialManager::getCompositeMaterialForVolume(const std::string & newMatNa
   if ((iter = m_weightMap.find(matName1)) != m_weightMap.end()) {
     const GeoMaterial* mat1 = getMaterialForVolume(matName1,volume1);
     density1=mat1->getDensity();
-    msg(MSG::DEBUG)<<"Composite material 1 - weight : "<<density1/(CLHEP::gram/CLHEP::cm3)<<endmsg;
+    msg(MSG::INFO)<<"Composite material 1 - weight : "<<density1/(CLHEP::gram/CLHEP::cm3)<<endreq;
     } 
   else {
     const GeoMaterial* mat1 = getMaterial(matName1);
     density1=mat1->getDensity();
-    msg(MSG::DEBUG)<<"Composite material 1 - standard : "<<density1/(CLHEP::gram/CLHEP::cm3)<<endmsg;
+    msg(MSG::INFO)<<"Composite material 1 - standard : "<<density1/(CLHEP::gram/CLHEP::cm3)<<endreq;
     } 
 
   if ((iter = m_weightMap.find(matName2)) != m_weightMap.end()) {
     const GeoMaterial* mat2 = getMaterialForVolume(matName2,volume2);
     density2=mat2->getDensity();
-    msg(MSG::DEBUG)<<"Composite material 2 - weight : "<<density2/(CLHEP::gram/CLHEP::cm3)<<endmsg;
+    msg(MSG::INFO)<<"Composite material 2 - weight : "<<density2/(CLHEP::gram/CLHEP::cm3)<<endreq;
     } 
   else {
     const GeoMaterial* mat2 = getMaterial(matName2);
     density2=mat2->getDensity();
-    msg(MSG::DEBUG)<<"Composite material 2 - standard : "<<density2/(CLHEP::gram/CLHEP::cm3)<<endmsg;
+    msg(MSG::INFO)<<"Composite material 2 - standard : "<<density2/(CLHEP::gram/CLHEP::cm3)<<endreq;
     } 
 
   double weight1=density1*volume1;
@@ -197,8 +192,8 @@ InDetMaterialManager::getCompositeMaterialForVolume(const std::string & newMatNa
   double frac2=weight2/(weight1+weight2);
   double density_2=1.0/(frac1/density1+frac2/density2);
   double density_3=(weight1+weight2)/(volume1+volume2);
-  msg(MSG::DEBUG)<<"-> weights : "<<weight1/(CLHEP::gram)<<" "<<weight2/(CLHEP::gram)<<endmsg;
-  msg(MSG::DEBUG)<<"-> density : "<<density/(CLHEP::gram/CLHEP::cm3)<<"  "<<density_2/(CLHEP::gram/CLHEP::cm3)<<" "<<density_3/(CLHEP::gram/CLHEP::cm3)<<endmsg;
+  msg(MSG::INFO)<<"-> weights : "<<weight1/(CLHEP::gram)<<" "<<weight2/(CLHEP::gram)<<endreq;
+  msg(MSG::INFO)<<"-> density : "<<density/(CLHEP::gram/CLHEP::cm3)<<"  "<<density_2/(CLHEP::gram/CLHEP::cm3)<<" "<<density_3/(CLHEP::gram/CLHEP::cm3)<<endreq;
 
 
   baseMaterials.push_back(matName1);
@@ -250,7 +245,7 @@ InDetMaterialManager::getMaterialInternal(const std::string & origMaterialName,
     if (!compareDensity(material->getDensity(), density)) {
       msg(MSG::WARNING) << "Density is not consistent for material " << newName2 
 			<< "  "<<material->getDensity()/(CLHEP::gram/CLHEP::cm3)
-			<<" / "<<density/(CLHEP::gram/CLHEP::cm3)<<endmsg;
+			<<" / "<<density/(CLHEP::gram/CLHEP::cm3)<<endreq;
     }    
     newMaterial = material;
   } else {
@@ -287,7 +282,7 @@ InDetMaterialManager::getMaterialScaledInternal(const std::string & origMaterial
 {
   // Don't allow large scale factors
   if (scaleFactor > 1000 || scaleFactor < 0.001) {
-    msg(MSG::ERROR) << "Scale factor must be between 0.001 and 1000." << endmsg;
+    msg(MSG::ERROR) << "Scale factor must be between 0.001 and 1000." << endreq;
     return 0;
   }
 
@@ -325,7 +320,7 @@ InDetMaterialManager::addMaterial(GeoMaterial* material)
 {
   std::string name(material->getName());
   if (m_store.find(name) != m_store.end()) {
-    msg(MSG::WARNING) << "Ignoring attempt to redefine an existing material: " << name << endmsg;
+    msg(MSG::WARNING) << "Ignoring attempt to redefine an existing material: " << name << endreq;
     // Delete the material if it is not already ref counted.
     material->ref();
     material->unref();
@@ -336,7 +331,7 @@ InDetMaterialManager::addMaterial(GeoMaterial* material)
     m_store[name] = material;
     
     if (msgLvl(MSG::DEBUG)) 
-      msg(MSG::DEBUG) << "Created new material: " << name <<  ", " << material->getDensity()/(CLHEP::g/CLHEP::cm3) << " CLHEP::g/CLHEP::cm3" << endmsg;
+      msg(MSG::DEBUG) << "Created new material: " << name <<  ", " << material->getDensity()/(CLHEP::g/CLHEP::cm3) << " CLHEP::g/CLHEP::cm3" << endreq;
 
   }
 }
@@ -350,10 +345,10 @@ InDetMaterialManager::compareDensity(double d1, double d2) const
 void
 InDetMaterialManager::addWeightTable(IRDBRecordset_ptr weightTable, const std::string & space)
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Reading in weight table: " << weightTable->nodeName() << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Reading in weight table: " << weightTable->nodeName() << endreq;
   // If not using geometryDBSvc revert to old version
   if (!db()) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "GeometryDBSvc not available. Using old version." << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "GeometryDBSvc not available. Using old version." << endreq;
     addWeightTableOld(weightTable, space);
     return;
   }
@@ -375,34 +370,16 @@ InDetMaterialManager::addWeightTable(IRDBRecordset_ptr weightTable, const std::s
     }
 
     if (m_weightMap.find(materialName) != m_weightMap.end()) {
-      msg(MSG::WARNING) << "Material: " << materialName << " already exists in weight table" << endmsg;
+      msg(MSG::WARNING) << "Material: " << materialName << " already exists in weight table" << endreq;
     } else {
       msg(MSG::DEBUG) << "Adding " << materialName 
 		      << " weight " << weight
 		      << " linearWeightFlag " << linearWeightFlag
 		      << " raw weight " << db()->getDouble(weightTable,"WEIGHT",i)
 		      << " m_extraFunctionality " << m_extraFunctionality
-		      << " to weight table" << endmsg;
+		      << " to weight table" << endreq;
       m_weightMap[materialName] = MaterialByWeight(materialBase, weight, linearWeightFlag);
     }
-  }
-}
-
-
-void
-InDetMaterialManager::addWeightMaterial(std::string materialName, std::string materialBase, double weight, int linearWeightFlag)
-{
-  // Weight in gr
-  weight = weight * CLHEP::gram;
-
-  if (m_weightMap.find(materialName) != m_weightMap.end()) {
-    msg(MSG::WARNING) << "Material: " << materialName << " already exists in weight table" << endmsg;
-  } else {
-    msg(MSG::DEBUG) << "Adding " << materialName 
-		    << " weight " << weight
-		    << " linearWeightFlag " << linearWeightFlag
-		    << " to weight table" << endmsg;
-    m_weightMap[materialName] = MaterialByWeight(materialBase, weight, linearWeightFlag);
   }
 }
 
@@ -428,7 +405,7 @@ InDetMaterialManager::addWeightTableOld(IRDBRecordset_ptr weightTable, const std
     }
 
     if (m_weightMap.find(materialName) != m_weightMap.end()) {
-      msg(MSG::WARNING) << "Material: " << materialName << " already exists in weight table" << endmsg;
+      msg(MSG::WARNING) << "Material: " << materialName << " already exists in weight table" << endreq;
     } else {
       m_weightMap[materialName] = MaterialByWeight(materialBase, weight, linearWeightFlag);
     }
@@ -438,9 +415,9 @@ InDetMaterialManager::addWeightTableOld(IRDBRecordset_ptr weightTable, const std
 void
 InDetMaterialManager::addCompositionTable(IRDBRecordset_ptr compositionTable, const std::string & space)
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Reading in composition table: " << compositionTable->nodeName() << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Reading in composition table: " << compositionTable->nodeName() << endreq;
   if (!db()) {
-    msg(MSG::ERROR) << "GeometryDBSvc not available. Unable to read in composition table." << endmsg;
+    msg(MSG::ERROR) << "GeometryDBSvc not available. Unable to read in composition table." << endreq;
   }
   for (unsigned int i = 0; i < db()->getTableSize(compositionTable); i++) {
     std::string materialName =  db()->getString(compositionTable,"MATERIAL",i);
@@ -463,9 +440,9 @@ InDetMaterialManager::addScalingTable(IRDBRecordset_ptr scalingTable)
   if (!scalingTable) return;
   if (db()->getTableSize(scalingTable) == 0) return;
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Reading in extra material scaling table: " << scalingTable->nodeName() << endmsg;
+  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Reading in extra material scaling table: " << scalingTable->nodeName() << endreq;
   if (!db()) {
-    msg(MSG::ERROR) << "GeometryDBSvc not available. Unable to read in scaling table." << endmsg;
+    msg(MSG::ERROR) << "GeometryDBSvc not available. Unable to read in scaling table." << endreq;
   }
   for (unsigned int i = 0; i < db()->getTableSize(scalingTable); i++) {
     std::string materialName =  db()->getString(scalingTable,"MATERIAL",i);
@@ -473,14 +450,14 @@ InDetMaterialManager::addScalingTable(IRDBRecordset_ptr scalingTable)
 
     if (msgLvl(MSG::DEBUG)) {
       if (scalingFactor >= 0 || scalingFactor == 1) {
-	msg(MSG::DEBUG) << "Material " <<  materialName << " will be scaled by: " << scalingFactor << endmsg;
+	msg(MSG::DEBUG) << "Material " <<  materialName << " will be scaled by: " << scalingFactor << endreq;
       } else {
 	// -ve or scalefactor = 1 means will not be scaled.
-	msg(MSG::DEBUG) << "Material " <<  materialName << " will be NOT be scaled." << endmsg;
+	msg(MSG::DEBUG) << "Material " <<  materialName << " will be NOT be scaled." << endreq;
       }	
     }
     if (m_scalingMap.find(materialName) != m_scalingMap.end()) {
-      msg(MSG::WARNING) << "Overriding material: " << materialName << " which already exists in scaling table" << endmsg;
+      msg(MSG::WARNING) << "Overriding material: " << materialName << " which already exists in scaling table" << endreq;
     } 
     m_scalingMap[materialName] = scalingFactor;
   }
@@ -492,7 +469,7 @@ InDetMaterialManager::getMaterialForVolume(const std::string & materialName, dou
 {
   // Make sure we have a valid volume size.
   if (volume <= 0) {
-    msg(MSG::ERROR) << "Invalid volume : " << volume << endmsg;
+    msg(MSG::ERROR) << "Invalid volume : " << volume << endreq;
     return 0;
   }
 
@@ -512,7 +489,7 @@ InDetMaterialManager::getMaterialForVolume(const std::string & materialName, dou
     double weight = iter->second.weight;
     double density = weight/volume;
     if (iter->second.linearWeightFlag) {
-      msg(MSG::ERROR) << "Material defined by linear weight cannot be created with getMaterialForVolume method: " << materialName << endmsg;
+      msg(MSG::ERROR) << "Material defined by linear weight cannot be created with getMaterialForVolume method: " << materialName << endreq;
     } 
 
     if (msgLvl(MSG::VERBOSE)) { 
@@ -522,7 +499,7 @@ InDetMaterialManager::getMaterialForVolume(const std::string & materialName, dou
 	<< materialBase << ", "
 	<< weight/CLHEP::gram << ", "
 	<< volume/CLHEP::cm3 << ", "
-	<< density/(CLHEP::g/CLHEP::cm3) << endmsg;
+	<< density/(CLHEP::g/CLHEP::cm3) << endreq;
     }
 
     if (materialBase.empty()) {
@@ -542,7 +519,7 @@ InDetMaterialManager::getMaterialForVolume(const std::string & materialName, dou
 	<< "Material not in weight table, using standard material: " 
 	<< materialName  
 	<< ", volume(CLHEP::cm3) = " << volume/CLHEP::cm3 
-	<< endmsg;
+	<< endreq;
     return getMaterial(materialName);
   }  
 }
@@ -567,7 +544,7 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string & materialNam
 
   // Make sure we have a valid volume size.
   if (volume <= 0 || length  <= 0) {
-    msg(MSG::ERROR) << "Invalid volume or length : " << volume << ", " << length << endmsg;
+    msg(MSG::ERROR) << "Invalid volume or length : " << volume << ", " << length << endreq;
     return 0;
   }
 
@@ -578,7 +555,7 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string & materialNam
 
     if (msgLvl(MSG::VERBOSE)) { 
       msg(MSG::VERBOSE) 
-	<< "Found material in material composition table:" << materialName <<endmsg;
+	<< "Found material in material composition table:" << materialName <<endreq;
     }
 
     std::vector<double> factors;
@@ -613,7 +590,7 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string & materialNam
 	<< "Material not in weight table, using standard material: " 
 	<< materialName  
 	<< ", volume(CLHEP::cm3) = " << volume/CLHEP::cm3 
-	<< endmsg;
+	<< endreq;
     return getMaterial(materialName);
   }  
 }
@@ -641,12 +618,12 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string & name,
 
   // Make sure we have a valid volume size.
   if (volume <= 0 || length  <= 0) {
-    msg(MSG::ERROR) << "Invalid volume or length : " << volume << ", " << length << endmsg;
+    msg(MSG::ERROR) << "Invalid volume or length : " << volume << ", " << length << endreq;
     return 0;
   }
 
   if (!factors.empty() && factors.size() < materialComponents.size()) {
-    msg(MSG::WARNING) << "getMaterialForVolumeLength: factor vector size too small. Setting remaining factors to 1." << endmsg;
+    msg(MSG::WARNING) << "getMaterialForVolumeLength: factor vector size too small. Setting remaining factors to 1." << endreq;
   }
   
   std::vector<std::string> baseMaterials;
@@ -674,7 +651,7 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string & name,
 		      << " factor " << factors[iComp]
 		      << " w*fac*len " << weight*length / CLHEP::gram
 		      << " basMat " << materialBase 
-		      << " linear? " << iter->second.linearWeightFlag << endmsg;
+		      << " linear? " << iter->second.linearWeightFlag << endreq;
 
       if (iter->second.linearWeightFlag) weight *= length;
       if (materialBase.empty()) {
@@ -695,7 +672,7 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string & name,
 	  << "Component material not in weight table, using standard material: " 
 	  << materialName << " with weight= "
 	  << factors.at(iComp) * length
-	  << endmsg;
+	  << endreq;
       const GeoMaterial * material = getMaterialInternal(materialName);
       */
 
@@ -710,10 +687,10 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string & name,
   }
 
   if (msgLvl(MSG::VERBOSE)) { 
-    msg(MSG::VERBOSE) << "Creating material from multiple components: " << name << endmsg;
+    msg(MSG::VERBOSE) << "Creating material from multiple components: " << name << endreq;
     for (unsigned int i = 0; i < materialComponents.size(); ++i) {
       msg(MSG::VERBOSE) << " Component " << i << ": Name = " << baseMaterials[i] 
-			<< " Weight(CLHEP::g) = " << fracWeight[i]/CLHEP::g << endmsg; 
+			<< " Weight(CLHEP::g) = " << fracWeight[i]/CLHEP::g << endreq; 
     }
   }
   
@@ -765,7 +742,6 @@ InDetMaterialManager::getMaterial(const std::vector<std::string> & materialCompo
 }
 */
 
-
 const GeoMaterial* 
 InDetMaterialManager::getMaterial(const std::string & name,
 				  const std::vector<std::string> & materialComponents, 
@@ -787,7 +763,7 @@ InDetMaterialManager::getMaterialInternal(const std::string & name,
   const GeoMaterial* material = getAdditionalMaterial(name);
   if (material) {
     if (!compareDensity(material->getDensity(), density)) {
-      msg(MSG::WARNING) << "Density is not consistent for material " << name << endmsg;
+      msg(MSG::WARNING) << "Density is not consistent for material " << name << endreq;
     }    
     newMaterial = material;
   } else {
@@ -797,7 +773,7 @@ InDetMaterialManager::getMaterialInternal(const std::string & name,
       if (origMaterial) {
 	newMaterialTmp->add(const_cast<GeoMaterial*>(origMaterial), fracWeight[i]);
       } else {
-	msg(MSG::ERROR) << "Material component missing " << materialComponents[i] << endmsg;
+	msg(MSG::ERROR) << "Material component missing " << materialComponents[i] << endreq;
       }
     }
     addMaterial(newMaterialTmp);
@@ -824,7 +800,7 @@ void InDetMaterialManager::addTextFileMaterials()
       || !db()->testField("","TableSize:"+componentsTable) ||  !db()->getTableSize(componentsTable)) return;
 
   
-  msg(MSG::INFO) << "Extra materials being read in from text file." << endmsg;
+  msg(MSG::INFO) << "Extra materials being read in from text file." << endreq;
 
   typedef std::map<std::string, MaterialDef> MatMap;
   MatMap materials;
@@ -845,7 +821,7 @@ void InDetMaterialManager::addTextFileMaterials()
      if (iter != materials.end()) {
        iter->second.addComponent(compName,fracWeight);
      } else {
-       msg(MSG::ERROR) << "Attemp to add material component, " << compName << ", to non-existing material: " << materialName << endmsg;
+       msg(MSG::ERROR) << "Attemp to add material component, " << compName << ", to non-existing material: " << materialName << endreq;
      }
   }
 
@@ -888,7 +864,7 @@ void InDetMaterialManager::addTextFileMaterials()
 	
       
   if (someUndefined) {
-    msg(MSG::ERROR) << "Not all materials could be defined due to cyclic definitions" << endmsg;
+    msg(MSG::ERROR) << "Not all materials could be defined due to cyclic definitions" << endreq;
   }
 }
 
@@ -896,7 +872,7 @@ void InDetMaterialManager::addTextFileMaterials()
 void InDetMaterialManager::createMaterial(const MaterialDef & material)
 {
   if (material.numComponents() == 0) {
-    msg(MSG::ERROR) << "Material has no components: " << material.name() << endmsg;
+    msg(MSG::ERROR) << "Material has no components: " << material.name() << endreq;
     return;
   }
   
@@ -910,12 +886,12 @@ void InDetMaterialManager::createMaterial(const MaterialDef & material)
 	// If component name has "::" in it then its not an element.
 	msg(MSG::ERROR) << "Material, " << material.name() 
 			<< ", is assumed to be defined by atomic ratio (due to total fraction > 1) but component is not an element: "
-			<< material.compName(i) << endmsg;
+			<< material.compName(i) << endreq;
 	return;
       }
       const GeoElement * element = getElement(material.compName(i));
       if (!element) {
-	msg(MSG::ERROR) << "Error making material " << material.name() << ". Element not found: " << material.compName(i) << endmsg;
+	msg(MSG::ERROR) << "Error making material " << material.name() << ". Element not found: " << material.compName(i) << endreq;
 	return;
       }
       totWeight += material.fraction(i) * element->getA();
@@ -923,19 +899,19 @@ void InDetMaterialManager::createMaterial(const MaterialDef & material)
   } else {
     // Check if total fraction is close to 1.
     if (std::abs(totWeight - 1) > 0.01) {
-      msg(MSG::WARNING) << "Total fractional weight does not sum to 1. Will renormalize. Total = " << totWeight << endmsg;
+      msg(MSG::WARNING) << "Total fractional weight does not sum to 1. Will renormalize. Total = " << totWeight << endreq;
     }
   }	  
   // Now build the material
   GeoMaterial * newMaterial = new GeoMaterial(material.name(),material.density());
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Creating material: " << material.name() 
-					  << " with density: " << material.density()/(CLHEP::g/CLHEP::cm3) << endmsg;
+					  << " with density: " << material.density()/(CLHEP::g/CLHEP::cm3) << endreq;
   for (unsigned int i = 0; i < material.numComponents(); i++) {
     double fracWeight = material.fraction(i) / totWeight;
     if (material.compName(i).find("::") == std::string::npos) {
       const GeoElement * element = getElement(material.compName(i));
       if (!element) {
-	msg(MSG::ERROR) << "Error making material " << material.name() << ". Element not found: " << material.compName(i) << endmsg;
+	msg(MSG::ERROR) << "Error making material " << material.name() << ". Element not found: " << material.compName(i) << endreq;
 	// delete the partially created material
 	newMaterial->ref();
 	newMaterial->unref();
@@ -945,12 +921,12 @@ void InDetMaterialManager::createMaterial(const MaterialDef & material)
 	fracWeight =  material.fraction(i) * element->getA() / totWeight;
       }
       newMaterial->add(const_cast<GeoElement*>(element), fracWeight);
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Component: " << material.compName(i) << " " << fracWeight << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Component: " << material.compName(i) << " " << fracWeight << endreq;
   
     } else {
       const GeoMaterial * materialTmp = getMaterialInternal(material.compName(i));
       if (!materialTmp) {
-	msg(MSG::ERROR) << "Error making material " << material.name() << ". Component not found: " << material.compName(i) << endmsg;
+	msg(MSG::ERROR) << "Error making material " << material.name() << ". Component not found: " << material.compName(i) << endreq;
 	// delete the partially created material
 	newMaterial->ref();
 	newMaterial->unref();
@@ -958,10 +934,10 @@ void InDetMaterialManager::createMaterial(const MaterialDef & material)
       }
       if (byAtomicRatio) {
 	// Should not happen as already checked that all components were elements.
-	msg(MSG::ERROR) << "Unexpected Error" << endmsg;
+	msg(MSG::ERROR) << "Unexpected Error" << endreq;
       }
       newMaterial->add(const_cast<GeoMaterial*>(materialTmp), fracWeight);
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Component: " << material.compName(i) << " " << fracWeight << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Component: " << material.compName(i) << " " << fracWeight << endreq;
     }
   }
   newMaterial->lock();
@@ -1019,8 +995,6 @@ InDetMaterialManager::extraScaledMaterial(const std::string & materialName,
 const GeoMaterial* 
 InDetMaterialManager::extraScaledMaterial(const std::string & materialName, const GeoMaterial * origMaterial) 
 {
-  if (!origMaterial) throw std::runtime_error(std::string("Invalid material: ")+materialName);
-
   double scaleFactor = getExtraScaleFactor(materialName);
   // -1 (or any -ve number) indicates material is not scaled. And if the scale factor
   // is 1 then there is no need to create a new material.
