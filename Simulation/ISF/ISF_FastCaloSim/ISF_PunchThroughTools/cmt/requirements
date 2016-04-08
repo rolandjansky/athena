@@ -37,7 +37,7 @@ use ISF_Interfaces             ISF_Interfaces-*              Simulation/ISF/ISF_
 use HepPDT                     v*                       LCG_Interfaces
 use PathResolver            PathResolver-*              Tools
 
-declare_runtime_extras extras = ../Data/*.root
+apply_pattern declare_runtime_extras extras=../Data/*.root
 
 public
 library ISF_PunchThroughTools *.cxx components/*.cxx
