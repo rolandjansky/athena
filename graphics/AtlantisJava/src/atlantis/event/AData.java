@@ -297,7 +297,7 @@ abstract public class AData implements ADrawable, AListProcessor {
   public void cut(String groupName, String parameterName, String text, float[] array) {
     AParameter par = parameterStore.get(groupName, parameterName);
 
-    if (par.getStatus() && array != null) {
+    if (par != null && par.getStatus() && array != null) {
       double value = par.getD();
       String operator = par.getOperator();
       int num = 0;
@@ -347,7 +347,7 @@ abstract public class AData implements ADrawable, AListProcessor {
   protected void cut(String groupName, String parameterName, String text, int[] array) {
     AParameter par = parameterStore.get(groupName, parameterName);
 
-    if (par.getStatus() && array != null) {
+    if (par != null && par.getStatus() && array != null) {
       int value = par.getI();
 
       // consider two special cases: Electron/isEM and Photon/isEM

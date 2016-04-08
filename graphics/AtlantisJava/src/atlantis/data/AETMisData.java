@@ -45,11 +45,6 @@ public class AETMisData extends AData {
         et = new float[numData];
         phi = new float[numData];
         for (int i = 0; i < numData; i++) {
-            if (etx[i] == 0.0 && ety[i] == 0.0) {
-                // Ideally, JiveXML should not write it into the event file ...
-                throw new AAtlantisException("etx and ety are 0");
-            }
-
             et[i] = (float) Math.sqrt(etx[i] * etx[i] + ety[i] * ety[i]);
 
             phi[i] = (float) Math.atan2(ety[i], etx[i]);
@@ -390,6 +385,8 @@ public class AETMisData extends AData {
      */
     protected ACoord getYXUser()
     {
+        if (etx[0] == 0.f && ety[0] == 0.f) return ACoord.NO_DATA;
+        
         makeDrawList(); // applycuts will be called here
 
         // Et missing graphical object consists of one dashed line from center
@@ -426,6 +423,8 @@ public class AETMisData extends AData {
 
     @Override
     protected ACoord getRZUser() {
+        if (etx[0] == 0.f && ety[0] == 0.f) return ACoord.NO_DATA;
+        
         double s = 1+Math.sqrt(et[0]);//4*parameterStore.get("ETMis", "Scale").getD();
         if (0 == s || parameterStore.get("ETMis", "Drawas").getI() == 1) {
             return ACoord.NO_DATA;
@@ -482,7 +481,8 @@ public class AETMisData extends AData {
      */
     protected ACoord getVPUser()
     {
-
+        if (etx[0] == 0.f && ety[0] == 0.f) return ACoord.NO_DATA;
+        
         makeDrawList(); // applycuts will be called here
 
         // numDraw for ET Miss object should be 1

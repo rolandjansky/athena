@@ -69,7 +69,7 @@ public class Atlantis
     private static AGlobals globals = AGlobals.instance();
  
     // expands into SVN tag
-    private static String versionAtlantisJava = "$HeadURL: file:///atlas/scratch0/graemes/ao-mirror/graphics/AtlantisJava/tags/AtlantisJava-09-16-05-11/src/atlantis/Atlantis.java $";
+    private static String versionAtlantisJava = "$HeadURL: file:///atlas/scratch0/graemes/ao-mirror/graphics/AtlantisJava/tags/AtlantisJava-09-16-05-18/src/atlantis/Atlantis.java $";
 
     private static final String FILE_SEPAR = System.getProperty("file.separator");
     private static final String USER_HOME_DIR = System.getProperty("user.home");
@@ -689,7 +689,7 @@ public class Atlantis
      */
     private static void setSVNTagInfo()
     {
-        // SVN expands into $HeadURL: file:///atlas/scratch0/graemes/ao-mirror/graphics/AtlantisJava/tags/AtlantisJava-09-16-05-11/src/atlantis/Atlantis.java $,
+        // SVN expands into $HeadURL: file:///atlas/scratch0/graemes/ao-mirror/graphics/AtlantisJava/tags/AtlantisJava-09-16-05-18/src/atlantis/Atlantis.java $,
         // we only want the tag name
         String s = Atlantis.versionAtlantisJava;
         // 0) Check we are in a tagged version

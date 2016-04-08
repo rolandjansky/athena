@@ -18,6 +18,7 @@ public class AInDetTrackData extends ATrackData {
 
    private  int[] author = null;
 
+   protected int numBLayerHits[] = null;
    protected int numPixelHits[] = null;
    protected int numSCTHits[] = null;
    protected int numTRTHits[] = null;
@@ -30,6 +31,7 @@ public class AInDetTrackData extends ATrackData {
 
     author = p.getUnsureIntArray("trackAuthor"); //Change added 17/02/2010
 
+    numBLayerHits = p.getUnsureIntArray("nBLayerHits");
     numPixelHits = p.getUnsureIntArray("nPixHits");
     numSCTHits = p.getUnsureIntArray("nSCTHits");
     numTRTHits = p.getUnsureIntArray("nTRTHits");
@@ -116,6 +118,9 @@ public class AInDetTrackData extends ATrackData {
 	int simpleOutput = AGlobals.instance().getSimpleOutput();
 	if(simpleOutput>0)
 	  return getNameScreenName()+" index: " + index + ((h!=null)?h[index].toString():""); // output for Minerva
+    if (numBLayerHits != null) {
+      msg += "\n numBLayerHits = " + numBLayerHits[index];
+    }
     if (numPixelHits != null) {
       msg += "\n numPixelHits = " + numPixelHits[index];
     }
@@ -132,6 +137,9 @@ public class AInDetTrackData extends ATrackData {
     cut("CutsInDet", "RTrIndex", " RTr id", id);
     cut("CutsInDet", "trackAuthor", " Author", author);
 
+    if (numBLayerHits != null) {
+        cut("CutsInDet", "NumBLayer", "Num BLayer", numBLayerHits);
+    }
     if (numPixelHits != null) {
         cut("CutsInDet", "NumPixel", "Num Pixel", numPixelHits);
     }

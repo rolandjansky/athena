@@ -123,16 +123,20 @@ public class AMuonTrackData extends ATrackData {
             // in AWindow.calculateUser(ACoord user)
             // magic constants here (e.g. s2) need to be understood and this
             // method best reimplemented
-            if (s2 > s1) {
-                for(int sign=-1; sign<=1; sign+=2) {
-                    // ugly must change structure at some point
-                    AProjectionVP.sign = sign;
-                    ACoord pointsOnHelix = dhelix.drawHelix(window, (AProjection2D) projection, s1, s2);
+            for(int sign=-1; sign<=1; sign+=2) {
+                // ugly must change structure at some point
+                AProjectionVP.sign = sign;
+                ACoord pointsOnHelix;
+                if (s2 > s1) {
+                    pointsOnHelix = dhelix.drawHelix(window, (AProjection2D) projection, s1, s2);
                     hv[0][num] = pointsOnHelix.hv[0][0];
                     hv[1][num] = pointsOnHelix.hv[1][0];
-                    index[num] = list;
-                    num++;
+                } else {
+                    hv[0][num] = new double[0];
+                    hv[1][num] = new double[0];
                 }
+                index[num] = list;
+                num++;
             }
         }
 

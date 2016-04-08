@@ -263,7 +263,7 @@ public abstract class ATrackData extends AData
                         int next = num+1;
 
                         // Find the next different point on the track.
-                        while (next < numPolyline[i] && polyX[next]==polyX[first] && polyY[next]==polyY[first]) next++;
+                        while (next < numPolyline[i]-1 && polyX[next]==polyX[first] && polyY[next]==polyY[first]) next++;
 
                         // Determine what direction the track has in rho and z.
                         float rStart = (float)Math.sqrt(polyX[first]*polyX[first] + polyY[first]*polyY[first]);
@@ -314,7 +314,9 @@ public abstract class ATrackData extends AData
                         }
                     }
 
-                    h[i].setPoints(x[i], y[i], z[i], numPolyline[i]);
+                    if (h != null && h[i] != null) {
+                        h[i].setPoints(x[i], y[i], z[i], numPolyline[i]);
+                    }
                     
                     // When perigee parameters are available we extend the track all the way down to the IP
                     if (numHelix[i] > 0) {

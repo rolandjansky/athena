@@ -137,7 +137,7 @@
 ]>
 
 <AGeometry>
-<ABarrelSiliconDetector c="PIX" n="Pixel" layer="0" length="4.08" width="1.68" thickness="0.200283" tilt="-14" nz="16" nphi="14" r0="3.42378" phi0="-0.812367" zMin="-33.6687" zMax="33.6687"/>
+<ABarrelSiliconDetector c="PIX" n="Pixel" layer="0" length="2" width="1.9" thickness="0.270702" tilt="-14.0063" nz="20" nphi="14" r0="3.32803" phi0="22.2819" zMin="-33.6323" zMax="33.6323" />
 <ABarrelSiliconDetector c="PIX" n="Pixel" layer="1" length="6.08" width="1.64" thickness="0.306424" tilt="-19.9962" nz="13" nphi="22" r0="5.10491" phi0="-0.391852" zMin="-40.5702" zMax="40.5702" />
 <ABarrelSiliconDetector c="PIX" n="Pixel" layer="2" length="6.08" width="1.64" thickness="0.307646" tilt="-19.9962" nz="13" nphi="38" r0="8.88103" phi0="-0.12952" zMin="-40.5702" zMax="40.5702" />
 <ABarrelSiliconDetector c="PIX" n="Pixel" layer="3" length="6.08" width="1.64" thickness="0.30793" tilt="-19.9962" nz="13" nphi="52" r0="12.2722" phi0="3.38916" zMin="-40.5702" zMax="40.5702" />

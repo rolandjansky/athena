@@ -2,6 +2,7 @@
 package atlantis.gui;
 
 import atlantis.config.ADefaultValues;
+import atlantis.event.AEvent;
 import atlantis.event.AEventManager;
 import atlantis.event.AEventSource;
 import atlantis.event.ANewEventSourceListener;
@@ -284,13 +285,14 @@ class AEventSourceToolBar extends JToolBar implements ANewEventSourceListener {
    */
   private synchronized void refreshAddressBar(){  
       AEventSource source = eventManager.getEventSource();
-      if (source != null) {
+      AEvent event = eventManager.getCurrentEvent();
+      if (source != null && event != null) {
           // if the source is a URL, we should always use '/' as the separator
           // else we'll use the system file separator
           if (source instanceof AURLEventSource) {
-              addressBar.setText(source.getSourceName() + "/" + eventManager.getCurrentEvent().getSourceName());
+              addressBar.setText(source.getSourceName() + "/" + event.getSourceName());
           } else {
-              addressBar.setText(source.getSourceName() + System.getProperty("file.separator") + eventManager.getCurrentEvent().getSourceName());
+              addressBar.setText(source.getSourceName() + System.getProperty("file.separator") + event.getSourceName());
           }
       }
   }

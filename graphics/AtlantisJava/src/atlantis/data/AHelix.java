@@ -131,8 +131,10 @@ public class AHelix {
             }
         }
 
-        // Radius and center point of the helix
-        this.R = AHelix.curvature * this.pt;
+        // Radius and center point of the helix. The radius is limited to 1e6, 
+        // which on the scale of our tracker corresponds to a straight line. 
+        // This allows cosmics without B-field to be drawn with the same code.
+        this.R = Math.min(AHelix.curvature * this.pt, 1e6);
         this.xC = xVtx - (this.S*this.R + this.d0) * Math.sin(this.phi0);
         this.yC = yVtx + (this.S*this.R + this.d0) * Math.cos(this.phi0);
 
@@ -597,7 +599,8 @@ public class AHelix {
         if (signed) {
             AParameter phiPar = parameterStore.get("RZ", "Phi");
             if (phiPar != null) {
-                double diff = Math.abs(phi0 - Math.toRadians(phiPar.getD()));
+                double phi = getPhi((alpha1+alpha2)/2, false);
+                double diff = Math.toRadians(Math.abs(phi - phiPar.getD()));
                 if (diff > Math.PI / 2. && diff <= 3 * Math.PI / 2.) {
                     sign = -1.;
                 }

@@ -225,7 +225,7 @@
                          isOutlier|kine|numHits|numPolyline|numTsos|phi0|polylineX|
                          polylineY|polylineZ|pt|tsosDetType|tsosPosR|tsosPullLoc1|
                          tsosPullLoc2|tsosResLoc1|tsosResLoc2|trackAuthor|z0|numDoF|
-                         nPixHits|nSCTHits|nTRTHits)+>
+                         nBLayerHits|nPixHits|nSCTHits|nTRTHits)+>
 <!ATTLIST Track         %attributes;>
 
 <!ELEMENT TrigS3D       (barcodes|cluster|dphi|dr|dz|eta|id|layer|numBarcodes|phi|
@@ -371,6 +371,7 @@
 <!ELEMENT module            (#PCDATA)> <!ATTLIST module             %integer;>
 <!ELEMENT nbadcells         (#PCDATA)> <!ATTLIST nbadcells          %integer;>
 <!ELEMENT noise             (#PCDATA)> <!ATTLIST noise              %integer;>
+<!ELEMENT nBLayerHits       (#PCDATA)> <!ATTLIST nBLayerHits        %integer;>
 <!ELEMENT nPixHits          (#PCDATA)> <!ATTLIST nPixHits           %integer;>
 <!ELEMENT nSCTHits          (#PCDATA)> <!ATTLIST nSCTHits           %integer;>
 <!ELEMENT nTRTHits          (#PCDATA)> <!ATTLIST nTRTHits           %integer;>
