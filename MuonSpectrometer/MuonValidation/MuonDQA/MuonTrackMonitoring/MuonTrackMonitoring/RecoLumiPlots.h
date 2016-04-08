@@ -34,20 +34,20 @@ class RecoLumiPlots:public PlotBase {
             TH1* m_hNMuon_LB_1D;
             TH1* m_hNResonance_LB_1D;
 
-            TH1* m_hNSegment_Inst_1D;
-            TH1* m_hNMuonTrack_Inst_1D;
-            TH1* m_hNMuon_Inst_1D;
-            TH1* m_hNResonance_Inst_1D;
+            // TH1* m_hNSegment_Inst_1D;
+            // TH1* m_hNMuonTrack_Inst_1D;
+            // TH1* m_hNMuon_Inst_1D;
+            // TH1* m_hNResonance_Inst_1D;
 
-            TH1* m_hNSegment_IntLumi_1D;
-            TH1* m_hNMuonTrack_IntLumi_1D;
-            TH1* m_hNMuon_IntLumi_1D;
-            TH1* m_hNResonance_IntLumi_1D;
+            // TH1* m_hNSegment_IntLumi_1D;
+            // TH1* m_hNMuonTrack_IntLumi_1D;
+            // TH1* m_hNMuon_IntLumi_1D;
+            // TH1* m_hNResonance_IntLumi_1D;
 
-            TH1* m_hNSegment_LB_BA_1D;
-            TH1* m_hNSegment_LB_BC_1D;
-            TH1* m_hNSegment_LB_EA_1D;
-            TH1* m_hNSegment_LB_EC_1D;
+            // TH1* m_hNSegment_LB_BA_1D;
+            // TH1* m_hNSegment_LB_BC_1D;
+            // TH1* m_hNSegment_LB_EA_1D;
+            // TH1* m_hNSegment_LB_EC_1D;
 
             // Set 2D hists for development
 
@@ -56,20 +56,20 @@ class RecoLumiPlots:public PlotBase {
             TH2* m_hNMuon_LB;
             TH2* m_hNResonance_LB;
 
-            TH2* m_hNSegment_Inst;
-            TH2* m_hNMuonTrack_Inst;
-            TH2* m_hNMuon_Inst;
-            TH2* m_hNResonance_Inst;
+            // TH2* m_hNSegment_Inst;
+            // TH2* m_hNMuonTrack_Inst;
+            // TH2* m_hNMuon_Inst;
+            // TH2* m_hNResonance_Inst;
 
-            TH2* m_hNSegment_IntLumi;
-            TH2* m_hNMuonTrack_IntLumi;
-            TH2* m_hNMuon_IntLumi;
-            TH2* m_hNResonance_IntLumi;
+            // TH2* m_hNSegment_IntLumi;
+            // TH2* m_hNMuonTrack_IntLumi;
+            // TH2* m_hNMuon_IntLumi;
+            // TH2* m_hNResonance_IntLumi;
 
-            TH2* m_hNSegment_LB_BA;
-            TH2* m_hNSegment_LB_BC;
-            TH2* m_hNSegment_LB_EA;
-            TH2* m_hNSegment_LB_EC;
+            // TH2* m_hNSegment_LB_BA;
+            // TH2* m_hNSegment_LB_BC;
+            // TH2* m_hNSegment_LB_EA;
+            // TH2* m_hNSegment_LB_EC;
 
 
             //for locating Z and Jpsi

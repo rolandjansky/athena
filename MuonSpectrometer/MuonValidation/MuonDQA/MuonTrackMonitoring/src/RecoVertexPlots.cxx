@@ -20,7 +20,7 @@ void RecoVertexPlots::initializePlots(){
     m_nTGC = Book1D("m_MSVx_nTGC", "m MSVx nTGC: M MSVx TGC Hits;;N_{TGC}", 100,  0.0,  1000.);
 
     m_nTracklets = Book1D("m_MSVx_nTracklets", "MSVx nTracklets: M MSVx Number of Tracklets; N_{trackletS}", 20,  0.0,  20.);   
-    m_VertexEtaPhi   = Book2D("m_VertexEtaPhi", "Vertex Eta Phi: M MSVx #eta vs. #phi; #eta; #phi", 64, -3.2, 3.2, 64, -3.2, 3.2);    
+    m_VertexEtaPhi   = Book2D("m_VertexEtaPhi", "Vertex Eta Phi: M MSVx #eta vs. #phi; #eta; #phi", 25, -2.5, 25, 32, -3.2, 3.2);    
  
 }
 
