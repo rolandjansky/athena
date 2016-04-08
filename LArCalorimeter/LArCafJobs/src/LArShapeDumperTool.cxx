@@ -94,7 +94,7 @@ CellInfo* LArShapeDumperTool::makeCellInfo(const HWIdentifier& channelID, const 
     layer = m_fcalId->module(id);
   }
   else {
-    msg(MSG::WARNING) << "LArDigit Id "<< MSG::hex << id.get_compact() << MSG::dec 
+    msg(MSG::WARNING) << "LArDigit Id "<< MSG::hex << id.get_identifier32().get_compact() << MSG::dec 
 		      << " (FT: " << m_onlineHelper->feedthrough(channelID) << " FEBSlot: " 
 		      << m_onlineHelper->slot(channelID) << " Chan: " << m_onlineHelper->channel(channelID)
 		      << ") appears to be neither EM nor HEC nor FCAL." << endreq;
@@ -112,7 +112,7 @@ CellInfo* LArShapeDumperTool::makeCellInfo(const HWIdentifier& channelID, const 
   }
  
   TVector3 position(0,0,1);
-  ULong64_t onlid = (ULong64_t)channelID.get_compact(); 
+  ULong64_t onlid = (ULong64_t)channelID.get_identifier32().get_compact(); 
   if (caloDetElement) position = TVector3(caloDetElement->x(), caloDetElement->y(), caloDetElement->z());
 
   return new CellInfo(calo, layer, iEta, iPhi, 

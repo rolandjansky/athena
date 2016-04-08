@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 import sys,pickle
 
-patcharea="/afs/cern.ch/user/l/larcomm/w0/digitMon/LArCAF"
-setupScript="/afs/cern.ch/atlas/tzero/software/setup/setuptrf.sh"
-specialT0Setup="/afs/cern.ch/atlas/tzero/software/setup/specialsetup_tier0.sh"
-
+patcharea='/afs/cern.ch/user/l/larcomm/w0/digitMon/LArCAF'
+setupScript='/afs/cern.ch/atlas/tzero/software/setup/setuptrf.sh'
+specialT0Setup='/afs/cern.ch/atlas/tzero/software/setup/specialsetup_tier0.sh'
+trfsetuppath='/afs/cern.ch/atlas/tzero/software/setup/'
 processConfigs = {}
 
 processConfigs['reco'] = {
     'inputs': { 'inputBSFile': {} },
     'outputs': { 'outputNTUP_SAMPLESMONFile': {'dstype': 'NTUP_SAMPLESMON'}, }, 
-    'tasktransinfo': { 'trfpath': 'LArCAF_trf.py',
+    'tasktransinfo': { 'trfpath': 'LArCAF_tf.py',
                        'trfsetupcmd': setupScript+ ' '+patcharea+' RELEASE ' + specialT0Setup},
     'phconfig': {}, 
     'description': 'Runs LAr Samples monitoring job on LArCells or LArCellsEmpty calibration streams. Uses RELEASE' 
@@ -21,9 +21,9 @@ processConfigs['merge'] = {
     'inputs': { 'inputLArFiles': {} },
     'outputs': { 'outputLArFile': {'dstype': 'NTUP_SAMPLESMON'}, }, 
     'tasktransinfo': { 'trfpath': 'LArMerge_trf.py',
-                       'trfsetupcmd': '/afs/cern.ch/atlas/tzero/prod1/inst/projects/data11/setup/setuptrf.sh '+patcharea+' RELEASE /afs/cern.ch/atlas/tzero/prod1/inst/projects/data11/setup/specialsetup_tier0.sh' },
+                       'trfsetupcmd': trfsetuppath+'setuptrf.sh '+patcharea+' RELEASE '+trfsetuppath+'specialsetup_tier0.sh' },
     'phconfig': {}, 
-    'description': 'Merges LAr Samples monitoring ntuples.. Uses RELEASE' 
+    'description': 'Merges LAr Samples monitoring ntuples. Uses RELEASE' 
     }
 
 
@@ -31,9 +31,9 @@ processConfigs['histmerge'] = {
     'inputs': { 'inputHistFiles': {'metatype':'inputLFNlistDA'} },
     'outputs': { 'outputLArHistFile': {'dstype': 'LARHIST'}, }, 
     'tasktransinfo': { 'trfpath': 'LArHistMerge_trf.py',
-                       'trfsetupcmd': '/afs/cern.ch/atlas/tzero/prod1/inst/projects/data11/setup/setuptrf.sh '+patcharea+' RELEASE /afs/cern.ch/atlas/tzero/prod1/inst/projects/data11/setup/specialsetup_tier0.sh' },
+                       'trfsetupcmd': trfsetuppath+'setuptrf.sh '+patcharea+' RELEASE '+trfsetuppath+'specialsetup_tier0.sh' },
     'phconfig': {}, 
-    'description': 'Merges LAr Samples monitoring ntuples.. Uses RELEASE' 
+    'description': 'Merges LAr Monitoring Histograms. Uses RELEASE' 
     }
 
 
@@ -41,7 +41,7 @@ processConfigs['histmerge'] = {
 
 
 
-description_var = '. Used in production from November 2011 onwards.'
+description_var = '. Used in production from Feb 2015 onwards.'
 
 # example release: AtlasTier0-15.5.3.7
 
@@ -113,14 +113,14 @@ if __name__ == '__main__':
     c['outputs']=str(processConfigs[process]['outputs'].__str__())
     c['SWReleaseCache']=str(release)
     if process=='reco':
-        c['Geometry']='ATLAS-GEO-18-01-01'
-        c['ConditionsTag']='COMCOND-ES1PA-006-01'
+        c['Geometry']='ATLAS-R2-2015-02-00-00'
+        c['ConditionsTag']='CURRENT'
     else: #merging case
         c['Geometry']='n/a'
         c['ConditionsTag']='n/a'
     c['phconfig']=str(processConfigs[process]['phconfig'].__str__())
     c['transformation']=str(moreInfoDic['tasktransinfo']['trfpath'])
-    c['trfsetupcmd']="\""+str(moreInfoDic['tasktransinfo']['trfsetupcmd'])+"\""
+    c['trfsetupcmd']=str(moreInfoDic['tasktransinfo']['trfsetupcmd'])
     c['moreInfo']=str(moreInfoDic.__str__())
     c['description']=processConfigs[process]['description'].replace('RELEASE', str(release)) + description_var 
 
@@ -129,12 +129,16 @@ if __name__ == '__main__':
     if doWhat=="create":
         l=['AddConfigurationTag']
         for k in s.keys():
-            l.append(k+'='+s[k])
+            l.append(k+"=\""+s[k]+"\"")
         for k in c.keys():
-            l.append(k+'='+c[k])
+            l.append(k+"=\""+c[k]+"\"")
             
         print "l=",l
         result=amiclient.execute(l)
+        
+        print " ================================================ "
+
+        print result
         print "\n\n###############################################"
         print "#  Successfully created new tag %s !!   :-)  #"%amiTag
         print "###############################################\n\n"        
@@ -167,6 +171,9 @@ if __name__ == '__main__':
         
         #print "l=",l
         result=amiclient.execute(l)
+        print result
+
+
         print "\n\n#####################################################"
         print "#  Succesfully updated existing tag %s !!!   :-)  #"%amiTag
         print "#####################################################\n\n"        

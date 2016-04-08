@@ -71,6 +71,13 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   m_adc2mevTool("LArADC2MeVTool"),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
+  m_larPedestal(nullptr),
+  m_caloDetDescrMgr(nullptr),
+  m_onlineHelper(nullptr),
+  m_doEM(false),
+  m_doHEC(false),
+  m_doFCAL(false),
+  m_samples(nullptr),
   m_runData(0)
 {
   declareProperty("FileName", m_fileName = "samples.root");

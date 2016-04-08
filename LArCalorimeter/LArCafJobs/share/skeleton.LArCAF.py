@@ -31,7 +31,8 @@ athenaCommonFlags.BSRDOInput.set_Value_and_Lock(runArgs.inputBSFile)
 from RecExConfig.RecFlags import rec
 from RecExConfig.AutoConfiguration import GetProjectName
 rec.projectName=GetProjectName()
-
+rec.doWriteESD=False
+rec.doWriteAOD=False
 
 from AthenaCommon.JobProperties import jobproperties
 if hasattr(runArgs,'geometryVersion'):
@@ -177,14 +178,14 @@ lvl1 = Lvl1ResultBuilderGetter()
 from TriggerJobOpts.HLTTriggerResultGetter import ByteStreamUnpackGetter
 bsu=ByteStreamUnpackGetter()
 
-from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
-trigDecWriter = WriteTrigDecision()
-
 # TDT
 from AthenaCommon.AppMgr import ToolSvc
 from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
 tdt = Trig__TrigDecisionTool("TrigDecisionTool")
 ToolSvc += tdt
+
+from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
+trigDecWriter = WriteTrigDecision()
 
 
 #This tool is apparently instanciated by TrkDetElementSurface/ DetElementSurfaceCnv_p1.h

@@ -66,56 +66,76 @@ def larMerge(dataMap) :
   print '\nOutput file name:', outputFile
 
   retcode = 0
-
-  # Load ROOT and the LArCafJobs library 
-  import ROOT, PyCintex
-  from ROOT import gSystem
-  gSystem.Load("libLArCafJobsDict");
-
-  fileList = ROOT.std.vector('TString')()
-  inFiles = []
-
-  for fileName in inputList :
-    accessor = ROOT.LArSamples.PersistentAccessor.open(fileName)
-    print 'Opened file', fileName, 'nevents = ', accessor.nEvents()
-    if accessor == 0 :
-      print 'ERROR : could not open file', fileName
-      retcode = 74001
-      break
-    fileList.push_back(fileName)
-    inFiles.append(getFileMap(fileName, None, nevts=accessor.nEvents()))
-  
-  if retcode == 0 :
-    output = ROOT.LArSamples.PersistentAccessor.merge(fileList, outputFile)
-    if accessor == 0 :
-      print 'ERROR : could not merge to file ', outputFile
-      retcode = 74002
-
-  # get info for report gpickle file
-  if retcode == 0 :
-    outputMap = getFileMap(outputFile, outputDSName, nevts=output.nEvents())
-    outFiles = [ outputMap ]
-        
-  retcode = 0
   acronym = 'OK'
   txt = 'trf finished OK'
 
-  if retcode != 0 : 
-    print "ERROR: problem in LAr ntuple merging!"
-    if retcode == 62600 :
+  outFiles = []
+  inFiles = []
+  nEvents=0
+
+  cmdline=["LArSamplesMerge.exe"]
+  for fileName in inputList:
+    if os.access(fileName,os.R_OK):
+      cmdline.append(fileName)
+    else:
+      print 'ERROR : could not open file', fileName
+      retcode = 74001
       acronym = 'TRF_LAR_FILE_INPUT_ERROR'
       txt = 'LAr input file not accessible'
-    elif retcode == 62601 :  
+      break
+    pass
+  
+  if (retcode==0):
+    writepath=os.path.split(outputFile)[0]
+    if writepath=="": writepath="./"
+    if (os.access(writepath,os.W_OK)):
+      cmdline.append(outputFile)
+    else:
+      print "ERROR, not allowed to write to oututfile", outputFile
+      retcode = 74002
       acronym = 'TRF_LAR_MERGE_ERROR'
       txt = 'LAR merging error'
+      pass
+    pass
+  
+  if (retcode==0):
 
+    logfile=open("log.LArMerge","w")
+
+    try:
+      subprocess.check_call(cmdline,stdout=logfile,stderr=subprocess.STDOUT)
+    except Exception,e:
+      print "ERROR exectution of subprocess failed"
+      print e
+      acronym = 'TRF_LAR_MERGE_ERROR'
+      txt = 'LAR merging error'
+      pass
+
+    logfile.close()
+    logfile=open("log.LArMerge","r")
+
+    for line in logfile:
+      print line,
+      if line.startswith("Open file "):
+        linetok=line.split(" ")
+        inFiles.append(getFileMap(linetok[2], None, nevts=int(linetok[4])))
+        pass
+      if line.startswith("Wrote output file "):
+        linetok=line.split(" ")
+        nEvents=int(linetok[5])
+        outFiles=[getFileMap(linetok[3], outputDSName, nevts=nEvents),]
+        pass
+      
+    logfile.close()
+
+    
 
   # assemble job report map, pickle it
   outMap = { 'prodsys': { 'trfCode': retcode,
                           'trfAcronym': acronym,  
                           'jobOutputs': outFiles,
                           'jobInputs': inFiles,
-                          'nevents': output.nEvents(),              
+                          'nevents': nEvents,              
                         }
            }              
   f = open('jobReport.gpickle', 'w')
@@ -126,7 +146,7 @@ def larMerge(dataMap) :
   print   "## End of job."
   print   "##################################################################\n"
 
-
+  print outMap
 
 ########################################
 ## main()

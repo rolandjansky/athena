@@ -6,10 +6,8 @@ from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 from DQDefects import DefectsDB
   
-#server = xmlrpclib.ServerProxy('https://cmarino:9a869871-f116-43ce-baa0-51dd41d9bf51@atlasdqm.cern.ch') #FIXME
-
 try:
-  serverfile=open("/afs/cern.ch/user/l/larmon/dqmAccess/passfile.txt","r")
+  serverfile=open("/afs/cern.ch/user/l/larmon/public/atlasdqmpass.txt")
   password=serverfile.readline().strip()
   serverfile.close()
 except Exception,e:
@@ -18,77 +16,56 @@ except Exception,e:
   sys.exit(-1)
 
 
-def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False): 
+def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonReady=True): 
 
-  # 1. Get LB range for this run
-  minLB=0xFFFFFFFF
-  maxLB=0
-  
-  since=(runnum<<32)+1
-  until=(1+runnum)<<32
-
-  trigdb=indirectOpen('COOLONL_TRIGGER/COMP200',oracle=True)
-  if (trigdb is None):
-    print "ERROR: Cannot connect to COOLONL_TRIGGER/COMP200"
-    sys.exit(-1)
-    
-  fLB=trigdb.getFolder('/TRIGGER/LUMI/LBLB')
-  itr = fLB.browseObjects(since,until,cool.ChannelSelection.all())
-  while itr.goToNext():
-    obj=itr.currentRef()
-    run1=obj.since()>>32
-    LB1=obj.since() & 0xFFFFFF
-    if (run1==runnum):
-      if (LB1 < minLB): minLB=LB1
-      if (LB1 > maxLB): maxLB=LB1
-  pass
-  itr.close()
-  trigdb.closeDatabase()
-
-  if (minLB==0xFFFFFFFF or maxLB==0):
-    print "Nothing found about run",runnum,"Wrong run number?"
-    return set()
-
-  print "Run %i goes from LB %i to LB %i" % (runnum,minLB,maxLB)
- 
-  # 2. Get LBs without "ATLAS-READY"
   badLBs=set()
+
+  # 1. Get LB range for this run and LBs without "ATLAS-READY"
   nReadyLBs=0
   nNotReadyLBs=0
-  tdaqdb=indirectOpen('COOLONL_TDAQ/COMP200')
+  tdaqdb=indirectOpen('COOLONL_TDAQ/CONDBR2')
   if (tdaqdb is None):
-    print "ERROR: Can't access COOLONL_TDAQ/COMP200"
+    print "ERROR: Can't access COOLONL_TDAQ/CONDBR2"
     sys.exit(-1)
     
   fmode=tdaqdb.getFolder("/TDAQ/RunCtrl/DataTakingMode")  
 
-  since=(runnum<<32)+minLB
-  until=(runnum<<32)+maxLB+1
-
+  since=(runnum<<32)+1
+  until=((1+runnum)<<32)-1
+  maxLb=0
+  minLb=1
   itr=fmode.browseObjects(since,until,cool.ChannelSelection.all())
   while itr.goToNext():
     obj=itr.currentRef()
     pl=obj.payload()
     isReady=pl["ReadyForPhysics"]
     lb1=max(since,obj.since()) & 0xFFFFFFFF
-    lb2=min(until,obj.until()) & 0xFFFFFFFF
-    if not isReady:
-      print "Ignoring LumiBlocks %i - %i not ATLAS READY" % (lb1,lb2)
-      for lb in xrange(lb1,lb2):
-        badLBs.add(lb)
-      nNotReadyLBs+=(lb2-lb1)
-    else:
-      nReadyLBs+=(lb2-lb1)
+    ts2=obj.until()
+    if ts2<until: #ignore the IOV beyond the end of the run
+      lb2=ts2 & 0xFFFFFFFF
+      if lb2>maxLb: maxLb=lb2
+      if not isReady:
+        if dropNonReady:
+          print "Ignoring LumiBlocks %i - %i not ATLAS READY" % (lb1,lb2)
+          badLBs.update(xrange(lb1,lb2))
+        nNotReadyLBs+=(lb2-lb1)
+      else:
+        nReadyLBs+=(lb2-lb1)
+        pass
+      pass
     pass
+  pass
   itr.close()
   tdaqdb.closeDatabase()
   
-  #3. Get problematic LBs
-  #3.1 Look for collisions in empty bunches - Fetch from DQ Web Server
+  print "Run %i goes up to LB %i" % (runnum,maxLb)
+
+  #2. Get problematic LBs
+  #2.1 Look for collisions in empty bunches - Fetch from DQ Web Server
   source = 'tier0'
   stream = 'physics_CosmicCalo'
 
-  serverstring="https://larmon:%s@atlasdqm.cern.ch" % password
+  serverstring="https://%s@atlasdqm.cern.ch" % password
   server = xmlrpclib.ServerProxy(serverstring)
   multicall = xmlrpclib.MultiCall(server)
 
@@ -96,6 +73,7 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False):
   run_spec = {'source': source, 'high_run': runnum, 'low_run': runnum}
   multicall.get_procpass_amitag_mapping(run_spec)
   results = multicall()
+  if len(results[0])==0: print "Nothing found about run",runnum,"on DQM server"
   proc = 0
   try:
     list = results[0][str(runnum)]
@@ -112,7 +90,8 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False):
     print e
 
   if (proc == 0):
-    print "I haven't found any processing version for CosmicCalo"
+    print "I haven't found any processing version for CosmicCalo. Assume express processing"
+    proc=1 
 
 
   try:
@@ -181,7 +160,7 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False):
   #3.2 Get defects from Defects DB
   db = DefectsDB()
   lar_defects = [d for d in (db.defect_names | db.virtual_defect_names) if d.startswith("LAR")]
-  defects = db.retrieve((runnum, minLB), (runnum, maxLB), lar_defects)
+  defects = db.retrieve((runnum, minLb), (runnum, maxLb), lar_defects)
   for defect in defects:
     part=defect.channel.split("_")[1]
     #3.2.1 Check for HV trip
@@ -210,8 +189,10 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False):
         
   del db #Close Defects DB
 
-  print "Found %i not-ready LBs and %i bad LBs among %i atlas-ready LBs" % (nNotReadyLBs,len(badLBs)-nNotReadyLBs,nReadyLBs)
+  nBadLBs=len(badLBs)
+  if dropNonReady: nBadLBs=nBadLBs-nNotReadyLBs
 
+  print "Found %i not-ready LBs, %i atlas-ready LBs and %i bad LBs" % (nNotReadyLBs,nReadyLBs,nBadLBs)
 
   return badLBs
 
@@ -220,24 +201,59 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False):
 ########################################################################
 
 if __name__ == "__main__":
+  import getopt
   if len(sys.argv) == 1 :
       print
-      print "usage: python %s run"%(sys.argv[0])
+      print "usage: python %s <options> <runnumber> "%(sys.argv[0])
       print
       sys.exit(1)
 
-  run=int(sys.argv[1])
-  bulk = False
-  if (len(sys.argv)>2):
-    if (sys.argv[2] == "b"):
-      bulk= True
+  burstsFromCosmic=True
+  bulkProcessing=False
+  dropNonReady=True
+
+  outputFN=None
+
+  opts,args=getopt.getopt(sys.argv[1:],"brco:",[])
+  for o,a in opts:
+    if (o=='-c'): burstsFromCosmics=False
+    if (o=='-b'): bulkProcessing=True
+    if (o=='-r'): dropNonReady=False
+    if (o=='-o'): outputFN=a
+
+  if len(args)<0:
+    print "No run number found"
+    sys.exit(-1)
+
+  if len(args)>1:
+    print "Too many arguments"
+    sys.exit(-1)
+
+  run=int(args[0])
       
-  if (bulk):
+  if (bulkProcessing):
     print "Searching for bad lumi blocks in run %d for bulk processing"%run
   else:
     print "Searching for bad lumi blocks in run %d for express processing"%run
 
-  badLBset=getLBsToIgnore(run,True,bulk)
-  print "LBs to ignore:",sorted(badLBset)
+  if (dropNonReady):
+    print "LB not marked as AtlasReady will be considered bad"
+  else:
+    print "LB not marked as AtlasReady will be considered good"
+
+    
+
+  badLBset=getLBsToIgnore(run,burstsFromCosmic,bulkProcessing, dropNonReady)
+
+  badLBsorted=sorted(badLBset)
+  print "LBs to ignore:",badLBsorted
+
+  if outputFN is not None:
+    out=open(outputFN,"w")
+    out.write(', '.join([ str(i) for i in badLBsorted ]))
+    out.write("\n")
+    out.close()
+
+
 #  badLBset2=getLBsToIgnore(run)
 #  print "LBs to ignore:",sorted(badLBset)

@@ -28,7 +28,12 @@ apply_tag ROOTMathLibs
 # Specify the required ROOT components for cmake (transparent to CMT)
 apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Matrix)"
 
-apply_pattern dual_use_library files=*.cxx
+apply_pattern dual_use_library files="AbsShape.cxx CaloId.cxx CellInfo.cxx ClassCounts.cxx DataContainer.cxx DataStore.cxx Definitions.cxx EventData.cxx Geometry.cxx HistoryContainer.cxx LArShapeDumper.cxx LArShapeDumperTool.cxx LArSimpleShapeDumper.cxx PersistentAccessor.cxx RunData.cxx ShapeInfo.cxx SimpleShape.cxx "
+
+
+
+
+
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
 apply_pattern declare_scripts files="LArHistMerge_trf.py"
@@ -59,5 +64,8 @@ headerfiles=" ../LArCafJobs/LArCafJobsDict.h"
 application LArQuickHistMerge ../src/LArQuickHistMerge.cxx
 macro_append LArQuickHistMerge_dependencies " LArCafJobsLib" 
 
-apply_pattern declare_jobtransforms trfs='../share/LArCAF_trf.py ../share/LArMerge_trf.py' jo='skeleton.LArCAF.py'
+application LArSamplesMerge ../src/LArSamplesMerge.cxx
+macro_append LArSamplesMerge_dependencies " LArCafJobsLib" 
+
+apply_pattern declare_jobtransforms trfs='../share/LArCAF_tf.py ../share/LArMerge_trf.py' jo='skeleton.LArCAF.py'
 
