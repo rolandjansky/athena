@@ -8,11 +8,18 @@ use     Pythia8                 Pythia8-*               External
 use     Pythia8_i               Pythia8_i-*             Generators
 use     GaudiInterface          GaudiInterface-*        External
 use     AtlasROOT               AtlasROOT-*             External
+use     GeneratorModules    	GeneratorModules-*    	Generators
 
 private
+use TestPolicy                  TestPolicy-*
 use     AtlasCLHEP              AtlasCLHEP-*            External
 
-library FastChainPileup MultiPy8Pileup.cxx components/*.cxx
+library FastChainPileup MultiPy8Pileup.cxx MultiParticleGunPileup.cxx components/*.cxx
 apply_pattern component_library
-	
+apply_pattern validate_xml
 apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_scripts files="-s=$(FastChainPileup_root)/scripts sim_reg_test_fastchain.py"
+
+public
+macro FastChainPileup_TestConfiguration "../test/FastChainPileup_TestConfiguration.xml"
+apply_pattern declare_runtime extras="../test/FastChainPileup_TestConfiguration.xml"
