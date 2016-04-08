@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <algorithm>
 
 #include "AthenaKernel/MsgStreamMember.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
@@ -30,6 +31,8 @@ class ALFA_MDMultiple
 {
 	public:
 		ALFA_MDMultiple();
+		ALFA_MDMultiple(const ALFA_MDMultiple &obj);
+		ALFA_MDMultiple& operator=(const ALFA_MDMultiple &obj);
 		~ALFA_MDMultiple();
 
 	private:
@@ -39,11 +42,11 @@ class ALFA_MDMultiple
 		Int_t m_iNumLayerCut;
 		Float_t m_fOverlapCut;
 
-		//slope, offset and Z-pos for MD fibers [2*10][64]
+		//slope, offset and Z-pos for MD fibers [8][2*10][64]
 		Float_t m_faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT];
 		Float_t m_fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT];
 
-		//number of hits in the layer
+		//number of hits in the layer [2*10]
 		Int_t m_iNumHitsLayer[ALFALAYERSCNT*ALFAPLATESCNT];
 
 //		Int_t m_iTrackMatch[MAXTRACKNUM][2];

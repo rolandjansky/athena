@@ -420,8 +420,8 @@ void ALFA_EdgeMethod::selectedFibers(UInt_t no_Detector, Track &track, Int_t * s
 
 		for(UInt_t nL = 1; nL < 17; nL+=2){
 			fLow = selectedFib[nL]%1000;
-			if( fLow > 0 && fLow < 63 && selectedFib[nL] < 8000 && selectedFib[nL+2] > 8000 && selectedFib[nL+4] < 8000  ){
-
+//			if( fLow > 0 && fLow < 63 && selectedFib[nL] < 8000 && selectedFib[nL+2] > 8000 && selectedFib[nL+4] < 8000  ){
+			if( fLow > 1 && fLow < 62 && selectedFib[nL] < 8000 && selectedFib[nL+2] > 8000 && selectedFib[nL+4] < 8000  ){
 				if( m_uv_geo[no_Detector][nL][fLow] > m_uv_geo[no_Detector][nL+2][fLow] ){
 					if( m_uv_geo[no_Detector][nL][fLow] > m_uv_geo[no_Detector][nL+2][fLow+1] ){
 						fCur = fLow+1;

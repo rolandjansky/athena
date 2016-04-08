@@ -3,8 +3,8 @@
 */
 
 #include "ALFA_LocRec/ALFA_MDMultiple.h"
-
-using namespace std;
+#include <algorithm>    // std::copy
+//using namespace std;
 
 ALFA_MDMultiple::ALFA_MDMultiple()
 {
@@ -40,6 +40,102 @@ ALFA_MDMultiple::ALFA_MDMultiple()
 	m_iTrackMatch[1] = NULL;
 	m_iTrackMatch[0] = new std::vector<Int_t>();
 	m_iTrackMatch[1] = new std::vector<Int_t>();
+}
+
+ALFA_MDMultiple::ALFA_MDMultiple(const ALFA_MDMultiple &obj)
+{
+//	std::copy(obj.m_iNumHitsLayer, obj.m_iNumHitsLayer + sizeof(obj.m_iNumHitsLayer)/sizeof(Int_t), m_iNumHitsLayer);
+	std::copy(obj.m_iNumHitsLayer, obj.m_iNumHitsLayer + ALFALAYERSCNT*ALFAPLATESCNT, m_iNumHitsLayer);
+
+	m_fOverlapCut      = obj.m_fOverlapCut;
+	m_iMultiplicityCut = obj.m_iMultiplicityCut;
+	m_iNumLayerCut     = obj.m_iNumLayerCut;
+	m_iRPot            = obj.m_iRPot;
+	m_iUVCut           = obj.m_iUVCut;
+
+	m_fRecXPos = NULL;
+	m_fRecYPos = NULL;
+	m_fOvU     = NULL;
+	m_fOvV     = NULL;
+	m_iNU      = NULL;
+	m_iNV      = NULL;
+	m_fRecXPos = new std::vector<Float_t>();
+	m_fRecYPos = new std::vector<Float_t>();
+	m_fOvU     = new std::vector<Float_t>();
+	m_fOvV     = new std::vector<Float_t>();
+	m_iNU      = new std::vector<Int_t>();
+	m_iNV      = new std::vector<Int_t>();
+
+	std::copy(obj.m_fRecXPos->begin(), obj.m_fRecXPos->end(), m_fRecXPos->begin());
+	std::copy(obj.m_fRecYPos->begin(), obj.m_fRecYPos->end(), m_fRecYPos->begin());
+	std::copy(obj.m_fOvU->begin(),     obj.m_fOvU->end(),     m_fOvU->begin());
+	std::copy(obj.m_fOvV->begin(),     obj.m_fOvV->end(),     m_fOvV->begin());
+	std::copy(obj.m_iNU->begin(),      obj.m_iNU->end(),      m_iNU->begin());
+	std::copy(obj.m_iNV->begin(),      obj.m_iNV->end(),      m_iNV->begin());
+
+	for (int iLayer=0; iLayer<ALFALAYERSCNT*ALFAPLATESCNT; iLayer++)
+	{
+		m_iFibSel[iLayer] = NULL;
+		m_iFibSel[iLayer] = new std::vector<Int_t>();
+		std::copy(obj.m_iFibSel[iLayer]->begin(), obj.m_iFibSel[iLayer]->end(), m_iFibSel[iLayer]->begin());
+	}
+
+	m_iTrackMatch[0] = NULL;
+	m_iTrackMatch[1] = NULL;
+	m_iTrackMatch[0] = new std::vector<Int_t>();
+	m_iTrackMatch[1] = new std::vector<Int_t>();
+	std::copy(obj.m_iTrackMatch[0]->begin(), obj.m_iTrackMatch[0]->end(), m_iTrackMatch[0]->begin());
+	std::copy(obj.m_iTrackMatch[1]->begin(), obj.m_iTrackMatch[1]->end(), m_iTrackMatch[1]->begin());
+}
+
+ALFA_MDMultiple& ALFA_MDMultiple::operator=(const ALFA_MDMultiple &obj)
+{
+	if (this != &obj)
+	{
+//		std::swap(m_iNumHitsLayer, obj.m_iNumHitsLayer);
+		Int_t nLayers = ALFALAYERSCNT*ALFAPLATESCNT;
+
+		for (int i = 0; i < nLayers; i++)
+			m_iNumHitsLayer[i] = obj.m_iNumHitsLayer[i];
+
+		m_fOverlapCut      = obj.m_fOverlapCut;
+		m_iMultiplicityCut = obj.m_iMultiplicityCut;
+		m_iNumLayerCut     = obj.m_iNumLayerCut;
+		m_iRPot            = obj.m_iRPot;
+		m_iUVCut           = obj.m_iUVCut;
+
+//		std::swap(m_fRecXPos, obj.m_fRecXPos);
+//		std::swap(m_fRecYPos, obj.m_fRecYPos);
+//		std::swap(m_fOvU    , obj.m_fOvU);
+//		std::swap(m_fOvV    , obj.m_fOvV);
+//		std::swap(m_iNU     , obj.m_iNU);
+//		std::swap(m_iNV     , obj.m_iNV);
+//		std::swap(m_iFibSel, obj.m_iFibSel);
+//		std::swap(m_iTrackMatch, obj.m_iTrackMatch);
+
+		std::copy(m_fRecXPos->begin(), m_fRecXPos->end(), obj.m_fRecXPos->begin());
+		std::copy(m_fRecYPos->begin(), m_fRecYPos->end(), obj.m_fRecYPos->begin());
+		std::copy(m_fOvU->begin(),     m_fOvU->end(),     obj.m_fOvU->begin());
+		std::copy(m_fOvV->begin(),     m_fOvV->end(),     obj.m_fOvV->begin());
+		std::copy(m_iNU->begin(),      m_iNU->end(),      obj.m_iNU->begin());
+		std::copy(m_iNV->begin(),      m_iNV->end(),      obj.m_iNV->begin());
+
+		for (int iLayer = 0; iLayer < nLayers; iLayer++)
+		{
+			m_iFibSel[iLayer] = NULL;
+			m_iFibSel[iLayer] = new std::vector<Int_t>();
+			std::copy(m_iFibSel[iLayer]->begin(), m_iFibSel[iLayer]->end(), obj.m_iFibSel[iLayer]->begin());
+		}
+
+		m_iTrackMatch[0] = NULL;
+		m_iTrackMatch[1] = NULL;
+		m_iTrackMatch[0] = new std::vector<Int_t>();
+		m_iTrackMatch[1] = new std::vector<Int_t>();
+		std::copy(m_iTrackMatch[0]->begin(), m_iTrackMatch[0]->end(), obj.m_iTrackMatch[0]->begin());
+		std::copy(m_iTrackMatch[1]->begin(), m_iTrackMatch[1]->end(), obj.m_iTrackMatch[1]->begin());
+	}
+
+	return *this;
 }
 
 ALFA_MDMultiple::~ALFA_MDMultiple()
