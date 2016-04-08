@@ -81,6 +81,7 @@ class POOL2EI(PyAthena.Alg):
         _info("## DoProvenanceRef: {}".format(self.DoProvenanceRef))
         _info("## DoTriggerInfo: {}".format(self.DoTriggerInfo))
         _info("## HaveHlt: {}".format(self.HaveHlt))
+        _info("## HaveXHlt: {}".format(self.HaveXHlt))
         _info("## SendToBroker: {}".format(self.SendToBroker))
 
 
@@ -144,6 +145,10 @@ class POOL2EI(PyAthena.Alg):
             import AthenaPython.PyAthena as PyAthena
             self.trigDec = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
             self.trigDec.ExperimentalAndExpertMethods().enable()
+            if self.HaveXHlt:
+                self.trigDec.setProperty("TrigDecisionKey","xTrigDecision");
+            else:
+                self.trigDec.setProperty("TrigDecisionKey","TrigDecision");
         else:
             if self.HaveHlt:
                 _info("Switch HaveHlt to False")
@@ -347,7 +352,7 @@ class POOL2EI(PyAthena.Alg):
                 _info('could not find correct ROOT file')
                 return
             
-            root_file = root_files[0]
+            root_file = root_files[-1]  # get the last file in the list
             pool = root_file.Get("##Params")
             import re
             # Pool parameters are of the form:
@@ -448,14 +453,23 @@ class POOL2EI(PyAthena.Alg):
 
     def getChainCounter(self,level):
 
-        triggers =self.trigDec.getChainGroup(level)
-        names = triggers.getListOfTriggers()
+        if self.HaveXHlt:
+            if level.startswith("L1"):
+                triggers = self.trigDec.getChainGroup(level)
+                names = triggers.getListOfTriggers()
+            else:
+                names = self.trigDec.getListOfTriggers(level)
+        else:
+            triggers = self.trigDec.getChainGroup(level)
+            names = triggers.getListOfTriggers()
+
         if level.startswith("L1"):
             level1 = True
         else:
             level1 = False
 
         ccname = {}
+        ccmax = 0
         for i in xrange(names.size()):
             name = names.at(i)
             if level1:
@@ -463,8 +477,14 @@ class POOL2EI(PyAthena.Alg):
             else:
                 cc = self.trigDec.ExperimentalAndExpertMethods().getChainConfigurationDetails(name).chain_counter()
             ccname[cc]=name
+            if cc > ccmax:
+                ccmax = cc
 
-        return ccname
+        if len(ccname) == 0:
+            cclen = 0
+        else:
+            cclen = ccmax + 1
+        return ( cclen, ccname )
         
  
     ##########################################
@@ -477,10 +497,15 @@ class POOL2EI(PyAthena.Alg):
 
         # get trigger chains
         if self.DoTriggerInfo and self.HaveHlt:
-            self.ccnameL1 = self.getChainCounter("L1_.*")
-            self.ccnameL2 = self.getChainCounter("L2_.*")
-            self.ccnameEF = self.getChainCounter("EF_.*")
-
+            if self.HaveXHlt:
+                ( self.cclenL1, self.ccnameL1 ) = self.getChainCounter("L1_.*")
+                ( self.cclenL2, self.ccnameL2 ) = self.getChainCounter("HLT_.*")
+                ( self.cclenEF, self.ccnameEF ) = ( self.cclenL2, self.ccnameL2 )
+            else:
+                ( self.cclenL1, self.ccnameL1 ) = self.getChainCounter("L1_.*")
+                ( self.cclenL2, self.ccnameL2 ) = self.getChainCounter("L2_.*")
+                ( self.cclenEF, self.ccnameEF ) = self.getChainCounter("EF_.*")
+                
         return StatusCode.Success
 
 
@@ -554,6 +579,16 @@ class POOL2EI(PyAthena.Alg):
         _info('## EventWeight: {:f}'.format(eitype.mc_event_weight()))
         _info('## McChannelNumber: {:d}'.format(eitype.mc_channel_number()))
 
+        # xAOD
+        if 'xAOD::EventInfo' in store.keys():
+            xei = store.retrieve('xAOD::EventInfo', 'EventInfo')
+            _info('#2# bunch_crossing_id: {:d}'.format(xei.bcid()))
+            _info('#2# event_number: {:d}'.format(xei.eventNumber()))
+            _info('#2# lumi_block: {:d}'.format(xei.lumiBlock()))
+            _info('#2# run_number: {:d}'.format(xei.runNumber()))
+            _info('#2# time_stamp: {:d}'.format(xei.timeStamp()))
+            _info('#2# time_stamp_ns_offset: {:d}'.format(xei.timeStampNSOffset()))
+
         # -- trigger processing
         if self.DoTriggerInfo:
             eit = ei.trigger_info()
@@ -563,10 +598,13 @@ class POOL2EI(PyAthena.Alg):
             trigL1=""
             trigL2=""
             trigEF=""
+            _info("LEN_L1: {}".format(32*len(eit.level1TriggerInfo())))
             for v in eit.level1TriggerInfo():
                 trigL1+="{0:032b}".format(v)[::-1]
+            _info("LEN_L2: {}".format(32*len(eit.level2TriggerInfo())))
             for v in eit.level2TriggerInfo():
                 trigL2+="{0:032b}".format(v)[::-1]
+            _info("LEN_EF: {}".format(32*len(eit.eventFilterInfo())))
             for v in eit.eventFilterInfo():
                 trigEF+="{0:032b}".format(v)[::-1]
             trigL1=compressB64(trigL1)
@@ -595,29 +633,34 @@ class POOL2EI(PyAthena.Alg):
 
 
         # update trigger if TrigDecision info is available
-        if self.DoTriggerInfo and self.HaveHlt and 'TrigDecision' in self.evtStore.keys():
+        if self.DoTriggerInfo and self.HaveHlt and ('TrigDecision' in self.evtStore.keys() or 
+                                                    'xTrigDecision' in self.evtStore.keys()):
             L1_isPassedAfterPrescale  = 0x1 << 16
             L1_isPassedBeforePrescale = 0x1 << 17
             L1_isPassedAfterVeto      = 0x1 << 18
-            trigL1X=list(768*"0")
+            nlvl1=self.cclenL1
+            _info("LEN_L1*: {}".format(3*nlvl1))
+            trigL1X=list(3*nlvl1*"0")
             for pos,name in self.ccnameL1.items():
                 passedBits = self.trigDec.isPassedBits(name)
                 if passedBits & L1_isPassedBeforePrescale != 0:
                     trigL1X[pos]="1"
                 if passedBits & L1_isPassedAfterPrescale != 0:
-                    trigL1X[pos+256]="1"
+                    trigL1X[pos+nlvl1]="1"
                 if passedBits & L1_isPassedAfterVeto != 0:
-                    trigL1X[pos+512]="1"
-            trigL1X=compressB64("".join(trigL1X))
+                    trigL1X[pos+2*nlvl1]="1"
+            trigL1=compressB64("".join(trigL1X))
 
 
             L2_passedRaw   = 0x1 << 8
             L2_passThrough = 0x1 << 9
             L2_prescaled   = 0x1 << 10
             L2_resurrected = 0x1 << 11
-            trigL2_PH=list(32*eit.level2TriggerInfo().size()*"0")
-            trigL2_PT=list(32*eit.level2TriggerInfo().size()*"0")
-            trigL2_RS=list(32*eit.level2TriggerInfo().size()*"0")
+            nlvl2=self.cclenL2
+            _info("LEN_L2*: {}".format(nlvl2))
+            trigL2_PH=list(nlvl2*"0")
+            trigL2_PT=list(nlvl2*"0")
+            trigL2_RS=list(nlvl2*"0")
             for pos,name in self.ccnameL2.items():
                 passedBits    = self.trigDec.isPassedBits(name)
                 passedPhysics = self.trigDec.isPassed(name)
@@ -641,11 +684,13 @@ class POOL2EI(PyAthena.Alg):
             EF_passThrough = 0x1 << 1
             EF_prescaled   = 0x1 << 2
             EF_resurrected = 0x1 << 3
-            trigEFX=list(32*eit.eventFilterInfo().size()*"0")
-            trigEF_PH=list(32*eit.eventFilterInfo().size()*"0")
-            trigEF_PT=list(32*eit.eventFilterInfo().size()*"0")
-            trigEF_RS=list(32*eit.eventFilterInfo().size()*"0")
-            trigEF_INC=list(32*eit.eventFilterInfo().size()*"0")
+            nlvlEF=self.cclenEF
+            _info("LEN_EF*: {}".format(nlvlEF))
+            trigEFX=list(nlvlEF*"0")
+            trigEF_PH=list(nlvlEF*"0")
+            trigEF_PT=list(nlvlEF*"0")
+            trigEF_RS=list(nlvlEF*"0")
+            trigEF_INC=list(nlvlEF*"0")
             for pos,name in self.ccnameEF.items():
                 passedBits    = self.trigDec.isPassedBits(name)
                 passedPhysics = self.trigDec.isPassed(name)
@@ -818,6 +863,9 @@ class POOL2EISvc(PyAthena.Svc):
         super(POOL2EISvc, self).__init__(name, **kw)
         _info = self.msg.info
         _info("POOL2EISvc::__init__")
+        
+        # whether we are inside beginFile ... endFile
+        self.insideInputFile=False
 
         #save algorithm to call on incident
         if 'algo' in kw:
@@ -836,6 +884,7 @@ class POOL2EISvc(PyAthena.Svc):
         incsvc.addListener(self, 'EndInputFile')
         incsvc.addListener(self, 'BeginRun', 10)
         incsvc.addListener(self, 'EndRun', 10)
+        incsvc.addListener(self, 'EndEvtLoop')
         incsvc.release()
 
         return StatusCode.Success
@@ -848,17 +897,25 @@ class POOL2EISvc(PyAthena.Svc):
 
     def handle(self, incident):
         _info = self.msg.info
-        _info("POOL2EISvc::handle")
+        #_info("POOL2EISvc::handle")
         tp = incident.type()
         if tp == 'EndEvent':
             pass
         elif tp == 'BeginInputFile':
             _info('POOL2EISvc::handle BeginInputFile')
+            self.insideInputFile=True
             self.algo.beginFile()
             pass
         elif tp == 'EndInputFile':
             _info('POOL2EISvc::handle EndInputFile')
+            self.insideInputFile=False
             self.algo.endFile()
+            pass
+        elif tp == 'EndEvtLoop':
+            _info('POOL2EISvc::handle EndEvtLoop')
+            # when maxEvents is reached, we are still insideInputFile
+            if self.insideInputFile:
+                self.algo.endFile()
             pass
         elif tp == 'BeginRun':
             _info('POOL2EISvc::handle BeginRun')
