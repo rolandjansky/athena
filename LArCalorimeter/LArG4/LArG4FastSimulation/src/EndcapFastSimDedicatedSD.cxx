@@ -8,73 +8,31 @@
 #include "LArReadoutGeometry/EMECDetectorManager.h"
 #include "LArReadoutGeometry/EMECDetectorRegion.h"
 #include "LArG4Code/EnergySpot.h"
-#include "LArG4SD/LArG4SD.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "LArG4Code/LArG4Identifier.h"
-#include "LArG4Code/LArVHitMerger.h"
-#include "LArG4Code/LArVHitMergerFactory.h"
 #include "GeoSpecialShapes/LArWheelCalculator.h"
+#include "StoreGate/StoreGateSvc.h"
 
 using HepGeom::Point3D;
 using HepGeom::Transform3D;
 
 // Constructor:
-EndcapFastSimDedicatedSD::EndcapFastSimDedicatedSD(const std::string& type, const std::string& name, const IInterface *parent)
-  : SensitiveDetectorBase(type,name,parent)
-  , m_hitMerger(0)
+EndcapFastSimDedicatedSD::EndcapFastSimDedicatedSD(StoreGateSvc* detStore)
+  : IFastSimDedicatedSD("EndcapFastSimDedicatedSD", detStore) 
   , m_emecManager(nullptr)
   , m_innerWheelCalculatorPos(nullptr)
   , m_innerWheelCalculatorNeg(nullptr)
   , m_outerWheelCalculatorPos(nullptr)
   , m_outerWheelCalculatorNeg(nullptr)
 {
-  m_noVolumes=true;
-  declareInterface<IFastSimDedicatedSD>(this);
-}
-
-StatusCode EndcapFastSimDedicatedSD::initialize()
-{
-  ATH_MSG_VERBOSE( name() << "::initialize()");
-  CHECK( detStore()->retrieve( m_emecManager ) );
+  G4cout << GetName() << "::initialize()" << G4endl;
+  if ( detStore->retrieve( m_emecManager ).isFailure()  ){
+    throw std::runtime_error("Could not retrieve EMEC manager");
+  }
   m_innerWheelCalculatorPos = new LArWheelCalculator(LArWheelCalculator::InnerAbsorberWheel,+1);
   m_innerWheelCalculatorNeg = new LArWheelCalculator(LArWheelCalculator::InnerAbsorberWheel,-1);
   m_outerWheelCalculatorPos = new LArWheelCalculator(LArWheelCalculator::OuterAbsorberWheel,+1);
   m_outerWheelCalculatorNeg = new LArWheelCalculator(LArWheelCalculator::OuterAbsorberWheel,-1);
-  return SensitiveDetectorBase::initialize();
-}
-
-StatusCode EndcapFastSimDedicatedSD::retrieveLArHitMerger()
-{
-  // At the beginning of first event initialize m_hitMerger pointer
-  // 1. Get Hit Merger factory from DS
-  // 2. Query Hit Merger factory for Hit Merger pointer
-  const DataHandle<LArVHitMergerFactory> _factory;
-  CHECK( detStore()->retrieve(_factory,"LArHitMergerFactory") );
-
-  m_hitMerger = _factory->getHitMerger();
-
-  if(m_hitMerger==0){
-    ATH_MSG_ERROR("0 pointer to the Hit Merger");
-    return StatusCode::FAILURE;
-  }
-  m_hitMerger->BeginOfEvent(); //FIXME lazy init hack
-  return StatusCode::SUCCESS;
-}
-
-// End each event (do hit merger here)
-StatusCode EndcapFastSimDedicatedSD::EndOfAthenaEvent() {
-  if(m_hitMerger) m_hitMerger->EndOfEvent();
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-EndcapFastSimDedicatedSD::queryInterface(const InterfaceID& riid, void** ppvIf) {
-  if ( riid == IFastSimDedicatedSD::interfaceID() ) {
-    *ppvIf = (IFastSimDedicatedSD*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-  return SensitiveDetectorBase::queryInterface( riid, ppvIf );
 }
 
 // ProcessHitsMethod
@@ -164,14 +122,8 @@ void EndcapFastSimDedicatedSD::ProcessSpot(const EnergySpot  & spot){
                        << regionIndex
                        << etaIndex
                        << phiBin;
-        //FIXME temporary hack for lazy initialization for LArHitMerger
-        if (!m_hitMerger && retrieveLArHitMerger().isFailure())
-          {
-            ATH_MSG_FATAL("Could not retrieve the LArHitMerger! Will crash now.");
-            throw;
-          }
-        // call process with dummy first argument
-        m_hitMerger->process(0,id, spot.GetTime(), spot.GetEnergy());
+        // call process to add this to the collection 
+        SimpleHit(id, spot.GetTime(), spot.GetEnergy());
         return;
       }
     }

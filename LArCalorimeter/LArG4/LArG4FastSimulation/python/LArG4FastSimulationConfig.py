@@ -2,18 +2,6 @@
 
 from AthenaCommon import CfgMgr
 
-def getBarrelFastSimDedicatedSD(name="BarrelFastSimDedicatedSD", **kwargs):
-    return CfgMgr.BarrelFastSimDedicatedSD(name, **kwargs)
-
-def getEndcapFastSimDedicatedSD(name="EndcapFastSimDedicatedSD", **kwargs):
-    return CfgMgr.EndcapFastSimDedicatedSD(name, **kwargs)
-
-def getFCALFastSimDedicatedSD(name="FCALFastSimDedicatedSD", **kwargs):
-    return CfgMgr.FCALFastSimDedicatedSD(name, **kwargs)
-
-def getFCAL2FastSimDedicatedSD(name="FCAL2FastSimDedicatedSD", **kwargs):
-    return CfgMgr.FCALFastSimDedicatedSD(name, **kwargs)
-
 #def getDeadMaterialShower(name="DeadMaterialShower", **kwargs):
 #    return CfgMgr.DeadMaterialShower(name, **kwargs)
 

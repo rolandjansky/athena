@@ -10,9 +10,7 @@
 
 // Member variable headers
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "LArG4ShowerLibSvc/ILArG4ShowerLibSvc.h"
-#include "IFastSimDedicatedSD.h"
 #include "FastShowerConfigStruct.h"
 
 // STL headers
@@ -39,7 +37,7 @@ protected:
   virtual G4VFastSimulationModel* makeFastSimModel() override final;
 
 private:
-  ToolHandle<IFastSimDedicatedSD>   m_FastSimDedicatedSD;   //!< Shower library sensitive detector for this shower
+  std::string                       m_FastSimDedicatedSD; //!< Shower library sensitive detector for this shower
   ServiceHandle<ILArG4ShowerLibSvc> m_showerLibSvc;       //!< Pointer to the shower library service
   FastShowerConfigStruct            m_configuration;
 };
