@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonRDO
                           PRIVATE
                           Control/StoreGate
-			  Control/CxxUtils	  
                           Generators/GeneratorObjects
                           MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
                           MuonSpectrometer/MuonIdHelpers
