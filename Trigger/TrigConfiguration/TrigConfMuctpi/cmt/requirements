@@ -4,6 +4,7 @@ author Joerg Stelzer
 
 # Policy package(s):
 use DetCommonPolicy    *
+use TrigConfStorage     TrigConfStorage-*     Trigger/TrigConfiguration
 
 # External package(s):
 use XercesC            *   LCG_Interfaces
@@ -16,6 +17,10 @@ end_private
 apply_pattern detcommon_shared_library
 apply_pattern detcommon_header_installer
 
+apply_pattern trigconf_application name=ReadWriteMuCTPiGeometry
+macro_append TrigConfReadWriteMuCTPiGeometrylinkopts " $(Boost_linkopts_filesystem) "
+
+
 # Install the LUTs:
 apply_pattern detcommon_link_files kind=XML files="-s=../data *.xml *.dtd" \
                                    prefix=XML/TrigConfMuctpi
@@ -23,4 +28,5 @@ apply_pattern detcommon_link_files kind=XML files="-s=../data *.xml *.dtd" \
 apply_pattern detcommon_link_files kind=scripts files="-s=../scripts *.py" \
                                    prefix=share/bin
 
-
+apply_pattern detcommon_link_files kind=python_modules files="-s=../python *.py" \
+                                   prefix=python/TrigConfMuctpi
