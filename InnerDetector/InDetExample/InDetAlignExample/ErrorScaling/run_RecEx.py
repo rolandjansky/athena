@@ -17,12 +17,13 @@ def parseOptions():
     parser = OptionParser(usage=usage)
     parser.add_option('-n', dest='nSegments', help='number of batch segments', metavar="SEGMENTS")
     parser.add_option('-t', dest='itertag', help='iteration prefix (ex. iterC03)', metavar="TAG")
+    parser.add_option('-q', dest='queue', help='queue used for job submission', default="atlasb1")
     parser.add_option('--estag', dest='esotag', help='error scaling override tag', metavar="TAG")
     (o,a) = parser.parse_args()
 
     return (o,a)
 
-def submitjobs(prefix, nSegments, estag, args):
+def submitjobs(prefix, nSegments, estag,queue, args):
 
     #setup directory structure
     if (os.path.exists(prefix)):
@@ -44,7 +45,7 @@ def submitjobs(prefix, nSegments, estag, args):
 
     #we build a dictionary with 'definitions'. These are then substituted into
     vals = {}
-    vals['releasetag'] = '16.6.3.3,current,runtime'
+    vals['releasetag'] = '20.1.5.8'
     vals['nSegments'] = nSegments
     vals['eso'] = estag #error scaling override
     vals['joboptions'] = ' '.join(args[0:])
@@ -66,6 +67,8 @@ def submitjobs(prefix, nSegments, estag, args):
         #a = Popen("ln -s " + cwd + "/jobOptions.py " +  ("%s/%02d" % (prefix, i)) + "/jobOptions.py", shell=True)
         a = Popen("ln -s " + cwd + "/jobOptionsRAW.py " +  ("%s/%02d" % (prefix, i)) + "/jobOptionsRAW.py", shell=True)
         a = Popen("ln -s " + cwd + "/jobOptionsESD.py " +  ("%s/%02d" % (prefix, i)) + "/jobOptionsESD.py", shell=True)
+        a = Popen("ln -s " + cwd + "/jobOptionsESD_Run2.py " +  ("%s/%02d" % (prefix, i)) + "/jobOptionsESD_Run2.py", shell=True)
+        a = Popen("ln -s " + cwd + "/InDetMonitoringAlignment.py " +  ("%s/%02d" % (prefix, i)) + "/InDetMonitoringAlignment.py", shell=True)
         #a = Popen("ln -s " + cwd + "/ReadInDet_jobOptions.py " + ("%s/%02d" % (prefix, i)) + "/ReadInDet_jobOptions.py", shell=True)
         a = Popen("ln -s " + cwd + "/jobOptionsAlignmentSet.py " + ("%s/%02d" % (prefix, i)) + "/jobOptionsAlignmentSet.py", shell=True)
         a = Popen("ln -s " + cwd + "/jobOptionsErrorTuning.py " + ("%s/%02d" % (prefix, i)) + "/jobOptionsErrorTuning.py", shell=True)
@@ -111,7 +114,7 @@ def submitjobs(prefix, nSegments, estag, args):
 
         # change dir, submit to batch, change back
         os.chdir(pwd + ("%02d" % i))
-        command = "bsub -o batchLogFile -q atlasb1 ersc%02d " % i
+        command = "bsub -o batchLogFile -q %s ersc%02d " % (queue, i)
         print "Executing, %s" % command
         a = Popen(command, shell=True)
         rc = os.waitpid(a.pid, 0)[1]
@@ -143,10 +146,11 @@ def main():
     prefix = o.itertag
     nSegments = int(o.nSegments)
     estag = o.esotag
+    queue = o.queue
 
 #    print (prefix, nSegments, a)
 
-    submitjobs(prefix, nSegments, estag, a)
+    submitjobs(prefix, nSegments, estag,queue, a)
 
 
 if (__name__ == '__main__'):

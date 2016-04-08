@@ -46,7 +46,6 @@ info.write("\t\t%s      \n" % datetime.date.today() )
 info.write("----------------------------------------------\n")
 #info.write("Release %s\n" % ATHENAREL)
 info.write("Output stored in %s\n\n" % OutputPath)
-
 print "Info stored in: " +OutputPath+"/info.txt"
 
 if runMode == 'batch':
@@ -77,6 +76,10 @@ info.write("\n")
 StartTime=time.time()   # Start the total time counter
 info.close()
 
+# check that user requires to run some iterations:
+if (Iterations == 0):
+    print " ------------------------------------------------- \n -- WARNING -- user requests Iterations = 0 !!! -- \n ------------------------------------------------- \n" 
+
 #  Loop over iterations
 for iteration in range(FirstIteration,Iterations+FirstIteration):
     IterStartTime=time.time()
@@ -84,6 +87,11 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
         ReadAlignmentConstants = False
     else:
         ReadAlignmentConstants = True
+
+    if (iteration == 0 ) and not inputBowingCoolFile:
+	    ReadBowingParameter = False
+    else:
+        ReadBowingParameter = True
 
     print '\n'
     print " ---> Iteration "+repr(iteration)
@@ -93,22 +101,25 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
     info.write("---> Iteration "+repr(iteration))
     info.write('\n')
     # Protect existing directories
-    if os.path.isdir("%s/Iter%d" % (OutputPath, iteration)):
+    if os.path.isdir("%s/Iter%d%s" % (OutputPath, iteration, folderSuffix)):
         countdir=0
-        while os.path.isdir("%s/Iter%d-%s-%d" % (OutputPath, iteration, datetime.date.today(), countdir)):
+        while os.path.isdir("%s/Iter%d%s-%s-%d" % (OutputPath, iteration, folderSuffix,datetime.date.today(), countdir)):
             countdir += 1
-        os.rename("%s/Iter%d" % (OutputPath, iteration),("%s/Iter%d-%s-%d" % (OutputPath, iteration, datetime.date.today(), countdir)))
+        os.rename("%s/Iter%d%s" % (OutputPath, iteration, folderSuffix),("%s/Iter%d%s-%s-%d" % (OutputPath, iteration, folderSuffix, datetime.date.today(), countdir)))
 
-        print "WARNING: %s/Iter%d directory exists" % (OutputPath, iteration)
-        print "Renamed to %s/Iter%d-%s-%d" % (OutputPath, iteration, datetime.date.today(), countdir)
+        print "WARNING: %s/Iter%d%s directory exists" % (OutputPath, iteration, folderSuffix)
+        print "Renamed to %s/Iter%d%s-%s-%d" % (OutputPath, iteration, folderSuffix, datetime.date.today(), countdir)
 
     # Make OutputPaths
-    os.mkdir(OutputPath+'/Iter'+repr(iteration))
-    os.mkdir(OutputPath+'/Iter'+repr(iteration)+'/logs/')
+    folderName = OutputPath+'/Iter'+repr(iteration)+folderSuffix
+    os.mkdir(folderName)
+    os.mkdir(folderName+'/logs/')
+    print " <NewInDetIterator> Storing all files of this iteration in folder ", folderName 
+
     # Settup up a local copy of the alignment levels
     os.system("get_files -jo InDetAlignExample/NewInDetAlignLevels.py >/dev/null")
-    os.system("cp NewInDetAlignLevels.py %s" % OutputPath+'/Iter'+repr(iteration))
-    alignLevels = OutputPath+'/Iter'+repr(iteration)+"/NewInDetAlignLevels.py"
+    os.system("cp NewInDetAlignLevels.py %s" % folderName)
+    alignLevels = folderName+"/NewInDetAlignLevels.py"
     
     for data in DataToRun:
         print "----------------------------------------------"
@@ -124,28 +135,39 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
         else:
             print "Number of events per CPU: All" 
             info.write("Number of events per CPU: All" )
-        # -- SALVA -- OutputPaths = OutputPath, just to simplify the treatment
-        OutputPaths = OutputPath
-        os.mkdir(OutputPaths+'/Iter'+repr(iteration)+'/'+data.getName()+'/')
 
-        print "Processing..."
+        OutputPaths = OutputPath
+        os.mkdir(folderName+'/'+data.getName()+'/')
+
+        print " Processing..."
+        
+        # check how many jobs must be sent
+        # if users requests many, but the input file has less files, then the number of
+        # jobs must be capped
+        numberOfSubJobs = data.getCPUs(iteration)
+        if (data.getNFilesInList() < numberOfSubJobs): 
+            numberOfSubJobs = data.getNFilesInList()
+            print " >>> User requested ",data.getCPUs(iteration), " jobs but files has fewer entries. numberOfSubJobs= ", numberOfSubJobs     
 
         # Get the Input file
-        dataFiles = SortCpus(data.getCPUs(iteration)
+        dataFiles = SortCpus(numberOfSubJobs
                       ,""
                       ,data.getFileList()
                       ,OutputLevel
                       ,doDetailedSplitting=doDetailedSplitting
                       ,nEventsPerFile=data.getEventsPerCPU(iteration))
-        # Loop over subjobs
-        for subJob in range(0, data.getCPUs(iteration)):
+
+        preJOBNAME="%s_Iter%d%s_%s" % (preName,iteration,folderSuffix,data.getName())
+        
+        # Loop over subjobs     
+        for subJob in range(0, numberOfSubJobs):
             RecoOptions = {}
             # Get the Reconstruction Options
             RecoOptions["ClusteringAlgo"] = ClusteringAlgo
             if ErrorScaling[iteration]:
                 RecoOptions["errorScalingTag"] = errorScalingTag
 
-            JOBNAME="%s_Iter%d_%s_Part%02d.py" % (preName,iteration,data.getName(),subJob)
+            JOBNAME="%s_Part%02d.py" % (preJOBNAME,subJob)
             RecoScript = "InDetAlignExample/jobOption_RecExCommon.py"
             ConditionsScript = "InDetAlignExample/jobOption_ConditionsOverrider.py"
 
@@ -156,9 +178,14 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
                 RecoOptions["inputFiles"] = dataFiles.getInputFiles(subJob)
                 RecoOptions["numberOfEvents"] = dataFiles.getNumEvents(subJob)
                 RecoOptions["SkipEvents"] = dataFiles.getSkipEvents(subJob)
-        
+
             extraOptions["doReadBS"] = data.getByteStream()
-    
+            if (len(data.getProjectName())>0): 
+                extraOptions["projectName"] = data.getProjectName()
+            extraOptions["Cosmics"] = data.getCosmics()
+            extraOptions["DigitalClustering"] = data.getDigitalClustering()
+            extraOptions["PtCut"] = data.getPtMin()
+                
             if subJob == 0:
                 filesForSolve = RecoOptions["inputFiles"]
                 solveDoReadBS = extraOptions["doReadBS"]
@@ -175,7 +202,7 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
                 AlignmentOptions["runLocal"] = False
                 AlignmentOptions["solveLocal"] = False
                 AlignmentOptions["solvingOption"] = 1
-                AlignmentOptions["ModCut"] = 6
+                # AlignmentOptions["ModCut"] = 6 # This is not needed anymore (Salva, 19/May/2015)
             else:
                 AlignmentOptions["runLocal"] = True
                 AlignmentOptions["solvingOption"] = 0
@@ -183,18 +210,33 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
     
             AlignmentOptions["readConstantsFromPool"] = ReadAlignmentConstants
             constantsFile = ""
+            bowingdb= ""
             if ReadAlignmentConstants:
                 if iteration == 0:
                     constantsFile = inputAlignmentPoolFile 
                     AlignmentOptions["inputPoolFiles"] = [constantsFile]
                 else:
-                    constantsFile = str(OutputPaths)+"/Iter"+str(iteration-1)+"/Iter"+str(iteration-1)+"_AlignmentConstants.root"
+                    constantsFile = str(OutputPaths)+"/Iter"+str(iteration-1)+folderSuffix+"/Iter"+str(iteration-1)+"_AlignmentConstants.root"
                     AlignmentOptions["inputPoolFiles"] = [constantsFile]
-    
+
+            if ReadBowingParameter:
+                    if iteration == 0:
+                        bowingdb = inputBowingCoolFile
+                        AlignmentOptions["inputBowingDatabase"] = inputBowingCoolFile
+                    else:
+                        bowingdb = str(OutputPaths)+"/Iter"+str(iteration-1)+folderSuffix+"/mycool.db"
+                        AlignmentOptions["inputBowingDatabase"] = bowingdb
+
             AlignmentOptions["alignTRT"] = AlignTRT[iteration]
             if AlignTRT[iteration]:
                 AlignmentOptions["trtAlignmentLevel"] = TRTAlignmentLevel[iteration]
-    
+                AlignmentOptions["trtAlignBarrel"]    = AlignTRTBarrel[iteration]
+                AlignmentOptions["trtAlignEndcaps"]   = AlignTRTEndcaps[iteration]
+                AlignmentOptions["trtAlignmentLevel"] = TRTAlignmentLevel[iteration]
+                AlignmentOptions["trtAlignmentLevelBarrel"] = TRTAlignmentLevelBarrel[iteration]
+                AlignmentOptions["trtAlignmentLevelEndcaps"] = TRTAlignmentLevelEndcaps[iteration]
+
+                
             AlignmentOptions["alignSCT"] = AlignSCT[iteration]
             #if AlignSCTBarrel[iteration]:
             AlignmentOptions["sctAlignmentLevel"] = SCTAlignmentLevel[iteration]
@@ -227,25 +269,32 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
     
             poolfiles = RecoOptions["inputFiles"]
             poolfiles.append(constantsFile)
-        
-    
+
+            #coolfiles = RecoOptions["inputDbs"]
+            #coolfiles.append("")
+
+
+            #print " <NewInDetIterator> create a job: Outputpath = ", OutputPaths
+            #print "                                     JOBNAME = ", JOBNAME
             currentjob = manageJob(OutputPath = OutputPaths,
-                          dataName = data.getName(),
-                          iter = iteration,
-                          part = subJob,
-                          JOBNAME = JOBNAME,
-                          preName = preName,
-                          RecoOptions = RecoOptions,
-                          extraOptions = extraOptions,
-                          AlignmentOptions = AlignmentOptions,
-                          RecoScript = RecoScript,
-                          ConditionsScript = ConditionsScript,
-                          AlignmentLevels = alignLevels,
-                          #MonitoringScript = MonitoringScript,
-                          QUEUE = QUEUE,
-                          CMTDIR = CMTDIR,
-                          ATHENACFG = ATHENACFG,
-                          inputPoolFiles = poolfiles
+                                   dataName = data.getName(),
+                                   iter = iteration,
+                                   folderSuffix = folderSuffix,
+                                   part = subJob,
+                                   JOBNAME = JOBNAME,
+                                   preName = preName,
+                                   RecoOptions = RecoOptions,
+                                   extraOptions = extraOptions,
+                                   AlignmentOptions = AlignmentOptions,
+                                   RecoScript = RecoScript,
+                                   ConditionsScript = ConditionsScript,
+                                   AlignmentLevels = alignLevels,
+                                   #MonitoringScript = MonitoringScript,
+                                   QUEUE = QUEUE,
+                                   CMTDIR = CMTDIR,
+                                   ATHENACFG = ATHENACFG,
+                                   inputPoolFiles = poolfiles,
+                                   inputCoolFiles = []
                           )
     
             # Write the job
@@ -268,40 +317,33 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
             
     #  Solving the system
     if doSolve:
-        DataToSolve = list(DataToRun)
+        DataToSolve = list(DataToRun) # in case there is more than one set to run
         print "\n Waiting for Accumulate job completion. Please be patient. "
         while len(DataToSolve):
             for data in DataToSolve:
-                batchjobs = "%s_Iter%d_%s_Part" % (preName,iteration,data.getName())
-                if os.popen('bjobs -w').read().find(batchjobs)!=-1: # check if accumulate jobs still running 
-                    time.sleep(60) # wait a bit before asking again
+                batchjobs = "%s_Iter%d%s_%s_Part" % (preName,iteration,folderSuffix,data.getName())
+                #print "            preJOBNAME ", preJOBNAME
+                if os.popen('bjobs -w').read().find(preJOBNAME)!=-1: # check if accumulate jobs still running 
+                    time.sleep(30) # wait for a while before asking again
                     continue
                 DataToSolve.remove(data) # this data set is already completed 
-                time.sleep(30) # to be secure reco step has finished
+                time.sleep(30) # wait a bit longer just to be sure reco step has already finished
+                print " --> DataToSolve --> jobs running for ",len(DataToRun)," data types "
                
-        print " Accumulate jobs were completed at ", time.time()
+        print " >> Accumulate jobs were completed at ", time.strftime("%H:%M:%S")        
         info.write("\n Accumulate jobs were completed at \n")
 
-        if (len(DataToSolve)>1):
-            JOBNAME="%s_R%s_Iter%d_Solve.py" % (preName,"Total",iteration)
-            SCRIPTNAME="%s_R%s_Iter%dSolve.lsf" % (preName,"Total",iteration)
+        if (len(DataToRun)>1): 
+            # As only one solving is sent for when combining several data sets, name it Total
+            JOBNAME="%s_R%s_Iter%d%s_Solve.py" % (preName,"Total",iteration,folderSuffix)
+            SCRIPTNAME="%s_R%s_Iter%d%sSolve.lsf" % (preName,"Total",iteration, folderSuffix)
         else:
-            JOBNAME="%s_R%s_Iter%d_Solve.py" % (preName,data.getName(),iteration)
-            SCRIPTNAME="%s_R%s_Iter%dSolve.lsf" % (preName,data.getName(),iteration)
+            JOBNAME="%s_R%s_Iter%d%s_Solve.py" % (preName,data.getName(),iteration, folderSuffix)
+            SCRIPTNAME="%s_R%s_Iter%d%sSolve.lsf" % (preName,data.getName(),iteration,folderSuffix)
             
             
         DataToSolve = list(DataToRun) # Restore data set the list
         
-        for data in DataToSolve:
-            print "----------------------------------------------"
-            print "  Solving dataset %s, Iter %s"%(data.getName(),iteration)
-            print "----------------------------------------------"
-            
-            info.write('\n')
-            info.write("----------------------------------------------\n")
-            info.write("  Solving dataset %s, Iter %d\n" %(data.getName(),iteration))
-            info.write("----------------------------------------------\n")
-
         # Obtain the aligment options
         AlignmentOptions = {}
             
@@ -315,10 +357,17 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
         AlignmentOptions["readConstantsFromPool"] = ReadAlignmentConstants
     
         AlignmentOptions["inputPoolFiles"] = [constantsFile]
+
+        AlignmentOptions["inputBowingDatabase"] = bowingdb
         
         AlignmentOptions["alignTRT"] = AlignTRT[iteration]
         if AlignTRT[iteration]:
             AlignmentOptions["trtAlignmentLevel"] = TRTAlignmentLevel[iteration]
+            AlignmentOptions["trtAlignBarrel"]    = AlignTRTBarrel[iteration]
+            AlignmentOptions["trtAlignEndcaps"]   = AlignTRTEndcaps[iteration]
+            AlignmentOptions["trtAlignmentLevel"] = TRTAlignmentLevel[iteration]
+            AlignmentOptions["trtAlignmentLevelBarrel"] = TRTAlignmentLevelBarrel[iteration]
+            AlignmentOptions["trtAlignmentLevelEndcaps"] = TRTAlignmentLevelEndcaps[iteration]
 
         AlignmentOptions["alignSCT"] = AlignSCT[iteration]
         #if AlignSCTBarrel[iteration]:
@@ -349,11 +398,20 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
         tfiles = [] # set an empty list
         while len(DataToSolve):
             for data in DataToSolve:
+                print "----------------------------------------------"
+                print "  Solving dataset %s, Iter %s"%(data.getName(),iteration)
+                print "----------------------------------------------"
             
-                alignLevels = OutputPaths+'/Iter'+repr(iteration)+"/NewInDetAlignLevels.py"
-                PrefixName="Iter%d_" % iteration
+                info.write('\n')
+                info.write("----------------------------------------------\n")
+                info.write("  Solving dataset %s, Iter %d\n" %(data.getName(),iteration))
+                info.write("----------------------------------------------\n")
+            
+                #alignLevels = OutputPaths+'/Iter'+repr(iteration)+"/NewInDetAlignLevels.py"
+                alignLevels = folderName+"/NewInDetAlignLevels.py"
+                PrefixName="Iter%d%s_%s" % (iteration, folderSuffix, data.getName()) 
 
-                print " Solving logs stored in %s/Iter%d/logs/Iter%d_Solve.log" % (OutputPaths, iteration, iteration)
+                print " Solving logs stored in %s/Iter%d%s/logs/%s_Solve.log" % (OutputPaths, iteration, folderSuffix, PrefixName)
         
                 # Get Vectors, Matricies and Hitmaps
                 if not useTFiles:
@@ -367,8 +425,7 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
                         AlignmentOptions["readHitmaps"] = False
                 else:
                     tdata = [data]
-                    tfiles = mergeTFiles(OutputPaths, iteration, tdata) + tfiles
-                    print " -- SALVA -- tfiles = ", tfiles 
+                    tfiles = mergeTFiles(OutputPaths, iteration, folderSuffix, tdata) + tfiles
                     AlignmentOptions["inputTFiles"] = tfiles
                     AlignmentOptions["WriteTFile"] = True           
             
@@ -391,62 +448,109 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
                 RecoScript = "InDetAlignExample/jobOption_RecExCommon.py"
                 ConditionsScript = "InDetAlignExample/jobOption_ConditionsOverrider.py"
                 constantsFile = ""
+                bowingdb = ""
                 if ReadAlignmentConstants:  
                     if iteration == 0:
                         constantsFile = inputAlignmentPoolFile 
                         AlignmentOptions["inputPoolFiles"] = [inputAlignmentPoolFile]
                     else:
-                        constantsFile = str(OutputPaths)+"/Iter"+str(iteration-1)+"/Iter"+str(iteration-1)+"_AlignmentConstants.root"
+                        constantsFile = str(OutputPaths)+"/Iter"+str(iteration-1)+folderSuffix+"/Iter"+str(iteration-1)+"_AlignmentConstants.root"
                         AlignmentOptions["inputPoolFiles"] = [constantsFile]
+                
+                if ReadBowingParameter:
+                    if iteration == 0:
+                        bowingdb = inputBowingCoolFile
+                        AlignmentOptions["inputBowingDatabase"] = inputBowingCoolFile
+                    else:
+                        bowingdb = str(OutputPaths)+"/Iter"+str(iteration-1)+folderSuffix+"/mycool.db"
+                        AlignmentOptions["inputBowingDatabase"] = bowingdb
 
                 poolfiles = [RecoOptions["inputFiles"][0],constantsFile]
-        
+                #coolfiles = [RecoOptions["inputDbs"][0],bowingdb]
+
+                # only one solution job submitted
+                print " -- tfiles list = ", tfiles 
+                
+                #form
+                #OriginalLBIBLTweak = extraOptions["applyLBibldistTweak"]
+                #if OriginalLBIBLTweak:
+                #    print "-- Turning Off the LB IBLDistortion Tweak During Solving --"
+                #    extraOptions["applyLBibldistTweak"] = False
+                #else:
+                #    print "-- The LB IBLDistortion tweak was ", extraOptions["applyLBibldistTweak"], " since accumulation"
+
                 currentjob = manageJob(OutputPath = OutputPaths,
-                  dataName = data.getName(),
-                  iter = iteration,
-                  part = -1,
-                  JOBNAME = JOBNAME,
-                  preName = preName,
-                  RecoOptions = RecoOptions,
-                  extraOptions = extraOptions,
-                  AlignmentOptions = AlignmentOptions,
-                  RecoScript = RecoScript,
-                  ConditionsScript = ConditionsScript,
-                  AlignmentLevels = alignLevels,
-                  #MonitoringScript = MonitoringScript,
-                  QUEUE = QUEUE,
-                  CMTDIR = CMTDIR,
-                  ATHENACFG = ATHENACFG,
-                  inputPoolFiles = poolfiles
-                  )
+                                       dataName = data.getName(),
+                                       iter = iteration,
+                                       folderSuffix = folderSuffix,
+                                       part = -1,
+                                       JOBNAME = JOBNAME,
+                                       preName = preName,
+                                       RecoOptions = RecoOptions,
+                                       extraOptions = extraOptions,
+                                       AlignmentOptions = AlignmentOptions,
+                                       RecoScript = RecoScript,
+                                       ConditionsScript = ConditionsScript,
+                                       AlignmentLevels = alignLevels,
+                                       #MonitoringScript = MonitoringScript,
+                                       QUEUE = QUEUE,
+                                       CMTDIR = CMTDIR,
+                                       ATHENACFG = ATHENACFG,
+                                       inputPoolFiles = poolfiles,
+                                       inputCoolFiles = []
+                                       )
 
                 # Write the job
                 currentjob.createDirectories()
                 currentjob.writeJO()
                 currentjob.writeScript()
-                if (len(DataToSolve) == 1): currentjob.send(runMode) # submit only the last one 
+                if (len(DataToSolve) == 1):
+                    if (len(tfiles)>0): # there are tfiles ready to be used 
+                        print " -- Submitting Solve job: ",currentjob.JOBNAME," to queue ", currentjob.QUEUE
+                        currentjob.send(runMode) # submit only the last one 
+                    else:
+                        print " -- WARNING -- No tfiles are found !!! Solve job is not submitted "
+                            
                 DataToSolve.remove(data)
             #end loop over DatatoSolve
         #end while
         
         if runMode == "batch":
-            # Wait for signal
+            #Don't wait for the solve. 
             currentjob.wait()
+        #Restoring the LBibldistTweak for the next Iteration.
+        #formd
+        #extraOptions["applyLBibldistTweak"] = OriginalLBIBLTweak
         
     else:
         print "---------------------------------------------------------------\n"
         print " WARNING: Skipping the solving because the flag doSolve is OFF\n"
         print "---------------------------------------------------------------\n"
+        
+        DataToMerge = list(DataToRun)
+        print "\n Waiting for Accumulate job completion. Please be patient."
+        while len(DataToMerge):
+            for data in DataToMerge:
+                batchjobs = "%s_Iter%d%s_%s_Part" % (preName,iteration,folderSuffix, data.getName())
+                if os.popen('bjobs -w').read().find(batchjobs)!=-1: #check if accumulate jobs are running
+                    #print "Waiting for ",batchjobs
+                    time.sleep(60)
+                    continue
+                DataToMerge.remove(data) #completed
+                #print len(DataToMerge)
+                time.sleep(30)
+
 
     # histogram merging step    
     for data in DataToRun:
         if "doMonitoring" in extraOptions and extraOptions["doMonitoring"]==True:
             OutputPaths = OutputPath+'/'
-            MERGEJOBNAME="%s_Iter%d_%s_Merge.py" % (preName,iteration,data.getName())
-            MERGESCRIPTNAME="%s_Iter%d_%s_Merge.lsf" % (preName,iteration, data.getName())
+            MERGEJOBNAME="%s_Iter%d%s_%s_Merge.py" % (preName,iteration,folderSuffix,data.getName())
+            MERGESCRIPTNAME="%s_Iter%d%s_%s_Merge.lsf" % (preName,iteration, folderSuffix, data.getName())
             monitoringMerge = mergeScript(OutputPath = OutputPaths
                           ,iter = iteration
                           ,preName = preName
+                          ,folderSuffix = folderSuffix
                           ,dataName = data.getName()
                           ,nCPUs = data.getCPUs(iteration)
                           ,QUEUE = QUEUE

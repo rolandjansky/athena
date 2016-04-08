@@ -16,7 +16,7 @@
 ## common options
 
 
-print "LACUESTA  ..   Loading correct"
+
 newInDetAlignGeo_Options = {
 	"outputLevel" : INFO                 #  output level for log messages for all tools and algs
 	,"writeTextFiles" :  True            #  whether to write out text files with final constants
@@ -132,6 +132,7 @@ pixelAlignment_Options = {
 	,"pixelAlignBarrelRotX" : True
 	,"pixelAlignBarrelRotY" : True
 	,"pixelAlignBarrelRotZ" : True
+	,"pixelAlignBarrelBowX" : False
 	,"pixelAlignEndcapX" : True
 	,"pixelAlignEndcapY" : True
 	,"pixelAlignEndcapZ" : True
@@ -316,6 +317,7 @@ print alignModuleTool
 ####
 
 #
+print " <NewInDetAlignGeometrySetup> setting up Pixel Alignment_Options --> PixelGeometryManagerTool"
 if newInDetAlignGeo_Options["alignPixel"]:
 	# Pixel geometry manager tool
 	from InDetAlignGeomTools.InDetAlignGeomToolsConf import InDet__PixelGeometryManagerTool
@@ -339,6 +341,7 @@ if newInDetAlignGeo_Options["alignPixel"]:
 		pixelGeometryManagerTool.AlignBarrelRotX = pixelAlignment_Options["pixelAlignBarrelRotX"]
 		pixelGeometryManagerTool.AlignBarrelRotY = pixelAlignment_Options["pixelAlignBarrelRotY"]
 		pixelGeometryManagerTool.AlignBarrelRotZ = pixelAlignment_Options["pixelAlignBarrelRotZ"]
+		pixelGeometryManagerTool.AlignBarrelBowX = pixelAlignment_Options["pixelAlignBarrelBowX"]
 		pixelGeometryManagerTool.SetSigmaBarrelX = pixelAlignment_Options["pixelSetSigmaBarrelX"]
 		pixelGeometryManagerTool.SetSigmaBarrelY = pixelAlignment_Options["pixelSetSigmaBarrelY"]
 		pixelGeometryManagerTool.SetSigmaBarrelZ = pixelAlignment_Options["pixelSetSigmaBarrelZ"]
@@ -375,6 +378,8 @@ if newInDetAlignGeo_Options["alignPixel"]:
 	#
 	ToolSvc += pixelGeometryManagerTool
 	print pixelGeometryManagerTool
+print " <NewInDetAlignGeometrySetup> PixelGeometryManagerTool completed"
+
 
 
 ########################################################################################
@@ -383,7 +388,9 @@ if newInDetAlignGeo_Options["alignPixel"]:
 ####
 
 #
+print " <NewInDetAlignGeometrySetup> setting up SCT Alignment_Options --> SCTGeometryManagerTool"
 if newInDetAlignGeo_Options["alignSCT"]:
+	print " <NewInDetAlignGeometrySetup> setting up SCT Alignment_Options "
 	# SCT geometry manager tool
 	from InDetAlignGeomTools.InDetAlignGeomToolsConf import InDet__SCTGeometryManagerTool
 	sctGeometryManagerTool = InDet__SCTGeometryManagerTool(name = "SCTGeometryManagerTool")
@@ -441,6 +448,7 @@ if newInDetAlignGeo_Options["alignSCT"]:
 	#
 	ToolSvc += sctGeometryManagerTool
 	print sctGeometryManagerTool
+print " <NewInDetAlignGeometrySetup> SCTGeometryManagerTool completed"
 
 
 ########################################################################################
@@ -485,6 +493,7 @@ if newInDetAlignGeo_Options["alignSilicon"]:
 ####    TRT Alignment Geometry Setup
 ####
 
+print " <NewInDetAlignGeometrySetup> setting up TRT Alignment_Options --> TRTGeometryManagerTool"
 if newInDetAlignGeo_Options["alignTRT"]:
 	# TRT geometry manager tool
 	from InDetAlignGeomTools.InDetAlignGeomToolsConf import InDet__TRTGeometryManagerTool
@@ -505,6 +514,7 @@ if newInDetAlignGeo_Options["alignTRT"]:
 
 	# TRT alignment degrees of freedom
 	# Barrel
+	print " <NewInDetAlignGeometrySetup> setting up TRT barrel Alignment_Options "
 	trtGeometryManagerTool.AlignBarrel = trtAlignment_Options["trtAlignBarrel"]
 	if trtAlignment_Options["trtAlignBarrel"]:
 		trtGeometryManagerTool.AlignBarrelX = trtAlignment_Options["trtAlignBarrelX"]
@@ -527,6 +537,7 @@ if newInDetAlignGeo_Options["alignTRT"]:
 		trtGeometryManagerTool.SetSoftCutBarrelRotZ = trtAlignment_Options["trtSetSoftCutBarrelRotZ"]
 
 	# Endcaps
+	print " <NewInDetAlignGeometrySetup> setting up TRT endcaps Alignment_Options "
 	trtGeometryManagerTool.AlignEndcaps = trtAlignment_Options["trtAlignEndcaps"]
 	if trtAlignment_Options["trtAlignEndcaps"]:
 		trtGeometryManagerTool.AlignEndcapX = trtAlignment_Options["trtAlignEndcapX"]
@@ -550,6 +561,7 @@ if newInDetAlignGeo_Options["alignTRT"]:
 	#
 	ToolSvc += trtGeometryManagerTool
 	print trtGeometryManagerTool
+print " <NewInDetAlignGeometrySetup> TRTGeometryManagerTool completed"
 
 
 ########################################################################################

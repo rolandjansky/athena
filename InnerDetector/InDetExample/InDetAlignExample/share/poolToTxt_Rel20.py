@@ -32,23 +32,48 @@
 config = 'DBToTxt'
 #config = 'DBToPool'
 
-inputCollections = ["Iter10_AlignmentConstants.root"]
-outputFile = "NewSiAlignment_corrected_v1.root"
-tagSi  = "InDetAlign_NewGeo"
+#-- input/output root files
+#inputCollections = ["InDetAlign_Output.root"]
+inputCollections = ["BLK_280614.root"]
+outputFile = "25ns_SiTag.pool.root"
+tagSi  = "InDetAlign_test"
 tagTRT = "TRTAlign_test"
 
-textFileInSi  = "alignmentSi_out.txt"
-textFileOutSi = "alignmentSi_out.txt"                # not needed
-textFileInTRT  = "OutputTRTAlignment.txt"
-textFileInTRTStraw  = "OutputTRTStrawAlignment.txt"
-textFileOutTRT = "alignmentTRT_out.txt"              # not needed
-textFileOutTRTStraw = "alignmentTRTStraw_out.txt"    # not needed
+#-- text files (input and output)
+#textFileInSi  = "SiAlignmentM9_Withshift.txt"
+textFileInSi  = "OldSiAlignment.txt"
+textFileOutSi = "OuputSiAlignment_280614.txt"
+textFileInTRT  = "TRTAligned_L2.txt"
+textFileInTRTStraw  = "TRTAligned_L2_straw.txt"
+textFileOutTRT =      "OutputTRTAlignment.txt"              # not needed
+textFileOutTRTStraw = "OutputTRTAlignment_Straw_out.txt"    # not needed
 
 doSilicon = True
 doTRT = False
 
 doPrintDectectorPositions = False
+print " <poolToTxt> config mode = ", config
+print " <poolToTxt> doSilicon   = ", doSilicon
+print " <poolToTxt> doTRT       = ", doTRT
 
+if (doSilicon):
+    if (config == 'TxtToPool'):
+        if os.path.isfile(textFileInSi):
+            print " <poolToTxt> textFileInSi = ", textFileInSi, "   output = ",textFileOutSi
+        else:
+            print " <poolToTxt> ** ERROR ** input file:", textFileInSi, " does not exist "
+
+if (doTRT):
+    if os.path.isfile(textFileInTRT):
+        print " <poolToTxt> textFileInTRT = ", textFileInTRT, "   output = ",textFileOutTRT
+    else:
+        print " <poolToTxt> ** ERROR ** input file:", textFileInTRT, " does not exist "
+    
+    if os.path.isfile(textFileInTRT):
+        print " <poolToTxt> textFileInTRTStraw = ", textFileInTRTStraw, "   output = ",textFileOutTRTStraw
+    else:
+        print " <poolToTxt> ** ERROR ** input file:", textFileInTRTStraw, " does not exist "
+    
 #==============================================================
 
 # These will be overwritten if config is set
@@ -59,21 +84,47 @@ writeDB   = True
 
 # To extract constants from the database select the appropriate database tag.
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DataSource='geant4'
-#globalflags.DataSource='data'
+#globalflags.DataSource='geant4'   #geant4 for MC
+globalflags.DataSource.set_Value_and_Lock('data')
+#from RecExConfig.RecFlags import rec
+#rec.projectName.set_Value_and_Lock('data15_cos')
+
 
 from IOVDbSvc.CondDB import conddb
-#conddb.setGlobalTag("OFLCOND-SDR-BS7T-04-02")
-#conddb.setGlobalTag("OFLCOND-SIM-BS7T-00")
-conddb.setGlobalTag("OFLCOND-MC12-IBL-20-30-25") # latest and greates
-conddb.addOverride('/GLOBAL/TrackingGeo/LayerMaterial','AtlasLayerMat_v15_ATLAS-IBL3D25-04-00-01') 
+#conddb.setGlobalTag("OFLCOND-RUN12-SDR-28") # latest and greates
+conddb.setGlobalTag("CONDBR2-BLKPA-2015-14") # latest and greates
+
 # The geometry version does not really matter. Any will do.
-globalflags.DetDescrVersion = 'ATLAS-IBL3D25-04-00-01'  # latest and greatest
-#globalflags.DetDescrVersion = 'ATLAS-GEO-16-00-00'
+#globalflags.DetDescrVersion = 'ATLAS-R1-2012-02-00-00'  # latest and greatest
+#conddb.addOverride('/Indet/Align','InDetAlign-RUN2-25NS')
+#conddb.addOverride('/Indet/Align','InDetAlign_IOVDEP-02')
+#conddb.addOverride('/Indet/Align','InDetAlign_R2_IBLDistortion_p02C_4muPixY')
+#conddb.addOverride('/Indet/Align','InDetAlign_R2_Initial_fixed')
+#conddb.addOverride('/TRT/Align','TRTAlign-RUN2-BLK-UPD4-09')
+
+#From local .db
+#conddb.blockFolder('/Indet/Align')
+
+#BON
+#conddb.addFolderWithTag('','<dbConnection>sqlite://;schema=/afs/cern.ch/user/p/pbutti/spacework/20.1.4.1/InnerDetector/InDetExample/InDetAlignExample/share/M8_Constants_IOV.db;dbname=CONDBR2</dbConnection>/Indet/Align','InDetAlign_R2_M8_IBLzGeoShifted_IOV',True );
+
+#BOFF
+#conddb.addFolderWithTag('','<dbConnection>sqlite://;schema=/afs/cern.ch/user/p/pbutti/spacework/20.1.4.1/InnerDetector/InDetExample/InDetAlignExample/share/M8_BOFF_2T_AlignmentConstants_IBLzCorrected_ExtendedRuns.db;dbname=CONDBR2</dbConnection>/Indet/Align','InDetAlign_R2_M8_BOFF_ExtendedRuns',True );
+
+#COMBINED IOV M8_Constants_IOV.db 
+
+#conddb.addFolderWithTag('','<dbConnection>sqlite://;schema=/afs/cern.ch/user/p/pbutti/spacework/20.1.4.1/InnerDetector/InDetExample/InDetAlignExample/share/M8_Constants_IOV.db;dbname=CONDBR2</dbConnection>/Indet/Align','InDetAlign_R2_M8_IBLzGeoShifted_IOV',True );
+
+
+
+
+globalflags.DetDescrVersion = 'ATLAS-R2-2015-03-01-00'
 
 # To override the run number set this variable. Only has an affect for
 # DBToTxt and DBToPool options.
-#runNumber = 12345
+runNumber = 280806
+
+
 
 #==============================================================
 
@@ -85,7 +136,7 @@ if (config == 'PoolToTxt') :
     readTextFile = False
     writeTextFile = True
     readPool  = True
-    writeDB   = False
+    writeDB   = True
 if (config == 'TxtToPool') :
     readTextFile = True
     writeTextFile = False
@@ -116,11 +167,11 @@ from AtlasGeoModel import GeoModelInit
 from AtlasGeoModel import SetGeometryVersion
 
 
-from IOVDbSvc.CondDB import conddb
+#from IOVDbSvc.CondDB import conddb
 
 # Its normally OK to read in some database so this can be left True.
 # In case you want to force it not to read in anything you can set this to False.
-readDB = False
+readDB = True
 if not readDB :
     conddb.blockFolder("/Indet/Align")
     conddb.blockFolder("/TRT/Align")
@@ -154,8 +205,6 @@ if readPool :
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 from AthenaCommon.AppMgr import ToolSvc
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr.MessageSvc.defaultLimit = 999999999
 
 if doSilicon:
     from InDetAlignGenAlgs.InDetAlignGenAlgsConf import InDetAlignWrt
@@ -230,22 +279,18 @@ if writeDB:
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
 # To set global output level use
-# athena -l DEBUG
+#athena -l DEBUG
 
 #--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
 # Specify run number
-if ('runNumber' in dir()):
-    import AthenaCommon.AtlasUnixGeneratorJob
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    svcMgr.EventSelector.RunNumber         = runNumber
-    #svcMgr.EventSelector.FirstEvent        = 0
-    #svcMgr.EventSelector.FirstLB           = 0
-
+import AthenaCommon.AtlasUnixGeneratorJob
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+svcMgr.EventSelector.RunNumber         = runNumber
 
 # Number of events to be processed (default is 10)
-theApp.EvtMax = 10
+theApp.EvtMax = 1
 
 if doPrintDectectorPositions:
     include("InDetSimpleVisual/GetDetectorPositions.py")
@@ -256,3 +301,9 @@ if doPrintDectectorPositions:
 # End of job options file
 #
 ###############################################################
+
+
+# Disable StatusCodeSvc 
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr 
+svcMgr.StatusCodeSvc.SuppressCheck = True
+svcMgr.StatusCodeSvc.AbortOnError = False

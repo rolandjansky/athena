@@ -18,20 +18,20 @@ Iterations     = 1
 # ===============================
 
 # Run mode: local or batch
-runMode = 'batch'
-#runMode = 'local'
+#runMode = 'batch'
+runMode = 'local'
 # Batch queue
 #QUEUE = '1nh'
-QUEUE          = 'atlasb1'
+QUEUE 	       = 'atlasb1'
 
 # Prefix to identify your jobs
-preName        = 'm9_test'
+preName        = 'ttbar'
 
-HOME           = os.environ['HOME']
+HOME 	       = os.environ['HOME']
 # Alignment Output
 OutputPath     = os.environ['PWD']+"/."
 
-CMTDIR         = HOME+"/athena/cmthome/"
+CMTDIR 	       = HOME+"/athena/cmthome/"
 # extra AtlasSetup options
 ASetupOptions  = "single"
 #ASetupOptions  = "nightlies"
@@ -46,32 +46,30 @@ OutputLevel    = 'INFO'
 ##########################################################
 
 def optParsing():
-    from optparse import OptionParser
-    parser = OptionParser()
-    parser.add_option("--inputList", dest="inputList", help="Input txt file with the list of the files for the first data set you want to process", default="")
-    parser.add_option("--inputList2", dest="inputList2", help="Input txt file with the list of the files for the second data set you want to process", default="")
-    parser.add_option("--inputDir", dest="inputDir", help="Directory containing the input files - NOT YET IMPLEMENTED", default="")
-    parser.add_option("--eventType", dest="eventType", help="Which type of events: collisions / cosmics", default="collisions")
-    parser.add_option("--isData",dest="isData", help="Set itif you want to run on real data (Default: False)",action="store_true", default=False)
-    parser.add_option("--inputConstantsFile", dest="inputConstantsFile", help="In the case you want to use a specific set of initial constants write here the absolute path to the pool file", default="")
-    parser.add_option("--nEvents",dest="nEvents", type=int, help="Maximum number of events to use", default=-1)
-    parser.add_option("--nCpus",dest="nCpus", help="Number of CPUs to be used",default=1)
-    parser.add_option("--preIBLgeometry",dest="preIBLgeometry", help="Set it  if you want to run on Run1 geometry (Default: False)",action="store_true",default=False)
-    parser.add_option("--ClusteringAlgo",dest="ClusteringAlgo", help="Which Clustering algorithm to use: NN (Default), Analog, Digital",default="NN")
-    parser.add_option("--errorScalingTag",dest="errorScalingTag", help="Name of the error scaling tag or ES file to use",default="")
-    parser.add_option("--ptmin",dest="userPtMin", help="Minimum pt of tracks to enter the align track selection *** in MeV ***", default = 0)
-    
-    (config, sys.argv[1:]) = parser.parse_args(sys.argv[1:])
+	from optparse import OptionParser
+	parser = OptionParser()
+	parser.add_option("--inputList", dest="inputList", help="Input txt File with the list of the files you want to run on", default="")
+	parser.add_option("--inputDir", dest="inputDir", help="Directory containing the input files - NOT YET IMPLEMENTED", default="")
+	parser.add_option("--eventType", dest="eventType", help="Which type of events: collisions / cosmics", default="collisions")
+	parser.add_option("--isData",dest="isData", help="Set itif you want to run on real data (Default: False)",action="store_true", default=False)
+	parser.add_option("--inputConstantsFile", dest="inputConstantsFile", help="In the case you want to use a specific set of initial constants write here the absolute path to the pool file", default="")
+	parser.add_option("--nEvents",dest="nEvents", type=int, help="Maximum number of events to use", default=-1)
+	parser.add_option("--nCpus",dest="nCpus", help="Number of CPUs to be used",default=1)
+	parser.add_option("--preIBLgeometry",dest="preIBLgeometry", help="Set it  if you want to run on Run1 geometry (Default: False)",action="store_true",default=False)
+	parser.add_option("--ClusteringAlgo",dest="ClusteringAlgo", help="Which Clustering algorithm to use: NN (Default), Analog, Digital",default="NN")
+	parser.add_option("--errorScalingTag",dest="errorScalingTag", help="Name of the error scaling tag or ES file to use",default="")
+	parser.add_option("--ptmin",dest="userPtMin", help="Minimum pt of tracks to enter the align track selection *** in MeV ***", default = 0)
+	
+	(config, sys.argv[1:]) = parser.parse_args(sys.argv[1:])
 
-    return config
-    
+	return config
+	
 
 ##########################################################
 #               Option Initialisation                    #
 ##########################################################
 config = optParsing()
 inputList=config.inputList
-inputList2 = config.inputList2
 inputDir =config.inputDir
 eventType=config.eventType
 ConstantsFile=config.inputConstantsFile
@@ -88,86 +86,55 @@ print " \n <RunIterator> ----- User input in command line --- "
 print " <RunIterator> inputList = ",inputList
 print " <RunIterator> nCpus = ",nCpus
 print " <RunIterator> nEventsMax = ",nEventsMax
-print " <RunIterator> inputList2 = ",inputList2
 print " <RunIterator> ConstantsFile = ",ConstantsFile
 print " <RunIterator> inputErrorScalingTag = ",inputErrorScalingTag
 print " <RunIterator> userPtMin = ",userPtMin, " MeV"
 
 ##########################################################
-#       Datasets to use
+#		Datasets to use
 ##########################################################
 
 from InDetAlignExample.NewInDet_SetupData import setupData
 DataToRun = []
 
-#################### test to run BON and BOFF data
 Data1 = setupData(eventType)
 #Need To be changed this one
-Data1.setDataType("IDCosmics") # Type of data: IDTracks, MinBias, IDCosmics or MC09_Multimuons by now
+Data1.setDataType("TTbar") # Type of data: IDTracks, MinBias, IDCosmics or MC09_Multimuons by now
 #Data1.setRuns([201280]) # Run number, you can provide a list of runs
 Data1.setCPUs([nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus]) # Number of CPUs per iteration to process this data
 #Data1.setEvents([5000,5000,5000]) # Number of total events to process
 Data1.setEvents([nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax])
-Data1.setLimitFiles(500) # Limit the number of files to use (useful when runing in local a subset of data)
+Data1.setLimitFiles(5000) # Limit the number of files to use (useful when runing in local a subset of data)
 #Data1.CreateFileList() # Creates the file list
 if isData:
-    Data1.setByteStream(True)
+	Data1.setByteStream(True)
 else:
-    Data1.setByteStream(False)
+	Data1.setByteStream(False)
 
 Data1.setCustomFileList(inputList)
 
 # Use custom Global Tag, if not given it will use the data default one (that is empty ;) )
 if eventType == "collisions":
-    #Data1.setGlobalTag("OFLCOND-MC12-IBL-20-30-25") 
-    Data1.setGlobalTag("OFLCOND-RUN12-SDR-14")
+	if isData:
+		Data1.setGlobalTag("CONDBR2-ES1PA-2014-03")
+		Data1.setDetDescrVersion("ATLAS-R2-2015-03-04-00")
+	else:
+		Data1.setGlobalTag("OFLCOND-RUN12-SDR-28")
+		Data1.setDetDescrVersion("ATLAS-R2-2015-02-01-00")
 else: 
-    #Data1.setGlobalTag("OFLCOND-MC12-IBL-20-30-50") #Cosmics
-    #Data1.setGlobalTag("CONDBR2-ES1PA-2014-01")
-    if isData:
-        #Data1.setGlobalTag("CONDBR2-ES1PA-2014-01")
-        Data1.setGlobalTag("CONDBR2-ES1PA-2014-03") # move to 03 -> recomended by PF 
-        # Data1.setDetDescrVersion("ATLAS-R2-2015-02-00-00")
-        Data1.setDetDescrVersion("ATLAS-R2-2015-03-04-00")
-    else:
-        Data1.setGlobalTag("OFLCOND-RUN12-SDR-14")
-        Data1.setDetDescrVersion("ATLAS-R2-2015-01-01-00")
+	#Data1.setGlobalTag("OFLCOND-MC12-IBL-20-30-50") #Cosmics
+	#Data1.setGlobalTag("CONDBR2-ES1PA-2014-01")
+	if isData:
+		Data1.setGlobalTag("CONDBR2-ES1PA-2014-03")
+		Data1.setDetDescrVersion("ATLAS-R2-2015-03-04-00")
+	else:
+		Data1.setGlobalTag("OFLCOND-RUN12-SDR-14")
+		Data1.setDetDescrVersion("ATLAS-R2-2015-01-01-00")
 #Data1.setDetDescrVersion("ATLAS-IBL3D25-04-00-01") # Use custom DetDescrVersion Tag, if not given it will use the data default one
 #Data1.setDetDescrVersion("ATLAS-R2-2015-01-01-00")  --Bugged: IBL is rotated with respect to the real position
 #Data1.setDetDescrVersion("ATLAS-R2-2015-01-01-00")
 
-##############
-############## deal with second data set
-##############
-if (len(inputList2)>1):
-    Data2 = setupData("cosmics_boff")
-    Data2.setCustomFileList(inputList2)
-    # Need To be changed this one
-    Data2.setDataType("IDCosmics") # Type of data: IDTracks, MinBias, IDCosmics or MC09_Multimuons by now
-    Data2.setCPUs([nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus,nCpus]) # Number of CPUs per iteration to process this data
-    Data2.setEvents([nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax,nEventsMax])
-    Data2.setLimitFiles(500) # Limit the number of files to use (useful when runing in local a subset of data)
-    if isData:
-       Data2.setByteStream(True)
-    else:
-       Data2.setByteStream(False)
-
-    # Use custom Global Tag, if not given it will use the data default one (that is empty ;) )
-    if eventType == "collisions":
-        Data2.setGlobalTag("OFLCOND-RUN12-SDR-14")
-    else: 
-        if isData:
-            Data2.setGlobalTag("CONDBR2-ES1PA-2014-03") # move to 03 -> recomended by PF 
-            Data2.setDetDescrVersion("ATLAS-R2-2015-02-00-00")
-        else:
-            Data2.setGlobalTag("OFLCOND-RUN12-SDR-14")
-            Data2.setDetDescrVersion("ATLAS-R2-2015-01-01-00")
-            
-            
-######################## continue
-            
 DataToRun.append(Data1) # always add this line to process the defined data
-if (len(inputList2)>1): DataToRun.append(Data2) # always add this line to process the defined data
 
 
 ### Duplicate the previous lines to have as many datasets that you want
@@ -178,10 +145,10 @@ if (len(inputList2)>1): DataToRun.append(Data2) # always add this line to proces
 
 ### from InDetAlignExample.NewInDet_IteratorClasses import HandleRunOptions
 ### if len(sys.argv) > 1 or 'rtt' in os.environ["USER"]:
-### DataToRun = [HandleRunOptions()]
-    
+###	DataToRun = [HandleRunOptions()]
+	
 for data in DataToRun:
-    data.Print()
+	data.Print()
 
 # Alignment Options
 # =============================
@@ -195,8 +162,8 @@ inputAlignmentPoolFile = ""
 readConstantsFromPool = False
 
 if ConstantsFile != "":
-    inputAlignmentPoolFile=ConstantsFile
-    readConstantsFromPool = True
+	inputAlignmentPoolFile=ConstantsFile
+	readConstantsFromPool = True
 
 # split files to subjobs to have exactly equal number of events (True)
 # or just approximately based on the size of the input files (False)
@@ -215,7 +182,7 @@ extraOptions = {}
 
 extraOptions["Cosmics"] = False
 if "cosmics" in eventType or "Cosmics" in eventType:
-    extraOptions["Cosmics"] = True
+	extraOptions["Cosmics"] = True
 
 extraOptions["realData"] = isData
 if isData: 
@@ -224,7 +191,7 @@ if isData:
    extraOptions["doReadBS"]=True
 else: 
    extraOptions["dataSource"]  = 'geant4'  
-   extraOptions["projectName"] = 'MC_Cosmic_BOFF' 
+   #extraOptions["projectName"] = 'MC_Cosmic_BOFF' 
    extraOptions["doReadBS"]=False
 
 extraOptions["doMonitoring"] = True
@@ -251,11 +218,11 @@ extraOptions["readTRT"] = True
 extraOptions["writeTRT"] = True
 #extraOptions["TRTCalibTextFile"] = ""
 if isData:
-    extraOptions["TRTCalibT0TagCos"] = "" # "TrtCalibT0-AlignmentJune2010-00"
-    extraOptions["TRTCalibRtTagCos"] = "" # "TrtCalibRt-AlignmentJune2010-00"
+	extraOptions["TRTCalibT0TagCos"] = "" # "TrtCalibT0-AlignmentJune2010-00"
+	extraOptions["TRTCalibRtTagCos"] = "" # "TrtCalibRt-AlignmentJune2010-00"
 else:
-    extraOptions["TRTCalibT0TagCos"] = "TrtCalibT0-MCCosmics_00-00" 
-    extraOptions["TRTCalibRtTagCos"] = "TrtCalibRt-MCCosmics_00-00" 
+	extraOptions["TRTCalibT0TagCos"] = "TrtCalibT0-MCCosmics_00-00" 
+	extraOptions["TRTCalibRtTagCos"] = "TrtCalibRt-MCCosmics_00-00" 
 
 ## I'm fixing SCT to test IBL alignment
 extraOptions["trtAlignBarrelZ"] = False
@@ -264,7 +231,7 @@ extraOptions["trtAlignEndcapZ"] = False
 extraOptions["pixelAlignBarrelX"] = True
 extraOptions["pixelAlignBarrelY"] = True
 extraOptions["pixelAlignBarrelZ"] = True
-extraOptions["pixelAlignBarrelRotX"] = True
+extraOptions["pixelAlignBarrelRotX"] = False
 extraOptions["pixelAlignBarrelRotY"] = True
 extraOptions["pixelAlignBarrelRotZ"] = True
 ## alignment parameters Endcap
@@ -279,7 +246,7 @@ extraOptions["pixelAlignEndcapRotZ"] = True
 extraOptions["sctAlignBarrelX"] = True
 extraOptions["sctAlignBarrelY"] = True
 extraOptions["sctAlignBarrelZ"] = False
-extraOptions["sctAlignBarrelRotX"] = True
+extraOptions["sctAlignBarrelRotX"] = False
 extraOptions["sctAlignBarrelRotY"] = True
 extraOptions["sctAlignBarrelRotZ"] = True
 ## alignment parameters Endcap
@@ -291,7 +258,7 @@ extraOptions["sctAlignEndcapRotY"] = False
 extraOptions["sctAlignEndcapRotZ"] = True
              
 # do the solving? (Set to False only to do quick reconstruction tests)
-doSolve = True
+doSolve = False
 
 # Setup of alignment geometry
 # =============================

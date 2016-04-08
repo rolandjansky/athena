@@ -14,6 +14,26 @@ class setupData:
 		self.GlobalTag = ""
 		self.ByteStream = True
 		self.STAGE_SVCCLASS = "default"
+		self.projectName = ""
+		self.AreCosmics = False
+		self.pixelDigitalClustering = False
+		self.thePtMin = 0
+	def setPtMin(self, newPtMin):
+		self.thePtMin = newPtMin
+	def getPtMin(self):
+		return self.thePtMin
+	def setDigitalClustering(self, digitalClustering):
+		self.pixelDigitalClustering = digitalClustering
+	def getDigitalClustering(self):
+		return self.pixelDigitalClustering
+	def setCosmic (self, cosmics):
+		self.AreCosmics = cosmics
+	def getCosmics(self):
+		return self.AreCosmics
+	def setProjectName (self, projectName):
+		self.projectName = projectName
+	def getProjectName(self):
+		return self.projectName
 	def setDataType(self, dataType):
 		self.dataType = dataType
 	def getDataType(self):
@@ -142,6 +162,9 @@ class setupData:
 		return self.fileListName
 	def setCustomFileList(self,filelist):
 		self.fileListName = filelist
+	def getNFilesInList(self):
+		num_lines = sum(1 for line in open(self.fileListName))
+		return num_lines
 	def setSTAGE_SVCCLASS(self,path):
 		print path
 		if "atlasdatadisk" in path:
@@ -164,7 +187,9 @@ class setupData:
 		print "---------------------------"
 		print "Dataset with name ", self.name
 		print "The data is: ", self.dataType
+		print "ProjectName: ", self.projectName
 		print "Is ByteStream? ", self.ByteStream
+		print "Are data Cosmics? ", self.AreCosmics
 		print "The list of files to use is in: ", self.fileListName
 		print "CPUs: ", self.CPUs
 		print "Events: ", self.Events

@@ -23,6 +23,10 @@ outputLevel=INFO
 #
 ## track collection to process
 trackCollection = "Tracks"
+
+#
+useOldPreProcessor = False
+
 #
 #
 ##
@@ -332,11 +336,14 @@ numberOfEvents = 250
 inputFiles = [ "root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369//RDO.19711\
 7._000005.pool.root.1" ]
 
+Cosmics = False
+
 # Run collision reconstruction
 # ==========================
 # (Collision Specific Options)
 #doReadBS = False
-include("InDetAlignExample/loadInDetRec_new.py")
+include("InDetAlignExample/jobOption_RecExCommon.py")
+include("InDetAlignExample/jobOption_ConditionsOverrider.py")
 
 # Run Alignment
 # ========================

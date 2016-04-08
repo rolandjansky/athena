@@ -1,4 +1,5 @@
 loadInDetRec_Options = {"detectorDescription" : ""
+                        ,"applyLBibldistTweak" : True
                         ,"globalTag" : ""
                         ,"siPoolFile":""
                         ,"siAlignmentTag":""
@@ -7,22 +8,35 @@ loadInDetRec_Options = {"detectorDescription" : ""
                         ,"lorentzAngleTag":""
                         ,"beamSpotTag":""
                         ,"errorScalingTag":""
+                        ,"DigitalClustering": False
                         ,"TRTCalibTextFile":""
                         ,"TRTCalibT0TagCos":""
                         ,"TRTCalibRtTagCos":""
                         ,"Cosmics":False
                         ,"BField":False
                         ,"readConstantsFromPool" : False       #  whether to read initial alignment constants from pool file
+                        ,"readBowingFromCool" : False          #  whether to read initial IBL bowing from cool file
                         ,"readSilicon" : True                  #  whether to read initial Si alignment constants from pool file
                         ,"readTRT" : True                      #  whether to read initial TRT alignment constnats from pool file
                         ,"readTRTL3" : False                   #  whether to read initial TRT L3 alignment constnats from pool file
-                        ,"inputPoolFiles" : ["IDalignment_nominal.pool.root"]  #  pool files to read the constants from
+                        ,"inputPoolFiles" : ["IDalignment_nominal.pool.root"]  #  pool files to read the constants from,
+                        ,"inputBowingDatabase"  : "" #cool file to read the bowing from
                         }
+
 
 # If not defined the defaults given above are used
 for var in loadInDetRec_Options:
   if var in dir():
     loadInDetRec_Options[var] = eval(var)
+
+'''
+# Enable LB-IOV sensitive L3 transform tweak (we don't want this in the solving job)
+if not loadInDetRec_Options["applyLBibldistTweak"]:
+  from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
+  pixelTool =  PixelDetectorTool()
+  pixelTool.TweakIBLDist = False
+'''
+    
 
 from IOVDbSvc.CondDB import conddb
   #conddb.addOverride('/GLOBAL/TrackingGeo/LayerMaterial','AtlasLayerMat_v15_ATLAS-IBL3D25-04-00-01')
@@ -73,6 +87,10 @@ if loadInDetRec_Options["readConstantsFromPool"]:
   if loadInDetRec_Options["readTRTL3"]:
     conddb.blockFolder("/TRT/Calib/DX")
 
+  #if loadInDetRec_Options["readBowingFromCool"]:
+  #  conddb.blockFolder("/Indet/IBLDist")
+  #  conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+loadInDetRec_Options["inputBowingDatabase"]+';dbname=CONDBR2</dbConnection>/Indet/IBLDist','IndetIBLDist',True);
+    
   from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import CondProxyProvider
   from AthenaCommon.AppMgr import ServiceMgr
   ServiceMgr += CondProxyProvider()
@@ -85,7 +103,7 @@ if loadInDetRec_Options["readConstantsFromPool"]:
   # this preload causes callbacks for read in objects to be activated,
   # allowing GeoModel to pick up the transforms
   ServiceMgr.IOVSvc.preLoadData = True
-  ServiceMgr.IOVSvc.OutputLevel = INFO
+  ServiceMgr.IOVSvc.OutputLevel = DEBUG
   
 
 
@@ -158,3 +176,28 @@ if loadInDetRec_Options["globalTag"] == "OFLCOND-RUN12-SDR-14":
 doJiveXML=False  
 if doJiveXML:
   ToolSvc.TrackRetriever.OtherTrackCollections =["CombinedInDetTracks", "CombinedInDetTracks_CTB"]
+
+
+
+#Run Digital
+if loadInDetRec_Options["DigitalClustering"]:
+    print "##### INFO: Running with Digital clustering"
+    ToolSvc.InDetPixelClusterOnTrackTool.PositionStrategy=0
+    ToolSvc.InDetPixelClusterOnTrackTool.ErrorStrategy=1
+
+
+
+if loadInDetRec_Options["inputBowingDatabase"]:
+  print "INFO:: parsed: ",loadInDetRec_Options["inputBowingDatabase"]
+  if ".db" in loadInDetRec_Options["inputBowingDatabase"]:
+    print "INFO:: blocking IBLDist Folder"
+    conddb.blockFolder("/Indet/IBLDist")
+    print "INFO:: Adding folder with tag"
+    from IOVDbSvc.CondDB import conddb
+    conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+loadInDetRec_Options["inputBowingDatabase"]+';dbname=CONDBR2</dbConnection>/Indet/IBLDist','IndetIBLDist',True);
+    #conddb.addFolderWithTag(loadInDetRec_Options["errorScalingTag"],'/Indet/TrkErrorScaling','IndetTrkErrorScaling_nominal',True );
+    print "INFO:: IBL Bowing from local Database"
+  else:
+    print "INFO:: Overriding Database Tag"
+    conddb.addOverride('/Indet/IBLDist',loadInDetRec_Options["inputBowingDatabase"])
+

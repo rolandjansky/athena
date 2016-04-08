@@ -108,9 +108,9 @@ class CastorDataset(object):
         self.partitionedPaths = [x[1] for x in self.partitioned]
         
 class EOSDataset(object):
-    '''Just a simple object to hold the information for a castor dataset'''
+    '''Just a simple object to hold the information for a castor/eos dataset'''
     def __init__(self, path, matchPattern='*', blacklist=[]):
-        '''path is castor path with, matchPattern is unix style wildcards (*root for example)'''
+        '''path is castor/eos path with, matchPattern is unix style wildcards (*root for example)'''
         import os, os.path, fnmatch
         prefix = 'root://eosatlas/'
         #prefix = ''
@@ -277,3 +277,8 @@ class EOSDataset(object):
 #mc12_muons = EOSDataset('/eos/atlas/atlasscratchdisk/mc12_8TeV/ESD/e1242_s1469_s1470_r3542/mc12_8TeV.158025.Pythia8_AU2MSTW2008LO_Zprime_mumu_SSM500.recon.ESD.e1242_s1469_s1470_r3542_tid00813590_00')
 mc12_Ztautau = EOSDataset('/eos/atlas/user/c/cerio/user.bcerio.mc12_8TeV.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.ESD.e1176_s1479_s1470_r3578_tid783779_00_der1347371102')
 mc12_muons = EOSDataset('/eos/atlas/user/c/cerio/mc12_8TeV.158025.Pythia8_AU2MSTW2008LO_Zprime_mumu_SSM500.recon.ESD.e1242_s1469_s1470_r3542_tid00813590_00')
+
+
+data15_267073_Express_RAW = EOSDataset('/eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00267073/data15_13TeV.00267073.express_express.merge.RAW')
+
+data15_267073_Express_ESD = EOSDataset('/eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00267073/data15_13TeV.00267073.express_express.recon.ESD.f594')
