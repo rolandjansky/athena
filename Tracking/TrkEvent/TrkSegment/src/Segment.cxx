@@ -78,13 +78,18 @@ Trk::Segment& Trk::Segment::operator=(const Trk::Segment& seg)
     delete m_containedMeasBases;
     Trk::MeasurementBase::operator=(seg);
     m_fitQuality         = seg.m_fitQuality ? seg.m_fitQuality->clone() : nullptr;
-    
-    m_containedMeasBases = new DataVector<const Trk::MeasurementBase>;
-    DataVector<const Trk::MeasurementBase>::const_iterator rotIter = seg.m_containedMeasBases->begin();
-    DataVector<const Trk::MeasurementBase>::const_iterator rotEnd  = seg.m_containedMeasBases->end();
-    for (; rotIter!=rotEnd; ++rotIter){
-      m_containedMeasBases->push_back((*rotIter)->clone());
+
+    if (seg.m_containedMeasBases) {
+      m_containedMeasBases = new DataVector<const Trk::MeasurementBase>;
+      DataVector<const Trk::MeasurementBase>::const_iterator rotIter = seg.m_containedMeasBases->begin();
+      DataVector<const Trk::MeasurementBase>::const_iterator rotEnd  = seg.m_containedMeasBases->end();
+      for (; rotIter!=rotEnd; ++rotIter){
+        m_containedMeasBases->push_back((*rotIter)->clone());
+      }
     }
+    else
+      m_containedMeasBases = nullptr;
+
     m_author = seg.m_author;
   }
   return (*this);
