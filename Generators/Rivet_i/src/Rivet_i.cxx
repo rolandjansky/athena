@@ -53,6 +53,7 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("HistoFile", m_file="Rivet.yoda");
   declareProperty("AnalysisPath", m_anapath="");
   declareProperty("IgnoreBeamCheck", m_ignorebeams=false);
+  declareProperty("SkipFinalize", m_skipfinalize=false);
   declareProperty("DoRootHistos", m_doRootHistos=true);
   declareProperty("RootAsTGraph", m_doRootAsTGraph=false);
 
@@ -209,7 +210,7 @@ StatusCode Rivet_i::finalize() {
   if (m_crossSection > 0) m_analysisHandler->setCrossSection(m_crossSection);
 
   // Call Rivet finalize
-  m_analysisHandler->finalize();
+  if (!m_skipfinalize) m_analysisHandler->finalize();
 
   // Convert YODA-->ROOT
   if (m_doRootHistos) {
