@@ -26,10 +26,11 @@ ToolSvc += thexAODElectronRetriever
 from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODMissingETRetriever
 thexAODMissingETRetriever = JiveXML__xAODMissingETRetriever (name = "xAODMissingETRetriever")
 #thexAODMissingETRetriever.StoreGateKey = "MET_RefFinal"
-thexAODMissingETRetriever.FavouriteMETCollection="MET_RefFinal"
+thexAODMissingETRetriever.FavouriteMETCollection="MET_Reference_AntiKt4LCTopo"
 ## If this list is not set, all other collections will be retrieved
-##thexAODMissingETRetriever.OtherMETCollections=["MET_Track","MET_LocHadTopo"]
-thexAODMissingETRetriever.OtherMETCollections=[]
+thexAODMissingETRetriever.OtherMETCollections=["MET_Calo","MET_LocHadTopo","MET_Core_AntiKt4LCTopo"]
+#### to request all collections:
+##thexAODMissingETRetriever.OtherMETCollections=[]
 ##thexAODMissingETRetriever.OutputLevel = DEBUG
 ToolSvc += thexAODMissingETRetriever
 
@@ -50,7 +51,7 @@ thexAODJetRetriever = JiveXML__xAODJetRetriever (name = "xAODJetRetriever")
 thexAODJetRetriever.FavouriteJetCollection="AntiKt4EMTopoJets"
 ## If this list is not set, all other collections will be retrieved
 thexAODJetRetriever.OtherJetCollections=["AntiKt4LCTopoJets", "CamKt12LCTopoJets", "Kt4EMTopoJets", "Kt4LCTopoJets", "AntiKt4TruthJets", "AntiKt10LCTopoJets"]
-##thexAODJetRetriever.OutputLevel = DEBUG
+#thexAODJetRetriever.OutputLevel = VERBOSE
 ToolSvc += thexAODJetRetriever
 
 from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODTauRetriever
@@ -62,21 +63,23 @@ ToolSvc += thexAODTauRetriever
 from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODTrackParticleRetriever
 thexAODTrackParticleRetriever = JiveXML__xAODTrackParticleRetriever (name = "xAODTrackParticleRetriever")
 thexAODTrackParticleRetriever.StoreGateKey = "InDetTrackParticles"
-#thexAODTrackParticleRetriever.OtherTrackCollections = ["StacoTrackParticles","MooreTrackParticles"]
+thexAODTrackParticleRetriever.OtherTrackCollections = ["CombinedMuonTrackParticles","GSFTrackParticles"]
 ## To retriever any track collection (incl muons):
-thexAODTrackParticleRetriever.OtherTrackCollections = []
+#thexAODTrackParticleRetriever.OtherTrackCollections = []
 ##thexAODTrackParticleRetriever.OutputLevel = DEBUG
 ToolSvc += thexAODTrackParticleRetriever
 
 from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODVertexRetriever
 thexAODVertexRetriever = JiveXML__xAODVertexRetriever (name = "xAODVertexRetriever")
-#thexAODVertexRetriever.StoreGateKey = "PrimaryVertices"
+thexAODVertexRetriever.PrimaryVertexCollection = "PrimaryVertices"
+thexAODVertexRetriever.SecondaryVertexCollection = "BTagging_AntiKt2TrackSecVtx"
 ##thexAODVertexRetriever.OutputLevel = DEBUG
 ToolSvc += thexAODVertexRetriever
 
 from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODCaloClusterRetriever
 thexAODCaloClusterRetriever = JiveXML__xAODCaloClusterRetriever (name = "xAODCaloClusterRetriever")
-#thexAODCaloClusterRetriever.StoreGateKey = "egClusterCollection"
+thexAODCaloClusterRetriever.FavouriteClusterCollection = "egammaClusters"
+thexAODCaloClusterRetriever.OtherClusterCollections = ["CaloCalTopoClusters"]
 ##thexAODCaloClusterRetriever.OutputLevel = DEBUG
 ToolSvc += thexAODCaloClusterRetriever
 

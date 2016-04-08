@@ -10,6 +10,7 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODBTagging/BTagging.h"
+#include "xAODJet/JetAttributes.h"
 
 namespace JiveXML {
 
@@ -50,7 +51,7 @@ namespace JiveXML {
    * For each jet collections retrieve basic parameters.
    * @param FormatTool the tool that will create formated output from the DataMap
    */
-  StatusCode xAODJetRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode xAODJetRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
     
@@ -176,9 +177,9 @@ namespace JiveXML {
             dynamic_cast< const xAOD::TrackParticle* >(
                   ( *jetItr )->rawConstituent( j ) );
         if( ! track ) {
-               if (msgLvl(MSG::DEBUG)) { msg(MSG::DEBUG) << "  Associated track: ERROR" << endreq; }
+               if (msgLvl(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "  Associated track: ERROR" << endreq; }
         } else {
-               if (msgLvl(MSG::DEBUG)) { msg(MSG::DEBUG) << "  Associated track: d0 = "
+               if (msgLvl(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "  Associated track: d0 = "
                                 << track->d0() << ", pt = "
                                 << track->pt() << endreq; }
         }
@@ -232,11 +233,29 @@ namespace JiveXML {
 */
       //charge.push_back( DataType( (*jetItr)->charge() )); // charge not directly accessible. placeholder.
 
-      jvf.push_back( DataType( 1. ));
-      isGood.push_back( DataType( -1111. ));
+// updated for data15
+// from: Reconstruction/MET/METReconstruction/Root/METJetFilterTool.cxx
+	std::vector<float> jvfread;
+	(*jetItr)->getAttribute<std::vector<float> >(xAOD::JetAttribute::JVF,jvfread);
+	if(!(*jetItr)->getAttribute<std::vector<float> >(xAOD::JetAttribute::JVF,jvfread)) {
+	  ATH_MSG_WARNING("Jet JVF unavailable!");
+          jvf.push_back( DataType( 1. ));
+	}else{
+	//ATH_MSG_VERBOSE("Jet JVF = " << jvfread[0]);
+          jvf.push_back( DataType(  jvfread[0] ));
+        }
+
+  if (msgLvl(MSG::VERBOSE)) { msg(MSG::VERBOSE) << " JVF: " << jvfread[0] 
+ 	<< " EMFrac: " << (*jetItr)->auxdata<float>("EMFrac") 
+	<< endreq; }
+
+      isGood.push_back( DataType( -1111. )); // not anymore defined ? 
+//// this is defined in xAOD-JetAttribute, but doesn't work with data15:
+//      isBad.push_back( DataType( (*jetItr)->auxdata<float>("isBadMedium") ));
+//      isUgly.push_back( DataType( (*jetItr)->auxdata<float>("isUgly") ));
       isBad.push_back( DataType( -1111. ));
       isUgly.push_back( DataType( -1111. ));
-      emfrac.push_back( DataType( 0. )); // placeholder 
+      emfrac.push_back( DataType( (*jetItr)->auxdata<float>("EMFrac") )); 
 
     } // end JetIterator 
 

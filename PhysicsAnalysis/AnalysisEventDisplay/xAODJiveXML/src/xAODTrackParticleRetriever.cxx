@@ -42,7 +42,7 @@ namespace JiveXML {
    * For each TrackParticle collections retrieve basic parameters.
    * @param FormatTool the tool that will create formated output from the DataMap
    */
-  StatusCode xAODTrackParticleRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode xAODTrackParticleRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
     

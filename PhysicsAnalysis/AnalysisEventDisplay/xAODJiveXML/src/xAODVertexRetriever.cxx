@@ -32,9 +32,9 @@ namespace JiveXML {
     declareInterface<IDataRetriever>(this);
 
     //In xAOD: PrimaryVertices, AllPhotonsVxCandidates
-    m_sgKey = "PrimaryVertices"; // 
-    declareProperty("StoreGateKey", m_sgKey, 
+    declareProperty("PrimaryVertexCollection",  m_primaryVertexKey = "PrimaryVertices", 
         "Collection to be first in output, shown in Atlantis without switching");
+    declareProperty("SecondaryVertexCollection", m_secondaryVertexKey = "SecVertices", "Vertices to use as secondary vertex");  
     declareProperty ( "TracksName",  m_tracksName = "InDetTrackParticles_xAOD" );
   }
   
@@ -42,61 +42,84 @@ namespace JiveXML {
    * For each Vertex collections retrieve basic parameters.
    * @param FormatTool the tool that will create formated output from the DataMap
    */
-  StatusCode xAODVertexRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
-    
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
-    
-    const DataHandle<xAOD::VertexContainer> iterator, end;
-    const xAOD::VertexContainer* Vertizes;
-    
-    //obtain the default collection first
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endreq;
-    StatusCode sc = evtStore()->retrieve(Vertizes, m_sgKey);
-    if (sc.isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq; 
-    }else{
-      DataMap data = getData(Vertizes);
-      if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey+"_xAOD", &data).isFailure()){
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq;
-      }else{
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") Vertex retrieved" << endreq;
-      }
-    }
- 
-    //All collections retrieved okay
-    return StatusCode::SUCCESS;
-  }
+  StatusCode xAODVertexRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
+    //Get an iterator over all vertex collections,
+    //return if there are none
+    const DataHandle<xAOD::VertexContainer> vtxCollectionItr, vtxCollectionsEnd;
+    if (evtStore()->retrieve(vtxCollectionItr,vtxCollectionsEnd).isFailure()) {
+      if (msgLvl(MSG::DEBUG )) msg(MSG::DEBUG ) << "No xAODVertexContainer containers found in this event" << endreq;
+      return StatusCode::SUCCESS;
+    }
+
+    //See if we can find the requested secondary vertex collection
+    const xAOD::VertexContainer* secondaryVtxCollection;
+    if (evtStore()->retrieve(secondaryVtxCollection,m_secondaryVertexKey).isFailure()) {
+      if (msgLvl(MSG::DEBUG )) msg(MSG::DEBUG ) << "No Secondary vertex container found at SecVertices" << endreq;
+    }else{
+      if (msgLvl(MSG::DEBUG )) msg(MSG::DEBUG ) << "Secondary vertex container size: " << secondaryVtxCollection->size() << endreq;
+    }
+	
+    //See if we can find the requested primary vertex collection
+    const xAOD::VertexContainer* primaryVtxCollection;
+    if ( evtStore()->retrieve(primaryVtxCollection,m_primaryVertexKey).isFailure()) {
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Primary vertex container "
+          << m_primaryVertexKey << " not found" << endreq;
+    }
+    
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve" << endreq;
 
   /**
    * Retrieve basic parameters, mainly four-vectors, for each collection.
    * Also association with clusters and tracks (ElementLink).
    */
-  const DataMap xAODVertexRetriever::getData(const xAOD::VertexContainer* VertexCont) {
-    
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endreq;
-
-    DataMap m_DataMap;
-
-    DataVect x; x.reserve(VertexCont->size());
-    DataVect y; y.reserve(VertexCont->size());
-    DataVect z; z.reserve(VertexCont->size());
-    DataVect chi2; chi2.reserve(VertexCont->size());
-    DataVect vertexType; vertexType.reserve(VertexCont->size());
-    DataVect primVxCand; primVxCand.reserve(VertexCont->size());
-    DataVect covMatrix; covMatrix.reserve(VertexCont->size());
-    DataVect numTracks; numTracks.reserve(VertexCont->size());
-    DataVect tracks; tracks.reserve(VertexCont->size());
-    DataVect sgkey; sgkey.reserve(VertexCont->size());
-
     float m_chi2 = 0.;
+    DataVect x; 
+    DataVect y; 
+    DataVect z; 
+    DataVect chi2; 
+    DataVect vertexType; 
+    DataVect primVxCand; 
+    DataVect covMatrix; 
+    DataVect numTracks; 
+    DataVect tracks; 
+    DataVect sgkey; 
 
-    xAOD::VertexContainer::const_iterator VertexItr  = VertexCont->begin();
-    xAOD::VertexContainer::const_iterator VertexItrE = VertexCont->end();
+    //Loop over all vertex containers
+    for ( ; vtxCollectionItr != vtxCollectionsEnd; ++vtxCollectionItr ) {
+
+      if ( ( vtxCollectionItr.key().find("HLT") != std::string::npos)){ // ignore all HLT for now
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring HLT collection " << vtxCollectionItr.key() << endreq;
+        continue;
+      }
+      if ( ( vtxCollectionItr.key().find("V0") != std::string::npos)){ // ignore all HLT for now                                                 
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring V0 collection " << vtxCollectionItr.key() << endreq;
+        continue;
+      }
+
+      //Get size of current container
+      xAOD::VertexContainer::size_type NVtx = vtxCollectionItr->size();
+
+      //Be a bit verbose
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Reading vertex container " << vtxCollectionItr.key()
+                                              << " with " << NVtx << " entries" << endreq;
+
+    x.reserve(x.size()+NVtx);
+    y.reserve(y.size()+NVtx);
+    z.reserve(z.size()+NVtx);
+    chi2.reserve(chi2.size()+NVtx);
+    vertexType.reserve(vertexType.size()+NVtx);
+    primVxCand.reserve(primVxCand.size()+NVtx);
+    covMatrix.reserve(covMatrix.size()+NVtx);
+    numTracks.reserve(numTracks.size()+NVtx);
+    tracks.reserve(tracks.size()+NVtx);
+    sgkey.reserve(sgkey.size()+NVtx);
 
     int counter = 0;
 
-    for (; VertexItr != VertexItrE; ++VertexItr) {
+    //Loop over vertices
+    xAOD::VertexContainer::const_iterator VertexItr = vtxCollectionItr->begin();
+    for ( ; VertexItr != vtxCollectionItr->end(); ++VertexItr) {
 
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "  Vertex #" << counter++ << " : x = "  << (*VertexItr)->x()/CLHEP::cm << ", y = " 
@@ -109,7 +132,12 @@ namespace JiveXML {
       x.push_back(DataType((*VertexItr)->x()/CLHEP::cm));
       y.push_back(DataType((*VertexItr)->y()/CLHEP::cm));
       z.push_back(DataType((*VertexItr)->z()/CLHEP::cm));
-      vertexType.push_back(DataType((*VertexItr)->vertexType()));
+
+     if ( vtxCollectionItr.key() == m_secondaryVertexKey){ 
+      vertexType.push_back( 2 );
+     }else{    
+      vertexType.push_back( DataType((*VertexItr)->vertexType()));
+     }
 
     if ((*VertexItr)->vertexType() == 1 ){ 
 	primVxCand.push_back( 1 );
@@ -151,17 +179,23 @@ namespace JiveXML {
          << ", collection : "  << tpl.key() 
 		       << ", Tracks : " << tp  << " out of " << tp_size << ", own count: " << trkCnt++ << endreq;
        }
-      tracks.push_back(DataType( tpl.index() ));
+        if ( tpl.index() < 1000 ){ // sanity check, this can be huge number
+          tracks.push_back(DataType( tpl.index() ));
+        }else{
+          tracks.push_back(DataType( 0 ));
+        }
       } //links exist
     }//end of track particle collection size check
 
     //if (msgLvl(MSG::DEBUG)) {
     //  msg(MSG::DEBUG) << "  Vertex #" << counter << ", numTracks : " << tpLinks.size() << endreq;
     //}
-
+    
     } // end VertexIterator 
+    } // end collectionIterator    
 
     // four-vectors
+    DataMap m_DataMap;
     m_DataMap["x"] = x;
     m_DataMap["y"] = y;
     m_DataMap["z"] = z;
@@ -172,7 +206,7 @@ namespace JiveXML {
     m_DataMap["numTracks"] = numTracks;
 //    m_DataMap["tracks multiple=\"0\""];
     m_DataMap["sgkey"] = sgkey;
-
+  
     //This is needed once we know numTracks and associations:
     //If there had been any tracks, add a tag
     if ((numTracks.size()) != 0){
@@ -185,10 +219,9 @@ namespace JiveXML {
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << x.size() << " entries"<< endreq;
     }
-
     //All collections retrieved okay
-    return m_DataMap;
-
+    return FormatTool->AddToEvent(dataTypeName(), "Vertices_xAOD", &m_DataMap);
+  
   } // retrieve
 
   //--------------------------------------------------------------------------

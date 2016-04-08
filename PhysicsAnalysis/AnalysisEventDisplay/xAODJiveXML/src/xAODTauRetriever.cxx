@@ -43,7 +43,7 @@ namespace JiveXML {
    * For each Tau collections retrieve basic parameters.
    * @param FormatTool the tool that will create formated output from the DataMap
    */
-  StatusCode xAODTauRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode xAODTauRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
     

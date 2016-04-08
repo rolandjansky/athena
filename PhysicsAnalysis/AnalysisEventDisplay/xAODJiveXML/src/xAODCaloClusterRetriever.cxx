@@ -36,7 +36,7 @@ namespace JiveXML {
    * 'Favourite' cluster collection first, then 'Other' collections.
    * @param FormatTool the tool that will create formated output from the DataMap
    */
-  StatusCode xAODCaloClusterRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode xAODCaloClusterRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
     
