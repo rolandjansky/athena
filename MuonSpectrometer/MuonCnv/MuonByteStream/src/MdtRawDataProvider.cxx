@@ -10,8 +10,7 @@
 
 Muon::MdtRawDataProvider::MdtRawDataProvider(const std::string& name,
                                       ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),
-  m_log             (msgSvc(), name),
+  AthAlgorithm(name, pSvcLocator),
   m_rawDataTool     ("MdtRawDataProviderTool")
 {
   declareProperty ("ProviderTool", m_rawDataTool);
@@ -27,15 +26,8 @@ Muon::MdtRawDataProvider::~MdtRawDataProvider(){
 
 StatusCode Muon::MdtRawDataProvider::initialize() {
 
-  m_log << MSG::INFO << "MdtRawDataProvider::initialize" << endreq;
-
-  // Get MdtRawDataProviderTool
-  if (m_rawDataTool.retrieve().isFailure()) {
-    m_log << MSG::FATAL << "Failed to retrieve serive " << m_rawDataTool << endreq;
-    return StatusCode::FAILURE;
-  } else
-    m_log << MSG::INFO << "Retrieved service " << m_rawDataTool << endreq;
-  
+  ATH_MSG_INFO( "MdtRawDataProvider::initialize" );
+  ATH_CHECK( m_rawDataTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -46,15 +38,13 @@ StatusCode Muon::MdtRawDataProvider::finalize() {
 // Execute
 
 StatusCode Muon::MdtRawDataProvider::execute() {
-  m_log.setLevel( outputLevel() );
-
-  m_log << MSG::VERBOSE << "MdtRawDataProvider::execute" << endreq;
+  ATH_MSG_VERBOSE( "MdtRawDataProvider::execute" );
   
   // ask MdtRawDataProviderTool to decode it and to fill the IDC
   if (m_rawDataTool->convert().isFailure())
-    m_log << MSG::ERROR << "BS conversion into RDOs failed" << endreq;
+    ATH_MSG_ERROR( "BS conversion into RDOs failed" );
 
-//  m_log << MSG::INFO << "Number of Collections in IDC " << m_container->numberOfCollections() << endreq;
+//  ATH_MSG_INFO( "Number of Collections in IDC " << m_container->numberOfCollections() );
 
   return StatusCode::SUCCESS;
 }

@@ -6,14 +6,14 @@
 #define MUONBYTESTREAM_MDTRAWDATAPROVIDER_H
 
 // Base class
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 namespace Muon {
 class IMuonRawDataProviderTool;
 
-class MdtRawDataProvider : public Algorithm
+class MdtRawDataProvider : public AthAlgorithm
 {
 public:
 
@@ -34,8 +34,6 @@ public:
 
 
 private:
-
-  MsgStream                             m_log;
   ToolHandle<Muon::IMuonRawDataProviderTool>  m_rawDataTool;
 };
 } // ns end

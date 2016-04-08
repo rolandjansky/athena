@@ -16,8 +16,7 @@ using eformat::helper::SourceIdentifier;
 
 Muon::TgcRawDataProvider::TgcRawDataProvider(const std::string& name,
         ISvcLocator* pSvcLocator) :
-        Algorithm(name, pSvcLocator),
-        m_log             (msgSvc(), name),
+        AthAlgorithm(name, pSvcLocator),
         m_robDataProvider ("ROBDataProviderSvc",name),
         m_rawDataTool     ("TgcRawDataProviderTool")
 {
@@ -34,25 +33,9 @@ Muon::TgcRawDataProvider::~TgcRawDataProvider()
 
 StatusCode Muon::TgcRawDataProvider::initialize()
 {
-    m_log << MSG::INFO << "TgcRawDataProvider::initialize" << endreq;
-
-    // Get ROBDataProviderSvc
-    if (m_robDataProvider.retrieve().isFailure())
-    {
-        m_log << MSG::FATAL << "Failed to retrieve serive " << m_robDataProvider << endreq;
-        return StatusCode::FAILURE;
-    }
-    else
-        m_log << MSG::INFO << "Retrieved service " << m_robDataProvider << endreq;
-
-    // Get TgcRawDataProviderTool
-    if (m_rawDataTool.retrieve().isFailure())
-    {
-        m_log << MSG::FATAL << "Failed to retrieve serive " << m_rawDataTool << endreq;
-        return StatusCode::FAILURE;
-    }
-    else
-        m_log << MSG::INFO << "Retrieved service " << m_rawDataTool << endreq;
+    ATH_MSG_INFO( "TgcRawDataProvider::initialize"  );
+    ATH_CHECK( m_robDataProvider.retrieve() );
+    ATH_CHECK( m_rawDataTool.retrieve() );
 
     TgcRdoIdHash rdoIdHash;
     for (int i = 0; i < rdoIdHash.max(); i++)
@@ -73,18 +56,17 @@ StatusCode Muon::TgcRawDataProvider::finalize()
 
 StatusCode Muon::TgcRawDataProvider::execute()
 {
-    m_log.setLevel( outputLevel() );
-    m_log << MSG::VERBOSE << "TgcRawDataProvider::execute" << endreq;
+    ATH_MSG_VERBOSE( "TgcRawDataProvider::execute"  );
 
     // ask ROBDataProviderSvc for the vector of ROBFragment for all TGC ROBIDs
     std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf;
     m_robDataProvider->getROBData(m_robIds, vecOfRobf);
 
-    m_log << MSG::VERBOSE << "Number of ROB fragments " << vecOfRobf.size() << endreq;
+    ATH_MSG_VERBOSE( "Number of ROB fragments " << vecOfRobf.size()  );
 
     // ask TgcRawDataProviderTool to decode it and to fill the IDC
     if (m_rawDataTool->convert(vecOfRobf).isFailure())
-        m_log << MSG::ERROR << "BS conversion into RDOs failed" << endreq;
+      ATH_MSG_ERROR( "BS conversion into RDOs failed"  );
 
     return StatusCode::SUCCESS;
 }

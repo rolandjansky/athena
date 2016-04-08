@@ -6,7 +6,7 @@
 #define MUONBYTESTREAM_TGCRAWDATAPROVIDER_H
 
 // Base class
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -16,7 +16,7 @@ namespace Muon
 {
 class IMuonRawDataProviderTool;
 
-class TgcRawDataProvider : public Algorithm
+class TgcRawDataProvider : public AthAlgorithm
 {
 public:
 
@@ -36,7 +36,6 @@ public:
     ~TgcRawDataProvider();
 
 private:
-    MsgStream                                   m_log;
     ServiceHandle<IROBDataProviderSvc>          m_robDataProvider;
     ToolHandle<Muon::IMuonRawDataProviderTool>  m_rawDataTool;
     std::vector<uint32_t>                       m_robIds;
