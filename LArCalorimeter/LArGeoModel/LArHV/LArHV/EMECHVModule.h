@@ -75,7 +75,7 @@ class EMECHVModule : public RCBase
     EMECHVModule& operator=(const EMECHVModule& right);
 
     class Clockwork;
-    Clockwork *c;
+    Clockwork *m_c;
 
 };
 

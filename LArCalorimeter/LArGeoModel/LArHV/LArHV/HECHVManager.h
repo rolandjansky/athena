@@ -67,7 +67,7 @@ class HECHVManager : public RCBase
     HECHVManager& operator=(const HECHVManager& right);
 
     class Clockwork;
-    Clockwork *c;
+    Clockwork *m_c;
 
 };
 

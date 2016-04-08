@@ -23,7 +23,7 @@
 
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArHVLineID.h"
-#include "LArTools/LArHVCablingTool.h"
+#include "LArCabling/LArHVCablingTool.h"
 
 #include "Identifier/HWIdentifier.h"
 
@@ -40,10 +40,10 @@ public:
 
 //##ModelId=43FBFC0A034F
 EMECHVManager::EMECHVManager(IOType wheel):
-  c(new Clockwork)
+  m_c(new Clockwork)
 {
-  c->init=false;
-  c->iWheel=wheel;
+  m_c->init=false;
+  m_c->iWheel=wheel;
   if (wheel==EMECHVModule::OUTER)  {
     CellPartitioning etaBinning;
     etaBinning.addValue(1.375);
@@ -54,17 +54,17 @@ EMECHVManager::EMECHVManager(IOType wheel):
     etaBinning.addValue(2.1);
     etaBinning.addValue(2.3);
     etaBinning.addValue(2.5);
-    c->descriptor = new EMECHVDescriptor(etaBinning,CellBinning(0.0, 2*M_PI, 8),CellBinning(0,M_PI/4.0,4));
+    m_c->descriptor = new EMECHVDescriptor(etaBinning,CellBinning(0.0, 2*M_PI, 8),CellBinning(0,M_PI/4.0,4));
   }
   else if (wheel==EMECHVModule::INNER)  {
     CellPartitioning etaBinning;
     etaBinning.addValue(2.5);
     etaBinning.addValue(2.8);
     etaBinning.addValue(3.2);
-    c->descriptor=new EMECHVDescriptor(etaBinning,CellBinning(0.0, 2*M_PI, 8),CellBinning(0,M_PI/4.0,8));
+    m_c->descriptor=new EMECHVDescriptor(etaBinning,CellBinning(0.0, 2*M_PI, 8),CellBinning(0,M_PI/4.0,8));
   }
   else {
-    c->descriptor=NULL;
+    m_c->descriptor=NULL;
     throw std::runtime_error ("EMECHVManager:  unknown Wheel Type");
   }
 }
@@ -74,47 +74,47 @@ EMECHVManager::EMECHVManager(IOType wheel):
 //##ModelId=478D1079010F
 const EMECHVDescriptor *EMECHVManager::getDescriptor() const
 {
-  return c->descriptor;
+  return m_c->descriptor;
 }
 
 //##ModelId=478D10790120
 unsigned int EMECHVManager::beginPhiIndex() const
 {
-  return c->descriptor->getPhiBinning().getFirstDivisionNumber();
+  return m_c->descriptor->getPhiBinning().getFirstDivisionNumber();
 }
 
 //##ModelId=478D10790129
 unsigned int EMECHVManager::endPhiIndex() const
 {
-  return c->descriptor->getPhiBinning().getFirstDivisionNumber() + c->descriptor->getPhiBinning().getNumDivisions();
+  return m_c->descriptor->getPhiBinning().getFirstDivisionNumber() + m_c->descriptor->getPhiBinning().getNumDivisions();
 }
 
 //##ModelId=478D10790133
 unsigned int EMECHVManager::beginEtaIndex() const
 {
-  return c->descriptor->getEtaBinning().getFirstDivisionNumber();
+  return m_c->descriptor->getEtaBinning().getFirstDivisionNumber();
 }
 
 //##ModelId=478D1079013E
 unsigned int EMECHVManager::endEtaIndex() const
 {
-  return c->descriptor->getEtaBinning().getFirstDivisionNumber() + c->descriptor->getEtaBinning().getNumDivisions();
+  return m_c->descriptor->getEtaBinning().getFirstDivisionNumber() + m_c->descriptor->getEtaBinning().getNumDivisions();
 }
 
 //##ModelId=478D10790149
 EMECHVModuleConstLink EMECHVManager::getHVModule(unsigned int iSide, unsigned int iEta, unsigned int iPhi, unsigned int iSector) const
 {
 
-  if (!c->linkArray[iSide][iEta][iPhi][iSector]) c->linkArray[iSide][iEta][iPhi][iSector] = EMECHVModuleConstLink(new EMECHVModule(this, iSide, iEta,iPhi,iSector));
-  return c->linkArray[iSide][iEta][iPhi][iSector];
+  if (!m_c->linkArray[iSide][iEta][iPhi][iSector]) m_c->linkArray[iSide][iEta][iPhi][iSector] = EMECHVModuleConstLink(new EMECHVModule(this, iSide, iEta,iPhi,iSector));
+  return m_c->linkArray[iSide][iEta][iPhi][iSector];
 
 }
 
 //##ModelId=478D10790154
 EMECHVManager::~EMECHVManager()
 {
-  delete c->descriptor;
-  delete c;
+  delete m_c->descriptor;
+  delete m_c;
 }
 
 
@@ -133,36 +133,36 @@ unsigned int EMECHVManager::endSideIndex() const
 //##ModelId=47A07AA60006
 unsigned int EMECHVManager::beginSectorIndex() const
 {
-  return c->descriptor->getSectorBinning().getFirstDivisionNumber();
+  return m_c->descriptor->getSectorBinning().getFirstDivisionNumber();
 }
 
 //##ModelId=47A07AA6006B
 unsigned int EMECHVManager::endSectorIndex() const
 {
-  return c->descriptor->getSectorBinning().getFirstDivisionNumber() + c->descriptor->getSectorBinning().getNumDivisions();
+  return m_c->descriptor->getSectorBinning().getFirstDivisionNumber() + m_c->descriptor->getSectorBinning().getNumDivisions();
 }
 
 //##ModelId=47A26D390123
 EMECHVManager::IOType EMECHVManager::getWheelIndex() const
 {
-  return c->iWheel;
+  return m_c->iWheel;
 }
 
 void EMECHVManager::update() const {
-  if (!c->init) {
-    c->init=true;
-    if (c->iWheel==EMECHVModule::OUTER)      {
-        c->payloadArray.reserve(2*7*8*4*24);
+  if (!m_c->init) {
+    m_c->init=true;
+    if (m_c->iWheel==EMECHVModule::OUTER)      {
+        m_c->payloadArray.reserve(2*7*8*4*24);
         for (unsigned int i=0;i<10752;i++) {
-          c->payloadArray[i].voltage[0]=-99999;
-          c->payloadArray[i].voltage[1]=-99999;
+          m_c->payloadArray[i].voltage[0]=-99999;
+          m_c->payloadArray[i].voltage[1]=-99999;
         }
     }
-    else if (c->iWheel==EMECHVModule::INNER)  {
-        c->payloadArray.reserve(2*2*8*8*4);
+    else if (m_c->iWheel==EMECHVModule::INNER)  {
+        m_c->payloadArray.reserve(2*2*8*8*4);
         for (unsigned int i=0;i<1024;i++) {
-          c->payloadArray[i].voltage[0]=-99999;
-          c->payloadArray[i].voltage[1]=-99999;
+          m_c->payloadArray[i].voltage[0]=-99999;
+          m_c->payloadArray[i].voltage[1]=-99999;
         }
     }
     
@@ -204,13 +204,13 @@ void EMECHVManager::update() const {
 	 
         // Construct HWIdentifier
         // 1. decode COOL Channel ID
-        unsigned int _chanID = (*citr).first;
-        int _cannode = _chanID/1000;
-        int _line = _chanID%1000;
-        //std::cout << "    ++ found data for cannode, line " << _cannode << " " << _line << std::endl;
+        unsigned int chanID = (*citr).first;
+        int cannode = chanID/1000;
+        int line = chanID%1000;
+        //std::cout << "    ++ found data for cannode, line " << cannode << " " << line << std::endl;
 
         // 2. Construct the identifier
-        HWIdentifier id = hvId->HVLineId(1,1,_cannode,_line);
+        HWIdentifier id = hvId->HVLineId(1,1,cannode,line);
 
 
         std::vector<HWIdentifier> electrodeIdVec = hvcablingTool->getLArElectrodeIDvec(id);
@@ -224,7 +224,7 @@ void EMECHVManager::update() const {
 
 	    unsigned int etaIndex=elecId->hv_eta(elecHWID);
 
-	    if ( (etaIndex>6 && c->iWheel==EMECHVModule::INNER) || (etaIndex<7 && c->iWheel==EMECHVModule::OUTER) ) {
+	    if ( (etaIndex>6 && m_c->iWheel==EMECHVModule::INNER) || (etaIndex<7 && m_c->iWheel==EMECHVModule::OUTER) ) {
 	      unsigned int sideIndex=1-elecId->zside(elecHWID);
 	      unsigned int phiIndex=elecId->module(elecHWID);      // 0 to 7
 // rotation for C side
@@ -235,28 +235,28 @@ void EMECHVManager::update() const {
 	      unsigned int sectorIndex=elecId->hv_phi(elecHWID)-1;    // 0 to 3 in Outer, 0 to 7 in Inner
 // rotation for C side
               if (sideIndex==0) {
-                  if (c->iWheel==EMECHVModule::OUTER) sectorIndex=3-sectorIndex;
+                  if (m_c->iWheel==EMECHVModule::OUTER) sectorIndex=3-sectorIndex;
                   else  sectorIndex=7-sectorIndex;
               } 
-	      unsigned int electrodeIndex = c->iWheel==EMECHVModule::OUTER ?
+	      unsigned int electrodeIndex = m_c->iWheel==EMECHVModule::OUTER ?
                    elecId->electrode(elecHWID)%24:
                    elecId->electrode(elecHWID)%4;
 // rotation for C side
               if (sideIndex==0) {
-                  if (c->iWheel==EMECHVModule::OUTER) electrodeIndex=23-electrodeIndex;
+                  if (m_c->iWheel==EMECHVModule::OUTER) electrodeIndex=23-electrodeIndex;
                   else  electrodeIndex=3-electrodeIndex;
               } 
 	  
-	      unsigned int index             = c->iWheel==EMECHVModule::OUTER ? 
+	      unsigned int index             = m_c->iWheel==EMECHVModule::OUTER ? 
 	        5376*sideIndex+768*etaIndex+96*phiIndex+24*sectorIndex+electrodeIndex:
 	         512*sideIndex+256*(etaIndex-7)+32*phiIndex+4*sectorIndex+electrodeIndex;
 
-              if (c->iWheel==EMECHVModule::OUTER && index>10752) {
+              if (m_c->iWheel==EMECHVModule::OUTER && index>10752) {
                 std::cout << "invalid index outer " << index << " side,eta,phi,sector,electrode " << sideIndex << " " << etaIndex << " " << phiIndex <<
                  " " << sectorIndex << " " << electrodeIndex << std::endl;
                 continue;
               }
-              if (c->iWheel==EMECHVModule::INNER && index>1024) {
+              if (m_c->iWheel==EMECHVModule::INNER && index>1024) {
                 std::cout << "invalid index inner " << index << " side,eta,phi,sector,electrode " << sideIndex << " " << etaIndex << " " << phiIndex <<
                  " " << sectorIndex << " " << electrodeIndex << std::endl;
                 continue;
@@ -276,20 +276,20 @@ void EMECHVManager::update() const {
               unsigned int status = 0;
               if (!((*citr).second)["R_STAT"].isNull()) status =  ((*citr).second)["R_STAT"].data<unsigned int>(); 
 
-              //std::cout << "             hvlineId,elecHWID,cannode,line, side,phi module, sector,eta,electrode,gap,index " << std::hex << id << " " << elecHWID << std::dec << " " << _cannode << " " << _line << " " << elecId->zside(elecHWID) << " " << elecId->module(elecHWID) << " " << elecId->hv_phi(elecHWID) << " " << elecId->hv_eta(elecHWID) << " " << elecId->electrode(elecHWID)
+              //std::cout << "             hvlineId,elecHWID,cannode,line, side,phi module, sector,eta,electrode,gap,index " << std::hex << id << " " << elecHWID << std::dec << " " << cannode << " " << line << " " << elecId->zside(elecHWID) << " " << elecId->module(elecHWID) << " " << elecId->hv_phi(elecHWID) << " " << elecId->hv_eta(elecHWID) << " " << elecId->electrode(elecHWID)
                // << " " << gapIndex << "  " << index << " " << voltage << std::endl;
 
 	  
-	      c->payloadArray[index].voltage[gapIndex]=voltage;
-	      c->payloadArray[index].current[gapIndex]=current;
-	      c->payloadArray[index].status[gapIndex]=status;
-	      c->payloadArray[index].hvLineNo[gapIndex]=_chanID;
+	      m_c->payloadArray[index].voltage[gapIndex]=voltage;
+	      m_c->payloadArray[index].current[gapIndex]=current;
+	      m_c->payloadArray[index].status[gapIndex]=status;
+	      m_c->payloadArray[index].hvLineNo[gapIndex]=chanID;
 	    } // if etaIndex...
 	  } // for (electrodeIdVec)
         } // is EMEC
       } // for (atrlistcol)
     }
-  } // if(!c->init)
+  } // if(!m_c->init)
 }
 
 
@@ -305,11 +305,11 @@ EMECHVPayload *EMECHVManager::getPayload(const EMECHVElectrode &electrode) const
   unsigned int sideIndex         = module->getSideIndex();
 
   unsigned int index=0;
-  if (c->iWheel==EMECHVModule::OUTER)      index= 5376*sideIndex+768*etaIndex+96*phiIndex+24*sectorIndex+electrodeIndex;
-  else if (c->iWheel==EMECHVModule::INNER) index= 512*sideIndex+256*etaIndex+32*phiIndex+4*sectorIndex+electrodeIndex;
-  return &c->payloadArray[index];
+  if (m_c->iWheel==EMECHVModule::OUTER)      index= 5376*sideIndex+768*etaIndex+96*phiIndex+24*sectorIndex+electrodeIndex;
+  else if (m_c->iWheel==EMECHVModule::INNER) index= 512*sideIndex+256*etaIndex+32*phiIndex+4*sectorIndex+electrodeIndex;
+  return &m_c->payloadArray[index];
 }
 
 void EMECHVManager::reset() const {
-  c->init=false;
+  m_c->init=false;
 }

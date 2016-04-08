@@ -22,7 +22,7 @@
 
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArHVLineID.h"
-#include "LArTools/LArHVCablingTool.h"
+#include "LArCabling/LArHVCablingTool.h"
 
 #include "Identifier/HWIdentifier.h"
 
@@ -40,54 +40,54 @@ public:
 
 
 EMBPresamplerHVManager::EMBPresamplerHVManager()
-:c(new Clockwork)
+:m_c(new Clockwork)
 {
 
   CellPartitioning etaPartitioning;
   for (unsigned int i= 0; i<4; i++)  etaPartitioning.addValue(i*0.4);
   etaPartitioning.addValue(1.525);
   
-  c->descriptor = new EMBPresamplerHVDescriptor(etaPartitioning,CellBinning(0.0, 2*M_PI, 32));	
-  c->init=false;
+  m_c->descriptor = new EMBPresamplerHVDescriptor(etaPartitioning,CellBinning(0.0, 2*M_PI, 32));	
+  m_c->init=false;
 
 }
 
 
 EMBPresamplerHVManager::~EMBPresamplerHVManager()
 {
-  delete c->descriptor;
-  delete c;
+  delete m_c->descriptor;
+  delete m_c;
 }
 
 const EMBPresamplerHVDescriptor *EMBPresamplerHVManager::getDescriptor() const
 {
-  return c->descriptor;
+  return m_c->descriptor;
 }
 
 unsigned int EMBPresamplerHVManager::beginPhiIndex() const
 {
-  return c->descriptor->getPhiBinning().getFirstDivisionNumber();
+  return m_c->descriptor->getPhiBinning().getFirstDivisionNumber();
 }
 
 unsigned int EMBPresamplerHVManager::endPhiIndex() const
 {
-  return c->descriptor->getPhiBinning().getFirstDivisionNumber() + c->descriptor->getPhiBinning().getNumDivisions();
+  return m_c->descriptor->getPhiBinning().getFirstDivisionNumber() + m_c->descriptor->getPhiBinning().getNumDivisions();
 }
 
 unsigned int EMBPresamplerHVManager::beginEtaIndex() const
 {
-  return c->descriptor->getEtaPartitioning().getFirstDivisionNumber();
+  return m_c->descriptor->getEtaPartitioning().getFirstDivisionNumber();
 }
 
 unsigned int EMBPresamplerHVManager::endEtaIndex() const
 {
-  return c->descriptor->getEtaPartitioning().getFirstDivisionNumber() + c->descriptor->getEtaPartitioning().getNumDivisions();
+  return m_c->descriptor->getEtaPartitioning().getFirstDivisionNumber() + m_c->descriptor->getEtaPartitioning().getNumDivisions();
 }
 
 EMBPresamplerHVModuleConstLink EMBPresamplerHVManager::getHVModule(unsigned int iSide, unsigned int iEta,unsigned int iPhi) const
 {
-  if (!c->linkArray[iSide][iEta][iPhi]) c->linkArray[iSide][iEta][iPhi] = EMBPresamplerHVModuleConstLink(new EMBPresamplerHVModule(this, iSide, iEta,iPhi));
-  return c->linkArray[iSide][iEta][iPhi];
+  if (!m_c->linkArray[iSide][iEta][iPhi]) m_c->linkArray[iSide][iEta][iPhi] = EMBPresamplerHVModuleConstLink(new EMBPresamplerHVModule(this, iSide, iEta,iPhi));
+  return m_c->linkArray[iSide][iEta][iPhi];
 }
 
 unsigned int EMBPresamplerHVManager::beginSideIndex() const
@@ -101,14 +101,14 @@ unsigned int EMBPresamplerHVManager::endSideIndex() const
 }
 
 void EMBPresamplerHVManager::update() const {
-  if (!c->init) {
+  if (!m_c->init) {
 
-    c->init=true;
-    c->payloadArray.reserve(2*4*32);
+    m_c->init=true;
+    m_c->payloadArray.reserve(2*4*32);
 
     for (int i=0;i<256;i++) {
-       c->payloadArray[i].voltage[0]=-99999.;
-       c->payloadArray[i].voltage[1]=-99999.;
+       m_c->payloadArray[i].voltage[0]=-99999.;
+       m_c->payloadArray[i].voltage[1]=-99999.;
     }
     
     StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
@@ -149,13 +149,13 @@ void EMBPresamplerHVManager::update() const {
       
         // Construct HWIdentifier
         // 1. decode COOL Channel ID
-        unsigned int _chanID = (*citr).first;
-        int _cannode = _chanID/1000;
-        int _line = _chanID%1000;
-        //std::cout << "    ++ found data for cannode, line " << _cannode << " " << _line << std::endl;
+        unsigned int chanID = (*citr).first;
+        int cannode = chanID/1000;
+        int line = chanID%1000;
+        //std::cout << "    ++ found data for cannode, line " << cannode << " " << line << std::endl;
 
         // 2. Construct the identifier
-        HWIdentifier id = hvId->HVLineId(1,1,_cannode,_line);
+        HWIdentifier id = hvId->HVLineId(1,1,cannode,line);
 
         std::vector<HWIdentifier> electrodeIdVec = hvcablingTool->getLArElectrodeIDvec(id);
 
@@ -211,14 +211,14 @@ void EMBPresamplerHVManager::update() const {
             if (!((*citr).second)["R_STAT"].isNull()) status =  ((*citr).second)["R_STAT"].data<unsigned int>(); 
 
 
-         // std::cout << "             hvlineId,elecHWID,cannode,line, side,phi module, sector,eta,electrode,gap,index " << std::hex << id << " " << elecHWID << std::dec << " " << _cannode << " " << _line << " " << elecId->zside(elecHWID) << " " << elecId->module(elecHWID) << " " << elecId->hv_phi(elecHWID) << " " << elecId->hv_eta(elecHWID) << " " << elecId->electrode(elecHWID)
+         // std::cout << "             hvlineId,elecHWID,cannode,line, side,phi module, sector,eta,electrode,gap,index " << std::hex << id << " " << elecHWID << std::dec << " " << cannode << " " << line << " " << elecId->zside(elecHWID) << " " << elecId->module(elecHWID) << " " << elecId->hv_phi(elecHWID) << " " << elecId->hv_eta(elecHWID) << " " << elecId->electrode(elecHWID)
          //  << " " << gapIndex << "  " << index << " " << voltage << std::endl;
 
 	    
-	    c->payloadArray[index].voltage[gapIndex]=voltage;
-	    c->payloadArray[index].current[gapIndex]=current;
-	    c->payloadArray[index].status[gapIndex]=status;
-	    c->payloadArray[index].hvLineNo[gapIndex]=_chanID;
+	    m_c->payloadArray[index].voltage[gapIndex]=voltage;
+	    m_c->payloadArray[index].current[gapIndex]=current;
+	    m_c->payloadArray[index].status[gapIndex]=status;
+	    m_c->payloadArray[index].hvLineNo[gapIndex]=chanID;
 	  }
 //	  std::cerr << "\n";
         }
@@ -234,9 +234,9 @@ EMBPresamplerHVPayload *EMBPresamplerHVManager::getPayload(const EMBPresamplerHV
   unsigned int phiIndex          = module.getPhiIndex();
   unsigned int etaIndex          = module.getEtaIndex();
   unsigned int index             =  128*sideIndex+32*etaIndex+phiIndex;
-  return &c->payloadArray[index];
+  return &m_c->payloadArray[index];
 }
 
 void  EMBPresamplerHVManager::reset() const {
-  c->init=false;
+  m_c->init=false;
 }

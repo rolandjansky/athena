@@ -21,7 +21,7 @@
 
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArHVLineID.h"
-#include "LArTools/LArHVCablingTool.h"
+#include "LArCabling/LArHVCablingTool.h"
 
 #include "Identifier/HWIdentifier.h"
 
@@ -34,17 +34,17 @@ public:
 };
 
 //##ModelId=47A07A0C016B
-HECHVManager::HECHVManager():c(new Clockwork)
+HECHVManager::HECHVManager():m_c(new Clockwork)
 {
-  c->descriptor = new HECHVDescriptor(CellBinning(0,2*M_PI,32));
-  c->init=false;
+  m_c->descriptor = new HECHVDescriptor(CellBinning(0,2*M_PI,32));
+  m_c->init=false;
 }
 
 
 //##ModelId=47A07A0C0176
 const HECHVDescriptor *HECHVManager::getDescriptor() const
 {
-  return c->descriptor;
+  return m_c->descriptor;
 }
 
 //##ModelId=47A07AC901D3
@@ -86,23 +86,23 @@ unsigned int HECHVManager::endSamplingIndex() const
 //##ModelId=47A07A0C01D7
 HECHVModuleConstLink HECHVManager::getHVModule(unsigned int iSide, unsigned int iPhi, unsigned int iSampling) const
 {
-  if (!c->linkArray[iSide][iPhi][iSampling]) c->linkArray[iSide][iPhi][iSampling]=HECHVModuleConstLink(new HECHVModule(this,iSide, iPhi, iSampling));
-  return c->linkArray[iSide][iPhi][iSampling];
+  if (!m_c->linkArray[iSide][iPhi][iSampling]) m_c->linkArray[iSide][iPhi][iSampling]=HECHVModuleConstLink(new HECHVModule(this,iSide, iPhi, iSampling));
+  return m_c->linkArray[iSide][iPhi][iSampling];
 }
 
 //##ModelId=47A07A0C01E5
 HECHVManager::~HECHVManager()
 {
-  delete c->descriptor;
-  delete c;
+  delete m_c->descriptor;
+  delete m_c;
 }
 
 void HECHVManager::update() const {
-  if (!c->init) {
-    c->init=true;
-    c->payloadArray.reserve(2*32*4*4);
+  if (!m_c->init) {
+    m_c->init=true;
+    m_c->payloadArray.reserve(2*32*4*4);
     for (unsigned int i=0;i<1024;i++) {
-      c->payloadArray[i].voltage = -99999;
+      m_c->payloadArray[i].voltage = -99999;
     }
 
     StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
@@ -143,12 +143,12 @@ void HECHVManager::update() const {
 
         // Construct HWIdentifier
         // 1. decode COOL Channel ID
-        unsigned int _chanID = (*citr).first;
-        int _cannode = _chanID/1000;
-        int _line = _chanID%1000;
+        unsigned int chanID = (*citr).first;
+        int cannode = chanID/1000;
+        int line = chanID%1000;
 
         // 2. Construct the identifier
-        HWIdentifier id = hvId->HVLineId(1,1,_cannode,_line);
+        HWIdentifier id = hvId->HVLineId(1,1,cannode,line);
 
         std::vector<HWIdentifier> electrodeIdVec = hvcablingTool->getLArElectrodeIDvec(id);
 
@@ -185,14 +185,14 @@ void HECHVManager::update() const {
               continue;
             }
 	  
-	    c->payloadArray[index].voltage=voltage;
-	    c->payloadArray[index].current=current;
-	    c->payloadArray[index].status=status;
-	    c->payloadArray[index].hvLineNo=_chanID;
+	    m_c->payloadArray[index].voltage=voltage;
+	    m_c->payloadArray[index].current=current;
+	    m_c->payloadArray[index].status=status;
+	    m_c->payloadArray[index].hvLineNo=chanID;
         } // For (electrodeIdVec)
       } // for (atrlistcol)
     }
-  } // if(!c->init)
+  } // if(!m_c->init)
 }
 
 HECHVPayload *HECHVManager::getPayload(const HECHVSubgap &subgap) const {
@@ -203,9 +203,9 @@ HECHVPayload *HECHVManager::getPayload(const HECHVSubgap &subgap) const {
   unsigned int samplingIndex  = module->getSamplingIndex();
   unsigned int sideIndex      = module->getSideIndex();
   unsigned int index          = 512*sideIndex+16*phiIndex+4*samplingIndex+subgapIndex;
-  return &c->payloadArray[index];
+  return &m_c->payloadArray[index];
 }
 
 void HECHVManager::reset() const {
-  c->init=false;
+  m_c->init=false;
 }

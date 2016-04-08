@@ -10,7 +10,7 @@ EMBPresamplerHVDescriptor::~EMBPresamplerHVDescriptor()
 
 
 EMBPresamplerHVDescriptor::EMBPresamplerHVDescriptor(const CellPartitioning &etaPartitioning, const CellBinning &phiBinning)
-:etaPartitioning(etaPartitioning),phiBinning(phiBinning)	 
+:m_etaPartitioning(etaPartitioning),m_phiBinning(phiBinning)	 
 {
 }
 

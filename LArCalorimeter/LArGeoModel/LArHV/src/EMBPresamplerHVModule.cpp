@@ -21,32 +21,32 @@ public:
 };
 
 //##ModelId=475656A60228
-EMBPresamplerHVModule::EMBPresamplerHVModule(const EMBPresamplerHVManager *manager, unsigned int iSide, unsigned int iEta, unsigned int iPhi):c(new Clockwork)
+EMBPresamplerHVModule::EMBPresamplerHVModule(const EMBPresamplerHVManager *manager, unsigned int iSide, unsigned int iEta, unsigned int iPhi):m_c(new Clockwork)
 {
   // Might need to ref the manager here.?? 
-  c->manager=manager;
-  c->iSide=iSide;
-  c->iEta=iEta;
-  c->iPhi=iPhi;
+  m_c->manager=manager;
+  m_c->iSide=iSide;
+  m_c->iEta=iEta;
+  m_c->iPhi=iPhi;
 }
 
 
 //##ModelId=475659560392
 unsigned int EMBPresamplerHVModule::getEtaIndex() const
 {
-  return c->iEta;
+  return m_c->iEta;
 }
 
 //##ModelId=4756597E0324
 unsigned int EMBPresamplerHVModule::getPhiIndex() const
 {
-  return c->iPhi;
+  return m_c->iPhi;
 }
 
 //##ModelId=475656A60278
 EMBPresamplerHVModule::~EMBPresamplerHVModule() 
 {
-  delete c;
+  delete m_c;
 }
 
 
@@ -54,28 +54,28 @@ EMBPresamplerHVModule::~EMBPresamplerHVModule()
 //##ModelId=479BBABD034D
 unsigned int EMBPresamplerHVModule::getSideIndex() const
 {
-  return c->iSide;
+  return m_c->iSide;
 }
 
 //##ModelId=47AA68EE020D
 double EMBPresamplerHVModule::getEtaMin() const
 {
-  if (c->iSide==0) {
-    return -c->manager->getDescriptor()->getEtaPartitioning().binUpper(c->iEta);
+  if (m_c->iSide==0) {
+    return -m_c->manager->getDescriptor()->getEtaPartitioning().binUpper(m_c->iEta);
   }
   else {
-    return c->manager->getDescriptor()->getEtaPartitioning().binLower(c->iEta);
+    return m_c->manager->getDescriptor()->getEtaPartitioning().binLower(m_c->iEta);
   }
 }
 
 //##ModelId=47AA68EE0223
 double EMBPresamplerHVModule::getEtaMax() const
 {
-  if (c->iSide==0) {
-    return -c->manager->getDescriptor()->getEtaPartitioning().binLower(c->iEta);
+  if (m_c->iSide==0) {
+    return -m_c->manager->getDescriptor()->getEtaPartitioning().binLower(m_c->iEta);
   }
   else {
-    return c->manager->getDescriptor()->getEtaPartitioning().binUpper(c->iEta);
+    return m_c->manager->getDescriptor()->getEtaPartitioning().binUpper(m_c->iEta);
   }
 }
 
@@ -83,21 +83,21 @@ double EMBPresamplerHVModule::getEtaMax() const
 double EMBPresamplerHVModule::getPhiMin() const
 {
   return 
-    c->manager->getDescriptor()->getPhiBinning().binLower(c->iPhi);
+    m_c->manager->getDescriptor()->getPhiBinning().binLower(m_c->iPhi);
 }
 
 //##ModelId=47AA68EE024B
 double EMBPresamplerHVModule::getPhiMax() const
 {
   return 
-    c->manager->getDescriptor()->getPhiBinning().binUpper(c->iPhi);
+    m_c->manager->getDescriptor()->getPhiBinning().binUpper(m_c->iPhi);
 
 }
 
 
 
 const EMBPresamplerHVManager *EMBPresamplerHVModule::getManager() const {
-  return c->manager;
+  return m_c->manager;
 }
 
 bool EMBPresamplerHVModule::hvOn(int iGap) const

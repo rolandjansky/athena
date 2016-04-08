@@ -55,7 +55,7 @@ class EMECPresamplerHVModule : public RCBase
     EMECPresamplerHVModule& operator=(const EMECPresamplerHVModule& right);
 
     class Clockwork;
-    Clockwork *c;
+    Clockwork *m_c;
 
 };
 

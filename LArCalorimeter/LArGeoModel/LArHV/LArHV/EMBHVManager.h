@@ -97,7 +97,7 @@ class EMBHVManager : public RCBase
 
     friend class ImaginaryFriend;
     class Clockwork;
-    Clockwork *c;
+    Clockwork *m_c;
 
 };
 

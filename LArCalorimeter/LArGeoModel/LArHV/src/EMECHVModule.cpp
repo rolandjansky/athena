@@ -28,32 +28,32 @@ public:
 };
 
 //##ModelId=478D18650316
-EMECHVModule::EMECHVModule(const EMECHVManager *manager, unsigned int iSide, unsigned int iEta, unsigned int iPhi, unsigned int iSector):c(new Clockwork)
+EMECHVModule::EMECHVModule(const EMECHVManager *manager, unsigned int iSide, unsigned int iEta, unsigned int iPhi, unsigned int iSector):m_c(new Clockwork)
 {
-  c->manager=manager;
-  c->iSide=iSide;
-  c->iEta=iEta;
-  c->iPhi=iPhi;
-  c->iSector=iSector;
+  m_c->manager=manager;
+  m_c->iSide=iSide;
+  m_c->iEta=iEta;
+  m_c->iPhi=iPhi;
+  m_c->iSector=iSector;
   
 }
 
 //##ModelId=478D18650319
 unsigned int EMECHVModule::getEtaIndex() const
 {
-  return c->iEta;
+  return m_c->iEta;
 }
 
 //##ModelId=478D1865031B
 unsigned int EMECHVModule::getPhiIndex() const
 {
-  return c->iPhi;
+  return m_c->iPhi;
 }
 
 //##ModelId=478D1865031D
 unsigned int EMECHVModule::getNumElectrodes() const
 {
-  IOType IO=c->manager->getWheelIndex();
+  IOType IO=m_c->manager->getWheelIndex();
   if (IO==OUTER) {
     return 24;
   }
@@ -70,70 +70,70 @@ unsigned int EMECHVModule::getNumElectrodes() const
 EMECHVElectrodeConstLink EMECHVModule::getElectrode(unsigned int iElectrode) const
 {
 
-  if (c->links.capacity()==0) c->links=std::vector<EMECHVElectrodeConstLink>(getNumElectrodes(),0);
-  if (!c->links[iElectrode]) c->links[iElectrode]=EMECHVElectrodeConstLink( new EMECHVElectrode(EMECHVModuleConstLink(this), iElectrode));
-  return c->links[iElectrode];
+  if (m_c->links.capacity()==0) m_c->links=std::vector<EMECHVElectrodeConstLink>(getNumElectrodes(),0);
+  if (!m_c->links[iElectrode]) m_c->links[iElectrode]=EMECHVElectrodeConstLink( new EMECHVElectrode(EMECHVModuleConstLink(this), iElectrode));
+  return m_c->links[iElectrode];
   
 }
 
 //##ModelId=478D18650322
 EMECHVModule::~EMECHVModule()
 {
-  delete c;
+  delete m_c;
 }
 
 //##ModelId=47A07B14017E
 unsigned int EMECHVModule::getSideIndex() const
 {
-  return c->iSide;
+  return m_c->iSide;
 }
 
 //##ModelId=47A28F660267
 EMECHVModule::IOType EMECHVModule::getWheelIndex() const
 {
- return c->manager->getWheelIndex();
+ return m_c->manager->getWheelIndex();
 }
 
 //##ModelId=47A07AFD0301
 unsigned int EMECHVModule::getSectorIndex() const
 {
-  return c->iSector;
+  return m_c->iSector;
 }
 
 //##ModelId=47A7A9AD000E
 double EMECHVModule::getEtaMin() const
 {
-  if (c->iSide==0) 
-     return -c->manager->getDescriptor()->getEtaBinning().binUpper(c->iEta);
+  if (m_c->iSide==0) 
+     return -m_c->manager->getDescriptor()->getEtaBinning().binUpper(m_c->iEta);
   else
-    return c->manager->getDescriptor()->getEtaBinning().binLower(c->iEta);
+    return m_c->manager->getDescriptor()->getEtaBinning().binLower(m_c->iEta);
 }
 
 //##ModelId=47A7A9BF0293
 double EMECHVModule::getEtaMax() const
 {
-  if (c->iSide==0)
-    return -c->manager->getDescriptor()->getEtaBinning().binLower(c->iEta);
+  if (m_c->iSide==0)
+    return -m_c->manager->getDescriptor()->getEtaBinning().binLower(m_c->iEta);
   else
-    return c->manager->getDescriptor()->getEtaBinning().binUpper(c->iEta);
+    return m_c->manager->getDescriptor()->getEtaBinning().binUpper(m_c->iEta);
 }
 
 //##ModelId=47A7A9C10344
 double EMECHVModule::getPhiMin() const
 {
   return 
-    c->manager->getDescriptor()->getPhiBinning().binLower(c->iPhi)+
-    c->manager->getDescriptor()->getSectorBinning().binLower(c->iSector);
+    m_c->manager->getDescriptor()->getPhiBinning().binLower(m_c->iPhi)+
+    m_c->manager->getDescriptor()->getSectorBinning().binLower(m_c->iSector);
 }
 
 //##ModelId=47A7A9C400D5
 double EMECHVModule::getPhiMax() const
 {
   return 
-    c->manager->getDescriptor()->getPhiBinning().binLower(c->iPhi)+
-    c->manager->getDescriptor()->getSectorBinning().binUpper(c->iSector);
+    m_c->manager->getDescriptor()->getPhiBinning().binLower(m_c->iPhi)+
+    m_c->manager->getDescriptor()->getSectorBinning().binUpper(m_c->iSector);
 }
 
 const EMECHVManager *EMECHVModule::getManager() const {
-  return c->manager;
+  return m_c->manager;
 }

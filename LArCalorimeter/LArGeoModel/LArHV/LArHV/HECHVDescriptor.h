@@ -29,7 +29,7 @@ class HECHVDescriptor
     EMBHVDescriptor& operator=(const EMBHVDescriptor& right);
 
     //##ModelId=47AB7ACF0134
-    const CellBinning phiBinning;
+    const CellBinning m_phiBinning;
 };
 
 

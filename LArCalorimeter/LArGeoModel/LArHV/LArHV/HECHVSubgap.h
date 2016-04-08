@@ -53,7 +53,7 @@ class HECHVSubgap : public RCBase
     HECHVSubgap& operator=(const HECHVSubgap& right);
 
     class Clockwork;
-    Clockwork *c;
+    Clockwork *m_c;
 
 };
 

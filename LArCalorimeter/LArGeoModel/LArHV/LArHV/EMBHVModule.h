@@ -72,7 +72,7 @@ class EMBHVModule : public RCBase
     EMBHVModule(const EMBHVModule& right);
 
     class Clockwork;
-    Clockwork *c;
+    Clockwork *m_c;
 
     friend class ImaginaryFriend;
 

@@ -11,7 +11,7 @@ EMECHVDescriptor::~EMECHVDescriptor()
 
 //##ModelId=478D138C0214
 EMECHVDescriptor::EMECHVDescriptor(const CellPartitioning &etaBinning, const CellBinning &phiBinning, const CellBinning &sectorBinning):
-  etaBinning(etaBinning),phiBinning(phiBinning),sectorBinning(sectorBinning)
+  m_etaBinning(etaBinning),m_phiBinning(phiBinning),m_sectorBinning(sectorBinning)
 {
 }
 

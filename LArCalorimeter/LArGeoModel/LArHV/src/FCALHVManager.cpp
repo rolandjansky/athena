@@ -18,7 +18,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArHVLineID.h"
-#include "LArTools/LArHVCablingTool.h"
+#include "LArCabling/LArHVCablingTool.h"
 #include "Identifier/HWIdentifier.h"
 
 
@@ -31,24 +31,24 @@ public:
 };
 
 //##ModelId=47ABAE9302D3
-FCALHVManager::FCALHVManager():c(new Clockwork())
+FCALHVManager::FCALHVManager():m_c(new Clockwork())
 {
-  c->descriptor = new FCALHVDescriptor();
-  c->init=false;
+  m_c->descriptor = new FCALHVDescriptor();
+  m_c->init=false;
 }
 
 
 //##ModelId=47ABAE930373
 FCALHVManager::~FCALHVManager()
 {
-  delete c->descriptor;
-  delete c;
+  delete m_c->descriptor;
+  delete m_c;
 }
 
 //##ModelId=47ABAF5E0079
 const FCALHVDescriptor *FCALHVManager::getDescriptor() const
 {
-  return c->descriptor;
+  return m_c->descriptor;
 }
 
 //##ModelId=47ABAF5E0092
@@ -93,16 +93,16 @@ unsigned int FCALHVManager::endSamplingIndex() const
 //##ModelId=47ABAF5E00E8
 FCALHVModuleConstLink FCALHVManager::getHVModule(unsigned int iSide, unsigned int iSector, unsigned int iSampling) const
 {
-  if (!c->linkArray[iSide][iSector][iSampling]) c->linkArray[iSide][iSector][iSampling]=FCALHVModuleConstLink(new FCALHVModule(this,iSide,iSector, iSampling));
-  return c->linkArray[iSide][iSector][iSampling];
+  if (!m_c->linkArray[iSide][iSector][iSampling]) m_c->linkArray[iSide][iSector][iSampling]=FCALHVModuleConstLink(new FCALHVModule(this,iSide,iSector, iSampling));
+  return m_c->linkArray[iSide][iSector][iSampling];
 }
 
 void FCALHVManager::update() const {
-  if (!c->init) {
-    c->init=true;
-    c->payloadArray.reserve(2*16*3*4);
+  if (!m_c->init) {
+    m_c->init=true;
+    m_c->payloadArray.reserve(2*16*3*4);
     for (unsigned int i=0;i<384;i++) {
-     c->payloadArray[i].voltage = -99999;
+     m_c->payloadArray[i].voltage = -99999;
     }
 
     StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
@@ -141,13 +141,13 @@ void FCALHVManager::update() const {
 	for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
 
           // 1. decode COOL Channel ID
-          unsigned int _chanID = (*citr).first;
-          int _cannode = _chanID/1000;
-          int _line = _chanID%1000;
-          //std::cout << " cannode,line " << _cannode << " " << _line << std::endl;
+          unsigned int chanID = (*citr).first;
+          int cannode = chanID/1000;
+          int line = chanID%1000;
+          //std::cout << " cannode,line " << cannode << " " << line << std::endl;
 
           // 2. Construct the identifier
-          HWIdentifier id = hvId->HVLineId(1,1,_cannode,_line);
+          HWIdentifier id = hvId->HVLineId(1,1,cannode,line);
 
           std::vector<HWIdentifier> electrodeIdVec = hvcablingTool->getLArElectrodeIDvec(id);
 
@@ -183,15 +183,15 @@ void FCALHVManager::update() const {
               }
 	    
 	    
-	      c->payloadArray[index].voltage=voltage;
-	      c->payloadArray[index].current=current;
-	      c->payloadArray[index].status=status;
-	      c->payloadArray[index].hvLineNo=_chanID;
+	      m_c->payloadArray[index].voltage=voltage;
+	      m_c->payloadArray[index].current=current;
+	      m_c->payloadArray[index].status=status;
+	      m_c->payloadArray[index].hvLineNo=chanID;
             }   // if FCAL
 	  }  //   loop over electrodes
 	}   // loop over collection
     }     // loop over folders
-  }   // c->init
+  }   // m_c->init
 }
 
 FCALHVPayload *FCALHVManager::getPayload(const FCALHVLine &line) const {
@@ -203,9 +203,9 @@ FCALHVPayload *FCALHVManager::getPayload(const FCALHVLine &line) const {
   unsigned int samplingIndex     = module->getSamplingIndex();
   unsigned int index             = 192*sideIndex+12*sectorIndex+4*samplingIndex+lineIndex;
   //std::cout << "in Fcal getPayload: " << this << ' ' << index << ' ' << sideIndex << ' ' << sectorIndex << ' ' << samplingIndex << ' ' << lineIndex << std::endl;
-  return &c->payloadArray[index];
+  return &m_c->payloadArray[index];
 }
 
 void FCALHVManager::reset() const {
-  c->init=false;
+  m_c->init=false;
 }

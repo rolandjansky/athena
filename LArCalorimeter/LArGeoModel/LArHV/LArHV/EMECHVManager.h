@@ -91,7 +91,7 @@ class EMECHVManager : public RCBase
 
     //##ModelId=47A29AAF00F8
     class Clockwork;
-    Clockwork *c;
+    Clockwork *m_c;
 
 
 };

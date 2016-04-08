@@ -20,14 +20,14 @@ class EMBHVDescriptor
   //##ModelId=47564B2A030D
   const CellBinning &getEtaBinning() const
     {
-      return etaBinning;
+      return m_etaBinning;
     }
   
   
   //##ModelId=47564B5C0224
   const CellBinning &getPhiBinning() const
     {
-      return phiBinning;
+      return m_phiBinning;
     }
   
  private:
@@ -37,10 +37,10 @@ class EMBHVDescriptor
   //##ModelId=4755BF390280
   EMBHVDescriptor& operator=(const EMBHVDescriptor& right);
     //##ModelId=47A3AC8F01E0
-    const CellBinning etaBinning;
+    const CellBinning m_etaBinning;
   
     //##ModelId=47A3AC8F01F1
-    const CellBinning phiBinning;
+    const CellBinning m_phiBinning;
 
 };
 
