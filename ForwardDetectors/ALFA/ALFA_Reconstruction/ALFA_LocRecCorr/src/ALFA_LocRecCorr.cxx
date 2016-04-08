@@ -64,7 +64,7 @@ AthAlgorithm(name, pSvcLocator)
 	declareProperty("A7R1L_ODGeometryType",m_Config.CfgRPosParams[5].eODGeoType=EGST_IDEALGEOMETRY);
 	declareProperty("A7R1L_MDSource",m_Config.CfgRPosParams[5].strMDConnString=string(""));
 	declareProperty("A7R1L_ODSource",m_Config.CfgRPosParams[5].strODConnString=string(""));
-	declareProperty("A7L1U_CurrentLVDT",m_Config.CfgRPosParams[5].fCurrentLVDTmm=7.0*CLHEP::mm);
+	declareProperty("A7R1L_CurrentLVDT",m_Config.CfgRPosParams[5].fCurrentLVDTmm=7.0*CLHEP::mm);
 
 	declareProperty("B7R1U_PosType",m_Config.CfgRPosParams[6].eRPPosType=ERPPT_ACTIVE);
 	declareProperty("B7R1U_MDGeometryType",m_Config.CfgRPosParams[6].eMDGeoType=EGST_IDEALGEOMETRY);
@@ -158,6 +158,10 @@ AthAlgorithm(name, pSvcLocator)
 
 	m_bCoolData = true;
 	declareProperty("CoolData", m_bCoolData);
+
+	m_pLocRecCorrEvCollection   = 0;
+	m_pLocRecCorrODEvCollection = 0;
+	m_iEvt = 0;
 
 	ATH_MSG_DEBUG("end ALFA_LocRecCorr::ALFA_LocRecCorr");
 }
