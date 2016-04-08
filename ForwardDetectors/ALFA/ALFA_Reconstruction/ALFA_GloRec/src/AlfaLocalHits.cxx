@@ -20,6 +20,13 @@
 //
 ////////////////////////////////////////////
 AlfaLocalHit::AlfaLocalHit(){
+	m_pot        = 0;
+	m_potname    = "";
+	m_ishit      = 0;
+	m_x          = 0.0;
+	m_y          = 0.0;
+	m_z          = 0.0;
+	m_LocRecCorr = 0;
 }
 
 
@@ -454,14 +461,14 @@ void AlfaTrackCand::CalcImpactPoints() {
 
 
 void AlfaTrackCand::Dump() {
-  cout.precision(8);
+  //cout.precision(8);
   cout << "Dumping AlfaTrackCand:" << endl;
-  cout << " arm = "  << m_arm
-       << " x = "  << m_x
-       << " y = "  << m_y
-       << " z = "  << m_z
-       << " x'= "  << m_xslope
-       << " y' = " << m_yslope
+  cout << " arm = "  << std::setprecision(8) << m_arm
+       << " x = "  << std::setprecision(8) << m_x
+       << " y = "  << std::setprecision(8) << m_y
+       << " z = "  << std::setprecision(8) << m_z
+       << " x'= "  << std::setprecision(8) << m_xslope
+       << " y' = " << std::setprecision(8) << m_yslope
 	   << endl;
 }
 

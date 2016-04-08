@@ -89,7 +89,61 @@ AthAlgorithm(name, pSvcLocator)
 	declareProperty("InputLocRecCollectionName",m_strLocRecCorrCollectionName);
 	declareProperty("TruthEventCollectionName",m_TruthCollectionName);   
 
+	m_TObjArrTrackPathPatterns = 0;
 	m_pGloRecEvCollection=NULL;
+	
+	m_px_g_pos = 0.0;
+	m_py_g_pos = 0.0;
+	m_pz_g_pos = 0.0;
+	m_x_g_pos  = 0.0;
+	m_y_g_pos  = 0.0;
+	m_z_g_pos  = 0.0;
+	m_px_g_neg = 0.0;
+	m_py_g_neg = 0.0;
+	m_pz_g_neg = 0.0;
+	m_x_g_neg  = 0.0;
+	m_y_g_neg  = 0.0;
+	m_z_g_neg  = 0.0;
+
+	m_th1_x_g                      = 0;
+	m_th1_y_g                      = 0;
+	m_th1_xslope_g                 = 0;
+	m_th1_yslope_g                 = 0;
+	m_th1_xnearuppotresiduals      = 0;
+	m_th1_ynearuppotresiduals      = 0;
+	m_th1_xfaruppotresiduals       = 0;
+	m_th1_yfaruppotresiduals       = 0;
+	m_th1_xnearlwpotresiduals      = 0;
+	m_th1_ynearlwpotresiduals      = 0;
+	m_th1_xfarlwpotresiduals       = 0;
+	m_th1_yfarlwpotresiduals       = 0;
+	m_th2_truexvsrecx              = 0;
+	m_th2_trueyvsrecy              = 0;
+	m_th2_truexslopevsrecxslope    = 0;
+	m_th2_trueyslopevsrecyslope    = 0;
+	m_th1_recxovertruex            = 0;
+	m_th1_recyovertruey            = 0;
+	m_th1_recxslopeovertruexslope  = 0;
+	m_th1_recyslopeovertrueyslope  = 0;
+	m_th1_recxminustruex           = 0;
+	m_th1_recyminustruey           = 0;
+	m_th1_recxslopeminustruexslope = 0;
+	m_th1_recyslopeminustrueyslope = 0;
+	m_th2_extrapxvsrecxnearpot     = 0;
+	m_th2_extrapyvsrecynearpot     = 0;
+	m_th1_recxoverextrapxnearpot   = 0;
+	m_th1_recyoverextrapynearpot   = 0;
+	m_th1_recxminusextrapxnearpot  = 0;
+	m_th1_recyminusextrapynearpot  = 0;
+	m_th2_extrapxvsrecxfarpot      = 0;
+	m_th2_extrapyvsrecyfarpot      = 0;
+	m_th1_recxoverextrapxfarpot    = 0;
+	m_th1_recyoverextrapyfarpot    = 0;
+	m_th1_recxminusextrapxfarpot   = 0;
+	m_th1_recyminusextrapyfarpot   = 0;
+
+	m_storeGate = 0;
+	m_nEvent = 0;
 
 }
 
