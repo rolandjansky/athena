@@ -10,6 +10,7 @@ use  TrigCombinedEvent          TrigCombinedEvent-*             Trigger/TrigEven
 use  TrigNavigation             TrigNavigation-*                Trigger/TrigEvent
 private
 use  AthenaKernel               AthenaKernel-*                  Control
+use  GaudiInterface             GaudiInterface-*                External
 use  AtlasBoost                 AtlasBoost-*                    External
 use  AtlasReflex                AtlasReflex-*                   External
 end_private
@@ -31,3 +32,8 @@ apply_pattern lcgdict dict=TrigCombinedEventTPCnv \
   headerfiles="../TrigCombinedEventTPCnv/TrigCombinedEventTPCnvDict.h"
 	
 end_private
+
+
+private
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=TrigCompositeCnv_p1
