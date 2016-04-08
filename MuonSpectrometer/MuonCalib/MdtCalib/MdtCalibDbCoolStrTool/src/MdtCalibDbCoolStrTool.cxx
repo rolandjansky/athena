@@ -326,7 +326,7 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS)
                                                                                 
     char* eta; 
     char* phi;
-    int ieta, iphi, region, ntubes;
+    int ieta=-99, iphi=-99, region=-99, ntubes=-99;
     std::string seperator("_");
     std::string rName;
     // parameters for the MdtTubeContainer
