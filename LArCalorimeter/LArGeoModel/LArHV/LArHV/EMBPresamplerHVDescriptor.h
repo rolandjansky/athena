@@ -18,13 +18,13 @@ class EMBPresamplerHVDescriptor
   
   const CellPartitioning &getEtaPartitioning() const
     {
-      return etaPartitioning;
+      return m_etaPartitioning;
     }
   
   
   const CellBinning &getPhiBinning() const
     {
-      return phiBinning;
+      return m_phiBinning;
     }
   
  private:
@@ -35,9 +35,9 @@ class EMBPresamplerHVDescriptor
   EMBPresamplerHVDescriptor& operator=(const EMBPresamplerHVDescriptor& right);
   
   
-  const CellPartitioning etaPartitioning;
+  const CellPartitioning m_etaPartitioning;
   
-  const CellBinning phiBinning;
+  const CellBinning m_phiBinning;
   
 };
 

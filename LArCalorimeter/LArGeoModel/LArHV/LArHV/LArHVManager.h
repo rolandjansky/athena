@@ -64,13 +64,13 @@ class LArHVManager
   LArHVManager(const LArHVManager& right);
   
 
-  const EMBHVManager            *embHV;
-  const EMECHVManager           *emecHVInner;
-  const EMECHVManager           *emecHVOuter;
-  const HECHVManager            *hecHV;
-  const FCALHVManager           *fcalHV;
-  const EMBPresamplerHVManager  *embPreHV;
-  const EMECPresamplerHVManager *emecPreHV;
+  const EMBHVManager            *m_embHV;
+  const EMECHVManager           *m_emecHVInner;
+  const EMECHVManager           *m_emecHVOuter;
+  const HECHVManager            *m_hecHV;
+  const FCALHVManager           *m_fcalHV;
+  const EMBPresamplerHVManager  *m_embPreHV;
+  const EMECPresamplerHVManager *m_emecPreHV;
 
 };
 

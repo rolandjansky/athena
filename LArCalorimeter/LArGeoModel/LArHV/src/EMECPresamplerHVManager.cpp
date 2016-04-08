@@ -21,7 +21,7 @@
 
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArHVLineID.h"
-#include "LArTools/LArHVCablingTool.h"
+#include "LArCabling/LArHVCablingTool.h"
 
 #include "Identifier/HWIdentifier.h"
 #include "GeoModelKernel/CellBinning.h"
@@ -37,11 +37,11 @@ public:
 
 //##ModelId=43FBFC0A034F
 EMECPresamplerHVManager::EMECPresamplerHVManager():
-  c(new Clockwork)
+  m_c(new Clockwork)
 {
-  c->init=false;
+  m_c->init=false;
 
-  c->phiBinning = new CellBinning(0.0, 2*M_PI, 32);
+  m_c->phiBinning = new CellBinning(0.0, 2*M_PI, 32);
 }
 
 
@@ -49,7 +49,7 @@ EMECPresamplerHVManager::EMECPresamplerHVManager():
 //##ModelId=478D1079010F
 const CellBinning *EMECPresamplerHVManager::getPhiBinning() const
 {
-  return c->phiBinning;
+  return m_c->phiBinning;
 }
 
 //##ModelId=478D10790120
@@ -68,16 +68,16 @@ unsigned int EMECPresamplerHVManager::endPhiIndex() const
 EMECPresamplerHVModuleConstLink EMECPresamplerHVManager::getHVModule(unsigned int iSide, unsigned int iPhi) const
 {
 
-  if (!c->linkArray[iSide][iPhi]) c->linkArray[iSide][iPhi] = EMECPresamplerHVModuleConstLink(new EMECPresamplerHVModule(this, iSide, iPhi));
-  return c->linkArray[iSide][iPhi];
+  if (!m_c->linkArray[iSide][iPhi]) m_c->linkArray[iSide][iPhi] = EMECPresamplerHVModuleConstLink(new EMECPresamplerHVModule(this, iSide, iPhi));
+  return m_c->linkArray[iSide][iPhi];
 
 }
 
 //##ModelId=478D10790154
 EMECPresamplerHVManager::~EMECPresamplerHVManager()
 {
-  delete c->phiBinning;
-  delete c;
+  delete m_c->phiBinning;
+  delete m_c;
 }
 
 
@@ -95,13 +95,13 @@ unsigned int EMECPresamplerHVManager::endSideIndex() const
 
 
 void EMECPresamplerHVManager::update() const {
-  if (!c->init) {
-    c->init=true;
+  if (!m_c->init) {
+    m_c->init=true;
     {
-        c->payloadArray.reserve(2*32);
+        m_c->payloadArray.reserve(2*32);
         for (unsigned int i=0;i<64;i++) {
-          c->payloadArray[i].voltage[0]=-99999;
-          c->payloadArray[i].voltage[1]=-99999;
+          m_c->payloadArray[i].voltage[0]=-99999;
+          m_c->payloadArray[i].voltage[1]=-99999;
         }
     }
     
@@ -143,13 +143,13 @@ void EMECPresamplerHVManager::update() const {
 	 
         // Construct HWIdentifier
         // 1. decode COOL Channel ID
-        unsigned int _chanID = (*citr).first;
-        int _cannode = _chanID/1000;
-        int _line = _chanID%1000;
-        //std::cout << "    ++ found data for cannode, line " << _cannode << " " << _line << std::endl;
+        unsigned int chanID = (*citr).first;
+        int cannode = chanID/1000;
+        int line = chanID%1000;
+        //std::cout << "    ++ found data for cannode, line " << cannode << " " << line << std::endl;
 
         // 2. Construct the identifier
-        HWIdentifier id = hvId->HVLineId(1,1,_cannode,_line);
+        HWIdentifier id = hvId->HVLineId(1,1,cannode,line);
 
 
         std::vector<HWIdentifier> electrodeIdVec = hvcablingTool->getLArElectrodeIDvec(id);
@@ -182,15 +182,15 @@ void EMECPresamplerHVManager::update() const {
             if (!((*citr).second)["R_STAT"].isNull()) status =  ((*citr).second)["R_STAT"].data<unsigned int>(); 
 
 
-	      c->payloadArray[index].voltage[gapIndex]=voltage;
-	      c->payloadArray[index].current[gapIndex]=current;
-	      c->payloadArray[index].status[gapIndex]=status;
-	      c->payloadArray[index].hvLineNo[gapIndex]=_chanID;
+	      m_c->payloadArray[index].voltage[gapIndex]=voltage;
+	      m_c->payloadArray[index].current[gapIndex]=current;
+	      m_c->payloadArray[index].status[gapIndex]=status;
+	      m_c->payloadArray[index].hvLineNo[gapIndex]=chanID;
 	  } // for (electrodeIdVec)
         } // is EMECPresampler
       } // for (atrlistcol)
     }
-  } // if(!c->init)
+  } // if(!m_c->init)
 }
 
 
@@ -203,9 +203,9 @@ EMECPresamplerHVPayload *EMECPresamplerHVManager::getPayload(const EMECPresample
 
   unsigned int index = 32*sideIndex+phiIndex;
 
-  return &c->payloadArray[index];
+  return &m_c->payloadArray[index];
 }
 
 void EMECPresamplerHVManager::reset() const {
-  c->init=false;
+  m_c->init=false;
 }

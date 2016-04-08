@@ -54,7 +54,7 @@ class EMECHVElectrode : public RCBase
     EMECHVElectrode& operator=(const EMECHVElectrode& right);
 
     class Clockwork;
-    Clockwork *c;
+    Clockwork *m_c;
 
 };
 

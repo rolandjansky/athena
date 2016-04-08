@@ -18,28 +18,28 @@ public:
 };
 
 //##ModelId=47ABB4D90312
-FCALHVLine::FCALHVLine(FCALHVModuleConstLink module, unsigned int iLine):c(new Clockwork())
+FCALHVLine::FCALHVLine(FCALHVModuleConstLink module, unsigned int iLine):m_c(new Clockwork())
 {
-  c->module=&*module;
-  c->iLine=iLine;
+  m_c->module=&*module;
+  m_c->iLine=iLine;
 }
 
 //##ModelId=47ABB4D90315
 FCALHVModuleConstLink FCALHVLine::getModule() const
 {
-  return c->module;
+  return m_c->module;
 }
 
 //##ModelId=47ABB4D90317
 unsigned int FCALHVLine::getLineIndex() const
 {
-  return c->iLine;
+  return m_c->iLine;
 }
 
 //##ModelId=47ABB4D90319
 bool FCALHVLine::hvOn() const
 {
-  FCALHVPayload *payload = c->module->getManager()->getPayload(*this);
+  FCALHVPayload *payload = m_c->module->getManager()->getPayload(*this);
   if (payload->voltage<-9999) return false;
   else return true;
 }
@@ -47,28 +47,28 @@ bool FCALHVLine::hvOn() const
 //##ModelId=47ABB4D9031B
 FCALHVLine::~FCALHVLine()
 {
-  delete c;
+  delete m_c;
 }
 
 double FCALHVLine::voltage() const {
-  FCALHVPayload *payload = c->module->getManager()->getPayload(*this);
+  FCALHVPayload *payload = m_c->module->getManager()->getPayload(*this);
   return payload->voltage;
 }
 
 double FCALHVLine::current() const {
-  FCALHVPayload *payload = c->module->getManager()->getPayload(*this);
+  FCALHVPayload *payload = m_c->module->getManager()->getPayload(*this);
   return payload->current;
 }
 
 void FCALHVLine::voltage_current(double& voltage, double&current) const {
- FCALHVPayload *payload = c->module->getManager()->getPayload(*this);
+ FCALHVPayload *payload = m_c->module->getManager()->getPayload(*this);
  voltage = payload->voltage;
  current = payload->current;
 }
 
 
 int FCALHVLine::hvLineNo() const {
-  FCALHVPayload *payload = c->module->getManager()->getPayload(*this);
+  FCALHVPayload *payload = m_c->module->getManager()->getPayload(*this);
   return payload->hvLineNo;
 }
 

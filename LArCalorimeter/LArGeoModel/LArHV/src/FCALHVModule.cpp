@@ -22,30 +22,30 @@ public:
 
 
 //##ModelId=47ABB2AD00A9
-FCALHVModule::FCALHVModule(const FCALHVManager *manager, unsigned int iSide, unsigned int iSector, unsigned int iSampling):c(new Clockwork())
+FCALHVModule::FCALHVModule(const FCALHVManager *manager, unsigned int iSide, unsigned int iSector, unsigned int iSampling):m_c(new Clockwork())
 {
-  c->manager=manager;
-  c->iSide=iSide;
-  c->iSector=iSector;
-  c->iSampling=iSampling;
+  m_c->manager=manager;
+  m_c->iSide=iSide;
+  m_c->iSector=iSector;
+  m_c->iSampling=iSampling;
 }
 
 //##ModelId=47ABB2AD00B2
 unsigned int FCALHVModule::getSideIndex() const
 {
-  return c->iSide;
+  return m_c->iSide;
 }
 
 //##ModelId=47ABB2AD00B4
 unsigned int FCALHVModule::getSamplingIndex() const
 {
-  return c->iSampling;
+  return m_c->iSampling;
 }
 
 //##ModelId=47ABB2AD00B6
 unsigned int FCALHVModule::getSectorIndex() const
 {
-  return c->iSector;
+  return m_c->iSector;
 }
 
 //##ModelId=47ABB2AD00B8
@@ -64,18 +64,18 @@ FCALHVLineConstLink FCALHVModule::getHVLine(unsigned int iLine) const
     throw std::runtime_error(msg.str().c_str());
   }
 
-  if (!c->hvLine[iLine]) c->hvLine[iLine]= FCALHVLineConstLink(new FCALHVLine(this,iLine));
-  return c->hvLine[iLine];
+  if (!m_c->hvLine[iLine]) m_c->hvLine[iLine]= FCALHVLineConstLink(new FCALHVLine(this,iLine));
+  return m_c->hvLine[iLine];
 }
 
 //##ModelId=47ABB2AD00BD
 FCALHVModule::~FCALHVModule()
 {
-  delete c;
+  delete m_c;
 }
 
 
 const FCALHVManager *FCALHVModule::getManager() const
 {
-  return c->manager;
+  return m_c->manager;
 }

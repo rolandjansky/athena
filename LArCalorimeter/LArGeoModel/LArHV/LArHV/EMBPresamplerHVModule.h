@@ -66,7 +66,7 @@ class EMBPresamplerHVModule : public RCBase
     EMBPresamplerHVModule(const EMBPresamplerHVModule& right);
 
     class Clockwork;
-    Clockwork *c;
+    Clockwork *m_c;
 
     friend class ImaginaryFriend;
 

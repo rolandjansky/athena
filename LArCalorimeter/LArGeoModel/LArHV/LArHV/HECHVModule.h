@@ -60,7 +60,7 @@ class HECHVModule : public RCBase
     HECHVModule& operator=(const HECHVModule& right);
 
     class Clockwork;
-    Clockwork *c;
+    Clockwork *m_c;
 
 };
 

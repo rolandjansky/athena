@@ -12,7 +12,7 @@ EMBHVDescriptor::~EMBHVDescriptor()
 
 //##ModelId=4755BF39021B
 EMBHVDescriptor::EMBHVDescriptor(const CellBinning &etaBinning, const CellBinning &phiBinning)
-:etaBinning(etaBinning),phiBinning(phiBinning)	 
+:m_etaBinning(etaBinning),m_phiBinning(phiBinning)	 
 {
 }
 

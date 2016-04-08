@@ -66,7 +66,7 @@ class FCALHVManager : public RCBase
     FCALHVManager& operator=(const FCALHVManager& right);
 
     class Clockwork;
-    Clockwork *c;
+    Clockwork *m_c;
 };
 
 

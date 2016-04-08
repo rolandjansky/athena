@@ -18,57 +18,57 @@ public:
 };
 
 //##ModelId=47A0797F024A
-HECHVSubgap::HECHVSubgap(HECHVModuleConstLink module, unsigned int iSubgap):c(new Clockwork())
+HECHVSubgap::HECHVSubgap(HECHVModuleConstLink module, unsigned int iSubgap):m_c(new Clockwork())
 {
-  c->module=&*module;
-  c->iSubgap=iSubgap;
+  m_c->module=&*module;
+  m_c->iSubgap=iSubgap;
 }
 
 //##ModelId=47A0797F024D
 HECHVModuleConstLink HECHVSubgap::getModule() const
 {
-  return c->module;
+  return m_c->module;
 }
 
 //##ModelId=47A0797F024F
 unsigned int HECHVSubgap::getSubgapIndex() const
 {
-  return c->iSubgap;
+  return m_c->iSubgap;
 }
 
 //##ModelId=47A0797F0251
 HECHVSubgap::~HECHVSubgap()
 {
-  delete c;
+  delete m_c;
 }
 
 //##ModelId=47AB8A2103AC
 bool HECHVSubgap::hvOn() const
 {
-  HECHVPayload *payload = c->module->getManager()->getPayload(*this);
+  HECHVPayload *payload = m_c->module->getManager()->getPayload(*this);
   if (payload->voltage<-9999) return false;
   else return true;
 }
 
 double HECHVSubgap::voltage() const {
-  HECHVPayload *payload = c->module->getManager()->getPayload(*this);
+  HECHVPayload *payload = m_c->module->getManager()->getPayload(*this);
   return payload->voltage;
 }
 
 
 double HECHVSubgap::current() const {
-  HECHVPayload *payload = c->module->getManager()->getPayload(*this);
+  HECHVPayload *payload = m_c->module->getManager()->getPayload(*this);
   return payload->current;
 }
 
 void HECHVSubgap::voltage_current(double& voltage, double&current) const {
- HECHVPayload *payload = c->module->getManager()->getPayload(*this);
+ HECHVPayload *payload = m_c->module->getManager()->getPayload(*this);
  voltage = payload->voltage;
  current = payload->current;
 }
 
 
 int HECHVSubgap::hvLineNo() const {
-  HECHVPayload *payload = c->module->getManager()->getPayload(*this);
+  HECHVPayload *payload = m_c->module->getManager()->getPayload(*this);
   return payload->hvLineNo;
 }

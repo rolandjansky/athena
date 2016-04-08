@@ -12,73 +12,73 @@
 #include "LArHV/LArHVManager.h"
 
 LArHVManager::LArHVManager(const EMBHVManager  *embHV, const EMECHVManager *emecHVInner, const EMECHVManager *emecHVOuter, const HECHVManager *hecHV, const FCALHVManager *fcalHV, const EMBPresamplerHVManager *embPreHV, const EMECPresamplerHVManager *emecPreHV): 
-  embHV(embHV),emecHVInner(emecHVInner),emecHVOuter(emecHVOuter),hecHV(hecHV),fcalHV(fcalHV),embPreHV(embPreHV), emecPreHV(emecPreHV)
+  m_embHV(embHV),m_emecHVInner(emecHVInner),m_emecHVOuter(emecHVOuter),m_hecHV(hecHV),m_fcalHV(fcalHV),m_embPreHV(embPreHV), m_emecPreHV(emecPreHV)
 {
-  if (embHV)  embHV->ref();
-  if (emecHVInner) emecHVInner->ref();
-  if (emecHVOuter) emecHVOuter->ref();
-  if (hecHV)  hecHV->ref();
-  if (fcalHV) fcalHV->ref();
-  if (embPreHV)  embPreHV->ref();
-  if (emecPreHV) emecPreHV->ref();
+  if (m_embHV)  m_embHV->ref();
+  if (m_emecHVInner) m_emecHVInner->ref();
+  if (m_emecHVOuter) m_emecHVOuter->ref();
+  if (m_hecHV)  m_hecHV->ref();
+  if (m_fcalHV) m_fcalHV->ref();
+  if (m_embPreHV)  m_embPreHV->ref();
+  if (m_emecPreHV) m_emecPreHV->ref();
 
 }
 
 void LArHVManager::reset() const
 {
-  if (embHV) embHV->reset();
-  if (emecHVInner) emecHVInner->reset();
-  if (emecHVOuter) emecHVOuter->reset();
-  if (hecHV)  hecHV->reset();
-  if (fcalHV) fcalHV->reset();
-  if (embPreHV)  embPreHV->reset();
-  if (emecPreHV) emecPreHV->reset(); 
+  if (m_embHV) m_embHV->reset();
+  if (m_emecHVInner) m_emecHVInner->reset();
+  if (m_emecHVOuter) m_emecHVOuter->reset();
+  if (m_hecHV)  m_hecHV->reset();
+  if (m_fcalHV) m_fcalHV->reset();
+  if (m_embPreHV)  m_embPreHV->reset();
+  if (m_emecPreHV) m_emecPreHV->reset(); 
  return;
 }
 
 
 LArHVManager::~LArHVManager()
 {
-  if (embHV)  embHV->unref();
-  if (emecHVInner) emecHVInner->unref();
-  if (emecHVOuter) emecHVOuter->unref();
-  if (hecHV)  hecHV->unref();
-  if (fcalHV) fcalHV->unref();
-  if (embPreHV)  embPreHV->unref();
-  if (emecPreHV) emecPreHV->unref();
+  if (m_embHV)  m_embHV->unref();
+  if (m_emecHVInner) m_emecHVInner->unref();
+  if (m_emecHVOuter) m_emecHVOuter->unref();
+  if (m_hecHV)  m_hecHV->unref();
+  if (m_fcalHV) m_fcalHV->unref();
+  if (m_embPreHV)  m_embPreHV->unref();
+  if (m_emecPreHV) m_emecPreHV->unref();
 
 }
 
 const EMBHVManager *LArHVManager::getEMBHVManager() const
 {
-  return embHV;
+  return m_embHV;
 }
 
 const EMECHVManager *LArHVManager::getEMECHVManager(IOType IO) const
 {
-  if (IO==EMECHVModule::INNER) return emecHVInner;
-  if (IO==EMECHVModule::OUTER) return emecHVOuter;
+  if (IO==EMECHVModule::INNER) return m_emecHVInner;
+  if (IO==EMECHVModule::OUTER) return m_emecHVOuter;
   return NULL;
 }
 
 const HECHVManager *LArHVManager::getHECHVManager() const
 {
-  return hecHV;
+  return m_hecHV;
 }
 
 const FCALHVManager *LArHVManager::getFCALHVManager() const
 {
-  return fcalHV;
+  return m_fcalHV;
 }
 
 const EMBPresamplerHVManager *LArHVManager::getEMBPresamplerHVManager() const
 {
-  return embPreHV;
+  return m_embPreHV;
 }
 
 
 const EMECPresamplerHVManager *LArHVManager::getEMECPresamplerHVManager() const
 {
-  return emecPreHV;
+  return m_emecPreHV;
 }
 

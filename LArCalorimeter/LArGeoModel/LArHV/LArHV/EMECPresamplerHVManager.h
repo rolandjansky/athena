@@ -61,7 +61,7 @@ class EMECPresamplerHVManager : public RCBase
 
 
     class Clockwork;
-    Clockwork *c;
+    Clockwork *m_c;
 
 
 };

@@ -16,13 +16,13 @@ class EMECHVDescriptor
     //##ModelId=478D138C01CA
     const CellPartitioning &getEtaBinning() const
     {
-      return etaBinning;
+      return m_etaBinning;
     }
 
     //##ModelId=478D138C01D5
     const CellBinning &getPhiBinning() const
     {
-      return phiBinning;
+      return m_phiBinning;
     }
 
     // Constructor
@@ -32,7 +32,7 @@ class EMECHVDescriptor
     //##ModelId=43FC51F00276
     const CellBinning &getSectorBinning() const
     {
-      return sectorBinning;
+      return m_sectorBinning;
     }
 
 
@@ -44,11 +44,11 @@ class EMECHVDescriptor
     //##ModelId=478D138C01F4
     EMECHVDescriptor& operator=(const EMECHVDescriptor& right);
     //##ModelId=478D5F730160
-    const CellPartitioning etaBinning;
+    const CellPartitioning m_etaBinning;
     //##ModelId=478D5FC5018F
-    const CellBinning phiBinning;
+    const CellBinning m_phiBinning;
     //##ModelId=43FBFE39000C
-    const CellBinning sectorBinning;
+    const CellBinning m_sectorBinning;
 
 
 
