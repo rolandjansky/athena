@@ -31,6 +31,8 @@ using namespace std;
 CscCalibMonToolPed::CscCalibMonToolPed(const std::string & type, const std::string & name, 
     const IInterface* parent) : 
   CscCalibMonToolBase(type, name, parent),
+  m_muon_mgr(NULL),
+  m_h_pedMissingChannels(NULL),
   m_pedBadBin(1),
   m_noiseBadBin(2),
   m_rmsBadBin(3),
@@ -39,6 +41,8 @@ CscCalibMonToolPed::CscCalibMonToolPed(const std::string & type, const std::stri
   m_chi2BadBin(6),
   m_missingBadBin(7),
   m_onlTHoldBreachBadBin(8),
+  m_alwaysPrintErrorReport(true),
+  m_h_numBad(NULL),
   m_pedNewColl(NULL),
   m_pedOldColl(NULL),
   m_pedDiffColl(NULL),        
@@ -52,7 +56,12 @@ CscCalibMonToolPed::CscCalibMonToolPed(const std::string & type, const std::stri
   m_f001NewColl(NULL),
   m_f001OldColl(NULL),
   m_f001DiffColl(NULL),
-  m_nEntriesColl(NULL)
+  m_onlTHoldBreachColl(NULL),
+  m_nEntriesColl(NULL),
+  m_tholdDiffColl(NULL),
+  m_maxBitCorrColl(NULL),
+  h2_rmsVnoiseEta(NULL),
+  h2_rmsVnoisePhi(NULL)
 {
   declareProperty("MaxPedDiff",m_pedMaxDiff=2.0);
   declareProperty("MaxNoiseDiff",m_noiseMaxDiff = 5.0);
@@ -473,7 +482,10 @@ StatusCode CscCalibMonToolPed::handleParameter(const CscCalibResultCollection* p
   //we also provide handles to all the arrays and values procParameter uses, such as the list
   //of expected hash ids.
   if(!parVals)
+  {
     ATH_MSG_FATAL("Blank parval passed to handle parameter");
+    return StatusCode::FAILURE;
+  }
   string parName = parVals->parName();
   if(parName == "ped")
   {
@@ -703,7 +715,7 @@ StatusCode CscCalibMonToolPed::postProc()
     const DataVector<TH2F> * bitCorrelations = NULL;
 
     if(m_doBitCorrelations)
-      pedReport->getBitCorrelation();
+      bitCorrelations = pedReport->getBitCorrelation();
 
     const DataVector< DataVector<TH1I> >* sampHists = pedReport->getSampHists();
 

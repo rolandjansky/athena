@@ -24,11 +24,16 @@ using namespace std;
 
     CscCalibMonToolBase::CscCalibMonToolBase(const std::string & type, const std::string & name, const IInterface* parent)
 : ManagedMonitorToolBase(type, name, parent), 
+    m_detStore(NULL),
+    m_storeGate(NULL),
     m_debuglevel(false),  
     m_verboselevel(false),
-    m_log( msgSvc(), name ), 
+    m_log( msgSvc(), name ),
+    m_maxHashId(0),
+    m_maxChamId(0),
     m_numBad(0), 
     m_expectedChamberLayer(2),
+    m_detailedHashIds(NULL),
     m_onlyExpectPrecisionHashIds(false),
     m_hashName("hash_overview"), 
     m_hashTitle(""), 
@@ -48,7 +53,12 @@ using namespace std;
     m_laySummHistTitle(""), 
     m_histCol(kAzure +1),
     //m_histCol(kOrange -9),
-    m_histColAlert(kRed)
+    m_histColAlert(kRed),
+    m_monGroupVec(NULL),
+    m_muon_mgr(NULL),
+    m_cscIdHelper(NULL),
+    m_cscCoolSvc(NULL),
+    m_statDbColl(NULL)
 {
    
     declareProperty("MakeAllChanHashOverviewHists",m_makeHashHists=true);  //Histograms showing a parameter for allchannels

@@ -49,7 +49,29 @@ CscCalibMonToolSlope::CscCalibMonToolSlope(const std::string & type, const std::
   m_totalLiveBin(1),
   m_totalDeadBin(2),
   m_newLiveBin(3),
-  m_newDeadBin(4)
+  m_newDeadBin(4),
+  m_h_slopeMissingBadBin(0),
+  m_h_numBad(NULL),
+  m_h_slopeCompareOverview(NULL),
+  m_h_interceptOverview(NULL),
+  m_h_chi2Overview(NULL),
+  m_h_peaktCompareOverview(NULL),
+  m_h_slopeMissingChans(NULL),
+  m_h_deadOverview(NULL),
+  m_slopeNewColl(NULL),
+  m_slopeOldColl(NULL),
+  m_slopeDiffColl(NULL),
+  m_peaktNewColl(NULL),
+  m_peaktOldColl(NULL),
+  m_peaktDiffColl(NULL),
+  m_interceptColl(NULL),
+  m_chi2Coll(NULL),
+  m_deadNewColl(NULL),
+  m_deadDiffColl(NULL),
+  m_slopeRatioColl(NULL),
+  m_fitResColl(NULL),
+  m_muon_mgr(NULL),
+  m_expectedChamberLayer(0)
 {
   declareProperty("MaxSlopeDiff",m_slopeMaxDiff=0.5);
   declareProperty("MaxIntercept",m_interceptMax = 5.0);

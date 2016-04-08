@@ -202,7 +202,7 @@ class CscCalibMonToolBase: public ManagedMonitorToolBase
           ProcSetupInfo() : badHist(NULL), overDiff(NULL), overChi2(NULL),
           missingChans(NULL),
           badBin(0), missingBadBin(0), 
-          chi2BadBin(0), maxDiff(0.0), doChi2(false),
+          chi2BadBin(0), maxDiff(0.0), chi2Max(9999.), expectedVal(9999.), doChi2(false),
           dbName(""),vals(NULL),errors(NULL),oldVals(NULL),
           diffs(NULL),chi2s(NULL)
           {}
@@ -226,13 +226,13 @@ class CscCalibMonToolBase: public ManagedMonitorToolBase
           HistCollection(): 
             ignoreY(false), 
           hashHist(NULL), allChan1dHistX(NULL), allChan1dHistY(NULL), allChan2dHist(NULL), chamProf(NULL),  
-          layHistVect(NULL), laySummVect(NULL), chamSummVect(NULL),abs2d(true)
+          layHistVect(NULL), laySummVect(NULL), chamSummVect(NULL), chamHistVect(NULL), abs2d(true)
           {}
 
           HistCollection(int arraySize, int errorSize = 0): 
             ignoreY(false),
             hashHist(NULL), allChan1dHistX(NULL), allChan1dHistY(NULL), allChan2dHist(NULL), chamProf(NULL),
-            layHistVect(NULL), laySummVect(NULL), chamSummVect(NULL),abs2d(true)
+            layHistVect(NULL), laySummVect(NULL), chamSummVect(NULL), chamHistVect(NULL), abs2d(true)
           {
             data.resize(arraySize);
             if(errorSize)
