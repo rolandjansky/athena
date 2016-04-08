@@ -276,7 +276,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 
 
   // This will allow the MDT tube structure to be mirrored w.r.t. the chamber at z>0
-  // and to correctly place any other component in the station 
+  // and to correctly place any other component in the m_station 
   if (zi<0 && !is_mirrored && stName[0]=='B' && (geometry_version != "CTB2004") ) {
     if (m_station->hasMdts()) {
       amdbOrigine_along_length += halfpitch;
@@ -322,7 +322,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
             Cutout* cut = m_station->GetCutout(ii);
             // if this is a BOG in layout Q, set the CP param:
             //   (both cuts have same length so ok to reset it)
-            // std::cout<<"Loop over station cutouts "<<ii<<std::endl;
+            // std::cout<<"Loop over m_station cutouts "<<ii<<std::endl;
             if (geometry_version.substr(0,1) != "P") {
               // lengthShiftCP = cut->lengthY;
                             // also do here some tweaking to prevent undershoot
@@ -393,7 +393,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
   static double irad = 0;
   int ndbz[2] = {0,0};
 
-  // Compute how many RPC modules there are in the station 
+  // Compute how many RPC modules there are in the m_station 
   int nDoubletR = 0;
   int nRpc = 0;
   int nTgc = 0;
@@ -593,7 +593,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 	log<<MSG::VERBOSE<<"A new cutout for this component "<<endreq;
 	log<<MSG::VERBOSE<<*cut<<endreq;
 	}
-	//	std::cout<<"Component x,y "<<c->posx<<", "<<c->posy<<" in station: "<<stName<<" component "<<techname<<" Jobj = "<<c->index<<std::endl;
+	//	std::cout<<"Component x,y "<<c->posx<<", "<<c->posy<<" in m_station: "<<stName<<" component "<<techname<<" Jobj = "<<c->index<<std::endl;
 
         // Corrected cutout values for BMS7, BMS14
         if (stName.substr(0,3) == "BMS") {
@@ -644,11 +644,11 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 	  {
           // MDT in chambers explicitly described at z<0 have to be 
           // rotated by 180deg to adj. tube staggering
-          // reverse the position (x amdb) of the cutout if the station is mirrored
+          // reverse the position (x amdb) of the cutout if the m_station is mirrored
           Cutout* cutmirr = new Cutout(*cut);
           cutmirr->dx = - cutmirr->dx;
           // this way, after the rotation by 180 CLHEP::deg, the cut will be at the same global phi
-          // it has for the station at z>0
+          // it has for the m_station at z>0
           vcutdef.push_back(cutmirr);
           vcutdef_todel.push_back(cutmirr);
 	  	  if (verbose) log<<MSG::VERBOSE<<"adding for application mirrored cut \n"<<*cutmirr<<endreq;
@@ -689,7 +689,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           vcutdef.push_back(cut);
         }
       }
-    } // Loop over cutouts in station
+    } // Loop over cutouts in m_station
 
     if (ncutouts > 0) if (debug) log << MSG::DEBUG 
                           << c->name << " of station " 
@@ -763,7 +763,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         if ((manager->IncludeCutoutsFlag() && mdtCutoutFlag) ||
             (manager->IncludeCutoutsBogFlag() && stName.substr(0,3) == "BOG"))
         {
-          // std::cout << "Building the Mdt " << techname << " in station "
+          // std::cout << "Building the Mdt " << techname << " in m_station "
           //           << stName << " at fi/zi " << fi << "/" << zi << std::endl;
           lvm = r->build(vcutdef);
         } else {
@@ -788,7 +788,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                          << "Ficticious spacer SPA01 in CSC chamber - skip it "
                          << endreq;
         // ignore SPA 1 component of CSS/CSL chambers in R02.03 (it is there only for AMDB convenience,
-        // leaving the CSC envelop => global position of the station unchanged)
+        // leaving the CSC envelop => global position of the m_station unchanged)
         continue;
       }
 
@@ -807,7 +807,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       GeoVPhysVol *fpv = savemem->GetDetector(key);
       if (fpv == 0) {
         Spacer* r = new Spacer(c);
-        // log << MSG::DEBUG << " Building a SPA for station "
+        // log << MSG::DEBUG << " Building a SPA for m_station "
         //     << key << " component name is " << c->name << endreq;
         if (manager->IncludeCutoutsFlag()||
             (manager->IncludeCutoutsBogFlag()&&stName.substr(0,3)=="BOG"))
@@ -878,10 +878,10 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         key += "m" + buildString(mysql->allocPosFindSubtype(statType, fi, zi),0) +
                "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi),0);
 
-      // can have LB of different length in same station:
+      // can have LB of different length in same m_station:
       if (type.substr(0,2) == "LB") key += buildString(int(c->dx1),0);
 
-      // log << MSG::DEBUG << " Building a SpacerBeam for station "
+      // log << MSG::DEBUG << " Building a SpacerBeam for m_station "
       //                   << key << " component name is "
       //                   << c->name << endreq;
       FPVMAP* savemem = FPVMAP::GetPointer();
@@ -989,7 +989,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       if (fpv == 0) {
         Rpc* r = new Rpc(c);
         r->setLogVolName(stName+techname);
-        //   log << MSG::DEBUG << " Building a RPC for station "
+        //   log << MSG::DEBUG << " Building a RPC for m_station "
         //       << key << " component name is "
         //       << c->name << endreq;
         if ((manager->IncludeCutoutsFlag() && rpcCutoutFlag) ||
@@ -1006,7 +1006,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 
       } else {
         GeoFullPhysVol* rfpv = (GeoFullPhysVol*)fpv;
-        //log<<MSG::DEBUG<<" This RPC for station "<<key
+        //log<<MSG::DEBUG<<" This RPC for m_station "<<key
         //   <<" component name is "
         //   <<c->name<<" already exists; clone it "<<endreq;
         lvr = rfpv->clone();
@@ -1102,7 +1102,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           //                 Sup *r=new Sup(c);
           //                 lvs=r->build();
           //   log<<MSG::DEBUG<<" a pointer to a sup " <<lvs
-          // <<" is now available in the station "<<endreq;
+          // <<" is now available in the m_station "<<endreq;
           // log<<MSG::DEBUG<<" Storing in FPVMAP with key "<<key<<endreq;
           savemem->StoreDetector(lvs, key);
         } else {
@@ -1188,7 +1188,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         t = 0;
       } else {
         GeoFullPhysVol* rfpv = (GeoFullPhysVol*)fpv;
-        // log<<MSG::DEBUG<<" This CSC for station "<<key
+        // log<<MSG::DEBUG<<" This CSC for m_station "<<key
         // <<" component name is "
         // <<c->name<<" already exists; clone it "<<endreq;
         lvc = rfpv->clone();
@@ -1508,8 +1508,11 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           }
 
           int dbphi = 1;
-          if (xpos > 100.*CLHEP::mm) dbphi = 2;
+	  //std::cout<<stName<<" ----------------------------------- dbphi = "<<dbphi<<std::endl;
+          if (xpos > 400.*CLHEP::mm) dbphi = 2; // this special patch is needed for BMS in the ribs where xpos is ~950mm; the theshold to 100mm (too low) caused a bug
+	  // in BOG at eta +/-4 and stationEta 7 (not 6) ==>> 28 Jan 2016 raising the threshold to 400.mm 
           // doublet phi not aware of pos. in space !!!
+	  //std::cout<<" dbphi reset to  "<<dbphi<<" due to xpos "<< xpos <<" >10cm "<<std::endl;
 
           int doubletPhi = dbphi;
           // doublet phi aware of pos. in space !!!
@@ -1521,6 +1524,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
             doubletPhi++;
             if (doubletPhi>2) doubletPhi=1;
           }
+	  //std::cout<<" doubletPhi = "<<doubletPhi<<std::endl;
                     
           // never defined fields: set to the lower limit 
           int gasGap      = 1;
@@ -1889,27 +1893,27 @@ void MuonChamber::setRpcReadoutGeom(RpcReadoutElement* re, const RpcComponent* c
   re->m_etastriplength = re->m_LongSsize/re->m_nphistrippanels;
 
   // first strip position on each phi panel
-  for (int is = 0; is < re->m_nphistrippanels; ++is) re->first_phistrip_s[is] = -999999.;
-  re->first_phistrip_s[0] = -re->m_Ssize/2. + re->m_phipaneldead + re->m_phistripwidth/2.;
+  for (int is = 0; is < re->m_nphistrippanels; ++is) re->m_first_phistrip_s[is] = -999999.;
+  re->m_first_phistrip_s[0] = -re->m_Ssize/2. + re->m_phipaneldead + re->m_phistripwidth/2.;
   if (re->m_nphistrippanels == 2)
-     re->first_phistrip_s[1] = re->m_phipaneldead + re->m_phistripwidth/2.;
+     re->m_first_phistrip_s[1] = re->m_phipaneldead + re->m_phistripwidth/2.;
 
   double offset = 0.;
   if (gVersion.substr(0,3) == "P03") offset = rc->frontendBoardWidth;
 
-  for (int is = 0; is < re->m_netastrippanels; ++is) re->phistrip_z[is] = -999999.;
-  re->phistrip_z[0] = -re->m_Zsize/2. + offset + re->m_phistriplength/2.;
-  if (re->m_netastrippanels == 2) re->phistrip_z[1] = re->m_Zsize/2. - offset - re->m_phistriplength/2.;
+  for (int is = 0; is < re->m_netastrippanels; ++is) re->m_phistrip_z[is] = -999999.;
+  re->m_phistrip_z[0] = -re->m_Zsize/2. + offset + re->m_phistriplength/2.;
+  if (re->m_netastrippanels == 2) re->m_phistrip_z[1] = re->m_Zsize/2. - offset - re->m_phistriplength/2.;
 
   // first strip position on each eta panel
-  for (int is = 0; is < re->m_netastrippanels; ++is) re->first_etastrip_z[is] = -999999.;
-  re->first_etastrip_z[0] = -re->m_Zsize/2. + re->m_etapaneldead + re->m_etastripwidth/2.;
+  for (int is = 0; is < re->m_netastrippanels; ++is) re->m_first_etastrip_z[is] = -999999.;
+  re->m_first_etastrip_z[0] = -re->m_Zsize/2. + re->m_etapaneldead + re->m_etastripwidth/2.;
   if (re->m_netastrippanels == 2)
-    re->first_etastrip_z[1] = re->m_etapaneldead + re->m_etastripwidth/2.;
+    re->m_first_etastrip_z[1] = re->m_etapaneldead + re->m_etastripwidth/2.;
 
-  for (int is = 0; is < re->m_nphistrippanels; ++is) re->etastrip_s[is] = -999999.;
-  re->etastrip_s[0] = -re->m_Ssize/2. + offset + re->m_etastriplength/2.;
-  if (re->m_nphistrippanels == 2) re->etastrip_s[1] = re->m_Ssize/2. - offset - re->m_etastriplength/2.;
+  for (int is = 0; is < re->m_nphistrippanels; ++is) re->m_etastrip_s[is] = -999999.;
+  re->m_etastrip_s[0] = -re->m_Ssize/2. + offset + re->m_etastriplength/2.;
+  if (re->m_nphistrippanels == 2) re->m_etastrip_s[1] = re->m_Ssize/2. - offset - re->m_etastriplength/2.;
 
 }
 

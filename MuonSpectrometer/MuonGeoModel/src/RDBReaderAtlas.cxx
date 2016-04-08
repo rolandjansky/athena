@@ -109,10 +109,10 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
     // Mdt AsBuilt parameters
     dbdata = m_pRDBAccess->getQuery("XtomoData",geoTag,geoNode);
     log<<MSG::INFO<<"After getQuery XtomoData"<<endreq;    
-    dhxtomo = new DblQ00Xtomo(dbdata);
+    m_dhxtomo = new DblQ00Xtomo(dbdata);
     log<<MSG::INFO<<"After new DblQ00Xtomo"<<endreq;  
-    xtomo = dhxtomo->data();
-    log<<MSG::INFO<<"After dhxtomo.data()"<<endreq; 
+    m_xtomo = m_dhxtomo->data();
+    log<<MSG::INFO<<"After m_dhxtomo.data()"<<endreq; 
 
     // ASZT
     m_dhaszt=0;
@@ -265,7 +265,7 @@ StatusCode RDBReaderAtlas::ProcessDB()
     if (m_dhiacsc->size() >0 && m_useICSCAlines) ProcessCscInternalAlignments();
 
     // Proccess Mdt AsBuilt parameters
-    if (dhxtomo->size() > 0) { ProcessMdtAsBuiltParams(); }
+    if (m_dhxtomo->size() > 0) { ProcessMdtAsBuiltParams(); }
     
     //
     log<<MSG::INFO<<"Intermediate Objects built from primary numbers"<<endreq;
@@ -297,7 +297,7 @@ RDBReaderAtlas::~RDBReaderAtlas()
     delete m_dhwcro;
     delete m_dhwcmi;
     delete m_dhwlbi;
-    delete dhxtomo;
+    delete m_dhxtomo;
 }
 
 

@@ -194,7 +194,7 @@ Technology* MYSQL::GetATechnology(std::string name)
         for (unsigned int i=1; i<=20; i++)
         {
             char chindex[3];
-            sprintf(chindex,"%i",i);
+            sprintf(chindex,"%u",i);
             //std::string newname = name.substr(0,3)+chindex;
             std::string newname = name.substr(0,3)+MuonGM::buildString(i,2);
 	    it = m_technologies.find(newname);
