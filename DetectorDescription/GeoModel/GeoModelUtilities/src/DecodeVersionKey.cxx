@@ -4,66 +4,43 @@
 
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "GeoModelInterfaces/IGeoDbTagSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
 #include <string>
 #include <iostream>
 
 DecodeVersionKey::DecodeVersionKey(const IGeoModelSvc * geoModel, const std::string & node)
-{
-  defineTag<IGeoModelSvc>(geoModel,node);
-}
-
-DecodeVersionKey::DecodeVersionKey(const IGeoDbTagSvc * geoDbTag, const std::string & node)
-{
-  defineTag<IGeoDbTagSvc>(geoDbTag,node);
-}
-
-DecodeVersionKey::DecodeVersionKey(const std::string & node)
-{
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  IGeoDbTagSvc* geoDbTag{nullptr};
-  if(svcLocator->service("GeoDbTagSvc",geoDbTag).isFailure())
-    throw std::runtime_error("DecodeVersionKey constructor: cannot access GeoDbTagSvc");
-  defineTag<IGeoDbTagSvc>(geoDbTag,node);
-}
-
-template <class T>
-void DecodeVersionKey::defineTag(const T* svc, const std::string & node)
 {
   std::string nodeOverrideTag;
   std::string indetOverrideTag; // Indet has two levels.
   if (node == "ATLAS") {
     nodeOverrideTag = "";
   } else if (node == "InnerDetector") {
-    nodeOverrideTag = svc->inDetVersionOverride();
+    nodeOverrideTag = geoModel->inDetVersionOverride();
   } else if (node == "Pixel") {
-    indetOverrideTag = svc->inDetVersionOverride();
-    nodeOverrideTag  = svc->pixelVersionOverride();
+    indetOverrideTag = geoModel->inDetVersionOverride();
+    nodeOverrideTag  = geoModel->pixelVersionOverride();
   } else if (node == "SCT") {
-    indetOverrideTag = svc->inDetVersionOverride();
-    nodeOverrideTag  = svc->SCT_VersionOverride();
+    indetOverrideTag = geoModel->inDetVersionOverride();
+    nodeOverrideTag  = geoModel->SCT_VersionOverride();
   } else if (node == "TRT") {
-    indetOverrideTag = svc->inDetVersionOverride();
-    nodeOverrideTag  = svc->TRT_VersionOverride();
+    indetOverrideTag = geoModel->inDetVersionOverride();
+    nodeOverrideTag  = geoModel->TRT_VersionOverride();
   } else if (node == "LAr") {
-    nodeOverrideTag  = svc->LAr_VersionOverride();
+    nodeOverrideTag  = geoModel->LAr_VersionOverride();
   } else if (node == "TileCal") {
-    nodeOverrideTag  = svc->tileVersionOverride();
+    nodeOverrideTag  = geoModel->tileVersionOverride();
   } else if (node == "MuonSpectrometer") {
-    nodeOverrideTag  = svc->muonVersionOverride();
+    nodeOverrideTag  = geoModel->muonVersionOverride();
   } else if (node == "Calorimeter") {
-    nodeOverrideTag  = svc->caloVersionOverride();
+    nodeOverrideTag  = geoModel->caloVersionOverride();
   } else if (node == "ForwardDetectors") {
-    nodeOverrideTag  = svc->forwardDetectorsVersionOverride();
+    nodeOverrideTag  = geoModel->forwardDetectorsVersionOverride();
   } else {
     std::cout << "DecodeVersionKey passed an unknown node:" << node << std::endl; 
     nodeOverrideTag = "";
   }
 
   // Default to atlas version
-  m_tag = svc->atlasVersion();
+  m_tag = geoModel->atlasVersion();
   m_node = "ATLAS";
   
   // If indetOverrideTag is specified (and is not just "CUSTOM") then override with the indet tag.
@@ -88,6 +65,7 @@ void DecodeVersionKey::defineTag(const T* svc, const std::string & node)
     m_node = node;
   }
 }
+
 
 const std::string &
 DecodeVersionKey::tag() const
