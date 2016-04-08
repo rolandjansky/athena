@@ -53,6 +53,7 @@
 #include "GeneratorFilters/HtoVVFilter.h"
 #include "GeneratorFilters/QCDTruthJetFilter.h"
 #include "GeneratorFilters/QCDTruthMultiJetFilter.h"  
+#include "GeneratorFilters/VBFHbbEtaSortingFilter.h"  
 #include "GeneratorFilters/TopCKMFilter.h"
 #include "GeneratorFilters/ForwardProtonFilter.h"
 #include "GeneratorFilters/BSubstruct.h"
@@ -82,6 +83,7 @@
 #include "GeneratorFilters/DecaysFinalStateFilter.h"
 #include "GeneratorFilters/HTFilter.h"
 #include "GeneratorFilters/MissingEtFilter.h"
+#include "GeneratorFilters/TrimuMassRangeFilter.h"
 
 DECLARE_ALGORITHM_FACTORY(ElectronFilter)
 DECLARE_ALGORITHM_FACTORY(LeptonFilter)
@@ -136,6 +138,7 @@ DECLARE_ALGORITHM_FACTORY(FourLeptonInvMassFilter)
 DECLARE_ALGORITHM_FACTORY(HtoVVFilter)
 DECLARE_ALGORITHM_FACTORY(QCDTruthJetFilter)
 DECLARE_ALGORITHM_FACTORY(QCDTruthMultiJetFilter)  
+DECLARE_ALGORITHM_FACTORY(VBFHbbEtaSortingFilter)  
 DECLARE_ALGORITHM_FACTORY(TopCKMFilter)
 DECLARE_ALGORITHM_FACTORY(ForwardProtonFilter)
 DECLARE_ALGORITHM_FACTORY(BSubstruct)
@@ -165,6 +168,7 @@ DECLARE_ALGORITHM_FACTORY(BoostedHadTopAndTopPair)
 DECLARE_ALGORITHM_FACTORY(DecaysFinalStateFilter)
 DECLARE_ALGORITHM_FACTORY(HTFilter)
 DECLARE_ALGORITHM_FACTORY(MissingEtFilter)
+DECLARE_ALGORITHM_FACTORY(TrimuMassRangeFilter)
 
 DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(LeptonFilter)
@@ -219,6 +223,7 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(HtoVVFilter)
     DECLARE_ALGORITHM(QCDTruthJetFilter)
     DECLARE_ALGORITHM(QCDTruthMultiJetFilter)  
+    DECLARE_ALGORITHM(VBFHbbEtaSortingFilter)  
     DECLARE_ALGORITHM(TopCKMFilter)
     DECLARE_ALGORITHM(ForwardProtonFilter )
     DECLARE_ALGORITHM(BSubstruct)
@@ -248,4 +253,5 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(DecaysFinalStateFilter)
     DECLARE_ALGORITHM(HTFilter)
     DECLARE_ALGORITHM(MissingEtFilter)
+    DECLARE_ALGORITHM(TrimuMassRangeFilter)
 }

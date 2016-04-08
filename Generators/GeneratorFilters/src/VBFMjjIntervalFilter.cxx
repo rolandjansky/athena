@@ -36,7 +36,12 @@ VBFMjjIntervalFilter::VBFMjjIntervalFilter(const std::string& name, ISvcLocator*
   declareProperty("LowMjjProbability", m_prob2low = 0.005);
   declareProperty("HighMjjProbability", m_prob2high = 1.0);
   declareProperty("LowMjj", m_mjjlow=100.0*CLHEP::GeV);
+  declareProperty("TruncateAtLowMjj", m_truncatelowmjj = false);
   declareProperty("HighMjj", m_mjjhigh=800.0*CLHEP::GeV);
+  declareProperty("TruncateAtHighMjj", m_truncatehighmjj = false);
+  declareProperty("PhotonJetOverlapRemoval", m_photonjetoverlap = false);
+  declareProperty("ElectronJetOverlapRemoval", m_electronjetoverlap = true);
+  declareProperty("TauJetOverlapRemoval", m_taujetoverlap = false);
   declareProperty("Alpha",m_alpha=log(m_prob2low/m_prob2high)/log(m_mjjlow/m_mjjhigh));
 }
 
@@ -74,15 +79,55 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
   }
 
   // Find overlap objects
+  std::vector<HepMC::GenParticle*> MCTruthPhotonList;
   std::vector<HepMC::GenParticle*> MCTruthElectronList;
+  std::vector<CLHEP::HepLorentzVector*> MCTruthTauList;
   for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin();	pitr != genEvt->particles_end(); ++pitr) {
-      // electron
-      if (abs((*pitr)->pdg_id()) == 11 && (*pitr)->status() == 1 &&
-          (*pitr)->momentum().perp() >= m_olapPt &&
-          fabs((*pitr)->momentum().pseudoRapidity()) <= m_yMax) {
-        MCTruthElectronList.push_back((*pitr));
+      if (m_photonjetoverlap==true) {
+	// photon - copied from VBFForwardJetsFilter.cxx
+	if ( (*pitr)->pdg_id() == 22 && (*pitr)->status() == 1 &&
+	     (*pitr)->momentum().perp() >= m_olapPt && 
+	     fabs((*pitr)->momentum().pseudoRapidity()) <= m_yMax) {
+	  MCTruthPhotonList.push_back((*pitr));
+	}
+      }
+      if (m_electronjetoverlap==true) {
+	// electron
+	if (abs((*pitr)->pdg_id()) == 11 && (*pitr)->status() == 1 &&
+	    (*pitr)->momentum().perp() >= m_olapPt &&
+	    fabs((*pitr)->momentum().pseudoRapidity()) <= m_yMax) {
+	  MCTruthElectronList.push_back((*pitr));
+	}
+      }
+      if (m_taujetoverlap==true) {
+	// tau - copied from VBFForwardJetsFilter.cxx
+	if ( abs((*pitr)->pdg_id()) == 15 && (*pitr)->status() != 3 ) {
+	  HepMC::GenParticle *tau = (*pitr);
+	  HepMC::GenVertex::particles_out_const_iterator begin = tau->end_vertex()->particles_out_const_begin();
+	  HepMC::GenVertex::particles_out_const_iterator end = tau->end_vertex()->particles_out_const_end();
+	  int leptonic = 0;
+	  for ( ; begin != end; begin++ ) {
+	    if ( (*begin)->production_vertex() != tau->end_vertex() ) continue;
+	    if ( abs( (*begin)->pdg_id() ) == 12 ) leptonic = 1;
+	    if ( abs( (*begin)->pdg_id() ) == 14 ) leptonic = 2;
+	    if ( abs( (*begin)->pdg_id() ) == 15 ) leptonic = 11;
+	  }
+	  
+	  if (leptonic == 0) {
+	    CLHEP::HepLorentzVector nutau = sumDaughterNeutrinos( tau );
+	    CLHEP::HepLorentzVector *tauvis = new CLHEP::HepLorentzVector(tau->momentum().px()-nutau.px(),
+									  tau->momentum().py()-nutau.py(),
+									  tau->momentum().pz()-nutau.pz(),
+									  tau->momentum().e()-nutau.e());
+	    if (tauvis->vect().perp() >= m_olapPt && fabs(tauvis->vect().pseudoRapidity()) <= m_yMax) {
+	      MCTruthTauList.push_back(tauvis);
+	    } else {
+	      delete tauvis;
+	    }
+	  }
+	}
       }
     }
   }
@@ -91,8 +136,23 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
   xAOD::JetContainer filteredJets(SG::VIEW_ELEMENTS);
   for (xAOD::JetContainer::const_iterator jitr = truthJetCollection->begin(); jitr != truthJetCollection->end(); ++jitr) {
     if (fabs( (*jitr)->rapidity() ) < m_yMax && (*jitr)->pt() >= m_olapPt) {
-      bool notJet = checkOverlap((*jitr)->rapidity(), (*jitr)->phi(), MCTruthElectronList);
-      if (!notJet) filteredJets.push_back(const_cast<xAOD::Jet*>(*jitr));
+      bool JetOverlapsWithPhoton   = false;
+      bool JetOverlapsWithElectron = false;
+      bool JetOverlapsWithTau      = false;
+
+      if (m_photonjetoverlap==true) {
+	JetOverlapsWithPhoton = checkOverlap((*jitr)->rapidity(), (*jitr)->phi(), MCTruthPhotonList);
+      }
+      if (m_electronjetoverlap==true) {
+	JetOverlapsWithElectron = checkOverlap((*jitr)->rapidity(), (*jitr)->phi(), MCTruthElectronList);
+      }
+      if (m_taujetoverlap==true) {
+	JetOverlapsWithTau = checkOverlap((*jitr)->rapidity(), (*jitr)->phi(), MCTruthTauList);
+      }
+
+      if (!JetOverlapsWithPhoton && !JetOverlapsWithElectron && !JetOverlapsWithTau ) {
+	filteredJets.push_back(const_cast<xAOD::Jet*>(*jitr));
+      }
     }
   }
   filteredJets.sort(High2LowByJetClassPt());
@@ -149,6 +209,26 @@ bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<HepM
 }
 
 
+
+bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<CLHEP::HepLorentzVector*> list) {
+  for (size_t i = 0; i < list.size(); ++i) {
+    double pt = list[i]->vect().perp();
+    if (pt > m_olapPt) {
+      /// @todo Provide a helper function for this (and similar)
+      double dphi = phi-list[i]->phi();
+      double deta = eta-list[i]->vect().pseudoRapidity();
+      if (dphi >  M_PI) { dphi -= 2.*M_PI; }
+      if (dphi < -M_PI) { dphi += 2.*M_PI; }
+      double dr = sqrt(deta*deta+dphi*dphi);
+      if (dr < 0.3) return true;
+    }
+  }
+  return false;
+}
+
+
+
+
 double VBFMjjIntervalFilter::getEventWeight(xAOD::JetContainer *jets) {
   double weight = 1.0;
   if (jets->size() == 0) {
@@ -160,13 +240,43 @@ double VBFMjjIntervalFilter::getEventWeight(xAOD::JetContainer *jets) {
   } else {
     double mjj = (jets->at(0)->p4() + jets->at(1)->p4()).M();
     if (mjj < m_mjjlow) {
-      weight /= m_prob2low;
+      if (m_truncatelowmjj==false) {
+	weight /= m_prob2low;
+      }
+      else {
+	weight = -1.0;
+      }
     } else if (mjj > m_mjjhigh) {
-      weight /= m_prob2high;
+      if (m_truncatehighmjj==false) {
+	weight /= m_prob2high;
+      }
+      else {
+	weight = -1.0;
+      }
     } else {
       weight = weight * pow(m_mjjlow/mjj, m_alpha) / m_prob2low;
       ATH_MSG_DEBUG("WEIGHTING:: " << mjj << "\t" << weight);
     }
   }
   return weight;
+}
+
+
+CLHEP::HepLorentzVector VBFMjjIntervalFilter::sumDaughterNeutrinos( HepMC::GenParticle *part ) {
+  CLHEP::HepLorentzVector nu( 0, 0, 0, 0);
+
+  if ( ( abs( part->pdg_id() ) == 12 ) || ( abs( part->pdg_id() ) == 14 ) || ( abs( part->pdg_id() ) == 16 ) ) {
+    nu.setPx(part->momentum().px());
+    nu.setPy(part->momentum().py());
+    nu.setPz(part->momentum().pz());
+    nu.setE(part->momentum().e());
+    return nu;
+  }
+
+  if ( part->end_vertex() == 0 ) return nu;
+
+  HepMC::GenVertex::particles_out_const_iterator begin = part->end_vertex()->particles_out_const_begin();
+  HepMC::GenVertex::particles_out_const_iterator end = part->end_vertex()->particles_out_const_end();
+  for ( ; begin != end; begin++ ) nu += sumDaughterNeutrinos( *begin );
+  return nu;
 }

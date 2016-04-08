@@ -39,11 +39,17 @@ private:
   double m_prob2low;
   double m_prob2high;
   double m_mjjlow;
+  bool m_truncatelowmjj;
   double m_mjjhigh;
+  bool m_truncatehighmjj;
+  bool m_photonjetoverlap;
+  bool m_electronjetoverlap;
+  bool m_taujetoverlap;
   double m_alpha;
 
   bool checkOverlap(double, double, std::vector<HepMC::GenParticle*>);
-
+  bool checkOverlap(double, double, std::vector<CLHEP::HepLorentzVector*>);
+  CLHEP::HepLorentzVector sumDaughterNeutrinos( HepMC::GenParticle* );
 
 public:
 

@@ -44,6 +44,13 @@ private:
   	int m_nOFOS_Min;
   	int m_nOFSS_Max;
   	int m_nOFSS_Min;
+	int m_nPairSum_Max;
+	int m_nPairSum_Min;
+	bool m_onlyMassiveParents;
+	bool m_bUseSFOSInSum;
+	bool m_bUseSFSSInSum;
+	bool m_bUseOFOSInSum;
+	bool m_bUseOFSSInSum;
 	double m_Ptmin;
 	double m_EtaRange;
 	int  m_nLeptons_Max;

@@ -232,6 +232,6 @@ bool HeavyFlavorHadronFilter::isDwithWeakDK(const int pID) const {
            id == 4232  || // Xi_C^+
            id == 4212  || // Xi_C^0
            id == 4322  || // Xi'_C+  This is in fact EM not weak
-           id == 4334); // Omega_C
+           id == 4332); // Omega_C
 
 }

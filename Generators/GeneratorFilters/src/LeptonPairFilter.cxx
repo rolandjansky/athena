@@ -55,6 +55,21 @@ LeptonPairFilter::LeptonPairFilter(const std::string& name,
   //Opposite-Flavor Same-Sign (OFSS)
   declareProperty("NOFSS_Max", m_nOFSS_Max = -1);
   declareProperty("NOFSS_Min", m_nOFSS_Min = -1);
+
+  //Pair Sum (ask for some combination of different 
+  //lepton pairs based on configuration)
+  declareProperty("NPairSum_Max", m_nPairSum_Max = -1);
+  declareProperty("NPairSum_Min", m_nPairSum_Min  = -1);
+
+  //configure which pairs to consider in sum 
+  //by default don't consider any 
+  declareProperty("UseSFOSInSum",m_bUseSFOSInSum = false);
+  declareProperty("UseSFSSInSum",m_bUseSFSSInSum = false);
+  declareProperty("UseOFOSInSum",m_bUseOFOSInSum = false);
+  declareProperty("UseOFSSInSum",m_bUseOFSSInSum = false);
+  
+  // only count leptons with a parent with M>20 GeV
+  declareProperty("OnlyMassiveParents",m_onlyMassiveParents = false);
   
   //kinematic requirements on leptons to consider
   //this is NOT a veto on the leptons outside the requirements
@@ -108,7 +123,7 @@ StatusCode LeptonPairFilter::filterEvent() {
 	pitr!=genEvt->particles_end(); ++pitr )
       if( (*pitr)->status()==1 )
 	// check stable particles only
-	// We do not place requirements on their origins
+	// We do not place requirements on their origins (updated: optionally rejecting hadron decays)
 	// save pdg ids of found leptons
 	// do not consider taus
 	{
@@ -118,6 +133,25 @@ StatusCode LeptonPairFilter::filterEvent() {
 	      ((*pitr)->pdg_id() == -13) ){
 	      	//only consider leptons which satisfy  pt and eta requirements
 	        if( ((*pitr)->momentum().perp() >= m_Ptmin) && fabs((*pitr)->momentum().pseudoRapidity()) <=m_EtaRange){
+			  if(m_onlyMassiveParents)
+			  {
+				  auto p = *pitr;
+				  bool massiveParent = false;
+				  while(p)
+				  {
+					  auto vxp = p->production_vertex();
+					  if(!vxp) break;
+					  if(vxp->particles_in_size()!=1) break;
+					  p = *vxp->particles_in_const_begin();
+					  const int pdg = abs(p->pdg_id());
+					  if(!((pdg>=11 && pdg<=16) || pdg==22))
+					  {
+						  massiveParent = (p->generated_mass()>20000);
+						  break;
+					  }
+				  }
+				  if(!massiveParent) continue;
+			  }
 	      		vLeptonPDGIDs.push_back((*pitr)->pdg_id());
 			vLeptonPt.push_back((*pitr)->momentum().perp());
 			vLeptonEta.push_back((*pitr)->momentum().pseudoRapidity());
@@ -168,21 +202,35 @@ StatusCode LeptonPairFilter::filterEvent() {
 	else log << MSG::ERROR << "Couldn't classify lepton pair" << endreq;
     }
   }
+
+  //based on configuration
+  //create sum of multiple pair combinations
+  //which can alternatively be cut on instead
+  //of the individual ones
+  int nPairSum = 0;
+  if(m_bUseSFOSInSum) nPairSum+=nSFOS;
+  if(m_bUseSFSSInSum) nPairSum+=nSFSS;
+  if(m_bUseOFOSInSum) nPairSum+=nOFOS;
+  if(m_bUseOFSSInSum) nPairSum+=nOFSS;
+
+
   bool passSFOS = false;
   bool passSFSS = false;
   bool passOFOS = false;
   bool passOFSS = false;
+  bool passPairSum = false;
   //Test if number of lepton pairs satisfies requirements
   //The maximum requirement is ignored if it is negative
   //No requirement is made if both min and max values are negative
-  log << MSG::INFO <<"# Lep " << vLeptonPDGIDs.size() << ", "<< nSFOS << " SFOS, "<<nSFSS<< " SFSS, " << nOFOS << " OFOS, " << nOFSS << " OFSS pairs" << endreq;
+  log << MSG::INFO <<"# Lep " << vLeptonPDGIDs.size() << ", "<< nSFOS << " SFOS, "<<nSFSS<< " SFSS, " << nOFOS << " OFOS, " << nOFSS << " OFSS pairs ," << nPairSum << "summed pairs" << endreq;
 
   if(nSFOS >= m_nSFOS_Min && (m_nSFOS_Max<0 || nSFOS <= m_nSFOS_Max)) passSFOS=true;
   if(nSFSS >= m_nSFSS_Min && (m_nSFSS_Max<0 || nSFSS <= m_nSFSS_Max)) passSFSS=true;
   if(nOFOS >= m_nOFOS_Min && (m_nOFOS_Max<0 || nOFOS <= m_nOFOS_Max)) passOFOS=true;
   if(nOFSS >= m_nOFSS_Min && (m_nOFSS_Max<0 || nOFSS <= m_nOFSS_Max)) passOFSS=true;
+  if(nPairSum >= m_nPairSum_Min && (m_nPairSum_Max<0 || nPairSum <= m_nPairSum_Max)) passPairSum=true;
 
-  if(passSFOS && passSFSS && passOFOS && passOFSS){
+  if(passSFOS && passSFSS && passOFOS && passOFSS && passPairSum){
     log << MSG::INFO <<"Pass" << endreq;
     for (unsigned int i = 0;i<vLeptonPDGIDs.size();i++){
        int pdg = vLeptonPDGIDs[i];

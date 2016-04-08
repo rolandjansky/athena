@@ -67,7 +67,7 @@ class BSignalFilter : public GenFilter
   // Find child
   void FindAllChildren(const HepMC::GenParticle* mother,std::string treeIDStr,  
 		       bool fromFinalB, bool &foundSignal, bool &passedAllCuts,
-		       TLorentzVector &p1, TLorentzVector &p2) const;
+		       TLorentzVector &p1, TLorentzVector &p2, bool fromSelectedB) const;
 
   // Check whether child has pass cuts
   bool FinalStatePassedCuts(const HepMC::GenParticle* child) const; 
