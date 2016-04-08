@@ -156,7 +156,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   log << " " << std::endl;
   log << "Sagging in geometry " << m_A_SAGGING << std::endl;
   log << " " << std::endl;
-  log << " " << endmsg;
+  log << " " << endreq;
 
   if(msgSvc->outputLevel("BarrelConstruction") <= MSG::DEBUG) {
     printParams();
@@ -173,28 +173,28 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
      throw std::runtime_error("Error in BarrelConstruction, cannot access RDBAccessSvc");
   DecodeVersionKey larVersionKey(geoModel, "LAr"); 
 
-  log << MSG::INFO <<  "Getting primary numbers for " << larVersionKey.node() << ", " << larVersionKey.tag() << endmsg;
+  log << MSG::INFO <<  "Getting primary numbers for " << larVersionKey.node() << ", " << larVersionKey.tag() << endreq;
 
   IRDBRecordset_ptr switchSet = rdbAccess->getRecordsetPtr("LArSwitches", larVersionKey.tag(), larVersionKey.node());
   if ((*switchSet).size() !=0) {
      const IRDBRecord    *switches   = (*switchSet)[0];
      if (!switches->isFieldNull("DETAILED_ABSORBER")) {
           if (switches->getInt("DETAILED_ABSORBER") !=0) {
-            log << MSG::DEBUG  << " DETAILED_ABSORBER is 1 " << endmsg;
+            log << MSG::DEBUG  << " DETAILED_ABSORBER is 1 " << endreq;
             doDetailedAbsorberStraight = true;
             doDetailedAbsorberFold =  true;
           } else {
-            log << MSG::DEBUG  << " DETAILED_ABSORBER is 0 " << endmsg;
+            log << MSG::DEBUG  << " DETAILED_ABSORBER is 0 " << endreq;
           }
      } else {
-       log << MSG::DEBUG  << " no DETAILED_ABSORBER structure in DB " << endmsg;
+       log << MSG::DEBUG  << " no DETAILED_ABSORBER structure in DB " << endreq;
      }
   } else {
-    log << MSG::WARNING  << " LArSwitches structure not found " << endmsg;
+    log << MSG::WARNING  << " LArSwitches structure not found " << endreq;
   }
 
-  log << MSG::INFO << "  Makes detailed absorber sandwich  ? " << doDetailedAbsorberStraight << " " << doDetailedAbsorberFold << endmsg;
-  log << MSG::INFO << "  Use sagging in geometry  ? " << m_A_SAGGING << endmsg;
+  log << MSG::INFO << "  Makes detailed absorber sandwich  ? " << doDetailedAbsorberStraight << " " << doDetailedAbsorberFold << endreq;
+  log << MSG::INFO << "  Use sagging in geometry  ? " << m_A_SAGGING << endreq;
 
 
   Genfun::Cos  Cos;
@@ -396,7 +396,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
        log << MSG::DEBUG << "idat " << idat << " Rhocen/Phice/Delta/deltay/deltax/etatrans "
 	   << Rhocen[idat] << " " << Phicen[idat]*(1./CLHEP::deg) << " "
 	   << Delta[idat]*(1./CLHEP::deg) << " " << deltay[idat] << " " << deltax[idat]
-	   << " " << etaTrans << endmsg;
+	   << " " << etaTrans << endreq;
 // #endif
 
 
@@ -1575,7 +1575,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                  }
 
                  if (!phi0_fold || !dphi_fold || !TXfold) {
-                   log << MSG::INFO << " LArGeoBarrel::BarrelConstruction  fold not defined..." << endmsg;
+                   log << MSG::INFO << " LArGeoBarrel::BarrelConstruction  fold not defined..." << endreq;
                  }
                  else
                  for (int instance = 0; instance < Nabsorber; instance++)
@@ -1934,7 +1934,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                  }
 
                  if (!phi0_fold || !dphi_fold || !TXfold) {
-                   log << MSG::INFO << " LArGeoBarrel::BarrelConstruction  fold not defined..." << endmsg;
+                   log << MSG::INFO << " LArGeoBarrel::BarrelConstruction  fold not defined..." << endreq;
                  }
                  else
                  for (int instance = 0; instance < Nelectrode; instance++)
@@ -1999,7 +1999,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   log << "+                                                  +" << std::endl;
   log << "+         END   of Barrel EM GeoModel definition   +" << std::endl;
   log << "+                                                  +" << std::endl;
-  log << "++++++++++++++++++++++++++++++++++++++++++++++++++++" << endmsg;
+  log << "++++++++++++++++++++++++++++++++++++++++++++++++++++" << endreq;
   
   
 }
