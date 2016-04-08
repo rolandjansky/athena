@@ -1,0 +1,18 @@
+package ReleaseTests
+
+author Rolf Seuster
+
+branches bin
+
+private
+
+use TestPolicy          TestPolicy-*
+
+apply_pattern validate_xml
+
+end_private
+
+macro ReleaseTests_TestConfiguration "../test/ReleaseTests_TestConfiguration.xml"
+
+apply_pattern declare_runtime extras="../test/ReleaseTests_TestConfiguration.xml"
+
