@@ -14,7 +14,6 @@ use  EventInfo                  EventInfo-*                     Event
 use  GaudiInterface             GaudiInterface-*                External
 use  PathResolver               PathResolver-*                  Tools
 use  RegionSelector             RegionSelector-*                DetectorDescription
-use  TrigCosmicEvent            TrigCosmicEvent-*               Trigger/TrigEvent
 use  TrigT1Result               TrigT1Result-*                  Trigger/TrigT1
 end_private
 
