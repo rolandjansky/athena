@@ -8,20 +8,16 @@ use AtlasPolicy         AtlasPolicy-*
 
 #use StoreGate           StoreGate-*             Control
 
-use NavFourMom          NavFourMom-*            Event
-
-use EventShapeEvent     EventShapeEvent-*       Reconstruction/EventShapes
-
-use GaudiInterface	GaudiInterface-*	External
 
 use AsgTools            AsgTools-*              Control/AthToolSupport
 
 use xAODBase            xAODBase-*              Event/xAOD
 use xAODEventShape      xAODEventShape-*        Event/xAOD
 
-#library EventShapeUtils *.cxx
+# Declare to cmake that this package acts as a metalibrary which makes the header files and libraries
+# from packages it depends upon be accessible to its clients. This is transparent to CMT.
+apply_pattern cmake_add_command command=metalibrary
 
-#apply_pattern installed_library
 #
 #private 
 use AtlasReflex	AtlasReflex-*	 External -no_auto_imports
