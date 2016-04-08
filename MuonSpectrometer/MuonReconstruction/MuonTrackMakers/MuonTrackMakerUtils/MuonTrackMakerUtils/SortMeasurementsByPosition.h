@@ -144,7 +144,7 @@ namespace Muon {
   public:
     
     SortMeasurementsByPosition(bool hasEndcap=true) : 
-      isEndcap(hasEndcap) {
+      m_isEndcap(hasEndcap) {
     }
     
     bool operator()( const Trk::MeasurementBase* meas1, const Trk::MeasurementBase* meas2 ) {
@@ -152,11 +152,11 @@ namespace Muon {
       const Trk::MeasurementBase* m1 = getMeas(meas1);
       const Trk::MeasurementBase* m2 = getMeas(meas2);
       
-      double d1 = isEndcap ? fabs(m1->globalPosition().z()) : fabs(m1->globalPosition().perp());
-      double d2 = isEndcap ? fabs(m2->globalPosition().z()) : fabs(m2->globalPosition().perp());
+      double d1 = m_isEndcap ? fabs(m1->globalPosition().z()) : fabs(m1->globalPosition().perp());
+      double d2 = m_isEndcap ? fabs(m2->globalPosition().z()) : fabs(m2->globalPosition().perp());
       bool result = d1 < d2;
 /*       bool result2 = fabs(m1->globalPosition().perp()) < fabs(m2->globalPosition().perp());  */
-/*       if( isEndcap ) result2 = fabs(m1->globalPosition().z()) < fabs(m2->globalPosition().z());  */
+/*       if( m_isEndcap ) result2 = fabs(m1->globalPosition().z()) < fabs(m2->globalPosition().z());  */
 
 /*       std::cout << " meas 1 " << meas1 << " d " << d1 << "   meas2 " << meas2 << " d " << d2  */
 /* 		<< "   result " << result << " result2 " << result2 << std::endl; */
@@ -174,7 +174,7 @@ namespace Muon {
     }
 
 
-    bool isEndcap;
+    bool m_isEndcap;
   };
 
 }
