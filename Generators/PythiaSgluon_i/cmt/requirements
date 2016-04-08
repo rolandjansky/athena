@@ -1,0 +1,32 @@
+package PythiaSgluon_i
+
+author
+
+use AtlasPolicy AtlasPolicy-*
+use AtlasFortranPolicy  AtlasFortranPolicy-*
+#use GeneratorModules GeneratorModules-* Generators
+
+private
+use Pythia           Pythia-*           External
+
+#use Isajet           Isajet-*           External
+#use Pythia_i    *  Generators
+macro useCernlibMacro "" target-darwin "AtlasCERNLIB AtlasCERNLIB-* External"
+use $(useCernlibMacro)
+# The dependencies of the various generator packages need to be sorted out
+# so that they work in asNeeded mode. Until that time, this package
+# explicitly overrides the asNeeded tag
+private
+macro as_needed_tag "notAsNeeded" target-darwin "asNeeded"
+apply_tag $(as_needed_tag)
+end_private
+
+public
+library PythiaSgluon_i *.cxx *.F 
+apply_pattern installed_library
+
+apply_pattern   declare_runtime extras="../share/sgluons.dat"	
+
+apply_pattern declare_joboptions files="*.py"
+
+
