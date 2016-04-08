@@ -982,7 +982,7 @@ Track *GlobalChi2Fitter::mainCombinationStrategy(const Track&             intrk1
   secondscatmeff->setScatteringAngles(secondscatphi,secondscattheta);
 
 
-  if (m_fieldService->toroidOn()){
+//  if (m_fieldService->toroidOn()){
     //if (!firstismuon) elossmeff->setdelta_p(0.001*(1/std::abs(lastscatpar->parameters()[Trk::qOverP])-1/std::abs(newqoverpid)));
     //else elossmeff->setdelta_p(0.001*(1/std::abs(newqoverpid)-1/std::abs(firstscatpar->parameters()[Trk::qOverP])));
     if (!firstismuon) elossmeff->setdelta_p(1000*(lastscatpar->parameters()[Trk::qOverP]-newqoverpid));
@@ -990,7 +990,7 @@ Track *GlobalChi2Fitter::mainCombinationStrategy(const Track&             intrk1
 
     elossmeff->setSigmaDeltaE(calomeots[1].energyLoss()->sigmaDeltaE());
 
-  }
+//  }
   trajectory.addMaterialState(new GXFTrackState(firstscatmeff,firstscatpar),-1,true);
   trajectory.addMaterialState(new GXFTrackState(elossmeff,elosspar.release()),-1,true);
   trajectory.addMaterialState(new GXFTrackState(secondscatmeff,lastscatpar),-1,true);
@@ -1180,7 +1180,7 @@ Track *GlobalChi2Fitter::backupCombinationStrategy(const Track&             intr
   //firstscatmeff->setScatteringSigmas(0.001,firstscatmeff->sigmaDeltaTheta());
   //secondscatmeff->setScatteringSigmas(0.001,secondscatmeff->sigmaDeltaTheta());
   double dp=0,sigmadp=0;
-  if (m_fieldService->toroidOn()){
+//  if (m_fieldService->toroidOn()){
     sigmadp=calomeots[1].energyLoss()->sigmaDeltaE();
     elossmeff->setSigmaDeltaE(sigmadp);
     //elossmeff->setSigmaDeltaE(-1);
@@ -1188,7 +1188,7 @@ Track *GlobalChi2Fitter::backupCombinationStrategy(const Track&             intr
     //dp=0.001*(1/std::abs(lastscatpar->parameters()[Trk::qOverP])-1/std::abs(firstscatpar->parameters()[Trk::qOverP]));
     dp=1000*(lastscatpar->parameters()[Trk::qOverP]-firstscatpar->parameters()[Trk::qOverP]);
     elossmeff->setdelta_p(dp);
-  }
+//  }
   trajectory.addMaterialState(new GXFTrackState(firstscatmeff.release(),firstscatpar.release() ),-1,true);
   trajectory.addMaterialState(new GXFTrackState(elossmeff.release() ,elosspar.release() ),-1,true);
   trajectory.addMaterialState(new GXFTrackState(secondscatmeff.release() ,lastscatpar.release() ),-1,true);
@@ -1367,7 +1367,7 @@ Track *GlobalChi2Fitter::backupCombinationStrategy(const Track&             intr
   m_acceleration=tmpacc;
 
   m_matfilled=false;
-  if (!firstismuon && m_fieldService->toroidOn() && trajectory.converged() && std::abs(trajectory.residuals().back()/trajectory.errors().back())>10) return 0;  
+  if (!firstismuon && /*m_fieldService->toroidOn() && */trajectory.converged() && std::abs(trajectory.residuals().back()/trajectory.errors().back())>10) return 0;  
 
 
   if (trajectory.converged()){
@@ -1930,9 +1930,9 @@ void GlobalChi2Fitter::makeProtoState(GXFTrajectory &trajectory,const TrackState
       Trk::MaterialEffectsOnTrack newmeot(meff->thicknessInX0(),newsa,0,tsos->surface());
       newmeff=new GXFMaterialEffects(&newmeot);
     }
-    if (meff->energyLoss() && meff->energyLoss()->sigmaDeltaE()>0 && ((tsos->type(TrackStateOnSurface::BremPoint) && meff->scatteringAngles()) || (m_fieldService->toroidOn() && (!meff->scatteringAngles() || meff->thicknessInX0()==0 /* || std::abs(meff->energyLoss()->deltaE())>50 */ )))) { 
+    if (meff->energyLoss() && meff->energyLoss()->sigmaDeltaE()>0 && ((tsos->type(TrackStateOnSurface::BremPoint) && meff->scatteringAngles()) || (/* m_fieldService->toroidOn() && */(!meff->scatteringAngles() || meff->thicknessInX0()==0 /* || std::abs(meff->energyLoss()->deltaE())>50 */ )))) { 
       newmeff->setSigmaDeltaE(meff->energyLoss()->sigmaDeltaE());
-      if (tsos->trackParameters() && !trajectory.trackStates().empty()){
+      if (tsos->trackParameters() && !trajectory.trackStates().empty() && (**trajectory.trackStates().rbegin()).trackParameters()){
 	//double delta_p=1/std::abs(tsos->trackParameters()->parameters()[Trk::qOverP])-1/std::abs((**trajectory.trackStates().rbegin()).trackParameters()->parameters()[Trk::qOverP]);
 	double delta_p=1000*(tsos->trackParameters()->parameters()[Trk::qOverP]-(**trajectory.trackStates().rbegin()).trackParameters()->parameters()[Trk::qOverP]);
         newmeff->setdelta_p(delta_p);
@@ -2833,7 +2833,7 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
       const TrackParameters *prevtrackpars=  lastidpar;
       if (lasthit==lastmuonhit){
         for (int i=0;i<(int)m_calomeots.size();i++){
-          if (i==1 && !m_fieldService->toroidOn()) continue;
+          //if (i==1 && !m_fieldService->toroidOn()) continue;
           PropDirection propdir=  alongMomentum;
           const TrackParameters *layerpar=m_propagator->propagateParameters(*prevtrackpars,m_calomeots[i].associatedSurface(),propdir,false,*m_fieldprop,nonInteracting);
           if (!layerpar) {
@@ -2871,10 +2871,10 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
       if (firsthit==firstmuonhit && (!m_getmaterialfromtrack || lasthit==lastidhit)){
         prevtrackpars=  firstidpar;
 	for (int i=0;i<(int)m_calomeots.size();i++){
-          if (i==1 && !m_fieldService->toroidOn()) continue;
+          //if (i==1 && !m_fieldService->toroidOn()) continue;
           PropDirection propdir=  oppositeMomentum;
           const TrackParameters *layerpar=m_propagator->propagateParameters(*prevtrackpars,m_calomeots[i].associatedSurface(),propdir,false,*m_fieldprop,nonInteracting);
-          if (i==2 && m_fieldService->toroidOn()) delete prevtrackpars;
+          if (i==2 /*&& m_fieldService->toroidOn()*/) delete prevtrackpars;
           if (!layerpar) {
             m_propfailed++;
             return;
