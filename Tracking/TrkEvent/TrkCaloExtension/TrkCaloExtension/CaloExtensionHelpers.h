@@ -187,8 +187,8 @@ namespace CaloExtensionHelpers {
   inline void entryExitLayerMap( const Trk::CaloExtension& extension, EntryExitLayerMap& result, LayersToSelect* selection = 0 ) {
     struct Extractor {
       Trk::TrackParametersIdHelper  parsIdHelper;
-      void operator()(EntryExitLayerMap& result, const Trk::CurvilinearParameters& entry,const Trk::CurvilinearParameters& exit ){
-        result[ parsIdHelper.caloSample(entry.cIdentifier()) ] = std::make_pair(entry.position(),exit.position());
+      void operator()(EntryExitLayerMap& thisResult, const Trk::CurvilinearParameters& entry,const Trk::CurvilinearParameters& exit ){
+        thisResult[ parsIdHelper.caloSample(entry.cIdentifier()) ] = std::make_pair(entry.position(),exit.position());
       }
     } extract;
     result.clear();
@@ -198,8 +198,8 @@ namespace CaloExtensionHelpers {
   inline void pathLenLayerMap( const Trk::CaloExtension& extension, ScalarLayerMap& result ) {
     struct Extractor {
       Trk::TrackParametersIdHelper  parsIdHelper;
-      void operator()(ScalarLayerMap& result, const Trk::CurvilinearParameters& entry,const Trk::CurvilinearParameters& exit ){
-        result[ parsIdHelper.caloSample(entry.cIdentifier()) ] = (entry.position()-exit.position()).mag();
+      void operator()(ScalarLayerMap& thisResult, const Trk::CurvilinearParameters& entry,const Trk::CurvilinearParameters& exit ){
+        thisResult[ parsIdHelper.caloSample(entry.cIdentifier()) ] = (entry.position()-exit.position()).mag();
       }
     } extract;
     result.clear();
@@ -209,8 +209,8 @@ namespace CaloExtensionHelpers {
   inline void eLossLayerMap( const Trk::CaloExtension& extension, ScalarLayerMap& result ) {
     struct Extractor {
       Trk::TrackParametersIdHelper  parsIdHelper;
-      void operator()(ScalarLayerMap& result, const Trk::CurvilinearParameters& entry,const Trk::CurvilinearParameters& exit ){
-        result[ parsIdHelper.caloSample(entry.cIdentifier()) ] = fabs(entry.momentum().mag()-exit.momentum().mag());
+      void operator()(ScalarLayerMap& thisResult, const Trk::CurvilinearParameters& entry,const Trk::CurvilinearParameters& exit ){
+        thisResult[ parsIdHelper.caloSample(entry.cIdentifier()) ] = fabs(entry.momentum().mag()-exit.momentum().mag());
       }
     } extract;
     result.clear();
