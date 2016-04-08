@@ -11,17 +11,9 @@ if not ('conddb' in dir()):
 # --- Pixel cabling
 #
 if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
-  # cabling comes from real data
-  from PixelCabling.PixelCablingConf import PixelCablingSvc
-  PixelCablingSvc = PixelCablingSvc()
-
-  if not (globalflags.DataSource() == 'geant4'):
-    conddb.addFolder("PIXEL","/PIXEL/ReadoutSpeed") 
-  else: 
-    conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed") 
-
-  ServiceMgr += PixelCablingSvc 
-  include('PixelCabling/SelectPixelMap.py') 
+  from AthenaCommon.CfgGetter import getService
+  PixelCablingSvc = getService("PixelCablingSvc")
+  ServiceMgr += PixelCablingSvc
   if (InDetFlags.doPrintConfigurables()):
     print  PixelCablingSvc
       

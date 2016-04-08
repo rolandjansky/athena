@@ -399,10 +399,10 @@ if DetFlags.haveRIO.TRT_on():
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector")
 
     if not conddb.folderRequested( "/TRT/Calib/ToT/ToTVectors"):
-       conddb.addFolder( "TRT_OFL", "/TRT/Calib/ToT/ToTVectors") 
+       conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTVectors", "/TRT/Calib/ToT/ToTVectors")
 
     if not conddb.folderRequested( "/TRT/Calib/ToT/ToTValue"):
-       conddb.addFolder( "TRT_OFL", "/TRT/Calib/ToT/ToTValue") 
+       conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTValue", "/TRT/Calib/ToT/ToTValue")
 
 
     #

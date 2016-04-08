@@ -109,12 +109,6 @@ if (InDetFlags.doDBMstandalone() or InDetFlags.doDBM()) and InDetFlags.doTruth()
 if not (('doWriteBS' in dir() and doWriteBS)):
   include( "InDetRecExample/InDetRec_jobOptions.py" )
 
-
-# for TrigConfBunchCrossingTool
-if not hasattr(ServiceMgr,'TrigConfigSvc') :
-  from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-  cfg = TriggerConfigGetter()
-
 #--------------------------------------------------------------
 # Load Inner Detector Monitoring, use the data quality flags for steering
 #--------------------------------------------------------------

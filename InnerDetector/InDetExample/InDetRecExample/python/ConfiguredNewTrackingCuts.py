@@ -353,6 +353,31 @@ class ConfiguredNewTrackingCuts :
       if self.__indetflags.doMinBias():
         self.__maxPT            = 1000000 * Units.GeV # Won't accept None *NEEDS FIXING*
         self.__maxPrimaryImpact = 100.0 * Units.mm
+ 
+    if mode == "SLHCConversionFinding":
+      self.__extension        = "SLHCConversionFinding" # this runs parallel to NewTracking
+      self.__minPT                   = 0.9 * Units.GeV
+      self.__maxPrimaryImpact        = 10.0 * Units.mm 
+      self.__maxZImpact              = 150.0 * Units.mm 
+      self.__minClusters             = 6 
+      self.__minSiNotShared          = 4 
+      #self.__maxShared               = 3 
+      self.__maxHoles                = 0 
+      #self.__maxPixelHoles           = D2
+      #self.__maxSctHoles             = 2
+      #self.__maxDoubleHoles          = 2
+      # --- also tighten pattern cuts
+      self.__radMax                  = 1000. * Units.mm 
+      self.__radMin                  = 0. * Units.mm # not turn on this cut for now 
+      #self.__seedFilterLevel         = 1
+      #self.__nHolesMax               = self.__maxHoles
+      #self.__nHolesGapMax            = self.__maxHoles
+      #self.__Xi2max                  = 15.0
+      #self.__Xi2maxNoAdd             = 35.0
+      #self.__nWeightedClustersMin    = self.__minClusters-1
+      # --- turn on Z Boundary seeding                                                                                                  
+      self.__doZBoundary              = False # 
+
 
     # --- change defaults for very low pt tracking  
     if mode == "VeryLowPt": 
@@ -493,13 +518,14 @@ class ConfiguredNewTrackingCuts :
 
     # --- changes for heavy ion
     if mode == "HeavyIon":
+      self.__maxZImpact       = 200. * Units.mm 
       self.__minPT            = 0.500 * Units.GeV
       self.__minClusters      = 9
       self.__minSiNotShared   = 7
-      self.__maxShared        = 1   # cut is now on number of shared modules
-      self.__maxHoles         = 1 # was 2
+      self.__maxShared        = 2 # was 1, cut is now on number of shared modules
+      self.__maxHoles         = 0 # was 1
       self.__maxPixelHoles    = 0 # was 2
-      self.__maxSctHoles      = 1 # was 2
+      self.__maxSctHoles      = 0 # was 1
       self.__maxDoubleHoles   = 0 # was 1
       self.__nHolesMax        = self.__maxHoles
       self.__nHolesGapMax     = self.__maxHoles      

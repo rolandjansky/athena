@@ -617,6 +617,8 @@ else:
         InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ]
 
 
+
+
     elif InDetFlags.doForwardTracks():
       #
       # --- configure cuts for forward tracklets
@@ -638,6 +640,28 @@ else:
                                                                    TrackCollectionTruthKeys)  
       # --- do not add into list for combination YET
       # InputCombinedInDetTracks += [ InDetVeryLowPtSiPattern.SiTrackCollection() ]
+
+    if InDetFlags.doSLHCConversionFinding() and InDetFlags.doSLHC():
+      #
+      # --- configure cuts for Low Pt tracking
+      #
+      if (not 'InDetNewTrackingCutsSLHCConversionFinding' in dir()):
+        print "InDetRec_jobOptions: InDetNewTrackingCutsSLHCConversionFinding not set before - import them now"
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsSLHCConversionFinding = ConfiguredNewTrackingCuts("SLHCConversionFinding")
+      InDetNewTrackingCutsSLHCConversionFinding.printInfo()
+      #
+      #
+      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
+      InDetSLHCConversionFindingSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
+                                                           InDetKeys.ResolvedSLHCConversionFindingTracks(),
+                                                           InDetKeys.SiSpSeededSLHCConversionFindingTracks(),
+                                                           InDetNewTrackingCutsSLHCConversionFinding,
+                                                           TrackCollectionKeys,
+                                                           TrackCollectionTruthKeys)
+
+      InputCombinedInDetTracks += [ InDetKeys.ResolvedSLHCConversionFindingTracks() ]
+
     
     # ------------------------------------------------------------
     #
@@ -790,11 +814,17 @@ else:
         if InDetFlags.doSplitReco() :
             PixelClusterCont    = InDetKeys.PixelPUClusters()
             SCT_ClusterCont     = InDetKeys.SCT_PU_Clusters()
-            TRT_DriftCircleCont = InDetKeys.TRT_PU_DriftCircles()
+            if InDetFlags.doTrackSegmentsTRT() :
+                TRT_DriftCircleCont = InDetKeys.TRT_PU_DriftCircles()
+            else:
+                TRT_DriftCircleCont =""
         else:
             PixelClusterCont    = InDetKeys.PixelClusters()
             SCT_ClusterCont     = InDetKeys.SCT_Clusters()
-            TRT_DriftCircleCont = InDetKeys.TRT_DriftCircles()
+            if InDetFlags.doTrackSegmentsTRT() :
+                TRT_DriftCircleCont = InDetKeys.TRT_DriftCircles()
+            else:
+                TRT_DriftCircleCont ="" 
         InDetPRD_Provider = InDet__InDetPRD_Provider(name                     = 'InDetPRD_Provider',
                                                      PixelClusterContainer    = PixelClusterCont,
                                                      SCT_ClusterContainer     = SCT_ClusterCont,
@@ -808,15 +838,20 @@ else:
                                                         ExtrapolationTool   = InDetExtrapolator,
                                                         RotCreatorTool      = InDetRotCreator,
                                                         BroadRotCreatorTool = BroadInDetRotCreator,
-                                                        MinDegreesOfFreedom = 1)
+                                                        MinDegreesOfFreedom = 1,
+                                                        MinSiHits           =  InDetNewTrackingCuts.minClusters() )
+        if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
+            InDetTruthTrackBuilder.MinSiHitsForward = InDetNewTrackingCutsForwardTracks.minClusters()
+            InDetTruthTrackBuilder.ForwardBoundary  = InDetNewTrackingCutsForwardTracks.minEta()
 #        InDetTruthTrackBuilder.OutputLevel = VERBOSE
         ToolSvc += InDetTruthTrackBuilder
         
         # --- the trajectory manipulator
-        from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectoryManipulatorID
-        InDetTruthTrajectoryManipulator = InDet__PRD_TruthTrajectoryManipulatorID(name='InDetTruthTrajectoryManipulator')
-        ToolSvc += InDetTruthTrajectoryManipulator
-#        InDetTruthTrajectoryManipulator.OutputLevel = VERBOSE
+        if not InDetFlags.doSLHC():
+            from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectoryManipulatorID
+            InDetTruthTrajectoryManipulator = InDet__PRD_TruthTrajectoryManipulatorID(name='InDetTruthTrajectoryManipulator')
+            ToolSvc += InDetTruthTrajectoryManipulator
+#            InDetTruthTrajectoryManipulator.OutputLevel = VERBOSE
 
         # --- the trajectory shared cluster hits fixer
 #        from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectorySharedFixerID
@@ -840,16 +875,17 @@ else:
                                          PRD_MultiTruthCollections       = [ PixelClusterTruth,SCT_ClusterTruth,TRT_DriftCircleTruth],
                                          InDetPRD_Provider               = InDetPRD_Provider,
                                          MinimumPt                       =  InDetNewTrackingCuts.minPT(),
-                                 #        Geantinos                       =  True,
-                                         PRD_TruthTrajectoryManipulators = [ InDetTruthTrajectorySorter, InDetTruthTrajectoryManipulator  ])
-#                                        PRD_TruthTrajectoryManipulators = [ InDetTruthTrajectorySorter, InDetTruthTrajectorySharedFixer  ])
+                                         PRD_TruthTrajectoryManipulators = [ InDetTruthTrajectorySorter ])
+        if not InDetFlags.doSLHC():
+            InDetPRD_TruthTrajectoryBuilder.PRD_TruthTrajectoryManipulators = [ InDetTruthTrajectorySorter, InDetTruthTrajectoryManipulator ]
         ToolSvc+=InDetPRD_TruthTrajectoryBuilder
 #        InDetPRD_TruthTrajectoryBuilder.OutputLevel = VERBOSE
 
         # --- the (1st) trajectory selector
-        from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectorySelectorID
-        InDetTruthTrajectorySelector = InDet__PRD_TruthTrajectorySelectorID(name='InDetTruthTrajectorySelector')
-        ToolSvc += InDetTruthTrajectorySelector
+        if not InDetFlags.doSLHC():
+            from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectorySelectorID
+            InDetTruthTrajectorySelector = InDet__PRD_TruthTrajectorySelectorID(name='InDetTruthTrajectorySelector')
+            ToolSvc += InDetTruthTrajectorySelector
 
         # --- the truth track creation algorithm
         from TrkTruthTrackAlgs.TrkTruthTrackAlgsConf import Trk__TruthTrackCreation
@@ -859,7 +895,9 @@ else:
                                                           OutputTrackCollection      = InDetKeys.PseudoTracks(),
                                                           AssoTool                   = InDetPrdAssociationTool,
                                                           TrackSummaryTool           = InDetTrackSummaryToolSharedHits,
-                                                          PRD_TruthTrajectorySelectors  = [ InDetTruthTrajectorySelector ] )
+                                                          PRD_TruthTrajectorySelectors  = [ ] )
+        if not InDetFlags.doSLHC():
+            InDetTruthTrackCreation.PRD_TruthTrajectorySelectors  = [ InDetTruthTrajectorySelector ]
 #        InDetTruthTrackCreation.OutputLevel = VERBOSE
         topSequence += InDetTruthTrackCreation
 
@@ -1185,6 +1223,8 @@ else:
         cuts = InDetNewTrackingCutsVeryLowPt
       elif InDetFlags.doLowPt():
         cuts = InDetNewTrackingCutsLowPt
+      elif InDetFlags.doSLHCConversionFinding():
+        cuts = InDetNewTrackingCutsSLHCConversionFinding
       else:
         cuts = InDetNewTrackingCuts
       include("InDetRecExample/ConfiguredInDetValidation.py")

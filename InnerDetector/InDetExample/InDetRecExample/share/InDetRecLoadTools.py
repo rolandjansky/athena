@@ -81,9 +81,11 @@ if InDetFlags.doPixelClusterSplitting():
         ToolSvc += NnClusterizationFactory
 
         # special setup for DVRetracking mode
-        if InDetFlags.doDVRetracking() :
+        # if InDetFlags.doDVRetracking() :
+        from IOVDbSvc.CondDB import conddb
+        if not conddb.folderRequested('/PIXEL/PixelClustering/PixelClusNNCalib'):
            # COOL binding
-           from IOVDbSvc.CondDB import conddb
+           # from IOVDbSvc.CondDB import conddb
            conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")
 
         print NnClusterizationFactory  
@@ -150,8 +152,21 @@ if InDetFlags.loadRotCreator():
             print  PixelClusterOnTrackTool
             if InDetFlags.doDBM():
                 print PixelClusterOnTrackToolDBM
+                
+        PixelClusterOnTrackToolDigital = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDigital",
+                                                                 DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
+                                                                 applyNNcorrection = False,
+                                                                 NNIBLcorrection = False,
+                                                                 SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
+                                                                 RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
+                                                                 ErrorStrategy = 2,
+                                                                 PositionStrategy = 1 
+                                                                 )
+
+        ToolSvc += PixelClusterOnTrackToolDigital
     else:
         PixelClusterOnTrackTool = None
+        PixelClusterOnTrackToolDigital = None
 
     if DetFlags.haveRIO.SCT_on():
         from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
@@ -187,6 +202,12 @@ if InDetFlags.loadRotCreator():
         ToolSvc += InDetRotCreatorDBM
 
     ToolSvc += InDetRotCreator
+    
+    InDetRotCreatorDigital = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDigital',
+                                              ToolPixelCluster = PixelClusterOnTrackToolDigital,
+                                              ToolSCT_Cluster  = SCT_ClusterOnTrackTool,
+                                              Mode             = 'indet')
+    ToolSvc += InDetRotCreatorDigital
 
     #
     # --- configure broad cluster ROT creator
@@ -1067,7 +1088,7 @@ if InDetFlags.doPattern():
     InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinder',
                                                                  PropagatorTool        = InDetPatternPropagator,
                                                                  UpdatorTool           = InDetPatternUpdator,
-                                                                 RIOonTrackTool        = InDetRotCreator,
+                                                                 RIOonTrackTool        = InDetRotCreatorDigital,
                                                                  AssosiationTool       = InDetPrdAssociationTool,
                                                                  usePixel              = DetFlags.haveRIO.pixel_on(),
                                                                  useSCT                = DetFlags.haveRIO.SCT_on(),
@@ -1766,5 +1787,15 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
 
     print 'ERROR: Sorting option '+InDetFlags.primaryVertexSortingSetup()+' not defined. '
     
-
+# ------------------------------------------------------------
+#
+# ----------- Loading of tool to monitor track candidates in ambi solving
+#
+# ------------------------------------------------------------
+if InDetFlags.doTIDE_AmbiTrackMonitoring():
+  from TrkValTools.TrkValToolsConf import Trk__TrkObserverTool
+  TrackObserverTool = Trk__TrkObserverTool("TrackObserverTool")
+  ToolSvc += TrackObserverTool
+  if InDetFlags.doPrintConfigurables():
+      print TrackObserverTool
 
