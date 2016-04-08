@@ -14,7 +14,8 @@
 #include "TrkTruthData/SubDetHitStatistics.h"
 
 namespace Trk {
-  struct SubDetHitStatistics_p0 {
+  class SubDetHitStatistics_p0 {
+  public:
     //enum SubDetType { Pixel=0, SCT, TRT, MDT, RPC, TGC, CSC, NUM_SUBDETECTORS };
     unsigned char numPRDs[SubDetHitStatistics::NUM_SUBDETECTORS];
     // default ctr leaves memory uninitialized, which is fine.

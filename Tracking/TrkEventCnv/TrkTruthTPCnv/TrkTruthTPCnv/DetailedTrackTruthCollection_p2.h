@@ -21,7 +21,8 @@
 
 namespace Trk {
 
-  struct DetailedTrackTruthCollection_p2 {
+  class DetailedTrackTruthCollection_p2 {
+  public:
 
     DataLink_p1 m_trackCollectionLink;
     

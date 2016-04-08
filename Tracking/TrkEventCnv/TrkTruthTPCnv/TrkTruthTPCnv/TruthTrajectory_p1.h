@@ -18,7 +18,7 @@
 // Use T/P separated HepMcParticleLink
 
 namespace Trk {
-  struct TruthTrajectory_p1 : public std::vector<HepMcParticleLink_p1> {};
+  class TruthTrajectory_p1 : public std::vector<HepMcParticleLink_p1> {};
 }
 
 CLASS_DEF( Trk::TruthTrajectory_p1 , 185011228 , 1 )

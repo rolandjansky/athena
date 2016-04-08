@@ -45,8 +45,8 @@ public:
   static TruthTrajectory& trajectory(DetailedTrackTruth *dt) { return dt->m_trajectory; }
 
   // SubDetHitStatistics
-  static unsigned char* numPRDs(SubDetHitStatistics *stat) { return stat->numPRDs; }
-  static const unsigned char* numPRDs(const SubDetHitStatistics *stat) { return stat->numPRDs; }
+  static unsigned char* numPRDs(SubDetHitStatistics *stat) { return stat->m_numPRDs; }
+  static const unsigned char* numPRDs(const SubDetHitStatistics *stat) { return stat->m_numPRDs; }
 
 };
 
