@@ -1,0 +1,18 @@
+package GeneratorFortranCommon
+
+author Andy Buckley <andy.buckley@cern.ch>
+author Ian Hinchliffe <I_Hinchliffe@lbl.gov>
+author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+use AtlasFortranPolicy  AtlasFortranPolicy-*
+use CLIDSvc             CLIDSvc-*              Control
+use GaudiInterface      GaudiInterface-*       External
+
+#private
+#use AthenaKernel        AthenaKernel-*         Control
+#use AtlasCLHEP          AtlasCLHEP-*           External
+#use GeneratorObjects    GeneratorObjects-*     Generators
+#end_private
+
+apply_pattern dual_use_library files="inituser.F useuser.F"
