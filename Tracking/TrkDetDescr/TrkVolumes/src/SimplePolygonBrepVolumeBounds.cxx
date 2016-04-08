@@ -31,10 +31,12 @@ Trk::SimplePolygonBrepVolumeBounds::SimplePolygonBrepVolumeBounds() :
  m_halfY(0.),
  m_halfZ(0.),
  m_ordering(-1),
- m_combinedVolume(),
- m_envelope(),
+ m_combinedVolume(0),
+ m_envelope(0),
  m_objectAccessor()
-{}
+{
+  //@TODO an object created by the default constructor cannot be copied or assigned.
+}
 
 Trk::SimplePolygonBrepVolumeBounds::SimplePolygonBrepVolumeBounds(std::vector<std::pair<float,float> > xyVtx, float halez) :
  VolumeBounds(),
