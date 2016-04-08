@@ -38,13 +38,10 @@
 
 // #define _myDebug
 
-static TestActionTimer ts1("TestActionTimer");
-
-TestActionTimer::TestActionTimer(std::string s)
-  : ActionsBase(s), UserAction(s),
+TestActionTimer::TestActionTimer(const std::string& type, const std::string& name, const IInterface* parent):UserActionBase(type,name,parent),
     m_runTimer(0), m_eventTimer(0),
     m_runTime(0.), m_eventTime(0.),
-    m_nev(0), m_histSvc("THistSvc",s)
+    m_nev(0), m_histSvc("THistSvc",name)
 {
   m_timeName.resize(eMax);
 
@@ -70,7 +67,7 @@ TestActionTimer::TestActionTimer(std::string s)
   m_timeName[eGam]   = "Gam";
   m_timeName[eNeut]  = "Neut";
 
-  G4cout << "TestActionTimer::Constructor: Labels "
+  G4cout<< "TestActionTimer::Constructor: Labels "
          <<" Run Event ";
   for (int i(0); i < eMax; ++i) G4cout << m_timeName[i] << " ";
   G4cout << "Particle Dead" << G4endl;
@@ -96,7 +93,7 @@ TestActionTimer::TestActionTimer(std::string s)
 #endif
 }
 
-void TestActionTimer::BeginOfEventAction(const G4Event*)
+void TestActionTimer::BeginOfEvent(const G4Event*)
 {
 #ifdef _myDebug
   G4cout << "#########################################" << G4endl
@@ -121,7 +118,7 @@ void TestActionTimer::BeginOfEventAction(const G4Event*)
   return;
 }
 
-void TestActionTimer::EndOfEventAction(const G4Event*)
+void TestActionTimer::EndOfEvent(const G4Event*)
 {
 #ifdef _myDebug
   G4cout << "#########################################" << G4endl
@@ -140,7 +137,7 @@ void TestActionTimer::EndOfEventAction(const G4Event*)
   return;
 }
 
-void TestActionTimer::BeginOfRunAction(const G4Run*)
+void TestActionTimer::BeginOfRun(const G4Run*)
 {
 #ifdef _myDebug
   G4cout << "#########################################" << G4endl
@@ -160,7 +157,7 @@ void TestActionTimer::BeginOfRunAction(const G4Run*)
   return;
 }
 
-void TestActionTimer::EndOfRunAction(const G4Run*)
+void TestActionTimer::EndOfRun(const G4Run*)
 {
 #ifdef _myDebug
   G4cout << "#########################################" << G4endl
@@ -275,7 +272,7 @@ void TestActionTimer::EndOfRunAction(const G4Run*)
   return;
 }
 
-void TestActionTimer::SteppingAction(const G4Step* aStep)
+void TestActionTimer::Step(const G4Step* aStep)
 {
 #ifdef _myDebug
   G4cout << "#########################################" << G4endl
@@ -485,4 +482,16 @@ int TestActionTimer::ClassifyVolume( G4String& nom ) const {
     return eSev;
   }
   return eOther;
+}
+
+StatusCode TestActionTimer::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
 }

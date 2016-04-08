@@ -22,9 +22,7 @@
 
 #include "VolumeTreeNavigator.h"
 
-#include "FadsActions/ActionsBase.h"
-#include "FadsActions/UserAction.h"
-#include "FadsActions/TrackingAction.h"
+#include "G4AtlasTools/UserActionBase.h"
 
 #include <string>
 #include <vector>
@@ -39,16 +37,19 @@ class Algorithm;
 class IMessageSvc;
 class TFile;
 
-class TestActionEHist: public FADS::ActionsBase, public FADS::UserAction, public FADS::TrackingAction
+class TestActionEHist final: public UserActionBase
 {  
  public:
 
-  TestActionEHist(std::string s);
-  void BeginOfRunAction(const G4Run*);		//!< Action that starts the timers at the beginning of the run
-  void EndOfRunAction(const G4Run*);		//!< Action that prints all information at the end of the run
-  void PreUserTrackingAction(const G4Track*);	//!< Tracking action called at beginning of track, stores trajectory
-  void PostUserTrackingAction(const G4Track*);	//!< Tracking action called at end of track, stores trajectory
-  void SteppingAction(const G4Step*);		//!< Stepping action that increments the appropriate timer
+  TestActionEHist(const std::string& type, const std::string& name, const IInterface* parent);
+  virtual void BeginOfRun(const G4Run*) override;		//!< Action that starts the timers at the beginning of the run
+  virtual void EndOfRun(const G4Run*) override;		//!< Action that prints all information at the end of the run
+  virtual void PreTracking(const G4Track*) override;	//!< Tracking action called at beginning of track, stores trajectory
+  virtual void PostTracking(const G4Track*) override;	//!< Tracking action called at end of track, stores trajectory
+  virtual void Step(const G4Step*) override;		//!< Stepping action that increments the appropriate timer
+
+  virtual StatusCode queryInterface(const InterfaceID&, void**);
+  
 
  private:
 
