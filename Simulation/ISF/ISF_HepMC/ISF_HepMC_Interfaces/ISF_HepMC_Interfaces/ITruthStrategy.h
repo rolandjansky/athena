@@ -35,7 +35,7 @@ namespace ISF {
       static const InterfaceID& interfaceID() { return IID_ITruthStrategy; }
       
       /** true if the ITruthStrategy implementation applies to the given ITruthIncident */
-      virtual bool pass( const ITruthIncident& incident) const = 0;
+      virtual bool pass( ITruthIncident& incident) const = 0;
   };
 
 } // end of namespace
