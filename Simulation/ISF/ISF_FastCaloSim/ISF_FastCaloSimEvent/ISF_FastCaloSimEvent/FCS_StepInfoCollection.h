@@ -6,7 +6,7 @@
 #define ISF_FASTCALOSIMEVENT_ISF_FCS_STEPINFOCOLLECTION_H
 
 // athena includes
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 // local include
 #include "ISF_FastCaloSimEvent/FCS_StepInfo.h"
@@ -39,7 +39,9 @@ namespace ISF_FCS_Parametrization {
 } // namespace ShowerLib
 
 
-#include "SGTools/CLASS_DEF.h"
+#ifndef CLIDSVC_CLASSDEF_H
+#include "CLIDSvc/CLASS_DEF.h"
+#endif
 
 CLASS_DEF( ISF_FCS_Parametrization::FCS_StepInfoCollection , 1330006248 , 1 )
 

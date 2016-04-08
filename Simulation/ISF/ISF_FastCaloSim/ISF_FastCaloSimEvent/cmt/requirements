@@ -1,19 +1,27 @@
 package ISF_FastCaloSimEvent
 
 public
-use AtlasPolicy                AtlasPolicy-*
-use AtlasCLHEP                 AtlasCLHEP-*                    External
-use GaudiInterface             GaudiInterface-*                External
-use TileSimEvent               TileSimEvent-*                  TileCalorimeter
-use SGTools                    SGTools-*                       Control
-use AthContainers              AthContainers-*                 Control
-use AtlasROOT                  AtlasROOT-*                     External
-use CaloGeoHelpers             CaloGeoHelpers-*                Calorimeter
+use  AtlasPolicy                AtlasPolicy-*
+use  AtlasCLHEP                 AtlasCLHEP-*                    External
+use  GaudiInterface             GaudiInterface-*                External
+#use  LArSimEvent               LArSimEvent-*                   LArCalorimeter/
+use  TileSimEvent               TileSimEvent-*                  TileCalorimeter
+use  CLIDSvc                    CLIDSvc-*                       Control
+use  DataModel                  DataModel-*                     Control
 
-library ISF_FastCaloSimEventLib *.cxx
-#apply_pattern installed_library
-apply_pattern named_installed_library library=ISF_FastCaloSimEventLib
-apply_pattern have_root_headers root_headers="IntArray.h TFCS1DFunction.h TFCSEnergyParametrization.h TFCSExtrapolationState.h TFCSParametrization.h TFCSParametrizationBase.h TFCSPCAEnergyParametrization.h TFCSSimulationState.h TFCSTruthState.h ../ISF_FastCaloSimEvent/LinkDef.h" headers_lib="ISF_FastCaloSimEventLib"
+#use  AthenaBaseComps            AthenaBaseComps-*               Control
+#use  AtlasHepMC                 AtlasHepMC-*                    External
+#use  BarcodeInterfaces          BarcodeInterfaces-*             Simulation/Barcode
+#use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
+#use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
+end_public
+
+private
+
+public
+
+library ISF_FastCaloSimEvent *.cxx
+apply_pattern installed_library
 
 #for dictionaries
 private
