@@ -12,6 +12,7 @@ use HitManagement       HitManagement-*         Simulation
 use EventInfo                    EventInfo-*                    Event
 
 use PileUpTools          PileUpTools-*         Control
+# use xAODEventInfo       xAODEventInfo-*    Event/xAOD 
 
 use ALFA_SimEv           ALFA_SimEv-*          ForwardDetectors/ALFA
 use ALFA_RawEv           ALFA_RawEv-*          ForwardDetectors/ALFA
