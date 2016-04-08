@@ -2,15 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TILEPULSESHAPE__HPP
-#define __TILEPULSESHAPE__HPP
+#ifndef TILEPULSESIMULATOR_TILEPULSESHAPE_H
+#define TILEPULSESIMULATOR_TILEPULSESHAPE_H
 
 #include "TObject.h"
 #include "TString.h"
-#include "TF1.h"
 #include <vector>
 
-
+class TF1;
 class TGraph;
 class TSpline;
 class MsgStream;
@@ -34,11 +33,11 @@ class TilePulseShape : public TObject{
   int scalePulse(double leftSF=1., double rightSF=1.);
   
  private:
-  TGraph* _pulseShape;
-  TGraph* _deformedShape;
-  TSpline* _deformedSpline;
+  TGraph* m_pulseShape;
+  TGraph* m_deformedShape;
+  TSpline* m_deformedSpline;
   
   MsgStream* m_log;
 };
 
-#endif
+#endif // TILEPULSESIMULATOR_TILEPULSESHAPE_H
