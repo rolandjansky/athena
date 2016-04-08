@@ -1,0 +1,63 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef AFP_CONSTANTS_H
+#define AFP_CONSTANTS_H 1
+
+//#define USE_TDLBARS 1
+
+#define DETXSIDE (-1)
+#define LHCXOFFSET (-97.0*CLHEP::mm)
+
+#define SIDCNT 6
+#define NOMINALSIDSLOPE (13*CLHEP::deg)
+#define NOMINALSIDSPACING (10.0*CLHEP::mm)
+#define NOMINALSIDPOCKETDISTANCE (0.1*CLHEP::mm) //0.1
+#define SID_CORRZOFFSET (5.0*CLHEP::mm)
+#define SID_SENSORXDIM (18.8*CLHEP::mm)
+#define SID_SENSORYDIM (20.2*CLHEP::mm)
+#define SID_SENSORTHICKNESS (0.250*CLHEP::mm)
+#define SID_MAINPLATEXDIM (75.6*CLHEP::mm)
+#define SID_MAINPLATEYDIM (80.0*CLHEP::mm)
+#define SID_PLATETHICKNESS (1.0*CLHEP::mm)
+#define SID_VACUUMSENSORTHICKNESS (0.0001*CLHEP::mm)
+#define SID_GLOBALVACUUMSENSORID 11
+#define SID_SHB_GLOBALVACUUMSENSORZOFFSET (275*CLHEP::mm)
+#define SID_LHB_GLOBALVACUUMSENSORZOFFSET (575*CLHEP::mm)
+#define SID_DEATH_EDGE (1.9*CLHEP::mm)
+#define SID_LOWER_EDGE (0.1*CLHEP::mm)
+
+#ifdef USE_TDLBARS
+	#define TD_TRAINSCNT 3
+	#define TD_COLUMNSCNT 4
+	#define TD_NOMINALSLOPE (48*CLHEP::deg)
+	#define TD_FIRSTBARVERTLENGTH (150.0*CLHEP::mm)
+	#define TD_FIRSTBARHORZLENGTH (50.0*CLHEP::mm)
+	#define TD_SLIMBARBORDERWIDTH (0.001*CLHEP::mm)
+#else
+	#define TDQUARTICROWSCNT 4 //in x-axis
+	#define TDQUARTICCOLSCNT 8 //in z-axis
+	#define TDQUARTICLENGTH (150.0*CLHEP::mm)
+	#define NOMINALTDSLOPE (48*CLHEP::deg)
+	#define TDCOVERTHICKNESS (0.10*CLHEP::mm)
+	#define NOMINALTDPOCKETDISTANCE (0.10*CLHEP::mm) //(TDCOVERTHICKNESS+0.1*CLHEP::mm)
+	#define TDSENSORTHICKNESS (1.0*CLHEP::mm)
+	#define TDDETECTORHEIGHT (10.0*CLHEP::mm)
+	#define TD_SLIMBARBORDERWIDTH (0.001*CLHEP::mm)
+#endif
+
+#define QUARTICCNT 2
+#define SHORTHBPZPOS (204.500*CLHEP::m)//(204.500*CLHEP::m)
+#define LONGHBPZPOS (212.675*CLHEP::m)//(212.675*CLHEP::m)
+#define STATIONSHIFTINYAXIS (5.0*CLHEP::mm)
+#define LONGHBFLOORXPOS (-1.5*CLHEP::mm)//(2.3*CLHEP::mm)
+#define SHORTHBFLOORXPOS (-1.5*CLHEP::mm)//(-0.6*CLHEP::mm)
+#define QUARTICYPOSINLHB (25.0*CLHEP::mm)
+#define QUARTIC1ZPOSINLHB (0.0*CLHEP::mm)
+#define QUARTIC2ZPOSINLHB (200.0*CLHEP::mm)
+
+#define HBPTHINWINDOWTHICKNESS (0.3*CLHEP::mm) // design window thickness; maximum is 3 mm (wall thickness)
+#define HBPWINDOWCUTYSIGN (1) // y axis sign, where thin window should have cutted corner
+
+#endif //AFP_CONSTANTS_H
