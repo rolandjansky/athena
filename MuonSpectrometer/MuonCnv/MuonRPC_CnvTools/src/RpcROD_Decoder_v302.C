@@ -6,6 +6,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollection_v302new(BS data, const uint32_t 
 							const uint32_t& sourceId ) const
 
 {
+  ATH_MSG_VERBOSE("in fillCollection_v302new");
   //std::cout<<" in fillCollection_v302"<<std::endl;
   std::map<Identifier,RpcPad*> vmap;
   vmap[v.identify()]=&v;
@@ -29,6 +30,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
   // m_bench.point(1);
   // unpack the 32 bits words into 16 bits 
   // no ROD header and footer 
+  ATH_MSG_VERBOSE("in fillCollectionFromRob_v302");
   std::vector<uint16_t> p = get16bits_v301(data,data_size,0,0);
     
   const int size = p.size();
@@ -76,7 +78,9 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
       		<< " " << MSG::hex << decoded << MSG::dec << " " << decoded_char << endreq;
     }
   }
-    
+  int nwInCM = 0;
+
+  
     
   if (size == 0) {
     ATH_MSG_VERBOSE(" Buffer size 0 ! ");
@@ -521,7 +525,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
         } // isSLHeader
         
       } else if(isPadHeader || isPADFragment)  {
-	
+
 	// if (bsErrCheck_InRX || bsErrCheck_FromSLFooter || bsErrCheck_FromPDFooter) 
 	//   {
 	//     if (!isPadHeader) 
@@ -541,7 +545,13 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
         PDROS.decodeFragment(currentWord,recField);
         
         if(recField == 'H') {
-          // bsErrCheck_errorInPDHeader = false;
+	  // Here's a PAD HEADER
+	  nwInCM=0;
+	  // Here reset the CM Fragment and the flag SL_Found to cope with corruption of earlier data fragments (missing sl footer)
+	  (myRPC.CMFragment())->reset();
+	  myRPC.setSLFragmentFound(false); 
+	  
+          //bsErrCheck_errorInPDHeader = false;
 	  //bsErrCheck_FromPDHeader    = true;
 	  //bsErrCheck_FromSLFooter    = false;
 	  //bsErrCheck_FromPDFooter    = false;
@@ -562,7 +572,9 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 
           side = (sector<32) ? 0:1; // 0 = side C[z<0], 1 = side A[z>0]
           uint16_t sectorLogic = sector-side*32; // range is 0-31
-	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"Decoding Pad Header - side,sectorLogic= "<<side<<" "<<sectorLogic<<" need to get from cabling padOfflineId"<<endreq;
+	  //if (sector==22 || sector==23 || sector==26 || sector==27) msg(MSG::INFO) <<"Decoding Pad Header - side,sectorLogic= "<<side<<" "<<sectorLogic<<"  PadID/Sector "<<PadID<<"/"<<sector<<" need to get from cabling padOfflineId"<<endreq;
+	  //else 
+	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"Decoding Pad Header - side,sectorLogic= "<<side<<" "<<sectorLogic<<"  PadID/Sector "<<PadID<<"/"<<sector<<" need to get from cabling padOfflineId"<<endreq;
 
           // get the offline ID of the pad
           if(!m_cabling->giveOffflineID(side,sectorLogic,PadID,padOfflineId))
@@ -690,12 +702,17 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 	  }
         
 	// here scrolling all PAD/CM fragments until a CM footer is found (foundCM>0 when a CM footer is found)
+	//if (sector==22 || sector==23 || sector==26 || sector==27)  myRPC.enablePrintOut();
 	int foundCM = 0;
 	foundCM = myRPC.pushWord(currentWord,0);
+	//std::cout<<" foundCM = "<<foundCM<<std::endl;
+	//myRPC.disablePrintOut();
         
 	if(foundCM==1) { // corresponds to CM footer found - all CM words stored in myRPC
           
-	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << myRPC.CMFragment() << endreq;
+	  //if (sector==22 || sector==23 || sector==26 || sector==27)  msg(MSG::INFO)<< " in PadID/Sector "<<PadID<<"/"<<sector<<" CM footer found: n. of words in CM including Footer "<<nwInCM<<myRPC.CMFragment() << endreq;
+	  //else 
+	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " in PadID/Sector "<<PadID<<"/"<<sector<< " CM footer found: n. of words in CM including Footer "<<nwInCM<<myRPC.CMFragment() << endreq;
           
 	  // If the pad is the good one, add the CMs to the container   
 	  if (foundPad) {
@@ -705,14 +722,23 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
             
 	    matrixROS = matrix->getHeader();  
 	    uint16_t cmaId  = matrixROS.cmid();
+	    // special "feet" towers have "high-pt" cmaIds in hardware, transform to low-pt 
+	    if ((sectorForCabling==21||sectorForCabling==22||sectorForCabling==25||sectorForCabling==26)&& 
+		(PadID==2||PadID==4||PadID==5||PadID==7)&& 
+		cmaId>=4)   cmaId=cmaId-4; 
+	    //msg(MSG::DEBUG) << "sector, Pad, cmaid : "<< sectorForCabling << ", " << PadID << ", " <<  cmaId << endreq; 	    
 	    uint16_t fel1id = matrixROS.fel1id();
             
 	    matrixROS = matrix->getSubHeader();
 	    uint16_t febcid = matrixROS.febcid();
-            
+
+	    //if (sector==22 || sector==23 || sector==26 || sector==27)  msg(MSG::INFO) 
+	    //<< "Creating a new CM, cmaId=" << cmaId << " fel1id=" << fel1id
+	    //<< " febcid=" << febcid <<" in PadID/Sector "<<PadID<<"/"<<sector<<endreq;
+	    //else 
 	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
 					<< "Creating a new CM, cmaId=" << cmaId << " fel1id=" << fel1id
-					<< " febcid=" << febcid << endreq;
+					<< " febcid=" << febcid <<" in PadID/Sector "<<PadID<<"/"<<sector<<endreq;
             
 	    // Create the new cm
 	    RpcCoinMatrix * coinMatrix = new RpcCoinMatrix (padOfflineId,cmaId,fel1id,febcid);
@@ -737,9 +763,15 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 		uint16_t channel = matrixROS.channel();
 		firedChan = new RpcFiredChannel(bcid,time,ijk,channel);
                 
+		
+		//if (sector==22 || sector==23 || sector==26 || sector==27)
+		//ATH_MSG_INFO (
+		//		 "Adding a fired channel, bcid=" << bcid << " time=" 
+		//		 << " ijk=" << ijk << " channel=" << channel<< " in PadID/Sector "<<PadID<<"/"<<sector);
+		//else
 		ATH_MSG_VERBOSE (
 				 "Adding a fired channel, bcid=" << bcid << " time=" 
-				 << " ijk=" << ijk << " channel=" << channel);
+				 << " ijk=" << ijk << " channel=" << channel<< " in PadID/Sector "<<PadID<<"/"<<sector);
                 
 		// add the fired channel to the matrix
 		coinMatrix->push_back(firedChan); 
@@ -765,9 +797,13 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 	  } // end of the matrix decoding
           
 	  (myRPC.CMFragment())->reset(); // reset to start storing a new CM 
-          
+          nwInCM=0;
 	} // end of the CM decoding inside the PAD data fragment
-      
+	else
+	  {
+	    ++nwInCM;
+	    ATH_MSG_VERBOSE ("generic CM word - counting words in this cm " << nwInCM);
+	  }
 
 	/*
 	// here check pad condition errors (Niko)
