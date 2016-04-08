@@ -11,6 +11,21 @@ line.DrawArrow(500-TRASL_FACTOR/2./10,-1000,500+TRASL_FACTOR/2/10.,-1000,0.01,"|
 text = TText() 
 text.DrawText(500,-1100,"0.1 mm") 
 
+# IBL Trans Cans
+iblTransCan = []
+for i in range(20):
+    iblTransCan.append(TCanvas("IBL Translation Visualization "+str(i-10),"IBL Eta module "+str(i-10),800,800) )
+    iblDim = 100
+    h1 = gPad.DrawFrame(-1*iblDim,-1*iblDim,iblDim,iblDim)
+    h1.SetTitle("Translations x"+str(TRASL_FACTOR)+" Eta Module "+str(i-10))
+    h1.GetXaxis().SetTitle("x [mm]")
+    h1.GetYaxis().SetTitle("y [mm]")
+    # gPad.SetGridx()
+    # gPad.SetGridy()
+    line = TArrow()
+    line.DrawArrow(150-TRASL_FACTOR/2./10,-200,150+TRASL_FACTOR/2/10.,-200,0.01,"|-|")
+    text = TText()
+    text.DrawText(150,-180,"0.1 mm")
 
 # Pixel Trans Cans
 pixelTransCan = []
@@ -34,7 +49,7 @@ for i in range(12):
     sctTransCan.append(TCanvas("SCT Translation Visualization "+str(i-6),"Sct Eta module "+str(i-6),800,800) )
     sctDim = 650
     h1 = gPad.DrawFrame(-1*sctDim,-1*sctDim,sctDim,sctDim)
-    h1.SetTitle("translation x"+str(TRASL_FACTOR)+" Eta Module "+str(i+6)) 
+    h1.SetTitle("translation x"+str(TRASL_FACTOR)+" Eta Module "+str(i-6)) 
     h1.GetXaxis().SetTitle("x [mm]") 
     h1.GetYaxis().SetTitle("y [mm]") 
     # gPad.SetGridx() 
