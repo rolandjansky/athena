@@ -210,7 +210,7 @@ void PixelClusterErrorData::Print(std::string file) const {
 
 // Load costants from file
 void PixelClusterErrorData::Load(std::string file){
-
+  int nmax(100); // protection for loop bound
   std::ifstream infile(file.c_str()); 
 
   // number of bins for barrel and endcap
@@ -235,6 +235,8 @@ void PixelClusterErrorData::Load(std::string file){
   m_ibletaerror.clear();
 
   float value;
+  nb = std::min(nb, nmax);
+  ne = std::min(ne,nmax);
   for(int ib=0; ib<nb; ib++){
     infile >> value;
     m_barrelphierror.push_back(value);

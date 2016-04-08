@@ -511,7 +511,7 @@ PixelChargeInterpolationParameters::PixelChargeInterpolationParameters(){
 
   // Load costants from file
   void PixelChargeInterpolationParameters::Load(std::string file){
- 
+     int nmax(200); // set protection of variables read from file, not too big
      std::ifstream infile(file.c_str());
      int version;
      int nxbins;
@@ -534,6 +534,10 @@ PixelChargeInterpolationParameters::PixelChargeInterpolationParameters(){
        m_version = 0;
        nxbins = version;
        infile >> nybins;
+       if(nxbins<0)nxbins = 0;
+       nxbins = std::min(nxbins, nmax);
+       if(nybins<0)nybins = 0;
+       nybins = std::min(nybins, nmax);
        m_deltax.clear();
        m_deltay.clear();
        m_deltax.reserve(nxbins);
@@ -569,12 +573,16 @@ PixelChargeInterpolationParameters::PixelChargeInterpolationParameters(){
 
        float value; 
        m_csx.clear();
+       if(ncsx<0)ncsx = 0;
+       ncsx = std::min(ncsx,nmax);
        m_csx.reserve(ncsx+1);
        for(int i=0; i<ncsx+1; i++){
 	 infile >> value;
 	 m_csx.push_back(value);
        }
        m_csy.clear();
+       if(ncsy<0)ncsy = 0;
+       ncsy = std::min(ncsy, nmax);
        m_csy.reserve(ncsy+1);
        for(int i=0; i<ncsy+1; i++){
 	 infile >> value;
@@ -582,12 +590,14 @@ PixelChargeInterpolationParameters::PixelChargeInterpolationParameters(){
        }
        if(m_etaibl>0 && m_alphaibl >0 ){ // IBL
 	 m_ibletabins.clear();
+	 m_etaibl = std::min(m_etaibl, nmax);
 	 m_ibletabins.reserve(m_etaibl+1);
 	 for(int i=0; i<m_etaibl+1; i++){
 	   infile >> value;
 	   m_ibletabins.push_back(value);
 	 }
 	 m_iblphibins.clear();
+	 m_alphaibl = std::min(m_alphaibl, nmax);
 	 m_iblphibins.reserve(m_alphaibl+1);
 	 for(int i=0; i<m_alphaibl+1; i++){
 	   infile >> value;
@@ -596,12 +606,16 @@ PixelChargeInterpolationParameters::PixelChargeInterpolationParameters(){
        }
        //
        m_etabins.clear();
+       if(neta<0)neta = 0;
+       neta = std::min(neta, nmax);
        m_etabins.reserve(neta+1);
        for(int i=0; i<neta+1; i++){
 	 infile >> value;
 	 m_etabins.push_back(value);
        }
        m_phibins.clear();
+       if(nalpha<0)nalpha = 0;
+       nalpha = std::min(nalpha, nmax);
        m_phibins.reserve(nalpha+1);
        for(int i=0; i<nalpha+1; i++){
 	 infile >> value;
@@ -616,6 +630,10 @@ PixelChargeInterpolationParameters::PixelChargeInterpolationParameters(){
        m_deltay.clear();
        m_errdeltax.clear();
        m_errdeltay.clear();
+       if(nxbins<0)nxbins = 0;
+       nxbins = std::min(nxbins, nmax);
+       if(nybins<0)nybins = 0;
+       nybins =std::min(nybins, nmax);
        m_deltax.reserve(nxbins);
        m_deltay.reserve(nybins); 
        m_errdeltax.reserve(nxbins);
