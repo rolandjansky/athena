@@ -7,8 +7,8 @@
 // Author: Joe Boudreau August 204
 
 
-#ifndef __HECConstructionH62002_H__
-#define __HECConstructionH62002_H__
+#ifndef LARGEOH62002ALGS_HECCONSTRUCTIONH62002_H
+#define LARGEOH62002ALGS_HECCONSTRUCTIONH62002_H
 
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
@@ -43,7 +43,7 @@ namespace LArGeo {
 
     
     // volumes that are private member variables:
-    GeoFullPhysVol*  h6Phys;
+    GeoFullPhysVol*  m_h6Phys;
 
     //static LArGeo::VDetectorParameters* m_parameters;
     //static VDetectorParameters* HECConstructionH62002::m_parameters;
@@ -55,4 +55,4 @@ namespace LArGeo {
 
 }  // namespace LArGeo
 
-#endif // __HECConstructionH62002_H__
+#endif // LARGEOH62002ALGS_HECCONSTRUCTIONH62002_H
