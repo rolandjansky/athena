@@ -1,0 +1,16 @@
+package RDO_OverlayBase
+
+author Andrei Gaponenko <agaponenko@lbl.gov>
+
+use AtlasPolicy 	AtlasPolicy-*
+
+#use GaudiInterface 	GaudiInterface-* 	External
+#use StoreGate 		StoreGate-* 		Control
+#use Identifier		Identifier-*		DetectorDescription
+#use DataModel		DataModel-*		Control
+#use AthenaKernel	AthenaKernel-*		Control
+#use OverlayAlgBase	OverlayAlgBase-*	Event/EventOverlay
+
+# apply_pattern installed_library
+# 
+# library RDO_OverlayBase *.cxx
