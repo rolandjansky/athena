@@ -5,7 +5,6 @@
 #ifndef MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIER_H
 #define MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIER_H
 /********************************************************************
-
 NAME:     MCTruthClassifier.h 
 PACKAGE:  atlasoff/PhysicsAnalysis/MCTruthClassifier
 AUTHORS:  O. Fedin
@@ -15,45 +14,48 @@ Updated:
 ********************************************************************/
 
 // INCLUDE HEADER FILES:
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-//
+#include "AsgTools/AsgTool.h"
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
 #include "MCTruthClassifier/IMCTruthClassifier.h"
-//
 // EDM includes
-#include "xAODTruth/TruthParticleContainer.h"
-//Truth PArticles in cone
-#include "ParticlesInConeTools/ITruthParticlesInConeTool.h"
 
+#include "xAODTruth/TruthParticleContainerFwd.h"
+#include "xAODTruth/TruthVertexFwd.h"
+
+
+#ifndef XAOD_ANALYSIS
+#include "GaudiKernel/ToolHandle.h"
+#include "ParticlesInConeTools/ITruthParticlesInConeTool.h"
 namespace HepMC {
  class GenParticle;
 }
-// CLHEP
-#include "HepPDT/ParticleDataTable.hh"
 
 namespace Trk {
   class IParticleCaloExtensionTool;
 }
+#endif
 
-class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
 
+class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgTool {
+
+  ASG_TOOL_CLASS(MCTruthClassifier, IMCTruthClassifier)
  public:
-  // constructor 
-  MCTruthClassifier(const std::string& type, const std::string& name, const IInterface* parent);
 
+  // constructor 
+  MCTruthClassifier(const std::string& type);
   // destructor 
   ~MCTruthClassifier();  
 
   // Gaudi algorithm hooks
-  
   StatusCode initialize();
   virtual StatusCode execute();
   StatusCode finalize();
     
-  //temporary interface to old EDM  
+  //Old EDM  
+#ifndef XAOD_ANALYSIS
   std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>  particleTruthClassifier(const HepMC::GenParticle *); 
-
+  bool compareTruthParticles(const HepMC::GenParticle *genPart, const xAOD::TruthParticle *truthPart);
+#endif
   std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::TruthParticle *);     
   std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::TrackParticle *);
   std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Electron* );     
@@ -62,17 +64,12 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
   std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::CaloCluster* );
   std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Jet*, bool DR );
 
-  // It is just to keep backward compatibility  - don't use this  methode. 
-  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> trackClassifier(const xAOD::TrackParticle *);
-
-
   MCTruthPartClassifier::ParticleOutCome getParticleOutCome(){return  m_ParticleOutCome;}
 
   float getProbTrktoTruth(){return m_probability;}
 
   const xAOD::TruthParticle* getGenPart(const xAOD::TrackParticle *);
   const xAOD::TruthParticle* getGenPart(){return m_thePart;}
-
   const xAOD::TruthParticle* getMother(const xAOD::TruthParticle*);
   const xAOD::TruthParticle* getMother(){return m_Mother;}
 
@@ -90,17 +87,9 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
 
   std::vector<const xAOD::TruthParticle*>* getTauFinalState(){return &m_tauFinalStatePart;}
  
-
   float getdeltaRMatch(){return m_deltaRMatch;}
-  void  setdeltaRMatchCut(float m_deltaRMatch){m_deltaRMatchCut=m_deltaRMatch; return;}
   float getdeltaPhiMatch(){return m_deltaPhi;}
-  void  setdeltaPhiMatchCut(float m_deltaPhi){m_deltaPhiMatchCut=m_deltaPhi; return;}
-      
-  void  setNumOfSiHitsCut(uint8_t m_NumOfSiHits){m_NumOfSiHitsCut=m_NumOfSiHits; return;}
   uint8_t   getNumOfSiHits(){return m_NumOfSiHits;}
-
-  void  setPhtdRMatchToTrCut(float m_phtdRtoTr){m_phtdRtoTrCut=m_phtdRtoTr; return;}
-  void  setFwrdEledRMatchToTrCut(float m_fwrdRtoTr){m_fwrdEledRtoTrCut=m_fwrdRtoTr; return;}
 
   std::vector<const xAOD::TruthParticle*>  getEGPartPntr(){return m_egPartPtr;} 
   std::vector<float> getEGPartdR(){return m_egPartdR;}
@@ -133,6 +122,8 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
    MCTruthPartClassifier::ParticleOrigin  defOrigOfPhoton(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*);
    MCTruthPartClassifier::ParticleOutCome defOutComeOfPhoton(const xAOD::TruthParticle*);
    //
+   MCTruthPartClassifier::ParticleOrigin  defOrigOfNeutrino(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*);
+   //
    MCTruthPartClassifier::ParticleOrigin  defHadronType(long);
    bool isHadron(const xAOD::TruthParticle*);
    MCTruthPartClassifier::ParticleType    defTypeOfHadron(long);
@@ -144,29 +135,19 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
    std::vector<const xAOD::TruthParticle*> findFinalStatePart(const xAOD::TruthVertex*);
    //
    double partCharge(const xAOD::TruthParticle*);
+#ifndef XAOD_ANALYSIS
    bool genPartToCalo(const xAOD::CaloCluster* , const xAOD::TruthParticle* , bool, double&, bool& );
    const xAOD::TruthParticle* egammaClusMatch(const xAOD::CaloCluster*, bool );
+#endif
    //
    void findAllJetMothers(const xAOD::TruthParticle* thePart,std::set<const xAOD::TruthParticle*>&);
+   double deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet & v2) ;
    MCTruthPartClassifier::ParticleOrigin defJetOrig(std::set<const xAOD::TruthParticle*>);
    //
-   inline double deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet & v2) {
-     double dphi = std::fabs(v1.phi()-v2.phi()) ;
-     dphi = (dphi<=M_PI)? dphi : 2*M_PI-dphi;
-     double deta = std::fabs(v1.eta()-v2.eta()) ;
-     return std::sqrt(dphi*dphi+deta*deta) ;
-   }
   
    /** Return true if genParticle and truthParticle have the same pdgId, barcode and status **/
    const xAOD::TruthParticle* barcode_to_particle(const xAOD::TruthParticleContainer*,int );
   
-   //for old EDM
-   bool compareTruthParticles(const HepMC::GenParticle *genPart, const xAOD::TruthParticle *truthPart);
-
-
-   //const xAOD::TrackParticleContainer  * m_trackTES;
-   //const xAOD::TruthParticleContainer  * m_xTruthParticleContainer;
- 
    const xAOD::TruthParticle* m_thePart;
    const xAOD::TruthParticle* m_Mother;
   
@@ -181,15 +162,12 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
 
    bool m_isPrompt;
 
-
    const xAOD::TruthParticle* m_PhotonMother;
    int   m_PhotonMotherPDG;
    long  m_PhotonMotherBarcode;
    long  m_PhotonMotherStatus;
 
-
    const xAOD::TruthParticle* m_BkgElecMother;
-
 
    std::vector<const xAOD::TruthParticle*> m_tauFinalStatePart;
 
@@ -197,16 +175,10 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
    float m_deltaPhi;
    float  m_NumOfSiHits;
    float m_probability;
-
-   //float m_phtdRtoTr;
-   //bool  m_first;
-   //bool  m_useBremRefitTrk;
-
    
    std::vector<const xAOD::TruthParticle*> m_egPartPtr;
    std::vector<float> m_egPartdR;
    std::vector<std::pair<MCTruthPartClassifier::ParticleType,MCTruthPartClassifier::ParticleOrigin> > m_egPartClas;
-
 
    MCTruthPartClassifier::ParticleOutCome  m_ParticleOutCome;
 
@@ -215,46 +187,40 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
    std::vector<MCTruthPartClassifier::ParticleType>    m_cnvPhtPartType;
    std::vector<MCTruthPartClassifier::ParticleOrigin>  m_cnvPhtPartOrig;
 
-   const HepPDT::ParticleDataTable* m_particleTable;
-   
-#ifndef XAOD_ANALYSIS
-   ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
-#endif
-   ToolHandle<xAOD::ITruthParticlesInConeTool> m_truthInConeTool;
 //------------------------------------------------------------------------
 //      configurable data members
 //------------------------------------------------------------------------
 
-   std::string m_trackParticleContainerName;
-   std::string m_trackGSFParticleContainerName;
-   std::string m_xaodTruthParticleContainerName ;
-   std::string m_truthLinkVecName;             
    
+#ifndef XAOD_ANALYSIS
+   ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
+   ToolHandle<xAOD::ITruthParticlesInConeTool> m_truthInConeTool;
+   std::string m_truthLinkVecName;             
+   float m_FwdElectronTruthExtrEtaCut;
+   float m_FwdElectronTruthExtrEtaWindowCut;
+   float m_partExtrConeEta;
+   float m_partExtrConePhi;
+   bool  m_useCaching;
+   float m_phtClasConePhi;
+   float m_phtClasConeEta;
+   float m_phtdRtoTrCut;
+   float m_fwrdEledRtoTrCut; 
+   bool  m_ROICone;
+#endif
+
+   std::string m_xaodTruthParticleContainerName ;
    float m_deltaRMatchCut;
    float m_deltaPhiMatchCut;
    int   m_NumOfSiHitsCut;
-
-   float m_phtdRtoTrCut;
-
-   float m_fwrdEledRtoTrCut; 
    float m_pTChargePartCut;
    float m_pTNeutralPartCut;
-   float m_partExtrConeEta;
-   float m_partExtrConePhi;
-   float m_phtClasConePhi;
-   float m_phtClasConeEta;
    long  m_barcodeShift;
    long  m_barcodeG4Shift;
-
-   float m_FwdElectronTruthExtrEtaCut;
-   float m_FwdElectronTruthExtrEtaWindowCut;
    float m_jetPartDRMatch;
    bool  m_inclG4part;
-   bool  m_ROICone;
    bool  m_inclEgammaPhoton;
    bool  m_inclEgammaFwrdEle;
    bool  m_LQpatch;
-   bool  m_useCaching;
 
 };
 #endif  // MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIER_H 

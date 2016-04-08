@@ -1,8 +1,0 @@
-<lcgdict>
- <enum pattern="MCTruthPartClassifier::*"/>
- <variable pattern="MCTruthPartClassifier::*"/>
- <struct pattern="MCTruthPartClassifier::*"/>
-	
- <class name="std::pair<MCTruthPartClassifier::ParticleType,MCTruthPartClassifier::ParticleOrigin>" />
-	
-</lcgdict>
