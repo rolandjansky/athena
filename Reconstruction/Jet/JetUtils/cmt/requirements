@@ -50,3 +50,6 @@ apply_pattern installed_library
 use TestTools      TestTools-*         AtlasTest 
 apply_pattern UnitTest_run unit_test=JetUtils_CaloQual extrapatterns="no dictionary for class"
 
+
+private
+apply_tag ROOTGenVectorLibs
