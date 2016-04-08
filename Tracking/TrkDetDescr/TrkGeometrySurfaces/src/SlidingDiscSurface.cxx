@@ -34,17 +34,17 @@ Trk::SlidingDiscSurface::SlidingDiscSurface() :
 // copy constructor
 Trk::SlidingDiscSurface::SlidingDiscSurface(const SlidingDiscSurface& dsf) :
   Trk::DiscSurface(dsf),
-  m_depth(dsf.m_depth),
-  m_etaBin(dsf.m_etaBin),
-  m_align(dsf.m_align)
+  m_depth(new std::vector<float>(*(dsf.m_depth))),
+  m_etaBin(dsf.m_etaBin->clone()),
+  m_align(dsf.m_align ? new Amg::Transform3D(*dsf.m_align) : 0)
 {}
 
 // copy constructor with shift
 Trk::SlidingDiscSurface::SlidingDiscSurface(const SlidingDiscSurface& dsf, const Amg::Transform3D& transf ) :
   Trk::DiscSurface(dsf, transf),
-  m_depth(dsf.m_depth),
-  m_etaBin(dsf.m_etaBin),
-  m_align(dsf.m_align)
+  m_depth(new std::vector<float>(*(dsf.m_depth))),
+  m_etaBin(dsf.m_etaBin->clone()),
+  m_align(dsf.m_align ? new Amg::Transform3D(*dsf.m_align) : 0)
 {}
 
 // constructor
@@ -68,9 +68,12 @@ Trk::SlidingDiscSurface& Trk::SlidingDiscSurface::operator=(const SlidingDiscSur
 {
   if (this!=&dsf){
    Trk::DiscSurface::operator=(dsf);
-   m_depth =  dsf.m_depth;
-   m_etaBin =  dsf.m_etaBin;
-   m_align =  dsf.m_align;
+   delete m_depth;
+   m_depth = new std::vector<float>(*(dsf.m_depth));
+   delete m_etaBin;
+   m_etaBin =  dsf.m_etaBin->clone();
+   delete m_align;
+   m_align = dsf.m_align ? new Amg::Transform3D(*dsf.m_align) : nullptr;
   }
   return *this;
 }

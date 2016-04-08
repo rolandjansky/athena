@@ -54,7 +54,7 @@ namespace Trk {
 
       /** This method indicates the subtraction mode */
       bool shared() const;
-           
+                      
       /**This method calls the inside() method of the Bounds*/
       bool insideBounds(const Amg::Vector2D& locpos, double tol1=0., double tol2=0.) const;       
 

@@ -32,17 +32,17 @@ Trk::SlidingCylinderSurface::SlidingCylinderSurface() :
 // copy constructor
 Trk::SlidingCylinderSurface::SlidingCylinderSurface(const SlidingCylinderSurface& dsf) :
   Trk::CylinderSurface(dsf),
-  m_depth(dsf.m_depth),
-  m_etaBin(dsf.m_etaBin),
-  m_align(dsf.m_align)
+  m_depth(new std::vector<float>(*(dsf.m_depth))),
+  m_etaBin(dsf.m_etaBin->clone()),
+  m_align(dsf.m_align ? new Amg::Transform3D(*dsf.m_align) : 0)
 {}
 
 // copy constructor with shift
 Trk::SlidingCylinderSurface::SlidingCylinderSurface(const SlidingCylinderSurface& dsf, const Amg::Transform3D& transf ) :
   Trk::CylinderSurface(dsf, transf),
-  m_depth(dsf.m_depth),
-  m_etaBin(dsf.m_etaBin),
-  m_align(dsf.m_align)
+  m_depth(new std::vector<float>(*(dsf.m_depth))),
+  m_etaBin(dsf.m_etaBin->clone()),
+  m_align(dsf.m_align ? new Amg::Transform3D(*dsf.m_align) : 0)
 {}
 
 // constructor
@@ -66,9 +66,12 @@ Trk::SlidingCylinderSurface& Trk::SlidingCylinderSurface::operator=(const Slidin
 {
   if (this!=&dsf){
    Trk::CylinderSurface::operator=(dsf);
-   m_depth =  dsf.m_depth;
-   m_etaBin =  dsf.m_etaBin;
-   m_align =  dsf.m_align;
+   delete m_depth;
+   m_depth =  new std::vector<float>(*(dsf.m_depth));
+   delete m_etaBin;
+   m_etaBin =  dsf.m_etaBin->clone();
+   delete m_align;
+   m_align =  (dsf.m_align ? new Amg::Transform3D(*dsf.m_align) : nullptr);
   }
   return *this;
 }
