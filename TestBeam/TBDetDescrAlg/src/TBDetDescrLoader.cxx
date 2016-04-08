@@ -16,7 +16,9 @@
 
 // Constructor & destructor
 TBDetDescrLoader::TBDetDescrLoader(std::string name, ISvcLocator* pSvcLocator)
-   : AthAlgorithm(name, pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator),
+    m_TBDDM(0),
+    c_TBDDM(0)
 {
   declareProperty("TBDetDescrManager", m_TBDetDescrManager = "TBDetDescrMgr");
   declareProperty("TBElementContainer", m_TBElementContainer = "TBElementCnt");
