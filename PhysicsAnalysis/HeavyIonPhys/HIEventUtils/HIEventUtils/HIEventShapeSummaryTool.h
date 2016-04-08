@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __HI_HIEVENTSHAPESUMMARYTOOL_H__
-#define __HI_HIEVENTSHAPESUMMARYTOOL_H__
+#ifndef HI_HIEVENTSHAPESUMMARYTOOL_H
+#define HI_HIEVENTSHAPESUMMARYTOOL_H
 
 #include "AsgTools/AsgTool.h"
 #include "HIEventUtils/IHIEventShapeSummaryTool.h"
