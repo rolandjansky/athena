@@ -690,7 +690,7 @@
       IF( CTYP(3:3) == 'L' ) then
         tanbe = (S2Po1p-S2Pip)/(Zoop-Ziip)
         if( Tstrip >= CornerLow .and. Tstrip <= CornerMed ) SstripP = S1Pp + (Tstrip-CornerLow)*tanal
-        if( Tstrip >= CornerMed .and. Tstrip <= CornerUp )  SstripP = S2Pip + (Tstrip-CornerUp)*tanbe
+        if( Tstrip >= CornerMed .and. Tstrip <= CornerUp )  SstripP = S2Pip + (Tstrip-CornerMed)*tanbe
       else
         if( Tstrip >= CornerLow .and. Tstrip <= CornerUp )  SstripP = S1Pp+  (Tstrip-CornerLow)*tanal
       endif
