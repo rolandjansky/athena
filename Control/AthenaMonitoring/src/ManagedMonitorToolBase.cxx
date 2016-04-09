@@ -182,7 +182,7 @@ ISvcLocator* ManagedMonitorToolBase::Imp::s_svcLocator(0);
 namespace {
 
    std::string strToLower( const std::string& str );
-   std::string strToUpper( const std::string& str );
+   //std::string strToUpper( const std::string& str );
 
 } // unnamed namespace
 
@@ -1245,7 +1245,8 @@ finalHists()
      endOfRun = true;
 
      StatusCode sc = procHistograms();
-     
+
+/*
      StatusCode sc1( StatusCode::SUCCESS );
      sc1.setChecked();
 
@@ -1258,6 +1259,7 @@ finalHists()
        //sc1 = regManagedLWHistograms(m_templateLWHistograms[interval], false, true);
        sc1.setChecked();
      }
+*/
 
      d->benchPostProcHistograms();
      return sc;
@@ -2302,6 +2304,7 @@ namespace {
    }
 
 
+#if 0
    std::string strToUpper( const std::string& str )
    {
       std::string ustr(str);
@@ -2313,6 +2316,7 @@ namespace {
       }
       return ustr;
    }
+#endif
 
 } // unnamed namespace
 

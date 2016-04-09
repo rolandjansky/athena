@@ -824,6 +824,18 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
 
       bool endOfEventsBlock, endOfLowStat, endOfLumiBlock, endOfRun;
 
+      bool newLowStatIntervalFlag() const { return newLowStatInterval; }
+      bool newMedStatIntervalFlag() const { return newMedStatInterval; }
+      bool newHigStatIntervalFlag() const { return newHigStatInterval; }
+      bool newLowStatFlag() const { return newLowStat; }
+      bool newLumiBlockFlag() const { return newLumiBlock; }
+      bool newRunFlag() const { return newRun; }
+      bool newEventsBlockFlag() const { return newEventsBlock; }
+      bool endOfEventsBlockFlag() const { return endOfEventsBlock; }
+      bool endOfLowStatFlag() const { return endOfLowStat; }
+      bool endOfLumiBlockFlag() const { return endOfLumiBlock; }
+      bool endOfRunFlag() const { return endOfRun; }
+
       typedef std::map<std::string,OutputMetadata*> MDMap_t;
       MDMap_t m_metadataMap;
 
