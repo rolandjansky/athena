@@ -46,13 +46,14 @@ namespace dqutils {
     bool goodMDTFile = MonitoringFile::MDTCheck( inFilename );
   
     if(goodMDTFile){
+      //testing a remove MDT_express (can restore if necessary)
       MonitoringFile::MDTChamReAlign( inFilename );
-      MonitoringFile::MDTChamReAlign( inFilename, "MDT_express");
+      //MonitoringFile::MDTChamReAlign( inFilename, "MDT_express");
       MonitoringFile::MDTChamEff( inFilename, isIncremental, "MDT", txtFileOutputType, useOfflineTubeID, makePDF, doAllPDF);
-      MonitoringFile::MDTChamEff( inFilename, isIncremental, "MDT_express", txtFileOutputType, useOfflineTubeID, makePDF, doAllPDF);
+      //MonitoringFile::MDTChamEff( inFilename, isIncremental, "MDT_express", txtFileOutputType, useOfflineTubeID, makePDF, doAllPDF);
       MonitoringFile::MDTChamOcc( inFilename );
       MonitoringFile::MDTTDCSum( inFilename );
-      MonitoringFile::MDTTDCSum( inFilename, "MDT_express" );
+      //MonitoringFile::MDTTDCSum( inFilename, "MDT_express" );
       MonitoringFile::MDTLowStat( inFilename );
     }    
     else std::cout << "No MDT Directory!" << std::endl;
