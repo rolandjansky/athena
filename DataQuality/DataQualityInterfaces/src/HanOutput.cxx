@@ -24,6 +24,8 @@
 #include <TObject.h>
 #include <TObjString.h>
 #include <TROOT.h>
+#include <TH1.h>
+#include <TGraph.h>
 
 #include "dqm_core/exceptions.h"
 #include "dqm_core/OutputListener.h"
@@ -46,13 +48,26 @@ namespace dqi {
 
 bool setNameGeneral(TObject* obj, const std::string& name) {
   if (obj != 0) {
-    TClass* kl = obj->IsA();
-    TMethod* klm = kl->GetMethod("SetName", "\"Reference\"");
-    if (! klm) {
-      std::cerr << "Error: attempt to change object name to " << name << " failed as its name is not settable" << std::endl;
-    } else {
-      obj->Execute("SetName", ("\""+name+"\"").c_str());
+    // some special cases, to avoid interpreter
+    if (TH1* h=dynamic_cast<TH1*>(obj)) {
+      h->SetName(name.c_str());
       return true;
+    } else if (TObjArray* a=dynamic_cast<TObjArray*>(obj)) {
+      a->SetName(name.c_str());
+      return true;
+    } else if (TGraph* g=dynamic_cast<TGraph*>(obj)) {
+      g->SetName(name.c_str());
+      return true;
+    } else {
+      TClass* kl = obj->IsA();
+      TMethod* klm = kl->GetMethod("SetName", "\"Reference\"");
+      if (! klm) {
+	std::cerr << "Error: attempt to change object name to " << name << " failed as its name is not settable" << std::endl;
+      } else {
+	std::cout << "Manually doing cast for " << kl->GetName() << std::endl;
+	obj->Execute("SetName", ("\""+name+"\"").c_str());
+	return true;
+      }
     }
   }
   return false;
@@ -135,7 +150,7 @@ HanOutput::
 publishResult( const std::string& name, const dqm_core::Result& result )
   throw (dqm_core::Exception)
 {
-
+//  std::cout << "Publish " << name << std::endl;
   delete m_dqResults[name];
   m_dqResults[name] = result.clone();
 
@@ -144,13 +159,14 @@ publishResult( const std::string& name, const dqm_core::Result& result )
   	m_unpublishedDQPars.erase( dqpari );
   }
 
-  DQParMap_t::const_iterator i = m_dqPars.find( name );
-  if( i != m_dqPars.end() ) {
-    dqm_core::Region* parent = i->second;
-    dqm_core::OutputListener* plistener = parent;
-    plistener->handleResult(name,result);
+  if (m_retainUnpubData) {
+    DQParMap_t::const_iterator i = m_dqPars.find( name );
+    if( i != m_dqPars.end() ) {
+      dqm_core::Region* parent = i->second;
+      dqm_core::OutputListener* plistener = parent;
+      plistener->handleResult(name,result);
+    }
   }
-
 }
  
 void
@@ -381,7 +397,8 @@ HanOutput::
 deactivate()
 {
   flushResults();
-  WriteListToDirectory(m_file.get(), dynamic_cast<TSeqCollection *>(m_outputList->First()), m_file.get(), 2);
+  m_file->SetBit(TFile::kDevNull);
+  WriteListToDirectory(m_file.get(), dynamic_cast<TSeqCollection *>(m_outputList->First()), m_file.get(), 4);
   m_file->Write();
   m_file->Flush();
 }
