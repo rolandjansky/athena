@@ -51,6 +51,8 @@ HLTConfigSvc::HLTConfigSvc( const string& name, ISvcLocator* pSvcLocator ) :
    m_eventStore(0),
    m_currentLumiblock(0),
    m_currentPSS(0),
+   m_setMergedHLT(true),
+   m_doMon(false),
    m_partition(""),
    m_histProp_timePrescaleUpdate(Gaudi::Histo1DDef("Time for prescale update",0,200,100)),
    m_hist_timePrescaleUpdate(0),
@@ -68,6 +70,8 @@ HLTConfigSvc::HLTConfigSvc( const string& name, ISvcLocator* pSvcLocator ) :
                     "Name of the partition for the trigger prescale update mechanism");
    declareProperty( "doMergedHLT",      m_setMergedHLT,
                     "Set true to run the merged HLT processing");
+   declareProperty( "doMonitoring",     m_doMon,
+                    "Enable monitoring (mostly for online)");
 }
 
 HLTConfigSvc::~HLTConfigSvc()
@@ -219,7 +223,7 @@ TrigConf::HLTConfigSvc::start() {
    ATH_MSG_INFO("HLTConfigSvc::start");
 
    // Book histograms
-   bookHistograms().ignore();
+   if (m_doMon) bookHistograms().ignore();
    m_currentLumiblock = 0;
 
    if( ! fromDB() ) // xml config
@@ -411,7 +415,7 @@ namespace {
       lock_histogram_operation<TH2I> locked_hist(h);
 
       locked_hist->Fill(buf_lb, buf_psk, 1);
-    
+
       // Need to make sure that all bins have labels (see Savannah #58243)    
       // Label additional bins on x-axis
       if ( h->GetNbinsX()!=xbins ) {

@@ -264,15 +264,15 @@ StatusCode
 TrigConf::HLTJobOptionsSvc::queryInterface( const InterfaceID& riid, void** ppvIF )
 //----------------------------------------------------------------------------
 {
-  if ( IJobOptionsSvc::interfaceID() == riid )  {
-    *ppvIF = (IJobOptionsSvc*) this;
-  } else if ( IProperty::interfaceID() == riid ) {
-    *ppvIF = (IProperty*) this;
-  } else  {
-    return Service::queryInterface(riid, ppvIF);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
+   if ( IJobOptionsSvc::interfaceID() == riid )  {
+      *ppvIF = (IJobOptionsSvc*) this;
+   } else if ( IProperty::interfaceID() == riid ) {
+      *ppvIF = (IProperty*) this;
+   } else  {
+      return Service::queryInterface(riid, ppvIF);
+   }
+   addRef();
+   return StatusCode::SUCCESS;
 }
 
 
