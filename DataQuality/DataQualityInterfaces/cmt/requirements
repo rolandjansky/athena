@@ -59,14 +59,15 @@ apply_pattern have_root_headers root_headers="MiniConfig.h MiniConfigTreeNode.h 
 # Persistency lib
 #################
 
-library  dqm_persistency  $(lib_opts) \
- ../src/dqm_persistency_impl.cxx
+# disabled UFN
+#library  dqm_persistency  $(lib_opts) \
+# ../src/dqm_persistency_impl.cxx
 
-apply_pattern named_installed_library library=dqm_persistency
+#apply_pattern named_installed_library library=dqm_persistency
 
-apply_pattern have_root_headers root_headers="PAlgorithm.h PMetadata.h PParameter.h PRegion.h \
-  PResult.h PFunctions.h  LinkDefdqmp.h"  headers_lib=dqm_persistency \
-  extra_includes=" -p $(use_includes) "
+#apply_pattern have_root_headers root_headers="PAlgorithm.h PMetadata.h PParameter.h PRegion.h \
+#  PResult.h PFunctions.h  LinkDefdqmp.h"  headers_lib=dqm_persistency \
+#  extra_includes=" -p $(use_includes) "
 
 
 #############################################################################
@@ -75,7 +76,7 @@ apply_pattern have_root_headers root_headers="PAlgorithm.h PMetadata.h PParamete
 
 application  han  -no_prototypes  "../src/han.cxx"
 
-macro  han_dependencies  "DataQualityInterfaces dqm_persistency"
+macro  han_dependencies  "DataQualityInterfaces"
 
 #############################################################################
 #	application: han-config-gen
@@ -83,7 +84,7 @@ macro  han_dependencies  "DataQualityInterfaces dqm_persistency"
 
 application  han-config-gen  -no_prototypes  "../src/han_config_gen.cxx"
 
-macro  han-config-gen_dependencies  "DataQualityInterfaces dqm_persistency"
+macro  han-config-gen_dependencies  "DataQualityInterfaces"
 
 #############################################################################
 #	application: han-config-print
@@ -91,5 +92,5 @@ macro  han-config-gen_dependencies  "DataQualityInterfaces dqm_persistency"
 
 application  han-config-print  -no_prototypes  "../src/han_config_print.cxx"
 
-macro  han-config-print_dependencies  "DataQualityInterfaces dqm_persistency"
+macro  han-config-print_dependencies  "DataQualityInterfaces"
 
