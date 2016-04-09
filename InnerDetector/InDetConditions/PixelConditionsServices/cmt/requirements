@@ -32,11 +32,10 @@ use PixelGeoModel                 PixelGeoModel-*                 InnerDetector/
 use PixelCabling                  PixelCabling-*                  InnerDetector/InDetDetDescr
 use InDetReadoutGeometry          InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
 use CoralDB                       CoralDB-*                       Database
+use RDBAccessSvc                  RDBAccessSvc-*                  Database/AthenaPOOL
 use GeoModelUtilities             GeoModelUtilities-*             DetectorDescription/GeoModel
 use GeoModelInterfaces            GeoModelInterfaces-*            DetectorDescription/GeoModel
-use RDBAccessSvc                  RDBAccessSvc-*                  Database/AthenaPOOL
 use AtlasROOT                     AtlasROOT-*                     External
-
 
 public
 
