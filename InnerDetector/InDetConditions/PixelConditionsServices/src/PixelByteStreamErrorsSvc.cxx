@@ -368,11 +368,25 @@ StatusCode PixelByteStreamErrorsSvc::readData() {
 // record the data to Storegate: for one event, one entry per module with errors
 StatusCode PixelByteStreamErrorsSvc::recordData() {
 
-  InDetBSErrContainer* cont = new InDetBSErrContainer();
-  StatusCode sc = m_storeGate->overwrite(cont,"PixelByteStreamErrs");
-  if (sc.isFailure() ){
-    msg(MSG::ERROR) <<"Failed to record/overwrite BSErrors to SG"<<endreq;
-    return sc;
+  StatusCode sc(StatusCode::SUCCESS);
+  bool recorded = m_storeGate->contains<InDetBSErrContainer>("PixelByteStreamErrs"); // check if already recorded (by a previous HLT call for example)
+
+  InDetBSErrContainer* cont;
+  if (!recorded){ // create a new object
+    cont = new InDetBSErrContainer();
+    sc = m_storeGate->record(cont,"PixelByteStreamErrs");
+    if (sc.isFailure() ){
+      msg(MSG::ERROR) <<"Failed to record BSErrors to SG"<<endreq;
+      return sc;
+    }
+  }
+  else{ // already recorded, retrieve object and modify
+    sc = m_storeGate->retrieve(cont,"PixelByteStreamErrs");
+    if (sc.isFailure() ){
+      msg(MSG::ERROR) <<"Failed to retrieve BSErrors from SG, but contains() returns true"<<endreq;
+      return sc;
+    }
+    cont->clear(); // delete and fill anew
   }
 
   for (unsigned int i=0; i<m_max_hashes; i++) {

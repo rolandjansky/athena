@@ -22,6 +22,7 @@ class AtlasDetectorID;
 class Identifier;
 class StoreGateSvc; 
 class PixelID; 
+class  IGeoModelSvc;
 //class IPixelCablingSvc;
 
 class IPixelCalibDbTool;
@@ -87,7 +88,6 @@ class PixelCalibSvc : public AthService, virtual public IPixelCalibSvc
       int PixelCirc(const Identifier& pix_id, const Identifier& wafer_id) const; // the chip number circ 
       int gangedType(int row, int col, const unsigned int& columnsPerFE, const unsigned int& rowsFGanged, const unsigned int& rowsLGanged) const; // ganged pixel type 
 
-
       /** class member version of retrieving MsgStream */
       ServiceHandle<StoreGateSvc>      m_sgSvc;
       ServiceHandle<StoreGateSvc>      m_detStore;
@@ -112,9 +112,7 @@ class PixelCalibSvc : public AthService, virtual public IPixelCalibSvc
       bool m_IBLabsent;
       bool m_disableDb;
       ServiceHandle<IBLParameterSvc> m_IBLParameterSvc; 
-      
+      ServiceHandle< IGeoModelSvc > m_geoModelSvc;
     }; 
-
-
 
 #endif 

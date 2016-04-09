@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "SpecialPixelMapSvc.h"
 
 // Athena
@@ -35,6 +34,10 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetIdentifier/PixelID.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
+//Includes related to determining presence of ITK
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelUtilities/DecodeVersionKey.h"
+
 
 static bool isIBL(false);
 
@@ -51,6 +54,7 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   m_outputFolder(""),
   m_outputLongFolder(""),
   m_IBLParameterSvc("IBLParameterSvc",name),
+  m_geoModelSvc("GeoModelSvc",name),
   m_registerCallback(true),
   m_verbosePixelID(true),
   m_binaryPixelStatus(true),
@@ -68,7 +72,8 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   m_fileListFileDir("filelistdir"),
   m_killingModule(0.),
   m_pixelID(0),
-  m_pixman(0)
+  m_pixman(0), 
+  m_dummy(0) 
 {
   declareProperty("DBFolders", m_condAttrListCollectionKeys, "list of database folders to be accessed"); 
   declareProperty("SpecialPixelMapKeys", m_specialPixelMapKeys, "StoreGate keys at which pixel maps are to be stored"); 
@@ -80,6 +85,8 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   declareProperty("DataSource", m_dataSource, "source of pixel map data used in create(): Textfiles, Database or None");
   declareProperty("OutputFolder", m_outputFolder, "Name of output folder");
   declareProperty("OutputLongFolder", m_outputLongFolder, "Name of output folder for long maps");
+  declareProperty("IBLParameterService", m_IBLParameterSvc);
+  declareProperty("GeoModelService", m_geoModelSvc);
   declareProperty("ModuleIDsForPrinting", m_moduleIDsForPrinting, "IDs or IDhash(IBL) of modules that printed in print()");
   declareProperty("RegisterCallback", m_registerCallback, "switch registration of callback on/off");
   declareProperty("PrintVerbosePixelID",m_verbosePixelID, "print (chip/column/row) (\"verbose\") or unsigned int");
@@ -101,6 +108,8 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   declareProperty("KillingModules", m_killingModule, "Probability of Killing module");
   declareProperty("LayersToMask", m_layersToMask, "Which barrel layers to mask out, goes from 0 to N-1");
   declareProperty("DisksToMask", m_disksToMask, "Which endcap disks to mask out, goes from -N+1 to N+1 , skipping zero");
+  declareProperty("MakingDummyMaps", m_dummy, "Making dummy run2 maps from Run1 Pixel maps");
+
 }
 
 
@@ -167,8 +176,14 @@ StatusCode SpecialPixelMapSvc::initialize()
   }
   itermin = m_pixman->getDetectorElementBegin(); 
   itermax = m_pixman->getDetectorElementEnd();
-  if(m_pixelID->wafer_hash_max()>1744)isIBL = true;
-  
+  // 
+  // determine if ITK is present
+  if (m_geoModelSvc.retrieve().isFailure()) {
+    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+    return (StatusCode::FAILURE);
+  }
+  if(m_geoModelSvc->geoConfig()!=GeoModel::GEO_RUN1 && m_geoModelSvc->geoConfig()!=GeoModel::GEO_TESTBEAM)isIBL=true; 
+
   m_chips.clear(); 
   ATH_MSG_DEBUG( "ModuleHashMax: "<<m_pixelID->wafer_hash_max()<<" isIBL "<<isIBL );
   // Check all detector elements in the present geometry setup 
@@ -229,17 +244,16 @@ StatusCode SpecialPixelMapSvc::initialize()
   return StatusCode::SUCCESS;
 }
 
-
-
 StatusCode SpecialPixelMapSvc::finalize(){
   ATH_MSG_DEBUG( "Finalizing SpecialPixelMapSvc" );
   return Service::finalize(); 
 }
 
 
-
 StatusCode SpecialPixelMapSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
   StatusCode sc = StatusCode::SUCCESS;
+
+  //
   std::list<std::string>::const_iterator key; 
 
   for(key=keys.begin(); key != keys.end(); ++key){ 
@@ -890,8 +904,8 @@ StatusCode SpecialPixelMapSvc::createFromDetectorStore(const std::string condAtt
 	unsigned int idhash; 
 	if (m_forceNewDBContent) idhash = IdentifierHash(moduleID);
 	else if(isIBL){ 
-	  if(range.start().run()<222222){
-	    //	    continue;
+	  if(m_dummy){
+	    //	    continue (useful to transport the old DB to new DB with IBL!;
 	    int component = static_cast<int>((moduleID & (3 << 25)) / 33554432) * 2 - 2;
 	    unsigned int layer = (moduleID & (3 << 23)) / 8388608  ;
 	    if(component==0)layer +=1; // shift layer

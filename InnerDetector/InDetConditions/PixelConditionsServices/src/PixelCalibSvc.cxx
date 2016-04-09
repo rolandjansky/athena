@@ -22,6 +22,9 @@
 #include "InDetIdentifier/PixelID.h"
 //#include "PixelCabling/IPixelCablingSvc.h"
 #include "PixelConditionsTools/IPixelCalibDbTool.h"
+//Includes related to determining presence of ITK
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelUtilities/DecodeVersionKey.h"
 
 static unsigned int columnsPerFEI3 = 18;   // number of columns per FEI3 (18x160)
 static unsigned int rowsPerFEI3    = 164;   // number of rows per FEI3
@@ -73,7 +76,8 @@ PixelCalibSvc::PixelCalibSvc(const std::string& name, ISvcLocator* sl)
   m_noiseThresh(200),
   m_IBLabsent(true),
   m_disableDb(false),
-  m_IBLParameterSvc("IBLParameterSvc",name)
+  m_IBLParameterSvc("IBLParameterSvc",name),
+  m_geoModelSvc("GeoModelSvc",name) 
 {
   //  template for property decalration
   //declareProperty("PropertyName", m_propertyName);
@@ -88,6 +92,8 @@ PixelCalibSvc::PixelCalibSvc(const std::string& name, ISvcLocator* sl)
   declareProperty("DiscrThreshVar",     m_discrThreshSigma,     "Discriminator threshold sigma");
   declareProperty("IntimeThresh",       m_intimeThresh,         "Discriminator in-time threshold");
   declareProperty("NoiseThresh",        m_noiseThresh,          "Discriminator noise");
+  declareProperty("IBLParameterService", m_IBLParameterSvc); 
+  declareProperty("GeoModelService", m_geoModelSvc);
 }
 
 //================ Destructor =================================================
@@ -135,8 +141,13 @@ StatusCode PixelCalibSvc::initialize()
     ATH_MSG_FATAL( "Unable to retrieve pixel ID helper" );
     return StatusCode::FAILURE;
   }
-  // locate PixelID service
-  if(m_pixid->wafer_hash_max()>3000)isITK = true;
+  // determine if ITK is present
+  if (m_geoModelSvc.retrieve().isFailure()) {
+    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+    return (StatusCode::FAILURE);
+  }
+  if(m_geoModelSvc->geoConfig()==GeoModel::GEO_ITk)isITK = true; 
+
   // locate PixelCalibTools  
   if(m_dbTool.retrieve().isFailure()){
     msg(MSG::FATAL)<< "Could not find tool "<< m_dbTool.name() << ". Existing."<<endreq;
