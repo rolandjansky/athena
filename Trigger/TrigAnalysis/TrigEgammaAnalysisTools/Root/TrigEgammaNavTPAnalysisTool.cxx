@@ -159,6 +159,7 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
         ATH_MSG_DEBUG("Probes " << m_probeElectrons.size() << " Pairs " << m_pairObj.size() );
         for( const auto& tool : m_tools) {
             tool->setDetail(getDetail()); 
+            tool->setTP(getTP()); 
             if(tool->toolExecute(m_dir+"/Expert",info,m_pairObj).isFailure())
                 ATH_MSG_DEBUG("TE Tool Fails");// Requires offline match
         }
@@ -235,5 +236,11 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
 
 StatusCode TrigEgammaNavTPAnalysisTool::childFinalize()
 {
+    ATH_MSG_DEBUG("Processed N events " << m_eventCounter);
+    plot()->setTP(getTP());
+    if(plot()->finalizeShifterHistos(getTrigInfoMap()).isFailure()) {
+        ATH_MSG_ERROR("Unable to book histos for " << m_dir); 
+        return StatusCode::FAILURE;
+    }
     return StatusCode::SUCCESS;
 }

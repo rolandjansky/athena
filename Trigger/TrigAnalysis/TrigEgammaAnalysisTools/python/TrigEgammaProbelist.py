@@ -12,6 +12,9 @@ monitoring_mam = {'primary_single_ele':'HLT_e26_lhtight_iloose',
         'primary_single_cut_ele':'HLT_e24_tight_iloose',
     'primary_single_pho':'HLT_g120_loose'}
 
+# L1 Items
+monitoring_L1Calo=['L1_EM20VH','L1_EM20VHI']
+
 # High pt electron triggers that cannot be monitored with TP Analysis
 monitoring_electron=['HLT_e60_lhmedium','HLT_e60_medium','HLT_e120_lhloose','HLT_e120_loose','HLT_e140_lhloose']
 

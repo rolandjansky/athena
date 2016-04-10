@@ -48,9 +48,11 @@ public:
   StatusCode finalize();
   template<class T> const T* getFeature(const HLT::TriggerElement* te,const std::string key="");
   template<class T> bool ancestorPassed(const HLT::TriggerElement* te,const std::string key="");
+  //template <class T1, class T2> const T1* closestObject(const float eta, const float phi, const T2 cont);
   void setParent(IHLTMonTool *parent){ m_parent = parent;};
   void setPlotTool(ToolHandle<ITrigEgammaPlotTool> tool){m_plot=tool;}
   void setDetail(bool detail){m_detailedHists=detail;}
+  void setTP(bool tp){m_tp=tp;}
 
   // Set current MonGroup
   void cd(const std::string &dir);
@@ -73,6 +75,7 @@ private:
   /*! Property update handlers */
   void updateDetail(Property& p);
   void updateAltBinning(Property& p);
+  void updateTP(Property& p);
   void updateOutputLevel(Property& p);
 
   std::string m_msg;
@@ -144,6 +147,7 @@ protected:
 
   // Retrieve Properties
   bool getDetail(){return m_detailedHists;}
+  bool getTP(){return m_tp;}
   //Class Members
   // Athena services
   StoreGateSvc * m_storeGate;
@@ -162,6 +166,8 @@ protected:
   
   /*! Set Jpsiee */
   bool m_doJpsiee;
+  /*! TP Trigger Analysis */
+  bool m_tp;
 
   
   // Infra-structure members
@@ -214,17 +220,21 @@ protected:
 
       // GETTER for Isolation monitoring
 #define GETTER(_name_) float getIsolation_##_name_(const xAOD::Electron* eg);
+      GETTER(ptcone20)
+      GETTER(ptcone30)
+      GETTER(ptcone40)    
+      GETTER(ptvarcone20)
+      GETTER(ptvarcone30)
+      GETTER(ptvarcone40)    
+#undef GETTER    
+#define GETTER(_name_) float getIsolation_##_name_(const xAOD::Egamma* eg);
       GETTER(etcone20)
       GETTER(etcone30)
       GETTER(etcone40)    
       GETTER(topoetcone20)
       GETTER(topoetcone30)
-      GETTER(topoetcone40)    
-      GETTER(ptcone20)
-      GETTER(ptcone30)
-      GETTER(ptcone40)    
+      GETTER(topoetcone40)   
 #undef GETTER    
-
       // GETTERs for CaloCluster monitoring   
 #define GETTER(_name_) float getCluster_##_name_(const xAOD::Egamma* eg);
       GETTER(et)
@@ -304,5 +314,19 @@ TrigEgammaAnalysisBaseTool::ancestorPassed(const HLT::TriggerElement* te,const s
     return ( (m_trigdec->ancestor<T>(te)).te()->getActiveState());
 }
 
-
+//Cannot deduce
+/*template <class T1, class T2>
+const T1*
+TrigEgammaAnalysisBaseTool::closestObject(const float eta, const float phi, const T2 cont){
+    const T1 *cl = NULL;
+    const float dRmax = 0.15;
+    for(const auto& obj : *cont){
+        float dr=dR(eta,phi,obj->eta(),obj->phi());
+        if ( dr<dRmax){
+            dRmax=dr;
+            cl = obj;
+        } // dR
+    }
+    return cl;
+}*/
 #endif
