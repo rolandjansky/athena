@@ -1322,6 +1322,7 @@ TrigConfCoolWriter::readL1InputMapPayload( unsigned int run,
             foundTip[tipNumber] = true;
             pit->setPitNumber(tipNumber);
             tip->setTipNumber(tipNumber);
+            tip->setClock(tipNumber%2);
             pits.push_back(pit);
             tips.push_back(tip);
          }
@@ -1634,11 +1635,14 @@ TrigConfCoolWriter::readL1PrescalePayload( unsigned int run, unsigned int lb,
    bool isRun2 = ( nPrescales == 512 );
    prescale.resize( nPrescales );
 
-   for(cool::ChannelId channel = 0; channel<prescale.prescales().size(); channel++) {
+   for(cool::ChannelId channel = 0; channel < nPrescales; channel++) {
+
       objects = lvl1PsFolder->browseObjects( vr.since(), vr.until(), channel );
+
       if(objects->size()!=1) { 
          throw std::runtime_error("Lvl1 prescale access error: found empty prescale channel ");
       }
+
       objects->goToNext();
       const IObject& obj = objects->currentRef();
       const IRecord & payload = obj.payload();
@@ -1647,7 +1651,7 @@ TrigConfCoolWriter::readL1PrescalePayload( unsigned int run, unsigned int lb,
       if( isRun2 ) {
          prescale.setCut( channel, prescaleVal );
       } else {
-         prescale.setPrescale( channel, prescaleVal );
+         prescale.setPrescale( channel, (float)prescaleVal );
       }
    }
    prescale.setId( lvl1PrescaleKey );
@@ -1661,8 +1665,19 @@ TrigConf::TrigConfCoolWriter::HLTPrescaleFolderExists() {
 }
 
 
+/*------------------------------------------------------------
+   Shows status of all folders for a certain run
+   (starting at lb)
+  
+   displayMode : 0 - no indicator index
+                 1 - indicator index in front of empty 
+                     folders
+                 2 - indicator index in front of empty 
+                     and multiversion folders
+ *-----------------------------------------------------------*/
+
 vector<string>
-TrigConf::TrigConfCoolWriter::checkPayloadSize(unsigned int run, unsigned int lb) {
+TrigConf::TrigConfCoolWriter::checkPayloadSize(unsigned int run, unsigned int lb, int displayMode) {
    AutoDBOpen db(this, READ_ONLY);
 
    ValidityRange vr(run, lb); // 
@@ -1696,11 +1711,15 @@ TrigConf::TrigConfCoolWriter::checkPayloadSize(unsigned int run, unsigned int lb
       bool isSingleVersion = folder->versioningMode()==FolderVersioning::SINGLE_VERSION;
       bool needsFixing = (size == 0);
 
-      if(folderName=="/TRIGGER/LVL1/Thresholds" && size==2)
-         needsFixing = true;
+      bool displayFixing = false;
+      if(displayMode==1) { // only allow fixing of folders that are empty
+         displayFixing = (size == 0);
+      } else if(displayMode==2) { // allow fixing of folders that are empty or mv
+         displayFixing = (size == 0) || !isSingleVersion;
+      }
 
       string fn = folderName + (isSingleVersion ? " (sv)" : " (mv)");
-      if(needsFixing) {
+      if(displayFixing) {
          m_ostream << setw(2) << foldersToFix.size()+1 << ") ";
          foldersToFix.push_back(folderName);
       } else {

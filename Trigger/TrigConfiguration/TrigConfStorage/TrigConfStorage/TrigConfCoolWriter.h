@@ -364,7 +364,7 @@ namespace TrigConf {
        */
       void readL1Menu(unsigned int runNumber, CTPConfig & ctpc);
 
-      std::vector<std::string> checkPayloadSize(unsigned int run, unsigned int lb=1);
+      std::vector<std::string> checkPayloadSize(unsigned int run, unsigned int lb, int displayMode);
 
       void addWriteFolder(const std::string& fname) { m_writeFolderList.push_back( fname ); }
 
