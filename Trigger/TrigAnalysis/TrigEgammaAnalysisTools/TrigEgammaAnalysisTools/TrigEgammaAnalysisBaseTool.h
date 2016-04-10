@@ -220,12 +220,6 @@ protected:
 
       // GETTER for Isolation monitoring
 #define GETTER(_name_) float getIsolation_##_name_(const xAOD::Electron* eg);
-      GETTER(etcone20)
-      GETTER(etcone30)
-      GETTER(etcone40)    
-      GETTER(topoetcone20)
-      GETTER(topoetcone30)
-      GETTER(topoetcone40)    
       GETTER(ptcone20)
       GETTER(ptcone30)
       GETTER(ptcone40)    
@@ -233,7 +227,14 @@ protected:
       GETTER(ptvarcone30)
       GETTER(ptvarcone40)    
 #undef GETTER    
-
+#define GETTER(_name_) float getIsolation_##_name_(const xAOD::Egamma* eg);
+      GETTER(etcone20)
+      GETTER(etcone30)
+      GETTER(etcone40)    
+      GETTER(topoetcone20)
+      GETTER(topoetcone30)
+      GETTER(topoetcone40)   
+#undef GETTER    
       // GETTERs for CaloCluster monitoring   
 #define GETTER(_name_) float getCluster_##_name_(const xAOD::Egamma* eg);
       GETTER(et)

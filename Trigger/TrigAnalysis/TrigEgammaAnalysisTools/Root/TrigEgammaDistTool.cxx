@@ -380,6 +380,10 @@ void TrigEgammaDistTool::fillShowerShapes(const std::string dir,const xAOD::Egam
         hist1("highet")->Fill(eg->pt()/1e3);
         hist1("eta")->Fill(eg->eta());
         hist1("phi")->Fill(eg->phi());
+        hist1("topoetcone20")->Fill(getIsolation_topoetcone20(eg)/1e3);
+        if (eg->pt() > 0) 
+            hist1("topoetcone20_rel")->Fill(getIsolation_topoetcone20(eg)/eg->pt());
+        
     }
 }
 
@@ -411,7 +415,7 @@ void TrigEgammaDistTool::fillTracking(const std::string dir, const xAOD::Electro
         hist1("nscthits")->Fill(getTrackSummary_numberOfSCTHits(eg));
         hist1("charge")->Fill(eg->charge());
         hist1("ptcone20")->Fill(getIsolation_ptcone20(eg)/1e3);
-        hist1("topoetcone20")->Fill(getIsolation_topoetcone20(eg)/1e3);
+        
         hist1("ptvarcone20")->Fill(getIsolation_ptvarcone20(eg)/1e3);
         // Quantities directly from tracks
         ATH_MSG_DEBUG("Get track Quantities");
@@ -421,7 +425,6 @@ void TrigEgammaDistTool::fillTracking(const std::string dir, const xAOD::Electro
         if (eg->pt() > 0) {
             hist1("ptcone20_rel")->Fill(getIsolation_ptcone20(eg)/eg->pt());
             hist1("ptvarcone20_rel")->Fill(getIsolation_ptvarcone20(eg)/eg->pt());
-            hist1("topoetcone20_rel")->Fill(getIsolation_topoetcone20(eg)/eg->pt());
         }
         if (m_detailedHists ) {
             hist2("deta1_vs_clusterEta")->Fill(cleta,getCaloTrackMatch_deltaEta1(eg));

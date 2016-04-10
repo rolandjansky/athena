@@ -74,7 +74,7 @@ StatusCode TrigEgammaResolutionTool::toolExecute(const std::string basePath,Trig
                 else if(eg->type()==xAOD::Type::Photon){
                     float et = getCluster_et(eg)/1e3;
                     if(et < info.trigThrHLT-5.0) continue; 
-                    resolutionPhoton(dir,pairObj);
+                    resolutionPhoton(dir,pairObj,filliso);
                 } // Offline photon
             }
         }
@@ -82,7 +82,7 @@ StatusCode TrigEgammaResolutionTool::toolExecute(const std::string basePath,Trig
     return StatusCode::SUCCESS;
 }
 
-void TrigEgammaResolutionTool::resolutionPhoton(const std::string basePath,std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
+void TrigEgammaResolutionTool::resolutionPhoton(const std::string basePath,std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> pairObj,bool filliso){
     ATH_MSG_DEBUG("Resolution photon "<< basePath);
     std::string dir1 = basePath + "/Resolutions/HLT";
     std::string dir2 = basePath + "/AbsResolutions/HLT";
@@ -121,6 +121,7 @@ void TrigEgammaResolutionTool::resolutionPhoton(const std::string basePath,std::
         } // Passed Hypo
         if(dRMax < 0.05){
             fillHLTResolution(dir1,phEF,phOff);
+            if(filliso) fillIsolationResolution(dir1,phEF,phOff);
             if(m_detailedHists) fillHLTAbsResolution(dir2,phEF,phOff);
         }
     } // Feature Container
@@ -557,23 +558,49 @@ void TrigEgammaResolutionTool::fillIsolationResolution(const std::string dir,con
         // ptvarcone20 isolation
         val_off=getIsolation_ptvarcone20(eloff);
         if (val_off > 0.) {
-            hist1("res_ptcone20")->Fill((getIsolation_ptvarcone20(elonl)-val_off)/val_off);
-            hist2("res_ptcone20_onVsOff")->Fill(getIsolation_ptvarcone20(eloff),
+            hist1("res_ptvarcone20")->Fill((getIsolation_ptvarcone20(elonl)-val_off)/val_off);
+            hist2("res_ptvarcone20_onVsOff")->Fill(getIsolation_ptvarcone20(eloff),
                     getIsolation_ptvarcone20(elonl));
             if (getEt(elonl) > 0. && getEt(eloff) > 0.) {
                 const float reliso_onl=getIsolation_ptvarcone20(elonl)/getEt(elonl);
                 const float reliso_off=getIsolation_ptvarcone20(eloff)/getEt(eloff);
-                hist1("res_ptcone20_rel")->Fill((reliso_onl-reliso_off)/reliso_off);
-                hist2("res_ptcone20_relVsEta")->Fill(elonl->eta(),
+                hist1("res_ptvarcone20_rel")->Fill((reliso_onl-reliso_off)/reliso_off);
+                hist2("res_ptvarcone20_relVsEta")->Fill(elonl->eta(),
                         (reliso_onl-reliso_off)/reliso_off);
-                hist2("res_ptcone20_relVsEt")->Fill(getEt(elonl)/1e3,
+                hist2("res_ptvarcone20_relVsEt")->Fill(getEt(elonl)/1e3,
                         (reliso_onl-reliso_off)/reliso_off);
-                hist2("res_ptcone20_relVsMu")->Fill(getAvgMu(),
+                hist2("res_ptvarcone20_relVsMu")->Fill(getAvgMu(),
                         (reliso_onl-reliso_off)/reliso_off);
-                hist2("res_ptcone20VsMu")->Fill(getAvgMu(),
+                hist2("res_ptvarcone20VsMu")->Fill(getAvgMu(),
                         (reliso_onl-reliso_off)/reliso_off);
-                hist2("res_ptcone20_rel_onVsOff")->Fill(getIsolation_ptvarcone20(eloff)/getEt(eloff),
+                hist2("res_ptvarcone20_rel_onVsOff")->Fill(getIsolation_ptvarcone20(eloff)/getEt(eloff),
                         getIsolation_ptvarcone20(elonl)/getEt(elonl));
+            }
+        }
+    }//Electron
+    if(xAOD::EgammaHelpers::isPhoton(onl)){
+        // ptvarcone20 isolation
+        float val_off=getIsolation_topoetcone20(off);
+        float etonl=onl->pt();
+        float etoff=off->pt();
+        if (val_off > 0.) {
+            hist1("res_topoetcone20")->Fill((getIsolation_topoetcone20(onl)-val_off)/val_off);
+            hist2("res_topoetcone20_onVsOff")->Fill(getIsolation_topoetcone20(off),
+                    getIsolation_topoetcone20(onl));
+            if (etonl > 0. && etoff > 0.) {
+                const float reliso_onl=getIsolation_topoetcone20(onl)/etonl;
+                const float reliso_off=getIsolation_topoetcone20(off)/etoff;
+                hist1("res_topoetcone20_rel")->Fill((reliso_onl-reliso_off)/reliso_off);
+                hist2("res_topoetcone20_relVsEta")->Fill(onl->eta(),
+                        (reliso_onl-reliso_off)/reliso_off);
+                hist2("res_topoetcone20_relVsEt")->Fill(etonl/1e3,
+                        (reliso_onl-reliso_off)/reliso_off);
+                hist2("res_topoetcone20_relVsMu")->Fill(getAvgMu(),
+                        (reliso_onl-reliso_off)/reliso_off);
+                hist2("res_topoetcone20VsMu")->Fill(getAvgMu(),
+                        (reliso_onl-reliso_off)/reliso_off);
+                hist2("res_topoetcone20_rel_onVsOff")->Fill(getIsolation_topoetcone20(off)/etoff,
+                        getIsolation_topoetcone20(onl)/etonl);
             }
         }
     }

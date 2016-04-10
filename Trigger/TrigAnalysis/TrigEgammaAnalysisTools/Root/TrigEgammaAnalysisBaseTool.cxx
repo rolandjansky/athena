@@ -48,7 +48,7 @@ TrigEgammaAnalysisBaseTool::
 TrigEgammaAnalysisBaseTool( const std::string& myname )
     : AsgTool(myname),
     m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
-    m_matchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool",this),
+    m_matchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool"),
     m_lumiTool("LuminosityTool"),
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {
@@ -640,18 +640,23 @@ GETTER(DeltaE)
 { float val{-99}; \
     eg->isolationValue(val,xAOD::Iso::_name_); \
     return val; } 
-    GETTER(etcone20)
-    GETTER(etcone30)
-    GETTER(etcone40)    
-    GETTER(topoetcone20)
-    GETTER(topoetcone30)
-    GETTER(topoetcone40)    
     GETTER(ptcone20)
     GETTER(ptcone30)
     GETTER(ptcone40)    
     GETTER(ptvarcone20)
     GETTER(ptvarcone30)
     GETTER(ptvarcone40)    
+#undef GETTER    
+#define GETTER(_name_) float TrigEgammaAnalysisBaseTool::getIsolation_##_name_(const xAOD::Egamma* eg) \
+{ float val{-99}; \
+    eg->isolationValue(val,xAOD::Iso::_name_); \
+    return val; } 
+    GETTER(etcone20)
+    GETTER(etcone30)
+    GETTER(etcone40)    
+    GETTER(topoetcone20)
+    GETTER(topoetcone30)
+    GETTER(topoetcone40)    
 #undef GETTER    
 
     // GETTERs for CaloCluster monitoring   
