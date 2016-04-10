@@ -66,7 +66,7 @@ TrigConf::MenuLoader::load( Menu& menu ) {
 
 void
 TrigConf::MenuLoader::loadItems(TrigConf::Menu& menu) {
-   TRG_MSG_INFO("Loading items");
+   TRG_MSG_INFO("Loading CTP Items");
 
    // to later load internal triggers
    TriggerThresholdLoader& ttldr = dynamic_cast<TriggerThresholdLoader&>( (dynamic_cast<StorageMgr&>(m_storageMgr))
@@ -389,7 +389,7 @@ TrigConf::MenuLoader::loadMonitoring(TrigConf::Menu& menu) {
  ***************************************/
 void
 TrigConf::MenuLoader::loadThresholds(TrigConf::Menu& menu) {
-   TRG_MSG_INFO("Loading thresholds");
+   TRG_MSG_INFO("Loading L1 trigger thresholds");
 
    ThresholdConfigLoader* thrldr = new ThresholdConfigLoader(m_storageMgr, m_session);
    thrldr->setLevel(outputLevel());
@@ -518,13 +518,10 @@ TrigConf::MenuLoader::loadPIT(TrigConf::Menu& menu) {
       ntips++;
 
       TRG_MSG_DEBUG("TIP " << tip->tipNumber() << " -->  " << tt->name());
-      
-
-
    }
 
-   TRG_MSG_DEBUG("Loaded " << npits << " PITs and " << ntips << " TIPs");
-   TRG_MSG_DEBUG("Menu has " << menu.pitVector().size() << " PITs and " << menu.tipVector().size() << " TIPs");
+   TRG_MSG_INFO("Loaded " << npits << " PITs and " << ntips << " TIPs");
+   TRG_MSG_INFO("Menu has " << menu.pitVector().size() << " PITs and " << menu.tipVector().size() << " TIPs");
 
 
 }
@@ -534,6 +531,8 @@ void
 TrigConf::MenuLoader::createTipFromDirectThresholds(TrigConf::Menu& menu) {
 
    // this is only needed as long as the TIPs from the direct input are not in the database
+
+   unsigned int ntips(0);
 
    for(TriggerThreshold * thr : menu.thresholdConfig().getThresholdVector() ) {
       if(thr->ttype()==L1DataDef::TOPO || thr->ttype()==L1DataDef::ALFA) {
@@ -560,9 +559,14 @@ TrigConf::MenuLoader::createTipFromDirectThresholds(TrigConf::Menu& menu) {
          menu.addTip(tip);
          
          TRG_MSG_DEBUG("TIP from direct input thresholds " << tip->tipNumber() << "  -->  " << thr->name());
+
+         ntips++;
          
       }
    }
+
+   TRG_MSG_INFO( "Number of TIPs from direct input thresholds " << ntips );
+
 }
 
 
@@ -611,8 +615,8 @@ TrigConf::MenuLoader::loadMenuAttributes(TrigConf::Menu& menu) {
       
    coral::ICursor& cursor = q->execute();
    if ( ! cursor.next() ) {
-      msg() << "MenuLoader:                       ERROR No trigger menu in SMK " << menu.smk() << endl;
-      throw runtime_error( "MenuLoader:                       ERROR trigger menu not available" );
+      TRG_MSG_ERROR("No trigger menu in SMK " << menu.smk());
+      throw runtime_error( "MenuLoader: ERROR trigger menu not available" );
    }
      
    // fill the object with data

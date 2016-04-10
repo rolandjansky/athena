@@ -18,7 +18,7 @@
 
 
 #include "CTPfragment/CTPdataformatVersion.h"
-
+#include "TrigConfL1Data/L1PSNumber.h"
 #include "./PrescaleSetLoader.h"
 #include "./DBHelper.h"
 
@@ -76,7 +76,8 @@ TrigConf::PrescaleSetLoader::load( PrescaleSet& prescaleSet ) {
       for (unsigned int ctpid=0; ctpid < ctpformat.getMaxTrigItems(); ++ctpid) {
          int64_t val = row["L1PS_VAL" + boost::lexical_cast<string,unsigned int>(ctpid+1)].data<int64_t>();
          if(isRun1()) {
-            prescaleSet.setPrescale(ctpid,val);
+            float prescale = L1PSNumber(val).getFloatPrescale();
+            prescaleSet.setPrescale( ctpid, prescale ); 
          } else {
             prescaleSet.setCut(ctpid,val);
          }
