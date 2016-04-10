@@ -36,6 +36,8 @@
 #include "LArTPCnv/LArNoisyROSummaryCnv_p2.h" 
 #include "LArTPCnv/LArNoisyROSummary_p3.h" 
 #include "LArTPCnv/LArNoisyROSummaryCnv_p3.h" 
+#include "LArTPCnv/LArNoisyROSummary_p4.h"
+#include "LArTPCnv/LArNoisyROSummaryCnv_p4.h"
 
 DECLARE_TPCNV_FACTORY(LArDigitContainerCnv_p1,
                       LArDigitContainer,
@@ -60,8 +62,13 @@ DECLARE_TPCNV_FACTORY(LArNoisyROSummaryCnv_p2,
 DECLARE_TPCNV_FACTORY(LArNoisyROSummaryCnv_p3,
                       LArNoisyROSummary,
                       LArNoisyROSummary_p3,
-                      Athena::TPCnvVers::Current)
+                      Athena::TPCnvVers::Old)
                       
+DECLARE_TPCNV_FACTORY(LArNoisyROSummaryCnv_p4,
+                      LArNoisyROSummary,
+                      LArNoisyROSummary_p4,
+                      Athena::TPCnvVers::Current)
+
 DECLARE_TPCNV_FACTORY(LArRawChannelContainerCnv_p1,
                       LArRawChannelContainer,
                       LArRawChannelContainer_p1,
