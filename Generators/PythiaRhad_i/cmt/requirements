@@ -40,3 +40,6 @@ apply_pattern dual_use_library files= "$(PythiaRhadLibFiles)"
 macro_append PythiaRhad_i_shlibflags  "$(HepMC_IO_linkopts) "
 
 apply_pattern declare_joboptions files="*.py"
+
+# Explicitly link the package against HepMCfio with CMake:
+apply_pattern cmake_add_command command="find_package(HepMC COMPONENTS HepMC HepMCfio)"
