@@ -35,7 +35,7 @@ def dbgPreRun(inputFileList,outputFileList):
     l1Info = []
     hltInfo = []
     relInfo = str()
-    runInfo = []
+    runInfo = 0
     for inputFile in inputFileList.value:
         
         bsfile = eformat.istream(inputFile)
@@ -47,10 +47,12 @@ def dbgPreRun(inputFileList,outputFileList):
         for event in bsfile:
             # if fist event get l1 and hlt counter and chain info from DB or XML file
             if isFirstEvent:
+                if event.run_no() == 0 : runInfo = int(inputFile.split(".")[1])
+                else : runInfo =  event.run_no() 
                 #e = bsfile[0] 
-                l1Info, hltInfo, relInfo = TriggerDBInfo(event.run_no())        
+                l1Info, hltInfo, relInfo = TriggerDBInfo(runInfo)        
                 isFirstEvent = False
-                runInfo.append(relInfo)  
+                #runInfo.append(relInfo)  
             n += 1
             if n < 5:
                 data = [event.run_no(),event.lumi_block(),event.global_id(),event.lvl1_id(),event.bc_time_seconds(),event.bc_time_nanoseconds()]
@@ -62,8 +64,8 @@ def dbgPreRun(inputFileList,outputFileList):
     #close output TFile
     hfile.Write()
     hfile.Close() 
-    if len(set(runInfo)) != 1 :
-        msg.error('Processing runs files taken with different releases is not allowed : %s' % relInfo )
+ #   if len(set(runInfo)) != 1 :
+ #       msg.error('Processing runs files taken with different releases is not allowed : %s' % relInfo )
 
     msg.info('Finished running debug_stream analysis PreRun operations')     
     #returns the local asetupString from runs in input files and to be used by asetup 
@@ -173,12 +175,12 @@ def TriggerDBInfo(run):
     f = dbconn.getFolder( "/TRIGGER/HLT/HltConfigKeys" )
     chansel=cool.ChannelSelection.all()
     objs = f.browseObjects( limmin,limmax,chansel)
-    relInfo = str()
+    relInfo = 'unknown'
+        
     while objs.goToNext():
         relObj=objs.currentRef()
         relPayload=relObj.payload()
         confsrc     = relPayload['ConfigSource'].split(',')
-        relInfo = 'unknown'
         if len(confsrc)>1: relInfo = confsrc[1]
         msg.info("release: %s", relInfo)
 
@@ -193,7 +195,7 @@ def getL1InfoXML():
     else:
         msg.error('failed to find env variable : $'+eVar)
         
-    lvl1XML = AtlasPatchArea+'/InstallArea/XML/TriggerMenuXML/LVL1config_Physics_pp_v5.xml'
+    lvl1XML = AtlasPatchArea+'/InstallArea/XML/TriggerMenuXML/LVL1config_Physics_pp_v6.xml'
 
     l1Info = []
     ctpNames={}
@@ -254,18 +256,16 @@ def getAsetupString(release):
         msg.info('failed to find env variable : $'+eVar)
         AtlasProject='AtlasP1HLT'
 
-    #If TestArea is for tzero (tzero/software/patches/AtlasP1HLT-Recovery), then return None   
+    #If TestArea is for tzero (tzero/software/patches/AtlasP1HLT-RELEASE), then returns tzero/software/patches/AtlasP1HLT-release where release is the parameter given to this function getAsetupString(release)    
     if eVarDic.get('TestArea') :
         TestArea = eVarDic['TestArea']
-        if  TestArea.find("tzero/software/patches/AtlasP1HLT-Recovery") > 0 :
-            TestArea = TestArea.replace("Recovery",release)
-            asetupString = AtlasProject + ',' + release + ',gcc48,cvmfs --testarea '+ TestArea
-            return asetupString
-    #check if CORAL user env DB is different wrt expected asetup, then use "asetup --useenvironment" option 
-    if eVarDic['AtlasPatchArea'] :
-        AtlasPatchArea = eVarDic['AtlasPatchArea']
-    if eVarDic['CORAL_AUTH_PATH'] == eVarDic['CORAL_DBLOOKUP_PATH'] != AtlasPatchArea+'/InstallArea/XML/AtlasAuthentication' :
-        userEnvironment = "--useenvironment "
-        
-    asetupString = userEnvironment + AtlasProject + ',' + release + ',gcc48,here'
+        if  TestArea.find("tzero/software/patches/AtlasP1HLT-") > 0 :
+            testarea = TestArea.split('-')
+            TestArea = testarea[0]+'-'+release
+        asetupString = AtlasProject + ',' + release + ',gcc49,cvmfs --testarea '+ TestArea
+        return asetupString
+
+    #else, there is no TestArea,  then use the local directory    
+    else :
+        asetupString = AtlasProject + ',' + release + ',gcc49,here'
     return asetupString

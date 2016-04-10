@@ -161,34 +161,40 @@ class dbgEventInfo:
 
     def lvl1_info(self,event,L1Chain_Names):
         #Gets LVL1 info for BP AV and AV-TrigIDs and stores is in vectors
-        lvl1_trigger0 = event.lvl1_trigger_info()[0]
         self.L1_Triggered_BP.clear()
         self.L1_Triggered_AV.clear()
         self.L1_Triggered_IDs.clear()
-        k=-1
-        l=1
-        for j in range(24):
-            k+=1
-            if k==8: ## Count the three different sets of words - that is counter l
-                k=0
-                l+=1
-            for i in range(32):
-                L1IDed = ( event.lvl1_trigger_info()[j] >> i) & 0x1
-                id = i+k*32
-                #print 'L1 Item ID, WordSet, Name:',id, l, i,k #, L1Chain_Names[id]
-                if (L1IDed):
+
+        try :
+            lvl1_trigger0 = event.lvl1_trigger_info()[0]
+            k=-1
+            l=1
+            for j in range(24):
+                k+=1
+                if k==8: ## Count the three different sets of words - that is counter l
+                    k=0
+                    l+=1
+                for i in range(32):
+                    L1IDed = ( event.lvl1_trigger_info()[j] >> i) & 0x1
                     id = i+k*32
+                #print 'L1 Item ID, WordSet, Name:',id, l, i,k #, L1Chain_Names[id]
+                    if (L1IDed):
+                        id = i+k*32
                     #print 'L1 Item ID, WordSet, Name:',id, l , L1Chain_Names[id]
-                    if (l==1):
-                        self.L1_Triggered_BP.push_back(L1Chain_Names[id])
-                    if (l==3):
-                        self.L1_Triggered_AV.push_back(L1Chain_Names[id])
-                        self.L1_Triggered_IDs.push_back(id)
+                        if (l==1):
+                            self.L1_Triggered_BP.push_back(L1Chain_Names[id])
+                        if (l==3):
+                            self.L1_Triggered_AV.push_back(L1Chain_Names[id])
+                            self.L1_Triggered_IDs.push_back(id)
+        except IndexError:
+            msg.info('Missing LVL1 Triggered ID Info')
         
         list_ids = []
         for ids in range(self.L1_Triggered_IDs.size()):
             list_ids.append(self.L1_Triggered_IDs.at(ids))
         msg.info('LVL1 Triggered ID Chains AV :{0}'.format(list_ids))
+
+
 
     def hlt_info(self,event, HLTChain_Names):
         #Gets HLT info and stores it in vectors
@@ -307,7 +313,8 @@ class dbgEventInfo:
         #Get the name of the HLT chain that caused error if exist
         ChainName = ""
         ErrorStep = 0
-        if (result):
+
+        if (result and HLTChain_Name):
             ChainName = HLTChain_Name[int(result[8])]
             if (ChainName!=0):
                 ErrorStep = result[9]
@@ -403,9 +410,8 @@ class dbgEventInfo:
         gStyle.SetOptStat(000000)
         gROOT.SetStyle("Plain")
   
-  
-        gROOT.ProcessLine(
-            "struct EventInfoTree {\
+        if dbgStep == "_Pre" :
+            gROOT.ProcessLine("struct EventInfoTree {\
             Char_t  Code_File[30];\
             Int_t   Run_Number;\
             Char_t  Stream_Tag_Name[80];\
