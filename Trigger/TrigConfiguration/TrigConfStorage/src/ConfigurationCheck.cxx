@@ -187,7 +187,7 @@ public:
    virtual void execute(const Exc_t&) {
       if ( ! m_hlt ) return;
 
-      int _maxTElength = 100;
+      unsigned int _maxTElength = 100;
      
       for(const TrigConf::HLTSequence* seq : m_hlt->getHLTSequenceList()) {
          const std::string& tename = seq->outputTE()->name();

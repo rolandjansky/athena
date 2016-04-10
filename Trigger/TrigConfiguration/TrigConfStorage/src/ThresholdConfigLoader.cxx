@@ -122,7 +122,9 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
       attList.extend<std::string>( "TM2TT.L1TM2TT_CABLE_CONNECTOR" );
       attList.extend<int>        ( "TM2TT.L1TM2TT_CABLE_START"     );
       attList.extend<int>        ( "TM2TT.L1TM2TT_CABLE_END"       );
-      attList.extend<int>        ( "TM2TT.L1TM2TT_CABLE_CLOCK"     );
+      if(isRun2()) {
+          attList.extend<int>        ( "TM2TT.L1TM2TT_CABLE_CLOCK"     );
+      }
       attList.extend<int>        ( "TT.L1TT_ID"                    );
       attList.extend<std::string>( "TT.L1TT_NAME"                  );
       attList.extend<int>        ( "TT.L1TT_VERSION"               );
@@ -190,7 +192,11 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
             tt->setCableConnector(row["TM2TT.L1TM2TT_CABLE_CONNECTOR"].data<std::string>());
             tt->setCableStart    (row["TM2TT.L1TM2TT_CABLE_START"].data<int>());
             tt->setCableEnd      (row["TM2TT.L1TM2TT_CABLE_END"].data<int>());
-            int clock = row["TM2TT.L1TM2TT_CABLE_CLOCK"].data<int>();
+            
+            int clock = 0;
+            if(isRun2()) {
+                clock = row["TM2TT.L1TM2TT_CABLE_CLOCK"].data<int>();
+            }
             if(clock >= 0) {
                tt->setClock(clock);
             }
@@ -314,7 +320,9 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
       attList1.extend<std::string>( "TM2TT.L1TM2TT_CABLE_CONNECTOR" );
       attList1.extend<int>        ( "TM2TT.L1TM2TT_CABLE_START"     );
       attList1.extend<int>        ( "TM2TT.L1TM2TT_CABLE_END"       );
-      attList1.extend<int>        ( "TM2TT.L1TM2TT_CABLE_CLOCK"     );
+      if(isRun2()) {
+          attList1.extend<int>        ( "TM2TT.L1TM2TT_CABLE_CLOCK"     );
+      }
       attList1.extend<int>        ( "TT.L1TT_ID"                    );
       attList1.extend<std::string>( "TT.L1TT_NAME"                  );
       attList1.extend<int>        ( "TT.L1TT_VERSION"               );
@@ -375,7 +383,10 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
             tt->setCableStart    (row["TM2TT.L1TM2TT_CABLE_START"].data<int>());
             tt->setCableEnd      (row["TM2TT.L1TM2TT_CABLE_END"].data<int>());
 
-            int clock = row["TM2TT.L1TM2TT_CABLE_CLOCK"].data<int>();
+            int clock = 0;
+            if(isRun2()) {
+                clock = row["TM2TT.L1TM2TT_CABLE_CLOCK"].data<int>();
+            }
             if(clock >= 0) {
                tt->setClock(clock);
             }

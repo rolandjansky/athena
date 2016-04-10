@@ -1635,11 +1635,14 @@ TrigConfCoolWriter::readL1PrescalePayload( unsigned int run, unsigned int lb,
    bool isRun2 = ( nPrescales == 512 );
    prescale.resize( nPrescales );
 
-   for(cool::ChannelId channel = 0; channel<prescale.prescales().size(); channel++) {
+   for(cool::ChannelId channel = 0; channel < nPrescales; channel++) {
+
       objects = lvl1PsFolder->browseObjects( vr.since(), vr.until(), channel );
+
       if(objects->size()!=1) { 
          throw std::runtime_error("Lvl1 prescale access error: found empty prescale channel ");
       }
+
       objects->goToNext();
       const IObject& obj = objects->currentRef();
       const IRecord & payload = obj.payload();
@@ -1648,7 +1651,7 @@ TrigConfCoolWriter::readL1PrescalePayload( unsigned int run, unsigned int lb,
       if( isRun2 ) {
          prescale.setCut( channel, prescaleVal );
       } else {
-         prescale.setPrescale( channel, prescaleVal );
+         prescale.setPrescale( channel, (float)prescaleVal );
       }
    }
    prescale.setId( lvl1PrescaleKey );
