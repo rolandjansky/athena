@@ -18,8 +18,8 @@ from RecExConfig.Configured import Configured
 from AthenaCommon.Logging import logging 
 from AthenaCommon.Include import include
 from AthenaCommon.Resilience import protectedInclude
-
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+
 
 class TriggerConfigGetter(Configured):
     """ This class brings to the job Trigger Configuration.
@@ -36,6 +36,8 @@ class TriggerConfigGetter(Configured):
         self._environment = environment
         super(TriggerConfigGetter,self).__init__() # calls configure
 
+
+
     def checkFileMetaData(self):
         log = logging.getLogger( "TriggerConfigGetter.py" )
         from RecExConfig.InputFilePeeker import inputFileSummary
@@ -49,6 +51,8 @@ class TriggerConfigGetter(Configured):
             log.info("Using LB-wise HLT prescales")
         else:
             log.info("Using run-wise HLT prescales")
+
+
 
     def checkInput(self):
 
@@ -82,6 +86,8 @@ class TriggerConfigGetter(Configured):
             log.warning("More than one input format specified, please set only the appropriate one.")
             return False
         return True
+
+
 
 
     def setConfigSvcConnParams(self,connectionParameters):
@@ -126,6 +132,8 @@ class TriggerConfigGetter(Configured):
             svcMgr.HLTConfigSvc.UseFrontier  = TriggerFlags.triggerUseFrontier()
 
 
+
+
     def configure(self):
         log = logging.getLogger( "TriggerConfigGetter.py" )
 
@@ -154,6 +162,13 @@ class TriggerConfigGetter(Configured):
         self.isCommisioning = globalflags.DataSource()=='data' and globalflags.DetGeo()=='commis' 
         self.l1Folders      = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='Lvl1Only'
         self.hltFolders     = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='HltOnly'
+        self.isRun1Data     = False 
+        if globalflags.DataSource()=='data':
+            from RecExConfig.AutoConfiguration  import GetRunNumber
+            runNumber = GetRunNumber()
+            if runNumber > 0 and runNumber < 230000 :
+                self.isRun1Data = True
+        self.isTriggerReprocessing = False
 
         # the TriggerFlags.readMenuFromTriggerDb() tells us that we read the trigger menu from the database
         # the connection itself is defined in TriggerFlags.triggerDbConnection()
@@ -171,7 +186,8 @@ class TriggerConfigGetter(Configured):
 
             self.ConfigSrcList = ['xml'] # to use L1/HLTConfigSvc and not DSConfigSvc, but only if we are running the HLT
 
-        if self._environment:
+
+        if self._environment: # I don't think anyone calls TriggerConfigGetter with an argument
             self.readPool  = False
             self.writeESDAOD = False
             self.readHits = False
@@ -186,6 +202,7 @@ class TriggerConfigGetter(Configured):
             if "HIT2RDO" in self._environment:
                 self.readRDO = False
                 self.readHits = True
+
 
         # define ConfigSvc
         if not self.ConfigSrcList:
@@ -251,12 +268,23 @@ class TriggerConfigGetter(Configured):
         if 'ds' in self.ConfigSrcList or self.writeESDAOD:
             self.setupCOOLReading(TrigCoolDbConnection)
 
-
+        if hasattr(svcMgr, 'DSConfigSvc'):
+            db = 'TRIGGERDB'
+            if self.isRun1Data:
+                db = 'TRIGGERDB_RUN1'
+            elif self.readMC:
+                db = 'TRIGGERDBMC'
+            elif self.isTriggerReprocessing:
+                db = 'TRIGGERDBREPR'
+            svcMgr.DSConfigSvc.ConfigSource = 'dblookup'
+            svcMgr.DSConfigSvc.DBServer = db
+            log.info("DSConfigSvc trigger database is '%s'" % db)
+        
         if self.writeESDAOD:
             self.setupCOOLWriting()
             self.setupxAODWriting()
 
-            # all went fine we are configured
+        # all went fine we are configured
         return True
 
 
@@ -370,7 +398,7 @@ class TriggerConfigGetter(Configured):
 
         folders = []
         if self.hltFolders: folders += ["HLT/Menu", "HLT/HltConfigKeys"]
-        if self.l1Folders:  folders += ["LVL1/Lvl1ConfigKey", "LVL1/Menu", "LVL1/Prescales", "LVL1/Thresholds"]
+        if self.l1Folders:  folders += ["LVL1/Lvl1ConfigKey", "LVL1/Menu", "LVL1/Prescales", "LVL1/Thresholds", "LVL1/BunchGroupKey"]
 
         if self.hasLBwiseHLTPrescalesAndL1ItemDef:
             if self.hltFolders: folders += [ "HLT/Prescales", "HLT/PrescaleKey" ]
@@ -380,6 +408,8 @@ class TriggerConfigGetter(Configured):
         for f in folders:
             log.info("     /TRIGGER/%s" % f)
             svcMgr.IOVDbSvc.FoldersToMetaData+=["/TRIGGER/%s" % f]
+
+
 
     def setupxAODWriting( self ):
         """
