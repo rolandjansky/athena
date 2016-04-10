@@ -28,7 +28,7 @@ def TrigEgammaPhysValMonTool():
     #probelist = list(set(default+probeListLowMidPtPhysicsTriggers))
     
 
-    basePath = '/Trigger/HLT/Egamma/'
+    basePath = 'Trigger/HLT/Egamma/'
     tagItems = [
         'e24_lhmedium_iloose_L1EM18VH',
         'e24_lhmedium_iloose_L1EM20VH',
@@ -59,6 +59,12 @@ def TrigEgammaPhysValMonTool():
             DirectoryPath=basePath+'Ntuple',
             TriggerList=probelist,
             DoOfflineDump=False,
+            ForcePidSelection=True,
+            ForceProbeIsolation=False,
+            ForceEtThreshold=True,
+            RemoveCrack=True,
+            #ForceFilterSelection=False,
+            #ElectronFilterType="Tight",
             File="PhysVal",
             OutputLevel=0)
 

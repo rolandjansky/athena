@@ -24,6 +24,7 @@ TrigEgammaMonTool( const std::string & type, const std::string & name, const IIn
     :IHLTMonTool(type, name, parent)
 {
     declareProperty( "Tools", m_asgToolNames);
+    //declareProperty( "Tools", m_asgtools);
 }
 
 TrigEgammaMonTool::~TrigEgammaMonTool(){}
