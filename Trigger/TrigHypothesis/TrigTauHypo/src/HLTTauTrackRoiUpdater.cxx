@@ -87,7 +87,8 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
   // Retrieve last container to be appended
   foundTracks = vectorFoundTracks.back();
 
-  msg() << MSG::DEBUG << " Input track collection has size " << foundTracks->size() << endreq;
+  if(foundTracks) msg() << MSG::DEBUG << " Input track collection has size " << foundTracks->size() << endreq;
+  else msg() << MSG::DEBUG << " Input track collection not found " << endreq;  
 
   if(foundTracks){
 

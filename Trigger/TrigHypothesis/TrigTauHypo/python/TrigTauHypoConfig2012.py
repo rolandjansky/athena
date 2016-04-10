@@ -9,7 +9,7 @@
 # get defaults
 from TrigTauHypo.TrigTauHypoBase import*
 from TrigTauHypo.TrigTauHypoMonitoring \
-     import setTauT2CoreMonTools, setTauT2IsoMonTools, setHadCalibEFMonTools
+     import setHLTVertexPreselMonTools, setTauEFDiKaonMonTools, setTauEFMVMonTools, setTauT2CoreMonTools, setTauT2IsoMonTools, setHadCalibEFMonTools
 
 ## T2IDCoreTau TEST
 class T2IDCoreTauHypo_tau29_medium_2stTest (T2IDCoreTauHypo):
@@ -32,7 +32,7 @@ class EFTauMVHypoBase (EFTauMVHypo):
     __slots__ = []
     def __init__(self, name):
         super(EFTauMVHypoBase, self).__init__(name)
-        setTauEFMonTools(self)
+        setTauEFMVMonTools(self)
 
 class EFTauMVHypo_tauNoCut (EFTauMVHypoBase):
     __slots__ = []
@@ -60,12 +60,25 @@ class EFTauMVHypo_highpt (EFTauMVHypoBase):
         self.Highpt    = True
         setVarCut(self, var, val)
 
+## HLTVertexPreSelHypo
+class HLTVertexPreSelHypoBase (HLTVertexPreSelHypo):
+    __slots__ = []
+    def __init__(self, name):
+        super(HLTVertexPreSelHypoBase, self).__init__(name)
+        setHLTVertexPreselMonTools(self)
+
+class HLTVertexPreSelHypo (HLTVertexPreSelHypoBase):
+    __slots__ = []
+    def __init__(self, name = "HLTVertexPreSelHypo", var = [], val = []):
+        super(HLTVertexPreSelHypo, self).__init__(name)
+        setVarCut(self, var, val)
+
 ## EFTauDiKaon
 class EFTauDiKaonHypoBase (EFTauDiKaonHypo):
     __slots__ = []
     def __init__(self, name):
         super(EFTauDiKaonHypoBase, self).__init__(name)
-        setTauEFMonTools(self)
+        setTauEFDiKaonMonTools(self)
 
 class EFTauDiKaonHypo (EFTauDiKaonHypoBase):
     __slots__ = []

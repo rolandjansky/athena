@@ -49,6 +49,9 @@ EFHadCalibHypo::EFHadCalibHypo(const std::string& name,
   declareMonitoredVariable("HTnPixHit"    , m_HTnPixHit   );
   declareMonitoredVariable("HTnSCTHit"    , m_HTnSCTHit   );
 
+  cutCounter2 = 1;
+  m_DQtrackPass = true;
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -300,9 +303,10 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
 						    Trk::undefined);
 	    }
 	  */
-	  
-	  if (!param_at_calo) 
-	    {
+
+// commented lines because of coverity issue: param_at_calo is always false, so 'else' dead code (D.Zanzi,4/4/16)	  
+//	  if (!param_at_calo) 
+//	    {
 	      //use non-extrapolated track direction
 	      extrapolatedEta = (*trackIter2)->eta();
 	      extrapolatedPhi = (*trackIter2)->phi();
@@ -313,13 +317,13 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
 		      << "phi = " << (*trackIter2)->phi()
 		      << ". Using non-extrapolated track direction! "
 		      << endreq;
-	    }
+//	    }
 
-	  else 
-	    {
-	      extrapolatedEta = param_at_calo->position().eta();
-	      extrapolatedPhi = param_at_calo->position().phi();
-	    }
+//	  else 
+//	    {
+//	      extrapolatedEta = param_at_calo->position().eta();
+//	      extrapolatedPhi = param_at_calo->position().phi();
+//	    }
 
 	  double deta = fabs(extrapolatedEta - (*trackIter)->eta());
 	  double dphi = fabs(extrapolatedPhi - (*trackIter)->phi());

@@ -51,6 +51,14 @@ EFTauMVHypo::EFTauMVHypo(const std::string& name,
   declareProperty("HighptJetThr", m_highptjetthr      = 410000.); 
 
   declareMonitoredVariable("CutCounter",m_cutCounter=0);
+  declareMonitoredVariable("NTrack",m_mon_nTrackAccepted=0);
+  declareMonitoredVariable("NWideTrack",m_mon_nWideTrackAccepted=0);
+  declareMonitoredVariable("EtCalib",m_mon_ptAccepted=-10.);
+
+  m_numTrack = -100;
+  m_numWideTrack = -100;
+  m_LLHScore = -1111.;
+  m_BDTScore = -1111.;
   OneProngGraph=0;
   MultiProngGraph=0;
 }
@@ -170,7 +178,11 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
   m_numWideTrack = -100;
   m_LLHScore = -1111.;
   m_BDTScore = -1111.;  
-  
+
+  m_mon_ptAccepted = -10.;
+  m_mon_nTrackAccepted = -1;
+  m_mon_nWideTrackAccepted = -1;
+
   // get the trigger element and extract the RoI information
   //---------------------------------------------------------
   
@@ -231,16 +243,17 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
     m_cutCounter++;
     
     double EFet = (*tauIt)->pt()*1e-3;
-    
+
     if( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << " REGTEST: Et Calib "<<EFet<<endreq;
     
     if(!( EFet > m_EtCalibMin*1e-3)) continue;
     m_cutCounter++;
-    
+    m_mon_ptAccepted = EFet;
+
     m_numTrack = (*tauIt)->nTracks();
     m_numWideTrack = (*tauIt)->nWideTracks();
-
+    
     if( msgLvl() <= MSG::DEBUG ){
       msg() << MSG::DEBUG << " REGTEST: Track size "<<m_numTrack <<endreq;	
       msg() << MSG::DEBUG << " REGTEST: Wide Track size "<<m_numWideTrack <<endreq;
@@ -255,7 +268,10 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
     if(applyTrkSel) if( !(m_numWideTrack <= m_numWideTrackMax)  ) continue;
    
     m_cutCounter++;
-   
+    m_mon_nTrackAccepted = m_numTrack;
+    m_mon_nWideTrackAccepted = m_numWideTrack;  
+
+ 
     //loosen and turn off ID cut at highpt
     if(m_highpt && (EFet > m_highptidthr*1e-3) && m_level>1) m_level = 1; //works only for BDT, not llh
     if(m_highpt && (EFet > m_highptjetthr*1e-3) ) m_level = -1111;
