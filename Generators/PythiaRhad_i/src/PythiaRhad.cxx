@@ -112,20 +112,19 @@ PythiaRhad::PythiaRhad(const std::string& name, ISvcLocator* pSvcLocator)
   m_firstlistevent = -1;
   m_lastlistevent  = -1;
  
-  declareProperty("useAtlasPythiaTune09",  m_useAtlasPythiaTune09 = true);
-  declareProperty("useAtlasPythiaTune08",  m_useAtlasPythiaTune08 = false);
-  declareProperty("useNoAtlasPythiaParam", m_useNoAtlasPythiaParam = false);
-  declareProperty("SetAtlasDefaults", m_AtlasDefaults = false );
-  declareProperty("Tune_Name",  m_Tune_Name = m_Default_Tune_Name );
+  // Update defaults for properties declared in base class.
+  m_useAtlasPythiaTune09 = true;
+  m_useAtlasPythiaTune08 = false;
+  m_useNoAtlasPythiaParam = false;
+  m_AtlasDefaults = false;
+  m_Tune_Name = m_Default_Tune_Name;
+  m_read_Filesusy = " ";
  
   declareProperty("RHadronPDGids", m_rhs );
-  declareProperty("SusyInputFile",    m_read_Filesusy = " ");
-  declareProperty("PythiaCommand",    m_pythiaCommandVector);
   declareProperty("RunGluinoHadrons",  m_run_gluino_hadrons = false );
   declareProperty("RunStopHadrons",  m_run_stop_hadrons = false );
 
 
-  declareProperty("PygiveCommand",    m_PygiveCommandVector);
   declareProperty("RunReggeModel",  m_regge = false );
   declareProperty("RunIntermediateModel",  m_intermediate = false );
   declareProperty("RunSbottomHadrons",  m_run_sbottom_hadrons = false );
@@ -184,7 +183,7 @@ StatusCode PythiaRhad::genuserInitialize() {
   }
   PythiaRhad::pythia_stream	=	"PYTHIA_INIT";
 
-  atlasTune_loop_prot=0;
+  m_atlasTune_loop_prot=0;
 
   // set up the input parameters to pyinit: these can be changed by the user
   m_frame = "CMS   ";
@@ -235,7 +234,7 @@ StatusCode PythiaRhad::genuserInitialize() {
     }
   // set any Pythia parameters different from Pythia defaults
   // allow only one reset
-  if (atlasTune_loop_prot<2)
+  if (m_atlasTune_loop_prot<2)
     {
       // atlasTune_loop_prot counts setPythiaTune() calls in setPythiaTune.cxx      
       StatusCode sc=setPythiaTune();
@@ -256,8 +255,8 @@ StatusCode PythiaRhad::genuserInitialize() {
   for (unsigned int i = 0; i < m_PygiveCommandVector.size(); i++) 
     {
       //      std::cout<<"RMA: "<<m_PygiveCommandVector[i]<<std::endl;
-      pygive_cstr = (m_PygiveCommandVector[i]).c_str();
-      pygive_(pygive_cstr,strlen(pygive_cstr));
+      m_pygive_cstr = (m_PygiveCommandVector[i]).c_str();
+      pygive_(m_pygive_cstr,strlen(m_pygive_cstr));
     }
 
 
