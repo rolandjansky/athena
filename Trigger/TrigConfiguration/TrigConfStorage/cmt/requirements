@@ -61,7 +61,6 @@ apply_pattern trigconf_application name=ReadWrite
 apply_pattern trigconf_application name=CoolFix
 apply_pattern trigconf_application name=TestTriggerDBCoolMix
 
-
 #============================================================================
 # Reflection
 #============================================================================
