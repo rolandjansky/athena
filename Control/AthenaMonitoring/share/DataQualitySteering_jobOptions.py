@@ -4,7 +4,7 @@
 # $Id: DataQualitySteering_jobOptions.py,v 1.15 2009-05-05 08:20:08 sschaetz Exp $
 # ********************************************************************************
 
-# disable InDetPerformanceMonitoring, JetMonitoring until further notice 
+# disable TRTEleMon until further notice
 # - PUEO 20140401
 TRTELEMON=False
 
