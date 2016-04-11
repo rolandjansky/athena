@@ -100,7 +100,7 @@ StatusCode ValgrindAuditor::initialize()
     }
   }
     
-  if ( outputLevel() <= MSG::INFO ) {
+  if ( msgLevel() <= MSG::INFO ) {
     std::ostringstream out;
     out << "[ ";
     std::copy( m_algs.begin(), m_algs.end(),
@@ -195,7 +195,7 @@ void ValgrindAuditor::do_beforeExecute(const std::string& name)
 {
   if ( algMatch(name) ) {
     if (m_eventCounter > m_ignoreFirstNEvents) {
-      if ( outputLevel() <= MSG::DEBUG )
+      if ( msgLevel() <= MSG::DEBUG )
         m_msg << MSG::DEBUG << "Starting callgrind before execute of " << name
               << " [event #" << m_eventCounter << "]" << endreq;
       
@@ -213,7 +213,7 @@ void ValgrindAuditor::do_afterExecute(const std::string& name)
   if ( algMatch(name) ) {
     if (m_eventCounter > m_ignoreFirstNEvents) {
       m_valSvc->callgrindStopInstrumentation();      
-      if ( outputLevel() <= MSG::DEBUG )
+      if ( msgLevel() <= MSG::DEBUG )
         m_msg << MSG::DEBUG << "Stopping callgrind after execute of " << name
               << " [event #" << m_eventCounter << "]" << endreq;
     }
@@ -232,7 +232,7 @@ void ValgrindAuditor::do_before(const std::string& name, const std::string& hook
     if ( boost::regex_match(name, iter->first.first) &&
          iter->first.second == hook ) {
       m_valSvc->callgrindStartInstrumentation();
-      if ( outputLevel() <= MSG::DEBUG )
+      if ( msgLevel() <= MSG::DEBUG )
         m_msg << MSG::DEBUG << "Starting callgrind before " << hook
               << " of " << name << endreq;
     }
@@ -250,7 +250,7 @@ void ValgrindAuditor::do_after(const std::string& name, const std::string& hook)
     if ( boost::regex_match(name, iter->second.first) &&
          iter->second.second == hook ) {
       m_valSvc->callgrindStopInstrumentation();
-      if ( outputLevel() <= MSG::DEBUG )
+      if ( msgLevel() <= MSG::DEBUG )
         m_msg << MSG::DEBUG << "Stopping callgrind after " << hook
               << " of " << name << endreq;
 
