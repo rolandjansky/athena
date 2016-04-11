@@ -125,7 +125,11 @@ include( "PerfMonGPerfTools/DisablePerfMon_jobOFragment.py" )
 #globalflags.DetGeo = 'atlas'
 #globalflags.InputFormat = 'pool'
 
+# The original file
 dataFile = "/afs/cern.ch/atlas/offline/ReleaseData/v16/testfile/mc09_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e510_s765_s767_d297_tid124958_00_RDO.124958._000001_10evt.pool.root"
+
+# A newer input file (may also require change of geometry)
+#dataFile = "/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2081_r6112_10evt.pool.root"
 
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.FilesInput=[dataFile,dataFile,dataFile,dataFile,dataFile,dataFile,dataFile,dataFile,dataFile,dataFile,dataFile]
@@ -151,13 +155,16 @@ objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
 
 topSequence = AlgSequence()
 
-import DetDescrCnvSvc.DetStoreConfig
-ServiceMgr.DetDescrCnvSvc.IdDictFromRDB = True
+from AtlasGeoModel import SetGeometryVersion
+from AtlasGeoModel import GeoModelInit
 
-from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
-from DetDescrCnvSvc.DetDescrCnvSvcConf import DetDescrCnvSvc
-ServiceMgr += GeoModelSvc()
-theApp.CreateSvc += [ "GeoModelSvc"]
+# import DetDescrCnvSvc.DetStoreConfig
+# ServiceMgr.DetDescrCnvSvc.IdDictFromRDB = True
+
+# from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+# from DetDescrCnvSvc.DetDescrCnvSvcConf import DetDescrCnvSvc
+# ServiceMgr += GeoModelSvc()
+# theApp.CreateSvc += [ "GeoModelSvc"]
 
 from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
 from TileGeoModel.TileGeoModelConf import TileDetectorTool
@@ -166,7 +173,9 @@ ServiceMgr.GeoModelSvc.DetectorTools += [ LArDetectorToolNV(ApplyAlignments = Tr
                                           TileDetectorTool(GeometryConfig = "RECO")
                                           ]
 
-ServiceMgr.GeoModelSvc.AtlasVersion='ATLAS-GEO-10-00-00'
+# # I think this is no longer required
+#ServiceMgr.GeoModelSvc.AtlasVersion='ATLAS-GEO-10-00-00' # for the original input file
+#ServiceMgr.GeoModelSvc.AtlasVersion='ATLAS-R2-2015-02-01-00' # for the new input file
 
 from CaloDetMgrDetDescrCnv import CaloDetMgrDDCnv
 
