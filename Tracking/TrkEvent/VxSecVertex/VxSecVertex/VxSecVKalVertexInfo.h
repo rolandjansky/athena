@@ -24,6 +24,9 @@ information VKalVrt is able to provide:
 
 
     April 2014:  Migration to xAOD::Vertex and xAOD::IParticle
+    
+    VxSecVKalVertexInfo owns  m_pseudoVertex!
+    
 ********************************************/
 
 #ifndef VXSECVERTEX_VXSECVKALVERTEXINFO_H
@@ -56,6 +59,11 @@ namespace Trk {
 			double mass,double energyFraction,int n2trackvertices, double energyTrkInJet,
 			const std::vector<const xAOD::IParticle*> & badTracks);
 
+    /* constructor for non-standard pseudo-vertex in a jet*/
+    VxSecVKalVertexInfo(const xAOD::Vertex* pseudoVertex,
+			double mass,double energyFraction,int nBigImpTrk, 
+			const std::vector<const xAOD::IParticle*> & badTracks);
+
     /* copy constructor */
     VxSecVKalVertexInfo(const VxSecVKalVertexInfo &);
 
@@ -82,8 +90,14 @@ namespace Trk {
     /* set minimal distance to any material layer  */
     void setDstToMatLay(double) const;
 
-    /* get n2trackvertices */
+    /* get number of 2track vertices */
     int n2trackvertices() const;
+
+    /* get number of tracks with big impact */
+    int nBigImpTracks() const;
+
+    /* get pseudo-vertex when normal vertices are absent*/
+    const xAOD::Vertex* pseudoVertex() const;
 
     /* get list of bad TP */
     const std::vector<const Trk::TrackParticleBase*> badTracksTP() const;
@@ -105,8 +119,11 @@ namespace Trk {
     double m_energyTrkInJet;
     mutable double m_dstToMatLayer;
     int m_n2trackvertices;
+    int m_nBigImpTracks;
     std::vector<ElementLink<Trk::TrackParticleBaseCollection> > m_badTracksTP;
     std::vector<ElementLink<xAOD::IParticleContainer> >         m_badTracksIP;
+
+    const xAOD::Vertex* m_pseudoVertex;
     
   };
 
@@ -134,6 +151,14 @@ namespace Trk {
   inline int VxSecVKalVertexInfo::n2trackvertices() const {
     return m_n2trackvertices;
   }
+
+  inline int VxSecVKalVertexInfo::nBigImpTracks() const {
+    return m_nBigImpTracks;
+  }
+
+  inline const xAOD::Vertex* VxSecVKalVertexInfo::pseudoVertex() const {
+    return m_pseudoVertex;
+  }  
 
   /* clone method */
   inline VxSecVKalVertexInfo* VxSecVKalVertexInfo::clone() const {
