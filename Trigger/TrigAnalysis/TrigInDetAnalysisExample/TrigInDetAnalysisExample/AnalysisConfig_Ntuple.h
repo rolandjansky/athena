@@ -56,10 +56,16 @@ public:
     m_doElectrons_tightLH(false),
     m_doElectrons_mediumLH(false),
     m_doElectrons_looseLH(false),
-    m_doTaus(false),
+    m_doTaus_1Prong(false),
+    m_doTaus_tight_1Prong(false),
+    m_doTaus_medium_1Prong(false),
+    m_doTaus_loose_1Prong(false),
+    m_doTaus_3Prong(false),
+    m_doTaus_tight_3Prong(false),
+    m_doTaus_medium_3Prong(false),
+    m_doTaus_loose_3Prong(false),
     m_doBjets(false),
     m_hasTruthMap(false),
-    m_doTauThreeProng(false),
     m_tauEtCutOffline(tauEtCutOffline),
     m_TruthPdgId(TruthPdgId),
     m_finalised(true),
@@ -70,11 +76,11 @@ public:
     this->keepAllEvents( _keepAllEvents ); /// this is now i nthe base class
 
     for ( unsigned i=0 ; i<chainNames.size() ; i++ ) { 
-      if ( chainNames[i] != "Offline"   &&
-	   chainNames[i] != "Electrons" &&
-	   chainNames[i] != "Muons"     &&
-	   chainNames[i] != "Taus"      &&
-	   chainNames[i] != "Taus3"     &&
+      if ( chainNames[i] != "Offline"     &&
+	   chainNames[i] != "Electrons"   &&
+	   chainNames[i] != "Muons"       &&
+	   chainNames[i] != "Taus_1Prong" &&
+	   chainNames[i] != "Taus_3Prong" &&
 	   chainNames[i] != "Bjets" )   { 
 	
 	//	std::cout << "AnalysisConfig_Ntuple: chain[" << i << "] " << chainNames[i] << std::endl;
@@ -84,19 +90,25 @@ public:
 	
       }
 
-      if ( chainNames[i]=="Offline" )   m_doOffline   = true;
-      if ( chainNames[i]=="Vertex" )    m_doVertices  = true;
-      if ( chainNames[i]=="Electrons" ) m_doElectrons = true;
-      if ( chainNames[i]=="Electrons_TightCB" ) m_doElectrons_tightCB = true;
+      if ( chainNames[i]=="Offline" )     m_doOffline     = true;
+      if ( chainNames[i]=="Vertex" )      m_doVertices    = true;
+      if ( chainNames[i]=="Electrons" )   m_doElectrons   = true;
+      if ( chainNames[i]=="Electrons_TightCB" )  m_doElectrons_tightCB  = true;
       if ( chainNames[i]=="Electrons_MediumCB" ) m_doElectrons_mediumCB = true;
-      if ( chainNames[i]=="Electrons_LooseCB" ) m_doElectrons_looseCB = true;
-      if ( chainNames[i]=="Electrons_TightLH" ) m_doElectrons_tightLH = true;
+      if ( chainNames[i]=="Electrons_LooseCB" )  m_doElectrons_looseCB  = true;
+      if ( chainNames[i]=="Electrons_TightLH" )  m_doElectrons_tightLH  = true;
       if ( chainNames[i]=="Electrons_MediumLH" ) m_doElectrons_mediumLH = true;
-      if ( chainNames[i]=="Electrons_LooseLH" ) m_doElectrons_looseLH = true;
-      if ( chainNames[i]=="Muons" )     m_doMuons     = true;
-      if ( chainNames[i]=="Taus" )      m_doTaus      = true;
-      if ( chainNames[i]=="Taus3" )     m_doTauThreeProng = true;
-      if ( chainNames[i]=="Bjets" )     m_doBjets     = true;
+      if ( chainNames[i]=="Electrons_LooseLH" )  m_doElectrons_looseLH  = true;
+      if ( chainNames[i]=="Muons" )       m_doMuons       = true;
+      if ( chainNames[i]=="Taus_1Prong" ) m_doTaus_1Prong = true;
+      if ( chainNames[i]=="Taus_Tight_1Prong" )  m_doTaus_tight_1Prong  = true;
+      if ( chainNames[i]=="Taus_Medium_1Prong" ) m_doTaus_medium_1Prong = true;
+      if ( chainNames[i]=="Taus_Loose_1Prong" )  m_doTaus_loose_1Prong  = true;
+      if ( chainNames[i]=="Taus_3Prong" ) m_doTaus_3Prong = true;
+      if ( chainNames[i]=="Taus_Tight_3Prong" )  m_doTaus_tight_3Prong  = true;
+      if ( chainNames[i]=="Taus_Medium_3Prong" ) m_doTaus_medium_3Prong = true;
+      if ( chainNames[i]=="Taus_Loose_3Prong" )  m_doTaus_loose_3Prong  = true;
+      if ( chainNames[i]=="Bjets" )       m_doBjets       = true;
     }
     m_event = new TIDA::Event();
     m_outputFileName=outputFileName;
@@ -139,10 +151,16 @@ protected:
   bool m_doElectrons_tightLH;
   bool m_doElectrons_mediumLH;
   bool m_doElectrons_looseLH;
-  bool m_doTaus;
+  bool m_doTaus_1Prong;
+  bool m_doTaus_tight_1Prong;
+  bool m_doTaus_medium_1Prong;
+  bool m_doTaus_loose_1Prong;
+  bool m_doTaus_3Prong;
+  bool m_doTaus_tight_3Prong;
+  bool m_doTaus_medium_3Prong;
+  bool m_doTaus_loose_3Prong;
   bool m_doBjets;
   bool m_hasTruthMap;
-  bool m_doTauThreeProng;
   bool m_tauEtCutOffline;
 
   std::string m_outputFileName;
