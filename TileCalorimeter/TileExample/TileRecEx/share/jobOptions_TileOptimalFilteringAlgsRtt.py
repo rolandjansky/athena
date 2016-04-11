@@ -127,6 +127,9 @@ elif TilePhysAllTestParamsOffOfaRtt:
     TestParameters.SetAll(False)
     # Do not convert ADC counts to MeV in output ntuple.
     TileCalibrateEnergy = False
+    # Switch off time correction
+    from TileRecUtils.TileRecFlags import jobproperties
+    jobproperties.TileRecFlags.correctTimeNI = False
     EvtMax = 718
 
 
