@@ -304,7 +304,7 @@ StatusCode TrigTestMonToolAC::fill() {
 
   for ( unsigned i=0 ; i<m_chainNames.size() ; i++ ) { 
     ChainString s = m_chainNames[i];
-    std::vector<string> triggers = m_tdt->getListOfTriggers( s.head() );
+    //std::vector<std::string> triggers = m_tdt->getListOfTriggers( s.head() );
     msg(MSG::INFO) << "Trigger output " << s.head() << " " << s.tail() << "\tdecision " << m_tdt->isPassed( s.head() ) << endreq;
   }
   
