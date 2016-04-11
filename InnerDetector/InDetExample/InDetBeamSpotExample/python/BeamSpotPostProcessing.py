@@ -434,7 +434,7 @@ class BeamSpotGlobalNt(PostProcessingStep):
         
         ntFileName = self.getFileName('-nt.root','MergeNt')
         globalNtDir = '/afs/cern.ch/user/a/atlidbs/nt/t0'
-        beamspottag = 'IndetBeampos-RUN2-ES1-UPD2-10' # Always update to one global ntuple so don't resolve current
+        beamspottag = 'IndetBeampos-RUN2-ES1-UPD2-13' # Always update to one global ntuple so don't resolve current
         globalNtFileName = '%s/beamspotnt-%s.root' % (globalNtDir,beamspottag)
         if not os.path.exists(globalNtDir):
             raise PostProcessingError('ERROR: Cannot access directory with global beam spot ntuple: %s' % globalNtDir, self.executedSteps)
