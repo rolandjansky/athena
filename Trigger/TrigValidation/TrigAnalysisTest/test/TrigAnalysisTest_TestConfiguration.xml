@@ -177,7 +177,7 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="AthenaTrigRDOtoAOD_MC" type="script" suite="tat_MC_Slim"> 
+        <TEST name="AthenaTrigRDOtoAOD_MC" type="script" suite="tat_MCSlim"> 
             <options_atn>trigtest.pl --test AthenaTrigRDOtoAOD_MC --run AthenaTrigRDOtoAOD_MC --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
@@ -188,7 +188,7 @@
             </expectations> 
         </TEST> 
         
-        <TEST name= "AthenaTrigAODtoAOD_TrigNavSlimming" type="script" suite="tat_MC_Slim"> 
+        <TEST name= "AthenaTrigAODtoAOD_TrigNavSlimming" type="script" suite="tat_MCSlim"> 
             <options_atn>trigtest.pl --test AthenaTrigAODtoAOD_TrigNavSlimming --run AthenaTrigAODtoAOD_TrigNavSlimming --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
@@ -201,7 +201,7 @@
         </TEST> 
         
         
-        <TEST name="AthenaTrigAOD_TrigEDMCheck" type="script" suite="tat_MC_Slim"> 
+        <TEST name="AthenaTrigAOD_TrigEDMCheck" type="script" suite="tat_MCSlim"> 
             <options_atn>trigtest.pl --test AthenaTrigAOD_TrigEDMCheck --run AthenaTrigAOD_TrigEDMCheck --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
@@ -212,7 +212,7 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="AthenaTrigAOD_TrigDecTool" type="script" suite="tat_MC_Slim"> 
+        <TEST name="AthenaTrigAOD_TrigDecTool" type="script" suite="tat_MCSlim"> 
             <options_atn>trigtest.pl --test AthenaTrigAOD_TrigDecTool --run AthenaTrigAOD_TrigDecTool --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
@@ -223,7 +223,7 @@
             </expectations> 
         </TEST> 
         
-        <TEST name= "TrigHLT_Run1BStoxAOD" type="script" suite="tat_BackComp"> 
+        <TEST name= "TrigHLT_Run1BStoxAOD" type="script" suite="tat_Run1"> 
             <options_atn>trigtest.pl --test TrigHLT_Run1BStoxAOD --run TrigHLT_Run1BStoxAOD --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>45</timelimit> 
             <author>TrigAnalysis validation</author> 
@@ -235,7 +235,7 @@
             </expectations> 
         </TEST>  
         
-        <TEST name= "TrigHLT_Run1BStoxAOD_validation" type="script" suite="tat_BackComp"> 
+        <TEST name= "TrigHLT_Run1BStoxAOD_validation" type="script" suite="tat_Run1"> 
             <options_atn>trigtest.pl --test TrigHLT_Run1BStoxAOD_validation --run TrigHLT_Run1BStoxAOD_validation --conf TrigAnalysisTest.conf</options_atn>
             <timelimit>45</timelimit> 
             <author>TrigAnalysis validation</author> 
@@ -247,7 +247,7 @@
             </expectations> 
         </TEST>  
         
-        <TEST name= "AthenaTrigRDOtoAOD_MC_pp_v6" type="script" suite="tat_MC_v6"> 
+        <TEST name= "AthenaTrigRDOtoAOD_MC_pp_v6" type="script" suite="tat_MCv6"> 
             <options_atn>trigtest.pl --test AthenaTrigRDOtoAOD_MC_pp_v6 --run AthenaTrigRDOtoAOD_MC_pp_v6 --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
@@ -258,7 +258,7 @@
             </expectations> 
         </TEST> 
         
-        <TEST name= "AthenaTrigRDOtoESDAOD_MC_pp_v6" type="script" suite="tat_MC_v6"> 
+        <TEST name= "AthenaTrigRDOtoESDAOD_MC_pp_v6" type="script" suite="tat_MCv6"> 
             <options_atn>trigtest.pl --test AthenaTrigRDOtoESDAOD_MC_pp_v6 --run AthenaTrigRDOtoESDAOD_MC_pp_v6 --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
@@ -274,11 +274,10 @@
         <TEST name="atn_timeline" type="script" suite="triganalysis_index0">
             <doc>ATN timeline</doc>
             <options_atn>atn_timeline.py --atn -p TrigAnalysisTest </options_atn>
-            <timelimit>2</timelimit>
+            <timelimit>10</timelimit>
             <author>Frank Winklmeier</author>
             <!--prerequisite>tat_RDOtoESDAOD</prerequisite>
              <prerequisite>tat_BS_MC</prerequisite>
-             <prerequisite>tat_MC_Slim</prerequisite>
              <prerequisite>tat_Phys_EA</prerequisite>
              <prerequisite>tat_MC_EA</prerequisite>
              <prerequisite>tat_tag</prerequisite>
@@ -288,12 +287,12 @@
              <prerequisite>tat_TDT</prerequisite-->
             <prerequisite>tat_RDOtoESDAOD</prerequisite>
             <prerequisite>tat_BS</prerequisite>
-            <prerequisite>tat_BackComp</prerequisite>
+            <prerequisite>tat_Run1</prerequisite>
             <prerequisite>tat_EA</prerequisite>            
             <prerequisite>tat_tag</prerequisite>
             <prerequisite>tat_AOD</prerequisite>
-            <prerequisite>tat_MC_Slim</prerequisite>
-            <prerequisite>tat_MC_v6</prerequisite>
+            <prerequisite>tat_MCSlim</prerequisite>
+            <prerequisite>tat_MCv6</prerequisite>
             <!--prerequisite>tat_PhysVal</prerequisite-->
             <project_exclude>AthAnalysis</project_exclude>
             <expectations>
@@ -332,11 +331,10 @@
     <!-- RTT tests configured here -->
     <rtt  xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
         
-        <rttContactPerson>Simon George (S.George@rhul.ac.uk)</rttContactPerson>
-        <rttContactPerson>David Strom (David.Strom@cern)</rttContactPerson>
-        <rttContactPerson>Patrick Czodrowski (czodrows@cern)</rttContactPerson>
-        <refRelease>15.6.X</refRelease>
-        
+        <!--rttContactPerson>Simon George (S.George@rhul.ac.uk)</rttContactPerson>
+         <rttContactPerson>David Strom (David.Strom@cern)</rttContactPerson>
+         <rttContactPerson>Patrick Czodrowski (czodrows@cern)</rttContactPerson-->
+        <rttContactPerson>Oleg Kuprash (oleg.kuprash@cern.ch)</rttContactPerson>
         
         <jobList>
             <classification>
