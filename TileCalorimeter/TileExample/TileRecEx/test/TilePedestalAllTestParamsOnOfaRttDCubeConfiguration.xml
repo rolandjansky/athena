@@ -33,13 +33,13 @@
   [3] cmtconfig: *
   [4] project: *
   [5] jobId: *
-  [6] reference root file: /afs/cern.ch/atlas/project/RTT/Results/reference/offline/TileCalorimeter/TileExample/TileRecEx/TilePedestalAllTestParamsOnOfaRttHistograms_20121016.root
+  [6] reference root file: /afs/cern.ch/atlas/project/RTT/DCubeReference/offline/TileCalorimeter/TileExample/TileRecEx/TilePedestalAllTestParamsOnOfaRttHistograms_20160401.root
   [7] p-values limits FAIL = 0.750000 WARN = 0.950000
   ###################################################
 -->
-  <reference file="/afs/cern.ch/atlas/project/RTT/DCubeReference/offline/TileCalorimeter/TileExample/TileRecEx/TilePedestalAllTestParamsOnOfaRttHistograms_20121016.root"/>
+  <reference file="/afs/cern.ch/atlas/project/RTT/DCubeReference/offline/TileCalorimeter/TileExample/TileRecEx/TilePedestalAllTestParamsOnOfaRttHistograms_20160401.root"/>
   <ref_desc>
-   Reference histograms have been produced using release rel_2,devval (16.10.2012).
+   Reference histograms have been produced using release 20.7.X.Y,rel_4 (01.04.2016).
   </ref_desc>
   <test_desc>
    RTT test of Optimal Filtering Algorithms (Fit, Opt2, OptATLAS) for Pedestal runs under the folowing conditions: correct time; use ofc and phase from COOL; Mev in output ntuple.

@@ -665,6 +665,7 @@ rec.doLArg = False
 # in order to set up right database instance  in condb
 projectName = FileNameVec[0].split('/').pop().split('.')[0]
 rec.projectName = projectName
+rec.RunNumber = int(RunNumber)
 
 if not 'RUN2' in dir(): 
     RUN2 = False
@@ -1573,7 +1574,8 @@ if doTileCalib:
 
         topSequence += TileCalibAlg
     elif TileL1CaloRun:
-        include( "TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py" )
+        if RUN2: include("TrigT1CaloByteStream/ReadLVL1CaloBSRun2_jobOptions.py")
+        else: include( "TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py" )
 
         # Trigger calibration using top calib alg
         from TileCalibAlgs.TileCalibAlgsConf import TileTopCalibAlg
