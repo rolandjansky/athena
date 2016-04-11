@@ -5,24 +5,30 @@
 // ================================================
 // Run2TriggerTowerMaker class Implementation
 // ================================================
+
 #include "TrigT1CaloSim/Run2TriggerTowerMaker.h"
 
 // trigger include(s)
 #include "TrigT1CaloCalibConditions/L1CaloModuleType.h"
+#include "TrigT1CaloCalibConditions/L1CaloPprChanCalibContainer.h"
+#include "TrigT1CaloCalibConditions/L1CaloPprChanDefaultsContainer.h"
+#include "TrigT1CaloCalibConditions/L1CaloDisabledTowersContainer.h"
+#include "TrigT1CaloCalibConditions/L1CaloPpmDeadChannelsContainer.h"
+#include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
 #include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
-#include "TrigT1CaloUtils/TriggerTowerKey.h"
-#include "TrigT1CaloEvent/TriggerTower.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 // calorimeter include(s)
 #include "CaloIdentifier/CaloLVL1_ID.h"
-#include "CaloTriggerTool/CaloTriggerTowerService.h"
 #include "TileConditions/TileInfo.h"
 
 #include "LumiBlockComps/ILumiBlockMuTool.h"
+#include "EventInfo/EventIncident.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventType.h"
 #include "xAODEventInfo/EventInfo.h"
 
 // For the Athena-based random numbers.
@@ -39,188 +45,74 @@
 #include <fstream>
 #include <limits> // for std::numeric_limits<std::streamsize>
 #include <utility> // for std::move
+#include <stdexcept>
 #include <sys/types.h>
 
 namespace LVL1 {
 
 namespace {
+constexpr static int ADCMAX = 1023;
+constexpr static int SATURATIONVALUE = 255;
+
 // keep these local to this compilation unit
 xAOD::TriggerTower::Decorator<int> firDecorator("fir");
+
 }
 
-/** This is the constructor for TTMaker and is where you define the relevant
-    parameters.
-*/
 Run2TriggerTowerMaker::Run2TriggerTowerMaker(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
     m_rndGenSvc("AtRndmGenSvc", name),
-    m_rndmPeds(0),
+    m_condSvc("L1CaloCondSvc", name),
     m_rndmADCs(0),
     m_TTtool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
     m_mappingTool("LVL1::PpmMappingTool/PpmMappingTool"),
-    m_triggerTowerService("CaloTriggerTowerService/CaloTriggerTowerService"),
-    m_caloId(0),
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
-    m_decorateFIR(false),
+    m_caloId(0),
     m_digitScale(250.),
     m_cpLutScale(1.),
     m_jepLutScale(1.),
     m_TileToMeV(s_MEV/4.1), // Scale for converting ET -> counts
-    m_TileTTL1Ped(0.) // TileTTL1 pedestal value - need to subtract if set non-zero
+    m_TileTTL1Ped(0.), // TileTTL1 pedestal value - need to subtract if set non-zero
+    m_isDataReprocessing(false)
 {
   declareProperty("RndmSvc", m_rndGenSvc, "Random number service");
-  declareProperty("PedEngine",m_pedEngine = "TrigT1CaloSim_Pedestal");
-  declareProperty("DigiEngine",m_digiEngine = "TrigT1CaloSim_Digitization");
+  declareProperty("DigiEngine", m_digiEngine = "TrigT1CaloSim_Digitization");
 
-  declareProperty("BaselineCorrection", m_correctFir = true, "Pedestal Correction");
   declareProperty("LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
   declareProperty("PpmMappingTool", m_mappingTool);
-  declareProperty("CaloTriggerTowerService", m_triggerTowerService);
   declareProperty("LumiBlockMuTool", m_lumiBlockMuTool);
 
-  declareProperty("inputTTLocation", m_inputTTLocation=TrigT1CaloDefs::TriggerTowerLocation);
+  declareProperty("inputTTLocation", m_inputTTLocation=TrigT1CaloDefs::xAODTriggerTowerLocation);
   declareProperty("EmTTL1ContainerName",m_EmTTL1ContainerName= "LArTTL1EM");
   declareProperty("HadTTL1ContainerName",m_HadTTL1ContainerName= "LArTTL1HAD");
   declareProperty("TileTTL1ContainerName",m_TileTTL1ContainerName= "TileTTL1Cnt");
   declareProperty("RequireAllCalos",m_requireAllCalos=true,"Should EM,Had and Tile all be available?");
 
-  declareProperty("TriggerTowerLocation", m_outputLocation= TrigT1CaloDefs::TriggerTowerLocation);
-  declareProperty("xAODTriggerTowerLocation", m_xOutputLocation = TrigT1CaloDefs::xAODTriggerTowerLocation );
+  declareProperty("TriggerTowerLocation", m_outputLocation= TrigT1CaloDefs::xAODTriggerTowerLocation);
   declareProperty("CellType", m_cellType = TTL1);
 
-  declareProperty("EMTowerThreshold", m_emThresh = 4000,
-                  "Default noise cut for all EM towers, if not specified in regions");
-  declareProperty("HadTowerThreshold", m_hadThresh =4000,
-                  "Default noise cut for all HAD towers, if not specified in regions");
-
   // ADC simulation
-  declareProperty("PedestalValue", m_pedVal=32.);
-  declareProperty("PedestalSpread", m_pedVar=1.);
   declareProperty("ADCStep", m_adcStep=250.);
   declareProperty("ADCNoise", m_adcVar=0.65);
   declareProperty("CalibrationUncertainty", m_gainCorr=0.);
 
-  declareProperty("AutoCalibrateLUT", m_AutoCalibrateLUT = true,  "Local LUT calibration adjustments. If false, you *must* load the slopes manually");
-
-  declareProperty("LUTStrategy", m_LUTStrategy=1, "1 = New, 0 = Old Strategy");
-  declareProperty("RoundPedestal", m_RoundPed = true, "Rounding pedestal inside LUT");
-  declareProperty("MatchFIR", m_MatchFIR = true, "automatically match FIR coefficients to pulse shape");
-  declareProperty("DecorateFIR", m_decorateFIR, "Add FIR values to the xAOD::TriggerTowers");
-
-  /** Set CalibLUT factor to 1 by default. For m_AutoCalibrateLUT = true this means
-      making no correction to the receiver calibration.
-      Note: if you set m_AutoCalibrateLUT = false, you will need to load the actual LUT
-      slopes into these variables, in which case you'd better know how the LUT slope
-      actually works - 1 will *not* be the correct value in this case! */
-  // parameters for elements (eta bins)
-  for(int i = 0; i < s_NLAYER; ++i) {
-    m_CalibLUTElement[i].assign(s_NELEMENT, 1.);
-    m_ThresholdElementCP[i].assign(s_NELEMENT, 0);
-    m_ThresholdElementJEP[i].assign(s_NELEMENT, 0);
-
-    m_SatLowElement[i].assign(s_NELEMENT, 0);
-    m_SatHighElement[i].assign(s_NELEMENT, 0);
-    for(int j = 0; j < s_NELEMENT; ++j) {
-      m_elementInfo[i][j].FIRCoeff.assign(s_FIRLENGTH, 0); //default all to zero
-    }
-  }
-  declareProperty("EmThreshElementCP", m_ThresholdElementCP[0]);
-  declareProperty("HadThreshElementCP", m_ThresholdElementCP[1]);
-  declareProperty("EmThreshElementJEP", m_ThresholdElementJEP[0]);
-  declareProperty("HadThreshElementJEP", m_ThresholdElementJEP[1]);
-  declareProperty("EmSlopeElement", m_CalibLUTElement[0]);
-  declareProperty("HadSlopeElement", m_CalibLUTElement[1]);
-  declareProperty("EmSatLowElement", m_SatLowElement[0]);
-  declareProperty("HadSatLowElement", m_SatLowElement[1]);
-  declareProperty("EmSatHighElement", m_SatHighElement[0]);
-  declareProperty("HadSatHighElement", m_SatHighElement[1]);
-
-
-  // Pedestal Correction: Em
-  declareProperty("FilterCoeffsEmElement0", m_elementInfo[0][0].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement1", m_elementInfo[0][1].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement2", m_elementInfo[0][2].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement3", m_elementInfo[0][3].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement4", m_elementInfo[0][4].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement5", m_elementInfo[0][5].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement6", m_elementInfo[0][6].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement7", m_elementInfo[0][7].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement8", m_elementInfo[0][8].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement9", m_elementInfo[0][9].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement10", m_elementInfo[0][10].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement11", m_elementInfo[0][11].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement12", m_elementInfo[0][12].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement13", m_elementInfo[0][13].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement14", m_elementInfo[0][14].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement15", m_elementInfo[0][15].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement16", m_elementInfo[0][16].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement17", m_elementInfo[0][17].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement18", m_elementInfo[0][18].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement19", m_elementInfo[0][19].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement20", m_elementInfo[0][20].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement21", m_elementInfo[0][21].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement22", m_elementInfo[0][22].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement23", m_elementInfo[0][23].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement24", m_elementInfo[0][24].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement25", m_elementInfo[0][25].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement26", m_elementInfo[0][26].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement27", m_elementInfo[0][27].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement28", m_elementInfo[0][28].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement29", m_elementInfo[0][29].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement30", m_elementInfo[0][30].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement31", m_elementInfo[0][31].FIRCoeff);
-  declareProperty("FilterCoeffsEmElement32", m_elementInfo[0][32].FIRCoeff);
-  // Pedestal Correction: Had
-  declareProperty("FilterCoeffsHadElement0", m_elementInfo[1][0].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement1", m_elementInfo[1][1].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement2", m_elementInfo[1][2].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement3", m_elementInfo[1][3].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement4", m_elementInfo[1][4].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement5", m_elementInfo[1][5].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement6", m_elementInfo[1][6].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement7", m_elementInfo[1][7].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement8", m_elementInfo[1][8].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement9", m_elementInfo[1][9].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement10", m_elementInfo[1][10].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement11", m_elementInfo[1][11].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement12", m_elementInfo[1][12].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement13", m_elementInfo[1][13].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement14", m_elementInfo[1][14].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement15", m_elementInfo[1][15].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement16", m_elementInfo[1][16].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement17", m_elementInfo[1][17].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement18", m_elementInfo[1][18].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement19", m_elementInfo[1][19].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement20", m_elementInfo[1][20].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement21", m_elementInfo[1][21].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement22", m_elementInfo[1][22].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement23", m_elementInfo[1][23].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement24", m_elementInfo[1][24].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement25", m_elementInfo[1][25].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement26", m_elementInfo[1][26].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement27", m_elementInfo[1][27].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement28", m_elementInfo[1][28].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement29", m_elementInfo[1][29].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement30", m_elementInfo[1][30].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement31", m_elementInfo[1][31].FIRCoeff);
-  declareProperty("FilterCoeffsHadElement32", m_elementInfo[1][32].FIRCoeff);
-
-  // BCID thresholds, ranges, decision criteria
-  declareProperty("EnergyLow", m_EnergyLow=0);
-  declareProperty("EnergyHigh", m_EnergyHigh=255);
-  declareProperty("DecisionSource", m_DecisionSource=0);    // Use ADC for range decision
-  declareProperty("BcidDecision1", m_BcidDecision[0]=0xF0); // FIR+peakfinder
-  declareProperty("BcidDecision2", m_BcidDecision[1]=0xF0); // FIR+peakfinder
-  declareProperty("BcidDecision3", m_BcidDecision[2]=0xCC); // Saturated pulse BCID
-  declareProperty("SatOverride1", m_SatOverride[0]=0);
-  declareProperty("SatOverride2", m_SatOverride[1]=0);
-  declareProperty("SatOverride3", m_SatOverride[2]=1);
-  declareProperty("PeakFinderCond", m_PeakFinderCond=0);
-
-  declareProperty("SatLevel", m_SatLevel=1013);
+  declareProperty("DecorateFIR", m_decorateFIR = false, "Add FIR values to the xAOD::TriggerTowers");
 
   declareProperty("ZeroSuppress", m_ZeroSuppress = true, "Do not save towers with 0 energy");
+
+  declareProperty("ChanCalibFolderKey",
+                  m_chanCalibKey = "/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib",
+                  "PprChanCalib key");
+  declareProperty("ChanDefaultsFolderKey",
+                  m_chanDefaultsKey = "/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults",
+                  "PprChanDefaults key");
+  declareProperty("DisabledTowersFolderKey",
+                  m_disabledTowersKey = "/TRIGGER/L1Calo/V2/Conditions/DisabledTowers",
+                  "DisabledTowers key");
+  declareProperty("DeadChannelsFolderKey",
+                  m_deadChannelsKey = "/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels",
+                  "PpmDeadChannels key");
 
   // Create hash table for E->ET conversions
   /* Fill table with dummy values */
@@ -245,8 +137,7 @@ Run2TriggerTowerMaker::Run2TriggerTowerMaker(const std::string& name, ISvcLocato
   m_sinThetaHash[ (unsigned int)(32 + (3.5*0.425)*10.) ] = 1.0/cosh(3.2 + 3.5*0.425);
 }
 
-Run2TriggerTowerMaker::~Run2TriggerTowerMaker() {
-}
+Run2TriggerTowerMaker::~Run2TriggerTowerMaker() {}
 
 StatusCode Run2TriggerTowerMaker::initialize()
 {
@@ -255,14 +146,13 @@ StatusCode Run2TriggerTowerMaker::initialize()
   CHECK(detStore()->retrieve(m_caloId).isSuccess());
   CHECK(m_configSvc.retrieve());
   CHECK(m_mappingTool.retrieve());
-  CHECK(m_triggerTowerService.retrieve());
   CHECK(m_TTtool.retrieve());
   CHECK(m_rndGenSvc.retrieve());
   CHECK(m_lumiBlockMuTool.retrieve());
+  CHECK(m_condSvc.retrieve());
 
-  m_rndmPeds = m_rndGenSvc->GetEngine(m_pedEngine);
   m_rndmADCs = m_rndGenSvc->GetEngine(m_digiEngine);
-  if(m_rndmPeds == 0 || m_rndmADCs == 0) {
+  if(!m_rndmADCs) {
     ATH_MSG_ERROR("Failed to retrieve random engine");
     return StatusCode::FAILURE;
   }
@@ -296,464 +186,48 @@ void Run2TriggerTowerMaker::handle(const Incident& inc)
   /// MeV/count, safest thing here is to convert:
   m_digitScale = 1000.*globalScale;
 
-  /// Now need to (re)-initialise parameters which depend on this value.
-  if(initPulse().isFailure()) ATH_MSG_ERROR("Error initialising pulse");
-}
-
-/** the initPulse() method sets up FIR coefficients & LUT parameters for
-    each pulse type. Where possible it updates from the calorimeter configuration
-    files or datastore. FIR coefficients may be set by user or automatically
-    matched to pulse shape */
-StatusCode Run2TriggerTowerMaker::initPulse()
-{
-  /* FIR BCID simulation includes several factors which must be
-     computed from the selected parameters.
-
-     So, the procedure used here is that for each pulse type:
-     - start with a default pulse profile
-     - update from calorimeter data if available
-     - optionally match FIR coefficients to pulse shape
-     - compute calibration factors and pedestal subtraction from pulse & FIR */
-
-  // LAr EM
-  // define a default - updated 180114
-  std::vector<double> EMBPulse = {0.10, 0.47, 1., 0.60, 0.12};
-  std::vector<double> EMECPulse = {0.10, 0.47, 1., 0.60, 0.12};
-  initLArPulse(EMBPulse, EmB, "LArEmLvl1.data");
-  initLArPulse(EMECPulse, EmEC, "LArEmLvl1.data");
-
-  // LAr HEC
-  std::vector<double> HECPulse = {0.03, 0.61, 1., 0.76, 0.39};
-  initLArPulse(HECPulse, Hec, "LArHecLvl1.data");
-
-  // LAr Em FCAL
-  std::vector<double> FCAL1Pulse = {0.00,0.21,1.,0.30,-0.45};
-  initLArPulse(FCAL1Pulse, FcalE, "LArFcalLvl1.data");
-
-  // LAr Had FCAL
-  std::vector<double> FCAL23Pulse = {0.00,0.26,1.,0.52,-0.23};
-  initLArPulse(FCAL23Pulse, FcalH, "LArFcalLvl1.data");
-
-  // Tile
-  std::vector<double> TILEPulse = {0.06,0.56,1.,0.67,0.28};
-  initTile(TILEPulse);
-
-  initLUTsElement(EmB, EMBPulse);
-  initLUTsElement(EmEC, EMECPulse);
-  initLUTsElement(FcalE, FCAL1Pulse);
-  initLUTsElement(Tile, TILEPulse);
-  initLUTsElement(Hec, HECPulse);
-  initLUTsElement(FcalH, FCAL23Pulse);
-
-  std::vector< std::vector<double> > Pulses;
-
-  // the pulses must be push_back in order of Run2TriggerTowerMaker::TowerTypes
-  // (EMB, EMEC, FCAL1, TILE, HEC, FCAL23)
-  Pulses.push_back(std::move(EMBPulse));
-  Pulses.push_back(std::move(EMECPulse));
-  Pulses.push_back(std::move(FCAL1Pulse));
-  Pulses.push_back(std::move(TILEPulse));
-  Pulses.push_back(std::move(HECPulse));
-  Pulses.push_back(std::move(FCAL23Pulse));
-
-  // Have all of the pulse parameters now, so finally can set up the LUTs
-  initLUTs(Pulses);
-
-  // and the saturated BCID and ET range parameters
-  initSatBCID(EmB, Pulses[EmB]);
-  initSatBCID(EmEC, Pulses[EmEC]);
-  initSatBCID(FcalE, Pulses[FcalE]);
-  initSatBCID(Tile, Pulses[Tile]);
-  initSatBCID(Hec, Pulses[Hec]);
-  initSatBCID(FcalH, Pulses[FcalH]);
-
-  return StatusCode::SUCCESS;
-}
-
-namespace {
-std::array<float, 7> readPulseLArEM(std::ifstream& infile) {
-  std::array<float, 7> pulseShape;
-  float energy;
-  infile >> energy
-         >> pulseShape[0]
-         >> pulseShape[1]
-         >> pulseShape[2]
-         >> pulseShape[3]
-         >> pulseShape[4]
-         >> pulseShape[5]
-         >> pulseShape[6];
-  return pulseShape;
-}
-
-std::array<float, 7> readPulseLArHEC(std::ifstream& infile) {
-  std::array<float, 7> pulseShape;
-  infile >> pulseShape[0]
-         >> pulseShape[1]
-         >> pulseShape[2]
-         >> pulseShape[3]
-         >> pulseShape[4]
-         >> pulseShape[5]
-         >> pulseShape[6];
-  return pulseShape;
-}
-
-std::array<float, 7> readPulseLArFCAL(std::ifstream& infile, int Module) {
-  static std::string line;
-  // skip 3 lines per module we are not interested in
-  int skip = Module - 1;
-  while(skip--) {
-    infile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    infile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    infile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  // retrieve conditions
+  m_condSvc->retrieve(m_chanCalibContainer, m_chanCalibKey).ignore();
+  m_condSvc->retrieve(m_disabledTowersContainer, m_disabledTowersKey).ignore();
+  m_condSvc->retrieve(m_deadChannelsContainer, m_deadChannelsKey).ignore();
+  L1CaloPprChanDefaultsContainer *cDC = nullptr;
+  m_condSvc->retrieve(cDC, m_chanDefaultsKey).ignore();
+  if(!m_chanCalibContainer || !cDC ||
+     !m_disabledTowersContainer || !m_deadChannelsContainer) {
+    ATH_MSG_ERROR("Could not retrieve database containers. Aborting ...");
+    throw std::runtime_error("Run2TriggerTowerMaker: database container not accesible");
   }
-
-  // skip first line of module we are interested in
-  infile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-  std::array<float, 7> pulseShape;
-  infile >> pulseShape[0]
-         >> pulseShape[1]
-         >> pulseShape[2]
-         >> pulseShape[3]
-         >> pulseShape[4]
-         >> pulseShape[5]
-         >> pulseShape[6];
-  return pulseShape;
-}
-
-} // anonymous namespace
-
-void Run2TriggerTowerMaker::initLArPulse(std::vector<double>& Pulse, TowerTypes tType, const std::string& dataFile)
-{
-  if(msgLvl(MSG::DEBUG)) {
-    for(int i = 0; i < s_FIRLENGTH; i++) {
-      ATH_MSG_DEBUG("Initial pulse shape: Sample " << i << " amp = " << Pulse[i]);
-    }
+  
+  auto* defaults = cDC->pprChanDefaults(0); // non-owning ptr
+  if(!defaults) {
+    ATH_MSG_ERROR("Could not retrieve channel 0 PprChanDefaults folder. Aborting ...");
+    throw std::runtime_error("Run2TriggerTowerMaker: channel 0 of PprChanDefaults not accesible");
   }
+  m_chanDefaults = *defaults;
 
-  std::string pulsedataname = PathResolver::find_file(dataFile, "DATAPATH");
-  if(pulsedataname == "") {
-    ATH_MSG_ERROR("Could not locate LArEmLvl1.data file");
-    ATH_MSG_ERROR("Use defaults and trust to luck!");
-    return;
-  }
-
-  std::ifstream infile(pulsedataname);
-  if(!infile) {
-    ATH_MSG_ERROR("cannot open file " << pulsedataname);
-    return;
-  }
-  ATH_MSG_DEBUG(dataFile << " file opened ");
-
-  std::array<float, 7> pulseShape;
-  switch(tType) {
-  case EmB:
-  case EmEC:
-    pulseShape = readPulseLArEM(infile);
-    break;
-  case FcalE:
-    pulseShape = readPulseLArFCAL(infile, 1);
-    break;
-  case Hec:
-    pulseShape = readPulseLArHEC(infile);
-    break;
-  case FcalH:
-    pulseShape = readPulseLArFCAL(infile, 2);
-    break;
-  case Tile:
-    ATH_MSG_ERROR("default-clause should be unreachable");
-    assert(false);
-  }
-
-  // map the inner @s_FIRLENGTH samples of @pulseShape to @Pulse
-  constexpr int iTrig = 3;
-  constexpr int offset = iTrig - int(s_FIRLENGTH/2);
-  Pulse.assign(std::begin(pulseShape) + offset, std::begin(pulseShape) + offset + s_FIRLENGTH);
-}
-
-/** initTile method reads pulse shape & other parameters from TileInfo */
-void Run2TriggerTowerMaker::initTile(std::vector<double>& Pulse)
-{
-  const TileInfo* tileInfo;
-  StatusCode sc = detStore()->retrieve(tileInfo, "TileInfo");
-
-  if(sc.isFailure()) {
+  const TileInfo* tileInfo = nullptr;
+  if(detStore()->retrieve(tileInfo, "TileInfo").isFailure()) {
     ATH_MSG_ERROR("Failed to find TileInfo");
     m_TileToMeV = s_MEV/4.1;
   }
 
-  const int iTrig = tileInfo->ItrigSample();   // index of the triggering time slice
-  const int offset = iTrig - int(s_FIRLENGTH/2);
-  std::vector<double> pulseShape = tileInfo->ttl1Shape();
-  Pulse.assign(std::begin(pulseShape) + offset, std::begin(pulseShape) + offset + s_FIRLENGTH);
-
-  Identifier dummy;
-  m_TileToMeV = s_MEV/tileInfo->TTL1Calib(dummy);
-  ATH_MSG_DEBUG("Tile TTL1 calibration scale = " << tileInfo->TTL1Calib(dummy));
-  m_TileTTL1Ped = tileInfo->TTL1Ped(dummy);
+  m_TileToMeV = s_MEV/tileInfo->TTL1Calib({});
+  ATH_MSG_DEBUG("Tile TTL1 calibration scale = " << tileInfo->TTL1Calib({}));
+  m_TileTTL1Ped = tileInfo->TTL1Ped({});
   ATH_MSG_DEBUG("Tile TTL1 pedestal value = " << m_TileTTL1Ped);
-}
 
-/** matchFIR method computes matched filter coefficients from given pulse shape */
-std::vector<int> Run2TriggerTowerMaker::matchFIR(const std::vector<double>& Pulse)
-{
-  /** Find matched filter which gives best resolution into LUT.
-      Logic is arranges so that if two ranges give similar precision it
-      is biassed towards the one with finer coefficients (larger range) */
-  int maxBest = 0;
-  int useBest = 0;
-  for(int drop = 32; drop >= 16; drop /= 2) { /// loop over plausible LUT ranges
-    int sum;
-    int use;
-    int max = 16;
-    bool ok = false;
-    while (!ok) {
-      sum = 0;
-      use = 0;
-      max -= 1;
-      std::vector<int> coeff = calcFIR(Pulse,max); /// calculate filter for this scale
-      for(unsigned int sample = 0; sample < Pulse.size(); ++sample) {
-        use += int((1023-m_pedVal-1)*Pulse[sample]*coeff[sample]);
-        sum += int(((1023-m_pedVal-1)*Pulse[sample] + m_pedVal+1)*coeff[sample]);
-      }
-      if(sum/drop < 1023) ok = true; /// ensure max adc amp within lut range
-    }
-    /// Now have largest filter coeffs that fit within this LUT input range.
-    /// Next we work out how effectively the range is used
-    /// Requiring significant improvement means prefer larger coefficients if similar
-    if(use/drop > 1.1*useBest) {
-      useBest = use/drop;
-      maxBest = max;
-    }
-  }
-
-  return calcFIR(Pulse, maxBest);
-}
-
-/** calcFIR computes matched FIR coefficients for a given pulse shape and
-    maximum filter coefficient. Assumes input pulse normalised to peak = 1.
-    Also respects hardware constraints (coefficient ranges) and does not
-    apply negative weights if pulse in undershoot already */
-std::vector<int> Run2TriggerTowerMaker::calcFIR(const std::vector<double>& Pulse, int max)
-{
-  const int nSamples = Pulse.size();
-  std::vector<int> FIRco(nSamples);
-  if(max > 15) max = 15;
-  for(int sample = 0; sample < nSamples; ++sample) {
-    int coeff = int(Pulse[sample]*max+0.5);
-    if(coeff < 0) coeff = 0;
-    if((sample == 0 || sample > 3) && coeff > 7) coeff = 7;
-    FIRco[sample] = coeff;
-  }
-  return FIRco;
-}
-
-void Run2TriggerTowerMaker::handy(int cal, int iLayer, int iElement) {
-  auto etas = elementToEta(iElement, iLayer); // pair of -eta, eta
-  auto etam = etas.first;
-  auto etap = etas.second;
-
-  // How to handle pedestal when truncating to 10 bit LUT range
-  float round = (m_RoundPed ? 0.5 : 0.);
-
-  int nPhi(64);
-  switch(cal) {
-    case FcalE:
-    case FcalH:
-      nPhi=16;
-      break;
-    case EmEC:
-    case Hec:
-      if(iElement>=25) nPhi=32;
-      break;
-  }
-
-  ElementInfo& element = m_elementInfo[iLayer][iElement];
-  int slope = element.slope;
-  int FIRsum = element.FIRsum;
-  int dropBits = element.nDrop;
-  element.thresh_cp = m_ThresholdElementCP[iLayer][iElement];
-  element.thresh_jep = m_ThresholdElementJEP[iLayer][iElement];
-  // in case it is not given fall back to default value per layer
-  if(element.thresh_cp <= 0) {
-    element.thresh_cp = (iLayer == 0) ? m_emThresh : m_hadThresh;
-  }
-  if(element.thresh_jep <= 0) {
-    element.thresh_jep = element.thresh_cp;
-  }
-
-  float calslope = int(slope*m_CalibLUTElement[iLayer][iElement]);
-  for(int iphi = 0; iphi < nPhi; ++iphi) {
-    double phi = (float(iphi)+0.5)*M_PI/(0.5 * double(nPhi));
-
-    double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
-    double firped = FIRsum*(m_pedVal+pedvar);
-
-    float pedsubReal = 0.;
-    double divisor = 1./(1<<dropBits); // divide by 2**dropBits
-    if(m_LUTStrategy == 0) {
-      pedsubReal = firped * divisor;
-    } else {
-      pedsubReal = firped * calslope * divisor - 0.5*calslope;
-    }
-    int pedsub = int(pedsubReal + round);
-    L1CaloCoolChannelId idp = channelId(etap, phi, iLayer);
-    m_pedestals.insert(std::make_pair(idp.id(), PedestalInfo{m_pedVal+pedvar, pedsub}));
-
-    if(cal==FcalH) {
-      element.offset = pedsub;  // for FCal23 mapping
-    }
-
-    pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
-    firped = FIRsum*(m_pedVal+pedvar);
-    pedsubReal = 0.;
-    if(m_LUTStrategy == 0) {
-      pedsubReal = firped * divisor;
-    }
-    else {
-      pedsubReal = firped * calslope * divisor - 0.5 * calslope;
-    }
-    pedsub = int(pedsubReal + round);
-    L1CaloCoolChannelId idm = channelId(etam, phi, iLayer);
-    m_pedestals.insert(std::make_pair(idm.id(), PedestalInfo{m_pedVal+pedvar, pedsub}));
-  }
-}
-
-
-/** InitLUTs method uses FIR coefficients and pulse profile to compute
-    LUT calibration parameters */
-void Run2TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulses)
-{
-  // Loop over regions and compute parameters
-  for(int cal = 0; cal < s_TOWERTYPES; ++cal) {
-    if(cal < int(Pulses.size())) {
-      // Now apply, with local corrections ifany, to all towers in region
-      int iLayer=0;
-      if(cal == EmB || cal==Tile) {
-        iLayer = (cal==Tile);
-        for(int iElement = 0; iElement < 15; ++iElement) {
-          handy(cal, iLayer, iElement);
-        }
-      } else if(cal == EmEC || cal==Hec) {
-        iLayer= (cal==Hec);
-        for(int iElement = 15; iElement < 29; ++iElement) {
-          handy(cal, iLayer, iElement);
-        }
-      } else if(cal == FcalE||cal==FcalH) {
-        iLayer= (cal==FcalH);
-        for(int iElement = 29; iElement < s_NELEMENT; ++iElement) {
-          handy(cal, iLayer, iElement);
-        }
-      } else ATH_MSG_WARNING("Unknown calorimeter module " << cal);
-    } else ATH_MSG_ERROR("No LUT setup for calorimeter type " << cal);
-  }
-}
-
-/** InitSatBCID method uses pulse profile and saturation threshold to compute
-    thresholds for saturated pulse BCID
-    CHECK: Currently the nominal (i.e. non-randomly spread) pedestal is taken in the calculation. */
-void Run2TriggerTowerMaker::initSatBCID(TowerTypes cal, const std::vector<double>& Pulse)
-{
-  ATH_MSG_DEBUG("Initialise SatBCID for pulse type " << cal);
-
-  int layer = 0;
-  if(cal >= Tile) layer = 1;
-  auto range = calToElementRange(cal);
-
-  // Calculate SatLow and SatHigh
-  double scale = m_SatLevel - m_pedVal;
-  double margin = 10.*s_MEV/m_adcStep; // 10 GeV margin for noise
-  ATH_MSG_DEBUG("SatBCID: SatLevel = " << m_SatLevel
-                << "; scale = " << scale
-                << "; margin = " << margin);
-
-  // information about the pulse
-  auto nSamples = Pulse.size();
-  int satLow = int(m_pedVal);
-  int satHigh = int(m_pedVal);
-  // Calculate SatLow and SatHigh for the Pulse shape if enough information is available
-  if(nSamples >= 5) {
-    // Assumes pulse peaks in centre of vector
-    auto peak = nSamples/2;
-
-    /* Calculate thresholds. When peak starts to saturate, peak-1 and peak-2
-       should pass their respective thresholds. However, we don't want it
-       to be possible for noise fluctuations to pass SatLow (peak-2 threshold) */
-    // Ideal amplitudes of preceeding samples when satuation begins
-    double minusOne = Pulse[peak-1]*scale + m_pedVal;
-    double minusTwo = Pulse[peak-2]*scale + m_pedVal;
-
-    /* SatHigh setting:
-       Most important thing is that this one is passed when saturation begins.
-       So set to amp of peak-1 when saturation starts - margin
-       Should be OK as pulse shape should be undistorted to this point */
-    satHigh = int(minusOne - margin);
-    if(satHigh <  m_pedVal+margin) {
-      ATH_MSG_DEBUG("SatHigh[" << cal << "] has lower level than I'd like");
-    }
-
-    /* SatLow setting:
-       This one can cause problems either if it is ever failed by peak-2
-       OR if noise causes it to be passed by peak-3.
-       Expect the former to be the bigger threat, so set accordingly, but
-       warn if the latter seems to be possible. */
-    satLow = int(minusTwo - margin);
-    if(satLow <  m_pedVal+margin) {
-      ATH_MSG_DEBUG("SatLow[" << cal << "] has lower level than I'd like");
-      if(satLow < 0) satLow = 0;
-    }
-
-    // For info, print out the pulse shape and thresholds
-    if(msgLvl(MSG::DEBUG)) {
-      for(auto sample = peak-2; sample < peak+3; ++sample) {
-        ATH_MSG_DEBUG("Pulse sample " << sample << " = " << Pulse[sample]);
-      }
-      ATH_MSG_DEBUG("SatLow[" << cal << "]  = " << satLow);
-      ATH_MSG_DEBUG("SatHigh[" << cal << "] = " << satHigh);
-    }
+  // try to determine wheter we run on data or on simulation
+  auto ei = dynamic_cast<const EventIncident*>(&inc);
+  if(!ei) {
+    ATH_MSG_WARNING("Could not determine if input file is data or simulation. Will assume simulation.");
   } else {
-    // insufficient samples in pulse - use defaults!
-    ATH_MSG_WARNING("Only " << nSamples << " samples in pulse!! ");
-    ATH_MSG_WARNING("Saturated pulse BCID should not be used");
-  }
-
-  // assign values to elements and calculate levels
-  for(int iElem = range.first; iElem < range.second; ++iElem) {
-    ElementInfo& ei = m_elementInfo[layer][iElem];
-
-    // If DecisionSource = FIR, need to convert ET ranges -> FIR values for tower type
-    // Otherwise assume they have been set correctly in ADC counts
-    if(m_DecisionSource & 0x1) { // Use FIR for decision
-      if(m_EnergyLow > 0) {
-        ei.EnergyLow = int(m_EnergyLow*ei.FIRCal + ei.FIRped);
-      } else {
-        ei.EnergyLow = 0;
-      }
-      if(m_EnergyHigh > 0) {
-        ei.EnergyHigh = int(m_EnergyHigh*ei.FIRCal + ei.FIRped);
-      } else {
-        ei.EnergyHigh = 0;
-      }
-      ATH_MSG_DEBUG("Decision ranges (FIR) = " << ei.EnergyLow
-                    << "; " << ei.EnergyHigh);
-    } else { // Use ADC for decision
-      ei.EnergyLow = int(m_EnergyLow*m_digitScale/m_adcStep + m_pedVal);
-      ei.EnergyHigh = m_SatLevel;
-      ATH_MSG_DEBUG("Decision ranges (ADC counts) = " << ei.EnergyLow
-                    << "; " << ei.EnergyHigh);
+    bool isData = !(ei->eventInfo().event_type()->test(EventType::IS_SIMULATION));
+    m_isDataReprocessing = isData;
+    if(m_isDataReprocessing) {
+      ATH_MSG_INFO("Detected data reprocessing. Will take pedestal correction values from input trigger towers.");
+    } else {
+      ATH_MSG_VERBOSE("No data reprocessing - running normal simulation.");
     }
-
-    // Now to set thresholds for decision logic:
-    // Have thresholds already been set? If so, don't override.
-    if(m_SatHighElement[layer][iElem] > 0 || m_SatLowElement[layer][iElem] > 0) {
-      ATH_MSG_DEBUG("SatBCID thresholds already set: SatLow = " << m_SatLowElement[layer][iElem]
-                    << "; SatHigh = " << m_SatHighElement[layer][iElem]);
-      continue;
-    }
-
-    // otherwise set them to the previously calculated values
-    ei.SatLow = satLow;
-    ei.SatHigh = satHigh;
   }
 }
 
@@ -768,13 +242,11 @@ StatusCode Run2TriggerTowerMaker::finalize() {
 StatusCode Run2TriggerTowerMaker::execute() {
   ATH_MSG_VERBOSE("Executing");
 
-  if(m_xOutputLocation.size()>0) {
-    m_xaodTowers.reset(new xAOD::TriggerTowerContainer);
-    m_xaodTowersAux.reset(new xAOD::TriggerTowerAuxContainer);
-    m_xaodTowers->setStore(m_xaodTowersAux.get());
-    m_xaodTowers->resize(7168); // avoid frequent reallocations
-    m_curIndex = 0u;
-  }
+  m_xaodTowers.reset(new xAOD::TriggerTowerContainer);
+  m_xaodTowersAux.reset(new xAOD::TriggerTowerAuxContainer);
+  m_xaodTowers->setStore(m_xaodTowersAux.get());
+  m_xaodTowers->resize(7168); // avoid frequent reallocations
+  m_curIndex = 0u;
 
   switch(m_cellType) {
   case TRIGGERTOWERS:
@@ -806,23 +278,7 @@ StatusCode Run2TriggerTowerMaker::execute() {
 StatusCode LVL1::Run2TriggerTowerMaker::store()
 {
   ATH_MSG_DEBUG("Storing TTs in DataVector");
-
-  if(!m_outputLocation.empty()) {
-    std::unique_ptr<t_TTCollection> VectorOfTTs(new t_TTCollection);
-    VectorOfTTs->reserve(7168/2); // em+had combined
-
-    for(auto& it : m_TTMap) {
-      ATH_MSG_DEBUG("TT has coords (" << it.second->phi() << ", " << it.second->eta()
-                    << " and energies : " << it.second->emEnergy() << ", "
-                    << it.second->hadEnergy() << " (Em,Had)");
-      VectorOfTTs->push_back(it.second.release());
-    }
-    m_TTMap.clear();
-    ATH_MSG_VERBOSE(VectorOfTTs->size() << " TTs have been generated");
-
-    CHECK(evtStore()->overwrite(VectorOfTTs.release(), m_outputLocation, true));
-    ATH_MSG_DEBUG("Stored TTs in TES at " << m_outputLocation);
-  }
+  if(m_outputLocation.empty()) return StatusCode::SUCCESS;
 
   if(m_ZeroSuppress) {
     // remove trigger towers whose energy is 0
@@ -833,10 +289,8 @@ StatusCode LVL1::Run2TriggerTowerMaker::store()
                         m_xaodTowers->end());
   }
 
-  if(!m_xOutputLocation.empty()) {
-    CHECK(evtStore()->record(m_xaodTowers.release(), m_xOutputLocation));
-    CHECK(evtStore()->record(m_xaodTowersAux.release(), m_xOutputLocation+"Aux."));
-  }
+  CHECK(evtStore()->record(m_xaodTowers.release(), m_outputLocation));
+  CHECK(evtStore()->record(m_xaodTowersAux.release(), m_outputLocation+"Aux."));
 
   return StatusCode::SUCCESS;
 } // end of LVL1::Run2TriggerTowerMaker::store(){
@@ -846,34 +300,21 @@ StatusCode LVL1::Run2TriggerTowerMaker::store()
     xAOD::TriggerTowers for reprocessing */
 StatusCode LVL1::Run2TriggerTowerMaker::getTriggerTowers()
 {
-  /// Find  TriggerTowers in TES
-  const t_TTCollection* inputTTs=0;
-
+  const xAOD::TriggerTowerContainer* inputTTs = nullptr;
   ATH_MSG_DEBUG("Retrieve input TriggerTowers " << m_inputTTLocation);
   CHECK(evtStore()->retrieve(inputTTs, m_inputTTLocation));
   ATH_MSG_VERBOSE("Found " << inputTTs->size() << " input TriggerTowers");
 
   for(const auto& tower : *inputTTs) {
-    // em layer
-    // m_xaodTowers->push_back(new xAOD::TriggerTower);
-    // auto t = m_xaodTowers->back();
     auto t = (*m_xaodTowers)[m_curIndex++] = new xAOD::TriggerTower;
-    t->setCoolId(channelId(tower->eta(), tower->phi(), 0).id());
-    t->setEta(tower->eta());
-    t->setPhi(tower->phi());
-    t->setAdc(std::vector<uint_least16_t>(std::begin(tower->emADC()), std::end(tower->emADC())));
-    t->setAdcPeak(t->adc().size()/2);
-
-    // had layer
-    // m_xaodTowers->push_back(new xAOD::TriggerTower);
-    // t = m_xaodTowers->back();
-    t = (*m_xaodTowers)[m_curIndex++] = new xAOD::TriggerTower;
-    t->setCoolId(channelId(tower->eta(), tower->phi(), 1).id());
-    t->setEta(tower->eta());
-    t->setPhi(tower->phi());
-    t->setAdc(std::vector<uint_least16_t>(std::begin(tower->hadADC()), std::end(tower->hadADC())));
-    t->setAdcPeak(t->adc().size()/2);
+    *t = *tower;
   }
+
+  /// If < 7168 towers in input data will be unallocated pointers in vector.
+  //  /// So clean-up m_xaodTowers before these cause problems later.
+  m_xaodTowers->erase(std::remove_if(m_xaodTowers->begin(), m_xaodTowers->end(),
+                      [](const xAOD::TriggerTower* tt){return (tt == 0);}),
+                      m_xaodTowers->end());
 
   return StatusCode::SUCCESS;
 } // end of getTriggerTowers()
@@ -935,6 +376,12 @@ StatusCode LVL1::Run2TriggerTowerMaker::getCaloTowers()
     processTileTowers(TileTowers);
   }
 
+  /// If < 7168 towers in input data will be unallocated pointers in vector.
+  //  /// So clean-up m_xaodTowers before these cause problems later.
+  m_xaodTowers->erase(std::remove_if(m_xaodTowers->begin(), m_xaodTowers->end(),
+                      [](const xAOD::TriggerTower* tt){return (tt == 0);}),
+                      m_xaodTowers->end());
+
   return StatusCode::SUCCESS;
 }
 
@@ -977,24 +424,17 @@ void LVL1::Run2TriggerTowerMaker::processLArTowers(const LArTTL1Container * towe
     }
 
     // Create TriggerTower
-    // m_xaodTowers->push_back(new xAOD::TriggerTower);
-    // auto t = m_xaodTowers->back();
     auto t = (*m_xaodTowers)[m_curIndex++] = new xAOD::TriggerTower;
     t->setCoolId(coolId.id());
     t->setEta(eta);
     t->setPhi(phi);
     m_xaodTowersAmps[t->index()] = std::move(amps);
-
-    TriggerTowerKey testKey(0.0, 0.0);
-    ATH_MSG_VERBOSE("Add to tower at (" << t->eta() << ", " << t->phi()
-                    << "), key = " << TriggerTowerKey().ttKey(phi,eta));
   } // end for loop
 }
 
 void LVL1::Run2TriggerTowerMaker::processTileTowers(const TileTTL1Container * towers)
 {
   // Step over all towers
-  TileTTL1Container::const_iterator tower;
   int towerNumber=0;
   for(const auto& tower : *towers) {
     ATH_MSG_VERBOSE("Looking at retrieved tower number "<<towerNumber++<<" ***********");
@@ -1061,129 +501,244 @@ void LVL1::Run2TriggerTowerMaker::digitize()
     // First process EM layer
     L1CaloCoolChannelId id(tower->coolId());
     std::vector<int> digits = ADC(id, m_xaodTowersAmps[tower->index()]); // ADC simulation
-    tower->setAdc(std::vector<uint_least16_t>(std::begin(digits), std::end(digits)));
+    tower->setAdc(std::vector<uint16_t>(std::begin(digits), std::end(digits)));
     tower->setAdcPeak(digits.size()/2);
   }
 }
 
-void LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *tower, int m_eventBCID)
-{
-  // Use eta coordinate of tower to deduce type
-  auto layer = tower->layer();
+namespace {
+// This is the non-linear LUT function corresponding to strategy 3.
+// This should actually go into LVL1::L1TriggerTowerTools (TrigT1CaloTools)
+// but for now we keep it here to keep the number of touched packages small
+// and make it easier to change some parts of the definition later on.
+int non_linear_lut(int lutin, unsigned short offset, unsigned short slope, unsigned short noiseCut, unsigned short scale, short par1, short par2, short par3, short par4) {
+  // turn shorts into double (database fields are shorts ... )
 
-  // vectors to store intermediate results of preprocessing
-  std::vector<int> fir;
-  std::vector<int_least16_t> correction;
-  std::vector<int> lutIn;
-  std::vector<int> lutOut_jep;
-  std::vector<int> lutOut_cp;
-  std::vector<int> BCIDOut;
+  // turn shorts into double
+  double nll_slope = 0.001 * scale;
+  double nll_offset = 0.001 * par1;
+  double nll_ampl = 0.001 * par2;
+  double nll_expo = 0.;
+  if(par3) {
+    nll_expo = -1. / (4096 * 0.001*par3);
+  } else {
+    nll_ampl = 0.;
+  }
+  double nll_noise = 0.001 * par4;
+
+  // noise cut
+  if (lutin * slope < offset + nll_noise * noiseCut) {
+    return 0;
+  }
+
+  // actual calculation
+  int output = int((((int)(2048 + nll_slope * (lutin * slope - offset)))>>12) + nll_offset + nll_ampl * std::exp(nll_expo * (lutin * slope - offset)));
+  if(output >= 255) return 255;
+  if(output < 0) return 0;
+  return output;
+}
+
+template <typename MSG, typename T>
+void printVec(MSG& msg, const std::vector<T>& v) {
+  for(auto x : v) msg << (int)x << endmsg;
+}
+
+template <typename MSG, typename T, std::size_t N>
+void printVec(MSG& msg, const std::array<T, N>& v) {
+  for(auto x : v) msg << (int)x << endmsg;
+}
+
+} // namespace
+
+StatusCode LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *tower, int m_eventBCID)
+{
+  // get database information
+  auto* chanCalib = m_chanCalibContainer->pprChanCalib(tower->coolId());
+  if(!chanCalib) {
+    ATH_MSG_ERROR("Tower with coolId: " << tower->coolId()
+                  << " not stored in database! Aborting ...");
+    return StatusCode::FAILURE;
+  }
+
+  ATH_MSG_VERBOSE("::coolId: " << std::hex << tower->coolId() << std::dec);
 
   /// retrieve digits
   std::vector<int> digits(std::begin(tower->adc()), std::end(tower->adc()));
 
-  double pedvalue = m_pedVal;
-  int pedsub = int(m_pedVal);
-  auto itPed = m_pedestals.find(tower->coolId());
-  if(itPed != m_pedestals.end()) {
-    pedvalue = itPed->second.val;
-    pedsub = itPed->second.sub;
+  /// process tower -- digitial filter
+  std::vector<int> fir;
+  m_TTtool->fir(digits,
+                { chanCalib->firCoeff5(), chanCalib->firCoeff4(), chanCalib->firCoeff3(),
+                    chanCalib->firCoeff2(), chanCalib->firCoeff1() }, // reverse order in database
+                fir);
+
+  /// dynamic pedestal correction
+  std::vector<int16_t> correction;
+  // a few cases follow
+  // 1.) simulation and pedestal correction enabled
+  // 2.) data reprocessing and pedestal correction enabled
+  // 3.) pedestal correction disabled
+  if(chanCalib->pedFirSum() && !m_isDataReprocessing) {
+    // case 1.) (database "abuses" pedFirSum to steer pedestal correction)
+    // apply the parameterized pedestal correction
+    int firPed = (chanCalib->firCoeff5() + chanCalib->firCoeff4() + chanCalib->firCoeff3() +
+                  chanCalib->firCoeff2() + chanCalib->firCoeff1()) * int(chanCalib->pedMean() + 0.5);
+    m_TTtool->pedestalCorrection(fir,
+                                 firPed,
+                                 etaToElement(tower->eta(), tower->layer()),
+                                 tower->layer(),
+                                 m_eventBCID,
+                                 m_lumiBlockMuTool->actualInteractionsPerCrossing(),
+                                 correction);
+  } else if(chanCalib->pedFirSum() && m_isDataReprocessing) {
+    // case 2.) (database "abuses" pedFirSum to steer pedestal correction)
+    // apply the recorded pedestal correction
+    if(!tower->correctionEnabled().empty() && tower->correctionEnabled().front()) {
+      std::size_t offset = (fir.size() - tower->correction().size())/2;
+
+      for(std::size_t i = offset, e = fir.size() - offset; i != e; ++i) {
+        correction.push_back(tower->correction()[i-offset]);
+        fir[i] -= tower->correction()[i-offset];
+      }
+      ATH_MSG_VERBOSE("::correction: (from data");
+      printVec(this->msg(MSG::VERBOSE), correction);
+    } // in case the correction wasn't enabled in the readout nothing has to be done
+  } else {
+    // case 3.)
   }
-  else ATH_MSG_ERROR("No pedestal entry for channel " << tower->coolId());
 
-  /// Map integer eta bin to element
-  int iElement = etaToElement(tower->eta(), layer); // element range (0-32)
-  ElementInfo& element = m_elementInfo[layer][iElement];
+  std::vector<int> lutIn;
+  m_TTtool->dropBits(fir, chanCalib->firStartBit(), lutIn);
 
-  //FIXME: Left this in because old code tries to use same offset for positive
-  //and negative sides... not correct though just comment out to 'fix' CHECK
-  if(layer == 1 && iElement > 28 && iElement < 33) {
-    pedsub = element.offset;
-  }
-  int slope = element.slope;
-  int thresh_cp = element.thresh_cp;
-  int thresh_jep = element.thresh_jep;
-
-  int firPed = element.FIRsum * floor(pedvalue + 0.5);
-
-  /// process tower
-  m_TTtool->fir(digits, element.FIRCoeff, fir);
-  if(m_decorateFIR) firDecorator(*tower) = fir[fir.size()/2];
-  if(m_correctFir) {
-    m_TTtool->pedestalCorrection(fir, firPed, iElement, layer, m_eventBCID,
-                                 m_lumiBlockMuTool->actualInteractionsPerCrossing(), correction);
-  }
-  m_TTtool->dropBits(fir, element.nDrop, lutIn);
-
-  if(m_LUTStrategy == 1) {
-    // for new strategy slope, pedsub and thresh are in units of LUTOut
+  // linear LUTs - CP
+  std::vector<int> lutOut_cp;
+  ATH_MSG_VERBOSE("::cp-lut: strategy: " << chanCalib->lutCpStrategy());
+  if(chanCalib->lutCpStrategy() < 3) {
+    // for new strategy lutSlope, lutOffset and lutNoiseCut are in units of LUTOut
     // and need to be multiplied by the scale factor
+    double scale = (chanCalib->lutCpStrategy() == 0) ? 1. : m_cpLutScale;
 
-    // CP Lut
-    m_TTtool->lut(lutIn, m_cpLutScale*slope, m_cpLutScale*pedsub, m_cpLutScale*thresh_cp,
-                  int(m_pedVal), m_LUTStrategy, false, lutOut_cp);
-    // JEP Lut
-    m_TTtool->lut(lutIn, m_jepLutScale*slope, m_jepLutScale*pedsub, m_jepLutScale*thresh_jep,
-                  int(m_pedVal), m_LUTStrategy, false, lutOut_jep);
-  } else if(m_LUTStrategy == 0) {
-    // for old strategy pedsub and thresh are in units of LUTIn and *do not*
-    // need to be multiplied by the scale factor
-
-    // CP Lut
-    m_TTtool->lut(lutIn, m_cpLutScale*slope, pedsub, thresh_cp, int(m_pedVal), m_LUTStrategy, false, lutOut_cp);
-    // JEP Lut
-    m_TTtool->lut(lutIn, m_jepLutScale*slope, pedsub, thresh_jep, int(m_pedVal), m_LUTStrategy, false, lutOut_jep);
+    m_TTtool->lut(lutIn,
+                  scale * chanCalib->lutCpSlope(),
+                  scale * chanCalib->lutCpOffset(),
+                  scale * chanCalib->lutCpNoiseCut(),
+                  32 /* unused */,
+                  chanCalib->lutCpStrategy() > 0,
+                  false, // TODO - disabled?
+                  lutOut_cp);
+  } else if(chanCalib->lutCpStrategy() == 3) {
+    for(auto l : lutIn) lutOut_cp.push_back(non_linear_lut(l, chanCalib->lutCpOffset(), chanCalib->lutCpSlope(), chanCalib->lutCpNoiseCut(), chanCalib->lutCpScale(), chanCalib->lutCpPar1(), chanCalib->lutCpPar2(), chanCalib->lutCpPar3(), chanCalib->lutCpPar4()));
   }
-  m_TTtool->bcid(fir, digits, m_PeakFinderCond, element.SatLow, element.SatHigh, m_SatLevel, BCIDOut);
+  ATH_MSG_VERBOSE("::cp-lut: lut:");
+  printVec(this->msg(MSG::VERBOSE), lutOut_cp);
 
-  //ATH_MSG_VERBOSE("Tower BCID results for (" << tower->eta() << ", " << tower->phi() << "):");
-  //for (unsigned int i = 0; i < digits.size(); ++i) {
-  //  ATH_MSG_VERBOSE("   digit: " << digits[i] << ", BCID " << BCIDOut[i]);
-  //}
 
-  unsigned peak = lutOut_jep.size()/2; // both cp & jep have the same length
-  std::vector<uint_least8_t> etResultVectorJep { uint_least8_t(lutOut_jep[peak]) };
-  std::vector<uint_least8_t> etResultVectorCp { uint_least8_t(lutOut_cp[peak]) };
+  // linear LUTs - JEP
+  std::vector<int> lutOut_jep;
+  ATH_MSG_VERBOSE("::jep-lut: strategy: " << chanCalib->lutJepStrategy());
+  if(chanCalib->lutJepStrategy() < 3) {
+    // for new strategy lutSlope, lutOffset and lutNoiseCut are in units of LUTOut
+    // and need to be multiplied by the scale factor
+    double scale = (chanCalib->lutJepStrategy() == 0) ? 1. : m_jepLutScale;
+
+    m_TTtool->lut(lutIn,
+                  scale * chanCalib->lutJepSlope(),
+                  scale * chanCalib->lutJepOffset(),
+                  scale * chanCalib->lutJepNoiseCut(),
+                  32 /* unused */,
+                  chanCalib->lutJepStrategy() > 0,
+                  false, // TODO - disabled?
+                  lutOut_jep);
+  } else if(chanCalib->lutJepStrategy() == 3) {
+    for(auto l : lutIn) lutOut_jep.push_back(non_linear_lut(l, chanCalib->lutJepOffset(), chanCalib->lutJepSlope(), chanCalib->lutJepNoiseCut(), chanCalib->lutJepScale(), chanCalib->lutJepPar1(), chanCalib->lutJepPar2(), chanCalib->lutJepPar3(), chanCalib->lutJepPar4()));
+  }
+  ATH_MSG_VERBOSE("::jep-lut: lut:");
+  printVec(this->msg(MSG::VERBOSE), lutOut_jep);
+
+
+  /// BCID algorithms (only possible if 7 slices readout)
+  std::vector<int> BCIDOut;
+  if(!m_isDataReprocessing || tower->adc().size() >= 7) {
+    m_TTtool->bcid(fir, digits,
+                   m_chanDefaults.peakFinderCond(),
+                   chanCalib->satBcidThreshLow(),
+                   chanCalib->satBcidThreshHigh(),
+                   chanCalib->satBcidLevel(),
+                   BCIDOut);
+  } else {
+    // in data reprocessing with less than 7 slices take decision from data
+    BCIDOut.assign(tower->bcidVec().begin(), tower->bcidVec().end());
+    ATH_MSG_VERBOSE("::bcidOut: (from data):");
+    printVec(this->msg(MSG::VERBOSE), BCIDOut);
+  }
+
+  std::size_t peak = lutOut_jep.size()/2; // both cp & jep have the same length
+  std::vector<uint_least8_t> etResultVectorCp { uint8_t(lutOut_cp[peak]) };
+  ATH_MSG_VERBOSE("::etResultVector: cp:");
+  printVec(this->msg(MSG::VERBOSE), etResultVectorCp);
+  std::vector<uint_least8_t> etResultVectorJep { uint8_t(lutOut_jep[peak]) };
+  ATH_MSG_VERBOSE("::etResultVector: jep:");
+  printVec(this->msg(MSG::VERBOSE), etResultVectorJep);
 
   // identify BCID range
   int range;
-  if(!m_DecisionSource&0x1) {
-    range = EtRange(digits[3], element);
+  if(!(m_chanDefaults.decisionSource() & 0x1)) {
+    range = EtRange(digits[digits.size()/2], chanCalib->bcidEnergyRangeLow(), chanCalib->bcidEnergyRangeHigh());
   } else {
-    range = EtRange(fir[peak], element);
+    range = EtRange(fir[fir.size()/2], chanCalib->bcidEnergyRangeLow(), chanCalib->bcidEnergyRangeHigh());
   }
+  ATH_MSG_VERBOSE("::range: " << range);
 
   // correct BCID for this range?
-  if(m_BcidDecision[range]&(0x1<<BCIDOut[peak])) {
-    if(m_SatOverride[range]&0x1) {
+  std::array<int, 3> bcidDecision {
+    {m_chanDefaults.bcidDecision1(), m_chanDefaults.bcidDecision2(), m_chanDefaults.bcidDecision3()}
+  };
+  ATH_MSG_VERBOSE("::bcidDecision:");
+  printVec(this->msg(MSG::VERBOSE), bcidDecision);
+
+  std::array<int, 3> satOverride {
+    {m_chanDefaults.satOverride1(), m_chanDefaults.satOverride2(), m_chanDefaults.satOverride3()}
+  };
+  ATH_MSG_VERBOSE("::satOverride:");
+  printVec(this->msg(MSG::VERBOSE), satOverride);
+
+  if((bcidDecision[range]) & (0x1 << (BCIDOut[BCIDOut.size()/2]))) {
+    if((satOverride[range]) & 0x1) {
       // return saturation if set
-      etResultVectorJep[0] = m_SaturationValue;
-      etResultVectorCp[0] = m_SaturationValue;
+      etResultVectorCp[0] = SATURATIONVALUE;
+      etResultVectorJep[0] = SATURATIONVALUE;
     }
-  }
-  else {
+  } else {
     // zero if fail BCID
-    etResultVectorJep[0] = 0;
     etResultVectorCp[0] = 0;
+    etResultVectorJep[0] = 0;
   }
 
   tower->setLut_cp(std::move(etResultVectorCp));
   tower->setLut_jep(std::move(etResultVectorJep));
-  tower->setBcidVec({ uint_least8_t(BCIDOut[peak]) });
+  tower->setBcidVec({uint8_t(BCIDOut[BCIDOut.size()/2])});
+  ATH_MSG_VERBOSE("::set bcidVec:");
+  printVec(this->msg(MSG::VERBOSE), tower->bcidVec());
   tower->setPeak(0u); // we only added one item to etResultVector
+  if(m_decorateFIR) firDecorator(*tower) = fir[fir.size()/2];
 
   /// In simulation external BCID is always zero, but for consistency with
   /// data we need to add it to the TriggerTower objects
-  tower->setBcidExt(std::vector<uint_least8_t>(tower->adc().size(), 0u));
+  tower->setBcidExt(std::vector<uint8_t>(tower->adc().size(), 0u));
 
   // fill the pedestal correction
-  if(m_correctFir) {
-    tower->setCorrectionEnabled(std::vector<uint_least8_t>(tower->lut_cp().size(), 1u));
-    tower->setCorrection(std::vector<int_least16_t>(tower->lut_cp().size(), correction[peak]));
+  if(chanCalib->pedFirSum()) {
+    // online database abuses pedFirSum to steer pedestal correction
+    tower->setCorrectionEnabled(std::vector<uint8_t>(tower->lut_cp().size(), 1u));
+    tower->setCorrection(std::vector<int16_t>(tower->lut_cp().size(),
+                                              correction[correction.size()/2]));
+    ATH_MSG_VERBOSE("::set correction:");
+    printVec(this->msg(MSG::VERBOSE), tower->correction());
   } else {
-    tower->setCorrectionEnabled(std::vector<uint_least8_t>(tower->lut_cp().size(), 0u));
-    tower->setCorrection(std::vector<int_least16_t>(tower->lut_cp().size(), 0u));
+    tower->setCorrectionEnabled(std::vector<uint8_t>(tower->lut_cp().size(), 0u));
+    tower->setCorrection(std::vector<int16_t>(tower->lut_cp().size(), 0u));
   }
+  return StatusCode::SUCCESS;
 }
 
 /** Emulate FIR filter, bunch-crossing identification & LUT, and create & fill
@@ -1191,73 +746,47 @@ void LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *tower, int
 StatusCode LVL1::Run2TriggerTowerMaker::preProcess()
 {
   // Pedestal Correction: Get the BCID number
-  const xAOD::EventInfo* evt;
+  const xAOD::EventInfo* evt = nullptr;
   CHECK(evtStore()->retrieve(evt));
   auto m_eventBCID = evt->bcid();
 
-  // needed as index to add the two xAOD::TriggerTowers to one TriggerTower
-  TriggerTowerKey ttkey;
-
   // Loop over all existing towers and simulate preprocessor functions
   for(auto tower : *m_xaodTowers) {
-    preProcessTower(tower, m_eventBCID);
-
-    // only create legacy TriggerTowers if we intend to store them later on
-    if(m_outputLocation.empty()) continue;
-
-    // If tower has passed BCID and threshold, create TriggerTower and
-    // add it to the map
-    if(tower->cpET() > 0 || tower->jepET() > 0 || (!m_ZeroSuppress)) {
-      int key = ttkey.ttKey(tower->phi(), tower->eta());
-      auto it = m_TTMap.find(key);
-      if(it == std::end(m_TTMap)) {
-        // not yet in map - add
-        it = m_TTMap.insert(std::make_pair(key, std::unique_ptr<TriggerTower>(new TriggerTower(tower->phi(), tower->eta(), key)))).first;
-      }
-
-      // get pointer to member function depending on layer
-      auto add = (tower->layer() ? &TriggerTower::addHad : &TriggerTower::addEM);
-
-      // missing const-specifiers in add(EM/Had) make creation of temporaries necessary ...
-      std::vector<int> adc(std::begin(tower->adc()), std::end(tower->adc()));
-      std::vector<int> lut(std::begin(tower->lut_cp()), std::end(tower->lut_cp()));
-      std::vector<int> bcidExt(std::begin(tower->bcidExt()), std::end(tower->bcidExt()));
-      std::vector<int> bcidVec(std::begin(tower->bcidVec()), std::end(tower->bcidVec()));
-
-      // call member function - wierd syntax due to unique_ptr and pair
-      ((it->second).get()->*add)(adc, lut, bcidExt, bcidVec, 0, tower->peak(), tower->adcPeak());
-    }
+    CHECK(preProcessTower(tower, m_eventBCID));
   }
   return StatusCode::SUCCESS;
 }
 
 } // end of namespace bracket
 
-std::vector<int> LVL1::Run2TriggerTowerMaker::ADC(L1CaloCoolChannelId channel, const std::vector<double>& amps)
+std::vector<int> LVL1::Run2TriggerTowerMaker::ADC(L1CaloCoolChannelId channel, const std::vector<double>& amps) const
 {
-  double adcCal = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,1.,m_gainCorr);
-  double ped = m_pedVal; // Give it a default in case of trouble
+  auto* chanCalib = m_chanCalibContainer->pprChanCalib(channel);
+  if(!chanCalib) { ATH_MSG_ERROR("No database entry for tower " << channel.id()); return {}; }
+  double ped = chanCalib->pedMean();
 
-  auto itPed = m_pedestals.find(channel.id());
-  if(itPed != m_pedestals.end()) ped = itPed->second.val;
+  // dice the calibration uncertainty if requested
+  double adcCal = (m_gainCorr > 0.) ? CLHEP::RandGaussZiggurat::shoot(m_rndmADCs, 1., m_gainCorr) : 1.;  
 
   std::vector<int> digits;
-  int nSamples = amps.size();
+  const int nSamples = amps.size();
   digits.reserve(nSamples);
-  for(int i=0; i<nSamples; i++) {
-    double adcNoise = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,m_adcVar);
+  for(int i = 0; i < nSamples; ++i) {
+    // dice the adc noise if requested
+    double adcNoise = (m_adcVar > 0.) ? CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,m_adcVar) : 0.;
+
     int digit = int((amps[i]*adcCal/m_adcStep) + ped + adcNoise);
-    if(digit > m_adcMax) digit = m_adcMax;
-    if(digit < 0)        digit = 0;
+    if(digit > ADCMAX) digit = ADCMAX;
+    if(digit < 0) digit = 0;
     digits.push_back(digit);
   }
   return digits;
 }
 
-int LVL1::Run2TriggerTowerMaker::EtRange(int et, const ElementInfo& ei)
+int LVL1::Run2TriggerTowerMaker::EtRange(int et, unsigned short bcidEnergyRangeLow, unsigned short bcidEnergyRangeHigh) const
 {
-  if(et < ei.EnergyLow)  return 0;
-  if(et < ei.EnergyHigh) return 1;
+  if(et < bcidEnergyRangeLow)  return 0;
+  if(et < bcidEnergyRangeHigh) return 1;
   return 2;
 }
 
@@ -1307,33 +836,9 @@ L1CaloCoolChannelId LVL1::Run2TriggerTowerMaker::channelId(double eta, double ph
   return L1CaloCoolChannelId(crate, L1CaloModuleType::Ppm, slot, pin, asic, false);
 }
 
-std::pair<float,float> LVL1::Run2TriggerTowerMaker::elementToEta(int element, int layer) const
-{
-  if(element < 25) {
-    float eta = (0.1f * element) + 0.05f;
-    return std::make_pair(-eta, eta);
-  }
-
-  // elements (everything in coolid maps) provided in 2-1,3-1,2-2,3-2 pattern,
-  // but tower etap is: 2-1,3-1,2-2,3-2, etam is: 2-2,3-2,2-1,3-1 (left to right)
-  switch(element) {
-  case 25: return std::make_pair(-2.6f, 2.6f);
-  case 26: return std::make_pair(-2.8f, 2.8f);
-  case 27: return std::make_pair(-3.0f, 3.0f);
-  case 28: return std::make_pair(-3.15f, 3.15f);
-  case 29: return layer ? std::make_pair(-4.2625f, 3.4125f) : std::make_pair(-3.4125f, 3.4125f);
-  case 30: return layer ? std::make_pair(-4.6875f, 3.8375f) : std::make_pair(-4.2625f, 4.2625f);
-  case 31: return layer ? std::make_pair(-3.4125f, 4.2625f) : std::make_pair(-3.8375f, 3.8375f);
-  case 32: return layer ? std::make_pair(-3.8375f, 4.6875f) : std::make_pair(-4.6875f, 4.6875f);
-  default:
-    ATH_MSG_ERROR("element out of range");
-    return std::make_pair(0.f, 0.f);
-  }
-}
-
-// Pedestal Correction
 int LVL1::Run2TriggerTowerMaker::etaToElement(float feta, int layer) const
 {
+  constexpr static int NELEMENTS = 33;
   /// Get integer eta bin
   float shiftedEta = feta + 4.9;
   uint eta = (uint)floor(shiftedEta*10.0);
@@ -1361,95 +866,7 @@ int LVL1::Run2TriggerTowerMaker::etaToElement(float feta, int layer) const
   else if (element > 32) element = 65-element;
 
   // element 29 = FCal2-1, element 30 = FCal3-1, element 31 = FCal2-2, element 32 = FCal3-2
-  element = s_NELEMENT-element-1;
+  element = NELEMENTS-element-1;
 
   return element;
-}
-
-std::pair<int, int> LVL1::Run2TriggerTowerMaker::calToElementRange(TowerTypes cal) const
-{
-  switch(cal) {
-    case EmB: return std::make_pair(0, 15);
-    case EmEC: return std::make_pair(15, 29);
-    case FcalE: return std::make_pair(29, 33); // doesn't compile with s_NELEMENT in debug build ?!
-    case Tile: return std::make_pair(0, 15);
-    case Hec: return std::make_pair(15, 29);
-    case FcalH: return std::make_pair(29, 33); // doesn't compile with s_NELEMENT in debug build ?!
-    default:
-      ATH_MSG_ERROR("default-clause should be unreachable");
-      assert(false); return std::make_pair(0, 0);
-  };
-  // not reachable
-}
-
-LVL1::Run2TriggerTowerMaker::TowerTypes LVL1::Run2TriggerTowerMaker::elementToCal(int layer, int element) const
-{
-  TowerTypes cal;
-  if(element < 15 && layer==0) cal = EmB;
-  else if(element < 15 && layer==1) cal = Tile;
-  else if(element < 29 && layer==0) cal = EmEC;
-  else if(element < 29 && layer==1) cal = Hec;
-  else if(layer==0) cal = FcalE;
-  else if(layer==1) cal = FcalH;
-  else {
-      ATH_MSG_ERROR("else-clause should be unreachable");
-      assert(false); cal = EmB;
-  }
-  return cal;
-}
-
-/** initLUTsElement method uses FIR coefficients and pulse profile to compute
-    LUT calibration parameters.
-*/
-void LVL1::Run2TriggerTowerMaker::initLUTsElement(TowerTypes cal, const std::vector<double>& pulse)
-{
-  int layer = 0;
-  if(cal >= Tile) layer = 1;
-
-  auto range = calToElementRange(cal);
-  for(int iElem = range.first; iElem < range.second; ++iElem) {
-    ElementInfo& ei = m_elementInfo[layer][iElem];
-
-    double FIRcal = 0.;
-    int FIRsum = 0;
-    int FIRsat = 0;
-    for(int sample = 0; sample < s_FIRLENGTH; sample++) {
-        FIRsum += ei.FIRCoeff[sample];
-        FIRcal += ei.FIRCoeff[sample]*pulse[sample]*s_MEV/m_adcStep;
-        FIRsat += int(ei.FIRCoeff[sample]*((pulse[sample]*(1023-m_pedVal)) + m_pedVal));
-
-        ATH_MSG_INFO(" FIRco[" << sample << "] = " << ei.FIRCoeff
-                     << "  ideal pulse amplitude = " << pulse[sample]
-                     << "  element = " << iElem);
-      }
-    double FIRped = FIRsum*m_pedVal;
-
-    ATH_MSG_DEBUG("Full precision: FIRcal = " << FIRcal
-                  << " FIRsat = " << FIRsat << " FIRped = " << FIRped);
-
-    // Identify 10 bit range to use in LUT
-    int bitMax = 0;
-    for(int i = 0; i < 16; i++) {
-      if(FIRsat > (1<<i)) bitMax++; // CHECK: simplify
-    }
-    ei.nDrop = bitMax - 10; // keep a 10 bit range below 2**bitMAx
-    if(ei.nDrop < 0) ei.nDrop = 0; // should not be possible anyway
-
-    ATH_MSG_DEBUG("Highest bit used = " << bitMax
-                  << " bits to drop = " << ei.nDrop);
-
-    // Save the unshifted values for FIR energy range calibration
-    ei.FIRCal = int(FIRcal+0.5);
-    ei.FIRped = int(FIRped+0.5);
-
-    // for LUT operations on selected 10 bits
-    FIRcal /= double(1<<ei.nDrop); // divide by 2**(ei.nDrop)
-
-    int slope  = 1;
-    if(m_AutoCalibrateLUT) slope = int((4096./FIRcal)*(s_MEV/m_digitScale));
-    ei.slope = slope;
-    ei.FIRsum = FIRsum;
-
-    ei.offset = 0; // for FCal23 mapping
-  }
 }
