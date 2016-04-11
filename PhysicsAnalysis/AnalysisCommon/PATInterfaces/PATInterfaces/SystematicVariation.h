@@ -30,15 +30,21 @@
 
 #include <PATInterfaces/Global.h>
 
+#include <iosfwd>
 #include <set>
 #include <string>
 
+/// rationale: standard comparison operator for use by std::set
+//bool operator < (const CP::SystematicVariation& a, const CP::SystematicVariation& b);
+//bool operator == (const CP::SystematicVariation& a, const CP::SystematicVariation& b);
+
+
 namespace CP
 {
-  /// rationale: standard comparison operator for use by std::set
-  bool operator < (const SystematicVariation& a, const SystematicVariation& b);
 
-  bool operator == (const SystematicVariation& a, const SystematicVariation& b);
+  // Pulling global ops into CP. Not ideal.
+  using ::operator<;
+  using ::operator==;
 
   class SystematicVariation
   {
@@ -74,11 +80,53 @@ namespace CP
     /// failures: out of memory II
   public:
     enum CONTINUOUS_ARG {CONTINUOUS};
-    #ifndef __CINT__
+#ifndef __MAKECINT__
+#ifndef __ROOTCLING__
     SystematicVariation (const std::string& val_basename, CONTINUOUS_ARG);
-    #endif
+#endif // not __ROOTCLING__
+#endif // not __MAKECINT__
 
 
+    /// \brief constructor for toy systematics
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    static SystematicVariation
+    makeToyVariation (const std::string& basename,
+		      unsigned toyIndex, float toyScale);
+
+
+    /// \brief constructor for toy systematics ensemble
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    static SystematicVariation
+    makeToyEnsemble (const std::string& basename);
+
+
+    /// \brief constructor for continuous systematics ensemble
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    static SystematicVariation
+    makeContinuousEnsemble (const std::string& basename);
+
+
+    /// Named constructor for continuous systematics.
+    ///
+    /// rationale: Introduced because the enum-based constructor was
+    ///   getting confused with the float one above in PyROOT.
+  public:
+    static SystematicVariation makeContinuous (const std::string& basename);
+
+
+    // TODO: re-evaluate the usefulness of this constructor
     /// effects: this constructor picks the systematic from the set of
     ///   systematics based on the basename.  if multiple systematics
     ///   with the same basename are in the set, it picks one of them.
@@ -138,6 +186,78 @@ namespace CP
     float parameter () const;
 
 
+    /// \brief unpack the toy variation
+    /// \return the index of the toy, and the scale
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II\n
+    ///   parse errors\n
+    ///   not a toy variation
+  public:
+    std::pair<unsigned,float> getToyVariation () const;
+
+
+    /// \brief whether this represents a toy ensemble
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    bool isToyEnsemble () const;
+
+
+    /// \brief whether this represents a continuous ensemble
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    bool isContinuousEnsemble () const;
+
+
+    /// \brief whether this represents any form of ensemble
+    ///
+    /// this can be used to check whether this is a valid variation to
+    /// pass into \ref ISystematicsTool::applySystematicVariation
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    bool isEnsemble () const;
+
+
+    /// \brief whether this is an ensemble that contains the given
+    /// systematic variation
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    bool ensembleContains (const SystematicVariation& sys) const;
+
+
+    /// \brief whether this represents a toy variation
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    bool isToyVariation () const;
+
+
+    /// \brief whether this represents a continuous variation
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    bool isContinuousVariation () const;
+
+
+
+
     //
     // private interface
     //
@@ -146,6 +266,8 @@ namespace CP
   private:
     std::string m_name;
   };
+
+  std::ostream& operator << (std::ostream& str, const CP::SystematicVariation& obj);
 }
 
 #endif

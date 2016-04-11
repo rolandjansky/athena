@@ -10,7 +10,20 @@
 #include <boost/functional/hash.hpp>
 
 #include <PATInterfaces/SystematicSet.h>
-#include <PATInterfaces/SystematicList.h>
+#include <PATInterfaces/MessageCheck.h>
+
+// Comparison operator for std::map sorting
+bool operator < (const CP::SystematicSet& a, const CP::SystematicSet& b)
+{
+  return a.name() < b.name();
+}
+
+// Equality operator for unordered containers
+bool operator == (const CP::SystematicSet& a, const CP::SystematicSet& b)
+{
+  return a.name() == b.name();
+}
+
 
 //
 // method implementations
@@ -173,31 +186,80 @@ namespace CP
   }
 
 
+
+  std::pair<unsigned,float> SystematicSet ::
+  getToyVariationByBaseName (const std::string& basename) const
+  {
+    const auto var = getSystematicByBaseName (basename);
+    if (var.empty())
+      return std::make_pair (0, 0);
+    return var.getToyVariation();
+  }
+
+
+
   // Filter requested systematics with affecting systematics
   SystematicCode SystematicSet::filterForAffectingSystematics
   (const SystematicSet& systConfig, const SystematicSet& affectingSysts,
    SystematicSet& filteredSysts)
   {
-    filteredSysts.clear();
-    // convert affecting set into base systematics
-    std::set<std::string> affectingBaseSysts = affectingSysts.getBaseNames();
-    // loop over given systematics to filter
-    for (const auto & sys : systConfig) {
-      // If this systematic or its continuous counterpart are
-      // in the affecting set, add them to the filtered set.
-      if(affectingSysts.matchSystematic(sys, SystematicSet::FULLORCONTINUOUS))
+    using namespace msgSystematics;
+
+    // the final filtered systematics to report
+    SystematicSet result;
+
+    // the map of all requested systematics by base name
+    std::map<std::string,SystematicVariation> requestedMap;
+
+    // the list of all inconsistent systematics we encountered
+    std::set<SystematicVariation> inconsistentList;
+
+    // fill requestedMap, reporting errors in case of duplication
+    for (auto& sys : systConfig)
+    {
+      std::string basename = sys.basename();
+      auto iter = requestedMap.find (basename);
+      if (iter != requestedMap.end())
       {
-        filteredSysts.insert(sys);
+	ANA_MSG_ERROR ("inconsistent systematic variations requested: " << sys << " and " << iter->second);
+	return SystematicCode::Unsupported;
       }
-      // If systematic wasn't found in the affecting list, but base systematic
-      // does match, then it means this subvariation is unsupported.
-      else if (affectingBaseSysts.find(sys.basename()) !=
-               affectingBaseSysts.end())
+      requestedMap.insert (std::make_pair (basename, sys));
+    }
+
+    // check which of the systematics match the affecting
+    for (auto& sys : affectingSysts)
+    {
+      std::string basename = sys.basename();
+      auto iter = requestedMap.find (basename);
+      if (iter != requestedMap.end())
       {
-        return SystematicCode::Unsupported;
+	if (iter->second == sys ||
+	    sys.ensembleContains (iter->second))
+	{
+	  result.insert (iter->second);
+	} else
+	{
+	  // let's remember this as a potential problem
+	  inconsistentList.insert (iter->second);
+	}
       }
     }
-    // check and cache??
+
+    // check whether any of of the requested variations matched the
+    // base names of our systematics, but not the systematics
+    // supported
+    for (auto& sys : inconsistentList)
+    {
+      if (result.find (sys) == result.end())
+      {
+	ANA_MSG_ERROR ("unsupported systematic variation " << sys << " requested for systematic " << sys.basename());
+	return SystematicCode::Unsupported;
+      }
+    }
+
+    // everything worked out, let's commit now
+    result.swap (filteredSysts);
     return SystematicCode::Ok;
   }
 
@@ -257,18 +319,6 @@ namespace CP
   std::size_t hash_value(const SystematicSet& sysSet)
   {
     return sysSet.hash();
-  }
-
-  // Comparison operator for std::map sorting
-  bool operator < (const SystematicSet& a, const SystematicSet& b)
-  {
-    return a.name() < b.name();
-  }
-
-  // Equality operator for unordered containers
-  bool operator == (const SystematicSet& a, const SystematicSet& b)
-  {
-    return a.name() == b.name();
   }
 
 }

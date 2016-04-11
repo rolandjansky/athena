@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: CorrectionCode.h 600738 2014-06-07 14:34:05Z krasznaa $
+// $Id: CorrectionCode.h 719663 2016-01-25 20:27:50Z krumnack $
 #ifndef PATINTERFACES_CORRECTIONCODE_H
 #define PATINTERFACES_CORRECTIONCODE_H
 
@@ -29,8 +29,8 @@ namespace CP {
    /// @author Nils Krumnack <krumnack@iastate.edu>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 600738 $
-   /// $Date: 2014-06-07 16:34:05 +0200 (Sat, 07 Jun 2014) $
+   /// $Revision: 719663 $
+   /// $Date: 2016-01-25 21:27:50 +0100 (Mon, 25 Jan 2016) $
    ///
    class CorrectionCode {
 
@@ -81,5 +81,31 @@ namespace CP {
    }; // class CorrectionCode
 
 } // namespace CP
+
+namespace asg
+{
+  /// \brief this is an internal traits class for status codes used by
+  /// the ANA_CHECK* macros
+  template<typename T> struct CheckHelper;
+
+  template<> struct CheckHelper<CP::CorrectionCode>
+  {
+    /// \brief whether the status code reports a success
+    static inline bool isSuccess (const CP::CorrectionCode& sc) {
+      return sc == CP::CorrectionCode::Ok; }
+
+    /// \brief whether the status code reports out of validity
+    static inline bool isOutOfValidityRange (const CP::CorrectionCode& sc) {
+      return sc == CP::CorrectionCode::OutOfValidityRange; }
+
+    /// \brief produce a status code to report success
+    static inline CP::CorrectionCode successCode () {
+      return CP::CorrectionCode::Ok;}
+
+    /// \brief produce a status code to report failure
+    static inline CP::CorrectionCode failureCode () {
+      return CP::CorrectionCode::Error;}
+  };
+}
 
 #endif // not PATINTERFACES_CORRECTIONCODE_H
