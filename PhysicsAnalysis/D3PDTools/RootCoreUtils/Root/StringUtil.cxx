@@ -13,8 +13,6 @@
 
 #include <RootCoreUtils/StringUtil.h>
 
-#include <TRegexp.h>
-#include <TString.h>
 #include <RootCoreUtils/Assert.h>
 
 //
@@ -37,18 +35,25 @@ namespace RCU
 
 
 
-  bool match_expr (const TRegexp& expr, const std::string& str)
+  bool match_expr (const boost::regex& expr, const std::string& str)
   {
-    Ssiz_t len = 0;
-    TString mystr (str);
-    return expr.Index (mystr, &len) == 0 && len == mystr.Length();
+    boost::match_results<std::string::const_iterator> what;
+    std::size_t count = boost::regex_match (str, what, expr);
+
+    for (std::size_t iter = 0; iter != count; ++ iter)
+    {
+      if (what[iter].matched && what[iter].first == str.begin() &&
+	  what[iter].second == str.end())
+	return true;
+    }
+    return false;
   }
 
 
 
-  TString glob_to_regexp (const std::string& glob)
+  std::string glob_to_regexp (const std::string& glob)
   {
-    TString result;
+    std::string result;
 
     for (std::string::const_iterator iter = glob.begin(),
 	   end = glob.end(); iter != end; ++ iter)
