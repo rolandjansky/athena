@@ -22,19 +22,19 @@
      <Name>Barrel</Name>
      <RadiusMin> 33.001 </RadiusMin>
      <RadiusMax> 340.99 </RadiusMax>
-     <HalfLength> 792 </HalfLength>
+     <HalfLength> 782 </HalfLength>
      <RadiusList> 34.1  149.9 340.99</RadiusList>
-     <HalfLengthList> 1228.1 731.1 </HalfLengthList>
+     <HalfLengthList> 1228.1 781.1 </HalfLengthList>
   </PixelBarrelEnvelope>
 
   <PixelEndcapEnvelope>
      <Name>Endcap</Name>
      <RadiusMin> 33.001 </RadiusMin>
      <RadiusMax> 340.99 </RadiusMax>
-     <ZMin> 731.11 </ZMin>
+     <ZMin> 781.11 </ZMin>
      <ZMax> 3210. </ZMax>
      <RadiusList> 34.1  149.9 340.99</RadiusList>
-     <ZMinList> 1228.1 731.1 </ZMinList>
+     <ZMinList> 1228.1 781.1 </ZMinList>
   </PixelEndcapEnvelope>
 
   <PixelLayerEnvelope>

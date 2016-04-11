@@ -877,7 +877,7 @@ GeoPhysVol* GeoPixelLadderInclRef::createServiceVolume(double length, double thi
   // Place the stave module service (on the top of the stave support...)
   GeoBox * svcBox = new GeoBox(thick, width, length);
 
-  std::cout<<"Barrel module service material for layer  "<<m_layer <<" :  size WxTxL "<<width<<" "<<thick<<" "<<length<<"  ";  
+  std::cout<<"Barrel module service material for layer  "<<m_layer <<" :  size WxTxL "<<width<<" "<<thick<<" "<<length<<"     # modules ";  
   for(int i=0; i<(int)nModuleSvc.size(); i++) std::cout<<nModuleSvc[i]<<" "; std::cout<<std::endl;
   std::string matName = m_IDserviceTool->getLayerModuleMaterialName(m_layer ,nModuleSvc);   // material name stored in PixelServicesTool (material are built there)
   std::cout<<"Barrel module service material  : "<<matName<<"  "<<std::endl;

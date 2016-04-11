@@ -122,7 +122,7 @@ void GeoPixelBarrelInclRefTool::preBuild()
   double rmax = genDBHelper.getBarrelRMax();
   double halflen = genDBHelper.getBarrelHalfLength();
 
-  msg(MSG::INFO) << "GeoPixelBarrelAlpineTool: rmin " << rmin << " rmax " << rmax << " halflen " << halflen << endreq;
+  msg(MSG::INFO) << "GeoPixelBarrelInclinedTool: rmin " << rmin << " rmax " << rmax << " halflen " << halflen << endreq;
   m_barrelRegion.push_back("B");
   m_barrelSvcRegions.push_back(new InDetDD::TubeZone("B",-halflen, halflen, rmin, rmax));
 
