@@ -73,7 +73,7 @@ SgStressProducer::~SgStressProducer()
 StatusCode SgStressProducer::initialize()
 {
   // configure our MsgStream
-  msg().setLevel( outputLevel() );
+  msg().setLevel( msgLevel() );
 
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
   return StatusCode::SUCCESS;
