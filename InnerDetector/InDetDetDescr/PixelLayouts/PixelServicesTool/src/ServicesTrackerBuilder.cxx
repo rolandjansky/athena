@@ -74,7 +74,7 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
     double layerLength =  staveTmp[0]->support_halflength;
     int nSectors =  layerTmp->stave_n; 
 
-    msg << MSG::INFO << "Created new ServicesDynTracker() : add barrel layer " << i<<" "<<layerRadius<<" "<<nSectors<<" # modules "<<modulesPerStave<<endmsg;
+    msg << MSG::INFO << "Created new ServicesDynTracker() : add barrel layer " << i<<" "<<layerRadius<<" "<<nSectors<<" # modules "<<modulesPerStave<<"  // length : "<<layerLength<<endmsg;
   
     if(endcapModuleNumber==0)
       tracker->constructBarrelLayer( layerRadius, layerLength+2.*basics->epsilon(),
