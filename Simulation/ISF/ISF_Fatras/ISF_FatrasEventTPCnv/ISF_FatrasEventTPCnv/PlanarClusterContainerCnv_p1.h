@@ -25,7 +25,7 @@ class PlanarClusterContainerCnv_p1 : public T_AthenaPoolTPCnvBase< iFatras::Plan
 {
  public:
   PlanarClusterContainerCnv_p1();
-  
+
   virtual void  persToTrans( const iFatras::PlanarClusterContainer_p1* persCont,
 			     iFatras::PlanarClusterContainer* transCont,
 			     MsgStream &log) ;

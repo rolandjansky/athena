@@ -16,7 +16,7 @@ namespace iFatras{
  public:
 /// Default constructor
   PlanarClusterContainer_p2 ();
- private:
+  // private:
   std::vector<InDet::InDetPRD_Collection_p2>  m_collections;
   std::vector<iFatras::PlanarCluster_p2>      m_rawdata;
 };

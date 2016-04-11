@@ -30,6 +30,12 @@ class PlanarClusterCnv_p2 : public T_AthenaPoolTPPolyCnvBase< Trk::PrepRawData, 
   PlanarClusterCnv_p2() {}
   PlanarClusterCnv_p2( const PixelID *, const SCT_ID * );
 
+  iFatras::PlanarCluster
+  createPlanarCluster (const iFatras::PlanarCluster_p2 *persObj,
+                       const Identifier& waferId,
+                       const iFatras::PlanarDetElement* detEl,
+                       MsgStream &log);
+
   void persToTrans( const iFatras::PlanarCluster_p2 *persObj,
 		    iFatras::PlanarCluster *transobj,
 		    MsgStream &log);
