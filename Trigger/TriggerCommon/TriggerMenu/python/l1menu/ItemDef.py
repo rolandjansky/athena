@@ -56,7 +56,6 @@ class ItemDef:
         bgrp9cond           = BGRP0 & BGRP9 
         bgrp11cond          = BGRP0 & BGRP11 
         bgrp12cond          = BGRP0 & BGRP12
-        
         alfacalib           = BGRP0 & BGRP10
         abortgap            = BGRP0 & BGRP8
         
@@ -788,9 +787,14 @@ class ItemDef:
         LVL1MenuItem('L1_BCM_Wide_CALIB'   ).setLogic( BCM_Wide & calibcond).setTriggerType(TT.minb)        
 
         #AFP
-        LVL1MenuItem('L1_AFP_NSR').setLogic( AFP_NSR & physcond ).setTriggerType(TT.minb)
-        LVL1MenuItem('L1_AFP_FSR').setLogic( AFP_FSR & physcond ).setTriggerType(TT.minb)
-
+        LVL1MenuItem('L1_AFP_NSC').setLogic( AFP_NSC & physcond )
+        LVL1MenuItem('L1_AFP_FSC').setLogic( AFP_FSC & physcond )
+        LVL1MenuItem('L1_AFP_C_ANY').setLogic( (AFP_FSC | AFP_NSC) & physcond )
+        LVL1MenuItem('L1_AFP_C_ANY_UNPAIRED_ISO').setLogic( (AFP_FSC | AFP_NSC) & unpaired_isocond)
+        LVL1MenuItem('L1_AFP_C_ANY_UNPAIRED_NONISO').setLogic( (AFP_FSC | AFP_NSC) & unpaired_nonisocond)
+        LVL1MenuItem('L1_AFP_C_ANY_EMPTY').setLogic( (AFP_FSC | AFP_NSC) & cosmiccond)
+        LVL1MenuItem('L1_AFP_C_ANY_FIRSTEMPTY').setLogic( (AFP_FSC | AFP_NSC) & firstempty)
+        LVL1MenuItem('L1_AFP_C_AND').setLogic( (AFP_FSC & AFP_NSC) & physcond )
 
 
         # RANDOM
@@ -1378,12 +1382,17 @@ class ItemDef:
         # =======================================================
         # Partition 1
         LVL1MenuItem.currentPartition = 2
-        
+
+
+
+
         #        LVL1MenuItem('L1_CALREQ0_P1', ctpid=480).setLogic( NIM28 & calibcond1).setTriggerType( 0x0f & TT.calreq0 )
         #        LVL1MenuItem('L1_CALREQ1_P1', ctpid=481).setLogic( NIM29 & calibcond1).setTriggerType( 0x0f & TT.calreq1 )
         #        LVL1MenuItem('L1_CALREQ2_P1', ctpid=482).setLogic( NIM30 & calibcond1).setTriggerType( 0x0f & TT.calreq2 )
 
         LVL1MenuItem.currentPartition = 3
+                      
+        LVL1MenuItem('L1_RD1_BGRP14'         ).setLogic( RNDM1 & bgrpcond2         ).setTriggerType(TT.zerobs)
 
         LVL1MenuItem.currentPartition = 1
 

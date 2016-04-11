@@ -50,7 +50,7 @@ class HLTChain:
                     
     # construction
     def __init__(self, chain_name, chain_counter,
-                 lower_chain_name, level, prescale='1', pass_through='0', rerun_prescale='-1',stream_tag=[], groups=[], EBstep="-1"):
+                 lower_chain_name, level, prescale='1', pass_through='0', rerun_prescale='-1',stream_tag=None, groups=None, EBstep="-1"):
         self.chain_name       = chain_name
         self.chain_counter  = chain_counter
         self.level          = level
@@ -59,15 +59,15 @@ class HLTChain:
         self.rerun_prescale = rerun_prescale
         self.pass_through   = pass_through
         self.lower_chain_name = lower_chain_name
-        self.stream_tag     = stream_tag
+        self.stream_tag     = []
+        if stream_tag is not None: self.stream_tag += stream_tag
         self.trigger_type_bits = []
         self.groups           = []
+        if groups is not None: self.addGroup(groups)
         self.chainBindings = []
         self.chains_to_merge   = []
         self.sigs_n_before_merge   = 0
-        self.addGroup(groups)
         self.EBstep = EBstep
-
 
 
 

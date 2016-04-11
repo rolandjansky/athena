@@ -16,8 +16,8 @@ class Isolation:
             self.etamax     = int(etamax)
             self.priority   = int(priority)
             self.mincut     = int(mincut)  # minimum value for the isolation cut
-            if isobit not in range(1,6):
-                raise RuntimeError("Isolation bit is '%i' must be between 1 and 5" % isobit)
+            if self.isobit not in range(1,6):
+                raise RuntimeError("Isolation bit is '%i' must be between 1 and 5" % self.isobit)
 
         def xml(self, ind=1, step=2):
             s = ind * step * ' ' + '<Parametrization isobit="%i" offset="%i" slope="%i" mincut="%i" upperlimit="%i" etamin="%i" etamax="%i" priority="%i"/>\n' % \

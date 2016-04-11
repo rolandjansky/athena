@@ -237,7 +237,7 @@ TauChainParts = {
     'chainPartName': '',
     'threshold'    : '',
     'preselection' : ['r1', 'FTK', 'FTKRefit', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'trackcalo', 'tracktwocalo','tracktwo2015'],
-    'selection'    : ['loose1', 'medium1', 'tight1', 'perf', 'r1medium1', 'r1perf', 'cosmic', 'dikaon', 'dikaontight', 'singlepion', 'singlepiontight',  'medium1HighptL', 'medium1HighptM', 'medium1HighptH'],
+    'selection'    : ['loose1', 'medium1', 'tight1', 'perf', 'r1medium1', 'r1perf', 'cosmic', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight',  'medium1HighptL', 'medium1HighptM', 'medium1HighptH'],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
     'trkInfo'      : ['idperf'],
@@ -643,6 +643,7 @@ AllowedCalibChainIdentifiers = ['csccalib',
                                 'larpebj',
                                 'l1satmon',
                                 'zdcpeb',
+                                'calibAFP',
                                 ]
 
 # ---- Calib Chain Dictinary of all allowed Values ----

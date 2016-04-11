@@ -378,7 +378,7 @@ class L2EFChain_tau(L2EFChainDef):
 
 
             # TrigTauRec and Hypo (no BDT)
-            if selection == 'dikaon' or selection == 'dikaontight' or selection == 'singlepion' or selection == 'singlepiontight':
+            if selection == 'dikaon' or selection == 'dikaontight' or selection == 'dikaonmass' or selection == 'dikaonmasstight' or selection == 'singlepion' or selection == 'singlepiontight':
                 self.EFsequenceList += [[[ self.currentItem ],
                                          [recmerged_2012, theEFHypo],
                                          self.continueChain('EF', 'effinal')]]                

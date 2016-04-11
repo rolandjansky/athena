@@ -10,30 +10,9 @@ import xml.dom.minidom as minidom
 import xml.etree.cElementTree as etree
 
 from TriggerMenu.menu.HLTObjects import HLTSequence
-from TriggerMenu.menu.LVL1Config import LVL1MenuItems,  LVL1Thresholds, CTPInfo, MuctpiInfo, Lvl1CaloInfo
 
 from AthenaCommon.Logging        import logging
 log = logging.getLogger( 'TriggerPythonConfig' )
-
-# copied over from TrigConfigSvc
-def extendLVL1config(triggerPythonConfig):
-    """
-    sets default bunchgroups for all menus, needed for simulation.
-    """
-    triggerPythonConfig.CTPInfo().setBunchGroupSet("MC")
-    triggerPythonConfig.CTPInfo().addBunchGroup( 'BCRVeto',           0, [1] )
-    triggerPythonConfig.CTPInfo().addBunchGroup( 'Filled',            1, [1] )
-    triggerPythonConfig.CTPInfo().addBunchGroup( 'EmptyCalib',        2, [] )
-    triggerPythonConfig.CTPInfo().addBunchGroup( 'Empty',             3, [] )
-    triggerPythonConfig.CTPInfo().addBunchGroup( 'UnpairedBeam1',     4, [] )
-    triggerPythonConfig.CTPInfo().addBunchGroup( 'UnpairedBeam2',     5, [] )
-    triggerPythonConfig.CTPInfo().addBunchGroup( 'EmptyAfterFilled',  6, [] )
-    triggerPythonConfig.CTPInfo().addBunchGroup( 'InTrain',           7, [1] )
-    triggerPythonConfig.CTPInfo().setDeadtime('Commissioning', 4, 0, 0, 0, 0)
-    triggerPythonConfig.CTPInfo().setRandom('rand01', 5, 0, 1, 1)
-    triggerPythonConfig.CTPInfo().setPrescaledClock('psc01', 10, 100)
-    triggerPythonConfig.Lvl1CaloInfo().setName('standard')
-
 
 class TriggerPythonConfig:
     sCurrentTriggerConfig = None
@@ -41,16 +20,9 @@ class TriggerPythonConfig:
         return TriggerPythonConfig.sCurrentTriggerConfig
     currentTriggerConfig = staticmethod(currentTriggerConfig)
 
-    def __init__(self, hltfile=None, l1file=None, signaturesOverwritten=False):
+    def __init__(self, hltfile=None, signaturesOverwritten=False):
         self.menuName = 'TestMenu'
         self.__HLTFile = hltfile
-        self.__L1File = l1file
-        self.l1menuFromXML = None # l1menu read from XML file if any
-        self.theLVL1Thresholds = LVL1Thresholds()
-        self.theLVL1MenuItems  = LVL1MenuItems()
-        self.theCTPInfo = CTPInfo()
-        self.theMuctpiInfo = MuctpiInfo()
-        self.theLvl1CaloInfo = Lvl1CaloInfo()
         self.allThresholds     = {}
         self.allItems          = {}
         self.allChains         = {}
@@ -59,14 +31,15 @@ class TriggerPythonConfig:
         self.theSeqLists       = []
         self.theSeqDict        = {} # dict by Seq output TE
         self.theTopoStartFrom    = []
-        self.setMuctpiInfo(low_pt=1, high_pt=1, max_cand=13)
-        self.Lvl1CaloInfo().setName('standard')
-        self.Lvl1CaloInfo().setGlobalScale(1)
+
+        # Sanity check since the second argument in __init__ used to be the l1 xml file name
+        if type(signaturesOverwritten)!=bool:
+            log.error('Wrong type for signaturesOverwritten. Received %s but expected bool', signaturesOverwritten)
+
         self.signaturesOverwritten = signaturesOverwritten
-        #
+
         TriggerPythonConfig.sCurrentTriggerConfig = self
-        # self.defineInternalThresholds()
-        extendLVL1config(self)
+
 
 
     def printIt(self):
@@ -105,282 +78,16 @@ class TriggerPythonConfig:
     @classmethod
     def getMenuNameFromHltpsName(cls,hltpsName):
         m = re.match( "(.*)_default_prescale", hltpsName)
-        mmmm = re.match( "(.*)_mc_prescale", hltpsName)
         if m: return m.group(1)
         else: return hltpsName
 
-
-
-    ##########################################################################
-    # LVL1
-    #
-    def registerLvl1Threshold(self, name, type, mapping, 
-                              slot='', connector='', active=1,
-                              seed='', seed_ttype='', seed_multi=-1, bcdelay=-1,
-                              ):
-        """Add LVL1 thresholds by giving the type/mapping information.
-        The cable input information will be calculated from them. And store it in
-        the list of available thresholds
-        Seed, seed_ttype, seed_multi and bcdelay are for the zero bias trigger only
-        """
-
-        thr = LVL1Thresholds.LVL1Threshold(name, type, seed_ttype)
-        thr.active = active
-        thr.mapping = mapping
-        #for zero bias threshold type only:
-        thr.seed = seed
-        thr.seed_ttype = seed_ttype
-        thr.seed_multi = seed_multi
-        thr.bcdelay = bcdelay
-        
-        if type == 'ZB':
-            (slot, connector, bitnum, range_begin, range_end) = self.cableInput(seed_ttype, mapping)
-            #for zb threshold, begin and end is 30
-            thr.setCableInput(bitnum, 30, 30, slot, connector)
-        else:
-            (slot, connector, bitnum, range_begin, range_end) = self.cableInput(type, mapping)
-            thr.setCableInput(bitnum, range_begin, range_end, slot, connector)
-        
-        if name in self.allThresholds.keys():
-            log.error('LVL1 threshold of name %s already exists' %
-                           name)
-            thr = self.allThresholds[name]
-        else:
-            self.allThresholds[name] = thr
-        return thr
-        
-    def getLvl1Threshold(self, name):
-        thr = None
-        if name in self.allThresholds.keys():
-            thr = self.allThresholds[name]
-        return thr
-    
-    def registerLvl1Item(self, logical_name, item):
-        """ Adds a LVL1 item to the set of items which are registered for further use"""
-        if logical_name in self.allItems.keys():
-            log.error('LVL1 item %s is already registered with ctpid=%d' % \
-                           (logical_name, int(self.allItems[logical_name].ctpid)))
-        else:
-            self.allItems[logical_name] = item
-            
-    def getLvl1Item(self, name):
-        item = None
-        if name in self.allItems.keys():
-            item = self.allItems[name]
-        return item
-        
-    def addLvl1Threshold(self, name, type, mapping,
-                         slot='', connector='', active=1):
-        """Add LVL1 thresholds by giving the type/mapping information.
-        The cable input information will be calculated from them."""
-        thr0 = self.theLVL1Thresholds.thresholdOfTypeMapping(type, mapping)
-        if thr0:
-            log.warning('thr0 is name=%s' % thr0.name)
-            s = 'Replacing LVL1 threshold of type=%s, mapping=%d name=%s' % \
-                (type, mapping, thr0.name)
-            s = '%s with name=%s' % (s, name)
-            log.warning(s)
-            self.theLVL1Thresholds.thresholds.remove(thr0)
-        (slot, connector, bitnum, range_begin, range_end) = self.cableInput(type, mapping)
-        thr = LVL1Thresholds.LVL1Threshold(name, type)
-        thr.active = active
-        thr.mapping = mapping
-        thr.setCableInput(bitnum, range_begin, range_end, slot, connector)
-        self.theLVL1Thresholds.thresholds.append(thr)
-        return thr
-        
-    def addLvl1Threshold2(self, name, type, \
-                         bitnum=0, range_begin=0, range_end=0, \
-                         slot='', connector=''):
-        """Add LVL1 thresholds by giving the input cable information"""
-        thr = LVL1Thresholds.LVL1Threshold(name, type)
-        thr.setCableInput(bitnum, range_begin, range_end, slot, connector)
-        thr.mapping = LVL1Thresholds.cableMapping(type, range_begin)
-        thr.active = 1
-        self.theLVL1Thresholds.thresholds.append(thr)
-        return thr
-        
-    def addLvl1Item(self, it):
-        """Add LVL1 item of type LVL1MenuItem"""
-        v = self.theLVL1MenuItems.findItemByName(it.name)
-        if v:
-            log.warning("Replacing LVL1 item (%s,%d) with (%s,%d)" % \
-                             (v.name, int(v.ctpid), it.name, int(it.ctpid)))
-        v = self.theLVL1MenuItems.findItemByCtpid(it.ctpid)
-        if v:
-            log.warning("Replacing LVL1 item (%s,%d) with (%s,%d)" % \
-                             (v.name, int(v.ctpid), it.name, int(it.ctpid)))
-        self.theLVL1MenuItems.items.append(it)
-
-
-
-    def Lvl1ItemByTriggerType(self, triggertypebit, triggertypebitmask):
-        """For a triggertypebit between 0 and 7, returns a list of names of
-        those Lvl1 items that have that bit set in the triggertype"""
-        if triggertypebit<0 or triggertypebit>0xFF:
-            raise RuntimeError('TriggerPythonConfig.Lvl1ItemByTriggerType(triggertypebit,triggertypebitmask) needs to be called with 0<=triggertypebit<=0xFF, ' + \
-                               + 'but is called with triggertypebit=%i' % triggertypebit)
-        if triggertypebitmask<0 or triggertypebitmask>0xFF:
-            raise RuntimeError('TriggerPythonConfig.Lvl1ItemByTriggerType(triggertypebit,triggertypebitmask) needs to be called with 0<=triggertypebitmask<=0xFF, ' + \
-                               + 'but is called with triggertypebitmask=%i' % triggertypebitmask)
-
-        #self.trigConfL1.menu.items) )
-
-        itemsForMenu = [item for item in self.allItems.values() if item.ctpid != -1]
-        
-        if not itemsForMenu:
-            log.warning('No item defined for the L1 Menu, perhaps TriggerPythonConfig.Lvl1ItemByTriggerType() ' + \
-                             'is called too early (it needs to be called after Lvl1.generateMenu())')
-        res = [item.name for item in itemsForMenu if (triggertypebitmask & item.trigger_type)==triggertypebit ]
-        return res
-
-    def Lvl1ItemByThreshold(self, thr_name):
-        """Returns a list of L1 items using the specified threshold
-(also searches for internal triggers). Original use case was to find all
-items in BGRP1"""
-        x = [ item.name for item in self.theLVL1MenuItems.items
-              if thr_name in item.thresholdNames(True)]
-        return x
-
-    def thresholdOfName(self, name):
-        """Return a threshold object of the given name"""
-        return self.Lvl1Thresholds().thresholdOfName(name)
-    def Lvl1Thresholds(self):
-        """Return LVL1Thresholds object"""
-        return self.theLVL1Thresholds
-    def CTPInfo(self):
-        """Return CTPInfo object"""
-        return self.theCTPInfo
-    def setMuctpiInfo(self, low_pt, high_pt, max_cand):
-        """Return Muctpi object"""
-        return self.theMuctpiInfo.set(low_pt, high_pt, max_cand)
-    def Lvl1CaloInfo(self):
-        """Return CaloInfo object"""
-        return self.theLvl1CaloInfo
-    def defineInternalThresholds(self):
-        """Define thresholds for internal triggers"""
-        self.addLvl1Threshold('RNDM0', 'RNDM', 0)
-        self.addLvl1Threshold('RNDM1', 'RNDM', 1)
-        self.addLvl1Threshold('PCLK0', 'PCLK', 0)
-        self.addLvl1Threshold('PCLK1', 'PCLK', 1)
-        self.addLvl1Threshold('BGRP0', 'BGRP', 0)
-        self.addLvl1Threshold('BGRP1', 'BGRP', 1)
-        self.addLvl1Threshold('BGRP2', 'BGRP', 2)
-        self.addLvl1Threshold('BGRP3', 'BGRP', 3)
-        self.addLvl1Threshold('BGRP4', 'BGRP', 4)
-        self.addLvl1Threshold('BGRP5', 'BGRP', 5)
-        self.addLvl1Threshold('BGRP6', 'BGRP', 6)
-        self.addLvl1Threshold('BGRP7', 'BGRP', 7)
-    def cableInput(self, type, mapping):
-        """Calculate (slot, connector, bitnum, range_begin, range_end) of the input cable of
-        the threshold to the CTP from its (type, mapping)"""
-        bitnum = 0
-        range_begin = 0
-        range_end = 0
-        slot = 0
-        connector = 0
-        bitnums = {
-            'MUON': 3,
-            'EM': 3,
-            'TAU': 3,
-            'JET': 3,
-            'JE': 1,
-            'JB': 2,
-            'JF': 2,
-            'TE': 1,
-            'XE': 1,
-            'XS': 1, 
-            'MBTS': 3,
-            'MBTSSI': 1,
-            'NIM': 1,
-            'ZDC': 1,
-            'TRT': 1,
-            'BCM': 1,
-            'BCMCMB': 3,
-            'LUCID': 1,
-            'CALREQ': 1,
-            }
-
-        cables = { # type: [number of cables, slot, connector, start, stop ...]
-            'MUON': [1, 8, 1, 1, 30], 
-            'EM': [1, 7, 0, 0, 23],
-            'TAU': [1, 7, 1, 0, 23],
-            'JET': [1, 7, 2, 0, 23],
-            'JE': [1, 7, 2, 24, 27],
-            'JB': [1, 7, 3, 0, 7],
-            'JF': [1, 7, 3, 8, 15],
-            #'TE': [1, 8, 0, 0, 3], # With XS update, should be [ 1, 8, 0, 0, 7 ]
-            #'XE': [1, 8, 0, 4, 7], # With XS update, should be [ 1, 8, 0, 8, 15 ]
-            'TE': [ 1, 8, 0, 0, 7 ], 
-            'XE': [ 1, 8, 0, 8, 15 ], 
-            'XS': [ 1, 8, 0, 16, 23 ], # With XS update, should be [ 1, 8, 0, 16, 23 ]
-            'MBTS': [2,
-                     9, 0, 16, 18,
-                     9, 1, 16, 18,
-                     ],
-            'MBTSSI': [2,
-                       9, 0, 0, 15,
-                       9, 1, 0, 15],
-            'NIM': [3,
-                    8, 2, 15, 27,
-                    9, 0, 19, 30,
-                    9, 1, 19, 30],
-            'ZDC': [1, 8, 2, 17, 19],
-            'TRT': [1, 8, 2, 22, 22],
-            'BCM': [1, 8, 2, 0, 8],
-            'BCMCMB': [1, 8, 2, 3, 5],
-            'LUCID': [1, 8, 2, 9, 14],
-            'CALREQ': [1, 8, 2, 28, 30],
-            }
-        
-        bitnum = bitnums[type]
-
-        if type=='EM' and mapping>=8: return self.cableInput('TAU', 15-mapping)
-        
-        for i in range(0,cables[type][0]):
-            slot = cables[type][1+i*4]
-            connector = cables[type][2+i*4]
-            offset = mapping
-            for j in range(0,i):
-                delta = (cables[type][4+j*4]-cables[type][3+j*4])/bitnum+1
-                log.debug('cable has room for %s thresholds.', delta)
-                offset-=delta
-            range_begin = cables[type][3+i*4]+offset*bitnum
-            range_end = range_begin+bitnum-1
-            if range_end <= cables[type][4+i*4]:
-                break            
-            else:
-                if i == cables[type][0]:
-                    log.warning("Untreated threshold type %s for cable assignment" % type)
-        
-        log.debug('%s threshold mapped at %s is set on SLOT: %s, connector: %s in range: %s - %s',
-                  type, mappping, slot, connector, range_begin, range_end)
-
-        return ('SLOT'+str(slot), 'CON'+str(connector), bitnum, range_begin, range_end)
-
-
-    def addLVL1Threshold(self, th):
-        """Obsolete - not obsolete!used in Lvl1.py in line 4710"""
-        self.theLVL1Thresholds.thresholds.append(th)
-        return self.theLVL1Thresholds.thresholds[-1]
-
-#
-# LVL1  END
-####################################################################################################
-
-
-
-
-####################################################################################################
-# HLT  BEGIN
-#
 
     def addHLTChain(self, chain):
         """ Adds HLT Trigger chain to the menu """
         if chain.isHLT():
             self.theHLTChains.append(chain)                        
         else:
-            raise Exception( 'ERROR: Chain: ' + chain.chain_name + 'has incorrectly defined level')
+            raise Exception( 'ERROR: Chain: %s has incorrectly defined level' % chain.chain_name)
 
 
     def checkChainUniqueness(self, teRenaming):
@@ -390,7 +97,6 @@ items in BGRP1"""
             if te in teRemap:
                 return teRemap[te]
             return te
-        sigs_wrongTEs = []
         chain_TEsigs = {} # [chain][TElist] -> list of signatures
         for sig, chains in self.allChains.iteritems():
             keys = chain_TEsigs.keys()
@@ -452,8 +158,6 @@ items in BGRP1"""
             log.error("Which is: "+str(self.theSeqDict[outTE]))
             log.error('Tried to produce it from '+inTE+' ('+str([a.name() for a in algolist]))
             
-        if outTE in self.theLVL1Thresholds.thresholdNames():
-            log.error("LVL1 theshold of name identical to output TE: "+outTE +" exists")
         seq = HLTSequence(inTE, algolist, outTE, topo_start_from)
         self.theSeqLists.append(seq)
         self.theSeqDict[outTE] = seq
@@ -469,9 +173,6 @@ items in BGRP1"""
             else:
                 log.debug("Tried to add sequence %s but there exists already the following sequence: %s ", self.theSeqDict[outTE], theHLTSequence)
             
-        if outTE in self.theLVL1Thresholds.thresholdNames():
-            log.error("LVL1 theshold of name identical to output TE: "+outTE +" exists")
-    
         self.theSeqLists.append(theHLTSequence)
         self.theSeqDict[outTE] = theHLTSequence
 
@@ -483,12 +184,6 @@ items in BGRP1"""
     def allHLTChains(self):
         return self.theHLTChains
 
-#
-# HLT
-####################################################################################################
-
-
-
     def checkMenuConsistency(self):
         """ Checks menu consistency
 
@@ -497,15 +192,12 @@ items in BGRP1"""
         Some of the checks are considered as a serious and therefore Exception is thrown.
         Other are just messaged as a warnings.
         """
-        #print "self.checkChains()", self.checkChains()
-        #print "self.checkSequences()", self.checkSequences()
-        #print "self.checkL1()", self.checkL1()
         
-        return self.checkChains() and self.checkSequences() and self.checkL1()
+        return self.checkChains() and self.checkSequences()
 
 
     def checkChainCounters(self, theChains):
-        m_correct=True
+        correct=True
         counters = map(lambda x: x.chain_counter, theChains) 
         for counter in counters: 
             if (int(counter) > 8191):
@@ -516,8 +208,8 @@ items in BGRP1"""
         for counter in repcounters:
             log.error("IN CHAIN: Chain counter "+ str(counter) + " used " + str(counters.count(counter)) + " times while can only once, will print them all")
             log.error( str(map( lambda x: x.chain_name,  filter(lambda x: x.chain_counter == counter, theChains))) )
-            m_correct=False
-        return m_correct
+            correct=False
+        return correct
 
 
 
@@ -528,22 +220,33 @@ items in BGRP1"""
         ids = map(lambda x: x.chain_name, self.theHLTChains)      
         repid = filter(lambda x: ids.count(x) > 1, ids)
         for id in repid: 
-            log.error(" IN CHAIN: Chain of chain_name "+ str(id) +" used " + str(ids.count(id))+ " times, while can only once") 
+            log.error("Chain of chain_name "+ str(id) +" used " + str(ids.count(id))+ " times, while can only once") 
             correct=False                     
         
-        correct = self.checkChainCounters(self.theHLTChains)
+        if not self.checkChainCounters(self.theHLTChains):
+            # Print list of available counters if check failed
+            all_counters = [c.chain_counter for c in self.theHLTChains]
+
+            log.info("Number of used counters: %s", len(all_counters))
+            if log.isEnabledFor(logging.DEBUG):
+                log.debug("Used HLT counter: %s", ",".join(map(str,all_counters)))
+                
+            free_counters = set(range(0,1000))-set(all_counters)
+            log.info("Available HLT counter: %s", ",".join(map(str,free_counters)))
+
+            correct=False
 
         # sufficiently defined ?
         for chain in self.theHLTChains:
             if len(chain.trigger_type_bits) == 0:
-                log.debug("IN CHAIN: TRIGGERTYPE bit undefined for chain: %s will use chain_counter for it: %s",
+                log.debug("TRIGGERTYPE bit undefined for chain: %s will use chain_counter for it: %s",
                           chain.chain_name, chain.chain_counter)
 
                 from string import atoi
                 chain.trigger_type_bits = [atoi(chain.chain_counter)]
                 
             if len(chain.stream_tag) == 0:                
-                log.error( "IN CHAIN: STREAMTAG undefined for chain: %s", chain.chain_name)
+                log.error("STREAMTAG undefined for chain: %s", chain.chain_name)
                 correct=False
                     
         # are TEs mentioned in sequences
@@ -552,26 +255,9 @@ items in BGRP1"""
         for chain in self.theHLTChains:
             for te in chain.getOutputTEs():
                 if te not in tesInSeq:
-                    log.error('IN CHAIN: TE: >' + te + '< used in the chain: ' + chain.chain_name + ' not found in the sequences definitions' )
+                    log.error('TE %s used in the chain %s but not found in the sequences definitions', te, chain.chain_name )
                     log.debug('Available are: ', tesInSeq)
                     correct=False
-
-        # Print list of available counters if check failed
-        if not correct:
-
-            all_counters = {}
-            for chain in self.theHLTChains:
-                all_counters[int(chain.chain_counter)] = "used"
-                
-
-            log.info("Number of used counters: %s", len(all_counters))
-            if log.isEnabledFor(log.DEBUG):
-                for used_id in all_counters:
-                    log.debug("Used HLT counter: %s", used_id)
-                
-            for free_id in range(0, 1000):
-                if free_id not in all_counters:
-                    log.info("Available HLT counter: %s", free_id)
         
         return correct
 
@@ -580,19 +266,6 @@ items in BGRP1"""
         correct=True
         return correct
 
-
-    def checkL1(self):
-        """ Checks is Lvl1Menu is consistent """
-        status = True
-        for thr in self.theLVL1Thresholds.thresholds:
-            if thr.active and len(thr.thresholdValues)==0:
-                #zb threshold has no values
-                if thr.ttype != 'ZB' and thr.name != 'ZB_4MBTS_A':
-                    s = "LVL1 threshold %s is active," % thr.name
-                    s += " but doesn't have any ThresholdValues"
-                    log.error( s )
-                    status = False
-        return status
 
     def resolveDuplicateTEs(self):
         def renameTE(te, teRemap):
@@ -688,7 +361,7 @@ items in BGRP1"""
             seq_list1 = seq_list2
             iterationCount += 1
             if log.isEnabledFor(logging.DEBUG):
-                log.debug('N TE remapping after iteration %d: %d' % iterationCount, len(teRenaming))
+                log.debug('N TE remapping after iteration %d: %d', iterationCount, len(teRenaming))
                 
             if len(seq_list1) == n1: break
 
@@ -767,11 +440,6 @@ items in BGRP1"""
                     else:
                         seq.use('HLT')
 
-
- 
-    def getL1ConfigFile(self):
-        return self.__L1File
-
     def getHLTConfigFile(self):
         return self.__HLTFile
 
@@ -802,11 +470,11 @@ items in BGRP1"""
             c.xml( xChainList )            
 
         # write out the xml as a file
-        log.debug("Writing XML file for HLT")
         file = open( self.__HLTFile, mode="wt" )
         # etree does not support pretty printing, use minidom for this
         file.write(minidom.parseString(etree.tostring(xHLTMenu)).toprettyxml('  '))
         file.close()
+        log.info("Wrote %s",self.__HLTFile)
 
                     
     def writeConfigFiles(self,level="all"):
@@ -847,37 +515,8 @@ items in BGRP1"""
         file.close()
 
         
-#
-# EOF user interface
-#########################################################################################
 
 
-
-
-
-#########################################################################################
-# internals
-#
-
-# little utility for xml printing attribute
-def attr(name, value):
-    return ' '+name+'="'+str(value)+'" '
-
-# unique id generator
-class idgen:
-    a =  {}
-    def get(self, kind):
-        if kind not in self.a:
-            self.a[kind] = 0
-        self.a[kind] += 1
-        return str(self.a[kind])
-
-idgen = idgen()
-
-
-def issubset(a, b):
-    """ True check if all element in a also are in b """
-    return len(filter( lambda x: x not in b, a)) == 0
 
 
 

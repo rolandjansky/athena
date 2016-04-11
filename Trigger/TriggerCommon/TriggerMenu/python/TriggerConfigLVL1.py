@@ -1,8 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from sys import settrace
 import re
-from collections import defaultdict
 
 from .TriggerConfigL1Topo import TriggerConfigL1Topo
 from l1.Lvl1Menu import Lvl1Menu
@@ -17,17 +15,18 @@ class TriggerConfigLVL1:
     current = None
     def __init__(self, outputFile = None , inputFile = None , menuName = None , topoMenu = "MATCH" ):
         """
-        menuName: ignored now, will be taken from TF.triggerMenuSetup
+        menuName: if None taken from TF.triggerMenuSetup, otherwise assume externally defined menu
         topoMenu: MATCH means that the L1Topo menu matches the L1 menu
         """
         TriggerConfigLVL1.current = self
 
         from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-        self.menuName = TriggerFlags.triggerMenuSetup()
+        self.menuName = TriggerFlags.triggerMenuSetup() if menuName==None else menuName
 
         self.inputFile     = inputFile
         self.outputFile    = outputFile
+        self.topoMenu      = topoMenu
         self.l1menuFromXML = None # flag if l1menu is read from XML file
 
         # all registered items
@@ -38,8 +37,9 @@ class TriggerConfigLVL1:
 
         # get L1Topo trigger line connections
         if topoMenu=="MATCH": topoMenu = self.menuName # topo menu name should match CTP menu for correct connection
-        self.topotriggers = self.getL1TopoTriggerLines(topoMenu)
-        self.registerAllTopoTriggersAsThresholds()
+        if topoMenu!=None:
+            self.topotriggers = self.getL1TopoTriggerLines(topoMenu)
+            self.registerAllTopoTriggersAsThresholds()
 
 
         # menu
@@ -49,9 +49,8 @@ class TriggerConfigLVL1:
             """Read menu from XML"""
             self.l1menuFromXML = True
             self.menu.readMenuFromXML(self.inputFile)
-        else:
+        elif menuName==None:
             """Build menu from menu name"""
-
             # defines the menu (item and threshold names)
             TriggerConfigLVL1.defineMenu(self.menuName)
 
@@ -70,7 +69,6 @@ class TriggerConfigLVL1:
         else:
             triggerLines = None
             try:
-                from TriggerJobOpts.TriggerFlags import TriggerFlags
                 tpcl1 = TriggerConfigL1Topo()
                 tpcl1.generateMenu()
                 triggerLines = tpcl1.menu.getTriggerLines()
@@ -116,8 +114,8 @@ class TriggerConfigLVL1:
         if not self.topotriggers:
             return
         
-        from l1.Lvl1Thresholds import LVL1Threshold, LVL1TopoInput
-
+        from l1.Lvl1Thresholds import LVL1TopoInput
+        from collections import defaultdict
 
         multibitTopoTriggers = defaultdict(list)
         multibitPattern = re.compile("(?P<line>.*)\[(?P<bit>\d+)\]")
@@ -173,7 +171,6 @@ class TriggerConfigLVL1:
         Writes L1 XML file
         returns the file name
         """
-        log = logging.getLogger("TriggerConfigLVL1")
         if self.outputFile is None:
             log.warning("Can't write xml file since no name was provided")
             return
@@ -207,7 +204,6 @@ class TriggerConfigLVL1:
         menuName=TriggerConfigL1Topo.getMenuBaseName(menuName)
         menumodule = __import__('l1menu.Menu_%s' % menuName, globals(), locals(), ['defineMenu'], -1)
         menumodule.defineMenu()
-        log = logging.getLogger('TriggerConfigLVL1.defineMenu')
         log.info("menu %s contains %i items and %i thresholds" % ( menuName, len(Lvl1Flags.items()), len(Lvl1Flags.thresholds()) ) )
 
 
@@ -220,13 +216,11 @@ class TriggerConfigLVL1:
 
         Has to run AFTER defineMenu
         """
-        from l1.Lvl1Flags import Lvl1Flags
 
         run1 = Lvl1Flags.CTPVersion()<=3
 
         itemdefmodule = __import__('l1menu.ItemDef%s' % ('Run1' if run1 else ''), globals(), locals(), ['ItemDef'], -1)
 
-        log = logging.getLogger('TriggerConfigLVL1.registerMenu')
         itemdefmodule.ItemDef.registerItems(self)
         log.info("registered %i items and %i thresholds (%s)" % ( len(self.registeredItems), len(self.registeredThresholds), ('Run 1' if run1 else 'Run 2') ) )
 
@@ -242,9 +236,6 @@ class TriggerConfigLVL1:
         if self.l1menuFromXML:
             log.info("Menu was read from input file '%s', generateMenu() will not run" % self.inputFile)
             return
-
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger('TriggerConfigLVL1.generateMenu')
 
         # build list of items for the menu from the list of requested names
         itemsForMenu = []
@@ -368,16 +359,16 @@ class TriggerConfigLVL1:
                 thr.cableinfo.range_begin = 30
                 thr.cableinfo.range_end   = 30
                 c += Counter( ((thr.cableinfo.slot,thr.cableinfo.connector),) ) 
-        if sorted(c.values())[-1]>1:
+        
+        if len(c)>0 and sorted(c.values())[-1]>1:
             for k,v in c.items():
                 if v>1:
-                    print "Slot %i, connector %i has more than one ZB threshold" % k 
+                    log.error("Slot %i, connector %i has more than one ZB threshold" % k)
             raise RuntimeError("Multiple zero bias thresholds on single connector")
             
 
             
     def updateItemPrescales(self):
-        from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
         for (it_name, ps) in Lvl1Flags.prescales().items():
             item = self.menu.getItem(it_name)
             if item:

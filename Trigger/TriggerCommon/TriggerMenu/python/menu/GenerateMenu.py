@@ -801,7 +801,7 @@ class GenerateMenu:
 
         #calling TriggerPythonConfig
         self.triggerPythonConfig = TriggerPythonConfig(TriggerFlags.outputHLTconfigFile(),
-                                                       TriggerFlags.outputLVL1configFile(),self.signaturesOverwritten)
+                                                       self.signaturesOverwritten)
         #Setting trigger menu name
         self.triggerPythonConfig.menuName = TriggerFlags.triggerMenuSetup()
         

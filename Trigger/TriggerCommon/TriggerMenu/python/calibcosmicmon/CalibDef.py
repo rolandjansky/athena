@@ -131,6 +131,9 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         self.setupL1SaturatedMon()
       elif 'zdcpeb' in self.chainPart['purpose']:
         self.setupZDCPEBChains()
+      elif 'calibAFP' in self.chainPart['purpose']:
+        self.setupAFPCalibrationChains()
+        
       else:
          log.error('Chain %s could not be assembled' % (self.chainPartName))
          return False      
@@ -277,6 +280,26 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.L2signatureList += [[['L2_']]]
      self.TErenamingDict = {
        'L2_':     'L2_l1ALFAcalib',
+       }
+
+
+   ###########################################################################
+   # AFP Calibration chains
+   ###########################################################################
+   def setupAFPCalibrationChains(self):
+     
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     
+     l2_AFPSubDetListWriter = TrigSubDetListWriter("AFPSubDetListWriter")
+     l2_AFPSubDetListWriter.SubdetId = ['TDAQ_CTP','FORWARD_AFP']
+     l2_AFPSubDetListWriter.MaxRoIsPerEvent=1
+     
+     self.robWriter = [l2_AFPSubDetListWriter]            
+     self.L2sequenceList += [['', self.robWriter, 'L2_']]
+     
+     self.L2signatureList += [[['L2_']]]
+     self.TErenamingDict = {
+       'L2_':     'L2_l1AFPcalib',
        }
      
    ###########################################################################

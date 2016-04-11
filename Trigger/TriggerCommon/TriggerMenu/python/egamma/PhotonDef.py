@@ -23,7 +23,7 @@ from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_eGamma, TrigCaloTowe
 from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_jet_fullcalo, TrigCaloClusterMaker_topo
 from TrigEgammaHypo.TrigEFCaloCalibFexConfig import TrigEFCaloCalibFex_Photon
 from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_All, TrigEFCaloHypo_EtCut, TrigEFCaloHypo_g_ID
-from TrigEgammaHypo.TrigEFPhotonHypoConfig import EFPhotonHypo_g_EtCut, EFPhotonHypo_g_ID_CaloOnly, EFPhotonHypo_g_NoCut
+from TrigEgammaHypo.TrigEFPhotonHypoConfig import EFPhotonHypo_g_EtCut, EFPhotonHypo_g_ID_CaloOnly, EFPhotonHypo_g_NoCut, EFPhotonHypo_g_ID_CaloOnly_Iso
 from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_g7, L2CaloHypo_g_nocut
 from TrigEgammaHypo.TrigL2PhotonFexConfig import L2PhotonFex_1
 from TrigEgammaHypo.TrigL2PhotonHypoConfig import L2PhotonHypo_g_EtCut, L2PhotonHypo_g_ID, L2PhotonHypo_g_NoCut
@@ -256,6 +256,7 @@ class L2EFChain_g(L2EFChainDef):
     def setup_gXX_ID_iso(self):
         threshold = self.chainPart['threshold']
         IDinfo = self.chainPart['IDinfo']
+        isoInfo = self.chainPart['isoInfo']
         algoSuffix = "g%s_%s()" % (str(threshold),IDinfo)
        
         disableMon = not KeepMonitoring(self.chainName,EgammaChainsToKeepMonitoring)
@@ -277,7 +278,8 @@ class L2EFChain_g(L2EFChainDef):
             theL2PhotonHypo  = L2PhotonHypo_g_ID("L2PhotonHypo_g"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
             # EF Calo
             theTrigEFCaloHypo = TrigEFCaloHypo_g_ID("TrigEFCaloHypo_g"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo);
-            theEFPhotonHypo  = EFPhotonHypo_g_ID_CaloOnly("EFPhotonHypo_g"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
+        
+            theEFPhotonHypo  = EFPhotonHypo_g_ID_CaloOnly_Iso("EFPhotonHypo_g"+str(threshold)+"_"+str(IDinfo)+"_"+str(isoInfo),threshold,IDinfo,isoInfo)
         else:
             log.error('Chain %s could not be assembled' % (self.chainPartName))
             return False
