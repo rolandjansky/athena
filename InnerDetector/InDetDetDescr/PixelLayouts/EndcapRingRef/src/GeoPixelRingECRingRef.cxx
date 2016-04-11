@@ -86,14 +86,14 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
 //   double zModuleShift = thickChip-halflength;
 //   if(m_front_back==1) zModuleShift*=-1;
 
-  // Correct rmin rmax values depending on support services
-  int nbSvcSupport = ringHelper.getNbSupport(m_layer);
-  for(int iSvc=0; iSvc<nbSvcSupport; iSvc++){
-    double rminSvc = ringHelper.getRingSupportRMin(iSvc);
-    double rmaxSvc = ringHelper.getRingSupportRMax(iSvc);
-    rmin = std::min(rmin,rminSvc);
-    rmax = std::max(rmax,rmaxSvc);
-    }
+//   // Correct rmin rmax values depending on support services
+//   int nbSvcSupport = ringHelper.getNbSupport(m_layer);
+//   for(int iSvc=0; iSvc<nbSvcSupport; iSvc++){
+//     double rminSvc = ringHelper.getRingSupportRMin(iSvc);
+//     double rmaxSvc = ringHelper.getRingSupportRMax(iSvc);
+//     rmin = std::min(rmin,rminSvc);
+//     rmax = std::max(rmax,rmaxSvc);
+//     }
 
   m_ringRMin = rmin-0.001;
   m_ringRMax = rmax+0.001;

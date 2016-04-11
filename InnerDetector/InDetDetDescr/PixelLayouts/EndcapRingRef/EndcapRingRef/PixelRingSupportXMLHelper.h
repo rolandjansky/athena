@@ -26,6 +26,11 @@ class PixelRingSupportXMLHelper :  public GeoXMLUtils  {
   double getRingSupportRMax(int iSupport) const;
   double getRingSupportThickness(int iSupport) const;
   std::string getRingSupportMaterial(int iSupport) const;
+
+  int getNbLayerSupport(int layer);
+  std::vector<double> getLayerSupportRadius(int iSupport) const;
+  std::vector<double> getLayerSupportZ(int iSupport) const;
+  std::string getLayerSupportMaterial(int iSupport) const;
   
  private:
   int m_ringGeoIndex;

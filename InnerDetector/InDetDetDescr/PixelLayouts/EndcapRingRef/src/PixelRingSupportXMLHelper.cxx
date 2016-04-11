@@ -33,7 +33,7 @@ PixelRingSupportXMLHelper::~PixelRingSupportXMLHelper()
   TerminateXML();
 }
 
-int PixelRingSupportXMLHelper::getNbSupport(int layer)
+int PixelRingSupportXMLHelper::getNbSupport(int layer) 
 {
   if(!m_bXMLfileExist) return 0;
 
@@ -74,5 +74,37 @@ std::string PixelRingSupportXMLHelper::getRingSupportMaterial(int iSupport) cons
   return v[index];
 }
 
+// -------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 
+int PixelRingSupportXMLHelper::getNbLayerSupport(int layer)
+{
+  if(!m_bXMLfileExist) return 0;
+
+  int layerIndex = getChildValue_Index("PixelLayerSupport", "Layer", layer);
+  std::string ringGeoName = getString("PixelLayerSupport", layerIndex, "LayerSupportGeo");
+  m_ringGeoIndex = (ringGeoName!="None")? getChildValue_Index("PixelLayerSupportGeo", "name", -1, ringGeoName) : -1;
+
+  if(m_ringGeoIndex<0) return 0;
+  return 1;
+}
+
+std::vector<double> PixelRingSupportXMLHelper::getLayerSupportRadius(int iSupport) const
+{
+  std::vector<double> v = getVectorDouble("PixelLayerSupportGeo",m_ringGeoIndex,"r");
+  return v;
+}
+
+std::vector<double> PixelRingSupportXMLHelper::getLayerSupportZ(int iSupport) const
+{
+  std::vector<double> v = getVectorDouble("PixelLayerSupportGeo",m_ringGeoIndex,"z");
+  return v;
+}
+
+std::string PixelRingSupportXMLHelper::getLayerSupportMaterial(int iSupport) const
+{
+  std::vector<std::string> v = getVectorString("PixelLayerSupportGeo",m_ringGeoIndex,"material");
+  int index = (v.size()==1)? 0 : iSupport;
+  return v[index];
+}
 
