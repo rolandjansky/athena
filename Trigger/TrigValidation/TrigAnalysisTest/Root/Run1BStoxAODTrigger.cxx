@@ -60,6 +60,8 @@ namespace TrigAnalysisTest {
     m_HLT_TrigEFMissingET = new TH1F( "HLT_TrigEFMissingET", "HLT_TrigEFMissingET;E_{T} (GeV);Entries", 100, 0., 200.);
     m_HLT_TrigEFMissingET_FEB = new TH1F( "HLT_TrigEFMissingET_FEB", "HLT_TrigEFMissingET_FEB;E_{T} (GeV);Entries", 100, 0., 200. );
     m_HLT_TrigEFMissingET_topocl = new TH1F( "HLT_TrigEFMissingET_topocl", "HLT_TrigEFMissingET_topocl;E_{T} (GeV);Entries", 100, 0., 200. );
+    // all trigger bits. The binning is changed in finalize() when the total number of triggers is known
+    m_all_triggers = new TH1F("all_triggers", ";Trigger;No. of events", 1, 0., 1.);
   }
 
   // Actually process an event.
@@ -172,7 +174,8 @@ namespace TrigAnalysisTest {
     cout << "EF triggers passed: " << _passed_hlt << endl;
     cout << "START SUMMARY: Run1BStoxAODTrigger" << endl;
     cout << "creating histogram with one bin per trigger, n of bins is " << trigger_counts.size() << endl;
-    m_all_triggers = new TH1F("all_triggers", ";Trigger;No. of events", trigger_counts.size(), 0.0, trigger_counts.size());
+    // Set the correct binning
+    m_all_triggers->SetBins( trigger_counts.size(), 0.0, trigger_counts.size() );
     cout << "histogram created" << endl;
     int trigger_counter = 0;
     for (auto it = trigger_counts.begin(); it!=trigger_counts.end(); it++) {

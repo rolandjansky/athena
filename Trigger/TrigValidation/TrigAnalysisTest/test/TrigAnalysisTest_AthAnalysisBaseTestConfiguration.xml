@@ -17,6 +17,20 @@
 	         <returnValue>0</returnValue>
 	      </expectations>
 	   </TEST>
+
+
+	   <TEST name="Run1xAODValidation_atn" type="athena" suite="TriggerDecisionToolTest">
+	      <options_atn>TrigAnalysisTest/ValidateRun1BStoxAOD_jobOptions.py</options_atn>
+	      <timelimit>30</timelimit>
+	      <author>Oleg Kuprash</author>
+	      <mailto>oleg.kuprash@cern.ch</mailto>
+			 <package_atn>Trigger/TrigValidation/TrigAnalysisTest</package_atn>
+	      <expectations>
+	         <errorMessage>FAILURE </errorMessage>
+	         <returnValue>0</returnValue>
+	      </expectations>
+	   </TEST>
 	</atn>
+
 
 </unifiedTestConfiguration>
