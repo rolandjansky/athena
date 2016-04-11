@@ -6,5 +6,5 @@ import os
 import sys
 
 pkg_name= "pyflakes"
-pkg_ver = "0.4.0"
+pkg_ver = "1.1.0"
 
