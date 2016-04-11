@@ -4,9 +4,8 @@
 
 #include "LArRecEvent/LArNoisyROSummary.h"
 
-
 LArNoisyROSummary::LArNoisyROSummary():
-  m_BadFEBFlaggedPartitions(0), 
+  m_BadFEBFlaggedPartitions(0),
   m_BadFEB_WFlaggedPartitions(0),
   m_SatMediumFlaggedPartitions(0), 
   m_SatTightFlaggedPartitions(0),
@@ -22,13 +21,15 @@ LArNoisyROSummary::~LArNoisyROSummary()
 void LArNoisyROSummary::clear()
 {
   m_noisy_febs.clear();
+  m_MNBTight_febs.clear();
+  m_MNBLoose_febs.clear();
   m_noisy_preamps.clear();
   m_BadFEBFlaggedPartitions = 0; 
   m_BadFEB_WFlaggedPartitions = 0;
   m_SatMediumFlaggedPartitions = 0;
   m_SatTightFlaggedPartitions = 0;
-  m_MNBLooseFlaggedPartitions =0;
-  m_MNBTightFlaggedPartitions =0;
+  m_MNBLooseFlaggedPartitions = 0;
+  m_MNBTightFlaggedPartitions = 0;
 }
 
 
@@ -37,10 +38,29 @@ void LArNoisyROSummary::set_noisy_febs(const std::vector<HWIdentifier>& badfebs)
   m_noisy_febs = badfebs;
 }
 
-
 void LArNoisyROSummary::add_noisy_feb(HWIdentifier febid)
 {
   m_noisy_febs.push_back(febid);
+}
+
+void LArNoisyROSummary::set_MNBTight_febs(const std::vector<HWIdentifier>& badfebs)
+{
+  m_MNBTight_febs = badfebs;
+}
+
+void LArNoisyROSummary::add_MNBTight_feb(HWIdentifier febid)
+{
+  m_MNBTight_febs.push_back(febid);
+}
+
+void LArNoisyROSummary::set_MNBLoose_febs(const std::vector<HWIdentifier>& badfebs)
+{
+  m_MNBLoose_febs = badfebs;
+}
+
+void LArNoisyROSummary::add_MNBLoose_feb(HWIdentifier febid)
+{
+  m_MNBLoose_febs.push_back(febid);
 }
 
 void LArNoisyROSummary::set_noisy_preamps(const std::vector< std::pair<HWIdentifier, std::vector<int> > >& badPAs)
@@ -75,6 +95,18 @@ const std::vector<HWIdentifier>& LArNoisyROSummary::get_noisy_febs() const
 {
   return m_noisy_febs;
 }
+
+
+const std::vector<HWIdentifier>& LArNoisyROSummary::get_MNBTight_febs() const
+{
+  return m_MNBTight_febs;
+}
+
+const std::vector<HWIdentifier>& LArNoisyROSummary::get_MNBLoose_febs() const
+{
+  return m_MNBLoose_febs;
+}
+
 
 const std::vector<std::pair<HWIdentifier,std::vector<int> > >& LArNoisyROSummary::get_noisy_preamps() const
 {
