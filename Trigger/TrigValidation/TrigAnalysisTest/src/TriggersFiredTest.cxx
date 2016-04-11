@@ -15,7 +15,9 @@ TriggersFiredTest::TriggersFiredTest(const std::string &name, ISvcLocator *pSvcL
 : AthAlgorithm(name, pSvcLocator),
   m_first_event(true),
   //m_configHandle( "TrigConf::xAODConfigTool/xAODConfigTool"),
-  m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
+  m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
+  passed_l1(0),
+  passed_hlt(0)
 {
     declareProperty("TestList",       m_TestList, "Test list");
 }
