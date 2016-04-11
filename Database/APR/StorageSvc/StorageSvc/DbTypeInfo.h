@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbTypeInfo.h 686341 2015-07-29 15:46:05Z mnowak $
+// $Id: DbTypeInfo.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbTypeInfo definition
 //--------------------------------------------------------------------
@@ -70,7 +70,9 @@ namespace pool  {
 
     /// Load type information object from string representation
     DbStatus i_fromString(const std::string& string_rep);
-
+    /// try to add a new shape
+    static DbTypeInfo* regShape(const Guid& guid, const TypeH type, Columns& cols);
+   
   public:
     /// Destroy type information; to be used with extreme care
     void destroy() {  delete this; }
@@ -108,7 +110,7 @@ namespace pool  {
     /// Create string representation of the type information object
     const std::string toString() const;
     /// Allow usage of base classes
-    DbStatus declareBase(const DbTypeInfo* pInfo);
+    DbStatus declareBase(const DbTypeInfo* pInfo); 
   };
 }      // End namespace pool
 #endif // POOL_DBTYPEINFO_H

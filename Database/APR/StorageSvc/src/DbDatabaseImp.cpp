@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbDatabaseImp.cpp 458019 2011-09-09 10:11:57Z mnowak $
+// $Id: DbDatabaseImp.cpp 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //
 //  Package    : StorageSvc (The POOL project)

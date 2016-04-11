@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbOption.h 622329 2014-10-17 14:06:49Z ssnyder $
+// $Id: DbOption.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbOption class definitions
 //--------------------------------------------------------------------

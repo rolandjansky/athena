@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IOODatabase.h 596902 2014-05-13 19:38:13Z gemmeren $
+// $Id: IOODatabase.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  IOODatabase interface definition
 //--------------------------------------------------------------------
@@ -33,7 +33,6 @@ namespace pool    {
   class IDbDomain;
   class IDbDatabase;
   class IDbContainer;
-  class IClassLoader;
 
   /** @class IOODatabase interface definition.
     *
@@ -77,10 +76,6 @@ namespace pool    {
     virtual DbStatus  initialize(const std::string& nam) = 0;
     /// Initialize the Database
     virtual DbStatus  finalize (void) = 0;
-    /// Set the class loader
-    virtual void setClassLoader(IClassLoader* cat) = 0;
-    /// Allow access to the class loader
-    virtual IClassLoader* classLoader() const = 0;
     /// Access to technology type
     virtual const DbType& type () const = 0;
     /// Name of the Database implementation

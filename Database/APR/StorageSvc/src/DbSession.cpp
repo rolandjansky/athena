@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbSession.cpp 575796 2013-12-16 22:01:01Z gemmeren $
+// $Id: DbSession.cpp 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbSessionObj handle implementation
 //--------------------------------------------------------------------

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbColumn.cpp 590734 2014-04-01 21:49:36Z gemmeren $
+// $Id: DbColumn.cpp 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  Implementation file of a Database column
 //--------------------------------------------------------------------
@@ -100,19 +100,19 @@ DbStatus DbColumn::fromString( const string& string_rep)  {
           nread += 1;
           break;
         case 2:
-          nread += ::sscanf(pp1, "%d", &m_type);
+          nread += ::sscanf(pp1, "%99d", &m_type);
           break;
         case 3:
-          nread += ::sscanf(pp1, "%d", &m_opts);
+          nread += ::sscanf(pp1, "%99d", &m_opts);
           break;
         case 4:
-          nread += ::sscanf(pp1, "%d", &m_offset);
+          nread += ::sscanf(pp1, "%99d", &m_offset);
           break;
         case 5:
-          nread += ::sscanf(pp1, "%d", &m_size);
+          nread += ::sscanf(pp1, "%99d", &m_size);
           break;
         case 6:
-          nread += ::sscanf(pp1, "%d", &m_nElem);
+          nread += ::sscanf(pp1, "%99d", &m_nElem);
           break;
         default:
           break;

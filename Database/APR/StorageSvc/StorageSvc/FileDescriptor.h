@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: FileDescriptor.h 556727 2013-08-02 16:37:31Z gemmeren $
+// $Id: FileDescriptor.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  Storage service file descriptor class definitions
 //--------------------------------------------------------------------

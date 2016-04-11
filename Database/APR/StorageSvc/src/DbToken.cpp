@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbToken.cpp 556727 2013-08-02 16:37:31Z gemmeren $
+// $Id: DbToken.cpp 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  Implementation file of a DbToken class
 //--------------------------------------------------------------------

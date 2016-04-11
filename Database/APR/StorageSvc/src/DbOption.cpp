@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbOption.cpp 633388 2014-12-03 15:49:39Z gemmeren $
+// $Id: DbOption.cpp 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  Implementation file of a Database options
 //--------------------------------------------------------------------
