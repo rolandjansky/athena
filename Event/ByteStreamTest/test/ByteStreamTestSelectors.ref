@@ -1,5 +1,5 @@
-EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-01-34-19
-ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-01-34-19
+EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-01-34-33
+ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-01-34-33
 EventSelector        INFO reinitialization...
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 EventSelector       DEBUG Calling EventSelectorByteStream::start()
@@ -12,13 +12,12 @@ ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
 ByteStreamInputSvc  DEBUG Event Size 2435536
 ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
 ByteStreamInputSvc  DEBUG Format version 400
-ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x5a60000
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0xea28000
 ByteStreamInputSvc  DEBUG ByteStream File GUID:02DE9A68-F08E-E111-AA32-003048F0E846
 ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 232
-EventSelector.x...  DEBUG EventInfoSelectorTool::postNext
 EventSelector.E...   INFO EvenEventsSelectorTool::postNext
 EventSelector.E...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid,   locked,  reset) --- data:  0x5025c50 --- key: ByteStreamEventInfo
+ flags: (  valid,   locked,  reset) --- data:          0 --- key: ByteStreamEventInfo
 EventSelector.E...   INFO Found attribute list
 EventSelector.E...   INFO Spec element RunNumber (long) : 183003
 EventSelector.E...   INFO Spec element EventNumber (long) : 82201
@@ -160,13 +159,12 @@ ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
 ByteStreamInputSvc  DEBUG Event Size 2975576
 ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
 ByteStreamInputSvc  DEBUG Format version 400
-ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x6724000
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0xe7d4000
 ByteStreamInputSvc  DEBUG ByteStream File GUID:02DE9A68-F08E-E111-AA32-003048F0E846
 ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 2435784
-EventSelector.x...  DEBUG EventInfoSelectorTool::postNext
 EventSelector.E...   INFO EvenEventsSelectorTool::postNext
 EventSelector.E...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid,   locked,  reset) --- data:  0x5025c50 --- key: ByteStreamEventInfo
+ flags: (  valid,   locked,  reset) --- data:          0 --- key: ByteStreamEventInfo
 EventSelector.E...   INFO Found attribute list
 EventSelector.E...   INFO Spec element RunNumber (long) : 183003
 EventSelector.E...   INFO Spec element EventNumber (long) : 82202
@@ -316,4 +314,3 @@ EventSelector       DEBUG Event source found no more valid files left in input l
 EventSelector       DEBUG Calling EventSelectorByteStream::stop()
 ByteStreamInputSvc  DEBUG Calling ByteStreamInputSvc::stop()
 EventSelector.E...  DEBUG Calling destructor
-EventSelector.x...  DEBUG Calling destructor

@@ -1,5 +1,5 @@
-EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-01-34-19
-ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-01-34-19
+EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-01-34-33
+ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-01-34-33
 EventSelector        INFO reinitialization...
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 EventSelector       DEBUG Calling EventSelectorByteStream::start()
@@ -12,7 +12,7 @@ ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
 ByteStreamInputSvc  DEBUG Event Size 2435536
 ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
 ByteStreamInputSvc  DEBUG Format version 400
-ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x7030000
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0xf4d0000
 ByteStreamInputSvc  DEBUG ByteStream File GUID:02DE9A68-F08E-E111-AA32-003048F0E846
 ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 232
 EventSelector       DEBUG Skipping event 0
@@ -20,13 +20,10 @@ ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
 ByteStreamInputSvc  DEBUG Event Size 2975576
 ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
 ByteStreamInputSvc  DEBUG Format version 400
-ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x6ddc000
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0xf27c000
 ByteStreamInputSvc  DEBUG ByteStream File GUID:02DE9A68-F08E-E111-AA32-003048F0E846
 ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 2435784
-StoreGateSvc      WARNING recordAddress: preexisting proxy @0x6db02a0 with non-NULL IOA found for key ByteStreamEventInfo type EventInfo (2101). 
-EventSelector.x...  DEBUG EventInfoSelectorTool::postNext
 EventSelector        INFO End of input file list reached
 EventSelector       DEBUG Event source found no more valid files left in input list
 EventSelector       DEBUG Calling EventSelectorByteStream::stop()
 ByteStreamInputSvc  DEBUG Calling ByteStreamInputSvc::stop()
-EventSelector.x...  DEBUG Calling destructor
