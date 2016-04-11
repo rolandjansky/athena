@@ -60,7 +60,7 @@ SgStressConsumer::~SgStressConsumer()
 StatusCode SgStressConsumer::initialize()
 {
   // configure our MsgStream
-  msg().setLevel( outputLevel() );
+  msg().setLevel( msgLevel() );
 
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
 

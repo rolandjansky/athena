@@ -22,7 +22,7 @@
 // Forward declaration
 template<class Data>
 class DataPool;
-namespace SgTests { class PayLoad; }
+namespace SgTests { struct PayLoad; }
 
 class SgStressProducer : public AthAlgorithm
 { 
@@ -85,9 +85,6 @@ class SgStressProducer : public AthAlgorithm
 
   /// switch to use or not an arena (memory pool) to allocate payload
   bool m_useDataPool;
-
-  /// A pool of objects for efficient memory allocation
-  DataPool<SgTests::PayLoad>* m_pool;
 }; 
 
 // I/O operators

@@ -36,8 +36,7 @@ typedef DataPool<SgTests::PayLoad> PayLoadPool_t;
 ////////////////
 SgStressProducer::SgStressProducer( const std::string& name, 
 			      ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm( name, pSvcLocator ),
-  m_pool       ( 0 )
+  AthAlgorithm( name, pSvcLocator )
 {
   //
   // Property declaration
@@ -67,7 +66,6 @@ SgStressProducer::SgStressProducer( const std::string& name,
 SgStressProducer::~SgStressProducer()
 { 
   ATH_MSG_DEBUG ( "Calling destructor" );
-  delete m_pool;
 }
 
 // Athena Algorithm's Hooks
@@ -75,14 +73,9 @@ SgStressProducer::~SgStressProducer()
 StatusCode SgStressProducer::initialize()
 {
   // configure our MsgStream
-  msg().setLevel( outputLevel() );
+  msg().setLevel( msgLevel() );
 
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
-
-  if ( m_useDataPool ) {
-    delete m_pool; m_pool = new PayLoadPool_t;
-    m_pool->reserve( m_nObjs );
-  }
   return StatusCode::SUCCESS;
 }
 
@@ -127,10 +120,11 @@ StatusCode SgStressProducer::execute()
 StatusCode SgStressProducer::createData()
 {
   bool allGood = true;
+  PayLoadPool_t pool;
   if ( m_useDataPool ) {
     /// free all memory in the pool.
-    m_pool->erase();
-//     m_pool->reserve(m_nObjs);
+    pool.erase();
+    pool.reserve (m_nObjs);
   }
 
   for ( std::size_t iObj = 0; iObj != m_nObjs; ++iObj ) {
@@ -141,7 +135,7 @@ StatusCode SgStressProducer::createData()
 
     if ( m_useDataPool ) {
       dv->clear( SG::VIEW_ELEMENTS );
-      data = m_pool->nextElementPtr();
+      data = pool.nextElementPtr();
     } else {
       dv->clear( SG::OWN_ELEMENTS );
       data = new SgTests::PayLoad;
