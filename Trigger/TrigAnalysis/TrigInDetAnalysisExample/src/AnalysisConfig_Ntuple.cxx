@@ -759,7 +759,7 @@ void AnalysisConfig_Ntuple::loop() {
 	int Noff  = 0;
 	int Nmu   = 0;
 	int Nel   = 0;
-	int Ntau  = 0;
+	int Ntau1  = 0;
 	int Ntau3 = 0;
 
 
@@ -882,6 +882,9 @@ void AnalysisConfig_Ntuple::loop() {
 	  ///        so presumbably only ever *one* of the m_doElectrons can be set, otherwise 
 	  ///        something is messed up here
 	  ///        get electrons
+	  //
+	  //  CK: Maybe just add a check that you don't have more than one m_doElectrons as
+	  //      as true, and throw an error if there is more than one as true?
 	  if ( ElectronTypes[ielec] ) {   
 	    Nel = processElectrons( selectorRef, ielec ); ///
 	    m_event->addChain( ElectronRef[ielec] );
@@ -927,52 +930,77 @@ void AnalysisConfig_Ntuple::loop() {
 	  m_provider->msg(MSG::DEBUG) << "ref muon tracks.size() " << selectorRef.tracks().size() << endreq; 
 	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << "  ref muon track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
 	}
+	
+	/// get one prong taus
+	std::string TauRef_1Prong[4] =  { 
+	  "Taus_1Prong", 
+	  "Taus_Tight_1Prong", "Taus_Medium_1Prong", "Taus_Loose_1Prong" };
+ 
+	bool TauTypes_1Prong[4] = { 
+	  m_doTaus_1Prong, 
+	  m_doTaus_tight_1Prong,   m_doTaus_medium_1Prong,   m_doTaus_loose_1Prong };
 
-
-	/// get one prong taus 
-	if ( m_doTaus ) {
-	  Ntau = processTaus( selectorRef,false);
-	  m_event->addChain( "Taus" );
-	  m_event->back().addRoi(TIDARoiDescriptor(true));
-	  m_event->back().back().addTracks(selectorRef.tracks());
-	  if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
+	for ( int itau=0 ; itau<4 ; itau++ ) {
+	  // CK: See comments for doElectrons section above for possible issues with the looping
+	  //     functionality here
+	  if ( TauTypes_1Prong[itau] ) {
+	    Ntau1 = processTaus( selectorRef,false, 20000, itau  );
+	    m_event->addChain( TauRef_1Prong[itau] );
+	    m_event->back().addRoi(TIDARoiDescriptor(true));
+	    m_event->back().back().addTracks(selectorRef.tracks());
+	    if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
               std::vector<double> _beamline;
 	      _beamline.push_back( selectorRef.getBeamX() );
 	      _beamline.push_back( selectorRef.getBeamY() );
 	      _beamline.push_back( selectorRef.getBeamZ() );
 	      m_event->back().back().addUserData(_beamline);
+	    }
+	    else { 	  
+	      m_event->back().back().addUserData(beamline);
+	    }
 	  }
-	  else { 	  
-	       m_event->back().back().addUserData(beamline);
-	  }
-
-
-	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << "  one prong ref tau track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
 	}
+	    
 
-	//so three prong taus
-	if ( m_doTauThreeProng ) { 
-	  Ntau3 = processTaus( selectorRef, true);
- 	  m_event->addChain( "Taus3" );
-	  m_event->back().addRoi(TIDARoiDescriptor(true));
-	  m_event->back().back().addTracks(selectorRef.tracks());
-	  if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
+	// for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << "  one prong ref tau track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
+	//}
+
+        /// get three prong taus
+	std::string TauRef_3Prong[4] =  { 
+	  "Taus_3Prong", 
+	  "Taus_Tight_3Prong", "Taus_Medium_3Prong", "Taus_Loose_3Prong" };
+ 
+	bool TauTypes_3Prong[4] = { 
+	  m_doTaus_3Prong, 
+	  m_doTaus_tight_3Prong,   m_doTaus_medium_3Prong,   m_doTaus_loose_3Prong };
+
+	for ( int itau=0 ; itau<4 ; itau++ ) {
+	  // See comments for doElectrons section above for possible issues with the looping
+	  // funcitonality here
+	  if ( TauTypes_3Prong[itau] ) {
+	    Ntau3 = processTaus( selectorRef, true, 20000, itau);
+	    m_event->addChain( TauRef_3Prong[itau] );
+	    m_event->back().addRoi(TIDARoiDescriptor(true));
+	    m_event->back().back().addTracks(selectorRef.tracks());
+	    if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
 	      std::vector<double> _beamline;
 	      _beamline.push_back( selectorRef.getBeamX() );
 	      _beamline.push_back( selectorRef.getBeamY() );
 	      _beamline.push_back( selectorRef.getBeamZ() );
 	      m_event->back().back().addUserData(_beamline);
-	  }
-	  else { 	  
+	    }
+	    else { 	  
 	      m_event->back().back().addUserData(beamline);
+	    }
 	  }
+	}
+	    
+	//  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << " 3 prong ref tau track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
+	//    	}	  
 
-    	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << " 3 prong ref tau track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
-    	}	  
 
 
-
-	if ( Nmu==0 && Noff==0 && Nel==0 && Ntau==0 && Ntau3==0 ) { 
+	if ( Nmu==0 && Noff==0 && Nel==0 && Ntau1==0 && Ntau3==0 ) { 
 	  m_provider->msg(MSG::INFO) << "No offline objects found " << endreq;
 	}
 
