@@ -133,29 +133,33 @@ StatusCode EnergyCMX::execute( )
   /** Find restructed eta range.
    *  This will use the min/max values for any threshold in the range 9-16 to define the ranges
    */
-  float etaTrunc =  4.9;
+  float etaTruncXE =  4.9;
+  float etaTruncTE =  4.9;
   
   L1DataDef def;
   std::vector<TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
   std::vector<TriggerThreshold*>::const_iterator it;
   
   for (it = thresholds.begin(); it != thresholds.end(); ++it) {
-    if ( (*it)->type() == def.xeType() || (*it)->type() == def.teType() ) {
-      //if ( (*it)->thresholdNumber() > 8 ) {
-	std::vector<TriggerThresholdValue*> ttvs = (*it)->thresholdValueVector();
-	std::vector<TriggerThresholdValue*>::const_iterator itv;
-	for (itv = ttvs.begin(); itv != ttvs.end(); ++itv) {
-	  if ( abs((*itv)->etamin())*0.1 < etaTrunc ) etaTrunc = abs((*itv)->etamin())*0.1;
-	  if ( abs((*itv)->etamax())*0.1 < etaTrunc ) etaTrunc = abs((*itv)->etamax())*0.1;
-	}
-      //}
-    }
-  }
-  
+    if ( ( (*it)->type() == def.xeType() || (*it)->type() == def.teType()) && (*it)->thresholdNumber() > 7 ) {
+      std::vector<TriggerThresholdValue*> ttvs = (*it)->thresholdValueVector();
+      std::vector<TriggerThresholdValue*>::const_iterator itv;
+      for (itv = ttvs.begin(); itv != ttvs.end(); ++itv) {
+        if ( (*it)->type() == def.xeType() ) {
+          if ( abs((*itv)->etamin())*0.1 < etaTruncXE ) etaTruncXE = abs((*itv)->etamin())*0.1;
+          if ( abs((*itv)->etamax())*0.1 < etaTruncXE ) etaTruncXE = abs((*itv)->etamax())*0.1;
+        }
+        else if ( (*it)->type() == def.teType() ) {
+          if ( abs((*itv)->etamin())*0.1 < etaTruncTE ) etaTruncTE = abs((*itv)->etamin())*0.1;
+          if ( abs((*itv)->etamax())*0.1 < etaTruncTE ) etaTruncTE = abs((*itv)->etamax())*0.1;
+        }
+      }  // loop over TTV
+    } // Is this XE or TE threshold?
+  }  // Loop over thresholds
   
   // form crate sums (restricted eta range). Explicitly set restricted eta flag regardless of eta range
   DataVector<CrateEnergy>* cratesTrunc  = new DataVector<CrateEnergy>;
-  m_EtTool->crateSums(jemContainer, cratesTrunc, etaTrunc, true);
+  m_EtTool->crateSums(jemContainer, cratesTrunc, etaTruncXE, etaTruncTE, true);
   // system summation and threshold tests
   SystemEnergy resultsTrunc = m_EtTool->systemSums(cratesTrunc);
   m_resultsTrunc = &resultsTrunc;
