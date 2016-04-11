@@ -15,6 +15,7 @@
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include <fstream>
 #include <cmath>
+#include <stdexcept> // for std::out_of_range
 // #include "CaloEvent/CaloSampling.h"
 
 // For the Athena-based random numbers.
@@ -1368,7 +1369,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
         int thresh = m_Thresholds[0][0][ieta];
         if (thresh <= 0) thresh = m_thresh[cal];
         for (int iphi = 0; iphi < 64; ++iphi) {
-          double phi = (float(iphi)+0.5)*M_PI/32.;
+          double phi = (float(iphi)+0.5)*(M_PI/32.);
 
           double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
@@ -1381,9 +1382,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 4.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           int pedsub = int(pedsubReal + round);
           L1CaloCoolChannelId idp = channelId(etap, phi, 0);
@@ -1403,9 +1404,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 7.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           pedsub = int(pedsubReal + round);
           L1CaloCoolChannelId idm = channelId(etam, phi, 0);
@@ -1429,7 +1430,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
         int thresh = m_Thresholds[0][0][ieta];
         if (thresh <= 0) thresh = m_thresh[cal];
         for (int iphi = 0; iphi < 64; ++iphi) {
-          double phi = (float(iphi)+0.5)*M_PI/32.;
+          double phi = (float(iphi)+0.5)*(M_PI/32.);
 
           double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
@@ -1443,9 +1444,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 4.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           int pedsub = int(pedsubReal + round);
           L1CaloCoolChannelId idp = channelId(etap, phi, 0);
@@ -1465,9 +1466,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 7.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           pedsub = int(pedsubReal + round);
           L1CaloCoolChannelId idm = channelId(etam, phi, 0);
@@ -1491,7 +1492,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
         int thresh = m_Thresholds[0][1][ieta];
         if (thresh <= 0) thresh = m_thresh[cal];
         for (int iphi = 0; iphi < 32; ++iphi) {
-          double phi = (float(iphi)+0.5)*M_PI/16.;
+          double phi = (float(iphi)+0.5)*(M_PI/16.);
 
           double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
@@ -1504,9 +1505,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 4.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           int pedsub = int(pedsubReal + round);
            L1CaloCoolChannelId idp = channelId(etap, phi, 0);
@@ -1526,9 +1527,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c 7.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           pedsub = int(pedsubReal + round);
           L1CaloCoolChannelId idm = channelId(etam, phi, 0);
@@ -1549,7 +1550,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
       int thresh = m_Thresholds[0][2][ieta];
       if (thresh <= 0) thresh = m_thresh[cal];
       for (int iphi = 0; iphi < 32; ++iphi) {
-          double phi = (float(iphi)+0.5)*M_PI/16.;
+          double phi = (float(iphi)+0.5)*(M_PI/16.);
 
           double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
@@ -1562,9 +1563,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 4.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           int pedsub = int(pedsubReal + round);
            L1CaloCoolChannelId idp = channelId(etap, phi, 0);
@@ -1584,9 +1585,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 7.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           pedsub = int(pedsubReal + round);
           L1CaloCoolChannelId idm = channelId(etam, phi, 0);
@@ -1609,7 +1610,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
         int thresh = m_Thresholds[0][3][ieta];
         if (thresh <= 0) thresh = m_thresh[cal];
         for (int iphi = 0; iphi < 16; ++iphi) {
-          double phi = (float(iphi)+0.5)*M_PI/8.;
+          double phi = (float(iphi)+0.5)*(M_PI/8.);
 
           double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
@@ -1622,9 +1623,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 4.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           int pedsub = int(pedsubReal + round);
            L1CaloCoolChannelId idp = channelId(etap, phi, 0);
@@ -1644,9 +1645,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 7.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           pedsub = int(pedsubReal + round);
           L1CaloCoolChannelId idm = channelId(etam, phi, 0);
@@ -1670,7 +1671,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
         int thresh = m_Thresholds[1][0][ieta];
         if (thresh <= 0) thresh = m_thresh[cal];
         for (int iphi = 0; iphi < 64; ++iphi) {
-          double phi = (float(iphi)+0.5)*M_PI/32.;
+          double phi = (float(iphi)+0.5)*(M_PI/32.);
 
           double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
@@ -1683,9 +1684,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 4.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           int pedsub = int(pedsubReal + round);
            L1CaloCoolChannelId idp = channelId(etap, phi, 1);
@@ -1705,9 +1706,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 7.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           pedsub = int(pedsubReal + round);
           L1CaloCoolChannelId idm = channelId(etam, phi, 1);
@@ -1731,7 +1732,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
         int thresh = m_Thresholds[1][0][ieta];
         if (thresh <= 0) thresh = m_thresh[cal];
         for (int iphi = 0; iphi < 64; ++iphi) {
-          double phi = (float(iphi)+0.5)*M_PI/32.;
+          double phi = (float(iphi)+0.5)*(M_PI/32.);
 
           double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
@@ -1744,9 +1745,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 4.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           int pedsub = int(pedsubReal + round);
            L1CaloCoolChannelId idp = channelId(etap, phi, 1);
@@ -1766,9 +1767,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 7.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           pedsub = int(pedsubReal + round);
           L1CaloCoolChannelId idm = channelId(etam, phi, 1);
@@ -1790,7 +1791,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
         int thresh = m_Thresholds[1][1][ieta];
         if (thresh <= 0) thresh = m_thresh[cal];
         for (int iphi = 0; iphi < 32; ++iphi) {
-          double phi = (float(iphi)+0.5)*M_PI/16.;
+          double phi = (float(iphi)+0.5)*(M_PI/16.);
 
           double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
@@ -1803,9 +1804,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 4.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           int pedsub = int(pedsubReal + round);
           L1CaloCoolChannelId idp = channelId(etap, phi, 1);
@@ -1825,9 +1826,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 7.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           pedsub = int(pedsubReal + round);
           L1CaloCoolChannelId idm = channelId(etam, phi, 1);
@@ -1848,7 +1849,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
       int thresh = m_Thresholds[1][2][ieta];
       if (thresh <= 0) thresh = m_thresh[cal];
       for (int iphi = 0; iphi < 32; ++iphi) {
-          double phi = (float(iphi)+0.5)*M_PI/16.;
+          double phi = (float(iphi)+0.5)*(M_PI/16.);
 
           double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
@@ -1861,9 +1862,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 4.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           int pedsub = int(pedsubReal + round);
           L1CaloCoolChannelId idp = channelId(etap, phi, 1);
@@ -1883,9 +1884,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 7.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           pedsub = int(pedsubReal + round);
           L1CaloCoolChannelId idm = channelId(etam, phi, 1);
@@ -1912,7 +1913,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
         int threshm = m_Thresholds[1][3][ietam];
         if (threshm <= 0) threshm = m_thresh[cal];
         for (int iphi = 0; iphi < 16; ++iphi) {
-          double phi = (float(iphi)+0.5)*M_PI/8.;
+          double phi = (float(iphi)+0.5)*(M_PI/8.);
 
           double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
@@ -1925,9 +1926,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 4.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           int pedsub = int(pedsubReal + round);
           L1CaloCoolChannelId idp = channelId(etap, phi, 1);
@@ -1949,9 +1950,9 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
             if (m_elementFir) pedsubReal = firped/pow(2.,m_nDropElement[iLayer][iElement]);
           }
           else {
-            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope/2.;
+            pedsubReal = firped*calslope/pow(2.,m_nDrop[cal]) - calslope*0.5;
             // p.c. 7.
-            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope/2.;
+            if (m_elementFir) pedsubReal = firped*calslope/pow(2.,m_nDropElement[iLayer][iElement]) - calslope*0.5;
           }
           pedsub = int(pedsubReal + round);
           L1CaloCoolChannelId idm = channelId(etam, phi, 1);
@@ -2227,7 +2228,7 @@ StatusCode LVL1::TriggerTowerMaker::store()
   }
 
   ATH_MSG_VERBOSE( VectorOfTTs->size()<<" TTs have been generated");
-  ATH_CHECK( evtStore()->overwrite(VectorOfTTs, m_outputLocation,true,false,false) );
+  ATH_CHECK( evtStore()->overwrite(VectorOfTTs, m_outputLocation, true) );
   VectorOfTTs=0;
   ATH_MSG_DEBUG ( "Stored TTs in TES at "<< m_outputLocation );
 
@@ -2242,7 +2243,7 @@ StatusCode LVL1::TriggerTowerMaker::store()
                                                     m_ADCContainer->end();
       for (; pos != pose; ++pos) VectorOfFullADCs->push_back(pos->second);
 
-      ATH_CHECK( evtStore()->overwrite(VectorOfFullADCs, m_fullADCLocation,true,false,false) );
+      ATH_CHECK( evtStore()->overwrite(VectorOfFullADCs, m_fullADCLocation, true) );
       ATH_MSG_DEBUG ( "Stored multi-slice ADC digits in TDS, key "
                       << m_fullADCLocation );
     }
@@ -2299,7 +2300,7 @@ void LVL1::TriggerTowerMaker::processCaloCells(const CaloCellContainer * cells)
     double hdScale = calib(temp_eta, Tile);
     
     for (int iphi = 0; iphi < 64; iphi++) {
-      double temp_phi = (iphi + 0.5)*M_PI/32.;
+      double temp_phi = (iphi + 0.5)*(M_PI/32.);
 
       // Get corresponding tower key and coordinates
       unsigned int key = testKey.ttKey(temp_phi,temp_eta);
@@ -2348,7 +2349,7 @@ void LVL1::TriggerTowerMaker::processCaloCells(const CaloCellContainer * cells)
     double hdScale = calib(temp_eta, Tile);
     
     for (int iphi = 0; iphi < 32; iphi++) {
-      double temp_phi = (iphi + 0.5)*M_PI/16.;
+      double temp_phi = (iphi + 0.5)*(M_PI/16.);
 
       // Get corresponding tower key and coordinates
       unsigned int key = testKey.ttKey(temp_phi,temp_eta);
@@ -2398,7 +2399,7 @@ void LVL1::TriggerTowerMaker::processCaloCells(const CaloCellContainer * cells)
     double hdScale = calib(temp_eta, Tile);
     
     for (int iphi = 0; iphi < 16; iphi++) {
-      double temp_phi = (iphi + 0.5)*M_PI/8.;
+      double temp_phi = (iphi + 0.5)*(M_PI/8.);
 
       // Get corresponding tower key and coordinates
       unsigned int key = testKey.ttKey(temp_phi,temp_eta);
@@ -2828,10 +2829,10 @@ void LVL1::TriggerTowerMaker::preProcess()
  
   // Pedestal Correction: Get the BCID number
   const EventInfo* evt;
-  unsigned int m_eventBCID=0;
+  unsigned int eventBCID=0;
   // unsigned int m_eventNumber=0;
   if (StatusCode::SUCCESS == evtStore()->retrieve(evt)){
-    m_eventBCID = evt->event_ID()->bunch_crossing_id();
+    eventBCID = evt->event_ID()->bunch_crossing_id();
     // m_eventNumber = evt->event_ID()->event_number();
   }else{
     ATH_MSG_ERROR(" Unable to retrieve EventInfo from StoreGate ");
@@ -2929,7 +2930,7 @@ void LVL1::TriggerTowerMaker::preProcess()
     m_TTtool->fir(emDigits, m_FIRCoeff[towerType], fir);
     if(m_correctFir && m_elementFir) {
       std::vector<int_least16_t> correction;
-      m_TTtool->pedestalCorrection(fir, firPedEm, element, 0, m_eventBCID,
+      m_TTtool->pedestalCorrection(fir, firPedEm, element, 0, eventBCID,
                                    m_lumiBlockMuTool->actualInteractionsPerCrossing(), correction);
     }
     m_TTtool->dropBits(fir, m_nDrop[towerType], lutIn);
@@ -3010,7 +3011,9 @@ void LVL1::TriggerTowerMaker::preProcess()
       element = m_nElement-element-1;
 
       // silence Coverity ...
-      assert(0 < element && element < 33 && "element out-of-range");
+      if(element < 0 || element > 32) {
+	  throw std::out_of_range("Element out-of-range");
+      }
 
       m_nDrop[towerType] = m_nDropElement[1][element];
       slope = m_slopeElement[1][element];
@@ -3035,7 +3038,7 @@ void LVL1::TriggerTowerMaker::preProcess()
     m_TTtool->fir(hadDigits, m_FIRCoeff[towerType], fir);
     if(m_correctFir && m_elementFir) {
       std::vector<int_least16_t> correction;
-      m_TTtool->pedestalCorrection(fir, firPedHad, element, 1, m_eventBCID,
+      m_TTtool->pedestalCorrection(fir, firPedHad, element, 1, eventBCID,
                                    m_lumiBlockMuTool->actualInteractionsPerCrossing(), correction);
     } else {
     }
@@ -3138,7 +3141,7 @@ void LVL1::TriggerTowerMaker::addNoise()
     double hdScale = calib(temp_eta, Tile);
     
     for (int iphi = 0; iphi < 64; iphi++) {
-      double temp_phi = (iphi + 0.5)*M_PI/32.;
+      double temp_phi = (iphi + 0.5)*(M_PI/32.);
 
       // Get corresponding tower key and coordinates
       unsigned int key = testKey.ttKey(temp_phi,temp_eta);
@@ -3178,7 +3181,7 @@ void LVL1::TriggerTowerMaker::addNoise()
     double hdScale = calib(temp_eta, Tile);
     
     for (int iphi = 0; iphi < 32; iphi++) {
-      double temp_phi = (iphi + 0.5)*M_PI/16.;
+      double temp_phi = (iphi + 0.5)*(M_PI/16.);
 
 // Get corresponding tower key and coordinates
       unsigned int key = testKey.ttKey(temp_phi,temp_eta);
@@ -3219,7 +3222,7 @@ void LVL1::TriggerTowerMaker::addNoise()
     double hdScale = calib(temp_eta, Tile);
     
     for (int iphi = 0; iphi < 16; iphi++) {
-      double temp_phi = (iphi + 0.5)*M_PI/8.;
+      double temp_phi = (iphi + 0.5)*(M_PI/8.);
 
 // Get corresponding tower key and coordinates
       unsigned int key = testKey.ttKey(temp_phi,temp_eta);
@@ -3375,7 +3378,7 @@ double LVL1::TriggerTowerMaker::calib(const double tt_eta, const TowerTypes TTTy
      So, I will do so.
   */
   if (abseta >= 0.0 && abseta < 2.5) {
-    ieta = static_cast<uint>( abseta/0.1 );
+    ieta = static_cast<uint>( abseta*(1./0.1) );
     if ( ieta >= 25) {
       ATH_MSG_WARNING( "calib: calculated index for  eta value: " << abseta
                        << " invalid: " << ieta  );
@@ -3384,7 +3387,7 @@ double LVL1::TriggerTowerMaker::calib(const double tt_eta, const TowerTypes TTTy
     return m_Calib[myInd][0][ieta];
   } else if (abseta >= 2.5 && abseta < 3.1 ) {
     abseta -= 2.5;
-    ieta =  static_cast<uint>( abseta/0.2 );
+    ieta =  static_cast<uint>( abseta*(1./0.2) );
     if (ieta >= 3) {
       ATH_MSG_WARNING( "calib: calculated index for  eta value: " << abseta
                        << " invalid: " << ieta  );
@@ -3395,7 +3398,7 @@ double LVL1::TriggerTowerMaker::calib(const double tt_eta, const TowerTypes TTTy
     return m_Calib[myInd][2][0]; // we have only one TT in this region
   } else if (abseta >= 3.2) {
     abseta -= 3.2;
-    ieta =  static_cast<uint>( abseta/0.425 );
+    ieta =  static_cast<uint>( abseta*(1./0.425) );
     if (ieta >= 4) {
       ATH_MSG_WARNING( "calib: calculated index for  eta value: " << abseta
                        << "invalid: " << ieta  );

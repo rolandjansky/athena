@@ -119,10 +119,6 @@ private: // Private methods
   /** dump the cells belonging to an RoI. */
   void dumpROICells();
   void dumpJEMResults();
-  /** test the ETmiss/ETsum tool */
-  void testEtTool();
-  /** test the Jet trigger tool */
-  void testJetTool();
   /** dump the whole collection of EDM objects */
   void dumpEDM();
   

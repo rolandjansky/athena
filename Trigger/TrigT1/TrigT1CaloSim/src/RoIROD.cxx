@@ -217,7 +217,7 @@ void LVL1::RoIROD::saveSlinkObjects(){
 
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfCPRoIRODs;++i){
 
-    StatusCode sc = evtStore()->overwrite(m_CPRoIROD[i],emTauSlinkLocation[i],true,false,false);
+    StatusCode sc = evtStore()->overwrite(m_CPRoIROD[i],emTauSlinkLocation[i], true);
 
     if (sc.isSuccess() ){
       ATH_MSG_DEBUG("Stored EmTau Slink object at "<< emTauSlinkLocation[i] <<" with "
@@ -231,7 +231,7 @@ void LVL1::RoIROD::saveSlinkObjects(){
   jepSlinkLocation[0]= m_jepSlinkLocation+"0";
   jepSlinkLocation[1]= m_jepSlinkLocation+"1";
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfJEPRoIRODs;++i){
-    StatusCode sc = evtStore()->overwrite(m_jepRoIROD[i],jepSlinkLocation[i],true,false,false);
+    StatusCode sc = evtStore()->overwrite(m_jepRoIROD[i],jepSlinkLocation[i], true);
     if (sc.isSuccess() ){
       ATH_MSG_DEBUG("Stored JetEnergy Slink object at "<< jepSlinkLocation[i] <<" with "
           <<(m_jepRoIROD[i]->size())<<" words");

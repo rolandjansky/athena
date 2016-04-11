@@ -18,6 +18,7 @@ from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Tester
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
+include('TrigT1CaloCalibConditions/L1CaloCalibConditionsMC_jobOptions.py')
 from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker25ns, Run2TriggerTowerMaker50ns
 
 # try to determine wheter running with 25ns/50ns bunchspacing
@@ -81,24 +82,20 @@ if _doPC and _bunchSpacing not in (25,50):
     log.warning('Only 25ns intra train bunch spacing currently supported. Dynamic pedestal correction is disabled!')
     _doPC = False
 
-if _doPC:
-    log.info('Configuring dynamic pedestal correction for %d ns bunch spacing.' % _bunchSpacing)
-    ToolSvc.L1TriggerTowerTool.BaselineCorrection = True
+ToolSvc.L1TriggerTowerTool.BaselineCorrection = True
 
-    from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-    bct = BunchCrossingTool()
-    if not hasattr(ToolSvc, bct.getName()):
-        ToolSvc += bct
-    else:
-        bct = getattr(ToolSvc, bct.getName())
-
-    if not hasattr(ToolSvc, 'L1DynamicPedestalProviderTxt'):
-        ToolSvc += CfgMgr.LVL1__L1DynamicPedestalProviderTxt('L1DynamicPedestalProviderTxt',
-                                                             BunchCrossingTool = bct,
-                                                             InputFileEM_ShortGap='DynamicPedestalCorrection_SG_EM_%dns.txt' % _bunchSpacing,
-                                                             InputFileHAD_ShortGap='DynamicPedestalCorrection_SG_HAD_%dns.txt' % _bunchSpacing,
-                                                             InputFileEM_LongGap='DynamicPedestalCorrection_LG_EM_%dns.txt' % _bunchSpacing,
-                                                             InputFileHAD_LongGap='DynamicPedestalCorrection_LG_HAD_%dns.txt' % _bunchSpacing)
-    ToolSvc.L1TriggerTowerTool.L1DynamicPedestalProvider = ToolSvc.L1DynamicPedestalProviderTxt
+from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+bct = BunchCrossingTool()
+if not hasattr(ToolSvc, bct.getName()):
+    ToolSvc += bct
 else:
-    job.Run2TriggerTowerMaker.BaselineCorrection = False
+    bct = getattr(ToolSvc, bct.getName())
+    
+if not hasattr(ToolSvc, 'L1DynamicPedestalProviderTxt'):
+    ToolSvc += CfgMgr.LVL1__L1DynamicPedestalProviderTxt('L1DynamicPedestalProviderTxt',
+                                                         BunchCrossingTool = bct,
+                                                         InputFileEM_ShortGap='DynamicPedestalCorrection_SG_EM_%dns.txt' % _bunchSpacing,
+                                                         InputFileHAD_ShortGap='DynamicPedestalCorrection_SG_HAD_%dns.txt' % _bunchSpacing,
+                                                         InputFileEM_LongGap='DynamicPedestalCorrection_LG_EM_%dns.txt' % _bunchSpacing,
+                                                         InputFileHAD_LongGap='DynamicPedestalCorrection_LG_HAD_%dns.txt' % _bunchSpacing)
+    ToolSvc.L1TriggerTowerTool.L1DynamicPedestalProvider = ToolSvc.L1DynamicPedestalProviderTxt

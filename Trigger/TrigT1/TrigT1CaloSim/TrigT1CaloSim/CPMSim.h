@@ -102,7 +102,7 @@
  private: // Private attributes
 
    /** CPM Towers (input to algorithm, output to BS simulation) */
-   DataVector<xAOD::CPMTower>* m_cpmTowers;
+   //DataVector<xAOD::CPMTower>* m_cpmTowers;
    
    /** TOB RoIs for RoIB input and DAQ output simulation */
    DataVector<CPMTobRoI>* m_allTOBs;

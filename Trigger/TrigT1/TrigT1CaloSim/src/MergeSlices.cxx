@@ -179,7 +179,7 @@ StatusCode MergeSlices::mergePpm()
   mapIter    = ttMap.begin();
   mapIterEnd = ttMap.end();
   for (; mapIter != mapIterEnd; ++mapIter) ttOut->push_back(mapIter->second);
-  StatusCode sc = evtStore()->overwrite(ttOut, m_triggerTowerLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(ttOut, m_triggerTowerLocation, true);
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Error registering trigger tower collection in TDS"
         );
@@ -214,7 +214,7 @@ StatusCode MergeSlices::mergeCpm()
       CPMTowerCollection::const_iterator pos  = ttCollection->begin();
       CPMTowerCollection::const_iterator pose = ttCollection->end();
       for (; pos != pose; ++pos) {
-        CPMTower* tt = *pos;
+        const CPMTower* tt = *pos;
 	CPMTower* ttOut = 0;
 	unsigned int key = towerKey.ttKey(tt->phi(), tt->eta());
         CPMTowerMap::iterator mPos = towerMap.find(key);
@@ -247,7 +247,7 @@ StatusCode MergeSlices::mergeCpm()
       CPMHitsCollection::const_iterator pos  = hitCollection->begin();
       CPMHitsCollection::const_iterator pose = hitCollection->end();
       for (; pos != pose; ++pos) {
-        CPMHits* hits = *pos;
+        const CPMHits* hits = *pos;
 	CPMHits* hitsOut = 0;
 	int key = hits->crate() * 100 + hits->module();
 	CPMHitsMap::iterator mPos = hitsMap.find(key);
@@ -274,7 +274,7 @@ StatusCode MergeSlices::mergeCpm()
   mapIter    = towerMap.begin();
   mapIterEnd = towerMap.end();
   for (; mapIter != mapIterEnd; ++mapIter) cpmtOut->push_back(mapIter->second);
-  StatusCode sc1 = evtStore()->overwrite(cpmtOut, m_cpmTowerLocation,true,false,false);
+  StatusCode sc1 = evtStore()->overwrite(cpmtOut, m_cpmTowerLocation, true);
   if (sc1.isFailure()) {
     ATH_MSG_ERROR( "Error registering CPM Tower collection in TDS"
         );
@@ -286,7 +286,7 @@ StatusCode MergeSlices::mergeCpm()
   hitIter    = hitsMap.begin();
   hitIterEnd = hitsMap.end();
   for (; hitIter != hitIterEnd; ++hitIter) cpmhOut->push_back(hitIter->second);
-  StatusCode sc2 = evtStore()->overwrite(cpmhOut, m_cpmHitsLocation,true,false,false);
+  StatusCode sc2 = evtStore()->overwrite(cpmhOut, m_cpmHitsLocation, true);
   if (sc2.isFailure()) {
     ATH_MSG_ERROR( "Error registering CPM Hits collection in TDS"
         );
@@ -324,7 +324,7 @@ StatusCode MergeSlices::mergeJem()
       JetElementCollection::const_iterator pos  = jeCollection->begin();
       JetElementCollection::const_iterator pose = jeCollection->end();
       for (; pos != pose; ++pos) {
-        JetElement* je = *pos;
+        const JetElement* je = *pos;
 	JetElement* jeOut = 0;
 	unsigned int key = elementKey.jeKey(je->phi(), je->eta());
         JetElementMap::iterator mPos = elementMap.find(key);
@@ -351,7 +351,7 @@ StatusCode MergeSlices::mergeJem()
       JEMHitsCollection::const_iterator pos  = jhCollection->begin();
       JEMHitsCollection::const_iterator pose = jhCollection->end();
       for (; pos != pose; ++pos) {
-        JEMHits* jh = *pos;
+        const JEMHits* jh = *pos;
 	JEMHits* jhOut = 0;
 	int key = jh->crate() * 100 + jh->module();
 	JEMHitsMap::iterator mPos = hitsMap.find(key);
@@ -378,7 +378,7 @@ StatusCode MergeSlices::mergeJem()
       JEMEtSumsCollection::const_iterator pos  = jsCollection->begin();
       JEMEtSumsCollection::const_iterator pose = jsCollection->end();
       for (; pos != pose; ++pos) {
-        JEMEtSums* js = *pos;
+        const JEMEtSums* js = *pos;
 	JEMEtSums* jsOut = 0;
 	int key = js->crate() * 100 + js->module();
 	JEMEtSumsMap::iterator mPos = sumsMap.find(key);
@@ -409,7 +409,7 @@ StatusCode MergeSlices::mergeJem()
   mapIter    = elementMap.begin();
   mapIterEnd = elementMap.end();
   for (; mapIter != mapIterEnd; ++mapIter) jeteOut->push_back(mapIter->second);
-  StatusCode sc1 = evtStore()->overwrite(jeteOut, m_jetElementLocation,true,false,false);
+  StatusCode sc1 = evtStore()->overwrite(jeteOut, m_jetElementLocation, true);
   if (sc1.isFailure()) {
     ATH_MSG_ERROR( "Error registering Jet Element collection in TDS"
         );
@@ -421,7 +421,7 @@ StatusCode MergeSlices::mergeJem()
   hitIter    = hitsMap.begin();
   hitIterEnd = hitsMap.end();
   for (; hitIter != hitIterEnd; ++hitIter) jemhOut->push_back(hitIter->second);
-  StatusCode sc2 = evtStore()->overwrite(jemhOut, m_jemHitsLocation,true,false,false);
+  StatusCode sc2 = evtStore()->overwrite(jemhOut, m_jemHitsLocation, true);
   if (sc2.isFailure()) {
     ATH_MSG_ERROR( "Error registering JEM Hits collection in TDS"
         );
@@ -433,7 +433,7 @@ StatusCode MergeSlices::mergeJem()
   sumIter    = sumsMap.begin();
   sumIterEnd = sumsMap.end();
   for (; sumIter != sumIterEnd; ++sumIter) jemeOut->push_back(sumIter->second);
-  StatusCode sc3 = evtStore()->overwrite(jemeOut, m_jemEtSumsLocation,true,false,false);
+  StatusCode sc3 = evtStore()->overwrite(jemeOut, m_jemEtSumsLocation, true);
   if (sc3.isFailure()) {
     ATH_MSG_ERROR( "Error registering JEM Et Sums collection in TDS"
         );

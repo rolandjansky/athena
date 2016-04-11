@@ -191,7 +191,7 @@ StatusCode JEMJetSim::execute( )
 void LVL1::JEMJetSim::storeBackplaneTOBs() {
 
   // Store backplane data objects
-  StatusCode sc = evtStore()->overwrite(m_JetCMXData, m_JetCMXDataLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(m_JetCMXData, m_JetCMXDataLocation, true);
 
   if (sc.isSuccess()) {
     ATH_MSG_VERBOSE ( "Stored " << m_JetCMXData->size()
@@ -210,7 +210,7 @@ void LVL1::JEMJetSim::storeBackplaneTOBs() {
 /** place final ROI objects in the TES. */
 void LVL1::JEMJetSim::storeModuleRoIs() {
 
-  StatusCode sc = evtStore()->overwrite(m_allTOBs, m_JEMTobRoILocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(m_allTOBs, m_JEMTobRoILocation, true);
 
   if (sc.isSuccess()) {
     ATH_MSG_VERBOSE ( "Stored " << m_allTOBs->size()

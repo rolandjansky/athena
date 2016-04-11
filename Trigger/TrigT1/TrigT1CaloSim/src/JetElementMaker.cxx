@@ -98,7 +98,7 @@ StatusCode JetElementMaker::execute( )
   else ATH_MSG_WARNING( "No TriggerTowerContainer at " << m_triggerTowerLocation );
   
   // Save JetElements in the TES
-  StatusCode sc = evtStore()->overwrite(vectorOfJEs, m_jetElementLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(vectorOfJEs, m_jetElementLocation, true);
   if (sc.isFailure())
     ATH_MSG_WARNING( "Failed to write JetElements to TES at " << m_jetElementLocation );
 																	 

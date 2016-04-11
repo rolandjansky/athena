@@ -49,12 +49,13 @@ apply_pattern dual_use_library files=*.cxx
 private
 use     AthenaKernel    AthenaKernel-*   Control
 use     AtlasReflex     AtlasReflex-* External -no_auto_imports
-use 	CaloTriggerTool CaloTriggerTool-* Calorimeter
 #use     AtlasROOT       AtlasROOT-*      External
 use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-* Simulation/Tools
+use     CxxUtils        CxxUtils-*       Control
 use     EventInfo       EventInfo-*      Event
 use     LumiBlockComps  LumiBlockComps-* LumiBlock
 use     PathResolver    PathResolver-*   Tools
+use     TrigT1CaloCondSvc TrigT1CaloCondSvc-* Trigger/TrigT1
 use     xAODEventInfo   xAODEventInfo-*  Event/xAOD
 end_private
 

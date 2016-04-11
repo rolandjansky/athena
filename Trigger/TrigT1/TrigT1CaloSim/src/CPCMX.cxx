@@ -312,14 +312,14 @@ StatusCode CPCMX::execute( )
 
 
   // Store output for BS simulation
-  StatusCode sc = evtStore()->overwrite(CMXTobs, m_CMXCPTobLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(CMXTobs, m_CMXCPTobLocation, true);
   if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writeing CMXTobs to StoreGate" );
 
-  sc = evtStore()->overwrite(CMXHits, m_CMXCPHitLocation,true,false,false);
+  sc = evtStore()->overwrite(CMXHits, m_CMXCPHitLocation, true);
   if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writeing CMXHits to StoreGate" );
 
   // Store Topo results
-  sc = evtStore()->overwrite(topoData, m_TopoOutputLocation,true,false,false);
+  sc = evtStore()->overwrite(topoData, m_TopoOutputLocation, true);
   if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writeing CPCMXTopoData object to StoreGate" );
 
   // Store CTP results
@@ -327,7 +327,7 @@ StatusCode CPCMX::execute( )
     m_emTauCTP = new EmTauCTP(0,0,0,0);
     ATH_MSG_WARNING("No EmTauCTP found. Creating empty object" );
   }
-  sc = evtStore()->overwrite(m_emTauCTP, m_CTPOutputLocation,true,false,false);
+  sc = evtStore()->overwrite(m_emTauCTP, m_CTPOutputLocation, true);
   if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writeing EmTauCTP object to StoreGate" );
 
   return StatusCode::SUCCESS ;

@@ -319,7 +319,7 @@ void ReprocessTriggerTowers::preProcess() {
        if ( (m_LUTStrategy == 1 && strategy != m_LUTStrategy) ||
 	    (m_LUTStrategy == 1 && itScale != m_channelScales.end()) ||
 	    (m_LUTStrategy < 0  && strategy == 1 && itScale != m_channelScales.end()) ) {
-	  offsetReal = firPed*slope/pow(2.,startBit)  - slope/2.;
+	  offsetReal = firPed*slope/pow(2.,startBit)  - slope*0.5;
           offset = int(offsetReal + 0.5);
 	  if (offset < 0) offset = 0;
           strategy = m_LUTStrategy;
@@ -405,7 +405,7 @@ void ReprocessTriggerTowers::preProcess() {
        if ( (m_LUTStrategy == 1 && strategy != m_LUTStrategy) ||
 	    (m_LUTStrategy == 1 && itScale != m_channelScales.end()) ||
 	    (m_LUTStrategy < 0  && strategy == 1 && itScale != m_channelScales.end()) ) {
-	  offsetReal = firPed*slope/pow(2.,startBit)  - slope/2.;
+	  offsetReal = firPed*slope/pow(2.,startBit)  - slope*0.5;
           offset = int(offsetReal + 0.5);
 	  if (offset < 0) offset = 0;
           strategy = m_LUTStrategy;
@@ -502,7 +502,7 @@ void ReprocessTriggerTowers::preProcess() {
 /** place final ROI objects in the TES. */
 void LVL1::ReprocessTriggerTowers::store() {
 
-  StatusCode sc = evtStore()->overwrite(m_outputTowers, m_OutputTriggerTowerLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(m_outputTowers, m_OutputTriggerTowerLocation, true);
 
   if (sc.isSuccess()) {
     ATH_MSG_VERBOSE ( "Stored " <<m_outputTowers->size()
