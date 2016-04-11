@@ -1,4 +1,4 @@
-# $Id: ReadInDetRecFragment.py 613144 2014-08-22 21:34:29Z btamadio $
+# $Id: ReadInDetRecFragment.py 714548 2015-12-14 16:30:23Z amorley $
 #
 # Job option fragment for JobRunner templates to setup InDet
 # environment following InDetRecExample/ReadInDet_jobOptions.py
@@ -9,7 +9,7 @@
 #
 # Written by Juerg Beringer in November 2009.
 #
-print "InDetBeamSpotExample INFO Using $Id: ReadInDetRecFragment.py 613144 2014-08-22 21:34:29Z btamadio $"
+print "InDetBeamSpotExample INFO Using $Id: ReadInDetRecFragment.py 714548 2015-12-14 16:30:23Z amorley $"
 
 
 # Default values (please put a default for EACH jobConfig parameter
@@ -20,7 +20,7 @@ if not 'outputfileprefix' in jobConfig:              jobConfig['outputfileprefix
 if not 'outputfile' in jobConfig:                    jobConfig['outputfile'] = jobConfig['outputfileprefix']+'dpd.root'
 if not 'globalmonfile' in jobConfig:                 jobConfig['globalmonfile'] = jobConfig['outputfileprefix']+'globalmonitoring.root'
 if not 'DataSource' in jobConfig:                    jobConfig['DataSource'] = 'data'   # data or geant4
-if not 'DetDescrVersion' in jobConfig:               jobConfig['DetDescrVersion'] = 'ATLAS-CSC-02-00-00'
+if not 'DetDescrVersion' in jobConfig:               jobConfig['DetDescrVersion'] = 'ATLAS-R2-2015-03-01-00'
 if not 'hasMag' in jobConfig:                        jobConfig['hasMag'] = True
 if not 'hasSCT' in jobConfig:                        jobConfig['hasSCT'] = True
 if not 'hasSCTStandby' in jobConfig:                 jobConfig['hasSCTStandby'] = False
@@ -64,6 +64,11 @@ readESD = jobConfig['doPatternRecoAndTracking'] or jobConfig['doPrimaryVertexing
 readAOD = not readESD
 doWriteESD = False and readESD
 doWriteAOD = jobConfig['doPatternRecoAndTracking'] or jobConfig['doPrimaryVertexing'] or jobConfig['doForceWriteDPD']
+
+
+print jobConfig['inputfiles']
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+athenaCommonFlags.FilesInput = jobConfig['inputfiles']
 
 #--------------------------------------------------------------
 # control algorithms to be rerun

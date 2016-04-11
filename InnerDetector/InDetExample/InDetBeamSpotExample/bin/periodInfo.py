@@ -29,11 +29,16 @@ class AMIWrapper:
          "Initalise AMI"
          self.ami=pyAMI.client.Client('atlas')
          #if options.config:
-             #self.configFileName = os.path.expanduser(options.config)
+         #    self.configFileName = os.path.expanduser(options.config)
          #else:
              #sys.exit('No authentication file specified')
          #self.ami.readConfig(self.configFileName)
-         
+         if options.config:
+             self.configFileName = os.path.expanduser(options.config)
+         else:
+             sys.exit('No authentication file specified')
+         print self.configFileName
+         #self.ami=pyAMI.client.Client('atlas',key_file=self.configFileName,ignore_proxy=True,verbose=True)
  
      def run(self, cmd):
          """
@@ -62,6 +67,7 @@ class AMIWrapper:
  
          cmd = 'GetRunsForDataPeriod period='+period
          cmd += ' projectName='+project
+         print cmd
          return self.run(cmd)
  
      def runListsPerPeriod(self, location='/afs/cern.ch/user/a/atlidbs/nt/DataPeriods/'):
@@ -91,12 +97,17 @@ class AMIWrapper:
              print '* Creating run list for %(projectName)s %(period)s ...' % p
  
              num += 1
-             runs = self.runsForPeriod(p['period'], p['projectName'])
+             #if p['period'] == 'A1' and p['projectName'] == 'data15_1beam':
+             #  continue
+             try:
+               runs = self.runsForPeriod(p['period'], p['projectName'])
+             except:
+               continue
              runList = '\n'.join(sorted([r['runNumber'] for r in runs]))
              runList += '\n' # Needed for cat to work!
              print runList
-             #with open(filename, 'w') as f:
-             #    f.write(runList)
+             with open(filename, 'w') as f:
+                 f.write(runList)
  
              print '  ... written to', filename, '\n' 
  

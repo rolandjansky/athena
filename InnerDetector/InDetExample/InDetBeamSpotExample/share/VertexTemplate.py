@@ -1,11 +1,11 @@
-# $Id: VertexTemplate.py 676524 2015-06-18 22:35:05Z mhance $
+# $Id: VertexTemplate.py 714548 2015-12-14 16:30:23Z amorley $
 #
 # Top-level job options file to run the vertex-based beamspot algorithm
 # from AOD files using a JobRunner.
 #
 # Written by Juerg Beringer in July 2008.
 #
-print "InDetBeamSpotExample INFO Using $Id: VertexTemplate.py 676524 2015-06-18 22:35:05Z mhance $"
+print "InDetBeamSpotExample INFO Using $Id: VertexTemplate.py 714548 2015-12-14 16:30:23Z amorley $"
 
 # Default values (please put a default for EACH jobConfig parameter
 # so that the template can be used easily without JobRunner)
@@ -66,15 +66,15 @@ include("InDetBeamSpotExample/AutoConfFragment.py")
 include("InDetBeamSpotExample/ReadInDetRecFragment.py")
 include("InDetBeamSpotExample/JobSetupFragment.py")
 
-# if 'UseBCID' in jobConfig:
-#     import InDetBeamSpotExample.FilterUtils as FilterUtils
-#     FilterUtils.filterSeq += FilterUtils.BCIDFilter(jobConfig['bcidList'])
+if 'UseBCID' in jobConfig and jobConfig['UseBCID'] != []:
+    import InDetBeamSpotExample.FilterUtils as FilterUtils
+    FilterUtils.filterSeq += FilterUtils.BCIDFilter(jobConfig['UseBCID'])
 if 'lbList' in jobConfig:
     import InDetBeamSpotExample.FilterUtils as FilterUtils
     FilterUtils.filterSeq += FilterUtils.LBFilter(jobConfig['lbList'])
-# if 'lbData' in jobConfig:
-#     import InDetBeamSpotExample.FilterUtils as FilterUtils
-#     FilterUtils.filterSeq += FilterUtils.LumiBlockFilter(jobConfig['lbData'])
+if 'lbData' in jobConfig:
+    import InDetBeamSpotExample.FilterUtils as FilterUtils
+    FilterUtils.filterSeq += FilterUtils.LumiBlockFilter(jobConfig['lbData'])
 # if 'zRange' in jobConfig:
 #     import InDetBeamSpotExample.FilterUtils as FilterUtils
 #     FilterUtils.filterSeq += FilterUtils.ZFilter(jobConfig['zRange'])
@@ -132,7 +132,7 @@ topSequence += CfgMgr.InDet__InDetBeamSpotFinder(name                = 'InDetBea
 if jobConfig['UseFilledBCIDsOnly']:
 # Bunch crossing tool to allow selecting on non-empty BCIDs
      from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-     bunchCrossingTool =  BunchCrossingTool()
+     bunchCrossingTool =  BunchCrossingTool("LHC")
      #bunchCrossingTool.FilledBunchNames=[] 
 
      # This tool is throwing tons of warnings for no good reason, make it quieter.

@@ -1,10 +1,10 @@
-# $Id: JobSetupFragment.py 360886 2011-04-21 15:05:50Z gwilliam $
+# $Id: JobSetupFragment.py 714548 2015-12-14 16:30:23Z amorley $
 #
 # Job option fragment for JobRunner templates to do common job setup.
 #
 # Written by Juerg Beringer in November 2009.
 #
-print "InDetBeamSpotExample INFO Using $Id: JobSetupFragment.py 360886 2011-04-21 15:05:50Z gwilliam $"
+print "InDetBeamSpotExample INFO Using $Id: JobSetupFragment.py 714548 2015-12-14 16:30:23Z amorley $"
 
 from AthenaCommon.GlobalFlags import globalflags
 
@@ -112,9 +112,9 @@ if jobConfig['alignmenttrtdxtag']:
     conddb.addFolder('TRT_OFL','/TRT/Calib/DX')
     conddb.addOverride("/TRT/Calib/DX", jobConfig['alignmenttrtdxtag'])
 
-if jobConfig['UseFilledBCIDsOnly']:
-    # Setup trigger config service (needed for Bunch Crossing Tool)
-    from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
-    trigcfg = SetupTrigConfigSvc()
-    trigcfg.SetStates("ds")
-    trigcfg.InitialiseSvc()
+#if jobConfig['UseFilledBCIDsOnly']:
+#    # Setup trigger config service (needed for Bunch Crossing Tool)
+#    from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
+#    trigcfg = SetupTrigConfigSvc()
+#    trigcfg.SetStates("ds")
+#    trigcfg.InitialiseSvc()
