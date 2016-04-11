@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IStorageExplorer.cpp 506608 2012-06-20 19:20:10Z gemmeren $
+// $Id: IStorageExplorer.cpp 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  Package    : StorageSvc (The POOL project)
 //

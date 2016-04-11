@@ -1,5 +1,5 @@
-Element Test::a1 identical:
-Element Test::a2 identical:
+Element Test::a1 identical:1
+Element Test::a2 identical:2
 Element Test::a3 identical:3
 Element Test::a4 identical:4
 Element Test::a5 identical:5
@@ -9,8 +9,8 @@ Element Test::a8 identical:8
 Element Test::a9 identical:9
 Element Test::a10 identical:10
 Element Test::a11 identical:11
-Element Test::v1 identical:     
-Element Test::v2 identical:     
+Element Test::v1 identical:1 1 1 1 1 
+Element Test::v2 identical:2 2 2 2 2 
 Element Test::v3 identical:3 3 3 3 3 
 Element Test::v4 identical:4 4 4 4 4 
 Element Test::v5 identical:5 5 5 5 5 
@@ -20,8 +20,8 @@ Element Test::v8 identical:8 8 8 8 8
 Element Test::v9 identical:9 9 9 9 9 
 Element Test::v10 identical:10 10 10 10 10 
 Element Test::v11 identical:11 11 11 11 11 
-Element Test::l1 identical:     
-Element Test::l2 identical:     
+Element Test::l1 identical:1 1 1 1 1 
+Element Test::l2 identical:2 2 2 2 2 
 Element Test::l3 identical:3 3 3 3 3 
 Element Test::l4 identical:4 4 4 4 4 
 Element Test::l5 identical:5 5 5 5 5 

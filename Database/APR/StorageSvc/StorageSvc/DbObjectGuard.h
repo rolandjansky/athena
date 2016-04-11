@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbObjectGuard.h 593513 2014-04-17 22:34:53Z gemmeren $
+// $Id: DbObjectGuard.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbObjectGuard definition
 //--------------------------------------------------------------------

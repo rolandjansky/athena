@@ -38,15 +38,7 @@
 #include <map>
 
 using namespace std;
-using namespace pool;
 
-namespace STDEXT   {
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-  //template<> struct hash<const TypeH> 
-  //{size_t operator()(const TypeH& s) const{return size_t(s.ToTypeBase());}}; //FIXME
-  //{size_t operator()(const TypeH& s) const{return size_t(s.Dict());}};
-#endif   
-}
 
 namespace pool  {
 
@@ -147,8 +139,8 @@ namespace pool  {
       return true;
     }
   };
-}
 
+   
 /// Standard Constructor.
 DbStorageSvc::DbStorageSvc(void* ctxt, const string& name /* ,int technology */)
 : m_name(name),
@@ -710,3 +702,5 @@ DbStorageSvc::setDomainOption(const SessionH  sessionH, const DbOption& opt)  {
       << "Cannot connect to proper technology domain." << DbPrint::endmsg;
   return Error;
 }
+
+} // namespace pool

@@ -3,7 +3,7 @@
 */
 
 
-// $Id: DbTypeInfo.cpp 678597 2015-06-26 12:55:50Z mnowak $
+// $Id: DbTypeInfo.cpp 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbTypeInfo implementation
 //--------------------------------------------------------------------
@@ -31,163 +31,12 @@
 #include <cstdio>
 #include <vector>
 
-#if !defined(WIN32)
 #include "cxxabi.h"
-#endif
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-#include "Reflex/Builder/ReflexBuilder.h" 
-
-typedef const std::vector<void*>& _Args;
-
-template <class T> static void ctor(void* ret, void* m, _Args, void*)
-{  if(ret)*(void**)ret = ::new(m) T(); else ::new(m) T();     }
-template <class T> static void dtor(void*, void* m, _Args, void*)  
-{  ((T*)m)->~T();                                             }
-#if 0
-static void Token_db(void* ret, void* m, _Args, void*)
-{  if(ret) *(new(ret) Guid()) = ((Token*)m)->dbID();          }
-static void Token_cont(void* ret, void* m, _Args, void*)
-{  if(ret) *(new(ret) std::string) = ((Token*)m)->contID();   }
-static void Token_technology(void* ret, void* m, _Args, void*)
-{  if(ret) *(new(ret) (int)) = ((Token*)m)->technology();     }
-static void Token_classID(void* ret, void* m, _Args, void*)
-{  if(ret) *(new(ret) Guid()) = ((Token*)m)->classID();       }
-static void Token_setDb(void* m, void*, _Args a, void*)
-{  ((Token*)m)->setDb(*(Guid*)a[0]);                          }
-static void Token_setCont(void* m, void*, _Args a, void*)
-{  ((Token*)m)->setCont(*(std::string*)a[0]);                 }
-static void Token_setTechnology(void* m, void*, _Args a, void*)
-{  ((Token*)m)->setTechnology(*(int*)a[0]);                   }
-static void Token_setClassID(void* m, void*, _Args a, void*)
-{  ((Token*)m)->setClassID(*(Guid*)a[0]);                     }
-#endif
-
-#if 0
-template <class T, class Q> void __initdbarraydictionary(T*, Q*, const std::string& typ, const std::string& clid) {
-  TypeH type_void = TypeBuilder("void");
-  TypeH ptr_type  = TypeDistiller<T*>::Get();
-  ClassBuilderT<Q > b;
-  b.AddProperty("ClassID", clid);
-  b.AddFunctionMember(FunctionTypeBuilder(type_void), typ.c_str(),  ctor<Q >, 0, 0, PUBLIC | CONSTRUCTOR );
-  b.AddFunctionMember(FunctionTypeBuilder(type_void), std::string("~"+typ).c_str(), dtor<Q >, 0, 0, PUBLIC | DESTRUCTOR | VIRTUAL );
-  b.AddDataMember(TypeDistiller<int>::Get(), "m_size", size_t(((char*)&((Q*)64)->m_size)-64), PUBLIC);
-  b.AddDataMember(ptr_type, "m_buffer", size_t(((char*)&((Q*)64)->m_buffer)-64), PUBLIC);
-  TypeH t = TypeH::ByTypeInfo(typeid(Q));
-  t.DataMemberByName("m_size").Properties().AddProperty(  "comment", "Blob size specifier");
-  t.DataMemberByName("m_buffer").Properties().AddProperty("comment", "[m_size]");
-  //RootType rtype(typ); rtype.AddProperty("id", clid.c_str());  
-}
-
-#define __INITDBARRAYDICTIONARY(inside, wrapper, clid)   __initdbarraydictionary((inside*)0, (wrapper*)0, #wrapper, clid);
-#endif
-
-POOL_BEGIN_STATIC_BLOCK(DbTypeInfo)
-  using namespace pool;
-  // Dictionary declaration for Token base class
-  Reflex::ClassBuilderT<Token >()
-    .AddProperty("ClassID", "E013D4B1-CA9C-4E3C-9BE2-8691BBAFCB9A")
-    .AddFunctionMember<void(void)>("Token",  ctor<Token>, 0, 0, Reflex::PUBLIC | Reflex::CONSTRUCTOR )
-    .AddFunctionMember<void(void)>("~Token", dtor<Token>, 0, 0, Reflex::PUBLIC | Reflex::DESTRUCTOR | Reflex::VIRTUAL );
-#if 0
-    .AddFunctionMember<const std::string&(void)>("db",    Token_db, 0, 0, PUBLIC )
-    .AddFunctionMember<void(const std::string&)>("setDb", Token_setDb, 0, 0, PUBLIC )
-    .AddFunctionMember<const std::string&(void)>("contID",  Token_cont, 0, 0, PUBLIC )
-    .AddFunctionMember<void(const std::string&)>("setCont", Token_setCont, 0, 0, PUBLIC )
-    .AddFunctionMember<int(void)>("technology", Token_technology, 0, 0, PUBLIC )
-    .AddFunctionMember<void(int)>("setTechnology", Token_setTechnology, 0, 0, PUBLIC )
-    .AddFunctionMember<const Guid&(void)>("classID", Token_classID, 0, 0, PUBLIC )
-    .AddFunctionMember<void(const Guid&)>("setClassID", Token_setClassID, 0, 0, PUBLIC );
-#endif
-     //RootType rtypeToken("Token"); rtypeToken.AddProperty("id", "E013D4B1-CA9C-4E3C-9BE2-8691BBAFCB9A");
-
-#if 0
-  // Dictionary declaration for DbToken class
-  ClassBuilderT<pool::DbToken >()
-    .AddProperty("ClassID", "B30D24AA-1F1D-4EE0-A9B6-C10405D65854")
-    .AddBase<Token>()
-    .AddFunctionMember<void(void)>("DbToken",  ctor<DbToken>, 0, 0, PUBLIC | CONSTRUCTOR )
-    .AddFunctionMember<void(void)>("~DbToken", dtor<DbToken>, 0, 0, PUBLIC | DESTRUCTOR | VIRTUAL );
-#endif
-    //RootType rtypeDbToken("pool::DbToken"); rtypeDbToken.AddProperty("id", "B30D24AA-1F1D-4EE0-A9B6-C10405D65854");
-
-#if 0
-  // Dictionary declaration for external link class
-  ClassBuilderT<Token::OID_t >()
-    .AddProperty("ClassID", "9E944D67-6C88-47E2-9834-FCCDA9020F29")
-    .AddFunctionMember<void(void)>("OID_t ",  ctor<Token::OID_t>, 0, 0, PUBLIC | CONSTRUCTOR )
-    .AddFunctionMember<void(void)>("~OID_t ", dtor<Token::OID_t>, 0, 0, PUBLIC | DESTRUCTOR );
-#endif
-     //RootType rtypeOID("Token::OID_t"); rtypeOID.AddProperty("id", "9E944D67-6C88-47E2-9834-FCCDA9020F29");
-
-  // Dictionary declaration for internal Database strings
-  TypeH type_void = Reflex::FunctionDistiller<void(void)>::Get();
-  TypeH rtypePoolString = TypeH::ByName("pool::DbString");
-  rtypePoolString.Properties().AddProperty("id", "DA8F479C-09BC-49D4-94BC-99D025A23A3B");
-  rtypePoolString.AddFunctionMember("DbString", type_void, ctor<DbString>, 0, 0, Reflex::PUBLIC | Reflex::CONSTRUCTOR );
-  rtypePoolString.AddFunctionMember("~DbString", type_void, dtor<DbString>, 0, 0, Reflex::PUBLIC | Reflex::CONSTRUCTOR  | Reflex::VIRTUAL);
-  Reflex::ClassBuilderT<pool::DbString >()
-#if 0
-    .AddProperty("ClassID", "DA8F479C-09BC-49D4-94BC-99D025A23A3B")
-#endif
-    .AddFunctionMember<void(void)>("DbString",  ctor<DbString>, 0, 0, Reflex::PUBLIC | Reflex::CONSTRUCTOR )
-    .AddFunctionMember<void(void)>("~DbString", dtor<DbString>, 0, 0, Reflex::PUBLIC | Reflex::DESTRUCTOR | Reflex::VIRTUAL );
-
-#if 0
-  __INITDBARRAYDICTIONARY(char,          CharDbArray,  "42A3E929-5016-4D97-932A-15D21E2D17A9");
-  __INITDBARRAYDICTIONARY(unsigned char, UCharDbArray, "B798D007-C1B2-41AD-8BEC-ABC6F0E342E8");
-  __INITDBARRAYDICTIONARY(short,         ShortDbArray, "35A281C2-8A14-430A-BEDC-FC8CA5C88B4B");
-  __INITDBARRAYDICTIONARY(unsigned short,UShortDbArray,"A26688E9-C6A2-4F31-B954-F7B992A3C638");
-  __INITDBARRAYDICTIONARY(int,           IntDbArray,   "2C02D4FD-3AC8-4241-A6A2-63CD2C86478C");
-  __INITDBARRAYDICTIONARY(unsigned int,  UIntDbArray,  "F297366F-A876-4FCE-9AC3-D4BEDAEAFAE8");
-  __INITDBARRAYDICTIONARY(long,          LongDbArray,  "1601B72A-87FE-45CF-B128-FE577C0A438C");
-  __INITDBARRAYDICTIONARY(unsigned long, ULongDbArray, "B228247A-AFEE-449E-BD6D-3A1C43555662");
-  __INITDBARRAYDICTIONARY(float,         FloatDbArray, "EC636D76-EE64-431A-A046-BEE7A3B73456");
-  __INITDBARRAYDICTIONARY(double,        DoubleDbArray,"DF9DDD4F-CBFC-4b75-8A46-FF0A64DD0B2F");
-#endif
-POOL_END_STATIC_BLOCK(DbTypeInfo)
-
-#endif
 
 static const std::string __typeinfoName( const std::type_info& tinfo) {
   const char* class_name = tinfo.name();
   std::string result;
-#ifdef WIN32
-  size_t off = 0;
-  if ( ::strncmp(class_name, "class ", 6) == 0 )   {
-    // The returned name is prefixed with "class "
-    off = 6;
-  }
-  if ( ::strncmp(class_name, "struct ", 7) == 0 )   {
-    // The returned name is prefixed with "struct "
-    off = 7;
-  }
-  if ( off != std::string::npos )    {
-    std::string tmp = class_name + off;
-    size_t loc = 0;
-    while( (loc = tmp.find("class ")) != std::string::npos )  {
-      tmp.erase(loc, 6);
-    }
-    loc = 0;
-    while( (loc = tmp.find("struct ")) != std::string::npos )  {
-      tmp.erase(loc, 7);
-    }
-    result = tmp;
-  }
-  else  {
-    result = class_name;
-  }
-  // Change any " *" to "*"
-  while ( (off=result.find(" *")) != std::string::npos )    {
-    result.replace(off, 2, "*");
-  }
-  // Change any " &" to "&"
-  while ( (off=result.find(" &")) != std::string::npos )    {
-    result.replace(off, 2, "&");
-  }
-#elif defined(sun)
-  result = class_name;
-#else
   if ( ::strlen(class_name) == 1 ) {
     // See http://www.realitydiluted.com/mirrors/reality.sgi.com/dehnert_engr/cxx/abi.pdf
     // for details
@@ -260,7 +109,6 @@ static const std::string __typeinfoName( const std::type_info& tinfo) {
     int    status = 0;
     result = __cxxabiv1::__cxa_demangle(class_name, buff, &len, &status);
   }
-#endif
   return result;
 }
 
@@ -269,9 +117,6 @@ namespace pool  {
    const std::string typeName(const std::type_info& typ) {
     return __typeinfoName(typ);
   }
-//  static void delete_DbTypeInfo(void* p) {
-//    if ( p ) ((pool::DbTypeInfo*)p)->destroy();
-//  }
    
   void clearColumns(DbTypeInfo::Columns& cols)  {
     if ( cols.empty() ) return;
@@ -347,8 +192,8 @@ DbTypeInfo::~DbTypeInfo()    {
 }
 
 /// Access to reflection class (if availible)
-TypeH DbTypeInfo::clazz()  const  {
-  if ( m_class )  {
+TypeH DbTypeInfo::clazz( bool noIdScan )  const  {
+  if ( m_class || noIdScan )  {
     return m_class;
   }
   else if ( !m_class && m_columns.size() > 0 )  {
@@ -440,7 +285,7 @@ Again:
           }
           break;
         case 2:
-          ::sscanf(pp1, "%d", &ncol);
+          ::sscanf(pp1, "%99d", &ncol);
           break;
         case 3:
           m_columns.push_back(col=new DbColumn());
@@ -467,7 +312,11 @@ const std::string DbTypeInfo::typeName(const std::type_info& typ) {
 }
 
 
-/// Load type information object from string representation
+/* Create the type information object from a string representation
+   Store it in a global "shape" list
+   This method may possibly register duplicates if executed concurrently,
+   but that does not affect functionality
+   */
 const DbTypeInfo* DbTypeInfo::fromString(const std::string& string_rep)
 /*
  Create extra shapes when GUID is the same but column names are different
@@ -478,30 +327,31 @@ const DbTypeInfo* DbTypeInfo::fromString(const std::string& string_rep)
    const DbTypeInfo* main_type_info = 0;
    bool              created_main_ti = false;
    DbTypeInfo* new_type_info = new DbTypeInfo(Guid::null());
-   // cout << " -- fromDbString DbTypeInfo: " << string_rep << endl;
+   //cout << " -- fromDbString DbTypeInfo: " << string_rep << endl;
    if( new_type_info->i_fromString(string_rep).isSuccess() )   {
       // find existing typeinfo or create a fresh one based on transient dictionary
       // do this first to ensure current type is first in the DbTransform list
-      // cout << " -- fromDbString DbTypeInfo: " << string_rep << "  GUID=" << new_type_info->shapeID() <<  endl;
+      //cout << " -- fromDbString DbTypeInfo: " << string_rep << "  GUID=" << new_type_info->shapeID() <<  endl;
       if( DbTransform::getShape( new_type_info->shapeID() , main_type_info) != DbStatus::Success) {
          // new shape
          if( !new_type_info->m_class ) {
             // no transient type info for this type, use the string description as it is          
             DbTransform::regShape( new_type_info );
-            cout << "DbTypeInfo::fromString:  registered new  " << string_rep << endl;
+            //cout << "DbTypeInfo::fromString:  registered new  " << string_rep << endl;
             return new_type_info;
          }
          // create new shape from transient type
          Columns cols;
          main_type_info = new DbTypeInfo( new_type_info->shapeID(), new_type_info->m_class, cols );
-         created_main_ti = true;
          DbTransform::regShape(main_type_info);
+         created_main_ti = true;
+         // cout << "DbTypeInfo::fromString:  registered new " <<  main_type_info->toString() << endl;
       } 
       // current shape is now registered, check if the one from DB has the same column names
       if( new_type_info->m_class && main_type_info->toString() != string_rep ) {
          // difference. See if DB shape is already known
          if( created_main_ti ) {
-            // keep pointer to avoid memory leak
+            // store pointer for later deletion to avoid memory leak
             // the 'proper' shape will sit in the DbTransform list in case another database needs to use it
             DbTransform::ownShape( main_type_info );  
             // cout << "DbTypeInfo::fromString:  registered new MAIN " << main_type_info->toString() << endl;
@@ -518,15 +368,9 @@ const DbTypeInfo* DbTypeInfo::fromString(const std::string& string_rep)
             DbTransform::regShape( new_type_info );
             return new_type_info;
          }
+      } else {
+         // cout << "DbTypeInfo::fromString:  found cached " << main_type_info->toString() << endl;
       }
-      /*
-        else {
-         if( created_main_ti )
-            cout << "DbTypeInfo::fromString:  registered new " <<  main_type_info->toString() << endl;
-         else
-            cout << "DbTypeInfo::fromString:  found cached " << main_type_info->toString() << endl;
-      }
-      */
    }
    delete new_type_info;
    return main_type_info;
@@ -551,6 +395,16 @@ DbTypeInfo* DbTypeInfo::createEx(const Guid& guid)  {
   return createEx(guid, cols);
 }
 
+
+// small helper method to add a new shape
+DbTypeInfo* DbTypeInfo::regShape(const Guid& guid, const TypeH type, Columns& cols)
+{
+   DbTypeInfo* typ_info = new DbTypeInfo(guid, type, cols); 
+   DbTransform::regShape(typ_info);
+   return typ_info;
+}
+
+
 /// Create type information using name
 DbTypeInfo* DbTypeInfo::create(const std::string& cl_name, Columns& cols)   {
   TypeH type = DbReflex::forTypeName(cl_name);
@@ -561,13 +415,13 @@ DbTypeInfo* DbTypeInfo::create(const std::string& cl_name, Columns& cols)   {
        clearColumns(cols);
        return typ_info;
     }
-    typ_info = new DbTypeInfo(guid, type, cols); 
-    DbTransform::regShape(typ_info);
-    return typ_info;
+    return regShape(guid, type, cols); 
   }
   clearColumns(cols);
   return 0;
 }
+
+
 
 /// Create type information using Guid only Class must already be registered.
 DbTypeInfo* DbTypeInfo::create(const Guid& guid, Columns& cols)   {
@@ -576,11 +430,9 @@ DbTypeInfo* DbTypeInfo::create(const Guid& guid, Columns& cols)   {
     clearColumns(cols);
     return typ_info;
   }
-  TypeH cl = DbReflex::forGuid(guid);
-  if ( cl )    {
-     typ_info = new DbTypeInfo(guid, cl, cols); 
-     DbTransform::regShape(typ_info);
-     return typ_info;
+  TypeH type = DbReflex::forGuid(guid);
+  if( type )    {
+     return regShape(guid, type, cols); 
   }
   clearColumns(cols);
   return 0;
@@ -593,11 +445,9 @@ DbTypeInfo* DbTypeInfo::createEx(const Guid& guid, Columns& cols)   {
     clearColumns(cols);
     return typ_info;
   }
-  TypeH cl = DbReflex::forGuid(guid);
-  if( !(cols.size() == 0 && !cl) ) {
-     typ_info = new DbTypeInfo(guid, cl, cols);
-     DbTransform::regShape(typ_info);
-     return typ_info;
+  TypeH type = DbReflex::forGuid(guid);
+  if( !(cols.size() == 0 && !type) ) {
+     return regShape(guid, type, cols); 
   }
   clearColumns(cols);
   return 0;

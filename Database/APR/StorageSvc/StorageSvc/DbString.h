@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbString.h 617519 2014-09-18 15:39:59Z mnowak $
+// $Id: DbString.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //
 //  @author      M.Frank

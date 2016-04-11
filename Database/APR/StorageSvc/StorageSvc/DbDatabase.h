@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbDatabase.h 601961 2014-06-16 14:49:09Z mnowak $
+// $Id: DbDatabase.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbDatabase and related class definitions
 //--------------------------------------------------------------------

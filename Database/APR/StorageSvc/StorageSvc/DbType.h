@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbType.h 676800 2015-06-19 18:10:56Z ssnyder $
+// $Id: DbType.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbType definition file
 //--------------------------------------------------------------------

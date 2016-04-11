@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: OODatabaseImp.h 458019 2011-09-09 10:11:57Z mnowak $
+// $Id: OODatabaseImp.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //
 //  Package    : StorageSvc (The POOL project)
@@ -41,8 +41,6 @@ namespace pool    {
     DbType              m_type;
     /// Object name
     std::string         m_name;
-    /// reference to the class loader object
-    IClassLoader*       m_classLoader;
     /// Pointer to user context
     void*               m_context;
 
@@ -62,10 +60,6 @@ namespace pool    {
     virtual DbStatus initialize (const std::string& name);
     /// IOODatabase implementation: Finalize the Database
     virtual DbStatus finalize(void)             { return Success; }
-    /// Set the class loader
-    virtual void setClassLoader(IClassLoader* cat);
-    /// Allow access to the class loader
-    virtual IClassLoader* classLoader() const;
     /// IOODatabase implementation: Access to OODatabase type
     virtual const DbType& type()  const       { return m_type;          }
     /// IOODatabase implementation: Object's name

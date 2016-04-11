@@ -22,6 +22,19 @@ template <class T> static inline std::ostream& operator<<(std::ostream& os, cons
 }
 
 namespace {
+    template <class T>
+    T cnv (const T& x) { return x; }
+    int cnv (char x) { return x; }
+    unsigned int cnv (unsigned char x) { return x; }
+    std::vector<int> cnv (const std::vector<char>& x)
+    { return std::vector<int> (x.begin(), x.end()); }
+    std::vector<unsigned int> cnv (const std::vector<unsigned char>& x)
+    { return std::vector<unsigned int> (x.begin(), x.end()); }
+    std::list<int> cnv (const std::list<char>& x)
+    { return std::list<int> (x.begin(), x.end()); }
+    std::list<unsigned int> cnv (const std::list<unsigned char>& x)
+    { return std::list<unsigned int> (x.begin(), x.end()); }
+
   struct Test  {
     char a1;
     unsigned char a2;
@@ -59,14 +72,13 @@ namespace {
     std::list<double> l10;
     std::list<std::string> l11;
 
-    Test() {}
 #define CHECK(x) _check(#x,x,c.x)
     template <class T> bool _check(const char* tag, const T& a, const T& c) const {
       if ( a == c )   {
-        std::cout << "Element Test::" << tag << " identical:" << a << std::endl;
+        std::cout << "Element Test::" << tag << " identical:" << cnv(a) << std::endl;
         return true;
       }
-      std::cout << "Value Test::" << tag << " differs:" << a << " <-> " << c << std::endl;
+      std::cout << "Value Test::" << tag << " differs:" << cnv(a) << " <-> " << cnv(c) << std::endl;
       return false;
     }
     bool operator==(const Test& c) const  {

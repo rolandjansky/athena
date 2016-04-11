@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbInstanceCount.cpp 657436 2015-03-27 19:00:25Z ssnyder $
+// $Id: DbInstanceCount.cpp 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbInstanceCount implementation
 //--------------------------------------------------------------------

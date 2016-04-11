@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbReflex.cpp 678597 2015-06-26 12:55:50Z mnowak $
+// $Id: DbReflex.cpp 717955 2016-01-15 13:34:52Z mnowak $
 //====================================================================
 //  Package    : StorageSvc (The POOL project)
 //
@@ -14,6 +14,11 @@
 #include "StorageSvc/DbPrint.h"
 
 #include <cstring>
+
+#include "AthContainers/tools/threading.h"
+typedef AthContainers_detail::upgrade_mutex mutex_t;
+typedef AthContainers_detail::upgrading_lock<mutex_t> upgrading_lock_t;
+mutex_t guidMapMutex;
 
 using namespace pool;
 using namespace std;
@@ -47,12 +52,15 @@ string DbReflex::fullTypeName(const TypeH& typ)  {
   return typ.Name();
 }
 
+
 /// Convert Guid to nomalized string (all char upper case!)
-Guid DbReflex::guid(const TypeH& type)  {
-  TypeMap::iterator i = type_mapping().find(type);
-  if ( i != type_mapping().end() )  {
-    return (*i).second;
-  }
+Guid DbReflex::guid(const TypeH& type)
+{
+   upgrading_lock_t lock(guidMapMutex);
+   TypeMap::iterator i = type_mapping().find(type);
+   if( i != type_mapping().end() )  {
+      return (*i).second;
+   }
   string idstr;
   if( type )  {
 #    if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
@@ -70,7 +78,7 @@ Guid DbReflex::guid(const TypeH& type)  {
         cout << "GUID: Class " << type.Name() << " has GUID= " << idstr << endl;
         */
 #    endif
-  
+     lock.upgrade();
      if( !idstr.empty() )  {
         Guid id(idstr);
         guid_mapping()[id] = type;
@@ -92,20 +100,23 @@ Guid DbReflex::guid(const TypeH& type)  {
 /// Access to reflection information by Guid
 const TypeH DbReflex::forGuid(const Guid& id)
 {
-   // First check if the mapping is already known 
-   GuidMap& m = guid_mapping();
-   GuidMap::iterator k = m.find(id);
-   if ( k != m.end() )  {
-      return (*k).second;
+   {
+      upgrading_lock_t lock(guidMapMutex);
+      // First check if the mapping is already known 
+      GuidMap& m = guid_mapping();
+      GuidMap::iterator k = m.find(id);
+      if ( k != m.end() )  {
+         return (*k).second;
+      }
    }
-
+   
   // Check the transformation map
   const DbTypeInfo* info = 0;
   if ( DbTransform::getShape(id, info).isSuccess() )  {
      TypeH t = info->clazz();
      if ( t )  {
         Guid g = guid(t);
-        if ( ::memcmp(&g, &id, sizeof(Guid))==0 )  {
+        if ( ::memcmp(&g, &id, sizeof(Guid))==0 )  {           
            return t;
         }
      }
@@ -117,12 +128,6 @@ const TypeH DbReflex::forGuid(const Guid& id)
 
   for(size_t i=0; i<TypeH::TypeSize(); ++i)  { 
      TypeH t = TypeH::TypeAt(i);
-     /*
-       TypeH::iterator it = TypeH::begin();
-       TypeH::iterator end = TypeH::end();
-       for(int i =0; it!=end; ++it,++i)  {
-       TypeH t = *it;
-     */
      if( t.IsClass() || t.IsStruct() )  {
         Guid g = guid(t);
         if( ::memcmp(&g, &id, sizeof(Guid))==0 )  {

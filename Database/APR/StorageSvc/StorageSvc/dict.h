@@ -9,8 +9,6 @@
 #include "StorageSvc/IDbDatabase.h"
 #include "StorageSvc/IDbDomain.h"
 #include "StorageSvc/IDbSession.h"
-#include "StorageSvc/IClassHandler.h"
-#include "StorageSvc/IClassLoader.h"
 #include "StorageSvc/FileDescriptor.h"
 
 // Package pool/StorageSvc - implementation
@@ -20,8 +18,6 @@
 #include "StorageSvc/DbCallBack.h"
 #include "StorageSvc/DbObjectCallBack.h"
 #include "StorageSvc/DbObjectGuard.h"
-#include "StorageSvc/DbClassHandler.h"
-#include "StorageSvc/DbClassLoader.h"
 #include "StorageSvc/DbConnection.h"
 
 #include "StorageSvc/DbObject.h"

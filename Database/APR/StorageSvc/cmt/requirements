@@ -22,7 +22,7 @@ apply_pattern lcgdict dict=StorageSvc  selectionfile=../StorageSvc/dict.xml \
 private
 use GaudiInterface        GaudiInterface-*      External
 use AtlasROOT             AtlasROOT-*           External
-#use POOLCore              POOLCore-*            Database/APR
+use AthContainers         AthContainers-*       Control
 
 # C++ options just for StorageSvc compilation, private so it does not propagate!
 macro_append StorageSvc_cppflags ' '\
@@ -32,6 +32,8 @@ macro_append StorageSvc_cppflags ' '\
 
 #=======   TESTS
 use TestTools      TestTools-*         AtlasTest
+apply_tag ROOTThreadLibs
 
 apply_pattern install_runtime
+apply_pattern UnitTest_run unit_test=StorageSvc_mtShape extrapatterns=".*"
 apply_pattern UnitTest_run unit_test=StorageSvc_DbBlob
