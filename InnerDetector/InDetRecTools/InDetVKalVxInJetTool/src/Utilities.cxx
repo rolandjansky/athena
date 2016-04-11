@@ -5,7 +5,6 @@
 // Header include
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
-#include  "VxVertex/VxTrackAtVertex.h"
 #include "TrkTrackSummary/TrackSummary.h"
 //-------------------------------------------------
 // Other stuff
@@ -15,6 +14,32 @@
 
 namespace InDet{  
 
+  TLorentzVector  InDetVKalVxInJetTool::GetBDir( const xAOD::TrackParticle* trk1,
+                                                 const xAOD::TrackParticle* trk2,
+                                                 const xAOD::Vertex    & PrimVrt)
+  const
+  { // B hadron flight direction based on 2 separate tracks and PV. Calculated via plane-plane crossing
+    Amg::Vector3D PVRT(PrimVrt.x(),PrimVrt.y(),PrimVrt.z());
+    ////double d01=trk1->d0();    double d02=trk2->d0();
+    ////double z01=trk1->z0();    double z02=trk2->z0();
+    ////double phi1=trk1->phi0(); double phi2=trk2->phi0();
+    ////Amg::Vector3D new1(trk1->vx()-d01*sin(phi1),trk1->vy()+d01*cos(phi1),trk1->vz()+z01); // Wrong sign!!!!!
+    ////Amg::Vector3D new2(trk2->vx()-d02*sin(phi2),trk2->vy()+d02*cos(phi2),trk2->vz()+z02);
+//----------------------------------------------------------------------------
+    Amg::Vector3D   pnt1=trk1->perigeeParameters().position();
+    Amg::Vector3D   mom1((trk1->p4()).Px(),(trk1->p4()).Py(),(trk1->p4()).Pz());
+    Amg::Vector3D   pnt2=trk2->perigeeParameters().position();
+    Amg::Vector3D   mom2((trk2->p4()).Px(),(trk2->p4()).Py(),(trk2->p4()).Pz());
+    pnt1 -= PVRT; pnt2 -= PVRT;
+    pnt1.normalize(); pnt2.normalize(); mom1.normalize(); mom2.normalize();
+//------------------------------------------------------------------------
+    Amg::Vector3D norm1=pnt1.cross(mom1);
+    Amg::Vector3D norm2=pnt2.cross(mom2);
+    Amg::Vector3D t=norm1.cross(norm2); t.normalize();
+    double aveP=(trk1->p4()+trk2->p4()).P()/2.;
+    TLorentzVector tl;  tl.SetXYZM(t.x()*aveP,t.y()*aveP,t.z()*aveP,139.57);
+    return tl;
+  }
 
   void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *WrkVrtSet, const std::string name)
   const
@@ -43,13 +68,18 @@ namespace InDet{
   }
 
                /*  Technicalities */
-  double InDetVKalVxInJetTool::ProjPos(const Amg::Vector3D & Vrt,const TLorentzVector & JetDir)
+  double InDetVKalVxInJetTool::ProjPos(const Amg::Vector3D & Vrt, const TLorentzVector & JetDir)
   const
   {
-    double Denom = JetDir.Px()*JetDir.Px() + JetDir.Py()*JetDir.Py() + JetDir.Pz()*JetDir.Pz();
-    return (Vrt.x()*JetDir.Px() + Vrt.y()*JetDir.Py() + Vrt.z()*JetDir.Pz())/Denom;
+    //Amg::Vector3D Vrt=SV-PV;
+    return (Vrt.x()*JetDir.Px() + Vrt.y()*JetDir.Py() + Vrt.z()*JetDir.Pz())/JetDir.P();
   }
 
+  double InDetVKalVxInJetTool::ProjPosT(const Amg::Vector3D & Vrt, const TLorentzVector & JetDir)
+  const
+  {
+    return (Vrt.x()*JetDir.Px() + Vrt.y()*JetDir.Py())/JetDir.Pt();
+  }
 
 
   double InDetVKalVxInJetTool::VrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
@@ -581,240 +611,6 @@ namespace InDet{
      }
      return listPart;
    }
-
-//  Mass error in vertex from ExtendedVxCandidate.
-//   test code itself is in BTagVrtSec.cxx
-//-------------------------------------------------------------------------------------------------------
-  double InDetVKalVxInJetTool::massError(const Trk::ExtendedVxCandidate * vxCandidate, double mass) const
-  {
-    int NTrk= vxCandidate->vxTrackAtVertex()->size();
-    std::vector<TLorentzVector> particleMom(NTrk);                 // Momenta of particles
-    std::vector<AmgMatrix(3,3)> particleDeriv(NTrk);               // Derivatives of  particle momentum
-    TLorentzVector totalMom;                                       // summary momentum
-    AmgMatrix(3,3) tmpDeriv;
-
-    double phi,theta,invP;
-    for( int it=0; it<NTrk; it++){
-      const Trk::TrackParameters  *bPer = (*(vxCandidate->vxTrackAtVertex()))[it]->perigeeAtVertex();
-      const Trk::Perigee* mPer = dynamic_cast<const Trk::Perigee*>(bPer);
-      phi   =  mPer->parameters()[Trk::phi];
-      theta =  mPer->parameters()[Trk::theta];
-      invP  =  mPer->parameters()[Trk::qOverP];
-      TLorentzVector    tmp( cos(phi)*sin(theta)/fabs(invP),
-                             sin(phi)*sin(theta)/fabs(invP),
-                                      cos(theta)/fabs(invP),
-				                       0.   );
-      tmp.SetE( sqrt(tmp.Vect().Mag2()+mass*mass) );
-      particleMom[it]=tmp;
-      totalMom += tmp;
-//  d(Px,Py,Pz)/d(Phi,Theta,InvP)
-      tmpDeriv(0,0) = - tmp.Py();
-      tmpDeriv(1,0) =   tmp.Px();
-      tmpDeriv(2,0) =   0.;
-      tmpDeriv(0,1) =   cos(phi) * tmp.Pz();
-      tmpDeriv(1,1) =   sin(phi) * tmp.Pz();
-      tmpDeriv(2,1) = - sin(theta)/fabs(invP);
-      tmpDeriv(0,2) = - tmp.Px()/invP;
-      tmpDeriv(1,2) = - tmp.Py()/invP;
-      tmpDeriv(2,2) = - tmp.Pz()/invP;
-      particleDeriv[it] = tmpDeriv;
-    }
-    double dMdPx,dMdPy,dMdPz,dMdPhi,dMdTheta,dMdInvP;
-    std::vector<double> Deriv(3*NTrk+3, 0.);  
-    for( int it=0; it<NTrk; it++){
-// dM/d(Px_it,Py_it,Pz_it)
-      dMdPx = ( totalMom.E() * particleMom[it].Px()/particleMom[it].E() - totalMom.Px() ) / totalMom.M();
-      dMdPy = ( totalMom.E() * particleMom[it].Py()/particleMom[it].E() - totalMom.Py() ) / totalMom.M();
-      dMdPz = ( totalMom.E() * particleMom[it].Pz()/particleMom[it].E() - totalMom.Pz() ) / totalMom.M();
-      
-      dMdPhi   = dMdPx*particleDeriv[it](0,0) + dMdPy*particleDeriv[it](1,0) + dMdPz*particleDeriv[it](2,0);
-      dMdTheta = dMdPx*particleDeriv[it](0,1) + dMdPy*particleDeriv[it](1,1) + dMdPz*particleDeriv[it](2,1);
-      dMdInvP  = dMdPx*particleDeriv[it](0,2) + dMdPy*particleDeriv[it](1,2) + dMdPz*particleDeriv[it](2,2);
-
-      Deriv[3*it +3 +0] = dMdPhi;    Deriv[3*it +3 +1] = dMdTheta; Deriv[3*it +3 +2] = dMdInvP;
-    }
-
-
-    const Amg::MatrixX * fullCov = vxCandidate->fullCovariance();
-    double err=0;
-    for(int i=0; i<3*NTrk+3; i++){
-      for(int j=0; j<3*NTrk+3; j++){
-        err += Deriv[i]*(*fullCov)(i,j)*Deriv[j];
-      }
-    }
-    return sqrt(err);
-  }
-
-//  Summary track from ExtendedVxCandidate.
-//   test code itself is in BTagVrtSec.cxx
-//-------------------------------------------------------------------------------------------------------
-  Trk::TrackParticleBase * InDetVKalVxInJetTool::CreateParticle(const Trk::ExtendedVxCandidate * vxCandidate) const
-  {
-    const int NTrk = vxCandidate->vxTrackAtVertex()->size();
-    std::vector<TLorentzVector> particleMom(NTrk);        // Momenta of particles
-    std::vector<AmgMatrix(3,3)> particleDeriv(NTrk);      // Derivatives of  particle momentum
-    TLorentzVector totalMom;                              // summary momentum
-    AmgMatrix(3,3) tmpDeriv;
-    int Charge=0;
-    double phi,theta,invP;
-    for( int it=0; it<NTrk; it++){
-      const Trk::TrackParameters  *bPer = (*(vxCandidate->vxTrackAtVertex()))[it]->perigeeAtVertex();
-      const Trk::Perigee* mPer = dynamic_cast<const Trk::Perigee*>(bPer);
-      phi   =  mPer->parameters()[Trk::phi];
-      theta =  mPer->parameters()[Trk::theta];
-      invP  =  mPer->parameters()[Trk::qOverP];
-      TLorentzVector    tmp( cos(phi)*sin(theta)/fabs(invP),
-                             sin(phi)*sin(theta)/fabs(invP),
-                                      cos(theta)/fabs(invP),
-                                                   0.       );
-      tmp.SetE( tmp.Vect().Mag() );
-      particleMom[it]=tmp;
-      totalMom += tmp;
-      if(invP>0){ Charge++;} else {Charge--;}
-
-//  d(Px,Py,Pz)/d(Phi,Theta,InvP)
-      tmpDeriv(0,0) = - tmp.Py();
-      tmpDeriv(1,0) =   tmp.Px();
-      tmpDeriv(2,0) =   0.;
-      tmpDeriv(0,1) =   cos(phi) * tmp.Pz();
-      tmpDeriv(1,1) =   sin(phi) * tmp.Pz();
-      tmpDeriv(2,1) = - sin(theta)/fabs(invP);
-      tmpDeriv(0,2) = - tmp.Px()/invP;
-      tmpDeriv(1,2) = - tmp.Py()/invP;
-      tmpDeriv(2,2) = - tmp.Pz()/invP;
-      particleDeriv[it] = tmpDeriv;
-    }
-//-----------------------------------------------
-//  Summary particle parameters
-//
-    double Px=totalMom.Px(); double Py=totalMom.Py(); double Pz=totalMom.Pz();
-    double Pt= sqrt(Px*Px + Py*Py) ;
-    double mom= sqrt(Pz*Pz + Pt*Pt) ;
-    phi=atan2(Py,Px);
-    while ( phi > M_PI) phi -= 2.*M_PI;    
-    while ( phi <-M_PI) phi += 2.*M_PI;    
-    theta=acos( Pz/mom );
-    while ( theta > M_PI) theta -= 2.*M_PI;    
-    while ( theta <-M_PI) theta += 2.*M_PI;    
-    if    ( theta < 0.) { 
-        theta = fabs(theta); phi += M_PI; 
-        while ( phi > M_PI) phi -= 2.*M_PI;    
-    } 
-    invP=Charge/mom;
-//---------------------------------------------------------------
-//  d(Phi,Theta,InvP)/d(Px,Py,Pz)  -  Perigee vs summary momentum
-    tmpDeriv(1,1) = -Py/Pt/Pt;             //dPhi/dPx
-    tmpDeriv(1,2) =  Px/Pt/Pt;             //dPhi/dPy
-    tmpDeriv(1,3) =  0;                    //dPhi/dPz
-    tmpDeriv(2,1) =  Px*Pz/(Pt*mom*mom);   //dTheta/dPx
-    tmpDeriv(2,2) =  Py*Pz/(Pt*mom*mom);   //dTheta/dPy
-    tmpDeriv(2,3) = -Pt/(mom*mom);         //dTheta/dPz
-    tmpDeriv(3,1) = -Px/(mom*mom) * invP;  //dInvP/dPx
-    tmpDeriv(3,2) = -Py/(mom*mom) * invP;  //dInvP/dPy
-    tmpDeriv(3,3) = -Pz/(mom*mom) * invP;  //dInvP/dPz
-//-------------------------------------------------------------------------------------------
-    Amg::MatrixX Deriv(5,3*NTrk+3);  Deriv.setZero();    // d(d0,Z,phi,theta,invP)/d(.....) - final derivatives
-    for( int it=0; it<NTrk; it++){
-      for( int temp=0; temp<3; temp++){
-        Deriv(2,3*it+3+0) += tmpDeriv(0,temp)*particleDeriv[it](temp,1) ;
-        Deriv(3,3*it+3+0) += tmpDeriv(1,temp)*particleDeriv[it](temp,1) ;
-        Deriv(4,3*it+3+0) += tmpDeriv(2,temp)*particleDeriv[it](temp,1) ;
-
-        Deriv(2,3*it+3+1) += tmpDeriv(0,temp)*particleDeriv[it](temp,2) ;
-        Deriv(3,3*it+3+1) += tmpDeriv(1,temp)*particleDeriv[it](temp,2) ;
-        Deriv(4,3*it+3+1) += tmpDeriv(2,temp)*particleDeriv[it](temp,2) ;
-
-        Deriv(2,3*it+3+2) += tmpDeriv(0,temp)*particleDeriv[it](temp,3) ;
-        Deriv(3,3*it+3+2) += tmpDeriv(1,temp)*particleDeriv[it](temp,3) ;
-        Deriv(4,3*it+3+2) += tmpDeriv(2,temp)*particleDeriv[it](temp,3) ;
-      } 
-    }
-    Deriv(0,0) = -sin(phi);               // Space derivatives
-    Deriv(0,1) =  cos(phi);
-    Deriv(1,0) = -cos(phi)/tan(theta);
-    Deriv(1,1) = -sin(phi)/tan(theta);
-    Deriv(1,2) =  1.;
-//----------------------------------------------
-// Covariance matrix at fitted vertex
-    AmgSymMatrix(5) *SumCov = new  AmgSymMatrix(5);
-    SumCov->setZero();
-    const Amg::MatrixX * fullCov = vxCandidate->fullCovariance();
-    for(int ik=0; ik<5; ik++){
-      for(int jk=ik; jk<5; jk++){
-        for(int i=0; i<3*NTrk+3; i++){
-          for(int j=0; j<3*NTrk+3; j++){
-             (*SumCov)(ik,jk) += Deriv(ik,i)*(*fullCov)(i,j)*Deriv(jk,j);
-          }
-        }
-      }
-    }
-    
-//----------------------------------------------
-    Amg::Vector3D  baseGlobalVertex( vxCandidate->recVertex().position().x(),
-                                     vxCandidate->recVertex().position().y(),
-                                     vxCandidate->recVertex().position().z() );
-    const Trk::FitQuality* fitQuality = new Trk::FitQuality(10.,1); 
-    Trk::TrackParticleBase *nTrkPrt;
-    if(Charge){
-      const Trk::TrackParameters * perigee;
-      std::vector<const Trk::TrackParameters*>     tmpPar;
-      perigee = new Trk::Perigee( 0.,0.,phi,theta,Charge/mom, Trk::PerigeeSurface( baseGlobalVertex ), SumCov  );
-      tmpPar.push_back(perigee);
-      nTrkPrt = new Trk::TrackParticleBase(0, Trk::SecVtx, vxCandidate, new Trk::TrackSummary(),
-                                              tmpPar, perigee, fitQuality);
-    }else{     
-      const Trk::NeutralParameters * perigeeN;
-      perigeeN = new Trk::NeutralPerigee( 0.,0.,phi,theta,1./mom, Trk::PerigeeSurface( baseGlobalVertex ), SumCov  );
-      std::vector<const Trk::NeutralParameters*>   tmpPar;
-      tmpPar.push_back(perigeeN);              //Perigee at fitted vertex
-      double a0 = sin(phi) * (0.- vxCandidate->recVertex().position().x()) -     //Perigee with respect to (0,0,0)
-                  cos(phi) * (0.- vxCandidate->recVertex().position().y());
-      double t  = (0. - vxCandidate->recVertex().position().x())*cos(phi) +
-                  (0. - vxCandidate->recVertex().position().y())*sin(phi);
-      //double z0 = vxCandidate->recVertex().position().z() + t/tan(theta);
-      double dA0dPhi = t;                            // Additional derivatives due to transportation
-      double dZ0dPhi = -a0/tan(theta);
-      double dZ0dTheta = - t /sin(theta)/sin(theta);
-      Deriv.setZero();
-      for( int it=0; it<NTrk; it++){
-        for( int temp=0; temp<3; temp++){
-          Deriv(0,3*it+3+0) += dA0dPhi*tmpDeriv(0,temp)*particleDeriv[it](temp,0) ;
-          Deriv(0,3*it+3+1) += dA0dPhi*tmpDeriv(0,temp)*particleDeriv[it](temp,1) ;
-          Deriv(0,3*it+3+2) += dA0dPhi*tmpDeriv(0,temp)*particleDeriv[it](temp,2) ;
-
-          Deriv(1,3*it+3+0) += dZ0dPhi*tmpDeriv(0,temp)*particleDeriv[it](temp,0) ;
-          Deriv(1,3*it+3+1) += dZ0dPhi*tmpDeriv(0,temp)*particleDeriv[it](temp,1) ;
-          Deriv(1,3*it+3+2) += dZ0dPhi*tmpDeriv(0,temp)*particleDeriv[it](temp,2) ;
-
-          Deriv(1,3*it+3+0) += dZ0dTheta*tmpDeriv(1,temp)*particleDeriv[it](temp,0) ;
-          Deriv(1,3*it+3+1) += dZ0dTheta*tmpDeriv(1,temp)*particleDeriv[it](temp,1) ;
-          Deriv(1,3*it+3+2) += dZ0dTheta*tmpDeriv(1,temp)*particleDeriv[it](temp,2) ;
-        } 
-      }
-//---------------------------------------------------------------
-// Covariance at (0,0,0) perigee
-      // AmgSymMatrix(5) *SumCovN=new  AmgSymMatrix(5);
-      // SumCovN->setZero();
-      // for(int ik=0; ik<5; ik++){
-      //   for(int jk=ik; jk<5; jk++){
-      //     for(int i=0; i<3*NTrk+3; i++){
-      //       for(int j=0; j<3*NTrk+3; j++){
-      //         (*SumCovN)(ik,jk) += Deriv(ik,i)*(*fullCov)(i,j)*Deriv(jk,j);
-      //       }
-      //     }
-      //   }
-      // }
-      //Amg::Vector3D zeroGlobalVertex(0.,0.,0.);
-      //perigeeN = new Trk::NeutralPerigee( a0,z0,phi,theta,1./mom, Trk::PerigeeSurface( zeroGlobalVertex ),SumCovN  );
-//std::cout<<" NEWPART="<<(*perigee)<<'\n';
-      //nTrkPrt = new Trk::TrackParticleBase(0, Trk::SecVtx, vxCandidate, new Trk::TrackSummary(),
-      //                             tmpPar, perigee, fitQuality);
-      nTrkPrt = 0; //VK TrackParticle doesn't accept NeutralPerigee yet.
-    }
-
-    return nTrkPrt;
-
-  }
 
 
 
