@@ -95,12 +95,6 @@ namespace InDet{
           double ImpactZ=VectPerig[1]-PrimVrt.position().z();   // Temporary
 	  ImpactA0=Impact[0];  
 	  ImpactZ=Impact[1];   
-//---- Check of extrapolation to primary vertex
-//	  if(m_trackToVertexIP){
-//            std::vector<Trk::VxTrackAtVertex*> very_tmpTrk;  Trk::VxCandidate very_tmpVrt(PrimVrt,very_tmpTrk);
-//            const Trk::ImpactParametersAndSigma* relPV = m_trackToVertexIP->estimate((*i_ntrk), &very_tmpVrt, false);
-//	      if(relPV)	delete relPV;
-//        } 
 //----
           StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3],
                        ImpactA0 , ImpactZ, trkChi2,
