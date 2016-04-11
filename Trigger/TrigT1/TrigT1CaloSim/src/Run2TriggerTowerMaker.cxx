@@ -875,6 +875,12 @@ StatusCode LVL1::Run2TriggerTowerMaker::getTriggerTowers()
     t->setAdcPeak(t->adc().size()/2);
   }
 
+  /// If < 7168 towers in input data will be unallocated pointers in vector.
+  /// So clean-up m_xaodTowers before these cause problems later.
+  m_xaodTowers->erase(std::remove_if(m_xaodTowers->begin(), m_xaodTowers->end(),
+                      [](const xAOD::TriggerTower* tt){return (tt == 0);}),
+                      m_xaodTowers->end());
+
   return StatusCode::SUCCESS;
 } // end of getTriggerTowers()
 
@@ -934,6 +940,12 @@ StatusCode LVL1::Run2TriggerTowerMaker::getCaloTowers()
     ATH_MSG_DEBUG("Found "<< TileTowers->size() << " Tile Towers");
     processTileTowers(TileTowers);
   }
+
+  /// If < 7168 towers in input data will be unallocated pointers in vector.
+  /// So clean-up m_xaodTowers before these cause problems later.
+  m_xaodTowers->erase(std::remove_if(m_xaodTowers->begin(), m_xaodTowers->end(),
+                      [](const xAOD::TriggerTower* tt){return (tt == 0);}), 
+                      m_xaodTowers->end());
 
   return StatusCode::SUCCESS;
 }
