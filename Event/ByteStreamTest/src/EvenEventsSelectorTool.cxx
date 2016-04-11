@@ -24,9 +24,10 @@ StatusCode EvenEventsSelectorTool::postNext() {
    ATH_MSG_INFO("EvenEventsSelectorTool::postNext");
    StatusCode retc = StatusCode::SUCCESS;
    const DataHandle<AthenaAttributeList> attrList;
+   ATH_MSG_INFO(evtStore()->dump());
    StatusCode sc = evtStore()->retrieve(attrList,"EventInfoAtts");
    if (sc.isSuccess()) {
-      ATH_MSG_INFO("BLARG Found attribute list");
+      ATH_MSG_INFO("Found attribute list");
       // dump spec
       coral::AttributeList::const_iterator it = attrList->begin();
       while (it != attrList->end()) {
@@ -45,7 +46,6 @@ StatusCode EvenEventsSelectorTool::postNext() {
    else {
       ATH_MSG_INFO("Could not find attribute list");
    }
-   ATH_MSG_INFO("BLARG " << evtStore()->dump());
    return retc;
 }
 //__________________________________________________________________________

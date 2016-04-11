@@ -1,5 +1,5 @@
-EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-01-34-08
-ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-01-34-08
+EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-01-34-33
+ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-01-34-33
 EventSelector        INFO reinitialization...
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 EventSelector       DEBUG Calling EventSelectorByteStream::start()
@@ -12,11 +12,13 @@ ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
 ByteStreamInputSvc  DEBUG Event Size 2435536
 ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
 ByteStreamInputSvc  DEBUG Format version 400
-ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x69de000
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0xea28000
 ByteStreamInputSvc  DEBUG ByteStream File GUID:02DE9A68-F08E-E111-AA32-003048F0E846
 ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 232
 EventSelector.E...   INFO EvenEventsSelectorTool::postNext
-EventSelector.E...   INFO BLARG Found attribute list
+EventSelector.E...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid,   locked,  reset) --- data:          0 --- key: ByteStreamEventInfo
+EventSelector.E...   INFO Found attribute list
 EventSelector.E...   INFO Spec element RunNumber (long) : 183003
 EventSelector.E...   INFO Spec element EventNumber (long) : 82201
 EventSelector.E...   INFO Spec element Lumiblock (int) : 183
@@ -153,16 +155,17 @@ EventSelector.E...   INFO Spec element PixelBeam (string) : calibration
 EventSelector.E...   INFO Spec element Standby (string) : physics
 EventSelector.E...   INFO Spec element beamspot (string) : calibration
 EventSelector.E...   INFO Spec element express (string) : express
-EventSelector.E...   INFO BLARG <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
 ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
 ByteStreamInputSvc  DEBUG Event Size 2975576
 ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
 ByteStreamInputSvc  DEBUG Format version 400
-ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x767e000
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0xe7d4000
 ByteStreamInputSvc  DEBUG ByteStream File GUID:02DE9A68-F08E-E111-AA32-003048F0E846
 ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 2435784
 EventSelector.E...   INFO EvenEventsSelectorTool::postNext
-EventSelector.E...   INFO BLARG Found attribute list
+EventSelector.E...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid,   locked,  reset) --- data:          0 --- key: ByteStreamEventInfo
+EventSelector.E...   INFO Found attribute list
 EventSelector.E...   INFO Spec element RunNumber (long) : 183003
 EventSelector.E...   INFO Spec element EventNumber (long) : 82202
 EventSelector.E...   INFO Spec element Lumiblock (int) : 183
@@ -304,8 +307,6 @@ EventSelector.E...   INFO Spec element Standby (string) : physics
 EventSelector.E...   INFO Spec element beamspot (string) : calibration
 EventSelector.E...   INFO Spec element express (string) : express
 EventSelector.E...   INFO Rejecting event
-EventSelector.E...   INFO BLARG <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (INVALID,   locked,  reset) --- data:          0 --- key: ByteStreamEventInfo
 EventSelector        INFO Request skipping event from: EventSelector.EvenEventsSelectorTool
 EventSelector        INFO skipping event 2
 EventSelector        INFO End of input file list reached

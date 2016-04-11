@@ -90,6 +90,8 @@ else
 		egrep -a -v 'GUID'  |\
 		# ignore any rel related statements
 		egrep -a -v 'rel_'  |\
+                # ignore proxy address messages
+                egrep -a -v 'preexisting proxy' |\
                 # ignore destructor messages
                 egrep -a -v 'destructor'
 

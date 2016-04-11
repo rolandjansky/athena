@@ -1,28 +1,30 @@
 AthAlgSeq            INFO Member list: RunEventMetaWriter, StoreDump
 DecisionSvc          INFO Inserting stream: StreamBSFileOutput with no Algs
-ByteStreamEvent...   INFO Initializing ByteStreamEventStorageOutputSvc - package version ByteStreamCnvSvc-01-34-07
+ByteStreamEvent...   INFO Initializing ByteStreamEventStorageOutputSvc - package version ByteStreamCnvSvc-r736502
+ByteStreamEvent...   INFO eformat version to use: "current"
+ByteStreamEvent...   INFO event storage (BS) version to use: "current"
 ByteStreamEvent...   INFO Reinitialization...
 StreamBSFileOutput   INFO Found HelperTools = PrivateToolHandleArray([])
 StreamBSFileOutput   INFO Data output: ByteStreamEventStorageOutputSvc
 StreamBSFileOutput   INFO I/O reinitialization...
-EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-01-34-07
-ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-01-34-07
+EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-r736502
+ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-r736502
 EventSelector        INFO reinitialization...
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ByteStreamInputSvc  DEBUG Recorded ByteStreamMetadata in InputMetadataStore
 ByteStreamInputSvc  DEBUG  run parameters  =  
 ByteStreamInputSvc  DEBUG Number of Free meta data strings: 0
 ByteStreamInputSvc   INFO Picked valid file: /afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/extractedEvents.data
- flags: (  valid, UNLOCKED,  reset) --- data:  0x6e5f8e0 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xf5416d0 --- key: RunEventTag
 ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
 ByteStreamInputSvc  DEBUG Event Size 2435536
 ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
 ByteStreamInputSvc  DEBUG Format version 400
-ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x70e4000
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0xf84a000
 ByteStreamInputSvc  DEBUG ByteStream File GUID:02DE9A68-F08E-E111-AA32-003048F0E846
 ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 232
 StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid, UNLOCKED,  reset) --- data:  0x6e5f8e0 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xf5416d0 --- key: RunEventTag
 StoreDump            INFO AttributeList has size 2
 ByteStreamAttLi...   INFO ByteStreamAttListMetadataSvc::toBSMetadata
 ByteStreamAttLi...   INFO Found RunEventTag in DetectorStore
@@ -34,12 +36,12 @@ ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
 ByteStreamInputSvc  DEBUG Event Size 2975576
 ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
 ByteStreamInputSvc  DEBUG Format version 400
-ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x7e44000
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0xf5f6000
 ByteStreamInputSvc  DEBUG ByteStream File GUID:02DE9A68-F08E-E111-AA32-003048F0E846
 ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 2435784
 StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid, UNLOCKED,  reset) --- data:  0x6e5f8e0 --- key: RunEventTag
- flags: (  valid, UNLOCKED,  reset) --- data:  0x6ed7980 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xf5416d0 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xf541a40 --- key: RunEventTag
 StoreDump            INFO AttributeList has size 2
 EventSelector        INFO End of input file list reached
 ByteStreamInputSvc  DEBUG Calling ByteStreamInputSvc::stop()

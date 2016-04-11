@@ -1,6 +1,6 @@
 AthAlgSeq            INFO Member list: StoreDump
-EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-r575100
-ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-r575100
+EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-01-34-33
+ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-01-34-33
 EventSelector        INFO reinitialization...
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ByteStreamInputSvc  DEBUG Recorded ByteStreamMetadata in InputMetadataStore
@@ -13,3 +13,4 @@ EventSelector        INFO End of input file list reached
 EventSelector       FATAL Unable to open any file in initialize
 ServiceManager      ERROR Unable to start Service: EventSelector
 ToolSvc.ByteStr...  FATAL  Exception with tag=Gaudi::StateMachine::ChangeState is caught 
+ToolSvc.IOVDbMe...  FATAL  Exception with tag=Gaudi::StateMachine::ChangeState is caught 
