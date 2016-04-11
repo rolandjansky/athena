@@ -383,7 +383,7 @@ protected:
   ////////////////////////////////////////////////////////////////////////////////////////////
   /// select offline electrons
   ////////////////////////////////////////////////////////////////////////////////////////////
-  unsigned processElectrons( TrigTrackSelector& selectorRef, const unsigned int selection,
+  unsigned processElectrons( TrigTrackSelector& selectorRef, const unsigned int selection = 0,
 #                            ifdef XAODTRACKING_TRACKPARTICLE_H
 			     const std::string& containerName = "Electrons"
 #                            else
@@ -431,9 +431,14 @@ protected:
       //	       << ",  mediumPP "      << ((*elec)->isem(egammaPID::ElectronMediumPP)==0)
       //	       << endreq;
 
-
-      if (TIDA::isGoodOffline(*(*elec), selection)) selectorRef.selectTrack( (*elec)->trackParticle() );
-
+      bool good_electron = false;
+#     ifdef XAODTRACKING_TRACKPARTICLE_H
+      good_electron = TIDA::isGoodOffline(*(*elec), selection);
+#     else
+      good_electron = TIDA::isGoodOffline(*(*elec));
+#     endif
+      
+      if (good_electron) selectorRef.selectTrack( (*elec)->trackParticle() );
     }
 
     return selectorRef.tracks().size();
@@ -496,10 +501,12 @@ protected:
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////
-    /// select offline one-prong taus
+    /// select offline taus
     ////////////////////////////////////////////////////////////////////////////////////////////
 unsigned processTaus(      TrigTrackSelector& selectorRef,
 			   bool doThreeProng = true,
+			   double tauEtCutOffline = 0.,
+			   const unsigned int selection = 0,
 #                          ifdef XAODTRACKING_TRACKPARTICLE_H
 			   const std::string& containerName = "TauJets"
 #                          else
@@ -540,8 +547,14 @@ unsigned processTaus(      TrigTrackSelector& selectorRef,
 
   for ( ; tau!=tau_end ; ++tau ) {
 
-    if (TIDA::isGoodOffline( *(*tau), doThreeProng, 20000.0 )) {
-
+    bool good_tau = false;
+#     ifdef XAODTRACKING_TRACKPARTICLE_H
+    good_tau = TIDA::isGoodOffline( *(*tau), doThreeProng, tauEtCutOffline, selection );
+#     else
+    good_tau = TIDA::isGoodOffline( *(*tau), doThreeProng, tauEtCutOffline );
+#     endif
+      
+    if (good_tau){
 #     ifdef XAODTRACKING_TRACKPARTICLE_H
       unsigned N = (*tau)->nTracks();
 #     else
