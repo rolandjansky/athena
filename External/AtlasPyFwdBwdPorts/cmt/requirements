@@ -116,7 +116,7 @@ apply_pattern make_pkgbuild \
  file=pkgbuild_simplejson.py
 macro_append make_pkgbuild_simplejson_dependencies " make_pkgbuild_distribute "
 
-macro pyflakes_version "0.4.0"
+macro pyflakes_version "1.1.0"
 apply_pattern make_pkgbuild \
  name=pyflakes \
  file=pkgbuild_pyflakes.py

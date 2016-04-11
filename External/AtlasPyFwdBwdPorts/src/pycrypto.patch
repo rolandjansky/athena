@@ -1,0 +1,106 @@
+--- pycrypto/src/MD2.c-orig	2016-04-11 22:50:07.000000001 +0200
++++ pycrypto/src/MD2.c	2016-04-11 22:50:27.000000001 +0200
+@@ -27,8 +27,8 @@
+  */
+   
+ 
+-#include <string.h>
+ #include "Python.h"
++#include <string.h>
+ 
+ #define MODULE_NAME MD2
+ #define DIGEST_SIZE 16
+--- pycrypto/src/AES.c-orig	2016-04-12 00:46:36.000000001 +0200
++++ pycrypto/src/AES.c	2016-04-12 00:46:44.000000001 +0200
+@@ -24,9 +24,9 @@
+  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  */
+ 
++#include "Python.h"
+ #include <assert.h>
+ #include <stdlib.h>
+-#include "Python.h"
+ 
+ #define MODULE_NAME AES
+ #define BLOCK_SIZE 16
+--- pycrypto/src/ARC2.c-orig	2016-04-12 00:46:58.000000001 +0200
++++ pycrypto/src/ARC2.c	2016-04-12 00:47:04.000000001 +0200
+@@ -41,8 +41,8 @@
+  *
+  */
+ 
+-#include <string.h>  
+ #include "Python.h"
++#include <string.h>  
+ 
+ #define MODULE_NAME ARC2
+ #define BLOCK_SIZE 8
+--- pycrypto/src/Blowfish.c-orig	2016-04-12 00:47:21.000000001 +0200
++++ pycrypto/src/Blowfish.c	2016-04-12 00:47:29.000000001 +0200
+@@ -26,10 +26,10 @@
+  * http://www.schneier.com/paper-blowfish-fse.html
+  */
+ 
++#include "Python.h"
+ #include <assert.h>
+ #include <stdint.h>
+ #include <string.h>
+-#include "Python.h"
+ 
+ #include "Blowfish-tables.h"
+ 
+--- pycrypto/src/DES.c-orig	2016-04-12 00:47:51.000000001 +0200
++++ pycrypto/src/DES.c	2016-04-12 00:48:09.000000001 +0200
+@@ -24,6 +24,8 @@
+  * Country of origin: Canada
+  */
+ 
++#include "Python.h"
++
+ /* Setting this will cause LibTomCrypt to return CRYPT_INVALID_ARG when its
+  * assert-like LTC_ARGCHK macro fails. */
+ #define ARGTYPE 4
+@@ -34,7 +36,6 @@
+ #undef DES  /* this is needed because tomcrypt_custom.h defines DES to an empty string */
+ 
+ #include <assert.h>
+-#include "Python.h"
+ 
+ typedef struct {
+     symmetric_key sk;
+--- pycrypto/src/MD4.c-orig	2016-04-12 00:45:14.000000001 +0200
++++ pycrypto/src/MD4.c	2016-04-12 00:45:49.000000001 +0200
+@@ -27,8 +27,8 @@
+  */
+   
+ 
+-#include <string.h>
+ #include <Python.h>
++#include <string.h>
+ 
+ #define MODULE_NAME MD4
+ #define DIGEST_SIZE 16
+--- pycrypto/src/RIPEMD160.c-orig	2016-04-12 00:46:13.000000001 +0200
++++ pycrypto/src/RIPEMD160.c	2016-04-12 00:46:16.000000001 +0200
+@@ -43,10 +43,10 @@
+  *   "RIPEMD-160 is big-bit-endian, little-byte-endian, and left-justified."
+  */
+ 
++#include "Python.h"
+ #include <assert.h>
+ #include <stdint.h>
+ #include <string.h>
+-#include "Python.h"
+ 
+ #define RIPEMD160_DIGEST_SIZE 20
+ 
+--- pycrypto/src/_counter.c-orig	2016-04-12 00:48:40.000000001 +0200
++++ pycrypto/src/_counter.c	2016-04-12 00:48:46.000000001 +0200
+@@ -22,6 +22,7 @@
+  * ===================================================================
+  */
+ 
++#include "Python.h"
+ #include <assert.h>
+ #include <stddef.h>
+ #include <string.h>
