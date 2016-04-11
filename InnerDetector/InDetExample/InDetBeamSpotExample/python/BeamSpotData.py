@@ -9,7 +9,7 @@ Frontier outside of CERN. For example:
 setenv FRONTIER_SERVER "(serverurl=http://squid-frontier.usatlas.bnl.gov:23128/frontieratbnl)"
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: BeamSpotData.py 674928 2015-06-12 21:52:28Z mhance $'
+__version__ = '$Id: BeamSpotData.py 739380 2016-04-11 14:56:48Z amorley $'
 
 import time
 import copy
@@ -124,6 +124,15 @@ varDefsRun1['tiltX']['min'] = -0.4
 varDefsRun1['tiltX']['max'] = +0.4
 varDefsRun1['tiltY']['min'] = -0.4
 varDefsRun1['tiltY']['max'] = +0.4
+
+# Version where default values are tailored for 
+varDefsRun1VtxPaper = copy.deepcopy(varDefsGen)
+varDefsRun1VtxPaper['posX']['atit'] = 'x [mm]'
+varDefsRun1VtxPaper['posY']['atit'] = 'y [mm]'
+varDefsRun1VtxPaper['posZ']['atit'] = 'z [mm]'
+varDefsRun1VtxPaper['sigmaX']['atit'] = '#sigma_{x} [mm]'
+varDefsRun1VtxPaper['sigmaY']['atit'] = '#sigma_{y} [mm]'
+varDefsRun1VtxPaper['sigmaZ']['atit'] = '#sigma_{z} [mm]'
 
 # Version where default values are tailored for MC14 validation plots
 varDefsMC14 = copy.deepcopy(varDefsGen)
@@ -437,6 +446,9 @@ class BeamSpotValue:
                 if len(tokens) < 5: tokens.append(0.0)
                 point, start, end, sep, acq = tokens
                 BeamSpotValue.pseudoLbDict[int(point)] = (int(int(start)*timeUnit), int(int(end)*timeUnit), float(sep), float(acq))
+
+        if not self.lbStart in self.pseudoLbDict:
+            return
 
         self.timeStart = self.pseudoLbDict[self.lbStart][0]
         self.timeEnd = self.pseudoLbDict[self.lbStart][1]
@@ -825,7 +837,7 @@ class BeamSpotContainer:
                 print 'WARNING: Cannot cache LB range %i ... %i for run %i' % (b.lbStart,b.lbEnd,r)
             else:
                 for i in range(b.lbStart,b.lbEnd+1):
-                    if b.status in self.statusList:
+                    if b.status in self.statusList or not self.statusList:
                         cache[r][i] = b
         return cache
 

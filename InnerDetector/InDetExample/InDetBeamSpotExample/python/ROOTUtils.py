@@ -1,11 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: ROOTUtils.py 672121 2015-06-03 16:53:14Z mhance $
+# $Id: ROOTUtils.py 721731 2016-02-03 22:26:53Z beringer $
 """
 Miscellaneous utilities for PyROOT.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: ROOTUtils.py 672121 2015-06-03 16:53:14Z mhance $'
+__version__ = '$Id: ROOTUtils.py 721731 2016-02-03 22:26:53Z beringer $'
 
 
 import ROOT
@@ -256,7 +256,7 @@ def drawText(x=0.74,y=0.87,dy=0.06,text='',font=62,color=1,align=11,linesep=';')
 
 
 #def drawLegend(x=0.18,y=0.9,s=0.07,legendList=[],fillColor=0,lineColor=0):
-def drawLegend(x1,y1,x2,y2,legendList=[],fillColor=0,lineColor=0,protectLegend=True):
+def drawLegend(x1,y1,x2,y2,legendList=[],fillColor=0,lineColor=0,textSize=None,protectLegend=True):
     """Draw a legend with one or more entries. legendList is a list of lists,
        where each inner list defines the object, text and option of a legend entry.
        NOTE: Must store returned TLegend, otherwise legend will disappear!"""
@@ -271,6 +271,8 @@ def drawLegend(x1,y1,x2,y2,legendList=[],fillColor=0,lineColor=0,protectLegend=T
     l.SetFillColor(fillColor)
     l.SetLineColor(lineColor)
     l.SetShadowColor(lineColor)
+    if textSize:
+        l.SetTextSize(textSize)
     for e in legendList:
         l.AddEntry(e[0],e[1],e[2])
     l.Draw()
@@ -298,13 +300,15 @@ def moveStats(h,dx,dy,xw=0,yw=0,label=''):
     ROOT.gPad.Update
 
 
-def atlasLabel(x,y,isPreliminary=False,color=1,offset=0.115,isForApproval=False,energy=8,customstring=""):
+def atlasLabel(x,y,isPreliminary=False,color=1,offset=0.115,isForApproval=False,energy=8,customstring="",size=0.05):
     if x==None or y==None:
         print "Must set (x,y) position using --atlasx and --atlasy to add labels.  No ATLAS labels created."
         return
+    offset = offset/0.05*size
     l = ROOT.TLatex()
     l.SetNDC()
     l.SetTextFont(72)
+    l.SetTextSize(size)
     l.SetTextColor(color)
     l.DrawLatex(x,y,"ATLAS")
     if customstring != "":
@@ -318,20 +322,23 @@ def atlasLabel(x,y,isPreliminary=False,color=1,offset=0.115,isForApproval=False,
             p = ROOT.TLatex()
             p.SetNDC()
             p.SetTextFont(42)
+            p.SetTextSize(size)
             p.SetTextColor(color)
             p.DrawLatex(x+offset,y,"Preliminary")
         if (isForApproval):
             p = ROOT.TLatex()
             p.SetNDC()
             p.SetTextFont(42)
+            p.SetTextSize(size)
             p.SetTextColor(color)
-            p.DrawLatex(x+offset,y,"Internal for approval")
+            #p.DrawLatex(x+offset,y,"Internal for approval")
+            p.DrawLatex(x+offset,y,"Internal")
     
     if energy:
         if float(energy)<15:
-            p.DrawLatex(x, y-0.07, "#sqrt{s} = %s TeV" % energy)
+            p.DrawLatex(x, y-(0.07/0.05*size), "#sqrt{s} = %s TeV" % energy)
         else:
-            p.DrawLatex(x, y-0.07, "#sqrt{s} = %s GeV" % energy)
+            p.DrawLatex(x, y-(0.07/0.05*size), "#sqrt{s} = %s GeV" % energy)
 
 
 

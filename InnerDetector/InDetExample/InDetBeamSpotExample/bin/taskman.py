@@ -5,7 +5,7 @@
 taskman is a command line utility to run TaskManager functions.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: taskman.py 346594 2011-02-18 12:57:01Z gwilliam $'
+__version__ = '$Id: taskman.py 739380 2016-04-11 14:56:48Z amorley $'
 __usage__   = '''%prog [options] taskdbconn command [args ...]
 
 Commands are:
@@ -409,6 +409,21 @@ if cmd=='delete' and len(args)==3:
         n += taskman.deleteTask(t[0],t[1])
     print '\n%i task entries deleted\n' % (n)
     sys.exit(0)
+
+# List results for selected sets of tasks
+#
+if cmd=='listResults' and len(args)==3:
+    try:
+        taskList = getFullTaskNames(taskman,args[1],args[2],confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
+    except TaskManagerCheckError, e:
+        print e
+        sys.exit(1)
+    for t in taskList:
+        print 'Listing results for task %s/%s ...' % (t[0],t[1]) 
+        print taskman.getTaskValue(t[0],t[1],'RESULTFILES')
+        print taskman.getTaskValue(t[0],t[1],'RESULTLINKS')
+    sys.exit(0)
+
 
 
 #

@@ -14,7 +14,7 @@ analysis accross tasks.
 Written by Juerg Beringer (LBNL) in 2009.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: TaskManager.py 574771 2013-12-10 10:25:40Z beringer $'
+__version__ = '$Id: TaskManager.py 739380 2016-04-11 14:56:48Z amorley $'
 
 import time, os, glob, dircache
 
@@ -513,7 +513,12 @@ end;
         q = [ 'select count(*) from TASKS' ]
         q.extend(qual)
         return self.execute(q).fetchone()[0]
-
+        
+    def getTaskValue(self, dsName,taskName, what):
+        """Get a single value from the task database. If the query results in more than one value, only
+           the first value is returned."""
+        q = [ 'select %s from TASKS where DSNAME =' % what , DbParam(dsName), 'and TASKNAME =', DbParam(taskName)]
+        return self.execute(q).fetchone()[0]
 
     def taskIter(self, what='*', qual=('order by UPDATED',)):
         q = [ 'select %s from TASKS' % what ]

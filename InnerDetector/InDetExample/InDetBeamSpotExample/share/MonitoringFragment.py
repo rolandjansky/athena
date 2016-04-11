@@ -1,11 +1,11 @@
-# $Id: MonitoringFragment.py 668583 2015-05-20 03:57:41Z mhance $
+# $Id: MonitoringFragment.py 714548 2015-12-14 16:30:23Z amorley $
 #
 # Job option fragment to add beam spot monitoring to JobRunner templates.
 # NOTE: You should configure the beam spot service as desired when using this fragment.
 #
 # Written by Juerg Beringer in November 2009.
 #
-print "InDetBeamSpotExample INFO Using $Id: MonitoringFragment.py 668583 2015-05-20 03:57:41Z mhance $"
+print "InDetBeamSpotExample INFO Using $Id: MonitoringFragment.py 714548 2015-12-14 16:30:23Z amorley $"
 
 # Default values (please put a default for EACH jobConfig parameter
 # so that the template can be used easily without JobRunner)
@@ -45,10 +45,20 @@ if not jobConfig['doMonitoringGlobal']:
                                                  minTrackPt = jobConfig['MinTrackPt'],
                                                  useBeamspot = jobConfig['useBeamSpot'])
     if jobConfig['UseFilledBCIDsOnly']:
+        print "This is AKMAKMAKM"
         # Selection on non-empty BCIDs
-        include("AthenaMonitoring/FilledBunchFilterTool_jobOptions.py")
-        #monFilledBunchFilterTool.bunchCrossingTool.FilledBunchNames=[] 
+        #include("AthenaMonitoring/FilledBunchFilterTool_jobOptions.py")
+
+        from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+        bunchCrossingTool =  BunchCrossingTool("LHC")
+         # This tool is throwing tons of warnings for no good reason, make it quieter.
+        bunchCrossingTool.OutputLevel=ERROR
+        from AthenaMonitoring.AthenaMonitoringConf import DQFilledBunchFilterTool
+        monFilledBunchFilterTool = DQFilledBunchFilterTool()
+        monFilledBunchFilterTool.bunchCrossingTool  = bunchCrossingTool
+        ToolSvc += monFilledBunchFilterTool
         ToolSvc.InDetGlobalBeamSpotMonTool.FilterTools.append(monFilledBunchFilterTool)
+
 
     print ToolSvc.InDetGlobalBeamSpotMonTool
     
