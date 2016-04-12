@@ -7,7 +7,6 @@
 
 #include "StorageSvc/FileDescriptor.h"
 #include "StorageSvc/DbDatabase.h"
-#include "PersistencySvc/Placement.h"
 #include <vector>
 #include <set>
 #include <utility>
@@ -89,9 +88,6 @@ namespace pool {
       /// Reconnects with a new access mode
       void reconnect( long accessMode );
 
-      /// Returns a placement hint for this database
-      Placement placementHint() const;
-
       /// Writes an object and returns a token
       Token* writeObject( const std::string& containerName,
                           long minorTechnology,
@@ -99,11 +95,7 @@ namespace pool {
                           const RootType& type );
 
       /// Reads an object given a token
-      void* readObject( const Token& token );
-
-      /// Updates an object given a token
-      bool updateObject( const void* object,
-                         const Token& token );
+      void* readObject( const Token& token, void* object = 0 );
 
       /// Deletes an object from the persistent store
       bool destroyObject( const Token& token );

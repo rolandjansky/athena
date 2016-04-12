@@ -6,7 +6,7 @@
 #define INCLUDE_PERSISTENCYSVC_ICONTAINER_H
 
 // includes
-#include "PersistencySvc/Placement.h"
+#include <string>
 
 namespace pool {
 
@@ -33,9 +33,6 @@ namespace pool {
 
     /// Returns the technology identifier for this container
     virtual long technology() const = 0;
-
-    /// Returns a placement hint for this container
-    virtual Placement placementHint() const = 0;
 
     /** Starts an iteration over the tokens in the container.
      *  Returns a token iterator whose ownership is passed to the user.

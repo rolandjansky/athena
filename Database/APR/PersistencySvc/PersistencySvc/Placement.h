@@ -7,7 +7,8 @@
 
 // Framework include files
 #include "PersistencySvc/DatabaseSpecification.h"
-#include "DataModelRoot/RootType.h"
+
+#include <string>
 
 namespace pool  {
 
@@ -22,13 +23,6 @@ namespace pool  {
   public:
     /// Default Constructor
     Placement();
-    /// Constructor with initialization
-    Placement( const std::string& dbName,
-               DatabaseSpecification::NameType dbNameType,
-               const std::string& container,
-               const RootType& shapeID,
-               long technology );
-
     /// Constructor with initialization
     Placement( const std::string& dbName,
                DatabaseSpecification::NameType dbNameType,
@@ -48,11 +42,6 @@ namespace pool  {
     /// Access container identifier
     const std::string& containerName() const;
 
-    /// Access database identifier
-    void setShapeID( const RootType& id );
-    /// Access database identifier
-    const RootType& shapeID() const;
-
     /// Set technology type
     void setTechnology( long technology );
     /// Access technoliogy type
@@ -65,8 +54,6 @@ namespace pool  {
     std::string           m_dbID;
     /// Container identifier
     std::string           m_contID;
-    /// Object global identifier
-    RootType              m_shapeID;
     /// Type of the database identifier
     DatabaseSpecification::NameType  m_dbNameType;
   };

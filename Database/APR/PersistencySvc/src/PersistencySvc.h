@@ -44,13 +44,14 @@ namespace pool {
        *  The Guid of the transient class is assumed to be the classID of the token
        *
        * @param  token   [IN]  reference to the token for the object
+       * @param  object  [IN]  pointer to memory for the object (created if 0)
        *
        * @return void*   The data.
        *
        * In case of failure zero is returned.
        *
        */
-      void* readObject( const Token& token );
+      void* readObject( const Token& token, void* object = 0 );
       
       /**  registerForWrite registers an object for writing to the persistent medium
        *   higher level interactions with the framework are necessary.
@@ -65,18 +66,6 @@ namespace pool {
       Token* registerForWrite( const Placement& place,
                                const void* object,
                                const RootType& type );
-      
-      /**  updateObject updates an object which is already written in the persistent medium.
-       *   higher level interactions with the framework are necessary.
-       *
-       * @param  object       [IN]  pointer to transient object which will be updates
-       * @param  token        [IN]  reference to the token for the object
-       *
-       * @return bool   Indicates whether operation was successfull.
-       *
-       */
-      bool updateObject( const void* object,
-                         const Token& token );
       
       /** Deletes an object from the persistent store
        *

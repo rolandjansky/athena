@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: IPersistencySvc.h 601951 2014-06-16 14:37:00Z mnowak $
+//$Id: IPersistencySvc.h 739662 2016-04-12 11:55:10Z krasznaa $
 
 #ifndef PERSISTENCYSVC_IPERSISTENCYSVC
 #define PERSISTENCYSVC_IPERSISTENCYSVC
@@ -10,6 +10,7 @@
 #include <string>
 #include <utility>
 
+class Placement;
 class Token;
 #include "DataModelRoot/RootType.h"
 
@@ -21,7 +22,6 @@ namespace pool {
   class IFileCatalog;
   class IConfiguration;
   class ISession;
-  class Placement;
 
   /** @class IPersistencySvc IPersistencySvc.h PersistencySvc/IPersistencySvc.h
    * 
@@ -52,13 +52,14 @@ namespace pool {
      *  The Guid of the transient class is assumed to be the classID of the token
      *
      * @param  token   [IN]  reference to the token for the object
+     * @param  object  [IN]  pointer to memory for the object (created if 0)
      *
      * @return void*   The data.
      *
      * In case of failure zero is returned.
      *
      */
-    virtual void* readObject( const Token& token ) = 0;
+    virtual void* readObject( const Token& token, void* object = 0 ) = 0;
 
     /**  registerForWrite registers an object for writing to the persistent medium
      *   higher level interactions with the framework are necessary.
@@ -74,18 +75,6 @@ namespace pool {
                                      const void* object,
                                      const RootType& type ) = 0;
     
-    /**  updateObject updates an object which is already written in the persistent medium.
-     *   higher level interactions with the framework are necessary.
-     *
-     * @param  object       [IN]  pointer to transient object which will be updates
-     * @param  token        [IN]  reference to the token for the object
-     *
-     * @return bool   Indicates whether operation was successfull.
-     *
-     */
-    virtual bool updateObject( const void* object,
-                               const Token& token ) = 0;
-
     /** Deletes an object from the persistent store
      *
      * @param  token        [IN]  reference to the token for the object

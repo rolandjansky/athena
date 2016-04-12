@@ -21,16 +21,6 @@ pool::PersistencySvc::Container::Container( const FileDescriptor& fileDescriptor
 pool::PersistencySvc::Container::~Container()
 {}
 
-pool::Placement
-pool::PersistencySvc::Container::placementHint() const
-{
-  pool::Placement placement;
-  placement.setDatabase( m_fileDescriptor.FID(), pool::DatabaseSpecification::FID );
-  placement.setTechnology( m_technology );
-  placement.setContainerName( this->name() );
-  return placement;
-}
-
 pool::ITokenIterator*
 pool::PersistencySvc::Container::tokens( const std::string& selection )
 {

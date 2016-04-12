@@ -23,7 +23,7 @@ public:
   void printSyntax();
 
 private:
-  std::string 		fcURL; 
+  std::string 		m_URL; 
 };
 
 
@@ -45,7 +45,7 @@ InsertFileToCatalogApplication::parseArguments()
 	unsigned int nextArgumentIndex = iArg + 1;
 	if( nextArgumentIndex < args.size() ) {
 	   excludedArgument = nextArgumentIndex;
-	   fcURL = args[nextArgumentIndex];
+	   m_URL = args[nextArgumentIndex];
 	}
      }
      else if( arg == "-t" ) {
@@ -71,7 +71,7 @@ InsertFileToCatalogApplication::execute()
    readFileGUIDs();
    
   // Open the file catalog and insert the pfn/fid/technology
-  pool::URIParser p( fcURL );
+  pool::URIParser p( m_URL );
   p.parse();
   std::auto_ptr<pool::IFileCatalog> catalog( new pool::IFileCatalog );
   catalog->setWriteCatalog( p.contactstring() );

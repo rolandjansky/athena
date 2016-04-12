@@ -89,9 +89,6 @@ namespace pool {
       /// Returns a pointer to a container object. The user acquires ownership of that object.
       IContainer* containerHandle( const std::string& name );
 
-      /// Returns a placement hint for this database
-      Placement placementHint() const;
-
       /// Returns the object holding the technology specific attributes
       const ITechnologySpecificAttributes& technologySpecificAttributes() const;
       ITechnologySpecificAttributes& technologySpecificAttributes();

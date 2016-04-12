@@ -197,16 +197,6 @@ pool::PersistencySvc::DatabaseHandler::reconnect( long accessMode )
 }
 
 
-pool::Placement
-pool::PersistencySvc::DatabaseHandler::placementHint() const
-{
-  pool::Placement placement;
-  placement.setDatabase( m_fileDescriptor.FID(), DatabaseSpecification::FID );
-  placement.setTechnology( m_technology );
-  return placement;
-}
-
-
 Token*
 pool::PersistencySvc::DatabaseHandler::writeObject( const std::string& containerName,
                                                     long minorTechnology,
@@ -240,9 +230,9 @@ pool::PersistencySvc::DatabaseHandler::writeObject( const std::string& container
 
 
 void*
-pool::PersistencySvc::DatabaseHandler::readObject( const Token& token )
+pool::PersistencySvc::DatabaseHandler::readObject( const Token& token, void* object )
 {
-  void* result( (void*)0 );
+  void* result( object );
   if ( ! m_transaction ) return result;
 
   // Get the persistent shape
@@ -252,27 +242,6 @@ pool::PersistencySvc::DatabaseHandler::readObject( const Token& token )
 
   if (! m_storageSvc.read( m_fileDescriptor, token, shape, &result ).isSuccess() ) {
     result = 0;
-  }
-
-  return result;
-}
-
-
-bool
-pool::PersistencySvc::DatabaseHandler::updateObject( const void* object,
-                                                     const Token& token )
-{
-  bool result = false;
-  if ( ! m_transaction ) return result;
-  if ( ! object ) return result;
-
-  // Get the persistent shape
-  const pool::Shape* shape = 0;
-  if ( m_storageSvc.getShape( m_fileDescriptor, token.classID(), shape ) != pool::IStorageSvc::IS_PERSISTENT_SHAPE )
-    return result;
-
-  if ( m_storageSvc.update( m_transaction, m_fileDescriptor, object, shape, token ).isSuccess() ) {
-    result = true;
   }
 
   return result;
