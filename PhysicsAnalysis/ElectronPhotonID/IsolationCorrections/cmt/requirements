@@ -3,16 +3,17 @@ package IsolationCorrections
 author  smazza
 
 ## for athena policies: this has to be the first use statement
-use  AtlasPolicy                AtlasPolicy-*                   
+use  AtlasPolicy                AtlasPolicy-*
 use  AtlasROOT                  AtlasROOT-*             External
 use  PATInterfaces              PATInterfaces-*         PhysicsAnalysis/AnalysisCommon
 use  AsgTools                   AsgTools-*              Control/AthToolSupport
-use  xAODEgamma                 xAODEgamma-*            Event/xAOD  
+use  xAODEgamma                 xAODEgamma-*            Event/xAOD
 use  xAODPrimitives             xAODPrimitives-*        Event/xAOD
 use  xAODEventInfo              xAODEventInfo-*         Event/xAOD
+use  xAODTracking               xAODTracking-*          Event/xAOD
 
 private
-use PathResolver               PathResolver-*           Tools               
+use PathResolver               PathResolver-*           Tools
 use GaudiInterface             GaudiInterface-*         External
 end_private
 
@@ -22,7 +23,7 @@ branches IsolationCorrections src src/components Root python share
 apply_pattern dual_use_library files="*.cxx ../Root/*.cxx"
 
 ## install the ROOT files (in the data/ directory)
-apply_pattern declare_calib files="../data/*.root" 
+apply_pattern declare_calib files="../data/*.root"
 
 
 apply_pattern declare_joboptions files="*.py"

@@ -1,4 +1,5 @@
 <lcgdict>
   <class name="CP::IsolationCorrectionTool"/>
   <class name="CP::IsolationCorrection"/>
+  <class name="CP::ShowerDepthTool"/>
 </lcgdict>
