@@ -51,76 +51,76 @@ StatusCode HLTMuonMonTool::bookMuCombDQA()
   //histograms in each 10LBs 
   if( newRun || newLowStat){
 
-    addHistogram( new TH2F("muComb_eta_vs_phi_in_10LBs",           "muComb eta vs phi in 10LBs; #eta ; #phi",           27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), histdircoverage );
+    addHistogram( new TH2F("muComb_eta_vs_phi_in_10LBs",           "muComb eta vs phi in 10LBs; #eta ; #phi",           27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), m_histdircoverage );
 
   }
 
   if( newRun ){
 
     //  basic EDM
-    addHistogram( new TH1F("muComb_pt_all",          "muComb pt (GeV/c); p_{T}[GeV/c]; Entries",                  210, -105., 105.), histdirmucomb );
-    addHistogram( new TH1F("muComb_pt",              "muComb pt (GeV/c); p_{T}[GeV/c]; Entries",                  210, -105., 105.), histdirmucomb );
-    addHistogram( new TH1F("muComb_eta",             "muComb eta; #eta; Entries",                       108, -2.7,  2.7), histdirmucomb );
-    addHistogram( new TH1F("muComb_phi",             "muComb phi; #phi[rad]; Entries",                       96, -CLHEP::pi, CLHEP::pi), histdirmucomb );
-    addHistogram( new TH2F("muComb_eta_vs_phi",      "muComb eta vs phi; #eta ; #phi",           108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), histdirmucomb );
+    addHistogram( new TH1F("muComb_pt_all",          "muComb pt (GeV/c); p_{T}[GeV/c]; Entries",                  210, -105., 105.), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_pt",              "muComb pt (GeV/c); p_{T}[GeV/c]; Entries",                  210, -105., 105.), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_eta",             "muComb eta; #eta; Entries",                       108, -2.7,  2.7), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_phi",             "muComb phi; #phi[rad]; Entries",                       96, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
+    addHistogram( new TH2F("muComb_eta_vs_phi",      "muComb eta vs phi; #eta ; #phi",           108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
 	 
-	 addHistogram( new TH2F("muComb_eta_vs_phi_MCmatching_success",  "muComb eta vs phi (MC match success); #eta ; #phi", 108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), histdirmucomb );
-	 addHistogram( new TH2F("muComb_eta_vs_phi_OFFmatching_failure", "muComb eta vs phi (MC match success Off match failure); #eta ; #phi",108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), histdirmucomb );
-	 addHistogram( new TH2F("muFast_eta_vs_phi_MCmatching_failure",  "muFast eta vs phi (MC match failure Off match success); #eta ; #phi",           108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), histdirmucomb );
+	 addHistogram( new TH2F("muComb_eta_vs_phi_MCmatching_success",  "muComb eta vs phi (MC match success); #eta ; #phi", 108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
+	 addHistogram( new TH2F("muComb_eta_vs_phi_OFFmatching_failure", "muComb eta vs phi (MC match success Off match failure); #eta ; #phi",108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
+	 addHistogram( new TH2F("muFast_eta_vs_phi_MCmatching_failure",  "muFast eta vs phi (MC match failure Off match success); #eta ; #phi",           108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
 
     // comparison muComb vs muFast
-    addHistogram( new TH1F("muComb_ptratio_toMF",    "muComb pt / muFast pt; p_{T} ratio; Entries",          140, -0.5,  3), histdirmucomb );
-    addHistogram( new TH1F("muComb_dR_toMF",         "muComb delta R to muFast; #DeltaR; Entries",           100,   0,  0.5), histdirmucomb );
-    addHistogram( new TH1F("muComb_deta_toMF",       "muComb delta eta to muFast; #Delta#eta; Entries",      120, -0.2, 0.2), histdirmucomb );
-    addHistogram( new TH1F("muComb_dphi_toMF",       "muComb delta phi to muFast; #Delta#phi; Entries",      120, -0.2, 0.2), histdirmucomb );
-    addHistogram( new TH1F("muComb_MF_error",        "muComb pointer to MuonFeature Error",                  5,0,5),          histdirmucomb );
-    hist("muComb_MF_error", histdirmucomb)->GetXaxis()->SetBinLabel(1,"No error");
-    hist("muComb_MF_error", histdirmucomb)->GetXaxis()->SetBinLabel(2,"Missing Pointer to MF");
-    hist("muComb_MF_error", histdirmucomb)->GetXaxis()->SetBinLabel(3,"MF reconstruction Error");
-    hist("muComb_MF_error", histdirmucomb)->GetXaxis()->SetBinLabel(4,"CB ContainerSize Error");
-    hist("muComb_MF_error", histdirmucomb)->GetXaxis()->SetBinLabel(5,"MF ContainerSize Error");
+    addHistogram( new TH1F("muComb_ptratio_toMF",    "muComb pt / muFast pt; p_{T} ratio; Entries",          140, -0.5,  3), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_dR_toMF",         "muComb delta R to muFast; #DeltaR; Entries",           100,   0,  0.5), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_deta_toMF",       "muComb delta eta to muFast; #Delta#eta; Entries",      120, -0.2, 0.2), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_dphi_toMF",       "muComb delta phi to muFast; #Delta#phi; Entries",      120, -0.2, 0.2), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_MF_error",        "muComb pointer to MuonFeature Error",                  5,0,5),          m_histdirmucomb );
+    hist("muComb_MF_error", m_histdirmucomb)->GetXaxis()->SetBinLabel(1,"No error");
+    hist("muComb_MF_error", m_histdirmucomb)->GetXaxis()->SetBinLabel(2,"Missing Pointer to MF");
+    hist("muComb_MF_error", m_histdirmucomb)->GetXaxis()->SetBinLabel(3,"MF reconstruction Error");
+    hist("muComb_MF_error", m_histdirmucomb)->GetXaxis()->SetBinLabel(4,"CB ContainerSize Error");
+    hist("muComb_MF_error", m_histdirmucomb)->GetXaxis()->SetBinLabel(5,"MF ContainerSize Error");
 
     // comparison IDtrk vs muFast
-    addHistogram( new TH1F("muComb_ptratio_TRKtoMF", "muComb Trk pt / muFast pt; p_{T} ratio; Entries",      140, -0.5, 3), histdirmucomb );
-    addHistogram( new TH1F("muComb_dR_TRKtoMF",      "muComb delta R TRK to muFast; #DeltaR; Entries",       100,    0, 0.5), histdirmucomb );
-    addHistogram( new TH1F("muComb_deta_TRKtoMF",    "muComb delta eta TRK to muFast; #Delta#eta; Entries",  120, -0.2, 0.2), histdirmucomb );
-    addHistogram( new TH1F("muComb_dphi_TRKtoMF",    "muComb delta phi TRK to muFast; #Delta#phi; Entries",  120, -0.2, 0.2), histdirmucomb );
+    addHistogram( new TH1F("muComb_ptratio_TRKtoMF", "muComb Trk pt / muFast pt; p_{T} ratio; Entries",      140, -0.5, 3), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_dR_TRKtoMF",      "muComb delta R TRK to muFast; #DeltaR; Entries",       100,    0, 0.5), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_deta_TRKtoMF",    "muComb delta eta TRK to muFast; #Delta#eta; Entries",  120, -0.2, 0.2), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_dphi_TRKtoMF",    "muComb delta phi TRK to muFast; #Delta#phi; Entries",  120, -0.2, 0.2), m_histdirmucomb );
 
     // ID variables
-    addHistogram( new TH1F("muComb_TRKpt",           "muComb Trk pt (GeV/c); p_{T}[GeV/c]; Entries",      210, -105., 105.), histdirmucomb );
-    addHistogram( new TH1F("muComb_TRKeta",          "muComb Trk eta; #eta; Entries",           108, -2.7, 2.7), histdirmucomb );
-    addHistogram( new TH1F("muComb_TRKphi",          "muComb Trk phi; #phi[rad]; Entries",           96, -CLHEP::pi,CLHEP::pi), histdirmucomb );
-    addHistogram( new TH1F("muComb_TRKz0",           "muComb Trk z0 (mm); z0[mm]; Entries",       150, -300, 300), histdirmucomb );
-    addHistogram( new TH1F("muComb_TRKchi2",         "muComb Trk chi2; #chi^{2}; Entries",           50, 0, 10), histdirmucomb );
+    addHistogram( new TH1F("muComb_TRKpt",           "muComb Trk pt (GeV/c); p_{T}[GeV/c]; Entries",      210, -105., 105.), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_TRKeta",          "muComb Trk eta; #eta; Entries",           108, -2.7, 2.7), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_TRKphi",          "muComb Trk phi; #phi[rad]; Entries",           96, -CLHEP::pi,CLHEP::pi), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_TRKz0",           "muComb Trk z0 (mm); z0[mm]; Entries",       150, -300, 300), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_TRKchi2",         "muComb Trk chi2; #chi^{2}; Entries",           50, 0, 10), m_histdirmucomb );
 
     // in case of failure 
-    addHistogram( new TH1F("muComb_failed_MFpt",     "muFast pt (GeV/c) for muComb fails; p_{T}[GeV/c]; Entries",  210, -105., 105.), histdirmucomb );
-    addHistogram( new TH1F("muComb_failed_MFeta",    "muFast eta for muComb fails; #eta; Entries",       108, -2.7,  2.7), histdirmucomb );
-    addHistogram( new TH1F("muComb_failed_MFphi",    "muFast phi for muComb fails; #phi[rad]; Entries",   96, -CLHEP::pi, CLHEP::pi), histdirmucomb );
+    addHistogram( new TH1F("muComb_failed_MFpt",     "muFast pt (GeV/c) for muComb fails; p_{T}[GeV/c]; Entries",  210, -105., 105.), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_failed_MFeta",    "muFast eta for muComb fails; #eta; Entries",       108, -2.7,  2.7), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_failed_MFphi",    "muFast phi for muComb fails; #phi[rad]; Entries",   96, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
 
     // Comparison to Offline
-    addHistogram( new TH1F("muComb_dR_toOffl",          "dR between muComb and Offline; #DeltaR; Entries",           100,  0,  2), histdirmucomb );
-    addHistogram( new TH1F("muComb_ptresol_toOffl",     "muComb pT resolution wrt Offline; p_{T} resol; Entries",        100, -2., 2.), histdirmucomb );
-    addHistogram( new TH2F("muComb_ptresol_toOffl_eta", "muComb pT resolution wrt Offline in eta; #eta; p_{T} resol", 16, -3.2, 3.2, 100, -2, 2), histdirmucomb );
+    addHistogram( new TH1F("muComb_dR_toOffl",          "dR between muComb and Offline; #DeltaR; Entries",           100,  0,  2), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_ptresol_toOffl",     "muComb pT resolution wrt Offline; p_{T} resol; Entries",        100, -2., 2.), m_histdirmucomb );
+    addHistogram( new TH2F("muComb_ptresol_toOffl_eta", "muComb pT resolution wrt Offline in eta; #eta; p_{T} resol", 16, -3.2, 3.2, 100, -2, 2), m_histdirmucomb );
 
     // Efficiency wrt Offline
-    addHistogram( new TH1F("muComb_effi_toOffl_pt",                "muComb effi pt (GeV/c); p_{T}[GeV/c]; Efficiency",              26, 0, 52), histdireff);
-    addHistogram( new TH1F("muComb_effi_toOffl_pt_numer",          "muComb effi pt (GeV/c) numer; p_{T}[GeV/c]; Entries",        26, 0, 52), histdirmucomb);
-    addHistogram( new TH1F("muComb_effi_toOffl_pt_denom",          "muComb effi pt (GeV/c) denom; p_{T}[GeV/c]; Entries",        26, 0, 52), histdirmucomb);
-    addHistogram( new TH1F("muComb_effi_toOffl_pt_barrel",         "muComb effi pt (GeV/c) barrel; p_{T}[GeV/c]; Efficiency",       26, 0, 52), histdireff);
-    addHistogram( new TH1F("muComb_effi_toOffl_pt_barrel_numer",   "muComb effi pt (GeV/c) barrel numer; p_{T}[GeV/c]; Entries", 26, 0, 52), histdirmucomb);
-    addHistogram( new TH1F("muComb_effi_toOffl_pt_barrel_denom",   "muComb effi pt (GeV/c) barrel denom; p_{T}[GeV/c]; Entries", 26, 0, 52), histdirmucomb);
-    addHistogram( new TH1F("muComb_effi_toOffl_pt_endcap",         "muComb effi pt (GeV/c) endcap; p_{T}[GeV/c]; Efficiency",       26, 0, 52), histdireff);
-    addHistogram( new TH1F("muComb_effi_toOffl_pt_endcap_numer",   "muComb effi pt (GeV/c) endcap numer; p_{T}[GeV/c]; Entries", 26, 0, 52), histdirmucomb);
-    addHistogram( new TH1F("muComb_effi_toOffl_pt_endcap_denom",   "muComb effi pt (GeV/c) endcap denom; p_{T}[GeV/c]; Entries", 26, 0, 52), histdirmucomb);
+    addHistogram( new TH1F("muComb_effi_toOffl_pt",                "muComb effi pt (GeV/c); p_{T}[GeV/c]; Efficiency",              26, 0, 52), m_histdireff);
+    addHistogram( new TH1F("muComb_effi_toOffl_pt_numer",          "muComb effi pt (GeV/c) numer; p_{T}[GeV/c]; Entries",        26, 0, 52), m_histdirmucomb);
+    addHistogram( new TH1F("muComb_effi_toOffl_pt_denom",          "muComb effi pt (GeV/c) denom; p_{T}[GeV/c]; Entries",        26, 0, 52), m_histdirmucomb);
+    addHistogram( new TH1F("muComb_effi_toOffl_pt_barrel",         "muComb effi pt (GeV/c) barrel; p_{T}[GeV/c]; Efficiency",       26, 0, 52), m_histdireff);
+    addHistogram( new TH1F("muComb_effi_toOffl_pt_barrel_numer",   "muComb effi pt (GeV/c) barrel numer; p_{T}[GeV/c]; Entries", 26, 0, 52), m_histdirmucomb);
+    addHistogram( new TH1F("muComb_effi_toOffl_pt_barrel_denom",   "muComb effi pt (GeV/c) barrel denom; p_{T}[GeV/c]; Entries", 26, 0, 52), m_histdirmucomb);
+    addHistogram( new TH1F("muComb_effi_toOffl_pt_endcap",         "muComb effi pt (GeV/c) endcap; p_{T}[GeV/c]; Efficiency",       26, 0, 52), m_histdireff);
+    addHistogram( new TH1F("muComb_effi_toOffl_pt_endcap_numer",   "muComb effi pt (GeV/c) endcap numer; p_{T}[GeV/c]; Entries", 26, 0, 52), m_histdirmucomb);
+    addHistogram( new TH1F("muComb_effi_toOffl_pt_endcap_denom",   "muComb effi pt (GeV/c) endcap denom; p_{T}[GeV/c]; Entries", 26, 0, 52), m_histdirmucomb);
 
-    addHistogram( new TH1F("muComb_effi_toOffl_eta",           "muComb effi eta; #eta; Efficiency",       32, -3.2, 3.2), histdireff );
-    addHistogram( new TH1F("muComb_effi_toOffl_eta_numer",     "muComb effi eta numer; #eta; Entries", 32, -3.2, 3.2), histdirmucomb);
-    addHistogram( new TH1F("muComb_effi_toOffl_eta_denom",     "muComb effi eta denom; #eta; Entries", 32, -3.2, 3.2), histdirmucomb);
+    addHistogram( new TH1F("muComb_effi_toOffl_eta",           "muComb effi eta; #eta; Efficiency",       32, -3.2, 3.2), m_histdireff );
+    addHistogram( new TH1F("muComb_effi_toOffl_eta_numer",     "muComb effi eta numer; #eta; Entries", 32, -3.2, 3.2), m_histdirmucomb);
+    addHistogram( new TH1F("muComb_effi_toOffl_eta_denom",     "muComb effi eta denom; #eta; Entries", 32, -3.2, 3.2), m_histdirmucomb);
 
-    addHistogram( new TH1F("muComb_effi_toOffl_phi",           "muComb effi phi; #phi[rad]; Efficiency",       32, -CLHEP::pi, CLHEP::pi), histdireff );
-    addHistogram( new TH1F("muComb_effi_toOffl_phi_numer",     "muComb effi phi numer; #phi[rad]; Entries", 32, -CLHEP::pi, CLHEP::pi), histdirmucomb );
-    addHistogram( new TH1F("muComb_effi_toOffl_phi_denom",     "muComb effi phi denom; #phi[rad]; Entries", 32, -CLHEP::pi, CLHEP::pi), histdirmucomb );
+    addHistogram( new TH1F("muComb_effi_toOffl_phi",           "muComb effi phi; #phi[rad]; Efficiency",       32, -CLHEP::pi, CLHEP::pi), m_histdireff );
+    addHistogram( new TH1F("muComb_effi_toOffl_phi_numer",     "muComb effi phi numer; #phi[rad]; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_effi_toOffl_phi_denom",     "muComb effi phi denom; #phi[rad]; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
 
   }else if( newLumiBlock ){
   }
@@ -131,7 +131,7 @@ StatusCode HLTMuonMonTool::bookMuCombDQA()
 
 StatusCode HLTMuonMonTool::fillMuCombDQA()
 {
-  hist("Common_Counter", histdir )->Fill(MUCOMB);
+  hist("Common_Counter", m_histdir )->Fill(MUCOMB);
 
   const float DR_MATCHED         = 0.5;
   const float ETA_OF_BARREL      = 1.05;
@@ -288,30 +288,30 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 
     // fill in histos
 
-    hist("muComb_pt_all", histdirmucomb)->Fill(pt_hist);
+    hist("muComb_pt_all", m_histdirmucomb)->Fill(pt_hist);
 
     if( ! cmf_success ) {
-      hist("muComb_failed_MFpt", histdirmucomb)->Fill(mf_pt_hist);
+      hist("muComb_failed_MFpt", m_histdirmucomb)->Fill(mf_pt_hist);
       if( ptr_mf != 0 && fabs(mf_pt) > ZERO_LIMIT ) { 
-	hist("muComb_failed_MFeta", histdirmucomb)->Fill(mf_eta);
-	hist("muComb_failed_MFphi", histdirmucomb)->Fill(mf_phi);
+	hist("muComb_failed_MFeta", m_histdirmucomb)->Fill(mf_eta);
+	hist("muComb_failed_MFphi", m_histdirmucomb)->Fill(mf_phi);
       }
       continue;
     }
 
     // only for muComb succeeded
 
-    hist("muComb_pt", histdirmucomb)->Fill(pt_hist);
-    hist("muComb_eta", histdirmucomb)->Fill(eta);
-    hist("muComb_phi", histdirmucomb)->Fill(phi);
+    hist("muComb_pt", m_histdirmucomb)->Fill(pt_hist);
+    hist("muComb_eta", m_histdirmucomb)->Fill(eta);
+    hist("muComb_phi", m_histdirmucomb)->Fill(phi);
     if(eta != 0 && phi != 0) { //tomoe added 10/06/2011
-      hist2("muComb_eta_vs_phi", histdirmucomb)->Fill(eta, phi);
-      hist2("muComb_eta_vs_phi_in_10LBs", histdircoverage)->Fill(eta, phi);
+      hist2("muComb_eta_vs_phi", m_histdirmucomb)->Fill(eta, phi);
+      hist2("muComb_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta, phi);
     }
 
     // muComb vs mFast
     if(ptratio_cmb_mf_hist != PTRATIO_ERR_NOLINK && ptratio_cmb_mf_hist != PTRATIO_ERR_MFFAIL){
-	   hist("muComb_ptratio_toMF", histdirmucomb)->Fill(ptratio_cmb_mf_hist);
+	   hist("muComb_ptratio_toMF", m_histdirmucomb)->Fill(ptratio_cmb_mf_hist);
     }
     if( ptr_mf != 0 && fabs(mf_pt) > ZERO_LIMIT ) { 
       float deta = eta-mf_eta;
@@ -320,19 +320,19 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
       if( fabs(deta) > DETA_HISTMAX ) deta = DETA_OVFL * deta / fabs(deta);
       if( fabs(dphi) > DPHI_HISTMAX ) dphi = DPHI_OVFL * dphi / fabs(dphi);
       if(        dR  > DR_HISTMAX )     dR = DR_OVFL;
-      hist("muComb_deta_toMF", histdirmucomb)->Fill(deta);
-      hist("muComb_dphi_toMF", histdirmucomb)->Fill(dphi);
-      hist("muComb_dR_toMF", histdirmucomb)->Fill(dR);
+      hist("muComb_deta_toMF", m_histdirmucomb)->Fill(deta);
+      hist("muComb_dphi_toMF", m_histdirmucomb)->Fill(dphi);
+      hist("muComb_dR_toMF", m_histdirmucomb)->Fill(dR);
     }
 
     // TRK, TRK vs muFast
-    hist("muComb_TRKpt", histdirmucomb)->Fill(trk_pt_hist);
+    hist("muComb_TRKpt", m_histdirmucomb)->Fill(trk_pt_hist);
     if( ptr_trk != 0 ) {
-      hist("muComb_TRKeta", histdirmucomb)->Fill(trk_eta);
-      hist("muComb_TRKphi", histdirmucomb)->Fill(trk_phi);
-      hist("muComb_TRKz0", histdirmucomb)->Fill(trk_z0);
-      hist("muComb_TRKchi2", histdirmucomb)->Fill(trk_chi2);
-      hist("muComb_ptratio_TRKtoMF", histdirmucomb)->Fill(ptratio_trk_mf_hist);
+      hist("muComb_TRKeta", m_histdirmucomb)->Fill(trk_eta);
+      hist("muComb_TRKphi", m_histdirmucomb)->Fill(trk_phi);
+      hist("muComb_TRKz0", m_histdirmucomb)->Fill(trk_z0);
+      hist("muComb_TRKchi2", m_histdirmucomb)->Fill(trk_chi2);
+      hist("muComb_ptratio_TRKtoMF", m_histdirmucomb)->Fill(ptratio_trk_mf_hist);
       if( ptr_mf != 0 && fabs(mf_pt) > ZERO_LIMIT ) { 
 	float deta = trk_eta-mf_eta;
 	float dphi = calc_dphi(trk_phi, mf_phi);
@@ -340,9 +340,9 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 	if( fabs(deta) > DETA_HISTMAX ) deta = DETA_OVFL * deta / fabs(deta);
 	if( fabs(dphi) > DPHI_HISTMAX ) dphi = DPHI_OVFL * dphi / fabs(dphi);
 	if(        dR  > DR_HISTMAX )     dR = DR_OVFL;
-	hist("muComb_deta_TRKtoMF", histdirmucomb)->Fill(deta);
-	hist("muComb_dphi_TRKtoMF", histdirmucomb)->Fill(dphi);
-	hist("muComb_dR_TRKtoMF", histdirmucomb)->Fill(dR);
+	hist("muComb_deta_TRKtoMF", m_histdirmucomb)->Fill(deta);
+	hist("muComb_dphi_TRKtoMF", m_histdirmucomb)->Fill(dphi);
+	hist("muComb_dR_TRKtoMF", m_histdirmucomb)->Fill(dR);
       }
     }
 
@@ -377,28 +377,28 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 		if(fs_CB.size() == 1 && fs_MF.size()>0){
 		  if(cb_cont->at(0)->muSATrack()){
 			  if(mf_pt != cb_cont->at(0)->muSATrack()->pt()){
-				  hist("muComb_MF_error", histdirmucomb)->Fill(1);
+				  hist("muComb_MF_error", m_histdirmucomb)->Fill(1);
 				  error = true;
 			  }
 		  } else {
-			  hist("muComb_MF_error", histdirmucomb)->Fill(1);
+			  hist("muComb_MF_error", m_histdirmucomb)->Fill(1);
 			  error = true;
 		  }
 		}
 		if(fabs(mf_pt) < ZERO_LIMIT){
-		  hist("muComb_MF_error", histdirmucomb)->Fill(2);
+		  hist("muComb_MF_error", m_histdirmucomb)->Fill(2);
 		  error = true;
 		}
 		if(fs_CB.size() > 1){
-		  hist("muComb_MF_error", histdirmucomb)->Fill(3);
+		  hist("muComb_MF_error", m_histdirmucomb)->Fill(3);
 		  error = true;
 		}
 		if(fs_MF.size() > 1){
-		  hist("muComb_MF_error", histdirmucomb)->Fill(4);
+		  hist("muComb_MF_error", m_histdirmucomb)->Fill(4);
 		  error = true;
 		}
 		if(!error){
-	     hist("muComb_MF_error", histdirmucomb)->Fill(0);
+	     hist("muComb_MF_error", m_histdirmucomb)->Fill(0);
 		}
 	   else continue;
     
@@ -420,15 +420,15 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
       }
       if(mc_eta != 0 && mc_phi != 0) {  //tomoe added 10/06/2011
 	  if(mc_success){
-		  hist2("muComb_eta_vs_phi_MCmatching_success", histdirmucomb)->Fill(mc_eta,mc_phi);
+		  hist2("muComb_eta_vs_phi_MCmatching_success", m_histdirmucomb)->Fill(mc_eta,mc_phi);
 	   }
 	  if(mc_success && !off_mc_match){
-		  hist2("muComb_eta_vs_phi_OFFmatching_failure", histdirmucomb)->Fill(mc_eta,mc_phi);
+		  hist2("muComb_eta_vs_phi_OFFmatching_failure", m_histdirmucomb)->Fill(mc_eta,mc_phi);
 	  }
       } 
       if(mf_eta != 0 && mf_phi != 0) {  //tomoe added 10/06/2011
 	      if(!mc_success && off_mf_match){
-		      hist2("muFast_eta_vs_phi_MCmatching_failure", histdirmucomb)->Fill(mf_eta,mf_phi);
+		      hist2("muFast_eta_vs_phi_MCmatching_failure", m_histdirmucomb)->Fill(mf_eta,mf_phi);
 	      } 
       } 
     }
@@ -459,24 +459,24 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 		  const xAOD::L2CombinedMuonContainer* cb_cont = fs_CB[0];
 		  if(cb_cont->at(0)->muSATrack()){
 		    if(mf_pt != cb_cont->at(0)->muSATrack()->pt()){
-		       hist("muComb_MF_error", histdirmucomb)->Fill(1);
+		       hist("muComb_MF_error", m_histdirmucomb)->Fill(1);
 		       error = true;
 		    }
 		  } else {
-		       hist("muComb_MF_error", histdirmucomb)->Fill(1);
+		       hist("muComb_MF_error", m_histdirmucomb)->Fill(1);
 		       error = true;
 		  }
 		}
 		if(fs_CB.size() > 1){
-		  hist("muComb_MF_error", histdirmucomb)->Fill(3);
+		  hist("muComb_MF_error", m_histdirmucomb)->Fill(3);
 		  error = true;
 		}
 		if(fs_MF.size() > 1){
-		  hist("muComb_MF_error", histdirmucomb)->Fill(4);
+		  hist("muComb_MF_error", m_histdirmucomb)->Fill(4);
 		  error = true;
 		}
 		if(!error){
-	     hist("muComb_MF_error", histdirmucomb)->Fill(0);
+	     hist("muComb_MF_error", m_histdirmucomb)->Fill(0);
 		}
 
 	   else continue;
@@ -497,15 +497,15 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
     float pt_offl_hist = fabs(pt_offl);
     if( pt_offl_hist > EFFI_PT_HISTMAX )  pt_offl_hist = EFFI_PT_OVFL;
 
-    hist("muComb_effi_toOffl_pt_denom", histdirmucomb)->Fill(pt_offl_hist);
-    hist("muComb_effi_toOffl_eta_denom", histdirmucomb)->Fill(eta_offl);
-    hist("muComb_effi_toOffl_phi_denom", histdirmucomb)->Fill(phi_offl);
+    hist("muComb_effi_toOffl_pt_denom", m_histdirmucomb)->Fill(pt_offl_hist);
+    hist("muComb_effi_toOffl_eta_denom", m_histdirmucomb)->Fill(eta_offl);
+    hist("muComb_effi_toOffl_phi_denom", m_histdirmucomb)->Fill(phi_offl);
 
     if( fabs(eta_offl) < ETA_OF_BARREL ) {
-      hist("muComb_effi_toOffl_pt_barrel_denom", histdirmucomb)->Fill(pt_offl_hist);
+      hist("muComb_effi_toOffl_pt_barrel_denom", m_histdirmucomb)->Fill(pt_offl_hist);
     }
     else {
-      hist("muComb_effi_toOffl_pt_endcap_denom", histdirmucomb)->Fill(pt_offl_hist);
+      hist("muComb_effi_toOffl_pt_endcap_denom", m_histdirmucomb)->Fill(pt_offl_hist);
     }
 
     // check whether matching combinedMuonFeature is there
@@ -527,7 +527,7 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
       }
     }
 
-    hist("muComb_dR_toOffl", histdirmucomb)->Fill(dRmin);
+    hist("muComb_dR_toOffl", m_histdirmucomb)->Fill(dRmin);
     if( dRmin > DR_MATCHED ) continue; // not matched to muComb
 
     // efficiencies, resolutions
@@ -536,16 +536,16 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
     float ptresol_hist = ptresol;
     if( fabs(ptresol) > PTRESOL_HISTMAX ) ptresol_hist = ptresol_hist / fabs(ptresol_hist) * PTRESOL_OVFL;
 
-    hist("muComb_ptresol_toOffl", histdirmucomb)->Fill(ptresol_hist);
-    hist2("muComb_ptresol_toOffl_eta", histdirmucomb)->Fill(eta_offl, ptresol_hist);
-    hist("muComb_effi_toOffl_pt_numer", histdirmucomb)->Fill(pt_offl_hist);
-    hist("muComb_effi_toOffl_eta_numer", histdirmucomb)->Fill(eta_offl);
-    hist("muComb_effi_toOffl_phi_numer", histdirmucomb)->Fill(phi_offl);
+    hist("muComb_ptresol_toOffl", m_histdirmucomb)->Fill(ptresol_hist);
+    hist2("muComb_ptresol_toOffl_eta", m_histdirmucomb)->Fill(eta_offl, ptresol_hist);
+    hist("muComb_effi_toOffl_pt_numer", m_histdirmucomb)->Fill(pt_offl_hist);
+    hist("muComb_effi_toOffl_eta_numer", m_histdirmucomb)->Fill(eta_offl);
+    hist("muComb_effi_toOffl_phi_numer", m_histdirmucomb)->Fill(phi_offl);
     if( fabs(eta_offl) < ETA_OF_BARREL ) {
-      hist("muComb_effi_toOffl_pt_barrel_numer", histdirmucomb)->Fill(pt_offl_hist);
+      hist("muComb_effi_toOffl_pt_barrel_numer", m_histdirmucomb)->Fill(pt_offl_hist);
     }
     else {
-      hist("muComb_effi_toOffl_pt_endcap_numer", histdirmucomb)->Fill(pt_offl_hist);
+      hist("muComb_effi_toOffl_pt_endcap_numer", m_histdirmucomb)->Fill(pt_offl_hist);
     }
 
   }
@@ -553,7 +553,7 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
   // -----------------------------
   // -----------------------------
 
-  if(nMuComb)hist("Common_Counter", histdir)->Fill((float)MUCOMBFOUND);
+  if(nMuComb)hist("Common_Counter", m_histdir)->Fill((float)MUCOMBFOUND);
 
   // end
   return StatusCode::SUCCESS;
@@ -564,20 +564,20 @@ StatusCode HLTMuonMonTool::procMuCombDQA()
 {
   if( endOfRun ){
 
-    hist("muComb_effi_toOffl_pt", histdireff)->Sumw2();
-    hist("muComb_effi_toOffl_pt", histdireff)->Divide( hist("muComb_effi_toOffl_pt_numer", histdirmucomb), hist("muComb_effi_toOffl_pt_denom", histdirmucomb), 1, 1, "B" );
+    hist("muComb_effi_toOffl_pt", m_histdireff)->Sumw2();
+    hist("muComb_effi_toOffl_pt", m_histdireff)->Divide( hist("muComb_effi_toOffl_pt_numer", m_histdirmucomb), hist("muComb_effi_toOffl_pt_denom", m_histdirmucomb), 1, 1, "B" );
 
-    hist("muComb_effi_toOffl_pt_barrel", histdireff)->Sumw2();
-    hist("muComb_effi_toOffl_pt_barrel", histdireff)->Divide( hist("muComb_effi_toOffl_pt_barrel_numer", histdirmucomb), hist("muComb_effi_toOffl_pt_barrel_denom", histdirmucomb), 1, 1, "B" );
+    hist("muComb_effi_toOffl_pt_barrel", m_histdireff)->Sumw2();
+    hist("muComb_effi_toOffl_pt_barrel", m_histdireff)->Divide( hist("muComb_effi_toOffl_pt_barrel_numer", m_histdirmucomb), hist("muComb_effi_toOffl_pt_barrel_denom", m_histdirmucomb), 1, 1, "B" );
 
-    hist("muComb_effi_toOffl_pt_endcap", histdireff)->Sumw2();
-    hist("muComb_effi_toOffl_pt_endcap", histdireff)->Divide( hist("muComb_effi_toOffl_pt_endcap_numer", histdirmucomb), hist("muComb_effi_toOffl_pt_endcap_denom", histdirmucomb), 1, 1, "B" );
+    hist("muComb_effi_toOffl_pt_endcap", m_histdireff)->Sumw2();
+    hist("muComb_effi_toOffl_pt_endcap", m_histdireff)->Divide( hist("muComb_effi_toOffl_pt_endcap_numer", m_histdirmucomb), hist("muComb_effi_toOffl_pt_endcap_denom", m_histdirmucomb), 1, 1, "B" );
 
-    hist("muComb_effi_toOffl_eta", histdireff)->Sumw2();
-    hist("muComb_effi_toOffl_eta", histdireff)->Divide( hist("muComb_effi_toOffl_eta_numer", histdirmucomb), hist("muComb_effi_toOffl_eta_denom", histdirmucomb), 1, 1, "B" );
+    hist("muComb_effi_toOffl_eta", m_histdireff)->Sumw2();
+    hist("muComb_effi_toOffl_eta", m_histdireff)->Divide( hist("muComb_effi_toOffl_eta_numer", m_histdirmucomb), hist("muComb_effi_toOffl_eta_denom", m_histdirmucomb), 1, 1, "B" );
 
-    hist("muComb_effi_toOffl_phi", histdireff)->Sumw2();
-    hist("muComb_effi_toOffl_phi", histdireff)->Divide( hist("muComb_effi_toOffl_phi_numer", histdirmucomb), hist("muComb_effi_toOffl_phi_denom", histdirmucomb), 1, 1, "B" );
+    hist("muComb_effi_toOffl_phi", m_histdireff)->Sumw2();
+    hist("muComb_effi_toOffl_phi", m_histdireff)->Divide( hist("muComb_effi_toOffl_phi_numer", m_histdirmucomb), hist("muComb_effi_toOffl_phi_denom", m_histdirmucomb), 1, 1, "B" );
 
   }else if( endOfLumiBlock ){
   }
