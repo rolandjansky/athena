@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 739580 2016-04-12 07:51:11Z krasznaa $
 ################################################################################
 # Package: CoWTools
 ################################################################################
@@ -11,7 +12,6 @@ atlas_depends_on_subdirs( PUBLIC
 
 # Component(s) in the package:
 atlas_add_library( CoWTools
-                   src/*.cxx
-                   PUBLIC_HEADERS CoWTools
-                   LINK_LIBRARIES GaudiKernel )
-
+   CoWTools/*.h src/*.cxx
+   PUBLIC_HEADERS CoWTools
+   LINK_LIBRARIES GaudiKernel )
