@@ -67,6 +67,8 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
   , m_doBeamspotConstraint(true)
   , m_doPrimaryVertexConstraint(false) 
   , m_doFullVertexConstraint(false)
+  , m_doNormalRefit(true)
+  , m_maxPt(0.)
   , m_refitTracks(true)
   , m_storeFitMatrices(true)
   , m_useSingleFitter(false)
@@ -102,6 +104,9 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
   declareProperty("BeamspotScalingFactor",     m_BSScalingFactor          );
   declareProperty("PrimaryVertexScalingFactor",m_PVScalingFactor          );
   declareProperty("MinTrksInVtx",              m_minTrksInVtx             );
+  declareProperty("doNormalRefit"             ,m_doNormalRefit            );
+  declareProperty("maxPt"                     ,m_maxPt            );
+  
 
   std::vector<std::string> defaultInterestedVertexContainers;
   defaultInterestedVertexContainers.push_back("PrimaryVertices");       // MD: Maybe only the first container?
@@ -666,8 +671,24 @@ bool BeamspotVertexPreProcessor::doBeamspotConstraintTrackSelection(const Track*
 
   if( ( m_doAssociatedToPVSelection && haveVertex && vertex && isAssociatedToPV(track,vertices) ) ||
       ( m_doBSTrackSelection        && m_BSTrackSelector->accept(*track) ) ){
-        ATH_MSG_DEBUG("this track passes the beamspot track selection, will do beamspot constraint on it ");
-        return true; 
+    
+    if (m_maxPt > 0 )
+      {
+	const Trk::Perigee* perigee = track->perigeeParameters();
+	if (!perigee) {
+	  ATH_MSG_DEBUG("NO perigee on this track");
+	  return false;
+	}
+	const double qoverP = perigee->parameters()[Trk::qOverP] * 1000.;
+	double pt = 0.;
+	if (qoverP != 0 )
+	  pt = fabs(1.0/qoverP)*sin(perigee->parameters()[Trk::theta]);
+	ATH_MSG_DEBUG( " pt  : "<< pt );
+	if (pt > m_maxPt)
+	  return false;
+      } //maxPt selection
+    ATH_MSG_DEBUG("this track passes the beamspot track selection, will do beamspot constraint on it ");
+    return true; 
   } 
   else return false;
 }
@@ -691,8 +712,8 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
   
   if(m_doPrimaryVertexConstraint){
     vot = provideVotFromVertex(track, vtx);
-    if( !vot )  ATH_MSG_DEBUG( "VoT not found for this track! ");
-    if( !vtx )  ATH_MSG_DEBUG( "VTX pointer not found for this track! ");
+    if( !vot )  ATH_MSG_INFO( "VoT not found for this track! ");
+    if( !vtx )  ATH_MSG_INFO( "VTX pointer not found for this track! ");
     if(vot){
       newTrack = doConstraintRefit(fitter, track, vot, particleHypothesis);       
       type = AlignTrack::VertexConstrained;
@@ -717,7 +738,8 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
       }
   }
 
-  if(!newTrack){
+  
+  if(!newTrack && m_doNormalRefit){
       newTrack = fitter->fit(*track,m_runOutlierRemoval,particleHypothesis);
       type = AlignTrack::NormalRefitted;
       // this track failed the normal reift
