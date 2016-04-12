@@ -75,14 +75,14 @@ from IOVDbSvc.CondDB import conddb
 
 letsTest='ReadingFromCVP'
 if (letsTest=='ReadingFromCoraCool'):
-  #conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationRod-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/ROD")
-  #conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationMur-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/MUR")
-  #conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationRodmur-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/RODMUR")
-  #conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationGeog-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/Geog")
-  conddb.addFolder("SCT","<db>COOLONL_SCT/CONDBR2</db> /SCT/DAQ/Configuration/ROD<forceTimestamp>1409896800</forceTimestamp>")
-  conddb.addFolder("SCT","<db>COOLONL_SCT/CONDBR2</db> /SCT/DAQ/Configuration/RODMUR<forceTimestamp>1409896800</forceTimestamp>")
-  conddb.addFolder("SCT","<db>COOLONL_SCT/CONDBR2</db> /SCT/DAQ/Configuration/MUR<forceTimestamp>1409896800</forceTimestamp>")
-  conddb.addFolder("SCT","<db>COOLONL_SCT/CONDBR2</db> /SCT/DAQ/Configuration/Geog<forceTimestamp>1409896800</forceTimestamp>")
+  conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationRod-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/ROD")
+  conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationMur-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/MUR")
+  conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationRodmur-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/RODMUR")
+  conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationGeog-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/Geog")
+  #conddb.addFolder("SCT","<db>COOLONL_SCT/CONDBR2</db> /SCT/DAQ/Configuration/ROD<forceTimestamp>1409896800</forceTimestamp>")
+  #conddb.addFolder("SCT","<db>COOLONL_SCT/CONDBR2</db> /SCT/DAQ/Configuration/RODMUR<forceTimestamp>1409896800</forceTimestamp>")
+  #conddb.addFolder("SCT","<db>COOLONL_SCT/CONDBR2</db> /SCT/DAQ/Configuration/MUR<forceTimestamp>1409896800</forceTimestamp>")
+  #conddb.addFolder("SCT","<db>COOLONL_SCT/CONDBR2</db> /SCT/DAQ/Configuration/Geog<forceTimestamp>1409896800</forceTimestamp>")
   '''
   conddb.addFolder("SCT","/SCT/DAQ/Configuration/ROD <tag>HEAD</tag>")
   conddb.addFolder("SCT","/SCT/DAQ/Configuration/MUR <tag>HEAD</tag>")
@@ -97,14 +97,14 @@ elif (letsTest=='ReadingFromMCFile'):
   ServiceMgr.SCT_CablingSvc.DataSource='SCT_MC_FullCabling_svc.dat'
 elif (letsTest=='ReadingFromCVP'):
   ServiceMgr.SCT_CablingSvc.DataSource='COOLVECTOR'
-  #conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Config/ROD")
-  #conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Config/MUR")
-  #conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Config/RODMUR")
-  #conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Config/Geog")
-  conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/ROD <tag>SctDaqConfigRod-Run2-10July2015</tag>")
-  conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/RODMUR <tag>SctDaqConfigRodmur-Run2-10July2015</tag>")
-  conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-Run2-10July2015</tag>")
-  conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Geog <tag>SctDaqConfigGeog-Run2-10July2015</tag>")
+  conddb.addFolder("","<db>sqlite://none;schema=/tmp/sroe/final.db;dbname=OFLP200</db> /SCT/DAQ/Config/ROD <tag>SctDaqConfigRod-MC-06</tag>")
+  conddb.addFolder("","<db>sqlite://none;schema=/tmp/sroe/final.db;dbname=OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-MC-06</tag>")
+  conddb.addFolder("","<db>sqlite://none;schema=/tmp/sroe/final.db;dbname=OFLP200</db> /SCT/DAQ/Config/RODMUR <tag>SctDaqConfigRodmur-MC-06</tag>")
+  conddb.addFolder("","<db>sqlite://none;schema=/tmp/sroe/final.db;dbname=OFLP200</db> /SCT/DAQ/Config/Geog <tag>SctDaqConfigGeog-MC-06</tag>")
+  #conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/ROD <tag>SctDaqConfigRod-Run2-10July2015</tag>")
+  #conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/RODMUR <tag>SctDaqConfigRodmur-Run2-10July2015</tag>")
+  #conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-Run2-10July2015</tag>")
+  #conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Geog <tag>SctDaqConfigGeog-Run2-10July2015</tag>")
 
 
 from SCT_Cabling.SCT_CablingConf import SCT_TestCablingAlg
@@ -126,7 +126,8 @@ theApp.EvtMax                    = 1
 #ServiceMgr.EventSelector.InitialTimeStamp =1267606800
 ServiceMgr.EventSelector.InitialTimeStamp = 1409756400
 if (letsTest=='ReadingFromCVP'):
-  ServiceMgr.EventSelector.InitialTimeStamp =1688045568
+  #ServiceMgr.EventSelector.InitialTimeStamp =1688045568
+  ServiceMgr.EventSelector.RunNumber =200805
 
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)
