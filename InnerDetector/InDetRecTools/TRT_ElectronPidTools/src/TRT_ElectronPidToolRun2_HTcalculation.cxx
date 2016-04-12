@@ -169,7 +169,9 @@ float InDet::TRT_ElectronPidToolRun2::HTcalculator::getProbHT(
     correctionPGOG = pHTvsPGOG(1, GasType, pTrk, mass, Occupancy);
     GasType = 0;
   }
-  else correctionPGOG = pHTvsPGOG(TrtPart, GasType, pTrk, mass, Occupancy);
+  else {
+    correctionPGOG = pHTvsPGOG(TrtPart, GasType, pTrk, mass, Occupancy);
+  }
   if (fabs(mass-0.511) < 0.1) {      // Electron! OK, ugly way but works...
     correctionSL = m_CpHT_B_Zee_SL_new[GasType][TrtPart].GetValue(StrawLayer);
     correctionZR = m_CpHT_B_Zee_ZR_new[GasType][TrtPart].GetValue(ZR);
