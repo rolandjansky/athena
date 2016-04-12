@@ -42,19 +42,19 @@ void pygldc_() {}//ACH for gluino decay
 void pysqdc_(int*) {}//ACH for stop/sbottom decay
 
 
-PythiaForDecays* PythiaForDecays::fgInstance = 0;
+PythiaForDecays* PythiaForDecays::s_instance = 0;
 
 PythiaForDecays* PythiaForDecays::Instance() 
 {
-   if ( ! fgInstance ) fgInstance = new PythiaForDecays();
-   return fgInstance;
+   if ( ! s_instance ) s_instance = new PythiaForDecays();
+   return s_instance;
 }
 
 PythiaForDecays::PythiaForDecays()  
 {
    // Protect against multiple objects.   All access should be via the
    // Instance member function. 
-   if ( fgInstance ) {
+   if ( s_instance ) {
       std::cerr << "There's already an instance of PythiaForDecays" << std::endl;
       exit (1);
    }   
@@ -99,10 +99,10 @@ void PythiaForDecays::DecayRhadrons(int pdgid){
   int pyl=3;//level to list to output text
 
   //only decay daughter particles from the decay that are "near" the hadron
-  Pydat1 m_pydat1;
-  m_pydat1.mstj(21)=2;
-  m_pydat1.mstj(22)=3;
-  m_pydat1.parj(72)=0.001;
+  Pydat1 pydat1;
+  pydat1.mstj(21)=2;
+  pydat1.mstj(22)=3;
+  pydat1.parj(72)=0.001;
 
   //Deal with standard hadrons first...
   if (abs(pdgid)<1000000){
@@ -117,39 +117,39 @@ void PythiaForDecays::DecayRhadrons(int pdgid){
   //Real Rhadron stuff...
   pdgid=abs(pdgid);
   pyjets_.k[0][0]=6;
-  Pydat3 m_pydat3;
-  Pydat2 m_pydat2;
+  Pydat3 pydat3;
+  Pydat2 pydat2;
   //pylist_(&pyl);
   if ( pdgid/10000==109 || pdgid/1000==1009 || pdgid/100==10009 ){
     //std::cout<<"ACH decay gluino rhadron .."<<std::endl;
     int kfgl = 1000021;//gluino
-    m_pydat3.mdcy(pycomp_(&kfgl),1)=1;// MDCY(PYCOMP(KFGL),1)=1 //unstable gluino
-    float oldl=m_pydat2.pmas(pycomp_(&kfgl),4);//remember lifetime
-    m_pydat2.pmas(pycomp_(&kfgl),4)=0;//decay it promptly!
+    pydat3.mdcy(pycomp_(&kfgl),1)=1;// MDCY(PYCOMP(KFGL),1)=1 //unstable gluino
+    float oldl=pydat2.pmas(pycomp_(&kfgl),4);//remember lifetime
+    pydat2.pmas(pycomp_(&kfgl),4)=0;//decay it promptly!
     pygldc_();//gluino DECAY
-    m_pydat2.pmas(pycomp_(&kfgl),4)=oldl;//set lifetime back to what it was
+    pydat2.pmas(pycomp_(&kfgl),4)=oldl;//set lifetime back to what it was
     //pylist_(&pyl);
   }
   else if ( pdgid/1000==1006 || pdgid/100==10006 ){
     //std::cout<<"ACH decay stop rhadron .."<<std::endl;
-    Pydat3 m_pydat3;
+    Pydat3 pydat3;
     int kfgl = 1000006;//stop
-    m_pydat3.mdcy(pycomp_(&kfgl),1)=1;// MDCY(PYCOMP(KFGL),1)=1 //unstable stop
-    float oldl=m_pydat2.pmas(pycomp_(&kfgl),4);//remember lifetime
-    m_pydat2.pmas(pycomp_(&kfgl),4)=0;//decay it promptly!
+    pydat3.mdcy(pycomp_(&kfgl),1)=1;// MDCY(PYCOMP(KFGL),1)=1 //unstable stop
+    float oldl=pydat2.pmas(pycomp_(&kfgl),4);//remember lifetime
+    pydat2.pmas(pycomp_(&kfgl),4)=0;//decay it promptly!
     pysqdc_(&kfgl);//stop DECAY!
-    m_pydat2.pmas(pycomp_(&kfgl),4)=oldl;//set lifetime back to what it was
+    pydat2.pmas(pycomp_(&kfgl),4)=oldl;//set lifetime back to what it was
     //pylist_(&pyl);
   }
   else if ( pdgid/1000==1005 || pdgid/100==10005 ){
     //std::cout<<"ACH decay sbottom rhadron .."<<std::endl;
-    Pydat3 m_pydat3;
+    Pydat3 pydat3;
     int kfgl = 1000005;//sbottom
-    m_pydat3.mdcy(pycomp_(&kfgl),1)=1;// MDCY(PYCOMP(KFGL),1)=1 //unstable sbottom
-    float oldl=m_pydat2.pmas(pycomp_(&kfgl),4);//remember lifetime
-    m_pydat2.pmas(pycomp_(&kfgl),4)=0;//decay it promptly!    
+    pydat3.mdcy(pycomp_(&kfgl),1)=1;// MDCY(PYCOMP(KFGL),1)=1 //unstable sbottom
+    float oldl=pydat2.pmas(pycomp_(&kfgl),4);//remember lifetime
+    pydat2.pmas(pycomp_(&kfgl),4)=0;//decay it promptly!    
     pysqdc_(&kfgl);//sbottom DECAY!
-    m_pydat2.pmas(pycomp_(&kfgl),4)=oldl;//set lifetime back to what it was
+    pydat2.pmas(pycomp_(&kfgl),4)=oldl;//set lifetime back to what it was
     //pylist_(&pyl);
   }
   else{
@@ -169,7 +169,7 @@ void PythiaForDecays::ImportParticles( std::vector<G4DynamicParticle*> & particl
   pyhepc_(&mconv);
 
   // Fill up the HEP Event
-  HepMC::GenEvent* evt = new GenEvent(1,1);
+  HepMC::GenEvent* evt = new HepMC::GenEvent(1,1);
   HepMC::IO_HEPEVT hepio;
   hepio.set_print_inconsistency_errors(0);
   hepio.fill_next_event(evt);
