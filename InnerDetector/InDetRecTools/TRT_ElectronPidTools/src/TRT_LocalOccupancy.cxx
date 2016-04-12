@@ -46,7 +46,7 @@ TRT_LocalOccupancy::TRT_LocalOccupancy(const std::string& t,
   AthAlgTool(t,n,p),
   m_TRTHelper(0),
   m_trt_rdo_location("TRT_RDOs"),
-  m_TRTStrawStatusSummarySvc("TRT_StrawStatusSummarySvc", n),
+  m_TRTStrawStatusSummarySvc("InDetTRTStrawStatusSummarySvc", n),
   m_driftFunctionTool("TRT_DriftFunctionTool")  
 {
  declareInterface<ITRT_LocalOccupancy>(this);
@@ -67,10 +67,12 @@ TRT_LocalOccupancy::TRT_LocalOccupancy(const std::string& t,
 
   m_occ_local = new int*[6];
   m_hit_local = new int*[6];
+  m_track_local = new int*[6];
 
   for (int i=0; i<6; ++i){
     m_occ_local[i] = new int[32];
     m_hit_local[i] = new int[32];
+    m_track_local[i] = new int[32];
   }
 
   m_eventnumber = -1;
@@ -109,6 +111,11 @@ StatusCode TRT_LocalOccupancy::initialize()
     m_highGate = m_highWideGate ;
   }  
   
+  if( m_TRTStrawStatusSummarySvc.retrieve().isFailure() ) {
+    msg(MSG::ERROR) << " Can't do a dynamic cast to TRTStrawStatusSummaryTool" << endreq;
+    return StatusCode::FAILURE;
+  }
+
   ATH_MSG_INFO ("initialize() successful in " << name());
 
   return sc;
@@ -122,9 +129,11 @@ StatusCode TRT_LocalOccupancy::finalize()
   for (int i=0; i<6; ++i){
     delete [] m_occ_local[i];
     delete [] m_hit_local[i];
+    delete [] m_track_local[i];
   }
   delete [] m_occ_local;
   delete [] m_hit_local;
+  delete [] m_track_local;
 
   ATH_MSG_INFO ("finalize() successful in " << name());
   return AlgTool::finalize();
@@ -246,16 +255,12 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ){
   }
   else StartEvent();
 
-  // FIXME : OVERUSE OF MEMORY. The full array is initialized but the track only cross few areas... VECTORS must be smarter or tiny map here. shoyld be fast...
-  int** m_track_local = new int*[6];
   for (int i=0; i<6; ++i){
-    m_track_local[i] = new int[32];
     for (int j=0; j<32; ++j){
       m_track_local[i][j]=0;
     }
   }
 
-  //  resetArrays(m_track_total, m_track_local, m_track_mod);
   const DataVector<const Trk::TrackStateOnSurface>* trackStates = track.trackStateOnSurfaces();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator	tsos		=trackStates->begin();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator	tsosEnd		=trackStates->end();
@@ -273,7 +278,7 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ){
     m_track_local[i_total-1][phi]     +=1;
 
   }
-  if (m_isTrigger)   countHitsNearTrack(m_track_local);
+  if (m_isTrigger)   countHitsNearTrack();
 
   float  averageocc   = 0;
   int	 nhits        = 0;
@@ -300,16 +305,11 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ){
   if (nhits>0)	averageocc 	= averageocc / nhits;
   ATH_MSG_DEBUG("Compute LocalOccupancy(const Trk::Track& track ) for tool: " << averageocc << " is over" );
 
-  for (int i=0; i<6; ++i){
-    delete [] m_track_local[i];
-  }
-  delete [] m_track_local;
-
   return averageocc;
 }
 
 
-void  TRT_LocalOccupancy::countHitsNearTrack(int** track_hit_array/*[6][32]*/){
+void  TRT_LocalOccupancy::countHitsNearTrack(){
     const TRT_RDO_Container* p_trtRDOContainer;
     StatusCode sc = evtStore()->retrieve(p_trtRDOContainer, m_trt_rdo_location);
     if (sc.isFailure() ) {
@@ -322,7 +322,7 @@ void  TRT_LocalOccupancy::countHitsNearTrack(int** track_hit_array/*[6][32]*/){
       for (int j=0; j<32; ++j){
 
 	// we are only interested in filling regions through which track passed
-	if (track_hit_array[i][j] < 1) continue;
+	if (m_track_local[i][j] < 1) continue;
 
 	// if we already filled this region, skip it
 	if (m_hit_local[i][j] > 0) continue;

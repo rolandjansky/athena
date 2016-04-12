@@ -123,7 +123,7 @@ double InDet::TRT_ElectronPidTool::ToTcalculator::correctToT(double ToT, double 
 
 double InDet::TRT_ElectronPidTool::ToTcalculator::BarrelLongToTCorrection( double HitZ, double /*HitR*/, const float *params){
 
-  return params[PAR0] + (abs( HitZ ) - 7.5 + 704.6 ) / params[PAR1] * exp( ( abs( HitZ ) - 704.6 ) / params[PAR2]);
+  return params[PAR0] + (std::abs( HitZ ) - 7.5 + 704.6 ) / params[PAR1] * exp( ( std::abs( HitZ ) - 704.6 ) / params[PAR2]);
 }
 
 double InDet::TRT_ElectronPidTool::ToTcalculator::BarrelShortToTCorrection( double HitZ, double /*HitR*/, const float *params){
