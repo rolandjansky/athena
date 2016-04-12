@@ -13,6 +13,7 @@
 
 // STL includes
 #include <string>
+#include <type_traits>
 
 // FrameWork includes
 #include "GaudiKernel/Algorithm.h"
@@ -24,9 +25,8 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/VarHandleProperty.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
-#include "StoreGate/UpdateHandle.h"
+#include "StoreGate/VarHandleKeyProperty.h"
+#include "StoreGate/VarHandleKey.h"
 #include "AthenaKernel/IUserDataSvc.h"
 
 // Forward declaration
@@ -100,6 +100,88 @@ class AthAlgorithm
    */
   ServiceHandle<IUserDataSvc>& userStore() const;
 
+
+#ifndef ATHENAHIVE
+protected:
+  virtual void declareInput(Gaudi::DataHandle* /*im*/) {}
+  virtual void declareOutput(Gaudi::DataHandle* /*im*/) {}
+#endif
+
+  /////////////////////////////////////////////////////////////////
+  //
+  //// For automatic registration of Handle data products
+  //
+
+public:
+  /**
+   * @brief Declare a new Gaudi property.
+   * @param name Name of the property.
+   * @param property Object holding the property value.
+   * @param doc Documenation string for the property.
+   *
+   * This is the version for types that derive from @c SG::VarHandleKey.
+   * The property value object is put on the input and output lists as
+   * appropriate; then we forward to the base class.
+   */
+  Property* declareProperty(const std::string& name,
+                            SG::VarHandleKey& hndl,
+                            const std::string& doc,
+                            std::true_type) const
+  {
+    AthAlgorithm* aa = const_cast<AthAlgorithm*>(this);
+    Gaudi::DataHandle::Mode mode = hndl.mode();
+    if (mode & Gaudi::DataHandle::Reader)
+      aa->declareInput(&hndl);
+    if (mode & Gaudi::DataHandle::Writer)
+      aa->declareOutput(&hndl);
+#ifdef ATHENAHIVE
+    hndl.setOwner(aa);
+#endif
+
+    return Algorithm::declareProperty(name,hndl,doc);
+  }
+
+
+  /**
+   * @brief Declare a new Gaudi property.
+   * @param name Name of the property.
+   * @param property Object holding the property value.
+   * @param doc Documenation string for the property.
+   *
+   * This is the generic version, for types that do not derive
+   * from  @c SG::VarHandleKey.  It just forwards to the base class version
+   * of @c declareProperty.
+   */
+  template <class T>
+  Property* declareProperty(const std::string& name,
+                            T& property,
+                            const std::string& doc,
+                            std::false_type) const
+  {
+    return Algorithm::declareProperty(name, property, doc);
+  }
+
+
+  /**
+   * @brief Declare a new Gaudi property.
+   * @param name Name of the property.
+   * @param property Object holding the property value.
+   * @param doc Documenation string for the property.
+   *
+   * This dispatches to either the generic @c declareProperty or the one
+   * for VarHandle/Key, depending on whether or not @c property
+   * derives from @c SG::VarHandleKey.
+   */
+  template <class T>
+  Property* declareProperty(const std::string& name,
+                            T& property,
+                            const std::string& doc="none") const
+  {
+    return declareProperty (name, property, doc,
+                            std::is_base_of<SG::VarHandleKey, T>());
+  }
+
+  
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
   /////////////////////////////////////////////////////////////////// 

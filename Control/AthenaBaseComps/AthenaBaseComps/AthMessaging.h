@@ -42,6 +42,9 @@ class AthMessaging
   /// Constructor with parameters: 
   AthMessaging (IMessageSvc* msgSvc, const std::string& name);
 
+  /// Constructor, from an explicit existing stream.
+  AthMessaging (MsgStream& msg);
+
   /// Destructor: 
   virtual ~AthMessaging(); 
 

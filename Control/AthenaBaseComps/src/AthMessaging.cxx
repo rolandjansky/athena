@@ -29,6 +29,11 @@ AthMessaging::AthMessaging (IMessageSvc* msgSvc,
   m_msg (msgSvc, name)
 {}
 
+/// Constructor from an existing stream.
+AthMessaging::AthMessaging (MsgStream& msg)
+  : m_msg (msg)
+{}
+
 // Destructor
 ///////////////
 AthMessaging::~AthMessaging()

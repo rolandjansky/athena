@@ -1,0 +1,29 @@
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/propertyHandling_test.txt
+JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/../tests/../share/propertyHandling_test.txt
+JobOptionsSvc        INFO # (1,1): alg.rkey = "FooSvc/aaa"
+JobOptionsSvc        INFO # (2,1): alg.wkey = "BarSvc/bbb"
+JobOptionsSvc        INFO # (3,1): alg.ukey = "ccc"
+JobOptionsSvc        INFO # (4,1): alg.rhandle = "FooSvc/ddd"
+JobOptionsSvc        INFO # (5,1): alg.whandle = "BarSvc/eee"
+JobOptionsSvc        INFO # (6,1): alg.uhandle = "fff"
+JobOptionsSvc        INFO # (8,1): tool.rkey = "FooSvc/taa"
+JobOptionsSvc        INFO # (9,1): tool.wkey = "BarSvc/tbb"
+JobOptionsSvc        INFO # (10,1): tool.ukey = "tcc"
+JobOptionsSvc        INFO # (11,1): tool.rhandle = "FooSvc/tdd"
+JobOptionsSvc        INFO # (12,1): tool.whandle = "BarSvc/tee"
+JobOptionsSvc        INFO # (13,1): tool.uhandle = "tff"
+JobOptionsSvc        INFO Job options successfully read in from ../share/propertyHandling_test.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v999r999)
+                                          running on karma on Thu Feb 18 19:08:47 2016
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+test1

@@ -2,24 +2,20 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <cassert>
-
-#include <string>
-using std::string;
-
-#include <vector>
-using std::vector;
-
 // Framework include files
 #include "GaudiKernel/GaudiException.h"
-#include "GaudiKernel/Tokenizer.h"
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/MsgStream.h"
- 
 #include "AthenaBaseComps/FilteredAlgorithm.h"
+#include <cassert>
+#include <string>
+#include <vector>
+
+using std::string;
+using std::vector;
 
 // Standard Constructor
 FilteredAlgorithm::FilteredAlgorithm(const string& name, 
