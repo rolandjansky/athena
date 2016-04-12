@@ -241,7 +241,7 @@ static void hhh_report( void ) {
          long leakSize = summary->count * summary->leak->size;
          if ( ! ignore ) {
             nreports += 1;
-            fprintf( gReportStream, "%d leak%s (total %ld bytes), originating in:\n",
+            fprintf( gReportStream, "%u leak%s (total %ld bytes), originating in:\n",
                      summary->count, (summary->count == 1 ? "" : "s"),
                      leakSize );
             
@@ -259,7 +259,7 @@ static void hhh_report( void ) {
       hhh_NameSet_print( gReportStream, &gTraceNames, " for " );
       fprintf( gReportStream, ":\n" );
 
-      fprintf( gReportStream, "   detected %d unique leak%s\n",
+      fprintf( gReportStream, "   detected %u unique leak%s\n",
                nuniq, (nuniq == 1 ? "" : "s" ) );
             
       fprintf( gReportStream, "   detected %d non-unique leak%s (total %ld bytes reported)\n",
@@ -268,7 +268,7 @@ static void hhh_report( void ) {
 
       if ( (nuniq - nreports) != 0 )
          fprintf( gReportStream,
-                  "   ignored %d unique leak%s using %d filter%s (total %ld bytes ignored)\n",
+                  "   ignored %u unique leak%s using %u filter%s (total %ld bytes ignored)\n",
                   nuniq - nreports, ( nuniq - nreports == 1 ? "" : "s" ),
                   gIgnoreNames.size, ( gIgnoreNames.size == 1 ? "" : "s"),
                   ignoredLeakSize);
