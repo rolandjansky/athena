@@ -46,7 +46,7 @@ void CoWTools::CoWRecordStats::parseRecord(std::istream &in){
     int len=0;
     unsigned long val=0;
     char buff[20];
-    sscanf(line.c_str(),"%s%n",buff,&len);
+    sscanf(line.c_str(),"%19s%n",buff,&len);
     if(strcmp(buff,"VmFlags:")==0){
       len++;
       while(len<(int)line.size()){

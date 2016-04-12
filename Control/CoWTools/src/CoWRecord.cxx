@@ -11,7 +11,7 @@ void CoWTools::CoWRecord::parseRecord(std::istream &in){
   int len=0;
   char pbuff[5]={"----"};
   //int dmin,dmaj;
-  sscanf(line.c_str(),"%08lx-%08lx %4s %08llx %02x:%02x %lu %n",
+  sscanf(line.c_str(),"%08lx-%08lx %4s %08llx %02x:%02x %80lu %n",
 	 &addrStart,
 	 &addrEnd,
 	 pbuff,
