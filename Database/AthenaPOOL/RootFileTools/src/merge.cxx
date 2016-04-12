@@ -35,6 +35,7 @@ public:
   explicit MergingError(): runtime_error("") {}
   explicit MergingError( const std::string& msg ): runtime_error("") { m_stream << msg; }
   MergingError( const MergingError& err ): runtime_error("") { m_stream << err.str(); }
+  MergingError& operator= ( const MergingError& err ) = delete;
   virtual ~MergingError() throw() {}
   virtual const char* what() const throw() { m_string = m_stream.str(); return m_string.c_str();  }
   std::string str() const { return m_stream.str(); }
@@ -565,6 +566,7 @@ DbStatus DbDatabaseMerger::merge(const string& fid, const std::set<std::string>&
                      }
                   }
                }
+               delete src_tree;
             }
             else   {
                cout << "+++ Ignore key " << key->GetName() << endl;

@@ -21,7 +21,6 @@
 #include "TH1F.h"
 #include "THashList.h"
 
-using namespace std;
 
 class HistoPile {
 
@@ -34,9 +33,9 @@ public:
     if (reffilename) {
       m_reffile = TFile::Open(reffilename);
       if ( !m_reffile ) {
-        cout << "WARNING Could not open reference file!" << endl;
+        std::cout << "WARNING Could not open reference file!" << std::endl;
       } else {
-        cout << "Using reference file " << reffilename << endl;
+        std::cout << "Using reference file " << reffilename << std::endl;
       }
     } else
       m_reffile = 0;  
@@ -58,7 +57,7 @@ private:
   const char *  m_filename;          // name of output file
   TFile *       m_reffile;           // reference file to take histo definitions from
   
-  list<string>  m_path;              // current path
+  std::list<std::string>  m_path;              // current path
 };
 
 #endif
