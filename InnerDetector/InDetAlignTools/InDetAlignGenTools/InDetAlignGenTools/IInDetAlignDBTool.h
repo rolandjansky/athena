@@ -31,6 +31,7 @@ class IInDetAlignDBTool: virtual public IAlgTool {
 
   virtual void writeFile(const bool, const std::string) const =0;
   virtual void writeIBLDistFile( const std::string file) const =0;
+  virtual void writeGlobalFolderFile( const std::string file) const =0;
   virtual void readTextFile(const std::string) const =0;
   virtual void readNtuple(const std::string) const =0;
 

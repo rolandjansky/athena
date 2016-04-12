@@ -85,11 +85,14 @@ class InDetAlignDBTool: virtual public IInDetAlignDBTool, public AthAlgTool {
   // write IBLDist txt files
   virtual void writeIBLDistFile( const std::string file) const; 
 
+  // write GlobalFolder txt files
+  virtual void writeGlobalFolderFile( const std::string file) const;
+
   // read back database from text file
   virtual void readTextFile(const std::string file) const;
 
   // read back database from text file
-  void readOldTextFile(const std::string file) const;
+  //  void readOldTextFile(const std::string file) const;
 
   // read back database from ntuple
   virtual void readNtuple(const std::string file) const;
@@ -130,6 +133,10 @@ class InDetAlignDBTool: virtual public IInDetAlignDBTool, public AthAlgTool {
 
   /** This is the tweak function for the IBLDist DB **/
   virtual bool tweakIBLDist(const int, const float) const;
+
+  /** This is the tweak function for the GlobalFolder DB **/
+  virtual bool tweakGlobalFolder(const Identifier& ident, const int level,
+				 const Amg::Transform3D& trans) const ;
 
   /** convert L3 module identifier to L1 or L2 */
   virtual Identifier getL1L2fromL3Identifier( const Identifier& ident
@@ -194,7 +201,8 @@ class InDetAlignDBTool: virtual public IInDetAlignDBTool, public AthAlgTool {
   void fakeGeom(const int nbpix, const int necpix, 
 		const int nbsct, const int necsct);
 
-
+  bool m_dynamicDB;
+  bool m_forceUserDBConfig;
 };
 
 #endif // INDETALIGNGENTOOLS_ALIGNDBTOOL_H
