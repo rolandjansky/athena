@@ -6,7 +6,7 @@
 #define BsJpsiPhiAngles_H
 
 #include "CLHEP/Vector/LorentzVector.h"
-using namespace CLHEP;
+//using namespace CLHEP;
 //double thispi = 3.14159265358979312e+00;
 class BsJpsiPhiAngles{
 
@@ -14,24 +14,24 @@ class BsJpsiPhiAngles{
 private:
 
     // Member data 
-  double _theta1;
-  double _theta2;
-  double _chi;
-  double _thetatr; 
-  double _phitr;
+  double m_theta1;
+  double m_theta2;
+  double m_chi;
+  double m_thetatr; 
+  double m_phitr;
 
 public:
-  double thetaK()  const { return _theta1;  }
-  double thetaL()  const { return _theta2;  }
-  double chi()     const { return _chi;     }
-  double thetatr() const { return _thetatr; }
-  double phitr()   const { return _phitr;   } 
+  double thetaK()  const { return m_theta1;  }
+  double thetaL()  const { return m_theta2;  }
+  double chi()     const { return m_chi;     }
+  double thetatr() const { return m_thetatr; }
+  double phitr()   const { return m_phitr;   } 
   
-   double thetaKfix()  const { return cos(_theta1);  }
-  double thetaLfix()  const { return cos(_theta2);  }
-  double chifix()     const { return -(_chi - M_PI) ;     }
-  double thetatrfix() const { return -cos(_thetatr); }
-  double phitrfix()   const { return -(_phitr - M_PI);   }  
+   double thetaKfix()  const { return cos(m_theta1);  }
+  double thetaLfix()  const { return cos(m_theta2);  }
+  double chifix()     const { return -(m_chi - M_PI) ;     }
+  double thetatrfix() const { return -cos(m_thetatr); }
+  double phitrfix()   const { return -(m_phitr - M_PI);   }  
 
 //      Input: 
 //            For J/Psi(l+l-) K*(K pi):
@@ -39,14 +39,20 @@ public:
 //             o cand2 = l+   (positive lepton from psi decay)
 //             o aBcand = B   (the B from which the decay originates)
 
-  BsJpsiPhiAngles(const HepLorentzVector &Kplus, const HepLorentzVector &Muplus,
-  		const HepLorentzVector &Phi, const HepLorentzVector &Jpsi, const HepLorentzVector &Bs){
-  		
-     _theta1  = 0.;
-     _theta2  = 0.;
-     _chi     = 0.;
-     _thetatr = 0.;
-     _phitr   = 0.;
+  BsJpsiPhiAngles(const CLHEP::HepLorentzVector &Kplus,
+                  const CLHEP::HepLorentzVector &Muplus,
+                  const CLHEP::HepLorentzVector &Phi,
+                  const CLHEP::HepLorentzVector &Jpsi,
+                  const CLHEP::HepLorentzVector &Bs)
+  {
+    using CLHEP::HepLorentzVector;
+    using CLHEP::Hep3Vector;
+
+     m_theta1  = 0.;
+     m_theta2  = 0.;
+     m_chi     = 0.;
+     m_thetatr = 0.;
+     m_phitr   = 0.;
      
      
        // 0.1 Get the Mummy1 & Mummy2 4-vectors in lab
@@ -68,7 +74,7 @@ public:
   Hep3Vector Mum1TV = Mum1QV.boostVector(); 
   Hep3Vector cand1TV = cand1QV.boostVector();
   Hep3Vector ucand1TV = cand1TV.unit();
-  _theta1 = cand1TV.angle(Mum1TV);
+  m_theta1 = cand1TV.angle(Mum1TV);
   
   
   
@@ -82,7 +88,7 @@ public:
   Hep3Vector Mum2TV = Mum2QV.boostVector(); 
   Hep3Vector cand2TV = cand2QV.boostVector();
   Hep3Vector ucand2TV = cand2TV.unit();
-  _theta2 = cand2TV.angle(Mum2TV);
+  m_theta2 = cand2TV.angle(Mum2TV);
 
   // 3. Compute the chi angle
   // 3.1 Define the c and d vectors (see Physbook) 
@@ -97,24 +103,24 @@ public:
   double sinphi = (c.cross(uMum1TV)).dot(d);
   double cosphi = c.dot(d);
   // 3.3 Now get chi = angle between the 2 decay planes
-  _chi = atan2(sinphi,cosphi);
+  m_chi = atan2(sinphi,cosphi);
   // 3.4 Put chi in [0;2pi]
-  if ( _chi < 0 )
+  if ( m_chi < 0 )
   {
-    _chi = 2.*M_PI + _chi;
+    m_chi = 2.*M_PI + m_chi;
   }
   
   // 4. Transversity angles
-  double cosThetaTr = sin ( _theta2 ) * sin ( _chi ) ;
+  double cosThetaTr = sin ( m_theta2 ) * sin ( m_chi ) ;
   double sinThetaTr = sqrt ( 1. - cosThetaTr * cosThetaTr ) ; 
-  double cosPhiTr = cos(_theta2) / sinThetaTr ;
-  double sinPhiTr = sin(_theta2) * cos( _chi ) / sinThetaTr ;
-  _phitr   = atan2 ( sinPhiTr, cosPhiTr ) ;
-  if (_phitr < 0) 
+  double cosPhiTr = cos(m_theta2) / sinThetaTr ;
+  double sinPhiTr = sin(m_theta2) * cos( m_chi ) / sinThetaTr ;
+  m_phitr   = atan2 ( sinPhiTr, cosPhiTr ) ;
+  if (m_phitr < 0) 
   {
-    _phitr = 2.*M_PI + _phitr;
+    m_phitr = 2.*M_PI + m_phitr;
   }
-  _thetatr = acos(cosThetaTr) ;
+  m_thetatr = acos(cosThetaTr) ;
   
   
   	

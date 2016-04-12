@@ -14,8 +14,8 @@
 #include "CLHEP/Vector/LorentzVector.h"
 #include "Pythia8B_i/BsJpsiPhiAngles.h"
 
-HepLorentzVector convertVector(const Pythia8::Vec4 v) {
-	HepLorentzVector vect;
+CLHEP::HepLorentzVector convertVector(const Pythia8::Vec4 v) {
+        CLHEP::HepLorentzVector vect;
 	vect.setPx(v.px());
 	vect.setPy(v.py());
 	vect.setPz(v.pz());
@@ -23,22 +23,22 @@ HepLorentzVector convertVector(const Pythia8::Vec4 v) {
 	return vect;
 }
 
-double BsJpsiPhi_PDF(double *m_params, double *x, bool useHelicity) {
+double BsJpsiPhi_PDF(double *params, double *x, bool useHelicity) {
 
 	//  if ( !checkInput(x) ) return 0.;
 
 	// Human-readable aliases of the parameters and observables.
 	// Human-readable aliases of the parameters and observables.
-	double A0 = sqrt(m_params[0] * (1 - m_params[2]));
-	double Al = sqrt(m_params[1] * (1 - m_params[2]));
-	double As = sqrt(m_params[2]);
-	double &GammaS = m_params[3];
-	double &DeltaGamma = m_params[4];
-	double &DeltaM = m_params[5];
-	double &phiS = m_params[6];
-	double &delta_p = m_params[7];
-	double &delta_l = m_params[8];
-	double delta_s = m_params[7] - m_params[9];
+	double A0 = sqrt(params[0] * (1 - params[2]));
+	double Al = sqrt(params[1] * (1 - params[2]));
+	double As = sqrt(params[2]);
+	double &GammaS = params[3];
+	double &DeltaGamma = params[4];
+	double &DeltaM = params[5];
+	double &phiS = params[6];
+	double &delta_p = params[7];
+	double &delta_l = params[8];
+	double delta_s = params[7] - params[9];
 
 /*
 	 cout << "a0 " << A0 << endl;
@@ -248,6 +248,7 @@ double BsJpsiPhi_PDF(double *m_params, double *x, bool useHelicity) {
 bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 		std::vector<double> userVars) {
 
+        using CLHEP::HepLorentzVector;
 	bool accept(false);
 
 	// ==================================================
@@ -381,7 +382,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 			int pID = event[i].id();
 			if (abs(pID) == 531) { //NOTE THIS WILL FIND BS AND ANTIBS
 				i_Bs = i;
-				vector<int> daughterlist = event.daughterList(i);
+				std::vector<int> daughterlist = event.daughterList(i);
 
 				if (daughterlist.size() != 2)
 					continue;
@@ -405,8 +406,8 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 				}
 				if (!isphi || !isjpsi)
 					continue;
-				vector<int> daughterlistJpsi = event.daughterList(i_Jpsi);
-				vector<int> daughterlistPhi = event.daughterList(i_Phi);
+				std::vector<int> daughterlistJpsi = event.daughterList(i_Jpsi);
+				std::vector<int> daughterlistPhi = event.daughterList(i_Phi);
 				if (daughterlistJpsi.size() != 2 || daughterlistPhi.size() != 2)
 					continue;
 				//resets values to avoid possible bug
@@ -526,7 +527,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 					"Max prob exceeded, too many of these indicates a problem, a few is fine");
 		}
 		if (debug)
-			cout << "totalprob " << prob1 * prob2 << endl;
+		  std::cout << "totalprob " << prob1 * prob2 << std::endl;
 		if (rand < (prob1 * prob2)) {
 
 			if (debug)
@@ -565,7 +566,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 			const int pID = event[i].id();
 			if (abs(pID) == 511) { //NOTE THIS FIND BD and Anti-Bd
 				i_Bd = i;
-				vector<int> daughterlist = event.daughterList(i);
+				std::vector<int> daughterlist = event.daughterList(i);
 
 				if (daughterlist.size() != 2)
 					continue;
@@ -589,8 +590,8 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 				}
 				if (!iskstar || !isjpsi)
 					continue;
-				vector<int> daughterlistJpsi = event.daughterList(i_Jpsi);
-				vector<int> daughterlistKstar = event.daughterList(i_Kstar);
+				std::vector<int> daughterlistJpsi = event.daughterList(i_Jpsi);
+				std::vector<int> daughterlistKstar = event.daughterList(i_Kstar);
 				if (daughterlistJpsi.size() != 2 || daughterlistKstar.size() != 2)
 					continue;
 				//resets values to avoid possible bug
@@ -701,7 +702,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 					"Max prob exceeded, too many of these indicates a problem, a few is fine");
 		}
 		if (debug)
-			cout << "totalprob " << prob1 * prob2 << endl;
+		  std::cout << "totalprob " << prob1 * prob2 << std::endl;
 		if (rand < (prob1 * prob2)) {
 			if (debug)
 				ATH_MSG_INFO("Passed PDF filter");
