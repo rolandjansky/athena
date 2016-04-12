@@ -94,16 +94,11 @@ inline Amg::Vector3D GeoMDTHit::getGlobalPosition() const {
 
     // -------- Testing Sim to Offline ID conversion ---------
   
-    const Amg::Vector3D tubeP   = mdtdet->tubePos(offid);
-    const Amg::Transform3D xf  = mdtdet->absTransform();
-    Amg::Vector3D xU = xf*Amg::Vector3D(_hit->localPosition().x(),-_hit->localPosition().z(), _hit->localPosition().y());
-  
-    Amg::Vector3D gx = tubeP + xU;
+
+    Amg::Vector3D simHitPosLoc(_hit->localPosition().x(), _hit->localPosition().y(), _hit->localPosition().z());
+    Amg::Vector3D simHitPos = mdtdet->localToGlobalCoords(simHitPosLoc , offid );
     
-      
-  
-    return gx;
-  
+    return simHitPos;
 }
 
 inline void GeoRPCHit::init()
