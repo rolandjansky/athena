@@ -180,9 +180,9 @@ void test1()
   cl->makePrivateStore();
 
   FourMom_t v1;
-  v1.SetPtEtaPhiM (100*GeV / cosh(0.11), 0.11, 1, 10*GeV);
+  v1.SetPtEtaPhiM (100/cosh(0.11) * GeV, 0.11, 1, 10*GeV); 
   FourMom_t v2;
-  v2.SetPtEtaPhiM (50*GeV / cosh(0.21), 0.21, 2, 5*GeV);
+  v2.SetPtEtaPhiM (50/cosh(0.21) * GeV, 0.21, 2, 5*GeV);
 
   cl->setE   (v1.E());
   cl->setEta (v1.Eta());

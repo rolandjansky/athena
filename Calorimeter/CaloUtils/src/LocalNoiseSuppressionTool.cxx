@@ -185,7 +185,7 @@ double LocalNoiseSuppressionTool::wtCell( const CaloCell* theCell )
   double Em = theCell->e();
 
   double rmsNoise = cellSigma(theCell);
-  double weight = (1-prior) / ( (1.-prior) + prior*exp(-Em*Em/2./rmsNoise/rmsNoise) ); 
+  double weight = (1-prior) / ( (1.-prior) + prior*exp(-Em*Em/(2.*rmsNoise*rmsNoise)) ); 
 
   if ( this->cutCell(theCell) )    weight = 0;
 
@@ -293,21 +293,21 @@ double LocalNoiseSuppressionTool::getTestStatistic( const CaloCell* theCell)
   }
 
 
-  LArNeighbours::neighbourOption m_nOption;
+  LArNeighbours::neighbourOption nOption;
   
   if (m_neighborOption == "all2D") 
-    m_nOption = LArNeighbours::all2D;
+    nOption = LArNeighbours::all2D;
   else if (m_neighborOption == "all3D") 
-    m_nOption = LArNeighbours::all3D;
+    nOption = LArNeighbours::all3D;
   else// (m_neighborOption == "super3D") 
-    m_nOption = LArNeighbours::super3D;
+    nOption = LArNeighbours::super3D;
 
   std::vector<IdentifierHash> theNNeighbors;
   Identifier myId = theCell->ID();
   IdentifierHash myHashId;
   int otherSubDet;
   myHashId = m_calo_id->subcalo_cell_hash(myId,otherSubDet);
-  m_calo_id->get_neighbours(myHashId,m_nOption,theNNeighbors);
+  m_calo_id->get_neighbours(myHashId,nOption,theNNeighbors);
 
   double ret = 0;
   

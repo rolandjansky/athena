@@ -81,6 +81,7 @@ inline
 void
 CaloTowerBuilderTool::addTower (const CaloTowerStore::tower_iterator tower_it,
                                 const CaloCellContainer* cells,
+                                IProxyDictWithPool* sg,
                                 CaloTower* tower)
 {
   CaloTowerStore::cell_iterator firstC = tower_it.firstCell();
@@ -98,7 +99,7 @@ CaloTowerBuilderTool::addTower (const CaloTowerStore::tower_iterator tower_it,
     // get weights
     if (cellPtr) {
       wsumE += weightC * cellPtr->e();					// Summ up weighted energies .
-      tower->addUniqueCellNoKine(cells, cndx, weightC, ts); // add cells to tower.
+      tower->addUniqueCellNoKine(cells, cndx, sg, weightC, ts); // add cells to tower.
     }
     /* for debugging em+hec
        if (t==5214) std::cout<<"N14\tc:"<<ci<<"\tw:"<<weightC<<"\te:"<<cellPtr->e()<<"\teta:"<<cellPtr->eta()<<"\td:"<<cellPtr->caloDDE()<<std::endl;
@@ -113,7 +114,8 @@ CaloTowerBuilderTool::addTower (const CaloTowerStore::tower_iterator tower_it,
 inline
 void
 CaloTowerBuilderTool::iterateFull (CaloTowerContainer* towers,
-                                   const CaloCellContainer* cells)
+                                   const CaloCellContainer* cells,
+                                   IProxyDictWithPool* sg)
 {
   size_t sz = towers->size();
   assert(m_cellStore->size() ==  sz);
@@ -121,7 +123,7 @@ CaloTowerBuilderTool::iterateFull (CaloTowerContainer* towers,
 
   for (unsigned int t = 0; t < sz; ++t, ++tower_it) {
     CaloTower* aTower = towers->getTower(t);
-    addTower (tower_it, cells, aTower);
+    addTower (tower_it, cells, sg, aTower);
   }
 }
 
@@ -130,6 +132,7 @@ inline
 void
 CaloTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
                                      const CaloCellContainer* cells,
+                                     IProxyDictWithPool* sg,
                                      const CaloTowerSeg::SubSeg* subseg)
 {
   size_t sz = towers->size();
@@ -150,7 +153,7 @@ CaloTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
   unsigned int t = 0;
   while (true) {
     CaloTower* aTower = towers->getTower(tower_it.itower());
-    addTower (tower_it, cells, aTower);
+    addTower (tower_it, cells, sg, aTower);
     ++t;
     if (t >= sz) break;
     ++tower_it;
@@ -182,13 +185,6 @@ CaloTowerBuilderTool::execute(CaloTowerContainer* theTowers,
                               const CaloCellContainer* theCells /*= 0*/,
                               const CaloTowerSeg::SubSeg* subseg /*= 0*/)
 {
-#if 0
-  static FILE* fout = 0;
-  if (!fout) fout = fopen("tow.dump","w");
-  static int icount = 0;
-  ++icount;
-#endif
-
   // only once
   if (!m_cacheValid) {
 
@@ -217,10 +213,11 @@ CaloTowerBuilderTool::execute(CaloTowerContainer* theTowers,
     }
   }
 
+  IProxyDictWithPool* sg = SG::CurrentEventStore::store();
   if (subseg)
-    iterateSubSeg (theTowers, theCells, subseg);
+    iterateSubSeg (theTowers, theCells, sg, subseg);
   else
-    iterateFull (theTowers, theCells);
+    iterateFull (theTowers, theCells, sg);
 
   for (unsigned int i = 0; i < m_caloIndices.size(); i++) {
     theTowers->setCalo(m_caloIndices[i]);

@@ -6,6 +6,7 @@
 #include "CaloEvent/CaloClusterCellLink.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "SGTools/CurrentEventStore.h"
 #include "AthenaKernel/errorcheck.h"
 
 xAOD::CaloCluster* CaloClusterStoreHelper::makeCluster(const CaloCellContainer* cellCont) {
@@ -84,10 +85,9 @@ StatusCode CaloClusterStoreHelper::finalizeClusters(StoreGateSvc* pStoreGate,
 
   //Loop on clusters and call setLink to transfer ownership of CaloClusterCellLink object to 
   //CaloClusterCellLinkContainer
-  xAOD::CaloClusterContainer::iterator cluIt=pClusterColl->begin();
-  xAOD::CaloClusterContainer::iterator cluIt_e=pClusterColl->end();
-  for(;cluIt!=cluIt_e;++cluIt) {
-    (*cluIt)->setLink(cellLinks);
+  IProxyDictWithPool* sg = SG::CurrentEventStore::store();
+  for (xAOD::CaloCluster* cl : *pClusterColl) {
+    cl->setLink(cellLinks, sg);
   }
 
 

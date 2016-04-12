@@ -105,12 +105,13 @@ struct CaloClusterOverlapHelper
     CaloLine(const CaloPoint& aPoint, const CaloPoint& bPoint)
     {
       m_pt   = aPoint;
-      double r(aPoint.distance(bPoint));
+      const double r(aPoint.distance(bPoint));
       if ( r > 0 )
         {
-          m_dirX = (bPoint.x()-aPoint.x())/r;
-          m_dirY = (bPoint.y()-aPoint.y())/r;
-          m_dirZ = (bPoint.z()-aPoint.z())/r;
+          const double inv_r = 1./r;
+          m_dirX = (bPoint.x()-aPoint.x())*inv_r;
+          m_dirY = (bPoint.y()-aPoint.y())*inv_r;
+          m_dirZ = (bPoint.z()-aPoint.z())*inv_r;
         }
       else
         {

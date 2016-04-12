@@ -87,11 +87,14 @@ class CaloTowerBuilderTool : public CaloTowerBuilderToolBase
   virtual StatusCode checkSetup(MsgStream& log);
   void addTower (const CaloTowerStore::tower_iterator tower_it,
                  const CaloCellContainer* cells,
+                 IProxyDictWithPool* sg,
                  CaloTower* tower);
   void iterateFull (CaloTowerContainer* towers,
-                    const CaloCellContainer* cells);
+                    const CaloCellContainer* cells,
+                    IProxyDictWithPool* sg);
   void iterateSubSeg (CaloTowerContainer* towers,
                       const CaloCellContainer* cells,
+                      IProxyDictWithPool* sg,
                       const CaloTowerSeg::SubSeg* subseg);
 
   CaloTowerBuilderTool (const CaloTowerBuilderTool&);

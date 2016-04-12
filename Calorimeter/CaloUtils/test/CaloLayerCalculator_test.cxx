@@ -184,8 +184,8 @@ CaloDetDescriptor* make_dd ()
 CaloCell* make_cell (CaloDetDescriptor* descr,
                      float energy, float eta, float phi)
 {
-  int ieta = static_cast<int> (eta / deta);
-  int iphi = static_cast<int> (phi / dphi);
+  int ieta = static_cast<int> (eta * (1./deta));
+  int iphi = static_cast<int> (phi * (1./dphi));
   if (iphi < 0) iphi += 256;
   const CaloCell_Base_ID* helper = descr->get_calo_helper();
   Identifier id = helper->cell_id (descr->identify(), ieta, iphi);

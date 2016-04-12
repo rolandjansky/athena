@@ -32,6 +32,7 @@ use GeoModelInterfaces    GeoModelInterfaces-*    DetectorDescription/GeoModel
 use AtlasBoost     AtlasBoost-*     External
 use AtlasReflex    AtlasReflex-*    External
 use CxxUtils       CxxUtils-*       Control
+use SGTools        SGTools-*        Control
 #use PathResolver   PathResolver-*   Tools
 #use FourMomUtils   FourMomUtils-*   Event
 use Identifier     Identifier-*     DetectorDescription

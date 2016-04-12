@@ -204,9 +204,9 @@ CaloRecoStatus::StatusIndicator EstimEMClusterClassificationTool::classify(CaloC
 	 && thisCluster->retrieveMoment(CaloCluster::SECOND_R,     cl_r         )
 	 && thisCluster->retrieveMoment(CaloCluster::CENTER_LAMBDA,cl_centlam)) 
            {
-                   double em_lc = (cl_centlam/log(cl_energy/280.0)-a[2])/b[2];		   
+                   double em_lc = (cl_centlam/log(cl_energy*(1./280.0))-a[2])/b[2];		   
 		   
-                   double em_ll = (sqrt(cl_lambda)/log(cl_energy/280.0)-a[0])/b[0];
+                   double em_ll = (sqrt(cl_lambda)/log(cl_energy*(1./280.0))-a[0])/b[0];
 		   
                    double em_rr = (sqrt(cl_r)-a[1])/b[1];
 
