@@ -532,12 +532,12 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
       // Get the full path of the event range output file
       for(boost::filesystem::directory_iterator fdIt(boost::filesystem::current_path()); fdIt!=boost::filesystem::directory_iterator(); fdIt++) {
 	if(fdIt->path().string().find(rangeID)!=std::string::npos) {
-	  if(!strOutpFile.empty()) {
-	    ATH_MSG_ERROR("More than one file containing RangeID=" << rangeID << " found in the run dir");
-	    all_ok = false;
-	    break;
-	  }
-	  strOutpFile = fdIt->path().string();
+	  if(strOutpFile.empty()) {
+            strOutpFile = fdIt->path().string();
+          }
+          else {
+            strOutpFile += (std::string("*")+fdIt->path().string());
+          }
 	}
       }
     }
