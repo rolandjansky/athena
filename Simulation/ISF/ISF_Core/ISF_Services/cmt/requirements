@@ -15,8 +15,6 @@ use AtlasHepMC                    AtlasHepMC-*            External
 use AtlasROOT                     AtlasROOT-*             External
 use BarcodeInterfaces             BarcodeInterfaces-*     Simulation/Barcode
 use BarcodeServices               BarcodeServices-*        Simulation/Barcode
-use CaloIdentifier                CaloIdentifier-*        Calorimeter
-use CaloSimEvent                  CaloSimEvent-*          Calorimeter
 use GeneratorObjects              GeneratorObjects-*      Generators
 use G4AtlasInterfaces             G4AtlasInterfaces-*     Simulation/G4Atlas
 use InDetSimEvent                 InDetSimEvent-*         InnerDetector
@@ -24,11 +22,8 @@ use ISF_Interfaces                ISF_Interfaces-*        Simulation/ISF/ISF_Cor
 use ISF_Event                     ISF_Event-*             Simulation/ISF/ISF_Core
 use MuonSimEvent                  MuonSimEvent-*          MuonSpectrometer
 use PmbCxxUtils                   PmbCxxUtils-*           Tools
-use SimHelpers                    SimHelpers-*            Simulation/G4Sim
 use StoreGate                     StoreGate-*             Control
 use SubDetectorEnvelopes          SubDetectorEnvelopes-*  AtlasGeometryCommon
-use TileSimEvent                  TileSimEvent-*          TileCalorimeter
-use TrackRecord                   TrackRecord-*           Simulation/G4Sim
 end_private
 
 public

@@ -10,12 +10,7 @@
 #include "SimHitSvc.h"
 
 // Athena includes
-#include "CaloIdentifier/CaloIdManager.h"
-#include "CaloIdentifier/LArMiniFCAL_ID.h"
-#include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
-#include "StoreGate/StoreGateSvc.h"
 
 // HepMC includes
 #include "HepMC/GenParticle.h"
@@ -46,66 +41,19 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
   m_theta(-1.),
   m_phi(-1.),
   m_eta(-1.),
-  m_hitCollectionHelper(new AthenaHitsCollectionHelper),
-  m_simulateID(true),
-  m_bcmHits(nullptr),
-  m_bcmHitCollectionName("BCMHits"),
-  m_blmHits(nullptr),
-  m_blmHitCollectionName("BLMHits"),
-  m_pixHits(nullptr),
-  m_pixHitCollectionName("PixelHits"),
-  m_sctHits(nullptr),
-  m_sctHitCollectionName("SCT_Hits"),
-  m_trtHits(nullptr),
-  m_trtHitCollectionName("TRTUncompressedHits"),
-  m_pixPileupHits(0),
-  m_pixPileupHitCollectionName("PileupPixelHits"),
-  m_sctPileupHits(0),
-  m_sctPileupHitCollectionName("PileupSCT_Hits"),
-  m_trtPileupHits(0),
-  m_trtPileupHitCollectionName("PileupTRTUncompressedHits"),
+  m_bcmHits("BCMHits"),
+  m_blmHits("BLMHits"),
+  m_pixHits("PixelHits"),
+  m_sctHits("SCT_Hits"),
+  m_trtHits("TRTUncompressedHits"),
+  m_pixPileupHits("PileupPixelHits"),
+  m_sctPileupHits("PileupSCT_Hits"),
+  m_trtPileupHits("PileupTRTUncompressedHits"),
   m_separateInDetPileupHits(false),
-  m_simulateCalo(true),
-  m_embHitCollectionName("LArHitEMB"),
-  m_emecHitCollectionName("LArHitEMEC"),
-  m_fcalHitCollectionName("LArHitFCAL"),
-  m_hecHitCollectionName("LArHitHEC"),
-  m_miniFcalHitCollectionName("LArHitMiniFCAL"),
-  m_storedCalibContainers(nullptr),
-  m_activeLArHitCollectionName("LArCalibrationHitActive"),
-  m_inactiveLArHitCollectionName("LArCalibrationHitInactive"),
-  m_deadLArHitCollectionName("LArCalibrationHitDeadMaterial"),
-  m_tileHitVecHits(nullptr),
-  m_tileHitVecHitCollectionName("TileHitVec"),
-  m_mbtsHits(nullptr),
-  m_mbtsHitCollectionName("MBTSHits"),
-  m_tileActiveCellCalibHits(nullptr),
-  m_tileActiveCellCalibHitCollectionName("TileCalibHitActiveCell"),
-  m_tileInactiveCellCalibHits(nullptr),
-  m_tileInactiveCellCalibHitCollectionName("TileCalibHitInactiveCell"),
-  m_tileDeadMaterialCalibHits(nullptr),
-  m_tileDeadMaterialCalibHitCollectionName("TileCalibHitDeadMaterial"),
-  m_doMiniFcal(false),
-  m_doTileCalibHits(false),
-  m_simulateMS(true),
-  m_mdtHits(nullptr),
-  m_mdtHitCollectionName("MDT_Hits"),
-  m_rpcHits(nullptr),
-  m_rpcHitCollectionName("RPC_Hits"),
-  m_tgcHits(nullptr),
-  m_tgcHitCollectionName("TGC_Hits"),
-  m_cscHits(nullptr),
-  m_cscHitCollectionName("CSC_Hits"),
-  m_muonHits(nullptr),
-  m_muonHitCollectionName("GenericMuon_Hits"),
-  m_caloEntryLayerTracks(nullptr),
-  m_caloEntryLayerTrackCollectionName("CaloEntryLayer"),
-  m_muonEntryLayerTracks(nullptr),
-  m_muonEntryLayerTrackCollectionName("MuonEntryLayer"),
-  m_muonExitLayerTracks(nullptr),
-  m_muonExitLayerTrackCollectionName("MuonExitLayer"),
-  m_cosmicPerigeeTracks(nullptr),
-  m_cosmicPerigeeTrackCollectionName("CosmicPerigee"),
+  m_mdtHits("MDT_Hits"),
+  m_rpcHits("RPC_Hits"),
+  m_tgcHits("TGC_Hits"),
+  m_cscHits("CSC_Hits"),
   m_senDetTool("SensitiveDetectorMasterTool"),
   m_fastSimTool("FastSimulationMasterTool")
 {
@@ -120,45 +68,20 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
                   m_thistSvc,
                   "The THistSvc" );
 
-  declareProperty("SimulateID",         m_simulateID );
-  declareProperty("BCM_HitCollection",  m_bcmHitCollectionName );
-  declareProperty("BLM_HitCollection",  m_blmHitCollectionName );
-  declareProperty("PixelHitCollection", m_pixHitCollectionName );
-  declareProperty("SCT_HitCollection",  m_sctHitCollectionName );
-  declareProperty("TRT_HitCollection",  m_trtHitCollectionName );
-  declareProperty("PileupPixelHitCollection", m_pixPileupHitCollectionName );
-  declareProperty("PileupSCT_HitCollection",  m_sctPileupHitCollectionName );
-  declareProperty("PileupTRT_HitCollection",  m_trtPileupHitCollectionName );
+  declareProperty("BCM_HitCollection",  m_bcmHits );
+  declareProperty("BLM_HitCollection",  m_blmHits );
+  declareProperty("PixelHitCollection", m_pixHits );
+  declareProperty("SCT_HitCollection",  m_sctHits );
+  declareProperty("TRT_HitCollection",  m_trtHits );
+  declareProperty("PileupPixelHitCollection", m_pixPileupHits );
+  declareProperty("PileupSCT_HitCollection",  m_sctPileupHits );
+  declareProperty("PileupTRT_HitCollection",  m_trtPileupHits );
   declareProperty("SeparateInDetPileupHits", m_separateInDetPileupHits);
 
-  declareProperty("SimulateCalo",              m_simulateCalo );
-  declareProperty("EMBLAr_HitCollection",      m_embHitCollectionName );
-  declareProperty("EMECLAr_HitCollection",     m_emecHitCollectionName );
-  declareProperty("FCAL_HitCollection",        m_fcalHitCollectionName );
-  declareProperty("HEC_HitCollection",         m_hecHitCollectionName );
-  declareProperty("MiniFCAL_HitCollection",    m_miniFcalHitCollectionName );
-  declareProperty("ActiveLAr_HitCollection",   m_activeLArHitCollectionName );
-  declareProperty("InactiveLAr_HitCollection", m_inactiveLArHitCollectionName );
-  declareProperty("DeadMatlLAr_HitCollection", m_deadLArHitCollectionName );
-  declareProperty("TileHitVec_HitCollection",  m_tileHitVecHitCollectionName );
-  declareProperty("MBTS_HitCollection",        m_mbtsHitCollectionName );
-  declareProperty("TileActiveCellCalibHitCollection",   m_tileActiveCellCalibHitCollectionName );
-  declareProperty("TileInactiveCellCalibHitCollection", m_tileInactiveCellCalibHitCollectionName );
-  declareProperty("TileDeadMaterialCalibHitCollection", m_tileDeadMaterialCalibHitCollectionName );
-  declareProperty("DoTileCalibHits", m_doTileCalibHits );
-
-  declareProperty("SimulateMS",         m_simulateMS );
-  declareProperty("MDT_HitCollection",  m_mdtHitCollectionName );
-  declareProperty("RPC_HitCollection",  m_rpcHitCollectionName );
-  declareProperty("TGC_HitCollection",  m_tgcHitCollectionName );
-  declareProperty("CSC_HitCollection",  m_cscHitCollectionName );
-  declareProperty("GenericMuon_HitCollection",  m_muonHitCollectionName );
-
-  declareProperty("CaloEntryLayer_TrackCollection",  m_caloEntryLayerTrackCollectionName );
-  declareProperty("MuonEntryLayer_TrackCollection",  m_muonEntryLayerTrackCollectionName );
-  declareProperty("MuonExitLayer_TrackCollection",   m_muonExitLayerTrackCollectionName );
-
-  declareProperty("CosmicPerigee_TrackCollection",   m_cosmicPerigeeTrackCollectionName );
+  declareProperty("MDT_HitCollection",  m_mdtHits );
+  declareProperty("RPC_HitCollection",  m_rpcHits );
+  declareProperty("TGC_HitCollection",  m_tgcHits );
+  declareProperty("CSC_HitCollection",  m_cscHits );
 
   declareProperty("SensitiveDetectorMasterTool", m_senDetTool );
   declareProperty("FastSimulationMasterTool", m_fastSimTool );
@@ -167,28 +90,11 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
 
 ISF::SimHitSvc::~SimHitSvc()
 {
-  delete m_hitCollectionHelper;
-
 }
 
 /** framework methods */
 StatusCode ISF::SimHitSvc::initialize()
 {
-  if(m_simulateCalo)
-    {
-      ISvcLocator* svcLocator = Gaudi::svcLocator();
-      StoreGateSvc* detStore;
-      CHECK(svcLocator->service("DetectorStore", detStore));
-      // Check whether or not we need to write out Mini FCAL hits
-      const CaloIdManager* caloIdManager;
-      CHECK(detStore->retrieve(caloIdManager));
-      const LArMiniFCAL_ID* larMiniFcalID = caloIdManager->getMiniFCAL_ID();
-      m_doMiniFcal = (larMiniFcalID && larMiniFcalID->is_initialized());
-    }
-
-  // Global containers
-  m_storedCalibContainers = new StoredLArCalibHitContainers();
-
   // setup for validation mode
   if ( m_validationOutput)
     {
@@ -201,9 +107,6 @@ StatusCode ISF::SimHitSvc::initialize()
 /** framework methods */
 StatusCode ISF::SimHitSvc::finalize()
 {
-  //FIXME really?!
-  m_storedCalibContainers = new StoredLArCalibHitContainers();
-
   return StatusCode::SUCCESS;
 }
 
@@ -217,54 +120,6 @@ StatusCode ISF::SimHitSvc::initializeEvent()
       CHECK(m_senDetTool.retrieve());
     }
   CHECK(m_senDetTool->BeginOfAthenaEvent());
-
-
-  // Inner Detector
-  m_bcmHits = m_hitCollectionHelper->RetrieveNonconstCollection<SiHitCollection>(m_bcmHitCollectionName);
-  m_blmHits = m_hitCollectionHelper->RetrieveNonconstCollection<SiHitCollection>(m_blmHitCollectionName);
-  m_pixHits = m_hitCollectionHelper->RetrieveNonconstCollection<SiHitCollection>(m_pixHitCollectionName);
-  m_sctHits = m_hitCollectionHelper->RetrieveNonconstCollection<SiHitCollection>(m_sctHitCollectionName);
-  m_trtHits = m_hitCollectionHelper->RetrieveNonconstCollection<TRTUncompressedHitCollection>(m_trtHitCollectionName);
-  if(m_separateInDetPileupHits)
-    {
-      m_pixPileupHits = m_hitCollectionHelper->RetrieveNonconstCollection<SiHitCollection>(m_pixPileupHitCollectionName);
-      m_sctPileupHits = m_hitCollectionHelper->RetrieveNonconstCollection<SiHitCollection>(m_sctPileupHitCollectionName);
-      m_trtPileupHits = m_hitCollectionHelper->RetrieveNonconstCollection<TRTUncompressedHitCollection>(m_trtPileupHitCollectionName);
-    }
-
-  // LAr CaloCalibarationHit Containers
-  m_storedCalibContainers->activeHitCollection   = m_hitCollectionHelper->RetrieveNonconstCollection<CaloCalibrationHitContainer>(m_activeLArHitCollectionName);
-  m_storedCalibContainers->inactiveHitCollection = m_hitCollectionHelper->RetrieveNonconstCollection<CaloCalibrationHitContainer>(m_inactiveLArHitCollectionName);
-  m_storedCalibContainers->deadHitCollection     = m_hitCollectionHelper->RetrieveNonconstCollection<CaloCalibrationHitContainer>(m_deadLArHitCollectionName);
-
-  // Tile Calorimeter
-  m_tileHitVecHits = m_hitCollectionHelper->RetrieveNonconstCollection<TileHitVector>(m_tileHitVecHitCollectionName);
-  m_mbtsHits       = m_hitCollectionHelper->RetrieveNonconstCollection<TileHitVector>(m_mbtsHitCollectionName);
-
-  // Tile CaloCalibrationHit Containers
-  if (m_doTileCalibHits)
-    {
-      m_tileActiveCellCalibHits   = m_hitCollectionHelper->RetrieveNonconstCollection<CaloCalibrationHitContainer>(m_tileActiveCellCalibHitCollectionName);
-      m_tileInactiveCellCalibHits = m_hitCollectionHelper->RetrieveNonconstCollection<CaloCalibrationHitContainer>(m_tileInactiveCellCalibHitCollectionName);
-      m_tileDeadMaterialCalibHits = m_hitCollectionHelper->RetrieveNonconstCollection<CaloCalibrationHitContainer>(m_tileDeadMaterialCalibHitCollectionName);
-    }
-
-  // Muon Spectrometer
-  m_mdtHits  = m_hitCollectionHelper->RetrieveNonconstCollection<MDTSimHitCollection>(m_mdtHitCollectionName);
-  m_rpcHits  = m_hitCollectionHelper->RetrieveNonconstCollection<RPCSimHitCollection>(m_rpcHitCollectionName);
-  m_tgcHits  = m_hitCollectionHelper->RetrieveNonconstCollection<TGCSimHitCollection>(m_tgcHitCollectionName);
-  m_cscHits  = m_hitCollectionHelper->RetrieveNonconstCollection<CSCSimHitCollection>(m_cscHitCollectionName);
-  m_muonHits = m_hitCollectionHelper->RetrieveNonconstCollection<GenericMuonSimHitCollection>(m_muonHitCollectionName);
-
-  // TrackRecordCollections
-  m_caloEntryLayerTracks = m_hitCollectionHelper->RetrieveNonconstCollection<TrackRecordCollection>(m_caloEntryLayerTrackCollectionName);
-  m_muonEntryLayerTracks = m_hitCollectionHelper->RetrieveNonconstCollection<TrackRecordCollection>(m_muonEntryLayerTrackCollectionName);
-  m_muonExitLayerTracks  = m_hitCollectionHelper->RetrieveNonconstCollection<TrackRecordCollection>(m_muonExitLayerTrackCollectionName);
-
-  m_cosmicPerigeeTracks  = m_hitCollectionHelper->RetrieveNonconstCollection<TrackRecordCollection>(m_cosmicPerigeeTrackCollectionName);
-
-  // Forward Detectors
-  // FIXME add Forward Detectors hit collections here
 
   return StatusCode::SUCCESS;
 }
@@ -288,80 +143,6 @@ StatusCode ISF::SimHitSvc::releaseEvent()
     {
       this->fillSimHitsTree();
     }
-
-  // set all collections to const
-  // Inner Detector
-  m_hitCollectionHelper->SetConstCollection<SiHitCollection>(m_bcmHits);
-  m_bcmHits=0;
-  m_hitCollectionHelper->SetConstCollection<SiHitCollection>(m_blmHits);
-  m_blmHits=0;
-  m_hitCollectionHelper->SetConstCollection<SiHitCollection>(m_pixHits);
-  m_pixHits=0;
-  m_hitCollectionHelper->SetConstCollection<SiHitCollection>(m_sctHits);
-  m_sctHits=0;
-  m_hitCollectionHelper->SetConstCollection<TRTUncompressedHitCollection>(m_trtHits);
-  m_trtHits=0;
-  if(m_separateInDetPileupHits)
-    {
-      m_hitCollectionHelper->SetConstCollection<SiHitCollection>(m_pixPileupHits);
-      m_pixPileupHits=0;
-      m_hitCollectionHelper->SetConstCollection<SiHitCollection>(m_sctPileupHits);
-      m_sctPileupHits=0;
-      m_hitCollectionHelper->SetConstCollection<TRTUncompressedHitCollection>(m_trtPileupHits);
-      m_trtPileupHits=0;
-    }
-
-
-  // LAr CaloCalibarationHit Containers
-  m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_storedCalibContainers->activeHitCollection);
-  m_storedCalibContainers->activeHitCollection=0;
-  m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_storedCalibContainers->inactiveHitCollection);
-  m_storedCalibContainers->inactiveHitCollection=0;
-  m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_storedCalibContainers->deadHitCollection);
-  m_storedCalibContainers->deadHitCollection=0;
-
-  // Tile Calorimeter
-  m_hitCollectionHelper->SetConstCollection< TileHitVector >(m_tileHitVecHits);
-  m_tileHitVecHits=0;
-  m_hitCollectionHelper->SetConstCollection< TileHitVector >(m_mbtsHits);
-  m_mbtsHits=0;
-
-  // Tile CaloCalibrationHit Containers
-  if (m_doTileCalibHits)
-    {
-      m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_tileActiveCellCalibHits);
-      m_tileActiveCellCalibHits=0;
-      m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_tileInactiveCellCalibHits);
-      m_tileInactiveCellCalibHits=0;
-      m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_tileDeadMaterialCalibHits);
-      m_tileDeadMaterialCalibHits=0;
-    }
-
-  // Muon Spectrometer
-  m_hitCollectionHelper->SetConstCollection< MDTSimHitCollection >(m_mdtHits);
-  m_mdtHits=0;
-  m_hitCollectionHelper->SetConstCollection< RPCSimHitCollection >(m_rpcHits);
-  m_rpcHits=0;
-  m_hitCollectionHelper->SetConstCollection< TGCSimHitCollection >(m_tgcHits);
-  m_tgcHits=0;
-  m_hitCollectionHelper->SetConstCollection< CSCSimHitCollection >(m_cscHits);
-  m_cscHits=0;
-  m_hitCollectionHelper->SetConstCollection< GenericMuonSimHitCollection >(m_muonHits);
-  m_muonHits=0;
-
-  // TrackRecordCollections
-  m_hitCollectionHelper->SetConstCollection<TrackRecordCollection>(m_caloEntryLayerTracks);
-  m_caloEntryLayerTracks = 0;
-  m_hitCollectionHelper->SetConstCollection<TrackRecordCollection>(m_muonEntryLayerTracks);
-  m_muonEntryLayerTracks = 0;
-  m_hitCollectionHelper->SetConstCollection<TrackRecordCollection>(m_muonExitLayerTracks);
-  m_muonExitLayerTracks = 0;
-
-  m_hitCollectionHelper->SetConstCollection<TrackRecordCollection>(m_cosmicPerigeeTracks);
-  m_cosmicPerigeeTracks = 0;
-
-  // Forward Detectors
-  // FIXME add Forward Detectors hit collections here
 
   return StatusCode::SUCCESS;
 }
@@ -405,7 +186,7 @@ void ISF::SimHitSvc::fillSimHitsTree()
 {
 
   // loop over collections
-  if (m_mdtHits->size()) {
+  if (m_mdtHits.isValid() && m_mdtHits->size()) {
     MDTSimHitCollection::const_iterator ih=m_mdtHits->begin();
     while ( ih!=m_mdtHits->end()) {
       m_type = 1;
@@ -428,7 +209,7 @@ void ISF::SimHitSvc::fillSimHitsTree()
     }
   }
 
-  if (m_rpcHits->size()) {
+  if (m_rpcHits.isValid() && m_rpcHits->size()) {
     RPCSimHitCollection::const_iterator ih=m_rpcHits->begin();
     while (ih!=m_rpcHits->end()) {
       m_type = 2;
@@ -450,7 +231,7 @@ void ISF::SimHitSvc::fillSimHitsTree()
       m_t_simHits->Fill();
     }
   }
-  if (m_tgcHits->size()) {
+  if (m_tgcHits.isValid() && m_tgcHits->size()) {
     TGCSimHitCollection::const_iterator ih=m_tgcHits->begin();
     while ( ih!=m_tgcHits->end()) {
       m_type = 3;
@@ -472,7 +253,7 @@ void ISF::SimHitSvc::fillSimHitsTree()
       m_t_simHits->Fill();
     }
   }
-  if (m_cscHits->size()) {
+  if (m_cscHits.isValid() && m_cscHits->size()) {
     CSCSimHitCollection::const_iterator ih=m_cscHits->begin();
     while ( ih!=m_cscHits->end()) {
       m_type = 4;
@@ -497,9 +278,9 @@ void ISF::SimHitSvc::fillSimHitsTree()
   for (int ipileup=0;ipileup<2;ipileup++) {
     m_pileup = ipileup;
     // pixel hits
-    SiHitCollection* pixHits=(ipileup==0) ? m_pixHits : m_pixPileupHits;
+    SG::ReadHandle<SiHitCollection>& pixHits=(ipileup==0) ? m_pixHits : m_pixPileupHits;
 
-    if (pixHits->size()) {
+    if (pixHits.isValid() && pixHits->size()) {
       SiHitCollection::const_iterator ih=pixHits->begin();
       while (ih!=pixHits->end()) {
         m_type = 5;
@@ -522,8 +303,8 @@ void ISF::SimHitSvc::fillSimHitsTree()
         m_t_simHits->Fill();
       }
     }
-    SiHitCollection* sctHits=(ipileup==0) ? m_sctHits : m_sctPileupHits;
-    if (sctHits->size()) {
+    SG::ReadHandle<SiHitCollection>& sctHits=(ipileup==0) ? m_sctHits : m_sctPileupHits;
+    if (sctHits.isValid() && sctHits->size()) {
       SiHitCollection::const_iterator ih=sctHits->begin();
       while (ih!=sctHits->end()) {
         m_type = 6;
@@ -546,8 +327,8 @@ void ISF::SimHitSvc::fillSimHitsTree()
         m_t_simHits->Fill();
       }
     }
-    TRTUncompressedHitCollection* trtHits = (ipileup==0) ? m_trtHits : m_trtPileupHits;
-    if (trtHits->size()) {
+    SG::ReadHandle<TRTUncompressedHitCollection>& trtHits = (ipileup==0) ? m_trtHits : m_trtPileupHits;
+    if (trtHits.isValid() && trtHits->size()) {
       TRTUncompressedHitCollection::const_iterator ih=trtHits->begin();
       while ( ih!=trtHits->end()) {
         m_type = 7;

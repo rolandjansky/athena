@@ -44,19 +44,6 @@ def getAFIIParticleBrokerSvc(name="ISF_AFIIParticleBrokerSvc", **kwargs):
 def getSimHitService(name="ISF_SimHitService", **kwargs):
     kwargs.setdefault('ValidationOutput'    , ISF_Flags.ValidationMode()                    )
 
-    from AthenaCommon.DetFlags import DetFlags
-    kwargs.setdefault('SimulateID', DetFlags.simulate.ID_on() )
-    kwargs.setdefault('SimulateCalo', DetFlags.simulate.Calo_on() )
-    kwargs.setdefault('SimulateMS', DetFlags.simulate.Muon_on() )
-
-    from G4AtlasApps.SimFlags import simFlags
-
-    if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun.statusOn:
-
-        if ( simFlags.CalibrationRun.get_Value() == 'Tile' or \
-             simFlags.CalibrationRun.get_Value() == 'LAr+Tile' ) :
-            kwargs.setdefault('DoTileCalibHits', True)
-
     from ISF_Services.ISF_ServicesConf import ISF__SimHitSvc
     return ISF__SimHitSvc(name, **kwargs)
 

@@ -15,16 +15,14 @@
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 
-#include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "InDetSimEvent/SiHitCollection.h"
 #include "InDetSimEvent/TRTUncompressedHitCollection.h"
 #include "MuonSimEvent/MDTSimHitCollection.h"
 #include "MuonSimEvent/RPCSimHitCollection.h"
 #include "MuonSimEvent/TGCSimHitCollection.h"
 #include "MuonSimEvent/CSCSimHitCollection.h"
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
-#include "TileSimEvent/TileHitVector.h"
-#include "TrackRecord/TrackRecordCollection.h"
+
+#include "StoreGate/ReadHandle.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -34,8 +32,6 @@
 #include <map>
 
 class IdentifierHash;
-class AthenaHitsCollectionHelper;
-class StoredLArCalibHitContainers;
 
 namespace InDetDD {
   class SiDetectorManager;
@@ -118,75 +114,22 @@ namespace ISF {
     mutable float                                                m_eta;
 
 
-    AthenaHitsCollectionHelper*                                  m_hitCollectionHelper;
     //Inner Detector
-    bool                                                         m_simulateID;
-    SiHitCollection*                                             m_bcmHits;
-    std::string                                                  m_bcmHitCollectionName;
-    SiHitCollection*                                             m_blmHits;
-    std::string                                                  m_blmHitCollectionName;
-    SiHitCollection*                                             m_pixHits;
-    std::string                                                  m_pixHitCollectionName;
-    SiHitCollection*                                             m_sctHits;
-    std::string                                                  m_sctHitCollectionName;
-    TRTUncompressedHitCollection*                                m_trtHits;
-    std::string                                                  m_trtHitCollectionName;
-    SiHitCollection*                                             m_pixPileupHits;
-    std::string                                                  m_pixPileupHitCollectionName;
-    SiHitCollection*                                             m_sctPileupHits;
-    std::string                                                  m_sctPileupHitCollectionName;
-    TRTUncompressedHitCollection*                                m_trtPileupHits;
-    std::string                                                  m_trtPileupHitCollectionName;
+    SG::ReadHandle<SiHitCollection>                              m_bcmHits;
+    SG::ReadHandle<SiHitCollection>                              m_blmHits;
+    SG::ReadHandle<SiHitCollection>                              m_pixHits;
+    SG::ReadHandle<SiHitCollection>                              m_sctHits;
+    SG::ReadHandle<TRTUncompressedHitCollection>                 m_trtHits;
+    SG::ReadHandle<SiHitCollection>                              m_pixPileupHits;
+    SG::ReadHandle<SiHitCollection>                              m_sctPileupHits;
+    SG::ReadHandle<TRTUncompressedHitCollection>                 m_trtPileupHits;
     bool                                                         m_separateInDetPileupHits;
 
-    //Calorimeter
-    bool                                                         m_simulateCalo;
-    std::string                                                  m_embHitCollectionName;
-    std::string                                                  m_emecHitCollectionName;
-    std::string                                                  m_fcalHitCollectionName;
-    std::string                                                  m_hecHitCollectionName;
-    std::string                                                  m_miniFcalHitCollectionName;
-    StoredLArCalibHitContainers*                                 m_storedCalibContainers;
-    std::string                                                  m_activeLArHitCollectionName;
-    std::string                                                  m_inactiveLArHitCollectionName;
-    std::string                                                  m_deadLArHitCollectionName;
-    TileHitVector*                                               m_tileHitVecHits;
-    std::string                                                  m_tileHitVecHitCollectionName;
-    TileHitVector*                                               m_mbtsHits;
-    std::string                                                  m_mbtsHitCollectionName;
-    CaloCalibrationHitContainer*                                 m_tileActiveCellCalibHits;
-    std::string                                                  m_tileActiveCellCalibHitCollectionName;
-    CaloCalibrationHitContainer*                                 m_tileInactiveCellCalibHits;
-    std::string                                                  m_tileInactiveCellCalibHitCollectionName;
-    CaloCalibrationHitContainer*                                 m_tileDeadMaterialCalibHits;
-    std::string                                                  m_tileDeadMaterialCalibHitCollectionName;
-    bool m_doMiniFcal;
-    bool m_doTileCalibHits;
-
     //MuonSpectrometer
-    bool                                                         m_simulateMS;
-    MDTSimHitCollection*                                         m_mdtHits;
-    std::string                                                  m_mdtHitCollectionName;
-    RPCSimHitCollection*                                         m_rpcHits;
-    std::string                                                  m_rpcHitCollectionName;
-    TGCSimHitCollection*                                         m_tgcHits;
-    std::string                                                  m_tgcHitCollectionName;
-    CSCSimHitCollection*                                         m_cscHits;
-    std::string                                                  m_cscHitCollectionName;
-    GenericMuonSimHitCollection*                                 m_muonHits;
-    std::string                                                  m_muonHitCollectionName;
-
-    TrackRecordCollection*                                         m_caloEntryLayerTracks;
-    std::string                                                    m_caloEntryLayerTrackCollectionName;
-
-    TrackRecordCollection*                                         m_muonEntryLayerTracks;
-    std::string                                                    m_muonEntryLayerTrackCollectionName;
-
-    TrackRecordCollection*                                         m_muonExitLayerTracks;
-    std::string                                                    m_muonExitLayerTrackCollectionName;
-
-    TrackRecordCollection*                                         m_cosmicPerigeeTracks;
-    std::string                                                    m_cosmicPerigeeTrackCollectionName;
+    SG::ReadHandle<MDTSimHitCollection>                          m_mdtHits;
+    SG::ReadHandle<RPCSimHitCollection>                          m_rpcHits;
+    SG::ReadHandle<TGCSimHitCollection>                          m_tgcHits;
+    SG::ReadHandle<CSCSimHitCollection>                          m_cscHits;
 
     ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
     ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
