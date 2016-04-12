@@ -24,19 +24,18 @@ class MdtDqaDb  {
   std::vector<std::pair<int,float> > m_listNoisyMezz, m_listNoisyTube;
 
 public:
-
   MdtDqaDb(std::string chamName);
   MdtDqaDb();
-  virtual ~MdtDqaDb() ;
-  void Clear() ;
-  void Print() ; //method to print to screen
-  void Print(std::ofstream *outfile) ; //print to file
+  virtual ~MdtDqaDb();
+  void Clear();
+  void Print(); //method to print to screen
+  void Print(std::ofstream *outfile); //print to file
   void FillDb(/*some db info*/);//method to fill the cool tables
   
   //Set methods
   void SetChamberName(std::string chamName);
-  void SetTimeFlag(int timeFlag) ; //method to update the time flag by hand
-  void SetDeadFlag(int deadFlag) ; //method to update the dead flag by hand
+  void SetTimeFlag(int timeFlag); //method to update the time flag by hand
+  void SetDeadFlag(int deadFlag); //method to update the dead flag by hand
   void SetML1(float t0, float tdrift, float chi2ndof, float t0err, float tdrifterr);
   void SetML2(float t0, float tdrift, float chi2ndof, float t0err, float tdrifterr);
   void SetDeadML(std::vector<int> deadML);

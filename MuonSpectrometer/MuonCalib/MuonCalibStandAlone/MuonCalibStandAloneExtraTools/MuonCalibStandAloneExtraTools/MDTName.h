@@ -4,8 +4,8 @@
 
 /* Author: Marco Vanadia vanadiam@roma1.infn.it*/
 
-#ifndef _MDTName_H
-#define _MDTName_H
+#ifndef MUONCALIBSTANDALONEEXTRATOOLS_MDTNAME_H
+#define MUONCALIBSTANDALONEEXTRATOOLS_MDTNAME_H
 
 #include "MuonCalibIdentifier/MuonFixedId.h" 
 #include <string>
@@ -13,33 +13,31 @@
 #include <stdlib.h>
 #include "TString.h"
 
-using namespace std;
+//using namespace std;
 
 namespace MuonCalib{
 
 class MDTName{
 
 private:
-
-  TString name;
-  int eta_on;
-  int eta_off;
-  int sector_on;
-  int sector_off;
-  char side;
+  TString m_name;
+  int m_eta_on;
+  int m_eta_off;
+  int m_sector_on;
+  int m_sector_off;
+  char m_side;
 
 public:
-
   MDTName();
   MDTName(MuonFixedId);
   MDTName(TString);
   MDTName(char*);
-  MDTName(string);
-  MDTName(string,int,int);
-  MDTName(string,int,string,int);
+  MDTName(std::string);
+  MDTName(std::string,int,int);
+  MDTName(std::string,int,std::string,int);
   void MDTName_init(TString);
-  string getOnlineName();
-  string getOfflineName();
+  std::string getOnlineName();
+  std::string getOfflineName();
   bool isBarrel();
   bool isEndcap();
   bool isInner();
@@ -54,20 +52,20 @@ public:
   int getOfflineSector();
   int getOnlineEta();
   int getOfflineEta();
-  string getRegion();
-  string getStation();
-  string getSize();
-  string getSide();
-  string getName();
+  std::string getRegion();
+  std::string getStation();
+  std::string getSize();
+  std::string getSide();
+  std::string getName();
   TString OnlineToOfflineName(TString);
   TString OnlineToOfflineName(char*);
-  TString OnlineToOfflineName(string);
+  TString OnlineToOfflineName(std::string);
   TString OfflineToOnlineName(TString);
   TString OfflineToOnlineName(char*);
-  TString OfflineToOnlineName(string);
+  TString OfflineToOnlineName(std::string);
 
 };
 
-} //end of namespace MuonCalib
+} //namespace MuonCalib
 
 #endif

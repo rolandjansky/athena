@@ -23,7 +23,7 @@
 #include "TObjArray.h"
 
 
-using namespace std;
+//using namespace std;
 
 
 class TimeAndAdcFitter {
