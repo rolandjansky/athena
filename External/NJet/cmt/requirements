@@ -1,0 +1,30 @@
+package NJet
+author Andy Buckley
+
+use AtlasPolicy       AtlasPolicy-*
+use LCG_Configuration
+use AtlasExternalArea AtlasExternalArea-* External
+use AtlasGSL          AtlasGSL-*          External
+use AtlasHepMC        AtlasHepMC-*        External
+
+#private
+#macro my_LCG_config_version "67c"
+#end_private
+macro NJet_home "$(LCG_external)/MCGenerators/njet"
+#macro NJet_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(my_LCG_config_version)/njet"
+macro NJet_version "2.0.0"
+
+macro NJet_native_version "$(NJet_version)_lcgcmt$(LCG_config_version)"
+macro NJet_system "$(LCG_ext_system)"
+macro NJet_installdir "$(NJet_home)/$(NJet_version)/$(NJet_system)"
+macro Njet_lib "$(NJet_installdir)/lib"
+macro NJet_inc "$(NJet_installdir)/include"
+macro NJet_moduledir "$(NJet_lib)"
+
+macro NJet_linkopts "-L$(NJet_lib) -lNJet"
+macro NJet_export_paths "$(NJet_lib) $(NJet_inc) $(NJet_installdir)/share"
+
+apply_pattern declare_installed_libraries dir=$(NJet_lib)
+
+include_path none
+include_dirs "$(NJet_inc)"
