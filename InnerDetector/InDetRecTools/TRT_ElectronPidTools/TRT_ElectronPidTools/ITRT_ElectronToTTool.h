@@ -24,15 +24,11 @@ class ITRT_ElectronToTTool : virtual public IAlgTool {
   /** AlgTool interface methods */
   static const InterfaceID& interfaceID() { return IID_ITRT_ElectronToTTool; };
   
-
   // get the ToT from the bitpattern and correct for local variations
   virtual double GetToT(unsigned int bitpattern, double HitZ, double HitR, int BEC, int Layer, int Strawlayer) const = 0;
   
   // get the distance used to normalize the ToT
   virtual double GetD(double R_track) const = 0;
-
-
-  
 
 };
 
