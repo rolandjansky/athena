@@ -163,6 +163,10 @@ SCT_CablingSvc::getHashFromOnlineId(const SCT_OnlineId & onlineId, const bool wi
   } 
   if (empty() and m_cablingFiller->fillMaps(this).isFailure() ) return msg(MSG::FATAL)<<"Filling the cabling FAILED"<<endreq, invalidHash;
   const unsigned int indx(onlineId.index());
+  if (indx==SCT_OnlineId::INVALID_INDEX){
+    ATH_MSG_WARNING("An invalid index was returned for the onlineId, so an InvalidHash is generated");
+    return invalidHash;
+  }
   return m_onlineId2HashArray[indx];
 }
 
@@ -207,7 +211,10 @@ SCT_CablingSvc::getSerialNumberFromHash(const IdentifierHash & hash)  {
 
 void
 SCT_CablingSvc::getHashesForRod(std::vector<IdentifierHash> & usersVector, const std::uint32_t rodId){
-  if (not SCT_OnlineId::rodIdInRange(rodId)) msg(MSG::WARNING)<<"Invalid rod id asked for associated hashes"<<endreq;
+  if (not SCT_OnlineId::rodIdInRange(rodId)){
+    msg(MSG::WARNING)<<"Invalid rod id: "<<std::hex<<"0x"<<rodId<<std::dec<<" asked for associated hashes"<<endreq;
+    return; //users vector remains unfilled
+  }
   SCT_OnlineId firstPossibleId(rodId,SCT_OnlineId::FIRST_FIBRE);
   const bool withWarnings(false);
   for (SCT_OnlineId i(firstPossibleId);i!=SCT_OnlineId::INVALID_ONLINE_ID;++i){
