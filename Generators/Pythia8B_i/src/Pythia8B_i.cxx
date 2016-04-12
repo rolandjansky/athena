@@ -24,7 +24,7 @@ IAtRndmGenSvc*  Pythia8B_i::p_AtRndmGenSvc  = 0;
 ////////////////////////////////////////////////////////////////////////////////
 // User properties not defined by Pythia8_i
 Pythia8B_i::Pythia8B_i
-(const string &name, ISvcLocator *pSvcLocator): Pythia8_i(name,pSvcLocator) {
+(const std::string &name, ISvcLocator *pSvcLocator): Pythia8_i(name,pSvcLocator) {
     declareProperty("useRndmGenSvc", m_useRndmGenSvc = true);
     declareProperty("NHadronizationLoops", m_had=1);
     declareProperty("NDecayLoops", m_dec=1);
@@ -346,7 +346,7 @@ StatusCode Pythia8B_i::callGenerator(){
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-StatusCode Pythia8B_i::fillEvt(GenEvent *evt){
+StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
     
     ATH_MSG_DEBUG(">>> Pythia8B_i from fillEvt");
     ATH_MSG_DEBUG("BEventBuffer contains " << m_BEventBuffer.size() << " events ");
