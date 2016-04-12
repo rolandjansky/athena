@@ -117,9 +117,9 @@ testChains = {
     "HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
     "HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
 
-    "HLT_mu24_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+    "HLT_mu24_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_FTK_IDTrig",
     "HLT_mu24_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_FTK",
-    "HLT_mu24_FTKRefit_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+    "HLT_mu24_FTKRefit_idperf:InDetTrigTrackingxAODCnv_Muon_FTKRefit_IDTrig",
     "HLT_mu24_FTKRefit_idperf:InDetTrigTrackingxAODCnv_Muon_FTKRefit",
 
     "HLT_mu6_L2Star_idperf:TrigL2SiTrackFinder_Muon:0",
@@ -133,9 +133,9 @@ testChains = {
     "HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
     "HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
 
-    "HLT_mu6_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+    "HLT_mu6_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_FTK_IDTrig",
     "HLT_mu6_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_FTK",
-    "HLT_mu6_FTKRefit_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+    "HLT_mu6_FTKRefit_idperf:InDetTrigTrackingxAODCnv_Muon_FTKRefit_IDTrig",
     "HLT_mu6_FTKRefit_idperf:InDetTrigTrackingxAODCnv_Muon_FTKRefit",
 
     "HLT_tau25_idperf_track:TrigFastTrackFinder_Tau",
@@ -154,9 +154,9 @@ testChains = {
     "HLT_tau25_idperf_tracktwo:InDetTrigTrackingxAODCnv_Tau_IDTrig:forID3",
 
     "HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_FTK",
-    "HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_IDTrig",
+    "HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_FTK_IDTrig",
     "HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_FTKRefit",
-    "HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_IDTrig",
+    "HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig",
 
     "HLT_tau29_track:TrigFastTrackFinder_Tau",
     "HLT_tau29_track:TrigFastTrackFinder_Tau_IDTrig",
