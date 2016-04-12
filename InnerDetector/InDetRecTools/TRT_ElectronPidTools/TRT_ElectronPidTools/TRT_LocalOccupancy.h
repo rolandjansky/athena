@@ -88,10 +88,12 @@ namespace InDet
       int  *m_stw_total;
       int **m_stw_local;
 
+      int **m_track_local;
+
       bool isMiddleBXOn(unsigned int word);
       bool passValidityGate(unsigned int word, float t0);
 
-      void  countHitsNearTrack(int** track_hit_array/*[6][32]*/);
+      void  countHitsNearTrack();
       //   void  countHitsNearTrack(std::vector<IdentifierHash>* hash_vec);
   //   void  countHitsNearTrack(IdentifierHash hash);
 
