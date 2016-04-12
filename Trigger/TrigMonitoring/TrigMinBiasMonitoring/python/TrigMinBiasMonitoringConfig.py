@@ -17,22 +17,23 @@ def TrigMinBiasMonitoringTool():
                                           SPContainerName       = "HLT_xAOD__TrigSpacePointCountsContainer_spacepoints",
                                           TCContainerName       = "HLT_xAOD__TrigTrackCountsContainer_trackcounts",
                                           T2MBTSContainerName   = "HLT_xAOD__TrigT2MbtsBitsContainer_T2Mbts",
-										  VCContainerName  		= "HLT_xAOD__TrigVertexCountsContainer_vertexcounts",
-										  VColContainerName     = "HLT_TrigVertexCollection_TrigL2SiTrackFinder_FullScan_ZF_Only",
+					  VCContainerName  		= "HLT_xAOD__TrigVertexCountsContainer_vertexcounts",
+					  VColContainerName     = "HLT_TrigVertexCollection_TrigL2SiTrackFinder_FullScan_ZF_Only",
                                           MBTSContainerName     = "MBTSContainer",
                                           BCMContainerName      = "BCM_RDOs",
                                           LUCID_RawDataContainerName    = "Lucid_RawData",
                                           ZDC_ContainerName             = "ZdcRawChannelCollection",
                                           Calo_ContainerName            = "AllCalo",
-										  InDetTrackParticleContainerName = "InDetTrackParticles",
-										  
-										  monitoring_minbias = hltmonList.monitoring_minbias,
-										  MinBiasRefTrigItem = "mb_sptrk", # "mb_sptrk" should be used
-                                          MinBiasAvailableAlgorithms = ['mbts', 	  'sptrk', 		'noalg', 			'hmtperf', 		'idperf', 	 	'perf',       'hmt'], #the order here matters: more specific names should go before general eg. 'ideperf' before 'perf'... 
-                                          MinBiasHistoTargets = 	   [MBTS,      	  IDMINBIAS,     MBTS, 					HMT,       		0, 		MBTS + IDMINBIAS, 	HMT],
-										  IsPassedCondtitions = 	   [PHYSICS, 	  PHYSICS, L1_ISPASSEDBEFOREPRESCALE,  PHYSICS,  	PHYSICS, 		PHYSICS, 	  PHYSICS],
-										  CollectiveHistogramForAlgorithm = ['1', '1', '1', '2', '2', '2', '3'],
-										  
+					  InDetTrackParticleContainerName = "InDetTrackParticles",
+					  
+					  monitoring_minbias = hltmonList.monitoring_minbias,
+					  MinBiasRefTrigItem = "noalg_mb_L1RD0_FILLED", # "mb_sptrk" should be used
+                                          MinBiasAvailableAlgorithms = ['sp', 'sptrk', 'mbts', 'noalg', 'hmtperf',  'idperf',   'perf',   'hmt'], #the order here matters: more specific names should go before general eg. 'ideperf' before 'perf'... 
+                                          MinBiasHistoTargets =     [IDMINBIAS,  IDMINBIAS, MBTS,  0,  HMT,   0,  MBTS + IDMINBIAS,   HMT],
+					  IsPassedCondtitions =     [PHYSICS,  PHYSICS, PHYSICS, L1_ISPASSEDBEFOREPRESCALE,  PHYSICS,  	PHYSICS,   PHYSICS,   PHYSICS],
+					  #CollectiveHistogramForAlgorithm = ['1', '1', '1', '1', '2', '2', '2', '3'],
+					  CollectiveHistogramForAlgorithm = ['1', '1', '1', '1', '1', '1', '1', '1'],
+					  
                                           MBTS_countsSideA = 12,
                                           MBTS_countsSideC = 12
                                           );
