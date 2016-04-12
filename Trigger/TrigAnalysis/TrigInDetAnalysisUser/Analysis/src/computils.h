@@ -337,6 +337,9 @@ public:
 	  //	  }
 	}
 	else    {
+
+	  if ( htest() ) htest()->GetXaxis()->SetMoreLogLabels(true);
+
 	  if ( tgtest() ) { 
 	    zeroErrors(htest());
 	    htest()->GetXaxis()->SetMoreLogLabels(true);
