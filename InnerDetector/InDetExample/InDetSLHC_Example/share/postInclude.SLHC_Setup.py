@@ -12,3 +12,10 @@ if rec.OutputFileNameForRecoStep() == 'RAWtoESD' or rec.OutputFileNameForRecoSte
 # InnerDetector/InDetConditions/InDetCondFolders/python/InDetAlignFolders.py configures /Indet/IBLDist
 from IOVDbSvc.CondDB import conddb
 conddb.blockFolder("/Indet/IBLDist")
+
+from AthenaCommon.DetFlags import DetFlags
+if hasattr(ServiceMgr, 'PixelLorentzAngleSvc'):
+    # this avoid to use hard-coded valus for IBL in the LorentzAngleSvc
+    print "--> Running with ITkLayout" 
+    ServiceMgr.PixelLorentzAngleSvc.ITkLayout = True
+    

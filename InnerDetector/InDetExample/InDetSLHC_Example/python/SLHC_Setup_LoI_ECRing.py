@@ -128,10 +128,12 @@ class SLHC_Setup :
         
         print "******************************************************************************************"
         
+        print "PixelGeoModel - import GeoPixelLayerECRingTool"
         from PixelLayoutECRing.PixelLayoutECRingConf import GeoPixelLayerECRingTool
         geoECLayerTool=GeoPixelLayerECRingTool(name="GeoPixelLayerECRingTool")
         toolSvc+=geoECLayerTool
         
+        print "PixelGeoModel - import GeoPixelEndcapECRingTool"
         from PixelLayoutECRing.PixelLayoutECRingConf import GeoPixelEndcapECRingTool
         geoEndcapTool=GeoPixelEndcapECRingTool(name="GeoPixelEndcapECRingTool")
         geoEndcapTool.GeoPixelEndcapLayerTool = geoECLayerTool
@@ -156,7 +158,7 @@ class SLHC_Setup :
         pixelTool.ConfigGeoAlgTool = True
         pixelTool.ConfigGeoBase = "GeoPixelEnvelopeLoITool"
 
-        
+
     def search_file(self,filename, search_path):
         """Given a search path, find file
            -- will return the first occurrence

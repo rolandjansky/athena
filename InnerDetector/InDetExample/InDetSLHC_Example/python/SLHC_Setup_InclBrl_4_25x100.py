@@ -5,7 +5,7 @@
 """
 
 __author__ =   "A. Salzburger"
-__version__=   "$Revision: 1.13 $"
+__version__=   "$Revision: 739838 $"
 __doc__    =   "SLHC_PathSetting"
 __all__    = [ "SLHC_PathSetting" ]
 
@@ -20,8 +20,8 @@ class SLHC_Setup_XMLReader :
 
         # XMLReader setup
         from SLHC_Setup_XML import SLHC_Setup_XMLReader
-        SLHC_Setup_XMLReader(PixelLayout = "InclBrl4Ref",
-                             PixelEndcapLayout = "ECRing4Ref",
+        SLHC_Setup_XMLReader(PixelLayout = "InclBrl4Ref25x100",
+                             PixelEndcapLayout = "ECRing4Ref25x100",
                              SCTLayout = "FourLayersNoStub_23-25-dev0",
                              dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_SLHC_InclBrl_4.xml",
                              createXML = True,

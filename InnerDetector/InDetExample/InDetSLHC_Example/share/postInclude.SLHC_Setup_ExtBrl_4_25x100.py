@@ -3,7 +3,7 @@
 #--------------------------------------------------------------
 
 # build GeoModel geometry
-from InDetSLHC_Example.SLHC_Setup_ExtBrl_32 import SLHC_Setup
+from InDetSLHC_Example.SLHC_Setup_ExtBrl_4_25x100 import SLHC_Setup
 SLHC_Setup = SLHC_Setup()
 
 if rec.OutputFileNameForRecoStep() == 'RAWtoESD' or rec.OutputFileNameForRecoStep() == 'ESDtoDPD':
@@ -31,7 +31,7 @@ if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     ToolSvc.InDetMergedPixelsTool.DoRemoveClustersWithToTequalSize = False
     ToolSvc.InDetMergedPixelsTool.DoCheckSizeBeforeMerging = True
 
-    ## Improved pattern recognition with extended barrel
+    ## Improved	pattern	recognition with extended barrel
     ToolSvc.InDetSpSeedsMakerSLHC.usePixelClusterCleanUp = True
     ToolSvc.InDetSpSeedsMakerSLHC.usePixelClusterCleanUpSizePhicutsB = True
     ToolSvc.InDetSpSeedsMakerSLHC.usePixelClusterCleanUpSizeZcutsB = True
@@ -39,8 +39,8 @@ if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     ToolSvc.InDetSpSeedsMakerSLHC.usePixelClusterCleanUpSizeZcutsE = True
     ToolSvc.InDetSpSeedsMakerSLHC.useITKseedCuts = True
     ToolSvc.InDetSpSeedsMakerSLHC.useITKseedCutsSizeDiff = True
-    ToolSvc.InDetSpSeedsMakerSLHC.useITKseedCutsDeltaSize = True
-    ToolSvc.InDetSpSeedsMakerSLHC.useITKseedCutsL01hit = True
+    ToolSvc.InDetSpSeedsMakerSLHC.useITKseedCutsDeltaSize = True  
+    ToolSvc.InDetSpSeedsMakerSLHC.useITKseedCutsL01hit = True  
     ToolSvc.InDetSpSeedsMakerSLHC.NsigmaClusSizeZcut = 4.0
 
     ToolSvc.InDetSpSeedsMakerVeryForwardSLHCTracks.usePixelClusterCleanUp = True
@@ -53,3 +53,4 @@ if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     ToolSvc.InDetSpSeedsMakerVeryForwardSLHCTracks.useITKseedCutsDeltaSize = True
     ToolSvc.InDetSpSeedsMakerVeryForwardSLHCTracks.useITKseedCutsL01hit = True
     ToolSvc.InDetSpSeedsMakerVeryForwardSLHCTracks.NsigmaClusSizeZcut = 4.0
+

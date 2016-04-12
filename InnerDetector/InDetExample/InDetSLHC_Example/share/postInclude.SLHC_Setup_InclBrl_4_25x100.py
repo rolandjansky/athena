@@ -1,8 +1,9 @@
 #--------------------------------------------------------------
 # SLHC setup
 #--------------------------------------------------------------
-# set the path variables consistently
-from InDetSLHC_Example.SLHC_Setup_LoI import SLHC_Setup
+
+# build GeoModel geometry
+from InDetSLHC_Example.SLHC_Setup_InclBrl_4_25x100 import SLHC_Setup
 SLHC_Setup = SLHC_Setup()
 
 if rec.OutputFileNameForRecoStep() == 'RAWtoESD' or rec.OutputFileNameForRecoStep() == 'ESDtoDPD':

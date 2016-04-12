@@ -5,7 +5,7 @@
 """
 
 __author__ =   "A. Salzburger"
-__version__=   "$Revision: 1.13 $"
+__version__=   "$Revision: 739487 $"
 __doc__    =   "SLHC_PathSetting"
 __all__    = [ "SLHC_PathSetting" ]
 
@@ -13,17 +13,16 @@ import os
 from os.path import exists, join
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 
-
 class SLHC_Setup_XMLReader :
     # constructor requires the SLHC_Flags
     def __init__(self):
 
         # XMLReader setup
         from SLHC_Setup_XML import SLHC_Setup_XMLReader
-        SLHC_Setup_XMLReader(PixelLayout = "InclBrl4Ref",
-                             PixelEndcapLayout = "ECRing4Ref",
+        SLHC_Setup_XMLReader(PixelLayout = "ExtBrl4Ref25x100",
+                             PixelEndcapLayout = "ECRing4Ref25x100",
                              SCTLayout = "FourLayersNoStub_23-25-dev0",
-                             dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_SLHC_InclBrl_4.xml",
+                             dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_SLHC_ExtBrl_4.xml",
                              createXML = True,
                              doPix=True,
                              doSCT=True,
@@ -32,6 +31,9 @@ class SLHC_Setup_XMLReader :
 class SLHC_Setup :
     # constructor requires the SLHC_Flags
     def __init__(self):
+
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        from AthenaCommon.AppMgr import ToolSvc as toolSvc
 
         # Only use local text file and dictionary if SLHC_Version set
         if (SLHC_Flags.SLHC_Version() and not (SLHC_Flags.SLHC_Version() == 'None')) : 
@@ -55,7 +57,6 @@ class SLHC_Setup :
             database_full_path_name = database_file_path+'/'+database_file
 
             # Pass text file name to GeometryDBSvc
-            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             if not hasattr(svcMgr,'InDetGeometryDBSvc'):
                 from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
                 svcMgr+=GeometryDBSvc("InDetGeometryDBSvc")
@@ -67,20 +68,23 @@ class SLHC_Setup :
 
         else:
             print 'SLHC_Setup: Geometry coming fully from database'
-            
+
+
+#        from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+#        GeoModelSvc.SCT_VersionOverride="SCT-SLHC-05"
 
         # GeoModelConfiguration 
 
         xmlFileDict={}
         xmlFileDict["Pixel"]={
-            "PIXELGENERAL":"InclBrl4_PixelGeneral",
-            "PIXELSIMPLESERVICE":"InclBrl_PixelSimpleService",
+            "PIXELGENERAL":"BrlExt4_PixelGeneral",
+            "PIXELSIMPLESERVICE":"BrlExt_PixelSimpleService",
             "SILICONMODULES":"ITK_PixelModules",
             "SILICONREADOUT":"PixelModuleReadout",
-            "STAVESUPPORT":"InclBrl4_StaveSupport",
-            "PIXELDISCSUPPORT":"InclBrl4_DiskSupport",
-            "MATERIAL":"InclBrl_Material",
-            "PIXELROUTINGSERVICE":"InclBrl4_PixelRoutingService",
+            "STAVESUPPORT":"BrlExt4_StaveSupport",
+            "PIXELDISCSUPPORT":"BrlExt4_DiskSupport",
+            "MATERIAL":"BrlExt_Material",
+            "PIXELROUTINGSERVICE":"BrlExt4_PixelRoutingService",
             }
 
         for subDet in ["Pixel"]:
@@ -90,8 +94,6 @@ class SLHC_Setup :
                 os.environ[envName]=fileName
                 print "ENV ",envName," ",fileName
 
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from AthenaCommon.AppMgr import ToolSvc as toolSvc
 
         print "******************************************************************************************"
         print "PixelGeoModel - import module and design tools"
@@ -104,7 +106,7 @@ class SLHC_Setup :
         from PixelModuleTool.PixelModuleToolConf import PixelDesignBuilder
         moduleDesignBuilder=PixelDesignBuilder(name="PixelDesignSvc")
         svcMgr+=moduleDesignBuilder
-
+                    
         print "******************************************************************************************"
         print "PixelGeoModel - import PixelServiceTool"
         from PixelServicesTool.PixelServicesToolConf import PixelServicesTool
@@ -113,23 +115,11 @@ class SLHC_Setup :
         serviceTool.SvcDynAutomated = False
         serviceTool.BarrelModuleMaterial = True
         toolSvc+=serviceTool
-                    
+
         print "******************************************************************************************"
-        print "PixelGeoModel - import GeoPixelLayerInclRefTool"
-        from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
-        geoLayerInnerTool=GeoPixelLayerInclRefTool(name="InnerPixelLayerTool")
-        toolSvc+=geoLayerInnerTool
-
-##         from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerPlanarRefTool
-##         geoLayerOuterTool=GeoPixelLayerPlanarRefTool(name="OuterPixelLayerTool")
-##         toolSvc+=geoLayerOuterTool
-
-        print "PixelGeoModel - import GeoPixelBarrelInclRefTool"
-        from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelBarrelInclRefTool
-        geoBarrelTool=GeoPixelBarrelInclRefTool(name="GeoPixelBarrelInclRefTool")
-        geoBarrelTool.InnerPixelLayerTool = geoLayerInnerTool
-#        geoBarrelTool.OuterPixelLayerTool = geoLayerOuterTool
-        geoBarrelTool.MaxInnerLayerMax = 5
+        print "PixelGeoModel - import GeoPixelBarrelExtRefTool"
+        from BarrelExtendedRef.BarrelExtendedRefConf import GeoPixelBarrelExtRefTool
+        geoBarrelTool=GeoPixelBarrelExtRefTool(name="GeoPixelBarrelExtRefTool")
         geoBarrelTool.PixelServicesTool = serviceTool
         toolSvc+=geoBarrelTool
 
@@ -147,9 +137,9 @@ class SLHC_Setup :
         toolSvc+=geoEndcapTool
 
         print "******************************************************************************************"
-        print "PixelGeoModel - import GeoPixelEnvelopeInclRefTool"
-        from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelEnvelopeInclRefTool
-        geoEnvelopeTool=GeoPixelEnvelopeInclRefTool(name="GeoPixelEnvelopeInclRefTool")
+        print "PixelGeoModel - import GeoPixelEnvelopeExtRefTool"
+        from BarrelExtendedRef.BarrelExtendedRefConf import GeoPixelEnvelopeExtRefTool
+        geoEnvelopeTool=GeoPixelEnvelopeExtRefTool(name="GeoPixelEnvelopeExtRefTool")
         geoEnvelopeTool.GeoPixelBarrelTool = geoBarrelTool
         geoEnvelopeTool.GeoPixelEndcapTool = geoEndcapTool
         geoEnvelopeTool.PixelServicesTool = serviceTool
@@ -161,8 +151,8 @@ class SLHC_Setup :
         pixelTool.Alignable = False
         pixelTool.FastBuildGeoModel = True
         pixelTool.ConfigGeoAlgTool = True
-        pixelTool.ConfigGeoBase = "GeoPixelEnvelopeInclRefTool"
-        
+        pixelTool.ConfigGeoBase = "GeoPixelEnvelopeExtRefTool"
+
 
     def search_file(self,filename, search_path):
         """Given a search path, find file

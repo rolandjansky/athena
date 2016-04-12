@@ -138,7 +138,7 @@ class SLHC_Setup :
         pixelTool.ConfigGeoAlgTool = True
         pixelTool.ConfigGeoBase = "GeoPixelEnvelopeAlpineTool"
         
-        
+
     def search_file(self,filename, search_path):
         """Given a search path, find file
            -- will return the first occurrence

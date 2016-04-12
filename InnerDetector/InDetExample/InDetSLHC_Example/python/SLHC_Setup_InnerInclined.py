@@ -139,10 +139,12 @@ class SLHC_Setup :
         toolSvc+=geoBarrelTool
 
         print "******************************************************************************************"
+        print "PixelGeoModel - import GeoPixelLayerECRingRefTool"
         from EndcapRingRef.EndcapRingRefConf import GeoPixelLayerECRingRefTool
         geoECLayerTool=GeoPixelLayerECRingRefTool(name="GeoPixelLayerECRingRefTool")
         toolSvc+=geoECLayerTool
         
+        print "PixelGeoModel - import GeoPixelEndcapECRingRefTool"
         from EndcapRingRef.EndcapRingRefConf import GeoPixelEndcapECRingRefTool
         geoEndcapTool=GeoPixelEndcapECRingRefTool(name="GeoPixelEndcapECRingRefTool")
         geoEndcapTool.GeoPixelEndcapLayerTool = geoECLayerTool
@@ -165,8 +167,8 @@ class SLHC_Setup :
         pixelTool.FastBuildGeoModel = True
         pixelTool.ConfigGeoAlgTool = True
         pixelTool.ConfigGeoBase = "GeoPixelEnvelopeInclRefTool"
-        
-        
+
+
     def search_file(self,filename, search_path):
         """Given a search path, find file
            -- will return the first occurrence
