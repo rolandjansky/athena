@@ -1,22 +1,22 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/CaloCellContainer_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/Calorimeter/CaloEvent/run/../share/CaloCellContainer_test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3e/Calorimeter/CaloEvent/run/../share/CaloCellContainer_test.txt
 JobOptionsSvc        INFO # (1,1): ApplicationMgr.DLLs += ["StoreGate", "CLIDComps"]
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.ExtSvc += ["StoreGateSvc", "StoreGateSvc/DetectorStore"]
 JobOptionsSvc        INFO Job options successfully read in from ../share/CaloCellContainer_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v2r1)
-                                          running on lxplus0027.cern.ch on Fri Aug  8 04:35:06 2014
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r4)
+                                          running on lxplus047.cern.ch on Tue Apr 12 17:42:48 2016
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate, CLIDComps
 ApplicationMgr       INFO Application Manager Configured successfully
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-41-17
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-12
-ClassIDSvc           INFO  getRegistryEntries: read 1966 CLIDRegistry entries for module ALL
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-07
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-41-17
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-06-36
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-19
+ClassIDSvc           INFO  getRegistryEntries: read 2675 CLIDRegistry entries for module ALL
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-07
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-06-36
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
@@ -40,8 +40,6 @@ is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffff
  LArEM_Base_ID::initialize_from_dict : 
  region range -> 4/1/-1,1/0/0 | 4/1/-1,1/1/0 | 4/1/-1,1/1/1 | 4/1/-1,1/2/0 | 4/1/-1,1/2/1 | 4/1/-1,1/3/0 | 4/1/-2,2/0/0 | 4/1/-2,2/1/0 | 4/1/-2,2/1/1 | 4/1/-2,2/1/2 | 4/1/-2,2/1/3 | 4/1/-2,2/1/4 | 4/1/-2,2/1/5 | 4/1/-2,2/2/0 | 4/1/-2,2/2/1 | 4/1/-2,2/3/0 | 4/1/-3,3/1/0 | 4/1/-3,3/2/0
  channel range -> 4/1/-1,1/0/0/0:60/0:63/0 | 4/1/-1,1/1/0/1:447/0:63/0 | 4/1/-1,1/1/1/0:2/0:255/0 | 4/1/-1,1/2/0/0:55/0:255/0 | 4/1/-1,1/2/1/0/0:255/0 | 4/1/-1,1/3/0/0:26/0:255/0 | 4/1/-2,2/0/0/0:11/0:63/0 | 4/1/-2,2/1/0/0/0:63/0 | 4/1/-2,2/1/1/0:2/0:63/0 | 4/1/-2,2/1/2/0:95/0:63/0 | 4/1/-2,2/1/3/0:47/0:63/0 | 4/1/-2,2/1/4/0:63/0:63/0 | 4/1/-2,2/1/5/0:3/0:63/0 | 4/1/-2,2/2/0/0/0:255/0 | 4/1/-2,2/2/1/0:42/0:255/0 | 4/1/-2,2/3/0/0:19/0:255/0 | 4/1/-3,3/1/0/0:6/0:63/0 | 4/1/-3,3/2/0/0:6/0:63/0
- disconected region range -> 4/-1/-1,1/0/0 | 4/-1/-1,1/1/0 | 4/-1/-1,1/3/0 | 4/-1/-2,2/0/0 | 4/-1/-2,2/1/1 | 4/-1/-2,2/1/3 | 4/-1/-2,2/1/5 | 4/-1/-3,3/1/0 | 4/-1/-3,3/2/0
- disconnected channel range -> 4/-1/-1,1/0/0/61:63/0:63 | 4/-1/-1,1/1/0/0/0:63 | 4/-1/-1,1/3/0/27/0:255 | 4/-1/-2,2/0/0/12:19/0:63 | 4/-1/-2,2/1/1/3:6/0:63 | 4/-1/-2,2/1/3/48:63/0:63 | 4/-1/-2,2/1/5/4:7/0:63 | 4/-1/-3,3/1/0/7/0:63 | 4/-1/-3,3/2/0/7/0:63
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
@@ -60,8 +58,6 @@ is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffff
 initialize_from_dict : 
  channel range -> 4/2/-2,2/0/0/0:9/0:63/0 | 4/2/-2,2/1/0/0:9/0:63/0 | 4/2/-2,2/2/0/1:9/0:63/0 | 4/2/-2,2/3/0/2:9/0:63/0 | 4/2/-2,2/0/1/0:3/0:31/0 | 4/2/-2,2/1/1/0:2/0:31/0 | 4/2/-2,2/2/1/0:2/0:31/0 | 4/2/-2,2/3/1/0:3/0:31/0
  region range -> 4/2/-2,2/0/0 | 4/2/-2,2/1/0 | 4/2/-2,2/2/0 | 4/2/-2,2/3/0 | 4/2/-2,2/0/1 | 4/2/-2,2/1/1 | 4/2/-2,2/2/1 | 4/2/-2,2/3/1
- disconnected channel range -> 4/-2/-2,2/2/0/0/0:63 | 4/-2/-2,2/3/0/0:1/0:63 | 4/-2/-2,2/1/1/3/0:31 | 4/-2/-2,2/2/1/3/0:31
- disconnected region range -> 4/-2/-2,2/2/0 | 4/-2/-2,2/3/0 | 4/-2/-2,2/1/1 | 4/-2/-2,2/2/1
  LArHEC_Base_ID::init_neighbors 
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
@@ -80,8 +76,6 @@ is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffff
  initialize_from_dict : 
  channel range -> 4/3/-2,2/1/0:62/0:15/0 | 4/3/-2,2/2/0:29/0,7,8,15/0 | 4/3/-2,2/2/0:30/3,4,11,12/0 | 4/3/-2,2/2/0:31/1,2,5,6,9,10,13,14/0 | 4/3/-2,2/3/0:14/2,10/0 | 4/3/-2,2/3/0:15/0,1,3,4,5,6,7,8,9,11,12,13,14,15/0
  module range -> 4/3/-2,2/1 | 4/3/-2,2/2 | 4/3/-2,2/3
- disconnected channel range -> 4/-3/-2,2/1/63/0:15 | 4/-3/-2,2/2/30:31/0,7,8,15 | 4/-3/-2,2/2/31/3,4,11,12 | 4/-3/-2,2/3/15/2,10
- disconnected module range -> 4/-3/-2,2/1 | 4/-3/-2,2/2 | 4/-3/-2,2/3
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 

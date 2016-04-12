@@ -85,20 +85,11 @@ size_t CaloTowerSeg::SubSeg::nphi() const
  */
 CaloTowerSeg CaloTowerSeg::SubSeg::segmentation() const
 {
-  double etamin = m_parent.eta (m_etamin) - m_parent.deta()/2;
-  double etamax = m_parent.eta (m_etamax) + m_parent.deta()/2;
+  const double etamin = m_parent.eta (m_etamin) - m_parent.deta()/2;
+  const double etamax = m_parent.eta (m_etamax) + m_parent.deta()/2;
 
-
-  double phimin;
-  double phimax;
-  if (m_phimax < m_phimin) {
-    phimin = m_parent.phi (m_phimin) - m_parent.dphi()/2;
-    phimax = m_parent.phi (m_phimax) + m_parent.dphi()/2;
-  }
-  else {
-    phimin = m_parent.phi (m_phimin) - m_parent.dphi()/2;
-    phimax = m_parent.phi (m_phimax) + m_parent.dphi()/2;
-  }
+  const double phimin = m_parent.phi (m_phimin) - m_parent.dphi()/2;
+  const double phimax = m_parent.phi (m_phimax) + m_parent.dphi()/2;
   
   return CaloTowerSeg (neta(), nphi(), etamin, etamax, phimin, phimax);
 }
