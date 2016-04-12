@@ -30,6 +30,8 @@ class IInDetAlignDBTool: virtual public IAlgTool {
                       const int, const int, const int) const =0;
 
   virtual void writeFile(const bool, const std::string) const =0;
+  virtual void writeIBLDistFile( const std::string file) const =0;
+  virtual void writeGlobalFolderFile( const std::string file) const =0;
   virtual void readTextFile(const std::string) const =0;
   virtual void readNtuple(const std::string) const =0;
 
@@ -49,6 +51,8 @@ class IInDetAlignDBTool: virtual public IAlgTool {
   virtual bool tweakTrans(const Identifier& ident, const int level,
 			                    const Amg::Vector3D& translate, double alpha, 
 			                    double beta, double gamma) const = 0;
+  virtual bool tweakIBLDist(const int, const float) const =0; // new function
+
   virtual Identifier getL1L2fromL3Identifier( const Identifier& ident
                                             , const int& level
                                             ) const=0 ;

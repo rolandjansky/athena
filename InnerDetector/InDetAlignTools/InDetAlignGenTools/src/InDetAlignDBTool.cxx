@@ -6,6 +6,12 @@
 // AlgTool to manage the SCT/pixel AlignableTransforms in the conditions store
 // Richard Hawkings, started 8/4/05
 
+#include "CoralBase/AttributeListSpecification.h"
+#include "CoralBase/Attribute.h"
+
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
+
 #include <fstream>
 #include <iostream>
 
@@ -24,6 +30,8 @@
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetReadoutGeometry/InDetDetectorManager.h"
+#include "InDetReadoutGeometry/InDetDD_Defs.h"
 
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
@@ -68,18 +76,20 @@ InDetAlignDBTool::InDetAlignDBTool(const std::string& type,
     par_condstream("CondStream1"),
     par_dbroot( IND_ALIGN ),
     par_dbkey( IND_ALIGN ),
-    par_oldTextFile(false)
+    par_oldTextFile(false),
+    m_dynamicDB(false),
+    m_forceUserDBConfig(false)
 {
   declareInterface<IInDetAlignDBTool>(this);
   declareProperty("IToolSvc",    p_toolsvc);
-  declareProperty("NewDB",       par_newdb);
+  declareProperty("NewDB",       par_newdb);     //Take out at some point; New is misleading!! Very old developments!
   declareProperty("SCTTwoSide",  par_scttwoside);
   declareProperty("FakeDB",      par_fake);
   declareProperty("CondStream",  par_condstream);
   declareProperty("DBRoot",      par_dbroot,"name of the root folder for constants");
   declareProperty("DBKey",       par_dbkey,"base part of the key for loading AlignableTransforms");
   declareProperty("OldTextFile", par_oldTextFile);
-
+  declareProperty("forceUserDBConfig",m_forceUserDBConfig, "Set to true to override any DB auto-configuration");
 }
 
 InDetAlignDBTool::~InDetAlignDBTool()
@@ -108,6 +118,32 @@ StatusCode InDetAlignDBTool::initialize()
   int ndet[2];
   ndet[0]=0;
   ndet[1]=0;
+
+  if (StatusCode::SUCCESS!=detStore()->retrieve(m_pixman,"Pixel") || m_pixman==0) {
+    ATH_MSG_WARNING( "Could not find pixel manager ");
+    return StatusCode::FAILURE;
+  }
+
+  if (StatusCode::SUCCESS!=detStore()->retrieve(m_sctman,"SCT") || m_sctman==0) {
+    ATH_MSG_FATAL("Could not find SCT manager ");
+    return StatusCode::FAILURE;
+  }
+
+  // Retrieve AlignFolderType so we can decide whether to update old or new scheme
+  // Needs additional work as it currently only overwrites user settings!!! MD
+  if (m_pixman->m_alignfoldertype!=m_sctman->m_alignfoldertype)
+    ATH_MSG_FATAL("Pixel and SCT Managers have different alignfolder type registered --> Check ");
+  
+  if (m_pixman->m_alignfoldertype == InDetDD::static_run1 && !m_forceUserDBConfig){
+    par_dbroot = "/Indet/Align";
+    m_dynamicDB = false;
+  }
+  if (m_pixman->m_alignfoldertype == InDetDD::timedependent_run2 && !m_forceUserDBConfig){
+    par_dbroot = "/Indet/AlignL3";
+    m_dynamicDB = true;
+  }  
+  par_dbkey = par_dbroot;
+
   if ((StatusCode::SUCCESS!=detStore()->retrieve(m_pixid)) ||
       (StatusCode::SUCCESS!=detStore()->retrieve(m_sctid))) {
     // attempt failed - optionally fake up the geometry
@@ -124,26 +160,19 @@ StatusCode InDetAlignDBTool::initialize()
   } else {
     // setup list of alignable transforms from geometry
     int chan[3];
+    int TransfLevel_low = 0; // depending on alignfolder sheme; 0 for old, 2 for new
+    if (m_dynamicDB) TransfLevel_low = 2;
+
     for (int i=0;i<3;++i) chan[i]=100*i;
     std::string man_name;
     InDetDD::SiDetectorElementCollection::const_iterator iter,itermin,itermax;
     for (int idet=1;idet<3;++idet) {
       if (idet==1) {
-        if (StatusCode::SUCCESS!=detStore()->retrieve(m_pixman,"Pixel") || m_pixman==0) {
-          ATH_MSG_WARNING( "Could not find pixel manager ");
-          return StatusCode::FAILURE;
-        } else {
-          itermin=m_pixman->getDetectorElementBegin();
-          itermax=m_pixman->getDetectorElementEnd();
-        }
+	itermin=m_pixman->getDetectorElementBegin();
+	itermax=m_pixman->getDetectorElementEnd();
       } else {
-        if (StatusCode::SUCCESS!=detStore()->retrieve(m_sctman,"SCT") || m_sctman==0) {
-          ATH_MSG_FATAL("Could not find SCT manager ");
-          return StatusCode::FAILURE;
-        }   else {
-          itermin=m_sctman->getDetectorElementBegin();
-          itermax=m_sctman->getDetectorElementEnd();
-        }
+	itermin=m_sctman->getDetectorElementBegin();
+	itermax=m_sctman->getDetectorElementEnd();
       }
       for (iter=itermin;iter!=itermax;++iter) {
         const InDetDD::SiDetectorElement* element=*iter;
@@ -153,7 +182,7 @@ StatusCode InDetAlignDBTool::initialize()
           if (idToDetSet(ident,det,bec,layer,ring,sector,side)) {
             if (det==idet) {
               std::string level[3];
-              for (int i=0;i<3;++i) {
+              for (int i=TransfLevel_low;i<3;++i) {  
                 level[i]=dirkey(det,bec,layer,1+i,sector);
                 // add this to list if not seen already
                 std::vector<std::string>::const_iterator ix=
@@ -174,6 +203,8 @@ StatusCode InDetAlignDBTool::initialize()
       }
     }
   }
+
+
   if (msgLvl(MSG::DEBUG)) {
     ATH_MSG_DEBUG( "Database root folder " << par_dbroot );
     ATH_MSG_DEBUG( "Geometry initialisation sees " << ndet[0] << 
@@ -189,7 +220,31 @@ StatusCode InDetAlignDBTool::initialize()
     else
       ATH_MSG_DEBUG("Assuming old (Lisbon) alignment DB model based on separate AlignableTransforms");
   }
+
+  // make a new empty CondAttrListCollection with the IBLDist structure:  
+  m_attrListCollection = new CondAttrListCollection(true); // not really sure....
   
+  coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
+  spec->extend("stave", "int");
+  spec->extend("eta", "int");
+  spec->extend("mag", "float");
+  spec->extend("base", "float");
+  spec->extend("free", "float");
+
+  const int ibl_stave_max = 14;
+  // create a full collection first with NULL entries to ensure fail save operation 
+  for (int this_stave=0; this_stave<ibl_stave_max; this_stave++){
+
+    coral::AttributeList atrlist(*spec);
+    // Set value of each row for the current channel
+    atrlist[ "stave" ].data<int>()=this_stave;
+    atrlist[ "eta" ].data<int>()=0;
+    atrlist[ "mag" ].data<float>()=0;
+    atrlist[ "base" ].data<float>()=0;
+    atrlist[ "free" ].data<float>()=0;
+    m_attrListCollection->add(100*(1+this_stave),atrlist);
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -333,6 +388,26 @@ void InDetAlignDBTool::createDB() const
   ATH_MSG_DEBUG( "Dumping size of created AlignableTransform objects");
   for (unsigned int i=0;i<m_alignobjs.size();++i)
     if ((pat=getTransPtr(m_alignobjs[i]))) pat->print();
+
+  /*  Not needed at the moment
+  {
+
+    ATH_MSG_DEBUG("createDB method called for IBLDist");
+    const CondAttrListCollection* atrlistcol=0;
+    std::string ibl_folderName = "/Indet/IBLDist";
+    if (detStore()->contains<CondAttrListCollection>(ibl_folderName)) {
+      ATH_MSG_WARNING("createDB: CondAttrListCollection already exists");
+      //return; 
+    }
+    
+    if (par_newdb) {
+      atrlistcol = m_attrListCollection;
+      if (StatusCode::SUCCESS!=detStore()->record(atrlistcol,ibl_folderName))
+	ATH_MSG_ERROR( "Could not record IBLDist "<< ibl_folderName );
+    
+    }
+  }  
+  */
 }
 
 bool InDetAlignDBTool::idToDetSet(const Identifier ident, int& det, int& bec,
@@ -399,7 +474,14 @@ std::string InDetAlignDBTool::dirkey(const int det,const int bec,const
   // given SCT/pixel det/bec/layer/sector, and level (1,2 or 3) return
   // directory key name for associated alignment data
   std::ostringstream result;
-  result << par_dbkey << "/" ;
+  if (m_dynamicDB){
+    result << "/Indet/AlignL";
+    result << level;
+    result << "/" ;          // new folders have L1, L2, L3 structure
+  }
+  else{
+    result << par_dbkey << "/" ;
+  }
   if (level==1) {
     result << "ID";
   } else {
@@ -700,9 +782,90 @@ void InDetAlignDBTool::writeFile(const bool ntuple, const std::string file)
   ATH_MSG_DEBUG("Written " << nobj << " AlignableTransform objects" << " with " << ntrans << " transforms to text file" );
 }
 
+// write extra txt file for new IBLDist
+void InDetAlignDBTool::writeIBLDistFile( const std::string file) 
+  const {
+  std::ofstream* outfile=0;
+ 
+  ATH_MSG_DEBUG( "writeFile: Write IBLDist DB in text file: " << file );
+  outfile=new std::ofstream(file.c_str());
+  *outfile << "/Indet/IBLDist" << std::endl;
+
+  const CondAttrListCollection* atrlistcol=0;
+  if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol,"/Indet/IBLDist")) {
+    // loop over objects in collection                                                                                                             
+    for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
+
+      const coral::AttributeList& atrlist=citr->second;
+      *outfile  << citr->first << " " << atrlist["stave"].data<int>()
+		<< " " << atrlist["eta"].data<int>()
+		<< " " << atrlist["mag"].data<float>()
+		<< " " << atrlist["base"].data<float>() << std::endl;
+    }
+  }
+  else {
+    if (msgLvl(MSG::INFO))
+      msg(MSG::INFO) << "Cannot find IBLDist Container - cannot write IBLDist DB in text file " << endreq;
+  }
+
+  outfile->close();
+  delete outfile;
+  
+}
+
+
+// write extra txt file for new IBLDist                                                                                                                                        
+void InDetAlignDBTool::writeGlobalFolderFile( const std::string file)
+  const {
+  std::ofstream* outfile=0;
+
+  if (m_dynamicDB){
+    ATH_MSG_DEBUG( "writeFile: Write GlobalFolder DB in text file: " << file );
+    outfile=new std::ofstream(file.c_str());
+    std::vector<std::string> folder_list = {"/Indet/AlignL1/ID", "/Indet/AlignL2/PIX", "/Indet/AlignL2/SCT"};
+    
+    for (std::vector<std::string>::iterator it = folder_list.begin(); it != folder_list.end(); ++it){
+
+      *outfile << *it << std::endl;
+    
+      const CondAttrListCollection* atrlistcol=0;
+      if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol,*it)) {
+	// loop over objects in collection
+	for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
+	
+	  const coral::AttributeList& atrlist=citr->second;
+	  *outfile  << atrlist["subsystem"].data<int>()
+		    << " "     << atrlist["det"].data<int>()
+		    << " "     << atrlist["bec"].data<int>()
+		    << " "     << atrlist["layer"].data<int>()
+		    << " "     << atrlist["ring"].data<int>()
+		    << " "     << atrlist["sector"].data<int>()
+		    << " "     << atrlist["side"].data<int>()
+		    << " "     << atrlist["Tx"].data<float>()
+		    << " "     << atrlist["Ty"].data<float>()
+		    << " "     << atrlist["Tz"].data<float>()
+		    << " "     << atrlist["Rx"].data<float>()
+		    << " "     << atrlist["Ry"].data<float>()
+		    << " "     << atrlist["Rz"].data<float>() << std::endl;
+	}
+      }
+      else {
+	if (msgLvl(MSG::INFO))
+	  msg(MSG::INFO) << "Cannot find " << *it << " Container - cannot write DB in text file " << endreq;
+      }
+    }
+    outfile->close();
+    delete outfile;
+  }
+  else {
+    ATH_MSG_DEBUG( "writeFile: No dynamic Run2 DB structure is present --> skipping writing file " << file );
+  }
+}
+
+
 
 void InDetAlignDBTool::readTextFile(const std::string file) const {
-  if (par_oldTextFile) return readOldTextFile(file);
+  //  if (par_oldTextFile) return readOldTextFile(file);
 
   ATH_MSG_DEBUG("readTextFile - set alignment constants from text file: " << file );
   std::ifstream infile;
@@ -828,6 +991,7 @@ void InDetAlignDBTool::readTextFile(const std::string file) const {
 // ring and sector number swapped.
 // 0 0 0 ... lines to terminate
 // No comments lines. 
+/*
 void InDetAlignDBTool::readOldTextFile(const std::string file) const {
   ATH_MSG_DEBUG( "readTextFile - set alignment constants from text file: " << file );
   std::ifstream infile;
@@ -892,6 +1056,8 @@ void InDetAlignDBTool::readOldTextFile(const std::string file) const {
   infile.close();
   ATH_MSG_DEBUG("Read " << nobj << " objects from file with " << ntrans << " transforms" ); 
 }
+*/
+
 
 void InDetAlignDBTool::readNtuple(const std::string file) const {
   ATH_MSG_DEBUG("readNtuple - set alignment constants from ntuple path: " << file );
@@ -949,27 +1115,33 @@ void InDetAlignDBTool::readNtuple(const std::string file) const {
 
 bool InDetAlignDBTool::setTrans(const Identifier& ident, const int level,
         const Amg::Transform3D& trans) const {
-  // find transform key, then set appropriate transform
-  // do storegate const retrieve, then cast to allow update of locked data
-  std::string key=dirkey(ident,level);
-  const AlignableTransform* pat;
-  AlignableTransform* pat2;
+
   bool result=false;
-  if ((pat=cgetTransPtr(key))) {
-    pat2=const_cast<AlignableTransform*>(pat);
-    if (pat2!=0) {
-      result=pat2->update(ident, Amg::EigenTransformToCLHEP(trans) );
-      if (!result) ATH_MSG_ERROR(
-				 "Attempt to set non-existant transform" );
-    } 
-    //Fix to coverity issue 13641. Suspected useless check
-    //else {
-    //  ATH_MSG_ERROR("setTrans: cast fails for key " << key );
-    // }
-  } else {
-    ATH_MSG_ERROR(
-		  "setTrans: cannot retrieve AlignableTransform for key" << key );
+
+  // New additions for new global folder structure -- setTrans for this might need to be revisited
+  // No ATs exist for levels 1 & 2 --> need alternative
+  if (m_dynamicDB && level!=3){
+    result=tweakGlobalFolder(ident, level, trans);
+    if (!result ) ATH_MSG_ERROR( "Attempt tweak GlobalDB folder failed" );
   }
+  else {
+    // find transform key, then set appropriate transform
+    // do storegate const retrieve, then cast to allow update of locked data
+    std::string key=dirkey(ident,level);
+    const AlignableTransform* pat;
+    AlignableTransform* pat2;
+    bool result=false;
+    if ((pat=cgetTransPtr(key))) {
+      pat2=const_cast<AlignableTransform*>(pat);
+      if (pat2!=0) {
+	result=pat2->update(ident, Amg::EigenTransformToCLHEP(trans) );
+	if (!result) ATH_MSG_ERROR( "Attempt to set non-existant transform" );
+      } 
+    } else {
+      ATH_MSG_ERROR( "setTrans: cannot retrieve AlignableTransform for key" << key );
+    }
+  }
+
   return result;
 }
 
@@ -989,25 +1161,35 @@ bool InDetAlignDBTool::setTrans(const Identifier& ident, const int level,
 
 bool InDetAlignDBTool::tweakTrans(const Identifier& ident, const int level,
           const Amg::Transform3D& trans) const {
-  
-  // find transform key, then set appropriate transform
-  std::string key=dirkey(ident,level);
-  const AlignableTransform* pat;
-  AlignableTransform* pat2;
+
   bool result=false;
-  if ((pat=cgetTransPtr(key))) {
-    pat2=const_cast<AlignableTransform*>(pat);
-    if (pat2!=0) {
-      result=pat2->tweak(ident,Amg::EigenTransformToCLHEP(trans));
-      if (!result) ATH_MSG_ERROR(
-               "Attempt to tweak non-existant transform" );
-    } else {
-      ATH_MSG_ERROR("tweakTrans: cast fails for key " << key );
-    }
-  } else {
-    ATH_MSG_ERROR(
-            "tweakTrans: cannot retrieve AlignableTransform for key" << key );
+
+  // New additions for new global folder structure 
+  // No ATs exist for levels 1 & 2 --> need alternative
+  if (m_dynamicDB && level!=3){
+    result=tweakGlobalFolder(ident, level, trans);
+    if (!result ) ATH_MSG_ERROR( "Attempt tweak GlobalDB folder failed" );
   }
+  else {
+    // find transform key, then set appropriate transform
+    std::string key=dirkey(ident,level);
+    const AlignableTransform* pat;
+    AlignableTransform* pat2;
+    if ((pat=cgetTransPtr(key))) {
+      pat2=const_cast<AlignableTransform*>(pat);
+      if (pat2!=0) {
+	result=pat2->tweak(ident,Amg::EigenTransformToCLHEP(trans));
+      if (!result) ATH_MSG_ERROR(
+				 "Attempt to tweak non-existant transform" );
+      } else {
+	ATH_MSG_ERROR("tweakTrans: cast fails for key " << key );
+      }
+    } else {
+      ATH_MSG_ERROR(
+		    "tweakTrans: cannot retrieve AlignableTransform for key" << key );
+    }
+  }
+
   return result;
 }
 
@@ -1132,6 +1314,22 @@ StatusCode InDetAlignDBTool::outputObjs() const {
     ATH_MSG_ERROR("Could not stream output objects" );
     return StatusCode::FAILURE;
   }
+
+  {
+    // additional IBLDist DB
+    ATH_MSG_DEBUG( "starting to register typeKey for IBLDist" );
+    IAthenaOutputStreamTool::TypeKeyPairs typekeys_IBLDist(1);
+    IAthenaOutputStreamTool::TypeKeyPair pair("CondAttrListCollection", "/Indet/IBLDist");
+    typekeys_IBLDist[0] = pair;
+    
+    // write objects to stream                                                                                                                  
+    if (StatusCode::SUCCESS!=optool->streamObjects(typekeys_IBLDist)) {
+      ATH_MSG_ERROR("Could not stream output IBLDist objects" );
+      return StatusCode::FAILURE;
+    }
+
+  }
+
   // commit output
   if (StatusCode::SUCCESS!=optool->commitOutput()) {
     ATH_MSG_ERROR("Could not commit output" );
@@ -1357,3 +1555,143 @@ void InDetAlignDBTool::extractAlphaBetaGamma(const Amg::Transform3D & trans,
     if (gamma == 0) gamma = 0; // convert -0 to 0
   }
 }
+
+
+bool InDetAlignDBTool::tweakIBLDist(const int stave, const float bowx) const {
+
+  // find transform key, then set appropriate transform           
+  const CondAttrListCollection* atrlistcol1=0;
+  CondAttrListCollection* atrlistcol2=0;
+  bool result=false;
+  if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol1,"/Indet/IBLDist")) {
+    // loop over objects in collection                                    
+    atrlistcol2 = const_cast<CondAttrListCollection*>(atrlistcol1);
+    if (atrlistcol2!=0){
+      for (CondAttrListCollection::const_iterator citr=atrlistcol2->begin(); citr!=atrlistcol2->end();++citr) {
+	
+	const coral::AttributeList& atrlist=citr->second;
+	coral::AttributeList& atrlist2  = const_cast<coral::AttributeList&>(atrlist);
+ 
+	if(atrlist2["stave"].data<int>()!=stave) continue;
+	else {
+	  msg(MSG::DEBUG) << "IBLDist DB -- channel before update: " << citr->first
+			 << " ,stave: " << atrlist2["stave"].data<int>()
+			 << " ,mag: " << atrlist2["mag"].data<float>()
+			 << " ,base: " << atrlist2["base"].data<float>() << endreq;
+
+	  atrlist2["mag"].data<float>() += bowx;
+	  result = true;
+	  msg(MSG::DEBUG) << "IBLDist DB -- channel after update: " << citr->first
+			 << " ,stave: " << atrlist2["stave"].data<int>()
+			 << " ,mag: " << atrlist2["mag"].data<float>()
+			 << " ,base: " << atrlist2["base"].data<float>() << endreq;
+	  
+	}	
+      }
+    }
+    else {
+      ATH_MSG_ERROR("tweakIBLDist: cast fails for stave " << stave );
+      return false;
+   }
+  }
+  else {
+    ATH_MSG_ERROR("tweakIBLDist: cannot retrieve CondAttrListCollection for key /Indet/IBLDist" );
+    return false;
+  }
+
+  return result;  
+}
+
+
+
+bool InDetAlignDBTool::tweakGlobalFolder(const Identifier& ident, const int level,
+					 const Amg::Transform3D& trans ) const {
+
+  // find transform key, then set appropriate transform           
+  const CondAttrListCollection* atrlistcol1=0;
+  CondAttrListCollection* atrlistcol2=0;
+  bool result=false;
+  std::string key=dirkey(ident,level);
+  int det,bec,layer,ring,sector,side;
+  idToDetSet(ident,det,bec,layer,ring,sector,side);
+  const unsigned int DBident=det*10000+2*bec*1000+layer*100+ring*10+sector;  
+  // so far not a very fancy DB identifier, but seems elaborate enough for this simple structure
+  
+  if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol1,key)) {
+    // loop over objects in collection                                    
+    //atrlistcol1->dump();
+    atrlistcol2 = const_cast<CondAttrListCollection*>(atrlistcol1);
+    if (atrlistcol2!=0){
+      for (CondAttrListCollection::const_iterator citr=atrlistcol2->begin(); citr!=atrlistcol2->end();++citr) {
+	
+	const coral::AttributeList& atrlist=citr->second;
+	coral::AttributeList& atrlist2  = const_cast<coral::AttributeList&>(atrlist);
+
+	if(citr->first!=DBident) continue;
+	else {
+	  msg(MSG::DEBUG) << "Tweak Old global DB -- channel: " << citr->first
+                          << " ,det: "    << atrlist2["det"].data<int>()
+                          << " ,bec: "    << atrlist2["bec"].data<int>()
+                          << " ,layer: "  << atrlist2["layer"].data<int>()
+                          << " ,ring: "   << atrlist2["ring"].data<int>()
+                          << " ,sector: " << atrlist2["sector"].data<int>()
+                          << " ,Tx: "     << atrlist2["Tx"].data<float>()
+                          << " ,Ty: "     << atrlist2["Ty"].data<float>()
+                          << " ,Tz: "     << atrlist2["Tz"].data<float>()
+                          << " ,Rx: "     << atrlist2["Rx"].data<float>()
+                          << " ,Ry: "     << atrlist2["Ry"].data<float>()
+                          << " ,Rz: "     << atrlist2["Rz"].data<float>() << endreq;
+
+
+	  // Order of rotations is defined as around z, then y, then x.  
+	  Amg::Translation3D  oldtranslation(atrlist2["Tx"].data<float>(),atrlist2["Ty"].data<float>(),atrlist2["Tz"].data<float>());
+	  Amg::Transform3D oldtrans = oldtranslation * Amg::RotationMatrix3D::Identity();
+	  oldtrans *= Amg::AngleAxis3D(atrlist2["Rz"].data<float>()*CLHEP::mrad, Amg::Vector3D(0.,0.,1.));
+	  oldtrans *= Amg::AngleAxis3D(atrlist2["Ry"].data<float>()*CLHEP::mrad, Amg::Vector3D(0.,1.,0.));
+	  oldtrans *= Amg::AngleAxis3D(atrlist2["Rx"].data<float>()*CLHEP::mrad, Amg::Vector3D(1.,0.,0.));
+	  
+	  // get the new transform
+	  Amg::Transform3D newtrans = trans*oldtrans;
+
+	  // Extract the values we need to write to DB     
+	  Amg::Vector3D shift=newtrans.translation();
+	  double alpha, beta, gamma;
+	  extractAlphaBetaGamma(newtrans, alpha, beta, gamma);
+
+	  atrlist2["Tx"].data<float>() = shift.x();
+	  atrlist2["Ty"].data<float>() = shift.y();
+	  atrlist2["Tz"].data<float>() = shift.z();
+	  atrlist2["Rx"].data<float>() = alpha/CLHEP::mrad ;
+	  atrlist2["Ry"].data<float>() = beta/CLHEP::mrad ;
+	  atrlist2["Rz"].data<float>() = gamma/CLHEP::mrad ;
+	  
+	  result = true;
+	  msg(MSG::DEBUG) << "Tweak New global DB -- channel: " << citr->first
+                          << " ,det: "    << atrlist2["det"].data<int>()
+                          << " ,bec: "    << atrlist2["bec"].data<int>()
+                          << " ,layer: "  << atrlist2["layer"].data<int>()
+                          << " ,ring: "   << atrlist2["ring"].data<int>()
+                          << " ,sector: " << atrlist2["sector"].data<int>()
+                          << " ,Tx: "     << atrlist2["Tx"].data<float>()
+                          << " ,Ty: "     << atrlist2["Ty"].data<float>()
+                          << " ,Tz: "     << atrlist2["Tz"].data<float>()
+                          << " ,Rx: "     << atrlist2["Rx"].data<float>()
+                          << " ,Ry: "     << atrlist2["Ry"].data<float>()
+                          << " ,Rz: "     << atrlist2["Rz"].data<float>() << endreq;
+	  
+	}	
+      }
+    }
+    else {
+      ATH_MSG_ERROR("tweakGlobalFolder: cast fails for DBident " << DBident );
+      return false;
+   }
+  }
+  else {
+    ATH_MSG_ERROR("tweakGlobalFolder: cannot retrieve CondAttrListCollection for key " << key );
+    return false;
+  }
+
+  return result;  
+}
+

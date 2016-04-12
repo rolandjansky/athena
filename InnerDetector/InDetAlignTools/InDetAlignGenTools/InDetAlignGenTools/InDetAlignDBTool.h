@@ -35,6 +35,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h" 
 #include "InDetAlignGenTools/IInDetAlignDBTool.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 class PixelID;
 class SCT_ID;
@@ -81,11 +82,17 @@ class InDetAlignDBTool: virtual public IInDetAlignDBTool, public AthAlgTool {
   //  /NTUPLES/FILE1
   virtual void writeFile(const bool ntuple, const std::string file) const;
 
+  // write IBLDist txt files
+  virtual void writeIBLDistFile( const std::string file) const; 
+
+  // write GlobalFolder txt files
+  virtual void writeGlobalFolderFile( const std::string file) const;
+
   // read back database from text file
   virtual void readTextFile(const std::string file) const;
 
   // read back database from text file
-  void readOldTextFile(const std::string file) const;
+  //  void readOldTextFile(const std::string file) const;
 
   // read back database from ntuple
   virtual void readNtuple(const std::string file) const;
@@ -123,6 +130,13 @@ class InDetAlignDBTool: virtual public IInDetAlignDBTool, public AthAlgTool {
   // Calculates transform as HepGeom::Translate3D(translate) * HepGeom::RotateX3D(alpha) * HepGeom::RotateY3D(beta) * HepGeom::RotateZ3D(gamma)
   virtual bool tweakTrans(const Identifier& ident, const int level,
                         const Amg::Vector3D& translate, double alpha, double beta, double gamma) const;
+
+  /** This is the tweak function for the IBLDist DB **/
+  virtual bool tweakIBLDist(const int, const float) const;
+
+  /** This is the tweak function for the GlobalFolder DB **/
+  virtual bool tweakGlobalFolder(const Identifier& ident, const int level,
+				 const Amg::Transform3D& trans) const ;
 
   /** convert L3 module identifier to L1 or L2 */
   virtual Identifier getL1L2fromL3Identifier( const Identifier& ident
@@ -168,6 +182,8 @@ class InDetAlignDBTool: virtual public IInDetAlignDBTool, public AthAlgTool {
   std::vector<std::string> m_alignobjs;
   std::vector<int> m_alignchans;
 
+  CondAttrListCollection* m_attrListCollection;
+
   bool par_newdb; // create database using new (collection) format
   bool par_scttwoside; // create structures with separated SCT module sides
   int par_fake; // set to 1 to fake full ATLAS geom, 2 to fake CTB geom
@@ -185,7 +201,8 @@ class InDetAlignDBTool: virtual public IInDetAlignDBTool, public AthAlgTool {
   void fakeGeom(const int nbpix, const int necpix, 
 		const int nbsct, const int necsct);
 
-
+  bool m_dynamicDB;
+  bool m_forceUserDBConfig;
 };
 
 #endif // INDETALIGNGENTOOLS_ALIGNDBTOOL_H
