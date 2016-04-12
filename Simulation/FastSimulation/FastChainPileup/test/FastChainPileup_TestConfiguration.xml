@@ -22,6 +22,8 @@
       <!-- Pile up CHAIN -->
       <chain>
        <chainName>ChainJobwthPileUp</chainName>
+       <!-- run main job sequence and independent tests in parallel -->
+       <parallel>
 	<!-- main job sequence -->
 	<sequential>
 	  <!-- independent chains of sim jobs + reco jobs + tests in parallel  -->
@@ -96,7 +98,7 @@
 		  <doc>FastChain reco</doc>
 		  <jobTransformJobName>ttbarFastChain_reco_noSplit_noPseudoTracking_stdFullSimDigi</jobTransformJobName>
 		  <jobTransformCmd> 
-		      FastChain_tf.py --maxEvents 50 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19  --inputRDOFile RDO.pool.root --outputAODFile AOD_Split_stdFullSimDigi.pool.root --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doStandardPlots.set_Value_and_Lock(True);"
+		      FastChain_tf.py --maxEvents 50 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31  --inputRDOFile RDO.pool.root --outputAODFile AOD_Split_stdFullSimDigi.pool.root --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doStandardPlots.set_Value_and_Lock(True);"
 		  </jobTransformCmd>
 		  <group>FastChainPileup</group>
 		  <chaindataset_info>
@@ -113,7 +115,7 @@
 		<chainfileout>
 		  AOD_Split_stdFullSimDigi.pool.root
 		</chainfileout>
-	      </chainElement>
+	      </chainElement> 
 	    </sequential>
 	    <!-- Run FastChain fast sim + full digi, then different reco jobs on its output and tests in parallel -->
 	    <sequential>
@@ -123,7 +125,7 @@
 		  <doc>FastChain simdigi</doc>
 		  <jobTransformJobName>ttbarFastChain_fastSim_fullDigi</jobTransformJobName>
 		  <jobTransformCmd> 
-		      FastChain_tf.py --simulator ATLFASTIIF_PileUp --digiSteeringConf "SplitNoMerge" --useISF True --randomSeed 123 --enableLooperKiller True --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputRDOFile RDO_pileup_fastsim_fulldigi.pool.root --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19 --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' --preSimInclude FastChainPileup/FastPileup.py --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest_FCpileup.py,DigitizationTests/postInclude.RDO_Plots.py' --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' --DataRunNumber '222525' --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' --ignorePatterns='G4TestAlg.Lucid.{5}FATAL.{8}LucidHitsTestTool.cxx:66\ \(StatusCode\ LucidHitsTestTool::processEvent\(\)\):\ code\ 0:\ evtStore\(\)->retrieve\(iter\)','FATAL\ message\ limit\ \(500\)\ reached\ for\ G4TestAlg.LucidHitsTestTool.'
+		      FastChain_tf.py --simulator ATLFASTIIF_PileUp --digiSteeringConf "SplitNoMerge" --useISF True --randomSeed 123 --enableLooperKiller True --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputRDOFile RDO_pileup_fastsim_fulldigi.pool.root --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31 --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' --preSimInclude FastChainPileup/FastPileup.py --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest_FCpileup.py,DigitizationTests/postInclude.RDO_Plots.py' --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' --DataRunNumber '222525' --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' --ignorePatterns='G4TestAlg.Lucid.{5}FATAL.{8}LucidHitsTestTool.cxx:66\ \(StatusCode\ LucidHitsTestTool::processEvent\(\)\):\ code\ 0:\ evtStore\(\)->retrieve\(iter\)','FATAL\ message\ limit\ \(500\)\ reached\ for\ G4TestAlg.LucidHitsTestTool.'
 		  </jobTransformCmd>
 		  <group>FastChainPileup</group>
 		  <queue>medium</queue>
@@ -155,20 +157,7 @@
 		    </arg>
 		    <keepFilePattern>today.RDO_pileup_fastsim_fulldigi.pool.root_yesterday.RDO_pileup_fastsim_fulldigi.pool.root.diffPool</keepFilePattern>
 		  </test>
-		  <test position="2">
-		      <modulename>RttLibraryTools</modulename>
-		      <testname>ExeRunner</testname>
-		      <arg>
-			<argname>exeName</argname>
-			<argvalue>acmd.py</argvalue>
-		      </arg>
-		      <arg>
-			<argname>exeParamString</argname>
-			<argvalue>diff-root yesterday.RDO_pileup_fastsim_fulldigi.pool.root today.RDO_pileup_fastsim_fulldigi.pool.root --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_timings ESDtoAOD_timings ESDtoAOD_mems RAWtoESD_mems RAWtoESD_timings RecoTimingObj_p1_RAWtoESD_mems</argvalue>
-		      </arg>
-		      <keepFilePattern>RttLibraryTools_ExeRunner.postprocessing.log</keepFilePattern>
-		    </test>
-		    <test position="3">
+		    <test position="2">
 		      <modulename>RttLibraryTools</modulename>
 		      <testname>DCubeRunner</testname>
 		      <arg>
@@ -196,7 +185,7 @@
 		    <doc>FastChain reco</doc>
 		    <jobTransformJobName>ttbarFastChain_reco_noSplit_pseudoTracking_fastSim_fullDigi</jobTransformJobName>
 		    <jobTransformCmd> 
-			FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19  --inputRDOFile RDO_pileup_fastsim_fulldigi.pool.root --outputAODFile AOD_noSplit_pseudoTracking_fastSim_fullDigi.pool.root --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
+			FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31  --inputRDOFile RDO_pileup_fastsim_fulldigi.pool.root --outputAODFile AOD_noSplit_pseudoTracking_fastSim_fullDigi.pool.root --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
 		    </jobTransformCmd>
 		    <group>FastChainPileup</group>
 		    <chaindataset_info>
@@ -219,7 +208,7 @@
 		    <doc>FastChain reco</doc>
 		    <jobTransformJobName>ttbarFastChain_reco_noSplit_noPseudoTracking_fastSim_fullDigi</jobTransformJobName>
 		    <jobTransformCmd> 
-			FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19  --inputRDOFile RDO_pileup_fastsim_fulldigi.pool.root --outputAODFile AOD_noSplit_noPseudoTracking_fastSim_fullDigi.pool.root --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
+			FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31  --inputRDOFile RDO_pileup_fastsim_fulldigi.pool.root --outputAODFile AOD_noSplit_noPseudoTracking_fastSim_fullDigi.pool.root --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
 		    </jobTransformCmd>
 		    <group>FastChainPileup</group>
 		    <chaindataset_info>
@@ -243,7 +232,7 @@
 		      <doc>FastChain reco</doc>
 		      <jobTransformJobName>ttbarFastChain_reco_Split_fastSim_fullDigi</jobTransformJobName>
 		      <jobTransformCmd> 
-			  FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19  --inputRDOFile RDO_pileup_fastsim_fulldigi.pool.root --outputAODFile AOD_Split_fastSim_fullDigi.pool.root --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doSplitReco.set_Value_and_Lock(True);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
+			  FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31  --inputRDOFile RDO_pileup_fastsim_fulldigi.pool.root --outputAODFile AOD_Split_fastSim_fullDigi.pool.root --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doSplitReco.set_Value_and_Lock(True);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);InDetFlags.doStandardPlots.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);"
 		      </jobTransformCmd>
 		      <group>FastChainPileup</group>
 		      <chaindataset_info>
@@ -268,7 +257,7 @@
 		      <doc>standard reco</doc>
 		      <jobTransformJobName>standard_Reco_tf_fastSim_fullDigi</jobTransformJobName>
 		      <jobTransformCmd> 
-			  Reco_tf.py --inputRDOFile=RDO_pileup_fastsim_fulldigi.pool.root --outputAODFile=AOD_fastSim_fullDigi.pool.root --autoConfiguration=everything --maxEvents=500 --preExec "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
+			  Reco_tf.py --inputRDOFile=RDO_pileup_fastsim_fulldigi.pool.root --outputAODFile=AOD_fastSim_fullDigi.pool.root --autoConfiguration=everything --maxEvents=500 --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
 		      </jobTransformCmd>
 		      <group>FastChainPileup</group>
 		      <chaindataset_info>
@@ -298,7 +287,7 @@
 		  <doc>FastChain simdigi</doc>
 		  <jobTransformJobName>ttbarFastChain_fullSim_fullDigi</jobTransformJobName>
 		  <jobTransformCmd> 
-		      FastChain_tf.py --simulator ATLFASTII --digiSteeringConf "SplitNoMerge" --useISF True --randomSeed 123 --enableLooperKiller True --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputRDOFile RDO_pileup_fullsim_fulldigi.pool.root --maxEvents 50 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19 --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py,DigitizationTests/postInclude.RDO_Plots.py' --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' --DataRunNumber '222525' --ignorePatterns='G4TestAlg.Lucid.{5}FATAL.{8}LucidHitsTestTool.cxx:66\ \(StatusCode\ LucidHitsTestTool::processEvent\(\)\):\ code\ 0:\ evtStore\(\)->retrieve\(iter\)','FATAL\ message\ limit\ \(500\)\ reached\ for\ G4TestAlg.LucidHitsTestTool.'
+		      FastChain_tf.py --simulator ATLFASTII --digiSteeringConf "SplitNoMerge" --useISF True --randomSeed 123 --enableLooperKiller True --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputRDOFile RDO_pileup_fullsim_fulldigi.pool.root --maxEvents 50 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31 --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py,DigitizationTests/postInclude.RDO_Plots.py' --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' --DataRunNumber '222525' --ignorePatterns='G4TestAlg.Lucid.{5}FATAL.{8}LucidHitsTestTool.cxx:66\ \(StatusCode\ LucidHitsTestTool::processEvent\(\)\):\ code\ 0:\ evtStore\(\)->retrieve\(iter\)','FATAL\ message\ limit\ \(500\)\ reached\ for\ G4TestAlg.LucidHitsTestTool.'
 		  </jobTransformCmd>
 		  <group>FastChainPileup</group>
 		  <queue>medium</queue>
@@ -314,7 +303,7 @@
 		      <doc>FastChain reco</doc>
 		      <jobTransformJobName>ttbarFastChain_reco_noSplit_pseudoTracking_fullSim_fullDigi</jobTransformJobName>
 		      <jobTransformCmd> 
-			  FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19  --inputRDOFile RDO_pileup_fullsim_fulldigi.pool.root --outputAODFile AOD_noSplit_pseudoTracking_fullSim_fullDigi.pool.root --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
+			  FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31  --inputRDOFile RDO_pileup_fullsim_fulldigi.pool.root --outputAODFile AOD_noSplit_pseudoTracking_fullSim_fullDigi.pool.root --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
 		      </jobTransformCmd>
 		      <group>FastChainPileup</group>
 		      <chaindataset_info>
@@ -331,7 +320,7 @@
 		    <chainfileout>
 		      AOD_noSplit_pseudoTracking_fullSim_fullDigi.pool.root
 		    </chainfileout>
-		   </chainElement>
+		  </chainElement>
 		  </sequential>
 		<chainElement>
 		  <jobTransform userJobId="standard_Reco_tf_fullSim_fullDigi">
@@ -395,7 +384,7 @@
 			<testname>DCubeRunner</testname>
 			<arg>
 			  <argname>DCubeCfg</argname>
-			  <argvalue>dcube_RDO_truth.xml</argvalue>
+			  <argvalue>dcube_RDO_truth_nopileup.xml</argvalue>
 			</arg>
 			<arg>
 			  <argname>DCubeRef</argname>
@@ -423,7 +412,7 @@
 		  <doc>FastChain simdigi</doc>
 		  <jobTransformJobName>ttbarFastChain_fastSim_fastDigi</jobTransformJobName>
 		  <jobTransformCmd> 
-		      FastChain_tf.py --simulator ATLFASTIIF_PileUp --digiSteeringConf "SplitNoMerge" --useISF True --randomSeed 123 --enableLooperKiller True --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputRDOFile RDO_pileup_fastsim_fastdigi.pool.root --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19 --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' --preSimInclude FastChainPileup/FastPileup.py --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest_FCpileup.py,DigitizationTests/postInclude.RDO_Plots.py' --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' --DataRunNumber '222525' --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' --preDigiInclude="SimulationJobOptions/preInclude.FastSCT_Digi.py,SimulationJobOptions/preInclude.FastPixelDigi.py,SimulationJobOptions/preInclude.FastTRT_Digi.py" --ignorePatterns='G4TestAlg.Lucid.{5}FATAL.{8}LucidHitsTestTool.cxx:66\ \(StatusCode\ LucidHitsTestTool::processEvent\(\)\):\ code\ 0:\ evtStore\(\)->retrieve\(iter\)','FATAL\ message\ limit\ \(500\)\ reached\ for\ G4TestAlg.LucidHitsTestTool.'
+		      FastChain_tf.py --simulator ATLFASTIIF_PileUp --digiSteeringConf "SplitNoMergeFF" --useISF True --randomSeed 123 --enableLooperKiller True --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputRDOFile RDO_pileup_fastsim_fastdigi.pool.root --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31 --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' --preSimInclude FastChainPileup/FastPileup.py --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest_FCpileup.py,DigitizationTests/postInclude.RDO_Plots.py' --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' --DataRunNumber '222525' --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' --ignorePatterns='G4TestAlg.Lucid.{5}FATAL.{8}LucidHitsTestTool.cxx:66\ \(StatusCode\ LucidHitsTestTool::processEvent\(\)\):\ code\ 0:\ evtStore\(\)->retrieve\(iter\)','FATAL\ message\ limit\ \(500\)\ reached\ for\ G4TestAlg.LucidHitsTestTool.' --preDigiInclude="FastTRT_Digitization/preInclude.FastTRT_Digi.Validation.py"
 		  </jobTransformCmd>
 		  <group>FastChainPileup</group>
 		  <queue>medium</queue>
@@ -438,7 +427,7 @@
 		    <doc>FastChain reco</doc>
 		    <jobTransformJobName>ttbarFastChain_reco_noSplit_noPseudoTracking_fastSim_fastDigi</jobTransformJobName>
 		    <jobTransformCmd> 
-			FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19  --inputRDOFile RDO_pileup_fastsim_fastdigi.pool.root --outputAODFile AOD_noSplit_noPseudoTracking_fastSim_fastDigi.pool.root --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.pixelClusterSplittingType.set_Value_and_Lock(\"AnalogClus\");InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
+			FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31  --inputRDOFile RDO_pileup_fastsim_fastdigi.pool.root --outputAODFile AOD_noSplit_noPseudoTracking_fastSim_fastDigi.pool.root --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.pixelClusterSplittingType.set_Value_and_Lock(\"AnalogClus\");InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
 		    </jobTransformCmd>
 		    <group>FastChainPileup</group>
 		    <chaindataset_info>
@@ -495,7 +484,7 @@
 			<testname>DCubeRunner</testname>
 			<arg>
 			  <argname>DCubeCfg</argname>
-			  <argvalue>dcube_RDO_truth.xml</argvalue>
+			  <argvalue>dcube_RDO_truth_fastdigi.xml</argvalue>
 			</arg>
 			<arg>
 			  <argname>DCubeRef</argname>
@@ -691,6 +680,8 @@
 	  </chainElement>
 	<!-- END main job sequence -->
 	</sequential>
+       <!-- END -->
+       </parallel>
       </chain>
     </jobList>
     <jobGroups>
