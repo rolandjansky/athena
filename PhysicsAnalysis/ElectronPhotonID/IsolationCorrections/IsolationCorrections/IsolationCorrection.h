@@ -31,14 +31,16 @@ class IsolationCorrection : public asg::AsgMessaging{
     StatusCode finalize();
 
     typedef enum { ELECTRON=0, PHOTON=1 } ParticleType;
-    typedef enum { REL17=1, REL17_2=2, REL18=3, REL18_2=4, REL19=5, REL20=6, REL20_2=7 } Version;
+    typedef enum { REL17=1, REL17_2=2, REL20=6, REL20_2=7 } Version;
 
-    void SetCorrectionFile(std::string corr_file, std::string corr_ddshift_file, std::string corr_ddsmearing_file);
+    void SetCorrectionFile( std::string corr_file, std::string corr_ddshift_file, std::string corr_ddsmearing_file, 
+                            std::string corr_ddshift_2015_file);
     void SetToolVer(CP::IsolationCorrection::Version);
 
     float GetPtCorrectedIsolation(const xAOD::Egamma&, const xAOD::Iso::IsolationType);
     float GetPtCorrection(const xAOD::Egamma&, const xAOD::Iso::IsolationType);
     float GetDDCorrection(const xAOD::Egamma&);
+    float GetDDCorrection_2015(const xAOD::Egamma&, const xAOD::Iso::IsolationType);
 
     float GetEtaPointing(const xAOD::Egamma*);
 
@@ -56,10 +58,13 @@ class IsolationCorrection : public asg::AsgMessaging{
     std::vector<float> m_eta_bins_fine;
     std::vector<float> m_eta_bins_coarse;
     std::vector<float> m_eta_bins_dd;
+    std::vector<float> m_eta_bins_dd_2015;
     const unsigned int m_nBinsEtaFine;
     const unsigned int m_nBinsEtaCoarse;
     const unsigned int m_nBinsEtaDD;
+    const unsigned int m_nBinsEtaDD_2015;
     std::string m_corr_file;
+    std::string m_corr_ddshift_2015_file;
     std::string m_corr_ddshift_file;
     std::string m_corr_ddsmearing_file;
 
@@ -125,14 +130,14 @@ class IsolationCorrection : public asg::AsgMessaging{
 
     void set2011Corr();
     void set2012Corr();
-    void set2014Corr();
     void set2015Corr();
     void setDDCorr();
+    void setDDCorr_2015();
 
     void load2012Corr();
-    void load2014Corr();
     void load2015Corr();
     void loadDDCorr();
+    void load2015DDCorr();
 
     float getPtAtFirstMeasurement( const xAOD::TrackParticle* tp) const;
     int GetConversionType(int conversion_flag, float conv_radius, float conv_ratio) const;
@@ -159,8 +164,17 @@ class IsolationCorrection : public asg::AsgMessaging{
 				                        std::vector<float> data_leakage_corrections_ptr= std::vector<float>());
     float GetPtCorrectionValue(float energy, float etaPointing, float etaCluster, float scale_factor);
     float GetPtCorrection_FromGraph(float energy,float etaS2,float etaPointing,float etaCluster,float radius,bool isConversion,ParticleType parttype);
-    float GetPtCorrection_FromGraph_2014(float energy,float etaS2,float radius,bool isConversion,ParticleType parttype);
     float GetPtCorrection_FromGraph_2015(float energy, float etaS2, float radius, int conversion_flag, int author, float conv_radius, float conv_ratio, ParticleType parttype);
+
+    // -------------------------------------------------------------------------------------------
+    // ------------- data-driven corrections based on 2015 data ----------------------------------
+    // corrections recomputed for topological isolation, 0.4/0.2 cone. special eta binning -------
+    // ------------------------- -----------------------------------------------------------------
+
+    std::vector<TGraph*> graph_dd_2015_cone40_unconv_photon_shift;
+    std::vector<TGraph*> graph_dd_2015_cone40_conv_photon_shift;
+    std::vector<TGraph*> graph_dd_2015_cone20_unconv_photon_shift;
+    std::vector<TGraph*> graph_dd_2015_cone20_conv_photon_shift;
 
     // -------------------------------------------------------------------------------------------
     // ------------- data-driven corrections based on 2012 inclusive photon sample ---------------
@@ -195,27 +209,6 @@ class IsolationCorrection : public asg::AsgMessaging{
     std::vector<TF1*> function_2015_cone30_author_16_electron;
     std::vector<TF1*> function_2015_cone20_author_16_electron;
 
-    //---- Rel 20_2 pT leakage correction with single points file
-    std::vector<TGraph*> graph_point_2015_cone40_photon_unconverted;
-    std::vector<TGraph*> graph_point_2015_cone30_photon_unconverted;
-    std::vector<TGraph*> graph_point_2015_cone20_photon_unconverted;
-
-    std::vector<TGraph*> graph_point_2015_cone40_photon_converted_ok;
-    std::vector<TGraph*> graph_point_2015_cone30_photon_converted_ok;
-    std::vector<TGraph*> graph_point_2015_cone20_photon_converted_ok;
-
-    std::vector<TGraph*> graph_point_2015_cone40_photon_converted_trouble;
-    std::vector<TGraph*> graph_point_2015_cone30_photon_converted_trouble;
-    std::vector<TGraph*> graph_point_2015_cone20_photon_converted_trouble;
-
-    std::vector<TGraph*> graph_point_2015_cone40_author_1_electron;
-    std::vector<TGraph*> graph_point_2015_cone30_author_1_electron;
-    std::vector<TGraph*> graph_point_2015_cone20_author_1_electron;
-
-    std::vector<TGraph*> graph_point_2015_cone40_author_16_electron;
-    std::vector<TGraph*> graph_point_2015_cone30_author_16_electron;
-    std::vector<TGraph*> graph_point_2015_cone20_author_16_electron;
-
     //---- Rel 20_2 pT leakage correction with histogram mean file
     std::vector<TGraph*> graph_histoMean_2015_cone40_photon_unconverted;
     std::vector<TGraph*> graph_histoMean_2015_cone30_photon_unconverted;
@@ -237,35 +230,6 @@ class IsolationCorrection : public asg::AsgMessaging{
     std::vector<TGraph*> graph_histoMean_2015_cone30_author_16_electron;
     std::vector<TGraph*> graph_histoMean_2015_cone20_author_16_electron;
 
-    // -------------------------------------------------------------------------------------------
-    // ------------- full 2014 (rel 18 - rel 20) leakage corrections --------------------------------------
-    // corrections recomputed for topological isolation: fine grained in eta, derived from MC14
-
-    //---- Rel 18-20 pT leakage correction file
-    std::vector<TF1*> graph_2014_cone40_photon_unconverted;
-    std::vector<TF1*> graph_2014_cone30_photon_unconverted;
-    std::vector<TF1*> graph_2014_cone20_photon_unconverted;
-
-    std::vector<TF1*> graph_2014_cone40_photon_converted;
-    std::vector<TF1*> graph_2014_cone30_photon_converted;
-    std::vector<TF1*> graph_2014_cone20_photon_converted;
-
-    std::vector<TF1*> graph_2014_cone40_electron;
-    std::vector<TF1*> graph_2014_cone30_electron;
-    std::vector<TF1*> graph_2014_cone20_electron;
-
-    //---- Special Rel 18-20 pT leakage correction file
-    std::vector<TGraph*> graph_point_2014_cone40_photon_unconverted;
-    std::vector<TGraph*> graph_point_2014_cone30_photon_unconverted;
-    std::vector<TGraph*> graph_point_2014_cone20_photon_unconverted;
-
-    std::vector<TGraph*> graph_point_2014_cone40_photon_converted;
-    std::vector<TGraph*> graph_point_2014_cone30_photon_converted;
-    std::vector<TGraph*> graph_point_2014_cone20_photon_converted;
-
-    std::vector<TGraph*> graph_point_2014_cone40_electron;
-    std::vector<TGraph*> graph_point_2014_cone30_electron;
-    std::vector<TGraph*> graph_point_2014_cone20_electron;
 
     // -------------------------------------------------------------------------------------------
     // ------------- full 2012 (rel 17.2) leakage corrections --------------------------------------
