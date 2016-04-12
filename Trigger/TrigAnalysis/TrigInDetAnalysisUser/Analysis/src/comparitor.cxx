@@ -56,24 +56,26 @@ int usage(const std::string& name, int status) {
   //  s << "Configuration: \n";
   //  s << "    -o filename   \tname of output grid (filename required)\n\n";
   s << "Options: \n";
-  s << "    -c,  --config value \t configure which histograms to plot from config file,\n";
-  s << "    -t,  --tag value    \t appends tag 'value' to the end of output plot names, \n";
-  s << "    -k,  --key value    \t prepends key 'value' to the from of output plots name, \n";
-  s << "    -d,  --dir value    \t creates output files into directory, \"value\" \n";
-  s << "    -e,  --efficiencies \t make test efficiencies with respect to reference \n";
-  s << "    -r,  --refit        \t refit all resplots\n";
-  s << "    -l,  --labels       \t use specified labels for key\n";
-  s << "    -nb  --nobayes      \t do not calculate Basyesian efficiency uncertaintiesr\n";
-  s << "    -as, --atlasstyle   \t use ATLAS style\n";
-  s << "    -ns, --nostats      \t do not show stats for mean and rms\n";
-  s << "    -nr, --noref        \t do not plot reference histograms\n";
-  s << "    -np, --noplots      \t do not actually make any plot\n";
-  s << "    -C,  --Cfiles       \t write C files also\n"; 
-  s << "    -nw, --nowatermark  \t do not plot the release watermark\n"; 
-  s << "         --nopng        \t do not print png files\n"; 
-  s << "         --deleteref    \t delete unused reference histograms\n";
-  s << "    -xo, --xoffset      \t relative x offset for the key\n"; 
-  s << "    -h,  --help         \t this help\n";
+  s << "    -c,  --config value   \t configure which histograms to plot from config file,\n";
+  s << "    -t,  --tag value      \t appends tag 'value' to the end of output plot names, \n";
+  s << "    -k,  --key value      \t prepends key 'value' to the from of output plots name, \n";
+  s << "    -d,  --dir value      \t creates output files into directory, \"value\" \n";
+  s << "    -e,  --efficiencies   \t make test efficiencies with respect to reference \n";
+  s << "    -es, --effscale value \t scale efficiencies to value\n";
+  s << "    -r,  --refit          \t refit all resplots\n";
+  s << "    -l,  --labels         \t use specified labels for key\n";
+  s << "    -nb  --nobayes        \t do not calculate Basyesian efficiency uncertaintiesr\n";
+  s << "    -as, --atlasstyle     \t use ATLAS style\n";
+  s << "    -ns, --nostats        \t do not show stats for mean and rms\n";
+  s << "    -nr, --noref          \t do not plot reference histograms\n";
+  s << "    -np, --noplots        \t do not actually make any plot\n";
+  s << "    -C,  --Cfiles         \t write C files also\n"; 
+  s << "    -nw, --nowatermark    \t do not plot the release watermark\n"; 
+  s << "         --nopng          \t do not print png files\n"; 
+  s << "         --deleteref      \t delete unused reference histograms\n";
+  s << "    -xo, --xoffset        \t relative x offset for the key\n"; 
+  s << "         --fe,            \t relative x offset for the key\n"; 
+  s << "    -h,  --help           \t this help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
   //  s << "\nReport bugs to <" << PACKAGE_BUGREPORT << ">";
   s << std::endl;
@@ -127,10 +129,14 @@ int main(int argc, char** argv) {
   bool nowatermark = false;
   bool noplots     = false;
   bool Cfile       = false;
-
+  
+  double scale_eff = 100;
+  
   std::string configfile = "";
 
   double xoffset = 0;
+
+  
 
   std::vector<std::string> chains;
   for(int i=1; i<argc; i++){
@@ -199,6 +205,10 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="-nb" || arg=="--nobayes" ) { 
       _bayes = false;
+    }
+    else if ( arg=="-es" || arg=="--effscale" ) { 
+      if ( ++i<argc ) scale_eff=std::atof(argv[i]);
+      else return usage(argv[0], -1);
     } 
     else if ( arg=="-np" || arg=="--noplots" ) { 
       noplots = true;
@@ -772,17 +782,22 @@ int main(int argc, char** argv) {
       if ( _bayes ) { 
 	if ( htest && contains( std::string(htest->GetName()), "_eff" ) ) {
 
+	  //	  delete htest;
+
 	  htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histos[i]+"_n").c_str()) ;
 	  htestden = (TH1F*)ftest.Get((chains[j]+"/"+histos[i]+"_d").c_str()) ;
 
 	  savedhistos.push_back( chains[j]+"/"+histos[i]+"_n" );
 	  savedhistos.push_back( chains[j]+"/"+histos[i]+"_d" );
 
-	  std::cout << "Bayesian error calculation " << htestnum << " " << htestden << std::endl;
+	  std::cout << "Bayesian error calculation " << htestnum << " " << htestden << "\tscale " << scale_eff << std::endl;
 
 	  if ( htestnum && htestden ) { 
-	    Efficiency e( htestnum, htestden, "" );
-	    tgtest = e.Bayes();
+	    Efficiency e( htestnum, htestden, "", scale_eff );
+	    tgtest = e.Bayes(scale_eff);
+
+	    htest = e.Hist();
+
 	  }
 	}
       }
@@ -881,19 +896,19 @@ int main(int argc, char** argv) {
       if ( make_ref_efficiencies ) { 
 	
 	if ( htestnum && hrefnum ) { 
-	  Efficiency e( htestnum, hrefnum, "" );
+	  Efficiency e( htestnum, hrefnum, "", scale_eff );
 
 	  TH1* h = e.Hist();
 
 	  double range = h->GetMaximum()-h->GetMinimum();
 
-	  if ( range<20 ) {
+	  if ( range<0.2*scale_eff ) {
  
-	    double _max = int( (h->GetMaximum() + 20)*0.1 )*10.0;
-	    double _min = int( (h->GetMinimum() - 10)*0.1 )*10.0;
+	    double _max = int( (h->GetMaximum() + 20)*0.1 )*0.1*scale_eff;
+	    double _min = int( (h->GetMinimum() - 10)*0.1 )*0.1*scale_eff;
 	    
-	    if ( _max>100 ) _max = 102;
-	    if ( _min<0 )   _min = 0;
+	    if ( _max>1.0*scale_eff ) _max = 1.02*scale_eff;
+	    if ( _min<0 )             _min = 0;
 	    
 	    h->SetMinimum(_min);
 	    h->SetMaximum(_max);
@@ -1255,3 +1270,4 @@ int main(int argc, char** argv) {
 
   return 0;
 }
+
