@@ -70,11 +70,13 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   //construction of common parameters
   //declareProperty("foobar",     m_foobar=false);
   //  declareProperty("MuonSelectorTool",m_muonSelectorTool);  // YY added -> removed
-  declareProperty("HI_PP_KEY",m_HI_PP_Key=true);
   declareProperty("monitoring_muonNonIso", m_chainsGeneric);
   declareProperty("monitoring_muonIso", m_chainsEFiso);
   declareProperty("monitoring_MSonly", m_chainsMSonly);
   declareProperty("monitoring_muonEFFS", m_chainsEFFS);
+  declareProperty("monitoring_muon_Support", m_chainSupport);
+  declareProperty("HI_pp_mode", m_HI_pp_mode);
+  
   //construction of muFast parameters
 
   //construction of muComb parameters
@@ -99,15 +101,15 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   m_maxindep = 0;
   m_maxESbr = 0;
   m_requestESchains = 0;
-  fMuFast = 0;
-  fMuComb = 0;
-  fEFCB = 0;
-  fMuGirl = 0;
-  fEFSA = 0;
-  iSTDL = 0;
-  iSTDH = 0;
-  iMSL = 0;
-  iMSH = 0;
+  m_fMuFast = 0;
+  m_fMuComb = 0;
+  m_fEFCB = 0;
+  m_fMuGirl = 0;
+  m_fEFSA = 0;
+  m_iSTDL = 0;
+  m_iSTDH = 0;
+  m_iMSL = 0;
+  m_iMSH = 0;
   m_ztp_newrun = 0;
   
 }
@@ -234,14 +236,8 @@ StatusCode HLTMuonMonTool::init()
   // v5 primary
   //m_histChainEFFS.push_back("muChainEFFS");
   //m_chainsEFFS.push_back("mu18_mu8noL1");
-  if(m_HI_PP_Key){
-	m_FS_pre_trigger = "HLT_mu4";
-  m_FS_pre_trigger_second = "HLT_mu10";
-  
-  }else{
- 	m_FS_pre_trigger = "HLT_mu18";
+  m_FS_pre_trigger = "HLT_mu18";
   m_FS_pre_trigger_second = "HLT_mu24_imedium";
-	}
   for(unsigned int ich = 0; ich < m_chainsEFFS.size(); ich++){
 	if(ich > 0) continue;
 	m_histChainEFFS.push_back("muChainEFFS");
@@ -412,21 +408,21 @@ StatusCode HLTMuonMonTool::init()
 
   m_ESchainName = "_ES";
 
-  CB_mon_ESbr[ESSTD] = 0;
-  CB_mon_ESbr[ESTAG] = 0;
-  CB_mon_ESbr[ESID] = 1;
-  CB_mon_ESbr[ESINDEP] = 0;
-  CB_mon_ESbr[ESHIL1] = 0;
-  CB_mon_ESbr[ESHIID] = 0;
-  CB_mon_ESbr[ESHIINDEP] = 0;
+  m_CB_mon_ESbr[ESSTD] = 0;
+  m_CB_mon_ESbr[ESTAG] = 0;
+  m_CB_mon_ESbr[ESID] = 1;
+  m_CB_mon_ESbr[ESINDEP] = 0;
+  m_CB_mon_ESbr[ESHIL1] = 0;
+  m_CB_mon_ESbr[ESHIID] = 0;
+  m_CB_mon_ESbr[ESHIINDEP] = 0;
 
-  MS_mon_ESbr[ESSTD] = 0;
-  MS_mon_ESbr[ESTAG] = 1;
-  MS_mon_ESbr[ESID] = 0;
-  MS_mon_ESbr[ESINDEP] = 0;
-  MS_mon_ESbr[ESHIL1] = 0;
-  MS_mon_ESbr[ESHIID] = 0;
-  MS_mon_ESbr[ESHIINDEP] = 0;
+  m_MS_mon_ESbr[ESSTD] = 0;
+  m_MS_mon_ESbr[ESTAG] = 1;
+  m_MS_mon_ESbr[ESID] = 0;
+  m_MS_mon_ESbr[ESINDEP] = 0;
+  m_MS_mon_ESbr[ESHIL1] = 0;
+  m_MS_mon_ESbr[ESHIID] = 0;
+  m_MS_mon_ESbr[ESHIINDEP] = 0;
 
   // ES chain catetory names: updated 15.10.2011
   m_triggerES[ESSTD] = "_ESstd";
@@ -477,11 +473,11 @@ StatusCode HLTMuonMonTool::init()
   m_allESchain.push_back("HLT_Jpsimumu_idperf");
 
   // initialising algorithm index for summary histos
-  fMuFast = (float)iMuFast;
-  fMuComb = (float)iMuComb;
-  fEFCB = (float)iEFCB;
-  fEFSA = (float)iEFSA;
-  fMuGirl = (float)iMuGirl;
+  m_fMuFast = (float)iMuFast;
+  m_fMuComb = (float)iMuComb;
+  m_fEFCB = (float)iEFCB;
+  m_fEFSA = (float)iEFSA;
+  m_fMuGirl = (float)iMuGirl;
 
   m_vectkwd.push_back(m_triggerES[ESTAG]);
   m_vectkwd.push_back(m_triggerES[ESID]);
@@ -490,25 +486,14 @@ StatusCode HLTMuonMonTool::init()
   m_vectkwd.push_back("_all");
 
   // YY: pt range.
-  if(m_HI_PP_Key){
-    iSTDL = 45;  // 12 GeV
-    //iSTDL = 54;  // 15 GeV
-    iSTDH = 75; // 25 GeV
-    iMSL =  54;  // 15 GeV
-    iMSH =  75;  // 25 GeV
-  }else{
-    iSTDL = 91;  // 40 GeV
-    iSTDH = 120; // 100 GeV
-    iMSL = 105;  // 60 GeV
-    iMSH = 120;  // 100 GeV
- 	}
-  
-  
-  
-  /* iSTDL = 71;  // 22.5 GeV
-  iSTDH = 100;  // 50 GeV
-  iMSL = 91;  // 40 GeV
-  iMSH = 112;  // 80 GeV */
+  m_iSTDL = 91;  // 40 GeV
+  m_iSTDH = 120; // 100 GeV
+  m_iMSL = 105;  // 60 GeV
+  m_iMSH = 120;  // 100 GeV
+  /* m_iSTDL = 71;  // 22.5 GeV
+  m_iSTDH = 100;  // 50 GeV
+  m_iMSL = 91;  // 40 GeV
+  m_iMSH = 112;  // 80 GeV */
 
   // New MSonly_triggered chains: YY added 26.06.2011
   m_MSchainName = "_MSb";  // meaning MSonly_barrel
@@ -529,37 +514,37 @@ StatusCode HLTMuonMonTool::init()
   m_EFAlgName[3] = "_allEFMuons";
 
   // 2d phi bins initialisation
-  bins_eta[0] = -2.40;
-  bins_eta[1] = -1.918;
-  bins_eta[2] = -1.623;
-  bins_eta[3] = -1.348;
-  bins_eta[4] = -1.2329;
-  bins_eta[5] = -1.1479;
-  bins_eta[6] = -1.05;
-  bins_eta[7] = -0.908;
-  bins_eta[8] = -0.791;
-  bins_eta[9] = -0.652;
-  bins_eta[10] = -0.476;
-  bins_eta[11] = -0.324;
-  bins_eta[12] = -0.132;
-  bins_eta[13] = 0.;
-  bins_eta[14] = 0.132;
-  bins_eta[15] = 0.324;
-  bins_eta[16] = 0.476;
-  bins_eta[17] = 0.652;
-  bins_eta[18] = 0.791;
-  bins_eta[19] = 0.908;
-  bins_eta[20] = 1.05;
-  bins_eta[21] = 1.1479;
-  bins_eta[22] = 1.2329;
-  bins_eta[23] = 1.348;
-  bins_eta[24] = 1.623;
-  bins_eta[25] = 1.918;
-  bins_eta[26] = 2.40;
+  m_bins_eta[0] = -2.40;
+  m_bins_eta[1] = -1.918;
+  m_bins_eta[2] = -1.623;
+  m_bins_eta[3] = -1.348;
+  m_bins_eta[4] = -1.2329;
+  m_bins_eta[5] = -1.1479;
+  m_bins_eta[6] = -1.05;
+  m_bins_eta[7] = -0.908;
+  m_bins_eta[8] = -0.791;
+  m_bins_eta[9] = -0.652;
+  m_bins_eta[10] = -0.476;
+  m_bins_eta[11] = -0.324;
+  m_bins_eta[12] = -0.132;
+  m_bins_eta[13] = 0.;
+  m_bins_eta[14] = 0.132;
+  m_bins_eta[15] = 0.324;
+  m_bins_eta[16] = 0.476;
+  m_bins_eta[17] = 0.652;
+  m_bins_eta[18] = 0.791;
+  m_bins_eta[19] = 0.908;
+  m_bins_eta[20] = 1.05;
+  m_bins_eta[21] = 1.1479;
+  m_bins_eta[22] = 1.2329;
+  m_bins_eta[23] = 1.348;
+  m_bins_eta[24] = 1.623;
+  m_bins_eta[25] = 1.918;
+  m_bins_eta[26] = 2.40;
 
-  for (int iphi = 0; iphi <= phi_cnbins; iphi++) {
+  for (int iphi = 0; iphi <= s_phi_cnbins; iphi++) {
     Double_t dphi = TMath::Pi()/8.;
-    bins_phi[iphi] = (dphi*static_cast<Double_t>(iphi)-(TMath::Pi()));
+    m_bins_phi[iphi] = (dphi*static_cast<Double_t>(iphi)-(TMath::Pi()));
   }
 
   //muFast
@@ -625,40 +610,40 @@ StatusCode HLTMuonMonTool::book()
 {
   ATH_MSG_DEBUG("book being called");
   
-  histdir="HLT/MuonMon/Common";
-  histdirmufast="HLT/MuonMon/muFast";
-  histdirmucomb="HLT/MuonMon/muComb";
-  histdirmuiso="HLT/MuonMon/muIso";
-  histdirtilemu="HLT/MuonMon/TileMu";
-  histdirmuonef="HLT/MuonMon/MuonEF";
-  histdirmugirl="HLT/MuonMon/MuGirl";
-  histdirrate="HLT/MuonMon/Rate";
-  histdirrateratio="HLT/MuonMon/Rate/Ratio";
-  histdircoverage="HLT/MuonMon/Coverage";
-  histdireff="HLT/MuonMon/Efficiency";
-  histdireffnumdenom="HLT/MuonMon/Efficiency/NumDenom";
-  histdirdist2d="HLT/MuonMon/etaphi2D";
+  m_histdir="HLT/MuonMon/Common";
+  m_histdirmufast="HLT/MuonMon/muFast";
+  m_histdirmucomb="HLT/MuonMon/muComb";
+  m_histdirmuiso="HLT/MuonMon/muIso";
+  m_histdirtilemu="HLT/MuonMon/TileMu";
+  m_histdirmuonef="HLT/MuonMon/MuonEF";
+  m_histdirmugirl="HLT/MuonMon/MuGirl";
+  m_histdirrate="HLT/MuonMon/Rate";
+  m_histdirrateratio="HLT/MuonMon/Rate/Ratio";
+  m_histdircoverage="HLT/MuonMon/Coverage";
+  m_histdireff="HLT/MuonMon/Efficiency";
+  m_histdireffnumdenom="HLT/MuonMon/Efficiency/NumDenom";
+  m_histdirdist2d="HLT/MuonMon/etaphi2D";
   
-  addMonGroup( new MonGroup(this, histdir, run, ATTRIB_UNMANAGED) );
-  addMonGroup( new MonGroup(this, histdirmufast, run, ATTRIB_UNMANAGED) );
-  addMonGroup( new MonGroup(this, histdirmucomb, run, ATTRIB_UNMANAGED) );
-  addMonGroup( new MonGroup(this, histdirmuiso, run, ATTRIB_UNMANAGED) );
-  addMonGroup( new MonGroup(this, histdirtilemu, run, ATTRIB_UNMANAGED) );
-  addMonGroup( new MonGroup(this, histdirmuonef, run, ATTRIB_UNMANAGED) );
-  addMonGroup( new MonGroup(this, histdirmugirl, run, ATTRIB_UNMANAGED) );
-  addMonGroup( new MonGroup(this, histdirrate, run, ATTRIB_UNMANAGED) );
-  addMonGroup( new MonGroup(this, histdirrateratio, run, ATTRIB_UNMANAGED, "", "weightedEff") );
-  addMonGroup( new MonGroup(this, histdircoverage, lowStat, ATTRIB_UNMANAGED) );
-  //  addMonGroup( new MonGroup(this, histdireff,    run, ATTRIB_UNMANAGED, "", "weightedEff") );
+  addMonGroup( new MonGroup(this, m_histdir, run, ATTRIB_UNMANAGED) );
+  addMonGroup( new MonGroup(this, m_histdirmufast, run, ATTRIB_UNMANAGED) );
+  addMonGroup( new MonGroup(this, m_histdirmucomb, run, ATTRIB_UNMANAGED) );
+  addMonGroup( new MonGroup(this, m_histdirmuiso, run, ATTRIB_UNMANAGED) );
+  addMonGroup( new MonGroup(this, m_histdirtilemu, run, ATTRIB_UNMANAGED) );
+  addMonGroup( new MonGroup(this, m_histdirmuonef, run, ATTRIB_UNMANAGED) );
+  addMonGroup( new MonGroup(this, m_histdirmugirl, run, ATTRIB_UNMANAGED) );
+  addMonGroup( new MonGroup(this, m_histdirrate, run, ATTRIB_UNMANAGED) );
+  addMonGroup( new MonGroup(this, m_histdirrateratio, run, ATTRIB_UNMANAGED, "", "weightedEff") );
+  addMonGroup( new MonGroup(this, m_histdircoverage, lowStat, ATTRIB_UNMANAGED) );
+  //  addMonGroup( new MonGroup(this, m_histdireff,    run, ATTRIB_UNMANAGED, "", "weightedEff") );
   // YY 12.04.10 in order to avoid warning messages while merging by the post-processor 
-  addMonGroup( new MonGroup(this, histdireff,    run, ATTRIB_UNMANAGED) );
-  addMonGroup( new MonGroup(this, histdireffnumdenom,    run, ATTRIB_UNMANAGED) );
-  addMonGroup( new MonGroup(this, histdirdist2d, run, ATTRIB_UNMANAGED) );
+  addMonGroup( new MonGroup(this, m_histdireff,    run, ATTRIB_UNMANAGED) );
+  addMonGroup( new MonGroup(this, m_histdireffnumdenom,    run, ATTRIB_UNMANAGED) );
+  addMonGroup( new MonGroup(this, m_histdirdist2d, run, ATTRIB_UNMANAGED) );
 
   //added by marx
   for(std::map<std::string, std::string>::iterator itmap=m_ztpmap.begin();itmap!=m_ztpmap.end();itmap++){ 
-    histdirmuztp="HLT/MuonMon/MuZTP/" + itmap->second;
-    addMonGroup( new MonGroup(this, histdirmuztp, run, ATTRIB_UNMANAGED) );
+    m_histdirmuztp="HLT/MuonMon/MuZTP/" + itmap->second;
+    addMonGroup( new MonGroup(this, m_histdirmuztp, run, ATTRIB_UNMANAGED) );
   }
 
   //setCurrentMonGroup("HLT/MuonMon/Efficiency");
@@ -752,7 +737,8 @@ StatusCode HLTMuonMonTool::fill()
   if( scCommon.isFailure() ){
     ATH_MSG_VERBOSE("fillCommon failed");
   }
-  hist("Common_Counter", histdir )->Fill((float)EVENT);
+  hist("Common_Counter", m_histdir )->Fill((float)EVENT);
+  if(m_HI_pp_mode)hist("HI_PP_Flag", m_histdir)->Fill(1);
   
   // chain
   StatusCode scChain;

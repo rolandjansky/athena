@@ -80,20 +80,20 @@ class HLTMuonMonTool : public IHLTMonTool
   StatusCode initMuZTPDQA();
   
   //book() for each HLT Algorithm
-  std::string histdir;
-  std::string histdirmufast;
-  std::string histdirmucomb;
-  std::string histdirmuiso;
-  std::string histdirtilemu;
-  std::string histdirmuonef;
-  std::string histdirmugirl;
-  std::string histdirmuztp;
-  std::string histdireff;
-  std::string histdireffnumdenom;
-  std::string histdirrate;
-  std::string histdirrateratio;
-  std::string histdircoverage;
-  std::string histdirdist2d;
+  std::string m_histdir;
+  std::string m_histdirmufast;
+  std::string m_histdirmucomb;
+  std::string m_histdirmuiso;
+  std::string m_histdirtilemu;
+  std::string m_histdirmuonef;
+  std::string m_histdirmugirl;
+  std::string m_histdirmuztp;
+  std::string m_histdireff;
+  std::string m_histdireffnumdenom;
+  std::string m_histdirrate;
+  std::string m_histdirrateratio;
+  std::string m_histdircoverage;
+  std::string m_histdirdist2d;
 
   StatusCode bookCommonDQA();
   StatusCode bookChainDQA();
@@ -172,7 +172,6 @@ class HLTMuonMonTool : public IHLTMonTool
   int m_lumiblock;
   int m_event;
 
-  bool   m_HI_PP_Key;
   //flags for trigger decision
   std::vector<std::string> m_chainsRate;
 
@@ -182,11 +181,13 @@ class HLTMuonMonTool : public IHLTMonTool
   std::vector<std::string> m_chainsMI;  // added tomoe
   std::vector<std::string> m_chainsGeneric;  // added YY 21 Feb 2012
   std::vector<std::string> m_chainsEFFS;  
+  bool m_HI_pp_mode;
   std::vector<std::string> m_histChainGeneric;  
   std::vector<std::string> m_histChainEFiso;  
   std::vector<std::string> m_histChainMSonly;  
   std::vector<std::string> m_histChainEFFS ;  
   std::vector<std::string> m_chainsEFiso;  
+  std::vector<std::string> m_chainSupport;  
   std::vector<std::string> m_chainsL2Standard;
   std::vector<std::string> m_chainsL2passHLT;
   std::map<std::string, std::string> m_ztpmap; // added marx
@@ -216,8 +217,8 @@ class HLTMuonMonTool : public IHLTMonTool
   enum indexES { ESSTD, ESTAG, ESID, ESINDEP, ESHIL1, ESHIID, ESHIINDEP }; // adding ESINDEP 20.1.2012
   std::string m_triggerES[ESHIINDEP + 1];
   bool m_passedES[ESHIINDEP + 1]; // std, tag, id
-  bool CB_mon_ESbr[ESHIINDEP + 1];
-  bool MS_mon_ESbr[ESHIINDEP + 1];
+  bool m_CB_mon_ESbr[ESHIINDEP + 1];
+  bool m_MS_mon_ESbr[ESHIINDEP + 1];
 
   //AI 20100824
   std::vector<std::string> m_allESchain;
@@ -274,70 +275,70 @@ class HLTMuonMonTool : public IHLTMonTool
 
   //private parameters/functions for TileMu
 
-  std::vector<float> eta_RecCB;
-  std::vector<float> phi_RecCB;
-  std::vector<float> pt_RecCB;
+  std::vector<float> m_eta_RecCB;
+  std::vector<float> m_phi_RecCB;
+  std::vector<float> m_pt_RecCB;
 
-  std::vector<float> eta_Tile;
-  std::vector<float> phi_Tile;
+  std::vector<float> m_eta_Tile;
+  std::vector<float> m_phi_Tile;
 
-  std::vector<float> eta_TileTrack;
-  std::vector<float> phi_TileTrack;
-  std::vector<float> pt_TileTrack;
+  std::vector<float> m_eta_TileTrack;
+  std::vector<float> m_phi_TileTrack;
+  std::vector<float> m_pt_TileTrack;
 
   //private parameters/functions for MuonEF
-  std::vector<double> pt_EFMSmuon;
-  std::vector<double> eta_EFMSmuon;
-  std::vector<double> phi_EFMSmuon;
-  std::vector<double> pt_EFSAmuon;
-  std::vector<double> eta_EFSAmuon;
-  std::vector<double> phi_EFSAmuon;
-  std::vector<double> pt_EFCBmuon;
-  std::vector<double> eta_EFCBmuon;
-  std::vector<double> phi_EFCBmuon;
+  std::vector<double> m_pt_EFMSmuon;
+  std::vector<double> m_eta_EFMSmuon;
+  std::vector<double> m_phi_EFMSmuon;
+  std::vector<double> m_pt_EFSAmuon;
+  std::vector<double> m_eta_EFSAmuon;
+  std::vector<double> m_phi_EFSAmuon;
+  std::vector<double> m_pt_EFCBmuon;
+  std::vector<double> m_eta_EFCBmuon;
+  std::vector<double> m_phi_EFCBmuon;
 
-  std::vector<int> index_EFMS_RecoMS_corr;
-  std::vector<int> index_EFSA_RecoSA_corr;
-  std::vector<int> index_EFCB_RecoCB_corr;
+  std::vector<int> m_index_EFMS_RecoMS_corr;
+  std::vector<int> m_index_EFSA_RecoSA_corr;
+  std::vector<int> m_index_EFCB_RecoCB_corr;
 
   // private parameters/functions for MuonEF efficiencies studies wrt LVL2 MuFAST
-  std::vector<float> pt_LVL2FASTmuon;
-  std::vector<float> eta_LVL2FASTmuon;
-  std::vector<float> phi_LVL2FASTmuon;
+  std::vector<float> m_pt_LVL2FASTmuon;
+  std::vector<float> m_eta_LVL2FASTmuon;
+  std::vector<float> m_phi_LVL2FASTmuon;
 
-  std::vector<float> pt_lvl2_RecoSA_corr;
-  std::vector<float> eta_lvl2_RecoSA_corr;
-  std::vector<float> phi_lvl2_RecoSA_corr;
-  std::vector<int> index_lvl2_RecoSA_corr;
+  std::vector<float> m_pt_lvl2_RecoSA_corr;
+  std::vector<float> m_eta_lvl2_RecoSA_corr;
+  std::vector<float> m_phi_lvl2_RecoSA_corr;
+  std::vector<int> m_index_lvl2_RecoSA_corr;
 
-  std::vector<int> index_EFSA_RecoSA_andL2_corr;
+  std::vector<int> m_index_EFSA_RecoSA_andL2_corr;
 
   // private parameters/functions for MuonEF efficiencies studies wrt LVL2 MuComb
-  std::vector<float> pt_LVL2COMBmuon;
-  std::vector<float> eta_LVL2COMBmuon;
-  std::vector<float> phi_LVL2COMBmuon;
+  std::vector<float> m_pt_LVL2COMBmuon;
+  std::vector<float> m_eta_LVL2COMBmuon;
+  std::vector<float> m_phi_LVL2COMBmuon;
 
-  std::vector<float> pt_lvl2_RecoCB_corr;
-  std::vector<float> eta_lvl2_RecoCB_corr;
-  std::vector<float> phi_lvl2_RecoCB_corr;
-  std::vector<int> index_lvl2_RecoCB_corr;
-  std::vector<int> index_EFCB_RecoCB_andL2_corr;
+  std::vector<float> m_pt_lvl2_RecoCB_corr;
+  std::vector<float> m_eta_lvl2_RecoCB_corr;
+  std::vector<float> m_phi_lvl2_RecoCB_corr;
+  std::vector<int> m_index_lvl2_RecoCB_corr;
+  std::vector<int> m_index_EFCB_RecoCB_andL2_corr;
 
   // Vectors of Reconstructed Variables
-  std::vector<double> pt_RecMSmuon;
-  std::vector<double> eta_RecMSmuon;
-  std::vector<double> phi_RecMSmuon;
-  std::vector<double> charge_RecMSmuon;
+  std::vector<double> m_pt_RecMSmuon;
+  std::vector<double> m_eta_RecMSmuon;
+  std::vector<double> m_phi_RecMSmuon;
+  std::vector<double> m_charge_RecMSmuon;
 
-  std::vector<double> pt_RecSAmuon;
-  std::vector<double> eta_RecSAmuon;
-  std::vector<double> phi_RecSAmuon;
-  std::vector<double> charge_RecSAmuon;
+  std::vector<double> m_pt_RecSAmuon;
+  std::vector<double> m_eta_RecSAmuon;
+  std::vector<double> m_phi_RecSAmuon;
+  std::vector<double> m_charge_RecSAmuon;
 
-  std::vector<double> pt_RecCBmuon;
-  std::vector<double> eta_RecCBmuon;
-  std::vector<double> phi_RecCBmuon;
-  std::vector<double> charge_RecCBmuon;
+  std::vector<double> m_pt_RecCBmuon;
+  std::vector<double> m_eta_RecCBmuon;
+  std::vector<double> m_phi_RecCBmuon;
+  std::vector<double> m_charge_RecCBmuon;
 
   //private parameters/functions for MuGirl
 
@@ -367,11 +368,11 @@ class HLTMuonMonTool : public IHLTMonTool
   enum ieffStdAlgo { iMuFast = 0, iMuComb = 1, iEFCB = 2, iMuGirl = 3 };
   enum ieffMSAlgo { iEFSA = 1 };
 
-  float fMuFast, fMuComb, fEFCB, fMuGirl;
-  float fEFSA;
+  float m_fMuFast, m_fMuComb, m_fEFCB, m_fMuGirl;
+  float m_fEFSA;
 
-  int iSTDL, iSTDH;
-  int iMSL, iMSH;
+  int m_iSTDL, m_iSTDH;
+  int m_iMSL, m_iMSH;
 
   std::vector<std::string> m_vectkwd;
 
@@ -380,18 +381,19 @@ class HLTMuonMonTool : public IHLTMonTool
   // isolation cut for ztp
   double m_ztp_ptcone30rel_cut;
   double m_ztp_EF_ptcone30rel_cut;
+
   //2d histos parameter
 
-  static const int eta_cnbins = 26;
-  Double_t bins_eta[eta_cnbins+1];
+  static const int s_eta_cnbins = 26;
+  Double_t m_bins_eta[s_eta_cnbins+1];
   //  = {-2.40, -1.918, -1.623, -1.348, -1.2329, -1.1479, -1.05,
   //				    -0.908, -0.791, -0.652, -0.476, -0.324, -0.132, 0,
   //				    0.132, 0.324, 0.476, 0.652, 0.791, 0.908, 1.05,
   //				    1.1479, 1.2329, 1.348, 1.623, 1.1918, 2.40};
-  static const int phi_cnbins = 16;
-  Double_t bins_phi[phi_cnbins+1];
+  static const int s_phi_cnbins = 16;
+  Double_t m_bins_phi[s_phi_cnbins+1];
   //  for (int iphi = 0; iphi <= phi_nbins; iphi++) {
-  //    bins_eta[iphi] = -PI/8.*(Double_t)iphi;
+  //    m_bins_eta[iphi] = -PI/8.*(Double_t)iphi;
   //  }
   
 };
