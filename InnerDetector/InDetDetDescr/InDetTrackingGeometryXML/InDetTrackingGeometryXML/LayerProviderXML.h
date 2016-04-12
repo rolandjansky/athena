@@ -76,7 +76,9 @@ namespace InDet {
     void openDumpFileRZ(std::string filename);
     void closeDumpFileRZ();
     void dumpRZ(std::string title) const;
-  
+    void dumpEtaLinesRZ(double zMax, double rMax) const;
+    void dumpTubesRZ(double zMax) const; // Set zMax argument to 0 if dumpEtaLinesRZ is called to avoid double definition of zMax
+
     unsigned int  m_ndumpRZ;
     std::ofstream m_dumpfileRZ;
     std::string m_identification;

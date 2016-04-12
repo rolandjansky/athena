@@ -705,11 +705,11 @@ void InDet::XMLReaderSvc::computeModuleSize(InDet::ModuleTmp *module)
   module->widthmin  = module->widthMinChips*chip->width+chip->edgew; 
   module->widthmax  = module->widthMaxChips*chip->width+chip->edgew; 
 
-  if(chip->name=="RD53") {
+  if(chip->name.find("RD53") != std::string::npos) {
     module->length = module->lengthChips*chip->length+(module->lengthChips-1)*2.*chip->edgel;
     module->widthmax = module->widthMaxChips*chip->width+(module->widthMaxChips-1)*2.*chip->edgew;
     module->widthmin = module->widthmax;
-    }
+  }
   else {
     if(module->chip_type=="SingleChip"){
       module->widthmin += chip->edgen;
