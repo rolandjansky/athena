@@ -20,6 +20,9 @@ class CaloProtoCluster {
   ///Constructor with a CaloCellContainer 
   CaloProtoCluster(const CaloCellContainer* cellCont);
 
+  ///Constructor with a CaloCellContainer link
+  CaloProtoCluster(const DataLink<CaloCellContainer>& cellCont);
+
   
  /**@brief Constructor (almost a copy constructor)
   * @param cellLink Ptr to an existng CaloClusterCellLink.

@@ -8,7 +8,14 @@
 //#include "xAODCaloEvent/CaloClusterKineHelper.h"
 
 CaloProtoCluster::CaloProtoCluster(const CaloCellContainer* cellCont) :
-  m_cellLinks(new CaloClusterCellLink(cellCont)), //use uniqe_ptr! 
+  m_cellLinks(new CaloClusterCellLink(cellCont)),
+  m_haveKine(false),
+  m_e(0.),
+  m_et(0.)
+{}
+
+CaloProtoCluster::CaloProtoCluster(const DataLink<CaloCellContainer>& cellCont) :
+  m_cellLinks(new CaloClusterCellLink(cellCont)),
   m_haveKine(false),
   m_e(0.),
   m_et(0.)

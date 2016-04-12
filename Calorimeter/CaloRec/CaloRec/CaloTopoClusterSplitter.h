@@ -245,6 +245,12 @@ class CaloTopoClusterSplitter: public AthAlgTool, virtual public CaloClusterColl
    * @brief if set to true treat cells with a dead OTX which can be
    * predicted by L1 trigger info as good instead of bad cells */
   bool m_treatL1PredictedCellsAsGood;
+  
+  /**
+   * @brief if set to true, splitter only looks at absolute 
+   * value of Energy in order to identify potential seed cells */
+  bool m_absOpt;
+
 
   IdentifierHash m_hashMin;
   IdentifierHash m_hashMax;

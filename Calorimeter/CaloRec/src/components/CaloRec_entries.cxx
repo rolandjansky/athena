@@ -28,6 +28,7 @@
 #include "CaloRec/CaloClusterCellLinksUpdater.h"
 #include "CaloRec/CaloTowerxAODFromCells.h"
 #include "CaloRec/CaloTowerxAODFromClusters.h"
+#include "CaloRec/CaloClusterSnapshot.h"
 
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -65,6 +66,7 @@ DECLARE_TOOL_FACTORY( CaloCellContainerFromClusterTool )
 //DECLARE_TOOL_FACTORY( CaloClusterLockVars )
 DECLARE_TOOL_FACTORY ( Blob2ToolConstants )
 DECLARE_TOOL_FACTORY ( CaloCellFastCopyTool )
+DECLARE_TOOL_FACTORY ( CaloClusterSnapshot )
 
 DECLARE_FACTORY_ENTRIES(CaloRec) {
     DECLARE_ALGORITHM( CaloTowerMonitor );
@@ -96,5 +98,6 @@ DECLARE_FACTORY_ENTRIES(CaloRec) {
     //DECLARE_TOOL( CaloClusterPrinter );
     //DECLARE_TOOL( CaloClusterLockVars );
     DECLARE_TOOL( Blob2ToolConstants )
-    DECLARE_TOOL( CaloCellFastCopyTool )
+    DECLARE_TOOL( CaloCellFastCopyTool ) 
+    DECLARE_TOOL( CaloClusterSnapshot )
 }

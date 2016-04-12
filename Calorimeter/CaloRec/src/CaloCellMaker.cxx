@@ -69,6 +69,14 @@ StatusCode CaloCellMaker::initialize() {
 
   CHECK( m_chrono.retrieve() );
 
+  // Add ":PUBLIC" to the tool names to force ToolSvc into creating
+  // public tools.
+  std::vector< std::string > typesAndNames;
+  for( const std::string& typeName : m_caloCellMakerTools.typesAndNames() ) {
+     typesAndNames.push_back( typeName + ":PUBLIC" );
+  }
+  m_caloCellMakerTools.setTypesAndNames( typesAndNames );
+
   // access tools and store them
   CHECK( m_caloCellMakerTools.retrieve() );
   ATH_MSG_DEBUG( "Successfully retrieve CaloCellMakerTools: " << m_caloCellMakerTools );
@@ -164,7 +172,7 @@ StatusCode CaloCellMaker::execute() {
     m_chrono->chronoStop(chronoName);
 
     ATH_MSG_DEBUG( "Chrono stop : delta "
-        << m_chrono->chronoDelta(chronoName, IChronoStatSvc::USER) * microsecond / second
+                   << m_chrono->chronoDelta(chronoName, IChronoStatSvc::USER) * (microsecond / second)
         << " second " );
 
     if (sc.isFailure()) {

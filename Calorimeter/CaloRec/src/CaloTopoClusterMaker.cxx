@@ -91,7 +91,7 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
     m_neighborOption                   ("super3D"),
     m_nOption                          (LArNeighbours::super3D),
     m_restrictHECIWandFCalNeighbors    (false),
-    m_restrictPSNeighbors              (true),
+    m_restrictPSNeighbors              (false),
     m_seedCutsInAbsE                   (false),
     m_neighborCutsInAbsE               (true),
     m_cellCutsInAbsE                   (true),
@@ -454,14 +454,16 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
   //---- Get the CellContainers ----------------
 
   //  for (const std::string& cellsName : m_cellsNames) {
-  const CaloCellContainer * cellColl ;
+  const CaloCellContainer * cellColl = nullptr;
   sc = evtStore()->retrieve(cellColl,m_cellsName); 
-    
+
   if( !sc.isSuccess() || !cellColl){ 
     msg(MSG::ERROR) << " Can not retrieve CaloCellContainer: "
 		    << m_cellsName << endreq; 
     return StatusCode::RECOVERABLE;      
   }    
+
+  const DataLink<CaloCellContainer> cellCollLink (m_cellsName);
 
   //ATH_MSG_DEBUG("CaloCell container: "<< cellsName 
   //		  <<" contains " << cellColl->size() << " cells");
@@ -727,14 +729,13 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
 	addCluster = true;
     }
     if ( addCluster) {
-      CaloProtoCluster* myCluster = new CaloProtoCluster(cellColl);
+      CaloProtoCluster* myCluster = new CaloProtoCluster(cellCollLink);
       myCluster->getCellLinks()->reserve(tmpCluster->size());
 
       for (CaloTopoTmpClusterCell* cell : *tmpCluster) {
 	size_t iCell = cell->getCaloCell();
 	myCluster->addCell(iCell,1.);
       }
-
       float cl_et = myCluster->et();
       if ( (m_seedCutsInAbsE ? std::abs(cl_et) : cl_et) > m_clusterEtorAbsEtCut ) {
 	sortClusters.push_back(myCluster);
@@ -755,8 +756,7 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
       return (et1 > et2); //This is the order we should have
     }
     );
-
-  // add to cluster container
+ // add to cluster container
   clusColl->reserve(sortClusters.size());
 
   for (CaloProtoCluster* protoCluster: sortClusters) {

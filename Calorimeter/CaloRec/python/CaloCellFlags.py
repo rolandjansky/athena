@@ -20,7 +20,7 @@ from AthenaCommon.JobProperties import jobproperties
 class doLArCellEmMisCalib(JobProperty):
     """ Flag to activate LAr cell random miscalibration (to be applied only on MC)
     """
-    statusOn     = False
+    statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
                            

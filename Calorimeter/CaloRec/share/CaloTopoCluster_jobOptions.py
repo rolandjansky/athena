@@ -5,11 +5,13 @@
 # Created: June 2007, S.Menke
 # Purpose: Define default calibrated topo cluster algo and corrections
 #
+
 try:
     from CaloRec.CaloClusterTopoGetter import CaloClusterTopoGetter
     CaloClusterTopoGetter()
     #from CaloRec.CaloCell2ClusterMapperGetters import CaloCell2TopoClusterMapperGetter
     #CaloCell2TopoClusterMapperGetter()
 except Exception:
+    from AthenaCommon.Resilience import treatException
     treatException("Problem with CaloTopoCluster. Switched off")
 

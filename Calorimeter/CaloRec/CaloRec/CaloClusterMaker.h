@@ -43,6 +43,8 @@ class CaloClusterMaker : public AthAlgorithm
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
+  const std::string& getOutputContainerName() const;
+
  private:
 
   /**
@@ -83,18 +85,6 @@ class CaloClusterMaker : public AthAlgorithm
    * If true, we keep in StoreGate the complete list of clusters
    * before each correction has been performed. */
   bool m_keep_each_correction;
-
-  /**
-   * @brief a list of names of tools (and container names) which
-   * trigger a copy of the cluster before their execution
-   * 
-   * before the tools (even fields) in this list are executed the current 
-   * cluster container is recorded in StoreGate under the given names (odd 
-   * fields) */
-  std::vector<std::string> m_keepCorrectionToolAndContainerNames;
-
-  ///Digested version of the above
-  std::map<std::string,std::string> m_CorrectionToolAndContainerNamesMap;
 
   /** 
    * @brief controls saving the uncalibrated signal state just before

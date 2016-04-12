@@ -69,20 +69,20 @@ public:
 
   static CaloHelper* GetInstance(void)
   {
-    if (!instance) {
-      instance = new CaloHelper();
-      instance->Initialize();
+    if (!s_instance) {
+      s_instance = new CaloHelper();
+      s_instance->Initialize();
     }
-    ++refCount;
-      return instance;
+    ++s_refCount;
+    return s_instance;
   }
 
 
   static void DeleteInstance(void)
   {
-    --refCount;
-    if (refCount == 0) delete instance;
-    instance = NULL;
+    --s_refCount;
+    if (s_refCount == 0) delete s_instance;
+    s_instance = NULL;
   }
 
 
@@ -142,7 +142,7 @@ private:
     m_minifcalID = new LArMiniFCAL_ID;
     m_tileID = new TileID;
 
-    IdDictParser* m_parser = new IdDictParser;
+    m_parser = new IdDictParser;
     m_parser->register_external_entity("LArCalorimeter", "IdDictLArCalorimeter.xml");
     IdDictMgr& idd = m_parser->parse("IdDictParser/ATLAS_IDS.xml");
     m_emID->set_do_neighbours(false);
@@ -159,7 +159,7 @@ private:
     m_caloID->initialize_from_dictionary(idd);
   }
 
-  static CaloHelper* instance;
+  static CaloHelper* s_instance;
 
   LArEM_ID* m_emID;
   LArHEC_ID* m_hecID;
@@ -169,11 +169,11 @@ private:
   IdDictParser* m_parser;
   CaloCell_ID* m_caloID;
   std::map<Identifier, CaloDetDescriptor*> m_ddmap;
-  static int refCount;
+  static int s_refCount;
 };
 
-CaloHelper* CaloHelper::instance = 0;
-int CaloHelper::refCount = 0;
+CaloHelper* CaloHelper::s_instance = 0;
+int CaloHelper::s_refCount = 0;
 
 
 /** Class to test the "CaloCellFastCopyTool.h" class
@@ -185,8 +185,7 @@ class CaloCellFastCopyToolTest
 public:
   
   CaloCellFastCopyToolTest()
-    : m_svcLoc(0)
-    , m_evtStore("StoreGateSvc","")
+    : m_evtStore("StoreGateSvc","")
     , m_detStore("DetectorStore","")
     , m_alg(0)
     , m_caloHelper(0)
@@ -833,7 +832,6 @@ private:
   }
 
 
-  ISvcLocator* m_svcLoc;
   ServiceHandle<StoreGateSvc> m_evtStore;
   ServiceHandle<StoreGateSvc> m_detStore;
   DummyAlgorithm* m_alg;

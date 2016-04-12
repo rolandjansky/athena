@@ -252,8 +252,8 @@ StatusCode CaloTowerMonitor::execute()
 	      if ( aTower->getNumberOfCells() != 0 )
 		{
 		  // variables
-		  double e     = aTower->e()  / GeV;
-		  double et    = aTower->et() / GeV;
+		  double e     = aTower->e()  * (1./GeV);
+		  double et    = aTower->et() * (1./GeV);
 		  double eta   = aTower->eta();
 		  double phi   = aTower->phi();
 		  //		  if ( phi > mathPi ) phi -= 2. * mathPi;
@@ -266,11 +266,11 @@ StatusCode CaloTowerMonitor::execute()
 		      << eta << "," << phi << ")" << endreq;
 		  // fill distributions
 		  m_nTowersVsEta->fill(eta,1.);
-		  m_nTowersVsPhi->fill(phi/deg,1.);
+		  m_nTowersVsPhi->fill(phi*(1/deg),1.);
 		  // log << MSG::INFO << "fill tower e   " << e << endreq;
 		  m_eTowers->fill(e,1.);
 		  m_eTowersVsEta->fill(eta,e,1.);
-		  m_eTowersVsPhi->fill(phi/deg,e,1.);
+		  m_eTowersVsPhi->fill(phi*(1./deg),e,1.);
 		  if ( e > 0. )
 		    {
 		      m_eLogTowers->fill(log10(e),1.);
@@ -278,7 +278,7 @@ StatusCode CaloTowerMonitor::execute()
 		  // log << MSG::INFO << "fill tower et  " << et << endreq;
 		  m_etTowers->fill(et,1.);
 		  m_etTowersVsEta->fill(eta,et,1.);
-		  m_etTowersVsPhi->fill(phi/deg,et,1.);
+		  m_etTowersVsPhi->fill(phi*(1./deg),et,1.);
 		  if ( et > 0. )
 		    {
 		      m_etLogTowers->fill(log10(et),1.);
@@ -287,7 +287,7 @@ StatusCode CaloTowerMonitor::execute()
 		  // log << MSG::INFO << "fill tower cls " << cells << endreq;
 		  m_nCellsInTower->fill(cells,1.);
 		  m_nCellsInTowerVsEta->fill(eta,cells,1.);
-		  m_nCellsInTowerVsPhi->fill(phi/deg,cells,1.);
+		  m_nCellsInTowerVsPhi->fill(phi*(1./deg),cells,1.);
 		  CaloTower::cell_iterator fCell = aTower->begin();
 		  CaloTower::cell_iterator lCell = aTower->end();
 		  CaloPhiRange correctPhi;
@@ -309,7 +309,7 @@ StatusCode CaloTowerMonitor::execute()
 		      m_etaTowerVsCell->fill(cellEta,eta,1.);
 		      //log << MSG::INFO << "fill tower phi " 
 		      //		  << cellPhi/deg << endreq;
-		      m_phiTowerVsCell->fill(cellPhi/deg,phi/deg,1.);
+		      m_phiTowerVsCell->fill(cellPhi*(1./deg),phi*(1./deg),1.);
 		      CaloSampling::CaloSample theSample = aCell->caloDDE()->getSampling();
 		      CaloSampling::CaloSample takeSample = theSample;
 		      switch ( theSample )
@@ -342,8 +342,8 @@ StatusCode CaloTowerMonitor::execute()
 			  break;
 			}
 		      m_etaTowerVsCellCalos[takeSample]->fill(cellEta,eta,1.);
-		      m_phiTowerVsCellCalos[takeSample]->fill(cellPhi/deg,
-							      phi/deg,1.);
+		      m_phiTowerVsCellCalos[takeSample]->fill(cellPhi*(1./deg),
+							      phi*(1./deg),1.);
 		    } // cell loop
 		} // tower kinematics ok
 	    } // tower loop

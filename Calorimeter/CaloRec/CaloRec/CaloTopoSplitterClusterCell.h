@@ -42,6 +42,7 @@ private:
   CaloTopoSplitterHashCluster *m_secondCluster;
   bool m_shared;
   float m_weight;
+  bool m_secondary;
 
 public:
   
@@ -53,12 +54,14 @@ public:
                               const size_t & iCell, //This is actually obsolete, can be obtained from iterator
                               const float & signedRatio,
                               const xAOD::CaloCluster *pClus,
-                              const size_t caloClusterIndex) 
+                              const size_t caloClusterIndex,
+                              const bool isSecondary=false) 
     : CaloTopoTmpClusterCellBase(idHash,subDet,iCell,signedRatio),
       m_cluster(0),
       m_parentCluster(pClus),
       m_itrCell(itrCell),
-      m_parentClusterIndex(caloClusterIndex)
+      m_parentClusterIndex(caloClusterIndex),
+      m_secondary(isSecondary)
   {  
     m_shared = false;
     m_secondCluster = 0;
@@ -125,6 +128,14 @@ public:
   {
     m_cluster = cluster;
   }
+  
+  inline bool getSecondary() const
+  {
+    return m_secondary;
+  }
+  
+  
+  
 };
 
 #endif // CALOTOPOSPLITTERCLUSTERCELL_H

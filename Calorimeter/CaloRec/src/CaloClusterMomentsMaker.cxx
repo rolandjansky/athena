@@ -90,6 +90,7 @@ MomentName moment_names[] = {
   { "N_BAD_CELLS",       xAOD::CaloCluster::N_BAD_CELLS },
   { "N_BAD_HV_CELLS",    xAOD::CaloCluster::N_BAD_HV_CELLS },
   { "N_BAD_CELLS_CORR",  xAOD::CaloCluster::N_BAD_CELLS_CORR },
+  { "PTD",               xAOD::CaloCluster::PTD },
   { "SECOND_ENG_DENS",   xAOD::CaloCluster::SECOND_ENG_DENS },
   { "SECOND_LAMBDA",     xAOD::CaloCluster::SECOND_LAMBDA },
   { "SECOND_R",          xAOD::CaloCluster::SECOND_R },
@@ -132,7 +133,9 @@ CaloClusterMomentsMaker::CaloClusterMomentsMaker(const std::string& type,
     m_twoGaussianNoise(false),
     m_caloDepthTool("CaloDepthTool",this),
     m_noiseTool("CaloNoiseTool"),
-    m_larHVScaleRetriever("LArHVScaleRetriever")
+    m_larHVScaleRetriever("LArHVScaleRetriever"),
+    m_larHVFraction(NULL),
+    m_absOpt(false) 
 {
   declareInterface<CaloClusterCollectionProcessor> (this);
   // Name(s) of Moments to calculate
@@ -169,6 +172,9 @@ CaloClusterMomentsMaker::CaloClusterMomentsMaker(const std::string& type,
   /// Not used by this tool, but required to use this
   /// with CaloRunClusterCorrections.
   declareProperty("order", m_order = 0);
+  // Use weighting of neg. clusters option?
+  declareProperty("WeightingOfNegClusters", m_absOpt);
+
 }
 
 //###############################################################################
@@ -246,6 +252,7 @@ CaloClusterMomentsMaker::geoInit(IOVSVC_CALLBACK_ARGS)
     }
   }
 
+  
   // sort and remove duplicates, order is not required for any of the code below
   // but still may be useful property
   std::sort(m_validMoments.begin(), m_validMoments.end());
@@ -304,6 +311,15 @@ CaloClusterMomentsMaker::geoInit(IOVSVC_CALLBACK_ARGS)
   
 }
 
+StatusCode CaloClusterMomentsMaker::finalize()
+{
+  if ( m_calculateLArHVFraction && m_larHVFraction ) {
+    delete m_larHVFraction;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
 //#############################################################################
 
 namespace CaloClusterMomentsMaker_detail {
@@ -324,7 +340,7 @@ struct cellinfo {
 } // namespace CaloClusterMomentsMaker_detail
 
 StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusColl)
-{
+{ 
   ATH_MSG_DEBUG("Executing " << name());
 
   // Maps cell IdentifierHash to cluster index in cluster collection.
@@ -380,7 +396,7 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
 
   // setup LAr HV Fraction class in case the corresponding moments are
   // requested
-  if ( m_calculateLArHVFraction ) {
+  if ( m_calculateLArHVFraction && (!m_larHVFraction) ) {
     m_larHVFraction = new LArHVFraction(m_larHVScaleRetriever.operator->());
   }
   
@@ -438,6 +454,7 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
 	Identifier myId = pCell->ID();
 	const CaloDetDescrElement* myCDDE = pCell->caloDDE();
 	double ene = pCell->e();
+        if(m_absOpt) ene = fabs(ene);  
 	double weight = cellIter.weight();//theCluster->getCellWeight(cellIter);
 	if ( pCell->badcell() ) {
 	  eBad += ene*weight;
@@ -661,7 +678,7 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
 	      else 
 		ATH_MSG_DEBUG("principal Direction (" << prAxis.x() << ", " 
 			      << prAxis.y() << ", " << prAxis.z() << ") deviates more than " 
-			      << m_maxAxisAngle/deg 
+			      << m_maxAxisAngle*(1./deg) 
 			      << " deg from IP-to-ClusterCenter-axis (" << showerAxis.x() << ", "
 			      << showerAxis.y() << ", " << showerAxis.z() << ")");
 	    }//end if !S[i]==0
@@ -689,6 +706,7 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
 	// define common norm for all simple moments
 	double commonNorm = 0;
         double phi0 = ncell > 0 ? cellinfo[0].phi : 0;
+
 	for(i=0;i<ncell;i++) {
           const CaloClusterMomentsMaker_detail::cellinfo& ci = cellinfo[i];
 	  // loop over all valid moments
@@ -763,6 +781,13 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
 	    case xAOD::CaloCluster::ENG_FRAC_MAX:
 	      if ( (int)i == iCellMax ) 
 		myMoments[iMoment] = ci.energy;
+	      break;
+	    case xAOD::CaloCluster::PTD:
+	      // do not convert to pT since clusters are small and
+	      // there is virtually no difference and cosh just costs
+	      // time ...
+	      myMoments[iMoment] += ci.energy*ci.energy;
+	      myNorms[iMoment] += ci.energy;
 	      break;
 	    default:
 	      // nothing to be done for other moments
@@ -928,6 +953,9 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
 	  case xAOD::CaloCluster::N_BAD_HV_CELLS:
 	    myMoments[iMoment] = nBadLArHV;
             break;
+	  case xAOD::CaloCluster::PTD:
+	    myMoments[iMoment] = sqrt(myMoments[iMoment]);
+            break;
 	  default:
 	    // nothing to be done for other moments
 	    break;
@@ -943,7 +971,6 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
 	  myMoments[iMoment] /= myNorms[iMoment];
 	if ( moment == xAOD::CaloCluster::FIRST_PHI ) 
 	  myMoments[iMoment] = CaloPhiRange::fix(myMoments[iMoment]);
-	
 	theCluster->insertMoment(moment,myMoments[iMoment]);
       }
     }

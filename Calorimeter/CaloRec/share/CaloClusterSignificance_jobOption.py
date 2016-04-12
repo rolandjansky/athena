@@ -5,4 +5,4 @@
 # enable cluster moments which are off by default used for rapidity gap anlyses
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-topSequence.CaloTopoCluster.TopoMoments.AODMomentsNames += ["SIGNIFICANCE","CELL_SIGNIFICANCE","CELL_SIG_SAMPLING"]
+topSequence.CaloTopoCluster.TopoMoments.MomentsNames += ["SIGNIFICANCE","CELL_SIGNIFICANCE","CELL_SIG_SAMPLING"]

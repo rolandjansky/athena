@@ -102,7 +102,7 @@ StatusCode CaloConstCellMaker::execute()
     }
 
     ATH_MSG_DEBUG( "Chrono stop : delta "
-        << m_chrono->chronoDelta(chronoName, IChronoStatSvc::USER) * microsecond / second
+                   << m_chrono->chronoDelta(chronoName, IChronoStatSvc::USER) * (microsecond / second)
         << " second " );
 
     if (sc.isFailure()) {

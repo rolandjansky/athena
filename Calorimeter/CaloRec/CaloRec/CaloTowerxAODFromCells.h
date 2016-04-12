@@ -44,7 +44,7 @@ private:
   //SG::ReadHandle<CaloCellContainer> m_inputCellContainer;
   std::string m_inputCellContainerKey;///< @brief SG key of the input calo-cell container
   double      m_cellThresholdE;       ///< @brief Cell energy threshold (only for @b FilteredCell mode)
-  bool        m_useThresholdE;        ///< @brief @c true if tower (@b AllCell ) or cell (@b FilteredCell ) thresholds are to be used  
+  //bool        m_useThresholdE;        ///< @brief @c true if tower (@b AllCell ) or cell (@b FilteredCell ) thresholds are to be used  
   /// @}
 
   bool  m_filterCells;

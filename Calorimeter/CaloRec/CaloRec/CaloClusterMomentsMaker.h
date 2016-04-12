@@ -53,6 +53,7 @@ class CaloClusterMomentsMaker: public AthAlgTool, virtual public CaloClusterColl
 
   StatusCode execute(xAOD::CaloClusterContainer* theClusColl);
   StatusCode initialize();
+  StatusCode finalize();
   
   /** Callback added to handle Data-driven GeoModel initialisation
    */
@@ -143,6 +144,12 @@ class CaloClusterMomentsMaker: public AthAlgTool, virtual public CaloClusterColl
   /// Not used anymore (with xAOD), but required to when configured from 
   /// COOL via CaloRunClusterCorrections.
   std::string m_momentsNamesAOD;
+  
+  /**
+   * @brief if set to true use abs E value of cells to calculate 
+   * cluster moments */
+   bool m_absOpt;
+  
 
   /// Not used by this tool, but required to use this
   /// with CaloRunClusterCorrections.

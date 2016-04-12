@@ -91,6 +91,23 @@ class CaloTopoClusterFlags(JobPropertyContainer):
     """ The CaloTopoCluster making flag property container
     """
     pass
+  
+#Split clusters according to abs E only   
+class doTreatEnergyCutAsAbsolute(JobProperty):    
+    """ 
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False    
+    
+#also compute moments from abs E from the Cells only  (has to go together with doTreatEnergyCutAsAbsolute)
+class doMomentsfromAbs(JobProperty):    
+    """ 
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False       
+  
 
 # add the flags container to the top container 
 jobproperties.add_Container(CaloTopoClusterFlags)
@@ -110,6 +127,8 @@ list_jobproperties = [
     ,cellWeightRefSize
     ,cellWeightRefSignal
     ,doTwoGaussianNoise
+    ,doTreatEnergyCutAsAbsolute
+    ,doMomentsfromAbs
     ]
 
 for i in list_jobproperties:

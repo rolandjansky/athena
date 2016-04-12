@@ -33,7 +33,6 @@ use AtlasROOT      AtlasROOT-*         External
 use AtlasAIDA	   AtlasAIDA-*         External
 use AtlasCORAL     AtlasCORAL-*        External
 use AthAllocators  AthAllocators-*     Control
-use DataModel      DataModel-*         Control
 use SGTools        SGTools-*           Control
 use GeoModelInterfaces    GeoModelInterfaces-*       DetectorDescription/GeoModel
 use FourMom        FourMom-*           Event
@@ -62,7 +61,7 @@ use TestTools      TestTools-*         AtlasTest
 use IdDictParser   IdDictParser-*      DetectorDescription
 
 apply_pattern UnitTest_run unit_test=CaloClusterProcessor
-apply_pattern UnitTest_run unit_test=CaloCellFastCopyTool extrapatterns='Retrieved const handle'
+apply_pattern UnitTest_run unit_test=CaloCellFastCopyTool extrapatterns='Retrieved const handle|Service base class initialized'
 end_private
 
 

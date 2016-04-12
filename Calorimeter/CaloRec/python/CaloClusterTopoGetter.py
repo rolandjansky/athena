@@ -24,7 +24,7 @@ from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCali
 from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterCellWeightCalib
 #<<
 
-from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker, CaloClusterMaker #, CaloClusterLockVars, CaloClusterPrinter
+from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker, CaloClusterMaker, CaloClusterSnapshot #, CaloClusterLockVars, CaloClusterPrinter
 from CaloRec import CaloRecFlags
 from CaloRec.CaloTopoClusterFlags import jobproperties
 from AthenaCommon.SystemOfUnits import deg, GeV, MeV
@@ -36,6 +36,28 @@ from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
 from AthenaCommon.AppMgr import ToolSvc
 ToolSvc += theCaloNoiseTool
+
+def addSnapshot(corrName,contName):
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    mlog = logging.getLogger('CaloClusterTopoGetter:addSnapshot')
+    corrTools=topSequence.CaloTopoCluster.ClusterCorrectionTools
+    newCorrTools=[]
+    found=False
+    for t in corrTools:
+        newCorrTools.append(t)
+        if (t.getName()==corrName):
+            newSnapshot=CaloClusterSnapshot("Snapshot_"+corrName,OutputName=contName)
+            newCorrTools.append(newSnapshot)
+            found=True
+    if not found:
+        mlog.error("Did not find cluster correction tool %s" % corrName)
+    else:
+        mlog.info("Added cluster snapshot after correction tool %s" % corrName)
+        topSequence.CaloTopoCluster.ClusterCorrectionTools=newCorrTools
+        topSequence.CaloTopoCluster+=newSnapshot
+    return
+
 
 class CaloClusterTopoGetter ( Configured )  :
     _outputType = "CaloClusterContainer" # the main (AOD) object type
@@ -108,6 +130,7 @@ class CaloClusterTopoGetter ( Configured )  :
             LCClassify.MaxProbability = 0.5
             # add the moments EM_PROBABILITY, HAD_WEIGHT, OOC_WEIGHT, DM_WEIGHT to the AOD:
             LCClassify.StoreClassificationProbabilityInAOD = True
+            LCClassify.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
     
             LCWeight = CaloLCWeightTool("LCWeight")
             LCWeight.CorrectionKey       = "H1ClusterCellWeights"
@@ -137,13 +160,14 @@ class CaloClusterTopoGetter ( Configured )  :
             LCDeadMaterial.ClusterRecoStatus   = 0
             LCDeadMaterial.WeightModeDM        = 2 
             LCDeadMaterial.UseHadProbability   = True
-
+            LCDeadMaterial.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
             # correction tools using tools
             LocalCalib = CaloClusterLocalCalib ("LocalCalib")
             LocalCalib.ClusterClassificationTool     = [LCClassify]
             #LocalCalib.ClusterRecoStatus             = [2]
             LocalCalib.ClusterRecoStatus             = [1,2]
             LocalCalib.LocalCalibTools               = [LCWeight]
+            LocalCalib.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
             
             LocalCalib += LCClassify
             LocalCalib += LCWeight
@@ -152,6 +176,7 @@ class CaloClusterTopoGetter ( Configured )  :
             #OOCCalib.ClusterRecoStatus   = [2]
             OOCCalib.ClusterRecoStatus   = [1,2]
             OOCCalib.LocalCalibTools     = [LCOut]
+            OOCCalib.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
             
             OOCCalib += LCOut
     
@@ -159,6 +184,8 @@ class CaloClusterTopoGetter ( Configured )  :
             #OOCPi0Calib.ClusterRecoStatus   = [1]
             OOCPi0Calib.ClusterRecoStatus   = [1,2]
             OOCPi0Calib.LocalCalibTools     = [LCOutPi0]
+    
+            OOCPi0Calib.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
     
             OOCPi0Calib += LCOutPi0
             
@@ -168,17 +195,18 @@ class CaloClusterTopoGetter ( Configured )  :
             #DMCalib += DMTool
             DMCalib.LocalCalibTools      = [LCDeadMaterial]
 
+            DMCalib.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
+            
             DMCalib += LCDeadMaterial
 
-        from LArRecUtils.LArHVScaleRetrieverDefault import LArHVScaleRetrieverDefault
         # correction tools not using tools
         TopoMoments = CaloClusterMomentsMaker ("TopoMoments")
+        TopoMoments.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
         TopoMoments.MaxAxisAngle = 20*deg
         TopoMoments.CaloNoiseTool = theCaloNoiseTool
         TopoMoments.UsePileUpNoise = True
         TopoMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
         TopoMoments.MinBadLArQuality = 4000
-        TopoMoments.LArHVScaleRetriever=LArHVScaleRetrieverDefault()
         TopoMoments.MomentsNames = ["FIRST_PHI" 
                                     ,"FIRST_ETA"
                                     ,"SECOND_R" 
@@ -206,14 +234,24 @@ class CaloClusterTopoGetter ( Configured )  :
                                     ,"BAD_CELLS_CORR_E"
                                     ,"BADLARQ_FRAC"
                                     ,"ENG_POS"
-                                    ,"ENG_BAD_HV_CELLS"
-                                    ,"N_BAD_HV_CELLS"
                                     ,"SIGNIFICANCE"
                                     ,"CELL_SIGNIFICANCE"
                                     ,"CELL_SIG_SAMPLING"
                                     ,"AVG_LAR_Q"
                                     ,"AVG_TILE_Q"
+                                    ,"PTD"
                                     ]
+
+
+        # only add HV related moments if it is offline.
+        from IOVDbSvc.CondDB import conddb
+        if not conddb.isOnline:
+            from LArRecUtils.LArHVScaleRetrieverDefault import LArHVScaleRetrieverDefault
+            TopoMoments.LArHVScaleRetriever=LArHVScaleRetrieverDefault()
+            TopoMoments.MomentsNames += ["ENG_BAD_HV_CELLS"
+                                         ,"N_BAD_HV_CELLS"
+                                         ]
+
 #        TopoMoments.AODMomentsNames = ["LATERAL"
 #                                       ,"LONGITUDINAL"
 #                                       ,"SECOND_R" 
@@ -253,6 +291,9 @@ class CaloClusterTopoGetter ( Configured )  :
         #    PrintCaloCluster.PrintFrequency = 1
         #    PrintCaloCluster.EnergyUnit     = 1.0*GeV
 
+
+
+        theCaloClusterSnapshot=CaloClusterSnapshot(OutputName="CaloTopoCluster",SetCrossLinks=True)
             
         # maker tools
         TopoMaker = CaloTopoClusterMaker("TopoMaker")
@@ -327,6 +368,7 @@ class CaloClusterTopoGetter ( Configured )  :
                                                "FCAL1","FCAL2"]
         TopoSplitter.ShareBorderCells = True
         TopoSplitter.RestrictHECIWandFCalNeighbors  = False
+        TopoSplitter.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
         #
         # the following options are not set, since these are the default
         # values
@@ -424,6 +466,12 @@ class CaloClusterTopoGetter ( Configured )  :
         #        LockVariables.getFullName()]
         #    CaloTopoCluster += LockVariables
 
+
+
+        CaloTopoCluster.ClusterCorrectionTools += [theCaloClusterSnapshot]
+        CaloTopoCluster += theCaloClusterSnapshot
+
+
         if jobproperties.CaloTopoClusterFlags.doCellWeightCalib():
             CaloTopoCluster.ClusterCorrectionTools += [
                 CellWeights.getFullName() ]
@@ -435,9 +483,7 @@ class CaloClusterTopoGetter ( Configured )  :
                 OOCCalib,
                 OOCPi0Calib,
                 DMCalib]
-            CaloTopoCluster.KeepCorrectionToolAndContainerNames += [
-                LocalCalib.getFullName(),"CaloTopoCluster"]
-            #    CaloTopoCluster.KeepEachCorrection=True
+
             CaloTopoCluster += LocalCalib
             CaloTopoCluster += OOCCalib
             CaloTopoCluster += OOCPi0Calib

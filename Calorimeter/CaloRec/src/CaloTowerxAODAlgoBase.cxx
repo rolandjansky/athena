@@ -134,8 +134,8 @@ StatusCode CaloTowerxAODAlgoBase::fillIndexCache() {
   m_cellToTower.resize(theManager->element_size()); //fixme, get calo-hash-max
 
   //FCAL cells are not pointing. We slice them in smaller chunks to see in which tower they go 
-  const std::array<double,3> ndxFCal={4.,4.,6.};
-  const std::array<double,3> ndyFCal={4.,6.,6.};
+  const std::array<double,3> ndxFCal={{4.,4.,6.}};
+  const std::array<double,3> ndyFCal={{4.,6.,6.}};
 
   for (CaloDetDescrManager::calo_element_const_iterator ddeIt=theManager->element_begin();
        ddeIt!=theManager->element_end();++ddeIt) {

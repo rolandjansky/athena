@@ -65,7 +65,8 @@ CaloTopoClusterSplitter::CaloTopoClusterSplitter(const std::string& type,
     m_maxSampling (0),
     m_minSecondarySampling (0),
     m_maxSecondarySampling (0),
-    m_treatL1PredictedCellsAsGood      (true)
+    m_treatL1PredictedCellsAsGood      (true),
+    m_absOpt      (false)
 {
   declareInterface<CaloClusterCollectionProcessor> (this);
   // Neighbor Option
@@ -88,6 +89,8 @@ CaloTopoClusterSplitter::CaloTopoClusterSplitter(const std::string& type,
   
   // Treat bad cells with dead OTX if predicted from L1 as good
   declareProperty("TreatL1PredictedCellsAsGood",m_treatL1PredictedCellsAsGood);
+  // Use weighting of neg. clusters option?
+  declareProperty("WeightingOfNegClusters",m_absOpt);  
 }
 
 //###############################################################################
@@ -416,7 +419,6 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
     // to be merged into one split cluster
 
     //---- Get the CaloCells from this cluster
-
     xAOD::CaloCluster::cell_iterator cellIter    = parentCluster->cell_begin();
     xAOD::CaloCluster::cell_iterator cellIterEnd = parentCluster->cell_end();
     
@@ -425,9 +427,11 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
 
       const CaloCell* pCell = (*cellIter);
       Identifier myId = pCell->ID();
+      
       // store energy here to search for local maxima
       int caloSample = m_calo_id->calo_sample(myId);
       float signedRatio = 0;
+      bool is_secondary = false;         //reintroduced  is_secondary for negative cluster option
       // in case the cell is not a bad cell
       // check if the current cell belongs to a sampling
       // that should be considered for local maxima.
@@ -435,7 +439,7 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
       // is set to 0. The cell is still counted as neighbor cell but
       // will not make (or prevent) a local maximum 
       if ( !CaloBadCellHelper::isBad(pCell,m_treatL1PredictedCellsAsGood) ) { 
-	if ( pCell->e() > 0 
+	if ( (m_absOpt || pCell->e() > 0) 
 	     && caloSample >= m_minSampling 
 	     && caloSample <= m_maxSampling 
 	     && m_useSampling[caloSample-m_minSampling] )
@@ -445,12 +449,16 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
 	// in case the cell does belong to such a sampling its signedRatio
 	// will be set to -e(). The is still counted as neighbor cell but
 	// will not make (or prevent) a local maximum 
-	else if ( pCell->e() > 0 
+	else if ( (m_absOpt || pCell->e() > 0)  
 		  && caloSample >= m_minSecondarySampling 
 		  && caloSample <= m_maxSecondarySampling 
-		  && m_useSecondarySampling[caloSample-m_minSecondarySampling] )
+		  && m_useSecondarySampling[caloSample-m_minSecondarySampling] ){
 	  signedRatio = -pCell->e();
+          is_secondary = true;  
+        } 
       }
+            
+      
       IdentifierHash hashid = m_calo_id->calo_cell_hash(myId);
       CaloCell_ID::SUBCALO subdet = (CaloCell_ID::SUBCALO)m_calo_id->sub_calo (hashid);
       // use iterator and not cell pointer in lookup of cell container for speed
@@ -461,7 +469,7 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
 	CaloTopoSplitterClusterCell(hashid, subdet,
                                     cellIter,myIndex,
                                     signedRatio,parentCluster,
-                                    iClusterNumber);
+                                    iClusterNumber,is_secondary);  
       // some debug printout - can also be used to construct neighbor
       // tables offline ...
       if ( m_doALotOfPrintoutInFirstEvent &&  msgLvl(MSG::DEBUG)) {
@@ -500,62 +508,64 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
   theCurrentNeighbors.reserve(88);
   std::vector<IdentifierHash> theNextNeighbors;
   theNextNeighbors.reserve(88);
-
+   
   // look for local maxima
   std::vector<CaloTopoSplitterClusterCell*>::iterator allCellIter=allCellList.begin();
   std::vector<CaloTopoSplitterClusterCell*>::iterator allCellIterEnd=allCellList.end();
-  for(;allCellIter != allCellIterEnd;++allCellIter) {
+  for(;allCellIter != allCellIterEnd;++allCellIter) { 
     CaloTopoSplitterClusterCell* pClusCell = (*allCellIter);
     // only check cells for which we don't know if a neighbor with larger
     // energy was found before
     if (! pClusCell->getUsed() ) {
       float myEnergy = pClusCell->getSignedRatio();
-      if ( myEnergy >= m_minEnergy  ) {
-	int nCells=0;
-	bool isLocalMax = true;
-	size_t iParent = pClusCell->getParentClusterIndex();
-	IdentifierHash hashid = pClusCell->getID();
-        //CaloCell_ID::SUBCALO mySubDet = pClusCell->getSubDet();
+      if(m_absOpt) myEnergy=fabs(myEnergy);
+      if ( myEnergy >= m_minEnergy &&  !pClusCell->getSecondary() ) {
+        int nCells=0; 
+        bool isLocalMax = true;
+        size_t iParent = pClusCell->getParentClusterIndex();
+        IdentifierHash hashid = pClusCell->getID();
         theNeighbors.clear();
-	m_calo_id->get_neighbours(hashid,m_nOption,theNeighbors);
-	for (unsigned int iN=0;iN<theNeighbors.size();iN++) {
-	  IdentifierHash nId = theNeighbors[iN];
-	  HashCell neighborCell = cellVector[(unsigned int)nId - m_hashMin];
-	  CaloTopoSplitterClusterCell *pNeighCell = neighborCell.getCaloTopoTmpClusterCell();
-	  if ( pNeighCell && pNeighCell->getParentClusterIndex() == iParent) {
-	    nCells++;
-	    if ( myEnergy > pNeighCell->getSignedRatio() ) {
-	      // in case the neighbor cell is a 2nd local max candidate
-	      // it has negative energy and we set it to used only if also
-	      // its abs value is smaller than myEnergy
-	      if ( fabs(pNeighCell->getSignedRatio()) <  myEnergy )
-		pNeighCell->setUsed();
-	    } 
-	    else {
-	      isLocalMax=false;
-	    }
-	  }
-	}
-	if ( nCells < m_nCells )
-	  isLocalMax = false;
-	if ( isLocalMax ) {
-	  mySeedCells.push_back(cellVector[(unsigned int)hashid - m_hashMin]);
-	  hasLocalMaxVector[iParent]++;
-	}
+        m_calo_id->get_neighbours(hashid,m_nOption,theNeighbors);
+        for (unsigned int iN=0;iN<theNeighbors.size();iN++) {
+          IdentifierHash nId = theNeighbors[iN];
+          HashCell neighborCell = cellVector[(unsigned int)nId - m_hashMin];
+          CaloTopoSplitterClusterCell *pNeighCell = neighborCell.getCaloTopoTmpClusterCell();
+          if ( pNeighCell && pNeighCell->getParentClusterIndex() == iParent) {
+            nCells++;
+            if ( ((myEnergy > pNeighCell->getSignedRatio() ) && !m_absOpt)   ||
+               (m_absOpt && myEnergy > fabs(pNeighCell->getSignedRatio() ) ) || 
+                pNeighCell->getSecondary()  ) { 
+              // in case the neighbor cell is a 2nd local max candidate
+              // it has negative energy and we set it to used only if also
+              // its abs value is smaller than myEnergy
+              if (fabs(pNeighCell->getSignedRatio()) <  myEnergy ) 
+                pNeighCell->setUsed(); 
+            } 
+            else { 
+              isLocalMax=false;
+            }
+          }
+        }
+        if ( nCells < m_nCells )
+          isLocalMax = false;
+        if ( isLocalMax ) {
+          mySeedCells.push_back(cellVector[(unsigned int)hashid - m_hashMin]);
+          hasLocalMaxVector[iParent]++; 
+        }
       }
     }
-  }
-
+  } 
   // look for secondary local maxima
   if ( m_validSecondarySamplings.size() > 0 ) {
     allCellIter=allCellList.begin();
     for(;allCellIter != allCellIterEnd;++allCellIter) {
       CaloTopoSplitterClusterCell* pClusCell = (*allCellIter);
       // only check cells for which we don't know if a neighbor with larger
-      // energy was found before
-      if (! pClusCell->getUsed() ) {
+      // energy was found before 
+      if (! pClusCell->getUsed()  && pClusCell->getSecondary()) {  
 	float myEnergy = pClusCell->getSignedRatio();
-	if ( myEnergy <= -m_minEnergy ) {
+        if(m_absOpt) myEnergy=fabs(myEnergy);
+	if ( (!m_absOpt && myEnergy <= -m_minEnergy) || (m_absOpt && myEnergy >= m_minEnergy) ) {
 	  int nCells=0;
 	  bool isLocalMax = true;
 	  size_t iParent = pClusCell->getParentClusterIndex();
@@ -705,7 +715,6 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
       }
     }
   }
-
   allCellIter=allCellList.begin();
   for(;allCellIter != allCellIterEnd;++allCellIter) {
     (*allCellIter)->setUnused();
@@ -1044,8 +1053,10 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
       CaloTopoSplitterClusterCell* pClusCell = hashCellIter->getCaloTopoTmpClusterCell();
       float e1 = (pClusCell->getCaloTopoTmpHashCluster())->getEnergy();
       float e2 = (pClusCell->getSecondCaloTopoTmpHashCluster())->getEnergy();
+      if(m_absOpt) e1 = fabs(e1);
+      if(m_absOpt) e2 = fabs(e2);
       if ( e1 <= 0 ) e1 = 1*MeV;
-      if ( e2 <= 0 ) e2 = 1*MeV;
+      if ( e2 <= 0 ) e2 = 1*MeV;    
       const xAOD::CaloCluster::cell_iterator itrCell = pClusCell->getCellIterator();
       Vector3D<double> thisPos(itrCell->x(),itrCell->y(),itrCell->z());
       const Vector3D<double> * c1 = (pClusCell->getCaloTopoTmpHashCluster())->getCentroid();
@@ -1075,6 +1086,8 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
     }
     nShared = sharedCellList.size();
   }
+
+  const DataLink<CaloCellContainer> myCellCollLink (myCellColl);
   
   // create cluster list for the purpose of sorting in E_t before storing 
   // in the cluster collection
@@ -1090,7 +1103,7 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
       // local maximum implies at least 2 cells are in the cluster ...
       //      CaloCluster *myCluster = new CaloCluster();
       //xAOD::CaloCluster *myCluster = CaloClusterStoreHelper::makeCluster(myCellColl);
-      CaloProtoCluster* myCluster=new CaloProtoCluster(myCellColl);
+      CaloProtoCluster* myCluster=new CaloProtoCluster(myCellCollLink);
 
       ATH_MSG_DEBUG("[CaloCluster@" << myCluster << "] created in <myCaloClusters>.");
       HashCluster::iterator clusCellIter=tmpCluster->begin();
@@ -1202,6 +1215,7 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
 		  << " MeV, NCells = " << xAODCluster->size());
     eTot+=xAODCluster->e();
     nTot+=xAODCluster->size();
+    
     if ( fabs(xAODCluster->e()) > eMax )
       eMax = fabs(xAODCluster->e());
   }

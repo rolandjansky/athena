@@ -19,7 +19,8 @@
 CaloTowerxAODFromCells::CaloTowerxAODFromCells(const std::string& name,ISvcLocator* pSvcLocator)
   : CaloTowerxAODAlgoBase(name,pSvcLocator)
   , m_cellThresholdE(std::numeric_limits<float>::min())
-  , m_useThresholdE(false)
+    //, m_useThresholdE(false)
+  , m_filterCells(false)
 {
   declareProperty("InputCellContainer", m_inputCellContainerKey="AllCalo");
   declareProperty("CellEnergyThreshold", m_cellThresholdE);

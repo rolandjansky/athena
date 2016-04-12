@@ -36,7 +36,7 @@
 #include "CaloEvent/CaloCell2ClusterMap.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 #include "AthenaKernel/errorcheck.h"
 
 
@@ -104,7 +104,12 @@ StatusCode CaloCell2ClusterMapper::execute() {
   ATH_MSG_DEBUG(" Recording Cell2Cluster Map " << m_mapOutputName);
   // make the Cell2ClusterMap
   CaloCell2ClusterMap *cell2ClusterMap = new CaloCell2ClusterMap(
+#ifndef ATHENAHIVE
       SG::VIEW_ELEMENTS);
+#else
+      SG::OWN_ELEMENTS);
+#endif
+
 
   // resize it to total range of IdentifierHash for all calos
 
@@ -125,7 +130,9 @@ StatusCode CaloCell2ClusterMapper::execute() {
   std::vector<int> numberOfCells;
   numberOfCells.resize(clusColl->size());
 
-  static DataPool<Navigable<CaloClusterContainer> > navPool(maxRange);
+#ifndef ATHENAHIVE
+  DataPool<Navigable<CaloClusterContainer> > navPool(maxRange);
+#endif
 
   // loop over cluster collection and add each cluster to the map for 
   // each member cell
@@ -143,7 +150,11 @@ StatusCode CaloCell2ClusterMapper::execute() {
       Navigable<CaloClusterContainer> *theNav = (*cell2ClusterMap)[myHashId];
       if (!theNav) {
         // create a new Navigable if it doesn't exist
+#ifndef ATHENAHIVE	
         theNav = navPool.nextElementPtr();
+#else
+        theNav = new Navigable<CaloClusterContainer>();
+#endif
         theNav->removeAll();
         // and store it in the vector
         (*cell2ClusterMap)[myHashId] = theNav;
@@ -179,7 +190,7 @@ StatusCode CaloCell2ClusterMapper::execute() {
             << "CaloCluster and weighted sum of cell members have E = "
             << (*clusIter)->e() << " MeV, good!" << endreq;
       }
-      if (abs(numberOfCells[iClus] - (*clusIter)->getNumberOfCells()) > 0) {
+      if (numberOfCells[iClus] != static_cast<int>((*clusIter)->getNumberOfCells())) {
         msg(MSG::WARNING) << "CaloCluster has N = "
             << (*clusIter)->getNumberOfCells() << " cells, while N = "
             << numberOfCells[iClus]
