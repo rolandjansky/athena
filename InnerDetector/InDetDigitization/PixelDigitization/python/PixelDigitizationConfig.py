@@ -212,14 +212,21 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     from AthenaCommon.BeamFlags import jobproperties
     from AthenaCommon.Resilience import protectedInclude
     from AthenaCommon.Include import include
-    protectedInclude ("PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py")
+    from AthenaCommon.AppMgr import ServiceMgr
+    protectedInclude( "PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py" )
     include.block( "PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py" )
     protectedInclude( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
     include.block( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
-    from AthenaCommon.AppMgr import ServiceMgr
+    # HACK For PixelCablingSvc configuration
+    #from PixelCabling.PixelCablingConf import PixelCablingSvc
+    #pixelCablingSvc = PixelCablingSvc()
+    #ServiceMgr += pixelCablingSvc
+    #protectedInclude ("PixelCabling/SelectPixelMap.py" )
+    #include.block( "PixelCabling/SelectPixelMap.py" )
+    kwargs.setdefault("PixelCablingSvc","PixelCablingSvc")
     if not hasattr(ServiceMgr, "PixelSiPropertiesSvc"):
         from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
-        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc;
+        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
         pixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices = lorentzAngleSvc.pixelSiliconConditionsSvc)
         ServiceMgr += pixelSiPropertiesSvc
     kwargs.setdefault("InputObjectName", "PixelHits")

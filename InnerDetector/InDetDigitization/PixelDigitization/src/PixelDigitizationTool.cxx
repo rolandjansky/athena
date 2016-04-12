@@ -132,6 +132,7 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("PixelRandomDisabledCellGenerator", m_pixelRandomDisabledCellGenerator,   "PixelRandomDisabledCellGenerator");
   declareProperty("SpecialPixelGenerator",   m_specialPixelGenerator,     "Special pixel generator");
   declareProperty("SurfaceChargesTool",      m_SurfaceChargesTool,        "Surface charges tool");
+  declareProperty("PixelCablingSvc",         m_pixelIdMapping,            "Pixel Cabling Service");
   declareProperty("RndmSvc",                 m_rndmSvc,                   "Random number service used in Pixel Digitization");
   declareProperty("MergeSvc",                m_mergeSvc,                  "Merge service used in Pixel digitization");
   declareProperty("TimeSvc",                 m_TimeSvc,                   "Time Svc");
