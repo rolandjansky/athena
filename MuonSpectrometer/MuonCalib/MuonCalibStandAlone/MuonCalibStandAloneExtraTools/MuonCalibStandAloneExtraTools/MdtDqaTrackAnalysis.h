@@ -41,7 +41,7 @@
 #include "MuonCalibStandAloneExtraTools/SegmentAnalysis.h"
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
 
-using namespace std;
+//using namespace std;
 
 namespace MuonCalib{
 
@@ -55,8 +55,8 @@ class MdtDqaTrackAnalysis{
   RegionSelectionSvc *p_reg_sel_svc;
   int number_IDhits(MuonCalibSelector::TrackVec::const_iterator, int);
   int cutflow(MuonCalibSelector::TrackVec::const_iterator, double , int , int , int , int );
-  int MDTtiming(const std::vector<const MuonCalibExtendedSegment*>& segments) ;
-  //void MDTtiming(const std::vector<MuonCalibSegment*>&) ;
+  int MDTtiming(const std::vector<const MuonCalibExtendedSegment*> &segments);
+  //void MDTtiming(const std::vector<MuonCalibSegment*>&);
 
  public:
   MdtDqaTrackAnalysis(RegionSelectionSvc*,int, HistogramManager*, bool);
@@ -64,7 +64,7 @@ class MdtDqaTrackAnalysis{
 
 };
 
-}
+}  //namespace MuonCalib
 
 #endif
 

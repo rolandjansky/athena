@@ -35,17 +35,15 @@
 
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
 
-
-
 //
 // class HistogramManager;
 //
 
 class RegionSelectionSvc;
 
-  namespace MuonCalib {
+namespace MuonCalib {
 
-  class MuonCalibEvent ;
+  class MuonCalibEvent;
   class MuonCalibSegment;
   class MuonRawHitCollection;
 
@@ -54,36 +52,35 @@ class RegionSelectionSvc;
      An example analysis class. One can use this class as a skeleton analysis. See the description of the separate methods for the possibilites of the Calib-EDM and standalone analysis (such as the use of Display and MuonCalib::T0Fitter)
      @author Zdenko.Van.Kesteren@cern.ch
   */
-  class MdtDqaNtupleAnalysis
-    {
-    public:
+  class MdtDqaNtupleAnalysis {
+  public:
     MdtDqaNtupleAnalysis(bool verbose, std::string outputFileName);     //!< default constructor
-    ~MdtDqaNtupleAnalysis() ;   //!< destructor
+    ~MdtDqaNtupleAnalysis();   //!< destructor
 
     StatusCode initialize(RegionSelectionSvc *, HistogramManager *, int, float);
     StatusCode finalize();
     
-    void handleEvent(const MuonCalibEvent& event, int eventnumber, const std::vector<MuonCalibSegment *> &segments, unsigned int position  );  
+    void handleEvent(const MuonCalibEvent &event, int eventnumber, const std::vector<MuonCalibSegment *> &segments, unsigned int position );  
 
   //  void bookHistos();                                //!< Booking of the histograms
   //  void writeHistos();                               //!< writing of the histograms.
 
 
     void histogramAnalysis(TFile * rootfile);
-   //  void tubeEfficiency();
+    //  void tubeEfficiency();
 
     //=============
 
-    int segmentStation(MuonCalibSegment* segment );
-    int segmentEta(MuonCalibSegment* segment );
-    int segmentPhi(MuonCalibSegment* segment );
+    int segmentStation(MuonCalibSegment *segment );
+    int segmentEta(MuonCalibSegment *segment );
+    int segmentPhi(MuonCalibSegment *segment );
 
     //==========
 
-    private:
+  private:
     //
     RegionSelectionSvc *p_reg_sel_svc;
-    HistogramManager * m_histoManager ;
+    HistogramManager *m_histoManager;
 //     TString      m_filetitle;
 //     TFile*       m_file;
 //     TDirectory*  m_dir;
@@ -106,9 +103,8 @@ class RegionSelectionSvc;
 
     float m_ADCCUT;
 
-
-    std::string m_outputFileName ;
-    std::vector<MdtDqaDb*> m_MdtDqaDbList ;
+    std::string m_outputFileName;
+    std::vector<MdtDqaDb*> m_MdtDqaDbList;
 
   };
 

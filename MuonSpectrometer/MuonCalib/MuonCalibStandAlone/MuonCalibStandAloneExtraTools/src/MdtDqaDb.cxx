@@ -45,8 +45,7 @@ void MdtDqaDb::Clear() {
   m_deadFlag = -1;
 }
 
-void MdtDqaDb::Print(std::ofstream * outputFile) {
-    
+void MdtDqaDb::Print(std::ofstream *outputFile) {
   *outputFile  << "  ==================================================== " << std::endl ;
   *outputFile  << "  MdtDqaDb output: ---- Chamber name : " << m_chamberName << std::endl ;
   *outputFile  << " timeFlag : " << getTimeFlag() << std::endl ;
@@ -68,28 +67,26 @@ void MdtDqaDb::Print(std::ofstream * outputFile) {
   *outputFile  << std::endl ;
 }
 
-
-void MdtDqaDb::Print() {
-    
-  std::cout  << "  ==================================================== " << std::endl ;
-  std::cout  << "  MdtDqaDb output: ---- Chamber name : " << m_chamberName << std::endl ;
-  std::cout  << " timeFlag : " << getTimeFlag() << std::endl ;
-  std::cout  << " deadFlag : " << getDeadFlag() << std::endl ;
-  std::cout << " chi2 per dof ML1 : " << m_chi2ndofML1 << std::endl ;
-  std::cout << " chi2 per dof ML2 : " << m_chi2ndofML2 << std::endl ;
-  std::cout << " t0 ML1 (ns)  " << m_t0ML1 << "    +/-    " << m_t0errML1 << std::endl ;
-  std::cout << " t0 ML2 (ns)  " << m_t0ML2 << "    +/-    " << m_t0errML2 << std::endl ;
-  std::cout  << " tdrift ML1 (ns)  " << m_tdriftML1 << "    +/-    " << m_tdrifterrML1 << std::endl ;
-  std::cout  << " tdrift ML2 (ns)  " << m_tdriftML2 << "    +/-    " << m_tdrifterrML2 << std::endl ;
+void MdtDqaDb::Print() {    
+  //  std::cout  << "  ==================================================== " << std::endl ;
+  //  std::cout  << "  MdtDqaDb output: ---- Chamber name : " << m_chamberName << std::endl ;
+  //  std::cout  << " timeFlag : " << getTimeFlag() << std::endl ;
+  //  std::cout  << " deadFlag : " << getDeadFlag() << std::endl ;
+  //  std::cout << " chi2 per dof ML1 : " << m_chi2ndofML1 << std::endl ;
+  //  std::cout << " chi2 per dof ML2 : " << m_chi2ndofML2 << std::endl ;
+  //  std::cout << " t0 ML1 (ns)  " << m_t0ML1 << "    +/-    " << m_t0errML1 << std::endl ;
+  //  std::cout << " t0 ML2 (ns)  " << m_t0ML2 << "    +/-    " << m_t0errML2 << std::endl ;
+  //  std::cout  << " tdrift ML1 (ns)  " << m_tdriftML1 << "    +/-    " << m_tdrifterrML1 << std::endl ;
+  //  std::cout  << " tdrift ML2 (ns)  " << m_tdriftML2 << "    +/-    " << m_tdrifterrML2 << std::endl ;
   
-  std::cout << " Number of Dead ML : " << m_numDeadML << "  ---- list of dead/inefficient Multilayers : " << std::endl ;
-  for ( int n=0 ; n< m_numDeadML ; n++ ) std::cout << m_listDeadML[n] << std::endl ;
-  std::cout << " Number of Dead Mezzanine : " << m_numDeadMezz << "  ---- list of dead/inefficient Mezzanine : " << std::endl ;
-  for ( int n=0 ; n< m_numDeadMezz ; n++ ) std::cout << m_listDeadMezz[n] << std::endl ;
-  std::cout << " Number of Dead Tubes : " << m_numDeadTube << "  ---- list of dead/inefficient Tubes : " << std::endl ;
-  for ( int n=0 ; n< m_numDeadTube ; n++ ) std::cout << m_listDeadTube[n] << std::endl ;
+  //  std::cout << " Number of Dead ML : " << m_numDeadML << "  ---- list of dead/inefficient Multilayers : " << std::endl ;
+  //  for ( int n=0 ; n< m_numDeadML ; n++ ) std::cout << m_listDeadML[n] << std::endl ;
+  //  std::cout << " Number of Dead Mezzanine : " << m_numDeadMezz << "  ---- list of dead/inefficient Mezzanine : " << std::endl ;
+  //  for ( int n=0 ; n< m_numDeadMezz ; n++ ) std::cout << m_listDeadMezz[n] << std::endl ;
+  //  std::cout << " Number of Dead Tubes : " << m_numDeadTube << "  ---- list of dead/inefficient Tubes : " << std::endl ;
+  //  for ( int n=0 ; n< m_numDeadTube ; n++ ) std::cout << m_listDeadTube[n] << std::endl ;
   
-  std::cout << std::endl ;
+  //  std::cout << std::endl ;
 }
 
 void MdtDqaDb::SetChamberName(std::string chamName) {
@@ -121,18 +118,18 @@ void MdtDqaDb::SetML2(float t0, float tdrift, float chi2ndof, float t0err, float
 }
 
 void MdtDqaDb::SetDeadML(std::vector<int> deadML) {
-    m_listDeadML = deadML;
-    m_numDeadML = m_listDeadML.size();
+  m_listDeadML = deadML;
+  m_numDeadML = m_listDeadML.size();
 }
 
 void MdtDqaDb::SetDeadMezz(std::vector<int> deadMezz) {
-    m_listDeadMezz = deadMezz;
-    m_numDeadMezz = m_listDeadMezz.size();
+  m_listDeadMezz = deadMezz;
+  m_numDeadMezz = m_listDeadMezz.size();
 }
 
 void MdtDqaDb::SetDeadTube(std::vector<int> deadTube) {
-    m_listDeadTube = deadTube;
-    m_numDeadTube = m_listDeadTube.size();
+  m_listDeadTube = deadTube;
+  m_numDeadTube = m_listDeadTube.size();
 }
 
 void MdtDqaDb::SetNoisyMezz(std::vector<std::pair<int,float> > noisyMezz) {
@@ -165,7 +162,7 @@ int MdtDqaDb::getTimeFlag() {
     m_timeFlag = timeFlag ;
   }
   return m_timeFlag;
-}
+}  //end MdtDqaDb::getTimeFlag
 
 int MdtDqaDb::getDeadFlag() {
   if(m_deadFlag == -1) {

@@ -13,7 +13,6 @@
 #include <iomanip>  
 #include <sstream> 
 
-
 // MuonCalib //
 #include "MuonCalibEventBase/MuonCalibRawHitCollection.h"
 #include "MuonCalibEventBase/MuonCalibRawMdtHit.h"
@@ -24,7 +23,7 @@
 #include "MuonCalibStandAloneExtraTools/HistogramManager.h"
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
 
-using namespace std;
+//using namespace std;
 
 namespace MuonCalib{
 
@@ -35,21 +34,19 @@ class SegmentAnalysis{
   // pointer to region selection service
   RegionSelectionSvc *p_reg_sel_svc;
   bool m_verbose;
-  int multiChambSeg( MuonCalibSegment* segment  );
-  int segmentStation( MuonCalibSegment* segment  );
-  int segmentEta( MuonCalibSegment* segment  );
-  int segmentPhi( MuonCalibSegment* segment  );
+  int multiChambSeg( MuonCalibSegment *segment  );
+  int segmentStation( MuonCalibSegment *segment  );
+  int segmentEta( MuonCalibSegment *segment  );
+  int segmentPhi( MuonCalibSegment *segment  );
 
-    int m_SectorMin;
-    int m_SectorMax;
+  int m_SectorMin;
+  int m_SectorMax;
  
-    bool m_doHitResids;
+  bool m_doHitResids;
 
  public:
   SegmentAnalysis(RegionSelectionSvc*,HistogramManager*, bool, bool);
   void handleEvent(const MuonCalibEvent&, int , const std::vector<MuonCalibSegment*>&, unsigned int position);
-
-
 };
 
 }

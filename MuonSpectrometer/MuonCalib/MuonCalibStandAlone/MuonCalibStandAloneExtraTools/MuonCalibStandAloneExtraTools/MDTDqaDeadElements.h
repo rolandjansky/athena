@@ -5,8 +5,8 @@
 //Author Marco Vanadia mvanadia@cern.ch
 //Class based on algorithms introduced by Philipp Fleischmann in GnaMon
 
-#ifndef _MDTDQADEADELEMENTS_H
-#define _MDTDQADEADELEMENTS_H
+#ifndef MUONCALIBSTANDALONEEXTRATOOLS_MDTDQADEADELEMENTS_H
+#define MUONCALIBSTANDALONEEXTRATOOLS_MDTDQADEADELEMENTS_H
 
 
 #include <cmath>
@@ -19,7 +19,7 @@
 #include <TKey.h>
 #include <vector>
 
-using namespace std;
+//using namespace std;
 
 namespace MuonCalib{
 
@@ -42,7 +42,7 @@ class Tube{
   int m_position;
   int m_layer;
   int m_ml;
-  Layer* m_parent_layer;
+  Layer *m_parent_layer;
 
  public:
   Tube(int,int, Layer*);
@@ -73,12 +73,12 @@ class Tube{
    int m_status;
    double m_median;
    double m_median_deviation;
-   vector<Tube*> m_tubes;
+   std::vector<Tube*> m_tubes;
 
  public:
    Layer();
 
-   Tube*  addTube(int,int);
+   Tube* addTube(int,int);
    Tube* getTube(int);
 
    int getNtubes();
@@ -106,7 +106,7 @@ class Tube{
     int m_status;
     double m_median;
     double m_median_deviation;
-    vector<Tube*> m_tubes;
+    std::vector<Tube*> m_tubes;
     int m_70min;
     int m_70max;
 
@@ -145,8 +145,8 @@ class Tube{
    double m_median;
    double m_median_deviation;
 
-   vector<Layer*> m_layers;
-   vector<Mezzanine*> m_mezzanines;
+   std::vector<Layer*> m_layers;
+   std::vector<Mezzanine*> m_mezzanines;
 
  public:
    Multilayer();
@@ -191,7 +191,7 @@ class Tube{
     
    TString m_name;
 
-   vector<Multilayer*> m_multilayers;
+   std::vector<Multilayer*> m_multilayers;
 
  public:
 
@@ -232,7 +232,6 @@ class Tube{
  class MDTDqaDeadElements{
 
  private:
-
    bool m_verbose;
    bool m_write_report;
    bool m_write_compact_report;
@@ -240,9 +239,9 @@ class Tube{
    bool m_print_chambers;
    bool m_write_list_of_dead_tubes;
    bool m_do_noisy;
-   ofstream file_report;
-   ofstream comp_report;
-   ofstream filelistofdeads;
+   std::ofstream m_file_report;
+   std::ofstream m_comp_report;
+   std::ofstream m_filelistofdeads;
    int m_deadtubes;
    int m_deadmezzanines;
    int m_deadlayers;
@@ -254,16 +253,14 @@ class Tube{
    int m_lowstatisticsfortubeschambers;
    int m_ntubes;
 
-   int dead_tubes_per_sector;
-   int dead_mezzanines_per_sector;
-   int dead_layers_per_sector;
-   int dead_multilayers_per_sector;
-   int dead_chambers_per_sector;
-   int lowstat_chambers_per_sector;
+   int m_dead_tubes_per_sector;
+   int m_dead_mezzanines_per_sector;
+   int m_dead_layers_per_sector;
+   int m_dead_multilayers_per_sector;
+   int m_dead_chambers_per_sector;
+   int m_lowstat_chambers_per_sector;
 
  public:
-
-
    MDTDqaDeadElements();
    void setVerbose(bool);
    void setWriteReport(bool);
@@ -289,6 +286,6 @@ class Tube{
 
  };
 
-}//end of namespace MuonCalib
+}//namespace MuonCalib
 
 #endif

@@ -30,10 +30,10 @@
 
 #define UPDATETIME 2000
 
-using namespace std;
-using namespace MuonCalib;
+//using namespace std;
+//using namespace MuonCalib;
 
-class MdtIdHelper ;
+class MdtIdHelper;
 
 class MdtChamber  {
 public:
@@ -48,108 +48,105 @@ public:
   std::string m_athenaChamberName;
 
   void Fill(std::string region, std::string side, int sector, std::string chamberType, int absEta_id) {
-       ToString _ts ;
-       string sectorString=_ts(sector);
-       if(sector<10) sectorString="0"+sectorString;
-       m_region = region ;
-       m_side = side ;
-       m_sector = sector ;
-       m_chamberType = chamberType ;
-       m_absEta = absEta_id ;
-       int eta_id = absEta_id ;
-       if (side=="C") eta_id = -absEta_id ;
-       m_eta_id = eta_id ;
-       int phi_id = (int) (sector+1)/2 ;
-       m_phi_id = phi_id ;
-       string chName = chamberType+_ts(absEta_id)+side+sectorString ;
-       m_chamberName = chName ;
-       string chAthenaName = chamberType+"_"+_ts(phi_id)+"_"+_ts(eta_id) ;
-       m_athenaChamberName = chAthenaName ;
-       return ;
+    ToString ts;
+    std::string sectorString=ts(sector);
+    if(sector<10) sectorString="0"+sectorString;
+    m_region = region;
+    m_side = side;
+    m_sector = sector;
+    m_chamberType = chamberType;
+    m_absEta = absEta_id;
+    int eta_id = absEta_id;
+    if (side=="C") eta_id = -absEta_id;
+    m_eta_id = eta_id;
+    int phi_id = (int) (sector+1)/2;
+    m_phi_id = phi_id;
+    std::string chName = chamberType+ts(absEta_id)+side+sectorString;
+    m_chamberName = chName;
+    std::string chAthenaName = chamberType+"_"+ts(phi_id)+"_"+ts(eta_id);
+    m_athenaChamberName = chAthenaName;
+    return;
   }
 };
 
-struct sortMdtChambersByName
-{
-     bool operator()(MDTName a ,MDTName b)
-     {
-       string t1=a.getOnlineName();
-       string t2=b.getOnlineName();
-       return (t1 < t2);
-     }
+struct sortMdtChambersByName {
+  bool operator()(MuonCalib::MDTName a ,MuonCalib::MDTName b) {
+    std::string t1=a.getOnlineName();
+    std::string t2=b.getOnlineName();
+    return (t1 < t2);
+  }
 };
 
 class HistogramManager {
 public:
   HistogramManager();
-  HistogramManager(const MdtIdHelper * mdtIdHelper);
+  HistogramManager(const MdtIdHelper *mdtIdHelper);
   ~HistogramManager();
   void buildGlobalHistos();
   void buildTrackHistos(); 
   void buildDebugHistos();
-  void buildTopLevel(string region, string side, int sectorMin, int sectorMax);
-  void buildSector(string region,string side, int sector);
-  void buildChamberHistos(MDTName) ;
+  void buildTopLevel(std::string region, std::string side, int sectorMin, int sectorMax);
+  void buildSector(std::string region,std::string side, int sector);
+  void buildChamberHistos(MuonCalib::MDTName);
 
-  void setChamberCutOut(string chamber, TH1F * href ) ;
-  void setChamberDisconnectedTubes(string chamber, TH1F * href ) ;
-  int  GetTubeOffsetML1(string chamberName) ;
-  int  GetTubeOffsetAtEndML1(string chamberName) ;
+  void setChamberCutOut(std::string chamber, TH1F *href );
+  void setChamberDisconnectedTubes(std::string chamber, TH1F *href );
+  int  GetTubeOffsetML1(std::string chamberName);
+  int  GetTubeOffsetAtEndML1(std::string chamberName);
 
-  std::vector<MDTName> GetChamberList(string region, string side, int sector) ;
+  std::vector<MuonCalib::MDTName> GetChamberList(std::string region, std::string side, int sector);
 
-  bool openOutputFile(string filename);
-  bool openReadOnlyFile(string filename);
-  bool openUpdateFile(string filename);
+  bool openOutputFile(std::string filename);
+  bool openReadOnlyFile(std::string filename);
+  bool openUpdateFile(std::string filename);
   void WriteAndCloseFile();  
 
   void SetDoTracks(bool);
 
-  TObject * GetMdtHisto(string histo_name);
-  TObject * GetMdtHisto(string histo_name, string region, string side);
-  TObject * GetMdtHisto(string histo_name, string region, string side, int sector);
-  TObject * GetMdtHisto(string histo_name, MDTName);
+  TObject * GetMdtHisto(std::string histo_name);
+  TObject * GetMdtHisto(std::string histo_name, std::string region, std::string side);
+  TObject * GetMdtHisto(std::string histo_name, std::string region, std::string side, int sector);
+  TObject * GetMdtHisto(std::string histo_name, MuonCalib::MDTName);
 
-  string GetMdtDirectoryName(); 
-  string GetMdtDirectoryName(string region, string side);
-  string GetMdtDirectoryName(string region, string side, int sector);
-  string GetMdtDirectoryName(string region, string side, int sector, string chamberType, int eta);
-  string GetMdtDirectoryName(MDTName); 
+  std::string GetMdtDirectoryName(); 
+  std::string GetMdtDirectoryName(std::string region, std::string side);
+  std::string GetMdtDirectoryName(std::string region, std::string side, int sector);
+  std::string GetMdtDirectoryName(std::string region, std::string side, int sector, std::string chamberType, int eta);
+  std::string GetMdtDirectoryName(MuonCalib::MDTName); 
 
-  TObject * GetTDaqHisto(string histo_name, string region) ;
-  TObject * GetTDaqHisto(string histo_name, string region, string side);
-  TObject * GetTDaqHisto(string histo_name, string region, string side, int sector);
-  TObject * GetTDaqHisto(string histo_name, string region, string side, int sector, string chamberType, int eta);
+  TObject * GetTDaqHisto(std::string histo_name, std::string region);
+  TObject * GetTDaqHisto(std::string histo_name, std::string region, std::string side);
+  TObject * GetTDaqHisto(std::string histo_name, std::string region, std::string side, int sector);
+  TObject * GetTDaqHisto(std::string histo_name, std::string region, std::string side, int sector, std::string chamberType, int eta);
 
-  string GetTDaqDirectoryName(string region); 
-  string GetTDaqDirectoryName(string region, string side);
-  string GetTDaqDirectoryName(string region, string side, int sector);
-  string GetTDaqDirectoryName(string region, string side, int sector, string chamberType, int eta);
+  std::string GetTDaqDirectoryName(std::string region); 
+  std::string GetTDaqDirectoryName(std::string region, std::string side);
+  std::string GetTDaqDirectoryName(std::string region, std::string side, int sector);
+  std::string GetTDaqDirectoryName(std::string region, std::string side, int sector, std::string chamberType, int eta);
 
-  TObject * GetHisto(string main_dir, string histo_name);
+  TObject* GetHisto(std::string main_dir, std::string histo_name);
 
-  void ReadChamberMapFile (string chamberName, int * chamberGeoParams, int numParams);
-  int GetChamberNumOfML (string chamberName);
-  int GetChamberNumOfMezzPerML (string chamberName);
-  int GetChamberTubesPerMezz (string chamberName);
+  void ReadChamberMapFile (std::string chamberName, int *chamberGeoParams, int numParams);
+  int GetChamberNumOfML (std::string chamberName);
+  int GetChamberNumOfMezzPerML (std::string chamberName);
+  int GetChamberTubesPerMezz (std::string chamberName);
 
-  // std::vector<string> GetChamberTypeList(string region, string side, int sector) ;
-  int GetEtaMax(string region, string side, int sector, string chamberType) ;
+  // std::vector<std::string> GetChamberTypeList(std::string region, std::string side, int sector);
+  int GetEtaMax(std::string region, std::string side, int sector, std::string chamberType);
 
   // void buildAll(int sectorMin, int sectorMax);
   // void test();
  
-  TFile * rootFile(){return m_rootfile;} ;
-  TFile * m_rootfile ;
+  TFile* rootFile(){return m_rootfile;};
+  TFile *m_rootfile;
 
-  private:
-
+ private:
   TObjArray m_hList;
-  const MdtIdHelper * m_MdtIdHelper ;
+  const MdtIdHelper * m_MdtIdHelper;
 
   bool m_doTracks;
 
-  // ToString _ts;
+  // ToString ts;
   // ToChar _tc;
   
 };
@@ -177,7 +174,7 @@ class ToString{
 /*********************************
 class ToChar {
  public:
-    char* operator()( const string i )
+    char* operator()( const std::string i )
   {
     return i.c_str();
   }

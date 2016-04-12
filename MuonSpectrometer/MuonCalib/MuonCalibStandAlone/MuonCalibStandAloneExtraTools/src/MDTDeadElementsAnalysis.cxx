@@ -19,8 +19,7 @@
 class ToString {
 public:
   template< class T >
-  std::string operator()( const T& i )
-  {
+  std::string operator()( const T &i ) {
     std::ostringstream os;
     os << i;
     return os.str();
@@ -34,11 +33,10 @@ MDTDeadElementsAnalysis::MDTDeadElementsAnalysis() :
   polfunc(NULL), deadTubesMap(NULL), geo(NULL), ndeadmezz(-1), ndeadtubes(-1),
   deadMezzDone(false), deadTubesDone(false), deadMultilayerDone(false),
   nlayers(-1), nlayers_per_ml(-1), ntubes_per_mezz(-1), chi2poly(-1.),
-  average_entry(-1.), n_entry(-1.), nholes(-1)
-{
-  verbose=false ;
-  drawPlots=false ;
-  writeResultsToAsciFile=false ;
+  average_entry(-1.), n_entry(-1.), nholes(-1) {
+  verbose=false;
+  drawPlots=false;
+  writeResultsToAsciFile=false;
 }
 
 MDTDeadElementsAnalysis::~MDTDeadElementsAnalysis() { }
@@ -49,17 +47,16 @@ MDTDeadElementsAnalysis::~MDTDeadElementsAnalysis() { }
 //
 // ==============================================================================
 
-void MDTDeadElementsAnalysis::histogramScanCalibCenters(TFile * rootfile){
+void MDTDeadElementsAnalysis::histogramScanCalibCenters(TFile *rootfile) {
 
     int nregionsanalysed=0;
     int nsectorsanalysed=0;
 //    int nchambersanalysed=0;
 
-//  ToString ts ;
-
+//  ToString ts;
 
   if(rootfile->IsZombie()) {
-    std::cout<<rootfile<<" :file not found "<<std::endl;
+    //    std::cout<<rootfile<<" :file not found "<<std::endl;
     return;
   }
 
@@ -71,27 +68,26 @@ void MDTDeadElementsAnalysis::histogramScanCalibCenters(TFile * rootfile){
   TH1F* hadccut;
   TH1F* hgeom; 
   TH1F* hdeadmap;
-  TH2F* hdeadchannels ;
+  TH2F* hdeadchannels;
   TH2F* hsummary;
 
   for (int iregion=1; iregion<=4; iregion++) {
     string region_name;
-    if (iregion==1) region_name="Barrel_A" ;
-    if (iregion==2) region_name="Barrel_C" ;
-    if (iregion==3) region_name="Endcap_A" ;
-    if (iregion==4) region_name="Endcap_C" ;
+    if (iregion==1) region_name="Barrel_A";
+    if (iregion==2) region_name="Barrel_C";
+    if (iregion==3) region_name="Endcap_A";
+    if (iregion==4) region_name="Endcap_C";
     string regiondir_name="/MDT/"+region_name;
 
-    if(verbose) cout<<endl<<"------------------------Analyzing region: "<<regiondir_name<<"------------------"<<endl;
+    //    if(verbose) cout<<endl<<"------------------------Analyzing region: "<<regiondir_name<<"------------------"<<endl;
     
     TDirectory* regiondir=(TDirectory*)rootfile->Get(regiondir_name.c_str());
-    if(!regiondir)
-      {
-	if(verbose) cout<<" region not found in rootfile"<<endl;
-	continue;
-      }
+    if(!regiondir) {
+      //      if(verbose) cout<<" region not found in rootfile"<<endl;
+      continue;
+    }
     
-    hsummary = (TH2F*) regiondir->Get("DeadElements") ;
+    hsummary = (TH2F*) regiondir->Get("DeadElements");
     if(hsummary) hsummary->Reset();
     
     nregionsanalysed++;
@@ -108,73 +104,66 @@ void MDTDeadElementsAnalysis::histogramScanCalibCenters(TFile * rootfile){
        TKey *key;
        while ( (key = (TKey*)next()) ) {
  	string chamber_name=key->GetName();
- 	if (chamber_name=="OVERVIEW") continue ;
+ 	if (chamber_name=="OVERVIEW") continue;
 
-         if (verbose) cout << " ===========================================" << endl 
-                           << " STARTING ANALYSIS ON CHAMBER " << chamber << endl;
+	//	if (verbose) cout << " ===========================================" << endl 
+	//			  << " STARTING ANALYSIS ON CHAMBER " << chamber << endl;
 
  	TDirectory* chamberdir=(TDirectory*)sectordir->Get(chamber_name.c_str());
  	TDirectory* deadstatusdir=(TDirectory*)sectordir->Get((chamber_name+"/DeadStatus").c_str());
  	TDirectory* expertdir=(TDirectory*)sectordir->Get((chamber_name+"/Expert").c_str());
 
- 	if(!chamberdir) 
- 	  {
- 	    cout<<"Failed to load chamberdir from rootfile"<<endl;
- 	    continue;
- 	  }
+ 	if(!chamberdir) {
+	  //	  cout<<"Failed to load chamberdir from rootfile"<<endl;
+	  continue;
+	}
 	
- 	if(!deadstatusdir)
- 	  {
- 	    cout<<"Failed to load deadstatusdir from rootfile"<<endl; 
- 	    continue;
- 	  }
+ 	if(!deadstatusdir) {
+	  //	  cout<<"Failed to load deadstatusdir from rootfile"<<endl; 
+	  continue;
+	}
 	
- 	if(!expertdir)
- 	  {
- 	    cout<<"Failed to load expertdir from rootfile"<<endl; 
- 	    continue;
- 	  }
-
+ 	if(!expertdir) {
+	  //	  cout<<"Failed to load expertdir from rootfile"<<endl; 
+	  continue;
+	}
        
- 	hadccut = (TH1F*) chamberdir->Get("a_HitsPerTubeAdcCut") ;
- 	hgeom = (TH1F*) expertdir->Get("DeadTubeRefMap") ;
- 	hdeadmap = (TH1F*) expertdir->Get("DeadTubeMap") ;
+ 	hadccut = (TH1F*) chamberdir->Get("a_HitsPerTubeAdcCut");
+ 	hgeom = (TH1F*) expertdir->Get("DeadTubeRefMap");
+ 	hdeadmap = (TH1F*) expertdir->Get("DeadTubeMap");
 
         // RESET hdeadmap and make it a copy of hgeom :
         //
         int nbinshref=hgeom->GetNbinsX();
         int nbinshres=hdeadmap->GetNbinsX();
         if (nbinshref!=nbinshres) {
-	  cout << " MDTDeadElementsAnalysis ERROR - nbinshref differ from nbinshres "<<endl;
-	  continue ;
+	  //	  cout << " MDTDeadElementsAnalysis ERROR - nbinshref differ from nbinshres "<<endl;
+	  continue;
         }
-        hdeadmap->Reset() ;
+        hdeadmap->Reset();
         for (int bin=1;bin<=nbinshref;bin++){
-	  hdeadmap->SetBinContent(bin,hgeom->GetBinContent(bin)) ;
+	  hdeadmap->SetBinContent(bin,hgeom->GetBinContent(bin));
         }
        
         // Clone a_HitsPerTubeAdcCut 
         //
-	TH1F * HhitsCopy = (TH1F*)hadccut->Clone() ;
+	TH1F *HhitsCopy = (TH1F*)hadccut->Clone();
 	getBasicGeometry(hgeom,chamber_name);
 	deadElementsAnalysis(HhitsCopy,hgeom,hdeadmap,4,chamber_name);
 
-
-	HhitsCopy->Delete() ;
-	n_processed_chambers++ ;
+	HhitsCopy->Delete();
+	n_processed_chambers++;
       
 	// report here the results in the 2D chamber view histogram:
-	// 
 	TH1F *hdeadtubestatus=(TH1F*)chamberdir->FindObjectAny("b_DeadTubeStatus");
 	if(hdeadtubestatus) hdeadtubestatus->Reset();    
 
-	TH2F* hdeadtubes=(TH2F*) deadstatusdir->FindObjectAny("ChamberDeadTubes");
+	TH2F *hdeadtubes=(TH2F*) deadstatusdir->FindObjectAny("ChamberDeadTubes");
 	hdeadtubes->Reset(); 
 
+	hdeadchannels = (TH2F*) expertdir->Get("ChamberDeadChannels");
 
-	hdeadchannels = (TH2F*) expertdir->Get("ChamberDeadChannels") ;
-
-	hdeadchannels->Reset() ;
+	hdeadchannels->Reset();
 	hdeadchannels->SetMinimum(0);
 	hdeadchannels->SetMaximum(10);
 	int totBins = hdeadmap->GetNbinsX();
@@ -208,87 +197,76 @@ void MDTDeadElementsAnalysis::histogramScanCalibCenters(TFile * rootfile){
 	    //	    for(int jbin=1; jbin<=nbins_per_layer[jML-1];jbin++){
 	    for(int jbin=1; jbin<=ntubes_per_layer[jML-1];jbin++){
 
-	      int alltubes = (jML-1)*(nlayers_per_ml)*(ntubes_per_layer[jML-1]) + (jLay-1)*(ntubes_per_layer[jML-1])+jbin ;
+	      int alltubes = (jML-1)*(nlayers_per_ml)*(ntubes_per_layer[jML-1]) + (jLay-1)*(ntubes_per_layer[jML-1])+jbin;
 
 	      int ires = (int)hdeadmap->GetBinContent(alltubes);
 
-	      if (ires==0) continue ;
-// 	      int iML = 1 ;
-// 	      if (ires>0) iML = 2 ;
-// 	      int iLy = (jbin-1)/(int)ntubes_per_layer[jML-1] + 1 ;
-// 	      if (iML==2) iLy = iLy+1 ;
-// 	      int iTube = (jbin-1)%ntubes_per_layer[jML-1] + 1 ;
-	      int icode = ires%10 ;
+	      if (ires==0) continue;
+// 	      int iML = 1;
+// 	      if (ires>0) iML = 2;
+// 	      int iLy = (jbin-1)/(int)ntubes_per_layer[jML-1] + 1;
+// 	      if (iML==2) iLy = iLy+1;
+// 	      int iTube = (jbin-1)%ntubes_per_layer[jML-1] + 1;
+	      int icode = ires%10;
 
-	      if (icode<0) icode=-icode ;
+	      if (icode<0) icode=-icode;
 	      if (icode==0) icode=10;
 
 	      double contr=0;
 
 	      if(icode==0){ 
-
-	      }
-	      else if(icode==10){ 
+	      } else if(icode==10){ 
 		contr=1;
+	      } else if(icode==7 ){ 
+	      } else{ 
 	      }
-	      else if(icode==7 ){ 
-		
-	      }
-	      else{ 
+	      double contr2=contr;
+	      if(icode!=0 && contr==0) contr2=0.1;
 
-	      }
-	    double contr2=contr ;
-	    if(icode!=0 && contr==0) contr2=0.1 ;
-
-	    bincounter++;
-	    if(hdeadperlayer) hdeadperlayer->SetBinContent(bincounter,contr2);
-	    if(chamber_name=="BIR1A11"){
-	      cout<<deadlayername<<' '<<jML<<' '<<jLay<<' '<<jbin<<' ' << contr2<<endl;
-	      if(hdeadperlayer) cout<<hdeadperlayer->GetNbinsX()<<endl;
-	    }
+	      bincounter++;
+	      if(hdeadperlayer) hdeadperlayer->SetBinContent(bincounter,contr2);
+	      //	      if(chamber_name=="BIR1A11"){
+		//		cout<<deadlayername<<' '<<jML<<' '<<jLay<<' '<<jbin<<' ' << contr2<<endl;
+		//		if(hdeadperlayer) cout<<hdeadperlayer->GetNbinsX()<<endl;
+	      //	      }
 	    }
 	  }
 	}
-
+	
  	for (int bin=1;bin<=totBins;bin++){
 	  int ires = (int)hdeadmap->GetBinContent(bin);
-	  if (ires==0) continue ;
-	  int iML = 1 ;
-	  if (ires>0) iML = 2 ;
-	  //	    int iLy = (bin-1)/(int)nbins_per_layer[iML-1] + 1 ;
-	  int iLy = (bin-1)/(int)ntubes_per_layer[iML-1] + 1 ;
-	  if (iML==2) iLy = iLy+1 ;
-	  //	    int iTube = (bin-1)%nbins_per_layer[iML-1] + 1 ;
-	  int iTube = (bin-1)%ntubes_per_layer[iML-1] + 1 ;
-	  int icode = ires%10 ;
+	  if (ires==0) continue;
+	  int iML = 1;
+	  if (ires>0) iML = 2;
+	  //	    int iLy = (bin-1)/(int)nbins_per_layer[iML-1] + 1;
+	  int iLy = (bin-1)/(int)ntubes_per_layer[iML-1] + 1;
+	  if (iML==2) iLy = iLy+1;
+	  //	    int iTube = (bin-1)%nbins_per_layer[iML-1] + 1;
+	  int iTube = (bin-1)%ntubes_per_layer[iML-1] + 1;
+	  int icode = ires%10;
 
-	  if (icode<0) icode=-icode ;
+	  if (icode<0) icode=-icode;
 	  if (icode==0) icode=10;
-	  hdeadchannels->SetBinContent(iTube,iLy,(float)icode) ;      
+	  hdeadchannels->SetBinContent(iTube,iLy,(float)icode);      
 
+	  int Lay_offset = 0;
+	  if(nlayers_per_ml ==3) Lay_offset = 1;
+	  iLy = iLy + Lay_offset;
 
-	    int Lay_offset = 0;
-	    if(nlayers_per_ml ==3) Lay_offset = 1;
-	    iLy = iLy + Lay_offset;
+	  double contr=0;
 
-	    double contr=0;
-
-	    if(icode==0){ 
-	      hdeadtubes->SetBinContent(iTube,iLy,1); //white
-	    }
-	    else if(icode==10){ 
-	      contr=1;
-	      hdeadtubes->SetBinContent(iTube,iLy,2); //green
-	    }
-	    else if(icode==7 ){ 
-	      hdeadtubes->SetBinContent(iTube,iLy,3); // yellow
-	    }
-	    else{ 
-	      hdeadtubes->SetBinContent(iTube,iLy,4); // red
-
-	    }
-	    double contr2=contr ;
-	    if(icode!=0 && contr==0) contr2=0.1 ;
+	  if(icode==0){ 
+	    hdeadtubes->SetBinContent(iTube,iLy,1); //white
+	  } else if(icode==10){ 
+	    contr=1;
+	    hdeadtubes->SetBinContent(iTube,iLy,2); //green
+	  } else if(icode==7 ){ 
+	    hdeadtubes->SetBinContent(iTube,iLy,3); // yellow
+	  } else { 
+	    hdeadtubes->SetBinContent(iTube,iLy,4); // red
+	  }
+	  double contr2=contr;
+	  if(icode!=0 && contr==0) contr2=0.1;
 // 	    if(iLy==1) hdeadperlayer_1->SetBinContent(iTube,contr2);
 // 	    if(iLy==2) hdeadperlayer_2->SetBinContent(iTube,contr2);
 // 	    if(iLy==3) hdeadperlayer_3->SetBinContent(iTube,contr2);
@@ -298,11 +276,11 @@ void MDTDeadElementsAnalysis::histogramScanCalibCenters(TFile * rootfile){
 // 	    if(iLy==7) hdeadperlayer_7->SetBinContent(iTube,contr2);
 // 	    if(iLy==8) hdeadperlayer_8->SetBinContent(iTube,contr2);
 
-	    if(hdeadtubestatus) hdeadtubestatus->SetBinContent(bin,contr2) ;
+	  if(hdeadtubestatus) hdeadtubestatus->SetBinContent(bin,contr2);
 	   
-	  }
-
-       if (hsummary){
+	}
+	
+	if (hsummary){
 // 	  hsummary->Fill((float)isector,0.5, deadChamber.size());
 // 	  hsummary->Fill((float)isector,1.5, deadMultilayer.size());
 // 	  hsummary->Fill((float)isector,2.5, deadLayer.size());
@@ -314,22 +292,19 @@ void MDTDeadElementsAnalysis::histogramScanCalibCenters(TFile * rootfile){
             << " " << deadMultilayer.size()
             << " " << deadLayer.size()
             << " " << deadMezz.size()
-            << " " << deadTube.size() << endl ;
+            << " " << deadTube.size() << endl;
 	  */
-	  //	    hsummary->SetBinContent(isector,1, (float) lowstat.size() ) ;
-	    hsummary->Fill(isector,2, (float) deadChamber.size() ) ;
-	    hsummary->Fill(isector,3, (float) deadMultilayer.size() ) ;
-	    hsummary->Fill(isector,4, (float) deadLayer.size() ) ;
-	    hsummary->Fill(isector,5, (float) deadMezz.size() ) ;
-	    hsummary->Fill(isector,6, (float) deadTube.size() ) ;
-
-	  
-       }
-       } // end loop on chambers       
+	  //	    hsummary->SetBinContent(isector,1, (float) lowstat.size() );
+	  hsummary->Fill(isector,2, (float) deadChamber.size() );
+	  hsummary->Fill(isector,3, (float) deadMultilayer.size() );
+	  hsummary->Fill(isector,4, (float) deadLayer.size() );
+	  hsummary->Fill(isector,5, (float) deadMezz.size() );
+	  hsummary->Fill(isector,6, (float) deadTube.size() );
+	}
+      } // end loop on chambers       
     } // end loop over sectors
   } // end loop over regions BA/BC/EA/EC
-}
-
+}  //end MDTDeadElementsAnalysis::histogramScanCalibCenters
 
 // ==============================================================================
 //
@@ -342,12 +317,12 @@ void MDTDeadElementsAnalysis::histogramScanGnam(string rootfile){
   TFile f(rootfile.c_str());
 
   if(f.IsZombie()) {
-    std::cout<<rootfile<<" :file not found "<<std::endl;
+    //    std::cout<<rootfile<<" :file not found "<<std::endl;
     return;
   }
-  if(f.IsOpen()) {  
-    std::cout<<rootfile<<" :open "<<std::endl;
-  }     
+  //  if(f.IsOpen()) {  
+  //    std::cout<<rootfile<<" :open "<<std::endl;
+  //  }     
 
   MDTDeadElementsAnalysis *mdtTubeAna = new MDTDeadElementsAnalysis;
 
@@ -357,22 +332,20 @@ void MDTDeadElementsAnalysis::histogramScanGnam(string rootfile){
   TKey *key;
   int n_processed_chambers=0;
 
-  while ((key=(TKey*)next()))
-    {
-      TString chambname=key->GetName();
-      cout <<"Chamber name "<<chambname<<endl;
-      if(chambname!="Overview"){
+  while ((key=(TKey*)next())) {
+    TString chambname=key->GetName();
+    //    cout <<"Chamber name "<<chambname<<endl;
+    if(chambname!="Overview"){
  
-	//	TString path1 = "SHIFT/MDT/" + chambname +  "/HitsPerTube_gt_100_ADC_counts";
-	TString path1 = "BARREL_A" + chambname +  "/HitsPerTube_gt_100_ADC_counts";
-	TString path2 = "DEBUG/MDT/" + chambname +  "/HitsPerTube<AdcCut";
+      //	TString path1 = "SHIFT/MDT/" + chambname +  "/HitsPerTube_gt_100_ADC_counts";
+      TString path1 = "BARREL_A" + chambname +  "/HitsPerTube_gt_100_ADC_counts";
+      TString path2 = "DEBUG/MDT/" + chambname +  "/HitsPerTube<AdcCut";
 
-	cout <<" Dead Elements Analysis running over chambname "
-	     <<chambname<<endl;
-	n_processed_chambers++;
+      //      cout <<" Dead Elements Analysis running over chambname " <<chambname<<endl;
+      n_processed_chambers++;
 
-      }//if !OVERVIEW
-    }//key while 
+    }//if !OVERVIEW
+  }//key while 
 
 
   mdtTubeAna->printSummary();
@@ -380,21 +353,19 @@ void MDTDeadElementsAnalysis::histogramScanGnam(string rootfile){
   // --------- 
   f.Close();
 
-  cout<<" number of processed chambers is "<<n_processed_chambers<<endl;
+  //  cout<<" number of processed chambers is "<<n_processed_chambers<<endl;
   delete mdtTubeAna; mdtTubeAna=0;
   return;
-   
-}//histogramScanGnam
+}  //end MDTDeadElementsAnalysis::histogramScanGnam
 
 // ==============================================================================
 //
 // MDTDeadElementsAnalysis::WriteAsciFile
 //
 // ==============================================================================
-
 void MDTDeadElementsAnalysis::WriteAsciFile(){
   writeResultsToAsciFile = true;
-  cout <<":::::::::::::::::::: writeResultsToAsciFile=true!"<<endl;
+  //  cout <<":::::::::::::::::::: writeResultsToAsciFile=true!"<<endl;
 } // WriteAsciFile
 
 // ==============================================================================
@@ -402,7 +373,6 @@ void MDTDeadElementsAnalysis::WriteAsciFile(){
 // MDTDeadElementsAnalysis::getChamberName()
 //
 // ==============================================================================
-
 string MDTDeadElementsAnalysis::getChamberName(){
   return chamberName;
 } // getChamberName
@@ -412,7 +382,6 @@ string MDTDeadElementsAnalysis::getChamberName(){
 // MDTDeadElementsAnalysis::setChamberName(string chambname)
 //
 // ==============================================================================
-
 void MDTDeadElementsAnalysis::setChamberName(string chambname){
   chamberName = chambname;
 } // setChamberName
@@ -422,10 +391,9 @@ void MDTDeadElementsAnalysis::setChamberName(string chambname){
 // MDTDeadElementsAnalysis::setVerbose
 //
 // ==============================================================================
-
 void MDTDeadElementsAnalysis::setVerbose(){
   verbose = true;
-  cout <<":::::::::::::::::::: verbose=true!"<<endl;
+  //  cout <<":::::::::::::::::::: verbose=true!"<<endl;
 } // setVerbose
 
 // ==============================================================================
@@ -433,7 +401,6 @@ void MDTDeadElementsAnalysis::setVerbose(){
 // MDTDeadElementsAnalysis::setNoVerbose
 //
 // ==============================================================================
-
 void MDTDeadElementsAnalysis::setNoVerbose(){
   verbose = false;
 } // setNoVerbose
@@ -443,12 +410,11 @@ void MDTDeadElementsAnalysis::setNoVerbose(){
 // MDTDeadElementsAnalysis::deadElementsAnalysis
 //
 // ==============================================================================
-
-void MDTDeadElementsAnalysis::deadElementsAnalysis(TH1F* idh1, TH1F* HRef, TH1F* deadTubesMap, int nlayers_ml, string chambname){
+void MDTDeadElementsAnalysis::deadElementsAnalysis(TH1F *idh1, TH1F *HRef, TH1F *deadTubesMap, int /*nlayers_ml*/, string chambname) {
 
   // MDTDeadElementsAnalysis *mdtTubeAna = new MDTDeadElementsAnalysis;
   getBasicGeometry(HRef,chambname);
-  if(verbose) cout<<"deadElementsAnalysis called with nlayers_ml "<<nlayers_ml<<endl;
+  //  if(verbose) cout<<"deadElementsAnalysis called with nlayers_ml "<<nlayers_ml<<endl;
   // Initialization
 
   ClearList();
@@ -477,19 +443,19 @@ void MDTDeadElementsAnalysis::deadElementsAnalysis(TH1F* idh1, TH1F* HRef, TH1F*
   // Finalize
   //  }
   if(verbose) {
-    printSummary() ;
+    printSummary();
     if (drawPlots) {
-      TCanvas * c1 = new TCanvas() ;
+      TCanvas *c1 = new TCanvas();
       c1->cd();
       deadTubesMap->Draw();
     }
   }    
   if (writeResultsToAsciFile){
-    // printSummaryToAsciFile() ;
-    printCompactSummaryToAsciFile() ;
+    // printSummaryToAsciFile();
+    printCompactSummaryToAsciFile();
   }
 
-  return ;
+  return;
 }// deadElementsAnalysis
 
 // ==============================================================================
@@ -497,13 +463,12 @@ void MDTDeadElementsAnalysis::deadElementsAnalysis(TH1F* idh1, TH1F* HRef, TH1F*
 // MDTDeadElementsAnalysis::deadElementsAnalysis
 //
 // ==============================================================================
-
 void MDTDeadElementsAnalysis::deadElementsAnalysis(TH1F* idh1, TH1F* HRef, TH1F* deadTubesMap, 
-						   int nlayers_ml, string chambname, int convert_mezzanine[20]){
+						   int /*nlayers_ml*/, string chambname, int convert_mezzanine[20]){
 
   // MDTDeadElementsAnalysis *mdtTubeAna = new MDTDeadElementsAnalysis;
   getBasicGeometry(HRef,chambname);
-  if(verbose) cout<<"deadElementsAnalysis called with nlayers_ml "<<nlayers_ml<<endl;
+  //  if(verbose) cout<<"deadElementsAnalysis called with nlayers_ml "<<nlayers_ml<<endl;
   // Initialization
 
   ClearList();
@@ -523,18 +488,18 @@ void MDTDeadElementsAnalysis::deadElementsAnalysis(TH1F* idh1, TH1F* HRef, TH1F*
 
   // Finalize
   if(verbose) {
-    printSummary() ;
+    printSummary();
     if (drawPlots) {
-      TCanvas * c1 = new TCanvas() ;
+      TCanvas * c1 = new TCanvas();
       c1->cd();
       deadTubesMap->Draw();
     }
   }    
   if (writeResultsToAsciFile){
-    printSummaryToAsciFile() ;
+    printSummaryToAsciFile();
   }
  
-  return ;
+  return;
 }// deadElementsAnalysis
 
 // ==============================================================================
@@ -542,11 +507,10 @@ void MDTDeadElementsAnalysis::deadElementsAnalysis(TH1F* idh1, TH1F* HRef, TH1F*
 // MDTDeadElementsAnalysis::deadChambers
 //
 // ==============================================================================
+void MDTDeadElementsAnalysis::deadChambers(TH1F *idh1, TH1F */*HRef*/, TH1F */*deadTubesMap*/, string chambname){
 
-void MDTDeadElementsAnalysis::deadChambers(TH1F* idh1, TH1F* HRef, TH1F* deadTubesMap, string chambname){
-
-  if(verbose) cout<<"DeadChambers, Analyse histos "<<idh1->GetName()<<" "<<
-    HRef->GetName()<<" "<<deadTubesMap->GetName()<<" for Chamber "<<chambname<<endl;
+  //  if(verbose) cout<<"DeadChambers, Analyse histos "<<idh1->GetName()<<" "<<
+  //    HRef->GetName()<<" "<<deadTubesMap->GetName()<<" for Chamber "<<chambname<<endl;
   if (idh1->GetEntries() == 0.) deadChamber.push_back(chambname);
 }// deadChambers
 
@@ -556,11 +520,9 @@ void MDTDeadElementsAnalysis::deadChambers(TH1F* idh1, TH1F* HRef, TH1F* deadTub
 // MDTDeadElementsAnalysis::deadLayers
 //
 // ==============================================================================
-
 void MDTDeadElementsAnalysis::deadLayers(TH1F* idh1,TH1F* HRef, TH1F* deadTubesMap, string chambname){
   //  verbose=true;
-  if(verbose) cout<<"DeadLayers, Analyse histo "<<idh1->GetName()<<
-    " for Chamber "<<chambname<<endl;
+  //  if(verbose) cout<<"DeadLayers, Analyse histo "<<idh1->GetName()<< " for Chamber "<<chambname<<endl;
   double layer_content[8];
   int layer_non_zero_bins[8];
   for(int ii=0; ii<8; ii++){
@@ -572,7 +534,7 @@ void MDTDeadElementsAnalysis::deadLayers(TH1F* idh1,TH1F* HRef, TH1F* deadTubesM
   int indlayer=0;
   for(int ml=1;ml<3;ml++){
     // protection if only 1 ml
-    if (nbins_per_layer[ml-1]==0) continue ;
+    if (nbins_per_layer[ml-1]==0) continue;
     for(int l=1;l<=nlayers_per_ml;l++){
       layer_content[indlayer]=0.;
       layer_non_zero_bins[indlayer-1]=0;
@@ -581,11 +543,11 @@ void MDTDeadElementsAnalysis::deadLayers(TH1F* idh1,TH1F* HRef, TH1F* deadTubesM
 	layer_content[indlayer-1]=layer_content[indlayer-1]+c;
 	if(c>0.)layer_non_zero_bins[indlayer-1]++;
       }
-      if(verbose) {
-	cout <<"layer binstart binend layer_content "<<indlayer<<
-	  " "<<binstart<<" "<<binend<<" "<<layer_content[indlayer-1]<<
-	  " non-zero bins "<<layer_non_zero_bins[indlayer-1]<<endl;
-      }
+      //      if(verbose) {
+      //	cout <<"layer binstart binend layer_content "<<indlayer<<
+      //	  " "<<binstart<<" "<<binend<<" "<<layer_content[indlayer-1]<<
+      //	  " non-zero bins "<<layer_non_zero_bins[indlayer-1]<<endl;
+      //      }
       binstart=binstart+nbins_per_layer[0];
       binend=binend+nbins_per_layer[0];
       indlayer++;
@@ -608,8 +570,8 @@ void MDTDeadElementsAnalysis::deadLayers(TH1F* idh1,TH1F* HRef, TH1F* deadTubesM
     average_non_zero_bins = average_non_zero_bins + 
       double(layer_non_zero_bins[l-1]);
   }
-  if(verbose) cout<<"minimum-pos "<< minimum_position
-		  <<" minimum-cont "<<minimum_content<<endl;
+  //  if(verbose) cout<<"minimum-pos "<< minimum_position
+  //		  <<" minimum-cont "<<minimum_content<<endl;
   average_non_zero_bins = average_non_zero_bins - minimum_content;
   average_non_zero_bins = average_non_zero_bins / double(indlayer-1-1);
 
@@ -630,23 +592,23 @@ void MDTDeadElementsAnalysis::deadLayers(TH1F* idh1,TH1F* HRef, TH1F* deadTubesM
   float average_bin_content = (float)layer_content[minimum_position-1]/(float)nbins_per_layer[0];
   bool test = average_non_zero_bins-8.*rms_non_zero_bins/pow(double(indlayer-1),0.5)>minimum_content
     &&rms_non_zero_bins!=1.&&average_bin_content<10.;
-  if(verbose){
-    cout<<" average bin content "<<average_bin_content<<endl;
-    cout<<"minimum position content "<<minimum_position<<" "
-	<<minimum_content<<" average "<<average_non_zero_bins<<endl;;
-    cout<<" rms "<<rms_non_zero_bins<<endl;
-    cout<<" test value "<< average_non_zero_bins-8.*rms_non_zero_bins/pow(double(indlayer-1),0.5)<<
-      " is larger than "<<minimum_content<<"?"<<endl;
-  }
+  //  if(verbose){
+  //    cout<<" average bin content "<<average_bin_content<<endl;
+  //    cout<<"minimum position content "<<minimum_position<<" "
+  //	<<minimum_content<<" average "<<average_non_zero_bins<<endl;;
+  //    cout<<" rms "<<rms_non_zero_bins<<endl;
+  //    cout<<" test value "<< average_non_zero_bins-8.*rms_non_zero_bins/pow(double(indlayer-1),0.5)<<
+  //      " is larger than "<<minimum_content<<"?"<<endl;
+  //  }
   if(test) {
     int tubestart = (minimum_position-1)*nbins_per_layer[0]+1;
     int tubeend = minimum_position*nbins_per_layer[0];
     // cout <<"Dead layer "<<minimum_position<<" found "<<endl;
     deadLayer.push_back(minimum_position);;
     deadLayerChamber.push_back(chambname);
-    if(verbose){
-      cout <<"tubestart tubeend "<<tubestart<<" "<<tubeend<<endl;
-    }
+    //    if(verbose){
+    //      cout <<"tubestart tubeend "<<tubestart<<" "<<tubeend<<endl;
+    //    }
     for(int j=tubestart;j<=tubeend;j++){
       Double_t cgeo = HRef->GetBinContent(j);
       //      Double_t cdead = deadTubesMap->GetBinContent(j);
@@ -669,9 +631,9 @@ void MDTDeadElementsAnalysis::deadLayers(TH1F* idh1,TH1F* HRef, TH1F* deadTubesM
 
 void MDTDeadElementsAnalysis::getBasicGeometry(TH1F* HRef, int nlayers_ml, string chambname){
 
-  if(verbose) cout<<" ===== getBasicGeometry enter (alternative) =========== "<<endl;
-  // TH1F * idh1 = new TH1F ;
-  // idh1 = (TH1F*)HRef->Clone() ;
+  //  if(verbose) cout<<" ===== getBasicGeometry enter (alternative) =========== "<<endl;
+  // TH1F * idh1 = new TH1F;
+  // idh1 = (TH1F*)HRef->Clone();
   // int nbins=idh1->GetNbinsX();
   int nbins=HRef->GetNbinsX();
   schamber = chambname;
@@ -699,9 +661,9 @@ void MDTDeadElementsAnalysis::getBasicGeometry(TH1F* HRef, int nlayers_ml, strin
 
   nbins_per_layer[0] = (lastbinML[0]-firstbinML[0]+1)/nlayers_ml;
   nbins_per_layer[1] = (lastbinML[1]-firstbinML[1]+1)/nlayers_ml;
-  if(verbose){
-    cout<<" nbins per layer [0] "<<nbins_per_layer[0]<<" nbins per layer [1] "<<nbins_per_layer[1]<<endl;
-  }
+  //  if(verbose){
+  //    cout<<" nbins per layer [0] "<<nbins_per_layer[0]<<" nbins per layer [1] "<<nbins_per_layer[1]<<endl;
+  //  }
   ntubes_per_mezz=6;
   if(chtype=="O" || chtype=="M") {
     nlayers=6;
@@ -732,18 +694,18 @@ void MDTDeadElementsAnalysis::getBasicGeometry(TH1F* HRef, int nlayers_ml, strin
       ntubes[MultiLayer]=14;
       tstep[MultiLayer]=7.;
     }
-    if (verbose){
-      cout<<endl<<"BasicGeometryBasicGeometryBasicGeometryBasicGeometryBasicGeometryBasicGeometry"<<endl;
-      cout<<"Basic geometry of MultiLayer "<<MultiLayer+1<<endl;
-      cout <<"Number of bins per Layer " <<nbins_per_layer[MultiLayer]<<endl;
-      cout <<" chamber type is "<<chtype<<" nlayers "<<nlayers_ml<<
-	" nbins/layer " <<nbins_per_layer[MultiLayer]<<
-	" layers per ml "<<nlayers_per_ml<<" Fit interval size "<<tstep[MultiLayer]<<endl;
-      cout <<"ntubes[MultiLayer] "<<ntubes[MultiLayer]<<endl;
-      cout<<"First & last bin "<<firstbinML[MultiLayer]<<" "<<lastbinML[MultiLayer]<<endl<<endl;
-    }
+    //    if (verbose){
+    //      cout<<endl<<"BasicGeometryBasicGeometryBasicGeometryBasicGeometryBasicGeometryBasicGeometry"<<endl;
+    //      cout<<"Basic geometry of MultiLayer "<<MultiLayer+1<<endl;
+    //      cout <<"Number of bins per Layer " <<nbins_per_layer[MultiLayer]<<endl;
+    //      cout <<" chamber type is "<<chtype<<" nlayers "<<nlayers_ml<<
+    //	" nbins/layer " <<nbins_per_layer[MultiLayer]<<
+    //	" layers per ml "<<nlayers_per_ml<<" Fit interval size "<<tstep[MultiLayer]<<endl;
+    //      cout <<"ntubes[MultiLayer] "<<ntubes[MultiLayer]<<endl;
+    //      cout<<"First & last bin "<<firstbinML[MultiLayer]<<" "<<lastbinML[MultiLayer]<<endl<<endl;
+    //    }
   }
-  if(verbose) cout<<" ===== getBasicGeometry exit  =========== "<<endl;
+  //  if(verbose) cout<<" ===== getBasicGeometry exit  =========== "<<endl;
 
 } // getBasicGeometry
 
@@ -755,14 +717,14 @@ void MDTDeadElementsAnalysis::getBasicGeometry(TH1F* HRef, int nlayers_ml, strin
 
 void MDTDeadElementsAnalysis::getBasicGeometry(TH1F* HRef, string chambname){
 
-  if(verbose) cout<<" ===== getBasicGeometry enter (alternative) =========== "<<endl;
-  // TH1F * idh1 = new TH1F ;
-  // idh1 = (TH1F*)HRef->Clone() ;
+  //  if(verbose) cout<<" ===== getBasicGeometry enter (alternative) =========== "<<endl;
+  // TH1F * idh1 = new TH1F;
+  // idh1 = (TH1F*)HRef->Clone();
   // int nbins=idh1->GetNbinsX();
   int nbins=HRef->GetNbinsX();
   schamber = chambname;
   chtype = schamber.substr(1,1);
-  int nlayers_ml = 4;
+  //  int nlayers_ml = 4;
   int firstbinML1=10000;
   int firstbinML2=10000;
   int lastbinML1=-1;
@@ -818,9 +780,9 @@ void MDTDeadElementsAnalysis::getBasicGeometry(TH1F* HRef, string chambname){
   if(nlayers_ml2>0){
     nbins_per_layer[1] = (lastbinML[1]-firstbinML[1]+1)/nlayers_ml2;
   }
-  if(verbose){
-    cout<<" nbins per layer [0] "<<nbins_per_layer[0]<<" nbins per layer [1] "<<nbins_per_layer[1]<<endl;
-  }
+  //  if(verbose){
+  //    cout<<" nbins per layer [0] "<<nbins_per_layer[0]<<" nbins per layer [1] "<<nbins_per_layer[1]<<endl;
+  //  }
   ntubes_per_mezz=6;
   nlayers_per_ml=nlayers_ml1;
   if(chtype=="O" || chtype=="M") {
@@ -848,18 +810,18 @@ void MDTDeadElementsAnalysis::getBasicGeometry(TH1F* HRef, string chambname){
       ntubes[MultiLayer]=14;
       tstep[MultiLayer]=7.;
     }
-    if (verbose){
-      cout<<endl<<"BasicGeometryBasicGeometryBasicGeometryBasicGeometryBasicGeometryBasicGeometry"<<endl;
-      cout<<"Basic geometry of MultiLayer "<<MultiLayer+1<<endl;
-      cout <<"Number of bins per Layer " <<nbins_per_layer[MultiLayer]<<endl;
-      cout <<" chamber type is "<<chtype<<" nlayers "<<nlayers_ml<<
-	" nbins/layer " <<nbins_per_layer[MultiLayer]<<
-	" layers per ml "<<nlayers_per_ml<<" Fit interval size "<<tstep[MultiLayer]<<endl;
-      cout <<"ntubes[MultiLayer] "<<ntubes[MultiLayer]<<endl;
-      cout<<"First & last bin "<<firstbinML[MultiLayer]<<" "<<lastbinML[MultiLayer]<<endl<<endl;
-    }
+    //    if (verbose){
+    //   cout<<endl<<"BasicGeometryBasicGeometryBasicGeometryBasicGeometryBasicGeometryBasicGeometry"<<endl;
+    //   cout<<"Basic geometry of MultiLayer "<<MultiLayer+1<<endl;
+    //   cout <<"Number of bins per Layer " <<nbins_per_layer[MultiLayer]<<endl;
+    //   cout <<" chamber type is "<<chtype<<" nlayers "<<nlayers_ml<<
+    // 	" nbins/layer " <<nbins_per_layer[MultiLayer]<<
+    // 	" layers per ml "<<nlayers_per_ml<<" Fit interval size "<<tstep[MultiLayer]<<endl;
+    //   cout <<"ntubes[MultiLayer] "<<ntubes[MultiLayer]<<endl;
+    //   cout<<"First & last bin "<<firstbinML[MultiLayer]<<" "<<lastbinML[MultiLayer]<<endl<<endl;
+    // }
   }
-  if(verbose) cout<<" ===== getBasicGeometry exit  =========== "<<endl;
+  //  if(verbose) cout<<" ===== getBasicGeometry exit  =========== "<<endl;
 
 } // getBasicGeometry
 
@@ -871,44 +833,44 @@ void MDTDeadElementsAnalysis::getBasicGeometry(TH1F* HRef, string chambname){
 
 void MDTDeadElementsAnalysis::printSummary(){
 
-  unsigned im=0;
-  if(noisyChamber.size()+deadMultilayer.size()+deadLayer.size()+deadMezz.size()+deadTube.size()>0)
-    cout<<"Analysis results for chamber "<<getChamberName()<<endl;
+  //  unsigned im=0;
+  // if(noisyChamber.size()+deadMultilayer.size()+deadLayer.size()+deadMezz.size()+deadTube.size()>0)
+  //   cout<<"Analysis results for chamber "<<getChamberName()<<endl;
 
-  if(noisyChamber.size()>0){
-    cout<<"number of noisy chambers "<<noisyChamber.size()<<endl;
-    for(im=0;im<noisyChamber.size();im++){
-      cout<<" "<<noisyChamber[im]<<endl;
-    }
-  }
+  // if(noisyChamber.size()>0){
+  //   cout<<"number of noisy chambers "<<noisyChamber.size()<<endl;
+  //   for(im=0;im<noisyChamber.size();im++){
+  //     cout<<" "<<noisyChamber[im]<<endl;
+  //   }
+  // }
 
-  if(deadMultilayer.size()>0){
-    cout<<"number of dead MultyLayers "<<deadMultilayer.size()<<endl;
-    for(im=0;im<deadMultilayer.size();im++){
-      cout <<" chamber "<<deadMLChamber[im] <<deadMultilayer[im]<<endl;
-    }
-  }
+  // if(deadMultilayer.size()>0){
+  //   cout<<"number of dead MultyLayers "<<deadMultilayer.size()<<endl;
+  //   for(im=0;im<deadMultilayer.size();im++){
+  //     cout <<" chamber "<<deadMLChamber[im] <<deadMultilayer[im]<<endl;
+  //   }
+  // }
 
-  if(deadLayer.size()>0){
-    cout<<"number of dead Layers "<<deadLayer.size()<<endl;
-    for(im=0;im<deadLayer.size();im++){
-      cout<<" dead Layer "<<deadLayer[im]<<" found in chamber "<<deadLayerChamber[im]<<endl;
-    }
-  }
+  // if(deadLayer.size()>0){
+  //   cout<<"number of dead Layers "<<deadLayer.size()<<endl;
+  //   for(im=0;im<deadLayer.size();im++){
+  //     cout<<" dead Layer "<<deadLayer[im]<<" found in chamber "<<deadLayerChamber[im]<<endl;
+  //   }
+  //  }
 
-  if(deadMezz.size()>0){
-    cout<<"number of dead mezz "<<deadMezz.size()<<endl;
-    for(im=0;im<deadMezz.size();im++){
-      cout <<" chamber "<<deadMezzChamber[im]<<" mezzanine "<<deadMezz[im]<<" dead in layer "<<deadMezzML[im]<<endl;
-    }
-  }
+  // if(deadMezz.size()>0){
+  //   cout<<"number of dead mezz "<<deadMezz.size()<<endl;
+  //   for(im=0;im<deadMezz.size();im++){
+  //     cout <<" chamber "<<deadMezzChamber[im]<<" mezzanine "<<deadMezz[im]<<" dead in layer "<<deadMezzML[im]<<endl;
+  //   }
+  // }
 
-  if(deadTube.size()>0){
-    cout<<"number of dead tubes "<<deadTube.size()<<endl;
-    for(im=0;im<deadTube.size();im++){
-      cout<<" "<<deadTubeChamber[im]<<" "<<deadTube[im]<<" "<<deadTubeML[im]<<" "<<deadTubeLay[im]<<endl;
-    }
-  }
+  // if(deadTube.size()>0){
+  //   cout<<"number of dead tubes "<<deadTube.size()<<endl;
+  //   for(im=0;im<deadTube.size();im++){
+  //     cout<<" "<<deadTubeChamber[im]<<" "<<deadTube[im]<<" "<<deadTubeML[im]<<" "<<deadTubeLay[im]<<endl;
+  //   }
+  // }
 
 }// printSummary
 // ==============================================================================
@@ -917,9 +879,7 @@ void MDTDeadElementsAnalysis::printSummary(){
 //
 // ==============================================================================
 
-
 void MDTDeadElementsAnalysis::printSummaryToAsciFile(){
-
   std::ofstream deadAna;
   deadAna.open("deadana.dat",ios::app);
 
@@ -1002,11 +962,11 @@ void MDTDeadElementsAnalysis::printCompactSummaryToAsciFile(){
 
   if(deadLayer.size()>0){
     for(im=0;im<deadLayer.size();im++){
-      int lay=deadLayer[im] ;
+      int lay=deadLayer[im];
       int ml=1;
       if (lay>nlayers_per_ml) {
-	lay=lay-nlayers_per_ml ; 
-	ml=2 ;
+	lay=lay-nlayers_per_ml; 
+	ml=2;
       }
       // deadAna<<deadLayerChamber[im]<< " dead_Layer "<<deadLayer[im]<<endl;
       deadAna<<deadLayerChamber[im]<< " dead_LAYER "<<ml<<" "<<lay<<endl;
@@ -1037,7 +997,7 @@ void MDTDeadElementsAnalysis::printCompactSummaryToAsciFile(){
 
 bool MDTDeadElementsAnalysis::NoisyChamber(TH1F* idh1, string chambname){
 
-  if(verbose) cout<<" ===== entering MDTDeadElementsAnalysis::NoisyChamber=========== "<<endl;
+  //  if(verbose) cout<<" ===== entering MDTDeadElementsAnalysis::NoisyChamber=========== "<<endl;
   double binsbelow2=0;
   double binsabove1=0;
   int nbins=idh1->GetNbinsX();
@@ -1064,11 +1024,11 @@ bool MDTDeadElementsAnalysis::NoisyChamber(TH1F* idh1, string chambname){
     noisyChamber.push_back(chambname);
   }  
 
-  if (verbose) {
-    cout <<"Filter noise chamber"<<chambname<<" ratio is "<<ratio<<endl;
-    cout<<" Entries "<<Entries<<" Bins "<<nbins<<" bins<2 "<<binsbelow2<<
-      " bins>=2 "<<binsabove1<<endl;
-  }
+  // if (verbose) {
+  //   cout <<"Filter noise chamber"<<chambname<<" ratio is "<<ratio<<endl;
+  //   cout<<" Entries "<<Entries<<" Bins "<<nbins<<" bins<2 "<<binsbelow2<<
+  //     " bins>=2 "<<binsabove1<<endl;
+  // }
   return Noise;
 
 }// NoisyChamber
@@ -1087,7 +1047,7 @@ void MDTDeadElementsAnalysis::ClearList(){
   deadLayerChamber.clear();
   deadMLChamber.clear();
   deadMLCounts.clear();
-  deadMLLevel.clear() ;
+  deadMLLevel.clear();
   deadMultilayer.clear();
   deadMezzChamber.clear();
   deadMezz.clear();
@@ -1150,14 +1110,13 @@ void MDTDeadElementsAnalysis::Clear(int ntubes){
 void MDTDeadElementsAnalysis::deadTubes(TH1F* idh, TH1F* HRef, TH1F* deadTubesMap, string chambname){
 
 
-  if(verbose) cout<<"DeadTubes, Analyse histo "<<idh->GetName()<<
-    " for Chamber "<<chambname<<endl;
+  //  if(verbose) cout<<"DeadTubes, Analyse histo "<<idh->GetName()<< " for Chamber "<<chambname<<endl;
 
   string codepart="MDTDeadElementsAnalysis";
   // string option="RQ";
   string option="Q";
 
-  TH1F * idh1 = (TH1F*)idh->Clone() ;
+  TH1F * idh1 = (TH1F*)idh->Clone();
 
   int tottubes= (int) idh1->GetNbinsX();
   for (int nb=1;nb<=tottubes;nb++){
@@ -1166,9 +1125,9 @@ void MDTDeadElementsAnalysis::deadTubes(TH1F* idh, TH1F* HRef, TH1F* deadTubesMa
       float cref=HRef->GetBinContent(nb);
       if(cref!=0.) {
 	idh1->SetBinError(nb,2.3);
-	if(verbose) {
-	  cout<<"Setting error in bin "<<nb<<" to 2.3 ( cref is ) "<<cref<<endl;
-	}
+	// if(verbose) {
+	//   cout<<"Setting error in bin "<<nb<<" to 2.3 ( cref is ) "<<cref<<endl;
+	// }
       }
     }
   }
@@ -1181,8 +1140,7 @@ void MDTDeadElementsAnalysis::deadTubes(TH1F* idh, TH1F* HRef, TH1F* deadTubesMa
     Entries = Entries + (int) idh1->GetBinContent(bin);
   }
   float averageEntries = float(Entries) / float(nbins);
-  if(verbose){cout<<"chamber # of entries is "<<chambname<<" "<<Entries<<
-      " # entries per bin "<<averageEntries<<endl;}
+  //  if(verbose){cout<<"chamber # of entries is "<<chambname<<" "<<Entries<< " # entries per bin "<<averageEntries<<endl;}
   //    if(Entries>4000 ){
   if(Entries>4000 || averageEntries > 10.){
 
@@ -1197,39 +1155,39 @@ void MDTDeadElementsAnalysis::deadTubes(TH1F* idh, TH1F* HRef, TH1F* deadTubesMa
       chi2cut=16.;
       }
     */
-    if(verbose){cout<<"chamber # of entries is "<<chambname<<" "<<Entries<<endl;}
+    //    if(verbose){cout<<"chamber # of entries is "<<chambname<<" "<<Entries<<endl;}
     std::vector<double> parf(7, 0.0);
     polfunc = new TF1("fit0",polnml3,1.,(double)2.*ntubes[0],4);
     TF1 *fitfunc = new TF1("fit1",completefunc,1.,(double)2.*ntubes[0],7);
 
     // loop over ML's
     for(int ML=0;ML<2;ML++){
-      if(verbose) {
-	cout<<"======== dead tubes, studying ML "<<ML+1<<endl;
-	cout<<"nbins_per_layer[ML] "<<nbins_per_layer[ML]<<endl;
-      }
-      if (nbins_per_layer[ML]==0) continue ;
+      // if(verbose) {
+      // 	cout<<"======== dead tubes, studying ML "<<ML+1<<endl;
+      // 	cout<<"nbins_per_layer[ML] "<<nbins_per_layer[ML]<<endl;
+      // }
+      if (nbins_per_layer[ML]==0) continue;
       /*
 	Make sure not to loop over a dead ML
       */
       bool MLdead = false;
       for(unsigned int im=0;im<deadMultilayer.size();im++){
 	if(deadMultilayer[im]==ML+1) MLdead = true;
-	if(verbose){
-	  cout <<"ML, im, deadMultilayer "<<ML<<" "<<im<<" "<<deadMultilayer[im]<<endl;
-	  cout <<"MLdead "<<MLdead<<endl;
-	}
+	// if(verbose){
+	//   cout <<"ML, im, deadMultilayer "<<ML<<" "<<im<<" "<<deadMultilayer[im]<<endl;
+	//   cout <<"MLdead "<<MLdead<<endl;
+	// }
       }
       if(MLdead) {
-	if(verbose) cout<<"... breaking .. "<<endl;
+	// if(verbose) cout<<"... breaking .. "<<endl;
 	break;
       }
       double tubestart=1.+ML*(firstbinML[1]-1);
-      if(verbose){
-	cout<<"Number of entries is "<<Entries<<" ML "<<ML<<
-	  " ntubes[ML] "<<ntubes[ML]<< " nbins_per_layer[ML] "<<nbins_per_layer[ML]<<
-	  " nlayers "<<nlayers_per_ml<<endl;
-      }
+      // if(verbose){
+      // 	cout<<"Number of entries is "<<Entries<<" ML "<<ML<<
+      // 	  " ntubes[ML] "<<ntubes[ML]<< " nbins_per_layer[ML] "<<nbins_per_layer[ML]<<
+      // 	  " nlayers "<<nlayers_per_ml<<endl;
+      // }
       // define functions: "fit1" is the one for complete fit, "fit0" for polynomial part only
       // TF1 *fitfunc = new TF1("fit1",completefunc,tubestart,tubestart+ntubes[ML],7);
       // polfunc = new TF1("fit0",polnml3,tubestart,tubestart+ntubes[ML],4);
@@ -1239,15 +1197,15 @@ void MDTDeadElementsAnalysis::deadTubes(TH1F* idh, TH1F* HRef, TH1F* deadTubesMa
       for (int nlay=1; nlay<=nlayers_per_ml;nlay++){
 	double tube0 = (nlay-1)*nbins_per_layer[ML]+1+ML*nbins_per_layer[1]*nlayers_per_ml;
 	double tube1 = tube0 + nbins_per_layer[ML]-1;
-	if (verbose){
-	  cout <<" *************************** Change of layer ***************************"<<endl;
-	  cout <<"fitting layer "<<nlay<<" from tube0 "<<tube0
-	       <<" to tube1 "<<tube1<<" last tube "<<tube1-ntubes[ML]<<endl;
-	  cout<<" ntubes[0] "<<ntubes[ML]<<endl;
-	  cout <<" ***********************************************************************"<<endl;
-	}
+	// if (verbose){
+	//   cout <<" *************************** Change of layer ***************************"<<endl;
+	//   cout <<"fitting layer "<<nlay<<" from tube0 "<<tube0
+	//        <<" to tube1 "<<tube1<<" last tube "<<tube1-ntubes[ML]<<endl;
+	//   cout<<" ntubes[0] "<<ntubes[ML]<<endl;
+	//   cout <<" ***********************************************************************"<<endl;
+	// }
 
-	for (tubestart = tube0 ; tubestart <=tube1-ntubes[ML]+1; tubestart=tubestart+tstep[ML]) {
+	for (tubestart = tube0; tubestart <=tube1-ntubes[ML]+1; tubestart=tubestart+tstep[ML]) {
 	  // here the scan starts; you have a sliding fit interval which goes from
 	  // t0start to t0start + ntubes[0]
 
@@ -1261,21 +1219,21 @@ void MDTDeadElementsAnalysis::deadTubes(TH1F* idh, TH1F* HRef, TH1F* deadTubesMa
 	    option="";
 	  }
 	  if (verbose){
-	    cout <<endl<<"=============== Fit interval "
-		 <<tubestart<<" "<<tubestart+ntubes[ML]-1<<
-	      " with Polnml3 "<<endl;
+	    // cout <<endl<<"=============== Fit interval "
+	    // 	 <<tubestart<<" "<<tubestart+ntubes[ML]-1<<
+	    //   " with Polnml3 "<<endl;
 	    idh1->SetMinimum(0.);
 	    idh1->SetAxisRange(tubestart-2.5,tubestart+ntubes[ML]+1.5);
 	    // idh1->Fit("fit0",option.c_str(),"",(double)tubestart,(double)tubestart+ntubes[ML]-1);
 	    idh1->Fit(polfunc,option.c_str(),"",(double)tubestart,(double)tubestart+ntubes[ML]-1);
-	    double chi2=polfunc->GetChisquare();
-	    cout <<" Fit chisquare is "<<chi2<<" limit is "<<chi2cut<<endl;
+	    //	    double chi2=polfunc->GetChisquare();
+	    // cout <<" Fit chisquare is "<<chi2<<" limit is "<<chi2cut<<endl;
 	    if (drawPlots) { 
-	      TCanvas *c1 = new TCanvas() ;
+	      TCanvas *c1 = new TCanvas();
 	      c1->WaitPrimitive();
 	      int inutile;
 	      cin>>inutile;
-	      cout<<inutile<<endl;
+	      //	      cout<<inutile<<endl;
             }
 	  } else {
 	    // idh1->Fit("fit0",option.c_str(),"",(double)tubestart,(double)tubestart+ntubes[ML]-1);
@@ -1294,15 +1252,15 @@ void MDTDeadElementsAnalysis::deadTubes(TH1F* idh, TH1F* HRef, TH1F* deadTubesMa
 
 	  int firsttube = int (tubestart);
 	  int mtubes = int(ntubes[ML]);
-          if (verbose) cout<< " calling getSpikesInInterval " << endl ; 
+	  //          if (verbose) cout<< " calling getSpikesInInterval " << endl; 
 	  getSpikesInInterval(idh1,firsttube,firsttube+mtubes-1,polfunc);
-          if (verbose) cout<< " calling getHolesInInterval " << endl ; 
+	  //          if (verbose) cout<< " calling getHolesInInterval " << endl; 
 	  getHolesInInterval(idh1,firsttube,firsttube+mtubes-1,mtubes, polfunc);
-          if (verbose) cout<< " returning from getHolesInInterval " << endl ; 
+	  //          if (verbose) cout<< " returning from getHolesInInterval " << endl; 
 
-          if (verbose) cout<< " calling getHolesInInterval_strategy5 " << endl ; 
+	  //          if (verbose) cout<< " calling getHolesInInterval_strategy5 " << endl; 
 	  getHolesInInterval_strategy5(idh1,firsttube,firsttube+mtubes-1,mtubes, polfunc);
-          if (verbose) cout<< " returning from getHolesInInterval_strategy5 " << endl ; 
+	  //          if (verbose) cout<< " returning from getHolesInInterval_strategy5 " << endl; 
 
 	  string oldoption=option;
 	  //	  setVerbose();
@@ -1311,10 +1269,10 @@ void MDTDeadElementsAnalysis::deadTubes(TH1F* idh, TH1F* HRef, TH1F* deadTubesMa
 	  double err[10];
 	  // remove all holes from the fit!
 	  for(int nh=0;nh<nholes;nh++){
-	    if(verbose){
-	      cout <<" putting hole "<<nh<<
-		" in bin "<< holes[nh]<<" to zero error "<<endl;
-	    }
+	    // if(verbose){
+	    //   cout <<" putting hole "<<nh<<
+	    // 	" in bin "<< holes[nh]<<" to zero error "<<endl;
+	    // }
 	    // put error=0.-> bin does not count in fit
 	    err[nh]=idh1->GetBinError(holes[nh]);
 	    idh1->SetBinError(holes[nh],0.);
@@ -1328,12 +1286,12 @@ void MDTDeadElementsAnalysis::deadTubes(TH1F* idh, TH1F* HRef, TH1F* deadTubesMa
 	      //option="R";
 	      option="";
 	    }
-	    if(verbose) cout<<"study hole "<<nh<<" in position "<<holes[nh]<<" out of "<<nholes<<endl;
+	    //	    if(verbose) cout<<"study hole "<<nh<<" in position "<<holes[nh]<<" out of "<<nholes<<endl;
 	    // stop analysis if eff_hole is > .4
 	    if(eff_hole[nh]>0.4) continue;
 	    for(int i=0;i<4;i++){
 	      fitfunc->SetParameter(i,polyparf[i]);
-	      if(verbose) cout<<"setting par "<<i<<" to "<<polyparf[i]<<endl;
+	      //	      if(verbose) cout<<"setting par "<<i<<" to "<<polyparf[i]<<endl;
 	    }
 	    ibinmin = holes[nh];
 	    xbinmin=idh1->GetBinCenter(ibinmin);
@@ -1364,32 +1322,31 @@ void MDTDeadElementsAnalysis::deadTubes(TH1F* idh, TH1F* HRef, TH1F* deadTubesMa
 	    option = option+"B";
 	    idh1->Fit("fit1",option.c_str(),"",(double)tubestart-0.5,(double)tubestart+ntubes[0]-0.5);
 	    if(verbose){
-	      cout<<"Fit interval is "<<tubestart-0.5<<" to "<<tubestart+ntubes[ML]-0.5<<endl;
+	      //	      cout<<"Fit interval is "<<tubestart-0.5<<" to "<<tubestart+ntubes[ML]-0.5<<endl;
 	      idh1->SetMinimum(0.);
-	    } else{
 	    }
 	    double chi2 = fitfunc->GetChisquare();
-	    if (verbose){
-	      cout<<" chi2, chi2cut, par6 error "<<chi2<<" "<<chi2cut<<" "<<
-                fitfunc->GetParameter(6)<<" "<< fitfunc->GetParError(6)<<endl;
-            }
+	    // if (verbose){
+	    //   cout<<" chi2, chi2cut, par6 error "<<chi2<<" "<<chi2cut<<" "<<
+            //     fitfunc->GetParameter(6)<<" "<< fitfunc->GetParError(6)<<endl;
+            // }
 	    double deltachi2=chi2pol3-chi2;
-	    if(verbose){
-	      cout<<"chi2-poly "<<chi2pol3<<" complete fit chi2 "<<chi2<<" variation "<<deltachi2<<
-		" relative variation "<<deltachi2/chi2pol3<<endl;
-	    }
+	    // if(verbose){
+	    //   cout<<"chi2-poly "<<chi2pol3<<" complete fit chi2 "<<chi2<<" variation "<<deltachi2<<
+	    // 	" relative variation "<<deltachi2/chi2pol3<<endl;
+	    // }
 	    if((chi2<chi2cut&&fitfunc->GetParError(6)>.1)||deltachi2/chi2pol3>.3){
 	      // option = option+"EI";    // TEST TEST 
 	      option = option+"E";        // TEST TEST
-	      if(verbose) cout<<"error of eff too large ->refine fit using option "
-			      <<option<<endl;
+	      // if(verbose) cout<<"error of eff too large ->refine fit using option "
+	      // 		      <<option<<endl;
 	      if(average_entry<50.) option=option+"L";
 	      //	if error on hole efficiency if > 5% refine fit using option 'E'
 
 	      if(verbose){
-		cout <<"Refine hole error ...,average_entry,option are "
-		     <<average_entry<<" "<<option<<endl;
-		cout<<"tubestart,ML,ntubes[ML] "<<tubestart<<" "<<ML<<" "<<ntubes[ML]<<endl;
+		// cout <<"Refine hole error ...,average_entry,option are "
+		//      <<average_entry<<" "<<option<<endl;
+		// cout<<"tubestart,ML,ntubes[ML] "<<tubestart<<" "<<ML<<" "<<ntubes[ML]<<endl;
 		idh1->Fit("fit1",option.c_str(),"",(double)tubestart-0.5,(double)tubestart+ntubes[ML]-0.5);
 	      } else {
 		idh1->Fit("fit1",option.c_str(),"",(double)tubestart-0.5,(double)tubestart+ntubes[ML]-0.5);
@@ -1410,12 +1367,12 @@ void MDTDeadElementsAnalysis::deadTubes(TH1F* idh, TH1F* HRef, TH1F* deadTubesMa
 	    if(verbose&&effimin<0.9){
 	      idh1->SetAxisRange(tubestart-2.5,tubestart+ntubes[ML]+1.5);
 	      if (drawPlots) { 
-		TCanvas *c1 = new TCanvas() ;
+		TCanvas *c1 = new TCanvas();
 		idh1->Draw();
 		c1->WaitPrimitive();
 		int inutile;
 		cin>>inutile;
-		cout<<inutile<<endl;
+		//		cout<<inutile<<endl;
               }
 	    }
 
@@ -1433,15 +1390,15 @@ void MDTDeadElementsAnalysis::deadTubes(TH1F* idh, TH1F* HRef, TH1F* deadTubesMa
 	    deadtubechi2[ndeadtubes-1]=chi2min;
 	    deadtubeeffi[ndeadtubes-1]=effimin;
 	    deadtubeerr[ndeadtubes-1]=errmin;
-	    if (verbose){
-	      cout<<"  dddddddddddddddddddd dead tube candidate "<<
-		ndeadtubes<<" identified dddddddddddd"<<endl;
-	      cout <<"  Bin # "<<ibinmin<<
-		" Fit chi2 "<<chi2min<<
-		" efficiency "<<effimin<<
-		" efficiency error "<<errmin<<endl;
-	      cout<<"  dddddddddddddddddddddddddddddddddddddddddddddddddddd "<<endl;
-	    }
+	    // if (verbose){
+	    //   cout<<"  dddddddddddddddddddd dead tube candidate "<<
+	    // 	ndeadtubes<<" identified dddddddddddd"<<endl;
+	    //   cout <<"  Bin # "<<ibinmin<<
+	    // 	" Fit chi2 "<<chi2min<<
+	    // 	" efficiency "<<effimin<<
+	    // 	" efficiency error "<<errmin<<endl;
+	    //   cout<<"  dddddddddddddddddddddddddddddddddddddddddddddddddddd "<<endl;
+	    // }
 	    // compute now difference between polynomial at the position of the dead tube
 	    // and compute [poly-hist(dead-tube)]/stat-error
 
@@ -1482,7 +1439,7 @@ void MDTDeadElementsAnalysis::deadTubes(TH1F* idh, TH1F* HRef, TH1F* deadTubesMa
       //gabri
     validateDeadTubes(chi2cut,HRef,deadTubesMap,chambname);
   } //if(Entries>0)
-  delete idh1 ;
+  delete idh1;
 }// deadTubes
 
 // ==============================================================================
@@ -1491,30 +1448,30 @@ void MDTDeadElementsAnalysis::deadTubes(TH1F* idh, TH1F* HRef, TH1F* deadTubesMa
 //
 // ==============================================================================
 
-string MDTDeadElementsAnalysis::validateDeadTubes(double chi2cut,TH1F* HRef, TH1F* deadTubesMap, string chambname){
-  std::ofstream deadAna;
+string MDTDeadElementsAnalysis::validateDeadTubes(double chi2cut, TH1F *HRef, TH1F *deadTubesMap, string chambname){
+  //  std::ofstream deadAna;
 
-  if (ndeadtubes ==0) {
-    deadAna << " no deadTubes in chamber " << schamber;
-    if(verbose) cout  << " deadAna " << deadAna <<endl;
-  }
-  double mrtest=0.;
+  // if (ndeadtubes == 0) {
+  //  deadAna << " no deadTubes in chamber " << schamber;
+  //    if(verbose) cout  << " deadAna " << deadAna <<endl;
+  //}
+  //  double mrtest=0.;
   for (int nd=0;nd<ndeadtubes;nd++){
 
-    bool stat1=(1.- deadtubeeffi[nd])/deadtubeerr[nd] > 7.;
-    bool stat2= (deadtubestat[nd][0]>5.);
+    // bool stat1=(1.- deadtubeeffi[nd])/deadtubeerr[nd] > 7.;
+    // bool stat2= (deadtubestat[nd][0]>5.);
     Double_t cgeo = HRef->GetBinContent(int(deadtube[nd]));
     bool stat_significance = ((1.- deadtubeeffi[nd])/deadtubeerr[nd] > 7.)||
       (deadtubestat[nd][0]>5.);
-    if(verbose){
-      cout<<endl<<endl<<"============================================="<<endl;
-      cout <<"Analyse deadtube candidate "<<nd<<" in bin "<<deadtube[nd]<<endl;
-      cout <<"deadtubeeffi[nd],deadtubeerr[nd],deadtubestat[nd][0] "<<
-	deadtubeeffi[nd]<<" "<<deadtubeerr[nd]<<" "<<deadtubestat[nd][0]<<std::endl;
-      cout <<" stat1 "<<stat1<<" stat2 "<<stat2<<" mrtest "<<mrtest<<" stat_sign "<<stat_significance<<endl;
-      cout<<" deadtubeerr "<<deadtubeerr[nd]<<" (if ==0. abandon!) "
-	  <<" chi2 "<<deadtubechi2[nd]<<" chi2cut "<<chi2cut<<endl;
-    }
+    // if(verbose){
+    //   cout<<endl<<endl<<"============================================="<<endl;
+    //   cout <<"Analyse deadtube candidate "<<nd<<" in bin "<<deadtube[nd]<<endl;
+    //   cout <<"deadtubeeffi[nd],deadtubeerr[nd],deadtubestat[nd][0] "<<
+    // 	deadtubeeffi[nd]<<" "<<deadtubeerr[nd]<<" "<<deadtubestat[nd][0]<<std::endl;
+    //   cout <<" stat1 "<<stat1<<" stat2 "<<stat2<<" mrtest "<<mrtest<<" stat_sign "<<stat_significance<<endl;
+    //   cout<<" deadtubeerr "<<deadtubeerr[nd]<<" (if ==0. abandon!) "
+    // 	  <<" chi2 "<<deadtubechi2[nd]<<" chi2cut "<<chi2cut<<endl;
+    // }
     if (deadtubeerr[nd]==0.) continue;
     double effective_cut=chi2cut;
     if(deadtubechi2[nd])effective_cut=chi2cut*6.;
@@ -1529,18 +1486,18 @@ string MDTDeadElementsAnalysis::validateDeadTubes(double chi2cut,TH1F* HRef, TH1
         int ML=(int)((nlay-1)/nlayers_per_ml)+1;
 	int tube_in_layer=((int) deadtube[nd])-(nlay-1)*nbins_per_layer[0];
 
-	if(verbose){
-	  cout<<" ML, tube_in_layer "<<ML<<" "<<tube_in_layer<<endl;
-	  cout<<"nlay, nlayers/ml, nbins/layer "<<nlay<<" "<<nlayers_per_ml<<" "<<nbins_per_layer[0]<<endl;
-	}
+	// if(verbose){
+	//   cout<<" ML, tube_in_layer "<<ML<<" "<<tube_in_layer<<endl;
+	//   cout<<"nlay, nlayers/ml, nbins/layer "<<nlay<<" "<<nlayers_per_ml<<" "<<nbins_per_layer[0]<<endl;
+	// }
 	if(nlay>nlayers_per_ml) nlay=nlay-nlayers_per_ml;
 
 	bool alreadyFound = false;
-	Double_t cgeo = HRef->GetBinContent(int(deadtube[nd]));
-	Double_t cgeo1 = HRef->GetBinContent(int(deadtube[nd])-1);
+	// Double_t cgeo = HRef->GetBinContent(int(deadtube[nd]));
+	// Double_t cgeo1 = HRef->GetBinContent(int(deadtube[nd])-1);
 	Double_t cdead = deadTubesMap->GetBinContent(int(deadtube[nd]));
-	Double_t cdead1 = deadTubesMap->GetBinContent(int(deadtube[nd])-1);
-	Double_t signML = cgeo/abs(cgeo);
+	// Double_t cdead1 = deadTubesMap->GetBinContent(int(deadtube[nd])-1);
+	// Double_t signML = cgeo/abs(cgeo);
 	// temporary
 
 	/*
@@ -1549,11 +1506,11 @@ string MDTDeadElementsAnalysis::validateDeadTubes(double chi2cut,TH1F* HRef, TH1
 	  deadAna<<" content of geo-hist "<<cgeo<<" sign "<<signML<<endl;
 	*/
 
-	if(verbose){cout<<" Study tube "<<deadtube[nd]<<endl;}
-	if(verbose) {cout<<" content of geo-hist "<<cgeo<<" sign "<<signML<<
-	    " content of geo-hist1 "<<cgeo1<<endl;
-	  cout<<" content of deadTubesMap "<<cdead<<" deadTubesMap+1 "<<cdead1<<endl;
-	}
+	// if(verbose){cout<<" Study tube "<<deadtube[nd]<<endl;}
+	// if(verbose) {cout<<" content of geo-hist "<<cgeo<<" sign "<<signML<<
+	//     " content of geo-hist1 "<<cgeo1<<endl;
+	//   cout<<" content of deadTubesMap "<<cdead<<" deadTubesMap+1 "<<cdead1<<endl;
+	// }
 	// already found in Href
 	//	int igeo = (int) cgeo;
 	//	Int_t refquantity = igeo%10;
@@ -1570,8 +1527,8 @@ string MDTDeadElementsAnalysis::validateDeadTubes(double chi2cut,TH1F* HRef, TH1
 	    alreadyFound = true;
 	  }
 	}
-	if(verbose&&alreadyFound) cout<<" alreadyFound!"<<endl;
-	if(verbose) cout<<"deadquantity zzzzzzzzzzzzzzzzz "<<deadquantity<<endl;
+	// if(verbose&&alreadyFound) cout<<" alreadyFound!"<<endl;
+	// if(verbose) cout<<"deadquantity zzzzzzzzzzzzzzzzz "<<deadquantity<<endl;
 	if (!alreadyFound&& deadquantity==0) {
 	  deadTubeHistoBin.push_back(deadtube[nd]);
 	  deadTube.push_back(tube_in_layer);
@@ -1594,35 +1551,34 @@ string MDTDeadElementsAnalysis::validateDeadTubes(double chi2cut,TH1F* HRef, TH1
 	  //	    if(abs(cgeo)!=1.&& abs(cdead) ==10.){
 	  if(abs(cgeo)!=0.&& refquantity ==0){
 	    //	      deadTubesMap->SetBinContent(int(c),2.*signML);
-	    if(verbose)cout<<"Chamber "<<chambname<<" filling bin "<<c<<" of Href "<<endl;
+	    //	    if(verbose)cout<<"Chamber "<<chambname<<" filling bin "<<c<<" of Href "<<endl;
 	    deadTubesMap->Fill(int(c),2.*signML);
 	  }
 	}
 
-	if(verbose){
-	  cout<<" dimensione deatTube, pos.2"<<deadTubeChi2.size()<<endl;
-	  cout<<" ============= dead tube found "<<deadtube[nd]
-	      <<" in chamber " <<chambname<<"=========================="<<endl;
-	  cout<<"ML "<<ML<<" layer "<<nlay<<" tube "<<tube_in_layer<<endl;
-	  cout<<" chi2 "<<deadtubechi2[nd]<<" efficiency "<<deadtubeeffi[nd]
-	      <<" error  "<<deadtubeerr[nd]<<" Mauro test "<<mrtest<<endl;
-	  deadAna<<" ============= dead tube found "<<deadtube[nd]
-		 <<" in chamber " <<chambname<<"=========================="<<endl;
-	  deadAna<<"ML "<<ML<<" layer "<<nlay<<" tube "<<tube_in_layer<<endl;
-	  deadAna<<" chi2 "<<deadtubechi2[nd]<<" efficiency "<<deadtubeeffi[nd]
-		 <<" error  "<<deadtubeerr[nd]<<endl;
-	  deadAna <<"==========================================================="<<endl;
-	}
-	if(verbose) 
-	  cout << " deadAna " << deadAna <<endl;
+	//if(verbose){
+	//   cout<<" dimensione deatTube, pos.2"<<deadTubeChi2.size()<<endl;
+	//   cout<<" ============= dead tube found "<<deadtube[nd]
+	//       <<" in chamber " <<chambname<<"=========================="<<endl;
+	//   cout<<"ML "<<ML<<" layer "<<nlay<<" tube "<<tube_in_layer<<endl;
+	//   cout<<" chi2 "<<deadtubechi2[nd]<<" efficiency "<<deadtubeeffi[nd]
+	//       <<" error  "<<deadtubeerr[nd]<<" Mauro test "<<mrtest<<endl;
+	//deadAna<<" ============= dead tube found "<<deadtube[nd]
+	//	 <<" in chamber " <<chambname<<"=========================="<<endl;
+	//  deadAna<<"ML "<<ML<<" layer "<<nlay<<" tube "<<tube_in_layer<<endl;
+	//  deadAna<<" chi2 "<<deadtubechi2[nd]<<" efficiency "<<deadtubeeffi[nd]
+	//	 <<" error  "<<deadtubeerr[nd]<<endl;
+	//  deadAna <<"==========================================================="<<endl;
+	//	  cout << " deadAna " << deadAna <<endl;
+	//}
 
       } //for mt = bin
     }// end first test ==================
   } // for nd=0, dead tubes
 
-  if(verbose) cout<<" ===== deadTubes exit =========== "<<endl;
-  return "end processing" ;
-  //    return deadAna ;
+  //  if(verbose) cout<<" ===== deadTubes exit =========== "<<endl;
+  return "end processing";
+  //    return deadAna;
 
 }//deadTubes
 
@@ -1633,10 +1589,10 @@ string MDTDeadElementsAnalysis::validateDeadTubes(double chi2cut,TH1F* HRef, TH1
 // ==============================================================================
 
 void MDTDeadElementsAnalysis::getHolesInInterval_strategy5(TH1F* idh1, int firsttube, int lasttube, int /*ntubes*/, TF1 * /*polfunc*/){
-  if(verbose){
-    cout<<" ======================= entry getHolesInInterval_strategy5 from tube "
-	<<firsttube<<" to tube "<<lasttube<<" in chamber "<<getChamberName()<<endl; 
-  }
+  // if(verbose){
+  //   cout<<" ======================= entry getHolesInInterval_strategy5 from tube "
+  // 	<<firsttube<<" to tube "<<lasttube<<" in chamber "<<getChamberName()<<endl; 
+  // }
   TH1F * distr_of_entries = new TH1F("","",1000,0.,1000.);
   for(int ib=firsttube; ib<=lasttube;ib++){
     float cont = idh1->GetBinContent(ib);
@@ -1649,14 +1605,14 @@ void MDTDeadElementsAnalysis::getHolesInInterval_strategy5(TH1F* idh1, int first
   for(int ib=1;ib<=mean-3.*sigma;ib++){
     double cont = distr_of_entries->GetBinContent(ib);
     if(cont!=0) {
-      if(verbose)cout<<" bin "<<ib<<" is not zero; = "<<cont<<endl;
-      for(int ib2=firsttube; ib2<=lasttube;ib2++){
-	float cont2 = idh1->GetBinContent(ib2);
+      //      if(verbose)cout<<" bin "<<ib<<" is not zero; = "<<cont<<endl;
+      //      for(int ib2=firsttube; ib2<=lasttube;ib2++){
+      //float cont2 = idh1->GetBinContent(ib2);
 	//	cout<<" cont2 "<<cont2<<" ib2 "<<ib<<endl;
-	if(cont2==float(ib-1)&&verbose) {
-	  cout<<"bin "<<ib2<<"is dead or inefficient"<<endl;
-	}
-      }
+	// if(cont2==float(ib-1)&&verbose) {
+	//   cout<<"bin "<<ib2<<"is dead or inefficient"<<endl;
+	// }
+      //      }
     }
   }
 
@@ -1675,10 +1631,10 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
   string codepart="GetHolesInInterval";
   double bestchi2 = 1000000.;
   chi2poly=0.;
-  if(verbose){
-    cout<<" ======================= entry getHolesInInterval from tube "
-	<<firsttube<<" to tube "<<lasttube<<endl;
-  }
+  // if(verbose){
+  //   cout<<" ======================= entry getHolesInInterval from tube "
+  // 	<<firsttube<<" to tube "<<lasttube<<endl;
+  // }
 
   polfunc->SetParameter(0,polyparf[0]);
   polfunc->SetParameter(1,polyparf[1]);
@@ -1691,11 +1647,11 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
   polyparf[2]=polfunc->GetParameter(2);
   polyparf[3]=polfunc->GetParameter(3);
   double chi2_pol=polfunc->GetChisquare();
-  if(verbose) {
-    cout<<" start of get holes, pol-fit chi2 is "<<polfunc->GetChisquare()<<endl;
-    cout<<" polyparf "<<polyparf[0]<<" "<<polyparf[1]<<" "<<polyparf[2]<<" "<<polyparf[3]<<" "<<endl;
-    cout<<" average_entry is "<<average_entry<<endl;
-  }
+  // if(verbose) {
+  //   cout<<" start of get holes, pol-fit chi2 is "<<polfunc->GetChisquare()<<endl;
+  //   cout<<" polyparf "<<polyparf[0]<<" "<<polyparf[1]<<" "<<polyparf[2]<<" "<<polyparf[3]<<" "<<endl;
+  //   cout<<" average_entry is "<<average_entry<<endl;
+  // }
   nholes=0;
 
   //  ================== start strategy average > 100 && chi2_pol<100.
@@ -1719,12 +1675,12 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
 	+xbin*xbin*polyparf[2]
 	+xbin*xbin*xbin*polyparf[3];
       double residual = c-average_entry;
-      if(verbose){
-	cout<<" get holes, average entry>100 ***, bin "<<xbin<<endl;
-	cout<<" polyparf "<<polyparf[0]<<" "<<polyparf[1]<<" "<<polyparf[2]<<" "<<polyparf[3]<<" "<<endl;
-	cout<<"content "<<c<<" polinomial "<<polinomial<<" residual "<<residual<<endl;
-	cout<<" residual wrt poly "<<c-polinomial<<endl;
-      }
+      // if(verbose){
+      // 	cout<<" get holes, average entry>100 ***, bin "<<xbin<<endl;
+      // 	cout<<" polyparf "<<polyparf[0]<<" "<<polyparf[1]<<" "<<polyparf[2]<<" "<<polyparf[3]<<" "<<endl;
+      // 	cout<<"content "<<c<<" polinomial "<<polinomial<<" residual "<<residual<<endl;
+      // 	cout<<" residual wrt poly "<<c-polinomial<<endl;
+      // }
       // new def!! Use pol fit with all points unless chi2 is very bad
       residual=c-polinomial;
       if(residual<-3.*cerr&&nholes<10&&c/average_entry<0.9){
@@ -1733,19 +1689,19 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
 	holes[nholes-1]=(int) xbin;
 	eff_hole[nholes-1]=c/average_entry;
 	idh1->SetBinError(ibin,0.);
-	if(verbose){
-	  cout <<" hole found wrt average_entry in pos "<<xbin<<" eff "<<eff_hole[nholes-1]<<endl;
-	}
+	// if(verbose){
+	//   cout <<" hole found wrt average_entry in pos "<<xbin<<" eff "<<eff_hole[nholes-1]<<endl;
+	// }
       }
     } //for(ibin
 
-    if(verbose) {
-      cout <<" xxxxxxxxxxxxxxxxxxxxx getHolesInInterval search holes wrt polnml3, strategy <1"<<endl;
-      cout<< "                       Chi2 of the polnml3 fit is "<<chi2poly<<endl;
-      for(int jpar=0;jpar<4;jpar++){
-	cout<<"Fit parameter "<<jpar<<" polnml3 & polyparf "<<polfunc->GetParameter(jpar)<<" "<<polyparf[jpar]<<endl;
-      }
-    }
+    // if(verbose) {
+    //   cout <<" xxxxxxxxxxxxxxxxxxxxx getHolesInInterval search holes wrt polnml3, strategy <1"<<endl;
+    //   cout<< "                       Chi2 of the polnml3 fit is "<<chi2poly<<endl;
+    //   for(int jpar=0;jpar<4;jpar++){
+    // 	cout<<"Fit parameter "<<jpar<<" polnml3 & polyparf "<<polfunc->GetParameter(jpar)<<" "<<polyparf[jpar]<<endl;
+    //   }
+    // }
     for(int ih=0;ih<nholes;ih++){
       int holepos=holes[ih];
       double cerr=olderror[ih];
@@ -1768,11 +1724,11 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
     bestchi2 = chi2poly;
     int bestposition = 0;
     double besteff = 1.;
-    if(verbose) {
-      cout <<" xxxxxxxxxxxxxxxxxxxxx getHolesInInterval search holes wrt polnml3, strategy 2, bins "<<firsttube<<
-	" lasttube "<<lasttube<<endl;
-      cout<< "                       Chi2 of the polnml3 initial fit is "<<chi2_pol<<endl;
-    }
+    // if(verbose) {
+    //   cout <<" xxxxxxxxxxxxxxxxxxxxx getHolesInInterval search holes wrt polnml3, strategy 2, bins "<<firsttube<<
+    // 	" lasttube "<<lasttube<<endl;
+    //   cout<< "                       Chi2 of the polnml3 initial fit is "<<chi2_pol<<endl;
+    // }
     for(int ibin=firsttube;ibin<=lasttube;ibin++){
       double xbin=double(ibin);
       double olderr = idh1->GetBinError(ibin);
@@ -1780,15 +1736,15 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
       // idh1->Fit("fit0","Q","",(double)firsttube,(double)lasttube);
       idh1->Fit(polfunc,"Q","",(double)firsttube,(double)lasttube);
       chi2_pol = polfunc->GetChisquare();
-      if(verbose){
-	cout<<" removing bin "<<xbin<<" gives chi2 "<<chi2_pol<<endl;
-      }
+      // if(verbose){
+      // 	cout<<" removing bin "<<xbin<<" gives chi2 "<<chi2_pol<<endl;
+      // }
       if(bestchi2>chi2_pol){ 
 	bestchi2 = chi2_pol;
 	bestposition = ibin;
-	if(verbose){
-	  cout<<" this bin "<<xbin<<" is taken as best,gives chi2-min "<<bestchi2<<endl;
-	}
+	// if(verbose){
+	//   cout<<" this bin "<<xbin<<" is taken as best,gives chi2-min "<<bestchi2<<endl;
+	// }
 	parf[0]=polfunc->GetParameter(0);
 	parf[1]=polfunc->GetParameter(1);
 	parf[2]=polfunc->GetParameter(2);
@@ -1800,8 +1756,8 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
 	double c=idh1->GetBinContent(ibin);
 	besteff=c/polinomial;
 	for(int i=0;i<4;i++){polyparf[i]=parf[i];}
-	if(verbose)
-	  cout<<"getHoles, x bin strategy 2 "<<xbin<<" polnml3 chi2 "<<chi2_pol<<" efficiency "<<besteff<<endl; 
+	// if(verbose)
+	//   cout<<"getHoles, x bin strategy 2 "<<xbin<<" polnml3 chi2 "<<chi2_pol<<" efficiency "<<besteff<<endl; 
       } //if(bestchi2 ...
       idh1->SetBinError(ibin,olderr);
     } //for (int bin
@@ -1809,7 +1765,7 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
       nholes=1;
       holes[0]=bestposition;
       eff_hole[0]=besteff;
-      if(verbose) cout <<" getHoles strategy 2, found hole in bin "<<bestposition<<endl;
+      //      if(verbose) cout <<" getHoles strategy 2, found hole in bin "<<bestposition<<endl;
     } //if(effi ...
   } //if(average>100.&&chi2poly>50.)
 
@@ -1830,11 +1786,11 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
     idh1->Fit(polfunc,"Q","",(double)firsttube,(double)lasttube);
     chi2poly = polfunc->GetChisquare();
     bestchi2 = chi2poly;
-    if(verbose) {
-      cout <<" xxxxxxxxxxxxxxxxxxxxx getHolesInInterval search holes wrt polnml3, strategy 3, bins "<<firsttube<<
-	" lasttube "<<lasttube<<endl;
-      cout<< "                       Chi2 of the polnml3 initial fit is "<<chi2_pol<<endl;
-    }
+    // if(verbose) {
+    //   cout <<" xxxxxxxxxxxxxxxxxxxxx getHolesInInterval search holes wrt polnml3, strategy 3, bins "<<firsttube<<
+    // 	" lasttube "<<lasttube<<endl;
+    //   cout<< "                       Chi2 of the polnml3 initial fit is "<<chi2_pol<<endl;
+    // }
     for(int ibin=firsttube;ibin<lasttube;ibin++){
       double xbin1=double(ibin);
       double olderr1 = idh1->GetBinError(ibin);
@@ -1846,16 +1802,16 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
 
 	idh1->Fit(polfunc,"Q","",(double)firsttube,(double)lasttube);
 	chi2_pol = polfunc->GetChisquare();
-	if(verbose){
-	  cout<<" removing bins "<<xbin1<<" and "<<xbin2<<" gives chi2 "<<chi2_pol<<endl;
-	}
+	// if(verbose){
+	//   cout<<" removing bins "<<xbin1<<" and "<<xbin2<<" gives chi2 "<<chi2_pol<<endl;
+	// }
 	if(bestchi2>chi2_pol){ 
 	  bestchi2 = chi2_pol;
 	  bestposition1 = ibin;
 	  bestposition2 = lbin;
-	  if(verbose){
-	    cout<<" this bins "<<xbin1<<" and "<<xbin2<<" are taken as best,gives chi2-min "<<bestchi2<<endl;
-	  }
+	  // if(verbose){
+	  //   cout<<" this bins "<<xbin1<<" and "<<xbin2<<" are taken as best,gives chi2-min "<<bestchi2<<endl;
+	  // }
 	  parf[0]=polfunc->GetParameter(0);
 	  parf[1]=polfunc->GetParameter(1);
 	  parf[2]=polfunc->GetParameter(2);
@@ -1873,9 +1829,9 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
 	  c=idh1->GetBinContent(lbin);
 	  besteff2=c/polinomial;
 	  for(int i=0;i<4;i++){polyparf[i]=parf[i];}
-	  if(verbose)
-	    cout<<"getHoles, x bin strategy 3 "<<xbin1<<" "<<xbin2<<" polnml3 chi2 "<<chi2_pol<<
-	      " efficiencies "<<besteff1<<" "<<besteff2<<endl; 
+	  // if(verbose)
+	  //   cout<<"getHoles, x bin strategy 3 "<<xbin1<<" "<<xbin2<<" polnml3 chi2 "<<chi2_pol<<
+	  //     " efficiencies "<<besteff1<<" "<<besteff2<<endl; 
 	}
 	idh1->SetBinError(lbin,olderr2);
       }
@@ -1885,8 +1841,8 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
 	eff_hole[0]=besteff1;
 	holes[1]=bestposition2;
 	eff_hole[1]=besteff2;
-	if(verbose) cout <<" getHoles strategy 3, found hole in bin "<<bestposition1<<
-	  " and "<<bestposition2<<endl;
+	// if(verbose) cout <<" getHoles strategy 3, found hole in bin "<<bestposition1<<
+	//   " and "<<bestposition2<<endl;
       }
       idh1->SetBinError(ibin,olderr1);
     }
@@ -1900,7 +1856,7 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
     // 
   // if still bad try removing three bins ...
 
-  bool threeholes = false;
+  //bool threeholes = false;   //used in commented out cout below
   //  if(average_entry>100.&& chi2_pol>50.){
   if(average_entry>100.&& bestchi2>50.){
     //==================================================
@@ -1919,16 +1875,16 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
     bestchi2 = chi2poly;
     double initial_pol_chi2= chi2poly;
   
-    if(verbose) {
-      cout <<" xxxxxxxxxxxxxxxxxxxxx getHolesInInterval search holes wrt polnml3, strategy 4, bins "<<firsttube<<
-	" lasttube "<<lasttube<<endl;
-      cout<< "                       Chi2 of the polnml3 initial fit is "<<chi2_pol<<endl;
-    }
+    // if(verbose) {
+    //   cout <<" xxxxxxxxxxxxxxxxxxxxx getHolesInInterval search holes wrt polnml3, strategy 4, bins "<<firsttube<<
+    // 	" lasttube "<<lasttube<<endl;
+    //   cout<< "                       Chi2 of the polnml3 initial fit is "<<chi2_pol<<endl;
+    // }
     double olderr1(0.0);
     double olderr2(0.0);
     double olderr3(0.0);
     for(int ibin=firsttube;ibin<lasttube-3;ibin++){
-      if(verbose){cout<<" primo tubo del terzetto "<<firsttube<<endl;}
+      //      if(verbose){cout<<" primo tubo del terzetto "<<firsttube<<endl;}
       double xbin1=double(ibin);
       olderr1 = idh1->GetBinError(ibin);
       double xbin2=double(ibin+1);
@@ -1940,19 +1896,19 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
       idh1->SetBinError(ibin+2,0.);
       idh1->Fit(polfunc,"Q","",(double)firsttube,(double)lasttube);
       chi2_pol = polfunc->GetChisquare();
-      if(verbose){
-	cout<<" removing bins "<<xbin1<<" to "<<xbin3<<" give chi2 "<<chi2_pol<<
-	  " bestchi2 "<<bestchi2<<endl;
-      }
-      if(verbose) cout<<"chi2_pol "<<chi2_pol<<endl;
+      // if(verbose){
+      // 	cout<<" removing bins "<<xbin1<<" to "<<xbin3<<" give chi2 "<<chi2_pol<<
+      // 	  " bestchi2 "<<bestchi2<<endl;
+      // }
+      //      if(verbose) cout<<"chi2_pol "<<chi2_pol<<endl;
       if(bestchi2>chi2_pol){ 
 	bestchi2 = chi2_pol;
 	bestposition1 = ibin;
 	bestposition2 = ibin+1;
 	bestposition3 = ibin+2;
-	if(verbose){
-	  cout<<" this bins "<<xbin1<<" to "<<xbin3<<" are taken as best,give chi2-min "<<bestchi2<<endl;
-	}
+	// if(verbose){
+	//   cout<<" this bins "<<xbin1<<" to "<<xbin3<<" are taken as best,give chi2-min "<<bestchi2<<endl;
+	// }
 	parf[0]=polfunc->GetParameter(0);
 	parf[1]=polfunc->GetParameter(1);
 	parf[2]=polfunc->GetParameter(2);
@@ -1964,7 +1920,7 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
 	  +xbin1*xbin1*xbin1*parf[3];
 	double c=idh1->GetBinContent(ibin);
 	besteff1=c/polinomial;
-	if(verbose)cout<<"c, polinomial "<<c<<" "<<polinomial<<endl;
+	//	if(verbose)cout<<"c, polinomial "<<c<<" "<<polinomial<<endl;
 	polinomial=parf[0]
 	  +xbin2*parf[1]
 	  +xbin2*xbin2*parf[2]
@@ -1973,7 +1929,7 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
 	besteff2=c/polinomial;
 	c=idh1->GetBinContent(ibin);
 	besteff1=c/polinomial;
-	if(verbose) cout<<" besteff1 "<<besteff1<<endl;
+	//	if(verbose) cout<<" besteff1 "<<besteff1<<endl;
 
 	polinomial=parf[0]
 	  +xbin3*parf[1]
@@ -1985,7 +1941,7 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
       }
       if(bestchi2<50.){
 	if(besteff1<0.2&&besteff2<0.2&&besteff3<0.2){
-	  threeholes=true;
+	  //threeholes=true;
 	  nholes=3;
 	  holes[0]=bestposition1;
 	  eff_hole[0]=besteff1;
@@ -1998,13 +1954,13 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
       idh1->SetBinError(ibin,olderr1);
       idh1->SetBinError(ibin+1,olderr2);
       idh1->SetBinError(ibin+2,olderr3);
-      if(verbose) cout<<" fine del loop sui terzetti ,ibin "<<ibin<<
-	" firsttube "<<firsttube<<" lasttube "<<lasttube<<endl;
+      //      if(verbose) cout<<" fine del loop sui terzetti ,ibin "<<ibin<<
+      //	" firsttube "<<firsttube<<" lasttube "<<lasttube<<endl;
     } //for (int ibin
     //==================================================
     //    verbose=true;
     double gain = bestchi2/initial_pol_chi2;
-    if(verbose) cout<<"gain, threeholes, verbose "<<gain<<" "<<threeholes<<" "<<verbose<<endl;
+    //    if(verbose) cout<<"gain, threeholes, verbose "<<gain<<" "<<threeholes<<" "<<verbose<<endl;
     if(gain<0.3) {
       //    if(gain<0.3&&!threeholes) {
       
@@ -2014,20 +1970,20 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
       idh1->SetBinError(ibin1+2,0.);
 
     for(int ibin=firsttube;ibin<lasttube;ibin++){
-      if(verbose)cout<<"ibin"<<ibin<<" ibin1 "<<ibin1<<endl;
+      //      if(verbose)cout<<"ibin"<<ibin<<" ibin1 "<<ibin1<<endl;
       if(ibin<ibin1||ibin>ibin1+2){
       idh1->Fit(polfunc,"Q","",(double)firsttube,(double)lasttube);
       chi2_pol = polfunc->GetChisquare();
-      if(verbose){
-	cout<<" removing bin "<<ibin<<" gives chi2 "<<chi2_pol<<
-	  " bestchi2 "<<bestchi2<<endl;
-      }
+      // if(verbose){
+      // 	cout<<" removing bin "<<ibin<<" gives chi2 "<<chi2_pol<<
+      // 	  " bestchi2 "<<bestchi2<<endl;
+      // }
       if(bestchi2>chi2_pol){ 
 	bestchi2 = chi2_pol;
 	//	bestposition4 = ibin;
-	if(verbose){
-	  cout<<" this bins "<<ibin<<" is taken as best,give chi2-min "<<bestchi2<<endl;
-	}
+	// if(verbose){
+	//   cout<<" this bins "<<ibin<<" is taken as best,give chi2-min "<<bestchi2<<endl;
+	// }
 	parf[0]=polfunc->GetParameter(0);
 	parf[1]=polfunc->GetParameter(1);
 	parf[2]=polfunc->GetParameter(2);
@@ -2039,8 +1995,8 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
 	  +xbin1*xbin1*xbin1*parf[3];
 	double c=idh1->GetBinContent(ibin);
 	besteff1=c/polinomial;
-	if(verbose)cout<<"c, polinomial "<<c<<" "<<polinomial<<endl;
-	if(verbose) cout<<" besteff1 "<<besteff1<<endl;
+	// if(verbose)cout<<"c, polinomial "<<c<<" "<<polinomial<<endl;
+	// if(verbose) cout<<" besteff1 "<<besteff1<<endl;
 
 	for(int i=0;i<4;i++){polyparf[i]=parf[i];}
       }
@@ -2065,13 +2021,13 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
     } //for (int ibin
 
     }
-    if(verbose&&bestchi2<50.&&threeholes) {
-      cout<<" ********************************************* Chamber "<<chamberName<<endl;
-      cout <<" getHoles strategy 4, found hole from bin "<<bestposition1<<
-	" to "<<bestposition3<<" polnml3 chi2 "<<bestchi2<<
-	" efficiencies "<<besteff1<<" "<<besteff2<<" "<<besteff3<<endl;
-      cout<<" ********************************************* "<<endl; 
-    }
+    // if(verbose&&bestchi2<50.&&threeholes) {
+    //   cout<<" ********************************************* Chamber "<<chamberName<<endl;
+    //   cout <<" getHoles strategy 4, found hole from bin "<<bestposition1<<
+    // 	" to "<<bestposition3<<" polnml3 chi2 "<<bestchi2<<
+    // 	" efficiencies "<<besteff1<<" "<<besteff2<<" "<<besteff3<<endl;
+    //   cout<<" ********************************************* "<<endl; 
+    // }
     //    verbose=false;
 
   } //if(average>100.&&chi2poly>50.)
@@ -2086,10 +2042,10 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
   if(average_entry<100.){
     nholes=0;
     for(int j=0;j<10;j++){holes[j]=0;}
-    if(verbose) {
-      cout <<" xxxxxxxxxxxxxxxxxxxxx getHolesInInterval search holes wrt average, strategy 3"<<endl;
-    }
-    if(verbose) cout <<" getHolesInInterval search holes wrt average"<<endl;
+    // if(verbose) {
+    //   cout <<" xxxxxxxxxxxxxxxxxxxxx getHolesInInterval search holes wrt average, strategy 3"<<endl;
+    // }
+    //    if(verbose) cout <<" getHolesInInterval search holes wrt average"<<endl;
     better_average=0.;
     better_entry =0.;
     for(int nb=firsttube;nb<=lasttube;nb++){
@@ -2117,20 +2073,20 @@ void MDTDeadElementsAnalysis::getHolesInInterval(TH1F* idh1, int firsttube, int 
     } // for int=nb..
     if(better_entry>0.) better_average = better_average/better_entry;
     polyparf[0]=better_average;
-    if(verbose) cout << 
-      " Hole in bin "<<holes[nholes-1]<<" found, content is "<<
-      idh1->GetBinContent(holes[nholes-1])<<
-      " efficiency is "<<eff_hole[nholes-1]<<
-      " recomputed average is"<<better_average<<endl;
+    // if(verbose) cout << 
+    //   " Hole in bin "<<holes[nholes-1]<<" found, content is "<<
+    //   idh1->GetBinContent(holes[nholes-1])<<
+    //   " efficiency is "<<eff_hole[nholes-1]<<
+    //   " recomputed average is"<<better_average<<endl;
     for(int i=1;i<4;i++){polyparf[i]=0.;}
   } // else if average_entry<100.
 
     //  ================== end strategy average < 100
 
-  if(verbose) {
-    cout<<"better average in getHoles "<<better_average<<endl;  
-    cout<<" End of getHolesInInterval ========================================="<<endl;
-  }
+  // if(verbose) {
+  //   cout<<"better average in getHoles "<<better_average<<endl;  
+  //   cout<<" End of getHolesInInterval ========================================="<<endl;
+  // }
   average_entry=better_average;
   //  verbose=false;
 } // getHolesInInterval
@@ -2149,9 +2105,9 @@ void MDTDeadElementsAnalysis::getAverageLevelInInterval(TH1F* idh1, int firsttub
     n_entry++;
   }
   average_entry=average_entry/n_entry;
-  if(verbose){
-    cout<<" approximate average "<<average_entry<<" nentries "<<n_entry<<endl;
-  }
+  // if(verbose){
+  //   cout<<" approximate average "<<average_entry<<" nentries "<<n_entry<<endl;
+  // }
 }
 // ==============================================================================
 //
@@ -2169,9 +2125,9 @@ void MDTDeadElementsAnalysis::getSpikesInInterval(TH1F* idh1, int firsttube, int
   }
 
   average_entry=average_entry/n_entry;
-  if(verbose){
-    cout<<" average "<<average_entry<<" nentries "<<n_entry<<endl;
-  }
+  // if(verbose){
+  //   cout<<" average "<<average_entry<<" nentries "<<n_entry<<endl;
+  // }
 
   // look for max entries
 
@@ -2191,11 +2147,11 @@ void MDTDeadElementsAnalysis::getSpikesInInterval(TH1F* idh1, int firsttube, int
 	pos_largest_num_entries=nb;
       }
     }
-    if(verbose){
-      cout<<" largest bin position "<< pos_largest_num_entries<<" largest bin content "
-	  <<largest_num_entries
-	  <<" old average "<< average_entry<<endl;
-    }
+    // if(verbose){
+    //   cout<<" largest bin position "<< pos_largest_num_entries<<" largest bin content "
+    // 	  <<largest_num_entries
+    // 	  <<" old average "<< average_entry<<endl;
+    // }
     // check average when bin with max entries is removed!
     // if largest bin accounts for more than 80% of total -> spike
 
@@ -2205,11 +2161,11 @@ void MDTDeadElementsAnalysis::getSpikesInInterval(TH1F* idh1, int firsttube, int
       n_entry--;
       // if error of one bin is put to zero-> bin not used in the fit
       idh1->SetBinError(pos_largest_num_entries,0.);
-      if(verbose){
-	cout <<" removing spiky bin "<<pos_largest_num_entries<<
-	  " containing "<<largest_num_entries<<
-	  " average "<<average_entry<<" entry "<<n_entry<<endl;
-      }
+      // if(verbose){
+      // 	cout <<" removing spiky bin "<<pos_largest_num_entries<<
+      // 	  " containing "<<largest_num_entries<<
+      // 	  " average "<<average_entry<<" entry "<<n_entry<<endl;
+      // }
     }
     double ratio=99999.;
     if(old_average>0.) ratio=average_entry/old_average;
@@ -2267,10 +2223,10 @@ double completefunc(double * x, double * parf) {
 
 void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTubesMap, string chambname){
 
-  if(verbose) cout<<"DeadMezzanines, Analyse histo "<<idh->GetName()<<
-    " for Chamber "<<chambname<<endl;
+  // if(verbose) cout<<"DeadMezzanines, Analyse histo "<<idh->GetName()<<
+  //   " for Chamber "<<chambname<<endl;
 
-  TH1F * idh1 = (TH1F*)idh->Clone() ;
+  TH1F * idh1 = (TH1F*)idh->Clone();
 
   MDTDeadElementsAnalysis::deadMezzDone=true;
 
@@ -2295,7 +2251,7 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
   //  if(Entries-cmax>4000) {
   //  if(Entries-cmax>1000 && verbose) {
   if(Entries-cmax>1000) {
-    //TCanvas *c1 = new TCanvas ;
+    //TCanvas *c1 = new TCanvas;
     TH1F * hmezz = new TH1F("hmezz","hmezz",
 			    nbins_per_layer[0]+nbins_per_layer[1],0.5,
 			    nbins_per_layer[0]+nbins_per_layer[1]+0.5);
@@ -2305,7 +2261,7 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
     hmezz->SetTitle(chambname.c_str());
     hmezzRef->SetTitle(chambname.c_str());
     for(int MultiLayer=0;MultiLayer<2;MultiLayer++){
-      if (nbins_per_layer[MultiLayer]==0) continue ;
+      if (nbins_per_layer[MultiLayer]==0) continue;
       int ibstart = (MultiLayer)*nbins_per_layer[0]*nlayers_per_ml+1;
       int ibend = (MultiLayer)*nbins_per_layer[0]*nlayers_per_ml
 	+nbins_per_layer[MultiLayer]*nlayers_per_ml;
@@ -2314,21 +2270,21 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	int ML=MultiLayer+1;
 	int tube_in_layer=ib-(nlay-1)*nbins_per_layer[MultiLayer]-firstbinML[MultiLayer];
 	if(nlay>nlayers_per_ml) nlay=nlay-nlayers_per_ml; 
-	if(verbose){
+	//	if(verbose){
 	  //  cout<<"ib,nlay,ML,tube in layer "<<ib<<" "<<nlay<<" "<<ML<<" "<<tube_in_layer<<
 	  //   " fills bin "<<tube_in_layer+(ML-1)*nbins_per_layer[MultiLayer]+1<<" of mezz histo"<<endl;
-	}
+	//	}
 	double cont=idh1->GetBinContent(ib);
 	double contRef=HRef->GetBinContent(ib);
 	hmezz->Fill(tube_in_layer+(ML-1)*nbins_per_layer[MultiLayer]+1,cont);
 	hmezzRef->Fill(tube_in_layer+(ML-1)*nbins_per_layer[MultiLayer]+1,contRef);
       }
     
-      if (verbose){
-	cout <<" chamber type is "<<chtype<<" nlayers "<<nlayers<<
-	  "nbins/layer" <<nbins_per_layer[MultiLayer]<<" layers per ml "<<nlayers_per_ml<<endl;
-	cout<<" number of mezzanines "<<nmezz[MultiLayer]<<endl;
-      }
+      // if (verbose){
+      // 	cout <<" chamber type is "<<chtype<<" nlayers "<<nlayers<<
+      // 	  "nbins/layer" <<nbins_per_layer[MultiLayer]<<" layers per ml "<<nlayers_per_ml<<endl;
+      // 	cout<<" number of mezzanines "<<nmezz[MultiLayer]<<endl;
+      // }
     }
     // treat correctly zeros & compute average
     // remember bins with zero entries (I should rather say zero error!) are NOT included in a chi2 fit
@@ -2345,9 +2301,9 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
       }
     }             
     average_entry=average_entry/n_entry;
-    if (verbose){
-      cout<<" average "<<average_entry<<" nentries "<<n_entry<<endl;
-    }
+    // if (verbose){
+    //   cout<<" average "<<average_entry<<" nentries "<<n_entry<<endl;
+    // }
     // look for max entries
 
     for(int index=0; index<ntmax; index++){position_spikes[index]=0;}
@@ -2365,10 +2321,10 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	  pos_largest_num_entries=nb;
 	}
       }
-      if(verbose){
-	cout<<" largest bin position "<< pos_largest_num_entries<<" largest bin content "<<largest_num_entries
-	    <<" old average "<< average_entry<<endl;
-      }
+      // if(verbose){
+      // 	cout<<" largest bin position "<< pos_largest_num_entries<<" largest bin content "<<largest_num_entries
+      // 	    <<" old average "<< average_entry<<endl;
+      // }
       // check average when bin with max entries is removed!
       // if largest bin accounts for more than 80% of total -> spike
 
@@ -2378,11 +2334,11 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	n_entry--;
 	// if error of one bin is put to zero-> bin not used in the fit
 	hmezz->SetBinError(pos_largest_num_entries,0.);
-	if(verbose){
-	  cout <<" removing spiky bin "<<pos_largest_num_entries<<
-	    " containing "<<largest_num_entries<<
-	    " average "<<average_entry<<" entry "<<n_entry<<endl;
-	}
+	// if(verbose){
+	//   cout <<" removing spiky bin "<<pos_largest_num_entries<<
+	//     " containing "<<largest_num_entries<<
+	//     " average "<<average_entry<<" entry "<<n_entry<<endl;
+	// }
       }
       double ratio=99999.;
       if(old_average>0.) ratio=average_entry/old_average;
@@ -2399,7 +2355,7 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
     polfunc = new TF1("fit0",polnml3,1.,(double)2.*ntubes[0],4);
     fitfunc->SetParameters(-51.,180.,-10.,0.,9.,1.,0.5);
     for(int ml=1;ml<=2;ml++){
-      if (nbins_per_layer[ml-1]==0) continue ;
+      if (nbins_per_layer[ml-1]==0) continue;
       double fit_start=1.+(ml-1)*nbins_per_layer[1];
       double fit_end=nbins_per_layer[0]+(ml-1)*nbins_per_layer[1];
       if(verbose){
@@ -2414,10 +2370,10 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
       // TF1 *poly = (TF1*)hmezz->GetFunction("pol3");
       // double chi2 = poly->GetChisquare();
       double chi2 = polfunc->GetChisquare();
-      if(verbose){
-	cout<<"pol3 fit starts at "<<fit_start<<" ends at "<<fit_end<<" Chi2 "<< chi2<<endl;
-      }
-      double ndf= nbins_per_layer[0]-4 ;
+      // if(verbose){
+      // 	cout<<"pol3 fit starts at "<<fit_start<<" ends at "<<fit_end<<" Chi2 "<< chi2<<endl;
+      // }
+      double ndf= nbins_per_layer[0]-4;
       if(chi2/ndf > 10 )	{
 	hmezz->SetBinError(pos_maximum,0.);
 	if(verbose) {
@@ -2441,12 +2397,12 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	  hmezz->Fit(polfunc,"Q","",(double)fit_start,(double)fit_end);
 	  if(verbose){
             if (drawPlots) { 
-	      TCanvas *c1 = new TCanvas() ;
+	      TCanvas *c1 = new TCanvas();
 	      hmezz->Draw();
 	      c1->WaitPrimitive();
 	      int inutile;
 	      cin>>inutile;
-	      cout<<inutile<<endl;
+	      //	      cout<<inutile<<endl;
             }
 	  }
           // poly = (TF1*)hmezz->GetFunction("pol3");
@@ -2472,14 +2428,14 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	    hmezz->Fit("fit1","BQ","",(double)fit_start,(double)fit_end);
 	  } else {
 	    hmezz->Fit("fit1","B","",(double)fit_start,(double)fit_end);
-	    cout<<"fit_start is "<<fit_start<<" fit_end is "<<fit_end<<endl;
+	    //	    cout<<"fit_start is "<<fit_start<<" fit_end is "<<fit_end<<endl;
             if (drawPlots) { 
-	      TCanvas *c1 = new TCanvas() ;
+	      TCanvas *c1 = new TCanvas();
 	      hmezz->Draw();
 	      c1->WaitPrimitive();
 	      int inutile;
 	      cin>>inutile;
-	      cout<<inutile<<endl;
+	      //	      cout<<inutile<<endl;
             }
 	  }
 	  double chi2 = fitfunc->GetChisquare();
@@ -2487,7 +2443,7 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	  double err_efficiency = fitfunc->GetParError(6);
 	  if(err_efficiency>0.05) {
 	    if(verbose){
-	      cout<<" Refine error "<<endl;
+	      //	      cout<<" Refine error "<<endl;
 	      hmezz->Fit("fit1","BEL","",(double)fit_start,(double)fit_end);
             } else {
 	      hmezz->Fit("fit1","BQEL","",(double)fit_start,(double)fit_end);
@@ -2496,12 +2452,12 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	    err_efficiency = fitfunc->GetParError(6); 
 	  }
 
-	  if(verbose){
-	    cout<<" prima selezione, chi2, ndf "<<chi2<<" "<<ndf<<" =============================="<<endl;
-	    cout<<" 1-efficiency, %efficiency "<<efficiency<<" "<<(1.-efficiency)/err_efficiency<<" "<<endl;
-	    cout<<" err-efficiency "<<err_efficiency<<endl;
-	    cout<<"Entries,chi2cut "<<Entries<<" "<<chi2cut<<endl;
-	  }
+	  // if(verbose){
+	  //   cout<<" prima selezione, chi2, ndf "<<chi2<<" "<<ndf<<" =============================="<<endl;
+	  //   cout<<" 1-efficiency, %efficiency "<<efficiency<<" "<<(1.-efficiency)/err_efficiency<<" "<<endl;
+	  //   cout<<" err-efficiency "<<err_efficiency<<endl;
+	  //   cout<<"Entries,chi2cut "<<Entries<<" "<<chi2cut<<endl;
+	  // }
 	  if(chi2/ndf<chi2cut&&(1.-efficiency)/err_efficiency>7&&efficiency<0.3){
 
 
@@ -2527,16 +2483,16 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	    */
 	    int layer_start=(ml-1)*nlayers_per_ml+1; 
 	    int layer_end=nlayers_per_ml*ml;
-	    if(verbose) cout<<"layer_start"<<layer_start<<" layer_end "<<layer_end<<endl;
+	    //	    if(verbose) cout<<"layer_start"<<layer_start<<" layer_end "<<layer_end<<endl;
 	    for(int l=layer_start;l<=layer_end;l++){
 	      int tube_start=1+(imezz-1)*ntubes_per_mezz+(l-1)*nbins_per_layer[0];
 	      int tube_end=tube_start+ntubes_per_mezz-1;
 	      for(int t=tube_start;t<=tube_end;t++){
 		Double_t cgeo = HRef->GetBinContent(t);
 		Double_t signML = cgeo/abs(cgeo);
-		if(verbose){
-		  cout<<" tube "<<t<<"ml "<<ml<<" layer "<<l<<endl;
-		  cout<<"t,sign "<<t<<" "<<signML<<" cgeo "<<cgeo<<endl;}
+		// if(verbose){
+		//   cout<<" tube "<<t<<"ml "<<ml<<" layer "<<l<<endl;
+		//   cout<<"t,sign "<<t<<" "<<signML<<" cgeo "<<cgeo<<endl;}
 		int igeo = (int) cgeo;
 		Int_t refquantity = igeo%10;
 		if(abs(cgeo)!=0. && refquantity==0){
@@ -2555,10 +2511,10 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
     hmezzRef->Delete();
   } // if(Entries..
 
-  delete idh1 ;
+  delete idh1;
 
-  if(verbose) cout<<" ===== deadMezz exit =========== "<<endl;
-  return ;
+  //  if(verbose) cout<<" ===== deadMezz exit =========== "<<endl;
+  return;
 
 }//deadMezzanines
 
@@ -2572,10 +2528,10 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTubesMap, 
 					     string chambname, int /*convert_mezzanine*/[20]){
 
-  if(verbose) cout<<"DeadMezzanines, Analyse histo "<<idh->GetName()<<
-    " for Chamber "<<chambname<<endl;
+  // if(verbose) cout<<"DeadMezzanines, Analyse histo "<<idh->GetName()<<
+  //   " for Chamber "<<chambname<<endl;
 
-  TH1F * idh1 = (TH1F*)idh->Clone() ;
+  TH1F * idh1 = (TH1F*)idh->Clone();
 
   MDTDeadElementsAnalysis::deadMezzDone=true;
 
@@ -2600,7 +2556,7 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
   //  if(Entries-cmax>4000) {
   //  if(Entries-cmax>1000 && verbose) {
   if(Entries-cmax>1000) {
-    //TCanvas *c1 = new TCanvas ;
+    //TCanvas *c1 = new TCanvas;
     TH1F * hmezz = new TH1F("hmezz","hmezz",
 			    nbins_per_layer[0]+nbins_per_layer[1],0.5,
 			    nbins_per_layer[0]+nbins_per_layer[1]+0.5);
@@ -2610,7 +2566,7 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
     hmezz->SetTitle(chambname.c_str());
     hmezzRef->SetTitle(chambname.c_str());
     for(int MultiLayer=0;MultiLayer<2;MultiLayer++){
-      if (nbins_per_layer[MultiLayer]==0) continue ;
+      if (nbins_per_layer[MultiLayer]==0) continue;
       int ibstart = (MultiLayer)*nbins_per_layer[0]*nlayers_per_ml+1;
       int ibend = (MultiLayer)*nbins_per_layer[0]*nlayers_per_ml
 	+nbins_per_layer[MultiLayer]*nlayers_per_ml;
@@ -2619,21 +2575,21 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	int ML=MultiLayer+1;
 	int tube_in_layer=ib-(nlay-1)*nbins_per_layer[MultiLayer]-firstbinML[MultiLayer];
 	if(nlay>nlayers_per_ml) nlay=nlay-nlayers_per_ml; 
-	if(verbose){
+	// if(verbose){
 	  //  cout<<"ib,nlay,ML,tube in layer "<<ib<<" "<<nlay<<" "<<ML<<" "<<tube_in_layer<<
 	  //   " fills bin "<<tube_in_layer+(ML-1)*nbins_per_layer[MultiLayer]+1<<" of mezz histo"<<endl;
-	}
+	//	}
 	double cont=idh1->GetBinContent(ib);
 	double contRef=HRef->GetBinContent(ib);
 	hmezz->Fill(tube_in_layer+(ML-1)*nbins_per_layer[MultiLayer]+1,cont);
 	hmezzRef->Fill(tube_in_layer+(ML-1)*nbins_per_layer[MultiLayer]+1,contRef);
       }
     
-      if (verbose){
-	cout <<" chamber type is "<<chtype<<" nlayers "<<nlayers<<
-	  "nbins/layer" <<nbins_per_layer[MultiLayer]<<" layers per ml "<<nlayers_per_ml<<endl;
-	cout<<" number of mezzanines "<<nmezz[MultiLayer]<<endl;
-      }
+      // if (verbose){
+      // 	cout <<" chamber type is "<<chtype<<" nlayers "<<nlayers<<
+      // 	  "nbins/layer" <<nbins_per_layer[MultiLayer]<<" layers per ml "<<nlayers_per_ml<<endl;
+      // 	cout<<" number of mezzanines "<<nmezz[MultiLayer]<<endl;
+      // }
     }
     // treat correctly zeros & compute average
     // remember bins with zero entries (I should rather say zero error!) are NOT included in a chi2 fit
@@ -2650,9 +2606,9 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
       }
     }             
     average_entry=average_entry/n_entry;
-    if (verbose){
-      cout<<" average "<<average_entry<<" nentries "<<n_entry<<endl;
-    }
+    // if (verbose){
+    //   cout<<" average "<<average_entry<<" nentries "<<n_entry<<endl;
+    // }
     // look for max entries
 
     for(int index=0; index<ntmax; index++){position_spikes[index]=0;}
@@ -2670,10 +2626,10 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	  pos_largest_num_entries=nb;
 	}
       }
-      if(verbose){
-	cout<<" largest bin position "<< pos_largest_num_entries<<" largest bin content "<<largest_num_entries
-	    <<" old average "<< average_entry<<endl;
-      }
+      // if(verbose){
+      // 	cout<<" largest bin position "<< pos_largest_num_entries<<" largest bin content "<<largest_num_entries
+      // 	    <<" old average "<< average_entry<<endl;
+      // }
       // check average when bin with max entries is removed!
       // if largest bin accounts for more than 80% of total -> spike
 
@@ -2683,11 +2639,11 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	n_entry--;
 	// if error of one bin is put to zero-> bin not used in the fit
 	hmezz->SetBinError(pos_largest_num_entries,0.);
-	if(verbose){
-	  cout <<" removing spiky bin "<<pos_largest_num_entries<<
-	    " containing "<<largest_num_entries<<
-	    " average "<<average_entry<<" entry "<<n_entry<<endl;
-	}
+	// if(verbose){
+	//   cout <<" removing spiky bin "<<pos_largest_num_entries<<
+	//     " containing "<<largest_num_entries<<
+	//     " average "<<average_entry<<" entry "<<n_entry<<endl;
+	// }
       }
       double ratio=99999.;
       if(old_average>0.) ratio=average_entry/old_average;
@@ -2705,7 +2661,7 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
     TF1 *fitfunc = new TF1("fit1",completefunc,1.,(double)2.*ntubes[0],7);
     fitfunc->SetParameters(-51.,180.,-10.,0.,9.,1.,0.5);
     for(int ml=1;ml<=2;ml++){
-      if (nbins_per_layer[ml-1]==0) continue ;
+      if (nbins_per_layer[ml-1]==0) continue;
       double fit_start=1.+(ml-1)*nbins_per_layer[1];
       double fit_end=nbins_per_layer[0]+(ml-1)*nbins_per_layer[1];
       if(verbose){
@@ -2720,10 +2676,10 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
       // TF1 *poly = (TF1*)hmezz->GetFunction("pol3");
       // double chi2 = poly->GetChisquare();
       double chi2 = polfunc->GetChisquare();
-      if(verbose){
-	cout<<"pol3 fit starts at "<<fit_start<<" ends at "<<fit_end<<" Chi2 "<< chi2<<endl;
-      }
-      double ndf= nbins_per_layer[0]-4 ;
+      // if(verbose){
+      // 	cout<<"pol3 fit starts at "<<fit_start<<" ends at "<<fit_end<<" Chi2 "<< chi2<<endl;
+      // }
+      double ndf= nbins_per_layer[0]-4;
       if(chi2/ndf > 10 )	{
 	hmezz->SetBinError(pos_maximum,0.);
 	if(verbose) {
@@ -2747,7 +2703,7 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	  hmezz->Fit(polfunc,"Q","",(double)fit_start,(double)fit_end);
 	  if(verbose){
             if (drawPlots) {
-	      TCanvas *c1 = new TCanvas() ;
+	      TCanvas *c1 = new TCanvas();
 	      hmezz->Draw();
 	      c1->WaitPrimitive();
 	    }
@@ -2775,9 +2731,9 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	    hmezz->Fit("fit1","BQ","",(double)fit_start,(double)fit_end);
 	  } else {
 	    hmezz->Fit("fit1","B","",(double)fit_start,(double)fit_end);
-	    cout<<"fit_start is "<<fit_start<<" fit_end is "<<fit_end<<endl;
+	    //	    cout<<"fit_start is "<<fit_start<<" fit_end is "<<fit_end<<endl;
             if (drawPlots) {
-	      TCanvas *c1 = new TCanvas() ;
+	      TCanvas *c1 = new TCanvas();
 	      hmezz->Draw();
 	      c1->WaitPrimitive();
             }
@@ -2787,7 +2743,7 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	  double err_efficiency = fitfunc->GetParError(6);
 	  if(err_efficiency>0.05) {
 	    if(verbose){
-	      cout<<" Refine error "<<endl;
+	      //	      cout<<" Refine error "<<endl;
 	      hmezz->Fit("fit1","BEL","",(double)fit_start,(double)fit_end);
             } else {
 	      hmezz->Fit("fit1","BQEL","",(double)fit_start,(double)fit_end);
@@ -2796,12 +2752,12 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	    err_efficiency = fitfunc->GetParError(6); 
 	  }
 
-	  if(verbose){
-	    cout<<" prima selezione, chi2, ndf "<<chi2<<" "<<ndf<<" =============================="<<endl;
-	    cout<<" 1-efficiency, %efficiency "<<efficiency<<" "<<(1.-efficiency)/err_efficiency<<" "<<endl;
-	    cout<<" err-efficiency "<<err_efficiency<<endl;
-	    cout<<"Entries,chi2cut "<<Entries<<" "<<chi2cut<<endl;
-	  }
+	  // if(verbose){
+	  //   cout<<" prima selezione, chi2, ndf "<<chi2<<" "<<ndf<<" =============================="<<endl;
+	  //   cout<<" 1-efficiency, %efficiency "<<efficiency<<" "<<(1.-efficiency)/err_efficiency<<" "<<endl;
+	  //   cout<<" err-efficiency "<<err_efficiency<<endl;
+	  //   cout<<"Entries,chi2cut "<<Entries<<" "<<chi2cut<<endl;
+	  // }
 	  if(chi2/ndf<chi2cut&&(1.-efficiency)/err_efficiency>7&&efficiency<0.3){
 
 
@@ -2827,17 +2783,17 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	    */
 	    int layer_start=(ml-1)*nlayers_per_ml+1; 
 	    int layer_end=nlayers_per_ml*ml;
-	    if(verbose) cout<<"layer_start"<<layer_start<<" layer_end "<<layer_end<<endl;
+	    //	    if(verbose) cout<<"layer_start"<<layer_start<<" layer_end "<<layer_end<<endl;
 	    for(int l=layer_start;l<=layer_end;l++){
 	      int tube_start=1+(imezz-1)*ntubes_per_mezz+(l-1)*nbins_per_layer[0];
 	      int tube_end=tube_start+ntubes_per_mezz-1;
 	      for(int t=tube_start;t<=tube_end;t++){
 		Double_t cgeo = HRef->GetBinContent(t);
 		Double_t signML = cgeo/abs(cgeo);
-		if(verbose){
-		  cout<<" tube "<<t<<"ml "<<ml<<" layer "<<l<<endl;
-		  cout<<"t,sign "<<t<<" "<<signML<<" cgeo "<<cgeo<<endl;
-                }
+		// if(verbose){
+		//   cout<<" tube "<<t<<"ml "<<ml<<" layer "<<l<<endl;
+		//   cout<<"t,sign "<<t<<" "<<signML<<" cgeo "<<cgeo<<endl;
+                // }
 		int igeo = (int) cgeo;
 		Int_t refquantity = igeo%10;
 		if(abs(cgeo)!=0. && refquantity==0){
@@ -2856,10 +2812,10 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
     hmezzRef->Delete();
   } // if(Entries..
 
-  delete idh1 ;
+  delete idh1;
 
-  if(verbose) cout<<" ===== deadMezz exit =========== "<<endl;
-  return ;
+  //  if(verbose) cout<<" ===== deadMezz exit =========== "<<endl;
+  return;
 
 }//deadMezzanines
 
@@ -2869,25 +2825,23 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 //
 // ==============================================================================
 
-void MDTDeadElementsAnalysis::deadMultilayers(TH1F* idh1,  TH1F* HRef, TH1F* deadTubesMap, string chambname){
+void MDTDeadElementsAnalysis::deadMultilayers(TH1F *idh1,  TH1F *HRef, TH1F *deadTubesMap, string chambname){
 
-  if(verbose) cout<<"DeadMultilayers, Analyse histo "<<idh1->GetName()<<
-    " for Chamber "<<chambname<<endl;
+  //  if(verbose) cout<<"DeadMultilayers, Analyse histo "<<idh1->GetName()<< " for Chamber "<<chambname<<endl;
   MDTDeadElementsAnalysis::deadMultilayerDone=true;
   ostringstream deadAna;
   int nbins=idh1->GetNbinsX();
 
-  int nML = 2 ;
-  if ( nbins_per_layer[1]==0 ) nML=1 ;
+  int nML = 2;
+  if ( nbins_per_layer[1]==0 ) nML=1;
   int binsML1 = nbins/nML;
   int binsML2 = binsML1;
   if ( nML==1 ) {
-    if(verbose) cout<<"DeadMultilayers Analysis SKIPPED since chamber "<<chambname<<" has 1 ML only "<<endl;
+    //    if(verbose) cout<<"DeadMultilayers Analysis SKIPPED since chamber "<<chambname<<" has 1 ML only "<<endl;
     deadAna << "DeadMultilayers Analysis SKIPPED since chamber "<<chambname<<" has 1 ML only "<<endl;
-    return  ;
+    return ;
   }
 
-  float countsML1 = idh1->Integral(1,binsML1);
   polfunc = new TF1("fit0",polnml3,1.,(double)2.*ntubes[0],4);
   getSpikesInInterval(idh1,1,binsML1,polfunc);
   float isolatedCountsML1 = 0.;
@@ -2900,7 +2854,6 @@ void MDTDeadElementsAnalysis::deadMultilayers(TH1F* idh1,  TH1F* HRef, TH1F* dea
     }
   }
 
-  float countsML2 = idh1->Integral(binsML1+1,binsML1+binsML2);
   getSpikesInInterval(idh1,binsML1+1,binsML1+binsML2,polfunc);
   float isolatedCountsML2 = 0.;
   float nonisolatedCountsML2 = 0.;
@@ -2934,7 +2887,7 @@ void MDTDeadElementsAnalysis::deadMultilayers(TH1F* idh1,  TH1F* HRef, TH1F* dea
 
   } else {
     deadAna << " MultiLayer 1 in chamber is alive"<<endl;
-    if (verbose) cout << " MultiLayer 1 in chamber is alive"<<endl;
+    //    if (verbose) cout << " MultiLayer 1 in chamber is alive"<<endl;
   }
   // ML2
 
@@ -2958,20 +2911,22 @@ void MDTDeadElementsAnalysis::deadMultilayers(TH1F* idh1,  TH1F* HRef, TH1F* dea
     }
   } else {
     deadAna << " MultiLayer 2 in chamber is alive"<<endl;
-    if (verbose) cout << " MultiLayer 2 in chamber is alive"<<endl;
+    //    if (verbose) cout << " MultiLayer 2 in chamber is alive"<<endl;
   }
 
-  if(verbose){
-    cout<<endl;
-    cout <<" deadMultiLayer results "<<endl;
-    cout<<" isolated counts ML1 "<< isolatedCountsML1<<
-      " non isolated counts "<<nonisolatedCountsML1<<endl;
-    cout<<" Average level ML1 "<<averageLevelML1 <<endl;
-    cout<<" isolated counts ML2 "<< isolatedCountsML1<<
-      " non isolated counts "<<nonisolatedCountsML2<<endl;
-    cout<<" Average level ML2 "<<averageLevelML2 <<endl;
-    cout <<" ml1,ml2 "<<countsML1<<" "<<countsML2<<endl;
-  }
+  // if(verbose){
+  //  float countsML1 = idh1->Integral(1,binsML1);
+  //  float countsML2 = idh1->Integral(binsML1+1,binsML1+binsML2);
+  //   cout<<endl;
+  //   cout <<" deadMultiLayer results "<<endl;
+  //   cout<<" isolated counts ML1 "<< isolatedCountsML1<<
+  //     " non isolated counts "<<nonisolatedCountsML1<<endl;
+  //   cout<<" Average level ML1 "<<averageLevelML1 <<endl;
+  //   cout<<" isolated counts ML2 "<< isolatedCountsML1<<
+  //     " non isolated counts "<<nonisolatedCountsML2<<endl;
+  //   cout<<" Average level ML2 "<<averageLevelML2 <<endl;
+  //   cout <<" ml1,ml2 "<<countsML1<<" "<<countsML2<<endl;
+  // }
   // return deadAna.str();
-  return ;
+  return;
 }//deadMultilayers
