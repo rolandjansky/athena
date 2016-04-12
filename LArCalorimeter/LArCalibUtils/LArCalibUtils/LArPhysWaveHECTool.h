@@ -68,7 +68,7 @@ class LArPhysWaveHECTool : public AthAlgTool
   //LArPhysWave m_gPhys;
   const LArPhysWave* m_gIdealPhys;	
   
-  const LArOnlineID* onlineHelper;
+  const LArOnlineID* m_onlineHelper;
   //  bool m_verb;
   //int m_region, m_layer ;
   bool m_normalizeCali , m_timeOriginShift , m_subtractBaseline;

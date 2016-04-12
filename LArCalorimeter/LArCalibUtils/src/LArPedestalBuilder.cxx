@@ -36,7 +36,6 @@ LArPedestalBuilder::LArPedestalBuilder(const std::string& name, ISvcLocator* pSv
 {
   declareProperty("KeyList",         m_keylist);
   declareProperty("PedestalKey",     m_pedContName="LArPedestal");
-  declareProperty("GroupingType",    m_groupingType); 
   declareProperty("GroupingType",    m_groupingType="ExtendedFeedThrough"); 
 }
 

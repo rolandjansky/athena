@@ -42,6 +42,8 @@ LArPedestalMaker::LArPedestalMaker(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("events_ref",      m_nref);
   declareProperty("nsigma",          m_rms_cut);
   declareProperty("which_sample",    m_which_sample=-1);
+  declareProperty("sample_min",      m_sample_min=-1);
+  declareProperty("sample_max",      m_sample_max=-1);
   declareProperty("GroupingType",    m_groupingType); 
 }
 
@@ -165,7 +167,11 @@ StatusCode LArPedestalMaker::stop()
      LArPedestal thisPed=*cell_it;
      if(thisPed.get_nentries()==0) { n_zero++; continue; }
      // Get the mean and rms
-      if (m_which_sample==-1 || m_which_sample>=(int)thisPed.get_nsamples()) {
+      if (m_sample_min >=0 ) {
+	m_mean[0] = thisPed.get_mean(m_sample_min, m_sample_max);
+	m_rms[0]  = thisPed.get_rms(m_sample_max, m_sample_max);
+      }
+      else if (m_which_sample==-1 || m_which_sample>=(int)thisPed.get_nsamples()) {
 	m_mean[0] = thisPed.get_mean();
 	m_rms[0]  = thisPed.get_rms();
       }

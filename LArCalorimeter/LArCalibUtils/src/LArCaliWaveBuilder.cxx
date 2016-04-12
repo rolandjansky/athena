@@ -40,6 +40,10 @@ LArCaliWaveBuilder::LArCaliWaveBuilder(const std::string& name, ISvcLocator* pSv
  declareProperty("GroupingType",           m_groupingType); 
  declareProperty("UseDacAndIsPulsedIndex", m_useDacAndIsPulsedIndex=false);
  declareProperty("CheckEmptyPhases",       m_checkEmptyPhases=false);
+ declareProperty("RecAllCells",            m_recAll=false);
+ declareProperty("UsePattern",             m_usePatt=-1);
+ declareProperty("NumPattern",             m_numPatt=16); // fix me - is it possible to get from outside ?
+
 
  //m_dt=25*ns/m_NStep;
  m_dt = m_SamplingPeriod/m_NStep;
@@ -111,7 +115,16 @@ StatusCode LArCaliWaveBuilder::initialize()
 
 StatusCode LArCaliWaveBuilder::execute() 
 {
- if ( m_event_counter < 100 || ( m_event_counter < 1000 && m_event_counter%100==0 ) || m_event_counter%1000==0 ) 
+ if(m_usePatt >= 0) { // we have to check in which event we are, reading only ones corresponding
+                      // to our pattern
+    if(static_cast<int>(m_event_counter % m_numPatt) != m_usePatt) {
+       m_event_counter++ ;
+       return StatusCode::SUCCESS;
+    }
+ }
+
+// if ( m_event_counter < 100 || ( m_event_counter < 1000 && m_event_counter%100==0 ) || m_event_counter%1000==0 ) 
+ if ( m_event_counter < 1000 || m_event_counter%100==0 ) 
     msg(MSG::INFO) << "Processing event " << m_event_counter << endreq;
  m_event_counter++ ;
  
@@ -119,6 +132,7 @@ StatusCode LArCaliWaveBuilder::execute()
    msg(MSG::ERROR) << "Key list is empty! No containers to process!" << endreq;
    return StatusCode::FAILURE;
  } 
+
 
  // execute() method...
  if (m_useAccumulatedDigits)
@@ -171,8 +185,11 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
    
    for (;it!=it_end; ++it) { // Loop over all cells
 
-     if ( !(*it)->isPulsed() ) continue; // Check if cell is pulsed
-        
+     if ( (!m_recAll) && (!(*it)->isPulsed()) ) {
+        msg(MSG::DEBUG) << "Non pulsed cell " << m_onlineID->channel_name((*it)->hardwareID()) << endreq; 
+        continue; // Check if cell is pulsed
+     }
+     msg(MSG::DEBUG) << "Pulsed cell " << m_onlineID->channel_name((*it)->hardwareID()) << endreq; 
      HWIdentifier chid=(*it)->hardwareID();
      HWIdentifier febid=m_onlineID->feb_Id(chid);
      if (febErrSum) {
@@ -215,7 +232,7 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
      int index;
      for(int iLine=1;iLine<5;iLine++){
        if((*it)->isPulsed(iLine)){
-	 //	   std::cout<<"GR: line pulsed true, line="<<iLine<<std::endl;
+	 msg(MSG::DEBUG) <<"GR: line pulsed true, line="<<iLine<<endreq;
 	 dacPulsed=(dacPulsed | (0x1 << (15+iLine)));
        }
      }
@@ -273,7 +290,7 @@ StatusCode LArCaliWaveBuilder::executeWithStandardDigits()
    
    for (;it!=it_end; ++it) { // Loop over all cells
 
-     if ( !(*it)->isPulsed() ) continue ; // Check if cell is pulsed
+     if ((!m_recAll) &&  !(*it)->isPulsed() ) continue ; // Check if cell is pulsed
         
      HWIdentifier chid=(*it)->hardwareID(); 
      CaloGain::CaloGain gain=(*it)->gain();
@@ -352,13 +369,17 @@ StatusCode LArCaliWaveBuilder::stop()
 	    //
 
 	    const HWIdentifier hwId = cell_it.channelId();
-	    if (!m_cablingSvc->isOnlineConnected(hwId)) continue; //Ignore disconnected channels
+	    if ((!m_recAll) && (!m_cablingSvc->isOnlineConnected(hwId))) {
+               
+                //msg(MSG::INFO) << "Skipping disconnected channel: "<<MSG::hex<<hwId<<MSG::dec << endreq;
+               continue; //Ignore disconnected channels
+            }
 	      
 	    const WaveMap& waveMap = (*cell_it);
 	    if (waveMap.size()==0) {
 	      msg(MSG::INFO) << "Empty accumulated wave. Last id: " << MSG::hex 
 		//<< lastId << " " << emId->show_to_string(lastId) << endreq;
-		  << lastId << MSG::dec << endreq;
+		  << lastId << " this id: "<<hwId<<MSG::dec << endreq;
 	      continue;
 	    }
 
@@ -408,7 +429,7 @@ StatusCode LArCaliWaveBuilder::stop()
 		}
 
 		double waveMax = thisWave.getSample( wHelper.getMax(thisWave) ) ;
-		if ( m_ADCsatur>0 && waveMax>=m_ADCsatur ) { 
+		if ( (!m_recAll) && m_ADCsatur>0 && waveMax>=m_ADCsatur ) { 
 		    msg(MSG::INFO) << "Absolute ADC saturation at DAC = " << thisWave.getDAC() << " ... skip!" << endreq ;
 		    continue ;
 		} else {

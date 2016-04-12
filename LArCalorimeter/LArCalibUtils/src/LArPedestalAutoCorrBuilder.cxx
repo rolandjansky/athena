@@ -35,10 +35,11 @@ LArPedestalAutoCorrBuilder::LArPedestalAutoCorrBuilder(const std::string& name, 
   declareProperty("PedestalKey",     m_pedContName="LArPedestal");
   declareProperty("normalize",       m_normalize=1); 
   declareProperty("AutoCorrKey",     m_acContName="LArAutoCorr");
-  declareProperty("GroupingType",    m_groupingType); 
   declareProperty("GroupingType",    m_groupingType="ExtendedFeedThrough"); 
   declareProperty("doPedestal",      m_doPedestal=true);
   declareProperty("doAutoCorr",      m_doAutoCorr=true);
+  declareProperty("sample_min",      m_sample_min=-1);
+  declareProperty("sample_max",      m_sample_max=-1);
 }
 
 LArPedestalAutoCorrBuilder::~LArPedestalAutoCorrBuilder()
@@ -224,7 +225,7 @@ StatusCode LArPedestalAutoCorrBuilder::stop() {
       
       // Fill the data class with pedestal and rms values
       if (larPedestalComplete)
-	larPedestalComplete->set(chid,gain,dg.mean(),dg.RMS());
+	larPedestalComplete->set(chid,gain,dg.mean(m_sample_min, m_sample_max),dg.RMS(m_sample_min, m_sample_max));
       
       if (larAutoCorrComplete) {
 	dg.getCov(cov,m_normalize);
