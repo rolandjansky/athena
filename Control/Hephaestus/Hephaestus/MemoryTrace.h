@@ -9,13 +9,15 @@
   Holder for memory trace information
 */
 
+#include "Hephaestus/stackstash.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 struct hhh_MemoryTrace {
    unsigned long size;
-   void *trace;
+   StackHandle* handle;
 };
 
 extern unsigned long hhh_gBacktraceSize;
@@ -27,7 +29,8 @@ struct hhh_MemoryTrace *hhh_MemoryTrace_new();
 void hhh_MemoryTrace_delete( void *trace );
 
 /* initialize a newly created MemoryTrace */
-void hhh_MemoryTrace_initialize( struct hhh_MemoryTrace *mt, long size );
+void hhh_MemoryTrace_initialize( struct hhh_MemoryTrace *mt, long size,
+                                 StackElement* addresses, long depth);
 
 /* get the type that was newed, if available */
 const char* hhh_MemoryTrace_getType( struct hhh_MemoryTrace *mt );
@@ -43,6 +46,6 @@ int hhh_MemoryTracePtr_compare( const void *pmt1, const void *pmt2 );
 #endif
 
 /* clarifying access to memory trace members */
-#define hhh_MT_ORIGINATOR( b ) (b).trace
+#define hhh_MT_ORIGINATOR( b ) (*STACK_HANDLE_ELEMENT ((b).handle))
 
 #endif /* !HEPHAESTUS_MEMORYTRACE_H */

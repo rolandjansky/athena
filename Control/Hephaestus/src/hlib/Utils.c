@@ -242,6 +242,101 @@ int hhh_setLinkLate( void *addr ) {
 
 
 /*========================================================================== */
+/* addrtoline */
+/*========================================================================== */
+
+/******************************************************************
+ * address -> line translation.
+ * This works the same way as in SealDebug in CxxUtils; duplicated here
+ * to avoid adding dependencies.
+ */
+
+
+#define HHH_LINE_MAX 1024
+
+
+static
+int addr_readline (FILE* f, char* buf, int buflen)
+{
+  int len = 0;
+  while (len < buflen-1) {
+    int c = fgetc(f);
+    if (c < 0 || c == '\n') break;
+    *buf++ = c;
+    ++len;
+  }
+  *buf = '\0';
+  return len;
+}
+
+
+const char* hhh_addrToLine (void* addr_in, const char** symbol)
+{
+  unsigned long addr = (unsigned long) addr_in;
+  unsigned long libaddr;
+  unsigned long relative_address;
+  size_t len;
+  Dl_info info;
+  if (dladdr (addr_in, &info) == 0 ||
+      info.dli_fname == 0 ||
+      info.dli_fname[0] == 0)
+    return "";
+
+  /* difference of two pointers */
+  libaddr = (unsigned long) info.dli_fbase;
+  relative_address = (addr >= libaddr) ? addr - libaddr : libaddr - addr;
+  if (strstr (info.dli_fname, ".so") == 0)
+    relative_address = addr;
+  relative_address -= 1;
+
+  /* did we find a valid entry? */
+  len = strlen (info.dli_fname);
+  if (len > 0 && len + 80 < HHH_LINE_MAX) {
+    FILE* pf;
+    static char line[HHH_LINE_MAX];
+
+    if (getenv ("LD_PRELOAD"))
+      unsetenv ("LD_PRELOAD");
+
+    if (access ("/usr/bin/eu-addr2line", F_OK) == 0)
+    {
+      snprintf (line, HHH_LINE_MAX, "/usr/bin/eu-addr2line -f -e %s %p | /usr/bin/c++filt ",
+                info.dli_fname,
+                (void*)relative_address); 
+    }
+    else
+    {
+      snprintf (line, HHH_LINE_MAX, "/usr/bin/addr2line -f -C -e %s %p",
+                info.dli_fname,
+                (void*)relative_address);
+    }
+
+    pf = popen (line, "r");
+    if (pf) {
+      int length = 1;
+      static char dembuf[ HHH_LINE_MAX ];
+      size_t demlen = addr_readline (pf, dembuf, sizeof(dembuf));
+      if (symbol)
+        *symbol = dembuf;
+      line[0] = ' ';
+      length = addr_readline (pf, line+1, sizeof(line)-1);
+      if (length >= 0) ++length;
+      fclose (pf);
+      if (length < 0 || line[1] == '?') {
+        line[1] = '\0';
+        length = 0;
+      }
+
+      line[length] = '\0';
+      return line;
+    }
+  }
+  return "";
+}
+
+
+
+/*========================================================================== */
 /* startup and shutdown */
 /*========================================================================== */
 static void setup() __attribute__ ((constructor));

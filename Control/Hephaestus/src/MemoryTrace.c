@@ -7,6 +7,7 @@
 #include "Hephaestus/Utils.h"
 
 #include <pthread.h>
+#include <dlfcn.h>
 
 
 /* _________________________________________________________________________ */
@@ -48,7 +49,7 @@ struct hhh_MemoryTrace *hhh_MemoryTrace_new() {
 
    if ( gPool == NULL ) {
       gPoolInUse = 1;             /* indicate to user that trace size can no longer be modified */
-      true_size = sizeof( struct hhh_MemoryTrace ) + hhh_gBacktraceSize*sizeof(void*);
+      true_size = sizeof( struct hhh_MemoryTrace );
 
       const long nobj = sysconf( _SC_PAGESIZE ) / true_size;
       gPool = (char*)malloc( nobj * true_size );
@@ -87,15 +88,14 @@ void hhh_MemoryTrace_delete( void *trace ) {
 
 
 /* _________________________________________________________________________ */
-void hhh_MemoryTrace_initialize( struct hhh_MemoryTrace *mt, long size )
+void hhh_MemoryTrace_initialize( struct hhh_MemoryTrace *mt, long size,
+                                 StackElement* addresses, long depth)
 {
 /* initialize a newly created MemoryTrace */
    int itrace;
 
    mt->size = size;
-
-   for ( itrace = 0; itrace < hhh_gBacktraceSize; ++itrace )
-      ((void**)&mt->trace)[ itrace ] = 0;
+   mt->handle = hhh_stackstash_store (addresses, depth);
 }
 
 /* _________________________________________________________________________ */
@@ -129,12 +129,13 @@ void hhh_MemoryTrace_print( FILE* f, struct hhh_MemoryTrace *mt, int hideMemAddr
    int i;
 
 /* report culprit */
-   sym = (const char*)hhh_getSymbol( ((void**)&mt->trace)[0] );
+   StackElement* elt = STACK_HANDLE_ELEMENT (mt->handle);
+   sym = (const char*)hhh_getSymbol( *elt );
    if ( (h = strstr( sym, " @" )) ) *h = '\0';
    if ( mt->size != (unsigned long)-1 )
-      fprintf( f, "%s (%ld bytes)\n", hhh_getSymbol( ((void**)&mt->trace)[0] ), mt->size );
+      fprintf( f, "%s (%ld bytes)\n", hhh_getSymbol( *elt ), mt->size );
    else
-      fprintf( f, "%s\n", hhh_getSymbol( ((void**)&mt->trace)[0] ) );
+      fprintf( f, "%s\n", hhh_getSymbol( *elt ) );
    if ( h ) *h = ' ';
 
 /* try to report detailed type information */
@@ -143,13 +144,14 @@ void hhh_MemoryTrace_print( FILE* f, struct hhh_MemoryTrace *mt, int hideMemAddr
       fprintf( f, "    => guess of object type: %s\n", tp );
 
 /* report (partial) stack trace */
-   for ( i = 0; i < hhh_gBacktraceSize; i++ ) {
-      if ( ! ((void**)&mt->trace)[i] )
-         break;
+   while (!STACK_ELEMENT_IS_ROOT(elt)) {
       if (hideMemAddr)
-         fprintf( f, "   %s\n", hhh_getSymbol( ((void**)&mt->trace)[i] ) );
+        fprintf( f, "   %s %s\n", hhh_getSymbol( *elt ),
+                 hhh_addrToLine(*elt, NULL));
       else
-         fprintf( f, "   %p %s\n", ((void**)&mt->trace)[i], hhh_getSymbol( ((void**)&mt->trace)[i] ) );
+        fprintf( f, "   %p %s %s\n", *elt, hhh_getSymbol( *elt ),
+                 hhh_addrToLine(*elt, NULL));
+      elt = STACK_ELEMENT_PARENT (elt);
    }
 }
 
@@ -157,8 +159,6 @@ void hhh_MemoryTrace_print( FILE* f, struct hhh_MemoryTrace *mt, int hideMemAddr
 int hhh_MemoryTracePtr_compare( const void *pmt1, const void *pmt2 )
 {
 /* comparison function for memory traces, returns like strcmp */
-   double sum1, sum2;
-   int i;
    struct hhh_MemoryTrace *mt1, *mt2;
 
    mt1 = *((struct hhh_MemoryTrace**)pmt1);
@@ -170,22 +170,12 @@ int hhh_MemoryTracePtr_compare( const void *pmt1, const void *pmt2 )
    if ( mt1->size > mt2->size )
       return -1;
 
-   sum1 = sum2 = 0.;
-   for ( i = 0; i < hhh_gBacktraceSize; ++i ) {
-      sum1 += (unsigned long)((void**)&mt1->trace)[i];
-      sum2 += (unsigned long)((void**)&mt2->trace)[i];
-   }
-
-   if ( sum1 == sum2 )
-      return 0;
-
-   if ( sum1 > sum2 )
+   if ( mt1->handle < mt2->handle )
       return 1;
 
-   if ( sum1 < sum2 )
+   if ( mt1->handle > mt2->handle )
       return -1;
 
-/* just to make clang happy; all cases are already covered above */
    return 0;
 }
 

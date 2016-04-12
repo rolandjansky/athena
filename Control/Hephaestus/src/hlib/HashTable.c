@@ -92,7 +92,7 @@ struct hhh_HashTable *hhh_HashTable_new( unsigned long minsize )
    pthread_mutex_init( &ht->lock, NULL );
 
 /* select proper prime for size, based on minimum requested size */
-   for ( i = 0; i < nprimes; i++ ) {
+   for ( i = 0; i < nprimes-1; i++ ) {
       if ( minsize < primes[i] )
          break;
    }

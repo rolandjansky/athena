@@ -84,7 +84,7 @@ static void hhh_Hooks_stop() {
 /* out-of-line to ensure symbol exists */
 static void captureTrace( void *result ) {
    void *addresses[ hhh_TRACEDEPTH ];
-   int tcount, iaddr, jaddr;
+   int tcount, jaddr;
    struct hhh_MemoryTrace *b;
 
    if ( ! ( gFlags & DOUBLE_DEL_CHECK ) )
@@ -109,12 +109,9 @@ static void captureTrace( void *result ) {
       return;
    }
 
-   hhh_MemoryTrace_initialize( b, (unsigned long)-1 /* dummy */ );
-
-   iaddr = 0;
-   for ( jaddr = hhh_SYSTEMOFF; iaddr < hhh_gBacktraceSize && jaddr < tcount; iaddr++, jaddr++ ) {
-      ((void**)&b->trace)[iaddr] = addresses[jaddr];
-   }
+   hhh_MemoryTrace_initialize( b, (unsigned long)-1 /* dummy */,
+                               addresses + hhh_SYSTEMOFF,
+                               tcount - hhh_SYSTEMOFF);
 
    hhh_HashTable_insert( gTraceInfo, result, b );
 }

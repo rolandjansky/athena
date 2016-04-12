@@ -196,7 +196,7 @@ void ReadSymbols( const std::string& input ) {
    FILE* fsyms = popen( ("gzip -dc " + input).c_str(), "r" );
 
    Address_t l;
-   while ( fread( (void*)&l, sizeof(l), 1, fsyms ) ) {
+   while ( fread( (void*)&l, sizeof(l), 1, fsyms ) == 1) {
       char s[4096];
       size_t off = 0;
       while (true) {
@@ -243,7 +243,7 @@ void ProcessProfile( const std::string& input, const std::string& output ) {
       return;
    }
 
-   double total_bytes = statbuf.st_size;
+   double inv_total_bytes = 1. / static_cast<double> (statbuf.st_size);
    {
       unsigned long long byte_counter = 0, stack_counter = 0, total_size = 0;
 
@@ -276,7 +276,7 @@ void ProcessProfile( const std::string& input, const std::string& output ) {
          }
 
          byte_counter += (2+nstack)*4;
-         progress = long(2.5*byte_counter / total_bytes); // estimate inflator at 40x
+         progress = long(2.5*byte_counter * inv_total_bytes); // estimate inflator at 40x
          if ( progress > 100 ) progress = 100;
          if ( step_progress < progress ) {
             for ( ; step_progress <= progress; ++step_progress ) {

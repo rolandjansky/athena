@@ -40,7 +40,7 @@
    of course still be modified here for compile time */
 
 /* maximum total depth of tracebacks kept in memory */
-#define hhh_TRACEDEPTH       12
+#define hhh_TRACEDEPTH       20
 /* system offset: 0 == helper, 1 == hook, 2 == malloc/realloc */
 #define hhh_SYSTEMOFF         3
 /* total backtrace size left: hhh_TRACEDEPTH - hhh_SYSTEMOFF */

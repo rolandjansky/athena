@@ -218,7 +218,7 @@ static void hhh_report( void ) {
           function arguments (if any) are stripped so that they don't accidently match */
          ignore = 0;
          if ( pos ) {
-            sub = (char*)malloc( pos-first + 1 );
+           sub = (char*)malloc( pos-first + 1 );
             strncpy( sub, first, pos-first );
             sub[ pos-first ] = '\0';
          } else {
@@ -241,7 +241,7 @@ static void hhh_report( void ) {
          long leakSize = summary->count * summary->leak->size;
          if ( ! ignore ) {
             nreports += 1;
-            fprintf( gReportStream, "%d leak%s (total %ld bytes), originating in:\n",
+            fprintf( gReportStream, "%u leak%s (total %ld bytes), originating in:\n",
                      summary->count, (summary->count == 1 ? "" : "s"),
                      leakSize );
             
@@ -259,7 +259,7 @@ static void hhh_report( void ) {
       hhh_NameSet_print( gReportStream, &gTraceNames, " for " );
       fprintf( gReportStream, ":\n" );
 
-      fprintf( gReportStream, "   detected %d unique leak%s\n",
+      fprintf( gReportStream, "   detected %u unique leak%s\n",
                nuniq, (nuniq == 1 ? "" : "s" ) );
             
       fprintf( gReportStream, "   detected %d non-unique leak%s (total %ld bytes reported)\n",
@@ -268,7 +268,7 @@ static void hhh_report( void ) {
 
       if ( (nuniq - nreports) != 0 )
          fprintf( gReportStream,
-                  "   ignored %d unique leak%s using %d filter%s (total %ld bytes ignored)\n",
+                  "   ignored %u unique leak%s using %u filter%s (total %ld bytes ignored)\n",
                   nuniq - nreports, ( nuniq - nreports == 1 ? "" : "s" ),
                   gIgnoreNames.size, ( gIgnoreNames.size == 1 ? "" : "s"),
                   ignoredLeakSize);
@@ -374,9 +374,13 @@ static void hhh_Hooks_atexit() {
          cell = gTraceInfo->table[i];
          while ( cell != NULL ) {
             if ( cell->value != NULL ) {
+               StackElement* elt;
                bt = (struct hhh_MemoryTrace*)cell->value;
-               for ( itrace = 0; itrace < hhh_gBacktraceSize; itrace++ )
-                  hhh_getSymbol( ((void**)&bt->trace)[ itrace ] );
+               elt = STACK_HANDLE_ELEMENT (bt->handle);
+               while (!STACK_ELEMENT_IS_ROOT (elt)) {
+                  hhh_getSymbol( *elt );
+                  elt = STACK_ELEMENT_PARENT (elt);
+               }
             }
 
             cell = cell->next;
@@ -402,26 +406,25 @@ static void captureTrace( void *result, long size, int isrealloc ) {
    static void *addr_new_arr = NULL;
    static void *addr_dl_open = NULL;
 
-   void **addresses = 0;
+   const int traceDepth = 2048;
+   void* addresses[traceDepth];
    void *current;
-   int tcount, responsible, mallocoff, iaddr, i, j, k, iname, accept;
+   int tcount, responsible, mallocoff, i, j, k, iname, accept;
    const char *name;
    struct hhh_MemoryTrace *b;
    double *total;
    long *pbcount, ifilter;
 
-   addresses = (void**)malloc( (gLargeTraceDepth + 4)*sizeof(void*) );
-
 #if defined ( __i386 )
-   tcount = hhh_GenericBacktrace( addresses, gLargeTraceDepth );
+   tcount = hhh_GenericBacktrace( addresses, traceDepth );
 #elif defined( __x86_64__ )
 /* FIXME: backtrace uses _Unwind_Backtrace, which tends to be slow */
-   tcount = backtrace( addresses, gLargeTraceDepth );
+   tcount = backtrace( addresses, traceDepth );
 #else
-   tcount = backtrace( addresses, gLargeTraceDepth );
+   tcount = backtrace( addresses, traceDepth );
 #endif
 
-   assert( tcount <= gLargeTraceDepth );
+   assert( tcount <= traceDepth );
 
 /* tcount will (in ATLAS) almost always be larger than hhh_TRACEDEPTH (max size
    of stack traces kept in memory). The filter will work up to gLargeTraceDepth
@@ -433,7 +436,8 @@ static void captureTrace( void *result, long size, int isrealloc ) {
       current = addresses[i];
 
    /* if located, quick-treat the allocating and special cases */
-      if ( current == addr_malloc ) {
+      if ( current == addr_malloc )
+      {
          responsible = i+1 < tcount ? i+1 : i;
          mallocoff = i+1;
          continue;
@@ -529,12 +533,9 @@ static void captureTrace( void *result, long size, int isrealloc ) {
                return;
             }
 
-            hhh_MemoryTrace_initialize( b, size );
-
-            iaddr = 0;
-            for ( j = responsible; iaddr < hhh_gBacktraceSize && j < tcount; j++, iaddr++ ) {
-               ((void**)&b->trace)[iaddr] = addresses[j];
-            }
+            hhh_MemoryTrace_initialize( b, size,
+                                        addresses + responsible,
+                                        tcount - responsible );
 
             hhh_HashTable_insert( gTraceInfo, result, b );
 
@@ -559,8 +560,6 @@ static void captureTrace( void *result, long size, int isrealloc ) {
       }
 
    }
-
-   free( addresses );
 }
 
 /* _________________________________________________________________________ */
