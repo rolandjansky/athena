@@ -124,14 +124,14 @@ static char buffer[512];
 
 /* _________________________________________________________________________ */
 static void mm_report( void ) {
-	printf("	MemoryMarker->mm_report(): gFlags = %u\n", gFlags);
+	printf("	MemoryMarker->mm_report(): gFlags = %ld\n", gFlags);
 }
 
 
 /* _________________________________________________________________________ */
 static void ignore( const char *name ) {
 	gFlags = gFlags & ~IS_MARKING;
-	printf("	MemoryMarker->ignore(): IS_MARKING flag dropped. gFlags = %u\n", gFlags);
+	printf("	MemoryMarker->ignore(): IS_MARKING flag dropped. gFlags = %ld\n", gFlags);
 }
 
 
@@ -151,7 +151,7 @@ static void mm_Hooks_save() {
 		      m_OldFreeHook    = __free_hook;
 		break;
 	case 1:
-		printf("	MemoryMarker->mm_Hooks_save tcmalloc gFlags = %u\n", gFlags);
+		printf("	MemoryMarker->mm_Hooks_save tcmalloc gFlags = %ld\n", gFlags);
 		break;
 	default:
 		printf(" Invalid USETCMALLOC key: %d", USETCMALLOC);
@@ -163,7 +163,7 @@ static long configure( long flags ) {
 	gFlags |= IS_RUNNING;
 	gFlags |= flags;
 
-	printf("	MemoryMarker->configure(): IS_RUNNING flag raised. gFlags = %u\n", gFlags);
+	printf("	MemoryMarker->configure(): IS_RUNNING flag raised. gFlags = %ld\n", gFlags);
 
 	//setup();
 	switch(USETCMALLOC){
@@ -171,7 +171,7 @@ static long configure( long flags ) {
 		mm_Hooks_save();
 		break;
 	case 1:
-		printf("	MemoryMarker->configure() tcmalloc gFlags = %u\n", gFlags);
+		printf("	MemoryMarker->configure() tcmalloc gFlags = %ld\n", gFlags);
 		break;
 	default:
 		printf(" Invalid USETCMALLOC key: %d", USETCMALLOC);
@@ -194,13 +194,13 @@ static void get_test(long lkey) {
 			malloc_stats();
 
 			mem_struct = mallinfo();
-			printf("	sbrk-Allocated Memory( ARENA) size: %lu\n", mem_struct.arena);
-			printf(" 	MMAP-Allocated Memory: %lu\n", mem_struct.hblkhd);
-			printf(" 	Number of chunks allocated by MMAP: %lu\n", mem_struct.hblks);
-			printf(" 	MALLOC-In Use: %lu\n", mem_struct.uordblks );
-			printf(" 	MALLOC-Free: %lu\n", mem_struct.fordblks);
-			printf(" 	Number of chunks from OS not in use by MALLOC: %lu\n", mem_struct.ordblks);
-			printf("    Top-releasable chunk keepcost: %lu\n", mem_struct.keepcost);
+			printf("	sbrk-Allocated Memory( ARENA) size: %u\n", mem_struct.arena);
+			printf(" 	MMAP-Allocated Memory: %u\n", mem_struct.hblkhd);
+			printf(" 	Number of chunks allocated by MMAP: %u\n", mem_struct.hblks);
+			printf(" 	MALLOC-In Use: %u\n", mem_struct.uordblks );
+			printf(" 	MALLOC-Free: %u\n", mem_struct.fordblks);
+			printf(" 	Number of chunks from OS not in use by MALLOC: %u\n", mem_struct.ordblks);
+			printf("    Top-releasable chunk keepcost: %u\n", mem_struct.keepcost);
 
 			printf("-----------------------------------------------------\n\n");
 
@@ -225,14 +225,14 @@ static void get_test(long lkey) {
 		break;
 	case 1:
 		mem_struct = mallinfo();
-		printf("	MemoryMarker->get_test tcmalloc gFlags = %u\n", gFlags);
-		printf("	sbrk-Allocated Memory( ARENA) size: %lu\n", mem_struct.arena);
-		//printf(" 	MMAP-Allocated Memory: %lu\n", mem_struct.hblkhd);
-		//printf(" 	Number of chunks allocated by MMAP: %lu\n", mem_struct.hblks);
-		printf(" 	MALLOC-In Use: %lu\n", mem_struct.uordblks );
-		printf(" 	MALLOC-Free: %lu\n", mem_struct.fordblks);
-		//printf(" 	Number of chunks from OS not in use by MALLOC: %lu\n", mem_struct.ordblks);
-		//printf("    Top-releasable chunk keepcost: %lu\n", mem_struct.keepcost);
+		printf("	MemoryMarker->get_test tcmalloc gFlags = %ld\n", gFlags);
+		printf("	sbrk-Allocated Memory( ARENA) size: %u\n", mem_struct.arena);
+		//printf(" 	MMAP-Allocated Memory: %u\n", mem_struct.hblkhd);
+		//printf(" 	Number of chunks allocated by MMAP: %u\n", mem_struct.hblks);
+		printf(" 	MALLOC-In Use: %u\n", mem_struct.uordblks );
+		printf(" 	MALLOC-Free: %u\n", mem_struct.fordblks);
+		//printf(" 	Number of chunks from OS not in use by MALLOC: %u\n", mem_struct.ordblks);
+		//printf("    Top-releasable chunk keepcost: %u\n", mem_struct.keepcost);
 		break;
 	default:
 		printf(" Invalid USETCMALLOC key: %d", USETCMALLOC);
@@ -252,49 +252,49 @@ static void show_malloc_info() {
 		printf("\n--------- GLIBC ptmalloc( --stdcmalloc) INFO --------\n");
 		malloc_stats();
 		mem_struct = mallinfo();
-		printf("  SBRK-allocated memory( ARENA) size: %lu bytes\n", mem_struct.arena);
-		printf("  MMAP-allocated memory: %lu bytes\n", mem_struct.hblkhd);
-		printf("  MMAP-allocated number of chunks: %lu\n", mem_struct.hblks);
-		printf("  MALLOC-In-use: %lu bytes \n", mem_struct.uordblks );
-		printf("  MALLOC-Free: %lu bytes\n", mem_struct.fordblks);
-		printf("  Number of chunks from OS not in use by MALLOC: %lu \n", mem_struct.ordblks);
-		printf("  TOP-releasable chunk keepcost: %lu bytes \n\n", mem_struct.keepcost);
+		printf("  SBRK-allocated memory( ARENA) size: %u bytes\n", mem_struct.arena);
+		printf("  MMAP-allocated memory: %u bytes\n", mem_struct.hblkhd);
+		printf("  MMAP-allocated number of chunks: %u\n", mem_struct.hblks);
+		printf("  MALLOC-In-use: %u bytes \n", mem_struct.uordblks );
+		printf("  MALLOC-Free: %u bytes\n", mem_struct.fordblks);
+		printf("  Number of chunks from OS not in use by MALLOC: %u \n", mem_struct.ordblks);
+		printf("  TOP-releasable chunk keepcost: %u bytes \n\n", mem_struct.keepcost);
 
 		printf("\n-------------- HEAPMON MEMORY MARKER SPECIFIC INFO -------\n");
-		printf(" Cumulative allocated memory size: %u bytes\n", total_allocated);
-		printf(" Cumulative deallocated memory: %u bytes \n", total_freed);
-		printf(" Number of allocations: %u bytes \n", number_allocated);
-		printf(" Number of deallocations: %u  \n", number_freed);
-		printf(" Number of zero allocations: %u\n", number_zero_allocated);
-		printf(" Number of zero ptr deallocations: %u\n", number_zeroptr_freed);
+		printf(" Cumulative allocated memory size: %llu bytes\n", total_allocated);
+		printf(" Cumulative deallocated memory: %llu bytes \n", total_freed);
+		printf(" Number of allocations: %llu bytes \n", number_allocated);
+		printf(" Number of deallocations: %llu  \n", number_freed);
+		printf(" Number of zero allocations: %llu\n", number_zero_allocated);
+		printf(" Number of zero ptr deallocations: %llu\n", number_zeroptr_freed);
 		printf("-----------------------------------------------------------\n\n");
 		break;
 	case 1:
 
 		mem_struct = mallinfo();
 		printf("\n-------------- TCMALLOC INFO -------------------------\n");
-		printf("	MemoryMarker->get_test tcmalloc gFlags = %u\n", gFlags);
-		printf("	SBRK-allocated Memory( ARENA) size: %lu bytes\n", mem_struct.arena);
-		//printf(" 	MMAP-Allocated Memory: %lu\n", mem_struct.hblkhd);
-		//printf(" 	Number of chunks allocated by MMAP: %lu\n", mem_struct.hblks);
-		printf(" 	MALLOC-In Use: %lu bytes \n", mem_struct.uordblks );
-		printf(" 	MALLOC-Free: %lu bytes \n", mem_struct.fordblks);
-		//printf(" 	Number of chunks from OS not in use by MALLOC: %lu\n", mem_struct.ordblks);
-		//printf("    Top-releasable chunk keepcost: %lu\n", mem_struct.keepcost);
+		printf("	MemoryMarker->get_test tcmalloc gFlags = %ld\n", gFlags);
+		printf("	SBRK-allocated Memory( ARENA) size: %u bytes\n", mem_struct.arena);
+		//printf(" 	MMAP-Allocated Memory: %u\n", mem_struct.hblkhd);
+		//printf(" 	Number of chunks allocated by MMAP: %u\n", mem_struct.hblks);
+		printf(" 	MALLOC-In Use: %u bytes \n", mem_struct.uordblks );
+		printf(" 	MALLOC-Free: %u bytes \n", mem_struct.fordblks);
+		//printf(" 	Number of chunks from OS not in use by MALLOC: %u\n", mem_struct.ordblks);
+		//printf("    Top-releasable chunk keepcost: %u\n", mem_struct.keepcost);
 		printf("-----------------------------------------------------------\n\n");
 
 
 		MallocExtension_GetStats(buffer, 512);
-		printf("  MemoryMarker->get_malloc_info() tcmalloc gFlags = %u\n", gFlags);
+		printf("  MemoryMarker->get_malloc_info() tcmalloc gFlags = %ld\n", gFlags);
 		printf("  tcmalloc stats: %s", buffer);
 
 		printf("\n-------------- HEAPMON MEMORY MARKER SPECIFIC INFO -------\n");
-		printf("	Cumulative allocated memory size: %u\n", total_allocated);
-		printf(" 	Cumulative deallocated memory: %u\n", total_freed);
-		printf(" 	Number of allocations: %u\n", number_allocated);
-		printf(" 	Number of deallocations: %u\n", number_freed);
-		printf(" 	Number of zero allocations: %u\n", number_zero_allocated);
-		printf(" 	Number of zero ptr deallocations: %u\n", number_zeroptr_freed);
+		printf("	Cumulative allocated memory size: %llu\n", total_allocated);
+		printf(" 	Cumulative deallocated memory: %llu\n", total_freed);
+		printf(" 	Number of allocations: %llu\n", number_allocated);
+		printf(" 	Number of deallocations: %llu\n", number_freed);
+		printf(" 	Number of zero allocations: %llu\n", number_zero_allocated);
+		printf(" 	Number of zero ptr deallocations: %llu\n", number_zeroptr_freed);
 		printf("-----------------------------------------------------------\n\n");
 
 
@@ -302,12 +302,12 @@ static void show_malloc_info() {
 	default:
 		printf(" Invalid USETCMALLOC key: %d", USETCMALLOC);
 		printf("\n-------------- HEAPMON MEMORY MARKER SPECIFIC INFO -------\n");
-		printf("	Cumulative allocated memory size: %u\n", total_allocated);
-		printf(" 	Cumulative deallocated memory: %u\n", total_freed);
-		printf(" 	Number of allocations: %u\n", number_allocated);
-		printf(" 	Number of deallocations: %u\n", number_freed);
-		printf(" 	Number of zero allocations: %u\n", number_zero_allocated);
-		printf(" 	Number of zero ptr deallocations: %u\n", number_zeroptr_freed);
+		printf("	Cumulative allocated memory size: %llu\n", total_allocated);
+		printf(" 	Cumulative deallocated memory: %llu\n", total_freed);
+		printf(" 	Number of allocations: %llu\n", number_allocated);
+		printf(" 	Number of deallocations: %llu\n", number_freed);
+		printf(" 	Number of zero allocations: %llu\n", number_zero_allocated);
+		printf(" 	Number of zero ptr deallocations: %llu\n", number_zeroptr_freed);
 		printf("-----------------------------------------------------------\n\n");
 
 	}
@@ -325,24 +325,24 @@ static void mm_Hooks_install() {
 			__realloc_hook = mm_ReallocHook;*/
 			break;
 		case 1:
-			printf("	MemoryMarker->mm_Hooks_install() tcmalloc gFlags = %u\n", gFlags);
+			printf("	MemoryMarker->mm_Hooks_install() tcmalloc gFlags = %ld\n", gFlags);
 			break;
 		default:
 			printf(" Invalid USETCMALLOC key: %d", USETCMALLOC);
 		}
 
    } else{
-	   printf("	MemoryMarker->mm_Hooks_install(): mm_Hooks failed to install. IS_RUNNING not set, gFlags = %u\n", gFlags);
+	   printf("	MemoryMarker->mm_Hooks_install(): mm_Hooks failed to install. IS_RUNNING not set, gFlags = %ld\n", gFlags);
    }
    return ;
 }
 
 static void tc_Hooks_install() {
    if ( gFlags & IS_RUNNING ) {
-	   printf(" MemoryMarker->tc_Hooks_install(): do nothing! gFlags = %u\n", gFlags);
+	   printf(" MemoryMarker->tc_Hooks_install(): do nothing! gFlags = %ld\n", gFlags);
 
    } else{
-	   printf("	MemoryMarker->tc_Hooks_install(): 'IS_RUNNING' not set, gFlags = %u  do nothing!\n", gFlags);
+	   printf("	MemoryMarker->tc_Hooks_install(): 'IS_RUNNING' not set, gFlags = %ld  do nothing!\n", gFlags);
    }
    return ;
 }
@@ -357,7 +357,7 @@ static void mm_Hooks_uninstall() {
 		__realloc_hook = 	m_OldReallocHook;*/
 		break;
 	case 1:
-		printf("	MemoryMarker->mm_Hooks_uninstall() tcmalloc gFlags = %u\n", gFlags);
+		printf("	MemoryMarker->mm_Hooks_uninstall() tcmalloc gFlags = %ld\n", gFlags);
 		break;
 	default:
 		printf(" Invalid USETCMALLOC key: %d", USETCMALLOC);
@@ -390,9 +390,9 @@ static void mm_Hooks_start() {
 			printf(" Invalid USETCMALLOC key: %d", USETCMALLOC);
 		}
 	   gFlags |= IS_MARKING;
-	   printf("	IS_MARKING flag raised, gFlags = %u!\n", gFlags);
+	   printf("	IS_MARKING flag raised, gFlags = %ld!\n", gFlags);
 	} else {
-	   printf("	MemoryMarker->mm_Hooks_start(): Attempt failed: IS_RUNNING flag is not set, gFlags = %u!\n", gFlags);
+	   printf("	MemoryMarker->mm_Hooks_start(): Attempt failed: IS_RUNNING flag is not set, gFlags = %ld!\n", gFlags);
 	}
 }
 
@@ -417,15 +417,15 @@ static void mm_Hooks_stop() {
 		}
 
 		gFlags &= gFlags ^ IS_MARKING;
-		printf(", gFlags = %u\n", gFlags);
+		printf(", gFlags = %ld\n", gFlags);
 	} else{
-		printf("	MemoryMarker->mm_Hooks_stop(): Attempt failed (IS_MARKING  not raised) gFlags = %u. \n", gFlags);
+		printf("	MemoryMarker->mm_Hooks_stop(): Attempt failed (IS_MARKING  not raised) gFlags = %ld. \n", gFlags);
 	}
 }
 
 /* _________________________________________________________________________ */
 static void mm_Hooks_atexit() {
-   printf("	MemoryMarker->mm_Hooks_atexit(): mm_Hooks _uninstall(). gFlags = %u\n", gFlags);
+   printf("	MemoryMarker->mm_Hooks_atexit(): mm_Hooks _uninstall(). gFlags = %ld\n", gFlags);
 
    switch(USETCMALLOC){
    case 0:
@@ -447,7 +447,7 @@ static void mm_Hooks_atexit() {
 
    gFlags &= gFlags ^ IS_MARKING;
    gFlags &= gFlags ^ IS_RUNNING;
-   printf("	MemoryMarker->mm_Hooks_atexit(): IS_MARKING and IS_RUNNING flags dropped  gFlags = %u\n", gFlags);
+   printf("	MemoryMarker->mm_Hooks_atexit(): IS_MARKING and IS_RUNNING flags dropped  gFlags = %ld\n", gFlags);
 }
 
 
@@ -515,7 +515,7 @@ static void tc_MallocHook(const void* ptr, size_t size){
 			memset(ptr, FREE_MARKER, object_size - 1);*/
 
 		if (size > 50000)
-			printf("malloc=%d", size);
+			printf("malloc=%zu", size);
 	}
 
 }
@@ -592,7 +592,7 @@ static void mm_FreeHook( void *ptr, const void *caller ) {
      unsigned long   chunk_size = 0;
 
      if(ptr){
-		chunk_ptr = (size_t*)(ptr-1*sizeof(size_t));
+                chunk_ptr = (size_t*)((char*)ptr-1*sizeof(size_t));
 		chunk_size = (*chunk_ptr) & ~LOWER_THREE_BITS;
 		//object_size = ((*chunk_ptr) & ~LOWER_THREE_BITS) - 2*sizeof(size_t);
 		object_size = chunk_size - 2*sizeof(size_t);

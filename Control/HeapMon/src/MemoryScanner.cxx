@@ -176,7 +176,7 @@ int main( int argc, char *argv[] ){
 
 	   if ( statusf != NULL ){
 		   while ( fgets ( line, sizeof line, statusf ) != NULL) /* read a line */{
-			   sscanf( line, "%5s %u %9s", head_buffer, &tag_value, tail_buffer);
+			   sscanf( line, "%5s %80u %9s", head_buffer, &tag_value, tail_buffer);
 			   //cout <<"h_buffer=" << head_buffer << " tag_value=" << tag_value << " t_buffer=" << tail_buffer << "\n";
 			   if (strncmp(head_buffer, 		"VmSize",5) == 0){
 				   VmSize = tag_value;
@@ -309,7 +309,7 @@ int main( int argc, char *argv[] ){
 	   //----------------------------------------------------//
 	   size_t len = 0;
 	   while (getline(&buffer, &len, maps) > 0) {
-	      sscanf( buffer, "%x-%x %2s", &addr_start, &addr_end, perm );
+	      sscanf( buffer, "%80x-%80x %2s", &addr_start, &addr_end, perm );
 	      maps_total_size += (addr_end - addr_start);
 
 	      if ( strcmp( perm, "rw" ) != 0 ){
