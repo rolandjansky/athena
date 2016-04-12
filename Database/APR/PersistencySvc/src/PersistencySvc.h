@@ -67,18 +67,6 @@ namespace pool {
                                const void* object,
                                const RootType& type );
       
-      /**  updateObject updates an object which is already written in the persistent medium.
-       *   higher level interactions with the framework are necessary.
-       *
-       * @param  object       [IN]  pointer to transient object which will be updates
-       * @param  token        [IN]  reference to the token for the object
-       *
-       * @return bool   Indicates whether operation was successfull.
-       *
-       */
-      bool updateObject( const void* object,
-                         const Token& token );
-      
       /** Deletes an object from the persistent store
        *
        * @param  token        [IN]  reference to the token for the object

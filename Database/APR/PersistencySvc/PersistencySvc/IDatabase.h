@@ -6,7 +6,7 @@
 #define INCLUDE_PERSISTENCYSVC_IDATABASE_H
 
 // includes
-#include "PersistencySvc/Placement.h"
+#include <string>
 #include <vector>
 
 namespace pool {
@@ -73,9 +73,6 @@ namespace pool {
 
     /// Returns a pointer to a container object. The user acquires ownership of that object.
     virtual IContainer* containerHandle( const std::string& name ) = 0;
-
-    /// Returns a placement hint for this database
-    virtual Placement placementHint() const = 0;
 
     /// Returns the object holding the technology specific attributes
     virtual const ITechnologySpecificAttributes& technologySpecificAttributes() const = 0;

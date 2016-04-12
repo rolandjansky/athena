@@ -40,9 +40,6 @@ namespace pool {
       /// Returns the technology identifier for this container
       long technology() const;
 
-      /// Returns a placement hint for this container
-      Placement placementHint() const;
-      
       /** Starts an iteration over the tokens in the container.
        *  Returns a token iterator whose ownership is passed to the user.
        */

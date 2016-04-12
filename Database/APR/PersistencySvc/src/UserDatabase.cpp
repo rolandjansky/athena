@@ -408,17 +408,6 @@ pool::PersistencySvc::UserDatabase::containerHandle( const std::string& name )
 }
 
 
-pool::Placement
-pool::PersistencySvc::UserDatabase::placementHint() const
-{
-  Placement placement;
-  if ( m_databaseHandler ) {
-    placement = m_databaseHandler->placementHint();
-  }
-  return placement;
-}
-
-
 bool
 pool::PersistencySvc::UserDatabase::checkInRegistry()
 {

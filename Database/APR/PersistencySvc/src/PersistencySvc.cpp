@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: PersistencySvc.cpp 664783 2015-05-04 16:41:02Z gemmeren $
+//$Id: PersistencySvc.cpp 739662 2016-04-12 11:55:10Z krasznaa $
 
 // includes
 #include "PersistencySvc.h"
@@ -13,6 +13,8 @@
 #include "PersistentDataModel/Token.h"
 #include "PersistencySvc/DatabaseSpecification.h"
 #include "PersistencySvc/ITransaction.h"
+
+#include "PersistentDataModel/Placement.h"
 
 pool::PersistencySvc::PersistencySvc::PersistencySvc( pool::IFileCatalog& fileCatalog ):
   pool::IPersistencySvc( fileCatalog ),
@@ -62,7 +64,7 @@ pool::PersistencySvc::PersistencySvc::readObject( const Token& token, void* obje
 }
 
 Token*
-pool::PersistencySvc::PersistencySvc::registerForWrite( const pool::Placement& place,
+pool::PersistencySvc::PersistencySvc::registerForWrite( const Placement& place,
                                                         const void* object,
                                                         const RootType& type )
 {
@@ -72,8 +74,8 @@ pool::PersistencySvc::PersistencySvc::registerForWrite( const pool::Placement& p
                    m_session->configuration(),
                    m_session->transaction(),
                    m_session->registry(),
-                   place.databaseName(),
-                   place.databaseNameType() );
+                   place.fileName(),
+                   pool::DatabaseSpecification::PFN );
   pool::IDatabase::OpenMode openMode = db.openMode();
   switch ( openMode ) {
   case pool::IDatabase::CLOSED:
@@ -90,35 +92,6 @@ pool::PersistencySvc::PersistencySvc::registerForWrite( const pool::Placement& p
                                            place.technology(),
                                            object,
                                            type );
-}
-
-bool
-pool::PersistencySvc::PersistencySvc::updateObject( const void* object,
-                                                    const Token& token )
-{
-  if ( ! m_session->transaction().isActive() ||
-       m_session->transaction().type() != pool::ITransaction::UPDATE ) return false;
-  UserDatabase db( m_session->technologyDispatcher(),
-                   m_session->configuration(),
-                   m_session->transaction(),
-                   m_session->registry(),
-                   token.dbID().toString(),
-                   pool::DatabaseSpecification::FID );
-  pool::DatabaseConnectionPolicy policy; // Keep the default behaviour.
-  pool::IDatabase::OpenMode openMode = db.openMode();
-  switch ( openMode ) {
-  case pool::IDatabase::CLOSED:
-    db.setTechnology( token.technology() );
-    db.connectForWrite( policy );
-    break;
-  case pool::IDatabase::READ:
-    db.revertMode( pool::IDatabase::UPDATE );
-    break;
-  default:
-    break;
-  };
-  return db.databaseHandler().updateObject( object,
-                                            token );
 }
 
 bool
