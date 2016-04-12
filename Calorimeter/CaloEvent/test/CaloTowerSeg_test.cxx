@@ -90,7 +90,7 @@ void test2()
 
   assert (seg.eta (3) == 0.25);
   assert (seg.phi (3) == -0.5);
-  assert (abs (seg.phi (7) - 0.3) < 1e-12);
+  assert (std::abs (seg.phi (7) - 0.3) < 1e-12);
 
   assert (seg.etaIndex (0.25) == 3);
   assert (seg.etaIndex (-1.0) == outOfRange);
@@ -146,8 +146,8 @@ void test3()
   assert (seg.phiIndex ((index_t)0) == 1);
 
   assert (seg.eta (3) == 0.25);
-  assert (abs (seg.phi (3) - M_PI + 0.5) < 1e-12);
-  assert (abs (seg.phi (7) + M_PI - 0.3) < 1e-12);
+  assert (std::abs (seg.phi (3) - M_PI + 0.5) < 1e-12);
+  assert (std::abs (seg.phi (7) + M_PI - 0.3) < 1e-12);
 
   assert (seg.etaIndex (0.25) == 3);
   assert (seg.etaIndex (-1.0) == outOfRange);

@@ -36,9 +36,14 @@ class CaloClusterCellLink {
   CaloClusterCellLink();
 
  /**@brief useful constructor 
-  * @param[in] cellCont Pointer to the CaloCellContainer this cluster is built from
+  * @param[in] cellCont Pointer to the CaloCellContainer from which this cluster is built
   */
   CaloClusterCellLink(const CaloCellContainer* cellCont);
+
+ /**@brief Constructor from @c DataLink.
+  * @param[in] cellCont Link to the CaloCellContainer from which this cluster is built
+  */
+  CaloClusterCellLink(const DataLink<CaloCellContainer>& cellCont);
 
   
   /**@brief standard destructor 

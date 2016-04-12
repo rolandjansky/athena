@@ -18,7 +18,7 @@
 #include "TestTools/random.h"
 
 
-using Athena_test::randi;
+//using Athena_test::randi;
 Athena_test::RNG stlrand;
 
 
@@ -212,9 +212,9 @@ void check_cells (const CaloCell_ID* helper,
 
   const int ntry = 100;
   for (int i = 0; i < ntry; i++) {
-    int subcalo = randi (CaloCell_ID::NSUBCALO);
+    int subcalo = Athena_test::randi (CaloCell_ID::NSUBCALO);
     if (selected_cells[subcalo].size() == 0) continue;
-    int ndx = randi (selected_cells[subcalo].size());
+    int ndx = Athena_test::randi (selected_cells[subcalo].size());
     const CaloCell* cell = selected_cells[subcalo][ndx];
     int hashid = cell->caloDDE()->calo_hash();
     assert (cont.findCell (hashid) == cell);
@@ -298,7 +298,7 @@ void select_cells2gen (const CellVector& cells,
   for (int i = 0; i < n; i++) {
     int ndx;
     do {
-      ndx = randi (cells.size());
+      ndx = Athena_test::randi (cells.size());
     } while (std::find (all_cells.begin(), all_cells.end(), cells[ndx]) != 
              all_cells.end());
     all_cells.push_back (cells[ndx]);

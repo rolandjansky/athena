@@ -19,8 +19,9 @@ void CaloClusterCellLinkContainer::toPersistent()
     p->toPersistent();
 }
 
-CaloClusterCellLinkContainer::CaloClusterCellLinkContainer(CaloClusterCellLinkContainer::const_iterator it1,
-							   CaloClusterCellLinkContainer::const_iterator it2,
+CaloClusterCellLinkContainer::CaloClusterCellLinkContainer(CaloClusterCellLinkContainer::iterator it1,
+							   CaloClusterCellLinkContainer::iterator it2,
 							   SG::OwnershipPolicy policy) :
   DataVector<CaloClusterCellLink>(it1,it2,policy) 
 {}
+

@@ -98,6 +98,15 @@ public:
   /** @brief default destructor */
   virtual ~CaloCell ();
 
+  /** @brief For initializing a cell we get from a @c DataPool. */
+  void assign (const CaloDetDescrElement* caloDDE,
+               const Identifier & ID,
+               float energy, 
+               float time, 
+               uint16_t quality,
+               uint16_t provenance,
+               CaloGain::CaloGain gain);
+
   /** @brief get energy (data member) */
   virtual double energy () const ATH_FINAL;
   /** @brief get phi (through CaloDetDescrElement) */
@@ -244,6 +253,29 @@ inline CaloCell::CaloCell()
     m_gain(CaloGain::UNKNOWNGAIN),
     m_caloDDE(0)
 {}
+
+
+#ifndef __REFLEX__
+inline
+void CaloCell::assign(const CaloDetDescrElement* caloDDE,
+                        const Identifier & ID,
+                        float   energy, 
+                        float   time, 
+                        uint16_t   quality,
+                        uint16_t   provenance,
+                        CaloGain::CaloGain gain)
+{
+  m_energy = energy;
+  m_time = time;
+  m_ID = ID;
+  m_gain = gain;
+  m_caloDDE = caloDDE;
+  m_qualProv[0]=quality;
+  m_qualProv[1]=provenance;
+}
+#endif
+
+
 
 inline Identifier CaloCell::ID() const {
   return m_ID; 

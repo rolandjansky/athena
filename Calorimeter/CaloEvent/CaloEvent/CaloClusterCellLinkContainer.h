@@ -27,8 +27,8 @@ class CaloClusterCellLinkContainer : public DataVector<CaloClusterCellLink>
   CaloClusterCellLinkContainer();
 
   /** \brief iterator-based constructor */
-  CaloClusterCellLinkContainer(CaloClusterCellLinkContainer::const_iterator it1,
-			       CaloClusterCellLinkContainer::const_iterator it2,
+  CaloClusterCellLinkContainer(CaloClusterCellLinkContainer::iterator it1,
+			       CaloClusterCellLinkContainer::iterator it2,
 			       SG::OwnershipPolicy plc);
 
   /** \brief destructor */ 

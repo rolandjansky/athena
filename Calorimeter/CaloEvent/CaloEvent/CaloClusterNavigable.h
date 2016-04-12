@@ -141,9 +141,28 @@ class CaloClusterNavigable : virtual public INavigable
 
   virtual bool isCellLinkValid() const ; 
 
+  typedef 
+  CaloClusterLinkTemplate<CaloCellLinkContainer>::link_type cell_link_type;
+
+  /*! \brief Access to underlying link. */
+  const cell_link_type& cellLink() const { return m_cellLink; }
+
+  void resetCellLink (const cell_link_type& cellLink)
+  {
+    m_cellLink = cellLink;
+  }
+
+
 protected: 
 
   friend class CaloClusterStoreHelper;
+  friend class CaloClusterContainerCnv_p2;
+  friend class CaloClusterContainerCnv_p3;
+  friend class CaloClusterContainerCnv_p4;
+  friend class CaloClusterContainerCnv_p5;
+  friend class CaloClusterContainerCnv_p6;
+  friend class CaloClusterContainerCnv_p7;
+  friend class CaloClusterContainerCnvTestMakeCluster;
 
   CaloCellLink*        getCellLink();
   const CaloCellLink*  getCellLink() const;
@@ -157,12 +176,6 @@ protected:
 
   bool m_ownLinkStore;
 
-
-  typedef 
-  CaloClusterLinkTemplate<CaloCellLinkContainer>::link_type cell_link_type;
-
-  /*! \brief (Protected) access to underlying link, for unit tests. */
-  cell_link_type& cellLink() { return m_cellLink; }
 
 private:
   /*! \brief Local pointer to cell store */

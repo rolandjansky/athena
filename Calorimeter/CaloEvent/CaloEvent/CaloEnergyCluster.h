@@ -136,6 +136,12 @@ class CaloEnergyCluster : public Navigable<CaloCellContainer,double>,
                            double weight,
                            size_t size_hint = 0);
 
+  void addUniqueCellNoKine(const CaloCellContainer* theContainer,
+                           index_type theIndex,
+                           IProxyDictWithPool* sg,
+                           double weight,
+                           size_t size_hint = 0);
+
 
   /*! \brief Reweight a cell with kinematic update
    *

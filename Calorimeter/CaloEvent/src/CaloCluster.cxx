@@ -1546,3 +1546,8 @@ CaloCluster::hlv(CaloCluster::signalstate_t s) const {
   }
   return this->hlv();
 }
+
+unsigned int CaloCluster::samplingPattern() const
+{
+  return m_samplingPattern;
+}

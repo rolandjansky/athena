@@ -103,6 +103,12 @@ class CaloSamplingData
   };
 
  private:
+  friend class CaloClusterContainerCnv_p4;
+  friend class CaloClusterContainerCnv_p5;
+  friend class CaloClusterContainerCnv_p6;
+  friend class CaloClusterContainerCnv_p7;
+  friend class CaloClusterContainerCnvTest_p6;
+  friend class CaloClusterContainerCnvTest_p7;
 
   variable_store_type m_dataStore;
 

@@ -133,7 +133,7 @@ void CaloTowerContainer::init()
       double thePhi = range.fix (minPhi + (phiIndex-1) * deltaPhi);
       index_t towerIndex   = this->getTowerIndex(etaIndex,phiIndex);
 #ifdef CALOTOWERCONTAINER_USES_DATAPOOL
-      static DataPool<CaloTower> towersPool (etaBins * phiBins);
+      DataPool<CaloTower> towersPool (etaBins * phiBins);
       CaloTower& tower = *towersPool.nextElementPtr();
       Base::operator[] (towerIndex) = &tower;
       tower.removeCells();

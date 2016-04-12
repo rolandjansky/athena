@@ -46,6 +46,7 @@ class CaloRecoStatus
   };
   /*! \brief Default constructor */ 
   CaloRecoStatus(StatusIndicator statusIndicator = UNKNOWNSTATUS);
+  CaloRecoStatus(store_type store);
   /*! \brief Destructor */
   virtual ~CaloRecoStatus();
 
@@ -94,6 +95,10 @@ class CaloRecoStatus
 
 inline CaloRecoStatus::CaloRecoStatus(StatusIndicator aStatus)
   : m_status((store_type)aStatus)
+{ }
+
+inline CaloRecoStatus::CaloRecoStatus(store_type aStatus)
+  : m_status(aStatus)
 { }
 
 inline CaloRecoStatus::~CaloRecoStatus()

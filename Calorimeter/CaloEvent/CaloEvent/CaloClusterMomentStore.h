@@ -186,6 +186,7 @@ class CaloClusterMomentStore
    *  \attention Support for historic interface, depreciated.
    */
   virtual void setMomentStore(const moment_store& rMomStore );
+  virtual void setMomentStore(moment_store&& rMomStore );
 
  private:
 
@@ -236,6 +237,11 @@ inline void CaloClusterMomentStore::setMomentStore(const moment_store&
 						   rMomStore)
 {
   m_store = rMomStore;
+}
+inline void CaloClusterMomentStore::setMomentStore(moment_store&&
+						   rMomStore)
+{
+  m_store = std::move(rMomStore);
 }
 /*! \class CaloClusterMomentStore
  *

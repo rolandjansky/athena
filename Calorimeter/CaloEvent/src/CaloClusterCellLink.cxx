@@ -21,6 +21,11 @@ CaloClusterCellLink::CaloClusterCellLink(const CaloCellContainer* cellCont) :
 {}
 
 
+CaloClusterCellLink::CaloClusterCellLink(const DataLink<CaloCellContainer>& cellCont) :
+  m_cellCont(cellCont)
+{}
+
+
 CaloClusterCellLink::iterator CaloClusterCellLink::removeCell(CaloClusterCellLink::iterator cellItr) {
   linkAndWeightCollType::iterator toDelete=cellItr.m_it;
   auto newVecIt=m_indicesAndWeights.erase(toDelete);

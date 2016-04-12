@@ -11,7 +11,7 @@
   base class for calorimeter classes
    
 Update: Jan 10 2001 HMA
-          ordor of static/virtual/const 
+          order of static/virtual/const 
 
 Update:  Redesign.  May 21, 2001 
          Concrete base class for Calorimeter cluster
@@ -43,7 +43,6 @@ Update:  Sep 18, 2005 P Loch
 #include "Navigation/AthenaBarCodeBase.h"
 
 #include "CaloEvent/CaloClusterLinkTemplate.h"
-
 #include "CaloEvent/CaloSamplingHelper.h"
 
 #include "CaloEvent/CaloClusterMoment.h"
@@ -60,6 +59,9 @@ Update:  Sep 18, 2005 P Loch
 #include "CaloEvent/CaloClusterBadChannelData.h"
 
 #include <vector>
+#ifdef ATHENAHIVE
+ #include "tbb/recursive_mutex.h"
+#endif
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -136,6 +138,9 @@ class CaloCluster :  public CaloCompositeKineBase,
    *       in future implementations. DO NOT USE!
    */
   typedef moment_store::moment_iterator           moment_iterator_i;
+
+  // xAOD compatibility.
+  typedef moment_type MomentType;
 
   typedef double (CaloCluster::*GET_VALUE)()   const;
   typedef void   (CaloCluster::*SET_VALUE)(double v);
@@ -406,8 +411,10 @@ class CaloCluster :  public CaloCompositeKineBase,
   /*! \brief Checks if cells from a given sampling in EMB and EMEC are in the
    *         cluster. */
   bool isEMSampling(const sampling_type& theSampling) const;
-  /*! \brief Checks if certain smapling contributes to cluster */
+  /*! \brief Checks if certain sampling contributes to cluster */
   bool hasSampling(const sampling_type& theSampling) const; 
+  /*! \brief Get sampling bitmask. */
+  unsigned int samplingPattern() const;
 
   /*! \brief Returns raw \f$ \eta \f$ of cluster seed */
   double eta0() const;
@@ -741,6 +748,21 @@ public:
 private:
   /// Disallow (avoid coverity warning).
   CaloCluster& operator= (const CaloCluster&);
+
+  friend class CaloClusterContainerCnv;
+  friend class CaloClusterContainerCnv_p2;
+  friend class CaloClusterContainerCnv_p3;
+  friend class CaloClusterContainerCnv_p4;
+  friend class CaloClusterContainerCnv_p5;
+  friend class CaloClusterContainerCnv_p6;
+  friend class CaloClusterContainerCnv_p7;
+  friend class CaloClusterContainerCnvTest_p6;
+  friend class CaloClusterContainerCnvTest_p7;
+
+#ifdef ATHENAHIVE
+public:
+  mutable tbb::recursive_mutex m_mut;
+#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////////
