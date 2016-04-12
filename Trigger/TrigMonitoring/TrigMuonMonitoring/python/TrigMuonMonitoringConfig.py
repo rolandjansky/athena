@@ -11,6 +11,7 @@ def TrigMuonMonitoringTool():
 	HLTMuonMon.monitoring_muonIso = hltmonList.monitoring_muonIso
 	HLTMuonMon.monitoring_MSonly = hltmonList.monitoring_MSonly
 	HLTMuonMon.monitoring_muonEFFS = hltmonList.monitoring_muonEFFS
+	HLTMuonMon.monitoring_muon_Support = hltmonList.monitoring_muon_Support
 
 	from RecExConfig.RecFlags import rec
 	from AthenaCommon.BeamFlags import jobproperties

@@ -74,6 +74,7 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   declareProperty("monitoring_muonIso", m_chainsEFiso);
   declareProperty("monitoring_MSonly", m_chainsMSonly);
   declareProperty("monitoring_muonEFFS", m_chainsEFFS);
+  declareProperty("monitoring_muon_Support", m_chainSupport);
   declareProperty("HI_pp_mode", m_HI_pp_mode);
   
   //construction of muFast parameters
