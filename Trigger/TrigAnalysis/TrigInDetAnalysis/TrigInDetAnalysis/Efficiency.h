@@ -47,7 +47,7 @@ public:
   } 
 
 
-  Efficiency(TH1F* hnum, TH1F* hden, const std::string& n) {
+  Efficiency(TH1F* hnum, TH1F* hden, const std::string& n, double scale=100) {
 
     std::string effname = n+"_eff";
     
@@ -62,7 +62,7 @@ public:
     m_heff->Reset();
     m_hmissed->Reset();
 
-    finalise();
+    finalise(scale);
   } 
 
 
@@ -96,8 +96,26 @@ public:
     }
   }
 
+  double findTotalEfficiency() {
+    double n_tot = 0;
+    double d_tot = 0;
+    
+    for ( int i=1 ; i<=m_hdenom->GetNbinsX() ; i++ ) { 
+      double n = m_hnumer->GetBinContent(i);
+      double d = m_hdenom->GetBinContent(i);
+      
+      n_tot += n;
+      d_tot += d;
+    }
 
-  void finalise() { 
+    if ( d_tot!=0 ) {
+      return n_tot / d_tot;
+    }
+
+    return 0.;
+  }
+
+  void finalise(double scale=100) { 
     m_heff->Reset();
     for ( int i=1 ; i<=m_hdenom->GetNbinsX() ; i++ ) { 
       double n = m_hnumer->GetBinContent(i);
@@ -111,15 +129,15 @@ public:
       } 
       
       // need proper error calculation...
-      m_heff->SetBinContent( i, 100*e );
-      m_heff->SetBinError( i, 100*std::sqrt(ee) );
+      m_heff->SetBinContent( i, scale*e );
+      m_heff->SetBinError( i, scale*std::sqrt(ee) );
 
     }
   }
 
   TH1F* Hist() { return m_heff; }
 
-  TGraphAsymmErrors* Bayes(int scale=100) const { 
+  TGraphAsymmErrors* Bayes(double scale=100) const { 
     TGraphAsymmErrors* tg = new TGraphAsymmErrors( m_hnumer, m_hdenom, "cl=0.683 b(1,1) mode" );
 
     double* x      = tg->GetX();
