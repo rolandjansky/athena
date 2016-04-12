@@ -30,7 +30,7 @@ SCT_OnlineId::SCT_OnlineId(const std::uint32_t onlineId):m_onlineId(onlineId){
 SCT_OnlineId::SCT_OnlineId(const std::uint32_t rodId, const std::uint32_t fibre){
   //cursory checks on range only
   if (not (fibreInRange(fibre) and rodIdInRange(rodId) )){
-    std::cout<<"SCT_OnlineId: Invalid online Id "<<std::hex<<rodId<<std::dec<<" fibre: "<<fibre<<std::endl;
+    std::cout<<"SCT_OnlineId: Trying to create an invalid online Id from RodId 0x"<<std::hex<<rodId<<std::dec<<"  and fibre: "<<fibre<<std::endl;
     m_onlineId = INVALID_ONLINE_ID;
   } else {
     m_onlineId = rodId + (fibre<<24);

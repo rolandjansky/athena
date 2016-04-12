@@ -13,20 +13,28 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities
+                          Database/CoraCool
                           Event/EventInfo
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           Tools/PathResolver )
+
+# External dependencies:
+find_package( COOL COMPONENTS CoolKernel CoolApplication )
+find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( SCT_CablingLib
                    src/*.cxx
                    PUBLIC_HEADERS SCT_Cabling
+                   PRIVATE_INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaBaseComps Identifier GaudiKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities EventInfo InDetIdentifier PathResolver )
+                   PRIVATE_LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaPoolUtilities CoraCool EventInfo InDetIdentifier PathResolver )
 
 atlas_add_component( SCT_Cabling
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps Identifier GaudiKernel StoreGateLib SGtests AthenaPoolUtilities EventInfo InDetIdentifier PathResolver SCT_CablingLib )
+                     INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps Identifier GaudiKernel StoreGateLib SGtests AthenaPoolUtilities CoraCool EventInfo InDetIdentifier PathResolver SCT_CablingLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
