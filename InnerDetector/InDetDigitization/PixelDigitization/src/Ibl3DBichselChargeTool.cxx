@@ -30,13 +30,13 @@ using namespace InDetDD;
 
 // Constructor with parameters:
 Ibl3DBichselChargeTool::Ibl3DBichselChargeTool(const std::string& type, const std::string& name,const IInterface* parent):
-				SubChargesTool(type,name,parent),
-				m_numberOfSteps(50),
-				m_chargeCollSvc("ChargeCollProbSvc",name),
-        m_doBichsel(false),
-        m_doBichselBetaGammaCut(0.1),        // momentum cut on beta-gamma
-        m_doDeltaRay(false),                 // need validation
-        m_BichselSimTool("BichselSimTool")
+  SubChargesTool(type,name,parent),
+  m_numberOfSteps(50),
+  m_doBichsel(false),
+  m_doBichselBetaGammaCut(0.1),        // momentum cut on beta-gamma
+  m_doDeltaRay(false),                 // need validation
+  m_BichselSimTool("BichselSimTool"),
+  m_chargeCollSvc("ChargeCollProbSvc",name)
 { 
 	declareProperty("ChargeCollProbSvc",m_chargeCollSvc);
 	declareProperty("numberOfSteps",m_numberOfSteps,"Number of steps for Ibl3D module");
@@ -192,7 +192,7 @@ StatusCode Ibl3DBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
     }
   } 
 
-  bool m_isRealBichsel = false;
+  //bool m_isRealBichsel = false;
   if(ParticleType != -1){ // yes, good to go with Bichsel
     // I don't know why genPart->momentum() goes crazy ... 
     TLorentzVector genPart_4V;
@@ -229,7 +229,7 @@ StatusCode Ibl3DBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
     }
     else{ // cluster thousands hits to ~20 groups
       trfHitRecord = m_BichselSimTool->ClusterHits(rawHitRecord, nsteps);
-      m_isRealBichsel = true;
+      //m_isRealBichsel = true;
     }
   }
   else{  // same as old digitization method
