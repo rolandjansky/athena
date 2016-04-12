@@ -538,7 +538,7 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
     }    
 
     ATH_MSG_DEBUG(" The final trackCollection size : " << trackCollection->size() );
-    if ( trackCollection && (trackCollection->size() != 0)){
+    if ( not trackCollection->empty() ){
            originalTracks = trackCollection;
     }
 

@@ -41,8 +41,8 @@ namespace Trk {
     declareProperty("UseConstrainedTrkOnly",    m_useConstrainedTrkOnly  = false   );
     declareProperty("MinPt",                    m_minPt         = 15.0             );        
     declareProperty("MaxPt",                    m_maxPt         = 100.0            );        
-    declareProperty("MinPIXHits",               m_minPIXHits    = 1                );
-    declareProperty("MinSCTHits",               m_minSCTHits    = 6                );
+    declareProperty("MinPIXHits",               m_minPIXHits    = 0                ); //1
+    declareProperty("MinSCTHits",               m_minSCTHits    = 0                ); //6
     declareProperty("MinTRTHits",               m_minTRTHits    = 0                );
     declareProperty("Maxd0",                    m_maxd0         = 500.             );
     declareProperty("Maxz0",                    m_maxz0         = 500.             );
@@ -78,9 +78,9 @@ namespace Trk {
     ATH_MSG_INFO("Retrieved " << m_trackFitter);
 
 
-    std::cout << "init m_useConstraintError " <<m_useConstraintError <<std::endl;
+    ATH_MSG_INFO( "init m_useConstraintError " <<m_useConstraintError );
 
-    std::cout << "Init m_reduceConstraintUncertainty " << m_reduceConstraintUncertainty <<  std::endl;
+    ATH_MSG_INFO( "Init m_reduceConstraintUncertainty " << m_reduceConstraintUncertainty );
 
 
     if(m_CorrectMomentum){
@@ -90,7 +90,7 @@ namespace Trk {
         ATH_MSG_FATAL( " Problem reading TFile " << m_constraintFileName_P );
         return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO("Opened  file containing the contraints" << m_constraintFileName_P);
+      ATH_MSG_INFO("Opened  file containing the constraints" << m_constraintFileName_P);
       m_etaphiMap_P = (TH2F*)m_constraintInputFile_P->Get(m_constraintHistName_P.c_str());
       if(!m_etaphiMap_P){
         ATH_MSG_FATAL( " Problem getting constraints Hist.  Name " << m_constraintHistName_P );
@@ -98,7 +98,7 @@ namespace Trk {
         delete m_constraintInputFile_P;
         return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO("Opened contraints histogram " << m_constraintHistName_P);
+      ATH_MSG_INFO("Opened constraints histogram " << m_constraintHistName_P);
     
     }
     
@@ -109,7 +109,7 @@ namespace Trk {
         ATH_MSG_FATAL( " Problem reading TFile " << m_constraintFileName_d0 );
         return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO("Opened  file containing the contraints" << m_constraintFileName_d0);
+      ATH_MSG_INFO("Opened  file containing the constraints" << m_constraintFileName_d0);
       m_etaphiMap_d0 = (TH2F*)m_constraintInputFile_d0->Get(m_constraintHistName_d0.c_str());
       if(!m_etaphiMap_d0){
         ATH_MSG_FATAL( " Problem getting constraints Hist.  Name " << m_constraintHistName_d0 );
@@ -117,7 +117,7 @@ namespace Trk {
         delete m_constraintInputFile_d0;
         return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO("Opened contraints histogram " << m_constraintHistName_d0);
+      ATH_MSG_INFO("Opened constraints histogram " << m_constraintHistName_d0);
     
     }
     
@@ -128,7 +128,7 @@ namespace Trk {
         ATH_MSG_FATAL( " Problem reading TFile " << m_constraintFileName_z0 );
         return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO("Opened  file containing the contraints" << m_constraintFileName_z0);
+      ATH_MSG_INFO("Opened  file containing the constraints" << m_constraintFileName_z0);
       m_etaphiMap_z0 = (TH2F*)m_constraintInputFile_z0->Get(m_constraintHistName_z0.c_str());
       if(!m_etaphiMap_z0){
         ATH_MSG_FATAL( " Problem getting constraints Hist.  Name " << m_constraintHistName_z0 );
@@ -136,7 +136,7 @@ namespace Trk {
         delete m_constraintInputFile_z0;
         return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO("Opened contraints histogram " << m_constraintHistName_z0);
+      ATH_MSG_INFO("Opened constraints histogram " << m_constraintHistName_z0);
     
     }
     
@@ -324,9 +324,8 @@ namespace Trk {
     }    
 
     ATH_MSG_DEBUG(" The final trackCollection size : " << trackCollection->size() );
-    if ( trackCollection ){
-      finalTracks = trackCollection;
-    }
+    //track Collection cannot be null here; it has already been dereferenced
+    finalTracks = trackCollection;
 
     return StatusCode::SUCCESS;
 

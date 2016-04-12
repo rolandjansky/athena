@@ -127,6 +127,8 @@ namespace Trk {
     bool m_doPrimaryVertexConstraint;      		 //!< do vertex constraint 
     bool m_doFullVertexConstraint;                       //!< do GX full vertex constraint 
     bool m_doNormalRefit;                                //!< provide tracks in the case failed BS, PV and FullVertex constraints. 
+    
+    double m_maxPt;                             //!< Max pT range for refitting tracks
  
     bool m_refitTracks;                       //!< flag to refit tracks
     bool m_storeFitMatrices;  			         //!< flag to store derivative and covariance matrices after refit

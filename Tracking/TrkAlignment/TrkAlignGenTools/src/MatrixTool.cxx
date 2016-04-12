@@ -924,7 +924,7 @@ namespace Trk {
    
     struct rusage myusage;
     int itworked =  getrusage(RUSAGE_SELF,&myusage);
-    if(itworked)
+    if(itworked)//note: rusage returns zero if it succeeds!
 		  ATH_MSG_DEBUG("ItWorked");
 
 		long intialMemUse = myusage.ru_maxrss;
@@ -1177,14 +1177,14 @@ namespace Trk {
         *symBigMatrix += newMatrix;
         delete accumMatrix;
       } else if (spaBigMatrix) { 
-        std::cout << "should reassign matrix "<< spaBigMatrix->ptrMap()->size() << std::endl;        
+        ATH_MSG_INFO( "should reassign matrix "<< spaBigMatrix->ptrMap()->size() );        
         *spaBigMatrix  += *accumMatrix;     
-        std::cout << "??????  "<< spaBigMatrix->ptrMap()->size() << std::endl;
+        ATH_MSG_INFO( "??????  "<< spaBigMatrix->ptrMap()->size() );
         delete accumMatrix;
       }
     }
 
-        std::cout << "??????  "<< m_bigmatrix->ptrMap()->size() << std::endl;
+        ATH_MSG_INFO( "??????  "<< m_bigmatrix->ptrMap()->size() );
 
     AlignModuleList::const_iterator imod     = moduleList->begin();
     AlignModuleList::const_iterator imod_end = moduleList->end();
