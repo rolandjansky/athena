@@ -35,8 +35,8 @@ public:
 };
 
 inline const InterfaceID& IRootFileTransformationsTool::interfaceID() {
-   static const InterfaceID _IID("IRootFileTransformationsTool", 1, 0);
-   return _IID;
+   static const InterfaceID IID("IRootFileTransformationsTool", 1, 0);
+   return IID;
 }
 
 #endif

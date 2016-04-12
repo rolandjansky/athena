@@ -76,6 +76,7 @@ public:
                     mi=i;
                 }
             }
+            if (mi < 0) continue;
             baskets[mi]++;
             basketSize[mi]=totSize[mi]/baskets[mi];
             // cout<<"totMem: "<<totMem<<"\tSpare: "<<totSize[mi]/(baskets[mi]-1)-totSize[mi]/baskets[mi]<<"\t baskets: "<<baskets[mi]<<"\n";
@@ -352,8 +353,8 @@ int main(int argc,char* argv[]){
     
     cout<<"II trees to merge determined ..."<<endl;
     // =====================================================================
-    
-    TFile **fFile=new TFile*[oaFiles->GetEntries()];
+
+    std::vector<TFile*> fFile (oaFiles->GetEntries());
     for(int i=0;i<oaFiles->GetEntries();i++){
         
         const char* fn = ((TChainElement*)oaFiles->At(i))->GetTitle();

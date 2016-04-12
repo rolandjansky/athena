@@ -21,28 +21,27 @@
 #include "TH1F.h"
 #include "THashList.h"
 
-using namespace std;
 
 class HistoPile {
 
 public:
   
   HistoPile(const char * filename, const char * reffilename=0) : 
-      fCurrHist(0)
-    , fFilename(filename) 
+      m_currHist(0)
+    , m_filename(filename) 
   { 
     if (reffilename) {
-      fReffile = TFile::Open(reffilename);
-      if ( !fReffile ) {
-        cout << "WARNING Could not open reference file!" << endl;
+      m_reffile = TFile::Open(reffilename);
+      if ( !m_reffile ) {
+        std::cout << "WARNING Could not open reference file!" << std::endl;
       } else {
-        cout << "Using reference file " << reffilename << endl;
+        std::cout << "Using reference file " << reffilename << std::endl;
       }
     } else
-      fReffile = 0;  
+      m_reffile = 0;  
 	  
 	// high number to avoid collisions  
-	fHistos = new THashList(10000);  	  
+	m_histos = new THashList(10000);  	  
   }
 
   void Push(const char *);          // Descend object tree
@@ -53,12 +52,12 @@ public:
   
 private:
 
-  THashList*    fHistos;            // hashlist of histograms at nodes
-  TH1F*         fCurrHist;          // current histogram
-  const char *  fFilename;          // name of output file
-  TFile *       fReffile;           // reference file to take histo definitions from
+  THashList*    m_histos;            // hashlist of histograms at nodes
+  TH1F*         m_currHist;          // current histogram
+  const char *  m_filename;          // name of output file
+  TFile *       m_reffile;           // reference file to take histo definitions from
   
-  list<string>  fPath;              // current path
+  std::list<std::string>  m_path;              // current path
 };
 
 #endif

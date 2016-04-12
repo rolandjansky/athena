@@ -363,8 +363,8 @@ int main(int argc,char* argv[]){
     
     cout<<"II trees to merge determined ..."<<endl;
     // =====================================================================
-    
-    TFile **fFile=new TFile*[oaFiles->GetEntries()];
+
+    std::vector<TFile*> fFile (oaFiles->GetEntries());
     for(int i=0;i<oaFiles->GetEntries();i++){
         
         const char* fn = ((TChainElement*)oaFiles->At(i))->GetTitle();
@@ -407,7 +407,7 @@ int main(int argc,char* argv[]){
     
     order(toOrder);
     
-return 0;   
+    return 0;   
 }
 
 

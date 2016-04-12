@@ -21,10 +21,149 @@
 #include <vector>
 #include <map>
 #include <set>
-
+#include <stdexcept>
+#include <sstream>
+	
 using namespace std;
 
 static bool s_dbg = true;
+
+
+class MergingError   : public std::runtime_error
+{
+public:
+  explicit MergingError(): runtime_error("") {}
+  explicit MergingError( const std::string& msg ): runtime_error("") { m_stream << msg; }
+  MergingError( const MergingError& err ): runtime_error("") { m_stream << err.str(); }
+  MergingError& operator= ( const MergingError& err ) = delete;
+  virtual ~MergingError() throw() {}
+  virtual const char* what() const throw() { m_string = m_stream.str(); return m_string.c_str();  }
+  std::string str() const { return m_stream.str(); }
+  template<typename T> MergingError& operator << (const T& msg) { m_stream << msg;  return *this;  } 
+protected:
+  std::ostringstream    m_stream;
+  mutable std::string   m_string;
+};
+
+
+// Fill up the branch with N empty entries
+void addEmptyEntriesToBranch( TBranch* branch, long ientries )
+{
+   branch->SetAddress( 0 );
+   for( long i = 0; i < ientries; i++ ) {
+      if( branch->Fill() < 0 ) {
+         throw MergingError() << "Error adding empty entries to branch <" <<  branch->GetName() << ">"; 
+      }
+   }
+}
+
+
+/// This function finds branches that appear in the first tree, but don't
+/// appear in the second one.
+///
+/// @param first The "first" tree
+/// @param second The "second" tree
+/// @returns The branches that appear in the "first" tree, but don't appear
+///          in the "second" one
+///
+std::vector< ::TBranch* >
+getMissingBranches( ::TTree* first, ::TTree* second ) 
+{
+   // The result object:
+   std::vector< ::TBranch* > result;
+	
+   // List of branches from the two trees:
+   ::TObjArray* brFirst  = first->GetListOfBranches();
+   ::TObjArray* brSecond = second->GetListOfBranches();
+	
+   // Loop over the branches of the first tree:
+   for( int i = 0; i < brFirst->GetEntries(); ++i ) {
+      // Check if such a branch exists in the second tree:
+      if( !brSecond->FindObject( brFirst->At(i)->GetName() ) ) {
+         // If not, then add it to the list:
+         result.push_back( static_cast<TBranch*>( brFirst->At(i) ) );
+      }
+   }	
+   // Return the collected branches:
+   return result;
+}
+
+
+/// This function is used during fast merging to create branches that have
+/// been encountered first in file N (N >= 2).
+///
+/// @param otree The output tree to create the branch in
+/// @param ibranch Pointer to the branch in the input tree
+///
+void addBranch( ::TTree* otree, ::TBranch* ibranch ) 
+{
+   // Get the type of the branch:
+   TClass* cl = 0;
+   EDataType dt = kOther_t;
+   ibranch->GetExpectedType( cl, dt );
+	
+   // Pointer to the output branch:
+   ::TBranch* obranch = 0;
+   const char *typespec = 0;
+   // Decide what sort of branch it is:
+   if( cl ) {
+      // It's an object type:
+      typespec = cl->GetName();
+      obranch = otree->Branch( ibranch->GetName(), typespec, 0,
+                               ibranch->GetBasketSize(), ibranch->GetSplitLevel() );
+   } else {
+      // It's a primitive type:
+      typespec = ibranch->GetTitle();
+      obranch = otree->Branch( ibranch->GetName(), 0, typespec, ibranch->GetBasketSize() );
+   }
+   if( ! obranch ) {
+      throw MergingError() << "addBranch: Couldn't create auxiliary branch <" << ibranch->GetName()
+                           << "> with type: " << typespec;
+   }
+   addEmptyEntriesToBranch( obranch,  otree->GetEntries() );
+}
+
+
+void mergeTrees( TTree* itree, TTree* otree )
+{
+   // Check if there are any branches in either tree that don't
+   // exist in the other one:
+   const std::vector< ::TBranch* > missingMerged =      getMissingBranches( otree, itree );
+   const std::vector< ::TBranch* > missingIncoming =    getMissingBranches( itree, otree );
+   if( s_dbg && missingIncoming.size() )
+      cout << "+++ Input " << itree->GetName() << " tree has " << missingIncoming.size() << " extra branch(es)" << endl;
+   if( s_dbg && missingMerged.size() )
+      cout << "+++ Output " << otree->GetName() << " tree has " << missingMerged.size() << " extra branch(es)" << endl;
+
+   // Add branches with default values for the variables that
+   // appeared in the input tree now, and were not in the output
+   // tree yet.
+   for( ::TBranch* br : missingIncoming ) {
+      if( s_dbg) cout << "+++ Copying new branch [" << br->GetName() << "] to the output tree" << endl;
+      addBranch( otree, br );
+   }
+
+   // Set up a TTreeCloner object for fast-merging the branches
+   // that appear in both trees:
+   ::TTreeCloner cloner( itree, otree, "fast", TTreeCloner::kIgnoreMissingTopLevel );
+   // Check if the cloner is valid:
+   if( ! cloner.IsValid()) {
+      throw MergingError() << "TTreeCloner error: " <<  cloner.GetWarning();
+   }
+
+   // Run the fast merging:
+   otree->SetEntries( otree->GetEntries() + itree->GetEntries() );
+   if( ! cloner.Exec() ) 
+      throw MergingError() << "TTreeCloner failed to merge trees";
+
+   // And fill them with default values:
+   for( ::TBranch* br : missingMerged ) {
+      addEmptyEntriesToBranch( br, itree->GetEntries() );
+   }
+}
+
+
+
 
 typedef int DbStatus;
 enum { ERROR=0, SUCCESS=1 };
@@ -109,27 +248,27 @@ DbDatabaseMerger::~DbDatabaseMerger() {
 
 /// Check if input needs adding
 bool DbDatabaseMerger::empty(const std::string& fid, const std::set<std::string>& exclTrees, bool dbg) const {
-  TFile* source = TFile::Open(fid.c_str());
-  if ( source && !source->IsZombie() ) {
-    TIter nextkey(source->GetListOfKeys());
-    for ( TKey* key = (TKey*)nextkey(); key; key = (TKey*)nextkey() ) {
-	  const string name = key->GetName();
-      const char *classname = key->GetClassName();
-      TClass *cl = gROOT->GetClass(classname);
-      if (!cl) continue;
-      if (cl->InheritsFrom("TTree")) {
-        if (exclTrees.find(name) != exclTrees.end()) continue;
-        if (name.substr(0, 2) == "##") continue;
-        return false;
+   TFile* source = TFile::Open(fid.c_str());
+   if ( source && !source->IsZombie() ) {
+      TIter nextkey(source->GetListOfKeys());
+      for ( TKey* key = (TKey*)nextkey(); key; key = (TKey*)nextkey() ) {
+         const string name = key->GetName();
+         const char *classname = key->GetClassName();
+         TClass *cl = gROOT->GetClass(classname);
+         if (!cl) continue;
+         if (cl->InheritsFrom("TTree")) {
+            if (exclTrees.find(name) != exclTrees.end()) continue;
+            if (name.substr(0, 2) == "##") continue;
+            return false;
+         }
       }
-    }
-    if ( dbg ) cout << "file " << fid << " HAS NO ENTRIES!" << endl;
-    delete source;
-    return true;
-  }
-  cout << "file " << fid << " DOES NOT EXIST!" << endl;
-  delete source;
-  return true;
+      if ( dbg ) cout << "file " << fid << " HAS NO ENTRIES!" << endl;
+      delete source;
+      return true;
+   }
+   cout << "file " << fid << " DOES NOT EXIST!" << endl;
+   delete source;
+   return true;
 }
 
 /// Check if a database exists
@@ -309,179 +448,144 @@ void DbDatabaseMerger::dumpSections() {
   }
 }
 
-DbStatus DbDatabaseMerger::addBranches(TObjArray *from, TObjArray *to, Long64_t fromSize) {
-  Int_t fnb = from->GetEntries();
-  Int_t tnb = to->GetEntries();
-  Int_t fi = 0;
-  Int_t ti = 0;
-  while (ti < tnb) {
-    TBranch* fb = (TBranch*) from->UncheckedAt(fi);
-    TBranch* tb = (TBranch*) to->UncheckedAt(ti);
-    Int_t firstfi = fi;
-    while (strcmp(fb->GetName(), tb->GetName())) {
-      ++fi;
-      if (fi >= fnb) {
-        // continue at the beginning
-        fi = 0;
-      }
-      if (fi==firstfi) {
-        // We tried all the branches and there is not match.
-        fb = 0;
-	if ( s_dbg ) cout << "+++ Created new Branch for " << tb->GetName() << endl;
-        for (Long64_t i=0; i<fromSize; i++) {
-          tb->SetAddress(0);
-          tb->Fill();
-        }
-        break;
-      }
-      fb = (TBranch*) from->UncheckedAt(fi);
-    }
-    ++ti;
-  }
-  return SUCCESS;
-}
 
 /// Merge new input to existing output
 DbStatus DbDatabaseMerger::merge(const string& fid, const std::set<std::string>& exclTrees) {
-  if ( m_output ) {
-    TFile* source = TFile::Open(fid.c_str());
-    if ( source && !source->IsZombie() ) {
-      char text[1024];
-      if ( m_paramTree && m_paramBranch ) {
-        m_paramBranch->SetAddress(text);
-        for(size_t i=0, n=(size_t)(m_paramTree->GetEntries()); i<n; ++i) {
-          m_paramBranch->GetEntry(i);
-          string dsc = text;
-          if (dsc.find("[NAME=FID") != string::npos) m_fids.insert(dsc.substr(17, 36));
-        }
-      }
-
-      TTree *src_params = (TTree*)source->Get("##Params");
-      if ( src_params ) {
-        TBranch* src_bparams = src_params->GetBranch("db_string");
-        src_bparams->SetAddress(text);
-        if (src_params->GetEntries() > 4) {
-	  cout << "+++ Detected fast merged input file -- operation failed." << endl;
-	  return ERROR;
-        }
-        for(size_t i=0, n=(size_t)(src_params->GetEntries()); i<n; ++i) {
-          src_bparams->GetEntry(i);
-          string dsc = text;
-          if (dsc.find("[NAME=FID") != string::npos && m_fids.insert(dsc.substr(17, 36)).second == 0) {
-	    cout << "+++ Detected duplicated file GUID -- operation failed." << endl;
-	    return ERROR;
-          }
-        }
-      }
-      TTree *links = (TTree*)m_output->Get("##Links");
-      Long64_t lnk_offset = links ? links->GetEntries() : 0;
-      TTree* src_links = (TTree*)source->Get("##Links");
-      TBranch* src_blinks = src_links->GetBranch("db_string");
-      src_blinks->SetAddress(text);
-      map<string,string> redirect;
-      redirect["##Links"]  = "##Links";
-      redirect["##Shapes"] = "##Shapes";
-      for(size_t i=0, n=(size_t)(src_links->GetEntries()); i<n; ++i) {
-	src_links->GetEntry(i);
-	if ( s_dbg ) cout << text << endl;
-	const char* l = getLinkContainer(text);
-	if ( l ) redirect[getRootContainer(l)] = l;
-      }
-      src_blinks->ResetAddress();
-      m_output->cd();
-      TIter nextkey(source->GetListOfKeys());
-      for(TKey* key = (TKey*)nextkey(); key; key = (TKey*)nextkey() ) {
-	const char *classname = key->GetClassName();
-	TClass *cl = gROOT->GetClass(classname);
-	if (!cl) continue;
-	if (cl->InheritsFrom("TTree")) {
-	  const string name = key->GetName();
-	  if (exclTrees.find(name) != exclTrees.end()) continue;
-	  source->cd();
-	  TTree *src_tree = (TTree*)source->Get(key->GetName());
-	  Long64_t src_entries = src_tree->GetEntries();
-	  m_output->cd();
-	  DbContainerSection s;
-	  s.start = 0;
-	  s.length = (int)src_entries;
-	  s.offset = (int)lnk_offset;
-	  DbContainerSection s0;
-	  s0.start = 0;
-	  s0.length = 0;
-	  s0.offset = 0;
-
-	  TTree *out_tree = (TTree*)m_output->Get(key->GetName());
-	  if ( out_tree == 0 ) {
-	    out_tree = src_tree->CloneTree(-1,"fast");
-	    if ( s_dbg ) cout << "+++ Created new Tree " << out_tree->GetName() << endl;
-	  } else {
-	    Long64_t out_entries = out_tree->GetEntries();
-	    m_output->GetObject(key->GetName(),out_tree);
-            if (name == "##Params") {
-              if ( s_dbg ) cout << "+++ Slow merge for " << name << endl;
-              Long64_t out_entries = out_tree->GetEntries();
-              s.start = (int)out_entries;
-              out_tree->CopyAddresses(src_tree);
-              for (Long64_t i=0; i<src_entries; i++) {
-                src_tree->GetEntry(i);
-                out_tree->Fill();
-              }
-              src_tree->ResetBranchAddresses();
-            } else {
-              addBranches(out_tree->GetListOfBranches(), src_tree->GetListOfBranches(), out_entries);
-	      TTreeCloner cloner(src_tree,out_tree,"fast", TTreeCloner::kNoWarnings|TTreeCloner::kIgnoreMissingTopLevel);
-	      if (cloner.IsValid()) {
-	        Long64_t out_entries = out_tree->GetEntries();
-	        s.start = (int)out_entries;
-	        out_tree->SetEntries(out_entries+src_entries);
-	        Bool_t res = cloner.Exec();
-	        if ( s_dbg ) cout << "+++ Merged tree: " << out_tree->GetName() << " res=" << res << endl;
-	      } else {
-	        // Fast cloning is not possible for this input TTree.
-	        // ... see TTree::CloneTree for example of recovery code ...
-	        cout << "+++ Got a tree where fast cloning is not possible -- operation failed." << endl;
-	        return ERROR;
-	      }
-              addBranches(src_tree->GetListOfBranches(), out_tree->GetListOfBranches(), src_entries);
+   if ( m_output ) {
+      TFile* source = TFile::Open(fid.c_str());
+      if ( source && !source->IsZombie() ) {
+         char text[1024];
+         if ( m_paramTree && m_paramBranch ) {
+            m_paramBranch->SetAddress(text);
+            for(size_t i=0, n=(size_t)(m_paramTree->GetEntries()); i<n; ++i) {
+               m_paramBranch->GetEntry(i);
+               string dsc = text;
+               if (dsc.find("[NAME=FID") != string::npos) m_fids.insert(dsc.substr(17, 36));
             }
-	  }
-	  map<string,string>::const_iterator ir=redirect.find(name);
-	  if ( ir != redirect.end() ) {
-            while (m_sectionsCounts[(*ir).second] + m_sections[(*ir).second].size() < m_sectionsMax) {
-	      m_sections[(*ir).second].push_back(s0);
+         }
+
+         TTree *src_params = (TTree*)source->Get("##Params");
+         if ( src_params ) {
+            TBranch* src_bparams = src_params->GetBranch("db_string");
+            src_bparams->SetAddress(text);
+            if (src_params->GetEntries() > 4) {
+               cout << "+++ Detected fast merged input file -- operation failed." << endl;
+               return ERROR;
             }
-	    m_sections[(*ir).second].push_back(s);
-	  } else {
-	    for (int ileaf = 0; ileaf < src_tree->GetListOfLeaves()->GetEntries(); ileaf++) {
-	      TLeaf* leaf = (TLeaf*)src_tree->GetListOfLeaves()->At(ileaf);
-	      TBranch* branch = leaf->GetBranch();
-	      map<string,string>::const_iterator ir=redirect.find(name + "(" + branch->GetName() + ")");
-	      if ( ir != redirect.end() ) {
-                while (m_sectionsCounts[(*ir).second] + m_sections[(*ir).second].size() < m_sectionsMax) {
-	          m_sections[(*ir).second].push_back(s0);
-                }
-		m_sections[(*ir).second].push_back(s);
-	      }
-	    }
-	  }
-	}
-	else   {
-	  cout << "+++ Ignore key " << key->GetName() << endl;
-	}
+            for(size_t i=0, n=(size_t)(src_params->GetEntries()); i<n; ++i) {
+               src_bparams->GetEntry(i);
+               string dsc = text;
+               if (dsc.find("[NAME=FID") != string::npos && m_fids.insert(dsc.substr(17, 36)).second == 0) {
+                  cout << "+++ Detected duplicated file GUID -- operation failed." << endl;
+                  return ERROR;
+               }
+            }
+         }
+         TTree *links = (TTree*)m_output->Get("##Links");
+         Long64_t lnk_offset = links ? links->GetEntries() : 0;
+         TTree* src_links = (TTree*)source->Get("##Links");
+         TBranch* src_blinks = src_links->GetBranch("db_string");
+         src_blinks->SetAddress(text);
+         map<string,string> redirect;
+         redirect["##Links"]  = "##Links";
+         redirect["##Shapes"] = "##Shapes";
+         for(size_t i=0, n=(size_t)(src_links->GetEntries()); i<n; ++i) {
+            src_links->GetEntry(i);
+            if ( s_dbg ) cout << text << endl;
+            const char* l = getLinkContainer(text);
+            if ( l ) redirect[getRootContainer(l)] = l;
+         }
+         src_blinks->ResetAddress();
+         m_output->cd();
+         TIter nextkey(source->GetListOfKeys());
+         for(TKey* key = (TKey*)nextkey(); key; key = (TKey*)nextkey() ) {
+            const char *classname = key->GetClassName();
+            TClass *cl = gROOT->GetClass(classname);
+            if (!cl) continue;
+            if (cl->InheritsFrom("TTree")) {
+               const string name = key->GetName();
+               if (exclTrees.find(name) != exclTrees.end()) continue;
+               source->cd();
+               TTree *src_tree = (TTree*)source->Get(key->GetName());
+               Long64_t src_entries = src_tree->GetEntries();
+               m_output->cd();
+               DbContainerSection s;
+               s.start = 0;
+               s.length = (int)src_entries;
+               s.offset = (int)lnk_offset;
+               DbContainerSection s0;
+               s0.start = 0;
+               s0.length = 0;
+               s0.offset = 0;
+
+               TTree *out_tree = (TTree*)m_output->Get(key->GetName());
+               if ( out_tree == 0 ) {
+                  out_tree = src_tree->CloneTree(-1,"fast");
+                  if ( s_dbg ) cout << "+++ Created new Tree " << out_tree->GetName() << endl;
+               } else {
+                  m_output->GetObject(key->GetName(),out_tree);
+                  if (name == "##Params") {
+                     if ( s_dbg ) cout << "+++ Slow merge for " << name << endl;
+                     Long64_t out_entries = out_tree->GetEntries();
+                     s.start = (int)out_entries;
+                     out_tree->CopyAddresses(src_tree);
+                     for (Long64_t i=0; i<src_entries; i++) {
+                        src_tree->GetEntry(i);
+                        out_tree->Fill();
+                     }
+                     src_tree->ResetBranchAddresses();
+                  } else {
+                     try{
+                        mergeTrees( src_tree, out_tree );
+                        if ( s_dbg ) cout << "+++ Merged tree: " << out_tree->GetName() << endl;
+                     } catch( MergingError& err ) {
+                        cout << "+++ Got a tree where fast cloning is not possible -- operation failed." << endl
+                             << " Merging Error: " << err.what() << endl;
+                        // Fast cloning is not possible for this input TTree.
+                        // ... see TTree::CloneTree for example of recovery code ...
+                        return ERROR;
+                     }
+                  }
+               }
+               map<string,string>::const_iterator ir=redirect.find(name);
+               if ( ir != redirect.end() ) {
+                  while (m_sectionsCounts[(*ir).second] + m_sections[(*ir).second].size() < m_sectionsMax) {
+                     m_sections[(*ir).second].push_back(s0);
+                  }
+                  m_sections[(*ir).second].push_back(s);
+               } else {
+                  for (int ileaf = 0; ileaf < src_tree->GetListOfLeaves()->GetEntries(); ileaf++) {
+                     TLeaf* leaf = (TLeaf*)src_tree->GetListOfLeaves()->At(ileaf);
+                     TBranch* branch = leaf->GetBranch();
+                     map<string,string>::const_iterator ir=redirect.find(name + "(" + branch->GetName() + ")");
+                     if ( ir != redirect.end() ) {
+                        while (m_sectionsCounts[(*ir).second] + m_sections[(*ir).second].size() < m_sectionsMax) {
+                           m_sections[(*ir).second].push_back(s0);
+                        }
+                        m_sections[(*ir).second].push_back(s);
+                     }
+                  }
+               }
+               delete src_tree;
+            }
+            else   {
+               cout << "+++ Ignore key " << key->GetName() << endl;
+            }
+         }
+         delete source;
+         m_output->SaveSelf(kTRUE);
+         m_output->Purge();
+         m_output->cd();
+         return SUCCESS;
       }
-      delete source;
-      m_output->SaveSelf(kTRUE);
-      m_output->Purge();
+      cout << "+++ Cannot open input file:" << source << endl;
       m_output->cd();
-      return SUCCESS;
-    }
-    cout << "+++ Cannot open input file:" << source << endl;
-    m_output->cd();
-    return ERROR;
-  }
-  cout << "+++ No valid output file present. Merge request refused for fid:" << fid << endl;
-  return ERROR;
+      return ERROR;
+   }
+   cout << "+++ No valid output file present. Merge request refused for fid:" << fid << endl;
+   return ERROR;
 }
+
 
 static int usage() {
   cout << "POOL merge facility for ROOT tree based files.\n"
