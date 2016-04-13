@@ -1,0 +1,43 @@
+package TriggerTest
+
+# =====================================================================
+#
+# This is the TriggerTest
+#
+# =====================================================================
+
+author John Baines <j.baines@rl.ac.uk>
+author Simon george <S.George@rhul.ac.uk>
+#contact Patrick Czodrowski <czodrows@cern>
+
+use AtlasPolicy 	    AtlasPolicy-*
+use AtlasTriggerRunTime AtlasTriggerRunTime-*
+#use AthenaServices 	AthenaServices-* Control
+#use RunTimeTester 	    RunTimeTester-*	Tools
+use TestPolicy          TestPolicy-*
+
+
+apply_pattern declare_python_modules files="../python/__init__.py"
+
+#declare test job options	
+apply_pattern declare_joboptions files="*.py"
+
+#RTT declarations
+apply_pattern declare_scripts files="../Testing/*.sh  ../Testing/*.pl"
+ 
+apply_pattern declare_runtime extras="../test/TriggerTest_TestConfiguration.xml \
+                                      ../python/RttScriptRunner_TriggerTest.py \
+                                      ../share/*.cxx \
+                                      ../python/CheckLog_TriggerTest.py \
+                                      ../python/LogTail_TriggerTest.py \
+                                      ../python/CheckForTrigCostD3PD_TriggerTest.py \
+                                      ../python/CreateIgprofReport_TriggerTest.py \
+                                      ../python/TruncateLog_TriggerTest.py \
+                                      ../python/ValGrindPostScript_TriggerTest.py \
+                                      ../python/ValgrindAnalysisScript_TriggerTest.py \
+                                      ../Testing/*.conf" 
+private
+apply_pattern validate_xml
+public
+
+macro TriggerTest_TestConfiguration "../test/TriggerTest_TestConfiguration.xml"
