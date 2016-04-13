@@ -12,7 +12,7 @@ use TrigSerializeCnvSvc	  TrigSerializeCnvSvc-*	  Trigger/TrigDataAccess
 
 public
 
-# use xAODTauCnv		xAODTauCnv-*		Event/xAOD # needs newer pkg tag
+use xAODTauCnv			xAODTauCnv-*		Event/xAOD # needs newer pkg tag
 use xAODTrigMuonCnv		xAODTrigMuonCnv-*	Event/xAOD
 use xAODJetCnv			xAODJetCnv-*		Event/xAOD
 # use xAODTrigRingerCnv		xAODTrigRingerCnv-*	Event/xAOD # not configurable algtool
@@ -22,6 +22,7 @@ use xAODTrigBphysCnv		xAODTrigBphysCnv-*	Event/xAOD
 # use xAODTrigEgammaCnv		xAODTrigEgammaCnv-*	Event/xAOD # not in devval yet
 use xAODTrigMissingETCnv	xAODTrigMissingETCnv-*	Event/xAOD
 use xAODTrigMinBiasCnv		xAODTrigMinBiasCnv-*	Event/xAOD
+use xAODTrackingCnv             xAODTrackingCnv-*       Event/xAOD
 
 private
 
@@ -39,6 +40,7 @@ use xAODTracking	  xAODTracking-*	  Event/xAOD
 use xAODTrigMuon	  xAODTrigMuon-*	  Event/xAOD
 use xAODTrigBphys	  xAODTrigBphys-*	  Event/xAOD
 use xAODTrigMinBias	  xAODTrigMinBias-*	  Event/xAOD
+use xAODTau               xAODTau-*               Event/xAOD
 #use xAODCaloEvent	  xAODCaloEvent-*	  Event/xAOD
 
 use TrigStorageDefinitions TrigStorageDefinitions-* Trigger/TrigEvent
@@ -47,7 +49,8 @@ use TrigParticle	  TrigParticle-*	  Trigger/TrigEvent
 use TrigCaloEvent	  TrigCaloEvent-*	  Trigger/TrigEvent
 use TrigMuonEvent	  TrigMuonEvent-*	  Trigger/TrigEvent
 use TrigInDetEvent	  TrigInDetEvent-*	  Trigger/TrigEvent
-
+use TrkTrack              TrkTrack-*              Tracking/TrkEvent
+use tauEvent              tauEvent-*              Reconstruction
 #use CaloEvent		  CaloEvent-*		  Calorimeter
 
 use TrigParticle	  TrigParticle-*	  Trigger/TrigEvent
