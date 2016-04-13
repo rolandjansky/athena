@@ -11,7 +11,7 @@ use TrigTimeAlgs              TrigTimeAlgs-*                 Trigger/TrigTools
 use TrigMuonEvent             TrigMuonEvent-*                Trigger/TrigEvent
 use TrigInDetEvent	      TrigInDetEvent-*               Trigger/TrigEvent
 use MagFieldInterfaces        MagFieldInterfaces-*           MagneticField 
-use ByteStreamCnvSvcBase      ByteStreamCnvSvcBase-*         Event
+#use ByteStreamCnvSvcBase      ByteStreamCnvSvcBase-*         Event
 use TrkExInterfaces	      TrkExInterfaces-*	             Tracking/TrkExtrapolation
 use xAODTrigMuon              xAODTrigMuon-*                 Event/xAOD
 use xAODTracking              xAODTracking-*                 Event/xAOD

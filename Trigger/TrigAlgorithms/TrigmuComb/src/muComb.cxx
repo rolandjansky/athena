@@ -39,8 +39,10 @@
 
 muComb::muComb(const std::string& name, ISvcLocator* pSvcLocator):
    HLT::FexAlgo(name, pSvcLocator),
+   m_pStoreGate(NULL),
    m_backExtrapolatorG4("Trk::Extrapolator/AtlasExtrapolator"),
-   m_MagFieldSvc(0)
+   m_MagFieldSvc(0),
+   m_pTimerService(0)
 {
 
    // backextrapolators
@@ -75,7 +77,7 @@ muComb::muComb(const std::string& name, ISvcLocator* pSvcLocator):
    // Matching Parameters
    //Common
    declareProperty("NdofMin",                m_NdofMin        = 9999);
-   declareProperty("UseAbsPt",               m_UseAbsPt       = true);
+   declareProperty("UseAbsPt",               m_UseAbsPt       = false);
 
    // LUT based backextrapolator
    declareProperty("WinEtaSigma",            m_WinEta         = 4.0);
@@ -280,7 +282,7 @@ int muComb::drptMatch(double pt, double eta, double phi, double id_pt, double id
 // muon-trk match based on Geant4 backextrapolated SA Muon matched with ID track
 // return 0 --> match,  1 --> no match
 int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
-                    double id_eta, double id_phi, double id_pt, double id_charge,
+                    double id_eta, double id_phi, double id_pt, double id_charge, double id_eeta, double id_ephi, double id_eipt,
                     double& combPtInv, double& combPtRes, double& deta, double& dphi, double& chi2, int& ndof)
 {
 
@@ -356,7 +358,7 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
    Trk::Perigee perigeeMS(0., 0., phi, theta, q_over_p, pgsf);
 
    //ID parameters
-   double id_eptinv = muCombUtil::getIDSCANRes(m_IDSCANRes_barrel,  m_IDSCANRes_endcap1, m_IDSCANRes_endcap2,
+   double id_eptinv_OLD = muCombUtil::getIDSCANRes(m_IDSCANRes_barrel,  m_IDSCANRes_endcap1, m_IDSCANRes_endcap2,
                                                m_IDSCANRes_endcap3, m_IDSCANRes_endcap4, id_pt, id_eta);
    double id_ptinv  = 1.0e33;
    if (id_pt != 0) {
@@ -364,6 +366,8 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
    } else {
       return 3; //no match if ID track Pt zero
    }
+
+   double id_eptinv = id_eipt; //now taken from Track itself ...
 
    const Trk::Perigee* muonPerigee = (Trk::Perigee*) m_backExtrapolatorG4->extrapolate(perigeeMS, beamSurface, Trk::oppositeMomentum, Trk::muon);
 
@@ -417,11 +421,17 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
    //Match
    deta = muCombUtil::getDeltaEta(extr_eta, id_eta);
    dphi = muCombUtil::getDeltaPhi(extr_phi, id_phi);
-   chi2 = muCombUtil::getChi2(ndof, combPtInv, extr_eta, extr_eeta, extr_phi, extr_ephi, extr_ptinv, extr_eptinv,
-                              id_eta, 0.0, id_phi, 0.0, id_ptinv, id_eptinv, m_UseAbsPt);
+   int ndof_OLD = 0;
+   double chi2_OLD = muCombUtil::getChi2(ndof_OLD, combPtInv, 
+                                         extr_eta, extr_eeta, extr_phi, extr_ephi, extr_ptinv, extr_eptinv,
+                                         id_eta, 0.0, id_phi, 0.0, id_ptinv, id_eptinv, true);
+   chi2 = muCombUtil::getStdChi2(ndof, extr_eta, extr_eeta, extr_phi, extr_ephi, extr_ptinv, extr_eptinv,
+                              id_eta, id_eeta, id_phi, id_ephi, id_ptinv, id_eptinv, m_UseAbsPt);
+
 
    msg() << MSG::DEBUG << m_test_string
-         << " REGTEST Resolution / IdRes / muFastRes / combRes:"
+         << " REGTEST Resolution / OLDIdRes / IdRes / muFastRes / combRes:"
+         << " / " << std::setw(11) << id_eptinv_OLD / CLHEP::GeV
          << " / " << std::setw(11) << id_eptinv / CLHEP::GeV
          << " / " << std::setw(11) << extr_eptinv / CLHEP::GeV
          << " / " << std::setw(11) << combPtRes / CLHEP::GeV
@@ -434,9 +444,11 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
          << " / " << std::setw(11) << 1. / combPtInv / CLHEP::GeV << endreq;
 
    msg() << MSG::DEBUG << m_test_string
-         << " REGTEST Chi2 / ndof :"
+         << " REGTEST Chi2 / ndof // Chi2OLD / ndofOLD :"
          << " / " << std::setw(11) << chi2
-         << " / " << std::setw(11) << ndof << endreq;
+         << " / " << std::setw(11) << ndof
+         << " // " << std::setw(11) << chi2_OLD
+         << " / " << std::setw(11) << ndof_OLD << endreq;
 
    //Cuts
    double winEtaSigma = m_WinEta_g4;
@@ -684,15 +696,12 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
    }
 
    // Get input for seeding
-   xAOD::L2StandAloneMuonContainer* muonColl = 0;
    const xAOD::L2StandAloneMuonContainer* const_muonColl(0);
-   const xAOD::L2StandAloneMuon* muonSA(0);
-
    Bool_t useL1 = false;
+
    // retrieve L2StandAloneMuonContainer
    HLT::ErrorCode status = getFeature(outputTE, const_muonColl);
-   muonColl = const_cast<xAOD::L2StandAloneMuonContainer*>(const_muonColl);
-   if (status != HLT::OK || ! muonColl) {
+   if (status != HLT::OK) {
       if (usealgo == 2) {
          useL1 = true;
       } else {
@@ -700,11 +709,10 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
          return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
       }
    }
+   xAOD::L2StandAloneMuonContainer* muonColl = const_cast<xAOD::L2StandAloneMuonContainer*>(const_muonColl);
 
-   // retrieve L2StandAloneMuon
-   xAOD::L2StandAloneMuonContainer::iterator muonSA_it(muonColl->begin());
-   xAOD::L2StandAloneMuonContainer::iterator muonSA_end(muonColl->end());
-   muonSA = *muonSA_it;
+   // retrieve L2StandAloneMuon (assumed to be the first element)
+   const xAOD::L2StandAloneMuon* muonSA = muonColl->front();
 
    // Create Combined muon
    xAOD::L2CombinedMuonContainer *muonCBColl = new xAOD::L2CombinedMuonContainer();
@@ -740,7 +748,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
    double phi_ms  = -999.;
    double zeta_ms = -999.;
    if (useL1) {
-      const LVL1::RecMuonRoI* muonRoI = 0;
+      const LVL1::RecMuonRoI* muonRoI;
       if (HLT::OK != getFeature(inputTE, muonRoI, "")) {
          msg() << MSG::DEBUG << "Could not find the LVL1 roi" << endreq;
          msg() << MSG::DEBUG << "L2StandAloneMuon pt == 0. && no L1 && torid=OFF --> no match" << endreq;
@@ -839,16 +847,35 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
       }
 
       //Select tracks
-      double phi_id   = (*trkit)->phi();
-      double eta_id   = (*trkit)->eta();
-      double q_id     = ((*trkit)->qOverP() > 0 ? 1.0 : -1.0);
-      double pt_id    = (*trkit)->pt() * q_id;
+      double phi_id    = (*trkit)->phi();
+      double eta_id    = (*trkit)->eta();
+      double qoverp_id = (*trkit)->qOverP();
+      double q_id      = ((*trkit)->qOverP() > 0 ? 1.0 : -1.0);
+      double pt_id     = (*trkit)->pt() * q_id;
+
+      double e_qoverp_id = std::sqrt((*trkit)->definingParametersCovMatrix()(Trk::qOverP,Trk::qOverP));
+      double e_phi_id = std::sqrt((*trkit)->definingParametersCovMatrix()(Trk::phi0,Trk::phi0));
+      double e_theta_id = std::sqrt((*trkit)->definingParametersCovMatrix()(Trk::theta,Trk::theta));
+      double tanthetaov2 = fabs(std::exp(-eta));
+      double e_eta_id = fabs(0.5 * (1./tanthetaov2 + tanthetaov2) * e_theta_id);
+
+      double e_qoverpt_id = e_qoverp_id;
+      double theta_id = (*trkit)->theta();
+      if (sin(theta_id) != 0) e_qoverpt_id /= fabs(sin(theta_id)); //approximate
 
       if (msgLvl() <= MSG::DEBUG)
          msg() << MSG::DEBUG << "Found track: "
                << "  with pt (GeV) = " << pt_id / CLHEP::GeV
-               << ", eta =" << eta_id
-               << ", phi =" << phi_id
+               << ", q    = " << q_id
+               << ", eta  = " << eta_id
+               << ", phi  = " << phi_id
+               << ", th   = " << theta_id
+               << ", ephi = " << e_phi_id
+               << ", eth  = " << e_theta_id
+               << ", eeta = " << e_eta_id
+               << ", ip   = " << qoverp_id
+               << ", eip  = " << e_qoverp_id
+               << ", eipt = " << e_qoverpt_id
                << endreq;
 
       if (usealgo != 3) {
@@ -875,7 +902,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
                return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
             }
          } else { //G4 match
-            imatch_tmp = g4Match(muonSA, eta_id, phi_id, pt_id, q_id, ptinv_tmp, ptres_tmp, deta_tmp, dphi_tmp, chi2_tmp, ndof_tmp);
+            imatch_tmp = g4Match(muonSA, eta_id, phi_id, pt_id, q_id, e_eta_id, e_phi_id, e_qoverpt_id, ptinv_tmp, ptres_tmp, deta_tmp, dphi_tmp, chi2_tmp, ndof_tmp);
             if (imatch_tmp == 0) has_match_tmp = true;
             if (Athena::Timeout::instance().reached()) {
                if (msgLvl() <= MSG::DEBUG)
@@ -938,6 +965,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
    muonCB->setIdTrackLink(idtrkEL);
 
    double pt_id        = muonCB->idTrack()->pt();
+   double q_id         = ((muonCB->idTrack()->qOverP()) > 0 ? 1.0 : -1.0);
    double phi_id       = muonCB->idTrack()->phi();
    double eta_id       = muonCB->idTrack()->eta();
    //const Trk::Perigee& idtrk_perigee = muonCB->idTrack()->perigeeParameters();
@@ -969,15 +997,11 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
       if (m_ptID < -100.) m_ptID = -101.5;
    }
 
-   if (useL1) {
-      msg() << MSG::DEBUG << m_test_string << " REGTEST Combination chosen: "
-            << " usealgo / IdPt (GeV) / muonPt (GeV) / CombPt (GeV) / chi2 / ndof: "
-            << " / " << usealgo << " / " << pt_id / CLHEP::GeV << " / " << ptL1 << " / " << 1. / ptinv_comb / CLHEP::GeV << " / " << chi2_comb << " / " << ndof_comb << endreq;
-   } else {
-      msg() << MSG::DEBUG << m_test_string << " REGTEST Combination chosen: "
-            << " usealgo / IdPt (GeV) / muonPt (GeV) / CombPt (GeV) / chi2 / ndof: "
-            << " / " << usealgo << " / " << pt_id / CLHEP::GeV << " / " << pt << " / " << 1. / ptinv_comb / CLHEP::GeV << " / " << chi2_comb << " / " << ndof_comb << endreq;
-   }
+   double prt_pt = pt;
+   if (useL1) prt_pt = ptL1;
+   msg() << MSG::DEBUG << m_test_string << " REGTEST Combination chosen: "
+         << " usealgo / IdPt (GeV) / muonPt (GeV) / CombPt (GeV) / chi2 / ndof: "
+         << " / " << usealgo << " / " << pt_id*q_id / CLHEP::GeV << " / " << prt_pt << " / " << 1. / ptinv_comb / CLHEP::GeV << " / " << chi2_comb << " / " << ndof_comb << endreq;
 
    muonCB->setPt(fabs(1. / ptinv_comb));
    muonCB->setEta(eta_id);
