@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ITauJetCnvTool.h 632184 2014-11-29 16:07:43Z janus $
+// $Id: ITauJetCnvTool.h 730442 2016-03-16 15:21:06Z griffith $
 #ifndef XAODTAUJETCNV_ITAUJETCNVTOOL_H
 #define XAODTAUJETCNV_ITAUJETCNVTOOL_H
 
@@ -33,8 +33,8 @@ namespace xAODMaker {
     *
     * @author Michel Janus <janus@cern.ch>
     *
-    * $Revision: 632184 $
-    * $Date: 2014-11-29 17:07:43 +0100 (Sat, 29 Nov 2014) $
+    * $Revision: 730442 $
+    * $Date: 2016-03-16 16:21:06 +0100 (Wed, 16 Mar 2016) $
     */
    class ITauJetCnvTool : public virtual IAlgTool {
 
@@ -43,7 +43,7 @@ namespace xAODMaker {
      /* virtual StatusCode convert( const DataVector<taujet>* aod, */
      /*                             xAOD::TauJetContainer* xaod) const = 0; */
      virtual StatusCode convert(const Analysis::TauJetContainer* inputTaus,
-				xAOD::TauJetContainer* xAODTauJets) const = 0;
+				xAOD::TauJetContainer* xAODTauJets) = 0;
      
      /// Gaudi interface definition
      static const InterfaceID& interfaceID() {
