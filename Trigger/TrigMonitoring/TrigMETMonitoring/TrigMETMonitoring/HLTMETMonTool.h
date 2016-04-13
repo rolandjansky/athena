@@ -95,7 +95,7 @@ private:
   //bool m_is_do_trigger_effic;
   
   std::string m_lvl1_roi_key;
-  std::string m_hlt_met_key; 
+  std::string m_hlt_cell_met_key; 
   std::string m_hlt_mht_met_key; 
   std::string m_hlt_topocl_met_key; 
   std::string m_hlt_topocl_PS_met_key; 
@@ -105,6 +105,8 @@ private:
   std::string m_off_met_key;
   std::string m_muon_key;
   std::string m_muon_base_trigger;
+  std::string m_electron_key;
+  std::string m_electron_base_trigger;
 
   double m_muon_pt_thresh;
   double m_electron_pt_thresh;
@@ -122,6 +124,9 @@ private:
   float m_sigOffset;
   float m_sigSlope;
   float m_sigQuadr;
+  float m_sigOffset_feb;
+  float m_sigSlope_feb;
+  float m_sigQuadr_feb;
 
 };
 
