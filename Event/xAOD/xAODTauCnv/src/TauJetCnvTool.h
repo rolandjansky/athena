@@ -38,7 +38,8 @@
 
 namespace xAODMaker {
   class TauJetCnvTool
-    : public ::AthAlgTool
+    : public ::AthAlgTool,
+      public virtual ITauJetCnvTool
   { 
     
     /////////////////////////////////////////////////////////////////// 
