@@ -2212,7 +2212,7 @@ ExpandedIdentifier::element_type IdDictField::get_label_value (const std::string
  
   int int_value; 
  
-  if (sscanf (name.c_str (), "%d", &int_value) == 1)  
+  if (sscanf (name.c_str (), "%80d", &int_value) == 1)  
     { 
       value = (ExpandedIdentifier::element_type) int_value; 
       return (value); 

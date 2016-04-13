@@ -237,7 +237,7 @@ inline void  IdDictFieldImplementation::initialize()
 //-----------------------------------------------------------------
 {
     // Initialize masks and shift 
-    m_mask = (1 << m_bits) - 1;
+    m_mask = (static_cast<size_type>(1) << m_bits) - 1;
     m_shift = IdDictFieldImplementation::NBITS - m_bits - m_bits_offset;
 
     // Shifting by NBITS is undefined behavior.
