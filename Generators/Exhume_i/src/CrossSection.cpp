@@ -231,7 +231,7 @@ double Exhume::CrossSection::AlphaS(const double &scale_){
   }else{
     return(ASFreeze);
   }
-  return(0.0);
+  //  return(0.0);
 }
 /////////////////////////////////////////////////////////////////////////////
 double Exhume::CrossSection::Rg1Rg2(const double &scale_){
@@ -1074,7 +1074,7 @@ void Exhume::CrossSection::ReadCard(const std::string &filename){
   }
 
   char text[50];
-  int read;
+  int read, read2;
   std::pair<const char*,const void*> value;
   std::map<std::string,std::pair<const char*,const void*> >
     ::iterator val_;
@@ -1095,7 +1095,8 @@ void Exhume::CrossSection::ReadCard(const std::string &filename){
 	}else{
 	  printf("\t\t\t%17s\n",text);
 	}
-	fscanf(card,TypeMap.find(value.first)->second,value.second);
+	read2 = fscanf(card,TypeMap.find(value.first)->second,value.second);
+        if (read2!=1) std::cout <<"RadCard error " << std::endl;
       }
     }
   }
