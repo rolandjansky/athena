@@ -48,13 +48,11 @@ int main (int argc, char* argv[])
   p.register_external_entity ("MuonSpectrometer", "NULL");
   p.register_external_entity ("MuonSpectrometer", "");
 
+  const char* file = "../data/ATLAS_AGDD.xml";
   if (argc > 1) 
-    { 
-      const char* file = argv[1]; 
+    file = argv[1]; 
  
-      p.visit (file); 
-    }
-
+  p.visit (file); 
   return (0); 
 } 
  

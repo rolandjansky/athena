@@ -14,13 +14,9 @@ ignore_pattern config
 
 macro check_args "../data/ATLAS_AGDD.xml"
 
-macro example1_check_args "$(check_args)"
-macro example1_dependencies XMLCoreParser
-application example1 -check -s=../doc example1.cxx
-
-macro example2_check_args "$(check_args)"
-macro example2_dependencies XMLCoreParser
-application example2 -check -s=../doc example2.cxx
+use TestTools	   TestTools-*         AtlasTest
+apply_pattern UnitTest_run unit_test=example1
+apply_pattern UnitTest_run unit_test=example2
 
 #macro example3_check_args "$(check_args)"
 #macro example3_dependencies XMLCoreParser

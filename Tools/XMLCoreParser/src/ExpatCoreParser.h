@@ -64,9 +64,9 @@ private:
 
   void clean ();
 
-  CoreParser::DOMNode* top;
-  CoreParser::DOMNode* last;
-  std::string prefix;
+  CoreParser::DOMNode* m_top;
+  CoreParser::DOMNode* m_last;
+  std::string m_prefix;
   ExternalEntityMap m_entities; 
   ExternalEntityMap m_text_entities; 
 };

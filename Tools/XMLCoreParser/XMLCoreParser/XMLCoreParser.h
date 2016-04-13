@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __XMLCoreParser_hpp__ 
-#define __XMLCoreParser_hpp__ 
+#ifndef XMLCoreParser_hpp
+#define XMLCoreParser_hpp
  
 #include <string> 
 
@@ -78,7 +78,7 @@ public:
  
 protected: 
  
-  std::string xmlelementname; 
+  std::string m_xmlelementname; 
 }; 
 
 class XMLCoreParser 

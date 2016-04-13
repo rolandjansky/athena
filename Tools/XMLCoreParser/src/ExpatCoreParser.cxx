@@ -153,13 +153,13 @@ void ExpatCoreParser::entity (void* /*userData*/,
 
 CoreParser::DOMNode* ExpatCoreParser::get_document ()
 {
-  return (top);
+  return (m_top);
 }
 
 ExpatCoreParser::ExpatCoreParser ()
 {
-  top = 0;
-  last = 0;
+  m_top = 0;
+  m_last = 0;
 }
 
 void ExpatCoreParser::do_start (const char* el, const char** attr)
@@ -168,20 +168,20 @@ void ExpatCoreParser::do_start (const char* el, const char** attr)
   
   std::map <std::string, std::string> a;
   
-  if (top == 0) 
+  if (m_top == 0) 
     {
-      top = new CoreParser::DOMNode ();
-      last = top;
+      m_top = new CoreParser::DOMNode ();
+      m_last = m_top;
     }
 
-  CoreParser::DOMNode* node = new CoreParser::DOMNode (CoreParser::DOMNode::ELEMENT_NODE, el, last);
+  CoreParser::DOMNode* node = new CoreParser::DOMNode (CoreParser::DOMNode::ELEMENT_NODE, el, m_last);
   
   if (ExpatCoreParserDebugger::debug ())
     {
-      std::cout << "ExpatCoreParser::do_start> el=" << el << " top=" << top << " last=" << last << " node=" << node << std::endl; 
+      std::cout << "ExpatCoreParser::do_start> el=" << el << " top=" << m_top << " last=" << m_last << " node=" << node << std::endl; 
     }
   
-  last = node;
+  m_last = node;
   
   for (i = 0; attr[i]; i += 2) 
     {
@@ -199,7 +199,7 @@ void ExpatCoreParser::do_end (const char* el)
       std::cout << "ExpatCoreParser::do_end> el=" << el << std::endl; 
     }
   
-  last = last->m_parent;
+  m_last = m_last->m_parent;
 }
 
 void ExpatCoreParser::do_char_data (const XML_Char* s, int len)
@@ -244,17 +244,17 @@ void ExpatCoreParser::do_default_handler (const XML_Char* s, int len)
   
 void ExpatCoreParser::do_comment (const XML_Char* s)
 {
-  if (top == 0) 
+  if (m_top == 0) 
     {
-      top = new CoreParser::DOMNode ();
-      last = top;
+      m_top = new CoreParser::DOMNode ();
+      m_last = m_top;
     }
 
-  CoreParser::DOMNode* node = new CoreParser::DOMNode (CoreParser::DOMNode::COMMENT_NODE, s, last);
+  CoreParser::DOMNode* node = new CoreParser::DOMNode (CoreParser::DOMNode::COMMENT_NODE, s, m_last);
   
   if (ExpatCoreParserDebugger::debug ())
     {
-      std::cout << "ExpatCoreParser::do_comment> s=" << s << " top=" << top << " last=" << last << " node=" << node << std::endl; 
+      std::cout << "ExpatCoreParser::do_comment> s=" << s << " top=" << m_top << " last=" << m_last << " node=" << node << std::endl; 
     }
 }
 
@@ -264,7 +264,7 @@ int ExpatCoreParser::generic_parse (XML_Parser p, const std::string& file_name)
   
   if (ExpatCoreParserDebugger::debug ())
     {
-      std::cout << "ExpatCoreParser::generic_parse> file_name=" << file_name << " prefix=" << prefix << std::endl; 
+      std::cout << "ExpatCoreParser::generic_parse> file_name=" << file_name << " prefix=" << m_prefix << std::endl; 
     }
   
   std::string temp_name = file_name;
@@ -272,7 +272,7 @@ int ExpatCoreParser::generic_parse (XML_Parser p, const std::string& file_name)
   docfd = fopen (temp_name.c_str (), "r");
   if (!docfd)
     {
-      temp_name = prefix + "/" + file_name;
+      temp_name = m_prefix + "/" + file_name;
       
       docfd = fopen (temp_name.c_str (), "r");
     }
@@ -321,11 +321,11 @@ int ExpatCoreParser::generic_parse (XML_Parser p, const std::string& file_name)
 	  if (docfd != 0) break;
 
 	  // Test whether prefix is a relative path and if so use it
-	  if (prefix != "" && '/' != prefix[0]) {
+	  if (m_prefix != "" && '/' != m_prefix[0]) {
 
 	      temp_name =  last_temp_name;
 	      temp_name += "/";
-	      temp_name += prefix;
+	      temp_name += m_prefix;
 	      temp_name += "/";
 	      temp_name += file_name;
 	  
@@ -428,7 +428,7 @@ int ExpatCoreParser::generic_text_parse (XML_Parser p, const std::string& text)
       std::cout << "ExpatCoreParser::generic_text_parse> starting" << std::endl;
     }
   
-  for (;;) 
+  //for (;;) 
     {
       char* buff = (char*) XML_GetBuffer (p, text.size() + 1);
       strcpy (buff, text.c_str ());
@@ -443,7 +443,7 @@ int ExpatCoreParser::generic_text_parse (XML_Parser p, const std::string& text)
             result = 0;
 	  /* handle parse error */
 	}
-      if (done) break;
+      //if (done) break;
     }  
 
   return (result);
@@ -591,12 +591,12 @@ CoreParser::DOMNode* ExpatCoreParser::parse (const std::string& file_name)
   std::string::size_type pos = file_name.rfind ('/');
   if (pos != std::string::npos)
     {
-      me.prefix = file_name.substr (0, pos);
+      me.m_prefix = file_name.substr (0, pos);
       name = file_name.substr (pos + 1);
     }
   else
     {
-      me.prefix = "";
+      me.m_prefix = "";
     }
 
   XML_Parser p = XML_ParserCreate (NULL);
@@ -618,11 +618,11 @@ CoreParser::DOMNode* ExpatCoreParser::parse (const std::string& file_name)
 
 void ExpatCoreParser::clean ()
 {
-  last = 0;
+  m_last = 0;
 
-  if (top != 0)
+  if (m_top != 0)
     {
-      delete top;
-      top = 0;
+      delete m_top;
+      m_top = 0;
     }
 }

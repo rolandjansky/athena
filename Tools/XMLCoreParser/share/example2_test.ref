@@ -1,0 +1,1408 @@
+<!-- +++ Define the material file     +++ -->
+<!-- +++ Define the XML include files +++ -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++
+
+    Variable management
+
+     +++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++
+
+    Units
+
+     +++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++
+
+    Parameter management
+
+     +++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!--  Xerces
+-->
+<!--  Together
+<!ENTITY % parameters_contents '%single_parameters; | %multiple_parameters;' >
+-->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++
+
+    Identifiers
+
+     +++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++
+
+    Positioners
+
+        Single
+        Multiple
+        Relative
+
+     +++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- Xerces
+-->
+<!-- Together
+<!ENTITY % position_items  '( volume* | identifier* | %vars; )'>
+-->
+<!--
+    Single positioners
+-->
+<!--
+    Multiple positioners
+-->
+<!--
+    Relative positioners
+-->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++
+
+    Volumes
+
+        Solids
+        Composition
+        Stacks
+        Boolean volumes
+
+     +++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- Xerces
+-->
+<!-- Together
+<!ENTITY % foreaches        '( foreach* )'>
+<!ENTITY % foreach_items  '( %vars; | %foreaches; | %positions; )'>
+-->
+<!-- Xerces
+-->
+<!-- Together
+<!ENTITY % composition_contents '( %vars; | %foreaches; | %positions; )'>
+-->
+<!-- Xerces
+-->
+<!-- Together
+<!ENTITY % stack_contents '%relative_positions;'>
+-->
+<!-- Xerces
+-->
+<!-- Together
+<!ENTITY % boolean_contents '%single_positions;'>
+-->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++
+
+    Compact
+
+     +++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++
+
+    Section
+
+     +++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- Xerces
+-->
+<!-- Together
+<!ENTITY % parameters_s     '( parameters* )'>
+<!ENTITY % compositions     '( composition* )'>
+<!ENTITY % compacts         '( compact* )'>
+
+<!ENTITY % volumes          '( %solids; | %stacks; | %booleans; | composition* | compact* )'>
+<!ENTITY % section_contents '( %volumes; | parameters* | %vars; )'>
+-->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++
+
+    AGDD
+
+     +++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!--
+<!ENTITY % AGDD_item     'materials , section'>
+<!ENTITY % AGDD_contents '%AGDD_item;*'>
+-->
+Printer factory::do_start>AGDD
+  DTD_version="v4"
+<!-- Include materials -->
+<!-- <?xml version="1.0"?>
+<!DOCTYPE AGDD SYSTEM "AGDD_1.04.dtd">
+-->
+<!--  Atlas Global Data Base: Materials
+     **********************************
+
+     version 1.3: RPC and TGC material additions and modifications
+                  (S. Goldfarb - 24 August 2000)
+
+     version 1.2: Added most densities for elements
+                  Fix bugs in densities gasses.
+
+     version 1.1: Added materials for the pixel detector
+
+     version 1.0: Initial version with all elements and some
+                  composites.
+ 
+-->
+<!-- <AGDD> -->
+Printer factory::do_start>materials
+  DTD_version="v4"
+  author="Stan Bentvelsen + Alexandre Rozanov"
+  date="Tue Mar 21, 2000"
+  version="1.3"
+<!-- Define the elements -->
+Printer factory::do_start>element
+  aweight="1.00797"
+  density="0.0708"
+  name="Hydrogen    "
+  symbol="H"
+  z=" 1"
+Printer factory::do_start>element
+  aweight="2.01"
+  density="0.162"
+  name="Deuterium   "
+  symbol="D"
+  z=" 1"
+Printer factory::do_start>element
+  aweight="4.0026"
+  density="0.125"
+  name="Helium      "
+  symbol="He"
+  z=" 2"
+Printer factory::do_start>element
+  aweight="6.9410"
+  density="0.534"
+  name="Lithium     "
+  symbol="Li"
+  z=" 3"
+Printer factory::do_start>element
+  aweight="9.0122"
+  density="1.8480"
+  name="Beryllium   "
+  symbol="Be"
+  z=" 4"
+Printer factory::do_start>element
+  aweight="10.0"
+  density="2.34"
+  name="Boron10     "
+  symbol="B10"
+  z=" 5"
+Printer factory::do_start>element
+  aweight="11.0"
+  density="2.34"
+  name="Boron11     "
+  symbol="B11"
+  z=" 5"
+Printer factory::do_start>element
+  aweight="12.011 "
+  density="2.2650"
+  name="Carbon      "
+  symbol="C"
+  z=" 6"
+Printer factory::do_start>element
+  aweight="14.0067 "
+  density="0.808"
+  name="Nitrogen    "
+  symbol="N"
+  z=" 7"
+Printer factory::do_start>element
+  aweight="15.9995 "
+  density="0.00143"
+  name="Oxygen      "
+  symbol="O"
+  z=" 8"
+Printer factory::do_start>element
+  aweight="18.9984 "
+  density="1.1080"
+  name="Fluorine    "
+  symbol="F"
+  z=" 9"
+Printer factory::do_start>element
+  aweight="20.179"
+  density="1.2070"
+  name="Neon        "
+  symbol="Ne"
+  z="10"
+Printer factory::do_start>element
+  aweight="22.9898 "
+  density="0.969"
+  name="Sodium      "
+  symbol="Na"
+  z="11"
+Printer factory::do_start>element
+  aweight="24.305"
+  density="1.735"
+  name="Magnesium   "
+  symbol="Mg"
+  z="12"
+Printer factory::do_start>element
+  aweight="26.9815"
+  density="2.700"
+  name="Aluminum    "
+  symbol="Al"
+  z="13"
+Printer factory::do_start>element
+  aweight="28.086"
+  density="2.33"
+  name="Silicon     "
+  symbol="Si"
+  z="14"
+Printer factory::do_start>element
+  aweight="30.9738 "
+  density="1.82"
+  name="Phosphorus  "
+  symbol="P"
+  z="15"
+Printer factory::do_start>element
+  aweight="32.06 "
+  density="2.07"
+  name="Sulfur      "
+  symbol="S"
+  z="16"
+Printer factory::do_start>element
+  aweight="35.453 "
+  density="1.56"
+  name="Chlorine    "
+  symbol="Cl"
+  z="17"
+Printer factory::do_start>element
+  aweight="39.948"
+  density="0.001639"
+  name="Argon       "
+  symbol="Ar"
+  z="18"
+Printer factory::do_start>element
+  aweight="39.098 "
+  density="0.860"
+  name="Potassium   "
+  symbol="K"
+  z="19"
+Printer factory::do_start>element
+  aweight="40.08 "
+  density="1.55"
+  name="Calcium     "
+  symbol="Ca"
+  z="20"
+Printer factory::do_start>element
+  aweight="44.956 "
+  density="2.98"
+  name="Scandium    "
+  symbol="Sc"
+  z="21"
+Printer factory::do_start>element
+  aweight="47.90 "
+  density="4.53"
+  name="Titanium    "
+  symbol="Ti"
+  z="22"
+Printer factory::do_start>element
+  aweight="50.9414 "
+  density="6.10"
+  name="Vanadium    "
+  symbol="V"
+  z="23"
+Printer factory::do_start>element
+  aweight="51.996 "
+  density="7.18"
+  name="Chromium    "
+  symbol="Cr"
+  z="24"
+Printer factory::do_start>element
+  aweight="54.9830 "
+  density="7.43"
+  name="Manganese   "
+  symbol="Mn"
+  z="25"
+Printer factory::do_start>element
+  aweight="55.847"
+  density="7.87"
+  name="Iron        "
+  symbol="Fe"
+  z="26"
+Printer factory::do_start>element
+  aweight="58.9332 "
+  density="8.90"
+  name="Cobalt      "
+  symbol="Co"
+  z="27"
+Printer factory::do_start>element
+  aweight="58.70 "
+  density="8.876"
+  name="Nickel      "
+  symbol="Ni"
+  z="28"
+Printer factory::do_start>element
+  aweight="63.546"
+  density="8.96"
+  name="Copper      "
+  symbol="Cu"
+  z="29"
+Printer factory::do_start>element
+  aweight="65.38 "
+  density="7.112"
+  name="Zinc        "
+  symbol="Zn"
+  z="30"
+Printer factory::do_start>element
+  aweight="69.72 "
+  density="5.877"
+  name="Gallium     "
+  symbol="Ga"
+  z="31"
+Printer factory::do_start>element
+  aweight="72.59 "
+  density="5.3230"
+  name="Germanium   "
+  symbol="Ge"
+  z="32"
+Printer factory::do_start>element
+  aweight="74.9216 "
+  density="5.72"
+  name="Arsenic     "
+  symbol="As"
+  z="33"
+Printer factory::do_start>element
+  aweight="78.96 "
+  density="4.78"
+  name="Selenium    "
+  symbol="Se"
+  z="34"
+Printer factory::do_start>element
+  aweight="79.904 "
+  density="3.11"
+  name="Bromine     "
+  symbol="Br"
+  z="35"
+Printer factory::do_start>element
+  aweight="83.80"
+  density="2.60"
+  name="Krypton     "
+  symbol="Kr"
+  z="36"
+Printer factory::do_start>element
+  aweight="85.4678 "
+  density="1.529"
+  name="Rubidium    "
+  symbol="Rb"
+  z="37"
+Printer factory::do_start>element
+  aweight="87.62 "
+  density="2.54"
+  name="Strontium   "
+  symbol="Sr"
+  z="38"
+Printer factory::do_start>element
+  aweight="88.909 "
+  density="4.456"
+  name="Yttrium     "
+  symbol="Y"
+  z="39"
+Printer factory::do_start>element
+  aweight="91.22 "
+  density="6.494"
+  name="Zirconium   "
+  symbol="Zr"
+  z="40"
+Printer factory::do_start>element
+  aweight="92.9064 "
+  density="8.55"
+  name="Niobium     "
+  symbol="Nb"
+  z="41"
+Printer factory::do_start>element
+  aweight="95.94 "
+  density="10.20"
+  name="Molybdenum  "
+  symbol="Mo"
+  z="42"
+Printer factory::do_start>element
+  aweight="97 "
+  density="11.48"
+  name="Technetium  "
+  symbol="Tc"
+  z="43"
+Printer factory::do_start>element
+  aweight="101.07 "
+  density="12.39"
+  name="Ruthenium   "
+  symbol="Ru"
+  z="44"
+Printer factory::do_start>element
+  aweight="102.905 "
+  density="12.39"
+  name="Rhodium     "
+  symbol="Rh"
+  z="45"
+Printer factory::do_start>element
+  aweight="106.04 "
+  density="12.00"
+  name="Palladium   "
+  symbol="Pd"
+  z="46"
+Printer factory::do_start>element
+  aweight="107.868 "
+  density="10.48"
+  name="Silver      "
+  symbol="Ag"
+  z="47"
+Printer factory::do_start>element
+  aweight="112.40 "
+  density="8.63"
+  name="Cadmium     "
+  symbol="Cd"
+  z="48"
+Printer factory::do_start>element
+  aweight="114.82 "
+  density="7.30"
+  name="Indium      "
+  symbol="In"
+  z="49"
+Printer factory::do_start>element
+  aweight="118.69 "
+  density="7.31"
+  name="Tin         "
+  symbol="Sn"
+  z="50"
+Printer factory::do_start>element
+  aweight="121.75 "
+  density="6.679"
+  name="Antimony    "
+  symbol="Sb"
+  z="51"
+Printer factory::do_start>element
+  aweight="127.60 "
+  density="6.23"
+  name="Tellurium   "
+  symbol="Te"
+  z="52"
+Printer factory::do_start>element
+  aweight="126.9046"
+  density="7.30"
+  name="Iodine      "
+  symbol="I"
+  z="53"
+Printer factory::do_start>element
+  aweight="131.30"
+  density="3.057"
+  name="Xenon       "
+  symbol="Xe"
+  z="54"
+Printer factory::do_start>element
+  aweight="132.905 "
+  density="1.870"
+  name="Cesium      "
+  symbol="Cs"
+  z="55"
+Printer factory::do_start>element
+  aweight="137.34 "
+  density="3.50"
+  name="Barium      "
+  symbol="Ba"
+  z="56"
+Printer factory::do_start>element
+  aweight="138.91 "
+  density="6.127"
+  name="Larthanum   "
+  symbol="La"
+  z="57"
+Printer factory::do_start>element
+  aweight="140.12 "
+  density="6.637"
+  name="Cerium      "
+  symbol="Ce"
+  z="58"
+Printer factory::do_start>element
+  aweight="140.908 "
+  name="Praseodymium"
+  symbol="Pr"
+  z="59"
+Printer factory::do_start>element
+  aweight="144.24 "
+  name="Neodymium   "
+  symbol="Nd"
+  z="60"
+Printer factory::do_start>element
+  aweight="145 "
+  name="Promethium  "
+  symbol="Pm"
+  z="61"
+Printer factory::do_start>element
+  aweight="150.4 "
+  name="Samarium    "
+  symbol="Sm"
+  z="62"
+Printer factory::do_start>element
+  aweight="151.96 "
+  name="Europium    "
+  symbol="Eu"
+  z="63"
+Printer factory::do_start>element
+  aweight="157.25 "
+  name="Gadolinium  "
+  symbol="Gd"
+  z="64"
+Printer factory::do_start>element
+  aweight="158.925 "
+  name="Terbium     "
+  symbol="Tb"
+  z="65"
+Printer factory::do_start>element
+  aweight="162.50 "
+  name="Dysprosium  "
+  symbol="Dy"
+  z="66"
+Printer factory::do_start>element
+  aweight="164.930 "
+  name="Holmium     "
+  symbol="Ho"
+  z="67"
+Printer factory::do_start>element
+  aweight="167.26 "
+  name="Erbium      "
+  symbol="Er"
+  z="68"
+Printer factory::do_start>element
+  aweight="168.934 "
+  name="Thulium     "
+  symbol="Tm"
+  z="69"
+Printer factory::do_start>element
+  aweight="173.04 "
+  name="Ytterbium   "
+  symbol="Yb"
+  z="70"
+Printer factory::do_start>element
+  aweight="174.97"
+  name="Lutetium    "
+  symbol="Lu"
+  z="71"
+Printer factory::do_start>element
+  aweight="178.49 "
+  name="Hafnium     "
+  symbol="Hf"
+  z="72"
+Printer factory::do_start>element
+  aweight="180.948 "
+  name="Tantalum    "
+  symbol="Ta"
+  z="73"
+Printer factory::do_start>element
+  aweight="183.85 "
+  density="19.3"
+  name="Tungsten    "
+  symbol="W"
+  z="74"
+Printer factory::do_start>element
+  aweight="186.207 "
+  name="Rhenium     "
+  symbol="Re"
+  z="75"
+Printer factory::do_start>element
+  aweight="190.2 "
+  name="Osmium      "
+  symbol="Os"
+  z="76"
+Printer factory::do_start>element
+  aweight="192.22 "
+  name="Iridium     "
+  symbol="Ir"
+  z="77"
+Printer factory::do_start>element
+  aweight="195.09 "
+  name="Platinum    "
+  symbol="Pt"
+  z="78"
+Printer factory::do_start>element
+  aweight="196.967 "
+  density="18.85"
+  name="Gold        "
+  symbol="Au"
+  z="79"
+Printer factory::do_start>element
+  aweight="200.59 "
+  name="Mercury     "
+  symbol="Hg"
+  z="80"
+Printer factory::do_start>element
+  aweight="204.37 "
+  name="Thallium    "
+  symbol="Tl"
+  z="81"
+Printer factory::do_start>element
+  aweight="207.2 "
+  density="11.35"
+  name="Lead        "
+  symbol="Pb"
+  z="82"
+Printer factory::do_start>element
+  aweight="208.980 "
+  density="9.37"
+  name="Bismuth     "
+  symbol="Bi"
+  z="83"
+Printer factory::do_start>element
+  aweight="209 "
+  name="Polonium    "
+  symbol="Po"
+  z="84"
+Printer factory::do_start>element
+  aweight="210 "
+  name="Astatine    "
+  symbol="At"
+  z="85"
+Printer factory::do_start>element
+  aweight="222"
+  name="Radon       "
+  symbol="Rn"
+  z="86"
+Printer factory::do_start>element
+  aweight="223 "
+  name="Francium    "
+  symbol="Fr"
+  z="87"
+Printer factory::do_start>element
+  aweight="226.03 "
+  name="Radium      "
+  symbol="Ra"
+  z="88"
+Printer factory::do_start>element
+  aweight="227"
+  name="Actinium    "
+  symbol="Ac"
+  z="89"
+Printer factory::do_start>element
+  aweight="232.038 "
+  name="Thorium     "
+  symbol="Th"
+  z="90"
+Printer factory::do_start>element
+  aweight="231.038 "
+  name="Protactinium"
+  symbol="Pa"
+  z="91"
+Printer factory::do_start>element
+  aweight="238.03 "
+  density="18.950"
+  name="Uranium     "
+  symbol="U"
+  z="92"
+Printer factory::do_start>element
+  aweight="237.048 "
+  name="Neptunium   "
+  symbol="Np"
+  z="93"
+<!-- Define the composite materials -->
+Printer factory::do_start>composite
+  density="2.34"
+  name="Boron"
+Printer factory::do_start>addmaterial
+  material="Boron10"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>addmaterial
+  material="Boron11"
+Printer factory::do_start>natoms
+  n="8"
+Printer factory::do_start>composite
+  density="1.032"
+  name="Scintillator"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="9"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>natoms
+  n="10"
+Printer factory::do_start>composite
+  density="0.001214"
+  name="Air"
+Printer factory::do_start>addmaterial
+  material="Nitrogen"
+Printer factory::do_start>fractionmass
+  fraction="0.7494"
+Printer factory::do_start>addmaterial
+  material="Oxygen"
+Printer factory::do_start>fractionmass
+  fraction="0.2369"
+Printer factory::do_start>addmaterial
+  material="Argon"
+Printer factory::do_start>fractionmass
+  fraction="0.0129"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>fractionmass
+  fraction="0.0008"
+Printer factory::do_start>composite
+  density="0.001977"
+  name="CO2"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="1"
+Printer factory::do_start>addmaterial
+  material="Oxygen"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>composite
+  density="0.0018"
+  name="ArCO2"
+Printer factory::do_start>addmaterial
+  material="Argon"
+Printer factory::do_start>fractionmass
+  fraction="0.93"
+Printer factory::do_start>addmaterial
+  material="CO2"
+Printer factory::do_start>fractionmass
+  fraction="0.07"
+<!-- Old RPC/TGC materials left for backwards compatibility -->
+Printer factory::do_start>composite
+  density="0.001977"
+  name="RPCgas"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>addmaterial
+  material="Fluorine"
+Printer factory::do_start>natoms
+  n="4"
+Printer factory::do_start>composite
+  density="0.0018"
+  name="RPVC"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>natoms
+  n="3"
+Printer factory::do_start>addmaterial
+  material="Chlorine"
+Printer factory::do_start>natoms
+  n="1"
+Printer factory::do_start>composite
+  density="1.4"
+  name="Bakelite"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="1"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>natoms
+  n="4"
+Printer factory::do_start>addmaterial
+  material="Oxygen"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>composite
+  density="1.4"
+  name="Honeycomb"
+Printer factory::do_start>addmaterial
+  material="Arsenic"
+Printer factory::do_start>natoms
+  n="2"
+<!-- Muon RPC Materials (S.Goldfarb, A.DiCiaccio - 24.08.2000) -->
+Printer factory::do_start>composite
+  density="1.40"
+  name="RPC_Bakelite"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="1"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>natoms
+  n="4"
+Printer factory::do_start>addmaterial
+  material="Oxygen"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>composite
+  density="0.006"
+  name="RPC_Gas"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>addmaterial
+  material="Fluorine"
+Printer factory::do_start>natoms
+  n="4"
+Printer factory::do_start>composite
+  density="1.40"
+  name="RPC_Honeycomb"
+Printer factory::do_start>addmaterial
+  material="Arsenic"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>composite
+  density="0.04"
+  name="RPC_PVC"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>natoms
+  n="3"
+Printer factory::do_start>addmaterial
+  material="Chlorine"
+Printer factory::do_start>natoms
+  n="1"
+Printer factory::do_start>composite
+  density="0.035"
+  name="RPC_Styrene"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="8"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>natoms
+  n="8"
+<!-- Muon TGC Materials (S.Goldfarb, G.Mikus 24.08.2000) -->
+Printer factory::do_start>composite
+  density="1.5"
+  name="TGC_FR4"
+Printer factory::do_start>addmaterial
+  material="Silicon"
+Printer factory::do_start>natoms
+  n="5"
+Printer factory::do_start>composite
+  density="1.5"
+  name="TGC_Gas"
+Printer factory::do_start>addmaterial
+  material="Oxygen"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>composite
+  density="1.4"
+  name="TGC_Honeycomb"
+Printer factory::do_start>addmaterial
+  material="Arsenic"
+Printer factory::do_start>natoms
+  n="2"
+<!-- Pixel detector materials 29.10.99 A.Rozanov -->
+Printer factory::do_start>composite
+  density="1.14"
+  name="Nylon"
+Printer factory::do_start>addmaterial
+  material="Nitrogen"
+Printer factory::do_start>natoms
+  n="1"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="6"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>natoms
+  n="11"
+Printer factory::do_start>addmaterial
+  material="Oxygen"
+Printer factory::do_start>natoms
+  n="1"
+Printer factory::do_start>composite
+  density="1.20"
+  name="Lexan"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="16"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>natoms
+  n="14"
+Printer factory::do_start>addmaterial
+  material="Oxygen"
+Printer factory::do_start>natoms
+  n="3"
+Printer factory::do_start>composite
+  density="1.39"
+  name="Mylar"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="5"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>natoms
+  n="4"
+Printer factory::do_start>addmaterial
+  material="Oxygen"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>composite
+  density="0.95"
+  name="Polyethylene"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="1"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>composite
+  density="1.42"
+  name="Kapton"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="22"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>natoms
+  n="10"
+Printer factory::do_start>addmaterial
+  material="Oxygen"
+Printer factory::do_start>natoms
+  n="5"
+Printer factory::do_start>addmaterial
+  material="Nitrogen"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>composite
+  density="1.20"
+  name="Plexiglas"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="5"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>natoms
+  n="8"
+Printer factory::do_start>addmaterial
+  material="Oxygen"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>composite
+  density="1.032"
+  name="Polystyrene"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="8"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>natoms
+  n="8"
+Printer factory::do_start>composite
+  density="2.20"
+  name="Teflon"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="1"
+Printer factory::do_start>addmaterial
+  material="Fluorine"
+Printer factory::do_start>natoms
+  n="2"
+Printer factory::do_start>composite
+  density="2.3"
+  name="Elsilicon"
+Printer factory::do_start>addmaterial
+  material="Silicon"
+Printer factory::do_start>natoms
+  n="5"
+Printer factory::do_start>addmaterial
+  material="Oxygen"
+Printer factory::do_start>natoms
+  n="1"
+Printer factory::do_start>addmaterial
+  material="Aluminum"
+Printer factory::do_start>natoms
+  n="1"
+Printer factory::do_start>composite
+  density="2.3"
+  name="CarbonCarbon"
+Printer factory::do_start>addmaterial
+  material="Carbon"
+Printer factory::do_start>natoms
+  n="5"
+Printer factory::do_start>addmaterial
+  material="Hydrogen"
+Printer factory::do_start>natoms
+  n="1"
+Printer factory::do_start>addmaterial
+  material="Oxygen"
+Printer factory::do_start>natoms
+  n="1"
+<!-- </AGDD> -->
+<!-- Include files     -->
+<!--  Atlas Generic Detector Description : test for MUON BARREL
+     ***********************************************************
+-->
+Printer factory::do_start>section
+  DTD_version="v4"
+  author="Marc Virchaux"
+  date="Thu Oct 7"
+  name="MU"
+  top_volume="MU_Barrel"
+  version="1.1"
+<!-- create the BML 1 Station -->
+Printer factory::do_start>box
+  X_Y_Z="100.  3440. 1440."
+  material="Honeycomb"
+  name="MU_BML1_RPC1"
+  parameters="inner_RPC_1"
+  sensitive="false"
+  unit_angle="deg"
+  unit_length="mm"
+Printer factory::do_start>box
+  X_Y_Z="96.96 3580. 1440."
+  material="Air"
+  name="MU_BML1_MDT1"
+  parameters="inner_MDT_1"
+  sensitive="false"
+  unit_angle="deg"
+  unit_length="mm"
+Printer factory::do_start>box
+  X_Y_Z="317.    80. 1420."
+  material="Aluminum"
+  name="MU_BML1_SPA1"
+  sensitive="false"
+  unit_angle="deg"
+  unit_length="mm"
+Printer factory::do_start>box
+  X_Y_Z="96.96 3580. 1440."
+  material="Air"
+  name="MU_BML1_MDT2"
+  parameters="inner_MDT_2"
+  sensitive="false"
+  unit_angle="deg"
+  unit_length="mm"
+Printer factory::do_start>composition
+  name="MU_Stat_BML1"
+Printer factory::do_start>posXYZ
+  S="0"
+  X_Y_Z="  0        0  0"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="MU_BML1_RPC1"
+Printer factory::do_start>layer
+  value=" 1"
+Printer factory::do_start>posXYZ
+  S="0"
+  X_Y_Z="130.       0  0"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="MU_BML1_MDT1"
+Printer factory::do_start>layer
+  value=" 2"
+Printer factory::do_start>posXYZ
+  S="0"
+  X_Y_Z="336.98 -1700. 0"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="MU_BML1_SPA1"
+Printer factory::do_start>layer
+  value=" 3"
+Printer factory::do_start>posXYZ
+  S="0"
+  X_Y_Z="336.98     0  0"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="MU_BML1_SPA1"
+Printer factory::do_start>layer
+  value="13"
+Printer factory::do_start>posXYZ
+  S="0"
+  X_Y_Z="336.98  1700. 0"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="MU_BML1_SPA1"
+Printer factory::do_start>layer
+  value="23"
+Printer factory::do_start>posXYZ
+  S="0"
+  X_Y_Z="543.96     0  0"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="MU_BML1_MDT2"
+Printer factory::do_start>layer
+  value=" 4"
+Printer factory::do_start>posXYZ
+  S="0"
+  X_Y_Z="673.96     0  0"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="MU_BML1_RPC1"
+Printer factory::do_start>layer
+  value=" 5"
+<!-- place stations in Muon barrel -->
+Printer factory::do_start>composition
+  name="MU_Barrel"
+Printer factory::do_start>mposPhi
+  Phi0="0"
+  R_Z="6730.54  150."
+  S="0"
+  impliedRot="true"
+  ncopy="8"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="MU_Stat_BML1"
+Printer factory::do_start>ring
+  step="1"
+  value="1"
+Printer factory::do_start>sector
+  value="1"
+Printer factory::do_start>mposPhi
+  Phi0="0"
+  R_Z="6730.54 1610."
+  S="0"
+  impliedRot="true"
+  ncopy="8"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="MU_Stat_BML1"
+Printer factory::do_start>ring
+  step="1"
+  value="1"
+Printer factory::do_start>sector
+  value="2"
+Printer factory::do_start>mposPhi
+  Phi0="0"
+  R_Z="6730.54 3070."
+  S="0"
+  impliedRot="true"
+  ncopy="8"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="MU_Stat_BML1"
+Printer factory::do_start>ring
+  step="1"
+  value="1"
+Printer factory::do_start>sector
+  value="3"
+Printer factory::do_start>mposPhi
+  Phi0="0"
+  R_Z="6730.54 4530."
+  S="0"
+  dPhi="45."
+  impliedRot="true"
+  ncopy="5"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="MU_Stat_BML1"
+Printer factory::do_start>ring
+  step="1"
+  value="1"
+Printer factory::do_start>sector
+  value="4"
+Printer factory::do_start>posRPhiZ
+  R_Phi_Z="6730.54 270. 4530."
+  S="0"
+  impliedRot="true"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="MU_Stat_BML1"
+Printer factory::do_start>ring
+  step="1"
+  value="1"
+Printer factory::do_start>sector
+  value="7"
+<!--
+<innerstruct  name="inner_MDT_1"  type="MDT"  format="1">
+         3        0.80                  | Nb. of layers  Total radiative thickness
+         30.     55.98   81.96          | dimentions of ....
+         30.     14.60   96.96          | z positions of layers
+         15.     30.     15.            | x positions of first tube of each layer
+</innerstruct>
+-->
+Printer factory::do_start>parameters
+  name="inner_MDT_1"
+  type="MDT"
+Printer factory::do_start>real
+  comment="number of layers"
+  name="layers"
+  unit="none"
+  value="3"
+Printer factory::do_start>real
+  comment="total radiative thickness"
+  name="radiative_thickness"
+  unit="cm"
+  value="0.80"
+Printer factory::do_start>real_array
+  name="dimensions"
+  unit="cm"
+  values="30. 55.98 81.96"
+Printer factory::do_start>real_array
+  comment="z positions of layers"
+  name="z_positions"
+  unit="cm"
+  values="30. 14.60 96.96"
+Printer factory::do_start>real_array
+  comment="x positions of first tube of each layer"
+  name="x_positions"
+  unit="cm"
+  values="15. 30. 15."
+Printer factory::do_start>parameters
+  name="inner_MDT_2"
+  type="MDT"
+<!--         blablabla... -->
+Printer factory::do_start>parameters
+  name="inner_RPC_1"
+  type="RPC"
+<!--         blablabla... -->
+<!--  Atlas Generic Detector Description : test for SCT
+     ***************************************************
+-->
+Printer factory::do_start>section
+  DTD_version="v4"
+  author="Stan Bentvelsen"
+  date="Thu Oct 7"
+  name="SCT"
+  top_volume="SCT_Barrel"
+  version="1.1"
+<!-- create a wafer+hybrid board -->
+Printer factory::do_start>box
+  X_Y_Z="1. 63.6 128.2"
+  material="Silicon"
+  name="SCT_board"
+  sensitive="false"
+  unit_angle="deg"
+  unit_length="mm"
+Printer factory::do_start>box
+  X_Y_Z="1. 22.6 110.0"
+  material="Copper"
+  name="SCT_elboard"
+  sensitive="false"
+  unit_angle="deg"
+  unit_length="mm"
+<!-- position wafer+hybrid board -->
+Printer factory::do_start>composition
+  name="SCT_module"
+Printer factory::do_start>posXYZ
+  S="0"
+  X_Y_Z=" 0  11.3  0"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="SCT_board"
+Printer factory::do_start>posXYZ
+  S="0"
+  X_Y_Z=" 0 -31.8  0"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="SCT_elboard"
+<!-- create a ski of 4 modules (Ir=1 to 12) -->
+Printer factory::do_start>composition
+  name="SCT_ski"
+Printer factory::do_start>mposZ
+  R_Phi="0; 0"
+  S="0"
+  X_Y="0; 0"
+  Z0="-769.2"
+  dZ="128.2"
+  ncopy="4"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="SCT_module"
+Printer factory::do_start>sector
+  step="1"
+  value="1"
+<!-- make the barrel sct consisting of four (Ir=1 to 4)  rings (Iphi=1 to n)
+ of skis of 4 modules (Iz=1 to 4), each with a tilt of 10 degrees             -->
+Printer factory::do_start>composition
+  name="SCT_Barrel"
+Printer factory::do_start>mposPhi
+  Phi0="0"
+  R_Z="300.0 0"
+  S="0"
+  impliedRot="true"
+  ncopy="32"
+  rot="0 0 -10"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="SCT_ski"
+Printer factory::do_start>layer
+  value="1"
+<!-- Default step is "0" -->
+Printer factory::do_start>ring
+  step="1"
+  value="1"
+Printer factory::do_start>mposPhi
+  Phi0="0"
+  R_Z="373.0 0"
+  S="0"
+  impliedRot="true"
+  ncopy="40"
+  rot="0 0 -10"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="SCT_ski"
+Printer factory::do_start>layer
+  value="2"
+Printer factory::do_start>ring
+  step="1"
+  value="1"
+Printer factory::do_start>mposPhi
+  Phi0="0"
+  R_Z="447.0 0"
+  S="0"
+  impliedRot="true"
+  ncopy="48"
+  rot="0 0 -10"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="SCT_ski"
+Printer factory::do_start>layer
+  value="3"
+Printer factory::do_start>ring
+  step="1"
+  value="1"
+Printer factory::do_start>mposPhi
+  Phi0="0"
+  R_Z="520.0 0"
+  S="0"
+  impliedRot="true"
+  ncopy="56"
+  rot="0 0 -10"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="SCT_ski"
+Printer factory::do_start>layer
+  value="4"
+Printer factory::do_start>ring
+  step="1"
+  value="1"
+<!-- End of include    -->
+<!-- Atlas Generic Detector Description : volume ATLAS 
+     *************************************************
+-->
+Printer factory::do_start>section
+  DTD_version="v4"
+  author="Marc + Stan"
+  date="Mon Nov 15"
+  name="ATLAS"
+  top_volume="ATLAS"
+  version="2.0"
+Printer factory::do_start>composition
+  name="ATLAS"
+Printer factory::do_start>posXYZ
+  S="0"
+  X_Y_Z="0; 0; 0"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="MU_Barrel"
+Printer factory::do_start>posXYZ
+  S="0"
+  X_Y_Z="0; 0; 0"
+  rot="0; 0; 0"
+  unit_angle="deg"
+  unit_length="mm"
+  volume="SCT_Barrel"

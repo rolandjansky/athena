@@ -16,12 +16,10 @@ int main (int argc, char* argv[])
   parser.register_external_entity ("LVL1Calorimeter", "NULL");
   parser.register_external_entity ("MuonSpectrometer", "NULL");
 
+  const char* file = "../data/ATLAS_AGDD.xml";
   if (argc > 1)
-    {
-      const char* file = argv[1]; 
+    file = argv[1]; 
 
-      parser.parse (file);
-    }
-
+  parser.parse (file);
   return (0);
 }

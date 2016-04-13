@@ -123,7 +123,7 @@ int XMLCoreFactory::get_int (const XMLCoreNode& node, const std::string& name)
   int result = 0; 
  
   std::string s = get_value (node, name); 
-  sscanf (s.c_str (), "%d", &result); 
+  sscanf (s.c_str (), "%80d", &result); 
  
   return (result); 
 } 
@@ -133,7 +133,7 @@ double XMLCoreFactory::get_double (const XMLCoreNode& node, const std::string& n
   double result = 0; 
  
   std::string s = get_value (node, name); 
-  sscanf (s.c_str (), "%lg", &result); 
+  sscanf (s.c_str (), "%80lg", &result); 
  
   return (result); 
 } 
@@ -263,10 +263,10 @@ bool XMLCoreFactory::check_int (const int n, const XMLCoreNode& node, const std:
                 << " ints in \"" << checkstring << "\" for attribute " <<  
           name << ". exit." << std::endl; 
  
-      std::string name   = get_value (node, "name"); 
+      std::string nodename   = get_value (node, "name"); 
       std::string volume = get_value (node, "volume"); 
  
-      if (name != "" ) std::cerr << "for name=" << name << std::endl; 
+      if (nodename != "" ) std::cerr << "for name=" << nodename << std::endl; 
       if (volume != "" ) std::cerr << "for volume=" << volume << std::endl; 
  
       exit(4); 
