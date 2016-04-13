@@ -101,12 +101,16 @@ class HLTTauMonTool : public IHLTMonTool {
 //  StatusCode TauEfficiencyCombo(const std::string & trigItem);
 
   StatusCode RealZTauTauEfficiency();
+  StatusCode dijetFakeTausEfficiency();
+  StatusCode FTKtest(const std::string & trigItem);
+  StatusCode trackCurves(const std::string & trigItem);
 
   //Methods for HLT and L1 Matching
   bool HLTTauMatching(const std::string & trigItem, const TLorentzVector & TLV, double DR);
+  bool PresTauMatching(const std::string & trigItem, const TLorentzVector & TLV, double DR);
   bool L1TauMatching(const std::string & trigItem, const TLorentzVector & TLV, double DR);
-  bool  emulate2StepTracking(float RoI_eta, float RoI_phi, bool do2step, bool doReject0trk, float track_pt_min);
-  StatusCode test2StepTracking();
+  //  bool  emulate2StepTracking(float RoI_eta, float RoI_phi, bool do2step, bool doReject0trk, float track_pt_min);
+  //StatusCode test2StepTracking();
   void testClusterNavigation(const xAOD::TauJet *aEFTau);
   void testL1TopoNavigation(const std::string & trigItem);
   float PrescaleRetrieval(const std::string & trigItem, const std::string & level);
@@ -116,6 +120,8 @@ class HLTTauMonTool : public IHLTMonTool {
   float m_selection_ptMax, m_selection_ptMin;
   float m_selection_absEtaMax, m_selection_absEtaMin;
   float m_selection_absPhiMax, m_selection_absPhiMin; 
+
+  bool TruthMatched( const xAOD::TauJet * tau);
 
   StatusCode Emulation();
   std::string LowerChain(std::string hlt_item);
@@ -145,9 +151,12 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_turnOnCurves;
   std::string m_turnOnCurvesDenom;
   bool m_truth;
-  bool m_doTestTracking;
+  //bool m_doTestTracking;
   bool m_emulation;
   bool m_RealZtautauEff;
+  bool m_dijetFakeTausEff;
+  bool m_doFTKtest;
+  bool m_doTrackCurves;
   bool m_doTopoValidation;
   std::vector<std::string> CutItems;
   std::vector<std::string> TauCutFlow;
@@ -170,6 +179,8 @@ class HLTTauMonTool : public IHLTMonTool {
   ///Set by job options
   std::vector<std::string> m_trigItems;
   std::vector<std::string> m_trigItemsAll;
+  std::vector<std::string> m_trigItemsHighPt;
+  std::vector<std::string> m_highpt_tau;
   std::vector<std::string> m_primary_tau;
   std::vector<std::string> m_monitoring_tau;
   std::vector<std::string> m_prescaled_tau;
