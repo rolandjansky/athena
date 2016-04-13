@@ -320,7 +320,7 @@ namespace Trigger {
             if(getIsStrip(id))sprintf(isS,"strip");
             else              sprintf(isS,"wire");
             sprintf(message
-                   ,"entry:%d,timing=%d,%s,station=%d,stationName=%d,steta=%d,stphi=%d,gasgap=%d,channel=%d\n"
+                   ,"entry:%u,timing=%u,%s,station=%u,stationName=%d,steta=%d,stphi=%d,gasgap=%d,channel=%d\n"
                    ,hh
                    ,timing
                    ,isS
