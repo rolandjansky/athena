@@ -211,12 +211,12 @@ StatusCode RPCTriggerDbTool::loadRPCEtaTable(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys
     m_etaInfo = *(static_cast<const std::string*>((atr["Additional_Info"]).addressOfData()));    
     m_vecetaInfo.push_back(m_etaInfo);
     if(m_onlyDebug){
-      std::string m_fileName =  m_etaCM_File.c_str();
+      std::string fileName =  m_etaCM_File.c_str();
       std::ofstream file;
-      file.open(m_fileName.c_str(),std::ios::app);
+      file.open(fileName.c_str(),std::ios::app);
       std::cout << "Opening file" << std::endl;
       if (!file.is_open()) {
-	std::cout << "Failed to open file named " << m_fileName << std::endl;
+	std::cout << "Failed to open file named " << fileName << std::endl;
 	return StatusCode::FAILURE;
       }
       
@@ -292,12 +292,12 @@ StatusCode RPCTriggerDbTool::loadRPCPhiTable(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys
     m_phiInfo = *(static_cast<const std::string*>((atr["Additional_Info"]).addressOfData()));    
     m_vecphiInfo.push_back(m_phiInfo);   
     if(m_onlyDebug){
-      std::string m_fileName_phi =  m_phiCM_File.c_str();
+      std::string fileName_phi =  m_phiCM_File.c_str();
       std::ofstream file_phi;
-      file_phi.open(m_fileName_phi.c_str(),std::ios::app);
+      file_phi.open(fileName_phi.c_str(),std::ios::app);
       std::cout << "Opening file" << std::endl;
       if (!file_phi.is_open()) {
-	std::cout << "Failed to open file named " << m_fileName_phi << std::endl;
+	std::cout << "Failed to open file named " << fileName_phi << std::endl;
 	return StatusCode::FAILURE;
       }
       
