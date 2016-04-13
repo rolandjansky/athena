@@ -92,14 +92,18 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     
     const int nbin_pt = 13;
     double bins_pt[nbin_pt] = {10.,20.,25.,30.,35.,40.,45.,50.,60.,70.,100.,150.,200.};
+
+
 //    const int nbin_leppt = 32;
 //    double bins_leppt[nbin_leppt] = {10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.,32.,34.,36.,38.,40.,45.,50.,60.,70.,80.,100.};
     const int nbin_eta = 9;
     double bins_eta[nbin_eta] = {-2.47,-1.52,-1.37,-0.69,0.,0.69,1.37,1.52,2.47};
     const int nbin_nvtx = 6;
     double bins_nvtx[nbin_nvtx] = {0.,5.,10.,15.,20.,25.};
-    const int nbin_mu = 21;
-    float bins_mu[nbin_mu] = {0.,2.,4.,6.,8.,10.,12.,14.,16.,18.,20.,22.,24.,26.,28.,30.,32.,34.,36.,38.,40.};
+    const int nbin_mu = 33;
+    float bins_mu[nbin_mu] = {0.,2.,4.,6.,8.,10.,12.,14.,16.,18.,20.,22.,24.,26.,28.,30.,32.,34.,36.,38.,40., 42., 44., 44., 46., 48., 50., 52., 54., 56., 58., 60., 62};
+
+
 //    const int nbin_met = 14;
 //    double bins_met[nbin_met] = {0.,5.,10.,20.,25.,30.,35.,40.,45.,50.,60.,70.,100.,150.};
 //    const int nbin_dr = 18;
@@ -127,12 +131,12 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     addHistogram(new TH2F("hL1EtVsPhi","L1 RoI Et vs Phi; E_{T}[GeV]; #phi",100,0.,100.,100,-3.2,3.2));
     addHistogram(new TH2F("hL1EtVsEta","L1 RoI Et vs Eta; E_{T}[GeV]; #eta",100,0.,100.,100,-2.6,2.6));   
 
-    addHistogram(new TH1F("hL1JetRoIEta","L1 Jet RoI Eta ; #eta; N RoI",100,-3.2,3.2));
-    addHistogram(new TH1F("hL1JetRoIPhi","L1 Jet RoI Phi ; #phi; N RoI",100,-3.2,3.2));
-    addHistogram(new TH2F("hL1JetEtaVsPhi","L1 Jet RoI Eta vs Phi; #eta; #phi",100,-3.2,3.2,100,-3.2,3.2));
+    addHistogram(new TH1F("hL1JetRoIEta","L1 Jet RoI Eta ; #eta; N RoI",32,-3.2,3.2));
+    addHistogram(new TH1F("hL1JetRoIPhi","L1 Jet RoI Phi ; #phi; N RoI",32,-3.2,3.2));
+    addHistogram(new TH2F("hL1JetEtaVsPhi","L1 Jet RoI Eta vs Phi; #eta; #phi",32,-3.2,3.2,32,-3.2,3.2));
     addHistogram(new TH1F("hL1JetRoIeT","L1 Jet RoI Energy; E_{T}[GeV]; N RoI",200,0.,100.));
-    addHistogram(new TH2F("hL1JetEtVsPhi","L1 Jet RoI Et vs Phi; E_{T}[GeV]; #phi",100,0.,100.,100,-3.2,3.2));
-    addHistogram(new TH2F("hL1JetEtVsEta","L1 Jet RoI Et vs Eta; E_{T}[GeV]; #eta",100,0.,100.,100,-3.2,3.2));
+    addHistogram(new TH2F("hL1JetEtVsPhi","L1 Jet RoI Et vs Phi; E_{T}[GeV]; #phi",100,0.,100.,32,-3.2,3.2));
+    addHistogram(new TH2F("hL1JetEtVsEta","L1 Jet RoI Et vs Eta; E_{T}[GeV]; #eta",100,0.,100.,32,-3.2,3.2));
 
     //--------------------
     //Pre-selection Tau
@@ -145,7 +149,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     addHistogram(new TH1F("hFTFnTrack","EF number of tracks;number of tracks;Nevents",10,0,10));
     addHistogram(new TH1F("hEta","EF TrigCaloCluster Eta; #eta ; Nevents",26,-2.6,2.6));
     addHistogram(new TH1F("hPhi","EF TrigCaloCluster Phi; #phi ; Nevents",32,-3.2,3.2));
-    addHistogram(new TH1F("hdRmax","EF deltaR max; dRmax ; Nevents",52,-0.02,0.5));
+    //addHistogram(new TH1F("hdRmax","EF deltaR max; dRmax ; Nevents",52,-0.02,0.5));
     addHistogram(new TH2F("hEFEtaVsPhi","EF TrigCaloCluster Eta vs Phi; #eta ; #phi ; Nevents",
                           26,-2.6,2.6,32,-3.2,3.2));
     addHistogram(new TH2F("hEtVsEta","Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]",
@@ -162,6 +166,8 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     //Basic kinematic variables
     addHistogram(new TH1F("hEFEt","EF Et;E_{T}[GeV];Nevents",50,0.0,100.0));
     addHistogram(new TH1F("hEFEta","EF TrigCaloCluster Eta; #eta ; Nevents",26,-2.6,2.6));
+    addHistogram(new TH1F("hEFNUM","EF Number of vertex; N_(vertex) ; Nevents",50,15,65));
+    addHistogram(new TH2F("hEFNUMvsmu","Number of vertex vs offline mu; N_(vertex) ; #mu",  50,15,65,50,15,65));
     addHistogram(new TH1F("hEFPhi","EF TrigCaloCluster Phi; #phi ; Nevents",16,-3.2,3.2));
     addHistogram(new TH1F("hEFnTrack","EF number of tracks;number of tracks;Nevents",10,0,10));
     addHistogram(new TH2F("hEFEtaVsPhi","EF TrigCaloCluster Eta vs Phi; #eta ; #phi ; Nevents",26,-2.6,2.6,16,-3.2,3.2));
@@ -294,7 +300,8 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         addProfile(new TProfile("hEtRatiovsmu","Relative difference in Et (EF-Truth)/Truth vs mu;Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
     }
     //-------------------
-    //EF vs Offline
+   
+//EF vs Offline
     //-------------------
     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFVsOffline",run));
     setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFVsOffline");   
@@ -326,7 +333,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     
     //addProfile(new TProfile("hEMRadiusRatiovspt","Relative difference in EMRadius (EF-Offline)/Offline vs Offline Tau pT;Offline Tau pT;",nbin_pt-1,bins_pt));
     //addProfile(new TProfile("hEMRadiusRatiovseta","Relative difference in EMRadius (EF-Offline)/Offline vs Offline Tau eta;Offline Tau #eta;",nbin_eta-1,bins_eta));
-    //addProfile(new TProfile("hEMRadiusRatiovsphi","Relative difference in EMRadius (EF-Offline)/Offline vs Offline Tau phi;Offline Tau #phi;",40,-3.2,3.2));
+//addProfile(new TProfile("hEMRadiusRatiovsphi","Relative difference in EMRadius (EF-Offline)/Offline vs Offline Tau phi;Offline Tau #phi;",40,-3.2,3.2));
     //addProfile(new TProfile("hEMRadiusRatiovsmu","Relative difference in EMRadius (EF-Offline)/Offline vs mu;Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
     
     //addProfile(new TProfile("hHADRadiusRatiovspt","Relative difference in HADRadius (EF-Offline)/Offline vs Offline Tau pT;Offline Tau pT;",nbin_pt-1,bins_pt));
@@ -432,16 +439,17 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             //Truth
             addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/"+trigItem+"/TurnOnCurves/TruthEfficiency",run) );
             setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/TurnOnCurves/TruthEfficiency"); 
-            addHistogram(new TH1F("hTrueTauPtDenom",";Truth p_{T} [GeV];",nbin_pt-1,bins_pt));
+	    /*            addHistogram(new TH1F("hTrueTauPtDenom",";Truth p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTrueTauPt1PDenom",";Truth 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTrueTauPt3PDenom",";Truth 3 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTrueTauEtaDenom",";#eta;",nbin_eta-1,bins_eta));
             addHistogram(new TH1F("hTrueTauPhiDenom",";#phi;",16,-3.2,3.2));
             addHistogram(new TH1F("hTrueTauNTrackDenom",";Number of tracks;",10,0,10));
             addHistogram(new TH1F("hTrueTauNVtxDenom",";Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
-            addHistogram(new TH1F("hTrueTauMuDenom",";Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
+            addHistogram(new TH1F("hTrueTauMuDenom",";Average interactions per bunch crossing;",nbin_mu-1,bins_mu));*/
             addHistogram(new TH2F("hTrueTauEtaVsPhiDenom",";#eta; #phi;",nbin_eta-1,bins_eta,16,-3.2,3.2));
             
+	    /*
             addHistogram(new TH1F("hTrueL1PtNum","L1 vs Truth;Truth p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTrueL1Pt1PNum","L1 vs Truth;Truth 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTrueL1Pt3PNum","L1 vs Truth;Truth 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
@@ -450,8 +458,10 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTrueL1NTrackNum","L1 vs Truth;Number of tracks;",10,0,10));
             addHistogram(new TH1F("hTrueL1NVtxNum","L1 vs Truth;Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTrueL1MuNum","L1 vs Truth;Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
+	    */
             addHistogram(new TH2F("hTrueL1EtaVsPhiNum","L1 vs Truth;#eta;#phi;",nbin_eta-1,bins_eta,16,-3.2,3.2));
             
+	    /*
             addHistogram(new TH1F("hTrueHLTPtNum","HLT vs Truth;Truth p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTrueHLTPt1PNum","HLT vs Truth;Truth 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTrueHLTPt3PNum","HLT vs Truth;Truth 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
@@ -460,9 +470,10 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTrueHLTNTrackNum","HLT vs Truth;Number of tracks;",10,0,10));
             addHistogram(new TH1F("hTrueHLTNVtxNum","HLT vs Truth;Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTrueHLTMuNum","HLT vs Truth;Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
+	    */
             addHistogram(new TH2F("hTrueHLTEtaVsPhiNum","HLT vs Truth;#eta;#phi;",nbin_eta-1,bins_eta,16,-3.2,3.2));
             
-            addHistogram(new TH1F("hTrueL1PtEfficiency","L1 vs Truth Efficiency; Truth p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+	    /*            addHistogram(new TH1F("hTrueL1PtEfficiency","L1 vs Truth Efficiency; Truth p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTrueL1Pt1PEfficiency","L1 vs Truth Efficiency; Truth 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTrueL1Pt3PEfficiency","L1 vs Truth Efficiency; Truth 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTrueL1EtaEfficiency","L1 vs Truth Efficiency; Truth #eta; Efficiency",nbin_eta-1,bins_eta));
@@ -470,8 +481,9 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTrueL1NTrackEfficiency","L1 vs Truth Efficiency; Number of tracks; Efficiency",10,0,10));
             addHistogram(new TH1F("hTrueL1NVtxEfficiency","L1 vs Truth Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTrueL1MuEfficiency","L1 vs Truth Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+	    */
             addHistogram(new TH2F("hTrueL1EtaVsPhiEfficiency","L1 vs Truth in Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
-            
+            /*
             addHistogram(new TH1F("hTrueHLTPtEfficiency","HLT vs Truth Efficiency; Truth p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTrueHLTPt1PEfficiency","HLT vs Truth Efficiency; Truth 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTrueHLTPt3PEfficiency","HLT vs Truth Efficiency; Truth 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
@@ -480,6 +492,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTrueHLTNTrackEfficiency","HLT vs Truth Efficiency; Number of tracks; Efficiency",10,0,10));
             addHistogram(new TH1F("hTrueHLTNVtxEfficiency","HLT vs Truth Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTrueHLTMuEfficiency","HLT vs Truth Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+	    */
             addHistogram(new TH2F("hTrueHLTEtaVsPhiEfficiency","HLT vs truth in Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
             
             addProfile(new TProfile("TProfTrueL1PtEfficiency","L1 vs Truth Efficiency; Truth p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
@@ -504,7 +517,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             //Truth+Reco
             addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/"+trigItem+"/TurnOnCurves/Truth+RecoEfficiency",run) );
             setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/TurnOnCurves/Truth+RecoEfficiency");            
-            addHistogram(new TH1F("hTruthRecoTauPtDenom","Truth p_{T} [GeV];",nbin_pt-1,bins_pt));
+	    /*            addHistogram(new TH1F("hTruthRecoTauPtDenom","Truth p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTruthRecoTauPt1PDenom",";Truth 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTruthRecoTauPt3PDenom",";Truth 3 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTruthRecoTauEtaDenom",";#eta;",nbin_eta-1,bins_eta));
@@ -512,8 +525,9 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTruthRecoTauNTrackDenom",";Number of tracks;",10,0,10));
             addHistogram(new TH1F("hTruthRecoTauNVtxDenom",";Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTruthRecoTauMuDenom",";Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
+	    */
             addHistogram(new TH2F("hTruthRecoTauEtaVsPhiDenom",";#eta;#phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
-            
+            /*
             addHistogram(new TH1F("hTruthRecoL1PtNum","L1 vs Truth+Reco; Truth p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTruthRecoL1Pt1PNum","L1 vs Truth+Reco; Truth 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTruthRecoL1Pt3PNum","L1 vs Truth+Reco; Truth 3 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
@@ -522,9 +536,10 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTruthRecoL1NTrackNum","L1 vs Truth+Reco; Number of tracks;",10,0,10));
             addHistogram(new TH1F("hTruthRecoL1NVtxNum","L1 vs Truth+Reco; Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTruthRecoL1MuNum","L1 vs Truth+Reco;Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
+	    */
             addHistogram(new TH2F("hTruthRecoL1EtaVsPhiNum","L1 vs Truth+Reco;#eta;#phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
             
-            addHistogram(new TH1F("hTruthRecoHLTPtNum","HLT vs Truth+Reco; Truth p_{T} [GeV];",nbin_pt-1,bins_pt));
+	    /*            addHistogram(new TH1F("hTruthRecoHLTPtNum","HLT vs Truth+Reco; Truth p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTruthRecoHLTPt1PNum","HLT vs Truth+Reco; Truth 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTruthRecoHLTPt3PNum","HLT vs Truth+Reco; Truth 3 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTruthRecoHLTEtaNum","HLT vs Truth+Reco; #eta;",nbin_eta-1,bins_eta));
@@ -532,8 +547,10 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTruthRecoHLTNTrackNum","HLT vs Truth+Reco; Number of tracks;",10,0,10));
             addHistogram(new TH1F("hTruthRecoHLTNVtxNum","HLT vs Truth+Reco; Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTruthRecoHLTMuNum","HLT vs Truth+Reco; Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
+	    */
             addHistogram(new TH2F("hTruthRecoHLTEtaVsPhiNum","HLT vs Truth+Reco; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
             
+	    /*
             addHistogram(new TH1F("hTruthRecoL1PtEfficiency","L1 vs Truth+Reco Efficiency; Truth p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTruthRecoL1Pt1PEfficiency","L1 vs Truth+Reco Efficiency; Truth 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTruthRecoL1Pt3PEfficiency","L1 vs Truth+Reco Efficiency; Truth 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
@@ -542,9 +559,10 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTruthRecoL1NTrackEfficiency","L1 vs Truth+Reco Efficiency; Number of tracks; Efficiency",10,0,10));
             addHistogram(new TH1F("hTruthRecoL1NVtxEfficiency","L1 vs Truth+Reco Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTruthRecoL1MuEfficiency","L1 vs Truth+Reco Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+	    */
             addHistogram(new TH2F("hTruthRecoL1EtaVsPhiEfficiency","L1 vs Truth+Reco in Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
             
-            addHistogram(new TH1F("hTruthRecoHLTPtEfficiency","HLT vs Truth+Reco Efficiency; Truth p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+            /*addHistogram(new TH1F("hTruthRecoHLTPtEfficiency","HLT vs Truth+Reco Efficiency; Truth p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTruthRecoHLTPt1PEfficiency","HLT vs Truth+Reco Efficiency; Truth 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTruthRecoHLTPt3PEfficiency","HLT vs Truth+Reco Efficiency; Truth 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTruthRecoHLTEtaEfficiency","HLT vs Truth+Reco Efficiency; Truth #eta; Efficiency",nbin_eta-1,bins_eta));
@@ -552,6 +570,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTruthRecoHLTNTrackEfficiency","HLT vs Truth+Reco Efficiency; Number of tracks; Efficiency",10,0,10));
             addHistogram(new TH1F("hTruthRecoHLTNVtxEfficiency","HLT vs Truth+Reco Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTruthRecoHLTMuEfficiency","HLT vs Truth+Reco Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+	    */
             addHistogram(new TH2F("hTruthRecoHLTEtaVsPhiEfficiency","HLT vs Truth+Reco in  Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
             
             addProfile(new TProfile("TProfTruthRecoL1PtEfficiency","L1 vs Truth+Reco Efficiency; Truth p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
@@ -648,7 +667,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         //Reco
         addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/"+trigItem+"/TurnOnCurves/RecoEfficiency",run) );
         setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/TurnOnCurves/RecoEfficiency");        
-        addHistogram(new TH1F("hRecoTauPtDenom",";Reco p_{T} [GeV];",nbin_pt-1,bins_pt));
+	/*        addHistogram(new TH1F("hRecoTauPtDenom",";Reco p_{T} [GeV];",nbin_pt-1,bins_pt));
         addHistogram(new TH1F("hRecoTauPt1PDenom",";Reco 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
         addHistogram(new TH1F("hRecoTauPt3PDenom",";Reco 3 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
         addHistogram(new TH1F("hRecoTauEtaDenom","; #eta;",nbin_eta-1,bins_eta));
@@ -656,9 +675,11 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         addHistogram(new TH1F("hRecoTauNTrackDenom","; Number of tracks;",10,0,10));
         addHistogram(new TH1F("hRecoTauNVtxDenom","; Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
         addHistogram(new TH1F("hRecoTauMuDenom","; Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
+	*/
         addHistogram(new TH2F("hRecoTauEtaVsPhiDenom","; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
         
-        addHistogram(new TH1F("hRecoL1PtNum","L1 vs Reco; Reco p_{T} [GeV];",nbin_pt-1,bins_pt));
+	/*
+	  addHistogram(new TH1F("hRecoL1PtNum","L1 vs Reco; Reco p_{T} [GeV];",nbin_pt-1,bins_pt));
         addHistogram(new TH1F("hRecoL1Pt1PNum","L1 vs Reco; Reco 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
         addHistogram(new TH1F("hRecoL1Pt3PNum","L1 vs Reco; Reco 3 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
         addHistogram(new TH1F("hRecoL1EtaNum","L1 vs Reco; #eta;",nbin_eta-1,bins_eta));
@@ -666,8 +687,9 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         addHistogram(new TH1F("hRecoL1NTrackNum","L1 vs Reco Number of tracks;",10,0,10));
         addHistogram(new TH1F("hRecoL1NVtxNum","L1 vs Reco; Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
         addHistogram(new TH1F("hRecoL1MuNum","L1 vs Reco; Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
+	*/
         addHistogram(new TH2F("hRecoL1EtaVsPhiNum","L1 vs Reco; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
-        
+        /*
         addHistogram(new TH1F("hRecoHLTPtNum","HLT vs Reco; Reco p_{T} [GeV];",nbin_pt-1,bins_pt));
         addHistogram(new TH1F("hRecoHLTPt1PNum","HLT vs Reco; Reco 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
         addHistogram(new TH1F("hRecoHLTPt3PNum","HLT vs Reco; Reco 3 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
@@ -676,8 +698,10 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         addHistogram(new TH1F("hRecoHLTNTrackNum","HLT vs Reco; Number of tracks;",10,0,10));
         addHistogram(new TH1F("hRecoHLTNVtxNum","HLT vs Reco; Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
         addHistogram(new TH1F("hRecoHLTMuNum","HLT vs Reco; Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
+	*/
         addHistogram(new TH2F("hRecoHLTEtaVsPhiNum","HLT vs Reco; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
         
+	/*
         addHistogram(new TH1F("hRecoL1PtEfficiency","L1 vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
         addHistogram(new TH1F("hRecoL1Pt1PEfficiency","L1 vs Reco Efficiency; Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
         addHistogram(new TH1F("hRecoL1Pt3PEfficiency","L1 vs Reco Efficiency; Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
@@ -686,8 +710,9 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         addHistogram(new TH1F("hRecoL1NTrackEfficiency","L1 vs Reco Efficiency; Number of tracks; Efficiency",10,0,10));
         addHistogram(new TH1F("hRecoL1NVtxEfficiency","L1 vs Reco Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
         addHistogram(new TH1F("hRecoL1MuEfficiency","L1 vs Reco Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+	*/
         addHistogram(new TH2F("hRecoL1EtaVsPhiEfficiency","L1 vs Reco in Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
-        
+        /*
         addHistogram(new TH1F("hRecoHLTPtEfficiency","HLT vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
         addHistogram(new TH1F("hRecoHLTPt1PEfficiency","HLT vs Reco Efficiency; Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
         addHistogram(new TH1F("hRecoHLTPt3PEfficiency","HLT vs Reco Efficiency; Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
@@ -696,9 +721,10 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         addHistogram(new TH1F("hRecoHLTNTrackEfficiency","HLT vs Reco Efficiency; Number of tracks; Efficiency",10,0,10));
         addHistogram(new TH1F("hRecoHLTNVtxEfficiency","HLT vs Reco Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
         addHistogram(new TH1F("hRecoHLTMuEfficiency","HLT vs Reco Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+	*/
         addHistogram(new TH2F("hRecoHLTEtaVsPhiEfficiency","HLT vs Reco in  Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
-        
-        addProfile(new TProfile("TProfRecoL1PtEfficiency", "L1 Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+       
+         addProfile(new TProfile("TProfRecoL1PtEfficiency", "L1 Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
         addProfile(new TProfile("TProfRecoL1Pt1PEfficiency", "L1 Vs Reco Efficiency; Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
         addProfile(new TProfile("TProfRecoL1Pt3PEfficiency", "L1 Vs Reco Efficiency; Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
         addProfile(new TProfile("TProfRecoL1EtaEfficiency", "L1 Vs Reco Efficiency; Reco #eta; Efficiency",nbin_eta-1,bins_eta));
@@ -707,7 +733,17 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         addProfile(new TProfile("TProfRecoL1NVtxEfficiency", "L1 Vs Reco Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
         addProfile(new TProfile("TProfRecoL1MuEfficiency", "L1 Vs Reco Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
         
+
+
+	double hbins_pt[nbin_pt] = {10.,25.,35.,65.,70.,100.,200., 250., 300., 350.,  400., 500., 600.};
+        addProfile(new TProfile("TProfRecoL1HighPtEfficiency", "L1 Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+        addProfile(new TProfile("TProfRecoL1HighPt1PEfficiency", "L1 Vs Reco Efficiency; Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+        addProfile(new TProfile("TProfRecoL1HighPt3PEfficiency", "L1 Vs Reco Efficiency; Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+
         addProfile(new TProfile("TProfRecoHLTPtEfficiency", "HLT Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+	addProfile(new TProfile("TProfRecoHLTHighPtEfficiency", "HLT Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+	addProfile(new TProfile("TProfRecoHLTHighPt1pEfficiency", "HLT Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+	addProfile(new TProfile("TProfRecoHLTHighPt3pEfficiency", "HLT Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
         addProfile(new TProfile("TProfRecoHLTPt1PEfficiency", "HLT Vs Reco Efficiency; Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
         addProfile(new TProfile("TProfRecoHLTPt3PEfficiency", "HLT Vs Reco Efficiency; Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
         addProfile(new TProfile("TProfRecoHLTEtaEfficiency", "HLT Vs Reco Efficiency; Reco #eta; Efficiency",nbin_eta-1,bins_eta));
@@ -716,9 +752,62 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         addProfile(new TProfile("TProfRecoHLTNVtxEfficiency", "HLT Vs Reco Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
         addProfile(new TProfile("TProfRecoHLTMuEfficiency", "HLT Vs Reco Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
         
-        //Reco
         
     }
+
+	if(m_doTrackCurves)
+      {		
+	addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/"+trigItem+"/trackCurves", run));
+	setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/trackCurves"); 
+	addHistogram(new TH2I("hreco_vs_pres_coreTracks","Reco vs preselection tau multiplicity;Number of core tracks of reco tau; Number of core tracks of preselection tau",10,0,10,10,0,10));
+    	addHistogram(new TH2I("hreco_vs_pres_isoTracks","Reco vs preselection tau multiplicity;Number of isolation tracks of reco tau; Number of isolation tracks of preselection tau",10,0,10,10,0,10));
+	addHistogram(new TH1F("hpstau_trk_pt","Preselection tau matched to reco+truth; track p_{T} [GeV]; Nevents",20,0.,100.));
+    	addHistogram(new TH1F("hpstau_trk_eta","Preselection tau matched to reco+truth; track #eta; Nevents",26,-2.6,2.6));
+   	addHistogram(new TH1F("hpstau_trk_phi","Preselection tau matched to reco+truth; track #phi; Nevents",32,-3.2,3.2));
+   	addHistogram(new TH1F("hpstau_trk_d0","Preselection tau matched to reco+truth; track d0[mm]",20,-5.,5.));
+   	addHistogram(new TH1F("hpstau_trk_z0","Preselection tau matched to reco+truth; track z0[mm]",15,-200.,200.));
+   	addHistogram(new TH2F("hpstau_trk_etaphi","Preselection tau matched to reco+truth; #eta ; #phi",26,-2.6,2.6,32,-3.2,3.2));
+
+	addHistogram(new TH1F("hrecotau_trk_pt","Reco tau matched to truth; reco track p_{T} [GeV]; Nevents",20,0.,100.));
+    	addHistogram(new TH1F("hrecotau_trk_eta","Reco tau matched to truth; reco track #eta; Nevents",26,-2.6,2.6));
+   	addHistogram(new TH1F("hrecotau_trk_phi","Reco tau matched to truth; reco track #phi; Nevents",32,-3.2,3.2));
+   	addHistogram(new TH1F("hrecotau_trk_d0","Reco tau matched to truth; reco track d0[mm]",20,-5.,5.));
+   	addHistogram(new TH1F("hrecotau_trk_z0","Reco tau matched to truth; reco track z0[mm]",15,-200.,200.));
+   	addHistogram(new TH2F("hrecotau_trk_etaphi","Reco tau matched to truth; #eta ; #phi",26,-2.6,2.6,32,-3.2,3.2));
+
+	addHistogram(new TH1F("hrecotauNum_trk_pt","Reco+Truth tau matched to preselection; p_{T} [GeV]; Nevents",20,0.,100.));
+    	addHistogram(new TH1F("hrecotauNum_trk_eta","Reco+Truth tau matched to preselection; #eta; Nevents",26,-2.6,2.6));
+   	addHistogram(new TH1F("hrecotauNum_trk_phi","Reco+Truth tau matched to preselection; #phi; Nevents",32,-3.2,3.2));
+   	addHistogram(new TH1F("hrecotauNum_trk_d0","Reco+Truth tau matched to preselection; d0[mm]",20,-5.,5.));
+   	addHistogram(new TH1F("hrecotauNum_trk_z0","Reco+Truth tau matched to preselection; z0[mm]",15,-200.,200.));
+   	addHistogram(new TH2F("hrecotauNum_trk_etaphi","Reco+Truth tau matched to preselection; #eta ; #phi",26,-2.6,2.6,32,-3.2,3.2));
+	
+	addHistogram(new TH1F("hpstau_trkres_pt","Preselection track Resolution wrt reco;track pt resolution;Nevents",40,-0.4,0.4));
+        addHistogram(new TH1F("hpstau_trkres_eta","Preselection track Resolution wrt reco;track #eta resolution;Nevents",40,-0.4,0.4));
+        addHistogram(new TH1F("hpstau_trkres_phi","Preselection track Resolution wrt reco;track #phi resolution;Nevents",40,-0.4,0.4));
+        addHistogram(new TH1F("hpstau_trkres_d0","Preselection track Resolution wrt reco;track d0 resolution;Nevents",40,-0.4,0.4));
+        addHistogram(new TH1F("hpstau_trkres_z0","Preselection track Resolution wrt reco;track z0 resolution;Nevents",40,-0.4,0.4));  
+
+	addHistogram(new TH2F("hpstautrk_vs_recotrk_pt","Preselection Vs Reco tracks; Preselection track p_{T} [GeV]; Reco track p_{T}",20,0.,100.,20,0.,100.));
+    	addHistogram(new TH2F("hpstautrk_vs_recotrk_eta","Preselection Vs Reco tracks; Preselection track  #eta; Reco track #eta",26,-2.6,2.6,26,-2.6,2.6));
+   	addHistogram(new TH2F("hpstautrk_vs_recotrk_phi","Preselection Vs Reco tracks; Preselection track  #phi; Reco track #phi",32,-3.2,3.2,26,-2.6,2.6));
+   	addHistogram(new TH2F("hpstautrk_vs_recotrk_d0","Preselection Vs Reco tracks; Preselection track d0[mm]; Reco track",20,-5.,5.,20,-5.,5.));
+   	addHistogram(new TH2F("hpstautrk_vs_recotrk_z0","Preselection Vs Reco tracks; Preselection track z0[mm]; Reco track",15,-200.,200.,15,-200.,200.));
+
+	addHistogram(new TH1F("hpstau_trkeff_pt","Preselection Vs Reco Track Efficiency; Reco track p_{T} [GeV]; Efficiency",20,0.,100.));
+    	addHistogram(new TH1F("hpstau_trkeff_eta","Preselection Vs Reco Track Efficiency; Reco track #eta; Efficiency",26,-2.6,2.6));
+   	addHistogram(new TH1F("hpstau_trkeff_phi","Preselection Vs Reco Track Efficiency; Reco track #phi; Efficiency",32,-3.2,3.2));
+   	addHistogram(new TH1F("hpstau_trkeff_d0","Preselection Vs Reco Track Efficiency; Reco track d0[mm]; Efficiency",20,-5.,5.));
+   	addHistogram(new TH1F("hpstau_trkeff_z0","Preselection Vs Reco Track Efficiency; Reco track z0[mm]; Efficiency",15,-200.,200.));
+
+   	addProfile(new TProfile("TProfPresVsRecoPtEfficiency","Preselection Vs Reco Track Efficiency; Reco track p_{T} [GeV]; Efficiency",20,0.,100.));
+	addProfile(new TProfile("TProfPresVsRecoEtaEfficiency","Preselection Vs Reco Track Efficiency; Reco track #eta; Efficiency",26,-2.6,2.6));
+	addProfile(new TProfile("TProfPresVsRecoPhiEfficiency","Preselection Vs Reco Track Efficiency; Reco track #phi; Efficiency",32,-3.2,3.2));
+	addProfile(new TProfile("TProfPresVsRecod0Efficiency","Preselection Vs Reco Track Efficiency; Reco track d0[mm]; Efficiency",20,-5.,5.));
+	addProfile(new TProfile("TProfPresVsRecoz0Efficiency","Preselection Vs Reco Track Efficiency; Reco track z0[mm]; Efficiency",15,-200.,200.));
+      }
+
+	
     
 }
 
@@ -726,100 +815,11 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     
     if(m_RealZtautauEff)
     {
-        const int nbin_pt = 13;
-        double bins_pt[nbin_pt] = {10.,20.,25.,30.,35.,40.,45.,50.,60.,70.,100.,150.,200.};
-        const int nbin_eta = 9;
-        double bins_eta[nbin_eta] = {-2.47,-1.52,-1.37,-0.69,0.,0.69,1.37,1.52,2.47};
+        const int nbin_pt = 11;
+	double bins_pt[nbin_pt] = {10.,20.,25.,30.,35.,40.,45.,50.,60.,70.,100.};
         
-        addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/RealZtautauEff",run) );
-        setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff");        
-        addHistogram(new TH1F("hRealBSTauPt",";Before selection Offline #tau p_{T} [GeV];",100,0,200));
-        addHistogram(new TH1F("hRealBSTauEta",";Before selection Offline #tau #eta;",12,-2.5,2.5));
-        addHistogram(new TH1F("hRealBSTauPhi",";Before selection Offline #tau #phi;",16,-3.2,3.2));
-        addHistogram(new TH1F("hRealBSTauNTrack",";Before selection Number of #tau tracks;",10,0,10));
-        addHistogram(new TH1F("hRealCandTau",";Before selection Total Number of Offline #taus;",10,0,10));
-        addHistogram(new TH1F("hRealASTauPt",";After selection Offline #tau p_{T} [GeV];",100,0,200));
-        addHistogram(new TH1F("hRealASTauEta"," ;After selection Offline #tau #eta;",12,-2.5,2.5));
-        addHistogram(new TH1F("hRealASTauPhi",";After selection Offline #tau #phi;",16,-3.2,3.2));
-        addHistogram(new TH1F("hRealASTauNTrack",";After selection Number of #tau tracks;",10,0,10));
-        addHistogram(new TH1F("hRealSelectedTau",";After selection Number of Offline #taus;",10,0,10));
-        
-        addHistogram(new TH1F("hRealTauMu",";Number of Selected taus for selected muon;",10,0,10));
-        addHistogram(new TH1F("hRealMuTau",";Number of Selected muons for selected tau;",10,0,10));
-        
-        addHistogram(new TH1F("hRealBSMuPt",";Before selection Offline #mu p_{T} [GeV];",100,0,200));
-        addHistogram(new TH1F("hRealBSMuEta",";Before selection Offline #mu #eta;",12,-2.5,2.5));
-        addHistogram(new TH1F("hRealBSMuPhi",";Before selection Offline #mu #phi;",16,-3.2,3.2));
-        addHistogram(new TH1F("hRealCandMu",";Before selection Total Number of Offline #mu;",10,0,10));
-        addHistogram(new TH1F("hRealASMuPt",";After selection Offline #mu p_{T} [GeV];",100,0,200));
-        addHistogram(new TH1F("hRealASMuEta",";After selection Offline #mu #eta;",12,-2.5,2.5));
-        addHistogram(new TH1F("hRealASMuPhi",";After selection Offline #mu #phi;",16,-3.2,3.2));
-        addHistogram(new TH1F("hRealSelectedMu",";After selection Number of Offline #mu;",10,0,10));
-        
-        //MET
-        addHistogram(new TH1F("hRealMET",";E^{Miss}_{T} [GeV];",50,0,120));
-        
-        //tau >=1, mu == 1 Vars
-        addHistogram(new TH1F("hRealTauPt",";Offline #tau p_{T} [GeV];",nbin_pt-1,bins_pt));
-        addHistogram(new TH1F("hRealTauEta",";Offline #tau #eta;",nbin_eta-1,bins_eta));
-        addHistogram(new TH1F("hRealTauPhi",";Offline #tau #phi;",16,-3.2,3.2));
-        addHistogram(new TH1F("hRealTauNTrack",";Number of #tau tracks;",10,0,10));
-        addHistogram(new TH1F("hRealTauCharge",";Offline #tau Charge;",11,-5.5,5.5));
-        addHistogram(new TH1F("hRealMuPt",";Offline #mu p_{T} [GeV];",nbin_pt-1,bins_pt));
-        addHistogram(new TH1F("hRealMuEta",";Offline #mu #eta;",nbin_eta-1,bins_eta));
-        addHistogram(new TH1F("hRealMuPhi",";Offline #mu #phi;",16,-3.2,3.2));
-        addHistogram(new TH1F("hRealMuCharge",";Offline #mu Charge;",11,-5.5,5.5));
-        addHistogram(new TH1F("hRealTauMuCosdPhi",";Cos#Delta#phi;",16,-2,2));
-        addHistogram(new TH1F("hRealMETMuTransMass",";m_{T}(#mu, E^{miss}_{T}) [GeV];",100,0,140));
-        addHistogram(new TH1F("hRealTauMuVisMass",";m_{vis}(#mu, #tau_{h}) [GeV];",100,0,140));
-        addHistogram(new TH1F("hRealTauMuDPhi",";#mu #tau #Delta#phi;",16,-3.2,3.2));
-        addHistogram(new TH1F("hRealTauMuCharge",";Offline #tau+#mu Charge;",11,-5.5,5.5));
-        
-        CutItems.clear();
-        TauCutFlow.clear();
-        MuCutFlow.clear();
-        
-        TauCutFlow.push_back("No Cut");
-        TauCutFlow.push_back("Tau Pt");
-        TauCutFlow.push_back("Tau Eta");
-        TauCutFlow.push_back("Tau Ntrack");
-        TauCutFlow.push_back("Tau Charge");
-        TauCutFlow.push_back("Tau JetBDTSigMedium");
-        
-        MuCutFlow.push_back("No Cut");
-        MuCutFlow.push_back("Mu Pt");
-        MuCutFlow.push_back("Mu Eta");
-        MuCutFlow.push_back("Author MuIdCo");
-        MuCutFlow.push_back("Quality cuts on CB #mu tracks");
-        MuCutFlow.push_back("EtCone20Rel");
-        MuCutFlow.push_back("PtCone20Rel");
-        
-        CutItems.push_back("No Cut");
-        CutItems.push_back("Selected Tau");
-        CutItems.push_back("Selected Mu");
-        CutItems.push_back("Selected #tau+#mu");
-        CutItems.push_back("#tau+#mu Charge");
-        CutItems.push_back("#tau+#mu Vis Mass");
-        CutItems.push_back("#tau #mu #Delta#phi");
-        
-        addHistogram(new TH1F("hCutFlow","; ;Events",CutItems.size(),0,CutItems.size()));
-        addHistogram(new TH1F("hTauCutFlow","; ;Events",TauCutFlow.size(),0,TauCutFlow.size()));
-        addHistogram(new TH1F("hMuCutFlow","; ;Events",MuCutFlow.size(),0,MuCutFlow.size()));
-        
-        for(unsigned int i=0;i<CutItems.size(); ++i)
-        {
-            hist("hCutFlow")->GetXaxis()->SetBinLabel(i+1,CutItems.at(i).c_str());
-        }
-        for(unsigned int i=0;i<TauCutFlow.size(); ++i)
-        {
-            hist("hTauCutFlow")->GetXaxis()->SetBinLabel(i+1,TauCutFlow.at(i).c_str());
-        }
-        for(unsigned int i=0;i<MuCutFlow.size(); ++i)
-        {
-            hist("hMuCutFlow")->GetXaxis()->SetBinLabel(i+1,MuCutFlow.at(i).c_str());
-        }
-        
-        for(unsigned int i=0;i<m_trigItems.size();++i){
+	for(unsigned int i=0;i<m_trigItems.size();++i)
+	  {
             addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/RealZtautauEff/"+m_trigItems[i],run) );
             setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+m_trigItems[i]);
             addHistogram(new TH1F("hRealZttPtDenom","Offline Real Tau;Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
@@ -827,7 +827,9 @@ void HLTTauMonTool::bookHistogramsAllItem(){
             addHistogram(new TH1F("hRealZttHLTPtNum","HLT vs Offline Real Tau; Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hRealZttL1PtEfficiency","L1 vs Offline Real Tau Efficiency; Offline Tau p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hRealZttHLTPtEfficiency","HLT vs Offline Real Tau Efficiency; Offline Tau p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
-        }
+	    addProfile(new TProfile("TProfRealZttL1PtEfficiency", "L1 Vs Offline Real Tau Efficiency; Offline Tau p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+            addProfile(new TProfile("TProfRealZttHLTPtEfficiency", "HLT Vs Offline Real Tau Efficiency; Offline Tau p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+	  }
     }
     
     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert",run));
@@ -845,15 +847,30 @@ void HLTTauMonTool::bookHistogramsAllItem(){
         hist("hHLTCountsDebug")->GetXaxis()->SetBinLabel(i+1,m_trigItems.at(i).c_str());
     }
     
-    if(m_doTestTracking){
+    /*if(m_doTestTracking){
         addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/FTF_track_comparison",run));
         setCurrentMonGroup("HLT/TauMon/Expert/FTF_track_comparison");
         addHistogram(new TH1F("hFTFnTrack_1step","FTF number of tracks;number of tracks;Nevents",10,0,10));
         addHistogram(new TH1F("hFTFnTrack_2steps","FTF number of tracks;number of tracks;Nevents",10,0,10));
         addHistogram(new TH1F("hFTFnWideTrack_1step","FTF number of tracks;number of tracks;Nevents",10,0,10));
         addHistogram(new TH1F("hFTFnWideTrack_2steps","FTF number of tracks;number of tracks;Nevents",10,0,10));
-    }
-    
+    }*/
+    if(m_dijetFakeTausEff)
+      {
+        const int nbin_pt = 17;
+        double bins_pt[nbin_pt] = {380, 385, 390, 395, 400, 405, 410, 415, 420, 430, 440, 450, 460, 470, 480, 490, 500};
+       
+	for(unsigned int i=0;i<m_trigItemsHighPt.size();++i){
+          addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/dijetFakeTausEff/"+m_trigItemsHighPt[i],run) );
+	  setCurrentMonGroup("HLT/TauMon/Expert/dijetFakeTausEff/"+m_trigItemsHighPt[i]);
+          addHistogram(new TH1F("hdijetFakeTausPtDenom","Offline Fake Tau;Offline Fake Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
+          addHistogram(new TH1F("hdijetFakeTausL1PtNum","L1 vs Offline Fake Tau; Offline Fake Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
+          addHistogram(new TH1F("hdijetFakeTausHLTPtNum","HLT vs Offline Fake Tau; Offline Fake Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
+          addHistogram(new TH1F("hdijetFakeTausL1PtEfficiency","L1 vs Offline Fake Tau Efficiency; Offline Fake Tau p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+          addHistogram(new TH1F("hdijetFakeTausHLTPtEfficiency","HLT vs Offline Fake Tau Efficiency; Offline Fake Tau p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+	}
+      }
+
     std::vector<string> lowest_names;
     lowest_names.push_back("lowest_singletau");
     //    lowest_names.push_back("lowest_ditau");
@@ -865,6 +882,7 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     for(unsigned int i=0;i<lowest_names.size();++i){
         
         addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/L1RoI",run));
+        addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/Emulation",run));
         addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/L1VsOffline",run));
         addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/PreselectionTau",run));
         addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/PreselectionVsOffline",run));
@@ -890,47 +908,85 @@ void HLTTauMonTool::bookHistogramsAllItem(){
 	for(unsigned int i=0;i<m_topo_chains.size(); ++i){    
             addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/TopoValidation/"+m_topo_chains.at(i),run));
             setCurrentMonGroup("HLT/TauMon/Expert/TopoValidation/"+m_topo_chains.at(i));
-	    addHistogram(new TH1F("hDR","dR between all RoIs;  DR;",32,0.,3.2));
-	    addHistogram(new TH1F("hDRjets","dR between jet and other RoIs;  DR;",32,0.,3.2));
-	    addHistogram(new TH1F("hDRnoJets","dR between non-jet RoIs;  DR;",32,0.,3.2));
-	    addHistogram(new TH1F("hDR_noTopo","dR between all RoIs;  DR;",32,0.,3.2));
+            addHistogram(new TH1F("hDR","dR between all RoIs;  DR;",32,0.,3.2));
+            addHistogram(new TH1F("hDRjets","dR between jet and other RoIs;  DR;",32,0.,3.2));
+            addHistogram(new TH1F("hDRnoJets","dR between non-jet RoIs;  DR;",32,0.,3.2));
+            addHistogram(new TH1F("hDR_noTopo","dR between all RoIs;  DR;",32,0.,3.2));
             addHistogram(new TH1F("hDRjets_noTopo","dR between jet and other RoIs;  DR;",32,0.,3.2));
-            addHistogram(new TH1F("hDRnoJets_noTopo","dR between non-jet RoIs;  DR;",32,0.,3.2)); 
+            addHistogram(new TH1F("hDRnoJets_noTopo","dR between non-jet RoIs;  DR;",32,0.,3.2));
+
+            addHistogram(new TH1F("hDRBothtaus","dR when both RoIs are taus;  DR;",35,0.,3.5));
+            addHistogram(new TH1F("hPTLeading","PT Leading Tau",50,0.,50.));
+            addHistogram(new TH1F("hPTSubLeading","PT SubLeading Tau",50,0.,50.));
+            addHistogram(new TH1F("hEtaLeading","Eta Leading Tau",70,-3.5,3.5));
+            addHistogram(new TH1F("hEtaSubLeading","Eta SubLeading Tau",70,-3.5,3.5));
+            addHistogram(new TH1F("hPhiLeading","Eta SubLeading Tau",70,-3.5,3.5));
+            addHistogram(new TH1F("hPhiSubLeading","Phi SubLeading Tau",70,-3.5,3.5));
+            addHistogram(new TH1F("hMultiTaus","Multiplicity Taus above 12 GeV",20,0.,20));
+            addHistogram(new TH1F("hMultiJets","Multiplicity Jets above 25 GeV",100,0.,100));
+            addHistogram(new TH1F("hPTLeadingJet","PT Leading Tau",50,0.,50.));
+            addHistogram(new TH1F("hPTSubLeadingJet","PT SubLeading Tau",50,0.,50.));
+            addHistogram(new TH1F("hEtaLeadingJet","Eta Leading Tau",70,-3.5,3.5));
+            addHistogram(new TH1F("hEtaSubLeadingJet","Eta SubLeading Tau",70,-3.5,3.5));
+            addHistogram(new TH1F("hPhiLeadingJet","Eta SubLeading Tau",70,-3.5,3.5));
+            addHistogram(new TH1F("hPhiSubLeadingJet","Phi SubLeading Tau",70,-3.5,3.5));
+            addHistogram(new TH1F("hMultiTausJet","Multiplicity Taus above 12 GeV",20,0.,20));
+            addHistogram(new TH1F("hMultiJetsJet","Multiplicity Jets above 25 GeV",100,0.,100));
+
+            addHistogram(new TH1F("hDRBothtausJet","dR when both RoIs are taus;  DR;",35,0.,3.5));
+            addHistogram(new TH1F("hDRBothtausJetN","dR when both RoIs are taus;  DR;",35,0.,3.5));
+
+            addHistogram(new TH1F("hDisambiguation","Flag Disambiguation",6,0.,6.));
+
+            addHistogram(new TH1F("hDRBothtaus_noTopo","dR when both RoIs are taus;  DR;",35,0.,3.5));
+            addHistogram(new TH1F("hDRBothtausJet_noTopo","dR when both RoIs are taus;  DR;",35,0.,3.5));
+            addHistogram(new TH1F("hDRBothtausJetN_noTopo","dR when both RoIs are taus;  DR;",35,0.,3.5));
 	}
     }
     
     if(m_emulation){
         addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/Emulation",run));
         setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
-        addHistogram(new TH1F("hL1EmulationPassTDT","; TDT passed events;",m_emulation_l1_tau.size(),-0.5,m_emulation_l1_tau.size()-0.5));
-        addHistogram(new TH1F("hHLTEmulationPassTDT"," TDT passed events;",m_emulation_hlt_tau.size(),-0.5,m_emulation_hlt_tau.size()-0.5));
-        addHistogram(new TH1F("hL1EmulationPassEmul"," Emualtion passed events;",m_emulation_l1_tau.size(),-0.5,m_emulation_l1_tau.size()-0.5));
-        addHistogram(new TH1F("hHLTEmulationPassEmul"," Emulation passed events;",m_emulation_hlt_tau.size(),-0.5,m_emulation_hlt_tau.size()-0.5));
-        addHistogram(new TH1F("hL1Emulation"," Mismatched events;",m_emulation_l1_tau.size(),-0.5,m_emulation_l1_tau.size()-0.5));
-        addHistogram(new TH1F("hHLTEmulation"," Mismatched events;",m_emulation_hlt_tau.size(),-0.5,m_emulation_hlt_tau.size()-0.5));
-        for(unsigned int i=0;i<m_emulation_l1_tau.size(); ++i){
-            hist("hL1Emulation")->GetXaxis()->SetBinLabel(i+1,m_emulation_l1_tau.at(i).c_str());
-            hist("hL1EmulationPassTDT")->GetXaxis()->SetBinLabel(i+1,m_emulation_l1_tau.at(i).c_str());
-            hist("hL1EmulationPassEmul")->GetXaxis()->SetBinLabel(i+1,m_emulation_l1_tau.at(i).c_str());
+        if(m_emulation_l1_tau.size() > 0) {
+            addHistogram(new TH1F("hL1EmulationPassTDT", " TDT L1 passed events;", m_emulation_l1_tau.size(), -0.5, m_emulation_l1_tau.size()-0.5));
+            addHistogram(new TH1F("hL1EmulationPassEmul", " Emulation L1 passed events;", m_emulation_l1_tau.size(), -0.5, m_emulation_l1_tau.size()-0.5));
+            addHistogram(new TH1F("hL1Emulation", " L1 Emulation-TDT Mismatched events;", m_emulation_l1_tau.size(), -0.5, m_emulation_l1_tau.size()-0.5));
         }
-        for(unsigned int i=0;i<m_emulation_hlt_tau.size(); ++i){
-            hist("hHLTEmulation")->GetXaxis()->SetBinLabel(i+1,m_emulation_hlt_tau.at(i).c_str());
-            hist("hHLTEmulationPassTDT")->GetXaxis()->SetBinLabel(i+1,m_emulation_hlt_tau.at(i).c_str());
-            hist("hHLTEmulationPassEmul")->GetXaxis()->SetBinLabel(i+1,m_emulation_hlt_tau.at(i).c_str());
+
+        if(m_emulation_hlt_tau.size() > 0) {
+            addHistogram(new TH1F("hHLTEmulationPassTDT", " TDT HLT passed events;", m_emulation_hlt_tau.size(), -0.5, m_emulation_hlt_tau.size()-0.5));
+            addHistogram(new TH1F("hHLTEmulationPassEmul", " Emulation HLT passed events;", m_emulation_hlt_tau.size(), -0.5, m_emulation_hlt_tau.size()-0.5));
+            addHistogram(new TH1F("hHLTEmulation", " HLT Emulation-TDT Mismatched events;", m_emulation_hlt_tau.size(), -0.5, m_emulation_hlt_tau.size()-0.5));
+        }
+
+        for(unsigned int i=0; i < m_emulation_l1_tau.size(); ++i){
+            hist("hL1Emulation")->GetXaxis()->SetBinLabel(i+1, m_emulation_l1_tau.at(i).c_str());
+            hist("hL1EmulationPassTDT")->GetXaxis()->SetBinLabel(i+1, m_emulation_l1_tau.at(i).c_str());
+            hist("hL1EmulationPassEmul")->GetXaxis()->SetBinLabel(i+1, m_emulation_l1_tau.at(i).c_str());
+        }
+        
+        for(unsigned int i=0; i < m_emulation_hlt_tau.size(); ++i){
+            hist("hHLTEmulation")->GetXaxis()->SetBinLabel(i+1, m_emulation_hlt_tau.at(i).c_str());
+            hist("hHLTEmulationPassTDT")->GetXaxis()->SetBinLabel(i+1, m_emulation_hlt_tau.at(i).c_str());
+            hist("hHLTEmulationPassEmul")->GetXaxis()->SetBinLabel(i+1, m_emulation_hlt_tau.at(i).c_str());
         }
     }
     const int nbin_pt = 13;
     double bins_pt[nbin_pt] = {10.,20.,25.,30.,35.,40.,45.,50.,60.,70.,100.,150.,200.};
+    double hbins_pt[nbin_pt] = {10.,25.,35.,65.,70.,100.,200., 250., 300., 350.,  400., 500., 600.};
     const int nbin_eta = 9;
     double bins_eta[nbin_eta] = {-2.47,-1.52,-1.37,-0.69,0.,0.69,1.37,1.52,2.47};
     const int nbin_nvtx = 6;
     double bins_nvtx[nbin_nvtx] = {0.,5.,10.,15.,20.,25.};
-    const int nbin_mu = 21;
-    float bins_mu[nbin_mu] = {0.,2.,4.,6.,8.,10.,12.,14.,16.,18.,20.,22.,24.,26.,28.,30.,32.,34.,36.,38.,40.};
+    const int nbin_mu = 33;
+    float bins_mu[nbin_mu] = {0.,2.,4.,6.,8.,10.,12.,14.,16.,18.,20.,22.,24.,26.,28.,30.,32.,34.,36.,38.,40., 42., 44., 44., 46., 48., 50., 52., 54., 56., 58., 60., 62};
+    //    const int nbin_mu = 21;
+    //    float bins_mu[nbin_mu] = {0.,2.,4.,6.,8.,10.,12.,14.,16.,18.,20.,22.,24.,26.,28.,30.,32.,34.,36.,38.,40.};
 
     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/HLTefficiency",run));
     setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
     addProfile(new TProfile("TProfRecoHLT25PtEfficiency", "idperf_tracktwo Vs perf_tracktwo;  p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+    addProfile(new TProfile("TProfRecoHLT160PtEfficiency", "idperf_tracktwo Vs perf_tracktwo;  p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
     addProfile(new TProfile("TProfRecoHLT25Pt1PEfficiency", "idperf_tracktwo Vs perf_tracktwo;  1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
     addProfile(new TProfile("TProfRecoHLT25Pt3PEfficiency", "idperf_tracktwo Vs perf_tracktwo; 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
     addProfile(new TProfile("TProfRecoHLT25EtaEfficiency", "idperf_tracktwo Vs perf_tracktwo;  #eta; Efficiency",nbin_eta-1,bins_eta));
@@ -940,6 +996,7 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     addProfile(new TProfile("TProfRecoHLT25MuEfficiency", "idperf_tracktwo Vs perf_tracktwo; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
     
     addProfile(new TProfile("TProfRecoHLT25PtEfficiency_2", "perf_tracktwo Vs medium1_tracktwo; p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+    addProfile(new TProfile("TProfRecoHLT160PtEfficiency_2", "perf_tracktwo Vs medium1_tracktwo; p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
     addProfile(new TProfile("TProfRecoHLT25Pt1PEfficiency_2", "perf_tracktwo Vs medium1_tracktwo; 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
     addProfile(new TProfile("TProfRecoHLT25Pt3PEfficiency_2", "perf_tracktwo Vs medium1_tracktwo;  3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
     addProfile(new TProfile("TProfRecoHLT25EtaEfficiency_2", "perf_tracktwo Vs medium1_tracktwo;  #eta; Efficiency",nbin_eta-1,bins_eta));
@@ -947,9 +1004,11 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     addProfile(new TProfile("TProfRecoHLT25NTrackEfficiency_2", "perf_tracktwo Vs medium1_tracktwo; Number of tracks; Efficiency",10,0,10));
     addProfile(new TProfile("TProfRecoHLT25NVtxEfficiency_2", "perf_tracktwo Vs medium1_tracktwo; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
     addProfile(new TProfile("TProfRecoHLT25MuEfficiency_2", "perf_tracktwo Vs medium1_tracktwo; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
-    
-    
-    addHistogram(new TH1F("hRecoHLT25PtNum","idperf_tracktwo Vs perf_tracktwo; p_{T} [GeV];",nbin_pt-1,bins_pt));
+
+
+    addProfile(new TProfile("TProfRecoL1_J25PtEfficiency", "TAU20IM_2TAU12IM_3J25_2J20_3J12 vs TAU20IM_2TAU12IM ; p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));    
+
+/*    addHistogram(new TH1F("hRecoHLT25PtNum","idperf_tracktwo Vs perf_tracktwo; p_{T} [GeV];",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoHLT25Pt1PNum","idperf_tracktwo Vs perf_tracktwo;  1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoHLT25Pt3PNum","idperf_tracktwo Vs perf_tracktwo;  3 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoHLT25EtaNum","idperf_tracktwo Vs perf_tracktwo; #eta;",nbin_eta-1,bins_eta));
@@ -957,8 +1016,9 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     addHistogram(new TH1F("hRecoHLT25NTrackNum","idperf_tracktwo Vs perf_tracktwo; Number of tracks;",10,0,10));
     addHistogram(new TH1F("hRecoHLT25NVtxNum","idperf_tracktwo Vs perf_tracktwo; Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
     addHistogram(new TH1F("hRecoHLT25MuNum","idperf_tracktwo Vs perf_tracktwo; Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
+*/
     addHistogram(new TH2F("hRecoHLT25EtaVsPhiNum","idperf_tracktwo Vs perf_tracktwo; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
-    addHistogram(new TH1F("hRecoTau25PtDenom","; p_{T} [GeV];",nbin_pt-1,bins_pt));
+/*    addHistogram(new TH1F("hRecoTau25PtDenom","; p_{T} [GeV];",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoTau25Pt1PDenom","; 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoTau25Pt3PDenom","; 3 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoTau25EtaDenom","; #eta;",nbin_eta-1,bins_eta));
@@ -966,8 +1026,9 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     addHistogram(new TH1F("hRecoTau25NTrackDenom","; Number of tracks;",10,0,10));
     addHistogram(new TH1F("hRecoTau25NVtxDenom","; Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
     addHistogram(new TH1F("hRecoTau25MuDenom","; Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
+*/
     addHistogram(new TH2F("hRecoTau25EtaVsPhiDenom","; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
-    addHistogram(new TH1F("hRecoHLT25PtEfficiency","idperf_tracktwo Vs perf_tracktwo Efficiency;  p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+/*    addHistogram(new TH1F("hRecoHLT25PtEfficiency","idperf_tracktwo Vs perf_tracktwo Efficiency;  p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoHLT25Pt1PEfficiency","idperf_tracktwo Vs perf_tracktwo Efficiency; 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoHLT25Pt3PEfficiency","idperf_tracktwo Vs perf_tracktwo Efficiency; 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoHLT25EtaEfficiency","idperf_tracktwo Vs perf_tracktwo Efficiency;  #eta; Efficiency",nbin_eta-1,bins_eta));
@@ -975,12 +1036,11 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     addHistogram(new TH1F("hRecoHLT25NTrackEfficiency","idperf_tracktwo Vs perf_tracktwo Efficiency; Number of tracks; Efficiency",10,0,10));
     addHistogram(new TH1F("hRecoHLT25NVtxEfficiency","idperf_tracktwo Vs perf_tracktwo Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
     addHistogram(new TH1F("hRecoHLT25MuEfficiency","idperf_tracktwo Vs perf_tracktwo Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+*/
     addHistogram(new TH2F("hRecoHLT25EtaVsPhiEfficiency","idperf_tracktwo Vs perf_tracktwo in  Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
 
 
-
-
-    addHistogram(new TH1F("hRecoHLT25PtNum_2","perf_tracktwo Vs medium1_tracktwo; p_{T} [GeV];",nbin_pt-1,bins_pt));
+/*    addHistogram(new TH1F("hRecoHLT25PtNum_2","perf_tracktwo Vs medium1_tracktwo; p_{T} [GeV];",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoHLT25Pt1PNum_2","perf_tracktwo Vs medium1_tracktwo;  1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoHLT25Pt3PNum_2","perf_tracktwo Vs medium1_tracktwo;  3 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoHLT25EtaNum_2","perf_tracktwo Vs medium1_tracktwo; #eta;",nbin_eta-1,bins_eta));
@@ -988,8 +1048,9 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     addHistogram(new TH1F("hRecoHLT25NTrackNum_2","perf_tracktwo Vs medium1_tracktwo; Number of tracks;",10,0,10));
     addHistogram(new TH1F("hRecoHLT25NVtxNum_2","perf_tracktwo Vs medium1_tracktwo; Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
     addHistogram(new TH1F("hRecoHLT25MuNum_2","perf_tracktwo Vs medium1_tracktwo; Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
+*/
     addHistogram(new TH2F("hRecoHLT25EtaVsPhiNum_2","perf_tracktwo Vs medium1_tracktwo; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
-    addHistogram(new TH1F("hRecoTau25PtDenom_2","; p_{T} [GeV];",nbin_pt-1,bins_pt));
+/*    addHistogram(new TH1F("hRecoTau25PtDenom_2","; p_{T} [GeV];",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoTau25Pt1PDenom_2","; 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoTau25Pt3PDenom_2","; 3 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoTau25EtaDenom_2","; #eta;",nbin_eta-1,bins_eta));
@@ -997,8 +1058,9 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     addHistogram(new TH1F("hRecoTau25NTrackDenom_2","; Number of tracks;",10,0,10));
     addHistogram(new TH1F("hRecoTau25NVtxDenom_2","; Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
     addHistogram(new TH1F("hRecoTau25MuDenom_2","; Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
+*/
     addHistogram(new TH2F("hRecoTau25EtaVsPhiDenom_2","; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
-    addHistogram(new TH1F("hRecoHLT25PtEfficiency_2","perf_tracktwo Vs medium1_tracktwo Efficiency;  p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+/*    addHistogram(new TH1F("hRecoHLT25PtEfficiency_2","perf_tracktwo Vs medium1_tracktwo Efficiency;  p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoHLT25Pt1PEfficiency_2","perf_tracktwo Vs medium1_tracktwo Efficiency; 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoHLT25Pt3PEfficiency_2","perf_tracktwo Vs medium1_tracktwo Efficiency; 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoHLT25EtaEfficiency_2","perf_tracktwo Vs medium1_tracktwo Efficiency;  #eta; Efficiency",nbin_eta-1,bins_eta));
@@ -1006,6 +1068,6 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     addHistogram(new TH1F("hRecoHLT25NTrackEfficiency_2","perf_tracktwo Vs medium1_tracktwo Efficiency; Number of tracks; Efficiency",10,0,10));
     addHistogram(new TH1F("hRecoHLT25NVtxEfficiency_2","perf_tracktwo Vs medium1_tracktwo Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
     addHistogram(new TH1F("hRecoHLT25MuEfficiency_2","perf_tracktwo Vs medium1_tracktwo Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+*/
     addHistogram(new TH2F("hRecoHLT25EtaVsPhiEfficiency_2","perf_tracktwo Vs medium1_tracktwo in  Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
-
 }
