@@ -77,7 +77,26 @@ def GetReleaseSetup():
         
     return setup
 
-
+################################################################
+############ Does the user have a valid proxy grid certificate?
+def valid_grid_cert():
+    #    cmd = "voms-proxy-info ; echo $?"
+    cmd = "ls -rt /tmp/ | grep \"x509\" | tail -n1"
+    output,error = subprocess.Popen(['/bin/bash', '-c', cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    filename="/tmp/"+str(output.rstrip())
+    if "x509" in filename and (time.time() - os.path.getmtime(filename) < 12 * 60 * 60) :
+        print "You have a valid grid certificate proxy to run Tier0 q-tests."
+    else :
+        print "You require a valid grid certificate proxy to run Tier0 q-tests. Please run:"
+        print ""
+        print "setupATLAS"
+        print "localSetupPyAMI"
+        print "voms-proxy-init --voms atlas"
+        print ""
+        print "in this terminal or another terminal on this machine"
+        print "before attempting to run this test again"
+        sys.exit()
+    pass
 
 ###############################
 ########### List patch packages
@@ -276,6 +295,9 @@ def main():
             print "Please be aware that you are running in a base release rather than a Tier0 release, where in general q-tests are not guaranteed to work." 
 
 
+########### Does the user have a valid grid proxy
+        valid_grid_cert()
+
 ########### Define which q-tests to run
         qTestsToRun = { 
             'q221':[ 'HITtoRDO','RAWtoESD','ESDtoAOD','AODtoTAG'],          
@@ -301,7 +323,7 @@ def main():
 
 ########### Define and run jobs
         mythreads={}
-        mysetup=mysetup+",builds"
+#        mysetup=mysetup+",builds"
         print "------------------ Run Athena q-test jobs---------------"                
 
         if RunFast:
