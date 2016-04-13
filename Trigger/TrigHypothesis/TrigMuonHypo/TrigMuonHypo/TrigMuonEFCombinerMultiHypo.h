@@ -37,6 +37,7 @@ class TrigMuonEFCombinerMultiHypo: public HLT::HypoAlgo {
   std::vector<float> m_ptThresholds;
   std::vector<unsigned int> m_ptMultiplicity;  // muon multiplicity id, eg. {1,1,1,1,2,2,2,2,3,3,3,3}
   BooleanProperty m_acceptAll;
+  BooleanProperty m_rejectCBmuons;
   
   // Other members:   
   StoreGateSvc* m_storeGate;

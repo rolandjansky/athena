@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIG_TRIGMUCALOTAGHYPO_H
-#define TRIG_TRIGMUCALOTAGHYPO_H
+#ifndef TRIG_TRIGMUMULTICALOTAGHYPO_H
+#define TRIG_TRIGMUMULTICALOTAGHYPO_H
 
 #include <string>
 #include "TrigInterfaces/HypoAlgo.h"
@@ -25,8 +25,10 @@ private:
   bool m_acceptAll;
   StoreGateSvc* m_storeGate;
   
-  float m_ptMin;
+  std::vector<float> m_ptThresholds;
   float m_etaMax;
+  bool m_doLH;
+  float m_lhCut;
   bool m_doTight;
   int m_maxMissedCells;
 

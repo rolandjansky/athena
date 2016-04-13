@@ -41,6 +41,7 @@ MucombStauHypo::MucombStauHypo(const std::string & name, ISvcLocator* pSvcLocato
     declareMonitoredVariable("IDMass", m_id_mass);
 
     m_storeGate = 0;
+    m_bins = 0;
 }
 
 MucombStauHypo::~MucombStauHypo(){
@@ -242,16 +243,16 @@ HLT::ErrorCode  MucombStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
 	  {
 	        
 	    double theta = 2.*atan(exp(-pMuon->eta())); 
-	    double pCand = fabsf(pMuon->ptq())/sin(theta);
+	    double pCand = std::abs(pMuon->ptq())/sin(theta);
 	    double BetaCand = pMuonFeature->beta();
 	    mCand = pCand * sqrt(1.-BetaCand*BetaCand)/BetaCand; 
 	    m_id_mass = mCand; 
             m_fex_beta = BetaCand;
-	    if (mCand >m_mMin && BetaCand<m_betaMax &&  fabsf(pMuon->ptq()/1000.) > (threshold/CLHEP::GeV))
+	    if (mCand >m_mMin && BetaCand<m_betaMax &&  std::abs(pMuon->ptq()/1000.) > (threshold/CLHEP::GeV))
 	      result = true;
 	  } 
 	else
-	  if ( fabsf(pMuon->ptq()/1000.) > (threshold/CLHEP::GeV) ){
+	  if ( std::abs(pMuon->ptq()/1000.) > (threshold/CLHEP::GeV) ){
 	    result = true;
 	  }
       }

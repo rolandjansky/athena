@@ -12,6 +12,7 @@ class ISvcLocator;
 TrigMuonEFCombinerHypo::TrigMuonEFCombinerHypo(const std::string & name, ISvcLocator* pSvcLocator):
 	HLT::HypoAlgo(name, pSvcLocator){
 	declareProperty("AcceptAll", m_acceptAll=true);
+	declareProperty("RejectCBmuons", m_rejectCBmuons=false);
 	std::vector<float> def_bins;
 	def_bins.push_back(0);
 	def_bins.push_back(9.9);
@@ -85,7 +86,7 @@ HLT::ErrorCode TrigMuonEFCombinerHypo::hltExecute(const HLT::TriggerElement* out
 
 	bool result = false;
 	bool debug = msgLvl() <= MSG::DEBUG;
-
+	if(m_rejectCBmuons) result=true;
 	// Some debug output:
 	if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
 
@@ -102,7 +103,7 @@ HLT::ErrorCode TrigMuonEFCombinerHypo::hltExecute(const HLT::TriggerElement* out
 	unsigned int j=0;
 	for(auto muon : *muonContainer) {
 
-	  msg() << MSG::DEBUG << "Looking at muon " << j << endreq;
+	  msg() << MSG::DEBUG << "Looking at muon " << j++ << endreq;
 	  const xAOD::Muon::MuonType muontype = muon->muonType();
 	  if(muontype == xAOD::Muon::MuonType::Combined || muontype == xAOD::Muon::MuonType::SegmentTagged ) { // combined or segment tagged muon
 
@@ -123,14 +124,29 @@ HLT::ErrorCode TrigMuonEFCombinerHypo::hltExecute(const HLT::TriggerElement* out
 	    for (std::vector<float>::size_type k=0; k<m_bins; ++k) {
 	      if (absEta > m_ptBins[k] && absEta <= m_ptBins[k+1]) threshold = m_ptThresholds[k];
 	    }
+	    bool hypo_ok = false;
 	    if (fabs(muon->pt())/CLHEP::GeV > (threshold/CLHEP::GeV)){
 	      result = true;
+	      hypo_ok = true;
+	      if(m_rejectCBmuons && muontype == xAOD::Muon::MuonType::Combined){
+		result = false;
+		hypo_ok = false;
+	      }
+	      else{
+		result = true;
+		hypo_ok=true;
+	      }
 	    }
 	    if(debug) msg() << MSG::DEBUG << " REGTEST muon pt is " << muon->pt()/CLHEP::GeV << " CLHEP::GeV "
 			//<< " with Charge " << muon->Charge()
 			    << " and threshold cut is " << threshold/CLHEP::GeV << " CLHEP::GeV"
-			    << " so hypothesis is " << (result?"true":"false") << endreq;
+			    << " so hypothesis is " << (hypo_ok?"true":"false") << endreq;
 	  }//combined or segment tagged muon
+	  else{
+	    if(m_rejectCBmuons){
+	      result = true;
+	    }
+	  }
 	}//loop on muons		     		
        
 	pass = result;

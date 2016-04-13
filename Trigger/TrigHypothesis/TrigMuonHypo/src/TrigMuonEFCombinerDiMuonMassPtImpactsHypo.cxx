@@ -25,8 +25,7 @@ class ISvcLocator;
 // --------------------------------------------------------------------------------
 
 
-const double TrigMuonEFCombinerDiMuonMassPtImpactsHypo::pi = 3.14159265358979323846;
-const double TrigMuonEFCombinerDiMuonMassPtImpactsHypo::mumass = 0.1056583715; // in GeV
+const double TrigMuonEFCombinerDiMuonMassPtImpactsHypo::MUMASS = 0.1056583715; // in GeV
 const double TrigMuonEFCombinerDiMuonMassPtImpactsHypo::MASS_ZERO_LIMIT = 1e-12;
   
 
@@ -109,11 +108,15 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
   if(debug) msg() << MSG::DEBUG << "in hltExecute : " << name() << endreq;
 
   // reset monitoring variables
-  m_mon_nMuons.clear();
-  m_mon_invMass.clear();
-  m_mon_muonDeltaZ.clear();
-  m_mon_muonDeltaPhi.clear();
-  m_mon_dimuonPt.clear();
+  bool doMonitor = true;
+  if(doMonitor){
+    beforeExecMonitors().ignore();
+    m_mon_nMuons.clear();
+    m_mon_invMass.clear();
+    m_mon_muonDeltaZ.clear();
+    m_mon_muonDeltaPhi.clear();
+    m_mon_dimuonPt.clear();
+  }
   
   // ---
   // collect all TEs and create output TEs with ActiveState=true
@@ -168,6 +171,7 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
 
   if( n_allTEs <= 1 ) {
     if(debug) msg() << MSG::DEBUG << "nr of TEs <= 1, exitting with all TEs active" << endreq;
+    if(doMonitor)afterExecMonitors().ignore();
     return HLT::OK;
   }
   
@@ -193,6 +197,7 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
   
   if( errorWhenGettingELs ) {
     msg() << MSG::WARNING << "error when getting ELs. exitting with all TEs active..." << endreq;
+    if(doMonitor)afterExecMonitors().ignore();
     return HLT::ErrorCode(HLT::Action::CONTINUE,HLT::Reason::NAV_ERROR);
   }
   
@@ -266,26 +271,24 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
 	      if(debug) msg() << MSG::DEBUG << "trk1_eta=" << trk1_eta << " trk2_eta=" << trk2_eta << endreq;
 	      if(debug) msg() << MSG::DEBUG << "trk1_phi=" << trk1_phi << " trk2_phi=" << trk2_phi << endreq;
 	      if(debug) msg() << MSG::DEBUG << "trk1_z0=" << trk1_z0 <<   " trk2_z0=" << trk2_z0 << endreq;
-	      if( fabs(trk1_pt - trk2_pt)<0.001 &&
-		  fabs(trk1_eta - trk2_eta)<0.001 &&
-		  fabs(trk1_phi - trk2_phi)<0.001 &&
-		  fabs(trk1_z0 - trk2_z0)<0.001 ){
-		if (debug) msg() << MSG::DEBUG << "failed: muon1 = muon2" << endreq;
-		continue;
-	      }
 
-	      double deltaPhi = fabs(trk1_phi - trk2_phi);
-	      while(deltaPhi>pi)  deltaPhi -= 2.0 * pi;
-	      while(deltaPhi<-pi) deltaPhi += 2.0 * pi;
+
+	      double deltaPhi = trk1_phi - trk2_phi;
+	      while(deltaPhi>M_PI)  deltaPhi -= 2.0 * M_PI;
+	      while(deltaPhi<-M_PI) deltaPhi += 2.0 * M_PI;
+	      deltaPhi = fabs( deltaPhi );
 	      double deltaZ0 = fabs(trk1_z0 - trk2_z0);
 	      double ptsum = pairPt(trk1_pt,trk1_phi,trk2_pt,trk2_phi);
 	      double mass = invMass(trk1_pt,trk1_eta,trk1_phi,trk2_pt,trk2_eta,trk2_phi);
 	      
-	      m_mon_invMass.push_back(mass);
-	      m_mon_muonDeltaZ.push_back(deltaZ0);
-	      m_mon_muonDeltaPhi.push_back(deltaPhi);
-	      m_mon_dimuonPt.push_back(ptsum);
-	      
+	      if( fabs(trk1_pt - trk2_pt)<0.001 &&
+		  fabs(trk1_eta - trk2_eta)<0.001 &&
+		  deltaPhi<0.001 &&
+		  deltaZ0<0.001 ){
+		if (debug) msg() << MSG::DEBUG << "failed: muon1 = muon2" << endreq;
+		continue;
+	      }
+	      	      
 	      if(debug) msg() << MSG::DEBUG << "      delta z0=" << deltaZ0 << endreq;
 	      if(debug) msg() << MSG::DEBUG << "      delta phi=" << deltaPhi << endreq;
 	      if(debug) msg() << MSG::DEBUG << "      dimuon pt=" << ptsum << endreq;
@@ -299,12 +302,15 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
 	      if(debug) msg() << MSG::DEBUG << "      mass threshold low(GeV)    : " << m_massThresLow << endreq;
 	      if(debug) msg() << MSG::DEBUG << "      mass threshold high(GeV)   : " << m_massThresHigh << endreq;
 	      
+	      /////////////////////////////////////////////////////////////////
+	      if(doMonitor)m_mon_muonDeltaZ.push_back(deltaZ0);
 	      if( m_deltaZThres >= 0 && deltaZ0 > m_deltaZThres ) {
 		if(debug) msg() << MSG::DEBUG << "      -> delta z0 cut failed" << endreq;
 		continue;
 	      }
 	      if(debug) msg() << MSG::DEBUG << "      -> delta z0 cut passed" << endreq;
-	      
+	      /////////////////////////////////////////////////////////////////	      
+	      if(doMonitor)m_mon_muonDeltaPhi.push_back(deltaPhi);
 	      if( m_deltaPhiThresLow >= 0 && deltaPhi < m_deltaPhiThresLow ) {
 		if(debug) msg() << MSG::DEBUG << "      -> delta phi Low  cut failed" << endreq;
 		continue;
@@ -314,7 +320,8 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
 		continue;
 	      }
 	      if(debug) msg() << MSG::DEBUG << "      -> delta phi cut passed" << endreq;
-	      
+	      /////////////////////////////////////////////////////////////////	      
+	      if(doMonitor)m_mon_dimuonPt.push_back(ptsum);
 	      if( m_pairptThresLow >= 0 && ptsum < m_pairptThresLow ) {
 		if(debug) msg() << MSG::DEBUG << "      -> pair pt Low cut failed" << endreq;
 		continue;
@@ -324,7 +331,8 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
 		continue;
 	      }
 	      if(debug) msg() << MSG::DEBUG << "      -> pair pT cut passed" << endreq;
-	      
+	      /////////////////////////////////////////////////////////////////	      
+	      if(doMonitor)m_mon_invMass.push_back(mass);
 	      if( m_massThresLow >= 0 && mass < m_massThresLow ){
 		if(debug) msg() << MSG::DEBUG << "      -> dimuon mass Low cut failed" << endreq;
 		continue;
@@ -335,6 +343,8 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
 		continue;
 	      }
 	      if(debug) msg() << MSG::DEBUG << "      -> dimuon mass High passed" << endreq;
+	      /////////////////////////////////////////////////////////////////
+
 	      if(debug) msg() << MSG::DEBUG << "      -> passing dimuon selection" << endreq;
 	      
 	      n_pair_passed++;
@@ -347,7 +357,7 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
     }
   }
 
-  m_mon_nMuons.push_back(n_cb_muons);
+  if(doMonitor)m_mon_nMuons.push_back(n_cb_muons);
   
   
   if( ok_TEs.size() == 1 ) {
@@ -363,6 +373,7 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
     }
   }
 
+  if(doMonitor)afterExecMonitors().ignore();
   return HLT::OK;
 }  
 
@@ -381,12 +392,12 @@ double TrigMuonEFCombinerDiMuonMassPtImpactsHypo::invMass(double pt1, double eta
   double px1    = fpt1*cos(phi1);
   double py1    = fpt1*sin(phi1);
   double pz1    = fpt1/tan(theta1);
-  double  e1    = sqrt(px1*px1+py1*py1+pz1*pz1+mumass*mumass);
+  double  e1    = sqrt(px1*px1+py1*py1+pz1*pz1+MUMASS*MUMASS);
 
   double px2    = fpt2*cos(phi2);
   double py2    = fpt2*sin(phi2);
   double pz2    = fpt2/tan(theta2); 
-  double  e2    = sqrt(px2*px2+py2*py2+pz2*pz2+mumass*mumass); 
+  double  e2    = sqrt(px2*px2+py2*py2+pz2*pz2+MUMASS*MUMASS); 
 
   double pxsum  = px1 + px2;
   double pysum  = py1 + py2;

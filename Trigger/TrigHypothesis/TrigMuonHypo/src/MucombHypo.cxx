@@ -134,7 +134,7 @@ HLT::ErrorCode  MucombHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
       msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
 
    //Retrieve combined muon
-   const xAOD::L2CombinedMuonContainer* vectorOfMuons(0);
+   const xAOD::L2CombinedMuonContainer* vectorOfMuons;
    HLT::ErrorCode status = getFeature(outputTE, vectorOfMuons);
    if (status != HLT::OK) {
       msg() << MSG::ERROR << " getFeature fails to get the L2CombinedMuonContainer " << endreq;
@@ -221,7 +221,7 @@ HLT::ErrorCode  MucombHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
    if (m_strategydependent && usealgo > 0) {
       if (usealgo >= 1 && usealgo <= 4) {
          double tmpcut = m_strategyDependentPtCuts.value()[usealgo - 1];
-         if (fabsf(m_fex_pt) <= fabsf(tmpcut)) sdp_cut = false;
+         if (std::abs(m_fex_pt) <= std::abs(tmpcut)) sdp_cut = false;
          if (tmpcut < 0) std_cut = true; //Do not apply std Pt cut
          if (msgLvl() <= MSG::DEBUG) {
             msg() << MSG::DEBUG << " REGTEST muon pt is " << m_fex_pt << " GeV"

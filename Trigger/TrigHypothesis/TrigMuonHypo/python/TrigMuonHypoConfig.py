@@ -6,6 +6,7 @@ from AthenaCommon.SystemOfUnits import GeV
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
 from AthenaCommon.AppMgr import ToolSvc
+import re
 
 ToolSvc += MuonBackExtrapolatorForAlignedDet()
 ToolSvc += MuonBackExtrapolatorForMisalignedDet()
@@ -74,7 +75,65 @@ efCombinerThresholds = {
     '70GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 63.00, 63.00, 63.00, 63.00] ],
     '80GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 72.00, 72.00, 72.00, 72.00] ],
     '100GeV'           : [ [0,1.05,1.5,2.0,9.9], [ 90.00, 90.00, 90.00, 90.00] ],
+    # original + 2015 tuning
+    '2GeV_v15a'             : [ [0,9.9], [2.000] ],
+    '4GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  3.94,  3.91,  3.77,  3.72] ],
+    '5GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  4.91,  4.86,  4.84,  4.83] ],
+    '6GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  5.92,  5.86,  5.70,  5.64] ],
+    '7GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  6.85,  6.77,  6.74,  6.74] ],
+    '8GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  7.89,  7.81,  7.60,  7.53] ],
+    '10GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [  9.84,  9.77,  9.54,  9.47] ],
+    '11GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 10.74, 10.64, 10.58, 10.53] ],
+    '12GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 11.70, 11.59, 11.53, 11.49] ],
+    '13GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 12.80, 12.67, 12.43, 12.38] ],
+    '14GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 13.75, 13.62, 13.38, 13.36] ],
+    '15GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 14.63, 14.49, 14.42, 14.38] ],
+    '18GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 17.68, 17.51, 17.34, 17.34] ],
+    '20GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 19.65, 19.42, 19.16, 19.19] ],
+    '22GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 21.57, 21.32, 21.07, 21.11] ],
+    '24GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 23.53, 23.21, 22.99, 23.03] ],
+    '26GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 25.49, 25.15, 24.90, 24.95] ],
+    '27GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 26.26, 26.12, 26.11, 26.02] ],
+    '28GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 27.23, 27.09, 27.07, 26.99] ],
+    '30GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 29.17, 29.03, 29.00, 28.92] ],
+    '32GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 31.10, 30.96, 30.91, 30.84] ],
+    '34GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 33.04, 32.88, 32.81, 32.74] ],
+    '36GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 35.23, 34.75, 34.48, 34.55] ],
+    '38GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 36.87, 36.67, 36.55, 36.48] ],
+    '40GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 38.76, 38.54, 38.38, 38.31] ],
+    '50GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 45.00, 45.00, 45.00, 45.00] ],
+    '60GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 54.00, 54.00, 54.00, 54.00] ],
+    '70GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 63.00, 63.00, 63.00, 63.00] ],
+    '80GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 72.00, 72.00, 72.00, 72.00] ],
+    '100GeV_v15a'           : [ [0,1.05,1.5,2.0,9.9], [ 90.00, 90.00, 90.00, 90.00] ],
     }
+
+efCaloTagThresholds = {
+    '0GeV'             : [ [0,9.9],              [ 0.1,  0.1,  0.1,  0.1   ] ],
+    '2GeV'             : [ [0,9.9],              [ 2.0,  2.0,  2.0,  2.0   ] ],
+    '4GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 4.0,  4.0,  4.0,  4.0   ] ],
+    '5GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 5.0,  5.0,  5.0,  5.0   ] ],
+    '6GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 6.0,  6.0,  6.0,  6.0   ] ],
+    '7GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 7.0,  7.0,  7.0,  7.0   ] ],
+    '8GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 8.0,  8.0,  8.0,  8.0   ] ],
+    '10GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 10.0, 10.0, 10.0, 10.0  ] ],
+    '11GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 11.0, 11.0, 11.0, 11.0  ] ],
+    '12GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 12.0, 12.0, 12.0, 12.0  ] ], 
+    '13GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 13.0, 13.0, 13.0, 13.0  ] ],
+    '14GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 14.0, 14.0, 14.0, 14.0  ] ],
+    '15GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 15.0, 15.0, 15.0, 15.0  ] ],
+    '18GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 18.0, 18.0, 18.0, 18.0  ] ],
+    '20GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 20.0, 20.0, 20.0, 20.0  ] ],
+    '22GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 22.0, 22.0, 22.0, 22.0  ] ],
+    '24GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 24.0, 24.0, 24.0, 24.0  ] ],
+    '30GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 30.0, 30.0, 30.0, 30.0  ] ],
+    '40GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 40.0, 40.0, 40.0, 40.0  ] ], 
+    '50GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 50.0, 50.0, 50.0, 50.0  ] ], 
+    '60GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 60.0, 60.0, 60.0, 60.0  ] ], 
+    '70GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 70.0, 70.0, 70.0, 70.0  ] ], 
+    '80GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 80.0, 80.0, 80.0, 80.0  ] ],
+    '100GeV'           : [ [0,1.05,1.5,2.0,9.9], [ 100.0,100.0,100.0,100.0 ] ]
+}
 
 
 muCombThresholds = {
@@ -111,6 +170,40 @@ muCombThresholds = {
     '70GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 49.0, 49.0, 49.0, 49.0] ], 
     '80GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 56.0, 56.0, 56.0, 56.0] ], 
     '100GeV'           : [ [0,1.05,1.5,2.0,9.9], [ 70.0, 70.0, 70.0, 70.0] ],
+    # original + 2015 tuning
+    '2GeV_v15a'             : [ [0,9.9],              [ 2.000] ],
+    '4GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  3.86,  3.77,  3.69,  3.70] ],
+    '5GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  4.9,  4.8,  4.8,  4.8] ],
+    '6GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  5.87,  5.79,  5.70,  5.62] ],
+    '7GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  6.8,  6.7,  6.7,  6.6] ],
+    '8GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  7.80,  7.72,  7.59,  7.46] ],
+    '10GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [  9.73,  9.63,  9.45,  9.24] ],
+    '11GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 10.8, 10.4, 10.6, 10.6] ],
+    '12GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 11.7, 11.3, 11.4, 11.5] ],
+    '13GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 12.62, 12.48, 12.24, 11.88] ],
+    '14GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 13.57, 13.44, 13.21, 12.77] ],
+    '15GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 14.5, 14.0, 14.0, 14.5] ],
+    '18GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 17.41, 17.27, 16.95, 16.25] ],
+    '20GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 19.31, 19.19, 18.80, 17.95] ],
+    '22GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 21.19, 21.07, 20.68, 19.71] ],
+    '24GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 23.08, 22.99, 22.56, 21.39] ],
+    '25GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 24.2, 23.2, 23.2, 22.6] ], 
+    '26GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 24.95, 24.86, 24.39, 23.13] ],
+    '27GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 26.2, 25.1, 25.1, 24.4] ],
+    '28GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 27.1, 26.0, 26.0, 25.2] ],
+    '30GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 29.0, 28.0, 28.0, 27.0] ],
+    '32GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 30.7, 29.9, 29.9, 28.7] ],
+    '34GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 32.5, 31.8, 31.8, 30.4] ],
+    '36GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 34.03, 34.29, 33.58, 31.36] ],
+    '38GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 35.8, 35.4, 35.4, 33.6] ],
+    '40GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 37.5, 37.0, 37.0, 35.0] ],
+    '40GeV_slow_v15a'      : [ [0,1.05,1.5,2.0,9.9], [ 40.0, 40.0, 40.0, 40.0] ],
+    '50GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 40.0, 40.0, 40.0, 40.0] ],
+    '60GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 45.0, 45.0, 45.0, 45.0] ],
+    '60GeV_slow_v15a'      : [ [0,1.05,1.5,2.0,9.9], [ 47.0, 47.0, 47.0, 47.0] ],
+    '70GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 49.0, 49.0, 49.0, 49.0] ],
+    '80GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 56.0, 56.0, 56.0, 56.0] ],
+    '100GeV_v15a'           : [ [0,1.05,1.5,2.0,9.9], [ 70.0, 70.0, 70.0, 70.0] ],
     }
 
 
@@ -171,6 +264,27 @@ muFastThresholds = {
     '40GeV_v11b'             : [ [0,1.05,1.5,2.0,9.9], [ 26.88, 26.54, 29.22, 32.18] ],
     '40GeV_uptoEC2_v11b'     : [ [0,1.05,1.5,2.0,9.9], [ 26.88, 26.54, 29.22, 1000.] ],
     '40GeV_barrelOnly_v11b'  : [ [0,1.05,1.5,2.0,9.9], [ 26.88, 1000., 1000., 1000.] ],
+    # 2011a tuning + 2015 tuning
+    '4GeV_v15a'              : [ [0,1.05,1.5,2.0,9.9], [  3.38,  1.25,  3.17,  3.41] ],
+    '4GeV_barrelOnly_v15a'   : [ [0,1.05,1.5,2.0,9.9], [  3.38, 1000., 1000., 1000.] ],
+    '6GeV_v15a'              : [ [0,1.05,1.5,2.0,9.9], [  5.17,  3.25,  4.69,  5.14] ],
+    '8GeV_v15a'              : [ [0,1.05,1.5,2.0,9.9], [  6.63,  5.17,  6.39,  6.81] ],
+    '10GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  8.28,  6.35,  7.19,  8.58] ],
+    '13GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 10.42,  7.16,  7.81, 10.80] ],
+    '14GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 11.15,  7.58,  8.43, 11.61] ],
+    '15GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 11.31, 10.52, 12.00, 13.24] ],
+    '18GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 14.33,  9.45, 10.96, 14.35] ],
+    '20GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 15.87, 10.73, 12.21, 15.87] ],
+    '22GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 17.00, 10.77, 13.38, 17.05] ],
+    '24GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 18.24, 11.35, 14.49, 17.91] ],
+    '26GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 19.52, 11.61, 15.42, 19.35] ],
+    '30GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 17.83, 18.32, 20.46, 23.73] ],
+    '36GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 23.94, 12.25, 19.80, 23.17] ],
+    '40GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 29.54] ],
+    '40GeV_uptoEC2_v15a'     : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 1000.] ],
+    '40GeV_barrelOnly_v15a'  : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 1000., 1000., 1000.] ],
+    '50GeV_barrelOnly_v15a'  : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 1000., 1000., 1000.] ],
+    '60GeV_barrelOnly_v15a'  : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 1000., 1000., 1000.] ],
     }
 
 
@@ -233,6 +347,27 @@ muFastThresholdsForECWeakBRegion = {
     '40GeV_barrelOnly_v11b' : [ 1000., 1000. ],
     '50GeV_barrelOnly_v11b' : [ 1000., 1000. ],
     '60GeV_barrelOnly_v11b' : [ 1000., 1000. ],
+    # 2011a tuning + 2015 tuning
+    '4GeV_v15a'             : [  2.72,  1.58],
+    '4GeV_barrelOnly_v15a'  : [ 1000., 1000. ],
+    '6GeV_v15a'             : [  3.91,  2.22],
+    '8GeV_v15a'             : [  4.65,  3.26],
+    '10GeV_v15a'            : [  5.96,  4.24],
+    '13GeV_v15a'            : [  6.65,  4.64],
+    '14GeV_v15a'            : [  6.78,  5.03],
+    '15GeV_v15a'            : [  7.61,  7.81 ],
+    '18GeV_v15a'            : [  8.48,  7.26],
+    '20GeV_v15a'            : [  8.63,  7.26],
+    '22GeV_v15a'            : [  9.53,  7.77],
+    '24GeV_v15a'            : [  9.02,  8.31],
+    '26GeV_v15a'            : [  9.89,  8.77],
+    '30GeV_v15a'            : [ 14.41, 17.43 ],
+    '36GeV_v15a'            : [ 10.78, 10.66],
+    '40GeV_v15a'            : [ 15.07, 18.02 ],
+    '40GeV_uptoEC2_v15a'    : [ 15.07, 18.02 ],
+    '40GeV_barrelOnly_v15a' : [ 1000., 1000. ],
+    '50GeV_barrelOnly_v15a' : [ 1000., 1000. ],
+    '60GeV_barrelOnly_v15a' : [ 1000., 1000. ],
     }
 
 class MufastHypoConfig(MufastHypo) :
@@ -1109,7 +1244,27 @@ trigMuonEFTrkIsoThresholds = {
     
     'RelEFOnlyLooseWide'      : [-1.0 ,  0.2  ],
     'RelEFOnlyMediumWide'     : [-1.0 ,  0.12 ],
-    'RelEFOnlyTightWide'      : [-1.0 ,  0.06 ] 
+    'RelEFOnlyTightWide'      : [-1.0 ,  0.06 ],
+
+    'VarEFOnlyLoose'             : [ 4200.0,  -1.0 ],
+    'VarEFOnlyTight'             : [ 1500.0,  -1.0 ],
+    'VarLoose'                   : [ 2800.0,  -1.0 ],
+    'VarTight'                   : [ -1.0,   1000.0],
+    'VarTauCP'                   : [ -1.0,      1.0],
+
+    'RelEFOnlyVarLoose'          : [ 0.2,  -1.0 ],
+#    'RelEFOnlyVarMedium'         : [ 0.18, -1.0 ], #MC15C
+    'RelEFOnlyVarMedium'         : [ -1.0,  0.16],  #ivarloose
+    'RelEFOnlyVarTight'          : [ 0.06, -1.0 ],
+    
+    'EFOnlyVarLooseWide'         : [ -1.0,   4200.0],
+    'EFOnlyVarMediumWide'        : [ -1.0,   2100.0],
+    'EFOnlyVarTightWide'         : [ -1.0,   1500.0],
+    
+    'RelEFOnlyVarLooseWide'      : [-1.0 ,  0.2  ],
+    'RelEFOnlyVarMediumWide'     : [-1.0 ,  0.12 ],
+#    'RelEFOnlyVarTightWide'      : [-1.0 ,  0.08 ] #MC15C 
+    'RelEFOnlyVarTightWide'      : [-1.0 ,  0.07 ]  #ivarmedium
     }
 
 """
@@ -1143,7 +1298,10 @@ class TrigMuonEFTrackIsolationHypoConfig(TrigMuonEFTrackIsolationHypo) :
                 self.DoAbsCut = False
             else :
                 self.DoAbsCut = True
-                                            
+            if 'Var' in args[1] :
+                self.useVarIso = True
+            else :
+                self.useVarIso = False                                
         except LookupError:
             if(args[1]=='passthrough') :
                 print 'Setting passthrough'
@@ -1175,10 +1333,6 @@ class TrigMuonEFCaloIsolationHypoConfig(TrigMuonEFCaloIsolationHypo) :
         try:
             #cuts = trigMuonEFCaloIsoThresholds[ args[1] ]
 
-            #validation = MuisoHypoValidationMonitoring()
-            #online     = MuisoHypoOnlineMonitoring()
-            #cosmic     = MuisoHypoCosmicMonitoring()
-
             # If configured with passthrough, set AcceptAll flag on
             self.AcceptAll = False
             if len(args) == 2:
@@ -1186,27 +1340,17 @@ class TrigMuonEFCaloIsolationHypoConfig(TrigMuonEFCaloIsolationHypo) :
                     self.AcceptAll = True
                     print 'TrigMuonEFCaloIsolationConfig configured in passthrough mode'
 
-            # Isolation Hypothesis configuration and cuts
-            self.UseCalo    = True
-            self.UseAbsCalo = True
-            #self.UseID      = True
-            #self.UseAbsID   = False
-
             #Default cuts (more than 95% eff on Z->mumu) tuned on 2011 run 178044 data <beta>~6
             #These probably should be updated!
-            self.CaloConeSize = 2;
-            #self.IDConeSize   = 2;
+            self.CaloConeSize = 1;
             self.MaxCaloIso_1 = 5200.0
             self.MaxCaloIso_2 = 4800.0
             self.MaxCaloIso_3 = 4000.0
-            #self.MaxIDIso_1   = 0.05
-            #self.MaxIDIso_2   = 0.05
-            #self.MaxIDIso_3   = 0.05
 
             if 'Rel' in args[1] :
-                self.UseAbsCalo = False
+                self.DoAbsCut = False
             else :
-                self.UseAbsCalo = True
+                self.DoAbsCut = True
                                             
         except LookupError:
             if(args[1]=='passthrough') :
@@ -1219,7 +1363,7 @@ class TrigMuonEFCaloIsolationHypoConfig(TrigMuonEFCaloIsolationHypo) :
 
         #validation = TrigMuonEFCaloIsolationHypoValidationMonitoring()
         #online     = TrigMuonEFCaloIsolationHypoOnlineMonitoring()
-	
+    
         #self.AthenaMonTools = [ validation, online ]
 
 
@@ -1304,6 +1448,10 @@ class TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig(TrigMuonEFCombinerDiMuonMa
             self.deltaPhiThresLow = -1
             self.deltaPhiThresHigh = -1
             self.AcceptAll = False
+
+            # Only for debug
+            # This should be commented out once debugging is done
+            # self.pairptThresHigh  = 200.0
                                             
         except LookupError:
             if(args[0]=='passthrough') :
@@ -1318,6 +1466,7 @@ class TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig(TrigMuonEFCombinerDiMuonMa
         self.AthenaMonTools = [ online ]
 
 #^^^^^   pvn
+
 
 class MufastNSWHypoConfig(MufastNSWHypo) :
 
@@ -1360,9 +1509,116 @@ class TrigMuonCaloTagHypoConfig(TrigMuonCaloTagHypo) :
   __slots__ = []
 
   def __new__(cls, *args, **kwargs):
-    newargs = ['%s' % cls.getType()] + list(args)
+    newargs = ['%s_%s' % (cls.getType(),reduce(lambda s1,s2: str(s1)+"_"+str(s2), args))] + list(args)
+    #newargs = ['%s' % (cls.getType())] + list(args)
     return super( TrigMuonCaloTagHypoConfig, cls).__new__(cls, *newargs, **kwargs)
 
   def __init__(self, name, *args, **kwargs):
     super( TrigMuonCaloTagHypoConfig, self).__init__(name)
 
+    self.PtThresholds = [t*1000 for t in efCaloTagThresholds[args[1]][1][:args[2]]]
+    self.UseLH = False
+    self.TightCaloTag = False
+    self.MaxMissingCells = 3
+
+
+class TrigMuonIDTrackMultiHypoConfig(TrigMuonIDTrackMultiHypo) :
+
+    __slots__ = []
+
+    def __new__( cls, *args, **kwargs ):
+        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
+        return super( TrigMuonIDTrackMultiHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
+
+    def __init__( self, name, *args, **kwargs ):
+        super( TrigMuonIDTrackMultiHypoConfig, self ).__init__( name )
+
+        try:
+            if args[0]=='passthrough':
+                self.AcceptAll = True
+            else:
+                self.AcceptAll = False
+
+                if args[1]=='FTF':
+                    self.TrkAlgo = "InDetTrigTrackingxAODCnv_Muon_FTF"
+                elif args[1]=='IDTrig':
+                    self.TrkAlgo = "InDetTrigTrackingxAODCnv_Muon_IDTrig"
+                elif args[1]=='Muon':
+                    self.UseMuon = True
+                elif args[1]=='MuRoI':
+                    self.UseMuRoiDr = True
+                    self.UseMuRoiDrOnly = True
+                    pass
+                else:
+                    print 'args[1] = ', args[1]
+                    raise Exception('TrigMuonIDTrackMultiHypo Misconfigured')
+
+                split_args = args[0].split("_")
+                pattern_pt = re.compile("pt")
+                pattern_mass = re.compile("m")
+                pattern_dr = re.compile("dr")
+                for i in range(len(split_args)):
+                    if pattern_pt.search(split_args[i]) :
+                        ptargs = split_args[i].split("pt")
+                        threshold = ptargs[1]
+                        multiplicity = ptargs[0]
+                        if args[1]=='FTF':
+                            values = muCombThresholds[threshold+"GeV_v15a"]
+                        if args[1]=='IDTrig':
+                            values = efCombinerThresholds[threshold+"GeV_v15a"]
+                        if args[1]=='Muon':
+                            values = efCombinerThresholds[threshold+"GeV_v15a"]
+                        if i == 0:
+                            self.PtBins1 = values[0]
+                            self.PtThresholds1 = [ x * GeV for x in values[1] ]
+                            self.Multiplicity1 = int(multiplicity)
+                        if i == 1:
+                            self.PtBins2 = values[0]
+                            self.PtThresholds2 = [ x * GeV for x in values[1] ]
+                            self.Multiplicity2 = int(multiplicity)
+                        if i == 2:
+                            self.PtBins3 = values[0]
+                            self.PtThresholds3 = [ x * GeV for x in values[1] ]
+                            self.Multiplicity3 = int(multiplicity)
+                        if i > 2:
+                            raise Exception('TrigMuonIDTrackMultiHypo Misconfigured : more than 3 pt settings')
+                    elif pattern_mass.search(split_args[i]) :
+                        massargs = split_args[i].split("m")
+                        self.LowMassCut = int(massargs[0])
+                        self.HighMassCut = int(massargs[1])
+                    elif pattern_dr.search(split_args[i]) :
+                        drargs = split_args[i].split("dr")
+                        if drargs[0] == '0':self.MuRoiDrMin = 0.0;
+                        if drargs[0] == '005':self.MuRoiDrMin = 0.05;
+                        if drargs[0] == '01':self.MuRoiDrMin = 0.1;
+                        if drargs[0] == '015':self.MuRoiDrMin = 0.15;
+                        if drargs[0] == '02':self.MuRoiDrMin = 0.2;
+                        if drargs[0] == '025':self.MuRoiDrMin = 0.25;
+                        if drargs[0] == '03':self.MuRoiDrMin = 0.3;
+                        if drargs[0] == '035':self.MuRoiDrMin = 0.35;
+                        if drargs[0] == '04':self.MuRoiDrMin = 0.4;
+                        if drargs[0] == '045':self.MuRoiDrMin = 0.45;
+                        if drargs[0] == '05':self.MuRoiDrMin = 0.5;
+                        if drargs[0] == '1':self.MuRoiDrMin = 1.0;
+                        if drargs[1] == '0':self.MuRoiDrMax = 0.0;
+                        if drargs[1] == '005':self.MuRoiDrMax = 0.05;
+                        if drargs[1] == '01':self.MuRoiDrMax = 0.1;
+                        if drargs[1] == '015':self.MuRoiDrMax = 0.15;
+                        if drargs[1] == '02':self.MuRoiDrMax = 0.2;
+                        if drargs[1] == '025':self.MuRoiDrMax = 0.25;
+                        if drargs[1] == '03':self.MuRoiDrMax = 0.3;
+                        if drargs[1] == '035':self.MuRoiDrMax = 0.35;
+                        if drargs[1] == '04':self.MuRoiDrMax = 0.4;
+                        if drargs[1] == '045':self.MuRoiDrMax = 0.45;
+                        if drargs[1] == '05':self.MuRoiDrMax = 0.5;
+                        if drargs[1] == '1':self.MuRoiDrMax = 1.0;
+
+
+                                            
+        except LookupError:
+            print 'args[0] = ', args[0]
+            raise Exception('TrigMuonIDTrackMultiHypo Misconfigured')
+        
+        online     = TrigMuonIDTrackMultiHypoOnlineMonitoring()
+	
+        self.AthenaMonTools = [ online ]
