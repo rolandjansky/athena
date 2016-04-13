@@ -62,7 +62,7 @@ MDTCablingDbTool::MDTCablingDbTool (const std::string& type,
 //StatusCode MDTCablingDbTool::updateAddress(SG::TransientAddress* tad)
 StatusCode MDTCablingDbTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
 {
-  m_log.setLevel(outputLevel());
+  m_log.setLevel(msgLevel());
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
  
@@ -81,7 +81,7 @@ StatusCode MDTCablingDbTool::updateAddress(StoreID::type /*storeID*/, SG::Transi
 
 StatusCode MDTCablingDbTool::initialize()
 { 
-  m_log.setLevel(outputLevel());
+  m_log.setLevel(msgLevel());
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
 
@@ -180,7 +180,7 @@ StatusCode MDTCablingDbTool::initialize()
 StatusCode MDTCablingDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
   StatusCode sc = StatusCode::SUCCESS;
-  m_log.setLevel(outputLevel());
+  m_log.setLevel(msgLevel());
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
   
@@ -199,7 +199,7 @@ StatusCode MDTCablingDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
 
 StatusCode MDTCablingDbTool::loadMezzanine(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/)) 
 {
-  m_log.setLevel(outputLevel());
+  m_log.setLevel(msgLevel());
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
 
@@ -215,7 +215,7 @@ StatusCode MDTCablingDbTool::loadMezzanine(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/
 StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/)) 
 {
 
-  m_log.setLevel(outputLevel());
+  m_log.setLevel(msgLevel());
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
   StatusCode sc=StatusCode::SUCCESS;
