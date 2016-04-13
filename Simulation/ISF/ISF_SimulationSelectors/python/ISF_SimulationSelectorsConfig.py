@@ -281,3 +281,6 @@ def getGlobalStickyGeant4SimSelector(name="ISF_GlobalStickyGeant4SimSelector", *
     from ISF_SimulationSelectors.ISF_SimulationSelectorsConf import ISF__HistorySimSelector
     return ISF__HistorySimSelector(name, **kwargs)
 
+def getDefaultParametricSimulationSelector(name="ISF_DefaultParametricSimulationSelector", **kwargs):
+    kwargs.setdefault("Simulator"   , getService('ISF_ParametricSimSvc'))
+    return getDefaultSimSelector(name, **kwargs )

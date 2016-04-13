@@ -19,7 +19,6 @@ private
 use AtlasHepMC                  AtlasHepMC-*            External
 use ISF_Event                   ISF_Event-*             Simulation/ISF/ISF_Core
 use ISF_Interfaces              ISF_Interfaces-*        Simulation/ISF/ISF_Core
-use ISF_HepMC_Event             ISF_HepMC_Event-*       Simulation/ISF/ISF_HepMC
 use ISF_TrackingInterfaces      ISF_TrackingInterfaces-* Simulation/ISF/ISF_Tracking
 
 use BarcodeServices             BarcodeServices-*       Simulation/Barcode      
