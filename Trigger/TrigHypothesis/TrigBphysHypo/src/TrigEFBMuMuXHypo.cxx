@@ -242,7 +242,7 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
        bphysIter !=  xAODTrigBphysColl->end(); ++bphysIter) {
     
     //determine decay mode
-    std::string decayName;
+    std::string decayName("UNKNOWN");
     xAOD::TrigBphys::pType decayType = (*bphysIter)->particleType();
     if(decayType == xAOD::TrigBphys::BKMUMU)      decayName = "B+ -> mu mu K+";
     if(decayType == xAOD::TrigBphys::BDKSTMUMU)   decayName = "Bd -> mu mu K*";
@@ -255,7 +255,7 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
 
 //     if ((*bphysIter)->particleType() == TrigEFBphys::BMUMUX ) {
-    if (decayType == xAOD::TrigBphys::BKMUMU || decayType == xAOD::TrigBphys::BDKSTMUMU ||
+    if (decayType == xAOD::TrigBphys::BKMUMU    || decayType == xAOD::TrigBphys::BDKSTMUMU ||
         decayType == xAOD::TrigBphys::BSPHIMUMU || decayType == xAOD::TrigBphys::LBLMUMU ||
         decayType == xAOD::TrigBphys::BCDSMUMU ) {
 
@@ -274,7 +274,7 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
         if( m_acceptBplus ) {
           if ( BMass > m_lowerBplusMassCut && BMass < m_upperBplusMassCut ) {
             if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Mass =  " << BMass  << " -> B+ Mass passed " << endreq;
-            if( BChi2 < m_BplusChi2Cut ) {
+            if( BChi2 < m_BplusChi2Cut /*&& BChi2 >= -0.0001*/ ) {  // allow -nve chi2 for not fitted
               if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Chi2 =  " << BChi2  << " -> B+ Chi2 passed " << endreq;
               PassedBplus=true;
               thisPassedBplus=true;
@@ -298,9 +298,9 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
               if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " BMass =  " << BMass  << " -> Bd Mass passed " << endreq;
               if ( XMass > m_lowerKstarMassCut && XMass < m_upperKstarMassCut ) {
                 if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  XMass =  " << XMass  << " -> K* Mass passed " << endreq;
-                if( BChi2 < m_BdChi2Cut ) {
+                if( BChi2 < m_BdChi2Cut /*&& BChi2 >= -0.0001*/) { // allow -nve chi2 for not fitted
                   if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "   BChi2 =  " << BChi2  << " -> Bd Chi2 passed " << endreq;
-                  if ( XChi2 < m_KstarChi2Cut ) {
+                  if ( XChi2 < m_KstarChi2Cut /*&& XChi2 >= -0.0001*/) { // allow -nve chi2 for not fitted
                     if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "    XChi2 =  " << XChi2  << " -> K* Chi2 passed " << endreq;
                     PassedBd=true;
                     thisPassedBd=true;
@@ -316,9 +316,9 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
               if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " BMass =  " << BMass  << " -> Bs Mass passed " << endreq;
               if ( XMass > m_lowerPhi1020MassCut && XMass < m_upperPhi1020MassCut ) {
                 if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  XMass =  " << XMass  << " -> Phi Mass passed " << endreq;
-                if( BChi2 < m_BsChi2Cut ) {
+                  if( BChi2 < m_BsChi2Cut /*&& BChi2 >= -0.0001*/ ) { // allow -nve chi2 for not fitted
                   if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "   BChi2 =  " << BChi2  << " -> Bs Chi2 passed " << endreq;
-                  if ( XChi2 < m_Phi1020Chi2Cut ) {
+                  if ( XChi2 < m_Phi1020Chi2Cut /*&& XChi2 >= -0.0001*/) { // allow -nve chi2 for not fitted
                     if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "    XChi2 =  " << XChi2  << " -> Phi Chi2 passed " << endreq;
                     PassedBs=true;
                     thisPassedBs=true;
@@ -334,9 +334,9 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
               if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " BMass =  " << BMass  << " -> Lambda_b Mass passed " << endreq;
               if ( XMass > m_lowerLambdaMassCut && XMass < m_upperLambdaMassCut ) {
                 if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  XMass =  " << XMass  << " -> Lambda Mass passed " << endreq;
-                if( BChi2 < m_LbChi2Cut ) {
+                if( BChi2 < m_LbChi2Cut /*&& BChi2 >= -0.0001*/) {// allow -nve chi2 for not fitted
                   if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "   BChi2 =  " << BChi2  << " -> Lambda_b Chi2 passed " << endreq;
-                  if ( XChi2 < m_LambdaChi2Cut ) {
+                  if ( XChi2 < m_LambdaChi2Cut /*&& XChi2 >= -0.0001*/ ) { // allow -nve chi2 for not fitted
                     if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "    XChi2 =  " << XChi2  << " -> Lambda Chi2 passed " << endreq;
                     PassedLb=true;
                     thisPassedLb=true;
@@ -352,9 +352,9 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
               if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " BMass =  " << BMass  << " -> Bc Mass passed " << endreq;
               if ( XMass > m_lowerDsMassCut && XMass < m_upperDsMassCut ) {
                 if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  XMass =  " << XMass  << " -> Ds Mass passed " << endreq;
-                if( BChi2 < m_BcChi2Cut ) {
+                if( BChi2 < m_BcChi2Cut && BChi2 >= -0.0001) {
                   if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "   BChi2 =  " << BChi2  << " -> Bc Chi2 passed " << endreq;
-                  if ( XChi2 < m_DsChi2Cut ) {
+                  if ( XChi2 < m_DsChi2Cut && XChi2 >= -0.0001) {
                     if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "    XChi2 =  " << XChi2  << " -> Ds Chi2 passed " << endreq;
                     PassedBc=true;
                     thisPassedBc=true;

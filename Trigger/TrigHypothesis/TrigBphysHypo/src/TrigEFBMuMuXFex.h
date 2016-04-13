@@ -153,6 +153,9 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     float m_DsVtxChi2Cut;
     float m_bCVtxChi2Cut;
     
+    // FTK Flag
+    bool m_FTK;
+
     // Monitoring variables and containers
     //   General
     std::vector<int>   mon_Errors;
@@ -334,6 +337,7 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     
     void addUnique(std::vector<const Trk::Track*>&, const Trk::Track*);
     void addUnique(std::vector<const xAOD::TrackParticle*>&, const xAOD::TrackParticle*);
+    void addUnique(std::vector<ElementLink<xAOD::TrackParticleContainer> >&, const ElementLink<xAOD::TrackParticleContainer>&);
 //   double invariantMass(const TrigMuonEF* , const TrigMuonEF* );
 //   double invariantMass(const Trk::Track* , const Trk::Track* );
     bool isUnique(const  xAOD::TrackParticle* id1, const  xAOD::TrackParticle* id2) const;
@@ -346,6 +350,34 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     TrigEFBphys* checkBMuMu2X(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* track1, const Trk::Track* track2, int decay, TrigEFBphys* & trigPartX);
     TrigEFBphys* checkBcMuMuDs(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* track1, const Trk::Track* track2, double xPhiMass, const Trk::Track* track3, TrigEFBphys* & trigPartX);
     TrigEFBphys* checkBplusMuMuKplus(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* track1);
+
+    
+    double XMass(const xAOD::TrackParticle* particle1, const xAOD::TrackParticle* particle2, int decay); /// checking the mass
+    double X3Mass(const xAOD::TrackParticle* particle1, const xAOD::TrackParticle* particle2, const xAOD::TrackParticle* particle3 );
+    
+    double KMuMuMass( const xAOD::TrackParticle* mu1, const xAOD::TrackParticle* mu2, const xAOD::TrackParticle* kaon);
+    double XMuMuMass( const xAOD::TrackParticle* mu1, const xAOD::TrackParticle* mu2, const xAOD::TrackParticle* particle1,
+                     const xAOD::TrackParticle* particle2, int decay);
+    double X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::TrackParticle* mu2, const xAOD::TrackParticle* particle1,
+                      const xAOD::TrackParticle* particle2, const xAOD::TrackParticle* particle3 );
+    
+    xAOD::TrigBphys* checkBplusMuMuKplus(const ElementLink<xAOD::TrackParticleContainer> & eltrack1,
+                                         const ElementLink<xAOD::TrackParticleContainer> & elmu1,
+                                         const ElementLink<xAOD::TrackParticleContainer> & elmu2);
+    
+    xAOD::TrigBphys* checkBMuMu2X(const ElementLink<xAOD::TrackParticleContainer> & eltrack1,
+                                  const ElementLink<xAOD::TrackParticleContainer> & eltrack2,
+                                  const ElementLink<xAOD::TrackParticleContainer> & elmu1,
+                                  const ElementLink<xAOD::TrackParticleContainer> & elmu2,
+                                  int decay, xAOD::TrigBphys* & trigPartX);
+    
+    xAOD::TrigBphys* checkBcMuMuDs(const ElementLink<xAOD::TrackParticleContainer> & eltrack1,
+                                   const ElementLink<xAOD::TrackParticleContainer> & eltrack2,
+                                   const ElementLink<xAOD::TrackParticleContainer> & eltrack3,
+                                   const ElementLink<xAOD::TrackParticleContainer> & elmu1,
+                                   const ElementLink<xAOD::TrackParticleContainer> & elmu2,
+                                   double xPhiMass,
+                                   xAOD::TrigBphys* & trigPartX);
 
     
 };

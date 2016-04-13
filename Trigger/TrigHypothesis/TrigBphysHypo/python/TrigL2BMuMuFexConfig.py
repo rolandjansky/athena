@@ -73,6 +73,14 @@ class L2BMuMuFex_Jpsi (TrigL2BMuMuFex):
 
         self.AthenaMonTools = [ validation, online, time ]
 
+class L2BMuMuFex_Jpsi_noSameMu (L2BMuMuFex_Jpsi):
+    __slots__ = []
+    def __init__(self, name = "L2BMuMuFex_Jpsi_noSameMu"):
+        L2BMuMuFex_Jpsi.__init__( self, name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptSameMuon = False
+        
 class L2BMuMuFex_Upsi (TrigL2BMuMuFex):
     __slots__ = []
     def __init__(self, name = "L2BMuMuFex_Upsi"):

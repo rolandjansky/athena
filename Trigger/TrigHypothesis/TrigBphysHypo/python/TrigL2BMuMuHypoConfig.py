@@ -50,6 +50,14 @@ class L2BMuMuHypo_Jpsi (TrigL2BMuMuHypo):
 
         self.AthenaMonTools = [ validation, online, time ]
 
+class L2BMuMuHypo_Jpsi_noSameMu (L2BMuMuHypo_Jpsi):
+    __slots__ = []
+    def __init__(self, name = "L2BMuMuHypo_Jpsi_noSameMu"):
+        L2BMuMuHypo_Jpsi.__init__( self, name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptSameMuon = False
+        
 class L2BMuMuHypo_Jpsi_noId (TrigL2BMuMuHypo):
     __slots__ = []
     def __init__(self, name = "L2BMuMuHypo_Jpsi_noId"):
