@@ -3,7 +3,10 @@ package TRT_Monitoring
 author James Degenhardt <James.Degenhardt@cern.ch>
 
 private
-
+##
+use TrkToolInterfaces		TrkToolInterfaces-*		Tracking/TrkTools
+use EventPrimitives             EventPrimitives-*               Event
+##
 use DataModel			DataModel-*			Control
 use AtlasROOT			AtlasROOT-*			External
 use AtlasBoost			AtlasBoost-*			External
@@ -21,13 +24,15 @@ use TRT_ConditionsServices	TRT_ConditionsServices-*	InnerDetector/InDetCondition
 use TrkTrack			TrkTrack-*			Tracking/TrkEvent
 #use TrkParameters		TrkParameters-*			Tracking/TrkEvent
 use TrkTrackSummary		TrkTrackSummary-*		Tracking/TrkEvent
-use TrkToolInterfaces		TrkToolInterfaces-*		Tracking/TrkTools
+#use TrkToolInterfaces		TrkToolInterfaces-*		Tracking/TrkTools
 #use TrkExInterfaces		TrkExInterfaces-*		Tracking/TrkExtrapolation
 use CommissionEvent		CommissionEvent-*		Commission
 
 end_private
 
 public
+
+
 
 use AtlasPolicy			AtlasPolicy-*
 use GaudiInterface		GaudiInterface-*		External
