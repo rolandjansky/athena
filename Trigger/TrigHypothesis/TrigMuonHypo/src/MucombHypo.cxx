@@ -134,7 +134,7 @@ HLT::ErrorCode  MucombHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
       msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
 
    //Retrieve combined muon
-   const xAOD::L2CombinedMuonContainer* vectorOfMuons(0);
+   const xAOD::L2CombinedMuonContainer* vectorOfMuons;
    HLT::ErrorCode status = getFeature(outputTE, vectorOfMuons);
    if (status != HLT::OK) {
       msg() << MSG::ERROR << " getFeature fails to get the L2CombinedMuonContainer " << endreq;
