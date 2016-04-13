@@ -34,13 +34,26 @@ prefixName = ""
 
 ## More fine-tuning available for each tool/alg below (default value shown)
 
+#################
+### Setup skimming tools
+#################
+skimmingTools = []
+
+# Applying prescales 
+# https://twiki.cern.ch/twiki/bin/view/AtlasProtected/DerivationFramework#Applying_prescales
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
+from InDetPrepRawDataToxAOD.SCTxAODJobProperties import SCTxAODFlags
+prescaleTool = DerivationFramework__PrescaleTool(name = "SCTxAOD_PrescaleTool",
+                                                 Prescale = SCTxAODFlags.Prescale())
+ToolSvc += prescaleTool
+skimmingTools += [prescaleTool]
 
 #################
 ### Setup decorators tools
 #################
 
 from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_PrepDataToxAOD
-xAOD_SCT_PrepDataToxAOD = SCT_PrepDataToxAOD( name = "xAOD_SCT_PrepDataToxAOD")
+xAOD_SCT_PrepDataToxAOD = SCT_PrepDataToxAOD( name = "SCTxAOD_SCT_PrepDataToxAOD")
     ## Content steering Properties (default value shown as comment)
 xAOD_SCT_PrepDataToxAOD.OutputLevel=INFO
 xAOD_SCT_PrepDataToxAOD.UseTruthInfo        = dumpTruthInfo
@@ -48,15 +61,13 @@ xAOD_SCT_PrepDataToxAOD.WriteRDOinformation = True
     #xAOD_SCT_PrepDataToxAOD.WriteSDOs           = True
     #xAOD_SCT_PrepDataToxAOD.WriteSiHits         = True # if available
 
-topSequence += xAOD_SCT_PrepDataToxAOD
 if (printSctDxAODConf):
     print xAOD_SCT_PrepDataToxAOD
     print xAOD_SCT_PrepDataToxAOD.properties()
 
 from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_RawDataToxAOD
-xAOD_SCT_RawDataToxAOD = SCT_RawDataToxAOD( name = "xAOD_SCT_RawDataToxAOD")
+xAOD_SCT_RawDataToxAOD = SCT_RawDataToxAOD( name = "SCTxAOD_SCT_RawDataToxAOD")
 xAOD_SCT_RawDataToxAOD.OutputLevel = INFO
-topSequence += xAOD_SCT_RawDataToxAOD
 if printSctDxAODConf:
     print xAOD_SCT_RawDataToxAOD
     print xAOD_SCT_RawDataToxAOD.properties()
@@ -68,7 +79,7 @@ if printSctDxAODConf:
 from AthenaCommon import CfgMgr
 
 # DerivationJob is COMMON TO ALL DERIVATIONS
-DerivationFrameworkJob = CfgMgr.AthSequencer("MySeq2")
+DerivationFrameworkJob = CfgMgr.AthSequencer("SCTxAOD_Seq")
 
 # Set up stream auditor
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -81,7 +92,7 @@ svcMgr.DecisionSvc.CalcStats = True
 augmentationTools=[]
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
-DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateOnSurfaceDecorator",
+DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "SCTxAOD_DFTrackStateOnSurfaceDecorator",
                                                           ContainerName = "InDetTrackParticles",
                                                           DecorationPrefix = prefixName,
                                                           StoreTRT   = False,
@@ -96,7 +107,7 @@ augmentationTools+=[DFTSOS]
 # Add BS error augmentation tool
 if dumpBytestreamErrors:
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EventInfoBSErrDecorator
-    DFEI = DerivationFramework__EventInfoBSErrDecorator(name = "DFEventInfoBSErrDecorator",
+    DFEI = DerivationFramework__EventInfoBSErrDecorator(name = "SCTxAOD_DFEventInfoBSErrDecorator",
                                                         ContainerName = "EventInfo",
                                                         DecorationPrefix = prefixName,
                                                         OutputLevel =INFO)
@@ -109,10 +120,9 @@ if dumpBytestreamErrors:
 # Add Unassociated hits augmentation tool
 if dumpUnassociatedHits:
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UnassociatedHitsGetterTool 
-    unassociatedHitsGetterTool = DerivationFramework__UnassociatedHitsGetterTool (name = 'unassociatedHitsGetter',
+    unassociatedHitsGetterTool = DerivationFramework__UnassociatedHitsGetterTool (name = 'SCTxAOD_unassociatedHitsGetter',
                                                                                   TrackCollection = "Tracks",
-                                                                                
-  PixelClusters = "PixelClusters",
+                                                                                  PixelClusters = "PixelClusters",
                                                                                   SCTClusterContainer = "SCT_Clusters",
                                                                                   TRTDriftCircleContainer = "TRT_DriftCircles")
     ToolSvc += unassociatedHitsGetterTool
@@ -121,7 +131,7 @@ if dumpUnassociatedHits:
         print unassociatedHitsGetterTool.properties()
 
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UnassociatedHitsDecorator
-    unassociatedHitsDecorator = DerivationFramework__UnassociatedHitsDecorator (name ='unassociatedHitsDecorator',
+    unassociatedHitsDecorator = DerivationFramework__UnassociatedHitsDecorator (name ='SCTxAOD_unassociatedHitsDecorator',
                                                                                 UnassociatedHitsGetter = unassociatedHitsGetterTool,
                                                                                 ContainerName = "EventInfo",
                                                                                 DecorationPrefix = prefixName,
@@ -134,8 +144,13 @@ if dumpUnassociatedHits:
 
 
 # Add the derivation job to the top AthAlgSeqeuence
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("DFTSOS_KERN",
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("SCTxAOD_PreSelection",
+                                                                       SkimmingTools = skimmingTools,
+                                                                       OutputLevel =INFO)
+DerivationFrameworkJob += xAOD_SCT_PrepDataToxAOD
+DerivationFrameworkJob += xAOD_SCT_RawDataToxAOD
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("SCTxAOD_DF_KERN",
                                                                         AugmentationTools = augmentationTools,
                                                                         OutputLevel =INFO)
 
@@ -154,6 +169,7 @@ from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteDAOD_SCTVALIDStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_SCTVALIDStream )
 SCTVALIDStream = MSMgr.NewPoolRootStream( streamName, fileName )
+SCTVALIDStream.AcceptAlgs(["SCTxAOD_DF_KERN"])
 excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
 # Add generic event information
