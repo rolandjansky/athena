@@ -7,19 +7,30 @@
 #include "MCTruth/TruthController.h"
 #include "MCTruth/TrackHelper.h"
 #include "SimHelpers/TrackVisualizationHelper.h"
-#include "SimHelpers/SecondaryTracksHelper.h"
-#include "G4TrackVector.hh"
+
+// Visualization stuff
 #include "G4VVisManager.hh"
 #include "G4Polyline.hh"
 #include "G4Polymarker.hh"
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
-#include <iostream>
+
+
+AtlasTrajectory::AtlasTrajectory(const G4Track* track)
+  : G4Trajectory(track), m_numCurrentSec(0)
+{}
+
 
 void AtlasTrajectory::AppendStep(const G4Step* aStep)
 {
-  int nsecs=theSecondaryTrackHelper.NrOfNewSecondaries();
-  if (nsecs)
+  // Calculate the number of new secondaries
+  int numTotalSec = aStep->GetSecondary()->size();
+  int numNewSec = numTotalSec - m_numCurrentSec;
+
+  // This method not available until G4 10.2
+  //int numTotalSec = aStep->GetNumberOfSecondariesInCurrentStep();
+
+  if (numNewSec > 0)
     {
       // OK, there was an interation. look at the track, if it
       // is not a secondary (i.e. we have a connected tree) we
@@ -27,22 +38,27 @@ void AtlasTrajectory::AppendStep(const G4Step* aStep)
       TrackHelper tHelper(aStep->GetTrack());
       if (!tHelper.IsSecondary())
         {
-          TruthStrategyManager *sManager=TruthStrategyManager::
-            GetStrategyManager();
+          TruthStrategyManager* sManager =
+            TruthStrategyManager::GetStrategyManager();
           if (sManager->IsApplicable())
             {
-              sManager->SetNrOfSecondaries(nsecs);
+              sManager->SetNrOfSecondaries(numNewSec);
               sManager->AnalyzeVertex(aStep);
             }
         }
     }
+
+  // Update current number of secondaries
+  m_numCurrentSec = numTotalSec;
+
+  // Call the base class
   G4Trajectory::AppendStep(aStep);
 }
 
 #if G4VERSION_NUMBER < 1010
 void AtlasTrajectory::DrawTrajectory(G4int i_mode=0) const
 #else
-  void AtlasTrajectory::DrawTrajectory(G4int i_mode) const
+void AtlasTrajectory::DrawTrajectory(G4int i_mode) const
 #endif
 {
   // If i_mode>=0, draws a trajectory as a polyline (blue for
@@ -123,7 +139,8 @@ void AtlasTrajectory::DrawTrajectory(G4int i_mode=0) const
           else if (pname=="mu+" || pname=="mu-") colour = G4Colour(0.,0.,1.);
           else if (pname=="gamma") colour = G4Colour(60./256.,79./256.,113./256.);
           else if (pname=="neutron") colour = G4Colour(1.,1.,1.);
-          else if (pname=="pi-"|| pname=="pi+") colour=G4Colour(250/256.,128/256.,114/256.);
+          else if (pname=="pi-"|| pname=="pi+")
+            colour = G4Colour(250/256.,128/256.,114/256.);
           else colour = G4Colour(176/256.,48/256.,96/256.);
         }
       G4VisAttributes trajectoryLineAttribs(colour);
