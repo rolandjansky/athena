@@ -28,7 +28,7 @@
 namespace ISF {
 
   class ISFParticle;
-  class ITruthBinding;
+  class TruthBinding;
  
   static const InterfaceID IID_IParticleHelper("IParticleHelper", 1, 0);
    
@@ -61,7 +61,7 @@ namespace ISF {
                                               double pTime,
                                               const ISFParticle &parent,
                                               Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode,
-                                              ITruthBinding* tBinding = 0) const = 0;
+                                              TruthBinding* tBinding = nullptr) const = 0;
 
        /** Create a new particle */
        virtual ISFParticle* createParticle( const Amg::Vector3D& x,
@@ -72,7 +72,7 @@ namespace ISF {
                                             double pTime,
                                             const ISFParticle &parent,
                                             Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode,
-                                            ITruthBinding* tBinding = 0) const = 0;
+                                            TruthBinding* tBinding = nullptr) const = 0;
 
        /** Create a new particle */
        virtual ISFParticle* createParticle( const HepGeom::Point3D<double>& x,
@@ -83,7 +83,7 @@ namespace ISF {
                                             double pTime,
                                             const ISFParticle &parent,
                                             Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode,
-                                            ITruthBinding* tBinding = 0) const = 0;
+                                            TruthBinding* tBinding = nullptr) const = 0;
 
        /** An updated particle (e.g. after transport) */
        virtual ISFParticle* updatedParticle( const ISFParticle& origIsp,
