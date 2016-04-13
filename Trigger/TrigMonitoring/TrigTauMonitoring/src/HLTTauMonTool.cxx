@@ -108,18 +108,21 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
     declareProperty("primary_tau", 		m_primary_tau);
     declareProperty("monitoring_tau", 		m_monitoring_tau);
     declareProperty("prescaled_tau", 		m_prescaled_tau);
+    declareProperty("highpt_tau",               m_highpt_tau);
     declareProperty("EffOffTauPtCut", 		m_effOffTauPtCut=20000.);
     declareProperty("TurnOnCurves", 		m_turnOnCurves=true);
     declareProperty("TurnOnCurvesDenom",        m_turnOnCurvesDenom="RecoID");
     declareProperty("doTruth", 			m_truth=false);
     declareProperty("doRealZtautauEff",		m_RealZtautauEff=false);
+    declareProperty("dodijetFakeTausEff",       m_dijetFakeTausEff=false);
     declareProperty("doBootstrap",              m_bootstrap=true);
     declareProperty("doEmulation",         	m_emulation=false, "boolean to switch on emulation");
     declareProperty("emulation_l1_tau",         m_emulation_l1_tau, "List of L1 chains to emulate");    
     declareProperty("emulation_hlt_tau",        m_emulation_hlt_tau, "List of HLT chains to emulate");
     declareProperty("L1EmulationTool",          m_l1emulationTool, "Handle to the L1 emulation tool");
     //declareProperty("HltEmulationTool", 	m_hltemulationTool,  "Handle to the HLT emulation tool");
-    declareProperty("doTestTracking", 		m_doTestTracking=false);
+    declareProperty("doTrackCurves",            m_doTrackCurves=false, "Efficiency plots of track distributions");
+    //declareProperty("doTestTracking", 		m_doTestTracking=false);
     declareProperty("doTopoValidation",         m_doTopoValidation=false);
     declareProperty("topo_chains",              m_topo_chains);
     declareProperty("topo_support_chains",      m_topo_support_chains);
@@ -159,6 +162,9 @@ StatusCode HLTTauMonTool::init() {
     }
     for(std::vector<std::string>::iterator it = m_prescaled_tau.begin(); it != m_prescaled_tau.end(); ++it) {
         m_trigItems.push_back(*it);
+    }
+    for(std::vector<std::string>::iterator it = m_highpt_tau.begin(); it != m_highpt_tau.end(); ++it) {
+      m_trigItemsHighPt.push_back(*it);
     }
 
 //   ATH_MSG_WARNING("Retrieving HLT tau chains");
@@ -206,20 +212,20 @@ StatusCode HLTTauMonTool::fill() {
     ATH_MSG_DEBUG(" ====== Begin fillHists() ====== ");
     StatusCode sc;
  
-    if(!m_trigItemsAll.size()){ 
-      ATH_MSG_DEBUG("Retrieving HLT tau chains");
-      const Trig::ChainGroup* m_allHLTTauItems = getTDT()->getChainGroup("HLT_.*tau.*");
-      m_trigItemsAll = m_allHLTTauItems->getListOfTriggers();
-      ATH_MSG_DEBUG("Retrieved "<< m_trigItemsAll.size() << " chains");
-      for(unsigned int i=0;i<m_trigItemsAll.size();++i){
-        ATH_MSG_DEBUG("ChainGroup "<< m_trigItemsAll.at(i).c_str());
-       }
+//    if(!m_trigItemsAll.size()){ 
+//      ATH_MSG_DEBUG("Retrieving HLT tau chains");
+//      const Trig::ChainGroup* m_allHLTTauItems = getTDT()->getChainGroup("HLT_.*tau.*");
+//      m_trigItemsAll = m_allHLTTauItems->getListOfTriggers();
+//      ATH_MSG_DEBUG("Retrieved "<< m_trigItemsAll.size() << " chains");
+//      for(unsigned int i=0;i<m_trigItemsAll.size();++i){
+//        ATH_MSG_DEBUG("ChainGroup "<< m_trigItemsAll.at(i).c_str());
+//       }
 //      for(unsigned int j=0;j<m_trigItems.size();++j){
 //        bool activeChain(false);
 //	for(unsigned int i=0;i<m_trigItemsAll.size();++i) if("HLT_"+m_trigItems.at(j) == m_trigItemsAll.at(i)) activeChain = true;
 //	if(!activeChain && m_trigItems.at(j)!="Dump") ATH_MSG_WARNING("trigger chain " << m_trigItems.at(j) << " not active! skipping");
 //      }
-    }
+//   }
 
  
     for(unsigned int j=0;j<m_trigItems.size();++j)
@@ -231,21 +237,42 @@ StatusCode HLTTauMonTool::fill() {
         const unsigned int TBP_bit = getTDT()->isPassedBits(trig_item_L1);
 	if(TBP_bit & TrigDefs::L1_isPassedBeforePrescale) hist("hL1TBPCounts","HLT/TauMon/Expert")->Fill(m_trigItems.at(j).c_str(),1.);
 
-	bool activeChain(false);
-	for(unsigned int i=0;i<m_trigItemsAll.size();++i) if("HLT_"+m_trigItems.at(j) == m_trigItemsAll.at(i)) activeChain = true;
-	if(m_trigItems.at(j).find("emulate")!=std::string::npos) activeChain = true;
-	if(!activeChain && m_trigItems.at(j)!="Dump"){ATH_MSG_DEBUG("trigger chain " << m_trigItems.at(j) << " not active! skipping");}
-	else {
-		std::string trig_item_EF = "HLT_"+m_trigItems.at(j);
-		std::string trig_item_L1(LowerChain( trig_item_EF ) );
+//	bool activeChain(false);
+//	for(unsigned int i=0;i<m_trigItemsAll.size();++i) if("HLT_"+m_trigItems.at(j) == m_trigItemsAll.at(i)) activeChain = true;
+//	if(!activeChain && m_trigItems.at(j)!="Dump"){ATH_MSG_DEBUG("trigger chain " << m_trigItems.at(j) << " not active! skipping");}
+//	else {
+//		std::string trig_item_EF = "HLT_"+m_trigItems.at(j);
+//		std::string trig_item_L1(LowerChain( trig_item_EF ) );
 
-		if ( getTDT()->isPassed(trig_item_L1,m_L1TriggerCondition) ) hist("hL1Counts","HLT/TauMon/Expert")->Fill(m_trigItems.at(j).c_str(),1.);
-		if ( getTDT()->isPassed(trig_item_EF,m_HLTTriggerCondition) ) hist("hHLTCounts","HLT/TauMon/Expert")->Fill(m_trigItems.at(j).c_str(),1.);  
+	if ( getTDT()->isPassed(trig_item_L1,m_L1TriggerCondition) ) hist("hL1Counts","HLT/TauMon/Expert")->Fill(m_trigItems.at(j).c_str(),1.);
+	if ( getTDT()->isPassed(trig_item_EF,m_HLTTriggerCondition) ) hist("hHLTCounts","HLT/TauMon/Expert")->Fill(m_trigItems.at(j).c_str(),1.);  
 		//testL1TopoNavigation(m_trigItems[j]);
 		//testPrescaleRetrieval(m_trigItems[j]);
-		sc = fillHistogramsForItem(m_trigItems[j]);
-		if(sc.isFailure()){ ATH_MSG_WARNING("Failed at fillHistogramsForItem. Exiting!"); return StatusCode::FAILURE;}       	
-    	}	 
+	sc = fillHistogramsForItem(m_trigItems[j]);
+	if(sc.isFailure()){ ATH_MSG_WARNING("Failed at fillHistogramsForItem. Exiting!"); return StatusCode::FAILURE;} 
+	if(m_doTrackCurves){
+		sc = trackCurves (m_trigItems[j]);
+		if(sc.isFailure()){ ATH_MSG_WARNING("Failed trackCurves(). Exiting!"); return StatusCode::FAILURE;}
+	}
+//      	}      		 
+
+//	if(trig_item_L1=="L1_TAU20IM_2TAU12IM_J25_2J20_3J12"){
+//
+//		const xAOD::JetContainer * jet_cont = 0;
+//		if(evtStore()->retrieve(jet_cont, "AntiKt4EMTopoJets").isFailure())
+//	  	{
+//	    		ATH_MSG_WARNING("Failed to retrieve AntiKt4EMTopoJets container. Exiting.");
+//	    		return StatusCode::FAILURE;
+//	  	}
+//		float maxPt=0;
+//		xAOD::JetContainer::const_iterator jetItr, jet_cont_end = jet_cont->end();
+//		for(jetItr=jet_cont->begin(); jetItr!=jet_cont_end; ++jetItr){
+//	    		if((*jetItr)->pt()>maxPt) maxPt=(*jetItr)->pt();
+//		}
+//		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+//	    	if(getTDT()->isPassed("L1_TAU20IM_2TAU12IM_J25_2J20_3J12",m_L1TriggerCondition)) profile("TProfRecoL1_J25PtEfficiency")->Fill(maxPt/1000.,1);
+//		else if(getTDT()->isPassed("L1_TAU20IM_2TAU12IM",m_L1TriggerCondition)) profile("TProfRecoL1_J25PtEfficiency")->Fill(maxPt/1000.,0);
+//    	}
     }
 
     if(m_doTopoValidation){
@@ -266,10 +293,16 @@ StatusCode HLTTauMonTool::fill() {
         sc = RealZTauTauEfficiency();
         if(sc.isFailure()){ ATH_MSG_WARNING("Failed RealZTauTauEfficiency(). Exiting!"); return StatusCode::FAILURE;}
       }
-    
-    if(m_doTestTracking){ sc = test2StepTracking();
-      if(sc.isFailure()){ ATH_MSG_WARNING("Failed at test2Steptracking. Exiting!"); return StatusCode::FAILURE;}
-    }
+
+    if(m_dijetFakeTausEff)
+      {
+        sc = dijetFakeTausEfficiency();
+        if(sc.isFailure()){ ATH_MSG_WARNING("Failed dijetFakeTausEfficiency(). Exiting!"); return StatusCode::FAILURE;}
+      }
+  
+    //if(m_doTestTracking){ sc = test2StepTracking();
+    //  if(sc.isFailure()){ ATH_MSG_WARNING("Failed at test2Steptracking. Exiting!"); return StatusCode::FAILURE;}
+    //}
     return sc;
     //ATH_MSG_DEBUG(" ====== End fillHists() ====== ");
     
@@ -376,11 +409,19 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
          ATH_MSG_DEBUG("No features for chain " << trig_item_L1);
          hist("hL1CountsDebug","HLT/TauMon/Expert")->Fill(trigItem.c_str(),1.);
        }
+       else ATH_MSG_DEBUG("The chain " << trig_item_L1 << " has " << f.getCombinations().size() << " combinations");
+
+
+       std::vector< uint32_t > tau_roIWord;
+       std::vector< float > tau_roi_eta;
+       std::vector< float > tau_roi_phi;
+       std::vector< uint32_t > jet_roIWord;
        for(;comb!=combEnd;++comb){
 
          const std::vector< Trig::Feature<TrigRoiDescriptor> > vec_roi = comb->get<TrigRoiDescriptor>("initialRoI",m_L1TriggerCondition);
          std::vector< Trig::Feature<TrigRoiDescriptor> >::const_iterator roi = vec_roi.begin(), roi_e = vec_roi.end();
-
+         ATH_MSG_DEBUG("Combination with " << vec_roi.size() << "RoIs");
+	 
          const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
          if ( m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isFailure() ){ // retrieve arguments: container type, container key
            ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting.");
@@ -394,14 +435,23 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
          for(roi = vec_roi.begin(); roi != roi_e; ++roi)
            if(roi->cptr()){
              for(itEMTau = l1Tau_cont->begin(); itEMTau!=itEMTau_e; ++itEMTau){
-     	       if(roi->cptr()->roiWord()!=(*itEMTau)->roiWord()) continue;
-     	       if(!Selection(*itEMTau)) continue;
-               setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1RoI");
-               sc = fillL1Tau(*itEMTau);
-               if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill L1RoI histo. Exiting!"); return StatusCode::FAILURE;}
-               setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1VsOffline");
-               sc = fillL1TauVsOffline(*itEMTau);
-               if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill L1VsOffline histo. Exiting!"); return StatusCode::FAILURE;}
+     	       if(roi->cptr()->roiWord()==(*itEMTau)->roiWord()){
+     	         if(!Selection(*itEMTau)) continue;
+                 bool newRoI=true;
+		 for(unsigned int l1tau=0;l1tau<tau_roIWord.size();l1tau++) if(roi->cptr()->roiWord()==tau_roIWord.at(l1tau)) newRoI=false;
+                 if(!newRoI) break; 
+                 tau_roIWord.push_back(roi->cptr()->roiWord()); 
+                 tau_roi_eta.push_back((*itEMTau)->eta());
+                 tau_roi_phi.push_back((*itEMTau)->phi());
+          	 ATH_MSG_DEBUG("Found RoI in (" << (*itEMTau)->eta() << "," << (*itEMTau)->phi() <<")");
+                 setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1RoI");
+                 sc = fillL1Tau(*itEMTau);
+                 if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill L1RoI histo. Exiting!"); return StatusCode::FAILURE;}
+                 setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1VsOffline");
+                 sc = fillL1TauVsOffline(*itEMTau);
+                 if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill L1VsOffline histo. Exiting!"); return StatusCode::FAILURE;}
+		 break;
+               }
              }
            }
 
@@ -420,22 +470,23 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 	  
 	  for(roi = vec_roi.begin(); roi != roi_e; ++roi) if(roi->cptr()){
 		for(itJetRoI = l1jets->begin(); itJetRoI!=itJetRoI_e; ++itJetRoI){
-			if(roi->cptr()->roiWord()!=(*itJetRoI)->roiWord()) continue;
-			bool isAlsoEMTauRoI = false;
-			for(roi1 = vec_roi.begin(); roi1 != roi1_e; ++roi1) if(roi1->cptr()){
-             			for(itEMTau = l1Tau_cont->begin(); itEMTau!=itEMTau_e; ++itEMTau){
-               				if(roi1->cptr()->roiWord()!=(*itEMTau)->roiWord()) continue;
-					if(deltaR((*itEMTau)->eta(), (*itJetRoI)->eta(), (*itEMTau)->phi(), (*itJetRoI)->phi())<0.3 ) isAlsoEMTauRoI = true;	
-				}
+			if(roi->cptr()->roiWord()==(*itJetRoI)->roiWord()){ // found jet RoI
+			  bool isAlsoEMTauRoI = false;
+                          for(unsigned int l1tau = 0; l1tau<tau_roIWord.size();l1tau++) if(roi->cptr()->roiWord()==tau_roIWord.at(l1tau)) {isAlsoEMTauRoI = true; break;}
+			  if(isAlsoEMTauRoI) break; // skip, it's a tau RoI
+                          bool newRoI=true;
+                          for(unsigned int l1jet=0;l1jet<jet_roIWord.size();l1jet++) if(roi->cptr()->roiWord()==jet_roIWord.at(l1jet)) newRoI=false;
+                          if(!newRoI) break;
+                          jet_roIWord.push_back(roi->cptr()->roiWord());
+			  ATH_MSG_DEBUG("Found L1 Jet RoI in chain " << trig_item_L1);
+			  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1RoI");
+          		  sc = fillL1Jet(*itJetRoI);
+			  if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill L1RoI Jet histo. Exiting!"); return StatusCode::FAILURE;}		
+			  break;
 			}
-			if(isAlsoEMTauRoI) continue;
-			ATH_MSG_DEBUG("Found L1 Jet RoI in chain " << trig_item_L1);
-			setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1RoI");
-          		sc = fillL1Jet(*itJetRoI);
-			if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill L1RoI Jet histo. Exiting!"); return StatusCode::FAILURE;}		
 		}
 	  }
-
+	}
 	//  if(trig_item_L1=="L1_TAU20IM_2TAU12IM_J25_2J20_3J12"){ 
 	//	ATH_MSG_WARNING("fired L1_TAU20IM_2TAU12IM_J25_2J20_3J12");
 	//	for(roi = vec_roi.begin(); roi != roi_e; ++roi) if(roi->cptr()){
@@ -449,7 +500,29 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
         //        }
 	//  }
 
-        }
+        if(trig_item_L1=="L1_TAU20IM_2TAU12IM" && getTDT()->isPassed(trig_item_L1,m_L1TriggerCondition)){
+
+                const xAOD::JetContainer * jet_cont = 0;
+                if(evtStore()->retrieve(jet_cont, "AntiKt4LCTopoJets").isFailure())
+                {
+                        ATH_MSG_WARNING("Failed to retrieve AntiKt4EMTopoJets container. Exiting.");
+                        return StatusCode::FAILURE;
+                }
+                float maxPt=0;
+                xAOD::JetContainer::const_iterator jetItr, jet_cont_end = jet_cont->end();
+                for(jetItr=jet_cont->begin(); jetItr!=jet_cont_end; ++jetItr){
+			if(fabs((*jetItr)->eta())>3.2) continue;
+			bool tauRoi = false;
+  			for(unsigned int l1tau = 0; l1tau<tau_roIWord.size();l1tau++){
+                        	if(deltaR((*jetItr)->eta(), tau_roi_eta.at(l1tau), (*jetItr)->phi(), tau_roi_phi.at(l1tau)) < 0.3) tauRoi = true;
+			}
+			if(tauRoi) continue;
+                        if((*jetItr)->pt()>maxPt) maxPt=(*jetItr)->pt();
+                }
+                setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+                if(getTDT()->isPassed("L1_TAU20IM_2TAU12IM_J25_2J20_3J12",m_L1TriggerCondition)) profile("TProfRecoL1_J25PtEfficiency")->Fill(maxPt/1000.,1);
+                else  profile("TProfRecoL1_J25PtEfficiency")->Fill(maxPt/1000.,0);
+        } 
 
      }// end L1 histos
 
@@ -544,7 +617,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 //      if(m_truth) sc = TauEfficiencyCombo(trigItem);
 //      if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill combo eff curves. Exiting!"); return StatusCode::FAILURE;}
     }  
-    
+
     if (!sc.isSuccess()) {
         ATH_MSG_WARNING("Could not fill histograms for given item.");
     }
@@ -638,8 +711,8 @@ StatusCode HLTTauMonTool::fillPreselTau(const xAOD::TauJet *aEFTau){
     hist("hFTFnTrack")->Fill(EFnTrack);
     hist("hEta")->Fill(aEFTau->eta());
     hist("hPhi")->Fill(aEFTau->phi());
-    float dRMax=-1; 
-    if(aEFTau->detail(xAOD::TauJetParameters::dRmax, dRMax)) hist("hdRmax")->Fill(dRMax); 
+    //float dRMax=-1; 
+    //if(aEFTau->detail(xAOD::TauJetParameters::dRmax, dRMax)) hist("hdRmax")->Fill(dRMax); 
     hist2("hEFEtaVsPhi")->Fill(aEFTau->eta(),aEFTau->phi());
     hist2("hEtVsEta")->Fill(aEFTau->eta(),aEFTau->pt()/CLHEP::GeV);
     hist2("hEtVsPhi")->Fill(aEFTau->phi(),aEFTau->pt()/CLHEP::GeV);
@@ -703,12 +776,17 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   if(EFnTrack>1) isMP = true;
   //Pileup
   mu = Pileup();
-  
+
   if(BDTinput_type == "basicVars")
     {
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau");
       hist("hEFEt")->Fill(aEFTau->pt()/CLHEP::GeV);
       hist("hEFEta")->Fill(aEFTau->eta());
+      int num_vxt(0);
+      try {num_vxt = aEFTau->auxdata< int >("NUMVERTICES");}
+      catch(std::exception e) {ATH_MSG_DEBUG("HLTTauMonTool: NUMVERTICES decoration not found");}
+      hist("hEFNUM")->Fill(num_vxt);
+      hist2("hEFNUMvsmu")->Fill(num_vxt,mu);
       hist("hEFPhi")->Fill(aEFTau->phi());
       hist("hEFnTrack")->Fill(EFnTrack);
       hist("hEFnWideTrack")->Fill(aEFTau->nWideTracks());
@@ -1236,7 +1314,6 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
   if(BDTinput_type == "basicVars")
     {
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFVsOffline");
-
       //Basic Vars
       hist2("hEFvsOffnTrks")->Fill(aOfflineTau->nTracks(), aEFTau->nTracks());
       hist2("hEFvsOffnWideTrks")->Fill(aOfflineTau->nWideTracks(), aEFTau->nWideTracks());
@@ -1457,85 +1534,6 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
     }
   
   return StatusCode::SUCCESS;
-}
-
-
-StatusCode HLTTauMonTool::fillTopoValidation(const std::string & trigItem_topo, const std::string & trigItem_support){
-
-//	if(!getTDT()->isPassed(trigItem_topo,m_L1TriggerCondition)) return StatusCode::SUCCESS;
-
-	const xAOD::JetRoIContainer *l1jets = 0;
-//        const xAOD::EmTauRoIContainer *l1taus = 0;
-
-	if ( m_storeGate->retrieve( l1jets, "LVL1JetRoIs").isFailure() ){
-		ATH_MSG_WARNING("Failed to retrieve LVL1JetRoIs container. Exiting.");
-		//return StatusCode::FAILURE;
-	}
-//	if ( m_storeGate->retrieve( l1taus, "LVL1EmTauRoIs").isFailure() ){
-//                ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoIs container. Exiting.");
-//                //return StatusCode::FAILURE;
-//        }
-   
-	xAOD::JetRoIContainer::const_iterator itJetRoI;
-	xAOD::JetRoIContainer::const_iterator itJetRoI_e = l1jets->end();
-//	xAOD::EmTauRoIContainer::const_iterator itEMTau = l1taus->begin();
-//	xAOD::EmTauRoIContainer::const_iterator itEMTau_e = l1taus->end();
-
-	if(getTDT()->isPassed(trigItem_topo,m_L1TriggerCondition) && !getTDT()->isPassed(trigItem_support,m_L1TriggerCondition)){
-		setCurrentMonGroup("HLT/TauMon/Expert/TopoValidation");
-		hist("hSupportMismatch")->Fill(trigItem_topo.c_str(),1.);
-		return StatusCode::SUCCESS;
-	}
-	if(!getTDT()->isPassed(trigItem_support,m_L1TriggerCondition)) return StatusCode::SUCCESS;
-
-	setCurrentMonGroup("HLT/TauMon/Expert/TopoValidation/"+trigItem_topo);
-	Trig::FeatureContainer f = ( getTDT()->features(trigItem_support,m_L1TriggerCondition) );
-	Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()), combEnd(f.getCombinations().end());
-
-	float min_dR(100.);
-        float min_dR_nojets(100.);
-        float min_dR_jets(100.);
-	for(;comb!=combEnd;++comb){
-		const std::vector< Trig::Feature<TrigRoiDescriptor> > vec_roi = comb->get<TrigRoiDescriptor>("initialRoI",m_L1TriggerCondition);
-		std::vector< Trig::Feature<TrigRoiDescriptor> >::const_iterator roi = vec_roi.begin(), roi1 = vec_roi.begin(), roi_e = vec_roi.end();
-
-                std::vector<bool> jet_roi;
-		std::vector<float> phi_roi;
-		std::vector<float> eta_roi;
-                for(roi = vec_roi.begin(); roi != roi_e; ++roi) if(roi->cptr()){
-                        jet_roi.push_back(false);
-			phi_roi.push_back(roi->cptr()->phi());
-			eta_roi.push_back(roi->cptr()->eta());
-                        for(itJetRoI = l1jets->begin(); itJetRoI!=itJetRoI_e; ++itJetRoI){
-                                if(roi->cptr()->roiWord()==(*itJetRoI)->roiWord()) jet_roi.back()=true;
-                        }
-                }
-
-		for(unsigned int i = 0; i < phi_roi.size(); ++i){
-			for(unsigned int j = i+1; j < phi_roi.size(); ++j){	
-				float dR = deltaR(eta_roi.at(i),eta_roi.at(j),phi_roi.at(i),phi_roi.at(j));
-				if(dR<0.3) continue;
-				if(dR<min_dR) min_dR = dR;
-				if(!jet_roi.at(i) && !jet_roi.at(j)) if(dR<min_dR_nojets) min_dR_nojets = dR;
-				if(jet_roi.at(i) || jet_roi.at(j)) if(dR<min_dR_jets) min_dR_jets = dR;			
-			}
-		}
-		
-	}
-
-	if(getTDT()->isPassed(trigItem_topo,m_L1TriggerCondition)){
-		hist("hDR")->Fill(min_dR);
-        	hist("hDRnoJets")->Fill(min_dR_nojets);
-        	hist("hDRjets")->Fill(min_dR_jets);
-	}
-        else {
-                hist("hDR_noTopo")->Fill(min_dR);
-                hist("hDRnoJets_noTopo")->Fill(min_dR_nojets);
-                hist("hDRjets_noTopo")->Fill(min_dR_jets);
-        }
-
-	return StatusCode::SUCCESS;
-
 }
 
 //------------------------------------------------------------------------------------
@@ -2058,62 +2056,66 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 	  int ntracks = ntrk_TauDenom.at(i);
 	  if(m_L1StringCondition=="allowResurrectedDecision" || m_HLTStringCondition=="allowResurrectedDecision"){
 	    if(tlv_TauDenom.at(i).DeltaR(Muon_TLV)<0.4) continue;
-		}
+	  }
 	  double pt = tlv_TauDenom.at(i).Pt();
 	  double eta = tlv_TauDenom.at(i).Eta();
 	  double phi = tlv_TauDenom.at(i).Phi();
 	  
-	  	if(m_selection_nTrkMax>-1 && ntracks>m_selection_nTrkMax) continue;
-   	  	if(m_selection_nTrkMin>-1 && ntracks<m_selection_nTrkMin) continue;
-   	  	if(m_selection_ptMax>-1 && pt>m_selection_ptMax) continue;
-   	  	if(m_selection_ptMin>-1 && pt<m_selection_ptMin) continue;
-   	  	if(m_selection_absEtaMax>-1 && fabs(eta)>m_selection_absEtaMax) continue;
-   	  	if(m_selection_absEtaMin>-1 && fabs(eta)<m_selection_absEtaMin) continue;
-   	  	if(m_selection_absPhiMax>-1 && fabs(phi)>m_selection_absPhiMax) continue;
-   	  	if(m_selection_absPhiMin>-1 && fabs(phi)<m_selection_absPhiMin) continue;
+	  if(m_selection_nTrkMax>-1 && ntracks>m_selection_nTrkMax) continue;
+   	  if(m_selection_nTrkMin>-1 && ntracks<m_selection_nTrkMin) continue;
+   	  if(m_selection_ptMax>-1 && pt>m_selection_ptMax) continue;
+   	  if(m_selection_ptMin>-1 && pt<m_selection_ptMin) continue;
+   	  if(m_selection_absEtaMax>-1 && fabs(eta)>m_selection_absEtaMax) continue;
+   	  if(m_selection_absEtaMin>-1 && fabs(eta)<m_selection_absEtaMin) continue;
+   	  if(m_selection_absPhiMax>-1 && fabs(phi)>m_selection_absPhiMax) continue;
+   	  if(m_selection_absPhiMin>-1 && fabs(phi)<m_selection_absPhiMin) continue;
 		
-
-
-      		hist("hRecoTauPtDenom")->Fill(pt/1000.);
-      		if(ntracks == 1) hist("hRecoTauPt1PDenom")->Fill(pt/1000.);
-      		if(ntracks > 1)  hist("hRecoTauPt3PDenom")->Fill(pt/1000.);
-		hist("hRecoTauEtaDenom")->Fill(eta);
-      		hist("hRecoTauPhiDenom")->Fill(phi);
-      		hist("hRecoTauNTrackDenom")->Fill(ntracks);
-      		hist("hRecoTauNVtxDenom")->Fill(nvtx);
-      		hist("hRecoTauMuDenom")->Fill(mu);
-      		hist2("hRecoTauEtaVsPhiDenom")->Fill(eta,phi);
-					
+		//      		hist("hRecoTauPtDenom")->Fill(pt/1000.);
+		//      		if(ntracks == 1) hist("hRecoTauPt1PDenom")->Fill(pt/1000.);
+		//      		if(ntracks > 1)  hist("hRecoTauPt3PDenom")->Fill(pt/1000.);
+		//		hist("hRecoTauEtaDenom")->Fill(eta);
+		//      		hist("hRecoTauPhiDenom")->Fill(phi);
+		//      		hist("hRecoTauNTrackDenom")->Fill(ntracks);
+		//      		hist("hRecoTauNVtxDenom")->Fill(nvtx);
+		//      		hist("hRecoTauMuDenom")->Fill(mu);
+	  hist2("hRecoTauEtaVsPhiDenom")->Fill(eta,phi);				
 		// get prescale wait:
 		//float L1_PS = PrescaleRetrieval(trigItem,"L1");
 		//float Tot_PS = PrescaleRetrieval(trigItem,"TOT");
 		//ATH_MSG_WARNING(trigItem << " " << L1_PS << " " << Tot_PS);
-		if(m_bootstrap && !getTDT()->isPassed("L1_TAU12")) continue; 		
-
+	  if(m_bootstrap && !getTDT()->isPassed("L1_TAU12")) continue; 		
 		//const unsigned int HLT_bits = getTDT()->isPassedBits("HLT_"+trigItem);
 		//if( !(HLT_bits & TrigDefs::EF_resurrected) ) continue;
 
-		if( HLTTauMatching(trigItem, tlv_TauDenom.at(i), 0.2)  ){
-			hist("hRecoHLTPtNum")->Fill(pt/1000.);
-	  		if(ntracks == 1) {hist("hRecoHLTPt1PNum")->Fill(pt/1000.);profile("TProfRecoHLTPt1PEfficiency")->Fill(pt/1000.,1);}
-	  		if(ntracks > 1) {hist("hRecoHLTPt3PNum")->Fill(pt/1000.);profile("TProfRecoHLTPt3PEfficiency")->Fill(pt/1000.,1);}
-	  		hist("hRecoHLTEtaNum")->Fill(eta);
-	  		hist("hRecoHLTPhiNum")->Fill(phi);
-	  		hist("hRecoHLTNTrackNum")->Fill(ntracks);
-	  		hist("hRecoHLTNVtxNum")->Fill(nvtx);
-	  		hist("hRecoHLTMuNum")->Fill(mu);
-	  		hist2("hRecoHLTEtaVsPhiNum")->Fill(eta,phi);
-			profile("TProfRecoHLTPtEfficiency")->Fill(pt/1000.,1);
-			profile("TProfRecoHLTEtaEfficiency")->Fill(eta,1);
-			profile("TProfRecoHLTPhiEfficiency")->Fill(phi,1);
-			profile("TProfRecoHLTNTrackEfficiency")->Fill(ntracks,1);
-			profile("TProfRecoHLTNVtxEfficiency")->Fill(nvtx,1);
-			profile("TProfRecoHLTMuEfficiency")->Fill(mu,1);
-		}
-
-		if( !HLTTauMatching(trigItem, tlv_TauDenom.at(i), 0.2)  ){
+	  if( HLTTauMatching(trigItem, tlv_TauDenom.at(i), 0.2)  ){
+		  //	hist("hRecoHLTPtNum")->Fill(pt/1000.);
+		  //		  if(ntracks == 1) {hist("hRecoHLTPt1PNum")->Fill(pt/1000.);profile("TProfRecoHLTPt1PEfficiency")->Fill(pt/1000.,1);}
+		  //	       	if(ntracks > 1) {hist("hRecoHLTPt3PNum")->Fill(pt/1000.);profile("TProfRecoHLTPt3PEfficiency")->Fill(pt/1000.,1);}
+		  if(ntracks == 1) {profile("TProfRecoHLTPt1PEfficiency")->Fill(pt/1000.,1);}
+		  if(ntracks > 1) {profile("TProfRecoHLTPt3PEfficiency")->Fill(pt/1000.,1);}
+		  profile("TProfRecoHLTHighPtEfficiency")->Fill(pt/1000.,1);
+		  if(ntracks == 1) {profile("TProfRecoHLTHighPt1pEfficiency")->Fill(pt/1000.,1);}
+		  if(ntracks > 1) {profile("TProfRecoHLTHighPt3pEfficiency")->Fill(pt/1000.,1);}
+		  //	  		hist("hRecoHLTEtaNum")->Fill(eta);
+		  //	  		hist("hRecoHLTPhiNum")->Fill(phi);
+		  //	  		hist("hRecoHLTNTrackNum")->Fill(ntracks);
+			//	  		hist("hRecoHLTNVtxNum")->Fill(nvtx);
+			//	  		hist("hRecoHLTMuNum")->Fill(mu);
+		  hist2("hRecoHLTEtaVsPhiNum")->Fill(eta,phi);
+		  profile("TProfRecoHLTPtEfficiency")->Fill(pt/1000.,1);
+		  profile("TProfRecoHLTEtaEfficiency")->Fill(eta,1);
+		  profile("TProfRecoHLTPhiEfficiency")->Fill(phi,1);
+		  profile("TProfRecoHLTNTrackEfficiency")->Fill(ntracks,1);
+		  profile("TProfRecoHLTNVtxEfficiency")->Fill(nvtx,1);
+		  profile("TProfRecoHLTMuEfficiency")->Fill(mu,1);
+	  }
+		
+	  if( !HLTTauMatching(trigItem, tlv_TauDenom.at(i), 0.2)  ){
 		  if(ntracks == 1) profile("TProfRecoHLTPt1PEfficiency")->Fill(pt/1000.,0);
                   if(ntracks > 1) profile("TProfRecoHLTPt3PEfficiency")->Fill(pt/1000.,0);
+		  profile("TProfRecoHLTHighPtEfficiency")->Fill(pt/1000.,0);
+		  if(ntracks == 1) {profile("TProfRecoHLTHighPt1pEfficiency")->Fill(pt/1000.,0);}
+		  if(ntracks > 1) {profile("TProfRecoHLTHighPt3pEfficiency")->Fill(pt/1000.,0);}
 		  profile("TProfRecoHLTPtEfficiency")->Fill(pt/1000.,0);
 		  profile("TProfRecoHLTEtaEfficiency")->Fill(eta,0);
 		  profile("TProfRecoHLTPhiEfficiency")->Fill(phi,0);
@@ -2121,36 +2123,44 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 		  profile("TProfRecoHLTNVtxEfficiency")->Fill(nvtx,0);
 		  profile("TProfRecoHLTMuEfficiency")->Fill(mu,0);
   
-		}
+	  }
 
-                if( L1TauMatching(l1_chain, tlv_TauDenom.at(i), 0.3)  ){
-                        hist("hRecoL1PtNum")->Fill(pt/1000.);
-                        if(ntracks == 1) {hist("hRecoL1Pt1PNum")->Fill(pt/1000.);profile("TProfRecoL1Pt1PEfficiency")->Fill(pt/1000.,1);}
-                        if(ntracks > 1) {hist("hRecoL1Pt3PNum")->Fill(pt/1000.);profile("TProfRecoL1Pt3PEfficiency")->Fill(pt/1000.,1);}
-                        hist("hRecoL1EtaNum")->Fill(eta);
-                        hist("hRecoL1PhiNum")->Fill(phi);
-                        hist("hRecoL1NTrackNum")->Fill(ntracks);
-                        hist("hRecoL1NVtxNum")->Fill(nvtx);
-                        hist("hRecoL1MuNum")->Fill(mu);
-                        hist2("hRecoL1EtaVsPhiNum")->Fill(eta,phi);
+          if( L1TauMatching(l1_chain, tlv_TauDenom.at(i), 0.3)  ){
+		  //                        hist("hRecoL1PtNum")->Fill(pt/1000.);
+		  //                        if(ntracks == 1) {hist("hRecoL1Pt1PNum")->Fill(pt/1000.);profile("TProfRecoL1Pt1PEfficiency")->Fill(pt/1000.,1);}
+		  //                        if(ntracks > 1) {hist("hRecoL1Pt3PNum")->Fill(pt/1000.);profile("TProfRecoL1Pt3PEfficiency")->Fill(pt/1000.,1);}
+                        if(ntracks == 1) {profile("TProfRecoL1Pt1PEfficiency")->Fill(pt/1000.,1);}
+                        if(ntracks > 1) {profile("TProfRecoL1Pt3PEfficiency")->Fill(pt/1000.,1);}
+                        if(ntracks == 1) {profile("TProfRecoL1HighPt1PEfficiency")->Fill(pt/1000.,1);}
+                        if(ntracks > 1) {profile("TProfRecoL1HighPt3PEfficiency")->Fill(pt/1000.,1);}
+			//                        hist("hRecoL1EtaNum")->Fill(eta);
+			//                        hist("hRecoL1PhiNum")->Fill(phi);
+			//                        hist("hRecoL1NTrackNum")->Fill(ntracks);
+			//                        hist("hRecoL1NVtxNum")->Fill(nvtx);
+			//                        hist("hRecoL1MuNum")->Fill(mu);
+			hist2("hRecoL1EtaVsPhiNum")->Fill(eta,phi);
 			profile("TProfRecoL1PtEfficiency")->Fill(pt/1000.,1);
+			profile("TProfRecoL1HighPtEfficiency")->Fill(pt/1000.,1);
 			profile("TProfRecoL1EtaEfficiency")->Fill(eta,1);
 			profile("TProfRecoL1PhiEfficiency")->Fill(phi,1);
 			profile("TProfRecoL1NTrackEfficiency")->Fill(ntracks,1);
 			profile("TProfRecoL1NVtxEfficiency")->Fill(nvtx,1);
 			profile("TProfRecoL1MuEfficiency")->Fill(mu,1);
-                }
+          }
 
-		if( !L1TauMatching(l1_chain, tlv_TauDenom.at(i), 0.3)  ){
+	  if( !L1TauMatching(l1_chain, tlv_TauDenom.at(i), 0.3)  ){
 		  if(ntracks == 1) profile("TProfRecoL1Pt1PEfficiency")->Fill(pt/1000.,0);
 		  if(ntracks > 1) profile("TProfRecoL1Pt3PEfficiency")->Fill(pt/1000.,0);
+		  if(ntracks == 1) {profile("TProfRecoL1HighPt1PEfficiency")->Fill(pt/1000.,0);}
+		  if(ntracks > 1) {profile("TProfRecoL1HighPt3PEfficiency")->Fill(pt/1000.,0);}
 		  profile("TProfRecoL1PtEfficiency")->Fill(pt/1000.,0);
+		  profile("TProfRecoL1HighPtEfficiency")->Fill(pt/1000.,0);
 		  profile("TProfRecoL1EtaEfficiency")->Fill(eta,0);
 		  profile("TProfRecoL1PhiEfficiency")->Fill(phi,0);
 		  profile("TProfRecoL1NTrackEfficiency")->Fill(ntracks,0);
 		  profile("TProfRecoL1NVtxEfficiency")->Fill(nvtx,0);
 		  profile("TProfRecoL1MuEfficiency")->Fill(mu,0);
-		}
+	  }
 	
 	}
 
@@ -2173,29 +2183,40 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 	    if(ntracks!=1 && ntracks!=3 ) continue;
 	    bool good_tau = (*recoItr)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
 	    if(good_tau){
+
+	      //	      std::cout<<"HLT"<<trigItem<<std::endl;
+	      if(trigItem=="tau160_idperf_tracktwo"){
+                setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+		if( HLTTauMatching("tau160_perf_tracktwo", TauTLV, 0.2)  ){
+		  profile("TProfRecoHLT160PtEfficiency")->Fill(pt/1000.,1);}
+		else if( HLTTauMatching("tau160_idperf_tracktwo", TauTLV, 0.2)  ){
+		  profile("TProfRecoHLT160PtEfficiency")->Fill(pt/1000.,0);}
+	      }
+
+
 	      if(trigItem=="tau25_idperf_track"){
 		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
 		if( HLTTauMatching("tau25_idperf_tracktwo", TauTLV, 0.2)  ){
-		  hist("hRecoTau25PtDenom")->Fill(pt/1000.);
-		  if(ntracks == 1) hist("hRecoTau25Pt1PDenom")->Fill(pt/1000.);
-		  if(ntracks > 1)  hist("hRecoTau25Pt3PDenom")->Fill(pt/1000.);
-		  hist("hRecoTau25EtaDenom")->Fill(eta);
-		  hist("hRecoTau25PhiDenom")->Fill(phi);
-		  hist("hRecoTau25NTrackDenom")->Fill(ntracks);
-		  hist("hRecoTau25NVtxDenom")->Fill(nvtx);
-		  hist("hRecoTau25MuDenom")->Fill(mu);
+		  //		  hist("hRecoTau25PtDenom")->Fill(pt/1000.);
+		  //		  if(ntracks == 1) hist("hRecoTau25Pt1PDenom")->Fill(pt/1000.);
+		  //		  if(ntracks > 1)  hist("hRecoTau25Pt3PDenom")->Fill(pt/1000.);
+		  //		  hist("hRecoTau25EtaDenom")->Fill(eta);
+		  //		  hist("hRecoTau25PhiDenom")->Fill(phi);
+		  //		  hist("hRecoTau25NTrackDenom")->Fill(ntracks);
+		  //		  hist("hRecoTau25NVtxDenom")->Fill(nvtx);
+		  //		  hist("hRecoTau25MuDenom")->Fill(mu);
 		  hist2("hRecoTau25EtaVsPhiDenom")->Fill(eta,phi);
 		}
 		if( HLTTauMatching("tau25_perf_tracktwo", TauTLV, 0.2)  )
 		  {		  
-		    hist("hRecoHLT25PtNum")->Fill(pt/1000.);
-		    if(ntracks == 1) hist("hRecoHLT25Pt1PNum")->Fill(pt/1000.);
-		    if(ntracks > 1) hist("hRecoHLT25Pt3PNum")->Fill(pt/1000.);
-		    hist("hRecoHLT25EtaNum")->Fill(eta);
-		    hist("hRecoHLT25PhiNum")->Fill(phi);
-		    hist("hRecoHLT25NTrackNum")->Fill(ntracks);
-		    hist("hRecoHLT25NVtxNum")->Fill(nvtx);
-		    hist("hRecoHLT25MuNum")->Fill(mu);
+		    //		    hist("hRecoHLT25PtNum")->Fill(pt/1000.);
+		    //		    if(ntracks == 1) hist("hRecoHLT25Pt1PNum")->Fill(pt/1000.);
+		    //		    if(ntracks > 1) hist("hRecoHLT25Pt3PNum")->Fill(pt/1000.);
+		    //		    hist("hRecoHLT25EtaNum")->Fill(eta);
+		    //		    hist("hRecoHLT25PhiNum")->Fill(phi);
+		    //		    hist("hRecoHLT25NTrackNum")->Fill(ntracks);
+		    //		    hist("hRecoHLT25NVtxNum")->Fill(nvtx);
+		    //		    hist("hRecoHLT25MuNum")->Fill(mu);
 		    hist2("hRecoHLT25EtaVsPhiNum")->Fill(eta,phi);
 		    profile("TProfRecoHLT25PtEfficiency")->Fill(pt/1000.,1);
 		    if(ntracks==1)   profile("TProfRecoHLT25Pt1PEfficiency")->Fill(pt/1000.,1);
@@ -2218,34 +2239,42 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 		  
 		}
 	      }
+	   
+	      if(trigItem=="tau160_perf_tracktwo"){
+		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+		if( HLTTauMatching("tau160_medium1_tracktwo", TauTLV, 0.2)  ){
+		  profile("TProfRecoHLT160PtEfficiency_2")->Fill(pt/1000.,1);}
+		else if( HLTTauMatching("tau160_perf_tracktwo", TauTLV, 0.2)  ){
+		  profile("TProfRecoHLT160PtEfficiency_2")->Fill(pt/1000.,0);}
+	      }
 		
 	      if(trigItem=="tau25_perf_tracktwo"){
 		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
 		  if( HLTTauMatching("tau25_perf_tracktwo", TauTLV, 0.2)  ){
-		    hist("hRecoTau25PtDenom_2")->Fill(pt/1000.);
-		    if(ntracks == 1) hist("hRecoTau25Pt1PDenom_2")->Fill(pt/1000.);
-		    if(ntracks > 1)  hist("hRecoTau25Pt3PDenom_2")->Fill(pt/1000.);
-		    hist("hRecoTau25EtaDenom_2")->Fill(eta);
-		    hist("hRecoTau25PhiDenom_2")->Fill(phi);
-		    hist("hRecoTau25NTrackDenom_2")->Fill(ntracks);
-		    hist("hRecoTau25NVtxDenom_2")->Fill(nvtx);
-		    hist("hRecoTau25MuDenom_2")->Fill(mu);
+		    //		    hist("hRecoTau25PtDenom_2")->Fill(pt/1000.);
+		    //		    if(ntracks == 1) hist("hRecoTau25Pt1PDenom_2")->Fill(pt/1000.);
+		    //		    if(ntracks > 1)  hist("hRecoTau25Pt3PDenom_2")->Fill(pt/1000.);
+		    //		    hist("hRecoTau25EtaDenom_2")->Fill(eta);
+		    //		    hist("hRecoTau25PhiDenom_2")->Fill(phi);
+		    //		    hist("hRecoTau25NTrackDenom_2")->Fill(ntracks);
+		    //		    hist("hRecoTau25NVtxDenom_2")->Fill(nvtx);
+		    //		    hist("hRecoTau25MuDenom_2")->Fill(mu);
 		    hist2("hRecoTau25EtaVsPhiDenom_2")->Fill(eta,phi);
 		  }
 		  
 		  if( HLTTauMatching("tau25_medium1_tracktwo", TauTLV, 0.2)  ){
-		    hist("hRecoHLT25PtNum_2")->Fill(pt/1000.);
+		    //		    hist("hRecoHLT25PtNum_2")->Fill(pt/1000.);
 		    if(ntracks == 1) {
-		      hist("hRecoHLT25Pt1PNum_2")->Fill(pt/1000.);
+		      //		      hist("hRecoHLT25Pt1PNum_2")->Fill(pt/1000.);
 		      profile("TProfRecoHLT25Pt1PEfficiency_2")->Fill(pt/1000.,1);}
 		    if(ntracks > 1) {
-		      hist("hRecoHLT25Pt3PNum_2")->Fill(pt/1000.);
+		      //		      hist("hRecoHLT25Pt3PNum_2")->Fill(pt/1000.);
 		      profile("TProfRecoHLT25Pt3PEfficiency_2")->Fill(pt/1000.,1);}
-		    hist("hRecoHLT25EtaNum_2")->Fill(eta);
-		    hist("hRecoHLT25PhiNum_2")->Fill(phi);
-		    hist("hRecoHLT25NTrackNum_2")->Fill(ntracks);
-		    hist("hRecoHLT25NVtxNum_2")->Fill(nvtx);
-		    hist("hRecoHLT25MuNum_2")->Fill(mu);
+		    //		    hist("hRecoHLT25EtaNum_2")->Fill(eta);
+		    //		    hist("hRecoHLT25PhiNum_2")->Fill(phi);
+		    //		    hist("hRecoHLT25NTrackNum_2")->Fill(ntracks);
+		    //		    hist("hRecoHLT25NVtxNum_2")->Fill(nvtx);
+		    //		    hist("hRecoHLT25MuNum_2")->Fill(mu);
 		    hist2("hRecoHLT25EtaVsPhiNum_2")->Fill(eta,phi);
 		    profile("TProfRecoHLT25PtEfficiency_2")->Fill(pt/1000.,1);
 		    profile("TProfRecoHLT25EtaEfficiency_2")->Fill(eta,1);
@@ -2262,13 +2291,12 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 		    profile("TProfRecoHLT25NTrackEfficiency_2")->Fill(ntracks,0);
 		    profile("TProfRecoHLT25NVtxEfficiency_2")->Fill(nvtx,0);
 		    profile("TProfRecoHLT25MuEfficiency_2")->Fill(mu,0);		
-		  
-		  }
-		}
-	      }
+		  }	 
+	      }   
 	    }
+	  }	
 
-	return StatusCode::SUCCESS;
+	  return StatusCode::SUCCESS;
 }
 
 
@@ -2721,26 +2749,28 @@ StatusCode HLTTauMonTool::TruthTauEfficiency(const std::string & trigItem, const
             {
 	      setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/TurnOnCurves/TruthEfficiency");
 	      
-	      hist("hTrueTauPtDenom")->Fill(pt/1000.);
-	      if(ntracks == 1) hist("hTrueTauPt1PDenom")->Fill(pt/1000.);
-	      if(ntracks > 1) hist("hTrueTauPt3PDenom")->Fill(pt/1000.);
-	      hist("hTrueTauEtaDenom")->Fill(eta);
-	      hist("hTrueTauPhiDenom")->Fill(phi);
-	      hist("hTrueTauNTrackDenom")->Fill(ntracks);
-	      hist("hTrueTauNVtxDenom")->Fill(nvtx);
-              hist("hTrueTauMuDenom")->Fill(mu);
+	      //	      hist("hTrueTauPtDenom")->Fill(pt/1000.);
+	      //	      if(ntracks == 1) hist("hTrueTauPt1PDenom")->Fill(pt/1000.);
+	      //	      if(ntracks > 1) hist("hTrueTauPt3PDenom")->Fill(pt/1000.);
+	      //	      hist("hTrueTauEtaDenom")->Fill(eta);
+	      //	      hist("hTrueTauPhiDenom")->Fill(phi);
+	      //	      hist("hTrueTauNTrackDenom")->Fill(ntracks);
+	      //	      hist("hTrueTauNVtxDenom")->Fill(nvtx);
+	      //              hist("hTrueTauMuDenom")->Fill(mu);
 	      hist2("hTrueTauEtaVsPhiDenom")->Fill(eta,phi);
 	      
 	      if(truth_matched_to_L1.back())
 		{
-		  hist("hTrueL1PtNum")->Fill(pt/1000.);
-		  if(ntracks == 1) {hist("hTrueL1Pt1PNum")->Fill(pt/1000.);profile("TProfTrueL1Pt1PEfficiency")->Fill(pt/1000.,1);}
-		  if(ntracks > 1) {hist("hTrueL1Pt3PNum")->Fill(pt/1000.);profile("TProfTrueL1Pt3PEfficiency")->Fill(pt/1000.,1);}
-		  hist("hTrueL1EtaNum")->Fill(eta);
-		  hist("hTrueL1PhiNum")->Fill(phi);
-		  hist("hTrueL1NTrackNum")->Fill(ntracks);
-		  hist("hTrueL1NVtxNum")->Fill(nvtx);
-		  hist("hTrueL1MuNum")->Fill(mu);
+		  //		  hist("hTrueL1PtNum")->Fill(pt/1000.);
+		  //		  if(ntracks == 1) {hist("hTrueL1Pt1PNum")->Fill(pt/1000.);profile("TProfTrueL1Pt1PEfficiency")->Fill(pt/1000.,1);}
+		  if(ntracks == 1) {profile("TProfTrueL1Pt1PEfficiency")->Fill(pt/1000.,1);}
+		  //		  if(ntracks > 1) {hist("hTrueL1Pt3PNum")->Fill(pt/1000.);profile("TProfTrueL1Pt3PEfficiency")->Fill(pt/1000.,1);}
+		  if(ntracks > 1) { profile("TProfTrueL1Pt3PEfficiency")->Fill(pt/1000.,1);}
+		  //		  hist("hTrueL1EtaNum")->Fill(eta);
+		  //		  hist("hTrueL1PhiNum")->Fill(phi);
+		  //		  hist("hTrueL1NTrackNum")->Fill(ntracks);
+		  //		  hist("hTrueL1NVtxNum")->Fill(nvtx);
+		  //		  hist("hTrueL1MuNum")->Fill(mu);
 		  hist2("hTrueL1EtaVsPhiNum")->Fill(eta,phi);
 		  profile("TProfTrueL1PtEfficiency")->Fill(pt/1000.,1);
 		  profile("TProfTrueL1EtaEfficiency")->Fill(eta,1);
@@ -2764,14 +2794,16 @@ StatusCode HLTTauMonTool::TruthTauEfficiency(const std::string & trigItem, const
 
               if(truth_matched_to_hlt.back())
 		{
-		  hist("hTrueHLTPtNum")->Fill(pt/1000.);
-		  if(ntracks == 1) {hist("hTrueHLTPt1PNum")->Fill(pt/1000.);profile("TProfTrueHLTPt1PEfficiency")->Fill(pt/1000.,1);}
-		  if(ntracks > 1) {hist("hTrueHLTPt3PNum")->Fill(pt/1000.);profile("TProfTrueHLTPt3PEfficiency")->Fill(pt/1000.,1);}
-		  hist("hTrueHLTEtaNum")->Fill(eta);
-		  hist("hTrueHLTPhiNum")->Fill(phi);
-		  hist("hTrueHLTNTrackNum")->Fill(ntracks);
-		  hist("hTrueHLTNVtxNum")->Fill(nvtx);
-		  hist("hTrueHLTMuNum")->Fill(mu);
+		  //		  hist("hTrueHLTPtNum")->Fill(pt/1000.);
+		  //		  if(ntracks == 1) {hist("hTrueHLTPt1PNum")->Fill(pt/1000.);profile("TProfTrueHLTPt1PEfficiency")->Fill(pt/1000.,1);}
+		  //		  if(ntracks > 1) {hist("hTrueHLTPt3PNum")->Fill(pt/1000.);profile("TProfTrueHLTPt3PEfficiency")->Fill(pt/1000.,1);}
+		  if(ntracks == 1) {profile("TProfTrueHLTPt1PEfficiency")->Fill(pt/1000.,1);}
+		  if(ntracks > 1) { profile("TProfTrueHLTPt3PEfficiency")->Fill(pt/1000.,1);}
+		  //		  hist("hTrueHLTEtaNum")->Fill(eta);
+		  //		  hist("hTrueHLTPhiNum")->Fill(phi);
+		  //		  hist("hTrueHLTNTrackNum")->Fill(ntracks);
+		  //		  hist("hTrueHLTNVtxNum")->Fill(nvtx);
+		  //		  hist("hTrueHLTMuNum")->Fill(mu);
 		  hist2("hTrueHLTEtaVsPhiNum")->Fill(eta,phi);
 		  profile("TProfTrueHLTPtEfficiency")->Fill(pt/1000.,1);
 		  profile("TProfTrueHLTEtaEfficiency")->Fill(eta,1);
@@ -2802,26 +2834,28 @@ StatusCode HLTTauMonTool::TruthTauEfficiency(const std::string & trigItem, const
 	      
 	      if(truth_matched_to_reco.back())
 		{	
-		  hist("hTruthRecoTauPtDenom")->Fill(pt/1000.);
-		  if(ntracks == 1) hist("hTruthRecoTauPt1PDenom")->Fill(pt/1000.);
-		  if(ntracks > 1) hist("hTruthRecoTauPt3PDenom")->Fill(pt/1000.);
-		  hist("hTruthRecoTauEtaDenom")->Fill(eta);
-		  hist("hTruthRecoTauPhiDenom")->Fill(phi);
-		  hist("hTruthRecoTauNTrackDenom")->Fill(ntracks);
-		  hist("hTruthRecoTauNVtxDenom")->Fill(nvtx);
-		  hist("hTruthRecoTauMuDenom")->Fill(mu);
+		  //		  hist("hTruthRecoTauPtDenom")->Fill(pt/1000.);
+		  //		  if(ntracks == 1) hist("hTruthRecoTauPt1PDenom")->Fill(pt/1000.);
+		  //		  if(ntracks > 1) hist("hTruthRecoTauPt3PDenom")->Fill(pt/1000.);
+		  //		  hist("hTruthRecoTauEtaDenom")->Fill(eta);
+		  //		  hist("hTruthRecoTauPhiDenom")->Fill(phi);
+		  //		  hist("hTruthRecoTauNTrackDenom")->Fill(ntracks);
+		  //		  hist("hTruthRecoTauNVtxDenom")->Fill(nvtx);
+		  //		  hist("hTruthRecoTauMuDenom")->Fill(mu);
 		  hist2("hTruthRecoTauEtaVsPhiDenom")->Fill(eta,phi);
 
 		  if(truthReco_matched_to_L1.back())
 		    {
-		      hist("hTruthRecoL1PtNum")->Fill(pt/1000.);
-		      if(ntracks == 1) {hist("hTruthRecoL1Pt1PNum")->Fill(pt/1000.);profile("TProfTruthRecoL1Pt1PEfficiency")->Fill(pt/1000.,1);}
-		      if(ntracks > 1) {hist("hTruthRecoL1Pt3PNum")->Fill(pt/1000.);profile("TProfTruthRecoL1Pt3PEfficiency")->Fill(pt/1000.,1);}
-		      hist("hTruthRecoL1EtaNum")->Fill(eta);
-		      hist("hTruthRecoL1PhiNum")->Fill(phi);
-		      hist("hTruthRecoL1NTrackNum")->Fill(ntracks);
-		      hist("hTruthRecoL1NVtxNum")->Fill(nvtx);
-		      hist("hTruthRecoL1MuNum")->Fill(mu);
+		      //  hist("hTruthRecoL1PtNum")->Fill(pt/1000.);
+		      //		      if(ntracks == 1) {hist("hTruthRecoL1Pt1PNum")->Fill(pt/1000.);profile("TProfTruthRecoL1Pt1PEfficiency")->Fill(pt/1000.,1);}
+		      //		      if(ntracks > 1) {hist("hTruthRecoL1Pt3PNum")->Fill(pt/1000.);profile("TProfTruthRecoL1Pt3PEfficiency")->Fill(pt/1000.,1);}
+		      if(ntracks == 1) { profile("TProfTruthRecoL1Pt1PEfficiency")->Fill(pt/1000.,1);}
+		      if(ntracks > 1) { profile("TProfTruthRecoL1Pt3PEfficiency")->Fill(pt/1000.,1);}
+		      //		      hist("hTruthRecoL1EtaNum")->Fill(eta);
+		      //		      hist("hTruthRecoL1PhiNum")->Fill(phi);
+		      //		      hist("hTruthRecoL1NTrackNum")->Fill(ntracks);
+		      //		      hist("hTruthRecoL1NVtxNum")->Fill(nvtx);
+		      //		      hist("hTruthRecoL1MuNum")->Fill(mu);
 		      hist2("hTruthRecoL1EtaVsPhiNum")->Fill(eta,phi);
 		      profile("TProfTruthRecoL1PtEfficiency")->Fill(pt/1000.,1);
 		      profile("TProfTruthRecoL1EtaEfficiency")->Fill(eta,1);
@@ -2848,13 +2882,15 @@ StatusCode HLTTauMonTool::TruthTauEfficiency(const std::string & trigItem, const
 		  if(truthReco_matched_to_hlt.back())
 		    {
 		      hist("hTruthRecoHLTPtNum")->Fill(pt/1000.);
-		      if(ntracks == 1) {hist("hTruthRecoHLTPt1PNum")->Fill(pt/1000.);profile("TProfTruthRecoHLTPt1PEfficiency")->Fill(pt/1000.,1);}
-		      if(ntracks > 1) {hist("hTruthRecoHLTPt3PNum")->Fill(pt/1000.);profile("TProfTruthRecoHLTPt3PEfficiency")->Fill(pt/1000.,1);}
-		      hist("hTruthRecoHLTEtaNum")->Fill(eta);
-		      hist("hTruthRecoHLTPhiNum")->Fill(phi);
-		      hist("hTruthRecoHLTNTrackNum")->Fill(ntracks);
-		      hist("hTruthRecoHLTNVtxNum")->Fill(nvtx);
-		      hist("hTruthRecoHLTMuNum")->Fill(mu);
+		      //		      if(ntracks == 1) {hist("hTruthRecoHLTPt1PNum")->Fill(pt/1000.);profile("TProfTruthRecoHLTPt1PEfficiency")->Fill(pt/1000.,1);}
+		      //		      if(ntracks > 1) {hist("hTruthRecoHLTPt3PNum")->Fill(pt/1000.);profile("TProfTruthRecoHLTPt3PEfficiency")->Fill(pt/1000.,1);}
+		      if(ntracks == 1) {profile("TProfTruthRecoHLTPt1PEfficiency")->Fill(pt/1000.,1);}
+		      if(ntracks > 1) { profile("TProfTruthRecoHLTPt3PEfficiency")->Fill(pt/1000.,1);}
+		      //		      hist("hTruthRecoHLTEtaNum")->Fill(eta);
+		      //		      hist("hTruthRecoHLTPhiNum")->Fill(phi);
+		      //		      hist("hTruthRecoHLTNTrackNum")->Fill(ntracks);
+		      //		      hist("hTruthRecoHLTNVtxNum")->Fill(nvtx);
+		      //		      hist("hTruthRecoHLTMuNum")->Fill(mu);
 		      hist2("hTruthRecoHLTEtaVsPhiNum")->Fill(eta,phi);
 		      profile("TProfTruthRecoHLTPtEfficiency")->Fill(pt/1000.,1);
 		      profile("TProfTruthRecoHLTEtaEfficiency")->Fill(eta,1);
@@ -2891,6 +2927,33 @@ StatusCode HLTTauMonTool::TruthTauEfficiency(const std::string & trigItem, const
   return StatusCode::SUCCESS;
 }
 
+bool HLTTauMonTool::PresTauMatching(const std::string & trigItem, const TLorentzVector & TLV, double DR){
+	std::string trig_item_EF= "HLT_"+trigItem;
+	if (getTDT()->isPassed(trig_item_EF,m_HLTTriggerCondition)) {
+
+       Trig::FeatureContainer f = ( getTDT()->features(trig_item_EF,m_HLTTriggerCondition) );
+       Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()), combEnd(f.getCombinations().end());
+
+       for(;comb!=combEnd;++comb){
+
+       	 const std::vector< Trig::Feature<xAOD::TauJetContainer> >  vec_preseltau = comb -> get<xAOD::TauJetContainer>("HLT_xAOD__TauJetContainer_TrigTauRecPreselection", m_HLTTriggerCondition);
+         std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator preselCI = vec_preseltau.begin(), preselCI_e = vec_preseltau.end();
+
+         for(; preselCI != preselCI_e; ++preselCI){
+             if(preselCI->cptr()){
+                xAOD::TauJetContainer::const_iterator tauItr = preselCI->cptr()->begin();
+                xAOD::TauJetContainer::const_iterator tauEnd = preselCI->cptr()->end();
+		for(; tauItr != tauEnd; ++tauItr) {
+                	double delR = (*tauItr)->p4().DeltaR(TLV);
+			if(delR <= DR) return true;  
+			}
+	      }
+	 }
+	}
+	}
+	return true;
+}     
+            
 
 bool HLTTauMonTool::HLTTauMatching(const std::string & trigItem, const TLorentzVector & TLV, double DR)
 {
@@ -2903,7 +2966,7 @@ bool HLTTauMonTool::HLTTauMatching(const std::string & trigItem, const TLorentzV
   std::string trig_item_EF= "HLT_"+trigItem;
   //std::string l1_chain(LowerChain("HLT_"+trigItem));
 
-  std::string testing_chain(trig_item_EF);
+/*  std::string testing_chain(trig_item_EF);
   if(testing_chain.find("emulate")!=std::string::npos){
 	ATH_MSG_DEBUG("Emulating "<<testing_chain);
 	// emulate new trk preselection
@@ -2912,7 +2975,7 @@ bool HLTTauMonTool::HLTTauMatching(const std::string & trigItem, const TLorentzV
 	// same for track
 	if(testing_chain.find("track")!=std::string::npos) trig_item_EF = "HLT_tau25_idperf_track"; 
 	if(testing_chain.find("tracktwo")!=std::string::npos) trig_item_EF = "HLT_tau25_idperf_tracktwo"; 
-  }
+  }*/
 
   if(getTDT()->isPassed(trig_item_EF,TrigDefs::Physics | TrigDefs::allowResurrectedDecision)  )
     {
@@ -2949,7 +3012,7 @@ bool HLTTauMonTool::HLTTauMatching(const std::string & trigItem, const TLorentzV
 			{
 			  ATH_MSG_DEBUG("HLT tau: pt " << (*Itr_tauEFjet)->pt() << ", #trk " << (*Itr_tauEFjet)->nTracks());
 
-			  if(testing_chain.find("emulate")!=std::string::npos){
+			  /*if(testing_chain.find("emulate")!=std::string::npos){
 				bool pass = false;
 				bool do2step = false;
 				bool doReject0trk = true;
@@ -2957,10 +3020,10 @@ bool HLTTauMonTool::HLTTauMatching(const std::string & trigItem, const TLorentzV
 				if(testing_chain.find("tracktwo")!=std::string::npos) do2step = true;
 				if(testing_chain.find("ptmin")!=std::string::npos) track_pt_min = 1000.;
 				if(testing_chain.find("no0reject")!=std::string::npos) doReject0trk = false;
-				float RoI_eta = (*Itr_tauEFjet)->etaJetSeed();
-				float RoI_phi = (*Itr_tauEFjet)->phiJetSeed();
-				ATH_MSG_DEBUG("Emulating "<<testing_chain<<" with do2step "<<do2step<<", doReject0trk "<<doReject0trk<<", track_pt_min "<<track_pt_min);
-				pass = emulate2StepTracking(RoI_eta, RoI_phi, do2step, doReject0trk, track_pt_min);
+				//				float RoI_eta = (*Itr_tauEFjet)->etaJetSeed();
+				//				float RoI_phi = (*Itr_tauEFjet)->phiJetSeed();
+				// ATH_MSG_DEBUG("Emulating "<<testing_chain<<" with do2step "<<do2step<<", doReject0trk "<<doReject0trk<<", track_pt_min "<<track_pt_min);
+				//				pass = emulate2StepTracking(RoI_eta, RoI_phi, do2step, doReject0trk, track_pt_min);
 				if(!pass) return false;
 				ATH_MSG_DEBUG("Passed emulated trk preselection");
 				pass = L1TauMatching("L1_TAU12IM", TLV, 0.3);
@@ -2969,7 +3032,7 @@ bool HLTTauMonTool::HLTTauMatching(const std::string & trigItem, const TLorentzV
 				if(testing_chain.find("medium")!=std::string::npos) pass = HLTTauMatching("HLT_tau25_medium1_mvonly", (*Itr_tauEFjet)->p4(), 0.2);
 				if(!pass) return false;	
 				ATH_MSG_DEBUG("Passed medium1");
-			  }
+			  }*/
 
 			  double delR = (*Itr_tauEFjet)->p4().DeltaR(TLV);
 			  if(delR <= DR) return true;
