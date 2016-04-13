@@ -96,6 +96,7 @@ using namespace AnalysisUtils;
 const float PI=2.0*acos(0.);
 const float TWOPI=2.0*PI;
 
+/*
 StatusCode  HLTTauMonTool::test2StepTracking(){
 
   ATH_MSG_DEBUG("Executing HLTTauMonTool::test2StepTracking()");
@@ -664,9 +665,9 @@ StatusCode  HLTTauMonTool::test2StepTracking(){
   return StatusCode::SUCCESS; 
 }
 
+*/
 
-
-bool  HLTTauMonTool::emulate2StepTracking(float RoI_eta, float RoI_phi, bool do2step, bool doReject0trk, float track_pt_min=0.){
+/*bool  HLTTauMonTool::emulate2StepTracking(float RoI_eta, float RoI_phi, bool do2step, bool doReject0trk, float track_pt_min=0.){
 
 	bool pass(false);
 	
@@ -860,3 +861,5 @@ bool  HLTTauMonTool::emulate2StepTracking(float RoI_eta, float RoI_phi, bool do2
 	ATH_MSG_DEBUG("nCore "<<nCore_track<<", nWide "<<nWide_track<<", pass "<<pass);
 	return pass;
 }
+
+*/
