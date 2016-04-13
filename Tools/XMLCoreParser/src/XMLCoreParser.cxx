@@ -123,7 +123,7 @@ int XMLCoreFactory::get_int (const XMLCoreNode& node, const std::string& name)
   int result = 0; 
  
   std::string s = get_value (node, name); 
-  sscanf (s.c_str (), "%d", &result); 
+  sscanf (s.c_str (), "%80d", &result); 
  
   return (result); 
 } 
@@ -133,7 +133,7 @@ double XMLCoreFactory::get_double (const XMLCoreNode& node, const std::string& n
   double result = 0; 
  
   std::string s = get_value (node, name); 
-  sscanf (s.c_str (), "%lg", &result); 
+  sscanf (s.c_str (), "%80lg", &result); 
  
   return (result); 
 } 

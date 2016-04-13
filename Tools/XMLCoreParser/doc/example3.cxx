@@ -16,7 +16,7 @@ public:
 
         char* temp = XMLString::transcode (nodeName);
         std::cout << "<" << temp;
-        if (temp != 0) delete [] temp;
+        delete [] temp;
         
           // Output any attributes on this element
         DOMNamedNodeMap* attributes = ((const DOMNode&) node).getAttributes();
@@ -27,11 +27,11 @@ public:
             
             temp = XMLString::transcode (attribute->getNodeName());
             std::cout << " " << temp << "=\"";
-            if (temp != 0) delete [] temp;
+            delete [] temp;
             
             temp = XMLString::transcode (attribute->getNodeValue());
             std::cout << temp << "\"";
-            if (temp != 0) delete [] temp;
+            delete [] temp;
           }
         
           //
