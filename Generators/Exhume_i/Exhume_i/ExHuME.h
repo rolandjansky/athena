@@ -26,7 +26,7 @@ class ExHuME:public GenModule {
   StatusCode genInitialize();
   StatusCode callGenerator();
   StatusCode genFinalize();
-  StatusCode fillEvt(GenEvent* evt);
+  StatusCode fillEvt(HepMC::GenEvent* evt);
   
  private:
   void SetProcess();
