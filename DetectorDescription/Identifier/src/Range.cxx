@@ -81,7 +81,7 @@ private:
  
         value = 0; 
          
-        items = sscanf (ptr, "%d", &value); 
+        items = sscanf (ptr, "%80d", &value); 
         if (items == 0)  
           { 
             return (false); 
@@ -2098,7 +2098,7 @@ private:
  
         value = 0; 
          
-        items = sscanf (ptr, "%d", &value); 
+        items = sscanf (ptr, "%80d", &value); 
         if (items == 0)  
           { 
             return (false); 

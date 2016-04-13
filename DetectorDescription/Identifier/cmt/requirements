@@ -5,7 +5,7 @@ author	  RD Schaffer <R.D.Schaffer@cern.ch>
  
 use AtlasPolicy AtlasPolicy-*
 use AtlasCxxPolicy AtlasCxxPolicy-*
-#use GaudiKernel v*
+use GaudiInterface GaudiInterface-* External
 use AtlasBoost AtlasBoost-* External
  
 macro_append cppflags "" \ 
