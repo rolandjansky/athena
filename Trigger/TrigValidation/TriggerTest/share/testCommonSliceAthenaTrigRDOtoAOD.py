@@ -45,10 +45,10 @@ if os.environ['AtlasProject'] == 'AtlasP1HLT' or os.environ['AtlasProject'] == '
     #    rec.doAOD.set_Value_and_Lock(False)
     #    jp.Rec.doWriteAOD=False
     #else:
-    rec.doWriteAOD.set_Value_and_Lock(True)
-    rec.doWritexAOD.set_Value_and_Lock(True)
-    rec.doAOD.set_Value_and_Lock(True)
-    jp.Rec.doWriteAOD=True
+rec.doWriteAOD.set_Value_and_Lock(True)
+rec.doWritexAOD.set_Value_and_Lock(True)
+rec.doAOD.set_Value_and_Lock(True)
+jp.Rec.doWriteAOD=True
     
 rec.doWriteESD=False
 rec.doWriteTAG=False
