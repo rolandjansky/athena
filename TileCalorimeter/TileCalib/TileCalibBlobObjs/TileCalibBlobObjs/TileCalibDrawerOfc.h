@@ -107,7 +107,7 @@ class TileCalibDrawerOfc : public TileCalibDrawerBase {
       @param channel The channel number; if >= getNChans() it is reset to 0 without warning (default policy) 
       @param adc The gain index; if >= getNGains() it is reset to 0 without warning (default policy)
       @param phase The phase of interest */
-  void fillOfc (unsigned int channel,unsigned int adc, float phase, float* w_a, float* w_b, float* w_c, float* g, float* dg ) const;
+  void fillOfc (unsigned int channel,unsigned int adc, float& phase, float* w_a, float* w_b, float* w_c, float* g, float* dg ) const;
 
 
   /** @brief Prints out the object content to std::cout */
@@ -165,7 +165,7 @@ class TileCalibDrawerOfc : public TileCalibDrawerBase {
       @param channel The channel number
       @param adc The gain index
       @param phase The phase */
-  float* getOfcStartAddress(unsigned int field, unsigned int channel, unsigned int adc, float phase) const;
+  float* getOfcStartAddress(unsigned int field, unsigned int channel, unsigned int adc, float& phase) const;
 
   /** @brief Returns pointer to the requested phase value
       @param channel The channel number
@@ -177,7 +177,7 @@ class TileCalibDrawerOfc : public TileCalibDrawerBase {
       @param channel The channel number
       @param adc The gain index
       @param phase The phase of interest */
-  unsigned int getPhaseNumber(unsigned int channel, unsigned int adc, float phase) const;
+  unsigned int getPhaseNumber(unsigned int channel, unsigned int adc, float& phase) const;
 };
 
 //
@@ -197,7 +197,7 @@ inline int32_t TileCalibDrawerOfc::getNPhases() const {
 //
 //______________________________________________________________
 __attribute__((always_inline)) 
-inline unsigned int TileCalibDrawerOfc::getPhaseNumber(unsigned int channel, unsigned int adc, float phase) const {
+inline unsigned int TileCalibDrawerOfc::getPhaseNumber(unsigned int channel, unsigned int adc, float& phase) const {
 
   int db_phase = (int) round(phase * (1 / PHASE_PRECISION)); // Phases are stored as int(10*phase) in DB
   int32_t* beg = getPhaseStartAddress(channel, adc, 0);
@@ -208,6 +208,7 @@ inline unsigned int TileCalibDrawerOfc::getPhaseNumber(unsigned int channel, uns
     --pos;
   }
 
+  phase = *pos * PHASE_PRECISION;
   return (pos - beg);
 }
 
@@ -242,7 +243,7 @@ inline float TileCalibDrawerOfc::getOfc(unsigned int field, unsigned int channel
   return getOfcStartAddress(field, channel, adc, phase)[sample];
 }
 
-inline void TileCalibDrawerOfc::fillOfc (unsigned int channel,unsigned int adc, float phase
+inline void TileCalibDrawerOfc::fillOfc (unsigned int channel,unsigned int adc, float& phase
                                          , float* w_a, float* w_b, float* w_c, float* g, float* dg) const {
 
 
@@ -304,7 +305,7 @@ inline int32_t* TileCalibDrawerOfc::getPhaseStartAddress(unsigned int channel, u
 //
 //______________________________________________________________
 __attribute__((always_inline)) 
-inline float* TileCalibDrawerOfc::getOfcStartAddress(unsigned int field, unsigned int channel, unsigned int adc, float phase) const {
+inline float* TileCalibDrawerOfc::getOfcStartAddress(unsigned int field, unsigned int channel, unsigned int adc, float& phase) const {
 
   //=== check default policy
   if(channel >= getNChans()) {channel = 0;}
