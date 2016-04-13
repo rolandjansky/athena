@@ -19,13 +19,12 @@
 //#include "LArG4ShowerLib/Shower.h"
 //#include "LArG4ShowerLib/ShowerLibList.h"
 
-#include "ISF_Event/FCS_StepInfo.h"
-#include "ISF_Event/FCS_StepInfoCollection.h"
+#include "ISF_FastCaloSimEvent/FCS_StepInfo.h"
+#include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
  
 // athena includes
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "EventInfo/TagInfo.h"
-#include "FadsPhysics/PhysicsListCatalog.h"
 
 
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -275,6 +274,13 @@ void FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfoCollec
   std::cout <<"ZH FastCaloSimParamAlg initial clusterize size: "<<stepinfo->size()<<" will merge steps in the same cell which are less than dR and dT to each other"<<std::endl;          
   double dsame, tsame; 
 
+  double total_energy1 = 0;
+  for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator i1 = stepinfo->begin(); i1 != stepinfo->end(); ++i1)
+    {
+      total_energy1+=(*i1)->energy();
+    }
+  std::cout <<"ZH Check: total energy before clusterize "<<total_energy1<<std::endl;
+
   //Try this if it will be faster: split to cells first
   //ISF_FCS_Parametrization::FCS_StepInfoCollection *rez = new ISF_FCS_Parametrization::FCS_StepInfoCollection();
   ISF_FCS_Parametrization::FCS_StepInfo *copy = NULL;
@@ -410,6 +416,13 @@ void FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfoCollec
 	}
     }
   std::cout <<"ZH Check: "<<stepinfo->size()<<std::endl;
+  double total_energy2 = 0;
+
+  for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator i1 = stepinfo->begin(); i1 != stepinfo->end(); ++i1)  
+    {
+      total_energy2+=(*i1)->energy();
+    }
+  std::cout <<"ZH Check: total energy "<<total_energy2<<std::endl;
 
   /*
   ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator i1 = stepinfo->begin();

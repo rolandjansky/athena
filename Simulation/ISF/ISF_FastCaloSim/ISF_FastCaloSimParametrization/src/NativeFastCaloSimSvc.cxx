@@ -16,8 +16,6 @@
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/ISFParticleContainer.h"
-#include "ISF_Event/ITruthBinding.h"
-#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
 
 // HepMC include needed for FastCaloSim
 #include "HepMC/GenParticle.h"
@@ -305,12 +303,8 @@ StatusCode ISF::NativeFastCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
     return StatusCode::SUCCESS;
   }
   // (c.) individual particle processing
-  else {
-    ATH_MSG_DEBUG("particle is simulated individually");
-    return processOneParticle( isfp);
-  }
-
-  return StatusCode::SUCCESS;
+  ATH_MSG_DEBUG("particle is simulated individually");
+  return processOneParticle( isfp);
 }
 
 

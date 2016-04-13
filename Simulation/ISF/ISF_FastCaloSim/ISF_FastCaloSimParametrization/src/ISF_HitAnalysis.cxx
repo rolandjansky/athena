@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "ISF_FastCaloSimParametrization/ISF_HitAnalysis.h"
+
 // Section of includes for LAr calo tests
 #include "LArSimEvent/LArHitContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -32,7 +34,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "ISF_Event/FCS_StepInfoCollection.h"
+#include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -42,7 +44,6 @@
 #include "TVector3.h"
 #include <sstream>
 
-#include "ISF_FastCaloSimParametrization/ISF_HitAnalysis.h"
 // For MC Truth information:
 #include "GeneratorObjects/McEventCollection.h"
 
@@ -55,9 +56,11 @@
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkSurfaces/DiscBounds.h"
+#include "CaloTrackingGeometry/ICaloSurfaceHelper.h"
 #include "CaloTrackingGeometry/ICaloSurfaceBuilder.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
+#include "TrkGeometry/TrackingGeometry.h"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "HepPDT/ParticleData.hh"
 #include "HepPDT/ParticleDataTable.hh"
@@ -70,8 +73,8 @@
 #include <iostream>
 
 
-const std::string MC_DIGI_PARAM = "/Digitization/Parameters"; 
-const std::string MC_SIM_PARAM = "/Simulation/Parameters";
+//const std::string MC_DIGI_PARAM = "/Digitization/Parameters"; 
+//const std::string MC_SIM_PARAM = "/Simulation/Parameters";
 
 ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator)
@@ -122,6 +125,17 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_geoFileName("ISF_Geometry")
    , m_thistSvc(0)
    , m_calo_dd_man(0)
+   //#####################
+   , m_eta_calo_surf(0)
+   , m_phi_calo_surf(0)
+   , m_d_calo_surf(0)
+   , m_ptruth_eta(0)
+   , m_ptruth_phi(0)
+   , m_ptruth_e(0)
+   , m_ptruth_et(0)
+   , m_ptruth_pt(0)
+   , m_ptruth_p(0)
+   , m_pdgid(0)
 
    //######################
    , m_TTC_entrance_eta(0)
@@ -138,8 +152,15 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_TTC_IDCaloBoundary_z(0)
    , m_TTC_Angle3D(0)
    , m_TTC_AngleEta(0)
-   , m_extrapolatorName("Trk::Extrapolator")   
-   , m_extrapolatorInstanceName("Extrapolator")
+//   , m_extrapolatorName("Trk::Extrapolator")   
+//   , m_extrapolatorInstanceName("Extrapolator")
+   , m_caloEntrance(0)
+   , m_calo_tb_coord(0)
+   , m_sample_calo_surf(CaloCell_ID_FCS::noSample)
+   , m_particleDataTable(0)
+   ,m_MC_DIGI_PARAM("/Digitization/Parameters")
+   ,m_MC_SIM_PARAM("/Simulation/Parameters")
+   
    //######################
 
 
@@ -153,16 +174,31 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("NTruthParticles", m_NtruthParticles=1, "Number of truth particles saved from the truth collection, -1 to save all");
 
   //###########################
-  declareProperty("ExtrapolatorName",               m_extrapolatorName );
-  declareProperty("ExtrapolatorInstanceName",       m_extrapolatorInstanceName );
-  declareProperty("CalosurfMiddleInstanceName",     m_calosurf_InstanceName);
-  declareProperty("CalosurfEntranceInstanceName",   m_calosurf_entrance_InstanceName);
+  //declareProperty("ExtrapolatorName",               m_extrapolatorName );
+  //declareProperty("ExtrapolatorInstanceName",       m_extrapolatorInstanceName );
+  //declareProperty("CalosurfMiddleInstanceName",     m_calosurf_InstanceName);
+  //declareProperty("CalosurfEntranceInstanceName",   m_calosurf_entrance_InstanceName);
 
   declareProperty("CaloBoundaryR", m_CaloBoundaryR);
   declareProperty("CaloBoundaryZ", m_CaloBoundaryZ);
   declareProperty("CaloMargin", m_calomargin);
   //######################
 
+  declareProperty("Extrapolator",                   m_extrapolator );
+  declareProperty("CaloEntrance",                   m_caloEntranceName );
+  declareProperty("CaloSurfaceHelper",              m_caloSurfaceHelper );
+
+  declareProperty("CaloGeometryHelper",             m_CaloGeometryHelper );
+  
+  declareProperty("MetaDataSim", m_MC_SIM_PARAM );
+  declareProperty("MetaDataDigi", m_MC_DIGI_PARAM );
+
+  m_surfacelist.resize(0);
+  m_surfacelist.push_back(CaloCell_ID_FCS::PreSamplerB);
+  m_surfacelist.push_back(CaloCell_ID_FCS::PreSamplerE);
+  m_surfacelist.push_back(CaloCell_ID_FCS::EME1);
+  m_surfacelist.push_back(CaloCell_ID_FCS::EME2);
+  m_surfacelist.push_back(CaloCell_ID_FCS::FCAL0);
 }
 
 
@@ -229,53 +265,30 @@ StatusCode ISF_HitAnalysis::geoInit(IOVSVC_CALLBACK_ARGS)
   else
   {
     IAlgTool* algTool;
-    	  
-    // Get TrkExtrapolator from ToolService
-    if (p_toolSvc->retrieveTool(m_extrapolatorName, m_extrapolatorInstanceName , m_extrapolator).isFailure())
-    {
-	   ATH_MSG_ERROR("Could not find Tool " << m_extrapolatorName << " and create instance " << m_extrapolatorInstanceName <<". Exiting.");
-	   return StatusCode::FAILURE;
-    } else
-    {
-     ATH_MSG_INFO("Successfully created tool  " << m_extrapolatorName << " with instance name " << m_extrapolatorInstanceName);
-    }
     
-    // Get the CaloSurface tool and sets the depthtool it should use:
-    if (p_toolSvc->retrieveTool("CaloSurfaceBuilder",m_calosurf_InstanceName,m_calosurf,this).isFailure())
-    {
-     ATH_MSG_ERROR("Could not find Tool "<< m_calosurf_InstanceName);
-     return StatusCode::FAILURE;
-    }     
-    //#if FastCaloSim_project_release_v1 == 12
-    m_calosurf->setCaloDepth(m_calodepth);
-    //#endif 
+    // Get TimedExtrapolator 
+    if (!m_extrapolator.empty() && m_extrapolator.retrieve().isFailure())
+      return StatusCode::FAILURE;
+    else ATH_MSG_DEBUG("Extrapolator retrieved "<< m_extrapolator);
 
-    // Get the CaloSurface tool and sets the depthtool it should use:
-    if (p_toolSvc->retrieveTool("CaloSurfaceBuilder",m_calosurf_entrance_InstanceName,m_calosurf_entrance,this).isFailure())
-    {
-     ATH_MSG_ERROR("Could not find Tool "<< m_calosurf_entrance_InstanceName);
-     return StatusCode::FAILURE;
-    }     
-    //#if FastCaloSim_project_release_v1 == 12
-    m_calosurf_entrance->setCaloDepth(m_calodepthEntrance);
-    //#endif  
-    
+    // Get CaloSurfaceHelper
+    if (m_caloSurfaceHelper.retrieve().isFailure())
+       ATH_MSG_INFO("CaloSurfaceHelper not found ");
+
     std::string CaloCoordinateTool_name="TBCaloCoordinate";
     ListItem CaloCoordinateTool(CaloCoordinateTool_name);
-    if ( p_toolSvc->retrieveTool(CaloCoordinateTool.type(),CaloCoordinateTool.name(), algTool, this).isFailure() )
-    {
-     ATH_MSG_ERROR("Cannot retrieve " << CaloCoordinateTool_name);
-     return StatusCode::FAILURE;
+    if ( p_toolSvc->retrieveTool(CaloCoordinateTool.type(),CaloCoordinateTool.name(), algTool, this).isFailure() ) {
+      ATH_MSG_ERROR("Cannot retrieve " << CaloCoordinateTool_name);
+      return StatusCode::FAILURE;
     }
-    m_calo_tb_coord = dynamic_cast<ICaloCoordinateTool*>(algTool);   
-    if ( !m_calo_tb_coord )
+    m_calo_tb_coord = dynamic_cast<ICaloCoordinateTool*>(algTool);    
+    if ( !m_calo_tb_coord ) {
+      ATH_MSG_ERROR("Cannot retrieve " << CaloCoordinateTool_name);
+      return StatusCode::FAILURE;
+    } 
+    else 
     {
-     ATH_MSG_ERROR("Cannot retrieve " << CaloCoordinateTool_name);
-     return StatusCode::FAILURE;
-    }
-    else
-    {
-     ATH_MSG_INFO("retrieved " << CaloCoordinateTool_name);
+      ATH_MSG_INFO("retrieved " << CaloCoordinateTool_name);
     }
     
   } //tools
@@ -295,8 +308,8 @@ StatusCode ISF_HitAnalysis::updateMetaData( IOVSVC_CALLBACK_ARGS_P( I, keys ) ) 
   std::list< std::string >::const_iterator itr = keys.begin();
   std::list< std::string >::const_iterator end = keys.end();
   for( ; itr != end; ++itr ) {
-     if( *itr == MC_DIGI_PARAM ) run_update = true;
-     if( *itr == MC_SIM_PARAM ) run_update = true;
+     if( *itr == m_MC_DIGI_PARAM ) run_update = true;
+     if( *itr == m_MC_SIM_PARAM ) run_update = true;
      msg() << *itr;
   }
   msg() << endreq;
@@ -305,7 +318,7 @@ StatusCode ISF_HitAnalysis::updateMetaData( IOVSVC_CALLBACK_ARGS_P( I, keys ) ) 
   if( ! run_update ) return StatusCode::SUCCESS;
 
   const DataHandle< AthenaAttributeList > simParam;
-  if( detStore()->retrieve( simParam, MC_SIM_PARAM ).isFailure() ) {
+  if( detStore()->retrieve( simParam, m_MC_SIM_PARAM ).isFailure() ) {
     ATH_MSG_WARNING("Retrieving MC SIM metadata failed");
   } else {
     AthenaAttributeList::const_iterator attr_itr = simParam->begin();
@@ -372,26 +385,32 @@ StatusCode ISF_HitAnalysis::initialize() {
     }
   }  
 
-  if( detStore()->contains< AthenaAttributeList >( MC_DIGI_PARAM ) ) {
+  if( detStore()->contains< AthenaAttributeList >( m_MC_DIGI_PARAM ) ) {
     const DataHandle< AthenaAttributeList > aptr;
-    if( detStore()->regFcn( &ISF_HitAnalysis::updateMetaData, this, aptr,MC_DIGI_PARAM, true ).isFailure() ) {
-      ATH_MSG_ERROR( "Could not register callback for "<< MC_DIGI_PARAM );
+    if( detStore()->regFcn( &ISF_HitAnalysis::updateMetaData, this, aptr,m_MC_DIGI_PARAM, true ).isFailure() ) {
+      ATH_MSG_ERROR( "Could not register callback for "<< m_MC_DIGI_PARAM );
       return StatusCode::FAILURE;
     }
   } else {
-    ATH_MSG_WARNING( "MetaData not found for "<< MC_DIGI_PARAM );
+    ATH_MSG_WARNING( "MetaData not found for "<< m_MC_DIGI_PARAM );
   }
   
-  if( detStore()->contains< AthenaAttributeList >( MC_SIM_PARAM ) ) {
+  if( detStore()->contains< AthenaAttributeList >( m_MC_SIM_PARAM ) ) {
     const DataHandle< AthenaAttributeList > aptr;
-    if( detStore()->regFcn( &ISF_HitAnalysis::updateMetaData, this, aptr,MC_SIM_PARAM, true ).isFailure() ) {
-      ATH_MSG_ERROR( "Could not register callback for "<< MC_SIM_PARAM );
+    if( detStore()->regFcn( &ISF_HitAnalysis::updateMetaData, this, aptr,m_MC_SIM_PARAM, true ).isFailure() ) {
+      ATH_MSG_ERROR( "Could not register callback for "<< m_MC_SIM_PARAM );
       return StatusCode::FAILURE;
     }
   } else {
-    ATH_MSG_WARNING( "MetaData not found for "<< MC_SIM_PARAM );
+    ATH_MSG_WARNING( "MetaData not found for "<< m_MC_SIM_PARAM );
   }
   
+  // Get CaloGeometryHelper
+  if (m_CaloGeometryHelper.retrieve().isFailure()) {
+    ATH_MSG_ERROR("CaloGeometryHelper not found ");
+    return StatusCode::FAILURE;
+  }
+
   // Grab the Ntuple and histogramming service for the tree
   sc = service("THistSvc",m_thistSvc);
   if (sc.isFailure()) {
@@ -507,10 +526,10 @@ StatusCode ISF_HitAnalysis::initialize() {
 StatusCode ISF_HitAnalysis::finalize() {
   ATH_MSG_INFO( "doing finalize()" );
 
-  TTree* m_geo = new TTree( m_geoModel->atlasVersion().c_str() , m_geoModel->atlasVersion().c_str() );
+  TTree* geo = new TTree( m_geoModel->atlasVersion().c_str() , m_geoModel->atlasVersion().c_str() );
   std::string fullNtupleName =  "/"+m_geoFileName+"/"+m_geoModel->atlasVersion(); 
-  StatusCode sc = m_thistSvc->regTree(fullNtupleName, m_geo); 
-  if (sc.isFailure() || !m_geo ) { 
+  StatusCode sc = m_thistSvc->regTree(fullNtupleName, geo); 
+  if (sc.isFailure() || !geo ) { 
     ATH_MSG_ERROR("Unable to register TTree: " << fullNtupleName); 
     return StatusCode::FAILURE;
   }
@@ -526,33 +545,33 @@ StatusCode ISF_HitAnalysis::finalize() {
   
   static GEOCELL geocell;  
   
-  if (m_geo){
+  if (geo){
     ATH_MSG_INFO("Successfull registered TTree: " << fullNtupleName); 
     //this actually creates the vector itself! And only if it succeeds! Note that the result is not checked! And the code is probably leaking memory in the end
-    //m_geo->Branch("cells", &geocell,"identifier/L:eta,phi,r,eta_raw,phi_raw,r_raw,x,y,z,x_raw,y_raw,z_raw/F:Deta,Dphi,Dr,Dx,Dy,Dz/F");
-    m_geo->Branch("identifier", &geocell.identifier,"identifier/L");
-    m_geo->Branch("calosample", &geocell.calosample,"calosample/I");
+    //geo->Branch("cells", &geocell,"identifier/L:eta,phi,r,eta_raw,phi_raw,r_raw,x,y,z,x_raw,y_raw,z_raw/F:Deta,Dphi,Dr,Dx,Dy,Dz/F");
+    geo->Branch("identifier", &geocell.identifier,"identifier/L");
+    geo->Branch("calosample", &geocell.calosample,"calosample/I");
 
-    m_geo->Branch("eta", &geocell.eta,"eta/F");
-    m_geo->Branch("phi", &geocell.phi,"phi/F");
-    m_geo->Branch("r", &geocell.r,"r/F");
-    m_geo->Branch("eta_raw", &geocell.eta_raw,"eta_raw/F");
-    m_geo->Branch("phi_raw", &geocell.phi_raw,"phi_raw/F");
-    m_geo->Branch("r_raw", &geocell.r_raw,"r_raw/F");
+    geo->Branch("eta", &geocell.eta,"eta/F");
+    geo->Branch("phi", &geocell.phi,"phi/F");
+    geo->Branch("r", &geocell.r,"r/F");
+    geo->Branch("eta_raw", &geocell.eta_raw,"eta_raw/F");
+    geo->Branch("phi_raw", &geocell.phi_raw,"phi_raw/F");
+    geo->Branch("r_raw", &geocell.r_raw,"r_raw/F");
 
-    m_geo->Branch("x", &geocell.x,"x/F");
-    m_geo->Branch("y", &geocell.y,"y/F");
-    m_geo->Branch("z", &geocell.z,"z/F");
-    m_geo->Branch("x_raw", &geocell.x_raw,"x_raw/F");
-    m_geo->Branch("y_raw", &geocell.y_raw,"y_raw/F");
-    m_geo->Branch("z_raw", &geocell.z_raw,"z_raw/F");
+    geo->Branch("x", &geocell.x,"x/F");
+    geo->Branch("y", &geocell.y,"y/F");
+    geo->Branch("z", &geocell.z,"z/F");
+    geo->Branch("x_raw", &geocell.x_raw,"x_raw/F");
+    geo->Branch("y_raw", &geocell.y_raw,"y_raw/F");
+    geo->Branch("z_raw", &geocell.z_raw,"z_raw/F");
 
-    m_geo->Branch("deta", &geocell.deta,"deta/F");
-    m_geo->Branch("dphi", &geocell.dphi,"dphi/F");
-    m_geo->Branch("dr", &geocell.dr,"dr/F");
-    m_geo->Branch("dx", &geocell.dx,"dx/F");
-    m_geo->Branch("dy", &geocell.dy,"dy/F");
-    m_geo->Branch("dz", &geocell.dz,"dz/F");
+    geo->Branch("deta", &geocell.deta,"deta/F");
+    geo->Branch("dphi", &geocell.dphi,"dphi/F");
+    geo->Branch("dr", &geocell.dr,"dr/F");
+    geo->Branch("dx", &geocell.dx,"dx/F");
+    geo->Branch("dy", &geocell.dy,"dy/F");
+    geo->Branch("dz", &geocell.dz,"dz/F");
   }
   
 
@@ -564,7 +583,7 @@ StatusCode ISF_HitAnalysis::finalize() {
         CaloCell_ID::CaloSample sample=theDDE->getSampling();
         //CaloCell_ID::SUBCALO calo=theDDE->getSubCalo();
         ++ncells;
-        if(m_geo) {
+        if(geo) {
           geocell.identifier=theDDE->identify().get_compact();
           geocell.calosample=sample;
 
@@ -589,7 +608,7 @@ StatusCode ISF_HitAnalysis::finalize() {
           geocell.dy=theDDE->dy();
           geocell.dz=theDDE->dz();
 
-          m_geo->Fill();
+          geo->Fill();
         }
       }  
     }
@@ -782,8 +801,18 @@ StatusCode ISF_HitAnalysis::execute() {
 	      //std::cout <<"ISF_HitAnalysis: MC first truth event size: "<<(*mcEvent->begin())->particles_size()<<std::endl;
 	      for (HepMC::GenEvent::particle_const_iterator it = (*mcEvent->begin())->particles_begin(); it != (*mcEvent->begin())->particles_end(); ++it)
 		{
+    ATH_MSG_DEBUG("Number truth particles="<<(*mcEvent->begin())->particles_size()<<" loopEnd="<<loopEnd);
 		  particleIndex++;
+
 		  if (particleIndex>loopEnd) break; //enough particles
+		  
+    //UPDATE EXTRAPOLATION
+    std::vector<Trk::HitInfo>* hitVector = caloHits(*(*it));
+
+    Amg::Vector3D mom((*it)->momentum().x(),(*it)->momentum().y(),(*it)->momentum().z());
+
+		  
+		  
 		  m_truth_energy->push_back((*it)->momentum().e());
 		  m_truth_px->push_back((*it)->momentum().px());
 		  m_truth_py->push_back((*it)->momentum().py());
@@ -805,10 +834,10 @@ StatusCode ISF_HitAnalysis::execute() {
 			  //inside_ID=true;
 			  //if(inside_ID)
 			  //  {
-			  ATH_MSG_DEBUG( "Do extrapolation");
-			  extrapolate(*it);
-			  ATH_MSG_DEBUG(" Do extrapolation to ID");
-			  extrapolate_to_ID(*it);
+			  ATH_MSG_DEBUG("*** Do extrapolation ***");
+			  extrapolate(*it,hitVector);
+			  ATH_MSG_DEBUG("*** Do extrapolation to ID ***");
+			  extrapolate_to_ID(*it,hitVector);
 			  ATH_MSG_DEBUG("Truth extrapolation done for "<<particleIndex<<" "<<(*it)->barcode());
 			}
 		      else
@@ -857,6 +886,13 @@ StatusCode ISF_HitAnalysis::execute() {
 		      m_TTC_Angle3D->push_back(-999.);
 		      m_TTC_AngleEta->push_back(-999.);
 		    }	  
+    for(std::vector<Trk::HitInfo>::iterator it = hitVector->begin();it < hitVector->end();++it)  {
+      if((*it).trackParms) {
+        delete (*it).trackParms;
+        (*it).trackParms=0;
+      }  
+    }
+    delete hitVector;
 		}
 	    }
 	}
@@ -964,647 +1000,817 @@ StatusCode ISF_HitAnalysis::execute() {
   return StatusCode::SUCCESS;
 }
 
-//#######################################################################
-void ISF_HitAnalysis::extrapolate(const HepMC::GenParticle* part)
+std::vector<Trk::HitInfo>* ISF_HitAnalysis::caloHits(const HepMC::GenParticle& part) const
 {
+  // Start calo extrapolation
+  ATH_MSG_DEBUG ("[ fastCaloSim transport ] processing particle "<<part.pdg_id() );
 
- ptruth_eta=part->momentum().eta();
- ptruth_phi=part->momentum().phi();
- ptruth_e  =part->momentum().e();
- ptruth_pt =part->momentum().perp();
- ptruth_p  =part->momentum().rho();
+  std::vector<Trk::HitInfo>*     hitVector =  new std::vector<Trk::HitInfo>;   
+
+  int     pdgId    = part.pdg_id(); 
+  double  charge   = HepPDT::ParticleID(pdgId).charge();
+
+  // particle Hypothesis for the extrapolation
+
+  Trk::ParticleHypothesis pHypothesis = m_pdgToParticleHypothesis.convert(pdgId,charge);
+
+  ATH_MSG_DEBUG ("particle hypothesis "<< pHypothesis );
+
+  // geantinos not handled by PdgToParticleHypothesis - fix there
+  if ( pdgId == 999 ) pHypothesis = Trk::geantino;
+
+  HepMC::GenVertex *vtx = part.production_vertex();
+  Amg::Vector3D pos(0.,0.,0.);    // default
+
+  if (vtx) {
+    //const HepMC::ThreeVector vtxPos(vtx->point3d());
+    pos = Amg::Vector3D( vtx->point3d().x(),vtx->point3d().y(), vtx->point3d().z()); 
+  }
+
+  Amg::Vector3D mom(part.momentum().x(),part.momentum().y(),part.momentum().z());
+
+  ATH_MSG_DEBUG( "[ fastCaloSim transport ] starting transport from position eta="<<pos.eta()<<" phi="<<pos.phi()<<" d="<<pos.mag()<<" pT="<<mom.perp() );
+
+  // input parameters : curvilinear parameters
+  Trk::CurvilinearParameters inputPar(pos,mom,charge);
+
+  // stable vs. unstable check : ADAPT for FASTCALOSIM 
+  //double freepath = ( !m_particleDecayHelper.empty()) ? m_particleDecayHelper->freePath(isp) : - 1.; 
+  double freepath = -1.;
+  //ATH_MSG_VERBOSE( "[ fatras transport ] Particle free path : " << freepath);
+  // path limit -> time limit  ( TODO : extract life-time directly from decay helper )
+  double tDec = freepath > 0. ? freepath : -1.;
+  int decayProc = 0;
+
+  /* uncomment if unstable particles used by FastCaloSim
+  // beta calculated here for further use in validation
+  double mass = m_particleMasses.mass[pHypothesis];
+  double mom = isp.momentum().mag();
+  double beta = mom/sqrt(mom*mom+mass*mass); 
+
+  if ( tDec>0.) {
+    tDec = tDec/beta/CLHEP::c_light + isp.timeStamp();
+    decayProc = 201;                
+  }
+  */
+
+  Trk::TimeLimit timeLim(tDec,0.,decayProc);        // TODO: set vertex time info
+  
+  // prompt decay ( uncomment if unstable particles used )
+  //if ( freepath>0. && freepath<0.01 ) {
+  //  if (!m_particleDecayHelper.empty()) {
+  //    ATH_MSG_VERBOSE( "[ fatras transport ] Decay is triggered for input particle.");
+  //    m_particleDecayHelper->decay(isp);
+  //  }
+  //  return 0;
+  //}
+
+  // presample interactions - ADAPT FOR FASTCALOSIM
+  Trk::PathLimit pathLim(-1.,0);
+  //if (absPdg!=999 && pHypothesis<99) pathLim = m_samplingTool->sampleProcess(mom,isp.charge(),pHypothesis);
+     
+  Trk::GeometrySignature nextGeoID=Trk::Calo; 
+
+  // first extrapolation to reach the ID boundary
+
+  ATH_MSG_DEBUG( "[ fastCaloSim transport ] before calo entrance ");
+
+  // get CaloEntrance if not done already
+  if (!m_caloEntrance) {
+    m_caloEntrance = m_extrapolator->trackingGeometry()->trackingVolume(m_caloEntranceName);
+    if (!m_caloEntrance)  ATH_MSG_INFO("CaloEntrance not found ");
+     else ATH_MSG_INFO("CaloEntrance found ");
+  }
+
+  ATH_MSG_DEBUG( "[ fastCaloSim transport ] after calo entrance ");
+  
+  const Trk::TrackParameters* caloEntry = 0;
+
+  if (m_caloEntrance && m_caloEntrance->inside(pos,0.001) &&
+      !m_extrapolator->trackingGeometry()->atVolumeBoundary(pos,m_caloEntrance,0.001)) {
+
+    std::vector<Trk::HitInfo>*     dummyHitVector = 0;   
+    if ( charge==0 ) {
+    
+      caloEntry = m_extrapolator->transportNeutralsWithPathLimit(inputPar,pathLim,timeLim,
+				        Trk::alongMomentum,pHypothesis,dummyHitVector,nextGeoID,m_caloEntrance);  
  
- pdgid=part->pdg_id();
- 
- // Get charge of particle
- double charge = 0;
- HepPDT::ParticleData* ap = m_particleDataTable->particle( abs( pdgid ) );
- if(ap)
- {
-  charge = ap->charge();
-  if(pdgid<0) charge = -charge;
- }
- 
- // Setup truth to calo extrapolation info
- HepMC::GenVertex* pvtx = part->production_vertex();
- Amg::Vector3D pos(pvtx->position().x(),pvtx->position().y(),pvtx->position().z());
- Amg::Vector3D mom(part->momentum().px(),part->momentum().py(),part->momentum().pz());
- Trk::Perigee candidatePerigee(pos,mom,charge,pos);
- 
- std::cout<<"Particle pdgid "<<pdgid<<" vertex x "<<pvtx->position().x()<<" y "<<pvtx->position().y()<<" z "<<pvtx->position().z()<<std::endl;
- 
+    } else {
+          
+      caloEntry = m_extrapolator->extrapolateWithPathLimit(inputPar,pathLim,timeLim,
+					Trk::alongMomentum,pHypothesis,dummyHitVector,nextGeoID,m_caloEntrance);
+    }
+  } else caloEntry=&inputPar;
+
+  ATH_MSG_DEBUG( "[ fastCaloSim transport ] after calo caloEntry ");
+
+  if ( caloEntry ) {
+
+    const Trk::TrackParameters* eParameters = 0;
+
+    // save Calo entry hit (fallback info)
+    hitVector->push_back(Trk::HitInfo(caloEntry->clone(),timeLim.time,nextGeoID,0.));  
+
+    ATH_MSG_DEBUG( "[ fastCaloSim transport ] starting Calo transport from position eta="<<caloEntry->position().eta()<<" phi="<<caloEntry->position().phi()<<" d="<<caloEntry->position().mag() );
+    
+    if ( charge==0 ) {
+    
+      eParameters = m_extrapolator->transportNeutralsWithPathLimit(*caloEntry,pathLim,timeLim,
+					      Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);  
+    } else {
+      
+      eParameters = m_extrapolator->extrapolateWithPathLimit(*caloEntry,pathLim,timeLim,
+					      Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);   
+    }
+
+    // save Calo exit hit (fallback info)
+    if (eParameters) hitVector->push_back(Trk::HitInfo(eParameters,timeLim.time,nextGeoID,0.)); 
+  
+    //delete eParameters;   // HitInfo took ownership
+
+  } 
+   
+  if(msgLvl(MSG::DEBUG)) {
+    std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
+    while (it < hitVector->end() )  {
+      int sample=(*it).detID;
+      Amg::Vector3D hitPos = (*it).trackParms->position();
+      ATH_MSG_DEBUG(" HIT: layer="<<sample<<" sample="<<sample-3000<<" eta="<<hitPos.eta()<<" phi="<<hitPos.phi()<<" d="<<hitPos.mag());
+      it++;
+    }
+  }  
+
+  return hitVector;
+}
+
+//#######################################################################
+void ISF_HitAnalysis::extrapolate(const HepMC::GenParticle* part,std::vector<Trk::HitInfo>* hitVector)
+{
+ ATH_MSG_DEBUG("Start extrapolate()");
+
+ m_ptruth_eta=part->momentum().eta();
+ m_ptruth_phi=part->momentum().phi();
+ m_ptruth_e  =part->momentum().e();
+ m_ptruth_pt =part->momentum().perp();
+ m_ptruth_p  =part->momentum().rho();
+ m_pdgid=part->pdg_id();
  
  //////////////////////////////////////
  // Start calo extrapolation
  // First: get entry point into first calo sample
  //////////////////////////////////////
  
+ get_calo_surface(hitVector);
   
- //std::cout<<"after get_calo_surface_middle. params_on_surface->eta() "<<params_on_surface->eta()<<" | eta_calo_surf "<<eta_calo_surf<<" phi_calo_surf "<<phi_calo_surf <<" d_calo_surf "<<d_calo_surf<<std::endl;
- 
- std::vector<double> eta_safe;
- std::vector<double> phi_safe;
- std::vector<double> r_safe;
- std::vector<double> z_safe;
- for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample)
- {
- 	eta_safe.push_back(-999.0);
- 	phi_safe.push_back(-999.0);
- 	r_safe.push_back(-999.0);
- 	z_safe.push_back(-999.0);
+ std::vector< std::vector<double> > eta_safe(3);
+ std::vector< std::vector<double> > phi_safe(3);
+ std::vector< std::vector<double> > r_safe(3);
+ std::vector< std::vector<double> > z_safe(3);
+ for(int subpos=SUBPOS_MID;subpos<=SUBPOS_EXT;++subpos) {
+   eta_safe[subpos].resize(CaloCell_ID_FCS::MaxSample,-999.0);
+  	phi_safe[subpos].resize(CaloCell_ID_FCS::MaxSample,-999.0);
+  	r_safe[subpos].resize(CaloCell_ID_FCS::MaxSample,-999.0);
+  	z_safe[subpos].resize(CaloCell_ID_FCS::MaxSample,-999.0);
  }
 
- const Trk::TrackParameters* params_on_surface=get_calo_surface(candidatePerigee,charge);
-
- 
  // only continue if inside the calo
- if( fabs(eta_calo_surf)<6 )
+ if( fabs(m_eta_calo_surf)<6 )
  {
-  // now try to extrpolate to all calo layers, that contain energy
-  ATH_MSG_DEBUG("Calo position for particle id "<<pdgid<<", trutheta= " << ptruth_eta <<", truthphi= "<<ptruth_phi);
-  for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample)
-  {
-   letaCalo[sample]=-12345;
-   lphiCalo[sample]=-12345;
-   lrCalo[sample]=-12345;
-   lzCalo[sample]=-12345;
-   layerCaloOK[sample]=0;
-   //ATH_MSG_DEBUG("============= Getting Calo position for sample "<<sample<<" E/Etot="<<p.E_layer[sample]<<" ; in : eta= " << ptruth_eta);
-   
-   if(get_calo_etaphi(params_on_surface,(CaloCell_ID_FCS::CaloSample)sample,charge))
-   {
-    ATH_MSG_DEBUG( "Result in sample "<<sample<<": eta "<<letaCalo[sample]<<" phi "<<lphiCalo[sample]<<" r "<<lrCalo[sample]<<" z "<<lzCalo[sample]<<" (ok="<<layerCaloOK[sample]<<")");
-    std::cout<<"Result in sample "<<sample<<": eta "<<letaCalo[sample]<<" phi "<<lphiCalo[sample]<<" r "<<lrCalo[sample]<<" z "<<lzCalo[sample]<<" (ok="<<layerCaloOK[sample]<<")"<<std::endl;
-    eta_safe[sample]=letaCalo[sample];
-    phi_safe[sample]=lphiCalo[sample];
-    r_safe[sample]=lrCalo[sample];
-    z_safe[sample]=lzCalo[sample];
-   }
-   else
-    ATH_MSG_DEBUG( "Extrapolation to sample "<<sample<<" failed (ok="<<layerCaloOK[sample]<<")");
-  }
-  
+   // now try to extrpolate to all calo layers, that contain energy
+   ATH_MSG_DEBUG("Calo position for particle id "<<m_pdgid<<", trutheta= " << m_ptruth_eta <<", truthphi= "<<m_ptruth_phi<<", truthp="<<m_ptruth_p<<", truthpt="<<m_ptruth_pt);
+   for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
+     for(int subpos=SUBPOS_MID;subpos<=SUBPOS_EXT;++subpos) {
+       m_letaCalo[sample][subpos]=-12345;
+       m_lphiCalo[sample][subpos]=-12345;
+       m_lrCalo[sample][subpos]=-12345;
+       m_lzCalo[sample][subpos]=-12345;
+       m_layerCaloOK[sample][subpos]=0;
+       //ATH_MSG_DEBUG("============= Getting Calo position for sample "<<sample<<" E/Etot="<<p.E_layer[sample]<<" ; in : eta= " << m_ptruth_eta);
+       
+       if(get_calo_etaphi(hitVector,sample,subpos)) {
+         ATH_MSG_DEBUG( "Result in sample "<<sample<<"."<<subpos<<": eta="<<m_letaCalo[sample][subpos]<<" phi="<<m_lphiCalo[sample][subpos]<<" r="<<m_lrCalo[sample][subpos]<<" z="<<m_lzCalo[sample][subpos]<<" (ok="<<m_layerCaloOK[sample][subpos]<<")");
+         eta_safe[subpos][sample]=m_letaCalo[sample][subpos];
+         phi_safe[subpos][sample]=m_lphiCalo[sample][subpos];
+         r_safe[subpos][sample]=m_lrCalo[sample][subpos];
+         z_safe[subpos][sample]=m_lzCalo[sample][subpos];
+       }
+       else
+        ATH_MSG_DEBUG( "Extrapolation to sample "<<sample<<" failed (ok="<<m_layerCaloOK[sample][subpos]<<")");
+      }
+    }
  } //inside calo
  
+ m_TTC_back_eta->push_back(eta_safe[SUBPOS_EXT]);
+ m_TTC_back_phi->push_back(phi_safe[SUBPOS_EXT]);
+ m_TTC_back_r->push_back(r_safe[SUBPOS_EXT]);
+ m_TTC_back_z->push_back(z_safe[SUBPOS_EXT]);
  
- m_TTC_back_eta->push_back(eta_safe);
- m_TTC_back_phi->push_back(phi_safe);
- m_TTC_back_r->push_back(r_safe);
- m_TTC_back_z->push_back(z_safe);
- 
- m_TTC_entrance_eta->push_back(eta_safe);
- m_TTC_entrance_phi->push_back(phi_safe);
- m_TTC_entrance_r->push_back(r_safe);
- m_TTC_entrance_z->push_back(z_safe);
+ m_TTC_entrance_eta->push_back(eta_safe[SUBPOS_ENT]);
+ m_TTC_entrance_phi->push_back(phi_safe[SUBPOS_ENT]);
+ m_TTC_entrance_r->push_back(r_safe[SUBPOS_ENT]);
+ m_TTC_entrance_z->push_back(z_safe[SUBPOS_ENT]);
 
+ ATH_MSG_DEBUG("End extrapolate()");
 }
 
-void ISF_HitAnalysis::extrapolate_to_ID(const HepMC::GenParticle* part)
+void ISF_HitAnalysis::extrapolate_to_ID(const HepMC::GenParticle* part,std::vector<Trk::HitInfo>* hitVector)
 {
+ ATH_MSG_DEBUG("Start extrapolate_to_ID()");
 
- ptruth_eta=part->momentum().eta();
- ptruth_phi=part->momentum().phi();
- ptruth_e  =part->momentum().e();
- ptruth_pt =part->momentum().perp();
- ptruth_p  =part->momentum().rho();
+ m_ptruth_eta=part->momentum().eta();
+ m_ptruth_phi=part->momentum().phi();
+ m_ptruth_e  =part->momentum().e();
+ m_ptruth_pt =part->momentum().perp();
+ m_ptruth_p  =part->momentum().rho();
+ m_pdgid     =part->pdg_id();
  
- pdgid=part->pdg_id();
- 
- // Get charge of particle
- double charge = 0;
- HepPDT::ParticleData* ap = m_particleDataTable->particle( abs( pdgid ) );
- if(ap)
- {
-  charge = ap->charge();
-  if(pdgid<0) charge = -charge;
+ Amg::Vector3D hitpos(0,0,0);
+ Amg::Vector3D hitmom(0,0,0);
+ if(rz_cylinder_get_calo_etaphi(hitVector,m_CaloBoundaryR,m_CaloBoundaryZ,hitpos,hitmom)) {
+   ATH_MSG_DEBUG("BOUNDARY ID-CALO eta="<<hitpos.eta()<<" phi="<<hitpos.phi()<<" r="<<hitpos.perp()<<" z="<<hitpos[Amg::z]<<" theta="<<hitpos.theta()<<" ; momentum eta="<<hitmom.eta()<<" phi="<<hitmom.phi()<<" theta="<<hitmom.theta());
+   m_TTC_IDCaloBoundary_eta->push_back(hitpos.eta());
+   m_TTC_IDCaloBoundary_phi->push_back(hitpos.phi());
+   m_TTC_IDCaloBoundary_r->push_back(hitpos.perp());
+   m_TTC_IDCaloBoundary_z->push_back(hitpos[Amg::z]);
+ } else {
+   ATH_MSG_DEBUG("Extrapolation to IDCaloBoundary failed");
+   m_TTC_IDCaloBoundary_eta->push_back(-999.);
+   m_TTC_IDCaloBoundary_phi->push_back(-999.);
+   m_TTC_IDCaloBoundary_r->push_back(-999.);
+   m_TTC_IDCaloBoundary_z->push_back(-999.);
  }
- 
- // Setup truth to calo extrapolation info
- HepMC::GenVertex* pvtx = part->production_vertex();
- // Trk::GlobalPosition pos(CLHEP::HepLorentzVector(pvtx->position().x(),pvtx->position().y(),pvtx->position().z(),pvtx->position().t()));
- //Trk::GlobalMomentum mom(CLHEP::HepLorentzVector(part->momentum().px(),part->momentum().py(),part->momentum().pz(),part->momentum().e()));
- //Trk::Perigee candidatePerigee(pos,mom,charge,pos);
 
- Amg::Vector3D pos(pvtx->position().x(),pvtx->position().y(),pvtx->position().z());
- Amg::Vector3D mom(part->momentum().px(),part->momentum().py(),part->momentum().pz());
- Trk::Perigee candidatePerigee(pos,mom,charge,pos);
- 
- double eta_ID,phi_ID,r_ID,x_ID,y_ID,z_ID;
- eta_ID=phi_ID=r_ID=z_ID=x_ID=y_ID=-42.0;
- const Trk::TrackParameters* params_on_surface_ID=get_calo_surface_ID(candidatePerigee,eta_ID,phi_ID,r_ID,x_ID,y_ID,z_ID);
- 
- ATH_MSG_VERBOSE("BOUNDARY ID-CALO eta "<<eta_ID<<" phi "<<phi_ID<<" r "<<r_ID<<" x "<<x_ID<<" y "<<y_ID<<" z "<<z_ID);
- if (params_on_surface_ID)
-   {
-     m_TTC_IDCaloBoundary_eta->push_back(eta_ID);
-     m_TTC_IDCaloBoundary_phi->push_back(phi_ID);
-     m_TTC_IDCaloBoundary_r->push_back(r_ID);
-     m_TTC_IDCaloBoundary_z->push_back(z_ID);
-   }
- else
-   {
-     ATH_MSG_DEBUG("Extrapolation to IDCaloBoundary failed");
-     m_TTC_IDCaloBoundary_eta->push_back(-999.);
-     m_TTC_IDCaloBoundary_phi->push_back(-999.);
-     m_TTC_IDCaloBoundary_r->push_back(-999.);
-     m_TTC_IDCaloBoundary_z->push_back(-999.);
-   }
- //Angle 3D between 0,0,0 -> IP and Vertex -> IP:
- TVector3 vec(x_ID,y_ID,z_ID);
- TVector3 vecpart1(vec.X()-pvtx->position().x(),vec.Y()-pvtx->position().y(),vec.Z()-pvtx->position().z());
- ATH_MSG_VERBOSE("    3D ANGLE "<<vecpart1.Angle(vec));
- 
- //Angle 2D between 0,0,0 -> IP and Vertex -> IP:
- TVector3 vecpart2(vec.X(),vec.Y(),vec.Z()-pvtx->position().z());
- ATH_MSG_VERBOSE("      ANGLE in eta direction "<<vecpart2.Angle(vec));
+ TVector3 vec(hitpos[Amg::x],hitpos[Amg::y],hitpos[Amg::z]);
  
  //get the tangentvector on this interaction point:
  //GlobalMomentum* mom=params_on_surface_ID->TrackParameters::momentum().unit() ;
  //Trk::GlobalMomentum* trackmom=params_on_surface_ID->Trk::TrackParameters::momentum();
- if (params_on_surface_ID)
-   {
-     Amg::Vector3D trackmom=params_on_surface_ID->Trk::TrackParameters::momentum().unit();
-     //Amg::Vector3D vec_IP(x_ID,y_ID,z_ID);
-     //std::cout<<"Momentum Vektor px="<<trackmom.x()<<" py "<<trackmom.y()<<" pz "<<trackmom.z()<<std::endl; //ok
-     //angle between vec and trackmom:
-     TVector3 Trackmom(trackmom[Amg::x],trackmom[Amg::y],trackmom[Amg::z]);
-     double angle3D=Trackmom.Angle(vec); //isn't this the same as TVector3 vec?
-     //std::cout<<"    3D Angle between vec and trackmom: "<<angle3d<<std::endl;
-     TVector3 trackmom_z(x_ID,y_ID,Trackmom.z());
-     double angleEta=trackmom_z.Angle(vec);
-     //std::cout<<"    Angle in eta direction between vec and trackmom: "<<angleEta<<std::endl;
-     
-     m_TTC_Angle3D->push_back(angle3D);
-     m_TTC_AngleEta->push_back(angleEta);
-   }
- else
-   {
-     m_TTC_Angle3D->push_back(-999.);
-     m_TTC_AngleEta->push_back(-999.);
-   }
+ if(hitmom.mag()>0) {
+   //angle between vec and trackmom:
+   TVector3 Trackmom(hitmom[Amg::x],hitmom[Amg::y],hitmom[Amg::z]);
+   double angle3D=Trackmom.Angle(vec); //isn't this the same as TVector3 vec?
+   ATH_MSG_DEBUG("    3D ANGLE "<<angle3D);
+
+   double angleEta=vec.Theta()-Trackmom.Theta();
+   ATH_MSG_DEBUG("    ANGLE dTHEA"<<angleEta);
+   
+   m_TTC_Angle3D->push_back(angle3D);
+   m_TTC_AngleEta->push_back(angleEta);
+ } else {
+   m_TTC_Angle3D->push_back(-999.);
+   m_TTC_AngleEta->push_back(-999.);
+ }
+ ATH_MSG_DEBUG("End extrapolate_to_ID()");
 } //extrapolate_to_ID
 
 
-bool ISF_HitAnalysis::get_calo_etaphi(const Trk::TrackParameters* params_on_surface,CaloCell_ID_FCS::CaloSample sample, double charge)
+//UPDATED
+bool ISF_HitAnalysis::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, int sample,int subpos)  
 {
- double distsamp =deta(sample,eta_calo_surf);
- //        double rzmiddle =m_calodepth->radius((CaloCell_ID::CaloSample)sample,ptruth_eta,ptruth_phi);
- double rzmiddle =rzmid(sample,eta_calo_surf);
- ATH_MSG_DEBUG("in : dist="<<distsamp<<" r/z(middle)="<<rzmiddle<<" ===== charge "<<charge);
- 
- double offset = 0.;
- 
- Amg::Vector3D pt_calo_ctb;
- Amg::Vector3D pt_calo_local;
- 
- const Trk::TrackParameters* result=TrackSeenByCalo(m_calosurf, params_on_surface, sample, offset, &pt_calo_ctb, &pt_calo_local);
- 
- if(result)
- {
-  delete result;
-  result=0;
-  double etaCalo = pt_calo_local.eta();
-  double phiCalo = pt_calo_local.phi();
-  double rCalo = pt_calo_local.mag();
-  double zCalo = pt_calo_local.z();
-  letaCalo[sample]=etaCalo;
-  lphiCalo[sample]=phiCalo;
-  lrCalo[sample]=rCalo;
-  lzCalo[sample]=zCalo;
-  //std::cout<<"---------------> r "<<lrCalo[sample]<<" z "<<lzCalo[sample]<<std::endl;
-  if(fabs(etaCalo)<900)
-  {
-   layerCaloOK[sample]=true;
-   //double testrzmiddle=m_calodepth->radius((CaloCell_ID::CaloSample)sample,etaCalo,phiCalo);
-   rzmiddle=rzmid((CaloCell_ID_FCS::CaloSample)sample,etaCalo);
-   distsamp=deta((CaloCell_ID_FCS::CaloSample)sample,etaCalo);
-  }
-  else
-  {
-   letaCalo[sample]=eta_calo_surf;
-   lphiCalo[sample]=phi_calo_surf;
-  }
+  m_layerCaloOK[sample][subpos]=false;
+  m_letaCalo[sample][subpos]=m_eta_calo_surf;
+  m_lphiCalo[sample][subpos]=m_phi_calo_surf;
+  m_lrCalo[sample][subpos] = rpos(sample,m_eta_calo_surf,subpos);
+  m_lzCalo[sample][subpos] = zpos(sample,m_eta_calo_surf,subpos);
+  double distsamp =deta(sample,m_eta_calo_surf);
+  double lrzpos =rzpos(sample,m_eta_calo_surf,subpos);
+  double hitdist=0;
+  bool best_found=false;
+  double best_target=0;
+
+  std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
+  while ( it!= hitVector->end() && it->detID != (3000+sample) ) { it++;}
+  //while ((*it).detID != (3000+sample) && it < hitVector->end() )  it++;
   
- } //if results
- else
- {
-  letaCalo[sample]=eta_calo_surf;
-  lphiCalo[sample]=phi_calo_surf;
- }
- 
- if(isCaloBarrel((CaloCell_ID_FCS::CaloSample)sample))
-  rzmiddle*=cosh(letaCalo[sample]);
- else
-  rzmiddle= fabs(rzmiddle/tanh(letaCalo[sample]));
- 
- //std::cout<<"-------------> rzmiddle "<<rzmiddle<<std::endl;
- 
- dCalo[sample]=rzmiddle;
- distetaCaloBorder[sample]=distsamp;
-
- if(msgLvl(MSG::DEBUG))
- {
-  msg(MSG::DEBUG)<<"  Final par TTC sample "<<(int)sample;
-  if(layerCaloOK[sample])
-   msg()<<" (good)";
-  else
-   msg()<<" (bad)";
-  msg()<<" eta=" << letaCalo[sample] << "   phi=" << lphiCalo[sample] <<" dCalo="<<dCalo[sample]<< endreq;
- }
-
- if(result)
- {
-  delete result;
-  result=0;
- }
-	
- return layerCaloOK[sample];
- 
-}
-
-
-double ISF_HitAnalysis::rzmid(CaloCell_ID_FCS::CaloSample sample,double eta) const
-{
- int side=0;
- if(eta>0) side=1;
-	
- if(isCaloBarrel(sample)) return rmid_map[side][sample].find_closest(eta)->second;
- else                     return zmid_map[side][sample].find_closest(eta)->second;
-}
-
-double ISF_HitAnalysis::deta(CaloCell_ID_FCS::CaloSample sample,double eta) const
-{
-  int side=0;
-  if(eta>0) side=1;
-
-  double mineta=min_eta_sample[side][sample];
-  double maxeta=max_eta_sample[side][sample];
-
-  if(eta<mineta)
-  {
-    return fabs(eta-mineta);
-  }
-  else if(eta>maxeta)
-  {
-   return fabs(eta-maxeta);
-	}
-	else
-	{
-   double d1=fabs(eta-mineta);
-   double d2=fabs(eta-maxeta);
-   if(d1<d2) return -d1;
-   else return -d2;
-  }
-}
-
-
-void ISF_HitAnalysis::minmaxeta(CaloCell_ID_FCS::CaloSample sample,double eta,double& mineta,double& maxeta) const 
-{
-  int side=0;
-  if(eta>0) side=1;
-  
-  mineta=min_eta_sample[side][sample];
-  maxeta=max_eta_sample[side][sample];
-}
-
-double ISF_HitAnalysis::rmid(CaloCell_ID_FCS::CaloSample sample,double eta) const 
-{
-  int side=0;
-  if(eta>0) side=1;
-
-  return rmid_map[side][sample].find_closest(eta)->second;
-}
-
-double ISF_HitAnalysis::zmid(CaloCell_ID_FCS::CaloSample sample,double eta) const 
-{
-  int side=0;
-  if(eta>0) side=1;
-
-  return zmid_map[side][sample].find_closest(eta)->second;
-}
-
-
-double ISF_HitAnalysis::rent(CaloCell_ID_FCS::CaloSample sample,double eta) const 
-{
-  int side=0;
-  if(eta>0) side=1;
-
-  return rent_map[side][sample].find_closest(eta)->second;
-}
-
-double ISF_HitAnalysis::zent(CaloCell_ID_FCS::CaloSample sample,double eta) const 
-{
-  int side=0;
-  if(eta>0) side=1;
-
-  return zent_map[side][sample].find_closest(eta)->second;
-}
-
-double ISF_HitAnalysis::rzent(CaloCell_ID_FCS::CaloSample sample,double eta) const
-{
-  int side=0;
-  if(eta>0) side=1;
-
-  if(isCaloBarrel(sample)) return rent_map[side][sample].find_closest(eta)->second;
-   else                    return zent_map[side][sample].find_closest(eta)->second;
-}
-
-const Trk::TrackParameters* ISF_HitAnalysis::TrackSeenByCalo(ICaloSurfaceBuilder* m_calosurf,const Trk::TrackParameters* parm, const CaloCell_ID_FCS::CaloSample sample,const double offset, Amg::Vector3D* pt_ctb, Amg::Vector3D* pt_local)
-{
-
-
- // Take eta as best guess of track direction and create surface :
- double trketa = parm->eta();
- const Trk::TrackParameters* param=0;
- 
- Trk::Surface* surf = m_calosurf->CreateUserSurface ((CaloCell_ID::CaloSample)sample,offset,trketa);
- if (!surf) return 0;
-
- 
-  if (!parm)
- {
-  ATH_MSG_WARNING("extrapolate TrkParam called with null Trk::TrackParameters*");
-  return 0;
- }
-
- ATH_MSG_VERBOSE("Trying to propagate TrackParameters to Surface ... " << (*surf));
- param = m_extrapolator->extrapolate( *parm, *surf, Trk::alongMomentum, true, Trk::nonInteracting);
- if (param)
- {
-  ATH_MSG_VERBOSE("Propagation successful ");
-  //std::cout<<"sample "<<sample<<" extrapolated params eta "<<param->eta()<<std::endl;
- }
-  
- else
- {
-  ATH_MSG_VERBOSE("Propagation failed, try custom surface ");
-  Trk::Surface* newsurf=0;
-  if(isCaloBarrel(sample))
-  {
-   double r;
-   if(m_calosurf==m_calosurf_entrance) r=rent(sample,trketa);
-   else r=rmid(sample,trketa);
-   Amg::Transform3D *t = new Amg::Transform3D(Amg::Transform3D::Identity()); t->setIdentity();
-   newsurf=new Trk::CylinderSurface( t , r , 40000*CLHEP::mm );
-  }
-  else
-  {
-   double z;
-   if(m_calosurf==m_calosurf_entrance) z=zent(sample,trketa);
-   else z=zmid(sample,trketa);
-   newsurf=new Trk::DiscSurface( new Amg::Transform3D(Amg::Vector3D(0.,0.,z)), 20*CLHEP::mm , 20000*CLHEP::mm );
-  }
-  
-	if(newsurf)
-	{
-   delete surf;
-   surf=newsurf;
-   ATH_MSG_VERBOSE("Trying to propagate TrackParameters to Surface ... " << (*surf));
-   param = m_extrapolator->extrapolate( *parm, *surf, Trk::alongMomentum, false, Trk::nonInteracting);
-   if (param)
-   {
-    ATH_MSG_VERBOSE("2nd Propagation successful ");
-    //std::cout<<"sample "<<sample<<" newsurf, extrapolated params eta "<<param->eta()<<std::endl;
-   }
-   else
-   {
-    ATH_MSG_VERBOSE("2nd Propagation failed");
-    //std::cout<<"sample "<<sample<<" no newsurf. propagation failed :("<<std::endl;
-   } 
-  }
- }
- //here it writes the stuff to pt_local I guess
- CaloLocalPoint (param,pt_ctb, pt_local); 
- delete surf;
-
-  
- return param;
- 
-} 
-
-
-const Trk::TrackParameters* ISF_HitAnalysis::TrackSeenByCalo_ID(const Trk::TrackParameters* parm, Amg::Vector3D* pt_ctb, Amg::Vector3D* pt_local)
-{
- 
- const Trk::TrackParameters* param=0;
- 
- Trk::Surface* surf=0;
- 	
- //std::cout<<"m_CaloBoundaryR "<<m_CaloBoundaryR<<" m_CaloBoundaryZ "<<m_CaloBoundaryZ<<std::endl;
- Amg::Transform3D *t = new Amg::Transform3D(Amg::Transform3D::Identity());
- t->setIdentity(); 
- Trk::Surface* newsurf=new Trk::CylinderSurface(t , m_CaloBoundaryR*CLHEP::mm , m_CaloBoundaryZ*CLHEP::mm );
- 
- if(newsurf)
- {
-  surf=newsurf;
-  ATH_MSG_VERBOSE("Trying to propagate TrackParameters to Surface ... " << (*surf));
-  param = m_extrapolator->extrapolate( *parm, *surf, Trk::alongMomentum, false, Trk::nonInteracting);
-  if (param)
-  {
-   ATH_MSG_VERBOSE("2nd Propagation successful ");
-  }
-  else
-  {
-   ATH_MSG_VERBOSE("2nd Propagation failed");
+  if (it!=hitVector->end()) {
+    Amg::Vector3D hitPos1 = (*it).trackParms->position();
+    int sid1=(*it).detID;
+    int sid2=-1;
+    Amg::Vector3D hitPos;
+    Amg::Vector3D hitPos2;
+    
+    std::vector<Trk::HitInfo>::iterator itnext = it;
+    ++itnext;
+    if(itnext!=hitVector->end()) {
+      hitPos2 = (*itnext).trackParms->position();
+      sid2=(*itnext).detID;
+      double eta_avg=0.5*(hitPos1.eta()+hitPos2.eta());
+      double t;
+      if(isCaloBarrel(sample)) {
+        double r=rpos(sample,eta_avg,subpos);
+        double r1=hitPos1.perp();
+        double r2=hitPos2.perp();
+        t=(r-r1)/(r2-r1);
+        best_target=r;
+      } else {
+        double z=zpos(sample,eta_avg,subpos);
+        double z1=hitPos1[Amg::z];
+        double z2=hitPos2[Amg::z];
+        t=(z-z1)/(z2-z1);
+        best_target=z;
+      }
+      hitPos=t*hitPos2+(1-t)*hitPos1;
+    } else {
+      hitPos=hitPos1;
+      hitPos2=hitPos1;
+    }
+    double etaCalo = hitPos.eta();
+    double phiCalo = hitPos.phi();
+    m_letaCalo[sample][subpos]=etaCalo;
+    m_lphiCalo[sample][subpos]=phiCalo;
+    m_lrCalo[sample][subpos] = hitPos.perp();
+    m_lzCalo[sample][subpos] = hitPos[Amg::z];
+    hitdist=hitPos.mag();
+    m_layerCaloOK[sample][subpos]=true;
+    lrzpos=rzpos(sample,etaCalo,subpos);
+    distsamp=deta(sample,etaCalo);
+    best_found=true;
+    ATH_MSG_DEBUG(" extrapol with layer hit: id="<<sid1<<" -> "<<sid2<<
+                  " target r/z="<<best_target<<
+                  " r1="<<hitPos1.perp()<<" z1="<<hitPos1[Amg::z]<<" r2="<<hitPos2.perp()<<" z2="<<hitPos2[Amg::z]<<
+                  " re="<<m_lrCalo[sample][subpos]<<" ze="<<m_lzCalo[sample][subpos]
+                  );
   } 
- }
- 
- //here it writes the stuff to pt_local I guess
- CaloLocalPoint (param,pt_ctb, pt_local); 
- delete surf;
- 
- return param;
- 
-} 
-
-void ISF_HitAnalysis::CaloLocalPoint (const Trk::TrackParameters* parm,Amg::Vector3D* pt_ctb, Amg::Vector3D* pt_local)
-{
-  if (!parm)
-  {
-   //std::cout<<"!parm"<<std::endl;
-   return;
-  }
-  if (!pt_local)
-  {
-   //std::cout<<"!pt_local"<<std::endl;
-   return;
+  if(!best_found) {
+    it = hitVector->begin();
+    double best_dist=0.5;
+    bool best_inside=false;
+    int best_id1,best_id2;
+    Amg::Vector3D best_hitPos=(*it).trackParms->position();
+    while (it < hitVector->end()-1 ) {
+      Amg::Vector3D hitPos1 = (*it).trackParms->position();
+      int sid1=(*it).detID;
+      it++;
+      Amg::Vector3D hitPos2 = (*it).trackParms->position();
+      int sid2=(*it).detID;
+      double eta_avg=0.5*(hitPos1.eta()+hitPos2.eta());
+      double t;
+      double tmp_target=0;
+      if(isCaloBarrel(sample)) {
+        double r=rpos(sample,eta_avg,subpos);
+        double r1=hitPos1.perp();
+        double r2=hitPos2.perp();
+        t=(r-r1)/(r2-r1);
+        tmp_target=r;
+      } else {
+        double z=zpos(sample,eta_avg,subpos);
+        double z1=hitPos1[Amg::z];
+        double z2=hitPos2[Amg::z];
+        t=(z-z1)/(z2-z1);
+        tmp_target=z;
+      }
+      Amg::Vector3D hitPos=t*hitPos2+(1-t)*hitPos1;
+      double dist=TMath::Min(TMath::Abs(t-0),TMath::Abs(t-1));
+      bool inside=false;
+      if(t>=0 && t<=1) inside=true;
+      if(!best_found || inside) {
+        if(!best_inside || dist<best_dist) {
+          best_dist=dist;
+          best_hitPos=hitPos;
+          best_inside=inside;
+          best_found=true;
+          best_id1=sid1;
+          best_id2=sid2;
+          best_target=tmp_target;
+        }
+      } else {
+        if(!best_inside && dist<best_dist) {
+          best_dist=dist;
+          best_hitPos=hitPos;
+          best_inside=inside;
+          best_found=true;
+          best_id1=sid1;
+          best_id2=sid2;
+          best_target=tmp_target;
+        }
+      }
+      ATH_MSG_VERBOSE(" extrapol without layer hit: id="<<sid1<<" -> "<<sid2<<" dist="<<dist<<" mindist="<<best_dist<<
+                    " t="<<t<<" best_inside="<<best_inside<<" target r/z="<<tmp_target<<
+                    " r1="<<hitPos1.perp()<<" z1="<<hitPos1[Amg::z]<<" r2="<<hitPos2.perp()<<" z2="<<hitPos2[Amg::z]<<
+                    " re="<<hitPos.perp()<<" ze="<<hitPos[Amg::z]<<
+                    " rb="<<best_hitPos.perp()<<" zb="<<best_hitPos[Amg::z]
+                    );
+      if(best_found) {
+        m_letaCalo[sample][subpos]=best_hitPos.eta();
+        m_lphiCalo[sample][subpos]=best_hitPos.phi();
+        m_lrCalo[sample][subpos] = best_hitPos.perp();
+        m_lzCalo[sample][subpos] = best_hitPos[Amg::z];
+        hitdist=best_hitPos.mag();
+        lrzpos=rzpos(sample,m_letaCalo[sample][subpos],subpos);
+        distsamp=deta(sample,m_letaCalo[sample][subpos]);
+        m_layerCaloOK[sample][subpos]=true;
+      }              
+    } 
+    if(best_found) {
+      ATH_MSG_DEBUG(" extrapol without layer hit: id="<<best_id1<<" -> "<<best_id2<<" mindist="<<best_dist<<
+                    " best_inside="<<best_inside<<" target r/z="<<best_target<<
+                    " rb="<<best_hitPos.perp()<<" zb="<<best_hitPos[Amg::z]
+                    );
+    }                  
   }
   
-  *pt_ctb = parm->position();
+  if(isCaloBarrel(sample)) lrzpos*=cosh(m_letaCalo[sample][subpos]);
+   else                    lrzpos= fabs(lrzpos/tanh(m_letaCalo[sample][subpos]));
 
-  ATH_MSG_VERBOSE( "Impact point in ctb coord : x,y,z= " 
-      << pt_ctb->x() << " " 
-      << pt_ctb->y() << " " << pt_ctb->z() << " R=" 
-      << std::sqrt( pt_ctb->x()*pt_ctb->x() + pt_ctb->y()*pt_ctb->y() 
-                    + pt_ctb->z()*pt_ctb->z())
-      << " eta=" << pt_ctb->eta() << " phi=" << pt_ctb->phi() );
+  m_dCalo[sample][subpos]=lrzpos;
+  m_distetaCaloBorder[sample][subpos]=distsamp;
 
-  m_calo_tb_coord->ctb_to_local(*pt_ctb, *pt_local);
-    
-  ATH_MSG_VERBOSE( "Impact point in local coord : x,y,z= " 
-      << pt_local->x() << " " 
-      << pt_local->y() << " " << pt_local->z() << " R=" 
-      << std::sqrt( pt_local->x()*pt_local->x() 
-                    + pt_local->y()*pt_local->y() 
-                    + pt_local->z()*pt_local->z())
-      << " eta=" << pt_local->eta() << " phi=" << pt_local->phi() );
+  if(msgLvl(MSG::DEBUG)) {
+    msg(MSG::DEBUG)<<"  Final par TTC sample "<<sample<<" subpos="<<subpos;
+    if(m_layerCaloOK[sample][subpos]) msg()<<" (good)";
+     else msg()<<" (bad)";
+    msg()<<" eta=" << m_letaCalo[sample][subpos] << "   phi=" << m_lphiCalo[sample][subpos] <<" m_dCalo="<<m_dCalo[sample][subpos]<<" dist(hit)="<<hitdist<< endreq;
+  } 
+ 
+  return m_layerCaloOK[sample][subpos];
 }
 
-
-const Trk::TrackParameters* ISF_HitAnalysis::get_calo_surface(const Trk::Perigee& candidatePerigee,const double charge)
+//UPDATED
+bool ISF_HitAnalysis::rz_cylinder_get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, double cylR, double cylZ, Amg::Vector3D& pos, Amg::Vector3D& mom)  
 {
-		
-  const Trk::TrackParameters* params_on_surface=0;
-  
-  sample_calo_surf=CaloCell_ID_FCS::MaxSample;
-  
-  eta_calo_surf=-999;
-  phi_calo_surf=-999;
-  d_calo_surf=0;
-  double min_calo_surf_dist=1000;
-  const int n_surfacelist=5;
-  CaloCell_ID_FCS::CaloSample surfacelist[n_surfacelist]={CaloCell_ID_FCS::PreSamplerB,
-	                                                          CaloCell_ID_FCS::PreSamplerE,
-	                                                          CaloCell_ID_FCS::EME1,
-	                                                          CaloCell_ID_FCS::EME2,
-	                                                          CaloCell_ID_FCS::FCAL0
-	                                                         };
-  m_n_surfacelist=n_surfacelist;
-  for(int i=0;i<n_surfacelist;++i) m_surfacelist[i]=surfacelist[i];
-  
-  
-  for(int i=0;i<m_n_surfacelist;++i)
-  {
-  
-    CaloCell_ID_FCS::CaloSample sample=m_surfacelist[i];
-    double offset = 0.;
-    
-    Amg::Vector3D pt_calo_ctb;
-    Amg::Vector3D pt_calo_local;
+  bool best_found=false;
+  double best_dist=10000;
+  bool best_inside=false;
+  int best_id1,best_id2;
 
-    //std::cout<<"in get_calo_surface_middle for loop (i="<<i<<"). right before TrackSeenByCalo"<<std::endl;
+  std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
+  Amg::Vector3D best_hitPos=(*it).trackParms->position();
+  for(int rz=0;rz<=1;++rz) {
+    it = hitVector->begin();
+    while (it < hitVector->end()-1 ) {
+      Amg::Vector3D hitPos1 = (*it).trackParms->position();
+      Amg::Vector3D hitMom1 = (*it).trackParms->momentum();
+      int sid1=(*it).detID;
+      it++;
+      Amg::Vector3D hitPos2 = (*it).trackParms->position();
+      Amg::Vector3D hitMom2 = (*it).trackParms->momentum();
+      int sid2=(*it).detID;
 
-    const Trk::TrackParameters* result=TrackSeenByCalo(m_calosurf, &candidatePerigee, (CaloCell_ID_FCS::CaloSample)sample, offset, &pt_calo_ctb, &pt_calo_local);
-    double etaCalo = pt_calo_local.eta();
-    
-    //std::cout<<"in get_calo_surface_middle after TrackSeenByCalo. "<<std::endl;
-    //if(result) std::cout<<"get_calo_surface_middle result for sample "<<sample<<" track->eta "<<result->eta()<<" etaCalo "<<etaCalo<<std::endl;
-        
-    if (result && fabs(etaCalo)<900)
-    {
-      double phiCalo = pt_calo_local.phi();
-      double distsamp =deta(sample,etaCalo);
+      double t;
+      if(rz==1) {
+        double r=cylR;
+        double r1=hitPos1.perp();
+        double r2=hitPos2.perp();
+        t=(r-r1)/(r2-r1);
+      } else {
+        double z=cylZ;
+        double z1=hitPos1[Amg::z];
+        double z2=hitPos2[Amg::z];
+        t=(z-z1)/(z2-z1);
+      }
+      Amg::Vector3D hitPos=t*hitPos2+(1-t)*hitPos1;
+
+      double dist=hitPos.mag();
+      bool inside=false;
+      if(t>=-0.001 && t<=1.001) inside=true;
       
-      msg(MSG::VERBOSE)<<" phi="<<phiCalo<<" dist="<<distsamp;
-      if(distsamp<min_calo_surf_dist)
-      {
-        if(params_on_surface) delete params_on_surface;
-        params_on_surface=result;
-        eta_calo_surf=etaCalo;
-        phi_calo_surf=phiCalo;
+      if(!best_found || inside) {
+        if(!best_inside || dist<best_dist) {
+          best_dist=dist;
+          best_hitPos=hitPos;
+          best_inside=inside;
+          best_found=true;
+          best_id1=sid1;
+          best_id2=sid2;
+          mom=t*hitMom2+(1-t)*hitMom1;
+        }
+      } else {
+        if(!best_inside && dist<best_dist) {
+          best_dist=dist;
+          best_hitPos=hitPos;
+          best_inside=inside;
+          best_found=true;
+          best_id1=sid1;
+          best_id2=sid2;
+          mom=t*hitMom2+(1-t)*hitMom1;
+        }
+      }
+      ATH_MSG_DEBUG(" extrapol without layer hit: id="<<sid1<<" -> "<<sid2<<" dist="<<dist<<" bestdist="<<best_dist<<
+                    " t="<<t<<" inside="<<inside<<" best_inside="<<best_inside<<
+                    " r1="<<hitPos1.perp()<<" z1="<<hitPos1[Amg::z]<<" r2="<<hitPos2.perp()<<" z2="<<hitPos2[Amg::z]<<
+                    " re="<<hitPos.perp()<<" ze="<<hitPos[Amg::z]<<
+                    " rb="<<best_hitPos.perp()<<" zb="<<best_hitPos[Amg::z]
+                    );
+    }
+  }   
+  
+  if(best_found) {
+    ATH_MSG_DEBUG(" extrapol to r="<<cylR<<" z="<<cylZ<<": id="<<best_id1<<" -> "<<best_id2<<" dist="<<best_dist<<
+                  " best_inside="<<best_inside<<
+                  " rb="<<best_hitPos.perp()<<" zb="<<best_hitPos[Amg::z]
+                  );
+  }                  
+  pos=best_hitPos;
+
+  return best_found;
+}
+
+//UPDATED
+/*
+bool ISF_HitAnalysis::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, CaloCell_ID_FCS::CaloSample sample)  
+{
+  m_layerCaloOK[sample]=false;
+  m_letaCalo[sample]=m_eta_calo_surf;
+  m_lphiCalo[sample]=m_phi_calo_surf;
+  double distsamp =deta(sample,m_eta_calo_surf);
+  double rzmiddle =rzmid(sample,m_eta_calo_surf);
+  double hitdist=0;
+  bool best_found=false;
+  double best_target=0;
+
+  std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
+  while ( it!= hitVector->end() && it->detID != (3000+sample) ) { it++;}
+  //while ((*it).detID != (3000+sample) && it < hitVector->end() )  it++;
+  
+  if (it!=hitVector->end()) {
+    Amg::Vector3D hitPos1 = (*it).trackParms->position();
+    int sid1=(*it).detID;
+    int sid2=-1;
+    Amg::Vector3D hitPos;
+    Amg::Vector3D hitPos2;
+    
+    std::vector<Trk::HitInfo>::iterator itnext = it;
+    ++itnext;
+    if(itnext!=hitVector->end()) {
+      hitPos2 = (*itnext).trackParms->position();
+      sid2=(*itnext).detID;
+      double eta_avg=0.5*(hitPos1.eta()+hitPos2.eta());
+      double t;
+      if(isCaloBarrel(sample)) {
+        double r=rmid(sample,eta_avg);
+        double r1=hitPos1.perp();
+        double r2=hitPos2.perp();
+        t=(r-r1)/(r2-r1);
+        best_target=r;
+      } else {
+        double z=zmid(sample,eta_avg);
+        double z1=hitPos1[Amg::z];
+        double z2=hitPos2[Amg::z];
+        t=(z-z1)/(z2-z1);
+        best_target=z;
+      }
+      hitPos=t*hitPos2+(1-t)*hitPos1;
+    } else {
+      hitPos=hitPos1;
+      hitPos2=hitPos1;
+    }
+    double etaCalo = hitPos.eta();
+    double phiCalo = hitPos.phi();
+    m_letaCalo[sample]=etaCalo;
+    m_lphiCalo[sample]=phiCalo;
+    hitdist=hitPos.mag();
+    m_layerCaloOK[sample]=true;
+    rzmiddle=rzmid((CaloCell_ID_FCS::CaloSample)sample,etaCalo);
+    distsamp=deta((CaloCell_ID_FCS::CaloSample)sample,etaCalo);
+    best_found=true;
+    ATH_MSG_DEBUG(" extrapol with layer hit: id="<<sid1<<" -> "<<sid2<<
+                  " target r/z="<<best_target<<
+                  " r1="<<hitPos1.perp()<<" z1="<<hitPos1[Amg::z]<<" r2="<<hitPos2.perp()<<" z2="<<hitPos2[Amg::z]<<
+                  " re="<<hitPos.perp()<<" ze="<<hitPos[Amg::z]
+                  );
+  } 
+  if(!best_found) {
+    it = hitVector->begin();
+    double best_dist=0.5;
+    bool best_inside=false;
+    int best_id1,best_id2;
+    Amg::Vector3D best_hitPos=(*it).trackParms->position();
+    while (it < hitVector->end()-1 ) {
+      Amg::Vector3D hitPos1 = (*it).trackParms->position();
+      int sid1=(*it).detID;
+      it++;
+      Amg::Vector3D hitPos2 = (*it).trackParms->position();
+      int sid2=(*it).detID;
+      double eta_avg=0.5*(hitPos1.eta()+hitPos2.eta());
+      double t;
+      double tmp_target=0;
+      if(isCaloBarrel(sample)) {
+        double r=rmid(sample,eta_avg);
+        double r1=hitPos1.perp();
+        double r2=hitPos2.perp();
+        t=(r-r1)/(r2-r1);
+        tmp_target=r;
+      } else {
+        double z=zmid(sample,eta_avg);
+        double z1=hitPos1[Amg::z];
+        double z2=hitPos2[Amg::z];
+        t=(z-z1)/(z2-z1);
+        tmp_target=z;
+      }
+      Amg::Vector3D hitPos=t*hitPos2+(1-t)*hitPos1;
+      double dist=TMath::Min(TMath::Abs(t-0),TMath::Abs(t-1));
+      bool inside=false;
+      if(t>=0 && t<=1) inside=true;
+      if(!best_found || inside) {
+        if(!best_inside || dist<best_dist) {
+          best_dist=dist;
+          best_hitPos=hitPos;
+          best_inside=inside;
+          best_found=true;
+          best_id1=sid1;
+          best_id2=sid2;
+          best_target=tmp_target;
+        }
+      } else {
+        if(!best_inside && dist<best_dist) {
+          best_dist=dist;
+          best_hitPos=hitPos;
+          best_inside=inside;
+          best_found=true;
+          best_id1=sid1;
+          best_id2=sid2;
+          best_target=tmp_target;
+        }
+      }
+      ATH_MSG_VERBOSE(" extrapol without layer hit: id="<<sid1<<" -> "<<sid2<<" dist="<<dist<<" mindist="<<best_dist<<
+                    " t="<<t<<" best_inside="<<best_inside<<" target r/z="<<tmp_target<<
+                    " r1="<<hitPos1.perp()<<" z1="<<hitPos1[Amg::z]<<" r2="<<hitPos2.perp()<<" z2="<<hitPos2[Amg::z]<<
+                    " re="<<hitPos.perp()<<" ze="<<hitPos[Amg::z]<<
+                    " rb="<<best_hitPos.perp()<<" zb="<<best_hitPos[Amg::z]
+                    );
+      if(best_found) {
+        m_letaCalo[sample]=best_hitPos.eta();
+        m_lphiCalo[sample]=best_hitPos.phi();
+        hitdist=best_hitPos.mag();
+        rzmiddle=rzmid((CaloCell_ID_FCS::CaloSample)sample,m_letaCalo[sample]);
+        distsamp=deta((CaloCell_ID_FCS::CaloSample)sample,m_letaCalo[sample]);
+        m_layerCaloOK[sample]=true;
+      }              
+    } 
+    if(best_found) {
+      ATH_MSG_DEBUG(" extrapol without layer hit: id="<<best_id1<<" -> "<<best_id2<<" mindist="<<best_dist<<
+                    " best_inside="<<best_inside<<" target r/z="<<best_target<<
+                    " rb="<<best_hitPos.perp()<<" zb="<<best_hitPos[Amg::z]
+                    );
+    }                  
+  }
+  
+  if(isCaloBarrel((CaloCell_ID_FCS::CaloSample)sample)) rzmiddle*=cosh(m_letaCalo[sample]);
+   else                                                 rzmiddle= fabs(rzmiddle/tanh(m_letaCalo[sample]));
+
+  m_dCalo[sample]=rzmiddle;
+  m_distetaCaloBorder[sample]=distsamp;
+
+  if(msgLvl(MSG::DEBUG)) {
+    msg(MSG::DEBUG)<<"  Final par TTC sample "<<(int)sample;
+    if(m_layerCaloOK[sample]) msg()<<" (good)";
+     else msg()<<" (bad)";
+    msg()<<" eta=" << m_letaCalo[sample] << "   phi=" << m_lphiCalo[sample] <<" m_dCalo="<<m_dCalo[sample]<<" dist(hit)="<<hitdist<< endreq;
+  } 
+ 
+  return m_layerCaloOK[sample];
+}
+*/
+
+//UPDATED
+bool ISF_HitAnalysis::get_calo_surface(std::vector<Trk::HitInfo>* hitVector)
+{
+  ATH_MSG_DEBUG("Start get_calo_surface()");
+  m_sample_calo_surf=CaloCell_ID_FCS::noSample;
+  m_eta_calo_surf=-999;
+  m_phi_calo_surf=-999;
+  m_d_calo_surf=0;
+  double min_calo_surf_dist=1000;
+
+  for(unsigned int i=0;i<m_surfacelist.size();++i) {
+    CaloCell_ID_FCS::CaloSample sample=m_surfacelist[i];
+    std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
+    while (it != hitVector->end() && it->detID != (3000+sample) )  { it++;} 
+    if(it==hitVector->end()) continue;
+    Amg::Vector3D hitPos = (*it).trackParms->position();
+    
+    //double offset = 0.;
+    double etaCalo = hitPos.eta();
+
+    msg(MSG::DEBUG)<<"test: entrance to calo surface : sample="<<sample<<" eta="<<etaCalo;
+
+    if (fabs(etaCalo)<900) {
+      double phiCalo = hitPos.phi();
+      double distsamp =deta(sample,etaCalo);
+
+      msg(MSG::DEBUG)<<" phi="<<phiCalo<<" dist="<<distsamp;
+      if(distsamp<min_calo_surf_dist && min_calo_surf_dist>=0) {
+        //hitVector is ordered in r, so if first surface was hit, keep it
+        m_eta_calo_surf=etaCalo;
+        m_phi_calo_surf=phiCalo;
         min_calo_surf_dist=distsamp;
-        sample_calo_surf=sample;
-        d_calo_surf=rzent(sample,etaCalo);
-//          d_calo_surf=m_calodepthEntrance->radius(sample,etaCalo,phiCalo);
-
-        msg(MSG::VERBOSE)<<" r/z="<<d_calo_surf;
-//          log<<" _r="<<rent(sample,etaCalo);
-//          log<<" _z="<<zent(sample,etaCalo);
-
-        if(isCaloBarrel(sample)) d_calo_surf*=cosh(etaCalo);
-         else                    d_calo_surf= fabs(d_calo_surf/tanh(etaCalo));
-        
-        msg(MSG::VERBOSE)<<" d="<<d_calo_surf;
-
-        if(distsamp<0)
-        {
-          msg(MSG::VERBOSE)<<endreq;
+        m_sample_calo_surf=sample;
+        m_d_calo_surf=rzent(sample,etaCalo);
+        msg(MSG::DEBUG)<<" r/z="<<m_d_calo_surf;
+        if(isCaloBarrel(sample)) m_d_calo_surf*=cosh(etaCalo);
+        else                    m_d_calo_surf= fabs(m_d_calo_surf/tanh(etaCalo));
+        msg(MSG::DEBUG)<<" d="<<m_d_calo_surf;
+        if(distsamp<0) {
+          msg(MSG::DEBUG)<<endreq;
           break;
         }  
       }
-    }
-    
-    if(result!=params_on_surface && result) delete result;
-    msg(MSG::VERBOSE)<<endreq;
-   
-  }
-  
-  if(sample_calo_surf==CaloCell_ID_FCS::MaxSample)
-  {
-    double maxradius=0;
-    if(charge!=0)
-    {                  
-      const double const_c=299792458.0;   // Speed of light in m/s
-      const double const_bField=2;
-      const double const_mm=0.001;        // Unitconversion m -> CLHEP::mm
-      const double const_MeV=1000000.0;   // Unitconversion CLHEP::MeV -> CLHEP::eV, pt is assumed in MeV/c, r is given in mm
-      double radius = ptruth_pt * const_MeV / ( const_c * const_bField * std::abs(charge) ) / const_mm; 
-      maxradius=2*radius; //max detector radius is 2*helix radius
+      msg(MSG::DEBUG)<<endreq;
     } else {
-      const double const_z_endcap=4700.0; // distance of endcap in mm
-      double tanheta=tanh(ptruth_eta);
-      maxradius=const_z_endcap*sqrt(1.0/tanheta/tanheta - 1.0);
+      msg(MSG::DEBUG)<<": eta > 900, not using this"<<endreq;
     }
-    if(maxradius>100 && ptruth_pt>400 && fabs(ptruth_eta)<4.5)
-    {
-     msg(MSG::WARNING);
+  }
+
+  if(m_sample_calo_surf==CaloCell_ID_FCS::noSample) {
+    // first intersection with sensitive calo layer
+    std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
+    while ( it < hitVector->end() && (*it).detID != 3 ) { it++;}   // to be updated 
+    if (it==hitVector->end())   {  // no calo intersection, abort
+      return false;
     }
-    else
-    {
-     msg(MSG::VERBOSE);
+    Amg::Vector3D surface_hitPos = (*it).trackParms->position();
+    m_eta_calo_surf=surface_hitPos.eta();
+    m_phi_calo_surf=surface_hitPos.phi();
+    m_d_calo_surf=surface_hitPos.mag();
+    
+    double pT=(*it).trackParms->momentum().perp();
+    if(TMath::Abs(m_eta_calo_surf)>4.9 || pT<500 || (TMath::Abs(m_eta_calo_surf)>4 && pT<1000) ) {
+      ATH_MSG_DEBUG("only entrance to calo entrance layer found, no surface : eta="<<m_eta_calo_surf<<" phi="<<m_phi_calo_surf<<" d="<<m_d_calo_surf<<" pT="<<pT);
+    } else {  
+      ATH_MSG_WARNING("only entrance to calo entrance layer found, no surface : eta="<<m_eta_calo_surf<<" phi="<<m_phi_calo_surf<<" d="<<m_d_calo_surf<<" pT="<<pT);
     }  
-    msg()<<"entrance to calo surface not found... " 
-         <<" initial par id="<<pdgid<<" e="<<ptruth_e
-         <<" pt="<<ptruth_pt
-         <<" eta="<<ptruth_eta<<" phi="<<ptruth_phi<<" charge="<<charge
-         <<" vx="<<candidatePerigee.position().x()<<" vy="<<candidatePerigee.position().y()<<" vz="<<candidatePerigee.position().z()
-         <<" : maxradius="<<maxradius<<" at FCAL/of helix. Skipping particle..."
-         <<endreq;
-    return 0;   
-  }
-  else
-  {
-   ATH_MSG_VERBOSE("middle of calo surface : sample="<<sample_calo_surf<<" eta="<<eta_calo_surf<<" phi="<<phi_calo_surf<<" deta="<<min_calo_surf_dist<<" dsurf="<<d_calo_surf);
+  } else {
+    ATH_MSG_DEBUG("entrance to calo surface : sample="<<m_sample_calo_surf<<" eta="<<m_eta_calo_surf<<" phi="<<m_phi_calo_surf<<" deta="<<min_calo_surf_dist<<" dsurf="<<m_d_calo_surf);
   }
   
-  
-  return params_on_surface;
+  ATH_MSG_DEBUG("End get_calo_surface()");
+  return true;
 }
 
 
-const Trk::TrackParameters* ISF_HitAnalysis::get_calo_surface_ID(const Trk::Perigee& candidatePerigee,
-	                                                               double& eta_ID, double& phi_ID, double& r_ID, double& x_ID, double& y_ID, double& z_ID)
+
+bool ISF_HitAnalysis::isCaloBarrel(int sample) const
 {
-	
-  //const Trk::TrackParameters* params_on_surface=0;
-  
-  //HepGeom::Point3D<double> pt_calo_ctb;
-  //HepGeom::Point3D<double> pt_calo_local;
-  Amg::Vector3D pt_calo_ctb;
-  Amg::Vector3D pt_calo_local;
-  
-  const Trk::TrackParameters* params_on_surface=TrackSeenByCalo_ID(&candidatePerigee, &pt_calo_ctb, &pt_calo_local);
-  
+  return GetCaloGeometry()->isCaloBarrel(sample);
+}
 
-  TVector3 vec(pt_calo_local[Amg::x], pt_calo_local[Amg::y], pt_calo_local[Amg::z]);
-  /*
-  eta_ID = pt_calo_local.eta();
-  phi_ID = pt_calo_local.phi();
-  r_ID = pt_calo_local.r();
-  x_ID = pt_calo_local.x();
-  y_ID = pt_calo_local.y();
-  z_ID = pt_calo_local.z();
-  */
-  eta_ID = vec.Eta();
-  phi_ID = vec.Phi();
-  r_ID = vec.Mag();
-  x_ID = vec.X();
-  y_ID = vec.Y();
-  z_ID = vec.Z();
-  //std::cout<<"in get_calo_surface_ID, eta_ID = "<<eta_ID<<std::endl;
-  
-  return params_on_surface;
+double ISF_HitAnalysis::deta(int sample,double eta) const
+{
+  return GetCaloGeometry()->deta(sample,eta);
+}
 
-} //get_calo_surface_ID
+void ISF_HitAnalysis::minmaxeta(int sample,double eta,double& mineta,double& maxeta) const 
+{
+  GetCaloGeometry()->minmaxeta(sample,eta,mineta,maxeta);
+}
+
+double ISF_HitAnalysis::rmid(int sample,double eta) const 
+{
+  return GetCaloGeometry()->rmid(sample,eta);
+}
+
+double ISF_HitAnalysis::zmid(int sample,double eta) const 
+{
+  return GetCaloGeometry()->zmid(sample,eta);
+}
+
+double ISF_HitAnalysis::rzmid(int sample,double eta) const
+{
+  return GetCaloGeometry()->rzmid(sample,eta);
+}
+
+double ISF_HitAnalysis::rent(int sample,double eta) const 
+{
+  return GetCaloGeometry()->rent(sample,eta);
+}
+
+double ISF_HitAnalysis::zent(int sample,double eta) const 
+{
+  return GetCaloGeometry()->zent(sample,eta);
+}
+
+double ISF_HitAnalysis::rzent(int sample,double eta) const
+{
+  return GetCaloGeometry()->rzent(sample,eta);
+}
+
+double ISF_HitAnalysis::rext(int sample,double eta) const 
+{
+  return GetCaloGeometry()->rext(sample,eta);
+}
+
+double ISF_HitAnalysis::zext(int sample,double eta) const 
+{
+  return GetCaloGeometry()->zext(sample,eta);
+}
+
+double ISF_HitAnalysis::rzext(int sample,double eta) const
+{
+  return GetCaloGeometry()->rzext(sample,eta);
+}
+
+double ISF_HitAnalysis::rpos(int sample,double eta,int subpos) const
+{
+  return GetCaloGeometry()->rpos(sample,eta,subpos);
+}
+
+double ISF_HitAnalysis::zpos(int sample,double eta,int subpos) const
+{
+  return GetCaloGeometry()->zpos(sample,eta,subpos);
+}
+
+double ISF_HitAnalysis::rzpos(int sample,double eta,int subpos) const
+{
+  return GetCaloGeometry()->rzpos(sample,eta,subpos);
+}
 
