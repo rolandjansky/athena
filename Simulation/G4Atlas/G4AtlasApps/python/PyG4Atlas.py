@@ -19,15 +19,11 @@ from AthenaCommon.Include import include
 import cppyy
 
 
-# Identify the environment as hive (multi-threading).
-try:
-    # TODO: we need a better way to do this.
-    import GaudiHive
+from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
     is_hive = True
-except ImportError:
+else:
     is_hive = False
-
-
 
 # TODO: Rename to AppProfiler, to avoid class/variable confusion
 class _app_profiler(object):
@@ -1305,6 +1301,10 @@ class SimSkeleton(object):
         stream1.ItemList = ["EventInfo#*",
                             "McEventCollection#TruthEvent",
                             "JetCollection#*"]
+
+        ## If we are running quasi-stable particle simulation, include the original event record
+        if hasattr(simFlags,'IncludeParentsInG4Event') and simFlags.IncludeParentsInG4Event.statusOn and simFlags.IncludeParentsInG4Event():
+            stream1.ItemList += ["McEventCollection#GEN_EVENT"]
 
         from PyJobTransforms.trfUtils import releaseIsOlderThan
         if releaseIsOlderThan(20,0):

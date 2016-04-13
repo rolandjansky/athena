@@ -282,11 +282,11 @@ class AtlasSimSkeleton(SimSkeleton):
                     AtlasG4Eng.G4Eng.log.info('ISF_AtlasSimSkeleton::do_UserActions: Found a ' + basename + ' instance called ' + actionString)
                 return actionString
             from AthenaCommon.CfgGetter import getPublicTool
-            UAStore.addSystemAction( getPublicTool(UserActionPath('MCTruthUserAction')),['BeginOfTracking','EndOfTracking'])
+            UAStore.addAction( getPublicTool(UserActionPath('TrackProcessorUserAction')),['Step','BeginOfTracking','BeginOfEvent','EndOfTracking','EndOfEvent'])
+            UAStore.addAction( getPublicTool(UserActionPath('MCTruthUserAction')),['BeginOfTracking','EndOfTracking'])
             from ISF_Config.ISF_jobProperties import ISF_Flags
             if ISF_Flags.ValidationMode.get_Value():
                 UAStore.addAction( getPublicTool(UserActionPath('PhysicsValidationUserAction')),['BeginOfRun','EndOfEvent','Step','BeginOfTracking','BeginOfEvent'])
-            UAStore.addAction( getPublicTool(UserActionPath('TrackProcessorUserAction')),['Step','BeginOfTracking','BeginOfEvent'])
 
     @classmethod
     def do_GeoSD(self):
