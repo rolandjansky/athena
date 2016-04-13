@@ -557,7 +557,7 @@ void SCT_PrepDataToxAOD::addRDOInformation(xAOD::TrackMeasurementValidation* xpr
       }
       timebin.push_back( tbin);
       groupsize.push_back( gs);
-      strip.push_back(sctRdo->getStrip()); 
+      strip.push_back(m_SCTHelper->strip(sctRdo->identify())); 
     } else {
       timebin.push_back( -1 );
       strip.push_back( -1 );
