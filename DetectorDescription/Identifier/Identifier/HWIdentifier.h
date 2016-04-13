@@ -23,11 +23,9 @@ public:
     /// Constructor from Identifier
     explicit HWIdentifier(const Identifier& old);
  
-#ifdef __IDENTIFIER_64BIT__
     /// Constructor from Identifier32 value_type (unsigned int)
     explicit HWIdentifier(Identifier32::value_type value);
     explicit HWIdentifier(int value);
-#endif
 };
 
 
@@ -43,7 +41,6 @@ inline HWIdentifier::HWIdentifier(const Identifier& old)
     : Identifier::Identifier(old)
 {}
 
-#ifdef __IDENTIFIER_64BIT__
 inline HWIdentifier::HWIdentifier(Identifier32::value_type value)
     : Identifier::Identifier(value)
 {}
@@ -51,6 +48,5 @@ inline HWIdentifier::HWIdentifier(Identifier32::value_type value)
 inline HWIdentifier::HWIdentifier(int value)
     : Identifier::Identifier(value)
 {}
-#endif
 
 #endif // IDENTIFIER_HWIDENTIFIER_H

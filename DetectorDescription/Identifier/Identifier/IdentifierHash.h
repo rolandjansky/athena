@@ -14,18 +14,8 @@
 #ifndef IDENTIFIER_IDENTIFIERHASH_H
 # define IDENTIFIER_IDENTIFIERHASH_H
 
-#define __IDENTIFIER_NOACCESSORS__
-#ifdef __IDENTIFIER_NOACCESSORS__
 #include "GaudiKernel/MsgStream.h"
-#endif
 
-//<<<<<< INCLUDES                                                       >>>>>>
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 /**
  **
@@ -180,7 +170,6 @@ IdentifierHash::is_valid () const
     return (!(max_value == m_value));
 }
 
-#ifdef __IDENTIFIER_NOACCESSORS__
 inline MsgStream& operator << (MsgStream& f, const IdentifierHash& id)
 {
   f << id.value();
@@ -192,7 +181,5 @@ inline std::ostream& operator << (std::ostream& os, const IdentifierHash& id)
   os << id.value();
   return os;
 }
-
-#endif /* __IDENTIFIER_NOACCESORS__ */
 
 #endif // IDENTIFIER_IDENTIFIERHASH_H

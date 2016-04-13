@@ -2,26 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __Identifier_h__
-#define __Identifier_h__
+#ifndef IDENTIFIER_IDENTIFIER_H
+#define IDENTIFIER_IDENTIFIER_H
 
-// #define __IDENTIFIER_64BIT__
-#define __IDENTIFIER_NOACCESSORS__
 
-#ifndef __IDENTIFIER_64BIT__
-#define IDENTIFIER_TYPE unsigned int
-#define IDENTIFIER_DIFF_TYPE int
-#define IDENTIFIER_PCODE ""
-#else /* __IDENTIFIER_64BIT__ */
 #define IDENTIFIER_TYPE unsigned long long
 #define IDENTIFIER_DIFF_TYPE long long
 #define IDENTIFIER_PCODE "ll"
-#endif /* __IDENTIFIER_64BIT__ */
 
-#ifdef __IDENTIFIER_NOACCESSORS__
 #include "GaudiKernel/MsgStream.h"
-#endif
-
 #include "Identifier/Identifier32.h"
 
 #include <iostream>
@@ -75,12 +64,10 @@ public:
     /// Constructor from Identifier32
     Identifier (const Identifier32& other);
 
-#ifdef __IDENTIFIER_64BIT__
     /// Constructor from 32-bit value_type and int
     /// (to avoid common implicit conversions)
     explicit Identifier (Identifier32::value_type value);
     explicit Identifier (int value);
-#endif
 
     /// Copy constructor
     Identifier (const Identifier& other);
@@ -93,25 +80,16 @@ public:
     Identifier& operator = (const Identifier& old);
     Identifier& operator = (const Identifier32& old);
     Identifier& operator = (value_type value);
-#ifdef __IDENTIFIER_64BIT__
+
     /// Assignment to avoid common implicit conversions and shift properly
     Identifier& operator = (Identifier32::value_type value);
     Identifier& operator = (int value);
-#endif
 
-    /// Bitwise operations 
-//#ifndef __IDENTIFIER_64BIT__
 private:
+    /// Bitwise operations 
     Identifier& operator |= (value_type value);
     Identifier& operator &= (value_type value);
 public:
-//#endif
-    //Identifier& operator |= (const Identifier& other);
-    //Identifier& operator &= (const Identifier& other);
-    // these methods make sure the proper shift is done
-    // (perhaps don't need it - Identifier(Identifier32) is implicit
-    //Identifier& operator |= (const Identifier32& other);
-    //Identifier& operator &= (const Identifier32& other);
 
     /// build from a string form - hexadecimal
     void set (const std::string& id);
@@ -125,11 +103,6 @@ public:
     ///----------------------------------------------------------------
     /// Accessors
     ///----------------------------------------------------------------
-
-#ifndef __IDENTIFIER_NOACCESSORS__ // get rid of conversion accessors
-    /// Get the value 
-    operator     value_type      (void) const;
-#endif /* __IDENTIFIER_NOACCESSORS__ */
 
     /// Get the 32-bit version Identifier, will be invalid if >32 bits
     /// needed
@@ -166,7 +139,6 @@ public:
     //bool operator <=    (const Identifier32& other) const;
     //bool operator >=    (const Identifier32& other) const;
 
-#ifdef __IDENTIFIER_NOACCESSORS__
     /// Comparison operators with value_type.
     /// This is a hack, only because GeoAdaptors/GeoMuonHits wants to
     /// to compare explicitly with 0 as a test of whether the identifier
@@ -175,13 +147,10 @@ public:
     /// a zero value - just not in muons.
     bool operator ==    (value_type other) const;
     bool operator !=    (value_type other) const;
-#ifdef __IDENTIFIER_64BIT__
     bool operator ==    (Identifier32::value_type other) const;
     bool operator ==    (int other) const;
     bool operator !=    (Identifier32::value_type other) const;
     bool operator !=    (int other) const;
-#endif /* __IDENTIFIER_64BIT__ */
-#endif /* __IDENTIFIER_NOACCESORS__ */
 
     ///----------------------------------------------------------------
     /// Error management
@@ -260,15 +229,10 @@ inline Identifier::Identifier (const Identifier32& other)
 {
     //std::cout << "Identifier(Identifier32) " << other.get_compact() << std::endl;
     if (other.is_valid()) {
-#ifndef __IDENTIFIER_64BIT__
-        m_id = other.get_compact();
-#else /* __IDENTIFIER_64BIT__ */
         m_id = (static_cast<value_type>(other.get_compact()) << 32);
-#endif /* __IDENTIFIER_64BIT__ */
     }
 }
 
-#ifdef __IDENTIFIER_64BIT__
 /// Constructor from Identifier32 value_type (unsigned int)
 /// (only use in id64 case since otherwise redundant)
 //-----------------------------------------------
@@ -284,14 +248,13 @@ inline Identifier::Identifier (int value)
     //std::cout << "Identifier(int) " << value << std::endl;
     m_id = (static_cast<value_type>(value) << 32);
 }
-#endif /* __IDENTIFIER_64BIT__ */
 
 //-----------------------------------------------
 inline Identifier::Identifier (value_type value)
         : m_id(value)
 {
     //std::cout << "Identifier(value_type) " << value << std::endl;
-#ifdef __IDENTIFIER_64BIT__
+
     // Print out warning for potential call with value for a 32-bit id
     // I.e. if lower bits are set and no upper bit set
     const value_type upper = 0XFFFFFFFF00000000LL;
@@ -303,8 +266,6 @@ inline Identifier::Identifier (value_type value)
         std::cout << "Identifier::Identifier - WARNING Constructing 64-bit id with empty upper and non-empty lower: " << std::hex << testUpper << " " << testLower << std::endl;
         m_id = (value << 32);
     }
-#endif /* __IDENTIFIER_64BIT__ */
-
 }
 
 // Modifications
@@ -322,11 +283,7 @@ Identifier::operator = (const Identifier& old) {
 inline Identifier&
 Identifier::operator = (const Identifier32& old) {
     //std::cout << "operator=(Identifier32) " << old.get_compact() << std::endl;
-#ifdef __IDENTIFIER_64BIT__
     m_id = (static_cast<value_type>(old.get_compact()) << 32);
-#else
-    m_id = old.get_compact();
-#endif
     return (*this);
 }
 
@@ -334,7 +291,7 @@ inline Identifier&
 Identifier::operator = (value_type value)
 {
     //std::cout << "operator=(value_type) " << value << std::endl;
-#ifdef __IDENTIFIER_64BIT__
+
     // Print out warning for potential call with value for a 32-bit id
     // I.e. if lower bits are set and no upper bit set
     const value_type upper = 0XFFFFFFFF00000000LL;
@@ -347,13 +304,11 @@ Identifier::operator = (value_type value)
         m_id = (value << 32);
         return (*this);
     }
-#endif /* __IDENTIFIER_64BIT__ */
 
     m_id = value;
     return (*this);
 }
 
-#ifdef __IDENTIFIER_64BIT__
 inline Identifier&
 Identifier::operator = (Identifier32::value_type value)
 {
@@ -368,9 +323,7 @@ Identifier::operator = (int value)
     m_id = static_cast<value_type>(value) << 32;
     return (*this);
 }
-#endif /* __IDENTIFIER_64BIT__ */
 
-//#ifndef __IDENTIFIER_64BIT__
 inline Identifier&                                   
 Identifier::operator |= (value_type value)
 {
@@ -384,35 +337,6 @@ Identifier::operator &= (value_type value)
     m_id &= value;
     return (*this);
 }
-//#endif /* __IDENTIFIER_64BIT__ */
-
-//inline Identifier&                                   
-//Identifier::operator |= (const Identifier& other)
-//{
-//    m_id |= other.get_compact();
-//    return (*this);
-//}
-//
-//inline Identifier& 
-//Identifier::operator &= (const Identifier& other)
-//{
-//    m_id &= other.get_compact();
-//    return (*this);
-//}
-
-//inline Identifier&                                   
-//Identifier::operator |= (const Identifier32& other)
-//{
-//    m_id |= (static_cast<value_type>(other.get_compact()) << 32);
-//    return (*this);
-//}
-//
-//inline Identifier& 
-//Identifier::operator &= (const Identifier32& other)
-//{
-//    m_id &= (static_cast<value_type>(other.get_compact()) << 32);
-//    return (*this);
-//}
 
 inline Identifier&
 Identifier::set_literal (value_type value)
@@ -442,24 +366,11 @@ inline Identifier::value_type Identifier::extract(
     return (m_id >> shift);
 }
 
-#ifndef __IDENTIFIER_NOACCESSORS__
-// Accessors
-
-inline Identifier::operator Identifier::value_type (void) const
-{
-    return (m_id);
-}
-#endif /* __IDENTIFIER_NOACCESSORS__ */
-                                             
 inline Identifier32 Identifier::get_identifier32  (void) const
 {
-#ifndef __IDENTIFIER_64BIT__
-    return (Identifier32(m_id));
-#else /* __IDENTIFIER_64BIT__ */
     // test for bit set in lower 32
     if (extract(0,0xFFFFFFFF)) return (Identifier32());
     return (Identifier32(extract(32)));
-#endif /* __IDENTIFIER_64BIT__ */
 }
 
 
@@ -553,7 +464,6 @@ Identifier::operator >= (const Identifier& other) const
 //    return (this >= Identifier(other));
 //}
 
-#ifdef __IDENTIFIER_NOACCESSORS__
 //----------------------------------------------------------------
 inline bool 
 Identifier::operator == (Identifier::value_type other) const
@@ -567,7 +477,6 @@ Identifier::operator != (Identifier::value_type other) const
     return (m_id != other);
 }
 
-#ifdef __IDENTIFIER_64BIT__
 inline bool 
 Identifier::operator == (Identifier32::value_type other) const
 {
@@ -592,8 +501,6 @@ Identifier::operator != (int other) const
     return ((*this) != Identifier(other));
 }
 
-#endif /* __IDENTIFIER_64BIT__ */
-
 /// This is for logging
 
 inline MsgStream& operator << (MsgStream& f, const Identifier& id)
@@ -608,7 +515,6 @@ inline std::ostream& operator << (std::ostream& os, const Identifier& id)
     return os;
 }
 
-#endif /* __IDENTIFIER_NOACCESORS__ */
 
 inline bool 
 Identifier::is_valid () const
