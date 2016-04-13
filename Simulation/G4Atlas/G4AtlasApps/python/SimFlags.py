@@ -695,6 +695,14 @@ class ParticleID(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
+class RecordFlux(JobProperty):
+    """
+    Record flux through the entirety of the detector
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
 
 ## Definition and registration of the simulation flag container
 class SimFlags(JobPropertyContainer):
