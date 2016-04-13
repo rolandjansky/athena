@@ -35,15 +35,20 @@ TileCalibUtils::getFullTag(const std::string& folder, const std::string& tag)
   //=== "tag" should be of the form "xxx-yy" for real data
   //===
 {
+
   std::string folderTag("");
-  for (std::string::const_iterator i = folder.begin(); i != folder.end(); i++) {
-    if(*i == '/'){
-      ++i;
-      folderTag += char(std::toupper(*i));
-    } else{
-      folderTag += char(std::tolower(*i));
+  bool isLower(true);
+  for (const char& c : folder) {
+    if(c == '/'){
+      isLower = false;
+    } else if(isLower) {
+      folderTag += char(std::tolower(c));
+    } else {
+      folderTag += char(std::toupper(c));
+      isLower = true;
     }
   }
+
   return (folderTag + "-" + tag);
 }
 
