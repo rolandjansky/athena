@@ -65,9 +65,7 @@ public:
   IIOVSvc* m_IOVSvc;
 
 
-  const RpcIdHelper* m_rpcIdHelper;
-  
-
+  bool m_onlyDebug;
   std::string      m_DataLocation;
   
   std::string     m_etaTableFolder;

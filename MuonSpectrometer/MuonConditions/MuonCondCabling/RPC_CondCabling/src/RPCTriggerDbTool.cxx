@@ -19,7 +19,7 @@
 #include <fstream>
 #include <string>
 #include <stdlib.h>
-
+#include <iostream>
 
 
 #include "RPC_CondCabling/RPCTriggerDbTool.h" 
@@ -55,7 +55,7 @@ RPCTriggerDbTool::RPCTriggerDbTool (const std::string& type,
   
   declareProperty("EtaTableFolder",  m_etaTableFolder="/RPC/TRIGGER/CM_THR_ETA");
   declareProperty("PhiTableFolder",  m_phiTableFolder="/RPC/TRIGGER/CM_THR_PHI");
-  
+  declareProperty("OnlyDebug",m_onlyDebug=false);
   m_etaCM_File= "";
   m_etaTh0= "";    
   //  m_etaTh1= "";    
@@ -84,7 +84,7 @@ StatusCode RPCTriggerDbTool::updateAddress(StoreID::type /*storeID*/, SG::Transi
 StatusCode RPCTriggerDbTool::initialize()
 { 
  
-  m_log.setLevel(outputLevel());
+  m_log.setLevel(msgLevel());
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
   
@@ -134,7 +134,7 @@ StatusCode RPCTriggerDbTool::initialize()
 StatusCode RPCTriggerDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
   
-  m_log.setLevel(outputLevel());
+  m_log.setLevel(msgLevel());
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
   
@@ -169,7 +169,7 @@ StatusCode RPCTriggerDbTool::loadRPCEtaTable(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys
 {
 
   
-  m_log.setLevel(outputLevel());
+  m_log.setLevel(msgLevel());
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
 
@@ -210,8 +210,22 @@ StatusCode RPCTriggerDbTool::loadRPCEtaTable(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys
     m_vecetaSequence_Th.push_back(m_etaSequence_Th);  
     m_etaInfo = *(static_cast<const std::string*>((atr["Additional_Info"]).addressOfData()));    
     m_vecetaInfo.push_back(m_etaInfo);
+    if(m_onlyDebug){
+      std::string m_fileName =  m_etaCM_File.c_str();
+      std::ofstream file;
+      file.open(m_fileName.c_str(),std::ios::app);
+      std::cout << "Opening file" << std::endl;
+      if (!file.is_open()) {
+	std::cout << "Failed to open file named " << m_fileName << std::endl;
+	return StatusCode::FAILURE;
+      }
+      
+      file <<m_etaTh0;
+      file.close();
+    }
   }
   std::vector<std::string>::const_iterator itrdb;
+
   itrdb=m_vecetaCM_File.begin();
   while(itrdb<m_vecetaCM_File.end()){
     if( m_verbose ) m_log << MSG::VERBOSE << "column eta CM_File is \n" << (*itrdb) << endreq;
@@ -239,7 +253,7 @@ StatusCode RPCTriggerDbTool::loadRPCPhiTable(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys
 {
 
   
-  m_log.setLevel(outputLevel());
+  m_log.setLevel(msgLevel());
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
 
@@ -277,7 +291,20 @@ StatusCode RPCTriggerDbTool::loadRPCPhiTable(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys
     m_trigroads[m_phiCM_File]=m_phiTh0;
     m_phiInfo = *(static_cast<const std::string*>((atr["Additional_Info"]).addressOfData()));    
     m_vecphiInfo.push_back(m_phiInfo);   
-    if( m_verbose ) {
+    if(m_onlyDebug){
+      std::string m_fileName_phi =  m_phiCM_File.c_str();
+      std::ofstream file_phi;
+      file_phi.open(m_fileName_phi.c_str(),std::ios::app);
+      std::cout << "Opening file" << std::endl;
+      if (!file_phi.is_open()) {
+	std::cout << "Failed to open file named " << m_fileName_phi << std::endl;
+	return StatusCode::FAILURE;
+      }
+      
+      file_phi <<m_phiTh0;
+      file_phi.close();
+    }  
+  if( m_verbose ) {
       m_log << MSG::VERBOSE << "column phi CM_File is \n" << m_phiCM_File << endreq;
       m_log << MSG::VERBOSE << "column phi Th0 is \n" << m_phiTh0 << endreq;
       m_log << MSG::VERBOSE << "column phi Additional_Info is \n" << m_phiInfo << endreq;
