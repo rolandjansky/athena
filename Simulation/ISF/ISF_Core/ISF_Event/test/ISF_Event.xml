@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<atn>
+   <TEST name="UnitTests" type="makecheck">
+      <package>Simulation/ISF/ISF_Core/ISF_Event</package>
+      <author> Elmar Ritsch </author>
+      <mailto> atlas-srl-Sim-ISF-Core </mailto>
+      <expectations>
+         <errorMessage>Athena exited abnormally</errorMessage>
+         <errorMessage>differ</errorMessage>
+         <warningMessage> # WARNING_MESSAGE : post.sh> ERROR</warningMessage>
+         <successMessage>check ok</successMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+</atn>

@@ -7,7 +7,6 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_Event/ITruthBinding.h"
 
 ISF::ISFParticle::ISFParticle(
   const Amg::Vector3D& pos,
@@ -18,7 +17,7 @@ ISF::ISFParticle::ISFParticle(
   double time,
   const ISFParticle &p,
   Barcode::ParticleBarcode barcode,
-  ITruthBinding* truth):
+  TruthBinding* truth):
  m_position(pos),
  m_momentum(mom),
  m_mass(mass),
@@ -27,13 +26,12 @@ ISF::ISFParticle::ISFParticle(
  m_tstamp(time),
  m_history(p.history()),
  m_barcode(barcode),
+ m_extraBarcode(Barcode::fUndefinedBarcode),
  m_truth(truth),
- m_allowSelectorUpdates(),
  m_order(ISF::DefaultParticleOrder),
- m_userInfo(0)
+ m_userInfo(nullptr)
 {
-  for ( int geoID = AtlasDetDescr::fFirstAtlasRegion; geoID < AtlasDetDescr::fNumAtlasRegions; geoID++)
-    m_allowSelectorUpdates[geoID] = p.allowsSelectorUpdates( AtlasDetDescr::AtlasRegion(geoID) );
+
 }
 
 ISF::ISFParticle::ISFParticle(
@@ -45,7 +43,7 @@ ISF::ISFParticle::ISFParticle(
   double time,
   const ISFParticle &p,
   Barcode::ParticleBarcode barcode,
-  ITruthBinding* truth):
+  TruthBinding* truth):
  m_position( pos.x(), pos.y(), pos.z()),
  m_momentum( mom.x(), mom.y(), mom.z()),
  m_mass(mass),
@@ -54,13 +52,12 @@ ISF::ISFParticle::ISFParticle(
  m_tstamp(time),
  m_history(p.history()),
  m_barcode(barcode),
+ m_extraBarcode(Barcode::fUndefinedBarcode),
  m_truth(truth),
- m_allowSelectorUpdates(),
  m_order(ISF::DefaultParticleOrder),
- m_userInfo(0)
+ m_userInfo(nullptr)
 {
-  for ( int geoID = AtlasDetDescr::fFirstAtlasRegion; geoID < AtlasDetDescr::fNumAtlasRegions; geoID++)
-    m_allowSelectorUpdates[geoID] = p.allowsSelectorUpdates( AtlasDetDescr::AtlasRegion(geoID) );
+
 }
 
 ISF::ISFParticle::ISFParticle(
@@ -72,7 +69,7 @@ ISF::ISFParticle::ISFParticle(
   double time,
   const DetRegionSvcIDPair &origin,
   Barcode::ParticleBarcode barcode,
-  ITruthBinding* truth):
+  TruthBinding* truth):
  m_position(pos),
  m_momentum(mom),
  m_mass(mass),
@@ -81,13 +78,12 @@ ISF::ISFParticle::ISFParticle(
  m_tstamp(time),
  m_history(1, origin),
  m_barcode(barcode),
+ m_extraBarcode(Barcode::fUndefinedBarcode),
  m_truth(truth),
- m_allowSelectorUpdates(),
  m_order(ISF::DefaultParticleOrder),
- m_userInfo(0)
+ m_userInfo(nullptr)
 {
-  for ( int geoID = AtlasDetDescr::fFirstAtlasRegion; geoID < AtlasDetDescr::fNumAtlasRegions; geoID++)
-    m_allowSelectorUpdates[geoID] = true;
+
 }
 
 ISF::ISFParticle::ISFParticle(
@@ -99,7 +95,7 @@ ISF::ISFParticle::ISFParticle(
   double time,
   const DetRegionSvcIDPair &origin,
   Barcode::ParticleBarcode barcode,
-  ITruthBinding* truth):
+  TruthBinding* truth):
  m_position( pos.x(), pos.y(), pos.z() ),
  m_momentum( mom.x(), mom.y(), mom.z() ),
  m_mass(mass),
@@ -108,13 +104,12 @@ ISF::ISFParticle::ISFParticle(
  m_tstamp(time),
  m_history(1, origin),
  m_barcode(barcode),
+ m_extraBarcode(Barcode::fUndefinedBarcode),
  m_truth(truth),
- m_allowSelectorUpdates(),
  m_order(ISF::DefaultParticleOrder),
- m_userInfo(0)
+ m_userInfo(nullptr)
 {
-  for ( int geoID = AtlasDetDescr::fFirstAtlasRegion; geoID < AtlasDetDescr::fNumAtlasRegions; geoID++)
-    m_allowSelectorUpdates[geoID] = true;
+
 }
 
 ISF::ISFParticle::ISFParticle(const ISFParticle& isfp):
@@ -126,12 +121,15 @@ ISF::ISFParticle::ISFParticle(const ISFParticle& isfp):
   m_tstamp(isfp.timeStamp()),
   m_history(isfp.history()),
   m_barcode(isfp.barcode()),
-  m_truth(0),
-  m_allowSelectorUpdates(),
+  m_extraBarcode(Barcode::fUndefinedBarcode),
+  m_truth(nullptr),
   m_order(ISF::DefaultParticleOrder),
-  m_userInfo(0)
+  m_userInfo(nullptr)
 {
-  if (isfp.truthBinding()) m_truth=isfp.truthBinding()->clone();
+  TruthBinding *truth = isfp.getTruthBinding();
+  if (truth) {
+      m_truth = new TruthBinding(*truth);
+  }
 }
 
 ISF::ISFParticle::~ISFParticle() {
@@ -143,20 +141,23 @@ ISF::ISFParticle& ISF::ISFParticle::operator=(const ISF::ISFParticle& rhs)
 {
 
   if (this != &rhs) {
-    m_position = rhs.position();
-    m_momentum = rhs.momentum();
-    m_mass     = rhs.mass();
-    m_charge   = rhs.charge();
-    m_pdgCode  = rhs.pdgCode();
-    m_tstamp   = rhs.timeStamp();
-    m_history  = rhs.history();
-    m_barcode  = rhs.barcode();
+    m_position     = rhs.position();
+    m_momentum     = rhs.momentum();
+    m_mass         = rhs.mass();
+    m_charge       = rhs.charge();
+    m_pdgCode      = rhs.pdgCode();
+    m_tstamp       = rhs.timeStamp();
+    m_history      = rhs.history();
+    m_barcode      = rhs.barcode();
+    m_extraBarcode = rhs.getExtraBC();
 
     delete m_truth;
-    m_truth=0;
+    m_truth=nullptr;
 
-    if (rhs.truthBinding()) m_truth=rhs.truthBinding()->clone();
-
+    TruthBinding *rhsTruth = rhs.getTruthBinding();
+    if (rhsTruth) {
+        m_truth = new TruthBinding(*rhsTruth);
+    }
   }
 
   return *this;
