@@ -1,9 +1,7 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
-#include "MCTruthBase/MCTruthSteppingAction.h"
+#include "../MCTruthSteppingAction.h"
+#include "../MCTruthSteppingActionTool.h"
 
 DECLARE_TOOL_FACTORY( MCTruthSteppingAction )
-
-DECLARE_FACTORY_ENTRIES( MCTruthBase ) {
-  DECLARE_TOOL( MCTruthSteppingAction )
-}
+DECLARE_TOOL_FACTORY( G4UA::MCTruthSteppingActionTool )

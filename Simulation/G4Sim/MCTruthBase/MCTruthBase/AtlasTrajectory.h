@@ -2,13 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AtlasTrajectory_H
-#define AtlasTrajectory_H
+#ifndef MCTruthBase_AtlasTrajectory_H
+#define MCTruthBase_AtlasTrajectory_H
 
 #include "G4Trajectory.hh"
-#include "G4TrackingManager.hh"
-
-#include "SimHelpers/SecondaryTracksHelper.h"
 
 /// @brief Class to store G4 trajectory information
 ///
@@ -19,10 +16,8 @@ class AtlasTrajectory : public G4Trajectory
 
 public:
 
-  /// Constructors
-  AtlasTrajectory() {};
-  AtlasTrajectory(const G4Track* aTrack):G4Trajectory(aTrack){};
-  ~AtlasTrajectory() {};
+  /// Constructor
+  AtlasTrajectory(const G4Track* aTrack);
 
   /// Overriden from G4 in order to do vertex analysis
   void AppendStep(const G4Step* aStep);
@@ -33,16 +28,12 @@ public:
 #endif
   void DrawTrajectory(G4int) const;
 
-  void setTrackingManager(G4TrackingManager* tm){
-    theTrackManager=tm;
-    theSecondaryTrackHelper.SetTrackingManager(tm);
-  };
-  
 private:
 
-  const G4TrackingManager *theTrackManager;
-  SecondaryTracksHelper theSecondaryTrackHelper;
   using G4Trajectory::DrawTrajectory;
+
+  /// Number of secondaries that have been processed so far.
+  unsigned int m_numCurrentSec;
 
 };
 
