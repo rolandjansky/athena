@@ -19,6 +19,9 @@
 #pragma link C++ class TFCS1DFunctionRegression;
 #pragma link C++ class TFCS1DFunctionHistogram;
 #pragma link C++ class TFCSFunction;
+#pragma link C++ class TreeReader;
+#pragma link C++ class firstPCA;
+#pragma link C++ class secondPCA;
 
 #endif
 

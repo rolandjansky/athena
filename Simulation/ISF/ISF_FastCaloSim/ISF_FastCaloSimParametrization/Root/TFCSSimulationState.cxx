@@ -8,6 +8,7 @@
 //======= TFCSSimulationState =========
 //=============================================
 
+
 TFCSSimulationState::TFCSSimulationState()
 {
   clear();
@@ -22,8 +23,12 @@ void TFCSSimulationState::clear()
   }
 }
 
-void TFCSSimulationState::deposit_HIT(int /*sample*/,double /*hit_eta*/,double /*hit_phi*/,double /*hit_weight*/)
+void TFCSSimulationState::deposit_HIT(int /*sample*/, double /*hit_eta*/, double /*hit_phi*/, double /*hit_weight*/)
 {
+
+    /* deposit a hit */
+
+
 }
 
 //=============================================
@@ -31,4 +36,3 @@ void TFCSSimulationState::deposit_HIT(int /*sample*/,double /*hit_eta*/,double /
 //=============================================
 
 ClassImp(TFCSSimulationState)
-

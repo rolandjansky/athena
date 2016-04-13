@@ -8,7 +8,8 @@
 #include <TObject.h>
 #include "ISF_FastCaloSimParametrization/FastCaloSim_CaloCell_ID.h"
 
-class TFCSSimulationState:public TObject {
+class TFCSSimulationState:public TObject
+{
   public:
     TFCSSimulationState();
     

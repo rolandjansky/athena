@@ -61,6 +61,8 @@ end_private
 
 apply_tag ROOTGraphicsLibs
 apply_tag ROOTMathLibs
+apply_tag ROOTTMVALibs
+apply_tag ROOTTreePlayerLibs
 
 # Create a named installed library
 library ISF_FastCaloSimParametrizationLib "../Root/*.cxx"
@@ -70,7 +72,7 @@ apply_pattern named_installed_library library=ISF_FastCaloSimParametrizationLib
 private
 macro_append extra_root_cint_includes " -p -I$(CaloGeoHelpers_root) "
 end_private
-apply_pattern have_root_headers root_headers="MeanAndRMS.h FastCaloSim_CaloCell_ID.h TFCSParametrizationBase.h TFCSParametrization.h TFCSEnergyParametrization.h TFCSPCAEnergyParametrization.h TFCSLateralShapeParametrization.h TFCSNNLateralShapeParametrization.h TFCSSimpleLateralShapeParametrization.h TFCSExtrapolationState.h TFCSTruthState.h TFCSSimulationState.h TFCS1DFunction.h TFCS1DFunctionRegression.h TFCS1DFunctionHistogram.h TFCSFunction.h ../Root/LinkDef.h" \ 
+apply_pattern have_root_headers root_headers="MeanAndRMS.h FastCaloSim_CaloCell_ID.h TFCSParametrizationBase.h TFCSParametrization.h TFCSEnergyParametrization.h TFCSPCAEnergyParametrization.h TFCSLateralShapeParametrization.h TFCSNNLateralShapeParametrization.h TFCSSimpleLateralShapeParametrization.h TFCSExtrapolationState.h TFCSTruthState.h TFCSSimulationState.h TFCS1DFunction.h TFCS1DFunctionRegression.h TFCS1DFunctionHistogram.h TFCSFunction.h TreeReader.h firstPCA.h secondPCA.h ../Root/LinkDef.h" \ 
               headers_lib=ISF_FastCaloSimParametrizationLib 
 
 library ISF_FastCaloSimParametrization *.cxx components/*.cxx
