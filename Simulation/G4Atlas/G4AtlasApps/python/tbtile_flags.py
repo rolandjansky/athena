@@ -12,7 +12,7 @@ during the years 2000-2003.
 """
 
 __author__= 'M. Gallas'
-__version__ = "$Revision: 449236 $"
+__version__ = "$Revision: 728941 $"
 
 
 from AthenaCommon.JobProperties import JobProperty
@@ -51,6 +51,18 @@ class Eta(JobProperty):
     allowedTypes = ['int','float']
     StoredValue = 0.35
 
+    def __setattr__(self, name, n_value):
+        """
+        Ensure that _VALIDATION layout tags get through the first level of checking.
+        """
+        #print name, n_value
+        if name == "StoredValue":
+            if type(n_value) == int or type (n_value) == float:
+                import math
+                if abs(n_value) >= 1.1:
+                    raise ValueError,('THE ETA VALUE MUST BE IN [-1.1,1.1]!!! The selected value %s is not in the range.' %n_value)
+        JobProperty.__setattr__(self, name, n_value)
+
 
 class Theta(JobProperty):
     """
@@ -63,6 +75,18 @@ class Theta(JobProperty):
     statusOn = False
     allowedTypes = ['int','float']
     StoredValue = 0.00
+
+    def __setattr__(self, name, n_value):
+        """
+        Ensure that _VALIDATION layout tags get through the first level of checking.
+        """
+        #print name, n_value
+        if name == "StoredValue":
+            if type(n_value) == int or type (n_value) == float:
+                import math
+                if abs(n_value) >= 60. and not (abs(abs(theta)-90.0) < 0.01) :
+                    raise ValueError,('THETA MUST BE IN [-60,60] or +/-90 !!! The selected value %s is not in the range.' %n_value)
+        JobProperty.__setattr__(self, name, n_value)
 
 
 class Z(JobProperty):
@@ -90,6 +114,18 @@ class Phi(JobProperty):
     allowedTypes = ['int','float']
     StoredValue = 0.00
 
+    def __setattr__(self, name, n_value):
+        """
+        Ensure that _VALIDATION layout tags get through the first level of checking.
+        """
+        #print name, n_value
+        if name == "StoredValue":
+            if type(n_value) == int or type (n_value) == float:
+                import math
+                if math.fabs(n_value) > 0.15:
+                    raise ValueError,('THE PHI VALUE MUST BE IN [-8.5,8.5]!!! The selected value %s not in range.' %n_value)
+        JobProperty.__setattr__(self, name, n_value)
+
 
 class Y(JobProperty):
     """
@@ -99,3 +135,16 @@ class Y(JobProperty):
     statusOn = False
     allowedTypes = ['int','float']
     StoredValue = 0.00
+
+    def __setattr__(self, name, n_value):
+        """
+        Ensure that _VALIDATION layout tags get through the first level of checking.
+        """
+        #print name, n_value
+        if name == "StoredValue":
+            if type(n_value) == int or type (n_value) == float:
+                if abs(n_value) > 600:
+                    raise ValueError,('THE Y VALUE MUST BE IN [-600,600] !!! The selected value %s is not in the range.' %n_value)
+        JobProperty.__setattr__(self, name, n_value)
+
+

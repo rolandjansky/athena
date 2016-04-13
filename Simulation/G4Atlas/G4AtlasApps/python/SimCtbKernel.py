@@ -61,17 +61,6 @@ class TBSimSkeleton(SimSkeleton):
 
 
     @classmethod
-    def do_Physics(self):
-        """
-        Physics List from the simFlags.PhysicsList flag
-        with default cut of 1 mm.
-        """
-        from G4AtlasApps.SimFlags import simFlags
-        TBPhysics=PyG4Atlas.PhysicsList(simFlags.PhysicsList.get_Value(),1)
-        AtlasG4Eng.G4Eng.add_PhysicsList(TBPhysics)
-
-
-    @classmethod
     def _do_metadata(self):
         """
         Setup and add metadata to the HIT file
@@ -189,6 +178,7 @@ class CtbSim(TBSimSkeleton):
         DetFlags.pileup.all_setOff()
         DetFlags.simulateLVL1.all_setOff()
         DetFlags.digitize.all_setOff()
+        DetFlags.overlay.all_setOff()
         DetFlags.readRDOPool.all_setOff()
         DetFlags.makeRIO.all_setOff()
         DetFlags.writeBS.all_setOff()
@@ -328,6 +318,11 @@ class CtbSim(TBSimSkeleton):
             TBDetDescrLoader.WriteAction = 2
             TBDetDescrLoader.OutputLevel = 5
         #
+        ## Explicitly create DetectorGeometrySvc - temporary fix
+        from AthenaCommon.CfgGetter import getService, getPublicTool
+        from AthenaCommon.AppMgr import ServiceMgr
+        ServiceMgr += getService('DetectorGeometrySvc')
+        ServiceMgr.ToolSvc += getPublicTool('PhysicsListToolBase')
         AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external '+\
                                        'done')
 
@@ -662,6 +657,7 @@ class Tile2000_2003(TBSimSkeleton):
         DetFlags.pileup.all_setOff()
         DetFlags.simulateLVL1.all_setOff()
         DetFlags.digitize.all_setOff()
+        DetFlags.overlay.all_setOff()
         DetFlags.readRDOPool.all_setOff()
         DetFlags.makeRIO.all_setOff()
         DetFlags.writeBS.all_setOff()
@@ -761,114 +757,120 @@ class Tile2000_2003(TBSimSkeleton):
             # and write TBDetDescrContainer to StoreGate every event
             TBDetDescrLoader.WriteAction = 2
             TBDetDescrLoader.OutputLevel = 5
+
+        ## Explicitly create DetectorGeometrySvc - temporary fix
+        from AthenaCommon.CfgGetter import getService, getPublicTool
+        from AthenaCommon.AppMgr import ServiceMgr
+        ServiceMgr += getService('DetectorGeometrySvc')
+        ServiceMgr.ToolSvc += getPublicTool('PhysicsListToolBase')
         AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external '+\
                                        'done')
 
-    @classmethod
-    def do_GeoSD(self):
-       """ Defines the geometry and SD
-       """
-       # -- Resize the World volume
-       from ctb_common import ctb
-       ctb.df.SetDx(20000)
-       ctb.df.SetDy(20000)
-       ctb.df.SetDz(20000)
-       # -- Calorimeters
-       AtlasG4Eng.G4Eng.add_DetFacility(ctb,ctb)
-       from G4AtlasApps.SimFlags import simFlags
-       if(DetFlags.Calo_on()):
-            # Check the consistency of the flags
-            if(simFlags.Eta.statusOn and
-               (simFlags.Theta.statusOn or
-               simFlags.Z.statusOn)):
-                raise ValueError,('THE ETA PARAMETER CAN NOT BE' +
-                        'SET TOGETHER WITH THETA AND Z')
-            elif(not(simFlags.Theta.statusOn and
-                     simFlags.Z.statusOn)and
-                 not(simFlags.Eta.statusOn)):
-                raise ValueError,('THETA AND Z ARE NOT SET')
-            DeltaY=0.0
-            if(simFlags.Y.statusOn):
-                DeltaY=-simFlags.Y.get_Value()
-                if abs(DeltaY) > 600:
-                    raise ValueError,('THE Y VALUE MUST BE IN [-600,600] !!! '+
-                          'The selected value %s is not in the range.' %DeltaY)
-            PhiZ=0.0
-            if(simFlags.Phi.statusOn):
-                PhiZ=-math.radians(simFlags.Phi.get_Value())
-                AtlasG4Eng.G4Eng.log.debug('SimCtbKernel'+
-                    'Tile table phi rotation, phi ='+str(simFlags.Phi.get_Value()))
-                if (math.fabs(PhiZ)>0.15):
-                    raise ValueError,('THE PHI VALUE MUST BE IN [-8.5,8.5]!!! '+
-                    'The selected value %s not in range.' %simFlags.Phi.get_Value())
-            if(simFlags.Eta.statusOn):
-                # Mode 1 -> User enters only eta
-                eta=simFlags.Eta.get_Value()
-                if abs(eta) < 1.1:
-                    AtlasG4Eng.G4Eng.log.debug('SimCtbKernel'+
-                    'Tile table rotation: Mode 1 (eta only), eta ='+str(eta))
-                    ThetaY=-(PhysicalConstants.pi*0.5)+2*math.atan(math.exp(-eta))
-                    DeltaX=float(2298-6208)/math.cosh(eta)+6208
-                    DeltaF=0.0
-                    DeltaZ=0.0
-                    ctb_calo_rotation=math.degrees(ThetaY)
-                else:
-                    raise ValueError,('THE ETA VALUE MUST BE IN [-1.1,1.1]!!! '+
-                            'The selected value %s is not in the range.' %eta)
-            elif(simFlags.Theta.statusOn and simFlags.Z.statusOn):
-                theta=simFlags.Theta.get_Value()
-                z=simFlags.Z.get_Value()
-                eta=0.0
-                if abs(theta) < 60.01:
-                    AtlasG4Eng.G4Eng.log.debug('SimCtbKernel'+
-                     'Tile table rotation: Mode 2 (theta and Z), theta ='+
-                     str(theta)+' Zimp ='+str(z))
-                    # Mode 2 -> User enters theta!=+/-90 and Z
-                    # Z is the distance from center of the module to the desired
-                    # entrace point calculated at R=2290 (start of tilecal
-                    # module)
-                    ctb_calo_rotation=theta
-                    ThetaY=math.radians(theta)
-                    DeltaX=2298.0+3910.0*(1.0-math.cos(ThetaY))
-                    DeltaF=(2290.0*math.tan(-ThetaY)-z)
-                    DeltaZ=DeltaF*math.cos(ThetaY)
-                elif abs(abs(theta)-90.0) < 0.01:
-                    AtlasG4Eng.G4Eng.log.debug('SimCtbKernel'+
-                     'Tile table rotation: Mode 3 (theta=+/-90 and Z), theta ='+
-                     str(theta)+' R ='+str(z))
-                    # Mode 3 -> User enters theta=(+/-)90 and Z
-                    # Z is the distance from ATLAS center to corresponding
-                    # tilerow
-                    # e.g center of first tile row is at 2300 + 100/2 = 2350
-                    sign=int(theta>0)*2-1
-                    ctb_calo_rotation=sign*90.0
-                    ThetaY=sign*math.radians(90.0)
-                    # DeltaX = ctb shift + tile_rmin + module_length/2
-                    DeltaX=2298.0+2290.0+5640.0/2
-                    DeltaF=0.0
-                    DeltaZ=-sign*math.fabs(z)
-                else:
-                    raise ValueError,('THETA MUST BE IN [-60,60] or +/-90 !!! '+
-                         'The selected value %s is not in the range.' %theta)
-            else:
-                print 'Tile table rotation: ERROR unknown rotation mode'
-                raise ValueError,('UNKNOWN MODE - NEITHER ETA NOR THETA AND Z ARE SET')
-            from ctb_common import calo
-            AtlasG4Eng.G4Eng.add_DetFacility(calo,ctb)
-            calo_pos=AtlasG4Eng.G4Eng.gbl.CLHEP.Hep3Vector(DeltaX,DeltaY,DeltaZ)
-            calo.df.RotateZ(PhiZ)
-            calo.df.RotateY(ThetaY)
-            calo.df.MoveTo(calo_pos)
-            if(DetFlags.Tile_on()):
-               from  ctb_calo import TileDet
-               # different from CTB
-               tiledet=TileDet('TB')
-               AtlasG4Eng.G4Eng.add_DetFacility(tiledet.ctb_tile,calo)
-               tilesd=tiledet.SD()
-            # ancillary: only the MuonWall
-            from ctb_common import MuonWall
-            MuonW=MuonWall(eta,ThetaY,DeltaF)
-            AtlasG4Eng.G4Eng.add_DetFacility(MuonW.ctb_muonwall,calo)
+##   @classmethod
+##   def do_GeoSD(self):
+##      """ Defines the geometry and SD
+##      """
+##      # -- Resize the World volume
+##      from ctb_common import ctb
+##      ctb.df.SetDx(20000)
+##      ctb.df.SetDy(20000)
+##      ctb.df.SetDz(20000)
+##      # -- Calorimeters
+##      AtlasG4Eng.G4Eng.add_DetFacility(ctb,ctb)
+##      from G4AtlasApps.SimFlags import simFlags
+##      if(DetFlags.Calo_on()):
+##           # Check the consistency of the flags
+##           if(simFlags.Eta.statusOn and
+##              (simFlags.Theta.statusOn or
+##              simFlags.Z.statusOn)):
+##               raise ValueError,('THE ETA PARAMETER CAN NOT BE' +
+##                       'SET TOGETHER WITH THETA AND Z')
+##           elif(not(simFlags.Theta.statusOn and
+##                    simFlags.Z.statusOn)and
+##                not(simFlags.Eta.statusOn)):
+##               raise ValueError,('THETA AND Z ARE NOT SET')
+##           DeltaY=0.0
+##           if(simFlags.Y.statusOn):
+##               DeltaY=-simFlags.Y.get_Value()
+##               if abs(DeltaY) > 600:
+##                   raise ValueError,('THE Y VALUE MUST BE IN [-600,600] !!! '+
+##                         'The selected value %s is not in the range.' %DeltaY)
+##           PhiZ=0.0
+##           if(simFlags.Phi.statusOn):
+##               PhiZ=-math.radians(simFlags.Phi.get_Value())
+##               AtlasG4Eng.G4Eng.log.debug('SimCtbKernel'+
+##                   'Tile table phi rotation, phi ='+str(simFlags.Phi.get_Value()))
+##               if (math.fabs(PhiZ)>0.15):
+##                   raise ValueError,('THE PHI VALUE MUST BE IN [-8.5,8.5]!!! '+
+##                   'The selected value %s not in range.' %simFlags.Phi.get_Value())
+##           if(simFlags.Eta.statusOn):
+##               # Mode 1 -> User enters only eta
+##               eta=simFlags.Eta.get_Value()
+##               if abs(eta) < 1.1:
+##                   AtlasG4Eng.G4Eng.log.debug('SimCtbKernel'+
+##                   'Tile table rotation: Mode 1 (eta only), eta ='+str(eta))
+##                   ThetaY=-(PhysicalConstants.pi*0.5)+2*math.atan(math.exp(-eta))
+##                   DeltaX=float(2298-6208)/math.cosh(eta)+6208
+##                   DeltaF=0.0
+##                   DeltaZ=0.0
+##                   ctb_calo_rotation=math.degrees(ThetaY)
+##               else:
+##                   raise ValueError,('THE ETA VALUE MUST BE IN [-1.1,1.1]!!! '+
+##                           'The selected value %s is not in the range.' %eta)
+##           elif(simFlags.Theta.statusOn and simFlags.Z.statusOn):
+##               theta=simFlags.Theta.get_Value()
+##               z=simFlags.Z.get_Value()
+##               eta=0.0
+##               if abs(theta) < 60.01:
+##                   AtlasG4Eng.G4Eng.log.debug('SimCtbKernel'+
+##                    'Tile table rotation: Mode 2 (theta and Z), theta ='+
+##                    str(theta)+' Zimp ='+str(z))
+##                   # Mode 2 -> User enters theta!=+/-90 and Z
+##                   # Z is the distance from center of the module to the desired
+##                   # entrace point calculated at R=2290 (start of tilecal
+##                   # module)
+##                   ctb_calo_rotation=theta
+##                   ThetaY=math.radians(theta)
+##                   DeltaX=2298.0+3910.0*(1.0-math.cos(ThetaY))
+##                   DeltaF=(2290.0*math.tan(-ThetaY)-z)
+##                   DeltaZ=DeltaF*math.cos(ThetaY)
+##               elif abs(abs(theta)-90.0) < 0.01:
+##                   AtlasG4Eng.G4Eng.log.debug('SimCtbKernel'+
+##                    'Tile table rotation: Mode 3 (theta=+/-90 and Z), theta ='+
+##                    str(theta)+' R ='+str(z))
+##                   # Mode 3 -> User enters theta=(+/-)90 and Z
+##                   # Z is the distance from ATLAS center to corresponding
+##                   # tilerow
+##                   # e.g center of first tile row is at 2300 + 100/2 = 2350
+##                   sign=int(theta>0)*2-1
+##                   ctb_calo_rotation=sign*90.0
+##                   ThetaY=sign*math.radians(90.0)
+##                   # DeltaX = ctb shift + tile_rmin + module_length/2
+##                   DeltaX=2298.0+2290.0+5640.0/2
+##                   DeltaF=0.0
+##                   DeltaZ=-sign*math.fabs(z)
+##               else:
+##                   raise ValueError,('THETA MUST BE IN [-60,60] or +/-90 !!! '+
+##                        'The selected value %s is not in the range.' %theta)
+##           else:
+##               print 'Tile table rotation: ERROR unknown rotation mode'
+##               raise ValueError,('UNKNOWN MODE - NEITHER ETA NOR THETA AND Z ARE SET')
+##           from ctb_common import calo
+##           AtlasG4Eng.G4Eng.add_DetFacility(calo,ctb)
+##           calo_pos=AtlasG4Eng.G4Eng.gbl.CLHEP.Hep3Vector(DeltaX,DeltaY,DeltaZ)
+##           calo.df.RotateZ(PhiZ)
+##           calo.df.RotateY(ThetaY)
+##           calo.df.MoveTo(calo_pos)
+##           if(DetFlags.Tile_on()):
+##              from  ctb_calo import TileDet
+##              # different from CTB
+##              tiledet=TileDet('TB')
+##              AtlasG4Eng.G4Eng.add_DetFacility(tiledet.ctb_tile,calo)
+##              tilesd=tiledet.SD()
+##           # ancillary: only the MuonWall
+##           from ctb_common import MuonWall
+##           MuonW=MuonWall(eta,ThetaY,DeltaF)
+##           AtlasG4Eng.G4Eng.add_DetFacility(MuonW.ctb_muonwall,calo)
 
 
 #--- LAr TB 2002-2004  ------------------------------------------------
@@ -901,6 +903,7 @@ class LArH6_TB(TBSimSkeleton):
         DetFlags.pileup.all_setOff()
         DetFlags.simulateLVL1.all_setOff()
         DetFlags.digitize.all_setOff()
+        DetFlags.overlay.all_setOff()
         DetFlags.readRDOPool.all_setOff()
         DetFlags.makeRIO.all_setOff()
         DetFlags.writeBS.all_setOff()
@@ -988,6 +991,11 @@ class LArH6_TB(TBSimSkeleton):
             include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
             include( "CaloIdCnv/CaloIdCnv_joboptions.py" )
 
+        ## Explicitly create DetectorGeometrySvc - temporary fix
+        from AthenaCommon.CfgGetter import getService, getPublicTool
+        from AthenaCommon.AppMgr import ServiceMgr
+        ServiceMgr += getService('DetectorGeometrySvc')
+        ServiceMgr.ToolSvc += getPublicTool('PhysicsListToolBase')
         AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external '+\
                                        'done')
 
@@ -997,37 +1005,35 @@ class LArH6_TB(TBSimSkeleton):
     def do_GeoSD(self):
         """ Defines de geometry and SD
         """
-        from G4AtlasApps.SimFlags import simFlags
-        from tbLArH6_calo import LArWorld
-        larworld=LArWorld(simFlags.SimLayout.get_Value())
-        AtlasG4Eng.G4Eng.add_DetFacility(larworld.world,larworld.world)
-        if(DetFlags.Calo_on()):
-            if(DetFlags.geometry.LAr_on()):
+        #from G4AtlasApps.SimFlags import simFlags
+        #from tbLArH6_calo import LArWorld
+        #larworld=LArWorld(simFlags.SimLayout.get_Value())
+        #AtlasG4Eng.G4Eng.add_DetFacility(larworld.world,larworld.world)
+        if DetFlags.Calo_on():
+            if DetFlags.geometry.LAr_on():
                 from atlas_calo import PyLArG4RunControler
                 LArG4RunControl=PyLArG4RunControler('PyLArG4RunControl',\
                                                     'LArG4RunControlDict')
-                from tbLArH6_calo import LArH6
-                LArH6Detector=LArH6()
-                if simFlags.CalibrationRun.statusOn:
-                    if simFlags.CalibrationRun.get_Value()=='LAr':
-                        LArH6Detector._initSD(1)
-                else:
-                    LArH6Detector._initSD(0)
-                LArH6Detector._initPR()
-                AtlasG4Eng.G4Eng.add_DetFacility(LArH6Detector.H6_lar,\
-                                                          larworld.world)
+                #from tbLArH6_calo import LArH6
+                #LArH6Detector=LArH6()
+                #if simFlags.CalibrationRun.statusOn:
+                #    if simFlags.CalibrationRun.get_Value()=='LAr':
+                #        LArH6Detector._initSD(1)
+                #else:
+                #    LArH6Detector._initSD(0)
+                #LArH6Detector._initPR()
+                #AtlasG4Eng.G4Eng.add_DetFacility(LArH6Detector.H6_lar,\
+                #                                          larworld.world)
 
     @classmethod
     def do_UserActions(self):
+        from G4AtlasServices.G4AtlasUserActionConfig import UAStore
         from G4AtlasApps.SimFlags import simFlags
         if (simFlags.SimLayout.get_Value()=='tb_LArH6_2004'):
-            H62004EventAction = PyG4Atlas.UserAction('LArG4H62004SD','LArGeoH62004EventAction',\
-                                ['EndOfEvent'])
-            AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(H62004EventAction)
+            # ADS FIXME is it ok to add this system action here?
+            UAStore.addSystemAction('LArHitsH6EventAction',['EndOfEvent'])
+            UAStore.addAction('LArGeoH62004EventAction',['EndOfEvent'])
             if simFlags.LArTB_H6Step.statusOn:
                if simFlags.LArTB_H6Step.get_Value():
-                  H62004StepAction = PyG4Atlas.UserAction('LArG4H62004SD','LArGeoH62004SteppingAction',['Step'])
-                  AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(H62004StepAction)
-                  H62004RadLen = PyG4Atlas.UserAction('LArG4H62004SD','RadLenNtuple',['BeginOfEvent',\
-                                                      'EndOfEvent','BeginOfRun','EndOfRun','Step'])
-                  AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(H62004RadLen)
+                   UAStore.addAction('LArGeoH62004SteppingAction',['Step'])
+                   UAStore.addAction('RadLenNtuple',['BeginOfEvent','EndOfEvent','Step'])

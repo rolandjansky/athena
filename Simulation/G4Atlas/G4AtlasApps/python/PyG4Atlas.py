@@ -16,8 +16,14 @@ from GaudiPython import PyAlgorithm
 from AthenaCommon import Constants, Logging, SystemOfUnits
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.Include import include
-import PyCintex
+import cppyy
 
+
+from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
+    is_hive = True
+else:
+    is_hive = False
 
 # TODO: Rename to AppProfiler, to avoid class/variable confusion
 class _app_profiler(object):
@@ -79,19 +85,13 @@ class G4AtlasEngine:
         ## Init dictionaries and lists
         # TODO: Clean up this whole ugly "Dict*" mess
         G4AtlasEngine.Dict = dict()
-        G4AtlasEngine.Dict_DetFacility = dict()
         G4AtlasEngine.Dict_DetConfig = dict()
-        G4AtlasEngine.Dict['Dict_DetFacility'] = G4AtlasEngine.Dict_DetFacility
         G4AtlasEngine.Dict_Materials = dict()
         #G4AtlasEngine.Dict_Colors = dict()
         G4AtlasEngine.Dict_MCTruthStrg = dict()
         G4AtlasEngine.Dict_MCTruthStrg['SecondarySavingPolicy'] = 'All'
-        G4AtlasEngine.Dict_SenDetector = dict()
-        G4AtlasEngine._List_SenDetector_dependence = list()
         G4AtlasEngine.Dict_Fields = dict()
         G4AtlasEngine.Dict_UserAction = dict()
-        G4AtlasEngine.Dict_Regions = dict()
-        G4AtlasEngine.Dict_Regions['physicsReg'] = dict()
         G4AtlasEngine.Dict_RecEnvelope = dict()
         G4AtlasEngine.Dict_FieldIntegrationParameters = dict()
         G4AtlasEngine.Dict_SpecialConfiguration = dict()
@@ -128,12 +128,11 @@ class G4AtlasEngine:
         # pylcgdict default dictionaries
         self.load_Dict('AtlasSealCLHEPDict')
         self.load_Dict('G4AtlasControlDict')
-        #self.load_Dict('G4AtlasUtilitiesDict')
-        G4AtlasEngine.gbl = PyCintex.makeNamespace("")
+        G4AtlasEngine.gbl = cppyy.makeNamespace("")
         G4AtlasEngine._ctrl = G4AtlasEngine.gbl.SimControl()
-        self.load_Lib("G4DetectorEnvelopes")
-        self.load_Lib("GeoDetectorPlugIns")
-        self.load_Lib("G4StepLimitation")
+        #self.load_Lib("G4DetectorEnvelopes") #FIXME remove?
+        #self.load_Lib("GeoDetectorPlugIns")  #FIXME remove?
+        #self.load_Lib("G4StepLimitation")    #FIXME still needed?
         self.init_status = 0
 
         self.useISF = useISF
@@ -146,173 +145,6 @@ class G4AtlasEngine:
         G4AtlasEngine.log.info('setting useISF to %s' % useISF)
         self.useISF = useISF
 
-    def add_CompositeMaterial(self, name_m, fraction_mass):
-        """ Adds Material to the simulation.
-        """
-        if name_m not in G4AtlasEngine.Dict_Materials:
-            G4AtlasEngine.Dict_Materials[name_m] = G4AtlasEngine.gbl.CompositeMaterial(name_m, fraction_mass)
-            G4AtlasEngine.log.debug('G4AtlasEngine.add_CompositeMaterial: composite material %s added' % name_m)
-        else:
-            G4AtlasEngine.log.warning(' G4AtlasEngine.add_CompositeMaterial: composite material %s is already defined' % name_m)
-
-
-    def add_DetFacility(self, det_obj, det_obj_father):
-        """
-        Adds DetFacilities to the G4AtlasEngine.
-
-        If both DetFacilities are already built, the DetFacility will be
-        immediately added. If this is not the case, the "add" procedure will
-        happen at the init_DetFacility process.
-        """
-        if not isinstance(det_obj, DetFacility):
-            G4AtlasEngine.log.error(' G4AtlasEngine: det_obj is not a DetFacility !!!')
-            raise RuntimeError('PyG4Atlas: G4AtlasEngine: add_DetFacility')
-        if not isinstance(det_obj_father, DetFacility):
-            G4AtlasEngine.log.error(' G4AtlasEngine: det_obj_father is not a DetFacility !!!')
-            raise RuntimeError('PyG4Atlas: G4AtlasEngine: add_DetFacility')
-
-        det_obj.Father = det_obj_father.Name
-        if det_obj._Built and det_obj_father._Built:
-            # TODO: Already done above... can we remove?
-            det_obj.Father = det_obj_father.Name
-            if det_obj == det_obj_father:
-                # TODO: Already done above... can we remove?
-                det_obj.Father = det_obj_father.Name
-                det_obj.df.SetAsWorld()
-                self.Dict['volume_world'] = det_obj
-                self.Dict_DetFacility[det_obj.Name] = det_obj
-                det_obj._BuiltAssoc = True
-                G4AtlasEngine.log.debug(' G4AtlasEngine: add_DetFacility: %s as a world volume' % det_obj.Name)
-            else:
-                det_obj_father.df.AddDetector(det_obj.df)
-                self.Dict_DetFacility[det_obj.Name] = det_obj
-                det_obj_father.Dict_DetFacility[det_obj.Name] = det_obj
-                det_obj._BuiltAssoc = True
-                G4AtlasEngine.log.debug(' G4AtlasEngine: add_DetFacility: %s as daughter of %s' %
-                                              (det_obj.Name, det_obj_father.Name))
-        else:
-            self.Dict_DetFacility[det_obj.Name] = det_obj
-            #det_obj_father.Dict_DetFacility[det_obj.Name] = det_obj
-            G4AtlasEngine.log.debug(' G4AtlasEngine: add_DetFacility: %s will be added as a daughter of %s' %
-                                    (det_obj.Name, det_obj_father.Name))
-            if det_obj == det_obj_father:
-                if 'volume_world' not in G4AtlasEngine.Dict:
-                    self.Dict['volume_world'] = det_obj
-                else:
-                    G4AtlasEngine.log.error(' G4AtlasEngine: add_DetFacility: there is already a volume_world')
-                    raise RuntimeError('PyG4Atlas: G4AtlasEngine: add_DetFacility')
-        G4AtlasEngine._app_profiler('  add_DetFacility: ' + det_obj.Name)
-
-
-
-    def add_Element(self, name_el, symbol_el, z_el, a_el, density_el):
-        """
-        Add a new element to the simulation.
-
-        If you do not need to specify the density, set it to 0.
-        """
-        if name_el not in G4AtlasEngine.List_Elements:
-            G4AtlasEngine.gbl.Element(name_el, symbol_el, z_el, a_el, density_el)
-            G4AtlasEngine.List_Elements.append(name_el)
-            G4AtlasEngine.log.debug(' G4AtlasEngine: add_Element: The Element %s is added' % name_el)
-        else:
-            G4AtlasEngine.log.warning(' G4AtlasEngine: add_Element: The Element %s is alrady defined' % name_el)
-
-
-
-    def add_SenDetector(self, SenDetector_obj):
-        """ Adds a Sensitive detector directly to the AtlasG4Eng.
-
-             This method is for very rare cases. Normally the SD is added
-            to a specific DetFacility.
-        """
-        if isinstance(SenDetector_obj,SenDetector):
-            if SenDetector_obj.Name not in G4AtlasEngine.Dict_SenDetector:
-                G4AtlasEngine.Dict_SenDetector[SenDetector_obj.Name] = SenDetector_obj
-                G4AtlasEngine.log.info(' G4AtlasEngine: add_SenDetector: %s added' % SenDetector_obj.Name)
-            else:
-                G4AtlasEngine.log.warning(' G4AtlasEngine: add_SenDetector simulation already has a %s' % SenDetector_obj.Name)
-        else:
-            G4AtlasEngine.log.error(' G4AtlasEngine: add_SenDetector: This is not a SenDetector object !!!')
-            raise RuntimeError('PyG4Atlas: G4AtlasEngine: add_SenDetector')
-
-
-
-    def add_PhysicsList(self, PhysicsList_obj):
-        """ Adds the Physics-List to the simulation engine.
-
-           Several Physics-Lists can be defined and stored but
-           only one can be added to the simulation and only
-           one is built.
-        """
-        if not isinstance(PhysicsList_obj, PhysicsList):
-            G4AtlasEngine.log.error(' G4AtlasEngine: add_PhysicsList: This is not a PhysicsList object !!!')
-            raise RuntimeError('PyG4Atlas: G4AtlasEngine: add_PhysicsList')
-        if 'physics' not in G4AtlasEngine.Dict:
-            G4AtlasEngine.Dict['physics'] = PhysicsList_obj
-            G4AtlasEngine.log.info(' G4AtlasEngine: add_PhysicsList: %s added' % PhysicsList_obj.Name)
-        else:
-            G4AtlasEngine.log.warning(' G4AtlasEngine: add_PhysicsList: simulation already has a Physics-List.')
-
-
-
-    def _init_DetFacilityRecursive(self, name_det):
-        """ Inits the geometry of a given DetFacility and associates it
-            with the father DetFacility if this was not done yet.
-
-           (for internal use: it is called by _init_DetFacility() )
-        """
-        dt = G4AtlasEngine.Dict_DetFacility.get(name_det)
-        if not dt._Built:
-            dt._build()
-            dt.Built=True
-            G4AtlasEngine.log.debug(' G4AtlasEngine: _init_DetFacilityRecursive: '+dt.Name+' was built')
-        if not dt._BuiltAssoc:
-            G4AtlasEngine.add_DetFacility(self, dt, G4AtlasEngine.Dict_DetFacility.get(dt.Father))
-            G4AtlasEngine.log.debug(' G4AtlasEngine: _init_DetFacilityRecursive: %s was associated to parent %s' % (dt.Name, dt.Father))
-        for dti in dt.Dict_DetFacility.values():
-            # We ask the DetFacility to be in the G4AtlasEngine.Dict_DetFacility
-            # in this way is easy to remove it if needed.
-            if dti.Name not in G4AtlasEngine.Dict_DetFacility:
-                G4AtlasEngine.log.debug(' G4AtlasEngine:'+
-                                        ' _init_DetFacilityRecursive: '+dti.Name+' will not be built'+
-                                        ' and associated because it is not in G4Eng.Dict_DetFacility ')
-            else:
-                if not dti._Built:
-                    dti._build()
-                    G4AtlasEngine.log.debug(' G4AtlasEngine: _init_DetFacilityRecursive: '+dti.Name+' was built')
-                if not dti._BuiltAssoc:
-                    G4AtlasEngine.add_DetFacility(self, dti, G4AtlasEngine.Dict_DetFacility.get(dt.Father))
-                    G4AtlasEngine.log.debug(' G4AtlasEngine:' + ' _init_DetFacilityRecursive: ' +
-                                                  dt.Name + ' was associated to ' + dt.Father)
-                if not dti.Dict_DetFacility.values():
-                    G4AtlasEngine._init_DetFacilityRecursive(self, dti.Name)
-
-
-    def _init_DetFacility(self):
-        """ Inits the geometry of the DetFacilities
-
-           (for internal use)
-        """
-        if 'init_DetFacility' not in self._InitList:
-            G4AtlasEngine.log.debug(' G4AtlasEngine: _init_DetFacility: init geometry of the DetFacilities ')
-            wv = G4AtlasEngine.Dict.get('volume_world')
-            G4AtlasEngine._init_DetFacilityRecursive(self, wv.Name)
-            # Check if every DetFacility is Built
-            for df in G4AtlasEngine.Dict_DetFacility.keys():
-                df_obj = G4AtlasEngine.Dict_DetFacility.get(df)
-                if df_obj._Built:
-                   G4AtlasEngine.log.info(' G4AtlasEngine: _init_DetFacility: '+df_obj.Name+' is built')
-                else:
-                   G4AtlasEngine.log.warning(' G4AtlasEngine: _init_DetFacility: '+df_obj.Name+' is not built')
-                # the post build
-                if not df_obj._PostBuilt:
-                    df_obj._postbuild()
-                    df_obj.PostBuilt=True
-            self._InitList.append('init_DetFacility')
-        else:
-            G4AtlasEngine.log.warning(' G4AtlasEngine: init_DetFacility is already done')
-
 
     def _init_G4(self):
         """ Inits G4
@@ -323,7 +155,7 @@ class G4AtlasEngine:
             G4AtlasEngine.log.debug(' G4AtlasEngine: _init_G4: init Geant4 ')
             if G4AtlasEngine.log.level <= 30:
                 g4Command = G4AtlasEngine.gbl.G4Commands()
-                g4Command.run.verbose(2)
+                g4Command.run.verbose(2) # FIXME make configurable based on Athena message level?
             G4AtlasEngine._ctrl.initializeG4()
             self._InitList.append('init_G4')
             G4AtlasEngine._app_profiler('_init_G4: ')
@@ -365,41 +197,6 @@ class G4AtlasEngine:
             G4AtlasEngine._app_profiler('_init_RecEnvelope: ')
         else:
             G4AtlasEngine.log.warning('G4AtlasEngine: init_RecEnvelope is already done')
-
-
-    def _init_SenDetector(self):
-        """ Inits all the sensitive detectors defined.
-
-           (for internal use)
-        """
-        if 'init_SenDetector' not in self._InitList:
-            G4AtlasEngine.log.debug(' G4AtlasEngine: _init_SenDetector: init SD ')
-            ## First build the SD in the List_SenDetector_dependence
-            for sd_n in xrange(len(G4AtlasEngine._List_SenDetector_dependence)):
-                sd_first_name = G4AtlasEngine._List_SenDetector_dependence[sd_n]
-                if sd_first_name in G4AtlasEngine.Dict_SenDetector:
-                    sd_first = G4AtlasEngine.Dict_SenDetector.get(sd_first_name)
-                    if not sd_first._Built:
-                        sd_first._build()
-                    G4AtlasEngine.log.debug('G4AtlasEngine:'+
-                                                  ' _init_SenDetector: init SD '+sd_first_name+
-                                                  'in the dependence list  _List_SenDetector_dependence')
-            ## Look for SD associated to a DetFacility
-            for df in G4AtlasEngine.Dict_DetFacility.keys():
-                df_obj = G4AtlasEngine.Dict_DetFacility.get(df)
-                for s in df_obj.Dict_SenDetector.keys():
-                    sd = G4AtlasEngine.Dict_SenDetector.get(s)
-                    if not sd._Built:
-                        sd._build()
-            ## Look for SD associated to a list of volumes
-            for sd in G4AtlasEngine.Dict_SenDetector.keys():
-                sd_obj = G4AtlasEngine.Dict_SenDetector.get(sd)
-                if not sd_obj._Built and sd_obj.List_Volumes:
-                    sd_obj._build()
-            self._InitList.append('init_SenDetector')
-            G4AtlasEngine._app_profiler('_init_SenDetector: ')
-        else:
-            G4AtlasEngine.log.warning('G4AtlasEngine: init_SenDetector is already done')
 
 
     def _init_Fields(self):
@@ -449,52 +246,6 @@ class G4AtlasEngine:
             G4AtlasEngine.log.warning('G4AtlasEngine: init_Graphics is already done')
 
 
-    def _init_Physics(self):
-        """ Inits the Geant4 selected Physics list (for internal use)
-        """
-        if 'init_Physics' not in self._InitList:
-            from G4AtlasApps.SimFlags import simFlags
-            G4AtlasEngine.log.debug('G4AtlasEngine: _init_Physics: init physics list')
-            if hasattr(simFlags, 'NeutronTimeCut') and simFlags.NeutronTimeCut.statusOn:
-                import AtlasG4Eng
-                AtlasG4Eng.G4Eng._ctrl.physicsMenu.SetNeutronTimeCut(simFlags.NeutronTimeCut.get_Value())
-            if hasattr(simFlags, 'NeutronEnergyCut') and simFlags.NeutronEnergyCut.statusOn:
-                import AtlasG4Eng
-                AtlasG4Eng.G4Eng._ctrl.physicsMenu.SetNeutronEnergyCut(simFlags.NeutronEnergyCut.get_Value())
-            if hasattr(simFlags, 'ApplyEMCuts') and simFlags.ApplyEMCuts.statusOn and simFlags.ApplyEMCuts.get_Value():
-                import AtlasG4Eng
-                AtlasG4Eng.G4Eng._ctrl.physicsMenu.SetApplyCuts(True)
-            physics = G4AtlasEngine.Dict.get('physics')
-            physics._construct()
-            physics.Built = True
-            self._InitList.append('init_Physics')
-            G4AtlasEngine._app_profiler('_init_Physics: ')
-        else:
-            G4AtlasEngine.log.warning('G4AtlasEngine: init_Physics is already done')
-
-
-    def _init_PhysicsRegions(self):
-        """ Inits the physics regions
-
-           (for internal use)
-            This internal method inits the physics-regions used
-            for physics purposes. Must be called before init_G4()
-        """
-        if 'init_PhysicsRegions' not in self._InitList and 'init_G4' not in self._InitList:
-            G4AtlasEngine.log.debug('G4AtlasEngine: _init_PhysicsRegions: init physics regions')
-            for i in self.Dict_DetFacility.keys():
-                p = self.Dict_DetFacility.get(i)
-                for j in p.Dict_Regions.keys():
-                    k = p.Dict_Regions.get(j)
-                    k._construct_Region()
-            self._InitList.append('init_PhysicsRegions')
-            G4AtlasEngine._app_profiler('_init_PhysicsRegions: ')
-        elif 'init_G4' in self._InitList:
-            G4AtlasEngine.log.error('G4AtlasEngine: init_G4 is already done, too late for regions')
-        else:
-            G4AtlasEngine.log.warning('G4AtlasEngine: init_PhysicsRegions is already done')
-
-
     def _init_Simulation(self):
         """\
         Simulation engine initialization.
@@ -505,11 +256,7 @@ class G4AtlasEngine:
         hook point. The provided hook points are
 
           preInit - called before Athena initialize()
-          pre/postInitDetFacility - called before/after the init_DetFacility method
-          pre/postInitPhysics - called before/after the init_Physics method
           pre/postInitG4 - called before/after the init_G4 method
-          pre/postInitPhysicsRegions - called before/after the init_PhysicsRegions method
-          pre/postInitSenDetector - called before/after the init_SenDetector method
           pre/postInitMCTruth - called before/after the init_MCTruth method
           pre/postInitFields - called before/after the init_Fields method
           pre/postInitFieldIntegrationParameters - called before/after the init_FieldIntegrationParameters method
@@ -541,10 +288,6 @@ class G4AtlasEngine:
             G4AtlasEngine.log.debug("G4AtlasEngine:init stage " + self.init_status)
             _run_init_callbacks(self.init_status)
 
-        _run_init_stage("DetFacility")
-        _run_init_stage("PhysicsRegions")
-        _run_init_stage("SenDetector")
-        _run_init_stage("Physics")
         _run_init_stage("G4")
 
         if not self.useISF:
@@ -555,10 +298,14 @@ class G4AtlasEngine:
         _run_init_stage("Fields")
         _run_init_stage("FieldIntegrationParameters")
 
-        if not self.useISF:
-            _run_init_stage("RecEnvelope")
+        # Doesn't work with hive
+        if not is_hive:
+            if not self.useISF:
+                _run_init_stage("RecEnvelope")
+            else:
+                G4AtlasEngine.log.debug('not initializing RecEnvelope in G4AtlasEngine because useISF=True')
         else:
-            G4AtlasEngine.log.debug('not initializing RecEnvelope in G4AtlasEngine because useISF=True')
+            G4AtlasEngine.log.debug('not initializing RecEnvelope in G4AtlasEngine because this is a G4Hive job.')
 
         _run_init_stage("Graphics")
 
@@ -574,40 +321,6 @@ class G4AtlasEngine:
                                       (num_reg_callbacks, G4AtlasEngine._callback_counter))
 
         G4AtlasEngine._app_profiler('_init_Simulation')
-
-
-    def list_DetFacility(self):
-        """ Prints the detector facilities associated with a given G4AtlasEngine.
-        """
-        for i in self.Dict['Dict_DetFacility'].values():
-            print i.Name
-
-
-    def list_Element(self):
-        """ Prints the elements associated with a given G4AtlasEngine.
-        """
-        self.gbl.Element.List()
-
-
-    def list_Material(self):
-        """ Prints the materials associated with a given G4AtlasEngine.
-        """
-        self.gbl.Material.List()
-
-
-    def list_PhysicsList(self):
-        """ Prints the Physics Lists availables.
-        """
-        if "G4PhysicsLists" not in G4AtlasEngine.List_LoadedLib:
-            G4AtlasEngine._ctrl.load("G4PhysicsLists")
-            G4AtlasEngine.List_LoadedLib.append("G4PhysicsLists")
-        G4AtlasEngine._ctrl.physicsMenu.PrintLists()
-
-
-    def list_Region(self):
-        """ List the Physics regions already defined.
-        """
-        G4AtlasEngine._ctrl.physicsMenu.ListRegions()
 
 
     @classmethod
@@ -634,7 +347,7 @@ class G4AtlasEngine:
         """
         if dict_name and dict_name not in G4AtlasEngine.List_LoadedDict:
             try:
-                PyCintex.loadDict(dict_name)
+                cppyy.loadDict(dict_name)
             except:
                 print "Unexpected error:", sys.exc_info(),'\n'
                 print 'ROOT5 migration problem: ', dict_name
@@ -838,39 +551,39 @@ class G4AtlasEngine:
 
 
 
-    class menu_UserActions:
-        """
-        User actions can be added using this menu.
-        """
-
-        @classmethod
-        def add_UserAction(cls, action_obj):
-            """Adds a UserAction object to the simulation."""
-            if isinstance(action_obj,UserAction):
-                G4AtlasEngine.log.debug('G4AtlasEngine: menu_UserActions:add_UserAction: ' +
-                                              action_obj.Name)
-                G4AtlasEngine.Dict_UserAction[action_obj.Name] = action_obj
-                action_obj._construct()
-            else:
-               G4AtlasEngine.log.error('G4AtlasEngine: menu_UserActions:add_UserAction: '+
-                                             'This is not a UserAction object!!!')
-
-        @classmethod
-        def list_Actions(cls):
-            """
-            Lists the possible actions.
-
-            The list is extracted from the user-action libraries already loaded.
-            """
-            G4AtlasEngine._ctrl.actMenu.actionList()
-
-
-        @classmethod
-        def load_Lib(cls, Library):
-            """Loads the library with the user-actions."""
-            G4AtlasEngine.load_Lib(Library)
-            G4AtlasEngine._ctrl.actMenu.actionList()
-
+#    class menu_UserActions:
+#        """
+#        User actions can be added using this menu.
+#        """
+#
+#        @classmethod
+#        def add_UserAction(cls, action_obj):
+#            """Adds a UserAction object to the simulation."""
+#            if isinstance(action_obj,UserAction):
+#                G4AtlasEngine.log.debug('G4AtlasEngine: menu_UserActions:add_UserAction: ' +
+#                                              action_obj.Name)
+#                G4AtlasEngine.Dict_UserAction[action_obj.Name] = action_obj
+#                action_obj._construct()
+#            else:
+#               G4AtlasEngine.log.error('G4AtlasEngine: menu_UserActions:add_UserAction: '+
+#                                             'This is not a UserAction object!!!')
+#
+#        @classmethod
+#        def list_Actions(cls):
+#            """
+#            Lists the possible actions.
+#
+#            The list is extracted from the user-action libraries already loaded.
+#            """
+#            G4AtlasEngine._ctrl.actMenu.actionList()
+#
+#
+#        @classmethod
+#        def load_Lib(cls, Library):
+#            """Loads the library with the user-actions."""
+#            G4AtlasEngine.load_Lib(Library)
+#            G4AtlasEngine._ctrl.actMenu.actionList()
+#
 
 
     class menu_EventFilter(object):
@@ -981,70 +694,6 @@ class G4AtlasEngine:
 
             G4AtlasEngine.Dict['EventFilters'] = self
             G4AtlasEngine.log.debug('menu_EventFilter._build: init EventFilter manipulators\n%s' % self.getFilterStatus())
-
-
-
-    class menu_G4RandomNrMenu(object):
-        """ Access to the random number generator used by G4
-        """
-        class __impl:
-            # TODO: Is this a joke?!? WHY?!?
-            def spam(self):
-                return id(self)
-        __instance = None
-
-
-        def __init__(self):
-            if G4AtlasEngine.menu_G4RandomNrMenu.__instance is None:
-                G4AtlasEngine.menu_G4RandomNrMenu.__instance = G4AtlasEngine.menu_G4RandomNrMenu.__impl()
-                self.SaveStatus = False
-                self.Menu = G4AtlasEngine._ctrl.rndMenu
-
-
-        def __getattr__(self, attr):
-            return getattr(self.__instance, attr)
-
-
-        def __setattr__(self, attr, value):
-            return setattr(self.__instance, attr, value)
-
-
-        def set_SaveOn(self):
-            """
-            Activate the saving of the G4 seeds for the last event
-            """
-            self.SaveStatus = True
-
-
-        def set_SaveOff(self):
-            """
-            Deactivate the saving of the G4 seeds for the last event
-            """
-            self.SaveStatus = False
-
-
-        def get_SaveStatusOn(self):
-            return self.SaveStatus
-
-
-        def set_Seed(self, seed, from_file=False):
-            """
-            Set the G4 seeds.
-
-            Normally the seed argument will be a numeric value to be directly
-            passed as the current seed, but if the from_file arg is set to True,
-            then the 'seed' argument will be treated as the name of a seed list
-            file from which the seed for the current event will be read.
-
-            TODO: Remove the loading from file if not required in MC11 production (2011-04-04)
-            """
-            try:
-                if not from_file:
-                    self.Menu.setSeed(seed)
-                else:
-                    self.Menu.retrieveStatus(seed)
-            except Exception, e:
-                G4AtlasEngine.log.error('menu_G4RandomNrMenu: incompatible argument for random number engine seed: %s' % e)
 
 
 
@@ -1207,185 +856,6 @@ class G4AtlasEngine:
                 G4command.vis.open(self.VisDriver)
                 G4command.vis.drawVolume()
                 G4command.vis.viewer.flush()
-
-
-
-class DetFacility:
-    """ DetFacility is the entry point for a sub-detector's geometry.
-
-    Sets up the geometry of the sub-detector envelope and its contains.
-
-    The available types are:
-    - Atlas envelopes: AtlasDetector, BeamPipe, InnerDetector
-                       Calorimeter, Muon, MuonSystemEntryLayer
-    - Generic (resizable) envelopes: ResizeableBox, ResizeableTubs,
-                                     GenericPCON, GenericPGON
-    - GeoDetectors from the GeoModel interface.
-    - Other detector descriptions loading the appropiate library
-
-    DetFacility can be positioned within other DetFacilities, moved,
-    rotated... And they must be added to the simulation engine:
-    G4AtlasEngine.add_DetFacility(self, det_obj, det_obj_father)
-    """
-
-    def __init__(self, type_name, name, allowMods=False):
-        self.Description = 'Detector facility of type %s; more information from the user follows:\n'
-        self.Dict_DetFacility = dict()
-        self.Dict_Regions = dict()
-        self.Dict_SenDetector = dict()
-        self.Dict_MaxStep = dict()
-        self.Dict_MaxTime = dict()
-        self.Father = '' # TODO: use None instead?
-        self.Name = name
-        self.Type = type_name
-        self.df = G4AtlasEngine._ctrl.geometryMenu.GetDetectorFacility(type_name, name)
-        self._Built = True
-        self._PostBuilt = False
-        self._BuiltAssoc = False
-        self._AllowMods = allowMods
-
-
-    def _build(self):
-        # Fake method in order to keep compatibility in between DetFacility
-        # and DetFacilityT
-        pass
-
-
-    def _postbuild(self):
-        """ We set here the MaxStep and MaxTime per volume
-        """
-        for v in self.Dict_MaxStep.keys():
-            G4AtlasEngine._ctrl.geometryMenu.SetMaxStep(v,self.Dict_MaxStep[v])
-        for v in self.Dict_MaxTime.keys():
-            G4AtlasEngine._ctrl.geometryMenu.SetMaxTime(v,self.Dict_MaxTime[v])
-
-
-    def add_MaxStepInVolumes(self,vol_name,max_step):
-        """ Adds volumes in which the MaxStep is limited to a given value
-        """
-        self.Dict_MaxStep[vol_name]=max_step
-        G4AtlasEngine.log.debug(' DetFacility:add_MaxStepInVolumes'+\
-          ' adding to '+ vol_name +' maxstep = '+str(max_step))
-
-
-    def add_MaxTimeInVolumes(self,vol_name,max_time):
-        """ Adds volumes in which the MaxTime is limited to a given value
-        """
-        self.Dict_MaxTime[vol_name]=max_time
-        G4AtlasEngine.log.debug(' DetFacility:add_MaxTimeInVolumes'+\
-          ' adding to '+ vol_name +' maxtime = '+str(max_time))
-
-
-    def add_PhysicsReg(self,region_obj):
-        """ Adds physics regions (PhysicsReg) to volumes in the DetFacility.
-
-             We check that the name of the region was not taken by somebody else
-            before. You should care about the volumes included in each region.
-        """
-        if isinstance(region_obj,PhysicsReg):
-            if region_obj.Name not in self.Dict_Regions and \
-                    region_obj.Name not in G4AtlasEngine.Dict_Regions.get('physicsReg'):
-                self.Dict_Regions[region_obj.Name] = region_obj
-                if self.Name in G4AtlasEngine.Dict_DetFacility:
-                    ## If the DetFacility is already in G4Eng, we add the region immediately
-                    G4AtlasEngine.Dict_Regions.get('physicsReg').update({region_obj.Name : region_obj})
-                G4AtlasEngine.log.debug(' DetFacility: add_PhysicsReg: adding to %s the PhysRegion %s' % (self.Name, region_obj.Name))
-            elif region_obj.Name in G4AtlasEngine.Dict_Regions.get('physicsReg'):
-                G4AtlasEngine.log.warning(' DetFacility: add_PhysicsReg: %s is already used by somebody else -- nothing done' % region_obj.Name)
-            else:
-                G4AtlasEngine.log.warning(' DetFacility: add_PhysicsReg: the %s'++' model already has the %s region' % (self.Name, region_obj.Name))
-        else:
-            G4AtlasEngine.log.error(' DetFacility: add_PhysicsReg: This is not a PhysicsReg object!!!')
-
-
-    def add_SenDetector(self,lib,sdname,name,volume):
-        """ Association of a sensitive detector (SenDetector) to a
-            given volume.
-
-           lib    = library that contains the sensitive
-                    detector "sdname".
-           name   = local name for "sdname".
-           volume = volume to which "sdname" is associated.
-        """
-        if name in G4AtlasEngine.Dict_SenDetector:
-            if name not in self.Dict_SenDetector:
-                self.Dict_SenDetector[name] = G4AtlasEngine.Dict_SenDetector.get(name)
-                G4AtlasEngine.log.debug(' DetFacility:'+\
-                'add_SenDetector: adding to '+self.Name +' the SD '+\
-                name+' into the volume '+volume)
-            else:
-                dfsd = self.Dict_SenDetector.get(name)
-                if volume not in dfsd.List_Volumes:
-                    dfsd.add_Volume(volume)
-                    G4AtlasEngine.log.debug(' DetFacility:'+\
-                    'add_SenDetector: adding to '+self.Name +\
-                    ' the existing SD '+name+' into the volume '+volume)
-        else:
-            sd=SenDetector(lib,sdname,name,volume,self._AllowMods)
-            G4AtlasEngine.Dict_SenDetector[name]=sd
-            self.Dict_SenDetector[name]=sd
-            G4AtlasEngine.log.debug(' DetFacility:'+\
-            'add_SenDetector: adding to '+self.Name +\
-            ' the new SD '+name+' into the volume '+volume)
-
-
-    def list_DetFacility(self):
-        """ Prints the detector facilities asssociated with a given
-            detector facility as daugthers.
-        """
-        for i in self.Dict_DetFacility.values():
-           print i.Name
-
-
-    def listrecursive_DetFacility(self,space=None):
-        """ Prints the recursive list of detector facilities
-            associated with this detector facility.
-        """
-        if space is None:
-            space = '.'
-        for i in self.Dict_DetFacility.values():
-            print space, i.Name
-            if i.Dict_DetFacility.values():
-                DetFacility.listrecursive_DetFacility(i, space+'.')
-            else:
-                'No more daughters'
-
-
-
-class DetFacilityT(DetFacility):
-    """ DetFacility is the entry point for a sub-detector's geometry.
-
-        Sets up the geometry of the sub-detector envelope and its contains.
-       The available types are:
-        - Atlas envelopes: AtlasDetector, BeamPipe, InnerDetector
-                           Calorimeter, Muon, MuonSystemEntryLayer
-        - Generic (resizable) envelopes: ResizeableBox, ResizeableTubs,
-                                         GenericPCON, GenericPGON
-        - GeoDetectors from the GeoModel interface.
-        - Other detector descriptions loading the appropiate library
-
-       DetFacility can be positioned within other DetFacilities, moved,
-       rotated... And they must be added to the simulation engine:
-         G4AtlasEngine.add_DetFacility(self, det_obj, det_obj_father)
-    """
-
-    def __init__(self, type_name, name):
-        self.Description = 'This is a detector facility of type "%s"; more information from the user follows here:\n' % type_name
-        self.Dict_DetFacility = dict()
-        self.Dict_Regions = dict()
-        self.Dict_SenDetector = dict()
-        self.Father = ''
-        self._Built = False
-        self._BuiltAssoc = False
-        self.Name = name
-        self.Type = type_name
-
-
-    #@classmethod
-    def _build(self):
-        self.df = G4AtlasEngine._ctrl.geometryMenu.GetDetectorFacility(self.Type, self.Name)
-        self._Built = True
-        G4AtlasEngine.log.debug('DetFacilityT: _build: init geometry of the DetFacility')
 
 
 
@@ -1564,7 +1034,6 @@ class MagneticField:
 
         self._Built = True
         G4AtlasEngine._app_profiler('  _build: MagneticField ' + self.Name)
-
 
 
 
@@ -1760,216 +1229,10 @@ class RecEnvelope:
         if not self._Built:
            for i in self.Dict_Volumes.keys():
                G4AtlasEngine._ctrl.mctruthMenu.addRecordingEnvelope(i, self.Dict_Volumes.get(i), self.Name)
-               #Temporary protection to avoid branching for MC12
-               if hasattr(G4AtlasEngine._ctrl.sendetectorMenu, 'setAllowMods'):
-                   G4AtlasEngine._ctrl.sendetectorMenu.setAllowMods(self.Name,self._AllowMods)
-
                G4AtlasEngine.log.debug(' RecEnvelope:'+
                                              '_construct: '+self.Name+' and store at the exit of volume  '+i)
            self._Built = True
            G4AtlasEngine._app_profiler('  _build RecEnvelope: '+self.Name)
-
-
-
-class SenDetector:
-    """ Sensitive detector.
-
-       A sensitive detector object when assigned to a volume, makes it
-       sensitive, the simulation hits are created. Sensitive detectors
-       can be built directly using a given method in the DetFacility
-       object.
-    """
-
-    def __init__(self, lib, sdname, name, volume='', allowMods=False):
-        """   The initial list of volumes in which the SD will be
-            applied can be empty, but later it has to be populated
-            with the add_Volume method.
-        """
-        self._Built = False
-        self.Name = name
-        self.Library = lib
-        self.List_Volumes = list()
-        if volume:
-            self.List_Volumes.append(volume)
-        self.SenDetectorFacility = sdname
-        self.AllowMods = allowMods
-
-
-    def add_Volume(self, vol):
-        """ Adds more volumes to the List_Volumes in which the
-           SenDetector will be applied.
-        """
-        self.List_Volumes.append(vol)
-
-
-    def _build(self):
-        if self.Library not in G4AtlasEngine.List_LoadedLib:
-            G4AtlasEngine.load_Lib(self.Library)
-        #Temporary protection to avoid branching for MC12
-        try:
-            G4AtlasEngine._ctrl.sendetectorMenu.useSensitiveDetector(self.SenDetectorFacility, self.Name,
-                                                                     self.AllowMods)
-        except TypeError:
-            G4AtlasEngine._ctrl.sendetectorMenu.useSensitiveDetector(self.SenDetectorFacility, self.Name)
-        for v_n in self.List_Volumes:
-            G4AtlasEngine._ctrl.geometryMenu.AssignSD(v_n, self.Name)
-            G4AtlasEngine.log.debug('SenDetector:_build: %s associated to the volume %s' % (self.Name, v_n))
-        self._Built=True
-        G4AtlasEngine._app_profiler('_build SenDetector: %s' % self.Name)
-        if (len(self.List_Volumes)==0):
-            G4AtlasEngine.log.warning(' SenDetector:_build: %s is not associated to any volume' % self.Name)
-
-
-
-class PhysicsList:
-    """ Geant4 physics lists.
-
-       Constructs any of the physics lists provided by Geant4. The
-       customization is possible in terms of general cuts for the
-       whole detector and defining "cut in range" if it is needed
-       for a particular sub-detector/region (see PhysicsReg).
-
-       The physics list is constructed when it is added to the
-       simulation engine G4AtlasEngine.
-    """
-
-    def __init__(self, PhysicsListName, GeneralCut):
-        """ The PhysicsListName availables can be found in the
-            menu_Physics at the simulation engine.
-
-            The general cut is expressed in mm.
-        """
-        self._Built = False
-        self.Name = PhysicsListName
-        self.Value_gen_cut = GeneralCut
-
-
-    # TODO: Where is this called?!
-    def _construct(self):
-        if "G4PhysicsLists" not in G4AtlasEngine.List_LoadedLib:
-            G4AtlasEngine._ctrl.load("G4PhysicsLists")
-            G4AtlasEngine.List_LoadedLib.append("G4PhysicsLists")
-        G4AtlasEngine._ctrl.physicsMenu.UsePhysicsList(self.Name)
-        G4AtlasEngine._ctrl.physicsMenu.SetGeneralCut(self.Value_gen_cut)
-        if not self._Built:
-            G4AtlasEngine._ctrl.physicsMenu.ConstructPhysicsList()
-            G4AtlasEngine.log.debug('PhysicsList:_construct: %s with a general cut of %e mm' % (self.Name, self.Value_gen_cut))
-            self._Built = True
-
-
-
-class PhysicsReg:
-    """
-    Physics regions.
-
-    Provides the possibility of setting cuts in energy on a volume
-    base and depending on the type of particle. The physics regions
-    are identified by name and they have a dictionary with the
-    cuts and a list with all the volumes in which they area applied.
-
-    Attributes:
-      .Dict_Cuts
-      .Name
-      .List_Volumes
-
-    The physics regions are attached to the DetFacility objects.
-    """
-
-    def __init__(self, nameRegion):
-        self._Built = False
-        self.Dict_Cuts = dict()
-        self.Name = nameRegion
-        self.List_Volumes = list()
-
-
-    def _construct_Region(self):
-        """This is an internal function and in any case must be
-           call after the construction of the Physics and after
-           G4AtlasEngine.init_G4()
-        """
-        self._pr = G4AtlasEngine._ctrl.physicsMenu.CreateNewRegion(self.Name)
-        for i in self.Dict_Cuts.keys():
-            self._pr.setCut(self.Dict_Cuts.get(i), i)
-            G4AtlasEngine.log.debug(' PhysicsReg:' +
-                                    '_construct_Region: %s' % self.Name +
-                                    ' with cut %s=%s ' % (i, str(self.Dict_Cuts.get(i))) )
-        for i in self.List_Volumes:
-            G4AtlasEngine.log.debug(' PhysicsReg:' +
-                                    '_construct_Region: %s and added volume %s' % (self.Name, i))
-            self._pr.addVolume(i)
-        self._Built = True
-        G4AtlasEngine._app_profiler('_construct_Region: %s' % self.Name)
-
-
-    def add_Cuts(self, name_particle, cut_value):
-        """
-        Adds cuts for different particles.
-
-        Cuts are stored in .Dict_Cuts
-        """
-        if name_particle not in self.Dict_Cuts:
-            self.Dict_Cuts[name_particle] = cut_value
-        else:
-            G4AtlasEngine.log.warning('PhysicsReg:add_Cuts: Cut value for %s redefined to %s' % (name_particle, str(cut_value)))
-
-
-    def add_Volumes(self, name_vol):
-        """
-        Adds volumes to the region.
-
-        Volumes are stored in List_Volumes.
-        """
-        if name_vol not in self.List_Volumes:
-            self.List_Volumes.append(name_vol)
-        else:
-            G4AtlasEngine.log.warning('PhysicsReg:add_Volumes: ' +
-                                      'The region %s already exists.' % name_vol)
-
-
-
-
-class UserAction:
-    """
-    UserActions.
-
-    Gives to the user the possibility of interact with the simulation
-    at the beginning and the end of a run, at the beginning and the end
-    of each event, and/or at every step.
-    """
-
-    def __init__(self, userActionLib, actionName, listStatus):
-        """
-        An UserAction must be instantiated with the name of the
-        library (userActionLib) that contains the action (actionName)
-        and a list of simulation states to apply it (BeginOfRun,
-        EndOfRun, BeginOfEvent, EndOfEvent, Step)
-
-        To activate an UserAction, it must be added to the simulation
-        engine G4AtlasEngine.
-        """
-        self._Built = False
-        self.Lib = userActionLib
-        self.Name = actionName
-        self.ListStatus = listStatus
-        self.Properties = dict()
-
-
-    def set_Properties(self, propDict):
-        self.Properties = propDict
-
-
-    def _construct(self):
-        if self.Lib not in G4AtlasEngine.List_LoadedLib:
-            G4AtlasEngine._ctrl.load(self.Lib)
-            G4AtlasEngine.List_LoadedLib.append(self.Lib)
-        for i in self.ListStatus:
-            G4AtlasEngine._ctrl.actMenu.actionRegister(self.Name,i)
-            G4AtlasEngine.log.debug('UserAction: constructing user action %s and applying it to: %s' % (self.Name, i))
-        for k in self.Properties.keys():
-            G4AtlasEngine._ctrl.actMenu.actionProperty(self.Name, k, self.Properties[k])
-        self._Built = True
-        G4AtlasEngine._app_profiler('_construct UserAction: %s' % self.Name)
-
 
 
 
@@ -2022,8 +1285,13 @@ class SimSkeleton(object):
         from AthenaCommon.DetFlags import DetFlags
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
+
+        ## Not yet understood, but need to treat StreamHITS as alg in Hive.
+        ## Seems to also work fine outside of Hive, but to be extra safe I'm
+        ## only changing it in Hive.
+        as_alg = is_hive
         ## NB. Two-arg constructor is needed, since otherwise metadata writing fails!
-        stream1 = AthenaPoolOutputStream("StreamHITS", athenaCommonFlags.PoolHitsOutput())
+        stream1 = AthenaPoolOutputStream("StreamHITS", athenaCommonFlags.PoolHitsOutput(), asAlg=as_alg)
 
         ## Write geometry tag info - move to main method
         #import EventInfoMgt.EventInfoMgtInit
@@ -2033,6 +1301,10 @@ class SimSkeleton(object):
         stream1.ItemList = ["EventInfo#*",
                             "McEventCollection#TruthEvent",
                             "JetCollection#*"]
+
+        ## If we are running quasi-stable particle simulation, include the original event record
+        if hasattr(simFlags,'IncludeParentsInG4Event') and simFlags.IncludeParentsInG4Event.statusOn and simFlags.IncludeParentsInG4Event():
+            stream1.ItemList += ["McEventCollection#GEN_EVENT"]
 
         from PyJobTransforms.trfUtils import releaseIsOlderThan
         if releaseIsOlderThan(20,0):
@@ -2059,7 +1331,7 @@ class SimSkeleton(object):
             stream1.ItemList += ["CaloCalibrationHitContainer#*",
                                  "LArHitContainer#*",
                                  "TileHitVector#*",
-                                 "SimpleScintillatorHitCollection#*",
+                                 #"SimpleScintillatorHitCollection#*",
                                  "TrackRecordCollection#MuonEntryLayer"]
         ## Muon
         if DetFlags.Muon_on():
@@ -2096,7 +1368,7 @@ class SimSkeleton(object):
                 stream1.ItemList += ["AFP_TDSimHitCollection#*","AFP_SIDSimHitCollection#*"]
 
         ## Ancillary scintillators
-        stream1.ItemList += ["ScintillatorHitCollection#*"]
+        #stream1.ItemList += ["ScintillatorHitCollection#*"]
 
         ## TimingAlg
         stream1.ItemList +=["RecoTimingObj#EVNTtoHITS_timings"]
@@ -2351,14 +1623,20 @@ class SimSkeleton(object):
         from G4AtlasApps.SimFlags import simFlags
         sLayout = simFlags.SimLayout()
         if "ATLAS" in sLayout:
-            job.G4AtlasAlg.KillAllNeutrinos = True
+            from AthenaCommon import CfgGetter
+            #FIXME move to CfgGetter method
+            CfgGetter.getPublicTool('AthenaStackingAction',tryDefaultConfigurable=True).KillAllNeutrinos = True
 
         if hasattr(simFlags, 'ReleaseGeoModel') and simFlags.ReleaseGeoModel.statusOn:
             ## Save the fast simulation
             job.G4AtlasAlg.ReleaseGeoModel = simFlags.ReleaseGeoModel.get_Value()
 
+        if hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn:
+            ## Record the particle flux during the simulation
+            job.G4AtlasAlg.RecordFlux = simFlags.RecordFlux.get_Value()
+
         if hasattr(simFlags, 'IncludeParentsInG4Event') and simFlags.IncludeParentsInG4Event.statusOn:
-            ## Save the fast simulation
+            ## Propagate quasi-stable particles
             job.G4AtlasAlg.IncludeParentsInG4Event = simFlags.IncludeParentsInG4Event.get_Value()
 
         if hasattr(simFlags, 'KillAbortedEvents') and simFlags.KillAbortedEvents.statusOn:
@@ -2418,13 +1696,6 @@ class SimSkeleton(object):
 
 
     @classmethod
-    def do_Physics(cls):
-        """ Place to define the Physics list.
-        """
-        G4AtlasEngine.log.info('SimSkeleton.do_Physics :: nothing done')
-
-
-    @classmethod
     def do_UserActions(cls):
         """ Place to define default user actions.
 
@@ -2433,22 +1704,6 @@ class SimSkeleton(object):
          given simulation entity.
         """
         G4AtlasEngine.log.info('SimSkeleton.do_UserActions :: nothing done')
-
-
-    @classmethod
-    def _do_DefaultUserActions(cls):
-        """
-           Default user actions: G4SimTimer.
-
-           Do not re-write this method. The memory and time
-          checkers must be on always.
-        """
-        import AtlasG4Eng
-        G4AtlasEngine.log.verbose('SimSkeleton._do_DefaultUserActions :: starting')
-        from atlas_utilities import G4SimTimer
-        actions = AtlasG4Eng.G4Eng.menu_UserActions()
-        actions.add_UserAction(G4SimTimer)
-        G4AtlasEngine.log.verbose('SimSkeleton._do_DefaultUserActions :: done')
 
 
     @classmethod
@@ -2472,17 +1727,6 @@ class SimSkeleton(object):
         """
         import AtlasG4Eng
         G4AtlasEngine.log.verbose('SimSkeleton.__checks :: starting')
-        if 'volume_world' not in G4AtlasEngine.Dict:
-             G4AtlasEngine.log.debug('SimSkeleton.__checks :: defined a default world volume 50x50x50 meters')
-             worldvolume = DetFacility("ResizeableBox", "WorldVolume")
-             worldvolume.df.SetDx(50000.)
-             worldvolume.df.SetDy(50000.)
-             worldvolume.df.SetDz(50000.)
-             AtlasG4Eng.G4Eng.add_DetFacility(worldvolume, worldvolume)
-        if 'physics' not in G4AtlasEngine.Dict:
-             G4AtlasEngine.log.debug('SimSkeleton.__checks :: defined the default Physics List: QGSP_BERT ')
-             physics = PhysicsList('QGSP_BERT', 1)
-             AtlasG4Eng.G4Eng.add_PhysicsList(physics)
         G4AtlasEngine.log.verbose('SimSkeleton.__checks :: done')
 
 
@@ -2499,10 +1743,10 @@ class SimSkeleton(object):
         from G4AtlasApps.SimFlags import simFlags
         if simFlags.ISFRun:
           known_methods = ['_do_jobproperties', '_do_external', '_do_metadata',
-                           '_do_MagField', '_do_FieldIntegrationParameters']
+                           '_do_MagField', '_do_FieldIntegrationParameters','do_UserActions']
         else:
           known_methods = ['_do_jobproperties', '_do_external', '_do_metadata',
-                           '_do_readevgen', '_do_persistency', '_do_G4AtlasAlg',
+                           '_do_readevgen', '_do_persistency', '_do_G4AtlasAlg','do_UserActions',
                            '_do_MagField', '_do_FieldIntegrationParameters']
 
         ## Execute the known methods from the known_methods in pre_init
@@ -2525,6 +1769,11 @@ class SimSkeleton(object):
             from AthenaCommon.CfgGetter import getPublicTool
             fastSimulationTool = getPublicTool("FastSimulationMasterTool")
 
+        # Add User actions
+        if not hasattr(ServiceMgr, "UserActionSvc"):
+            from AthenaCommon.CfgGetter import getService
+            userActionSvc = getService("UserActionSvc")
+
         ## Run pre-init callbacks
         G4AtlasEngine.log.debug("G4AtlasEngine:init stage " + "preInit")
         from G4AtlasApps.SimFlags import simFlags
@@ -2543,7 +1792,7 @@ class SimSkeleton(object):
         Do not overload this method.
         """
         G4AtlasEngine.log.verbose('SimSkeleton._do_All :: starting')
-        known_methods = ['do_GeoSD', 'do_MCtruth', 'do_UserActions', 'do_Physics']
+        known_methods = ['do_GeoSD', 'do_MCtruth']
         ## Execute the known methods from the known_methods list
         for k in known_methods:
             try:
@@ -2556,7 +1805,8 @@ class SimSkeleton(object):
                 raise RuntimeError('SimSkeleton: found problems with the method  %s' % k)
         ## Execute the unknown methods created by user
         for i in dir(cls):
-            if i.find('do_') == 0 and i not in known_methods:
+            # user actions need to be called at preinit
+            if i.find('do_') == 0 and i not in known_methods and i!='do_UserActions':
                try:
                    G4AtlasEngine.log.debug('SimSkeleton :: evaluating method %s' % i)
                    getattr(cls, i).__call__()
@@ -2565,32 +1815,38 @@ class SimSkeleton(object):
                    import traceback, sys
                    traceback.print_exc(file=sys.stdout)
                    raise RuntimeError('SimSkeleton: found problems with the method %s' % i)
-        cls._do_DefaultUserActions()
         cls.__checks()
         G4AtlasEngine.log.verbose('SimSkeleton._do_All :: done')
 
 
 
-
-## Python algorithm to set up the Python side of the G4 sim
+## In Hive, cannot yet use a python alg due to python GIL.
+## So, we use a service for now instead.
 from AthenaPython import PyAthena
-class PyG4AtlasAlg(PyAthena.Alg):
+if is_hive:
+    PyG4Atlas_base = PyAthena.Svc
+    PyG4Atlas_name = 'PyG4AtlasSvc'
+else:
+    PyG4Atlas_base = PyAthena.Alg
+    PyG4Atlas_name = 'PyG4AtlasAlg'
+## Python algorithm to set up the Python side of the G4 sim
+## For now, the type of this component depends on the environment.
+class _PyG4AtlasComp(PyG4Atlas_base):
     """
-    Python algorithm which runs the ATLAS simulation.
+    PyAthena class which runs the ATLAS simulation.
     """
 
-    def __init__(self, name="PyG4AtlasAlg", sim_module=None):
+    def __init__(self, name=PyG4Atlas_name, sim_module=None):
         """
-        name                  --> must be 'PyG4AtlasAlg'
+        name                  --> must be 'PyG4AtlasAlg' (non-hive) or 'PyG4AtlasSvc' (hive)
         sim_module            --> name of a Python module which describes the simulation
 
         NB. If sim_module is an empty string or None, the sim skeleton contained
         in G4AtlasEng.G4Eng.Dict() will be run.
         """
-        super(PyG4AtlasAlg, self).__init__(name=name)
-        self.doFirstEventG4SeedsCheck = True
+        super(_PyG4AtlasComp, self).__init__(name=name)
+        self.doFirstEventG4SeedsCheck = True #FIXME - remove for G4Hive?
         self.sim_module = sim_module
-        self.RndG4Menu = None
 
         ## If the random number service hasn't been set up already, do it now.
         from G4AtlasApps.SimFlags import simFlags
@@ -2615,7 +1871,7 @@ class PyG4AtlasAlg(PyAthena.Alg):
             AtlasG4Eng.G4Eng.log.info('Configuring CTB H8 (2004) test beam')
             dummy = CtbSim()
         elif "simu_skeleton" not in AtlasG4Eng.G4Eng.Dict:
-            AtlasG4Eng.G4Eng.log.error('No sim skeleton registered by time of PyG4AtlasAlg construction: STOP!!')
+            AtlasG4Eng.G4Eng.log.error('No sim skeleton registered by time of %s construction: STOP!!' % self.name())
             raise ValueError('Unknown sim setup: STOP')
 
         ## Import sim module if requested
@@ -2626,7 +1882,7 @@ class PyG4AtlasAlg(PyAthena.Alg):
                 __import__(self.sim_module, globals(), locals())
             except:
                 G4AtlasEngine.log.fatal("The kernel simulation Python module '%s' was not found!" % self.sim_module)
-                raise RuntimeError('PyG4Atlas: PyG4AtlasAlg: initialize()')
+                raise RuntimeError('PyG4Atlas: %s: initialize()' % self.name())
 
         ## Call the sim skeleton pre-init method
         AtlasG4Eng.G4Eng.Dict['simu_skeleton']._do_PreInit()
@@ -2639,8 +1895,8 @@ class PyG4AtlasAlg(PyAthena.Alg):
         import AtlasG4Eng
         from time import gmtime, strftime
         timestr = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
-        G4AtlasEngine.log.info('PyG4AtlasAlg starting at (UTC): %s' % timestr)
-        AtlasG4Eng.G4Eng._app_profiler('PyG4AtlasAlg begin of initialize')
+        G4AtlasEngine.log.info('%s starting at (UTC): %s' % (self.name(), timestr))
+        AtlasG4Eng.G4Eng._app_profiler('%s begin of initialize' % self.name())
         AtlasG4Eng.G4Eng.Dict['simu_skeleton']._do_All()
         AtlasG4Eng.G4Eng._init_Simulation()
 
@@ -2653,35 +1909,26 @@ class PyG4AtlasAlg(PyAthena.Alg):
           AtlasG4Eng.G4Eng._ctrl.G4Command("/run/initialize")
           #AtlasG4Eng.G4Eng.gbl.G4Commands().tracking.verbose(1)
 
-        AtlasG4Eng.G4Eng._app_profiler('PyG4AtlasAlg end of initialize')
-        self.RndG4Menu = AtlasG4Eng.G4Eng.menu_G4RandomNrMenu()
+        AtlasG4Eng.G4Eng._app_profiler('%s end of initialize' % self.name())
         if "atlas_flags" in simFlags.extra_flags:
-            beamcondsvc = PyAthena.py_svc('BeamCondSvc/BeamCondSvc', createIf=True, iface=PyCintex.gbl.IBeamCondSvc)
-            assert(type(beamcondsvc) ==  PyCintex.gbl.IBeamCondSvc)
+            beamcondsvc = PyAthena.py_svc('BeamCondSvc/BeamCondSvc', createIf=True, iface=cppyy.gbl.IBeamCondSvc)
+            assert(type(beamcondsvc) ==  cppyy.gbl.IBeamCondSvc)
+
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         if athenaCommonFlags.EvtMax.statusOn and theApp.EvtMax == -1:
             theApp.EvtMax = athenaCommonFlags.EvtMax()
         return True
 
 
-    def execute(self):
-        import PyG4Atlas, AtlasG4Eng
-        from G4AtlasApps.SimFlags import simFlags
-
-        if self.doFirstEventG4SeedsCheck :
-            if simFlags.SeedsG4.statusOn:
-                rnd = AtlasG4Eng.G4Eng.menu_G4RandomNrMenu()
-                rnd.set_Seed(simFlags.SeedsG4.get_Value())
-                self.doFirstEventG4SeedsCheck = False
-                if self.RndG4Menu.SaveStatus:
-                    self.RndG4Menu.Menu.saveStatus('G4Seeds.txt')
-        return True
-
-
     def finalize(self):
         import AtlasG4Eng
-        AtlasG4Eng.G4Eng._app_profiler('PyG4AtlasAlg at finalize  ')
+        AtlasG4Eng.G4Eng._app_profiler('%s at finalize  ' % self.name())
         from time import gmtime, strftime
         timestr = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
-        G4AtlasEngine.log.info('PyG4AtlasAlg ending at (UTC): %s' % timestr)
+        G4AtlasEngine.log.info('%s ending at (UTC): %s'  % (self.name(), timestr))
         return True
+
+if is_hive:
+    PyG4AtlasSvc = _PyG4AtlasComp
+else:
+    PyG4AtlasAlg = _PyG4AtlasComp
