@@ -4,17 +4,19 @@ author Igor Gavrilenko <Igor.Gavrilenko@cern.ch>
 
 private
 
-use TrkSegment                   TrkSegment-*             Tracking/TrkEvent
-use TrkCaloClusterROI            TrkCaloClusterROI-*       Tracking/TrkEvent
-use InDetReadoutGeometry         InDetReadoutGeometry-*   InnerDetector/InDetDetDescr
 
+use InDetReadoutGeometry         InDetReadoutGeometry-*   InnerDetector/InDetDetDescr
+use CxxUtils           CxxUtils-*               Control
 
 public 
-
+use TrkSegment                   TrkSegment-*             Tracking/TrkEvent
+use TrkCaloClusterROI            TrkCaloClusterROI-*       Tracking/TrkEvent
 use AtlasPolicy                  AtlasPolicy-*
 use GaudiInterface               GaudiInterface-*         External 
 use AthenaBaseComps              AthenaBaseComps-*        Control
 use InDetRecToolInterfaces       InDetRecToolInterfaces-* InnerDetector/InDetRecTools
+use StoreGate		    StoreGate-*               Control
+
 
 library TRT_TrackSegmentsFinder *.cxx components/*.cxx
 apply_pattern component_library
