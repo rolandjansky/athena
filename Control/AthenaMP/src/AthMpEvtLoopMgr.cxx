@@ -6,11 +6,11 @@
 
 #include "AthenaMPTools/IAthenaMPTool.h"
 #include "AthenaInterprocess/SharedQueue.h"
+#include "AthenaInterprocess/Utilities.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "PersistentDataModel/Guid.h"
 
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -131,10 +131,8 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 
   // Generate random component of the Shared Memory and Shared Queue names
   srand(time(NULL));
-  Guid uuid;
-  Guid::create(uuid);
   std::ostringstream randStream;
-  randStream << getpid() << '_' << uuid.toString();
+  randStream << getpid() << '_' << AthenaInterprocess::randString();
   ATH_MSG_INFO("Using random components for IPC object names: " << randStream.str());
 
   ServiceHandle<StoreGateSvc> pDetStore("DetectorStore",name());

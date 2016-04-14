@@ -16,7 +16,6 @@ use AthenaMPTools       AthenaMPTools-*         Control
 use AthenaInterprocess  AthenaInterprocess-*    Control
 use AthenaBaseComps     AthenaBaseComps-*       Control
 use StoreGate           StoreGate-*             Control
-use PersistentDataModel PersistentDataModel-*   Database
 
 branches src src/components doc python share
 

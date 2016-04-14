@@ -52,10 +52,10 @@ int ReadSmaps(pid_t mother_pid, unsigned long values[4], bool verbose){
           openFails.push_back(std::string(smaps_buffer));} 
         else { 
           while(fgets(buffer,256,file)) {
-            if(sscanf(buffer,"Size: %ld kB",&tsize)==1) values[0]+=tsize;
-            if(sscanf(buffer,"Pss: %ld kB", &tpss)==1)  values[1]+=tpss;
-            if(sscanf(buffer,"Rss: %ld kB", &trss)==1)  values[2]+=trss;
-            if(sscanf(buffer,"Swap: %ld kB",&tswap)==1) values[3]+=tswap; } 
+            if(sscanf(buffer,"Size: %80ld kB",&tsize)==1) values[0]+=tsize;
+            if(sscanf(buffer,"Pss: %80ld kB", &tpss)==1)  values[1]+=tpss;
+            if(sscanf(buffer,"Rss: %80ld kB", &trss)==1)  values[2]+=trss;
+            if(sscanf(buffer,"Swap: %80ld kB",&tswap)==1) values[3]+=tswap; } 
           fclose(file);} } 
        if(openFails.size()>3 && verbose) {
          std::cerr << "MemoryMonitor: too many failures in opening smaps files!" << std::endl;
@@ -106,6 +106,7 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
      // Monitoring loop until process exits
      while(kill(mpid, 0) == 0 && sigusr1 == false){
 
+        bool wroteFile = false;
         if (time(0) - lastIteration > interval){         
  
           iteration = iteration + 1;
@@ -138,10 +139,16 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
           file2.open(tmpFile.str());
           file2 << buffer.GetString() << std::endl;
           file2.close();
+          wroteFile = true;
        }
   
        // Move temporary file to new file
-       rename(tmpFile.str().c_str(), newFile.str().c_str());
+       if (wroteFile) {
+         if (rename(tmpFile.str().c_str(), newFile.str().c_str()) != 0) {
+           perror ("rename fails");
+           std::cerr << tmpFile.str() << " " << newFile.str() << "\n";
+         }
+       }
        
        std::unique_lock<std::mutex> lock(cv_m); 
        cv.wait_for(lock, std::chrono::seconds(1));     
@@ -149,7 +156,8 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
    file.close();
 
    // Cleanup
-   remove(newFile.str().c_str());
+   if (remove(newFile.str().c_str()) != 0)
+     perror ("remove fails");
 
    // Write final JSON summary file
    file.open(jsonSummary);
@@ -171,10 +179,16 @@ int main(int argc, char *argv[]){
       if (strcmp(argv[i], "--pid") == 0) pid = atoi(argv[i+1]); 
       else if (strcmp(argv[i],"--filename") == 0) filename = argv[i+1];
       else if (strcmp(argv[i],"--json-summary") == 0) jsonSummary = argv[i+1];
-      else if (strcmp(argv[i], "--interval") == 0) interval = atoi(argv[i+1]);}
+      else if (strcmp(argv[i], "--interval") == 0) interval = atoi(argv[i+1]);
+    }
 
     if (pid < 2) {
       std::cerr << "Bad PID.\n";
+      return 1;
+    }
+
+    if (!jsonSummary) {
+      std::cerr << "--json-summary switch missing.\n";
       return 1;
     }
 

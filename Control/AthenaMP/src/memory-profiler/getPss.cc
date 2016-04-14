@@ -70,10 +70,10 @@ namespace athenaMP_MemHelper
 	openFails.push_back(std::string(smaps_buffer));
       } else {
 	while(fgets(buffer,256,file)) {
-	  if(sscanf(buffer,"Size: %ld kB",&tsize)==1) size+=tsize;
-	  if(sscanf(buffer,"Pss: %ld kB", &tpss)==1)  pss+=tpss;
-	  if(sscanf(buffer,"Rss: %ld kB", &trss)==1)  rss+=trss;
-	  if(sscanf(buffer,"Swap: %ld kB",&tswap)==1) swap+=tswap;
+	  if(sscanf(buffer,"Size: %80ld kB",&tsize)==1) size+=tsize;
+	  if(sscanf(buffer,"Pss: %80ld kB", &tpss)==1)  pss+=tpss;
+	  if(sscanf(buffer,"Rss: %80ld kB", &trss)==1)  rss+=trss;
+	  if(sscanf(buffer,"Swap: %80ld kB",&tswap)==1) swap+=tswap;
 	}
 	fclose(file);
       } // if(file==0)

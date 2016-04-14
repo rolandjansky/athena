@@ -80,9 +80,9 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
                 self.Tools += [ SharedEvtQueueConsumer(UseSharedReader=False,
                                                        IsPileup=pileup,
                                                        IsRoundRobin=(strategy=='RoundRobin'),
+                                                       EventsBeforeFork=events_before_fork,
                                                        ReadEventOrders=jp.AthenaMPFlags.ReadEventOrders(),
                                                        EventOrdersFile=jp.AthenaMPFlags.EventOrdersFile(),
-                                                       EventsBeforeFork=events_before_fork,
                                                        Debug=debug_worker)   ]
 
             # Enable seeking
@@ -100,7 +100,8 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
             shm_name = "EvtSelSM_" + str(os.getpid())
             svcMgr.EventSelector.SharedMemoryTool = AthenaSharedMemoryTool("EventStreamingTool")
             if sys.modules.has_key('AthenaPoolCnvSvc.ReadAthenaPool'):
-                svcMgr.AthenaPoolCnvSvc.DataStreamingTool = AthenaSharedMemoryTool("DataStreamingTool")
+                svcMgr.AthenaPoolCnvSvc.InputStreamingTool = AthenaSharedMemoryTool("InputStreamingTool")
+                #svcMgr.AthenaPoolCnvSvc.OutputStreamingTool = AthenaSharedMemoryTool("OutputStreamingTool")
 
             from AthenaMPTools.AthenaMPToolsConf import SharedReaderTool
             self.Tools += [ SharedReaderTool() ]
@@ -115,8 +116,8 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
                                                    EventsBeforeFork=0) ]
 
         elif strategy=='EventService':
-            channelScatterer2Processor = "AthenaMP_Scatterer2Processor_" + str(os.getpid())
-            channelProcessor2EvtSel = "AthenaMP_Processor2EvtSel_" + str(os.getpid())
+            channelScatterer2Processor = "AthenaMP_Scatterer2Processor"
+            channelProcessor2EvtSel = "AthenaMP_Processor2EvtSel"
             use_token_extractor = jp.AthenaMPFlags.UseTokenExtractor()
 
             if use_token_extractor:

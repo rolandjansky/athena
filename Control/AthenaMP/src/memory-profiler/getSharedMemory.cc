@@ -55,7 +55,7 @@ main(int argc, char *argv[])
   
   if(verbose)
     std::cout << "name argument = " << argv[optind] << "\n";
-  if( ! sscanf(argv[optind],"%ld",&mpid) || mpid < 2 )
+  if( ! sscanf(argv[optind],"%80ld",&mpid) || mpid < 2 )
     {
       std::cerr << "Invalid <pid>\n";
       usage(-1);
