@@ -86,7 +86,6 @@ StatusCode RunEventMetaWriter::execute()
 
 StatusCode RunEventMetaWriter::start() 
 {
-  StatusCode sc = StatusCode::SUCCESS;
   std::string attribName;
 
   MsgStream log(messageService(), name());
@@ -130,18 +129,9 @@ StatusCode RunEventMetaWriter::start()
   log << MSG::DEBUG << "Finished adding Run,Event data to AthenaAttributeList."
       << endreq;
 
-  StoreGateSvc* m_detStore;
-  sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure())
-  {
-     log << MSG::ERROR << "Unable to get pointer to DetectorStore."
-         << endreq;
-     return sc;
-  }
-
-  if ( !m_detStore->contains<AthenaAttributeList>("RunEventTag") ) {
-     sc = m_detStore->record(attribList, "RunEventTag");
-     log << MSG::DEBUG << m_detStore->dump() << endreq;
+  if ( !detStore()->contains<AthenaAttributeList>("RunEventTag") ) {
+     StatusCode sc = detStore()->record(attribList, "RunEventTag");
+     log << MSG::DEBUG << detStore()->dump() << endreq;
      if (sc.isFailure())
      {
         log << MSG::ERROR << "Could not record AthenaAttributeList object in DetectorStore."

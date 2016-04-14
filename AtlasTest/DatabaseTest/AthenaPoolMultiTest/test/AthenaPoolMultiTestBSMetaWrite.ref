@@ -1,13 +1,15 @@
 AthAlgSeq            INFO Member list: RunEventMetaWriter, StoreDump
 DecisionSvc          INFO Inserting stream: StreamBSFileOutput with no Algs
-ByteStreamEvent...   INFO Initializing ByteStreamEventStorageOutputSvc - package version ByteStreamCnvSvc-01-34-06
+ByteStreamEvent...   INFO Initializing ByteStreamEventStorageOutputSvc - package version ByteStreamCnvSvc-01-34-37
+ByteStreamEvent...   INFO eformat version to use: "current"
+ByteStreamEvent...   INFO event storage (BS) version to use: "current"
 ByteStreamEvent...   INFO Reinitialization...
 StreamBSFileOutput   INFO Found HelperTools = PrivateToolHandleArray([])
 StreamBSFileOutput   INFO Data output: ByteStreamEventStorageOutputSvc
 StreamBSFileOutput   INFO I/O reinitialization...
- flags: (  valid, UNLOCKED,  reset) --- data:  0x6c86af0 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xfc06f80 --- key: RunEventTag
 StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid, UNLOCKED,  reset) --- data:  0x6c86af0 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xfc06f80 --- key: RunEventTag
 StoreDump            INFO AttributeList has size 2
 ByteStreamAttLi...   INFO ByteStreamAttListMetadataSvc::toBSMetadata
 ByteStreamAttLi...   INFO Found RunEventTag in DetectorStore
@@ -16,8 +18,8 @@ ByteStreamAttLi...   INFO About to push back RunNumber, 88
 ByteStreamAttLi...  DEBUG  name EventNumber type unsigned int value 99
 ByteStreamAttLi...   INFO About to push back EventNumber, 99
 StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid, UNLOCKED,  reset) --- data:  0x6c86af0 --- key: RunEventTag
- flags: (  valid, UNLOCKED,  reset) --- data:  0x7903e50 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xfc06f80 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xfc077f0 --- key: RunEventTag
 StoreDump            INFO AttributeList has size 2
 ByteStreamEvent...   INFO number of events written: 2
 DecisionSvc          INFO List of registered 1 Streams: StreamBSFileOutput 
