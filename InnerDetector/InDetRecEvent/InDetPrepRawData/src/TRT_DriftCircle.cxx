@@ -34,6 +34,37 @@ TRT_DriftCircle::TRT_DriftCircle(
 {
 }
 
+TRT_DriftCircle::TRT_DriftCircle( 
+	const Identifier &Id, 
+	const Amg::Vector2D& driftRadius,
+	const Amg::MatrixX* errDriftRadius,
+	const InDetDD::TRT_BaseElement* detEl,
+        const unsigned int word
+	)
+	:
+	PrepRawData(Id, driftRadius, errDriftRadius), //call base class constructor
+	m_detEl(detEl),
+        m_word(word)
+{
+}
+
+TRT_DriftCircle::TRT_DriftCircle( 
+	const Identifier &Id, 
+	const Amg::Vector2D& driftRadius,
+	std::vector<Identifier>&& rdoList,
+	std::unique_ptr<const Amg::MatrixX> errDriftRadius,
+	const InDetDD::TRT_BaseElement* detEl,
+        const unsigned int word
+	)
+	:
+	PrepRawData(Id, driftRadius,
+                    std::move(rdoList),
+                    std::move(errDriftRadius)), //call base class constructor
+	m_detEl(detEl),
+        m_word(word)
+{
+}
+
 // Destructor:
 TRT_DriftCircle::~TRT_DriftCircle()
 {
@@ -77,9 +108,12 @@ double TRT_DriftCircle::driftTime(bool& valid) const
 //assignment operator
 TRT_DriftCircle& TRT_DriftCircle::operator=(const TRT_DriftCircle& RIO)
 {
-	if (&RIO !=this) m_word = RIO.m_word;
+  if (&RIO !=this) {
+    m_word = RIO.m_word;
+    *static_cast<Trk::PrepRawData*>(this) = RIO;
+  }
 	
-	return *this;
+  return *this;
 }
 
 

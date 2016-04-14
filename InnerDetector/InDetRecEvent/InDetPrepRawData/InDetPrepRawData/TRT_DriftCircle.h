@@ -21,6 +21,7 @@
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
 
 class TRT_DriftCircleContainerCnv;
+class TRT_DriftCircleContainerCnv_p0;
 class MsgStream;
 
 
@@ -29,6 +30,8 @@ namespace InDet{
 class TRT_DriftCircle :   public Trk::PrepRawData
 {
 	friend class ::TRT_DriftCircleContainerCnv;
+	friend class TRT_DriftCircleContainerCnv_p1;
+	friend class ::TRT_DriftCircleContainerCnv_p0;
 	///////////////////////////////////////////////////////////////////
 	// Public methods:
 	///////////////////////////////////////////////////////////////////
@@ -53,7 +56,23 @@ class TRT_DriftCircle :   public Trk::PrepRawData
 		const InDetDD::TRT_BaseElement* detEl,
                 const unsigned int word=0
 		);
+
+	TRT_DriftCircle( 
+		const Identifier &clusId,
+		const Amg::Vector2D& driftRadius,
+		const Amg::MatrixX* errDriftRadius,
+		const InDetDD::TRT_BaseElement* detEl,
+                const unsigned int word=0
+		);
                 
+        TRT_DriftCircle( 
+                const Identifier &Id, 
+                const Amg::Vector2D& driftRadius,
+		std::vector<Identifier>&& rdoList,
+                std::unique_ptr<const Amg::MatrixX> errDriftRadius,
+                const InDetDD::TRT_BaseElement* detEl,
+                const unsigned int word);
+
 	/** Destructor*/
 	virtual ~TRT_DriftCircle();
 
@@ -81,6 +100,10 @@ class TRT_DriftCircle :   public Trk::PrepRawData
 	/** returns  Time over threshold in ns  */
 	virtual double timeOverThreshold() const ;  
 
+        /** returns number of high bins between LE and TE (these included) */
+	virtual int numberOfHighsBetweenEdges() const;                                             
+        /** returns number of low bins between LE and TE (these included) */
+	virtual int numberOfLowsBetweenEdges() const;                                             
         /** returns the raw driftTime */
         virtual double rawDriftTime() const;
 	
@@ -140,31 +163,91 @@ inline unsigned int TRT_DriftCircle::getWord() const
 inline int TRT_DriftCircle::driftTimeBin() const
 {
   unsigned  mask = 0x02000000;
+  unsigned  m_word_LE = m_word>>6;
+  m_word_LE = m_word_LE<<6;
+ 
+  mask >>=1;
   bool SawZero = false;
   int i;
-  for(i=0;i<24;++i)
-    { if      (  (m_word & mask) && SawZero) break;
-      else if ( !(m_word & mask) ) SawZero = true; 
-      mask>>=1;
-      if(i==7 || i==15) mask>>=1;
-    }
-  if(i==24) i=0;
+  for(i=1;i<18;++i)
+  { 
+    if      (  (m_word_LE & mask) && SawZero) break;
+    else if ( !(m_word_LE & mask) ) SawZero = true; 
+    mask>>=1;
+    if(i==7 || i==15) mask>>=1;
+  }
+  if(i==18) i=0;
   return i;
 }  
 
 inline int TRT_DriftCircle::trailingEdge() const
 {
   unsigned mask = 0x00000001;
-  bool SawZero=false;
+  unsigned mask_word = 0x0001fff0; // 11111111 1 11110000   
+  unsigned mask_last_bit =0x10; //10000
+  
+  unsigned m_word_TE = m_word & mask_word;
+  
+  bool SawZero=true;
+  bool SawZero1=false;
+  bool SawZero2=false;
+  bool SawUnit1=false;
+  int i=0;
+  int j=0;
+  int k=0;
+  
+  if(m_word_TE & mask_last_bit) 
+  {
+  
+	for (j = 0; j < 11; ++j)
+	{
+		mask_last_bit=mask_last_bit<<1;
+		
+		if(j==3) mask_last_bit=mask_last_bit<<1;
+		
+		if ( !(m_word_TE & mask_last_bit) )
+		{
+			SawZero2 = true;
+			break;			
+		}
+	}
+	
+	if(SawZero2 == false) return 19;
 
-  int i;
+	if(SawZero2 == true){
+		for (k = j+1; k < 11; ++k)
+		{
+			mask_last_bit=mask_last_bit<<1;
+
+			if(k==3) mask_last_bit=mask_last_bit<<1;
+
+			if ( m_word_TE & mask_last_bit )
+			{
+				SawUnit1 = true;
+				break;					
+			}
+		} 
+	}
+	
+	if(SawUnit1 == false && SawZero2 == true) return 19;
+	
+  }
+  
+  //+++++++++++++++++++++++++++++++++++++
+  
   for (i = 0; i < 24; ++i)
   {
-    if ( (m_word & mask) && SawZero )
-      break;
-    else if ( !(m_word & mask) )
-      SawZero = true;
-
+  
+	if(!(m_word_TE & mask) && i>3)
+	{
+	  SawZero1 = true;
+	}
+    if(SawZero1){  
+		if ( (m_word_TE & mask) && SawZero )
+			break;
+		else if ( !(m_word_TE & mask) )
+			SawZero = true;
+    }
     mask <<= 1;
     if (i == 7 || i == 15)
       mask <<= 1;
@@ -174,6 +257,7 @@ inline int TRT_DriftCircle::trailingEdge() const
     return i;
 
   return (23 - i);
+
 }
 
 inline bool TRT_DriftCircle::highLevel() const 
@@ -201,12 +285,13 @@ inline double TRT_DriftCircle::timeOverThreshold() const
   int LE = driftTimeBin( );
   int TE = trailingEdge( );
 
-  if ( (24 == LE) || (24 == TE) || (0 == TE) || (23 == LE) )
+  if ( (0 == LE) || (24 == LE) || (24 == TE) || (0 == TE) || (23 == LE) )
   {
     return 0;
   }
 
   double time = (double) (TE - LE + 1) * binWidth;
+
   return time;
 
 }
@@ -230,10 +315,35 @@ inline void TRT_DriftCircle::setDriftTimeValid(bool valid)
   } else {
     m_word &= maskfalse; }
 }
-  
-inline bool TRT_DriftCircle::isNoise() const
+
+inline int TRT_DriftCircle::numberOfHighsBetweenEdges() const
 {
-  if( timeOverThreshold() < 5. || timeOverThreshold() > 60. ) return true;
+  int LE = driftTimeBin( );
+  int TE = trailingEdge( );
+  unsigned  mask = 0x02000000;
+  int nhigh=0;
+  int i;
+  for (i = 0; i < 24; ++i)
+    {
+      if ( (m_word & mask) && i>=LE && i<=TE ) nhigh++;
+      mask >>= 1;
+      if (i == 7 || i == 15) mask >>= 1;
+    }
+  return nhigh;
+}
+
+inline int TRT_DriftCircle::numberOfLowsBetweenEdges() const
+{
+  int LE = driftTimeBin( );
+  int TE = trailingEdge( );
+  return (TE-LE+1-numberOfHighsBetweenEdges());
+}
+
+
+inline bool TRT_DriftCircle::isNoise() const                                                       
+{
+  if( numberOfHighsBetweenEdges()<3 ) return true;
+  if( timeOverThreshold()<7.)         return true;
   return false;
 }
 
