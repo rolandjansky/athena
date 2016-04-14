@@ -42,6 +42,11 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 #--------------------------------------------------------------
 # Load "user algorithm" top algorithms to be run, and the libraries that house them
 
+#from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODReader__EventInfoReaderAlg
+#alg = xAODReader__EventInfoReaderAlg()
+#alg.OutputLevel = DEBUG
+#topSequence += alg
+
 from AthenaPoolMultiTest.AthenaPoolMultiTestConf import *
 #from TagCollectionTest.TagCollectionTestConf import EventTagWriter
 
@@ -74,6 +79,8 @@ Metatool2.Project = "AthenaPoolMultiTest"
 Metatool2.Stream = "BuildInput"
 topSequence+=Metatool2
 
+theApp.CreateSvc += ['xAODMaker::EventFormatSvc']
+
 from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__WriteData
 topSequence += AthPoolEx__WriteData("WriteData")
 
@@ -92,6 +99,7 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 DataStream = AthenaPoolOutputStream( "DataStream" , "AthenaPoolMultiTest_Splittable0.root", True )
 DataStream.ItemList    = exampleItemList  # comes from ExampleStreamConfig
 DataStream.ItemList   += [ "FauxTriggerMap#*" ] # add item not in StreamConfig
+DataStream.MetadataItemList   += exampleMetadataList
 DataStream.AcceptAlgs  = ["PassAllFilter"]
 DataStream.RequireAlgs = ["PassAllFilter"]
 DataStream.VetoAlgs    = ["PassNoneFilter"]

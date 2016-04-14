@@ -12,7 +12,8 @@
  * $Id: EventTagReader.h,v 1.1 2009-02-19 22:04:49 cranshaw Exp $
  */
 
-#include "GaudiKernel/Algorithm.h"
+//#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/AlgFactory.h"
 
 #include <map>
@@ -30,7 +31,7 @@ class StoreGateSvc;
  * events.
  */
 
-class EventTagReader : public Algorithm
+class EventTagReader : public AthAlgorithm
 {
   public:
 

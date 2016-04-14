@@ -34,7 +34,7 @@
 
 RunEventTagWriter::RunEventTagWriter(const std::string& name, 
                                      ISvcLocator* pSvcLocator) 
-    : Algorithm(name, pSvcLocator),
+    : AthAlgorithm(name, pSvcLocator),
       m_storeGateSvc(0),
       m_attribListSpec(0)
 {}
@@ -172,7 +172,7 @@ StatusCode RunEventTagWriter::fillTag(const EventInfo* eInfo, AthenaAttributeLis
   unsigned int runNumber = eInfo->event_ID()->run_number();
   unsigned int eventNumber = eInfo->event_ID()->event_number();
 
-  if (attribList == false)
+  if (!attribList)
   {
     log << MSG::ERROR << "Attribute list object is NULL." << endreq;
     return (StatusCode::FAILURE);
@@ -206,7 +206,7 @@ StatusCode RunEventTagWriter::fillTag(const xAOD::EventInfo* eventInfo, AthenaAt
   unsigned int runNumber = eventInfo->runNumber();
   unsigned int eventNumber = eventInfo->eventNumber();
 
-  if (attribList == false)
+  if (!attribList)
   {
     log << MSG::ERROR << "Attribute list object is NULL." << endreq;
     return (StatusCode::FAILURE);

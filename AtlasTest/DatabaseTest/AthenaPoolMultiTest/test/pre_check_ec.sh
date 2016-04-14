@@ -6,7 +6,7 @@
 # @author Jack Cranshaw (Jack.Cranshaw@cern.ch)
 # $Id: pre_check_ec.sh,v 1.2 2005-01-05 21:13:25 cranshaw Exp $
 ##
- echo "Starting pre_check.sh"
+# echo "Starting pre_check.sh"
 #Cleaning
 #echo "## cleaning"
 test=$1
@@ -28,11 +28,11 @@ cat > PoolFileCatalog.xml <<EOF
 </POOLFILECATALOG>
 EOF
 #
-echo "## setting up environment "
+#echo "## setting up environment "
 # source ../cmt/setup.sh
-echo "## ready to run"
-echo $CMTPATH
-echo $JOBOPTSEARCHPATH
+#echo "## ready to run"
+#echo $CMTPATH
+#echo $JOBOPTSEARCHPATH
 
 # Turn off pool verbose printing
 export POOL_OUTMSG_LEVEL=4

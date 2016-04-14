@@ -34,7 +34,7 @@
 
 TagEventTagWriter::TagEventTagWriter(const std::string& name, 
                                ISvcLocator* pSvcLocator) 
-    : Algorithm(name, pSvcLocator),
+    : AthAlgorithm(name, pSvcLocator),
       m_storeGateSvc(0),
       m_attribListSpec(0),
       m_maxNum(5)
@@ -282,7 +282,7 @@ StatusCode TagEventTagWriter::execute()
     return (StatusCode::FAILURE);
   }
 
-  if (attribList == false)
+  if (!attribList)
   {
     log << MSG::ERROR << "Attribute list object is NULL." << endreq;
     return (StatusCode::FAILURE);

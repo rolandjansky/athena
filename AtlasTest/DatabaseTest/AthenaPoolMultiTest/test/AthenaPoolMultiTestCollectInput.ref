@@ -1,17 +1,36 @@
-AthAlgSeq            INFO Member list: RunEventTagWriter, EventCount, RegistrationStream/RegStream1
+AthAlgSeq            INFO Member list: RunEventTagWriter, xAODMaker::EventInfoCnvAlg, EventCount, RegistrationStream/RegStream1
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query RunNumber != 1000000 && EventNumber > 0
 RootCollection Info Opening Collection File SplittableCollection.root in mode: READ
 RootCollection Info File SplittableCollection.root opened
 EventSelector        INFO Using standard collection ref 
 Domain[ROOT_All] Info                           AthenaPoolMultiTest_Splittable0.root
-RootDatabase.open Success AthenaPoolMultiTest_Splittable0.root File version:53413
+RootDatabase.open Success AthenaPoolMultiTest_Splittable0.root File version:60602
 DecisionSvc          INFO Inserting stream: RegStream1 with no Algs
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 RootCollection Info Closing open collection 'SplittableCollection.root'
 RootCollection Info Opening Collection File SplittableCollection.root in mode: READ
 RootCollection Info File SplittableCollection.root opened
+ flags: (  valid,   locked,  reset) --- data:  0xee3a800 --- key: EventSelector
 RegStream1.Regi...   INFO No Primary Key defined
+ flags: (  valid,   locked,  reset) --- data:  0xee3aa80 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0xee3a940 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0x9fb45a0 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0xee3aad0 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0xee3a990 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0x9fb4500 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0xee3a850 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0xf1d3200 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0xee3a800 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0xee3aa80 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0xee3a940 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0x9fb45a0 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0xee3aad0 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0xee3a990 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0x9fb4500 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0xee3a850 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0xf1d3200 --- key: EventSelector
+ flags: (  valid,   locked,  reset) --- data:  0xee3a800 --- key: EventSelector
 RootCollection Info Closing open collection 'SplittableCollection.root'
 AthenaPoolMultiTest_Splittable0.root Info Database being retired...
 RootCollection Info Opening Collection File NullableCollection.root in mode: READ

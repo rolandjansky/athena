@@ -19,14 +19,13 @@
  * $Id: UserMetadataRestoreExample.h,v 1.1 2009-02-19 22:04:49 cranshaw Exp $
  */
             
-//#include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+//#include "GaudiKernel/Algorithm.h"
  
 class string;
 class ISvcLocator;
      
-//class UserMetadataRestoreExample : public AthAlgorithm 
-class UserMetadataRestoreExample : public Algorithm 
+class UserMetadataRestoreExample : public AthAlgorithm 
 {
 public:
   UserMetadataRestoreExample(const std::string& name, ISvcLocator* pSvcLocator);

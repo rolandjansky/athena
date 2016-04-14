@@ -12,7 +12,8 @@
  * $Id: EventTagWriter.h,v 1.1 2009-02-19 22:04:49 cranshaw Exp $
  */
 
-#include "GaudiKernel/Algorithm.h"
+//#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include <string>
@@ -32,7 +33,7 @@ namespace coral
  * tag collection along with a reference to the event's data header object.
  */
 
-class EventTagWriter : public Algorithm 
+class EventTagWriter : public AthAlgorithm 
 {
   public:
 

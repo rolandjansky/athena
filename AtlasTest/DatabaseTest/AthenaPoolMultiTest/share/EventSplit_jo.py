@@ -154,16 +154,19 @@ theApp.OutStream    = [];
 
 # bit 2
 Stream2.TakeItemsFromInput = True
+#Stream2.MetadataItemList   += exampleMetadataList
 Stream2.ForceRead=TRUE
 Stream2.AcceptAlgs  = ["Splitter2"]
 Stream2.VetoAlgs    = ["Splitter1"]
 # bit 1
 Stream1.TakeItemsFromInput = True
+#Stream1.MetadataItemList   += exampleMetadataList
 Stream1.ForceRead=TRUE
 Stream1.AcceptAlgs = ["Splitter1"]
 # bit 3
 # --- NOTE that this writes to the same file as STream2 ***
 Stream3.TakeItemsFromInput = True
+#Stream3.MetadataItemList   += exampleMetadataList
 Stream3.ForceRead=TRUE
 Stream3.AcceptAlgs = ["Splitter3"]
 Stream3.VetoAlgs   = ["Splitter1"]
@@ -320,6 +323,8 @@ svcMgr.MessageSvc.debugLimit = 5000
 import AthenaCommon.CfgMgr as CfgMgr
 if not hasattr(svcMgr, 'DecisionSvc'): svcMgr += CfgMgr.DecisionSvc()
 svcMgr.DecisionSvc.CalcStats = True
+if not hasattr(svcMgr, 'ItemListSvc'): svcMgr += CfgMgr.ItemListSvc()
+svcMgr.ItemListSvc.OutputLevel = DEBUG
 #svcMgr.DecisionSvc.OutputLevel = VERBOSE
 #--------------------------------------------------------------
 #  To restrict the POOL messages one has to set the POOL_OUTMSG_LEVEL env in advance.

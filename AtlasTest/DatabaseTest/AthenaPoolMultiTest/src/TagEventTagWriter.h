@@ -12,7 +12,8 @@
  * $Id: TagEventTagWriter.h,v 1.1 2009-02-19 22:04:49 cranshaw Exp $
  */
 
-#include "GaudiKernel/Algorithm.h"
+//#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include <string>
@@ -29,7 +30,7 @@ class AthenaAttributeListSpecification;
  * tag collection along with a reference to the event's data header object.
  */
 
-class TagEventTagWriter : public Algorithm 
+class TagEventTagWriter : public AthAlgorithm 
 {
   public:
 

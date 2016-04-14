@@ -127,4 +127,5 @@ WriteData            INFO registered all data
 FullColl.Regist...   INFO Collection Events output: 20
 NullColl.Regist...   INFO Collection Events output: 0
 WriteData            INFO in finalize()
+WriteData           DEBUG Calling destructor
 DecisionSvc          INFO List of registered 3 Streams: DataStream FullColl NullColl 

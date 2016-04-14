@@ -6,18 +6,20 @@ StreamBSFileOutput  DEBUG Trying to add PassNoneFilter of stream StreamBSFileOut
 StreamBSFileOutput  DEBUG End initialize 
 StreamBSFileOutput  DEBUG In initialize
 StreamBSFileOutput  DEBUG Found StoreGateSvc store.
-ByteStreamEvent...   INFO Initializing ByteStreamEventStorageOutputSvc - package version ByteStreamCnvSvc-01-34-06
+ByteStreamEvent...   INFO Initializing ByteStreamEventStorageOutputSvc - package version ByteStreamCnvSvc-01-34-37
+ByteStreamEvent...   INFO eformat version to use: "current"
+ByteStreamEvent...   INFO event storage (BS) version to use: "current"
 ByteStreamEvent...   INFO Reinitialization...
 StreamBSFileOutput   INFO Found HelperTools = PrivateToolHandleArray([])
 StreamBSFileOutput   INFO Data output: ByteStreamEventStorageOutputSvc
 StreamBSFileOutput   INFO I/O reinitialization...
 StreamBSFileOutput  DEBUG End initialize
- flags: (  valid, UNLOCKED,  reset) --- data:  0x72ff890 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xf60c7b0 --- key: RunEventTag
 StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid, UNLOCKED,  reset) --- data:  0x72ff890 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xf60c7b0 --- key: RunEventTag
 StoreDump            INFO AttributeList has size 2
 StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid, UNLOCKED,  reset) --- data:  0x72ff890 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xf60c7b0 --- key: RunEventTag
 StoreDump            INFO AttributeList has size 2
 ByteStreamAttLi...   INFO ByteStreamAttListMetadataSvc::toBSMetadata
 ByteStreamAttLi...   INFO Found RunEventTag in DetectorStore

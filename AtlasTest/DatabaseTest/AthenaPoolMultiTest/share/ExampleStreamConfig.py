@@ -38,6 +38,11 @@ exampleItemList += [ "ExampleHitContainer#*" ]
 exampleItemList += [ "ExampleTrackContainer#*" ]
 #exampleItemList += [ "MyObjContainer#MyObjContainerWriteData" ]
 #print exampleItemList
+exampleMetadataList = []
+exampleMetadataList += ["xAOD::EventFormat#*"]
+exampleMetadataList += ["xAOD::CutBookkeeperContainer#*"]
+exampleMetadataList += ["xAOD::CutBookkeeperAuxContainer#*"]
+exampleMetadataList += ["LumiBlockCollection#*"]
 
 # Define transform of stream
 #   - allows streams to be defined outside, i.e this file adds no output

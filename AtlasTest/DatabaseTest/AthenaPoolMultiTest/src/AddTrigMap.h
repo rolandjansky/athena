@@ -23,13 +23,14 @@
  * $Id: AddTrigMap.h,v 1.1 2009-02-19 22:04:49 cranshaw Exp $
  */
 
-#include "GaudiKernel/Algorithm.h"
+//#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 class string;
 class ISvcLocator;
 class StoreGateSvc;
      
-class AddTrigMap : public Algorithm 
+class AddTrigMap : public AthAlgorithm 
 {
 public:
   AddTrigMap(const std::string& name, ISvcLocator* pSvcLocator);

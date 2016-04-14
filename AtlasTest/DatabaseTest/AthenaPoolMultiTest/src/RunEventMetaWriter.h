@@ -13,7 +13,8 @@
  * $Id: RunEventMetaWriter.h,v 1.1 2009-02-19 22:04:49 cranshaw Exp $ 
  */
 
-#include "GaudiKernel/Algorithm.h"
+//#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include <string>
@@ -34,7 +35,7 @@ namespace coral
  * event metadata.
  */
 
-class RunEventMetaWriter : public Algorithm 
+class RunEventMetaWriter : public AthAlgorithm 
 {
   public:
 
@@ -68,10 +69,6 @@ class RunEventMetaWriter : public Algorithm
     virtual StatusCode finalize();
 
   private:
-
-    /// StoreGate service accessor
-    StoreGateSvc* m_storeGateSvc;
-
     /// Specification of the event tag metadata schema
     coral::AttributeListSpecification* m_attribListSpec;
 };

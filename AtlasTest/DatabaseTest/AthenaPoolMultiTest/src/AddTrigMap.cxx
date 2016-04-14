@@ -25,7 +25,7 @@
     
 AddTrigMap::AddTrigMap(const std::string& name, 
 			ISvcLocator* pSvcLocator) :
-              Algorithm(name, pSvcLocator), m_sGevent(0)
+              AthAlgorithm(name, pSvcLocator), m_sGevent(0)
 {}
 
 AddTrigMap::~AddTrigMap() 
@@ -71,24 +71,21 @@ StatusCode AddTrigMap::execute()
    //
    // Since we have an event, add the dummy trigger object
    // 
-   int m_event = evt->event_ID()->event_number();
-   //  Make event 5 an event with no splitting info
+   int event = evt->event_ID()->event_number();
    FauxTriggerMap* ftm=0;
-   //if (m_event != 5) {
-     ftm = new FauxTriggerMap();
-     // Add some paths
-     ftm->addPath(TrigPath(m_event%3, 2,m_event%6)); // repeats with period 3
-     ftm->addPath(TrigPath(m_event%16,2,m_event%11+(m_event+1)%2)); // repeats with period 16
-     if (m_event==3) {
-       ftm = new FauxTriggerMap();
-       ftm->addPath(TrigPath(8,2,1)); // non normal trigger
-     }
-   //}
+   ftm = new FauxTriggerMap();
+   // Add some paths
+   ftm->addPath(TrigPath(event%3, 2,event%6)); // repeats with period 3
+   ftm->addPath(TrigPath(event%16,2,event%11+(event+1)%2)); // repeats with period 16
+   if (event==3) {
+     delete ftm ; ftm = new FauxTriggerMap();
+     ftm->addPath(TrigPath(8,2,1)); // non normal trigger
+   }
   
    // Extra map for testing exclude list 
    FauxTriggerMap* ftm2 = new FauxTriggerMap();
    // Add some paths
-   ftm2->addPath(TrigPath(m_event%4, 2,m_event%6)); // repeats with period 3
+   ftm2->addPath(TrigPath(event%4, 2,event%6)); // repeats with period 3
    
    std::string keythis = "MultiTestTrigMap";
    if (ftm!=0) {

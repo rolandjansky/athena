@@ -13,12 +13,10 @@ use GaudiInterface        GaudiInterface-*      External
 use StoreGate             StoreGate-*           Control
 use SGTools               SGTools-*             Control
 use AthenaBaseComps       AthenaBaseComps-*     Control
-use AthenaKernel          AthenaKernel-*        Control
 use xAODEventInfo         xAODEventInfo-*       Event/xAOD
 use EventInfo             EventInfo-*       Event
 use ByteStreamData        ByteStreamData-*      Event
 use ByteStreamCnvSvc      ByteStreamCnvSvc-*    Event -no_auto_imports
-use PersistentDataModel   PersistentDataModel-* Database
 use AthenaPoolUtilities   AthenaPoolUtilities-* Database/AthenaPOOL
 use DBDataModel           DBDataModel-*         Database/AthenaPOOL
 use AthenaPoolTestData    AthenaPoolTestData-*  AtlasTest/DatabaseTest

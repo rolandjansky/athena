@@ -14,7 +14,7 @@
     
 StoreDump::StoreDump(const std::string& name, 
 			ISvcLocator* pSvcLocator) :
-              Algorithm(name, pSvcLocator)
+              AthAlgorithm(name, pSvcLocator)
 {
    declareProperty("StoreName", m_storename="DetectorStore");
    declareProperty("Key", m_key="*");

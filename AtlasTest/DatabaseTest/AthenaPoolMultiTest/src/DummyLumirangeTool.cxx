@@ -56,7 +56,7 @@ DummyLumirangeTool::DummyLumirangeTool(const std::string& name,
 {
     declareProperty("StoreName",    m_storeName, "Store to find input metadata during finalize");
     declareProperty("Granularity",  m_lumigran,  "skip size");
-    declareProperty("Granularity",  m_firstrun,  "beginning run number");
+    declareProperty("FirstRun",     m_firstrun,  "beginning run number");
     declareProperty("RangeSize",    m_rangesize, "number of lumi/range" );
     declareProperty("BlocksPerRun", m_blocksperrun, "number of lumiblocks till increment run");
     declareProperty("LumiTot",      m_lumitot, "total number of lumiblocks to write");

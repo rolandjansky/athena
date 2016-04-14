@@ -13,7 +13,8 @@
  * $Id: RunEventTagWriter.h,v 1.1 2009-02-19 22:04:49 cranshaw Exp $ 
  */
 
-#include "GaudiKernel/Algorithm.h"
+//#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "xAODEventInfo/EventInfo.h"
 
@@ -42,7 +43,7 @@ class EventInfo;
  * event metadata.
  */
 
-class RunEventTagWriter : public Algorithm 
+class RunEventTagWriter : public AthAlgorithm 
 {
   public:
 

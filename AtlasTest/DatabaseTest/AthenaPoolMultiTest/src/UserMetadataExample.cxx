@@ -16,7 +16,7 @@
 
 UserMetadataExample::UserMetadataExample(const std::string& name, 
 			ISvcLocator* pSvcLocator) :
-              Algorithm(name, pSvcLocator), m_done(false)
+              AthAlgorithm(name, pSvcLocator), m_done(false)
 {}
 
 UserMetadataExample::~UserMetadataExample()

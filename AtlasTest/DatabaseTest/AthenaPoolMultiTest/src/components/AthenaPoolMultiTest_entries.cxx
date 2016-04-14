@@ -8,7 +8,6 @@
 #include "../PassNoneFilter.h"
 #include "../AddTrigMap.h"
 #include "../EventSplit.h"
-#include "../EventCheck.h"
 #include "../EventTagReader.h"
 #include "../EventTagWriter.h"
 #include "../TagEventTagWriter.h"
@@ -24,7 +23,6 @@ DECLARE_ALGORITHM_FACTORY(PassAllFilter)
 DECLARE_ALGORITHM_FACTORY(PassNoneFilter)
 DECLARE_ALGORITHM_FACTORY(AddTrigMap)
 DECLARE_ALGORITHM_FACTORY(EventSplit)
-DECLARE_ALGORITHM_FACTORY(EventCheck)
 DECLARE_ALGORITHM_FACTORY(EventTagReader)
 DECLARE_ALGORITHM_FACTORY(EventTagWriter)
 DECLARE_ALGORITHM_FACTORY(TagEventTagWriter)
@@ -40,7 +38,6 @@ DECLARE_FACTORY_ENTRIES(AthenaPoolMultiTest) {
    DECLARE_ALGORITHM(PassNoneFilter)
    DECLARE_ALGORITHM(AddTrigMap)
    DECLARE_ALGORITHM(EventSplit)
-   DECLARE_ALGORITHM(EventCheck)
    DECLARE_ALGORITHM(EventTagReader)
    DECLARE_ALGORITHM(EventTagWriter)
    DECLARE_ALGORITHM(TagEventTagWriter)

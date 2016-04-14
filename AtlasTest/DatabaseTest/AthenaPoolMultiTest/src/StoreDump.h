@@ -19,12 +19,13 @@
  * $Id: StoreDump.h,v 1.1 2009-02-19 22:04:49 cranshaw Exp $
  */
             
-#include "GaudiKernel/Algorithm.h"
+//#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
  
 class string;
 class ISvcLocator;
      
-class StoreDump : public Algorithm 
+class StoreDump : public AthAlgorithm 
 {
 public:
   StoreDump(const std::string& name, ISvcLocator* pSvcLocator);
