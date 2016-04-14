@@ -234,6 +234,7 @@
       </expectations>
    </TEST>
 
+<!--
    <TEST name="AtlCopyBS" type="script" suite="POOLCollectionToolsTest-Event">
       <doc>Check Atlas tool for copying bytestream with TAGS</doc>
       <classification>
@@ -253,6 +254,7 @@
          <returnValue>0</returnValue>
       </expectations>
    </TEST>
+-->
 
 </atn>
 
