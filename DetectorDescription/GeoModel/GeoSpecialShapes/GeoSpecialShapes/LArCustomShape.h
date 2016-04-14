@@ -73,8 +73,8 @@ class LArCustomShape : public GeoShape {
   const LArCustomShape & operator=(const LArCustomShape &right);
 
   // General GeoModel shape attributes.
-  static const std::string classType;
-  static const ShapeType classTypeID;
+  static const std::string s_classType;
+  static const ShapeType s_classTypeID;
   static const ShapeCalc_typemap s_calculatorTypes;
 
   // Properties of the custom shape.
@@ -90,11 +90,11 @@ class LArCustomShape : public GeoShape {
 };
 
 inline const std::string& LArCustomShape::getClassType() {
-  return classType;
+  return s_classType;
 }
 
 inline ShapeType LArCustomShape::getClassTypeID() {
-  return classTypeID;
+  return s_classTypeID;
 }
 
 inline ServiceHandle<StoreGateSvc>& LArCustomShape::detStore() const  {

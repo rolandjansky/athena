@@ -9,8 +9,8 @@
 #include <iostream>
 #include <stdexcept>
 
-const std::string LArCustomShape::classType = "CustomShape";
-const ShapeType LArCustomShape::classTypeID = 500;
+const std::string LArCustomShape::s_classType = "CustomShape";
+const ShapeType LArCustomShape::s_classTypeID = 500;
 
 const LArCustomShape::ShapeCalc_typemap LArCustomShape::s_calculatorTypes = {
 	{ "LAr::EMEC::InnerWheel::Absorber",		{LArWheelCalculator::InnerAbsorberWheel, 1} },
@@ -187,12 +187,12 @@ double LArCustomShape::volume() const
 
 const std::string& LArCustomShape::type() const
 {
-	return classType;
+	return s_classType;
 }
 
 ShapeType LArCustomShape::typeID() const
 {
-	return classTypeID;
+	return s_classTypeID;
 }
 
 const std::string& LArCustomShape::name() const

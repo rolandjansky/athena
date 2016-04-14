@@ -14,8 +14,8 @@
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 
-#include "GaudiKernel/PhysicalConstants.h"
-using namespace Gaudi::Units;
+#include "AthenaKernel/Units.h"
+using Athena::Units::mm;
 
 
 namespace LArWheelCalculator_Impl {
@@ -65,7 +65,7 @@ namespace LArWheelCalculator_Impl {
 			int s, w, t, n;
 			double p0, p1, p2, p3, p4;
 			while(!feof(F)
-			&& fscanf(F, "%d %d %d %d %le %le %le %le %le",
+			&& fscanf(F, "%80d %80d %80d %80d %80le %80le %80le %80le %80le",
 			          &s, &w, &t, &n, &p0, &p1, &p2, &p3, &p4) == 9)
 			{
 				if(s == lwc()->m_AtlasZside
@@ -87,7 +87,7 @@ namespace LArWheelCalculator_Impl {
 			fclose(F);
 		} else {
 			double a, b, c, d;
-			if(sscanf(sagging_opt_value.c_str(), "%le %le %le %le", &a, &b, &c, &d) != 4){
+			if(sscanf(sagging_opt_value.c_str(), "%80le %80le %80le %80le", &a, &b, &c, &d) != 4){
 	    		msg << MSG::ERROR
 				    << "wrong value(s) "
 					<< " for EMEC sagging parameters: "

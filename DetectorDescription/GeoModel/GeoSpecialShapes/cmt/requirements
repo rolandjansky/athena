@@ -19,6 +19,7 @@ apply_pattern installed_library
 
 private
 use CxxUtils       CxxUtils-*          Control
+use AthenaKernel   AthenaKernel-*      Control
 use GaudiInterface GaudiInterface-*    External
 use RDBAccessSvc   RDBAccessSvc-*      Database/AthenaPOOL
 use GeoModelUtilities    GeoModelUtilities-*       DetectorDescription/GeoModel
