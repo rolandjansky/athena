@@ -16,6 +16,7 @@ namespace TruthHelper {
   class IsGenerator : public GenIMCselector {
   public:
 
+    IsGenerator() {}
     GenIMCselector* create() const;
 
     bool operator()(const HepMC::GenParticle* const p ) const;
