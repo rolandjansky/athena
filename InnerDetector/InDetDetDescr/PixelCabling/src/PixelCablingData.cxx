@@ -35,7 +35,8 @@
 
 // Hashing function for Identifiers
 std::size_t hash_value(Identifier const& id) {
-    boost::hash<int> hasher;
+  //boost::hash<int> hasher;
+  boost::hash<Identifier::value_type> hasher;
     return hasher(id.get_compact());
 }
 

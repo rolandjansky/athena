@@ -36,6 +36,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <memory>
 
 class StatusCode;
 class ISvcLocator;
@@ -90,10 +91,10 @@ public:
   PixelCablingSvc(const std::string& name, ISvcLocator* svc ) ;
 
   /** Copy constructor */
-  PixelCablingSvc(const PixelCablingSvc &other, const std::string& name, ISvcLocator*svc);
+  //PixelCablingSvc(const PixelCablingSvc &other, const std::string& name, ISvcLocator*svc);
 
   /** Assignment operator */
-  PixelCablingSvc& operator= (const PixelCablingSvc &other);
+  //PixelCablingSvc& operator= (const PixelCablingSvc &other);
   
   /** Destructor */
   ~PixelCablingSvc();
@@ -203,7 +204,7 @@ private:
   ServiceHandle< StoreGateSvc > m_detStore;
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc; 
   const PixelID* m_idHelper;
-  PixelCablingData* m_cabling;
+  std::unique_ptr<PixelCablingData> m_cabling;
 
   unsigned int m_callback_calls;
   IdContext m_context;

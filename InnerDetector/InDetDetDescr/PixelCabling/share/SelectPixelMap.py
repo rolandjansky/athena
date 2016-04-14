@@ -17,6 +17,8 @@ logger = logging.getLogger("PixelCablingSvc")
 logger.debug("In SelectPixelMap.py")
 #geoFlags.dump()
 
+
+
 if not ('conddb' in dir()):
     IOVDbSvc = Service("IOVDbSvc")
     from IOVDbSvc.CondDB import conddb
@@ -24,9 +26,10 @@ if not ('conddb' in dir()):
 from AthenaCommon.CfgGetter import getService
 PixelCablingSvc = getService("PixelCablingSvc")
 ServiceMgr += PixelCablingSvc
- 
-#See python/PixelCablingConfig.py for the main configuration.
 
+#See python/PixelCablingConfing.py for the main configuration.
+
+# Offline mode
 if (athenaCommonFlags.isOnline == False):
     # For debugging, print a summary of the chosen settings
     logger.debug("Summary from SelectPixelMap.py:")

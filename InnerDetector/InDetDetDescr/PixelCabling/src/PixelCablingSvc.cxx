@@ -21,7 +21,7 @@
 #include "PixelGeoModel/IBLParameterSvc.h"
 
 // Tools to fill the cabling
-#include "GaudiKernel/IToolSvc.h"
+//#include "GaudiKernel/IToolSvc.h"
 
 #include "PixelFillCablingData.h"
 
@@ -30,15 +30,14 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 // COOL includes
-#include "CoolKernel/IObjectIterator.h"
-#include "CoolKernel/IObject.h"
+#include "CoralBase/Blob.h"
 
 
 //#define PIXEL_DEBUG
 
 
-using namespace std;
-using eformat::helper::SourceIdentifier;
+//using namespace std;
+//using eformat::helper::SourceIdentifier;
 
 static unsigned int defaultColumnsPerFE_pix     = 18;   // number of columns per FE
 static unsigned int defaultRowsPerFE_pix        = 164;  // number of rows per FE
@@ -60,7 +59,7 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     m_detStore("DetectorStore", name),
     m_IBLParameterSvc("IBLParameterSvc",name),
     m_idHelper(0),
-    m_cabling(0),
+    m_cabling(new PixelCablingData),
     m_callback_calls(0),
     m_dataString(""),
     m_key("/PIXEL/ReadoutSpeed"),
@@ -98,7 +97,7 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     declareProperty("DumpMapToFile", m_dump_map_to_file = false);
 }
 
-
+/*
 ////////////////////////
 // Copy constructor
 ////////////////////////
@@ -156,7 +155,7 @@ PixelCablingSvc& PixelCablingSvc::operator= (const PixelCablingSvc &other) {
     }
     return *this;
 }
-
+*/
 
 ////////////////////////
 // destructor
@@ -302,9 +301,8 @@ StatusCode PixelCablingSvc::initialize( )
         return StatusCode::FAILURE;
     }
 
-
-    m_cabling = m_cablingTool->fillMapFromFile(m_final_mapping_file);
-    if (m_cabling == NULL) {
+    if (m_mappingType != "COOL") 
+      if (!m_cablingTool->fillMapFromFile(m_final_mapping_file,m_cabling.get())) {
         ATH_MSG_ERROR("Filling pixel cabling from file \"" << m_final_mapping_file << "\" failed");
         return StatusCode::FAILURE;
     }
@@ -410,7 +408,7 @@ PixelCablingSvc::queryInterface(const InterfaceID & riid, void** ppvInterface ){
 ////////////////////////
 void PixelCablingSvc::getOfflineList(std::vector<IdentifierHash>& offlineIdHashList, int robid)
 {
-    deque<Identifier> offlineIdList = m_cabling->find_entry_offlineList(robid);
+    std::deque<Identifier> offlineIdList = m_cabling->find_entry_offlineList(robid);
     std::deque<Identifier>::iterator it1 = offlineIdList.begin();
     std::deque<Identifier>::iterator it2 = offlineIdList.end();
     for(; it1!=it2;++it1)
@@ -971,15 +969,15 @@ StatusCode PixelCablingSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
 
     int pos=0;
     bool refill = false; // only refill the cabling if something changed
-    while (m_dataString.find(",",pos) != string::npos){
-        istringstream iss(m_dataString.substr(pos,m_dataString.find(",",pos)));
+    while (m_dataString.find(",",pos) != std::string::npos){
+        std::istringstream iss(m_dataString.substr(pos,m_dataString.find(",",pos)));
         uint32_t rod;
         iss >> std::hex >> rod;
 
-        string speed = m_dataString.substr(m_dataString.find(",",pos)+1,m_dataString.find("\n",pos)-m_dataString.find(",",pos)-1);
+	const std::string speed = m_dataString.substr(m_dataString.find(",",pos)+1,m_dataString.find("\n",pos)-m_dataString.find(",",pos)-1);
         if (m_cablingTool->rodReadoutMap.find(rod) == m_cablingTool->rodReadoutMap.end()){
             if (speed != "SINGLE_40"){
-                m_cablingTool->rodReadoutMap.insert(make_pair(rod,true));
+	      m_cablingTool->rodReadoutMap.insert(std::make_pair(rod,true));
                 refill = true;
             }
         }
@@ -997,8 +995,8 @@ StatusCode PixelCablingSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
         // Refill here only if reading cabling map from text file,
         // since the callback to CablingMap in COOL is done separately.
         if (m_mappingType == "Final") {
-            m_cabling = m_cablingTool->fillMapFromFile(m_final_mapping_file);
-            ATH_MSG_INFO("Refilled cabling map due to change in readout speed");
+	  m_cablingTool->fillMapFromFile(m_final_mapping_file,m_cabling.get());
+	  ATH_MSG_INFO("Refilled cabling map due to change in readout speed");
         }
     }
     ATH_MSG_INFO("DONE Callback " << m_callback_calls);
@@ -1129,9 +1127,9 @@ StatusCode PixelCablingSvc::IOVCallBack_FillCabling(IOVSVC_CALLBACK_ARGS_P(I, ke
     unsigned int len = blob.size()/sizeof(char);
     ATH_MSG_DEBUG("blob.size() = " << blob.size() << ", len = " << len);
 
-    m_cablingTool->fillMapFromCool(p, blob.size(), m_dump_map_to_file);
+    bool stat=m_cablingTool->fillMapFromCool(p, blob.size(), m_cabling.get(), m_dump_map_to_file);
 
-    if (!m_cablingTool) {
+    if (!stat) {
         ATH_MSG_ERROR("Callback to CablingMap failed, map was not filled");
         return StatusCode::FAILURE;
     }
