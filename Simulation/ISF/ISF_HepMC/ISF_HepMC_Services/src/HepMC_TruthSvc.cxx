@@ -57,7 +57,9 @@ ISF::HepMC_TruthSvc::HepMC_TruthSvc(const std::string& name,ISvcLocator* svc) :
   m_passWholeVertex(true),
   m_forceEndVtxRegionsVec(),
   m_forceEndVtx(),
-  m_quasiStableParticlesIncluded(false)
+  m_quasiStableParticlesIncluded(false),
+  m_secondaryParticleBcOffset(Barcode::fUndefinedBarcode),
+  m_myLowestVertexBC(Barcode::fUndefinedBarcode)
 {
     // the particle stack filler tool
     declareProperty("McEventCollection",                 m_collectionName          );
@@ -214,6 +216,10 @@ StatusCode ISF::HepMC_TruthSvc::initializeTruthCollection()
     m_mcEventCollection->push_back( m_mcEvent);
   }
 
+  // retrieve secondary particle barcode and vertex barcode offsets from the BarcodeService
+  m_myLowestVertexBC          = m_barcodeSvcQuick->secondaryVertexBcOffset();
+  m_secondaryParticleBcOffset = m_barcodeSvcQuick->secondaryParticleBcOffset();
+
   return StatusCode::SUCCESS;
 }
 
@@ -289,13 +295,6 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
 
 /** Record the given truth incident to the MC Truth */
 void ISF::HepMC_TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
-  // FIXME: shouldn't we use the barcode service to get these numbers, rather
-  //        thank hard-code them?
-  static int myLowestVertex = -200000 , myFirstSecondary = 200000;
-  //if (myLowestVertex>0){ // first time only
-  //  myLowestVertex = m_barcodeSvcQuick->getProperty( "FirstVertexBarcode" ) + 1;
-  //  myFirstSecondary = m_barcodeSvcQuick->getProperty( "FirstSecondaryBarcode" ) - 1;
-  //}
 
   Barcode::PhysicsProcessCode processCode = ti.physicsProcessCode();
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();
@@ -315,8 +314,7 @@ void ISF::HepMC_TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
     }
   }
 
-  bool setPersistent = true;
-  HepMC::GenParticle *parentAfterIncident = ti.parentParticleAfterIncident( newPrimBC, setPersistent);
+  HepMC::GenParticle *parentAfterIncident = ti.parentParticleAfterIncident( newPrimBC );
   if(parentAfterIncident) {
     ATH_MSG_VERBOSE ( "Parent After Incident: " << *parentAfterIncident);
     vtx->add_particle_out( parentAfterIncident );
@@ -348,17 +346,18 @@ void ISF::HepMC_TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
           abort();
         }
       }
-      HepMC::GenParticle *p = ti.childParticle(i, secBC, setPersistent);
+      HepMC::GenParticle *p = ti.childParticle(i, secBC );
       ATH_MSG_VERBOSE ( "Writing out " << i << "th child particle: " << *p);
       // add particle to vertex
       vtx->add_particle_out( p);
 
       // Check to see if this is meant to be a "parent" vertex
-      if ( p && p->barcode() < myFirstSecondary){
-        vtx->suggest_barcode( myLowestVertex );
-        ++myLowestVertex;
+      if ( p && p->barcode() < m_secondaryParticleBcOffset ){
+        vtx->suggest_barcode( m_myLowestVertexBC );
+        ++m_myLowestVertexBC;
         if (m_quasiStableParticlesIncluded){
-          ATH_MSG_VERBOSE( "Found a case of low barcode (" << p->barcode() << " < " << myFirstSecondary << " changing vtx barcode to " << myLowestVertex+1 );
+          ATH_MSG_VERBOSE( "Found a case of low barcode (" << p->barcode() << " < " <<
+                           m_secondaryParticleBcOffset  << " changing vtx barcode to " << m_myLowestVertexBC+1 );
         } else {
           ATH_MSG_WARNING( "Modifying vertex barcode, but no apparent quasi-stable particle simulation enabled." );
           ATH_MSG_WARNING( "This means that you have encountered a very strange configuration.  Watch out!" );
@@ -382,14 +381,18 @@ HepMC::GenVertex *ISF::HepMC_TruthSvc::createGenVertexFromTruthIncident( ISF::IT
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();
 
   std::vector<double> weights(1);
-  weights[0] = static_cast<double>(parentBC);
+  Barcode::ParticleBarcode primaryBC = parentBC % m_barcodeSvcQuick->particleGenerationIncrement();
+  weights[0] = static_cast<double>( primaryBC );
 
   // Check for a previous end vertex on this particle.  If one existed, then we should put down next to this
   //  a new copy of the particle.  This is the agreed upon version of the quasi-stable particle truth, where
   //  the vertex at which we start Q-S simulation no longer conserves energy, but we keep both copies of the
   //  truth particles
-  bool setPersistent = true;
-  HepMC::GenParticle *parent = ti.parentParticle( setPersistent );
+  HepMC::GenParticle *parent = ti.parentParticle();
+  if (!parent) {
+    ATH_MSG_ERROR("Unable to write particle interaction to MC truth due to missing parent HepMC::GenParticle instance");
+    abort();
+  }
 
   // generate vertex
   Barcode::VertexBarcode vtxbcode = m_barcodeSvcQuick->newVertex( parentBC, processCode );
@@ -412,16 +415,12 @@ HepMC::GenVertex *ISF::HepMC_TruthSvc::createGenVertexFromTruthIncident( ISF::IT
       ATH_MSG_WARNING("is not yet validated in ISF, so you'd better know what you're doing.");
       ATH_MSG_WARNING("Will delete the old vertex and swap in the new one.");
     }
-    HepMC::GenParticle *new_parent = new HepMC::GenParticle( *parent ); // Copy the old guy
 
-    // Change the barcode
-    new_parent->suggest_barcode( m_barcodeSvcQuick->newSecondary( parentBC ) );
-
-    // Add the new parent to the old production vertex
-    parent->production_vertex()->add_particle_out( new_parent );
+    // Remove the old vertex from the event
+    parent->parent_event()->remove_vertex( parent->end_vertex() );
 
     // Now add the new vertex to the new parent
-    vtx->add_particle_in( new_parent );
+    vtx->add_particle_in( parent );
     ATH_MSG_VERBOSE ( "QS End Vertex representing process: " << processCode << ", for parent with barcode "<<parentBC<<". Creating." );
     ATH_MSG_VERBOSE ( "Parent: " << *parent);
   } else { // Normal simulation

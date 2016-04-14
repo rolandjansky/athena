@@ -23,6 +23,9 @@
 // DetectorDescription
 #include "AtlasDetDescr/AtlasRegion.h"
 
+// Barcode
+#include "BarcodeInterfaces/Barcode.h"
+
 // McEventCollection
 #include "GeneratorObjects/McEventCollection.h"
 
@@ -116,6 +119,9 @@ namespace ISF {
                                                                                                      //   all parent particles if they die
 
     bool                                      m_quasiStableParticlesIncluded; //!< does this job simulate quasi-stable particles.
+
+    Barcode::ParticleBarcode                  m_secondaryParticleBcOffset;
+    Barcode::VertexBarcode                    m_myLowestVertexBC;
 
   };
 }
