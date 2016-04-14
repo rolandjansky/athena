@@ -28,7 +28,8 @@ namespace TruthHelper {
 
   /// @todo Can we convert to an Athena AthTool or similar? Or just replace with calls to MC::particles()
   /// @deprecated Use the functions in TruthUtils instead
-  struct GenAccessIO {
+  class GenAccessIO {
+  public:
 
     GenAccessIO() : m_sgSvc(0) {
       if (Gaudi::svcLocator()->service("StoreGateSvc", m_sgSvc).isFailure()) {

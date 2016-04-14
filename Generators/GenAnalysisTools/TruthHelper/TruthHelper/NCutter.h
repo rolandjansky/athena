@@ -39,6 +39,13 @@ namespace TruthHelper {
       }
     }
 
+    NCutter& operator=(const NCutter& rhs) {
+      NCutter tmp(rhs);
+      std::swap(m_selectors, tmp.m_selectors);
+
+      return *this;
+}
+
     ~NCutter() {
       std::vector<GenIMCselector*>::iterator i = m_selectors.begin();
       for (; i != m_selectors.end(); ++i) delete(*i);
