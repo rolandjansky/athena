@@ -6,11 +6,11 @@
 
 #include "AthenaMPTools/IAthenaMPTool.h"
 #include "AthenaInterprocess/SharedQueue.h"
+#include "AthenaInterprocess/Utilities.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "PersistentDataModel/Guid.h"
 
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -75,8 +75,8 @@ StatusCode AthMpEvtLoopMgr::initialize()
 {
   ATH_MSG_DEBUG("in initialize() ... ");
 
-  if(m_strategy=="TokenScatterer" && m_nEventsBeforeFork!=0) {
-    ATH_MSG_ERROR("The TokenScatterer strategy cannot run with non-zero value for EventsBeforeFork");
+  if(m_strategy=="EventServive" && m_nEventsBeforeFork!=0) {
+    ATH_MSG_ERROR("The EventService strategy cannot run with non-zero value for EventsBeforeFork");
     return StatusCode::FAILURE;
   }
 
@@ -131,10 +131,8 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 
   // Generate random component of the Shared Memory and Shared Queue names
   srand(time(NULL));
-  Guid uuid;
-  Guid::create(uuid);
   std::ostringstream randStream;
-  randStream << getpid() << '_' << uuid.toString();
+  randStream << getpid() << '_' << AthenaInterprocess::randString();
   ATH_MSG_INFO("Using random components for IPC object names: " << randStream.str());
 
   ServiceHandle<StoreGateSvc> pDetStore("DetectorStore",name());
@@ -152,9 +150,9 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
     }
   }
 
-  // For the Event Service: create a queue for connecting TokenProcessor in the master with TokenScatterer subprocess
+  // For the Event Service: create a queue for connecting EvtRangeProcessor in the master with EvtRangeScatterer subprocess
   // The TokenProcessor master will be sending pid-s of failed processes to Token Scatterer
-  if(m_strategy=="TokenScatterer") {
+  if(m_strategy=="EventService") {
     AthenaInterprocess::SharedQueue* failedPidQueue = new AthenaInterprocess::SharedQueue("AthenaMPFailedPidQueue_"+randStream.str(),100,sizeof(pid_t));
     if(pDetStore->record(failedPidQueue,"AthenaMPFailedPidQueue_"+randStream.str()).isFailure()) {
       ATH_MSG_FATAL("Unable to record the pointer to the Failed PID queue into Detector Store");

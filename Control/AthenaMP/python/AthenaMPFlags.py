@@ -35,7 +35,7 @@ class Strategy(JobProperty):
     """ Switch to choose event scheduling strategy"""
     statusOn = True
     allowedTypes = ['str']
-    allowedValues = ['SharedQueue','FileScheduling','SharedReader','TokenScatterer','RoundRobin']    
+    allowedValues = ['SharedQueue','FileScheduling','SharedReader','EventService','RoundRobin']    
     StoredValue = 'SharedQueue'
 
 class CollectSubprocessLogs(JobProperty):
@@ -74,8 +74,15 @@ class EventRangeChannel(JobProperty):
     allowedTypes = ['str']
     StoredValue = 'EventService_EventRanges'
 
-class TokenScattererCaching(JobProperty):
-    """ For the Event Service: flag for activating extra event caching by the TokenScatterer
+class TokenExtractorChannel(JobProperty):
+    """ For the Event Service: Communication channel between Range Scatterer and Token Extractor
+    """
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = 'TokenExtractorChannel'
+
+class EvtRangeScattererCaching(JobProperty):
+    """ For the Event Service: flag for activating extra event caching by the EvtRangeScatterer
     """
     statusOn = True
     allowedTypes = ['bool']
@@ -94,6 +101,27 @@ class ChunkSize(JobProperty):
     statusOn = True
     allowedTypes = ['int']
     StoredValue  = 1
+
+class UseTokenExtractor(JobProperty):
+    """ Flag to indicate the usage of the Token Extractor in ES jobs
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
+class ReadEventOrders(JobProperty):
+    """ Flag for reading event orders (Shared Queue) from an ASCII file for reproducibility
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
+class EventOrdersFile(JobProperty):
+    """ Name of the file for storing/reading event orders (Shared Queue)
+    """
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = 'athenamp_eventorders.txt'
 
 # Defines the container for the performance monitoring flags  
 class AthenaMPFlags(JobPropertyContainer):
@@ -115,9 +143,13 @@ list_jobproperties = [
     PollingInterval,
     EventsBeforeFork,
     EventRangeChannel,
+    TokenExtractorChannel,
     MemSamplingInterval,
-    TokenScattererCaching,
+    EvtRangeScattererCaching,
     ChunkSize,
+    UseTokenExtractor,
+    ReadEventOrders,
+    EventOrdersFile,
     ]
 
 for i in list_jobproperties:
