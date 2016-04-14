@@ -43,60 +43,117 @@ double TRT_LoLumRawData::timeOverThreshold() const
   int LE = driftTimeBin( );
   int TE = trailingEdge( );
 
-  if ( 24 == TE )
-    TE--;
-  else if ( 25 == TE )
-    return 0;
-
+  if ( (0 == LE) || (24 == LE) || (24 == TE) || (0 == TE) || (23 == LE) )
+    {
+      return 0;
+    }
 
   double time = (double) (TE - LE + 1) * binWidth;
+  
   return time;
+
 }
 
+// Position of first low-to-high bit transition
+int TRT_LoLumRawData::driftTimeBin() const
+{
+  unsigned  mask = 0x02000000;
+  unsigned  m_word_LE = m_word>>6;
+  m_word_LE = m_word_LE<<6;
+ 
+  mask >>=1;
+  bool SawZero = false;
+  int i;
+  for(i=1;i<18;++i)
+  { 
+    if      (  (m_word_LE & mask) && SawZero) break;
+    else if ( !(m_word_LE & mask) ) SawZero = true; 
+    mask>>=1;
+    if(i==7 || i==15) mask>>=1;
+  }
+  if(i==18) i=0;
+  return i;
+}
 
-/*
- * Position of first high bit in bins.
- * Returns 0 - 23 if a high bit is found, 24 for all ones.
- */
-int TRT_LoLumRawData::driftTimeBin() const 
-{ 
-  unsigned mask = 0x02000000;
-
-  int i=0;
-  while ( !(m_word & mask) && (i < 24) )
-  {
-     mask >>= 1;
-    if (i == 7 || i == 15) 
-      mask >>= 1;
-
-    i++;
-  } 
-
-  if ( ! m_word )
-    return 0;
-
-  return i; 
-} 
-
+// Position of first low-to-high bit transition moving from the right
+// or 24 if no transition is found
 int TRT_LoLumRawData::trailingEdge() const
 {
-  if ( m_word & 0x00000001 )   // If last bit is high, return 24
-    return 24;
-
-  unsigned mask = 0x00000002;
-
-  int i=1;
-  while ( !(m_word & mask) && (i < 24) )
+  unsigned mask = 0x00000001;
+  unsigned mask_word = 0x0001fff0; // 11111111 1 11110000   
+  unsigned mask_last_bit =0x10; //10000
+  
+  unsigned m_word_TE = m_word & mask_word;
+  
+  bool SawZero=true;
+  bool SawZero1=false;
+  bool SawZero2=false;
+  bool SawUnit1=false;
+  int i=0;
+  int j=0;
+  int k=0;
+  
+  if(m_word_TE & mask_last_bit) 
   {
+  
+	for (j = 0; j < 11; ++j)
+	{
+		mask_last_bit=mask_last_bit<<1;
+		
+		if(j==3) mask_last_bit=mask_last_bit<<1;
+		
+		if ( !(m_word_TE & mask_last_bit) )
+		{
+			SawZero2 = true;
+			break;			
+		}
+	}
+	
+	if(SawZero2 == false) return 19;
+
+	if(SawZero2 == true){
+		for (k = j+1; k < 11; ++k)
+		{
+			mask_last_bit=mask_last_bit<<1;
+
+			if(k==3) mask_last_bit=mask_last_bit<<1;
+
+			if ( m_word_TE & mask_last_bit )
+			{
+				SawUnit1 = true;
+				break;					
+			}
+		} 
+	}
+	
+	if(SawUnit1 == false && SawZero2 == true) return 19;
+	
+  }
+  
+  //+++++++++++++++++++++++++++++++++++++
+  
+  for (i = 0; i < 24; ++i)
+  {
+  
+	if(!(m_word_TE & mask) && i>3)
+	{
+	  SawZero1 = true;
+	}
+    if(SawZero1){  
+		if ( (m_word_TE & mask) && SawZero )
+			break;
+		else if ( !(m_word_TE & mask) )
+			SawZero = true;
+    }
     mask <<= 1;
     if (i == 7 || i == 15)
       mask <<= 1;
-    
-    i++;
   }
  
-  if ( 24 == i )   // If we do not find a bit, return 25
-    return 25;
-  else
-    return (23 - i);
+  if ( 24 == i )
+    return i;
+
+  return (23 - i);
+
 }
+

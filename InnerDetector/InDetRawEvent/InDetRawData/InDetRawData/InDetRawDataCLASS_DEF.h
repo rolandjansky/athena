@@ -28,15 +28,15 @@
 
 namespace {
     // Need this to read old data to create the dict entries
-    DataVector<InDetRawDataCollection<TRT_LoLumRawData> > m_type1;
-    DataVector<InDetRawDataCollection<SCT1_RawData> >     m_type2;
-    DataVector<InDetRawDataCollection<Pixel1RawData> >    m_type3;
-    DataVector<SCT1_RawData>                              m_type4;
-    InDetRawDataCollection< Pixel1RawData >               m_type5;
-    InDetRawDataCollection< SCT1_RawData >                m_type6;
-    InDetRawDataCollection< SCT_RDORawData >              m_type7;
-    InDetRawDataCollection< TRT_LoLumRawData >            m_type8;
-    InDetRawDataCollection< TRT_RDORawData >              m_type9;
+    DataVector<InDetRawDataCollection<TRT_LoLumRawData> > type1;
+    DataVector<InDetRawDataCollection<SCT1_RawData> >     type2;
+    DataVector<InDetRawDataCollection<Pixel1RawData> >    type3;
+    DataVector<SCT1_RawData>                              type4;
+    InDetRawDataCollection< Pixel1RawData >               type5;
+    InDetRawDataCollection< SCT1_RawData >                type6;
+    InDetRawDataCollection< SCT_RDORawData >              type7;
+    InDetRawDataCollection< TRT_LoLumRawData >            type8;
+    InDetRawDataCollection< TRT_RDORawData >              type9;
 
 }
 

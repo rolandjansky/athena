@@ -30,7 +30,10 @@ public:
 
   // Constructor with parameters:
   SCT3_RawData(const Identifier rdoId, const unsigned int word, 
-	       std::vector<int>* errorHit);
+	       const std::vector<int>* errorHit);
+
+  SCT3_RawData(const Identifier rdoId, const unsigned int word, 
+	       std::vector<int>&& errorHit);
 
   // Destructor:
   virtual ~SCT3_RawData();
@@ -58,7 +61,7 @@ public:
   bool FirstHitError() const;
   bool SecondHitError() const;
 
-  std::vector<int> getErrorCondensedHit();
+  const std::vector<int>& getErrorCondensedHit() const;
 
 public:
   // public default constructor needed for I/O, but should not be
@@ -131,7 +134,7 @@ inline bool SCT3_RawData::SecondHitError() const
 // returns a vector where each element is a number of the strip in 
 // that group (starting at zero) with an error in:
 
-inline std::vector<int> SCT3_RawData::getErrorCondensedHit()
+inline const std::vector<int>& SCT3_RawData::getErrorCondensedHit() const
 {
   return m_errorCondensedHit;
 }
