@@ -197,7 +197,6 @@ ISF::EntryLayer ISF::EntryLayerTool::registerParticle(const ISF::ISFParticle& pa
   // (2.) check whether the particle lies on any entry surface
   //      -> this goes second because computation intensive routines
   //         are used for this
-
   if ( layerHit == ISF::fUnsetEntryLayer) {
     layerHit = identifyEntryLayer( particle);
   }
@@ -207,17 +206,28 @@ ISF::EntryLayer ISF::EntryLayerTool::registerParticle(const ISF::ISFParticle& pa
   if ( layerHit != ISF::fUnsetEntryLayer) {
     ATH_MSG_VERBOSE( "Particle >>" << particle << "<< hit boundary surface, "
                      "adding it to '" << m_SGName[layerHit] << "' TrackRecord collection");
+
+    const Amg::Vector3D   &pos = particle.position();
+    const Amg::Vector3D   &mom = particle.momentum();
+    CLHEP::Hep3Vector      hepPos( pos.x(), pos.y(), pos.z() ); // not optimal, but required by TrackRecord
+    CLHEP::Hep3Vector      hepMom( mom.x(), mom.y(), mom.z() ); // not optimal, but required by TrackRecord
+
     double mass            = particle.mass();
-    CLHEP::Hep3Vector      mom( particle.momentum().x(), particle.momentum().y(), particle.momentum().z() );// not optimal, but required by TrackRecord
-    CLHEP::Hep3Vector      pos( particle.position().x(), particle.position().y(), particle.position().z() );// not optimal, but required by TrackRecord
     double energy          = sqrt(mass*mass + mom.mag2());
+
+    // Use barcode of generation zero particle from truth binding if possible (reproduces legacy AtlasG4 behaviour).
+    // Use barcode assigend to ISFParticle only if no generation zero particle is present.
+    auto                truthBinding = particle.getTruthBinding();
+    auto generationZeroTruthParticle = truthBinding ? truthBinding->getGenerationZeroTruthParticle() : nullptr;
+    Barcode::ParticleBarcode barcode = generationZeroTruthParticle ? generationZeroTruthParticle->barcode()
+                                                                   : particle.barcode();
 
     m_collection[layerHit]->Emplace(particle.pdgCode(),
                                     energy,
-                                    mom,
-                                    pos,
+                                    hepMom,
+                                    hepPos,
                                     particle.timeStamp(),
-                                    particle.barcode(),
+                                    barcode,
                                     m_volumeName[layerHit] );
   }
 
