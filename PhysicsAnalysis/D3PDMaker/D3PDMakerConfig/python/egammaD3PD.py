@@ -28,7 +28,7 @@ from TruthD3PDMaker.TruthEventD3PDObject      import TruthEventD3PDObject
 # from TruthD3PDMaker.GenEventD3PDObject        import GenEventD3PDObject
 from TruthD3PDMaker.TruthParticleD3PDObject   import TruthParticleD3PDObject
 from TrackD3PDMaker.xAODVertexD3PDObject      import PrimaryxAODVertexD3PDObject
-from TrigEgammaD3PDMaker.TrigEgammaD3PD       import TrigEgammaD3PDObjects
+#from TrigEgammaD3PDMaker.TrigEgammaD3PD       import TrigEgammaD3PDObjects
 from RecExConfig.RecFlags                     import rec
 from RecExConfig.ObjKeyStore                  import cfgKeyStore
 
@@ -306,8 +306,8 @@ def egammaD3PD (alg = None,
         from TriggerD3PDMaker.TrigDecisionD3PDObject \
              import TrigDecisionD3PDObject
         alg += TrigDecisionD3PDObject (**_args (2, 'TrigDecision', kw))
-        TrigEgammaD3PDObjects (alg, **_args (1, 'TrigEgamma', kw,
-                                             TrigEMCluster_level = 2))
+        #TrigEgammaD3PDObjects (alg, **_args (1, 'TrigEgamma', kw,
+        #                                     TrigEMCluster_level = 2))
 
     #     from TriggerD3PDMaker.EnergySumROID3PDObject import EnergySumROID3PDObject
     #     from TrigMissingETD3PDMaker.TrigMETD3PDObject import TrigMETD3PDObject

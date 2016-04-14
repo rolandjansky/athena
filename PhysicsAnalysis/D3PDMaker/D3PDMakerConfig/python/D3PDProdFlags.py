@@ -234,7 +234,7 @@ _importFlagsFromModule ('HSG2DPDUtils.HSG2D3PDProdFlags')
 _importFlagsFromModule ('HSG5DPDUtils.HSG5D3PDProdFlags')
 
 # L1Calo D3PDs
-_importFlagsFromModule ('L1CaloD3PDMaker.L1CaloD3PDProdFlags')
+#_importFlagsFromModule ('L1CaloD3PDMaker.L1CaloD3PDProdFlags')
 
 # Qcd D3PDs
 _importFlagsFromModule ('QcdD3PDMaker.QcdD3PDProdFlags')
@@ -264,5 +264,5 @@ _importFlagsFromModule ('egammaD3PDMaker.egammaD3PDProdFlags')
 _importFlagsFromModule ('HeavyIonD3PDMaker.HeavyIonD3PDProdFlags', True)
 
 # Trigger D3PDs.
-_importFlagsFromModule ('TrigBJetD3PDMaker.TrigBJetD3PDProdFlags')
+#_importFlagsFromModule ('TrigBJetD3PDMaker.TrigBJetD3PDProdFlags')
 
