@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
-
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
@@ -27,7 +25,8 @@
 MuonDetectorStatusDbTool::MuonDetectorStatusDbTool (const std::string& type,
                              const std::string& name,
                              const IInterface* parent)
-  : AthAlgTool(type, name, parent)  
+  : AthAlgTool(type, name, parent),
+    m_IOVSvc ("IOVSvc", name)
 {
 
   declareInterface< IMuonDetectorStatusDbTool >(this) ;
@@ -44,12 +43,11 @@ MuonDetectorStatusDbTool::MuonDetectorStatusDbTool (const std::string& type,
 //StatusCode MuonDetectorStatusDbTool::updateAddress(SG::TransientAddress* tad)
 StatusCode MuonDetectorStatusDbTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
 {
-    MsgStream log(msgSvc(), name());
     CLID clid        = tad->clID();
     std::string key  = tad->name();
     if ( 228145 == clid && m_tubeStatusDataLocation == key)
     {
-        log << MSG::DEBUG << "OK Tube Status" << endreq;
+        ATH_MSG_DEBUG( "OK Tube Status" );
         return StatusCode::SUCCESS;
     }
     return StatusCode::FAILURE;
@@ -57,86 +55,49 @@ StatusCode MuonDetectorStatusDbTool::updateAddress(StoreID::type /*storeID*/, SG
 
 StatusCode MuonDetectorStatusDbTool::initialize()
 { 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "Initializing " << endreq;
+  ATH_MSG_INFO( "Initializing " );
+  ATH_CHECK( m_IOVSvc.retrieve() );
  
-  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-    log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
-  }else{
-    log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
-    return sc;
-  }
-
-
-
-
-  // Get interface to IOVSvc
-  m_IOVSvc = 0;
-  bool CREATEIF(true);
-  sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
-  if ( sc.isFailure() )
-  {
-       log << MSG::ERROR << "Unable to get the IOVSvc" << endreq;
-       return StatusCode::FAILURE;
-  }
-
-    
   //**************************************************************************
   const DataHandle<CondAttrListCollection> tubeStatusData;
-  sc=m_detStore->regFcn(&IMuonDetectorStatusDbTool::loadTubeStatus,
-                        dynamic_cast<IMuonDetectorStatusDbTool*>(this),
-                        tubeStatusData, m_tubeFolder);
-  
-  if(sc.isFailure()) return StatusCode::FAILURE;
-
- 
+  ATH_CHECK( detStore()->regFcn(&IMuonDetectorStatusDbTool::loadTubeStatus,
+                                dynamic_cast<IMuonDetectorStatusDbTool*>(this),
+                                tubeStatusData, m_tubeFolder) );
   
   
   m_chamberStatusData =  new MdtDeadChamberStatus();
-  sc = m_detStore->record(m_chamberStatusData,m_tubeStatusDataLocation);
-  if (sc == StatusCode::FAILURE) {
-    log << MSG::ERROR << "Cannot record Dead Chamber map in the detector store"
-        << endreq;
-    return sc;
-  }
-
-
+  ATH_CHECK( detStore()->record(m_chamberStatusData,m_tubeStatusDataLocation) );
 
   // Get the TransientAddress from DetectorStore and set "this" as the
   // AddressProvider
-  SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<MdtDeadChamberStatus>::ID(), m_tubeStatusDataLocation);
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<MdtDeadChamberStatus>::ID(), m_tubeStatusDataLocation);
 
  
   if (!proxy) {
-    log << MSG::ERROR << "Unable to get the proxy for class TubeStatusContainer" << endreq;
+    ATH_MSG_ERROR( "Unable to get the proxy for class TubeStatusContainer" );
     return StatusCode::FAILURE;
   }
 
   SG::TransientAddress* tad =  proxy->transientAddress();
   if (!tad) {
-    log << MSG::ERROR << "Unable to get the tad" << endreq;
+    ATH_MSG_ERROR( "Unable to get the tad" );
     return StatusCode::FAILURE;
   }
 
   IAddressProvider* addp = this;
   tad->setProvider(addp, StoreID::DETECTOR_STORE);
   //tad->setProvider(addp);
-  log << MSG::DEBUG << "set address provider for TubeStatusContainer" << endreq;
-
-                                                                           
+  ATH_MSG_DEBUG( "set address provider for TubeStatusContainer" );
   
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode MuonDetectorStatusDbTool::loadParameterStatus(IOVSVC_CALLBACK_ARGS_P(I,keys)){
-  StatusCode sc;
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "LoadParameters has been triggered for the following keys " << endreq;
+  ATH_MSG_INFO( "LoadParameters has been triggered for the following keys " );
   
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    log << MSG::INFO << *itr << " I="<<I<<" ";
+    msg(MSG::INFO) << *itr << " I="<<I<<" ";
      if(*itr==m_tubeFolder) {
        loadTubeStatus(I,keys);
        
@@ -144,13 +105,9 @@ StatusCode MuonDetectorStatusDbTool::loadParameterStatus(IOVSVC_CALLBACK_ARGS_P(
 
     
   }
-  log << MSG::INFO << endreq;
-  
- 
+  msg() << endreq;
   
   return StatusCode::SUCCESS;
-
-
 }
 
 
@@ -159,44 +116,31 @@ StatusCode MuonDetectorStatusDbTool::loadParameterStatus(IOVSVC_CALLBACK_ARGS_P(
 
 StatusCode MuonDetectorStatusDbTool::loadTubeStatus(IOVSVC_CALLBACK_ARGS_P(I,keys)) 
 {
-  
-  MsgStream log(msgSvc(), name());
-   StatusCode sc=StatusCode::SUCCESS;
-   log << MSG::INFO << "Load dead tubes  from DB" << endreq;
+   ATH_MSG_INFO( "Load dead tubes  from DB" );
    
    // Print out callback information
-   log << MSG::DEBUG << "Level " << I << " Keys: ";
+   msg(MSG::DEBUG) << "Level " << I << " Keys: ";
    std::list<std::string>::const_iterator keyIt = keys.begin();
-   for (; keyIt != keys.end(); ++ keyIt) log << MSG::DEBUG << *keyIt << " ";
-   log << MSG::DEBUG << endreq;
+   for (; keyIt != keys.end(); ++ keyIt)
+     msg(MSG::DEBUG) << *keyIt << " ";
+   msg(MSG::DEBUG) << endreq;
 
-   sc = m_detStore->retrieve( m_chamberStatusData, m_tubeStatusDataLocation );
+   StatusCode sc = detStore()->retrieve( m_chamberStatusData, m_tubeStatusDataLocation );
    if(sc.isSuccess())  {
-     log << MSG::DEBUG << "ChamberStatus Map found " << m_chamberStatusData << endreq;
-     m_detStore->remove( m_chamberStatusData );
-     log << MSG::DEBUG << "TubeStatuse Collection at " << m_chamberStatusData << " removed "<<endreq;
+     ATH_MSG_DEBUG( "ChamberStatus Map found " << m_chamberStatusData );
+     detStore()->remove( m_chamberStatusData );
+     ATH_MSG_DEBUG( "TubeStatuse Collection at " << m_chamberStatusData << " removed ");
    }
    
-  
-
+   const CondAttrListCollection * atrc;
+   ATH_CHECK( detStore()->retrieve(atrc,m_tubeFolder) );
+   m_chamberStatusData =  new MdtDeadChamberStatus();
    
-  const CondAttrListCollection * atrc;
-  sc=m_detStore->retrieve(atrc,m_tubeFolder);
-  if(sc.isFailure())  {
-    log << MSG::ERROR 
-	<< "could not retreive the CondAttrListCollection from DB folder " 
-	<< m_tubeFolder << endreq;
-    return sc;
-  }
-  m_chamberStatusData =  new MdtDeadChamberStatus();
-   
-  
-  MdtDeadChamberStatus::MdtMultilayerData deadMultilayerData;
+   MdtDeadChamberStatus::MdtMultilayerData deadMultilayerData;
    std::vector<std::vector<int> > deadLayerTubeVector;
    std::vector<int>  deadTubeVector;
    m_chamberStatusData->clear();
    unsigned int multilayer_old=0, layer_old=0;
-   
 
    CondAttrListCollection::const_iterator itr;
    for (itr = atrc->begin(); itr != atrc->end(); ++itr) {
@@ -207,9 +151,9 @@ StatusCode MuonDetectorStatusDbTool::loadTubeStatus(IOVSVC_CALLBACK_ARGS_P(I,key
      mezzanine_list=*(static_cast<const std::string*>((atr["Dead_mezzanine"]).addressOfData()));
      tube_list=*(static_cast<const std::string*>((atr["Dead_tube"]).addressOfData()));
 
-     log << MSG::DEBUG << "multilayer load is " << multilayer_list << endreq;
-     log << MSG::DEBUG << "mezzanine load is " << mezzanine_list << endreq;
-     log << MSG::DEBUG << "tube load is " << tube_list << endreq;
+     ATH_MSG_DEBUG( "multilayer load is " << multilayer_list );
+     ATH_MSG_DEBUG( "mezzanine load is " << mezzanine_list );
+     ATH_MSG_DEBUG( "tube load is " << tube_list );
      
      std::string delimiter = ",";
      std::vector<std::string> info_tube,info_multilayer;
@@ -217,17 +161,16 @@ StatusCode MuonDetectorStatusDbTool::loadTubeStatus(IOVSVC_CALLBACK_ARGS_P(I,key
      MuonCalib::MdtStringUtils::tokenize(multilayer_list,info_multilayer,delimiter);
      MuonCalib::MdtStringUtils::tokenize(tube_list,info_tube,delimiter);
     
-     log << MSG::DEBUG << " parsing of the tube_list" << endreq;
+     ATH_MSG_DEBUG( " parsing of the tube_list" );
      
      unsigned int number, mlayerint, layerint, tubeint;
      // unsigned int status=1;
      char *ch_tmp;
      
-     log << MSG::VERBOSE << "multilayer size is " << info_multilayer.size() << endreq;
+     ATH_MSG_VERBOSE( "multilayer size is " << info_multilayer.size() );
 
      for(unsigned int i=0; i<info_multilayer.size();i++){
-       log<< MSG::VERBOSE << i << "..."<< info_multilayer[i]<< endreq;  
-
+       ATH_MSG_VERBOSE( i << "..."<< info_multilayer[i]);
      }
 
      deadTubeVector.clear();  
@@ -239,7 +182,7 @@ StatusCode MuonDetectorStatusDbTool::loadTubeStatus(IOVSVC_CALLBACK_ARGS_P(I,key
      if (numbertube!=999){
        for(unsigned int i=2; i<info_tube.size();i++){
 	
-	 log<< MSG::VERBOSE << i << "..."<< info_tube[i]<< endreq;
+	 ATH_MSG_VERBOSE( i << "..."<< info_tube[i]);
 	 ch_tmp= const_cast<char*>(info_tube[i].c_str());
 	 number= atoi(ch_tmp);
 	 
@@ -271,81 +214,65 @@ StatusCode MuonDetectorStatusDbTool::loadTubeStatus(IOVSVC_CALLBACK_ARGS_P(I,key
      }
      
      if (numbertube == 999){
-       
-       
        int multilayer_allchamber(0); 
      
        deadTubeVector.push_back(999);
        deadLayerTubeVector.push_back(deadTubeVector); 
        if (info_multilayer.size()==3){
-	 log<< MSG::VERBOSE << "ALL CHAMBER OFF!!!"<< endreq;
+	 ATH_MSG_VERBOSE( "ALL CHAMBER OFF!!!");
 	 multilayer_allchamber=999;
        }
        if (info_multilayer.size()==2){
 	 char * multi_ch= const_cast<char*>(info_multilayer[1].c_str()); 
 	 multilayer_allchamber=atoi(multi_ch);
-	 log<< MSG::VERBOSE << "MULTILAYER "<<multilayer_allchamber  << endreq;
-	 
+	 ATH_MSG_VERBOSE( "MULTILAYER "<<multilayer_allchamber  );
        }
-      if (info_multilayer.size()==1){
-	 log<< MSG::VERBOSE << "ERROR"<< endreq;
+       if (info_multilayer.size()==1){
+	 ATH_MSG_VERBOSE( "ERROR");
        }
        deadMultilayerData.insert(make_pair(multilayer_allchamber,deadLayerTubeVector ));
        m_chamberStatusData->addChamberDead((std::string)info_tube[0],(MdtDeadChamberStatus::MdtMultilayerData)deadMultilayerData);
        
      }
-     
-
    }
    
-   
-   log << MSG::VERBOSE << "Collection CondAttrListCollection CLID "
-       << atrc->clID() << endreq;
+   ATH_MSG_VERBOSE( "Collection CondAttrListCollection CLID "
+                    << atrc->clID() );
  
    IOVRange range;
    m_IOVSvc->getRange(1238547719, m_tubeFolder, range);
    
-   log << MSG::DEBUG <<"CondAttrListCollection IOVRange "<<range<<endreq;
+   ATH_MSG_DEBUG("CondAttrListCollection IOVRange "<<range);
    
    IOVRange range2;
    m_IOVSvc->setRange(228145, m_tubeStatusDataLocation, range);
    m_IOVSvc->getRange(228145, m_tubeStatusDataLocation, range2);
-   log << MSG::DEBUG <<"TubeStatusContainer new IOVRange "<<range2<<endreq;
+   ATH_MSG_DEBUG("TubeStatusContainer new IOVRange "<<range2);
    
 
-   m_detStore->record( m_chamberStatusData, m_tubeStatusDataLocation );
-   log << MSG::DEBUG << "Number  enries in new DeadChamberStatus Map " 
-       <<  m_chamberStatusData->nDeadChambers() << endreq;
-   log << MSG::DEBUG << "\n----------\nPrintout DeadChamberStatus Map \n" 
-       <<  m_chamberStatusData->str() << endreq;
+   ATH_CHECK( detStore()->record( m_chamberStatusData, m_tubeStatusDataLocation ) );
+   ATH_MSG_DEBUG( "Number  enries in new DeadChamberStatus Map " 
+                  <<  m_chamberStatusData->nDeadChambers() );
+   ATH_MSG_DEBUG( "\n----------\nPrintout DeadChamberStatus Map \n" 
+                  <<  m_chamberStatusData->str() );
 
 
- 
-   SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<MdtDeadChamberStatus>::ID(), m_tubeStatusDataLocation);
+   SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<MdtDeadChamberStatus>::ID(), m_tubeStatusDataLocation);
    if (!proxy) {
-     log << MSG::ERROR << "Unable to get the proxy for class MdtDeadChamberStatus" << endreq;
+     ATH_MSG_ERROR( "Unable to get the proxy for class MdtDeadChamberStatus" );
      return StatusCode::FAILURE;
    }
-
-
    
    SG::TransientAddress* tad =  proxy->transientAddress();
    if (!tad) {
-     log << MSG::ERROR << "Unable to get the tad" << endreq;
+     ATH_MSG_ERROR( "Unable to get the tad" );
      return StatusCode::FAILURE;
    }
    
    IAddressProvider* addp = this;
    tad->setProvider(addp, StoreID::DETECTOR_STORE);
    //tad->setProvider(addp);
-   log << MSG::DEBUG<< "set address provider for TubeStatusContainer" << endreq;
+   ATH_MSG_DEBUG( "set address provider for TubeStatusContainer" );
    
-   return  sc; 
-   
-   
-   
+   return StatusCode::SUCCESS;
 }
-
-
-
-

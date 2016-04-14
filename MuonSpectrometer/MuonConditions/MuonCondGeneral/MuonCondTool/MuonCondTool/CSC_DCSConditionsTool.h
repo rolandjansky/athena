@@ -37,7 +37,7 @@ public:
   virtual std::string DropChamberFolderName() const {return m_dropchamberFolder;}
   virtual std::string HVFolderName() const {return m_hvFolder;}
   virtual std::string ChamberFolder() const {return m_chamberFolder;}
-  virtual const std::map<Identifier,int>& CSC_ChamberId(){ return CSC_LayerMap;}   
+  virtual const std::map<Identifier,int>& CSC_ChamberId(){ return m_CSC_LayerMap;}   
 
   virtual const std::vector<std::string>& deadStationsStr(){ return m_cachedDeadStationsStr;}
   virtual const std::vector<Identifier>& deadStationsId(){ return m_cachedDeadStationsId;}
@@ -59,8 +59,8 @@ public:
   StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
-  std::map<Identifier, int> CSC_LayerMap;
-  std::map<Identifier, int> CSC_LayerMap_test;
+  std::map<Identifier, int> m_CSC_LayerMap;
+  std::map<Identifier, int> m_CSC_LayerMap_test;
   const CscIdHelper* m_cscIdHelper;
  
   std::vector<int> m_wireLayer;
@@ -81,7 +81,7 @@ public:
   std::string     m_chamberFolder;
 
         
-  std::stringstream CSCChamDrop;
+  std::stringstream m_CSCChamDrop;
   IChronoStatSvc* m_chronoSvc;
 
   std::string m_chrono1;
@@ -89,7 +89,7 @@ public:
   std::string m_chrono3;
   std::string m_chrono4;
   
-  MsgStream log;
+  MsgStream m_log;
   bool      m_debug;
   bool      m_verbose;
 };

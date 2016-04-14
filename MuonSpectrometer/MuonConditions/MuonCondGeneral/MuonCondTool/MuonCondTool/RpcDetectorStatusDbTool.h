@@ -36,7 +36,7 @@ public:
   virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
 
 private: 
-  bool FirstCall ;
+  bool m_FirstCall ;
   StatusCode initialize();
   
   virtual StatusCode loadParameterStatus(IOVSVC_CALLBACK_ARGS);
@@ -48,18 +48,18 @@ private:
   virtual const std::vector<Identifier>&  EffPanelId(){ return  m_effPanelId;}
   virtual const std::vector<Identifier>&  EffStripId(){ return  m_effStripId;}
 
-  virtual const std::map<Identifier,     std::vector<double> >& RPC_TimeMapforStrip(){ return RPC_StripTimeMap;}
+  virtual const std::map<Identifier,     std::vector<double> >& RPC_TimeMapforStrip(){ return m_RPC_StripTimeMap;}
 
-  virtual const std::map<Identifier,     double>& RPC_EfficiencyMap      (){ return RPC_PanelEfficiencyMap      ;}
-  virtual const std::map<Identifier,     double>& RPC_EfficiencyGapMap   (){ return RPC_GapEfficiencyMap        ;}
-  virtual const std::map<Identifier,     double>& RPC_MeanClusterSizeMap (){ return RPC_PanelMeanClusterSizeMap ;}
-  virtual const std::map<Identifier,     double>& RPC_FracClusterSize1Map(){ return RPC_PanelFracClusterSize1Map;}
-  virtual const std::map<Identifier,     double>& RPC_FracClusterSize2Map(){ return RPC_PanelFracClusterSize2Map;}
-  virtual const std::map<Identifier,     double>& RPC_FracClusterSize3Map(){ return RPC_PanelFracClusterSize3Map;}
-  virtual const std::map<Identifier,std::string>& RPC_DeadStripListMap   (){ return RPC_PanelDeadStripListMap   ;}
-  virtual const std::map<Identifier,      float>& RPC_FracDeadStripMap   (){ return RPC_PanelFracDeadStripMap   ;}
-  virtual const std::map<Identifier,        int>& RPC_ProjectedTracksMap (){ return RPC_PanelProjectedTracksMap ;}
-  virtual const std::map<Identifier,        int>& RPC_DeadStripList      (){ return RPC_PanelDeadStripList      ;}
+  virtual const std::map<Identifier,     double>& RPC_EfficiencyMap      (){ return m_RPC_PanelEfficiencyMap      ;}
+  virtual const std::map<Identifier,     double>& RPC_EfficiencyGapMap   (){ return m_RPC_GapEfficiencyMap        ;}
+  virtual const std::map<Identifier,     double>& RPC_MeanClusterSizeMap (){ return m_RPC_PanelMeanClusterSizeMap ;}
+  virtual const std::map<Identifier,     double>& RPC_FracClusterSize1Map(){ return m_RPC_PanelFracClusterSize1Map;}
+  virtual const std::map<Identifier,     double>& RPC_FracClusterSize2Map(){ return m_RPC_PanelFracClusterSize2Map;}
+  virtual const std::map<Identifier,     double>& RPC_FracClusterSize3Map(){ return m_RPC_PanelFracClusterSize3Map;}
+  virtual const std::map<Identifier,std::string>& RPC_DeadStripListMap   (){ return m_RPC_PanelDeadStripListMap   ;}
+  virtual const std::map<Identifier,      float>& RPC_FracDeadStripMap   (){ return m_RPC_PanelFracDeadStripMap   ;}
+  virtual const std::map<Identifier,        int>& RPC_ProjectedTracksMap (){ return m_RPC_PanelProjectedTracksMap ;}
+  virtual const std::map<Identifier,        int>& RPC_DeadStripList      (){ return m_RPC_PanelDeadStripList      ;}
 
   const RpcIdHelper* m_rpcIdHelper;
   
@@ -71,17 +71,17 @@ private:
   std::string      m_rpcDqStatusDataLocation;
   std::vector<Identifier> m_effPanelId;
   std::vector<Identifier> m_effStripId;
-  std::map<Identifier ,     double> RPC_PanelEfficiencyMap      ;
-  std::map<Identifier ,     double> RPC_GapEfficiencyMap        ;
-  std::map<Identifier ,     double> RPC_PanelMeanClusterSizeMap ;
-  std::map<Identifier ,     double> RPC_PanelFracClusterSize1Map;
-  std::map<Identifier ,     double> RPC_PanelFracClusterSize2Map;
-  std::map<Identifier ,     double> RPC_PanelFracClusterSize3Map;
-  std::map<Identifier ,std::string> RPC_PanelDeadStripListMap   ;
-  std::map<Identifier ,      float> RPC_PanelFracDeadStripMap   ;
-  std::map<Identifier ,        int> RPC_PanelProjectedTracksMap ;
-  std::map<Identifier ,        int> RPC_PanelDeadStripList      ;
-  std::map<Identifier ,     std::vector<double> > RPC_StripTimeMap;
+  std::map<Identifier ,     double> m_RPC_PanelEfficiencyMap      ;
+  std::map<Identifier ,     double> m_RPC_GapEfficiencyMap        ;
+  std::map<Identifier ,     double> m_RPC_PanelMeanClusterSizeMap ;
+  std::map<Identifier ,     double> m_RPC_PanelFracClusterSize1Map;
+  std::map<Identifier ,     double> m_RPC_PanelFracClusterSize2Map;
+  std::map<Identifier ,     double> m_RPC_PanelFracClusterSize3Map;
+  std::map<Identifier ,std::string> m_RPC_PanelDeadStripListMap   ;
+  std::map<Identifier ,      float> m_RPC_PanelFracDeadStripMap   ;
+  std::map<Identifier ,        int> m_RPC_PanelProjectedTracksMap ;
+  std::map<Identifier ,        int> m_RPC_PanelDeadStripList      ;
+  std::map<Identifier ,     std::vector<double> > m_RPC_StripTimeMap;
 
   MsgStream m_log;
   bool      m_debug;

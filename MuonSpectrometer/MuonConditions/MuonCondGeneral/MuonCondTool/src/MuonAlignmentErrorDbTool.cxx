@@ -43,7 +43,7 @@ MuonAlignmentErrorDbTool::MuonAlignmentErrorDbTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
 	  : AthAlgTool(type, name, parent),
-	    log( msgSvc(), name ),
+	    m_log( msgSvc(), name ),
 	    m_debug(false),
 	    m_verbose(false)   
 {
@@ -58,7 +58,7 @@ MuonAlignmentErrorDbTool::MuonAlignmentErrorDbTool (const std::string& type,
 
 StatusCode MuonAlignmentErrorDbTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/)
 {
-//   MsgStream log(msgSvc(), name());
+//   MsgStream m_log(msgSvc(), name());
 //   CLID clid        = tad->clID();
 //   std::string key  = tad->name();
  
@@ -70,17 +70,17 @@ StatusCode MuonAlignmentErrorDbTool::updateAddress(StoreID::type /*storeID*/, SG
 StatusCode MuonAlignmentErrorDbTool::initialize()
 {
 
-  log.setLevel(outputLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE;
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE;
 
-  log << MSG::INFO << "Initializing - folders names are: Error "<<m_errorFolder << endreq;
+  m_log << MSG::INFO << "Initializing - folders names are: Error "<<m_errorFolder << endreq;
    
   StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
   if ( sc.isSuccess() ) {
-    if( m_debug ) log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
+    if( m_debug ) m_log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
   }else{
-    log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
+    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
     return sc;
   }
   
@@ -89,7 +89,7 @@ StatusCode MuonAlignmentErrorDbTool::initialize()
   sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
   if (sc.isFailure())
     {
-      log << MSG::FATAL << " Cannot retrieve MdtIdHelper " << endreq;
+      m_log << MSG::FATAL << " Cannot retrieve MdtIdHelper " << endreq;
       return sc;
     }
   
@@ -100,7 +100,7 @@ StatusCode MuonAlignmentErrorDbTool::initialize()
   sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
     {
-      log << MSG::ERROR << "Unable to get the IOVSvc" << endreq;
+      m_log << MSG::ERROR << "Unable to get the IOVSvc" << endreq;
       return StatusCode::FAILURE;
     }
   
@@ -111,7 +111,7 @@ StatusCode MuonAlignmentErrorDbTool::initialize()
   // initialize the chrono service
   sc = service("ChronoStatSvc",m_chronoSvc);
   if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Could not find the ChronoSvc" << endreq;
+    m_log << MSG::ERROR << "Could not find the ChronoSvc" << endreq;
     return sc;
   }
 	
@@ -124,9 +124,9 @@ StatusCode MuonAlignmentErrorDbTool::initialize()
 StatusCode MuonAlignmentErrorDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
 
-  log.setLevel(outputLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE;
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE;
 
   StatusCode sc = loadAlignmentError(I,keys);
 
@@ -142,33 +142,33 @@ StatusCode MuonAlignmentErrorDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,key
 StatusCode MuonAlignmentErrorDbTool::loadAlignmentError(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
 
-  log.setLevel(outputLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE; 
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE; 
   StatusCode sc=StatusCode::SUCCESS;
-  log << MSG::INFO << "Load ERRORS from DB" << endreq;
+  m_log << MSG::INFO << "Load ERRORS from DB" << endreq;
   
   // Print out callback information
-  if( m_debug ) log << MSG::DEBUG << "Level " << I << " Keys: ";
+  if( m_debug ) m_log << MSG::DEBUG << "Level " << I << " Keys: ";
   std::list<std::string>::const_iterator keyIt = keys.begin();
-  for (; keyIt != keys.end(); ++ keyIt) if( m_debug ) log << MSG::DEBUG << *keyIt << " ";
-  if( m_debug ) log << MSG::DEBUG << endreq;
+  for (; keyIt != keys.end(); ++ keyIt) if( m_debug ) m_log << MSG::DEBUG << *keyIt << " ";
+  if( m_debug ) m_log << MSG::DEBUG << endreq;
  
   
 	
   const CondAttrListCollection * atrc;
-  log << MSG::INFO << "Try to read from folder <"<<m_errorFolder<<">"<<endreq;
+  m_log << MSG::INFO << "Try to read from folder <"<<m_errorFolder<<">"<<endreq;
   
   sc=m_detStore->retrieve(atrc,m_errorFolder);
   if(sc.isFailure())  {
-    log << MSG::ERROR
+    m_log << MSG::ERROR
 	<< "could not retrieve the CondAttrListCollection from DB folder " 
 	<< m_errorFolder << endreq;
     return sc;
 	  }
   
   else
-    if( m_debug ) log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
+    if( m_debug ) m_log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
   
  
   CondAttrListCollection::const_iterator itr;

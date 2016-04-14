@@ -40,7 +40,7 @@ RPC_DCSConditionsTool::RPC_DCSConditionsTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
 	  : AthAlgTool(type, name, parent), 
-	    log( msgSvc(), name ),
+	    m_log( msgSvc(), name ),
 	    m_debug(false),
 	    m_verbose(false)  
 {
@@ -52,8 +52,8 @@ RPC_DCSConditionsTool::RPC_DCSConditionsTool (const std::string& type,
   
   declareProperty("OffPanelFolder",     m_offPanelFolder ="/RPC/DCS/OffRopanels" );
   declareProperty("DeadPanel"     ,     m_deadPanelFolder="/RPC/DCS/DeadRopanels");
-  RPCPaneloff.str("EMPTY");
-  RPCPaneldead.str("EMPTY");
+  m_RPCPaneloff.str("EMPTY");
+  m_RPCPaneldead.str("EMPTY");
 }
 
 
@@ -68,18 +68,18 @@ StatusCode RPC_DCSConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::T
 
 StatusCode RPC_DCSConditionsTool::initialize()
 {
-  log.setLevel(outputLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE;
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE;
 
 
-  log << MSG::INFO << "Initializing - folders names are: Panel Off  "<<m_offPanelFolder <<" / Panel Dead"<<m_deadPanelFolder<< endreq;
+  m_log << MSG::INFO << "Initializing - folders names are: Panel Off  "<<m_offPanelFolder <<" / Panel Dead"<<m_deadPanelFolder<< endreq;
    
   StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
   if ( sc.isSuccess() ) {
-     if( m_debug ) log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
+    if( m_debug ) m_log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
   }else{
-    log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
+    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
     return sc;
   }
   
@@ -87,10 +87,10 @@ StatusCode RPC_DCSConditionsTool::initialize()
 
   sc = m_detStore->retrieve(m_rpcIdHelper, "RPCIDHELPER" );
   if (sc.isFailure())
-    {
-      log << MSG::FATAL << " Cannot retrieve RpcIdHelper " << endreq;
-      return sc;
-    }
+  {
+    m_log << MSG::FATAL << " Cannot retrieve RpcIdHelper " << endreq;
+    return sc;
+  }
   
     
   // Get interface to IOVSvc
@@ -98,10 +98,10 @@ StatusCode RPC_DCSConditionsTool::initialize()
   bool CREATEIF(true);
   sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
-    {
-      log << MSG::ERROR << "Unable to get the IOVSvc" << endreq;
-      return StatusCode::FAILURE;
-    }
+  {
+    m_log << MSG::ERROR << "Unable to get the IOVSvc" << endreq;
+    return StatusCode::FAILURE;
+  }
   
   if(sc.isFailure()) return StatusCode::FAILURE;
   
@@ -110,39 +110,39 @@ StatusCode RPC_DCSConditionsTool::initialize()
   // initialize the chrono service
   sc = service("ChronoStatSvc",m_chronoSvc);
   if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Could not find the ChronoSvc" << endreq;
+    m_log << MSG::ERROR << "Could not find the ChronoSvc" << endreq;
     return sc;
   }
 	
   if(sc.isFailure()) return StatusCode::FAILURE;
   
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 
 StatusCode RPC_DCSConditionsTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
  
-  log.setLevel(outputLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE;
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE;
 
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    log << MSG::INFO <<"LoadParameters Dead and Off"<< *itr << " I="<<I<<" "<<endreq;
+    m_log << MSG::INFO <<"LoadParameters Dead and Off"<< *itr << " I="<<I<<" "<<endreq;
     if(*itr==m_deadPanelFolder) {
       StatusCode sc = loadPanelDead(I,keys);
       if (sc.isFailure())
-	{
-	  return sc;
-	}
+      {
+        return sc;
+      }
     }
     else if (*itr==m_offPanelFolder) {
       StatusCode sc = loadPanelOff(I,keys);
       if (sc.isFailure())
-	{
-	  return sc;
-	}
+      {
+        return sc;
+      }
     }
   
   }
@@ -155,35 +155,35 @@ StatusCode RPC_DCSConditionsTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
 StatusCode RPC_DCSConditionsTool::loadPanelOff(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
 
-  log.setLevel(outputLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE;
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE;
 
 
   StatusCode sc=StatusCode::SUCCESS;
-  log << MSG::INFO << "Load Off Panel from DCS DB" << endreq;
+  m_log << MSG::INFO << "Load Off Panel from DCS DB" << endreq;
   
   // Print out callback information
-  if( m_debug )  log << MSG::DEBUG << "Level " << I << " Keys: ";
+  if( m_debug )  m_log << MSG::DEBUG << "Level " << I << " Keys: ";
   std::list<std::string>::const_iterator keyIt = keys.begin();
-  for (; keyIt != keys.end(); ++ keyIt) log << MSG::DEBUG << *keyIt << " ";
-  if( m_debug )  log << MSG::DEBUG << endreq;
+  for (; keyIt != keys.end(); ++ keyIt) m_log << MSG::DEBUG << *keyIt << " ";
+  if( m_debug )  m_log << MSG::DEBUG << endreq;
  
   
 	
   const CondAttrListCollection * atrc;
-  log << MSG::INFO << "Try to read from folder <"<<m_offPanelFolder<<">"<<endreq;
+  m_log << MSG::INFO << "Try to read from folder <"<<m_offPanelFolder<<">"<<endreq;
   
   sc=m_detStore->retrieve(atrc,m_offPanelFolder);
   if(sc.isFailure())  {
-    log << MSG::ERROR
-	<< "could not retreive the CondAttrListCollection from DB folder " 
-	<< m_offPanelFolder << endreq;
+    m_log << MSG::ERROR
+          << "could not retreive the CondAttrListCollection from DB folder " 
+          << m_offPanelFolder << endreq;
     return sc;
-	  }
+  }
   
   else
-    if( m_debug )  log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
+    if( m_debug )  m_log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
   
  
   CondAttrListCollection::const_iterator itr;
@@ -199,30 +199,30 @@ StatusCode RPC_DCSConditionsTool::loadPanelOff(IOVSVC_CALLBACK_ARGS_P(I,keys))
     std::string panel_off;
     //if(atr.size()==1){
     if(atr.size()){
-    panel_off=*(static_cast<const std::string*>((atr["RpcOffROPanelIds"]).addressOfData()));
+      panel_off=*(static_cast<const std::string*>((atr["RpcOffROPanelIds"]).addressOfData()));
     
-    if( m_debug )  log << MSG::DEBUG <<  "panel_off "<< panel_off << endreq;
+      if( m_debug )  m_log << MSG::DEBUG <<  "panel_off "<< panel_off << endreq;
  
-    char * ch_tmp;
-    std::string delimiter = ",";
-    std::vector<std::string> info_panel;
-    MuonCalib::MdtStringUtils::tokenize(panel_off,info_panel,delimiter);
+      char * ch_tmp;
+      std::string delimiter = ",";
+      std::vector<std::string> info_panel;
+      MuonCalib::MdtStringUtils::tokenize(panel_off,info_panel,delimiter);
    
-    Identifier PanelId;
+      Identifier PanelId;
     
-    for(unsigned int i=0; i<info_panel.size();i++){
-       ch_tmp= const_cast<char*>(info_panel[i].c_str());
-       if( m_debug )  log << MSG::DEBUG << " info_panel " << ch_tmp << " "<<atoi(ch_tmp)<< endreq; 
+      for(unsigned int i=0; i<info_panel.size();i++){
+        ch_tmp= const_cast<char*>(info_panel[i].c_str());
+        if( m_debug )  m_log << MSG::DEBUG << " info_panel " << ch_tmp << " "<<atoi(ch_tmp)<< endreq; 
       
-       PanelId= atoi(ch_tmp);
+        PanelId= atoi(ch_tmp);
     
-       if(PanelId.get_compact()){
-        if( m_debug )  log << MSG::DEBUG << "OFFPANEL "<<m_rpcIdHelper->show_to_string(PanelId) << endreq;
-	 Identifier atlasId = m_rpcIdHelper->panelID(PanelId);
-         if(atlasId!=0) m_cachedOffPanelId.push_back(PanelId);
-	if( m_debug )  log << MSG::DEBUG << "push-back"<< endreq;
-       }  
-    }   
+        if(PanelId.get_compact()){
+          if( m_debug )  m_log << MSG::DEBUG << "OFFPANEL "<<m_rpcIdHelper->show_to_string(PanelId) << endreq;
+          Identifier atlasId = m_rpcIdHelper->panelID(PanelId);
+          if(atlasId!=0) m_cachedOffPanelId.push_back(PanelId);
+          if( m_debug )  m_log << MSG::DEBUG << "push-back"<< endreq;
+        }  
+      }   
     }
   }
   
@@ -233,35 +233,35 @@ StatusCode RPC_DCSConditionsTool::loadPanelOff(IOVSVC_CALLBACK_ARGS_P(I,keys))
 
 StatusCode RPC_DCSConditionsTool::loadPanelDead(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
-  log.setLevel(outputLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE;
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE;
 
 
   StatusCode sc=StatusCode::SUCCESS;
-  log << MSG::INFO << "Load Dead Panel from DCS DB" << endreq;
+  m_log << MSG::INFO << "Load Dead Panel from DCS DB" << endreq;
   
   // Print out callback information
-  if( m_debug )  log << MSG::DEBUG << "Level " << I << " Keys: ";
+  if( m_debug )  m_log << MSG::DEBUG << "Level " << I << " Keys: ";
   std::list<std::string>::const_iterator keyIt = keys.begin();
-  for (; keyIt != keys.end(); ++ keyIt) if( m_debug )  log << MSG::DEBUG << *keyIt << " ";
-  if( m_debug )  log << MSG::DEBUG << endreq;
+  for (; keyIt != keys.end(); ++ keyIt) if( m_debug )  m_log << MSG::DEBUG << *keyIt << " ";
+  if( m_debug )  m_log << MSG::DEBUG << endreq;
  
   
 	
   const CondAttrListCollection * atrc;
-  log << MSG::INFO << "Try to read from folder <"<<m_deadPanelFolder<<">"<<endreq;
+  m_log << MSG::INFO << "Try to read from folder <"<<m_deadPanelFolder<<">"<<endreq;
   
   sc=m_detStore->retrieve(atrc,m_deadPanelFolder);
   if(sc.isFailure())  {
-    log << MSG::ERROR
-	<< "could not retreive the CondAttrListCollection from DB folder " 
-	<< m_deadPanelFolder << endreq;
+    m_log << MSG::ERROR
+          << "could not retreive the CondAttrListCollection from DB folder " 
+          << m_deadPanelFolder << endreq;
     return sc;
-	  }
+  }
   
   else
-    if( m_debug ) log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
+    if( m_debug ) m_log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
   
  
   CondAttrListCollection::const_iterator itr;
@@ -278,28 +278,28 @@ StatusCode RPC_DCSConditionsTool::loadPanelDead(IOVSVC_CALLBACK_ARGS_P(I,keys))
     
     //    if(atr.size()==1){
     if(atr.size()){
-    panel_dead=*(static_cast<const std::string*>((atr["RpcDeadROPanelIds"]).addressOfData()));  
+      panel_dead=*(static_cast<const std::string*>((atr["RpcDeadROPanelIds"]).addressOfData()));  
     
-    if( m_debug ) log << MSG::DEBUG <<  "panel_dead "<< panel_dead << endreq;
+      if( m_debug ) m_log << MSG::DEBUG <<  "panel_dead "<< panel_dead << endreq;
  
-    char * ch_tmp;
-    std::string delimiter = ",";
-    std::vector<std::string> info_panel;
-    MuonCalib::MdtStringUtils::tokenize(panel_dead,info_panel,delimiter);
+      char * ch_tmp;
+      std::string delimiter = ",";
+      std::vector<std::string> info_panel;
+      MuonCalib::MdtStringUtils::tokenize(panel_dead,info_panel,delimiter);
     
-    Identifier PanelId;
+      Identifier PanelId;
     
-    for(unsigned int i=0; i<info_panel.size();i++){
-       ch_tmp= const_cast<char*>(info_panel[i].c_str());
-       if( m_debug ) log << MSG::DEBUG << " info_panel " << ch_tmp << " "<<atoi(ch_tmp)<< endreq; 
+      for(unsigned int i=0; i<info_panel.size();i++){
+        ch_tmp= const_cast<char*>(info_panel[i].c_str());
+        if( m_debug ) m_log << MSG::DEBUG << " info_panel " << ch_tmp << " "<<atoi(ch_tmp)<< endreq; 
       
-       PanelId= atoi(ch_tmp);
+        PanelId= atoi(ch_tmp);
     
-       if(PanelId.get_compact()){
-        if( m_debug ) log << MSG::DEBUG << "DEADPANEL "<<  m_rpcIdHelper->show_to_string(PanelId) << endreq;
-	 Identifier atlasId = m_rpcIdHelper->panelID(PanelId);
-         if(atlasId!=0) m_cachedDeadPanelId.push_back(PanelId);
-	if( m_debug ) log << MSG::DEBUG << "push-back"<< endreq;
+        if(PanelId.get_compact()){
+          if( m_debug ) m_log << MSG::DEBUG << "DEADPANEL "<<  m_rpcIdHelper->show_to_string(PanelId) << endreq;
+          Identifier atlasId = m_rpcIdHelper->panelID(PanelId);
+          if(atlasId!=0) m_cachedDeadPanelId.push_back(PanelId);
+          if( m_debug ) m_log << MSG::DEBUG << "push-back"<< endreq;
        }  
      }  
     }

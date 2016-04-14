@@ -67,15 +67,15 @@ public:
   StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
-  std::map<std::string, Identifier> Chamber_Map;
+  std::map<std::string, Identifier> m_Chamber_Map;
 
-  std::map<int, Identifier> Chamber_Naming_standby;
+  std::map<int, Identifier> m_Chamber_Naming_standby;
 
-  std::map<Identifier, float> ChamberML_V0;
-  std::map<Identifier, float> ChamberML_V1;
+  std::map<Identifier, float> m_ChamberML_V0;
+  std::map<Identifier, float> m_ChamberML_V1;
 
-  std::map<int, float> ChamberML_V0_chanum;
-  std::map<int, float> ChamberML_V1_chanum;
+  std::map<int, float> m_ChamberML_V0_chanum;
+  std::map<int, float> m_ChamberML_V1_chanum;
   const MdtIdHelper* m_mdtIdHelper;
  
   std::string m_OnlineName;
@@ -111,10 +111,10 @@ public:
   // std::string     m_jtagFolder;
 
   std::vector<std::string> parlineFolder() { return m_parlineFolder; }
-  std::stringstream MDTChamDrop;
-  std::stringstream MDTLV;
-  std::stringstream MDTHV;
-  std::stringstream MDTJTAG;
+  std::stringstream m_MDTChamDrop;
+  std::stringstream m_MDTLV;
+  std::stringstream m_MDTHV;
+  std::stringstream m_MDTJTAG;
   IChronoStatSvc* m_chronoSvc;
   std::vector<std::string>      m_parlineFolder;
   std::string m_chrono1;
@@ -123,7 +123,7 @@ public:
   std::string m_chrono4;
   ToolHandle<IMDT_MapConversion> m_condMapTool;
  
-  MsgStream log;
+  MsgStream m_log;
   bool      m_debug;
   bool      m_verbose;
 };

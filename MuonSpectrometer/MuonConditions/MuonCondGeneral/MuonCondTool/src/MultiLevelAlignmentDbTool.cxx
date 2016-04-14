@@ -459,6 +459,10 @@ const CscInternalAlignmentMapContainer*
 MultiLevelAlignmentDbTool::ILineContainer() const
 {ATH_MSG_FATAL("Functionality for CSC I-lines not implemented here!");
 return NULL;}
+const MdtAsBuiltMapContainer*
+MultiLevelAlignmentDbTool::AsBuiltContainer() const
+{ATH_MSG_FATAL("Functionality for AsBuilt parameteres not implemented here!");
+return NULL;}
 const ALineMapContainer*
 MultiLevelAlignmentDbTool::level0Container() const
 {return m_level0Data;}
