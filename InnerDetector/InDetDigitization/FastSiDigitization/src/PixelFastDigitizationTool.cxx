@@ -411,7 +411,22 @@ StatusCode PixelFastDigitizationTool::mergeEvent()
     ATH_MSG_DEBUG( "[ hitproc ] PixelClusterContainer symlinked to SiClusterContainer in StoreGate" );
   }
 
+  // truth info
+  m_pixPrdTruth = new PRD_MultiTruthCollection;
 
+  if ((evtStore()->contains<PRD_MultiTruthCollection>(m_prdTruthNamePixel))){
+    if((evtStore()->retrieve(m_pixPrdTruth, m_prdTruthNamePixel)).isFailure()){
+      ATH_MSG_FATAL("Could not retrieve collection " << m_prdTruthNamePixel);
+      return StatusCode::FAILURE;
+    }
+  }else{
+    if((evtStore()->record(m_pixPrdTruth, m_prdTruthNamePixel)).isFailure()){
+      ATH_MSG_FATAL("Could not record collection " << m_prdTruthNamePixel);
+      return StatusCode::FAILURE;
+    }
+  }
+
+  m_ambiguitiesMap =new PixelGangedClusterAmbiguities();
 
   if (m_thpcsi != 0) {
     if(digitize().isFailure()) {
@@ -439,6 +454,17 @@ StatusCode PixelFastDigitizationTool::mergeEvent()
     ATH_MSG_DEBUG ( "createAndStoreRIOs() succeeded" );
   }
 
+    if ((evtStore()->setConst(m_pixelClusterContainer)).isFailure()) {
+    ATH_MSG_ERROR("[ ---- ] Could not set Pixel ROT container ");
+  }
+  ATH_MSG_DEBUG ("Ambiguities map has " << m_ambiguitiesMap->size() << " elements" );
+  StatusCode sc = evtStore()->record(m_ambiguitiesMap,m_pixelClusterAmbiguitiesMapName,false);
+  if (sc.isFailure()){
+    ATH_MSG_FATAL ( "PixelClusterAmbiguitiesMap could not be recorded in StoreGate !" );
+    return StatusCode::FAILURE;
+  }else{
+    ATH_MSG_DEBUG ( "PixelClusterAmbiguitiesMap recorded in StoreGate" );
+  }
 
 
 

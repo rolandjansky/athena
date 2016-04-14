@@ -137,6 +137,7 @@ def PixelFastDigitizationToolHS(name="PixelFastDigitizationToolHS", **kwargs):
 def PixelFastDigitizationToolPU(name="PixelFastDigitizationToolPU", **kwargs):
     kwargs.setdefault("PixelClusterContainerName", "Pixel_PU_Clusters")
     kwargs.setdefault("TruthNamePixel", "PRD_MultiTruthPixel_PU")
+    kwargs.setdefault("PixelClusterAmbiguitiesMapName", "PixelClusterAmbiguitiesMap_PU")
     kwargs.setdefault("HardScatterSplittingMode", 2)
     return commonPixelFastDigitizationConfig(name, **kwargs)
 
@@ -145,6 +146,7 @@ def PixelFastDigitizationToolSplitNoMergePU(name="PixelFastDigitizationToolSplit
     kwargs.setdefault("InputObjectName", "PileupPixelHits")
     kwargs.setdefault("PixelClusterContainerName", "PixelFast_PU_Clusters")
     kwargs.setdefault("TruthNamePixel", "PRD_MultiTruthPixel_PU")
+    kwargs.setdefault("PixelClusterAmbiguitiesMapName", "PixelClusterAmbiguitiesMap_PU")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return commonPixelFastDigitizationConfig(name, **kwargs)
 
