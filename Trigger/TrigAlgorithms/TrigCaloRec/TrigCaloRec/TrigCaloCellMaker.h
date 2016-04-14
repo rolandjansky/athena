@@ -23,6 +23,7 @@
 class IAlgToolEFCalo;
 class ICaloCellMakerTool; 
 class TrigCaloQuality;
+class ITrigDataAccess;
 
 class TrigCaloCellMaker : public HLT::FexAlgo {
 
@@ -46,6 +47,11 @@ class TrigCaloCellMaker : public HLT::FexAlgo {
    TrigCaloCellMaker execution. **/
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, 
 			    HLT::TriggerElement* outputTE);
+
+  /** code to pre-fetch ROBs now that we do this in
+ *  in this algorithm */
+  using HLT::FexAlgo::prepareRobRequests;
+  HLT::ErrorCode prepareRobRequests(const HLT::TriggerElement* inputTE );
 
  private:
 
@@ -76,6 +82,9 @@ class TrigCaloCellMaker : public HLT::FexAlgo {
   /** Pointers to timers */
   std::vector<TrigTimer*> m_timer;
 
+  /** Need access to prefetch */
+  ToolHandle<ITrigDataAccess>  m_data;
+
   /** Produced Calorimeter Cell Container. */
   CaloCellContainer* pCaloCellContainer;
 
@@ -97,6 +106,8 @@ class TrigCaloCellMaker : public HLT::FexAlgo {
 
   double m_etaWidthForID;
   double m_phiWidthForID;
+
+  std::vector<uint32_t> m_vec_robs;
 
   
 //public:
