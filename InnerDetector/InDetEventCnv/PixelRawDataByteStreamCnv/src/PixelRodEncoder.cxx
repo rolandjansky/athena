@@ -720,7 +720,7 @@ void PixelRodEncoder::packIBLcondensed(std::vector <uint32_t> & v32rod, std::vec
 
   condWord[2] = PRB_MIDDLEHITCONDENSEDWORD | (vCols[2] >> skip3) | (vTots[2] << skip4) | (vRows[3] << (skip4+skipTOT)) | (vCols[3] << (skip4+skipTOT+skipRow)) | ((vTots[3] & mask3) << (skip4+skipTOT+skipRow+skipCol));
 
-  condWord[3] = PRB_HITDATAMASK | (vTots[3] >> skip3) | (vRows[4] << skip5) | (vCols[4] << (skip5+skipRow)) | (vTots[4] << (skip5+skipRow+skipCol));
+  condWord[3] = PRB_DATAMASK | (vTots[3] >> skip3) | (vRows[4] << skip5) | (vCols[4] << (skip5+skipRow)) | (vTots[4] << (skip5+skipRow+skipCol));
 
   for (int j(0); j < 4; ++j) {
     v32rod.push_back(condWord[j]); // Filling the ROD vector here
