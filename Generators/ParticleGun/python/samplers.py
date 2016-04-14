@@ -148,8 +148,8 @@ class LogSampler(ContinuousSampler):
     "Randomly sample from an exponential distribution (i.e. uniformly on a log scale)."
 
     def __init__(self, low, high):
-        self.low = low
-        self.high = high
+        self.low = float(low)
+        self.high = float(high)
 
     def shoot(self):
         rand = random.random()
@@ -162,11 +162,23 @@ class GaussianSampler(ContinuousSampler):
     "Randomly sample from a 1D Gaussian distribution."
 
     def __init__(self, mean, sigma):
-        self.mean = mean
-        self.sigma = sigma
+        self.mean = float(mean)
+        self.sigma = float(sigma)
 
     def shoot(self):
         return random.gauss(self.mean, self.sigma)
+
+
+class InvSampler(ContinuousSampler):
+    "Randomly sample from a 1/x distribution."
+
+    def __init__(self, low, high):
+        self.low = float(low)
+        self.high = float(high)
+
+    def shoot(self):
+        invx = random.uniform(1/self.high, 1/self.low) #< limit inversion not actually necessary
+        return 1./invx
 
 
 ########################################
@@ -242,9 +254,9 @@ def mksampler(x):
      - if x can be called, i.e. x() is valid, we just return x;
      - a Python list (square brackets) will be converted to a continuous
        UniformSampler or DisjointUniformSampler;
-     - TODO: a Python tuple (round brackets/parentheses) will be treated
+     - a Python tuple (round brackets/parentheses) will be treated
        as a discrete CyclicSeqSampler;
-     - TODO: a Python set (curly brackets/braces) will be treated
+     - a Python set (curly brackets/braces) will be treated
        as a discrete RandomSeqSampler;
      - otherwise a ConstSampler will be created from x, so that x is
        returned when the sampler is called.
@@ -889,6 +901,7 @@ class ParticleSampler(Sampler):
                 m = self.massdict[abs(pid)]
                 self.mom.mass = m
                 p.mass = m
+            # TODO: Should the particle generated_mass be set from the sampler by default?
             ## Sample momentum and vertex positions into the particle
             p.mom = self.mom()
             p.pos = self.pos()
