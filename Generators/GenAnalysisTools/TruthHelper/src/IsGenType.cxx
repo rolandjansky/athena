@@ -25,6 +25,11 @@ namespace TruthHelper {
     : GenIMCselector(), m_TypeList(rhs.m_TypeList)
   { }
 
+ IsGenType& IsGenType::operator=( const IsGenType& rhs){
+      m_TypeList = rhs.m_TypeList;
+      return *this;
+}
+
 
   bool IsGenType::operator()(const HepMC::GenParticle* const p ) const {
     for (std::vector<int>::const_iterator itype = m_TypeList.begin(); itype != m_TypeList.end(); ++itype) {
