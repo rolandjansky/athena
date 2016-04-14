@@ -2,9 +2,6 @@
 ## preInclude.FastTRT_Digi.py
 ##
 
-from Digitization.DigitizationFlags import digitizationFlags
-digitizationFlags.experimentalDigi += ['doFastTRT_Digi']
-
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
 InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc( name = "InDetTRTStrawStatusSummarySvc" )
 ServiceMgr += InDetTRTStrawStatusSummarySvc
