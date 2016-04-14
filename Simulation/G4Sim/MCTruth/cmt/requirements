@@ -15,3 +15,8 @@ include_dirs "$(MCTruth_root)"
 
 library MCTruth ../src/*.cxx
 apply_pattern installed_library
+
+#private
+# use this to enable debugging for this package
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
