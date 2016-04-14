@@ -52,7 +52,7 @@ TGC_STATUSConditionsTool::TGC_STATUSConditionsTool (const std::string& type,
 StatusCode TGC_STATUSConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
 {
   
-  log.setLevel(outputLevel());
+  log.setLevel(msgLevel());
   m_debug = log.level() <= MSG::DEBUG;
   m_verbose = log.level() <= MSG::VERBOSE;
   // CLID clid        = tad->clID();
@@ -65,7 +65,7 @@ StatusCode TGC_STATUSConditionsTool::updateAddress(StoreID::type /*storeID*/, SG
 
 StatusCode TGC_STATUSConditionsTool::initialize()
 {
-  log.setLevel(outputLevel());
+  log.setLevel(msgLevel());
   m_debug = log.level() <= MSG::DEBUG;
   m_verbose = log.level() <= MSG::VERBOSE;
 
@@ -117,7 +117,7 @@ StatusCode TGC_STATUSConditionsTool::initialize()
 StatusCode TGC_STATUSConditionsTool::loadParameterStatus(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
  
-  log.setLevel(outputLevel());
+  log.setLevel(msgLevel());
   m_debug = log.level() <= MSG::DEBUG;
   m_verbose = log.level() <= MSG::VERBOSE;	 
   std::list<std::string>::const_iterator itr;
@@ -143,7 +143,7 @@ StatusCode TGC_STATUSConditionsTool::loadParameterStatus(IOVSVC_CALLBACK_ARGS_P(
 
 StatusCode TGC_STATUSConditionsTool::loadTgcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,keys)) 
 {
-  log.setLevel(outputLevel());
+  log.setLevel(msgLevel());
   m_debug = log.level() <= MSG::DEBUG;
   m_verbose = log.level() <= MSG::VERBOSE;
  

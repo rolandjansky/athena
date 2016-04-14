@@ -44,7 +44,7 @@ MDT_DCSConditionsTool::MDT_DCSConditionsTool (const std::string& type,
 				    const IInterface* parent)
 	  : AthAlgTool(type, name, parent),
 	    m_condMapTool("MDT_MapConversion"), 
-	    log( msgSvc(), name ),
+	    m_log( msgSvc(), name ),
 	    m_debug(false),
 	    m_verbose(false)   
 {
@@ -64,17 +64,17 @@ MDT_DCSConditionsTool::MDT_DCSConditionsTool (const std::string& type,
   declareProperty("Simulation_Setup",m_simulation_Setup=false);
   declareProperty("MDT_MapConversion", m_condMapTool);
   
-  MDTChamDrop.str("EMPTY");
-  MDTLV.str("EMPTY");
-  MDTHV.str("EMPTY");
-   MDTJTAG.str("EMPTY");
+  m_MDTChamDrop.str("EMPTY");
+  m_MDTLV.str("EMPTY");
+  m_MDTHV.str("EMPTY");
+  m_MDTJTAG.str("EMPTY");
 }
 
 
 //StatusCode MDT_DCSConditionsTool::updateAddress(SG::TransientAddress* /*tad*/)
 StatusCode MDT_DCSConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/)
 {
-//   MsgStream log(msgSvc(), name());
+//   MsgStream m_log(msgSvc(), name());
 //   CLID clid        = tad->clID();
 //   std::string key  = tad->name();
  
@@ -86,17 +86,17 @@ StatusCode MDT_DCSConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::T
 StatusCode MDT_DCSConditionsTool::initialize()
 {
 
-  log.setLevel(outputLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE;
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE;
 
-  log << MSG::INFO << "Initializing - folders names are: ChamberDropped "<<m_dropchamberFolder <<" / LV "<<m_lvFolder<< " / HV "<<m_hvFolder<< endreq;
+  m_log << MSG::INFO << "Initializing - folders names are: ChamberDropped "<<m_dropchamberFolder <<" / LV "<<m_lvFolder<< " / HV "<<m_hvFolder<< endreq;
    
   StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
   if ( sc.isSuccess() ) {
-    if( m_debug ) log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
+    if( m_debug ) m_log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
   }else{
-    log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
+    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
     return sc;
   }
   
@@ -105,7 +105,7 @@ StatusCode MDT_DCSConditionsTool::initialize()
   sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
   if (sc.isFailure())
     {
-      log << MSG::FATAL << " Cannot retrieve MdtIdHelper " << endreq;
+      m_log << MSG::FATAL << " Cannot retrieve MdtIdHelper " << endreq;
       return sc;
     }
   
@@ -116,7 +116,7 @@ StatusCode MDT_DCSConditionsTool::initialize()
   sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
     {
-      log << MSG::ERROR << "Unable to get the IOVSvc" << endreq;
+      m_log << MSG::ERROR << "Unable to get the IOVSvc" << endreq;
       return StatusCode::FAILURE;
     }
   
@@ -127,7 +127,7 @@ StatusCode MDT_DCSConditionsTool::initialize()
   // initialize the chrono service
   sc = service("ChronoStatSvc",m_chronoSvc);
   if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Could not find the ChronoSvc" << endreq;
+    m_log << MSG::ERROR << "Could not find the ChronoSvc" << endreq;
     return sc;
   }
 	
@@ -142,12 +142,12 @@ StatusCode MDT_DCSConditionsTool::initialize()
   if ( sc.isFailure() )
     {
       
-      log << MSG::ERROR << "Could not retrieve MDT_MapConversion" << endreq;
+      m_log << MSG::ERROR << "Could not retrieve MDT_MapConversion" << endreq;
       return sc;
     }
   else
     {
-      if( m_debug ) log<<MSG::DEBUG<<"MDT_MapConversion retrieved with statusCode = "<<sc<<" pointer = "<<m_condMapTool<<endreq;
+      if( m_debug ) m_log<<MSG::DEBUG<<"MDT_MapConversion retrieved with statusCode = "<<sc<<" pointer = "<<m_condMapTool<<endreq;
       
       
     }
@@ -159,14 +159,14 @@ StatusCode MDT_DCSConditionsTool::initialize()
 StatusCode MDT_DCSConditionsTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
 
-  log.setLevel(outputLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE;
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE;
 
   bool isHVfolder=false, isV0folder=false, isV1folder=false; 
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    log << MSG::INFO <<"LoadParameters "<< *itr << " I="<<I<<" "<<endreq;
+    m_log << MSG::INFO <<"LoadParameters "<< *itr << " I="<<I<<" "<<endreq;
     if(*itr==m_dropchamberFolder) {
       StatusCode sc = loadDropChamber(I,keys);
       if (sc.isFailure())
@@ -200,7 +200,7 @@ StatusCode MDT_DCSConditionsTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
      StatusCode sc = loadHV(I,keys);
      if (sc.isFailure())
         {
-          log << MSG::INFO << "Failed to load HV" << endreq;
+          m_log << MSG::INFO << "Failed to load HV" << endreq;
           return sc;
         }
   }
@@ -215,33 +215,33 @@ StatusCode MDT_DCSConditionsTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
 StatusCode MDT_DCSConditionsTool::loadDropChamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
 
-  log.setLevel(outputLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE; 
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE; 
   StatusCode sc=StatusCode::SUCCESS;
-  log << MSG::INFO << "Load Dropped Chamber from DCS DB" << endreq;
+  m_log << MSG::INFO << "Load Dropped Chamber from DCS DB" << endreq;
   
   // Print out callback information
-  if( m_debug ) log << MSG::DEBUG << "Level " << I << " Keys: ";
+  if( m_debug ) m_log << MSG::DEBUG << "Level " << I << " Keys: ";
   std::list<std::string>::const_iterator keyIt = keys.begin();
-  for (; keyIt != keys.end(); ++ keyIt) if( m_debug ) log << MSG::DEBUG << *keyIt << " ";
-  if( m_debug ) log << MSG::DEBUG << endreq;
+  for (; keyIt != keys.end(); ++ keyIt) if( m_debug ) m_log << MSG::DEBUG << *keyIt << " ";
+  if( m_debug ) m_log << MSG::DEBUG << endreq;
  
   
 	
   const CondAttrListCollection * atrc;
-  log << MSG::INFO << "Try to read from folder <"<<m_dropchamberFolder<<">"<<endreq;
+  m_log << MSG::INFO << "Try to read from folder <"<<m_dropchamberFolder<<">"<<endreq;
   
   sc=m_detStore->retrieve(atrc,m_dropchamberFolder);
   if(sc.isFailure())  {
-    log << MSG::ERROR
+    m_log << MSG::ERROR
 	<< "could not retreive the CondAttrListCollection from DB folder " 
 	<< m_dropchamberFolder << endreq;
     return sc;
 	  }
   
   else
-    if( m_debug ) log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
+    if( m_debug ) m_log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
   
  
   CondAttrListCollection::const_iterator itr;
@@ -266,7 +266,7 @@ StatusCode MDT_DCSConditionsTool::loadDropChamber(IOVSVC_CALLBACK_ARGS_P(I,keys)
 	 
 	Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
 	m_cachedDeadStationsId.push_back(ChamberId);
-	//log<<MSG::DEBUG<<"Chamber off from DROPPED Chamber  "<<tokens[i] <<endreq;
+	//m_log<<MSG::DEBUG<<"Chamber off from DROPPED Chamber  "<<tokens[i] <<endreq;
       }
     }
      
@@ -282,68 +282,68 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
  
 
-  log.setLevel(outputLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE;
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE;
   StatusCode sc=StatusCode::SUCCESS;
-  log << MSG::INFO << "Load HV from DCS DB" << endreq;
+  m_log << MSG::INFO << "Load HV from DCS DB" << endreq;
   const CondAttrListCollection * atrc;
-  log << MSG::INFO << "Try to read from folder <"<<m_hvFolder<<">"<<endreq;
+  m_log << MSG::INFO << "Try to read from folder <"<<m_hvFolder<<">"<<endreq;
 
   // Print out callback information
-  if( m_debug ) log << MSG::DEBUG << "Level " << I << " Keys: ";
+  if( m_debug ) m_log << MSG::DEBUG << "Level " << I << " Keys: ";
   std::list<std::string>::const_iterator keyIt = keys.begin();
-  for (; keyIt != keys.end(); ++ keyIt) if( m_debug ) log << MSG::DEBUG << *keyIt << " ";
-  if( m_debug ) log << MSG::DEBUG << endreq;
+  for (; keyIt != keys.end(); ++ keyIt) if( m_debug ) m_log << MSG::DEBUG << *keyIt << " ";
+  if( m_debug ) m_log << MSG::DEBUG << endreq;
   
 
   sc=m_detStore->retrieve(atrc,m_hvFolder);
   
   if(sc.isFailure())  {
-    log << MSG::ERROR
+    m_log << MSG::ERROR
 	<< "could not retreive the CondAttrListCollection from DB folder " 
 	<<  m_hvFolder << endreq;
     return sc;
   }
   
   else
-    log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
+    m_log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
 
 
   // setpointsV0
 
   const CondAttrListCollection * atrc_v0;
-  log << MSG::INFO << "Try to read from folder <"<<m_setPointsV0Folder<<">"<<endreq;
+  m_log << MSG::INFO << "Try to read from folder <"<<m_setPointsV0Folder<<">"<<endreq;
 
   sc=m_detStore->retrieve(atrc_v0,m_setPointsV0Folder);
   
   if(sc.isFailure())  {
-    log << MSG::ERROR
+    m_log << MSG::ERROR
 	<< "could not retreive the CondAttrListCollection from DB folder V0" 
 	<<  m_setPointsV0Folder << endreq;
     return sc;
   }
   
   else
-    if( m_debug ) log<<MSG::DEBUG<<" CondAttrListCollection from DB  set points V0 folder have been obtained with size "<< atrc_v0->size() <<endreq;
+    if( m_debug ) m_log<<MSG::DEBUG<<" CondAttrListCollection from DB  set points V0 folder have been obtained with size "<< atrc_v0->size() <<endreq;
 
 
   // setpointsV1
 
   const CondAttrListCollection * atrc_v1;
-  log << MSG::INFO << "Try to read from folder <"<<m_setPointsV1Folder<<">"<<endreq;
+  m_log << MSG::INFO << "Try to read from folder <"<<m_setPointsV1Folder<<">"<<endreq;
 
   sc=m_detStore->retrieve(atrc_v1,m_setPointsV1Folder);
   
   if(sc.isFailure())  {
-    log << MSG::ERROR
+    m_log << MSG::ERROR
 	<< "could not retrieve the CondAttrListCollection from DB folder V1" 
 	<<  m_setPointsV1Folder << endreq;
     return sc;
   }
   
   else
-    if( m_verbose ) log<<MSG::VERBOSE<<" CondAttrListCollection set points V1 from DB folder have been obtained with size "<< atrc_v1->size() <<endreq;
+    if( m_verbose ) m_log<<MSG::VERBOSE<<" CondAttrListCollection set points V1 from DB folder have been obtained with size "<< atrc_v1->size() <<endreq;
 
   //////////////////////////////
  
@@ -360,11 +360,11 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
     
     itr=atrc->chanAttrListPair(chanNum);
     const coral::AttributeList& atr=itr->second;
-    //log<<MSG::DEBUG<<" CondAttrListCollection ChanNum : "<<chanNum<<" AttributeList  size : " << atr.size() <<endreq;
+    //m_log<<MSG::DEBUG<<" CondAttrListCollection ChanNum : "<<chanNum<<" AttributeList  size : " << atr.size() <<endreq;
     
     if(atr.size()==1){
       hv_name=*(static_cast<const std::string*>((atr["fsm_currentState"]).addressOfData()));
-      //log<<MSG::DEBUG<<" CondAttrListCollection ChanNum  : "<<chanNum<<" ChanName : " << atrc->chanName(chanNum) <<endreq;
+      //m_log<<MSG::DEBUG<<" CondAttrListCollection ChanNum  : "<<chanNum<<" ChanName : " << atrc->chanName(chanNum) <<endreq;
       std::string delimiter = " ";
       std::vector<std::string> tokens;
       MuonCalib::MdtStringUtils::tokenize(hv_name,tokens,delimiter);
@@ -372,7 +372,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	{
 	  
 	  if(tokens[i]!="0"){
-	    //log << MSG::DEBUG << "Sequence for status string load is \n" << tokens[i]<< endreq;
+	    //m_log << MSG::DEBUG << "Sequence for status string load is \n" << tokens[i]<< endreq;
 	  }
 	}
       
@@ -383,14 +383,14 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       
       for (unsigned int i=0; i<tokens2.size(); i++) {
 	if(tokens2[i]!="0"){
-	  //log << MSG::DEBUG << "Sequence for name string load is \n" << tokens2[i]<< endreq; 
+	  //m_log << MSG::DEBUG << "Sequence for name string load is \n" << tokens2[i]<< endreq; 
 	}
 	
       }
       
       if(tokens[0]!="ON" && tokens[0]!="STANDBY" && tokens[0]!="UNKNOWN"){
 	
-	if( m_verbose ) log << MSG::VERBOSE << "NOT ON and NOT STANDBY HV : " << tokens[0]<< " ChamberName : "<<tokens2[2] << "multilayer" << tokens2[3]<<endreq;	
+	if( m_verbose ) m_log << MSG::VERBOSE << "NOT ON and NOT STANDBY HV : " << tokens[0]<< " ChamberName : "<<tokens2[2] << "multilayer" << tokens2[3]<<endreq;	
 	m_cachedDeadMultiLayers.push_back(tokens2[2]);
 	int multilayer =atoi(const_cast<char*>(tokens2[3].c_str()));
 	std::string chamber_name = tokens2[2];
@@ -400,7 +400,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       }
       if(tokens[0]=="STANDBY"){
 	
-	if( m_verbose ) log << MSG::VERBOSE << "STANDBY HV : " << tokens[0]<< " ChamberName : "<<tokens2[2] << "multilayer" << tokens2[3]<<endreq;	
+	if( m_verbose ) m_log << MSG::VERBOSE << "STANDBY HV : " << tokens[0]<< " ChamberName : "<<tokens2[2] << "multilayer" << tokens2[3]<<endreq;	
 	
 	int multilayer =atoi(const_cast<char*>(tokens2[3].c_str()));
 	std::string chamber_name = tokens2[2];
@@ -408,7 +408,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
 	m_cachedDeadMultiLayersId_standby.push_back(MultiLayerId);
 	
-	Chamber_Naming_standby.insert(std::make_pair(int(chanNum),MultiLayerId));
+	m_Chamber_Naming_standby.insert(std::make_pair(int(chanNum),MultiLayerId));
       }
 
 
@@ -426,7 +426,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
     
   for (itr_v0 = atrc_v0->begin(); itr_v0 != atrc_v0->end(); ++itr_v0){
     
-    //log<<MSG::DEBUG<<"index "<<chan_index_v0<< "  chanNum :" <<atrc_v0->chanNum(chan_index_v0)<< endreq;
+    //m_log<<MSG::DEBUG<<"index "<<chan_index_v0<< "  chanNum :" <<atrc_v0->chanNum(chan_index_v0)<< endreq;
     unsigned int chanNum=atrc_v0->chanNum(chan_index_v0);
     
     float setPointsV0_name;
@@ -434,21 +434,21 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
        
     itr_v0=atrc_v0->chanAttrListPair(chanNum);
     const coral::AttributeList& atr_v0=itr_v0->second;
-    //log<<MSG::DEBUG<<" CondAttrListCollection ChanNum : "<<chanNum<<" AttributeList  size : " <<endreq;
+    //m_log<<MSG::DEBUG<<" CondAttrListCollection ChanNum : "<<chanNum<<" AttributeList  size : " <<endreq;
         
     if(atr_v0.size()==1){
       setPointsV0_name=*(static_cast<const float*>((atr_v0["readBackSettings_v0"]).addressOfData()));
-      //log << MSG::DEBUG << "Sequence for name string load is inside V0\n" << "  "<<setPointsV0_name<< endreq; 
-      //log<<MSG::DEBUG<<" CondAttrListCollection ChanName : "<<atrc_v0->chanName(chanNum) <<endreq;
+      //m_log << MSG::DEBUG << "Sequence for name string load is inside V0\n" << "  "<<setPointsV0_name<< endreq; 
+      //m_log<<MSG::DEBUG<<" CondAttrListCollection ChanName : "<<atrc_v0->chanName(chanNum) <<endreq;
       std::string delimiter2 = "_";
       std::vector<std::string> tokens2;
       MuonCalib::MdtStringUtils::tokenize(setPointsV0_payload,tokens2,delimiter2);
-      ChamberML_V0_chanum.insert(std::make_pair(int(chanNum),float(setPointsV0_name)));
+      m_ChamberML_V0_chanum.insert(std::make_pair(int(chanNum),float(setPointsV0_name)));
 
-      //log << MSG::DEBUG << "Sequence for name string load is inside V0\n" << setPointsV0_payload<< endreq; 
+      //m_log << MSG::DEBUG << "Sequence for name string load is inside V0\n" << setPointsV0_payload<< endreq; 
 
       for (unsigned int i=0; i<tokens2.size(); i++) {
-	//	log << MSG::DEBUG << "Sequence for name string load is inside V0\n" <<i << "  "<<tokens2[i]<< endreq; 
+	//	m_log << MSG::DEBUG << "Sequence for name string load is inside V0\n" <<i << "  "<<tokens2[i]<< endreq; 
 	if(tokens2[i]!="0"){
 	
 	}
@@ -460,7 +460,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       
       Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
       Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
-      ChamberML_V0.insert(std::make_pair(MultiLayerId,setPointsV0_name));
+      m_ChamberML_V0.insert(std::make_pair(MultiLayerId,setPointsV0_name));
     
     }
     chan_index_v0++;
@@ -477,7 +477,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
   
   for (itr_v1 = atrc_v1->begin(); itr_v1 != atrc_v1->end(); ++itr_v1){
     
-    //log<<MSG::DEBUG<<"index "<<chan_index_v1<< "  chanNum :" <<atrc_v1->chanNum(chan_index_v1)<< endreq;
+    //m_log<<MSG::DEBUG<<"index "<<chan_index_v1<< "  chanNum :" <<atrc_v1->chanNum(chan_index_v1)<< endreq;
     unsigned int chanNum=atrc_v1->chanNum(chan_index_v1);
     float setPointsV1_name;
     std::string setPointsV1_payload=atrc_v1->chanName(chanNum);
@@ -491,11 +491,11 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       std::string delimiter2 = "_";
       std::vector<std::string> tokens2;
       MuonCalib::MdtStringUtils::tokenize(setPointsV1_payload,tokens2,delimiter2);
-      ChamberML_V1_chanum.insert(std::make_pair(int(chanNum),float(setPointsV1_name)));
+      m_ChamberML_V1_chanum.insert(std::make_pair(int(chanNum),float(setPointsV1_name)));
       
       for (unsigned int i=0; i<tokens2.size(); i++) {
 	if(tokens2[i]!="0"){
-	  //log << MSG::DEBUG << "Sequence for name string load is inside V1\n" <<i << "  "<<tokens2[i]<< endreq; 
+	  //m_log << MSG::DEBUG << "Sequence for name string load is inside V1\n" <<i << "  "<<tokens2[i]<< endreq; 
 	}
 	
       }
@@ -504,7 +504,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       std::string chamber_name = tokens2[2];
       Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
       Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
-      ChamberML_V1.insert(std::make_pair(MultiLayerId,setPointsV1_name));
+      m_ChamberML_V1.insert(std::make_pair(MultiLayerId,setPointsV1_name));
       
     }
     chan_index_v1++;
@@ -518,12 +518,12 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
   for (unsigned int vect=0; vect<m_cachedDeadMultiLayersId_standby.size(); vect++){
     Identifier MultilayerId_ch = m_cachedDeadMultiLayersId_standby[vect];
     
-    if (ChamberML_V1.find(MultilayerId_ch)->second == ChamberML_V0.find(MultilayerId_ch)->second){
+    if (m_ChamberML_V1.find(MultilayerId_ch)->second == m_ChamberML_V0.find(MultilayerId_ch)->second){
       
-      if( m_debug ) log<<MSG::DEBUG<<" Chamber has  correct Voltage V1 = "<< ChamberML_V1.find(MultilayerId_ch)->second<<" V0=   " << ChamberML_V0.find(MultilayerId_ch)->second <<endreq; 
+      if( m_debug ) m_log<<MSG::DEBUG<<" Chamber has  correct Voltage V1 = "<< m_ChamberML_V1.find(MultilayerId_ch)->second<<" V0=   " << m_ChamberML_V0.find(MultilayerId_ch)->second <<endreq; 
     }else{
-      if( m_debug ) log<<MSG::DEBUG<<" Chamber has  wrong correct Voltage V1 = "<< ChamberML_V1.find(MultilayerId_ch)->second<<" V0=   " << ChamberML_V0.find(MultilayerId_ch)->second <<endreq;
-      if( m_debug ) log<<MSG::DEBUG<<" Has to be masked!!! "<<endreq;
+      if( m_debug ) m_log<<MSG::DEBUG<<" Chamber has  wrong correct Voltage V1 = "<< m_ChamberML_V1.find(MultilayerId_ch)->second<<" V0=   " << m_ChamberML_V0.find(MultilayerId_ch)->second <<endreq;
+      if( m_debug ) m_log<<MSG::DEBUG<<" Has to be masked!!! "<<endreq;
       m_cachedDeadMultiLayersId.push_back(MultilayerId_ch);
     }
     
@@ -534,32 +534,32 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 }
 StatusCode MDT_DCSConditionsTool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
-  log.setLevel(outputLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE;
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE;
 
   StatusCode sc=StatusCode::SUCCESS;
-  log << MSG::INFO << "Load LV from DCS DB" << endreq;
+  m_log << MSG::INFO << "Load LV from DCS DB" << endreq;
   const CondAttrListCollection * atrc;
-  log << MSG::INFO << "Try to read from folder <"<<m_lvFolder<<">"<<endreq;
+  m_log << MSG::INFO << "Try to read from folder <"<<m_lvFolder<<">"<<endreq;
 
   // Print out callback information
-  log << MSG::DEBUG << "Level " << I << " Keys: ";
+  m_log << MSG::DEBUG << "Level " << I << " Keys: ";
   std::list<std::string>::const_iterator keyIt = keys.begin();
-  for (; keyIt != keys.end(); ++ keyIt) if( m_debug ) log << MSG::DEBUG << *keyIt << " ";
-  if( m_debug ) log << MSG::DEBUG << endreq;
+  for (; keyIt != keys.end(); ++ keyIt) if( m_debug ) m_log << MSG::DEBUG << *keyIt << " ";
+  if( m_debug ) m_log << MSG::DEBUG << endreq;
 
   sc=m_detStore->retrieve(atrc,m_lvFolder);
 
   if(sc.isFailure())  {
-    log << MSG::ERROR
+    m_log << MSG::ERROR
         << "could not retreive the CondAttrListCollection from DB folder "
         << m_lvFolder << endreq;
     return sc;
   }
   
   else
-     if( m_verbose ) log<<MSG::VERBOSE<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
+     if( m_verbose ) m_log<<MSG::VERBOSE<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
   
   CondAttrListCollection::const_iterator itr;
   
@@ -567,18 +567,18 @@ StatusCode MDT_DCSConditionsTool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
   
   for (itr = atrc->begin(); itr != atrc->end(); ++itr){
     
-    //log<<MSG::DEBUG<<"index "<<chan_index<< "  chanNum :" <<atrc->chanNum(chan_index)<< endreq;
+    //m_log<<MSG::DEBUG<<"index "<<chan_index<< "  chanNum :" <<atrc->chanNum(chan_index)<< endreq;
     unsigned int chanNum=atrc->chanNum(chan_index);
     std::string hv_name;
     std::string hv_payload=atrc->chanName(chanNum);
     
     itr=atrc-> chanAttrListPair(chanNum);
     const coral::AttributeList& atr=itr->second;
-    //log<<MSG::DEBUG<<" CondAttrListCollection ChanNum : "<<chanNum<<" AttributeList  size : " << atr.size() <<endreq;
+    //m_log<<MSG::DEBUG<<" CondAttrListCollection ChanNum : "<<chanNum<<" AttributeList  size : " << atr.size() <<endreq;
     
     if(atr.size()==1){
       hv_name=*(static_cast<const std::string*>((atr["fsm_currentState"]).addressOfData()));
-      //log<<MSG::DEBUG<<" CondAttrListCollection ChanNum : "<<chanNum<<" ChanName : " << atrc->chanName(chanNum) <<endreq;
+      //m_log<<MSG::DEBUG<<" CondAttrListCollection ChanNum : "<<chanNum<<" ChanName : " << atrc->chanName(chanNum) <<endreq;
       std::string delimiter = " ";
       std::vector<std::string> tokens;
       MuonCalib::MdtStringUtils::tokenize(hv_name,tokens,delimiter);
@@ -586,7 +586,7 @@ StatusCode MDT_DCSConditionsTool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	{
 	  
 	  if(tokens[i]!="0"){
-	    //log << MSG::VERBOSE << "Sequence for status string load is " << tokens[i]<< endreq;
+	    //m_log << MSG::VERBOSE << "Sequence for status string load is " << tokens[i]<< endreq;
 	  }
 	}
      
@@ -597,18 +597,18 @@ StatusCode MDT_DCSConditionsTool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       
       for (unsigned int i=0; i<tokens2.size(); i++) {
 	if(tokens2[i]!="0"){
-	  //log << MSG::VERBOSE << "Sequence for name string load is " << tokens2[i]<< endreq;
+	  //m_log << MSG::VERBOSE << "Sequence for name string load is " << tokens2[i]<< endreq;
 	}
 	
       }
       
       if(tokens[0]!="ON"){
-	 if( m_verbose ) log << MSG::VERBOSE << "NOT ON LV: " << tokens[0]<< " ChamberName : "<<tokens2[2] <<endreq;
+	 if( m_verbose ) m_log << MSG::VERBOSE << "NOT ON LV: " << tokens[0]<< " ChamberName : "<<tokens2[2] <<endreq;
 	m_cachedDeadLVStations.push_back(tokens2[2]);
 	std::string chamber_name= tokens2[2];
 	Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
 	m_cachedDeadLVStationsId.push_back(ChamberId);
-	 if( m_verbose ) log<<MSG::VERBOSE<<"Chamber off from LV Chamber !=ON "<<tokens2[2] <<endreq;
+	 if( m_verbose ) m_log<<MSG::VERBOSE<<"Chamber off from LV Chamber !=ON "<<tokens2[2] <<endreq;
 
       }
      
@@ -618,7 +618,7 @@ StatusCode MDT_DCSConditionsTool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
   
   //merge deadStations with deadLVStations, then sort the vector elements and
   //finally remove duplicates
-   if( m_verbose ) log << MSG::VERBOSE << "Now merging the  DeadStations with DeadLVStations" <<  endreq;
+   if( m_verbose ) m_log << MSG::VERBOSE << "Now merging the  DeadStations with DeadLVStations" <<  endreq;
   m_cachedDeadStations.insert( m_cachedDeadStations.end(),
 			       m_cachedDeadLVStations.begin(),m_cachedDeadLVStations.end());
 
@@ -630,7 +630,7 @@ StatusCode MDT_DCSConditionsTool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
   //merge deadStationsId with deadLVStationsId, then sort the vector elements and
   //finally remove duplicates
 
-   if( m_verbose ) log << MSG::VERBOSE << "Now merging the  DeadStationsId with DeadLVStationsId" <<  endreq;
+   if( m_verbose ) m_log << MSG::VERBOSE << "Now merging the  DeadStationsId with DeadLVStationsId" <<  endreq;
   m_cachedDeadStationsId.insert( m_cachedDeadStationsId.end(),
 				 m_cachedDeadLVStationsId.begin(),m_cachedDeadLVStationsId.end());
   std::sort(m_cachedDeadStationsId.begin(),m_cachedDeadStationsId.end(),compareId);  
@@ -648,39 +648,39 @@ StatusCode MDT_DCSConditionsTool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 StatusCode MDT_DCSConditionsTool::loadJTAG(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
 
-  log.setLevel(outputLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE;
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE;
   StatusCode sc=StatusCode::SUCCESS;
-  log << MSG::INFO << "Load JTAG from DCS DB" << endreq;
+  m_log << MSG::INFO << "Load JTAG from DCS DB" << endreq;
   const CondAttrListCollection * atrc;
   
-  log << MSG::INFO << "Try to read from folder <"<<m_jtagFolder<<">"<<endreq;
+  m_log << MSG::INFO << "Try to read from folder <"<<m_jtagFolder<<">"<<endreq;
   
   // Print out callback information
-  if( m_debug ) log << MSG::DEBUG << "Level " << I << " Keys: ";
+  if( m_debug ) m_log << MSG::DEBUG << "Level " << I << " Keys: ";
   std::list<std::string>::const_iterator keyIt = keys.begin();
-  for (; keyIt != keys.end(); ++ keyIt)  if( m_debug ) log << MSG::DEBUG << *keyIt << " ";
-  if( m_debug ) log << MSG::DEBUG << endreq;
+  for (; keyIt != keys.end(); ++ keyIt)  if( m_debug ) m_log << MSG::DEBUG << *keyIt << " ";
+  if( m_debug ) m_log << MSG::DEBUG << endreq;
   
   sc=m_detStore->retrieve(atrc,m_jtagFolder);
   
   if(sc.isFailure())  {
-    log << MSG::ERROR
+    m_log << MSG::ERROR
         << "could not retreive the CondAttrListCollection from DB folder "
         <<  m_jtagFolder << endreq;
     return sc;
   }
   
   else
-     if( m_debug ) log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
+     if( m_debug ) m_log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
   
   CondAttrListCollection::const_iterator itr;
   
   unsigned int chan_index=0;
   for (itr = atrc->begin(); itr != atrc->end(); ++itr){
     
-    //log<<MSG::DEBUG<<"index "<<chan_index<< "  chanNum :" <<atrc->chanNum(chan_index)<< endreq;
+    //m_log<<MSG::DEBUG<<"index "<<chan_index<< "  chanNum :" <<atrc->chanNum(chan_index)<< endreq;
     unsigned int chanNum=atrc->chanNum(chan_index);
     std::string hv_name;
     std::string hv_payload=atrc->chanName(chanNum);

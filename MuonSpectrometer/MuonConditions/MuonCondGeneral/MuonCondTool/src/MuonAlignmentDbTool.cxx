@@ -75,7 +75,7 @@ MuonAlignmentDbTool::MuonAlignmentDbTool (const std::string& type,
 //StatusCode MuonAlignmentDbTool::updateAddress(SG::TransientAddress* tad)
 StatusCode MuonAlignmentDbTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
 {
-  m_log.setLevel(outputLevel());
+  m_log.setLevel(msgLevel());
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
   //   MsgStream log(msgSvc(), name());
@@ -107,7 +107,7 @@ StatusCode MuonAlignmentDbTool::updateAddress(StoreID::type /*storeID*/, SG::Tra
 StatusCode MuonAlignmentDbTool::initialize()
 { 
   //  MsgStream log(msgSvc(), name());
-  m_log.setLevel(outputLevel());
+  m_log.setLevel(msgLevel());
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
 
@@ -536,28 +536,28 @@ StatusCode MuonAlignmentDbTool::loadAlignAsBuilt(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*
 StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName) 
 {
 
-   MsgStream m_log(msgSvc(), name());
+   MsgStream log(msgSvc(), name());
    StatusCode sc=StatusCode::SUCCESS;
-   m_log << MSG::INFO << "Load alignment parameters from DB folder <"<<folderName<<">"<< endreq;
-   if( m_debug ) m_log << MSG::DEBUG << " ----- ALineMapContainer pointer "<<(uintptr_t)m_alineData<<endreq;
+   log << MSG::INFO << "Load alignment parameters from DB folder <"<<folderName<<">"<< endreq;
+   if( m_debug ) log << MSG::DEBUG << " ----- ALineMapContainer pointer "<<(uintptr_t)m_alineData<<endreq;
 
    // retreive the collection of strings read out from the DB
    const CondAttrListCollection * atrc;
    sc=m_detStore->retrieve(atrc,folderName);
    if(sc.isFailure())  {
-     m_log << MSG::WARNING 
+     log << MSG::WARNING 
          << "could not retreive the CondAttrListCollection from DB folder " 
          << folderName << endreq;
      return StatusCode::RECOVERABLE;
    }
    else
-       m_log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
-   if( m_debug ) m_log << MSG::DEBUG << " data found ----- ALineMapContainer pointer "<<(uintptr_t)m_alineData<<endreq;
+       log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
+   if( m_debug ) log << MSG::DEBUG << " data found ----- ALineMapContainer pointer "<<(uintptr_t)m_alineData<<endreq;
 
    bool hasBLine = true;
    if (folderName.find("TGC")!=std::string::npos)  {
        hasBLine = false;
-       m_log << MSG::INFO << "No BLines decoding will be attempted for folder named "<<folderName<<endreq;
+       log << MSG::INFO << "No BLines decoding will be attempted for folder named "<<folderName<<endreq;
    }
    
    
@@ -575,7 +575,7 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
     std::string data;
     data=*(static_cast<const std::string*>((atr["data"]).addressOfData()));
     
-    if( m_debug ) m_log << MSG::DEBUG << "Data load is " << data << " FINISHED HERE "<<endreq;
+    if( m_debug ) log << MSG::DEBUG << "Data load is " << data << " FINISHED HERE "<<endreq;
     
     // Check the first word to see if it is a correction
     std::string type;
@@ -624,7 +624,7 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
 	    if (m_verbose){
 		for (unsigned int i=0; i<tokens.size(); i++) 
 		{	
-		    m_log << MSG::VERBOSE <<tokens[i] <<" | ";
+		    log << MSG::VERBOSE <<tokens[i] <<" | ";
 		}
 	    }	    
 	    int ival = 1;
@@ -632,18 +632,18 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
 	    long int lastIOV = getLastIOVforThisFolder(folderName);
 
 	    std::string str_iovThisBlob = tokens[ival];
-	    sscanf(str_iovThisBlob.c_str(),"%ld",&iovThisBlob);
-	    m_log << MSG::INFO <<"Data read from folder "<< folderName
+	    sscanf(str_iovThisBlob.c_str(),"%80ld",&iovThisBlob);
+	    log << MSG::INFO <<"Data read from folder "<< folderName
 		  <<" have IoV = "<<iovThisBlob<<" to be compared with latest IOVread for the same folder = "<<lastIOV<<endreq;
 	    if (iovThisBlob == lastIOV) 
 	    {
-		m_log << MSG::INFO <<"Call back for  "<< folderName
+		log << MSG::INFO <<"Call back for  "<< folderName
 		      <<" detected without a real IOV transition: IOV registered in this data "<<iovThisBlob
 		      <<" to be compared with latest IOVread for the same folder = "
 		      <<lastIOV<<endreq<<"Ignoring this call back for folder "<<folderName<<endreq;
 		return StatusCode::SUCCESS;
 	    }
-	    m_log << MSG::INFO <<"Call back for  "<< folderName
+	    log << MSG::INFO <<"Call back for  "<< folderName
 		  <<" detected with a real IOV transition: IOV registered in this data "<<iovThisBlob
 		  <<" to be compared with latest IOVread for the same folder = "
 		  <<lastIOV<<endreq;
@@ -664,16 +664,16 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
 	  std::vector<std::string> tokens;
 	  MuonCalib::MdtStringUtils::tokenize(blobline,tokens,delimiter);
           if( m_verbose ) {
-	      m_log << MSG::VERBOSE << "Parsing Line = ";
-	      for (unsigned int i=0; i<tokens.size(); i++) m_log << MSG::VERBOSE <<tokens[i] <<" | ";
-	      m_log<<endreq;
+	      log << MSG::VERBOSE << "Parsing Line = ";
+	      for (unsigned int i=0; i<tokens.size(); i++) log << MSG::VERBOSE <<tokens[i] <<" | ";
+	      log<<endreq;
 	  }	  
 	  bool thisRowHasBLine = true;
 	  if (tokens.size()<15)
 	    {
 	      // only A-lines ..... old COOL blob convention for barrel 
 	      thisRowHasBLine = false;
-	      if( m_verbose )m_log << MSG::VERBOSE <<"(old COOL blob convention for barrel) skipping B-line decoding "<<endreq;
+	      if( m_verbose )log << MSG::VERBOSE <<"(old COOL blob convention for barrel) skipping B-line decoding "<<endreq;
 	    }
 
 	  // Start parsing
@@ -685,11 +685,11 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
 	  int job;
 	  std::string stationType = tokens[ival++];	  
 	  std::string jff_str = tokens[ival++]; 
-	  sscanf(jff_str.c_str(),"%d",&jff);
+	  sscanf(jff_str.c_str(),"%80d",&jff);
 	  std::string jzz_str = tokens[ival++];
-	  sscanf(jzz_str.c_str(),"%d",&jzz);
+	  sscanf(jzz_str.c_str(),"%80d",&jzz);
 	  std::string job_str = tokens[ival++];
-	  sscanf(job_str.c_str(),"%d",&job);
+	  sscanf(job_str.c_str(),"%80d",&job);
 	  
 	  // A-line
 	  float s;
@@ -699,17 +699,17 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
 	  float thz;
 	  float tht;	  
 	  std::string s_str = tokens[ival++];
-	  sscanf(s_str.c_str(),"%f",&s);
+	  sscanf(s_str.c_str(),"%80f",&s);
 	  std::string z_str = tokens[ival++];
-	  sscanf(z_str.c_str(),"%f",&z);
+	  sscanf(z_str.c_str(),"%80f",&z);
 	  std::string t_str = tokens[ival++];
-	  sscanf(t_str.c_str(),"%f",&t);
+	  sscanf(t_str.c_str(),"%80f",&t);
 	  std::string ths_str = tokens[ival++];
-	  sscanf(ths_str.c_str(),"%f",&ths);
+	  sscanf(ths_str.c_str(),"%80f",&ths);
 	  std::string thz_str = tokens[ival++];
-	  sscanf(thz_str.c_str(),"%f",&thz);
+	  sscanf(thz_str.c_str(),"%80f",&thz);
 	  std::string tht_str = tokens[ival++];
-	  sscanf(tht_str.c_str(),"%f",&tht);
+	  sscanf(tht_str.c_str(),"%80f",&tht);
 
 	  // B-line
 	  float bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en;
@@ -718,52 +718,52 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
 	  if (hasBLine && thisRowHasBLine)
 	  {	      
 	  std::string tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%f",&bz);
+	  sscanf(tmp_str.c_str(),"%80f",&bz);
 	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%f",&bp);
+	  sscanf(tmp_str.c_str(),"%80f",&bp);
 	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%f",&bn);
+	  sscanf(tmp_str.c_str(),"%80f",&bn);
 	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%f",&sp);
+	  sscanf(tmp_str.c_str(),"%80f",&sp);
 	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%f",&sn);
+	  sscanf(tmp_str.c_str(),"%80f",&sn);
 	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%f",&tw);
+	  sscanf(tmp_str.c_str(),"%80f",&tw);
 	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%f",&pg);
+	  sscanf(tmp_str.c_str(),"%80f",&pg);
 	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%f",&tr);
+	  sscanf(tmp_str.c_str(),"%80f",&tr);
 	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%f",&eg);
+	  sscanf(tmp_str.c_str(),"%80f",&eg);
 	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%f",&ep);
+	  sscanf(tmp_str.c_str(),"%80f",&ep);
 	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%f",&en);	  
+	  sscanf(tmp_str.c_str(),"%80f",&en);	  
 
 	  // ChamberName (hardware convention)
 	  ChamberHwName = tokens[ival++];
 	  }
 	  
-	  if( m_verbose ) m_log << MSG::VERBOSE <<"Station type "  << stationType <<endreq;
-	  if( m_verbose ) m_log << MSG::VERBOSE <<"jff / jzz / job "  <<jff <<" / "<< jzz<<" / "<<job;
+	  if( m_verbose ) log << MSG::VERBOSE <<"Station type "  << stationType <<endreq;
+	  if( m_verbose ) log << MSG::VERBOSE <<"jff / jzz / job "  <<jff <<" / "<< jzz<<" / "<<job;
 	  if (hasBLine) {
-	    if( m_verbose ) m_log <<MSG::VERBOSE << " HardwareChamberName "<<ChamberHwName<<endreq;
-	    else if( m_verbose ) m_log  <<MSG::VERBOSE <<endreq;
+	    if( m_verbose ) log <<MSG::VERBOSE << " HardwareChamberName "<<ChamberHwName<<endreq;
+	    else if( m_verbose ) log  <<MSG::VERBOSE <<endreq;
 	  }
-	  if( m_verbose ) m_log << MSG::VERBOSE <<"A-line: s,z,t "  << s <<" "<< z <<" "<< t;
-	  if( m_verbose ) m_log << MSG::VERBOSE <<" ts,tz,tt "  << ths <<" "<< thz <<" "<< tht <<endreq;
+	  if( m_verbose ) log << MSG::VERBOSE <<"A-line: s,z,t "  << s <<" "<< z <<" "<< t;
+	  if( m_verbose ) log << MSG::VERBOSE <<" ts,tz,tt "  << ths <<" "<< thz <<" "<< tht <<endreq;
 	  if (hasBLine) {
 	    if (thisRowHasBLine) {
-	      if( m_verbose ) m_log << MSG::VERBOSE <<"B-line:  bz,bp,bn "<<bz<<" "<<bp<<" "<<bn;
-	      if( m_verbose ) m_log << MSG::VERBOSE <<" sp,sn "<<sp<<" "<<sn<<" tw,pg,tr "<<tw<<" "<<pg<<" "<<tr
+	      if( m_verbose ) log << MSG::VERBOSE <<"B-line:  bz,bp,bn "<<bz<<" "<<bp<<" "<<bn;
+	      if( m_verbose ) log << MSG::VERBOSE <<" sp,sn "<<sp<<" "<<sn<<" tw,pg,tr "<<tw<<" "<<pg<<" "<<tr
 		  <<" eg,ep,en "  <<eg<<" "<<ep<<" "<<en<<endreq;
             }
-	    else if( m_verbose ) m_log << MSG::VERBOSE <<"No B-line found"<<endreq; 
+	    else if( m_verbose ) log << MSG::VERBOSE <<"No B-line found"<<endreq; 
 	  }
 	  
 	  int stationName = m_mdtIdHelper->stationNameIndex(stationType);
 	  Identifier id;
-	  if( m_verbose ) m_log << MSG::VERBOSE<< "stationName  " << stationName << endreq;
+	  if( m_verbose ) log << MSG::VERBOSE<< "stationName  " << stationName << endreq;
 	  if (stationType.substr(0,1)=="T") 
 	  {
 	      // tgc case
@@ -776,24 +776,24 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
 		  if (jzz<0) stEta = -stEta;
 	      }
 	      id = m_tgcIdHelper->elementID(stationName, stEta, stPhi);
-              if( m_verbose ) m_log << MSG::VERBOSE<< "identifier being assigned is " <<m_tgcIdHelper->show_to_string(id)<< endreq;
+              if( m_verbose ) log << MSG::VERBOSE<< "identifier being assigned is " <<m_tgcIdHelper->show_to_string(id)<< endreq;
 	  }
 	  else if (stationType.substr(0,1)=="C") 
 	  {
 	      // csc case
 	      id = m_cscIdHelper->elementID(stationName, jzz, jff);
-              if( m_verbose ) m_log << MSG::VERBOSE<< "identifier being assigned is " <<m_cscIdHelper->show_to_string(id)<< endreq;
+              if( m_verbose ) log << MSG::VERBOSE<< "identifier being assigned is " <<m_cscIdHelper->show_to_string(id)<< endreq;
 	  }
 	  else if (stationType.substr(0,3)=="BML" && abs(jzz)==7) 
 	  {
 	      // rpc case
 	      id = m_rpcIdHelper->elementID(stationName, jzz, jff, 1);
-              if( m_verbose ) m_log << MSG::VERBOSE<< "identifier being assigned is " <<m_rpcIdHelper->show_to_string(id)<< endreq;
+              if( m_verbose ) log << MSG::VERBOSE<< "identifier being assigned is " <<m_rpcIdHelper->show_to_string(id)<< endreq;
 	  }
 	  else
           {
               id = m_mdtIdHelper->elementID(stationName, jzz, jff);
-              if( m_verbose ) m_log << MSG::VERBOSE<< "identifier being assigned is " <<m_mdtIdHelper->show_to_string(id)<< endreq;
+              if( m_verbose ) log << MSG::VERBOSE<< "identifier being assigned is " <<m_mdtIdHelper->show_to_string(id)<< endreq;
 	  }
           
 
@@ -807,7 +807,7 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
 	  iALineMap ialine;
 	  if((ialine = m_alineData->find(id)) != m_alineData->end())
           {
-              m_log << MSG::WARNING<< "More than one (A-line) entry in folder "<<folderName<<" for  "
+              log << MSG::WARNING<< "More than one (A-line) entry in folder "<<folderName<<" for  "
                   << stationType<<" at Jzz/Jff "<<jzz<<"/"<< jff <<" --- keep the latest one"<< endreq;
               m_alineData->erase(id);
               --nNewDecodedALines;
@@ -825,7 +825,7 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
 	      iBLineMap ibline;
 	      if((ibline = m_blineData->find(id)) != m_blineData->end())
 	      {
-		  m_log << MSG::WARNING<< "More than one (B-line) entry in folder "<<folderName<<" for  "
+		  log << MSG::WARNING<< "More than one (B-line) entry in folder "<<folderName<<" for  "
 		      << stationType<<" at Jzz/Jff "<<jzz<<"/"<< jff <<" --- keep the latest one"<< endreq;
 		  m_blineData->erase(id);
 		  --nNewDecodedBLines;
@@ -835,16 +835,16 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
 	}
       }
    }
-  if( m_debug ) m_log << MSG::DEBUG<<"In folder <"<<folderName<<"> # lines/decodedLines/newDecodedALines/newDecodedBLines= "
+  if( m_debug ) log << MSG::DEBUG<<"In folder <"<<folderName<<"> # lines/decodedLines/newDecodedALines/newDecodedBLines= "
        <<nLines<<"/"<<nDecodedLines<<"/"<<nNewDecodedALines<<"/"<<nNewDecodedBLines<<endreq;
 
    // set A-lines from ASCII file
    if (m_aLinesFile!="" && (int)m_alineData->size()>0 ) setALinesFromAscii();
    
-   // dump A-lines to m_log file
+   // dump A-lines to log file
    if (m_dumpALines && (int)m_alineData->size()>0) dumpALines(folderName);
    
-   // dump B-lines to m_log file
+   // dump B-lines to log file
    if (m_dumpBLines && (int)m_blineData->size()>0) dumpBLines(folderName);
    
    if ( m_asBuiltFile!="" ) setAsBuiltFromAscii();
@@ -854,24 +854,24 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
    
    IOVRange range;
    if ((m_IOVSvc->getRange(1238547719, folderName, range)).isFailure()) return StatusCode::FAILURE;
-   if( m_debug) m_log << MSG::DEBUG <<"IOVRange for these data is <"<<range<<">"<<endreq;
+   if( m_debug) log << MSG::DEBUG <<"IOVRange for these data is <"<<range<<">"<<endreq;
    
 
 // ss:01/07/2008 not clear if this is needed at all 
    SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<ALineMapContainer>::ID(), m_alineDataLocation);
     if (!proxy) {
-      m_log << MSG::ERROR << "Unable to get the proxy for class ALineParContainer" << endreq;
+      log << MSG::ERROR << "Unable to get the proxy for class ALineParContainer" << endreq;
       return StatusCode::FAILURE;
     }
     SG::TransientAddress* tad =  proxy->transientAddress();
     if (!tad) {
-      m_log << MSG::ERROR << "Unable to get the tad" << endreq;
+      log << MSG::ERROR << "Unable to get the tad" << endreq;
       return StatusCode::FAILURE;
     }
     IAddressProvider* addp = this;
     //    tad->setProvider(addp);
     tad->setProvider(addp, StoreID::DETECTOR_STORE);
-    if( m_debug ) m_log << MSG::DEBUG<< "set address provider for ALineParContainer" << endreq;
+    if( m_debug ) log << MSG::DEBUG<< "set address provider for ALineParContainer" << endreq;
    
    return  sc; 
 }
@@ -879,23 +879,23 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
 StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName) 
 {
 
-   MsgStream m_log(msgSvc(), name());
+   MsgStream log(msgSvc(), name());
    StatusCode sc=StatusCode::SUCCESS;
-   m_log << MSG::INFO << "Load alignment parameters from DB folder <"<<folderName<<">"<< endreq;
-   if( m_debug ) m_log << MSG::DEBUG << " ----- ILineMapContainer pointer "<<(uintptr_t)m_ilineData<<endreq;
+   log << MSG::INFO << "Load alignment parameters from DB folder <"<<folderName<<">"<< endreq;
+   if( m_debug ) log << MSG::DEBUG << " ----- ILineMapContainer pointer "<<(uintptr_t)m_ilineData<<endreq;
 
    // retreive the collection of strings read out from the DB
    const CondAttrListCollection * atrc;
    sc=m_detStore->retrieve(atrc,folderName);
    if(sc.isFailure())  {
-     m_log << MSG::WARNING 
+     log << MSG::WARNING 
          << "could not retreive the CondAttrListCollection from DB folder " 
          << folderName << endreq;
      return StatusCode::RECOVERABLE;
    }
    else
-       m_log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
-   if( m_debug ) m_log << MSG::DEBUG << " data found ----- ILineMapContainer pointer "<<(uintptr_t)m_ilineData<<endreq;
+       log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
+   if( m_debug ) log << MSG::DEBUG << " data found ----- ILineMapContainer pointer "<<(uintptr_t)m_ilineData<<endreq;
 
    // unpack the strings in the collection and update the 
    // ALlineContainer in TDS
@@ -909,7 +909,7 @@ StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName)
     std::string data;
     data=*(static_cast<const std::string*>((atr["data"]).addressOfData()));
     
-    if( m_debug ) m_log << MSG::DEBUG << "Data load is " << data << " FINISHED HERE "<<endreq;
+    if( m_debug ) log << MSG::DEBUG << "Data load is " << data << " FINISHED HERE "<<endreq;
     
     // Check the first word to see if it is a correction
     std::string type;
@@ -958,7 +958,7 @@ StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName)
 	    if (m_verbose){
 		for (unsigned int i=0; i<tokens.size(); i++) 
 		{	
-		    m_log << MSG::VERBOSE <<tokens[i] <<" | ";
+		    log << MSG::VERBOSE <<tokens[i] <<" | ";
 		}
 	    }	    
 	    int ival = 1;
@@ -966,18 +966,18 @@ StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName)
 	    long int lastIOV = getLastIOVforThisFolder(folderName);
 
 	    std::string str_iovThisBlob = tokens[ival];
-	    sscanf(str_iovThisBlob.c_str(),"%ld",&iovThisBlob);
-	    m_log << MSG::INFO <<"Data read from folder "<< folderName
+	    sscanf(str_iovThisBlob.c_str(),"%80ld",&iovThisBlob);
+	    log << MSG::INFO <<"Data read from folder "<< folderName
 		  <<" have IoV = "<<iovThisBlob<<" to be compared with latest IOVread for the same folder = "<<lastIOV<<endreq;
 	    if (iovThisBlob == lastIOV) 
 	    {
-		m_log << MSG::INFO <<"Call back for  "<< folderName
+		log << MSG::INFO <<"Call back for  "<< folderName
 		      <<" detected without a real IOV transition: IOV registered in this data "<<iovThisBlob
 		      <<" to be compared with latest IOVread for the same folder = "
 		      <<lastIOV<<endreq<<"Ignoring this call back for folder "<<folderName<<endreq;
 		return StatusCode::SUCCESS;
 	    }
-	    m_log << MSG::INFO <<"Call back for  "<< folderName
+	    log << MSG::INFO <<"Call back for  "<< folderName
 		  <<" detected with a real IOV transition: IOV registered in this data "<<iovThisBlob
 		  <<" to be compared with latest IOVread for the same folder = "
 		  <<lastIOV<<endreq;
@@ -996,9 +996,9 @@ StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName)
 	  std::vector<std::string> tokens;
 	  MuonCalib::MdtStringUtils::tokenize(blobline,tokens,delimiter);
           if( m_verbose ) {
-	      m_log << MSG::VERBOSE << "Parsing Line = ";
-	      for (unsigned int i=0; i<tokens.size(); i++) m_log << MSG::VERBOSE <<tokens[i] <<" | ";
-	      m_log<<endreq;
+	      log << MSG::VERBOSE << "Parsing Line = ";
+	      for (unsigned int i=0; i<tokens.size(); i++) log << MSG::VERBOSE <<tokens[i] <<" | ";
+	      log<<endreq;
 	  }	  
 
 	  // Start parsing
@@ -1011,13 +1011,13 @@ StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName)
 	  int jlay;
 	  std::string stationType = tokens[ival++];	  
 	  std::string jff_str = tokens[ival++]; 
-	  sscanf(jff_str.c_str(),"%d",&jff);
+	  sscanf(jff_str.c_str(),"%80d",&jff);
 	  std::string jzz_str = tokens[ival++];
-	  sscanf(jzz_str.c_str(),"%d",&jzz);
+	  sscanf(jzz_str.c_str(),"%80d",&jzz);
 	  std::string job_str = tokens[ival++];
-	  sscanf(job_str.c_str(),"%d",&job);
+	  sscanf(job_str.c_str(),"%80d",&job);
           std::string jlay_str = tokens[ival++];
-	  sscanf(jlay_str.c_str(),"%d",&jlay);
+	  sscanf(jlay_str.c_str(),"%80d",&jlay);
 	  
 	  // I-line
 	  float tras;
@@ -1027,36 +1027,36 @@ StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName)
 	  float rotz;
           float rott;	
 	  std::string tras_str = tokens[ival++];
-	  sscanf(tras_str.c_str(),"%f",&tras);
+	  sscanf(tras_str.c_str(),"%80f",&tras);
 	  std::string traz_str = tokens[ival++];
-	  sscanf(traz_str.c_str(),"%f",&traz);
+	  sscanf(traz_str.c_str(),"%80f",&traz);
 	  std::string trat_str = tokens[ival++];
-	  sscanf(trat_str.c_str(),"%f",&trat);
+	  sscanf(trat_str.c_str(),"%80f",&trat);
 	  std::string rots_str = tokens[ival++];
-	  sscanf(rots_str.c_str(),"%f",&rots);
+	  sscanf(rots_str.c_str(),"%80f",&rots);
 	  std::string rotz_str = tokens[ival++];
-	  sscanf(rotz_str.c_str(),"%f",&rotz);
+	  sscanf(rotz_str.c_str(),"%80f",&rotz);
 	  std::string rott_str = tokens[ival++];
-	  sscanf(rott_str.c_str(),"%f",&rott);
+	  sscanf(rott_str.c_str(),"%80f",&rott);
 
-	  if( m_verbose ) m_log << MSG::VERBOSE <<"Station type "  << stationType <<endreq;
-	  if( m_verbose ) m_log << MSG::VERBOSE <<"jff / jzz / job / jlay "  <<jff <<" / "<< jzz<<" / "<< job<<" / "<<jlay ;
-	  if( m_verbose ) m_log << MSG::VERBOSE <<"I-line: tras,traz,trat "  << tras <<" "<< traz <<" "<< trat;
-	  if( m_verbose ) m_log << MSG::VERBOSE <<" rots,rotz,rott "  << rots <<" "<< rotz <<" "<< rott <<endreq;
+	  if( m_verbose ) log << MSG::VERBOSE <<"Station type "  << stationType <<endreq;
+	  if( m_verbose ) log << MSG::VERBOSE <<"jff / jzz / job / jlay "  <<jff <<" / "<< jzz<<" / "<< job<<" / "<<jlay ;
+	  if( m_verbose ) log << MSG::VERBOSE <<"I-line: tras,traz,trat "  << tras <<" "<< traz <<" "<< trat;
+	  if( m_verbose ) log << MSG::VERBOSE <<" rots,rotz,rott "  << rots <<" "<< rotz <<" "<< rott <<endreq;
 	  
 	  int stationName = m_cscIdHelper->stationNameIndex(stationType);
 	  Identifier id;
-	  if( m_verbose ) m_log << MSG::VERBOSE<< "stationName  " << stationName << endreq;
+	  if( m_verbose ) log << MSG::VERBOSE<< "stationName  " << stationName << endreq;
 	  if (stationType.substr(0,1)=="C") 
 	  {
               // csc case
               int chamberLayer = 2;
-              if (job != 3) m_log<<MSG::WARNING<<"job = "<<job<<" is not 3 => chamberLayer should be 1 - not existing ! setting 2"<<endreq;
+              if (job != 3) log<<MSG::WARNING<<"job = "<<job<<" is not 3 => chamberLayer should be 1 - not existing ! setting 2"<<endreq;
               id = m_cscIdHelper->channelID(stationType, jzz, jff, chamberLayer, jlay, 0, 1);
-              if( m_verbose ) m_log << MSG::VERBOSE<< "identifier being assigned is " <<m_cscIdHelper->show_to_string(id)<< endreq;
+              if( m_verbose ) log << MSG::VERBOSE<< "identifier being assigned is " <<m_cscIdHelper->show_to_string(id)<< endreq;
 	  }
 	  else { 
-              m_log << MSG::ERROR<< "There is a non CSC chamber in the list of CSC internal alignment parameters."<< endreq;
+              log << MSG::ERROR<< "There is a non CSC chamber in the list of CSC internal alignment parameters."<< endreq;
 	  }
 
           // new Iline
@@ -1069,7 +1069,7 @@ StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName)
 	  iCscInternalAlignmentMap iiline;
 	  if((iiline = m_ilineData->find(id)) != m_ilineData->end())
           {
-              m_log << MSG::WARNING<< "More than one (I-line) entry in folder "<<folderName<<" for  "
+              log << MSG::WARNING<< "More than one (I-line) entry in folder "<<folderName<<" for  "
                   << stationType<<" at Jzz/Jff/Jlay "<<jzz<<"/"<< jff<<"/"<< jlay <<" --- keep the latest one"<< endreq;
               m_ilineData->erase(id);
               --nNewDecodedILines;
@@ -1079,38 +1079,38 @@ StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName)
 	}
       }
    }
-  if( m_debug ) m_log << MSG::DEBUG<<"In folder <"<<folderName<<"> # lines/decodedLines/newDecodedILines= "
+  if( m_debug ) log << MSG::DEBUG<<"In folder <"<<folderName<<"> # lines/decodedLines/newDecodedILines= "
        <<nLines<<"/"<<nDecodedLines<<"/"<<nNewDecodedILines<<"/"<<endreq;
 
    // set I-lines from ASCII file TBA
    // this option is currently coded in MuonGeoModel and should perhaps be migrated here
    
-   // dump I-lines to m_log file TBA
+   // dump I-lines to log file TBA
    if (m_dumpILines && (int)m_ilineData->size()>0) dumpILines(folderName);
    
-   if( m_verbose ) m_log << MSG::VERBOSE << "Collection CondAttrListCollection CLID "
+   if( m_verbose ) log << MSG::VERBOSE << "Collection CondAttrListCollection CLID "
        << atrc->clID() << endreq;
    
    IOVRange range;
    if ((m_IOVSvc->getRange(1238547719, folderName, range)).isFailure()) return StatusCode::FAILURE;
-   if( m_debug) m_log << MSG::DEBUG <<"IOVRange for these data is <"<<range<<">"<<endreq;
+   if( m_debug) log << MSG::DEBUG <<"IOVRange for these data is <"<<range<<">"<<endreq;
    
 
 // ss:01/07/2008 not clear if this is needed at all 
    SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<CscInternalAlignmentMapContainer>::ID(), m_ilineDataLocation);
     if (!proxy) {
-      m_log << MSG::ERROR << "Unable to get the proxy for class ILineParContainer" << endreq;
+      log << MSG::ERROR << "Unable to get the proxy for class ILineParContainer" << endreq;
       return StatusCode::FAILURE;
     }
     SG::TransientAddress* tad =  proxy->transientAddress();
     if (!tad) {
-      m_log << MSG::ERROR << "Unable to get the tad" << endreq;
+      log << MSG::ERROR << "Unable to get the tad" << endreq;
       return StatusCode::FAILURE;
     }
     IAddressProvider* addp = this;
     //    tad->setProvider(addp);
     tad->setProvider(addp, StoreID::DETECTOR_STORE);
-    if( m_debug ) m_log << MSG::DEBUG<< "set address provider for ILineParContainer" << endreq;
+    if( m_debug ) log << MSG::DEBUG<< "set address provider for ILineParContainer" << endreq;
    
    return  sc; 
 }
@@ -1118,23 +1118,21 @@ StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName)
 StatusCode MuonAlignmentDbTool::loadAlignAsBuilt(std::string folderName) 
 {
 
-   MsgStream m_log(msgSvc(), name());
    StatusCode sc=StatusCode::SUCCESS;
-   m_log << MSG::INFO << "Load alignment parameters from DB folder <"<<folderName<<">"<< endreq;
-   if( m_debug ) m_log << MSG::DEBUG << " ----- MdtAsBuiltMapContainer pointer "<<(uintptr_t)m_asbuiltData<<endreq;
+   ATH_MSG_INFO( "Load alignment parameters from DB folder <"<<folderName<<">" );
+   ATH_MSG_DEBUG( " ----- MdtAsBuiltMapContainer pointer "<<(uintptr_t)m_asbuiltData );
 
    // retreive the collection of strings read out from the DB
    const CondAttrListCollection * atrc;
    sc=m_detStore->retrieve(atrc,folderName);
    if(sc.isFailure())  {
-     m_log << MSG::WARNING 
-         << "could not retreive the CondAttrListCollection from DB folder " 
-         << folderName << endreq;
+     ATH_MSG_WARNING( "could not retreive the CondAttrListCollection from DB folder " 
+                      << folderName  );
      return StatusCode::RECOVERABLE;
    }
    else
-       m_log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
-   if( m_debug ) m_log << MSG::DEBUG << " data found ----- AsBuiltMapContainer pointer "<<(uintptr_t)m_ilineData<<endreq;
+     ATH_MSG_INFO(" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size()  );
+   ATH_MSG_DEBUG( " data found ----- AsBuiltMapContainer pointer "<<(uintptr_t)m_ilineData );
 
    // unpack the strings in the collection and update the 
    // AsBuiltContainer in TDS
@@ -1150,7 +1148,7 @@ StatusCode MuonAlignmentDbTool::loadAlignAsBuilt(std::string folderName)
     std::string data;
     data=*(static_cast<const std::string*>((atr["data"]).addressOfData()));
     
-    if( m_debug ) m_log << MSG::DEBUG << "Data load is " << data << " FINISHED HERE "<<endreq;
+    ATH_MSG_DEBUG( "Data load is " << data << " FINISHED HERE " );
     
     // Check the first word to see if it is a correction
     std::string type;
@@ -1179,7 +1177,7 @@ StatusCode MuonAlignmentDbTool::loadAlignAsBuilt(std::string folderName)
 	
       if (type.find("Corr")==0) {
 	if (!xPar.setFromAscii(blobline)) {
-          m_log<< MSG::ERROR << "Unable to parse AsBuilt params from Ascii line: " << blobline <<endreq;
+          ATH_MSG_ERROR( "Unable to parse AsBuilt params from Ascii line: " << blobline  );
           continue;
 	}
 
@@ -1190,14 +1188,14 @@ StatusCode MuonAlignmentDbTool::loadAlignAsBuilt(std::string folderName)
         xPar.getAmdbId(stationType, jff, jzz, job);
 	Identifier id = m_mdtIdHelper->elementID(stationType, jzz, jff);
 
-	if( m_verbose ) m_log << MSG::VERBOSE <<"Station type jff jzz "  << stationType  << jff << " " << jzz << endreq;
+	ATH_MSG_VERBOSE("Station type jff jzz "  << stationType  << jff << " " << jzz  );
         ++nDecodedLines;
         ++nNewDecodedAsBuilt;
         ciMdtAsBuiltMap iasbuild;
         if((iasbuild = m_asbuiltData->find(id)) != m_asbuiltData->end())
         {
-          m_log << MSG::WARNING<< "More than one (As-built) entry in folder "<<folderName<<" for  "
-                << stationType<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- keep the latest one"<< endreq;
+          ATH_MSG_WARNING( "More than one (As-built) entry in folder "<<folderName<<" for  "
+                           << stationType<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- keep the latest one" );
           m_asbuiltData->erase(id);
           --nNewDecodedAsBuilt;
         }
@@ -1205,24 +1203,23 @@ StatusCode MuonAlignmentDbTool::loadAlignAsBuilt(std::string folderName)
       }
     }
    }
-  if( m_debug ) m_log << MSG::DEBUG<<"In folder <"<<folderName<<"> # lines/decodedLines/newDecodedILines= "
-       <<nLines<<"/"<<nDecodedLines<<"/"<<nNewDecodedAsBuilt<<"/"<<endreq;
+   ATH_MSG_DEBUG("In folder <"<<folderName<<"> # lines/decodedLines/newDecodedILines= "
+                 <<nLines<<"/"<<nDecodedLines<<"/"<<nNewDecodedAsBuilt<<"/" );
 
    // dump I-lines to m_log file TBA
    if (m_dumpAsBuilt && (int)m_asbuiltData->size()>0) dumpAsBuilt(folderName);
    
-   if( m_verbose ) m_log << MSG::VERBOSE << "Collection CondAttrListCollection CLID "
-       << atrc->clID() << endreq;
+   ATH_MSG_VERBOSE( "Collection CondAttrListCollection CLID " << atrc->clID() );
    
    IOVRange range;
    if ((m_IOVSvc->getRange(1238547719, folderName, range)).isFailure()) return StatusCode::FAILURE;
-   if( m_debug) m_log << MSG::DEBUG <<"IOVRange for these data is <"<<range<<">"<<endreq;
+   ATH_MSG_DEBUG("IOVRange for these data is <"<<range<<">" );
    
 
 // ss:01/07/2008 not clear if this is needed at all 
    SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<MdtAsBuiltMapContainer>::ID(), m_asbuiltDataLocation);
     if (!proxy) {
-      m_log << MSG::ERROR << "Unable to get the proxy for class ILineParContainer" << endreq;
+      ATH_MSG_ERROR( "Unable to get the proxy for class ILineParContainer"  );
       return StatusCode::FAILURE;
     }
     SG::TransientAddress* tad =  proxy->transientAddress();
@@ -1233,7 +1230,7 @@ StatusCode MuonAlignmentDbTool::loadAlignAsBuilt(std::string folderName)
     IAddressProvider* addp = this;
     //    tad->setProvider(addp);
     tad->setProvider(addp, StoreID::DETECTOR_STORE);
-    if( m_debug ) m_log << MSG::DEBUG<< "set address provider for MdtAsBuiltParContainer" << endreq;
+    ATH_MSG_DEBUG( "set address provider for MdtAsBuiltParContainer"  );
    
    return  sc; 
 }
@@ -1321,16 +1318,16 @@ int MuonAlignmentDbTool::stationPhiTGC(std::string stName, int fi, int zi_input)
 
 void MuonAlignmentDbTool::setALinesFromAscii() const
 {
-  MsgStream m_log(msgSvc(), name());
-  m_log.setLevel(outputLevel());
+  MsgStream log(msgSvc(), name());
+  log.setLevel(msgLevel());
 
-  m_log << MSG::INFO << " Set alignment constants from text file "<< m_aLinesFile << endreq;
+  log << MSG::INFO << " Set alignment constants from text file "<< m_aLinesFile << endreq;
 
   std::ifstream infile;
   infile.open(m_aLinesFile.c_str());
   
   char line[512] ;
-  if( m_debug ) m_log << MSG::DEBUG << "reading file" << endreq;
+  if( m_debug ) log << MSG::DEBUG << "reading file" << endreq;
   
   while( infile.getline(line,512) ) {
     
@@ -1342,10 +1339,10 @@ void MuonAlignmentDbTool::setALinesFromAscii() const
     is >> AlineMarker >> name >> jff >> jzz >> obj
        >> tras >> traz >> trat >> rots >> rotz >> rott;
     
-    if( m_debug ) m_log << MSG::DEBUG << "read line: "<< line << endreq;
+    if( m_debug ) log << MSG::DEBUG << "read line: "<< line << endreq;
     
     if( AlineMarker[0] == '\0') {
-      if( m_debug ) m_log << MSG::DEBUG << "read empty line!" << endreq; 
+      if( m_debug ) log << MSG::DEBUG << "read empty line!" << endreq; 
     }
     else {
       
@@ -1373,10 +1370,7 @@ void MuonAlignmentDbTool::setALinesFromAscii() const
 
 void MuonAlignmentDbTool::setAsBuiltFromAscii() const
 {
-  MsgStream m_log(msgSvc(), name());
-  m_log.setLevel(outputLevel());
-
-  m_log << MSG::INFO << " Set alignment constants from text file "<< m_asBuiltFile << endreq;
+  ATH_MSG_INFO (" Set alignment constants from text file "<< m_asBuiltFile);
 
   std::ifstream fin(m_asBuiltFile.c_str());
   std::string line;
@@ -1386,7 +1380,7 @@ void MuonAlignmentDbTool::setAsBuiltFromAscii() const
   while(getline(fin, line)) {
     if (line.find("Corr:")==0) {
       if (!xPar.setFromAscii(line)) {
-        m_log<< MSG::ERROR << "Unable to parse AsBuilt params from Ascii line: " << line <<endreq;
+        ATH_MSG_ERROR( "Unable to parse AsBuilt params from Ascii line: " << line  );
 	} else {
         std::string stName="XXX";
         int jff = 0;
@@ -1395,29 +1389,27 @@ void MuonAlignmentDbTool::setAsBuiltFromAscii() const
         xPar.getAmdbId(stName, jff, jzz, job);
         Identifier id = m_mdtIdHelper->elementID(stName, jzz, jff);
         if (!id.is_valid()) {
-           m_log << MSG::ERROR << "Invalid MDT identifiers: sta=" << stName << " eta=" << jzz << " phi=" << jff << endreq;
+          ATH_MSG_ERROR( "Invalid MDT identifiers: sta=" << stName << " eta=" << jzz << " phi=" << jff  );
            continue;
         }
         iMdtAsBuiltMap ci = m_asbuiltData->begin();
         if((ci = m_asbuiltData->find(id)) != m_asbuiltData->end())
         {
-          if ( m_debug )
-             m_log << MSG::DEBUG<< "Updating extisting entry in AsBuilt container for Station " <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff << endreq;
-          if ( m_debug )
-             m_log << MSG::DEBUG<< "That is strange since it's read from ASCII so this station is listed twice!" << endreq;
+          ATH_MSG_DEBUG( "Updating extisting entry in AsBuilt container for Station " <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff  );
+          ATH_MSG_DEBUG( "That is strange since it's read from ASCII so this station is listed twice!"  );
           MdtAsBuiltPar* oldAsBuilt =  (*ci).second;
           m_asbuiltData->erase(id);
           delete oldAsBuilt; oldAsBuilt=0;
         } else {
-          if ( m_debug ) m_log << MSG::DEBUG<< "New entry in AsBuilt container for Station "
-                    <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_mdtIdHelper->show_to_string(id)<< endreq;
+          ATH_MSG_DEBUG( "New entry in AsBuilt container for Station "
+                         <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_mdtIdHelper->show_to_string(id) );
         }
 	  m_asbuiltData->insert(std::make_pair(id,new MdtAsBuiltPar(xPar)));
 	  ++count;
 	}
     }
   }
-  m_log << MSG::INFO << "Parsed AsBuilt parameters: " << count << endreq;
+  ATH_MSG_INFO( "Parsed AsBuilt parameters: " << count  );
 
   return;
 }
@@ -1425,7 +1417,7 @@ void MuonAlignmentDbTool::setAsBuiltFromAscii() const
 void MuonAlignmentDbTool::dumpALines(const std::string& folderName)
 {
     //  MsgStream m_log(msgSvc(), name());
-   m_log.setLevel(outputLevel());
+   m_log.setLevel(msgLevel());
 
   m_log << MSG::INFO << "dumping A-lines for folder "<<folderName<<endreq;
   
@@ -1460,7 +1452,7 @@ void MuonAlignmentDbTool::dumpALines(const std::string& folderName)
 void MuonAlignmentDbTool::dumpBLines(const std::string& folderName)
 {
     //  MsgStream m_log(msgSvc(), name());
-   m_log.setLevel(outputLevel());
+   m_log.setLevel(msgLevel());
 
   m_log << MSG::INFO << "dumping B-lines for folder "<<folderName<<endreq;
   if( m_debug ) m_log << MSG::DEBUG << "B "
@@ -1500,7 +1492,7 @@ void MuonAlignmentDbTool::dumpBLines(const std::string& folderName)
 void MuonAlignmentDbTool::dumpILines(const std::string& folderName)
 {
     //  MsgStream m_log(msgSvc(), name());
-   m_log.setLevel(outputLevel());
+   m_log.setLevel(msgLevel());
 
   m_log << MSG::INFO << "dumping I-lines for folder "<<folderName<<endreq;
   if( m_debug ) m_log << MSG::DEBUG << "I "
@@ -1536,7 +1528,7 @@ void MuonAlignmentDbTool::dumpILines(const std::string& folderName)
 void MuonAlignmentDbTool::dumpAsBuilt(const std::string& folderName)
 {
     //  MsgStream m_log(msgSvc(), name());
-   m_log.setLevel(outputLevel());
+   m_log.setLevel(msgLevel());
 
   m_log << MSG::INFO << "dumping As-build for folder "<<folderName<<endreq;
   //std::cout<<std::endl;

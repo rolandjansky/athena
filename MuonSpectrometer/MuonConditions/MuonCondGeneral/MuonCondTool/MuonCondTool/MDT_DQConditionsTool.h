@@ -68,9 +68,9 @@ public:
   StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
-  std::map<std::string, Identifier> Chamber_Map;
+  std::map<std::string, Identifier> m_Chamber_Map;
 
-  std::map<int, Identifier> Chamber_Naming_standby;
+  std::map<int, Identifier> m_Chamber_Naming_standby;
 
 
   const MdtIdHelper* m_mdtIdHelper;
@@ -120,7 +120,7 @@ public:
   std::string m_chrono4;
   ToolHandle<IMDT_MapConversion> m_condMapTool;
  
-  MsgStream log;
+  MsgStream m_log;
   bool      m_debug;
   bool      m_verbose;
 };

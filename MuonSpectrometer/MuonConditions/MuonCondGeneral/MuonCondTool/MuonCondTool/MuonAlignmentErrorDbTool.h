@@ -66,7 +66,7 @@ public:
 
 
 
-  MsgStream log;
+  MsgStream m_log;
   bool      m_debug;
   bool      m_verbose;
 };

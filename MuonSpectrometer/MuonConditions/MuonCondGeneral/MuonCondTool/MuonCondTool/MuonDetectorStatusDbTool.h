@@ -40,12 +40,11 @@ private:
   virtual StatusCode loadParameterStatus(IOVSVC_CALLBACK_ARGS);
   virtual StatusCode loadTubeStatus(IOVSVC_CALLBACK_ARGS);
 
-  StoreGateSvc* m_detStore;
-  IIOVSvc* m_IOVSvc;
+  ServiceHandle<IIOVSvc> m_IOVSvc;
   const MdtIdHelper* m_mdtIdHelper;
 
   
-  mutable MdtDeadTubeStatusContainer * m_tubeStatusData;
+  //mutable MdtDeadTubeStatusContainer * m_tubeStatusData;
   mutable MdtDeadChamberStatus * m_chamberStatusData;
   
   std::string      m_tubeFolder;

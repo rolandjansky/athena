@@ -64,7 +64,7 @@ public:
 
   const RpcIdHelper* m_rpcIdHelper;
  
-  MsgStream log;
+  MsgStream m_log;
   bool      m_debug;
   bool      m_verbose;
   
@@ -84,8 +84,8 @@ public:
   std::string     m_deadPanelFolder;
 
   std::vector<std::string> parlineFolder() { return m_parlineFolder; }
-  std::stringstream RPCPaneloff;
-  std::stringstream RPCPaneldead;
+  std::stringstream m_RPCPaneloff;
+  std::stringstream m_RPCPaneldead;
 
   IChronoStatSvc* m_chronoSvc;
   std::vector<std::string>      m_parlineFolder;

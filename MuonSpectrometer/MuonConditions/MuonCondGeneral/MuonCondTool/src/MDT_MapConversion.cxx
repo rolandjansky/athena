@@ -137,12 +137,12 @@ StatusCode MDT_MapConversion::initialize()
     Identifier ChamberId = m_mdtIdHelper->elementID(stName,stEta,stPhi);
     //log << MSG::INFO << "#### Chamber Name Offline" << ChamberId<< endreq;
     
-    Chamber_Map.insert(std::make_pair(hardwareName,ChamberId));
+    m_Chamber_Map.insert(std::make_pair(hardwareName,ChamberId));
     
   }
 	
     accessSvc->disconnect(); 
-    log << MSG::INFO << "#### Chamber Map SIZE" << Chamber_Map.size()<< endreq;
+    log << MSG::INFO << "#### Chamber Map SIZE" << m_Chamber_Map.size()<< endreq;
   return StatusCode::SUCCESS;
  
   
@@ -151,15 +151,15 @@ StatusCode MDT_MapConversion::initialize()
 const Identifier& MDT_MapConversion::ConvertToOffline(const std::string &OnlineId) const
 {
   MsgStream log(msgSvc(), name());
-//  int size = Chamber_Map.size();
+//  int size = m_Chamber_Map.size();
   //log << MSG::VERBOSE << "*************** size is\n" << size<< endreq;
   std::map<std::string, Identifier>::iterator iter;
   
   //const Identifier m_Online_empty;
   
-  if (Chamber_Map.size()!=0){
-    const Identifier & m_OfflineName = (Chamber_Map.find(OnlineId)->second);
-    return m_OfflineName;
+  if (m_Chamber_Map.size()!=0){
+    const Identifier & OfflineName = (m_Chamber_Map.find(OnlineId)->second);
+    return OfflineName;
   }
   else return m_Online_empty;
   
