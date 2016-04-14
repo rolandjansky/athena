@@ -9,13 +9,15 @@ use Lhapdf                Lhapdf-*                External
 use LCG_Configuration
 
 #macro myLCG_config_version "67c"
-
+#macro myLCG_config_version "61g"
 macro Pythia8_home "$(LCG_external)/MCGenerators/pythia8"
 #macro Pythia8_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(myLCG_config_version)/pythia8"
-macro Pythia8_version "210"
+#macro Pythia8_version "215"
+macro Pythia8_version "212"
 
+#macro Pythia8_patch_version ".pdf6plugin"
 macro Pythia8_patch_version ""
-macro Pythia8_native_version "$(Pythia8_version)$(Pythia8_patch_version)_lcgcmt$(myLCG_config_version)"
+macro Pythia8_native_version "$(Pythia8_version)$(Pythia8_patch_version)_lcgcmt$(myLCG_config_version)_a"
 macro Pythia8_system "$(LCG_ext_system)"
 macro Pythia8_dir "$(Pythia8_home)/$(Pythia8_version)$(Pythia8_patch_version)/$(Pythia8_system)"
 macro Pythia8_lib "$(Pythia8_dir)/lib"
