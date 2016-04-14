@@ -17,6 +17,8 @@
 #include "RPCHitsTestTool.h"
 #include "CSCHitsTestTool.h"
 #include "TGCHitsTestTool.h"
+#include "MMHitsTestTool.h"
+#include "sTGCHitsTestTool.h"
 #include "ALFA_SimHitsTestTool.h"
 #include "ZDCHitsTestTool.h"
 #include "TruthTestTool.h"
@@ -38,6 +40,8 @@ DECLARE_FACTORY_ENTRIES(G4AtlasTests)
   DECLARE_ALGTOOL( HECHitsTestTool )
   DECLARE_ALGTOOL( TileHitsTestTool )
   DECLARE_ALGTOOL( MDTHitsTestTool )
+  DECLARE_ALGTOOL( MMHitsTestTool )
+  DECLARE_ALGTOOL( sTGCHitsTestTool )
   DECLARE_ALGTOOL( RPCHitsTestTool )
   DECLARE_ALGTOOL( CSCHitsTestTool )
   DECLARE_ALGTOOL( TGCHitsTestTool )
@@ -64,6 +68,8 @@ DECLARE_TOOL_FACTORY( MDTHitsTestTool )
 DECLARE_TOOL_FACTORY( RPCHitsTestTool )
 DECLARE_TOOL_FACTORY( CSCHitsTestTool )
 DECLARE_TOOL_FACTORY( TGCHitsTestTool )
+DECLARE_TOOL_FACTORY( MMHitsTestTool )
+DECLARE_TOOL_FACTORY( sTGCHitsTestTool )
 DECLARE_TOOL_FACTORY( ALFA_SimHitsTestTool )
 DECLARE_TOOL_FACTORY( ZDCHitsTestTool )
 DECLARE_TOOL_FACTORY( CaloCalibrationHitsTestTool )

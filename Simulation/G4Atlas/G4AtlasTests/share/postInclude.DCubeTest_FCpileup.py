@@ -23,6 +23,8 @@ from AthenaCommon import CfgGetter
 if DetFlags.Truth_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TruthTestTool", checkType=True)]
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("EvgenTruthTestTool", checkType=True)] 
+    job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("PileupTruthTestTool", checkType=True)]
+    job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("PileupEvgenTruthTestTool", checkType=True)]
 if DetFlags.pixel_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("PixelHitsTestTool", checkType=True)]
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("PileupPixelHitsTestTool", checkType=True)]

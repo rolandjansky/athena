@@ -53,6 +53,12 @@ def RPCHitsTestTool(name="RPCHitsTestTool", **kwargs):
 def TGCHitsTestTool(name="TGCHitsTestTool", **kwargs):
     kwargs.setdefault("DetectorName", "TGC")
     return CfgMgr.TGCHitsTestTool(name, **kwargs)
+def MMHitsTestTool(name="MMHitsTestTool", **kwargs):
+    kwargs.setdefault("DetectorName", "MM")
+    return CfgMgr.MMHitsTestTool(name, **kwargs)
+def sTGCHitsTestTool(name="sTGCHitsTestTool", **kwargs):
+    kwargs.setdefault("DetectorName", "sTGC")
+    return CfgMgr.sTGCHitsTestTool(name, **kwargs)    
 def ALFA_SimHitsTestTool(name="ALFA_SimHitsTestTool", **kwargs):
     return CfgMgr.ALFA_SimHitsTestTool(name, **kwargs)
 def ZDCHitsTestTool(name="ZDCHitsTestTool", **kwargs):
@@ -84,8 +90,14 @@ def TileCellCaloCalibHitsTestTool(name="TileCellCaloCalibHitsTestTool", **kwargs
 def TruthTestTool(name="TruthTestTool", **kwargs):
     kwargs.setdefault("McEventKey", "TruthEvent")
     return CfgMgr.TruthTestTool(name, **kwargs)
+def PileupTruthTestTool(name="PileupTruthTestTool", **kwargs):
+    kwargs.setdefault("McEventKey", "TruthEvent_PU")
+    return CfgMgr.TruthTestTool(name, **kwargs)
 def EvgenTruthTestTool(name="EvgenTruthTestTool", **kwargs):
     kwargs.setdefault("McEventKey", "GEN_EVENT")
+    return CfgMgr.TruthTestTool(name, **kwargs)
+def PileupEvgenTruthTestTool(name="PileupEvgenTruthTestTool", **kwargs):
+    kwargs.setdefault("McEventKey", "GEN_EVENT_PU")
     return CfgMgr.TruthTestTool(name, **kwargs)
 def CaloEntryLayerTestTool(name="CaloEntry", **kwargs):
     kwargs.setdefault("CollectionName", "CaloEntry")
