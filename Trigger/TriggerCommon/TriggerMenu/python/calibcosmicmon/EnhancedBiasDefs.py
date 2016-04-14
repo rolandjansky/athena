@@ -20,14 +20,14 @@ l1_seeds ={
     # Low threshold prescaled L1 items - slected at HLT based on TBP bit from L1 in random-seeded events        
     'low'  : ['L1_MU6', 'L1_EM10VH', 
               'L1_J30.0ETA49_2J20.0ETA49', 'L1_TAU12',
-              'L1_MU4_J12', 'L1_2EM7', 
+              'L1_MU4_J12', 'L1_2EM7',
+              'L1_2MU4', 'L1_XS30', 
               'L1_J15'],
 
     # High(er) threshold prescaled L1 items - slected at HLT based on TBP bit from L1 in random-seeded events 
     'high' : ['L1_3J15','L1_EM18VH',
               'L1_EM20VHI',  'L1_2EM10VH', 
               'L1_J50', 'L1_TAU30',
-              'L1_2MU4', 'L1_XS30',
               'L1_MU15','L1_TAU20_2TAU12', 
               'L1_XE35', 'L1_MU6_2MU4',
               'L1_MU6_J20', 'L1_EM7_MU10',

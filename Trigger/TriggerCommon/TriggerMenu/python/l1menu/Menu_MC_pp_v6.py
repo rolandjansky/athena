@@ -376,7 +376,7 @@ def defineMenu():
         # single MU
         "L1_MU4", "L1_MU6", "L1_MU10", "L1_MU15", "L1_MU20",
 
-        "L1_MU4_EMPTY", "L1_MU4_FIRSTEMPTY", "L1_MU11_EMPTY",
+        "L1_MU4_EMPTY", "L1_MU6_EMPTY", "L1_MU4_FIRSTEMPTY", "L1_MU11_EMPTY",
         'L1_MU4_UNPAIRED_ISO',
         'L1_MU20_FIRSTEMPTY',
 
@@ -476,11 +476,12 @@ def defineMenu():
         "L1_J75_3J20",
         "L1_J30.0ETA49_2J20.0ETA49",
         "L1_J40.0ETA25_2J15.31ETA49",
+        "L1_J40.0ETA25_2J25_J20.31ETA49",
 
         
         # multi jet central
         "L1_3J25.0ETA23",
-        #"L1_4J15.0ETA25",
+        "L1_4J15.0ETA25",
         "L1_5J15.0ETA25", 
         
         # combined jet
@@ -529,7 +530,7 @@ def defineMenu():
 
         # RNDM
         'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO','L1_RD0_EMPTY',
-        "L1_RD1_FILLED","L1_RD1_EMPTY","L1_RD1_BGRP14",
+        "L1_RD1_FILLED","L1_RD1_EMPTY","L1_RD1_BGRP10",
         "L1_RD2_FILLED","L1_RD2_EMPTY","L1_RD2_BGRP12",
         "L1_RD3_FILLED","L1_RD3_EMPTY",
         'L1_RD0_FIRSTEMPTY', 
@@ -844,6 +845,7 @@ def defineMenu():
         'L1_MU15' : 17,
         'L1_MU20' : 18,
         'L1_MU4_EMPTY' : 19,
+        'L1_MU6_EMPTY' : 66,
         'L1_MU4_FIRSTEMPTY' : 20,
         'L1_MU11_EMPTY' : 21,
         'L1_MU4_UNPAIRED_ISO' : 22,
@@ -1049,6 +1051,7 @@ def defineMenu():
         'L1_BPH-8M15-MU6MU4' : 179,
         'L1_BPH-8M15-2MU6' : 180,
         'L1_J40.0ETA25_2J15.31ETA49' : 181,
+        'L1_J40.0ETA25_2J25_J20.31ETA49' : 182,
 
         
 #        'L1_EM8I' : 183,

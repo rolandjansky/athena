@@ -243,6 +243,7 @@ class ItemDef:
         LVL1MenuItem('L1_MU4_UNPAIRED_ISO'   ).setLogic(MU4 & unpaired_isocond   ).setTriggerType( TT.muon )
         LVL1MenuItem('L1_MU4_UNPAIRED_NONISO').setLogic(MU4 & unpaired_nonisocond).setTriggerType( TT.muon )
         LVL1MenuItem('L1_MU4_EMPTY'          ).setLogic(MU4 & cosmiccond).setTriggerType( TT.muon )
+        LVL1MenuItem('L1_MU6_EMPTY'          ).setLogic(MU6 & cosmiccond).setTriggerType( TT.muon )
         LVL1MenuItem('L1_MU4_FIRSTEMPTY'     ).setLogic(MU4 & firstempty).setTriggerType( TT.muon )
 
         LVL1MenuItem('L1_MU6_FIRSTEMPTY'     ).setLogic(MU4  & firstempty).setTriggerType( TT.muon ) 
@@ -464,9 +465,9 @@ class ItemDef:
         LVL1MenuItem('L1_J40.0ETA25_2J25_J20.31ETA49' ).setLogic( J400ETA25 & J15.x(2) & J2031ETA49   & physcond).setTriggerType(TT.calo)
         
         LVL1MenuItem('L1_4J17.0ETA22' ).setLogic( J170ETA22.x(4) & physcond).setTriggerType(TT.calo)
-        LVL1MenuItem('L1_4J15.0ETA25' ).setLogic( J150ETA25.x(4) & physcond).setTriggerType(TT.calo) 
         LVL1MenuItem('L1_3J25.0ETA23' ).setLogic( J250ETA23.x(3) & physcond).setTriggerType(TT.calo)
         LVL1MenuItem('L1_3J15.0ETA25' ).setLogic( J150ETA25.x(3) & physcond).setTriggerType(TT.calo)
+        LVL1MenuItem('L1_4J15.0ETA25' ).setLogic( J150ETA25.x(4) & physcond).setTriggerType(TT.calo) 
         LVL1MenuItem('L1_5J15.0ETA25' ).setLogic( J150ETA25.x(5) & physcond).setTriggerType(TT.calo)
 
 #        LVL1MenuItem('L1_ZB_J20').setLogic(ZB_EM15 & J20 & physcond).setTriggerType(TT.zerobs)
@@ -808,6 +809,7 @@ class ItemDef:
 
         LVL1MenuItem('L1_RD1_FILLED'         ).setLogic( RNDM1 & physcond           ).setTriggerType(TT.rand)
         LVL1MenuItem('L1_RD1_EMPTY'          ).setLogic( RNDM1 & cosmiccond         ).setTriggerType(TT.zerobs)
+        LVL1MenuItem('L1_RD1_BGRP10'         ).setLogic( RNDM1 & alfacalib          ).setTriggerType(TT.zerobs)
 
         LVL1MenuItem('L1_RD2_FILLED'         ).setLogic( RNDM2 & physcond           ).setTriggerType(TT.rand)
         LVL1MenuItem('L1_RD2_EMPTY'          ).setLogic( RNDM2 & cosmiccond         ).setTriggerType(TT.rand)
@@ -1392,7 +1394,6 @@ class ItemDef:
 
         LVL1MenuItem.currentPartition = 3
                       
-        LVL1MenuItem('L1_RD1_BGRP14'         ).setLogic( RNDM1 & bgrpcond2         ).setTriggerType(TT.zerobs)
 
         LVL1MenuItem.currentPartition = 1
 

@@ -580,10 +580,10 @@ class L2EFChain_mu(L2EFChainDef):
       return False
                    
     
-    from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_Jpsi
-    theL2JpsimumuAlgo = L2BMuMuFex_Jpsi()
-    from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Jpsi
-    theL2JpsimumuHypo = L2BMuMuHypo_Jpsi()
+    from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_Jpsi_noSameMu
+    theL2JpsimumuAlgo = L2BMuMuFex_Jpsi_noSameMu()
+    from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Jpsi_noSameMu
+    theL2JpsimumuHypo = L2BMuMuHypo_Jpsi_noSameMu()
 
     #----Sequence list---
     self.L2sequenceList += [[self.L2InputTE,
