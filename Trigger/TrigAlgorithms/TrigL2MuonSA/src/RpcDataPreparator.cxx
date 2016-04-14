@@ -201,7 +201,8 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 
      msg() << MSG::DEBUG << "Use RoI based data access" << endreq;
      
-     m_regionSelector->DetHashIDList(RPC, *iroi, rpcHashList);
+     if (iroi) m_regionSelector->DetHashIDList(RPC, *iroi, rpcHashList);
+     else m_regionSelector->DetHashIDList(RPC, rpcHashList);
      msg() << MSG::DEBUG << "rpcHashList.size()=" << rpcHashList.size() << endreq;
      
      std::vector<uint32_t> rpcRobList;

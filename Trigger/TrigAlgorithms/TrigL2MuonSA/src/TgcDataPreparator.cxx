@@ -191,7 +191,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    // clear the hash ID vector
    m_tgcHashList.clear();
    
-   m_regionSelector->DetHashIDList(TGC, *iroi, m_tgcHashList);
+   if (iroi) m_regionSelector->DetHashIDList(TGC, *iroi, m_tgcHashList);
+   else m_regionSelector->DetHashIDList(TGC, m_tgcHashList);
    if(roi) delete roi;
    
    // now convert from RDO to PRD
