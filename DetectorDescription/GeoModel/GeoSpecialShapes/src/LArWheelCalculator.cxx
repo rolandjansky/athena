@@ -12,13 +12,12 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/PhysicalConstants.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
-
-#include "GaudiKernel/PhysicalConstants.h"
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 
@@ -28,7 +27,10 @@
 #include "./LArWheelCalculator_Impl/DistanceCalculatorFactory.h"
 #include "./LArWheelCalculator_Impl/FanCalculatorFactory.h"
 
-using namespace Gaudi::Units;
+#include "AthenaKernel/Units.h"
+using namespace Athena::Units;
+using Gaudi::Units::twopi;
+
 
 // The radial boundaries of the inner and outer wheels are defined
 // by values of eta, the distance from z=0 to the front face of the
@@ -336,7 +338,7 @@ LArWheelCalculator::LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zsi
 
            if(slant_params != "" && slant_params != "default"){
              double a, b, c, d, e;
-             if(sscanf(slant_params.c_str(), "%le %le %le %le %le", &a, &b, &c, &d, &e) != 5){
+             if(sscanf(slant_params.c_str(), "%80le %80le %80le %80le %80le", &a, &b, &c, &d, &e) != 5){
                msg << MSG::ERROR
                    << "LArWheelCalculator: ERROR: wrong value(s) "
                    << "for EMEC slant angle parameters: "
@@ -508,13 +510,13 @@ double LArWheelCalculator::GetWheelInnerRadius(double *r) const
     r[1] = m_zWheelBackFace  * tanThetaInner;
   } else {
     double tanThetaMid   = 2. * exp(-m_eta_mid) / (1. - exp(-2.*m_eta_mid));
-    double tanThetaOuter = 2. * exp(-m_eta_low) / (1. - exp(-2.*m_eta_low));
+    double inv_tanThetaOuter = (1. - exp(-2.*m_eta_low)) / (2. * exp(-m_eta_low));
     // Note that there is a 3mm gap between the outer surface of the
     // inner wheel and the inner surface of the outer wheel.
     r[0] = m_zWheelFrontFace * tanThetaMid + m_HalfGapBetweenWheels;
-    r[1] = m_rOuterCutoff / tanThetaOuter * tanThetaMid + m_HalfGapBetweenWheels;
+    r[1] = m_rOuterCutoff * inv_tanThetaOuter * tanThetaMid + m_HalfGapBetweenWheels;
     r[2] = m_zWheelBackFace  * tanThetaMid + m_HalfGapBetweenWheels;
-    zMid = m_rOuterCutoff / tanThetaOuter - m_zWheelFrontFace;
+    zMid = m_rOuterCutoff * inv_tanThetaOuter - m_zWheelFrontFace;
   }
   return zMid;
 }

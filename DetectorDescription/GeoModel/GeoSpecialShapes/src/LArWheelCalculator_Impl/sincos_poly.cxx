@@ -95,7 +95,7 @@ void LArWheelCalculator::fill_sincos_parameterization(void)
 /*	const Double_t Rmin = m_isInner? 220.*mm: 530.*mm;
 	const Double_t Rmax = m_isInner? 780.*mm: 2120.*mm;*/
 	const Double_t Rstep = 1.*mm;
-	const Int_t nrPoints = (Rmax - Rmin) / Rstep;
+	const Int_t nrPoints = (Rmax - Rmin) * (1./Rstep);
 	const Int_t dataLen = nrPoints + 1;
 
 	TVectorD x(dataLen);  // angle points
