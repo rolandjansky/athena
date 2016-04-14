@@ -22,7 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( COOL COMPONENTS CoolKernel )
+find_package( CORAL COMPONENTS CoralKernel )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( tdaq-common )
 
@@ -30,11 +30,12 @@ find_package( tdaq-common )
 atlas_add_component( PixelCabling
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${COOL_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaKernel GaudiKernel AthenaBaseComps SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier InDetIdentifier PathResolver )
+                     INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaKernel GaudiKernel AthenaBaseComps SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier InDetIdentifier PathResolver )
 
 # Install files from the package:
 atlas_install_headers( PixelCabling )
+atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.dat )
 

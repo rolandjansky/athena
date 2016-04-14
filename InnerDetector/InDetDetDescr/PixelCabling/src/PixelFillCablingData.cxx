@@ -38,7 +38,7 @@ static const InterfaceID IID_IPixelFillCablingData("PixelFillCablingData", 1, 0)
 // constructor
 ////////////////////////
 PixelFillCablingData::PixelFillCablingData( const std::string& type, const std::string& name,const IInterface* parent)
-    : AthAlgTool(type, name, parent), m_idHelper(0), m_cabling(0)
+    : AthAlgTool(type, name, parent), m_idHelper(0)
 {
   declareInterface< PixelFillCablingData >( this );
 }
@@ -47,10 +47,7 @@ PixelFillCablingData::PixelFillCablingData( const std::string& type, const std::
 // destructor
 ////////////////////////
 PixelFillCablingData::~PixelFillCablingData()
-{
-  delete m_cabling;
-  m_cabling=0;
-}
+{ }
 
 ////////////////////////
 // interfaceID
@@ -76,8 +73,6 @@ StatusCode PixelFillCablingData::initialize()
   }
   m_cntxpixel = m_idHelper->wafer_context();
 
-  // Create a dummy PixelCablingData object
-  m_cabling = new PixelCablingData;
 
   return sc;
 }
@@ -87,7 +82,7 @@ StatusCode PixelFillCablingData::initialize()
 ////////////////////////
 // fill from text file
 ////////////////////////
-PixelCablingData* PixelFillCablingData::fillMapFromFile(const std::string infilename)
+bool PixelFillCablingData::fillMapFromFile(const std::string infilename, PixelCablingData* cabling)
 {
     std::string filename = PathResolver::find_file(infilename, "DATAPATH");
     if (filename.size() == 0) {
@@ -98,7 +93,7 @@ PixelCablingData* PixelFillCablingData::fillMapFromFile(const std::string infile
     std::ifstream fin(filename.c_str());
     if (!fin) return NULL;
 
-    return parseAndFill(fin);
+    return parseAndFill(fin,cabling);
 }
 
 
@@ -106,14 +101,15 @@ PixelCablingData* PixelFillCablingData::fillMapFromFile(const std::string infile
 ////////////////////////
 // fill from COOL
 ////////////////////////
-PixelCablingData* PixelFillCablingData::fillMapFromCool(const char* data, unsigned int size, bool dump_map_to_file)
+bool PixelFillCablingData::fillMapFromCool(const char* data, unsigned int size, PixelCablingData* cabling, bool dump_map_to_file) //FIXME: use std::string
 {
-    if (!data) return NULL;
+    if (!data) return false;
     std::stringstream instr;
 
-    std::copy(data, data+size, std::ostream_iterator<char>(instr));
+    //The detour via std::string make the code resiliant against missing c-string termination 
+    instr.str(std::string(data,size)); 
 
-    return parseAndFill(instr, dump_map_to_file);
+    return parseAndFill(instr, cabling, dump_map_to_file);
 }
 
 
@@ -121,11 +117,11 @@ PixelCablingData* PixelFillCablingData::fillMapFromCool(const char* data, unsign
 ////////////////////////
 // fill map from stream
 ////////////////////////
-PixelCablingData* PixelFillCablingData::parseAndFill(std::istream &instr, bool dump_map_to_file)
+bool PixelFillCablingData::parseAndFill(std::istream &instr, PixelCablingData* cabling, bool dump_map_to_file)
 {
     // Get rid of the old map and create a new
-    if (m_cabling) delete m_cabling;
-    m_cabling = new PixelCablingData;
+
+  //FIXME: Clear map here
 
 
     // Signed values
@@ -233,13 +229,13 @@ PixelCablingData* PixelFillCablingData::parseAndFill(std::istream &instr, bool d
         }
 
         // Fill the maps
-        m_cabling->add_entry_onoff(onlineId, offlineId);
-        m_cabling->add_entry_offon(offlineId, onlineId);
-        m_cabling->add_entry_offlineList(robid,offlineId);
-        m_cabling->add_entry_offrob(offlineId, robid);
-        m_cabling->add_entry_rodrob(rodid, robid);
-        m_cabling->add_entry_robrod(robid, rodid);
-        m_cabling->add_entry_DCSoffline(DCSname, offlineId);
+        cabling->add_entry_onoff(onlineId, offlineId);
+        cabling->add_entry_offon(offlineId, onlineId);
+        cabling->add_entry_offlineList(robid,offlineId);
+        cabling->add_entry_offrob(offlineId, robid);
+        cabling->add_entry_rodrob(rodid, robid);
+        cabling->add_entry_robrod(robid, rodid);
+        cabling->add_entry_DCSoffline(DCSname, offlineId);
 
 
         // Debug messages
@@ -256,8 +252,8 @@ PixelCablingData* PixelFillCablingData::parseAndFill(std::istream &instr, bool d
     }
 
     ATH_MSG_DEBUG("Size of ROD readoutspeed map: " << rodReadoutMap.size());
-    m_cabling->set_readout_map(rodReadoutMap);
-    return m_cabling;
+    cabling->set_readout_map(rodReadoutMap);
+    return true;
 
 }
 
