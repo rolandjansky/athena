@@ -36,7 +36,7 @@ StatusCode IAlgToolCalo::initialize()
         ATH_MSG_DEBUG("in initialize() by IAlgToolCalo");
 
         ATH_CHECK( detStore()->retrieve(m_larMgr) );
-	ATH_CHECK( m_data.retrieve() );
+        ATH_CHECK( m_data.retrieve() );
         ATH_CHECK( m_geometryTool.retrieve() );
 
         // Initialize timing service in order to perform some measures
@@ -113,7 +113,7 @@ void IAlgToolCalo::PrintCluster(const double ARG(energyFromAlg),
 {
 #ifdef EXTRADEBUG
 
-  int CaloTech; // 0 for LAr | 1 for Tile;
+  int CaloTech = -1 ; // 0 for LAr | 1 for Tile;
   std::string Samp1_str;
   std::string Samp2_str;
 
