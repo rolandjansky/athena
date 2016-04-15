@@ -171,7 +171,7 @@ int IndexSet::operator [] (const unsigned int & r_k) const {
 
 void IndexSet::sort(void) {
 
-	std::sort(m_index.begin(), m_index.end());
+	std::stable_sort(m_index.begin(), m_index.end());
 	return;
 
 }
