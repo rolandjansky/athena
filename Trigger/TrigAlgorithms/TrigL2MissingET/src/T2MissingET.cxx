@@ -139,6 +139,9 @@ T2MissingET::T2MissingET(const std::string& name, ISvcLocator* pSvcLocator)
                     // spare = 0x40000000; // bit 30
   m_maskGlobErrors           = 0x80000000; // bit 31
 
+  //initialization to prevent coverity error:
+  firsteventinrun=false;
+
 }
 
 
