@@ -150,6 +150,8 @@ private:
     double m_ptsum_max;
     double m_oniamass_min;
     double m_oniamass_max;
+    double m_taumass_min;
+    double m_taumass_max;
     double m_oniapt_min;
     double m_oniapt_max ;
 
