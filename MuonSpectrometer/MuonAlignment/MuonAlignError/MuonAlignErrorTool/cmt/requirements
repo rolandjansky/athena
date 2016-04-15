@@ -11,6 +11,8 @@ use GeoPrimitives     GeoPrimitives-*     DetectorDescription
 use MuonCondInterface MuonCondInterface-* MuonSpectrometer/MuonConditions/MuonCondGeneral
 use TrkToolInterfaces     TrkToolInterfaces-*        Tracking/TrkTools
 use MuonAlignErrorBase    MuonAlignErrorBase-*       MuonSpectrometer/MuonAlignment/MuonAlignError
+use AtlasROOT           AtlasROOT-*             External
+use MuonIdHelpers       MuonIdHelpers-*         MuonSpectrometer
 
 private
 use TrkTrack              TrkTrack-*                 Tracking/TrkEvent
