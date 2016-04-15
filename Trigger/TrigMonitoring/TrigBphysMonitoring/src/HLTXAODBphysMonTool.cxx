@@ -173,6 +173,8 @@ m_muonMass(105.66)
     declareProperty("PtSum_max"                    , m_ptsum_max            , "Maximum pT sum of muons");
     declareProperty("OniaMass_min"                 , m_oniamass_min         , "Minimum onia mass");
     declareProperty("OniaMass_max"                 , m_oniamass_max         , "Maximum onia mass");
+    declareProperty("TauMass_min"                  , m_taumass_min          , "Minimum tau mass");
+    declareProperty("TauMass_max"                  , m_taumass_max          , "Maximum tau mass");
     declareProperty("OniaPt_min"                   , m_oniapt_min           , "Minimum onia pt");
     declareProperty("OniaPt_max"                   , m_oniapt_max           , "Maximum onia pt");
 
@@ -896,24 +898,30 @@ StatusCode HLTXAODBphysMonTool::bookJpsiFinder() {
         addHistogram( new TH1F(prefix+"_Jpsi_dphi_central_"+trigpair.first, prefix+"_Jpsi_dphi_central_"+trigpair.second, 32,  0.,3.2) );
         addHistogram( new TH1F(prefix+"_Jpsi_deta_central_"+trigpair.first, prefix+"_Jpsi_deta_central_"+trigpair.second, 30, 0.,3.) );
         addHistogram( new TH1F(prefix+"_Jpsi_pt_central_"+trigpair.first, prefix+"_Jpsi_pt_central_"+trigpair.second, nptmumus,ptmumus) );
-        addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_central_"+trigpair.first, prefix+"_Jpsi_tau_bs_central_"+trigpair.second, ntaus,taus) );
-        addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_central_"+trigpair.first, prefix+"_Jpsi_lxy_bs_central_"+trigpair.second, ntaus,taus) );
+//         addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_central_"+trigpair.first, prefix+"_Jpsi_tau_bs_central_"+trigpair.second, ntaus,taus) );
+//         addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_central_"+trigpair.first, prefix+"_Jpsi_lxy_bs_central_"+trigpair.second, ntaus,taus) );
+        addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_central_"+trigpair.first, prefix+"_Jpsi_tau_bs_central_"+trigpair.second, 105,-1.,20.) );
+        addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_central_"+trigpair.first, prefix+"_Jpsi_lxy_bs_central_"+trigpair.second, 105,-1.,20.) );
         
         addHistogram( new TH1F(prefix+"_Jpsi_mass_forward_"+trigpair.first, prefix+"_Jpsi_mass_forward_"+trigpair.second, 50, 2950,3250) );
         addHistogram( new TH1F(prefix+"_Jpsi_rap_forward_"+trigpair.first, prefix+"_Jpsi_rap_forward_"+trigpair.second, 50, -2.5,2.5) );
         addHistogram( new TH1F(prefix+"_Jpsi_dphi_forward_"+trigpair.first, prefix+"_Jpsi_dphi_forward_"+trigpair.second, 32,  0.,3.2) );
         addHistogram( new TH1F(prefix+"_Jpsi_deta_forward_"+trigpair.first, prefix+"_Jpsi_deta_forward_"+trigpair.second, 30, 0.,3.) );
         addHistogram( new TH1F(prefix+"_Jpsi_pt_forward_"+trigpair.first, prefix+"_Jpsi_pt_forward_"+trigpair.second, nptmumus,ptmumus) );
-        addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_forward_"+trigpair.first, prefix+"_Jpsi_tau_bs_forward_"+trigpair.second, ntaus,taus) );
-        addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_forward_"+trigpair.first, prefix+"_Jpsi_lxy_bs_forward_"+trigpair.second, ntaus,taus) );
+//         addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_forward_"+trigpair.first, prefix+"_Jpsi_tau_bs_forward_"+trigpair.second, ntaus,taus) );
+//         addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_forward_"+trigpair.first, prefix+"_Jpsi_lxy_bs_forward_"+trigpair.second, ntaus,taus) );
+        addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_forward_"+trigpair.first, prefix+"_Jpsi_tau_bs_forward_"+trigpair.second,  105,-1.,20.) );
+        addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_forward_"+trigpair.first, prefix+"_Jpsi_lxy_bs_forward_"+trigpair.second,  105,-1.,20.) );
         
         addHistogram( new TH1F(prefix+"_Jpsi_mass_"+trigpair.first, prefix+"_Jpsi_mass_"+trigpair.second, 50, 2950,3250) );
         addHistogram( new TH1F(prefix+"_Jpsi_rap_"+trigpair.first, prefix+"_Jpsi_rap_"+trigpair.second, 50, -2.5,2.5) );
         addHistogram( new TH1F(prefix+"_Jpsi_dphi_"+trigpair.first, prefix+"_Jpsi_dphi_"+trigpair.second, 32,  0.,3.2) );
         addHistogram( new TH1F(prefix+"_Jpsi_deta_"+trigpair.first, prefix+"_Jpsi_deta_"+trigpair.second, 30, 0.,3.) );
         addHistogram( new TH1F(prefix+"_Jpsi_pt_"+trigpair.first, prefix+"_Jpsi_pt_"+trigpair.second, nptmumus,ptmumus) );
-        addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_"+trigpair.first, prefix+"_Jpsi_tau_bs_"+trigpair.second, ntaus,taus) );
-        addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_"+trigpair.first, prefix+"_Jpsi_lxy_bs_"+trigpair.second, ntaus,taus) );
+//         addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_"+trigpair.first, prefix+"_Jpsi_tau_bs_"+trigpair.second, ntaus,taus) );
+//         addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_"+trigpair.first, prefix+"_Jpsi_lxy_bs_"+trigpair.second, ntaus,taus) );
+        addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_"+trigpair.first, prefix+"_Jpsi_tau_bs_"+trigpair.second,  105,-1.,20.) );
+        addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_"+trigpair.first, prefix+"_Jpsi_lxy_bs_"+trigpair.second,  105,-1.,20.) );
     }
 
 
@@ -1593,7 +1601,10 @@ void HLTXAODBphysMonTool::bookTrigBphysHists(const std::string & groupName ,cons
     //************ SHIFTER ************* //
     addMonGroup(new MonGroup(this,m_base_path_shifter+"/"+path,run));
     
-    addHistogram( new TH1F(Form("%s_%s_mass",pref,name) ,     Form("%s_%s_mass;mass(#mu#mu)[GeV];Candidates",pref,detTitle) ,    200, m_oniamass_min,m_oniamass_max) );
+    if ( chainName.find("bTau") != std::string::npos) 
+      addHistogram( new TH1F(Form("%s_%s_mass",pref,name) ,     Form("%s_%s_mass;mass(#mu#mu)[MeV];Candidates",pref,detTitle) ,    200, m_taumass_min,m_taumass_max) );
+    else
+      addHistogram( new TH1F(Form("%s_%s_mass",pref,name) ,     Form("%s_%s_mass;mass(#mu#mu)[MeV];Candidates",pref,detTitle) ,    200, m_oniamass_min,m_oniamass_max) );
     addHistogram( new TH1F(Form("%s_%s_eta",pref,name) ,      Form("%s_%s_eta;#eta(#mu#mu);Candidates",pref,detTitle) ,     30, m_eta_min,m_eta_max) );
     addHistogram( new TH1F(Form("%s_%s_dR",pref,name) ,       Form("%s_%s_dR;dR(#mu_{1,2});Candidates",pref,detTitle) ,     30, m_dr_min,m_dr_max) );
     
@@ -1608,7 +1619,10 @@ void HLTXAODBphysMonTool::bookTrigBphysHists(const std::string & groupName ,cons
         addHistogram( new TH1F(Form("%s_%s_dphi",pref,name) ,     Form("%s_%s_dphi;d#phi(#mu_{1,2});Candidates",pref,detTitle) ,     32, m_dphi_min,m_dphi_max) );
         addHistogram( new TH1F(Form("%s_%s_deta",pref,name) ,     Form("%s_%s_deta;d#eta(#mu_{1,2});Candidates",pref,detTitle) ,     30, m_deta_min,m_deta_max) );
         addHistogram( new TH1F(Form("%s_%s_pTsum",pref,name) ,    Form("%s_%s_pTsum;#Sigmap_{T}(#mu_{1,2})[GeV];Candidates",pref,detTitle) ,    nptmumus,ptmumus) );
-        addHistogram( new TH1F(Form("%s_%s_fitmass",pref,name) ,  Form("%s_%s_fitmass;fitmass(#mu#mu)[GeV];Candidates",pref,detTitle) ,    200, m_oniamass_min,m_oniamass_max) );
+        if ( chainName.find("bTau") != std::string::npos) 
+          addHistogram( new TH1F(Form("%s_%s_fitmass",pref,name) ,  Form("%s_%s_fitmass;fitmass(#mu#mu)[MeV];Candidates",pref,detTitle) ,    200, m_taumass_min,m_taumass_max) );
+        else
+          addHistogram( new TH1F(Form("%s_%s_fitmass",pref,name) ,  Form("%s_%s_fitmass;fitmass(#mu#mu)[MeV];Candidates",pref,detTitle) ,    200, m_oniamass_min,m_oniamass_max) );
         addHistogram( new TH1F(Form("%s_%s_fitchi2",pref,name) ,  Form("%s_%s_fitchi2;#chi^{2}(#mu#mu);Candidates",pref,detTitle) ,    50, 0.,20.) );
     }
 
