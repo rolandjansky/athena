@@ -16,7 +16,7 @@ use AtlasReflex		AtlasReflex-* 			External  -no_auto_imports
 
 private
 use AthenaBaseComps     AthenaBaseComps-*      Control
-use LArTools 	        LArTools-*             LArCalorimeter
+use LArCabling 	        LArCabling-*           LArCalorimeter
 use LArIdentifier 	LArIdentifier-*        LArCalorimeter
 end_private
 

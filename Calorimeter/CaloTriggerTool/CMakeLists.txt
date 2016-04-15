@@ -18,7 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArTools )
+                          LArCalorimeter/LArCabling )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
