@@ -624,7 +624,7 @@ namespace Muon {
 
       // Preprocessing step two : sort all layers' segments by quality
       for (unsigned int lit=0;lit<mySegColVec.size();++lit){
-        std::sort( mySegColVec[lit].begin() , mySegColVec[lit].end() , SortSegInfoByQuality() );
+        std::stable_sort( mySegColVec[lit].begin() , mySegColVec[lit].end() , SortSegInfoByQuality() );
       }
 
       if( m_doSummary || msgLvl(MSG::DEBUG) ){
@@ -657,7 +657,7 @@ namespace Muon {
         for (unsigned int lit=0;lit<mySegColVec.size();++lit){
           occupancy.push_back( std::pair<int,unsigned int>(mySegColVec[lit].size(),lit) );
         }
-        std::sort( occupancy.begin() , occupancy.end() );
+        std::stable_sort( occupancy.begin() , occupancy.end() );
         for (unsigned int lit=0;lit<occupancy.size();++lit){
           seeds.push_back( occupancy[lit].second );
         }
