@@ -232,6 +232,27 @@ def getKernel_GenericG4Only(name="ISF_Kernel_GenericG4Only", **kwargs):
 def getKernel_FullG4(name="ISF_Kernel_FullG4", **kwargs):
     return getKernel_GenericG4Only(name, **kwargs)
 
+############## Simulator: FullG4_longLived ###############
+def getKernel_FullG4_LongLived(name="ISF_Kernel_FullG4_LongLived", **kwargs):
+    kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
+    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
+    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
+    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ]  )
+    kwargs.setdefault("ParticleBroker"              ,   'ISF_LongLivedParticleBrokerSvc'       )
+    return getKernel_GenericG4Only(name, **kwargs)
+
+############## Simulator: FullG4_IDOnly ###############
+def getKernel_FullG4_IDOnly(name="ISF_Kernel_FullG4_IDOnly", **kwargs):
+    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultParticleKillerSelector' ] )
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultParticleKillerSelector' ] )
+    return getKernel_GenericG4Only(name, **kwargs)
+
+############## Simulator: FullG4_IDCalo ###############
+def getKernel_FullG4_IDCalo(name="ISF_Kernel_FullG4_IDCalo", **kwargs):
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultParticleKillerSelector' ] )
+    return getKernel_GenericG4Only(name, **kwargs)
+
 ############## Simulator: PassBackG4 ###############
 def getKernel_PassBackG4(name="ISF_Kernel_PassBackG4", **kwargs):
     kwargs.setdefault("ParticleBroker"              , "ISF_ParticleBrokerSvcNoOrdering"  )
@@ -248,30 +269,25 @@ def getKernel_CosmicsG4(name="ISF_Kernel_CosmicsG4", **kwargs):
     kwargs.setdefault("EventFilterTools"            , [ 'ISF_CosmicEventFilter']   )
     return getKernel_FullG4(name, **kwargs)
 
-############## Simulator: MC12G4_longLived ###############
-def getKernel_MC12G4_longLived(name="ISF_Kernel_MC12G4_longLived", **kwargs):
-    kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
-    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
-    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
-    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
-    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ]  )
-    kwargs.setdefault("ParticleBroker"              ,   'ISF_LongLivedParticleBrokerSvc'       )
-    return getKernel_GenericG4Only(name, **kwargs)
-
 ############## Simulator: MC12G4 ###############
 def getKernel_MC12G4(name="ISF_Kernel_MC12G4", **kwargs):
-    return getKernel_GenericG4Only(name, **kwargs)
+    # Legacy only
+    return getKernel_FullG4(name, **kwargs)
+
+############## Simulator: MC12G4_longLived ###############
+def getKernel_MC12G4_longLived(name="ISF_Kernel_MC12G4_longLived", **kwargs):
+    # Legacy only
+    return getKernel_FullG4_LongLived(name, **kwargs)
 
 ############## Simulator: MC12G4_IDOnly ###############
 def getKernel_MC12G4_IDOnly(name="ISF_Kernel_MC12G4_IDOnly", **kwargs):
-    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultParticleKillerSelector' ] )
-    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultParticleKillerSelector' ] )
-    return getKernel_GenericG4Only(name, **kwargs)
+    # Legacy only
+    return getKernel_FullG4_IDOnly(name, **kwargs)
 
 ############## Simulator: MC12G4_IDCalo ###############
 def getKernel_MC12G4_IDCalo(name="ISF_Kernel_MC12G4_IDCalo", **kwargs):
-    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultParticleKillerSelector' ] )
-    return getKernel_GenericG4Only(name, **kwargs)
+    # Legacy only
+    return getKernel_FullG4_IDCalo(name, **kwargs)
 
 ############## Simulator: ATLFASTII ###############
 def getKernel_ATLFASTII(name="ISF_Kernel_ATLFASTII", **kwargs):
