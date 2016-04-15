@@ -6,6 +6,7 @@
 #include "L1TopoCommon/Exception.h"
 
 #include <iostream>
+#include <iomanip>
 #include <algorithm>
 #include <set>
 
@@ -18,7 +19,8 @@ set<unsigned int> triggercounters;
 
 void
 TriggerLine::calcCounter() { 
-   m_counter = 64 * m_module + 16 * m_fpga + 32 * m_clock + m_bit;
+   //m_counter = 64 * m_module + 16 * m_fpga + 32 * m_clock + m_bit;
+   m_counter = 2 * (32 * m_module + 16 * m_fpga + m_bit) + m_clock;
    if(m_counter>191) {
       TCS_EXCEPTION("Trigger line '" << *this << "' has illegal counter " << m_counter);
    }
@@ -75,22 +77,28 @@ L1TopoConfigOutputList::sort() {
    std::sort( m_triggerlines.begin(), m_triggerlines.end(), comp);
 }
 
-std::ostream & operator<<(std::ostream &o, const TXC::L1TopoConfigOutputList &outputlist) {
+
+namespace TXC {
+
+std::ostream & operator<<(std::ostream &o, const L1TopoConfigOutputList &outputlist) {
 
    o << "Trigger lines (sorted by connectors):" << endl;
    for(const TXC::TriggerLine& trigger: outputlist.getTriggerLines()) {
-      if(trigger.counter() % 16 == 0) {
+      if(trigger.counter() % 32 == 0) {
          //modIdx = trigger.counter() / 100;
-         o << endl << "Module=" << trigger.module() << ", FPGA=" << trigger.fpga() << ", Clock=" << trigger.clock() << endl;
-         o << "-------------------------" << endl;
+         o << endl << "Module=" << trigger.module() << ", FPGA=" << trigger.fpga() << endl;
+         o << "----------------" << endl;
       }
-      o << "  " << trigger.name() <<  "   (algorithm " << trigger.algoname() << " (id=" << trigger.algoid() << "))" <<  " on bit " << trigger.bit() << endl;
+      o << "  " << setiosflags(ios::left) << setw(30) << trigger.name() <<  "   (algorithm " << trigger.algoname() << " (id=" << trigger.algoid() << "))"
+        <<  " on line " << trigger.bit() << " and clock " << trigger.clock() << endl;
    }
    return o;
 }
 
-std::ostream & operator<<(std::ostream &o, const TXC::TriggerLine &trigger) {
+std::ostream & operator<<(std::ostream &o, const TriggerLine &trigger) {
    o << trigger.counter() << " : " << trigger.name() << " [" << trigger.module() << "/" << trigger.fpga() << "/" << trigger.clock() << "/" << trigger.bit() << "]";
    return o;
 }
 
+
+} // namespace TXC
