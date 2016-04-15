@@ -14,7 +14,7 @@
 #include "LArIdentifier/LArOnlID_Exception.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -46,7 +46,7 @@ CaloTriggerTowerService::CaloTriggerTowerService( const std::string& type,
 StatusCode CaloTriggerTowerService::initialize ()
 {
 
-  msg().setLevel(outputLevel());
+  msg().setLevel(msgLevel());
 
   msg()<<MSG::INFO<<" => CaloTriggerTowerService::initialize() "<< endreq;
 

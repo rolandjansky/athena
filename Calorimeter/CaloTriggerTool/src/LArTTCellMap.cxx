@@ -90,16 +90,8 @@ void LArTTCellMap::set( const LArTTCell& m )
 	id = hec_id->channel_id(t.pn,t.sample,t.region,t.eta,t.phi);
       } else      if(t.det==2){
 	// FCAL sample==region
-	// first check that the id will make sense:
-	bool connected = fcal_id->is_connected(t.pn,t.region,t.eta,t.phi);
-	if(!connected) {
-	  (*m_msg) << MSG::ERROR
-	      << "wrong dictionary ? cell not connected ! pn= "
-	      << t.pn << "reg= " << t.region << "eta= " << t.eta << "phi= " << t.phi
-	      << endreq;
-	} else {
-	  id = fcal_id->channel_id(t.pn,t.region,t.eta,t.phi);
-	}
+	id = fcal_id->channel_id(t.pn,t.region,t.eta,t.phi);
+
       } else        {
 	(*m_msg) <<MSG::ERROR <<" Wrong input Detector Number " << t.det << endreq;
       }
