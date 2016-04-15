@@ -154,7 +154,6 @@ StatusCode  CaloAffectedTool::readDB() {
 bool CaloAffectedTool::isAffected(const xAOD::IParticle *p, float deta, float dphi, int layer_min, int layer_max, int problemType) 
 {
 
-  static CaloPhiRange _range;
  static float epsilon=1e-6;
 
   //std::cout << " in isAffected " << p->eta() << " " << p->phi() << std::endl;
@@ -189,8 +188,8 @@ bool CaloAffectedTool::isAffected(const xAOD::IParticle *p, float deta, float dp
     float phimax=region->get_phi_max();
     float phi = p->phi();
     //std::cout << " phi region " << phimin << " " << phimax << std::endl;
-    float phi2 =_range.fix(phi+dphi+epsilon);
-    float phi1 =_range.fix(phi-dphi-epsilon);
+    float phi2 = CaloPhiRange::fix(phi+dphi+epsilon);
+    float phi1 = CaloPhiRange::fix(phi-dphi-epsilon);
 
     if ((phimax >= phimin) && (phi2 >= phi1) && (phi2<phimin || phi1>phimax)) continue;
     if ((phimax >= phimin) && (phi2 <= phi1) && (phi1>phimax && phi2<phimin)) continue;
@@ -212,7 +211,6 @@ bool CaloAffectedTool::listAffected(const xAOD::IParticle*p, std::vector<int>& l
 
   bool found = false;
 
-  static CaloPhiRange _range;
   static float epsilon=1e-6;
 
   layer_list.clear();
@@ -243,8 +241,8 @@ bool CaloAffectedTool::listAffected(const xAOD::IParticle*p, std::vector<int>& l
     float phimin=region->get_phi_min();
     float phimax=region->get_phi_max();
     float phi = p->phi();
-    float phi2 =_range.fix(phi+dphi+epsilon);
-    float phi1 =_range.fix(phi-dphi-epsilon);
+    float phi2 = CaloPhiRange::fix(phi+dphi+epsilon);
+    float phi1 = CaloPhiRange::fix(phi-dphi-epsilon);
 
     if ((phimax >= phimin) && (phi2 >= phi1) && (phi2<phimin || phi1>phimax)) continue;
     if ((phimax >= phimin) && (phi2 <= phi1) && (phi1>phimax && phi2<phimin)) continue;

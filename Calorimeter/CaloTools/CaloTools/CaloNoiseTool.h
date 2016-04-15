@@ -22,7 +22,7 @@ class StoreGateSvc;
 
 #include "CaloIdentifier/TileID.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArID_Exception.h"
  
 #include "CaloIdentifier/CaloGain.h"
@@ -142,36 +142,36 @@ private:
 
   bool m_retrieve[15];
 
-  float  Adc2MeVFactor;
+  float  m_Adc2MeVFactor;
   const  DataHandle<ILArAdc2GeV> m_dd_adc2gev;
-  double AdcPerMev;
+  double m_AdcPerMev;
   ToolHandle<ILArADC2MeVTool> m_adc2mevTool;
 
   const  DataHandle<ILArNoise> m_dd_noise; 
-  float  SigmaNoise;
-  double CNoise;
+  float  m_SigmaNoise;
+  double m_CNoise;
  
   bool m_useRMSpedestal;
   const DataHandle<ILArPedestal> m_dd_pedestal;
-  float RMSpedestal;
+  float m_RMSpedestal;
 
   const DataHandle<ILArAutoCorr> m_dd_acorr;
-  ILArAutoCorr::AutoCorrRef_t AutoCorr;
-  float c[32][32];
+  ILArAutoCorr::AutoCorrRef_t m_AutoCorr;
+  float m_c[32][32];
 
   const DataHandle<ILArOFC_Shape> m_detDHOFC ;
   ToolHandle<ILArOFCTool> m_OFCTool;
-  ILArOFCTool::OFCRef_t OFC;  
+  ILArOFCTool::OFCRef_t m_OFC;
    
   const DataHandle<ILArShape> m_dd_shape;
-  ILArShape::ShapeRef_t Shape; 
+  ILArShape::ShapeRef_t m_Shape; 
   int m_nsamples;
 
   const DataHandle<ILArfSampl> m_dd_fsampl;
-  float fSampl;
+  float m_fSampl;
 
   const DataHandle<ILArMinBias> m_dd_minbias; 
-  float MinBiasRMS;
+  float m_MinBiasRMS;
   float m_Nminbias;
   float m_Nminbias_usedForCache;
 // 

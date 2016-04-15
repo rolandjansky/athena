@@ -359,7 +359,7 @@ CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
     if(m_WorkMode==1) 
     {
 
-// get pulse shape, fSampl and minBiasRMS to compute pileup noise (MC only)
+// get pulse shape, m_fSampl and minBiasRMS to compute pileup noise (MC only)
       if(m_isMC){
 
         StatusCode sc=detStore()->regFcn(&ICaloNoiseTool::LoadCalibration,
@@ -434,8 +434,8 @@ CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
    //currently no database for Tile
   }
 
-  CNoise    = 0.456E-3;
-  AdcPerMev = 5.*GeV;
+  m_CNoise    = 0.456E-3;
+  m_AdcPerMev = 5.*GeV;
 
 
 
@@ -862,11 +862,11 @@ CaloNoiseTool::calculateElecNoiseForLAR(const IdentifierHash & idCaloHash,
 E=SUMi { OFCi * (short[ (PulseShapei*Ehit/Adc2MeV(gain) + Noisei(gain)  
                        + pedestal) ]  
                  - pedestal) * Adc2Mev(gain) ] } 
-   with Noisei =SUMj { cij*Rndm } * SigmaNoise
+   with Noisei =SUMj { cij*Rndm } * m_SigmaNoise
 
    NB:  without short and with cij=identity (no autocorrelation) 
         E=SUMi { NOISEi(gain)*Rndm } 
-        with  NOISEi(gain) = Adc2MeV(gain) * OFCi * SigmaNoise(gain)        
+        with  NOISEi(gain) = Adc2MeV(gain) * OFCi * m_SigmaNoise(gain)        
 
    => Sigma^2=SUMi{NOISEi(gain)*NOISEj(gain)*cij} + quantification part
              =        NOISE(gain)                 +   REST
@@ -878,13 +878,13 @@ E=SUMi { OFCi * (short[ (PulseShapei*Ehit/Adc2MeV(gain) + Noisei(gain)
 E=SUMi { OFCi * (short[ ( (PulseShapei*Ehit+Noisei)*gain + CNoisei ) 
                          * AdcPerGev + pedestal] 
                  - pedestal) } / gain
-   with Noisei =SUMj { cij*Rndm } * SigmaNoise
-        CNoisei=SUMj { cij*Rndm } * CNoise
+   with Noisei =SUMj { cij*Rndm } * m_SigmaNoise
+        CNoisei=SUMj { cij*Rndm } * m_CNoise
 
    NB:  without short and with cij=identity (no autocorrelation) 
         E=SUMi { Ai*Rndm + Bi*Rndm } 
-        with  Ai=(AdcPerGev)     *OFCi*SigmaNoise
-              Bi=(AdcPerGev/gain)*OFCi*CNoise
+        with  Ai=(AdcPerGev)     *OFCi*m_SigmaNoise
+              Bi=(AdcPerGev/gain)*OFCi*m_CNoise
 
    => Sigma^2=SUMi{Ai*Aj*cij + Bi*Bj*cij } + quantification part
              =        A      + (  B        +      C) / gain^2 
@@ -930,10 +930,10 @@ E=SUMi { OFCi * (short[ ( (PulseShapei*Ehit+Noisei)*gain + CNoisei )
       //::::::::::::::::::::::::::::::::::::::
       if(iCalo==CaloCell_ID::LARFCAL && m_WorkMode==0)
       {
-        float A=OFC_AC_OFC*SigmaNoise*SigmaNoise*AdcPerMev*AdcPerMev; 
-          // A is the part with SigmaNoise 
-        float B=OFC_AC_OFC*CNoise*CNoise*AdcPerMev*AdcPerMev;     
-          // B is the part with the constant noise (CNoise) 
+        float A=OFC_AC_OFC*m_SigmaNoise*m_SigmaNoise*m_AdcPerMev*m_AdcPerMev; 
+          // A is the part with m_SigmaNoise 
+        float B=OFC_AC_OFC*m_CNoise*m_CNoise*m_AdcPerMev*m_AdcPerMev;     
+          // B is the part with the constant noise (m_CNoise) 
         float C=OFC_OFC*(1./12.);				 
           // C is the quantification part (effect of the truncation  short(..) )
           //   12.=sqrt(12)*sqrt(12)
@@ -942,9 +942,9 @@ E=SUMi { OFCi * (short[ ( (PulseShapei*Ehit+Noisei)*gain + CNoisei )
       }
       else// USUAL CASE
       {
-        float NOISE= OFC_AC_OFC*SigmaNoise*SigmaNoise ;
+        float NOISE= OFC_AC_OFC*m_SigmaNoise*m_SigmaNoise ;
         float REST = OFC_OFC*(1./12.);// 12.=sqrt(12)*sqrt(12)
-        sigma=(NOISE+REST) * Adc2MeVFactor*Adc2MeVFactor;   
+        sigma=(NOISE+REST) * m_Adc2MeVFactor*m_Adc2MeVFactor;   
       }
       //::::::::::::::::::::::::::::::::::::::
       if(sigma>0) sigma=sqrt(sigma);
@@ -1047,12 +1047,12 @@ CaloNoiseTool::calculatePileUpNoise(const IdentifierHash & idCaloHash,
 
   //in the database, RMS is at the scale of the Hits, 
   // so we need to scale it at the e.m scale using the sampling fraction ...
-  MinBiasRMS /= fSampl;
+  m_MinBiasRMS /= m_fSampl;
 
   //::::::::::::::::::::::::::::::::::::::
 
 // overall normalization factor
-  float  PileUp=MinBiasRMS*sqrt(Nminbias);
+  float  PileUp=m_MinBiasRMS*sqrt(Nminbias);
  
   //::::::::::::::::::::::::::::::::::::::
 
@@ -1084,10 +1084,10 @@ CaloNoiseTool::commonCalculations(float & OFC_AC_OFC,float & OFC_OFC,int icase, 
      for(int i=0;i<m_nsamples;++i) 
        for(int j=0;j<m_nsamples;++j)  
        { 
-         if(i==j)               c[i][j] = 1.; 
+         if(i==j)               m_c[i][j] = 1.; 
          for(int k=1;k<m_nsamples;++k) 
 	   if(i==j-k || i==j+k)	
-	     c[i][j] = AutoCorr[k-1];
+	     m_c[i][j] = m_AutoCorr[k-1];
        }
   }
 // other case: pileup noise
@@ -1095,13 +1095,13 @@ CaloNoiseTool::commonCalculations(float & OFC_AC_OFC,float & OFC_OFC,int icase, 
      for (int i=0;i<m_nsamples;i++) {
       for (int j=0;j<m_nsamples;j++)
       {
-        c[i][j]=0.;
-        int nsize = Shape.size();
+        m_c[i][j]=0.;
+        int nsize = m_Shape.size();
         for (int k=0;k<nsize;k++) {
            if ((j-i+k)>=0 && (j-i+k)<nsize) {
              int ibunch=0;
              if ((i+firstSample-k)%m_deltaBunch == 0 ) ibunch=1;
-             c[i][j] += ((double) (ibunch)) * (Shape[k]) * (Shape[j-i+k]);
+             m_c[i][j] += ((double) (ibunch)) * (m_Shape[k]) * (m_Shape[j-i+k]);
            }
         }
       }
@@ -1119,17 +1119,17 @@ CaloNoiseTool::commonCalculations(float & OFC_AC_OFC,float & OFC_OFC,int icase, 
     {   
       tmp=0.; 
       for(int j=0;j<m_nsamples;++j)  	
-	tmp+=c[i][j]*OFC[j]; 
-      tmp*=OFC[i]; 
+	tmp+=m_c[i][j]*m_OFC[j]; 
+      tmp*=m_OFC[i]; 
       OFC_AC_OFC+=tmp;  
-      OFC_OFC+= OFC[i] * OFC[i]; 
+      OFC_OFC+= m_OFC[i] * m_OFC[i]; 
       //std::cout<<"    "<<i<<" "<<OFC_AC_OFC<<" "<<OFC_OFC<<std::endl;
     }
   }
   else //equivalent to have only the third sample (peak)
   {
-    // <=> (*OFC)[2]==1, others are null
-    OFC_AC_OFC=c[2][2];
+    // <=> (*m_OFC)[2]==1, others are null
+    OFC_AC_OFC=m_c[2][2];
     OFC_OFC=1;
   } 
   //::::::::::::::::::::::::::::::::::::::
@@ -1161,14 +1161,14 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
     if(m_WorkMode==0) 
     {
       const std::vector<float>& vAdc2MeVFactor = m_dd_adc2gev->AllFactors(id);
-      Adc2MeVFactor = vAdc2MeVFactor[igain]*GeV;
+      m_Adc2MeVFactor = vAdc2MeVFactor[igain]*GeV;
     }
     else 
     {      
       int index=this->index(idCaloHash);
-      Adc2MeVFactor = (m_adc2mevContainer[index])[igain];       
+      m_Adc2MeVFactor = (m_adc2mevContainer[index])[igain];       
     } 
-    if(PRINT) std::cout<<"Adc2MeVFactor="<<Adc2MeVFactor<<std::endl;
+    if(PRINT) std::cout<<"m_Adc2MeVFactor="<<m_Adc2MeVFactor<<std::endl;
   }
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -1176,34 +1176,34 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   if(m_retrieve[iSIGMANOISE])
   {
     if(m_isMC)
-      SigmaNoise = m_dd_noise->noise(id,igain);
+      m_SigmaNoise = m_dd_noise->noise(id,igain);
     else          
     {
-      RMSpedestal = m_dd_pedestal->pedestalRMS(id,igain);
-      if(RMSpedestal>(1.0+LArElecCalib::ERRORCODE)) 
-	SigmaNoise = RMSpedestal;
+      m_RMSpedestal = m_dd_pedestal->pedestalRMS(id,igain);
+      if(m_RMSpedestal>(1.0+LArElecCalib::ERRORCODE)) 
+	m_SigmaNoise = m_RMSpedestal;
       else
       {     
 	//	MsgStream log(msgSvc(), name());
 	//	log << MSG::WARNING << function_name
 	//	    <<" PedestalRMS vector empty for "
 	//	    <<m_lar_em_id->show_to_string(id)<<" at gain "<<igain<<endreq;     
-        SigmaNoise = 0.;
+        m_SigmaNoise = 0.;
       }
     }
-    if(PRINT) std::cout<<"SigmaNoise(inADC)="<<SigmaNoise<<std::endl;
+    if(PRINT) std::cout<<"m_SigmaNoise(inADC)="<<m_SigmaNoise<<std::endl;
   }
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //AUTOCORR
   if(m_retrieve[iAUTOCORR])
   {
-    AutoCorr = m_dd_acorr->autoCorr(id,igain);
+    m_AutoCorr = m_dd_acorr->autoCorr(id,igain);
     ////////// 
     if(PRINT) {
       std::cout<<"AutoCorr= ";
-      for(unsigned int i=0;i<AutoCorr.size();++i)                
-	std::cout<<AutoCorr[i]<<" ";
+      for(unsigned int i=0;i<m_AutoCorr.size();++i)                
+	std::cout<<m_AutoCorr[i]<<" ";
       std::cout<<std::endl;
     }
   }
@@ -1212,13 +1212,13 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //OFC
   if(m_retrieve[iOFC])
   {
-    if(m_WorkMode==0) OFC = m_detDHOFC->OFC_a(id, igain, 0) ;
-    else              OFC = m_OFCTool->OFC_a(id, igain) ;
+    if(m_WorkMode==0) m_OFC = m_detDHOFC->OFC_a(id, igain, 0) ;
+    else              m_OFC = m_OFCTool->OFC_a(id, igain) ;
     /////////
     if(PRINT) {
       std::cout<<"OFC= ";
-      for(unsigned int i=0;i<OFC.size();++i) 
-	std::cout<<OFC[i]<<" ";
+      for(unsigned int i=0;i<m_OFC.size();++i) 
+	std::cout<<m_OFC[i]<<" ";
       std::cout<<"  Nminbias="<<Nminbias<<std::endl;
     }
   }
@@ -1227,12 +1227,12 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //SHAPE
   if(m_retrieve[iSHAPE])
   {
-    Shape = m_dd_shape->Shape(id,0);
+    m_Shape = m_dd_shape->Shape(id,0);
     //////////
     if(PRINT) {
       std::cout<<"Shape= ";
-      for(unsigned int i=0;i<Shape.size();++i) 
-	std::cout<<Shape[i]<<" ";
+      for(unsigned int i=0;i<m_Shape.size();++i) 
+	std::cout<<m_Shape[i]<<" ";
       std::cout<<std::endl;
     }
   }
@@ -1241,16 +1241,16 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //MinimumBias RMS 
   if(m_retrieve[iMINBIASRMS])
   {
-    MinBiasRMS = m_dd_minbias->minBiasRMS(id);
-    if(PRINT) std::cout<<"MinBiasRMS="<<MinBiasRMS<<std::endl;
+    m_MinBiasRMS = m_dd_minbias->minBiasRMS(id);
+    if(PRINT) std::cout<<"MinBiasRMS="<<m_MinBiasRMS<<std::endl;
   }
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //SAMPLING FRACTION
   if(m_retrieve[iFSAMPL])
   {
-    fSampl = m_dd_fsampl->FSAMPL(id);
-    if(PRINT) std::cout<<"fSampl="<<fSampl<<std::endl;
+    m_fSampl = m_dd_fsampl->FSAMPL(id);
+    if(PRINT) std::cout<<"fSampl="<<m_fSampl<<std::endl;
   }
 
   return this->checkCellDatabase(id,igain,function_name);
@@ -1267,20 +1267,20 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //ADC2MEV
   if(m_retrieve[iADC2MEV]) {
-    if(fabs(Adc2MeVFactor)<0.000001) {
+    if(fabs(m_Adc2MeVFactor)<0.000001) {
       StatusDatabase=StatusCode::FAILURE;
       if(m_diagnostic[igain]) 
-	this->updateDiagnostic(0,"Adc2MeVFactor=0",igain);
+	this->updateDiagnostic(0,"m_Adc2MeVFactor=0",igain);
     }
   }
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //SIGMANOISE
   if(m_retrieve[iSIGMANOISE]) {
-    if(fabs(SigmaNoise)<0.000001) {
+    if(fabs(m_SigmaNoise)<0.000001) {
       StatusDatabase=StatusCode::FAILURE;
       if(m_diagnostic[igain]) 
-	this->updateDiagnostic(1,"SigmaNoise=0",igain);	
+	this->updateDiagnostic(1,"m_SigmaNoise=0",igain);	
     }
   }
 
@@ -1288,7 +1288,7 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
   //AUTOCORR
   if(m_retrieve[iAUTOCORR])
   {
-    if (!AutoCorr.valid()) 
+    if (!m_AutoCorr.valid()) 
     {
       MsgStream log(msgSvc(), name());
       log << MSG::WARNING << function_name
@@ -1296,7 +1296,7 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
 	  <<m_lar_em_id->show_to_string(id)<<" at gain "<<igain<<endreq;
       StatusDatabase=StatusCode::FAILURE;
     }
-    if (AutoCorr.size()==0) 
+    if (m_AutoCorr.size()==0) 
     {
       //      MsgStream log(msgSvc(), name());
       //      log << MSG::WARNING << function_name
@@ -1310,20 +1310,20 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
       if(m_diagnostic[igain])
       {
 	unsigned int n_ACnull=0;
-	for(unsigned int i=0;i<(*AutoCorr).size();++i)
-	  if(fabs((*AutoCorr)[i])<0.000001) ++n_ACnull;
-	if(n_ACnull==(*AutoCorr).size()) 
+	for(unsigned int i=0;i<(*m_AutoCorr).size();++i)
+	  if(fabs((*m_AutoCorr)[i])<0.000001) ++n_ACnull;
+	if(n_ACnull==(*m_AutoCorr).size()) 
 	  this->updateDiagnostic(3,"AC=0",igain);
       }
     */
-    m_nsamples=AutoCorr.size()+1;
+    m_nsamples=m_AutoCorr.size()+1;
   }
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //OFC
   if(m_retrieve[iOFC])
   {
-    if (!OFC.valid()) 
+    if (!m_OFC.valid()) 
     {
       MsgStream log(msgSvc(), name());
       log<<MSG::WARNING<< function_name
@@ -1331,7 +1331,7 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
 	 <<m_lar_em_id->show_to_string(id)<<" at gain "<<igain<<endreq;
       StatusDatabase=StatusCode::FAILURE;
     }
-    if (OFC.size()==0) 
+    if (m_OFC.size()==0) 
     {
       //      MsgStream log(msgSvc(), name());
       //      log<<MSG::WARNING<< function_name
@@ -1344,18 +1344,18 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
       if(m_diagnostic[igain]) 
       {
 	unsigned int n_OFCnull=0;
-	for(unsigned int i=0;i<OFC.size();++i)
-	  if(fabs(OFC[i])<0.000001) ++n_OFCnull;
-	if(n_OFCnull==OFC.size()) this->updateDiagnostic(5,"OFC=0",igain);
+	for(unsigned int i=0;i<m_OFC.size();++i)
+	  if(fabs(m_OFC[i])<0.000001) ++n_OFCnull;
+	if(n_OFCnull==m_OFC.size()) this->updateDiagnostic(5,"OFC=0",igain);
       }
-    m_nsamples=OFC.size();
+    m_nsamples=m_OFC.size();
   }
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //SHAPE
   if(m_retrieve[iSHAPE])
   {
-    if (!Shape.valid()) 
+    if (!m_Shape.valid()) 
     {
       MsgStream log(msgSvc(), name());
       log<<MSG::WARNING<< function_name
@@ -1363,7 +1363,7 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
 	 <<m_lar_em_id->show_to_string(id)<<endreq;
       StatusDatabase=StatusCode::FAILURE;
     }
-    if (Shape.size()==0) 
+    if (m_Shape.size()==0) 
     {      
       //      MsgStream log(msgSvc(), name());
       //      log<<MSG::WARNING<< function_name
@@ -1376,9 +1376,9 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
       if(m_diagnostic[igain]) 
       {
 	unsigned int n_SHAPEnull=0;
-	for(unsigned int i=0;i<Shape.size();++i)
-	  if(fabs(Shape[i])<0.000001) ++n_SHAPEnull;
-	if(n_SHAPEnull==Shape.size()) 	  
+	for(unsigned int i=0;i<m_Shape.size();++i)
+	  if(fabs(m_Shape[i])<0.000001) ++n_SHAPEnull;
+	if(n_SHAPEnull==m_Shape.size()) 	  
 	  this->updateDiagnostic(7,"Shape=0",igain);
       }	
   }
@@ -1386,24 +1386,24 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //NSAMPLES
   if(m_retrieve[iOFC] && m_retrieve[iAUTOCORR] 
-     && OFC.size()!=AutoCorr.size()+1)
+     && m_OFC.size()!=m_AutoCorr.size()+1)
   {
-    m_nsamples=std::min(OFC.size(),AutoCorr.size()+1);
+    m_nsamples=std::min(m_OFC.size(),m_AutoCorr.size()+1);
     MsgStream log( msgSvc(), name() );
     log<<MSG::DEBUG
        <<"AutoCorr and OFC vectors have not the same "
        <<"number of elements"
-       <<" ("<<AutoCorr.size()<<"/"<<OFC.size()
+       <<" ("<<m_AutoCorr.size()<<"/"<<m_OFC.size()
        <<" ) => will take into account only " << m_nsamples << " samples !"
        <<endreq;
   }
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-  if(m_retrieve[iOFC] && m_retrieve[iSHAPE] && OFC.size()==Shape.size())
+  if(m_retrieve[iOFC] && m_retrieve[iSHAPE] && m_OFC.size()==m_Shape.size())
   {
     float scalar=0;
-    for(unsigned int i=0;i<Shape.size();++i)
-      scalar+=Shape[i]*OFC[i];
+    for(unsigned int i=0;i<m_Shape.size();++i)
+      scalar+=m_Shape[i]*m_OFC[i];
     if((scalar-1)>0.05)
       this->updateDiagnostic(8,"[Shape].[OFC] not 1",igain);
   }
@@ -1412,7 +1412,7 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
   //SAMPLING FRACTION
   if(m_retrieve[iFSAMPL])
   {
-    if (fSampl<0.000001) 
+    if (m_fSampl<0.000001) 
     {
       MsgStream log(msgSvc(), name());
       log<<MSG::WARNING<< function_name
@@ -2166,7 +2166,7 @@ CaloNoiseTool::adc2mev(const CaloDetDescrElement* caloDDE,
 	 <<endreq;     
       //NOT CLEAR what we should return 
       //(for the moment, returns AdcPerGev from LArDigitMaker)
-      factor=AdcPerMev;
+      factor=m_AdcPerMev;
     }
     else if(m_WorkMode==1)
     {

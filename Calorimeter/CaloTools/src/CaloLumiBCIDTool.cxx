@@ -234,8 +234,8 @@ void CaloLumiBCIDTool::getListOfCells()
   m_symCellIndex.resize(m_ncell,-1);
   m_hwid_sym.reserve(2000);
   m_eshift_sym.reserve(2000);
-  std::vector<int> m_doneCell;
-  m_doneCell.resize(m_ncell,-1);
+  std::vector<int> doneCell;
+  doneCell.resize(m_ncell,-1);
 
   int nsym=0;
   for (int i=0;i<m_ncell;i++) {
@@ -247,12 +247,12 @@ void CaloLumiBCIDTool::getListOfCells()
      Identifier id2 = m_cablingService->cnvToIdentifier(hwid2);
      int i2 = (int) (m_calocell_id->calo_cell_hash(id2));
      // we have already processed this hash => just need to associate cell i to the same symetric cell
-     if (m_doneCell[i2]>=0) {
-        m_symCellIndex[i]=m_doneCell[i2];
+     if (doneCell[i2]>=0) {
+        m_symCellIndex[i]=doneCell[i2];
      }
      // we have not already processed this hash, add an entry for this new symmetric cell
      else {
-        m_doneCell[i2]=nsym;
+        doneCell[i2]=nsym;
         m_symCellIndex[i] = nsym;
         m_hwid_sym.push_back(hwid2);
         m_eshift_sym.push_back(0.);
@@ -583,12 +583,12 @@ float CaloLumiBCIDTool::average(const Identifier CellID,unsigned int bcid)
 void CaloLumiBCIDTool::accumulateLumi(const unsigned int bcid, const float xlumiMC) {
 
   //m_lumiVec.clear();
-  unsigned int m_keep_samples=32;
-  unsigned int m_keep_ofcsamples=32;
-  if ( (bcid > m_keep_samples+5) && (bcid < m_bcidMax-m_keep_ofcsamples-5))  {
+  unsigned int keep_samples=32;
+  unsigned int keep_ofcsamples=32;
+  if ( (bcid > keep_samples+5) && (bcid < m_bcidMax-keep_ofcsamples-5))  {
 
-  unsigned int a=bcid-(m_keep_samples+4);
-  unsigned int b=bcid+(m_keep_ofcsamples+4);
+  unsigned int a=bcid-(keep_samples+4);
+  unsigned int b=bcid+(keep_ofcsamples+4);
   for(unsigned int i=a;i<b;i++){
      float lumi=0.0;
      if (m_isMC) lumi= m_bunchCrossingTool->bcIntensity(i)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
@@ -598,9 +598,9 @@ void CaloLumiBCIDTool::accumulateLumi(const unsigned int bcid, const float xlumi
 
   } else {
 
-  int a=bcid-(m_keep_samples+4);
+  int a=bcid-(keep_samples+4);
   if ( a < 0 ) a=0;
-  unsigned int b=bcid+(m_keep_ofcsamples+4);
+  unsigned int b=bcid+(keep_ofcsamples+4);
   if ( b >= m_bcidMax ) b=m_bcidMax;
   for(unsigned int i=(unsigned int)a;i<b;i++){
      float lumi=0.0;
@@ -609,13 +609,13 @@ void CaloLumiBCIDTool::accumulateLumi(const unsigned int bcid, const float xlumi
      m_lumiVec[i]=(lumi);
   }
 
-  for(unsigned int i=0;i<m_keep_ofcsamples+4;i++){
+  for(unsigned int i=0;i<keep_ofcsamples+4;i++){
      float lumi=0.0;
      if (m_isMC) lumi= m_bunchCrossingTool->bcIntensity(i)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
      else lumi = m_lumiTool->lbLuminosityPerBCID(i);  // luminosity in 10**30 units
      m_lumiVec[i]=(lumi);
   }
-  for(unsigned int i=m_bcidMax-m_keep_samples-5;i<m_bcidMax;i++){
+  for(unsigned int i=m_bcidMax-keep_samples-5;i<m_bcidMax;i++){
      float lumi=0.0;
      if (m_isMC) lumi= m_bunchCrossingTool->bcIntensity(i)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
      else lumi = m_lumiTool->lbLuminosityPerBCID(i);  // luminosity in 10**30 units

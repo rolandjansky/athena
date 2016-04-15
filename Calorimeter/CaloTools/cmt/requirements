@@ -11,11 +11,11 @@ use CaloEvent CaloEvent-* Calorimeter
 use CaloGeoHelpers  CaloGeoHelpers-*  Calorimeter
 use CaloIdentifier CaloIdentifier-* Calorimeter
 use CaloConditions     CaloConditions-*           Calorimeter
-use DataModel DataModel-* Control
+use AthAllocators AthAllocators-* Control
 use GaudiInterface GaudiInterface-* External
 use LArElecCalib LArElecCalib-* LArCalorimeter
 use LArRecEvent LArRecEvent-* LArCalorimeter
-use LArTools LArTools-* LArCalorimeter
+use LArCabling LArCabling-* LArCalorimeter
 use StoreGate StoreGate-* Control
 use TileConditions TileConditions-* TileCalorimeter
 use TileEvent TileEvent-* TileCalorimeter

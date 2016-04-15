@@ -132,14 +132,14 @@ void CaloCellPacker_400_500::init_derived (pars500& pars) const
   pars.m_prov_max_tile = 0x1f1f;
 
   // Cube roots of energy ranges.
-  pars.m_cbrt_e1_norm_res = cbrt(pars.m_e1_norm_res);
-  pars.m_cbrt_e1_high_res = cbrt(pars.m_e1_high_res);
-  pars.m_cbrt_low_tile = cbrt(pars.m_low_tile);
-  pars.m_cbrt_high_tile = cbrt(pars.m_high_tile);
+  pars.m_cbrt_e1_norm_res = cbrt(static_cast<double>(pars.m_e1_norm_res));
+  pars.m_cbrt_e1_high_res = cbrt(static_cast<double>(pars.m_e1_high_res));
+  pars.m_cbrt_low_tile = cbrt(static_cast<double>(pars.m_low_tile));
+  pars.m_cbrt_high_tile = cbrt(static_cast<double>(pars.m_high_tile));
 
   // Logarithms of time ranges.
-  pars.m_log_t0 = log(pars.m_t0);
-  pars.m_log_t1 = log(pars.m_t1);
+  pars.m_log_t0 = log(static_cast<double>(pars.m_t0));
+  pars.m_log_t1 = log(static_cast<double>(pars.m_t1));
 
   // Fill in remaining bit fields.
   pars.m_qualy_field = CaloCellPackerUtils::Bitfield (pars.m_qualy_mask);
@@ -867,6 +867,7 @@ void CaloCellPacker_400_500::unpack
 {
   // Convert the header.
   pars500 pars;
+  pars.m_status = 0;
 
   {
     const int* headerbeg = &*vheader.begin();
