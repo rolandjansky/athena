@@ -37,7 +37,7 @@ class electronHist
   enum electronType
    {
       LhMedium=0,
-      CbMedium,
+      CbLoose,
       LhLoose,
       LhTight,
       CbTight,
@@ -50,6 +50,8 @@ class electronHist
   TH1 *m_hEta;              // Histogram for electron eta
   TH1 *m_hPhi;              // Histogram for electron phi
   TH2 *m_hEtaPhi;           // Histogram for electron eta,phi
+  TH2 *m_hEtaPhi4GeV;       // Histogram for electron eta,phi (only candidates with an energy greater than 4 GeV)
+  TH2 *m_hEtaPhi20GeV;      // Histogram for electron eta,phi (only candidates with an energy greater than 20 GeV)
   TH1 *m_hTopoEtCone40;     // Histogram for electron isolation energy TopoEtcone40 
   TH1 *m_hPtCone20;         // Histogram for electron isolation energy PtCone20 
   TH1 *m_hTime;             // Histogram for electron cluster time
@@ -141,7 +143,7 @@ class electronMonTool : public egammaMonToolBase
   // LH Medium electrons histograms
   electronHist *m_LhMediumElectrons;
   // Medium cut based electrons histograms
-  electronHist *m_CbMediumElectrons;
+  electronHist *m_CbLooseElectrons;
   // LH Tight electrons histograms
   electronHist *m_LhTightElectrons;
   // Cut based Tight electrons histograms

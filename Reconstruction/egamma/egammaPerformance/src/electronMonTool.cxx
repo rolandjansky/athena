@@ -99,12 +99,12 @@ electronMonTool::electronMonTool(const std::string & type, const std::string & n
   m_LhMediumElectrons->m_nElectronsPerRegion.clear();
   m_LhMediumElectrons->m_nElectrons=0;
 
-  m_CbMediumElectrons = new electronHist(std::string("CbLoose"), WithLimitedHistList);
-  m_CbMediumElectrons->m_lumiBlockNumber = 0;
-  m_CbMediumElectrons->m_nElectronsInCurrentLB = 0;
-  m_CbMediumElectrons->m_nElectronsPerLumiBlock.clear();
-  m_CbMediumElectrons->m_nElectronsPerRegion.clear();
-  m_CbMediumElectrons->m_nElectrons=0;
+  m_CbLooseElectrons = new electronHist(std::string("CbLoose"), WithLimitedHistList);
+  m_CbLooseElectrons->m_lumiBlockNumber = 0;
+  m_CbLooseElectrons->m_nElectronsInCurrentLB = 0;
+  m_CbLooseElectrons->m_nElectronsPerLumiBlock.clear();
+  m_CbLooseElectrons->m_nElectronsPerRegion.clear();
+  m_CbLooseElectrons->m_nElectrons=0;
 
   m_LhTightElectrons = new electronHist(std::string("LhTight"), WithFullHistList);
   m_LhTightElectrons->m_lumiBlockNumber = 0;
@@ -129,7 +129,7 @@ electronMonTool::~electronMonTool()
 
   delete m_CbTightElectrons;
   delete m_LhTightElectrons;
-  delete m_CbMediumElectrons;
+  delete m_CbLooseElectrons;
   delete m_LhMediumElectrons;
   delete m_LhLooseElectrons;
 
@@ -154,8 +154,16 @@ StatusCode electronMonTool::bookHistogramsForOneElectronType(electronHist& myHis
   bookTH1F(myHist.m_hEt, *m_electronGroup, hname, hlongname, 100, -1000.0, 250000.0);
 
   hname = std::string("electronEtaPhi") + myHist.m_nameOfElectronType;
-  hlongname =  std::string("Electron #eta,#phi map") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  hlongname =  std::string("Electron #eta,#phi map  (candidates with E>2.5GeV)") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
   bookTH2F(myHist.m_hEtaPhi, *m_electronGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
+
+  hname = std::string("electronEtaPhiEgt4GeV") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron #eta,#phi map (candidates with E>4GeV)") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH2F(myHist.m_hEtaPhi4GeV, *m_electronGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
+
+  hname = std::string("electronEtaPhiEgt20GeV") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron #eta,#phi map (candidates with E>20GeV)") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH2F(myHist.m_hEtaPhi20GeV, *m_electronGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
 
   hname = std::string("electronEta") + myHist.m_nameOfElectronType;
   hlongname =  std::string("Electron #eta") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
@@ -327,7 +335,7 @@ StatusCode electronMonTool::bookHistograms()
     return StatusCode::FAILURE;
   } 
 
-  sc = bookHistogramsForOneElectronType(*m_CbMediumElectrons);
+  sc = bookHistogramsForOneElectronType(*m_CbLooseElectrons);
   if(sc.isFailure()){
     ATH_MSG_VERBOSE("Could not book Histos");
     return StatusCode::FAILURE;
@@ -352,6 +360,8 @@ StatusCode electronMonTool::fillHistogramsForOneElectron(xAOD::ElectronContainer
 							 electronHist& myHist){
 
     // Basic kinematics
+    
+    float energy = (*e_iter)->e();
     float et  = (*e_iter)->pt();
     float eta = (*e_iter)->eta();
     float phi = (*e_iter)->phi();      
@@ -366,6 +376,8 @@ StatusCode electronMonTool::fillHistogramsForOneElectron(xAOD::ElectronContainer
 
     if(myHist.m_hEt)     myHist.m_hEt->Fill(et);
     if(myHist.m_hEtaPhi) myHist.m_hEtaPhi->Fill(eta,phi);
+    if(myHist.m_hEtaPhi4GeV&&energy>4000) myHist.m_hEtaPhi4GeV->Fill(eta,phi);
+    if(myHist.m_hEtaPhi20GeV&&energy>20000) myHist.m_hEtaPhi20GeV->Fill(eta,phi);
     if(myHist.m_hEta)    myHist.m_hEta->Fill(eta);
     if(myHist.m_hPhi)    myHist.m_hPhi->Fill(phi);
 
@@ -526,14 +538,14 @@ StatusCode electronMonTool::fillHistograms() {
     // update the by LB variables
     m_LhLooseElectrons->m_nElectronsPerLumiBlock.push_back(m_LhLooseElectrons->m_nElectronsInCurrentLB);
     m_LhMediumElectrons->m_nElectronsPerLumiBlock.push_back(m_LhMediumElectrons->m_nElectronsInCurrentLB);
-    m_CbMediumElectrons->m_nElectronsPerLumiBlock.push_back(m_CbMediumElectrons->m_nElectronsInCurrentLB);
+    m_CbLooseElectrons->m_nElectronsPerLumiBlock.push_back(m_CbLooseElectrons->m_nElectronsInCurrentLB);
     m_LhTightElectrons->m_nElectronsPerLumiBlock.push_back(m_LhTightElectrons->m_nElectronsInCurrentLB);
     m_CbTightElectrons->m_nElectronsPerLumiBlock.push_back(m_CbTightElectrons->m_nElectronsInCurrentLB);
 
     // Reset counters
     m_LhLooseElectrons->m_nElectronsInCurrentLB=0;
     m_LhMediumElectrons->m_nElectronsInCurrentLB=0;
-    m_CbMediumElectrons->m_nElectronsInCurrentLB=0;
+    m_CbLooseElectrons->m_nElectronsInCurrentLB=0;
     m_LhTightElectrons->m_nElectronsInCurrentLB=0;
     m_CbTightElectrons->m_nElectronsInCurrentLB=0;
   }
@@ -560,13 +572,13 @@ StatusCode electronMonTool::fillHistograms() {
 
   m_LhLooseElectrons->m_nElectrons = 0;
   m_LhMediumElectrons->m_nElectrons = 0;
-  m_CbMediumElectrons->m_nElectrons = 0;
+  m_CbLooseElectrons->m_nElectrons = 0;
   m_LhTightElectrons->m_nElectrons  = 0;
   m_CbTightElectrons->m_nElectrons  = 0;
 
   m_LhLooseElectrons->m_nElectronsPerRegion.resize(NREGION,0);
   m_LhMediumElectrons->m_nElectronsPerRegion.resize(NREGION,0);
-  m_CbMediumElectrons->m_nElectronsPerRegion.resize(NREGION,0);
+  m_CbLooseElectrons->m_nElectronsPerRegion.resize(NREGION,0);
   m_LhTightElectrons->m_nElectronsPerRegion.resize(NREGION,0);
   m_CbTightElectrons->m_nElectronsPerRegion.resize(NREGION,0);
 
@@ -584,7 +596,7 @@ StatusCode electronMonTool::fillHistograms() {
     // CbMedium
     if((*e_iter)->passSelection(isGood,"Medium")) {
       if(isGood) {
-	StatusCode sc = fillHistogramsForOneElectron(e_iter, *m_CbMediumElectrons);
+	StatusCode sc = fillHistogramsForOneElectron(e_iter, *m_CbLooseElectrons);
 	if (sc.isFailure()) {
 	  ATH_MSG_ERROR("couldn't book histograms");
 	  return StatusCode::FAILURE;
@@ -640,14 +652,14 @@ StatusCode electronMonTool::fillHistograms() {
   }
 
   // Fill number of electrons histograms
-  m_CbMediumElectrons->m_hN->Fill(m_CbMediumElectrons->m_nElectrons);
+  m_CbLooseElectrons->m_hN->Fill(m_CbLooseElectrons->m_nElectrons);
   m_LhLooseElectrons->m_hN->Fill(m_LhLooseElectrons->m_nElectrons);
   m_LhMediumElectrons->m_hN->Fill(m_LhMediumElectrons->m_nElectrons);
   m_CbTightElectrons->m_hN->Fill(m_CbTightElectrons->m_nElectrons);
   m_LhTightElectrons->m_hN->Fill(m_LhTightElectrons->m_nElectrons);
 
   for(int i=0;i<NREGION;i++) {
-    fillTH1FperRegion(m_CbMediumElectrons->m_hvN,i,m_CbMediumElectrons->m_nElectrons);
+    fillTH1FperRegion(m_CbLooseElectrons->m_hvN,i,m_CbLooseElectrons->m_nElectrons);
     fillTH1FperRegion(m_LhLooseElectrons->m_hvN,i,m_LhLooseElectrons->m_nElectrons);
     fillTH1FperRegion(m_LhMediumElectrons->m_hvN,i,m_LhMediumElectrons->m_nElectrons);
     fillTH1FperRegion(m_CbTightElectrons->m_hvN,i,m_CbTightElectrons->m_nElectrons);
