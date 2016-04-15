@@ -19,9 +19,10 @@
 #include "TrkParameters/TrackParameters.h"
 
 // Drift circles and TRT identifiers:
+#include "InDetRawData/TRT_RDO_Container.h"
+#include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetRawData/TRT_RDO_Container.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -44,14 +45,21 @@ TRT_LocalOccupancy::TRT_LocalOccupancy(const std::string& t,
   :
   AthAlgTool(t,n,p),
   m_TRTHelper(0),
-  m_TRTStrawStatusSummarySvc("TRT_StrawStatusSummarySvc", n),
-  m_trt_rdo_location("TRT_RDOs")
+  m_trt_rdo_location("TRT_RDOs"),
+  m_TRTStrawStatusSummarySvc("InDetTRTStrawStatusSummarySvc", n),
+  m_driftFunctionTool("TRT_DriftFunctionTool")  
 {
  declareInterface<ITRT_LocalOccupancy>(this);
   //declareProperty("isData", m_DATA = true);
  declareProperty("TRT_RDOContainerName", m_trt_rdo_location);
- declareProperty("isTrigger", m_isTrigger = false);
- declareProperty("TRTStrawSummarySvc", m_TRTStrawStatusSummarySvc);
+ declareProperty("TRTStrawSummarySvc",   m_TRTStrawStatusSummarySvc);
+ declareProperty("isTrigger",            m_isTrigger = false);
+ declareProperty("includeT0Shift",       m_T0Shift = true);
+ declareProperty("LowGate",              m_lowGate  = 14.0625*CLHEP::ns);
+ declareProperty("HighGate",             m_highGate = 42.1875*CLHEP::ns);
+ declareProperty("LowWideGate",          m_lowWideGate  = 20.3125*CLHEP::ns);
+ declareProperty("HighWideGate",        m_highWideGate = 54.6875*CLHEP::ns);
+ declareProperty("TRTDriftFunctionTool", m_driftFunctionTool);
 
   // create arrays
   m_occ_total = new int[7];
@@ -59,10 +67,12 @@ TRT_LocalOccupancy::TRT_LocalOccupancy(const std::string& t,
 
   m_occ_local = new int*[6];
   m_hit_local = new int*[6];
+  m_track_local = new int*[6];
 
   for (int i=0; i<6; ++i){
     m_occ_local[i] = new int[32];
     m_hit_local[i] = new int[32];
+    m_track_local[i] = new int[32];
   }
 
   m_eventnumber = -1;
@@ -88,6 +98,23 @@ StatusCode TRT_LocalOccupancy::initialize()
     msg(MSG::DEBUG) << "retrieved m_TRTHelper " << m_TRTHelper << endreq; 
   }
 
+  if (m_T0Shift) {
+    if ( m_driftFunctionTool.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << m_driftFunctionTool.propertyName() << ": Failed to retrieve tool " << m_driftFunctionTool.type() << endreq;
+      return StatusCode::FAILURE;
+    } else {
+      msg(MSG::INFO) << m_driftFunctionTool.propertyName() << ": Retrieved tool " << m_driftFunctionTool.type() << endreq;
+    }
+  }
+  else { //use wider validity gate if no T0 shift
+    m_lowGate  = m_lowWideGate ;
+    m_highGate = m_highWideGate ;
+  }  
+  if( m_TRTStrawStatusSummarySvc.retrieve().isFailure() ) {
+    msg(MSG::ERROR) << " Can't do a dynamic cast to TRTStrawStatusSummaryTool" << endreq;
+    return StatusCode::FAILURE;
+  }
+  
   ATH_MSG_INFO ("initialize() successful in " << name());
 
   return sc;
@@ -101,9 +128,11 @@ StatusCode TRT_LocalOccupancy::finalize()
   for (int i=0; i<6; ++i){
     delete [] m_occ_local[i];
     delete [] m_hit_local[i];
+    delete [] m_track_local[i];
   }
   delete [] m_occ_local;
   delete [] m_hit_local;
+  delete [] m_track_local;
 
   ATH_MSG_INFO ("finalize() successful in " << name());
   return AlgTool::finalize();
@@ -127,60 +156,44 @@ StatusCode TRT_LocalOccupancy::StartEvent(){
   ATH_MSG_DEBUG("StartEvent() for tool: " << name());
   resetOccArrays();
 
-  // Get the container with the raw data objects
-  const TRT_RDO_Container* p_trtRDOContainer;
-  sc = evtStore()->retrieve(p_trtRDOContainer, m_trt_rdo_location);
-  if (sc.isFailure() ) {
-    ATH_MSG_FATAL( "Could not find the TRT_RDO_Container " 
-		   << m_trt_rdo_location );
-    return sc;
-  } 
-  
+  const InDet::TRT_DriftCircleContainer* driftCircleContainer = 0; 
+  if ( evtStore()->contains<InDet::TRT_DriftCircleContainer>("TRT_DriftCircles") ) {
+    sc = evtStore()->retrieve(driftCircleContainer, "TRT_DriftCircles");
+    if (sc.isFailure() || !driftCircleContainer)        ATH_MSG_WARNING("No TRT Drift Circles in StoreGate");
+    else                                                ATH_MSG_DEBUG   ("Found Drift Circles in StoreGate");
+  }
+    
   // put # hits in vectors
-  TRT_RDO_Container::const_iterator RDO_collection_iter = p_trtRDOContainer->begin();
-  TRT_RDO_Container::const_iterator RDO_collection_end  = p_trtRDOContainer->end();
-  for ( ; RDO_collection_iter!= RDO_collection_end; ++RDO_collection_iter) {
-    const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection(*RDO_collection_iter);
-    if (!RDO_Collection) continue;
-    DataVector<TRT_RDORawData>::const_iterator rdo,rb=RDO_Collection->begin(),re=RDO_Collection->end(); 
-    if (rb!=re){
-      
-      for(rdo=rb; rdo!=re; ++rdo) {
+  if (driftCircleContainer)
+    for (InDet::TRT_DriftCircleContainer::const_iterator colIt = driftCircleContainer->begin(); colIt != driftCircleContainer->end(); ++colIt) {
+      const InDet::TRT_DriftCircleCollection *colNext=(*colIt);
+      if(!colNext) continue;
+      // loop over DCs
+      DataVector<TRT_DriftCircle>::const_iterator p_rdo           =    colNext->begin();
+      DataVector<TRT_DriftCircle>::const_iterator p_rdo_end       =    colNext->end();
+      for(; p_rdo!=p_rdo_end; ++p_rdo){
+	const TRT_DriftCircle* rdo = (*p_rdo);
+	if(!rdo)        continue;
+	// if (isMiddleBXOn(rdo->getWord())) {
+	Identifier id = rdo->identify();
 	
-	if(!*rdo)        continue;
-	Identifier id = (*rdo)->identify();
 	int det      = m_TRTHelper->barrel_ec(         id)     ;
 	int lay      = m_TRTHelper->layer_or_wheel(    id)     ;
 	int phi      = m_TRTHelper->phi_module(        id)     ;
 	int i_total  = findArrayTotalIndex(det, lay);
-
-
-	// -----
-	// FIXME:
-	// the next few lines are replicates of code in TRT_DriftCircleTool.cxx
-	// should make a method in there to avoid cut and pasting code!!
-	if((m_TRTStrawStatusSummarySvc->getStatus(id) != TRTCond::StrawStatus::Good)
-	   || (m_TRTStrawStatusSummarySvc->getStatusPermanent(id))) continue;
-
-	if (!passValidityGate((*rdo)->getWord(), 0.)) continue;
-	// end fixme
-	// -----
-	
-	// if (isMiddleBXOn(rdo->getWord())) { 
 	
 	m_hit_total[0]                        +=1;
 	m_hit_total[i_total]                  +=1;
 	m_hit_local[i_total-1][phi]           +=1;
 	//} // if (isMiddleBXOn)
       }
-      
     }
-  }
-  
+
+
   // count live straws
   m_stw_total 		=  m_TRTStrawStatusSummarySvc->getStwTotal()		;
   m_stw_local 		=  m_TRTStrawStatusSummarySvc->getStwLocal()		;
-
+  
   // Calculate Occs:
   for (int i=0; i<7; ++i) {
     float occ = 0;
@@ -236,20 +249,27 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ){
     if (m_eventnumber != eventnumber){
       resetOccArrays();
       m_stw_local 		=  m_TRTStrawStatusSummarySvc->getStwLocal()		;
+      m_stw_wheel 		=  m_TRTStrawStatusSummarySvc->getStwWheel()		;
+
+      for (int i=0; i<5; ++i){
+	for (int j=0; j<32; ++j){
+	  stws_ratio[0][j]+=float(m_stw_wheel[i+3 ][j])/m_stw_local[1][j];
+	  stws_ratio[1][j]+=float(m_stw_wheel[i+20][j])/m_stw_local[4][j];
+	}
+      }
     } 
+
     m_eventnumber = eventnumber;
   }
   else StartEvent();
 
-  // FIXME : OVERUSE OF MEMORY. The full array is initialized but the track only cross few areas... VECTORS must be smarter or tiny map here. shoyld be fast...
-  int m_track_local[6][32]; // same as above, but split into 32 phi sectors
+  // reset trackhit array
   for (int i=0; i<6; ++i){
     for (int j=0; j<32; ++j){
       m_track_local[i][j]=0;
     }
   }
 
-  //  resetArrays(m_track_total, m_track_local, m_track_mod);
   const DataVector<const Trk::TrackStateOnSurface>* trackStates = track.trackStateOnSurfaces();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator	tsos		=trackStates->begin();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator	tsosEnd		=trackStates->end();
@@ -267,7 +287,7 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ){
     m_track_local[i_total-1][phi]     +=1;
 
   }
-  if (m_isTrigger)   countHitsNearTrack(m_track_local);
+  if (m_isTrigger)   countHitsNearTrack();
 
   float  averageocc   = 0;
   int	 nhits        = 0;
@@ -298,7 +318,7 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ){
 }
 
 
-void  TRT_LocalOccupancy::countHitsNearTrack(int track_hit_array[6][32]){
+void  TRT_LocalOccupancy::countHitsNearTrack(){
     const TRT_RDO_Container* p_trtRDOContainer;
     StatusCode sc = evtStore()->retrieve(p_trtRDOContainer, m_trt_rdo_location);
     if (sc.isFailure() ) {
@@ -311,7 +331,7 @@ void  TRT_LocalOccupancy::countHitsNearTrack(int track_hit_array[6][32]){
       for (int j=0; j<32; ++j){
 
 	// we are only interested in filling regions through which track passed
-	if (track_hit_array[i][j] < 1) continue;
+	if (m_track_local[i][j] < 1) continue;
 
 	// if we already filled this region, skip it
 	if (m_hit_local[i][j] > 0) continue;
@@ -332,16 +352,37 @@ void  TRT_LocalOccupancy::countHitsNearTrack(int track_hit_array[6][32]){
 		 || (m_TRTStrawStatusSummarySvc->getStatusPermanent(rdo_id))) {
 		continue;
 	      }
-	      if ( !passValidityGate((*r)->getWord(), 0.) ) continue;
-	      
+
 	      int det      = m_TRTHelper->barrel_ec(         rdo_id)     ;
 	      int lay      = m_TRTHelper->layer_or_wheel(    rdo_id)     ;
 	      int phi      = m_TRTHelper->phi_module(        rdo_id)     ;
 	      int i_total       = findArrayTotalIndex(det, lay)-1;
 
 	      if (i_total != i || phi != j) continue; // only fill the one region [i][j]
-	      
-	      
+
+	      unsigned int m_word = (*r)->getWord();
+
+	      double t0 = 0.;
+	      if (m_T0Shift) {
+		unsigned  mask = 0x02000000; 
+		bool SawZero = false; 
+		int tdcvalue; 
+		for(tdcvalue=0;tdcvalue<24;++tdcvalue) 
+		  { if      (  (m_word & mask) && SawZero) break; 
+		    else if ( !(m_word & mask) ) SawZero = true; 
+		    mask>>=1; 
+		    if(tdcvalue==7 || tdcvalue==15) mask>>=1; 
+		  } 
+		if(!(tdcvalue==0 || tdcvalue==24)) {
+		  double dummy_rawrad=0. ; bool dummy_isOK=true;
+		  m_driftFunctionTool->driftRadius(dummy_rawrad,rdo_id,t0,dummy_isOK);
+		  //	  double dummy_radius = m_driftFunctionTool->driftRadius(dummy_rawrad,rdo_id,t0,dummy_isOK);
+		}
+	      }
+
+	      if (!passValidityGate(m_word, t0)) continue;
+	      if (i%3==1 && lay>4)	allOfEndcapAFound[(i<3?0:1)][phi]=true;
+
 	      m_hit_local[i_total][phi]           +=1;
 	    }
 	  }
@@ -350,6 +391,29 @@ void  TRT_LocalOccupancy::countHitsNearTrack(int track_hit_array[6][32]){
 	int stws = m_stw_local[i][j];
 	m_occ_local[i][j] = int(hits*100) / stws;
 
+      }
+    }
+
+    // rescale endcap A regions if not all wheels were counted
+    for (int i=0; i<6; ++i){
+      for (int j=0; j<32; ++j){
+	if (i%3!=1) continue; // only looking in endcapA
+	// we are only interested in regions through which track passed
+	if (m_track_local[i][j] < 1) continue;
+	if (!allOfEndcapAFound[(i<3?0:1)][j] && !region_rescaled[i][j]){
+	  // if there are no hits in last wheel of endcapA
+	  // && we haven't already rescaled this region:
+	  // scale it down so the denominator is realistic
+	  m_occ_local[i][j]/=(stws_ratio[(i<3?0:1)][j]);
+	  region_rescaled[i][j]=true;
+	}
+	else if (allOfEndcapAFound[(i<3?0:1)][j] && region_rescaled[i][j]){
+	  // if there are hits in last wheel of endcapA
+	  // && we already rescaled this region:
+	  // scale it back up to count all of endcapA
+	  m_occ_local[i][j]*=(stws_ratio[(i<3?0:1)][j]);
+	  region_rescaled[i][j]=false; 
+	}
       }
     }
     
@@ -399,8 +463,7 @@ bool TRT_LocalOccupancy::passValidityGate(unsigned int word, float t0) {
   while ( !foundInterval && (i < 24) ) {
     if (word & mask) {
       float thisTime = ((0.5+i)*3.125)-t0;
-      //if (thisTime >= 14.0625 && thisTime <= 42.1875) foundInterval = true;
-      if (thisTime >= 20.3125 && thisTime <= 54.6875) foundInterval = true;
+      if (thisTime >= m_lowGate && thisTime <= m_highGate) foundInterval = true;
     }
     mask >>= 1;
     if (i == 7 || i == 15) 
@@ -431,7 +494,20 @@ bool TRT_LocalOccupancy::passValidityGate(unsigned int word, float t0) {
     	m_hit_local[i][j]=0;
       }
     }
-  return;
+
+    // for online use
+    for (int i=0;i<2;++i){
+      for (int j=0;j<32;++j){
+	stws_ratio[i][j]=0;
+	allOfEndcapAFound[i][j]=false;
+      }
+    }
+    for (int i=0;i<6;++i){
+      for (int j=0;j<32;++j){
+	region_rescaled[i][j]=false;
+      }
+    }
+    return;
   }
 
   void TRT_LocalOccupancy::resetArrays(float array_total [7], float array_local[6][32], float array_mod[34][32]){

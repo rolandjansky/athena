@@ -97,6 +97,9 @@ namespace InDet
     std::vector<float> electronProbability_old(const Trk::Track& track);
 
     double probHT( const double pTrk, const Trk::ParticleHypothesis hypothesis, const int HitPart, const int Layer, const int Strawlayer);
+    double probHTRun2( float, Trk::ParticleHypothesis, int, int, int, float, float, float ) { return 0.5; }
+
+
 
   // get the ToT from the bitpattern and correct for local variations
     double GetToT(unsigned int bitpattern, double HitZ, double HitR, int BEC, int Layer, int Strawlayer) const;

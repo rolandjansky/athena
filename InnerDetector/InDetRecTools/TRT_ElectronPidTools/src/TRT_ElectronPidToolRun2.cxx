@@ -9,7 +9,6 @@
 
 #include "TRT_ElectronPidTools/BaseTRTPIDCalculator.h"
 #include "TRT_ElectronPidTools/TRT_ElectronPidToolRun2.h"
-#include "TRT_ElectronPidTools/TRT_ElectronPidToolRun2_ToTcalculation.h"
 #include "TRT_ElectronPidTools/TRT_ElectronPidToolRun2_HTcalculation.h"
 
 // StoreGate, Athena, and Database stuff:
@@ -32,6 +31,7 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "InDetIdentifier/TRT_ID.h"
 
+// ToT Tool Interface
 #include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
 
 // Particle masses
@@ -45,7 +45,6 @@
 //#define TRTDBG ATH_MSG_INFO("To line "<<__LINE__);
 //#define TRTDBG 0;
 
-#include "TRT_ElectronPidToolRun2_ToTcalculation.cxx"
 #include "TRT_ElectronPidToolRun2_HTcalculation.cxx"
 
 
@@ -60,8 +59,6 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
   AthAlgTool(t,n,p),
   m_trtId(0),
   m_minTRThits(5),
-  m_bremFitterEnabled(false),
-  ToTcalc(*(new ToTcalculator(*this))),
   HTcalc(*(new HTcalculator(*this))),
   m_TRTdEdxTool("TRT_ToT_dEdx"),
   m_LocalOccTool(),
@@ -72,32 +69,25 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
   //  template for property decalration
   //declareProperty("PropertyName", m_propertyName);
   declareProperty("MinimumTRThitsForIDpid", m_minTRThits);
-  declareProperty("BremfitterEnabled", m_bremFitterEnabled);
-  // declareProperty("OccupancyUsedInPID", m_OccupancyUsedInPID);    // Troels (17th of June 2015): Removed as no longer an option!
   declareProperty("TRT_ToT_dEdx_Tool", m_TRTdEdxTool);
   declareProperty("TRT_LocalOccupancyTool", m_LocalOccTool);
   declareProperty("isData", m_DATA = true);
   declareProperty("TRTStrawSummarySvc",    m_TRTStrawSummarySvc);
+  declareProperty("OccupancyUsedInPID", m_OccupancyUsedInPID=true);
 }
 
 
 /*****************************************************************************\
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 |*%%%  PID Tool Destructor  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
 InDet::TRT_ElectronPidToolRun2::~TRT_ElectronPidToolRun2()
 {
-  delete &ToTcalc;
   delete &HTcalc;
 }
 
 /*****************************************************************************\
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 |*%%%  Initialisation  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
 StatusCode InDet::TRT_ElectronPidToolRun2::initialize()
@@ -112,39 +102,18 @@ StatusCode InDet::TRT_ElectronPidToolRun2::initialize()
   }
 
   // Register callback function for cache updates - HT:
-  //const DataHandle<CondAttrListCollection> aptr;
-  //const DataHandle<AthenaAttributeList> aptr
   const DataHandle<CondAttrListVec> aptr;;
-  //if (StatusCode::SUCCESS == detStore()->regFcn(&InDet::TRT_ElectronPidToolRun2::update,this, aptr, "/TRT/Calib/PIDver_New" )) {
   if (StatusCode::SUCCESS == detStore()->regFcn(&InDet::TRT_ElectronPidToolRun2::update,this, aptr, "/TRT/Calib/PID_vector" )) {
     ATH_MSG_DEBUG ("Registered callback for TRT_ElectronPidToolRun2 - HT.");
   } else {
     ATH_MSG_ERROR ("Callback registration failed for TRT_ElectronPidToolRun2 - HT! ");
   }
 
-  // Register callback function for cache updates - RToT:
-  const DataHandle<AthenaAttributeList> aptr_rtot;
-  if (StatusCode::SUCCESS == detStore()->regFcn(&InDet::TRT_ElectronPidToolRun2::update,this, aptr_rtot, "/TRT/Calib/PID_RToTver_New" )) {
-    ATH_MSG_DEBUG ("Registered callback for TRT_ElectronPidToolRun2 - RToT.");
-  } else {
-    ATH_MSG_ERROR ("Callback registration failed for TRT_ElectronPidToolRun2 - RToT! ");
-  }
   /* Get the TRT_ToT_dEdx tool */
   if ( m_TRTdEdxTool.retrieve().isFailure() )
     ATH_MSG_DEBUG("Failed to retrieve ToT dE/dx tool " << m_TRTdEdxTool);
   else
     ATH_MSG_DEBUG("Retrieved tool " << m_TRTdEdxTool);
-
-  /*
-  ATH_MSG_INFO("OccupancyUsedInPID set to " << m_OccupancyUsedInPID);
-  if (m_OccupancyUsedInPID) {
-    if ( m_LocalOccTool.retrieve().isFailure() ){
-       ATH_MSG_WARNING("Failed retrieve Local Occ tool " << m_LocalOccTool << " the tool will not be called!!!" );
-       m_OccupancyUsedInPID=false;
-    }
-    else ATH_MSG_INFO("Retrieved tool " << m_LocalOccTool);
-    }
-  */  
 
   if ( m_LocalOccTool.retrieve().isFailure() ){
     ATH_MSG_WARNING("Failed retrieve Local Occ tool " << m_LocalOccTool << " the tool will not be called!!!" );
@@ -160,14 +129,6 @@ StatusCode InDet::TRT_ElectronPidToolRun2::initialize()
     if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endreq;
   }
 
-//   m_timingProfile=0;
-//   sc = service("ChronoStatSvc", m_timingProfile);
-//   if ( sc.isFailure() || 0 == m_timingProfile) {
-//     ATH_MSG_ERROR("Could not get ChronoStat!");
-//     return StatusCode::FAILURE;
-//   }
-
-
   ATH_MSG_INFO ("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
@@ -175,18 +136,15 @@ StatusCode InDet::TRT_ElectronPidToolRun2::initialize()
 
 
 /*****************************************************************************\
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 |*%%%  Finalisation  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
 StatusCode InDet::TRT_ElectronPidToolRun2::finalize()
 {
-  //StatusCode sc = AthAlgTool::finalize();
-  //return sc;
   return AthAlgTool::finalize();
 }
 
+/* Jared - remove ToTcalc
 double InDet::TRT_ElectronPidToolRun2::GetD(double R_Track)const {
   R_Track=fabs(R_Track);
   if(R_Track>2.) return 0;
@@ -194,10 +152,9 @@ double InDet::TRT_ElectronPidToolRun2::GetD(double R_Track)const {
 }
 
 double InDet::TRT_ElectronPidToolRun2::GetToT(unsigned int bitpattern, double HitZ, double HitR, int BEC, int Layer, int Strawlayer)const {
-  return  ToTcalc.GetToT( bitpattern, HitZ, HitR, BEC, Layer, Strawlayer);
+  return -999.99; //ToTcalc.GetToT( bitpattern, HitZ, HitR, BEC, Layer, Strawlayer);
 }
-
-
+*/
 
 // Kept for backward compatibility.
 // See TRT_ElectronPidTools-01-00-28 for the full (commented) code.
@@ -216,32 +173,26 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability_old(const
 
 
 /*****************************************************************************\
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 |*%%%  electronProbability - The interface method during reconstruction  %%%%*|
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
 std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) {
 
   //ATH_MSG_INFO("started electronProbabaility");
   //Intialize the return vector
-  //m_timingProfile->chronoStart("Tool::electronProb");
   std::vector<float> PIDvalues(5);
   float & prob_El_Comb      = PIDvalues[0] = 0.5;
   float & prob_El_HT        = PIDvalues[1] = 0.5;
-  float & sum_ToT_by_sum_L  = PIDvalues[2] = 0.0;
+  float & prob_El_ToT       = PIDvalues[2] = 0.5;
   float & prob_El_Brem      = PIDvalues[3] = 0.5;
   float & occ_local         = PIDvalues[4] = 0.0;
-  //float & prob_El_ToT       = PIDvalues[4] = 0.5;
-  float prob_El_ToT   = 0.5;
+
+  //  float & dEdx              = PIDvalues[2] = 0.0;
+  float dEdx = 0.0;
 
   // Check for perigee:
   const Trk::TrackParameters* perigee = track.perigeeParameters();
-  if (!perigee) {
-    //ATH_MSG_INFO("no perigee parmeters retunred");
-    // m_timingProfile->chronoStop("Tool::electronProb");
-    return PIDvalues;
-  }
+  if (!perigee) return PIDvalues;
 
   // Get parameters at perigee and check that they are reasonable:
   const Amg::VectorX& parameterVector = perigee->parameters();
@@ -252,13 +203,11 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
   // Check the parameters are reasonable:
   if (tan(theta/2.0) < 0.0001) {
     ATH_MSG_DEBUG ("  Track has negative theta or is VERY close to beampipe! (tan(theta/2) < 0.0001). Returning default Pid values.");
-    //m_timingProfile->chronoStop("Tool::electronProb");
     return PIDvalues;
   }
 
   if (qOverP == 0.0) {
     ATH_MSG_DEBUG ("  Track momentum infinite! (i.e. q/p = 0). Returning default Pid values.");
-    //m_timingProfile->chronoStop("Tool::electronProb");
     return PIDvalues;
   }
 
@@ -269,24 +218,22 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
   // Check the tool to get the local occupancy (i.e. for the track in question):
   occ_local = m_LocalOccTool->LocalOccupancy(track);
 
-  //  for (unsigned int i = 0; i < occ.size() ; i++){
-  //    ATH_MSG_DEBUG("Local occ: " << i << "\t" << occ.at(i) );
-  //  }
-
   ATH_MSG_DEBUG ("");
   ATH_MSG_DEBUG ("");
   ATH_MSG_DEBUG ("check---------------------------------------------------------------------------------------");
   ATH_MSG_DEBUG ("check  Got track:   pT: " << pT << "   eta: " << eta << "   phi: " << phi);
   ATH_MSG_DEBUG ("check---------------------------------------------------------------------------------------");
+ 
+  // Jared - Development Output... 
+  /*
+  std::cout << "check---------------------------------------------------------------------------------------" << std::endl;
+  std::cout << "check  Got track:   pT: " << pT << "   eta: " << eta << "   phi: " << phi << std::endl;
+  std::cout << "check---------------------------------------------------------------------------------------" << std::endl;
+  */
 
   // For calculation of HT probability:
   double pHTel_prod = 1.0;
   double pHTpi_prod = 1.0;
-
-  // For calculation of ToT probability:
-  double sumToT=0;
-  double sumD=0;
-
 
   // ------------------------------------------------------------------------------------
   // Loop over TRT hits on track, and calculate HT and R-ToT probability:
@@ -317,8 +264,7 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
     if (!driftcircle) continue;
 
     // From now (May 2015) onwards, we ONLY USE MIDDLE HT BIT:
-    // bool isHTMB  = ((TRTDriftCircle->auxdata<unsigned int>("bitPattern")&int(pow(2,17))) > 0) ? true : false;
-    bool isHTMB  = ((driftcircle->prepRawData()->getWord() & 0x00020000) > 0) ? true : false;       // 131072 = 2^17 in non-hex
+    bool isHTMB  = ((driftcircle->prepRawData()->getWord() & 0x00020000) > 0) ? true : false; 
 
     nTRThits++;
     if (isHTMB) nTRThitsHTMB++;
@@ -349,6 +295,7 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
 
     // Get Z (Barrel) or R (Endcap) location of the hit, and distance from track to wire (i.e. anode) in straw:
     double HitZ, HitR, rTrkWire;
+    bool hasTrackParameters= true; // Keep track of this for HT prob calculation
     if ((*tsosIter)->trackParameters()) {
       // If we have precise information (from hit), get that:
       const Amg::Vector3D& gp = driftcircle->globalPosition();
@@ -357,6 +304,7 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
       rTrkWire = fabs((*tsosIter)->trackParameters()->parameters()[Trk::driftRadius]);
     } else {
       // Otherwise just use the straw coordinates:
+      hasTrackParameters = false; // Jared - pass this to HT calculation
       HitZ = driftcircle->associatedSurface().center().z();
       HitR = driftcircle->associatedSurface().center().perp();
       rTrkWire = 0;
@@ -396,15 +344,17 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
     // Calculate the HT probability:
     // ------------------------------------------------------------------------------------
 
-    // getStatusHT returns enum {Undefined, Dead, Good, Xenon, Argon, Krypton}.
+    // getStatusHT returns enum {Undefined, Dead, Good, Xenon, Argon, Krypton, EmulatedArgon, EmulatedKrypton}.
     // Our representation of 'GasType' is 0:Xenon, 1:Argon, 2:Krypton
     int GasType=0; // Xenon is default
     if (!m_TRTStrawSummarySvc.empty()) {
       int stat = m_TRTStrawSummarySvc->getStatusHT(DCid);
       if       ( stat==2 || stat==3 ) { GasType = 0; } // Xe
       else if  ( stat==1 || stat==4 ) { GasType = 1; } // Ar
-      else if  ( stat==5 )            { GasType = 2; } // Kr
-      else { ATH_MSG_FATAL ("getStatusHT = " << stat << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or 'Krypton(5)!'");
+      else if  ( stat==5 )            { GasType = 1; } // Kr -- ESTIMATED AS AR UNTIL PID IS TUNED TO HANDLE KR
+      else if  ( stat==6 )            { GasType = 1; } // Emulated Ar
+      else if  ( stat==7 )            { GasType = 1; } // Emulated Kr -- ESTIMATED AS AR UNTIL PID IS TUNED TO HANDLE KR
+      else { ATH_MSG_FATAL ("getStatusHT = " << stat << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or 'Krypton(5)' or 'EmulatedArgon(6)' or 'EmulatedKr(7)'!");
              throw std::exception();
            }
     }
@@ -412,14 +362,18 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
     ATH_MSG_DEBUG ("check Hit: " << nTRThits << "  TrtPart: " << TrtPart << "  GasType: " << GasType << "  SL: " << StrawLayer
              << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire << "  Occ_Local: " << occ_local << "  HTMB: " << isHTMB );
 
-    // For now use constant hardcoded values! Even in the long run, might stay with this, as Argon hits doesn't add much PID info!
-    // double pHTel_Argon[3] = {0.089, 0.113, 0.113};
-    // double pHTpi_Argon[3] = {0.039, 0.056, 0.056};
+
+    // Jared - Development Output... 
+    /*
+    std::cout << "check Hit: " << nTRThits << "  TrtPart: " << TrtPart << "  GasType: " << GasType << "  SL: " << StrawLayer
+             << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire << "  Occ_Local: " << occ_local 
+            << "  HTMB: " << isHTMB << std::endl;
+            */
 
     // Then call pHT functions with these values:
     // ------------------------------------------
-    double pHTel = HTcalc.getProbHT( pTrk, Trk::electron, TrtPart, GasType, StrawLayer, ZRpos[TrtPart], rTrkWire, occ_local);
-    double pHTpi = HTcalc.getProbHT( pTrk, Trk::pion,     TrtPart, GasType, StrawLayer, ZRpos[TrtPart], rTrkWire, occ_local);
+    double pHTel = HTcalc.getProbHT( pTrk, Trk::electron, TrtPart, GasType, StrawLayer, ZRpos[TrtPart], rTrkWire, occ_local, hasTrackParameters);
+    double pHTpi = HTcalc.getProbHT( pTrk, Trk::pion,     TrtPart, GasType, StrawLayer, ZRpos[TrtPart], rTrkWire, occ_local, hasTrackParameters);
 
     if (pHTel > 0.999 || pHTpi > 0.999 || pHTel < 0.001 || pHTpi < 0.001) {
       ATH_MSG_DEBUG("  pHT outside allowed range!  pHTel = " << pHTel << "  pHTpi = " << pHTpi << "     TrtPart: " << TrtPart << "  SL: " << StrawLayer << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire << "  Occ_Local: " << occ_local);
@@ -434,56 +388,18 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
     // From now (May 2015) onwards, we ONLY USE MIDDLE HT BIT:
     if (isHTMB) {pHTel_prod *=     pHTel;  pHTpi_prod *=     pHTpi;}
     else        {pHTel_prod *= 1.0-pHTel;  pHTpi_prod *= 1.0-pHTpi;}
-
     ATH_MSG_DEBUG ("check         pHT(el): " << pHTel << "  pHT(pi): " << pHTpi );
-
-
-    // ------------------------------------------------------------------------------------
-    // Calculate the ToT probability:
-    // ------------------------------------------------------------------------------------
-
-    int HitPart = m_trtId->barrel_ec(DCid);
-    int StrawLayer_ToT = m_trtId->straw_layer(driftcircle->identify());
-    int Layer_ToT = m_trtId->layer_or_wheel(driftcircle->identify());
-    unsigned int BitPattern = driftcircle->prepRawData()->getWord();
-    if (not CheckGeometry(HitPart, Layer_ToT, StrawLayer_ToT)) {
-      ATH_MSG_ERROR("TRT straw address has incorrect format, skipping this hit");
-      continue;
-    }
-
-
-    double locR=1.999;
-    if ((*tsosIter)->trackParameters()) {
-      locR = (*tsosIter)->trackParameters()->parameters()[Trk::locR];
-      //ATH_MSG_INFO("LocR is "<<locR);
-    }
-    if (!driftcircle->highLevel()){
-      //if(fabs(locR)<1.9 && fabs(locR)>0.01&&  fabs(driftcircle->localParameters()[Trk::driftRadius])!=0){  //MJ tube hits and close to wire/straw
-      //m_timingProfile->chronoStart("Tool::PID");
-      sumToT += ToTcalc.GetToT( BitPattern, HitZ, HitR, HitPart, Layer_ToT, StrawLayer_ToT);
-      sumD   += ToTcalc.GetD(locR);
-      // m_timingProfile->chronoStop("Tool::PID");
-      //}
-    }
-
+    
+    // Jared - Development Output... 
+    //std::cout << "check         pHT(el): " << pHTel << "  pHT(pi): " << pHTpi << std::endl;
 
   }//of loop over hits
 
 
   // If number of hits is adequate (default is 5 hits), calculate HT and ToT probability.
-  if (not (nTRThits >= m_minTRThits)) {
-    //ATH_MSG_INFO("TRT minimum not met, "<< nTRThits<<" hits, need "<<m_minTRThits);
-    //m_timingProfile->chronoStop("Tool::electronProb");
-    return PIDvalues;
-  }
+  if (not (nTRThits >= m_minTRThits)) return PIDvalues;
 
-  // this is what the ToT part is returning
-  sum_ToT_by_sum_L = sumD > 0 ? (sumToT/sumD) : 0.;
-
-  //  ATH_MSG_INFO("Sum ToT = "<<sumToT<<" Sum D = "<<sumD);
-  //  ATH_MSG_INFO("sum_ToT_by_sum_L = "<<sum_ToT_by_sum_L);
-
-  // prob_El_HT = likelProd_El_HT  / (likelProd_El_HT  + likelProd_Pi_HT);
+  // Calculate electron probability (HT)
   prob_El_HT = pHTel_prod / (pHTel_prod + pHTpi_prod);
 
   ATH_MSG_DEBUG ("check---------------------------------------------------------------------------------------");
@@ -491,74 +407,34 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
   ATH_MSG_DEBUG ("check---------------------------------------------------------------------------------------");
   ATH_MSG_DEBUG ("");
   ATH_MSG_DEBUG ("");
+    
+  // Jared - Development Output... 
+  /*
+  std::cout << "check---------------------------------------------------------------------------------------" << std::endl;
+  std::cout << "check  nTRThits: " << nTRThits << "  : " << nTRThitsHTMB << "  pHTel_prod: " << pHTel_prod << "  pHTpi_prod: " << pHTpi_prod << "  probEl: " << prob_El_HT << std::endl;
+  std::cout << "check---------------------------------------------------------------------------------------" << std::endl;
+  std::cout << std::endl << std::endl;
+  */
 
-  
-  if(sumD>0)
-    prob_El_ToT  = ToTcalc.GetElProb( sumToT / sumD );
-  
-  //Calculate the probability based on Brem
-  if(m_bremFitterEnabled)
-    prob_El_Brem = probBrem(track);
+  // Jared - ToT Implementation
+  dEdx = m_TRTdEdxTool->dEdx( &track, true, false, true); // Divide by L, exclude HT hits 
+  double usedHits = m_TRTdEdxTool->usedHits( &track, true, false);
+  prob_El_ToT = m_TRTdEdxTool->getTest( dEdx, pTrk, Trk::electron, Trk::pion, usedHits, true ); 
   
   // Limit the probability values the the upper and lower limits that are given/trusted for each part:
-  double limProbHT = HTcalc.Limit(prob_El_HT);
-  double limProbToT = ToTcalc.Limit(prob_El_ToT);
+  double limProbHT = HTcalc.Limit(prob_El_HT); 
+  double limProbToT = HTcalc.Limit(prob_El_ToT); 
   
   // Calculate the combined probability, assuming no correlations (none are expected).
-  prob_El_Comb = (limProbHT * limProbToT * prob_El_Brem) / 
-    ( (limProbHT * limProbToT * prob_El_Brem)
-      + ( (1.0-limProbHT) * (1.0-limProbToT) * (1.0-prob_El_Brem) ) );
-
-  // Troels: VERY NASTY NAMING, BUT AGREED UPON FOR NOW (for debugging, 27. NOV. 2014):
-  prob_El_Brem = pHTel_prod;
+  prob_El_Comb = (limProbHT * limProbToT ) / ( (limProbHT * limProbToT) + ( (1.0-limProbHT) * (1.0-limProbToT)) );
   
-  //ATH_MSG_INFO("----------------------");
-  //ATH_MSG_INFO("  Prob_Comb = " << prob_El_Comb);
-  //ATH_MSG_INFO("  Prob_HT   = " << prob_El_HT);
-  //ATH_MSG_INFO("  ToT_by_L  = " << sum_ToT_by_sum_L);
-  //ATH_MSG_INFO("  Prob_ToT  = " << prob_El_ToT);
-  //ATH_MSG_INFO("  Prob_Brem = " << prob_El_Brem);
-  //m_timingProfile->chronoStop("Tool::electronProb");
+  // Troels: VERY NASTY NAMING, BUT AGREED UPON FOR NOW (for debugging, 27. NOV. 2014):
+  prob_El_Brem = pHTel_prod; // decorates electron LH to el brem for now... (still used?) 
+
+  //std::cout << "Prob_HT = " << prob_El_HT << "   Prob_ToT = " << prob_El_ToT << "   Prob_Comb = " << prob_El_Comb << std::endl;
+     
   return PIDvalues;  
 }
-
-
-
-
-/*****************************************************************************\
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-\*****************************************************************************/
-
-  float InDet::TRT_ElectronPidToolRun2::probBrem(const Trk::Track& /*track*/){
-/*
-  //old code in place in place up to 00-00-22:
-  if ( (track.info().trackFitter() == Trk::TrackInfo::KalmanFitter ||
-        track.info().trackFitter() == Trk::TrackInfo::KalmanDNAFitter ||
-        track.info().trackFitter() == Trk::TrackInfo::DeterministicAnnealingFilter ) &&
-       track.info().trackProperties(Trk::TrackInfo::BremFit) ) {
-    if (track.info().trackProperties(Trk::TrackInfo::BremFitSuccessful)) 
-      prob_El_Brem = 0.30 / (0.30 + 0.03);
-    else
-      prob_El_Brem = 0.70 / (0.70 + 0.97);
-  } else if (m_bremFitterEnabled) {
-    if (track.info().trackFitter() == Trk::TrackInfo::GlobalChi2Fitter && !track.info().trackProperties(Trk::TrackInfo::BremFit))
-      prob_El_Brem = 0.70 / (0.70 + 0.97);
-    else if (track.info().trackFitter() == Trk::TrackInfo::GlobalChi2Fitter && track.info().trackProperties(Trk::TrackInfo::BremFit))
-      prob_El_Brem = 0.30 / (0.30 + 0.03);
-  }
-*/
-  return 0.5;
-}
-
-/*****************************************************************************\
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-\*****************************************************************************/
 
 /* ----------------------------------------------------------------------------------- */
 // Callback function to update constants from database: 
@@ -572,96 +448,21 @@ StatusCode InDet::TRT_ElectronPidToolRun2::update( IOVSVC_CALLBACK_ARGS_P(I,keys
   for(std::list<std::string>::const_iterator key=keys.begin(); key != keys.end(); ++key)
     ATH_MSG_DEBUG("IOVCALLBACK for key " << *key << " number " << I);
 
-  const char * calcName[2]  = {"HT",             "ToT"};
-  BaseTRTPIDCalculator * calc[2]  = {&HTcalc,          &ToTcalc};
-  const char * storeName[2] = {"/TRT/Calib/PID_vector", "/TRT/Calib/PID_RToTver_New"};
-//  const char * storeName[2] = {"/TRT/Calib/PIDver_New", "/TRT/Calib/PID_RToTver_New"};
-  const char * objName[2]   = {"TRT",            "TRT_RToT"};
+	// NEW reading from DB
   StatusCode sc = StatusCode::SUCCESS;
+  ATH_MSG_INFO("HT Calculator : Reading vector format");
 
-		// NEW reading from DB
-  ATH_MSG_INFO(calcName[0]<<" : Reading vector format");
   const DataHandle<CondAttrListVec> channel_values;
   if (StatusCode::SUCCESS == detStore()->retrieve(channel_values, "/TRT/Calib/PID_vector" )){
         sc = HTcalc.ReadVectorDB(        channel_values  );
   } else {
-        ATH_MSG_ERROR ("Problem reading condDB object. -"<<calcName[0]);
-  }
-
-
-  ATH_MSG_INFO(calcName[1]<<" : Reading ToT Corrections ");
-  const AthenaAttributeList* atrlist;
-  if (StatusCode::SUCCESS == detStore()->retrieve(atrlist, storeName[1] ) && atrlist != 0) {
-        const coral::Blob& blob = (*atrlist)[objName[1]].data<coral::Blob>();
-        const unsigned char* BlobStart = static_cast<const unsigned char*> (blob.startingAddress());
-        int currver = calc[1]->CurrentVersion;
-        int blobsize= calc[1]->BLOB_SIZE;
-        int version = static_cast<int>(*(BlobStart+calc[1]->_Version));
-        int day     = static_cast<int>(*(BlobStart+calc[1]->_Day));
-        int month   = static_cast<int>(*(BlobStart+calc[1]->_Month));
-        int year    = static_cast<int>(*(BlobStart+calc[1]->_Year));
-        if(version != currver){
-          ATH_MSG_ERROR("Found wrong version of "<<calcName[1]<<" calibration constants in database. Found "<<version<<" expected "<<currver<<" details follow:");
-          ATH_MSG_ERROR(calcName[1]<<" Database entry written on:"<<day<<"/"<<month<<"/"<<year<<" (DD/MM/YY)");
-          ATH_MSG_ERROR("Size of Blob:       " << blob.size() << "  expected: " << blobsize );
-          ATH_MSG_ERROR("Setting calibration constants to hard-coded default values.");
-          calc[1]->checkInitialization();
-        }else{
-          ATH_MSG_INFO(calcName[1]<<" Database entry found");
-          ATH_MSG_INFO(calcName[1]<<" Database entry written on:"<<day<<"/"<<month<<"/"<<year<<" (DD/MM/YY)" << " version used: " << version << " blob size expected: " << blobsize << " Blob size: " << blob.size());
-          calc[1]->FillBlob(BlobStart);
-        }
-  } else {
-        ATH_MSG_ERROR ("Problem reading condDB object. -"<<calcName[1]);
+        ATH_MSG_ERROR ("Problem reading condDB object. HT Calculator.");
   }
 
   return sc;
-/*
-  for(int ic=0; ic<2; ic++){
-    const AthenaAttributeList* atrlist;
-    if (StatusCode::SUCCESS == detStore()->retrieve(atrlist, storeName[ic] ) && atrlist != 0) {
-      const coral::Blob& blob = (*atrlist)[objName[ic]].data<coral::Blob>();
-      const unsigned char* BlobStart = static_cast<const unsigned char*> (blob.startingAddress());
-
-      int currver = calc[ic]->CurrentVersion;
-      int blobsize= calc[ic]->BLOB_SIZE;
-      int version = static_cast<int>(*(BlobStart+calc[ic]->_Version));
-      int day     = static_cast<int>(*(BlobStart+calc[ic]->_Day));
-      int month   = static_cast<int>(*(BlobStart+calc[ic]->_Month));
-      int year    = static_cast<int>(*(BlobStart+calc[ic]->_Year));
-
-      //UPDATE_MARKER
-      //use the following line to force the use of the hard-coded calibration constants:
-      // version=-1;
-      if(version != currver){
-        ATH_MSG_ERROR("Found wrong version of "<<calcName[ic]<<" calibration constants in database. Found "<<version<<" expected "<<currver<<" details follow:");
-        ATH_MSG_ERROR(calcName[ic]<<" Database entry written on:"<<day<<"/"<<month<<"/"<<year<<" (DD/MM/YY)");
-        ATH_MSG_ERROR("Size of Blob:       " << blob.size() << "  expected: " << blobsize );
-        ATH_MSG_ERROR("Setting calibration constants to hard-coded default values.");
-        calc[ic]->checkInitialization();
-      }else{
-        ATH_MSG_INFO(calcName[ic]<<" Database entry found");
-        ATH_MSG_INFO(calcName[ic]<<" Database entry written on:"<<day<<"/"<<month<<"/"<<year<<" (DD/MM/YY)" << " version used: " << version << " blob size expected: " << blobsize << " Blob size: " << blob.size());
-
-	// HACK: To fix Invalid read
-	// see for example https://its.cern.ch/jira/browse/ATLASRECTS-1879 
-        // calc[ic]->FillBlob(BlobStart);
-        calc[1]->FillBlob(BlobStart);
-	// ENDHACK
-      }
-
-    } else {
-      // m_log << MSG::ERROR << "Problem reading condDB object." << endreq;
-      ATH_MSG_ERROR ("Problem reading condDB object. -"<<calcName[ic]);
-      //return StatusCode::FAILURE;
-    }
-  }
-  return StatusCode::SUCCESS;
-*/
 }
 
 /*****************************************************************************\
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 |*%%%  TRT straw address check, done once per hit.  %%%%%%%%%%%%%%%%%%%%%%%%%*|
 |*%%%  Nowhere else are these numbers checked. If this is deemed  %%%%%%%%%%%*|
 |*%%%  unnecessary it can be taken out by simply letting the function %%%%%%%*|
@@ -708,10 +509,8 @@ bool InDet::TRT_ElectronPidToolRun2::CheckGeometry(int BEC, int Layer, int Straw
 }
 
 /*****************************************************************************\
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 |*%%%  Auxiliary function to return the HT pobability to Atlfast  %%%%%%%%%%%*|
 |*%%%  a geometry ckeck is perfored every time here  %%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
 double InDet::TRT_ElectronPidToolRun2::probHT( const double /*pTrk*/, const Trk::ParticleHypothesis /*hypothesis*/, const int HitPart, const int Layer, const int StrawLayer){
@@ -719,64 +518,12 @@ double InDet::TRT_ElectronPidToolRun2::probHT( const double /*pTrk*/, const Trk:
     ATH_MSG_ERROR("TRT geometry fail. Returning default value.");
     return 0.5;
   }
-
   //return HTcalc.getProbHT(pTrk, hypothesis, HitPart, Layer, StrawLayer);
   // FIXME
   return 1.0;//HTcalc.getProbHT(pTrk, hypothesis, HitPart, Layer, StrawLayer);
 }
 
-/**************************************************************************** \
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%  The following functions can be very useful for developement  %%%%%%%%%*|
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-\*****************************************************************************/
-/*
-std::string InDet::TRT_ElectronPidToolRun2::PrintBitPattern(unsigned int bitpattern){
-  //  Will print the bitpattern in the format
-  //    Bits:000000000000000001111100 HT:000
-  //  To find out how HT and LT bins are distributed please check TRT_DriftCircle.h
-  
-  std::stringstream hlout,llout;
-  hlout<<" HT:";
-  llout<<" Bits:";
-  
-  unsigned int mask =0x4000000;
-  for(int i=0; i<27; i++){ //3 blocks of 8 plus 3 HT bits
-    bool ThisBit = mask & bitpattern;
-    mask>>=1;
-    if(i%9==0)
-      hlout<<int(ThisBit);
-    else
-      llout<<int(ThisBit);
-  }
-  return llout.str()+hlout.str();
+
+double InDet::TRT_ElectronPidToolRun2::probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ){
+   return HTcalc.getProbHT( pTrk, hypothesis, TrtPart, GasType, StrawLayer, ZR, rTrkWire, Occupancy );
 }
-
-
-int InDet::TRT_ElectronPidToolRun2::CountLTBitPattern(unsigned int bitpattern){
-  //    Will count the total number of LT bits in bitpattern
-  //    To find out how HT and LT bins are distributed please check TRT_DriftCircle.h
-  //  
-  int n=0;
-  
-  for(unsigned int mask=0x2000000; mask > 0; mask>>=1){
-    if(mask & bitpattern) n++;
-    //skip over the HT bits
-    if(mask==0x20000 || mask==0x100) mask>>=1;
-  }
-  return n;
-}
-
-
-int InDet::TRT_ElectronPidToolRun2::CountHTBitPattern(unsigned int bitpattern){
-//    Will count the total number of HT bits in bitpattern
-//    To find out how HT and LT bins are distributed please check TRT_DriftCircle.h
-
-  int n=0;
-
-  for(unsigned int mask=0x4000000; mask > 0; mask>>=9)
-    if(mask & bitpattern) n++;
-
-  return n;
-}
-*/
