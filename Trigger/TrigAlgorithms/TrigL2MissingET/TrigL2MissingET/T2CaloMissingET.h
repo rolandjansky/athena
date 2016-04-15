@@ -12,7 +12,7 @@
  * @author  Denis Oliveira Damazio - Brookhaven National Laboratory
  *
  * File and Version Information:
- * $Id: T2CaloMissingET.h 635500 2014-12-12 07:58:17Z florianb $
+ * $Id: T2CaloMissingET.h 740615 2016-04-15 14:49:25Z damazio $
  **********************************************************************************/
 
 
@@ -70,6 +70,9 @@ class T2CaloMissingET : public HLT::AllTEAlgo
     
     HLT::ErrorCode init(xAOD::TrigMissingET *met); 
 
+    using HLT::AllTEAlgo::prepareRobRequests;
+    HLT::ErrorCode prepareRobRequests(const std::vector<HLT::TEConstVec>& inputs );
+
   private:
      bool m_useCachedResult;
 
@@ -105,6 +108,7 @@ class T2CaloMissingET : public HLT::AllTEAlgo
      std::vector<unsigned char> m_tile_nlbc; 
      std::vector<unsigned char> m_tile_neba; 
      std::vector<unsigned char> m_tile_nebc; 
+     std::vector<uint32_t> m_vec_robs;
 };
 
 #endif
