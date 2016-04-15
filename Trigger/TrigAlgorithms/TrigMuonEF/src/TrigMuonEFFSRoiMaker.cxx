@@ -25,6 +25,7 @@ TrigMuonEFFSRoiMaker::TrigMuonEFFSRoiMaker(const std::string & name, ISvcLocator
   declareProperty ("UseFSRoI" , m_useFS=true);  
   declareProperty ("CreateCrackRoI", m_createCrackRoI=false);
   declareProperty ("CreateFSRoI", m_createFSroi=false);
+  declareProperty ("CreateRoIFromL1", m_createRoIfromL1=false);
   declareProperty ("RoISizeEta", m_roiSizeEta=0.1);
   declareProperty ("RoISizePhi", m_roiSizePhi=0.1);
   declareProperty ("RoILabel", m_roiLabel="");
@@ -55,6 +56,7 @@ HLT::ErrorCode TrigMuonEFFSRoiMaker::hltInitialize() {
     msg() << MSG::INFO << "Use FS RoI = " << m_useFS << endreq;
     msg() << MSG::INFO << "Create crack RoI = " << m_createCrackRoI << endreq;
     msg() << MSG::INFO << "Create FS RoI = " << m_createFSroi << endreq;
+    msg() << MSG::INFO << "Create RoI from L1 = " << m_createRoIfromL1 << endreq;
   }
 
   if (m_classIDSvc.retrieve().isFailure()) {
@@ -94,6 +96,34 @@ HLT::ErrorCode TrigMuonEFFSRoiMaker::hltExecute(std::vector<std::vector<HLT::Tri
     return HLT::OK;
   }
 
+  //create RoI from L1 RoIs. Make sure this is run first in the sequence (needed for MGonly chains).
+  if(m_createRoIfromL1){
+    HLT::TriggerElement* te;
+    const HLT::TEVec &tev = inputTEs.back();
+    for ( unsigned iTe=0; iTe<tev.size() ; iTe++ ){
+      const HLT::TriggerElement* inputTe = tev[iTe];
+      
+      if(!inputTe){
+	msg() << MSG::ERROR << "Invalid TriggerElement pointer = "<< inputTe << endreq;
+	return HLT::ERROR;
+      } // end if(!inputTe)
+	
+	// get the RoiDescriptor
+      const TrigRoiDescriptor* roiDescriptor = 0;
+      HLT::ErrorCode hltStatus = getFeature(inputTe, roiDescriptor);
+      if( hltStatus != HLT::OK ){
+	msg()<<MSG::ERROR<<" Failed to find RoiDescriptor "<<endreq;
+	return hltStatus;
+      } 
+      te = addRoI(output, nullptr);
+      te->setActiveState(true); // set this trigger element to be active
+      std::string key;
+      m_config->getNavigation()->attachFeature(te, roiDescriptor, HLT::Navigation::ObjectCreatedByNew, key, m_roiLabel);	
+    }
+    return HLT::OK;
+  }
+
+  //start of FS roi building
   // we run after FS instance - so should only be one inputTE
   if (inputTEs.size() != 1) {
     msg() << MSG::ERROR << "Got more than one inputTE" << endreq;

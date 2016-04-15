@@ -356,6 +356,7 @@ def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
     kwargs.setdefault('MakeTrackAtMSLink',True)
     kwargs.setdefault("CaloMaterialProvider", "TMEF_TrkMaterialProviderTool")
     kwargs.setdefault("FillTimingInformation",False)
+    kwargs.setdefault("FillMuonTruthLinks",False)
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
 # TrigMuonEF classes
@@ -431,9 +432,9 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
 
         self.TrackToTrackParticleConvTool = "MuonParticleCreatorTool"
 
-        from MuonRecExample.MuonRecTools import MuonSTEP_Propagator
-        MuonSTEP_Propagator.OutputLevel=5
-        CfgGetter.getPublicTool("MuonStraightLinePropagator").OutputLevel=5
+        #from MuonRecExample.MuonRecTools import MuonSTEP_Propagator
+        #MuonSTEP_Propagator.OutputLevel=5
+        #CfgGetter.getPublicTool("MuonStraightLinePropagator").OutputLevel=5
 
 class TrigMuonEFCombinerConfigTRTOnly ():
     __slots__ = ()
@@ -457,8 +458,7 @@ class TrigMuonEFCaloIsolationConfig (TrigMuonEFCaloIsolation):
                                             IsoLeakCorrectionTool          = IsoCorrectionTool,
                                             ClustersInConeTool              = CaloClustersInConeTool,
                                             CaloFillRectangularClusterTool = TrigCaloFillRectangularCluster,
-                                            UseEMScale = True,
-                                            OutputLevel = 3)
+                                            UseEMScale = True)
 
         self.CaloTopoClusterIsolationTool = CaloTopoIsolationTool()
 
@@ -651,7 +651,7 @@ class TrigMuonEFFSRoiMakerUnseededConfig(TrigMuonEFFSRoiMaker):
         from math import pi
 
         kwargs.setdefault("RoISizeEta", 0.2)
-        kwargs.setdefault("RoISizePhi", pi)
+        kwargs.setdefault("RoISizePhi", 3.14159)
         kwargs.setdefault("RoILabel", "forID")
 
         self.RoISizeEta = kwargs["RoISizeEta"]

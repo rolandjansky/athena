@@ -50,6 +50,7 @@ class TrigMuonEFFSRoiMaker : public HLT::AllTEAlgo {
   bool m_useFS;
   bool m_createCrackRoI;
   bool m_createFSroi;
+  bool m_createRoIfromL1;
   
   /// minimum pT cut on extrapolated tracks - above this create ROIs.
   double m_ptcut;

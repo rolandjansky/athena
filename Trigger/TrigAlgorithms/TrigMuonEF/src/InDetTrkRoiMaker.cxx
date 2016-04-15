@@ -195,11 +195,11 @@ HLT::ErrorCode InDetTrkRoiMaker::hltExecute(const HLT::TriggerElement* inputTE, 
 	    double chi2_id  = (*track)->fitQuality()->chiSquared();
 	    // int    npixh_id = (*track)->NPixelSpacePoints();
 	    // int    nscth_id = (*track)->NSCT_SpacePoints();
-	    Eigen::Matrix<double, 5, 5, 0, 5, 5> covMat = *( (*track)->perigeeParameters()->covariance());
-	    double dphi_id =  Amg::error(covMat,Trk::phi0);
-	    double dtheta_id = Amg::error(covMat,Trk::theta);
-	    double deta_id = 0.025;
-	    if(fabs(sin(theta))>0) deta_id = dtheta_id/sin(theta);
+	    //	    Eigen::Matrix<double, 5, 5, 0, 5, 5> covMat = *( (*track)->perigeeParameters()->covariance());
+	    double dphi_id =  0.1;//Amg::error(covMat,Trk::phi0);
+	    //	    double dtheta_id = Amg::error(covMat,Trk::theta);
+	    double deta_id = 0.1;
+	    //	    if(fabs(sin(theta))>0) deta_id = dtheta_id/sin(theta);
 	    //	    ATH_MSG_INFO("dphi: "<<dphi_id<<" deta: "<<deta_id);
 	    ATH_MSG_DEBUG( "Found track: "
 			   << m_ID_algo_to_use
@@ -227,7 +227,7 @@ HLT::ErrorCode InDetTrkRoiMaker::hltExecute(const HLT::TriggerElement* inputTE, 
 	    
 	    ++nFound;
 
-	    TrigRoiDescriptor*  newRoi = createSingleTrigRoiDescriptor( eta_id, phi_id, 4*deta_id, 4*dphi_id, superRoI->roiId() + nFound );
+	    TrigRoiDescriptor*  newRoi = createSingleTrigRoiDescriptor( eta_id, phi_id, deta_id, dphi_id, superRoI->roiId() + nFound );
 	    superRoI->push_back( newRoi );
 	    ATH_MSG_DEBUG("Added RoI from selected track: " << *newRoi );
      
@@ -271,7 +271,7 @@ HLT::ErrorCode InDetTrkRoiMaker::hltExecute(const HLT::TriggerElement* inputTE, 
         double etaCentral = 0.5 * std::abs(m_EtaMaxTrk + m_fullEtaRange);
         TrigRoiDescriptor* endcapPositive = new TrigRoiDescriptor( etaCentral, m_EtaMaxTrk, m_fullEtaRange, /* eta positive end-cap */
 								   0., -M_PI+1e-6, M_PI-1e-6 /* full phi range */ ,0.,-255.,255.);
-        TrigRoiDescriptor* endcapNegative = new TrigRoiDescriptor( 0., -m_fullEtaRange, -m_EtaMaxTrk, /* eta negative end-cap */
+        TrigRoiDescriptor* endcapNegative = new TrigRoiDescriptor( -etaCentral, -m_fullEtaRange, -m_EtaMaxTrk, /* eta negative end-cap */
                                                                    0., -M_PI+1e-6, M_PI-1e-6 /* full phi range */,0.,-255.,255. );
 
 	superRoI->push_back( endcapPositive );
