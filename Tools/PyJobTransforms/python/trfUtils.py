@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfUtils
 # @brief Transform utility functions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfUtils.py 665892 2015-05-08 14:54:36Z graemes $
+# @version $Id: trfUtils.py 712411 2015-12-03 16:46:19Z mavogel $
 
 import os
 import os.path as path
@@ -1167,52 +1167,55 @@ class ParallelJobProcessor(object):
 #   @detail This function returns a Valgrind command for use with Athena. The
 #   command is returned as a string (by default) or a list, as requested using
 #   the argument returnFormat.
-#   To return a default Valgrind command specification, the function is called
-#   with no command options specified. To compose a command from scratch, the
-#   argument optionsList is used. This causes the list of specified command
-#   options to be appended to the basic executable command. To append options to
-#   the default command specification, the argument extraOptionsList is used.
-#   This causes the list of extra specified command options to be appended to
-#   the default command specification (not simply the basic executable command).
+#   The function will return a default Valgrind command specification, unless
+#   the user suppress them through an option. To append additional options to
+#   the command specification the argument extraOptionsList is used. This
+#   causes the list of extra specified command options to be appended to
+#   the command specification, which will contain the default options unless 
+#   these are suppressed.
 #   The Athena serialised configuration file is specified using the argument
 #   AthenaSerialisedConfigurationFile.
-#   @return command as string or command as list
+#   @return command as string 
 def ValgrindCommand(
-    basicOptionsList                  = None,
+    defaultOptions                    = True,
     extraOptionsList                  = None,
     AthenaSerialisedConfigurationFile = "athenaConf.pkl",
     returnFormat                      = "string"
     ):
+
+    # Access Valgrind suppressions files by finding the paths from
+    # environment variables. Append the files to the Valgrind suppressions
+    # options.
+    suppressionFilesAndCorrespondingPathEnvironmentVariables = {
+        "etc/valgrind-root.supp": "ROOTSYS",
+        "Gaudi.supp":             "DATAPATH",
+        "oracleDB.supp":          "DATAPATH",
+        "valgrindRTT.supp":       "DATAPATH",
+        "root.supp":              "DATAPATH"
+    }
     optionsList = ["valgrind"]
-    # If basic options are not specified, use default options.
-    if not basicOptionsList:
+    # If default options are not suppressed, use them.
+    if defaultOptions:
         optionsList.append("--num-callers=30")
         optionsList.append("--tool=memcheck")
         optionsList.append("--leak-check=full")
-        # Access Valgrind suppressions files by finding the paths from
-        # environment variables. Append the files to the Valgrind suppressions
-        # options.
-        suppressionFilesAndCorrespondingPathEnvironmentVariables = {
-            "etc/valgrind-root.supp": "ROOTSYS",
-            "Gaudi.supp/Gaudi.supp":  "DATAPATH",
-            "oracleDB.supp":          "DATAPATH",
-            "valgrindRTT.supp":       "DATAPATH",
-            "root.supp/root.supp":    "DATAPATH"
-        }
-        for suppressionFile, pathEnvironmentVariable in suppressionFilesAndCorrespondingPathEnvironmentVariables.iteritems():
-            optionsList.append("--suppressions=" +
-                findFile(os.environ[pathEnvironmentVariable], suppressionFile))
-        optionsList.append("$(which python)")
-        optionsList.append("$(which athena.py)")
-        optionsList.append(AthenaSerialisedConfigurationFile)
-    # If basic options are specified, append them to the existing options.
-    if basicOptionsList:
-        for option in basicOptionsList:
-            optionsList.append(option)
+        optionsList.append("--smc-check=all")
     # If extra options are specified, append them to the existing options.
     if extraOptionsList:
         for option in extraOptionsList:
             optionsList.append(option)
+    # Add suppression files and athena commands
+    for suppressionFile, pathEnvironmentVariable in suppressionFilesAndCorrespondingPathEnvironmentVariables.iteritems():
+        suppFile = findFile(os.environ[pathEnvironmentVariable], suppressionFile)
+        if suppFile:
+            optionsList.append("--suppressions=" + suppFile)
+        else:
+            msg.warning("Bad path to suppression file: {sfile}, {path} not defined".format(
+                sfile = suppressionFile, path = pathEnvironmentVariable)
+            ) 
+    optionsList.append("$(which python)")
+    optionsList.append("$(which athena.py)")
+    optionsList.append(AthenaSerialisedConfigurationFile)
     # Return the command in the requested format, string (by default) or list.
     if returnFormat is None or returnFormat == "string":
         return(" ".join(optionsList))

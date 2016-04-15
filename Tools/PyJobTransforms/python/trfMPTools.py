@@ -4,7 +4,7 @@
 #
 # @brief Utilities for handling AthenaMP jobs
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfMPTools.py 677748 2015-06-23 20:29:35Z graemes $
+# @version $Id: trfMPTools.py 731249 2016-03-19 22:05:45Z graemes $
 # 
 
 __version__ = '$Revision'
@@ -36,16 +36,17 @@ def detectAthenaMPProcs(argdict = {}):
                 raise ValueError("ATHENA_PROC_NUMBER value was less than zero")
             msg.info('AthenaMP detected from ATHENA_PROC_NUMBER with {0} workers'.format(athenaMPProcs))
         elif 'athenaopts' in argdict:
-            procArg = [opt.replace("--nprocs=", "") for opt in argdict['athenaopts'].value if '--nprocs' in opt]
-            if len(procArg) == 0:
-                athenaMPProcs = 0
-            elif len(procArg) == 1:
-                athenaMPProcs = int(procArg[0])
-                if athenaMPProcs < 0:
-                    raise ValueError("--nprocs was set to a value less than zero")
-            else:
-                raise ValueError("--nprocs was set more than once in 'athenaopts'")
-            msg.info('AthenaMP detected from "nprocs" setting with {0} workers'.format(athenaMPProcs))
+            for substep in argdict['athenaopts'].value:
+                procArg = [opt.replace("--nprocs=", "") for opt in argdict['athenaopts'].value[substep] if '--nprocs' in opt]
+                if len(procArg) == 0:
+                    athenaMPProcs = 0
+                elif len(procArg) == 1:
+                    athenaMPProcs = int(procArg[0])
+                    if athenaMPProcs < 0:
+                        raise ValueError("--nprocs was set to a value less than zero")
+                else:
+                    raise ValueError("--nprocs was set more than once in 'athenaopts'")
+                msg.info('AthenaMP detected from "nprocs" setting with {0} workers for substep {1}'.format(athenaMPProcs,substep))
     except ValueError, errMsg:
         myError = 'Problem discovering AthenaMP setup: {0}'.format(errMsg)
         raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), myError)
@@ -127,15 +128,21 @@ def athenaMPoutputsLinkAndUpdate(newFullFilenames, fileArg):
     # Do we need to append worker dir suffixes?
     linkedNameList = []
     uniqueSimpleNames = set([path.basename(fname) for fname in newFullFilenames])
+    # Check here if MP created it's own unique names - otherwise we need to add suffixes
+    # so that each output file is unique
     if len(uniqueSimpleNames) != len(newFullFilenames):
+        indexesUsed = []
         for fname in newFullFilenames:
             simpleName = path.basename(fname)
             workerIndexMatch = re.search(r'/worker_(\d+)/', fname)
             if workerIndexMatch:
-                workerIndex = workerIndexMatch.group(1)
+                fileIndex = int(workerIndexMatch.group(1)) + 1
             else:
-                raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_OUTPUT_FILE_ERROR"), "Found output file ({0}) not in an AthenaMP worker directory".format(fname))
-            simpleName += "._{0:03d}".format(int(workerIndex))
+                fileIndex = 0
+            if fileIndex in indexesUsed:
+                fileIndex = max(indexesUsed)+1
+            indexesUsed.append(fileIndex)
+            simpleName += "_{0:03d}".format(int(fileIndex))
             linkedNameList.append(simpleName)
     else:
         linkedNameList = [path.basename(fname) for fname in newFullFilenames]
