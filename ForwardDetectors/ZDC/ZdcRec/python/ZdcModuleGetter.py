@@ -67,7 +67,8 @@ class ZdcModuleGetter ( Configured ) :
         objKeyStore.addManyTypesStreamESD(self.output())
 
         # output to AOD:
-        objKeyStore.addManyTypesStreamAOD(self.output())        
+        #W.L. 2016-04-15, removed for AOD-item list. See ATLASRECTS-3023 
+        #objKeyStore.addManyTypesStreamAOD(self.output())        
 
         # add to topsequence 
         mlog.info("now adding to topSequence")
