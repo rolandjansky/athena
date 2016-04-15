@@ -39,8 +39,8 @@ namespace TXC {
       std::vector<TopoConfigElement> m_topoConfigElements;
    };
 
-} // end of namespace TXC
+std::ostream & operator<<(std::ostream &, const L1TopoConfigGlobal &);
 
-std::ostream & operator<<(std::ostream &, const TXC::L1TopoConfigGlobal &);
+} // end of namespace TXC
 
 #endif 
