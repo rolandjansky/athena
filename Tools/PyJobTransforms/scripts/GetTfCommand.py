@@ -9,7 +9,8 @@ import sys
 import argparse
 
 from PyJobTransforms.trfLogger import msg, stdLogLevels
-msg.info('logging set in %s' % sys.argv[0])
+if not '--printOnlyCmdLine' in sys.argv:
+    msg.info('logging set in %s' % sys.argv[0])
 
 from PyJobTransforms.trfAMI import TagInfo
 from PyJobTransforms.trfExceptions import TransformAMIException
@@ -19,6 +20,7 @@ def main():
     parser.add_argument('--AMI', '--AMIConfig', help = 'Production tag to be interpreted', required = True)
     parser.add_argument('--verbose', '--debug', action = 'store_true', help = 'set logging level to DEBUG')
     parser.add_argument('--doNotSuppressNonJobOptions', action = 'store_true', help = 'get full output from AMI')
+    parser.add_argument('--printOnlyCmdLine', action = 'store_true', help = 'simply put out the TRF command line, nothing else')
 
     args = vars(parser.parse_args(sys.argv[1:]))
 
@@ -37,11 +39,19 @@ def main():
         print 'Note that you need both suitable credentials to access AMI and access to the panda database (only works from inside CERN) for GetTfCommand.py to work.'
         sys.exit(1)
 
-    print tag
+    if not 'printOnlyCmdLine' in args:
+        print tag
 
-    if 'argdict' in args:
-        tag.dump(args['argdict'])
+        if 'argdict' in args:
+            tag.dump(args['argdict'])
+    else:
+        # only print the command line, allows stuff like 
+        # pathena --trf "`GetTfCommand --AMI q1234 --printOnlyCmdLine` --inputFile bla.input --maxEvents 42"
+        trfCmdLine = tag.trfs[0].name + " " + tag.trfs[0]._argsToString(tag.trfs[0].physics)
+        trfCmdLine.replace('"', '\\' + '"')
+        print trfCmdLine
 
 
 if __name__ == '__main__':
         main()
+

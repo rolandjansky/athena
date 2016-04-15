@@ -229,7 +229,7 @@ def getAMIClient():
         raise TransformAMIException(AMIerrorCode, 'Import of pyAMI modules failed.')
         
     msg.debug("Attempting to get AMI client for endpoint {0}".format(endpoint))
-    amiclient = Client(endpoint)
+    amiclient = Client(endpoint, ignore_proxy = True)
     return amiclient
 
 ## @brief Get list of characters of ProdSys tags
