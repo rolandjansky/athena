@@ -55,7 +55,7 @@ class InDet::TRT_ElectronPidToolRun2::HTcalculator : public InDet::BaseTRTPIDCal
   //void PrintBlob();
   //bool FillBlob(const unsigned char*);
 
-  float getProbHT( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkAnode, float Occupancy);
+  float getProbHT( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkAnode, float Occupancy, bool hasTrackPars);
 //  float pHTvsP(int TrtPart, float p, float mass);
   float pHTvsPGOG(int TrtPart, int GasType, float p, float mass, float occ);
 

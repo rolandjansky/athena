@@ -46,6 +46,7 @@ class ITRT_StrawSummarySvc;
 
 //class IChronoStatSvc;
 class ITRT_ToT_dEdx;
+
 namespace Trk {
   class Track;
 }
@@ -67,22 +68,6 @@ namespace InDet
       only for straws without a HT hit (to avoid correlations).
       The separation is largest at low momentum, and deminishes with increased energy.
 
-      3: Bremfitting (Brem) information - sensitive to (increased) energy losses of electron
-      tracks due to bremsstrahlung. Ideally, a continuous variable should be used, but
-      for now only the discreet variable DNA-kicked-in-or-not is used.
-      ---This part is currently not used
-
-      The three estimators are independent, and can thus be combined directly. The tool returns
-      a vector with five floats, giving the probability of track being an electron based on:
-      0: All information combined, 1: HT information, 2: ToT/D, 3: Brem information. The last
-      entry in the vector returns the local occupancy along the track. This isn't a probability
-      calculation, but it is included in the vector for ease of input to the xAOD.
-      
-      the third value in the vector is the discriminator that is used in the determination of 
-      the particle likelyhood based on ToT. 
-
-      @author  Troels Petersen <Troels.Petersen@cern.ch>
-      and Simon Heisterkamp <Simon.Heisterkamp@cern.ch>
   */
 
   class TRT_ElectronPidToolRun2;
@@ -113,10 +98,12 @@ namespace InDet
     double probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy );
 
   // get the ToT from the bitpattern and correct for local variations
-    double GetToT(unsigned int bitpattern, double HitZ, double HitR, int BEC, int Layer, int Strawlayer) const;
+  // Jared - Remove ToT calc
+    //double GetToT(unsigned int bitpattern, double HitZ, double HitR, int BEC, int Layer, int Strawlayer) const;
   
     // get the distance used to normalize the ToT
-    double GetD(double R_track) const;
+  // Jared - Remove ToT calc
+    //double GetD(double R_track) const;
 
   private:
     // Update of database entries.
@@ -131,9 +118,6 @@ namespace InDet
     // //possibly used by Atlfast in the future
     //virtual double probToT(double momentum, Trk::ParticleHypothesis, int ToT, double TrkAnodeDist, double eta);
     
-    //probability of being a particular particle based on the Brem finders:
-    virtual float probBrem(const Trk::Track& track);
-
     bool m_DATA;
 
     //Check valid TRT straw:
@@ -155,33 +139,21 @@ namespace InDet
     // StoreGateSvc*              p_detstore;            // Detector store.
     Trk::ParticleMasses        m_particlemasses;      // Particle masses. (initalized in default constructor)
     unsigned int               m_minTRThits;          // Minimum number of TRT hits to give PID.
-    bool                       m_bremFitterEnabled;   // jobOption whether or not brem Chi2 fitter is enabled.
     bool                       m_OccupancyUsedInPID;   // DEPRECATED!!!
 
     //Some constants about the Bitpattern:
     static const unsigned int LTbits=0x3FDFEFF;
     static const unsigned int HTbits=0x4020100;
 
-    //The following class is designed to conatin all code that is used to calculate the likelyhood from ToT.
-
-
-   public:
-    class ToTcalculator;
-   private:
-    ToTcalculator & ToTcalc;
-  
-   public:
-    class HTcalculator;
-   private:
-    HTcalculator & HTcalc;
-
+    public:
+     class HTcalculator;
+    private:
+     HTcalculator & HTcalc;
 
     public:
      class StorePIDinfo;
 
-
     ToolHandle<ITRT_ToT_dEdx> m_TRTdEdxTool;     //!< the track selector tool
-
     ToolHandle<InDet::ITRT_LocalOccupancy> m_LocalOccTool;     //!< the track selector tool
     ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawSummarySvc;
 

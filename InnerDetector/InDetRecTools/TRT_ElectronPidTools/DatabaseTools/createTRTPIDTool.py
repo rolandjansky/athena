@@ -9,11 +9,11 @@ import logging
 from PyCool import cool
 
 FOLDER_NAME = '/TRT/Calib/PID_vector'
-TAG_NAME = 'TRTCalibPID_vector_Data_OnSetMC_CorrData_00-01'
+TAG_NAME = 'TRTCalibPID_vector_Data15_noArCFs_noZR_00-01'
 # python createTRTPIDTool.py CorrectionFactors_HRformat_Jared_Data.txt 'sqlite://;schema=TRTPIDData.db;dbname=CONDBR2'
 
 
-TAG_NAME = 'TRTCalibPID_vector_MC_OnSetMC_CorrMC_00-01'
+#TAG_NAME = 'TRTCalibPID_vector_MC_OnSetMC_CorrMC_00-01'
 # python createTRTPIDTool.py CorrectionFactors_HRformat_Jared_MC.txt          'sqlite://;schema=TRTPIDMC.db;dbname=CONDBR2'
 
 
@@ -52,7 +52,7 @@ def store_PID_to_folder(db,values_list):
        #     print channel_values[1]
             vector = cool.IRecordVector()
             for value in values:
-       #         print value 
+       #         print value
                 data = cool.PyCool.Helpers.IRecordPtr(spec)
                 data.get()['array_value'] = value
                 vector.push_back(data)
@@ -80,16 +80,16 @@ def read_PID_txt(input_file_name):
                                     #Why?!
                                     barrel_or_endcap = elements[2].replace('EndcapWheels','EW')
                                     electrons = elements[3].replace('Electrons','Elecs')
-                                    ChannelName = elements[4] + '_' +elements[1] + '_' + elements[2] + '_' +elements[0] + '_' +  elements[3] 
-                                    #ChannelName = elements[4] + '_' + elements[2] + '_' +elements[1] + '_' +elements[0] + '_' +  elements[3] 
+                                    ChannelName = elements[4] + '_' +elements[1] + '_' + elements[2] + '_' +elements[0] + '_' +  elements[3]
+                                    #ChannelName = elements[4] + '_' + elements[2] + '_' +elements[1] + '_' +elements[0] + '_' +  elements[3]
                                     #output_list.append(((elements[1]+'_'+barrel_or_endcap+'_'+electrons),map(float,elements[8:])))
-                                    print elements[0:4] 
-                                    print ChannelName 
-        #                            print elements[5:] 
+                                    print elements[0:4]
+                                    print ChannelName
+        #                            print elements[5:]
                                     output_list.append(( ChannelName ,map(float,elements[5:])))
                                 else:
                                 	print "SIZE OF THE LINE ODD. CHECK!!! "
-                                	print line 
+                                	print line
         return output_list
 
 

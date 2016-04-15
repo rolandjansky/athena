@@ -87,8 +87,9 @@ namespace InDet
 
       int  *m_stw_total;
       int **m_stw_local;
+      int **m_stw_wheel;
 
-      int **m_track_local;
+      int **m_track_local; // records number of track hits in each region, for each track
 
       bool isMiddleBXOn(unsigned int word);
       bool passValidityGate(unsigned int word, float t0);
@@ -130,6 +131,11 @@ namespace InDet
    // use a wider validity gate if you're not using T0 shift:
    float m_lowWideGate; 
    float m_highWideGate;
+
+   // for online use:
+   bool region_rescaled[6][32];
+   bool allOfEndcapAFound[2][32];
+   float stws_ratio[2][32];
 
    }; 
 }

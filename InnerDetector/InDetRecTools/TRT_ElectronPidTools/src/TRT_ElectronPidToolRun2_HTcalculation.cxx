@@ -15,7 +15,6 @@
 
   Authors:  Troels C. Petersen  (petersen@nbi.dk), 
             Jared G. Vasquez  (jared.vasquez@yale.edu),
-            Nikita Belyaev  (nikita.belyaev@cern.ch) 
 
 \*****************************************************************************/
 
@@ -91,6 +90,7 @@ float InDet::TRT_ElectronPidToolRun2::StorePIDinfo::GetValue 	( float input  ){
 float InDet::TRT_ElectronPidToolRun2::StorePIDinfo::GetBinValue 	( int bin){
 	return m_values.at(	bin	);
 }
+
 int InDet::TRT_ElectronPidToolRun2::StorePIDinfo::GetBin	( float input  ){
 	if (input < m_min) 		return 0;
         else if (input > m_max) 	return m_nbins-1;
@@ -132,7 +132,7 @@ InDet::TRT_ElectronPidToolRun2::HTcalculator::~HTcalculator(){
 float InDet::TRT_ElectronPidToolRun2::HTcalculator::getProbHT(
       float pTrk, Trk::ParticleHypothesis hypothesis,
       int TrtPart, int GasType, int StrawLayer,
-      float ZR, float rTrkWire, float Occupancy ) {
+      float ZR, float rTrkWire, float Occupancy, bool hasTrackPars = true ) {
 
   checkInitialization();
 
@@ -168,8 +168,11 @@ float InDet::TRT_ElectronPidToolRun2::HTcalculator::getProbHT(
     // estimate correction factors using EB xenon straws (GasType=0, TrtPart=2)
     correctionPGOG = pHTvsPGOG(1, GasType, pTrk, mass, Occupancy);
     GasType = 0;
+  } else {
+    correctionPGOG = pHTvsPGOG(TrtPart, GasType, pTrk, mass, Occupancy);
   }
-  else correctionPGOG = pHTvsPGOG(TrtPart, GasType, pTrk, mass, Occupancy);
+
+  // Jared -- Change this ugly check, use hypothesis!
   if (fabs(mass-0.511) < 0.1) {      // Electron! OK, ugly way but works...
     correctionSL = m_CpHT_B_Zee_SL_new[GasType][TrtPart].GetValue(StrawLayer);
     correctionZR = m_CpHT_B_Zee_ZR_new[GasType][TrtPart].GetValue(ZR);
@@ -179,11 +182,26 @@ float InDet::TRT_ElectronPidToolRun2::HTcalculator::getProbHT(
     correctionZR = m_CpHT_B_Zmm_ZR_new[GasType][TrtPart].GetValue(ZR);
     correctionTW = m_CpHT_B_Zmm_TW_new[GasType][TrtPart].GetValue(rTrkWire);
   }
+
+  // Jared - In absence of track pars, no ZR or TW information -- disable correction factors
+  if (not hasTrackPars) { correctionZR = 1.0; correctionTW = 1.0; }
+
+  // Jared - Temporarily disable ZR corrections, reproducibility issues with calibration
+  //correctionZR = 1.0;
+
   parent.msg(MSG::DEBUG) << "check       "
                          << "  GammaOccupan: " << correctionPGOG
                          << "  correctionSL: " << correctionSL
                          << "  correctionZR: " << correctionZR
                          << "  correctionTW: " << correctionTW << endmsg;
+  
+  // Jared - Development output 
+  //std::cout  << "check       "
+  //           << "  GammaOccupan: " << correctionPGOG
+  //           << "  correctionSL: " << correctionSL
+  //           << "  correctionZR: " << correctionZR
+  //           << "  correctionTW: " << correctionTW << std::endl;
+
   return correctionPGOG * correctionSL * correctionZR * correctionTW;
 }
 
@@ -221,7 +239,7 @@ float InDet::TRT_ElectronPidToolRun2::HTcalculator::pHTvsPGOG(int TrtPart, int G
   else if (log10(gamma) > par1  )                                                 pHT_OccZero = pHT_HG;
 
 
-  // The occupancy dependency is included through the Anatoli-Petersen formula and a quadratic fit from the muon plateau:
+  // The occupancy dependency is included through the Anatoli formula and a quadratic fit from the muon plateau:
   // ------------------------------------------------------------------------------------------------------------------------
   double DeltaOcc = m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(8)*occ + m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(9)*occ*occ;
   double pHT = pHT_OccZero + (1.0 - pHT_OccZero) * DeltaOcc;
@@ -583,24 +601,22 @@ StatusCode InDet::TRT_ElectronPidToolRun2::HTcalculator::ReadVectorDB( const Dat
    parent.msg(MSG::DEBUG) << m_par_pHTvsPGOG_new [0][0].GetBinValue(0) << "\t" << m_par_pHTvsPGOG_new [0][0].GetBinValue(1) << " " << m_par_pHTvsPGOG_new [0][0].GetBinValue(2) << endmsg;
 
 
-   for (int i = 0 ; i < N_DET; i++)
-   {
-    for (int j = 0 ; j < N_GAS; j++)
-	{
-	 if (m_par_pHTvsPGOG_new	      [j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
-   	 if (m_CpHT_B_Zee_SL_new              [j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
-   	 if (m_CpHT_B_Zmm_SL_new              [j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
-  	 if (m_CpHT_B_Zee_ZR_new              [j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
-  	 if (m_CpHT_B_Zmm_ZR_new              [j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
-   	 if (m_CpHT_B_Zee_TW_new              [j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
-   	 if (m_CpHT_B_Zmm_TW_new              [j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
-   	 if (m_CpHT_B_Zee_OR_new              [j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
-   	 if (m_CpHT_B_Zmm_OR_new              [j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
-	}
+   for (int i = 0 ; i < N_DET; i++) {
+     for (int j = 0 ; j < N_GAS; j++) {
+       if (m_par_pHTvsPGOG_new[j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
+       if (m_CpHT_B_Zee_SL_new[j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
+       if (m_CpHT_B_Zmm_SL_new[j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
+       if (m_CpHT_B_Zee_ZR_new[j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
+       if (m_CpHT_B_Zmm_ZR_new[j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
+       if (m_CpHT_B_Zee_TW_new[j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
+       if (m_CpHT_B_Zmm_TW_new[j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
+       if (m_CpHT_B_Zee_OR_new[j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
+       if (m_CpHT_B_Zmm_OR_new[j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
+    }
    } 
    
    HasBeenInitialized=1;
-   UpperLimit=0.0;
+   UpperLimit=1.0;
    LowerLimit=0.0;
    parent.msg(MSG::INFO) <<  "TRT PID HT Vector DB loaded: " << endmsg;
    return StatusCode::SUCCESS;
@@ -629,7 +645,7 @@ void InDet::TRT_ElectronPidToolRun2::HTcalculator::setDefaultCalibrationConstant
   parent.msg(MSG::ERROR) << "Looks like HT PID DB is NOT available, so lets set hard-coded PID calibration constants. Derived from Run1 Data Zee and Zmumu 50 ns. FIXME!!"<<endmsg;
   HasBeenInitialized=1;
 
-  UpperLimit=0.0;
+  UpperLimit=1.0;
   LowerLimit=0.0;
 
 // Expanding to a 2D fit (gamma,occupancy) for three types of gases: Xenon, Argon, Krypton:
@@ -648,13 +664,6 @@ void InDet::TRT_ElectronPidToolRun2::HTcalculator::setDefaultCalibrationConstant
         { 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000},    // EndcapA  ------------
         { 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000}}};  // EndcapB  ------------
 
-/*
-  // Parameters for 1D onset function:
-  for (int j = 0 ; j < N_DET; j++)
-    for (int k = 0; k < N_PAR ; k++)
-      m_par_pHTvsP[j][k] = par[j][k];
-*/
-  
   for (int i = 0 ; i < N_GAS; i++)
     for (int j = 0 ; j < N_DET; j++)
 	m_par_pHTvsPGOG_new[i][j] .update (  10, 50, 1000000.0,   std::vector<float> (par2[i][j] , par2[i][j]  + sizeof par2[i][j] / sizeof par2[i][j][0]) );
@@ -669,11 +678,6 @@ void InDet::TRT_ElectronPidToolRun2::HTcalculator::setDefaultCalibrationConstant
   const int N_TW_B  = 44;
   const int N_TW_EA = 44;
   const int N_TW_EB = 44;
-/*
-  const int N_OL_B  = 50;
-  const int N_OL_EA = 50;
-  const int N_OL_EB = 50;
-*/
 
   // ---------------------------------------
   // Electrons:
@@ -713,48 +717,6 @@ void InDet::TRT_ElectronPidToolRun2::HTcalculator::setDefaultCalibrationConstant
   double CpHT_Zmm_EndcapA_TW[N_TW_EA] = { 1.210, 1.161, 1.177, 1.201, 1.221, 1.244, 1.279, 1.300, 1.319, 1.341, 1.362, 1.372, 1.376, 1.378, 1.384, 1.361, 1.349, 1.334, 1.325, 1.284, 1.264, 1.250, 1.223, 1.183, 1.121, 1.104, 1.077, 1.016, 0.969, 0.912, 0.863, 0.815, 0.753, 0.662, 0.604, 0.555, 0.513, 0.490, 0.511, 0.627, 0.843, 1.019, 0.932, 0.922};
   double CpHT_Zmm_EndcapB_TW[N_TW_EB] = { 1.132, 1.150, 1.125, 1.174, 1.170, 1.282, 1.165, 1.244, 1.287, 1.293, 1.270, 1.366, 1.317, 1.285, 1.319, 1.291, 1.304, 1.239, 1.256, 1.279, 1.212, 1.221, 1.200, 1.174, 1.143, 1.120, 1.022, 0.983, 0.938, 0.895, 0.906, 0.826, 0.766, 0.765, 0.664, 0.566, 0.553, 0.556, 0.541, 0.626, 0.780, 0.964, 0.817, 0.542};
 
-
-//%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-//
-//%%   Correction Factors derived from MC15   %%// 
-//%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-//
-/*
-  // ---------------------------------------
-  // Electrons:
-  // ---------------------------------------
- 
-  // Straw Layer (SL):
-  double CpHT_Electrons_Barrel_SL[N_SL_B] = { 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 0.981, 1.100, 1.052, 1.109, 1.052, 1.086, 1.017, 1.099, 1.038, 1.078, 1.048, 0.999, 1.072, 1.030, 1.053, 1.032, 0.982, 1.055, 1.015, 1.025, 1.023, 0.968, 1.051, 1.029, 0.785, 0.967, 0.922, 1.002, 0.968, 0.928, 1.008, 0.958, 0.993, 0.976, 0.920, 1.033, 0.950, 0.996, 0.992, 0.925, 1.005, 0.960, 0.983, 0.984, 0.922, 1.005, 0.959, 0.975, 0.979, 0.915, 0.996, 0.963, 0.952, 0.974}; 
-  double CpHT_Electrons_EndcapA_SL[N_SL_EA] = { 0.687, 0.842, 0.964, 1.019, 1.021, 1.047, 1.042, 1.048, 1.038, 1.063, 1.061, 1.061, 1.067, 1.058, 1.083, 1.053, 0.926, 0.978, 1.015, 1.029, 1.053, 1.021, 1.036, 1.039, 1.037, 1.028, 1.029, 1.022, 1.038, 1.040, 1.020, 1.006, 0.880, 0.948, 0.961, 0.984, 1.007, 0.994, 1.017, 1.016, 1.019, 1.043, 1.027, 1.024, 1.019, 0.993, 1.032, 1.029, 0.879, 0.963, 0.944, 0.970, 0.970, 0.960, 1.011, 1.015, 1.010, 1.009, 1.016, 1.034, 1.011, 0.966, 1.011, 1.021, 0.921, 0.999, 0.979, 0.997, 1.015, 1.004, 1.009, 1.022, 0.991, 1.003, 0.982, 1.018, 1.006, 1.037, 1.009, 1.011, 0.875, 0.962, 0.936, 0.957, 0.949, 1.004, 0.968, 0.991, 0.975, 1.054, 0.993, 1.033, 0.988, 0.993, 1.010, 1.024}; 
-  double CpHT_Electrons_EndcapB_SL[N_SL_EB] = { 0.443, 0.711, 0.819, 0.870, 0.906, 0.934, 0.987, 0.988, 0.834, 0.918, 0.978, 0.998, 0.992, 1.013, 1.042, 1.040, 0.897, 0.983, 1.037, 1.064, 1.036, 1.080, 1.063, 1.092, 0.915, 1.001, 1.052, 1.096, 1.055, 1.070, 1.087, 1.085, 0.940, 1.009, 1.062, 1.081, 1.070, 1.098, 1.086, 1.112, 0.922, 1.018, 1.059, 1.094, 1.099, 1.064, 1.143, 1.127, 0.939, 1.030, 1.063, 1.133, 1.136, 1.146, 1.141, 1.154, 0.979, 1.048, 1.125, 1.112, 1.137, 1.184, 1.154, 1.193}; 
-  
-  // ZR-position (ZR - Z in Barrel, R in Endcaps):
-  double CpHT_Electrons_Barrel_ZR[N_ZR_B] = { 0.889, 0.926, 0.925, 0.932, 0.933, 0.939, 0.943, 0.943, 0.948, 0.958, 0.954, 0.967, 0.982, 0.986, 0.989, 1.001, 1.001, 1.020, 1.022, 1.036, 1.045, 1.050, 1.055, 1.067, 1.065, 1.074, 1.076, 1.078, 1.090, 1.079, 1.081, 1.084, 1.082, 1.084, 1.077, 0.995}; 
-  double CpHT_Electrons_EndcapA_ZR[N_ZR_EA] = { 1.000, 0.623, 0.749, 0.882, 0.918, 0.951, 0.963, 0.966, 0.984, 1.001, 1.001, 1.005, 1.010, 1.030, 1.035, 1.029, 1.049, 1.061, 1.058, 1.045, 1.054, 1.061, 1.065, 1.056, 1.080, 1.092, 1.091, 1.102, 1.117, 1.100, 1.089, 1.067, 1.054, 1.053, 1.058, 1.014, 0.924, 0.834, 0.419, 1.000}; 
-  double CpHT_Electrons_EndcapB_ZR[N_ZR_EB] = { 1.000, 0.626, 0.833, 0.941, 0.973, 0.999, 1.013, 1.011, 1.017, 1.038, 1.038, 1.020, 1.021, 1.045, 1.052, 1.037, 1.046, 1.041, 1.049, 1.070, 1.053, 1.043, 1.072, 1.071, 1.056, 1.058, 1.069, 1.084, 1.074, 1.062, 1.014, 0.962, 0.956, 0.900, 0.893, 0.916, 0.809, 0.620, 0.578, 1.000}; 
-   
-  // Track-to-Wire distance (TWdist):
-  double CpHT_Electrons_Barrel_TW[N_TW_B] = { 1.133, 1.183, 1.195, 1.219, 1.242, 1.267, 1.281, 1.285, 1.324, 1.342, 1.344, 1.365, 1.352, 1.344, 1.327, 1.300, 1.303, 1.294, 1.269, 1.257, 1.242, 1.220, 1.197, 1.174, 1.144, 1.117, 1.098, 1.058, 1.027, 1.004, 0.954, 0.905, 0.831, 0.750, 0.656, 0.553, 0.450, 0.383, 0.368, 0.438, 0.520, 0.567, 0.605, 0.617}; 
-  double CpHT_Electrons_EndcapA_TW[N_TW_EA] = { 1.024, 1.075, 1.092, 1.089, 1.134, 1.136, 1.142, 1.151, 1.175, 1.196, 1.223, 1.202, 1.234, 1.231, 1.212, 1.204, 1.224, 1.192, 1.183, 1.201, 1.165, 1.167, 1.125, 1.121, 1.103, 1.079, 1.082, 1.059, 1.022, 0.978, 0.954, 0.910, 0.867, 0.819, 0.751, 0.659, 0.595, 0.515, 0.482, 0.531, 0.571, 0.581, 0.791, 0.782}; 
-  double CpHT_Electrons_EndcapB_TW[N_TW_EB] = { 1.024, 1.038, 1.082, 1.070, 1.109, 1.118, 1.139, 1.146, 1.167, 1.167, 1.201, 1.176, 1.191, 1.192, 1.193, 1.187, 1.190, 1.181, 1.167, 1.130, 1.167, 1.146, 1.125, 1.107, 1.102, 1.087, 1.076, 1.011, 1.008, 0.985, 0.952, 0.935, 0.851, 0.810, 0.771, 0.743, 0.638, 0.577, 0.543, 0.503, 0.568, 0.552, 0.586, 0.649}; 
-  
-  // ---------------------------------------
-  // Non-Electrons (here muons):
-  // ---------------------------------------
-  // Straw Layer (SL):
-  double CpHT_NonElecs_Barrel_SL[73] = { 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.263, 1.224, 1.217, 1.207, 1.200, 1.208, 1.188, 1.197, 1.151, 1.124, 1.136, 1.117, 1.137, 1.105, 1.105, 1.088, 1.076, 1.082, 1.071, 1.027, 1.030, 1.034, 1.028, 1.033, 0.979, 0.986, 0.963, 0.969, 0.975, 0.974, 0.968, 0.962, 0.944, 0.945, 0.936, 0.927, 0.954, 0.914, 0.864, 0.904, 0.900, 0.890, 0.888, 0.864, 0.836, 0.879, 0.868, 0.860, 0.865, 0.840, 0.824, 0.838, 0.815, 0.804}; 
-  double CpHT_NonElecs_EndcapA_SL[96] = { 1.030, 1.012, 1.053, 1.023, 1.001, 1.037, 1.026, 1.005, 1.026, 0.938, 0.964, 1.046, 0.951, 1.017, 0.974, 1.015, 0.971, 0.969, 0.967, 1.039, 0.970, 1.001, 0.967, 0.971, 1.028, 0.946, 0.970, 0.930, 0.938, 1.010, 0.991, 1.002, 0.970, 0.956, 0.965, 1.039, 0.985, 0.971, 0.955, 1.012, 1.021, 1.010, 1.006, 0.959, 1.020, 0.935, 1.028, 0.965, 0.931, 0.956, 1.052, 1.015, 0.937, 1.043, 1.023, 0.991, 1.099, 1.000, 1.061, 0.991, 1.036, 1.029, 0.982, 1.063, 0.984, 1.010, 1.040, 0.947, 1.074, 0.942, 0.986, 1.045, 1.102, 1.052, 1.023, 0.984, 1.016, 1.068, 1.087, 1.061, 1.053, 0.998, 1.059, 0.973, 1.150, 1.069, 1.066, 1.072, 1.057, 0.904, 1.050, 0.920, 1.064, 0.938, 1.053, 1.172}; 
-  double CpHT_NonElecs_EndcapB_SL[64] = { 0.934, 0.971, 0.988, 0.940, 0.831, 1.008, 0.999, 1.011, 0.834, 0.952, 0.845, 0.917, 0.899, 0.924, 1.059, 0.994, 1.016, 1.056, 0.915, 1.111, 0.995, 1.110, 1.063, 0.978, 0.941, 0.928, 1.008, 1.228, 0.966, 1.003, 1.001, 0.961, 1.112, 0.979, 1.000, 1.009, 1.072, 1.033, 1.003, 1.121, 1.052, 0.944, 1.092, 1.040, 1.094, 1.033, 0.984, 1.117, 1.192, 1.179, 1.042, 0.981, 1.084, 1.057, 1.269, 0.981, 1.028, 1.114, 1.181, 1.164, 1.172, 1.100, 1.033, 1.117}; 
-  
-  // ZR-position (ZR - Z in Barrel, R in Endcaps):
-  double CpHT_NonElecs_Barrel_ZR[36] = { 0.992, 1.011, 1.007, 1.013, 1.001, 0.998, 1.011, 0.976, 0.984, 1.007, 1.024, 0.984, 1.014, 1.014, 0.986, 1.005, 1.009, 0.998, 1.001, 1.020, 0.996, 0.998, 0.985, 1.003, 1.015, 1.003, 1.000, 0.986, 0.992, 0.992, 0.982, 0.993, 0.986, 1.008, 0.970, 0.998}; 
-  double CpHT_NonElecs_EndcapA_ZR[40] = { 1.000, 0.948, 0.968, 0.975, 0.973, 0.968, 1.000, 0.943, 1.014, 0.954, 0.983, 0.983, 1.021, 1.037, 0.999, 0.959, 1.000, 0.993, 0.993, 0.981, 1.023, 0.995, 1.027, 1.014, 1.007, 0.962, 1.026, 1.063, 1.042, 1.054, 1.009, 1.044, 1.004, 1.038, 1.047, 1.027, 0.975, 0.961, 0.724, 1.000}; 
-  double CpHT_NonElecs_EndcapB_ZR[40] = { 1.000, 0.995, 0.926, 1.016, 1.060, 0.991, 1.017, 1.043, 0.975, 1.030, 1.016, 1.032, 0.976, 1.014, 0.919, 1.037, 0.952, 1.068, 0.948, 0.995, 1.042, 1.040, 1.006, 1.004, 0.987, 0.946, 1.051, 1.015, 0.978, 1.005, 1.064, 0.996, 0.940, 1.021, 0.987, 1.019, 0.971, 0.895, 1.000, 1.000}; 
-  
-  // Track-to-Wire distance (TWdist):
-  double CpHT_NonElecs_Barrel_TW[44] = { 1.051, 1.059, 1.064, 1.071, 1.072, 1.098, 1.100, 1.112, 1.111, 1.095, 1.138, 1.123, 1.116, 1.117, 1.123, 1.101, 1.105, 1.096, 1.103, 1.070, 1.093, 1.070, 1.051, 1.061, 1.056, 1.032, 1.021, 1.006, 0.995, 0.968, 0.957, 0.928, 0.862, 0.843, 0.762, 0.709, 0.668, 0.661, 0.737, 0.970, 1.339, 1.423, 1.144, 1.389}; 
-  double CpHT_NonElecs_EndcapA_TW[44] = { 0.997, 1.041, 1.039, 1.013, 1.055, 1.064, 1.063, 1.046, 1.077, 1.115, 1.137, 1.220, 1.107, 1.171, 1.179, 1.128, 1.196, 1.222, 1.114, 1.146, 1.121, 1.115, 1.058, 1.084, 1.089, 1.085, 1.046, 1.035, 0.984, 0.999, 1.001, 0.909, 0.883, 0.831, 0.779, 0.723, 0.593, 0.632, 0.689, 0.878, 0.999, 1.076, 1.536, 0.916}; 
-  double CpHT_NonElecs_EndcapB_TW[44] = { 1.085, 0.980, 1.051, 1.017, 1.050, 1.047, 1.126, 1.091, 1.087, 1.071, 1.187, 0.967, 1.098, 1.087, 1.041, 1.101, 1.065, 1.092, 1.178, 1.060, 1.090, 1.115, 1.125, 1.078, 1.058, 0.932, 1.031, 0.849, 1.066, 1.024, 0.974, 0.869, 1.039, 0.894, 0.796, 0.821, 0.665, 0.672, 0.813, 0.991, 1.074, 1.184, 1.281, 1.000}; 
-*/
 
   // --------------------------------------------------------------
 

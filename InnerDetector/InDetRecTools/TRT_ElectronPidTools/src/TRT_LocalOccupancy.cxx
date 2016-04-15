@@ -110,12 +110,11 @@ StatusCode TRT_LocalOccupancy::initialize()
     m_lowGate  = m_lowWideGate ;
     m_highGate = m_highWideGate ;
   }  
-  
   if( m_TRTStrawStatusSummarySvc.retrieve().isFailure() ) {
     msg(MSG::ERROR) << " Can't do a dynamic cast to TRTStrawStatusSummaryTool" << endreq;
     return StatusCode::FAILURE;
   }
-
+  
   ATH_MSG_INFO ("initialize() successful in " << name());
 
   return sc;
@@ -250,11 +249,21 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ){
     if (m_eventnumber != eventnumber){
       resetOccArrays();
       m_stw_local 		=  m_TRTStrawStatusSummarySvc->getStwLocal()		;
+      m_stw_wheel 		=  m_TRTStrawStatusSummarySvc->getStwWheel()		;
+
+      for (int i=0; i<5; ++i){
+	for (int j=0; j<32; ++j){
+	  stws_ratio[0][j]+=float(m_stw_wheel[i+3 ][j])/m_stw_local[1][j];
+	  stws_ratio[1][j]+=float(m_stw_wheel[i+20][j])/m_stw_local[4][j];
+	}
+      }
     } 
+
     m_eventnumber = eventnumber;
   }
   else StartEvent();
 
+  // reset trackhit array
   for (int i=0; i<6; ++i){
     for (int j=0; j<32; ++j){
       m_track_local[i][j]=0;
@@ -344,6 +353,13 @@ void  TRT_LocalOccupancy::countHitsNearTrack(){
 		continue;
 	      }
 
+	      int det      = m_TRTHelper->barrel_ec(         rdo_id)     ;
+	      int lay      = m_TRTHelper->layer_or_wheel(    rdo_id)     ;
+	      int phi      = m_TRTHelper->phi_module(        rdo_id)     ;
+	      int i_total       = findArrayTotalIndex(det, lay)-1;
+
+	      if (i_total != i || phi != j) continue; // only fill the one region [i][j]
+
 	      unsigned int m_word = (*r)->getWord();
 
 	      double t0 = 0.;
@@ -365,15 +381,8 @@ void  TRT_LocalOccupancy::countHitsNearTrack(){
 	      }
 
 	      if (!passValidityGate(m_word, t0)) continue;
-	      
-	      int det      = m_TRTHelper->barrel_ec(         rdo_id)     ;
-	      int lay      = m_TRTHelper->layer_or_wheel(    rdo_id)     ;
-	      int phi      = m_TRTHelper->phi_module(        rdo_id)     ;
-	      int i_total       = findArrayTotalIndex(det, lay)-1;
+	      if (i%3==1 && lay>4)	allOfEndcapAFound[(i<3?0:1)][phi]=true;
 
-	      if (i_total != i || phi != j) continue; // only fill the one region [i][j]
-	      
-	      
 	      m_hit_local[i_total][phi]           +=1;
 	    }
 	  }
@@ -382,6 +391,29 @@ void  TRT_LocalOccupancy::countHitsNearTrack(){
 	int stws = m_stw_local[i][j];
 	m_occ_local[i][j] = int(hits*100) / stws;
 
+      }
+    }
+
+    // rescale endcap A regions if not all wheels were counted
+    for (int i=0; i<6; ++i){
+      for (int j=0; j<32; ++j){
+	if (i%3!=1) continue; // only looking in endcapA
+	// we are only interested in regions through which track passed
+	if (m_track_local[i][j] < 1) continue;
+	if (!allOfEndcapAFound[(i<3?0:1)][j] && !region_rescaled[i][j]){
+	  // if there are no hits in last wheel of endcapA
+	  // && we haven't already rescaled this region:
+	  // scale it down so the denominator is realistic
+	  m_occ_local[i][j]/=(stws_ratio[(i<3?0:1)][j]);
+	  region_rescaled[i][j]=true;
+	}
+	else if (allOfEndcapAFound[(i<3?0:1)][j] && region_rescaled[i][j]){
+	  // if there are hits in last wheel of endcapA
+	  // && we already rescaled this region:
+	  // scale it back up to count all of endcapA
+	  m_occ_local[i][j]*=(stws_ratio[(i<3?0:1)][j]);
+	  region_rescaled[i][j]=false; 
+	}
       }
     }
     
@@ -462,7 +494,20 @@ bool TRT_LocalOccupancy::passValidityGate(unsigned int word, float t0) {
     	m_hit_local[i][j]=0;
       }
     }
-  return;
+
+    // for online use
+    for (int i=0;i<2;++i){
+      for (int j=0;j<32;++j){
+	stws_ratio[i][j]=0;
+	allOfEndcapAFound[i][j]=false;
+      }
+    }
+    for (int i=0;i<6;++i){
+      for (int j=0;j<32;++j){
+	region_rescaled[i][j]=false;
+      }
+    }
+    return;
   }
 
   void TRT_LocalOccupancy::resetArrays(float array_total [7], float array_local[6][32], float array_mod[34][32]){
