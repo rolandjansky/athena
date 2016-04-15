@@ -151,7 +151,7 @@ namespace Muon {
         bool first = true;
         currentRegion = regionLayer.first;
         for( unsigned int tech=0; tech<m_ntechnologies;++tech ){
-          std::sort(vec[tech][hash].begin(),vec[tech][hash].end());
+          std::stable_sort(vec[tech][hash].begin(),vec[tech][hash].end());
           if( !vec[tech][hash].empty() ) {
             if( msgLvl(MSG::DEBUG) ) {
               if( first ) {
