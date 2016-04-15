@@ -1,17 +1,30 @@
 #!/bin/zsh
 
-in=root://eosatlas//eos/atlas/atlascerngroupdisk/det-zdc/ZdcData/standalone/data15_calib.00283741.calibration_.daq.RAW._lb0000._ROS-FWD-ZDC-00._0001.data
-max=-1
-
+zrun=285947
 if [ ! -z $1 ]; then
-   in=$1
+   zrun=$1
 fi
 
+zmax=100
 if [ ! -z $2 ]; then
-   max=$2
+   zmax=$2
 fi
 
-echo Running on $in
-echo Running $max events
+zfile=data15_calib.00$zrun.calibration_.daq.RAW._lb0000._ROS-FWD-ZDC-00._0001.data
+zin=root://eosatlas//eos/atlas/atlascerngroupdisk/det-zdc/ZdcData/calib/$zfile
+zdir=run$zrun
+zesd=zdclaser.run00$zrun.ESD.pool.root
+zaod=zdclaser.run00$zrun.AOD.pool.root
 
-Reco_tf.py --outputESDFile=esd.pool.root --outputAODFile=xaod.pool.root --preInclude ZdcRecConfig.py --postExec 'e2a:from ZdcRec.ZdcRecUtils import AppendOutputList;AppendOutputList(StreamAOD.ItemList);' --conditionsTag CONDBR2-BLKPA-2015-11  --geometryVersion ATLAS-R2-2015-03-01-00 --maxEvents $max --inputBSFile $in
+mkdir $zdir
+cd $zdir
+
+xrdcp $zin .
+
+echo Running on $zin
+echo Running $zmax events
+
+Reco_tf.py --outputESDFile=$zesd --outputAODFile=$zaod --preInclude ZdcRec/ZdcRecConfig.py --postExec 'e2a:from ZdcRec.ZdcRecUtils import AppendOutputList;AppendOutputList(StreamAOD.ItemList);' --conditionsTag CONDBR2-BLKPA-2015-11  --geometryVersion ATLAS-R2-2015-03-01-00 --maxEvents $zmax --inputBSFile $zfile
+
+rm $zesd
+mv $zaod ..
