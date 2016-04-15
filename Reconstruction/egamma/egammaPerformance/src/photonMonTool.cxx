@@ -140,6 +140,16 @@ StatusCode photonMonTool::bookHistogramsForOnePhotonType(photonHist& myHist)
   hlongname =  std::string("Photon #eta,#phi map") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
   bookTH2F(myHist.m_hEtaPhi, *m_photonGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
 
+  // EtaPhi4GeV
+  hname = std::string("photonEtaPhiEgt4GeV") + myHist.m_nameOfPhotonType;
+  hlongname =  std::string("Photon #eta,#phi map (candidates with E>4 GeV)") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
+  bookTH2F(myHist.m_hEtaPhi4GeV, *m_photonGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
+
+  // EtaPhi20GeV
+  hname = std::string("photonEtaPhiEgt20GeV") + myHist.m_nameOfPhotonType;
+  hlongname =  std::string("Photon #eta,#phi map (candidates with E>20 GeV)") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
+  bookTH2F(myHist.m_hEtaPhi20GeV, *m_photonGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
+
   // Eta
   hname = std::string("photonEta") + myHist.m_nameOfPhotonType;
   hlongname =  std::string("Photon #eta") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
@@ -169,7 +179,6 @@ StatusCode photonMonTool::bookHistogramsForOnePhotonType(photonHist& myHist)
   hname = std::string("photonRconv") + myHist.m_nameOfPhotonType;
   hlongname =  std::string("RConv of photon [mm]") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
   bookTH1F(myHist.m_hRConv, *m_photonGroup, hname, hlongname, 100, 0., 800.);
-
 
   ////////////////////////////////////
   // REGION PANEL
@@ -320,6 +329,11 @@ StatusCode photonMonTool::bookHistogramsForOnePhotonType(photonHist& myHist)
     + myHist.m_nameOfPhotonType + std::string (")");
   bookTH1FperRegion(myHist.m_hvCoreEM, *m_photonIdGroup, hname, hlongname, 50, -5000., 250000.,start,end);
 
+  hname = std::string("photonF0") + myHist.m_nameOfPhotonType;
+  hlongname =  std::string("Photon fractional energy in PreSampler ; F0 ; Nevents") + std::string (" (") 
+    + myHist.m_nameOfPhotonType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvF0, *m_photonIdGroup, hname, hlongname, 50, -0.2,1.0,start,end);
+
   hname = std::string("photonF1") + myHist.m_nameOfPhotonType;
   hlongname =  std::string("Photon fractional energy in 1st sampling ; F1 ; Nevents") + std::string (" (") 
     + myHist.m_nameOfPhotonType + std::string (")");
@@ -369,15 +383,14 @@ StatusCode photonMonTool::bookHistogramsForOnePhotonType(photonHist& myHist)
 StatusCode photonMonTool::bookHistograms()
 {
   ATH_MSG_DEBUG("photonMonTool::bookHistograms()");
-
   // Create groups
-  m_photonGroup = new MonGroup(this,"egamma/photons",               run); // to be re-booked every new run
+  m_photonGroup = new MonGroup(this,"egamma/photons"+m_GroupExtension, run); // to be re-booked every new run
   // Create sub groups
-  m_photonUnconvGroup = new MonGroup(this,"egamma/photons/Unconv",  run); // to be re-booked every new run
-  m_photonConvGroup = new MonGroup(this,"egamma/photons/Conv",      run); // to be re-booked every new run
-  m_photonIdGroup = new MonGroup(this,"egamma/photons/ID",          run); // to be re-booked every new run
-  m_photonRegionGroup = new MonGroup(this,"egamma/photons/Region",  run); // to be re-booked every new run
-  m_photonLBGroup = new MonGroup(this,"egamma/photons/LBMon",       run); // to be re-booked every new run
+  m_photonUnconvGroup = new MonGroup(this,"egamma/photons"+m_GroupExtension+"/Unconv",  run); // to be re-booked every new run
+  m_photonConvGroup = new MonGroup(this,"egamma/photons"+m_GroupExtension+"/Conv",      run); // to be re-booked every new run
+  m_photonIdGroup = new MonGroup(this,"egamma/photons"+m_GroupExtension+"/ID",          run); // to be re-booked every new run
+  m_photonRegionGroup = new MonGroup(this,"egamma/photons"+m_GroupExtension+"/Region",  run); // to be re-booked every new run
+  m_photonLBGroup = new MonGroup(this,"egamma/photons"+m_GroupExtension+"/LBMon",       run); // to be re-booked every new run
 
   StatusCode sc;
   sc = bookHistogramsForOnePhotonType(*m_CbLoosePhotons);
@@ -399,6 +412,7 @@ StatusCode photonMonTool::fillHistogramsForOnePhoton(xAOD::PhotonContainer::cons
 
   ATH_MSG_DEBUG("photonMonTool::fillHistogramsforOnePhoton()");
 
+  float energy = (*g_iter)->e();
   float et=(*g_iter)->pt();
   float eta = (*g_iter)->eta();
   float phi = (*g_iter)->phi();      
@@ -433,6 +447,8 @@ StatusCode photonMonTool::fillHistogramsForOnePhoton(xAOD::PhotonContainer::cons
 
   if(myHist.m_hEt)     myHist.m_hEt->Fill(et);
   if(myHist.m_hEtaPhi) myHist.m_hEtaPhi->Fill(eta,phi);
+  if(myHist.m_hEtaPhi4GeV&&energy>4000) myHist.m_hEtaPhi4GeV->Fill(eta,phi);  
+  if(myHist.m_hEtaPhi20GeV&&energy>20000) myHist.m_hEtaPhi20GeV->Fill(eta,phi);
   if(myHist.m_hEta)    myHist.m_hEta->Fill(eta);
   if(myHist.m_hPhi)    myHist.m_hPhi->Fill(phi);
   
@@ -467,12 +483,23 @@ StatusCode photonMonTool::fillHistogramsForOnePhoton(xAOD::PhotonContainer::cons
   const xAOD::CaloCluster *aCluster = (*g_iter)->caloCluster();
   if (aCluster) {
     double ec = aCluster->et()*cosh(aCluster->eta());
+
+    float f0=0.0;
+    if (ec!=0) f0 = aCluster->energyBE(0)/ec;
+    fillTH1FperRegion(myHist.m_hvF0,ir,f0);    
+    float f1=0.0;
+    if (ec!=0) f1 = aCluster->energyBE(1)/ec;
+    fillTH1FperRegion(myHist.m_hvF1,ir,f1);    
     float f2 = 0.0;
     if(ec!=0) f2 = aCluster->energyBE(2)/ec;
-    fillTH1FperRegion(myHist.m_hvF2,ir,f2);
+    fillTH1FperRegion(myHist.m_hvF2,ir,f2);    
+    float f3=0.0;
+    if (ec!=0) f3 = aCluster->energyBE(3)/ec;
+    fillTH1FperRegion(myHist.m_hvF3,ir,f3);    
+
     float time= aCluster->time();
     myHist.m_hTime->Fill(time);
-    fillTH1FperRegion(myHist.m_hvTime,ir,time);
+
   } else ATH_MSG_WARNING( "Can't get CaloCluster" );
   
   float deltaPhi1 = 0.0;

@@ -46,7 +46,7 @@ ZeeTaPMonTool::ZeeTaPMonTool(const std::string & type, const std::string & name,
 {
   // Name of the electron collection
   declareProperty("ElectronContainer", m_ElectronContainer = "Electrons", "Name of the electron collection" );
-  declareProperty("massPeak", m_MassPeak = 91188, "Zee peak position" );
+  declareProperty("massPeak", m_MassPeak = 91188, "Resonance peak position" );
   declareProperty("electronEtCut",m_ElectronEtCut = 15*GeV, "Et cut for electrons");
   declareProperty("massLowerCut", m_MassLowerCut = 70*GeV,"Lower mass cut");
   declareProperty("massUpperCut", m_MassUpperCut = 110*GeV,"Upper mass cut");
@@ -69,36 +69,42 @@ StatusCode ZeeTaPMonTool::bookHistograms()
   end = ENDCAP;
 
   // Create groups
-  m_electronGroup    = new MonGroup(this,"egamma/tagandprobe",           run); // to be re-booked every new run
+  m_electronGroup    = new MonGroup(this,"egamma/tagandprobe"+m_GroupExtension,           run); // to be re-booked every new run
   // Create sub groups
-  m_electronTrkGroup = new MonGroup(this,"egamma/tagandprobe/Track",     run); // to be re-booked every new run
-  m_electronIdGroup  = new MonGroup(this,"egamma/tagandprobe/ID",        run); // to be re-booked every new run
-  m_electronEffGroup = new MonGroup(this,"egamma/tagandprobe/EfficienciesIDISO", run, ManagedMonitorToolBase::ATTRIB_MANAGED , "", "effAsPerCent"); // to be re-booked every new run
-  m_electronIsoGroup = new MonGroup(this,"egamma/tagandprobe/Isolation", run); // to be re-booked every new run
-  m_electronLBGroup  = new MonGroup(this,"egamma/tagandprobe/LBMon",     run); // to be re-booked every new run
+  m_electronTrkGroup = new MonGroup(this,"egamma/tagandprobe"+m_GroupExtension+"/Track",     run); // to be re-booked every new run
+  m_electronIdGroup  = new MonGroup(this,"egamma/tagandprobe"+m_GroupExtension+"/ID",        run); // to be re-booked every new run
+  m_electronEffGroup = new MonGroup(this,"egamma/tagandprobe"+m_GroupExtension+"/EfficienciesIDISO", run, ManagedMonitorToolBase::ATTRIB_MANAGED , "", "effAsPerCent"); // to be re-booked every new run
+  m_electronIsoGroup = new MonGroup(this,"egamma/tagandprobe"+m_GroupExtension+"/Isolation", run); // to be re-booked every new run
+  m_electronLBGroup  = new MonGroup(this,"egamma/tagandprobe"+m_GroupExtension+"/LBMon",     run); // to be re-booked every new run
 
   // Number of Z candidates vs eta of leading electron
-  bookTH1F(m_hNZcandidates,*m_electronGroup,"electronTagAndProbeNZcandidates",   "Number of Z candidates vs eta of leading electron",64,-3.2,3.2);
+  bookTH1F(m_hNZcandidates,*m_electronGroup,"electronTagAndProbeNcandidates",   "Number of "+m_GroupExtension+" candidates vs eta of leading electron",64,-3.2,3.2);
 
   // Mass plots
-  bookTH1F(m_hMass, *m_electronGroup,"electronTagAndProbeGlobalMass", "Zee mass",100,m_MassLowerCut,m_MassUpperCut);
-
-  bookTH1FperRegion(m_hvMass, *m_electronGroup,"electronTagAndProbeMass",     "Zee mass",100,m_MassLowerCut,m_MassUpperCut,start,end);
+  bookTH1F(m_hMass, *m_electronGroup,"electronTagAndProbeGlobalMass", "ee invariant mass",100,m_MassLowerCut,m_MassUpperCut);
+  bookTH1FperRegion(m_hvMass, *m_electronGroup,"electronTagAndProbeMass", "ee invariant mass",100,m_MassLowerCut,m_MassUpperCut,start,end);
 
   // EFFICIENCIES IN MAIN PANEL
-  bookTH1F(m_hIDEt,  *m_electronEffGroup,"EfficiencyTagAndProbeElectronIDvsEt",   "LHTight electron ID efficiency vs Et [MeV]",100, -1000.0, 250000.0);
-  bookTH1F(m_hIDEta, *m_electronEffGroup,"EfficiencyTagAndProbeElectronIDvsEta",  "LHTight electron ID efficiency vs #eta", 64, -3.2, 3.2);
-  bookTH1F(m_hIDPhi, *m_electronEffGroup,"EfficiencyTagAndProbeElectronIDvsPhi",  "LHTight electron ID efficiency vs #phi", 64, -3.2, 3.2);
-  bookTH1F(m_hISOEt, *m_electronEffGroup,"EfficiencyTagAndProbeElectronISOvsEt",  "LHTight electron ISO efficiency vs Et [MeV]",100, -1000.0, 250000.0);
-  bookTH1F(m_hISOEta,*m_electronEffGroup,"EfficiencyTagAndProbeElectronISOvsEta", "LHTight electron ISO efficiency vs #eta", 64, -3.2, 3.2);
-  bookTH1F(m_hISOPhi,*m_electronEffGroup,"EfficiencyTagAndProbeElectronISOvsPhi", "LHTight electron ISO efficiency vs #phi", 64, -3.2, 3.2);
+  bookTH1F(m_hIDEt,  *m_electronEffGroup,"EfficiencyTagAndProbeElectronIDvsEtOld",   "LHTight electron ID efficiency vs Et [MeV]",100, -1000.0, 250000.0);
+  bookTH1F(m_hIDEta, *m_electronEffGroup,"EfficiencyTagAndProbeElectronIDvsEtaOld",  "LHTight electron ID efficiency vs #eta", 64, -3.2, 3.2);
+  bookTH1F(m_hIDPhi, *m_electronEffGroup,"EfficiencyTagAndProbeElectronIDvsPhiOld",  "LHTight electron ID efficiency vs #phi", 64, -3.2, 3.2);
+  bookTH1F(m_hISOEt, *m_electronEffGroup,"EfficiencyTagAndProbeElectronISOvsEtOld",  "LHTight electron ISO efficiency vs Et [MeV]",100, -1000.0, 250000.0);
+  bookTH1F(m_hISOEta,*m_electronEffGroup,"EfficiencyTagAndProbeElectronISOvsEtaOld", "LHTight electron ISO efficiency vs #eta", 64, -3.2, 3.2);
+  bookTH1F(m_hISOPhi,*m_electronEffGroup,"EfficiencyTagAndProbeElectronISOvsPhiOld", "LHTight electron ISO efficiency vs #phi", 64, -3.2, 3.2);
+
+  bookTProfile(m_effhIDEt,  *m_electronGroup,"EfficiencyTagAndProbeElectronIDvsEt",   "LHTight electron ID efficiency vs Et [MeV]",100, -1000.0, 250000.0, 0.,1.1);
+  bookTProfile(m_effhIDEta, *m_electronGroup,"EfficiencyTagAndProbeElectronIDvsEta",  "LHTight electron ID efficiency vs #eta", 64, -3.2, 3.2, 0.,1.1);
+  bookTProfile(m_effhIDPhi, *m_electronGroup,"EfficiencyTagAndProbeElectronIDvsPhi",  "LHTight electron ID efficiency vs #phi", 64, -3.2, 3.2, 0.,1.1);
+  bookTProfile(m_effhISOEt, *m_electronGroup,"EfficiencyTagAndProbeElectronISOvsEt",  "LHTight electron ISO efficiency vs Et [MeV]",100, -1000.0, 250000.0, 0.,1.1);
+  bookTProfile(m_effhISOEta,*m_electronGroup,"EfficiencyTagAndProbeElectronISOvsEta", "LHTight electron ISO efficiency vs #eta", 64, -3.2, 3.2, 0., 1.1);
+  bookTProfile(m_effhISOPhi,*m_electronGroup,"EfficiencyTagAndProbeElectronISOvsPhi", "LHTight electron ISO efficiency vs #phi", 64, -3.2, 3.2, 0., 1.1);
 
   // COMPLEMENTARY HISTOGRAMS FOR EXPERT PANEL
-  bookTH1F(m_hN,          *m_electronGroup,"electronTagAndProbeN",          "Number of LH-LOOSE or LH-MEDIUM electrons",40, 0.0, 40.0);
-  bookTH1F(m_hEt,         *m_electronGroup,"electronTagAndProbeEt",         "LH-LOOSE or LH-MEDIUM electron Et [MeV]",100, -1000.0, 250000.0);
-  bookTH2F(m_hEtaPhi,     *m_electronGroup,"electronTagAndProbeEtaPhi",     "LH-LOOSE or LH-MEDIUM electron #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
-  bookTH1F(m_hEta,        *m_electronGroup,"electronTagAndProbeEta",        "LH-LOOSE or LH-MEDIUM electron #eta", 64, -3.2, 3.2);
-  bookTH1F(m_hPhi,        *m_electronGroup,"electronTagAndProbePhi",        "LH-LOOSE or LH-MEDIUM electron #phi", 64, -3.2, 3.2);
+  bookTH1F(m_hN,          *m_electronGroup,"electronTagAndProbeN",          "Number of Probe electrons",40, 0.0, 40.0);
+  bookTH1F(m_hEt,         *m_electronGroup,"electronTagAndProbeEt",         "Probe electron Et [MeV]",100, -1000.0, 250000.0);
+  bookTH2F(m_hEtaPhi,     *m_electronGroup,"electronTagAndProbeEtaPhi",     "Probe electron #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
+  bookTH1F(m_hEta,        *m_electronGroup,"electronTagAndProbeEta",        "Probe electron #eta", 64, -3.2, 3.2);
+  bookTH1F(m_hPhi,        *m_electronGroup,"electronTagAndProbePhi",        "Probe electron #phi", 64, -3.2, 3.2);
 
   // TRACK PANEL
   bookTH1FperRegion(m_hvDeltaEta1     , *m_electronTrkGroup,"electronTagAndProbeDeltaEta1",     "PROBE electron track match #Delta #eta (1st sampling) ;#Delta #eta;Nevents", 50,-0.05,0.05,start,end);
@@ -313,26 +319,29 @@ void ZeeTaPMonTool::fillElectronProbe(const xAOD::Electron *el, bool isTight, bo
   if (m_hMass)  m_hMass->Fill(mass);
 
   if (isTight) {
-    if (m_hIDEt)  m_hIDEt->Fill(et);
-    if (m_hIDEta) {
-      m_hIDEta->Fill(eta);
-    } 
-    else {
-     ATH_MSG_DEBUG("ERRORBL   eta histo not filled for tight !!!!");
-    }
+    if (m_hIDEt) m_hIDEt->Fill(et);
+    if (m_hIDEta) m_hIDEta->Fill(eta);
     if (m_hIDPhi) m_hIDPhi->Fill(phi);
+    if (m_effhIDEt) m_effhIDEt->Fill(et,1.);
+    if (m_effhIDEta) m_effhIDEta->Fill(eta,1.);
+    if (m_effhIDPhi) m_effhIDPhi->Fill(phi,1.);
+  } else {
+    if (m_effhIDEt) m_effhIDEt->Fill(et,0.);
+    if (m_effhIDEta) m_effhIDEta->Fill(eta,0.);
+    if (m_effhIDPhi) m_effhIDPhi->Fill(phi,0.);    
   }
 
   if (isTight && isIso) {
     if (m_hISOEt)  m_hISOEt->Fill(et);
-    if (m_hISOEta) {
-      m_hISOEta->Fill(eta);
-    } 
-    else {
-     ATH_MSG_DEBUG("ERRORBL   eta histo not filled for tight and iso !!!!");
-    }
-
+    if (m_hISOEta) m_hISOEta->Fill(eta);
     if (m_hISOPhi) m_hISOPhi->Fill(phi);
+    if (m_effhISOEt)  m_effhISOEt->Fill(et,1.);
+    if (m_effhISOEta) m_effhISOEta->Fill(eta,1.);
+    if (m_effhISOPhi) m_effhISOPhi->Fill(phi,1.);
+  } else {
+    if (m_effhISOEt)  m_effhISOEt->Fill(et,0.);
+    if (m_effhISOEta) m_effhISOEta->Fill(eta,0.);
+    if (m_effhISOPhi) m_effhISOPhi->Fill(phi,0.);
   }
 
   // Cluster track match details
