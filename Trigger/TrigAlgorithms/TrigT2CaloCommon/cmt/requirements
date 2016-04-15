@@ -8,8 +8,6 @@ author Pilar Casado <casado@ifae.es>
 public
 use AtlasPolicy         AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*             External
-#use AtlasAIDA          AtlasAIDA-00-*               External
-#use AtlasCLHEP         AtlasCLHEP-*                 External
 use AthenaKernel	AthenaKernel-*		     Control
 use AthenaBaseComps     AthenaBaseComps-*	     Control
 use DataCollection      DataCollection-*             External
@@ -23,15 +21,11 @@ use LArRecEvent         LArRecEvent-*                LArCalorimeter
 use LArRawUtils         LArRawUtils-*                LArCalorimeter
 use LArRecEvent         LArRecEvent-*                LArCalorimeter
 use LArTools            LArTools-*                   LArCalorimeter
-#use LArRegionSelector   LArRegionSelector-*          LArCalorimeter
 
 use TileEvent           TileEvent-*                  TileCalorimeter
 use Identifier          Identifier-*                 DetectorDescription
 use CaloIdentifier      CaloIdentifier-*             Calorimeter
 use CaloEvent           CaloEvent-*                  Calorimeter
-#use egammaEvent         egammaEvent-*                Reconstruction/egamma
-
-#use TrigCaloEvent       TrigCaloEvent-*              Trigger/TrigEvent
 use xAODTrigCalo        xAODTrigCalo-*               Event/xAOD
 
 use TrigInterfaces      TrigInterfaces-*             Trigger/TrigSteer
@@ -39,8 +33,6 @@ use IRegionSelector     IRegionSelector-*            DetectorDescription
 use TrigSteeringEvent   TrigSteeringEvent-*          Trigger/TrigEvent
 use TrigTimeAlgs        TrigTimeAlgs-*               Trigger/TrigTools
 use CaloInterface       CaloInterface-*              Calorimeter
-#use LumiBlockComps	LumiBlockComps-*	     LumiBlock	 
-#use TrigMonitorBase     TrigMonitorBase-*            Trigger/TrigMonitoring
 
 use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-*      Event
 use EventInfo		EventInfo-* 		     Event
@@ -54,7 +46,6 @@ use ByteStreamData      ByteStreamData-*             Event
 use CaloDetDescr        CaloDetDescr-*               Calorimeter
 use LArRecUtils         LArRecUtils-*                LArCalorimeter
 use LArRecConditions    LArRecConditions-*           LArCalorimeter
-#use RegionSelector      RegionSelector-*             DetectorDescription
 use TrigT1Interfaces    TrigT1Interfaces-*           Trigger/TrigT1
 use CaloUtils           CaloUtils-*                  Calorimeter
 use AthenaPoolUtilities AthenaPoolUtilities-*        Database/AthenaPOOL
@@ -63,6 +54,5 @@ use LArElecCalib	LArElecCalib-*		     LArCalorimeter
 
 public
 apply_pattern dual_use_library files=*.cxx
-#apply_pattern declare_runtime
 apply_pattern declare_joboptions files="*.txt *.py"
-#apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_python_modules files="*.py"
