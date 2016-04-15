@@ -35,7 +35,7 @@ class forwardElectronMonTool : public egammaMonToolBase
   TH1 * m_hEt;      // Histogram for electron transverse energies
   TH1 * m_hEta;     // Histogram for electron eta
   TH1 * m_hPhi;     // Histogram for electron phi
-  TH2 * m_hEtaPhi;  // Histogram for electron eta,phi
+  TH2 * m_hEtaPhi;  // Histogram for electron eta,phi for candidates with more than 10 GeV energy
   TH1 * m_hTopoEtCone40; // Histogram for calo based isolation energy
   TH1 * m_hTime;         // Histogram for forward cluster time
 

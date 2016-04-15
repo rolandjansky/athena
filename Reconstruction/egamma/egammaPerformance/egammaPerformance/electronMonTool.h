@@ -32,11 +32,13 @@ class electronHist
  public :
 
   std::string m_nameOfElectronType;
+  bool m_fullHistoList;
 
   enum electronType
    {
       LhMedium=0,
-      CbMedium,
+      CbLoose,
+      LhLoose,
       LhTight,
       CbTight,
       NumberOfTypesToMonitor
@@ -48,6 +50,8 @@ class electronHist
   TH1 *m_hEta;              // Histogram for electron eta
   TH1 *m_hPhi;              // Histogram for electron phi
   TH2 *m_hEtaPhi;           // Histogram for electron eta,phi
+  TH2 *m_hEtaPhi4GeV;       // Histogram for electron eta,phi (only candidates with an energy greater than 4 GeV)
+  TH2 *m_hEtaPhi20GeV;      // Histogram for electron eta,phi (only candidates with an energy greater than 20 GeV)
   TH1 *m_hTopoEtCone40;     // Histogram for electron isolation energy TopoEtcone40 
   TH1 *m_hPtCone20;         // Histogram for electron isolation energy PtCone20 
   TH1 *m_hTime;             // Histogram for electron cluster time
@@ -56,6 +60,7 @@ class electronHist
   std::vector<TH1*> m_hvEhad1;         
   std::vector<TH1*> m_hvEoverP;        
   std::vector<TH1*> m_hvCoreEM;        
+  std::vector<TH1*> m_hvF0;            
   std::vector<TH1*> m_hvF1;            
   std::vector<TH1*> m_hvF2;            
   std::vector<TH1*> m_hvF3;            
@@ -88,7 +93,7 @@ class electronHist
 
   TH1 *m_hLB_N; // Histogram for number of electrons vs LB
 
- electronHist(std::string name):
+ electronHist(std::string name, bool FullHistoList):
     m_hN (nullptr),
     m_hEt (nullptr),
     m_hEta (nullptr),
@@ -103,6 +108,7 @@ class electronHist
     m_hLB_N(nullptr)
     {
       m_nameOfElectronType = name;
+      m_fullHistoList = FullHistoList;
     }
 
     ~electronHist(){
@@ -132,10 +138,12 @@ class electronMonTool : public egammaMonToolBase
 
   std::string m_ElectronContainer; // Container name for electrons
 
+  // LH Loose electrons histograms
+  electronHist *m_LhLooseElectrons;
   // LH Medium electrons histograms
   electronHist *m_LhMediumElectrons;
   // Medium cut based electrons histograms
-  electronHist *m_CbMediumElectrons;
+  electronHist *m_CbLooseElectrons;
   // LH Tight electrons histograms
   electronHist *m_LhTightElectrons;
   // Cut based Tight electrons histograms
