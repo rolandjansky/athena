@@ -7,7 +7,7 @@ from collections import OrderedDict
 dbfile="test.sqlite"
 dbname="COMP200"
 Tag = "MuonAlignErrors-TEST-00"
-fdname='/MUONALIGN/ERRORS'
+fdname='/MUONALIGN/ERRS'
 
 # main script
 #

@@ -77,14 +77,6 @@ StatusCode AlignmentErrorTool::initialize() {
       msg(MSG::ERROR)<<"Could not retrieve the MuonAlignmentErrorDbSvc, it won't be possible to access the muon alignment error database."<<endreq;
     }
 
-    StatusCode detstore_status = service("DetectorStore",detStore);
-
-    if (detstore_status.isFailure()) {
-      ATH_MSG_FATAL("DetectorStore service not found !");
-    } else {
-      ATH_MSG_DEBUG("DetectorStore service found !");
-    }
-
     // FIRST INITIALIZATION TO ENFORCE TOOL CORRECTLY CONFIGURED
     int I=0;
     std::list<std::string> keys;
@@ -93,7 +85,7 @@ StatusCode AlignmentErrorTool::initialize() {
     }
 
     // INITIALIZE TOOL TO EXTRACT INFO FROM DB
-    if ( detStore->regFcn(&IMuonAlignmentErrorDbSvc::initInfo,
+    if ( detStore()->regFcn(&IMuonAlignmentErrorDbSvc::initInfo,
         &*m_pMuonAlignmentErrorDbSvc,
         &AlignmentErrorTool::update, this) != StatusCode::SUCCESS ) {
     
@@ -126,13 +118,13 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
   ATH_MSG_DEBUG("AlignmentErrorTool::makeAlignmentDeviations()");
 
   // CLEAR HITS VECTOR //
-  for ( unsigned int i = 0; i<deviationsVec.size(); i++) {
-     deviationsVec[i]->hits.clear();
+  for ( unsigned int i = 0; i<m_deviationsVec.size(); i++) {
+     m_deviationsVec[i]->hits.clear();
      Amg::Vector3D nullvec(0., 0., 0.);
-     deviationsVec[i]->sumP = nullvec;
-     deviationsVec[i]->sumU = nullvec;
-     deviationsVec[i]->sumV = nullvec;
-     deviationsVec[i]->sumW2 = 0.;
+     m_deviationsVec[i]->sumP = nullvec;
+     m_deviationsVec[i]->sumU = nullvec;
+     m_deviationsVec[i]->sumV = nullvec;
+     m_deviationsVec[i]->sumW2 = 0.;
   }
 
 
@@ -178,29 +170,29 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
         bool is_matched = false;
 
         // LOOP ON STATION DEVIATIONS EXTRACTED FROM INPUT FILE //
-        for(unsigned int iDev=0; iDev < deviationsVec.size(); iDev++) {
+        for(unsigned int iDev=0; iDev < m_deviationsVec.size(); iDev++) {
 
            // find a match to the reg exp //
-	   boost::regex tmp_stationName = deviationsVec[iDev]->stationName;
+	   boost::regex tmp_stationName = m_deviationsVec[iDev]->stationName;
 
            if (  boost::regex_match(completename, tmp_stationName) ) {
 
-              if( !boost::regex_match(multilayer_sstring, deviationsVec[iDev]->multilayer) && !calibId.is_csc() ) {
-                 //ATH_MSG_DEBUG("Hit in multilayer " << multilayer_sstring << " couldn't match to " << (deviationsVec[iDev]->multilayer).str());
+              if( !boost::regex_match(multilayer_sstring, m_deviationsVec[iDev]->multilayer) && !calibId.is_csc() ) {
+                 //ATH_MSG_DEBUG("Hit in multilayer " << multilayer_sstring << " couldn't match to " << (m_deviationsVec[iDev]->multilayer).str());
                  continue;
               }
               
               // ASSOCIATE EACH NUISANCE TO A LIST OF HITS
-              deviationsVec[iDev]->hits.push_back(rot);
+              m_deviationsVec[iDev]->hits.push_back(rot);
               
               // COMPUTE RELEVANT NUMBERS
               const Trk::PrepRawData* prd = rot->prepRawData();
               const Trk::Surface& sur = prd->detectorElement()->surface(prd->identify());
               double w2 = sqrt(rot->localCovariance()(Trk::loc1,Trk::loc1));
               w2 = 1./(w2*w2);
-              deviationsVec[iDev]->sumW2 += w2;
-              deviationsVec[iDev]->sumP += w2 * tsos->trackParameters()->position();
-              deviationsVec[iDev]->sumU += w2 * tsos->trackParameters()->momentum().unit();
+              m_deviationsVec[iDev]->sumW2 += w2;
+              m_deviationsVec[iDev]->sumP += w2 * tsos->trackParameters()->position();
+              m_deviationsVec[iDev]->sumU += w2 * tsos->trackParameters()->momentum().unit();
               
               // CHECK 1 //
               Amg::Vector3D zATLAS(0., 0., 1.);
@@ -210,7 +202,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
               double sign = (v1.dot(v2) > 0.) ? 1. : -1.;
 
               // ARTIFICIALLY ORIENTATE EVERYTHING TOWARDS THE SAME DIRECTION
-              deviationsVec[iDev]->sumV += sign * w2 * sur.transform().rotation().col(2);
+              m_deviationsVec[iDev]->sumV += sign * w2 * sur.transform().rotation().col(2);
 
               // !
               //if ( check_sign == 0 ) 
@@ -239,35 +231,35 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
   // CHECK HIT LISTS OVERLAP
   // FIRST CREATE AN INDEPENDENT COPY OF THE STRUCT VECTOR
   std::vector<deviationSummary_t*> new_deviationsVec;
-  for(unsigned int iDev=0; iDev < deviationsVec.size(); iDev++) {
+  for(unsigned int iDev=0; iDev < m_deviationsVec.size(); iDev++) {
      deviationSummary_t* tmp = new deviationSummary_t();
-     (*tmp) = (*deviationsVec[iDev]);
+     (*tmp) = (*m_deviationsVec[iDev]);
      new_deviationsVec.push_back(tmp);
   }
   
-  for(unsigned int iDev=0; iDev < deviationsVec.size(); iDev++) {
+  for(unsigned int iDev=0; iDev < m_deviationsVec.size(); iDev++) {
 
      if ( new_deviationsVec[iDev] == NULL )
         continue;
 
-     std::vector<const Trk::RIO_OnTrack*> v1 = deviationsVec[iDev]->hits;
+     std::vector<const Trk::RIO_OnTrack*> v1 = m_deviationsVec[iDev]->hits;
      if ( v1.size() < 1 )
         continue;
 
-     std::sort(v1.begin(), v1.end());
+     std::stable_sort(v1.begin(), v1.end());
 
-     for(unsigned int jDev=iDev+1; jDev < deviationsVec.size(); jDev++) {
+     for(unsigned int jDev=iDev+1; jDev < m_deviationsVec.size(); jDev++) {
 
         if ( new_deviationsVec[jDev] == NULL )
            continue;
 
         bool match = false;
 
-        if ( deviationsVec[iDev]->hits.size() != deviationsVec[jDev]->hits.size() )
+        if ( m_deviationsVec[iDev]->hits.size() != m_deviationsVec[jDev]->hits.size() )
            continue;
 
-        std::vector<const Trk::RIO_OnTrack*> v2 = deviationsVec[jDev]->hits;
-        std::sort(v2.begin(), v2.end());
+        std::vector<const Trk::RIO_OnTrack*> v2 = m_deviationsVec[jDev]->hits;
+        std::stable_sort(v2.begin(), v2.end());
 
         match = (v1 == v2); 
 
@@ -275,11 +267,11 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
 
            ATH_MSG_DEBUG("Found deviations " << iDev << " and " << jDev << " related to the same list of hits. Merging...");
            ATH_MSG_DEBUG("old (traslation, rotation) systematic uncertainties for " << iDev << ": " << new_deviationsVec[iDev]->traslation << ", " << new_deviationsVec[iDev]->rotation);
-           ATH_MSG_DEBUG("old (traslation, rotation) systematic uncertainties for " << jDev << ": " << deviationsVec[jDev]->traslation << ", " << deviationsVec[jDev]->rotation);
+           ATH_MSG_DEBUG("old (traslation, rotation) systematic uncertainties for " << jDev << ": " << m_deviationsVec[jDev]->traslation << ", " << m_deviationsVec[jDev]->rotation);
 
            // MERGE THE TWO DEVIATIONS ASSOCIATED TO THE SAME LIST OF HITS //
-           double new_traslation = sqrt(new_deviationsVec[iDev]->traslation*new_deviationsVec[iDev]->traslation + deviationsVec[jDev]->traslation*deviationsVec[jDev]->traslation);
-           double new_rotation = sqrt(new_deviationsVec[iDev]->rotation*new_deviationsVec[iDev]->rotation + deviationsVec[jDev]->rotation*deviationsVec[jDev]->rotation);
+           double new_traslation = sqrt(new_deviationsVec[iDev]->traslation*new_deviationsVec[iDev]->traslation + m_deviationsVec[jDev]->traslation*m_deviationsVec[jDev]->traslation);
+           double new_rotation = sqrt(new_deviationsVec[iDev]->rotation*new_deviationsVec[iDev]->rotation + m_deviationsVec[jDev]->rotation*m_deviationsVec[jDev]->rotation);
 
            // NOW PREPARE TO ERASE ONE OF THE TWO COPIES //
 	   delete new_deviationsVec[jDev];
@@ -296,6 +288,8 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
 
   // NOW BUILD THE DEVIATIONS
   deviations.clear();
+  ATH_MSG_DEBUG("************************************");
+  ATH_MSG_DEBUG("FINAL LIST OF DEVIATIONS");
   for(unsigned int iDev=0; iDev < new_deviationsVec.size(); iDev++) {
 
      // THIS HAPPENS IF A MERGING HAD BEEN DONE
@@ -422,13 +416,13 @@ void AlignmentErrorTool::initializeAlignmentDeviationsList (std::istream& indata
       tmp->rotation = rotation;
 
       // FILLING THE VECTOR OF STRUCT CONTAINING THE STATION DEVIATIONS //
-      deviationsVec.push_back(tmp);
+      m_deviationsVec.push_back(tmp);
 
     } //check stream is not at the end
 
   } // end of loop on input file lines
 
-  if (deviationsVec.empty()) {
+  if (m_deviationsVec.empty()) {
     ATH_MSG_WARNING("Could not read any alignment error configuration");
   }
 }
@@ -438,10 +432,10 @@ void AlignmentErrorTool::deleteAlignmentDeviationsList () {
    ATH_MSG_DEBUG("In AlignmentErrorTool::deleteAlignmentDeviationsList");
 
    // NOW EMPTY THE LOCAL DEVIATIONS VECTOR //
-   for(unsigned int iDev=0; iDev < deviationsVec.size(); iDev++) {
-      delete deviationsVec[iDev];
+   for(unsigned int iDev=0; iDev < m_deviationsVec.size(); iDev++) {
+      delete m_deviationsVec[iDev];
    }
-   deviationsVec.clear();
+   m_deviationsVec.clear();
 
    return;
 }

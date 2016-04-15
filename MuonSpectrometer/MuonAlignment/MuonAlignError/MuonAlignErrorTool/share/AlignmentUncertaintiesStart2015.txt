@@ -5,10 +5,10 @@ version 0.1
 #      Constructs nuisance parameters for a selection of hits, driven by regular expressions
 #      Selection rules are merged, depending on the hits on tracks, to minimize the number of nuisance parameters
 #      This regexp-based selection rule provides approximately the granularity we need. Finer granularity may be implemented later.
-error_by_regexp .*          .*   1.      0.001      # MS/ID misalignment
-error_by_regexp ^B.*        .*   0.300   0.         # Barrel/end-cap misalignment
-error_by_regexp ^B.[SFG].*  .*   0.200   0.         # S/L misalignment in the barrel
-error_by_regexp ^[EC].S.*   .*   0.100   0.         # S/L misalignment in the end-cap
+# error_by_regexp .*          .*   1.      0.001      # MS/ID misalignment
+# error_by_regexp ^B.*        .*   0.300   0.         # Barrel/end-cap misalignment
+# error_by_regexp ^B.[SFG].*  .*   0.200   0.         # S/L misalignment in the barrel
+# error_by_regexp ^[EC].S.*   .*   0.100   0.         # S/L misalignment in the end-cap
 error_by_regexp ^BML.*      .*   0.050   0.000050   # Sagitta and angle error
 error_by_regexp ^BM[SF].*   .*   0.050   0.000100   # Sagitta and angle error
 error_by_regexp ^EEL.*      .*   0.050   0.000200   # Sagitta and angle error
