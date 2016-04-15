@@ -113,6 +113,8 @@ StatusCode TrigDataAccess::initialize()
           m_rIdshec3.reserve(300);
           m_rIdsfcalhad0.reserve(256);
           m_rIdsfcalhad1.reserve(128);
+          m_rIdsfcalhad2.reserve(128);
+          m_rIdsfcalhad3.reserve(128);
           m_rIdsfcalem0.reserve(300);
           m_rIdstile.reserve(300);
           m_vrodid32lar.reserve(900);
@@ -128,8 +130,8 @@ StatusCode TrigDataAccess::initialize()
 	  m_fullCellContainer = new CaloCellContainer(SG::VIEW_ELEMENTS);
 	  m_fullCellContainer->reserve(190000);
 	} // end of m_usefullcoll
-	m_vrodid32ros.push_back(0x007dFFFF);
-	m_vrodid32tros.push_back(0x007eFFFF);
+	//m_vrodid32ros.push_back(0x007dFFFF);
+	//m_vrodid32tros.push_back(0x007eFFFF);
 
         m_febcoll = new LArFebEnergyCollection();
 	m_mbts_done = false; // Just to reset
@@ -285,7 +287,7 @@ StatusCode TrigDataAccess::beginRunHandle(IOVSVC_CALLBACK_ARGS){
           m_fullCellContainer->order();
 
           if ( hashMax != m_fullCellContainer->size() )
-	        ATH_MSG_ERROR("Problem in the sizei of the full container");
+	        ATH_MSG_ERROR("Problem in the size of the full container");
           m_fullCellContainer->setIsOrdered(true);
           m_fullCellContainer->setIsOrderedAndComplete(true);
 
@@ -305,6 +307,8 @@ StatusCode TrigDataAccess::beginRunHandle(IOVSVC_CALLBACK_ARGS){
           if ( m_rIdshec1.size() != 0 ) m_rIdshec1.clear();
           if ( m_rIdsfcalhad0.size() != 0 ) m_rIdsfcalhad0.clear();
           if ( m_rIdsfcalhad1.size() != 0 ) m_rIdsfcalhad1.clear();
+          if ( m_rIdsfcalhad2.size() != 0 ) m_rIdsfcalhad2.clear();
+          if ( m_rIdsfcalhad3.size() != 0 ) m_rIdsfcalhad3.clear();
           if ( m_rIdsfcalem0.size() != 0 ) m_rIdsfcalem0.clear();
           if ( m_rIdstile.size() != 0 ) m_rIdstile.clear();
 	} // End of m_usefullcoll
@@ -369,6 +373,8 @@ StatusCode TrigDataAccess::beginRunHandle_RegSelSvc(IOVSVC_CALLBACK_ARGS){
           m_pRegionSelector->DetHashIDList(TTHEC,3,tmproi,m_rIdshec3);
           m_pRegionSelector->DetHashIDList(FCALHAD,0,tmproi,m_rIdsfcalhad0);
           m_pRegionSelector->DetHashIDList(FCALHAD,1,tmproi,m_rIdsfcalhad1);
+          m_pRegionSelector->DetHashIDList(FCALHAD,2,tmproi,m_rIdsfcalhad2);
+          m_pRegionSelector->DetHashIDList(FCALHAD,3,tmproi,m_rIdsfcalhad3);
 	  m_pRegionSelector->DetHashIDList(FCALEM,0,tmproi,m_rIdsfcalem0);
           m_pRegionSelector->DetHashIDList(TILE,tmproi,m_rIdstile);
           m_alltile.clear();
@@ -394,6 +400,8 @@ StatusCode TrigDataAccess::beginRunHandle_RegSelSvc(IOVSVC_CALLBACK_ARGS){
           m_rIdshec.insert(m_rIdshec.end(),m_rIdshec3.begin(),m_rIdshec3.end());
           // FCALHAD
           m_rIdsfcalhad0.insert(m_rIdsfcalhad0.end(),m_rIdsfcalhad1.begin(),m_rIdsfcalhad1.end());
+          m_rIdsfcalhad0.insert(m_rIdsfcalhad0.end(),m_rIdsfcalhad2.begin(),m_rIdsfcalhad2.end());
+          m_rIdsfcalhad0.insert(m_rIdsfcalhad0.end(),m_rIdsfcalhad3.begin(),m_rIdsfcalhad3.end());
 
           m_selem->setRoIs(m_rIdsem0);
           m_selhec->setRoIs(m_rIdshec);
@@ -490,10 +498,10 @@ void TrigDataAccess::RegionSelectorRobID (const int sampling,
         } 
 	else if ( fetchROBs ) {m_robDataProvider->addROBData(m_vrodid32); m_robDataProvider->getROBData(m_vrodid32,m_robFrags); m_robFrags.clear();} 
 
-	if (msgLvl(MSG::DEBUG)) {
-          ATH_MSG_DEBUG( "m_vrodid32.size() = " << m_vrodid32.size() );
+	if (msgLvl(MSG::VERBOSE)) {
+          ATH_MSG_VERBOSE( "m_vrodid32.size() = " << m_vrodid32.size() );
           for(unsigned int i = 0 ; i < m_vrodid32.size() ; i++)
-            ATH_MSG_DEBUG( "m_vrodid32[" << i << "]=" << m_vrodid32[i]);
+            ATH_MSG_VERBOSE( "m_vrodid32[" << i << "]=" << m_vrodid32[i]);
         }
 }  // End of RegionSelectorRobID
 
@@ -515,10 +523,10 @@ void TrigDataAccess::RegionSelectorListID (const int sampling, const IRoiDescrip
 					   m_rIds);
         }
 
-	if (msgLvl(MSG::DEBUG)) {
-          ATH_MSG_DEBUG( "m_rIds.size() = " << m_rIds.size() );
+	if (msgLvl(MSG::VERBOSE)) {
+          ATH_MSG_VERBOSE( "m_rIds.size() = " << m_rIds.size() );
           for(unsigned int i = 0; i < m_rIds.size() ; i++)
-            ATH_MSG_DEBUG( "m_rIds[" << i << "]=" << m_rIds[i] );
+            ATH_MSG_VERBOSE( "m_rIds[" << i << "]=" << m_rIds[i] );
         }
 
 } // End of RegionSelectorListID
@@ -530,10 +538,10 @@ StatusCode TrigDataAccess::LoadCollections (
 		LArTT_Selector<LArCellCont>::const_iterator& Begin,
 		LArTT_Selector<LArCellCont>::const_iterator& End,
 		const unsigned int /*sample*/, bool /*prepare*/) {
-	if (msgLvl(MSG::DEBUG)) {
-          ATH_MSG_DEBUG( "m_rIds.size() in LoadColl = " << m_rIds.size() );
+	if (msgLvl(MSG::VERBOSE)) {
+          ATH_MSG_VERBOSE( "m_rIds.size() in LoadColl = " << m_rIds.size() );
           for(unsigned int i = 0 ; i < m_rIds.size() ; i++)
-            ATH_MSG_DEBUG( "m_rIds[" << i << "]=" << m_rIds[i] );
+            ATH_MSG_VERBOSE( "m_rIds[" << i << "]=" << m_rIds[i] );
         }
         // Resets error flag
         m_error=0;
@@ -615,10 +623,10 @@ StatusCode TrigDataAccess::LoadCollections (
         m_sel->setRoIs(m_rIds);
         Begin = m_sel->begin();
         End   = m_sel->end();
-	if (msgLvl(MSG::DEBUG)) {
+	if (msgLvl(MSG::VERBOSE)) {
 	  LArTT_Selector<LArCellCont>::const_iterator m_it;
 	  for ( m_it=Begin; m_it != End; ++m_it ){
-            ATH_MSG_DEBUG( "Eta: " << (*m_it)->eta()
+            ATH_MSG_VERBOSE( "Eta: " << (*m_it)->eta()
                            << "; Phi: " << (*m_it)->phi() 
                            << "; Energy: " << (*m_it)->energy() );
 	  } // End of for printout cells
@@ -672,10 +680,10 @@ StatusCode TrigDataAccess::LoadCollections (
 		}
 	//} // End of for through RobFrags
 
-	if (msgLvl(MSG::DEBUG)) {
+	if (msgLvl(MSG::VERBOSE)) {
 	  TileCellCollection::const_iterator m_itt = Begin;
 	  for (m_itt=Begin;m_itt!=End;++m_itt){
-            ATH_MSG_DEBUG( "Eta: " << (*m_itt)->eta()
+            ATH_MSG_VERBOSE( "Eta: " << (*m_itt)->eta()
                            << "; Phi: " << (*m_itt)->phi() 
                            << "; Energy: " << (*m_itt)->energy() 
                            << "; Hash Id: " << (*m_itt)->caloDDE()->calo_hash() );
@@ -797,9 +805,9 @@ StatusCode TrigDataAccess::LoadCollections (
         Begin = m_febcoll->begin();
         End   = m_febcoll->end();
 
-	if (msgLvl(MSG::DEBUG)) {
+	if (msgLvl(MSG::VERBOSE)) {
 	  for(LArFebEnergyCollection::const_iterator it = Begin; it!=End; ++it){
-            ATH_MSG_DEBUG( " Feb ID = " << (*it)->getFebId() 
+            ATH_MSG_VERBOSE( " Feb ID = " << (*it)->getFebId() 
                            << " Feb Ex = " << (*it)->getFebEx()
                            << " Feb Ey = " << (*it)->getFebEy() 
                            << " Feb Ez = " << (*it)->getFebEz() );
@@ -813,10 +821,10 @@ StatusCode TrigDataAccess::LoadFullCollections (
                 LArTT_Selector<LArCellCont>::const_iterator& Begin,
                 LArTT_Selector<LArCellCont>::const_iterator& End,
                 const DETID detid, bool /*prepare*/) {
-        if (msgLvl(MSG::DEBUG)) {
-          ATH_MSG_DEBUG( "m_rIds.size() in LoadColl = " << m_rIds.size() );
+        if (msgLvl(MSG::VERBOSE)) {
+          ATH_MSG_VERBOSE( "m_rIds.size() in LoadColl = " << m_rIds.size() );
 	  for(unsigned int i = 0 ; i < m_rIds.size() ; i++)
-            ATH_MSG_DEBUG( "m_rIds[" << i << "]=" << m_rIds[i] );
+            ATH_MSG_VERBOSE( "m_rIds[" << i << "]=" << m_rIds[i] );
 	}
 	// Resets error flag
 	m_error=0;
@@ -935,11 +943,11 @@ StatusCode TrigDataAccess::LoadFullCollections (
         } // End of missing ROBs treatment
 
 
-	if (msgLvl(MSG::DEBUG)) {
+	if (msgLvl(MSG::VERBOSE)) {
 	  int i=0;
 	  LArTT_Selector<LArCellCont>::const_iterator m_it;
 	  for ( m_it=Begin; m_it != End; ++m_it ){
-            ATH_MSG_DEBUG( "Eta: " << (*m_it)->eta()
+            ATH_MSG_VERBOSE( "Eta: " << (*m_it)->eta()
                            << "; Phi: " << (*m_it)->phi() 
                            <<"; Energy: " << (*m_it)->energy() );
 	    i++;
@@ -995,10 +1003,10 @@ StatusCode TrigDataAccess::LoadFullCollections (
                 }
         //} // End of for through RobFrags
 
-	if (msgLvl(MSG::DEBUG)) {
+	if (msgLvl(MSG::VERBOSE)) {
 	  TileCellCollection::const_iterator m_itt = Begin;
 	  for (m_itt=Begin;m_itt!=End;++m_itt){
-            ATH_MSG_DEBUG( "Eta: " << (*m_itt)->eta()
+            ATH_MSG_VERBOSE( "Eta: " << (*m_itt)->eta()
                            << "; Phi: " << (*m_itt)->phi()
                            << "; Energy: " << (*m_itt)->energy()
                            << "; Hash Id: " << (*m_itt)->caloDDE()->calo_hash() );
@@ -1091,11 +1099,11 @@ StatusCode TrigDataAccess::LoadFullCollections (
         Begin = m_febcoll->begin();
         End = m_febcoll->end();
 
-	if (msgLvl(MSG::DEBUG)) {
-          ATH_MSG_DEBUG( "This is the detectorID = " << detid );
-          ATH_MSG_DEBUG( "This is the febcoll size = " << m_febcoll->size() );
+	if (msgLvl(MSG::VERBOSE)) {
+          ATH_MSG_VERBOSE( "This is the detectorID = " << detid );
+          ATH_MSG_VERBOSE( "This is the febcoll size = " << m_febcoll->size() );
 	  for(LArFebEnergyCollection::const_iterator it = Begin; it!=End; ++it){
-            ATH_MSG_DEBUG( " Feb ID = " << (*it)->getFebId()
+            ATH_MSG_VERBOSE( " Feb ID = " << (*it)->getFebId()
                            << " Feb Ex = " << (*it)->getFebEx()
                            << " Feb Ey = " << (*it)->getFebEy()
                            << " Feb Ez = " << (*it)->getFebEz() );
@@ -1166,10 +1174,10 @@ StatusCode TrigDataAccess::LoadFullCollections (
 StatusCode TrigDataAccess::LoadFullCollections (
 		CaloCellContainer::const_iterator& Begin,
                 CaloCellContainer::const_iterator& End){
-        if (msgLvl(MSG::DEBUG)) {
-          ATH_MSG_DEBUG( "m_rIds.size() in LoadColl = " << m_rIds.size() );
+        if (msgLvl(MSG::VERBOSE)) {
+          ATH_MSG_VERBOSE( "m_rIds.size() in LoadColl = " << m_rIds.size() );
 	  for(unsigned int i = 0 ; i < m_rIds.size() ; i++)
-            ATH_MSG_DEBUG( "m_rIds[" << i << "]=" << m_rIds[i] );
+            ATH_MSG_VERBOSE( "m_rIds[" << i << "]=" << m_rIds[i] );
 	}
         // Resets error flag
         m_error=0;
@@ -1288,17 +1296,17 @@ StatusCode TrigDataAccess::LoadFullCollections (
         Begin = m_fullCellContainer->begin();
         End   = m_fullCellContainer->end();
 
-	if (msgLvl(MSG::DEBUG)) {
+	if (msgLvl(MSG::VERBOSE)) {
 	  int i=0;
-          ATH_MSG_DEBUG( "m_fullCellContainer->size() within LoadFullCol : " << m_fullCellContainer->size() );
+          ATH_MSG_VERBOSE( "m_fullCellContainer->size() within LoadFullCol : " << m_fullCellContainer->size() );
 	  CaloCellContainer::const_iterator m_it;
 	  for ( m_it=Begin; m_it != End; ++m_it ){
-            ATH_MSG_DEBUG( "Eta: " << (*m_it)->eta()
+            ATH_MSG_VERBOSE( "Eta: " << (*m_it)->eta()
                            << "; Phi: " << (*m_it)->phi()
                            << "; Energy: " << (*m_it)->energy() );
 	    i++;
 	  } // End of for printout cells
-          ATH_MSG_DEBUG( "number of counted cells : " << i );
+          ATH_MSG_VERBOSE( "number of counted cells : " << i );
 	}
         return StatusCode::SUCCESS;
 } // End of method
@@ -1328,6 +1336,10 @@ void TrigDataAccess::handle(const Incident & inc ) {
 
 void TrigDataAccess::ROBList( const IRoiDescriptor& roi, std::vector<uint32_t>& vec){
         vec.clear();
+        if ( (m_vrodid32fullDet.size() > 0 ) && ( roi.isFullscan() ) ) {
+		vec.insert(vec.end(), m_vrodid32fullDet.begin(), m_vrodid32fullDet.end() );
+		return;
+	}
         this->RegionSelectorRobID( 2, roi, TTEM, true );
         vec.insert(vec.end(),m_full_vrodid32.begin(),m_full_vrodid32.end()); 
 	return;
