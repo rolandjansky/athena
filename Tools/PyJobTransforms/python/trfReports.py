@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 696484 2015-09-23 17:20:28Z graemes $
+#  @version $Id: trfReports.py 740537 2016-04-15 11:28:11Z graemes $
 #
 
-__version__ = '$Revision: 696484 $'
+__version__ = '$Revision: 740537 $'
 
 import cPickle as pickle
 import json
@@ -105,7 +105,7 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '1.0.6'
+    _reportVersion = '1.1.0'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
@@ -171,22 +171,12 @@ class trfJobReport(trfReport):
                 myDict['executor'].append(trfExecutorReport(exe).python(fast = fast))
                 # Executor resources are gathered here to unify where this information is held
                 # and allow T0/PanDA to just store this JSON fragment on its own
-                exeResource = {'cpuTime': exe.cpuTime, 
-                               'wallTime': exe.wallTime,}
-                if exe.memStats:
-                    exeResource['memory'] = exe.memStats
-                if exe.eventCount:
-                    exeResource['nevents'] = exe.eventCount
-                if exe.athenaMP:
-                    exeResource['mpworkers'] = exe.athenaMP
-                if exe.dbMonitor:
-                    exeResource['dbData'] = exe.dbMonitor['bytes']
-                    exeResource['dbTime'] = exe.dbMonitor['time']
-                myDict['resource']['executor'][executionStep['name']] = exeResource
-
+                myDict['resource']['executor'][exe.name] = exeResourceReport(exe)
+                if exe.myMerger:
+                    myDict['resource']['executor'][exe.myMerger.name] = exeResourceReport(exe.myMerger)
         # Resource consumption
         reportTime = os.times()
-
+ 
         # Calculate total cpu time we used -
         myCpuTime = reportTime[0] + reportTime[1]
         childCpuTime = reportTime[2] + reportTime[3]
@@ -605,3 +595,18 @@ def pyJobReportToFileDict(jobReport, io = 'all'):
             for filedata in jobReport['files'][iotype]:
                 dataDict[filedata['type']] = filedata
     return dataDict
+
+
+def exeResourceReport(exe):
+    exeResource = {'cpuTime': exe.cpuTime, 
+                   'wallTime': exe.wallTime,}
+    if exe.memStats:
+        exeResource['memory'] = exe.memStats
+    if exe.eventCount:
+        exeResource['nevents'] = exe.eventCount
+    if exe.athenaMP:
+        exeResource['mpworkers'] = exe.athenaMP
+    if exe.dbMonitor:
+        exeResource['dbData'] = exe.dbMonitor['bytes']
+        exeResource['dbTime'] = exe.dbMonitor['time']
+    return exeResource

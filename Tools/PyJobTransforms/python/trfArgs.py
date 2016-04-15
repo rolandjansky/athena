@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 725567 2016-02-22 17:38:18Z mavogel $
+#  @version $Id: trfArgs.py 740532 2016-04-15 11:01:50Z graemes $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -92,16 +92,21 @@ def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True
                         metavar='dataType:targetSizeInMegaBytes', nargs='+', group='Athena',
                         help='Set the target merge size for an AthenaMP output file type (give size in MB). '
                         'Note that the special value 0 means do not merge this output file; negative values mean '
-                        'always merge to a single file. Note that the datatype "ALL" will be used as a default '
-                        'for all datatypes not explicitly given their own value.')
-    parser.add_argument('--athenaMPStrategy', type=trfArgClasses.argFactory(trfArgClasses.argSubstep), nargs='+',
-                        metavar='substep:Strategy', group='Athena',
+                        'always merge to a single file. Globbing is supported, e.g. "DESD_*:500" is understood. '
+                        'Special datatype "ALL" can be used as a default for all datatypes not explicitly '
+                        'given their own value or glob matched.')
+    parser.add_argument('--athenaMPStrategy', type=trfArgClasses.argFactory(trfArgClasses.argSubstep, runarg=False), 
+                        nargs='+', metavar='substep:Strategy', group='Athena',
                         help='Set the AthenaMP scheduling strategy for a particular substep. Default is unset, '
                         'except when n_inputFiles = n_workers, when it is "FileScheduling" (useful for '
                         'ephemeral outputs).')
     parser.add_argument('--athenaMPUseEventOrders', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=False),
                         metavar='BOOL', group='Athena',
-                        help='Force AthenaMP to read event numbers from event orders files')
+                        help='Change AthenaMP setup to read event numbers from event orders files')
+    parser.add_argument('--athenaMPEventsBeforeFork', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=False),
+                        metavar='N', group='Athena',
+                        help='Set AthenaMP to fork after processing N events (default is to fork immediately after '
+                        'initialisation')
     if addValgrind:
         addValgrindArguments(parser)
 

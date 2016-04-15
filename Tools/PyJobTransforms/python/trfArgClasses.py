@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 725493 2016-02-22 13:07:59Z mavogel $
+# @version $Id: trfArgClasses.py 740512 2016-04-15 10:13:14Z graemes $
 
 import argparse
 import bz2
@@ -1401,7 +1401,7 @@ class argPOOLFile(argAthenaFile):
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
         self._resetMetadata(inputs + [output])
-
+        return myMerger
 
 class argHITSFile(argPOOLFile):
 
@@ -1438,7 +1438,7 @@ class argHITSFile(argPOOLFile):
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
         self._resetMetadata(inputs + [output])
-    
+        return myMerger
 
 class argRDOFile(argPOOLFile):
 
@@ -1474,7 +1474,7 @@ class argRDOFile(argPOOLFile):
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
         self._resetMetadata(inputs + [output])
-    
+        return myMerger
     
 
     
@@ -1537,7 +1537,7 @@ class argTAGFile(argPOOLFile):
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
         self._resetMetadata(inputs + [output])
-
+        return myMerger
 
     @property
     def prodsysDescription(self):
@@ -1656,7 +1656,7 @@ class argNTUPFile(argFile):
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
         self._resetMetadata(inputs + [output])
-
+        return myMerger
                 
     @property
     def prodsysDescription(self):

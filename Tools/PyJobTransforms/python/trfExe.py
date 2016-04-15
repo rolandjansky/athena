@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 725567 2016-02-22 17:38:18Z mavogel $
+# @version $Id: trfExe.py 740532 2016-04-15 11:01:50Z graemes $
 
 import copy
 import json
@@ -52,7 +52,7 @@ class executorConfig(object):
         self._dataDictionary = dataDictionary
         self._firstExecutor = firstExecutor
         self._disableMP = disableMP
-        
+       
     @property
     def argdict(self):
         return self._argdict
@@ -115,8 +115,9 @@ class transformExecutor(object):
     #  @param outData List of outputs this transform can produce (list, tuple or set can be used)
     def __init__(self, name = 'Dummy', trf = None, conf = None, inData = set(), outData = set()):
         # Some information to produce helpful log messages
+        
         self._name = forceToAlphaNum(name)
-
+        self._myMerger=None
         # Data this executor can start from and produce
         # Note we transform NULL to inNULL and outNULL as a convenience
         self._inData = set(inData)
@@ -169,6 +170,9 @@ class transformExecutor(object):
         
         
     ## Now define properties for these data members
+    @property
+    def myMerger(self):
+        return self._myMerger
     @property
     def name(self):
         return self._name
@@ -719,7 +723,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 725567 2016-02-22 17:38:18Z mavogel $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 740532 2016-04-15 11:01:50Z graemes $')
         else:
             self._jobOptionsTemplate = None
 
@@ -814,14 +818,23 @@ class athenaExecutor(scriptExecutor):
                 else:
                     self._athenaMPStrategy = None
             # See if we have options for the target output file size
-            if 'athenaMPMergeTargetSize' in self.conf._argdict:
-                for dataType, targetSize in self.conf._argdict['athenaMPMergeTargetSize'].value.iteritems():
-                    if dataType in self.conf._dataDictionary:
-                        self.conf._dataDictionary[dataType].mergeTargetSize = targetSize * 1000000 # Convert from MB to B
+            if 'athenaMPMergeTargetSize' in self.conf.argdict:
+                for dataType in self.conf._dataDictionary:
+                    if dataType in self.conf.argdict['athenaMPMergeTargetSize'].value:
+                        self.conf._dataDictionary[dataType].mergeTargetSize = self.conf.argdict['athenaMPMergeTargetSize'].value[dataType] * 1000000 # Convert from MB to B
                         msg.info('Set target merge size for {0} to {1}'.format(dataType, self.conf._dataDictionary[dataType].mergeTargetSize))
-                    elif 'ALL' in self.conf._dataDictionary:
-                        self.conf._dataDictionary['ALL'].mergeTargetSize = targetSize * 1000000
-                        msg.info('Set target merge size for {0} to {1} (from ALL value)'.format(dataType, self.conf._dataDictionary[dataType].mergeTargetSize))
+                    else:
+                        # Use a globbing strategy
+                        matchedViaGlob = False
+                        for mtsType, mtsSize in self.conf.argdict['athenaMPMergeTargetSize'].value.iteritems():
+                            if fnmatch(dataType, mtsType):
+                                self.conf._dataDictionary[dataType].mergeTargetSize = mtsSize * 1000000 # Convert from MB to B
+                                msg.info('Set target merge size for {0} to {1} from "{2}" glob'.format(dataType, self.conf._dataDictionary[dataType].mergeTargetSize, mtsType))
+                                matchedViaGlob = True
+                                break
+                        if not matchedViaGlob and "ALL" in self.conf.argdict['athenaMPMergeTargetSize'].value:
+                            self.conf._dataDictionary[dataType].mergeTargetSize = self.conf.argdict['athenaMPMergeTargetSize'].value["ALL"] * 1000000 # Convert from MB to B
+                            msg.info('Set target merge size for {0} to {1} from "ALL" value'.format(dataType, self.conf._dataDictionary[dataType].mergeTargetSize))
         else:
             self._athenaMPWorkerTopDir = self._athenaMPFileReport = None
 
@@ -1228,19 +1241,18 @@ class athenaExecutor(scriptExecutor):
         
         counter = 0
         for mergeGroup in mergeCandidates:
-            counter += 1
-            # If we only have one merge group, then preserve the original name (important for
-            # prodsys v1). Otherwise we use the new merged names.
-            if len(mergeCandidates) == 1:
-                mergeName = fileArg.originalName
-            else:
+            # Note that the individual worker files get numbered with 3 digit padding,
+            # so these non-padded merges should be fine
+            mergeName = fileArg.originalName + '_{0}'.format(counter)
+            while path.exists(mergeName):
+                counter += 1
                 mergeName = fileArg.originalName + '_{0}'.format(counter)
             msg.info('Want to merge files {0} to {1}'.format(mergeGroup, mergeName))
             if len(mergeGroup) <= 1:
                 msg.info('Skip merging for single file')
             else:
                 ## We want to parallelise this part!
-                fileArg.selfMerge(output=mergeName, inputs=mergeGroup, argdict=self.conf.argdict)
+                self._myMerger = fileArg.selfMerge(output=mergeName, inputs=mergeGroup, argdict=self.conf.argdict)
 
 
     def _targzipJiveXML(self):

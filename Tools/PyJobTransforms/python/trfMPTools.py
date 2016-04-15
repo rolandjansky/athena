@@ -4,7 +4,7 @@
 #
 # @brief Utilities for handling AthenaMP jobs
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfMPTools.py 725493 2016-02-22 13:07:59Z mavogel $
+# @version $Id: trfMPTools.py 731249 2016-03-19 22:05:45Z graemes $
 # 
 
 __version__ = '$Revision'
@@ -131,14 +131,18 @@ def athenaMPoutputsLinkAndUpdate(newFullFilenames, fileArg):
     # Check here if MP created it's own unique names - otherwise we need to add suffixes
     # so that each output file is unique
     if len(uniqueSimpleNames) != len(newFullFilenames):
+        indexesUsed = []
         for fname in newFullFilenames:
             simpleName = path.basename(fname)
             workerIndexMatch = re.search(r'/worker_(\d+)/', fname)
             if workerIndexMatch:
-                workerIndex = workerIndexMatch.group(1)
+                fileIndex = int(workerIndexMatch.group(1)) + 1
             else:
-                raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_OUTPUT_FILE_ERROR"), "Found output file ({0}) not in an AthenaMP worker directory".format(fname))
-            simpleName += "_{0:03d}".format(int(workerIndex))
+                fileIndex = 0
+            if fileIndex in indexesUsed:
+                fileIndex = max(indexesUsed)+1
+            indexesUsed.append(fileIndex)
+            simpleName += "_{0:03d}".format(int(fileIndex))
             linkedNameList.append(simpleName)
     else:
         linkedNameList = [path.basename(fname) for fname in newFullFilenames]
@@ -154,10 +158,5 @@ def athenaMPoutputsLinkAndUpdate(newFullFilenames, fileArg):
     fileArg.multipleOK = True
     fileArg.value = linkedNameList
     fileArg.originalName = originalName
-    # Cleanup the stub file to avoid confusion
-    try:
-        os.unlink(fileArg.originalName)
-    except OSError, e:  
-        raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_OUTPUT_FILE_ERROR"), "Failed to unlink original mother output file {0}: {1}".format(fileArg.originalName, e))
     msg.debug('MP output argument updated to {0}'.format(fileArg))
     
