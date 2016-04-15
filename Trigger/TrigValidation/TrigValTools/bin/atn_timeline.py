@@ -42,8 +42,14 @@ def parseTestLog(log):
 
    # Test name from log file name
    # Example: Trigger_TrigValidation_TrigP1Test_49__TrigP1Test_TestConfiguration__AllPT_physicsV1_magField_on_off_on__x.loglog
-   test.name = re.match('.*?_([0-9]+.*)\.loglog',log).group(1)
-   test.alias = test.name.split('__')[2]
+   m = re.match('.*?_([0-9]+.*)\.loglog',log)
+   if m==None:
+      print "Cannot deduce test name from %s" % log
+      test.name = log
+      test.alias = ''
+   else:
+      test.name = re.match('.*?_([0-9]+.*)\.loglog',log).group(1)
+      test.alias = test.name.split('__')[2]
    
    for line in f:
       # Old NICOS version
@@ -117,8 +123,8 @@ def main():
       testdir = args[0]
       
    tests = getTimes(testdir, opts.package)
-   if tests==None:
-      print 'No test suites available in',testdir
+   if tests==None or len(tests)==0:
+      print 'No test suites available for %s in %s' % (opts.package,testdir)
       return 0
 
    # Print tests and stats
@@ -133,7 +139,7 @@ def main():
    for i,t in enumerate(sorted(tests.values(), key=operator.attrgetter('suite','t1'))):
       f.write('%d %s %s\n' % (i,t.alias,t.suite))
    f.close()
-      
+
    dmin = sorted(tests.values(), key=operator.attrgetter('t1'))[0].t1
    dmax = sorted(tests.values(), key=operator.attrgetter('t1'))[-1].t2
    print

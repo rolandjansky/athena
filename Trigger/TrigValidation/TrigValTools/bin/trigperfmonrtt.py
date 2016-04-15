@@ -418,8 +418,10 @@ class PerfMonRttResults:
 
                   dDay = 0
                   if len(t.stateHistory)>0:
-                     lastTime = t.stateHistory[-1][1]                     
-                     dDay = (time.time()-time.mktime(time.strptime(lastTime,"%y/%m/%d %H:%M")))/(24*3600)
+                     lastTime = t.stateHistory[-1][1]
+                     if not isinstance(lastTime,int):  # format changed at some point
+                        lastTime = time.mktime(time.strptime(lastTime,"%y/%m/%d %H:%M"))
+                     dDay = (time.time()-lastTime)/(24*3600)
 
                   if dDay>8:
                      log.debug("Skipping test (%s,%s,%s) for %s in rel_%d because it is %d days old" %
@@ -751,8 +753,10 @@ class PerfMonRtt2Html(Rtt2Html):
 
                cssStatus = "success" if v[i].jobExitCode=="0" else "failure"
                if len(v[i].stateHistory)>0:
-                  lastTime = v[i].stateHistory[-1][1]                     
-                  dDay = (time.time()-time.mktime(time.strptime(lastTime,"%y/%m/%d %H:%M")))/(24*3600)
+                  lastTime = v[i].stateHistory[-1][1]
+                  if not isinstance(lastTime,int):  # format changed at some point
+                     lastTime = time.mktime(time.strptime(lastTime,"%y/%m/%d %H:%M"))
+                  dDay = (time.time()-lastTime)/(24*3600)
                   # For today's tests figure out which results are still from last week
                   # We define any results older than 4 days as old (somewhat arbitrary but works)
                   if i==iToday and dDay>4:                     

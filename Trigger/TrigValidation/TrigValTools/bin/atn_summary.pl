@@ -59,13 +59,13 @@ my %no_of_nightlies_exceptions = ('TrigMC',2);
 my %ERROR = (
           OK => 0,
           SCRIPT_MISC => 1,
-	  POST_TEST_BAD_EXIT => 2,
-	  ROOTCOMP_MISMATCH => 4,
+	      POST_TEST_BAD_EXIT => 2,
+	      ROOTCOMP_MISMATCH => 4,
           ATHENA_BAD_EXIT => 8,
           CHECKCOUNTS_FAILED => 16,
           ATHENA_ERROR_IN_LOG => 32,
           ATHENA_REGTEST_FAILED => 64,
-	  ATN_TIME_LIMIT => 128,
+	      ATN_TIME_LIMIT => 128,
           PRECONDITION_FAILED_SO_NOT_RUN => 256
           );
 

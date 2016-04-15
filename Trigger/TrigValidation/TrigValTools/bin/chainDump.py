@@ -322,7 +322,7 @@ class chainDump:
             print "look at file:", file
         tfile = ROOT.TFile(file)
         if tfile.IsZombie():
-            print "WARNING: ", file, " is misisng or empty"
+            print "WARNING: ", file, " is missing or empty"
             return self.error
         
         # get list of directories
@@ -398,7 +398,7 @@ class chainDump:
                             continue
                     tfile.cd("..")
                 except:
-                  print "ERROR2: cound not cd to directory: ", dir
+                  print "ERROR: cound not cd to directory: ", dir
             else:
                 print "WARNING: direcory ", dir," not found"
  
