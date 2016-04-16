@@ -20,5 +20,9 @@ use AtlasReflex   AtlasReflex-*   External -no_auto_imports
 # classes to be added to the dictionary, and which fields are
 # transient. It should be put in ../<package> dir and is conventionally called
 # selection.xml.
+
+# Declare this package as a cmake metalibrary so that clients have access to the libraries and headerfiles
+# of packages that this one depends on/
+apply_pattern cmake_add_command command=metalibrary
  
-# apply_pattern lcgdict dict=TrkTruthData selectionfile=selection.xml headerfiles="../src/TrkTruthDataDict.h"
+apply_pattern lcgdict dict=TrkTruthData selectionfile=selection.xml headerfiles="../src/TrkTruthDataDict.h"

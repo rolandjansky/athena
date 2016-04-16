@@ -50,6 +50,7 @@ public:
 
     /** conversion to a number */
     operator unsigned int () const { return *m_p; }
+    unsigned int value() const { return *m_p; }
 
     /** protected assignment */
     OverflowControlledRef operator=(unsigned int rhs) { *m_p = (rhs > OVERFLOW_VALUE) ? OVERFLOW_VALUE : rhs; return *this; }
@@ -76,17 +77,17 @@ public:
   SubDetHitStatistics();
 
   /** Counts of up to (OVERFLOW_VALUE-1) hits */
-  unsigned int operator[](SubDetType i) const { return numPRDs[i]; }
+  unsigned int operator[](SubDetType i) const { return m_numPRDs[i]; }
 
   /** Write access protected agains overflows*/
-  OverflowControlledRef operator[](SubDetType i) { return numPRDs[i]; }
+  OverflowControlledRef operator[](SubDetType i) { return m_numPRDs[i]; }
 
 private:
   /** For InDet, the largest typical number of measurements per track is 36 in the TRT. 
    *  Perhaps muons do not bit that.  One byte is enough to keep any of the numbers
    *  in a typical event. (But not for a track looping in the TRT!)
    */
-  unsigned char numPRDs[NUM_SUBDETECTORS];
+  unsigned char m_numPRDs[NUM_SUBDETECTORS];
 
   friend class TrackTruthCollectionAccessor; // in TrackTruthTPCnv
 
@@ -107,7 +108,7 @@ template<class Ostream> Ostream& operator<<(Ostream& os, const SubDetHitStatisti
 // Also note that memset()-ing 7 bytes can be inlined by gcc.
 #include <cstring>
 inline SubDetHitStatistics::SubDetHitStatistics() {
-  memset(numPRDs, 0, NUM_SUBDETECTORS);
+  memset(m_numPRDs, 0, NUM_SUBDETECTORS);
 }
 
 CLASS_DEF(SubDetHitStatistics, 73400190, 1)
