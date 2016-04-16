@@ -25,9 +25,14 @@ use TrigSteeringEvent    TrigSteeringEvent-*     Trigger/TrigEvent
 #use Particle		Particle-*		Reconstruction
 #use TrackParticleTPCnv	TrackParticleTPCnv-*	Reconstruction
 
+
+private
+use GaudiInterface	  GaudiInterface-*              External
+end_private
+
 branches TrigSteeringEventTPCnv src
 
-macro TrigSteeringEventTPCnv_whattocompile "*.cxx" AthAnalysisBase "TrigPass*.cxx"
+macro TrigSteeringEventTPCnv_whattocompile "*.cxx"
 
 library TrigSteeringEventTPCnv $(TrigSteeringEventTPCnv_whattocompile)
 apply_pattern tpcnv_library
@@ -48,3 +53,15 @@ apply_pattern lcgdict dict=OLD_TrigSteeringEventTPCnv \
   headerfiles="../TrigSteeringEventTPCnv/TrigSteeringEventTPCnvDict.h"
 
 end_private
+
+
+private
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=HLTResultCnv_p1
+apply_pattern UnitTest_run unit_test=Lvl1ResultCnv_p2
+apply_pattern UnitTest_run unit_test=TrigOperationalInfoCnv_p1
+apply_pattern UnitTest_run unit_test=TrigPassBitsCnv_p1
+apply_pattern UnitTest_run unit_test=TrigPassFlagsCnv_p1
+apply_pattern UnitTest_run unit_test=TrigRoiDescriptorCnv_p1
+apply_pattern UnitTest_run unit_test=TrigRoiDescriptorCnv_p2
+apply_pattern UnitTest_run unit_test=TrigRoiDescriptorCnv_p3

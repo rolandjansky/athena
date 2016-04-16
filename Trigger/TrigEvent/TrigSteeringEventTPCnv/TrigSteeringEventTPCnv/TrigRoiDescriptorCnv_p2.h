@@ -36,8 +36,8 @@ public:
   virtual void transToPers(const TrigRoiDescriptor* transObj, 
 			   TrigRoiDescriptor_p2* persObj, 
 			   MsgStream &log);
-  enum {phi=0, eta=1, zed=2, wphi=3, weta=4, wzed=5, etaplus=6, etaminus=7};
-  enum {roiid=0, roiword=1};
+  enum {PHI=0, ETA=1, ZED=2, WPHI=3, WETA=4, WZED=5, ETAPLUS=6, ETAMINUS=7};
+  enum {ROIID=0, ROIWORD=1};
 };
 
 #endif

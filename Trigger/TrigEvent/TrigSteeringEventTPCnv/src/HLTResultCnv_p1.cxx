@@ -2,15 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
-
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigSteeringEventTPCnv/HLTResult_p1.h"
-
-#undef private
-#undef protected
-
 #include "TrigSteeringEventTPCnv/HLTResultCnv_p1.h"
 
 using namespace HLT;
