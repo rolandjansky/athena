@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
 
 #include "TrigOperationalInfoCnv.h"
 #include "TrigSteeringEventTPCnv/TrigOperationalInfoCnv_p1.h"
@@ -52,4 +51,3 @@ TrigOperationalInfo* TrigOperationalInfoCnv::createTransient()
 
 }
 
-#endif

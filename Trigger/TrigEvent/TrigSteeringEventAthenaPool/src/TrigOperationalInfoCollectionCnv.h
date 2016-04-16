@@ -12,7 +12,7 @@
  * @author Tomasz Bold (based on exampels by Andrew Hamilton and Francesca Bucci)
  *
  * File and Version Information:
- * $Id: TrigOperationalInfoCollectionCnv.h 719129 2016-01-21 17:02:55Z will $
+ * $Id: TrigOperationalInfoCollectionCnv.h 725210 2016-02-19 21:22:18Z ssnyder $
  **********************************************************************************/
 #ifndef TRIGEVENTATHENAPOOL_TRIGOPERATIONALINFOCOLLECTIONCNV_H
 #define TRIGEVENTATHENAPOOL_TRIGOPERATIONALINFOCOLLECTIONCNV_H
@@ -27,7 +27,7 @@ typedef TrigOperationalInfoCollection_tlp1  TrigOperationalInfoCollection_PERS;
 
 class MsgStream;
 
-class TrigOperationalInfoCollectionCnv_impl;
+struct TrigOperationalInfoCollectionCnv_impl;
 class TrigOperationalInfoCollectionCnv : public T_AthenaPoolCustomCnv<TrigOperationalInfoCollection, TrigOperationalInfoCollection_PERS > 
 {
 

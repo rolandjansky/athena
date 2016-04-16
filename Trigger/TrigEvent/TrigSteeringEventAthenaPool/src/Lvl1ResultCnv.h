@@ -14,7 +14,7 @@
  * @author Francesca Bucci <f.bucci@cern.ch>         - U. of Geneva, Switzerland
  *
  * File and Version Information:
- * $Id: Lvl1ResultCnv.h 719129 2016-01-21 17:02:55Z will $
+ * $Id: Lvl1ResultCnv.h 725210 2016-02-19 21:22:18Z ssnyder $
  **********************************************************************************/
 
 #ifndef TrigEventAthenaPool_Lvl1ResultCnv_H
@@ -33,7 +33,7 @@ typedef  T_AthenaPoolCustomCnv<LVL1CTP::Lvl1Result, Lvl1Result_PERS > Lvl1Result
 
 class MsgStream;
 
-class Lvl1ResultCnv_impl;
+struct Lvl1ResultCnv_impl;
 class Lvl1ResultCnv : public Lvl1ResultCnvBase {
 
   friend class CnvFactory< Lvl1ResultCnv >;

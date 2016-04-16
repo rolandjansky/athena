@@ -29,7 +29,7 @@ typedef TrigRoiDescriptorCollection_p3  TrigRoiDescriptorCollection_PERS;
 
 class MsgStream;
 
-class TrigRoiDescriptorCollectionCnv_impl;
+struct TrigRoiDescriptorCollectionCnv_impl;
 class TrigRoiDescriptorCollectionCnv : public T_AthenaPoolCustomCnv<TrigRoiDescriptorCollection, TrigRoiDescriptorCollection_PERS > 
 {
 
