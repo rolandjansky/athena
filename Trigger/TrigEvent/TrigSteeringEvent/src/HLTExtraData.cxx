@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
-
 /**
  * @file   HLTExtraData.cxx
  * @brief  Definition of the HLT extra data in the HLTResult payload
@@ -84,7 +82,3 @@ void HLT::swap(HLTExtraData& lhs, HLTExtraData& rhs)
   swap(lhs.anonymous, rhs.anonymous);
   // default m_stringSerializer is good for every object
 }
-
-#endif //XAOD_ANALYSIS
-
-

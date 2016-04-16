@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifdef XAOD_STANDALONE
-int main(){return 0;}
+#ifdef XAOD_STANDALON
+int main(){return 0;}E
 #endif
 
 #ifndef XAOD_STANDALONE
@@ -22,7 +22,7 @@ int main(){return 0;}
 using namespace HLT;
 int test_Truncation (HLTResult &res, int payload_size, unsigned expected_size, unsigned expected_chains_size, unsigned expected_nav_size, unsigned expected_extras_size ) {
   MsgStream log(Athena::getMessageSvc(), "Truncation_test");
-  uint32_t* p1;
+  uint32_t* p1 = nullptr;
 
   
   int size = 0;
@@ -33,18 +33,18 @@ int test_Truncation (HLTResult &res, int payload_size, unsigned expected_size, u
   log << MSG::INFO << "serialized tot size " << size  << endreq;
 
   if (size != int(expected_size) ) { 
-    log << MSG::INFO << "serialzied size distinct from expected, got: " << size << " expected: " << expected_size << endreq;
+    log << MSG::INFO << "serialized size distinct from expected, got: " << size << " expected: " << expected_size << endreq;
     return -1;
   }
   
   HLTResult back;
   back.deserialize(p1, size);
-  log << MSG::INFO << "Deserialzied sizes chains: " <<  back.getChainResult().size() 
+  log << MSG::INFO << "Deserialized sizes chains: " <<  back.getChainResult().size() 
       << " navigation: " << back.getNavigationResult().size() 
       << " extras: " << back.getExtras().size() << endreq;
   
   if ( back.getChainResult().size()  != expected_chains_size ) { 
-    log << MSG::INFO << "deserialzied chains size distinct from expected, got: " << back.getChainResult().size() << " expected: " << expected_chains_size << endreq;
+    log << MSG::INFO << "deserialized chains size distinct from expected, got: " << back.getChainResult().size() << " expected: " << expected_chains_size << endreq;
     return -1;
   }
 
@@ -96,7 +96,7 @@ int main() {
 
 
   log << MSG::INFO << "payload bigger than chains"  << endreq;
-  if ( test_Truncation(res, 900, 815, 800, 0, 0) != 0 ) {
+  if ( test_Truncation(res, 900, 816, 800, 0, 0) != 0 ) {
     log << MSG::ERROR << "payload bigger than chains, this test failed"  << endreq;
     return -1;
   }
@@ -113,7 +113,7 @@ int main() {
   res.getNavigationResult() = nav;
 
   log << MSG::INFO << "payload enough for almost all nav pieces "  << endreq;
-  if ( test_Truncation(res, 4816, 4815, 800, 3999, 0) != 0 ) {
+  if ( test_Truncation(res, 4816, 4816, 800, 4000, 0) != 0 ) {
     log << MSG::ERROR << "payload enough for almost all nav pieces, this test failed"  << endreq;
     return -1;
   }

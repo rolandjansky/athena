@@ -19,7 +19,7 @@ Action::Code getActionFromString(const std::string& str) {
   else if (str == "ABORT_CHAIN") return Action::ABORT_CHAIN;
   else if (str == "ABORT_EVENT") return Action::ABORT_EVENT;
   else if (str == "ABORT_JOB")   return Action::ABORT_JOB;
-  return Action::__UNSPECIFIED;
+  return Action::UNSPECIFIED_;
 }
 
 
@@ -31,7 +31,7 @@ namespace HLTEnums {
 					"MISSING_ROD", "CORRUPTED_ROD", "TIMEOUT", 
 					"BAD_JOB_SETUP",
 					"USERDEF_1", "USERDEF_2", "USERDEF_3", "USERDEF_4",
-					"__LAST" };
+					"LAST_" };
 }
 
 const std::string strReason(const Reason::Code code) {
@@ -41,14 +41,14 @@ const std::string strReason(const Reason::Code code) {
 Reason::Code getReasonFromString(const std::string& str) {
   bool found = false;
   int i=0;
-  for ( i = 0; i < HLT::Reason::__LAST; ++i ) {
+  for ( i = 0; i < HLT::Reason::LAST_; ++i ) {
     if (str == HLTEnums::ReasonNames[i]) {
       found = true;
       break;
     }
   }
   if ( ! found )
-    return Reason::__UNSPECIFIED;
+    return Reason::UNSPECIFIED_;
   return Reason::Code(i);
 }
 
@@ -64,7 +64,7 @@ namespace HLTEnums {
 						       "TIMEOUT",
 						       "BUSY",
 						       "BAD_JOB_SETUP",
-						       "__LAST"};
+						       "LAST_"};
 }
 
 
@@ -72,14 +72,14 @@ SteeringInternalReason::Code getSteeringInternalReasonFromString(const std::stri
   bool found = false;
   unsigned int i=0;
 
-  for ( i = 0; i < HLT::SteeringInternalReason::__LAST; ++i ) {
+  for ( i = 0; i < HLT::SteeringInternalReason::LAST_; ++i ) {
     if (str == HLTEnums::SteeringInternalReasonNames[i]) {
       found = true;
       break;
     }
   }
   if ( ! found )
-    return SteeringInternalReason::__UNSPECIFIED;
+    return SteeringInternalReason::UNSPECIFIED_;
   return SteeringInternalReason::Code(i);
 }
 
@@ -87,9 +87,9 @@ SteeringInternalReason::Code getSteeringInternalReasonFromString(const std::stri
 
 
 const std::string strSteeringInternalReason (const SteeringInternalReason::Code code ){
-  if ( unsigned(code) <  HLT::SteeringInternalReason::__LAST )
+  if ( unsigned(code) <  HLT::SteeringInternalReason::LAST_ )
     return HLTEnums::SteeringInternalReasonNames[code];
-  return "__UNSPECIFIED";
+  return "UNSPECIFIED_";
 }
 
 
@@ -112,16 +112,16 @@ int HLT::getErrorCodePosFromStr(const std::string& ec) {
 
   Action::Code actionCode = getActionFromString(actionStr);
   
-  if ( actionCode == Action::__UNSPECIFIED ) 
+  if ( actionCode == Action::UNSPECIFIED_ ) 
     return -1;
   
   Reason::Code reasonCode = getReasonFromString(reasonStr);
-  if ( reasonCode == Reason::__UNSPECIFIED )
+  if ( reasonCode == Reason::UNSPECIFIED_ )
     return -1;
   
 
   SteeringInternalReason::Code steeringCode = getSteeringInternalReasonFromString(steeringStr);
-  if ( steeringCode == SteeringInternalReason::__UNSPECIFIED )
+  if ( steeringCode == SteeringInternalReason::UNSPECIFIED_ )
     return -1;
   
   return ErrorCode(actionCode, reasonCode, steeringCode );

@@ -11,6 +11,13 @@ TrigOperationalInfo::TrigOperationalInfo() {
   
 }
 
+TrigOperationalInfo::TrigOperationalInfo(const std::vector<std::string>& keys,
+                                         const std::vector<float>& values)
+  : m_infoName (keys),
+    m_infoValue (values)
+{
+}
+
 unsigned int TrigOperationalInfo::defined(const std::string& name) const {
   return count( m_infoName.begin(), m_infoName.end(), name ); 
 }
@@ -22,20 +29,26 @@ float TrigOperationalInfo::get(const std::string& name) const {
 }
 
 void TrigOperationalInfo::set(const std::string& name, float value) {
-  if ( defined(name) ) {
-    std::vector<std::string>::const_iterator it;
-    it = find ( m_infoName.begin(), m_infoName.end(), name );
-    m_infoValue[it - m_infoName.begin()] = value;
-  } else {
-    m_infoName.push_back(name);
-    m_infoValue.push_back(value);
-  }
+  // Tim Martin - April 2016. Removed code which enforces unique names. Rquired by use in Cost Monitoring. 
+  m_infoName.push_back(name);
+  m_infoValue.push_back(value);
 }
 
 std::pair<std::vector<std::string>, std::vector<float> > TrigOperationalInfo::infos() const {
   return std::make_pair(m_infoName, m_infoValue);
 }
 
+const std::vector<std::string>& TrigOperationalInfo::getKeys() const  {
+  return m_infoName;
+}
+
+const std::vector<float>& TrigOperationalInfo::getValues() const {
+  return m_infoValue;
+}
+
+void TrigOperationalInfo::updateAtLocation(unsigned int location, float value) {
+  m_infoValue.at(location) = value;
+}
 
 //////////////////////////////////////////////////////////////////
 // helper operators

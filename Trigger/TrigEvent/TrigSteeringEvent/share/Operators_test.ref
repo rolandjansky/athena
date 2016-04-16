@@ -1,0 +1,7 @@
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+Operators_test       INFO TrigOperationalInfo == operator is correct 
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+testPrint_TrigO...   INFO MSG a 
+testPrint_TrigO...   INFO MSG b  va: 6.67 vb: 9.67
+Operators_test       INFO TrigOperationalInfo << operator is correct 

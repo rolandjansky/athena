@@ -53,4 +53,5 @@
  <enum name="HLT::Reason::Code"/>
  <class name="HLT::SteeringInternalReason"/>
  <enum name="HLT::SteeringInternalReason::Code"/>
+ <class name="HLT::StringSerializer"/>
 </lcgdict>
