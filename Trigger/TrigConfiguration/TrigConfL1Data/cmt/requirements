@@ -25,9 +25,3 @@ apply_pattern detcommon_ignores
 # link header files into InstallArea, and include the corresponding
 # directory in the compiler options
 apply_pattern detcommon_header_installer
-
-#============================================================================
-private
-#============================================================================
-
-#apply_pattern detcommon_lcgdict dict=TrigConfL1Data selectionfile=selection.xml headerfiles="../TrigConfL1Data/TrigConfL1DataDict.h"
