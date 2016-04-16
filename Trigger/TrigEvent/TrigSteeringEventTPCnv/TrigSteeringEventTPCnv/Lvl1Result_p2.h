@@ -41,9 +41,9 @@ namespace LVL1CTP {
     // default destructor
     virtual ~Lvl1Result_p2() { }
 
-  private:
+    //private:
 
-    bool m_configured;
+    bool m_configured = false;
     //    std::vector<uint32_t> m_l1_items;
     //    std::vector<uint32_t> m_l1_itemsPrescaled;
     std::vector<uint32_t> m_l1_itemsTBP;            //!< Trigger (level 1 items) Before Prescale

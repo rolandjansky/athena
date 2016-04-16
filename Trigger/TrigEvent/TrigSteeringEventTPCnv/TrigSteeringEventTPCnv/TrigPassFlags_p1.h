@@ -24,8 +24,8 @@ public:
    friend class TrigPassFlagsCnv_p1;
 
 private:
-   unsigned int m_nObjects;
-   unsigned short int m_nFlags;
+   unsigned int m_nObjects = 0;
+   unsigned short int m_nFlags = 0;
    std::vector<uint32_t> m_serialized;
 };
 

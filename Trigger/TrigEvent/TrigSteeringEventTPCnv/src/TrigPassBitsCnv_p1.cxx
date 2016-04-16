@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigSteeringEvent/TrigPassBits.h"
-#undef private
-#undef protected
-
 #include <cmath>
 #include <iostream>
 #include "TrigSteeringEventTPCnv/TrigPassBits_p1.h"

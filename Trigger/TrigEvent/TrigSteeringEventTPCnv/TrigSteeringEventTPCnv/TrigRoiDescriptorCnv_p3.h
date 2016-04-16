@@ -37,12 +37,12 @@ public:
 			   TrigRoiDescriptor_p3* persObj, 
 			   MsgStream &log);
 
-  enum {phi=0, eta=1, zed=2, 
-	phiplus=3, phiminus=4, 
-	etaplus=5, etaminus=6, 
-	zedplus=7, zedminus=8};
+  enum {PHI=0, ETA=1, ZED=2, 
+	PHIPLUS=3, PHIMINUS=4, 
+	ETAPLUS=5, ETAMINUS=6, 
+	ZEDPLUS=7, ZEDMINUS=8};
 
-  enum {roiid=0, roiword=1};
+  enum {ROIID=0, ROIWORD=1};
 
 };
 

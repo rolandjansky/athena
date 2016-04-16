@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#undef private
-#undef protected
-
 #include <iostream>
 #include <cmath>
 #include "TrigSteeringEventTPCnv/TrigRoiDescriptor_p2.h"
@@ -21,25 +16,24 @@ void TrigRoiDescriptorCnv_p2::persToTrans(const TrigRoiDescriptor_p2* persObj,
 {
    log << MSG::DEBUG << "TrigRoiDescriptorCnv_p2::persToTrans called " << endreq;
 
-   double _phi       = persObj->geom[phi]        ;                 
-   double _eta       = persObj->geom[eta]        ;                 
-   double _zed       = persObj->geom[zed]        ;                 
-   double _phiPlus   = persObj->geom[phi] + persObj->geom[wphi];         
-   double _phiMinus  = persObj->geom[phi] - persObj->geom[wphi];         
-   double _etaPlus   = persObj->geom[eta] + persObj->geom[weta];         
-   double _etaMinus  = persObj->geom[eta] - persObj->geom[weta];         
-   double _zedPlus   = persObj->geom[zed] + persObj->geom[wzed];         
-   double _zedMinus  = persObj->geom[zed] - persObj->geom[wzed];         
+   double phi       = persObj->geom[PHI]        ;                 
+   double eta       = persObj->geom[ETA]        ;                 
+   double zed       = persObj->geom[ZED]        ;                 
+   double phiPlus   = persObj->geom[PHI] + persObj->geom[WPHI];         
+   double phiMinus  = persObj->geom[PHI] - persObj->geom[WPHI];         
+   double etaPlus   = persObj->geom[ETA] + persObj->geom[WETA];         
+   double etaMinus  = persObj->geom[ETA] - persObj->geom[WETA];         
+   double zedPlus   = persObj->geom[ZED] + persObj->geom[WZED];         
+   double zedMinus  = persObj->geom[ZED] - persObj->geom[WZED];         
    
-   transObj->m_roiId        = persObj->ids[roiid]       ;         
-   transObj->m_roiWord      = persObj->ids[roiword]     ;   
-    
-   transObj->m_fullscan = false;
-   transObj->m_version  = 2;
+   *transObj = TrigRoiDescriptor (persObj->ids[ROIWORD],
+                                  0,
+                                  persObj->ids[ROIID],
+                                  eta, etaMinus, etaPlus,
+                                  phi, phiMinus, phiPlus,
+                                  zed, zedMinus, zedPlus );
 
-   /// now set up the variables
-   transObj->construct( _eta, _etaMinus, _etaPlus, _phi, _phiMinus, _phiPlus, _zed, _zedMinus, _zedPlus ); 
-
+   transObj->version (2);
 }
 
 
@@ -50,19 +44,21 @@ void TrigRoiDescriptorCnv_p2::transToPers(const TrigRoiDescriptor* transObj,
    log << MSG::DEBUG << "TrigRoiDescriptorCnv_p2::transToPers called " << endreq;
    //   log << MSG::FATAL << "TrigRoiDescriptorCnv_p1::transToPers called - do not use this converter, use more recent converter" << endreq;  
 
-   persObj->geom[phi]      = transObj->m_phi        ;                 
-   persObj->geom[eta]      = transObj->m_eta        ;                 
-   persObj->geom[zed]      = transObj->m_zed        ;  
+   persObj->geom[PHI]      = transObj->phi()        ;                 
+   persObj->geom[ETA]      = transObj->eta()        ;                 
+   persObj->geom[ZED]      = transObj->zed()        ;  
                
-   if ( transObj->m_phiPlus > transObj->m_phiMinus ) persObj->geom[wphi] = 0.5*(transObj->m_phiPlus - transObj->m_phiMinus);         
-   else                                              persObj->geom[wphi] = 0.5*(transObj->m_phiPlus - transObj->m_phiMinus) + M_PI;
+   if ( transObj->phiPlus() > transObj->phiMinus() )
+     persObj->geom[WPHI] = 0.5*(transObj->phiPlus() - transObj->phiMinus());         
+   else
+     persObj->geom[WPHI] = 0.5*(transObj->phiPlus() - transObj->phiMinus()) + M_PI;
 
-   persObj->geom[weta]     = 0.5*std::fabs( transObj->m_etaPlus - transObj->m_etaMinus );         
-   persObj->geom[wzed]     = 0.5*std::fabs( transObj->m_zedPlus - transObj->m_zedMinus );         
-   persObj->geom[etaplus]  = transObj->m_etaPlus     ;
-   persObj->geom[etaminus] = transObj->m_etaMinus    ;
+   persObj->geom[WETA]     = 0.5*std::fabs( transObj->etaPlus() - transObj->etaMinus() );         
+   persObj->geom[WZED]     = 0.5*std::fabs( transObj->zedPlus() - transObj->zedMinus() );         
+   persObj->geom[ETAPLUS]  = transObj->etaPlus()     ;
+   persObj->geom[ETAMINUS] = transObj->etaMinus()    ;
          
-   persObj->ids[roiid]     = transObj->m_roiId       ;         
-   persObj->ids[roiword]   = transObj->m_roiWord     ;       
+   persObj->ids[ROIID]     = transObj->roiId()       ;         
+   persObj->ids[ROIWORD]   = transObj->roiWord()     ;       
 }
 

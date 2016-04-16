@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#undef private
-#undef protected
-
 #include <iostream>
 #include <cmath>
 #include "TrigSteeringEventTPCnv/TrigRoiDescriptor_p1.h"
@@ -21,39 +16,23 @@ void TrigRoiDescriptorCnv_p1::persToTrans(const TrigRoiDescriptor_p1* persObj,
 {
    log << MSG::DEBUG << "TrigRoiDescriptorCnv_p1::persToTrans called " << endreq;
 
-#if 0
-   transObj->m_phi      = persObj->m_phi0        ;                 
-   transObj->m_eta      = persObj->m_eta0        ;                 
-   transObj->m_zed      = persObj->m_zed0        ;                 
-   transObj->m_phiMinus = persObj->m_phi0 - persObj->m_phiHalfWidth;         
-   transObj->m_phiPlus  = persObj->m_phi0 + persObj->m_phiHalfWidth;         
-   transObj->m_etaMinus = persObj->m_eta0 - persObj->m_etaHalfWidth;         
-   transObj->m_etaPlus  = persObj->m_eta0 + persObj->m_etaHalfWidth;         
-   transObj->m_zedMinus = persObj->m_zed0 - persObj->m_zedHalfWidth;         
-   transObj->m_zedPlus  = persObj->m_zed0 + persObj->m_zedHalfWidth;         
-#endif
-   
-   double _phi       = persObj->m_phi0        ;                 
-   double _eta       = persObj->m_eta0        ;                 
-   double _zed       = persObj->m_zed0        ;                 
-   double _phiPlus   = persObj->m_phi0 + persObj->m_phiHalfWidth;         
-   double _phiMinus  = persObj->m_phi0 - persObj->m_phiHalfWidth;         
-   double _etaPlus   = persObj->m_eta0 + persObj->m_etaHalfWidth;                  
-   double _etaMinus  = persObj->m_eta0 - persObj->m_etaHalfWidth;              
-   double _zedPlus   = persObj->m_zed0 + persObj->m_zedHalfWidth;         
-   double _zedMinus  = persObj->m_zed0 - persObj->m_zedHalfWidth;          
+   double phi       = persObj->m_phi0        ;                 
+   double eta       = persObj->m_eta0        ;                 
+   double zed       = persObj->m_zed0        ;                 
+   double phiPlus   = persObj->m_phi0 + persObj->m_phiHalfWidth;         
+   double phiMinus  = persObj->m_phi0 - persObj->m_phiHalfWidth;         
+   double etaPlus   = persObj->m_eta0 + persObj->m_etaHalfWidth;                  
+   double etaMinus  = persObj->m_eta0 - persObj->m_etaHalfWidth;              
+   double zedPlus   = persObj->m_zed0 + persObj->m_zedHalfWidth;         
+   double zedMinus  = persObj->m_zed0 - persObj->m_zedHalfWidth;          
 
-   transObj->m_l1Id         = persObj->m_l1Id        ;          
-   transObj->m_roiId        = persObj->m_roiId       ;         
-   transObj->m_roiWord      = persObj->m_roiWord     ;   
-    
-   transObj->m_serialized   = persObj->m_serialized  ;
-
-   transObj->m_version  = 1;
-   transObj->m_fullscan = false;
-
-   /// now set up the variables
-   transObj->construct( _eta, _etaMinus, _etaPlus, _phi, _phiMinus, _phiPlus, _zed, _zedMinus, _zedPlus ); 
+   *transObj = TrigRoiDescriptor (persObj->m_roiWord,
+                                  persObj->m_l1Id,
+                                  persObj->m_roiId,
+                                  eta, etaMinus, etaPlus,
+                                  phi, phiMinus, phiPlus,
+                                  zed, zedMinus, zedPlus );
+   transObj->version (1);
 }
 
 
@@ -64,21 +43,22 @@ void TrigRoiDescriptorCnv_p1::transToPers(const TrigRoiDescriptor* transObj,
    log << MSG::DEBUG << "TrigRoiDescriptorCnv_p1::transToPers called " << endreq;
    //   log << MSG::FATAL << "TrigRoiDescriptorCnv_p1::transToPers called - do not use this converter, use more recent converter" << endreq;
 
-   persObj->m_phi0         = transObj->m_phi        ;                 
-   persObj->m_eta0         = transObj->m_eta        ;                 
-   persObj->m_zed0         = transObj->m_zed        ;               
+   persObj->m_phi0         = transObj->phi()        ;                 
+   persObj->m_eta0         = transObj->eta()        ;                 
+   persObj->m_zed0         = transObj->zed()        ;               
 
-   if ( transObj->m_phiPlus > transObj->m_phiMinus ) persObj->m_phiHalfWidth = 0.5*( transObj->m_phiPlus-transObj->m_phiMinus);
-   else                                              persObj->m_phiHalfWidth = 0.5*( transObj->m_phiPlus-transObj->m_phiMinus) + M_PI;
+   if ( transObj->phiPlus() > transObj->phiMinus() )
+     persObj->m_phiHalfWidth = 0.5*( transObj->phiPlus()-transObj->phiMinus());
+   else
+     persObj->m_phiHalfWidth = 0.5*( transObj->phiPlus()-transObj->phiMinus()) + M_PI;
 
-   persObj->m_etaHalfWidth = 0.5*std::fabs( transObj->m_etaPlus-transObj->m_etaMinus) ;
-   persObj->m_zedHalfWidth = 0.5*std::fabs( transObj->m_zedPlus-transObj->m_zedMinus) ;
-   persObj->m_etaPlus      = transObj->m_etaPlus     ;
-   persObj->m_etaMinus     = transObj->m_etaMinus    ;
+   persObj->m_etaHalfWidth = 0.5*std::fabs( transObj->etaPlus()-transObj->etaMinus()) ;
+   persObj->m_zedHalfWidth = 0.5*std::fabs( transObj->zedPlus()-transObj->zedMinus()) ;
+   persObj->m_etaPlus      = transObj->etaPlus()     ;
+   persObj->m_etaMinus     = transObj->etaMinus()    ;
          
-   persObj->m_l1Id         = transObj->m_l1Id        ;          
-   persObj->m_roiId        = transObj->m_roiId       ;         
-   persObj->m_roiWord      = transObj->m_roiWord     ;       
-   persObj->m_serialized   = transObj->m_serialized  ;
-
+   persObj->m_l1Id         = transObj->l1Id()        ;          
+   persObj->m_roiId        = transObj->roiId()       ;         
+   persObj->m_roiWord      = transObj->roiWord()     ;       
+   //persObj->m_serialized   = transObj->m_serialized  ;
 }

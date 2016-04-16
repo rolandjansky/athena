@@ -42,8 +42,6 @@ namespace HLT {
     // default destructor
     virtual ~HLTResult_p1() { }
 
-  private:
-
     std::vector<uint32_t>   m_headerResult;     
     std::vector<uint32_t>   m_chainsResult;     
     std::vector<uint32_t>   m_navigationResult; 
