@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
+
 #include "TrigConfL1Data/PrescaleSet.h"
 #include "TrigConfL1Data/L1PSNumber.h"
 #include <iostream>
@@ -108,6 +110,10 @@ TrigConf::PrescaleSet::setCut(unsigned int ctpid, int32_t cut) {
    m_null = false;
 }
 
+
+/**
+ * DEPRECATED
+ */
 void
 TrigConf::PrescaleSet::setPrescales(const std::vector<int64_t>& prescales) {
    m_Prescales_ctp = prescales;
@@ -122,6 +128,9 @@ TrigConf::PrescaleSet::setPrescales(const std::vector<int64_t>& prescales) {
    m_null = false;
 }
 
+/**
+ * DEPRECATED
+ */
 void
 TrigConf::PrescaleSet::setPrescales(const int64_t p[], const unsigned int size) {
    TrigConf::L1PSNumber l1ps;
@@ -134,17 +143,27 @@ TrigConf::PrescaleSet::setPrescales(const int64_t p[], const unsigned int size) 
    m_null = false;
 }
 
+
 /**
  * Sets the prescales from a vector of int32.
+ *
+ * DEPRECATED
  */
 void TrigConf::PrescaleSet::setPrescales(const int p[], const unsigned int size) {
+   TrigConf::L1PSNumber l1ps;
    for (unsigned int i = 0; i < size; i++) {
-      setPrescale(i, p[i]);
+      m_Prescales_ctp[i] = (int64_t) p[i];
+      l1ps = TrigConf::L1PSNumber((int64_t)p[i]);
+      m_Prescales[i] = l1ps.getInt32();
+      m_Prescales_float[i] = l1ps.getFloatPrescale();
    }
+   m_null = false;
 }
 
 /**
  * Set the prescale NUM from the int64 value prescaleValue.
+ *
+ * DEPRECATED
  */
 void
 TrigConf::PrescaleSet::setPrescale(unsigned int num, int64_t prescaleValue) {
@@ -160,8 +179,22 @@ TrigConf::PrescaleSet::setPrescale(unsigned int num, int64_t prescaleValue) {
  */
 void
 TrigConf::PrescaleSet::setPrescale(unsigned int num, int prescaleValue) {
-   setPrescale(num, (int64_t) prescaleValue);
+   m_Prescales_ctp[num] = (int64_t) prescaleValue;
+   TrigConf::L1PSNumber l1ps = TrigConf::L1PSNumber((int64_t)prescaleValue);
+   m_Prescales[num] = l1ps.getInt32();
+   m_Prescales_float[num] = l1ps.getFloatPrescale();  
+   m_null = false;
 }
+
+void 
+TrigConf::PrescaleSet::setPrescale(unsigned int num, float prescaleValue) {
+  int32_t cut = getCutFromPrescale(prescaleValue);
+  m_Prescales[num] = cut;
+  m_Prescales_ctp[num] = cut;
+  m_Prescales_float[num] = prescaleValue;
+  m_null = false;
+}
+
 
 void
 TrigConf::PrescaleSet::print(const std::string& indent, unsigned int detail) const {
@@ -170,7 +203,7 @@ TrigConf::PrescaleSet::print(const std::string& indent, unsigned int detail) con
       printNameIdV("");
       if(detail>=3) {
          int i(0);
-         for( auto ps: m_Prescales)
+         for( auto ps: m_Prescales_float)
             cout << indent << "        ctpid=" << i++ << ": " << " prescale=" << ps << endl;
       }
    }

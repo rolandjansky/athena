@@ -38,7 +38,7 @@ namespace TrigConf {
       bool                         newPrescaleStyle() const { return m_newPrescales; }
       const std::string&           type() const { return m_Type; }
       unsigned int                 partition() const { return m_Partition; }
-      const std::vector<int>&      prescales() const { return m_Prescales; }
+      const std::vector<int>&      prescales() const __attribute__((deprecated)) { return m_Prescales; }
       const std::vector<int64_t>&  prescales_ctp() const { return m_Prescales_ctp; }
       const std::vector<float>&    prescales_float() const { return m_Prescales_float; }
       const std::vector<int32_t>&  cuts() const { return m_Cuts; }
@@ -50,11 +50,12 @@ namespace TrigConf {
 
       // setting of prescales
       void resize(size_t size);
-      void setPrescales(const std::vector<int64_t>&);
-      void setPrescales(const int64_t p[], unsigned int size);
-      void setPrescales(const int p[], unsigned int size);
-      void setPrescale(unsigned int num, int64_t prescaleValue);
-      void setPrescale(unsigned int num, int prescaleValue);
+      void setPrescales(const std::vector<int64_t>&) __attribute__ ((deprecated));
+      void setPrescales(const int64_t p[], unsigned int size) __attribute__ ((deprecated));
+      void setPrescales(const int p[], unsigned int size)  __attribute__ ((deprecated));
+      void setPrescale(unsigned int num, int64_t prescaleValue) __attribute__ ((deprecated));         
+      void setPrescale(unsigned int num, int prescaleValue) __attribute__ ((deprecated));     
+      void setPrescale(unsigned int num, float prescaleValue);
       void setCuts(const std::vector<int32_t>& cuts);
       void setCut(unsigned int num, int32_t cut);
 

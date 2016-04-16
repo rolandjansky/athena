@@ -13,6 +13,15 @@ using namespace TrigConf;
 static TrigConf::CaloInfo fgCaloInfo;
 static const TrigConf::CaloInfo* fgCaloInfoPointer=0;
 
+const int TriggerThresholdValue::fgCaloClusterOff   = 0xff; // 255
+const int TriggerThresholdValue::fgCaloJetOff       = 0x3ff; // 1023
+const int TriggerThresholdValue::fgCaloEtSumOff     = 0x7fff; // 16383
+const int TriggerThresholdValue::fgCaloEtMissOff    = 0x7fff; // 2895
+const int TriggerThresholdValue::fgCaloJetEtOff     = 0x33e6; // 13286
+const int TriggerThresholdValue::fgCaloIsolationOff = 0x3f; // 63
+
+
+
 // Static stuffs
 void
 TriggerThresholdValue::setCaloInfo(const CaloInfo& ci) {

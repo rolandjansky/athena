@@ -288,7 +288,6 @@ TrigConf::ThresholdConfig::print(const string& indent, unsigned int detail) cons
       cout << indent << "=========================================" << endl
            << indent << "== ThresholdConfig for MT_id = " << lvl1MasterTableId()  << endl
            << indent << "=========================================" << endl;
-      m_CaloInfo.print();
       printVectorSummary(getThresholdVector(L1DataDef::EM),   "EMThresholdVector", indent, detail);
       printVectorSummary(getThresholdVector(L1DataDef::TAU),  "TauThresholdVector", indent, detail);
       printVectorSummary(m_ClusterThresholdVector,            "ClusterThresholdVector", indent, detail);
@@ -301,6 +300,7 @@ TrigConf::ThresholdConfig::print(const string& indent, unsigned int detail) cons
       printVectorSummary(getThresholdVector(L1DataDef::MUON), "MuonThresholdVector", indent, detail);
       printVectorSummary(getThresholdVector(L1DataDef::NIM),  "NimThresholdVector", indent, detail);
    }
+   m_CaloInfo.print(indent, detail);
 }
 
 void
@@ -373,7 +373,7 @@ TrigConf::ThresholdConfig::clear() {
    for(TriggerThreshold* thr: m_TriggerThresholdVector) delete thr;
    m_TriggerThresholdVector.clear();
 
-   for(thrVecMap_t::value_type p: m_thresholdVectors)
+   for(thrVecMap_t::value_type & p: m_thresholdVectors)
       p.second.clear();
 
    m_CaloInfo.clear();

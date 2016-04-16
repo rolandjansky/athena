@@ -21,12 +21,12 @@ namespace TrigConf {
 
    class TriggerThresholdValue : public L1DataBaseclass  {
    public:
-      static const int fgCaloClusterOff   = 0xff; // 255
-      static const int fgCaloJetOff       = 0x3ff; // 1023
-      static const int fgCaloEtSumOff     = 0x3fff; // 16383
-      static const int fgCaloEtMissOff    = 0xb4f; // 2895
-      static const int fgCaloJetEtOff     = 0x33e6; // 13286
-      static const int fgCaloIsolationOff = 0x3f; // 63
+      static const int fgCaloClusterOff;
+      static const int fgCaloJetOff;
+      static const int fgCaloEtSumOff;
+      static const int fgCaloEtMissOff;
+      static const int fgCaloJetEtOff;
+      static const int fgCaloIsolationOff;
 
    public:
       static void setCaloInfo(const CaloInfo& ci);
