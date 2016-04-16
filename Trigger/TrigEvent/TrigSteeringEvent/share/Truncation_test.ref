@@ -1,0 +1,31 @@
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+Truncation_test      INFO payload smaller than chains
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+Truncation_test      INFO serialize with payload free 600
+Truncation_test      INFO serialized tot size 14
+Truncation_test      INFO Deserialized sizes chains: 0 navigation: 0 extras: 0
+Truncation_test      INFO payload bigger than chains
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+Truncation_test      INFO serialize with payload free 900
+Truncation_test      INFO serialized tot size 816
+Truncation_test      INFO Deserialized sizes chains: 800 navigation: 0 extras: 0
+Truncation_test      INFO payload enough for first nav piece 
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+Truncation_test      INFO serialize with payload free 1900
+Truncation_test      INFO serialized tot size 1816
+Truncation_test      INFO Deserialized sizes chains: 800 navigation: 1000 extras: 0
+Truncation_test      INFO payload enough for almost all nav pieces 
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+Truncation_test      INFO serialize with payload free 4816
+Truncation_test      INFO serialized tot size 4816
+Truncation_test      INFO Deserialized sizes chains: 800 navigation: 4000 extras: 0
+Truncation_test      INFO payload enough for  all nav pieces 
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+Truncation_test      INFO serialize with payload free 4820
+Truncation_test      INFO serialized tot size 4816
+Truncation_test      INFO Deserialized sizes chains: 800 navigation: 4000 extras: 0
+Truncation_test      INFO payload enough for  all  
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+Truncation_test      INFO serialize with payload free 5000
+Truncation_test      INFO serialized tot size 4857
+Truncation_test      INFO Deserialized sizes chains: 800 navigation: 4000 extras: 40

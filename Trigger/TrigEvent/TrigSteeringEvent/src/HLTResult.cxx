@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigSteeringEvent/HLTExtraData.h"
 
@@ -680,4 +679,3 @@ void HLT::swap(HLTResult& lhs, HLTResult& rhs)
   swap(lhs.m_navigationResultCuts_DSonly, rhs.m_navigationResultCuts_DSonly);
 }
 
-#endif //XAOD_ANALYSIS

@@ -9,7 +9,7 @@
 //
 //   $Id: cTrigSuperRoi.h, v0.0   Thu  5 Dec 2013 16:07:30 CET sutt $
 
-#if !defined(TRIGSTEERINGEVENT_TRIGSUPERROI_H)  && !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#if !defined(TRIGSTEERINGEVENT_TRIGSUPERROI_H)  && !defined(XAOD_STANDALONE)
 #define TRIGSTEERINGEVENT_TRIGSUPERROI_H
 
 #include <stdint.h>

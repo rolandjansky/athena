@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifdef XAOD_STANDALONE
-int main(){return 0;}
+#ifdef XAOD_STANDALON
+int main(){return 0;}E
 #endif
 
 #ifndef XAOD_STANDALONE
