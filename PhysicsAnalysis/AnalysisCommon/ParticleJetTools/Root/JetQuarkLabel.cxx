@@ -35,7 +35,11 @@ JetQuarkLabel::JetQuarkLabel(const std::string& name)
       m_ptCut(5.*GeVtoMeV),
       m_noDoc(true),
       m_inTime(-1),
-      m_jetLabel(0)
+      m_jetLabel(0),
+      m_pdg(0),
+      m_barcode(0),
+      m_Bpdg(0),
+      m_NEventInCollection(0)
 {
     declareProperty("McEventCollection", m_mcEventCollection);
     declareProperty("deltaRCut",    m_deltaRCut);

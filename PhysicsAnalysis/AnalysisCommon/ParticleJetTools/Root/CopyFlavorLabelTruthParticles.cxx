@@ -7,7 +7,7 @@
 #include "xAODTruth/TruthParticleAuxContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "AthContainers/ConstDataVector.h"
-#include "TruthUtils/PIDUtils.h"
+#include "TruthUtils/PIDHelpers.h"
 
 using namespace std;
 

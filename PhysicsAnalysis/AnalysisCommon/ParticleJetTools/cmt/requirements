@@ -7,29 +7,26 @@ use AtlasPolicy         AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*        External
 use JetRec		        JetRec-*		        Reconstruction/Jet
 use JetInterface	    JetInterface-*	        Reconstruction/Jet
-use JetTagInfo          JetTagInfo-*            PhysicsAnalysis/JetTagging
 use EventPrimitives     EventPrimitives-*       Event
 use xAODJet             xAODJet-*               Event/xAOD
 use xAODTruth           xAODTruth-*             Event/xAOD
 use AsgTools            AsgTools-*              Control/AthToolSupport
 use AtlasReflex         AtlasReflex-*           External
 
-use AthAnalysisBaseComps AthAnalysisBaseComps-* Control
-
+use MCTruthClassifier	 MCTruthClassifier-*	 PhysicsAnalysis
+ 
 private
-use AthContainers        AthContainers-*         Control
-use TruthUtils           TruthUtils-*            Generators
+use AthAnalysisBaseComps AthAnalysisBaseComps-* Control
+use AthContainers        AthContainers-*        Control
+use TruthUtils           TruthUtils-*           Generators
+
 end_private
 
 
 #library ParticleJetTools *.cxx components/*.cxx
-apply_pattern dual_use_library files="HadronUtils.cxx ../Root/JetQuarkLabel.cxx ../Root/JetConeLabeling.cxx ../Root/ParticleToJetAssociator.cxx ../Root/JetPartonTruthLabel.cxx ../Root/CopyTruthParticles.cxx ../Root/CopyFlavorLabelTruthParticles.cxx ../Root/CopyBosonTopLabelTruthParticles.cxx ../Root/CopyTruthPartons.cxx ../Root/CopyTruthJetParticles.cxx ../Root/JetFlavourInfo.cxx ../Root/ParticleJetDeltaRLabelTool.cxx""
+apply_pattern dual_use_library files="HadronUtils.cxx ../Root/JetQuarkLabel.cxx ../Root/JetConeLabeling.cxx ../Root/ParticleToJetAssociator.cxx ../Root/JetPartonTruthLabel.cxx ../Root/CopyTruthParticles.cxx ../Root/CopyFlavorLabelTruthParticles.cxx ../Root/CopyBosonTopLabelTruthParticles.cxx ../Root/CopyTruthPartons.cxx ../Root/CopyTruthJetParticles.cxx ../Root/JetFlavourInfo.cxx ../Root/ParticleJetDeltaRLabelTool.cxx"
 apply_pattern declare_python_modules files="*.py"
 apply_pattern declare_joboptions files="*.py"
 apply_pattern lcgdict dict=ParticleJetTools \
     selectionfile=selection.xml \
     headerfiles="../ParticleJetTools/ParticleJetToolsDict.h"
-
-#private
-#macro cppdebugflags '$(cppdebugflags_s)'
-#macro_remove componentshr_linkopts "-Wl,-s"

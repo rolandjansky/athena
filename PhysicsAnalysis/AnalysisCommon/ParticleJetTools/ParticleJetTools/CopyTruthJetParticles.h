@@ -1,3 +1,5 @@
+// this file is -*- C++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -6,7 +8,10 @@
 #define COPYTRUTHJETPARTICLES_H
 
 #include "ParticleJetTools/CopyTruthParticles.h"
-
+#include "AsgTools/ToolHandle.h"
+#include "MCTruthClassifier/MCTruthClassifierDefs.h"
+#include "MCTruthClassifier/IMCTruthClassifier.h"
+#include <map>
 
 class CopyTruthJetParticles : public CopyTruthParticles {
 ASG_TOOL_CLASS2(CopyTruthJetParticles, CopyTruthParticles, IJetExecuteTool)
@@ -19,7 +24,11 @@ public:
   virtual int execute() const;
 
   /// Redefine our own Classifier function(s)
-  bool classifyJetInput(const xAOD::TruthParticle* tp, int barcodeOffset) const;
+  bool classifyJetInput(const xAOD::TruthParticle* tp, int barcodeOffset,
+                        std::vector<const xAOD::TruthParticle*>& WZleptons,
+                        std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const;
+
+
   /// The base classify() is not used 
   bool classify(const xAOD::TruthParticle* ) const {return false;}
 
@@ -30,8 +39,14 @@ private:
   bool m_includeWZ; //!< Include particles from W/Z decays
   bool m_includeTau; //!< Include particles from tau decays
 
-  bool fromWZ( const xAOD::TruthParticle* tp ) const;
-  bool fromTau( const xAOD::TruthParticle* tp ) const;
+  bool fromWZ( const xAOD::TruthParticle* tp,
+	       std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const;
+  bool fromTau( const xAOD::TruthParticle* tp,
+		std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const;
+
+
+  MCTruthPartClassifier::ParticleOrigin getPartOrigin(const xAOD::TruthParticle* tp,
+						      std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const;
 
   float m_maxAbsEta;
 
@@ -42,6 +57,10 @@ private:
   ///  1 -> from metadata. Fails if not found
   ///  2 -> from metadata, use BarCodeOffset property if not found (default)
   int m_barcodeFromMetadata;
+
+  float m_photonCone;
+
+  ToolHandle<IMCTruthClassifier> m_classif;
 };
 
 

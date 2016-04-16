@@ -31,6 +31,6 @@ namespace xAOD {
   enum JetFlavourLabelType { GAFinalHadron, GAInitialHadron, GAFinalParton, ConeFinalParton, ExclConeHadron };
 
   // Provide a unified interface to all methods
-  int jetFlavourLabel (const xAOD::Jet* jet, JetFlavourLabelType = GAFinalHadron);
+  int jetFlavourLabel (const xAOD::Jet* jet, JetFlavourLabelType = ExclConeHadron);
   
 }

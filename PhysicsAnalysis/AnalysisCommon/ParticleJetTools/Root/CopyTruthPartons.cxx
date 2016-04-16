@@ -4,7 +4,7 @@
 
 #include "ParticleJetTools/CopyTruthPartons.h"
 #include "xAODTruth/TruthParticleContainer.h"
-#include "TruthUtils/PIDUtils.h"
+#include "TruthUtils/PIDHelpers.h"
 
 using namespace std;
 

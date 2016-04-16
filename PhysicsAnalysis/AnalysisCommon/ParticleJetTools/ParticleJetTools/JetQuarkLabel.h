@@ -82,12 +82,12 @@ class JetQuarkLabel : public asg::AsgTool, virtual public IJetTruthMatching {
         double m_ptCut;     //!< pT cut for partons
         bool   m_noDoc;
         short  m_inTime;
-        int    m_pdg;       //!< pdg code of the parton/baryon the jet has been matched to (which was closest)
-        int    m_barcode;   //!< barcode of the matched parton (to be able to find the parton in the McEventColl)
         bool m_testJet(const xAOD::Jet&, const xAOD::TruthEventContainer*);
         int m_jetLabel; //!< label to use for matching jets
         std::map<std::string, double> m_distanceToQuarks; //!< keep track of distances to quarks
         Eigen::Vector3d m_BDecVtx; //!< positon of the lowest lying B hadron vertex decay
+        int    m_pdg;       //!< pdg code of the parton/baryon the jet has been matched to (which was closest)
+        int    m_barcode;   //!< barcode of the matched parton (to be able to find the parton in the McEventColl)
         int m_Bpdg;
         int m_NEventInCollection;
 };
