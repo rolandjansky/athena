@@ -144,9 +144,6 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     msg() << MSG::DEBUG 
 	  << "Using outputTE("<< outputTE <<")->getId(): " << outputTE->getId()
 	  << "; RoI = "   << *roiDescriptor
-      //	  << "; RoI Id = "   << roiDescriptor->roiId()
-      //	  << ": Eta = "      << roiDescriptor->eta() << "+-" << roiDescriptor->etaHalfWidth()
-      //	  << ", Phi = "      << roiDescriptor->phi() << "+-" << roiDescriptor->phiHalfWidth()
 	  << endreq;
   }
 
@@ -226,24 +223,13 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     float temp_trackPtthr = m_trackPtthr;
     std::vector<float> temp_trtratio;
 
-    if(algoId != 3 ){ //SiTrack or IDScan tracks cuts
-      temp_etabin                = m_etabin;
-      temp_calotrackdeta         = m_calotrackdeta;
-      temp_calotrackdphi         = m_calotrackdphi;
-      temp_calotrackdeoverp_low  = m_calotrackdeoverp_low;
-      temp_calotrackdeoverp_high = m_calotrackdeoverp_high;
-      temp_trackPtthr            = m_trackPtthr;
-      temp_trtratio              = m_trtratio;
-    }
-    if(algoId == 3 ){ //TRTSegFinder tracks cuts
-      temp_etabin                = m_etabinTRT;
-      temp_calotrackdeta         = m_calotrackdetaTRT;
-      temp_calotrackdphi         = m_calotrackdphiTRT;
-      temp_calotrackdeoverp_low  = m_calotrackdeoverp_lowTRT;
-      temp_calotrackdeoverp_high = m_calotrackdeoverp_highTRT;
-      temp_trackPtthr            = m_trackPtthrTRT;
-      temp_trtratio              = m_trtratioTRT;
-    }
+    temp_etabin                = m_etabin;
+    temp_calotrackdeta         = m_calotrackdeta;
+    temp_calotrackdphi         = m_calotrackdphi;
+    temp_calotrackdeoverp_low  = m_calotrackdeoverp_low;
+    temp_calotrackdeoverp_high = m_calotrackdeoverp_high;
+    temp_trackPtthr            = m_trackPtthr;
+    temp_trtratio              = m_trtratio;
 
     //ignore if cuts/binning not configured
     int etaBin = 0;
@@ -271,31 +257,6 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     //##
     
     if ( msgLvl() <= MSG::DEBUG ) {
-#ifdef DONTDO
-	msg() << MSG::DEBUG
-	      << "TrigElec[i]->isValid()=" << (*elecIter)->isValid()
-	      << endreq;
-
-	msg() << MSG::DEBUG << (**elecIter) << endreq;	
-	/* IMPORTANT: pt() is the 4-momentum base class method; returns cluster ET */
-// 	msg() << MSG::DEBUG
-// 	      << ">eta0= " << (*elecIter)->eta()
-// 	      << " phi0= " << (*elecIter)->phi()
-// 	      << " calo: Et= "  << (*elecIter)->pt()
-// 	      << " track: Pt= "  << (*elecIter)->Pt()
-// 	      << " eta at calo= " << (*elecIter)->trkEtaAtCalo()
-// 	      << " phi at calo= " << (*elecIter)->trkPhiAtCalo()
-// 	      << " match: Deta= "  << (*elecIter)->trkClusDeta()
-// 	      << " Dphi= "  << (*elecIter)->trkClusDphi()
-// 	      << " NTRHits = " << NTRHits
-// 	      << " NStrawHits = " << NStrawHits
-// 	      << " NTRTRatio = " <<TRTHitRatio
-// 	      << endreq;
-	
-	msg() << MSG::DEBUG
-	      << ">Tracking algo " << (*elecIter)->trackAlgo()
-	      << endreq;
-#endif
 	
 	msg() << MSG::DEBUG << "absEta    = " << absEta << " ==> etaBin = " << etaBin << endreq;
 	msg() << MSG::DEBUG << "pT (Calo) = " << pTcalo << endreq;

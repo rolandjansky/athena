@@ -331,16 +331,9 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
 	std::vector<float> temp_calotrackdeta;
 	std::vector<float> temp_calotrackdphi;
 	float temp_trackPtthr;
-	if((unsigned int)algoId != 3 ){//SiTrack or IDScan
-	  temp_calotrackdeta = m_calotrackdeta;
-	  temp_calotrackdphi = m_calotrackdphi;
-	  temp_trackPtthr = m_trackPtthr;
-	}
-	if((unsigned int)algoId == 3 ){//TRTSegFinder
-	  temp_calotrackdeta = m_calotrackdetaTRT;
-	  temp_calotrackdphi  = m_calotrackdphiTRT;
-	  temp_trackPtthr = m_trackPtthrTRT; 
-	}
+	temp_calotrackdeta = m_calotrackdeta;
+	temp_calotrackdphi = m_calotrackdphi;
+	temp_trackPtthr = m_trackPtthr;
 
 	//ignore tracks that don't have cuts 
 	if(temp_calotrackdeta.size()<1 || temp_calotrackdphi.size()<1 ){
@@ -371,33 +364,6 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
 	      // extrapolate track using tool
 	      //double phiAtCalo = 0, etaAtCalo = 0;
 	      //double offset = 0.
-/*
-              const Trk::TrackParameters* parametersInCalo (0);
-
-	      if ( (*el_t2calo_clus)->energy(CaloSampling::CaloSample::EMB2) > (*el_t2calo_clus)->energy(CaloSampling::CaloSample::EME2) ) {
-              	parametersInCalo = m_trackExtrapolator->extrapolate( *(trkIter), (CaloCell_ID::CaloSample)CaloSampling::CaloSample::EMB2,offset);
-	      } else {
-              	parametersInCalo = m_trackExtrapolator->extrapolate( *(trkIter), (CaloCell_ID::CaloSample)CaloSampling::CaloSample::EME2,offset);
-	      }
-	
-	      StatusCode sc = m_trackExtrapolator->extrapolateToCalo((trkIter),
-								     m_RCAL, m_ZCAL,
-								     phiAtCalo, etaAtCalo);
-
-	      // if extrapolation failed for some reason, don't do calo-track matching cuts
-	      // and instead reject electron already here (jump to next electron)
-	      if ( !parametersInCalo ) {
-		if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "extrapolator failed "<<endreq;
-		m_extrapolator_failed++;
-
-		// jump to next electron
-		continue;
-
-	      } else {
-	        etaAtCalo = parametersInCalo->position().eta();
-	        phiAtCalo = parametersInCalo->position().phi();
-		delete parametersInCalo;
-*/
                 // get calo extension 
                 const Trk::CaloExtension* caloExtension = 0; 
                 bool useCaching = false; 
