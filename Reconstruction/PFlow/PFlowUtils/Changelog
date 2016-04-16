@@ -1,3 +1,20 @@
+2016-04-16 Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+	* Created a new tag with a slightly adjusted CMakeLists.txt
+	  file.
+	* This is to be able to collect a tag into devval with an
+	  explicit CMake configuration.
+	* Tagging as PFlowUtils-00-00-06
+
+6 April 2016 Mark Hodgkinson
+Add ParticleFlowEventFilter_207 class needed for AODFix_r207
+ATLASRECTS-2964	
+Tag PFlowUtils-00-00-05
+	
+2016-03-22    Johannes Elmsheuser
+	* python/DefaultTools.py : New configuration module for JetRecConfig
+	* ATLJETMET-511
+	* Tag PFlowUtils-00-00-04
+	
 26 November Mark Hodgkinson
 Update PFO container names
 Tag as PFlowUtils-00-00-03	
