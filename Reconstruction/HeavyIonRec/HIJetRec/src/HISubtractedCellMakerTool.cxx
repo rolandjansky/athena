@@ -63,7 +63,11 @@ StatusCode HISubtractedCellMakerTool::process(CaloCellContainer* theCells)
       }
     }
 
-    if( bin >= shape->size() )       std::cout << "CATCH " << eta << "\t" << phi << "\t" << sample << "\t" << index <<std::endl;
+    // if( bin >= shape->size() ) 
+    // {
+    //   ATH_MSG_ERROR("Requested bin for cell " << bin << " is out of range " shape->size());
+    //   return StatusCode::ERROR;
+    // }
 
     const xAOD::HIEventShape* s=shape->at(bin);    
     float nCells=s->nCells();

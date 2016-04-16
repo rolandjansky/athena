@@ -57,27 +57,3 @@ int HIJetDRAssociationTool::modify(xAOD::JetContainer& jets) const
   return 1;
 } 
 
-  // msg(MSG::INFO) << std::setw(20) << "CHECKING ASSOCIATIONS" << endreq;
-  // for (xAOD::JetContainer::iterator ijet=jets.begin(); ijet!=jets.end(); ijet++)
-  // {
-  //   xAOD::Jet* theJet=(*ijet);
-  //   msg(MSG::INFO) << std::setw(20) << "JET"
-  // 		   << std::setw(15) << theJet->e()
-  // 		   << std::setw(15) << theJet->eta()
-  // 		   << std::setw(15) << theJet->phi()
-  // 		   << std::setw(15) << theJet->pt()
-  // 		   << endreq;
-    
-  //   std::vector<const xAOD::IParticle*> theParticles=theJet->getAssociatedObjects<xAOD::IParticle>(m_assoc_name);
-  //   unsigned int ip=0;
-  //   for(auto pItr=theParticles.begin(); pItr!=theParticles.end(); pItr++, ip++)
-  //   {
-  //     msg(MSG::INFO) << std::setw(20) << ip
-  // 		     << std::setw(15) << (*pItr)->e()
-  // 		     << std::setw(15) << (*pItr)->eta()
-  // 		     << std::setw(15) << (*pItr)->phi()
-  // 		     << std::setw(15) << (*pItr)->pt()
-  // 		     << endreq;
-  //   }
-
-

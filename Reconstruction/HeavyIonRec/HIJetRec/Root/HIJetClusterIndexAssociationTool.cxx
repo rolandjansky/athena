@@ -95,7 +95,7 @@ int HIJetClusterIndexAssociationTool::modify(xAOD::JetContainer& jets) const
   }
   // return 1;
 
-  // msg(MSG::INFO) << std::setw(20) << "CHECKING ASSOCIATIONS" << endreq;
+  // msg(MSG::INFO) << std::setw(20) << "ASG_CHECKING ASSOCIATIONS" << endreq;
   // for (xAOD::JetContainer::iterator ijet=jets.begin(); ijet!=jets.end(); ijet++)
   // {
   //   xAOD::Jet* theJet=(*ijet);

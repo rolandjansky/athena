@@ -4,8 +4,8 @@
 
 // HIJetCellSubtractorTool.h
 
-#ifndef __HIJETREC_HIJETCELLSUBTRACTORTOOL_H__
-#define __HIJETREC_HIJETCELLSUBTRACTORTOOL_H__
+#ifndef HIJETREC_HIJETCELLSUBTRACTORTOOL_H
+#define HIJETREC_HIJETCELLSUBTRACTORTOOL_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -38,13 +38,16 @@ class HIJetCellSubtractorTool : public HIJetSubtractorToolBase
   /// First argument is reference to four vector that is updated to reflect
   /// the subtracted kinematics of the IParticle passed in the second arg
   /// Method expects cl_in to be a cluster
-  virtual void Subtract(xAOD::IParticle::FourMom_t& subtr_mom, const xAOD::IParticle* cl_in, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, ToolHandle<IHIUEModulatorTool> modulator) override;
+  virtual void Subtract(xAOD::IParticle::FourMom_t& subtr_mom, const xAOD::IParticle* cl_in, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& modulator) override;
 
-  virtual void UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl, 
-				  std::set<unsigned int>& used_indices, std::set<unsigned int>& used_eta_bins) override;
+  virtual void UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl) override;
 
+
+  virtual void SubtractWithMoments(xAOD::CaloCluster* cl, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& modulator) override;
 private:
   void UpdateShape(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const CaloCell* theCell, float geoWeight, float eta0, float phi0, bool isNeg) const;
+
+
 };
 
 #endif

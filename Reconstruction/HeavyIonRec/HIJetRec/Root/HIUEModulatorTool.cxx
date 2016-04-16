@@ -29,8 +29,8 @@ StatusCode HIUEModulatorTool::initialize()
   if(m_do_v3) m_nh_vector.push_back(3);
   if(m_do_v4) m_nh_vector.push_back(4);
   if(m_nh_vector.size()!=0 &&(m_shape_key.compare("NULL")==0)) 
-    ATH_MSG_WARNING("Requested modulation, but provided no name for HIEventShapeContainer, no modulation will beapplied");
-
+    ATH_MSG_WARNING("Requested modulation, but provided no name for HIEventShapeContainer, no modulation will be applied");
+  ATH_MSG_DEBUG("Equipping " << m_do_v2 << "\t" << m_do_v3 << "\t" << m_do_v4);
   return StatusCode::SUCCESS;
 }
 
@@ -57,7 +57,12 @@ StatusCode HIUEModulatorTool::retrieveShape()
 {
   if(m_shape_key.compare("NULL")==0) return StatusCode::SUCCESS;
   const xAOD::HIEventShapeContainer* mod_shape=0;
-  CHECK(evtStore()->retrieve(mod_shape,m_shape_key));
+  if(evtStore()->retrieve(mod_shape,m_shape_key).isFailure())
+  {
+    ATH_MSG_ERROR("Could not retrieve shape " << m_shape_key);
+    return StatusCode::FAILURE;
+    
+  }
   if(mod_shape->size()==0)
   {
     ATH_MSG_ERROR("Modulation container empty : " << m_shape_key);
@@ -77,10 +82,16 @@ float HIUEModulatorTool::modulate(const std::vector<unsigned int>& nh_vector, co
     {
       
       unsigned int ih=nh_vector.at(i)-1;
+      float nphi=nh_vector.at(i);
+      nphi*=phi;
       float qx=shape->etCos().at(ih);
       float qy=shape->etSin().at(ih);
-      CxxUtils::sincos sc(phi*ih);
-      modulation+=2.*sc.apply(qx,qy);
+      CxxUtils::sincos sc(nphi);
+      //careful w/ factors of 2: 
+      //|q_vector| is 2 times v_n
+      //so 2 v_n cos( n (phi-psi_n) ) = 2 v_n (cos (nphi) cos(npsi_n) +sin(nphi) sin(npsi_n))
+      // = qx cos (nphi) + qy sin(nphi)
+      modulation+=sc.apply(qy,qx);
     }
     modulation/=et;
   }
@@ -94,6 +105,13 @@ StatusCode HIUEModulatorTool::checkQVectorSize(const xAOD::HIEventShape* shape, 
 
 StatusCode HIUEModulatorTool::checkCompatibility() const
 {
-  for(unsigned int i=0; i < m_nh_vector.size(); i++) CHECK(checkQVectorSize(m_shape,m_nh_vector.at(i)));
+  for(unsigned int i=0; i < m_nh_vector.size(); i++) 
+  {
+    if(checkQVectorSize(m_shape,m_nh_vector.at(i)).isFailure())
+    {
+      ATH_MSG_ERROR("HIEventShapeContainer " << m_shape_key << " does not have requested harmonic");
+      return StatusCode::FAILURE;
+    }
+  }
   return StatusCode::SUCCESS;
 }

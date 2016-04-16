@@ -4,8 +4,8 @@
 
 // HIJetClusterSubtractorTool.h
 
-#ifndef __HIJETREC_HIJETCLUSTERSUBTRACTORTOOL_H__
-#define __HIJETREC_HIJETCLUSTERSUBTRACTORTOOL_H__
+#ifndef HIJETREC_HIJETCLUSTERSUBTRACTORTOOL_H
+#define HIJETREC_HIJETCLUSTERSUBTRACTORTOOL_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -24,25 +24,43 @@
 #include "HIJetRec/HIJetSubtractorToolBase.h"
 #include "AsgTools/AsgTool.h"
 
+
+class TH3F;
+
 class HIJetClusterSubtractorTool : public HIJetSubtractorToolBase
 {
-  ASG_TOOL_CLASS(HIJetClusterSubtractorTool, IHISubtractorTool)
-
+  ASG_TOOL_CLASS(HIJetClusterSubtractorTool, IHISubtractorTool);
+  
   // FIX
   //needs lookup for static geometric factors!
-
-  public:
+  
+public:
   /// \brief Implements method defined in base
   /// First argument is reference to four vector that is updated to reflect
   /// the subtracted kinematics of the IParticle passed in the second arg
   /// Method expects cl_in to be a cluster
-  virtual StatusCode Subtract(xAOD::IParticle::FourMom_t& subtr_mom, xAOD::CaloCluster* cl_in, HIEventShapeContainer* shape) = 0;
+  HIJetClusterSubtractorTool(const std::string& myname);
+  virtual void Subtract(xAOD::IParticle::FourMom_t&, const xAOD::IParticle*, const xAOD::HIEventShapeContainer*, const HIEventShapeIndex*, const ToolHandle<IHIUEModulatorTool>& ) override;
+  virtual void SubtractWithMoments(xAOD::CaloCluster*, const xAOD::HIEventShapeContainer*, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& ) override;  
+  virtual void UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl) override;
+  
 
+private:
 
-  virtual void UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const xAOD::CaloCluster* cl, 
-				  std::set<unsigned int>& used_indices, std::set<unsigned int>& used_eta_bins) = 0;
+  bool m_init;
+  StatusCode initializeTool();
+  float getWeight(float eta, float phi, int sample) const;
+  float getWeightEta(float eta, float phi, int sample) const;
+  float getWeightPhi(float eta, float phi, int sample) const;
 
-
+  std::string m_input_file;
+  std::string m_config_dir;
+  TH3F* m_h3_w;
+  TH3F* m_h3_eta;
+  TH3F* m_h3_phi;
+  
 };
 
 #endif
+
+

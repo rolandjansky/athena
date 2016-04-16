@@ -4,8 +4,8 @@
 
 // HIJetSubtractorToolBase.h
 
-#ifndef __HIJETREC_HIJETSUBTRACTORTOOLBASE_H__
-#define __HIJETREC_HIJETSUBTRACTORTOOLBASE_H__
+#ifndef HIJETREC_HIJETSUBTRACTORTOOLBASE_H
+#define HIJETREC_HIJETSUBTRACTORTOOLBASE_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -27,20 +27,28 @@ public:
 
   HIJetSubtractorToolBase(const std::string& myname);
   virtual ~HIJetSubtractorToolBase(){};
-
+  inline float MinEnergyForMoments() const {return m_E_min_moment;};
+  inline float MinEnergySigForMoments() const {return m_E_sig_moment;};
+  inline bool usesCells() const {return m_useCells;};
 private:
 
   /// %% FIX needs some cleanup
   float m_E_min_moment;
+  float m_E_sig_moment;
   bool m_update_clusters;
-
+  bool m_useCells;
 
 protected:
   inline void SetMinEnergyForMoment(float min_E) {m_E_min_moment=min_E;};
   inline void SetUpdateClusters(bool up) {m_update_clusters=up;};
 
-  inline float MinEnergyForMoments() const {return m_E_min_moment;};
+
   inline bool UpdateClusters() const {return m_update_clusters;};
+
+  void setSubtractedEtaPhi(float E, float& eta, float& phi, float eta0, float phi0, float sig) const;
+  
+
+  inline void setUseCells(bool v) {m_useCells=v;};
 
 };
 

@@ -3,7 +3,7 @@
 from HIJetRec.HIJetRecFlags import HIJetFlags
 from JetRec.JetRecFlags import jetFlags
 from JetRec.JetRecStandard import jtm
-
+import AthenaCommon.SystemOfUnits as Units
 
 #configuring getter tools
 #selection for track jets
@@ -12,11 +12,14 @@ from JetRecTools.JetRecToolsConf import TrackPseudoJetGetter
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
+from JetMomentTools.JetMomentToolsConf import JetCaloQualityTool 
+from JetMomentTools.JetMomentToolsConf import JetCaloCellQualityTool 
 
 #select the tracks
+if jetFlags.Enabled() : HIJetFlags.UseHITracks.set_Value_and_Lock(False)
 if HIJetFlags.UseHITracks() :
     jtm += InDet__InDetTrackSelectionTool("trk_tracksel_HI",
-                                          minPt                = HIJetFlags.InputTrackPtMin(),
+                                          minPt                = HIJetFlags.TrackInputPtMin(),
                                           maxAbsEta            = 2.5,
                                           minNSiHits           = 7,
                                           maxNPixelSharedHits  = 1,
@@ -48,7 +51,7 @@ if HIJetFlags.UseHITracks() :
                                 GhostScale = 0.0)
     #now for ghost tracks
     jtm += InDet__InDetTrackSelectionTool("trk_gtracksel_HI",
-                                          minPt                = 400.,
+                                          minPt                = 400.*Units.MeV,
                                           maxAbsEta            = 2.5,
                                           minNSiHits           = 7,
                                           maxNPixelSharedHits  = 1,
@@ -80,19 +83,22 @@ if HIJetFlags.UseHITracks() :
 
     jtm.trkmoms.unlock()
     jtm.trkmoms.TrackVertexAssociation=jtm.tvassoc_HI.TrackVertexAssociation
-    jtm.trkmoms.TrackMinPtCuts = [500, 1000, 2000, 4000]
+    jtm.trkmoms.TrackMinPtCuts = [int(500*Units.MeV), int(1*Units.GeV), int(2*Units.GeV), int(4*Units.GeV)]
     jtm.trkmoms.lock()
 
 
 from JetRec.JetRecConf import PseudoJetGetter
 ClusterKey=HIJetFlags.HIClusterKey()
 
-jtm += PseudoJetGetter("get_HI",
-                       InputContainer = ClusterKey,
-                       Label = "LCTopo", #Label = "Tower",
-                       OutputContainer = "PseudoJet" + ClusterKey,
-                       SkipNegativeEnergy = True,
-                       GhostScale = 0.0)
+from HIJetRec.HIJetRecConf import HIClusterPseudoJetGetter
+jtm += HIClusterPseudoJetGetter("get_HI",
+                                InputContainer = ClusterKey,
+                                Label = "LCTopo", #Label = "Tower",
+                                OutputContainer = "PseudoJet" + ClusterKey,
+                                SkipNegativeEnergy = False,
+                                TreatNegativeEnergyAsGhost=True,
+                                GhostScale = 1.e-20
+                                )
 
 jtm += PseudoJetGetter("gakt4trackget_HI", 
                        InputContainer = HIJetFlags.TrackJetContainerName(),
@@ -127,11 +133,14 @@ jtm.gettersMap['HITrack'] += HIgetters_common
 
 
 from JetRec.JetRecConf import JetFilterTool
-jetfil5=JetFilterTool("jetfil5", PtMin = 5000)
+jetfil5=JetFilterTool("jetfil5", PtMin = 5*Units.GeV)
 jtm.add(jetfil5)
 
-jetfil20=JetFilterTool("jetfil20", PtMin = 20000)
-jtm.add(jetfil20)
+jetfilHI=JetFilterTool("jetfilHI", PtMin = HIJetFlags.RecoOutputPtMin() )
+jtm.add(jetfilHI)
+
+jetfilHISeeds=JetFilterTool("jetfilHISeeds", PtMin = HIJetFlags.SeedPtMin() )
+jtm.add(jetfilHISeeds)
 
 #DR association- form element links for all clusters w/in DR of each jet
 DR=HIJetFlags.ClusterDRAssociation()
@@ -156,28 +165,44 @@ discrim.MaxOverMeanCut=HIJetFlags.DCutMaxOverMean()
 discrim.MinimumETMaxCut=HIJetFlags.DCutMax()
 jtm.add(discrim)
 
-#helper tool to apply bkgr using cells
-from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
-cell_subtr=HIJetCellSubtractorTool("HIJetSubtractor")
-jtm.add(cell_subtr)
-
 jtm.modifiersMap['HI_Unsubtr']=[assoc,max_over_mean,jetfil5] 
 
 hi_trk_modifiers=[assoc,max_over_mean,jtm.width]
-hi_modifiers=[jtm.width,jtm.jetens,jtm.larhvcorr]
+hi_modifiers = []
+
+#helper tool to apply bkgr using cells
+from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
+jtm.add(HIJetCellSubtractorTool("HIJetCellSubtractor"))
+
+from HIJetRec.HIJetRecConf import HIJetClusterSubtractorTool
+cl_subtr_tool=HIJetClusterSubtractorTool("HIJetClusterSubtractor")
+cl_subtr_tool.ConfigDir='HIJetRec/'
+jtm.add(cl_subtr_tool)
+
+
+if HIJetFlags.ApplyOriginCorrection() : hi_modifiers +=  [jtm.jetorigincorr]
+if HIJetFlags.ApplyEtaJESCalibration() :
+    from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
+    calib_tool=JetCalibrationTool('HICalibTool',JetCollection='AntiKt4EMTopo',ConfigFile='JES_Full2012dataset_Preliminary_Jan13.config',CalibSequence='AbsoluteEtaJES')
+    jtm.add(calib_tool)
+    hi_modifiers += [jtm.HICalibTool]
+hi_modifiers += [jtm.jetfilHI,jtm.jetsorter]
+hi_modifiers+=[jtm.width,jtm.jetens,jtm.larhvcorr]
+
 if jetFlags.useCaloQualityTool():
     hi_modifiers += [jtm.caloqual_cluster]
-if jetFlags.useTracks():
+if jetFlags.useTracks(): 
     hi_modifiers += [jtm.jvf, jtm.jvt, jtm.trkmoms]
 if jetFlags.useTruth():
     hi_modifiers += [jtm.truthpartondr,jtm.partontruthlabel]
     hi_trk_modifiers += [jtm.truthpartondr,jtm.partontruthlabel]
 
-hi_modifiers += [jtm.jetfil20]
+
+
 jtm.modifiersMap['HI']=hi_modifiers
 jtm.modifiersMap['HITrack']=hi_trk_modifiers
 
 assoc_name=assoc.AssociationName
-HIJetFinderDefaults=dict(ghostArea=0.0, ptminFilter= 5000)
+HIJetFinderDefaults=dict(ghostArea=0.0, ptminFilter= 5*Units.GeV)
 
-if not jetFlags.Enabled() : jtm.modifiersMap["truth"]=[]
+jtm.HIJetRecs=[]
