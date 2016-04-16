@@ -7,9 +7,11 @@
 #include <float.h>
 #include "JetSubStructureMomentTools/SubjetRecorderTool.h"
 #include "fastjet/PseudoJet.hh"
+#include "fastjet/ClusterSequence.hh"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 #include "JetEDM/JetConstituentFiller.h"
+#include "JetEDM/FastJetUtils.h"
 
 using namespace std;
 using fastjet::PseudoJet;
@@ -31,7 +33,12 @@ std::vector<xAOD::Jet *> SubjetRecorderTool::recordSubjets(std::vector<fastjet::
     return vector<xAOD::Jet *>();
   }
   xAOD::JetContainer *subjet_container = 0;
+#ifdef ROOTCORE
+  subjet_container = evtStore()->retrieve<xAOD::JetContainer>(subjet_container_name);
+#else
+  // Need tryRetrieve to supress some Athena warning. Unfortuantely tryRetrieve isn't in RootCore
   subjet_container = evtStore()->tryRetrieve<xAOD::JetContainer>(subjet_container_name);
+#endif
   if(subjet_container == 0) {
     StatusCode sc;
     subjet_container = new xAOD::JetContainer;
@@ -64,6 +71,12 @@ std::vector<xAOD::Jet *> SubjetRecorderTool::recordSubjets(std::vector<fastjet::
     // Set constituents
     jet::JetConstituentFiller confiller;
     confiller.extractConstituents(*subj, &(*it));
+
+    // Set author/radius
+    double radius = it->associated_cluster_sequence()->jet_def().R();
+		subj->setSizeParameter(radius);
+		xAOD::JetAlgorithmType::ID alg = xAOD::JetAlgorithmType::algId(it->associated_cluster_sequence()->jet_def().jet_algorithm());
+		subj->setAlgorithmType(alg);
 
     // Set association to parent
     const xAOD::JetContainer *parent_container = dynamic_cast<const xAOD::JetContainer*>(jet.container());

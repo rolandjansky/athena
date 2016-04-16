@@ -15,7 +15,7 @@ namespace fastjet {
 
 class ISubjetRecorderTool :
   virtual public asg::IAsgTool {
-    ASG_TOOL_INTERFACE(ISubjetRecorderTool);
+    ASG_TOOL_INTERFACE(ISubjetRecorderTool)
 
     public:
       virtual std::vector<xAOD::Jet *> recordSubjets(std::vector<fastjet::PseudoJet> subjets, xAOD::Jet &jet) const = 0;

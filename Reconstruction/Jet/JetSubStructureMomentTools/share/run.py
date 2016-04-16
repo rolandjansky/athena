@@ -177,16 +177,21 @@ if 1:
   ToolSvc += EnergyCorrelatorTool("energycorrelator")
   energycorrelator = ToolSvc.energycorrelator
   #energycorrelator.Beta = 0.5
+  #energycorrelator.IncludeBeta2 = True
+  #energycorrelator.IncludeECF4 = True
   jetrec2.JetModifiers += [energycorrelator]
 
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorRatiosTool
   ToolSvc += EnergyCorrelatorRatiosTool("energycorrelatorratios")
   energycorrelatorratios = ToolSvc.energycorrelatorratios
+  #energycorrelatorratios.IncludeBeta2 = True
+  #energycorrelatorratios.IncludeECF4 = True
   jetrec2.JetModifiers += [energycorrelatorratios]
 
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
   ToolSvc += JetPullTool("pull")
   pull = ToolSvc.pull
+  #pull.IncludeTensorMoments = True
   jetrec2.JetModifiers += [pull]
 
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
@@ -225,6 +230,18 @@ if 1:
   subjetrecorder.SubjetContainerName = "MyCopiedJets_Kt3Subjets"
   subjetfinder.SubjetRecorder = subjetrecorder
   jetrec2.JetModifiers += [subjetfinder]
+ 
+  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import BosonTagTool
+  ToolSvc += BosonTagTool("bosontag")
+  bosontag = ToolSvc.bosontag
+  bosontag.Debug = True
+  jetrec2.JetModifiers += [bosontag]
+
+  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import BoostedXbbTagTool
+  ToolSvc += BoostedXbbTagTool("boostedxbbtag")
+  boostedxbbtag = ToolSvc.boostedxbbtag
+  boostedxbbtag.Debug = True
+  jetrec2.JetModifiers += [boostedxbbtag]
 
 # Dump copied jets.
 if 1:
@@ -249,12 +266,14 @@ if 1:
   jdmp2.FloatMoments += ["ThrustMin", "ThrustMaj"]
   jdmp2.FloatMoments += ["FoxWolfram0", "FoxWolfram1", "FoxWolfram2", "FoxWolfram3", "FoxWolfram4"]
   jdmp2.FloatMoments += ["Sphericity", "Aplanarity"]
-  jdmp2.FloatMoments += ["ECF1", "ECF2", "ECF3"]
-  jdmp2.FloatMoments += ["D2", "C1", "C2"]
-  jdmp2.FloatMoments += ["PullMag", "PullPhi", "Pull_C00", "Pull_C01", "Pull_C10", "Pull_C11"]
+  jdmp2.FloatMoments += ["ECF1", "ECF2", "ECF3"]#, "ECF4"]#, "ECF1_Beta2", "ECF2_Beta2", "ECF3_Beta2", "ECF4_Beta2"]
+  jdmp2.FloatMoments += ["D2", "C1", "C2"]#, "C3"]#, "D2_Beta2", "C1_Beta2", "C2_Beta2", "C3_Beta2"]
+  jdmp2.FloatMoments += ["PullMag", "PullPhi"]#, "Pull_C00", "Pull_C01", "Pull_C10", "Pull_C11"]
   jdmp2.FloatMoments += ["Charge"]
   #jdmp2.FloatMoments += ["Volatility"]
   jdmp2.FloatMoments += ["ShowerDeconstructionW", "ShowerDeconstructionTop"]
+  jdmp2.IntMoments += ["BosonTag"]
+  jdmp2.IntMoments += ["BoostedXbbTag"]
   jdmp2.FloatVectorMoments += ["SubjetKt30_e"]
  # jdmp2.FourVectorMoments = ["ActiveArea4vec"]
   jdmp2.AssociatedParticleVectors += ["Kt3Subjets"]

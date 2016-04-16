@@ -17,7 +17,7 @@ namespace fastjet {
 class SubjetRecorderTool :
   virtual public asg::AsgTool, 
   virtual public ISubjetRecorderTool {
-    ASG_TOOL_CLASS(SubjetRecorderTool, ISubjetRecorderTool);
+    ASG_TOOL_CLASS(SubjetRecorderTool, ISubjetRecorderTool)
 
     public:
       // Constructor and destructor

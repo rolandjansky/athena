@@ -23,6 +23,7 @@ SubjetFinderTool::SubjetFinderTool(std::string name) :
   declareProperty("JetRadius", m_jetrad = 0.3);
   declareProperty("PtMin", m_ptmin = 5000);
   declareProperty("SubjetRecorder", m_subjetrecorder);
+  declareProperty("ExclusiveNjets", m_exclusivenjets = -1);
 }
 
 int SubjetFinderTool::modifyJet(xAOD::Jet &jet) const {
@@ -33,7 +34,7 @@ int SubjetFinderTool::modifyJet(xAOD::Jet &jet) const {
   fastjet::JetAlgorithm fjalg = xAOD::JetAlgorithmType::fastJetDef(ialg);
 
   // Run it
-  JetSubStructureUtils::SubjetFinder subjetFinder(fjalg, m_jetrad, m_ptmin);
+  JetSubStructureUtils::SubjetFinder subjetFinder(fjalg, m_jetrad, m_ptmin, m_exclusivenjets);
   vector<fastjet::PseudoJet> subjets = subjetFinder.result(jet);
 
   // Record

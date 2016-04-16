@@ -23,6 +23,7 @@ class SubjetFinderTool :
       std::string m_jetalg;
       float m_jetrad;
       float m_ptmin;
+      int m_exclusivenjets;
       ToolHandle<ISubjetRecorderTool> m_subjetrecorder;
 };
 
