@@ -55,7 +55,6 @@ from JetRec.JetRecFlags import jetFlags
 #   4 - Plus messages from the jet builder
 jetFlags.debug = 0
 ServiceMgr.MessageSvc.verboseLimit = 100000
-#jtm.setOutputLevel("jblda", VERBOSE)
 
 #--------------------------------------------------------------
 # Configure jet reconstruction.
@@ -105,7 +104,7 @@ if doLCPFlowJets and findJets:
 
 # Add neutral pflow builder.
 # LC-scale neutral pflow.
-from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
+
 from eflowRec.eflowRecFlags import jobproperties
 
 if True == jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
@@ -113,6 +112,7 @@ if True == jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
 else:
   useChargedWeights = False
 
+from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
 jtm += PFlowPseudoJetGetter(
   "lcnpflowget",
   Label = "LCPFlow",
@@ -164,6 +164,7 @@ for jetrec in dumps:
   print 2
   name = jetrec.name()
   cname = name
+  isPFlow = name.find("PFlow") >= 0
   if name == "empflowget": cname =  "PseudoJetEMPFlow"
   if name == "emcpflowget": cname = "PseudoJetEMCPFlow"
   if name == "lcpflowget": cname =  "PseudoJetLCPFlow"
@@ -173,5 +174,13 @@ for jetrec in dumps:
   dumper = getattr(ToolSvc, tname)
   dumper.ContainerName = cname
   dumper.MaxObject = 10000
+  # Set Detail=2 and LineDetail=3 to show the moments including ECPSFraction.
+  dumper.Detail = 1
   dumper.LineDetail = 2
+  dumper.FloatMoments += ["pt"]
+  dumper.FloatMoments += ["m"]
+  dumper.FloatMoments += ["eta"]
+  dumper.FloatMoments += ["phi"]
+  if isPFlow:
+    dumper.FloatMoments += ["ECPSFraction"]
   jetalg.Tools += [dumper]

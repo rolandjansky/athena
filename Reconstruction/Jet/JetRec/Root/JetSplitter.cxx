@@ -142,7 +142,7 @@ int JetSplitter::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
     pjet->setAttribute("MuMax", m_mumax);
     pjet->setAttribute("YMin", m_ymin);
     pjet->setAttribute("RClus", m_rclus);
-    //this has to be a char, because by default bools are converted to chars in perstification. Thus if we run this tool on an exiting collection in a POOL file the type is char.
+    //this has to be a char, because by default bools are converted to chars in perstification. Thus if we run this tool on an exiting collection in a POOL file the type is char.                                                                                               
     pjet->setAttribute<char>("BDRS", m_bdrs);
     pjet->setAttribute("NSubjetMax", m_nsubjetmax); 
     pjet->setAttribute("DRFilt", drfilt);

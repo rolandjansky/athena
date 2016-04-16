@@ -1,18 +1,14 @@
-Tue Jul 14 14:43:36 CEST 2015
+Thu Jul 30 16:14:07 CEST 2015
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AtlasProduction-20.1.5.13] [x86_64-slc6-gcc48-opt] [20.1.X.Y-VAL-Prod/rel_2] -- built on [2015-07-13 21:33]
+Py:Athena            INFO using release [AtlasOffline-20.9.0] [x86_64-slc6-gcc49-opt] [20.X.Y-VAL/rel_4] -- built on [2015-07-29 22:27]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO executing ROOT6Setup
+[?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "trimjets.py"
-Py:ConfigurableDb    INFO Read module info for 4791 configurables from 11 genConfDb files
-Py:ConfigurableDb WARNING Found 1 duplicates among the 11 genConfDb files :
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -LArDigits2Ntuple: LArCalibTools.LArCalibToolsConf - ['LArEventTest.LArEventTestConf']
-Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+Py:ConfigurableDb    INFO Read module info for 4761 configurables from 10 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 JetRecStandardToolManager.py: Defining standard tools
 JetRecStandardToolManager.py: jetFlags.useTruth: True
 JetRecStandardToolManager.py: jetFlags.useTopo: True
@@ -31,6 +27,7 @@ JetRecStandardToolManager.py: jetFlags.skipTools: []
 <class 'TrackVertexAssociationTool.TrackVertexAssociationToolConf.CP__TightTrackVertexAssociationTool'>
 <class 'JetRecTools.JetRecToolsConf.TrackVertexAssociationTool'>
 <class 'JetRecTools.JetRecToolsConf.TrackVertexAssociationTool'>
+<class 'MCTruthClassifier.MCTruthClassifierConf.MCTruthClassifier'>
 <class 'ParticleJetTools.ParticleJetToolsConf.CopyTruthJetParticles'>
 <class 'ParticleJetTools.ParticleJetToolsConf.CopyTruthJetParticles'>
 <class 'JetRec.JetRecConf.JetPseudojetRetriever'>
@@ -78,9 +75,11 @@ JetRecStandardToolManager.py: jetFlags.skipTools: []
 <class 'JetMomentTools.JetMomentToolsConf.JetVertexTaggerTool'>
 <class 'JetMomentTools.JetMomentToolsConf.JetTrackMomentsTool'>
 <class 'JetMomentTools.JetMomentToolsConf.JetClusterMomentsTool'>
+<class 'JetMomentTools.JetMomentToolsConf.JetVoronoiMomentsTool'>
 <class 'JetMomentTools.JetMomentToolsConf.JetIsolationTool'>
 <class 'JetMomentTools.JetMomentToolsConf.JetIsolationTool'>
 <class 'JetMomentTools.JetMomentToolsConf.JetLArHVTool'>
+<class 'JetMomentTools.JetMomentToolsConf.JetECPSFractionTool'>
 <class 'JetMomentTools.JetMomentToolsConf.JetOriginCorrectionTool'>
 <class 'JetSubStructureMomentTools.JetSubStructureMomentToolsConf.NSubjettinessTool'>
 <class 'JetSubStructureMomentTools.JetSubStructureMomentToolsConf.KtDeltaRTool'>
@@ -96,6 +95,8 @@ JetRecStandardToolManager.py: jetFlags.skipTools: []
 <class 'JetSubStructureMomentTools.JetSubStructureMomentToolsConf.ShowerDeconstructionTool'>
 <class 'JetRec.JetRecConf.JetConstitRemover'>
 <class 'JetRec.JetRecConf.JetSorter'>
+JetRecStandardToolManager.py: Removed tools: ['ecpsfrac']
+JetRecStandardToolManager.py: Removed tools: ['jetens']
 JetRecStandardToolManager.py: End.
 ['track', 'truthwz', 'lcpflow', 'pv0track', 'lctopo', 'truth', 'emcpflow', 'emtopo', 'ztrack', 'mygetters', 'empflow']
 <class 'JetRec.JetRecConf.JetPseudojetCopier'>
@@ -400,11 +401,11 @@ scheduleCopyTruthParticles: Scheduling CopyTruthTagPartons
 \----- (End of Public AlgTool CopyTruthPartons/CopyTruthTagPartons) --------------------------------
 <class 'JetRec.JetRecConf.JetToolRunner'>
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r1)
-                                          running on shatlasb.cern.ch on Tue Jul 14 14:43:38 2015
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r4)
+                                          running on shatlasb.cern.ch on Thu Jul 30 16:14:11 2015
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -413,11 +414,11 @@ StatusCodeSvc                                        INFO initialize
 AthDictLoaderSvc                                     INFO in initialize...
 AthDictLoaderSvc                                     INFO acquired Dso-registry
 ClassIDSvc                                           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-18
-ClassIDSvc                                           INFO  getRegistryEntries: read 2069 CLIDRegistry entries for module ALL
+ClassIDSvc                                           INFO  getRegistryEntries: read 2062 CLIDRegistry entries for module ALL
 ChronoStatSvc                                        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc                                          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                                          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr                                   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-59-06
+AthenaEventLoopMgr                                   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-59-25
 AthMasterSeq                                         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
 AthAlgSeq                                            INFO Member list: JetAlgorithm/jetalg
 jetalg                                               INFO Initializing jetalg...
@@ -426,7 +427,7 @@ ToolSvc.jetrun                                       INFO Initializing ToolSvc.j
 ToolSvc.jetrun                                       INFO Retrieving tools...
 ToolSvc.tvassoc                                      INFO Intialized using ITrackVertexAssociationTool
 ToolSvc.trk_trackselloose_trackjets                  INFO Initialising Track Selection Tool...
-ToolSvc.trk_trackselloose_trackjets                  INFO Cut level set to "Loose". This will not overwrite other cuts.
+ToolSvc.trk_trackselloose_trackjets                  INFO Cut level set to "Loose". This will not overwrite other cuts that have been set.
 ToolSvc.trk_trackselloose_trackjets                  INFO   Maximum |Eta|: 2.5
 ToolSvc.trk_trackselloose_trackjets                  INFO   Maximum pixel holes: 1
 ToolSvc.trk_trackselloose_trackjets                  INFO   Minimum silicon (pixel + SCT) hits: 7
@@ -457,12 +458,12 @@ ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO   Initializing the xAO
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO   for AntiKt4LCTopo jets
 
 
-PathResolver                                         INFO Trying to locate JetCalibTools/CalibrationConfigs/JES_Full2012dataset_Preliminary_Jan13.config
+PathResolver                                         INFO Trying to locate JetCalibTools/CalibArea-00-04-50/CalibrationConfigs/JES_Full2012dataset_Preliminary_Jan13.config
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO   Reading global JES settings from:
     JES_Full2012dataset_Preliminary_Jan13.config
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO                      resolved in  :
-    /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.5/AtlasReconstruction/20.1.5/InstallArea/share/JetCalibTools/CalibrationConfigs/JES_Full2012dataset_Preliminary_Jan13.config
+    /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-50/CalibrationConfigs/JES_Full2012dataset_Preliminary_Jan13.config
 
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO Initializing sub tools.
@@ -472,26 +473,26 @@ ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup          INFO   Jet area pile up cor
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup          INFO  
 
-PathResolver                                         INFO Trying to locate JetCalibTools/CalibrationFactors/MCBasedOffset_Nov2012.config
-ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup          INFO   Reading residual jet-area pile-up correction factors from:
-    /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.5/AtlasReconstruction/20.1.5/InstallArea/share/JetCalibTools/CalibrationFactors/MCBasedOffset_Nov2012.config
+PathResolver                                         INFO Trying to locate JetCalibTools/CalibArea-00-04-50/CalibrationFactors/MCBasedOffset_Nov2012.config
+ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup_Res...   INFO   Reading residual jet-area pile-up correction factors from:
+    /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-50/CalibrationFactors/MCBasedOffset_Nov2012.config
 
-ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup          INFO   Description:
+ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup_Res...   INFO   Description:
     Residual 2012 mu- and N_{PV}-dependent jet pileup corrections
 
   
 
 Initializing the NPV Beamspot correction tool
-ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup          INFO 
+ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup_Res...   INFO 
   NPV beamspot correction will be applied.
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO Initializing sub tools.
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO   Initializing JES correction.
-PathResolver                                         INFO Trying to locate JetCalibTools/CalibrationFactors/AbsoluteJES_Rel17.2_AreaSubtracted_0.config
+PathResolver                                         INFO Trying to locate JetCalibTools/CalibArea-00-04-50/CalibrationFactors/AbsoluteJES_Rel17.2_AreaSubtracted_0.config
 ToolSvc.calib_AntiKt4LCTopo_reco_arj_EtaJES          INFO   
 
 Reading absolute calibration factors from:
-    /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.5/AtlasReconstruction/20.1.5/InstallArea/share/JetCalibTools/CalibrationFactors/AbsoluteJES_Rel17.2_AreaSubtracted_0.config
+    /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-50/CalibrationFactors/AbsoluteJES_Rel17.2_AreaSubtracted_0.config
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj_EtaJES          INFO   Description:
     JES for release 17.2, derived November 2012 with Jet Areas, for application to Data12 and MC12
@@ -517,7 +518,7 @@ ToolSvc.MyAntiKt4LCTopoJets                          INFO ---   PseudoJetLCTopo
 ToolSvc.MyAntiKt4LCTopoTrimmedJets                   INFO Initializing JetRecTool ToolSvc.MyAntiKt4LCTopoTrimmedJets.
 ToolSvc.MyAntiKt4LCTopoTrimmedJets                   INFO Jet reconstruction mode: groom
 ToolSvc.MyAntiKt4LCTopoTrimmedJets                   INFO --- JetRecTool ToolSvc.MyAntiKt4LCTopoTrimmedJets has 0 pseudojet getters.
-ToolSvc.MyAntiKt4LCTopoTrimmedJets                   INFO --- Input type: 0
+ToolSvc.MyAntiKt4LCTopoTrimmedJets                   INFO --- Input type: 1000
 ToolSvc.MyAntiKt4LCTopoTrimmedJets                   INFO --- JetRecTool ToolSvc.MyAntiKt4LCTopoTrimmedJets has 1 jet modifiers.
 ToolSvc.MyAntiKt4LCTopoTrimmedJets                   INFO --- Retrieved ToolSvc.jetens
 ToolSvc.MyAntiKt4LCTopoTrimmedJets                   INFO --- JetRecTool ToolSvc.MyAntiKt4LCTopoTrimmedJets has 0 jet consumers.
@@ -528,7 +529,7 @@ ToolSvc.MyAntiKt4LCTopoTrimmedJets                   INFO ---   MyAntiKt4LCTopoT
 ToolSvc.AntiKt4LCTopoTrimmedJets                     INFO Initializing JetRecTool ToolSvc.AntiKt4LCTopoTrimmedJets.
 ToolSvc.AntiKt4LCTopoTrimmedJets                     INFO Jet reconstruction mode: groom
 ToolSvc.AntiKt4LCTopoTrimmedJets                     INFO --- JetRecTool ToolSvc.AntiKt4LCTopoTrimmedJets has 0 pseudojet getters.
-ToolSvc.AntiKt4LCTopoTrimmedJets                     INFO --- Input type: 0
+ToolSvc.AntiKt4LCTopoTrimmedJets                     INFO --- Input type: 1000
 ToolSvc.AntiKt4LCTopoTrimmedJets                     INFO --- JetRecTool ToolSvc.AntiKt4LCTopoTrimmedJets has 1 jet modifiers.
 ToolSvc.AntiKt4LCTopoTrimmedJets                     INFO --- Retrieved ToolSvc.jetens
 ToolSvc.AntiKt4LCTopoTrimmedJets                     INFO --- JetRecTool ToolSvc.AntiKt4LCTopoTrimmedJets has 0 jet consumers.
@@ -688,83 +689,29 @@ ToolSvc.jetdumper3                                   INFO       Container: AntiK
 ToolSvc.jetdumper3                                   INFO          Detail: 1
 ToolSvc.jetdumper3                                   INFO      LineDetail: 3
 ToolSvc.jetdumper3                                   INFO   Max # objects: 500
-StoreGateSvc                                         INFO Initializing StoreGateSvc - package version StoreGate-02-45-01-11
-MetaDataSvc                                          INFO Initializing MetaDataSvc - package version AthenaServices-01-59-06
-InputMetaDataStore                                   INFO Initializing InputMetaDataStore - package version StoreGate-02-45-01-11
-MetaDataStore                                        INFO Initializing MetaDataStore - package version StoreGate-02-45-01-11
-AthenaPoolCnvSvc                                     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-26-20
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<bool>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<char>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<double>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<float>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<long>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<short>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-char>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-int>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-long>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-short>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<double>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<float>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<int>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<long>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<string>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,double>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,float>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,int>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<int,int>=map2.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.multimap<string,int>=multimap.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<double>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<float>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<int>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<long>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<string>=set.dll> for level 0; ignored
-AthenaRootStreamerSvc                                INFO POOL/ROOT class loader initialized
-AthenaRootStreamerSvc                                INFO 9 ROOT streamers declared
-AthenaRootStreamerSvc                                INFO   - Streamer name:CLHEPVec3dStreamer
-AthenaRootStreamerSvc                                INFO ROOT Streamer for HepVector3D added converter for checksum = 358881035
-AthenaRootStreamerSvc                                INFO Adopted streamer for class HepVector3D
-AthenaRootStreamerSvc                                INFO   - Streamer name:CLHEPPoint3dStreamer
-AthenaRootStreamerSvc                                INFO ROOT Streamer for HepPoint3D added converter for checksum = 1634550480
-AthenaRootStreamerSvc                                INFO Adopted streamer for class HepPoint3D
-AthenaRootStreamerSvc                                INFO   - Streamer name:CLHEPRotationStreamer
-AthenaRootStreamerSvc                                INFO ROOT Streamer for HepRotation added converter for checksum = 4141898558
-AthenaRootStreamerSvc                                INFO Adopted streamer for class HepRotation
-AthenaRootStreamerSvc                                INFO   - Streamer name:CLHEPGenMatrixStreamer
-AthenaRootStreamerSvc                                INFO ROOT Streamer for HepGenMatrix added converter for checksum = 21721098
-AthenaRootStreamerSvc                                INFO Adopted streamer for class HepGenMatrix
-AthenaRootStreamerSvc                                INFO   - Streamer name:CLHEPMatrixStreamer
-AthenaRootStreamerSvc                                INFO ROOT Streamer for HepMatrix added converter for checksum = 3811046672
-AthenaRootStreamerSvc                                INFO Adopted streamer for class HepMatrix
-AthenaRootStreamerSvc                                INFO   - Streamer name:CLHEPLorVecStreamer
-AthenaRootStreamerSvc                                INFO ROOT Streamer for HepLorentzVector added converter for checksum = 3077056266
-AthenaRootStreamerSvc                                INFO Adopted streamer for class HepLorentzVector
-AthenaRootStreamerSvc                                INFO   - Streamer name:CLHEPTransform3DStreamer
-AthenaRootStreamerSvc                                INFO ROOT Streamer for HepTransform3D added converter for checksum = 520750269
-AthenaRootStreamerSvc                                INFO Adopted streamer for class HepTransform3D
-AthenaRootStreamerSvc                                INFO   - Streamer name:CLHEP3VectorStreamer
-AthenaRootStreamerSvc                                INFO ROOT Streamer for Hep3Vector added converter for checksum = 760000369
-AthenaRootStreamerSvc                                INFO Adopted streamer for class Hep3Vector
-AthenaRootStreamerSvc                                INFO   - Streamer name:CLHEPBasicVectorStreamer
-AthenaRootStreamerSvc                                INFO ROOT Streamer for BasicVector3D added converter for checksum = 2681080162
-AthenaRootStreamerSvc                                INFO Adopted streamer for class BasicVector3D
-PoolSvc                                              INFO Initializing PoolSvc - package version PoolSvc-00-24-06-01
+StoreGateSvc                                         INFO Initializing StoreGateSvc - package version StoreGate-03-05-00
+MetaDataSvc                                          INFO Initializing MetaDataSvc - package version AthenaServices-01-59-25
+InputMetaDataStore                                   INFO Initializing InputMetaDataStore - package version StoreGate-03-05-00
+MetaDataStore                                        INFO Initializing MetaDataStore - package version StoreGate-03-05-00
+AthenaPoolCnvSvc                                     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-27-02
+PoolSvc                                              INFO Initializing PoolSvc - package version PoolSvc-00-24-13
 PoolSvc                                              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc                                              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                                              INFO Frontier compression level set to 5
 DBReplicaSvc                                         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli02.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca18.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc                                         INFO Read replica configuration from /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.5/AtlasCore/20.1.5/InstallArea/share/dbreplica.config
+DBReplicaSvc                                         INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_4/InstallArea/share/dbreplica.config
 DBReplicaSvc                                         INFO Total of 10 servers found for host shatlasb.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc                                              INFO Successfully setup replica sorting algorithm
 PoolSvc                                              INFO Re-initializing PoolSvc
 PoolSvc                                              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
-EventSelector                                        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-18-36-05
-TagMetaDataStore                                     INFO Initializing TagMetaDataStore - package version StoreGate-02-45-01-11
+EventSelector                                        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-18-50
+TagMetaDataStore                                     INFO Initializing TagMetaDataStore - package version StoreGate-03-05-00
 EventSelector                                        INFO reinitialization...
 EventSelector                                        INFO EventSelection with query 
 RootCollection Info Opening Collection File /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root in mode: READ
-JobIDSvc                                             INFO Initializing JobIDSvc - package version AthenaServices-01-59-06
+TClass::Init:0: RuntimeWarning: no dictionary for class CxxUtils_Internal::prime_rehash_policy is available
 RootCollection Info File /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root opened
 RootCollectionSchemaEditor Warning  Collection Description not found in file, reconstructing 
 RootCollection Info Root collection opened, size = 5
@@ -775,11 +722,11 @@ Domain[ROOT_All] Info                           /afs/cern.ch/user/d/dadams/pubda
 RootDatabase.open Success /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root File version:53413
 PoolSvc                                              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 EventPersistencySvc                                  INFO Added successfully Conversion service:AthenaPoolCnvSvc
-AthenaPoolAddressProviderSvc                         INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-18-36-05
-ProxyProviderSvc                                     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-10
+AthenaPoolAddressProviderSvc                         INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-18-50
+ProxyProviderSvc                                     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-00
 HistogramPersistencySvc                           WARNING Histograms saving not required.
 AthenaEventLoopMgr                                   INFO Setup EventSelector service EventSelector
-ActiveStoreSvc                                       INFO Initializing ActiveStoreSvc - package version StoreGate-02-45-01-11
+ActiveStoreSvc                                       INFO Initializing ActiveStoreSvc - package version StoreGate-03-05-00
 ApplicationMgr                                       INFO Application Manager Initialized successfully
 InputMetaDataStore                                   INFO Start InputMetaDataStore
 MetaDataStore                                        INFO Start MetaDataStore
@@ -794,7 +741,9 @@ ApplicationMgr                                       INFO Application Manager St
 PoolSvc                                              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 AthenaEventLoopMgr                                   INFO   ===>>>  start of run 189751    <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #35002, run #189751 0 events processed so far  <<<===
-ClassIDSvc                                           INFO  getRegistryEntries: read 14348 CLIDRegistry entries for module ALL
+ClassIDSvc                                           INFO  getRegistryEntries: read 15387 CLIDRegistry entries for module ALL
+ToolSvc.JetMCTruthClassifier                         INFO  Initializing MCTruthClassifier
+ClassIDSvc                                           INFO  getRegistryEntries: read 566 CLIDRegistry entries for module ALL
 ClassIDSvc                                           INFO  getRegistryEntries: read 107 CLIDRegistry entries for module ALL
 ToolSvc.xAODClusterCompressor                        INFO Compression of ClusterMoments to 16 bits enabled
 AthenaPoolConverter                                  INFO Retrieved compression tool
@@ -918,13 +867,13 @@ AthAlgSeq                                            INFO Finalizing AthAlgSeq..
 AthOutSeq                                            INFO Finalizing AthOutSeq...
 AthRegSeq                                            INFO Finalizing AthRegSeq...
 AthMasterSeq                                         INFO Finalizing AthMasterSeq...
-StoreGateSvc                                         INFO Finalizing StoreGateSvc - package version StoreGate-02-45-01-11
+StoreGateSvc                                         INFO Finalizing StoreGateSvc - package version StoreGate-03-05-00
 RootCollection Info Closing open collection '/afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root'
-TagMetaDataStore                                     INFO Finalizing TagMetaDataStore - package version StoreGate-02-45-01-11
+TagMetaDataStore                                     INFO Finalizing TagMetaDataStore - package version StoreGate-03-05-00
 PoolSvc                                              INFO I/O finalization...
 PoolXMLFileCatalog Info XercesC termination number 0
-MetaDataStore                                        INFO Finalizing MetaDataStore - package version StoreGate-02-45-01-11
-InputMetaDataStore                                   INFO Finalizing InputMetaDataStore - package version StoreGate-02-45-01-11
+MetaDataStore                                        INFO Finalizing MetaDataStore - package version StoreGate-03-05-00
+InputMetaDataStore                                   INFO Finalizing InputMetaDataStore - package version StoreGate-03-05-00
 AthDictLoaderSvc                                     INFO in finalize...
 ToolSvc                                              INFO Removing all tools created by ToolSvc
 ToolSvc.trk_trackselloose_trackjets                  INFO Finalizing track selection tool.
@@ -944,7 +893,6 @@ ToolSvc.MyAntiKt4LCTopoJets                          INFO Event count: 2
 *****Chrono*****                                     INFO ****************************************************************************************************
 *****Chrono*****                                     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****                                     INFO ****************************************************************************************************
-AthenaSealSvc::checkClass                            LINE TERMINATED
 AthenaSealSvc::dictLoading                           LINE TERMINATED
 ChronoStatSvc                                        LINE TERMINATED
 *****Chrono*****                                     INFO ****************************************************************************************************

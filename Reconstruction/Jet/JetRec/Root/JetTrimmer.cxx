@@ -69,6 +69,7 @@ int JetTrimmer::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
   pjet->setAttribute<int>("TransformType", xAOD::JetTransform::Trim);
   pjet->setAttribute("RClus", m_rclus);
   pjet->setAttribute("PtFrac", m_ptfrac);
+  pjet->setAttribute<int>("NTrimSubjets", nptrim);
   ATH_MSG_DEBUG("Properties after trimming:");
   ATH_MSG_DEBUG("   ncon: " << pjtrim.constituents().size() << "/"
                             << ppjin->constituents().size());

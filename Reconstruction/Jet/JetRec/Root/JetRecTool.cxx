@@ -53,13 +53,14 @@ xAOD::JetContainer* shallowCopyJets(const xAOD::JetContainer& jetsin,
 //**********************************************************************
 
 JetRecTool::JetRecTool(std::string myname)
-: AsgTool(myname), m_intool(""), m_hpjr(""),
+: AsgTool(myname), m_intool(""),
+  m_hpjr(""),
   m_finder(""), m_groomer(""),
   m_trigger(false),
   m_shallowCopy(true),
-  m_warnIfDuplicate(true),
   m_initCount(0),
   m_find(false), m_groom(false), m_copy(false),
+  m_inputtype(xAOD::JetInput::Uncategorized),
   m_ppjr(nullptr) {
   declareProperty("OutputContainer", m_outcoll);
   declareProperty("InputContainer", m_incoll);
@@ -73,8 +74,6 @@ JetRecTool::JetRecTool(std::string myname)
   declareProperty("Trigger", m_trigger);
   declareProperty("Timer", m_timer =0);
   declareProperty("ShallowCopy", m_shallowCopy =true);
-  declareProperty("WarnIfDuplicate", m_warnIfDuplicate =true);
-  declareProperty("Overwrite", m_overwrite=false);
 }
 
 //**********************************************************************
@@ -364,17 +363,6 @@ const JetContainer* JetRecTool::build() const {
   int naction = 0;
   ++m_nevt;
 
-  if ( m_outcoll.size() ) {
-    ATH_MSG_DEBUG("Checking output container.");
-    if ( m_outcoll != m_incoll && !m_overwrite) {
-      if(evtStore()->contains<JetContainer>(m_outcoll) ) {
-	if ( m_warnIfDuplicate ) {ATH_MSG_ERROR("Jet collection already exists: " << m_outcoll);}
-	m_totclock.Stop();
-	return 0;
-      }
-    }
-  }
-
   // Retrieve jet inputs.
   PseudoJetVector psjs;
   if ( m_pjgetters.size() ) {
@@ -435,6 +423,12 @@ const JetContainer* JetRecTool::build() const {
   if ( m_outcoll.size() ) {
     m_actclock.Start(false);
     ATH_MSG_DEBUG("Creating output container.");
+    if ( (m_outcoll != m_incoll) && evtStore()->contains<JetContainer>(m_outcoll) ) {
+      ATH_MSG_ERROR("Jet collection already exists: " << m_outcoll);
+      m_totclock.Stop();
+      m_actclock.Stop();
+      return 0;
+    }
 
     if ( m_shallowCopy ) {
       ATH_MSG_DEBUG("Shallow-copying jets.");
@@ -562,7 +556,7 @@ int JetRecTool::execute() const {
 
 template <typename TAux>
 int JetRecTool::record(const xAOD::JetContainer* pjets) const {
-  bool overwrite = (m_outcoll == m_incoll) || (m_overwrite && m_incoll.size()==0);
+  bool overwrite = m_outcoll == m_incoll;
   TAux* pjetsaux =
     dynamic_cast<TAux*>(pjets->getStore());
     ATH_MSG_DEBUG("Check Aux store: " << pjets << " ... " << &pjets->auxbase() << " ... " << pjetsaux );

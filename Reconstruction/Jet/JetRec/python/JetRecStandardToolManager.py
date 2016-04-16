@@ -29,6 +29,7 @@ from JetRec.JetRecFlags import jetFlags
 jetFlags.useTruth.set_On()
 jetFlags.useTopo.set_On()
 jetFlags.useTracks.set_On()
+jetFlags.usePFlow.set_On()
 jetFlags.useMuonSegments.set_On()
 jetFlags.useBTagging.set_On()
 
@@ -198,12 +199,14 @@ topo_ungroomed_modifiers = ["jetfilter"]
 topo_ungroomed_modifiers += common_ungroomed_modifiers
 topo_ungroomed_modifiers += [jtm.jetens]
 topo_ungroomed_modifiers += [jtm.larhvcorr]
+topo_ungroomed_modifiers += [jtm.ecpsfrac]
 if jetFlags.useCaloQualityTool():
   topo_ungroomed_modifiers += [jtm.caloqual_cluster]
 if jetFlags.useTracks():
   topo_ungroomed_modifiers += [jtm.jvf]
   topo_ungroomed_modifiers += [jtm.jvt]
   topo_ungroomed_modifiers += [jtm.trkmoms]
+  topo_ungroomed_modifiers += [jtm.trksummoms]
   topo_ungroomed_modifiers += [jtm.charge]
   topo_ungroomed_modifiers += ["trackassoc"]
 if jetFlags.useTruth():
@@ -245,18 +248,25 @@ pflow_ungroomed_modifiers = []
 pflow_ungroomed_modifiers += ["calib"]
 pflow_ungroomed_modifiers += topo_ungroomed_modifiers
 
+# 28may2015 - ecpsfrac is not yet working for pflow in xAOD.
+pflow_ungroomed_modifiers = filterout(["ecpsfrac"], pflow_ungroomed_modifiers)
+
 # Here add tools to be run for topo jets and NOT for pflow.
 
 # Cluster moments.
 topo_ungroomed_modifiers += [jtm.clsmoms]
-topo_ungroomed_modifiers += [jtm.constfourmom]
-topo_ungroomed_modifiers += [jtm.ecpsfrac]
+
+# Voronoi moments.
+#topo_ungroomed_modifiers += [jtm.voromoms]
 
 # Modifiers for calibrated topo jets.
 calib_topo_ungroomed_modifiers = []
 if jetFlags.useTracks():
-  calib_topo_ungroomed_modifiers += [jtm.jetorigincorr, "calib", jtm.jetsorter]
-calib_topo_ungroomed_modifiers += topo_ungroomed_modifiers
+  tmp_topo_ungroomed_modifiers = filterout(["jetens"], topo_ungroomed_modifiers)
+  calib_topo_ungroomed_modifiers += [jtm.jetorigincorr, jtm.jetens, "calib", jtm.jetsorter]
+  calib_topo_ungroomed_modifiers += tmp_topo_ungroomed_modifiers
+else:
+  calib_topo_ungroomed_modifiers += topo_ungroomed_modifiers
 
 # Add origin corrn for uncalibrated, ungroomed topo jets.
 if jetFlags.useTracks():
@@ -267,16 +277,6 @@ btags = ["btag"]
 if jetFlags.useBTagging():
   topo_ungroomed_modifiers += btags
   calib_topo_ungroomed_modifiers += btags
-
-# EM only modifiers here
-emtopo_ungroomed_modifiers = []
-emtopo_ungroomed_modifiers += [jtm.constfourmom]
-emtopo_ungroomed_modifiers += topo_ungroomed_modifiers
-
-# LC-only modifiers here
-lctopo_ungroomed_modifiers = []
-lctopo_ungroomed_modifiers += [jtm.ecpsfrac]
-lctopo_ungroomed_modifiers += topo_ungroomed_modifiers
 
 # Filter out skipped tools.
 if len(jetFlags.skipTools()):
@@ -289,8 +289,6 @@ if len(jetFlags.skipTools()):
   topo_groomed_modifiers          = filterout(jetFlags.skipTools(), topo_groomed_modifiers)
   groomed_modifiers               = filterout(jetFlags.skipTools(), groomed_modifiers)
   pflow_ungroomed_modifiers       = filterout(jetFlags.skipTools(), pflow_ungroomed_modifiers)
-  emtopo_ungroomed_modifiers        = filterout(jetFlags.skipTools(), emtopo_ungroomed_modifiers)
-  lctopo_ungroomed_modifiers        = filterout(jetFlags.skipTools(), lctopo_ungroomed_modifiers)
 
 # Add modifier lists to jtm indexed by modifier type name.
 jtm.modifiersMap["none"]                  = []
@@ -306,8 +304,8 @@ jtm.modifiersMap["groomed"]               =              list(groomed_modifiers)
 
 # Also index modifier type names by input type name.
 # These are used when the modifier list is omitted.
-jtm.modifiersMap["emtopo"]    =  list(emtopo_ungroomed_modifiers)
-jtm.modifiersMap["lctopo"]    =  list(lctopo_ungroomed_modifiers)
+jtm.modifiersMap["emtopo"]    =  list(topo_ungroomed_modifiers)
+jtm.modifiersMap["lctopo"]    =  list(topo_ungroomed_modifiers)
 jtm.modifiersMap["track"]     = list(track_ungroomed_modifiers)
 jtm.modifiersMap["ztrack"]    = list(track_ungroomed_modifiers)
 jtm.modifiersMap["pv0track"]  = list(track_ungroomed_modifiers)

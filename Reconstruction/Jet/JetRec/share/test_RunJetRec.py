@@ -286,13 +286,15 @@ for name in names:
       jdmp.ElementLinkMoments += ["GhostTruthAssociationLink"]
   if isTopo:
     jdmp.FloatMoments += ["EMFrac", "HECFrac"]
+    jdmp.FloatMoments += ["ECPSFraction"]
     if jetFlags.useCaloQualityTool():
       #jdmp.FloatMoments += ["LArQuality", "Timing", "HECQuality", "NegativeE", "AverageLArQF", "CentroidR"]
       jdmp.FloatMoments += ["Timing", "LArQuality", "HECQuality", "NegativeE", "AverageLArQF", "CentroidR"]
       jdmp.FloatMoments += ["OotFracClusters5", "OotFracClusters10", "FracSamplingMax"]
     jdmp.FloatMoments += ["BchCorrCell"]
     #jdmp.FloatMoments += ["BchCorrDotxc", "BchCorrJet", "BchCorrJetForCell"]
-    jdmp.FloatMoments += ["PullMag", "PullPhi", "Pull_C00", "Pull_C01", "Pull_C10", "Pull_C11"]
+    jdmp.FloatMoments += ["PullMag", "PullPhi"]
+    jdmp.FloatMoments += ["Pull_C00", "Pull_C01", "Pull_C10", "Pull_C11"]
   jdmp.FloatMoments += ["IsoDelta2SumPt"]
   jdmp.FloatMoments += ["IsoDelta3SumPt"]
   jdmp.FloatMoments += ["Width"]
@@ -330,6 +332,7 @@ for name in names:
     jdmp.FloatVectorMoments += ["TrackWidthPt500"]
     jdmp.FloatVectorMoments += ["TrackWidthPt1000"]
   if isTopo:  # Jet cluster moments
+    jdmp.FloatMoments += ["LeadingClusterPt"]
     jdmp.FloatMoments += ["LeadingClusterSecondLambda"]
     jdmp.FloatMoments += ["LeadingClusterCenterLambda"]
     jdmp.FloatMoments += ["LeadingClusterSecondR"]

@@ -21,4 +21,4 @@ done
 echo
 echo
 echo Trigger summary:
-grep EFCentFullScanMultiJetHypo testCommonSliceAthenaTrigRDO.log | grep accepted | grep INFO | tee trigcount.log
+grep EFJetHypo testCommonSliceAthenaTrigRDO.log | grep accepted | grep INFO | tee trigcount.log
