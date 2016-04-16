@@ -1,4 +1,5 @@
 package JetSubStructureMomentTools
+# $Id: requirements 740784 2016-04-16 13:40:59Z krasznaa $
 
 author Miles Wu
 
@@ -39,3 +40,5 @@ apply_pattern dual_use_library files="../Root/NSubjettinessTool.cxx \
 ../Root/BosonTagTool.cxx \ 
 ../Root/QwTool.cxx \
 ../Root/BoostedXbbTagTool.cxx"
+
+apply_pattern declare_python_modules files="*.py"
