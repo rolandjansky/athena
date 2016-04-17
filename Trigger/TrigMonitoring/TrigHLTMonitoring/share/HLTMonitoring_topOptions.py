@@ -46,7 +46,7 @@ else :
 #HLTMonFlags.doMaM_ExtractAndDumpConfigs = True # default is False
 #HLTMonFlags.MaM_OutputJSON              = "mam_configs.json" # default is "mam_configs.json"
 #HLTMonFlags.doMaM_ApplyMCK              = True # default is False
-#HLTMonFlags.MCK                         = 0 # default is -1 
+#HLTMonFlags.MCK                         = -1 # default is -1 
 
 # temporarily disabling IDJpsiMon to deal with ATR-12037
 HLTMonFlags.doIDJpsiMon = False

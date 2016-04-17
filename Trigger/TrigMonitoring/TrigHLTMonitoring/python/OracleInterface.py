@@ -36,8 +36,36 @@ class OracleInterface:
     def disconnect_from_oracle(self):
 
         # close oracle connection
-        self.conn.close()
+        #self.conn.close()
+        try: 
+            self.conn.close()
+            return True
+        except cx_Oracle.InterfaceError: 
+            return False
+        else:   
+            return False
 
+    def __unicode_to_str__(self,input1=""):
+        "Input a unicode string, list, or dict, and convert all unicode to str."
+        
+        # test for the type of input1
+        # if need be, recursively call this function
+        # where unicode is found, convert it to str
+        if type(input1) is str:
+            return input1
+        elif type(input1) is unicode:
+            return str(input1)
+        elif type(input1) is list:
+            for n, item in enumerate(input1):
+                input1[n] = self.__unicode_to_str__(item)
+            return input1
+        elif type(input1) is dict:
+            return_dict = {}
+            for key, value in input1.iteritems():
+                return_dict[str(key)] = self.__unicode_to_str__(value)
+            return return_dict
+        else:
+            return input1
 
     def fetch(self, query, parameters_dict = {}):
 
@@ -48,7 +76,34 @@ class OracleInterface:
         #print "In OracleInterface.fetch()"
         #print "query =",query
         #print "parameters_dict =",parameters_dict
-        return self.cursor.execute(query,parameters_dict).fetchall()
+        #result = self.cursor.execute(query,parameters_dict).fetchall()
+        result = []
+        self.cursor.execute(query,parameters_dict)
+        for value in self.cursor:
+            #print ""
+            #print value
+            if len(value) > 1:
+                tempvalue = {}
+                listvalue = list(value)
+                for x in range(len(value)):
+                    if type(value[x]) is cx_Oracle.LOB:
+                        #print value[x]
+                        #tempvalue[x] = str(value[x].read())
+                        listvalue[x] = self.__unicode_to_str__(json.loads(value[x].read()))
+                        #print tempvalue[x]
+                #for x in range(len(value)):
+                    #if x in tempvalue.keys():
+                        #listvalue[x] = tempvalue[x]
+                value = tuple(listvalue)
+            #print value
+            result.append(value)
+            
+        print ""
+        #print self.cursor.execute(query,parameters_dict).fetchall()
+        #print ""
+        print result
+        #return self.cursor.execute(query,parameters_dict).fetchall()
+        return result
 
 
     def insert(self, query, parameters_dict = {}):
@@ -176,8 +231,7 @@ class OracleInterface:
         mck_info['MCK_CREATION_DATE'] = mck_info['MCK_CREATION_DATE'].getvalue()
 
         # return the new mck_id
-        return mck_info['MCK_ID']
-
+        return mck_info['MCK_ID']   
 
     def upload_smck(self,smck_info):
         # check if smck_info is already in database
@@ -464,7 +518,8 @@ class OracleInterface:
             smck_info['SMCK_TOOL_PATCH_VERSION'] = search_results[0][3]
             smck_info['SMCK_PROCESSING_STEP'] =    search_results[0][4]
             smck_info['SMCK_PROCESSING_STREAM'] =  search_results[0][5]
-            smck_info['SMCK_CONFIG'] =             json.loads(search_results[0][6].read()) # read() required to extract CLOB data
+            #smck_info['SMCK_CONFIG'] =             json.loads(search_results[0][6].read()) # read() required to extract CLOB data
+            smck_info['SMCK_CONFIG'] =             search_results[0][6] 
             smck_info['SMCK_CONFIG_HASH'] =        search_results[0][7]
             smck_info['SMCK_DEFAULT'] =            search_results[0][8]
             smck_info['SMCK_ATHENA_VERSION'] =     search_results[0][9]
@@ -583,8 +638,8 @@ class OracleInterface:
                 row_dict['DATA_TYPE'] = row[1]
                 row_dict['DATA_LENGTH'] = row[2]
 
-            # add this dictionary to the return list
-            return_list.append(row_dict)
+                # add this dictionary to the return list
+                return_list.append(row_dict)
 
         # return the return list
         return return_list
@@ -651,7 +706,7 @@ class OracleInterface:
             return return_list
             
         # now we construct a query
-        query = "SELECT * FROM "+table_name+" WHERE "+column_name+" = :INPUT1"
+        query = "SELECT * FROM "+self.directory+table_name+" WHERE "+column_name+" = :INPUT1"
 
         # construct the dict of the various input
         parameters_dict = {}
@@ -669,8 +724,10 @@ class OracleInterface:
 
                 # then we add this column name to our list
                 # we need to add it to the start of the list (insert before element 0), 
-                # as the database table/column search function returns the results in reversed order
-                column_list.insert(0,schema_row['COLUMN_NAME'])
+                # as the database table/column search function returns the results in reversed order(?)
+                # column_list.insert(0,schema_row['COLUMN_NAME'])
+                # it looks to me like the database table/column search function returns the columns in the right order, so do that
+                column_list.append(schema_row['COLUMN_NAME'])
 
         # loop over results
         for result_row in search_results:
@@ -693,7 +750,8 @@ class OracleInterface:
                 
                 # first we read out the CLOB
                 # then we turn the json string into a dict
-                row_dict['SMCK_CONFIG'] = json.loads(row_dict['SMCK_CONFIG'].read())
+                #row_dict['SMCK_CONFIG'] = json.loads(row_dict['SMCK_CONFIG'].read())
+                print "Found an SMCK table"
 
             # add this dict to the return list
             return_list.append(row_dict)
