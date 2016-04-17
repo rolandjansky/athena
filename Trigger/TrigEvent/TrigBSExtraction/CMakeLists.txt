@@ -1,3 +1,4 @@
+cmake_minimum_required( VERSION 3.2 )
 ################################################################################
 # Package: TrigBSExtraction
 ################################################################################
@@ -10,11 +11,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/StoreGate
                           Event/xAOD/xAODJetCnv
+                          Event/xAOD/xAODTrackingCnv
                           Event/xAOD/xAODTrigBphysCnv
                           Event/xAOD/xAODTrigCaloCnv
                           Event/xAOD/xAODTrigMinBiasCnv
                           Event/xAOD/xAODTrigMissingETCnv
                           Event/xAOD/xAODTrigMuonCnv
+			  Event/xAOD/xAODTauCnv
+			  Event/xAOD/xAODEgammaCnv
                           GaudiKernel
                           Trigger/TrigDataAccess/TrigSerializeCnvSvc
                           Trigger/TrigEvent/TrigNavigation
@@ -28,8 +32,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigMinBias
                           Event/xAOD/xAODTrigMissingET
                           Event/xAOD/xAODTrigMuon
+			  Event/xAOD/xAODTau
+			  Event/xAOD/xAODEgamma
                           Reconstruction/Jet/JetEvent
                           Reconstruction/Particle
+			  Reconstruction/tauEvent
+			  Reconstruction/egamma/egammaEvent
+                          Tracking/TrkEvent/TrkTrack
                           Trigger/TrigEvent/TrigCaloEvent
                           Trigger/TrigEvent/TrigInDetEvent
                           Trigger/TrigEvent/TrigMissingEtEvent
@@ -41,7 +50,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TrigBSExtraction
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel TrigSerializeCnvSvcLib TrigNavigationLib TrigSteeringEvent xAODJet xAODMuon xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon JetEvent Particle TrigCaloEvent TrigInDetEvent TrigMissingEtEvent TrigMuonEvent TrigParticle TrigStorageDefinitions )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel TrigSerializeCnvSvcLib TrigNavigationLib TrigSteeringEvent xAODJet xAODMuon xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTau xAODEgamma JetEvent Particle tauEvent egammaEvent TrkTrack TrigCaloEvent TrigInDetEvent TrigMissingEtEvent TrigMuonEvent TrigParticle TrigStorageDefinitions )
 
 # Install files from the package:
 atlas_install_headers( TrigBSExtraction )
