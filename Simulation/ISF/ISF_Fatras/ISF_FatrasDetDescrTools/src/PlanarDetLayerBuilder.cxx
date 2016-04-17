@@ -245,9 +245,9 @@ StatusCode iFatras::PlanarDetLayerBuilder::initialize()
 
   }
 
-  m_detElementMap = new iFatras::IdHashDetElementCollection;
   //Retrieve and/or store the map with IdHash to DetElement 
   if ((detStore()->contains<iFatras::IdHashDetElementCollection>(m_detElementMapName))){
+    m_detElementMap = nullptr;
     if((detStore()->retrieve(m_detElementMap, m_detElementMapName)).isFailure()){
       ATH_MSG_FATAL("Could not retrieve collection " << m_detElementMapName);
       return StatusCode::FAILURE;
@@ -255,6 +255,7 @@ StatusCode iFatras::PlanarDetLayerBuilder::initialize()
     else
       ATH_MSG_VERBOSE("Found and Retrieved collection " << m_detElementMapName);
   }else{
+    m_detElementMap = new iFatras::IdHashDetElementCollection;
     if((detStore()->record(m_detElementMap, m_detElementMapName)).isFailure()){
       ATH_MSG_FATAL("Could not record collection " << m_detElementMapName);
       return StatusCode::FAILURE;
@@ -461,7 +462,7 @@ iFatras::PlanarDetElement* iFatras::PlanarDetLayerBuilder::CylinderDetElement(un
     z = m_layerMinZ[layerCounter]   +   (Z-1) * zstep   + zstep/2.;
   else
     if (isTilted) {
-      z = (Z <= Tilted) ? m_layerTiltedZposition[layerCounter][Z-1] : abs(m_layerTiltedZposition[layerCounter][m_layerZsectors[layerCounter]/2-etaModule]);
+      z = (Z <= Tilted) ? m_layerTiltedZposition[layerCounter][Z-1] : std::abs(m_layerTiltedZposition[layerCounter][m_layerZsectors[layerCounter]/2-etaModule]);
       if (Phi==m_layerPhiSectors[layerCounter]) {
 	if (Z<Tilted) 
 	  m_layerZboundaries[layerCounter].push_back(float(0.5*(m_layerTiltedZposition[layerCounter][Z-1]+m_layerTiltedZposition[layerCounter][Z])));// this is the center + 1/2 module length + 1/2 separation between consecutive modules
@@ -683,7 +684,7 @@ iFatras::PlanarDetElement* iFatras::PlanarDetLayerBuilder::DiscDetElement(unsign
   
   unsigned int ZdiscCounter = (discCounter >= m_discPhiSectors.size()) ? discCounter : (m_discPhiSectors.size()-discCounter-1);
 
-  int brl_ec = 2*m_discZpos[ZdiscCounter]/abs(m_discZpos[ZdiscCounter]); // For identifier : endcap element brl_ec = +/-2 (neg ec/pos ec)
+  int brl_ec = 2*m_discZpos[ZdiscCounter]/std::abs(m_discZpos[ZdiscCounter]); // For identifier : endcap element brl_ec = +/-2 (neg ec/pos ec)
   int disc = m_discOffset+VectPos;
 
   int phiModule = (Phi-1) + m_discPhiSectors[VectPos][iring]/2; 
@@ -731,7 +732,7 @@ iFatras::PlanarDetElement* iFatras::PlanarDetLayerBuilder::DiscDetElement(unsign
 
   double stereo = 0.0;
   if (!m_discStereo.empty())
-    stereo = m_discZpos[ZdiscCounter]/abs(m_discZpos[ZdiscCounter])*TMath::Pi()/180.*m_discStereo[VectPos][iring]; // Add the stereo angle (the rotation depends from pos/neg z)
+    stereo = m_discZpos[ZdiscCounter]/std::abs(m_discZpos[ZdiscCounter])*TMath::Pi()/180.*m_discStereo[VectPos][iring]; // Add the stereo angle (the rotation depends from pos/neg z)
   
   
   Amg::Vector3D centerOnModule(dx,dy,dz);
@@ -777,7 +778,7 @@ iFatras::PlanarDetElement* iFatras::PlanarDetLayerBuilder::DiscDetElement(unsign
   
   // add the stereo angle
   if (m_discSCTlike && (m_useTrapezoidalBounds || m_discLengthXmax.empty()))
-    transform*=Amg::AngleAxis3D(-m_discZpos[ZdiscCounter]/abs(m_discZpos[ZdiscCounter])*stereo, Amg::Vector3D::UnitZ());
+    transform*=Amg::AngleAxis3D(-m_discZpos[ZdiscCounter]/std::abs(m_discZpos[ZdiscCounter])*stereo, Amg::Vector3D::UnitZ());
   
   bool isOuterMost = false;
   
@@ -807,7 +808,7 @@ iFatras::PlanarDetElement* iFatras::PlanarDetLayerBuilder::DiscDetElement(unsign
   
       double dx_os = (m_discRingMaxR[VectPos][iring]*cos(phistep/2.)-discLengthY/2.) * cos(phi);
       double dy_os = (m_discRingMaxR[VectPos][iring]*cos(phistep/2.)-discLengthY/2.) * sin(phi);
-      double dz_os = dz+m_discZpos[ZdiscCounter]/abs(m_discZpos[ZdiscCounter])*m_discStereoSeparation[VectPos][iring];
+      double dz_os = dz+m_discZpos[ZdiscCounter]/std::abs(m_discZpos[ZdiscCounter])*m_discStereoSeparation[VectPos][iring];
       
       Amg::Vector3D centerOnModule_os(dx_os,dy_os,dz_os);
       
@@ -842,7 +843,7 @@ iFatras::PlanarDetElement* iFatras::PlanarDetLayerBuilder::DiscDetElement(unsign
 
       // add the stereo angle
       if (m_useTrapezoidalBounds || m_discLengthXmax.empty())
-	transform_os*=Amg::AngleAxis3D(m_discZpos[ZdiscCounter]/abs(m_discZpos[ZdiscCounter])*stereo, Amg::Vector3D::UnitZ());
+	transform_os*=Amg::AngleAxis3D(m_discZpos[ZdiscCounter]/std::abs(m_discZpos[ZdiscCounter])*stereo, Amg::Vector3D::UnitZ());
       
       //transform_os*=Amg::AngleAxis3D(TMath::Pi(), Amg::Vector3D::UnitY());
       
@@ -902,8 +903,8 @@ const std::vector< const Trk::CylinderLayer* >* iFatras::PlanarDetLayerBuilder::
   std::vector<double>::const_iterator layerRadiusIter = m_layerRadius.begin();   
 
   // for the additional layer
-  std::vector<double>::const_iterator addLayerIter    = m_layerAdditionalLayerR.begin();
-  std::vector<double>::const_iterator addLayerIterEnd = m_layerAdditionalLayerR.end();
+  //std::vector<double>::const_iterator addLayerIter    = m_layerAdditionalLayerR.begin();
+  //std::vector<double>::const_iterator addLayerIterEnd = m_layerAdditionalLayerR.end();
 
   int layerCounter          = 0;
   double currentLayerExtend = 0.;
