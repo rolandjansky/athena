@@ -142,8 +142,10 @@ class XMLDumper():
                                         str(sct_builder.DiscPhiSectors[disk][iring]-1)+'" wraparound="TRUE" />\n')
                     self.out_file.write('    <range field="eta_module" value="'+str(ring)+'" />\n')
                     self.out_file.write('    <range field="side" minvalue="0" maxvalue="1" />\n')
+                    import math
+                    phisec = 2.*math.asin(sct_builder.DiscLengthXmax[disk][iring]/2./sct_builder.DiscRingMaxR[disk][iring])
                     self.out_file.write('    <range field="strip" minvalue="0" maxvalue="'+
-                                        str(int(sct_builder.DiscLengthXmin[disk][iring]/sct_builder.DiscPitchX[disk][iring]))+'" />\n')
+                                        str(int(phisec/sct_builder.DiscPitchX[disk][iring]))+'" />\n')
                     self.out_file.write('  </region>\n')
 
             disk_offset  += sct_builder.EndcapDiscs
