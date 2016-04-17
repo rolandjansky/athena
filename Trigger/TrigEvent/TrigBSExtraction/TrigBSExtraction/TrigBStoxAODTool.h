@@ -13,8 +13,7 @@
 
 // conversion tool includes
 
-// needs newer pkg tag
-// #include "xAODTauCnv/ITauJetCnvTool.h"
+#include "xAODTauCnv/ITauJetCnvTool.h"
 
 #include "xAODTrigMuonCnv/ICombinedMuonFeatureContainerCnvTool.h"
 #include "xAODTrigMuonCnv/IIsoMuonFeatureContainerCnvTool.h"
@@ -46,7 +45,13 @@
 #include "xAODTrigMinBiasCnv/ITrigTrackCountsCnvTool.h"
 #include "xAODTrigMinBiasCnv/ITrigVertexCountsCnvTool.h"
 
+//tracking collections
+#include "xAODTrackingCnv/IRecTrackParticleContainerCnvTool.h"
+#include "xAODTrackingCnv/ITrackCollectionCnvTool.h"
 
+//egamma
+#include "xAODEgammaCnv/IElectronCnvTool.h"
+#include "xAODEgammaCnv/IPhotonCnvTool.h"
 
 
 /**
@@ -78,8 +83,7 @@ public:
 
   std::vector<std::pair<CLID,std::string> > m_clid_labels;
 
-  // xAODTauCnv (needs newer pkg tag)
-  // ToolHandle<xAODMaker::ITauJetCnvTool> m_tauJetTool;
+  ToolHandle<xAODMaker::ITauJetCnvTool> m_tauJetTool;
 
   // xAODTrigMuonCnv
   ToolHandle<xAODMaker::ICombinedMuonFeatureContainerCnvTool> m_combMuonTool;
@@ -117,6 +121,13 @@ public:
   ToolHandle<xAODMaker::ITrigTrackCountsCnvTool> m_trigTrackCtsTool;
   ToolHandle<xAODMaker::ITrigVertexCountsCnvTool> m_trigVtxCtsTool;
 
+  // xAODTrackingCnv
+  ToolHandle<xAODMaker::ITrackCollectionCnvTool> m_trackCollectionTool;
+  ToolHandle<xAODMaker::IRecTrackParticleContainerCnvTool> m_recTrackParticleContTool;
+
+  // xAODEgammaCnv
+  ToolHandle<xAODMaker::IElectronCnvTool> m_electronTool;
+  ToolHandle<xAODMaker::IPhotonCnvTool> m_photonTool;
 
   std::map<CLID,BStoXAODHelper::IHelper*> m_helpers; //collection clid -> helper
 };
