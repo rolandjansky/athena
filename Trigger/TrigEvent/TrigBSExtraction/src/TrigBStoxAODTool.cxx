@@ -93,6 +93,10 @@
 #include "tauEvent/TauJetContainer.h"
 #include "xAODTau/TauJetContainer.h"
 
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "egammaEvent/egammaContainer.h"
+
 // #include "CaloEvent/CaloClusterContainer.h"
 // #include "xAODCaloEvent/CaloClusterContainer.h"
 // #include "xAODCaloEvent/CaloClusterAuxContainer.h"
@@ -285,8 +289,9 @@ TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& n
     m_trigTrackCtsTool("xAODMaker::TrigTrackCountsCnvTool/TrigTrackCountsCnvTool",this),
     m_trigVtxCtsTool(  "xAODMaker::TrigVertexCountsCnvTool/TrigVertexCountsCnvTool",this),
     m_trackCollectionTool(      "xAODMaker::TrackCollectionCnvTool/TrackCollectionCnvTool", this ),
-    m_recTrackParticleContTool( "xAODMaker::RecTrackParticleContainerCnvTool/RecTrackParticleContainerCnvTool", this )
-
+    m_recTrackParticleContTool( "xAODMaker::RecTrackParticleContainerCnvTool/RecTrackParticleContainerCnvTool", this ),
+    m_electronTool( "xAODMaker::ElectronCnvTool/ElectronCnvTool", this ),
+    m_photonTool( "xAODMaker::PhotonCnvTool/PhotonCnvTool", this )
 {
   declareInterface<ITrigBStoxAODTool>( this );
   declareProperty("L2ResultKey",     m_l2ResultKey = "HLTResult_L2");
@@ -320,7 +325,8 @@ TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& n
   declareProperty("trigVtxCtsTool", m_trigVtxCtsTool);
   declareProperty("trackCollectionTool", m_trackCollectionTool);
   declareProperty("recTrackParticleContTool", m_recTrackParticleContTool);
-
+  declareProperty("electronTool", m_electronTool);
+  declareProperty("photonTool", m_photonTool);
 }
 
 TrigBStoxAODTool::~TrigBStoxAODTool() {
@@ -391,6 +397,15 @@ StatusCode TrigBStoxAODTool::initialize(){
   m_helpers[ClassID_traits<Analysis::TauJetContainer>::ID()] =
     new BStoXAODHelper::DefaultHelper<
   Analysis::TauJetContainer,xAOD::TauJetContainer,xAODMaker::ITauJetCnvTool>(m_tauJetTool);
+
+  m_helpers[ClassID_traits<egammaContainer>::ID()] =
+    new BStoXAODHelper::DefaultHelper<
+  egammaContainer,xAOD::PhotonContainer,xAODMaker::IPhotonCnvTool>(m_photonTool);
+  
+  m_helpers[ClassID_traits<egammaContainer>::ID()] =
+    new BStoXAODHelper::DefaultHelper<
+  egammaContainer,xAOD::ElectronContainer,xAODMaker::IElectronCnvTool>(m_electronTool);
+  
   
   std::map<CLID,BStoXAODHelper::IHelper*>::iterator it;
   for(it = m_helpers.begin();it!=m_helpers.end();++it){

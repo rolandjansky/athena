@@ -49,6 +49,10 @@
 #include "xAODTrackingCnv/IRecTrackParticleContainerCnvTool.h"
 #include "xAODTrackingCnv/ITrackCollectionCnvTool.h"
 
+//egamma
+#include "xAODEgammaCnv/IElectronCnvTool.h"
+#include "xAODEgammaCnv/IPhotonCnvTool.h"
+
 
 /**
  * @brief Tool used by TrigBSExtraction to convert to xAOD
@@ -120,6 +124,10 @@ public:
   // xAODTrackingCnv
   ToolHandle<xAODMaker::ITrackCollectionCnvTool> m_trackCollectionTool;
   ToolHandle<xAODMaker::IRecTrackParticleContainerCnvTool> m_recTrackParticleContTool;
+
+  // xAODEgammaCnv
+  ToolHandle<xAODMaker::IElectronCnvTool> m_electronTool;
+  ToolHandle<xAODMaker::IPhotonCnvTool> m_photonTool;
 
   std::map<CLID,BStoXAODHelper::IHelper*> m_helpers; //collection clid -> helper
 };
