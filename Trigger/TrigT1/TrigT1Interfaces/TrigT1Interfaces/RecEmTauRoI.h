@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: RecEmTauRoI.h 615360 2014-09-05 19:34:47Z watsona $
+// $Id: RecEmTauRoI.h 731387 2016-03-21 14:33:03Z fwinkl $
 /***************************************************************************
                          RecEmTauRoI.h  -  description
                             -------------------
@@ -65,6 +65,18 @@ namespace LVL1 {
 
       /** returns eta coord of ROI */
       virtual double eta() const;
+      
+      /** returns CP crate number */
+      virtual unsigned int crate() const;
+      
+      /** returns CPM number */
+      virtual unsigned int module() const;
+      
+      /** returns FPGA number */
+      virtual unsigned int fpga() const;
+      
+      /** returns local coordinate within FPGA */
+      virtual unsigned int localcoord() const;
 
       /** returns roi ET (Run 2 only) */
       virtual unsigned int et() const;
@@ -125,11 +137,11 @@ namespace LVL1 {
       /** this is the actual format of the data sent from
           the LVL1 hardware. See  ATL-DAQ-99-015 for
           further explanation. */
-      unsigned long int m_roiWord;
+      unsigned long int m_roiWord { 0 };
       
       /// Stored properties of the RoI:
-      TrigT1CaloDefs::RoIType m_type;
-      unsigned long int m_thresholdMask;
+      TrigT1CaloDefs::RoIType m_type {TrigT1CaloDefs::RoIWordTypeError};
+      unsigned long int m_thresholdMask { 0 };
       std::map< int, unsigned int > m_triggerThresholdValue;
       std::map< int, unsigned int > m_isolationMask;
       std::map< int, unsigned int > m_emIsolation;

@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: RecEnergyRoI.h 550049 2013-06-06 13:20:41Z pottgen $
+// $Id: RecEnergyRoI.h 707787 2015-11-13 15:09:29Z fwinkl $
 /***************************************************************************
                          RecEnergyRoI.h  -  description
                             -------------------
@@ -130,15 +130,15 @@ namespace LVL1 {
       /** this is the actual format of the data sent from
           the LVL1 hardware. See  ATL-DAQ-99-015 for
           further explanation. */
-      unsigned long int m_roiWord0;
+      unsigned long int m_roiWord0 { 0 };
       /** this is the actual format of the data sent from
           the LVL1 hardware. See  ATL-DAQ-99-015 for
           further explanation. */
-      unsigned long int m_roiWord1;
+      unsigned long int m_roiWord1 { 0 };
       /** this is the actual format of the data sent from
           the LVL1 hardware. See  ATL-DAQ-99-015 for
           further explanation. */
-      unsigned long int m_roiWord2;
+      unsigned long int m_roiWord2 { 0 };
 
       std::map< int, unsigned int > m_etMissThresholdValue;
       std::map< int, unsigned int > m_sumEtThresholdValue;

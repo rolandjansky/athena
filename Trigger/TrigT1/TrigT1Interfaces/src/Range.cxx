@@ -21,11 +21,6 @@ namespace LVL1 {
     checkValues();
   }
 
-  Range::Range( const Range & rhs )
-    : m_min( rhs.min() ), m_max( rhs.max() ) {
-
-  }
-
   Range::~Range() {
 
   }

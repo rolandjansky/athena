@@ -25,11 +25,6 @@ namespace LVL1 {
     checkValues();
   }
 
-  PhiRange::PhiRange( const PhiRange & rhs )
-    : m_min( rhs.min() ), m_max( rhs.max() ) {
-
-  }
-
   PhiRange::~PhiRange() {
 
   }

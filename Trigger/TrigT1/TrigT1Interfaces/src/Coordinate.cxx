@@ -20,11 +20,6 @@ namespace LVL1 {
     checkBounds();
   }
 
-  Coordinate::Coordinate( const Coordinate & rhs )
-    : m_phi( rhs.phi() ), m_eta( rhs.eta() ) {
-
-  }
-
   Coordinate::Coordinate()
     : m_phi( 0.0 ), m_eta( 0.0 ) {
 
