@@ -64,6 +64,7 @@ TrigEFMultiMuHypo::TrigEFMultiMuHypo(const std::string & name, ISvcLocator* pSvc
 
   declareMonitoredVariable("CutCounter",   mon_cutCounter);
   declareMonitoredVariable("MuMumass",     mon_MuMumass  );
+  declareMonitoredVariable("FitChi2",      mon_FitChi2  );
 
 
 }
@@ -82,7 +83,10 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltInitialize()
         << (m_oppositeCharge==true ? "True" : "False") << endreq;
     msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endreq;
     msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endreq;
-    msg() << MSG::DEBUG << "ApplyUpperMassCut         = " << m_ApplyupperMassCut << endreq;
+    msg() << MSG::DEBUG << "ApplyUpperMassCut    = " << m_ApplyupperMassCut << endreq;
+    msg() << MSG::DEBUG << "ApplyChi2Cut         = " << m_ApplyChi2Cut << endreq;
+    msg() << MSG::DEBUG << "Chi2VtxCut           = " << m_Chi2VtxCut << endreq;
+
 
   }
 
@@ -118,6 +122,8 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
   bool PassedChi2Cut=false;
   bool result = false;
   mon_cutCounter = -1;
+  mon_FitChi2 = -1;
+  mon_MuMumass = -1;
     // Retrieve event info
     int IdRun   = 0;
     int IdEvent = 0;
@@ -222,6 +228,7 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
             mon_MuMumass = ((BsMass*0.001));
             if(thisPassedChi2Cut)
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Apply chi2 cut : " << m_ApplyChi2Cut << " chi2 :  " << (*bphysIter)->fitchi2() << " Passed Chi2 cut < "<< m_Chi2VtxCut << endreq;
+	    mon_FitChi2 = (*bphysIter)->fitchi2();
             if(!thisPassedBsMass && !thisPassedChi2Cut)
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Did not pass mass & chi2 cuts < "<< endreq;
             

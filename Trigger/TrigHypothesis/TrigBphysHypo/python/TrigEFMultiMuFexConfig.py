@@ -81,6 +81,7 @@ class EFMultiMuFex_Tau (TrigEFMultiMuFex):
         # L2 Bmumu cuts
         self.LowerMassCut      = 0.
         self.UpperMassCut     = 2900.
+        self.OppositeSign = False
         self.MuonAlgo = "TrigMuSuperEF"
         self.NMassMuon = 3
         self.CheckNinputTE = False
@@ -103,6 +104,7 @@ class EFMultiMuFex_Tau2 (TrigEFMultiMuFex):
         self.AcceptAll = False
 
         # L2 Bmumu cuts
+        self.OppositeSign = False
         self.LowerMassCut      = 0.
         self.UpperMassCut     = 2900.
         self.MuonAlgo = "TrigMuSuperEF"

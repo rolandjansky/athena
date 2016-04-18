@@ -34,7 +34,7 @@ TrigBphysL1DiMuComboFex::hltExecute( HLT::TEConstVec& input,
 
       HLT::ErrorCode ec = getFeature(te, muonROI);
 
-      if(ec==HLT::OK) {
+      if(ec==HLT::OK && muonROI) {
          ATH_MSG_DEBUG("Found RecMuonRoI object in this TE");
          parentMuonRoIs.push_back(muonROI);
          m_pt.push_back(muonROI->getThresholdValue());

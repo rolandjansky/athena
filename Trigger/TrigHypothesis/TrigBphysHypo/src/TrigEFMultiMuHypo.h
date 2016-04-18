@@ -71,6 +71,7 @@ class TrigEFMultiMuHypo: public HLT::HypoAlgo  {
 
   int mon_cutCounter;
   double mon_MuMumass;
+  double mon_FitChi2;
   
 };
 
