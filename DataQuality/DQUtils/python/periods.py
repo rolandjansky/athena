@@ -42,21 +42,17 @@ def get_period_iovset_from_ami(ptag, period):
     # This import needed to ensure correct python environment since pyAMI 4.0.3
     # Yuriy Ilchenko: commented out (not sure needed since ATHENA 17.X)
     #import setup_pyAMI
-    from pyAMI.client import AMIClient
-    from pyAMI.auth import AMI_CONFIG, create_auth_config
-    from pyAMI.exceptions import AMI_Error
-    amiclient = AMIClient()
-    if not exists(AMI_CONFIG):
-        create_auth_config()
-    amiclient.read_config(AMI_CONFIG)
+    import pyAMI
+    from pyAMI.client import Client
+    amiclient = Client('atlas')
+    amiclient.config.read()
 
     args = ['GetRunsForDataPeriod', 
             '-projectName=%s' % ptag, 
             '-period=%s' % period]
     try:
-        #runs = amiclient.execute(args).getDict().values()[0]
-        runs= amiclient.execute(args).to_dict().values()[0]
-    except AMI_Error:
+        runs = amiclient.execute(args, format='dict_object').get_rows()
+    except pyAMI.exceptions.AMI_Error:
         raise
         
     #return IOVSet.from_runs(int(x['runNumber']) for x in runs.values())
