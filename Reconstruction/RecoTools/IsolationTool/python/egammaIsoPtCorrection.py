@@ -17,8 +17,6 @@ egammaIsoPtCorrection = ToolFactory(IsolationToolConf.egammaIsoPtCorrection,
         ElectronPtCorrection30 = [0.01689, 0.01635, 0.01684, 0.02256, 0.02485, 0.04223, 0.02660, 0.03232, 0.04182, 0.04846], 
         ElectronPtCorrection35 = [0.01695, 0.01642, 0.01693, 0.02268, 0.02501, 0.04403, 0.02685, 0.03254, 0.04223, 0.04928],
         ElectronPtCorrection40 = [0.01701, 0.01646, 0.01702, 0.02272, 0.02517, 0.04550, 0.02698, 0.03267, 0.04242, 0.04964],
-        #ElectronPtCorrectiontp20 = [0.01460, 0.01410, 0.01440, 0.02070, 0.02390, 0.04630, 0.02590, 0.03010, 0.03970, 0.04850],
-        #ElectronPtCorrectiontp30 = [0.01470, 0.01410, 0.01450, 0.02080, 0.02400, 0.04610, 0.02610, 0.03020, 0.03980, 0.04850],
         ElectronPtCorrectiontp40 = [0.01470, 0.01420, 0.01450, 0.02080, 0.02400, 0.04660, 0.02630, 0.03020, 0.03980, 0.04850],
 
         # electron offset
@@ -28,8 +26,6 @@ egammaIsoPtCorrection = ToolFactory(IsolationToolConf.egammaIsoPtCorrection,
         ElectronOffset30 = [119.55, 127.09, 279.48, 430.96, 571.81, 846.86, 968.01, 354.46, 263.11, 455.21],
         ElectronOffset35 = [138.79, 161.87, 371.47, 572.08, 754.17, 1249.38, 1000.44, 389.22, 295.72, 464.28],
         ElectronOffset40 = [180.08, 187.89, 363.31, 553.46, 707.60, 1006.20, 1105.73, 434.21, 312.78, 535.90],
-        #ElectronOffsettp20 = [-368.60, -334.90, -281.10, -331.10, -251.10, -24.20, -441.40, -472.90, -543.40, -500.10],
-        #ElectronOffsettp30 = [-371.70, -338.40, -283.80, -326.10, -242.30, 52.00, -439.10, -479.20, -540.80, -491.50],
         ElectronOffsettp40 = [-371.90, -338.90, -284.00, -322.10, -238.80, 53.20, -437.70, -477.50, -538.10, -491.90],
  
 	# Converted photons slope : last eta bin isn't used
@@ -39,8 +35,6 @@ egammaIsoPtCorrection = ToolFactory(IsolationToolConf.egammaIsoPtCorrection,
         PhotonConvertedPtCorrection30 = [0.01630, 0.01600, 0.01630, 0.02240, 0.02460, 0.0, 0.02610, 0.03190, 0.04150, 0.0 ],
         PhotonConvertedPtCorrection35 = [0.01660, 0.01600, 0.01630, 0.02240, 0.02470, 0.0, 0.02640, 0.03210, 0.04190, 0.0],
         PhotonConvertedPtCorrection40 = [0.01610, 0.01590, 0.01620, 0.02250, 0.02480, 0.0, 0.02650, 0.03220, 0.04210, 0.0],
-        #PhotonConvertedPtCorrectiontp20 = [0.01480, 0.01430, 0.01450, 0.02090, 0.02370, 0.0, 0.02550, 0.02960, 0.03920, 0.0],
-        #PhotonConvertedPtCorrectiontp30 = [0.01490, 0.01430, 0.01460, 0.02090, 0.02370, 0.0, 0.02580, 0.02970, 0.03930, 0.0 ],
         PhotonConvertedPtCorrectiontp40 = [0.01490, 0.01430, 0.01450, 0.02090, 0.02370, 0.0, 0.02590, 0.02970, 0.03930, 0.0],
 	 
 	# Converted photons offset : last eta bin isn't used
@@ -50,8 +44,6 @@ egammaIsoPtCorrection = ToolFactory(IsolationToolConf.egammaIsoPtCorrection,
         PhotonConvertedOffset30 = [286.60, 241.60, 501.60, 570.70, 739.50, 0.0, 860.00, 264.50, 270.40, 0.0],
         PhotonConvertedOffset35 = [329.90, 314.70, 585.60, 655.60, 835.70, 0.0, 934.30, 291.50, 291.90, 0.0],
         PhotonConvertedOffset40 = [478.70, 383.80, 679.20, 725.70, 938.70, 0.0, 999.30, 322.80, 316.20, 0.0],
-        #PhotonConvertedOffsettp20 = [-421.90, -362.20, -291.50, -312.20, -170.80, 0.0, -440.70, -464.60, -479.90, 0.0],
-        #PhotonConvertedOffsettp30 = [-424.40, -368.70, -286.60, -301.50, -150.20, 0.0, -451.00, -468.10, -476.70, 0.0],
         PhotonConvertedOffsettp40 = [-432.10, -368.20, -284.10, -294.40, -141.20, 0.0, -455.70, -470.10, -474.10, 0.0],
 	 
         # Unconverted photons slope
@@ -61,8 +53,6 @@ egammaIsoPtCorrection = ToolFactory(IsolationToolConf.egammaIsoPtCorrection,
         PhotonUnconvertedPtCorrection30 = [0.01690, 0.01630, 0.01640, 0.02170, 0.02360, 0.0, 0.02630, 0.03260, 0.04140, 0.0],
         PhotonUnconvertedPtCorrection35 = [0.01700, 0.01640, 0.01650, 0.02180, 0.02380, 0.0, 0.02650, 0.03280, 0.04180, 0.0],
         PhotonUnconvertedPtCorrection40 = [0.01710, 0.01640, 0.01650, 0.02190, 0.02390, 0.0, 0.02660, 0.03290, 0.04200, 0.0],
-        #PhotonUnconvertedPtCorrectiontp20 = [0.01470, 0.01400, 0.01400, 0.01930, 0.02220, 0.0, 0.02500, 0.02980, 0.03850, 0.0],
-        #PhotonUnconvertedPtCorrectiontp30 = [0.01470, 0.01410, 0.01400, 0.01940, 0.02230, 0.0, 0.02530, 0.02980, 0.03860, 0.0],
         PhotonUnconvertedPtCorrectiontp40 = [0.01470, 0.01410, 0.01410, 0.01940, 0.02230, 0.0, 0.02550, 0.02990, 0.03860, 0.0],
         # Unconverted photons offset
         PhotonUnconvertedOffset15 = [-27.80, 3.80, 67.50, 80.90, 114.90, 0.0, 82.60, 2.10, 39.80, 0.0],
@@ -71,8 +61,6 @@ egammaIsoPtCorrection = ToolFactory(IsolationToolConf.egammaIsoPtCorrection,
         PhotonUnconvertedOffset30 = [5.40, 33.80, 141.60, 199.50, 295.40, 0.0, 336.50, 64.80, 90.40, 0.0],
         PhotonUnconvertedOffset35 = [9.60, 47.80, 154.10, 231.10, 346.10, 0.0, 384.60, 77.80, 96.90, 0.0],
         PhotonUnconvertedOffset40 = [13.30, 62.00, 177.00, 267.10, 406.20, 0.0, 419.80, 89.40, 105.90, 0.0],
-        #PhotonUnconvertedOffsettp20 = [-371.60, -344.40, -306.50, -370.80, -395.70, 0.0, -441.10, -464.50, -492.40, 0.0],
-        #PhotonUnconvertedOffsettp30 = [-373.30, -346.80, -307.70, -372.40, -393.90, 0.0, -454.40, -467.20, -494.30, 0.0],
         PhotonUnconvertedOffsettp40 = [-373.70, -347.40, -308.10, -372.90, -394.30, 0.0, -461.00, -469.00, -493.30, 0.0]
 )
 

@@ -9,8 +9,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 //<<<<<< INCLUDES                                                       >>>>>>
-#include "TrackIsolationTool.h"
-#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "IsolationTool/TrackIsolationTool.h"
+// #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODPrimitives/IsolationFlavour.h"
 #include "xAODPrimitives/IsolationConeSize.h"
@@ -20,23 +20,30 @@
 #include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h"
 #include "xAODMuon/Muon.h"
 
+#ifndef XAOD_ANALYSIS
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/SmartIF.h"
+#endif // XAOD_ANALYSIS
+#include <iomanip>
 
 namespace xAOD {
  
   //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
-  TrackIsolationTool::TrackIsolationTool (const std::string& type, const std::string& name, const IInterface* parent)
-    :	AthAlgTool(type, name, parent),
-        m_tracksInConeTool("xAOD::TrackParticlesInConeTool/TrackParticlesInConeTool"),
+  TrackIsolationTool::TrackIsolationTool (const std::string& name):
+    asg::AsgTool(name)
+#ifndef XAOD_ANALYSIS
+    , m_tracksInConeTool("xAOD::TrackParticlesInConeTool/TrackParticlesInConeTool"),
 	m_trkselTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this )
+#endif // XAOD_ANALYSIS
   {
+#ifndef XAOD_ANALYSIS
     declareInterface<ITrackIsolationTool>(this);
     //declareInterface<IChargedEFlowIsolationTool>(this);
-    declareProperty("TrackParticleLocation",m_indetTrackParticleLocation = "InDetTrackParticles");
     declareProperty("TracksInConeTool", m_tracksInConeTool);
+#endif // XAOD_ANALYSIS
+    declareProperty("TrackParticleLocation",m_indetTrackParticleLocation = "InDetTrackParticles");
     declareProperty("SimpleIsolation",  m_simpleIsolation = false);
     declareProperty("OverlapCone",      m_overlapCone2 = 0.1); // will be squared later
     declareProperty("TrackSelectionTool", m_trkselTool );
@@ -49,24 +56,14 @@ namespace xAOD {
 
   StatusCode TrackIsolationTool::initialize() 
   {
+#ifndef XAOD_ANALYSIS
     if( !m_simpleIsolation ) ATH_CHECK(m_tracksInConeTool.retrieve());
+#endif // XAOD_ANALYSIS
 
-    if(m_trkselTool){
       if(m_trkselTool.retrieve().isFailure()){
 	ATH_MSG_FATAL("Could not retrieve InDetTrackSelectionTool");    
 	return 0.;
-      }else{
-	//m_trkselTool->setCutLevel(InDet::CutLevel::TightPrimary,false); // do it in jobO as it has no effect here !!!
-	SmartIF<IProperty> tool2Prop(&*m_trkselTool);
-	DoubleProperty p;
-	p.assign(tool2Prop->getProperty("maxZ0SinTheta"));
-	m_z0cut = p.value();
-	ATH_MSG_DEBUG("From InDetTrackSelectionTool config, |z0|sinT cut = " << m_z0cut);
       }
-    }else{
-      ATH_MSG_WARNING("Will not retrieve InDetTrackSelectionTool");      
-    }
-
 
     /** square cone */
     m_overlapCone2 *= m_overlapCone2;
@@ -93,18 +90,23 @@ namespace xAOD {
 
   const Vertex* TrackIsolationTool::retrieveIDBestPrimaryVertex() const 
   {
-    std::string m_PVXLocation = "PrimaryVertices";
+    std::string PVXLocation = "PrimaryVertices";
     const VertexContainer *vtxC = 0;
-    if (evtStore()->contains<VertexContainer>(m_PVXLocation)) {
-      if (evtStore()->retrieve(vtxC,m_PVXLocation).isFailure()) {
-        ATH_MSG_FATAL( "Unable to retrieve " << m_PVXLocation);
+    if (evtStore()->contains<VertexContainer>(PVXLocation)) {
+      if (evtStore()->retrieve(vtxC,PVXLocation).isFailure()) {
+        ATH_MSG_FATAL( "Unable to retrieve " << PVXLocation);
         return 0;
       } else {
 	if (vtxC->size() == 0) {
-	  ATH_MSG_INFO("No vertex in container " << m_PVXLocation);
+	  ATH_MSG_INFO("No vertex in container " << PVXLocation);
 	  return 0;
 	}
-	return vtxC->front(); // the first one, probably the beam spot if a single one in the container
+	//return vtxC->front(); // the first one, probably the beam spot if a single one in the container
+	// In fact, should rather do like that, in case front is not PriVtx
+	for (const auto* const vtx : *vtxC ) {
+	  if (vtx->vertexType() == xAOD::VxType::PriVtx) 
+	    return vtx;
+	}
       }
     }
     return 0;
@@ -136,10 +138,11 @@ namespace xAOD {
                                            const TrackParticleContainer* indetTrackParticles ) 
   {
     /// prepare input
-    if (vertex == 0 && m_z0cut < 2e4) { // 20 m should be sufficient; the max in the TrackSelectionTool is 1e16 ! 
+    // If not vertex is given, use the ID best one. If one does not want to cut on z0sinT, use the TrackSelectionTool config
+    if (vertex == 0) { 
       vertex = retrieveIDBestPrimaryVertex();
       if (vertex) 
-	ATH_MSG_DEBUG("No vertex provided, but a cut on |Z0|SinTheta is required. Use the ID-chosen pvx, z = " << vertex->z());
+	ATH_MSG_DEBUG("No vertex provided, is required. Use the ID-chosen pvx, z = " << vertex->z());
     }
 
     /// get track particle
@@ -148,6 +151,8 @@ namespace xAOD {
       ATH_MSG_WARNING("Failed to obtain reference particle");
       return false;
     }
+    if (tp->pt() <= 0.)
+      ATH_MSG_WARNING("A particle of type " << particle.type() << " with strange pT : " << tp->pt()*1e-3 << " GeV");    
     TrackIsolationInput input( tp, corrbitset, vertex, exclusionSet );
     
     for( auto isoType : isoTypes ){
@@ -159,6 +164,11 @@ namespace xAOD {
       float conesize = Iso::coneSize(isoType);
       input.coneSizesSquared.push_back(conesize*conesize);
     }
+
+    for(size_t i=1; i<input.coneSizesSquared.size(); i++){
+      if(input.coneSizesSquared[i]>input.coneSizesSquared[i-1]) ATH_MSG_ERROR("Isolation Cone should be in decreasing order. "<< i << "th variable is " << Iso::toString(isoTypes[i]) << " is larger than the one before it: " << Iso::toString(isoTypes[i-1]));
+    }
+
     std::sort(input.coneSizesSquared.begin(),input.coneSizesSquared.end(),[](float i, float j) { return i>j; });
 
     initresult(result, corrbitset, input.coneSizesSquared.size());
@@ -177,7 +187,7 @@ namespace xAOD {
       }else{
         msg(MSG::DEBUG) << "Calculated track isolation: ";
         for( unsigned int i = 0; i< result.ptcones.size();++i ){
-          msg(MSG::DEBUG) << " coneSizeSquared " << std::setw(3) << sqrt(input.coneSizesSquared[i]) << " value " << result.ptcones[i];
+          msg(MSG::DEBUG) << " coneSizeSquared " << std::setw(3) << input.coneSizesSquared[i] << " value " << result.ptcones[i];
         }
         msg(MSG::DEBUG) << endreq;
       }
@@ -209,7 +219,6 @@ namespace xAOD {
 
     // This is independant of the size. At least for the time being
     // fill bitset
-    //    SG::AuxElement::Accessor< uint32_t >* bitsetAcc = getIsolationCorrectionBitsetAccessor(cones[0]);
     SG::AuxElement::Accessor< uint32_t >* bitsetAcc = getIsolationCorrectionBitsetAccessor(Iso::isolationFlavour(cones[0]));
 
     if( bitsetAcc ){
@@ -268,7 +277,11 @@ namespace xAOD {
   {
     /// prepare look-up structure
     std::vector<const TrackParticle*> tps;
-    if( !m_tracksInConeTool->particlesInCone(input.particle->eta(),input.particle->phi(),input.maxRadius,tps) ) return false;
+#ifndef XAOD_ANALYSIS
+     if( !m_tracksInConeTool->particlesInCone(input.particle->eta(),input.particle->phi(),input.maxRadius,tps) ) return false;
+#else
+     if( !getparticlesInCone(input.particle->eta(),input.particle->phi(),input.maxRadius,tps) ) return false;
+#endif
     
     for( const auto& tp : tps ) {
       if( ! m_trkselTool->accept( *tp , input.vertex ) ){
@@ -359,5 +372,28 @@ namespace xAOD {
     }
   }
 
+#ifdef XAOD_ANALYSIS
+  bool TrackIsolationTool::getparticlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output ) {
+
+    /// retrieve container
+    const TrackParticleContainer* trks = retrieveTrackParticleContainer();
+    if(!trks) return false;
+
+    ATH_MSG_DEBUG("checing track eta=" << eta << ", phi=" << phi);
+    /// make selection
+    float dr2 = dr*dr;
+    for(auto trk: *trks){
+      float dEta = fabs(eta-trk->eta());
+      if(dEta>dr) continue;
+      float dPhi = fabs(phi-trk->phi());
+      while(dPhi>M_PI){dPhi = 2.*M_PI -dPhi;}
+      if(dPhi>dr) continue;
+      ATH_MSG_DEBUG("ID trk pt=" << trk->pt()*0.001 << " eta=" << trk->eta() << ", phi=" << trk->phi() << " dEta=" << dEta << ", dPhi=" << dPhi << ", dR2 = " << dEta*dEta+dPhi*dPhi);
+      if(dr2>(dEta*dEta+dPhi*dPhi)) output.push_back(trk);
+    }
+
+    return true;
+  }
+#endif // XAOD_ANALYSIS
 
 }	// end of namespace
