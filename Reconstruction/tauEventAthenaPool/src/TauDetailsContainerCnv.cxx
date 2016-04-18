@@ -36,26 +36,26 @@ Analysis :: TauDetailsContainer *TauDetailsContainerCnv :: createTransient()
     static pool :: Guid p4_guid( "FA5D3190-EC7A-4608-A7C6-A154D7FEFE18" );
 
     if( compareClassGuid( p4_guid ) ){
-        // using auto_ptr ensures deletion of the persistent object
-        std :: auto_ptr<TauDetailsContainer_tlp4> persObj( poolReadObject<TauDetailsContainer_tlp4>() );
+        // using unique_ptr ensures deletion of the persistent object
+        std :: unique_ptr<TauDetailsContainer_tlp4> persObj( poolReadObject<TauDetailsContainer_tlp4>() );
         TauDetailsContainerCnv_tlp4 cnv;
         transObj = cnv.createTransient( persObj.get(), msg );
     }
         else if( compareClassGuid( p3_guid ) ){
-        // using auto_ptr ensures deletion of the persistent object
-        std :: auto_ptr<TauDetailsContainer_tlp3> persObj( poolReadObject<TauDetailsContainer_tlp3>() );
+        // using unique_ptr ensures deletion of the persistent object
+        std :: unique_ptr<TauDetailsContainer_tlp3> persObj( poolReadObject<TauDetailsContainer_tlp3>() );
         TauDetailsContainerCnv_tlp3 cnv;
         transObj = cnv.createTransient( persObj.get(), msg );
     }
         else if( compareClassGuid( p2_guid ) ){
-        // using auto_ptr ensures deletion of the persistent object
-        std :: auto_ptr<TauDetailsContainer_tlp2> persObj( poolReadObject<TauDetailsContainer_tlp2>() );
+        // using unique_ptr ensures deletion of the persistent object
+        std :: unique_ptr<TauDetailsContainer_tlp2> persObj( poolReadObject<TauDetailsContainer_tlp2>() );
         TauDetailsContainerCnv_tlp2 cnv;
         transObj = cnv.createTransient( persObj.get(), msg );
     }
 	else if( compareClassGuid( p1_guid ) ){
-        // using auto_ptr ensures deletion of the persistent object
-        std :: auto_ptr<TauDetailsContainer_tlp1> persObj( poolReadObject<TauDetailsContainer_tlp1>() );
+        // using unique_ptr ensures deletion of the persistent object
+        std :: unique_ptr<TauDetailsContainer_tlp1> persObj( poolReadObject<TauDetailsContainer_tlp1>() );
         TauDetailsContainerCnv_tlp1 cnv;
         transObj = cnv.createTransient( persObj.get(), msg );
     }
