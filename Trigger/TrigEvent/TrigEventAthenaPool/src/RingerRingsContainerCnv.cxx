@@ -6,7 +6,7 @@
 #include "TrigCaloEventTPCnv/RingerRingsContainerCnv_tlp1.h"
 #include "TrigCaloEventTPCnv/RingerRingsContainerCnv_p2.h"
 
-static RingerRingsContainerCnv_tlp1 m_TPConverter;
+static RingerRingsContainerCnv_tlp1 TPConverter_tlp1;
 static RingerRingsContainerCnv_p2 TPConverter;
  
 // createPersistent
@@ -38,7 +38,7 @@ RingerRingsContainer *RingerRingsContainerCnv::createTransient() {
   } else if (compareClassGuid(tlp1_guid)) {
          std::auto_ptr< RingerRingsContainer_tlp1 > col_vect( poolReadObject< RingerRingsContainer_tlp1 >() );
          //  std::cout << "Reading IMFC tlp1" << std::endl;
-         return m_TPConverter.createTransient( col_vect.get(), mlog );  
+         return TPConverter_tlp1.createTransient( col_vect.get(), mlog );  
   } else { throw std::runtime_error("Unsupported persistent version of RingerRingsContainer");  }
 
 }//end of create transient method

@@ -7,8 +7,9 @@
 #include "TrigMonitoringEventTPCnv/TrigMonConfigCollectionCnv_p1.h"
 #include "TrigMonitoringEventTPCnv/TrigMonConfigCollectionCnv_tlp1.h"
 
-struct TrigMonConfigCollectionCnv_impl
+class TrigMonConfigCollectionCnv_impl
 {
+public:
   TrigMonConfigCollectionCnv_p1 m_TPConverter;
   TrigMonConfigCollectionCnv_tlp1 m_TPConverter_tlp1;
 };

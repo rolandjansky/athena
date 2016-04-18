@@ -9,7 +9,7 @@
 #include "TrigInDetEventTPCnv/TrigTrtHitCountsCollection_p2.h"
 #include "TrigInDetEventTPCnv/TrigTrtHitCountsCollectionCnv_p2.h"
 
-static TrigTrtHitCountsCollectionCnv_tlp1 m_TPConverter;
+static TrigTrtHitCountsCollectionCnv_tlp1 TPConverter_tlp1;
 static TrigTrtHitCountsCollectionCnv_p2   TPConverter;
 
 //createPersistent 
@@ -46,7 +46,7 @@ TrigTrtHitCountsCollection* TrigTrtHitCountsCollectionCnv::createTransient()
 
          std::auto_ptr< TrigTrtHitCountsCollection_tlp1 > col_vect( poolReadObject< TrigTrtHitCountsCollection_tlp1 >() );
          //  std::cout << "Reading IMFC tlp1" << std::endl;
-         return m_TPConverter.createTransient( col_vect.get(), mlog );
+         return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
 
   } else if(compareClassGuid(p1_guid)) {
          std::auto_ptr< TrigTrtHitCountsCollection_p1 > col_vect( poolReadObject< TrigTrtHitCountsCollection_p1 >() );

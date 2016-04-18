@@ -57,9 +57,9 @@ TrigVertexCollection * TrigVertexCollectionCnv::createTransient()
     } else if( compareClassGuid( tlp1_guid ) ) {
 
       mlog << MSG::DEBUG << "TrigVertexCollectionCnv::createPersistent tlp1 called" << endreq;
-      TrigVertexCollectionCnv_tlp1  m_tlp1_Converter;
-      poolReadObject< TrigVertexCollection_tlp1 >(m_tlp1_Converter);
-      p_collection = m_tlp1_Converter.createTransient( m_log );
+      TrigVertexCollectionCnv_tlp1  tlp1_Converter;
+      poolReadObject< TrigVertexCollection_tlp1 >(tlp1_Converter);
+      p_collection = tlp1_Converter.createTransient( m_log );
 
     } else if( compareClassGuid( p0_guid ) || compareClassGuid( p0_guid2 ) ){
       mlog << MSG::DEBUG << "TrigVertexCollectionCnv::createPersistent p0 called" << endreq;

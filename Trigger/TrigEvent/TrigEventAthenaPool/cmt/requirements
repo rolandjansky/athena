@@ -6,10 +6,11 @@ author Fabrizio Salvatore   <P.F.Salvatore@sussex.ac.uk>
 use AtlasPolicy          AtlasPolicy-*
 use GaudiInterface       GaudiInterface-*        External
 use AthenaPoolUtilities  AthenaPoolUtilities-*   Database/AthenaPOOL
+
+private
 use RootConversions      RootConversions-*       Database/AthenaPOOL
 
 # use statements for data packages
-#use TrigSteeringEvent    TrigSteeringEvent-*     Trigger/TrigEvent
 use TrigDecisionEvent    TrigDecisionEvent-*     Trigger/TrigEvent
 use TrigInDetEvent       TrigInDetEvent-*        Trigger/TrigEvent
 use TrigParticle         TrigParticle-*          Trigger/TrigEvent
@@ -23,9 +24,6 @@ use TrigCombinedEvent  TrigCombinedEvent-*   Trigger/TrigEvent
 use TrigFTK_RawData      TrigFTK_RawData-*       Trigger/TrigFTK
 
 # use statement for converters
-#use TrigEventTPCnv           TrigEventTPCnv-*             Trigger/TrigEvent
-#use TrigConfigSvcTPCnv       TrigConfigSvcTPCnv-*         Trigger/TrigConfiguration
-#use TrigSteeringEventTPCnv    TrigSteeringEventTPCnv-*     Trigger/TrigEvent
 use TrigDecisionEventTPCnv    TrigDecisionEventTPCnv-*     Trigger/TrigEvent
 use TrigInDetEventTPCnv       TrigInDetEventTPCnv-*        Trigger/TrigEvent
 use TrigParticleTPCnv         TrigParticleTPCnv-*          Trigger/TrigEvent
@@ -36,6 +34,7 @@ use TrigMonitoringEventTPCnv  TrigMonitoringEventTPCnv-*   Trigger/TrigEvent
 use TrigTopoEventTPCnv        TrigTopoEventTPCnv-*         Trigger/TrigEvent
 use TrigCombinedEventTPCnv  TrigCombinedEventTPCnv-*   Trigger/TrigEvent
 use TrigFTK_RawDataTPCnv      TrigFTK_RawDataTPCnv-*       Trigger/TrigFTK
+end_private
 
 apply_pattern poolcnv typesWithNamespace="TrigDec::TrigDecision" \
       files="-s=${TrigParticle_root}/TrigParticle TrigL2BphysContainer.h \ 
@@ -46,17 +45,6 @@ apply_pattern poolcnv typesWithNamespace="TrigDec::TrigDecision" \
             -s=${TrigParticle_root}/TrigParticle TrigEFBjetContainer.h \
             -s=${TrigParticle_root}/TrigParticle TrigPhotonContainer.h \
             -s=${TrigParticle_root}/TrigParticle TrigEFBphysContainer.h \
-#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigRoiDescriptor.h \
-#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigRoiDescriptorCollection.h \
-#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigPassBits.h \
-#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigPassBitsCollection.h \
-#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigPassFlags.h \
-#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigPassFlagsCollection.h \
-#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent GenericResult.h \
-#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent Lvl1Result.h \
-#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent HLTResult.h \
-#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigOperationalInfo.h \
-#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigOperationalInfoCollection.h \
             -s=${TrigDecisionEvent_root}/TrigDecisionEvent TrigDecision.h \
             -s=${TrigInDetEvent_root}/TrigInDetEvent TrigInDetTrackCollection.h \ 
             -s=${TrigInDetEvent_root}/TrigInDetEvent TrigVertexCollection.h \ 
@@ -106,8 +94,8 @@ apply_pattern poolcnv typesWithNamespace="TrigDec::TrigDecision" \
             -s=${TrigCaloEvent_root}/TrigCaloEvent TrigT2ZdcSignalsContainer.h \
             -s=${TrigCaloEvent_root}/TrigCaloEvent TrigT2Jet.h \
             -s=${TrigCaloEvent_root}/TrigCaloEvent TrigT2JetContainer.h \
-            -s=${TrigCaloEvent_root}/TrigCaloEvent TrigMissingET.h \
-            -s=${TrigCaloEvent_root}/TrigCaloEvent TrigMissingETContainer.h \
+            -s=${TrigMissingEtEvent_root}/TrigMissingEtEvent TrigMissingET.h \
+            -s=${TrigMissingEtEvent_root}/TrigMissingEtEvent TrigMissingETContainer.h \
             -s=${TrigCaloEvent_root}/TrigCaloEvent RingerRings.h \
             -s=${TrigCaloEvent_root}/TrigCaloEvent RingerRingsContainer.h \
             -s=${TrigCaloEvent_root}/TrigCaloEvent TrigRNNOutput.h \
@@ -123,4 +111,52 @@ apply_pattern poolcnv typesWithNamespace="TrigDec::TrigDecision" \
             -s=${TrigFTK_RawData_root}/TrigFTK_RawData FTK_RawTrackContainer.h"
 
 apply_pattern declare_joboptions files="*.py"
+
+
+
+private
+use TestTools            TestTools-*                AtlasTest -no_auto_imports
+
+
+apply_pattern athenarun_test \
+   name="TrigEventAthenaPool_15.6.1" \
+   options="TrigEventAthenaPool/TrigEventAthenaPool_15.6.1_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh TrigEventAthenaPool_15.6.1" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh TrigEventAthenaPool_15.6.1"
+
+
+apply_pattern athenarun_test \
+   name="TrigEventAthenaPool_15.6.13.2" \
+   options="TrigEventAthenaPool/TrigEventAthenaPool_15.6.13.2_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh TrigEventAthenaPool_15.6.13.2" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh TrigEventAthenaPool_15.6.13.2"
+
+
+apply_pattern athenarun_test \
+   name="TrigEventAthenaPool_16.0.3.3" \
+   options="TrigEventAthenaPool/TrigEventAthenaPool_16.0.3.3_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh TrigEventAthenaPool_16.0.3.3" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh TrigEventAthenaPool_16.0.3.3"
+
+
+apply_pattern athenarun_test \
+   name="TrigEventAthenaPool_17.0.6" \
+   options="TrigEventAthenaPool/TrigEventAthenaPool_17.0.6_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh TrigEventAthenaPool_17.0.6" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh TrigEventAthenaPool_17.0.6"
+
+
+apply_pattern athenarun_test \
+   name="TrigEventAthenaPool_18.0.0" \
+   options="TrigEventAthenaPool/TrigEventAthenaPool_18.0.0_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh TrigEventAthenaPool_18.0.0" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh TrigEventAthenaPool_18.0.0"
+
+
+apply_pattern athenarun_test \
+   name="TrigEventAthenaPool_20.1.7.2" \
+   options="TrigEventAthenaPool/TrigEventAthenaPool_20.1.7.2_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh TrigEventAthenaPool_20.1.7.2" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh TrigEventAthenaPool_20.1.7.2"
+
 

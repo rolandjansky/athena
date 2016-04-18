@@ -10,7 +10,7 @@
 #include "TrigCaloEventTPCnv/TrigT2JetContainerCnv_p3.h"
 
 
-static TrigT2JetContainerCnv_tlp1   m_TPConverter_tlp1;
+static TrigT2JetContainerCnv_tlp1   TPConverter_tlp1;
 static TrigT2JetContainerCnv_p3     TPConverter;
 
 //createPersistent 
@@ -47,7 +47,7 @@ TrigT2JetContainer * TrigT2JetContainerCnv::createTransient()
   } else if( compareClassGuid( tlp1_guid ) ) {
          std::auto_ptr< TrigT2JetContainer_tlp1 > col_vect( poolReadObject< TrigT2JetContainer_tlp1 >() );
          //std::cout << "Reading TTC tlp1" << std::endl;
-         return m_TPConverter_tlp1.createTransient( col_vect.get(), mlog );
+         return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
   } else  throw std::runtime_error( "Unsupported persistent version of TrigT2JetContainer" );
      
 }//end of create transient method

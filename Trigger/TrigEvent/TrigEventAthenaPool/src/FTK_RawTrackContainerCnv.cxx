@@ -42,9 +42,9 @@ FTK_RawTrackContainer* FTK_RawTrackContainerCnv::createTransient() {
   if( compareClassGuid(tlp1_guid) ) {
     
     mlog << MSG::DEBUG << "FTK_RawTrackContainerCnv::reading tlp1 persistent object" << endreq;
-    FTK_RawTrackContainerCnv_tlp1 m_tlp1_Converter;
-    poolReadObject< FTK_RawTrackContainer_tlp1 >( m_tlp1_Converter );
-    transObj = m_tlp1_Converter.createTransient( mlog );
+    FTK_RawTrackContainerCnv_tlp1 tlp1_Converter;
+    poolReadObject< FTK_RawTrackContainer_tlp1 >( tlp1_Converter );
+    transObj = tlp1_Converter.createTransient( mlog );
   } else {
     throw std::runtime_error("Unsupported persistent version of Data container");
   }

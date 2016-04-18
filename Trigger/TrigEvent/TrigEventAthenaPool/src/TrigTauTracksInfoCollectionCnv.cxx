@@ -6,7 +6,7 @@
 #include "TrigInDetEventTPCnv/TrigTauTracksInfoCollectionCnv_tlp1.h"
 #include "TrigInDetEventTPCnv/TrigTauTracksInfoCollectionCnv_p2.h"
 
-static TrigTauTracksInfoCollectionCnv_tlp1 m_TPConverter;
+static TrigTauTracksInfoCollectionCnv_tlp1 TPConverter_tlp1;
 static TrigTauTracksInfoCollectionCnv_p2   TPConverter;
 
 //createPersistent 
@@ -39,7 +39,7 @@ TrigTauTracksInfoCollection * TrigTauTracksInfoCollectionCnv::createTransient()
          return TPConverter.createTransient( col_vect.get(), mlog ) ;
   } else if( compareClassGuid( p1_guid ) ) {
          std::auto_ptr< TrigTauTracksInfoCollection_tlp1 > col_vect( poolReadObject< TrigTauTracksInfoCollection_tlp1 >() );
-         return m_TPConverter.createTransient( col_vect.get(), mlog );
+         return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
   } else if( compareClassGuid( p0_guid ) ){
       return poolReadObject< TrigTauTracksInfoCollection >();
   } else  throw std::runtime_error( "Unsupported persistent version of TrigTauTracksInfoCollection" );

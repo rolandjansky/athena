@@ -7,7 +7,7 @@
 #include "TrigCaloEventTPCnv/TrigEMClusterContainerCnv_p4.h"
 #include "TrigCaloEventTPCnv/TrigEMClusterContainerCnv_p3.h"
 
-static TrigEMClusterContainerCnv_tlp1 m_TPConverter_tlp1;
+static TrigEMClusterContainerCnv_tlp1 TPConverter_tlp1;
 static TrigEMClusterContainerCnv_p4   TPConverter;
 static TrigEMClusterContainerCnv_p3   TPConverter_p3;
 
@@ -44,7 +44,7 @@ TrigEMClusterContainer * TrigEMClusterContainerCnv::createTransient()
          return TPConverter_p3.createTransient( col_vect.get(), mlog ) ;
   } else if( compareClassGuid( tlp1_guid ) ) {
         std::auto_ptr< TrigEMClusterContainer_tlp1 > col_vect( poolReadObject< TrigEMClusterContainer_tlp1 >() );
-        return m_TPConverter_tlp1.createTransient( col_vect.get(), mlog );
+        return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
   } else { throw std::runtime_error( "Unsupported persistent version of TrigEMClusterContainer" ); }
    
 }//end of create transient method

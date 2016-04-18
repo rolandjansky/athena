@@ -8,8 +8,9 @@
 #include "TrigParticleTPCnv/TrigTau_tlp2.h"
 #include "TrigParticleTPCnv/TrigTauCnv_tlp2.h"
 
-struct TrigTauCnv_impl
+class TrigTauCnv_impl
 {
+public:
   TrigTauCnv_tlp1 m_TPConverter_p1;
   TrigTauCnv_tlp2 m_TPConverter_p2;
 };

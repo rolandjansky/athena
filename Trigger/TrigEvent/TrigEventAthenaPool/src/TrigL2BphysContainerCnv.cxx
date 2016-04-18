@@ -6,8 +6,9 @@
 #include "TrigParticleTPCnv/TrigL2BphysContainerCnv_tlp1.h"
 #include "TrigParticleTPCnv/TrigL2BphysContainerCnv_tlp2.h"
 
-struct TrigL2BphysContainerCnv_impl
+class TrigL2BphysContainerCnv_impl
 {
+public:
   TrigL2BphysContainerCnv_impl (IMessageSvc* ms)
     : m_log (ms, "TrigL2BphysContainerCnv")
   {}
@@ -61,9 +62,9 @@ TrigL2BphysContainer * TrigL2BphysContainerCnv::createTransient()
     p_collection = m_impl->m_TPConverter.createTransient( m_impl->m_log );
     m_impl->m_log << MSG::DEBUG<< "TrigL2BphysContainerCnv_tlp2" << endreq;
   } else if( compareClassGuid( tlp1_guid ) ) {
-    TrigL2BphysContainerCnv_tlp1  m_tlp1_Converter;
-    poolReadObject< TrigL2BphysContainer_tlp1 >(m_tlp1_Converter);
-    p_collection = m_tlp1_Converter.createTransient( m_impl->m_log );
+    TrigL2BphysContainerCnv_tlp1  tlp1_Converter;
+    poolReadObject< TrigL2BphysContainer_tlp1 >(tlp1_Converter);
+    p_collection = tlp1_Converter.createTransient( m_impl->m_log );
     
   } else if( compareClassGuid( p0_guid ) || compareClassGuid( p0_guid2 ) ){
 	

@@ -1,0 +1,709 @@
+Event index 0
+--> TrigEMClusterContainer#HLT_TrigEMClusterContainer_TrigT2CaloCosmic
+--> TrigT2MbtsBitsContainer#HLT_TrigT2MbtsBitsContainer_T2Mbts
+--> TrigInDetTrackCollection#HLT_TrigInDetTrackCollection
+ ROI  -1
+--> TrigSpacePointCountsCollection#HLT_TrigSpacePointCountsCollection_spacepoints
+--> TrigTrackCountsCollection#HLT_TrigTrackCountsCollection_trackcounts
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigBeamSpotVertex
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigL2SiTrackFinder_FullScan_ZF_Only
+--> TrigVertexCountsCollection#HLT_TrigVertexCountsCollection_vertexcounts
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_EFJetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2JetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_T2MissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2MissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl_PS
+--> CombinedMuonFeatureContainer#HLT_CombinedMuonFeatureContainer
+--> IsoMuonFeatureContainer#HLT_IsoMuonFeatureContainer
+--> MuonFeatureContainer#HLT_MuonFeatureContainer
+--> MuonFeatureDetailsContainer#HLT_MuonFeatureDetailsContainer
+--> TileMuFeatureContainer#HLT_TileMuFeatureContainer
+--> TileTrackMuFeatureContainer#HLT_TileTrackMuFeatureContainer
+--> TrigMuonClusterFeatureContainer#HLT_TrigMuonClusterFeatureContainer_MuonCluster
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuTagIMO_EF
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuonEFInfo
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_eMuonEFInfo
+--> TrigMuonEFIsolationContainer#HLT_TrigMuonEFIsolationContainer_MuonEFIsolation
+--> TrigEFBjetContainer#HLT_TrigEFBjetContainer_EFBjetFex
+   ( 138.031570 1.322021 2.969242 1.000000 ) True 0 
+    51.0228843689 0.0447280406952 0.578419685364 -1.5419563055 -0.396333068609 0.513465106487 0.0 0.0 0.0 0.0 
+    None None None
+   ( 55.922932 -0.137204 -1.967447 1.000000 ) True 0 
+    51.0228843689 0.0073796804063 -0.670978963375 -0.975538730621 -1.19773626328 0.796643555164 0.0 0.0 0.0 0.0 
+    None None None
+   ( 51.902367 1.211118 1.207713 1.000000 ) True 0 
+    51.0228843689 6.70146417618 0.347683936357 3.55083036423 3.58960580826 0.999999701977 13.4981250763 2485.22558594 0.825726032257 4.0 
+    None None None
+   ( 54.137665 -1.346610 -0.169162 1.000000 ) True 0 
+    51.0228843689 3.08753824234 0.493493646383 0.113842330873 0.862558305264 0.995159804821 5.45124864578 1506.10217285 0.564337074757 5.0 
+    None None None
+   ( 138.031570 1.322021 2.969242 1.000000 ) True 0 
+    51.0228843689 0.0447280406952 0.578419685364 -1.5419563055 -0.396333068609 0.513465106487 0.0 0.0 0.0 0.0 
+    None None None
+   ( 55.922932 -0.137204 -1.967447 1.000000 ) True 0 
+    51.0228843689 0.0073796804063 -0.670978963375 -0.975538730621 -1.19773626328 0.796643555164 0.0 0.0 0.0 0.0 
+    None None None
+   ( 138.031570 1.322021 2.969242 1.000000 ) True 0 
+    51.0036392212 0.0121520776302 -0.536042511463 -1.07002270222 -0.978728115559 0.704534888268 0.0 0.0 0.0 0.0 
+    None None None
+   ( 55.922932 -0.137204 -1.967447 1.000000 ) True 0 
+    51.0036392212 0.0118101835251 -0.467607438564 -0.93616181612 -0.991293728352 0.609400510788 0.0 0.0 0.0 0.0 
+    None None None
+   ( 51.902367 1.211118 1.207713 1.000000 ) True 0 
+    51.0036392212 6.05031776428 -0.807375907898 2.72849678993 2.44216012955 0.999992489815 13.0028762817 3050.07421875 0.932710170746 6.0 
+    None None None
+   ( 54.137665 -1.346610 -0.169162 1.000000 ) True 0 
+    51.0036392212 3.47038555145 0.68140399456 0.359321206808 1.14776837826 0.995159745216 4.73780298233 1506.10229492 0.605773150921 5.0 
+    None None None
+   ( 138.031570 1.322021 2.969242 1.000000 ) True 0 
+    51.0228843689 0.0447280406952 0.578419685364 -1.5419563055 -0.396333068609 0.513465106487 0.0 0.0 0.0 0.0 
+    None None None
+   ( 55.922932 -0.137204 -1.967447 1.000000 ) True 0 
+    51.0228843689 0.0073796804063 -0.670978963375 -0.975538730621 -1.19773626328 0.796643555164 0.0 0.0 0.0 0.0 
+    None None None
+   ( 51.902367 1.211118 1.207713 1.000000 ) True 0 
+    51.0228843689 6.70146417618 0.347683936357 3.55083036423 3.58960580826 0.999999701977 13.4981250763 2485.22558594 0.825726032257 4.0 
+    None None None
+   ( 54.137665 -1.346610 -0.169162 1.000000 ) True 0 
+    51.0228843689 3.08753824234 0.493493646383 0.113842330873 0.862558305264 0.995159804821 5.45124864578 1506.10217285 0.564337074757 5.0 
+    None None None
+
+
+Event index 1
+--> TrigEMClusterContainer#HLT_TrigEMClusterContainer_TrigT2CaloCosmic
+--> TrigT2MbtsBitsContainer#HLT_TrigT2MbtsBitsContainer_T2Mbts
+--> TrigInDetTrackCollection#HLT_TrigInDetTrackCollection
+ ROI  -1
+--> TrigSpacePointCountsCollection#HLT_TrigSpacePointCountsCollection_spacepoints
+--> TrigTrackCountsCollection#HLT_TrigTrackCountsCollection_trackcounts
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigBeamSpotVertex
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigL2SiTrackFinder_FullScan_ZF_Only
+--> TrigVertexCountsCollection#HLT_TrigVertexCountsCollection_vertexcounts
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_EFJetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2JetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_T2MissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2MissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl_PS
+--> CombinedMuonFeatureContainer#HLT_CombinedMuonFeatureContainer
+--> IsoMuonFeatureContainer#HLT_IsoMuonFeatureContainer
+--> MuonFeatureContainer#HLT_MuonFeatureContainer
+--> MuonFeatureDetailsContainer#HLT_MuonFeatureDetailsContainer
+--> TileMuFeatureContainer#HLT_TileMuFeatureContainer
+--> TileTrackMuFeatureContainer#HLT_TileTrackMuFeatureContainer
+--> TrigMuonClusterFeatureContainer#HLT_TrigMuonClusterFeatureContainer_MuonCluster
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuTagIMO_EF
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuonEFInfo
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_eMuonEFInfo
+--> TrigMuonEFIsolationContainer#HLT_TrigMuonEFIsolationContainer_MuonEFIsolation
+--> TrigEFBjetContainer#HLT_TrigEFBjetContainer_EFBjetFex
+   ( 114.084236 -0.016270 0.284890 1.000000 ) True 0 
+    110.666107178 5.57174348831 0.369497835636 1.38951694965 1.9893693924 0.999998569489 15.0370101929 4247.06298828 0.766033709049 27.0 
+    None None None
+   ( 105.280548 2.038328 -2.843505 1.000000 ) True 0 
+    110.666107178 0.00109985109884 -1.44113659859 -1.49388539791 -2.02758479118 0.920665621758 0.0 0.0 0.0 0.0 
+    None None None
+   ( 85.993034 -0.101621 -1.400318 1.000000 ) True 0 
+    110.666107178 0.0729098692536 -0.187910333276 -0.0393768884242 -0.16971771419 0.925237238407 0.0 0.0 0.0 0.0 
+    None None None
+   ( 114.084236 -0.016270 0.284890 1.000000 ) True 0 
+    110.711967468 6.74342250824 0.760969996452 1.86145055294 2.26917886734 0.999999523163 14.8933868408 3952.27319336 0.727188646793 18.0 
+    None None None
+   ( 105.280548 2.038328 -2.843505 1.000000 ) True 0 
+    110.711967468 0.00349973351695 -1.29567182064 -1.00292766094 -1.52368283272 0.920665621758 0.0 0.0 0.0 0.0 
+    None None None
+   ( 85.993034 -0.101621 -1.400318 1.000000 ) True 0 
+    110.711967468 0.0677198544145 -0.215777620673 -0.0393768884242 -0.204453021288 0.925237238407 0.0 0.0 0.0 0.0 
+    None None None
+   ( 40.339466 -1.698829 -2.847786 1.000000 ) True 0 
+    110.711967468 0.224423080683 0.423224598169 0.0224660206586 0.398631632328 0.962621569633 0.0 0.0 0.0 0.0 
+    None None None
+   ( 114.084236 -0.016270 0.284890 1.000000 ) True 0 
+    110.666107178 5.57174348831 0.369497835636 1.38951694965 1.9893693924 0.999998569489 15.0370101929 4247.06298828 0.766033709049 27.0 
+    None None None
+   ( 105.280548 2.038328 -2.843505 1.000000 ) True 0 
+    110.666107178 0.00109985109884 -1.44113659859 -1.49388539791 -2.02758479118 0.920665621758 0.0 0.0 0.0 0.0 
+    None None None
+   ( 40.339466 -1.698829 -2.847786 1.000000 ) True 0 
+    110.666107178 0.260896831751 0.423224598169 0.0224660206586 0.483959257603 0.962621569633 0.0 0.0 0.0 0.0 
+    None None None
+   ( 114.084236 -0.016270 0.284890 1.000000 ) True 0 
+    110.666107178 5.57174348831 0.369497835636 1.38951694965 1.9893693924 0.999998569489 15.0370101929 4247.06298828 0.766033709049 27.0 
+    None None None
+   ( 105.280548 2.038328 -2.843505 1.000000 ) True 0 
+    110.666107178 0.00109985109884 -1.44113659859 -1.49388539791 -2.02758479118 0.920665621758 0.0 0.0 0.0 0.0 
+    None None None
+   ( 114.084236 -0.016270 0.284890 1.000000 ) True 0 
+    110.666107178 5.57174348831 0.369497835636 1.38951694965 1.9893693924 0.999998569489 15.0370101929 4247.06298828 0.766033709049 27.0 
+    None None None
+   ( 105.280548 2.038328 -2.843505 1.000000 ) True 0 
+    110.666107178 0.00109985109884 -1.44113659859 -1.49388539791 -2.02758479118 0.920665621758 0.0 0.0 0.0 0.0 
+    None None None
+   ( 114.084236 -0.016270 0.284890 1.000000 ) True 0 
+    110.666107178 5.57174348831 0.369497835636 1.38951694965 1.9893693924 0.999998569489 15.0370101929 4247.06298828 0.766033709049 27.0 
+    None None None
+   ( 105.280548 2.038328 -2.843505 1.000000 ) True 0 
+    110.666107178 0.00109985109884 -1.44113659859 -1.49388539791 -2.02758479118 0.920665621758 0.0 0.0 0.0 0.0 
+    None None None
+
+
+Event index 2
+--> TrigEMClusterContainer#HLT_TrigEMClusterContainer_TrigT2CaloCosmic
+--> TrigT2MbtsBitsContainer#HLT_TrigT2MbtsBitsContainer_T2Mbts
+--> TrigInDetTrackCollection#HLT_TrigInDetTrackCollection
+ ROI  -1
+--> TrigSpacePointCountsCollection#HLT_TrigSpacePointCountsCollection_spacepoints
+--> TrigTrackCountsCollection#HLT_TrigTrackCountsCollection_trackcounts
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigBeamSpotVertex
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigL2SiTrackFinder_FullScan_ZF_Only
+--> TrigVertexCountsCollection#HLT_TrigVertexCountsCollection_vertexcounts
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_EFJetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2JetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_T2MissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2MissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl_PS
+--> CombinedMuonFeatureContainer#HLT_CombinedMuonFeatureContainer
+      ( 0.000000 0.000000 0.000000 105.658367 ) 0.0 0.0 0.0 105.658367 -1.0  
+
+      ( 0.000000 0.000000 0.000000 105.658367 ) 0.0 0.0 0.0 105.658367 -1.0  
+
+      ( 0.000000 0.000000 0.000000 105.658367 ) 0.0 0.0 0.0 105.658367 -1.0  
+
+      ( 0.000000 0.000000 0.000000 105.658367 ) 0.0 0.0 0.0 105.658367 -1.0  
+
+      ( 0.000000 0.000000 0.000000 105.658367 ) 0.0 0.0 0.0 105.658367 -1.0  
+
+--> IsoMuonFeatureContainer#HLT_IsoMuonFeatureContainer
+--> MuonFeatureContainer#HLT_MuonFeatureContainer
+--> MuonFeatureDetailsContainer#HLT_MuonFeatureDetailsContainer
+--> TileMuFeatureContainer#HLT_TileMuFeatureContainer
+--> TileTrackMuFeatureContainer#HLT_TileTrackMuFeatureContainer
+--> TrigMuonClusterFeatureContainer#HLT_TrigMuonClusterFeatureContainer_MuonCluster
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuTagIMO_EF
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuonEFInfo
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_eMuonEFInfo
+--> TrigMuonEFIsolationContainer#HLT_TrigMuonEFIsolationContainer_MuonEFIsolation
+--> TrigEFBjetContainer#HLT_TrigEFBjetContainer_EFBjetFex
+   ( 77.868851 0.208562 -1.181115 1.000000 ) True 0 
+    -20.7468910217 0.0424818396568 -0.375820666552 -0.339347571135 -0.419851511717 0.630221664906 0.0 0.0 0.0 0.0 
+    None None None
+   ( 70.132614 0.167282 0.393095 1.000000 ) True 0 
+    -20.7468910217 8.51883888245 2.67657160759 4.77145767212 5.20713376999 0.999000012875 26.0396595001 3922.3972168 0.99998998642 6.0 
+    None None None
+   ( 77.868851 0.208562 -1.181115 1.000000 ) True 0 
+    -21.048034668 0.114451490343 0.469765365124 -0.339347571135 0.0476343408227 0.630221664906 0.0 0.0 0.0 0.0 
+    None None None
+   ( 70.132614 0.167282 0.393095 1.000000 ) True 0 
+    -21.048034668 8.4753780365 2.14492917061 4.77145767212 5.16367292404 0.999000012875 26.0103282928 3922.3972168 0.99998998642 6.0 
+    None None None
+
+
+Event index 3
+--> TrigEMClusterContainer#HLT_TrigEMClusterContainer_TrigT2CaloCosmic
+--> TrigT2MbtsBitsContainer#HLT_TrigT2MbtsBitsContainer_T2Mbts
+--> TrigInDetTrackCollection#HLT_TrigInDetTrackCollection
+ ROI  -1
+--> TrigSpacePointCountsCollection#HLT_TrigSpacePointCountsCollection_spacepoints
+--> TrigTrackCountsCollection#HLT_TrigTrackCountsCollection_trackcounts
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigBeamSpotVertex
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigL2SiTrackFinder_FullScan_ZF_Only
+--> TrigVertexCountsCollection#HLT_TrigVertexCountsCollection_vertexcounts
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_EFJetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2JetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_T2MissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2MissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl_PS
+--> CombinedMuonFeatureContainer#HLT_CombinedMuonFeatureContainer
+--> IsoMuonFeatureContainer#HLT_IsoMuonFeatureContainer
+--> MuonFeatureContainer#HLT_MuonFeatureContainer
+--> MuonFeatureDetailsContainer#HLT_MuonFeatureDetailsContainer
+--> TileMuFeatureContainer#HLT_TileMuFeatureContainer
+--> TileTrackMuFeatureContainer#HLT_TileTrackMuFeatureContainer
+--> TrigMuonClusterFeatureContainer#HLT_TrigMuonClusterFeatureContainer_MuonCluster
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuTagIMO_EF
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuonEFInfo
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_eMuonEFInfo
+--> TrigMuonEFIsolationContainer#HLT_TrigMuonEFIsolationContainer_MuonEFIsolation
+--> TrigEFBjetContainer#HLT_TrigEFBjetContainer_EFBjetFex
+   ( 70.390327 0.274803 0.899550 1.000000 ) True 0 
+    -12.5099058151 1.77259874344 0.614362180233 1.5432485342 0.440234214067 0.997633934021 25.0967140198 1166.67529297 0.266621947289 6.0 
+    None None None
+   ( 66.866875 0.565882 1.520867 1.000000 ) True 0 
+    -12.5099058151 2.25867581367 0.970511138439 -0.311066240072 0.649342179298 0.935692250729 3.58765649796 1344.81799316 0.347497105598 2.0 
+    None None None
+   ( 70.390327 0.274803 0.899550 1.000000 ) True 0 
+    -12.4951782227 1.81543076038 0.811298727989 1.5432485342 0.435469388962 0.997633934021 20.9085102081 1166.67529297 0.279206424952 6.0 
+    None None None
+   ( 66.866875 0.565882 1.520867 1.000000 ) True 0 
+    -12.4951782227 2.13220953941 0.572341918945 -0.311066240072 0.49461081624 0.935692250729 3.55131530762 1344.81799316 0.378821909428 2.0 
+    None None None
+   ( 64.613960 -3.095107 -2.612576 1.000000 ) True 0 
+    -12.4951782227 -46.0 -46.0 -46.0 -46.0 -46.0 0.0 0.0 0.0 0.0 
+    None None None
+
+
+Event index 4
+--> TrigEMClusterContainer#HLT_TrigEMClusterContainer_TrigT2CaloCosmic
+--> TrigT2MbtsBitsContainer#HLT_TrigT2MbtsBitsContainer_T2Mbts
+--> TrigInDetTrackCollection#HLT_TrigInDetTrackCollection
+ ROI  -1
+--> TrigSpacePointCountsCollection#HLT_TrigSpacePointCountsCollection_spacepoints
+--> TrigTrackCountsCollection#HLT_TrigTrackCountsCollection_trackcounts
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigBeamSpotVertex
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigL2SiTrackFinder_FullScan_ZF_Only
+--> TrigVertexCountsCollection#HLT_TrigVertexCountsCollection_vertexcounts
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_EFJetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2JetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_T2MissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2MissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl_PS
+--> CombinedMuonFeatureContainer#HLT_CombinedMuonFeatureContainer
+      ( 0.000000 0.000000 0.000000 105.658367 ) 0.0 0.0 0.0 105.658367 -1.0  
+
+      ( 0.000000 0.000000 0.000000 105.658367 ) 0.0 0.0 0.0 105.658367 -1.0  
+
+      ( 0.000000 0.000000 0.000000 105.658367 ) 0.0 0.0 0.0 105.658367 -1.0  
+
+      ( 0.000000 0.000000 0.000000 105.658367 ) 0.0 0.0 0.0 105.658367 -1.0  
+
+      ( 0.000000 0.000000 0.000000 105.658367 ) 0.0 0.0 0.0 105.658367 -1.0  
+
+--> IsoMuonFeatureContainer#HLT_IsoMuonFeatureContainer
+--> MuonFeatureContainer#HLT_MuonFeatureContainer
+--> MuonFeatureDetailsContainer#HLT_MuonFeatureDetailsContainer
+--> TileMuFeatureContainer#HLT_TileMuFeatureContainer
+--> TileTrackMuFeatureContainer#HLT_TileTrackMuFeatureContainer
+--> TrigMuonClusterFeatureContainer#HLT_TrigMuonClusterFeatureContainer_MuonCluster
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuTagIMO_EF
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuonEFInfo
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_eMuonEFInfo
+--> TrigMuonEFIsolationContainer#HLT_TrigMuonEFIsolationContainer_MuonEFIsolation
+--> TrigEFBjetContainer#HLT_TrigEFBjetContainer_EFBjetFex
+   ( 150.956665 1.502171 0.949975 1.000000 ) True 0 
+    -16.8445835114 0.0557318590581 -0.147042527795 -0.242598161101 -0.295201450586 0.0010000000475 0.0 0.0 0.0 0.0 
+    None None None
+   ( 59.865047 0.766551 -1.154321 1.000000 ) True 0 
+    -16.8445835114 0.0275014284998 -0.187738314271 -0.59006434679 -0.616290330887 0.919662594795 0.0 0.0 0.0 0.0 
+    None None None
+   ( 150.956665 1.502171 0.949975 1.000000 ) True 0 
+    -16.9324836731 0.0577870309353 -0.215777620673 -0.242598161101 -0.278424620628 0.0010000000475 0.0 0.0 0.0 0.0 
+    None None None
+   ( 59.865047 0.766551 -1.154321 1.000000 ) True 0 
+    -16.9324836731 0.0263424180448 -0.331202834845 -0.550687432289 -0.635575473309 0.865252494812 0.0 0.0 0.0 0.0 
+    None None None
+   ( 39.559097 -1.381524 -2.053406 1.000000 ) True 0 
+    -16.9324836731 0.0297070480883 -0.334952890873 -0.445204168558 -0.581671178341 0.404010474682 0.0 0.0 0.0 0.0 
+    None None None
+
+
+Event index 5
+--> TrigEMClusterContainer#HLT_TrigEMClusterContainer_TrigT2CaloCosmic
+--> TrigT2MbtsBitsContainer#HLT_TrigT2MbtsBitsContainer_T2Mbts
+--> TrigInDetTrackCollection#HLT_TrigInDetTrackCollection
+ ROI  -1
+--> TrigSpacePointCountsCollection#HLT_TrigSpacePointCountsCollection_spacepoints
+--> TrigTrackCountsCollection#HLT_TrigTrackCountsCollection_trackcounts
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigBeamSpotVertex
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigL2SiTrackFinder_FullScan_ZF_Only
+--> TrigVertexCountsCollection#HLT_TrigVertexCountsCollection_vertexcounts
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_EFJetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2JetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_T2MissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2MissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl_PS
+--> CombinedMuonFeatureContainer#HLT_CombinedMuonFeatureContainer
+--> IsoMuonFeatureContainer#HLT_IsoMuonFeatureContainer
+--> MuonFeatureContainer#HLT_MuonFeatureContainer
+--> MuonFeatureDetailsContainer#HLT_MuonFeatureDetailsContainer
+--> TileMuFeatureContainer#HLT_TileMuFeatureContainer
+--> TileTrackMuFeatureContainer#HLT_TileTrackMuFeatureContainer
+--> TrigMuonClusterFeatureContainer#HLT_TrigMuonClusterFeatureContainer_MuonCluster
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuTagIMO_EF
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuonEFInfo
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_eMuonEFInfo
+--> TrigMuonEFIsolationContainer#HLT_TrigMuonEFIsolationContainer_MuonEFIsolation
+--> TrigEFBjetContainer#HLT_TrigEFBjetContainer_EFBjetFex
+   ( 239.310364 -0.448283 0.074991 1.000000 ) True 0 
+    16.9247493744 0.00238191126846 -0.980707943439 -1.42659759521 -1.69135177135 0.0783503651619 0.0 0.0 0.0 0.0 
+    None None None
+   ( 180.377197 -2.184111 3.132982 1.000000 ) True 0 
+    16.9247493744 0.254075318575 0.232333898544 -0.387189507484 0.468707114458 0.961073935032 0.0 0.0 0.0 0.0 
+    None None None
+   ( 48.785683 -0.895825 0.697867 1.000000 ) True 0 
+    16.9247493744 0.0304599925876 -0.375820666552 -0.490957647562 -0.570420086384 0.0010000000475 0.0 0.0 0.0 0.0 
+    None None None
+   ( 46.673679 -0.532424 -3.067083 1.000000 ) True 0 
+    16.9247493744 0.0559140369296 -0.20337150991 -0.229335486889 -0.29369109869 0.0773624181747 0.0 0.0 0.0 0.0 
+    None None None
+   ( 239.310364 -0.448283 0.074991 1.000000 ) True 0 
+    16.9247493744 0.00238191126846 -0.980707943439 -1.42659759521 -1.69135177135 0.0783503651619 0.0 0.0 0.0 0.0 
+    None None None
+   ( 180.377197 -2.184111 3.132982 1.000000 ) True 0 
+    16.9247493744 0.254075318575 0.232333898544 -0.387189507484 0.468707114458 0.961073935032 0.0 0.0 0.0 0.0 
+    None None None
+   ( 239.310364 -0.448283 0.074991 1.000000 ) True 0 
+    16.9675292969 0.00483133457601 -0.683385014534 -1.19726216793 -1.38298392296 0.101165890694 0.0 0.0 0.0 0.0 
+    None None None
+   ( 180.377197 -2.184111 3.132982 1.000000 ) True 0 
+    16.9675292969 0.407825261354 0.0988842397928 1.16266429424 0.760759294033 0.997908353806 0.0 0.0 0.0 0.0 
+    None None None
+   ( 48.785683 -0.895825 0.697867 1.000000 ) True 0 
+    16.9675292969 -46.0 -46.0 -46.0 -46.0 -46.0 0.0 0.0 0.0 0.0 
+    None None None
+   ( 46.673679 -0.532424 -3.067083 1.000000 ) True 0 
+    16.9675292969 0.0567838922143 -0.215777620673 -0.229335486889 -0.286542445421 0.0773624181747 0.0 0.0 0.0 0.0 
+    None None None
+   ( 239.310364 -0.448283 0.074991 1.000000 ) True 0 
+    16.9247493744 0.00238191126846 -0.980707943439 -1.42659759521 -1.69135177135 0.0783503651619 0.0 0.0 0.0 0.0 
+    None None None
+   ( 180.377197 -2.184111 3.132982 1.000000 ) True 0 
+    16.9247493744 0.254075318575 0.232333898544 -0.387189507484 0.468707114458 0.961073935032 0.0 0.0 0.0 0.0 
+    None None None
+   ( 239.310364 -0.448283 0.074991 1.000000 ) True 0 
+    16.9247493744 0.00238191126846 -0.980707943439 -1.42659759521 -1.69135177135 0.0783503651619 0.0 0.0 0.0 0.0 
+    None None None
+   ( 180.377197 -2.184111 3.132982 1.000000 ) True 0 
+    16.9247493744 0.254075318575 0.232333898544 -0.387189507484 0.468707114458 0.961073935032 0.0 0.0 0.0 0.0 
+    None None None
+   ( 239.310364 -0.448283 0.074991 1.000000 ) True 0 
+    16.9247493744 0.00238191126846 -0.980707943439 -1.42659759521 -1.69135177135 0.0783503651619 0.0 0.0 0.0 0.0 
+    None None None
+   ( 180.377197 -2.184111 3.132982 1.000000 ) True 0 
+    16.9247493744 0.254075318575 0.232333898544 -0.387189507484 0.468707114458 0.961073935032 0.0 0.0 0.0 0.0 
+    None None None
+   ( 239.310364 -0.448283 0.074991 1.000000 ) True 0 
+    16.9247493744 0.00238191126846 -0.980707943439 -1.42659759521 -1.69135177135 0.0783503651619 0.0 0.0 0.0 0.0 
+    None None None
+   ( 239.310364 -0.448283 0.074991 1.000000 ) True 0 
+    16.9247493744 0.00238191126846 -0.980707943439 -1.42659759521 -1.69135177135 0.0783503651619 0.0 0.0 0.0 0.0 
+    None None None
+   ( 180.377197 -2.184111 3.132982 1.000000 ) True 0 
+    16.9247493744 0.254075318575 0.232333898544 -0.387189507484 0.468707114458 0.961073935032 0.0 0.0 0.0 0.0 
+    None None None
+   ( 48.785683 -0.895825 0.697867 1.000000 ) True 0 
+    16.9247493744 0.0304599925876 -0.375820666552 -0.490957647562 -0.570420086384 0.0010000000475 0.0 0.0 0.0 0.0 
+    None None None
+   ( 239.310364 -0.448283 0.074991 1.000000 ) True 0 
+    16.9247493744 0.00238191126846 -0.980707943439 -1.42659759521 -1.69135177135 0.0783503651619 0.0 0.0 0.0 0.0 
+    None None None
+   ( 180.377197 -2.184111 3.132982 1.000000 ) True 0 
+    16.9247493744 0.254075318575 0.232333898544 -0.387189507484 0.468707114458 0.961073935032 0.0 0.0 0.0 0.0 
+    None None None
+
+
+Event index 6
+--> TrigEMClusterContainer#HLT_TrigEMClusterContainer_TrigT2CaloCosmic
+--> TrigT2MbtsBitsContainer#HLT_TrigT2MbtsBitsContainer_T2Mbts
+--> TrigInDetTrackCollection#HLT_TrigInDetTrackCollection
+ ROI  -1
+--> TrigSpacePointCountsCollection#HLT_TrigSpacePointCountsCollection_spacepoints
+--> TrigTrackCountsCollection#HLT_TrigTrackCountsCollection_trackcounts
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigBeamSpotVertex
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigL2SiTrackFinder_FullScan_ZF_Only
+--> TrigVertexCountsCollection#HLT_TrigVertexCountsCollection_vertexcounts
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_EFJetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2JetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_T2MissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2MissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl_PS
+--> CombinedMuonFeatureContainer#HLT_CombinedMuonFeatureContainer
+--> IsoMuonFeatureContainer#HLT_IsoMuonFeatureContainer
+--> MuonFeatureContainer#HLT_MuonFeatureContainer
+--> MuonFeatureDetailsContainer#HLT_MuonFeatureDetailsContainer
+--> TileMuFeatureContainer#HLT_TileMuFeatureContainer
+--> TileTrackMuFeatureContainer#HLT_TileTrackMuFeatureContainer
+--> TrigMuonClusterFeatureContainer#HLT_TrigMuonClusterFeatureContainer_MuonCluster
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuTagIMO_EF
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuonEFInfo
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_eMuonEFInfo
+--> TrigMuonEFIsolationContainer#HLT_TrigMuonEFIsolationContainer_MuonEFIsolation
+--> TrigEFBjetContainer#HLT_TrigEFBjetContainer_EFBjetFex
+   ( 43.381405 0.501231 1.968625 1.000000 ) True 0 
+    96.7262496948 3.5613925457 -0.382906615734 0.145591557026 0.253785997629 0.99549973011 4.48642683029 2364.62646484 0.682809472084 4.0 
+    None None None
+
+
+Event index 7
+--> TrigEMClusterContainer#HLT_TrigEMClusterContainer_TrigT2CaloCosmic
+--> TrigT2MbtsBitsContainer#HLT_TrigT2MbtsBitsContainer_T2Mbts
+--> TrigInDetTrackCollection#HLT_TrigInDetTrackCollection
+ ROI  -1
+--> TrigSpacePointCountsCollection#HLT_TrigSpacePointCountsCollection_spacepoints
+--> TrigTrackCountsCollection#HLT_TrigTrackCountsCollection_trackcounts
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigBeamSpotVertex
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigL2SiTrackFinder_FullScan_ZF_Only
+--> TrigVertexCountsCollection#HLT_TrigVertexCountsCollection_vertexcounts
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_EFJetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2JetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_T2MissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2MissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl_PS
+--> CombinedMuonFeatureContainer#HLT_CombinedMuonFeatureContainer
+--> IsoMuonFeatureContainer#HLT_IsoMuonFeatureContainer
+--> MuonFeatureContainer#HLT_MuonFeatureContainer
+--> MuonFeatureDetailsContainer#HLT_MuonFeatureDetailsContainer
+--> TileMuFeatureContainer#HLT_TileMuFeatureContainer
+--> TileTrackMuFeatureContainer#HLT_TileTrackMuFeatureContainer
+--> TrigMuonClusterFeatureContainer#HLT_TrigMuonClusterFeatureContainer_MuonCluster
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuTagIMO_EF
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuonEFInfo
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_eMuonEFInfo
+--> TrigMuonEFIsolationContainer#HLT_TrigMuonEFIsolationContainer_MuonEFIsolation
+--> TrigEFBjetContainer#HLT_TrigEFBjetContainer_EFBjetFex
+   ( 257.724854 0.345344 1.816245 1.000000 ) True 0 
+    215.318023682 0.000795067753643 -1.14400410652 -1.81958425045 -2.16866707802 0.0903939008713 0.0 0.0 0.0 0.0 
+    None None None
+   ( 217.640961 0.054718 -0.999958 1.000000 ) True 0 
+    215.318023682 0.000228981531109 -1.01001489162 -2.7015850544 -2.70955395699 0.0501775145531 0.0 0.0 0.0 0.0 
+    None None None
+   ( 150.385193 0.745436 1.402782 1.000000 ) True 0 
+    215.318023682 2.61481261253 0.510124027729 0.0447997711599 0.650904893875 0.992342352867 6.21241140366 1318.62341309 0.770246565342 1.0 
+    None None None
+   ( 110.789787 0.178448 -1.920005 1.000000 ) True 0 
+    215.318023682 0.00353746721521 -0.988633692265 -1.61952698231 -1.51900649071 0.57964360714 0.0 0.0 0.0 0.0 
+    None None None
+   ( 84.096672 -0.415538 -2.520303 1.000000 ) True 0 
+    215.318023682 0.0619465559721 -0.139208272099 -0.162257418036 -0.246110320091 0.326636850834 0.0 0.0 0.0 0.0 
+    None None None
+   ( 257.724854 0.345344 1.816245 1.000000 ) True 0 
+    215.318023682 0.000795067753643 -1.14400410652 -1.81958425045 -2.16866707802 0.0903939008713 0.0 0.0 0.0 0.0 
+    None None None
+   ( 217.640961 0.054718 -0.999958 1.000000 ) True 0 
+    215.318023682 0.000228981531109 -1.01001489162 -2.7015850544 -2.70955395699 0.0501775145531 0.0 0.0 0.0 0.0 
+    None None None
+   ( 150.385193 0.745436 1.402782 1.000000 ) True 0 
+    215.318023682 2.61481261253 0.510124027729 0.0447997711599 0.650904893875 0.992342352867 6.21241140366 1318.62341309 0.770246565342 1.0 
+    None None None
+   ( 110.789787 0.178448 -1.920005 1.000000 ) True 0 
+    215.318023682 0.00353746721521 -0.988633692265 -1.61952698231 -1.51900649071 0.57964360714 0.0 0.0 0.0 0.0 
+    None None None
+   ( 257.724854 0.345344 1.816245 1.000000 ) True 0 
+    0.111963272095 -46.0 -46.0 -46.0 -46.0 -46.0 0.0 0.0 0.0 0.0 
+    None None None
+   ( 217.640961 0.054718 -0.999958 1.000000 ) True 0 
+    0.111963272095 -46.0 -46.0 -46.0 -46.0 -46.0 0.0 0.0 0.0 0.0 
+    None None None
+   ( 150.385193 0.745436 1.402782 1.000000 ) True 0 
+    0.111963272095 0.0317321829498 -0.38921225071 -0.418585240841 -0.552006244659 0.0010000000475 0.0 0.0 0.0 0.0 
+    None None None
+   ( 110.789787 0.178448 -1.920005 1.000000 ) True 0 
+    0.111963272095 -46.0 -46.0 -46.0 -46.0 -46.0 0.0 0.0 0.0 0.0 
+    None None None
+   ( 84.096672 -0.415538 -2.520303 1.000000 ) True 0 
+    0.111963272095 -46.0 -46.0 -46.0 -46.0 -46.0 0.0 0.0 0.0 0.0 
+    None None None
+   ( 257.724854 0.345344 1.816245 1.000000 ) True 0 
+    215.318023682 0.000795067753643 -1.14400410652 -1.81958425045 -2.16866707802 0.0903939008713 0.0 0.0 0.0 0.0 
+    None None None
+   ( 217.640961 0.054718 -0.999958 1.000000 ) True 0 
+    215.318023682 0.000228981531109 -1.01001489162 -2.7015850544 -2.70955395699 0.0501775145531 0.0 0.0 0.0 0.0 
+    None None None
+   ( 257.724854 0.345344 1.816245 1.000000 ) True 0 
+    215.318023682 0.000795067753643 -1.14400410652 -1.81958425045 -2.16866707802 0.0903939008713 0.0 0.0 0.0 0.0 
+    None None None
+   ( 217.640961 0.054718 -0.999958 1.000000 ) True 0 
+    215.318023682 0.000228981531109 -1.01001489162 -2.7015850544 -2.70955395699 0.0501775145531 0.0 0.0 0.0 0.0 
+    None None None
+   ( 150.385193 0.745436 1.402782 1.000000 ) True 0 
+    215.318023682 2.61481261253 0.510124027729 0.0447997711599 0.650904893875 0.992342352867 6.21241140366 1318.62341309 0.770246565342 1.0 
+    None None None
+   ( 257.724854 0.345344 1.816245 1.000000 ) True 0 
+    215.318023682 0.000795067753643 -1.14400410652 -1.81958425045 -2.16866707802 0.0903939008713 0.0 0.0 0.0 0.0 
+    None None None
+   ( 217.640961 0.054718 -0.999958 1.000000 ) True 0 
+    215.318023682 0.000228981531109 -1.01001489162 -2.7015850544 -2.70955395699 0.0501775145531 0.0 0.0 0.0 0.0 
+    None None None
+   ( 150.385193 0.745436 1.402782 1.000000 ) True 0 
+    215.318023682 2.61481261253 0.510124027729 0.0447997711599 0.650904893875 0.992342352867 6.21241140366 1318.62341309 0.770246565342 1.0 
+    None None None
+   ( 110.789787 0.178448 -1.920005 1.000000 ) True 0 
+    215.318023682 0.00353746721521 -0.988633692265 -1.61952698231 -1.51900649071 0.57964360714 0.0 0.0 0.0 0.0 
+    None None None
+   ( 257.724854 0.345344 1.816245 1.000000 ) True 0 
+    215.318023682 0.000795067753643 -1.14400410652 -1.81958425045 -2.16866707802 0.0903939008713 0.0 0.0 0.0 0.0 
+    None None None
+   ( 257.724854 0.345344 1.816245 1.000000 ) True 0 
+    215.318023682 0.000795067753643 -1.14400410652 -1.81958425045 -2.16866707802 0.0903939008713 0.0 0.0 0.0 0.0 
+    None None None
+   ( 217.640961 0.054718 -0.999958 1.000000 ) True 0 
+    215.318023682 0.000228981531109 -1.01001489162 -2.7015850544 -2.70955395699 0.0501775145531 0.0 0.0 0.0 0.0 
+    None None None
+   ( 150.385193 0.745436 1.402782 1.000000 ) True 0 
+    215.318023682 2.61481261253 0.510124027729 0.0447997711599 0.650904893875 0.992342352867 6.21241140366 1318.62341309 0.770246565342 1.0 
+    None None None
+   ( 110.789787 0.178448 -1.920005 1.000000 ) True 0 
+    215.318023682 0.00353746721521 -0.988633692265 -1.61952698231 -1.51900649071 0.57964360714 0.0 0.0 0.0 0.0 
+    None None None
+   ( 257.724854 0.345344 1.816245 1.000000 ) True 0 
+    215.318023682 0.000795067753643 -1.14400410652 -1.81958425045 -2.16866707802 0.0903939008713 0.0 0.0 0.0 0.0 
+    None None None
+   ( 217.640961 0.054718 -0.999958 1.000000 ) True 0 
+    215.318023682 0.000228981531109 -1.01001489162 -2.7015850544 -2.70955395699 0.0501775145531 0.0 0.0 0.0 0.0 
+    None None None
+   ( 150.385193 0.745436 1.402782 1.000000 ) True 0 
+    215.318023682 2.61481261253 0.510124027729 0.0447997711599 0.650904893875 0.992342352867 6.21241140366 1318.62341309 0.770246565342 1.0 
+    None None None
+   ( 110.789787 0.178448 -1.920005 1.000000 ) True 0 
+    215.318023682 0.00353746721521 -0.988633692265 -1.61952698231 -1.51900649071 0.57964360714 0.0 0.0 0.0 0.0 
+    None None None
+   ( 257.724854 0.345344 1.816245 1.000000 ) True 0 
+    215.318023682 0.000795067753643 -1.14400410652 -1.81958425045 -2.16866707802 0.0903939008713 0.0 0.0 0.0 0.0 
+    None None None
+   ( 217.640961 0.054718 -0.999958 1.000000 ) True 0 
+    215.318023682 0.000228981531109 -1.01001489162 -2.7015850544 -2.70955395699 0.0501775145531 0.0 0.0 0.0 0.0 
+    None None None
+   ( 150.385193 0.745436 1.402782 1.000000 ) True 0 
+    215.318023682 2.61481261253 0.510124027729 0.0447997711599 0.650904893875 0.992342352867 6.21241140366 1318.62341309 0.770246565342 1.0 
+    None None None
+   ( 110.789787 0.178448 -1.920005 1.000000 ) True 0 
+    215.318023682 0.00353746721521 -0.988633692265 -1.61952698231 -1.51900649071 0.57964360714 0.0 0.0 0.0 0.0 
+    None None None
+   ( 257.724854 0.345344 1.816245 1.000000 ) True 0 
+    215.318023682 0.000795067753643 -1.14400410652 -1.81958425045 -2.16866707802 0.0903939008713 0.0 0.0 0.0 0.0 
+    None None None
+   ( 217.640961 0.054718 -0.999958 1.000000 ) True 0 
+    215.318023682 0.000228981531109 -1.01001489162 -2.7015850544 -2.70955395699 0.0501775145531 0.0 0.0 0.0 0.0 
+    None None None
+   ( 150.385193 0.745436 1.402782 1.000000 ) True 0 
+    215.318023682 2.61481261253 0.510124027729 0.0447997711599 0.650904893875 0.992342352867 6.21241140366 1318.62341309 0.770246565342 1.0 
+    None None None
+   ( 110.789787 0.178448 -1.920005 1.000000 ) True 0 
+    215.318023682 0.00353746721521 -0.988633692265 -1.61952698231 -1.51900649071 0.57964360714 0.0 0.0 0.0 0.0 
+    None None None
+   ( 257.724854 0.345344 1.816245 1.000000 ) True 0 
+    215.318023682 0.000795067753643 -1.14400410652 -1.81958425045 -2.16866707802 0.0903939008713 0.0 0.0 0.0 0.0 
+    None None None
+   ( 217.640961 0.054718 -0.999958 1.000000 ) True 0 
+    215.318023682 0.000228981531109 -1.01001489162 -2.7015850544 -2.70955395699 0.0501775145531 0.0 0.0 0.0 0.0 
+    None None None
+   ( 150.385193 0.745436 1.402782 1.000000 ) True 0 
+    215.318023682 2.61481261253 0.510124027729 0.0447997711599 0.650904893875 0.992342352867 6.21241140366 1318.62341309 0.770246565342 1.0 
+    None None None
+   ( 110.789787 0.178448 -1.920005 1.000000 ) True 0 
+    215.318023682 0.00353746721521 -0.988633692265 -1.61952698231 -1.51900649071 0.57964360714 0.0 0.0 0.0 0.0 
+    None None None
+
+
+Event index 8
+--> TrigEMClusterContainer#HLT_TrigEMClusterContainer_TrigT2CaloCosmic
+--> TrigT2MbtsBitsContainer#HLT_TrigT2MbtsBitsContainer_T2Mbts
+--> TrigInDetTrackCollection#HLT_TrigInDetTrackCollection
+ ROI  -1
+--> TrigSpacePointCountsCollection#HLT_TrigSpacePointCountsCollection_spacepoints
+--> TrigTrackCountsCollection#HLT_TrigTrackCountsCollection_trackcounts
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigBeamSpotVertex
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigL2SiTrackFinder_FullScan_ZF_Only
+--> TrigVertexCountsCollection#HLT_TrigVertexCountsCollection_vertexcounts
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_EFJetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2JetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_T2MissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2MissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl_PS
+--> CombinedMuonFeatureContainer#HLT_CombinedMuonFeatureContainer
+--> IsoMuonFeatureContainer#HLT_IsoMuonFeatureContainer
+--> MuonFeatureContainer#HLT_MuonFeatureContainer
+--> MuonFeatureDetailsContainer#HLT_MuonFeatureDetailsContainer
+--> TileMuFeatureContainer#HLT_TileMuFeatureContainer
+--> TileTrackMuFeatureContainer#HLT_TileTrackMuFeatureContainer
+--> TrigMuonClusterFeatureContainer#HLT_TrigMuonClusterFeatureContainer_MuonCluster
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuTagIMO_EF
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuonEFInfo
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_eMuonEFInfo
+--> TrigMuonEFIsolationContainer#HLT_TrigMuonEFIsolationContainer_MuonEFIsolation
+--> TrigEFBjetContainer#HLT_TrigEFBjetContainer_EFBjetFex
+   ( 98.493584 0.147056 1.601063 1.000000 ) True 0 
+    38.2965621948 0.0194300301373 -0.549152731895 -0.702632725239 -0.771244168282 0.804063916206 0.0 0.0 0.0 0.0 
+    None None None
+   ( 98.493584 0.147056 1.601063 1.000000 ) True 0 
+    38.3786392212 0.0227347053587 -0.133671864867 -0.702632725239 -0.701362609863 0.804063916206 0.0 0.0 0.0 0.0 
+    None None None
+   ( 50.842583 -0.139919 -0.379019 1.000000 ) True 0 
+    38.3786392212 -46.0 -46.0 -46.0 -46.0 -46.0 0.0 0.0 0.0 0.0 
+    None None None
+   ( 47.719345 1.015156 0.024480 1.000000 ) True 0 
+    38.3786392212 0.0307375844568 -0.362820148468 -0.490231692791 -0.566339671612 0.0010000000475 0.0 0.0 0.0 0.0 
+    None None None
+   ( 42.951431 0.537072 -2.682343 1.000000 ) True 0 
+    38.3786392212 0.0629820376635 0.0300395004451 -0.24763353169 -0.238380610943 0.0010000000475 0.0 0.0 0.0 0.0 
+    None None None
+   ( 35.296112 -0.812181 -2.955430 1.000000 ) True 0 
+    38.3786392212 0.0577870309353 -0.215777620673 -0.242598161101 -0.278424620628 0.0010000000475 0.0 0.0 0.0 0.0 
+    None None None
+
+
+Event index 9
+--> TrigEMClusterContainer#HLT_TrigEMClusterContainer_TrigT2CaloCosmic
+--> TrigT2MbtsBitsContainer#HLT_TrigT2MbtsBitsContainer_T2Mbts
+--> TrigInDetTrackCollection#HLT_TrigInDetTrackCollection
+ ROI  -1
+--> TrigSpacePointCountsCollection#HLT_TrigSpacePointCountsCollection_spacepoints
+--> TrigTrackCountsCollection#HLT_TrigTrackCountsCollection_trackcounts
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigBeamSpotVertex
+--> TrigVertexCollection#HLT_TrigVertexCollection_TrigL2SiTrackFinder_FullScan_ZF_Only
+--> TrigVertexCountsCollection#HLT_TrigVertexCountsCollection_vertexcounts
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_EFJetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2JetEtSum
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_T2MissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_L2MissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_FEB
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl
+--> TrigMissingETContainer#HLT_TrigMissingETContainer_TrigEFMissingET_topocl_PS
+--> CombinedMuonFeatureContainer#HLT_CombinedMuonFeatureContainer
+--> IsoMuonFeatureContainer#HLT_IsoMuonFeatureContainer
+--> MuonFeatureContainer#HLT_MuonFeatureContainer
+--> MuonFeatureDetailsContainer#HLT_MuonFeatureDetailsContainer
+--> TileMuFeatureContainer#HLT_TileMuFeatureContainer
+--> TileTrackMuFeatureContainer#HLT_TileTrackMuFeatureContainer
+--> TrigMuonClusterFeatureContainer#HLT_TrigMuonClusterFeatureContainer_MuonCluster
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuTagIMO_EF
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuonEFInfo
+--> TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_eMuonEFInfo
+--> TrigMuonEFIsolationContainer#HLT_TrigMuonEFIsolationContainer_MuonEFIsolation
+--> TrigEFBjetContainer#HLT_TrigEFBjetContainer_EFBjetFex
+   ( 77.051254 -0.110218 -0.137321 1.000000 ) True 0 
+    7.8868727684 0.0471660420299 0.617325246334 -0.738591194153 -0.37204298377 0.0010000000475 0.0 0.0 0.0 0.0 
+    None None None
+   ( 62.106422 -1.146179 1.411255 1.000000 ) True 0 
+    7.8868727684 7.18328857422 2.65167689323 3.04022598267 3.24363803864 0.999998867512 7.77661275864 2000.48168945 0.86905002594 11.0 
+    None None None
+   ( 57.958450 -0.191684 3.090275 1.000000 ) True 0 
+    7.8868727684 0.253026515245 1.19541299343 -0.490957647562 0.466335564852 0.0010000000475 0.0 0.0 0.0 0.0 
+    None None None
+   ( 77.051254 -0.110218 -0.137321 1.000000 ) True 0 
+    7.82863807678 0.0489314869046 0.604919075966 -0.738591194153 -0.355185031891 0.0010000000475 0.0 0.0 0.0 0.0 
+    None None None
+   ( 62.106422 -1.146179 1.411255 1.000000 ) True 0 
+    7.82863807678 7.63255691528 2.61743450165 3.26956152916 3.69290614128 0.999999701977 7.50632858276 2000.48168945 0.86905002594 11.0 
+    None None None
+   ( 57.958450 -0.191684 3.090275 1.000000 ) True 0 
+    7.82863807678 0.0569474175572 -0.187910333276 -0.245478823781 -0.28521001339 0.0010000000475 0.0 0.0 0.0 0.0 
+    None None None
+
+
