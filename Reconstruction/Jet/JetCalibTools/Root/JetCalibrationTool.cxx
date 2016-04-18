@@ -109,7 +109,7 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   }
 
   if ( config.EqualTo("") || !config ) { ATH_MSG_FATAL("No configuration file specified."); return StatusCode::FAILURE; }
-  m_calibAreaTag.insert(0,"CalibArea-00-04-50/"); // Hard-coding the CalibArea tag
+  m_calibAreaTag.insert(0,"CalibArea-00-04-63/"); // Hard-coding the CalibArea tag
   dir.insert(14,m_calibAreaTag); // Obtaining the path of the configuration file
   std::string configPath=dir+m_config; // Full path
   TString fn =  PathResolverFindCalibFile(configPath);

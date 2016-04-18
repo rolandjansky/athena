@@ -311,22 +311,28 @@ StatusCode GlobalSequentialCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInf
   std::vector<int> nTrk;
   //if( !jet.getAttribute<std::vector<int> >("NumTrkPt1000_IDLoose",nTrk) ) {
     //ATH_MSG_WARNING("Failed to retrieve NumTrkPt1000_IDLoose, using NumTrkPt1000 instead. This may be buggy.");
-    if( !jet.getAttribute<std::vector<int> >("NumTrkPt1000",nTrk) ) {
-      ATH_MSG_ERROR("Failed to retrieve NumTrkPt1000!");
-      return StatusCode::FAILURE;
+    if (m_depth & ApplynTrk)
+    {
+        if( !jet.getAttribute<std::vector<int> >("NumTrkPt1000",nTrk) ) {
+          ATH_MSG_ERROR("Failed to retrieve NumTrkPt1000!");
+          return StatusCode::FAILURE;
+        }
     }
   //}
   //vector<float> that holds the trackWIDTH variable calculated with tracks of pT > 1 GeV for different primary vertices
   std::vector<float> trackWIDTH;
   //if( !jet.getAttribute<std::vector<float> >("TrackWidthPt1000_IDLoose",trackWIDTH) ) {
     //ATH_MSG_WARNING("Failed to retrieve TrackWidthPt1000_IDLoose, using TrackWidthPt1000 instead. This may be buggy.");
-    if( !jet.getAttribute<std::vector<float> >("TrackWidthPt1000",trackWIDTH) ) {
-      ATH_MSG_ERROR("Failed to retrieve TrackWidthPt1000!");
-      return StatusCode::FAILURE;
+    if (m_depth & ApplytrackWIDTH)
+    {
+        if( !jet.getAttribute<std::vector<float> >("TrackWidthPt1000",trackWIDTH) ) {
+          ATH_MSG_ERROR("Failed to retrieve TrackWidthPt1000!");
+          return StatusCode::FAILURE;
+        }
     }
   //}
   //Nsegments number of ghost associated muon segments behind each jet
-  int Nsegments = jet.getAttribute<int>("GhostMuonSegmentCount");
+  int Nsegments = (m_depth & ApplyPunchThrough) ? jet.getAttribute<int>("GhostMuonSegmentCount") : 0;
 
   xAOD::JetFourMom_t jetconstitP4 = jet.getAttribute<xAOD::JetFourMom_t>("JetConstitScaleMomentum");
 
@@ -338,8 +344,8 @@ StatusCode GlobalSequentialCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInf
   float detectorEta = jet.getAttribute<float>("DetectorEta");
   //Entry 0 of the nTrk and trackWIDTH vectors should correspond to PV0
   //other entries are for other primary vertices in the event
-  int nTrkPV0 = nTrk[0];
-  float trackWIDTHPV0 = trackWIDTH[0];
+  int nTrkPV0 = (m_depth & ApplynTrk) ? nTrk[0] : 0;
+  float trackWIDTHPV0 = (m_depth & ApplytrackWIDTH) ? trackWIDTH[0] : 0;
   //EM3 and Tile0 fraction calculations
   //EM3 = (EMB3+EME3)/energy, Tile0 = (TileBar0+TileExt0)/energy
   //Check the map above to make sure the correct entries of samplingFrac are being used
