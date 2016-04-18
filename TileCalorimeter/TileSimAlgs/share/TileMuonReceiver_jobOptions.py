@@ -32,7 +32,8 @@ toolSvc += CfgMgr.TileRawChannelBuilderMF('TileMuRcvRawChannelBuilderMF'
                                           , PedestalMode = 0
                                           , DefaultPedestal = TileMuRcvPedestal
                                           , calibrateEnergy = jobproperties.TileRecFlags.calibrateEnergy()
-                                          , TileCondToolOfcCool = toolSvc.TileCondToolMuRcvOfc)
+                                          , TileCondToolOfc = toolSvc.TileCondToolMuRcvOfc
+                                          , TileCondToolOfcOnFly = toolSvc.TileCondToolMuRcvOfc)
 
 #  Random number engine in TilePulseForTileMuonReceiver
 from Digitization.DigitizationFlags import jobproperties

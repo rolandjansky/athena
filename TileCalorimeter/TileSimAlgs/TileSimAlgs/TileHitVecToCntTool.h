@@ -79,21 +79,21 @@ class TileHitVecToCntTool: public PileUpToolBase {
 
   public:
     TileHitVecToCntTool(const std::string& type, const std::string& name, const IInterface* parent); //!< Constructor
-    StatusCode initialize();
-    virtual StatusCode prepareEvent(unsigned int /*nInputEvents*/);
-    virtual StatusCode mergeEvent();
-    virtual StatusCode processBunchXing(int bunchXing
-                                        , PileUpEventInfo::SubEvent::const_iterator bSubEvents
-                                        , PileUpEventInfo::SubEvent::const_iterator eSubEvents);
-    virtual StatusCode processAllSubEvents();
-    StatusCode finalize();
+    StatusCode initialize() override final;
+    virtual StatusCode prepareEvent(unsigned int /*nInputEvents*/) override final;
+    virtual StatusCode mergeEvent() override final;
+    virtual StatusCode processBunchXing(int bunchXing,
+                                        SubEventIterator bSubEvents,
+                                        SubEventIterator eSubEvents) override final;
+    virtual StatusCode processAllSubEvents() override final;
+    StatusCode finalize() override final;
 
   private:
     StatusCode createContainers();
     void processHitVectorForOverlay(const TileHitVector* inputHits, int& nHit, double& eHitTot);
     void processHitVectorForPileUp(const TileHitVector* inputHits, double SubEvtTimOffset, int& nHit, double& eHitTot);
     void processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot);
-    double ApplyPhotoStat(double energy, Identifier pmt_id);    //!< Method to apply photostatistics effect
+    double applyPhotoStatistics(double energy, Identifier pmt_id);    //!< Method to apply photostatistics effect
     void findAndMergeE1(const TileHitCollection* const_coll, int frag_id);
     void findAndMergeMBTS(const TileHitCollection* const_coll, int frag_id);
 
@@ -106,8 +106,8 @@ class TileHitVecToCntTool: public PileUpToolBase {
     int m_timeFlag;                             //!< specail options to deal with times of hits for cosmics and TB
     double m_triggerTime;                       //!< fixed trigger time value (default=0)
     double m_maxHitTime;                        //!< all sub-hits with time above m_maxHitTime will be ignored
-    double m_photoStatWindow;                   //!< sum up energy in [-m_photoStatWindow,+m_photoStatWindow] and use it for photostatistics
-    int m_PhElStat;                             //!< photoelectron statistics type: 0 - Poisson, 1 - "new" Poisson + Gauss, 2 - Poisson->Gauss
+    double m_photoStatisticsWindow;                   //!< sum up energy in [-m_photoStatWindow,+m_photoStatWindow] and use it for photostatistics
+    int m_photoElectronStatistics;                             //!< photoelectron statistics type: 0 - Poisson, 1 - "new" Poisson + Gauss, 2 - Poisson->Gauss
     bool m_skipNoHit;                           //!< if true => skip events with no Tile hits 
     bool m_rndmEvtOverlay;                      //!< If true => overlay with random event (zero-luminosity pile-up)
     bool m_useTriggerTime;                      //!< if true => take trigger time from external tool or from m_triggerTime
@@ -119,7 +119,7 @@ class TileHitVecToCntTool: public PileUpToolBase {
     const TileTBID* m_tileTBID;                 //!< Pointer to TileID helper
     const TileInfo* m_tileInfo;                 //!< Pointer to TileInfo
     const TileDetDescrManager* m_tileMgr;       //!< Pointer to TileDetDescrManager
-    float numPhElec[7];                         //!< number of photo electrons per GeV in samplings
+    float m_nPhotoElectrons[7];                         //!< number of photo electrons per GeV in samplings
 
     CLHEP::HepRandomEngine* m_pHRengine;       //!< Random number service to use
     ServiceHandle<IAtRndmGenSvc> m_rndmSvc;     //!< Random number generator engine to use
@@ -127,23 +127,23 @@ class TileHitVecToCntTool: public PileUpToolBase {
     std::vector<TileHit*> m_allHits;           //!< vector for all TileHits
     TileHitContainer* m_hits;                   //!< pointer to hits container
 
-    bool do_checks;                             //!< initial value of do_checks flag in TileID helper
-    bool do_checks_tb;                          //!< initial value of do_checks flag in TileTBID helper
+    bool m_doChecks;                             //!< initial value of do_checks flag in TileID helper
+    bool m_doChecksTB;                          //!< initial value of do_checks flag in TileTBID helper
 
     int m_mbtsOffset;                           //<! index of first MBTS hit in m_allHits vector
-    static const int nSide = 2;
-    static const int nPhi = 8;
-    static const int nEta = 2;
-    static const int nCellMBTS = nSide * nPhi * nEta;
+    static const int N_SIDE = 2;
+    static const int N_PHI = 8;
+    static const int N_ETA = 2;
+    static const int N_MBTS_CELLS = N_SIDE * N_PHI * N_ETA;
     inline int mbts_index(int side, int phi, int eta) const {
-      return (side * nPhi + phi) * nEta + eta + m_mbtsOffset;
+      return (side * N_PHI + phi) * N_ETA + eta + m_mbtsOffset;
     }
-    static const int E4side = -1;
-    static const int E4eta  = 2;
-    static const int E4nPhi = 4;
-    static const int nCellE4pr = E4nPhi;
+    static const int E4_SIDE = -1;
+    static const int E4_ETA  = 2;
+    static const int E4_N_PHI = 4;
+    static const int N_E4PRIME_CELLS = E4_N_PHI;
     inline int e4pr_index(int phi) const {
-      return  phi + nCellMBTS + m_mbtsOffset;
+      return  phi + N_MBTS_CELLS + m_mbtsOffset;
     }
 
     ServiceHandle<TileCablingSvc> m_cablingSvc;

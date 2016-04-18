@@ -89,33 +89,33 @@ class TileDigitsMaker: public AthAlgorithm {
     const TileHWID* m_tileHWID;
     const TileInfo* m_tileInfo;
     const TileCablingService* m_cabling; //!< TileCabling instance
-    const TileDQstatus* theDQstatus;
+    const TileDQstatus* m_DQstatus;
 
     std::vector<HWIdentifier *> m_all_ids;
     std::vector<double *> m_drawerBufferHi; //!< Vector used to store pointers to digits for a single drawer (high gain)
     std::vector<double *> m_drawerBufferLo; //!< Vector used to store pointers to digits for a single drawer (low gain)
 
-    int nSamp;           //!< Number of time slices for each channel
-    int iTrig;           //!< Index of the triggering time slice
-    float adcMax;        //!< ADC saturation value 
-    float adcMaxHG;      //!< ADC saturation value - 0.5 
-    bool tileNoise;      //!< If true => generate noise in TileDigits
-    bool tileCoherNoise; //!< If true => generate coherent noise in TileDigits
-    bool tileThresh;     //!< If true => apply threshold to Digits
-    double tileThreshHi; //!< Actual threshold value for high gain
-    double tileThreshLo; //!< Actual threshold value for low gain
+    int m_nSamples;           //!< Number of time slices for each channel
+    int m_iTrig;           //!< Index of the triggering time slice
+    float m_adcMax;        //!< ADC saturation value 
+    float m_adcMaxHG;      //!< ADC saturation value - 0.5 
+    bool m_tileNoise;      //!< If true => generate noise in TileDigits
+    bool m_tileCoherNoise; //!< If true => generate coherent noise in TileDigits
+    bool m_tileThresh;     //!< If true => apply threshold to Digits
+    double m_tileThreshHi; //!< Actual threshold value for high gain
+    double m_tileThreshLo; //!< Actual threshold value for low gain
 
-    std::vector<double> digitShapeHi; //!< High gain pulse shape
-    int nShapeHi;                     //!< Number of bins in high gain pulse shape 
-    int nBinsPerXHi;                //!< Number of bins per bunch crossing in high gain pulse shape
-    int binTime0Hi;                   //!< Index of time=0 bin for high gain pulse shape 
-    double timeStepHi;                //!< Time step in high gain pulse shape: 25.0 / nBinsPerXHi
+    std::vector<double> m_digitShapeHi; //!< High gain pulse shape
+    int m_nShapeHi;                     //!< Number of bins in high gain pulse shape 
+    int m_nBinsPerXHi;                //!< Number of bins per bunch crossing in high gain pulse shape
+    int m_binTime0Hi;                   //!< Index of time=0 bin for high gain pulse shape 
+    double m_timeStepHi;                //!< Time step in high gain pulse shape: 25.0 / nBinsPerXHi
 
-    std::vector<double> digitShapeLo; //!< Low gain pulse shape
-    int nShapeLo;                     //!< Number of bins in low gain pulse shape 
-    int nBinsPerXLo;                  //!< Number of bins per bunch crossing in low gain pulse shape
-    int binTime0Lo;                   //!< Index of time=0 bin for low gain pulse shape
-    double timeStepLo;                //!< Time step in low gain pulse shape: 25.0 / nBinsPerXLo
+    std::vector<double> m_digitShapeLo; //!< Low gain pulse shape
+    int m_nShapeLo;                     //!< Number of bins in low gain pulse shape 
+    int m_nBinsPerXLo;                  //!< Number of bins per bunch crossing in low gain pulse shape
+    int m_binTime0Lo;                   //!< Index of time=0 bin for low gain pulse shape
+    double m_timeStepLo;                //!< Time step in low gain pulse shape: 25.0 / nBinsPerXLo
 
     CLHEP::HepRandomEngine * m_pHRengine;    //!< Random number generator engine to use
 

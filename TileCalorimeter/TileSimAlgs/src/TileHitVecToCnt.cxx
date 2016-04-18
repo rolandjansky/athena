@@ -58,7 +58,7 @@ StatusCode TileHitVecToCnt::execute() {
 // Finalize method:                                                     //
 //----------------------------------------------------------------------//
 StatusCode TileHitVecToCnt::finalize() {
-  
+
   ATH_MSG_DEBUG ( "finalize()" );
 
   return StatusCode::SUCCESS;

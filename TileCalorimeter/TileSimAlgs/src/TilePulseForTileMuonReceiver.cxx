@@ -76,14 +76,14 @@ TilePulseForTileMuonReceiver::TilePulseForTileMuonReceiver(std::string name, ISv
   , m_tileHWID(0)
   , m_tileInfo(0)
   , m_cablingService(0)
-  , nSamp(0)
-  , iTrig(0)
-  , adcMax(0)
-  , tileThresh(0.0)
-  , nShape(0)
-  , nBinsPerX(0)
-  , binTime0(0)
-  , timeStep(0.0)
+  , m_nSamples(0)
+  , m_iTrig(0)
+  , m_adcMax(0)
+  , m_tileThresh(0.0)
+  , m_nShape(0)
+  , m_nBinsPerX(0)
+  , m_binTime0(0)
+  , m_timeStep(0.0)
   , m_pHRengine(0)
   , m_rndmSvc("AtRndmGenSvc", name)
   , m_tileToolEmscale("TileCondToolEmscale")
@@ -141,34 +141,34 @@ StatusCode TilePulseForTileMuonReceiver::initialize() {
 
   CHECK(m_MuRcvBuildTool.retrieve());
 
-  nSamp = m_tileInfo->NdigitSamples();    // number of time slices for each chan
-  iTrig = m_tileInfo->ItrigSample();      // index of the triggering time slice
-  adcMax = m_tileInfo->ADCmax();          // adc saturation value
-  tileThresh = m_tileInfo->ThresholdDigits(TileID::LOWGAIN);
+  m_nSamples = m_tileInfo->NdigitSamples();    // number of time slices for each chan
+  m_iTrig = m_tileInfo->ItrigSample();      // index of the triggering time slice
+  m_adcMax = m_tileInfo->ADCmax();          // adc saturation value
+  m_tileThresh = m_tileInfo->ThresholdDigits(TileID::LOWGAIN);
 
   ATH_MSG_VERBOSE("Cabling Services: "                << m_cablingService
-                   << " Number of Samples: "          << nSamp
-                   << " Triggering tile slice: "      << iTrig
-                   << " ADC saturation value: "       << adcMax
-                   << " TileCal Threshold LOW GAIN: " << tileThresh);
+                   << " Number of Samples: "          << m_nSamples
+                   << " Triggering tile slice: "      << m_iTrig
+                   << " ADC saturation value: "       << m_adcMax
+                   << " TileCal Threshold LOW GAIN: " << m_tileThresh);
 
   m_pHRengine = m_rndmSvc->GetEngine("Tile_PulseForTileMuonReceiver");
 
-  nShape    = m_tileInfo->MuRcvNBins();
-  nBinsPerX = m_tileInfo->MuRcvBinsPerX();
-  binTime0  = m_tileInfo->MuRcvTime0Bin();
-  timeStep  = 25.0 / nBinsPerX;
+  m_nShape    = m_tileInfo->MuRcvNBins();
+  m_nBinsPerX = m_tileInfo->MuRcvBinsPerX();
+  m_binTime0  = m_tileInfo->MuRcvTime0Bin();
+  m_timeStep  = 25.0 / m_nBinsPerX;
 
   ATH_MSG_VERBOSE( "Pulse info : "
-		<< "shape "                  << nShape
-                <<" nbins "                  << nBinsPerX
-                <<" time "                   << binTime0
-                <<" time step "              << timeStep
-                <<" Triggering tile sample " << iTrig);
+		<< "shape "                  << m_nShape
+                <<" nbins "                  << m_nBinsPerX
+                <<" time "                   << m_binTime0
+                <<" time step "              << m_timeStep
+                <<" Triggering tile sample " << m_iTrig);
 
   // decrease by 1, now it is the position of lastest element in a vector
   //
-  --nShape;
+  --m_nShape;
 
   if (m_useCoolPulseShapes) {
     ATH_MSG_INFO( "Using pulse from database.");
@@ -260,7 +260,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
 
   // Vector of digits to set into the container
   //
-  std::vector<float> digitsBuffer(nSamp);
+  std::vector<float> digitsBuffer(m_nSamples);
 
   /////////////////////////////////////////////////////////////////////////////////
   // (a.0) iterate over collections in the HIT container: access 'ros' and 'drawer'
@@ -397,21 +397,21 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
         float dy     = 0.0;
         double shape = 0.0;
 
-        int ishift = (int) (t_hit / timeStep + 0.5);
+        int ishift = (int) (t_hit / m_timeStep + 0.5);
 
-        ATH_MSG_VERBOSE( "(C.02.02)   ishift :" << t_hit << "/" << timeStep << "+0.5 = " << ishift);
+        ATH_MSG_VERBOSE( "(C.02.02)   ishift :" << t_hit << "/" << m_timeStep << "+0.5 = " << ishift);
 
         if (m_useCoolPulseShapes) {
-          for (int js = 0; js < nSamp; ++js) {
-            k = binTime0 + (js - iTrig) * nBinsPerX - ishift;
+          for (int js = 0; js < m_nSamples; ++js) {
+            k = m_binTime0 + (js - m_iTrig) * m_nBinsPerX - ishift;
             if (k < 0) k = 0;
-            else if (k > nShape) k = nShape;
+            else if (k > m_nShape) k = m_nShape;
 
-            ATH_MSG_VERBOSE( "(C.02.03)   k : " << binTime0 << "+(" << js << "-" << iTrig << ")*" << nBinsPerX <<  "-" << ishift << " = " << k);
+            ATH_MSG_VERBOSE( "(C.02.03)   k : " << m_binTime0 << "+(" << js << "-" << m_iTrig << ")*" << m_nBinsPerX <<  "-" << ishift << " = " << k);
 
-            phase = (k - binTime0) * timeStep;
+            phase = (k - m_binTime0) * m_timeStep;
 
-            ATH_MSG_VERBOSE( "(C.02.04)   phase : " << k << "-" << binTime0 << "*" << timeStep << " = " << phase);
+            ATH_MSG_VERBOSE( "(C.02.04)   phase : " << k << "-" << m_binTime0 << "*" << m_timeStep << " = " << phase);
 
             m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, TMDBchan, TileID::LOWGAIN, phase, y, dy);
             shape = (double) y;
@@ -423,12 +423,12 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
                             << " Amp = " << pDigitSamples[js] << " [MeV]");
           } //END loop over samples
         } else {
-          for (int js = 0; js < nSamp; ++js) {
-            k = binTime0 + (js - iTrig) * nBinsPerX - ishift;
+          for (int js = 0; js < m_nSamples; ++js) {
+            k = m_binTime0 + (js - m_iTrig) * m_nBinsPerX - ishift;
             if (k < 0) k = 0;
-            else if (k > nShape) k = nShape;
+            else if (k > m_nShape) k = m_nShape;
 
-            ATH_MSG_VERBOSE( "(C.02.03)   k : " << binTime0 << "+(" << js << "-" << iTrig << ")*" << nBinsPerX <<  "-" << ishift << " = " << k);
+            ATH_MSG_VERBOSE( "(C.02.03)   k : " << m_binTime0 << "+(" << js << "-" << m_iTrig << ")*" << m_nBinsPerX <<  "-" << ishift << " = " << k);
 
             pDigitSamples[js] += e_pmt * m_shapeMuonReceiver[k]; // MeV
 
@@ -500,7 +500,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
 
       // Generate an array to randomize the noise for each digit
       //
-      RandGaussQ::shootArray(m_pHRengine, nSamp, Rndm, 0.0, 1.0);
+      RandGaussQ::shootArray(m_pHRengine, m_nSamples, Rndm, 0.0, 1.0);
 
       ATH_MSG_VERBOSE( "(D.02)   Pulse digits [MeV]:"
                        << " " << pDigitSamples[0]
@@ -546,7 +546,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
       }
       // Loop over samples and either use noise and ped from db or user location (TileInfoLoader.cxx)
       //
-      for (int js = 0; js < nSamp; ++js) {
+      for (int js = 0; js < m_nSamples; ++js) {
         ATH_MSG_VERBOSE( "(D.02.0"<< js <<")   sample "<< js <<" E [MeV]: "<< pDigitSamples[js]);
         digitsBuffer[js] = pDigitSamples[js] * mev2ADC_factor;
         ATH_MSG_VERBOSE( "(D.02.0"<< js <<")   sample "<< js <<" calibration Mev->adc "<< mev2ADC_factor <<"-> E [adc]: "<< digitsBuffer[js]);
@@ -573,7 +573,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
         chanIsBad = status.isBad();
       }
       if (chanIsBad) {
-        for (int js = 0; js < nSamp; ++js) {
+        for (int js = 0; js < m_nSamples; ++js) {
           digitsBuffer[js] = 255;// in TMDB we have 8-bit ADCs
         }
         ATH_MSG_VERBOSE( "(D.03)   Masking Channel: "<< ros << '/' << drawer << '/' << TILEchan <<" ("<< TMDBchan <<") LowGain" );
