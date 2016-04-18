@@ -172,6 +172,7 @@ namespace MissingETBase
   {
     /*! @brief Policies on usage checks */
     enum Policy {
+      AllCalo       = 0x0010, /*!< @brief Inclusive except tracks */
       OnlyCluster   = 0x0011, /*!< @brief CaloCluster based only */
       OnlyTrack     = 0x0012, /*!< @brief Track based only */
       TrackCluster  = 0x0014, /*!< @brief Both cluster and track based */

@@ -4,7 +4,6 @@
 
 #include "xAODMissingET/versions/MissingETAssociationMap_v1.h"
 
-#include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODJet/JetAttributes.h"
 
@@ -286,6 +285,9 @@ const xAOD::IParticleContainer* MissingETAssociationMap_v1::getUniqueSignals(con
       else {continue;}
     case MissingETBase::UsageHandler::TruthParticle:
       if((*iSig)->type()==xAOD::Type::TruthParticle) {break;}
+      else {continue;}
+    case MissingETBase::UsageHandler::AllCalo:
+      if((*iSig)->type()!=xAOD::Type::TrackParticle) {break;}
       else {continue;}
     default: continue;
     }

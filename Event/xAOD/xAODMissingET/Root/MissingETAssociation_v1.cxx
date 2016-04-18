@@ -677,6 +677,7 @@ namespace xAOD {
 	  overlapFound |= ( mine == target );
 	  if(mine == target) {
 	    if((*mine)->type()==xAOD::Type::TruthParticle) overlapTypes |= 1;
+	    else if((*mine)->type()==xAOD::Type::Other) overlapTypes |= 1 << xAOD::Type::NeutralParticle;
 	    else overlapTypes |= 1 << (*mine)->type();
 	  }
 	}
@@ -713,6 +714,9 @@ namespace xAOD {
 	  else {continue;}
 	case MissingETBase::UsageHandler::TruthParticle:
 	  if(types[iOL] & 1) {break;}
+	  else {continue;}
+	case MissingETBase::UsageHandler::AllCalo:
+	  if(types[iOL] & ~(1<<xAOD::Type::TrackParticle)) {break;}
 	  else {continue;}
 	default: continue;
 	}
@@ -875,6 +879,9 @@ namespace xAOD {
       else {return false;}
     case MissingETBase::UsageHandler::ParticleFlow:
       if(type==xAOD::Type::ParticleFlow) {return true;}
+      else {return false;}
+    case MissingETBase::UsageHandler::AllCalo:
+      if(type!=xAOD::Type::TrackParticle) {return true;}
       else {return false;}
     default: break;
     }

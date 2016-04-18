@@ -31,9 +31,7 @@ namespace xAOD
     /*!@{*/
     using DataVector<MissingET_v1>::operator[];                        //  Pull in usage of the base class operator[]
     const MissingET_v1* operator[](const std::string& name) const;             /*!< @brief Allocate a non-modifiable xAOD::MissingET_v1 object by name */
-    const MissingET_v1* operator[](MissingETBase::Types::bitmask_t src) const; /*!< @brief Allocate a non-modifiable xAOD::MissingET_v1 object by source indicator */
     MissingET_v1*       operator[](const std::string& name);                   /*!< @brief Allocate a modifiable xAOD::MissingET_v1 object by name */
-    MissingET_v1*       operator[](MissingETBase::Types::bitmask_t src);       /*!< @brief Allocate a modifiable xAOD::MissingET_v1 object by source indicator */
     /*!@}*/
     /*! @name Object search operations */
     /*!@{*/

@@ -26,22 +26,10 @@ const MissingET_v1* MissingETContainer_v1::operator[](const std::string& name) c
   return fObj != this->end() ? *fObj : (const MissingET_v1*)0;
 }
 
-const MissingET_v1* MissingETContainer_v1::operator[](MissingETBase::Types::bitmask_t src) const
-{
-  const_iterator fObj(this->find(src));
-  return fObj != this->end() ? *fObj : (const MissingET_v1*)0;
-}
-
 MissingET_v1* MissingETContainer_v1::operator[](const std::string& name)
 {
   iterator fObj(this->find(name));
   return fObj != this->end() ? *fObj : (MissingET_v1*)0;
-} 
-
-MissingET_v1* MissingETContainer_v1::operator[](MissingETBase::Types::bitmask_t src)
-{ 
-  iterator fObj(this->find(src));
-  return fObj != this->end() ? *fObj : (MissingET_v1*)0; 
 } 
 
 MissingETContainer_v1::const_iterator MissingETContainer_v1::find(const std::string& name) const

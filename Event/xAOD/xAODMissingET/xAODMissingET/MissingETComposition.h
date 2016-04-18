@@ -274,7 +274,7 @@ namespace xAOD
     /*!@{*/
     /*! @brief Adding a @link xAOD::Jet Jet @endlink object to the map
      *
-     *  This function should be called for a given @link xAOD::Jet Jet @endlink object before MissingETConstitution::insert is invoked for the same object. Note that
+     *  This function should be called for a given @link xAOD::Jet Jet @endlink object before MissingETComposition::insert is invoked for the same object. Note that
      *  the @ref metassoc_insertion_rules "the rules" for adding a MET object do not allow to add the same object more than once to a given 
      *  @link xAOD::MissingETAssociationMap MissingETAssociationMap @endlink.
      * 
@@ -290,7 +290,7 @@ namespace xAOD
 		    const MissingETBase::Types::constvec_t& trkvec=MissingETBase::Types::constvec_t());
     /*! @brief Adding a @link xAOD::Jet Jet @endlink object to the map
      *
-     *  This function should be called for a given @link xAOD::Jet Jet @endlink object before MissingETConstitution::insert is invoked for the same object. Note that
+     *  This function should be called for a given @link xAOD::Jet Jet @endlink object before MissingETComposition::insert is invoked for the same object. Note that
      *  the @ref metassoc_insertion_rules "the rules" for adding a MET object do not allow to add the same object more than once to a given 
      *  @link xAOD::MissingETAssociationMap MissingETAssociationMap @endlink.
      * 
@@ -322,8 +322,6 @@ namespace xAOD
      *  @param[in] pJet      non-modifiable pointer to the reference jet
      *  @param[in] pPart     generic pointer to non-modifiable physics or signal object contributing to the MET object
      *  @param[in] constList reference to non-modifiable list of (base type) pointers to signals associated with the given physics object
-     *  @param[in] calvec    reference to a ConstVec with the 4-mom sum of calo constituents of this physics object
-     *  @param[in] trkvec    reference to a ConstVec with the 4-mom sum of track constituents of this physics object
      */
     static bool insert(MissingETAssociationMap* pMap,size_t jetIndex,const IParticle* pPart,const std::vector<const IParticle*>& constlist);
     /*! @brief Insert contributing object to jet referenced by pointer,
@@ -334,8 +332,6 @@ namespace xAOD
      *  @param[in] pJet      non-modifiable pointer to the reference jet
      *  @param[in] pPart     generic pointer to non-modifiable physics or signal object contributing to the MET object
      *  @param[in] constList reference to non-modifiable list of (base type) pointers to signals associated with the given physics object
-     *  @param[in] calvec    reference to a ConstVec with the 4-mom sum of calo constituents of this physics object
-     *  @param[in] trkvec    reference to a ConstVec with the 4-mom sum of track constituents of this physics object
      */
     static bool insert(MissingETAssociationMap* pMap,const Jet* pJet,const IParticle* pPart,const std::vector<const IParticle*>& constlist);
     /*! @brief Insert contributing object, finding the appropriate association automatically
@@ -344,8 +340,6 @@ namespace xAOD
      * 
      *  @param[in] pPart     generic pointer to non-modifiable physics or signal object contributing to the MET object
      *  @param[in] constList reference to non-modifiable list of (base type) pointers to signals associated with the given physics object
-     *  @param[in] calvec    reference to a ConstVec with the 4-mom sum of calo constituents of this physics object
-     *  @param[in] trkvec    reference to a ConstVec with the 4-mom sum of track constituents of this physics object
      */
     static bool insert(MissingETAssociationMap* pMap,const IParticle* pPart,const std::vector<const IParticle*>& constlist,
 		       std::map<const IParticle*,MissingETBase::Types::constvec_t> pOverride=std::map<const IParticle*,MissingETBase::Types::constvec_t>());

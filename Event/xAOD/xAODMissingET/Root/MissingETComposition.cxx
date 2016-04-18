@@ -283,8 +283,6 @@ namespace xAOD {
     // input check
     if ( pMap == 0 )
       { printf("MissingETComposition::insert - ERROR - possible invalid pointer values: MissingETAssociationMap* = %p\n",(void*)pMap); return false; }
-    if(constlist.size()==0)
-      { return false; }
     
     // loop over constituents and try to identify an appropriate association
     // FIXME: check in case more than one appropriate index found?
@@ -330,8 +328,6 @@ namespace xAOD {
     // input check
     if ( pMap == 0 )
       { printf("MissingETComposition::insertMisc - ERROR - possible invalid pointer values: MissingETAssociationMap* = %p\n",(void*)pMap); return false; }
-    if(constlist.size()==0)
-      { return false; }
     
     size_t jetIndex(MissingETBase::Numerical::invalidIndex());
     // loop over constituents and make sure these don't belong to some other association
@@ -343,7 +339,6 @@ namespace xAOD {
 	printf("MissingETComposition::insertMisc - ERROR - object %p with constituent %p is associated to jet %lu, will not place in misc association\n",(void*)pPart,(void*)signal,jetIndex); return false;
       }
     }
-    
     pMap->getMiscAssociation()->addObject(pPart,constlist);
 
     return true;
