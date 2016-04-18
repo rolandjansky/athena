@@ -51,55 +51,38 @@ ErrorCode Lvl2Converter::hltInitialize() {
 
 ErrorCode Lvl2Converter::hltExecute(std::vector<HLT::SteeringChain*>& chains)
 {
-  // some debug output
-  if (m_logLvl <= MSG::DEBUG) {
-    (*m_log) << MSG::DEBUG << "executing" << endreq;
-  }
-
   if (!m_config) {
-       (*m_log) << MSG::ERROR
-             << "No AlgoConfig pointer"
-             << endreq;
+    ATH_MSG_ERROR("No AlgoConfig pointer");
     return HLT::ERROR;
   }
 
   const HLTResult* constL2Result;
-  StatusCode sc = m_storeGate->retrieve(constL2Result, m_l2Name);
+  StatusCode sc = evtStore()->retrieve(constL2Result, m_l2Name);
   if(sc.isFailure()){
-    (*m_log) << MSG::ERROR
-             << "No HLTResult with name " << m_l2Name << " found in StoreGate"
-             << endreq;
+    ATH_MSG_ERROR("No HLTResult with name " << m_l2Name << " found in StoreGate");
     return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::SteeringInternalReason::NO_HLT_RESULT);
-  }
+ }
   HLTResult* l2result = const_cast<HLTResult*>(constL2Result);
 
 
   // make sure we're reading in a L2 HLTResult !
   if ( l2result->getHLTLevel() != HLT::L2) {
-    (*m_log) << MSG::ERROR
-             << "HLTResult level is not HLT::L2"
-             << endreq;
+    ATH_MSG_ERROR("HLTResult level is not HLT::L2");
     return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::USERDEF_4,  HLT::SteeringInternalReason::WRONG_HLT_RESULT);
   }
 
   // make sure that the result was ever seen by L2 (it can be the case that it is created at L2SV)
   if ( l2result->isCreatedOutsideHLT() ) {
-    if ( m_logLvl <= MSG::DEBUG )
-      (*m_log) << MSG::DEBUG << "L2Result was not created by steering at L2. Was created by L2Supervisor" << endreq;
+    ATH_MSG_DEBUG("L2Result was not created by steering at L2. Was created by L2Supervisor");
     return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::USERDEF_1,  HLT::SteeringInternalReason::NO_HLT_RESULT);
   }
 
   // make sure that the processing at L2 was OK
-  if ( m_logLvl <= MSG::DEBUG )
-      (*m_log) << MSG::DEBUG << "L2Result indicates at L2: " << strErrorCode(l2result->getHLTStatus()) 
-	       << " L1 converter: " << strErrorCode(l2result->getLvlConverterStatus())  << endreq;
+  ATH_MSG_DEBUG("L2Result indicates at L2: " << strErrorCode(l2result->getHLTStatus()) 
+                 << " L1 converter: " << strErrorCode(l2result->getLvlConverterStatus()));
   if ( l2result->getHLTStatus().action() > m_maxEC.action() ) {
     return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::USERDEF_2, HLT::SteeringInternalReason::WRONG_HLT_RESULT);
   }
-
-
-
-
 
 
   // make sure that config keys are the same as in Lvl2 (but only if set)
@@ -108,13 +91,12 @@ ErrorCode Lvl2Converter::hltExecute(std::vector<HLT::SteeringChain*>& chains)
     if ( (m_smk != l2result->getConfigSuperMasterKey() || m_psk != l2result->getConfigPrescalesKey()) &&
 	 (m_smk != noKey && l2result->getConfigSuperMasterKey() != noKey &&
 	  m_psk != noKey && l2result->getConfigPrescalesKey() != noKey) ) {
-      if ( m_logLvl <= MSG::FATAL ) {
+      if (msgLvl(MSG::FATAL)) {
         std::string appName("UNKNOWN");
         StringSerializer().deserialize(l2result->getExtras(), appName);
-        (*m_log) << MSG::FATAL << "L2Result created with configuration keys (SMK,PSK) = (" 
-                 <<  l2result->getConfigSuperMasterKey() << "," << l2result->getConfigPrescalesKey()
-                 << ") by " << appName << " while EF uses (" << m_smk << "," << m_psk << ")"
-                 << endreq;
+        ATH_MSG_FATAL("L2Result created with configuration keys (SMK,PSK) = (" 
+                      <<  l2result->getConfigSuperMasterKey() << "," << l2result->getConfigPrescalesKey()
+                      << ") by " << appName << " while EF uses (" << m_smk << "," << m_psk << ")");                      
       }
       return HLT::ErrorCode( HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP, 
 			     HLT::SteeringInternalReason::WRONG_HLT_RESULT);
@@ -123,8 +105,7 @@ ErrorCode Lvl2Converter::hltExecute(std::vector<HLT::SteeringChain*>& chains)
 
   // update hltAccessTool with new HLTResult:
   if (! m_hltTool->updateResult(*l2result, m_config)) {
-    if ( m_logLvl <= MSG::DEBUG )
-      (*m_log) << MSG::DEBUG << "L2Result erroneus, HLTResultAccessTool can't digest it" << endreq;
+    ATH_MSG_DEBUG("L2Result erroneus, HLTResultAccessTool can't digest it");
     return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::USERDEF_3, HLT::SteeringInternalReason::WRONG_HLT_RESULT);
   }
 
@@ -135,14 +116,14 @@ ErrorCode Lvl2Converter::hltExecute(std::vector<HLT::SteeringChain*>& chains)
   ErrorCode ec;
   ec = deserializeNavigation(*m_config->getNavigation(), *l2result);
   if ( ec != HLT::OK ) {
-    (*m_log) << MSG::ERROR << "Failed to deserialize navigation" << endreq;
+    ATH_MSG_ERROR("Failed to deserialize navigation");
     return ec;
   }
 
   //activate the chains
   ec = activateChains(chains, previousChains, m_stickyPassThrough);
   if ( ec != HLT::OK ) {
-    (*m_log) << MSG::ERROR << "Failed to activate chains" << endreq;
+    ATH_MSG_ERROR("Failed to activate chains");
     return ec;
   }
 

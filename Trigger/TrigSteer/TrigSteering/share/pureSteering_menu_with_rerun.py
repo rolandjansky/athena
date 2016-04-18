@@ -1,8 +1,5 @@
-from TriggerMenuPython.TriggerPythonConfig import *
 
-menu = TriggerPythonConfig('pureSteering_menu.xml', 'l1.xml' )
-
-
+# L1
 
 # there seems to be 10 cases to be tested (X signifies prescaled item/chain, 0 means unprescalled item/chain, 
 #L1 X X X X 0 0 0 
@@ -11,37 +8,37 @@ menu = TriggerPythonConfig('pureSteering_menu.xml', 'l1.xml' )
 
 # to complete the test we need 2 items which we can put on/off as needed in LVL11 seeds file
 
+from TriggerMenu.TriggerConfigLVL1 import TriggerConfigLVL1            
+from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+from TriggerMenu.l1.Lvl1MenuItems import LVL1MenuItem
+from TriggerMenu.l1.TriggerTypeDef import TT
+from TriggerMenu.l1.Lvl1Condition import ThrCondition, Lvl1InternalTrigger
+from TriggerMenu.l1.Logic import Logic
+
+l1menu = TriggerConfigLVL1(outputFile = 'l1menu.xml', menuName = 'menutest', topoMenu = None)
+LVL1MenuItem.l1configForRegistration = l1menu
+
+
+Lvl1Flags.thresholds = ['EM3','EM15i','EM25i']
+Lvl1Flags.items = ['L1_EM3','L1_EM15i','L1_EM25i']
+
+bgrp = Logic(Lvl1InternalTrigger('BGRP0')) & Logic(Lvl1InternalTrigger('BGRP1'))
+
+thr = l1menu.registerThr('EM3','EM').addThrValue(3)
+LVL1MenuItem('L1_EM3').setLogic( ThrCondition(thr) & bgrp ).setTriggerType( TT.calo )
+
+thr = l1menu.registerThr('EM15i','EM').addThrValue(15)
+LVL1MenuItem('L1_EM15i').setLogic( ThrCondition(thr) & bgrp ).setTriggerType( TT.calo )
+
+thr = l1menu.registerThr('EM25i','EM').addThrValue(25)
+LVL1MenuItem('L1_EM25i').setLogic( ThrCondition(thr) & bgrp ).setTriggerType( TT.calo )
 
 
 
+from TriggerMenu.menu.TriggerPythonConfig import TriggerPythonConfig
+from TriggerMenu.menu.HLTObjects import HLTChain
 
-# L1 necessary
-thr_em3 = menu.registerLvl1Threshold(name='EM3', type='EM', mapping=2, slot='SLOT7', connector='CON1')\
-            .addEMThresholdValue(3, -49, 49, 0, 64, 1, 3, 2)
-
-item_em3 = LVL1MenuItem('L1_EM3', ctpid=0x2).setLogic(thr_em3.condition(1))
-
-
-thr_em15i = menu.registerLvl1Threshold(name='EM15i', type='EM', mapping=3, slot='SLOT7', connector='CON1')\
-            .addEMThresholdValue(13, -49, 49, 0, 64, 4, 3, 2)
-
-item_em15i = LVL1MenuItem('L1_EM15i', ctpid=0x3).setLogic(thr_em15i.condition(1))
-
-
-thr_em25i = menu.registerLvl1Threshold(name='EM25i', type='EM', mapping=6, slot='SLOT7', connector='CON1')\
-            .addEMThresholdValue(25, -49, 49, 0, 64, 4, 3, 2)
-item_em25i = LVL1MenuItem('L1_EM25i', ctpid=0x6).setLogic(thr_em25i.condition(1))
-
-
-for a in dir():
-    if a.startswith('item_'):
-        eval("menu.addLvl1Item( %s)" % (a))
-
-
-
-
-
-
+menu = TriggerPythonConfig('pureSteering_menu.xml')
 
 from TrigSteeringTest.TrigSteeringTestConf import PESA__dummyAlgo, PESA__dummyHypo, PESA__newDummyAlgo2To1, PESA__newDummyAlgoAllTEs, PESA__dummyAlgoHLTErrorCode, PESA__dummyMonitoredFex, PESA__dummyAlgoForCalibration
 

@@ -12,7 +12,7 @@
  * @author Ingrid Deigaard - Nikhef, The Netherlands
  *
  * File and Version Information:
- * $Id: LvlTopoConverter.cxx 680367 2015-07-04 11:59:22Z stelzer $
+ * $Id: LvlTopoConverter.cxx 717623 2016-01-13 20:57:27Z stelzer $
  **********************************************************************************/
 
 #include "TrigSteering/LvlTopoConverter.h"
@@ -29,7 +29,12 @@ LvlTopoConverter::LvlTopoConverter(const std::string& name, const std::string& t
    m_jetInputProvider("LVL1::JetInputProvider/JetInputProvider", this),
    m_energyInputProvider("LVL1::EnergyInputProvider/EnergyInputProvider", this),
    m_muonInputProvider("LVL1::MuonInputProvider/MuonInputProvider", this)
-{}
+{
+   declareProperty ("EMTauInputProvider",  m_emtauInputProvider);
+   declareProperty ("JetInputProvider",    m_jetInputProvider);
+   declareProperty ("EnergyInputProvider", m_energyInputProvider);
+   declareProperty ("MuonInputProvider",   m_muonInputProvider);
+}
 
 
 ErrorCode

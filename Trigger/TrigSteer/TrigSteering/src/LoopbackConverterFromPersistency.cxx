@@ -67,21 +67,17 @@ ErrorCode LoopbackConverterFromPersistency::hltFinalize()
 
 ErrorCode LoopbackConverterFromPersistency::hltExecute(std::vector<HLT::SteeringChain*>& chains)
 {
-  if(m_logLvl<=MSG::DEBUG){
-    (*m_log) << MSG::DEBUG << "Executing "<< name() << endreq;
-  }
-
   const HLTResult* constResult = 0;
-  StatusCode sc = m_storeGate->retrieve(constResult, (m_resultName.empty() ? "HLTResult"+m_config->getInstance() : m_resultName) );
+  StatusCode sc = evtStore()->retrieve(constResult, (m_resultName.empty() ? "HLTResult"+m_config->getInstance() : m_resultName) );
 
   if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "No L2Result found in Store" << endreq;
-      return HLT::ERROR;
+    ATH_MSG_ERROR("No L2Result found in Store");
+    return HLT::ERROR;
   }
 
   // update hltAccessTool with new HLTResult:
   if (!m_hltTool->updateResult(*constResult, m_config)) {
-    (*m_log) << MSG::ERROR << "L2Result errorus, HLTResultAccessTool can't digest it" << endreq;
+    ATH_MSG_ERROR("L2Result errorus, HLTResultAccessTool can't digest it");
     return HLT::WRONG_HLT_RESULT;
   }
 
@@ -92,7 +88,7 @@ ErrorCode LoopbackConverterFromPersistency::hltExecute(std::vector<HLT::Steering
     ErrorCode ec;
     ec = deserializeNavigation(*m_config->getNavigation(), *constResult);
     if ( ec != HLT::OK) {
-      (*m_log) << MSG::ERROR << "Failed to deserialize navigation" << endreq;
+      ATH_MSG_ERROR("Failed to deserialize navigation");
       return ec;
     }
   }
@@ -106,14 +102,14 @@ ErrorCode LoopbackConverterFromPersistency::hltExecute(std::vector<HLT::Steering
   ErrorCode ec;
   ec = activateChains(chains, previousChains);
   if ( ec != HLT::OK ) {
-    (*m_log) << MSG::ERROR << "Failed to activate chains" << endreq;
+    ATH_MSG_ERROR("Failed to activate chains");
     return ec;
   }
 
   // remove old L2Result from SG (needed when rerunning Hypos, not needed when full rerunning is done)
   if ( m_removeOldResult ) {
-    if ( m_storeGate->remove(constResult).isFailure() ) {
-      (*m_log) << MSG::ERROR << "Failed to remove old result from SG" << endreq;
+    if ( evtStore()->remove(constResult).isFailure() ) {
+      ATH_MSG_ERROR("Failed to remove old result from SG");
       return HLT::ERROR;
     }
   }
@@ -139,45 +135,34 @@ ErrorCode LoopbackConverterFromPersistency::setConfiguredChains(const std::vecto
  */
 ErrorCode LoopbackConverterFromPersistency::activateChains(std::vector<HLT::SteeringChain*>& chains,
 							   const std::vector<HLT::Chain>& chainsFromPreviuousRun, bool ) {
-  if(m_logLvl<=MSG::DEBUG){
-    (*m_log) << MSG::DEBUG << "activateChains "<< name() << endreq;
-  }
+  ATH_MSG_DEBUG("activateChains "<< name());
 
   std::vector<Chain>::const_iterator preChain;
   for ( preChain = chainsFromPreviuousRun.begin(); preChain != chainsFromPreviuousRun.end(); ++preChain ) {    
     if ( preChain->chainPassed() || m_activateAllChains ) {
 
-      if(m_logLvl<=MSG::DEBUG) {
-	(*m_log) << MSG::DEBUG << "activating chain of counter "<< preChain->getChainCounter() << endreq;
-	(*m_log) << MSG::DEBUG << *preChain << endreq;
-      }
+      ATH_MSG_DEBUG("activating chain of counter "<< preChain->getChainCounter() << std::endl << *preChain);
 
       unsigned int counter = preChain->getChainCounter();
 
-
       if ( m_counterToChain.find(counter) == m_counterToChain.end() ) {
-	(*m_log) << MSG::DEBUG << "Chain with counter: " << preChain->getChainCounter()
-		 << " absent in the list of configured chains, you run different menu" << endreq;
+        ATH_MSG_DEBUG("Chain with counter: " << preChain->getChainCounter()
+                      << " absent in the list of configured chains, you run different menu");
       } else {
-	// else go ahead with activation
-	SteeringChain *chain = m_counterToChain[counter];
-	chain->setActive();
-	// also, set prescale and pass-through status to the same as in the previous run!!!
-	if (preChain->isPrescaled()) chain->setPrescaled();
-	if (preChain->isPassedThrough()) chain->setPassThrough();
-	if (preChain->isResurrected()) chain->setResurrected();
-
-      if(m_logLvl<=MSG::DEBUG) {
-	(*m_log) << MSG::DEBUG << "activated chain: "<<  *chain << endreq;
-      }
-
-
-	chains.push_back(chain);
-	if(m_logLvl<=MSG::VERBOSE)
-	  (*m_log) << MSG::VERBOSE << "activated chain of counter "<< preChain->getChainCounter() << endreq;
+        // else go ahead with activation
+        SteeringChain *chain = m_counterToChain[counter];
+        chain->setActive();
+        // also, set prescale and pass-through status to the same as in the previous run!!!
+        if (preChain->isPrescaled()) chain->setPrescaled();
+        if (preChain->isPassedThrough()) chain->setPassThrough();
+        if (preChain->isResurrected()) chain->setResurrected();
+        
+        ATH_MSG_DEBUG("activated chain: "<<  *chain);
+        
+        chains.push_back(chain);
+        ATH_MSG_VERBOSE("activated chain of counter "<< preChain->getChainCounter());
       }
     }
   }
-
   return HLT::OK;
 }

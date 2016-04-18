@@ -40,7 +40,6 @@
 
 #include "TrigSteeringEvent/RobRequestInfo.h"
 
-
 #include "TrigInterfaces/Algo.h"
 #include "TrigInterfaces/FexAlgo.h"
 #include "TrigInterfaces/HypoAlgo.h"
@@ -48,7 +47,6 @@
 #include "TrigInterfaces/Incidents.h"
 
 #include "TrigNavigation/Navigation.h"
-
 
 #include "TrigConfHLTData/HLTSequenceList.h"
 #include "TrigConfHLTData/HLTSequence.h"
@@ -70,7 +68,6 @@
 #include "TrigTimeAlgs/ITrigTimerSvc.h"
 #include "TrigTimeAlgs/TrigTimer.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
@@ -93,8 +90,6 @@ using namespace std;
 TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_config(0),
-    m_log(0), 
-    m_logLvl(0),
     m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
     m_l1topoConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
     m_robDataProvider("ROBDataProviderSvc/ROBDataProviderSvc",name),
@@ -107,7 +102,6 @@ TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
     m_monTools( this ),
     m_opiTools( this ),
     m_incSvc("IncidentSvc", name),
-    m_storeGate("StoreGateSvc", name),
     m_coreDumpSvc("CoreDumpSvc", name),
     m_executionOrderStrategy("HLT__OptimalExecutionOrderStrategy", this),
     m_EventInfoTool("HLT::EventInfoAccessTool/EventInfoAccessTool", this),
@@ -161,18 +155,9 @@ TrigSteer::~TrigSteer()
 
 StatusCode TrigSteer::initialize()
 {
-   m_log = new MsgStream( msgSvc(), name());
-   m_logLvl = m_log->level();
-
    ATH_MSG_DEBUG("start initialize");
 
-
-   CHECK( m_storeGate.retrieve());
-
-
-   // Get ROBDataProvider for data pre-fetch
    CHECK( m_robDataProvider.retrieve());
-
   
    // Setup the HLT ROB Data Provider Service when configured
    if ( &*m_robDataProvider ) {
@@ -182,11 +167,9 @@ StatusCode TrigSteer::initialize()
       m_trigROBDataProvider = SmartIF<ITrigROBDataProviderSvc>( IID_ITrigROBDataProviderSvc, &*m_robDataProvider );
 #endif
       if (m_trigROBDataProvider.isValid()) {
-         (*m_log)  << MSG::INFO << " A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found."
-                   << endreq;
+        ATH_MSG_INFO(" A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found.");
       } else {
-         (*m_log)  << MSG::INFO << " No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found."
-                   << endreq;
+        ATH_MSG_INFO(" No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found.");
       }
    }
 
@@ -197,11 +180,11 @@ StatusCode TrigSteer::initialize()
 
    // Create & set the config object (hlt runtime config), holding all common variables
    m_config = new HLT::AlgoConfig();
-   m_config->setMsgStream(m_log);
-   m_config->setMsgLvl(m_logLvl);
+   m_config->setMsgStream(&msg());
+   m_config->setMsgLvl(msg().level());
    m_config->setUseTiming(m_doTiming);
    m_config->setNavigation(&*m_navigation);
-   m_config->setStoreGate(&*m_storeGate);
+   m_config->setStoreGate(&*evtStore());
    m_config->setSteeringOPILevel(m_doOperationalInfo);
    m_config->setRobRequestInfo(new RobRequestInfo());
 
@@ -235,13 +218,12 @@ StatusCode TrigSteer::initialize()
    if ( ScalerSvc::registerType( "HLT::RandomScaler" ) &&
         ScalerSvc::registerType( "HLT::PeriodicScaler", new ScalerFactory<PeriodicScaler>() ) && 
         ScalerSvc::registerType( "HLT::PeriodicScalerTake1st", new ScalerFactory<PeriodicScalerTake1st>() ) ) {
-      (*m_log) << MSG::DEBUG << "Successfully configured ScalerSvc: " << m_scalerSvc << endreq;
+      ATH_MSG_DEBUG("Successfully configured ScalerSvc: " << m_scalerSvc);
    }
 
    if ( m_opiScaler.retrieve().isFailure() ) {
-      (*m_log) << MSG::FATAL << "Failed to retrieve OPIScaler: " << m_opiScaler
-               << endreq;
-      return StatusCode::FAILURE;   
+     ATH_MSG_FATAL("Failed to retrieve OPIScaler: " << m_opiScaler);
+     return StatusCode::FAILURE;   
    }
 
 
@@ -250,17 +232,17 @@ StatusCode TrigSteer::initialize()
    if (m_hltLevel == "HLT"){
       m_producedTEsHLT =  TrigConf::HLTUtils::allTEsProducedInLevel("HLT", *(m_configSvc->chainList()), *(m_configSvc->sequenceList()));
       for ( unsigned t = 0; t < m_producedTEsHLT.size(); t++ ) {
-         (*m_log) << MSG::DEBUG << "Will produce at HLT TE of id: " << m_producedTEsHLT[t] << endreq;
+         ATH_MSG_DEBUG("Will produce at HLT TE of id: " << m_producedTEsHLT[t]);
       }
    } else {
       m_producedTEsL2 =  TrigConf::HLTUtils::allTEsProducedInLevel("L2", *(m_configSvc->chainList()), *(m_configSvc->sequenceList()));
       for ( unsigned t = 0; t < m_producedTEsL2.size(); t++ ) {
-         (*m_log) << MSG::VERBOSE << "Will produce at L2 TE of id: " << m_producedTEsL2[t] << endreq;
+         ATH_MSG_VERBOSE("Will produce at L2 TE of id: " << m_producedTEsL2[t]);
       }
     
       m_producedTEsEF =  TrigConf::HLTUtils::allTEsProducedInLevel("EF", *(m_configSvc->chainList()), *(m_configSvc->sequenceList()));
       for ( unsigned t = 0; t < m_producedTEsEF.size(); t++ ) {
-         (*m_log) << MSG::VERBOSE << "Will produce at EF TE of id: " << m_producedTEsEF[t] << endreq;
+         ATH_MSG_VERBOSE("Will produce at EF TE of id: " << m_producedTEsEF[t]);
       }
    }
  
@@ -311,14 +293,14 @@ StatusCode TrigSteer::initialize()
          ATH_MSG_DEBUG("ignore chain: " << confchain->chain_name() << " which is not configured as " << m_hltLevel);
       }
    }
-   (*m_log) << MSG::INFO << "# Configured chain(s) at level " << m_hltLevel << ": " << m_chains.size() << endreq;
+   ATH_MSG_INFO("# Configured chain(s) at level " << m_hltLevel << ": " << m_chains.size());
 
 
 
    if ( m_doHypo == false && m_doFex == false ) {
-      (*m_log) << MSG::FATAL << "Setup inconsistent, doFex and doHypo set both to false" << endreq;
-      (*m_log) << MSG::FATAL << "In normal conditions both should be true. While reruning doHypo=true, doFex=false" << endreq;
-      (*m_log) << MSG::FATAL << "In NULL selection setup doHypo=false, doFex=true" << endreq;
+      ATH_MSG_FATAL("Setup inconsistent, doFex and doHypo set both to false");
+      ATH_MSG_FATAL("In normal conditions both should be true. While reruning doHypo=true, doFex=false");
+      ATH_MSG_FATAL("In NULL selection setup doHypo=false, doFex=true");
       return StatusCode::FAILURE;
    }
 
@@ -329,7 +311,7 @@ StatusCode TrigSteer::initialize()
 
    // Get & Set LvlConverter:
    if (m_lvlCnvTool.empty()) {
-      (*m_log) << MSG::FATAL << "no LvlConverter tool set in the jobOptions-> abort" << endreq;
+      ATH_MSG_FATAL("no LvlConverter tool set in the jobOptions-> abort");
       return StatusCode::FAILURE;
    }
    CHECK(m_lvlCnvTool.retrieve());
@@ -355,7 +337,7 @@ StatusCode TrigSteer::initialize()
 
    // Create the ResultBuilder
    if (m_resultBuilder.empty()) {
-      (*m_log) << MSG::FATAL << "no ResultBuilder tool set in the jobOptions-> abort" << endreq;
+      ATH_MSG_FATAL("no ResultBuilder tool set in the jobOptions-> abort");
       return StatusCode::FAILURE;
    }
    CHECK( m_resultBuilder.retrieve() );
@@ -368,10 +350,10 @@ StatusCode TrigSteer::initialize()
    if (m_doTiming) {
       // create timers
       if ( m_timerSvc.retrieve().isFailure() ) {
-         (*m_log) << MSG::ERROR << "Requested timing measurements but can't retrieve TrigTimerSvc" << endreq;
+         ATH_MSG_ERROR("Requested timing measurements but can't retrieve TrigTimerSvc");
          return  StatusCode::FAILURE;
       }
-      (*m_log) << MSG::DEBUG << "Retrieved TrigTimerSvc" << endreq;
+      ATH_MSG_DEBUG("Retrieved TrigTimerSvc");
       m_timerTotal          = m_timerSvc->addItem(name()+":TotalTime");
       m_timerTotalAccepted  = m_timerSvc->addItem(name()+":TotalTimeAccepted");
       m_timerTotalRejected  = m_timerSvc->addItem(name()+":TotalTimeRejected");
@@ -409,27 +391,27 @@ StatusCode TrigSteer::initialize()
    // reset all configured chains, so that in any case
    // the first event sees exactly the same chains as all other events!
    if (!resetChains(m_chains) ) {
-      (*m_log) << MSG::ERROR << "Failed to reset vector of all configured HLT::Chain objects!" << endreq;
+      ATH_MSG_ERROR("Failed to reset vector of all configured HLT::Chain objects!");
    }
 
-   //  (*m_log) << MSG::INFO << "m_prescaleBeforeExecution = " << m_prescaleBeforeExecution << endreq;
-   //  (*m_log) << MSG::INFO << "m_calculatePrescaledChains = " << m_calculatePrescaledChains << endreq;
+   //  ATH_MSG_INFO("m_prescaleBeforeExecution = " << m_prescaleBeforeExecution);
+   //  ATH_MSG_INFO("m_calculatePrescaledChains = " << m_calculatePrescaledChains);
   
    if ( m_hardEventTimeout > 0 )
-      (*m_log) << MSG::WARNING << "Hard event timeout set (" << m_hardEventTimeout/1e6 << " ms)" << endreq;
+      ATH_MSG_WARNING("Hard event timeout set (" << m_hardEventTimeout/1e6 << " ms)");
    if ( m_softEventTimeout > 0 )
-      (*m_log) << MSG::WARNING << "Soft event timeout set (" << m_softEventTimeout/1e6 << " ms)" << endreq;
+      ATH_MSG_WARNING("Soft event timeout set (" << m_softEventTimeout/1e6 << " ms)");
 
    if (m_enableCoherentPrescaling) 
       configureCoherentPrescaling();
 
 
    if( m_executionOrderStrategy.retrieve().isFailure() ) {
-      (*m_log) << MSG::WARNING << "Can not retrieve chains ordering tool: " << m_executionOrderStrategy << " will continue w/o it" << endreq;    
+      ATH_MSG_WARNING("Can not retrieve chains ordering tool: " << m_executionOrderStrategy << " will continue w/o it");    
    } else {
 
       CHECK( m_executionOrderStrategy->prepare(m_chains) );
-      //    (*m_log) << MSG::WARNING << "Can not prepare chains ordering tool: " << m_executionOrderStrategy << " will continue w/o it" << endreq;    
+      //    ATH_MSG_WARNING("Can not prepare chains ordering tool: " << m_executionOrderStrategy << " will continue w/o it");    
    }
 
 
@@ -460,7 +442,6 @@ StatusCode TrigSteer::finalize()
    m_algos.clear();
    ATH_MSG_DEBUG("finalized sequences");
 
-   delete m_log; m_log=0;
    delete m_config; m_config=0;
 
    return StatusCode::SUCCESS;
@@ -503,8 +484,6 @@ StatusCode TrigSteer::execute()
       m_timerCallEB->start();
    }
 
-   // some debug output
-   ATH_MSG_DEBUG("Executing TrigSteer for new event");
    ATH_MSG_DEBUG("//////////////////////////////////////////////////\n");
    ATH_MSG_DEBUG("/////////  Start of HLT Processing in " << m_config->getInstance().substr(1,3) << " /////////");
    ATH_MSG_DEBUG("//////////////////////////////////////////////////");
@@ -541,7 +520,6 @@ StatusCode TrigSteer::execute()
       m_topoSteer->reset();
 
       // fill the input event
-      //HLT::ErrorCode topoEC = 
       if( m_lvlTopoCnvTool->hltExecute(m_activeChains, m_topoSteer->inputEvent() ) != HLT::OK) {
          return StatusCode::FAILURE;
       }
@@ -571,14 +549,12 @@ StatusCode TrigSteer::execute()
    operationalInfo->set("Nroi", m_navigation->countAllOfType(0, false)-1.0); // because the RoI nodes and initial node have id 0 (so all nodes of id 0 -1 give # of RoIs)
 
    // DEBUG output: print all activated HLT Chains
-   if (m_config->getMsgLvl() <=MSG::DEBUG) {
-      (*m_log) << MSG::DEBUG << "Working with "<< m_activeChains.size() <<" active chains in this level: "
-               << endreq;
-      for (std::vector<HLT::SteeringChain*>::iterator iterChain = m_activeChains.begin();
-           iterChain != m_activeChains.end(); ++iterChain) {
-         (*m_log) << MSG::DEBUG << "Active: " << *(*iterChain) << " lower_chain: " << (*iterChain)->getLowerChainName() <<" EB after step: "<<(*iterChain)->getEBAfterStep() << endreq;
-
-      }
+   if (msgLvl(MSG::DEBUG)) {
+     msg() << "Working with "<< m_activeChains.size() <<" active chains in this level: " << endreq;
+     for (std::vector<HLT::SteeringChain*>::iterator iterChain = m_activeChains.begin();
+          iterChain != m_activeChains.end(); ++iterChain) {
+       msg() << "Active: " << *(*iterChain) << " lower_chain: " << (*iterChain)->getLowerChainName() <<" EB after step: "<<(*iterChain)->getEBAfterStep() << endreq;
+     }
    }
 
    /*
@@ -604,7 +580,7 @@ StatusCode TrigSteer::execute()
       // run on all non-prescaled chains      
       runChains(false);    
    } else {
-      (*m_log) << MSG::DEBUG << "LvlConverter returned: " << strErrorCode(ec) << endreq;
+      ATH_MSG_DEBUG("LvlConverter returned: " << strErrorCode(ec));
    }
 
    // figure out if event is passed on physics stream
@@ -620,7 +596,6 @@ StatusCode TrigSteer::execute()
        for (auto chain_stream : (*iterChain)->getStreamTags()){
 	  if ( chain_stream.getType() == "physics" ){
 	    isPhysicsAccept=true;
-	    (*m_log) << MSG::DEBUG << "FPP chain "<< (*iterChain)->getChainName()  <<" gives Physics Accepts" << endreq;
 	    break;
 	  }
 	}
@@ -633,7 +608,6 @@ StatusCode TrigSteer::execute()
 
    if (m_enableRerun){
       if (eventPassed && isPhysicsAccept && canContinueEvent(ec) ) {
-	(*m_log) << MSG::DEBUG << "FPP Start rerun " << endreq;
          // calculate trigger decision for prescaled chains
          if (m_doTiming) m_timerTotalRerun->start();
          runChains(true);
@@ -667,12 +641,12 @@ StatusCode TrigSteer::execute()
    m_config->setHltStatus(std::max(  m_config->getHltStatus(), ec2));
 
    if ( ec2 != HLT::OK ) {
-      (*m_log) << MSG::ERROR << "failed to fill trigger info: " << strErrorCode(ec2) << endreq;
+      ATH_MSG_ERROR("failed to fill trigger info: " << strErrorCode(ec2));
    }
 
    //called after the TriggerInfo is filled
    if ( m_EventInfoTool->updateStreamTag(m_activeChains) != StatusCode::SUCCESS){
-     (*m_log) << MSG::FATAL << "Failed to update the EventInfo" << endreq;
+     ATH_MSG_FATAL("Failed to update the EventInfo");
      return StatusCode::FAILURE;
    }  
 
@@ -680,7 +654,7 @@ StatusCode TrigSteer::execute()
    ToolHandleArray< IMonitorToolBase >::iterator itOPIEnd = m_opiTools.end();
    for (  ; itOPI != itOPIEnd; ++itOPI ) {
       if ( (*itOPI)->fillHists().isFailure() ) {
-         (*m_log) << MSG::WARNING << "tool " << (*itOPI).typeAndName() << " failed it's task: fillHists()" << endreq;
+         ATH_MSG_WARNING("tool " << (*itOPI).typeAndName() << " failed it's task: fillHists()");
       }
    }
 
@@ -690,7 +664,7 @@ StatusCode TrigSteer::execute()
    if (m_doTiming) m_timerResultBuilder->stop();
 
    if ( ec2 != OK ) {
-      (*m_log) << MSG::ERROR << "ResultBuilder algorithm failed with: " << strErrorCode(ec2) << endreq;
+      ATH_MSG_ERROR("ResultBuilder algorithm failed with: " << strErrorCode(ec2));
    }
 
   
@@ -713,7 +687,7 @@ StatusCode TrigSteer::execute()
    ToolHandleArray< IMonitorToolBase >::iterator itMonEnd = m_monTools.end();
    for (  ; itMon != itMonEnd; ++itMon ) {
       if ( (*itMon)->fillHists().isFailure() ) {
-         (*m_log) << MSG::WARNING << "tool " << (*itMon).typeAndName() << " failed it's task: fillHists()" << endreq;
+         ATH_MSG_WARNING("tool " << (*itMon).typeAndName() << " failed it's task: fillHists()");
       }
    }
 
@@ -727,20 +701,20 @@ StatusCode TrigSteer::execute()
 
    // reset all used (activated) chains for new event:
    if (!resetChains(m_chains)) {
-      (*m_log) << MSG::FATAL << "Failed to reset vector of active HLT::Chain objects!" << endreq;
+      ATH_MSG_FATAL("Failed to reset vector of active HLT::Chain objects!");
       return StatusCode::FAILURE;
    }
 
    // some debug output
-   if (m_logLvl <= MSG::DEBUG) {
-      (*m_log) << MSG::DEBUG << "\n ///////////////////////////////////////////////\n";
-      (*m_log) << MSG::DEBUG << " /////////  Event processing finished  ///////// \n";
-      (*m_log) << MSG::DEBUG << " ///////////////////////////////////////////////" << endreq;
-      (*m_log) << MSG::DEBUG << "Most severe error: " <<  strErrorCode(m_config->getHltStatus()) << endreq;
+   if (msgLvl(MSG::DEBUG)) {
+      msg() << "\n ///////////////////////////////////////////////\n";
+      msg() << " /////////  Event processing finished  ///////// \n";
+      msg() << " ///////////////////////////////////////////////" << endreq;
+      msg() << "Most severe error: " <<  strErrorCode(m_config->getHltStatus()) << endreq;
    }
 
    if ( !canContinueJob() ) {
-      (*m_log) << MSG::FATAL << "Errors were too severe in this event will abort the job ..." << endreq;
+      ATH_MSG_FATAL("Errors were too severe in this event will abort the job ...");
       return StatusCode::FAILURE;
    }
 
@@ -749,7 +723,7 @@ StatusCode TrigSteer::execute()
 
 
 void  TrigSteer::doPrefetching(bool &secondPass, bool& noError){
-  (*m_log) << MSG::DEBUG << "TrigSteer::doPrefetching starts " << m_stepForEB <<endreq;
+  ATH_MSG_DEBUG("TrigSteer::doPrefetching starts " << m_stepForEB);
 
   // skip if EB already called in the steering
   if( m_stepForEB != 0) return;// should be useless
@@ -758,10 +732,10 @@ void  TrigSteer::doPrefetching(bool &secondPass, bool& noError){
   //  skip if the event is already in cache
   if (m_trigROBDataProvider.isValid()) {
     if (m_trigROBDataProvider->isEventComplete()){ // this is return always treu for offline running
-      (*m_log) << MSG::DEBUG <<"FPP Event is complete" <<endreq;
+      ATH_MSG_DEBUG("Event is complete");
       if ( m_strategyEB == 0){ // return for online, do the prefetching for testing EBstrategy=1
-	(*m_log) << MSG::DEBUG <<"FPP Event is complete; do not pre-fetch data for online running" <<endreq;
-	return;
+        ATH_MSG_DEBUG("Event is complete; do not pre-fetch data for online running");
+        return;
       }
     }
   }
@@ -773,7 +747,7 @@ void  TrigSteer::doPrefetching(bool &secondPass, bool& noError){
   // algorithm are collected
 
   if (m_config->getMsgLvl() <=MSG::DEBUG)
-    (*m_log) << MSG::DEBUG << "\n ///\n /// Start collecting ROB requests\n ///\n" << endreq;
+    ATH_MSG_DEBUG("\n ///\n /// Start collecting ROB requests\n ///\n");
 
 
   // clear the list of ROB IDs at the beginning of each step
@@ -781,7 +755,6 @@ void  TrigSteer::doPrefetching(bool &secondPass, bool& noError){
      
   for (std::vector<HLT::SteeringChain*>::iterator iterChain = m_activeChains.begin();
        iterChain != m_activeChains.end(); ++iterChain) {
-    //    (*m_log) << MSG::DEBUG <<(*(*iterChain))<<endreq;
 
     // first perform same chain selection as done before execution (see below)
     
@@ -803,12 +776,12 @@ void  TrigSteer::doPrefetching(bool &secondPass, bool& noError){
     m_config->setHltStatus( chainCode > m_config->getHltStatus() ? chainCode : m_config->getHltStatus() ); // keep ErrorCode in m_config always up to date
     
     if (m_config->getMsgLvl() <=MSG::DEBUG) 
-      (*m_log) << MSG::DEBUG << "Executed ROB request from chain: " << **iterChain << " in " << (secondPass ? "second pass" : "first pass")  << endreq; 
+      ATH_MSG_DEBUG("Executed ROB request from chain: " << **iterChain << " in " << (secondPass ? "second pass" : "first pass") ); 
     
     if ( !canContinueEvent(chainCode) ) {
-      (*m_log) << MSG::WARNING << "Chain " << (*iterChain)->getChainName()
-	       << " returned HLT::ErrorCode = " << strErrorCode(chainCode) << " :"
-	       << " any further execution in this event is stopped!" << endreq;
+      ATH_MSG_WARNING("Chain " << (*iterChain)->getChainName()
+                      << " returned HLT::ErrorCode = " << strErrorCode(chainCode) << " :"
+                      << " any further execution in this event is stopped!");
       noError = false;
       break;
     }
@@ -819,7 +792,7 @@ void  TrigSteer::doPrefetching(bool &secondPass, bool& noError){
   issueRobRequests();
 
   if (m_config->getMsgLvl() <=MSG::DEBUG)
-    (*m_log) << MSG::DEBUG << "\n ///\n /// Done collecting and issuing ROB requests\n ///\n" << endreq;
+    ATH_MSG_DEBUG("\n ///\n /// Done collecting and issuing ROB requests\n ///\n");
 
 }
 
@@ -827,7 +800,7 @@ void  TrigSteer::doPrefetching(bool &secondPass, bool& noError){
 
 void TrigSteer::runChains(bool secondPass) {
   if (m_config->getMsgLvl() <=MSG::DEBUG)
-    (*m_log) << MSG::DEBUG <<"runChains(): m_activeChains="<<m_activeChains.size() << endreq;
+    ATH_MSG_DEBUG("runChains(): m_activeChains="<<m_activeChains.size());
 
   bool chainsStillActive =  m_activeChains.size()>0;
   bool noError = true;
@@ -835,12 +808,22 @@ void TrigSteer::runChains(bool secondPass) {
   int  step = 0; //just for debug: follow numeration of signature counters: starts from 1 (but currentStep in chains starts from 0)
   bool doEBbyChain = false;
 
+  if(m_config -> getSteeringOPILevel() > 0) {
+    // Create new chain step OPI as before
+    TrigOperationalInfo *steer_opi = new TrigOperationalInfo();
+    std::string key;
+    m_config -> getNavigation() -> attachFeature(m_config -> getNavigation() -> getInitialNode(),
+                                                 steer_opi, HLT::Navigation::ObjectCreatedByNew, key, 
+                                                 "OPI_extended"+m_config->getInstance());
+    m_config -> setSteeringOPI(steer_opi);
+  }
+
   while ( chainsStillActive && noError ) {
     step++;
-    if (m_config->getMsgLvl() <=MSG::DEBUG) {
-      (*m_log) << MSG::DEBUG << "\n /////////////////////////////////////////////////\n";
-      (*m_log) << MSG::DEBUG << " /////////  Executing next Step " << step << " (" <<  (secondPass ? "second pass" : "first pass") << ")\n";
-      (*m_log) << MSG::DEBUG << " /////////////////////////////////////////////////" << endreq;
+    if (msgLvl(MSG::DEBUG)) {
+      msg() << "\n /////////////////////////////////////////////////\n";
+      msg() << " /////////  Executing next Step " << step << " (" <<  (secondPass ? "second pass" : "first pass") << ")\n";
+      msg() << " /////////////////////////////////////////////////" << endreq;
     }
 
     chainsStillActive = false;
@@ -873,7 +856,7 @@ void TrigSteer::runChains(bool secondPass) {
                                    HLT::SteeringInternalReason::ALGO_ERROR);
       m_config->setHltStatus( chainCode > m_config->getHltStatus() ? chainCode : m_config->getHltStatus() ); // keep ErrorCode in m_config always up to date
       
-      /* std::cout <<"FPP: TrigSteer::runChains():  step "<<step<<" chain "<< (*iterChain)->getChainName() 
+      /* std::cout <<"TrigSteer::runChains():  step "<<step<<" chain "<< (*iterChain)->getChainName() 
          << " EBAfterStep="<<(*iterChain)->getEBAfterStep()  
          << " isActive="<< (*iterChain)->isActive() 
          << " passed="<<(*iterChain)->chainPassed()
@@ -885,12 +868,12 @@ void TrigSteer::runChains(bool secondPass) {
          <<" HLT status="<<m_config->getHltStatus() << " chaincode="<<chainCode <<std::endl; */
 
       if (m_config->getMsgLvl() <=MSG::DEBUG) 
-        (*m_log) << MSG::DEBUG << "Executed chain: " << **iterChain << " in " << (secondPass ? "second pass" : "first pass")  << endreq; 
+        ATH_MSG_DEBUG("Executed chain: " << **iterChain << " in " << (secondPass ? "second pass" : "first pass") ); 
       
       if ( !canContinueEvent(chainCode) ) {
-        (*m_log) << MSG::WARNING << "Chain " << (*iterChain)->getChainName()
-                 << " returned HLT::ErrorCode = " << strErrorCode(chainCode) << " :"
-                 << " any further execution in this event is stopped!" << endreq;
+        ATH_MSG_WARNING("Chain " << (*iterChain)->getChainName()
+                        << " returned HLT::ErrorCode = " << strErrorCode(chainCode) << " :"
+                        << " any further execution in this event is stopped!");
         noError = false;
         break;
       }
@@ -907,9 +890,9 @@ void TrigSteer::runChains(bool secondPass) {
         doEBbyChain =  (*iterChain)->isActive() && (*iterChain)->nextStepAfterEB() && ((*iterChain)->getEBAfterStep()>0.) ;
         if( doEBbyChain || eventPassed){
           if ( doEBbyChain )
-            (*m_log) << MSG::DEBUG << "Call EB at step " << step << " because chain needs it" << endreq;
+            ATH_MSG_DEBUG("Call EB at step " << step << " because chain needs it");
           else 
-            (*m_log) << MSG::DEBUG << "Call EB at step " << step << " because the event is accepted" << endreq;
+            ATH_MSG_DEBUG("Call EB at step " << step << " because the event is accepted");
 	  
           issueEventBuildingRequest(step);
         }
@@ -922,7 +905,7 @@ void TrigSteer::runChains(bool secondPass) {
 
   // final call of EB at the end of steps (done here if strategyEB == 1)
   if (eventPassed){
-    (*m_log) << MSG::DEBUG << "Call EB at step " << step << " at the end of steps processing because not done previously" << endreq;
+    ATH_MSG_DEBUG("Call EB at step " << step << " at the end of steps processing because not done previously");
     issueEventBuildingRequest(step);
   }
 
@@ -941,10 +924,10 @@ void TrigSteer::issueEventBuildingRequest(int step) {
     if ( m_stepForEB == 0 ){ // record this step as negative, in case EB is not called by the steering
       m_stepForEB = (-1.) * step;
       if (m_config->getMsgLvl() <=MSG::DEBUG) 
-        (*m_log) << MSG::DEBUG << "Request of Event Building already issued, not by Steering! " << endreq; 
+        ATH_MSG_DEBUG("Request of Event Building already issued, not by Steering! "); 
     } else {
       if (m_config->getMsgLvl() <=MSG::DEBUG) 
-        (*m_log) << MSG::DEBUG << "Request of Event Building already issued by Steering! " << endreq; 
+        ATH_MSG_DEBUG("Request of Event Building already issued by Steering! "); 
     }
     return;
   }
@@ -957,13 +940,13 @@ void TrigSteer::issueEventBuildingRequest(int step) {
   // return if running is offline 
   if (!m_trigROBDataProvider.isValid()) {
     if (m_config->getMsgLvl() <=MSG::DEBUG) 
-      (*m_log) << MSG::DEBUG << "Request of Event Building is issued for offline running at step " << m_stepForEB << endreq; 
+      ATH_MSG_DEBUG("Request of Event Building is issued for offline running at step " << m_stepForEB); 
     return;
   }
 
   // issue the EB
   if (m_config->getMsgLvl() <=MSG::DEBUG) 
-    (*m_log) << MSG::DEBUG << "Going to issue Event Building at step " << m_stepForEB << endreq; 
+    ATH_MSG_DEBUG("Going to issue Event Building at step " << m_stepForEB); 
   m_trigROBDataProvider->collectCompleteEventData(name());
 
   return;
@@ -972,7 +955,7 @@ void TrigSteer::issueEventBuildingRequest(int step) {
 void TrigSteer::issueRobRequests() {
 
   if (m_config->getMsgLvl() <=MSG::DEBUG) 
-    (*m_log) << MSG::DEBUG << "Going to issue ROB requests (#ROB IDs = " << getAlgoConfig()->robRequestInfo()->requestScheduledRobIDs().size() << ")" << endreq; 
+    ATH_MSG_DEBUG("Going to issue ROB requests (#ROB IDs = " << getAlgoConfig()->robRequestInfo()->requestScheduledRobIDs().size() << ")"); 
 
   m_robDataProvider->addROBData(getAlgoConfig()->robRequestInfo()->requestScheduledRobIDs());
 }
@@ -982,11 +965,11 @@ bool TrigSteer::resetChains(std::vector<HLT::SteeringChain*>& chains)
   for (std::vector<HLT::SteeringChain*>::iterator iterChain = chains.begin();
        iterChain != chains.end(); ++iterChain) {
     if ( !(*iterChain)->resetChain() ) {
-      (*m_log) << MSG::WARNING << "Failed to reset chain" << (*iterChain)->getConfigChain()->chain_name() << endreq; 
+      ATH_MSG_WARNING("Failed to reset chain" << (*iterChain)->getConfigChain()->chain_name()); 
       return false;
     }
   }
-  (*m_log) << MSG::DEBUG << "Chains reset went ok"  << endreq; 
+  ATH_MSG_DEBUG("Chains reset went ok" ); 
   return true;
 }
 
@@ -1032,11 +1015,11 @@ HLT::Algo* TrigSteer::getAlgo(std::string name)
       algo = static_cast<HLT::Algo*>(algPointer);
       algo->setConfig(m_config);
       m_algos[subAlg_name] = algo;
-      (*m_log) << MSG::DEBUG << "createSubAlgorithm: created " << subAlg_name << " of type "
-               << subAlg_type << " (" << name << ")" << endreq;
+      ATH_MSG_DEBUG("createSubAlgorithm: created " << subAlg_name << " of type "
+                    << subAlg_type << " (" << name << ")");
     } else {
-      (*m_log) << MSG::WARNING << "createSubAlgorithm: '"
-               << subAlg_type << "/" << subAlg_name << "' FAILED" << endreq;
+      ATH_MSG_WARNING("createSubAlgorithm: '"
+                      << subAlg_type << "/" << subAlg_name << "' FAILED");
       algo=0;
     }
   }
@@ -1047,7 +1030,7 @@ HLT::Algo* TrigSteer::getAlgo(std::string name)
     BooleanProperty enabled("Enable", m_doHypo);
     algo->setProperty(enabled).ignore();
     algo->setProperties().ignore();
-    (*m_log) << MSG::DEBUG <<( m_doHypo ? "enabling " : "disabling ") << subAlg_name << " because it is Hypo" << endreq;
+    ATH_MSG_DEBUG(( m_doHypo ? "enabling " : "disabling ") << subAlg_name << " because it is Hypo");
   }
   if ( dynamic_cast<HLT::TECreateAlgo*>(algo) ) {
     BooleanProperty enabled("Enable", m_doFex);
@@ -1078,7 +1061,7 @@ HLT::Sequence* TrigSteer::findSeqForOutputTeType(const unsigned int teType)
    if (m_config->getMsgLvl() <= MSG::DEBUG) {
       std::string teName;
       TrigConf::HLTTriggerElement::getLabel(teType, teName);
-      (*m_log) << MSG::DEBUG << "in findSeqForOutputTeType " << teName << " [" << teType << "]" << endl;
+      ATH_MSG_DEBUG("in findSeqForOutputTeType " << teName << " [" << teType << "]");
    }
 
    // look if sequence already exists
@@ -1152,7 +1135,7 @@ HLT::Sequence* TrigSteer::createSequence(const TrigConf::HLTSequence& seq, const
          // if seq not NULL and not in vector already, save it:
          if (newseq && find(inputSequences.begin(), inputSequences.end(), newseq) == inputSequences.end() ) {
             inputSequences.push_back(newseq);
-            (*m_log) << MSG::DEBUG << "Sequences recursion: one producing " << inputId << " added for recursive calls of the one producing: " << teType << endreq;
+            ATH_MSG_DEBUG("Sequences recursion: one producing " << inputId << " added for recursive calls of the one producing: " << teType);
          }
       }
    }
@@ -1225,7 +1208,7 @@ StatusCode TrigSteer::start()
   ToolHandleArray< IMonitorToolBase >::iterator itOPIEnd = m_opiTools.end();
   for (  ; itOPI != itOPIEnd; ++itOPI ) {
     if ( (*itOPI)->bookHists().isFailure() ) {
-      (*m_log) << MSG::ERROR << "tool " << (*itOPI).typeAndName() << " failed it's task - bookHists() - ... stop!" << endreq;
+      ATH_MSG_ERROR("tool " << (*itOPI).typeAndName() << " failed it's task - bookHists() - ... stop!");
       return StatusCode::FAILURE;
     }
   }
@@ -1235,12 +1218,12 @@ StatusCode TrigSteer::start()
   ToolHandleArray< IMonitorToolBase >::iterator itMonEnd = m_monTools.end();
   for (  ; itMon != itMonEnd; ++itMon ) {
     if ( (*itMon)->bookHists().isFailure() ) {
-      (*m_log) << MSG::ERROR << "tool " << (*itMon).typeAndName() << " failed it's task - bookHists() - ... stop!" << endreq;
+      ATH_MSG_ERROR("tool " << (*itMon).typeAndName() << " failed it's task - bookHists() - ... stop!");
       return StatusCode::FAILURE;
     }
   }
 
-  (*m_log) << MSG::DEBUG << "monitoring tools bookHists done " << m_monTools << " " << m_opiTools << endreq;
+  ATH_MSG_DEBUG("monitoring tools bookHists done " << m_monTools << " " << m_opiTools);
 
   return StatusCode::SUCCESS;
 }
@@ -1251,10 +1234,10 @@ StatusCode TrigSteer::endRun()
 {
   // reset Navigation
   m_navigation->reset();
-  (*m_log) << MSG::DEBUG << "Navigation reset for the last time" << endreq;
+  ATH_MSG_DEBUG("Navigation reset for the last time");
 
   if (!resetChains(m_chains) ) {
-    (*m_log) << MSG::ERROR << "Failed to reset vector of all configured HLT::Chain objects!" << endreq;
+    ATH_MSG_ERROR("Failed to reset vector of all configured HLT::Chain objects!");
   }
   
   return StatusCode::SUCCESS;
@@ -1268,7 +1251,7 @@ StatusCode TrigSteer::stop()
    ToolHandleArray< IMonitorToolBase >::iterator itOPIEnd = m_opiTools.end();
    for (  ; itOPI != itOPIEnd; ++itOPI ) {
       if ( (*itOPI)->finalHists().isFailure() ) {
-         (*m_log) << MSG::ERROR << "tool " << (*itOPI).typeAndName() << " failed it's task - finalHists() - ... stop!" << endreq;
+         ATH_MSG_ERROR("tool " << (*itOPI).typeAndName() << " failed it's task - finalHists() - ... stop!");
          return StatusCode::FAILURE;
       }
    }
@@ -1278,12 +1261,12 @@ StatusCode TrigSteer::stop()
    ToolHandleArray< IMonitorToolBase >::iterator itMonEnd = m_monTools.end();
    for (  ; itMon != itMonEnd; ++itMon ) {
       if ( (*itMon)->finalHists().isFailure() ) {
-         (*m_log) << MSG::ERROR << "tool " << (*itMon).typeAndName() << " failed it's task - finalHists() - ... stop!" << endreq;
+         ATH_MSG_ERROR("tool " << (*itMon).typeAndName() << " failed it's task - finalHists() - ... stop!");
          return StatusCode::FAILURE;
       }
    }
 
-   (*m_log) << MSG::DEBUG << "monitoring tools finalHists done " << m_monTools << " " << m_opiTools << endreq;
+   ATH_MSG_DEBUG("monitoring tools finalHists done " << m_monTools << " " << m_opiTools);
 
    return StatusCode::SUCCESS;
 }
@@ -1327,7 +1310,7 @@ bool TrigSteer::canContinueEvent(HLT::ErrorCode ec) {
   m_config->setHltStatus(mostSevere);
   if ( mostSevere.action() > HLT::Action::ABORT_CHAIN ) {
     if (m_config->getMsgLvl() <= MSG::DEBUG)
-      (*m_log) << MSG::DEBUG << "event processing aborted due to: "  << strErrorCode(mostSevere) << endreq;
+      ATH_MSG_DEBUG("event processing aborted due to: "  << strErrorCode(mostSevere));
     return false;
   }
   return true;
@@ -1335,7 +1318,7 @@ bool TrigSteer::canContinueEvent(HLT::ErrorCode ec) {
 
 bool TrigSteer::canContinueJob() {
   if ( m_config->getHltStatus().action() > HLT::Action::ABORT_EVENT ) {
-    (*m_log) << MSG::WARNING << "job processing aborted due to: "  << strErrorCode(m_config->getHltStatus()) << endreq;
+    ATH_MSG_WARNING("job processing aborted due to: "  << strErrorCode(m_config->getHltStatus()));
     return false;
   }
   return true;
@@ -1355,7 +1338,7 @@ HLT::ErrorCode TrigSteer::setEvent() {
   const EventInfo* einfo(0);
   StatusCode sc =  m_config->getStoreGate()->retrieve(einfo);
   if(sc.isFailure()){
-    (*m_log) << MSG::FATAL << "Can't get EventInfo object for update event information"  << endreq;
+    ATH_MSG_FATAL("Can't get EventInfo object for update event information" );
     return HLT::ErrorCode(Action::ABORT_EVENT, Reason::USERDEF_1, SteeringInternalReason::UNKNOWN);
   } else {
     if ( einfo->event_ID() ) {
@@ -1368,7 +1351,7 @@ HLT::ErrorCode TrigSteer::setEvent() {
       // request the config service to set the correct prescales for the lumiblock
       StatusCode sc = m_configSvc->assignPrescalesToChains( einfo->event_ID()->lumi_block() );
       if (sc.isFailure()) {
-        (*m_log) << MSG::FATAL << "ConfigSvc failed to assign HLT prescales to chains." << endreq;
+        ATH_MSG_FATAL("ConfigSvc failed to assign HLT prescales to chains.");
         return HLT::ErrorCode(Action::ABORT_JOB, Reason::USERDEF_1, SteeringInternalReason::BAD_JOB_SETUP);        
       }
 
@@ -1380,7 +1363,7 @@ HLT::ErrorCode TrigSteer::setEvent() {
       m_lvlCnvTool->setConfigurationKeys(m_configSvc->masterKey(), m_configSvc->hltPrescaleKey());
       
     } else {
-      if (m_logLvl <= MSG::ERROR)(*m_log) << MSG::ERROR << "EventNumber&LBN not possible because missing event_ID" << endreq;
+      ATH_MSG_ERROR("EventNumber&LBN not possible because missing event_ID");
       return HLT::ErrorCode(Action::ABORT_EVENT, Reason::USERDEF_2, SteeringInternalReason::UNKNOWN);
     }
   }

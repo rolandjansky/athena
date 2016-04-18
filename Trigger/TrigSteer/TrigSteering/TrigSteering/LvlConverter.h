@@ -22,11 +22,9 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "GaudiKernel/AlgTool.h"
 #include "TrigSteeringEvent/Enums.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigSteering/HLTResultAccessTool.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "L1TopoEvent/TopoInputEvent.h"
 
@@ -142,19 +140,11 @@ namespace HLT {
       virtual ErrorCode hltInitialize() = 0; //!< Initialize derived classes
       virtual ErrorCode hltFinalize() = 0;   //!< Finalize derived classes
 
-      MsgStream& msg(const MSG::Level lvl) { return (*m_log) << lvl; }
-      bool msgLvl (const MSG::Level lvl) const;
-    
       AlgoConfig* m_config;  //!< config object, holding common variables
-      MsgStream* m_log;      //!< MsgStream used within all none Gaudi classes of this package
-      unsigned int m_logLvl; //!< MsgStram level
       bool m_includePrescaledChains;   //!< include chains which originate from prescaled lower-level chains
       bool m_ignorePrescales;
     
       ToolHandle< IHLTResultAccessTool > m_hltTool; //!< helper access tool for HLTResult
-
-      // Athena stuff:
-      ServiceHandle< StoreGateSvc > m_storeGate; //!< Handle to std StoreGate
 
       std::map< unsigned int, std::vector<HLT::SteeringChain*> > m_chainIdMap;      //!< search map of all chains, with lower_chain_counter as Key
       std::map< unsigned int, std::vector<HLT::SteeringChain*> > m_chainCounterMap; //!< search map of all chains, with lower_chain_hash_id as Key
@@ -163,16 +153,6 @@ namespace HLT {
       std::vector< HLT::SteeringChain* > m_chainsAlwaysActive; //!< Remeber chains w/o a lower_chain_name => will always be activated !
 
    };
-
-   inline bool
-   LvlConverter::msgLvl(const MSG::Level lvl) const {
-      if (m_log->level() <= lvl) {
-         (*m_log) << lvl;
-         return true;
-      } else {
-         return false;
-      }
-   }
 
 } // end namespace
 

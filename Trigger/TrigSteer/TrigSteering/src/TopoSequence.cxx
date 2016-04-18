@@ -13,7 +13,7 @@
  * @author Ingrid Deigaard     <ingrid.deigaard@cern.ch>     Nikhef, NL
  *
  * File and Version Information:
- * $Id: TopoSequence.cxx 664459 2015-05-02 10:37:22Z stelzer $
+ * $Id: TopoSequence.cxx 701807 2015-10-20 16:50:54Z fwinkl $
  **********************************************************************************/
 
 #include <iostream>
@@ -66,7 +66,7 @@ TopoSequence::TopoSequence(HLT::AlgoConfig* config, unsigned int outputType,TCS:
 {
    TrigConf::HLTTriggerElement::getLabel(outputType, m_name);
 
-   if (m_config && m_config->getMsgLvl() <=MSG::DEBUG)
+   if (m_config->getMsgLvl() <=MSG::DEBUG)
       m_config->getMsgStream() << MSG::DEBUG << "Constructing TopoSequence '" << m_name << "'" << endreq;
 
 }
@@ -99,7 +99,7 @@ TopoSequence::execute()
 {
 
    if (m_alreadyExecuted){
-      if (m_config && m_config->getMsgLvl() <=MSG::DEBUG)
+      if (m_config->getMsgLvl() <=MSG::DEBUG)
          m_config->getMsgStream() << MSG::DEBUG << "TopoSequence already executed -> doing nothing" << endreq;
       return m_execErrorCode;
    }
@@ -107,7 +107,7 @@ TopoSequence::execute()
    m_alreadyExecuted = true;
    m_execErrorCode = OK;
 
-   if (m_config && m_config->getMsgLvl() <=MSG::DEBUG)
+   if (m_config->getMsgLvl() <=MSG::DEBUG)
       m_config->getMsgStream() << MSG::DEBUG << "Executing TopoSequence '" << m_name << "'" << endreq;
 
    // execute the topo trigger
@@ -120,7 +120,7 @@ TopoSequence::execute()
    // access the output
    const TCS::TOBArray* topoOutput = m_topoSteer->simulationResult().triggerOutput(m_name);
 
-   if (m_config && m_config->getMsgLvl() <=MSG::DEBUG)
+   if (m_config->getMsgLvl() <=MSG::DEBUG)
       m_config->getMsgStream() << MSG::DEBUG << "TopoSequence '" << m_name << "' successfully executed topo alg. Output size " << topoOutput->size() << endreq;
 
 
@@ -163,7 +163,7 @@ TopoSequence::execute()
          continue;
       }
 
-      if (m_config && m_config->getMsgLvl() <=MSG::DEBUG)
+      if (m_config->getMsgLvl() <=MSG::DEBUG)
          m_config->getMsgStream() << MSG::DEBUG << "TopoSequence '" << m_name << "' Combination has size " << comptob->components().size() << ":" << endreq;
 
 
@@ -184,7 +184,7 @@ TopoSequence::execute()
          auto findTE = m_roiWord2TEMapping->find(roiWord);
 
          if(findTE != m_roiWord2TEMapping->end()) {
-            if (m_config && m_config->getMsgLvl() <=MSG::DEBUG) {
+            if (m_config->getMsgLvl() <=MSG::DEBUG) {
                string parentTEName("");
                TrigConf::HLTTriggerElement::getLabel(findTE->second->getId(), parentTEName);
                m_config->getMsgStream() << MSG::DEBUG << "TopoSequence '" << m_name << "'  roiWord " << roiWord << ", parent TE " << findTE->second << ", id = " << findTE->second->getId() << " (" << parentTEName << ")" << endreq;

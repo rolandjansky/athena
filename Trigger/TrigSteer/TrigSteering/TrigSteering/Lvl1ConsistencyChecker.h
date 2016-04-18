@@ -6,11 +6,8 @@
 #define TrigSteering_Lvl1ConsistencyChecker_h
 
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "GaudiKernel/AlgTool.h"
-//#include "GaudiKernel/StatusCode.h"
 
 class TH1I;
-class MsgStream;
 
 namespace TrigConf {
   class ILVL1ConfigSvc;
@@ -48,7 +45,8 @@ public:
   StatusCode initialize(); 
   StatusCode updateConfig(const TrigConf::ILVL1ConfigSvc* config);
   HLT::ErrorCode check(const std::vector<const LVL1CTP::Lvl1Item*>& items,
-		       const HLT::Navigation* nav);  
+		       const HLT::Navigation* nav);
+
 private:
   bool m_printErrorMessages;
   bool m_returnFailure;
@@ -75,7 +73,6 @@ private:
   
   void makeItemRoIMap(const TrigConf::TriggerItemNode *node, Item& item);
   bool thresholdToCheck(const std::string& );
-  MsgStream *m_log;
 };
 
 

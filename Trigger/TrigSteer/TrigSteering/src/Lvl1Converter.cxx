@@ -57,9 +57,11 @@ using namespace HLT;
 Lvl1Converter::Lvl1Converter(const std::string& name, const std::string& type,
 			   const IInterface* parent)
   : LvlConverter(name, type, parent),
+    m_gotL1Config(false),
     m_lvl1Tool("HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool",this),
     m_lvl1ConsistencyTool("Lvl1ConsistencyChecker/Lvl1ConsistencyChecker", this),
     m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
+    m_recRPCRoiSvc(0), m_recTGCRoiSvc(0), m_timerSvc(0),    
     m_totalTime(0), m_sgTime(0), m_lvl1ItemsTime(0), m_caloTime(0),
     m_muonTime(0), m_jetTime(0)
 {
@@ -72,10 +74,10 @@ Lvl1Converter::Lvl1Converter(const std::string& name, const std::string& type,
    declareProperty( "Lvl1ConsistencyChecker", m_lvl1ConsistencyTool, "tool to cehck items & thresholds consistency");
    declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
    
-   declareProperty( "overallRoIsLimit", m_overallRoIsLimit = 0, "Return failure (sepcific one) whe number of RoIs > that. 0 means no limit." );
-   declareProperty( "jetRoIsLimit", m_jetRoIsLimit = 0,         "Return failure (sepcific one) whe number of JET RoIs > that. 0 means no limit." );
-   declareProperty( "emtauRoIsLimit", m_emtauRoIsLimit = 0,     "Return failure (sepcific one) whe number of EMTAU RoIs > that. 0 means no limit." );
-   declareProperty( "muonRoIsLimit", m_muonRoIsLimit = 0,           "Return failure (sepcific one) whe number of MU RoIs > that. 0 means no limit." );
+   declareProperty( "overallRoIsLimit", m_overallRoIsLimit = 0, "Return failure (specific one) if number of RoIs > that. 0 means no limit." );
+   declareProperty( "jetRoIsLimit", m_jetRoIsLimit = 0,         "Return failure (specific one) if number of JET RoIs > that. 0 means no limit." );
+   declareProperty( "emtauRoIsLimit", m_emtauRoIsLimit = 0,     "Return failure (specific one) if number of EMTAU RoIs > that. 0 means no limit." );
+   declareProperty( "muonRoIsLimit", m_muonRoIsLimit = 0,           "Return failure (specific one) if number of MU RoIs > that. 0 means no limit." );
    declareProperty( "ignoreL1Prescales", m_ignoreL1Prescales=false, "If true  L1 prescales are ignored (takes But Before Prescale)");
 
 }
@@ -87,12 +89,13 @@ ErrorCode Lvl1Converter::hltInitialize()
   //  StatusCode sc = toolSvc()->retrieveTool("HLT::Lvl1ResultAccessTool", m_lvl1Tool);
 
   if ( m_lvl1Tool.retrieve().isFailure()) {
-    (*m_log) << MSG::FATAL << "Unable to retrieve lvl1 result access tool: " << m_lvl1Tool << endreq;
+    ATH_MSG_FATAL("Unable to retrieve lvl1 result access tool: " << m_lvl1Tool);
     return HLT::FATAL;
   }
 
+  
   if ( m_lvl1ConsistencyTool.retrieve().isFailure() ) {
-    (*m_log) << MSG::FATAL << "Unable to retrieve lvl1 consistency tool: " << m_lvl1ConsistencyTool << endreq;
+    ATH_MSG_FATAL("Unable to retrieve lvl1 consistency tool: " << m_lvl1ConsistencyTool);
     return HLT::FATAL;
   }
 
@@ -100,11 +103,11 @@ ErrorCode Lvl1Converter::hltInitialize()
   if (m_doTiming) {
     sc = service("TrigTimerSvc", m_timerSvc);
     if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "unable to locate timing service TrigTimerSvc" << endreq;
+      ATH_MSG_ERROR("unable to locate timing service TrigTimerSvc");
       m_timerSvc = 0;
       return HLT::ERROR;
     }
-    (*m_log) << MSG::ERROR << "Got timing service TrigTimerSvc" << endreq;
+    ATH_MSG_ERROR("Got timing service TrigTimerSvc");
     m_totalTime = m_timerSvc->addItem(getGaudiThreadGenericName(name())+":TotalTime");
     m_sgTime = m_timerSvc->addItem(getGaudiThreadGenericName(name())+":RetrievalTime");
     m_lvl1ItemsTime = m_timerSvc->addItem(getGaudiThreadGenericName(name())+":ItemsTime");
@@ -116,7 +119,7 @@ ErrorCode Lvl1Converter::hltInitialize()
   sc = m_lvl1Tool->updateConfig(m_useL1Muon, m_useL1Calo, m_useL1JetEnergy);
 
   if ( sc.isFailure() ) {
-    (*m_log) << MSG::FATAL << "Unable to configure tool!" << endreq;
+    ATH_MSG_FATAL("Unable to configure tool!");
     return HLT::FATAL;
   }
 
@@ -126,7 +129,7 @@ ErrorCode Lvl1Converter::hltInitialize()
   sc = m_configSvc.retrieve();
   m_gotL1Config = true;
   if ( sc.isFailure() ) {
-    (*m_log) << MSG::ERROR << "Couldn't connect to " << m_configSvc.typeAndName() << endreq;
+    ATH_MSG_ERROR("Couldn't connect to " << m_configSvc.typeAndName());
     m_gotL1Config = false;
   } 
     
@@ -137,29 +140,22 @@ ErrorCode Lvl1Converter::hltInitialize()
   if (m_useL1Muon) {
     // Get the RPC RecRoI service
     sc = service(LVL1::ID_RecRpcRoiSvc, m_recRPCRoiSvc);
-    if(sc.isFailure()) {
-      (*m_log) << MSG::WARNING
-               << "Unable to get pointer to RecRPCRoiSvc!" << endreq;
-    }
+    if(sc.isFailure()) ATH_MSG_WARNING("Unable to get pointer to RecRPCRoiSvc!");
 
     // Get the TGC RecRoI service
     sc = service(LVL1::ID_RecTgcRoiSvc, m_recTGCRoiSvc);
-    if(sc.isFailure()) {
-      (*m_log) << MSG::WARNING
-          << "Unable to get pointer to RecTGCRoiSvc!" << endreq;
-    }
+    if(sc.isFailure()) ATH_MSG_WARNING("Unable to get pointer to RecTGCRoiSvc!");
+
     // +++++++++++++++++++++++++++++++++++
   }
 
   if ( m_lvl1ConsistencyTool.retrieve().isFailure() ) {
-    (*m_log) << MSG::ERROR
-	     << "Unable to get Lvl1ConsistencyChecker pointer!" << endreq;
+    ATH_MSG_ERROR("Unable to get Lvl1ConsistencyChecker pointer!");
     return HLT::ERROR;
   }
 
   if ( m_lvl1ConsistencyTool->updateConfig(&*m_configSvc).isFailure() ) {
-    (*m_log) << MSG::ERROR
-	     << "Lvl1ConsistencyChecker unable to digest config" << endreq;
+    ATH_MSG_ERROR("Lvl1ConsistencyChecker unable to digest config");
     return HLT::ERROR;
   }
 
@@ -186,7 +182,7 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
    if(m_doTiming) m_sgTime->start();
 
    const ROIB::RoIBResult* result;
-   StatusCode sc = m_storeGate->retrieve(result);
+   StatusCode sc = evtStore()->retrieve(result);
 
    if(sc.isFailure()){
       ATH_MSG_WARNING("Unable to retrieve RoIBResult from storeGate!");
@@ -381,7 +377,7 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
       for (std::vector<  HLT::EMTauRoI >::const_iterator emTauRoI = emTauRoIs.begin();
            emTauRoI != emTauRoIs.end(); ++emTauRoI) {
 
-         ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw(8) << emTauRoI->lvl1RoI().roIWord() << MSG::dec);
+         ATH_MSG_DEBUG( "RoI word: 0x" << std::hex << std::setw(8) << emTauRoI->lvl1RoI().roIWord() << std::dec);
 
          // First create the RoI TE
          TriggerElement* roiTE = 0;
@@ -463,8 +459,8 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
       for ( std::vector<  HLT::JetEnergyRoI >::const_iterator jetERoI = jetERoIs.begin();
             jetERoI != jetERoIs.end(); ++jetERoI) {
       
-         ATH_MSG_DEBUG("RoI word: 0x" << MSG::hex
-                       << std::setw(8) << jetERoI->lvl1RoI().roIWord() << MSG::dec);
+         ATH_MSG_DEBUG("RoI word: 0x" << std::hex
+                       << std::setw(8) << jetERoI->lvl1RoI().roIWord() << std::dec);
 
          // First create the RoI TE
          TriggerElement* roiTE = 0;
@@ -505,22 +501,22 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
                   roiTE = m_config->getNavigation()->addRoINode( initialTE );
 
                   if(roiTE) {
-                     insertRoITEinMap( jetERoI->lvl1RoI().roIWord(), roiTE );
+                     insertRoITEinMap( jetERoI->lvl1RoI().roIWord(), roiTE );                  
+
+                     LVL1::RecJetRoI* recRoI = new LVL1::RecJetRoI(jetERoI->lvl1RoI().roIWord(), &jetConfig);
+                     float fixedphi = fixphi(recRoI->phi());
+                     roID = new TrigRoiDescriptor( recRoI->roiWord(), l1Id, roiId++,
+                                                   recRoI->eta(), recRoI->eta()-0.4, recRoI->eta()+0.4,
+                                                   fixedphi, fixedphi-0.4, fixedphi+0.4
+                                                   );
+
+                     m_config->getNavigation()->attachFeature( roiTE, recRoI, HLT::Navigation::ObjectCreatedByNew, key, "RecJetRoI" );
+                     m_config->getNavigation()->attachFeature( roiTE, roID, HLT::Navigation::ObjectCreatedByNew, key, "initialRoI" );
+
+                     ATH_MSG_DEBUG("creating RoINode with attached RoIDescriptor with id: " << (roiId-1));
+
+                     jetRoIsCount++;
                   }
-
-                  LVL1::RecJetRoI* recRoI = new LVL1::RecJetRoI(jetERoI->lvl1RoI().roIWord(), &jetConfig);
-                  float fixedphi = fixphi(recRoI->phi());
-                  roID = new TrigRoiDescriptor( recRoI->roiWord(), l1Id, roiId++,
-                                                recRoI->eta(), recRoI->eta()-0.4, recRoI->eta()+0.4,
-                                                fixedphi, fixedphi-0.4, fixedphi+0.4
-                                                );
-
-                  m_config->getNavigation()->attachFeature( roiTE, recRoI, HLT::Navigation::ObjectCreatedByNew, key, "RecJetRoI" );
-                  m_config->getNavigation()->attachFeature( roiTE, roID, HLT::Navigation::ObjectCreatedByNew, key, "initialRoI" );
-
-                  ATH_MSG_DEBUG("creating RoINode with attached RoIDescriptor with id: " << (roiId-1));
-
-                  jetRoIsCount++;
                }
                else if (jetERoI->type() == JetEtRoI) {
                   roiTE = jetEtRoITE;
@@ -543,12 +539,16 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
    } // end of m_useL1JetEnergy
    if(m_doTiming) m_jetTime->stop();    
 
-
    if(m_doTiming) m_totalTime->stop();
 
+   std::bitset<3> overflow = m_lvl1Tool->lvl1EMTauJetOverflow(*result);
+   if (overflow[0]) ATH_MSG_WARNING("All EM L1 thresholds were forced on due to overflow in TOB transmission to CMX");
+   if (overflow[1]) ATH_MSG_WARNING("All Tau L1 thresholds were forced on due to overflow in TOB transmission to CMX");
+   if (overflow[2]) ATH_MSG_WARNING("All Jet L1 thresholds were forced on due to overflow in TOB transmission to CMX");
+      
    HLT::ErrorCode ecl1 = m_lvl1ConsistencyTool->check(items, m_config->getNavigation());
    if ( ecl1  != HLT::OK ) {
-      (*m_log) << MSG::WARNING << "Lvl1 decision inconsistent: " << endreq; 
+      ATH_MSG_WARNING("Lvl1 decision inconsistent: "); 
       return ecl1;
    }
 
@@ -601,7 +601,7 @@ Lvl1Converter::insertRoITEinMap(uint32_t roiWord, TriggerElement* te) {
  */
 double Lvl1Converter::fixphi(double phi) {
   if ( phi < -M_PI  || phi > M_PI ) {
-    (*m_log) << MSG::WARNING << "Phi value from Lvl1 must be fixed (not in -pi +pi): " << phi << endreq;
+    ATH_MSG_WARNING("Phi value from Lvl1 must be fixed (not in -pi +pi): " << phi);
     if ( phi < -M_PI )
       return phi + 2*M_PI;
     else

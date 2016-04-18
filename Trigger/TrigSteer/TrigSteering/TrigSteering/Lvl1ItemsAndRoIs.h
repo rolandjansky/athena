@@ -63,7 +63,7 @@ namespace HLT {
    */
    template<class R> class HLTRoI {
    public :
-      HLTRoI(R lvl1RoI) : m_lvl1RoI(lvl1RoI) { } //!< constructor from templated LVL1 RoI object
+      HLTRoI(R lvl1RoI) : m_lvl1RoI(lvl1RoI), m_thresholdMask(0) { } //!< constructor from templated LVL1 RoI object
 
       const R& lvl1RoI() const { return m_lvl1RoI; } //!< const reference getter for underlying LVL1 RoI object
       const std::vector<const ConfigThreshold*>& thresholds() const { return m_thresholds; } //!< const reference getter for configured thresholds

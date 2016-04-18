@@ -22,15 +22,13 @@
 #ifndef TRIGSTEERING_Lvl1ResultAccessTool_H
 #define TRIGSTEERING_Lvl1ResultAccessTool_H
 
-//#include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "GaudiKernel/ServiceHandle.h"
-
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigSteering/Lvl1ItemsAndRoIs.h"
 
 #include <vector>
+#include <bitset>
 #include <string>
 
 // forward declarations
@@ -50,16 +48,13 @@ namespace LVL1CTP {
 namespace LVL1 {
    class RecMuonRoiSvc;
    class JEPRoIDecoder;
+   class CPRoIDecoder;
 }
 
 namespace ROIB {
    class CTPRoI;
    class RoIBResult;
 }
-
-class MsgStream;
-
-
 
 namespace HLT {
 
@@ -93,7 +88,8 @@ namespace HLT {
       virtual const std::vector< EMTauRoI >&     createEMTauThresholds(const ROIB::RoIBResult& result, bool updateCaloRoIs=false) = 0;
       virtual const std::vector< JetEnergyRoI >& createJetEnergyThresholds(const ROIB::RoIBResult& result, bool updateCaloRoIs) = 0;
 
-
+      virtual std::bitset<3> lvl1EMTauJetOverflow(const ROIB::RoIBResult& result) = 0;
+     
       virtual StatusCode updateConfig(bool useL1Calo = true,
                                       bool useL1Muon = true,
                                       bool useL1JetEnergy = true) = 0;
@@ -141,8 +137,7 @@ namespace HLT {
 
       ~Lvl1ResultAccessTool(); //!< destructor -> delete Jet converter object
 
-      StatusCode initialize(); //!< std Gaudi initialize -> get Lvl1 config Svc handle
-      StatusCode   finalize(); //!< std Gaudi finalize   -> delete MsgStream object
+      StatusCode initialize();
 
       // Accessors to the unpacked information:
       //_______________________________________
@@ -204,13 +199,6 @@ namespace HLT {
        */
       const std::vector< const LVL1CTP::Lvl1Item* >& createL1Items(const ROIB::RoIBResult& result, bool makeLvl1Result = false);
 
-      /** @brief Extract LVL1 items from given Lvl1Result and cache them in internally.
-       *  @param result reference to Lvl1Result object, holding all LVL1 RoIs and items
-       *
-       *  @return reference to vector holding pointers to all LVL1 items
-       */
-      // const std::vector< const LVL1CTP::Lvl1Item* >& createL1Items(const LVL1CTP::Lvl1Result& result);
-
       /** @brief Extract LVL1 Muon-type RoIs and cache them internally
        *  @param result reference to RoIBResult object, holding all LVL1 RoIs and items
        *
@@ -232,6 +220,13 @@ namespace HLT {
        */
       const std::vector< JetEnergyRoI >& createJetEnergyThresholds(const ROIB::RoIBResult& result, bool updateCaloRoIs=false);
 
+      /** @brief Check if there was an overflow in the TOB transmission to CMX
+       *  @param result reference to RoIBResul object
+       *
+       *  @return overflow bits for EM, Tau and Jet threshold
+       */     
+      std::bitset<3> lvl1EMTauJetOverflow(const ROIB::RoIBResult& result);
+       
       /** @brief return pointer to internal LVL1Result result
        *  Note: (has to be created first via createL1Items(..) or updateResult(..) !
        */
@@ -258,11 +253,9 @@ namespace HLT {
       void clearDecisionItems(); //!< delete all LVL1 decisio items
       void clearLvl1Items();     //!< delete all LVL1 items
 
-      unsigned int m_logLvl { 0 };      //!< output message level
-      MsgStream *  m_log { nullptr };   //!< std MessageStream
-
-      // jet energy specifig scv
-      LVL1::JEPRoIDecoder* m_typeConverter { nullptr }; //!< converter class for JetEnergy RoIs -> used to retrieve type of JetEnergy RoI words
+      // L1 decoders
+      LVL1::JEPRoIDecoder* m_jepDecoder { nullptr };
+      LVL1::CPRoIDecoder* m_cpDecoder { nullptr };
 
       // Results cache
       std::vector< LVL1CTP::Lvl1Item* >     m_decisionItems;  //!< vector holding all LVL1 items for TrigDecision
@@ -290,10 +283,9 @@ namespace HLT {
       std::vector<TrigConf::TriggerThreshold*> m_jetThresholds;
 
       bool addJetThreshold( HLT::JetEnergyRoI & roi, const ConfigJetEThreshold* threshold );
-      bool addMetThreshold( HLT::JetEnergyRoI & roi, const ConfigJetEThreshold* threshold );
+      bool addMetThreshold( HLT::JetEnergyRoI & roi, const ConfigJetEThreshold* threshold, bool isRestrictedRange );
     
       ServiceHandle<TrigConf::ILVL1ConfigSvc> m_lvl1ConfigSvc; //!< handle for the LVL1 configuration service
-      ServiceHandle<StoreGateSvc> m_store;
    };
 } // end namespace
 
