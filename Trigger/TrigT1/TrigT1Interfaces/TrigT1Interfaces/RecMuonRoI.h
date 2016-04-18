@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: RecMuonRoI.h 364688 2011-05-09 16:58:25Z krasznaa $
+// $Id: RecMuonRoI.h 707787 2015-11-13 15:09:29Z fwinkl $
 /***************************************************************************
                           RecMuonRoI.h  -  description
                              -------------------
@@ -145,53 +145,53 @@ namespace LVL1 {
       /** this is the actual format of the data sent from
           the LVL1 hardware. See  ATL-DAQ-99-015 for
           further explanation. */
-      unsigned int m_roiWord;
+      unsigned int m_roiWord { 0 };
 
       /** flag indicating if this was the highest pt candidate in this
           sector - extracted from m_roiWord in the constructor */
-      bool m_firstCandidateFlag;
+      bool m_firstCandidateFlag { false };
 
       /** flag indicating if there were more than 2 candidates in this
           sector - extracted from m_roiWord in the constructor */
-      bool m_sectorOflFlag;
+      bool m_sectorOflFlag { false };
 
       /** flag indicating if there was more than 1 candidate in this
           pad - extracted from m_roiWord in the constructor */
-      bool m_padOflFlag;
+      bool m_padOflFlag { false };
 
       /** the pt threshold number associated with this RoI -
           extracted from m_roiWord in the constructor*/
-      unsigned int m_thresholdNumber;
+      unsigned int m_thresholdNumber { 0 };
 
       /** The value of the threshold in GeV. Extracted from
           supplied vector of TrigConf::TriggerThresholds */
-      unsigned int m_thresholdValue;
+      unsigned int m_thresholdValue { 0 };
 
       /** the RoI number of this RoI -
           extracted from m_roiWord in the constructor*/
-      unsigned int m_roiNumber;
+      unsigned int m_roiNumber { 0 };
 
       /** the overlap information for this RoI
           extracted from m_roiWord in the constructor*/
-      unsigned int m_overlap;
+      unsigned int m_overlap { 0 };
 
       /** the system ID for this RoI (Barrel=0, Endcap=1, Forward=2)
           extracted from m_roiWord in the constructor*/
-      unsigned int m_sysID;
+      unsigned int m_sysID { 0 };
 
       /** the subSystem ID for this RoI (0=-z,1=+z)
           extracted from m_roiWord in the constructor*/
-      unsigned int m_subSysID;
+      unsigned int m_subSysID { 0 };
 
       /** the sector number for this RoI
           extracted from m_roiWord in the constructor*/
-      unsigned int m_sectorID;
+      unsigned int m_sectorID { 0 };
 
       /** eta value */
-      double m_eta;
+      double m_eta { 0 };
 
       /** phi value */
-      double m_phi;
+      double m_phi { 0 };
 
    }; // class RecMuonRoI
 
