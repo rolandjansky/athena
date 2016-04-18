@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MirodLvl2Processor.h 515239 2012-08-28 11:39:45Z krasznaa $
+// $Id: MirodLvl2Processor.h 726107 2016-02-25 11:04:42Z wengler $
 #ifndef TRIGT1MUCTPI_MIRODLVL2PROCESSOR_H
 #define TRIGT1MUCTPI_MIRODLVL2PROCESSOR_H
 
@@ -38,8 +38,8 @@ namespace LVL1MUCTPI {
     * @author Thorsten Wengler
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 515239 $
-    * $Date: 2012-08-28 13:39:45 +0200 (Tue, 28 Aug 2012) $
+    * $Revision: 726107 $
+    * $Date: 2016-02-25 12:04:42 +0100 (Thu, 25 Feb 2016) $
     */
    class MirodLvl2Processor {
 
@@ -60,6 +60,11 @@ namespace LVL1MUCTPI {
       // set Configuration
       void setConfiguration( const Configuration& conf );
 
+      /**
+       * access to the output result - candidates only
+       * without the header or trailer words
+       */
+      const std::list< unsigned int >& getLvl2OutputCandidates() const { return m_ptCombinedFiFo; }
       /**
        * access to the output result
        * return The Lvl2 Output Data to the RoIB

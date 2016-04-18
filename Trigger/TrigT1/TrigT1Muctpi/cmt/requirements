@@ -4,12 +4,16 @@ author Thorsten Wengler     <Thorsten.Wengler@cern.ch>
 author Tadashi Maeno        <Tadashi.Maeno@cern.ch>
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
+public
+
+use AtlasPolicy           AtlasPolicy-*
+use AthenaBaseComps       AthenaBaseComps-*       Control
+
+
 private
 
 # General packages:
-use AtlasPolicy           AtlasPolicy-*
 use AthenaKernel          AthenaKernel-*          Control
-use AthenaBaseComps       AthenaBaseComps-*       Control
 use GaudiInterface        GaudiInterface-*        External
 use PathResolver          PathResolver-*          Tools
 

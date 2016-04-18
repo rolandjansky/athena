@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MirodModule.h 439303 2011-05-25 15:20:17Z krasznaa $
+// $Id: MirodModule.h 726107 2016-02-25 11:04:42Z wengler $
 #ifndef TRIGT1MUCTPI_MIRODMODULE_H
 #define TRIGT1MUCTPI_MIRODMODULE_H
 
@@ -44,8 +44,8 @@ namespace LVL1MUCTPI {
     * @author Thorsten Wengler
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 439303 $
-    * $Date: 2011-05-25 17:20:17 +0200 (Wed, 25 May 2011) $
+    * $Revision: 726107 $
+    * $Date: 2016-02-25 12:04:42 +0100 (Thu, 25 Feb 2016) $
     */
    class MirodModule {
 
@@ -85,7 +85,13 @@ namespace LVL1MUCTPI {
        */
       const MirodLvl2Processor* getMirodLvl2Processor() const { return &m_mirodLvl2Processor; }
       /**
-       * This method reyrn a reference to the list of unsigned ints holding
+       * This method returns a reference to the list of unsigned ints holding
+       * the output of the Mirod to the RoIB (Level2), candidates only, wihtout header or trailer words
+       * @return The LVL2 output candidates
+       */
+      const std::list< unsigned int >& getLvl2Candidates() const { return m_mirodLvl2Processor.getLvl2OutputCandidates(); }
+      /**
+       * This method returns a reference to the list of unsigned ints holding
        * the output of the Mirod to the RoIB (Level2)
        * @return The LVL2 output
        */

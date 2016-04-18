@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LUTOverlapCalculatorBase.h 701446 2015-10-19 15:19:09Z wengler $
+// $Id: LUTOverlapCalculatorBase.h 707664 2015-11-13 05:36:00Z ssnyder $
 #ifndef TRIGT1MUCTPI_LUTOVERLAPCALCULATORBASE_H
 #define TRIGT1MUCTPI_LUTOVERLAPCALCULATORBASE_H
 
@@ -23,6 +23,10 @@
 
 namespace LVL1MUCTPI {
 
+   class LUTOverlapCalculatorBase;
+   bool operator== ( const LUTOverlapCalculatorBase& calc1,
+                     const LUTOverlapCalculatorBase& calc2 );
+
    /**
     *  @short Base class for the LUT overlap calculators
     *
@@ -31,8 +35,8 @@ namespace LVL1MUCTPI {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 701446 $
-    * $Date: 2015-10-19 17:19:09 +0200 (Mon, 19 Oct 2015) $
+    * $Revision: 707664 $
+    * $Date: 2015-11-13 06:36:00 +0100 (Fri, 13 Nov 2015) $
     */
    class LUTOverlapCalculatorBase {
 

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuctpiSim.h 701446 2015-10-19 15:19:09Z wengler $
+// $Id: MuctpiSim.h 726107 2016-02-25 11:04:42Z wengler $
 #ifndef TRIGT1MUCTPI_MUCTPISIM_H
 #define TRIGT1MUCTPI_MUCTPISIM_H
 
@@ -38,7 +38,7 @@ namespace LVL1MUCTPI {
 
    /*********************************************************************
     *
-    *    $Date: 2015-10-19 17:19:09 +0200 (Mon, 19 Oct 2015) $
+    *    $Date: 2016-02-25 12:04:42 +0100 (Thu, 25 Feb 2016) $
     *
     *    @short Top level class of the MUCTPI simulation
     *
@@ -57,7 +57,7 @@ namespace LVL1MUCTPI {
     *      @see MibakStreamEvent
     *      @see MirodModule
     *   @author $Author: ssnyder $
-    *  @version $Revision: 701446 $
+    *  @version $Revision: 726107 $
     *
     *******************************************************************
     */
@@ -91,6 +91,12 @@ namespace LVL1MUCTPI {
       unsigned int getCTPData()
       { return this->getMictpModule()->getMictpCTPWord(); }
       /**
+       * method to access the candidates sent to the RoIB (Level 2 Trigger)
+       * without the header or trailer words.
+       */
+      const std::list<unsigned int>& getRoIBCandidates()
+      { return this->getMirodModule()->getLvl2Candidates(); }
+      /**
        * method to access the data send to the RoIB (Level 2 Trigger).
        */
       const std::list<unsigned int>& getRoIBData()
@@ -107,10 +113,10 @@ namespace LVL1MUCTPI {
 	m_L1TopoConv.setupParser(inputfile);
       }
       /**
-       * access the output for the L1Topo
+       * access the output for the L1Topo, and add the LVL2 style 32 bit word to it.
        */
-      LVL1::MuCTPIL1Topo getL1TopoData()
-      { return m_mibak->getL1TopoCandidates(m_L1TopoConv); }
+      LVL1::MuCTPIL1Topo getL1TopoData();
+      
 
       /// Is there at least one barrel candidate in the event?
       bool hasBarrelCandidate() const;

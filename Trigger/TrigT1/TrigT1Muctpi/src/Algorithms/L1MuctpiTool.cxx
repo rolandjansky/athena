@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L1Muctpi.cxx 726107 2016-02-25 11:04:42Z wengler $
+// $Id: L1MuctpiTool.cxx 733326 2016-04-01 11:39:10Z wengler $
 
 // STL include(s):
 #include <iostream>
@@ -32,31 +32,46 @@
 #include "TrigT1Result/MuCTPI_RDO.h"
 
 // Inlcudes for the MuCTPI simulation
-#include "L1Muctpi.h"
+#include "../Algorithms/L1MuctpiTool.h"
 #include "../Common/MuctpiSim.h"
 #include "../Common/Configuration.h"
 #include "../Logging/MsgWriter.h"
 #include "../Mioct/StrategyName.h"
 #include "../Common/Converter.h"
 
+
+#include "TrigT1Result/MuCTPIRoI.h"
+#include "TrigT1Result/RoIBResult.h"
+#include "TrigT1Result/Header.h"
+#include "TrigT1Result/Trailer.h"
+
+
 namespace LVL1MUCTPI {
 
   // Set the default StoreGate locations of input and output objects:
-  const std::string L1Muctpi::m_DEFAULT_locationMuCTPItoCTP      = "/Run/L1MuCTPItoCTPLocation";
-  const std::string L1Muctpi::m_DEFAULT_locationMuCTPItoL1Topo   = "/Run/L1MuCTPItoL1TopoLocation";
-  const std::string L1Muctpi::m_DEFAULT_locationMuCTPItoRoIB     = "/Run/L1MuCTPItoRoIBLocation";
-  const std::string L1Muctpi::m_DEFAULT_L1MuctpiStoreLocationRPC = "/Event/L1MuctpiStoreRPC";
-  const std::string L1Muctpi::m_DEFAULT_L1MuctpiStoreLocationTGC = "/Event/L1MuctpiStoreTGC";
-  const std::string L1Muctpi::m_DEFAULT_AODLocID                 = "LVL1_ROI";
-  const std::string L1Muctpi::m_DEFAULT_RDOLocID                 = "MUCTPI_RDO";
+  const std::string L1MuctpiTool::m_DEFAULT_locationMuCTPItoCTP      = "/Run/L1MuCTPItoCTPLocation";
+  const std::string L1MuctpiTool::m_DEFAULT_locationMuCTPItoL1Topo   = "/Run/L1MuCTPItoL1TopoLocation";
+  const std::string L1MuctpiTool::m_DEFAULT_locationMuCTPItoRoIB     = "/Run/L1MuCTPItoRoIBLocation";
+  const std::string L1MuctpiTool::m_DEFAULT_L1MuctpiStoreLocationRPC = "/Event/L1MuctpiStoreRPC";
+  const std::string L1MuctpiTool::m_DEFAULT_L1MuctpiStoreLocationTGC = "/Event/L1MuctpiStoreTGC";
+  const std::string L1MuctpiTool::m_DEFAULT_AODLocID                 = "LVL1_ROI";
+  const std::string L1MuctpiTool::m_DEFAULT_RDOLocID                 = "MUCTPI_RDO";
+  const std::string L1MuctpiTool::m_DEFAULT_roibLocation             = "RoIBResult";
 
   //--------------
   // Constructor
   //--------------
-  L1Muctpi::L1Muctpi( const std::string& name, ISvcLocator* pSvcLocator )
-    : AthAlgorithm( name, pSvcLocator ),
+  L1MuctpiTool::L1MuctpiTool(const std::string& type, const std::string& name, 
+			 const IInterface* parent ):
+    base_class(type, name, parent),
       m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
       m_theMuctpi( 0 ), m_executeFunction(nullptr)  {
+
+
+    // Init message
+    ATH_MSG_INFO( "=======================================" );
+    ATH_MSG_INFO( "Constructor for L1MuctpiTool."  );
+    ATH_MSG_INFO( "=======================================" );
 
     // Declare the service handles as properties:
     declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service" );
@@ -78,10 +93,10 @@ namespace LVL1MUCTPI {
     declareProperty( "InputSource", m_inputSource = "DIGITIZATION" );
     declareProperty( "AODLocID", m_aodLocId = m_DEFAULT_AODLocID );
     declareProperty( "RDOLocID", m_rdoLocId = m_DEFAULT_RDOLocID );
-    declareProperty( "RDOOutputLocID", m_rdoOutputLocId = m_DEFAULT_RDOLocID );
-    declareProperty( "RoIOutputLocID", m_roiOutputLocId = m_DEFAULT_locationMuCTPItoRoIB );
-    declareProperty( "CTPOutputLocID", m_ctpOutputLocId = m_DEFAULT_locationMuCTPItoCTP );
-    declareProperty( "L1TopoOutputLocID", m_l1topoOutputLocId = m_DEFAULT_locationMuCTPItoL1Topo );
+    //    declareProperty( "RDOOutputLocID", m_rdoOutputLocId = m_DEFAULT_RDOLocID );
+    //    declareProperty( "RoIOutputLocID", m_roiOutputLocId = m_DEFAULT_locationMuCTPItoRoIB );
+    // declareProperty( "CTPOutputLocID", m_ctpOutputLocId = m_DEFAULT_locationMuCTPItoCTP );
+    // declareProperty( "L1TopoOutputLocID", m_l1topoOutputLocId = m_DEFAULT_locationMuCTPItoL1Topo );
     // These are just here for flexibility, normally they should not be changed:
     declareProperty( "TGCLocID", m_tgcLocId = m_DEFAULT_L1MuctpiStoreLocationTGC );
     declareProperty( "RPCLocID", m_rpcLocId = m_DEFAULT_L1MuctpiStoreLocationRPC );
@@ -101,12 +116,14 @@ namespace LVL1MUCTPI {
 		     "Bit on the NIM input of the CTP, showing that there was at least "
 		     "one endcap candidate in the event" );
 
+    declareProperty( "ROIBResultLocation", m_roibLocation=m_DEFAULT_roibLocation, "Storegate key for the reading the ROIBResult" );
+ 
   }
 
   //--------------
   // Destructor
   //--------------
-  L1Muctpi::~L1Muctpi() {
+  L1MuctpiTool::~L1MuctpiTool() {
 
     ATH_MSG_DEBUG( "L1Muctpi destructor called" );
     if( m_theMuctpi ) delete m_theMuctpi;
@@ -118,18 +135,18 @@ namespace LVL1MUCTPI {
    * configuration is read from LVL1ConfigSvc. Also m_executeFunction gets set up to point to
    * the execute function we have selected in the jobOptions.
    */
-  StatusCode L1Muctpi::initialize() {
-
-    // Init message
-    ATH_MSG_INFO( "=======================================" );
-    ATH_MSG_INFO( "Initialisation for L1Muctpi algorithm."  );
-    ATH_MSG_INFO( "Package version: " << PACKAGE_VERSION    );
-    ATH_MSG_INFO( "=======================================" );
+  StatusCode L1MuctpiTool::initialize() {
 
     // Now this is a tricky part. We have to force the message logging of the
     // MuCTPI simulation to display messages of the same level as this MsgStream.
     MsgWriter::instance()->setMinType( msg().level() );
     MsgWriter::instance()->setSource( name() );
+
+    ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "L1MuctpiTool");
+    CHECK(incidentSvc.retrieve());
+    incidentSvc->addListener(this,"BeginRun", 100);
+    incidentSvc.release().ignore();
+    
 
     // Create the MuCTPI simulation:
     m_theMuctpi = new MuctpiSim();
@@ -217,17 +234,17 @@ namespace LVL1MUCTPI {
     if( m_inputSource == "DIGITIZATION" ) {
 
       ATH_MSG_INFO( "Setting input source to digitization" );
-      m_executeFunction = &L1Muctpi::executeFromDigi;
+      m_executeFunction = &L1MuctpiTool::executeFromDigi;
 
     } else if( m_inputSource == "AOD" ) {
 
       ATH_MSG_INFO( "Setting input source to AOD" );
-      m_executeFunction = &L1Muctpi::executeFromAOD;
+      m_executeFunction = &L1MuctpiTool::executeFromAOD;
 
     } else if( m_inputSource == "RDO" ) {
 
       ATH_MSG_INFO( "Setting input source to RDO" );
-      m_executeFunction = &L1Muctpi::executeFromRDO;
+      m_executeFunction = &L1MuctpiTool::executeFromRDO;
 
     } else {
 
@@ -264,7 +281,27 @@ namespace LVL1MUCTPI {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode L1Muctpi::beginRun( ) {
+  // Assuming from example code that I have to catch begin run myself and call the respective function
+  // TODO: Check if this is the right way to do this
+
+  void L1MuctpiTool::handle(const Incident& incident) {
+
+    if (incident.type()!="BeginRun") return;
+    ATH_MSG_DEBUG( "In L1MuctpiTool BeginRun incident");
+    
+    StatusCode sc = beginRun();
+    if( sc.isFailure() ) {
+      ATH_MSG_ERROR( "ERROR in MuCTPITool configuration");
+    }
+  }
+  
+
+  StatusCode L1MuctpiTool::beginRun( ) {
+
+    // Init message
+    ATH_MSG_INFO( "=======================================" );
+    ATH_MSG_INFO( "Begin Run for L1MuctpiTool."  );
+    ATH_MSG_INFO( "=======================================" );
 
     Configuration muctpiConfiguration;
     // Connect to the LVL1 configuration service (create it if it doesn't exist):
@@ -311,7 +348,7 @@ namespace LVL1MUCTPI {
   //---------------------------------
   // finalize()
   //---------------------------------
-  StatusCode L1Muctpi::finalize() {
+  StatusCode L1MuctpiTool::finalize() {
 
     // Now this is a tricky part. We have to force the message logging of the
     // MuCTPI simulation to display messages of the same level as this MsgStream.
@@ -329,11 +366,75 @@ namespace LVL1MUCTPI {
   }
 
 
+  // this is the main execute function for the tool, it just picks form the original 
+  // algorithm code what to execute. This is essetnially the execute from RDO variant
+  // below without the saveOutput call, since we only want part of that routine.
+
+  StatusCode L1MuctpiTool::fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo& l1topoCandidates ) const {
+    ATH_MSG_DEBUG( "in fillMuCTPIL1Topo()" );
+    
+    // Retrieve the MuCTPIToRoIBSLink or RoIBResult object from storegate:
+    const ROIB::RoIBResult* roibResult {nullptr};
+    const L1MUINT::MuCTPIToRoIBSLink* muctpi_slink {nullptr};
+    
+    if( evtStore()->contains<L1MUINT::MuCTPIToRoIBSLink>( m_roiOutputLocId) ) {
+      CHECK( evtStore()->retrieve( muctpi_slink,  m_roiOutputLocId) );
+    } else if( evtStore()->contains<ROIB::RoIBResult>(m_roibLocation) ) {
+      CHECK( evtStore()->retrieve(roibResult, m_roibLocation) );
+    } else {
+      ATH_MSG_WARNING("Neither a MuCTPIToRoIBSLink with SG key '/Run/L1MuCTPItoRoIBLocation' nor a an RoIBResult were found in the event.");
+      return StatusCode::RECOVERABLE;
+    }
+    
+    // Extract the RoIs into a vector:
+    std::vector< unsigned int > convertableRoIs;
+
+   if( roibResult ) {
+
+      const std::vector< ROIB::MuCTPIRoI >& rois = roibResult->muCTPIResult().roIVec();
+      ATH_MSG_DEBUG("Filling the input event from RoIBResult. Number of Muon ROIs: " << rois.size() );
+      for( const ROIB::MuCTPIRoI & muonRoI : rois ) {
+	   convertableRoIs.push_back(  muonRoI.roIWord() );
+      }
+   } else if( muctpi_slink ) {
+
+      ATH_MSG_DEBUG("Filling the input event. Number of Muon ROIs: " << muctpi_slink->getMuCTPIToRoIBWords().size() - ROIB::Header::wordsPerHeader - ROIB::Trailer::wordsPerTrailer - 1);
+      unsigned int icnt = 0;
+      for ( unsigned int roiword : muctpi_slink->getMuCTPIToRoIBWords() ) {
+
+         ++icnt;
+         // skip header
+         if ( icnt <= ROIB::Header::wordsPerHeader + 1 )
+            continue;
+
+         // skip trailer
+         if ( icnt > ( muctpi_slink->getMuCTPIToRoIBWords().size() - ROIB::Trailer::wordsPerTrailer ) )
+            continue;
+
+	 // fill RoI into vector
+	 convertableRoIs.push_back(roiword);
+      }
+   }
+
+    // Create the input to the MuCTPI:
+    LVL1MUONIF::Lvl1MuCTPIInput convertedInput;
+    CHECK( Converter::convertRoIs( convertableRoIs, &convertedInput ) );
+
+    // process the input with the MuCTPI simulation
+    m_theMuctpi->processData( &convertedInput );
+
+    // get outputs for L1Topo 
+    ATH_MSG_DEBUG("Getting the output for L1Topo");
+    l1topoCandidates = m_theMuctpi->getL1TopoData();
+ 
+    return StatusCode::SUCCESS;
+  }
+
 
   //----------------------------------------------
   // execute() method called once per event
   //----------------------------------------------
-  StatusCode L1Muctpi::execute( ) {
+  StatusCode L1MuctpiTool::execute( ) {
 
     // Now this is a tricky part. We have to force the message logging of the
     // MuCTPI simulation to display messages of the same level as this MsgStream.
@@ -353,7 +454,7 @@ namespace LVL1MUCTPI {
    * This is the default execute() function. It reads inputs from the RPC and TGC sector logics,
    * and runs the MuCTPI simulation with their inputs.
    */
-  StatusCode L1Muctpi::executeFromDigi() {
+  StatusCode L1MuctpiTool::executeFromDigi() {
 
     ATH_MSG_DEBUG( "in executeFromDigi()" );
 
@@ -430,7 +531,7 @@ namespace LVL1MUCTPI {
    * the muon RoIs back into the input format of the MuCTPI, then runs the MuCTPI information
    * with this transformed input.
    */
-  StatusCode L1Muctpi::executeFromAOD() {
+  StatusCode L1MuctpiTool::executeFromAOD() {
 
     ATH_MSG_DEBUG( "in executeFromAOD()" );
 
@@ -471,7 +572,7 @@ namespace LVL1MUCTPI {
    * converts the muon data words back into the input format of the MuCTPI, then runs the
    * MuCTPI information with this transformed input.
    */
-  StatusCode L1Muctpi::executeFromRDO() {
+  StatusCode L1MuctpiTool::executeFromRDO() {
 
     ATH_MSG_DEBUG( "in executeFromRDO()" );
 
@@ -496,7 +597,7 @@ namespace LVL1MUCTPI {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode L1Muctpi::validate( const std::vector< TrigConf::TriggerThreshold* > &
+  StatusCode L1MuctpiTool::validate( const std::vector< TrigConf::TriggerThreshold* > &
 				 thresholds ) const {
 
     //
@@ -568,7 +669,7 @@ namespace LVL1MUCTPI {
    * This function is used by all the different execute functions to save the output
    * of the MuCTPI simulation into various objects in StoreGate.
    */
-  StatusCode L1Muctpi::saveOutput(int bcidOffset) {
+  StatusCode L1MuctpiTool::saveOutput(int bcidOffset) {
      
     /// the standart processing is done for the central slice, with no Bcid offset
     if (bcidOffset == 0 ) {
@@ -660,10 +761,10 @@ namespace LVL1MUCTPI {
       LVL1::MuCTPIL1Topo l1topoCandidates = m_theMuctpi->getL1TopoData();
       LVL1::MuCTPIL1Topo* l1topo = new LVL1::MuCTPIL1Topo(l1topoCandidates.getCandidates());
       CHECK( evtStore()->record( l1topo, m_l1topoOutputLocId ) );
-      //      std::cout << "TW: ALG central slice: offset: " <<  bcidOffset << "  location: " << m_l1topoOutputLocId << std::endl;
-      //      l1topo->print();
+      //      std::cout << "TW: central slice: offset: " <<  bcidOffset << "  location: " << m_l1topoOutputLocId << std::endl;
+      //l1topo->print();
    }
-
+    
     /// if we have a bcid offset, then just get the topo output and put it on storegate
     if (bcidOffset  != 0) {
       ATH_MSG_DEBUG("Getting the output for L1Topo for BCID slice");
