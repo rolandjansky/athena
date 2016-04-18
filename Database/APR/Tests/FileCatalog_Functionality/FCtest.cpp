@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FCtest.cpp 590727 2014-04-01 21:30:48Z gemmeren $
+//$Id: FCtest.cpp 740758 2016-04-16 07:11:28Z krasznaa $
 /*
   @file a test driver for FileCatalog.
   @author: Zhen Xie

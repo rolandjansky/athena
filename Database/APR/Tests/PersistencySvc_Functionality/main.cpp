@@ -39,14 +39,6 @@ int main( int, char** ) {
     driver.readCollections();
     std::cout << "[OVAL] ...done" << std::endl;
 
-    std::cout << "[OVAL] Reading and updating the objects." << std::endl;
-    driver.updateObjects();
-    std::cout << "[OVAL] ...done" << std::endl;
- 
-    std::cout << "[OVAL] Reading the updated objects back from the database as implicit collections." << std::endl;
-    driver.readBackUpdatedObjects();
-    std::cout << "[OVAL] ...done" << std::endl;
-
     std::cout << "[OVAL] Reading the file sizes." << std::endl;
     driver.readFileSizes();
     std::cout << "[OVAL] ...done" << std::endl;

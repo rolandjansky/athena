@@ -123,4 +123,4 @@ macro_append PersistencySvc_FileOpenWithoutCatalog_utest_dependencies " Persiste
 macro_append PersistencySvc_Parameters_utest_dependencies " PersistencySvc_FileOpenWithoutCatalog_utest "
 macro_append PersistencySvc_NoClassID_utest_dependencies " PersistencySvc_Parameters_utest "
 
-#macro_append FileCatalog_Functionality_utest_dependencies " PersistencySvc_NoClassID_utest "
+##macro_append FileCatalog_Functionality_utest_dependencies " PersistencySvc_NoClassID_utest "

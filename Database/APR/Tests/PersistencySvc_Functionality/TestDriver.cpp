@@ -10,6 +10,7 @@
 #include <sstream>
 #include <memory>
 
+#include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 
 #include "StorageSvc/DbType.h"
@@ -17,7 +18,6 @@
 #include "FileCatalog/URIParser.h"
 #include "FileCatalog/IFileCatalog.h"
 
-#include "PersistencySvc/Placement.h"
 #include "PersistencySvc/ISession.h"
 #include "PersistencySvc/ITransaction.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
@@ -103,23 +103,23 @@ pool::TestDriver::write()
   RootType class_TestClassVectors ( "TestClassVectors" );
 
   // Defining the placement objects
-  pool::Placement placementHint_SimpleTestClass;
-  placementHint_SimpleTestClass.setDatabase( m_fileName1, pool::DatabaseSpecification::PFN );
+  Placement placementHint_SimpleTestClass;
+  placementHint_SimpleTestClass.setFileName( m_fileName1 );
   placementHint_SimpleTestClass.setContainerName( "SimpleTestClass_Container" );
   placementHint_SimpleTestClass.setTechnology( pool::ROOTKEY_StorageType.type() );
 
-  pool::Placement placementHint_TestClassPrimitives;
-  placementHint_TestClassPrimitives.setDatabase( m_fileName1, pool::DatabaseSpecification::PFN );
+  Placement placementHint_TestClassPrimitives;
+  placementHint_TestClassPrimitives.setFileName( m_fileName1 );
   placementHint_TestClassPrimitives.setContainerName( "TestClassPrimitives_Container" );
   placementHint_TestClassPrimitives.setTechnology( pool::ROOTTREE_StorageType.type() );
 
-  pool::Placement placementHint_TestClassSimpleContainers;
-  placementHint_TestClassSimpleContainers.setDatabase( m_fileName2, pool::DatabaseSpecification::PFN );
+  Placement placementHint_TestClassSimpleContainers;
+  placementHint_TestClassSimpleContainers.setFileName( m_fileName2 );
   placementHint_TestClassSimpleContainers.setContainerName( "TestClassSimpleContainers_Container" );
   placementHint_TestClassSimpleContainers.setTechnology( pool::ROOTTREE_StorageType.type() );
 
-  pool::Placement placementHint_TestClassVectors;
-  placementHint_TestClassVectors.setDatabase( m_fileName2, pool::DatabaseSpecification::PFN );
+  Placement placementHint_TestClassVectors;
+  placementHint_TestClassVectors.setFileName( m_fileName2 );
   placementHint_TestClassVectors.setContainerName( "TestClassVectors_Container" );
   placementHint_TestClassVectors.setTechnology( pool::ROOTTREE_StorageType.type() );
 
@@ -432,86 +432,6 @@ pool::TestDriver::readCollections()
   catalog.commit();
 }
 
-
-
-void
-pool::TestDriver::updateObjects()
-{
-  pool::IFileCatalog& catalog = *m_fileCatalog;
-  catalog.start();
-
-  std::cout << "Creating the persistency service" << std::endl;
-  pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
-  if ( ! psfactory ) {
-    throw std::runtime_error( "Could not retrieve an IPersistencySvc factory" );
-  }
-  std::unique_ptr< pool::IPersistencySvc > persistencySvc( psfactory->create( "PersistencySvc", catalog ) );
-  if ( ! persistencySvc.get() ) {
-    throw std::runtime_error( "Could not create a PersistencySvc" );
-  }
-
-  // Starting an update transaction
-  if ( ! persistencySvc->session().transaction().start( pool::ITransaction::UPDATE ) ) {
-    throw std::runtime_error( "Could not start a read transaction." );
-  }
-
-  pool::IDatabase* db = persistencySvc->session().databaseHandle( m_fileName1, pool::DatabaseSpecification::PFN );
-  if ( ! db ) {
-    throw std::runtime_error( "Could not retrieve a database handle" );
-  }
-
-  db->connectForRead(); // will open db in read mode.
-
-  pool::IContainer* container = db->containerHandle( "SimpleTestClass_Container" );
-  if ( ! container ) {
-    throw std::runtime_error( "Could not retrieve the container" );
-  }
-
-  pool::ITokenIterator* tokenIterator = container->tokens( "" );
-  if ( ! tokenIterator ) {
-    throw std::runtime_error( "Could not obtain a token iterator" );
-  }
-
-  int i = 0;
-  std::vector< SimpleTestClass* > v_simpleTestClass;
-  Token* token = tokenIterator->next();
-  while ( token ) {
-    void* data_simpleTestClass = persistencySvc->readObject( *token );
-    if ( data_simpleTestClass == 0 ) {
-      throw std::runtime_error( "Could not read the stored data" );
-    }
-    SimpleTestClass* object_simpleTestClass = reinterpret_cast< SimpleTestClass* >( data_simpleTestClass );
-    object_simpleTestClass->data = i;
-    ++i;
-
-    if ( ! persistencySvc->updateObject( object_simpleTestClass,
-                                         *token ) ) {
-      throw std::runtime_error( "Could not update the obect" );
-    }
-    v_simpleTestClass.push_back( object_simpleTestClass );
-    token->release();
-    token = tokenIterator->next();
-  }
-
-  delete tokenIterator;
-  delete container;
-  delete db;
-
-  // Committing
-  std::cout << "Committing the transaction." << std::endl;
-  if ( ! persistencySvc->session().transaction().commit() ) {
-    throw std::runtime_error( "Could not commit the transaction." );
-  }
-
-  std::cout << "Clearing the cache" << std::endl;
-  for ( std::vector< SimpleTestClass* >::iterator iObject = v_simpleTestClass.begin();
-        iObject != v_simpleTestClass.end(); ++iObject ) {
-    delete *iObject;
-  }
-
-  catalog.commit();
-
-}
 
 
 void

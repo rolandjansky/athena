@@ -10,6 +10,7 @@
 #include <sstream>
 #include <memory>
 
+#include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 
 #include "StorageSvc/DbType.h"
@@ -17,7 +18,6 @@
 #include "FileCatalog/URIParser.h"
 #include "FileCatalog/IFileCatalog.h"
 
-#include "PersistencySvc/Placement.h"
 #include "PersistencySvc/ISession.h"
 #include "PersistencySvc/ITransaction.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
@@ -89,8 +89,8 @@ pool::TestDriver::write()
   RootType class_MyTestClass ( "MyTestClass" );
 
   // Defining the placement objects
-  pool::Placement placementHint_MyTestClass;
-  placementHint_MyTestClass.setDatabase( m_fileName, pool::DatabaseSpecification::PFN );
+  Placement placementHint_MyTestClass;
+  placementHint_MyTestClass.setFileName( m_fileName );
   placementHint_MyTestClass.setContainerName( "MyTestClass_Container" );
   placementHint_MyTestClass.setTechnology( pool::ROOTKEY_StorageType.type() );
 
