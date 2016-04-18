@@ -34,3 +34,32 @@ macro        tauEventAthenaPool_poolIoHdlrTypes ""
 macro_append tauEventAthenaPool_poolIoHdlrTypes "Analysis::TauJetContainer "
 macro_append tauEventAthenaPool_poolIoHdlrTypes "Analysis::TauDetailsContainer "
 
+apply_pattern declare_joboptions files="-s=../share *.py"
+
+apply_pattern athenarun_test \
+   name="tauEventTPCnv_15.0.0" \
+   options="tauEventAthenaPool/tauEventTPCnv_15.0.0_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh tauEventTPCnv_15.0.0" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh tauEventTPCnv_15.0.0"
+
+
+apply_pattern athenarun_test \
+   name="tauEventTPCnv_15.6.9" \
+   options="tauEventAthenaPool/tauEventTPCnv_15.6.9_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh tauEventTPCnv_15.6.9" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh tauEventTPCnv_15.6.9"
+
+
+apply_pattern athenarun_test \
+   name="tauEventTPCnv_17.2.9.1" \
+   options="tauEventAthenaPool/tauEventTPCnv_17.2.9.1_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh tauEventTPCnv_17.2.9.1" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh tauEventTPCnv_17.2.9.1"
+
+
+apply_pattern athenarun_test \
+   name="tauEventTPCnv_18.0.0" \
+   options="tauEventAthenaPool/tauEventTPCnv_18.0.0_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh tauEventTPCnv_18.0.0" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh tauEventTPCnv_18.0.0"
+
