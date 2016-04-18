@@ -27,6 +27,10 @@ namespace LVL1MUCTPI {
 
     //check variable to make sure a match was found, otherwise issue warning
     bool foundRoiMatch = false;
+    
+    // check varialble to make sure the TopoCell info is found for the RoI
+    bool foundTopoCellMatch = false;
+
 
     // get access to the MuCTPI geometry and Pt encoding from Parser
     MuCTPiGeometry muctpiGeo = m_xmlParser.getMuCTPiGeometry(); 
@@ -57,6 +61,7 @@ namespace LVL1MUCTPI {
     
     // Loop over the sectors in this Mioct to get the right one
     std::vector<MioctSectorGeometry> mioctSecVec = thisMioctGeo.sectors();
+    std::vector<MioctTopoCellGeometry> topCellVec = thisMioctGeo.topoCells();
     MioctSectorGeometry thisMioctSecGeo;
 
     for (std::vector<MioctSectorGeometry>::iterator it = mioctSecVec.begin(); it != mioctSecVec.end(); ++it){
@@ -88,7 +93,29 @@ namespace LVL1MUCTPI {
       }
     }
 
-    if (!foundRoiMatch) REPORT_MSG(LVL1MUCTPI::WARNING,"No RoI match found for Sector: " << sector.getIDString() << "  RoI: " << inputRoi <<  " in MioctL1TopoConverter, returning 0 for eta/phi" << std::endl);
+    int thisieta = 0;
+    int thisiphi = 0;
+
+    if (!foundRoiMatch) {
+      REPORT_MSG(LVL1MUCTPI::WARNING,"No RoI match found for Sector: " << sector.getIDString() << "  RoI: " << inputRoi <<  " in MioctL1TopoConverter, returning 0 for eta/phi" << std::endl)
+	}
+    else {
+      // now loop over the topocell info and find the ieta and iphi values for this RoI
+      
+      for (  std::vector<MioctTopoCellGeometry>::iterator it = topCellVec.begin(); it != topCellVec.end(); ++it) {
+	if (it->etacode() == thisRoi.etacode() && it->phicode() == thisRoi.phicode()  ){
+	  thisieta = it->ieta();
+	  thisiphi = it->iphi();
+	  foundTopoCellMatch = true;
+	  break;
+	}
+      }
+    }
+    
+    if (!foundTopoCellMatch) {
+      REPORT_MSG(LVL1MUCTPI::WARNING,"No TopoCell match found for Sector: " << sector.getIDString() << "  RoI: " << inputRoi <<  " in MioctL1TopoConverter, returning 0 for ieta/iphi" << std::endl)
+	}
+
 
     // get the Pt encoding
     unsigned int ptCode = 0;
@@ -98,7 +125,8 @@ namespace LVL1MUCTPI {
     // Now fill all the information into the output object
     l1topoCand.setCandidateData(sector.getIDString(), inputRoi, sector.getBCID(), inputPt, ptCode, thresholdValue,
 				thisRoi.eta(), thisRoi.phi(), thisRoi.etacode(), thisRoi.phicode(),
-				thisRoi.etamin(), thisRoi.etamax(), thisRoi.phimin(), thisRoi.phimax(), mioctModNumber );
+				thisRoi.etamin(), thisRoi.etamax(), thisRoi.phimin(), thisRoi.phimax(), mioctModNumber, 
+				thisieta, thisiphi );
 				
     return l1topoCand;
   }
