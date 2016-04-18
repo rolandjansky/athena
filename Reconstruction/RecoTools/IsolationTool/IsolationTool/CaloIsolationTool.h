@@ -5,48 +5,58 @@
 #ifndef ISOLATIONTOOL_CALOISOLATIONTOOL_H
 #define ISOLATIONTOOL_CALOISOLATIONTOOL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "AsgTools/AsgTool.h"
+#include "AsgTools/ToolHandle.h"
+
+#ifndef XAOD_ANALYSIS
+// #include "GaudiKernel/ToolHandle.h"
+#include "ParticlesInConeTools/ICaloClustersInConeTool.h"
+#include "ParticlesInConeTools/IPFlowObjectsInConeTool.h"
+#include "RecoToolInterfaces/ICaloIsolationDecoratorTool.h"
+#include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
+#include "CaloRec/CaloClusterCollectionProcessor.h"
+#endif // XAOD_ANALYSIS
+
+#include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "RecoToolInterfaces/ICaloCellIsolationTool.h"
 #include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
 #include "RecoToolInterfaces/INeutralEFlowIsolationTool.h"
-#include "RecoToolInterfaces/ICaloIsolationDecoratorTool.h"
-#include "ParticlesInConeTools/ICaloClustersInConeTool.h"
-#include "ParticlesInConeTools/IPFlowObjectsInConeTool.h"
-#include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "RecoToolInterfaces/IsolationCommon.h"
-#include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODBase/IParticle.h"
 #include "xAODPrimitives/IsolationType.h"
 #include "xAODEgamma/Egamma.h"
+#include "xAODMuon/Muon.h"
 #include "xAODEventShape/EventShape.h"
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/PFOContainer.h"
 
 #include <vector>
 
+#ifndef XAOD_ANALYSIS
 class CaloFillRectangularCluster;
-class CaloClusterCollectionProcessor;
-namespace CP {
-  class IIsolationCorrectionTool;
-}
+#endif
 
 namespace xAOD {
   
-  class CaloIsolationTool: public AthAlgTool, 
+  class CaloIsolationTool: 
     virtual public ICaloTopoClusterIsolationTool,
     virtual public ICaloCellIsolationTool,
     virtual public INeutralEFlowIsolationTool,
-    virtual public ICaloIsolationDecoratorTool{
+#ifndef XAOD_ANALYSIS
+    virtual public ICaloIsolationDecoratorTool,
+#endif // XAOD_ANALYSIS
+    public asg::AsgTool {
+    ASG_TOOL_CLASS3( CaloIsolationTool, ICaloTopoClusterIsolationTool, ICaloCellIsolationTool, INeutralEFlowIsolationTool )
   public:
-      CaloIsolationTool(const std::string& type, const std::string& name, const IInterface* parent);
+      CaloIsolationTool(const std::string& name);
       ~CaloIsolationTool(void); // destructor
       
-      StatusCode initialize();
+      StatusCode initialize() override;
       StatusCode finalize();
       
       /**ICaloTopoClusterIsolationTool interface: */    
@@ -54,30 +64,31 @@ namespace xAOD {
 				     const IParticle& tp, 
 				     const std::vector<Iso::IsolationType>& cones, 
 				     CaloCorrection corrections, 
-				     const CaloClusterContainer* container = 0); 
+				     const CaloClusterContainer* container = 0) override; 
       using ICaloTopoClusterIsolationTool::caloTopoClusterIsolation;
 
-      /**ICaloCellIsolationTool interface: */    
-      bool caloCellIsolation( CaloIsolation& result, 
-			      const IParticle& tp, 
-			      const std::vector<Iso::IsolationType>& cones, 
-			      CaloCorrection corrections, 
-			      const CaloCellContainer* container = 0); 
+      ///// *ICaloCellIsolationTool interface: */    
+      bool caloCellIsolation(CaloIsolation& result, const IParticle& particle, 
+            const std::vector<Iso::IsolationType>& cones, 
+            CaloCorrection corrections, 
+            const CaloCellContainer* container = 0) override;
       using ICaloCellIsolationTool::caloCellIsolation;
+   
       
       /**INeutralEFlowIsolationTool interface: */    
       bool neutralEflowIsolation( CaloIsolation& result, 
 				  const IParticle& tp, 
 				  const std::vector<Iso::IsolationType>& cones, 
-				  CaloCorrection corrections);
+				  CaloCorrection corrections) override;
       using INeutralEFlowIsolationTool::neutralEflowIsolation;
 
+#ifndef XAOD_ANALYSIS
       bool decorateParticle( IParticle& tp,
                              const std::vector<Iso::IsolationType>& cones,
                              CaloCorrection corrections,
                              const CaloCellContainer* Cells = 0,
                              const CaloClusterContainer* TopClusters = 0) override final; 
-
+#endif
       bool decorateParticle_caloCellIso( IParticle& tp,
                              const std::vector<Iso::IsolationType>& cones,
                              CaloCorrection corrections,
@@ -93,10 +104,22 @@ namespace xAOD {
                              CaloCorrection corrections) override final;
 
       /**ICaloCellIsolationTool interface: cast for TrackParticle (etcone muon) */    
-      bool caloCellIsolation( CaloIsolation& result, const TrackParticle& tp, const std::vector<Iso::IsolationType>& cones, CaloCorrection corrections, const CaloCellContainer* container = 0 );
+      bool caloCellIsolation( CaloIsolation& result, 
+#ifndef XAOD_ANALYSIS
+      const TrackParticle& tp, 
+#endif
+      const std::vector<Iso::IsolationType>& cones, CaloCorrection corrections
+#ifndef XAOD_ANALYSIS
+      , const CaloCellContainer* container = 0 
+#endif
+      );
 
       /**ICaloIsolationTool interface: cast for egamma (etcone egamma)*/    
-      bool caloCellIsolation( CaloIsolation& result, const Egamma& tp, const std::vector<Iso::IsolationType>& cones, CaloCorrection corrections, const CaloCellContainer* container = 0 );
+      bool caloCellIsolation( CaloIsolation& result, const Egamma& tp, const std::vector<Iso::IsolationType>& cones, CaloCorrection corrections
+#ifndef XAOD_ANALYSIS
+      , const CaloCellContainer* container = 0
+#endif
+      );
 
       /**ICaloIsolationTool interface: cast for TrackParticle (topoetcone muon)*/    
       bool caloTopoClusterIsolation( CaloIsolation& result,  const TrackParticle& tp, const std::vector<Iso::IsolationType>& cones, CaloCorrection corrections, const CaloClusterContainer* container = 0 );
@@ -116,17 +139,21 @@ namespace xAOD {
                             IParticle& tp,
                             const std::vector<Iso::IsolationType>& cones,
                             CaloCorrection corrections);
-      
       // etcone computation for TrackParticle
+#ifndef XAOD_ANALYSIS
       bool etConeIsolation( CaloIsolation& result, const TrackParticle& tp, 
 			    const std::vector<Iso::IsolationType>& isoTypes, 
 			    const CaloCellContainer* container );
+#endif
       
       // etcone computation for Egamma
+#ifndef XAOD_ANALYSIS
       bool etConeIsolation( CaloIsolation& result, const Egamma& eg, 
 			    const std::vector<Iso::IsolationType>& isoTypes, 
 			    const CaloCellContainer* container );
-      
+#endif
+			    
+			    
       // topoetcone computation (common for TrackParticle and Egamma)
       bool topoConeIsolation(CaloIsolation& result, float eta, float phi, 
 			     std::vector<float>& m_coneSizes,
@@ -137,15 +164,6 @@ namespace xAOD {
       bool topoClustCones (CaloIsolation& result, float eta, float phi, 
 			   std::vector<float>& m_coneSizes,
 			   const std::vector<const CaloCluster*>& clusts); 
-
-      /*
-      // never called
-      /// sum of topo cluster in a cone excluding the core region
-      bool topoClustCones (CaloIsolation& result, float eta, float phi,
-                           std::vector<float> m_coneSizes,
-                           const std::vector<const CaloCluster*>& clusts,
-                           float dEtaMin, float dPhiMin, float dR2Min=-1, bool onlyEM=false);
-      */
 
       /// Correct the topo cluster isolation using sum of topo cluster in core region.
       bool correctIsolationEnergy_TopoCore (CaloIsolation& result, float eta, float phi, 
@@ -195,9 +213,10 @@ namespace xAOD {
       /** get reference particle */
       const IParticle* getReferenceParticle(const IParticle& particle) const;
 
+#ifndef XAOD_ANALYSIS
       ToolHandle<Rec::IParticleCaloCellAssociationTool>        m_assoTool;
       ToolHandle<Trk::IParticleCaloExtensionTool>              m_caloExtTool;
-      Trk::TrackParametersIdHelper  parsIdHelper;
+      Trk::TrackParametersIdHelper  m_parsIdHelper;
 
       // clusters in cone tool
       ToolHandle<ICaloClustersInConeTool> m_clustersInConeTool; 
@@ -208,6 +227,10 @@ namespace xAOD {
       /** @brief  Property: calo cluster filling tool */
       ToolHandle<CaloClusterCollectionProcessor> m_caloFillRectangularTool;
       CaloFillRectangularCluster* m_caloFillRectangularToolPtr;
+
+      /** Property: Use cached caloExtension if avaliable. */
+      bool m_useCaloExtensionCaching;
+#endif // XAOD_ANALYSIS
 
       /** @brief Tool for pt-corrected isolation calculation (new)*/
       ToolHandle<CP::IIsolationCorrectionTool> m_IsoLeakCorrectionTool;
@@ -233,12 +256,34 @@ namespace xAOD {
       /** Property: exclude tile scintillator*/
       bool m_ExcludeTG3;
 
-      /** Property: Use cached caloExtension if avaliable. */
-      bool m_useCaloExtensionCaching;
+      /** Property: Name of the central topocluster energy-density container. */ 
+      std::string m_tpEDCentral;
+
+      /** Property: Name of the forward topocluster energy-density container. */ 
+      std::string m_tpEDForward;
+
+      /** Property: Name of the central neutral energy flow energy-density container. */ 
+      std::string m_efEDCentral;
+
+      /** Property: Name of the forward neutral energy flow energy-density container. */ 
+      std::string m_efEDForward;
+
+      /** Property: The size of the coneCore core energy calculation. */
+      double m_coneCoreSize; 
 
       /** map to the orignal particle */
       std::map<const IParticle*, const IParticle*> m_derefMap;
 
+
+#ifdef XAOD_ANALYSIS // particlesInCone tool will not be avaible. Write our own...
+      bool particlesInCone( float eta, float phi, float dr, std::vector<const CaloCluster*>& clusts );
+      bool particlesInCone( float eta, float phi, float dr, std::vector<const PFO*>& clusts );
+#endif // XAOD_ANALYSIS
+      float Phi_mpi_pi(float x){ 
+        while (x >= M_PI) x -= 2.*M_PI;
+        while (x < -M_PI) x += 2.*M_PI;
+        return x;
+      }
     };
   
 }	// end of namespace
