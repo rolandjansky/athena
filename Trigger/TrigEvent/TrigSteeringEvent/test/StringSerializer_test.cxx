@@ -8,6 +8,15 @@
  * See the requirements file on how to compile/run this.
  */
 
+//not working for rootcore
+#ifdef XAOD_STANDALONE
+int main() {
+  return 0;
+}
+#endif
+
+#ifndef XAOD_STANDALONE
+
 #include "TrigSteeringEvent/StringSerializer.h"
 
 #include <string>
@@ -112,4 +121,4 @@ int main() {
   }  
 }
 
-
+#endif //no rootcore
