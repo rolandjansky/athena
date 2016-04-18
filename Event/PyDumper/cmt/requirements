@@ -14,7 +14,7 @@ use AthenaPython 	AthenaPython-*		Control -no_auto_imports
 
 
 use AtlasReflex         AtlasReflex-*           External
-use TrkTruthData        TrkTruthData-*          Tracking/TrkEvent
+use AthContainers       AthContainers-*         Control
 
 # Specify the Boost components for cmake (transparent to CMT)
 apply_pattern cmake_add_command command="find_package(Boost COMPONENTS program_options regex)"
@@ -31,7 +31,7 @@ apply_pattern declare_scripts files="\
 ## some handy aliases
 alias sg-dump     sg-dump.py
 
-
+ 
 apply_pattern lcgdict dict=PyDumperDict \
    selectionfile=selection.xml \
    headerfiles="../PyDumper/PyDumperDict.h" 

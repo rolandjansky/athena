@@ -35,6 +35,19 @@ import cppyy
 etcone10 = 0
 nucone10 = 8
 
+# Work around a cling bug.
+if hasattr(ROOT,'TrackParticleTruthCollection'):
+    ROOT.TrackParticleTruthCollection()[ROOT.Rec.TrackParticleTruthKey()]
+    ROOT.Jet().jetTagInfoVector()
+    getattr(ROOT, 'ElementLinkVector<CaloClusterContainer>')
+    getattr(ROOT, 'ElementLink<Analysis::MuonContainer>')().isValid()
+    getattr(ROOT, 'vector<xAOD::CaloClusterBadChannelData_v1>')().__assign__(getattr(ROOT, 'vector<xAOD::CaloClusterBadChannelData_v1>')())
+if hasattr (ROOT, 'TrigInDetParticleTruth'):
+    ROOT.TrigInDetTrackTruth().getFamilyTree()
+    getattr(ROOT, 'ElementLinkVector<TrigInDetTrackCollection>')
+    getattr(ROOT, 'std::vector<Trig3Momentum>')
+    ROOT.TrigSpacePointCounts().droppedSctModules()
+
 
 ### helper methods ------------------------------------------------------------
 def asinh (x):
@@ -54,11 +67,33 @@ def toiter1 (c):
 
 def nolist (f):
     f.nolist = 1
+    f.nmax = False
+    return f
+
+def nolist_nmax (f):
+    f.nolist = 1
+    f.nmax = True
     return f
 
 def tonone (x):
     if not x: return None
     return x
+
+def asint(x):
+    if x>(1<<63):
+        return x - (1<<64)
+    return x
+
+def asint32(x):
+    if x>(1<<63):
+        return x - (1<<64)
+    elif x>(1<<31):
+        return x - (1<<32)
+    return x
+
+def safe_float_vector(v):
+    sa = ROOT.PyDumper.SafeFloatAccess(v)
+    return [sa[i]for i in range(len(v))]
 
 @contextmanager
 def signalstate (o, state):
@@ -76,6 +111,11 @@ def signalstate (o, state):
 
 
 ### library methods ------------------------------------------------------------
+
+#change -0 -> 0
+def fix_neg0 (x, thresh = 0):
+    return 0 if x == 0 or abs(x) < thresh else x
+
 
 def dump_H3V (v, f):
     print >> f, "(%f %f %f)" % \
@@ -115,7 +155,10 @@ def dump_Fourvec (v, f, parens=1):
        isinstance (v, PyAthena.xAOD.IParticle):
         m = v.m()
         eta = v.eta()
-        pt = v.pt()
+        if m > v.e():
+            pt = 0
+        else:
+            pt = v.pt()
     elif isinstance (v,    PyAthena.P4PtEtaPhiMBase) or \
          isinstance (vmom, PyAthena.P4BasePtEtaPhiM):
         m = v.m()
@@ -165,33 +208,50 @@ def dump_Fourvec (v, f, parens=1):
     return
 
 def dump_Threevec (v, f):
-    print >> f, "(%f %f %f)" % (v.x(), v.y(), v.z()),
+    print >> f, "(%f %f %f)" % (v.x(), v.y(), fix_neg0(v.z(), thresh=1e-8)),
     return
 
 def dump_Twovec (v, f):
     print >> f, "(%f %f)" % (v.x(), v.y()),
     return
 
-def dump_AmgMatrix (m, f):
+def dump_AmgMatrix (m, f, thresh=1e-38):
     print >> f, '[',
     for r in range(m.rows()):
         print >> f, '[',
-        for c in range(1, m.cols()):
+        for c in range(m.cols()):
             v = m(r,c)
-            if abs(v) < 1e-38: v = 0
+            if abs(v) < thresh: v = 0
             print >> f, '%6.3g' % v,
         print >> f, ']',
     print >> f, ']',
     return
 
-def dump_AmgVector (m, f):
+def dump_AmgVector (m, f, thresh=1e-38):
+    if not m:
+        print '(null vector)',
+        return
     print >> f, '[',
     for r in range(m.rows()):
         v = m(r)
-        if abs(v) < 1e-38: v = 0
+        if abs(v) < thresh: v = 0
         print >> f, '%6.3g' % v,
     print >> f, ']',
     return
+
+
+def dump_EL (l, f):
+    nm = l.__class__.__name__
+    pos1 = nm.find('<')
+    pos2 = nm.rfind ('>')
+    nm = nm[pos1+1:pos2].strip()
+    if l.isDefault():
+        nm = nm + '/(null)'
+    else:
+        nm = nm + '/%s[%d]' % (l.dataID(), l.index())
+    print >> f, nm,
+    return
+
 
 def dump_ParticleBase (e, f):
     dump_Fourvec (e, f, 0)
@@ -201,7 +261,7 @@ def dump_ParticleBase (e, f):
     else:
         charge = "N/A"
     print >> f, " %1d %1d %4d %s" % \
-          (e.dataType(), e.hasPdgId(), e.pdgId(), charge),
+          (e.dataType(), e.hasPdgId(), asint32(e.pdgId()), charge),
     if orig.isValid():
         print >> f, "%1d"%orig.index(),
         dump_Threevec (e.origin().position(), f)
@@ -213,13 +273,12 @@ def dump_ParticleBase (e, f):
 def dump_ParticleImpl (p, f):
     dump_Fourvec (p, f, 0)
     if  p.hasCharge():
-        c = p.charge()
-        if c == 0: c = 0 # change -0 -> 0
+        c = fix_neg0(p.charge())
         c = '%f' % c
     else:
         c = 'N/A'
     print >> f, ' %d %s %5d ' % \
-          (p.dataType(), c, p.pdgId()),
+          (p.dataType(), c, asint32(p.pdgId())),
     if p.origin():
         dump_Threevec (p.origin().position(), f)
     else:
@@ -400,7 +459,7 @@ def dump_EMTrackFit (d, f):
     return
 
 def dump_egamma (e, f):
-    cppyy.loadDictionary ('libElectronPhotonSelectorToolsDict')
+    #cppyy.loadDictionary ('libElectronPhotonSelectorToolsDict')
     dump_ParticleImpl (e, f)
     print >> f, "\n      %d %d %d" % (e.author(), e.isem(), e.isemse()),
     if e.clusterElementLink().isValid():
@@ -450,6 +509,31 @@ def dump_Electron (e, f):
 
 def dump_Photon (e, f):
     dump_egamma (e, f)
+    return
+
+
+def dump_EnergyLoss (p, f):
+    if not p:
+        print >> f, None,
+        return
+    print >> f, p.deltaE(), p.sigmaDeltaE(), p.sigmaMinusDeltaE(), p.sigmaPlusDeltaE(),
+    print >> f, p.meanIoni(), p.sigmaIoni(), p.meanRad(), p.sigmaRad(), p.length(),
+    return
+
+
+def dump_CaloEnergy (p, f):
+    dump_EnergyLoss (p, f)
+    print >> f, '%d %f %f %f %f' %\
+          (p.energyLossType(),
+           p.caloMuonIdTag(),
+           p.caloLRLikelihood(),
+           p.fsrCandidateEnergy(),
+           p.etCore()),
+    print >> f, p.deltaEParam(), p.sigmaMinusDeltaEParam(), p.sigmaPlusDeltaEParam(), p.deltaEMeas(), p.sigmaDeltaEMeas(),
+    print >> f, '\n      deposits:',
+    for d in p.depositInCalo():
+        print >> f, " (%d %f %f)" % \
+              (d.subCaloId(), d.energyDeposited(), d.muonEnergyLoss()),
     return
 
 
@@ -527,17 +611,8 @@ def dump_Muon (m, f):
     print >> f, '\n      j:', [i for i in m.segmentPhiDigits()],
     caloe = m.caloEnergyLoss()
     if caloe:
-        print >> f, '\n      k: %d %f %f %f %f' %\
-              (caloe.energyLossType(),
-               caloe.caloMuonIdTag(),
-               caloe.caloLRLikelihood(),
-               caloe.fsrCandidateEnergy(),
-               caloe.etCore())
         print >> f, '\n      k:',
-        for d in caloe.depositInCalo():
-            print >> f, " (%d %f %f)" % \
-                  (d.subCaloId(), d.energyDeposited(), d.muonEnergyLoss())
-          
+        dump_CaloEnergy (caloe, f)
     return
 
 
@@ -1181,8 +1256,7 @@ def dump_ParticleJet (j, f):
 
 def dump_TruthParticle (p, f):
     dump_ParticleImpl (p, f)
-    poltheta = p.polarization().theta()
-    if poltheta == 0: poltheta = 0  # Fold -0 -> 0
+    poltheta = fix_neg0 (p.polarization().theta())
     print >> f, ' %3d %3d %f %f %d %d' % \
           (p.barcode(),
            p.status(),
@@ -1240,7 +1314,7 @@ def dump_TrackParticleTruthCollection (c, f):
 
 
 def dump_SubDetHitStatistics (s, f):
-    print >> f, [s[i] for i in range(s.NUM_SUBDETECTORS)],
+    print >> f, [s[i].value() for i in range(s.NUM_SUBDETECTORS)],
     return
 
 
@@ -1252,8 +1326,7 @@ def dump_TruthTrajectory (t, f):
 @nolist
 def dump_DetailedTrackTruthCollection (c, f):
     print >> f, ' ', c.trackCollectionLink().key(), c.size(),
-    acls=PyAthena.PyDumper.PySTLAdaptor(PyAthena.DetailedTrackTruthCollection)
-    for p in toiter1(acls(c)):
+    for p in toiter1(c):
         print >>f, '\n   %3d' % p.first.index(), ' common ',
         dump_SubDetHitStatistics (p.second.statsCommon(), f),
         print >>f, '\n      ', ' track ',
@@ -1265,28 +1338,39 @@ def dump_DetailedTrackTruthCollection (c, f):
     return
               
         
-
-
-
 def dump_FitQuality (info, f):
-    print >> f, "%f %d" % \
-          (info.chiSquared(),
-           info.numberDoF()),
+    if not info:
+        print >> f, '(null)',
+        return
+    print >> f, '%f %f' % (info.chiSquared(), info.doubleNumberDoF()),
     return
 
 
 def dump_TrackSummary (info, f):
+    if not info:
+        print >> f, '(null)',
+        return
     print >> f, [info.get(i) for i in range(32)], \
           [info.isHit(i) for i in range(21)],
     return
 
 
 def dump_Surface (info, f):
+    print >> f, info.__class__.__name__ + ':',
     dump_Threevec (info.center(), f)
     dump_Threevec (info.normal(), f)
-    dump_Threevec (info.globalReferencePoint(), f)
+    if (isinstance (info, PyAthena.Trk.DiscSurface) and
+        info.bounds().__class__.__name__.find ('NoBounds') >= 0):
+        print >>f, '(no bounds)',
+    elif (isinstance (info, PyAthena.Trk.CylinderSurface) and
+          not info.bounds()):
+        print >>f, '(no bounds)',
+    else:
+        dump_Threevec (info.globalReferencePoint(), f)
+    if isinstance (info, PyAthena.Trk.CylinderSurface):
+        dump_AmgVector (info.rotSymmetryAxis(), f)
     print >> f, '\n          tf',
-    dump_AmgMatrix (info.transform().matrix(), f)
+    dump_AmgMatrix (info.transform().matrix(), f, thresh=1e-8)
 #    print >> f, '\n          de', info.associatedDetectorElement(),
     print >> f, '\n          ly', tonone (info.associatedLayer()),
     print >> f, '\n          bd', info.bounds().__class__.__name__,
@@ -1309,12 +1393,60 @@ def dump_StraightLineSurface (info, f):
     return
 
 
+def dump_CylinderSurface (info, f):
+    dump_Surface (info, f)
+    return
+
+
+def dump_DiscSurface (info, f):
+    dump_Surface (info, f)
+    return
+
+
+def dump_LineSaggingDescriptor (info, f):
+    os = ROOT.ostringstream()
+    info.dump (os)
+    s = os.str().replace ('\n', ';')
+    print >> f, s,
+    return
+
+
+def dump_SaggedLineSurface (info, f):
+    dump_StraightLineSurface (info, f)
+    print >> f, '\n          ds',
+    dump_LineSaggingDescriptor (info.distortionDescriptor())
+    return
+
+
+def dump_surface (p, f):
+    if not p:
+        print >> f, None,
+    elif isinstance (p, PyAthena.Trk.PerigeeSurface):
+        dump_PerigeeSurface (p, f)
+    elif isinstance (p, PyAthena.Trk.PlaneSurface):
+        dump_PlaneSurface (p, f)
+    elif isinstance (p, PyAthena.Trk.StraightLineSurface):
+        dump_StraightLineSurface (p, f)
+    elif isinstance (p, PyAthena.Trk.CylinderSurface):
+        dump_CylinderSurface (p, f)
+    elif isinstance (p, PyAthena.Trk.DiscSurface):
+        dump_DiscSurface (p, f)
+    elif isinstance (p, PyAthena.Trk.SaggedLineSurface):
+        dump_SaggedLineSurface (p, f)
+    else:
+        print >> f, p,
+    return
+
 
 
 def dump_ParametersBase (info, f):
     dump_AmgVector (info.parameters(), f)
     dump_Threevec (info.momentum(), f)
-    print >> f, info.pT(), info.eta(),
+    print >> f, info.pT(),
+    if info.pT() > 0:
+        print >> f, info.eta(),
+    else:
+        print >> f, '[eta undef]',
     dump_Threevec (info.position(), f)
     dump_Twovec (info.localPosition(), f)
     print >> f, "%f" % (info.charge(),),
@@ -1322,25 +1454,31 @@ def dump_ParametersBase (info, f):
         print >> f, '\n          cov',
         dump_AmgMatrix (info.covariance(), f)
     print >> f, '\n          sf',
-    if not info.associatedSurface():
-        print >> f, None,
-    elif isinstance (info.associatedSurface(), PyAthena.Trk.PerigeeSurface):
-        dump_PerigeeSurface (info.associatedSurface(), f)
-    elif isinstance (info.associatedSurface(), PyAthena.Trk.PlaneSurface):
-        dump_PlaneSurface (info.associatedSurface(), f)
-    elif isinstance (info.associatedSurface(), PyAthena.Trk.StraightLineSurface):
-        dump_StraightLineSurface (info.associatedSurface(), f)
-    else:
-        print >> f, info.associatedSurface(),
+    dump_surface (info.associatedSurface(), f)
+    return
+
+
+def dump_CurvilinearParameters (info, f):
+    dump_ParametersBase (info, f)
+    print >> f, '\n          curvilinear',
+    print >> f, info.cIdentifier(),
+    frame = info.curvilinearFrame()
+    dump_AmgVector (frame.curvU(), f)
+    dump_AmgVector (frame.curvV(), f)
+    dump_AmgVector (frame.curvT(), f)
     return
 
 
 def dump_parameters (p, f):
+    if p.__class__.__name__.startswith ('DataModel_detail::ElementProxy<'):
+        p = p.__follow__()
     if not p:
         print >> f, '(nil)',
     elif (p.__class__.__name__.startswith ('Trk::ParametersT<') or
         p.__class__.__name__.startswith ('Trk::ParametersBase<')):
         dump_ParametersBase (p, f)
+    elif p.__class__.__name__.startswith ('Trk::CurvilinearParametersT<'):
+        dump_CurvilinearParameters (p, f)
     else:
         print >> f, p,
     return
@@ -1348,9 +1486,11 @@ def dump_parameters (p, f):
 
 def dump_TrackParticle (p, f):
     dump_Fourvec (p, f)
-    print >> f, "%f %1d" % \
-          (p.charge(),
-           p.particleOriginType()),
+    if p.definingParameters():
+        print >> f, "%f" % p.charge(),
+    else:
+        print >> f, "(nil)",
+    print >> f, "%1d" % p.particleOriginType(),
     # This crashes --- needs dd.
     #if p.originalTrack():
     #    print >> f, '\n        tr', p.originalTrack(),
@@ -1372,6 +1512,263 @@ def dump_TrackParticle (p, f):
     for x in p.trackParameters():
         print >> f, '\n'
         dump_parameters (x, f)
+    return
+
+
+def dump_LocalParameters (p, f):
+    dump_AmgVector (p, f)
+    print >> f, p.parameterKey(),
+    return
+
+
+def dump_MeasurementBase (p, f):
+    dump_LocalParameters (p.localParameters(), f)
+    dump_AmgMatrix (p.localCovariance(), f)
+    return
+
+
+def dump_RIO_OnTrack (p, f):
+    dump_MeasurementBase (p, f)
+    print >> f, p.identify().getString(),
+    return
+
+
+def dump_SiClusterOnTrack (p, f):
+    dump_RIO_OnTrack (p, f)
+    print >> f, p.idDE().value(), p.isBroadCluster(),
+    dump_AmgVector (p.globalPosition(), f)
+    return
+
+
+def dump_PixelClusterOnTrack (p, f):
+    dump_SiClusterOnTrack (p, f)
+    dump_EL (p.prepRawDataLink(), f)
+    print >> f, p.hasClusterAmbiguity(), p.isFake(), p.energyLoss(),
+    print >> f, p.detectorElement().identifyHash().value(),
+    return
+
+
+def dump_SCT_ClusterOnTrack (p, f):
+    dump_SiClusterOnTrack (p, f)
+    dump_EL (p.prepRawDataLink(), f)
+    print >> f, p.positionAlongStrip(),
+    print >> f, p.detectorElement().identifyHash().value(),
+    return
+
+
+def dump_TRT_DriftCircleOnTrack (p, f):
+    dump_RIO_OnTrack (p, f)
+    dump_AmgVector (p.globalPosition(), f)
+    print >> f, p.idDE().value(),
+    dump_EL (p.prepRawDataLink(), f)
+    print >> f, p.status(), p.localAngle(), p.positionAlongWire(),
+    print >> f, p.highLevel(), p.timeOverThreshold(),
+    print >> f, p.detectorElement().identifyHash().value(),
+    return
+
+
+def dump_MdtDriftCircleOnTrack (p, f):
+    dump_RIO_OnTrack (p, f)
+    dump_AmgVector (p.globalPosition(), f, thresh=1e-8)
+    dump_EL (p.prepRawDataLink(), f)
+    print >> f, p.status(), p.localAngle(), p.positionAlongWire(),
+    print >> f, p.driftTime(), p.errorStrategy().getBits().to_string(),
+    print >> f, p.detectorElement().identifyHash().value(),
+    dump_StraightLineSurface (p.associatedSurface(), f)
+    return
+    
+
+def dump_CompetingRIOsOnTrack (p, f):
+    dump_MeasurementBase (p, f)
+    print >> f, p.indexOfMaxAssignProb(),
+    sz = p.numberOfContainedROTs()
+    print >> f, [p.assignmentProbability(i) for i in range(sz)],
+    return
+
+
+def dump_MuonClusterOnTrack (p, f):
+    dump_RIO_OnTrack (p, f)
+    dump_AmgVector (p.globalPosition(), f)
+    print >> f, p.positionAlongStrip(),
+    return
+    
+
+
+def dump_CompetingMuonClustersOnTrack (p, f):
+    dump_CompetingRIOsOnTrack (p, f)
+    dump_AmgVector (p.globalPosition(), f)
+    dump_surface (p.associatedSurface(), f)
+    for r in p.containedROTs():
+        print >> f, '\n    mc ',
+        dump_MuonClusterOnTrack (r, f)
+    return
+
+
+def dump_RpcClusterOnTrack (p, f):
+    dump_MuonClusterOnTrack (p, f)
+    dump_EL (p.prepRawDataLink(), f)
+    print >> f, p.time(),
+    print >> f, p.detectorElement().identifyHash().value(),
+    return
+    
+
+def dump_TgcClusterOnTrack (p, f):
+    dump_MuonClusterOnTrack (p, f)
+    dump_EL (p.prepRawDataLink(), f)
+    print >> f, p.detectorElement().identifyHash().value(),
+    return
+    
+
+def dump_CscClusterOnTrack (p, f):
+    dump_MuonClusterOnTrack (p, f)
+    dump_EL (p.prepRawDataLink(), f)
+    print >> f, p.status(), p.timeStatus(), p.time(),
+    if p.detectorElement():
+        print >> f, p.detectorElement().identifyHash().value(),
+    else:
+        print >> f, '(null detEl)',
+    return
+
+
+def dump_PseudoMeasurementOnTrack (p, f):
+    dump_MeasurementBase (p, f)
+    dump_AmgVector (p.globalPosition(), f)
+    dump_surface (p.associatedSurface(), f)
+    return
+    
+
+def dump_measurement (p, f):
+    if not p:
+        print >> f, '(null)',
+        return
+    nm = p.__class__.__name__
+    print >> f, nm + ': ',
+    if nm == 'InDet::PixelClusterOnTrack':
+        dump_PixelClusterOnTrack (p, f)
+    elif nm == 'InDet::SCT_ClusterOnTrack':
+        dump_SCT_ClusterOnTrack (p, f)
+    elif nm == 'InDet::TRT_DriftCircleOnTrack':
+        dump_TRT_DriftCircleOnTrack (p, f)
+    elif nm == 'Muon::MdtDriftCircleOnTrack':
+        dump_MdtDriftCircleOnTrack (p, f)
+    elif nm == 'Muon::MdtDriftCircleOnTrack':
+        dump_MdtDriftCircleOnTrack (p, f)
+    elif nm == 'Muon::CompetingMuonClustersOnTrack':
+        dump_CompetingMuonClustersOnTrack (p, f)
+    elif nm == 'Muon::RpcClusterOnTrack':
+        dump_RpcClusterOnTrack (p, f)
+    elif nm == 'Muon::TgcClusterOnTrack':
+        dump_TgcClusterOnTrack (p, f)
+    elif nm == 'Muon::CscClusterOnTrack':
+        dump_CscClusterOnTrack (p, f)
+    elif nm == 'Trk::PseudoMeasurementOnTrack':
+        dump_PseudoMeasurementOnTrack (p, f)
+    else:
+        print >> f, p,
+    return
+
+
+def dump_MaterialEffectsBase (p, f):
+    print >> f, p.dumpType(), p.thicknessInX0(),
+    dump_surface (p.associatedSurface(), f)
+    return
+
+
+def dump_ScatteringAngles (p, f):
+    if not p:
+        print >> f, None,
+        return
+    print >> f, p.deltaPhi(), p.deltaTheta(),
+    print >> f, p.sigmaDeltaPhi(), p.sigmaDeltaTheta(),
+    return
+
+
+def dump_MaterialEffectsOnTrack (p, f):
+    dump_MaterialEffectsBase (p, f)
+    dump_ScatteringAngles (p.scatteringAngles(), f)
+    dump_EnergyLoss (p.energyLoss(), f)
+    return
+
+
+def dump_materialeffects (p, f):
+    if not p:
+        print >> f, '(null)',
+        return
+    nm = p.__class__.__name__
+    print >> f, nm + ': ',
+    if nm == 'Trk::MaterialEffectsOnTrack':
+        dump_MaterialEffectsOnTrack (p, f)
+    return
+
+
+def dump_AlignmentEffectsOnTrack (p, f):
+    if not  p:
+        print >> f, '(null)',
+        return
+    print >> f, p.deltaTranslation(), p.sigmaDeltaTrranslation(), p.deltaAngle(), p.sigmaDeltaAngle(),
+    for t in p.vectorOfAffectedTSOS():
+        print >> f, '\n     ts ',
+        dump_parameters (t.trackparameters(), f)
+    print >> f, '\n     sf ',
+    dump_Surface (p.associatedSurface(), f)
+    return
+
+
+def dump_TrackStateOnSurface (p, f):
+    dump_FitQuality (p.fitQualityOnSurface(), f), p.types().to_string(),
+    print >> f, '\n    pm ',
+    dump_parameters (p.trackParameters(), f)
+    print >> f, '\n    ms ',
+    dump_measurement (p.measurementOnTrack(), f)
+    print >> f, '\n    me ',
+    dump_materialeffects (p.materialEffectsOnTrack(), f)
+    print >> f, '\n    ae ',
+    dump_AlignmentEffectsOnTrack (p.alignmentEffectsOnTrack(), f)
+    return
+
+
+def dump_TrackInfo (p, f):
+    print >> f, p.trackFitter(), p.particleHypothesis(),
+    print >> f, p.properties().to_string(),
+    print >> f, p.patternRecognition().to_string(),
+    return
+   
+
+def dump_Track (p, f):
+    print >> f, '\n        pm',
+    pm = p.trackParameters()
+    for i in range(len(pm)):
+        print >> f, '\n  ',
+        dump_parameters (pm[i], f)
+    print >> f, '\n        ms',
+    for x in p.measurementsOnTrack():
+        print >> f, '\n  ',
+        dump_measurement (x, f)
+    print >> f, '\n        ol',
+    for x in p.outliersOnTrack():
+        print >> f, '\n',
+        dump_measurement (x, f)
+    print >> f, '\n        ts',
+    for x in p.trackStateOnSurfaces():
+        print >> f, '\n  ',
+        dump_TrackStateOnSurface (x, f)
+    print >> f, '\n        pp ',
+    dump_parameters (p.perigeeParameters(), f)
+    print >> f, '\n        fq ',
+    dump_FitQuality (p.fitQuality(), f)
+    print >> f, '\n        tm ',
+    dump_TrackSummary (p.trackSummary(), f)
+    print >> f, '\n        ti ',
+    dump_TrackInfo (p.info(), f)
+    return
+
+
+def dump_Segment (p, f):
+    dump_MeasurementBase (p, f)
+    print >> f, p.author(),
+    dump_FitQuality (p.fitQuality(), f)
+    for x in p.containedMeasurements():
+        dump_measurement (x, f)
     return
 
 
@@ -1602,11 +1999,44 @@ def dump_CaloCluster (c, f):
     return
 
 
-@nolist
-def dump_CaloClusters_sorted (l, f):
+@nolist_nmax
+def dump_CaloClusters_sorted (l, f, nmax = None):
     ll = [x for x in l]
     ll.sort (cmp=lambda a, b: cmp(b.pt(), a.pt()))
-    dump_list (ll, f, dump_CaloCluster)
+    dump_list (ll, f, dump_CaloCluster, nmax=nmax)
+    return
+
+
+def dump_CaloCellLink (l, f):
+    beg = l.begin()
+    end = l.end()
+    last = None
+    while beg != end:
+        el = beg.getElement()
+        if last != el.dataID():
+            last = el.dataID()
+            print >> f, last,
+        print >> f, el.index(),
+        beg.next()
+    return
+
+
+def dump_CaloClusterCellLink (l, f):
+    beg = l.begin()
+    end = l.end()
+    while beg != end:
+        print >> f, '%d/%f' % (beg.index(), beg.weight()),
+        beg.__preinc__()
+    return
+
+
+def dump_CaloCell (l, f):
+    print >> f, l.ID().getString(),
+    if l.__class__ == PyAthena.TileCell:
+        print >> f, '%.2f %.2f %d %d %d ' % (l.ene1(), l.time1(), ord(l.qual1()), ord(l.qbit1()), l.gain1()),
+        print >> f, '%.2f %.2f %d %d %d ' % (l.ene2(), l.time2(), ord(l.qual2()), ord(l.qbit2()), l.gain2()),
+    else:
+        print >> f, '%.2f %.2f %d %d %d ' % (l.energy(), l.time(), l.quality(), l.provenance(), l.gain()),
     return
 
 
@@ -1821,8 +2251,7 @@ def dump_GenParticle (p, f):
         print >> f, None,
     dump_HLV (p.momentum(), f)
     pol = p.polarization()
-    poltheta = pol.theta()
-    if poltheta == 0: poltheta = 0 # Fold -0 -> 0
+    poltheta = fix_neg0 (pol.theta())
     print >> f, "%f %f %f %f" % \
           (poltheta, pol.phi(), pol.normal3d().theta(), pol.normal3d().phi()),
     return
@@ -2452,7 +2881,7 @@ def dump_Jet (j, f):
                        PyAthena.CaloTowerContainer):
             tower_constituents_p = True
         elif j.firstConstituent().__deref__():
-            ss = j.constituentSignalState()
+            ss = asint(j.constituentSignalState())
             j.setConstituentSignalState (PyAthena.P4SignalState.CALIBRATED)
             dump_HLV (j.constituent_sum4Mom(), f)
             j.setConstituentSignalState (ss)
@@ -2873,7 +3302,7 @@ def dump_TrigTauTracksInfo (t, f):
     dump_Fourvec (t, f)
     print >> f, '  ', t.roiId(), t.nCoreTracks(), t.nSlowTracks(), \
           t.nIsoTracks(),\
-          t.charge(), t.leadingTrackPt(), t.sumPtRatio(), t.scalarPtSumCore(),\
+          t.charge(), t.leadingTrackPt(), t.scalarPtSumCore(),\
           t.scalarPtSumIso(), t.ptBalance(),
     dump_Fourvec (t.threeFastestTracks(), f)
     if t.trackCollection():
@@ -2974,6 +3403,7 @@ def dump_MuonFeatureDetails (m, f):
           m.phi_high_1_lay0(),\
           m.phi_high_0_lay1(),\
           m.phi_high_1_lay1(),
+
     print >> f, '\n  ', list(m.rob_id()),
     print >> f, '\n  ', list(m.csm_id()),
     print >> f, '\n  ', list(m.csm_size()),
@@ -2983,39 +3413,39 @@ def dump_MuonFeatureDetails (m, f):
     print >> f, '\n  ', list(m.lvl1_emulation()),
     print >> f, '\n  ', list(m.pad_hit_onlineId()),
     print >> f, '\n  ', list(m.pad_hit_code()),
-    print >> f, '\n  ', list(m.pad_hit_x()),
-    print >> f, '\n  ', list(m.pad_hit_y()),
-    print >> f, '\n  ', list(m.pad_hit_z()),
-    print >> f, '\n  ', list(m.pad_hit_r()),
-    print >> f, '\n  ', list(m.pad_hit_p()),
-    print >> f, '\n  ', list(m.tgc_Inn_rho_hit_phi()),
-    print >> f, '\n  ', list(m.tgc_Inn_rho_hit_r()),
-    print >> f, '\n  ', list(m.tgc_Inn_rho_hit_z()),
-    print >> f, '\n  ', list(m.tgc_Inn_rho_hit_width()),
+    print >> f, '\n  ', safe_float_vector(m.pad_hit_x()),
+    print >> f, '\n  ', safe_float_vector(m.pad_hit_y()),
+    print >> f, '\n  ', safe_float_vector(m.pad_hit_z()),
+    print >> f, '\n  ', safe_float_vector(m.pad_hit_r()),
+    print >> f, '\n  ', safe_float_vector(m.pad_hit_p()),
+    print >> f, '\n  ', safe_float_vector(m.tgc_Inn_rho_hit_phi()),
+    print >> f, '\n  ', safe_float_vector(m.tgc_Inn_rho_hit_r()),
+    print >> f, '\n  ', safe_float_vector(m.tgc_Inn_rho_hit_z()),
+    print >> f, '\n  ', safe_float_vector(m.tgc_Inn_rho_hit_width()),
     print >> f, '\n  ', list(m.tgc_Inn_rho_hit_in_seg()),
-    print >> f, '\n  ', list(m.tgc_Inn_phi_hit_phi()),
-    print >> f, '\n  ', list(m.tgc_Inn_phi_hit_r()),
-    print >> f, '\n  ', list(m.tgc_Inn_phi_hit_z()),
-    print >> f, '\n  ', list(m.tgc_Inn_phi_hit_width()),
+    print >> f, '\n  ', safe_float_vector(m.tgc_Inn_phi_hit_phi()),
+    print >> f, '\n  ', safe_float_vector(m.tgc_Inn_phi_hit_r()),
+    print >> f, '\n  ', safe_float_vector(m.tgc_Inn_phi_hit_z()),
+    print >> f, '\n  ', safe_float_vector(m.tgc_Inn_phi_hit_width()),
     print >> f, '\n  ', list(m.tgc_Inn_phi_hit_in_seg()),
-    print >> f, '\n  ', list(m.tgc_Mid_rho_hit_phi()),
-    print >> f, '\n  ', list(m.tgc_Mid_rho_hit_r()),
-    print >> f, '\n  ', list(m.tgc_Mid_rho_hit_z()),
-    print >> f, '\n  ', list(m.tgc_Mid_rho_hit_width()),
+    print >> f, '\n  ', safe_float_vector(m.tgc_Mid_rho_hit_phi()),
+    print >> f, '\n  ', safe_float_vector(m.tgc_Mid_rho_hit_r()),
+    print >> f, '\n  ', safe_float_vector(m.tgc_Mid_rho_hit_z()),
+    print >> f, '\n  ', safe_float_vector(m.tgc_Mid_rho_hit_width()),
     print >> f, '\n  ', list(m.tgc_Mid_rho_hit_in_seg()),
-    print >> f, '\n  ', list(m.tgc_Mid_phi_hit_phi()),
-    print >> f, '\n  ', list(m.tgc_Mid_phi_hit_r()),
-    print >> f, '\n  ', list(m.tgc_Mid_phi_hit_z()),
-    print >> f, '\n  ', list(m.tgc_Mid_phi_hit_width()),
+    print >> f, '\n  ', safe_float_vector(m.tgc_Mid_phi_hit_phi()),
+    print >> f, '\n  ', safe_float_vector(m.tgc_Mid_phi_hit_r()),
+    print >> f, '\n  ', safe_float_vector(m.tgc_Mid_phi_hit_z()),
+    print >> f, '\n  ', safe_float_vector(m.tgc_Mid_phi_hit_width()),
     print >> f, '\n  ', list(m.tgc_Mid_phi_hit_in_seg()),
     print >> f, '\n  ', list(m.mdt_onlineId()),
     print >> f, '\n  ', list(m.mdt_offlineId()),
-    print >> f, '\n  ', list(m.mdt_tube_r()),
-    print >> f, '\n  ', list(m.mdt_tube_z()),
-    print >> f, '\n  ', list(m.mdt_tube_residual()),
-    print >> f, '\n  ', list(m.mdt_tube_time()),
-    print >> f, '\n  ', list(m.mdt_tube_space()),
-    print >> f, '\n  ', list(m.mdt_tube_sigma()),
+    print >> f, '\n  ', safe_float_vector(m.mdt_tube_r()),
+    print >> f, '\n  ', safe_float_vector(m.mdt_tube_z()),
+    print >> f, '\n  ', safe_float_vector(m.mdt_tube_residual()),
+    print >> f, '\n  ', safe_float_vector(m.mdt_tube_time()),
+    print >> f, '\n  ', safe_float_vector(m.mdt_tube_space()),
+    print >> f, '\n  ', safe_float_vector(m.mdt_tube_sigma()),
     print >> f, '\n  ', list(m.extension0()),
     print >> f, '\n  ', list(m.extension1()),
     print >> f, '\n  ', list(m.extension2()),
@@ -3122,8 +3552,10 @@ def dump_CaloTopoTowerContainer (t, f):
           t.GetUsePileUpNoise(), \
           t.GetNoiseSigma(), \
           t.GetCellESignificanceThreshold(), \
-          t.GetCaloSelection(), \
-          list(t.GetCaloIndices())
+          t.GetCaloSelection(),
+    ci = t.GetCaloIndices()
+    # list(ci) broken in root 6.04.12.
+    print >> f, [ci[i] for i in range(ci.size())],
     def dl(l):
         print >> f, '  ',
         if l.isValid(): print >> f, l.dataID()
@@ -3141,6 +3573,41 @@ def dump_CaloTopoTowerContainer (t, f):
 def dump_CaloCalibrationHit (t, f):
     print >> f, t.cellID().getString(), t.particleID(), \
           [t.energy(i) for i in range(4)],
+    return
+
+
+def dump_LArHit (t, f):
+    print >> f, t.cellID().getString(), t.energy(), t.time(),
+    return
+
+
+def dump_TileHit (t, f):
+    sz = t.size()
+    print >> f, t.identify().getString(), [t.energy(i) for i in range(sz)], \
+          [t.time(i) for i in range(sz)],
+    return
+
+
+def dump_HepMcParticleLink (p, f):
+    print >> f, p.barcode(), p.eventIndex(),
+    return
+
+
+def dump_SiHit (t, f):
+    print >> f, t.identify(),
+    dump_Threevec (t.localStartPosition(), f)
+    dump_Threevec (t.localEndPosition(), f)
+    print >> f, t.energyLoss(), t.meanTime(), t.trackNumber(),
+    dump_HepMcParticleLink (t.particleLink(), f)
+    return
+
+
+def dump_TRTUncompressedHit (t, f):
+    print >> f, t.GetHitID(), t.GetTrackID(), t.GetParticleEncoding(), \
+          t.GetKineticEnergy(), t.GetEnergyDeposit(), \
+          t.GetPreStepX(),  t.GetPreStepY(),  t.GetPreStepZ(), \
+          t.GetPostStepX(), t.GetPostStepY(), t.GetPostStepZ(), \
+          t.GetGlobalTime(),
     return
 
 
@@ -3314,6 +3781,12 @@ def dump_TrigPassBits (b, f):
     return
 
 
+def dump_TrigOperationalInfo (b, f):
+    p = b.infos()
+    print >> f, list(p.first), list(p.second),
+    return
+
+
 def dump_TrigVertexCounts (v, f):
     print >> f, list(v.vtxNtrks()), list(v.vtxTrkPtSqSum()),
     return
@@ -3341,16 +3814,14 @@ def dump_eflowObject (e, f):
           e.getIsDuplicated(), e.getCaloRecoStatus().getStatusWord(),
     for i in range(e.numTrack()):
         print >> f, '\n    tk: ',
-        dump_Fourvec (e.track(i), f)
+        dump_EL (e.trackLink(i), f)
     for i in range(e.numClus()):
         print >> f, '\n    cl: ',
-        dump_Fourvec (e.clus(i), f)
-    if e.muonLink().isValid():
-        print >> f, '\n    mu: ',
-        dump_Fourvec (e.muon(), f)
-    if e.conversionLink().isValid():
-        print >> f, '\n    cv: ',
-        dump_Fourvec (e.conversion(), f)
+        dump_EL (e.clusLink(i), f)
+    print >> f, '\n    mu: ',
+    dump_EL (e.muonLink(), f)
+    print >> f, '\n    cv: ',
+    dump_EL (e.conversionLink(), f)
     return
 
 
@@ -3373,6 +3844,638 @@ def dump_TrigConfKeys (p, f):
     print >> f, p.smk(), p.l1psk(), p.hltpsk(),
     return
 
+
+def dump_IdentContIndex (p, f):
+    print >> f, p.collHash(), p.objIndex(),
+    return
+
+
+def dump_PrepRawData (p, f):
+    print >> f, p.identify().getString(),
+    dump_IdentContIndex (p.getHashAndIndex(), f)
+    dump_AmgVector (p.localPosition(), f)
+    dump_AmgMatrix (p.localCovariance(), f)
+    print >> f, '[',
+    for i in p.rdoList():
+        print >> f, i.getString(),
+    print >> f, ']',
+    return
+
+
+def dump_MuonCluster (p, f):
+    dump_PrepRawData (p, f)
+    dump_AmgVector (p.globalPosition(), f, thresh=1e-8)
+    return
+
+
+def dump_CscPrepData (p, f):
+    dump_MuonCluster (p, f)
+    print >> f, p.charge(), p.time(), p.status(), p.timeStatus(),
+    print >> f, p.detectorElement().identifyHash().value(),
+    return
+
+
+def dump_CscStripPrepData (p, f):
+    dump_MuonCluster (p, f)
+    print >> f, p.timeOfFirstSample(), p.samplingPhase(), p.samplingTime(),
+    print >> f, list(p.sampleCharges()),
+    print >> f, p.detectorElement().identifyHash().value(),
+    return
+
+
+def dump_TgcPrepData (p, f):
+    dump_MuonCluster (p, f)
+    print >> f, p.getBcBitMap(),
+    print >> f, p.detectorElement().identifyHash().value(),
+    return
+
+
+def dump_TgcCoinData (p, f):
+    print >> f, p.type(), p.channelIdIn().getString(), p.channelIdOut().getString(), p.identifyHash().value(),
+    dump_IdentContIndex (p.getHashAndIndex(), f)
+    print >> f, p.isAside(), p.phi(), p.isInner(), p.isForward(), p.isStrip(), p.trackletId(), p.trackletIdStrip(),
+    print >> f, p.widthIn(), p.widthOut(),
+    print >> f, p.delta(), p.roi(), p.pt(), p.veto(), p.sub(), p.inner(), p.isPositiveDeltaR(),
+    dump_AmgVector (p.posIn(), f, thresh=1e-8)
+    dump_AmgVector (p.posOut(), f, thresh=1e-8)
+    dump_AmgVector (p.globalposIn(), f, thresh=1e-8)
+    dump_AmgVector (p.globalposOut(), f, thresh=1e-8)
+    dump_AmgMatrix (p.errMat(), f)
+    if p.detectorElementIn():
+        print >> f, p.detectorElementIn().identifyHash().value(),
+    else:
+        print >> f, '(null detel)',
+    if p.detectorElementOut():
+        print >> f, p.detectorElementOut().identifyHash().value(),
+    else:
+        print >> f, '(null detel)',
+    return
+
+
+def dump_MdtPrepData (p, f):
+    dump_MuonCluster (p, f)
+    print >> f, p.tdc(), p.adc(), p.status(),
+    print >> f, p.detectorElement().identifyHash().value(),
+    return
+
+
+def dump_RpcPrepData (p, f):
+    print >> f, p.time(), p.ambiguityFlag(),
+    print >> f, p.detectorElement().identifyHash().value(),
+    return
+
+    
+def dump_RpcCoinData (p, f):
+    dump_RpcPrepData (p, f)
+    print >> f, p.ijk(), p.threshold(), p.overlap(), p.parentCmId(), p.parentPadId(), p.parentSectorId(),
+    return
+
+
+def dump_SiWidth (p, f):
+    dump_AmgVector (p.colRow(), f)
+    dump_AmgVector (p.widthPhiRZ(), f)
+    return
+
+    
+def dump_SiCluster (p, f):
+    dump_PrepRawData (p, f)
+    print >> f, p.gangedPixel(),
+    dump_AmgVector (p.globalPosition(), f)
+    dump_SiWidth (p.width(), f)
+    print >> f, p.detectorElement().identifyHash().value(),
+    return
+
+
+def dump_PixelCluster (p, f):
+    dump_SiCluster (p, f)
+    print >> f, p.omegax(), p.omegay(), list (p.totList()),
+    print >> f, p.totalToT(), list(p.chargeList()), p.totalCharge(),
+    print >> f, p.isFake(), p.isAmbiguous(), p.LVL1A(), p.splitInfoRaw(), p.tooBigToBeSplit(),
+    return
+
+
+def dump_SCT_Cluster (p, f):
+    dump_SiCluster (p, f)
+    print >> f, p.hitsInThirdTimeBin(),
+    return
+
+
+def dump_TRT_DriftCircle (p, f):
+    dump_PrepRawData (p, f)
+    print >> f, p.getWord(),
+    print >> f, p.detectorElement().identifyHash().value(),
+    return
+
+
+def dump_InDetRawData (p, f):
+    print >> f, p.identify().getString(), p.getWord(),
+    return
+
+
+def dump_PixelRDORawData (p, f):
+    dump_InDetRawData (p, f)
+    print >> f, p.getToT(), p.getBCID(), p.getLVL1A(), p.getLVL1ID(),
+    return
+
+
+def dump_TRT_RDORawData (p, f):
+    dump_InDetRawData (p, f)
+    print >> f, p.highLevel(), p.timeOverThreshold(), p.driftTimeBin(),
+    return
+
+
+def dump_SCT_RDORawData (p, f):
+    dump_InDetRawData (p, f)
+    print >> f, p.getGroupSize(), 
+    return
+
+
+def dump_IDC (payload_dumper, p, f):
+    beg = p.begin()
+    end = p.end()
+    while beg != end:
+        coll = beg.cptr()
+        print >> f, 'IDC', beg.hashId().value(), coll.identifyHash().value(), coll.size(),
+        if hasattr (coll, 'type'):
+            print >> f, coll.type(),
+        for x in coll:
+            print >> f, '\n  ',
+            payload_dumper (x, f)
+        f.write ('\n')
+        beg.next()
+    f.write ('\n')
+    return
+
+
+@nolist
+def dump_CscPrepDataContainer (p, f):
+    dump_IDC (dump_CscPrepData, p, f)
+    return
+
+
+@nolist
+def dump_CscStripPrepDataContainer (p, f):
+    dump_IDC (dump_CscStripPrepData, p, f)
+    return
+
+
+@nolist
+def dump_RpcCoinDataContainer (p, f):
+    dump_IDC (dump_RpcCoinData, p, f)
+    return
+
+
+@nolist
+def dump_RpcPrepDataContainer (p, f):
+    dump_IDC (dump_RpcPrepData, p, f)
+    return
+
+
+@nolist
+def dump_TgcPrepDataContainer (p, f):
+    dump_IDC (dump_TgcPrepData, p, f)
+    return
+
+
+@nolist
+def dump_TgcCoinDataContainer (p, f):
+    dump_IDC (dump_TgcCoinData, p, f)
+    return
+
+
+@nolist
+def dump_MdtPrepDataContainer (p, f):
+    dump_IDC (dump_MdtPrepData, p, f)
+    return
+
+
+@nolist
+def dump_PixelClusterContainer (p, f):
+    dump_IDC (dump_PixelCluster, p, f)
+    return
+
+
+@nolist
+def dump_SCT_ClusterContainer (p, f):
+    dump_IDC (dump_SCT_Cluster, p, f)
+    return
+
+
+@nolist
+def dump_TRT_DriftCircleContainer (p, f):
+    dump_IDC (dump_TRT_DriftCircle, p, f)
+    return
+
+
+@nolist
+def dump_PixelRawDataContainer (p, f):
+    dump_IDC (dump_PixelRDORawData, p, f)
+    return
+
+
+@nolist
+def dump_TRT_RawDataContainer (p, f):
+    dump_IDC (dump_TRT_RDORawData, p, f)
+    return
+
+
+@nolist
+def dump_SCT_RawDataContainer (p, f):
+    dump_IDC (dump_SCT_RDORawData, p, f)
+    return
+
+
+def dump_CscMcData (p, f):
+    print >> f, p.energy(), p.ypos(), p.zpos(), p.charge(),
+    return
+
+
+def dump_CscSimData (p, f):
+    print >> f, p.word(),
+    for d in p.getdeposits():
+        dump_HepMcParticleLink (d.first, f)
+        dump_CscMcData (d.second, f)
+    return
+
+
+@nolist
+def dump_CscSimDataCollection (p, f):
+    for elt in p:
+        print >> f, elt.first.getString(),
+        dump_CscSimData (elt.second, f)
+        f.write ('\n')
+    return
+
+
+def dump_MuonMcData (p, f):
+    print >> f, p.firstEntry(), p.secondEntry(),
+    return
+
+
+def dump_MuonSimData (p, f):
+    print >> f, p.word(),
+    dump_AmgVector (p.globalPosition(), f)
+    for d in p.getdeposits():
+        dump_HepMcParticleLink (d.first, f)
+        dump_MuonMcData (d.second, f)
+    return
+
+
+@nolist
+def dump_MuonSimDataCollection (p, f):
+    for elt in p:
+        print >> f, elt.first.getString(),
+        dump_MuonSimData (elt.second, f)
+        f.write ('\n')
+    return
+
+
+@nolist
+def dump_PixelGangedClusterAmbiguities (p, f):
+    for elt in p:
+        dump_SiCluster (elt.first, f)
+        dump_SiCluster (elt.second, f)
+        f.write ('\n')
+    return
+
+
+def dump_TileRawData (p, f):
+    print >> f, p.identify().getString(),
+    return
+
+
+def dump_TileDigits (p, f):
+    dump_TileRawData (p, f)
+    print >> f, list(p.get_digits()),
+    return
+
+
+@nolist
+def dump_TileDigitsContainer (p, f):
+    print >> f, p.get_unit(), p.get_type(), p.get_bsflags(),
+    print >> f, p.hashFunc().max(), p.hashFunc().offset(), p.hashFunc().type(),
+    f.write ('\n')
+    beg = p.begin()
+    end = p.end()
+    while beg != end:
+        coll = beg.cptr()
+        print >> f, 'TDC', beg.hashId().value(), list(coll.getFragChipCRCWords()), list(coll.getFragChipCRCWordsHigh()), list(coll.getFragChipHeaderWords()), list(coll.getFragChipHeaderWordsHigh()), list(coll.getFragExtraWords()), coll.getFragBCID(), coll.getFragSize(),
+        for x in coll:
+            print >> f, '\n  ',
+            dump_TileDigits (x, f)
+        f.write ('\n')
+        beg.next()
+    f.write ('\n')
+    return
+
+
+def dump_TileL2 (p, f):
+    print >> f, p.identify(), p.phi(0), p.cosphi(), p.sinphi(),
+    print >> f, [p.sumE(i) for i in range(p.NsumE())],
+    print >> f, [p.eta(i) for i in range(p.NMuons())],
+    print >> f, [p.enemu0(i) for i in range(p.NMuons())],
+    print >> f, [p.enemu1(i) for i in range(p.NMuons())],
+    print >> f, [p.enemu2(i) for i in range(p.NMuons())],
+    print >> f, [p.qual(i) for i in range(p.NMuons())],
+    print >> f, [p.val(i) for i in range(p.Ndata())],
+    return
+
+
+def dump_TileTTL1 (p, f):
+    print >> f, p.identify().getString(), list(p.fsamples()),
+    return
+
+
+def dump_CMMCPHits (p, f):
+    print >> f, p.crate(), p.dataID(), p.peak(), \
+          list(p.HitsVec0()), \
+          list(p.HitsVec1()), \
+          list(p.ErrorVec0()), \
+          list(p.ErrorVec1()),
+    return
+
+
+def dump_CMMEtSums (p, f):
+    print >> f, p.crate(), p.dataID(), p.peak(), \
+          list(p.EtVec()), \
+          list(p.ExVec()), \
+          list(p.EyVec()), \
+          list(p.EtErrorVec()), \
+          list(p.ExErrorVec()), \
+          list(p.EyErrorVec()),
+    return
+
+ 
+def dump_CMMJetHits (p, f):
+   print >> f, p.crate(), p.dataID(), p.peak(), \
+          list(p.HitsVec()), \
+          list(p.ErrorVec()),
+   return
+
+
+@nolist
+def dump_CMMRoI (p, f):
+    print >> f, p.jetEtRoiWord(), \
+          p.energyRoiWord0(), \
+          p.energyRoiWord1(), \
+          p.energyRoiWord2(),
+    return
+
+
+def dump_CPMHits (p, f):
+    print >> f, p.crate(), p.module(), p.peak(), \
+          list(p.HitsVec0()), \
+          list(p.HitsVec1()),
+    return
+
+
+def dump_CPMRoI (p, f):
+    print >> f, p.roiWord(),
+    return
+
+
+def dump_CPMTower (p, f):
+    print >> f, p.eta(), p.phi(), p.peak(), \
+          list(p.emEnergyVec()), \
+          list(p.hadEnergyVec()), \
+          list(p.emErrorVec()), \
+          list(p.hadErrorVec()),
+    return
+
+
+@nolist
+def dump_CTP_RDO (p, f):
+    print >> f, p.getCTPVersionNumber(), \
+          p.getCTPVersion().getVersionNumber(), \
+          list(p.getDataWords()), \
+          p.getL1AcceptBunchPosition(), \
+          p.getTurnCounter(), \
+          p.getNumberOfBunches(), \
+          p.getNumberOfAdditionalWords(), 
+    return
+
+
+@nolist
+def dump_MuCTPI_RDO (p, f):
+    print >> f, list(p.getAllCandidateMultiplicities()), \
+          list(p.dataWord()),
+    return
+
+
+def dump_JEMEtSums (p, f):
+    print >> f, p.crate(), p.module(), p.peak(), \
+          list(p.EtVec()), \
+          list(p.ExVec()), \
+          list(p.EyVec()),
+    return
+
+
+def dump_JEMHits (p, f):
+    print >> f, p.crate(), p.module(), p.peak(), \
+          list(p.JetHitsVec()),
+    return
+
+
+def dump_JEMRoI (p, f):
+    print >> f, p.roiWord(),
+    return
+
+
+def dump_JetElement (p, f):
+    print >> f, p.eta(), p.phi(), p.key(), p.peak(),  \
+          list(p.emEnergyVec()), \
+          list(p.hadEnergyVec()), \
+          list(p.emErrorVec()), \
+          list(p.hadErrorVec()), \
+          list(p.linkErrorVec()),
+    return
+
+
+def dump_ROIBHeader (p, f):
+    print >> f, list(p.header()),
+    return
+
+
+def dump_ROIBTrailer (p, f):
+    print >> f, list(p.trailer()),
+    return
+
+
+def dump_MuCTPIRoI (p, f):
+    print >> f, p.roIWord(),
+    return
+
+
+def dump_MuCTPIResult (p, f):
+    dump_ROIBHeader (p.header(), f)
+    for r in p.roIVec():
+        dump_MuCTPIRoI (r, f)
+    dump_ROIBTrailer (p.trailer(), f)
+    return
+
+
+def dump_CTPRoI (p, f):
+    print >> f, p.roIWord(),
+    return
+
+
+def dump_CTPResult (p, f):
+    dump_ROIBHeader (p.header(), f)
+    for r in p.roIVec():
+        dump_CTPRoI (r, f)
+    dump_ROIBTrailer (p.trailer(), f)
+    return
+
+
+def dump_JetEnergyRoI (p, f):
+    print >> f, p.roIWord(),
+    return
+
+
+def dump_JetEnergyResult (p, f):
+    dump_ROIBHeader (p.header(), f)
+    for r in p.roIVec():
+        dump_JetEnergyRoI (r, f)
+    dump_ROIBTrailer (p.trailer(), f)
+    return
+
+
+def dump_EMTauRoI (p, f):
+    print >> f, p.roIWord(),
+    return
+
+
+def dump_EMTauResult (p, f):
+    dump_ROIBHeader (p.header(), f)
+    for r in p.roIVec():
+        dump_EMTauRoI (r, f)
+    dump_ROIBTrailer (p.trailer(), f)
+    return
+
+
+def dump_L1TopoRDO (p, f):
+    print >> f, p.getSourceID(), \
+          list(p.getErrors()), \
+          list(p.getDataWords()), \
+          list(p.getStatusWords()),
+    return
+
+
+def dump_L1TopoResult (p, f):
+    dump_ROIBHeader (p.header(), f)
+    dump_L1TopoRDO (p.rdo())
+    dump_ROIBTrailer (p.trailer(), f)
+    return
+
+
+@nolist
+def dump_RoIBResult (p, f):
+    print >> f, 'MuCTPI:',
+    dump_MuCTPIResult (p.muCTPIResult(), f)
+    print >> f, '\nCTP:',
+    dump_CTPResult (p.cTPResult(), f)
+    for r in p.jetEnergyResult():
+        print >> f, '\nJetEnergy:',
+        dump_JetEnergyResult(r, f)
+    for r in p.eMTauResult():
+        print >> f, '\nEMTau:',
+        dump_EMTauResult(r, f)
+    for r in p.l1TopoResult():
+        print >> f, '\nL1Topo:',
+        dump_L1TopoResult(r, f)
+    return
+
+
+def dump_TriggerTower (p, f):
+    print >> f, p.eta(), p.phi(), p.key(), p.emError(), p.hadError(), \
+          p.emPeak(), p.emADCPeak(), p.hadPeak(), p.hadADCPeak(), \
+          list(p.emLUT()), list(p.hadLUT()), \
+          list(p.emADC()), list(p.hadADC()), \
+          list(p.emBCIDvec()), list(p.hadBCIDvec()), \
+          list(p.emBCIDext()), list(p.hadBCIDext()),
+    return
+
+
+def dump_LUCID_RawData (p, f):
+    print >> f, p.getStatus(), \
+          p.getWord0(),  p.getWord1(),  p.getWord2() , p.getWord3(),  \
+          p.getWord0p(), p.getWord1p(), p.getWord2p(), p.getWord3p(), \
+          p.getWord0n(), p.getWord1n(), p.getWord2n(), p.getWord3n(),
+    return
+
+
+def dump_BCM_RDO (p, f):
+    print >> f, '[', p.getWord1(), p.getWord2(), ']',
+    return
+
+
+def dump_BCM_RDO_Collection (p, f):
+    print >> f, p.getChannel(),
+    for r in p:
+        dump_BCM_RDO(r, f)
+    return
+
+
+def dump_CSCSimHit (p, f):
+    print >> f, p.CSCid(), p.globalTime(), p.energyDeposit(),
+    dump_Threevec (p.getHitStart(), f)
+    dump_Threevec (p.getHitEnd(), f)
+    print >> f, p.particleID(), p.kineticEnergy(),
+    dump_HepMcParticleLink (p.particleLink(), f)
+    return
+
+
+def dump_MDTSimHit (p, f):
+    print >> f, p.MDTid(), p.globalTime(), p.driftRadius(),
+    dump_Threevec (p.localPosition(), f)
+    print >> f, p.stepLength(), p.energyDeposit(), p.particleEncoding(), p.kineticEnergy(),
+    dump_HepMcParticleLink (p.particleLink(), f)
+    return
+
+
+def dump_RPCSimHit (p, f):
+    print >> f, p.RPCid(), p.globalTime(),
+    dump_Threevec (p.localPosition(), f)
+    dump_Threevec (p.postLocalPosition(), f)
+    print >> f, p.stepLength(), p.energyDeposit(), p.particleEncoding(), p.kineticEnergy(),
+    dump_HepMcParticleLink (p.particleLink(), f)
+    return
+
+
+def dump_TGCSimHit (p, f):
+    print >> f, p.TGCid(), p.globalTime()
+    dump_Threevec (p.localPosition(), f)
+    dump_Threevec (p.localDireCos(), f)
+    print >> f, p.stepLength(), p.energyDeposit(), p.particleEncoding(), p.kineticEnergy(),
+    dump_HepMcParticleLink (p.particleLink(), f)
+    return
+
+
+def dump_LArDigit (p, f):
+    print >> f, p.channelID().getString(), p.gain(), list(p.samples()),
+    return
+
+
+def dump_ZdcRawData (p, f):
+    print >> f, p.identify().getString(),
+    return
+
+
+def dump_ZdcDigits (p, f):
+    dump_ZdcRawData (p, f)
+    print >> f, list(p.get_digits_gain0_delay0()),
+    print >> f, list(p.get_digits_gain0_delay1()),
+    print >> f, list(p.get_digits_gain1_delay0()),
+    print >> f, list(p.get_digits_gain1_delay1()),
+    return
+
+
+def dump_EventBookkeeper (p, f, level=0):
+    print >> f, p.getName(), p.getDescription(), p.getInputStream(), p.getOutputStream(), p.getLogic(), p.getNAcceptedEvents(), p.getNWeightedAcceptedEvents(), p.getCycle(),
+    for c in list(p.getChildrenEventBookkeepers()):
+        print >> f, '\n    ' + ('  '*level),
+        dump_EventBookkeeper (c, f, level+1)
+    return
 
 
 def format_int(x): return '%d'%x
@@ -3432,11 +4535,11 @@ def format_obj (x, name=None):
         ipos = tname.find('<')
         tname2 = tname[ipos+1:]
         if tname2.startswith('char,') or tname2.startswith ('unsigned char,'):
-            l = ', '.join ([str(ord(xx)) for xx in x])
+            l = ', '.join ([str(ord(x[i])) for i in range(len(x))])
         elif tname2.startswith('bool,') or tname2 == 'bool>':
             l = ', '.join ([str(bool(xx)) for xx in x])
         else:
-            l = ', '.join ([format_obj(xx, name) for xx in list(x)])
+            l = ', '.join ([format_obj(x[i], name) for i in range(x.size())])
         return '[' + l + ']'
     if type(x) == PyAthena.xAOD.CaloClusterBadChannelData_v1:
         return '<BadChannel: %6.3f/%6.3f/%2d: %04x>' % \
@@ -3504,7 +4607,12 @@ def dump_auxitem (x, auxid, f = sys.stdout):
 
 def dump_auxdata (x, exclude=[], f = sys.stdout):
     reg=ROOT.SG.AuxTypeRegistry.instance()
-    auxids = list(x.getAuxIDs())
+    #auxids = list(x.getAuxIDs())
+    try:
+        auxids = ROOT.PyDumper.Utils.getAuxIDVector (x)
+    except TypeError:
+        print 'xxx', x
+        raise
     auxids = [(reg.getName(id), id) for id in auxids]
     auxids.sort()
     #print >> f, auxids,
@@ -3528,8 +4636,11 @@ def dump_xAODObject(o, f):
     return
 
 
-def dump_list (l, f, dumper):
+def dump_list (l, f, dumper, nmax = None):
+    i = 0
     for x in l:
+        if nmax != None and i >= nmax: break
+        i += 1
         print >> f, '  ',
         dumper (x, f)
         f.write ('\n')
@@ -3548,10 +4659,15 @@ dumpspecs = [
     ["TruthParticleContainer",               dump_TruthParticle],
     ["ParticleJetContainer",                 dump_ParticleJet],
     ["Rec::TrackParticleContainer",          dump_TrackParticle],
+    ["DataVector<Trk::Track>",               dump_Track],
+    ["DataVector<Trk::Segment>",             dump_Segment],
     ["MissingET",                            dump_MissingET],
     ["MissingEtCalo",                        dump_MissingEtCalo],
     ["MissingEtTruth",                       dump_MissingEtTruth],
     ["CaloClusterContainer",                 dump_CaloClusters_sorted],
+    ['CaloCellLinkContainer',                dump_CaloCellLink],
+    ['CaloCellContainer',                    dump_CaloCell],
+    ['CaloClusterCellLinkContainer',         dump_CaloClusterCellLink],
     ["VxContainer",                          dump_VxCandidate],
     ["EventInfo",                            dump_EventInfo],
     ["PileUpEventInfo",                      dump_PileUpEventInfo],
@@ -3571,6 +4687,7 @@ dumpspecs = [
     ["TrigInDetTrackTruthMap",               dump_TrigInDetTrackTruthMap],
     ["MissingETSigObjContainer",             dump_MissingETSigObject],
     ["DetStatusMap",                         dump_DetStatusMap],
+    ["AtlasHitsVector<TrackRecord>",         dump_TrackRecord],
     ["AthenaHitsVector<TrackRecord>",        dump_TrackRecord],
     ["MissingETSigHypoContainer",            dump_MissingETSigHypo],
     ["JetCollection",                        dump_Jet],
@@ -3589,6 +4706,7 @@ dumpspecs = [
     ["DataVector<TrigL2Bjet>",               dump_TrigL2Bjet],
     ["DataVector<TrigL2Bphys>",              dump_TrigL2Bphys],
     ["TrigCaloClusterContainer",             dump_TrigCaloCluster],
+    ["TrigTauClusterDetailsContainer",       dump_TrigTauClusterDetails],
     ["TrigMissingET",                        dump_TrigMissingET_nolist],
     ["TrigRoiDescriptor",                    dump_TrigRoiDescriptor_nolist],
     ["TrigT2Jet",                            dump_TrigT2Jet_nolist],
@@ -3603,6 +4721,17 @@ dumpspecs = [
     ["CaloTowerContainer",                   dump_CaloTowerContainer],
     ["CaloTopoTowerContainer",               dump_CaloTopoTowerContainer],
     ["CaloCalibrationHitContainer",          dump_CaloCalibrationHit],
+    ['LArHitContainer',                      dump_LArHit],
+    ['TileHitVector',                        dump_TileHit],
+    ['AtlasHitsVector<TileHit>',             dump_TileHit],
+    ['SiHitCollection',                      dump_SiHit],
+    ['AtlasHitsVector<SiHit>',               dump_SiHit],
+    ['TRTUncompressedHitCollection',         dump_TRTUncompressedHit],
+    ['AtlasHitsVector<TRTUncompressedHit>',  dump_TRTUncompressedHit],
+    ['AtlasHitsVector<CSCSimHit>',           dump_CSCSimHit],
+    ['AtlasHitsVector<MDTSimHit>',           dump_MDTSimHit],
+    ['AtlasHitsVector<RPCSimHit>',           dump_RPCSimHit],
+    ['AtlasHitsVector<TGCSimHit>',           dump_TGCSimHit],
     ["CombinedMuonFeatureContainer",         dump_CombinedMuonFeature],
     ["MuonFeatureContainer",                 dump_MuonFeature],
     ["TrigEFBjetContainer",                  dump_TrigEFBjet],
@@ -3639,6 +4768,7 @@ dumpspecs = [
     ["Muon::ChamberT0s",                     dump_ChamberT0s],
     ["TrigMuonClusterFeatureContainer",      dump_TrigMuonClusterFeature],
     ["TrigPassBitsCollection",               dump_TrigPassBits],
+    ["TrigOperationalInfoCollection",        dump_TrigOperationalInfo],
     ["TrigVertexCountsCollection",           dump_TrigVertexCounts],
     ["TrigMuonEFIsolationContainer",         dump_TrigMuonEFIsolation],
     ["eflowObjectContainer",                 dump_eflowObjectContainer],
@@ -3646,6 +4776,46 @@ dumpspecs = [
     ["TrackParticleAssocs",                  dump_TrackParticleAssocs],
     ["ElectronMuonTopoInfoContainer",        dump_ElectronMuonTopoInfo],
     ["RecoTimingObj",                        dump_RecoTimingObj],
+    ['MuonCaloEnergyContainer',              dump_CaloEnergy],
+    ['CscSimDataCollection',                 dump_CscSimDataCollection],
+    ['MuonSimDataCollection',                dump_MuonSimDataCollection],
+    ['Muon::MuonPrepDataContainer<Muon::MuonPrepDataCollection<Muon::CscPrepData> >', dump_CscPrepDataContainer],
+    ['Muon::MuonPrepDataContainer<Muon::MuonPrepDataCollection<Muon::CscStripPrepData> >', dump_CscStripPrepDataContainer],
+    ['Muon::MuonPrepDataContainer<Muon::MuonPrepDataCollection<Muon::TgcPrepData> >', dump_TgcPrepDataContainer],
+    ['Muon::MuonPrepDataContainer<Muon::MuonPrepDataCollection<Muon::MdtPrepData> >', dump_MdtPrepDataContainer],
+    ['Muon::MuonPrepDataContainer<Muon::MuonPrepDataCollection<Muon::RpcPrepData> >', dump_RpcPrepDataContainer],
+    ['Muon::MuonCoinDataContainer<Muon::MuonCoinDataCollection<Muon::RpcCoinData> >', dump_RpcCoinDataContainer],
+    ['Muon::MuonCoinDataContainer<Muon::MuonCoinDataCollection<Muon::TgcCoinData> >', dump_TgcCoinDataContainer],
+    ['Trk::PrepRawDataContainer<Trk::PrepRawDataCollection<InDet::PixelCluster> >', dump_PixelClusterContainer],
+    ['Trk::PrepRawDataContainer<Trk::PrepRawDataCollection<InDet::SCT_Cluster> >', dump_SCT_ClusterContainer],
+    ['Trk::PrepRawDataContainer<Trk::PrepRawDataCollection<InDet::TRT_DriftCircle> >', dump_TRT_DriftCircleContainer],
+    ['InDetRawDataContainer<InDetRawDataCollection<PixelRDORawData> >', dump_PixelRawDataContainer],
+    ['InDetRawDataContainer<InDetRawDataCollection<TRT_RDORawData> >', dump_TRT_RawDataContainer],
+    ['InDetRawDataContainer<InDetRawDataCollection<SCT_RDORawData> >', dump_SCT_RawDataContainer],
+    ['multimap<const InDet::SiCluster*,const InDet::SiCluster*,InDet::compare_SiCluster>', dump_PixelGangedClusterAmbiguities],
+    ['TileDigitsContainer',                  dump_TileDigitsContainer],
+    ['TileContainer<TileL2>',                dump_TileL2],
+    ['TileContainer<TileTTL1>',              dump_TileTTL1],
+    ['DataVector<LVL1::CMMCPHits>',          dump_CMMCPHits],
+    ['DataVector<LVL1::CMMEtSums>',          dump_CMMEtSums],
+    ['DataVector<LVL1::CMMJetHits>',         dump_CMMJetHits],
+    ['LVL1::CMMRoI',                         dump_CMMRoI],
+    ['DataVector<LVL1::CPMHits>',            dump_CPMHits],
+    ['DataVector<LVL1::CPMRoI>',             dump_CPMRoI],
+    ['DataVector<LVL1::CPMTower>',           dump_CPMTower],
+    ['CTP_RDO',                              dump_CTP_RDO],
+    ['MuCTPI_RDO',                           dump_MuCTPI_RDO],
+    ['DataVector<LVL1::JEMEtSums>',          dump_JEMEtSums],
+    ['DataVector<LVL1::JEMHits>',            dump_JEMHits],
+    ['DataVector<LVL1::JEMRoI>',             dump_JEMRoI],
+    ['DataVector<LVL1::JetElement>',         dump_JetElement],
+    ['DataVector<LVL1::TriggerTower>',       dump_TriggerTower],
+    ['ROIB::RoIBResult',                     dump_RoIBResult],
+    ['LUCID_RawDataContainer',               dump_LUCID_RawData],
+    ['BCM_RDO_Container',                    dump_BCM_RDO_Collection],
+    ['LArDigitContainer',                    dump_LArDigit],
+    ['EventBookkeeperCollection',            dump_EventBookkeeper],
+    ['ZdcDigitsCollection',                  dump_ZdcDigits],
 
     ['DataVector<xAOD::BTagVertex_v1>',      dump_xAOD],
     ['xAOD::BTagVertexContainer',            dump_xAOD],
@@ -3665,6 +4835,7 @@ dumpspecs = [
     ['DataVector<xAOD::L2CombinedMuon_v1>',  dump_xAOD],
     ['xAOD::L2CombinedMuonContainer',        dump_xAOD],
     ['DataVector<xAOD::L2StandAloneMuon_v1>',dump_xAOD],
+    ['DataVector<xAOD::L2StandAloneMuon_v2>',dump_xAOD],
     ['xAOD::L2StandAloneMuonContainer',      dump_xAOD],
     ['DataVector<xAOD::MuonRoI_v1>',         dump_xAOD],
     ['xAOD::MuonRoIContainer',               dump_xAOD],
@@ -3695,6 +4866,7 @@ dumpspecs = [
     ['DataVector<xAOD::TrigPhoton_v1>',      dump_xAOD],
     ['xAOD::TrigPhotonContainer',            dump_xAOD],
     ['DataVector<xAOD::TrigRNNOutput_v1>',   dump_xAOD],
+    ['DataVector<xAOD::TrigRNNOutput_v2>',   dump_xAOD],
     ['xAOD::TrigRNNOutputContainer',         dump_xAOD],
     ['DataVector<xAOD::TrigRingerRings_v1>', dump_xAOD],
     ['xAOD::TrigRingerRingsContainer',       dump_xAOD],
@@ -3716,8 +4888,19 @@ dumpspecs = [
     ['xAOD::VertexContainer',                dump_xAOD],
     ['DataVector<xAOD::L2IsoMuon_v1>',       dump_xAOD],
     ['xAOD::L2IsoMuonContainer',             dump_xAOD],
+    ['DataVector<xAOD::TrigT2ZdcSignals_v1>',dump_xAOD],
+    ['xAOD::TrigT2ZdcSignalsContainer',      dump_xAOD],
+    ['DataVector<xAOD::HIEventShape_v1>',    dump_xAOD],
+    ['DataVector<xAOD::HIEventShape_v2>',    dump_xAOD],
+    ['xAOD::HIEventShapeContainer',          dump_xAOD],
+    ['DataVector<xAOD::DiTauJet_v1>',        dump_xAOD],
+    ['xAOD::DiTauJetContainer',              dump_xAOD],
+    ['DataVector<xAOD::TrigPassBits_v1>',    dump_xAOD],
+    ['xAOD::TrigPassBitsContainer',          dump_xAOD],
     ['DataVector<xAOD::TrackParticleClusterAssociation_v1>', dump_xAOD],
     ['xAOD::TrackParticleClusterAssociationContainer', dump_xAOD],
+    ['DataVector<xAOD::TruthPileupEvent_v1>',dump_xAOD],
+    ['xAOD::TruthPileupEventContainer_v1',   dump_xAOD],
     ['xAOD::MissingETContainer_v1',          dump_xAOD],
     ['xAOD::MissingETContainer',             dump_xAOD],
     ['xAOD::MissingETComponentMap_v1',       dump_xAOD],
@@ -3741,11 +4924,12 @@ dumpspecs = [
 
 ## user-friendly interface ----------------------------------------------------
 import sys
-def get_dumper_fct(klass, ofile=sys.stdout):
+def get_dumper_fct(klass, ofile=sys.stdout, nmax = None):
     """helper function to automatically retrieve the suitable dumper function
     given the name of a class or the class-type
      @param `klass' a string containing the name of a C++ type or a type
      @param `ofile' a file-like instance where to dump the objects' content
+     @param `nmax` maximum number of container elements to dump
     """
     if isinstance(klass, type):
         # ok
@@ -3764,8 +4948,11 @@ def get_dumper_fct(klass, ofile=sys.stdout):
     nolist = hasattr (fct, 'nolist') and fct.nolist
     from functools import partial as _partial
     if nolist:
-        dumper = _partial(fct, f=ofile)
+        if fct.nmax:
+            dumper = _partial(fct, f=ofile, nmax=nmax)
+        else:
+            dumper = _partial(fct, f=ofile)
     else:
-        dumper = _partial(dump_list, f=ofile, dumper=fct)
+        dumper = _partial(dump_list, f=ofile, dumper=fct, nmax=nmax)
     return dumper
 
