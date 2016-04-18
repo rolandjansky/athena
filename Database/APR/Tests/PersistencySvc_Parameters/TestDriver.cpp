@@ -59,7 +59,7 @@ pool::TestDriver::write()
   if ( ! psfactory ) {
     throw std::runtime_error( "Could not retrieve an IPersistencySvc factory" );
   }
-  std::auto_ptr< pool::IPersistencySvc > persistencySvc( psfactory->create( "PersistencySvc", catalog ) );
+  std::unique_ptr< pool::IPersistencySvc > persistencySvc( psfactory->create( "PersistencySvc", catalog ) );
   if ( ! persistencySvc.get() ) {
     throw std::runtime_error( "Could not create a PersistencySvc" );
   }
@@ -118,7 +118,7 @@ pool::TestDriver::read()
   if ( ! psfactory ) {
     throw std::runtime_error( "Could not retrieve an IPersistencySvc factory" );
   }
-  std::auto_ptr< pool::IPersistencySvc > persistencySvc( psfactory->create( "PersistencySvc", catalog ) );
+  std::unique_ptr< pool::IPersistencySvc > persistencySvc( psfactory->create( "PersistencySvc", catalog ) );
   if ( ! persistencySvc.get() ) {
     throw std::runtime_error( "Could not create a PersistencySvc" );
   }

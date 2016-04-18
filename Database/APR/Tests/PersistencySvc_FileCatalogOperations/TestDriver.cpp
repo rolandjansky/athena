@@ -10,6 +10,7 @@
 #include <sstream>
 #include <memory>
 
+#include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 
 #include "StorageSvc/DbType.h"
@@ -18,7 +19,6 @@
 #include "FileCatalog/IFCAction.h"
 #include "FileCatalog/URIParser.h"
 
-#include "PersistencySvc/Placement.h"
 #include "PersistencySvc/ISession.h"
 #include "PersistencySvc/ITransaction.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
@@ -69,7 +69,7 @@ pool::TestDriver::write()
   if ( ! psfactory ) {
     throw std::runtime_error( "Could not retrieve an IPersistencySvc factory" );
   }
-  std::auto_ptr< pool::IPersistencySvc > persistencySvc( psfactory->create( "PersistencySvc", catalog ) );
+  std::unique_ptr< pool::IPersistencySvc > persistencySvc( psfactory->create( "PersistencySvc", catalog ) );
   if ( ! persistencySvc.get() ) {
     throw std::runtime_error( "Could not create a PersistencySvc" );
   }
@@ -91,8 +91,8 @@ pool::TestDriver::write()
   RootType class_SimpleTestClass( "SimpleTestClass" );
 
   // Defining the placement objects
-  pool::Placement placementHint_SimpleTestClass;
-  placementHint_SimpleTestClass.setDatabase( m_fileName1, pool::DatabaseSpecification::PFN );
+  Placement placementHint_SimpleTestClass;
+  placementHint_SimpleTestClass.setFileName( m_fileName1 );
   placementHint_SimpleTestClass.setContainerName( "SimpleTestClass_Container" );
   placementHint_SimpleTestClass.setTechnology( pool::ROOTKEY_StorageType.type() );
 
@@ -150,7 +150,7 @@ pool::TestDriver::read()
   if ( ! psfactory ) {
     throw std::runtime_error( "Could not retrieve an IPersistencySvc factory" );
   }
-  std::auto_ptr< pool::IPersistencySvc > persistencySvc( psfactory->create( "PersistencySvc", catalog ) );
+  std::unique_ptr< pool::IPersistencySvc > persistencySvc( psfactory->create( "PersistencySvc", catalog ) );
   if ( ! persistencySvc.get() ) {
     throw std::runtime_error( "Could not create a PersistencySvc" );
   }
