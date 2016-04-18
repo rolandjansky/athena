@@ -9,8 +9,8 @@
 // 
 //-----------------------------------------------------------------------------
 
-#ifndef SEGMENT_COLLCETION_CNV_H
-#define SEGMENT_COLLECTION_CNV_H
+#ifndef TRKEVENTATHENAPOOL_SEGMENTCOLLECTIONCNV_H
+#define TRKEVENTATHENAPOOL_SEGMENTCOLLECTIONCNV_H
 
 // Hack so we can access the private data. EJWM
 #define protected public
@@ -29,13 +29,8 @@
 //-----------------------------------------------------------------------------
 // Base class definition
 //-----------------------------------------------------------------------------
-// #ifdef __IDENTIFIER_64BIT__
-    typedef Trk::SegmentCollection_tlp3 SegmentCollection_PERS;
-    typedef SegmentCollectionCnv_tlp3 SegmentCollectionCNV_PERS;
-// #else
-//     typedef Trk::SegmentCollection_tlp1 SegmentCollection_PERS;
-//     typedef SegmentCollectionCnv_tlp1 SegmentCollectionCNV_PERS;
-// #endif
+typedef Trk::SegmentCollection_tlp3 SegmentCollection_PERS;
+typedef SegmentCollectionCnv_tlp3 SegmentCollectionCNV_PERS;
 
 typedef T_AthenaPoolCustomCnv<Trk::SegmentCollection, SegmentCollection_PERS> SegmentCollectionCnvBase;
 
@@ -69,4 +64,4 @@ private:
   SegmentCollectionCNV_PERS m_TPConverterForPER;
 };
 
-#endif // SEGMENT_COLLCETION_CNV_H
+#endif // TRKEVENTATHENAPOOL_SEGMENTCOLLECTIONCNV_H

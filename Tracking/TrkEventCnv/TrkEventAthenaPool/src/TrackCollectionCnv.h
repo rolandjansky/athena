@@ -9,8 +9,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifndef TRACK_COLLCETION_CNV_H
-#define TRACK_COLLECTION_CNV_H
+#ifndef TRKEVENTATHENAPOOL_TRACKCOLLECTIONCNV_H
+#define TRKEVENTATHENAPOOL_TRACKCOLLECTIONCNV_H
 
 // Hack so we can access the private data. EJWM
 #define protected public
@@ -35,13 +35,8 @@
 // Base class definition - defined which is the to-be-used persistent version
 //-----------------------------------------------------------------------------
 
-// #ifdef __IDENTIFIER_64BIT__
-    typedef Trk::TrackCollection_tlp5   TrackCollection_PERS;
-    typedef TrackCollectionCnv_tlp5   TrackCollectionCNV_PERS;
-// #else
-//     typedef Trk::TrackCollection_tlp3   TrackCollection_PERS;
-//     typedef TrackCollectionCnv_tlp3   TrackCollectionCNV_PERS;
-// #endif
+typedef Trk::TrackCollection_tlp5   TrackCollection_PERS;
+typedef TrackCollectionCnv_tlp5   TrackCollectionCNV_PERS;
 
 typedef T_AthenaPoolCustomCnv<TrackCollection, TrackCollection_PERS>  TrackCollectionCnvBase;
 
@@ -79,4 +74,4 @@ private:
   TrackCollectionCNV_PERS   m_TPConverterForPER;
 };
 
-#endif // TRACK_COLLECTION_CNV_H
+#endif // TRKEVENTATHENAPOOL_TRACKCOLLECTIONCNV_H

@@ -10,6 +10,7 @@
 //-----------------------------------------------------------------------------
 
 
+#include "TrkParticleBase/TrackParticleBase.h"
 #include "V0ContainerCnv.h"
 
 #include "TrkEventTPCnv/V0ContainerCnv_tlp1.h"
@@ -96,7 +97,7 @@ V0Container * V0ContainerCnv::createTransient()
        // std::cout << "V0ContainerCnv::createTransient: do new TP p2" << std::endl;
        /*
      usingTPCnvForReading( m_TPConverter );
-     std::auto_ptr< V0Container_PERS >  p_coll( poolReadObject< V0Container_PERS >() );
+     std::unique_ptr< V0Container_PERS >  p_coll( poolReadObject< V0Container_PERS >() );
        */
 
   /* 
@@ -129,7 +130,7 @@ V0Container * V0ContainerCnv::createTransient()
      // std::cout << "V0ContainerCnv::createTransient: do TP p1" << std::endl;
      /*
    usingTPCnvForReading( m_TPConverter );
-   std::auto_ptr< V0Container_PERS >  p_coll( poolReadObject< V0Container_PERS >() );
+   std::unique_ptr< V0Container_PERS >  p_coll( poolReadObject< V0Container_PERS >() );
      */
  
 /* 
@@ -169,11 +170,11 @@ V0Container * V0ContainerCnv::createTransient()
 }//end of create transient method
 
 void V0ContainerCnv::updateLog(){  
-     DataObject* dObj = getDataObject();
-     if (dObj==0) return; // Can't do much if this fails.
-     const std::string  key = (dObj->name());
+    //const DataObject* dObj = getDataObject();
+    //if (dObj==0) return; // Can't do much if this fails.
+  //const std::string  key = (dObj->name());
  
-     m_log.m_source="V0ContainerCnv: "+key; // A hack - relies on getting access to private data of MsgStream via #define trick. EJWM.
+     //m_log.m_source="V0ContainerCnv: "+key; // A hack - relies on getting access to private data of MsgStream via #define trick. EJWM.
 }
 
 

@@ -96,7 +96,7 @@ VxContainer * VxContainerCnv::createTransient()
   if( compareClassGuid( p2_guid ) ) {
   //  std::cout << "VxContainerCnv::createTransient: do new TP 2" << std::endl;  
      usingTPCnvForReading( m_TPConverter );
-     std::auto_ptr< VxContainer_PERS >  p_coll( poolReadObject< VxContainer_PERS >() );
+     std::unique_ptr< VxContainer_PERS >  p_coll( poolReadObject< VxContainer_PERS >() );
 
   /*  
      std::cout<<"READING: Dumping the contents of the VxContainer "<<std::endl;
@@ -125,12 +125,12 @@ VxContainer * VxContainerCnv::createTransient()
  //       std::cout << "VxContainerCnv::createTransient: do TP 1" << std::endl;  
         
         // usingTPCnvForReading( m_TPConverter );
-        // std::auto_ptr< VxContainer_PERS >  p_coll( poolReadObject< VxContainer_PERS >() );
+        // std::unique_ptr< VxContainer_PERS >  p_coll( poolReadObject< VxContainer_PERS >() );
         // p_collection = m_TPConverter.createTransient( p_coll.get(), m_log );
         
         VxContainerCnv_tlp1 tmpTPCnv;
         usingTPCnvForReading( tmpTPCnv );
-        std::auto_ptr< Trk::VxContainer_tlp1 >  p_coll( poolReadObject< Trk::VxContainer_tlp1 >() );
+        std::unique_ptr< Trk::VxContainer_tlp1 >  p_coll( poolReadObject< Trk::VxContainer_tlp1 >() );
         p_collection = tmpTPCnv.createTransient( p_coll.get(), m_log );
         
     //    std::cout << "VxContainerCnv::createTransient: done! " << std::endl;
@@ -166,7 +166,7 @@ VxContainer * VxContainerCnv::createTransient()
 }//end of create transient method
 
 void VxContainerCnv::updateLog(){  
-     DataObject* dObj = getDataObject();
+     const DataObject* dObj = getDataObject();
      if (dObj==0) return; // Can't do much if this fails.
      const std::string  key = (dObj->name());
  
