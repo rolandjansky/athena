@@ -15,10 +15,11 @@ use AthenaPoolServices	AthenaPoolServices-*     Database/AthenaPOOL
 
 
 private
+use GaudiInterface       GaudiInterface-*           External
+use AtlasBoost           AtlasBoost-*               External
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
 use CLIDSvc              CLIDSvc-*                  Control
 use DataModel            DataModel-*                Control
-use GaudiInterface       GaudiInterface-*           External
 use Identifier 		 Identifier-* 		    DetectorDescription 
 use MuonEventTPCnv       MuonEventTPCnv-*           MuonSpectrometer/MuonCnv
 use MuonIdHelpers        MuonIdHelpers-*            MuonSpectrometer
@@ -82,3 +83,21 @@ apply_pattern poolcnv typesWithNamespace="Muon::CscPrepDataContainer Muon::CscSt
 
 
 apply_pattern declare_joboptions files="*.py"
+
+
+private
+use TestTools            TestTools-*                AtlasTest -no_auto_imports
+
+
+apply_pattern athenarun_test \
+   name="MuonEventTPCnv_17.0.0" \
+   options="MuonEventAthenaPool/MuonEventTPCnv_17.0.0_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh MuonEventTPCnv_17.0.0" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh MuonEventTPCnv_17.0.0"
+
+apply_pattern athenarun_test \
+   name="MuonEventTPCnv_20.1.7.2" \
+   options="MuonEventAthenaPool/MuonEventTPCnv_20.1.7.2_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh MuonEventTPCnv_20.1.7.2" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh MuonEventTPCnv_20.1.7.2"
+

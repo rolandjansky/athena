@@ -6,13 +6,6 @@
 #define MUONEVENTATHENAPOOL_RpcCoinDataContainerCNV_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-// #define private public
-// #define protected public
-// #include "MuonTrigCoin/MdtPrepDataCollection.h"
-// #include "MuonPrepRawData/RpcCoinDataContainer.h"
-// #undef private
-// #undef protected
-
 #include "MuonEventTPCnv/MuonTrigCoinData/RpcCoinDataContainerCnv_p1.h"
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
 

@@ -57,7 +57,7 @@ Muon::MMPrepDataContainer* MMPrepDataContainerCnv::createTransient() {
     Muon::MMPrepDataContainer* p_collection(0);
     if( compareClassGuid(p1_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endreq;
-        std::auto_ptr< Muon::MMPrepDataContainer_p1 >  p_coll( poolReadObject< Muon::MMPrepDataContainer_p1 >() );
+        std::unique_ptr< Muon::MMPrepDataContainer_p1 >  p_coll( poolReadObject< Muon::MMPrepDataContainer_p1 >() );
         p_collection = m_converter_p1.createTransient( p_coll.get(), log );
     } else {
         throw std::runtime_error("Unsupported persistent version of MMPrepDataContainer.");

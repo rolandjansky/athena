@@ -57,7 +57,7 @@ Muon::sTgcPrepDataContainer* sTgcPrepDataContainerCnv::createTransient() {
     Muon::sTgcPrepDataContainer* p_collection(0);
     if( compareClassGuid(p1_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endreq;
-        std::auto_ptr< Muon::sTgcPrepDataContainer_p1 >  p_coll( poolReadObject< Muon::sTgcPrepDataContainer_p1 >() );
+        std::unique_ptr< Muon::sTgcPrepDataContainer_p1 >  p_coll( poolReadObject< Muon::sTgcPrepDataContainer_p1 >() );
         p_collection = m_converter_p1.createTransient( p_coll.get(), log );
     } else {
         throw std::runtime_error("Unsupported persistent version of sTgcPrepDataContainer");

@@ -5,12 +5,7 @@
 #ifndef MUON_CSCCRAWDATACOLLECTIONCNV_P3_H
 #define MUON_CSCCRAWDATACOLLECTIONCNV_P3_H
 
-#define private public
-#define protected public
 #include "MuonRDO/CscRawDataCollection.h"
-#undef private
-#undef protected
-
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "MuonEventAthenaPool/CscRawDataCollection_p3.h"
 

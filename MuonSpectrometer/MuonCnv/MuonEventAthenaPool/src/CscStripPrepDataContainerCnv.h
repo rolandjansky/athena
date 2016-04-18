@@ -7,13 +7,8 @@
 
 //#include "AthenaPoolCnvSvc/T_AthenaPoolCustCnv.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#define private public
-#define protected public
 #include "MuonPrepRawData/CscStripPrepDataCollection.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
-#undef private
-#undef protected
-
 #include "MuonEventTPCnv/CscStripPrepDataContainerCnv_tlp1.h"
 
 class StoreGateSvc;

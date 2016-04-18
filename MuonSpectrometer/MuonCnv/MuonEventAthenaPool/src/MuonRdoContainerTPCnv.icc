@@ -56,7 +56,7 @@ MuonRdoContainerTPCnv<T,P, CONV >
 {
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Using old RDO container converter"  << endreq;
 
-   std::auto_ptr<T> rdoC( new T );
+   std::unique_ptr<T> rdoC( new T );
    //COLL_vector	*col_vect = (COLL_vector*) colV;
    typename COLL_vector::const_iterator it_Coll  = col_vect->begin();
    typename COLL_vector::const_iterator it_CollE = col_vect->end();

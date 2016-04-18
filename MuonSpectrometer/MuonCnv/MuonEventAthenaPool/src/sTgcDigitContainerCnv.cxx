@@ -51,7 +51,7 @@ sTgcDigitContainer* sTgcDigitContainerCnv::createTransient() {
     sTgcDigitContainer* p_collection(0);
     if( compareClassGuid(p1_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endreq;
-        std::auto_ptr< Muon::STGC_DigitContainer_p1 >  p_coll( poolReadObject< Muon::STGC_DigitContainer_p1 >() );
+        std::unique_ptr< Muon::STGC_DigitContainer_p1 >  p_coll( poolReadObject< Muon::STGC_DigitContainer_p1 >() );
         p_collection = m_converter.createTransient( p_coll.get(), log );
     } else {
         throw std::runtime_error("Unsupported persistent version of STGC_DigitContainer");

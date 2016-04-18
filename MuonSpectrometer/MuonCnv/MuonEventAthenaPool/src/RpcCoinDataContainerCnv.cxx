@@ -51,7 +51,7 @@ Muon::RpcCoinDataContainer* RpcCoinDataContainerCnv::createTransient() {
     Muon::RpcCoinDataContainer* p_collection(0);
     if( compareClassGuid(p1_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endreq;
-        std::auto_ptr< Muon::RpcCoinDataContainerCnv_p1::PERS >   col_vect( poolReadObject< Muon::RpcCoinDataContainerCnv_p1::PERS >() );
+        std::unique_ptr< Muon::RpcCoinDataContainerCnv_p1::PERS >   col_vect( poolReadObject< Muon::RpcCoinDataContainerCnv_p1::PERS >() );
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Delegate TP converter " << endreq;
         p_collection = m_converter_p1.createTransient( col_vect.get(), log );
     } else {

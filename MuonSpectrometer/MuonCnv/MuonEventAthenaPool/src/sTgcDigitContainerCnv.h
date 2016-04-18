@@ -7,12 +7,8 @@
 
 //#include "AthenaPoolCnvSvc/T_AthenaPoolCustCnv.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#define private public
-#define protected public
 #include "MuonDigitContainer/sTgcDigitCollection.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
-#undef private
-#undef protected
 
 #include "MuonEventTPCnv/MuonDigitContainer/STGC_DigitContainerCnv_p1.h"
 // the latest persistent representation type of DataCollection:

@@ -38,13 +38,13 @@ MuonSimDataCollection* MuonSimDataCollectionCnv::createTransient() {
     MuonSimDataCollection* p_collection(0);
     if( compareClassGuid(p1_guid) ) {
       ATH_MSG_DEBUG("createTransient(): T/P version 2 detected");
-      std::auto_ptr< MuonSimDataCollection_PERS >   col_vect( this->poolReadObject< MuonSimDataCollection_PERS >() );
+      std::unique_ptr< MuonSimDataCollection_PERS >   col_vect( this->poolReadObject< MuonSimDataCollection_PERS >() );
       p_collection = m_TPConverter_p1.createTransient( col_vect.get(), log );
     }
   //----------------------------------------------------------------
     else if( compareClassGuid(p0_guid) ){
        if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): Old input file"<<std::endl;
-       std::auto_ptr< MuonSimDataCollection >   col_vect( poolReadObject< MuonSimDataCollection >() );
+       std::unique_ptr< MuonSimDataCollection >   col_vect( poolReadObject< MuonSimDataCollection >() );
        p_collection = col_vect.release();
     }
   //----------------------------------------------------------------

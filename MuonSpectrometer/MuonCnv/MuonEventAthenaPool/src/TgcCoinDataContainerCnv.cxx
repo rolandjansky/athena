@@ -102,7 +102,7 @@ Muon::TgcCoinDataContainer* TgcCoinDataContainerCnv::createTransient() {
     else if( compareClassGuid(p0_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): Old input file"<<std::endl;
         throw std::runtime_error("Not currently supporting reading non TP-split CoinDatas");
-        //std::auto_ptr< TgcCoinDataContainer_p0 >   col_vect( poolReadObject< TgcCoinDataContainer_p0 >() );
+        //std::unique_ptr< TgcCoinDataContainer_p0 >   col_vect( poolReadObject< TgcCoinDataContainer_p0 >() );
         //p_collection = m_converter_p0.createTransient( col_vect.get(), log );
     }
     else {
