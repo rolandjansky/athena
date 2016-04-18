@@ -1,152 +1,16 @@
-from TriggerMenuPython.TriggerPythonConfig import *
 
-menu = TriggerPythonConfig('pureSteering_menu.xml', 'l1.xml' )
+# L1 menu
+include('TrigSteering/pureSteering_l1menu.py')
 
+# HLT menu
 
-# L1 necessary
-
-# menu.addEMThreshold("TM10", value="10", emiso='10', hadiso='11' )
-# TE, XE
-thr_te10 = menu.registerLvl1Threshold('TE10', 'TE', mapping=0, slot='SLOT8', connector='CON2')\
-           .addEnergyThresholdValue(10, -49, 49, 0, 64)
-
-
-# menu.addItem('EM15i', prescale='1', ctpid='2')
-# menu.addEMThreshold('EM15i', value='15', emiso='10', hadiso='11' )
-
-thr_em15i = menu.registerLvl1Threshold(name='EM15i', type='EM', mapping=3, slot='SLOT7', connector='CON1')\
-            .addEMThresholdValue(13, -49, 49, 0, 64, 4, 3, 2)
-
-item_em15i = LVL1MenuItem('L1_EM15i', ctpid=0x3).setLogic(thr_em15i.condition(1))
-# item = LVL1MenuItem('2EM15i', prescale='1', ctpid='2')
-# item.addAndedCondition(name='EM15i', multi='2')
-# menu.addLVL1Item(item)
-item_2em15i = LVL1MenuItem('2EM15i', ctpid=0xc).setLogic(thr_em15i.condition(2))
-
-
-# menu.addItem('EM25i',  prescale='50', ctpid='3', priority='HIGH')
-# menu.addEMThreshold('EM25i', value='20', emiso='10', etamin='-20', etamax='20' )
-
-thr_em25i = menu.registerLvl1Threshold(name='EM25i', type='EM', mapping=6, slot='SLOT7', connector='CON1')\
-            .addEMThresholdValue(25, -49, 49, 0, 64, 4, 3, 2)
-item_em25i = LVL1MenuItem('EM25i', ctpid=0x6).setLogic(thr_em25i.condition(1))
-
-# menu.addItem('MU06', prescale='0', ctpid='122')
-# menu.addMuonThreshold('MU06', value='6')
-
-thr_mu6  = menu.registerLvl1Threshold(name='MU06', type='MUON', mapping=1, slot='SLOT9', connector='CON0')\
-           .addMuonThresholdValue(5, -49, 49, 0, 64)
-item_mu6  = LVL1MenuItem('MU06',  ctpid=0x21).setLogic(thr_mu6.condition(1))
-
-
-#item = LVL1MenuItem('2MU06', prescale='1', ctpid='2')
-#item.addAndedCondition(name='MU06', multi='2')
-#menu.addLVL1Item(item)
-
-item_2mu6  = LVL1MenuItem('2MU06',  ctpid=0x27).setLogic(thr_mu6.condition(2))
-
-
-#menu.addItem('MU20', prescale='0', ctpid='123')
-#menu.addMuonThreshold('MU20', value='21')
-
-thr_mu20 = menu.registerLvl1Threshold(name='MU20', type='MUON', mapping=4, slot='SLOT9', connector='CON0')\
-           .addMuonThresholdValue(20, -49, 49, 0, 64)
-item_mu20 = LVL1MenuItem('MU20', ctpid=0x24).setLogic(thr_mu20.condition(1))
-
-# menu.addItem('J200', prescale='0', ctpid='56')
-# menu.addJetThreshold('J200', value='200')
-
-
-thr_j200 = menu.registerLvl1Threshold('J200', 'JET', mapping=7, slot='SLOT8', connector='CON0')\
-                   .addJetThresholdValue(100, -49, 49, 0, 64, 8)
-
-item_j200 = LVL1MenuItem('J200', ctpid=0x67, group='1', prescale=1).setLogic(thr_j200.condition(1))
-#menu.addItem('J90', prescale='20', ctpid='56')
-#menu.addJetThreshold('J90', value='90')
-
-thr_j90 = menu.registerLvl1Threshold('J90', 'JET', mapping=6, slot='SLOT8', connector='CON0')\
-          .addJetThresholdValue(90, -49, 49, 0, 64, 8)
-
-#item = LVL1MenuItem('3J90', prescale='1', ctpid='2')
-#item.addAndedCondition(name='MU06', multi='3')
-#menu.addLVL1Item(item)
-
-item_3j90 = LVL1MenuItem('3J90', ctpid=0x6a, group='1', prescale=1).setLogic(thr_j90.condition(3))
-
-
-#menu.addItem('J65', prescale='30', ctpid='56')
-#menu.addJetThreshold('J65', value='60')
-
-thr_j60 = menu.registerLvl1Threshold('J60', 'JET', mapping=5, slot='SLOT8', connector='CON0')\
-          .addJetThresholdValue(60, -49, 49, 0, 64, 8)
-item_j60  = LVL1MenuItem('J60',  ctpid=0x65, group='1', prescale=50).setLogic(thr_j60.condition(1))
-
-
-#menu.addItem('J50', prescale='0', ctpid='56')
-#menu.addJetThreshold('J50', value='40')
-
-thr_j50 = menu.registerLvl1Threshold('J50', 'JET', mapping=4, slot='SLOT8', connector='CON0')\
-          .addJetThresholdValue(50, -49, 49, 0, 64, 8)
-item_j50  = LVL1MenuItem('J50',  ctpid=0x64, group='1', prescale=500).setLogic(thr_j50.condition(1))
-
-#menu.addItem('TAU25', prescale='0', ctpid='23')
-#menu.addTauThreshold('TAU25', value='20')
-
-thr_tau25 = menu.registerLvl1Threshold('HA25', 'TAU', mapping=5, slot='SLOT7', connector='CON2')\
-            .addTauThresholdValue(25, -49, 49, 0, 64, IsolationOff, IsolationOff, IsolationOff)
-
-item_tau25 = LVL1MenuItem('TAU25', ctpid=0x45).setLogic(thr_tau25.condition(1))
-
-# item = LVL1MenuItem('TAU25+XE30', prescale='1', ctpid='2')
-# item.addAndedCondition(name='TAU25', multi='1')
-# item.addAndedCondition(name='XE30', multi='1')
-# menu.addLVL1Item(item)
-
-#menu.addItem('XE30', prescale='0', ctpid='23')
-#menu.addEtMissThreshold('XE30', value='20')
-
-
-thr_xe30 = menu.registerLvl1Threshold('XE30', 'XE', mapping=5, slot='SLOT8', connector='CON2')\
-           .addEnergyThresholdValue(30, -49, 49, 0, 64)
-
-item_xe30 = LVL1MenuItem('XE30', ctpid=0x83, group='1', prescale=256).setLogic(thr_xe30.condition(1))
-
-item_tau25_xe30 = LVL1MenuItem('TAU25+XE30', ctpid=0xd8)\
-                  .setLogic(thr_tau25.condition(1)&thr_xe30.condition(1))
-
-
-
-#item = LVL1MenuItem('J50+XE60', prescale='1', ctpid='2')
-#item.addAndedCondition(name='J50', multi='1')
-#item.addAndedCondition(name='XE60', multi='1')
-#menu.addLVL1Item(item)
-
-thr_xe60 = menu.registerLvl1Threshold('XE60', 'XE', mapping=6, slot='SLOT8', connector='CON2')\
-           .addEnergyThresholdValue(60, -49, 49, 0, 64)
-
-thr_tau50 = menu.registerLvl1Threshold('HA50', 'TAU', mapping=7, slot='SLOT7', connector='CON2')\
-            .addTauThresholdValue(50, -49, 49, 0, 64, IsolationOff, IsolationOff, IsolationOff)
-
-item_j50_xe60 = LVL1MenuItem('J50+XE60', ctpid=0xd9)\
-                   .setLogic(thr_j50.condition(1)&thr_xe60.condition(1))
-
-#menu.addItem('XE60', prescale='0', ctpid='23')
-#menu.addEtMissThreshold('XE60', value='50')
-
-item_xe60 = LVL1MenuItem('XE60', ctpid=0x86, group='1', prescale=1).setLogic(thr_xe60.condition(1))
-
-
-for a in dir():
-    if a.startswith('item_'):
-        eval("menu.addLvl1Item( %s)" % (a))
-
-
-
-
-
-
+from TriggerMenu.menu.TriggerPythonConfig import TriggerPythonConfig
+from TriggerMenu.menu.HLTObjects import HLTChain
 
 from TrigSteeringTest.TrigSteeringTestConf import PESA__dummyAlgo, PESA__dummyHypo, PESA__newDummyAlgo2To1, PESA__newDummyAlgoAllTEs, PESA__dummyAlgoHLTErrorCode, PESA__dummyMonitoredFex, PESA__dummyAlgoForCalibration, dummyFexWithRobReqPrep
+
+menu = TriggerPythonConfig('pureSteering_menu.xml')
+
 
 # L2
 # examples below show all the posibilities of configuring Sequences
@@ -353,17 +217,23 @@ menu.addSequence(["Z'", "Z'"], HtoZZ_EF , "Higgs'" )
 
 # chains
 
-# L2
-chain = HLTChain( chain_name="L2_e25", chain_counter="1", lower_chain_name="EM25i", level="L2", prescale="1", pass_through="1")
-chain.addHLTSignature( "em25i" ).addHLTSignature( "em25i'" )
-chain.addTriggerTypeBit('4')
-chain.addStreamTag('electrons', prescale='1', obeyLB="0")
-chain.addStreamTag('IDCalibration', prescale='1', obeyLB="0", type="calibration")
-chain.addGroup("electrons")
+# HLT
+chain1 = HLTChain( chain_name="HLT_e25", chain_counter="1", lower_chain_name="L1_EM25i", level="HLT", prescale="1", pass_through="1")
+chain1.addHLTSignature( "em25i" ).addHLTSignature( "em25i'" )
+chain1.addTriggerTypeBit('4')
+chain1.addStreamTag('electrons', prescale='1')
+chain1.addStreamTag('IDCalibration', prescale='1', type="calibration")
+chain1.addGroup("electrons")
+menu.addHLTChain(chain1)
 
+chain = HLTChain( chain_name="HLT_g25", chain_counter="55", lower_chain_name="L1_EM25i", level="HLT", prescale="1", pass_through="0")
+chain.addHLTSignature( "g25" ).addHLTSignature( "g25'" )
+chain.addTriggerTypeBit('5')
+chain.addStreamTag('electrons', prescale='1')
+chain.addGroup("electrons")
 menu.addHLTChain(chain)
 
-chain = HLTChain( chain_name="mu20_L2", chain_counter="2", lower_chain_name="MU20", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_mu20", chain_counter="2", lower_chain_name="L1_MU20", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( "mu20" )
 chain.addHLTSignature( "mu20'" )
 chain.addTriggerTypeBit('10')
@@ -371,11 +241,7 @@ chain.addStreamTag('muons', prescale='1')
 chain.addGroup("muons")
 menu.addHLTChain(chain)
 
-
-
-
-
-chain = HLTChain( chain_name="2em15i_L2", chain_counter="3", lower_chain_name="2EM15i", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_2em15i", chain_counter="3", lower_chain_name="L1_2EM15i", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( [ "em15i", "em15i" ] )
 chain.addHLTSignature( [ "em15i'", "em15i'"] )
 chain.addTriggerTypeBit('3')
@@ -383,21 +249,17 @@ chain.addStreamTag('electrons', prescale='1')
 chain.addGroup("electrons")
 menu.addHLTChain(chain)
 
-
-
-chain = HLTChain( chain_name="2mu6_L2", chain_counter="4", lower_chain_name="2MU06", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_2mu6", chain_counter="4", lower_chain_name="L1_2MU06", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( "mu6" )
 chain.addHLTSignature( "mu6'" )
+chain.addHLTSignature( [ "muon6", "muon6" ] )
+chain.addHLTSignature( [ "muon6'", "muon6'" ] )
 chain.addTriggerTypeBit('9')
 chain.addStreamTag('muons', prescale='1')
 chain.addGroup("mons")
 menu.addHLTChain(chain)
 
-
-
-
-
-chain = HLTChain( chain_name="j200_L2", chain_counter="5", lower_chain_name="J200", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_j200", chain_counter="5", lower_chain_name="L1_J200", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( "j200" )
 chain.addHLTSignature( "j200'" )
 chain.addTriggerTypeBit('24')
@@ -405,29 +267,27 @@ chain.addStreamTag('jet', prescale='1')
 chain.addGroup("jets")
 menu.addHLTChain(chain)
 
-
-chain = HLTChain( chain_name="3j90_L2", chain_counter="6", lower_chain_name="3J90", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_3j90", chain_counter="6", lower_chain_name="L1_3J90", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( ["j90", "j90", "j90"] )
 chain.addHLTSignature( [ "j90'", "j90'", "j90'" ] )
+chain.addHLTSignature( [ "jet90", "jet90", "jet90" ] )
+chain.addHLTSignature( [ "jet90'", "jet90'", "jet90'" ] )
 chain.addTriggerTypeBit('28')
 chain.addStreamTag('jet', prescale='1')
 chain.addGroup("jets")
 menu.addHLTChain(chain)
 
-
-
-
-
-chain = HLTChain( chain_name="tau25_xE30_L2", chain_counter="7", lower_chain_name="TAU25+XE30", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_tau25_xE30", chain_counter="7", lower_chain_name="L1_TAU25_XE30", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( [ "xE30", "tau25" ] )
 chain.addHLTSignature( [ "xE30'", "tau25'" ] )
+chain.addHLTSignature( [ "Tau25", "missingE30" ] )
+chain.addHLTSignature( [ "Tau25'", "missingE30'" ] )
 chain.addTriggerTypeBit('48')
 chain.addStreamTag('tau', prescale='1')
 chain.addGroup("tau")
 menu.addHLTChain(chain)
 
-
-chain = HLTChain( chain_name="2tau25_xE30_L2", chain_counter="27", lower_chain_name="TAU25+XE30", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_2tau25_xE30", chain_counter="27", lower_chain_name="L1_TAU25_XE30", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( [  "tau25", "xE30", "tau25" ] )
 chain.addHLTSignature( [ "xE30'", "tau25'", "tau25'" ] )
 chain.addTriggerTypeBit('48')
@@ -435,23 +295,17 @@ chain.addStreamTag('tau', prescale='1')
 chain.addGroup("tau")
 menu.addHLTChain(chain)
 
-
-
-
-
-chain = HLTChain( chain_name="j50_xE60_L2", chain_counter="8", lower_chain_name="J50+XE60", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_j50_xE60", chain_counter="8", lower_chain_name="L1_J50_XE60", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( [ "j50", "xE60" ] )
 chain.addHLTSignature( [ "j50'", "xE60'" ] )
+chain.addHLTSignature( [ "jet50", "missingE60" ] )
+chain.addHLTSignature( [ "jet50'", "missingE60'" ] )
 chain.addTriggerTypeBit('31')
 chain.addStreamTag('missingET', prescale='1')
 chain.addGroup("MET")
 menu.addHLTChain(chain)
 
-
-
-
-
-chain = HLTChain( chain_name="Z_L2", chain_counter="9", lower_chain_name="EM25i", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_Z", chain_counter="9", lower_chain_name="L1_EM25i", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( ["em15i", "em25i" ])
 chain.addHLTSignature( ["em15i'", "em25i'" ])
 chain.addHLTSignature( "Z" )
@@ -461,9 +315,7 @@ chain.addTriggerTypeBit('4')
 chain.addGroup("electronss")
 menu.addHLTChain(chain)
 
-
-
-chain = HLTChain( chain_name="H_L2", chain_counter="10", lower_chain_name="EM25i", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_H", chain_counter="10", lower_chain_name="L1_EM25i", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( [ "em25i", "em25i", "em25i", "em25i"] )
 chain.addHLTSignature( [ "em25i'", "em25i'", "em25i'", "em25i'" ] )
 chain.addHLTSignature( [ "Z", "Z" ] )
@@ -475,43 +327,34 @@ chain.addTriggerTypeBit('67')
 chain.addGroup("electrons")
 menu.addHLTChain(chain)
 
-
-
-
-
-chain = HLTChain( chain_name="empty_L2", chain_counter="11", lower_chain_name="2MU06", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_empty", chain_counter="11", lower_chain_name="L1_2MU06", level="HLT", prescale="1", pass_through="0")
 chain.addTriggerTypeBit('11')
 chain.addStreamTag('blaStream', prescale='1')
 chain.addGroup("fakes")
 menu.addHLTChain(chain)
 
-
-
-chain = HLTChain( chain_name="MissingET_L2", chain_counter="12", lower_chain_name="2MU06", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_MissingET", chain_counter="12", lower_chain_name="L1_2MU06", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( "met10_L2", sigcounter=2 )
 chain.addTriggerTypeBit('36')
 chain.addStreamTag('missingET', prescale='1')
 chain.addGroup("MET")
 menu.addHLTChain(chain)
 
-
-chain = HLTChain( chain_name="ErrorCode_Chain_L2", chain_counter="13", lower_chain_name="EM25i", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_ErrorCode_Chain", chain_counter="13", lower_chain_name="L1_EM25i", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( "ErrorCode_L2", sigcounter=1 )
 chain.addTriggerTypeBit('36')
 chain.addStreamTag('aStreamTag', prescale='1')
 chain.addGroup("fakes")
 menu.addHLTChain(chain)
 
-
-chain = HLTChain( chain_name="NO_LOWER_CHAIN_L2", chain_counter="14", lower_chain_name="", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_NO_LOWER_CHAIN", chain_counter="14", lower_chain_name="", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( "em25i" )
 chain.addStreamTag('test',  prescale='1')
 chain.addTriggerTypeBit('99')
 chain.addGroup("fakes")
 menu.addHLTChain(chain)
 
-
-chain = HLTChain( chain_name="Z2_L2", chain_counter="15", lower_chain_name="EM25i", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_Z2", chain_counter="15", lower_chain_name="L1_EM25i", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( ["em25i", "em25i" ])
 chain.addHLTSignature( ["em25i'", "em25i'" ])
 chain.addHLTSignature( "Z_" )
@@ -521,9 +364,8 @@ chain.addTriggerTypeBit('4')
 chain.addGroup("electrons")
 menu.addHLTChain(chain)
 
-
 # caching tests
-chain = HLTChain( chain_name="L2_mu6", chain_counter="17", lower_chain_name="MU20", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_mu6", chain_counter="17", lower_chain_name="L1_MU20", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( ["L2_muon_standalone_mu6"])
 chain.addStreamTag('muons', prescale='1')
 chain.addTriggerTypeBit('4')
@@ -531,7 +373,7 @@ chain.addGroup("muons")
 menu.addHLTChain(chain)
 
 # caching tests
-chain = HLTChain( chain_name="L2_mu6l", chain_counter="18", lower_chain_name="MU20", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_mu6l", chain_counter="18", lower_chain_name="L1_MU20", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( ["L2_muon_standalone_mu6l" ])
 chain.addStreamTag('muons', prescale='1')
 chain.addTriggerTypeBit('4')
@@ -539,7 +381,7 @@ chain.addGroup("muons")
 menu.addHLTChain(chain)
 
 # ROB req prep test
-chain = HLTChain( chain_name="RobRequest_Chain_L2", chain_counter="19", lower_chain_name="L1_EM15i", level="L2", prescale="1", pass_through="0")
+chain = HLTChain( chain_name="HLT_RobRequest_Chain", chain_counter="19", lower_chain_name="L1_EM15i", level="HLT", prescale="1", pass_through="0")
 chain.addHLTSignature( ["RobReqS2_L2", "RobReqS3_L2"] )
 chain.addTriggerTypeBit('36')
 chain.addStreamTag('aStreamTag', prescale='1')
@@ -547,151 +389,6 @@ chain.addGroup("RobTest")
 menu.addHLTChain(chain)
 
 
-
-# EF
-chain = HLTChain( chain_name="e25i_EF", chain_counter="1", lower_chain_name="L2_e25", level="EF", prescale="1", pass_through="0")
-chain.addHLTSignature( "e25i" )
-chain.addHLTSignature( "e25i'" )
-chain.addTriggerTypeBit('4')
-chain.addStreamTag('electrons', prescale='1')
-chain.addStreamTag('IDCalibration', prescale='1', obeyLB="0", type="calibration")
-chain.addGroup("electrons")
-menu.addHLTChain(chain)
-
-
-
-
-chain = HLTChain( chain_name="mu20_EF", chain_counter="2", lower_chain_name="mu20_L2", level="EF", prescale="1", pass_through="0")
-chain.addHLTSignature( "muon20" )
-chain.addHLTSignature( "muon20'" )
-chain.addTriggerTypeBit('12')
-chain.addStreamTag('muons', prescale='1')
-chain.addGroup("muons")
-menu.addHLTChain(chain)
-
-
-
-
-
-chain = HLTChain( chain_name="2e15i_EF", chain_counter="3", lower_chain_name="2em15i_L2", level="EF", prescale="1", pass_through="0")
-chain.addHLTSignature( [ "e15i", "e15i" ] )
-chain.addHLTSignature( [ "e15i'", "e15i'" ] )
-chain.addTriggerTypeBit('5')
-chain.addStreamTag('electrons', prescale='1')
-chain.addGroup("electrons")
-menu.addHLTChain(chain)
-
-
-
-chain = HLTChain( chain_name="2mu6_EF", chain_counter="4", lower_chain_name="2mu6_L2", level="EF", prescale="1", pass_through="0")
-chain.addHLTSignature( [ "muon6", "muon6" ] )
-chain.addHLTSignature( [ "muon6'", "muon6'" ] )
-chain.addTriggerTypeBit('11')
-chain.addStreamTag('muons', prescale='1')
-chain.addGroup("muons")
-menu.addHLTChain(chain)
-
-
-
-
-
-chain = HLTChain( chain_name="g25_EF", chain_counter="5", lower_chain_name="L2_e25", level="EF", prescale="1", pass_through="0")
-chain.addHLTSignature( "g25" ).addHLTSignature( "g25'" )
-chain.addTriggerTypeBit('5')
-chain.addStreamTag('electrons', prescale='1')
-chain.addGroup("electrons")
-menu.addHLTChain(chain)
-
-
-chain = HLTChain(chain_name="j200_EF", chain_counter="6", lower_chain_name="j200_L2", level="EF", prescale="1", pass_through="0")
-chain.addHLTSignature( "jet200" )
-chain.addHLTSignature( "jet200'" )
-chain.addTriggerTypeBit('45')
-chain.addStreamTag('jets', prescale='1')
-chain.addStreamTag('jetcalib', prescale='1', type="calibration")
-chain.addGroup("jets")
-menu.addHLTChain(chain)
-
-
-
-
-chain = HLTChain( chain_name="3j90_EF", chain_counter="7", lower_chain_name="3j90_L2", level="EF", prescale="1", pass_through="0")
-chain.addHLTSignature( [ "jet90", "jet90", "jet90" ] )
-chain.addHLTSignature( [ "jet90'", "jet90'", "jet90'" ] )
-chain.addTriggerTypeBit('46')
-chain.addStreamTag('jets', prescale='1')
-chain.addGroup("jets")
-menu.addHLTChain(chain)
-
-
-
-
-
-chain = HLTChain( chain_name="tau25_xE30_EF", chain_counter="8", lower_chain_name="tau25_xE30_L2", level="EF", prescale="1", pass_through="0")
-chain.addHLTSignature( [ "Tau25", "missingE30" ] )
-chain.addHLTSignature( [ "Tau25'", "missingE30'" ] )
-chain.addTriggerTypeBit('36')
-chain.addStreamTag('Bphys', prescale='1')
-chain.addGroup("bphys")
-menu.addHLTChain(chain)
-
-
-
-chain = HLTChain( chain_name="j50_xE60_EF", chain_counter="9", lower_chain_name="j50_xE60_L2", level="EF", prescale="1", pass_through="0")
-chain.addHLTSignature( [ "jet50", "missingE60" ] )
-chain.addHLTSignature( [ "jet50'", "missingE60'" ] )
-chain.addTriggerTypeBit('37')
-chain.addStreamTag('Bphys', prescale='1')
-chain.addGroup("bphys")
-menu.addHLTChain(chain)
-
-
-
-
-
-
-chain = HLTChain( chain_name="Z_EF", chain_counter="10", lower_chain_name="Z_L2", level="EF", prescale="1", pass_through="0")
-chain.addHLTSignature( [ "e25i", "e25i" ] )
-chain.addHLTSignature( [ "e25i'", "e25i'" ] )
-chain.addHLTSignature( "Z'" )
-chain.addStreamTag('higgs', prescale='1')
-chain.addStreamTag('zee', type='calibration', prescale='1')
-chain.addStreamTag('higgs', type='express', prescale='200')
-chain.addTriggerTypeBit('4')
-chain.addTriggerTypeBit('67')
-chain.addGroup("electrons")
-menu.addHLTChain(chain)
-
-
-
-chain = HLTChain( chain_name="H_EF", chain_counter="11", lower_chain_name="H_L2", level="EF", prescale="1", pass_through="0")
-chain.addHLTSignature(  [ "e25i", "e25i", "e25i", "e25i" ] )
-chain.addHLTSignature( [ "e25i'", "e25i'", "e25i'", "e25i'" ] )
-chain.addHLTSignature( [ "Z'", "Z'" ] )
-chain.addHLTSignature( "Higgs'" )
-chain.addStreamTag('higgs', prescale='1')
-chain.addStreamTag('higgs', type='express', prescale='1')
-chain.addTriggerTypeBit('4')
-chain.addTriggerTypeBit('67')
-chain.addGroup("electrons")
-menu.addHLTChain(chain)
-
-chain = HLTChain( chain_name="NO_LOWER_CHAIN_EF", chain_counter="12", lower_chain_name="", level="EF", prescale="1", pass_through="0")
-chain.addStreamTag('test',  prescale='1')
-chain.addStreamTag('IDCalibration', prescale='1', obeyLB="0", type="calibration")
-chain.addTriggerTypeBit('99')
-chain.addGroup("fakes")
-menu.addHLTChain(chain)
-
-
-# ROB req prep test
-chain = HLTChain( chain_name="RobRequest_Chain_EF", chain_counter="19", lower_chain_name="RobRequest_Chain_L2", level="EF", prescale="1", pass_through="0")
-chain.addTriggerTypeBit('36')
-chain.addStreamTag('aStreamTag', prescale='1')
-chain.addGroup("RobTest")
-menu.addHLTChain(chain)
-
-
-
 menu.writeConfigFiles();
 menu.dot(algs=True)
+
