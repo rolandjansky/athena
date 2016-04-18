@@ -65,14 +65,14 @@ egDetailContainer* egDetailContainerCnv::createTransient()
 
   } else if ( compareClassGuid(p1_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<egDetailContainer_p1> persObj( poolReadObject<egDetailContainer_p1>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<egDetailContainer_p1> persObj( poolReadObject<egDetailContainer_p1>() );
     egDetailContainerCnv_p1 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
   } else if ( compareClassGuid(p2_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<egDetailContainer_p2> persObj( poolReadObject<egDetailContainer_p2>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<egDetailContainer_p2> persObj( poolReadObject<egDetailContainer_p2>() );
     egDetailContainerCnv_p2 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
   } else {

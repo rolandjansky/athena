@@ -25,10 +25,41 @@ macro    egammaAthenaPool_poolCnvTypes ""
 apply_pattern poolcnv typesWithNamespace=$(egammaAthenaPool_poolCnvTypes) \
    files="-s=${egammaEvent_root}/egammaEvent egammaContainer.h ElectronContainer.h PhotonContainer.h egDetailContainer.h EMShowerMinimalContainer.h CaloRingsContainer.h" 
 
-macro_append RecAthenaPoolPoolCnv_shlibflags " $(RecAthenaPool_dict_linkopts)"
+#macro_append RecAthenaPoolPoolCnv_shlibflags " $(RecAthenaPool_dict_linkopts)"
 
 macro        egammaAthenaPool_poolIoHdlrTypes ""
 
 #apply_pattern pooliohandler \
 #   typesWithNamespace=$(egammaAthenaPool_poolIoHdlrTypes) \
 #   handlerFiles="-s=${egammaEvent_root}/egammaEvent egammaContainer.h ElectronContainer.h PhotonContainer.h egDetailContainer.h EMShowerMinimalContainer.h CaloRingsContainer.h"
+
+
+apply_pattern declare_joboptions files="-s=../share *.py"
+
+apply_pattern athenarun_test \
+   name="egammaEventTPCnv_15.1.0" \
+   options="egammaAthenaPool/egammaEventTPCnv_15.1.0_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh egammaEventTPCnv_15.1.0" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh egammaEventTPCnv_15.1.0"
+
+
+apply_pattern athenarun_test \
+   name="egammaEventTPCnv_15.6.9" \
+   options="egammaAthenaPool/egammaEventTPCnv_15.6.9_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh egammaEventTPCnv_15.6.9" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh egammaEventTPCnv_15.6.9"
+
+
+apply_pattern athenarun_test \
+   name="egammaEventTPCnv_16.6.7.1" \
+   options="egammaAthenaPool/egammaEventTPCnv_16.6.7.1_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh egammaEventTPCnv_16.6.7.1" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh egammaEventTPCnv_16.6.7.1"
+
+
+apply_pattern athenarun_test \
+   name="egammaEventTPCnv_18.0.0" \
+   options="egammaAthenaPool/egammaEventTPCnv_18.0.0_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh egammaEventTPCnv_18.0.0" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh egammaEventTPCnv_18.0.0"
+

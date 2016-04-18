@@ -66,36 +66,36 @@ PhotonContainer* PhotonContainerCnv::createTransient()
 
   if ( compareClassGuid(p5_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<PhotonContainer_p5> persObj( poolReadObject<PhotonContainer_p5>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<PhotonContainer_p5> persObj( poolReadObject<PhotonContainer_p5>() );
     PhotonContainerCnv_p5 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p4_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<PhotonContainer_p4> persObj( poolReadObject<PhotonContainer_p4>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<PhotonContainer_p4> persObj( poolReadObject<PhotonContainer_p4>() );
     PhotonContainerCnv_p4 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p3_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<PhotonContainer_p3> persObj( poolReadObject<PhotonContainer_p3>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<PhotonContainer_p3> persObj( poolReadObject<PhotonContainer_p3>() );
     PhotonContainerCnv_p3 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p2_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<PhotonContainer_p2> persObj( poolReadObject<PhotonContainer_p2>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<PhotonContainer_p2> persObj( poolReadObject<PhotonContainer_p2>() );
     PhotonContainerCnv_p2 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p1_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<PhotonContainer_p1> persObj( poolReadObject<PhotonContainer_p1>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<PhotonContainer_p1> persObj( poolReadObject<PhotonContainer_p1>() );
     PhotonContainerCnv_p1 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
