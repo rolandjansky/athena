@@ -23,7 +23,6 @@
 
 #include "RegionSelector/IRegionLUT_Creator.h"
 #include "RegSelLUT/IRegionIDLUT_Creator.h"
-#include "RegSelLUT/IRegionFTKLUT_Creator.h"
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -225,14 +224,6 @@ private:
      \return const RegSelSiLUT* \c \b detRSlut, the detector data LUT
   */
   StatusCode readFromSG( ToolHandle<IRegionIDLUT_Creator>  p_lutCreatorTool, RegSelSiLUT*& detRSlut); 
-
-  //! Initialise lookup tables using tools provided for the inner detector tables
-  /*!
-    \param ToolHandle<IRegionFTKLUT_Creator> \c \b p_lutCreatorTool, tool (from properties) to be used to initialise the LUT
-    \param const std::string \c \b lutName, parameter to be passed to lutCreatorTool.getLUT() if needed, optional
-    \return const RegSelSiLUT* \c \b detRSlut, the detector data LUT
-  */
-  StatusCode readFromSG( ToolHandle<IRegionFTKLUT_Creator> p_lutCreatorTool,  RegSelEtaPhiLUT*& detRSlut);
 
   //! Uses m_detStore and RegionSelectorLUT detector key, specified by DETID type, to read from %StoreGate the necessary detector data. 
   /*!
@@ -509,8 +500,8 @@ private:
   StringProperty m_TRTConditionsSvc;
 
   BooleanProperty                    m_initFTK;
-  ToolHandle<IRegionFTKLUT_Creator>  m_lutCreatorToolFTK;
-  RegSelEtaPhiLUT*                   m_ftklut;
+  ToolHandle<IRegionIDLUT_Creator>   m_lutCreatorToolFTK;
+  RegSelSiLUT*                       m_ftklut;
 
   bool m_duplicateRemoval;
 
