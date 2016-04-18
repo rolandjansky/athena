@@ -28,8 +28,8 @@ private:
   TrackParticleTruthCollectionCnv_p0 m_converter_p0;
   TrackParticleTruthCollectionCnv_p1 m_converter_p1;
 
-  static pool::Guid p0_guid;
-  static pool::Guid p1_guid;
+  static pool::Guid s_p0_guid;
+  static pool::Guid s_p1_guid;
 };
 
 #endif

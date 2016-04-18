@@ -20,3 +20,15 @@ apply_pattern poolcnv files="\
 -s=$(ParticleTruth_root)/ParticleTruth  TrackParticleTruthCollectionContainer.h \
 "
 
+apply_pattern declare_joboptions files="*.py"
+
+
+private
+use TestTools            TestTools-*                AtlasTest -no_auto_imports
+
+
+apply_pattern athenarun_test \
+   name="TrackParticleTruthTPCnv_18.0.0" \
+   options="TrackParticleTruthAthenaPool/TrackParticleTruthTPCnv_18.0.0_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh TrackParticleTruthTPCnv_18.0.0" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh TrackParticleTruthTPCnv_18.0.0"
