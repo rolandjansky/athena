@@ -97,8 +97,12 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
     double invariantMassIP(const std::vector<const xAOD::IParticle*>&ptls, const std::vector<double> & masses) const;
     double invariantMass(const std::vector<const xAOD::TrackParticle*>&ptls, const std::vector<double> & masses) const;
 
+    /// Fill an xAOD object with pt, rap,phi
+    void fillTrigObjectKinematics(xAOD::TrigBphys* bphys, const std::vector<const xAOD::TrackParticle*> &ptls);
     
-    
+    /// Use the fitted position and the beamline to determine lxy, tau, etc.
+    /// call after setting the kinematic values, to do ok.
+    void setBeamlineDisplacement(xAOD::TrigBphys* bphys,const std::vector<const xAOD::TrackParticle*> &ptls);
     
   /////////////////////////////////////////////////////////////////// 
   // Private data: 

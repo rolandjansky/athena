@@ -56,6 +56,7 @@ TrigL2BMuMuHypo::TrigL2BMuMuHypo(const std::string & name, ISvcLocator* pSvcLoca
 
   // Read cuts
   declareProperty("AcceptAll",    m_acceptAll=true);
+  declareProperty("AcceptSameMuon",    m_acceptSameMuon=false);
   declareProperty("OppositeSign", m_oppositeCharge=true);
   declareProperty("LowerMassCut", m_lowerMassCut=4000.0);
   declareProperty("UpperMassCut", m_upperMassCut=6000.0);
@@ -212,26 +213,47 @@ HLT::ErrorCode TrigL2BMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
             if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Got Bphys partcile with mass " <<  (*bphysIter)->mass() << " and chi2 " <<
                 (*bphysIter)->fitchi2() << endreq;
             
+            if(m_acceptSameMuon && (*bphysIter)->mass() < 0.) {
+              PassedBsMass = true;
+              PassedChi2Cut = true;
+              HLT::markPassing(bits, *bphysIter, trigBphysColl);
+              if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Candidate with mass " <<  (*bphysIter)->mass() << " accepted as AcceptSameMuon is set" << endreq;
+            }
+            
             float BsMass = (*bphysIter)->mass();
             bool thisPassedBsMass = (m_lowerMassCut < BsMass && (BsMass < m_upperMassCut || (!m_ApplyupperMassCut)));
-            PassedBsMass |= thisPassedBsMass;
+            // PassedBsMass |= thisPassedBsMass;
             
             bool thisPassedChi2Cut = ((!m_ApplyChi2Cut) || ((*bphysIter)->fitchi2() < m_Chi2VtxCut && (*bphysIter)->fitchi2() != -99) );
-            PassedChi2Cut |= thisPassedChi2Cut;
-            if (thisPassedBsMass)    mon_MuMumass.push_back((BsMass*0.001));
+            // PassedChi2Cut |= thisPassedChi2Cut;
+            if (thisPassedBsMass || (m_acceptSameMuon && (*bphysIter)->mass() < 0.) )    mon_MuMumass.push_back((BsMass*0.001));
+            
+            if (thisPassedBsMass)  {
+              m_countPassedBsMass++;
+              mon_cutCounter++;
+              if (thisPassedChi2Cut) { 
+                m_countPassedChi2Cut++; 
+                mon_cutCounter++; 
+              }
+            }
             
             if( thisPassedBsMass && thisPassedChi2Cut )
             {
+                PassedBsMass = true;
+                PassedChi2Cut = true;
                 HLT::markPassing(bits, *bphysIter, trigBphysColl);
             }
         }
     }
-
+  
+  /*
   if (PassedBsMass)  {
     m_countPassedBsMass++;
     mon_cutCounter++;
   }
   if (PassedChi2Cut) { m_countPassedChi2Cut++; mon_cutCounter++; }
+  */
+  
   if ( PassedBsMass && PassedChi2Cut ) {
     result = true;
   }

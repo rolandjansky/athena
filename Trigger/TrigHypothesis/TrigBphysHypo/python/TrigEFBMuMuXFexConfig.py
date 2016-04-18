@@ -115,6 +115,27 @@ class EFBMuMuXFex_allModes (EFBMuMuXFex_1):
         
         # Bc -> D_s* Mu Mu
         self.DoBc_DsMuMuDecay = True
+        
+        from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexValidationMonitoring
+        validation = EFBMuMuXFexValidationMonitoring()
+
+        from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexOnlineMonitoring_allModes
+        online = EFBMuMuXFexOnlineMonitoring_allModes()
+        
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+
+        self.AthenaMonTools = [ validation, online, time ]
+
+
+class EFBMuMuXFex_FTK (EFBMuMuXFex_1):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuXFex_FTK"):
+        EFBMuMuXFex_1.__init__(self, name )
+        
+        # FTK
+        self.DoFTK = True
+        
 
 
 class EFBMuMuXFex_allModes_tightBc (EFBMuMuXFex_allModes):
@@ -262,8 +283,8 @@ class EFBMuMuXFex_BplusMuMuKplus (TrigEFBMuMuXFex):
         from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexValidationMonitoring
         validation = EFBMuMuXFexValidationMonitoring()
 
-        from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexOnlineMonitoring
-        online = EFBMuMuXFexOnlineMonitoring()
+        from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexOnlineMonitoring_BpMuMuKp
+        online = EFBMuMuXFexOnlineMonitoring_BpMuMuKp()
         
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
@@ -306,8 +327,8 @@ class EFBMuMuXFex_BplusMuMuKplus_noVtx (TrigEFBMuMuXFex):
         from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexValidationMonitoring
         validation = EFBMuMuXFexValidationMonitoring()
 
-        from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexOnlineMonitoring
-        online = EFBMuMuXFexOnlineMonitoring()
+        from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexOnlineMonitoring_BpMuMuKp
+        online = EFBMuMuXFexOnlineMonitoring_BpMuMuKp()
         
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
@@ -660,8 +681,8 @@ class EFBMuMuXFex_BcMuMuDs (TrigEFBMuMuXFex):
         from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexValidationMonitoring
         validation = EFBMuMuXFexValidationMonitoring()
 
-        from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexOnlineMonitoring
-        online = EFBMuMuXFexOnlineMonitoring()
+        from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexOnlineMonitoring_BcMuMuDs
+        online = EFBMuMuXFexOnlineMonitoring_BcMuMuDs()
         
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
@@ -680,7 +701,7 @@ class EFBMuMuXFex_BcMuMuDs_tight (EFBMuMuXFex_BcMuMuDs):
         
 class EFBMuMuXFex_BcMuMuDs_noVtx (TrigEFBMuMuXFex):
     __slots__ = []
-    def __init__(self, name = "EFBMuMuXFex_LbMuMuLambda_noVtx"):
+    def __init__(self, name = "EFBMuMuXFex_BcMuMuDs_noVtx"):
         super( TrigEFBMuMuXFex, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
@@ -716,8 +737,8 @@ class EFBMuMuXFex_BcMuMuDs_noVtx (TrigEFBMuMuXFex):
         from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexValidationMonitoring
         validation = EFBMuMuXFexValidationMonitoring()
 
-        from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexOnlineMonitoring
-        online = EFBMuMuXFexOnlineMonitoring()
+        from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexOnlineMonitoring_BcMuMuDs
+        online = EFBMuMuXFexOnlineMonitoring_BcMuMuDs()
         
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")

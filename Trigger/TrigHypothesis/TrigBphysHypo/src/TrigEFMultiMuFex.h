@@ -62,6 +62,7 @@ class TrigEFMultiMuFex: public HLT::ComboAlgo  {
     float m_lowerMassCut;
     float m_upperMassCut;
     bool m_ApplyupperMassCut;
+  bool m_checkNinputTE;
     string m_muonAlgo;
     // to set Accept-All mode: should be done with force-accept when possible
     bool m_acceptAll;

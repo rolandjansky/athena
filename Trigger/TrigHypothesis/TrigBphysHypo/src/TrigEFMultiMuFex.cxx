@@ -30,6 +30,7 @@ TrigEFMultiMuFex::TrigEFMultiMuFex(const std::string & name, ISvcLocator* pSvcLo
 ,m_lowerMassCut(2000.)
 ,m_upperMassCut(10000.)
 ,m_ApplyupperMassCut(true)
+,m_checkNinputTE(true)
 ,m_muonAlgo("TrigMuSuperEF")
 ,m_acceptAll(false)
 //counters
@@ -56,8 +57,9 @@ TrigEFMultiMuFex::TrigEFMultiMuFex(const std::string & name, ISvcLocator* pSvcLo
   declareProperty("NMassMuon"     , m_NMassMuon    = 2 );
   declareProperty("LowerMassCut", m_lowerMassCut=2000.0);
   declareProperty("UpperMassCut", m_upperMassCut=10000.0);
-    declareProperty("ApplyUpperMassCut", m_ApplyupperMassCut=true);
+  declareProperty("ApplyUpperMassCut", m_ApplyupperMassCut=true);
   declareProperty("MuonAlgo", m_muonAlgo="TrigMuSuperEF");
+  declareProperty("CheckNinputTE", m_checkNinputTE=true);
   
   declareMonitoredStdContainer("Errors"                 , mon_Errors                  , AutoClear);
   declareMonitoredStdContainer("Acceptance"             , mon_Acceptance              , AutoClear);
@@ -84,6 +86,9 @@ HLT::ErrorCode TrigEFMultiMuFex::hltInitialize()
         << (m_oppositeCharge==true ? "True" : "False") << endreq;
         msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endreq;
         msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endreq;
+	msg() << MSG::DEBUG << "check for number of input TEs is " 
+	      << (m_checkNinputTE!=0 ? "ENABLED" : "DISABLED") << endreq;
+
     }
     if ( timerSvc() ) {
         m_BmmHypTot = addTimer("EFBmmHypTot");
@@ -156,7 +161,7 @@ HLT::ErrorCode TrigEFMultiMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pa
   if ( timerSvc() )    m_BmmHypTot->start();
     
     // check the right number of inputTEs
-    if (m_expectNumberOfInputTE != inputTE.size()) {
+    if ( m_checkNinputTE != 0 && m_expectNumberOfInputTE != inputTE.size()) {
         msg() << MSG::ERROR << "Got different than " << m_expectNumberOfInputTE << " number of input TEs, found " << inputTE.size() << endreq;
         if ( timerSvc() )    m_BmmHypTot->stop();
         mon_Errors.push_back( ERROR_WrongNum_Input_TE );
@@ -237,7 +242,11 @@ void TrigEFMultiMuFex::processTriMuon(HLT::TEConstVec& inputTE, xAOD::TrigBphysC
     typedef  ElementLinkVector<xAOD::MuonContainer>  ELVMuons;
     std::vector<ELVMuons>          vec_elv_muons; // for muons, size 3
 
-    for ( unsigned int i=0; i < m_expectNumberOfInputTE; ++i) {
+    unsigned int nTEs = m_expectNumberOfInputTE;
+    if( ! m_checkNinputTE ) nTEs = inputTE.size();
+
+
+    for ( unsigned int i=0; i < nTEs; ++i) {
         ELVMuons elvmuon;
         if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container of muon " << i << endreq;
         if(getFeaturesLinks<xAOD::MuonContainer,xAOD::MuonContainer>(inputTE[i], elvmuon)!=HLT::OK ) {
@@ -422,7 +431,7 @@ void TrigEFMultiMuFex::buildTriMu(const std::vector<const xAOD::Muon*> &muons, x
                 if (m_bphysHelperTool->vertexFit(xaodobj,trksEL,masses).isFailure()) {
                     if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Problems with vertex fit in buildTriMu"  << endreq;
                 }
-                
+                m_bphysHelperTool->fillTrigObjectKinematics(xaodobj,{tp1,tp2,tp3});
                 
             } // muit3
         } // muit2

@@ -85,3 +85,17 @@ class TrigEFBMuMuFexOnlineMonitoring(TrigGenericMonitoringToolConfig):
                                            xbins=100, xmin=0., xmax=13.) ]
         self.Histograms += [ defineHistogram('VtxChi2', type='TH1F', title="Chi2 of vertex fit",
                                            xbins=100, xmin=0., xmax=10.) ]
+
+
+class TrigEFBMuMuFexOnlineMonitoring_passEF(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigEFBMuMuFexOnlineMonitoring_passEF"):
+        super(TrigEFBMuMuFexOnlineMonitoring_passEF, self).__init__(name)
+        self.defineTarget("Online")
+        self.Histograms  = [ defineHistogram ( 'Errors', type = 'TH1F',
+                                               title = 'EFBMuMuFex - Algorithm errors ; ; # Events / Candidates',
+                                               xbins = ERROR_number , xmin = -0.5, xmax = ERROR_number - 0.5,
+                                               labels = ERROR_labels ) ]
+        self.Histograms += [ defineHistogram ( 'Acceptance', type = 'TH1F',
+                                               title = 'EFMuMuFex - Reached steps - acceptance ; ; # Events / Candidates',
+                                               xbins = ACCEPTANCE_number , xmin = -0.5, xmax = ACCEPTANCE_number - 0.5,
+                                               labels = ACCEPTANCE_labels ) ]

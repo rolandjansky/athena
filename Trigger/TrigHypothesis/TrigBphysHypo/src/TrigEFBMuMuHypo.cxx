@@ -287,11 +287,11 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "EFBphys with mass: " << BsMass <<" GeV" << "   chi2 " << (*bphysIter)->fitchi2() <<
                 " Lxy  "<<BsLxy<<"  lxy= "<<sqrt(Dx*Dx+Dy*Dy)<<endreq;
             bool thisPassedBsMass = (m_lowerMassCut < BsMass && ((BsMass < m_upperMassCut) || (!m_ApplyupperMassCut) ));
-            PassedBsMass |= thisPassedBsMass;
+            // PassedBsMass |= thisPassedBsMass;
             bool thisPassedChi2Cut = ((!m_ApplyChi2Cut) || ((*bphysIter)->fitchi2() < m_Chi2VtxCut) );
-            PassedChi2Cut |= thisPassedChi2Cut;
+            // PassedChi2Cut |= thisPassedChi2Cut;
             bool thisPassedLxyCut = ((!m_ApplyLxyCut) || ( BsLxy > m_LxyCut) );
-            PassedLxyCut |= thisPassedLxyCut;
+            // PassedLxyCut |= thisPassedLxyCut;
             
             if(thisPassedBsMass)
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Passed mass cut " << BsMass <<" GeV" << endreq;
@@ -305,8 +305,17 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
             if(!thisPassedLxyCut)
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Did not pass Lxy cuts  "<<  BsLxy << " <  Lxy cut "<< m_LxyCut<< endreq;
             
+            if (thisPassedBsMass)  { m_countPassedBsMass++; mon_cutCounter++;
+                if (thisPassedChi2Cut) { m_countPassedChi2Cut++; mon_cutCounter++;
+                    if (thisPassedLxyCut)  { m_countPassedLxyCut++; mon_cutCounter++; }
+                }
+            }
+              
             if( thisPassedBsMass && thisPassedChi2Cut && thisPassedLxyCut )
             {
+                PassedBsMass = true;
+                PassedChi2Cut = true;
+                PassedLxyCut = true;
                 HLT::markPassing(bits, *bphysIter, trigBphysColl);
             }
             
@@ -341,12 +350,13 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
 
 
-
+    /*
     if (PassedBsMass)  { m_countPassedBsMass++; mon_cutCounter++;
         if (PassedChi2Cut) { m_countPassedChi2Cut++; mon_cutCounter++;
             if (PassedLxyCut)  { m_countPassedLxyCut++; mon_cutCounter++; }
         }
     }
+    */
     
     if ( PassedBsMass && PassedChi2Cut && PassedLxyCut ) {
         result = true;

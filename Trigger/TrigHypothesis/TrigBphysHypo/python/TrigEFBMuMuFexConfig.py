@@ -73,6 +73,25 @@ class EFBMuMuFex_Jpsi (TrigEFBMuMuFex):
 
         self.AthenaMonTools = [ validation, online, time ]
 
+class EFBMuMuFex_Jpsi_oneTE (EFBMuMuFex_Jpsi):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuFex_Jpsi_oneTE"):
+        EFBMuMuFex_Jpsi.__init__( self, name )
+
+        self.NumberOfInputs     = 1
+        self.UseRoIs = False
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexValidationMonitoring
+        validation = TrigEFBMuMuFexValidationMonitoring()
+        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexOnlineMonitoring
+        online = TrigEFBMuMuFexOnlineMonitoring()
+
+        self.AthenaMonTools = [ validation, online, time ]
+
+
+
 class EFBMuMuFex_Upsi (TrigEFBMuMuFex):
     __slots__ = []
     def __init__(self, name = "EFBMuMuFex_Upsi"):
@@ -187,6 +206,24 @@ class EFBMuMuFex_DiMu (TrigEFBMuMuFex):
         online = TrigEFBMuMuFexOnlineMonitoring()
 
         self.AthenaMonTools = [ validation, online, time ]
+
+class EFBMuMuFex_DiMu_oneTE (EFBMuMuFex_DiMu):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuFex_DiMu_oneTE"):
+        EFBMuMuFex_DiMu.__init__( self, name )
+
+        self.NumberOfInputs     = 1
+        self.UseRoIs = False
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexValidationMonitoring
+        validation = TrigEFBMuMuFexValidationMonitoring()
+        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexOnlineMonitoring
+        online = TrigEFBMuMuFexOnlineMonitoring()
+
+        self.AthenaMonTools = [ validation, online, time ]
+
 
 class EFBMuMuFex_DiMu_DY (TrigEFBMuMuFex):
     __slots__ = []
@@ -492,5 +529,28 @@ class EFBMuMuFex_DiMu_noinvm_SS (TrigEFBMuMuFex):
         validation = TrigEFBMuMuFexValidationMonitoring()
         from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexOnlineMonitoring
         online = TrigEFBMuMuFexOnlineMonitoring()
+
+        self.AthenaMonTools = [ validation, online, time ]
+
+class EFBMuMuFex_passEF (TrigEFBMuMuFex):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuFex_passEF"):
+        super( TrigEFBMuMuFex, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = True
+
+        # L2 Bmumu cuts
+        self.LowerMassCut      = 100.
+        self.UpperMassCut      = 13000.
+        self.ApplyUpperMassCut = True
+        self.MuonAlgo          = "TrigMuSuperEF"
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexValidationMonitoring
+        validation = TrigEFBMuMuFexValidationMonitoring()
+        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexOnlineMonitoring_passEF
+        online = TrigEFBMuMuFexOnlineMonitoring_passEF()
 
         self.AthenaMonTools = [ validation, online, time ]

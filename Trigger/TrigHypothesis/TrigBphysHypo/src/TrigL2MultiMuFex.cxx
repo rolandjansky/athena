@@ -49,6 +49,7 @@
 TrigL2MultiMuFex::TrigL2MultiMuFex(const std::string & name, ISvcLocator* pSvcLocator):
   HLT::ComboAlgo(name, pSvcLocator),
   m_bphysHelperTool("TrigBphysHelperUtilsTool"),
+  m_checkNinputTE(true),
   m_L2vertFitter("TrigL2VertexFitter",this),
   m_vertexingTool("TrigVertexingTool",this),
   m_BmmHypTot(0),
@@ -75,6 +76,7 @@ TrigL2MultiMuFex::TrigL2MultiMuFex(const std::string & name, ISvcLocator* pSvcLo
   declareProperty("OppositeSign"     , m_oppositeCharge    = true );
   declareProperty("NMassMuon"     , m_NMassMuon    = 2 );
   declareProperty("doVertexFit"      , m_doVertexFit       = true );
+  declareProperty("CheckNinputTE", m_checkNinputTE=true);
 
   // Read properties - mass widnow cuts
   declareProperty("LowerMassCut", m_lowerMassCut =  2000.0 );
@@ -261,7 +263,7 @@ HLT::ErrorCode TrigL2MultiMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pa
 
     
   // Check consistency of the number of input Trigger Elements
-  if ( inputTE.size() != m_NInputMuon ) {
+  if (m_checkNinputTE && inputTE.size() != m_NInputMuon ) {
     msg() << MSG::ERROR << "Got wrong number of input TEs, expect " << m_NInputMuon << " got " << inputTE.size() << endreq;
     if ( timerSvc() ) {
       m_BmmHypTot->stop();
@@ -320,6 +322,12 @@ HLT::ErrorCode TrigL2MultiMuFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigg
 void TrigL2MultiMuFex::processTriMuon(HLT::TEConstVec& inputTE)
 {
    if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << " In processTriMuon " << endreq;
+
+   const xAOD::L2CombinedMuon *muon1(nullptr), *muon2(nullptr), *muon3(nullptr);
+   ElementLinkVector<xAOD::L2CombinedMuonContainer>  l2combinedMuonEL[3];
+    
+   if( m_checkNinputTE ){
+
       const HLT::TriggerElement* te1 = inputTE[0];
       const HLT::TriggerElement* te2 = inputTE[1];
       const HLT::TriggerElement* te3 = inputTE[2];
@@ -328,9 +336,6 @@ void TrigL2MultiMuFex::processTriMuon(HLT::TEConstVec& inputTE)
     //      const CombinedMuonFeature *muon2;
     //      const CombinedMuonFeature *muon3;
 
-    const xAOD::L2CombinedMuon *muon1(nullptr), *muon2(nullptr), *muon3(nullptr);
-    ElementLinkVector<xAOD::L2CombinedMuonContainer> l2combinedMuonEL[3];
-    
     
     //if(getFeature(te1,muon1)!= HLT::OK) {
     if(getFeaturesLinks<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(te1,l2combinedMuonEL[0]) != HLT::OK
@@ -372,7 +377,54 @@ void TrigL2MultiMuFex::processTriMuon(HLT::TEConstVec& inputTE)
         return;
     }
 
-        mon_Acceptance.push_back( ACCEPT_GotMuons );
+   }else{
+     std::vector<ElementLinkVector<xAOD::L2CombinedMuonContainer> >vec_elv_muons ;
+     unsigned int nTEs = 3;
+     if( ! m_checkNinputTE ) nTEs = inputTE.size();
+
+
+     for ( unsigned int i=0; i < nTEs; ++i) {
+        ElementLinkVector<xAOD::L2CombinedMuonContainer> elvmuon;
+        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve L2CombinedMuon  " << i << endreq;
+        if(getFeaturesLinks<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(inputTE[i], elvmuon)!=HLT::OK ) {
+            if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get L2CombinedMuon " << i << ", exiting" << endreq;
+            mon_Errors.push_back( ERROR_GetMuonFailed );
+            return;
+        }
+        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found L2CombinedMuon " << i << " Feature, size = " << elvmuon.size() << endreq;
+        vec_elv_muons.push_back(elvmuon);
+    } // loop over each roi
+
+     if( vec_elv_muons.size() > 3 ){
+        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "More than 3 muons found, use first 3 out of  " << vec_elv_muons.size() << endreq;
+     }else if( vec_elv_muons.size() < 3 ){
+       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Less than 3 muons found   " << vec_elv_muons.size() << " , exiting"<< endreq;
+       mon_Errors.push_back( ERROR_GetMuonFailed );
+       return;
+     }
+     muon1 = vec_elv_muons[0][0].isValid() ? *(vec_elv_muons[0][0]) : nullptr;
+     if ( muon1 == NULL ) {
+       msg() <<MSG::DEBUG << "NULL pointer of muon Feature for TE 1" << endreq;
+       mon_Errors.push_back( ERROR_GetMuonFailed );
+       return;
+     }
+     muon2 = vec_elv_muons[1][0].isValid() ? *(vec_elv_muons[1][0]) : nullptr;
+     if ( muon2 == NULL ) {
+       msg() <<MSG::DEBUG << "NULL pointer of muon Feature for TE 2" << endreq;
+       mon_Errors.push_back( ERROR_GetMuonFailed );
+       return;
+     }
+     muon3 = vec_elv_muons[2][0].isValid() ? *(vec_elv_muons[2][0]) : nullptr;
+     if ( muon3 == NULL ) {
+       msg() <<MSG::DEBUG << "NULL pointer of muon Feature for TE 3" << endreq;
+       mon_Errors.push_back( ERROR_GetMuonFailed );
+       return;
+     }
+
+   }
+
+    mon_Acceptance.push_back( ACCEPT_GotMuons );
+
 
     const ElementLink< xAOD::TrackParticleContainer >& ELidtrack1  = muon1->idTrackLink();
     const ElementLink< xAOD::TrackParticleContainer >& ELidtrack2  = muon2->idTrackLink();

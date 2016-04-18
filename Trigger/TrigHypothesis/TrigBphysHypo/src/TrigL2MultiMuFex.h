@@ -86,6 +86,7 @@ class TrigL2MultiMuFex: public HLT::ComboAlgo {
     bool  m_oppositeCharge;
     unsigned int  m_NInputMuon;
     int  m_NMassMuon;
+    bool m_checkNinputTE;
 
     // Configurable properties - vertexing tools
     ToolHandle<ITrigL2VertexFitter> m_L2vertFitter;

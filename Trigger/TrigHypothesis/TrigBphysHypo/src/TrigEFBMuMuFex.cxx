@@ -75,6 +75,7 @@ HLT::ComboAlgo(name, pSvcLocator)
     
     // Read cuts
     declareProperty("NumberOfInputs",m_expectNumberOfInputTE = 2); // expect two muons by default
+    declareProperty("UseRoIs",m_useRoIs = true); // expect two muons by default
 
     declareProperty("AcceptAll",    m_acceptAll=true);
     declareProperty("OppositeSign", m_oppositeCharge=true);
@@ -286,38 +287,45 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
     }
     
     // get the TrigRoiDescriptors
-    std::vector<const TrigRoiDescriptor*> vecTrigRoiDescriptor(m_expectNumberOfInputTE);
-    for (unsigned int i =0; i < m_expectNumberOfInputTE; ++i)  {
-        if ( getFeature(inputTE[i], vecTrigRoiDescriptor[i]) != HLT::OK ) {
-            msg() << MSG::ERROR << "Navigation error while getting RoI descriptor " << i << endreq;
-            if ( timerSvc() ) m_BmmHypTot->stop();
-            if ( !i ) mon_Errors.push_back( ERROR_No_RoI_1 );
-            else      mon_Errors.push_back( ERROR_No_RoI_2 );
-            return HLT::NAV_ERROR;
-        }
-        if (vecTrigRoiDescriptor[i] == nullptr) {
-            msg() << MSG::ERROR << "Navigation error while getting RoI descriptor " << i << " (retrieved null pointer)" << endreq;
-            if ( timerSvc() ) m_BmmHypTot->stop();
-            if ( !i ) mon_Errors.push_back( ERROR_No_RoI_1 );
-            else      mon_Errors.push_back( ERROR_No_RoI_2 );
-            return HLT::NAV_ERROR;
-        }
-    } // for
-    
-    mon_Acceptance.push_back( ACCEPT_Got_RoIs );
-    
-    const TrigRoiDescriptor* roi1(vecTrigRoiDescriptor[0]), *roi2(vecTrigRoiDescriptor[1]);
-    // debug for ROI info
-    if ( msgLvl() <= MSG::DEBUG ){
-        msg() << MSG::DEBUG
-        << "Using inputTEs: "<< inputTE.front() <<  " and "  << inputTE.back() << " with Ids " << inputTE.front()->getId()<<" AND "<<inputTE.back()->getId()
-        << "; RoI IDs = "   << roi1->roiId()<<" AND "<<roi2->roiId()
-        << ": Eta1 = "      << roi1->eta()<<" Eta2= "<<roi2->eta()
-        << ", Phi1 = "      << roi1->phi()<<" Phi2= "<<roi2->phi()
-        << endreq;
+    if(m_useRoIs) {
+      std::vector<const TrigRoiDescriptor*> vecTrigRoiDescriptor(m_expectNumberOfInputTE);
+      for (unsigned int i =0; i < m_expectNumberOfInputTE; ++i)  {
+          if ( getFeature(inputTE[i], vecTrigRoiDescriptor[i]) != HLT::OK ) {
+              msg() << MSG::ERROR << "Navigation error while getting RoI descriptor " << i << endreq;
+              if ( timerSvc() ) m_BmmHypTot->stop();
+              if ( !i ) mon_Errors.push_back( ERROR_No_RoI_1 );
+              else      mon_Errors.push_back( ERROR_No_RoI_2 );
+              return HLT::NAV_ERROR;
+          }
+          if (vecTrigRoiDescriptor[i] == nullptr) {
+              msg() << MSG::ERROR << "Navigation error while getting RoI descriptor " << i << " (retrieved null pointer)" << endreq;
+              if ( timerSvc() ) m_BmmHypTot->stop();
+              if ( !i ) mon_Errors.push_back( ERROR_No_RoI_1 );
+              else      mon_Errors.push_back( ERROR_No_RoI_2 );
+              return HLT::NAV_ERROR;
+          }
+      } // for
+      
+      mon_Acceptance.push_back( ACCEPT_Got_RoIs );
+      
+      const TrigRoiDescriptor* roi1(vecTrigRoiDescriptor[0]), *roi2(vecTrigRoiDescriptor[1]);
+      // debug for ROI info
+      if ( msgLvl() <= MSG::DEBUG ){
+          msg() << MSG::DEBUG
+          << "Using inputTEs: "<< inputTE.front() <<  " and "  << inputTE.back() << " with Ids " << inputTE.front()->getId()<<" AND "<<inputTE.back()->getId()
+          << "; RoI IDs = "   << roi1->roiId()<<" AND "<<roi2->roiId()
+          << ": Eta1 = "      << roi1->eta()<<" Eta2= "<<roi2->eta()
+          << ", Phi1 = "      << roi1->phi()<<" Phi2= "<<roi2->phi()
+          << endreq;
+      }
+      mon_dEtaRoI = m_bphysHelperTool->absDeltaEta(roi1->eta(), roi2->eta());
+      mon_dPhiRoI = m_bphysHelperTool->absDeltaPhi(roi1->phi(), roi2->phi());
     }
-    mon_dEtaRoI = m_bphysHelperTool->absDeltaEta(roi1->eta(), roi2->eta());
-    mon_dPhiRoI = m_bphysHelperTool->absDeltaPhi(roi1->phi(), roi2->phi());
+    else {
+      if ( msgLvl() <= MSG::DEBUG ){
+        msg() << MSG::DEBUG << "Not using input TrigRoiDescriptors. For nscan chains." << endreq;
+      }
+    }
     
     typedef  ElementLinkVector<xAOD::MuonContainer>  ELVMuons;
     typedef  ElementLinkVector<xAOD::TrackParticleContainer> ELVTrackParticles;
@@ -402,26 +410,28 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         m_bphysHelperTool->addUnique(*muel, muons0,0.005,0.005,10, m_muonParticleType);
         m_bphysHelperTool->addUnique(*muel, muonsAll,0.005,0.005,10, m_muonParticleType);
     } // roi1
-    for (const auto muel: vec_elv_muons[1]){
-        // special case if noId set
-        if (m_noId) {
-            // no check needed for the noID
-            /*
-            if ( (*muel)->muonType() != xAOD::Muon::MuonStandAlone) {
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "noID set and Muon from roi2 is not StandAlone - reject" << endreq;
-                continue;
-            }
-             */
-        } else {
-            if ( (*muel)->muonType() != xAOD::Muon::Combined && (*muel)->muonType() != xAOD::Muon::SegmentTagged) {
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "noID not set and Muon from roi2 is neither Combined or SegmentTagged - reject" << endreq;
-                continue;
-            }
-        } // if noid
-        mon_Acceptance.push_back( ACCEPT_Mu2 );
-        m_bphysHelperTool->addUnique(*muel, muons1,0.005,0.005,10, (!m_noId ? m_muonParticleType : xAOD::Muon::MuonSpectrometerTrackParticle));
-        m_bphysHelperTool->addUnique(*muel, muonsAll,0.005,0.005,10, (!m_noId ? m_muonParticleType : xAOD::Muon::MuonSpectrometerTrackParticle));
-    } // roi2
+    if(vec_elv_muons.size() > 1) {
+      for (const auto muel: vec_elv_muons[1]){
+          // special case if noId set
+          if (m_noId) {
+              // no check needed for the noID
+              /*
+              if ( (*muel)->muonType() != xAOD::Muon::MuonStandAlone) {
+                  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "noID set and Muon from roi2 is not StandAlone - reject" << endreq;
+                  continue;
+              }
+              */
+          } else {
+              if ( (*muel)->muonType() != xAOD::Muon::Combined && (*muel)->muonType() != xAOD::Muon::SegmentTagged) {
+                  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "noID not set and Muon from roi2 is neither Combined or SegmentTagged - reject" << endreq;
+                  continue;
+              }
+          } // if noid
+          mon_Acceptance.push_back( ACCEPT_Mu2 );
+          m_bphysHelperTool->addUnique(*muel, muons1,0.005,0.005,10, (!m_noId ? m_muonParticleType : xAOD::Muon::MuonSpectrometerTrackParticle));
+          m_bphysHelperTool->addUnique(*muel, muonsAll,0.005,0.005,10, (!m_noId ? m_muonParticleType : xAOD::Muon::MuonSpectrometerTrackParticle));
+      } // roi2
+    }
 
     
     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Muons in roi1: " << muons0.size() << ", roi2: " << muons1.size() << endreq;
@@ -461,16 +471,18 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                     }
                     if (foundMu0 && foundMu1) break; // found both links
                 }
-                for ( const auto muel: vec_elv_muons[1] ) {
-                    if ( *muel == mu0) {
-                        ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
-                        foundMu0 = true;
-                    }
-                    if ( *muel == mu1) {
-                        ptl2EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
-                        foundMu1 = true;
-                    }
-                    if (foundMu0 && foundMu1) break; // found both links
+                if(vec_elv_muons.size() > 1) {
+                  for ( const auto muel: vec_elv_muons[1] ) {
+                      if ( *muel == mu0) {
+                          ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
+                          foundMu0 = true;
+                      }
+                      if ( *muel == mu1) {
+                          ptl2EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
+                          foundMu1 = true;
+                      }
+                      if (foundMu0 && foundMu1) break; // found both links
+                  }
                 }
 
                 bphys->addParticleLink(ptl1EL); //
@@ -512,16 +524,18 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                     }
                     if (foundMu0 && foundMu1) break; // found both links
                 }
-                for ( const auto muel: vec_elv_muons[1] ) {
-                    if ( *muel == mu0) {
-                        ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
-                        foundMu0 = true;
-                    }
-                    if ( *muel == mu1) {
-                        ptl2EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
-                        foundMu1 = true;
-                    }
-                    if (foundMu0 && foundMu1) break; // found both links
+                if(vec_elv_muons.size() > 1) {
+                  for ( const auto muel: vec_elv_muons[1] ) {
+                      if ( *muel == mu0) {
+                          ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
+                          foundMu0 = true;
+                      }
+                      if ( *muel == mu1) {
+                          ptl2EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
+                          foundMu1 = true;
+                      }
+                      if (foundMu0 && foundMu1) break; // found both links
+                  }
                 }
                 
                 bphys->addParticleLink(ptl1EL); //
@@ -642,6 +656,7 @@ void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *m
     if (m_bphysHelperTool->buildDiMu({tpel0,tpel1}, result, xAOD::TrigBphys::BMUMU, xAOD::TrigBphys::EF).isFailure() || !result) {
         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Problem with Fit code" << endreq;
     }
+    m_bphysHelperTool->setBeamlineDisplacement(result,{tp0,tp1});
     
     if (result) {
         mon_Acceptance.push_back( ACCEPT_Dimuon_Built );

@@ -85,6 +85,7 @@ class TrigL2BMuMuFex: public HLT::ComboAlgo {
     bool  m_ApplyupperMassCut;
     bool  m_doVertexFit;
     bool  m_acceptAll;
+    bool  m_acceptSameMuon;
     bool  m_oppositeCharge;
     bool  m_sameCharge;
     bool  m_noId;
