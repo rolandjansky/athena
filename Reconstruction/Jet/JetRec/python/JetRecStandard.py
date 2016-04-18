@@ -32,10 +32,7 @@ from RecExConfig.ObjKeyStore import cfgKeyStore
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRec_jobOptions')
 
-# Disable usage of vertices in pflow jets, if we are using cosmic data.
-from AthenaCommon.BeamFlags import jobproperties
-if jobproperties.Beam.beamType == 'cosmics':
-  jetFlags.useVertices = False
+
 
 # Skip truth if rec says it is absent.
 # No action if someone has already set the flag.
@@ -57,7 +54,7 @@ print myname + "  Final use topoclusters: " + str(jetFlags.useTopo())
 haveTracks = cfgKeyStore.isInTransient('xAOD::TrackParticleContainer','InDetTrackParticles')
 haveVertices = cfgKeyStore.isInTransient("xAOD::VertexContainer","PrimaryVertices")
 recTracks = rec.doInDet()
-recVertices = bool(InDetFlags.doVertexFinding)
+recVertices = bool(InDetFlags.doVertexFinding) and (recTracks or haveTracks)
 print myname + "Initial useTracks: " + sflagstat(jetFlags.useTracks)
 print myname + "      rec doInDet: " + str(recTracks)
 print myname + "  doVertexFinding: " + str(recVertices)
@@ -66,6 +63,16 @@ print myname + "    have vertices: " + str(haveVertices)
 if not jetFlags.useTracks.statusOn:
   jetFlags.useTracks = (recTracks or haveTracks) and (recVertices or haveVertices)
 print myname + "  Final useTracks: " + sflagstat(jetFlags.useTracks)
+
+if not jetFlags.useVertices.statusOn:
+    jetFlags.useVertices = (recVertices or haveVertices)
+print myname + "   useVertices: " + sflagstat(jetFlags.useVertices)
+
+# Disable usage of vertices in pflow jets, if we are using cosmic data.
+from AthenaCommon.BeamFlags import jobproperties
+if jobproperties.Beam.beamType == 'cosmics':
+    jetFlags.useVertices = False
+
 
 # Skip use of muon segments if not built.
 # No action if someone has already set the flag.
@@ -88,6 +95,10 @@ print myname + "  Final use Btagging: " + str(jetFlags.useBTagging)
 if 0:
   jetFlags.skipTools = ["comshapes"]
 jetlog.info( "Skipped tools: %s", jetFlags.skipTools())
+
+from RecExConfig.RecAlgsFlags import recAlgs
+if not recAlgs.doEFlow():
+    jetFlags.usePFlow = False
 
 # Set the list of rho calculations.
 # If caller has set jetFlags.eventShapeTools(), then we use those values.

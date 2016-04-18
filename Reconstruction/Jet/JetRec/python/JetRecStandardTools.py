@@ -277,7 +277,7 @@ jtm += RetrievePFOTool("pflowretriever")
 
 useVertices = True
 if False == jetFlags.useVertices:
-  useVertices = False
+    useVertices = False
 
 if True == jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
   useChargedWeights = True

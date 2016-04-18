@@ -126,7 +126,8 @@ append(const TList& inputs, PseudoJetVector& psjs, const LabelIndex* pli) const 
   jet::IConstituentUserInfo::Index labidx = 0;
   if ( pli != 0 ) labidx = pli->index(m_label);
   else ATH_MSG_WARNING("Index-to-label map is not supplied.");
-  if ( m_ghostscale ) labidx = -labidx;
+  //if ( m_ghostscale ) labidx = -labidx;
+  if(!m_negEnergyAsGhosts && m_ghostscale) labidx = -labidx;
   ATH_MSG_DEBUG( "Ghost scale =  " << m_ghostscale << "; idx = " << labidx );
   
   /// Loop over input, buid CUI and PseudoJets
