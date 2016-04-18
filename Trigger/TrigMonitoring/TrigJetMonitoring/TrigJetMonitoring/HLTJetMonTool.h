@@ -68,8 +68,8 @@ class HLTJetMonTool : public IHLTMonTool {
   typedef std::map<std::string, double> JetEtaLowThrestype;
   typedef std::map<std::string, double>::const_iterator JetEtaLowThresIter;
 
-  typedef std::map<std::string, int> JetNtype;
-  typedef std::map<std::string, int>::const_iterator JetNIter;
+  typedef std::map<std::string, unsigned int> JetNtype;
+  typedef std::map<std::string, unsigned int>::const_iterator JetNIter;
 
   public:
 

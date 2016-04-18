@@ -14,19 +14,13 @@
 #################################################################################################
 
 import math
+from TrigHLTMonitoring.HLTMonTriggerList import hltmonList
 
-## HLT & offline jet keys 
-## internal:StoreGate Key ordered pair
-hlt_JetKeys = { "a10tcemsubFS" : "HLT_xAOD__JetContainer_a10tcemsubFS",
-                "a4tcemsubFS" : "HLT_xAOD__JetContainer_a4tcemsubFS", 
-                "a4tcemjesFS" : "HLT_xAOD__JetContainer_a4tcemjesFS", 
-                "a4tcemjesPS" : "HLT_xAOD__JetContainer_a4tcemjesPS",
-                "a4tcemsubjesFS" : "HLT_xAOD__JetContainer_a4tcemsubjesFS",
-		"a4tclcwjesFS" : "HLT_xAOD__JetContainer_a4tclcwjesFS" }
+pp      = hltmonList.pp_mode
+hi      = hltmonList.HI_mode
+cosmics = hltmonList.cosmic_mode
+pPb     = hltmonList.pPb_mode
 
-hlt_offlineJetKeys = { "AntiKt4LCTopoJets" : "AntiKt4LCTopoJets", 
-                       "AntiKt4EMTopoJets" : "AntiKt4EMTopoJets", 
-                       "AntiKt10LCTopoJets" : "AntiKt10LCTopoJets"}
 
 # Binning for NJets
 hlt_njetbins = [ 55 ]
@@ -65,169 +59,546 @@ hlt_jetDepbins = [ 12 ]
 hlt_jetDepbinlo = [ -6.0 ]
 hlt_jetDepbinhi = [ 6.0 ]
 
+hlt_level1EtNBins             = [ 40 ]
+hlt_level1EtBinsLow           = [ 0. ]
+hlt_level1EtBinsHigh          = [ 400. ]
+
+hlt_hltEtNBins                 = [ 50, 50 ]
+hlt_hltEtBinsLow               = [ 0., 0. ]
+hlt_hltEtBinsHigh              = [ 500., 500.]
+
+
 ## Items/Chains for Trigger Efficiency 
 # NB1: ordered-pair: internal name:chain/item name used internally
 # NB2: ordered-pair: internal name:threshold value
 # NB3: python lists are alphabetically ordered
 # 4-Feb-2015 Modified to match default naming scheme for menu-aware monitoring
 
+
+
+## Default dummy config 
+
+hlt_JetKeys = { "a4tcemsubjesFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesFS"}
+
+hlt_offlineJetKeys = {"AntiKt4EMTopoJets":"AntiKt4EMTopoJets"}
+
+
+
 # L1 items   
-hlt_level1EtThresholds        = { 'L1_J15':5.,
-                                  'L1_J75':30.,
-                                  'L1_J100':50.,
-                                  'L1_J100.31ETA49':50.,
-                                  'L1_J400':150.}
-                                #  'L1_4J15':5.,
-                                #  'L1_4J20':10.}
+hlt_level1EtThresholds        = {'L1_J75':30.}
 
-hlt_l1EtaLowThresholds        = { 'L1_J15':0.,                        #Chose eta range for efficiency calculation
-                                  'L1_J75':0.,
-                                  'L1_J100':0.,
-                                  'L1_J100.31ETA49':3.1,
-                                  'L1_J400':0.}
-                                #  'L1_4J15':0.,
-                                #  'L1_4J20':0.}
-
-hlt_l1EtaHighThresholds        = { 'L1_J15':4.9,
-                                   'L1_J75':4.9,
-                                   'L1_J100':4.9,
-                                   'L1_J100.31ETA49':4.9,
-                                   'L1_J400':4.9}
-                               #   'L1_4J15':4.9,
-                               #   'L1_4J20':4.9}
+hlt_l1EtaLowThresholds        = {'L1_J75':0.}
 
 
+hlt_l1EtaHighThresholds        = {'L1_J75':4.9}
 
-
-hlt_level1EtNBins             = [ 40 ]
-hlt_level1EtBinsLow           = [ 0. ]
-hlt_level1EtBinsHigh          = [ 400. ]
 
 # HLT items
-hlt_hltEtThresholds            = { 'j25':20.,
-                                   'j25_320eta490':20.,
-                                   'j60':50., 
-                                   'j60_L1RD0_FILLED':50.,
-                                   'j60_280eta320':50.,
-                                   'j60_320eta490':50.,
-                                   'j200_jes_PS':100.,
-                                   'j260':150.,
-                                #   'j260_320eta490':150.,
-                                   'j360':250.,
-                                   'j460_a10_sub_L1J100':350.,
-                                   'j80_xe80':50.,
-                                   '4j45':20.,
-                                   '6j45':20.,
-                                   '5j60':30.,
-                                   'j0_perf_ds1_L1J75':0.,
-                                   'j0_perf_ds1_L1J100':0.}
-            #                       'ht700_L1J75':50.}
+hlt_hltEtThresholds={'j360':250.}
 
-hlt_hltEtaHighThresholds       = { 'j25':3.2,                          #Chose eta range for efficiency calculation
-                                   'j25_320eta490':4.9,
-                                   'j60':3.2 , 
-                                   'j60_L1RD0_FILLED':3.2,
-                                   'j60_280eta320':3.2,
-                                   'j60_320eta490':4.9,
-                                   'j200_jes_PS':3.2,'j260':3.2, 
-                                   'j260_320eta490':4.9,'j360':3.2, 
-                                   'j460_a10_sub_L1J100':3.2,
-                                   'j80_xe80':3.2,
-                                   '4j45':3.2,
-                                   '6j45':3.2,
-                                   '5j60':3.2,
-                                   'j0_perf_ds1_L1J75':3.2,
-                                   'j0_perf_ds1_L1J100':3.2}
-                                 #  'ht700_L1J75':3.2}
+hlt_hltEtaHighThresholds={'j360':3.2}
 
-hlt_hltEtaLowThresholds        = { 'j25':0.,
-                                   'j25_320eta490':3.2, 
-                                   'j60':0.,   
-                                   'j60_L1RD0_FILLED':0., 
-                                   'j60_280eta320':2.8,
-                                   'j60_320eta490':3.2,
-                                   'j200_jes_PS':0.,
-                                   'j260':0.,   
-                                 #  'j260_320eta490':3.2, 
-                                   'j360':0.,  
-                                   'j460_a10_sub_L1J100':0.,
-                                   'j80_xe80':0.,
-                                   '4j45':0.,
-                                   '6j45':0.,
-                                   '5j60':0.,
-                                   'j0_perf_ds1_L1J75':0.,
-                                   'j0_perf_ds1_L1J100':0.}
-                               #    'ht700_L1J75':0.}
+hlt_hltEtaLowThresholds={'j360':0.}
 
 
-hlt_hltJetn                    = { 'j25':1,                           #Select the nth jet for efficiency calcultaion of single/multijet HLT chains
-                                   'j25_320eta490':1, 
-                                   'j60':1,   
-                                   'j60_L1RD0_FILLED':1, 
-                                   'j60_280eta320':1,
-                                   'j60_320eta490':1,
-                                   'j200_jes_PS':1,
-                                   'j260':1,   
-                                 #  'j260_320eta490':1, 
-                                   'j360':1,  
-                                   'j460_a10_sub_L1J100':1,
-                                   'j80_xe80':1,
-                                   '4j45':4,
-                                   '6j45':6,
-                                   '5j60':5,
-                                   'j0_perf_ds1_L1J75':1,
-                                   'j0_perf_ds1_L1J100':1}
-                                #   'ht700_L1J75':1}
-
-
-hlt_hltContainers              = {'j25':'a4tcemsubjesFS',                  #Chose container to retrieve the features of a given chain
-                                  'j25_320eta490':'a4tcemsubjesFS',
-                                  'j60':'a4tcemsubjesFS',
-                                  'j60_L1RD0_FILLED':'a4tcemsubjesFS',
-                                  'j60_280eta320':'a4tcemsubjesFS',
-                                  'j60_320eta490':'a4tcemsubjesFS',
-                                  'j200_jes_PS':'a4tcemjesPS',
-                                  'j260':'a4tcemsubjesFS',
-                                 # 'j260_320eta490':'a4tcemsubjesFS',
-                                  'j360':'a4tcemsubjesFS',
-                                  'j460_a10_sub_L1J100':'a10tcemsubFS',
-                                  'j80_xe80':'a4tcemsubjesFS',
-                                  '4j45':'a4tcemsubjesFS',
-                                  '6j45':'a4tcemsubjesFS',
-                                  '5j60':'a4tcemsubjesFS',
-                                  'j0_perf_ds1_L1J75':'a4tcemsubjesFS',
-                                  'j0_perf_ds1_L1J100':'a4tcemsubjesFS'}
-                                #  'ht700_L1J75':'a4tcemsubjesFS'}
-
-hlt_hltEtNBins                 = [ 50, 50 ]
-hlt_hltEtBinsLow               = [ 0., 0. ]
-hlt_hltEtBinsHigh              = [ 500., 500.]
+hlt_hltJetn={'j360':1}
+  
+  
+hlt_hltContainers={'j360':'a4tcemsubjesFS'}
+  
+                
 # Offline 
-hlt_offlineEtThresholds        = { 'L1_J15':10., 
-                                   'j25':20.,
-                                   'j25_320eta490':20., 
-                                   'j60':50.  , 
-                                   'j60_L1RD0_FILLED':50.,
-                                   'j60_280eta320':50.,
-                                   'j60_320eta490':50.,
-                                   'j200_jes_PS':100.,
-                                   'j260':150.,
-                                 #  'j260_320eta490':150.,
-                                   'j360':250.,
-                                   'j460_a10_sub_L1J100':350.,
-                                   'j80_xe80':50.,
-                                   '4j45':20.,
-                                   '6j45':20.,
-                                   '5j60':30.,
-                                   'j0_perf_ds1_L1J75':0.,
-                                   'j0_perf_ds1_L1J100':0.}
-                                 #  'ht700_L1J75':50.}
+hlt_offlineEtThresholds={'j360':250.}
 #Dijet chains
-
-l1_DijetChains  = ['L1_J400']
-hlt_DijetChains = ['j0_perf_ds1_L1J75','j0_perf_ds1_L1J100']
+  
+l1_DijetChains  = ['L1_J75']
+hlt_DijetChains = ['j360']
 of_DijetChains  = ['AntiKt4EMTopoJets']
-            
+
+
+############################################ pp Config ###############################################
+
+if (pp) or (pPb):
+
+  hlt_JetKeys = { "a10tcemsubFS"    : "HLT_xAOD__JetContainer_a10tcemsubFS",
+                  "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS", 
+                  "a4tcemjesFS"     : "HLT_xAOD__JetContainer_a4tcemjesFS", 
+                  "a4tcemjesPS"     : "HLT_xAOD__JetContainer_a4tcemjesPS",
+                  "a4tcemsubjesFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesFS",
+                  "a4tclcwjesFS"    : "HLT_xAOD__JetContainer_a4tclcwjesFS",
+                  "a4TTemnojcalibFS": "HLT_xAOD__JetContainer_a4TTemnojcalibFS"
+                  }
+  
+  hlt_offlineJetKeys = {"AntiKt4EMTopoJets":"AntiKt4EMTopoJets",   
+                        "AntiKt4LCTopoJets":"AntiKt4LCTopoJets", 
+                        "AntiKt10LCTopoJets":"AntiKt10LCTopoJets"}
+  
+  
+  
+# L1 items   
+  hlt_level1EtThresholds        = { 'L1_J10':0.,
+                                    'L1_TE50':0.,
+                                    'L1_J15':5.,
+                                    'L1_J75':30.,
+                                    'L1_J100':50.,
+                                    'L1_J100.31ETA49':50.,
+                                    'L1_J400':150.}
+  
+  hlt_l1EtaLowThresholds        = { 'L1_J10':0.,
+                                    'L1_TE50':0.,
+                                    'L1_J15':0.,                        #Chose eta range for efficiency calculation
+                                    'L1_J75':0.,
+                                    'L1_J100':0.,
+                                    'L1_J100.31ETA49':3.1,
+                                    'L1_J400':0.}
+  
+  
+  hlt_l1EtaHighThresholds        = { 'L1_J10':4.9,
+                                     'L1_TE50':4.9,
+                                     'L1_J15':4.9,
+                                     'L1_J75':4.9,
+                                     'L1_J100':4.9,
+                                     'L1_J100.31ETA49':4.9,
+                                     'L1_J400':4.9}
+  
+  
+# HLT items
+  hlt_hltEtThresholds            = { 'j25':20.,
+                                     'j25_320eta490':20.,
+                                     'j60':50., 
+                                     'j60_L1RD0_FILLED':50.,
+                                     'j60_280eta320':50.,
+                                     'j60_320eta490':50.,
+                                     'j200_jes_PS':100.,
+                                     'j260':150.,
+                                     'j360':250.,
+                                     'j460_a10_sub_L1J100':350.,
+                                     'j80_xe80':50.,
+                                     '4j45':20.,
+                                     '6j45':20.,
+                                     '5j60':30.,
+                                     '10j40_L14J20':0.,
+                                     'j0_perf_ds1_L1J75':0.,
+                                     'j0_perf_ds1_L1J100':0.,
+                                     'ht850_L1J100':50.,
+                                     'j60_TT':20,
+                                     'j85_cleanLLP':30,
+                                     'j85_cleanL':30,
+                                     'j85_cleanT':30,
+                                     'j0_1i2c400m600TLA':0.,
+                                     'j0_0i1c400m600TLA':0.,
+                                     'j0_1i2c500m900TLA':0.,
+                                     'j0_0i1c500m900TLA':0.
+                                     }
+  
+  hlt_hltEtaHighThresholds       = { 'j25':3.2,                          #Chose eta range for efficiency calculation
+                                                   'j25_320eta490':4.9,
+                                     'j60':3.2 , 
+                                     'j60_L1RD0_FILLED':3.2,
+                                     'j60_280eta320':3.2,
+                                     'j60_320eta490':4.9,
+                                     'j200_jes_PS':3.2,'j260':3.2, 
+                                     'j260_320eta490':4.9,'j360':3.2, 
+                                     'j460_a10_sub_L1J100':3.2,
+                                     'j80_xe80':3.2,
+                                     '4j45':3.2,
+                                     '6j45':3.2,
+                                     '5j60':3.2,
+                                     '10j40_L14J20':3.2,
+                                     'j0_perf_ds1_L1J75':3.2,
+                                     'j0_perf_ds1_L1J100':3.2,
+                                     'ht850_L1J100':3.2,
+                                     'j60_TT':3.2,
+                                     'j85_cleanLLP':3.2,
+                                     'j85_cleanL':3.2,
+                                     'j85_cleanT':3.2,
+                                     'j0_1i2c400m600TLA':3.2,
+                                     'j0_0i1c400m600TLA':3.2,
+                                     'j0_1i2c500m900TLA':3.2,
+                                     'j0_0i1c500m900TLA':3.2}
+  
+  hlt_hltEtaLowThresholds        = { 'j25':0.,
+                                     'j25_320eta490':3.2, 
+                                     'j60':0.,   
+                                     'j60_L1RD0_FILLED':0., 
+                                     'j60_280eta320':2.8,
+                                     'j60_320eta490':3.2,
+                                     'j200_jes_PS':0.,
+                                     'j260':0.,   
+                                     'j360':0.,  
+                                     'j460_a10_sub_L1J100':0.,
+                                     'j80_xe80':0.,
+                                     '4j45':0.,
+                                     '6j45':0.,
+                                     '5j60':0.,
+                                     '10j40_L14J20':0.,
+                                     'j0_perf_ds1_L1J75':0.,
+                                     'j0_perf_ds1_L1J100':0.,
+                                     'ht850_L1J100':0.,
+                                     'j60_TT':0.,
+                                     'j85_cleanLLP':0.,
+                                     'j85_cleanL':0.,
+                                     'j85_cleanT':0.,
+                                     'j0_1i2c400m600TLA':0.,
+                                     'j0_0i1c400m600TLA':0.,
+                                     'j0_1i2c500m900TLA':0.,
+                                     'j0_0i1c500m900TLA':0.}
+  
+  
+  hlt_hltJetn                    = { 'j25':1,                           #Select the nth jet for efficiency calcultaion of single/multijet HLT chains
+                                     'j25_320eta490':1, 
+                                     'j60':1,   
+                                     'j60_L1RD0_FILLED':1, 
+                                     'j60_280eta320':1,
+                                     'j60_320eta490':1,
+                                     'j200_jes_PS':1,
+                                     'j260':1,   
+                                     'j360':1,  
+                                     'j460_a10_sub_L1J100':1,
+                                     'j80_xe80':1,
+                                     '4j45':4,
+                                     '6j45':6,
+                                     '5j60':5,
+                                     '10j40_L14J20':10,
+                                     'j0_perf_ds1_L1J75':1,
+                                     'j0_perf_ds1_L1J100':1,
+                                     'ht850_L1J100':1,
+                                     'j60_TT':1,
+                                     'j85_cleanLLP':1,
+                                     'j85_cleanL':1,
+                                     'j85_cleanT':1,
+                                     'j0_1i2c400m600TLA':1,
+                                     'j0_0i1c400m600TLA':1,
+                                     'j0_1i2c500m900TLA':1,
+                                     'j0_0i1c500m900TLA':1}
+  
+  
+  hlt_hltContainers              = {'j25':'a4tcemsubjesFS',                  #Chose container to retrieve the features of a given chain
+                                    'j25_320eta490':'a4tcemsubjesFS',
+                                    'j60':'a4tcemsubjesFS',
+                                    'j60_L1RD0_FILLED':'a4tcemsubjesFS',
+                                    'j60_280eta320':'a4tcemsubjesFS',
+                                    'j60_320eta490':'a4tcemsubjesFS',
+                                    'j200_jes_PS':'a4tcemjesPS',
+                                    'j260':'a4tcemsubjesFS',
+                                    'j360':'a4tcemsubjesFS',
+                                    'j460_a10_sub_L1J100':'a10tcemsubFS',
+                                    'j80_xe80':'a4tcemsubjesFS',
+                                    '4j45':'a4tcemsubjesFS',
+                                    '6j45':'a4tcemsubjesFS',
+                                    '5j60':'a4tcemsubjesFS',
+                                    '10j40_L14J20':'a4tcemsubjesFS',
+                                    'j0_perf_ds1_L1J75':'a4tcemsubjesFS',
+                                    'j0_perf_ds1_L1J100':'a4tcemsubjesFS',
+                                    'ht850_L1J100':'a4tcemsubjesFS',
+                                    'j60_TT':'a4TTemnojcalibFS',
+                                    'j85_cleanLLP':'a4tcemsubjesFS',
+                                    'j85_cleanL':'a4tcemsubjesFS',
+                                    'j85_cleanT':'a4tcemsubjesFS',
+                                    'j0_1i2c400m600TLA':'a4tcemsubjesFS',
+                                    'j0_0i1c400m600TLA':'a4tcemsubjesFS',
+                                    'j0_1i2c500m900TLA':'a4tcemsubjesFS',
+                                    'j0_0i1c500m900TLA':'a4tcemsubjesFS'}
+                
+                
+# Offline 
+  hlt_offlineEtThresholds        = { 'L1_J15':10., 
+                                     'j25':20.,
+                                     'j25_320eta490':20., 
+                                     'j60':50.  , 
+                                     'j60_L1RD0_FILLED':50.,
+                                     'j60_280eta320':50.,
+                                     'j60_320eta490':50.,
+                                     'j200_jes_PS':100.,
+                                     'j260':150.,
+                                     'j360':250.,
+                                     'j460_a10_sub_L1J100':350.,
+                                     'j80_xe80':50.,
+                                     '4j45':20.,
+                                     '6j45':20.,
+                                     '5j60':30.,
+                                     '10j40_L14J20':0.,
+                                     'j0_perf_ds1_L1J75':0.,
+                                     'j0_perf_ds1_L1J100':0.,
+                                     'ht850_L1J100':50.,
+                                     'j60_TT':20,
+                                     'j85_cleanLLP':30,
+                                     'j85_cleanL':30,
+                                     'j85_cleanT':30,
+                                     'j0_1i2c400m600TLA':0.,
+                                     'j0_0i1c400m600TLA':0.,
+                                     'j0_1i2c500m900TLA':0.,
+                                     'j0_0i1c500m900TLA':0.}
+#Dijet chains
+  
+  l1_DijetChains  = ['L1_J400']
+  hlt_DijetChains = ['j0_perf_ds1_L1J75','j0_perf_ds1_L1J100']
+  of_DijetChains  = ['AntiKt4EMTopoJets']
+
+
+
+############################################# HI Config #########################################################
+  
+if (hi):
+
+  hlt_JetKeys = { "a10tcemsubFS"    : "HLT_xAOD__JetContainer_a10tcemsubFS",
+                  "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS", 
+                  "a4tcemjesFS"     : "HLT_xAOD__JetContainer_a4tcemjesFS", 
+                  "a4tcemjesPS"     : "HLT_xAOD__JetContainer_a4tcemjesPS",
+                  "a4tcemsubjesFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesFS",
+                  "a4tclcwjesFS"    : "HLT_xAOD__JetContainer_a4tclcwjesFS",
+                  "a4ionemsubjesFS" : "HLT_xAOD__JetContainer_a4ionemsubjesFS",  # Start HI chains
+                  "a3ionemsubjesFS" : "HLT_xAOD__JetContainer_a3ionemsubjesFS" }
+  
+  hlt_offlineJetKeys = {"AntiKt2HIJets"      : "AntiKt2HIJets",   # Start HI chains
+                        "AntiKt3HIJets"      : "AntiKt3HIJets", 
+                        "AntiKt4HIJets"      : "AntiKt4HIJets"}
+
+  hlt_level1EtThresholds        = { 'L1_J10':0.,
+                                    'L1_TE50':0.,
+                                    'L1_J15':5.,
+                                    'L1_J75':30.,
+                                    'L1_J100':50.,
+                                    'L1_J100.31ETA49':50.,
+                                    'L1_J400':150.}
+
+  hlt_l1EtaLowThresholds        = { 'L1_J10':0.,
+                                    'L1_TE50':0.,
+                                    'L1_J15':0.,                        #Chose eta range for efficiency calculation
+                                    'L1_J75':0.,
+                                    'L1_J100':0.,
+                                    'L1_J100.31ETA49':3.1,
+                                    'L1_J400':0.}
+  
+  
+  hlt_l1EtaHighThresholds        = { 'L1_J10':4.9,
+                                     'L1_TE50':4.9,
+                                     'L1_J15':4.9,
+                                     'L1_J75':4.9,
+                                     'L1_J100':4.9,
+                                     'L1_J100.31ETA49':4.9,
+                                     'L1_J400':4.9}
+
+# HLT items
+  hlt_hltEtThresholds            = { 'j25':20.,
+                                     'j25_320eta490':20.,
+                                     'j60':50., 
+                                     'j60_L1RD0_FILLED':50.,
+                                     'j60_280eta320':50.,
+                                     'j60_320eta490':50.,
+                                     'j200_jes_PS':100.,
+                                     'j260':150.,
+                                     'j360':250.,
+                                     'j460_a10_sub_L1J100':350.,
+                                     'j80_xe80':50.,
+                                     '4j45':20.,
+                                     '6j45':20.,
+                                     '5j60':30.,
+                                     'j0_perf_ds1_L1J75':0.,
+                                     'j0_perf_ds1_L1J100':0.,
+                                     'ht850_L1J100':50.,
+                                     'j30_ion_L1TE50':0., # Start HI chains
+                                     'j30_ion_L1TE20':0.,
+                                     'j30_a3_ion_L1TE50':0.,
+                                     'j50_ion_L1TE50':0.,
+                                     'j50_ion_L1J10' :0.,
+                                     'j100_ion_L1TE50':0.,
+                                     'j150_ion_L1TE50':0.}
+  
+  hlt_hltEtaHighThresholds       = { 'j25':3.2,                          #Chose eta range for efficiency calculation
+                                     'j25_320eta490':4.9,
+                                     'j60':3.2 , 
+                                     'j60_L1RD0_FILLED':3.2,
+                                     'j60_280eta320':3.2,
+                                     'j60_320eta490':4.9,
+                                     'j200_jes_PS':3.2,'j260':3.2, 
+                                     'j260_320eta490':4.9,'j360':3.2, 
+                                     'j460_a10_sub_L1J100':3.2,
+                                     'j80_xe80':3.2,
+                                     '4j45':3.2,
+                                     '6j45':3.2,
+                                     '5j60':3.2,
+                                     'j0_perf_ds1_L1J75':3.2,
+                                     'j0_perf_ds1_L1J100':3.2,
+                                     'ht850_L1J100':3.2,
+                                     'j30_ion_L1TE50':3.2, # Start HI chains
+                                     'j30_ion_L1TE20':3.2,
+                                     'j30_a3_ion_L1TE50':3.2,
+                                     'j50_ion_L1TE50':3.2,
+                                     'j50_ion_L1J10' :3.2,
+                                     'j100_ion_L1TE50':3.2,
+                                     'j150_ion_L1TE50':3.2}
+  
+  hlt_hltEtaLowThresholds        = { 'j25':0.,
+                                     'j25_320eta490':3.2, 
+                                     'j60':0.,   
+                                     'j60_L1RD0_FILLED':0., 
+                                     'j60_280eta320':2.8,
+                                     'j60_320eta490':3.2,
+                                     'j200_jes_PS':0.,
+                                     'j260':0.,   
+                                     'j360':0.,  
+                                     'j460_a10_sub_L1J100':0.,
+                                     'j80_xe80':0.,
+                                     '4j45':0.,
+                                     '6j45':0.,
+                                     '5j60':0.,
+                                     'j0_perf_ds1_L1J75':0.,
+                                     'j0_perf_ds1_L1J100':0.,
+                                     'ht850_L1J100':0.,
+                                     'j30_ion_L1TE50':0.,  # Start HI chains
+                                     'j30_ion_L1TE20':0.,
+                                     'j30_a3_ion_L1TE50':0.,
+                                     'j50_ion_L1TE50':0.,
+                                     'j50_ion_L1J10' :0.,
+                                     'j100_ion_L1TE50':0.,
+                                     'j150_ion_L1TE50':0.}
+  
+  
+  hlt_hltJetn                    = { 'j25':1,                           #Select the nth jet for efficiency calcultaion of single/multijet HLT chains
+                                     'j25_320eta490':1, 
+                                     'j60':1,   
+                                     'j60_L1RD0_FILLED':1, 
+                                     'j60_280eta320':1,
+                                     'j60_320eta490':1,
+                                     'j200_jes_PS':1,
+                                     'j260':1,   
+                                     'j360':1,  
+                                     'j460_a10_sub_L1J100':1,
+                                     'j80_xe80':1,
+                                     '4j45':4,
+                                     '6j45':6,
+                                     '5j60':5,
+                                     'j0_perf_ds1_L1J75':1,
+                                     'j0_perf_ds1_L1J100':1,
+                                     'ht850_L1J100':1,
+                                     'j30_ion_L1TE50':1,   # Start HI chains
+                                     'j30_ion_L1TE20':1,
+                                     'j30_a3_ion_L1TE50':1,
+                                     'j50_ion_L1TE50':1,
+                                     'j50_ion_L1J10' :1,
+                                     'j100_ion_L1TE50':1,
+                                     'j150_ion_L1TE50':1}
+
+
+  hlt_hltContainers              = {'j25':'a4tcemsubjesFS',                  #Chose container to retrieve the features of a given chain
+                                    'j25_320eta490':'a4tcemsubjesFS',
+                                    'j60':'a4tcemsubjesFS',
+                                    'j60_L1RD0_FILLED':'a4tcemsubjesFS',
+                                    'j60_280eta320':'a4tcemsubjesFS',
+                                    'j60_320eta490':'a4tcemsubjesFS',
+                                    'j200_jes_PS':'a4tcemjesPS',
+                                    'j260':'a4tcemsubjesFS',
+                                    'j360':'a4tcemsubjesFS',
+                                    'j460_a10_sub_L1J100':'a10tcemsubFS',
+                                    'j80_xe80':'a4tcemsubjesFS',
+                                    '4j45':'a4tcemsubjesFS',
+                                    '6j45':'a4tcemsubjesFS',
+                                    '5j60':'a4tcemsubjesFS',
+                                    'j0_perf_ds1_L1J75':'a4tcemsubjesFS',
+                                    'j0_perf_ds1_L1J100':'a4tcemsubjesFS',
+                                    'ht850_L1J100':'a4tcemsubjesFS',
+                                    'j30_ion_L1TE50':'a4ionemsubjesFS',  # Start HI chains
+                                    'j30_ion_L1TE20':'a4ionemsubjesFS',
+                                    'j30_a3_ion_L1TE50':'a3ionemsubjesFS',
+                                    'j50_ion_L1TE50':'a4ionemsubjesFS',
+                                    'j50_ion_L1J10' :'a4ionemsubjesFS',
+                                    'j100_ion_L1TE50':'a4ionemsubjesFS',
+                                    'j150_ion_L1TE50':'a4ionemsubjesFS'}
+
+  hlt_offlineEtThresholds        = { 'L1_J15':10., 
+                                     'j25':20.,
+                                     'j25_320eta490':20., 
+                                     'j60':50.  , 
+                                     'j60_L1RD0_FILLED':50.,
+                                     'j60_280eta320':50.,
+                                     'j60_320eta490':50.,
+                                     'j200_jes_PS':100.,
+                                     'j260':150.,
+                                     'j360':250.,
+                                     'j460_a10_sub_L1J100':350.,
+                                     'j80_xe80':50.,
+                                     '4j45':20.,
+                                     '6j45':20.,
+                                     '5j60':30.,
+                                     'j0_perf_ds1_L1J75':0.,
+                                     'j0_perf_ds1_L1J100':0.,
+                                     'ht850_L1J100':50.,
+                                     'L1_J10':0.,           # Start HI chains
+                                     'L1_TE50':0.,
+                                     'j30_ion_L1TE50':0.,  
+                                     'j30_ion_L1TE20':0.,
+                                     'j30_a3_ion_L1TE50':0.,
+                                     'j50_ion_L1TE50':0.,
+                                     'j50_ion_L1J10' :0.,
+                                     'j100_ion_L1TE50':0.,
+                                     'j150_ion_L1TE50':0.}
+#Dijet chains
+  
+  l1_DijetChains  = ['L1_J400']
+  hlt_DijetChains = ['j0_perf_ds1_L1J75','j0_perf_ds1_L1J100']
+  of_DijetChains  = ['AntiKt4HIJets']
+
+
+
+################################### Cosmics config ######################################################
+
+
+if (cosmics):
+
+  hlt_JetKeys = { "a10tcemsubFS"    : "HLT_xAOD__JetContainer_a10tcemsubFS",
+                  "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS", 
+                  "a4tcemjesFS"     : "HLT_xAOD__JetContainer_a4tcemjesFS", 
+                  "a4tcemjesPS"     : "HLT_xAOD__JetContainer_a4tcemjesPS",
+                  "a4tcemsubjesFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesFS",
+                  "a4tclcwjesFS"    : "HLT_xAOD__JetContainer_a4tclcwjesFS",
+                  "a4TTemnojcalibFS": "HLT_xAOD__JetContainer_a4TTemnojcalibFS"
+                  }
+  
+  hlt_offlineJetKeys = {"AntiKt4EMTopoJets":"AntiKt4EMTopoJets",   
+                        "AntiKt4LCTopoJets":"AntiKt4LCTopoJets", 
+                        "AntiKt10LCTopoJets":"AntiKt10LCTopoJets"}
+  
+
+
+  hlt_level1EtThresholds        = { 'L1_J10':0.,
+                                    'L1_J15':5.,}
+  
+  hlt_l1EtaLowThresholds        = { 'L1_J10':0.,
+                                    'L1_J15':0.}
+  
+  
+  hlt_l1EtaHighThresholds        = { 'L1_J10':4.9,
+                                     'L1_J15':4.9,}
+  
+  
+# HLT items
+  hlt_hltEtThresholds            = {'j25':20.}
+                                     
+  
+  hlt_hltEtaHighThresholds       = {'j25':3.2}
+  
+  hlt_hltEtaLowThresholds        = { 'j25':0.}
+  
+  
+  hlt_hltJetn                    = { 'j25':1}
+  
+  
+  hlt_hltContainers              = {'j25':'a4tcemsubjesFS'}
+                
+                
+# Offline 
+  hlt_offlineEtThresholds        = { 'L1_J15':10., 
+                                     'j25':20.}
+#Dijet chains
+  
+  l1_DijetChains  = ['L1_J400']
+  hlt_DijetChains = ['j0_perf_ds1_L1J75','j0_perf_ds1_L1J100']
+  of_DijetChains  = ['AntiKt4EMTopoJets']
+
+
+##################################################################################################################
+
 ## implemented but not being used [todo]
 ##hlt_jetchainsbyregexp         = [ "(L2|EF)_[0-9]?[jJ][0-9]+", "(L2|EF)_[0-9]+[fj][j0-9]+"]
 
