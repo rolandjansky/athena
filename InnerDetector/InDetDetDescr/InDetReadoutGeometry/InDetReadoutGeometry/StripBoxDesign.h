@@ -212,18 +212,6 @@ inline int StripBoxDesign::strip(int stripId1Dim) const {
     return stripId1Dim % m_nStrips; 
 }
 
-HepGeom::Vector3D<double> StripBoxDesign::phiMeasureSegment(const SiLocalPosition & /*position*/)
-const {
-    throw std::runtime_error("Call to phiMeasureSegment, DEPRECATED, not implemented.");
-}
-
-/// DEPRECATED: Unused (2014)
-void StripBoxDesign::distanceToDetectorEdge(SiLocalPosition const & /*pos*/,
-                                            double & /*etaDist*/,
-                                            double & /*phiDist*/) const {
-    throw std::runtime_error(
-              "Call to distanceToDetectorEdge which is Deprecated and not yet implemented");
-}
 
 /// DEPRECATED for StripBoxDesign; no dead area
 double StripBoxDesign::deadAreaUpperBoundary() const {

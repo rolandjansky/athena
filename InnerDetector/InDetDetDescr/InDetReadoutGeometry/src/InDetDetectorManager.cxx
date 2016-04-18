@@ -15,7 +15,7 @@ namespace InDetDD
 {
 
     InDetDetectorManager::InDetDetectorManager(StoreGateSvc * detStore, const std::string & name)
-        : m_detStore(detStore), 
+        : m_alignfoldertype{none},m_detStore(detStore), 
         m_msg(name+"DetectorManager"), 
         m_suppressWarnings(false)
     {
@@ -72,6 +72,15 @@ namespace InDetDD
         m_specialFolders.insert(key);
     }
 
+    void InDetDetectorManager::addGlobalFolder(const std::string & key)
+    {
+        m_globalFolders.insert(key);
+    }
+
+    void InDetDetectorManager::addAlignFolderType(const AlignFolderType  alignfolder)
+    {
+        m_alignfoldertype = alignfolder;
+    }
 
   // Return the level in the hierarchy (user defined) corresponding to the key.
     const InDetDetectorManager::LevelInfo& InDetDetectorManager::getLevel(const std::string & key) const 
@@ -83,7 +92,6 @@ namespace InDetDD
         return iter->second;
     }
 
-  
     StatusCode InDetDetectorManager::align( IOVSVC_CALLBACK_ARGS_P(I,keys) ) const
     {
         (void) I; // avoid warning about unused parameter 
@@ -93,9 +101,25 @@ namespace InDetDD
         if (!getIdHelper()) return StatusCode::SUCCESS;
 
         bool alignmentChange = false;
+	const AlignInfo &aligninfo = AlignInfo(m_alignfoldertype);
 
         // If dummy arguments
         if (keys.empty()) {
+
+
+            // New global aligment folders should be processed first
+            for (std::set<std::string>::const_iterator iterFolders = m_globalFolders.begin();
+            iterFolders != m_globalFolders.end();
+            ++iterFolders) {
+                try {
+                    bool status = processGlobalAlignmentContainer(*iterFolders);
+                    alignmentChange = (alignmentChange || status);
+                } catch(std::runtime_error& err) {
+                    // keys are empty when running simualtion. It is normal for detector specific aligments not to exist.
+		    msg(MSG::FATAL) << err.what() << endreq;
+		    return StatusCode::FAILURE;
+                }
+            }
 
             // Regular alignments. Loop through folder keys. Normally only one.
             for (std::set<std::string>::const_iterator iterFolders = m_folders.begin();
@@ -116,7 +140,7 @@ namespace InDetDD
             iterFolders != m_specialFolders.end();
             ++iterFolders) {
                 try {
-                    bool status = processSpecialAlignment(*iterFolders);
+		  bool status = processSpecialAlignment(*iterFolders, aligninfo.AlignFolder());
                     alignmentChange = (alignmentChange || status);
                 } catch(std::runtime_error& err) {
                     // keys are empty when running simualtion. It is normal for detector specific aligments not to exist.
@@ -133,7 +157,19 @@ namespace InDetDD
 
                 if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Processing call back key  " << key << endreq;      
 
-                    if ( m_folders.find(key) != m_folders.end() ) { 
+		if ( m_globalFolders.find(key) != m_globalFolders.end() ) { 
+
+                    try {
+                        // New global alignemnts
+                        bool status = processGlobalAlignmentContainer(key);
+                        alignmentChange = (alignmentChange || status);
+                    } catch(std::runtime_error& err) {
+                        // alignments should always exist so we return fatal if we could not process the alignment for this key
+                        msg(MSG::FATAL) << err.what() << endreq;
+                        return StatusCode::FAILURE;
+                    }
+
+		} else if ( m_folders.find(key) != m_folders.end() ) { 
 
                     try {
                         // Regular alignemnts
@@ -148,7 +184,7 @@ namespace InDetDD
                 } else if ( m_specialFolders.find(key) !=  m_specialFolders.end() ) {
                     try {
                         // Detector specific alignments
-                        bool status = processSpecialAlignment(key);
+		      bool status = processSpecialAlignment(key, aligninfo.AlignFolder());
                         alignmentChange = (alignmentChange || status);
                     } 
                     catch(std::runtime_error& err) {
@@ -195,6 +231,7 @@ namespace InDetDD
         // loop over all the AlignableTransform objects in the collection
         for (DataVector<AlignableTransform>::const_iterator pat=container->begin();
         pat!=container->end();++pat) {
+	  
             bool status = processKey((*pat)->tag(),*pat);
             alignmentChange = (alignmentChange || status);
         }
@@ -224,10 +261,11 @@ namespace InDetDD
         for (AlignableTransform::AlignTransMem_citr trans_iter = transformCollection->begin(); 
         trans_iter != transformCollection->end(); 
         ++trans_iter) {
-            if (msgLvl(MSG::VERBOSE)) {
-                msg(MSG::VERBOSE) << "Get alignment for identifier " 
-                    << getIdHelper()->show_to_string(trans_iter->identify())  
-                    << " at level " << levelInfo.level() << endreq;
+            if (msgLvl(MSG::DEBUG)) {
+	      msg(MSG::DEBUG) << "Get alignment for identifier " 
+			     << getIdHelper()->show_to_string(trans_iter->identify())  
+			     << " at level " << levelInfo.level() << endreq;
+
             }
             // The delta in the conditions DB is not necessarily the same as what is needed in the
             // alignable transform. At the moment we support global frame, local frame or an alternative frame
@@ -269,7 +307,43 @@ namespace InDetDD
     }
 
   // We provide a default implementation of any detector specific alignment.
-    bool InDetDetectorManager::processSpecialAlignment(const std::string &) const
+    bool InDetDetectorManager::processGlobalAlignmentContainer(const std::string & key) const
+    {
+      bool alignmentChange = false;
+
+      msg(MSG::DEBUG) << "processing GlobalAlignmentContainer with key:  " << key  << endreq;
+      // From the key determine what level in hierarchy we are dealing with.                                                                                   
+      // returns -1 if unrecognized.                                                                                                                           
+      const LevelInfo & levelInfo = getLevel(key);
+      if (msgLvl(MSG::DEBUG)) {
+	if (levelInfo.isValid()) {
+	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Processing channel: " << key << endreq;
+	} else {
+	  msg(MSG::DEBUG) << "Channel " << key << " not registered in this manager" << endreq;
+	}
+      }
+      // return silently if unrecognised - this can happen in container mode                                                                                   
+      // when a single container holds transforms for both pixel and SCT                                                                                       
+      if (!levelInfo.isValid() ) return false;
+        
+      // Within detector specific code
+      bool status = processGlobalAlignment(key, levelInfo.level(), levelInfo.frame());
+      
+      alignmentChange = (alignmentChange || status);
+
+      return alignmentChange;
+
+    }
+  
+  // We provide a default implementation of any detector specific alignment.                                                                                 
+    bool InDetDetectorManager::processGlobalAlignment(const std::string &, int /*level*/, FrameType /*frame*/) const
+    {
+        return false;
+    }
+
+
+  // We provide a default implementation of any detector specific alignment.
+    bool InDetDetectorManager::processSpecialAlignment(const std::string &, InDetDD::AlignFolderType) const
     {
         return false;
     }

@@ -8,7 +8,7 @@
 #include <cmath>
 #include "InDetReadoutGeometry/StripStereoAnnulusDesign.h"
 #include "Identifier/Identifier.h"
-#include "TrkSurfaces/RectangleBounds.h"
+#include "TrkSurfaces/AnnulusBounds.h"
 
 using namespace std;
 
@@ -67,9 +67,8 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
     m_scheme.setCells(totalStrips);
     m_scheme.setDiodes(totalStrips);
 
-    double width = m_nStrips[0] * m_pitch[0]; // Assume all rows have same width
-    double length = m_stripEndRadius.back() - m_stripStartRadius[0];
-    m_bounds = new Trk::RectangleBounds(width / 2.0, length / 2.0); // Awaiting new boundclass for StereoAnnulus shape
+// AnnulusBounds(double minR, double maxR, double R, double phi, double phiS)
+    m_bounds = new Trk::AnnulusBounds(m_stripStartRadius[0], m_stripEndRadius.back(), m_R, m_nStrips[0] * m_pitch[0], m_stereo);
 }
 
 StripStereoAnnulusDesign::~StripStereoAnnulusDesign() {
@@ -84,12 +83,12 @@ void StripStereoAnnulusDesign::getStripRow(SiCellId cellId, int *strip2D, int *r
 }
 
 int  StripStereoAnnulusDesign::strip1Dim(int strip, int row) const {
-// << "Niggle: strip1Dim(" << strip << ", " << row << ")\n";
+
     return m_firstStrip[row] + strip;
 }
 
 void StripStereoAnnulusDesign::neighboursOfCell(const SiCellId &cellId, std::vector<SiCellId> &neighbours) const {
-cout << "Niggle: Get neighbours\n";
+
 
     neighbours.clear();
 
@@ -113,7 +112,7 @@ cout << "Niggle: Get neighbours\n";
 }
 
 const Trk::SurfaceBounds &StripStereoAnnulusDesign::bounds() const {
-cout << "Niggle: Get bounds\n";
+
     return *m_bounds;
 }
 
@@ -163,6 +162,12 @@ SiLocalPosition StripStereoAnnulusDesign::localPositionOfCell(SiCellId const &ce
     return stripPosAtR(strip, row, r);
 }
 
+double StripStereoAnnulusDesign::localModuleCentreRadius() const {
+  int middleStrip = m_stripEndRadius.size() / 2; 
+  double r = (m_stripEndRadius[middleStrip] + m_stripStartRadius[middleStrip]) / 2.;//approximation - should be close enough?
+  return r;
+}
+
 SiLocalPosition StripStereoAnnulusDesign::stripPosAtR(int strip, int row, double r) const {
 
     double phiPrime = (strip - m_nStrips[row] / 2. + 0.5) * m_pitch[row];
@@ -183,7 +188,7 @@ SiLocalPosition StripStereoAnnulusDesign::localPositionOfCluster(SiCellId const 
 //
 //    Return the average centre-position of the first and last strips.
 //
-cout << "Niggle: localPositionOfCluster\n";
+
     SiLocalPosition startPos = localPositionOfCell(cellId);
 
     if (clusterSize <= 1) {
@@ -201,7 +206,6 @@ cout << "Niggle: localPositionOfCluster\n";
 
 /// Give end points of the strip that covers the given position
 std::pair<SiLocalPosition, SiLocalPosition> StripStereoAnnulusDesign::endsOfStrip(SiLocalPosition const &pos) const {
-// cout << "Niggle: endsOfStrip. pos eta/phi/depth = " << pos.xEta() << "/" << pos.xPhi() << "/" << pos.xDepth() << "\n";
 
     SiCellId cellId = cellIdOfPosition(pos);
 
@@ -217,7 +221,6 @@ std::pair<SiLocalPosition, SiLocalPosition> StripStereoAnnulusDesign::endsOfStri
 }
 
 bool StripStereoAnnulusDesign::inActiveArea(SiLocalPosition const &pos, bool /*checkBondGap*/) const {
-//cout << "Niggle: inActiveArea; pos(x, y) = (" << pos.xEta() << ", " << pos.xPhi() << ")\n";
 
     SiCellId id = cellIdOfPosition(pos);
     bool inside = id.isValid();
@@ -233,8 +236,7 @@ if (!inside) {
 
 // Used in surfaceChargesGenerator
 double StripStereoAnnulusDesign::scaledDistanceToNearestDiode(SiLocalPosition const &pos) const {
-//cout << "Niggle: scaledDistanceToNearestDiode\n";
-//
+
 //    Get phiPrime of pos
 //
     double posxP = cos(-m_stereo) * (pos.xEta() - m_R) - sin(-m_stereo) * pos.xPhi() + m_R;
@@ -274,7 +276,7 @@ SiLocalPosition StripStereoAnnulusDesign::positionFromStrip(const int stripNumbe
 ///Check if cell is in range. Returns the original cellId if it is in range, otherwise it
 // returns an invalid id.
 SiCellId StripStereoAnnulusDesign::cellIdInRange(const SiCellId &cellId) const {
-cout << "Niggle: cellIdInRange called; who wants that??\n";
+
     if (!cellId.isValid()) {
         return SiCellId(); // Invalid
     }
@@ -286,23 +288,48 @@ cout << "Niggle: cellIdInRange called; who wants that??\n";
     return cellId;
 }
 
-double StripStereoAnnulusDesign::length() const { // DEPRECATED: which row? assume 0 here
-    return m_stripEndRadius[0] - m_stripStartRadius[0];
+double StripStereoAnnulusDesign::length() const {
+// Return the total length of all strips, i.e. the active area length.
+    return m_stripEndRadius.back() - m_stripStartRadius[0];
 }
 
-double StripStereoAnnulusDesign::width() const { // DEPRECATED
-    return m_pitch[0] * m_nStrips[0];
+double StripStereoAnnulusDesign::width() const {
+// Return approximate width between the two central rows
+    int middleRow = m_stripStartRadius.size() / 2 - 1;
+    if (middleRow < 0) {
+        throw std::runtime_error(
+         "StripStereoAnnulusDesign::width: the sensor had one or less rows of strips. Code assumes two or more.");
+    }
+
+    return 2. * tan((m_pitch[middleRow] * m_nStrips[middleRow]) / 2.) * m_stripEndRadius[middleRow];
 }
 
-double StripStereoAnnulusDesign::minWidth() const { // DEPRECATED
-    return width();
+double StripStereoAnnulusDesign::minWidth() const {
+    return 2. * tan((m_pitch[0] * m_nStrips[0]) / 2.) * m_stripStartRadius[0];
 }
 
-double StripStereoAnnulusDesign::maxWidth() const { // DEPRECATED
-    return width();
+double StripStereoAnnulusDesign::maxWidth() const {
+    return 2. * tan((m_pitch.back() * m_nStrips.back()) / 2.) * m_stripEndRadius.back();
 }
 
-double StripStereoAnnulusDesign::etaPitch() const { // DEPRECATED
-    return length();
+double StripStereoAnnulusDesign::etaPitch() const {
+// Return average strip length
+    return length() / m_stripStartRadius.size();
 }
+
+HepGeom::Vector3D<double> StripStereoAnnulusDesign::phiMeasureSegment(const SiLocalPosition & /*position*/)
+const {
+    throw std::runtime_error("Call to phiMeasureSegment, DEPRECATED, not implemented.");
+}
+
+void StripStereoAnnulusDesign::distanceToDetectorEdge(SiLocalPosition const & pos,
+                                            double & etaDist,
+                                            double & phiDist) const {
+  
+  etaDist = length()/2.0 - abs(pos.xEta()); 
+  phiDist = (minWidth() + maxWidth())/4.0 - abs(pos.xPhi());
+
+}
+
 } // namespace InDetDD
+

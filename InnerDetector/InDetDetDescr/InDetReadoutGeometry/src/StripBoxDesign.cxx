@@ -56,7 +56,7 @@ int StripBoxDesign::strip1Dim(int strip, int row) const {
 
 void StripBoxDesign::neighboursOfCell(const SiCellId &cellId,
                                       std::vector<SiCellId> &neighbours) const {
-cout << "Niggle: Get neighbours\n";
+
 
     neighbours.clear();
 
@@ -81,7 +81,7 @@ cout << "Niggle: Get neighbours\n";
 
 const Trk::SurfaceBounds &StripBoxDesign::bounds() const {
 //    Return smallest rectangle that fully encompasses the active area.
-cout << "Niggle: Get bounds\n";
+
     return *m_bounds;
 }
 
@@ -91,20 +91,17 @@ SiCellId StripBoxDesign::cellIdOfPosition(SiLocalPosition const &pos) const {
 //
     int strip = (int) floor(pos.xPhi() / m_pitch) + m_nStrips / 2;
     if (strip < 0 || strip >= m_nStrips) {
-//cout << "Niggle: cellIdOfPosition; pos.xPhi, pos.xEta = " << pos.xPhi() << ", " << pos.xEta() << " Strip = " << 
-//strip << " is Outside\n";
+
         return SiCellId(); // return an invalid id
     }
 
     int row = (int) floor(pos.xEta() / m_length) + m_nRows / 2; 
     if (row < 0 || row >= m_nRows) {
-//cout << "Niggle: cellIdOfPosition; pos.xPhi, pos.xEta = " << pos.xPhi() << ", " << pos.xEta() << " Row = " << 
-//row << " is Outside\n";
+
         return SiCellId(); // return an invalid id
     }
     int strip1D = strip1Dim(strip, row);
-//cout << "Niggle: cellIdOfPosition; pos.xPhi, pos.xEta = " << pos.xPhi() << ", " << pos.xEta() << 
-//" gives strip1D = " << strip1D << endl;
+
     return SiCellId(strip1D, 0);
 }
 
@@ -116,13 +113,13 @@ SiLocalPosition StripBoxDesign::localPositionOfCell(SiCellId const &cellId) cons
 
     double phi = ((double) strip - (double) m_nStrips / 2. + 0.5) * m_pitch;
 
-//cout << "Niggle: localPositionOfCell; eta, phi = " << eta << " " << phi << endl;
+
     return SiLocalPosition(eta, phi, 0.0);
 }
 
 SiLocalPosition StripBoxDesign::localPositionOfCluster(SiCellId const &cellId,
                                                        int clusterSize) const {
-cout << "Niggle: localPositionOfCluster\n";
+
     SiLocalPosition pos = localPositionOfCell(cellId);
 
     if (clusterSize <= 1) {
@@ -138,7 +135,7 @@ cout << "Niggle: localPositionOfCluster\n";
 /// Give end points of the strip that covers the given position
 std::pair<SiLocalPosition, SiLocalPosition> StripBoxDesign::endsOfStrip(
     SiLocalPosition const &pos) const {
-// cout << "Niggle: endsOfStrip. pos eta/phi = " << pos.xEta() << "/" << pos.xPhi() << "\n";
+
     SiCellId cellId = cellIdOfPosition(pos);
 
     int strip, row;
@@ -160,14 +157,14 @@ bool StripBoxDesign::inActiveArea(SiLocalPosition const &pos,
                                   bool /*checkBondGap*/) const {
 
     SiCellId id = cellIdOfPosition(pos);
-// cout << "Niggle: inActiveArea is " << id.isValid() << endl;
+
 
     return id.isValid();
 }
 
 // Used in surfaceChargesGenerator
 double StripBoxDesign::scaledDistanceToNearestDiode(SiLocalPosition const &pos) const {
-// cout << "Niggle: scaledDistanceToNearestDiode. pos.xPhi = " << pos.xPhi() << endl;
+
     SiCellId cellId = cellIdOfPosition(pos);
     SiLocalPosition posStrip = localPositionOfCell(cellId);
 // cout << "posStrip.xPhi = " << posStrip.xPhi() << " giving " << fabs(pos.xPhi() - posStrip.xPhi()) / m_pitch << endl;
@@ -195,7 +192,7 @@ SiLocalPosition StripBoxDesign::positionFromStrip(const int stripNumber) const {
 ///Check if cell is in range. Returns the original cellId if it is in range, otherwise it
 // returns an invalid id.
 SiCellId StripBoxDesign::cellIdInRange(const SiCellId &cellId) const {
-cout << "Niggle: cellIdInRange\n";
+
     if (!cellId.isValid()) {
         return SiCellId(); // Invalid
     }
@@ -226,4 +223,31 @@ double StripBoxDesign::maxWidth() const {
 double StripBoxDesign::etaPitch() const {
     return length();
 }
+
+HepGeom::Vector3D<double> StripBoxDesign::phiMeasureSegment(const SiLocalPosition & /*position*/)
+const {
+    throw std::runtime_error("Call to phiMeasureSegment, DEPRECATED, not implemented.");
+}
+
+/// DEPRECATED: Unused (2014)
+void StripBoxDesign::distanceToDetectorEdge(SiLocalPosition const & pos,
+                                            double & etaDist,
+                                            double & phiDist) const {
+    
+ // As the calculation is symmetric around 0,0 we only have to test it for one side.
+  double xEta = abs(pos.xEta()); //assuming centered around 0?!?
+   double xPhi = abs(pos.xPhi());
+ 
+   double xEtaEdge = 0.5 * length();
+   double xPhiEdge = 0.5 * width();
+ 
+   // Distance to top/bottom
+   etaDist = xEtaEdge - xEta;
+   
+   // Distance to right/left edge
+   phiDist = xPhiEdge - xPhi;
+
+
+}
+
 } // namespace InDetDD

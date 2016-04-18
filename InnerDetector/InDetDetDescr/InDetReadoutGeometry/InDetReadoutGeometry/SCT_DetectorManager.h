@@ -107,6 +107,9 @@ namespace InDetDD {
     
       /** Access to module design, casts to SCT_ModuleSideDesign */
       const SCT_ModuleSideDesign * getSCT_Design(int i) const;
+
+      /** Process new global DB folders for L1 and L2 **/
+      bool processGlobalAlignment(const std::string &, int level, FrameType frame) const;
     
     private:  
       /** implements the main alignment update for delta transforms in different frames,
@@ -131,11 +134,14 @@ namespace InDetDD {
       std::vector< ExtendedAlignableTransform *>                    m_alignableTransforms; 
       std::vector< ExtendedAlignableTransform *>                    m_moduleAlignableTransforms; 
       const SCT_ID*                                                 m_idHelper;
+      
       /** This variable switches the how the local alignment corrections are applied
           If true they will be calcualted on top  of all of other corrections but in the default reference frame
           If false they will be calcualted  on top  of all of other corrections but in the globally aligned reference frame    
       */
-      bool                                                          m_isLogical;
+      bool                                                          m_isLogical;      
+      
+      
     };
 
 } // namespace InDetDD

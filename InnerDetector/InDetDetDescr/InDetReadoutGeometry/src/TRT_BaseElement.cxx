@@ -26,9 +26,11 @@ namespace InDetDD {
         m_id(id),
         m_idHelper(idHelper),
         m_conditions(conditions),
-        m_strawSurfaces(0),
-        m_strawSurfacesCache(0),
-        m_surfaceCache(0)
+        m_strawSurfaces(nullptr),
+        m_strawSurfacesCache(nullptr),
+        m_surfaceCache(nullptr),
+        m_surface(nullptr),
+        m_surfaces{}
     {
         m_idHash = m_idHelper->straw_layer_hash(id);  
         m_conditions->ref();

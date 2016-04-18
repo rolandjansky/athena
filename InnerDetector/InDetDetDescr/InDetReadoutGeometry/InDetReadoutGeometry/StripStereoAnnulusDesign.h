@@ -36,7 +36,7 @@
 #include "CLHEP/Geometry/Vector3D.h" // For unused phiMeasureSegment
 
 namespace Trk {
-class RectangleBounds;
+class AnnulusBounds;
 class SurfaceBounds;
 }
 
@@ -91,6 +91,7 @@ public:
     double phiPitch(const SiLocalPosition &localPosition) const;
     double phiPitch(const SiCellId &cellId) const;
     double phiPitch() const;
+    double localModuleCentreRadius() const;
 
     // distance to the nearest diode in units of pitch, from 0.0 to 0.5,
     // this method should be fast as it is called for every surface charge
@@ -170,7 +171,7 @@ private:
     const double m_stereo;
     const double m_R;
     const double m_lengthBF;
-    Trk::RectangleBounds *m_bounds;
+    Trk::AnnulusBounds *m_bounds;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -230,28 +231,20 @@ inline SiReadoutCellId StripStereoAnnulusDesign::readoutIdOfCell(const SiCellId 
 }
 
 inline int StripStereoAnnulusDesign::row(int stripId1Dim) const {
-/*
-    std::vector<int>::const_iterator endPtr = std::lower_bound(m_firstStrip.begin(), m_firstStrip.end(), stripId1Dim);
-if (std::distance(m_firstStrip.begin(), endPtr) - 1 < 0) {
-    std::cout << "-ve row. row = " << std::distance(m_firstStrip.begin(), endPtr) - 1 << "; strip1D = " << stripId1Dim << "\n";
-    std::cout << "While with stripId1Dim = 1 I get " << row(1) << "\n";
-} 
-    return std::distance(m_firstStrip.begin(), endPtr) - 1;
-*/
+
     std::vector<int>::const_iterator endPtr = std::upper_bound(m_firstStrip.begin(), m_firstStrip.end(), stripId1Dim);
     int rowNum = std::distance(m_firstStrip.begin(), endPtr) - 1;
     if (rowNum < 0 || rowNum >= m_nRows) {
         std::cout << "str1D = " << stripId1Dim << " gives row " << rowNum << ", outside range 0 - " << m_nRows << "\n";
+        const std::string errMsg=std::string("StripId1Dim index out of acceptable range ") + __FILE__+std::string(": ")+std::to_string(__LINE__);
+        throw std::runtime_error(errMsg);
     }
     return rowNum;
 }
 
 inline int StripStereoAnnulusDesign::strip(int stripId1Dim) const {
     int rowNum = row(stripId1Dim);
-/*
-    std::vector<int>::const_iterator endPtr = std::lower_bound(m_firstStrip.begin(), m_firstStrip.end(), stripId1Dim);
-    int row = std::distance(m_firstStrip.begin(), endPtr) - 1;
-*/
+
     int strip2D = stripId1Dim - m_firstStrip[rowNum];
     if (strip2D < 0 || strip2D >= m_firstStrip[rowNum + 1]) {
         std::cout << "str1D " << stripId1Dim << " gives strip " << strip2D << " which is outside range 0 - " << 
@@ -260,38 +253,25 @@ inline int StripStereoAnnulusDesign::strip(int stripId1Dim) const {
     return strip2D;
 }
 
-HepGeom::Vector3D<double> StripStereoAnnulusDesign::phiMeasureSegment(const SiLocalPosition & /*position*/)
-const {
-    throw std::runtime_error("Call to phiMeasureSegment, DEPRECATED, not implemented.");
-}
-
-/// DEPRECATED: Unused (2014)
-void StripStereoAnnulusDesign::distanceToDetectorEdge(SiLocalPosition const & /*pos*/,
-                                            double & /*etaDist*/,
-                                            double & /*phiDist*/) const {
-    throw std::runtime_error(
-              "Call to distanceToDetectorEdge which is Deprecated and not yet implemented");
-}
-
 /// DEPRECATED for StripStereoAnnulusDesign; no dead area
-double StripStereoAnnulusDesign::deadAreaUpperBoundary() const {
+inline double StripStereoAnnulusDesign::deadAreaUpperBoundary() const {
     return 0.;
 }
 
-double StripStereoAnnulusDesign::deadAreaLowerBoundary() const {
+inline double StripStereoAnnulusDesign::deadAreaLowerBoundary() const {
     return 0.;
 }
 
-double StripStereoAnnulusDesign::deadAreaLength() const {
+inline double StripStereoAnnulusDesign::deadAreaLength() const {
     return 0.;
 }
 
-bool StripStereoAnnulusDesign::swapHitPhiReadoutDirection() const {
+inline bool StripStereoAnnulusDesign::swapHitPhiReadoutDirection() const {
     return false;
 }
 
-bool StripStereoAnnulusDesign::swapHitEtaReadoutDirection() const {
+inline bool StripStereoAnnulusDesign::swapHitEtaReadoutDirection() const {
     return false;
-}
+ }
 } // namespace InDetDD
 #endif // INDETREADOUTGEOMETRY_STRIPSTEREOANNULUSDESIGN_H

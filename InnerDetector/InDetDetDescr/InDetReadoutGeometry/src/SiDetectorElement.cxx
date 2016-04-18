@@ -26,6 +26,7 @@
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "InDetReadoutGeometry/StripStereoAnnulusDesign.h"
 
 
 #include "InDetReadoutGeometry/SiCommonItems.h"
@@ -156,8 +157,11 @@ SiDetectorElement::updateCache() const
   
   const HepGeom::Transform3D & geoTransform = transformHit();
 
+  double radialShift = 0.;
+  const InDetDD::StripStereoAnnulusDesign * testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
+  if(testDesign) radialShift = testDesign->localModuleCentreRadius(); 
       
-  HepGeom::Point3D<double> centerGeoModel(0., 0., 0.);
+  HepGeom::Point3D<double> centerGeoModel(radialShift, 0., 0.);
   m_centerCLHEP = geoTransform * centerGeoModel;
   m_center = Amg::Vector3D(m_centerCLHEP[0],m_centerCLHEP[1],m_centerCLHEP[2]);
   
@@ -199,83 +203,8 @@ SiDetectorElement::updateCache() const
 
         // unit radial vector
         HepGeom::Vector3D<double> unitR(m_center.x(), m_center.y(), 0.);
-        if (fabs(m_center.x()) < 0.001 && fabs(m_center.y()) < 0.001) {
-            //
-            //   Sensor local frame is centred on beamline; probably a StereoAnnulus.
-            //   Get a point near the centre of the sensor. We take the two strips in the middle 
-            //   of the allowed range. In StereoAnnulus sensors, these are edge strips, in the 
-            //   centre two rows. Their midpoint is more or less the centre of the sensor.
-            //
-            const SCT_ModuleSideDesign *sctDesign = dynamic_cast<const SCT_ModuleSideDesign *> (m_design);
-            int strip1 = sctDesign->diodes() / 2 - 1;
-            int strip2 = strip1 + 1;
-            SiCellId cellId1(strip1);
-            SiCellId cellId2(strip2);
-            SiLocalPosition p1 = sctDesign->localPositionOfCell(cellId1);
-            SiLocalPosition p2 = sctDesign->localPositionOfCell(cellId2);
-            SiLocalPosition centerSiLocPos = (p1 + p2) / 2.;
-            centerGeoModel[m_hitEta] = centerSiLocPos.xEta();
-            centerGeoModel[m_hitPhi] = centerSiLocPos.xPhi();
-            centerGeoModel[m_hitDepth] = centerSiLocPos.xDepth();
-            unitR = geoTransform * centerGeoModel;
-            unitR[2] = 0.;
-        }
-        if (unitR.mag() < 10.0) { // 10 mm is too close still
-            msg(MSG::FATAL) << "Silicon Detector was centred on beamline. Goodbye." << endreq;
-            std::abort();
-        } 
+     
         unitR.setMag(1.);
-
-	/*// OK, Jike reverse Nigel's ...
-        if (isBarrel()) {
-            // Strips should be along globalZ
-            if (fabs(globalEtaAxis[2]) < 0.7) {
-                if (isPixel()) {
-                    msg(MSG::WARNING) << "Pixel barrel sensor: eta far from parallel to z\n    GlobalEtaAxis = (" << 
-                                      globalEtaAxis[0] << ", " << globalEtaAxis[1] << ", " << globalEtaAxis[2] << ")" << endreq;
-                }
-                else {
-                    msg(MSG::WARNING) << "SCT/Strip barrel sensor: eta far from parallel to z\n    GlobalEtaAxis = (" << 
-                                      globalEtaAxis[0] << ", " << globalEtaAxis[1] << ", " << globalEtaAxis[2] << ")" << endreq;
-                }
-            }
-            // Depth should be radial
-            if (fabs(globalDepthAxis.dot(unitR)) < 0.7) {
-                if (isPixel()) {
-                    msg(MSG::WARNING) << "Pixel barrel sensor: depth direction far from radial" << endreq;
-                }
-                else {
-                    msg(MSG::WARNING) << "SCT/Strip barrel sensor: depth direction far from radial" << endreq;
-                }
-            } 
-        }
-        else {
-            // Strips should be radial
-            if (fabs(globalEtaAxis.dot(unitR)) < 0.7) {
-                if (isPixel()) {
-                    msg(MSG::WARNING) << "Pixel endcap sensor: eta/strip direction far from radial" << endreq;
-                }
-                else {
-                    msg(MSG::WARNING) << "SCT/Strip endcap sensor: eta/strip direction far from radial" << endreq;
-                }
-            }
-            // Depth should be along z
-            if (fabs(globalDepthAxis[2]) < 0.7) {
-                if (isPixel()) {
-                    msg(MSG::WARNING) << "Pixel endcap sensor: depth direction far from parallel to z\n";
-                }
-                else {
-                    msg(MSG::WARNING) << "SCT/Strip endcap sensor: depth direction far from parallel to z\n";
-                }
-            } 
-        }
-	//
-	//    Should any axes be swapped? Certainly not. Why would you do that?
-	//
-        m_depthDirection = true;
-        m_etaDirection = true;
-        m_phiDirection = true;
-	*/
 
 
     HepGeom::Vector3D<double> nominalEta;
@@ -519,7 +448,9 @@ SiDetectorElement::recoToHitTransform() const
     HepGeom::Vector3D<double>(0,1,0),
     HepGeom::Vector3D<double>(0,0,1)
   };
-  static const HepGeom::Transform3D recoToHit(HepGeom::Point3D<double>(0,0,0),localAxes[distPhi],localAxes[distEta],
+  //static 
+    
+  const HepGeom::Transform3D recoToHit(HepGeom::Point3D<double>(0,0,0),localAxes[distPhi],localAxes[distEta],
 					HepGeom::Point3D<double>(0,0,0),localAxes[m_hitPhi],localAxes[m_hitEta]);
   
   // Swap direction of axis as appropriate
@@ -873,8 +804,18 @@ SiDetectorElement::sinStereoLocal(const HepGeom::Point3D<double> &globalPos) con
 const Trk::Surface & 
 SiDetectorElement::surface() const
 {
-  if (!m_surface) m_surface = new Trk::PlaneSurface(*this);
-  return *m_surface;
+  if (!m_surface){
+    const InDetDD::StripStereoAnnulusDesign * testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
+    if (testDesign){
+      Amg::Transform3D * amgTransf = new Amg::Transform3D();  
+      double radialShift = testDesign->localModuleCentreRadius(); 
+      Amg::Translation3D amgtranslation(radialShift,0.,0.);
+      *amgTransf =   m_transform * amgtranslation;
+      m_surface = new Trk::PlaneSurface(*this,amgTransf);
+    }
+    else m_surface = new Trk::PlaneSurface(*this);
+  }
+ return *m_surface;
 }
   
 const std::vector<const Trk::Surface*>& SiDetectorElement::surfaces() const 
@@ -903,6 +844,8 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
 	       double &phiMin, double &phiMax) const
 {
 
+  const InDetDD::StripStereoAnnulusDesign * testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
+
   HepGeom::Point3D<double> corners[4];
   getCorners(corners);
 
@@ -910,7 +853,13 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
 
   double phiOffset = 0.;
 
+  double radialShift = 0.;
+  if(testDesign) radialShift = testDesign->localModuleCentreRadius();//additional radial shift for sensors centred on beamline
+  const HepGeom::Transform3D rShift = HepGeom::TranslateX3D(radialShift);//in local frame, radius is x
+
   for (int i = 0; i < 4; i++) {
+
+    if(testDesign) corners[i].transform(rShift);
 
     HepGeom::Point3D<double> globalPoint = globalPosition(corners[i]);
 
@@ -955,6 +904,7 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
   if (phiMin > M_PI)  phiMin -= 2. * M_PI; 
   if (phiMax < -M_PI) phiMax += 2. * M_PI; 
   if (phiMax > M_PI)  phiMax -= 2. * M_PI; 
+
 }
 
 
