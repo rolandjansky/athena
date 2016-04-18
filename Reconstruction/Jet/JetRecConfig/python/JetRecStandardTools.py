@@ -37,11 +37,9 @@ import JetSubStructureMomentTools.DefaultTools
 import ParticleJetTools.DefaultTools
 import JetRec.DefaultTools 
 import PFlowUtils.DefaultTools
-import JetRecTools.DefaultTools
 
 JetMomentTools.DefaultTools.declareDefaultTools()
 JetSubStructureMomentTools.DefaultTools.declareDefaultTools()
 ParticleJetTools.DefaultTools.declareDefaultTools()
 JetRec.DefaultTools.declareDefaultTools()
 PFlowUtils.DefaultTools.declareDefaultTools()
-JetRecTools.DefaultTools.declareDefaultTools()
