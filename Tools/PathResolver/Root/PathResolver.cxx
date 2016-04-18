@@ -35,6 +35,7 @@ bool PathResolver::m_setLevel=false;
 
 
 asg::AsgMessaging& PathResolver::asgMsg() {
+   if(!m_setLevel) setOutputLevel(MSG::INFO);
    static asg::AsgMessaging asgMsg("PathResolver");
    return asgMsg;
 }
