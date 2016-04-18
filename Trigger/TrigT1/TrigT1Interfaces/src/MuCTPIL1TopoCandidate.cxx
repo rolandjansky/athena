@@ -8,7 +8,7 @@ namespace LVL1 {
   MuCTPIL1TopoCandidate::MuCTPIL1TopoCandidate(): 
     m_sectorName(""), m_roiID(0),     
     m_bcid(0), m_ptThresholdID(0), m_ptL1TopoCode(0), m_ptValue(0), m_eta(0), m_phi(0), m_etacode(0), m_phicode(0), 
-    m_etamin(0), m_etamax(0), m_phimin(0), m_phimax(0), m_roiWord(0), m_mioctID(0) {}
+    m_etamin(0), m_etamax(0), m_phimin(0), m_phimax(0), m_roiWord(0), m_mioctID(0), m_ieta(0), m_iphi(0) {}
 
   MuCTPIL1TopoCandidate::~MuCTPIL1TopoCandidate() {
 
@@ -27,7 +27,9 @@ namespace LVL1 {
 					       float etamax,    
 					       float phimin,    
 					       float phimax,
-					       unsigned int mioctID){
+					       unsigned int mioctID,
+					       int ieta,
+					       int iphi){
     m_sectorName =    sectorName ;      
     m_roiID =         roiID ;           
     m_bcid =          bcid ;            
@@ -43,6 +45,8 @@ namespace LVL1 {
     m_phimin =        phimin ;          
     m_phimax =        phimax ;             
     m_mioctID =       mioctID;
+    m_ieta =          ieta;
+    m_iphi =          iphi;
   }
 
   void MuCTPIL1TopoCandidate::setRoiWord(unsigned int roi){
@@ -58,7 +62,7 @@ namespace LVL1 {
 	      << ", etaMin: " << m_etamin << ", etaMax: " << m_etamax
 	      << ", phiMin: " << m_phimin << ", phiMax: " << m_phimax
 	      << ", RoIWord: " << std::setw( 8 ) << std::setfill('0') << std::hex << m_roiWord << std::dec
-	      << std::endl;
+	      << ", ieta: " << m_ieta << ", iphi: " << m_iphi << std::endl;
 
   }
 

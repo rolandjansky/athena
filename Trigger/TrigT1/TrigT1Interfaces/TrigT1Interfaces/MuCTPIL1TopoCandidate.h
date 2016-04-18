@@ -41,7 +41,9 @@ namespace LVL1 {
 			   float etamax,    
 			   float phimin,    
 			   float phimax,
-			   unsigned int mioctID);
+			   unsigned int mioctID,
+			   int ieta,
+			   int iphi);
 
      // set the RoI word (done at a differnt stage of the simulation, hence the separate function
      void setRoiWord( unsigned int roi);
@@ -63,6 +65,8 @@ namespace LVL1 {
      float getphimax() const { return m_phimax; }  
      unsigned int getRoiWord() const { return m_roiWord; }  
      unsigned int getMioctID() const { return m_mioctID; }  
+     int getieta() const { return m_ieta; }  
+     int getiphi() const { return m_iphi; }  
 
      // formatted print for debugging 
      void print() const ;
@@ -86,6 +90,8 @@ namespace LVL1 {
      float m_phimax;         // phi max of this eta/phi box encoded
      unsigned int m_roiWord; // 32 bit Roi Word as sent from MuCTPI to RoIB
      unsigned int m_mioctID; // ID of the Octant board (MIOCT) that sent this candidate
+     int m_ieta;             // ieta code for L1Topo
+     int m_iphi;             // iphi code for L1Topo
 
    }; // class MuCTPIL1Topo
 
