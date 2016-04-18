@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 725452 2016-02-22 09:43:15Z krasznaa $
+# $Id: CMakeLists.txt 740930 2016-04-18 08:46:48Z will $
 #
 # CMake configuration file for the PathResolver package.
 #
@@ -34,6 +34,9 @@ atlas_add_dictionary( PathResolverDict
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
+
+# Install showReleaseNotes.py script
+#FIXME: TODO
 
 # Set up a helper environment variable for the test(s):
 set( _dpath "${CMAKE_CURRENT_SOURCE_DIR}/test" )
