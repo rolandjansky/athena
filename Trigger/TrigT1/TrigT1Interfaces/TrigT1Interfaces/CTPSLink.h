@@ -34,8 +34,8 @@ namespace LVL1CTP {
     *  @author Thomas Schoerner-Sadenius <thomas.schoerner@cern.ch>
     *  @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 654427 $
-    * $Date: 2015-03-16 17:01:35 +0100 (Mon, 16 Mar 2015) $
+    * $Revision: 707787 $
+    * $Date: 2015-11-13 16:09:29 +0100 (Fri, 13 Nov 2015) $
     */
    class CTPSLink {
 
@@ -48,6 +48,10 @@ namespace LVL1CTP {
       //! empty default destructor
       ~CTPSLink();
 
+      // no copy or assignment allowed
+      CTPSLink(CTPSLink const&) = delete;
+      CTPSLink& operator=(CTPSLink const&) = delete;
+     
       /* data format */
 
       //! number of words in header

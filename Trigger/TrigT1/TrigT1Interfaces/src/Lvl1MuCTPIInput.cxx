@@ -50,8 +50,8 @@ namespace LVL1MUONIF {
     for( size_t ip=0; ip<m_data[systemAddress].size(); ip++){
       int bc=((m_data[systemAddress]).at(ip)).first;
       if (bc != bcid) continue;
-      const Lvl1MuVect* vSL = &( ((m_data[systemAddress]).at(ip)).second);
-      return *(vSL->at(getSystemIndex(systemAddress,subSystemAddress,sectorAddress)));
+      const Lvl1MuVect vecSL( ((m_data[systemAddress]).at(ip)).second);
+      return *(vecSL.at(getSystemIndex(systemAddress,subSystemAddress,sectorAddress)));
     }
     return dummy;
   }
@@ -69,14 +69,14 @@ namespace LVL1MUONIF {
       ip = getBcidIndex( systemAddress, bcid );
     }
 
-    Lvl1MuVect* vSL = const_cast<Lvl1MuVect*>(&(((m_data[systemAddress]).at(ip)).second));
+    Lvl1MuVect vecSL((((m_data[systemAddress]).at(ip)).second));
     size_t idx= getSystemIndex(systemAddress,subSystemAddress,sectorAddress);
     if ( systemAddress == Barrel ) {
-      *dynamic_cast<Lvl1MuBarrelSectorLogicData*>(vSL->at(idx)) = data;
+      *std::dynamic_pointer_cast<Lvl1MuBarrelSectorLogicData>(vecSL.at(idx)) = data;
     } else if ( systemAddress == Endcap ) {
-      *dynamic_cast<Lvl1MuEndcapSectorLogicData*>(vSL->at(idx))= data;
+      *std::dynamic_pointer_cast<Lvl1MuEndcapSectorLogicData>(vecSL.at(idx))= data;
     } else if ( systemAddress == Forward ) {
-      *dynamic_cast<Lvl1MuForwardSectorLogicData*>(vSL->at(idx))= data;
+      *std::dynamic_pointer_cast<Lvl1MuForwardSectorLogicData>(vecSL.at(idx))= data;
     }
   }
 
@@ -123,28 +123,29 @@ namespace LVL1MUONIF {
   size_t Lvl1MuCTPIInput::reserve( size_t systemAddress ,
 				   int    bcid)          {
     
-    Lvl1MuVect* vSL =0;
+    Lvl1MuVect vecSL;
     
     if ( systemAddress == Barrel ) {
-      vSL = new std::vector<Lvl1MuSectorLogicData*>(NumberOfBarrelSector*NumberOfMuonSubSystem);
       for ( size_t id = 0; id < NumberOfBarrelSector*NumberOfMuonSubSystem; id++ ) {
-	vSL->at(id) = new Lvl1MuBarrelSectorLogicData;
+	std::shared_ptr<Lvl1MuBarrelSectorLogicData> barrelSect(new Lvl1MuBarrelSectorLogicData);
+	vecSL.push_back(barrelSect);
       }
 
     } else if ( systemAddress == Endcap ) {
-      vSL = new std::vector<Lvl1MuSectorLogicData*>(NumberOfEndcapSector*NumberOfMuonSubSystem);
       for ( size_t id = 0; id < NumberOfEndcapSector*NumberOfMuonSubSystem; id++ ) {
-	vSL->at(id) = new Lvl1MuEndcapSectorLogicData;
+	std::shared_ptr<Lvl1MuEndcapSectorLogicData> endcapSect(new Lvl1MuEndcapSectorLogicData);
+	vecSL.push_back(endcapSect);
       }
 
     } else if ( systemAddress == Forward ) {
-      vSL = new std::vector<Lvl1MuSectorLogicData*>(NumberOfForwardSector*NumberOfMuonSubSystem);
       for ( size_t id = 0; id < NumberOfForwardSector*NumberOfMuonSubSystem; id++ ) {
-	vSL->at(id) = new Lvl1MuForwardSectorLogicData;
+	std::shared_ptr<Lvl1MuForwardSectorLogicData> forwardSect(new Lvl1MuForwardSectorLogicData);
+	vecSL.push_back(forwardSect);
       }
     }
+
     size_t ip = m_data[systemAddress].size();
-    m_data[systemAddress].push_back( std::make_pair(bcid, *vSL) );
+    m_data[systemAddress].push_back( std::make_pair(bcid, vecSL) );
 
     if (bcid!=0) isFilledOutOfTimeCandidates[systemAddress] = true; 
 
@@ -172,13 +173,7 @@ namespace LVL1MUONIF {
 
   /////////////
   void Lvl1MuCTPIInput::clear( size_t systemAddress ) {
-    for( size_t ip=0; ip<m_data[systemAddress].size(); ip++){
-      Lvl1MuVect* vSL = &(((m_data[systemAddress]).at(ip)).second);
-      for ( size_t iSL=0; iSL<vSL->size(); iSL++){
-	delete vSL->at(iSL);
-      }
-      vSL->clear(); 
-    }
+    std::cout << "TW: SysAd: in " << systemAddress << "  size: " << m_data[systemAddress].size()  << std::endl;
     m_data[systemAddress].clear();
   }
 
@@ -187,37 +182,39 @@ namespace LVL1MUONIF {
     for ( size_t id = 0; id < NumberOfMuonSystem; id++ ) {
       m_data[ id ].clear();
     }
+
+
   }
-  
-  //// routine for testing purposes only
-  void Lvl1MuCTPIInput::duplicateToOtherBC(int bcidOffset) {
 
-    std::cout << "I am faking candidates for testing - do you really want that??" << std::endl;
+//// routine for testing purposes only
+  // void Lvl1MuCTPIInput::duplicateToOtherBC(int bcidOffset) {
 
-    std::vector<Lvl1MuVectWithBC> dataCopy[ NumberOfMuonSystem ];
+  //   std::cout << "I am faking candidates for testing - do you really want that??" << std::endl;
 
-    for ( size_t id = 0; id < NumberOfMuonSystem; id++ ) {
-      dataCopy[ id ] = m_data[ id ];
-    }
+  //   std::vector<Lvl1MuVectWithBC> dataCopy[ NumberOfMuonSystem ];
 
-    for (std::vector<Lvl1MuVectWithBC>::iterator itb = dataCopy[Barrel].begin(); itb !=dataCopy[Barrel].end(); ++itb){
-      (*itb).first =bcidOffset ;
-    }
-    std::vector<Lvl1MuVectWithBC>::iterator itb = m_data[Barrel].end();
-    m_data[Barrel].insert(itb, dataCopy[Barrel].begin(), dataCopy[Barrel].end());
+  //   for ( size_t id = 0; id < NumberOfMuonSystem; id++ ) {
+  //     dataCopy[ id ] = m_data[ id ];
+  //   }
 
-    for (std::vector<Lvl1MuVectWithBC>::iterator ite = dataCopy[Endcap].begin(); ite !=dataCopy[Endcap].end(); ++ite){
-      (*ite).first =bcidOffset ;
-    }
-    std::vector<Lvl1MuVectWithBC>::iterator ite = m_data[Endcap].end();
-    m_data[Endcap].insert(ite, dataCopy[Endcap].begin(), dataCopy[Endcap].end());
+  //   for (std::vector<Lvl1MuVectWithBC>::iterator itb = dataCopy[Barrel].begin(); itb !=dataCopy[Barrel].end(); ++itb){
+  //     (*itb).first =bcidOffset ;
+  //   }
+  //   std::vector<Lvl1MuVectWithBC>::iterator itb = m_data[Barrel].end();
+  //   m_data[Barrel].insert(itb, dataCopy[Barrel].begin(), dataCopy[Barrel].end());
 
-    for (std::vector<Lvl1MuVectWithBC>::iterator itf = dataCopy[Forward].begin(); itf !=dataCopy[Forward].end(); ++itf){
-      (*itf).first =bcidOffset ;
-    }
-    std::vector<Lvl1MuVectWithBC>::iterator itf = m_data[Forward].end();
-    m_data[Forward].insert(itf, dataCopy[Forward].begin(), dataCopy[Forward].end());
-  }
+  //   for (std::vector<Lvl1MuVectWithBC>::iterator ite = dataCopy[Endcap].begin(); ite !=dataCopy[Endcap].end(); ++ite){
+  //     (*ite).first =bcidOffset ;
+  //   }
+  //   std::vector<Lvl1MuVectWithBC>::iterator ite = m_data[Endcap].end();
+  //   m_data[Endcap].insert(ite, dataCopy[Endcap].begin(), dataCopy[Endcap].end());
+
+  //   for (std::vector<Lvl1MuVectWithBC>::iterator itf = dataCopy[Forward].begin(); itf !=dataCopy[Forward].end(); ++itf){
+  //     (*itf).first =bcidOffset ;
+  //   }
+  //   std::vector<Lvl1MuVectWithBC>::iterator itf = m_data[Forward].end();
+  //   m_data[Forward].insert(itf, dataCopy[Forward].begin(), dataCopy[Forward].end());
+  // }
 
 
   std::ostream& operator<<( std::ostream& out, const Lvl1MuCTPIInput& right ) {
