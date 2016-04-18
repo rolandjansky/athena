@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+<unifiedTestConfiguration>
+<!-- WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING -->
+<!--                                                                                 -->
+<!--      THIS FILE HAS BEEN AUTOMATICALLY GENERATED. DO NOT MAKE ANY CHANGES        -->
+<!--      TO THIS FILE DIRECTLY OR YOUR CHANGES WILL BE LOST                         -->
+<!--                                                                                 -->
+<!--      To modify this xml file, go to the TrigInDetValidation/build directory     -->
+<!--      and run make                                                               -->
+<!--                                                                                 -->
+<!-- WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING -->
+
+  <atn/>
+  <kv/>
+
+   <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+      <mailto>D.Emeliyanov@rl.ac.uk,jiri.masik@cern.ch</mailto>
+      <refRelease>14.5.0</refRelease>
+
+
+      <jobList>
+      <classification>
+         <displayClass>OfflineValidation</displayClass>
+         <displayProcess>Reco</displayProcess>
+         <displayComponent>Trig-Other</displayComponent>
+      </classification>
+
+
+#     include   "TrigInDetValidation_el_Zee_IBL_pu40.xml"
+
+#     include   "TrigInDetValidation_bjet_IBL_pu40.xml"
+
+#     include   "TrigInDetValidation_tau_IBL_pu46.xml"
+
+#     include   "TrigInDetValidation_mu_Zmumu_IBL_pu40.xml"
+
+#     include   "TrigInDetValidation_mu_bphys_IBL.xml"
+
+#     include   "TrigInDetValidation_minBias.xml"
+
+#     include   "TrigInDetValidation_FTK_mu_ttbar.xml"
+
+      </jobList>
+
+      <jobGroups>
+         <jobGroup name="AthenaTrigInDetValidation" parent="Athena">
+            <keepFilePattern displayColor="blue" info="CBNTAA">ntuple*.root</keepFilePattern>
+            <keepFilePattern displayColor="green">TrigInDetValidation_Histograms*.root</keepFilePattern>
+            <keepFilePattern displayColor="green">Histos-*.root</keepFilePattern>
+            <keepFilePattern displayColor="green">Histos-ElectronSlice-CombinedTrackingEF.root</keepFilePattern>
+            <keepFilePattern>*.txt</keepFilePattern>
+            <keepFilePattern displayColor="blue">efficiency*.txt</keepFilePattern>
+            <keepFilePattern displayColor="blue">*Efficiency*.txt</keepFilePattern>
+            <keepFilePattern displayColor="blue">*test.txt</keepFilePattern>
+            <keepFilePattern displayColor="blue">expert-monitoring.root</keepFilePattern>
+            <keepFilePattern maxsize="100" displayColor="blue">data*.root</keepFilePattern>
+            <keepFilePattern maxsize="100" displayColor="blue">trig_cost*.root</keepFilePattern>
+            <keepFilePattern maxsize="100" displayColor="blue">costMon/TrigCostRoot_Results.root</keepFilePattern>
+            <keepFilePattern displayColor="blue">*.root</keepFilePattern>
+            <keepFilePattern maxsize="150">TrigInDet*.log</keepFilePattern>
+            <keepFilePattern>*.log</keepFilePattern>
+            <keepFilePattern displayColor="red">TIDA*.html</keepFilePattern>
+            <keepFilePattern displayColor="red">TIDA*.htm</keepFilePattern>
+            <keepFilePattern displayColor="red">TIDA*.php</keepFilePattern>
+            <keepFilePattern displayColor="red">TIDA*.css</keepFilePattern>
+            <keepFilePattern>TIDAWeb/STAR</keepFilePattern>
+            <keepFilePattern>TIDAWeb/build/STAR</keepFilePattern>
+            <keepFilePattern>times/STAR</keepFilePattern>
+            <keepFilePattern>*.png</keepFilePattern>
+            <keepFilePattern>*.ps</keepFilePattern>
+            <keepFilePattern>*.hist</keepFilePattern>
+            <keepFilePattern>*.pool.root.1</keepFilePattern>
+            <keepFilePattern>*.pool.root.2</keepFilePattern>
+            <keepFilePattern>*.pdf</keepFilePattern>
+            <keepFilePattern>*.jpg</keepFilePattern>
+
+            <keepFilePattern>EF-plots/STAR.p*</keepFilePattern>
+            <keepFilePattern>EF-plots-lowpt/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTEF-plots/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTEF-plots-lowpt/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>L2-plots/STAR.p*</keepFilePattern>
+            <keepFilePattern>L2-plots-lowpt/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTL2-plots/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTL2-plots-lowpt/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>HLTEF-plots-electron/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTEF-plots-electron-lowpt/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>HLTL2-plots-electron/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTL2-plots-electron-lowpt/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>HLTEF-plots-muon/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTEF-plots-muon-lowpt/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>HLTL2-plots-muon/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTL2-plots-muon-lowpt/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>HLTEF-plots-tau/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTEF-plots-tau-lowpt/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>HLTL2-plots-tau/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTL2-plots-tau-lowpt/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>HLTEF-plots-bjet/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTEF-plots-bjet-lowpt/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>HLTL2-plots-bjet/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTL2-plots-bjet-lowpt/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>HLT-plots-PrmVtx/STAR.p*</keepFilePattern>
+          
+            <keepFilePattern>costMonitoring*/STAR</keepFilePattern>
+            <keepFilePattern>costMonitoring*/csv/STAR</keepFilePattern>
+
+            <keepFilePattern>cost-per*/STAR.p*</keepFilePattern>
+
+            <auxFilePattern>AOD.pool.root</auxFilePattern>
+            <auxFilePattern>ESD.pool.root</auxFilePattern>
+
+
+         </jobGroup>
+         <jobGroup name="AthenaElectronSliceDNAKalman" parent="Athena">
+            <keepFilePattern displayColor="blue" info="CBNTAA">ntuple*.root</keepFilePattern>
+            <keepFilePattern displayColor="green">TrigInDetValidation_Histograms*.root</keepFilePattern>
+            <keepFilePattern displayColor="green">Histos-*.root</keepFilePattern>
+            <keepFilePattern displayColor="green">Histos-ElectronSlice-CombinedTrackingEF.root</keepFilePattern>
+            <keepFilePattern displayColor="green">Histos-PhotonSlice*root</keepFilePattern>
+            <keepFilePattern displayColor="blue">efficiency*.txt</keepFilePattern>
+            <keepFilePattern displayColor="blue">expert-monitoring.root</keepFilePattern>
+            <keepFilePattern>*.png</keepFilePattern>   
+            <keepFilePattern>*.ps</keepFilePattern>  
+            <keepFilePattern>*.hist</keepFilePattern>
+            <keepFilePattern>*.txt</keepFilePattern>
+                     
+       </jobGroup> 
+     </jobGroups>
+   </rtt>
+
+</unifiedTestConfiguration>
+
+<!--  LocalWords:  eosatlas -->
+
