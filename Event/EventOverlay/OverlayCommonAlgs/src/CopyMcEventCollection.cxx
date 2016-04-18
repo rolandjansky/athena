@@ -16,18 +16,25 @@
 #include "EventInfo/EventType.h"
 #include "EventInfo/EventID.h"
 
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
+//#include "xAODEventInfo/EventInfoContainer.h"
+//#include "xAODEventInfo/EventInfoAuxContainer.h"
+
 #include <iostream>
 #include <typeinfo>
 
 //================================================================
 CopyMcEventCollection::CopyMcEventCollection(const std::string &name, ISvcLocator *pSvcLocator) :
   OverlayAlgBase(name, pSvcLocator),
-  m_storeGateData2("StoreGateSvc/OriginalEvent2_SG", name)
+  m_storeGateData2("StoreGateSvc/OriginalEvent2_SG", name),
+  m_cnvTool( "xAODMaker::EventInfoCnvTool/EventInfoCnvTool", this )
 {
   declareProperty("InfoType", m_infoType="MyEvent");
   declareProperty("RealData", m_realdata=false);
   declareProperty("DataStore2", m_storeGateData2, "help");
   declareProperty("CheckEventNumbers", m_checkeventnumbers=true);
+  declareProperty( "CnvTool", m_cnvTool );
 }
 
 //================================================================
@@ -38,6 +45,8 @@ StatusCode CopyMcEventCollection::overlayInitialize()
     ATH_MSG_FATAL("OverlayAlgBase::initialize): StoreGate[data2] service not found !");
     return StatusCode::FAILURE;
   } 
+
+  CHECK( m_cnvTool.retrieve() );//get the conversion tool for making xAOD::EventInfo
 
   return StatusCode::SUCCESS;
 }
@@ -104,8 +113,8 @@ StatusCode CopyMcEventCollection::overlayExecute() {
     log << MSG::WARNING << "Could not retrieve EventInfo from Data store "<< endreq;  
   }
 
-  const EventInfo* data2EvtInfo = 0;
-  if (m_storeGateData2->retrieve(data2EvtInfo).isSuccess() ) {
+  const EventInfo* data2EvtInfo = m_storeGateData2->tryConstRetrieve<EventInfo>();
+  if (data2EvtInfo) {
     log << MSG::INFO
 	<< "Got EventInfo from Data2 store: " 
 	<< " event " << data2EvtInfo->event_ID()->event_number() 
@@ -123,7 +132,7 @@ StatusCode CopyMcEventCollection::overlayExecute() {
 	<< " errorstate lar " << data2EvtInfo->errorState(EventInfo::LAr)
 	<< " from store " << m_storeGateData2->name() << endreq;    
   } else {
-    log << MSG::WARNING << "Could not retrieve EventInfo from Data2 store "<< endreq;  
+    log << MSG::INFO << "Could not retrieve EventInfo from Data2 store "<< endreq;  
   }
   
   const EventInfo* outEvtInfo = 0;
@@ -148,6 +157,25 @@ StatusCode CopyMcEventCollection::overlayExecute() {
     log << MSG::WARNING << "Could not retrieve EventInfo from Out store "<< endreq;  
   }
 
+  //Stolen from Event/xAOD/xAODEventInfoCnv/src/EventInfoCnvAlg.cxx
+  //Check if anything needs to be done for xAOD::EventInfo...
+  std::string m_xaodKey = "EventInfo";
+  if( ! m_storeGateOutput->contains< xAOD::EventInfo >( m_xaodKey ) ) { 
+    ATH_MSG_INFO( "Making xAOD::EventInfo with key: " << m_xaodKey );
+
+    // Create the xAOD object(s):
+    xAOD::EventAuxInfo* aux = new xAOD::EventAuxInfo();
+    xAOD::EventInfo* xaod = new xAOD::EventInfo();
+    xaod->setStore( aux );
+
+    // Do the translation:
+    CHECK( m_cnvTool->convert( outEvtInfo, xaod ) );
+
+    //Record the xAOD object(s):
+    CHECK( m_storeGateOutput->record( aux, m_xaodKey + "Aux." ) );
+    CHECK( m_storeGateOutput->record( xaod, m_xaodKey ) );
+  }//xAOD::EventInfo
+
   if (m_checkeventnumbers){
   //Check consistency of output run/event with input runs/events
   if (outEvtInfo->event_ID()->event_number() != dataEvtInfo->event_ID()->event_number()){
@@ -155,8 +183,8 @@ StatusCode CopyMcEventCollection::overlayExecute() {
     return StatusCode::FAILURE;
   }
   if (outEvtInfo->event_ID()->event_number() != mcEvtInfo->event_ID()->event_number()){
-    log << MSG::ERROR << "Output event number doesn't match input MC event number!" << endreq;
-    return StatusCode::FAILURE;
+    log << MSG::WARNING << "Output event number doesn't match input MC event number!" << endreq;
+    //return StatusCode::FAILURE;
   }
   if (outEvtInfo->event_ID()->run_number() != dataEvtInfo->event_ID()->run_number()){
     log << MSG::ERROR << "Output run number doesn't match input data run number!" << endreq;
