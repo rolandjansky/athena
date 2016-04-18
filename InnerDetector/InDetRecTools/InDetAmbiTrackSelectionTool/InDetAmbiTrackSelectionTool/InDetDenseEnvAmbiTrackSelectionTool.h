@@ -19,6 +19,7 @@
 #include <map>
 #include <vector>
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#include "TrkValInterfaces/ITrkObserverTool.h"
 
 
 class SiliconID;
@@ -266,6 +267,9 @@ namespace InDet
       /**atlas id helper*/
       const SiliconID* m_detID;
       
+      /**Observer tool      This tool is used to observe the tracks and their 'score' */
+      ToolHandle<Trk::ITrkObserverTool> m_observerTool;
+      
       /** some cut values */
       int m_minHits;                // Min Number of hits on track            
       int m_minTRT_Hits;            // Min Number of TRT hits on track
@@ -301,7 +305,8 @@ namespace InDet
       std::vector<double>   m_hadR;
       std::vector<double>   m_hadZ;
       bool                  m_mapFilled;
-       
+      
+      bool m_monitorTracks; // to track observeration/monitoring (default is false)
       // Counters  
       //mutable int 
       

@@ -27,6 +27,7 @@ use AtlasPolicy           	AtlasPolicy-*
 use GaudiInterface        	GaudiInterface-*   		External
 use AthenaBaseComps             AthenaBaseComps-*               Control
 use TrkToolInterfaces     	TrkToolInterfaces-*    		Tracking/TrkTools
+use TrkValInterfaces           TrkValInterfaces-*              Tracking/TrkValidation
 use TrkTrack 			TrkTrack-*   			Tracking/TrkEvent
 use TrkRIO_OnTrack       	TrkRIO_OnTrack-*       		Tracking/TrkEvent
 
