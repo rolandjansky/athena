@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PtMultiplicitySet.cxx 364083 2011-05-06 09:09:55Z krasznaa $
+// $Id: PtMultiplicitySet.cxx 700318 2015-10-13 14:13:15Z wengler $
 
 // STL include(s):
 #include <iostream>
@@ -14,12 +14,12 @@
 
 //***********************************************************************
 //
-//       Version : $Revision: 364083 $
+//       Version : $Revision: 700318 $
 //
 //   Description :
 //
 //        Author : $Author: krasznaa $
-//          Date : $Date: 2011-05-06 11:09:55 +0200 (Fri, 06 May 2011) $
+//          Date : $Date: 2015-10-13 16:13:15 +0200 (Tue, 13 Oct 2015) $
 //
 //
 //
@@ -90,6 +90,7 @@ namespace LVL1MUCTPI {
       if( threshold > MAX_NUMBER_OF_THRESHOLDS || threshold < 1 ) {
          std::cerr << "Invalid Threshold given" << std::endl;
          assert( 0 );
+	 return( 0 );  // added to silence the coverty complaints
       }
       return m_multiplicity_pt[ threshold - 1 ];
 

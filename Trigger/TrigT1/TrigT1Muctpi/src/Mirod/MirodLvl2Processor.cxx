@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MirodLvl2Processor.cxx 624535 2014-10-28 10:02:49Z stelzer $
+// $Id: MirodLvl2Processor.cxx 726107 2016-02-25 11:04:42Z wengler $
 
 // STL include(s):
 #include <cassert>
@@ -21,11 +21,11 @@
 #include "../Common/SectorConstants.h"
 
 /*******************************************************************
- * $Date: 2014-10-28 11:02:49 +0100 (Tue, 28 Oct 2014) $
+ * $Date: 2016-02-25 12:04:42 +0100 (Thu, 25 Feb 2016) $
  *
  * Implementation of class MirodLvl2Processor
  * @author   Author: Thorsten Wengler
- * @version $Revision: 624535 $
+ * @version $Revision: 726107 $
  ******************************************************************/
 
 namespace LVL1MUCTPI {
@@ -33,7 +33,8 @@ namespace LVL1MUCTPI {
    // default constructor of class MirodLvl2Processor
    MirodLvl2Processor::MirodLvl2Processor()
       : m_logger( "MirodLvl2Processor" ),
-        m_ptSorterBuckets( MAX_NUMBER_OF_THRESHOLDS ) {
+        m_ptSorterBuckets( MAX_NUMBER_OF_THRESHOLDS ), 
+	m_maxCandPerPtvalue(0),  m_maxCandSendToRoib(0), m_candBcidOffset(0)  {
 
       REPORT_VERBOSE_MSG( "constructor called" );
    }
@@ -42,7 +43,8 @@ namespace LVL1MUCTPI {
    // as argument used to set the TheLvl2OutputData data member
    MirodLvl2Processor::MirodLvl2Processor( std::list<unsigned int> lvl2Out )
       : m_logger( "MirodLvl2Processor" ),
-        m_ptSorterBuckets( MAX_NUMBER_OF_THRESHOLDS ) {
+        m_ptSorterBuckets( MAX_NUMBER_OF_THRESHOLDS ), 
+	m_maxCandPerPtvalue(0), m_maxCandSendToRoib(0), m_candBcidOffset(0)  {
 
       REPORT_VERBOSE_MSG( "in constructor" );
       m_lvl2OutputData = lvl2Out;
@@ -178,10 +180,15 @@ namespace LVL1MUCTPI {
                continue;
             }
             // Add the candidate to one of the sorter buckets:
-            if( m_ptSorterBuckets[ ptValue - 1 ].size() > m_maxCandPerPtvalue ) {
+            if( m_ptSorterBuckets[ ptValue - 1 ].size() >= m_maxCandPerPtvalue ) {
                candidateSorterOverflow = 1;
-               // Overwrite the first candidate:
-               m_ptSorterBuckets[ ptValue - 1 ][ 0 ] = inputWord;
+               // Overwrite the first candidate: (make sure it exisits - it might not if there was 
+	       // a configurtion error
+	       if ( m_ptSorterBuckets[ ptValue - 1 ].size() >= 1 ) {
+		 m_ptSorterBuckets[ ptValue - 1 ][ 0 ] = inputWord;
+	       } else {
+		 REPORT_ERROR_MSG( "Sorter bucket size 0 - config error?" );
+	       }
             } else {
                m_ptSorterBuckets[ ptValue - 1 ].push_back( inputWord );
             }

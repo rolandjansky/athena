@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MictpModule.cxx 364083 2011-05-06 09:09:55Z krasznaa $
+// $Id: MictpModule.cxx 700318 2015-10-13 14:13:15Z wengler $
 
 // Local include(s):
 #include "MictpModule.h"
@@ -11,18 +11,18 @@
 #include "../Common/MuctpiBitMasks.h"
 
 /*******************************************************************
- * $Date: 2011-05-06 11:09:55 +0200 (Fri, 06 May 2011) $ 
+ * $Date: 2015-10-13 16:13:15 +0200 (Tue, 13 Oct 2015) $ 
  *
  * Implementation of class MictpModule
  * @author   Author: Thorsten Wengler
- * @version $Revision: 364083 $
+ * @version $Revision: 700318 $
  ******************************************************************/
 
 namespace LVL1MUCTPI {
 
    // constructor of class MictpModule
    MictpModule::MictpModule()
-      : m_logger("MictpModule") {
+     :  m_CTPDataWord(0), m_logger("MictpModule")  {
 
       REPORT_VERBOSE_MSG( "Constructor called" );
 

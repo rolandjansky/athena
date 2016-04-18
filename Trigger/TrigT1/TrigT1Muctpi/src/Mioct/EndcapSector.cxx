@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EndcapSector.cxx 364083 2011-05-06 09:09:55Z krasznaa $
+// $Id: EndcapSector.cxx 700318 2015-10-13 14:13:15Z wengler $
 
 // STL include(s):
 #include <iomanip>
@@ -48,10 +48,11 @@ namespace LVL1MUCTPI {
 
       // check if any of the reservered bits is set. This should not
       // be the case. If so, give a warning but set the bitfield anyway.
-      if( ( EndcapReservedMask & bitfield ) != 0 ) {
-         m_logger << WARNING << "illegal bitfield : " << std::hex << bitfield
-                  << " (hex) --> Bitfield set anyway" << MsgLogger::endmsg;
-      }
+      // these fields are not respected by input simluations, skip
+      //      if( ( EndcapReservedMask & bitfield ) != 0 ) {
+      //  m_logger << WARNING << "illegal bitfield : " << std::hex << bitfield
+      //           << " (hex) --> Bitfield set anyway" << MsgLogger::endmsg;
+      //}
 
       m_bitField = bitfield;
       return;
@@ -91,7 +92,7 @@ namespace LVL1MUCTPI {
       Ba2Ov  = this->isCand2BarrelOverlap();
 
       std::ostringstream outStream;
-      outStream << " \n\n  ENDCAP SECTOR DATA $Revision: 364083 $" << std::endl;
+      outStream << " \n\n  ENDCAP SECTOR DATA $Revision: 700318 $" << std::endl;
       outStream << "==============================================" << std::endl;
       outStream << myId << std::endl;
       outStream << "BCID :            " << BCID  << std::endl;

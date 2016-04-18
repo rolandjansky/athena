@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: SectorLogicSource.h 364083 2011-05-06 09:09:55Z krasznaa $
+// $Id: SectorLogicSource.h 681356 2015-07-08 12:17:52Z wengler $
 #ifndef TRIGT1MUCTPI_SECTORLOGICSOURCE_H
 #define TRIGT1MUCTPI_SECTORLOGICSOURCE_H
 
@@ -41,8 +41,8 @@ namespace LVL1MUCTPI {
     * @author Thorsten Wengler
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 364083 $
-    * $Date: 2011-05-06 11:09:55 +0200 (Fri, 06 May 2011) $
+    * $Revision: 681356 $
+    * $Date: 2015-07-08 14:17:52 +0200 (Wed, 08 Jul 2015) $
     */
    class SectorLogicSource : public EventSource {
 
@@ -52,6 +52,8 @@ namespace LVL1MUCTPI {
        * Sets the pointers to the Lvl1MuCTPIInput which holds the input
        * data from the Sector Logic
        */
+      void setBcidOffset( int bcidOffset) { m_bcidOffset= bcidOffset; }
+      int getBcidOffset() { return m_bcidOffset; }
       void setSectorLogicSource( const LVL1MUONIF::Lvl1MuCTPIInput* );
       /**
        * Gets the pointer to the Lvl1MuCTPIInput which holds the input
@@ -73,6 +75,7 @@ namespace LVL1MUCTPI {
 
    private:
       const LVL1MUONIF::Lvl1MuCTPIInput* m_lvl1MuCTPIInput;
+      int m_bcidOffset;
 
    }; // class SectorLogicSource
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Converter.cxx 472835 2011-12-06 21:05:16Z stelzer $
+// $Id: Converter.cxx 707664 2015-11-13 05:36:00Z ssnyder $
 
 // STL include(s):
 #include <map>
@@ -108,7 +108,7 @@ namespace LVL1MUCTPI {
          barrel_map.end();
       for( ; it_barrel_map != end_barrel_map; ++it_barrel_map ) {
 
-         REPORT_MSG(DEBUG, "Adding sector logic word:"  << std::endl << it_barrel_map->second);
+         REPORT_MSG(DEBUG, "Adding sector logic word:"  << std::endl << it_barrel_map->second.toString());
 
          if( it_barrel_map->second.subSystem() == HelperRoISector::A_side ) {
 
@@ -137,7 +137,7 @@ namespace LVL1MUCTPI {
          endcap_map.end();
       for( ; it_endcap_map != end_endcap_map; ++it_endcap_map ) {
 
-         REPORT_MSG(DEBUG, "Adding sector logic word:" << std::endl << it_endcap_map->second);
+         REPORT_MSG(DEBUG, "Adding sector logic word:" << std::endl << it_endcap_map->second.toString());
 
          if( it_endcap_map->second.subSystem() == HelperRoISector::A_side ) {
 
@@ -166,7 +166,7 @@ namespace LVL1MUCTPI {
          forward_map.end();
       for( ; it_forward_map != end_forward_map; ++it_forward_map ) {
 
-         REPORT_MSG(DEBUG, "Adding sector logic word:" << std::endl << it_forward_map->second);
+         REPORT_MSG(DEBUG, "Adding sector logic word:" << std::endl << it_forward_map->second.toString());
 
          if( it_forward_map->second.subSystem() == HelperRoISector::A_side ) {
 
@@ -277,7 +277,7 @@ namespace LVL1MUCTPI {
          barrel_map.end();
       for( ; it_barrel_map != end_barrel_map; ++it_barrel_map ) {
 
-         REPORT_MSG(DEBUG, "Adding sector logic word:" << std::endl << it_barrel_map->second);
+         REPORT_MSG(DEBUG, "Adding sector logic word:" << std::endl << it_barrel_map->second.toString());
 
          if( it_barrel_map->second.subSystem() == HelperRDOSector::A_side ) {
 
@@ -306,7 +306,7 @@ namespace LVL1MUCTPI {
          endcap_map.end();
       for( ; it_endcap_map != end_endcap_map; ++it_endcap_map ) {
 
-         REPORT_MSG(DEBUG, "Adding sector logic word:" << std::endl << it_endcap_map->second);
+         REPORT_MSG(DEBUG, "Adding sector logic word:" << std::endl << it_endcap_map->second.toString());
 
          if( it_endcap_map->second.subSystem() == HelperRDOSector::A_side ) {
 
@@ -335,7 +335,7 @@ namespace LVL1MUCTPI {
          forward_map.end();
       for( ; it_forward_map != end_forward_map; ++it_forward_map ) {
 
-         REPORT_MSG(DEBUG, "Adding sector logic word:" << std::endl << it_forward_map->second);
+         REPORT_MSG(DEBUG, "Adding sector logic word:" << std::endl << it_forward_map->second.toString());
 
          if( it_forward_map->second.subSystem() == HelperRDOSector::A_side ) {
 
@@ -406,10 +406,12 @@ namespace LVL1MUCTPI {
    Converter::HelperSector&
    Converter::HelperSector::operator= ( const Converter::HelperSector& right ) {
 
-      this->m_word   = right.m_word;
-      this->m_sector = right.m_sector;
+     if (this != &right) {
 
-      return ( *this );
+       this->m_word   = right.m_word;
+       this->m_sector = right.m_sector;
+     }
+     return ( *this );
    }
 
    Converter::HelperSector::MuonSubSystem Converter::HelperSector::subSystem() const {
@@ -558,24 +560,26 @@ namespace LVL1MUCTPI {
    //                                                                            //
    ////////////////////////////////////////////////////////////////////////////////
 
-   std::ostream& operator<< ( std::ostream& output, const Converter::HelperSector& sector ) {
+std::string
+Converter::HelperSector::toString() const {
 
+      std::ostringstream output;
       output << " ------ sector word ------" << std::endl;
-      output << "  system     = " << sector.system() << std::endl;
+      output << "  system     = " << system() << std::endl;
       output << "  m_word     = 0x" << std::hex << std::setw(8) << std::setfill('0')
-             << sector.m_word << std::endl;
+             << m_word << std::endl;
       output << "  m_sector   = 0x" << std::hex << std::setw(2) << std::setfill('0')
-             << sector.m_sector << std::endl;
-      output << "  sectorID   = " << std::dec << sector.sectorID() << std::endl;
+             << m_sector << std::endl;
+      output << "  sectorID   = " << std::dec << sectorID() << std::endl;
       output << "  sub-system = ";
-      if( sector.subSystem() == Converter::HelperRoISector::A_side ) {
+      if( subSystem() == Converter::HelperRoISector::A_side ) {
          output << "A side" << std::endl;
-      } else if( sector.subSystem() == Converter::HelperRoISector::C_side ) {
+      } else if( subSystem() == Converter::HelperRoISector::C_side ) {
          output << "C side" << std::endl;
       }
       output << " -------------------------";
 
-      return output;
+      return output.str();
    }
 
 } // namespace LVL1MUCTPI

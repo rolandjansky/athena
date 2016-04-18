@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Sector.cxx 678659 2015-06-26 14:54:31Z wengler $
+// $Id: Sector.cxx 700318 2015-10-13 14:13:15Z wengler $
 
 // STL include(s):
 #include <sstream>
@@ -16,7 +16,7 @@ namespace LVL1MUCTPI {
 
    Sector::Sector( const Hemisphere theHemisphere, const unsigned int theSectorNumber,
                    EventReader* reader )
-      : m_registered( false ), m_rapidityRegion( theHemisphere ),
+      : m_bitField(0), m_registered( false ), m_rapidityRegion( theHemisphere ),
         m_sectorNumber( theSectorNumber ), m_reader( reader ),
         m_cand1Supressed( false ), m_cand2Supressed( false ) {
 

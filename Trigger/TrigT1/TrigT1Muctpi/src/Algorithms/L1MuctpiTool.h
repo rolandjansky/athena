@@ -1,68 +1,45 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L1Muctpi.h 681356 2015-07-08 12:17:52Z wengler $
-#ifndef TRIGT1MUCTPI_L1MUCTPI_H
-#define TRIGT1MUCTPI_L1MUCTPI_H
+#ifndef TRIGT1MUCTPI_L1MUCTPITOOL_H
+#define TRIGT1MUCTPI_L1MUCTPITOOL_H
 
-// STL include(s):
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "TrigT1Interfaces/IMuctpiSimTool.h"
+#include <vector>
 #include <string>
 
-// Athena/Gaudi include(s):
-#include "GaudiKernel/ServiceHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ToolHandle.h"
 
-// Forward declaration(s):
 namespace TrigConf {
    class ILVL1ConfigSvc;
    class TriggerThreshold;
 }
 
-/// Namespace for the MuCTPI simulation
-/**
-* This namespace should contain all classes, functions, enumerations, ... which are
-* used in the MuCTPI simulation.
-*/
+
 namespace LVL1MUCTPI {
 
-   // Forward declaration(s):
-   class MuctpiSim;
+  // Forward declaration(s):
+  class MuctpiSim;
 
-   /**
-    *   $Date: 2015-07-08 14:17:52 +0200 (Wed, 08 Jul 2015) $
-    *
-    *   @short Main Athena algorithm of the MuCTPI simulation
-    *
-    *          The algorithm reads the MuCTPI's configuration from the DetectorStore
-    *          put there by TrigT1Config, and configures the MuCTPI simulation with it.
-    *          For each event it reads the output of the RPC and TGC detector simulations,
-    *          and uses them as an input to the MuCTPI simulation. It produces a readout
-    *          object (MuCTPI_RDO), an RoI object (ROIB::MuCTPIResult) and the object
-    *          sent to the CTP (LVL1::MuCTPICTP).
-    *
-    *     @see MuctpiSim
-    *     @see LVL1MUONIF::Lvl1MuCTPIInput
-    *     @see MuCTPI_RDO
-    *     @see ROIB::MuCTPIResult
-    *     @see LVL1::MuCTPICTP
-    *
-    *  @author $Author: krasznaa $
-    * @version $Revision: 681356 $
-    *
-    */
-   class L1Muctpi : public AthAlgorithm {
-
+  class L1MuctpiTool : public extends2<AthAlgTool, IMuctpiSimTool, IIncidentListener> {
    public:
-      /// Regular Gaudi algorithm constructor
-      L1Muctpi( const std::string& name, ISvcLocator* pSvcLocator );
-      /// A destructor for actually cleaning up
-      virtual ~L1Muctpi();
+      L1MuctpiTool(const std::string& type, const std::string& name, 
+                         const IInterface* parent);
+      
+      virtual ~L1MuctpiTool();
 
-      /// Regular Gaudi algorithm initialization function
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
+
+      virtual StatusCode fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo& ) const; 
+
+      virtual void handle(const Incident&);
+
+
+      // left over from ALgorithm implementation ... can I just leave them in here
+      // and use them as normal funcitons?
       /// Regular Gaudi algorithm finalization function
       virtual StatusCode finalize();
       /// Regular Gaudi algorithm execute function
@@ -70,7 +47,9 @@ namespace LVL1MUCTPI {
       /// Regular Gaudi algorithm beginRun function
       virtual StatusCode beginRun();
 
+
    private:
+
       /// Event loop method for running as part of digitization
       StatusCode executeFromDigi();
       /// Event loop method for running on an AOD file
@@ -99,6 +78,7 @@ namespace LVL1MUCTPI {
       static const std::string m_DEFAULT_L1MuctpiStoreLocationTGC;
       static const std::string m_DEFAULT_AODLocID;
       static const std::string m_DEFAULT_RDOLocID;
+      static const std::string m_DEFAULT_roibLocation;
 
       // These properties control the way the overlap handling functions:
       std::string m_overlapStrategyName;
@@ -124,6 +104,7 @@ namespace LVL1MUCTPI {
       std::string m_l1topoOutputLocId;
       std::string m_tgcLocId;
       std::string m_rpcLocId;
+      std::string m_roibLocation;
 
       /// Property telling if the LUTs should be printed:
       bool m_dumpLut;
@@ -138,10 +119,9 @@ namespace LVL1MUCTPI {
       unsigned int m_nimEndcapBit;
       
       /// Function pointer to the execute function we want to use:
-      StatusCode ( LVL1MUCTPI::L1Muctpi::*m_executeFunction )( void );
+      StatusCode ( LVL1MUCTPI::L1MuctpiTool::*m_executeFunction )( void );
 
-   }; // class L1Muctpi
+   };
+}
 
-} // namespace LVL1MUCTPI
-
-#endif // TRIGT1MUCTPI_L1MUCTPI_H
+#endif
