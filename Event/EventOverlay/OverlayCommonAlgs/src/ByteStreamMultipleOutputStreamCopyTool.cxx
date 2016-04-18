@@ -358,7 +358,7 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::commitOutput() {
       }
     }
 
-    if (l.currentevent>=l.nevt || ((unsigned int)l.currentevent)>l.trigmap.size() && l.noalgps>0) {
+    if ((l.currentevent>=l.nevt || ((unsigned int)l.currentevent)>l.trigmap.size()) && l.noalgps>0) {
       ATH_MSG_WARNING("Only expecting "<<l.nevt<<" events in "<<run<<" "<<lbn<<" with trigmap size "<<l.trigmap.size());
     }
 
