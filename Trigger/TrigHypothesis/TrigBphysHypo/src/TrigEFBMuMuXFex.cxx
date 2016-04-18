@@ -625,6 +625,10 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::NAV_ERROR;
      }
+     if ( !roiDescriptor1 ) {
+       msg() << MSG::ERROR << "roiDescriptor1 is NULL" << endreq;
+       return HLT::NAV_ERROR;
+     }
     
      if ( getFeature(inputTE[mu2_TE], roiDescriptor2) != HLT::OK ) {
         msg() << MSG::ERROR << "Navigation error while getting RoI descriptor 2" << endreq;
@@ -632,6 +636,11 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::NAV_ERROR;
      }
+     if ( !roiDescriptor2 ) {
+       msg() << MSG::ERROR << "roiDescriptor2 is NULL" << endreq;
+       return HLT::NAV_ERROR;
+     }
+
      if (m_FTK) {
       if ( getFeature(inputTE[0], roiDescriptorTrk) != HLT::OK ) {
         msg() << MSG::ERROR << "Navigation error while getting RoI descriptor Trk" << endreq;
@@ -2127,7 +2136,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //     std::string  KEY; //sivokl
     
     if(mTrigBphysColl_b!=0 && mTrigBphysColl_b->size()>0) {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection " << mTrigBphysColl_b << " size: " << mTrigBphysColl_b->size() << endreq;
+        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << mTrigBphysColl_b->size() << endreq;
         HLT::ErrorCode sc = attachFeature(outputTE, mTrigBphysColl_X, "EFBMuMuXFex_X" );
         if(sc != HLT::OK) {
             msg() << MSG::WARNING << "Failed to store trigBphys_X Collection in outputTE" << endreq;
