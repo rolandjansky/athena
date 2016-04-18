@@ -27,16 +27,16 @@ JetMomentMap* JetMomentMapCnv::createTransient()
   if( compareClassGuid(p1_guid) )
     {
       JetMomentMapCnv_p1   TPconverter;
-      // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr<JetMomentMap_p1> jet_momentdescr( poolReadObject< JetMomentMap_p1 >() );
+      // using unique_ptr ensures deletion of the persistent object
+      std::unique_ptr<JetMomentMap_p1> jet_momentdescr( poolReadObject< JetMomentMap_p1 >() );
       MsgStream report( messageService(), "JetMomentMapCnv" );
       report << MSG::DEBUG << "Reading JetMomentMap_p6" << endreq; 
       return TPconverter.createTransient( jet_momentdescr.get(), report );
     }else if( compareClassGuid(p6_guid) )
     {
       JetMomentMapCnv_p6   TPconverter;
-      // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr<JetMomentMap_p6> jet_momentdescr( poolReadObject< JetMomentMap_p6 >() );
+      // using unique_ptr ensures deletion of the persistent object
+      std::unique_ptr<JetMomentMap_p6> jet_momentdescr( poolReadObject< JetMomentMap_p6 >() );
       MsgStream report( messageService(), "JetMomentMapCnv" );
       report << MSG::DEBUG << "Reading JetMomentMap_p6" << endreq; 
       return TPconverter.createTransient( jet_momentdescr.get(), report );

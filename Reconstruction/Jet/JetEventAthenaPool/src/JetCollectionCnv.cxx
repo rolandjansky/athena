@@ -49,22 +49,6 @@ JetCollectionCnv::createPersistent( JetCollection* transCont )
 
   MsgStream msg( msgSvc(), "JetCollectionCnv" );
   msg << MSG::DEBUG << " in createPersistent" << endreq;
-  std::vector<std::string> no_constit_colls = m_propTool->get_no_constit_colls();
-  m_propTool->set_no_constit(false);
-  // Test 1st in collection for its author.
-  if(transCont->size() > 0){
-    Jet * j = transCont->at(0);
-    std::string author = j->jetAuthor();
-    // If author match one given by joboptions, don't save constit
-    for(size_t i=0;i<no_constit_colls.size();i++){
-      if ( author == no_constit_colls[i] ) {
-	m_propTool->set_no_constit(true);
-	msg << MSG::DEBUG << " NOT saving constit "<< author << endreq; 
-	break;
-      }
-    }
-  }
-
   return m_TPConverter.createPersistent (transCont, m_log);
 }
 
@@ -97,8 +81,8 @@ JetCollection* JetCollectionCnv::createTransient()
 
   } else  if ( compareClassGuid(tlp5_guid) ) {
     msg << MSG::DEBUG << "  JetCollectionCnv:  calling tlp5 converter" <<endreq;
-    poolReadObject<JetCollection_tlp5> (tlp5_cnv);
-    return transObj = tlp5_cnv.createTransient(m_log);
+    poolReadObject<JetCollection_tlp5> (m_tlp5_cnv);
+    return transObj = m_tlp5_cnv.createTransient(m_log);
 
   } else if ( compareClassGuid(tlp2_guid) ) {
 
@@ -107,8 +91,8 @@ JetCollection* JetCollectionCnv::createTransient()
     // the lastest guy.
 
     msg << MSG::DEBUG << "  JetCollectionCnv:  calling tlp2 converter" <<endreq;
-    poolReadObject<JetCollection_tlp2> (tlp2_cnv);
-    return tlp2_cnv.createTransient(m_log);
+    poolReadObject<JetCollection_tlp2> (m_tlp2_cnv);
+    return m_tlp2_cnv.createTransient(m_log);
 
 //     poolReadObject<JetCollection_tlp2> (m_TPConverter);
 //     return transObj = m_TPConverter.createTransient(m_log);
@@ -120,27 +104,27 @@ JetCollection* JetCollectionCnv::createTransient()
 
   } else if ( compareClassGuid(p1_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<JetCollection_p1> persObj( poolReadObject<JetCollection_p1>() );
-    transObj = p1_cnv.createTransient( persObj.get(), msg );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<JetCollection_p1> persObj( poolReadObject<JetCollection_p1>() );
+    transObj = m_p1_cnv.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p2_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<JetCollection_p2> persObj( poolReadObject<JetCollection_p2>() );
-    transObj = p2_cnv.createTransient( persObj.get(), msg );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<JetCollection_p2> persObj( poolReadObject<JetCollection_p2>() );
+    transObj = m_p2_cnv.createTransient( persObj.get(), msg );
     
   } else if ( compareClassGuid(p3_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<JetCollection_p3> persObj( poolReadObject<JetCollection_p3>() );
-    transObj = p3_cnv.createTransient( persObj.get(), msg );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<JetCollection_p3> persObj( poolReadObject<JetCollection_p3>() );
+    transObj = m_p3_cnv.createTransient( persObj.get(), msg );
     
   } else if ( compareClassGuid(pj_guid) ) {
     msg << MSG::DEBUG << " creating pj_guid "<< endreq;
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<ParticleJetContainer_p1> persObj( poolReadObject<ParticleJetContainer_p1>() );
-    transObj = pjp1_cnv.createTransient( persObj.get(), msg );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<ParticleJetContainer_p1> persObj( poolReadObject<ParticleJetContainer_p1>() );
+    transObj = m_pjp1_cnv.createTransient( persObj.get(), msg );
   } else {
     throw std::runtime_error("Unsupported persistent version of JetCollection");
   }
@@ -160,25 +144,6 @@ StatusCode JetCollectionCnv::initialize (void)
     return result;
   }
 
-  // TPCnv property tool : 
-  IJetTPCnvPropertiesTool * ipropTool;
-  StatusCode sc;
-  IToolSvc*     p_toolSvc;
-  sc = service("ToolSvc", p_toolSvc);
-  if( sc.isSuccess() ){
-    sc = p_toolSvc->retrieveTool("JetTPCnvPropertiesTool",  ipropTool);
-    m_log << MSG::INFO<< " Initialize JetCollectionCnv, iprop tool = "<< ipropTool<< endreq;
-    if( sc.isSuccess() ) 
-      m_propTool = dynamic_cast<JetTPCnvPropertiesTool*>(ipropTool);
-    else {  
-      m_log << MSG::ERROR << " Could not retrieve JetTPCnvPropertiesTool !! " <<endreq;
-      return StatusCode::FAILURE;
-    }
-  }
-  else {
-    m_log << MSG::ERROR << " Could not retrieve ToolSvc !! " <<endreq;
-    return StatusCode::FAILURE;
-  }
   ///
   /// Load the flavor tagging converter. The hard-coded CLID here is
   /// a run-time linkage to the JetTagInfo converter and collection.

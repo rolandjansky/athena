@@ -37,8 +37,6 @@
 // JetEvent includes
 #include "JetEvent/JetCollection.h"
 
-#include "JetEventAthenaPool/JetTPCnvPropertiesTool.h"
-
 
 // Forward declaration
 
@@ -105,17 +103,13 @@ private:
   IMessageSvc *m_msgSvc;
   MsgStream m_log;
 
-  /// Properties holder tool :
-  JetTPCnvPropertiesTool * m_propTool;
-
-
   // Converters to be allocated once only
-  JetCollectionCnv_tlp5       tlp5_cnv;
-  JetCollectionCnv_tlp2       tlp2_cnv;
-  JetCollectionCnv_p1         p1_cnv;
-  JetCollectionCnv_p2         p2_cnv;
-  JetCollectionCnv_p3         p3_cnv;
-  ParticleJetContainerCnv_p1  pjp1_cnv;
+  JetCollectionCnv_tlp5       m_tlp5_cnv;
+  JetCollectionCnv_tlp2       m_tlp2_cnv;
+  JetCollectionCnv_p1         m_p1_cnv;
+  JetCollectionCnv_p2         m_p2_cnv;
+  JetCollectionCnv_p3         m_p3_cnv;
+  ParticleJetContainerCnv_p1  m_pjp1_cnv;
 
 };
 
