@@ -59,6 +59,7 @@ use     TrigParticle            TrigParticle-*          Trigger/TrigEvent
 use     xAODTrigCalo            xAODTrigCalo-*          Event/xAOD
 use     xAODTracking     	xAODTracking-*     	Event/xAOD
 use     xAODTrigEgamma          xAODTrigEgamma-*        Event/xAOD
+use     xAODTrigger             xAODTrigger-*           Event/xAOD
 use     AtlasCLHEP              AtlasCLHEP-*            External
 
 library TrigEgammaHypo *.cxx components/*.cxx

@@ -7,8 +7,8 @@ class TrigEFPhotonHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
         super(TrigEFPhotonHypoValidationMonitoring, self).__init__(name)
         self.defineTarget( "Validation" )
 
-        cuts=['Input','has egammaContainer','isEM','isEMTrig', 'has caloCluster', 'Cluster Et', 'has EMShower', 
-              'OldSet1','OldSet2','OldSet3']
+        cuts=['Input','has egammaContainer','isEM','isEMTrig', 'has caloCluster', 'Cluster Et', 'Isolation', 
+              'Photon','OldSet2','OldSet3']
 
         labelsDescription = ''
         for c in cuts:
@@ -152,8 +152,8 @@ class TrigEFPhotonHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         super(TrigEFPhotonHypoOnlineMonitoring, self).__init__(name)
         self.defineTarget("Online")
 
-        cuts=['Input','has egammaContainer','isEM','isEMTrig', 'has caloCluster', 'Cluster Et', 'has EMShower', 
-              'OldSet1','OldSet2','OldSet3']
+        cuts=['Input','has egammaContainer','isEM','isEMTrig', 'has caloCluster', 'Cluster Et', 'Isolation', 
+              'Photon','OldSet2','OldSet3']
 
         labelsDescription = ''
         for c in cuts:
@@ -214,27 +214,11 @@ class TrigEFPhotonHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
 
         self.Histograms += [ defineHistogram('Ph_ClusterEt', 	type='TH1F', title="EFPhoton Hypo Cluster E_{T}; E_{T}^{em} [MeV]",
                                             xbins=50, xmin=-2000, xmax=100000) ]
-     
-                                             
-        self.Histograms += [ defineHistogram('Ph_Reta', 	type='TH1F', title="EFPhoton Hypo Reta = E237/E277; Reta",
-                                             xbins=130, xmin=-5.0, xmax=1.5 ) ]
-                                             
-        self.Histograms += [ defineHistogram('Ph_Rhad', 	type='TH1F', title="EFPhoton Hypo Rhad = Ethad/et; Rhad",
-                                             xbins=130, xmin=-0.25, xmax=0.25 ) ]
-        
-        
-        self.Histograms += [ defineHistogram('Ph_F3core',	 type='TH1F', title="EFPhoton Hypo F3; E3(3x3)/(E0+E1+E2+E3)",xbins=96, xmin=-0.1, xmax=1.1) ]       
         
         self.Histograms += [ defineHistogram('Ph_Eta',	 type='TH1F', title="EFPhoton Hypo Eta; #eta ",xbins=100, xmin=-2.5, xmax=2.5) ]       
 
         self.Histograms += [ defineHistogram('Ph_Phi',	 type='TH1F', title="EFPhoton Hypo Phi; #eta ",xbins=160, xmin=-3.2, xmax=3.2) ]       
         
-        self.Histograms += [ defineHistogram('Ph_Eratio', 	type='TH1F', title="EFPhoton Hypo Eratio = (emax1 - emax2) / (emax1 + emax2) ; Eratio ",
-                                             xbins=32, xmin=-0.1, xmax=1.5 ) ]
-
-
-        self.Histograms += [ defineHistogram('Ph_WEta2', 	type='TH1F', title="EFPhoton  Hypo corrected width in 3 strips in the 2st samp. ; WEta2",
-                                             xbins=20, xmin=0, xmax=0.05 ) ]
 
 
 class TrigEFPhotonHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
@@ -242,8 +226,8 @@ class TrigEFPhotonHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
         super(TrigEFPhotonHypoCosmicMonitoring, self).__init__(name)
         self.defineTarget("Cosmic")
 
-        cuts=['Input','has egammaContainer','isEM','isEMTrig', 'has caloCluster', 'Cluster Et', 'has EMShower', 
-              'OldSet1','OldSet2','OldSet3']
+        cuts=['Input','has egammaContainer','isEM','isEMTrig', 'has caloCluster', 'Cluster Et', 'Isolation', 
+              'Photon','OldSet2','OldSet3']
 
         labelsDescription = ''
         for c in cuts:

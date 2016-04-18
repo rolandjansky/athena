@@ -116,7 +116,14 @@ class TrigEFPhotonHypo : public HLT::HypoAlgo {
   std::vector<unsigned int> m_IsEMRequiredBitsAfterCut;
   
   const xAOD::PhotonContainer* m_EgammaContainer; //!< pointer to PhotonContainer
-  
+ 
+  // Isolation
+  bool m_applyIsolation; 
+  unsigned int m_EtConeSizes;
+  std::vector<float> m_RelEtConeCut;
+  std::vector<float> m_EtConeCut;
+  std::map<int, std::string> m_mapEtCone;
+  std::map<int, std::string> m_mapRelEtCone;
   
   //std::vector<IHistogram1D*> nCandHistVector;
 

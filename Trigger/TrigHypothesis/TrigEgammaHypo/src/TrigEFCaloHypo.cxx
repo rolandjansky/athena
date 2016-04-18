@@ -33,6 +33,8 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "TrigSteeringEvent/TrigPassBits.h"
+#include "PATCore/TAccept.h"            // for TAccept
+#include "PATCore/TResult.h"            // for TResult
 
 class ISvcLocator;
 
@@ -196,40 +198,23 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
   m_lhval.clear();
   m_avgmu.clear();
 
-    ATH_MSG_DEBUG(": in execute()");
+  ATH_MSG_DEBUG(": in execute()");
  
-
-   // get RoI descriptor
-  const TrigRoiDescriptor* roiDescriptor = 0;
-  HLT::ErrorCode statt = getFeature(outputTE, roiDescriptor, "");
-  
-  if ( statt == HLT::OK ) {
-      ATH_MSG_DEBUG("RoI id " << roiDescriptor->roiId()
-	  << " LVL1 id " << roiDescriptor->l1Id()
-	  << " located at   phi = " <<  roiDescriptor->phi()
-	  << ", eta = " << roiDescriptor->eta());
-  } else {
-    ATH_MSG_WARNING("No RoI for this Trigger Element! ");
-    return HLT::NAV_ERROR;
-  }
-
   // get CaloClusterContainer from the trigger element:
   //--------------------------------------------------
-
 
   bool accepted=false;
   // AcceptAll property = true means selection cuts should not be applied
   if (m_acceptAll) accepted=true;
 
-  std::vector<const xAOD::CaloClusterContainer*> vectorClusterContainer;
-   
+  std::vector<const xAOD::CaloClusterContainer*> vectorClusterContainer; 
   HLT::ErrorCode stat = getFeatures(outputTE,vectorClusterContainer , "");
 
   if (stat != HLT::OK ) {
      ATH_MSG_WARNING( " Failed to get vectorClusterContainers from the trigger element"); 
      if (timerSvc())m_totalTimer ->stop();
      return HLT::OK;
-   } 
+  } 
 
   ATH_MSG_DEBUG(" Got " << vectorClusterContainer.size()  << " vectorClusterContainer's associated to the TE ");
   // Get the last ClusterContainer
