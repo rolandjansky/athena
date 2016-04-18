@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Converter.h 364083 2011-05-06 09:09:55Z krasznaa $
+// $Id: Converter.h 707664 2015-11-13 05:36:00Z ssnyder $
 #ifndef TRIGT1MUCTPI_CONVERTER_H
 #define TRIGT1MUCTPI_CONVERTER_H
 
@@ -44,8 +44,8 @@ namespace LVL1MUCTPI {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 364083 $
-    * $Date: 2011-05-06 11:09:55 +0200 (Fri, 06 May 2011) $
+    * $Revision: 707664 $
+    * $Date: 2015-11-13 06:36:00 +0100 (Fri, 13 Nov 2015) $
     */
    class Converter {
 
@@ -89,8 +89,7 @@ namespace LVL1MUCTPI {
          virtual unsigned int sectorID() const = 0;
          virtual std::string system() const = 0;
 
-         friend std::ostream& LVL1MUCTPI::operator<< ( std::ostream& output,
-                                                       const HelperSector& sector );
+         std::string toString() const;
 
       protected:
          unsigned int m_word;
@@ -162,11 +161,6 @@ namespace LVL1MUCTPI {
 
       }; // class HelperRDOForwardSector
 
-      //
-      // Operator to dump the objects for debugging:
-      //
-      friend std::ostream& LVL1MUCTPI::operator<< ( std::ostream& output,
-                                                    const HelperSector& sector );
 
       //
       // Constants:
