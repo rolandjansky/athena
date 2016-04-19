@@ -21,6 +21,10 @@
 class IdentifierHash;
 class Identifier;
 
+
+/** Interface class for PixelCablingSvc
+ *  See PixelCablingSvc.h for further documentation
+ */
 class IPixelCablingSvc: virtual public IInterface {
 
  public:
@@ -31,11 +35,8 @@ class IPixelCablingSvc: virtual public IInterface {
   // InterfaceID
   static const InterfaceID& interfaceID( ) ;
 
-  // change readout speed
+  // callback function
   virtual StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS) = 0;
-
-  // change FE-I4 hit discriminator threshold level
-  virtual StatusCode IOVCallBack_HitDiscCnfg(IOVSVC_CALLBACK_ARGS) = 0;
 
   // Get a list of offlineIds from a RobId.
   virtual void getOfflineList(std::vector<IdentifierHash>& offlineIdHashList, int robid) = 0;
