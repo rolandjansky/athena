@@ -43,7 +43,7 @@ namespace xAOD {
 
   size_t xAOD::Electron_v1::nTrackParticles() const {
 
-     static SG::AuxElement::Accessor< Electron_v1::TPELVec_t >
+     const static SG::AuxElement::Accessor< Electron_v1::TPELVec_t >
         trackAcc( "trackParticleLinks" );
 
      if( trackAcc.isAvailable( *this ) ) {
@@ -85,7 +85,7 @@ namespace xAOD {
   
   bool Electron_v1::trackCaloMatchValue( float& value, const EgammaParameters::TrackCaloMatchType information ) const {
 
-    xAOD::Electron_v1::Accessor< float >* acc = trackCaloMatchAccessorV1( information );
+    const xAOD::Electron_v1::Accessor< float >* acc = trackCaloMatchAccessorV1( information );
     if( !acc ) { 
       return false;
     }
@@ -98,14 +98,14 @@ namespace xAOD {
   }
 
   float Electron_v1::trackCaloMatchValue( const EgammaParameters::TrackCaloMatchType information ) const {
-    xAOD::Electron_v1::Accessor< float >* acc = trackCaloMatchAccessorV1( information );
+    const xAOD::Electron_v1::Accessor< float >* acc = trackCaloMatchAccessorV1( information );
     if(!acc ) throw std::runtime_error( "Unknown/Unavailable Track to Calo Match type requested" );
     return ( *acc )( *this );
   }
 
   bool Electron_v1::setTrackCaloMatchValue( float value, const EgammaParameters::TrackCaloMatchType information ) {
 
-    xAOD::Electron_v1::Accessor< float >* acc = trackCaloMatchAccessorV1( information );
+    const xAOD::Electron_v1::Accessor< float >* acc = trackCaloMatchAccessorV1( information );
      if( !acc ) return false;
     // Set the value:
     ( *acc )( *this ) = value;

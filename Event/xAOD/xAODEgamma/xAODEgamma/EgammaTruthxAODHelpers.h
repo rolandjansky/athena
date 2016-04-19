@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaTruthxAODHelpers.h 668505 2015-05-19 19:23:05Z christos $
+// $Id: EgammaTruthxAODHelpers.h 741466 2016-04-19 20:21:49Z christos $
 #ifndef XAOD_EGAMMATRUTHXAODHELPERS_H
 #define XAOD_EGAMMATRUTHXAODHELPERS_H
 
@@ -50,22 +50,38 @@ namespace xAOD {
     ///@brief is the true object a converted photon with R < maxRadius
     bool isTrueConvertedPhoton(const xAOD::TruthParticle* truePh, float maxRadius = 800.);
 
-    ///@brief Helper wrapper function for calling the function below that accepts truth input
-    /// via a reco object
-    const xAOD::TruthParticle* getBkgElectronMother(const xAOD::Electron* el);
-
+    ///@brief Helper wrapper function for calling the function below that accepts truth input.
+    /// It extract the  truth from the  reco electron and uses the function below 
+    const xAOD::TruthParticle* getBkgElectronMother(const xAOD::Electron* el,const  int barcodecut=0);
 
     ///@brief Helper function for getting the True "Mother" electron for an existing electron.
-    ///There are cases when an electron has  a  photon (or electron) mother, that in turn comes
+    /// There are cases when an electron has  a  photon (or electron) mother, that in turn comes
     /// from another particle (possible leading to a Z or W etc).
     /// This method will navigate back up to the last electron or photon it can find
     /// in the lineage of the original true electron.
-    /// Then the user just needs to check the mother of that last electron/photon, returned from the method.
-    /// To see if we have a loose matched isolated electron (its mother would be Z,W etc)
-    /// or background.
-    ///If it fails returns null pointer.
-    const xAOD::TruthParticle* getBkgElectronMother(const xAOD::TruthParticle* truthel);
+    /// Then the user just needs to check this electron/photon.
+    /// If it fails returns null pointer.
+    ///
+    /// The user can apply also a barcode cut. This is handy in cases when we want to find
+    /// the first non geant particle occuring when going back the lineage.
+    /// The method will stop after the 1st particle failing this cut 
+    const xAOD::TruthParticle* getBkgElectronMother(const xAOD::TruthParticle* truthel, const int barcodecut=0);
 
+    ///@brief Helper wrapper function for calling the function below that accepts truth input.
+    std::vector<const xAOD::TruthParticle*> 
+    getBkgElectronLineage(const xAOD::Electron* el,const unsigned int barcodecut=0);
+    
+    ///@brief Helper function for getting the True Lineage of an electron for an existing electron.
+    /// There are cases when an electron has  a  photon (or electron) mother, that in turn comes
+    /// from another particle (possible leading to a Z or W etc).
+    /// This method will navigate back  and will return all true electron and photons in the lineage.
+    /// in case of complex topologies will return just the 1st electron or photon mother
+    ///
+    /// The user can apply also a barcode cut. This is handy in cases when we want to find
+    /// the first non geant particle occuring when going back the lineage.
+    /// The method will stop after the 1st particle failing this cut 
+    std::vector<const xAOD::TruthParticle*> 
+    getBkgElectronLineage(const xAOD::TruthParticle* truthel,const unsigned int barcodecut=0);
 
         
   }// EgammaHelpers

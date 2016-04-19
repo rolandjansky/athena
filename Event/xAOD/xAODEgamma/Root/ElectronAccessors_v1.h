@@ -20,7 +20,7 @@ namespace xAOD {
    /// This function holds on to Accessor objects that can be used by each
    /// Electron_v1 object at runtime to get/set detail values on themselves.
 
-   SG::AuxElement::Accessor< float >*
+   const SG::AuxElement::Accessor< float >*
    trackCaloMatchAccessorV1( xAOD::EgammaParameters::TrackCaloMatchType type );
 
 

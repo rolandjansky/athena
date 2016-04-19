@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PhotonAccessors_v1.h 582601 2014-02-11 15:46:49Z christos $
+// $Id: PhotonAccessors_v1.h 741466 2016-04-19 20:21:49Z christos $
 #ifndef XAOD_PHOTONACCESSORS_V1_H
 #define XAOD_PHOTONACCESSORS_V1_H
 
@@ -20,7 +20,7 @@ namespace xAOD {
    /// This function holds on to Accessor objects that can be used by each
    /// Photon_v1 object at runtime to get/set detail values on themselves.
 
-   SG::AuxElement::Accessor< float >*
+   const SG::AuxElement::Accessor< float >*
    vertexCaloMatchAccessorV1( xAOD::EgammaParameters::VertexCaloMatchType type );
 
 
