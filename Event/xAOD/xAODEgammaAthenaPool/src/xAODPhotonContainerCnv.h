@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODPhotonContainerCnv.h 581401 2014-02-04 14:12:49Z christos $
+// $Id: xAODPhotonContainerCnv.h 671839 2015-06-02 19:44:47Z christos $
 #ifndef XAODPHOTONATHENAPOOL_XAODPHOTONCONTAINERCNV_H
 #define XAODPHOTONATHENAPOOL_XAODPHOTONCONTAINERCNV_H
 
@@ -30,8 +30,8 @@ xAODPhotonContainerCnvBase;
  *
  * @author Christos Anastopoulos
  *
- * $Revision: 581401 $
- * $Date: 2014-02-04 15:12:49 +0100 (Tue, 04 Feb 2014) $
+ * $Revision: 671839 $
+ * $Date: 2015-06-02 21:44:47 +0200 (Tue, 02 Jun 2015) $
  */
 class xAODPhotonContainerCnv : public xAODPhotonContainerCnvBase {
   
@@ -50,9 +50,6 @@ public:
   virtual xAOD::PhotonContainer* createTransient();
   
 private:
-  /// Function preparing a vertex object for persistence
-  void toPersistent( xAOD::Photon* cluster ) const;
-
   /// StoreGate key of the container just being created 
   std::string m_key; 
     

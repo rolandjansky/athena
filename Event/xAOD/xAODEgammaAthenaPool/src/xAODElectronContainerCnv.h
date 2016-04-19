@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODElectronContainerCnv.h 581401 2014-02-04 14:12:49Z christos $
+// $Id: xAODElectronContainerCnv.h 671839 2015-06-02 19:44:47Z christos $
 #ifndef XAODELECTRONATHENAPOOL_XAODELECTRONCONTAINERCNV_H
 #define XAODELECTRONATHENAPOOL_XAODELECTRONCONTAINERCNV_H
 
@@ -30,8 +30,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::ElectronContainer,
  *
  * @author Christos Anastopoulos
  *
- * $Revision: 581401 $
- * $Date: 2014-02-04 15:12:49 +0100 (Tue, 04 Feb 2014) $
+ * $Revision: 671839 $
+ * $Date: 2015-06-02 21:44:47 +0200 (Tue, 02 Jun 2015) $
  */
 class xAODElectronContainerCnv : public xAODElectronContainerCnvBase {
   
@@ -50,9 +50,6 @@ public:
   virtual xAOD::ElectronContainer* createTransient();
   
 private:
-  /// Function preparing a vertex object for persistence
-  void toPersistent( xAOD::Electron* cluster ) const;
-
   /// StoreGate key of the container just being created 
   std::string m_key; 
   

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODElectronContainerCnv.cxx 596436 2014-05-11 17:34:00Z krasznaa $
+// $Id: xAODElectronContainerCnv.cxx 741490 2016-04-20 01:34:00Z christos $
 
 // System include(s):
 #include <exception>
@@ -53,14 +53,8 @@ xAODElectronContainerCnv::createPersistent( xAOD::ElectronContainer* trans ) {
 
    // Create a view copy of the container:
    xAOD::ElectronContainer* result =
-      new xAOD::ElectronContainer( trans->begin(), trans->end(),
-                              SG::VIEW_ELEMENTS );
-   // Prepare the objects to be written out:
-   xAOD::ElectronContainer::iterator itr = result->begin();
-   xAOD::ElectronContainer::iterator end = result->end();
-   for( ; itr != end; ++itr ) {
-      toPersistent( *itr );
-   }
+     new xAOD::ElectronContainer( trans->begin(), trans->end(),
+				  SG::VIEW_ELEMENTS );
    // Return the new container:
    return result;
 }
@@ -68,7 +62,7 @@ xAODElectronContainerCnv::createPersistent( xAOD::ElectronContainer* trans ) {
 xAOD::ElectronContainer* xAODElectronContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "9CA52CF4-E219-45B8-9971-6DAA89125952" );
+   static const pool::Guid v1_guid( "9CA52CF4-E219-45B8-9971-6DAA89125952" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {
@@ -83,20 +77,3 @@ xAOD::ElectronContainer* xAODElectronContainerCnv::createTransient() {
    return 0;
 }
 
-void xAODElectronContainerCnv::toPersistent( xAOD::Electron* electron ) const {
-
-   // Tell the object to prepare all its smart pointers for persistification:
-  size_t nClusters= electron->nCaloClusters();
-  for (size_t i=0; i<nClusters;++i){
-    ElementLink<xAOD::CaloClusterContainer>& link = const_cast<ElementLink<xAOD::CaloClusterContainer>& > (electron->caloClusterLink(i));
-    link.toPersistent();
-  }
-
-  size_t nTrackParticles= electron->nTrackParticles();
-  for (size_t i=0; i<nTrackParticles;++i){
-    ElementLink<xAOD::TrackParticleContainer>& link = const_cast<ElementLink<xAOD::TrackParticleContainer>& > (electron->trackParticleLink(i));
-    link.toPersistent();
-  }
-  
-   return;
-}

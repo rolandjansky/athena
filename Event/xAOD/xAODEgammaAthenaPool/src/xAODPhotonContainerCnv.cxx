@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODPhotonContainerCnv.cxx 596436 2014-05-11 17:34:00Z krasznaa $
+// $Id: xAODPhotonContainerCnv.cxx 741490 2016-04-20 01:34:00Z christos $
 
 // System include(s):
 #include <exception>
@@ -54,15 +54,8 @@ xAODPhotonContainerCnv::createPersistent( xAOD::PhotonContainer* trans ) {
 
    // Create a view copy of the container:
    xAOD::PhotonContainer* result =
-      new xAOD::PhotonContainer( trans->begin(), trans->end(),
-                              SG::VIEW_ELEMENTS );
-
-   // Prepare the objects to be written out:
-   xAOD::PhotonContainer::iterator itr = result->begin();
-   xAOD::PhotonContainer::iterator end = result->end();
-   for( ; itr != end; ++itr ) {
-      toPersistent( *itr );
-   }
+     new xAOD::PhotonContainer( trans->begin(), trans->end(),
+				SG::VIEW_ELEMENTS );
 
    // Return the new container:
    return result;
@@ -71,7 +64,7 @@ xAODPhotonContainerCnv::createPersistent( xAOD::PhotonContainer* trans ) {
 xAOD::PhotonContainer* xAODPhotonContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "5F045AAE-DBD8-47E4-90AC-9162530A9565" );
+  static const pool::Guid v1_guid( "5F045AAE-DBD8-47E4-90AC-9162530A9565" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {
@@ -86,20 +79,4 @@ xAOD::PhotonContainer* xAODPhotonContainerCnv::createTransient() {
    return 0;
 }
 
-void xAODPhotonContainerCnv::toPersistent( xAOD::Photon* photon ) const {
 
-
-  size_t nClusters= photon->nCaloClusters();
-  for (size_t i=0; i<nClusters;++i){
-    ElementLink<xAOD::CaloClusterContainer>& link = const_cast<ElementLink<xAOD::CaloClusterContainer>& > (photon->caloClusterLink(i));
-    link.toPersistent();
-  }
-
-  size_t nVertexes= photon->nVertices();
-  for (size_t i=0; i<nVertexes;++i){
-    ElementLink<xAOD::VertexContainer>& link = const_cast<ElementLink<xAOD::VertexContainer>& > (photon->vertexLink(i));
-    link.toPersistent();
-  }
-
-   return;
-}
