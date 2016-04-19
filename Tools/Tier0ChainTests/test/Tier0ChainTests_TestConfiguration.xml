@@ -1193,7 +1193,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>M11_cosmics</jobTransformJobName>
                                 <jobTransformCmd>
-				  tct_recotrf.py --jobnum=0 --AMI=x383 --nfiles=1 --maxEvents=50 --trigStream=Main --runnum=00289954 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00289954/physics_Main --lumiblock=844 --dropDESDs --dropDRAWs --dropNTUPs
+				  tct_recotrf.py --jobnum=0 --AMI=x383 --nfiles=1 --maxEvents=50 --trigStream=Main --runnum=00289954 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00289954/physics_Main --lumiblock=844 --dropDESDs --dropDRAWs --dropNTUPs --geometryVersion=ATLAS-R2-2015-04-00-00
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
