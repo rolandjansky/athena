@@ -12,6 +12,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigT1/TrigT1Interfaces
                           Trigger/TrigTools/TrigMuonRoITools
+			  Event/xAOD/xAODCaloEvent
+			  Trigger/TrigEvent/TrigCaloEvent
                           PRIVATE
                           Control/AthenaKernel
                           DetectorDescription/IRegionSelector
@@ -19,7 +21,8 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Trigger/TrigConfiguration/TrigConfL1Data
                           Trigger/TrigEvent/TrigNavigation
-                          Trigger/TrigT1/TrigT1Result )
+			  Trigger/TrigEvent/TrigSteeringEvent
+			  Trigger/TrigT1/TrigT1Result )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

@@ -9,6 +9,8 @@ use TrigInterfaces        TrigInterfaces-*             Trigger/TrigSteer
 use TrigT1Interfaces    TrigT1Interfaces-*       Trigger/TrigT1
 use TrigMuonRoITools    TrigMuonRoITools-*       Trigger/TrigTools
 use  TrigConfInterfaces         TrigConfInterfaces-*            Trigger/TrigConfiguration
+use  xAODCaloEvent        xAODCaloEvent-*              Event/xAOD
+use  TrigCaloEvent              TrigCaloEvent-*                 Trigger/TrigEvent
 private
 
 use TrigT1Result	  TrigT1Result-*               Trigger/TrigT1
@@ -19,6 +21,7 @@ use AtlasBoost            AtlasBoost-*                 External
 use AtlasCLHEP            AtlasCLHEP-*                 External
 use ByteStreamCnvSvcBase  ByteStreamCnvSvcBase-*       Event
 use TrigNavigation        TrigNavigation-*             Trigger/TrigEvent
+use TrigSteeringEvent     TrigSteeringEvent-*          Trigger/TrigEvent
 use IRegionSelector       IRegionSelector-*            DetectorDescription
 use CTPfragment      v*
 
