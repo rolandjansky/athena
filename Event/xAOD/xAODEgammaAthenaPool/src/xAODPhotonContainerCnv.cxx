@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODPhotonContainerCnv.cxx 671839 2015-06-02 19:44:47Z christos $
+// $Id: xAODPhotonContainerCnv.cxx 741490 2016-04-20 01:34:00Z christos $
 
 // System include(s):
 #include <exception>
@@ -64,7 +64,7 @@ xAODPhotonContainerCnv::createPersistent( xAOD::PhotonContainer* trans ) {
 xAOD::PhotonContainer* xAODPhotonContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "5F045AAE-DBD8-47E4-90AC-9162530A9565" );
+  static const pool::Guid v1_guid( "5F045AAE-DBD8-47E4-90AC-9162530A9565" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {

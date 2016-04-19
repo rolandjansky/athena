@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODElectronContainerCnv.cxx 671839 2015-06-02 19:44:47Z christos $
+// $Id: xAODElectronContainerCnv.cxx 741490 2016-04-20 01:34:00Z christos $
 
 // System include(s):
 #include <exception>
@@ -62,7 +62,7 @@ xAODElectronContainerCnv::createPersistent( xAOD::ElectronContainer* trans ) {
 xAOD::ElectronContainer* xAODElectronContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "9CA52CF4-E219-45B8-9971-6DAA89125952" );
+   static const pool::Guid v1_guid( "9CA52CF4-E219-45B8-9971-6DAA89125952" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {
