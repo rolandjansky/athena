@@ -22,7 +22,7 @@ const xAOD::TrackParticle* xAOD::EgammaHelpers::getOriginalTrackParticle(const x
 const xAOD::TrackParticle* xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(const xAOD::TrackParticle* trkPar){
 
   if(! trkPar) {return 0;}
-  static SG::AuxElement::Accessor<ElementLink<xAOD::TrackParticleContainer> > orig ("originalTrackParticle");
+  const static SG::AuxElement::Accessor<ElementLink<xAOD::TrackParticleContainer> > orig ("originalTrackParticle");
 
   if (!orig.isAvailable(*trkPar) || !orig(*trkPar).isValid()) return 0;
 
@@ -31,7 +31,7 @@ const xAOD::TrackParticle* xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(
 // ==================================================================
 float xAOD::EgammaHelpers::getLastMeasurementQoverP(const xAOD::TrackParticle *tp){
  
-  static SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
+  const static SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
   if(tp && QoverPLM.isAvailable(*tp)){
     return QoverPLM(*tp);
   }
