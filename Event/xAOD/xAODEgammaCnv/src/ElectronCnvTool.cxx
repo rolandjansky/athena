@@ -8,8 +8,6 @@
 // Old egamma Includes:
 #include "egammaEvent/ElectronContainer.h"
 #include "egammaEvent/egammaParamDefs.h"
-#include "egammaInterfaces/IegammaBaseTool.h"
-#include "egammaInterfaces/IEMClusterTool.h"
 
 //New egamma
 #include "xAODEgamma/ElectronAuxContainer.h"
@@ -26,40 +24,43 @@ namespace xAODMaker {
   ElectronCnvTool::ElectronCnvTool(const std::string& type, 
 				  const std::string& name,
 				  const IInterface* parent )
-    : AthAlgTool( type, name, parent ) {
-
+    : AthAlgTool( type, name, parent )
+  {
     // Declare the interface(s) provided by the tool:
     declareInterface< IElectronCnvTool >(this);
 
-    declareProperty( "RunPID", m_runPID=true );
-    declareProperty("PIDBuilder", m_PIDBuilder, "The PID Builder tool configured for electrons");
-
     declareProperty( "xAODElectronTrackContainerName", m_inDetTrackParticlesGSF = "GSFTrackParticles" );
     declareProperty( "xAODElectronOrigTrackContainerName", m_inDetTrackParticles = "InDetTrackParticles" );
-    declareProperty( "xAODCaloClusterContainerNamer", m_caloClusters = "egClusterCollection");
+    declareProperty( "xAODCaloClusterContainerName", m_caloClusters = "egClusterCollection");
     declareProperty( "xAODCaloClusterSofteContainerName", m_caloClustersSofte = "LArClusterEMSofte");
     declareProperty( "xAODCaloClusterFrwdContainerName", m_caloClustersFrwd = "LArClusterEMFrwd");
     declareProperty( "xAODCaloClusterOtherContainerName", m_caloClustersOther = "egClusterCollection", 
 		     "Most likely used for trigger objects");
-		declareProperty( "EMClusterTool", m_EMClusterTool, "EMClusterTool" );
 
   }
   
   StatusCode ElectronCnvTool::initialize() {
 
     ATH_MSG_DEBUG( "Initializing - Package version: " << PACKAGE_VERSION );
-
-    if (m_runPID) {
-      CHECK(m_PIDBuilder.retrieve());
-    }
-
-    CHECK(m_EMClusterTool.retrieve());
     
     // Return gracefully:
     return StatusCode::SUCCESS;
   }
 
-  StatusCode ElectronCnvTool::convert( const DataVector<egamma>* aod,
+  StatusCode ElectronCnvTool::convert( const egammaContainer* aod,
+          xAOD::ElectronContainer* xaod ) const
+  {
+      if (!aod) { 
+          ATH_MSG_WARNING("No input Electron Collection passed"); 
+          return StatusCode::SUCCESS; 
+      } 
+      //Create the container for forward electrons
+      xAOD::ElectronContainer xaodFrwd;
+     
+      return convert(aod,xaod,&xaodFrwd);
+  }
+
+  StatusCode ElectronCnvTool::convert( const egammaContainer* aod,
 				       xAOD::ElectronContainer* xaod,
 				       xAOD::ElectronContainer* xaodFrwd) const
   {  
@@ -69,25 +70,24 @@ namespace xAODMaker {
     } 
 
     // Create the xAOD objects:
-    const auto end = aod->end();
-    for(auto itr = aod->begin(); itr != end; ++itr ) {
+    for(const egamma* eg : *aod) {
 
-      // ATH_MSG_DEBUG("Electron author = " << (*itr)->author() 
-      // 		    << ", container = " << (*itr)->clusterElementLink().proxy()->name());
+      // ATH_MSG_DEBUG("Electron author = " << eg->author() 
+      // 		    << ", container = " << eg->clusterElementLink().proxy()->name());
 
       //special treatment for forward electrons     
-      if((*itr)->author(egammaParameters::AuthorFrwd)) {
+      if(eg->author(egammaParameters::AuthorFrwd)) {
 	if (xaodFrwd) {
 	  xAOD::Electron* electron = new xAOD::Electron();
 	  xaodFrwd->push_back( electron );
 	  // p4
-	  electron->setP4((*itr)->pt(),(*itr)->eta(),(*itr)->phi(), (*itr)->m());
+	  electron->setP4(eg->pt(),eg->eta(),eg->phi(), eg->m());
 	  // author(s)
-	  electron->setAuthor( (*itr)->author() );
+	  electron->setAuthor( eg->author() );
 	  //OQ
-	  electron->setOQ( (*itr)->isgoodoq() );
+	  electron->setOQ( eg->isgoodoq() );
 	  //set Links
-	  setLinks(**itr,*electron);
+	  setLinks(*eg,*electron);
 	} else {
 	  ATH_MSG_WARNING("Found a foward electron, but xaodFrwd == NULL");
 	}
@@ -98,24 +98,27 @@ namespace xAODMaker {
 	  // Create the xAOD object:
 	  xaod->push_back( electron );
 	  // p4
-	  double clE = (*itr)->cluster()->e();
-	  double pt  = sqrt(clE*clE - 0.511*0.511)/cosh((*itr)->trackParticle()->eta());
-	  double eta = (*itr)->trackParticle()->eta();
-	  double phi = (*itr)->trackParticle()->phi();
-	  electron->setP4(pt, eta, phi, 0.511);
-	  //electron->setP4((*itr)->pt(),(*itr)->eta(),(*itr)->phi(), (*itr)->m());
+          if (eg->trackParticle()) {
+            double clE = eg->cluster()->e();
+            double pt  =  sqrt(clE*clE - 0.511*0.511)/cosh(eg->trackParticle()->eta());
+            double eta = eg->trackParticle()->eta();
+            double phi = eg->trackParticle()->phi();
+            electron->setP4(pt, eta, phi, 0.511);
+          }
+          else
+            electron->setP4(eg->pt(),eg->eta(),eg->phi(), eg->m());
 
 	  // author(s)
-	  electron->setAuthor( (*itr)->author() );
+	  electron->setAuthor( eg->author() );
 	  //OQ
-	  electron->setOQ( (*itr)->isgoodoq() );
+	  electron->setOQ( eg->isgoodoq() );
 	  // charge
-	  electron->setCharge( (*itr)->charge() );
+	  electron->setCharge( eg->charge() );
 	  
 	  // Error Matrix
-	  if((*itr)->errors()){
+	  if(eg->errors()){
 	    
-	    const ErrorMatrixEEtaPhiM* oldMatrix = (*itr)->errors()->eEtaPhiMMatrix();
+	    const ErrorMatrixEEtaPhiM* oldMatrix = eg->errors()->eEtaPhiMMatrix();
 	    if(oldMatrix){
 	      Eigen::Matrix<double,4,4> matrix;
 	      for(int i(0);i<4;++i){
@@ -123,26 +126,23 @@ namespace xAODMaker {
 		  matrix(i,j) = (*oldMatrix)(i,j);
 		} 
 	      }
-	      Eigen::Matrix<double,4,4> jacobian (EigenP4JacobianEEtaPhiM2PtEtaPhiM((*itr)->e(),(*itr)->eta(), (*itr)->m()));
+	      Eigen::Matrix<double,4,4> jacobian (EigenP4JacobianEEtaPhiM2PtEtaPhiM(eg->e(),eg->eta(), eg->m()));
 	      Eigen::Matrix<double,4,4> covMatrix= jacobian*matrix*jacobian.transpose();
 	      electron->setCovMatrix(covMatrix.cast<float>());
 	    }
 	  }
 	  
 	  //setParameters
-	  setParameters(**itr,*electron);
+	  setParameters(*eg,*electron);
 	  //setIsolations
-	  setIsolations(**itr,*electron);
+	  setIsolations(*eg,*electron);
 	  //setTrackMatch
-	  setTrackMatch(**itr,*electron);	
+	  setTrackMatch(*eg,*electron);	
 	  // set Links
-	  setLinks(**itr,*electron); 
+	  setLinks(*eg,*electron); 
 	  // set derived parameters - should be done last
 	  setDerivedParameters(*electron);
   
-	  if (m_runPID) {
-	    CHECK(m_PIDBuilder->execute(electron));
-	  }
 	} else {
 	  ATH_MSG_WARNING("Found a regular electron, but xaod == NULL");
 	}
@@ -247,11 +247,14 @@ namespace xAODMaker {
 														   
 
 
-  void ElectronCnvTool::setLinks(const egamma& aodel, xAOD::Electron& xaodel) const {
+  void ElectronCnvTool::setLinks(const egamma& aodel, xAOD::Electron& xaodel) const
+  {
+    std::string clusterContainerName;
+
     // Need to reset links from old CaloCluster to xAOD::CaloCluster
     ElementLink<xAOD::CaloClusterContainer> newclusterElementLink;
     if( aodel.author(egammaParameters::AuthorElectron) ){ 
-      newclusterElementLink.resetWithKeyAndIndex( m_caloClusters, aodel.clusterElementLink().index()  );
+      clusterContainerName = m_caloClusters;
 
       std::vector< ElementLink< xAOD::TrackParticleContainer > > linksToTracks;
       for(unsigned int i(0); i<aodel.nTrackParticles(); ++i){
@@ -261,7 +264,7 @@ namespace xAODMaker {
 
     }
     else if ( aodel.author(egammaParameters::AuthorSofte) ) {
-      newclusterElementLink.resetWithKeyAndIndex( m_caloClustersSofte, aodel.clusterElementLink().index()  );
+      clusterContainerName = m_caloClustersSofte;
     
       //softe do not use GSF Tracks
       std::vector< ElementLink< xAOD::TrackParticleContainer > > linksToTracks;
@@ -272,10 +275,10 @@ namespace xAODMaker {
     
     }
     else if ( aodel.author(egammaParameters::AuthorFrwd) ) { 
-      newclusterElementLink.resetWithKeyAndIndex( m_caloClustersFrwd, aodel.clusterElementLink().index()  );
+      clusterContainerName = m_caloClustersFrwd;
     }
     else { // assume a trigger object
-      newclusterElementLink.resetWithKeyAndIndex( m_caloClustersOther, aodel.clusterElementLink().index()  );
+      clusterContainerName = m_caloClustersOther;
       
       // trigger does not use GSF
       std::vector< ElementLink< xAOD::TrackParticleContainer > > linksToTracks;
@@ -285,29 +288,29 @@ namespace xAODMaker {
       xaodel.setTrackParticleLinks( linksToTracks );
     }      
 
+    // If EL name not set, use the original name.
+    if (clusterContainerName.empty())
+      clusterContainerName = aodel.clusterElementLink().dataID();
+
+    newclusterElementLink.resetWithKeyAndIndex( clusterContainerName,
+                                                aodel.clusterElementLink().index()  );
+
     std::vector< ElementLink< xAOD::CaloClusterContainer > > linksToClusters;
     linksToClusters.push_back(newclusterElementLink);
     xaodel.setCaloClusterLinks(linksToClusters);
     
-    // Decorate cluster with position in calo
-    if (newclusterElementLink.isValid())
-    { 
-      ATH_MSG_DEBUG("Decorating cluster");
-      xAOD::CaloCluster *cluster = const_cast<xAOD::CaloCluster*>(*newclusterElementLink);
-      if (cluster)
-      {
-        m_EMClusterTool->fillPositionsInCalo(cluster);
-      }
-      else ATH_MSG_DEBUG("Could not dereference / cast link to cluster");
-    }
-    else ATH_MSG_WARNING("Invalid link to cluster");
+    if (!newclusterElementLink.isValid()) ATH_MSG_WARNING("Invalid link to cluster");
     
   }
   
   ElementLink<xAOD::TrackParticleContainer> ElectronCnvTool::getNewLink(const ElementLink<Rec::TrackParticleContainer>& oldLink, 
 								       const std::string& name) const{
     ElementLink<xAOD::TrackParticleContainer> newLink;
-    newLink.resetWithKeyAndIndex( name, oldLink.index() );
+    std::string linkname = name;
+    // If not set, use same name as in original link.
+    if (linkname.empty())
+      linkname = oldLink.dataID();
+    newLink.resetWithKeyAndIndex( linkname, oldLink.index() );
     return newLink;
   }
  
