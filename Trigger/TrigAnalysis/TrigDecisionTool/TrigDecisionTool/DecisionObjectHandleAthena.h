@@ -5,6 +5,9 @@
 */
 
 
+
+#include "TrigDecisionTool/Logger.h"
+
 //only show this header in full Athena
 #ifndef XAOD_ANALYSIS
 
@@ -16,7 +19,6 @@
 #include "StoreGate/DataHandle.h"
 
 
-#include "TrigDecisionTool/Logger.h"
 #include "TrigDecisionTool/DecisionObjectHandle.h"
 #include "TrigDecisionTool/EventPtrDef.h"
 #include "TrigDecisionEvent/TrigDecision.h"
