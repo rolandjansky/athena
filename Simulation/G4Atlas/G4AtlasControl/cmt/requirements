@@ -9,7 +9,6 @@ use GaudiInterface      GaudiInterface-*        External
 private
 use AtlasCLHEP          AtlasCLHEP-*            External
 use Geant4              Geant4-*                External
-use G4AtlasAlg          G4AtlasAlg-*            Simulation/G4Atlas
 use FadsKinematics      FadsKinematics-*        Simulation/G4Sim/FADS
 use FadsPackageLoader   FadsPackageLoader-*     Simulation/G4Sim/FADS
 use FadsUtilities       FadsUtilities-*         Simulation/G4Sim/FADS

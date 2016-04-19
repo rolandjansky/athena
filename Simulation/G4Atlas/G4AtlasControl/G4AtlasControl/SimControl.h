@@ -25,7 +25,7 @@ public:
   const MCTruthMenu& mcMenu() const ;
   const FieldMenu& fieldMenu() const;
   const FieldIntegrationMenu& fieldIntegrationMenu() const;
-  void initializeG4() const;
+  void initializeG4(bool isMT=false) const;
   void initializeGraphics() const;
 
   void DefineCard(const std::string name, const std::string type, int defValue);

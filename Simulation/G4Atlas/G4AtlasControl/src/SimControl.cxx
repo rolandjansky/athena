@@ -3,6 +3,9 @@
 */
 
 #include "G4AtlasControl/SimControl.h"
+
+// Geant4 includes
+#include "G4RunManager.hh"
 #include "G4UImanager.hh"
 #include "G4UIsession.hh"
 #include "G4UIterminal.hh"
@@ -22,11 +25,6 @@
 
 #include "G4AtlasControl/DataCardSvc.h"
 
-#ifdef ATHENAHIVE
-#  include "G4AtlasAlg/G4AtlasMTRunManager.h"
-#else
-#  include "G4AtlasAlg/G4AtlasRunManager.h"
-#endif
 
 SimControl::SimControl()
 {
@@ -90,23 +88,20 @@ const FieldMenu& SimControl::fieldMenu() const
   return temp;
 }
 
-void SimControl::initializeG4() const
+void SimControl::initializeG4(bool isMT) const
 {
-#ifdef ATHENAHIVE
-  G4AtlasMTRunManager* rm = dynamic_cast<G4AtlasMTRunManager*>(G4RunManager::GetRunManager());
-#else
-  G4AtlasRunManager* rm = dynamic_cast<G4AtlasRunManager*>(G4RunManager::GetRunManager());
-#endif
-
-  if (rm)
-    {
-      rm->Initialize();
-#ifndef ATHENAHIVE
-      if (rm->ConfirmBeamOnCondition()) rm->RunInitialization();
-#endif
+  auto rm = G4RunManager::GetRunManager();
+  if (rm) {
+    rm->Initialize();
+    // Initialization differs slightly in multi-threading.
+    // TODO: add more details about why this is here.
+    if(!isMT && rm->ConfirmBeamOnCondition()) {
+      rm->RunInitialization();
     }
-  else std::cerr << "Run manager retrieval has failed" << std::endl;
+  }
+  else throw std::runtime_error("Run manager retrieval has failed");
 }
+
 void SimControl::initializeGraphics() const
 {
   // G4VisManager* visManager=new G4SvcVisManager();
