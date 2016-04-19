@@ -25,9 +25,9 @@
 
 #include "CaloEvent/CaloCell.h"
 #include "AthenaKernel/errorcheck.h"
-#include <sstream>
-
 #include "CaloInterface/ICaloNoiseTool.h"
+#include <sstream>
+#include <cmath>
 
 namespace D3PD {
 
@@ -135,7 +135,7 @@ StatusCode CaloCellDetailsFillerTool::fill ( const CaloCell& c)
     *m_xCells = cell->x() ;
     *m_yCells = cell->y() ;
     *m_zCells = cell->z() ;
-    if (abs (*m_zCells) < 1e-8) *m_zCells = 0;
+    if (std::abs (*m_zCells) < 1e-8) *m_zCells = 0;
   }
 
 // pack into one work the quality and provenance information
