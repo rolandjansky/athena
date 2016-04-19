@@ -46,7 +46,7 @@ private:
  const LArHEC_ID*  m_larhec_id;
  const LArFCAL_ID* m_larfcal_id;
  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
- ToolHandle<LArCablingService> cablingService;
+ ToolHandle<LArCablingService> m_cablingService;
 
  bool m_initialized; 
   

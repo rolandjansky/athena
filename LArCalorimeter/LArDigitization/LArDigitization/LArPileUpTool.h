@@ -15,26 +15,30 @@
 //
 
 #include "PileUpTools/PileUpToolBase.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"
+#include "LArDigitization/ILArPileUpTool.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
-#include "LArDigitization/ILArPileUpTool.h"
+#include "CaloIdentifier/CaloGain.h"
 
-#include "LArElecCalib/ILArNoise.h" 
+#include "LArElecCalib/ILArNoise.h"
 #include "LArElecCalib/ILArAutoCorrNoiseTool.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArShape.h"
-#include "LArElecCalib/ILArADC2MeVTool.h" 
+#include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArfSampl.h"
 
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArRecConditions/ILArBadChanTool.h"
 
-#include "StoreGate/DataHandle.h" 
-#include "CaloIdentifier/CaloGain.h"
+#include "StoreGate/DataHandle.h"
+
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
+
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/Property.h"
 
 class StoreGateSvc;
 class PileUpMergeSvc;
@@ -54,31 +58,31 @@ namespace CLHEP {
 class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 {
 //
-// >>>>>>>> public method 
+// >>>>>>>> public method
 //
  public:
-   
-  LArPileUpTool(const std::string& type, 
+
+  LArPileUpTool(const std::string& type,
                 const std::string& name,
                 const IInterface* parent);
 
   ~LArPileUpTool();
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override final;
 
-  virtual StatusCode prepareEvent(unsigned int nInputEvents);
+  virtual StatusCode prepareEvent(unsigned int nInputEvents) override final;
 
-  virtual StatusCode mergeEvent();
+  virtual StatusCode mergeEvent() override final;
 
   virtual StatusCode processBunchXing(int bunchXing,
-                                      PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                                      PileUpEventInfo::SubEvent::const_iterator eSubEvents); 
+                                      SubEventIterator bSubEvents,
+                                      SubEventIterator eSubEvents) override final;
 
-  virtual StatusCode processAllSubEvents();
+  virtual StatusCode processAllSubEvents() override final;
 
-  virtual StatusCode fillMapFromHit(StoreGateSvc* seStore,float tbunch,bool isSignal);
+  virtual StatusCode fillMapFromHit(StoreGateSvc* seStore,float tbunch,bool isSignal) override final;
 
-  static const InterfaceID& interfaceID() { 
+  static const InterfaceID& interfaceID() {
     return ILArPileUpTool::interfaceID();}
 
  private:
@@ -91,10 +95,10 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   StatusCode MakeDigit(const Identifier & cellId,
                    HWIdentifier & ch_id,
                    const std::vector<std::pair<float,float> >  *TimeE,
-		   const LArDigit * rndm_digit);
-		   
+                   const LArDigit * rndm_digit);
+
   StatusCode ConvertHits2Samples(const Identifier & cellId,
-                   CaloGain::CaloGain igain, 
+                   CaloGain::CaloGain igain,
                    const std::vector<std::pair<float,float> >  *TimeE);
 
   float  get_strip_xtalk(int eta);
@@ -116,32 +120,32 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
                     std::vector<IdentifierHash>& neighbourList,
                     std::vector<float>& energyList);
   bool  fillMapfromSum(float bunchTime);
-  
+
 //
 // >>>>>>>> private data parts
 //
-  PileUpMergeSvc* m_mergeSvc;  
-  LArHitEMap* m_hitmap;   // map of hits in cell 
+  PileUpMergeSvc* m_mergeSvc;
+  LArHitEMap* m_hitmap;   // map of hits in cell
   std::vector <std::string> m_HitContainer; // hit container name list
   std::vector<int> m_CaloType;
 
 //
 // ........ Algorithm properties
 //
-  std::string m_SubDetectors;      // subdetectors  
+  std::string m_SubDetectors;      // subdetectors
   std::string m_DigitContainerName;    // output digit container name list
   LArDigitContainer* m_DigitContainer;
-  std::vector<std::string> m_EmBarrelHitContainerName; 
+  std::vector<std::string> m_EmBarrelHitContainerName;
   std::vector<std::string> m_EmEndCapHitContainerName;
   std::vector<std::string> m_HecHitContainerName;
   std::vector<std::string> m_ForWardHitContainerName;
-  bool m_NoiseOnOff;            // noise (in all sub-detectors) is on if true  
+  bool m_NoiseOnOff;            // noise (in all sub-detectors) is on if true
   bool m_PileUp;                // pile up or not
 // Switches (true by default) on Noise for each sub-detector (can be combined)
-  bool m_NoiseInEMB;               // noise in Barrel is off if false 
+  bool m_NoiseInEMB;               // noise in Barrel is off if false
   bool m_NoiseInEMEC;              // noise in EndCap is off if false
   bool m_NoiseInHEC;               // noise in HEC    is off if false
-  bool m_NoiseInFCAL;              // noise in FCAL   is off if false 
+  bool m_NoiseInFCAL;              // noise in FCAL   is off if false
   //put false if you want cancel the noise in one or several sub-detectors
   bool m_CrossTalk;                // flag for Cross Talk
   bool m_CrossTalkStripMiddle;     // flag for strip-middle cross talk (if m_CrooTalk is true)
@@ -165,11 +169,11 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   unsigned int m_firstSample;      // first sample to use for pulse shape for in time energy deposit
   bool   m_usePhase;               // use tbin phase to get shape (default = false for Atlas)
   std::string  m_rndmSvc;          // random service name
-  bool m_rndmEvtRun;               // use run,event number for random number seeding 
+  bool m_rndmEvtRun;               // use run,event number for random number seeding
   bool m_useTriggerTime;
   bool m_RndmEvtOverlay;         // Pileup and noise added by overlaying random events
   bool m_useBad;
-  std::string m_RandomDigitContainer; // random digit container name list 
+  std::string m_RandomDigitContainer; // random digit container name list
 
   std::string m_pedestalKey ;
   bool m_useMBTime;
@@ -182,24 +186,24 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   bool m_ignoreTime;
   int m_sampleGainChoice;
   bool m_roundingNoNoise;  // flag used in NoNoise case: if true add random number [0;1[ in ADC count, if false add only average of 0.5
-  
-// Detector Description objects 
 
-  const DataHandle<ILArNoise>     m_dd_noise; 
+// Detector Description objects
+
+  const DataHandle<ILArNoise>     m_dd_noise;
   const DataHandle<ILArfSampl>    m_dd_fSampl;
-  const DataHandle<ILArPedestal>  m_dd_pedestal; 
+  const DataHandle<ILArPedestal>  m_dd_pedestal;
   const DataHandle<ILArShape>     m_dd_shape;
   ToolHandle<ILArADC2MeVTool>     m_adc2mevTool;
   ToolHandle<ILArAutoCorrNoiseTool> m_autoCorrNoiseTool;
   ToolHandle<ILArBadChannelMasker> m_maskingTool;
   ToolHandle<ILArBadChanTool> m_badChannelTool;
   ToolHandle<ITriggerTime> m_triggerTimeTool;
- 
+
   const LArEM_ID*        m_larem_id;
   const LArHEC_ID*       m_larhec_id;
   const LArFCAL_ID*      m_larfcal_id;
   const LArOnlineID*     m_laronline_id;
-  
+
   bool m_skipNoHit;
 
   IAtRndmGenSvc* m_AtRndmGenSvc;

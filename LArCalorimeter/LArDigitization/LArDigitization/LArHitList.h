@@ -6,7 +6,7 @@
 #define LARDIGITIZATION_LARHITLIST_H
 #include <vector>
 #include "GaudiKernel/ToolHandle.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "Identifier/Identifier.h"
 #include "LArIdentifier/LArOnlineID.h"

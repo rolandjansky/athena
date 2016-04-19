@@ -6,10 +6,10 @@
 #define LARDIGITIZATION_LARDIGITMAKER_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"
+
 #include "LArDigitization/ILArPileUpTool.h"
+
+#include "GaudiKernel/ToolHandle.h"
 
 class LArDigitMaker : public AthAlgorithm
 {
@@ -28,7 +28,7 @@ class LArDigitMaker : public AthAlgorithm
  private:
 
   ToolHandle<ILArPileUpTool> m_LArPileUpTool;
-  
+
 };
 
 #endif
