@@ -113,14 +113,6 @@ if hasattr(runArgs, "inputEVNT_CAVERNFile"):
 if hasattr(runArgs, "outputEVNT_CAVERNTRFile"):
     include('SimulationJobOptions/preInclude.G4WriteCavern.py')
 
-# temporary fix to ensure TRT will record hits if using FATRAS
-# this should eventually be removed when it is configured properly in ISF
-if hasattr(runArgs, 'simulator') and runArgs.simulator.find('ATLFASTIIF')>=0:
-    from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
-    TrkDetFlags.TRT_BuildStrawLayers=True
-    fast_chain_log.info('Enabled TRT_BuildStrawLayers to get hits in ATLFASTIIF')
-
-
 ## Select detectors
 
 from ISF_Config.ISF_jobProperties import ISF_Flags
@@ -128,30 +120,56 @@ if hasattr(runArgs, 'simulator'):
     ISF_Flags.Simulator = runArgs.simulator
 else:
     ISF_Flags.Simulator = 'MC12G4'
-    
-from ISF_Config import FlagSetters
-FlagSetters.configureFlagsBase()
-## Check for any simulator-specific configuration
-configureFlags = getattr(FlagSetters, ISF_Flags.Simulator.configFlagsMethodName(), None)
-if configureFlags is not None:
-    configureFlags()
-        
-if 'DetFlags' not in dir():
-    ## If you configure one det flag, you're responsible for configuring them all!
-    from AthenaCommon.DetFlags import DetFlags
-    DetFlags.all_setOn()
 
-DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
-DetFlags.Truth_setOn()
-DetFlags.digitize.LVL1_setOff()
+# temporary fix to ensure TRT will record hits if using FATRAS
+# this should eventually be removed when it is configured properly in ISF
+if 'ATLFASTIIF' in ISF_Flags.Simulator():
+    from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
+    TrkDetFlags.TRT_BuildStrawLayers=True
+    fast_chain_log.info('Enabled TRT_BuildStrawLayers to get hits in ATLFASTIIF')
+
+
+try:
+    from ISF_Config import FlagSetters
+    FlagSetters.configureFlagsBase()
+    ## Check for any simulator-specific configuration
+    configureFlags = getattr(FlagSetters, ISF_Flags.Simulator.configFlagsMethodName(), None)
+    if configureFlags is not None:
+        configureFlags()
+except:
+    if 'DetFlags' not in dir():
+       ## If you configure one det flag, you're responsible for configuring them all!
+        from AthenaCommon.DetFlags import DetFlags
+        DetFlags.all_setOn()
+    DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
+    DetFlags.Truth_setOn()
+    DetFlags.Forward_setOff() # Forward dets are off by default
+from AthenaCommon.DetFlags import DetFlags
+DetFlags.overlay.all_setOff() #TODO - remove this one ISF_Config is updated.
+DetFlags.FTK_setOff() #FTK is not part of G4 sim
+DetFlags.DBM_setOff() #Separate treatment of DBM is on hold
 # note this makeRIO enables forward detectors, so have to set them off after
 DetFlags.makeRIO.all_setOn()
-DetFlags.Forward_setOff()
-DetFlags.ZDC_setOff()
-DetFlags.digitize.ZDC_setOff()
-DetFlags.digitize.Micromegas_setOff()
-DetFlags.digitize.sTGC_setOff()
-
+## Configure Forward Detector DetFlags based on command-line options
+if hasattr(runArgs, "AFPOn"):
+    if runArgs.AFPOn:
+        DetFlags.AFP_setOn()
+if hasattr(runArgs, "ALFAOn"):
+    if runArgs.ALFAOn:
+        DetFlags.ALFA_setOn()
+if hasattr(runArgs, "FwdRegionOn"):
+    if runArgs.FwdRegionOn:
+        DetFlags.FwdRegion_setOn()
+if hasattr(runArgs, "LucidOn"):
+    if runArgs.LucidOn:
+        DetFlags.Lucid_setOn()
+if hasattr(runArgs, "ZDCOn"):
+    if runArgs.ZDCOn:
+        DetFlags.ZDC_setOn()
+if not simFlags.SimulateNewSmallWheel():
+    DetFlags.Micromegas_setOff()
+    DetFlags.sTGC_setOff()
+DetFlags.Print()
 # removed configuration of forward detectors from standard simulation config
 # corresponding code block removed
 
@@ -402,9 +420,33 @@ if hasattr(runArgs,"outputRDOFile") or hasattr(runArgs,"tmpRDO"):
 else:
     fast_chain_log.info("no output file (outputRDOFile or tmpRDO) specified - switching off output StreamRDO")
 
-# force writing of RDO file
-fast_chain_log.info('Forcing writeRDOPool all on')
-DetFlags.writeRDOPool.all_setOn()
+# Adjusting DetFlags for Digitization
+fast_chain_log.info('Adjusting DetFlags for Digitization configuration')
+def TidyDetFlagsForDigi():
+    subdetectors=[]
+    subdetectors+=["bpipe","pixel","SCT","TRT","BCM","DBM"]#ID
+    subdetectors+=["Lucid", "ZDC", "ALFA", "AFP", "FwdRegion"]#Forward
+    subdetectors+=["em","HEC","FCal","Tile"]#Calo
+    subdetectors+=["MDT","CSC","TGC","RPC","sTGC","Micromegas"]#Muon
+    subdetectors+=["Truth"]#Truth
+    subdetectors+=["LVL1", "BField","FTK"]#misc
+
+    for detector in subdetectors:
+        checkSimulate = getattr(DetFlags.simulate, '%s_on'%detector, None)
+        checkGeometry = getattr(DetFlags.simulate, '%s_on'%detector, None)
+        if checkSimulate is not None:
+            if checkSimulate() and checkGeometry():
+                detString = '%s_setOn'%detector
+            else:
+                detString = '%s_setOff'%detector
+            set_digitize = getattr(DetFlags.digitize, detString, None)
+            set_writeRDOPool = getattr(DetFlags.writeRDOPool, detString, None)
+            set_makeRIO = getattr(DetFlags.makeRIO, detString, None)
+            set_digitize()
+            set_writeRDOPool()
+            set_makeRIO() #FIXME this is overridden by Digitization/Digitization.py
+TidyDetFlagsForDigi()
+DetFlags.Print()
 
 #--------------------------------------------------------------
 # Go for it
@@ -415,21 +457,6 @@ if hasattr(runArgs,"DataRunNumber"):
         digitizationFlags.dataRunNumber=runArgs.DataRunNumber
 
 print "lvl1: -14... " + str(DetFlags.digitize.LVL1_on())
-
-### Set digitize all except forward detectors
-DetFlags.digitize.all_setOn()
-DetFlags.digitize.LVL1_setOff()
-DetFlags.digitize.ZDC_setOff()
-DetFlags.digitize.Micromegas_setOff()
-DetFlags.digitize.sTGC_setOff()
-DetFlags.digitize.Forward_setOff()
-DetFlags.digitize.Lucid_setOff()
-DetFlags.digitize.AFP_setOff()
-DetFlags.digitize.ALFA_setOff()
-
-
-
-
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
