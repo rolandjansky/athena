@@ -65,6 +65,8 @@ namespace D3PD {
         bool m_saveCellDetails; //switching on/off cell details storage
         bool m_savePosition; // switching on/off cell position storage
 
+        bool m_run2;
+
         // variables to be in ntuple.
         
            //----***Removed, redundant with EventCommonD3PDMaker.FourMomFillerTool***----
@@ -115,6 +117,8 @@ namespace D3PD {
         uint8_t* m_qbits1;
         uint8_t* m_qbits2;
 
+        bool m_notRealE1run2[2][64];
+        enum CELL_CHANNEL {E1_CHANNEL = 12};
 
     };
 

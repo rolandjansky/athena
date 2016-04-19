@@ -31,7 +31,9 @@ namespace D3PD{
       m_tileid (0),
       m_tilehwid(0),
       m_cabling(0),
-      m_tileBadChanTool("TileBadChanTool")
+      m_tileBadChanTool("TileBadChanTool"),
+      m_run2(false),
+      m_notRealE1run2{{}}
     {
         declareProperty("SaveCellDetails",    m_saveCellDetails = true);
         declareProperty("SavePositionInfo",   m_savePosition = true );
@@ -52,6 +54,17 @@ namespace D3PD{
       CHECK( detStore->retrieve(m_tilehwid) );
       CHECK( m_tileBadChanTool.retrieve() );
       m_cabling = TileCablingService::getInstance();
+
+      if (m_cabling->getCablingType() == TileCablingService::RUN2Cabling) {
+        m_run2 = true;
+        for (int ros = 3; ros < 5; ++ros) {
+          for (int drawer = 0; drawer < 64; ++drawer) {
+            int drawer2 = m_cabling->E1_merged_with_run2(ros, drawer);
+            m_notRealE1run2[ros - 3][drawer2] = (drawer2 != 0);
+          }
+        }
+      }
+
       return StatusCode::SUCCESS;
     }
 
@@ -104,6 +117,8 @@ namespace D3PD{
             long gain2 = tilecell->gain2();
             long qual1 = tilecell->qual1();
             long qual2 = tilecell->qual2();
+            int module = m_tileid->module(id);
+
             const CaloDetDescrElement * caloDDE = tilecell->caloDDE();
             IdentifierHash hash1 = (gain1<0) ? TileHWID::NOT_VALID_HASH : caloDDE->onl1();
             IdentifierHash hash2 = (gain2<0) ? TileHWID::NOT_VALID_HASH : caloDDE->onl2();
@@ -120,6 +135,7 @@ namespace D3PD{
                     if ( log.level() < MSG::DEBUG ) log << MSG::VERBOSE << " adc_id1 " << m_tilehwid->to_string(adc_id) << " hash " << hash1 << " " << gain1 << endmsg;
                     partition = m_tilehwid->ros(adc_id);
                     chan1 = m_tilehwid->channel(adc_id);
+                    if (m_run2 && partition > 2 && chan1 == E1_CHANNEL && m_notRealE1run2[partition - 3][module]) chan1 = -E1_CHANNEL;
                     pmt1  = m_cabling->channel2hole(partition,chan1);
                     bad1 = m_tileBadChanTool->encodeStatus(m_tileBadChanTool->getAdcStatus(adc_id));
                 }
@@ -131,7 +147,10 @@ namespace D3PD{
                     pmt2  = m_cabling->channel2hole(partition,chan2);
                     bad2 = m_tileBadChanTool->encodeStatus(m_tileBadChanTool->getAdcStatus(adc_id));
                 }
-                *m_moduleCells=m_tileid->module(id)+1; // Note the +1 !!!
+
+
+
+                *m_moduleCells=module+1; // Note the +1 !!!
                 *m_partitionCells=partition;
                 *m_towerCells=m_tileid->tower(id);
                 *m_sampleCells=m_tileid->sample(id);

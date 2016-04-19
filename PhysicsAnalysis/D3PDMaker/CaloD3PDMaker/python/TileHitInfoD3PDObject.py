@@ -5,7 +5,7 @@
 import CaloD3PDMaker
 from D3PDMakerCoreComps.D3PDObject import make_SG_D3PDObject
 
-TileHitInfoD3PDObject = make_SG_D3PDObject( "TileHitVector", "TileHitVec", "Tile_",
+TileHitInfoD3PDObject = make_SG_D3PDObject( "AtlasHitsVector<TileHit>", "TileHitVec", "Tile_",
                                             "TileHitInfoInfoD3PDObject" )
 
 TileHitInfoD3PDObject.defineBlock( 0, 'TileHitInfo',

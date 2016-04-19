@@ -19,6 +19,20 @@
 #include <algorithm>
 
 
+namespace {
+
+
+double vget (const std::vector<double>& v, size_t i)
+{
+  if (i < v.size())
+    return v[i];
+  return 0;
+}
+
+
+} // anonymous namespace
+
+
 namespace D3PD {
 
 
@@ -225,57 +239,54 @@ ClusterSamplingFillerTool::fillSamplings (const std::vector<double>& eSamp,
 
   if( m_writeEmHadEnergies && eSamp.size() >= NSAMP) {
     *m_Eem = 
-      eSamp[CaloSampling::PreSamplerB] +
-      eSamp[CaloSampling::EMB1] +
-      eSamp[CaloSampling::EMB2] +
-      eSamp[CaloSampling::EMB3] +
-      eSamp[CaloSampling::PreSamplerE] +
-      eSamp[CaloSampling::EME1] +
-      eSamp[CaloSampling::EME2] +
-      eSamp[CaloSampling::EME3] +
-      eSamp[CaloSampling::FCAL0];
+      vget (eSamp, CaloSampling::PreSamplerB) +
+      vget (eSamp, CaloSampling::EMB1) +
+      vget (eSamp, CaloSampling::EMB2) +
+      vget (eSamp, CaloSampling::EMB3) +
+      vget (eSamp, CaloSampling::PreSamplerE) +
+      vget (eSamp, CaloSampling::EME1) +
+      vget (eSamp, CaloSampling::EME2) +
+      vget (eSamp, CaloSampling::EME3) +
+      vget (eSamp, CaloSampling::FCAL0);
     *m_Ehad =
-      eSamp[CaloSampling::HEC0] + 
-      eSamp[CaloSampling::HEC1] + 
-      eSamp[CaloSampling::HEC2] + 
-      eSamp[CaloSampling::HEC3] + 
-      eSamp[CaloSampling::TileBar0] + 
-      eSamp[CaloSampling::TileBar1] + 
-      eSamp[CaloSampling::TileBar2] + 
-      eSamp[CaloSampling::TileGap1] + 
-      eSamp[CaloSampling::TileGap2] + 
-      eSamp[CaloSampling::TileGap3] + 
-      eSamp[CaloSampling::TileExt0] + 
-      eSamp[CaloSampling::TileExt1] + 
-      eSamp[CaloSampling::TileExt2] + 
-      eSamp[CaloSampling::FCAL1] + 
-      eSamp[CaloSampling::FCAL2];
+      vget (eSamp, CaloSampling::HEC0) + 
+      vget (eSamp, CaloSampling::HEC1) + 
+      vget (eSamp, CaloSampling::HEC2) + 
+      vget (eSamp, CaloSampling::HEC3) + 
+      vget (eSamp, CaloSampling::TileBar0) + 
+      vget (eSamp, CaloSampling::TileBar1) + 
+      vget (eSamp, CaloSampling::TileBar2) + 
+      vget (eSamp, CaloSampling::TileGap1) + 
+      vget (eSamp, CaloSampling::TileGap2) + 
+      vget (eSamp, CaloSampling::TileGap3) + 
+      vget (eSamp, CaloSampling::TileExt0) + 
+      vget (eSamp, CaloSampling::TileExt1) + 
+      vget (eSamp, CaloSampling::TileExt2) + 
+      vget (eSamp, CaloSampling::FCAL1) + 
+      vget (eSamp, CaloSampling::FCAL2);
   }
 
   if( m_writeSamplingEnergies ) {
-    
-    if( eSamp.size() >= NSAMP )
-      for(unsigned int i=0; i<m_samplings.size(); i++)
-	*m_Es[i] = eSamp[m_samplings[i]];
+    for(unsigned int i=0; i<m_samplings.size(); i++)
+      *m_Es[i] = vget (eSamp, m_samplings[i]);
   }
 
-  if( etaSamp.size()==NSAMP && phiSamp.size()==NSAMP ) {
-    for(unsigned int i=0; i<m_samplings.size(); i++) {
-      if (m_writeSamplingEtaPhi) {
-        *m_etas[i] = etaSamp[m_samplings[i]];
-        *m_phis[i] = phiSamp[m_samplings[i]];
-      }
-      if (m_writeSamplingEtaPhiRaw) {
-        double eta_raw=0, phi_raw=0;
-        if (detpos.getDetPosition (static_cast<CaloCell_ID::CaloSample>(m_samplings[i]),
-                                   etaSamp[m_samplings[i]],
-                                   phiSamp[m_samplings[i]],
-                                   eta_raw,
-                                   phi_raw))
-        {
+
+  for(unsigned int i=0; i<m_samplings.size(); i++) {
+    if (m_writeSamplingEtaPhi) {
+      *m_etas[i] = vget (etaSamp, m_samplings[i]);
+      *m_phis[i] = vget (phiSamp, m_samplings[i]);
+    }
+    if (m_writeSamplingEtaPhiRaw) {
+      double eta_raw=0, phi_raw=0;
+      if (detpos.getDetPosition (static_cast<CaloCell_ID::CaloSample>(m_samplings[i]),
+                                 vget (etaSamp, m_samplings[i]),
+                                 vget (phiSamp, m_samplings[i]),
+                                 eta_raw,
+                                 phi_raw))
+      {
           *m_raw_etas[i] = eta_raw;
           *m_raw_phis[i] = phi_raw;
-        }
       }
     }
   }

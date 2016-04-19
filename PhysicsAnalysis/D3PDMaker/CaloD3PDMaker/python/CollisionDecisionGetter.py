@@ -33,14 +33,12 @@ class CollisionDecisionGetter ( Configured )  :
         import traceback
         try:
             from AthenaCommon.AppMgr             import ToolSvc
-            from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
-            flags = primDPD.WriteDESD_CollCandStream
 
             from PrimaryDPDMaker.PrimaryDPDMakerConf import MBTSTimeFilterTool
             ToolSvc += MBTSTimeFilterTool \
-                       (ChargeThreshold   = flags.ChargeThreshold,
-                        MinHitsPerSide    = flags.MinHitsPerSide,
-                        MaxTimeDifference = flags.MaxTimeDifference)
+                       (ChargeThreshold   = 60.0/222.0,
+                        MinHitsPerSide    = 2,
+                        MaxTimeDifference = 10.0)
 
             from EventBookkeeperTools.BookkeepingInfoWriter \
                  import SkimDecisionsWriter
@@ -62,7 +60,7 @@ class CollisionDecisionGetter ( Configured )  :
 
             from PrimaryDPDMaker.TriggerFilter import TriggerFilter
             self.seq += TriggerFilter ('TriggerFilterInCollissionStream',
-                                  trigger = flags.Trigger)
+                                  trigger = 'L1_MBTS_1_1')
             skimmer.addAcceptAlg ('TriggerFilterInCollissionStream')
 
             self.seq += skimmer
