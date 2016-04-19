@@ -35,7 +35,8 @@
 
 // Hashing function for Identifiers
 std::size_t hash_value(Identifier const& id) {
-    boost::hash<int> hasher;
+  //boost::hash<int> hasher;
+  boost::hash<Identifier::value_type> hasher;
     return hasher(id.get_compact());
 }
 
@@ -43,11 +44,13 @@ std::size_t hash_value(Identifier const& id) {
 ////////////////////////
 // constructor
 ////////////////////////
-PixelCablingData::PixelCablingData() {
+PixelCablingData::PixelCablingData() :
+    m_commonHitDiscCnfg(3)
+{
     m_allRods = new std::vector<uint32_t>;
     m_allRobs = new std::vector<uint32_t>;
 
-    m_commonHitDiscCnfg = 3;
+    //m_commonHitDiscCnfg = 3;
 }
 
 
@@ -425,5 +428,23 @@ std::map<std::string, Identifier> PixelCablingData::get_idMapDCSoff(){
         copy.insert(*itr);
     }
     return copy;
+}
+
+
+////////////////////////
+// clear the maps
+////////////////////////
+void PixelCablingData::clear_all_maps() {
+    m_idMap_onoff.clear();
+    m_idMap_offon.clear();
+    m_idMap_offrob.clear();
+    m_idMap_rodrob.clear();
+    m_idMap_robrod.clear();
+    m_offlineListVect.clear();
+    m_idMapDCSoff.clear();
+    m_rodReadoutMap.clear();
+    m_HitDiscCnfgMap.clear();
+    m_allRods->clear();
+    m_allRobs->clear();
 }
 
