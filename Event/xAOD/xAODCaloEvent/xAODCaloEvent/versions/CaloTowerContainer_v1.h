@@ -52,11 +52,6 @@ namespace xAOD {
     CaloTowerContainer_v1(int nEtaBins,double etaMin,double etaMax,int nPhiBins,SG::OwnershipPolicy ownPolicy = SG::OWN_ELEMENTS,SG::IndexTrackingPolicy trackIndices = SG::DEFAULT_TRACK_INDICES);
 
 
-    /// @brief Copy constructor used by POOL converter (allows also shallow copies)
-    /// Constructs a view-container and copies the metadata
-    
-    CaloTowerContainer_v1(CaloTowerContainer_v1& other,SG::OwnershipPolicy ownPolicy = SG::OWN_ELEMENTS);
-    
     /// @brief Destructor
     ~CaloTowerContainer_v1();
     

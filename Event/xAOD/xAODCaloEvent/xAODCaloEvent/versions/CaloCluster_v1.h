@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster_v1.h 693459 2015-09-07 12:37:02Z wlampl $
+// $Id: CaloCluster_v1.h 732844 2016-03-30 07:50:29Z wlampl $
 #ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 #define XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 
@@ -23,16 +23,18 @@ extern "C" {
 #include "xAODCaloEvent/CaloClusterBadChannelData.h"
 
 #ifndef XAOD_ANALYSIS
+#ifndef SIMULATIONBASE
 #include "AthLinks/ElementLink.h"
 #include "CaloEvent/CaloClusterCellLinkContainer.h"
 #include "CaloEvent/CaloRecoStatus.h"
+#endif // not SIMULATIONBASE
 #endif // not XAOD_ANALYSIS
 
 // Declare a dummy CaloClusterCellLink definition for standalone compilation:
-#ifdef XAOD_ANALYSIS
+#if defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 class CaloClusterCellLink {};
 typedef unsigned CaloRecoStatus;
-#endif // XAOD_ANALYSIS
+#endif // defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 
 class CaloClusterChangeSignalState;
 
@@ -42,8 +44,8 @@ namespace xAOD {
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    /// @author Walter Lampl <Walter.Lampl@cern.ch>
    ///
-   /// $Revision: 693459 $
-   /// $Date: 2015-09-07 14:37:02 +0200 (Mon, 07 Sep 2015) $
+   /// $Revision: 732844 $
+   /// $Date: 2016-03-30 09:50:29 +0200 (Wed, 30 Mar 2016) $
    ///
    class CaloCluster_v1 : public IParticle {
      friend class ::CaloClusterChangeSignalState;
@@ -135,6 +137,8 @@ namespace xAOD {
          /// Total em-scale energy of cells with bad HV in this cluster
          ENG_BAD_HV_CELLS  = 828,
          N_BAD_HV_CELLS    = 829, ///< number of cells with bad HV
+	 /// relative spread of pT of constiuent cells = sqrt(n)*RMS/Mean
+	 PTD               = 830,
          EM_PROBABILITY    = 900, ///< Classification probability to be em-like
          HAD_WEIGHT        = 901, ///< Hadronic weight (E_w/E_em)
          OOC_WEIGHT        = 902, ///< Out-of-cluster weight (E_ooc/E_w)
@@ -480,9 +484,9 @@ namespace xAOD {
      flt_t calM() const;
      /// Set mass for singal state CALIBRATED
      void  setCalM(flt_t);
-#ifndef XAOD_ANALYSIS
+#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
    private:
-#endif
+#endif //not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
      /// Switch signal state (mutable)
      bool setSignalState(const State s) const;
    public:
@@ -513,6 +517,11 @@ namespace xAOD {
      void setBadChannelList(const CaloClusterBadChannelList& bcl); 
      const CaloClusterBadChannelList& badChannelList() const;
      
+     /// Get a pointer to a 'sister' cluster (eg the non-calibrated counterpart)
+     const CaloCluster_v1* getSisterCluster() const;
+     
+     /// Set a pointer to a 'sister' cluster (eg the non-calibrated counterpart)
+     bool setSisterCluster(const std::string& sisterSgKey, const unsigned sisterIndex, IProxyDictWithPool* sg= nullptr);
 
      //For debugging only...
      //std::vector<std::pair<std::string,float> > getAllMoments();
@@ -548,7 +557,7 @@ namespace xAOD {
      bool setSamplVarFromAcc(Accessor<std::vector<float> >& acc, 
 			     const CaloSample sampling, const float value);
    public:
-#ifndef XAOD_ANALYSIS
+#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
 
      /// @name Athena-only methods, used during building stage
      /// @{
@@ -662,7 +671,7 @@ namespace xAOD {
      const CaloRecoStatus& recoStatus() const {return m_recoStatus;}
      ///  @}
 
-#endif
+#endif // not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 
       /// Function preparing the object to be persistified
       void toPersistent();

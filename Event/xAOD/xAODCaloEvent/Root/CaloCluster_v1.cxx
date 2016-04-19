@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster_v1.cxx 669554 2015-05-24 01:12:18Z ssnyder $
+// $Id: CaloCluster_v1.cxx 741209 2016-04-19 02:25:46Z ssnyder $
 
 // System include(s):
 #include <cmath>
@@ -17,9 +17,9 @@
 
 // Local include(s):
 #include "xAODCaloEvent/versions/CaloCluster_v1.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloClusterAccessors_v1.h"
 
-//FIXME: Delete cell-link in destructor if we have a non-const ptr to the cell-link
 
 namespace xAOD {
 
@@ -43,7 +43,7 @@ namespace xAOD {
       m_recoStatus(other.m_recoStatus) {
     setSignalState(other.signalState());
     this->makePrivateStore(other);
-#ifndef XAOD_ANALYSIS
+#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
     const CaloClusterCellLink* links=other.getCellLinks();
     if (links) {
       this->addCellLink(new CaloClusterCellLink(*links));
@@ -52,7 +52,7 @@ namespace xAOD {
     if (accCellLinks.isAvailable(*this)) { //In case an element link was copied by makePrivateStore, invalidate it
       accCellLinks(*this).reset();
     } //end if have element link to CaloClusterCellLink
-#endif // not XAOD_ANALYSIS
+#endif // not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
   }
   
 
@@ -63,7 +63,10 @@ namespace xAOD {
     m_p4Cached.reset();
     m_recoStatus=other.m_recoStatus;
     setSignalState(other.signalState());
-#ifndef XAOD_ANALYSIS
+    m_samplingPattern=other.m_samplingPattern;
+    m_ownCellLinks=false;
+
+#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
      const CaloClusterCellLink* links=other.getCellLinks();
      if (links) {
        this->addCellLink(new CaloClusterCellLink(*links));
@@ -72,7 +75,7 @@ namespace xAOD {
      if (accCellLinks.isAvailable(*this)) { //In case an element link was copied by  SG::AuxElement::operator=, invalidate it
        accCellLinks(*this).reset();
      } //end if have element link to CaloClusterCellLink
-#endif // not XAOD_ANALYSIS
+#endif // not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
      return *this;
   }
 
@@ -737,7 +740,7 @@ namespace xAOD {
        float etaBarrel=etaSample(barrelSample);
        float etaEndcap=etaSample(endcapSample);
        float eSum=eBarrel + eEndcap;
-       if (eSum!=0.0) {
+       if (eSum > 100 /*MeV*/) {
 	 //E-weighted average ...
 	 return  (eBarrel * etaBarrel + eEndcap * etaEndcap ) / (eBarrel + eEndcap);
        }//else eSum==0 case, should never happen
@@ -919,7 +922,7 @@ namespace xAOD {
 
   
 
-#ifndef XAOD_ANALYSIS
+#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
   /*
   bool CaloCluster_v1::createCellElemLink(const std::string& CCCL_key, const size_t idx) {
     static Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
@@ -967,23 +970,49 @@ namespace xAOD {
   }
 
 
-#endif
+#endif // not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 
    /// This function takes care of preparing (all) the ElementLink(s) in the
    /// object to be persistified.
    ///
    void CaloCluster_v1::toPersistent() {
 
-#ifndef XAOD_ANALYSIS
+#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
       static Accessor< ElementLink< CaloClusterCellLinkContainer > >
          accCellLinks( "CellLink" );
       if( accCellLinks.isAvailableWritable( *this ) ) {
          accCellLinks( *this ).toPersistent();
       }
-#endif // not XAOD_ANALYSIS
+#endif // not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 
+      static Accessor< ElementLink< xAOD::CaloClusterContainer_v1 > > accSisterCluster("SisterCluster");
+      if( accSisterCluster.isAvailableWritable( *this ) ) {
+         accSisterCluster( *this ).toPersistent();
+      }
+      
       // Return gracefully:
       return;
    }
+
+
+  
+  const CaloCluster_v1* CaloCluster_v1::getSisterCluster() const {
+    static Accessor< ElementLink< xAOD::CaloClusterContainer_v1 > > accSisterCluster("SisterCluster");
+    if (!accSisterCluster.isAvailable(*this)) return 0;
+    ElementLink<CaloClusterContainer_v1> el=accSisterCluster(*this);
+    if (el.isValid()) 
+      return *el;
+    else
+      return 0;
+  }
+    
+  bool CaloCluster_v1::setSisterCluster(const std::string& sisterSgKey, const unsigned sisterIndex, 
+					IProxyDictWithPool* sg /*nullptr*/)  {
+
+    static Accessor< ElementLink<xAOD::CaloClusterContainer_v1 > > accSisterCluster("SisterCluster");
+    ElementLink<xAOD::CaloClusterContainer_v1 > link(sisterSgKey,sisterIndex,sg);
+    accSisterCluster(*this)=link;
+    return true;
+  }
 
 } // namespace xAOD

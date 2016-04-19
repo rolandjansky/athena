@@ -20,7 +20,7 @@ use xAODCore      xAODCore-*      Event/xAOD
 
 use CaloGeoHelpers CaloGeoHelpers-* Calorimeter
 
-use_ifndef pplist="XAOD_ANALYSIS" pkg="Calorimeter/CaloEvent"
+use_ifndef pplist="SIMULATIONBASE,XAOD_ANALYSIS" pkg="Calorimeter/CaloEvent"
 
 # Specify the required ROOT components for cmake (transparent to CMT)
 apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Physics)"

@@ -33,18 +33,6 @@ xAOD::CaloTowerContainer_v1::CaloTowerContainer_v1(SG::OwnershipPolicy ownPolicy
 
 
 
-xAOD::CaloTowerContainer_v1::CaloTowerContainer_v1(xAOD::CaloTowerContainer_v1& other,SG::OwnershipPolicy ownPolicy) 
-  : CaloTowerContainerBase_v1(other.begin(),other.end(), ownPolicy)
-  , m_nEtaBins(other.m_nEtaBins)
-  , m_etaMin(other.m_etaMin)
-  , m_etaMax(other.m_etaMax)
-  , m_nPhiBins(other.m_nPhiBins)
-  , m_deltaEta(other.m_deltaEta)
-  , m_deltaPhi(other.m_deltaPhi)
-  , m_isConfigured(other.m_isConfigured) 
-{}
-
-
 xAOD::CaloTowerContainer_v1::~CaloTowerContainer_v1()
 { }
 
