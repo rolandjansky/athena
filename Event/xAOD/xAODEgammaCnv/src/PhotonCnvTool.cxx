@@ -8,8 +8,6 @@
 // EDM include(s):
 #include "egammaEvent/PhotonContainer.h"
 #include "egammaEvent/egammaParamDefs.h"
-#include "egammaInterfaces/IegammaBaseTool.h"
-#include "egammaInterfaces/IEMClusterTool.h"
 #include "FourMom/EigenP4JacobianEEtaPhiM2PtEtaPhiM.h"
 
 // Local include(s):
@@ -21,20 +19,16 @@ namespace xAODMaker {
   PhotonCnvTool::PhotonCnvTool(const std::string& type, 
 			       const std::string& name,
 			       const IInterface* parent )
-    : AthAlgTool( type, name, parent ) {
-    
+    : AthAlgTool( type, name, parent )
+  {  
     // Declare the interface(s) provided by the tool:
     declareInterface< IPhotonCnvTool >(this);
-
-    declareProperty( "RunPID", m_runPID=true );
-    declareProperty("PIDBuilder", m_PIDBuilder, "The PID Builder tool configured for photons");
 
     declareProperty( "xAODCaloClusterContainerName", m_caloClusters = "egClusterCollection");
     declareProperty( "xAODCaloClusterTopoContainerName", m_caloClustersTopo = "EMCaloClusters");
     declareProperty( "xAODConversionContainerName",  m_vertexContainer  = "GSFConversionVertices");
     declareProperty( "xAODCaloClusterOtherContainerName", m_caloClustersOther = "egClusterCollection", 
 		     "Most likely used for trigger objects");
-		declareProperty( "EMClusterTool", m_EMClusterTool, "EMClusterTool" );
    
     
   }
@@ -43,17 +37,12 @@ namespace xAODMaker {
 
     ATH_MSG_DEBUG( "Initializing - Package version: " << PACKAGE_VERSION );
 
-    if (m_runPID) {
-      CHECK(m_PIDBuilder.retrieve());
-    }
-    
-    CHECK(m_EMClusterTool.retrieve());
     
     // Return gracefully:
     return StatusCode::SUCCESS;
   }
 
-  StatusCode PhotonCnvTool::convert( const DataVector<egamma>* aod,
+  StatusCode PhotonCnvTool::convert( const egammaContainer* aod,
 				     xAOD::PhotonContainer* xaod ) const
   {
 
@@ -105,7 +94,6 @@ namespace xAODMaker {
       setIsolations(**itr,*photon);
       //setLinks  
       setLinks(**itr,*photon);
-      CHECK( m_PIDBuilder->execute(photon) );
 
     }
 
@@ -183,38 +171,35 @@ namespace xAODMaker {
 
   void PhotonCnvTool::setLinks(const egamma& aodph, xAOD::Photon& xaodph) const {
     // Need to reset links from old CaloCluster to xAOD::CaloCluster
-    ElementLink<xAOD::CaloClusterContainer> newclusterElementLink;
+    std::string clusterContainerName;
     
     //Change link depending on the photon author
     //Topo seeded photons
     if( aodph.author(egammaParameters::AuthorCaloTopo35)) {
-      newclusterElementLink.resetWithKeyAndIndex( m_caloClustersTopo, aodph.clusterElementLink().index()  );
+      clusterContainerName = m_caloClustersTopo;
     }
     //Standard photons
     else if (aodph.author(egammaParameters::AuthorPhoton | egammaParameters::AuthorRConv)) { 
-      newclusterElementLink.resetWithKeyAndIndex( m_caloClusters, aodph.clusterElementLink().index()  );
+      clusterContainerName = m_caloClusters;
     } 
     // others (trigger)
     else { 
-      newclusterElementLink.resetWithKeyAndIndex( m_caloClustersOther, aodph.clusterElementLink().index()  );
+      clusterContainerName = m_caloClustersOther;
     } 
+
+    // If EL name not set, use the original name.
+    if (clusterContainerName.empty())
+      clusterContainerName = aodph.clusterElementLink().dataID();
+    ElementLink<xAOD::CaloClusterContainer> newclusterElementLink;
+    newclusterElementLink.resetWithKeyAndIndex( clusterContainerName,
+                                                aodph.clusterElementLink().index()  );
 
     std::vector< ElementLink< xAOD::CaloClusterContainer > > linksToClusters;
     linksToClusters.push_back(newclusterElementLink);
     xaodph.setCaloClusterLinks(linksToClusters);
     
     // Decorate cluster with position in calo
-    if (newclusterElementLink.isValid())
-    { 
-      ATH_MSG_DEBUG("Decorating cluster");
-      xAOD::CaloCluster *cluster = const_cast<xAOD::CaloCluster*>(*newclusterElementLink);
-      if (cluster)
-      {
-        m_EMClusterTool->fillPositionsInCalo(cluster);
-      }
-      else ATH_MSG_DEBUG("Could not dereference / cast link to cluster");
-    }
-    else ATH_MSG_WARNING("Invalid link to cluster");
+    if (newclusterElementLink.isValid()) ATH_MSG_WARNING("Invalid link to cluster");
 		
     // Need to reset links from old VxVertex to xAOD::Vertex
     std::vector< ElementLink< xAOD::VertexContainer > > linksToVertices;
@@ -225,8 +210,12 @@ namespace xAODMaker {
   }
   
   ElementLink<xAOD::VertexContainer> PhotonCnvTool::getNewLink(const ElementLink<VxContainer>& oldLink, const std::string& name) const{
+    std::string linkname = name;
+    // If not set, use same name as in original link.
+    if (linkname.empty())
+      linkname = oldLink.dataID();
     ElementLink<xAOD::VertexContainer> newLink;
-    newLink.resetWithKeyAndIndex( name, oldLink.index() );
+    newLink.resetWithKeyAndIndex( linkname, oldLink.index() );
     // std::cout<<"Old link is "<<(oldLink.isValid()?"VALID":"INVALID")
     //          <<" and new link (pointing to"<<name<<") is "<<(newLink.isValid()?"VALID":"INVALID")<<std::endl;
     return newLink;
