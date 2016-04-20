@@ -8,7 +8,6 @@ use CLHEP v* LCG_Interfaces
 macro AtlasCLHEP_native_version "$(CLHEP_native_version)"
 macro AtlasCLHEP_home           "$(CLHEP_home)"
 macro AtlasCLHEP_dir            "$(AtlasCLHEP_home)"
-macro AtlasCLHEP_lib            "$(AtlasCLHEP_dir)/lib"
 
 macro_remove CLHEP_linkopts "" \
              notAsNeeded    "" \
@@ -20,9 +19,12 @@ macro_append CLHEP_linkopts "" \
 macro CLHEP_pp_cppflags " -DCLHEP_MAX_MIN_DEFINED -DCLHEP_ABS_DEFINED -DCLHEP_SQR_DEFINED "
 macro CLHEP_pp_fflags " -DCLHEP_MAX_MIN_DEFINED -DCLHEP_ABS_DEFINED -DCLHEP_SQR_DEFINED "
 
+macro AtlasCLHEP_export_paths "$(AtlasCLHEP_dir)"
 macro AtlasCLHEP_include "$(AtlasCLHEP_dir)/include"
 
 include_path none
 include_dirs "$(AtlasCLHEP_include)"
 
 apply_pattern set_root_include_path
+
+# Comment line added to be able to modify the CMakeLists.txt file
