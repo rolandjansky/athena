@@ -1,0 +1,26 @@
+diff -ur HepMCAnalysis.orig/config.mk HepMCAnalysis/config.mk
+--- HepMCAnalysis.orig/config.mk	2013-03-13 13:05:04.000000001 +0100
++++ HepMCAnalysis/config.mk	2015-11-13 14:31:35.000000001 +0100
+@@ -19,7 +19,7 @@
+ # common libraries
+ HepPDTlib   = 
+ #HepPDTlib   = -L$(HepPDTdir)/lib -lHepPDT -lHepPID
+-HepMClib    = -L$(HepMCdir)/lib -lHepMC -lHepMCfio
++HepMClib    = -L$(HepMCdir)/lib -lHepMC
+ 
+ FastJetlib  = `$(FastJetdir)/bin/fastjet-config --libs --plugins=yes --rpath=no`
+ # output directories
+diff -ur HepMCAnalysis.orig/src/baseAnalysis.cc HepMCAnalysis/src/baseAnalysis.cc
+--- HepMCAnalysis.orig/src/baseAnalysis.cc	2013-03-04 19:19:55.000000001 +0100
++++ HepMCAnalysis/src/baseAnalysis.cc	2015-11-13 11:22:05.000000001 +0100
+@@ -281,8 +281,8 @@
+     double pe = (*p)->momentum().e();
+     
+       // remove garbage 
+-    if ( isnan( px ) || isnan( py ) || isnan( pz ) || isnan( pe ) || 
+-         isinf( px ) || isinf( py ) || isinf( pz ) || isinf( pe ) ) {
++    if ( std::isnan( px ) || std::isnan( py ) || std::isnan( pz ) || std::isnan( pe ) || 
++         std::isinf( px ) || std::isinf( py ) || std::isinf( pz ) || std::isinf( pe ) ) {
+       cout << "baseAnalysis: NaN (Not A Number) found in the event record! Particle will be skipped." << endl;
+       ++m_NanNum;
+       continue;

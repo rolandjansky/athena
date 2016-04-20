@@ -10,35 +10,44 @@ use AtlasCLHEP		AtlasCLHEP-*		External
 use AtlasHepMC       	AtlasHepMC-*          	External
 use AtlasROOT		AtlasROOT-*		External -no_auto_imports
 use LCG_Configuration
-#use HepPDT       	v* 			LCG_Interfaces
 
-#path_prepend LD_LIBRARY_PATH "/afs/cern.ch/sw/lcg/external/HepPDT/3.03.02/$(LCG_ext_system)/lib"
-#path_prepend LD_LIBRARY_PATH "/afs/cern.ch/sw/lcg/external/clhep/2.0.4.3/$(LCG_ext_system)/lib"
+macro hepmcanalysis_native_version "00-03-04-14"
 
-#macro hepmcanalysis_native_version "3.4.11.root53200"
-macro hepmcanalysis_native_version "3.4.14"
+macro AtlasHepMCAnalysis_native_version "$(hepmcanalysis_native_version)"
 
-macro AtlasHepMCAnalysis_native_version "$(hepmcanalysis_native_version)_lcgcmt$(LCG_config_version)"
+macro AtlasHepMCAnalysis_lib  "$(AtlasHepMCAnalysis_root)/$(CMTCONFIG)/lib"
 
-#macro AtlasHepMCAnalysis_BASE "/afs/cern.ch/sw/lcg/external/MCGenerators_hepmc$(HepMC_config_version)/hepmcanalysis"
-#macro AtlasHepMCAnalysis_BASE "$(LCG_ROOT)/external/MCGenerators_hepmc$(HepMC_config_version)/hepmcanalysis"
+macro AtlasHepMCAnalysis_linkopts " -L$(AtlasHepMCAnalysis_lib) -lHepMCAnalysis "
 
-#macro AtlasHepMCAnalysis_BASE "$(LCG_ROOT)/external/MCGenerators_lcgcmt_preview/hepmcanalysis"
-macro AtlasHepMCAnalysis_BASE "$(LCG_external)/MCGenerators/hepmcanalysis"
-#macro AtlasHepMCAnalysis_BASE "$(LCG_ROOT)/external/MCGenerators_lcgcmt64d/hepmcanalysis"
-macro AtlasHepMCAnalysis_SYSTEM "$(LCG_ext_system)" \
-              slc4&gcc43&32 "slc4_ia32_gcc34" \
-              slc4&gcc34&i686 "slc4_ia32_gcc34" \
-	      slc4&gcc43    "slc4_amd64_gcc34"
+macro AtlasHepMCAnalysis_include  "$(AtlasHepMCAnalysis_root)/$(CMTCONFIG)/HepMCAnalysis/include"
 
-macro AtlasHepMCAnalysis_DIR "$(AtlasHepMCAnalysis_BASE)/$(hepmcanalysis_native_version)/$(AtlasHepMCAnalysis_SYSTEM)"
-macro AtlasHepMCAnalysis_LIB_DIR "$(AtlasHepMCAnalysis_DIR)/lib"
+private
 
-macro AtlasHepMCAnalysis_export_paths "$(AtlasHepMCAnalysis_DIR)"
+macro tardir "/afs/cern.ch/sw/lcg/external/tarFiles/MCGeneratorsTarFiles"
 
-apply_pattern declare_installed_libraries dir="$(AtlasHepMCAnalysis_LIB_DIR)"
-macro AtlasHepMCAnalysis_linkopts " -lHepMCAnalysis "
-#macro AtlasHepMCAnalysis_linkopts "$(AtlasHepMCAnalysis_LIB_DIR)/libHepMCAnalysis.so"
+# chain of commands taken from LCGCMAKE build for LCG80:
+#  just issue make with few env variables set
 
-include_dirs "$(AtlasHepMCAnalysis_DIR)/include"
+action external_untar "(cd ../$(CMTCONFIG); tar xvfz $(tardir)/HepMCAnalysis-$(AtlasHepMCAnalysis_native_version).tgz )"
 
+action external_patch "(cd ../$(CMTCONFIG); patch -p0 < ../src/hepmcanalysis-00-03-04-14.patch )"
+
+action external_make_compile "(cd ../$(CMTCONFIG)/HepMCAnalysis; make HepMCdir=$(HepMC_home) FastJetdir=$(fastjet_home) ROOTSYS=$(ROOT_home) CLHEPdir=$(CLHEP_home) CXXFLAGS='$(cppflags)')"
+
+action external_make_install "(cd ../$(CMTCONFIG); cp -r -p HepMCAnalysis/lib/lib* . )"
+
+# get dependencies of all actions correct, so all is done sequentially
+macro_append external_patch_dependencies " external_untar "
+macro_append external_make_compile_dependencies " external_patch "
+macro_append external_make_install_dependencies " external_make_compile "
+
+# trigger the chain of actions
+macro_append constituents " external_make_install "
+
+# install libraries
+apply_pattern generic_declare_for_link kind=runtime files='-s=../$(CMTCONFIG) *.so' prefix='$(CMTCONFIG)/lib'
+macro_append install_runtime_dependencies " external_make_install "
+
+end_private
+
+include_dirs "$(AtlasHepMCAnalysis_include)"
