@@ -39,14 +39,19 @@ if DetFlags.overlay.Truth_on():
 
 if DetFlags.overlay.pixel_on():
    outStream.ItemList += ["PixelRDO_Container#*"]
+   outStream.ItemList += ["InDetBSErrContainer#*"]
 if DetFlags.overlay.SCT_on():
+   outStream.ItemList += ["SCT_RDO_Container#*"]
    outStream.ItemList += ["SCT_RDO_Container#*"]
 if DetFlags.overlay.TRT_on():
    outStream.ItemList += ["TRT_RDO_Container#*"]
+   outStream.ItemList += ["TRT_BSIdErrContainer#*"]
+   outStream.ItemList += ["TRT_BSErrContainer#*"]
 
 if DetFlags.overlay.LAr_on():
    outStream.ItemList+=["LArRawChannelContainer#*"]
    outStream.ItemList+=["LArDigitContainer#LArDigitContainer_MC_Thinned"]
+   outStream.ItemList+=["LArFebErrorSummary#*"]
 if DetFlags.overlay.Tile_on():
    if isRealData:
       outStream.ItemList += [ "TileDigitsContainer#*" ]
