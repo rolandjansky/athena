@@ -101,6 +101,7 @@ CaloCellVecMon::CaloCellVecMon(const std::string& type, const std::string& name,
   declareProperty("doDatabaseNoiseVsEtaPhi",m_doDatabaseNoiseVsEtaPhi=true);
   declareProperty("doKnownBadChannelsVsEtaPhi",m_doKnownBadChannelsVsEtaPhi);
   declareProperty("doDBNoiseNormalized1DEnergy", m_doDBNormalized1DEnergy=false);
+  declareProperty("doEnergyVsTime", m_doEnergyVsTime=false);
   declareProperty("doUnnormalized1DEnergy", m_doUnnormalized1DEnergy=false);
   declareProperty("useLogarithmicEnergyBinning", m_useLogarithmicEnergyBinning=false);
 
@@ -1575,6 +1576,12 @@ StatusCode CaloCellVecMon::bookHistograms(){
     //if(m_maskKnownBadChannels || m_maskNoCondChannels) m_procimask = m_doInverseMasking;
     //else m_procimask = false; 
 
+    // Hack by Benjamin Trocme, as the m_procimask was never defined and led to spurious TH2D declaration...
+    // At some point, all the code relate to inverse masking should be removed (totally useless) but it is not
+    // so straightforward...
+    m_procimask = false;
+    m_doInverseMasking = false;
+
     if ( m_maskKnownBadChannels || m_maskNoCondChannels ){
        if(!m_doMaskingOnline) {
          //Book inverse masked histograms that would have been booked and filled in fillHistograms if
@@ -2468,28 +2475,30 @@ void CaloCellVecMon::bookLarNonThreHists(){
         m_shifterMonGroup[Energy]->regHist(m_h_dbNoiseNormalizedEnergy[ilyr]).ignore();
       }
 
-      sprintf(name,"CellEnergyVsTime_%s",m_layer[ilyr]->getName());
-      sprintf(title,"Cell Energy vs Cell Time in %s with CSC veto",m_layer[ilyr]->getName());
-      m_h_energyVsTime[ilyr] = new TH2F(name,title,nbintime,timescale,nbinenergy,energyscale);
-      m_h_energyVsTime[ilyr]->GetXaxis()->SetTitle("Cell Time (ns)");
-      m_h_energyVsTime[ilyr]->GetYaxis()->SetTitle("Energy (MeV)");
-      m_shifterMonGroup[EnergyVsTime]->regHist(m_h_energyVsTime[ilyr]).ignore();
-
-      sprintf(name,"CellEnergyVsTime_%s_%d",m_layer[ilyr]->getName(),Thresholds[ilyr]);
-      sprintf(title,"Cell Energy vs Cell Time in %s_%d with CSC veto",m_layer[ilyr]->getName(),Thresholds[ilyr]);
-      m_h_energyVsTime_DifferThresholds[ilyr] = new TH1F(name,title,nbintime,timescale);
-      m_h_energyVsTime_DifferThresholds[ilyr]->GetXaxis()->SetTitle("Cell Time (ns)");
-      m_h_energyVsTime_DifferThresholds[ilyr]->GetYaxis()->SetTitle("Energy (MeV)");
-      m_shifterMonGroup[EnergyVsTime]->regHist(m_h_energyVsTime_DifferThresholds[ilyr]).ignore();
-      
-      if(m_doInverseMasking) {
-        sprintf(name,"CellEnergyVsTime_%s_inverseMasked",m_layer[ilyr]->getName());
-        sprintf(title,"Cell Energy vs Cell Time in %s - Inverse Masked with CSC veto",m_layer[ilyr]->getName());
-        m_h_energyVsTime_imask[ilyr] = new TH2F(name,title,nbintime,timescale,nbinenergy,energyscale);
-        m_h_energyVsTime_imask[ilyr]->GetXaxis()->SetTitle("Cell Time (ns)");
-        m_h_energyVsTime_imask[ilyr]->GetYaxis()->SetTitle("Energy (MeV)");
-//        ExpertMonGroup[EnergyVsTime]->regHist(m_h_energyVsTime_imask[ilyr]).ignore();
-        m_shifterMonGroup[EnergyVsTime]->regHist(m_h_energyVsTime_imask[ilyr]).ignore();
+      if (m_doEnergyVsTime){
+	sprintf(name,"CellEnergyVsTime_%s",m_layer[ilyr]->getName());
+	sprintf(title,"Cell Energy vs Cell Time in %s with CSC veto",m_layer[ilyr]->getName());
+	m_h_energyVsTime[ilyr] = new TH2F(name,title,nbintime,timescale,nbinenergy,energyscale);
+	m_h_energyVsTime[ilyr]->GetXaxis()->SetTitle("Cell Time (ns)");
+	m_h_energyVsTime[ilyr]->GetYaxis()->SetTitle("Energy (MeV)");
+	m_shifterMonGroup[EnergyVsTime]->regHist(m_h_energyVsTime[ilyr]).ignore();
+	
+	sprintf(name,"CellEnergyVsTime_%s_%d",m_layer[ilyr]->getName(),Thresholds[ilyr]);
+	sprintf(title,"Cell Energy vs Cell Time in %s_%d with CSC veto",m_layer[ilyr]->getName(),Thresholds[ilyr]);
+	m_h_energyVsTime_DifferThresholds[ilyr] = new TH1F(name,title,nbintime,timescale);
+	m_h_energyVsTime_DifferThresholds[ilyr]->GetXaxis()->SetTitle("Cell Time (ns)");
+	m_h_energyVsTime_DifferThresholds[ilyr]->GetYaxis()->SetTitle("Energy (MeV)");
+	m_shifterMonGroup[EnergyVsTime]->regHist(m_h_energyVsTime_DifferThresholds[ilyr]).ignore();
+	
+	if(m_doInverseMasking) {
+	  sprintf(name,"CellEnergyVsTime_%s_inverseMasked",m_layer[ilyr]->getName());
+	  sprintf(title,"Cell Energy vs Cell Time in %s - Inverse Masked with CSC veto",m_layer[ilyr]->getName());
+	  m_h_energyVsTime_imask[ilyr] = new TH2F(name,title,nbintime,timescale,nbinenergy,energyscale);
+	  m_h_energyVsTime_imask[ilyr]->GetXaxis()->SetTitle("Cell Time (ns)");
+	  m_h_energyVsTime_imask[ilyr]->GetYaxis()->SetTitle("Energy (MeV)");
+	  //        ExpertMonGroup[EnergyVsTime]->regHist(m_h_energyVsTime_imask[ilyr]).ignore();
+	  m_shifterMonGroup[EnergyVsTime]->regHist(m_h_energyVsTime_imask[ilyr]).ignore();
+	}
       }
     } // end of ilyr loop
 //    ATH_MSG_INFO("end of bookLarNonThreHists()");
@@ -3322,9 +3331,9 @@ void CaloCellVecMon::fillLarHists(const CaloCell* cell ){
    if (m_doUnnormalized1DEnergy) m_h_energy[caloLyr]->Fill(cellen); 
 
    //Noise Plots: (plots that work best with empty triggers)
-   if (m_fillNoThreshNoisePlots) {
+   if (m_fillNoThreshNoisePlots && m_doDBNormalized1DEnergy) {// 18/4:Bug fix by Benjamin Trocme
       // Energy normalized to database noise:
-      if( m_doDBNormalized1DEnergy && dbNormEnergyIsDefined ){
+      if( dbNormEnergyIsDefined ){
          m_h_dbNoiseNormalizedEnergy[caloLyr]->Fill(dbNormEnergy);
       }
       else if (cellnoisedb != 0) {
@@ -3333,53 +3342,54 @@ void CaloCellVecMon::fillLarHists(const CaloCell* cell ){
    }
 
    // Time vs Energy:
-   if(celltqavailable)  m_h_energyVsTime[caloLyr]->Fill(celltime,cellen); 
+   if (m_doEnergyVsTime){
+     if(celltqavailable)  m_h_energyVsTime[caloLyr]->Fill(celltime,cellen); 
    
- if((celltqavailable) && (cellen > 1000) && (caloLyr == EMBPA)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- if((celltqavailable) && (cellen > 1000) && (caloLyr == EMBPC)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
-   
- if((celltqavailable) && (cellen > 1000) && (caloLyr == EMB1A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- if((celltqavailable) && (cellen > 1000) && (caloLyr == EMB1C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
-   
- if((celltqavailable) && (cellen > 3000) && (caloLyr == EMB2A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- if((celltqavailable) && (cellen > 3000) && (caloLyr == EMB2C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
-   
- if((celltqavailable) && (cellen > 1500) && (caloLyr == EMB3A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- if((celltqavailable) && (cellen > 1500) && (caloLyr == EMB3C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
-   
- if((celltqavailable) && (cellen > 1500) && (caloLyr == EMECPA)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- if((celltqavailable) && (cellen > 1500) && (caloLyr == EMECPC)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
-   
- if((celltqavailable) && (cellen > 1000) && (caloLyr == EMEC1A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- if((celltqavailable) && (cellen > 1000) && (caloLyr == EMEC1C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- 
- if((celltqavailable) && (cellen > 3000) && (caloLyr == EMEC2A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- if((celltqavailable) && (cellen > 3000) && (caloLyr == EMEC2C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- 
- if((celltqavailable) && (cellen > 2000) && (caloLyr == EMEC3A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- if((celltqavailable) && (cellen > 2000) && (caloLyr == EMEC3C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- 
- if((celltqavailable) && (cellen > 3500) && (caloLyr == HEC0A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- if((celltqavailable) && (cellen > 3500) && (caloLyr == HEC0C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- 
- if((celltqavailable) && (cellen > 3500) && (caloLyr == HEC1A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- if((celltqavailable) && (cellen > 3500) && (caloLyr == HEC1C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- 
- if((celltqavailable) && (cellen > 3500) && (caloLyr == HEC2A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- if((celltqavailable) && (cellen > 3500) && (caloLyr == HEC2C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- 
- if((celltqavailable) && (cellen > 3500) && (caloLyr == HEC3A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- if((celltqavailable) && (cellen > 3500) && (caloLyr == HEC3C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- 
- if((celltqavailable) && (cellen > 1000) && (caloLyr == FCAL1A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- if((celltqavailable) && (cellen > 1000) && (caloLyr == FCAL1C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- 
- if((celltqavailable) && (cellen > 1000) && (caloLyr == FCAL2A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- if((celltqavailable) && (cellen > 1000) && (caloLyr == FCAL2C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- 
- if((celltqavailable) && (cellen > 1000) && (caloLyr == FCAL3A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- if((celltqavailable) && (cellen > 1000) && (caloLyr == FCAL3C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
- 
+     if((celltqavailable) && (cellen > 1000) && (caloLyr == EMBPA)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     if((celltqavailable) && (cellen > 1000) && (caloLyr == EMBPC)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     
+     if((celltqavailable) && (cellen > 1000) && (caloLyr == EMB1A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     if((celltqavailable) && (cellen > 1000) && (caloLyr == EMB1C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     
+     if((celltqavailable) && (cellen > 3000) && (caloLyr == EMB2A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     if((celltqavailable) && (cellen > 3000) && (caloLyr == EMB2C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     
+     if((celltqavailable) && (cellen > 1500) && (caloLyr == EMB3A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     if((celltqavailable) && (cellen > 1500) && (caloLyr == EMB3C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     
+     if((celltqavailable) && (cellen > 1500) && (caloLyr == EMECPA)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     if((celltqavailable) && (cellen > 1500) && (caloLyr == EMECPC)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     
+     if((celltqavailable) && (cellen > 1000) && (caloLyr == EMEC1A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     if((celltqavailable) && (cellen > 1000) && (caloLyr == EMEC1C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     
+     if((celltqavailable) && (cellen > 3000) && (caloLyr == EMEC2A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     if((celltqavailable) && (cellen > 3000) && (caloLyr == EMEC2C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     
+     if((celltqavailable) && (cellen > 2000) && (caloLyr == EMEC3A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     if((celltqavailable) && (cellen > 2000) && (caloLyr == EMEC3C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     
+     if((celltqavailable) && (cellen > 3500) && (caloLyr == HEC0A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     if((celltqavailable) && (cellen > 3500) && (caloLyr == HEC0C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     
+     if((celltqavailable) && (cellen > 3500) && (caloLyr == HEC1A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     if((celltqavailable) && (cellen > 3500) && (caloLyr == HEC1C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     
+     if((celltqavailable) && (cellen > 3500) && (caloLyr == HEC2A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     if((celltqavailable) && (cellen > 3500) && (caloLyr == HEC2C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     
+     if((celltqavailable) && (cellen > 3500) && (caloLyr == HEC3A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     if((celltqavailable) && (cellen > 3500) && (caloLyr == HEC3C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     
+     if((celltqavailable) && (cellen > 1000) && (caloLyr == FCAL1A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     if((celltqavailable) && (cellen > 1000) && (caloLyr == FCAL1C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     
+     if((celltqavailable) && (cellen > 1000) && (caloLyr == FCAL2A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     if((celltqavailable) && (cellen > 1000) && (caloLyr == FCAL2C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     
+     if((celltqavailable) && (cellen > 1000) && (caloLyr == FCAL3A)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+     if((celltqavailable) && (cellen > 1000) && (caloLyr == FCAL3C)) m_h_energyVsTime_DifferThresholds[caloLyr]->Fill(celltime);
+   }
 
 
  } // end of if(masksel)
