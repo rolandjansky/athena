@@ -9,6 +9,7 @@ use AtlasXercesC   AtlasXercesC-*     External
 
 ignore_pattern package_stamps
 
+
 ## Adapt standard macros for export
 macro Geant4_home "${SITEROOT}/atlas/offline/external/geant4/releases" \
     BNL         "${SITEROOT}/cernsw/geant4/releases" \
@@ -16,15 +17,14 @@ macro Geant4_home "${SITEROOT}/atlas/offline/external/geant4/releases" \
     EXTSITE     "${SITEROOT}/geant4/releases" \
     STANDALONE  "${SITEROOT}/geant4/releases"
 
-
-macro Geant4_native_version "geant4.9.6.patch03.atlas06"
+macro Geant4_native_version "geant4.10.0.patch01.test03"
 macro Geant4_export_paths "$(Geant4_home)/share/${Geant4_native_version}/include $(Geant4_home)/specific/$(CMTCONFIG)/${Geant4_native_version}/lib $(Geant4_home)/share/${Geant4_native_version}/data"
 macro Geant4_follow_symlinks "" PACK yes
 
 private
 # copied from ExternalPolicy with modification to restrict to one Geant4 version
 # Pattern to install a symlink to the $(<package>_home) location of an external package in the InstallArea/external/<package> location.
-# Subsequent use of the $(<package>_installed_home) macro to locate items within the package are then relocatable.   
+# Subsequent use of the $(<package>_installed_home) macro to locate items within the package are then relocatable.
 # don't know how to loop in CMT language, so hardcode both paths which are currently needed here. Hope that will never change ...
 pattern install_external_home \
     apply_pattern generic_declare_for_link kind=<package>_home files=$(<package>_home)/share/${Geant4_native_version} prefix=external/<package>/releases/share ; \
@@ -35,9 +35,6 @@ pattern install_external_home \
 end_private
 
 apply_pattern install_external_home package=Geant4
-
-# *********************** This is G4 9.6 ************************
-apply_tag G496
 
 ##################################################################
 
@@ -251,4 +248,4 @@ set G4LEVELGAMMADATA   "${Geant4_data}/PhotonEvaporation"
 set G4NEUTRONHPDATA    "${Geant4_data}/G4NDL"
 set G4LEDATA           "${Geant4_data}/G4EMLOW"
 set G4NEUTRONXSDATA    "${Geant4_data}/G4NEUTRONXS"
-set G4SAIDXSDATA       "${Geant4_data}/G4SAIDXSDATA"
+
