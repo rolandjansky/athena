@@ -60,12 +60,12 @@ PixelConditionsSummarySvc::~PixelConditionsSummarySvc(){}
 StatusCode PixelConditionsSummarySvc::specialPixelMapCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
 
   if (msgLvl(MSG::INFO))
-    msg(MSG::INFO) << "Special pixel map callback for key " << *keys.begin() << " number " << I << endmsg;
+    msg(MSG::INFO) << "Special pixel map callback for key " << *keys.begin() << " number " << I << endreq;
 
   StatusCode sc = m_detStore->retrieve(m_specialPixelMap, m_specialPixelMapKey);
 
   if( !sc.isSuccess() ){
-    msg(MSG::ERROR) << "Unable to retrieve special pixel map" << endmsg;
+    msg(MSG::ERROR) << "Unable to retrieve special pixel map" << endreq;
   }
 
   return sc;
@@ -76,40 +76,40 @@ StatusCode PixelConditionsSummarySvc::specialPixelMapCallBack(IOVSVC_CALLBACK_AR
 
 
 StatusCode PixelConditionsSummarySvc::initialize(){
-  msg(MSG::INFO) << "Initializing PixelConditionsSummarySvc" << endmsg;
+  msg(MSG::INFO) << "Initializing PixelConditionsSummarySvc" << endreq;
 
 
   StatusCode sc = setProperties();
   if( !sc.isSuccess() ){
-    msg(MSG::FATAL) << "Unable to set properties" << endmsg;
+    msg(MSG::FATAL) << "Unable to set properties" << endreq;
     return StatusCode::FAILURE;
   }
   if (m_IBLParameterSvc.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Could not retrieve IBLParameterSvc" << endmsg;
+    msg(MSG::WARNING) << "Could not retrieve IBLParameterSvc" << endreq;
   }
   else {
     m_IBLParameterSvc->setBoolParameters(m_useSpecialPixelMap,"EnableSpecialPixels");
   }
   sc = m_detStore.retrieve();
   if( !sc.isSuccess() ){
-    msg(MSG::FATAL) << "Unable to retrieve detector store" << endmsg;
+    msg(MSG::FATAL) << "Unable to retrieve detector store" << endreq;
     return StatusCode::FAILURE;
   }
 
   if(m_useDCS){
     if (StatusCode::SUCCESS!=m_pixelDCSSvc.retrieve()) {
-      msg(MSG::FATAL) << "Unable to retrieve PixelDCSSvc" << endmsg;
+      msg(MSG::FATAL) << "Unable to retrieve PixelDCSSvc" << endreq;
       return StatusCode::FAILURE;
     }
-    msg(MSG::INFO) << "PixelDCSSvc retrieved" << endmsg;
+    msg(MSG::INFO) << "PixelDCSSvc retrieved" << endreq;
   }
 
   if(m_useBS){
     if (StatusCode::SUCCESS!=m_pixelBSErrorsSvc.retrieve()) {
-      msg(MSG::FATAL) << "Unable to retrieve PixelBSErrorSvc" << endmsg;
+      msg(MSG::FATAL) << "Unable to retrieve PixelBSErrorSvc" << endreq;
       return StatusCode::FAILURE;
     }
-    msg(MSG::INFO) << "PixelBSErrorsSvc retrieved" << endmsg;
+    msg(MSG::INFO) << "PixelBSErrorsSvc retrieved" << endreq;
   }
 
   sc = m_detStore->retrieve( m_pixelID, "PixelID" );
@@ -122,13 +122,13 @@ StatusCode PixelConditionsSummarySvc::initialize(){
     sc = m_specialPixelMapSvc.retrieve();
 
     if( !sc.isSuccess() ){
-      msg(MSG::FATAL) << "Unable to retrieve SpecialPixelMapSvc" << endmsg;
+      msg(MSG::FATAL) << "Unable to retrieve SpecialPixelMapSvc" << endreq;
       return StatusCode::FAILURE;
     }
 
     if(m_specialPixelMapSvc->getNPixelMaps() == 0){
-      msg(MSG::WARNING) << "No special pixel maps configured" << endmsg;
-      msg(MSG::WARNING) << "Disabling use of special pixel maps" << endmsg;
+      msg(MSG::WARNING) << "No special pixel maps configured" << endreq;
+      msg(MSG::WARNING) << "Disabling use of special pixel maps" << endreq;
       m_useSpecialPixelMap = false;
     }
     else{
@@ -136,7 +136,7 @@ StatusCode PixelConditionsSummarySvc::initialize(){
 			      &PixelConditionsSummarySvc::specialPixelMapCallBack, this);
 
       if( !sc.isSuccess()){
-	msg(MSG::FATAL) << "Unable to register callback for special pixel map" << endmsg;
+	msg(MSG::FATAL) << "Unable to register callback for special pixel map" << endreq;
 	return StatusCode::FAILURE;
       }
     }
@@ -155,7 +155,7 @@ StatusCode PixelConditionsSummarySvc::initialize(){
 }
 
 StatusCode PixelConditionsSummarySvc::finalize(){
-  msg(MSG::INFO) << "Finalizing PixelConditionsSummarySvc" << endmsg;
+  msg(MSG::INFO) << "Finalizing PixelConditionsSummarySvc" << endreq;
 
   return StatusCode::SUCCESS;
 }

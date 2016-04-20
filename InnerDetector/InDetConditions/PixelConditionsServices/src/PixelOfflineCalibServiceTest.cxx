@@ -35,14 +35,14 @@ PixelOfflineCalibServiceTest::PixelOfflineCalibServiceTest(const std::string& na
      m_dbTool("PixelRecoDbTool"),
      m_pat(0),
      m_setup(0),
-     m_par_rfile1(""),
-     m_par_rfile2(""),
-     m_par_rfile3("")     
+     par_rfile1(""),
+     par_rfile2(""),
+     par_rfile3("")     
 {
   // declare algorithm parameters
-  declareProperty("OutputTextFilePixelClusterError",m_par_rfile1);
-  declareProperty("OutputTextFilePixelClusterOnTrackError",m_par_rfile2);
-  declareProperty("OutputTextFilePixelChargeInterpolation",m_par_rfile3);
+  declareProperty("OutputTextFilePixelClusterError",par_rfile1);
+  declareProperty("OutputTextFilePixelClusterOnTrackError",par_rfile2);
+  declareProperty("OutputTextFilePixelChargeInterpolation",par_rfile3);
 
 }
 
@@ -52,37 +52,37 @@ PixelOfflineCalibServiceTest::~PixelOfflineCalibServiceTest(void)
 
 StatusCode PixelOfflineCalibServiceTest::initialize() {
   
-  msg(MSG::INFO) << "PixelOfflineCalibServiceTest::initialize() called" << endmsg;
+  msg(MSG::INFO) << "PixelOfflineCalibServiceTest::initialize() called" << endreq;
   
   //get storegate pointers (not need for AthAlgorithm classes)
   //if ((StatusCode::SUCCESS!=service("StoreGateSvc",m_sgSvc)) ||
   //   (StatusCode::SUCCESS!=service("DetectorStore",m_detStore))) {
-  //  msg(MSG::INFO) << "StoreGate services not found" << endmsg;
+  //  msg(MSG::INFO) << "StoreGate services not found" << endreq;
   //  return StatusCode::FAILURE;
   // }
 
   //get Database manager tool
   if (StatusCode::SUCCESS!=m_calibsvc.retrieve() ) {
-    msg(MSG::FATAL) << "PixelOfflineCalibSvc not found" << endmsg;
+    msg(MSG::FATAL) << "PixelOfflineCalibSvc not found" << endreq;
     return StatusCode::FAILURE;
   }
-  msg(MSG::INFO) << " PixelOfflineCalibSvc found " << endmsg;
+  msg(MSG::INFO) << " PixelOfflineCalibSvc found " << endreq;
   
   if ( m_dbTool.retrieve().isFailure() )
     {
       msg(MSG::ERROR)
-        << " Failed to retrieve tool " << m_dbTool.type() << endmsg;
+        << " Failed to retrieve tool " << m_dbTool.type() << endreq;
       return StatusCode::RECOVERABLE;
     }
   else{
     msg(MSG::INFO)
-      << "Retrieved tool " <<  m_dbTool.type() << endmsg;
+      << "Retrieved tool " <<  m_dbTool.type() << endreq;
   }
 
   //print the options
-  msg(MSG::INFO) << " Read from Pixel Conditions database into a text file: " << m_par_rfile1<<" "<<m_par_rfile2<<" "<<m_par_rfile3<<endmsg;
-  if(m_par_rfile1 ==""||m_par_rfile2 ==""||m_par_rfile3 ==""){
-    msg(MSG::ERROR) << " It's reading, Output text file is required "<<endmsg; 
+  msg(MSG::INFO) << " Read from Pixel Conditions database into a text file: " << par_rfile1<<" "<<par_rfile2<<" "<<par_rfile3<<endreq;
+  if(par_rfile1 ==""||par_rfile2 ==""||par_rfile3 ==""){
+    msg(MSG::ERROR) << " It's reading, Output text file is required "<<endreq; 
     return StatusCode::FAILURE; 
   }  
   //
@@ -104,16 +104,16 @@ StatusCode PixelOfflineCalibServiceTest::execute() {
     std::ofstream* outfile3=0;
 
     if(msgLvl(MSG::INFO)) msg() << " read PixelOfflineCalibData to text file: "
-				<< m_par_rfile1 <<" "<<m_par_rfile2 <<" "
-				<<m_par_rfile3 <<endmsg;
-    outfile1 = new std::ofstream(m_par_rfile1.c_str());
-    outfile2 = new std::ofstream(m_par_rfile2.c_str());
-    outfile3 = new std::ofstream(m_par_rfile3.c_str());
+				<< par_rfile1 <<" "<<par_rfile2 <<" "
+				<<par_rfile3 <<endreq;
+    outfile1 = new std::ofstream(par_rfile1.c_str());
+    outfile2 = new std::ofstream(par_rfile2.c_str());
+    outfile3 = new std::ofstream(par_rfile3.c_str());
 
     m_pat = m_dbTool->getCalibPtr(); 
     if(!m_pat){
       if(msgLvl(MSG::ERROR)) msg() << "PixelOfflineCalib pointer undefined!"
-				   << endmsg;
+				   << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -310,6 +310,6 @@ StatusCode PixelOfflineCalibServiceTest::execute() {
  
 StatusCode PixelOfflineCalibServiceTest::finalize() 
 {  
-  msg(MSG::INFO)<<" PixelOfflineCalibServiceTest: finishing "<<endmsg; 
+  msg(MSG::INFO)<<" PixelOfflineCalibServiceTest: finishing "<<endreq; 
   return StatusCode::SUCCESS;
 }

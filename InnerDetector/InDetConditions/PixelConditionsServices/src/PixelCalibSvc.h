@@ -22,9 +22,8 @@ class AtlasDetectorID;
 class Identifier;
 class StoreGateSvc; 
 class PixelID; 
-class IGeoModelSvc;
+//class IPixelCablingSvc;
 
-class IPixelOfflineCalibSvc;
 class IPixelCalibDbTool;
 
   /** @class PixelCalibSvc 
@@ -35,10 +34,6 @@ class IPixelCalibDbTool;
   
   @author  Weiming Yao <WMYAO@LBL.GOV>
   */  
-
-namespace InDetDD {
-  class SiDetectorManager;
-}  
 
 class PixelCalibSvc : public AthService, virtual public IPixelCalibSvc
 {
@@ -58,12 +53,7 @@ class PixelCalibSvc : public AthService, virtual public IPixelCalibSvc
       /** access to db constants with wafer_id: irow, icol per module index */ 
       virtual  bool hasCalibData(const Identifier& wafer_id) const; //<! true for wafer_id contains the calibration data 
       virtual int getNFE(const Identifier& wafer_id) const; // number of FE Chips per module 
-
-      /* This is obsoltete method. Will be removed... */
-      virtual bool isFEI4(const Identifier& wafer_id) const {
-        if(hasCalibData(wafer_id))return (m_pat->size())<3;
-        else {return false;}
-      };
+      virtual bool isFEI4(const Identifier& wafer_id) const; // is FEI4 module      
 
       /** Note: irow icol is for each chip, not phi_index, eta_index per module */ 
       virtual int getThreshold(const Identifier& wafer_id, int irow, int icol, int circ) const; //<! get threshold 
@@ -90,15 +80,13 @@ class PixelCalibSvc : public AthService, virtual public IPixelCalibSvc
       virtual float getTotRes(const Identifier& pix_id, float Q) const;
       virtual float getTotMean(const Identifier& pix_id, float Q) const;
       virtual void disableDb() {m_disableDb = true;}
-
-      virtual float getCharge(const Identifier& pix_id, float ToT) const;
-
     private:
 
-      int PixelType(const Identifier wafer_id, int irow, int icol) const; // type of pixel
-      int PixelType(const Identifier pix_id, const Identifier wafer_id, int & circ) const; // type of pixel
+      int PixelType(const Identifier& wafer_id, int irow, int icol) const; // type of pixel
+      int PixelType(const Identifier& pix_id, const Identifier& wafer_id, int & circ) const; // type of pixel
       int PixelCirc(const Identifier& pix_id, const Identifier& wafer_id) const; // the chip number circ 
-      int gangedType(int row, int col, int columnsPerFE, int rowsFGanged, int rowsLGanged) const; // ganged pixel type 
+      int gangedType(int row, int col, const unsigned int& columnsPerFE, const unsigned int& rowsFGanged, const unsigned int& rowsLGanged) const; // ganged pixel type 
+
 
       /** class member version of retrieving MsgStream */
       ServiceHandle<StoreGateSvc>      m_sgSvc;
@@ -109,8 +97,6 @@ class PixelCalibSvc : public AthService, virtual public IPixelCalibSvc
       mutable PixelCalib::PixelCalibData*  m_pat; //<! save the calibration pointer after updating 
       mutable Identifier                   m_wafer_id; //<! wafer_id  
         
-      const InDetDD::SiDetectorManager * m_detManager;
-
       // int/double/bool  m_propertyName;
       double                    m_totparA;
       double                    m_totparE;
@@ -126,8 +112,9 @@ class PixelCalibSvc : public AthService, virtual public IPixelCalibSvc
       bool m_IBLabsent;
       bool m_disableDb;
       ServiceHandle<IBLParameterSvc> m_IBLParameterSvc; 
-      ServiceHandle< IGeoModelSvc > m_geoModelSvc;
-      ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
+      
     }; 
+
+
 
 #endif 
