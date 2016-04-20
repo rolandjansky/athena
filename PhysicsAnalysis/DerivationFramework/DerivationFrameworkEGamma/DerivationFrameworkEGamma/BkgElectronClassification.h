@@ -29,6 +29,9 @@ namespace DerivationFramework {
       std::string m_truthParticleContainerName;
       /** @brief MCTruthClassifier **/
       ToolHandle<IMCTruthClassifier>   m_mcTruthClassifier;
+      /** @brief barcode cut for egamma helpers **/
+      int m_barcodecut;
+
   }; 
 }
 

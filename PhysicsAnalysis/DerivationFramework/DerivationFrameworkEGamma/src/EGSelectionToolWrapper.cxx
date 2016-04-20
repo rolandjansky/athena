@@ -63,7 +63,7 @@ namespace DerivationFramework {
     }
 
     // Decorator
-    SG::AuxElement::Decorator< int > decoratorPass(m_sgName);
+    SG::AuxElement::Decorator< char > decoratorPass(m_sgName);
     SG::AuxElement::Decorator< unsigned int > decoratorIsEM(m_sgName + "IsEMValue");
     
     // Write mask for each element and record to SG for subsequent selection

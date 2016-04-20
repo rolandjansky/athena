@@ -6,9 +6,6 @@
 #********************************************************************
 
 # notes: 
-# DFCommonElectrons_eta and Electrons.eta are the same in Run2 since only Si-based electrons with >=4 Si hits are kept
-# similarly for DFCommonElectrons_pt, DFCommonElectrons_phi
-# we keep them here in case we run on old Run1 data, or in case the recommended eta/phi change.
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
@@ -34,9 +31,9 @@ RecomputeElectronSelectors = True
 # if skim size too large either require tight electrons (at least one) or raise electron pT threshold (at least one)
 #requirement = 'DFCommonElectronsLHMedium && (DFCommonElectrons_pt > 9.5*GeV)'
 if RecomputeElectronSelectors :
-    requirement = '(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium) && (DFCommonElectrons_pt > 9.5*GeV)'
+    requirement = '(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium) && (Electrons.pt > 9.5*GeV)'
 else :
-    requirement = '(Electrons.Medium || Electrons.DFCommonElectronsLHMedium) && (DFCommonElectrons_pt > 9.5*GeV)'
+    requirement = '(Electrons.Medium || Electrons.DFCommonElectronsLHMedium) && (Electrons.pt > 9.5*GeV)'
 
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGInvariantMassTool
 EGAM3_EEMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMassTool",
@@ -47,12 +44,6 @@ EGAM3_EEMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMas
                                                              Mass2Hypothesis = 0.511*MeV,
                                                              Container1Name = "Electrons",
                                                              Container2Name = "Electrons",
-                                                             Pt1BranchName = "DFCommonElectrons_pt",
-                                                             Eta1BranchName = "DFCommonElectrons_eta",
-                                                             Phi1BranchName = "DFCommonElectrons_phi",
-                                                             Pt2BranchName = "DFCommonElectrons_pt",
-                                                             Eta2BranchName = "DFCommonElectrons_eta",
-                                                             Phi2BranchName = "DFCommonElectrons_phi",
                                                              CheckCharge = True,
                                                              DoTransverseMass = False,
                                                              MinDeltaR = 0.0)
@@ -69,11 +60,10 @@ print EGAM3_EEMassTool
 # asymmetric electron cuts/single e trigger, low pT cut for subleading e (for e calibration studies at low pT)
 #requirement1 = 'DFCommonElectronsLHTight && (DFCommonElectrons_pt > 24.5*GeV)'
 if RecomputeElectronSelectors :
-    requirement1 = '(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) && (DFCommonElectrons_pt > 24.5*GeV)'
+    requirement1 = '(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
 else :
-    requirement1 = '(Electrons.Tight || Electrons.DFCommonElectronsLHTight) && (DFCommonElectrons_pt > 24.5*GeV)'
-requirement2 = '(DFCommonElectrons_pt > 6.5*GeV)'
-#requirement2 = '(DFCommonElectrons_pt > 9.5*GeV)'
+    requirement1 = '(Electrons.Tight || Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
+requirement2 = '(Electrons.pt > 6.5*GeV)'
 
 EGAM3_EEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMassTool2",
                                                               Object1Requirements = requirement1,
@@ -83,12 +73,6 @@ EGAM3_EEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMa
                                                               Mass2Hypothesis = 0.511*MeV,
                                                               Container1Name = "Electrons",
                                                               Container2Name = "Electrons",
-                                                              Pt1BranchName = "DFCommonElectrons_pt",
-                                                              Eta1BranchName = "DFCommonElectrons_eta",
-                                                              Phi1BranchName = "DFCommonElectrons_phi",
-                                                              Pt2BranchName = "DFCommonElectrons_pt",
-                                                              Eta2BranchName = "DFCommonElectrons_eta",
-                                                              Phi2BranchName = "DFCommonElectrons_phi",
                                                               CheckCharge = True,
                                                               #CheckCharge = False,
                                                               DoTransverseMass = False,
@@ -98,9 +82,9 @@ ToolSvc += EGAM3_EEMassTool2
 print EGAM3_EEMassTool2
 
 if RecomputeElectronSelectors :
-    requirement1 = '(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) && (DFCommonElectrons_pt > 24.5*GeV)'
+    requirement1 = '(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
 else :
-    requirement1 = '(Electrons.Tight || Electrons.DFCommonElectronsLHTight) && (DFCommonElectrons_pt > 24.5*GeV)'
+    requirement1 = '(Electrons.Tight || Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
 requirement2 = '(ForwardElectrons.pt > 6.5*GeV)'
 #requirement2 = '(ForwardElectrons.pt > 9.5*GeV)'
 
@@ -112,9 +96,6 @@ EGAM3_EEMassTool3 = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMa
                                                               Mass2Hypothesis = 0.511*MeV,
                                                               Container1Name = "Electrons",
                                                               Container2Name = "ForwardElectrons",
-                                                              Pt1BranchName = "DFCommonElectrons_pt",
-                                                              Eta1BranchName = "DFCommonElectrons_eta",
-                                                              Phi1BranchName = "DFCommonElectrons_phi",
                                                               CheckCharge = True,
                                                               #CheckCharge = False,
                                                               DoTransverseMass = False,
@@ -144,16 +125,19 @@ print "EGAM3 skimming tool:", EGAM3SkimmingTool
 # Cell sum decoration tool
 #====================================================================
 
-from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__CellDecorator
-EGAM3_CellDecoratorTool = DerivationFramework__CellDecorator( name                    = "EGAM3_CellDecoratorTool",
-                                                              SGKey_electrons         = "Electrons",
-                                                              SGKey_photons           = "Photons",
-                                                              CaloFillRectangularTool_5x5  = EGAMCOM_caloFillRect55,
-                                                              CaloFillRectangularTool_3x5  = EGAMCOM_caloFillRect35,
-                                                              CaloFillRectangularTool_3x7  = EGAMCOM_caloFillRect37,
-                                                              CaloFillRectangularTool_7x11  = EGAMCOM_caloFillRect711
-                                                              )
-ToolSvc += EGAM3_CellDecoratorTool
+#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CellDecorator
+#EGAM3_CellDecoratorTool = DerivationFramework__CellDecorator( name                    = "EGAM3_CellDecoratorTool",
+#                                                              SGKey_electrons         = "Electrons",
+#                                                              SGKey_photons           = "Photons",
+#                                                              CaloFillRectangularTool_5x5  = EGAMCOM_caloFillRect55,
+#                                                              CaloFillRectangularTool_3x5  = EGAMCOM_caloFillRect35,
+#                                                              CaloFillRectangularTool_3x7  = EGAMCOM_caloFillRect37,
+#                                                              CaloFillRectangularTool_7x11  = EGAMCOM_caloFillRect711
+#                                                              )
+#ToolSvc += EGAM3_CellDecoratorTool
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
+EGAM3_GainDecoratorTool = GainDecorator()
+ToolSvc += EGAM3_GainDecoratorTool
 
 #================
 # THINNING
@@ -167,7 +151,8 @@ thinningTools=[]
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM3Kernel",
-                                                                       AugmentationTools = [EGAM3_EEMassTool,EGAM3_EEMassTool2,EGAM3_EEMassTool3,EGAM3_CellDecoratorTool], 
+                                                                       #AugmentationTools = [EGAM3_EEMassTool,EGAM3_EEMassTool2,EGAM3_EEMassTool3,EGAM3_CellDecoratorTool], 
+                                                                       AugmentationTools = [EGAM3_EEMassTool,EGAM3_EEMassTool2,EGAM3_EEMassTool3,EGAM3_GainDecoratorTool], 
                                                                        SkimmingTools = [EGAM3SkimmingTool],
                                                                        ThinningTools = thinningTools
                                                                        )
@@ -200,7 +185,7 @@ from DerivationFrameworkEGamma.EGAM3ExtraContent import *
 
 EGAM3SlimmingHelper = SlimmingHelper("EGAM3SlimmingHelper")
 EGAM3SlimmingHelper.SmartCollections = ["Electrons",
-#                                       "Photons",
+                                        "Photons",
                                         "Muons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
@@ -209,18 +194,22 @@ EGAM3SlimmingHelper.SmartCollections = ["Electrons",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
+# Add egamma trigger objects
+EGAM3SlimmingHelper.IncludeEGammaTriggerContent = True
+
+# Extra variables
 EGAM3SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM3SlimmingHelper.AllVariables = ExtraContainersPhotons
+EGAM3SlimmingHelper.AllVariables += ExtraContainersTrigger
+if globalflags.DataSource()!='geant4':
+    EGAM3SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM3SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM3SlimmingHelper.AllVariables += ExtraContainersTruth
 
+# This line must come after we have finished configuring EGAM3SlimmingHelper
 EGAM3SlimmingHelper.AppendContentToStream(EGAM3Stream)
-
-# Add EventShape info 
-EGAM3Stream.AddItem("xAOD::EventShape#*")
-EGAM3Stream.AddItem("xAOD::EventShapeAuxInfo#*")
 
 # Add MET_RefFinalFix
 # JRC: COMMENTED TEMPORARILY
@@ -229,5 +218,3 @@ EGAM3Stream.AddItem("xAOD::EventShapeAuxInfo#*")
 # Add AODCellContainer (have to find how to keep only cells belonging to e/gamma objects)
 EGAM3Stream.AddItem("CaloCellContainer#AODCellContainer")
 
-# Add egamma trigger objects
-EGAM3Stream.IncludeEGammaTriggerContent = True

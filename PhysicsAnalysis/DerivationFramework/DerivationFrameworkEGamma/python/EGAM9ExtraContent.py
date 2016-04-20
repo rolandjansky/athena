@@ -1,6 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+
 #Content included in addition to the Smart Slimming Content
+
+ExtraContentElectrons=[]
 
 ExtraContentMuons=[
     "Muons.DFCommonGoodMuon",
@@ -13,7 +16,7 @@ ExtraContentMuons=[
     "Muons.etcone20",
     "Muons.etcone30",
     "Muons.etcone40"
-]
+    ]
 
 ExtraMuonsTruth=[
     "MuonTruthParticles.e",
@@ -24,21 +27,19 @@ ExtraMuonsTruth=[
     "MuonTruthParticles.pdgId",
     "MuonTruthParticles.truthOrigin",
     "MuonTruthParticles.truthType"
-]
+    ]
 
 ExtraContentPhotons=[
-]
-
-ExtraContentElectrons=[
-]
-
+    "Photons.DFCommonLoosePrime5",
+	]
+	
 ExtraContentPrimaryVertices=["PrimaryVertices.x.y.sumPt2"]
 
 ExtraPhotonsTruth=[
     "Photons.truthOrigin",
     "Photons.truthType",
     "Photons.truthParticleLink"
-]
+    ]
 
 ExtraContentGSFConversionVertices=[
 	"GSFConversionVertices.x",
@@ -52,24 +53,12 @@ ExtraContentGSFConversionVertices=[
 	"GSFConversionVertices.etaAtCalo",
 	"GSFConversionVertices.phiAtCalo",
 	"GSFConversionVertices.trackParticleLinks"
-]
+	]
 
-#cells = ("Cells5x5","Cells3x5","Cells3x7","Cells7x11")
-#layers_gains =  (	"_Lr0", "_Lr1", "_Lr2", "_Lr3",
-#					"_Lr0_LwG", "_Lr1_LwG", "_Lr2_LwG", "_Lr3_LwG",
-#					"_Lr0_LwG", "_Lr1_MdG", "_Lr2_MdG", "_Lr3_MdG",
-#					"_Lr0_LwG", "_Lr1_HiG", "_Lr2_HiG", "_Lr3_HiG" )
-#
-#for cell in cells:
-#	ExtraContentPhotons.append("Photons."+cell)
-#	for layer in layers_gains:
-#		ExtraContentPhotons.append("Photons."+cell+layer)
-#
-#for cell in cells:
-#	ExtraContentElectrons.append("Electrons."+cell)
-#	for layer in layers_gains:
-#		ExtraContentElectrons.append("Electrons."+cell+layer)
-#
+#ExtraContentHLTElectrons=[
+#        "HLT_xAOD__ElectronContainer_egamma_Electrons.e.pt.Rhad.Rhad1.e277.Reta.Rphi.weta2.f1.fracs1.wtots1.weta1.DeltaE.Eratio.caloClusterLinks"
+#]
+
 from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
 GainDecoratorTool = GainDecorator()
 ExtraContentPhotons.extend( getGainDecorations(GainDecoratorTool) )
@@ -85,12 +74,17 @@ ExtraContainersTruth=["TruthEvents",
 		      "egammaTruthParticles"
                       #,"BTagging_AntiKt4TruthWZ"
                       #,"AntiKt4TruthWZJets"
-                      ]
+		      ]
 
 ExtraContainersElectrons=["Electrons",
                           "GSFTrackParticles",
-                          "egammaClusters"
-                          ]
+                          "egammaClusters"]
+
+ExtraContainersPhotons=["Photons",
+                        "GSFTrackParticles",
+                        "egammaClusters"
+                        ]
+
 
 # for trigger studies
 ExtraContainersTrigger=[
@@ -117,5 +111,4 @@ ExtraContainersTriggerDataOnly=[
 	"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_IDTrig"
 	]
 
-#should probably slim electron/fwdelectrons/cluster collections and keep only relevant subset of variables..
-# no ForwardElectrons, InDetTrackParticlesForward, ForwardElectronClusters, CaloCalTopoCluster
+#should slim electron/fwdelectrons/cluster collections and keep only relevant subset of variables..

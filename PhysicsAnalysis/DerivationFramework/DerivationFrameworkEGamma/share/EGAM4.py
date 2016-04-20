@@ -64,16 +64,20 @@ thinningTools=[]
 # Cell sum decoration tool
 #====================================================================
 
-from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__CellDecorator
-EGAM4_CellDecoratorTool = DerivationFramework__CellDecorator( name                    = "EGAM4_CellDecoratorTool",
-                                                              SGKey_electrons         = "Electrons",
-                                                              SGKey_photons           = "Photons",
-                                                              CaloFillRectangularTool_5x5  = EGAMCOM_caloFillRect55,
-                                                              CaloFillRectangularTool_3x5  = EGAMCOM_caloFillRect35,
-                                                              CaloFillRectangularTool_3x7  = EGAMCOM_caloFillRect37,
-                                                              CaloFillRectangularTool_7x11  = EGAMCOM_caloFillRect711
-                                                              )
-ToolSvc += EGAM4_CellDecoratorTool
+#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CellDecorator
+#EGAM4_CellDecoratorTool = DerivationFramework__CellDecorator( name                    = "EGAM4_CellDecoratorTool",
+#                                                              SGKey_electrons         = "Electrons",
+#                                                              SGKey_photons           = "Photons",
+#                                                              CaloFillRectangularTool_5x5  = EGAMCOM_caloFillRect55,
+#                                                              CaloFillRectangularTool_3x5  = EGAMCOM_caloFillRect35,
+#                                                              CaloFillRectangularTool_3x7  = EGAMCOM_caloFillRect37,
+#                                                              CaloFillRectangularTool_7x11  = EGAMCOM_caloFillRect711
+#                                                              )
+#ToolSvc += EGAM4_CellDecoratorTool
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
+EGAM4_GainDecoratorTool = GainDecorator()
+ToolSvc += EGAM4_GainDecoratorTool
+
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -81,7 +85,8 @@ ToolSvc += EGAM4_CellDecoratorTool
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM4Kernel",
-                                                                       AugmentationTools = [EGAM4_MuMuMassTool,EGAM4_CellDecoratorTool],
+                                                                       #AugmentationTools = [EGAM4_MuMuMassTool,EGAM4_CellDecoratorTool],
+                                                                       AugmentationTools = [EGAM4_MuMuMassTool,EGAM4_GainDecoratorTool],
                                                                        SkimmingTools = [EGAM4SkimmingTool],
                                                                        ThinningTools = thinningTools
                                                                        )
@@ -114,7 +119,7 @@ from DerivationFrameworkEGamma.EGAM4ExtraContent import *
 
 EGAM4SlimmingHelper = SlimmingHelper("EGAM4SlimmingHelper")
 EGAM4SlimmingHelper.SmartCollections = ["Electrons",
-                                        #"Photons",
+                                        "Photons",
                                         "Muons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
@@ -123,18 +128,23 @@ EGAM4SlimmingHelper.SmartCollections = ["Electrons",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
+# Add egamma trigger objects
+EGAM4SlimmingHelper.IncludeEGammaTriggerContent = True
+EGAM4SlimmingHelper.IncludeMuonTriggerContent = True
+
+# Extra variables
 EGAM4SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM4SlimmingHelper.AllVariables = ExtraContainersPhotons
+EGAM4SlimmingHelper.AllVariables += ExtraContainersTrigger
+if globalflags.DataSource()!='geant4':
+    EGAM4SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM4SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM4SlimmingHelper.AllVariables += ExtraContainersTruth
 
+# This line must come after we have finished configuring EGAM4SlimmingHelper
 EGAM4SlimmingHelper.AppendContentToStream(EGAM4Stream)
-
-# Add EventShape
-EGAM4Stream.AddItem("xAOD::EventShape#*")
-EGAM4Stream.AddItem("xAOD::EventShapeAuxInfo#*")
 
 # Add MET_RefFinalFix
 # JRC: COMMENTED TEMPORARILY
@@ -142,6 +152,3 @@ EGAM4Stream.AddItem("xAOD::EventShapeAuxInfo#*")
 
 # Add AODCellContainer (have to find how to keep only cells belonging to e/gamma objects)
 EGAM4Stream.AddItem("CaloCellContainer#AODCellContainer")
-
-# Add egamma trigger objects
-EGAM4Stream.IncludeEGammaTriggerContent = True

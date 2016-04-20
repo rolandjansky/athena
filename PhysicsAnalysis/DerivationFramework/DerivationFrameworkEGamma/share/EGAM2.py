@@ -28,7 +28,7 @@ RecomputeElectronSelectors = True
 # author requirement not needed in Run2: forward electrons are in separate collection
 # and no tracking-based (soft-e) electron reconstruction is run
 # electronAuthorRequirement = '(Electrons.author==1 || Electrons.author==3)'
-electronPtRequirement = '(DFCommonElectrons_pt > 4.5*GeV)'
+electronPtRequirement = '(Electrons.pt > 4.5*GeV)'
 if RecomputeElectronSelectors :
     electronQualityRequirement = '(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium)'
 else :
@@ -47,12 +47,6 @@ EGAM2_JPSIEEMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM2_J
                                                                  Mass2Hypothesis = 0.511*MeV,
                                                                  Container1Name = "Electrons",
                                                                  Container2Name = "Electrons",
-                                                                 Pt1BranchName = "DFCommonElectrons_pt",
-                                                                 Eta1BranchName = "DFCommonElectrons_eta",
-                                                                 Phi1BranchName = "DFCommonElectrons_phi",
-                                                                 Pt2BranchName = "DFCommonElectrons_pt",
-                                                                 Eta2BranchName = "DFCommonElectrons_eta",
-                                                                 Phi2BranchName = "DFCommonElectrons_phi",
                                                                  CheckCharge = True,
                                                                  DoTransverseMass = False,
                                                                  MinDeltaR = 0.0)
@@ -63,17 +57,17 @@ print EGAM2_JPSIEEMassTool
 
 #====================================================================
 # Jpsi->ee selection based on Jpsi->e+cluster trigger, for low pT (7-20 GeV) central photons
-# Tag: 1 tight e, central, pT>5 GeV
-# Probe: 1 e, central, pT>5 GeV
+# Tag: 1 tight e, central, pT>4.5 GeV
+# Probe: 1 e, central, pT>4.5 GeV
 # OS+SS
 # 1<mee<6 GeV
 # dR>0.15
 #====================================================================
 if RecomputeElectronSelectors :
-    requirement_el_tag = '(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) && DFCommonElectrons_pt > 4.5*GeV'
+    requirement_el_tag = '(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) && Electrons.pt > 4.5*GeV'
 else :
-    requirement_el_tag = '(Electrons.Tight || Electrons.DFCommonElectronsLHTight) && DFCommonElectrons_pt > 4.5*GeV'
-requirement_el_probe = 'DFCommonElectrons_pt > 4.5*GeV'
+    requirement_el_tag = '(Electrons.Tight || Electrons.DFCommonElectronsLHTight) && Electrons.pt > 4.5*GeV'
+requirement_el_probe = 'Electrons.pt > 4.5*GeV'
 
 EGAM2_JPSIEEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM2_JPSIEEMassTool2",
                                                                   Object1Requirements = requirement_el_tag,
@@ -83,29 +77,37 @@ EGAM2_JPSIEEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM2_
                                                                   Mass2Hypothesis = 0.511*MeV,
                                                                   Container1Name = "Electrons",
                                                                   Container2Name = "Electrons",
-                                                                  Pt1BranchName = "DFCommonElectrons_pt",
-                                                                  Eta1BranchName = "DFCommonElectrons_eta",
-                                                                  Phi1BranchName = "DFCommonElectrons_phi",
-                                                                  Pt2BranchName = "DFCommonElectrons_pt",
-                                                                  Eta2BranchName = "DFCommonElectrons_eta",
-                                                                  Phi2BranchName = "DFCommonElectrons_phi",
                                                                   CheckCharge = False,
                                                                   DoTransverseMass = False,
                                                                   MinDeltaR = 0.15)
 ToolSvc += EGAM2_JPSIEEMassTool2
 print EGAM2_JPSIEEMassTool2
 
-
-# Skimming criteria
+# Skimming criteria (offline selection)
 expression_calib = '(count(EGAM2_DiElectronMass > 1.0*GeV && EGAM2_DiElectronMass < 5.0*GeV)>=1)'
 expression_TP = '(count(EGAM2_DiElectronMass2 > 1.0*GeV && EGAM2_DiElectronMass2 < 6.0*GeV)>=1)'
 expression = expression_calib + ' || ' + expression_TP
 #expression = expression_calib
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EGAM2SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM2SkimmingTool",
-                                                                 expression = expression)
-ToolSvc += EGAM2SkimmingTool
-print "EGAM2 skimming tool:", EGAM2SkimmingTool
+EGAM2_OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM2_OfflineSkimmingTool",
+                                                                        expression = expression)
+ToolSvc += EGAM2_OfflineSkimmingTool
+print "EGAM2 offline skimming tool:", EGAM2_OfflineSkimmingTool
+
+#====================================================================
+# trigger-based selection
+#====================================================================
+triggers=['HLT_e5_lhtight_e4_etcut_Jpsiee']
+triggers+=['HLT_e9_lhtight_e4_etcut_Jpsiee']
+triggers+=['HLT_e5_lhtight_e4_etcut']
+triggers+=['HLT_e9_lhtight_e4_etcut']
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+EGAM2_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "EGAM2_TriggerSkimmingTool", TriggerListOR = triggers)
+
+ToolSvc += EGAM2_TriggerSkimmingTool
+print "EGAM2 trigger skimming tool:", EGAM2_TriggerSkimmingTool
+
 
 
 #================
@@ -118,25 +120,32 @@ thinningTools=[]
 # Cell sum decoration tool
 #====================================================================
 
-from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__CellDecorator
-EGAM2_CellDecoratorTool = DerivationFramework__CellDecorator( name                    = "EGAM2_CellDecoratorTool",
-                                                              SGKey_electrons         = "Electrons",
-                                                              SGKey_photons           = "Photons",
-                                                              CaloFillRectangularTool_5x5  = EGAMCOM_caloFillRect55,
-                                                              CaloFillRectangularTool_3x5  = EGAMCOM_caloFillRect35,
-                                                              CaloFillRectangularTool_3x7  = EGAMCOM_caloFillRect37,
-                                                              CaloFillRectangularTool_7x11  = EGAMCOM_caloFillRect711
-                                                              )
-ToolSvc += EGAM2_CellDecoratorTool
+#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CellDecorator
+#EGAM2_CellDecoratorTool = DerivationFramework__CellDecorator( name                    = "EGAM2_CellDecoratorTool",
+#                                                              SGKey_electrons         = "Electrons",
+#                                                              SGKey_photons           = "Photons",
+#                                                              CaloFillRectangularTool_5x5  = EGAMCOM_caloFillRect55,
+#                                                              CaloFillRectangularTool_3x5  = EGAMCOM_caloFillRect35,
+#                                                              CaloFillRectangularTool_3x7  = EGAMCOM_caloFillRect37,
+#                                                              CaloFillRectangularTool_7x11  = EGAMCOM_caloFillRect711
+#                                                              )
+#ToolSvc += EGAM2_CellDecoratorTool
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
+EGAM2_GainDecoratorTool = GainDecorator()
+ToolSvc += EGAM2_GainDecoratorTool
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+EGAM2_SkimmingTool = DerivationFramework__FilterCombinationOR(name="EGAM2SkimmingTool", FilterList=[EGAM2_OfflineSkimmingTool,EGAM2_TriggerSkimmingTool] )
+ToolSvc+=EGAM2_SkimmingTool
+
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM2Kernel",
-                                                                       AugmentationTools = [EGAM2_JPSIEEMassTool,EGAM2_JPSIEEMassTool2,EGAM2_CellDecoratorTool],
-                                                                       SkimmingTools = [EGAM2SkimmingTool]
+                                                                       AugmentationTools = [EGAM2_JPSIEEMassTool,EGAM2_JPSIEEMassTool2,EGAM2_GainDecoratorTool],
+                                                                       SkimmingTools = [EGAM2_SkimmingTool]
                                                                        )
 
 
@@ -169,7 +178,7 @@ EGAM2SlimmingHelper = SlimmingHelper("EGAM2SlimmingHelper")
 
 from DerivationFrameworkEGamma.EGAM2ExtraContent import *
 EGAM2SlimmingHelper.SmartCollections = [
-				        #"Electrons",
+				        "Electrons",
                                         "Photons",
 					"Muons",
                                         "TauJets",
@@ -180,22 +189,23 @@ EGAM2SlimmingHelper.SmartCollections = [
                                         "PrimaryVertices" ]
 # muons, tau, MET, b-tagging could be switched off if not needed and use too much space
 
+# Add egamma trigger objects
+EGAM2SlimmingHelper.IncludeEGammaTriggerContent = True
+
+# Extra variables
 EGAM2SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM2SlimmingHelper.AllVariables = ExtraContainersElectrons
+EGAM2SlimmingHelper.AllVariables += ExtraContainersTrigger
+if globalflags.DataSource()!='geant4':
+    EGAM2SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM2SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM2SlimmingHelper.AllVariables += ExtraContainersTruth
 
+# This line must come after we have finished configuring EGAM2SlimmingHelper
 EGAM2SlimmingHelper.AppendContentToStream(EGAM2Stream)
-
-# Add EventShape info 
-EGAM2Stream.AddItem("xAOD::EventShape#*")
-EGAM2Stream.AddItem("xAOD::EventShapeAuxInfo#*")
 
 # Add MET_RefFinalFix
 # JRC: COMMENTED TEMPORARILY
 #addMETOutputs(EGAM2Stream)
-
-# Add egamma trigger objects
-EGAM2Stream.IncludeEGammaTriggerContent = True
