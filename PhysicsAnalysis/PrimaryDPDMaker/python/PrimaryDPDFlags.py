@@ -150,6 +150,19 @@ class WriteAllcellsStream(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteAllcellsStream)
 listESDtoDPD.append(WriteAllcellsStream.StreamName)
 
+class WriteIDALIGNStream(JobProperty):
+    """ Produce the primary DPD AllCells DPD."""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDESDM_IDALIGN"
+    FileName     = ""
+    isVirtual    = False
+    DPDMakerScript = "PrimaryDPDMaker/DESDM_IDALIGN.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteIDALIGNStream)
+listESDtoDPD.append(WriteIDALIGNStream.StreamName)
+
 class WriteDESDM_EGAMMAStream(JobProperty):
     """ Produce the primary DPD EGamma DPD."""
     statusOn     = True
@@ -408,18 +421,18 @@ class WriteDAOD_IDTRKLUMIStream(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_IDTRKLUMIStream)
 listESDtoDPD.append(WriteDAOD_IDTRKLUMIStream.StreamName)
 
-class WriteDAOD_IDLUMIStream(JobProperty):
-    """ Produce the DPD for DAOD_IDLUMI - AOD with PrepRawData """
+class WriteDAOD_IDPIXLUMIStream(JobProperty):
+    """ Produce the DPD for DAOD_IDPIXLUMI - AOD with PrepRawData """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
-    StreamName   = "StreamDAOD_IDLUMI"
+    StreamName   = "StreamDAOD_IDPIXLUMI"
     FileName     = ""
     isVirtual      = False
-    DPDMakerScript = "PrimaryDPDMaker/DAOD_IDLUMI.py"
+    DPDMakerScript = "PrimaryDPDMaker/DAOD_IDPIXLUMI.py"
     pass
-jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_IDLUMIStream)
-listESDtoDPD.append(WriteDAOD_IDLUMIStream.StreamName)
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_IDPIXLUMIStream)
+listESDtoDPD.append(WriteDAOD_IDPIXLUMIStream.StreamName)
 
 
 class WriteDAOD_L1CALO1(JobProperty):
