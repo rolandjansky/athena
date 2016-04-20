@@ -7,7 +7,7 @@
 ##
 ##------------------------------------------
 # get defaults
-from TrigTauHypo.TrigTauHypoBase import*
+from TrigTauHypo.TrigTauHypoBase import *
 from TrigTauHypo.TrigTauHypoMonitoring \
      import setHLTVertexPreselMonTools, setTauEFDiKaonMonTools, setTauEFMVMonTools, setTauT2CoreMonTools, setTauT2IsoMonTools, setHadCalibEFMonTools
 
@@ -115,10 +115,6 @@ thresholds = {
     100:[80000.0, 0.8000]   
     }
 
-hypos.update(dict([ ('l2calo_tau%d_loose1'%t, T2CaloTauHypo('T2CaloTauHypo_tau%d_loose1'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-
-
 thresholds = {
     20: [ 15199.0, 0.7485],
     29: [ 20696.0, 0.7755],
@@ -128,21 +124,12 @@ thresholds = {
     125:[109233.0, 0.8790]
     }
 
-hypos.update(dict([ ('l2calo_tau%d_medium'%t, T2CaloTauHypo('T2CaloTauHypo_tau%d_medium'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-
-hypos.update(dict([ ('l2calo_tau%d_medium1'%t, T2CaloTauHypo('T2CaloTauHypo_tau%d_medium1'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-
 thresholds = {
     18: [ 10199.0, 0.7485],
     20: [ 10199.0, 0.7485],
     27: [ 15696.0, 0.7755],
     29: [ 15696.0, 0.7755],
     }
-
-hypos.update(dict([ ('l2calo_tau%d_medium1_L2loose'%t, T2CaloTauHypo('T2CaloTauHypo_tau%d_medium1_L2loose'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
 
 thresholds = {
     18: [ 14000.0, 0.758],
@@ -151,19 +138,11 @@ thresholds = {
     29: [ 20000.0, 0.757],
     }
 
-hypos.update(dict([ ('l2calo_tau%d_loose2'%t, T2CaloTauHypo('T2CaloTauHypo_tau%d_loose2'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-
 thresholds = {
     18: [ 13000.0, 0.79],
     20: [ 13000.0, 0.79],
     27: [ 18000.0, 0.789],
     }
-
-hypos.update(dict([ ('l2calo_tau%d_loose3'%t, T2CaloTauHypo('T2CaloTauHypo_tau%d_loose3'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-
-
 
 
 #################
@@ -178,8 +157,6 @@ thresholds = {
     70: [4, 0.002, 0.002],
     100:[4, 0.002, 0.002]    
     }
-hypos.update(dict([ ('l2id_tau%d_loose1'%t, T2IDTauHypo('T2IDTauHypo_tau%d_loose1'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
 
 thresholds = {
     20: [7, 0.001, 0.099],
@@ -189,8 +166,6 @@ thresholds = {
     115:[7, 0.001, 0.001],
     125:[7, 0.001, 0.001]
     }
-hypos.update(dict([ ('l2id_tau%d_medium'%t, T2IDTauHypo('T2IDTauHypo_tau%d_medium'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
 
 thresholds = {
     20: [4, 0.001, 0.099],
@@ -201,18 +176,12 @@ thresholds = {
     125:[4, 0.001, 0.001]
     }
 
-hypos.update(dict([ ('l2id_tau%d_medium1'%t, T2IDTauHypo('T2IDTauHypo_tau%d_medium1'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-
 thresholds = {
     18: [4, 0.001, 0.099],
     20: [4, 0.001, 0.099],
     27: [4, 0.001, 0.001],
     29: [4, 0.001, 0.001],
     }
-
-hypos.update(dict([ ('l2id_tau%d_medium1_L2loose'%t, T2IDTauHypo('T2IDTauHypo_tau%d_medium1_L2loose'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
 
 thresholds = {
     18: [4, 0.119, 0.214],
@@ -221,16 +190,11 @@ thresholds = {
     29: [4, 0.103, 0.201]
     }
 
-hypos.update(dict([ ('l2id_tau%d_loose2'%t, T2IDTauHypo('T2IDTauHypo_tau%d_loose2'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-
 thresholds = {
     18: [4, 0.001, 0.13],
     20: [4, 0.001, 0.13],
     27: [4, 0.001, 0.117],
     }
-hypos.update(dict([ ('l2id_tau%d_loose3'%t, T2IDTauHypo('T2IDTauHypo_tau%d_loose3'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
 
 ###############
 ## T2Tau Hypos:
@@ -245,10 +209,6 @@ thresholds={
     100:[999.99, 999.99, 999.99, 999.99]
     }
 
-hypos.update(dict([ ('l2_tau%d_loose1'%t, T2TauHypo('T2TauHypo_tau%d_loose1'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-
-
 thresholds={
     20: [  8.84, 2.84, 0.105, 0.073],
     29: [  9.72, 2.92, 0.086, 0.062],
@@ -258,21 +218,12 @@ thresholds={
     125:[999.99, 4.38, 0.057, 0.053]
     }
 
-hypos.update(dict([ ('l2_tau%d_medium'%t, T2TauHypo('T2TauHypo_tau%d_medium'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-
-hypos.update(dict([ ('l2_tau%d_medium1'%t, T2TauHypo('T2TauHypo_tau%d_medium1'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-
 thresholds={    
     18: [  8.84, 2.84, 0.105, 0.073],
     20: [  8.84, 2.84, 0.105, 0.073],
     29: [  9.72, 2.92, 0.086, 0.062],
     27: [  9.72, 2.92, 0.086, 0.062],
     }
-
-hypos.update(dict([ ('l2_tau%d_medium1_L2loose'%t, T2TauHypo('T2TauHypo_tau%d_medium1_L2loose'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
 
 thresholds={    
     18: [  10.68, 4.57, 0.1478, 0.0808],
@@ -281,18 +232,11 @@ thresholds={
     29: [  10.99, 4.62, 0.1382, 0.079]
     }
 
-hypos.update(dict([ ('l2_tau%d_loose2'%t, T2TauHypo('T2TauHypo_tau%d_loose2'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-
 thresholds={    
     18: [  12.06, 3.64, 0.1188, 0.07],
     20: [  12.06, 3.64, 0.1188, 0.07],
     27: [  12.45, 3.67, 0.1112, 0.0682],
     }
-
-hypos.update(dict([ ('l2_tau%d_loose3'%t, T2TauHypo('T2TauHypo_tau%d_loose3'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-
 
 
 ##################
@@ -306,9 +250,6 @@ thresholds = {
     70:  [3,   70.0*GeV, -1111],
     100: [3,  100.0*GeV, -1111]   
     }
-hypos.update(dict([ ('ef_tau%d_loose1'%t,
-                     EFTauMVHypo('EFTauMVHypo_tau%d_loose1'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
 
 thresholds = {
     20: [6,  20.0*GeV, 1],
@@ -318,9 +259,6 @@ thresholds = {
     115:[6, 115.0*GeV, 1],
     125:[6, 125.0*GeV, 1]
     }
-hypos.update(dict([ ('ef_tau%d_medium'%t,
-                     EFTauMVHypo('EFTauMVHypo_tau%d_medium'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
 
 thresholds = {
     20: [3,  20.0*GeV, 2],
@@ -330,9 +268,6 @@ thresholds = {
     115:[3, 115.0*GeV, 2],
     125:[3, 125.0*GeV, 2]
     }
-hypos.update(dict([ ('ef_tau%d_medium1'%t,
-                     EFTauMVHypo('EFTauMVHypo_tau%d_medium1'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
 
 thresholds = {
     20: [3,  20.0*GeV, 3],
@@ -342,9 +277,6 @@ thresholds = {
     115:[3, 115.0*GeV, 3],
     125:[3, 125.0*GeV, 3]
     }
-hypos.update(dict([ ('ef_tau%d_tight1'%t,
-                     EFTauMVHypo('EFTauMVHypo_tau%d_tight1'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
 
 thresholds={
     18: [3,  18.0*GeV, 2],
@@ -352,9 +284,6 @@ thresholds={
     27: [3,  27.0*GeV, 2],
     29: [3,  29.0*GeV, 2],
     }
-hypos.update(dict([ ('ef_tau%d_medium1_L2loose'%t,
-                     EFTauMVHypo('EFTauMVHypo_tau%d_medium1_L2loose'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
 
 thresholds={
     18: [3,  18.0*GeV, 1],
@@ -362,19 +291,12 @@ thresholds={
     27: [3,  27.0*GeV, 1],
     29: [3,  29.0*GeV, 1],
     }
-hypos.update(dict([ ('ef_tau%d_loose2'%t,
-                     EFTauMVHypo('EFTauMVHypo_tau%d_loose2'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
 
 thresholds = {
     18: [3,  18.0*GeV, 2],
     20: [3,  20.0*GeV, 2],
     27: [3,  27.0*GeV, 2],
     }
-hypos.update(dict([ ('ef_tau%d_loose3'%t,
-                     EFTauMVHypo('EFTauMVHypo_tau%d_loose1'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-
 
 variables = ['NTrackMax', 'EtCalibMin', 'Level', 'Method']
 thresholds = {
@@ -385,9 +307,6 @@ thresholds = {
     115:[6, 115.0*GeV, 1, 1],
     125:[6, 125.0*GeV, 1, 1]
     }
-hypos.update(dict([ ('ef_tau%d_medium_llh'%t,
-                     EFTauMVHypo('EFTauMVHypo_tau%d_medium_LLH'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
 
 thresholds={
     20: [3,  20.0*GeV, 2, 1],
@@ -397,9 +316,6 @@ thresholds={
     115:[3, 115.0*GeV, 2, 1],
     125:[3, 125.0*GeV, 2, 1]
     }
-hypos.update(dict([ ('ef_tau%d_medium1_llh'%t,
-                     EFTauMVHypo('EFTauMVHypo_tau%d_medium1_LLH'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
 
 thresholds={
     20: [3,  20.0*GeV, 3, 1],
@@ -409,46 +325,10 @@ thresholds={
     115:[3, 115.0*GeV, 3, 1],
     125:[3, 125.0*GeV, 3, 1]
     }
-hypos.update(dict([ ('ef_tau%d_tight1_llh'%t,
-                     EFTauMVHypo('EFTauMVHypo_tau%d_tight1_LLH'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
 
 ############
 # Others
 ############
-## tauConfig_tauNoCut_MV
-hypos.update( { 'l2calo_tauNoCut': T2CaloTauHypo_tauNoCut('T2CaloTauHypo_tauNoCut') } )
-hypos.update( { 'l2id_tauNoCut'  : T2IDTauHypo_tauNoCut('T2IDTauHypo_tauNoCut')     } )
-hypos.update( { 'l2_tauNoCut'    : T2TauHypo_tauNoCut('T2TauHypo_tauNoCut')         } )
-hypos.update( { 'ef_tauNoCut'    : EFTauMVHypo_tauNoCut('EFTauMVHypo_tauNoCut')     } )
-
-
-## tauConfig_tau29_medium_2stTest
-hypos.update( { 'l2calo_tau29_medium_2stTest' :
-                T2CaloTauHypo('T2CaloTauHypo_tau29_medium_2stTest',
-                              ['EtRawMin','CoreFractionMin'],
-                              [20696.0, 0.7755]) } )
-
-hypos.update( { 'l2idcore_tau29_medium_2stTest':
-                T2IDCoreTauHypo_tau29_medium_2stTest('T2IDCoreTauHypo_tau29_medium_2stTest',
-                                                     ['NTrkMin', 'NTrkMax','LdTrkPtMin'],
-                                                     [1, 7, -9999.9*GeV] ) } )
-
-hypos.update( { 'l2idiso_tau29_medium_2stTest':
-                T2IDIsoTauHypo_tau29_medium_2stTest('T2IDIsoTauHypo_tau29_medium_2stTest',
-                                                    ['SumPtRatioMax1P', 'SumPtRatioMaxMP'],
-                                                    [0.001, 0.001] ) } )
-
-hypos.update( { 'l2_tau29_medium_2stTest':
-                T2TauHypo('T2TauHypo_tau29_medium_2stTest',
-                          ['EtOverPtLeadTrkMax1P', 'EtOverPtLeadTrkMaxMP', 'TrkAvgDistMax1P', 'TrkAvgDistMaxMP'],
-                          [9.72, 2.92, 0.086, 0.062] ) } )
-
-hypos.update( { 'ef_tau29_medium_2stTest':
-                EFTauMVHypo('EFTauMVHypo_tau29_medium_2stTest',
-                            ['NTrackMin', 'NTrackMax', 'EtCalibMin', 'Level'],
-                            [1, 6, 29.0*GeV, 1]) } )
-
 
 ## _calo chains for IDTrkNoCut
 variables=['EtRawMin','CoreFractionMin']
@@ -456,22 +336,12 @@ thresholds = {
     29: [ 20696.0, 0.7755],
     125:[109233.0, 0.8790]
     }
-hypos.update(dict([ ('l2calo_tau%d_calo'%t, T2CaloTauHypo('T2CaloTauHypo_tau%d_calo'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-
 
 variables=['NTrkMin','NTrkMax']
 thresholds = {
     29: [0,99],   
     125:[0,99]
     }
-hypos.update(dict([ ('l2id_tau%d_calo'%t, T2IDTauHypo('T2IDTauHypo_tau%d_calo'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-
-
-hypos.update(dict([ ('l2_tau%d_calo'%t, T2TauHypo('T2TauHypo_tau%d_calo'%t))
-                    for t in [29, 125] ]))
-
 
 ## trk_id
 variables = ['NTrkMax','LdTrkPtMin','SumPtRatioMax']
@@ -479,9 +349,6 @@ thresholds = {
     9: [1,  9.*GeV, 0.1],
     18:[1, 18.*GeV, 0.1]
     }
-hypos.update(dict([ ('l2id_trk%d_id'%t, T2IDTauHypo('T2IDTauHypo_trk%d_id'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-
 
 ## EFHadCalib hc
 variables  = ['CutOnPtHT','CutOnIsolationDeltaR',"CutminSCTHitsHT","CutminPixHitsHT","CutmaxD0HT","CutmaxZ0HT","CutOnEtaHT"]
@@ -490,9 +357,4 @@ thresholds = {
     9: [ 9.*GeV, 0.4,6,1,1.5,1.5,2.5],
     18:[18.*GeV, 0.4,6,1,1.5,1.5,2.5]
     }
-hypos.update(dict([ ('ef_hadCalibHypo_trk%d'%t, EFHadCalibHypo('EFHadCalibHypo_trk%d'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-hypos.update(dict([ ('ef_hadCalibHypo_trk%d_L1HA8'%t, EFHadCalibHypo('EFHadCalibHypo_trk%d_L1HA8'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
-hypos.update(dict([ ('ef_hadCalibHypo_trk%d_L1RD0'%t, EFHadCalibHypo('EFHadCalibHypo_trk%d_L1RD0'%t,variables,v))
-                    for t,v in thresholds.iteritems() ]))
+

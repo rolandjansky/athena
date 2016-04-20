@@ -41,7 +41,7 @@ class TrigTauHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         elif myName.find("EFTauInvHypo") > -1:
             cuts=['Input','has tau details','E_{T} calib','tk. number','EM radius', 'dr trk avg','Et ov leadPt', ' ', ' ', ' ', ' ', ' ', ' ']
 
-        elif (myName.find("tracktwo") > -1 or myName.find("loose1") > -1 or myName.find("medium1") > -1 or myName.find("tight1") > -1):
+        elif (myName.find("tracktwo") > -1 or myName.find("loose1") > -1 or myName.find("medium1") > -1 or myName.find("tight1") > -1 or myName.find("FTK") > -1):
             cuts=['Input','has tau details','E_{T} calib','tk. number','score cut', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
         elif (myName.find("dikaon") > -1 or myName.find("singlepion") > -1):
