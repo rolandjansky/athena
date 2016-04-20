@@ -1,0 +1,154 @@
+#********************************************************************
+# EGAM4.py
+# Z->mumugamma reduction for photon studies
+# reductionConf flag EGAM4 in Reco_tf.py
+# author: giovanni.marchiori@cern.ch
+#********************************************************************
+
+from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkInDet.InDetCommon import *
+from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkEGamma.EGammaCommon import *
+
+
+#====================================================================
+# SKIMMING TOOLS
+#====================================================================
+
+
+#====================================================================
+# mumugamma selection for photon studies, single & di-muon triggers
+# two opposite-sign muons, pT>15 GeV, |eta|<2.5, mmumu>40 GeV
+# gamma: reco, ET>10 GeV, |eta|<2.5
+#====================================================================
+
+requirement = 'Muons.pt>9.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonGoodMuon'
+
+from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGInvariantMassTool
+EGAM4_MuMuMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM4_MuMuMassTool",
+                                                               Object1Requirements = requirement,
+                                                               Object2Requirements = requirement,
+                                                               StoreGateEntryName = "EGAM4_DiMuonMass",
+                                                               Mass1Hypothesis = 105*MeV,
+                                                               Mass2Hypothesis = 105*MeV,
+                                                               Container1Name = "Muons",
+                                                               Container2Name = "Muons",
+                                                               CheckCharge = True,
+                                                               DoTransverseMass = False,
+                                                               MinDeltaR = 0.0)
+ToolSvc += EGAM4_MuMuMassTool
+print EGAM4_MuMuMassTool
+
+
+#====================================================================
+# SKIMMING TOOL
+#====================================================================
+
+expression = 'count(DFCommonPhotons_et>9.5*GeV)>=1 && count(EGAM4_DiMuonMass > 40.0*GeV)>=1'
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+EGAM4SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM4SkimmingTool",
+                                                                 expression = expression)
+ToolSvc += EGAM4SkimmingTool
+print "EGAM4 skimming tool:", EGAM4SkimmingTool
+
+
+#================
+# THINNING
+#================
+thinningTools=[]
+# TO BE ADDED
+
+#====================================================================
+# Cell sum decoration tool
+#====================================================================
+
+#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CellDecorator
+#EGAM4_CellDecoratorTool = DerivationFramework__CellDecorator( name                    = "EGAM4_CellDecoratorTool",
+#                                                              SGKey_electrons         = "Electrons",
+#                                                              SGKey_photons           = "Photons",
+#                                                              CaloFillRectangularTool_5x5  = EGAMCOM_caloFillRect55,
+#                                                              CaloFillRectangularTool_3x5  = EGAMCOM_caloFillRect35,
+#                                                              CaloFillRectangularTool_3x7  = EGAMCOM_caloFillRect37,
+#                                                              CaloFillRectangularTool_7x11  = EGAMCOM_caloFillRect711
+#                                                              )
+#ToolSvc += EGAM4_CellDecoratorTool
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
+EGAM4_GainDecoratorTool = GainDecorator()
+ToolSvc += EGAM4_GainDecoratorTool
+
+
+#=======================================
+# CREATE THE DERIVATION KERNEL ALGORITHM   
+#=======================================
+
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM4Kernel",
+                                                                       #AugmentationTools = [EGAM4_MuMuMassTool,EGAM4_CellDecoratorTool],
+                                                                       AugmentationTools = [EGAM4_MuMuMassTool,EGAM4_GainDecoratorTool],
+                                                                       SkimmingTools = [EGAM4SkimmingTool],
+                                                                       ThinningTools = thinningTools
+                                                                       )
+
+#====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EGAM4Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM4Stream )
+EGAM4Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+# Only events that pass the filters listed below are written out.
+# Name must match that of the kernel above
+# AcceptAlgs  = logical OR of filters
+# RequireAlgs = logical AND of filters
+EGAM4Stream.AcceptAlgs(["EGAM4Kernel"])
+
+#Special lines for thinning
+# Thinning service name must match the one passed to the thinning tools
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+svcMgr += createThinningSvc( svcName="EGAM4ThinningSvc", outStreams=[evtStream] )
+
+
+#====================================================================
+# CONTENT LIST  
+#====================================================================
+from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
+from DerivationFrameworkEGamma.EGAM4ExtraContent import *
+
+EGAM4SlimmingHelper = SlimmingHelper("EGAM4SlimmingHelper")
+EGAM4SlimmingHelper.SmartCollections = ["Electrons",
+                                        "Photons",
+                                        "Muons",
+                                        "TauJets",
+                                        "MET_Reference_AntiKt4EMTopo",
+                                        "AntiKt4EMTopoJets",
+                                        "BTagging_AntiKt4EMTopo",
+                                        "InDetTrackParticles",
+                                        "PrimaryVertices" ]
+
+# Add egamma trigger objects
+EGAM4SlimmingHelper.IncludeEGammaTriggerContent = True
+EGAM4SlimmingHelper.IncludeMuonTriggerContent = True
+
+# Extra variables
+EGAM4SlimmingHelper.ExtraVariables = ExtraContentAll
+EGAM4SlimmingHelper.AllVariables = ExtraContainersPhotons
+EGAM4SlimmingHelper.AllVariables += ExtraContainersTrigger
+if globalflags.DataSource()!='geant4':
+    EGAM4SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
+
+if globalflags.DataSource()=='geant4':
+    EGAM4SlimmingHelper.ExtraVariables += ExtraContentAllTruth
+    EGAM4SlimmingHelper.AllVariables += ExtraContainersTruth
+
+# This line must come after we have finished configuring EGAM4SlimmingHelper
+EGAM4SlimmingHelper.AppendContentToStream(EGAM4Stream)
+
+# Add MET_RefFinalFix
+# JRC: COMMENTED TEMPORARILY
+# addMETOutputs(EGAM4Stream)
+
+# Add AODCellContainer (have to find how to keep only cells belonging to e/gamma objects)
+EGAM4Stream.AddItem("CaloCellContainer#AODCellContainer")
