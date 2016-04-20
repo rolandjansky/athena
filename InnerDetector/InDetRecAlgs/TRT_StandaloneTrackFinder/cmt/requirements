@@ -8,14 +8,7 @@ use TrkParameters                TrkParameters-*               Tracking/TrkEvent
 #TRT segment to track tool
 use InDetRecToolInterfaces       InDetRecToolInterfaces-*      InnerDetector/InDetRecTools
 
-#use TrkPseudoMeasurementOnTrack  TrkPseudoMeasurementOnTrack-* Tracking/TrkEvent
-#use InDetIdentifier              InDetIdentifier-*             InnerDetector/InDetDetDescr
-#use InDetRIO_OnTrack             InDetRIO_OnTrack-*            InnerDetector/InDetRecEvent
-#use TrkToolInterfaces            TrkToolInterfaces-*           Tracking/TrkTools
-#use TrkExInterfaces              TrkExInterfaces-*             Tracking/TrkExtrapolation
-#use TrkFitterInterfaces          TrkFitterInterfaces-*         Tracking/TrkFitter
-#use MagFieldInterfaces           MagFieldInterfaces-*          MagneticField
-
+use CxxUtils           CxxUtils-*               Control
 use TrkEventPrimitives           TrkEventPrimitives-*          Tracking/TrkEvent
 
 public
@@ -25,6 +18,7 @@ use GaudiInterface               GaudiInterface-*              External
 use AthenaBaseComps              AthenaBaseComps-*             Control
 use TrkTrack                     TrkTrack-*                    Tracking/TrkEvent
 use TrkSegment                   TrkSegment-*                  Tracking/TrkEvent
+use StoreGate		    StoreGate-*               Control
 
 library TRT_StandaloneTrackFinder *.cxx components/*.cxx 
 apply_pattern component_library
