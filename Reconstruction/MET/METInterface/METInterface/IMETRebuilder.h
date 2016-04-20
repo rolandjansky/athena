@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// IMETRebuilder.h 
+// IMETRebuilder.h
 // Header file for interface IMETRebuilder
 //
 // This is the tool that rebuilds MET at analysis level
@@ -12,21 +12,21 @@
 //  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 //
 // Author: TJ Khoo
-/////////////////////////////////////////////////////////////////// 
-	
+///////////////////////////////////////////////////////////////////
+
 #ifndef METINTERFACE_IMETREBUILDER_H
 #define METINTERFACE_IMETREBUILDER_H
-	
+
 #include "AsgTools/IAsgTool.h"
 #include "xAODBase/IParticleContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETComponent.h"
 #include "xAODMissingET/MissingETComponentMap.h"
 #include "xAODJet/JetContainer.h"
-	
+
 class IMETRebuilder : virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(IMETRebuilder)
-	
+
   public:
 
   virtual StatusCode execute() = 0;
@@ -92,5 +92,5 @@ class IMETRebuilder : virtual public asg::IAsgTool {
   virtual StatusCode buildMETSum(const std::string& totalName,
 				 xAOD::MissingETContainer* metCont) = 0;
 };
-	
+
 #endif

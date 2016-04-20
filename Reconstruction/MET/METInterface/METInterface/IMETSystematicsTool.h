@@ -65,7 +65,7 @@ namespace met {
 
 }
 
-class IMETSystematicsTool : public virtual asg::IAsgTool
+class IMETSystematicsTool : virtual public  asg::IAsgTool
 {
   // Declare the interface that the class provides
   ASG_TOOL_INTERFACE( IMETSystematicsTool )
@@ -74,7 +74,7 @@ class IMETSystematicsTool : public virtual asg::IAsgTool
   virtual ~IMETSystematicsTool() {}
 
   //we don't inherit from CorrectionTool directly, but we are something close to that
-  virtual CP::CorrectionCode applyCorrection(xAOD::MissingET& met, 
+  virtual CP::CorrectionCode applyCorrection(xAOD::MissingET& met,
 					     const xAOD::MissingETAssociationMap * map=nullptr,
 					     const xAOD::JetContainer * jetCont = nullptr
 					     ) const = 0;
@@ -82,7 +82,7 @@ class IMETSystematicsTool : public virtual asg::IAsgTool
 					   const xAOD::MissingETAssociationMap * map=nullptr,
 					   const xAOD::JetContainer * jetCont = nullptr
 					   ) const = 0;
- 
+
   virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet & set) = 0;
   virtual CP::SystematicSet affectingSystematics() const = 0;
   virtual CP::SystematicSet recommendedSystematics() const = 0;
