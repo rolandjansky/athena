@@ -79,7 +79,7 @@ public:
                                    const xAOD::JetContainer* jets,
                                    const xAOD::MissingETContainer* metCoreCont,
                                    const xAOD::MissingETAssociationMap* map,
-                                   bool doJetJVF) = 0;
+                                   bool doJetJVT) = 0;
   // Version that doesn't return the uniques list
   virtual StatusCode rebuildJetMET(const std::string& metJetKey,
                                    const std::string& metSoftKey,
@@ -87,7 +87,7 @@ public:
                                    const xAOD::JetContainer* jets,
                                    const xAOD::MissingETContainer* metCoreCont,
                                    const xAOD::MissingETAssociationMap* map,
-                                   bool doJetJVF,
+                                   bool doJetJVT,
                                    std::vector<const xAOD::IParticle*>& uniques) = 0;
   // Version with two soft terms
   virtual StatusCode rebuildJetMET(const std::string& metJetKey,
@@ -97,7 +97,7 @@ public:
                                    const xAOD::JetContainer* jets,
                                    const xAOD::MissingETContainer* metCoreCont,
                                    const xAOD::MissingETAssociationMap* map,
-                                   bool doJetJVF,
+                                   bool doJetJVT,
                                    std::vector<const xAOD::IParticle*>& uniques) = 0;
   virtual StatusCode rebuildJetMET(const std::string& metJetKey,
                                    const std::string& softClusKey,
@@ -106,7 +106,7 @@ public:
                                    const xAOD::JetContainer* jets,
                                    const xAOD::MissingETContainer* metCoreCont,
                                    const xAOD::MissingETAssociationMap* map,
-                                   bool doJetJVF) = 0;
+                                   bool doJetJVT) = 0;
   // Full version receiving MET pointers
   virtual StatusCode rebuildJetMET(xAOD::MissingET* metJet,
                                    const xAOD::JetContainer* jets,
@@ -115,9 +115,10 @@ public:
                                    const xAOD::MissingET* coreSoftClus,
                                    xAOD::MissingET* metSoftTrk,
                                    const xAOD::MissingET* coreSoftTrk,
-                                   bool doJetJVF,
+                                   bool doJetJVT,
                                    std::vector<const xAOD::IParticle*>& uniques,
-                                   bool tracksForHardJets) = 0;
+                                   bool tracksForHardJets=false,
+				   std::vector<const xAOD::IParticle*>* softConst=0) = 0;
 
   // Convenience methods that creates MET terms internally
   virtual StatusCode rebuildTrackMET(const std::string& metJetKey,
@@ -126,7 +127,7 @@ public:
                                    const xAOD::JetContainer* jets,
                                    const xAOD::MissingETContainer* metCoreCont,
                                    const xAOD::MissingETAssociationMap* map,
-                                   bool doJetJVF) = 0;
+                                   bool doJetJVT) = 0;
   // Version that doesn't return the uniques list
   virtual StatusCode rebuildTrackMET(const std::string& metJetKey,
                                    const std::string& metSoftKey,
@@ -134,7 +135,7 @@ public:
                                    const xAOD::JetContainer* jets,
                                    const xAOD::MissingETContainer* metCoreCont,
                                    const xAOD::MissingETAssociationMap* map,
-                                   bool doJetJVF,
+                                   bool doJetJVT,
                                    std::vector<const xAOD::IParticle*>& uniques) = 0;
   // Full version receiving MET pointers
   virtual StatusCode rebuildTrackMET(xAOD::MissingET* metJet,
@@ -142,7 +143,7 @@ public:
                                    const xAOD::MissingETAssociationMap* map,
                                    xAOD::MissingET* metSoftTrk,
                                    const xAOD::MissingET* coreSoftTrk,
-                                   bool doJetJVF,
+                                   bool doJetJVT,
                                    std::vector<const xAOD::IParticle*>& uniques) = 0;
 
   ///////////////////////////////////////////////////////////////////
