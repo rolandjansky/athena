@@ -1,0 +1,48 @@
+diff -ur HepMCAnalysis-original/config.mk HepMCAnalysis/config.mk
+--- HepMCAnalysis-original/config.mk	2015-11-27 14:05:36.867053639 +0100
++++ HepMCAnalysis/config.mk	2015-11-27 14:46:04.317700672 +0100
+@@ -10,16 +10,15 @@
+ #              -I$(HepPDTdir)/include -I$(ROOTSYS)/include
+ INCLUDES    = $(INCLUDEH) $(INCLUDEF)
+ 
+-ROOTGLIBS   = `root-config --glibs`
+-ROOTCFLAGS  = `root-config --cflags` -Wno-long-long
++ROOTGLIBS   = `$(ROOTSYS)/bin/root-config --glibs`
++ROOTCFLAGS  = `$(ROOTSYS)/bin/root-config --cflags` -Wno-long-long
+ 
+-#CLHEP = -L$(CLHEPdir)/lib -lCLHEP    # causes problems in HepMCAnalysis_i interface!
+-CLHEPlib    = 
++CLHEPlib    = -L$(CLHEPdir)/lib -lCLHEP
+ 
+ # common libraries
+ HepPDTlib   = 
+ #HepPDTlib   = -L$(HepPDTdir)/lib -lHepPDT -lHepPID
+-HepMClib    = -L$(HepMCdir)/lib -lHepMC -lHepMCfio
++HepMClib    = -L$(HepMCdir)/lib -lHepMC
+ 
+ FastJetlib  = `$(FastJetdir)/bin/fastjet-config --libs --plugins=yes --rpath=no`
+ # output directories
+@@ -27,7 +26,7 @@
+ LIBDIR = lib
+ 
+ # C++/Fortran compiler and linker options
+-CXXFLAGS  = -pthread -pipe -ansi -fPIC -W -Wall -Wno-deprecated -Wno-empty-body 
++CXXFLAGS  = $(ROOTCFLAGS) -pthread -pipe -fPIC -W -Wall -Wno-deprecated -Wno-empty-body
+ FFLAGS    = -fno-second-underscore 
+ 
+ .SUFFIXES: .o .cc .f .exe
+Only in HepMCAnalysis: lib
+diff -ur HepMCAnalysis-original/src/baseAnalysis.cc HepMCAnalysis/src/baseAnalysis.cc
+--- HepMCAnalysis-original/src/baseAnalysis.cc	2015-11-27 14:05:36.822054242 +0100
++++ HepMCAnalysis/src/baseAnalysis.cc	2015-11-27 14:06:01.611650727 +0100
+@@ -281,8 +281,8 @@
+     double pe = (*p)->momentum().e();
+     
+       // remove garbage 
+-    if ( isnan( px ) || isnan( py ) || isnan( pz ) || isnan( pe ) || 
+-         isinf( px ) || isinf( py ) || isinf( pz ) || isinf( pe ) ) {
++    if ( std::isnan( px ) || std::isnan( py ) || std::isnan( pz ) || std::isnan( pe ) || 
++         std::isinf( px ) || std::isinf( py ) || std::isinf( pz ) || std::isinf( pe ) ) {
+       cout << "baseAnalysis: NaN (Not A Number) found in the event record! Particle will be skipped." << endl;
+       ++m_NanNum;
+       continue;

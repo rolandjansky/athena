@@ -27,7 +27,7 @@ macro tardir "/afs/cern.ch/sw/lcg/external/tarFiles/MCGeneratorsTarFiles"
 
 # chain of commands taken from LCGCMAKE build for LCG80:
 #  just issue make with few env variables set
-	
+
 action external_untar "(cd ../$(CMTCONFIG); tar xvfz $(tardir)/HepMCAnalysis-$(AtlasHepMCAnalysis_native_version).tgz )"
 
 action external_patch "(cd ../$(CMTCONFIG); patch -p0 < ../src/hepmcanalysis-00-03-04-14.patch )"
