@@ -13,7 +13,7 @@ if hasattr(runArgs, "preExec") and runArgs.preExec != 'NONE':
     for cmd in runArgs.preExec:
         exec(cmd)
 
-TileFrameLength=7
+#TileFrameLength=7
 
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.GlobalFlags  import globalflags
@@ -232,7 +232,7 @@ else:
 #   conddb.addFolder("","/LAR/ElecCalibOfl/AutoCorrs/AutoCorr"+"<dbConnection>"+InputDBConnection+"</dbConnection>")
 #   conddb.addOverride("/LAR/ElecCalibOfl/AutoCorrs/AutoCorr","")
 
-ServiceMgr.TileInfoLoader.filenameDeltaPhysicsSuffix="of2_Delta_Phys_7Samples"
+#ServiceMgr.TileInfoLoader.filenameDeltaPhysicsSuffix="of2_Delta_Phys_7Samples"
 
 # Post-include
 if hasattr(runArgs,"postInclude"):

@@ -8,7 +8,7 @@ BSFilterLog.info( str(runArgs) )
 if hasattr( runArgs, 'trfSubstepName'):
     if runArgs.trfSubstepName=="BSFilter" and hasattr(runArgs, 'InputLbnMapFile') and hasattr( runArgs, "triggerBit"):
         delattr(runArgs, 'InputLbnMapFile')
-        BSFilterLog.info( '**** Removed InputLbnMapFile argumnet: transformation run arguments are now...' )
+        BSFilterLog.info( '**** Removed InputLbnMapFile argument: transformation run arguments are now...' )
         BSFilterLog.info( str(runArgs) )
 
 #---------------------------
