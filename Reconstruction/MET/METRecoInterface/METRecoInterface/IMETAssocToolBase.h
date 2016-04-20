@@ -28,7 +28,7 @@ class IMETAssocToolBase : virtual public asg::IAsgTool {
   public:
 
   virtual StatusCode execute(xAOD::MissingETContainer*,xAOD::MissingETAssociationMap*) = 0;
-	
+  
 };
 	
 #endif
