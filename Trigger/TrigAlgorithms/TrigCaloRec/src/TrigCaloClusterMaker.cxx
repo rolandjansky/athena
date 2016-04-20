@@ -74,23 +74,18 @@ TrigCaloClusterMaker::TrigCaloClusterMaker(const std::string& name, ISvcLocator*
   // not needed since the key2key
   declareProperty("ClustersOutputName",m_clustersOutputName ="TriggerClusters");
 
-  declareMonitoredVariable("ClusterContainerSize", m_ClusterContainerSize);
-
-  declareMonitoredVariable("L2Eta",       m_L2Eta);
-  declareMonitoredVariable("L2Phi",       m_L2Phi);
+  // declare monitored variables
+  declareMonitoredVariable("container_size", m_container_size);
+  declareMonitoredVariable("algorithm_time", m_algorithm_time);
   
-  // for leading cluster
-  declareMonitoredVariable("containBadCells",       m_containBadCells);
-  declareMonitoredVariable("eneFracMax",     m_eneFracMax);
-  declareMonitoredVariable("clusterTime",    m_clusterTime);
-  
-  declareMonitoredStdContainer("Eta", m_Eta);
-  declareMonitoredStdContainer("Phi", m_Phi);
-  declareMonitoredStdContainer("Et",  m_Et);
-
-  declareMonitoredStdContainer("EtaEFvsL2",   m_EtaEFvsL2);
-  declareMonitoredStdContainer("PhiEFvsL2",   m_PhiEFvsL2);
-
+  declareMonitoredStdContainer("et",           m_et);
+  declareMonitoredStdContainer("eta",          m_eta);
+  declareMonitoredStdContainer("phi",          m_phi);
+  declareMonitoredStdContainer("clusterSize",  m_clusterSize);
+  declareMonitoredStdContainer("signalState",  m_signalState);
+  declareMonitoredStdContainer("size",         m_size);
+  declareMonitoredStdContainer("N_BAD_CELLS",  m_N_BAD_CELLS);
+  declareMonitoredStdContainer("ENG_FRAC_MAX", m_ENG_FRAC_MAX);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -187,23 +182,21 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
   if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << "in execute()" << endreq;
 
-  // Monitoring initialization...
-  m_ClusterContainerSize = 0.;
   bool isSW=false;
+  
+  // initialise monitored variables
+  m_container_size = 0;
+  m_algorithm_time = 0;
 
-  m_L2Eta=0.;
-  m_L2Phi=0.;
-  m_containBadCells=0;
-  m_clusterTime=0;
-  m_eneFracMax=0;
-  m_Eta.clear();
-  m_Phi.clear();
-  m_Et.clear();
-
-  m_EtaEFvsL2.clear();
-  m_PhiEFvsL2.clear();
-
-
+  m_et          .clear();
+  m_eta         .clear();
+  m_phi         .clear();  
+  m_clusterSize .clear();
+  m_signalState .clear();
+  m_size        .clear();
+  m_N_BAD_CELLS. clear();
+  m_ENG_FRAC_MAX.clear();
+    
   // Some debug output:
   if (msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "outputTE->getId(): " << outputTE->getId() << endreq;
@@ -232,9 +225,6 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
     msg() << MSG::DEBUG << " phi0 = "<< phi0 << endreq;
   }
 #endif
-
-  m_L2Eta = roiDescriptor->eta();
-  m_L2Phi = roiDescriptor->phi();
 
   // We now take care of the Cluster Making... 
 
@@ -382,23 +372,24 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
   }
 #endif
 
+  // fill monitored variables
   for (xAOD::CaloCluster* cl : *m_pCaloClusterContainer) {
-    m_Et.push_back(cl->et());
-    m_Eta.push_back(cl->eta());
-    m_Phi.push_back(cl->phi());
-    m_EtaEFvsL2.push_back(cl->eta()-m_L2Eta);
-    m_PhiEFvsL2.push_back(cl->phi()-m_L2Phi);    
-  }
-  
-  if( !m_pCaloClusterContainer->empty()) {
-    xAOD::CaloCluster* cl = m_pCaloClusterContainer->front();
-    double tmp = 0;
-    cl->retrieveMoment (xAOD::CaloCluster::N_BAD_CELLS, tmp);
-    m_containBadCells = tmp > 0;
-    m_clusterTime     = cl->time();
-    tmp = 0;
-    cl->retrieveMoment (xAOD::CaloCluster::ENG_FRAC_MAX, tmp);
-    m_eneFracMax = tmp;
+
+    m_et .push_back(cl->et() / 1000.0);
+    m_eta.push_back(cl->eta());
+    m_phi.push_back(cl->phi());
+    m_clusterSize.push_back(cl->clusterSize());
+    m_signalState.push_back(cl->signalState());
+    
+    CaloClusterCellLink* num_cell_links = cl->getCellLinks();
+    if(! num_cell_links) {
+    //m_size.push_back(0);
+    } else {
+      m_size.push_back(num_cell_links->size()); 
+    }
+    
+    m_N_BAD_CELLS .push_back(cl->getMomentValue(xAOD::CaloCluster::N_BAD_CELLS));
+    m_ENG_FRAC_MAX.push_back(cl->getMomentValue(xAOD::CaloCluster::ENG_FRAC_MAX));
   }
   
   if(msgLvl() <= MSG::DEBUG) {
@@ -416,11 +407,11 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
   std::stringstream strm; strm << roiDescriptor->roiId();
   m_pCaloClusterContainer->setROIAuthor(m_clustersOutputName + "_" + strm.str());
 #endif
-
+  
   // record and lock the Clusters Container with the new EDM helper... 
   bool status = CaloClusterStoreHelper::finalizeClusters( store(), m_pCaloClusterContainer,
                                                         clusterCollKey, msg());
-
+  
   if ( !status ) {  
     msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << clusterCollKey << "> failed" << endreq;
     return HLT::TOOL_FAILURE;
@@ -428,8 +419,7 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
     if(msgLvl() <= MSG::DEBUG)
       msg() << MSG::DEBUG << " REGTEST: Recorded the cluster container in the RoI " << endreq;
   }
-    
-
+  
   // Build the "uses" relation for the outputTE to the cell container
   std::string aliasKey = "";
   status = reAttachFeature(outputTE, m_pCaloClusterContainer, aliasKey, persKey );
@@ -440,8 +430,8 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
 	  << endreq;
     return HLT::NAV_ERROR;
   }
-
-  m_ClusterContainerSize = (float)m_pCaloClusterContainer->size();
+  
+  m_container_size = m_pCaloClusterContainer->size(); // fill monitored variable
   
   // get a pointer to caloclusterLink
   const CaloClusterCellLinkContainer* pCaloCellLinkContainer = 0;
@@ -460,7 +450,9 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
   // Time total TrigCaloClusterMaker execution time.
   if (timerSvc()){
     m_timer[0]->stop();
+    m_algorithm_time = m_timer[0]->elapsed(); // fill monitored variable
   }
+
 
   return HLT::OK; 
 }
