@@ -13,7 +13,7 @@ if hasattr(runArgs, "preExec") and runArgs.preExec != 'NONE':
     for cmd in runArgs.preExec:
         exec(cmd)
 
-TileFrameLength=7
+#TileFrameLength=7
 
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.GlobalFlags  import globalflags
@@ -205,9 +205,11 @@ ServiceMgr += getConfigurable(digitizationFlags.rndmSvc.get_Value())()
 digitizationFlags.rndmSeedList.addtoService()
 digitizationFlags.rndmSeedList.printSeeds()
 
-# Write Digitization MetaData
-from Digitization.DigitizationWriteMetaData import writeDigitizationMetadata
-writeDigitizationMetadata()
+# Write Digitization MetaData if WriteRDOFileMetaData is set to true in jO (false by default)
+if hasattr(runArgs,"WriteRDOFileMetaData"):
+    if runArgs.WriteRDOFileMetaData:
+        from Digitization.DigitizationWriteMetaData import writeDigitizationMetadata
+        writeDigitizationMetadata()
 
 #================================================================
 print "overlay_trf: final outStream = ", outStream
@@ -230,7 +232,7 @@ else:
 #   conddb.addFolder("","/LAR/ElecCalibOfl/AutoCorrs/AutoCorr"+"<dbConnection>"+InputDBConnection+"</dbConnection>")
 #   conddb.addOverride("/LAR/ElecCalibOfl/AutoCorrs/AutoCorr","")
 
-ServiceMgr.TileInfoLoader.filenameDeltaPhysicsSuffix="of2_Delta_Phys_7Samples"
+#ServiceMgr.TileInfoLoader.filenameDeltaPhysicsSuffix="of2_Delta_Phys_7Samples"
 
 # Post-include
 if hasattr(runArgs,"postInclude"):

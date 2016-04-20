@@ -44,8 +44,8 @@ print "RT OVERRIDE, for CONDBR2-BLKPA-2015-12"
 conddb.blockFolder("/MDT/T0BLOB")
 conddb.addFolderWithTag("MDT_OFL","/MDT/T0BLOB","MDTT0-RUN2-UPD4-15",force=True,forceData=True)
 
-alignData=True
-if alignData:
+if not "EOJT_alignMC" in globals():
+    print "EOJT_alignMC not found in globals(), so aligning ID to data conditions"
     conddb.blockFolder("/TRT/Align")
     conddb.addFolderWithTag("TRT_OFL","/TRT/Align","TRTAlign-RUN2-BLK-UPD4-10",force=True,forceData=True)
     conddb.blockFolder("/LAR/Align")
@@ -53,6 +53,7 @@ if alignData:
     conddb.blockFolder("/Indet/Align")
     conddb.addFolderWithTag("INDET_OFL","/Indet/Align","InDetAlign-RUN2-BLK-UPD4-13",force=True,forceData=True)
 else:
+    print "EOJT_alignMC found in globals(), so aligning ID to MC conditions"
     conddb.blockFolder("/TRT/Align")
     conddb.addFolderWithTag("TRT_OFL","/TRT/Align","TRTAlign_Nominal2",force=True,forceMC=True)
     conddb.blockFolder("/LAR/Align")

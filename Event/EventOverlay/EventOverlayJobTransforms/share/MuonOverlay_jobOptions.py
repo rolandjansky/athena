@@ -35,7 +35,7 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
     digitizationFlags.doMuonNoise=False #FIXME should not be setting jobproperties at this point in the configuration.
 
     if readBS:
-       include("MuonRecExample/MuonReadBS_jobOptions.py")
+       include("MuonCnvExample/MuonReadBS_jobOptions.py")
 
     if DetFlags.overlay.CSC_on():
         if readBS:

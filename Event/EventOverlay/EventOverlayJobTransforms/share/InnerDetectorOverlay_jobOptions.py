@@ -30,7 +30,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         indetovl.do_Pixel = True
         if readBS and isRealData:
            job.InDetPixelRawDataProvider.EvtStore = "OriginalEvent_SG"
-           ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "PixelRDO_Container/PixelRDOs" ]
+           #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "PixelRDO_Container/PixelRDOs" ]
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::PixelClusterContainer/PixelOnlineClusters" ]
     else:
         indetovl.do_Pixel = False
@@ -61,7 +61,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         indetovl.do_SCT = True
         if readBS and isRealData:
            job.InDetSCTRawDataProvider.EvtStore = "OriginalEvent_SG"
-           ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "SCT_RDO_Container/SCT_RDOs" ]
+           #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "SCT_RDO_Container/SCT_RDOs" ]
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::SCT_ClusterContainer/SCT_OnlineClusters" ]
     else:
         indetovl.do_SCT = False
@@ -77,7 +77,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         indetovl.do_TRT = True
         if readBS and isRealData:
            job.InDetTRTRawDataProvider.EvtStore = "OriginalEvent_SG"
-           ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TRT_RDO_Container/TRT_RDOs" ]
+           #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TRT_RDO_Container/TRT_RDOs" ]
   
            from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
            InDetTRTCalDbSvc = TRT_CalDbSvc()
