@@ -7,16 +7,11 @@
 ######################################################################
 
 from TrigTauHypo.TrigTauHypoConf import *
-from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
 
 # monitoring part, to disable set topOption TriggerFlags.enableMonitoring = []
 from TrigTauHypo.TrigTauHypoMonitoring \
-     import setTauMonTools, setTauT2IDMonTools, setTauT2TauMonTools, setTauEFMonTools, setHLTTrackPreselMonTools, setHLTCaloPreselMonTools
-
-from TriggerMenuPython.ChainTemplate import FreeStore
-
-hypos = FreeStore()
+     import setTauMonTools, setTauT2IDMonTools, setTauT2TauMonTools, setHLTTrackPreselMonTools, setHLTCaloPreselMonTools
 
 from TrigTauHypo.TrigTauHypoDefaults import *
 

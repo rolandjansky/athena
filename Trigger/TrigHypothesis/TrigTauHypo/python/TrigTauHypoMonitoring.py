@@ -24,34 +24,37 @@ class TrigTauHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
            myName=handle.getName()
 
         if myName.find("T2TauHypo") > -1:
-            cuts=['Input','EmRadius3S 1P', 'etOverPtLeadTrk','trkAvgDist']
+            cuts=['Input','EmRadius3S 1P', 'etOverPtLeadTrk','trkAvgDist', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
         elif myName.find("T2IDTauHypo") > -1:
-            cuts=['Input','has tracksInfo','nTrks','ldTrkPt','sumPtRatio']
+            cuts=['Input','has tracksInfo','nTrks','ldTrkPt','sumPtRatio', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
         elif myName.find("T2IDCoreTauHypo") > -1:
-            cuts=['Input','has tracksInfo','nTrks','leading tk. p_{T}']
+            cuts=['Input','has tracksInfo','nTrks','leading tk. p_{T}', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
         elif myName.find("T2IDIsoTauHypo") > -1:
-            cuts=['Input','has tracksInfo','sumPtRatio']
+            cuts=['Input','has tracksInfo','sumPtRatio', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
         elif myName.find("T2CaloTauHypo") > -1:
-            cuts=['Input','has TrigTauCluster vector','has exactly one TrigTauCluster','TrigTauCluster is ok','E_{T} Raw','EMRadius3S','Core Fraction' ]
+            cuts=['Input','has TrigTauCluster vector','has exactly one TrigTauCluster','TrigTauCluster is ok','E_{T} Raw','EMRadius3S','Core Fraction', ' ', ' ', ' ', ' ', ' ', ' ' ]
 
         elif myName.find("EFTauInvHypo") > -1:
-            cuts=['Input','has tau details','E_{T} calib','tk. number','EM radius', 'dr trk avg','Et ov leadPt']
+            cuts=['Input','has tau details','E_{T} calib','tk. number','EM radius', 'dr trk avg','Et ov leadPt', ' ', ' ', ' ', ' ', ' ', ' ']
 
-        elif myName.find("EFTauMVHypo") > -1:
-            cuts=['Input','has tau details','E_{T} calib','tk. number','score cut']
+        elif (myName.find("tracktwo") > -1 or myName.find("loose1") > -1 or myName.find("medium1") > -1 or myName.find("tight1") > -1 or myName.find("FTK") > -1):
+            cuts=['Input','has tau details','E_{T} calib','tk. number','score cut', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
-        elif myName.find("EFTauDiKaonHypo") > -1:
-            cuts=['Input','E_{T} calib','tk. number','lead tr pt','massTrkSys','EMPOverTrkSysP']
+        elif (myName.find("dikaon") > -1 or myName.find("singlepion") > -1):
+            cuts=['Input','E_{T} calib','tk. number','lead tr pt','massTrkSys','massTrkSysKaon','EMPOverTrkSysP', 'etOverPtLeadTrk', 'dRmax', ' ', ' ', ' ', ' ']
+
+        elif myName.find("ditau") > -1:
+            cuts=['Input','good vtx/trk', 'match', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
         elif myName.find("HLTCaloTauHypo") > -1:
-            cuts=['Input', 'E_{T} calib', 'Calo Cuts']
+            cuts=['Input', 'E_{T} calib', 'Calo Cuts', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
         elif myName.find("HLTTrackTauHypo") > -1:
-            cuts=['Input', 'Track Cuts']
+            cuts=['Input', 'Track Cuts', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
         else:
             cuts=[]
@@ -62,7 +65,9 @@ class TrigTauHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
             labelsDescription +=  c+':'
 
         if hasattr( handle, 'Histograms' ) and not 'CutCounter' in handle.Histograms:
-           handle.Histograms += [ defineHistogram('CutCounter', type='TH1F', title=myName+" cut counter;cut; nevents", xbins=13, xmin=-0.5, xmax=12.5, opt="kCumulative", labels=labelsDescription) ]
+           handle.Histograms += [ defineHistogram('CutCounter', type='TH1F', title=myName+" cut counter;cut; nevents", xbins=13, xmin=-0.5, xmax=12.5,  
+           opt="kCumulative", 
+           labels=labelsDescription) ]
 
 ##########   Create instance for validation  - same as online here
 class TrigTauHypoValidationMonitoring(TrigTauHypoOnlineMonitoring):
@@ -293,22 +298,57 @@ class EFTauInvHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
         super(EFTauInvHypoOnlineMonitoring, self).__init__(name)
         self.defineTarget("Online")
 
+class EFTauInvHypoValidationMonitoring(TrigTauHypoValidationMonitoring):
+    def __init__ (self, name):
+        super(EFTauInvHypoValidationMonitoring, self).__init__(name)
+        self.defineTarget("Validation")
+
 class EFTauMVHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
     def __init__ (self, name):
         super(EFTauMVHypoOnlineMonitoring, self).__init__(name)
         self.defineTarget("Online")
+        
+        self.Histograms += [defineHistogram('EtCalib',type='TH1F',title='Tau Pt Passed', xbins=50, xmin=0.,xmax=100.)]
+        self.Histograms += [defineHistogram('NTrack',type='TH1F',title='Tau nTrack Passed', xbins=10, xmin=-0.5,xmax=9.5)]
+        self.Histograms += [defineHistogram('NWideTrack',type='TH1F',title='Tau nWideTrack Passed', xbins=10, xmin=-0.5,xmax=9.5)]
+
+class EFTauMVHypoValidationMonitoring(EFTauMVHypoOnlineMonitoring):
+    def __init__ (self, name):
+        super(EFTauMVHypoValidationMonitoring, self).__init__(name)
+        self.defineTarget("Validation")
 
 class EFTauDiKaonHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
     def __init__ (self, name):
         super(EFTauDiKaonHypoOnlineMonitoring, self).__init__(name)
         self.defineTarget("Online")
 
-class EFTauInvHypoValidationMonitoring(TrigTauHypoValidationMonitoring):
-    def __init__ (self, name):
-        super(EFTauInvHypoValidationMonitoring, self).__init__(name)
-        self.defineTarget("Validation")
-        
+        self.Histograms += [defineHistogram('EtCalib',type='TH1F',title='Tau Pt Passed', xbins=50, xmin=0.,xmax=100.)]
+        self.Histograms += [defineHistogram('NTrack',type='TH1F',title='Tau nTrack Passed', xbins=10, xmin=-0.5,xmax=9.5)]
+        self.Histograms += [defineHistogram('NWideTrack',type='TH1F',title='Tau nWideTrack Passed', xbins=10, xmin=-0.5,xmax=9.5)]
+        self.Histograms += [defineHistogram('MassTrkSys',type='TH1F',title='Tau massTrkSys Passed', xbins=50, xmin=0.,xmax=2000.)]
+        self.Histograms += [defineHistogram('MassTrkSysKaon',type='TH1F',title='Tau massTrkSysKaon Passed', xbins=50, xmin=0.,xmax=2000.)]
+        self.Histograms += [defineHistogram('LeadTrkPt',type='TH1F',title='Tau leadTrkPt Passed', xbins=50, xmin=0.,xmax=50000.)]
+        self.Histograms += [defineHistogram('DR',type='TH1F',title='Tau dRmax Passed', xbins=40, xmin=0.,xmax=0.4)]
+        self.Histograms += [defineHistogram('EtOverPtLeadTrk',type='TH1F',title='Tau etOverPtLeadTrk Passed', xbins=50, xmin=0.,xmax=5.)]
+        self.Histograms += [defineHistogram('EMOverTrkSysP',type='TH1F',title='Tau EMOverTrkSysP Passed', xbins=50, xmin=0.,xmax=5.)]  
 
+class EFTauDiKaonHypoValidationMonitoring(EFTauDiKaonHypoOnlineMonitoring):
+    def __init__ (self, name):
+        super(EFTauDiKaonHypoValidationMonitoring, self).__init__(name)
+        self.defineTarget("Validation")
+
+class HLTVertexPreselHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
+    def __init__ (self, name):
+        super(HLTVertexPreselHypoOnlineMonitoring, self).__init__(name)
+        self.defineTarget("Online")
+
+        self.Histograms += [defineHistogram('Z0DistanceAll',type='TH1F',title='Z0 distance All', xbins=50, xmin=0.,xmax=10.)]
+        self.Histograms += [defineHistogram('Z0DistanceAccepted',type='TH1F',title='Z0 distance Accepted', xbins=50, xmin=0.,xmax=10.)]
+
+class HLTVertexPreselHypoValidationMonitoring(HLTVertexPreselHypoOnlineMonitoring):
+    def __init__ (self, name):
+        super(HLTVertexPreselHypoValidationMonitoring, self).__init__(name)
+        self.defineTarget("Validation")
 
 ######################################################
 def setTauEFMonTools( algoObject ):
@@ -325,7 +365,47 @@ def setTauEFMonTools( algoObject ):
      
     algoObject.AthenaMonTools = [ time, onlTool, valTool ]
 
+def setTauEFMVMonTools( algoObject ):
+    algoName=algoObject.getName()
 
+    from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+    time = TrigTimeHistToolConfig(algoName+"Time")
+    time.TimerHistLimits = [0,3]
+
+    nameVal = algoName+"_Val"
+    nameOnl = algoName+"_Onl"
+    valTool = EFTauMVHypoValidationMonitoring(nameVal)
+    onlTool = EFTauMVHypoOnlineMonitoring(nameOnl)
+
+    algoObject.AthenaMonTools = [ time, onlTool, valTool]
+
+def setTauEFDiKaonMonTools( algoObject ):
+    algoName=algoObject.getName()
+
+    from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+    time = TrigTimeHistToolConfig(algoName+"Time")
+    time.TimerHistLimits = [0,3]
+
+    nameVal = algoName+"_Val"
+    nameOnl = algoName+"_Onl"
+    valTool = EFTauDiKaonHypoValidationMonitoring(nameVal)
+    onlTool = EFTauDiKaonHypoOnlineMonitoring(nameOnl)
+
+    algoObject.AthenaMonTools = [ time, onlTool, valTool]
+
+def setHLTVertexPreselMonTools( algoObject ):
+    algoName=algoObject.getName()
+
+    from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+    time = TrigTimeHistToolConfig(algoName+"Time")
+    time.TimerHistLimits = [0,3]
+
+    nameOnl = algoName+"_Onl"
+    nameVal = algoName+"_Val"
+    onlTool = HLTVertexPreselHypoOnlineMonitoring(nameOnl)
+    valTool = HLTVertexPreselHypoValidationMonitoring(nameVal)
+
+    algoObject.AthenaMonTools = [ time, onlTool, valTool]
 
     
 ######################################################
@@ -352,7 +432,9 @@ class HadCalibHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
 
 
         if hasattr( handle, 'Histograms' ) and not 'CutCounter' in handle.Histograms:
-           handle.Histograms += [ defineHistogram('CutCounter', type='TH1F', title=myName+" cut counter;cut; nevents", xbins=20, xmin=-0.5, xmax=19.5, opt="kCumulative", labels=labelsDescription) ]
+           handle.Histograms += [ defineHistogram('CutCounter', type='TH1F', title=myName+" cut counter;cut; nevents", xbins=8, xmin=-0.5, xmax=7.5, 
+           opt="kCumulative", 
+           labels=labelsDescription) ]
 
         if hasattr( handle, 'Histograms' ) and not 'nTracksInIso' in handle.Histograms:
            handle.Histograms  += [ defineHistogram('nTracksInIso', type='TH1F', title=myName+" Number of tracks in isolation cone;Number of tracks; nevents", xbins=10, xmin=-0.5, xmax=9.5) ]

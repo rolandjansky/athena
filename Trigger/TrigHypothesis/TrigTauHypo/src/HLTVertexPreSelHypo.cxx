@@ -28,6 +28,10 @@ HLTVertexPreSelHypo::HLTVertexPreSelHypo(const std::string& name, ISvcLocator* p
 	declareProperty("useLeadingTrackZ0", m_useLeadingTrackZ0 = true);
 	declareProperty("mustUseSameSource", m_mustUseSameSource = false);
 	declareProperty("acceptableZ0Distance", m_acceptableZ0Distance = 2);
+
+        declareMonitoredVariable("CutCounter",        	m_cutCounter=0);
+        declareMonitoredVariable("Z0DistanceAccepted",  m_Z0DistanceAccepted=-10.);
+	declareMonitoredVariable("Z0DistanceAll",  	m_Z0DistanceAll=-10.);
 }
 
 //Destructor
@@ -39,11 +43,13 @@ HLTVertexPreSelHypo::~HLTVertexPreSelHypo()
 HLT::ErrorCode HLTVertexPreSelHypo::hltInitialize()
 // ----------------------------------------------------------------------
 {
-	ATH_MSG_DEBUG("Initialising HLTVertexPreSelHypo");
-	ATH_MSG_DEBUG("AcceptableZ0Distance: " << m_acceptableZ0Distance);
-	ATH_MSG_DEBUG("useVertices: " << m_useVertices);
-	ATH_MSG_DEBUG("mustUseSameSource: " << m_mustUseSameSource);
-	ATH_MSG_DEBUG("useLeadingTrackZ0: " << m_useLeadingTrackZ0);
+
+	msg() << MSG::INFO << "in HLTVertexPreSelHypo initialize()" << endreq;
+        msg() << MSG::INFO << " REGTEST: HLTVertexPreSelHypo will cut on "<<endreq;
+        msg() << MSG::INFO << " REGTEST: param acceptableZ0Distance " << m_acceptableZ0Distance <<endreq;
+        msg() << MSG::INFO << " REGTEST: param useVertices " << m_useVertices <<endreq;
+        msg() << MSG::INFO << " REGTEST: param mustUseSameSource " << m_mustUseSameSource <<endreq;
+        msg() << MSG::INFO << " REGTEST: param useLeadingTrackZ0 " << m_useLeadingTrackZ0 <<endreq;
 	
 	return HLT::OK;
 }
@@ -61,6 +67,9 @@ HLT::ErrorCode HLTVertexPreSelHypo::hltExecute(const HLT::TriggerElement* inputT
 	float z0Jet1 = 0;
 	float z0Jet2 = 0;
 	
+	m_cutCounter = 0;
+	m_Z0DistanceAll = -10.;
+	m_Z0DistanceAccepted = -10.;
 	
 	//get trigger Elements to check
 	std::vector<HLT::TriggerElement*> triggerElementVector;
@@ -77,7 +86,7 @@ HLT::ErrorCode HLTVertexPreSelHypo::hltExecute(const HLT::TriggerElement* inputT
 	HLT::TriggerElement* triggerElement2 = triggerElementVector.at(1);
 	const xAOD::TauJetContainer* tauJetContainer(NULL);
 	status = getFeature(triggerElement1, tauJetContainer);
-	if(status != HLT::OK)
+	if(status != HLT::OK || tauJetContainer==NULL)
 	{
 		ATH_MSG_ERROR("No tauJetContainer found");
 		return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE);
@@ -91,7 +100,7 @@ HLT::ErrorCode HLTVertexPreSelHypo::hltExecute(const HLT::TriggerElement* inputT
 	const xAOD::TauJet* tauJet1 = tauJetContainer->back();
 	
 	status = getFeature(triggerElement2, tauJetContainer);
-	if(status != HLT::OK)
+	if(status != HLT::OK || tauJetContainer==NULL)
 	{
 		ATH_MSG_ERROR("No tauJetContainer found");
 		return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE);
@@ -103,7 +112,7 @@ HLT::ErrorCode HLTVertexPreSelHypo::hltExecute(const HLT::TriggerElement* inputT
 	}
 	//use last one added
 	const xAOD::TauJet* tauJet2 = tauJetContainer->back();
-	
+        m_cutCounter++;	
 	
 	//if using vertices try and use their information
 	const xAOD::Vertex* vertex1(NULL);
@@ -133,12 +142,13 @@ HLT::ErrorCode HLTVertexPreSelHypo::hltExecute(const HLT::TriggerElement* inputT
 		//compare the vertices
 		if(vertex1 != NULL && vertex2 != NULL)
 		{
-			
+			m_cutCounter++;
 			//assumes vertices come from the same source 
 			if(vertex1->z() == vertex2->z())
 			{
 				ATH_MSG_DEBUG("PASSED");
 				pass = true;
+				m_cutCounter++;
 			}
 			return HLT::OK;
 		}
@@ -171,12 +181,15 @@ HLT::ErrorCode HLTVertexPreSelHypo::hltExecute(const HLT::TriggerElement* inputT
 			z0Jet2 = findLeadingTrackZ0(numberOfTracks, tauJet2);
 		}
 		
-		
+		m_cutCounter++;
 		//compare
-		if(abs(z0Jet1 - z0Jet2) <= m_acceptableZ0Distance)
+		m_Z0DistanceAll = fabs(z0Jet1 - z0Jet2);
+		if(fabs(z0Jet1 - z0Jet2) <= m_acceptableZ0Distance)
 		{
 			ATH_MSG_DEBUG("PASSED");
 			pass = true;
+			m_cutCounter++;
+			m_Z0DistanceAccepted = m_Z0DistanceAll;
 		}
 		return HLT::OK;
 	}
@@ -195,10 +208,10 @@ float HLTVertexPreSelHypo::findLeadingTrackZ0(size_t numberOfTracks, const xAOD:
 	{
 		const xAOD::TrackParticle* currentTrack = tauJet->track(i);
 		ATH_MSG_DEBUG("Track " << (i + 1) << "  | pT: " << currentTrack->pt());
-		if(abs(currentTrack->pt()) > highestpT)
+		if(fabs(currentTrack->pt()) > highestpT)
 		{
 			leadingTrack = currentTrack;
-			highestpT = abs(currentTrack->pt());
+			highestpT = fabs(currentTrack->pt());
 		}
 	}
 	float z0 = leadingTrack->z0();

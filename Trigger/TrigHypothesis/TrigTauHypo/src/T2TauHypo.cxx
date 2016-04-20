@@ -160,20 +160,21 @@ HLT::ErrorCode T2TauHypo::hltExecute(const HLT::TriggerElement* inputTE, bool& p
     if ( status != HLT::OK || roiDescriptor == 0 ) {
       msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
       //return status;
-    }
-    
-    const EventInfo* pEventInfo;
-    //int IdRun=0;
-    int IdEvent=0;
-    if ( !store() || store()->retrieve(pEventInfo).isFailure() ) {
-      msg()  << MSG::DEBUG << "Failed to get EventInfo " << endreq;
     } else {
-      //IdRun   = pEventInfo->event_ID()->run_number();
-      IdEvent = pEventInfo->event_ID()->event_number();
-      msg() << MSG::DEBUG << "REGTEST: event : " << IdEvent << "/ RoI id : "
+    
+      const EventInfo* pEventInfo;
+      //int IdRun=0;
+      int IdEvent=0;
+      if ( !store() || store()->retrieve(pEventInfo).isFailure() ) {
+        msg()  << MSG::DEBUG << "Failed to get EventInfo " << endreq;
+      } else {
+        //IdRun   = pEventInfo->event_ID()->run_number();
+        IdEvent = pEventInfo->event_ID()->event_number();
+        msg() << MSG::DEBUG << "REGTEST: event : " << IdEvent << "/ RoI id : "
             << roiDescriptor->roiId() << "/ with LVL1 id :" << roiDescriptor->l1Id()
             << " / located at phi = " <<  roiDescriptor->phi()
             << ", eta = " << roiDescriptor->eta() << endreq;
+      }
     }
   }
   

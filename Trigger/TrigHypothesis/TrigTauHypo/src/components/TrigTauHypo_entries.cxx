@@ -19,6 +19,10 @@
 #include "TrigTauHypo/HLTTauCaloRoiUpdater.h"
 #include "TrigTauHypo/HLTVertexPreSelHypo.h"
 #include "TrigTauHypo/HLTVertexCombo.h"
+#include "TrigTauHypo/L2TauTopoFex.h"
+#include "TrigTauHypo/L2TauTopoHypo.h"
+#include "TrigTauHypo/EFTauTopoFex.h"
+#include "TrigTauHypo/EFTauTopoHypo.h"
 
 DECLARE_ALGORITHM_FACTORY( T2CaloTauHypo )
 DECLARE_ALGORITHM_FACTORY( T2IDTauHypo )
@@ -40,6 +44,10 @@ DECLARE_ALGORITHM_FACTORY( HLTTauTrackRoiUpdater )
 DECLARE_ALGORITHM_FACTORY( HLTTauCaloRoiUpdater )
 DECLARE_ALGORITHM_FACTORY( HLTVertexPreSelHypo )
 DECLARE_ALGORITHM_FACTORY( HLTVertexCombo )
+DECLARE_ALGORITHM_FACTORY( L2TauTopoFex )
+DECLARE_ALGORITHM_FACTORY( L2TauTopoHypo )
+DECLARE_ALGORITHM_FACTORY( EFTauTopoFex )
+DECLARE_ALGORITHM_FACTORY( EFTauTopoHypo )
 
 DECLARE_FACTORY_ENTRIES( TrigTauHypo ) {
   DECLARE_ALGORITHM( T2CaloTauHypo );
@@ -62,4 +70,8 @@ DECLARE_FACTORY_ENTRIES( TrigTauHypo ) {
   DECLARE_ALGORITHM( HLTTauCaloRoiUpdater );
   DECLARE_ALGORITHM( HLTVertexPreSelHypo );
   DECLARE_ALGORITHM( HLTVertexCombo );
+  DECLARE_ALGORITHM( L2TauTopoFex );
+  DECLARE_ALGORITHM( L2TauTopoHypo );
+  DECLARE_ALGORITHM( EFTauTopoFex );
+  DECLARE_ALGORITHM( EFTauTopoHypo );
 }
