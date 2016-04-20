@@ -272,7 +272,7 @@ StatusCode TrigL1TopoROBMonitor::beginRun() {
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimHdwStatComparison, "Hdw_vs_Sim_Stat", "L1Topo decisions hardware - simulation statistical differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimHdwEventComparison, "Hdw_vs_Sim_Events", "L1Topo decisions hardware XOR simulation event-by-event differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoCtpSimHdwEventComparison, "CTP_Hdw_vs_Sim_Events", "L1Topo decisions CTP hardware XOR simulation event-by-event differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
-  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoCtpHdwEventComparison, "CTP_Hdw_vs_L1Topo_Hdw_Events", "L1Topo decisions hardware XOR CTP TIP hardware event-by-event differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoCtpHdwEventComparison, "CTP_Hdw_vs_L1Topo_Hdw_Events", "L1Topo decisions hardware (trigger|overflow) XOR CTP TIP hardware event-by-event differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimResult, "SimResults", "L1Topo simulation accepts, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoHdwResult, "HdwResults", "L1Topo hardware accepts, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
   unsigned int nProblems=m_problems.size();
@@ -734,7 +734,7 @@ StatusCode TrigL1TopoROBMonitor::doSimMon(bool prescalForDAQROBAccess){
 
   // Retrieve CTP DAQ data for comparison, if ROB access not prescaled and no overflows
   // Do the comparison and fill histograms only if the L1Topo items did not overflow
-  if (m_overflowBits.none() && prescalForDAQROBAccess && m_setTopoSimResult){
+  if (prescalForDAQROBAccess){
     const CTP_RDO* ctpRDO; 
     ctpRDO = evtStore()->tryConstRetrieve<CTP_RDO>();
     if (!ctpRDO){
@@ -757,13 +757,18 @@ StatusCode TrigL1TopoROBMonitor::doSimMon(bool prescalForDAQROBAccess){
         for (unsigned int i=0; i<m_nTopoCTPOutputs; ++i){
           m_topoCtpResult[i]=tip.test(i+topoTipStart);
         }
-        // Compare L1Topo outputs from simulation with those at the CTP
-        compBitSets("L1Topo CTP TIP hardware", "L1Topo CTP simulation",
-                    m_topoCtpResult, m_topoSimResult,
-                    m_histTopoCtpSimHdwEventComparison);
-        compBitSets("L1Topo hardware", "CTP TIP hardware",
-                    m_triggerBits, m_topoCtpResult,
+     
+	// Compare L1Topo trigger bits 
+        compBitSets("L1Topo hardware trigger|overflow", "CTP TIP hardware",
+                    m_triggerBits|m_overflowBits, m_topoCtpResult,
                     m_histTopoCtpHdwEventComparison);
+
+	if (m_overflowBits.none() && m_setTopoSimResult){
+	  // Compare L1Topo outputs from simulation with those at the CTP
+	  compBitSets("L1Topo CTP TIP hardware", "L1Topo CTP simulation",
+		      m_topoCtpResult, m_topoSimResult,
+		      m_histTopoCtpSimHdwEventComparison);
+	}
       }
     }
   }
