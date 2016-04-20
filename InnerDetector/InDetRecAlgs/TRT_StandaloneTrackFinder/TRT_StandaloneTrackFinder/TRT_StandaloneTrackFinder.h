@@ -23,7 +23,7 @@
 
 ///Needed for the TRT track segments
 #include "TrkSegment/SegmentCollection.h"
-
+#include "StoreGate/DataHandle.h"
 namespace InDet {
 
   /**
@@ -70,8 +70,7 @@ namespace InDet {
      
       int                                m_nprint             ;
       int                                m_ntracks            ;  //!< Number of tracks found
-      std::string                        m_inseglocation      ;  //!< Name of input TRT segments location
-      std::string                        m_outtracklocation   ;  //!< Name of output tracks location
+
       int                                m_minNumDriftCircles ;  //!< Minimum number of drift circles for TRT segment tracks
       double                             m_minPt              ;  //!< Minimum pt cut for TRT only (used in preselection * 0.9)
       bool                               m_resetPRD           ;  //!< Reset PRD association tool during the sub-detector pattern
@@ -80,11 +79,11 @@ namespace InDet {
 
       ToolHandle< ITRT_SegmentToTrackTool > m_segToTrackTool; //!< Segment to track tool
 
-      const Trk::SegmentCollection*         m_Segments      ;  //!< TRT segments to use
+      SG::ReadHandle< Trk::SegmentCollection >         m_Segments      ;  //!< TRT segments to use
 
       /**Tracks that will be passed out of AmbiProcessor. 
 	 Recreated anew each time process() is called*/ 
-      TrackCollection* m_finalTracks;
+      SG::WriteHandle<TrackCollection> m_finalTracks;
 
       /** Global Counters for final algorithm statistics */
       int m_nTrtSeg          ;  //!< Number of input TRT segments to be investigated per event
