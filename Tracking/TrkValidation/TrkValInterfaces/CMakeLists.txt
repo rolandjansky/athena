@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
+                          Tracking/TrkEvent/TrkTrack
                           Tracking/TrkFitter/TrkFitterUtils )
 
 # External dependencies:
@@ -20,5 +21,5 @@ find_package( Eigen )
 atlas_add_library( TrkValInterfaces
                    PUBLIC_HEADERS TrkValInterfaces
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives GaudiKernel TrkEventPrimitives TrkParameters )
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives GaudiKernel TrkEventPrimitives TrkParameters TrkTrack )
 
