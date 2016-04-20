@@ -25,18 +25,25 @@ apply_pattern poolcnv \
  typesWithNamespace="DMTest::BVec DMTest::DVec \
                      DMTest::DDer DMTest::BDer DMTest::ELVec \
                      DMTest::BAux DMTest::BAuxVec DMTest::BAuxStandalone \
-                     DMTest::C_v1 DMTest::CVec_v1 DMTest::CAuxContainer_v1 \
-                     DMTest::G_v1 DMTest::GVec_v1 DMTest::GAuxContainer_v1 \
-                     DMTest::CInfoAuxContainer_v1 \
-                     DMTest::CTrigAuxContainer_v1 " \
+                     DMTest::C DMTest::CVec DMTest::CAuxContainer \
+                     DMTest::G DMTest::GVec DMTest::GAuxContainer \
+                     DMTest::CVecWithData \
+                     DMTest::CInfoAuxContainer \
+                     DMTest::CTrigAuxContainer \
+                     DMTest::CView \
+                     DMTest::H DMTest::HVec DMTest::HAuxContainer \
+                     DMTest::HView " \
  files=" -s=${DataModelTestDataWrite_root}/DataModelTestDataWrite \
              BVec.h BDer.h DVec.h DDer.h ELVec.h \
-             versions/G_v1.h versions/GVec_v1.h versions/GAuxContainer_v1.h \
-        -s=${DataModelTestDataCommon_root}/DataModelTestDataCommon \
+             G.h GVec.h GAuxContainer.h \
+             H.h HVec.h HAuxContainer.h HView.h \
+         -s=${DataModelTestDataCommon_root}/DataModelTestDataCommon \
            BAux.h BAuxVec.h BAuxStandalone.h \
-           versions/C_v1.h versions/CVec_v1.h versions/CAuxContainer_v1.h \
-           versions/CInfoAuxContainer_v1.h \
-           versions/CTrigAuxContainer_v1.h "
+           C.h CVec.h CAuxContainer.h CView.h \
+           CVecWithData.h \
+           CInfoAuxContainer.h \
+           CTrigAuxContainer.h "
+
 
 
 
