@@ -38,6 +38,7 @@
 #include "TrigCaloRec/IAlgToolEFCalo.h"
 #include "TrigCaloRec/TrigCaloQuality.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
+#include "TrigT2CaloCommon/TrigDataAccess.h"
 
 //
 class ISvcLocator;
@@ -54,6 +55,7 @@ TrigCaloCellMaker::TrigCaloCellMaker(const std::string& name, ISvcLocator* pSvcL
   : HLT::FexAlgo(name, pSvcLocator)
   ,  m_tcrAlgTools(this), 
     m_counter(0),
+    m_data("TrigDataAccess/TrigDataAccess"),
     pCaloCellContainer(NULL),
     pTrigCaloQuality(NULL),
     m_fullScanEnabled(false),
@@ -84,6 +86,7 @@ TrigCaloCellMaker::TrigCaloCellMaker(const std::string& name, ISvcLocator* pSvcL
     // prescale for persistency of CaloCell
     declareProperty ("PersistencyPrescaleFactor", m_persistencyPSF=0);
     declareProperty ("PersistencyKeyName"       , m_persistencyKey="TrigCaloCellMaker");
+    declareProperty("TrigDataAccess",m_data,"Data Access for LVL2 Calo Algorithms");
 
 
     declareMonitoredVariable("CellContainerSize", m_CellContainerSize);
@@ -95,6 +98,7 @@ TrigCaloCellMaker::TrigCaloCellMaker(const std::string& name, ISvcLocator* pSvcL
     declareMonitoredVariable("ConversionErrorInFCalEm",  m_conversionError[IAlgToolEFCalo::EFFCALEM]);
     declareMonitoredVariable("ConversionErrorInFCalHad", m_conversionError[IAlgToolEFCalo::EFFCALHAD]);
     declareMonitoredVariable("ConversionErrorInFullCalo",m_conversionError[IAlgToolEFCalo::EFFULLCALO]);
+    m_vec_robs.reserve(1000);
      
 }
 
@@ -103,7 +107,7 @@ TrigCaloCellMaker::TrigCaloCellMaker(const std::string& name, ISvcLocator* pSvcL
 /////////////////////////////////////////////////////////////////////
 //
 TrigCaloCellMaker::~TrigCaloCellMaker()
-{  }
+{ m_vec_robs.clear(); }
 
 /////////////////////////////////////////////////////////////////////
 // INITIALIZE:
@@ -189,6 +193,11 @@ HLT::ErrorCode TrigCaloCellMaker::hltInitialize()
    msg() << MSG::DEBUG
          << "Initialization of TrigCaloCellMaker completed successfully"
          << endreq;
+
+ if ((m_data.retrieve()).isFailure()) {
+     msg() << MSG::ERROR << "Could not get m_data" << endreq;
+     return StatusCode::FAILURE;
+ }
  
  return HLT::OK;
 }
@@ -475,4 +484,27 @@ else {
   ++m_counter;
   
   return HLT::OK; 
+}
+
+HLT::ErrorCode TrigCaloCellMaker::prepareRobRequests(const HLT::TriggerElement* inputTE ){
+
+   // Calculate ROBs needed
+   const IRoiDescriptor* roi = 0;
+   HLT::ErrorCode hltStatus;
+
+   const TrigRoiDescriptor* roiDescriptor = 0;
+   hltStatus = getFeature(inputTE, roiDescriptor);
+   roi = roiDescriptor;
+
+   if ( hltStatus != HLT::OK ) {
+       std::cout <<  MSG::WARNING << " Failed to find RoiDescriptor " << std::endl;
+       return hltStatus;
+   }
+
+   m_data->ROBList( *roi, m_vec_robs);
+
+   config()->robRequestInfo()->addRequestScheduledRobIDs(m_vec_robs);
+
+   return HLT::OK;
+
 }

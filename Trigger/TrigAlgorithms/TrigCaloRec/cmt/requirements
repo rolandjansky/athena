@@ -51,6 +51,7 @@ use GeoModelInterfaces      GeoModelInterfaces-*         DetectorDescription/Geo
 use LArIdentifier           LArIdentifier-*              LArCalorimeter
 use LArTools                LArTools-*                   LArCalorimeter
 use xAODTrigL1Calo	    xAODTrigL1Calo-*		 Event/xAOD
+use xAODTrigCalo	    xAODTrigCalo-*		 Event/xAOD
 
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"

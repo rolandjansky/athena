@@ -41,7 +41,8 @@
 #include "CaloEvent/CaloTowerContainer.h"
 #include "CaloEvent/CaloShowerContainer.h"
 #include "CaloEvent/CaloCellLinkContainer.h"
-#include "xAODCaloEvent/CaloClusterAuxContainer.h"
+//#include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
 //
 
 #include "TrigCaloRec/TrigFullCaloClusterMaker.h"
@@ -522,9 +523,9 @@ HLT::ErrorCode TrigFullCaloClusterMaker::hltExecute( std::vector<std::vector<HLT
       return HLT::TOOL_FAILURE;
     }
 
-    xAOD::CaloClusterAuxContainer* aux = new xAOD::CaloClusterAuxContainer();
+    xAOD::CaloClusterTrigAuxContainer* aux = new xAOD::CaloClusterTrigAuxContainer();
     if (store()->record (aux, AllTEclusterCollKey + "Aux.").isFailure()) {
-      msg() << MSG::ERROR << "recording CaloClusterAuxContainer with key <" << AllTEclusterCollKey << "Aux.> failed" << endreq;
+      msg() << MSG::ERROR << "recording CaloClusterTrigAuxContainer with key <" << AllTEclusterCollKey << "Aux.> failed" << endreq;
       delete aux;
       return HLT::TOOL_FAILURE;
     }
