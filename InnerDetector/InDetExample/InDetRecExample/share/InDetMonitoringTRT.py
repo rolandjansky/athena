@@ -16,7 +16,7 @@ else:
 
 ### Set track quality cuts for collisions
 if jobproperties.Beam.beamType() == "collisions":
-  minTrkPtCut = 0.5 * Units.GeV
+  minTrkPtCut = 2.0 * Units.GeV
   ### at least one silicon detector must be on to require silicon hits
   if DetFlags.pixel_on() or DetFlags.SCT_on():
     minSiHitCut = 1

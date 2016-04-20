@@ -402,6 +402,12 @@ class doMonitoringAlignment(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class useDynamicAlignFolders(InDetFlagsJobProperty):
+    """ Use to turn on dynamic alignment constants folder scheme (new development for 2016) """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doPerfMon(InDetFlagsJobProperty):
     """ Use to turn on PerfMon """
     statusOn     = True
@@ -466,11 +472,11 @@ class doSiSPSeededTrackFinder(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
-#class doTRTExtension(InDetFlagsJobProperty):
-#    """ turn on / off TRT extensions  """
-#    statusOn     = True
-#    allowedTypes = ['bool']
-#    StoredValue  = True
+class doTRTExtensionNew(InDetFlagsJobProperty):
+    """ turn on / off TRT extensions  """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
 
 class trtExtensionType(InDetFlagsJobProperty):
     """ which extension type ("xk"/"DAF") """
@@ -1861,7 +1867,7 @@ class InDetJobProperties(JobPropertyContainer):
   
   def doTRTExtension(self):
     from AthenaCommon.DetFlags import DetFlags
-    return (self.doNewTracking() or self.doBeamGas() or self.doLargeD0()) and DetFlags.haveRIO.TRT_on()
+    return ((self.doNewTracking() or self.doBeamGas() or self.doLargeD0()) and DetFlags.haveRIO.TRT_on() ) and self.doTRTExtensionNew()
   
   def doExtensionProcessor(self):
     from AthenaCommon.DetFlags    import DetFlags
@@ -2541,6 +2547,7 @@ _list_InDetJobProperties = [Enabled,
                             doMonitoringSCT,
                             doMonitoringTRT,
                             doMonitoringAlignment,
+                            useDynamicAlignFolders,
                             doPerfMon,
                             AODall,
                             useBeamConstraint,
@@ -2552,6 +2559,7 @@ _list_InDetJobProperties = [Enabled,
                             useZvertexTool,
                             doSiSPSeededTrackFinder,
 #                            doTRTExtension,
+                            doTRTExtensionNew,
                             trtExtensionType,
                             redoTRT_LR,
                             doTrtSegments,

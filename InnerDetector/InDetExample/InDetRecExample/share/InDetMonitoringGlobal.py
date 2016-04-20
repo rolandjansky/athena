@@ -1,3 +1,6 @@
+if (not 'doIdGlobalErrorMon' in dir()):
+  doIdGlobalErrorMon = False
+
 ####################################################
 #                                                  #
 # InDetGlobalManager top algorithm                 #
@@ -36,6 +39,20 @@ if InDetFlags.doMonitoringGlobal():
   ToolSvc += InDetGlobalSynchMonTool
   if (InDetFlags.doPrintConfigurables()):
       print InDetGlobalSynchMonTool
+
+  #######################################################
+  #                                                     #
+  # Error monitoring, only online                       #
+  #                                                     #
+  #######################################################
+  if doIdGlobalErrorMon:
+      from InDetGlobalMonitoring.InDetGlobalMonitoringConf import InDetGlobalErrorMonTool
+      InDetGlobalErrorMonTool=InDetGlobalErrorMonTool( name = "InDetGlobalErrorMonTool" )
+  
+      ToolSvc += InDetGlobalErrorMonTool
+      if (InDetFlags.doPrintConfigurables()):
+          print InDetGlobalErrorMonTool
+
   
   ##################################################
   #                                                #
@@ -142,6 +159,9 @@ if InDetFlags.doMonitoringGlobal():
                                          InDetGlobalBCMTool]
   if DetFlags.haveRIO.pixel_on():
       InDetGlobalManager.AthenaMonTools += [ InDetGlobalPixelTool ]
+
+  if doIdGlobalErrorMon:
+      InDetGlobalManager.AthenaMonTools += [ InDetGlobalErrorMonTool ]
 
   if jobproperties.Beam.beamType() != 'cosmics':
       InDetGlobalManager.AthenaMonTools += [ InDetGlobalBeamSpotMonTool ]
