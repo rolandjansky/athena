@@ -1111,7 +1111,8 @@ if InDetFlags.doPattern():
 # ----------- Track extension to TRT tool for New Tracking
 #
 # ------------------------------------------------------------
-if InDetFlags.doPattern() and DetFlags.haveRIO.TRT_on() and InDetFlags.doTRTExtension():
+#if InDetFlags.doPattern() and DetFlags.haveRIO.TRT_on() and InDetFlags.doTRTExtension():
+if InDetFlags.doPattern() and DetFlags.haveRIO.TRT_on():
     # if new tracking is OFF then xk extension type has to be used!!
     if (InDetFlags.trtExtensionType() is 'xk') or (not InDetFlags.doNewTracking()) :
 

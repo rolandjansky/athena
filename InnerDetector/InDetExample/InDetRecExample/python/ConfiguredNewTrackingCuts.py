@@ -493,13 +493,14 @@ class ConfiguredNewTrackingCuts :
 
     # --- changes for heavy ion
     if mode == "HeavyIon":
+      self.__maxZImpact       = 200. * Units.mm 
       self.__minPT            = 0.500 * Units.GeV
       self.__minClusters      = 9
       self.__minSiNotShared   = 7
-      self.__maxShared        = 1   # cut is now on number of shared modules
-      self.__maxHoles         = 1 # was 2
+      self.__maxShared        = 2 # was 1, cut is now on number of shared modules
+      self.__maxHoles         = 0 # was 1
       self.__maxPixelHoles    = 0 # was 2
-      self.__maxSctHoles      = 1 # was 2
+      self.__maxSctHoles      = 0 # was 1
       self.__maxDoubleHoles   = 0 # was 1
       self.__nHolesMax        = self.__maxHoles
       self.__nHolesGapMax     = self.__maxHoles      

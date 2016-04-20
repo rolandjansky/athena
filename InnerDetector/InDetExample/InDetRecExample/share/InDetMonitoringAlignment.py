@@ -9,6 +9,10 @@ InDetAlignMonDoTruth = False
 ## To use RefittedTracks collection requires also that InDetFlags.doRefit=True
 InDetAlignMonReadESD = False
 
+##Set to True if you want to use TriggerAware Alignment Monitoring
+doTriggerAwareMonitoring = False
+
+
 # Setup vertexing sequence without beam constraint.
 # NOTE: Include the following BEFORE adding InDetAlignMonManager to topSequence.
 # include('InDetAlignmentMonitoring/InDetAlignmentMonitoring_vertexing.py')
@@ -346,8 +350,8 @@ if jobproperties.Beam.beamType()=='cosmics':
 #if DQMonFlags.useTrigger():
 #    if not hasattr(ToolSvc, DQMonFlags.nameTrigDecTool()):
 #        print "InDetAlignmentMonitoring_InDetRec_jobOptions.py: trigger decision tool not found, including it now"
-if not hasattr(ToolSvc, 'monTrigDecTool'):
-    print "InDetAlignmentMonitoring_InDetRec_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring"  
+if not hasattr(ToolSvc, 'monTrigDecTool') or not doTriggerAwareMonitoring:
+    print "InDetAlignmentMonitoring_InDetRec_jobOptions.py: trigger decision tool not found or monitoring disabled: don't run trigger-aware monitoring"  
 elif jobproperties.Beam.beamType()=='cosmics' or jobproperties.Beam.beamType()=='singlebeam':
     print "InDetAlignmentMonitoring_InDetRec_jobOptions.py: cosmics or singlebeam beamType: don't run trigger-aware monitoring"
 else:
@@ -466,7 +470,7 @@ if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBun
 
 if InDetAlignMonDoTruth:
     InDetAlignMonManager.AthenaMonTools     += [ InDetAlignMonTruthComparison ]
-if not hasattr(ToolSvc, 'monTrigDecTool'):
+if not hasattr(ToolSvc, 'monTrigDecTool') or not doTriggerAwareMonitoring:
     print "InDetAlignmentMonitoring_InDetRec_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring" 
 elif jobproperties.Beam.beamType()=='cosmics' or jobproperties.Beam.beamType()=='singlebeam':
     print "singlebeam or cosmics: don't run trigger-aware monitoring"
