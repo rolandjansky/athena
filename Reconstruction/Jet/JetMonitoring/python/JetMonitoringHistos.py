@@ -28,10 +28,10 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
         # Draw a set of histo for a particular jet selection :
         selectionAndHistos( "leadingjet" , [ "basickinematics", ] ),
         selectionAndHistos( "subleadingjet" , [ "basickinematics"] ),
-        selectionAndHistos( "20000<pt<500000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_20_500" ),
-        selectionAndHistos( "500000<pt<1000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_500_1000" ),
-        selectionAndHistos( "1000000<pt<2000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_1000_2000" ),
-        selectionAndHistos( "2000000<pt<8000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_2000_8000" ),
+        selectionAndHistos( "20000<pt<500000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt1000[0]", "FracSamplingMax"], "highpt_20_500" ),
+        selectionAndHistos( "500000<pt<1000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt1000[0]",  "FracSamplingMax"], "highpt_500_1000" ),
+        selectionAndHistos( "1000000<pt<2000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt1000[0]",  "FracSamplingMax"], "highpt_1000_2000" ),
+        selectionAndHistos( "2000000<pt<8000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt1000[0]",  "FracSamplingMax"], "highpt_2000_8000" ),
         selectionAndHistos( "LooseBadJets" ,  [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)]),
         selectionAndHistos( "1.0<eta<1.4" , [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematicsTileGap",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)], "eta_1_14" ),
 
@@ -116,6 +116,20 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
     return filler
 
 
+def commonMonitoringTool_LB(container, refcontainer="", pathSuffix=''):
+    filler = JetContainerHistoFiller(container+pathSuffix+"HistoFiller_LB",JetContainer = container, HistoDir=container+pathSuffix+'_LB/')
+
+    # Give a list of predefined tools from jhm or a combination of such tools
+    filler.HistoTools = [
+        JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True) ,
+            jhm.ptN,
+            jhm.Timing,
+            jhm.EMFrac,
+            jhm.HECFrac,
+            jhm.LArQuality,
+        ]
+    return filler
+
 
 athenaMonTool = JetMonitoringTool(HistoTools = [  commonMonitoringTool( "AntiKt4LCTopoJets" ), # if truth is present, we could add : , "AntiKt4TruthJets" ,                                                  
                                                   commonMonitoringTool( "AntiKt4EMTopoJets" ),
@@ -132,7 +146,7 @@ athenaMonTool.FilterTools += [ monbadlb ]
 
 ToolSvc += athenaMonTool
 
-athenaMonTool_LB = JetMonitoringTool("JetMonitoring_LB", HistoTools = [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True) ] ,IntervalType = 2)
+athenaMonTool_LB = JetMonitoringTool("JetMonitoring_LB", HistoTools = [commonMonitoringTool_LB("AntiKt4EMTopoJets") ], IntervalType = 2)
 
 #cbg
 athenaMonTool_LB.FilterTools += [ monbadlb ]
@@ -158,6 +172,6 @@ if DQMonFlags.useTrigger() :
 
 def athenaMonitoringTools():
     if DQMonFlags.useTrigger():
-        return [  athenaMonTool, athenaMonTool_trig ]
+        return [  athenaMonTool, athenaMonTool_LB, athenaMonTool_trig ]
     else:
-        return [  athenaMonTool ]
+        return [  athenaMonTool, athenaMonTool_LB ]
