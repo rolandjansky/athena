@@ -30,7 +30,7 @@ namespace MuonHough {
     const float pos = fabs(position);
     for (const auto& cut : m_cutValues) 
     {
-      if (cut.first < pos) return cut.second;
+      if (cut.first < pos) return cut.second;//notice the array is already sorted
     }
     return m_cutValues.back().second;
   }

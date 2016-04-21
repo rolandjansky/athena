@@ -114,6 +114,19 @@ namespace MuonHough {
     tree.Branch("ntrpcs",&ntrpcs,"ntrpcs[nmuons]/I");
     tree.Branch("nttgcs",&nttgcs,"nttgcs[nmuons]/I");
     tree.Branch("ntcscs",&ntcscs,"ntcscs[nmuons]/I");
+
+    tree.Branch("nsegs", &nsegs, "nsegs/I");
+    tree.Branch("sbarcode", &sbarcode, "sbarcode[nsegs]/I");
+    tree.Branch("sposx", &sposx, "sposx[nsegs]/F");
+    tree.Branch("sposy", &sposy, "sposy[nsegs]/F");
+    tree.Branch("sposz", &sposz, "sposz[nsegs]/F");
+    tree.Branch("sdirx", &sdirx, "sdirx[nsegs]/F");
+    tree.Branch("sdiry", &sdiry, "sdiry[nsegs]/F");
+    tree.Branch("sdirz", &sdirz, "sdirz[nsegs]/F");
+    tree.Branch("snPrecHits", &snPrecHits, "snPrecHits[nsegs]/I");
+    tree.Branch("snTrigHits", &snTrigHits, "snTrigHits[nsegs]/I");
+    tree.Branch("sSector", &sSector, "sSector[nsegs]/I");
+    tree.Branch("sChIndex", &sChIndex, "sChIndex[nsegs]/I");
   }
 
   void HitNtuple::initForRead(TTree& tree) { 
@@ -169,6 +182,22 @@ namespace MuonHough {
     tree.SetBranchAddress("ntcscs",&ntcscs);
 
   }
+
+  void HitNtuple::initForReadseg(TTree& tree) { 
+
+    tree.SetBranchAddress("nsegs", &nsegs);
+    tree.SetBranchAddress("sbarcode", &sbarcode);
+    tree.SetBranchAddress("sposx", &sposx);
+    tree.SetBranchAddress("sposy", &sposy);
+    tree.SetBranchAddress("sposz", &sposz);
+    tree.SetBranchAddress("sdirx", &sdirx);
+    tree.SetBranchAddress("sdiry", &sdiry);
+    tree.SetBranchAddress("sdirz", &sdirz);
+    tree.SetBranchAddress("snPrecHits", &snPrecHits);
+    tree.SetBranchAddress("snTrigHits", &snTrigHits);
+    tree.SetBranchAddress("sSector", &sSector);
+    tree.SetBranchAddress("sChIndex", &sChIndex);
+   }
 
   void HitNtuple::fill( int sTgcPadAssociated, int sTgcPadNotAssociated) {
     if( netamaxima >= ETAMAXSIZE ) return;
@@ -275,6 +304,7 @@ namespace MuonHough {
 
   void HitNtuple::reset() {
     nmuons = 0;
+    nsegs = 0;
     nhits = 0;
     ndebug = 0;
     pnhits = 0;
@@ -306,28 +336,28 @@ namespace MuonHough {
 	
       HitDebugInfo* debug = 0;
       if( hasDebug ){
-	debug = new HitDebugInfo();
-   	debug->type = type[i];
-   	debug->region = static_cast<Muon::MuonStationIndex::DetectorRegionIndex>(region[i]);
-   	debug->sector = sector[i];
-   	debug->layer = static_cast<Muon::MuonStationIndex::LayerIndex>(layer[i]);
-   	debug->sublayer = sublayer[i];
-   	debug->pdgId = pdgId[i];
-   	debug->barcode = barcode[i];
-   	debug->muonIndex = muonIndex[i];
-   	debug->clusterSize = clusterSize[i];
-   	debug->clusterLayers = clusterLayers[i];
-   	debug->isEtaPhi = isEtaPhi[i];
-   	debug->trigConfirm = trigConfirm[i];
-	debug->binpos = binpos[i];
-	debug->bintheta = bintheta[i];
-   	debug->time = time[i];
-   	debug->r = r[i];
-	debug->ph = ph[i];
-	debug->phn = phn[i];
-	debug->ph1 = ph1[i];
-	debug->ph2 = ph2[i];
-	debug->rot = rot[i];
+        debug = new HitDebugInfo();
+        debug->type = type[i];
+        debug->region = static_cast<Muon::MuonStationIndex::DetectorRegionIndex>(region[i]);
+        debug->sector = sector[i];
+        debug->layer = static_cast<Muon::MuonStationIndex::LayerIndex>(layer[i]);
+        debug->sublayer = sublayer[i];
+        debug->pdgId = pdgId[i];
+        debug->barcode = barcode[i];
+        debug->muonIndex = muonIndex[i];
+        debug->clusterSize = clusterSize[i];
+        debug->clusterLayers = clusterLayers[i];
+        debug->isEtaPhi = isEtaPhi[i];
+        debug->trigConfirm = trigConfirm[i];
+        debug->binpos = binpos[i];
+        debug->bintheta = bintheta[i];
+        debug->time = time[i];
+        debug->r = r[i];
+        debug->ph = ph[i];
+        debug->phn = phn[i];
+        debug->ph1 = ph1[i];
+        debug->ph2 = ph2[i];
+        debug->rot = rot[i];
       }
       Hit* hit = new Hit(lay[i],x[i],ymin[i],ymax[i],w[i],debug);
       
@@ -360,6 +390,24 @@ namespace MuonHough {
     return true;
   }
 
+  bool HitNtuple::readseg(std::vector<SegDebugInfo>& segments ){
+    for( int i=0;i<nsegs;++i ){
+      SegDebugInfo segment;
+      segment.sposx = sposx[i];
+      segment.sposy = sposy[i];
+      segment.sposz = sposz[i];
+      segment.sdirx = sdirx[i];
+      segment.sdiry = sdiry[i];
+      segment.sdirz = sdirz[i];
+      segment.snPrecHits = snPrecHits[i];
+      segment.snTrigHits = snTrigHits[i];
+      segment.sSector = sSector[i];
+      segment.sChIndex = sChIndex[i];
+      segments.push_back(segment);
+    } 
+    return true;
+  }
+
   void EventData::dump( const std::map<int,SectorData>& data ) const {
     
     
@@ -387,6 +435,7 @@ namespace MuonHough {
 
   void HitNtuple::init() {
     nmuons = 0;
+    nsegs = 0;
     nhits = 0;
     ndebug = 0;
   }

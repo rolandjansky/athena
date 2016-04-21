@@ -12,16 +12,17 @@
 
 namespace MuonHough {
 
+
   MuonLayerHough::MuonLayerHough(  const RegionDescriptor& descriptor ) : 
     max(0), maxhist(-1), maxbin(-1), m_debug(false), m_descriptor(descriptor) {
 
     // calculate the number of bins
-    m_nbins = (m_descriptor.yMaxRange-m_descriptor.yMinRange)/m_descriptor.yBinSize;
+    m_nbins = (m_descriptor.yMaxRange-m_descriptor.yMinRange)/m_descriptor.yBinSize;//the same for all the cycles
     m_binsize = (m_descriptor.yMaxRange-m_descriptor.yMinRange)/m_nbins;
-    m_invbinsize = 1./m_binsize;
+    m_invbinsize = 1./m_binsize;//binsize in the floating plane
     
-    // setup the histograms
-    m_histos.reserve(m_descriptor.nthetaSamples);
+    // setup the histograms; determines the number of theta slices
+    m_histos.reserve(m_descriptor.nthetaSamples);//it contains all the theta layers
     for( unsigned int i=0;i<m_descriptor.nthetaSamples;++i ) m_histos.push_back(new unsigned int[m_nbins]);
     reset();
   }
@@ -76,15 +77,15 @@ namespace MuonHough {
       if( m_debug) std::cout << " filling " << x << " y " << binmin << " " << binmax << " w " << weight <<  " center " << bincenter 
 			   << " range " << (zmin-m_descriptor.yMinRange)*m_invbinsize << " " << (zmax-m_descriptor.yMinRange)*m_invbinsize << std::endl;
       for( int n=binmin;n<=binmax;++n ) {
-	unsigned int& val = m_histos[ci][n];
-	int w = 1000*weight;
-	if( w < 0 && (int)val < -w ) val = 0;
-	else                         val += weight;
-	if( val > max ) {
-	  max = val;
-	  maxhist = ci;
-	  maxbin = n;
-	}
+        unsigned int& val = m_histos[ci][n];
+        int w = 1000*weight;
+        if( w < 0 && (int)val < -w ) val = 0;
+        else                         val += weight;
+        if( val > max ) {
+          max = val;
+          maxhist = ci;
+          maxbin = n;
+        }
       }
     }
   }
@@ -221,46 +222,49 @@ namespace MuonHough {
       for( ;it!=it_end;++it ){
 	
         // if we get to the next layer process the current one and fill the Hough space
-	if( prevlayer != (*it)->layer ) {
-	  for( int i=0;i<m_nbins;++i ) {
+        if( prevlayer != (*it)->layer ) {
+          for( int i=0;i<m_nbins;++i ) {
             if( subtract && -layerCounts[i] >= static_cast<int>(m_histos[ci][i]) ) m_histos[ci][i] = 0; 
             else                                                                   m_histos[ci][i] += layerCounts[i];
             //if( m_debug && layerCounts[i] != 0 ) std::cout << " filling layer " << prevlayer << " bin " << i << " val " << layerCounts[i] << " tot " << m_histos[ci][i] << std::endl;
-	    layerCounts[i] = 0; // reset bin
-	  }
-	  prevlayer = (*it)->layer;
-	}
+            layerCounts[i] = 0; // reset bin
+          }
+          prevlayer = (*it)->layer;
+        }
 
-	// get bin range
-	std::pair<int,int> minMax = range((*it)->x,(*it)->ymin,(*it)->ymax,ci);
-	int binmin = minMax.first;
-	int binmax = minMax.second;
+        // get bin range
+        std::pair<int,int> minMax = range((*it)->x,(*it)->ymin,(*it)->ymax,ci);
+        int binmin = minMax.first;
+        int binmax = minMax.second;
 
-	// check wether we are within the Hough space
-	if( binmin >= m_nbins ) continue;
-	if( binmax < 0 ) continue;
+        // check wether we are within the Hough space
+        if( binmin >= m_nbins ) continue;
+        if( binmax < 0 ) continue;
 
-	// adjust boundaries if needed
-	if( binmin < 0 ) binmin = 0;
-	if( binmax >= m_nbins ) binmax = m_nbins-1;
+        // adjust boundaries if needed
+        if( binmin < 0 ) binmin = 0;
+        if( binmax >= m_nbins ) binmax = m_nbins-1;
 
-	// output hit for debug purposes
-	if( m_debug ) {
-          std::cout << " cycle " << ci << " filling hit " << (*it)->x << " refpos " << m_descriptor.referencePosition 
-                    << " ymin " << (*it)->ymin << " ymax " << (*it)->ymax << " layer " << (*it)->layer
-	 	    << " weight " << (*it)->w << " binmin " << binmin << " max " << binmax;
+        // output hit for debug purposes
+        if( m_debug ) {
+          std::cout << " cycle(theta layers) " << ci << " filling hit " << (*it)->x << " refpos " << m_descriptor.referencePosition 
+            << " ymin " << (*it)->ymin << " ymax " << (*it)->ymax << " layer " << (*it)->layer
+            << " weight " << (*it)->w << " binmin " << binmin << " max " << binmax;
+          std::cout << " zmin " << binmin * m_binsize + m_descriptor.yMinRange << " zmax " << binmax * m_binsize + m_descriptor.yMinRange;
           if( (*it)->debugInfo() ) {
             const HitDebugInfo* db1 = (*it)->debugInfo();
             std::cout << " sec " << db1->sector << " r " << db1->region << " type " << db1->type 
                       << " lay " << db1->layer << " bc " << db1->barcode << std::endl;
-          }else std::cout << std::endl;
+          }
+          else std::cout << std::endl;
         }
-	int weight = sign*(*it)->w;
-	// set bits to true
-	for( ;binmin<=binmax;++binmin ) layerCounts[binmin] = weight;
+        int weight = sign*(*it)->w;// set the hit weight
+        //if (weight > sign){weight = weight * 2;}//could even boost the trigger weight here
 
-      }
-      // if the last set of hits was not filled, fill them now
+        // set bits to true
+        for( ;binmin<=binmax;++binmin ) layerCounts[binmin] = weight;
+      }//end of loopin gover hits
+      // if the last set of hits was not filled, fill them now; just for the last layer
       for( int i=0;i<m_nbins;++i ){
         if( subtract && -layerCounts[i] >= static_cast<int>(m_histos[ci][i]) ) m_histos[ci][i] = 0; 
         else                                                                   m_histos[ci][i] += layerCounts[i];
@@ -284,7 +288,7 @@ namespace MuonHough {
     
       TString hname = prefix + "_hist";
       hname += ci;
-      TH1F* h = new TH1F(hname,hname,m_nbins,rmin,rmax);
+      TH1F* h = new TH1F(hname,hname,m_nbins,rmin,rmax);//register the new histograms here
       for( int n=0;n<m_nbins;++n ) h->SetBinContent(n+1,m_histos[ci][n]*0.001);
       hists.push_back(h);
     }
@@ -292,70 +296,80 @@ namespace MuonHough {
   }
 
   bool MuonLayerHough::findMaximum( Maximum& maximum, const MuonLayerHoughSelector& selector ) const {
-    const float preMaxCut = selector.getMinCutValue();
+    const float preMaxCut = selector.getMinCutValue();//in this case it is likely to be 1.9
     maximum.max = 0;
     maximum.pos = 0;
     maximum.theta = 0;
+    maximum.refpos = 0;
+    maximum.refregion = -1;
+    maximum.refchIndex = -1;
     maximum.binpos = -1;
     maximum.binposmin = -1;
     maximum.binposmax = -1;
+    maximum.binsize = -1;
     maximum.bintheta = -1;
     maximum.triggerConfirmed = 0;
     maximum.hits.clear();
     maximum.hough = this;
 
-    if( preMaxCut < 0 ) return false;
+    if( preMaxCut < 0 ) return false;//this is where there is no cut
 
     float tmax = 0;
     int posb = -1;
     int thetab = -1;
-    const int cycles = m_histos.size();
     int imaxval = preMaxCut*1000;
+    const int cycles = m_histos.size();
     // loop over histograms and find maximum
     for( int ci=0;ci<cycles;++ci ){
-      const float scale = 1. - 0.01*fabs(ci-cycles/2); // small deweighting of non pointing bins
+      const float scale = 1. - 0.01*fabs(ci-cycles/2.0); // small deweighting of non pointing bins; weighting more on the central part
       for( int n=0;n<m_nbins;++n ) {
-	const int val = m_histos[ci][n];
-	//if( m_debug && val != 0 ) std::cout << " cycle " << ci << " bin " << n  << " val " << val << std::endl;
-	if( val < imaxval ) continue;
+        const int val = m_histos[ci][n];
+        //if( m_debug && val != 0 ) std::cout << " cycle " << ci << " bin " << n  << " val " << val << std::endl;
+        if( val < imaxval ) continue;
 
-	if( scale*val > tmax ) {
-	  tmax = scale*val;
-	  posb = n;
-	  thetab = ci;
-	}
+        if( scale*val > tmax ) {
+          tmax = scale*val;
+          posb = n;
+          thetab = ci;
+        }
       }
     }
     //if( m_debug ) std::cout << " done loop over bins: cycle " << thetab << " total cylces " << cycles << " bin " << posb  << " val " << tmax << std::endl;
-    if( posb == -1 )    return false;
+    if( posb == -1 )    return false;//didn't find a max
 
     const float candidatePos = m_descriptor.yMinRange + m_binsize*posb;
     if( tmax < selector.getCutValue(candidatePos) ) return false;
 
     maximum.max   = tmax*0.001;
     maximum.pos   = candidatePos;
-    maximum.theta = m_descriptor.thetaStep*(thetab-(m_histos.size()-1)*0.5) + atan2(m_descriptor.referencePosition,maximum.pos);
+    maximum.theta = -m_descriptor.thetaStep*(thetab-(m_histos.size()-1)*0.5) + atan2(m_descriptor.referencePosition,maximum.pos);    
+    maximum.refpos   = m_descriptor.referencePosition;
+    maximum.refregion = m_descriptor.region;
+    maximum.refchIndex = m_descriptor.chIndex;
     maximum.binpos    = posb;
     maximum.binposmin = posb;
     maximum.binposmax = posb;
+    maximum.binsize   = m_binsize;
     maximum.bintheta  = thetab; 
     
-    // determin width of maximum
+    // determin width of maximum; now to be 70% of the original height
     unsigned int imax = m_histos[thetab][posb];
     unsigned int sidemax = 0.7*imax;
     // loop down, catch case the maximum is in the first bin
     for( int n=posb != 0 ? posb-1 : posb;n>=0;--n ) {
       if( m_histos[thetab][n] > sidemax ) {
-	maximum.binposmin = n;
-      }else{
-	break;
+        maximum.binposmin = n;
+      }
+      else{
+        break;
       }
     }
     for( int n=posb+1;n<m_nbins;++n ) {
       if( m_histos[thetab][n] > sidemax ) {
-	maximum.binposmax = n;
-      }else{
-	break;
+        maximum.binposmax = n;
+      }
+      else{
+        break;
       }
     }
     return true;
@@ -395,9 +409,9 @@ namespace MuonHough {
     for( int ci=0;ci<cycles;++ci ){
       int relbin = ci-(cycles-1)/2;
       float dtheta = m_descriptor.thetaStep;
-      float dthetaOffset = 2*m_descriptor.thetaStep*(relbin);
+      float dthetaOffset = 2*m_descriptor.thetaStep*(relbin);//if bintheta = cycles, this is the same as dtheta * (cycles + 1 )
       float theta = atan2(x,y);
-      float z0 = (m_descriptor.referencePosition-x)/tan(theta-dthetaOffset+dtheta)+y;
+      float z0 = (m_descriptor.referencePosition-x)/tan(theta-dthetaOffset+dtheta)+y;//move the angle by a step, recalculate the new y value
       float z1 = (m_descriptor.referencePosition-x)/tan(theta-dthetaOffset-dtheta)+y;
       
       float zmin = z0<z1?z0:z1;
@@ -412,12 +426,11 @@ namespace MuonHough {
       if(binmin<0) binmin = 0;
       if( binmax >= m_nbins ) binmax = m_nbins-1;
       for( int n=binmin;n<binmax;++n ) {
-
-	if( max < m_histos[ci][n] ) {
-	  max = m_histos[ci][n];
-	  posbin = n;
-	  thetabin = ci;
-	}
+        if( max < m_histos[ci][n] ) {
+          max = m_histos[ci][n];
+          posbin = n;
+          thetabin = ci;
+        }
       }
     }
     float dthetaOffset = 2*m_descriptor.thetaStep*(thetabin-(cycles-1)/2.);
@@ -505,7 +518,8 @@ namespace MuonHough {
     float zmin = std::min(zmin1,zmin2);
     float zmax = std::max(zmax1,zmax2);
       
-    return std::make_pair<int,int>((zmin-m_descriptor.yMinRange)*m_invbinsize,(zmax-m_descriptor.yMinRange)*m_invbinsize);
+    //return std::make_pair<int,int>((zmin-m_descriptor.yMinRange)*m_invbinsize,(zmax-m_descriptor.yMinRange)*m_invbinsize);
+    return std::make_pair<int,int>(floor((zmin-m_descriptor.yMinRange)*m_invbinsize), floor((zmax-m_descriptor.yMinRange)*m_invbinsize));//convert the output to bins
   }
 
 

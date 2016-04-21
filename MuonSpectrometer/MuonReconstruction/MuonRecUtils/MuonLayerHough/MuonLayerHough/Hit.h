@@ -43,10 +43,10 @@ namespace MuonHough {
     float time;         /// measured time 
     float r;            /// drift radius for MDT, strip pitch for strips
     float ph;           /// maximum value in the hough space 
-    float phn;          /// maximum value in the hough space in neighbouring sector 
+    float phn;          /// maximum value in the hough space in neighbouring sector; dege
     float ph1;          /// maximum value of the hit projected into the first other layer in the hough space 
     float ph2;          /// maximum value of the hit projected into the second other layer in the hough space 
-    float rot;          /// angle corresponding to the maximum in the hough space
+    float rot;          /// angle corresponding to the maximum in the hough space; poin to IP
   };
 
 
@@ -73,8 +73,8 @@ namespace MuonHough {
     float w;            /// weight of the hit
 
     /// access to debug information
-    const HitDebugInfo* debugInfo() const { return debug; } 
-    HitDebugInfo* debugInfo() { return debug; }
+    const HitDebugInfo* debugInfo() const { return m_debug; } 
+    HitDebugInfo* debugInfo() { return m_debug; }
 
     /// access to assiciated hit, either the prd or the tgc pointer is set in athena
     const Trk::PrepRawData* prd;
@@ -82,7 +82,7 @@ namespace MuonHough {
 
   private:
   
-    HitDebugInfo* debug;  /// pointer to debug information
+    HitDebugInfo* m_debug;  /// pointer to debug information
 
     /// copy function for internal use
     void copy( const Hit& hit );
@@ -111,15 +111,15 @@ namespace MuonHough {
     float w;       /// weight of the hit
 
     /// access to debug information
-    const HitDebugInfo* debugInfo() const { return debug; }
-    HitDebugInfo* debugInfo() { return debug; }
+    const HitDebugInfo* debugInfo() const { return m_debug; }
+    HitDebugInfo* debugInfo() { return m_debug; }
 
     /// access to assiciated hit, either the prd or the tgc pointer is set in athena
     const Trk::PrepRawData* prd;
     const Muon::TgcClusterObj3D* tgc;
 
   private:
-    HitDebugInfo* debug; /// pointer to debug information
+    HitDebugInfo* m_debug; /// pointer to debug information
 
     /// copy function for internal use
     void copy( const PhiHit& hit );
@@ -152,6 +152,19 @@ namespace MuonHough {
     int ntstgcs;
   };
 
+  /// struct containing truth or segment information
+  struct SegDebugInfo {
+    float  sposx;
+    float  sposy;
+    float  sposz;
+    float  sdirx;
+    float  sdiry;
+    float  sdirz;
+    int    snPrecHits;
+    int    snTrigHits;
+    int    sSector;
+    int    sChIndex;
+  };
 
   /// struct to sort the hits
   struct SortHitsPerLayer : public std::binary_function<class Hit, class Hit, bool>  {

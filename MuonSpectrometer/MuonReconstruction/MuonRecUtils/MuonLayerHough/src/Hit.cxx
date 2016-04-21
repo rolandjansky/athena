@@ -28,11 +28,11 @@ namespace MuonHough {
   Hit::Hit( int layer_, float x_, float ymin_, float ymax_, float w_, 
 	    HitDebugInfo* d_, const Trk::PrepRawData* prd_, const Muon::TgcClusterObj3D* tgc_ ) : 
     layer(layer_),x(x_),ymin(ymin_),ymax(ymax_),w(w_),
-    prd(prd_),tgc(tgc_),debug(d_) {
+    prd(prd_),tgc(tgc_),m_debug(d_) {
   }
 
   Hit::~Hit() {
-    delete debug;
+    delete m_debug;
   }
 
   Hit::Hit( const Hit& h_) {
@@ -41,8 +41,8 @@ namespace MuonHough {
   
   Hit& Hit::operator=(const Hit& h_ ){
     if( &h_ != this ){
-      delete debug;
-      debug = 0;
+      delete m_debug;
+      m_debug = 0;
       copy(h_);
     }
     return *this;
@@ -54,18 +54,18 @@ namespace MuonHough {
     ymin = hit.ymin;
     ymax = hit.ymax;
     w = hit.w;
-    if( hit.debug ) debug = new HitDebugInfo(*hit.debug);
-    else debug = 0;
+    if( hit.m_debug ) m_debug = new HitDebugInfo(*hit.m_debug);
+    else m_debug = 0;
     prd = hit.prd;
     tgc = hit.tgc;
   }
 
   PhiHit::PhiHit( int layer_, float r_, float phimin_, float phimax_, float w_, 
 		  HitDebugInfo* d_, const Trk::PrepRawData* prd_, const Muon::TgcClusterObj3D* tgc_ ) : 
-    layer(layer_),r(r_),phimin(phimin_),phimax(phimax_),w(w_),prd(prd_),tgc(tgc_),debug(d_) {}
+    layer(layer_),r(r_),phimin(phimin_),phimax(phimax_),w(w_),prd(prd_),tgc(tgc_),m_debug(d_) {}
 
   PhiHit::~PhiHit() {
-    delete debug;
+    delete m_debug;
   }
 
   PhiHit::PhiHit( const PhiHit& h_) {
@@ -74,8 +74,8 @@ namespace MuonHough {
   
   PhiHit& PhiHit::operator=(const PhiHit& h_ ){
     if( &h_ != this ){
-      delete debug;
-      debug = 0;
+      delete m_debug;
+      m_debug = 0;
       copy(h_);
     }
     return *this;
@@ -87,8 +87,8 @@ namespace MuonHough {
     phimin = hit.phimin;
     phimax = hit.phimax;
     w = hit.w;
-    if( hit.debug ) debug = new HitDebugInfo(*hit.debug);
-    else debug = 0;
+    if( hit.m_debug ) m_debug = new HitDebugInfo(*hit.m_debug);
+    else m_debug = 0;
     prd = hit.prd;
     tgc = hit.tgc;
   }
