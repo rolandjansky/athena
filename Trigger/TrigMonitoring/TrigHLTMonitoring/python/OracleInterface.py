@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# Author: Ben Smart (bsmart@cern.ch)
+# Authors: Ben Smart (bsmart@cern.ch) & Xanthe Hoad (xanthe.hoad@cern.ch)
 #
 
 import sys
@@ -16,10 +16,7 @@ class OracleInterface:
 
     def connect_to_oracle(self,database_username="",database_password="",database_name="",directory=""):
 
-        # connection information, to be replaced with something more secure!
-        #USER =  'tklimk'
-        #PASSWORD = 'IiUTYhtOYL956!'
-        #DATASOURCE = 'devdb11'
+        # connection information
         USER = database_username
         PASSWORD = database_password
         DATASOURCE = database_name
@@ -36,19 +33,55 @@ class OracleInterface:
     def disconnect_from_oracle(self):
 
         # close oracle connection
-        self.conn.close()
+        #self.conn.close()
+        try: 
+            self.conn.close()
+            return True
+        except cx_Oracle.InterfaceError: 
+            return False
+        else:   
+            return False
 
+    def __unicode_to_str__(self,input1=""):
+        "Input a unicode string, list, or dict, and convert all unicode to str."
+        
+        # test for the type of input1
+        # if need be, recursively call this function
+        # where unicode is found, convert it to str
+        if type(input1) is str:
+            return input1
+        elif type(input1) is unicode:
+            return str(input1)
+        elif type(input1) is list:
+            for n, item in enumerate(input1):
+                input1[n] = self.__unicode_to_str__(item)
+            return input1
+        elif type(input1) is dict:
+            return_dict = {}
+            for key, value in input1.iteritems():
+                return_dict[str(key)] = self.__unicode_to_str__(value)
+            return return_dict
+        else:
+            return input1
 
     def fetch(self, query, parameters_dict = {}):
 
         # fetch results, based on a query, 
         # optionally providing additional parameters as a dictionary,
         # and return all results
-        # TEMP TEST
-        #print "In OracleInterface.fetch()"
-        #print "query =",query
-        #print "parameters_dict =",parameters_dict
-        return self.cursor.execute(query,parameters_dict).fetchall()
+        result = []
+        self.cursor.execute(query,parameters_dict)
+        for value in self.cursor:
+            if len(value) > 1:
+                tempvalue = {}
+                listvalue = list(value)
+                for x in range(len(value)):
+                    if type(value[x]) is cx_Oracle.LOB:
+                        # convert this into a string now in order to prevent access errors which occur with fetchall()
+                        listvalue[x] = self.__unicode_to_str__(json.loads(value[x].read()))
+                value = tuple(listvalue)
+            result.append(value)
+        return result
 
 
     def insert(self, query, parameters_dict = {}):
@@ -176,8 +209,7 @@ class OracleInterface:
         mck_info['MCK_CREATION_DATE'] = mck_info['MCK_CREATION_DATE'].getvalue()
 
         # return the new mck_id
-        return mck_info['MCK_ID']
-
+        return mck_info['MCK_ID']   
 
     def upload_smck(self,smck_info):
         # check if smck_info is already in database
@@ -464,7 +496,8 @@ class OracleInterface:
             smck_info['SMCK_TOOL_PATCH_VERSION'] = search_results[0][3]
             smck_info['SMCK_PROCESSING_STEP'] =    search_results[0][4]
             smck_info['SMCK_PROCESSING_STREAM'] =  search_results[0][5]
-            smck_info['SMCK_CONFIG'] =             json.loads(search_results[0][6].read()) # read() required to extract CLOB data
+            #smck_info['SMCK_CONFIG'] =             json.loads(search_results[0][6].read()) # read() required to extract CLOB data
+            smck_info['SMCK_CONFIG'] =             search_results[0][6] 
             smck_info['SMCK_CONFIG_HASH'] =        search_results[0][7]
             smck_info['SMCK_DEFAULT'] =            search_results[0][8]
             smck_info['SMCK_ATHENA_VERSION'] =     search_results[0][9]
@@ -583,8 +616,8 @@ class OracleInterface:
                 row_dict['DATA_TYPE'] = row[1]
                 row_dict['DATA_LENGTH'] = row[2]
 
-            # add this dictionary to the return list
-            return_list.append(row_dict)
+                # add this dictionary to the return list
+                return_list.append(row_dict)
 
         # return the return list
         return return_list
@@ -651,7 +684,7 @@ class OracleInterface:
             return return_list
             
         # now we construct a query
-        query = "SELECT * FROM "+table_name+" WHERE "+column_name+" = :INPUT1"
+        query = "SELECT * FROM "+self.directory+table_name+" WHERE "+column_name+" = :INPUT1"
 
         # construct the dict of the various input
         parameters_dict = {}
@@ -669,8 +702,10 @@ class OracleInterface:
 
                 # then we add this column name to our list
                 # we need to add it to the start of the list (insert before element 0), 
-                # as the database table/column search function returns the results in reversed order
-                column_list.insert(0,schema_row['COLUMN_NAME'])
+                # as the database table/column search function returns the results in reversed order(?)
+                # column_list.insert(0,schema_row['COLUMN_NAME'])
+                # it looks to me like the database table/column search function returns the columns in the right order, so do that
+                column_list.append(schema_row['COLUMN_NAME'])
 
         # loop over results
         for result_row in search_results:
@@ -693,14 +728,15 @@ class OracleInterface:
                 
                 # first we read out the CLOB
                 # then we turn the json string into a dict
-                row_dict['SMCK_CONFIG'] = json.loads(row_dict['SMCK_CONFIG'].read())
+                #row_dict['SMCK_CONFIG'] = json.loads(row_dict['SMCK_CONFIG'].read())
+                #this is already done
+                pass
 
             # add this dict to the return list
             return_list.append(row_dict)
                 
         # now our list of dictionaries should be complete, so we return it
         return return_list
-
 
     def check_if_mck_to_smk_link_exists_and_is_active(self,mck_id,smk):
         # return True of False, depending on whether this exact mck-smk link exists and is active
@@ -729,6 +765,32 @@ class OracleInterface:
             # no match has been found, so return False
             return False
 
+    def find_active_smk_to_mck_link(self,smk):
+        # returns details of link or an empty list depending on whether an smk link exists for this smk and is active
+
+        # construct the query
+        query = """SELECT * FROM """+self.directory+"""mck_to_smk_link \
+        WHERE """+self.directory+"""mck_to_smk_link.smk_link_smk = :SMK \
+        AND """+self.directory+"""mck_to_smk_link.smk_link_active_mck = :ACTIVE_LINK """
+
+        # construct the dict of the input smk
+        parameters_dict = {}
+        parameters_dict['SMK'] = smk
+        parameters_dict['ACTIVE_LINK'] = '1'
+
+        # perform the search
+        search_results = self.fetch(query,parameters_dict)
+
+        return search_results
+
+        # if there are results, return True
+        # otherwise return False
+        #if len(search_results) > 0:
+            # we have found a match, so return True
+            #return True
+        #else:
+            # no match has been found, so return False
+            #return False
 
     def deactivate_all_links_for_given_smk_except_for_given_mck(self,smk,input_mck_id):
         # for a given smk, deactivate all existing smk-mck links
@@ -749,6 +811,39 @@ class OracleInterface:
 
         # insert this into the database
         self.insert(query,parameters_dict)
+
+    def deactivate_all_links_for_given_smk(self,smk):
+        # for a given smk, deactivate all existing smk-mck links
+        # by setting smk_link_active_mck='0'
+
+        # make query to update links
+        query = """ UPDATE """+self.directory+"""mck_to_smk_link \
+        SET """+self.directory+"""mck_to_smk_link.smk_link_active_mck = :ACTIVE_LINK \
+        WHERE """+self.directory+"""mck_to_smk_link.smk_link_smk = :SMK """
+
+        # create dictionary of input parameter
+        parameters_dict = {}
+        parameters_dict['SMK'] = smk
+        parameters_dict['ACTIVE_LINK'] = '0'
+
+        # insert this into the database
+        self.insert(query,parameters_dict)
+
+    def check_if_smk_exists(self,smk_id):
+        
+        # construct the query
+        query = """SELECT * FROM """+self.directory+"""super_master_table \
+            WHERE """+self.directory+"""super_master_table.smt_id = :SMK """
+        #smt_name
+        
+        # construct the dict of the input smk
+        parameters_dict = {}
+        parameters_dict['SMK'] = smk_id
+        
+        # perform the search
+        search_results = self.fetch(query,parameters_dict)
+
+        return search_results   
 
 
     def upload_mck_to_smk_link(self,mck_id,smk,creator,comment=""):
