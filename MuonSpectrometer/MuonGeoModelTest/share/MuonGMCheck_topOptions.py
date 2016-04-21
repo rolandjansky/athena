@@ -33,8 +33,9 @@ DetFlags.detdescr.Muon_setOn()
 
 from IOVDbSvc.CondDB import conddb
 if not 'ConditionsTag' in dir():
-    ConditionsTag="COMCOND-BLKPST-004-00" ### remember to activate the options IOVDbSvc.CondDB options for data like conditions -> COMP200 
+    #ConditionsTag="COMCOND-BLKPST-004-00" ### remember to activate the options IOVDbSvc.CondDB options for data like conditions -> COMP200 
     #ConditionsTag="OFLCOND-SIM-00-00-00" ### for MC condition tags OFLP200 (default DB choice) will work out of teh box
+    ConditionsTag="OFLCOND-RUN12-SDR-19" 
 
 if useAlignData:
     print "Setting up DB name / Instance to COMP200 (default is OFLP200)"
@@ -46,7 +47,7 @@ ServiceMgr.IOVDbSvc.GlobalTag=ConditionsTag
 
 # Select geometry version
 if not 'DetDescrVersion' in dir():
-    DetDescrVersion="ATLAS-GEO-20-00-01"
+    DetDescrVersion="ATLAS-R2-2015-03-01-00"
 
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = DetDescrVersion
@@ -93,7 +94,7 @@ MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M"
 from AtlasGeoModel import SetGeometryVersion
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
-#GeoModelSvc.MuonVersionOverride = "MuonSpectrometer-R.01.01.Initial.Light"
+GeoModelSvc.MuonVersionOverride = "MuonSpectrometer-R.07.02"
 
 print GeoModelSvc
 
@@ -125,11 +126,12 @@ MuonDetectorTool = MuonDetectorTool()
 MuonDetectorTool.FillCacheInitTime = 0 # default is 0
 #MuonDetectorTool.DumpMemoryBreakDown = True # default is false
 # selection of active stations 
-MuonDetectorTool.StationSelection  = 1 # default is 0
+MuonDetectorTool.StationSelection  = 0 # default is 0
 #MuonDetectorTool.SelectedStations  = [ "X" ] # irrelevant if stationselection is 0 - this will switch off all stations
-MuonDetectorTool.SelectedStations  = [ "EIL", "T", "CSS", "BMS" ] # irrelevant if stationselection is 0
-MuonDetectorTool.SelectedStations  = [ "BOL" ] # irrelevant if stationselection is 0
-MuonDetectorTool.SelectedStJzz = [1, -1]
+#MuonDetectorTool.SelectedStations  = [ "EIL", "T", "CSS", "BMS" ] # irrelevant if stationselection is 0
+MuonDetectorTool.SelectedStations  = [ "BMS" ] # irrelevant if stationselection is 0
+#MuonDetectorTool.SelectedStations  = [ "BOS","BOL", "BOF", "BOG" ] # irrelevant if stationselection is 0
+MuonDetectorTool.SelectedStJzz = [4]
 MuonDetectorTool.SelectedStJff = [3]
 # alignment control 
 MuonDetectorTool.ControlAlines     = GeneralControlAlines         # default is 111111
@@ -173,8 +175,8 @@ print MuonDetectorTool
 from MuonGeoModelTest.MuonGeoModelTestConf import MuonGMCheck
 MuonGMCheck = MuonGMCheck()
 MuonGMCheck.EventLoopMode = GMCheckLoop
-MuonGMCheck.check_mdt = 1
-MuonGMCheck.check_rpc = 0
+MuonGMCheck.check_mdt = 0
+MuonGMCheck.check_rpc = 1
 MuonGMCheck.check_tgc = 0
 MuonGMCheck.check_csc = 0
 MuonGMCheck.minimalChecks = 1

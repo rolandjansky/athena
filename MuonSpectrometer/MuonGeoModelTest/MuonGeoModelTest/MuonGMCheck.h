@@ -31,8 +31,9 @@ class Identifier;
 
 namespace MuonGM
 {    
-    class MuonReadoutElement;
-    class MuonDetectorManager;
+  class MuonReadoutElement;
+  class MuonDetectorManager;
+  class RpcReadoutElement;
 }
 
 class MuonGMCheck: public AthAlgorithm
@@ -115,7 +116,31 @@ private:
     void test_MM_IdHelpers();
     void test_sTGC_IdHelpers();
     
-    
+    void getEtaPhiPanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid,
+				  double& etamin, double& etamax,
+				  double& phimin, double& phimax);
+    void getZPhiPanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid,
+				double& zmin, double& zmax,
+				double& phimin, double& phimax);
+    void getEtaPhiActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid,
+					double& etamin, double& etamax,
+					double& phimin, double& phimax);
+    void getZPhiActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid,
+				      double& zmin, double& zmax,
+				      double& phimin, double& phimax);
+    void getPanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid,
+			    double& etamin, double& etamax,
+			    double& phimin, double& phimax,
+			    double& zmin, double& zmax);
+    void getActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid,
+				  double& etamin, double& etamax,
+				  double& phimin, double& phimax,
+				  double& zmin,   double& zmax);
+    void getPanelEdgeCenter(const MuonGM::RpcReadoutElement* rpc, Identifier& chid, 
+			    double& xC, double& yC, double& zC , 
+			    double& xFirstPhiS, double& yFirstPhiS, double& zFirstPhiS, 
+			    double& xLastPhiS, double& yLastPhiS, double& zLastPhiS);  
+      
     void buildCscRegionSelectorMap();
     void buildRpcRegionSelectorMap();
     void buildMdtRegionSelectorMap();

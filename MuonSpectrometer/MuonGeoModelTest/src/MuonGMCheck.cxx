@@ -81,8 +81,8 @@ MuonGMCheck::MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator)
     p_TgcIdHelper           ( 0 ),
     p_CscIdHelper           ( 0 ),
     p_MdtIdHelper           ( 0 ),
-    p_sTgcIdHelper           ( 0 ),
-    p_MmIdHelper           ( 0 ),
+    p_sTgcIdHelper          ( 0 ),
+    p_MmIdHelper            ( 0 ),
     m_fixedIdTool("MuonCalib::IdToFixedIdTool")
 {
     m_mem = 0;
@@ -298,11 +298,27 @@ void MuonGMCheck::checkreadoutrpcgeo()
      
      std::string gVersion = p_MuonMgr->geometryVersion();
      std::string fileName = "rpc_current_"+gVersion;
+     std::string fileName1 = "testPadPos_"+gVersion;
+     std::string fileNamePad = "rpc_current_padPos_"+gVersion;
+     std::string fileNamePanel = "rpc_current_panelID_"+gVersion;
+     std::string fileNamePanelHashIds = "rpc_current_panelHashID_"+gVersion;
 
      std::ofstream fout(fileName.c_str());
      ATH_MSG_INFO( " ***** Writing file "<< fileName  );
-     fout << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
-     //typedef std::cout fout;
+     std::ofstream fout1(fileName1.c_str());
+     ATH_MSG_INFO( " ***** Writing file "<< fileName  );
+     std::ofstream fpanelid(fileNamePanel.c_str());
+     ATH_MSG_INFO( " ***** Writing file "<< fileNamePanel  );
+     std::ofstream fpad(fileNamePad.c_str());
+     ATH_MSG_INFO( " ***** Writing file "<< fileNamePad  );
+     std::ofstream fpanelidh(fileNamePanelHashIds.c_str());
+     ATH_MSG_INFO( " ***** Writing file "<< fileNamePanelHashIds  );
+     //
+     fout      << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
+     fout1     << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
+     fpanelid  << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
+     fpad      << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
+     fpanelidh << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
 
      
 //      Identifier chid = p_RpcIdHelper->channelID(9, 3, 6, 2, 2, 2, 2, 0, 22);
@@ -331,6 +347,17 @@ void MuonGMCheck::checkreadoutrpcgeo()
 		 //                 int fi = sphi_index + 1;
                  for (int dbr_index = 0; dbr_index<MuonDetectorManager::NDoubletR; ++dbr_index)
                  {
+		   double keepxC=0.;
+		   double keepyC=0.;
+		   double keepzC=0.;
+		   double keepxFS=0.;
+		   double keepyFS=0.;
+		   double keepzFS=0.;
+		   double keepxLS=0.;
+		   double keepyLS=0.;
+		   double keepzLS=0.;
+
+		     
                      for (int dbz_index = 0; dbz_index<MuonDetectorManager::NDoubletZ; ++dbz_index)
                      {
 			 fout<<" ///////////////////// Looking for a RpcReadoutElement for indices = "
@@ -357,8 +384,17 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                   <<rpc->getStationName()<<" # doubletPhi = "<<ndbphi<<std::endl;
                          Identifier idp = p_RpcIdHelper->parentID(idr);
                          fout<<"      parent Id = "<<p_RpcIdHelper->show_to_string(idp)<<std::endl;
-                         int doubletR = p_RpcIdHelper->doubletR(idr);
                          fout<<" Center of the RpcReadoutElement at "<<rpc->center()<<std::endl;
+                         int doubletR = p_RpcIdHelper->doubletR(idr);
+                         int doubletZ = p_RpcIdHelper->doubletZ(idr);
+			 int stEta = rpc->getStationEta();
+			 int stPhi = rpc->getStationPhi();
+			 int stNameInt = p_RpcIdHelper->stationName(idr);
+			 std::string stNameString = p_RpcIdHelper->stationNameString(stNameInt);
+
+			 RpcReadoutSet Set(p_MuonMgr, idr);
+			 int ndbz = Set.NdoubletZ();			     
+                         fout1<<" its offline Id = "<<p_RpcIdHelper->show_to_string(idr)<<" means "<<stNameString<<" eta "<<stEta<<" phi "<<stPhi<<" doubletR "<<doubletR<<" dbZ "<<doubletZ<<"(out of "<<ndbz<<" in the set); n. of dbPhi in this chamber = "<< ndbphi<<std::endl;
 
                          const MuonStation* ms  = rpc->parentMuonStation();
                          if (ms) fout<<"Parent MuonStation found "<<std::endl;
@@ -373,25 +409,34 @@ void MuonGMCheck::checkreadoutrpcgeo()
                              <<" eta-strip-pitch "<<rpc->StripPitch(0)
                              <<" *Nstrip "<<rpc->StripPitch(0)*rpc->NetaStrips()-2.*CLHEP::mm+2*rpc->StripPanelDead(1)-2*9.*CLHEP::mm<<std::endl;
 
-                         for (int idbphi = 1; idbphi<=ndbphi; idbphi++)
+                         for (int idbphi = 1; idbphi<=ndbphi; ++idbphi)
                          {
                              int dbp = p_RpcIdHelper->doubletPhi(idr);
+			     //fpanelid<<" idbphi, dbp, ndbphi = "<<idbphi<<" "<<dbp<<" "<<ndbphi<<" idThisRpcRE "<<p_RpcIdHelper->show_to_string(idr)<<" ifParent "<<p_RpcIdHelper->show_to_string(idp)<<std::endl;
                              if (ndbphi>1 && idbphi>1) dbp = idbphi;
                              fout<<" Changing doubletPhi for  "<<p_RpcIdHelper->show_to_string(idr)
                                       <<" "<<rpc->getTechnologyName()<<"/"
-                                      <<rpc->getStationName()<<"dbr, dbz, dbp "<<doubletR<<" "
+                                      <<rpc->getStationName()<<" dbr, dbz, dbp "<<doubletR<<" "
                                       <<p_RpcIdHelper->doubletZ(idr)<<" "<<dbp<<std::endl;
+                             //fpanelid<<" Changing doubletPhi for  "<<p_RpcIdHelper->show_to_string(idr)
+                             //         <<" "<<rpc->getTechnologyName()<<"/"
+                             //         <<rpc->getStationName()<<"dbr, dbz, dbp "<<doubletR<<" "
+                             //         <<p_RpcIdHelper->doubletZ(idr)<<" "<<dbp<<std::endl;
+
+
                              for ( int igg=1; igg<3; igg++) 
                              {
                                  //
-                                 fout<<" Changing gas-gap   "<<igg<<" for  "<<p_RpcIdHelper->show_to_string(idr)
+                                 fout<<" Changing gas-gap  "<<igg<<" for  "<<p_RpcIdHelper->show_to_string(idr)
                                           <<" "<<rpc->getTechnologyName()<<"/"
-                                          <<rpc->getStationName()<<"dbr, dbz, dbp "<<doubletR<<" "
+                                          <<rpc->getStationName()<<" dbr, dbz, dbp "<<doubletR<<" "
                                           <<p_RpcIdHelper->doubletZ(idr)<<" "<< dbp<<std::endl;
                                  int measphi = 1;
                                  fout<<" Gas Gap "<<igg<<" measphi = "<<measphi<<" phi strip pitch = "<<rpc->StripPitch(measphi)<<" n. phi strips = "<<rpc->NphiStrips()<<std::endl;
                                  phistr_pitch += rpc->StripPitch(measphi) * rpc->NphiStrips();
                                  nphistr      += rpc->NphiStrips();
+
+
 
                                  bool m_localToGlobal_rpc=true;
                                  if (m_localToGlobal_rpc) 
@@ -417,7 +462,10 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                      fout<<" Global phi/theta differences = "<<gPhi-(-2.628506)<<" "<<gTheta-1.1838122<<std::endl;
                                      //end here (gasgap-level)     checks on local to global transform
                                  }
+
+
                                  
+				 double etamin, etamax, phimin, phimax, zmin, zmax;
                                  int stripStep = 1;
                                  if (m_check_first_last) stripStep = rpc->NphiStrips()-1;
                                  for (int strip = 1; strip<=rpc->NphiStrips();)
@@ -425,6 +473,193 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                      Identifier chid = p_RpcIdHelper->channelID(idp,
                                                                                 p_RpcIdHelper->doubletZ(idr),
                                                                                 dbp, igg, measphi, strip);
+				     if (strip==1)
+				       {
+					 fpanelidh<<"IdCodes "<<p_RpcIdHelper->show_to_string(chid)<<" "
+						  <<p_RpcIdHelper->stationNameString(p_RpcIdHelper->stationName(chid))<<" "
+						  <<chid<<" "
+						  <<chid.get_identifier32().get_compact()<<" "
+						  <<chid.get_compact()<<" n phi strips = "<<rpc->NphiStrips()<<std::endl;
+					 //std::cout<<"  1st strip: phi="<<rpc->stripPos(chid).phi()<<" eta="<<rpc->stripPos(chid).eta()<<std::endl;
+					 //getEtaPhiPanelBoundaries(rpc, chid, etamin, etamax, phimin, phimax);
+					 getEtaPhiActivePanelBoundaries(rpc, chid, etamin, etamax, phimin, phimax);
+					 getZPhiActivePanelBoundaries(rpc, chid, zmin, zmax, phimin, phimax);
+					 int layerType=0;
+					 if (  doubletR==2 ) layerType=1;
+					 //if ( ((stNameInt<4 || stNameInt==8 || stNameInt==53)&&doubletR==2) || ((stNameInt==9||stNameInt==10)&&doubletR==2) ) layerType=1;
+					 if ( (stNameInt>3&&(stNameInt!=53 && stNameInt!=8)) && doubletR==1 ) layerType=2;
+					 layerType = layerType*2+p_RpcIdHelper->gasGap(chid);
+					 fpanelid<<layerType<<" "
+					 	 <<stNameString<<" phi "
+					 	 <<p_RpcIdHelper->show_to_string(chid)<<" "
+					 	 <<chid.get_identifier32().get_compact()<<" "
+					 	 <<etamin<<" "<<etamax<<" "<<phimin<<" "<<phimax<<" "<<zmin<<" "<<zmax<<std::endl;
+					 bool anyPad=true;
+					 std::string planeString = "confirm";
+					 if (doubletR==2)  planeString = "pivot";
+					 if ((stNameString=="BMS" || stNameString=="BMF" || stNameString=="BME") && doubletR==2) anyPad=false;
+					 if (stNameString=="BML" && doubletR==1) anyPad=false;
+					 if (doubletR>2)  anyPad=false;
+					 if (anyPad){
+					   if (measphi==1 && igg==1) 
+					     {
+					       if (stNameString=="BMS" || stNameString=="BMF" || stNameString=="BML" || stNameString=="BME" || stNameString=="BOL") 
+						 {
+						   double xC,yC,zC,xFirstPhiS,yFirstPhiS,zFirstPhiS,xLastPhiS,yLastPhiS,zLastPhiS;
+						   getPanelEdgeCenter(rpc, chid, xC, yC, zC, xFirstPhiS,yFirstPhiS,zFirstPhiS,xLastPhiS,yLastPhiS,zLastPhiS);
+						   fout1<<"dbR, dbZ, dbP = "<<doubletR<<" "<<doubletZ<<" "<<dbp<<" panel c "<<xC<<" "<<yC<<" "<<zC
+						       <<" panel fs "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS
+						       <<" ls "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl;
+						   if (ndbz==1 || (stNameString.substr(0,3)=="BMS" && abs(stEta)==4 && dbz_index==0)){
+						     fpanelid<<"Pad box position "
+							     <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+							     <<p_RpcIdHelper->show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+						     fout1<<"Pad box position "
+							  <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+							  <<p_RpcIdHelper->show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+						     fpad<<stNameString.substr(0,3)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+						     // if (dbp==1){
+						     //   xC = rpc->center().x(); yC = rpc->center().y();zC = rpc->center().z();
+						     //   fpanelid<<"NoPad chamberCenter "
+						     // 	       <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+						     // 	       <<p_RpcIdHelper->show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+						     //   fout1<<"NoPad chamberCenter "
+						     // 	    <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+						     // 	    <<p_RpcIdHelper->show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+						     // }
+						   }
+						   else if (ndbz>1 && dbz_index==0){
+						     if (dbp==1){keepxFS = xC;  keepyFS = yC;  keepzFS = zC;fout1<<"keep center for dbp1"<<std::endl;}
+						     else {keepxLS = xC;  keepyLS = yC;  keepzLS = zC;fout1<<"keep center for dbp2"<<std::endl;
+						       keepxC = rpc->center().x(); keepyC = rpc->center().y(); keepzC = rpc->center().z();
+						       fout1<<"keep center for center "<<keepxC<<" "<<keepyC<<" "<<keepzC<<std::endl;
+						     }
+						   }
+						   else if (ndbz>1 && dbz_index==1 && (!(stNameString.substr(0,3)=="BMS" && abs(stEta)==4)) ){
+						     if (dbp==1) {xC = 0.5*(keepxFS + xC);  yC = 0.5*(keepyFS + yC);  zC = 0.5*(keepzFS + zC);}
+						     else {xC = 0.5*(keepxLS + xC);  yC = 0.5*(keepyLS + yC);  zC = 0.5*(keepzLS + zC);}
+						     fpanelid<<"Pad box position "
+							     <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+							     <<p_RpcIdHelper->show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+						     fout1<<"Pad box position "
+							  <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+							  <<p_RpcIdHelper->show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+						     fpad<<stNameString.substr(0,3)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+						     if (dbp==2){
+						       // fout1<<"aaa keepx/y/x C = "<<keepxC<<" "<<keepyC<<" "<<keepzC<<std::endl;
+						       // xC = 0.5*(keepxC + rpc->center().x()); yC = 0.5*(keepyC + rpc->center().y()); zC = 0.5*(keepzC + rpc->center().z());
+						       // fpanelid<<"NoPad chamberCenter "
+						       // 	       <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+						       // 	       <<p_RpcIdHelper->show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+						       // fout1<<"NoPad chamberCenter "
+						       // 	    <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+						       // 	    <<p_RpcIdHelper->show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+
+						     }
+						   }
+						 }
+					       else if (stNameString=="BOS" || stNameString=="BOG" || stNameString=="BOF") 
+						 {
+						   double xC,yC,zC,xFirstPhiS,yFirstPhiS,zFirstPhiS,xLastPhiS,yLastPhiS,zLastPhiS;
+						   getPanelEdgeCenter(rpc, chid, xC, yC, zC, xFirstPhiS,yFirstPhiS,zFirstPhiS,xLastPhiS,yLastPhiS,zLastPhiS);
+						   fout1<<"dbR, dbZ, dbP = "<<doubletR<<" "<<doubletZ<<" "<<dbp<<" panel c "<<xC<<" "<<yC<<" "<<zC
+						       <<" panel fs "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS
+						       <<" ls "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl;
+						   if (ndbz==1){
+						     if (dbp==1) {
+						       fpanelid<<"Pad box position "
+							       <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+							       <<p_RpcIdHelper->show_to_string(chid)<<" "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS<<std::endl; 
+						       fout1<<"Pad box position "
+							       <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+							       <<p_RpcIdHelper->show_to_string(chid)<<" "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS<<std::endl; 
+						       fpad<<stNameString.substr(0,3)<<" "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS<<std::endl; 
+						     }
+						     else {
+						       fpanelid<<"Pad box position "
+							       <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+							       <<p_RpcIdHelper->show_to_string(chid)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl;
+						       fout1<<"Pad box position "
+							       <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+							       <<p_RpcIdHelper->show_to_string(chid)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl;
+						       fpad<<stNameString.substr(0,3)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl;  
+						       xC = rpc->center().x(); yC = rpc->center().y();zC = rpc->center().z();
+						       // fpanelid<<"NoPad chamberCenter "
+						       // 	       <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+						       // 	       <<p_RpcIdHelper->show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+						       // fout1<<"NoPad chamberCenter "
+						       // 	    <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+						       // 	    <<p_RpcIdHelper->show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+
+						     }
+
+						   }
+						   else if (ndbz>1 && dbz_index==0){
+						     if (dbp==1) 
+						       {keepxFS = xFirstPhiS;  keepyFS = yFirstPhiS;  keepzFS = zFirstPhiS;fout1<<" first strip kept"<<std::endl;}
+						     else {keepxLS = xLastPhiS;  keepyLS = yLastPhiS;  keepzLS = zLastPhiS;fout1<<" last strip kept"<<std::endl;
+						       keepxC = rpc->center().x(); keepyC = rpc->center().y();keepzC = rpc->center().z();
+						     }
+						     fout1<<" center kept"<<std::endl;
+						   }
+						   else if (ndbz>1 && dbz_index==1){
+						      if (dbp==1) {
+							xFirstPhiS = 0.5*(keepxFS + xFirstPhiS);  
+							yFirstPhiS = 0.5*(keepyFS + yFirstPhiS);  
+							zFirstPhiS = 0.5*(keepzFS + zFirstPhiS);  
+							fpanelid<<"Pad box position "
+								<<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+								<<p_RpcIdHelper->show_to_string(chid)<<" "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS<<std::endl; 
+							fpad<<stNameString.substr(0,3)<<" "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS<<std::endl; 
+							fout1<<"Pad box position "
+							    <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+							    <<p_RpcIdHelper->show_to_string(chid)<<" "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS<<std::endl; 
+						      }
+						      else {
+							xLastPhiS = 0.5*(keepxLS + xLastPhiS);  
+							yLastPhiS = 0.5*(keepyLS + yLastPhiS);  
+							zLastPhiS = 0.5*(keepzLS + zLastPhiS);  
+							fpanelid<<"Pad box position "
+								<<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+								<<p_RpcIdHelper->show_to_string(chid)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl; 
+							fout1<<"Pad box position "
+								<<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+								<<p_RpcIdHelper->show_to_string(chid)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl; 
+						       fpad<<stNameString.substr(0,3)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl;  
+						       xC = 0.5*(keepxC + rpc->center().x()); yC = 0.5*(keepyC + rpc->center().y()); zC = 0.5*(keepzC + rpc->center().z());
+						       // fpanelid<<"NoPad chamberCenter "
+						       // 	       <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+						       // 	       <<p_RpcIdHelper->show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+						       // fout1<<"NoPad chamberCenter "
+						       // 	    <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
+						       // 	    <<p_RpcIdHelper->show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+
+						      }
+
+						   }
+						 }
+					      }
+					   }
+				       }
+				     // else if (strip==rpc->NphiStrips())
+				     //   {
+				     // 	 // int stNameInt = p_RpcIdHelper->stationName(chid);
+				     // 	 // std::string stNameString = p_RpcIdHelper->stationNameString(stNameInt);
+				     // 	 // int dbR = p_RpcIdHelper->doubletR(chid);
+				     // 	 // int layerType=0;
+				     // 	 // if (  dbR==2 ) layerType=1;
+				     // 	 // //if ( ((stNameInt<4 || stNameInt==8 || stNameInt==53)&&dbR==2) || ((stNameInt==9||stNameInt==10)&&dbR==2) ) layerType=1;
+				     // 	 // if ( (stNameInt>3&&(stNameInt!=53 && stNameInt!=8)) && dbR==1 ) layerType=2;
+				     // 	 // layerType = layerType*2+p_RpcIdHelper->gasGap(chid);
+				     // 	 // //std::cout<<" last strip: phi="<<rpc->stripPos(chid).phi()<<" eta="<<rpc->stripPos(chid).eta()<<std::endl;
+				     // 	 std::cout<<" panel eta:["<<etamin<<","<<etamax<<"] phi:["<<phimin<<","<<phimax<<"]"<<std::endl;
+				     // 	 // fpanelid<<layerType<<" "
+				     // 	 // 	 <<stNameString<<" phi "
+				     // 	 // 	 <<p_RpcIdHelper->show_to_string(chid)<<" "
+				     // 	 // 	 <<chid.get_identifier32().get_compact()<<" "
+				     // 	 // 	 <<etamin<<" "<<etamax<<" "<<phimin<<" "<<phimax<<" "<<zmin<<" "<<zmax<<std::endl;
+				     //   }
+
                                      fout<<" StripGlobalPosition "<<p_RpcIdHelper->show_to_string(chid)<<" pos "
                                          <<rpc->stripPos(chid)<<" Local Position = "<<rpc->localStripPos(chid) <<std::endl;
                                      Amg::Vector3D xxSD = rpc->globalToLocalCoords(rpc->stripPos(chid), chid);
@@ -505,6 +740,7 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                  netastr      += rpc->NetaStrips();
                                  //fout<<" ============== phipitch, etapitch "
                                  //         <<phistr_pitch<<" "<<etastr_pitch <<" nphi, neta "<<nphistr<<" "<<netastr<<std::endl;
+
                                  stripStep = 1;
                                  if (m_check_first_last) stripStep = rpc->NetaStrips()-1;
                                  for (int strip = 1; strip<=rpc->NetaStrips();)
@@ -512,6 +748,38 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                      Identifier chid = p_RpcIdHelper->channelID(idp,
                                                                                 p_RpcIdHelper->doubletZ(idr),
                                                                                 dbp, igg, measphi, strip);
+				     if (strip==1)
+				       {
+					 fpanelidh<<"IdCodes "<<p_RpcIdHelper->show_to_string(chid)<<" "
+						  <<p_RpcIdHelper->stationNameString(p_RpcIdHelper->stationName(chid))<<" "
+						  <<chid<<" "
+						  <<chid.get_identifier32().get_compact()<<" "
+						  <<chid.get_compact()<<" n eta strips = "<<rpc->NetaStrips()<<std::endl;
+					 //ATH_MSG_WARNING (p_RpcIdHelper->show_to_string(chid)<<" "
+					 //		  <<chid<<" n eta strips = "<<rpc->NetaStrips());
+					 //std::cout<<"  1st strip: phi="<<rpc->stripPos(chid).phi()<<" eta="<<rpc->stripPos(chid).eta()<<std::endl;
+					 //getEtaPhiActivePanelBoundaries(rpc, chid, etamin, etamax, phimin, phimax);
+					 // int stNameInt = p_RpcIdHelper->stationName(chid);
+					 // std::string stNameString = p_RpcIdHelper->stationNameString(stNameInt);
+					 // int dbR = p_RpcIdHelper->doubletR(chid);
+					 int layerType=0;
+					 if (  doubletR==2 ) layerType=1;
+					 //if ( ((stNameInt<4 || stNameInt==8 || stNameInt==53)&&dbR==2) || ((stNameInt==9||stNameInt==10)&&dbR==2) ) layerType=1;
+					 if ( (stNameInt>3&&(stNameInt!=53 && stNameInt!=8)) && doubletR==1 ) layerType=2;
+					 layerType = layerType*2+p_RpcIdHelper->gasGap(chid);
+					 
+					 fpanelid<<layerType<<" "
+						 <<stNameString<<" eta "
+						 <<p_RpcIdHelper->show_to_string(chid)<<" "
+						 <<chid.get_identifier32().get_compact()<<" "
+						 <<etamin<<" "<<etamax<<" "<<phimin<<" "<<phimax<<" "<<zmin<<" "<<zmax<<std::endl;
+				       }
+				     // else if (strip==rpc->NetaStrips())
+				     //   {
+				     // 	 //std::cout<<" last strip: phi="<<rpc->stripPos(chid).phi()<<" eta="<<rpc->stripPos(chid).eta()<<std::endl;
+				     // 	 std::cout<<" panel eta:["<<etamin<<","<<etamax<<"] phi:["<<phimin<<","<<phimax<<"]"<<std::endl;
+				     //   }
+				     
                                      fout<<" StripGlobalPosition "<<p_RpcIdHelper->show_to_string(chid)<<" pos "
                                          <<rpc->stripPos(chid)<<" Local Position = "<<rpc->localStripPos(chid)<<std::endl;
 
@@ -604,9 +872,353 @@ void MuonGMCheck::checkreadoutrpcgeo()
      fout<<" average Eta strip pitch = "<<etastr_pitch<<" for "<<netastr<<" eta strips in total"<<std::endl;
      fout<<" average Phi strip pitch = "<<phistr_pitch<<" for "<<nphistr<<" phi strips in total"<<std::endl;     
      fout.close();
+     fout1.close();
+     fpanelid.close();
+     fpad.close();
+     fpanelidh.close();
      ATH_MSG_INFO(" CheckReadoutRpc done !" );
      
  }
+
+void MuonGMCheck::getEtaPhiPanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid, 
+			      double& etamin, double& etamax, 
+			      double& phimin, double& phimax)
+{
+  double zmin;
+  double zmax;
+  return getPanelBoundaries(rpc, chid,  
+			    etamin, etamax, 
+			    phimin, phimax,
+			    zmin,   zmax);
+}
+void MuonGMCheck::getZPhiPanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid, 
+			      double& zmin, double& zmax, 
+			      double& phimin, double& phimax)
+{
+  double etamin;
+  double etamax;
+  return getPanelBoundaries(rpc, chid,  
+			    etamin, etamax, 
+			    phimin, phimax,
+			    zmin,   zmax);
+}
+void MuonGMCheck::getEtaPhiActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid, 
+			      double& etamin, double& etamax, 
+			      double& phimin, double& phimax)
+{
+  double zmin;
+  double zmax;
+  return getActivePanelBoundaries(rpc, chid,  
+			    etamin, etamax, 
+			    phimin, phimax,
+			    zmin,   zmax);
+}
+void MuonGMCheck::getZPhiActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid, 
+			      double& zmin, double& zmax, 
+			      double& phimin, double& phimax)
+{
+  double etamin;
+  double etamax;
+  return getActivePanelBoundaries(rpc, chid,  
+			    etamin, etamax, 
+			    phimin, phimax,
+			    zmin,   zmax);
+}
+void MuonGMCheck::getPanelEdgeCenter(const MuonGM::RpcReadoutElement* rpc, Identifier& chid, 
+				     double& xC, double& yC, double& zC , 
+				     double& xFirstPhiS, double& yFirstPhiS, double& zFirstPhiS, 
+				     double& xLastPhiS, double& yLastPhiS, double& zLastPhiS)
+{
+  int n_strips = 0; // in phi or eta dir. depening on measphi-field of chid
+  //  int n_stripsOtherView = 0;
+  int view =-1;
+  //int otherview =-1;
+  if (p_RpcIdHelper->measuresPhi(chid))
+    {
+      // phi panel
+      view = 1;
+      //otherview = 0;
+      n_strips = rpc->NphiStrips();
+      //n_stripsOtherView = rpc->NetaStrips();
+    }
+  else
+    {
+      // eta panel 
+      view = 0;
+      //otherview = 1;
+      n_strips = rpc->NetaStrips();
+      //n_stripsOtherView = rpc->NphiStrips();
+    }
+  Identifier idp = p_RpcIdHelper->parentID(chid);
+  Identifier chidFirst = p_RpcIdHelper->channelID(idp, 
+						  p_RpcIdHelper->doubletZ(chid),
+						  p_RpcIdHelper->doubletPhi(chid),
+						  p_RpcIdHelper->gasGap(chid),
+						  view,
+						  1);
+  Identifier chidLast  = p_RpcIdHelper->channelID(idp, 
+						  p_RpcIdHelper->doubletZ(chid),
+						  p_RpcIdHelper->doubletPhi(chid),
+						  p_RpcIdHelper->gasGap(chid),
+						  view,
+						  n_strips);
+
+  xFirstPhiS = 0.;
+  yFirstPhiS = 0.;
+  zFirstPhiS = 0.;
+  
+  xLastPhiS = 0.;
+  yLastPhiS = 0.;
+  zLastPhiS = 0.;
+  
+  xC = 0.;
+  yC = 0.;
+  zC = 0.;
+  if (view==1) {
+    xFirstPhiS = rpc->stripPos(chidFirst).x();
+    yFirstPhiS = rpc->stripPos(chidFirst).y();
+    zFirstPhiS = rpc->stripPos(chidFirst).z();
+
+    xLastPhiS = rpc->stripPos(chidLast).x();
+    yLastPhiS = rpc->stripPos(chidLast).y();
+    zLastPhiS = rpc->stripPos(chidLast).z();
+
+    const Amg::Vector3D vecCenter= 0.5*(rpc->stripPos(chidFirst)+rpc->stripPos(chidLast));
+    xC = vecCenter.x();
+    yC = vecCenter.y();
+    zC = vecCenter.z();
+  }
+
+  return;
+}
+void MuonGMCheck::getPanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid, 
+					   double& etamin, double& etamax, 
+					   double& phimin, double& phimax,
+					   double& zmin,   double& zmax)
+{
+  int n_strips = 0; // in phi or eta dir. depening on measphi-field of chid
+  int n_stripsOtherView = 0;
+  int view =-1;
+  int otherview =-1;
+  if (p_RpcIdHelper->measuresPhi(chid))
+    {
+      // phi panel
+      view = 1;
+      otherview = 0;
+      n_strips = rpc->NphiStrips();
+      n_stripsOtherView = rpc->NetaStrips();
+    }
+  else
+    {
+      // eta panel 
+      view = 0;
+      otherview = 1;
+      n_strips = rpc->NetaStrips();
+      n_stripsOtherView = rpc->NphiStrips();
+    }
+  Identifier idp = p_RpcIdHelper->parentID(chid);
+  Identifier chidFirst = p_RpcIdHelper->channelID(idp, 
+						  p_RpcIdHelper->doubletZ(chid),
+						  p_RpcIdHelper->doubletPhi(chid),
+						  p_RpcIdHelper->gasGap(chid),
+						  view,
+						  1);
+  Identifier chidLast  = p_RpcIdHelper->channelID(idp, 
+						  p_RpcIdHelper->doubletZ(chid),
+						  p_RpcIdHelper->doubletPhi(chid),
+						  p_RpcIdHelper->gasGap(chid),
+						  view,
+						  n_strips);
+  Identifier chidFirstOtherView = p_RpcIdHelper->channelID(idp, 
+						  p_RpcIdHelper->doubletZ(chid),
+						  p_RpcIdHelper->doubletPhi(chid),
+						  p_RpcIdHelper->gasGap(chid),
+						  otherview,
+						  1);
+  Identifier chidLastOtherView  = p_RpcIdHelper->channelID(idp, 
+						  p_RpcIdHelper->doubletZ(chid),
+						  p_RpcIdHelper->doubletPhi(chid),
+						  p_RpcIdHelper->gasGap(chid),
+						  otherview,
+						  n_stripsOtherView);
+
+  double phiFirstStrip;
+  double phiLastStrip;
+  double etaFirstStrip;
+  double etaLastStrip;
+  double zFirstStrip;
+  double zLastStrip;
+  if (view==1) {
+    phiFirstStrip = rpc->stripPos(chidFirst).phi();
+    phiLastStrip  = rpc->stripPos(chidLast).phi();
+    etaFirstStrip = rpc->stripPos(chidFirstOtherView).eta();
+    etaLastStrip  = rpc->stripPos(chidLastOtherView).eta();
+    zFirstStrip   = rpc->stripPos(chidFirstOtherView).z();
+    zLastStrip    = rpc->stripPos(chidLastOtherView).z();
+  }
+  else {
+    phiFirstStrip = rpc->stripPos(chidFirstOtherView).phi();
+    phiLastStrip  = rpc->stripPos(chidLastOtherView).phi();
+    etaFirstStrip = rpc->stripPos(chidFirst).eta();
+    etaLastStrip  = rpc->stripPos(chidLast).eta();
+    zFirstStrip   = rpc->stripPos(chidFirst).z();
+    zLastStrip    = rpc->stripPos(chidLast).z();
+    }
+
+  if ( etaFirstStrip<etaLastStrip ) {
+    etamin = etaFirstStrip;
+    etamax = etaLastStrip;
+    zmin   = zFirstStrip;
+    zmax   = zLastStrip;
+  }
+  else {
+    etamin = etaLastStrip;
+    etamax = etaFirstStrip;
+    zmin   = zLastStrip;
+    zmax   = zFirstStrip;
+  }
+
+  // if (p_RpcIdHelper->stationPhi(chid)==8)
+  //   if (p_RpcIdHelper->stationNameString(p_RpcIdHelper->stationName(chid)).substr(2,1)=="L")
+  //     {
+  // 	if (phiLastStrip<0) phiLastStrip=phiLastStrip+2.*M_PI;
+  //     }
+
+  if ( phiFirstStrip < phiLastStrip ) {
+    phimin = phiFirstStrip;
+    phimax = phiLastStrip;
+  }
+  else {
+    phimin = phiLastStrip;
+    phimax = phiFirstStrip;
+  }
+  
+  return;
+}
+
+void MuonGMCheck::getActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Identifier& chid, 
+					   double& etamin, double& etamax, 
+					   double& phimin, double& phimax, 
+					   double& zmin,   double& zmax)
+{
+  int n_strips = 0; // in phi or eta dir. depening on measphi-field of chid
+  int n_stripsOtherView = 0;
+  int view =-1;
+  int otherview =-1;
+  if (p_RpcIdHelper->measuresPhi(chid))
+    {
+      // phi panel
+      view      = 1;
+      otherview = 0;
+      n_strips          = rpc->NphiStrips();
+      n_stripsOtherView = rpc->NetaStrips();
+      // stripPitch          = rpc->StripPitch(1);
+      // stripPitchOtherView = rpc->StripPitch(0);
+    }
+  else
+    {
+      // eta panel 
+      view      = 0;
+      otherview = 1;
+      n_strips          = rpc->NetaStrips();
+      n_stripsOtherView = rpc->NphiStrips();
+      // stripPitch          = rpc->StripPitch(0);
+      // stripPitchOtherView = rpc->StripPitch(1);
+    }
+  Identifier idp = p_RpcIdHelper->parentID(chid);
+  Identifier chidFirst = p_RpcIdHelper->channelID(idp, 
+						  p_RpcIdHelper->doubletZ(chid),
+						  p_RpcIdHelper->doubletPhi(chid),
+						  p_RpcIdHelper->gasGap(chid),
+						  view,
+						  1);
+  Identifier chidLast  = p_RpcIdHelper->channelID(idp, 
+						  p_RpcIdHelper->doubletZ(chid),
+						  p_RpcIdHelper->doubletPhi(chid),
+						  p_RpcIdHelper->gasGap(chid),
+						  view,
+						  n_strips);
+  Identifier chidFirstOtherView = p_RpcIdHelper->channelID(idp, 
+						  p_RpcIdHelper->doubletZ(chid),
+						  p_RpcIdHelper->doubletPhi(chid),
+						  p_RpcIdHelper->gasGap(chid),
+						  otherview,
+						  1);
+  Identifier chidLastOtherView  = p_RpcIdHelper->channelID(idp, 
+						  p_RpcIdHelper->doubletZ(chid),
+						  p_RpcIdHelper->doubletPhi(chid),
+						  p_RpcIdHelper->gasGap(chid),
+						  otherview,
+						  n_stripsOtherView);
+
+
+  const Amg::Vector3D firstStripPos = rpc->stripPos(chidFirst);
+  const Amg::Vector3D lastStripPos  = rpc->stripPos(chidLast);
+  const Amg::Vector3D firstStripPosOtherView = rpc->stripPos(chidFirstOtherView);
+  const Amg::Vector3D lastStripPosOtherView  = rpc->stripPos(chidLastOtherView);
+  Amg::Vector3D halfStripShift          = (1./(2.*double(n_strips)))         *(lastStripPos          - firstStripPos         );
+  Amg::Vector3D halfStripShiftOtherView = (1./(2.*double(n_stripsOtherView)))*(lastStripPosOtherView - firstStripPosOtherView);
+  Amg::Vector3D firstStripEdge = firstStripPos-halfStripShift;
+  Amg::Vector3D lastStripEdge  =  lastStripPos+halfStripShift;
+  Amg::Vector3D firstStripEdgeOtherView = firstStripPosOtherView-halfStripShiftOtherView;
+  Amg::Vector3D  lastStripEdgeOtherView =  lastStripPosOtherView+halfStripShiftOtherView;
+  
+
+  double phiFirstStrip;
+  double phiLastStrip;
+  double etaFirstStrip;
+  double etaLastStrip;
+  double zFirstStrip;
+  double zLastStrip;
+  if (view==1) {
+    phiFirstStrip = firstStripEdge.phi();
+    phiLastStrip  =  lastStripEdge.phi();
+    etaFirstStrip = firstStripEdgeOtherView.eta();
+    etaLastStrip  =  lastStripEdgeOtherView.eta();
+    zFirstStrip   = firstStripEdgeOtherView.z();
+    zLastStrip    =  lastStripEdgeOtherView.z();
+  }
+  else {
+    phiFirstStrip = firstStripEdgeOtherView.phi();
+    phiLastStrip  =  lastStripEdgeOtherView.phi();
+    etaFirstStrip = firstStripEdge.eta();
+    etaLastStrip  =  lastStripEdge.eta();
+    zFirstStrip   = firstStripEdge.z();
+    zLastStrip    =  lastStripEdge.z();
+    }
+
+  if ( etaFirstStrip<etaLastStrip ) {
+    etamin = etaFirstStrip;
+    etamax = etaLastStrip;
+    zmin   = zFirstStrip;
+    zmax   = zLastStrip;
+  }
+  else {
+    etamin = etaLastStrip;
+    etamax = etaFirstStrip;
+    zmin   = zLastStrip;
+    zmax   = zFirstStrip;
+  }
+
+  // if (p_RpcIdHelper->stationPhi(chid)==8)
+  //   if (p_RpcIdHelper->stationNameString(p_RpcIdHelper->stationName(chid)).substr(2,1)=="L")
+  //     {
+  // 	if (phiLastStrip<0) phiLastStrip=phiLastStrip+2.*M_PI;
+  //     }
+
+  if ( phiFirstStrip<phiLastStrip ) {
+    phimin = phiFirstStrip;
+    phimax = phiLastStrip;
+  }
+  else {
+    phimin = phiLastStrip;
+    phimax = phiFirstStrip;
+  }
+  
+  return;
+}
+
+
 void MuonGMCheck::checkParentStation()
 {
      ATH_MSG_INFO( " *************************** Global Check for Mdt"  );
