@@ -67,6 +67,12 @@ class SharedEvtQueueConsumer : public AthenaMPToolBase
 
   std::map<pid_t,int>               m_nProcessedEvents; // Number of processed events by PID
   std::queue<pid_t>                 m_finQueue;         // PIDs of processes queued for finalization
+
+  // "Persistent" event orders for reproducibility
+  bool                           m_readEventOrders;
+  std::string                    m_eventOrdersFile;
+  std::vector<int>               m_eventOrders;
+  pid_t                          m_masterPid;  // In finalize() of the master process merge workers' saved orders into one
 };
 
 #endif
