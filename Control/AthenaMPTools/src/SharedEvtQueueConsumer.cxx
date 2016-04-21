@@ -18,6 +18,7 @@
 
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
+#include <boost/filesystem.hpp>
 
 #include <sys/stat.h>
 #include <sstream>
@@ -43,6 +44,9 @@ SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
   , m_evtShare(0)
   , m_sharedEventQueue(0)
   , m_sharedRankQueue(0)
+  , m_readEventOrders(false)
+  , m_eventOrdersFile("athenamp_eventorders.txt")
+  , m_masterPid(getpid())
 {
   declareInterface<IAthenaMPTool>(this);
 
@@ -51,6 +55,8 @@ SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
   declareProperty("IsRoundRobin",m_isRoundRobin);
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
   declareProperty("Debug", m_debug);
+  declareProperty("ReadEventOrders",m_readEventOrders);
+  declareProperty("EventOrdersFile",m_eventOrdersFile);
 
   m_subprocDirPrefix = "worker_";
 }
@@ -110,6 +116,45 @@ StatusCode SharedEvtQueueConsumer::initialize()
 
 StatusCode SharedEvtQueueConsumer::finalize()
 {
+  if(getpid()==m_masterPid) {
+    ATH_MSG_INFO("finalize() in the master process");
+    // Merge saved event orders into one in the master run directory
+    
+    // 1. Check if master run directory already contains a file with saved orders
+    // If so, then rename it with random suffix
+    boost::filesystem::path ordersFile(m_eventOrdersFile);
+    if(boost::filesystem::exists(ordersFile)) {
+      srand((unsigned)time(0));
+      std::ostringstream randname;
+      randname << rand();
+      std::string ordersFileBak = m_eventOrdersFile+std::string("-bak-")+randname.str();
+      ATH_MSG_WARNING("File " << m_eventOrdersFile << " already exists in the master run directory!");
+      ATH_MSG_WARNING("Saving a backup with new name " << ordersFileBak);
+      
+      boost::filesystem::path ordersFileBakpath(ordersFileBak);
+      boost::filesystem::rename(ordersFile,ordersFileBakpath);
+    }
+    
+    // 2. Merge workers event orders into the master file
+    std::fstream fs(m_eventOrdersFile.c_str(),std::fstream::out);
+    for(int i=0; i<m_nprocs; ++i) {
+      std::ostringstream workerIndex;
+      workerIndex << i;
+      boost::filesystem::path worker_rundir(m_subprocTopDir);
+      worker_rundir /= boost::filesystem::path(m_subprocDirPrefix+workerIndex.str());
+      std::string ordersFileWorker(worker_rundir.string()+std::string("/")+m_eventOrdersFile);
+      ATH_MSG_INFO("Processing " << ordersFileWorker << " ...");
+      std::fstream fs_worker(ordersFileWorker.c_str(),std::fstream::in);
+      std::string line;
+      while(fs_worker.good()) {
+	std::getline(fs_worker,line);
+	fs << line << std::endl;
+      }
+      fs_worker.close();
+    }
+    fs.close();
+  } // if(getpid()==m_masterPid)
+  
   delete m_sharedRankQueue;
   return StatusCode::SUCCESS;
 }
@@ -350,6 +395,42 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
     }
   }
 
+  // _______________________ Event orders for debugging ________________________________
+  if(m_readEventOrders) {
+    std::fstream fs(m_eventOrdersFile.c_str(),std::fstream::in);
+    if(fs.good()) {
+      ATH_MSG_INFO("Reading predefined event orders from " << m_eventOrdersFile);
+      while(fs.good()){
+	std::string line;
+	std::getline(fs,line);
+	if(line.empty())continue;
+	
+	// Parse the string
+	size_t idx(0);
+	int rank = std::stoi(line,&idx);
+	if(rank==m_rankId) {
+          msg(MSG::INFO) << "This worker will proces the following events #";
+          while(idx<line.size()-1) {
+	    line = line.substr(idx+1);
+	    int evtnum = std::stoi(line,&idx);
+	    m_eventOrders.push_back(evtnum);
+	    msg(MSG::INFO) << " " << evtnum;
+	  }
+          msg(MSG::INFO) << endreq;
+        }
+      }
+      if(m_eventOrders.empty()) {
+	ATH_MSG_ERROR("Could not read event orders for the rank " << m_rankId);
+	return outwork;
+      }
+      fs.close();
+    }
+    else {
+      ATH_MSG_ERROR("Unable to read predefined event orders from " << m_eventOrdersFile);
+      return outwork;
+    }
+  }
+
   // ________________________ Worker dir: chdir ________________________
   if(chdir(worker_rundir.string().c_str())==-1) {
     msg(MSG::ERROR) << "Failed to chdir to " << worker_rundir.string() << endreq;
@@ -427,8 +508,19 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
 
   unsigned evtCounter(0);
   int evtnum(0), chunkSize(1);
+  auto predefinedEvt = m_eventOrders.cbegin();
+
+  // If the event orders file already exists in worker's run directory, then it's an unexpected error!
+  boost::filesystem::path ordersFile(m_eventOrdersFile);
+  if(boost::filesystem::exists(ordersFile)) {
+    ATH_MSG_ERROR(m_eventOrdersFile << " already exists in the worker's run directory!");
+    all_ok = false;
+  }
 
   if(all_ok) {
+    std::fstream fs(m_eventOrdersFile.c_str(),std::fstream::out);
+    fs << m_rankId;
+    bool firstOrder(true);
     while(true) {
       if(m_isRoundRobin) {
 	evtnum = skipEvents + m_nprocs*evtCounter + m_rankId; 
@@ -444,24 +536,42 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
 	evtCounter++;
       }
       else {
-	if(!m_sharedEventQueue->try_receive_basic<long>(evtnumAndChunk)) {
-	  // The event queue is empty, but we should check whether there are more events to come or not
-	  msg(MSG::DEBUG) << "Event queue is empty"; 
-	  if(*shmemCountFinal) {
-	    msg(MSG::DEBUG) << " and no more events are expected" << endreq;
-	    break;
-	  }
-	  else {
-	    msg(MSG::DEBUG) << " but more events are expected" << endreq;
-	    usleep(1);
-	    continue;
-	  }
+	if(m_readEventOrders) {
+	  if(predefinedEvt==m_eventOrders.cend()) break;
+	  evtnum = *predefinedEvt;
+	  predefinedEvt++;
+	  fs << (firstOrder?":":",") << evtnum;
+	  fs.flush();
+	  firstOrder=false;
+	  ATH_MSG_INFO("Read event number from the orders file: " << evtnum);
 	}
-	msg(MSG::DEBUG) << "Received value from the queue 0x" << std::hex << evtnumAndChunk << std::dec << endreq;
-	chunkSize = evtnumAndChunk >> (sizeof(int)*8);
-	evtnum = evtnumAndChunk & intmask;
-	msg(MSG::INFO) << "Received from the queue: event num=" << evtnum << " chunk size=" << chunkSize << endreq;
-      }
+	else {
+	  if(!m_sharedEventQueue->try_receive_basic<long>(evtnumAndChunk)) {
+	    // The event queue is empty, but we should check whether there are more events to come or not
+	    msg(MSG::DEBUG) << "Event queue is empty";
+	    if(*shmemCountFinal) {
+	      msg(MSG::DEBUG) << " and no more events are expected" << endreq;
+	      break;
+	    }
+	    else {
+	      msg(MSG::DEBUG) << " but more events are expected" << endreq;
+	      usleep(1);
+	      continue;
+	    }
+	  }
+	  msg(MSG::DEBUG) << "Received value from the queue 0x" << std::hex << evtnumAndChunk << std::dec << endreq;
+	  chunkSize = evtnumAndChunk >> (sizeof(int)*8);
+	  evtnum = evtnumAndChunk & intmask;
+	  msg(MSG::INFO) << "Received from the queue: event num=" << evtnum << " chunk size=" << chunkSize << endreq;
+	  
+	  // Save event order
+	  for(int i(0);i<chunkSize;++i) {
+	    fs << (firstOrder?":":",") << evtnum+i;
+	    firstOrder=false;
+	  }
+	  fs.flush();
+	} // Get event numbers from the shared queue
+      } // Not RoundRobin
       nEvt+=chunkSize;
       StatusCode sc;
       if(m_useSharedReader) {
@@ -501,6 +611,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
       }
       m_chronoStatSvc->chronoStop("AthenaMP_nextEvent"); 
     }
+    fs.close();
   }
 
   if(all_ok) {
@@ -509,6 +620,10 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
       all_ok=false;
     }
     else if(!m_useSharedReader) {
+      // We need this while loop only when we read predefined event orders
+      while(!(*shmemCountFinal)) {
+	usleep(1000);
+      }
       msg(MSG::DEBUG) << *shmemCountedEvts << " is the max event counted and SkipEvents=" << skipEvents << endreq; 
       if(m_evtSeek->seek(*shmemCountedEvts+skipEvents).isFailure()) 
 	msg(MSG::DEBUG) << "Seek past maxevt to " << *shmemCountedEvts+skipEvents << " returned failure. As expected..." << endreq;
