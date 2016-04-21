@@ -77,9 +77,9 @@ class CaloClusterVecMon : public CaloMonToolBase {
       LOW_E = 0,
       LOWMED_E = 1,
       MED_E = 2,
-      MEDHIGH_E = 3,
-      HIGH_E = 4,
-      MAX_E = 5
+      //      MEDHIGH_E = 3,
+      HIGH_E = 3,
+      MAX_E = 4
    };
 
    enum DetRegion {
@@ -112,6 +112,11 @@ class CaloClusterVecMon : public CaloMonToolBase {
    const CaloIdManager* m_caloMgr;
    const CaloCell_ID*   m_caloCellHelper;
 
+   // Property to switch on/off
+   bool m_doTotalEnergyMap;
+   bool m_doMonitNegEnergy;
+   bool m_doOnlyEtPlot;
+
    // cluster stat variables
    int m_eventsCounter; // add
    int m_cluscount;
@@ -143,8 +148,8 @@ class CaloClusterVecMon : public CaloMonToolBase {
    // mult-threshold cluster hists
    TH2F*       m_clus_etaphi_Et_thresh[MAX_E];
    TProfile2D* m_etaphi_thresh_avgEt[MAX_E];
-   TH2F*       m_EMclus_etaphi_Et_thresh[MAX_E];
-   TH2F*       m_EMclus_etaVsPhi[MAX_E];
+//   TH2F*       m_EMclus_etaphi_Et_thresh[MAX_E];
+//   TH2F*       m_EMclus_etaVsPhi[MAX_E];
    TH1F*       m_clus_eta[MAX_E];
    TH1F*       m_clus_phi[MAX_E][3];
    TH1F*       m_clus_eta_Et[MAX_E]; // km add
@@ -174,9 +179,6 @@ class CaloClusterVecMon : public CaloMonToolBase {
    // cluster stat hists
 
    TH1I*       m_nClusters;
-   TH2I*       m_nClustersBottomVsTop;
-   TProfile2D* m_averageEnergy_etaphi_maxEclusters; 
-   TH2F*       m_dEtaVsdPhi_maxEclustersTopVsBottom; // only for cosmics
 
    // tile hists 
    TProfile*   m_clustersCellsRatioEta;

@@ -367,6 +367,7 @@ class CaloCellVecMon : public CaloMonToolBase {
 
   bool m_doKnownBadChannelsVsEtaPhi;
   bool m_doDBNormalized1DEnergy;
+  bool m_doEnergyVsTime;
   bool m_doUnnormalized1DEnergy;
   bool m_useLogarithmicEnergyBinning;
   bool m_useWeightedEffMerging;
@@ -441,7 +442,7 @@ class CaloCellVecMon : public CaloMonToolBase {
   BooleanArrayProperty m_doBeamBackgroundRemovalTemp; 
 
   // Actual arrays used
-  std::vector<int> Thresholds;
+  //std::vector<int> Thresholds;
   int    m_nThresholds[MAXLYRNS];
   float* m_thresholds[MAXLYRNS];
   std::string * m_threshNames[MAXLYRNS];
@@ -515,22 +516,22 @@ class CaloCellVecMon : public CaloMonToolBase {
   
  // MonGroups
   
-  MonGroup * SummaryGroup;
-  MonGroup * tile_cells_shift;
+  MonGroup * m_summaryGroup;
+  MonGroup * m_tile_cells_shift;
 
-  MonGroup * TempMonGroup;
-  MonGroup * ShifterMonGroup[MaxHistType];
+  MonGroup * m_tempMonGroup;
+  MonGroup * m_shifterMonGroup[MaxHistType];
   //MonGroup * ExpertMonGroup[MaxHistType];
 
-  MonGroup * BadCell;
-  MonGroup * BadCell_EMBC;
-  MonGroup * BadCell_EMBA;
-  MonGroup * BadCell_EMECC;
-  MonGroup * BadCell_EMECA;
-  MonGroup * BadCell_HECC;
-  MonGroup * BadCell_HECA;
-  MonGroup * BadCell_FCALC;
-  MonGroup * BadCell_FCALA;
+  MonGroup * m_badCell;
+  MonGroup * m_badCell_EMBC;
+  MonGroup * m_badCell_EMBA;
+  MonGroup * m_badCell_EMECC;
+  MonGroup * m_badCell_EMECA;
+  MonGroup * m_badCell_HECC;
+  MonGroup * m_badCell_HECA;
+  MonGroup * m_badCell_FCALC;
+  MonGroup * m_badCell_FCALA;
   
   // Layers
   CaloMonitoring::CaloLayer *   m_layer[MAXLAYER];
@@ -552,146 +553,146 @@ class CaloCellVecMon : public CaloMonToolBase {
   int m_nbh_fcalc;
   int m_nbh_fcala;
         
-  bool m_BadCell_flag;
-  bool m_BadCell_flag_embc;
-  bool m_BadCell_flag_emba;
-  bool m_BadCell_flag_emecc;
-  bool m_BadCell_flag_emeca;
-  bool m_BadCell_flag_hecc;
-  bool m_BadCell_flag_heca;
-  bool m_BadCell_flag_fcalc;
-  bool m_BadCell_flag_fcala;
+  bool m_badCell_flag;
+  bool m_badCell_flag_embc;
+  bool m_badCell_flag_emba;
+  bool m_badCell_flag_emecc;
+  bool m_badCell_flag_emeca;
+  bool m_badCell_flag_hecc;
+  bool m_badCell_flag_heca;
+  bool m_badCell_flag_fcalc;
+  bool m_badCell_flag_fcala;
 
  // Sporadic histograms
-  TH1F* h_NoiseBurstLumiblock;
-  TH1F * h_sporad;
-  TH1F * h_sporad_embc;
-  TH1F * h_sporad_emba;
-  TH1F * h_sporad_emecc;
-  TH1F * h_sporad_emeca;
-  TH1F * h_sporad_hecc;
-  TH1F * h_sporad_heca;
-  TH1F * h_sporad_fcalc;
-  TH1F * h_sporad_fcala;
+  TH1F* m_h_NoiseBurstLumiblock;
+  TH1F * m_h_sporad;
+  TH1F * m_h_sporad_embc;
+  TH1F * m_h_sporad_emba;
+  TH1F * m_h_sporad_emecc;
+  TH1F * m_h_sporad_emeca;
+  TH1F * m_h_sporad_hecc;
+  TH1F * m_h_sporad_heca;
+  TH1F * m_h_sporad_fcalc;
+  TH1F * m_h_sporad_fcala;
 
-  std::vector<TH1F*> h_energy_s;
-  std::vector<TProfile*> h_energy_lb;
-  std::vector<TH1F*> h_quality;    
+  std::vector<TH1F*> m_h_energy_s;
+  std::vector<TProfile*> m_h_energy_lb;
+  std::vector<TH1F*> m_h_quality;    
 
  //   Tile histograms parameters 
-  std::vector<double> b_Ncells;
+  std::vector<double> m_b_Ncells;
 
-  std::vector<double> b_CellsE;
+  std::vector<double> m_b_CellsE;
 
-  std::vector<double> b_CellsEta;
-  std::vector<double> b_CellsEtaTile;
+  std::vector<double> m_b_CellsEta;
+  std::vector<double> m_b_CellsEtaTile;
 
-  std::vector<double> b_CellsPhi;
+  std::vector<double> m_b_CellsPhi;
 
-  std::vector<double> b_CellsTower;
-  std::vector<double> b_CellsModule;
+  std::vector<double> m_b_CellsTower;
+  std::vector<double> m_b_CellsModule;
 
-  std::vector<double> b_CellsEtaPhi;
+  std::vector<double> m_b_CellsEtaPhi;
 
   // Tile histograms
-  TH1F* h_CellsNoiseE;  // E/DBnoise distribution for all not bad tile cells in sample <3
+  TH1F* m_h_CellsNoiseE;  // E/DBnoise distribution for all not bad tile cells in sample <3
 
   // for tile cells with energy > m_tileThreshold 
-  TH1F* h_Ncells;
-  TH1F* h_CellsE;  
-  TH2F* h_CellsEtaPhi;
-  TProfile*  h_CellsEta;
-  TProfile*  h_CellsPhi;
-  TProfile* h_CellsModuleS1;
-  TProfile* h_CellsModuleS2;
-  TProfile* h_CellsModuleS3;
-  TProfile* h_CellsModuleS4;
-  TProfile* h_CellsTower;
+  TH1F* m_h_Ncells;
+  TH1F* m_h_CellsE;  
+  TH2F* m_h_CellsEtaPhi;
+  TProfile*  m_h_CellsEta;
+  TProfile*  m_h_CellsPhi;
+  TProfile* m_h_CellsModuleS1;
+  TProfile* m_h_CellsModuleS2;
+  TProfile* m_h_CellsModuleS3;
+  TProfile* m_h_CellsModuleS4;
+  TProfile* m_h_CellsTower;
 
   // for not bad tile cells with |E/DBnoise| >4.0 in sample<3
-  TH2F* h_CellsNoiseEtaPhi;
-  TH2F* h_CellsNoiseEtaPhiA;
-  TH2F* h_CellsNoiseEtaPhiBC;
-  TH2F* h_CellsNoiseEtaPhiD;
-  TH1F* h_CellsNoiseHash;
+  TH2F* m_h_CellsNoiseEtaPhi;
+  TH2F* m_h_CellsNoiseEtaPhiA;
+  TH2F* m_h_CellsNoiseEtaPhiBC;
+  TH2F* m_h_CellsNoiseEtaPhiD;
+  TH1F* m_h_CellsNoiseHash;
 
   // for all not bad tile cells in sample <3; h_CellsRMSdivDBnoiseEta(Phi) are derived  from temporary plots h_CellsNoiseEta(phi) and h_CellsRMSEta(Phi) 
-  TProfile*  h_CellsNoiseEta;
-  TProfile*  h_CellsNoisePhi;
-  TProfile*  h_CellsRMSPhi;
-  TProfile*  h_CellsRMSEta;
-  TH1F * h_CellsRMSdivDBnoiseEta;
-  TH1F * h_CellsRMSdivDBnoisePhi;
+  TProfile*  m_h_CellsNoiseEta;
+  TProfile*  m_h_CellsNoisePhi;
+  TProfile*  m_h_CellsRMSPhi;
+  TProfile*  m_h_CellsRMSEta;
+  TH1F * m_h_CellsRMSdivDBnoiseEta;
+  TH1F * m_h_CellsRMSdivDBnoisePhi;
 
   // calo histograms
 
   // summary plot
-  TH1F* h_n_trigEvent;
-  //TH1F* h_EvtRejSumm; // km add
+  TH1F* m_h_n_trigEvent;
+  TH1F* m_h_EvtRejSumm; // km add
 
   // monitoring cell with energy > 4*DBnoise
-  TH2F * h_cellOccupancyEtaLumi[MAXLAYER];
-  TH2F * h_cellOccupancyPhiLumi[MAXLAYER];
-  TProfile2D *h_cellAvgEnergyEtaLumi[MAXLAYER];
-  TProfile2D *h_cellAvgEnergyPhiLumi[MAXLAYER];
+  TH2F * m_h_cellOccupancyEtaLumi[MAXLAYER];
+  TH2F * m_h_cellOccupancyPhiLumi[MAXLAYER];
+  TProfile2D *m_h_cellAvgEnergyEtaLumi[MAXLAYER];
+  TProfile2D *m_h_cellAvgEnergyPhiLumi[MAXLAYER];
 
   // energy and time distribution for cell neither badcell nor noconditions 
-  TH1F*         h_energy[MAXLAYER];  // define when m_doUnnormalized1DEnergy==1
-  TH1D*         h_dbNoiseNormalizedEnergy[MAXLAYER]; // define when m_doDBNormalized1DEnergy==1
-  TH2F*         h_energyVsTime[MAXLAYER];
-  TH1F*         h_energyVsTime_DifferThresholds[MAXLAYER];
+  TH1F*         m_h_energy[MAXLAYER];  // define when m_doUnnormalized1DEnergy==1
+  TH1D*         m_h_dbNoiseNormalizedEnergy[MAXLAYER]; // define when m_doDBNormalized1DEnergy==1
+  TH2F*         m_h_energyVsTime[MAXLAYER];
+  TH1F*         m_h_energyVsTime_DifferThresholds[MAXLAYER];
 
-  TH1F*         h_energy_imask[MAXLAYER];
-  TH2F*         h_energyVsTime_imask[MAXLAYER];
+  TH1F*         m_h_energy_imask[MAXLAYER];
+  TH2F*         m_h_energyVsTime_imask[MAXLAYER];
 
   // occupancy, energy, quality and time plots for several different thresholds for each layer 
  
-  TH2F**        h_occupancy_etaphi[MAXLAYER];
-  TH1F**        h_occupancy_eta[MAXLAYER];
-  TH1F**        h_occupancy_phi[MAXLAYER];
+  TH2F**        m_h_occupancy_etaphi[MAXLAYER];
+  TH1F**        m_h_occupancy_eta[MAXLAYER];
+  TH1F**        m_h_occupancy_phi[MAXLAYER];
 
-  TH2F**        h_occupancy_etaphi_imask[MAXLAYER];
-  TH1F**        h_occupancy_eta_imask[MAXLAYER];
-  TH1F**        h_occupancy_phi_imask[MAXLAYER];
+  TH2F**        m_h_occupancy_etaphi_imask[MAXLAYER];
+  TH1F**        m_h_occupancy_eta_imask[MAXLAYER];
+  TH1F**        m_h_occupancy_phi_imask[MAXLAYER];
 
-  TH2F**        h_percentOccupancy_etaphi[MAXLAYER];
-  TH1F**        h_percentOccupancy_eta[MAXLAYER];
-  TH1F**        h_percentOccupancy_phi[MAXLAYER];
+  TH2F**        m_h_percentOccupancy_etaphi[MAXLAYER];
+  TH1F**        m_h_percentOccupancy_eta[MAXLAYER];
+  TH1F**        m_h_percentOccupancy_phi[MAXLAYER];
 
-  TH2F**        h_percentOccupancy_etaphi_imask[MAXLAYER];
-  TH1F**        h_percentOccupancy_eta_imask[MAXLAYER];
-  TH1F**        h_percentOccupancy_phi_imask[MAXLAYER];
+  TH2F**        m_h_percentOccupancy_etaphi_imask[MAXLAYER];
+  TH1F**        m_h_percentOccupancy_eta_imask[MAXLAYER];
+  TH1F**        m_h_percentOccupancy_phi_imask[MAXLAYER];
 
-  TProfile2D**  h_energyProfile_etaphi[MAXLAYER];
-  TH2F**        h_totalEnergy_etaphi[MAXLAYER];
-  TH2F**        h_averageEnergy_etaphi[MAXLAYER];
-  TH2F**        h_noise_etaphi[MAXLAYER];
-  TH2F**        h_deviationFromDBnoise_etaphi[MAXLAYER];
+  TProfile2D**  m_h_energyProfile_etaphi[MAXLAYER];
+  TH2F**        m_h_totalEnergy_etaphi[MAXLAYER];
+  TH2F**        m_h_averageEnergy_etaphi[MAXLAYER];
+  TH2F**        m_h_noise_etaphi[MAXLAYER];
+  TH2F**        m_h_deviationFromDBnoise_etaphi[MAXLAYER];
 
-  TProfile2D**  h_energyProfile_etaphi_imask[MAXLAYER];
-  TH2F**        h_totalEnergy_etaphi_imask[MAXLAYER];
-  TH2F**        h_averageEnergy_etaphi_imask[MAXLAYER];
-  TH2F**        h_noise_etaphi_imask[MAXLAYER];
+  TProfile2D**  m_h_energyProfile_etaphi_imask[MAXLAYER];
+  TH2F**        m_h_totalEnergy_etaphi_imask[MAXLAYER];
+  TH2F**        m_h_averageEnergy_etaphi_imask[MAXLAYER];
+  TH2F**        m_h_noise_etaphi_imask[MAXLAYER];
 
-  TH2F**        h_poorQualityOccupancy_etaphi[MAXLAYER];
-  TH2F**        h_totalQuality_etaphi[MAXLAYER];
-  TH2F**        h_fractionOverQth_etaphi[MAXLAYER];
-  TH2F**        h_averageQuality_etaphi[MAXLAYER];
+  TH2F**        m_h_poorQualityOccupancy_etaphi[MAXLAYER];
+  TH2F**        m_h_totalQuality_etaphi[MAXLAYER];
+  TH2F**        m_h_fractionOverQth_etaphi[MAXLAYER];
+  TH2F**        m_h_averageQuality_etaphi[MAXLAYER];
 
-  TH2F**        h_poorTimeOccupancy_etaphi[MAXLAYER];
-  TH2F**        h_totalTime_etaphi[MAXLAYER];
-  TH2F**        h_fractionPastTth_etaphi[MAXLAYER];
-  TH2F**        h_averageTime_etaphi[MAXLAYER];
+  TH2F**        m_h_poorTimeOccupancy_etaphi[MAXLAYER];
+  TH2F**        m_h_totalTime_etaphi[MAXLAYER];
+  TH2F**        m_h_fractionPastTth_etaphi[MAXLAYER];
+  TH2F**        m_h_averageTime_etaphi[MAXLAYER];
 
   // Reference Type Histograms (Filled solely with database information)
 //  TH2F_LW*      h_badChannels_etaphi[MAXLAYER];
-  TH2F*         h_badChannels_etaphi[MAXLAYER];
-  TH2F*         h_dbnoise_etaphi[MAXLAYER];
-  TH2F*         h_missingCellMask[MAXLAYER];
+  TH2F*         m_h_badChannels_etaphi[MAXLAYER];
+  TH2F*         m_h_dbnoise_etaphi[MAXLAYER];
+  TH2F*         m_h_missingCellMask[MAXLAYER];
     
   // temporary plots used for m_percentOccupancy_eta(phi) 
-  TH1F*         h_nActiveCellsFirstEvent_eta[MAXLAYER]; 
-  TH1F*         h_nActiveCellsFirstEvent_phi[MAXLAYER];
+  TH1F*         m_h_nActiveCellsFirstEvent_eta[MAXLAYER]; 
+  TH1F*         m_h_nActiveCellsFirstEvent_phi[MAXLAYER];
 };
 
 #endif // CaloCellVecMon_H: R. Kehoe 07/5/06
