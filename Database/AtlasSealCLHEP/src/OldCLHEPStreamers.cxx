@@ -2,15 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Geometry/Transform3D.h"
-#undef private
-#undef protected
-
 #include "AtlasSealCLHEP/OldCLHEPStreamers.h"
-
 #include <iostream>
 
 
@@ -22,11 +16,12 @@ CLHEPMatrixStreamer::CopyOldToNew(const OldHepMatrix &old_matx, CLHEP::HepMatrix
 //      std::cout << "  matrix nrow="<< old_matx.nrow  << std::endl;
 //      std::cout << "  matrix ncol="<< old_matx.ncol  << std::endl;
 //      std::cout << "  matrix m-size="<< old_matx.m.size()  << std::endl;
-     new_matx.m = old_matx.m;    //   ----   FIXME
-     new_matx.size_ = old_matx.size;
+
      // intentional swap!   somehow necessary for reading root3 data 
-     new_matx.nrow = old_matx.ncol;
-     new_matx.ncol = old_matx.nrow;
+     CLHEP::HepMatrix mat (old_matx.ncol, old_matx.nrow);
+     double* m = &mat[0][0];
+     std::copy (old_matx.m.begin(), old_matx.m.end(), m);
+     std::swap (mat, new_matx);
 } 
 
 
@@ -73,6 +68,14 @@ CLHEPBasicVectorStreamer::CopyOldToNew(const OldBasicVector3D &old_vec, HepGeom:
 
 
 
+namespace {
+class Transform3DInit 
+  : public HepGeom::Transform3D
+{
+public:
+  using HepGeom::Transform3D::setTransform;
+};
+}
   
 
 
@@ -88,20 +91,11 @@ CLHEPTransform3DStreamer::CopyOldToNew(const OldHepTransform3D &old_tr, HepGeom:
   std::cout << "  TRFM= " << old_tr.m5 <<"," << old_tr.m6 <<"," << old_tr.m7 <<"," << old_tr.m8 << std::endl;
   std::cout << "  TRFM= " << old_tr.m9 <<"," << old_tr.m10<<"," << old_tr.m11<<"," << old_tr.m12<< std::endl;
 #endif
-  new_tr.xx_ = old_tr.m4;
-  new_tr.xy_ = old_tr.m5;
-  new_tr.xz_ = old_tr.m6;
-  new_tr.dx_ = old_tr.m1;
-
-  new_tr.yx_ = old_tr.m7;
-  new_tr.yy_ = old_tr.m8;
-  new_tr.yz_ = old_tr.m9;
-  new_tr.dy_ = old_tr.m2;
-  
-  new_tr.zx_ = old_tr.m10;
-  new_tr.zy_ = old_tr.m11;
-  new_tr.zz_ = old_tr.m12;
-  new_tr.dz_ = old_tr.m3;
+  Transform3DInit& new_init = static_cast<Transform3DInit&> (new_tr);
+  new_init.setTransform
+    (old_tr.m4,  old_tr.m5,  old_tr.m6,  old_tr.m1,   // xx, xy, xz, dx
+     old_tr.m7,  old_tr.m8,  old_tr.m9,  old_tr.m2,   // yx, yy, yz, dy
+     old_tr.m10, old_tr.m11, old_tr.m12, old_tr.m3);  // zx, zy, zz, dz
 #if( TRANSF_DBGL > 1 ) 
   std::cout << "  TRFM new= " << new_tr.xx() <<"," << new_tr.xy() <<"," << new_tr.xz() <<"," << new_tr.dx() << std::endl;
   std::cout << "  TRFM new= " << new_tr.yx() <<"," << new_tr.yy() <<"," << new_tr.yz() <<"," << new_tr.dy() << std::endl;
