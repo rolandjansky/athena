@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonStationIndex.h 681315 2015-07-08 12:01:51Z neldik $
+// $Id: MuonStationIndex.h 732860 2016-03-30 08:53:44Z mcorradi $
 #ifndef MUONIDHELPERS_MUONSTATIONINDEX_H
 #define MUONIDHELPERS_MUONSTATIONINDEX_H
 
@@ -33,7 +33,7 @@ namespace Muon {
     /** enum to classify the different phi layers in the muon spectrometer */
     enum PhiIndex {
       PhiUnknown = -1,
-      BM1, BM2, BO1, T1, T2, T3, T4, CSC, STGC1, STGC2,
+      BM1, BM2, BO1, BO2, T1, T2, T3, T4, CSC, STGC1, STGC2,
       PhiIndexMax
     };
 

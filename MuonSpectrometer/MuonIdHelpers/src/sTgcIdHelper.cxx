@@ -31,7 +31,7 @@ sTgcIdHelper::sTgcIdHelper() : MuonIdHelper() {
 /*******************************************************************************/
 // Destructor
 sTgcIdHelper::~sTgcIdHelper() {
-  if(m_Log) delete m_Log; m_Log=NULL;
+  // m_Log deleted in base class.
 }
 /*******************************************************************************/
 // Initialize dictionary
@@ -148,9 +148,9 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   ExpandedIdentifier region_id;
   region_id.add(muonField);
   Range prefix;
-  MultiRange m_muon_range = m_dict->build_multirange(region_id, prefix, "technology");
-  if (m_muon_range.size() > 0 ) {
-    (*m_Log) << MSG::INFO << "MultiRange built successfully to Technology: " << "MultiRange size is " << m_muon_range.size() << endreq;
+  MultiRange muon_range = m_dict->build_multirange(region_id, prefix, "technology");
+  if (muon_range.size() > 0 ) {
+    (*m_Log) << MSG::INFO << "MultiRange built successfully to Technology: " << "MultiRange size is " << muon_range.size() << endreq;
   } else {
     (*m_Log) << MSG::ERROR << "Muon sTGC detector element MultiRange is empty" << endreq;
   }
@@ -159,9 +159,9 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   ExpandedIdentifier detectorElement_region;
   detectorElement_region.add(muonField);
   Range detectorElement_prefix;
-  MultiRange m_muon_detectorElement_range = m_dict->build_multirange(detectorElement_region, detectorElement_prefix, "stgcMultilayer");
-  if (m_muon_detectorElement_range.size() > 0 ) {
-    (*m_Log) << MSG::INFO << "MultiRange built successfully to detector element: " << "Multilayer MultiRange size is " << m_muon_detectorElement_range.size() << endreq;
+  MultiRange muon_detectorElement_range = m_dict->build_multirange(detectorElement_region, detectorElement_prefix, "stgcMultilayer");
+  if (muon_detectorElement_range.size() > 0 ) {
+    (*m_Log) << MSG::INFO << "MultiRange built successfully to detector element: " << "Multilayer MultiRange size is " << muon_detectorElement_range.size() << endreq;
   } else {
     (*m_Log) << MSG::ERROR << "Muon sTGC detector element MultiRange is empty" << endreq;
   }
@@ -171,9 +171,9 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   ExpandedIdentifier stgc_region;
   stgc_region.add(muonField);
   Range stgc_prefix;
-  MultiRange m_muon_channel_range = m_dict->build_multirange(stgc_region, stgc_prefix, "stgcChannel");
-  if (m_muon_channel_range.size() > 0 ) {
-    (*m_Log) << MSG::INFO << "MultiRange built successfully to channel: " << "MultiRange size is " << m_muon_channel_range.size() << endreq;
+  MultiRange muon_channel_range = m_dict->build_multirange(stgc_region, stgc_prefix, "stgcChannel");
+  if (muon_channel_range.size() > 0 ) {
+    (*m_Log) << MSG::INFO << "MultiRange built successfully to channel: " << "MultiRange size is " << muon_channel_range.size() << endreq;
   } else {
     (*m_Log) << MSG::ERROR << "Muon sTGC detector MultiRange is empty for channels" << endreq;
   }
@@ -183,8 +183,8 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   int stgcField=-1;
   status = m_dict->get_label_value("technology", "STGC", stgcField); 
 
-  for (int i = 0; i < (int) m_muon_range.size(); ++i) {
-    const Range& range = m_muon_range[i];
+  for (int i = 0; i < (int) muon_range.size(); ++i) {
+    const Range& range = muon_range[i];
     if (range.fields() > m_TECHNOLOGY_INDEX) {
       const Range::field& field = range[m_TECHNOLOGY_INDEX];
       if ( field.match( (ExpandedIdentifier::element_type) stgcField ) ) {
@@ -194,8 +194,8 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
     }
   }
 
-  for (int j = 0; j < (int) m_muon_detectorElement_range.size(); ++j) {
-    const Range& range = m_muon_detectorElement_range[j];
+  for (int j = 0; j < (int) muon_detectorElement_range.size(); ++j) {
+    const Range& range = muon_detectorElement_range[j];
     if (range.fields() > m_TECHNOLOGY_INDEX) {
       const Range::field& field = range[m_TECHNOLOGY_INDEX];
       if ( field.match( (ExpandedIdentifier::element_type) stgcField ) ) {
@@ -205,8 +205,8 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
     }
   }
 
-  for (int j = 0; j < (int) m_muon_channel_range.size(); ++j) {
-    const Range& range = m_muon_channel_range[j];
+  for (int j = 0; j < (int) muon_channel_range.size(); ++j) {
+    const Range& range = muon_channel_range[j];
     if (range.fields() > m_TECHNOLOGY_INDEX) {
       const Range::field& field = range[m_TECHNOLOGY_INDEX];
       if ( field.match( (ExpandedIdentifier::element_type) stgcField ) ) {

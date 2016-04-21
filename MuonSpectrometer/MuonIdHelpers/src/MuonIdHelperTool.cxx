@@ -252,7 +252,8 @@ namespace Muon {
       if( rpcIdHelper().doubletR(id) == 1 )  index = MuonStationIndex::BM1;
       else                                   index = MuonStationIndex::BM2;
     }else if( stIndex == MuonStationIndex::BO ){
-      index = MuonStationIndex::BO1;
+      if( rpcIdHelper().doubletR(id) == 1 )  index = MuonStationIndex::BO1;
+      else                                   index = MuonStationIndex::BO2;
     }else if( stIndex == MuonStationIndex::EI ){
       if( isCsc(id) )      index = MuonStationIndex::CSC;
       else if( isTgc(id) ) index = MuonStationIndex::T4;

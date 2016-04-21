@@ -35,7 +35,7 @@ MdtIdHelper::MdtIdHelper() : MuonIdHelper(), m_TUBELAYER_INDEX(0) {}
 
 MdtIdHelper::~MdtIdHelper()
 {
-  if(m_Log) delete m_Log; m_Log=NULL;
+  // m_Log deleted in base class.
 }
 
 
@@ -168,12 +168,12 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   ExpandedIdentifier region_id;
   region_id.add(muonField);
   Range prefix;
-  MultiRange m_muon_range = m_dict->build_multirange(region_id, prefix, "technology");
-  if (m_muon_range.size() > 0 )
+  MultiRange muon_range = m_dict->build_multirange(region_id, prefix, "technology");
+  if (muon_range.size() > 0 )
     {
       (*m_Log) << MSG::INFO
 	       << "MultiRange built successfully to Technology: " 
-	       << "MultiRange size is " << m_muon_range.size() << endreq;
+	       << "MultiRange size is " << muon_range.size() << endreq;
     }
   else
     {
@@ -185,11 +185,11 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   ExpandedIdentifier detectorElement_region;
   detectorElement_region.add(muonField);
   Range detectorElement_prefix;
-  MultiRange m_muon_detectorElement_range = m_dict->build_multirange(detectorElement_region,  detectorElement_prefix, "multiLayer");
-  if (m_muon_detectorElement_range.size() > 0 )
+  MultiRange muon_detectorElement_range = m_dict->build_multirange(detectorElement_region,  detectorElement_prefix, "multiLayer");
+  if (muon_detectorElement_range.size() > 0 )
     {
       (*m_Log) << MSG::INFO << "MultiRange built successfully to detector element: " 
-	       << "Multilayer MultiRange size is " << m_muon_detectorElement_range.size() << endreq;
+	       << "Multilayer MultiRange size is " << muon_detectorElement_range.size() << endreq;
     }
   else
     {
@@ -201,12 +201,12 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   ExpandedIdentifier mdt_region;
   mdt_region.add(muonField);
   Range mdt_prefix;
-  MultiRange m_muon_channel_range = m_dict->build_multirange(mdt_region,
+  MultiRange muon_channel_range = m_dict->build_multirange(mdt_region,
 							     mdt_prefix, "tube");
-  if (m_muon_channel_range.size() > 0 )
+  if (muon_channel_range.size() > 0 )
     {
       (*m_Log) << MSG::INFO << "MultiRange built successfully to tube: " 
-	       << "MultiRange size is " << m_muon_channel_range.size() << endreq;
+	       << "MultiRange size is " << muon_channel_range.size() << endreq;
     }
   else
     {
@@ -225,9 +225,9 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   int mdtField=-1;
   status = m_dict->get_label_value("technology", "MDT", mdtField);
 
-  for (int i = 0; i < (int) m_muon_range.size(); ++i)
+  for (int i = 0; i < (int) muon_range.size(); ++i)
     {
-      const Range& range = m_muon_range[i];
+      const Range& range = muon_range[i];
       if (range.fields() > m_TECHNOLOGY_INDEX)
         {
 	  const Range::field& field = range[m_TECHNOLOGY_INDEX];
@@ -241,9 +241,9 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
         }
     }
 
-  for (int j = 0; j < (int) m_muon_detectorElement_range.size(); ++j)
+  for (int j = 0; j < (int) muon_detectorElement_range.size(); ++j)
     {
-      const Range& range = m_muon_detectorElement_range[j];
+      const Range& range = muon_detectorElement_range[j];
       if (range.fields() > m_TECHNOLOGY_INDEX)
         {
 	  const Range::field& field = range[m_TECHNOLOGY_INDEX];
@@ -257,9 +257,9 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
         }
     }
 
-  for (int k = 0; k < (int) m_muon_channel_range.size(); ++k)
+  for (int k = 0; k < (int) muon_channel_range.size(); ++k)
     {
-      const Range& range = m_muon_channel_range[k];
+      const Range& range = muon_channel_range[k];
       if (range.fields() > m_TECHNOLOGY_INDEX)
         {
 	  const Range::field& field = range[m_TECHNOLOGY_INDEX];
