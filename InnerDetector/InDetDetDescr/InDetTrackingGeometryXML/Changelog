@@ -1,3 +1,13 @@
+2016-04-21 Simon Viel
+        * Remove copied ModuleGeo XML blocks from ITK_PixelModules.xml 
+        * Move ITK_PixelModulesGeo.xml from PixelLayoutUtils/data into InDetTrackingGeometryXML/share
+        * tagged as InDetTrackingGeometryXML-00-00-37
+
+2016-04-15 Simon Viel
+        * Temporary fix for 25 x 100 micron pixels ("hybridMat" segfault):
+            copy ModuleGeo XML blocks into ITK_PixelModules.xml
+        * tagged as InDetTrackingGeometryXML-00-00-36
+
 2016-04-12 Simon Viel
         * InclBrl4 layout with 25 x 100 micron pixels available
         * tagged as InDetTrackingGeometryXML-00-00-35
