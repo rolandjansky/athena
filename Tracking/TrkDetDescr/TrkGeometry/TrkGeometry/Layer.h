@@ -246,7 +246,7 @@ namespace Trk {
                                                      const T& pars,
                                                      PropDirection pdir,
                                                      const BoundaryCheck& bcheck,
-                                                     bool materialSurfacesOnly = true,
+                                                     bool materialSurfacesOnly = false,
                                                      const Surface* startSurface = 0,
                                                      const Surface* endSurface = 0,
                                                      const ICompatibilityEstimator* ice = 0) const;
