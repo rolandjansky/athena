@@ -69,7 +69,6 @@ StatusCode JetMonitoringTool::fillHistograms()
 {
   //ATH_MSG_INFO ("Filling hists " << name() << "..." );
 
-
   /// simply call fillHistosFromContainer() for each tool...
   int count = 0;
   for( auto jtool : m_htools){

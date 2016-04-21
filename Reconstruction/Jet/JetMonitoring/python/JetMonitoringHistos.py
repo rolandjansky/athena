@@ -28,10 +28,10 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
         # Draw a set of histo for a particular jet selection :
         selectionAndHistos( "leadingjet" , [ "basickinematics", ] ),
         selectionAndHistos( "subleadingjet" , [ "basickinematics"] ),
-        selectionAndHistos( "20000<pt<500000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_20_500" ),
-        selectionAndHistos( "500000<pt<1000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_500_1000" ),
-        selectionAndHistos( "1000000<pt<2000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_1000_2000" ),
-        selectionAndHistos( "2000000<pt<8000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_2000_8000" ),
+        selectionAndHistos( "20000<pt<500000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt1000[0]", "FracSamplingMax"], "highpt_20_500" ),
+        selectionAndHistos( "500000<pt<1000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt1000[0]",  "FracSamplingMax"], "highpt_500_1000" ),
+        selectionAndHistos( "1000000<pt<2000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt1000[0]",  "FracSamplingMax"], "highpt_1000_2000" ),
+        selectionAndHistos( "2000000<pt<8000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt1000[0]",  "FracSamplingMax"], "highpt_2000_8000" ),
         selectionAndHistos( "LooseBadJets" ,  [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)]),
         selectionAndHistos( "1.0<eta<1.4" , [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematicsTileGap",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)], "eta_1_14" ),
 
