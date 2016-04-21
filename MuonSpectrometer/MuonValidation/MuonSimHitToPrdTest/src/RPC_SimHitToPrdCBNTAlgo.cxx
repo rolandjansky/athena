@@ -37,7 +37,7 @@ static const int maxFiredChannels = 20000;
 static const int  MAX_PART     = 100;
 static const int  MAX_SIMHRPC  = 10000;
 static const int  MAX_DIGITRPC = 10000;
-static const int  MAX_PADRPC   = 100;
+static const int  MAX_PADRPC   = 1000;
 static const int  MAX_RDOCHRPC = 10000;
 static const int  MAX_PRDRPC   = 10000;
 
@@ -782,13 +782,13 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCRDO()
        ATH_MSG_DEBUG ( " Number of CMA in this pad " << (rdoColl)->size() );
      
        // pad ntuple variables
-       c->m_rpc_pad_id         [myPadCounter] = (rdoColl)->onlineId();
-       c->m_rpc_pad_sectorid   [myPadCounter] = (rdoColl)->sector();
-       c->m_rpc_pad_error      [myPadCounter] = (rdoColl)->errorCode();
-       c->m_rpc_pad_status     [myPadCounter] = (rdoColl)->status();
+       c->m_rpc_pad_id         [myPadCounter] = (int)(rdoColl)->onlineId();
+       c->m_rpc_pad_sectorid   [myPadCounter] = (int)(rdoColl)->sector();
+       c->m_rpc_pad_error      [myPadCounter] = (int)(rdoColl)->errorCode();
+       c->m_rpc_pad_status     [myPadCounter] = (int)(rdoColl)->status();
        
-       c->m_rpc_pad_lvl1id     [myPadCounter] = (rdoColl)->lvl1Id();
-       c->m_rpc_pad_bcid       [myPadCounter] = (rdoColl)->bcId();
+       c->m_rpc_pad_lvl1id     [myPadCounter] = (int)(rdoColl)->lvl1Id();
+       c->m_rpc_pad_bcid       [myPadCounter] = (int)(rdoColl)->bcId();
        
        // for each pad, loop over cma
        RpcPad::const_iterator it3 = (rdoColl)->begin();
