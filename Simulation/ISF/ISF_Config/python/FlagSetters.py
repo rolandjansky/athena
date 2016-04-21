@@ -19,7 +19,7 @@ def configureFlagsBase():
     ## Configure tasks
     DetFlags.digitize.all_setOff()
     DetFlags.makeRIO.all_setOff()
-    #DetFlags.overlay.all_setOff() # will soon be needed
+    DetFlags.overlay.all_setOff() # will soon be needed
     DetFlags.pileup.all_setOff()
     DetFlags.readRDOBS.all_setOff()
     DetFlags.readRDOPool.all_setOff()
@@ -43,11 +43,35 @@ def configureFlagsFullG4():
     simFlags.SimulationFlavour = "FullG4"
     return
 
+def configureFlagsFullG4_LongLived():
+    configureFlagsFullG4()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "FullG4_LongLived"
+    return
+
+def configureFlagsFullG4_IDOnly():
+    configureFlagsFullG4()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "FullG4_IDOnly"
+    return
+
+def configureFlagsFullG4_IDCalo():
+    configureFlagsFullG4()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "FullG4_IDCalo"
+    return
+
 def configureFlagsPassBackG4():
     configureFlagsFullG4()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "PassBackG4"
     return
+
+def configureFlagsCosmicsG4():
+    configureFlagsFullG4()
+    return
+
+## Legacy Geant4 only simulators
 
 def configureFlagsMC12G4():
     configureFlagsFullG4()
@@ -56,23 +80,19 @@ def configureFlagsMC12G4():
     return
 
 def configureFlagsMC12G4_longLived():
-    configureFlagsMC12G4()
+    configureFlagsFullG4_LongLived()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "MC12G4_longLived"
     return
 
-def configureFlagsCosmicsG4():
-    configureFlagsMC12G4()
-    return
-
 def configureFlagsMC12G4_IDOnly():
-    configureFlagsFullG4()
+    configureFlagsFullG4_IDOnly()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "MC12G4_IDOnly"
     return
 
 def configureFlagsMC12G4_IDCalo():
-    configureFlagsFullG4()
+    configureFlagsFullG4_IDCalo()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "MC12G4_IDCalo"
     return
