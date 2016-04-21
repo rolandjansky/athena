@@ -32,8 +32,8 @@ apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS MathCore)"
 #macro_remove AtlasCxxPolicy_pp_cppflags "-DNDEBUG"
 #For testing that we don't have any alignment problems:
 #macro_append AtlasCxxPolicy_pp_cppflags "-Wpadded"
-macro_append cppflags "-std=c++0x"
-macro_append cpplinkflags "-std=c++0x"
+#macro_append cppflags "-std=c++0x"
+#macro_append cpplinkflags "-std=c++0x"
 end_private
 
 apply_pattern declare_joboptions files="*.py"
