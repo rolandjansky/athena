@@ -115,6 +115,9 @@ else :
 
 from ISF_Example.ISF_Input import ISF_Input
 
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("BeamEffectsAlg")
+
 #--------------------------------------------------------------
 # ISF kernel configuration
 #--------------------------------------------------------------
@@ -123,14 +126,23 @@ from ISF_Example.ISF_Input import ISF_Input
 #from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__SDActivateUserAction
 #ToolSvc += iGeant4__SDActivateUserAction("ISFSDActivateUserAction",
 #                                        OutputLevel=INFO)
-simKernel = getAlgorithm(ISF_Flags.Simulator.KernelName())
-topSequence += simKernel
+SimKernel = getAlgorithm(ISF_Flags.Simulator.KernelName())
 
 # Temporary work-around - see ATLASSIM-2351
 if ISF_Flags.UsingGeant4():
+    
     # ADS: moved here from iGeant4.py
-    from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-    topSequence += PyG4AtlasAlg()
+    try:
+        # the non-hive version of G4AtlasApps provides PyG4AtlasAlg
+        from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+        topSequence += PyG4AtlasAlg()
+    except ImportError:
+        try:
+            # the hive version provides PyG4AtlasSvc
+            from G4AtlasApps.PyG4Atlas import PyG4AtlasSvc
+            ServiceMgr += PyG4AtlasSvc()
+        except ImportError:
+            print "FATAL: Failed to import PyG4AtlasAlg/Svc"
 
 #--------------------------------------------------------------
 # Setup the random number streams
@@ -148,8 +160,6 @@ simFlags.RandomSeedList.printSeeds()
 # Setup the ISF Output
 #--------------------------------------------------------------
 from ISF_Example.ISF_Output import ISF_HITSStream
-
-topSequence += getAlgorithm("ISF_CollectionMerger")
 
 #--------------------------------------------------------------
 # Post kernel configuration
