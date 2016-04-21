@@ -34,6 +34,7 @@ use AtlasHepMC                 AtlasHepMC-*            External
 use EventPrimitives EventPrimitives-* Event
 
 use xAODTruth           xAODTruth-*             Event/xAOD
+use xAODMuon            xAODMuon-*              Event/xAOD
 
 public
 

@@ -19,6 +19,7 @@
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
+#include "xAODMuon/MuonSegmentContainer.h"
 
 namespace Muon {
 
@@ -212,6 +213,27 @@ namespace Muon {
           ++nmuons;
         }
         m_ntuple->nmuons = nmuons;
+
+        const xAOD::MuonSegmentContainer* truthSegments = evtStore()->tryConstRetrieve< xAOD::MuonSegmentContainer >("MuonTruthSegments");
+        if (truthSegments) {
+          ATH_MSG_DEBUG("Retrieved truth Segments " << truthSegments->size());
+          int nsegs = 0;
+          for (const auto truthSeg: *truthSegments){
+            m_ntuple->sbarcode[nsegs] = 0;
+            m_ntuple->sposx[nsegs] = truthSeg->x();
+            m_ntuple->sposy[nsegs] = truthSeg->y();
+            m_ntuple->sposz[nsegs] = truthSeg->z();
+            m_ntuple->sdirx[nsegs] = truthSeg->px();
+            m_ntuple->sdiry[nsegs] = truthSeg->py();
+            m_ntuple->sdirz[nsegs] = truthSeg->pz();
+            m_ntuple->snPrecHits[nsegs] = truthSeg->nPrecisionHits();
+            m_ntuple->snTrigHits[nsegs] = truthSeg->nPhiLayers() + truthSeg->nTrigEtaLayers();
+            m_ntuple->sSector[nsegs] = truthSeg->sector();
+            m_ntuple->sChIndex[nsegs] = truthSeg->chamberIndex();
+            ++nsegs;
+          }
+          m_ntuple->nsegs = nsegs;
+        }
       }
     }
 
@@ -1342,7 +1364,7 @@ namespace Muon {
   ATH_MSG_DEBUG("Adding chamber " << m_idHelper->toStringChamber(chit->first) << " hits " << chit->second.size() );
   std::vector<const Trk::PrepRawData*> prds;
   prds.insert(prds.end(),chit->second.begin(),chit->second.end());
-        std::sort(prds.begin(),prds.end(),sortPrdIds);
+        std::stable_sort(prds.begin(),prds.end(),sortPrdIds);
   const Trk::PrepRawData& prd = **prds.begin();
   Amg::Vector3D gpos = prd.detectorElement()->surface(prd.identify()).center();
   // create intersection and add it to combination
@@ -1501,7 +1523,7 @@ namespace Muon {
   ATH_MSG_DEBUG("Adding chamber " << m_idHelper->toStringChamber(chit->first) << " hits " << chit->second.size() );
   std::vector<const Trk::PrepRawData*> prds;
   prds.insert(prds.end(),chit->second.begin(),chit->second.end());
-        std::sort(prds.begin(),prds.end(),sortPrdIds);
+        std::stable_sort(prds.begin(),prds.end(),sortPrdIds);
   const Trk::PrepRawData& prd = **prds.begin();
 
   MuonStationIndex::ChIndex chIndex = m_idHelper->chamberIndex(prd.identify());
@@ -2231,7 +2253,7 @@ namespace Muon {
         bool first = true;
         currentRegion = regionLayer.first;
         for( unsigned int tech=0; tech<m_ntechnologies;++tech ){
-          std::sort(vec[tech][hash].begin(),vec[tech][hash].end());
+          std::stable_sort(vec[tech][hash].begin(),vec[tech][hash].end());
           if( !vec[tech][hash].empty() ) {
             if( msgLvl(MSG::DEBUG) ) {
               if( first ) {
