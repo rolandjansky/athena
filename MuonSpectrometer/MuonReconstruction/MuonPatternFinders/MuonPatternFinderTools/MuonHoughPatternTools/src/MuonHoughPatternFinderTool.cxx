@@ -36,7 +36,7 @@
 #include "MuonSegment/MuonSegmentCombination.h" // for csc's
 #include "MuonSegment/MuonSegment.h" 
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
-
+#include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 
 #include "TrkDriftCircleMath/DriftCircle.h"
 #include "TrkDriftCircleMath/MatchDCWithLine.h"
@@ -1683,13 +1683,19 @@ namespace Muon {
     TrkDriftCircleMath::MatchDCWithLine matchWithLine;  
     bool stop = false;
     for( int i = 0; i < 8; i++ ) {
-      if (layerHits.count(i) != 1) continue;    
+      if (layerHits.count(i) != 1) continue;
       DCVec& dci = layerHits[i];
       if (dci.size() > 10) continue;
       DCCit iti = dci.begin();
       DCCit iti_end = dci.end();
       for( ;iti!=iti_end;++iti ) {
 	// One seed selected
+	float tubeRadius=14.6;
+	std::string statname;
+	if((*iti).rot()){ //if no access to rot, can't do anything here
+	  statname=(*iti).rot()->detectorElement()->getStationType();
+	  if(statname.compare("BME")==0) tubeRadius=7.1;
+	}
 	for( int j = 7; j > i; j-- ) {
 	  if (layerHits.count(j) != 1) continue;    
 	  DCVec& dcj = layerHits[j];
@@ -1712,7 +1718,7 @@ namespace Muon {
 	      else if(cospsi < -1. ) cospsi = -1.;
 	      double psi = std::acos(cospsi);
 	      if (psi > 0.3) continue;
-	      matchWithLine.set( *lit, roadWidth, TrkDriftCircleMath::MatchDCWithLine::Road );
+	      matchWithLine.set( *lit, roadWidth, TrkDriftCircleMath::MatchDCWithLine::Road,tubeRadius );
 	      const TrkDriftCircleMath::DCOnTrackVec& hitsOnLine = matchWithLine.match( dcs );
 	      unsigned int matchedHits = matchWithLine.hitsOnTrack();
 	      ATH_MSG_VERBOSE (" Summary nHits " << matchedHits << " nl1 " << matchWithLine.hitsMl1() 
