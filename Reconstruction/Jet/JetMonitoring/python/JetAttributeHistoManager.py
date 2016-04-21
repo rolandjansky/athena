@@ -91,7 +91,8 @@ def create1DHistoTool( name, binning, attributeInfo,**otherArgs):
     attName, attType, attGeV = unpackto3(attributeInfo)
     attName, selectIndex = findSelectIndex(attName) # 'JVF[1]' --> 'JVF', 1
 
-    hname = name if selectIndex==-1 else (name+'_'+str(selectIndex))
+    #hname = name if selectIndex==-1 else (name+'_'+str(selectIndex))
+    hname = sanitizeName(name) # remove [ and ] which can be problematic in histo names
 
     return JetAttributeHisto( name, HistoDef = hdef(hname, *binning),
                               AttributeTypes = [ attType ],
@@ -110,7 +111,8 @@ def create2DHistoTool( name, binning=None, attributeInfo1=None, attributeInfo2=N
     # currently support only vector<float> vs float, so there can be only one selected index.
     selectIndex = max ( selectIndex1, selectIndex2)
 
-    hname = name if selectIndex==-1 else (name+'_'+str(selectIndex))
+    #hname = name if selectIndex==-1 else (name+'_'+str(selectIndex))
+    hname = sanitizeName(name) # remove [ and ] which can be problematic in histo names
 
     return JetAttributeHisto( name, HistoDef = hdef(hname, *binning),
                               AttributeTypes = [ attType1, attType2 ],
@@ -137,6 +139,10 @@ def createAttSelector(selectString, name="", typ="float"):
     if cmin is not None: tool.CutMin = cmin
     if cmax is not None: tool.CutMax = cmax
     return tool
+
+
+def sanitizeName(name):
+    return name.replace('[','_').replace(']','_')
 
 def unpackto3(t):
     if len(t)==2:

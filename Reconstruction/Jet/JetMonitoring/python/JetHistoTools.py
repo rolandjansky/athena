@@ -117,7 +117,7 @@ compactSpecification = {
     "BchCorrDotx"      : (("BchCorrDotx:BchCorrDotx;",50,0,1), ("BchCorrDotx", "float") ),
     "BchCorrCell"      : (("BchCorrCell:BchCorrCell;",50,0,1), ("BchCorrCell", "float") ),
     ## Jet Cleaning variables ##
-    "AverageLArQF"     : (("Average LAr QF;AverageLArQF;",50,-0.1, 5.), ("AverageLArQF", "float") ),
+    "AverageLArQF"     : (("Average LAr QF;AverageLArQF;",100,0, 65535), ("AverageLArQF", "float") ),
     "HECQuality"       : (("HEC Quality;HEC Quality;",50,-0.1, 1.4), ("HECQuality", "float") ),
     "FracSamplingMax"  : (("FracSamplingMax; FracSamplingMax;",50,-0.1, 1.2), ("FracSamplingMax", "float") ),
     # binning optimisation from Emma Tolley 
