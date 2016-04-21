@@ -16,10 +16,7 @@ class OracleInterface:
 
     def connect_to_oracle(self,database_username="",database_password="",database_name="",directory=""):
 
-        # connection information, to be replaced with something more secure!
-        #USER =  'tklimk'
-        #PASSWORD = 'IiUTYhtOYL956!'
-        #DATASOURCE = 'devdb11'
+        # connection information
         USER = database_username
         PASSWORD = database_password
         DATASOURCE = database_name
@@ -72,37 +69,18 @@ class OracleInterface:
         # fetch results, based on a query, 
         # optionally providing additional parameters as a dictionary,
         # and return all results
-        # TEMP TEST
-        #print "In OracleInterface.fetch()"
-        #print "query =",query
-        #print "parameters_dict =",parameters_dict
-        #result = self.cursor.execute(query,parameters_dict).fetchall()
         result = []
         self.cursor.execute(query,parameters_dict)
         for value in self.cursor:
-            #print ""
-            #print value
             if len(value) > 1:
                 tempvalue = {}
                 listvalue = list(value)
                 for x in range(len(value)):
                     if type(value[x]) is cx_Oracle.LOB:
-                        #print value[x]
-                        #tempvalue[x] = str(value[x].read())
+                        # convert this into a string now in order to prevent access errors which occur with fetchall()
                         listvalue[x] = self.__unicode_to_str__(json.loads(value[x].read()))
-                        #print tempvalue[x]
-                #for x in range(len(value)):
-                    #if x in tempvalue.keys():
-                        #listvalue[x] = tempvalue[x]
                 value = tuple(listvalue)
-            #print value
             result.append(value)
-            
-        print ""
-        #print self.cursor.execute(query,parameters_dict).fetchall()
-        #print ""
-        print result
-        #return self.cursor.execute(query,parameters_dict).fetchall()
         return result
 
 
@@ -751,7 +729,8 @@ class OracleInterface:
                 # first we read out the CLOB
                 # then we turn the json string into a dict
                 #row_dict['SMCK_CONFIG'] = json.loads(row_dict['SMCK_CONFIG'].read())
-                print "Found an SMCK table"
+                #this is already done
+                pass
 
             # add this dict to the return list
             return_list.append(row_dict)
@@ -849,6 +828,22 @@ class OracleInterface:
 
         # insert this into the database
         self.insert(query,parameters_dict)
+
+    def check_if_smk_exists(self,smk_id):
+        
+        # construct the query
+        query = """SELECT * FROM """+self.directory+"""super_master_table \
+            WHERE """+self.directory+"""super_master_table.smt_id = :SMK """
+        #smt_name
+        
+        # construct the dict of the input smk
+        parameters_dict = {}
+        parameters_dict['SMK'] = smk_id
+        
+        # perform the search
+        search_results = self.fetch(query,parameters_dict)
+
+        return search_results   
 
 
     def upload_mck_to_smk_link(self,mck_id,smk,creator,comment=""):

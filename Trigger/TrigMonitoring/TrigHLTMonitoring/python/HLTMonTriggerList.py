@@ -215,6 +215,11 @@ class HLTMonTriggerList:
         self.monitoring_muon_Support = muon.monitoring_muon_Support_HI
             
     def set_HLTMonTrigList_pPb(self):
+        self.monitoring_l1jet = jets.monitoring_l1jet_hi
+        self.monitoring_jet = jets.monitoring_jet_hi
+        self.primary_l1jet = jets.primary_l1jet_hi
+        self.primary_jet = jets.primary_jet_hi
+
         self.monitoring_muonNonIso = muon.monitoring_muonNonIso_HI
         self.monitoring_muonIso = muon.monitoring_muonIso_HI
         self.monitoring_MSonly = muon.monitoring_MSonly_HI 

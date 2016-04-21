@@ -461,7 +461,12 @@ class MenuAwareMonitoringStandalone:
                 print "Menu-aware monitoring: upload_mck_to_smk_link(",input_mck_id,",",input_smk,",",comment,") inputs not valid. MCK and SMK must be integers."
                 print "No MCK to SMK link created."
                 return
-            
+         
+        if not self.oi.check_if_smk_exists(input_smk):
+            print "SMK",input_smk,"does not exist in the trigger DB."
+            print "No MCK to SMK link created."                
+            return
+                
         if (not self.oi.check_if_mck_id_exists(input_mck_id)) and (input_mck_id is not 0):
             print "MCK",input_mck_id,"does not exist in database."
             print "No MCK to SMK link created."                
@@ -634,6 +639,7 @@ class MenuAwareMonitoringStandalone:
             # return this smck_info
             return smck_info
 
+
     def upload_mck(self,input_smck_list=[],comment="",print_output_here=""):
         """input_smck_list should be a list of SMCK, identified be either their SMCK_ID or SMCK_TOOL_PATCH_VERSION.
         An MCK will be uploaded, linking to these SMCK.
@@ -682,6 +688,24 @@ class MenuAwareMonitoringStandalone:
                 print "One or more of the SMCK requested are missing. Aborting MCK upload."
             return
 
+        # check that the smcks are from a consistent release
+        smck_release_dict = {}
+
+        for smck_id in smck_ids:
+            smck_release = self.oi.read_smck_info_from_db(smck_id)['SMCK_ATHENA_VERSION']            
+            if smck_release in smck_release_dict:
+                smck_release_dict[smck_release].append(smck_id)
+            else:
+                smck_release_dict[smck_release] = [smck_id]
+                
+        if len(smck_release_dict) > 1:
+            print "Your SMCK list contains SMCKs from different Athena releases." 
+            print "MCKs must consist of SMCKs from the same release." 
+            print "Please try again with a different SMCK list." 
+            print "The SMCKs you entered with their releases will be printed below."
+            print smck_release_dict
+            return
+        
         # check that the mck does not already exist
         mck_id = self.oi.check_if_exact_mck_exists(smck_ids)
 
@@ -700,7 +724,8 @@ class MenuAwareMonitoringStandalone:
         # fill mck_info
         mck_info = {}
         mck_info['MCK_DEFAULT'] = 0
-        mck_info['MCK_ATHENA_VERSION'] = self.current_athena_version
+        #mck_info['MCK_ATHENA_VERSION'] = self.current_athena_version
+        mck_info['MCK_ATHENA_VERSION'] = smck_release_dict.keys()[0] #we only get this far if this dictionary has 1 element
         mck_info['MCK_CREATOR'] = self.current_user
         mck_info['MCK_COMMENT'] = comment
 
@@ -1435,11 +1460,8 @@ class MenuAwareMonitoringStandalone:
             
             # some nice spacing
             print ""
-        
-        # else we assume the user wants the search results returned
-        # (ie if this function has been called from within another function)
-        else:
-            
+
+        else:            
             # return the search results
             return search_results_list
  
@@ -1538,14 +1560,4 @@ class MenuAwareMonitoringStandalone:
             else:
                 print "SMK",start_smk,"and greater = MCK",mck_id,print_active
 
-
-if __name__=="__main__":
-
-    connectionSvc = MenuAwareMonitoringStandalone._getConnectionServicesForAlias("TRIGGERDBR2MAM")[0]
-    print "Connection service ", connectionSvc
-    user,pw = MenuAwareMonitoringStandalone._readAuthentication()[connectionSvc]
-    oi = OracleInterface()
-    oi.connect_to_oracle(user,pw,connectionSvc.split('/')[2])
-    conn = oi.conn
-    print conn
 

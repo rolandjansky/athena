@@ -62,18 +62,9 @@ class MenuAwareMonitoring:
         # print guide for user if this is an interactive session
         if self.ms.__is_session_interactive__():
             
-            # print guide for user
-            # TODO
-            #print ""
-            #print "Authors of this code: Ben Smart (Ben.Smart@cern.ch), Xanthe Hoad (Xanthe.Hoad@cern.ch)"
-            #print "This is Menu-aware monitoring version",self.version
-            #print "You are",self.ms.current_user
             print "Running in Athena release",self.current_athena_version
             print "Stream detected:",self.stream
             print ""
-    
-        # create oracle interaction object
-        #self.oi = OracleInterface()
 
         # create tool interrogator object
         self.ti = ToolInterrogator()
@@ -85,10 +76,6 @@ class MenuAwareMonitoring:
 
         # automatically fill current local tool info
         self.get_current_local_info()
-
-        # flag to record if we have connected to Oracle
-        #self.ms.connected_to_oracle = False
-        
 
         # fill default global info (if available)
         if self.ms.connected_to_oracle == True:
@@ -1069,26 +1056,31 @@ class MenuAwareMonitoring:
         # get the smck_info
         smck_info = self.ms.oi.read_smck_info_from_db(smck_id)
 
+        # get the release this SMCK was created for
+        smck_athena_version = smck_info['SMCK_ATHENA_VERSION']
+        # compare to our release
+        if smck_athena_version != self.current_athena_version: 
+            print "SMCK",input1,"is for athena version",smck_athena_version,", but MAM is running in ",self.current_athena_version,". This SMCK will not be applied."
+            return
+
         # get the processing step this smck should be used for
         processing_step = smck_info['SMCK_PROCESSING_STEP']
-
         # are we running in an appropriate processing step?
         if not self.__is_input_a_valid_current_processing_step_to_use__(processing_step):
 
             # info for user
             if print_output_here:
-                print "SMCK",input1,"is for the Athena processing stage '"+processing_step+"', which we are not currently in. This SMCK will therefore not be applied as a config patch at this time."
+                print "SMCK",input1,"is for the Athena processing stage '"+processing_step+"', which we are not currently in. This SMCK will not be applied."
             return
 
         # get the processing stream this smck should be used for
         processing_stream = smck_info['SMCK_PROCESSING_STREAM']
-
         # are we running in an appropriate processing stream?
         if not self.__is_input_a_valid_current_processing_stream_to_use__(processing_stream):
 
             # info for user
             if print_output_here:
-                print "SMCK",input1,"is for the Athena processing stream '"+processing_stream+"', which we are not currently using. This SMCK will therefore not be applied as a config patch at this time."
+                print "SMCK",input1,"is for the Athena processing stream '"+processing_stream+"', which we are not currently using. This SMCK will not be applied."
             return
 
         # get the ToolSvc_tool_name
