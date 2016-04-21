@@ -196,7 +196,7 @@ namespace LVL1CTP {
       ResultBuilder* m_resultBuilder;                         //!< handle to result builder (for easy data access)
 
       // additional monitoring variables
-      std::vector<int> m_prescales;                           //!< prescale set (for monitoring)
+      std::vector<float> m_prescales;                         //!< prescale set (for monitoring)
 
       std::vector<int> m_countsBP;                            //!< Counts for summary BP
       std::vector<int> m_countsAP;                            //!< Counts for summary AP

@@ -126,7 +126,7 @@ LVL1CTP::CTPSimulation::CTPSimulation( const std::string& name, ISvcLocator* pSv
 	declareProperty( "DoBPTX",  m_doBPTX = false, "Use inputs from BPTX system" );
 	declareProperty( "DoRNDM",  m_doRNDM = true, "Simulate internal random trigger" );
 	declareProperty( "DoPSCL",  m_doPSCL = true, "Simulate internal prescaled clock trigger" );
-	declareProperty( "PrescaleMode", m_prescaleMode = DEFAULT, 
+	declareProperty( "PrescaleMode", m_prescaleMode = RANDOM, 
 									"Mode for applying prescale: 0 - as hardware, 1 - random offset, 2 - random prescales"); 
 	m_prescaleMode.verifier().setLower(DEFAULT); m_prescaleMode.verifier().setUpper(RANDOM);
 	declareProperty( "IsData", m_IsData = false, "Rerun simulation on data" );  
@@ -173,17 +173,18 @@ LVL1CTP::CTPSimulation::CTPSimulation( const std::string& name, ISvcLocator* pSv
 									"(De-)Activate artificial trigger offsets");
 	declareProperty("OffsetConfigFile", m_offsetConfigFile = "TriggerOffsets.cfg", 
 									"Configuration file for trigger offsets");
-
-    // declare monitoring tools
-    declareProperty( "AthenaMonTools",  m_monitors, "List of monitoring tools to be run within this instance, if incorrect then tool is silently skipped.");
-
-    declareProperty("HistBase", m_histbase, "/<stream>/<subdir>");
+	
+	// declare monitoring tools
+	declareProperty( "AthenaMonTools",  m_monitors, "List of monitoring tools to be run within this instance, if incorrect then tool is silently skipped.");
+	
+	declareProperty("HistBase", m_histbase, "/<stream>/<subdir>");
 	
 	// declare monitoring variables
 	declareMonitoredCustomVariable("TIP", new CustomBit(this, &ResultBuilder::tip)); // custom monitoring: TIP
-    // 	declareMonitoredCustomVariable("TBP", new CustomBit(this, &ResultBuilder::tbp)); // custom monitoring: TBP
-    // 	declareMonitoredCustomVariable("TAP", new CustomBit(this, &ResultBuilder::tap)); // custom monitoring: TAP
-    // 	declareMonitoredCustomVariable("TAV", new CustomBit(this, &ResultBuilder::tav)); // custom monitoring: TAV
+	// 	declareMonitoredCustomVariable("TBP", new CustomBit(this, &ResultBuilder::tbp)); // custom monitoring: TBP
+	// 	declareMonitoredCustomVariable("TAP", new CustomBit(this, &ResultBuilder::tap)); // custom monitoring: TAP
+	// 	declareMonitoredCustomVariable("TAV", new CustomBit(this, &ResultBuilder::tav)); // custom monitoring: TAV
+	
 }
 
 LVL1CTP::CTPSimulation::~CTPSimulation()
@@ -849,6 +850,7 @@ LVL1CTP::CTPSimulation::beginRun() {
    m_itemMap = new ItemMap( m_configSvc->ctpConfig()->menu().itemVector(), 
                             m_configSvc->ctpConfig()->prescaleSet(), 
                             ((m_prescaleMode == OFFSET)&&(m_doRNDM)) ? rndmEngine : 0 );
+   
    ATH_MSG_DEBUG("Mapped decision trigger item objects to configuration ones");
    ATH_MSG_DEBUG("          |---------------------------------------------------------------------------------|");
    ATH_MSG_DEBUG("          |                             Layout of trigger items in result                   |");
@@ -866,7 +868,7 @@ LVL1CTP::CTPSimulation::beginRun() {
    ATH_MSG_DEBUG("          |---------------------------------------------------------------------------------|");
 	
    // build prescale vector (for monitoring)
-   m_prescales = m_configSvc->ctpConfig()->prescaleSet().prescales();
+   m_prescales = m_configSvc->ctpConfig()->prescaleSet().prescales_float();
 	
    ATH_MSG_INFO("done beginRun()");
 
@@ -1158,8 +1160,7 @@ LVL1CTP::CTPSimulation::execute() {
       ATH_MSG_DEBUG("REGTEST -  " << iter->second->print());
 
    }
-	
-  
+
    if ((m_doRNDM)&&(m_prescaleMode == RANDOM)){
       int event = EventInfo::instance().runNumber()+1;
       int run = EventInfo::instance().eventNumber()+1;
