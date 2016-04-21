@@ -19,19 +19,19 @@
 // construction/destruction
 CSCSensitiveDetectorCosmics::CSCSensitiveDetectorCosmics(const std::string& name, const std::string& hitCollectionName)
   : G4VSensitiveDetector( name )
-  , momMag(0.)
+  , m_momMag(0.)
   , m_globalTime(0.)
-  , myCSCHitColl( hitCollectionName )
+  , m_myCSCHitColl( hitCollectionName )
 {
-  muonHelper = CscHitIdHelper::GetHelper();
+  m_muonHelper = CscHitIdHelper::GetHelper();
 }
 
 // Implemenation of memebr functions
 void CSCSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*) 
 {
-  if (!myCSCHitColl.isValid()) myCSCHitColl = CxxUtils::make_unique<CSCSimHitCollection>();
-  mom = Amg::Vector3D(0.,0.,0.);
-  globH = Amg::Vector3D(0.,0.,0.);
+  if (!m_myCSCHitColl.isValid()) m_myCSCHitColl = CxxUtils::make_unique<CSCSimHitCollection>();
+  m_mom = Amg::Vector3D(0.,0.,0.);
+  m_globH = Amg::Vector3D(0.,0.,0.);
 }
 
 G4bool CSCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) {
@@ -75,23 +75,23 @@ G4bool CSCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
   double lightspeed = 299.792458; /* in vacuo speed of light [mm/ns] */
   double tOrigin = dist / lightspeed;
 
-  currVertex = Amg::Hep3VectorToEigen( aStep->GetTrack()->GetVertexPosition() );
+  m_currVertex = Amg::Hep3VectorToEigen( aStep->GetTrack()->GetVertexPosition() );
     
   // for cosmics: only primary muon tracks - track momentum when first entering the spectrometer (one muon per event)
-  if ((currVertex != vertex) && (trackid == 1)) {
+  if ((m_currVertex != m_vertex) && (trackid == 1)) {
     // after calculationg the momentum magnidude, normalize it 
-    mom = Amg::Hep3VectorToEigen( currentTrack->GetMomentum() );
-    momMag = mom.mag();
-    mom.normalize();
-    // the direction of the primary mu is used to calculate the t0, the position ot the t0, globH, is ONE for a track
+    m_mom = Amg::Hep3VectorToEigen( currentTrack->GetMomentum() );
+    m_momMag = m_mom.mag();
+    m_mom.normalize();
+    // the direction of the primary mu is used to calculate the t0, the position to the t0, m_globH, is ONE for a track
     Amg::Vector3D globVrtxFix = globVrtx;
-    double AlphaGlobal = -1*(globVrtxFix[0]*mom[0] + globVrtxFix[1]*mom[1] + globVrtxFix[2]*mom[2])/(mom[0]*mom[0] + mom[1]*mom[1] + mom[2]*mom[2]);   
-    globH = globVrtxFix + AlphaGlobal*mom;     
+    double AlphaGlobal = -1*(globVrtxFix[0]*m_mom[0] + globVrtxFix[1]*m_mom[1] + globVrtxFix[2]*m_mom[2])/(m_mom[0]*m_mom[0] + m_mom[1]*m_mom[1] + m_mom[2]*m_mom[2]);   
+    m_globH = globVrtxFix + AlphaGlobal*m_mom;     
     //    G4cout << "COSMICS MAIN TRACK IN THES CSC!" << G4endl; 
   }  
-  double globalDist = sqrt((globH[0] - globVrtx[0])*(globH[0] - globVrtx[0]) +
-                           (globH[1] - globVrtx[1])*(globH[1] - globVrtx[1]) +
-                           (globH[2] - globVrtx[2])*(globH[2] - globVrtx[2]));
+  double globalDist = sqrt((m_globH[0] - globVrtx[0])*(m_globH[0] - globVrtx[0]) +
+                           (m_globH[1] - globVrtx[1])*(m_globH[1] - globVrtx[1]) +
+                           (m_globH[2] - globVrtx[2])*(m_globH[2] - globVrtx[2]));
   double tof = globalDist / lightspeed;
 
   /** scan geometry tree to identify the gas layer */
@@ -203,46 +203,46 @@ G4bool CSCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
     }
   }
       
-  vertex = Amg::Hep3VectorToEigen( aStep->GetTrack()->GetVertexPosition() );
+  m_vertex = Amg::Hep3VectorToEigen( aStep->GetTrack()->GetVertexPosition() );
   // if the track vertex is far from (0,0,0), takes the tof, otherwise take the "usual" g4 globalTime
-  (((vertex.mag() < 100) || ((fabs(globalTime - tOrigin)) < 0.1) ) ? (m_globalTime  = globalTime) 
+  (((m_vertex.mag() < 100) || ((fabs(globalTime - tOrigin)) < 0.1) ) ? (m_globalTime  = globalTime) 
                                                                    : (m_globalTime = tof));
   // if m_globalTime  != globalTime and m_globalTime != tof in the output, this is due to multiple hits
   // before founding the good one (small approximation)
 
   /** construct the hit identifier */
-  HitID CSCid = muonHelper->BuildCscHitId(stationName, stationPhi, 
+  HitID CSCid = m_muonHelper->BuildCscHitId(stationName, stationPhi, 
                                           stationEta, multiLayer, wireLayer);
 
   /** insert hit in collection */
-  myCSCHitColl->Emplace(CSCid, m_globalTime, energyDeposit,
-                  HitStart, HitEnd, lundcode, trackid, kinEnergy);
+  m_myCSCHitColl->Emplace(CSCid, m_globalTime, energyDeposit,
+                          HitStart, HitEnd, lundcode, trackid, kinEnergy);
 
-// #ifndef CSCG4_DEBUG
-// 
-// // printouts for cosmics
-//         G4cout << "------------------CSC------------------" << G4endl;
-// 	G4cout << "Track "<<trackid << G4endl;
-// 	G4cout << "Track vertex "<<vertex[0]<<" " <<vertex[1]<<" " <<vertex[2] << G4endl;
+  // #ifndef CSCG4_DEBUG
+  // 
+  // // printouts for cosmics
+  //         G4cout << "------------------CSC------------------" << G4endl;
+  // 	G4cout << "Track "<<trackid << G4endl;
+  // 	G4cout << "Track m_vertex "<<m_vertex[0]<<" " <<m_vertex[1]<<" " <<m_vertex[2] << G4endl;
 // 	G4cout << "Global position of the hit " << globVrtx[0] <<" " << globVrtx[1] <<" " << globVrtx[2]  << G4endl;
 //         G4cout << "Distance from (0,0,0) and time " << dist << " " <<tOrigin  << G4endl;
-//         G4cout << "Momentum "<<momMag << G4endl;
-// 	G4cout << "Momentum director cosines " <<mom[0]<<" " <<mom[1]<<" " <<mom[2] << G4endl; 
-// 	G4cout << "Eta and phi "<<mom.eta()<<" " <<mom.phi() << G4endl;
+//         G4cout << "Momentum "<<m_momMag << G4endl;
+// 	G4cout << "Momentum director cosines " <<m_mom[0]<<" " <<m_mom[1]<<" " <<m_mom[2] << G4endl; 
+// 	G4cout << "Eta and phi "<<m_mom.eta()<<" " <<m_mom.phi() << G4endl;
 //         G4cout << "Closest approach position and distance from (0,0,0) " 
-// 	          << globH[0] <<" "<<globH[1]<<" "<<globH[2]<<" "
-// 	          << sqrt(globH[0]*globH[0] + globH[1]*globH[1] + globH[2]*globH[2])  << G4endl; 
+// 	          << m_globH[0] <<" "<<m_globH[1]<<" "<<m_globH[2]<<" "
+// 	          << sqrt(m_globH[0]*m_globH[0] + m_globH[1]*m_globH[1] + m_globH[2]*m_globH[2])  << G4endl; 
 //         G4cout << "Distance from t0 and tof " << globalDist <<" " <<tof  << G4endl; 
 //         G4cout << "g4 globalTime " << globalTime  << G4endl;
 //         G4cout << "Time " << m_globalTime  << G4endl;
 // 
-//    	G4cout << "TUB "<<muonHelper->GetStationName(CSCid)
-//  	            << " "<<muonHelper->GetFieldValue("PhiSector")
-//  	            << " "<<muonHelper->GetFieldValue("ZSector")
-//  	            << " "<<muonHelper->GetFieldValue("ChamberLayer")
-//  	            << " "<<muonHelper->GetFieldValue("WireLayer") << G4endl;
+//    	G4cout << "TUB "<<m_muonHelper->GetStationName(CSCid)
+//  	            << " "<<m_muonHelper->GetFieldValue("PhiSector")
+//  	            << " "<<m_muonHelper->GetFieldValue("ZSector")
+//  	            << " "<<m_muonHelper->GetFieldValue("ChamberLayer")
+//  	            << " "<<m_muonHelper->GetFieldValue("WireLayer") << G4endl;
 //   	    
-//    	G4cout << muonHelper->GetStationName(CSCid)<<" "<<newHit->print() << G4endl;
+//    	G4cout << m_muonHelper->GetStationName(CSCid)<<" "<<newHit->print() << G4endl;
 //  	
 //  #endif
 

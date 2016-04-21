@@ -245,10 +245,10 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
         else
           gasGap = 2-(volCopyNo-3)/4;
       } else {
-        if (iStation == 1)
+//        if (iStation == 1)
           gasGap = (volCopyNo-3)/4+1;
-        else
-          gasGap = (volCopyNo-3)/4+1;
+//        else
+//          gasGap = (volCopyNo-3)/4+1;
       }
     } else if ((npos = volName.find("TGCGas")) != std::string::npos) {
 

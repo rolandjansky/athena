@@ -19,17 +19,17 @@
 // construction/destruction
 RPCSensitiveDetectorCosmics::RPCSensitiveDetectorCosmics(const std::string& name, const std::string& hitCollectionName)
   : G4VSensitiveDetector( name )
-  , myRPCHitColl( hitCollectionName )
+  , m_myRPCHitColl( hitCollectionName )
   , m_globalTime(0.)
   , m_isGeoModel(true)
-  , momMag(0.)
+  , m_momMag(0.)
 {
-  muonHelper = RpcHitIdHelper::GetHelper();
+  m_muonHelper = RpcHitIdHelper::GetHelper();
 }
 
 void RPCSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*)
 {
-  if (!myRPCHitColl.isValid()) myRPCHitColl = CxxUtils::make_unique<RPCSimHitCollection>();
+  if (!m_myRPCHitColl.isValid()) m_myRPCHitColl = CxxUtils::make_unique<RPCSimHitCollection>();
   if (verboseLevel>1) G4cout << "Initializing SD" << G4endl;
   // FIXME this next bit probebly only needs to be done once pre job
   // rather than once per G4Event?
@@ -41,8 +41,8 @@ void RPCSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*)
     m_isGeoModel = false;
     if (verboseLevel>1) G4cout << "Muon Geometry is from pure G4" << G4endl;
   }*/
-  mom = Amg::Vector3D(0.,0.,0.);
-  globH = Amg::Vector3D(0.,0.,0.);
+  m_mom = Amg::Vector3D(0.,0.,0.);
+  m_globH = Amg::Vector3D(0.,0.,0.);
 }
 
 G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
@@ -91,22 +91,22 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
   // double tOrigin = dist / lightspeed;
 
   G4int trackid = aStep->GetTrack()->GetTrackID();
-  currVertex = Amg::Hep3VectorToEigen( aStep->GetTrack()->GetVertexPosition() );
+  m_currVertex = Amg::Hep3VectorToEigen( aStep->GetTrack()->GetVertexPosition() );
 
   // for cosmics: only primary muon tracks - track momentum when first entering the spectrometer (one muon per event)
-  if ((currVertex != vertex) && (trackid == 1)) {
+  if ((m_currVertex != m_vertex) && (trackid == 1)) {
     // after calculationg the momentum magnidude, normalize it
-    mom = Amg::Hep3VectorToEigen( currentTrack->GetMomentum() );
-    momMag = mom.mag();
-    mom.normalize();
-    // the direction of the primary mu is used to calculate the t0, the position ot the t0, globH, is ONE for a track
+    m_mom = Amg::Hep3VectorToEigen( currentTrack->GetMomentum() );
+    m_momMag = m_mom.mag();
+    m_mom.normalize();
+    // the direction of the primary mu is used to calculate the t0, the position ot the t0, m_globH, is ONE for a track
     Amg::Vector3D globVrtxFix = Amg::Hep3VectorToEigen( globVrtx );
-    double AlphaGlobal = -1*(globVrtxFix[0]*mom[0] + globVrtxFix[1]*mom[1] + globVrtxFix[2]*mom[2])/(mom[0]*mom[0] + mom[1]*mom[1] + mom[2]*mom[2]);
-    globH = globVrtxFix + AlphaGlobal*mom;
+    double AlphaGlobal = -1*(globVrtxFix[0]*m_mom[0] + globVrtxFix[1]*m_mom[1] + globVrtxFix[2]*m_mom[2])/(m_mom[0]*m_mom[0] + m_mom[1]*m_mom[1] + m_mom[2]*m_mom[2]);
+    m_globH = globVrtxFix + AlphaGlobal*m_mom;
   }
-  double globalDist = sqrt((globH[0] - globVrtx[0])*(globH[0] - globVrtx[0]) +
-                           (globH[1] - globVrtx[1])*(globH[1] - globVrtx[1]) +
-                           (globH[2] - globVrtx[2])*(globH[2] - globVrtx[2]));
+  double globalDist = sqrt((m_globH[0] - globVrtx[0])*(m_globH[0] - globVrtx[0]) +
+                           (m_globH[1] - globVrtx[1])*(m_globH[1] - globVrtx[1]) +
+                           (m_globH[2] - globVrtx[2])*(m_globH[2] - globVrtx[2]));
   double tof = globalDist / lightspeed;
 
   int mydbZ=0;
@@ -142,7 +142,7 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 
       if(stationEta<0&&!zNeg_original) station_rotated=1;
 
-    // stationName, stationEta, stationPhi
+      // stationName, stationEta, stationPhi
     } else if ((npos = volName.find("RPC")) != std::string::npos && isAssembly) {
       // vol name for Assembly components are
       // av_WWW_impr_XXX_Muon::BMSxMDTxx_pv_ZZZ_NAME
@@ -196,7 +196,7 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
       doubletR =(abs(kk)%1000)/100;
       mydbZ    = abs(int(kk%10));
       mydbPMod = abs(int(kk/1000));
-    // doubleR, doubletZ
+      // doubleR, doubletZ
     } else if ((npos = volName.find("rpccomponent")) != std::string::npos && (!isAssembly)) {
 
       tech=volName.substr(npos-5,5);
@@ -218,7 +218,7 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 
       doubletR=(abs(kk)%1000)/100;
 
-    // doubleR
+      // doubleR
     } else if ((npos = volName.find("rpccomponent")) != std::string::npos && (!isAssembly)) {
 
       std::string::size_type loc1,loc2;
@@ -249,7 +249,7 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
         rpcIsRotated ? gasGap = 1 : gasGap = 2;
       }
 
-    // doubletPhi
+      // doubletPhi
     } else if((npos = volName.find("gas volume")) != std::string::npos) {
 
       int copyNo = touchHist->GetVolume(i)->GetCopyNo();
@@ -320,14 +320,14 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
   //construct the hit identifiers
 
   if (verboseLevel>1) {
-     G4cout << "hit in station "<<stationName<< " on technology "<<tech << G4endl;
-     G4cout << "constructing ids (stName, stEta, stPhi, dr, dZ, dPhi)= "<<stationName<< " "<< stationEta<<" " << stationPhi<< " "<<doubletR<< " "<< doubletZ<< " "<<doubletPhi << G4endl;
+    G4cout << "hit in station "<<stationName<< " on technology "<<tech << G4endl;
+    G4cout << "constructing ids (stName, stEta, stPhi, dr, dZ, dPhi)= "<<stationName<< " "<< stationEta<<" " << stationPhi<< " "<<doubletR<< " "<< doubletZ<< " "<<doubletPhi << G4endl;
   }
 
-  HitID RPCid_eta = muonHelper->BuildRpcHitId(stationName, stationPhi, stationEta,
+  HitID RPCid_eta = m_muonHelper->BuildRpcHitId(stationName, stationPhi, stationEta,
                                               mydbZ, doubletR, gasGap, mydbP,0);
 
-  HitID RPCid_phi = muonHelper->BuildRpcHitId(stationName, stationPhi, stationEta,
+  HitID RPCid_phi = m_muonHelper->BuildRpcHitId(stationName, stationPhi, stationEta,
                                               mydbZ, doubletR, gasGap, mydbP,1);
 
   // retrieve track barcode
@@ -335,18 +335,24 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
   int barcode = trHelp.GetBarcode();
 
   //construct new rpc hit
-  vertex = Amg::Hep3VectorToEigen( aStep->GetTrack()->GetVertexPosition() );
+  m_vertex = Amg::Hep3VectorToEigen( aStep->GetTrack()->GetVertexPosition() );
 
-  // if the track vertex is far from (0,0,0), takes the tof, otherwise take the "usual" g4 globalTime
-  (((vertex.mag()) < 100) ? (m_globalTime  = globalTime) : (m_globalTime = tof));
+  // if the track m_vertex is far from (0,0,0), takes the tof, otherwise take the "usual" g4 globalTime
+  (((m_vertex.mag()) < 100) ? (m_globalTime  = globalTime) : (m_globalTime = tof));
 
-  myRPCHitColl->Emplace(RPCid_eta, m_globalTime,
+  m_myRPCHitColl->Emplace(RPCid_eta, m_globalTime,
+                          localPosition, barcode, localPostPosition, 
+                          aStep->GetTotalEnergyDeposit(), 
+                          aStep->GetStepLength(), 
+                          currentTrack->GetDefinition()->GetPDGEncoding(), 
+                          aStep->GetPreStepPoint()->GetKineticEnergy());
+  m_myRPCHitColl->Emplace(RPCid_phi, m_globalTime,
                         localPosition, barcode, localPostPosition,
                         aStep->GetTotalEnergyDeposit(),
                         aStep->GetStepLength(),
                         currentTrack->GetDefinition()->GetPDGEncoding(),
                         aStep->GetPreStepPoint()->GetKineticEnergy());
-  myRPCHitColl->Emplace(RPCid_phi, m_globalTime,
+  m_myRPCHitColl->Emplace(RPCid_phi, m_globalTime,
                         localPosition, barcode, localPostPosition,
                         aStep->GetTotalEnergyDeposit(),
                         aStep->GetStepLength(),

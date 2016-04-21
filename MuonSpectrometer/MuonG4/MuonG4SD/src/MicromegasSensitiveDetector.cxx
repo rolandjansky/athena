@@ -21,7 +21,7 @@ MicromegasSensitiveDetector::MicromegasSensitiveDetector(const std::string& name
   , m_GenericMuonHitCollection( hitCollectionName )
 {
   m_muonHelper = MicromegasHitIdHelper::GetHelper();
-  m_muonHelper->PrintFields();
+  //m_muonHelper->PrintFields();
 }
 
 // Implemenation of memebr functions

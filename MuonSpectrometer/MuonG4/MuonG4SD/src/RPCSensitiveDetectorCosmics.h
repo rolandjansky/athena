@@ -105,15 +105,15 @@ public:
     
 private:
     /** member data */
-    SG::WriteHandle<RPCSimHitCollection>  myRPCHitColl;
-    RpcHitIdHelper* muonHelper;
+    SG::WriteHandle<RPCSimHitCollection>  m_myRPCHitColl;
+    RpcHitIdHelper* m_muonHelper;
     double                     m_globalTime;
     bool m_isGeoModel;
-    Amg::Vector3D mom;           
-    double momMag;           
-    Amg::Vector3D vertex; 
-    Amg::Vector3D currVertex;          
-    Amg::Vector3D globH;
+    Amg::Vector3D m_mom;           
+    double m_momMag;           
+    Amg::Vector3D m_vertex; 
+    Amg::Vector3D m_currVertex;          
+    Amg::Vector3D m_globH;
 
 };
 

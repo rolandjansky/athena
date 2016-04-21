@@ -21,7 +21,7 @@ sTGCSensitiveDetector::sTGCSensitiveDetector(const std::string& name, const std:
   , m_GenericMuonHitCollection( hitCollectionName )
 {
   m_muonHelper = sTgcHitIdHelper::GetHelper();
-  m_muonHelper->PrintFields();
+  //m_muonHelper->PrintFields();
 }
 
 // Implemenation of memebr functions

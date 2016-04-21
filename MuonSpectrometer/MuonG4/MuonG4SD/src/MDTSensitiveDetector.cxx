@@ -20,7 +20,7 @@ MDTSensitiveDetector::MDTSensitiveDetector(const std::string& name, const std::s
   , m_MDTHitColl( hitCollectionName )
   , m_driftRadius(0.)
   , m_globalTime(0.)
-  , DEFAULT_TUBE_RADIUS( std::numeric_limits<double>::max() )
+  , m_DEFAULT_TUBE_RADIUS( std::numeric_limits<double>::max() )
 {
   m_muonHelper = MdtHitIdHelper::GetHelper();
 }
@@ -29,7 +29,7 @@ MDTSensitiveDetector::MDTSensitiveDetector(const std::string& name, const std::s
 void MDTSensitiveDetector::Initialize(G4HCofThisEvent*)
 {
   if (!m_MDTHitColl.isValid()) m_MDTHitColl = CxxUtils::make_unique<MDTSimHitCollection>();
-  m_driftRadius = DEFAULT_TUBE_RADIUS;
+  m_driftRadius = m_DEFAULT_TUBE_RADIUS;
 }
 
 G4bool MDTSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) {
@@ -121,7 +121,7 @@ G4bool MDTSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
                           currentTrack->GetDefinition()->GetPDGEncoding(),
                           aStep->GetPreStepPoint()->GetKineticEnergy());
 
-    m_driftRadius = DEFAULT_TUBE_RADIUS; // reset start value of driftRadius
+    m_driftRadius = m_DEFAULT_TUBE_RADIUS; // reset start value of driftRadius
   }
   return true;
 }

@@ -74,16 +74,16 @@ public:
     G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ROhist) override final;
     
 private:
-    Amg::Vector3D mom;           
-    double momMag;           
-    Amg::Vector3D vertex; 
-    Amg::Vector3D currVertex;          
-    Amg::Vector3D globH;
+    Amg::Vector3D m_mom;           
+    double m_momMag;           
+    Amg::Vector3D m_vertex; 
+    Amg::Vector3D m_currVertex;          
+    Amg::Vector3D m_globH;
     double m_globalTime;
 
     /** member data */
-    SG::WriteHandle<CSCSimHitCollection>  myCSCHitColl;
-    CscHitIdHelper* muonHelper;
+    SG::WriteHandle<CSCSimHitCollection>  m_myCSCHitColl;
+    CscHitIdHelper* m_muonHelper;
 };
 
 #endif
