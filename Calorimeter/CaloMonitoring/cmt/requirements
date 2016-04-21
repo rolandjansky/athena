@@ -30,6 +30,7 @@ use MissingETEvent      MissingETEvent-*         Reconstruction
 
 
 private
+use AthenaKernel        AthenaKernel-*           Control
 use RecBackgroundEvent  RecBackgroundEvent-*     Reconstruction/RecBackground
 use CaloDetDescr        CaloDetDescr-*           Calorimeter
 use LArRecEvent         LArRecEvent-*            LArCalorimeter

@@ -14,7 +14,6 @@
 #define CALO_LAYER_H
 
 namespace CaloMonitoring {
-  using namespace std;
 
   class CaloLayer {
   

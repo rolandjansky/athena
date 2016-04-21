@@ -78,10 +78,10 @@ EMCaloClusterMonNoTA = CaloClusterVecMon(
 
    # cluster energy threshold in GeV
    lowEthresh = 0.0,  
-   lowmedEthresh = 0.8,
-   medEthresh = 2.5,
-   medhiEthresh = 5.0,
-   hiEthresh = 10.0,
+   lowmedEthresh = 4.0,
+   medEthresh = 10.0,
+#   medhiEthresh = 15.0,
+   hiEthresh = 25.0,
 )
 
 ToolSvc += EMCaloClusterMonNoTA 
