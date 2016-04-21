@@ -18,6 +18,7 @@ struct MMReadoutParameters {
     double gasThickness;
     double pcbThickness;
     std::vector<double> stereoAngel;
+    std::vector<int> readoutSide;
 };
 
 class MMDetectorDescription: public AGDDDetector {
