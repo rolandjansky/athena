@@ -98,11 +98,11 @@ public:
     
 private:
     int  GetIdentifier(G4TouchableHistory* touchHist);
-    Amg::Vector3D mom;           
-    double momMag;           
-    Amg::Vector3D vertex; 
-    Amg::Vector3D currVertex;          
-    Amg::Vector3D globH;
+    Amg::Vector3D m_mom;           
+    double m_momMag;           
+    Amg::Vector3D m_vertex; 
+    Amg::Vector3D m_currVertex;          
+    Amg::Vector3D m_globH;
 
     /** member data */
     SG::WriteHandle<MDTSimHitCollection> m_MDTHitColl;
@@ -113,7 +113,7 @@ private:
     Amg::Vector3D              m_localPosition;
     
     /** radius assigned to radius if radius is invalid */
-    double DEFAULT_TUBE_RADIUS;
+    double m_DEFAULT_TUBE_RADIUS;
 
 };
 

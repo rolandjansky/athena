@@ -14,7 +14,7 @@ use GaudiInterface        GaudiInterface-*        External
 use Geant4                Geant4-*                External
 use MCTruth               MCTruth-*               Simulation/G4Sim
 use GeoPrimitives         GeoPrimitives-*         DetectorDescription
-use SimHelpers            SimHelpers-*            Simulation/G4Sim
+#use SimHelpers            SimHelpers-*            Simulation/G4Sim
 use StoreGate             StoreGate-*             Control
 end_private
 

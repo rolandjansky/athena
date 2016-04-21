@@ -21,18 +21,13 @@ MicromegasSensitiveDetector::MicromegasSensitiveDetector(const std::string& name
   , m_GenericMuonHitCollection( hitCollectionName )
 {
   m_muonHelper = MicromegasHitIdHelper::GetHelper();
-  m_muonHelper->PrintFields();
+  //m_muonHelper->PrintFields();
 }
 
 // Implemenation of memebr functions
 void MicromegasSensitiveDetector::Initialize(G4HCofThisEvent*) 
 {
-#ifdef ATHENAHIVE // temporary until WriteHandle fix for Hive
-  m_GenericMuonHitCollection = CxxUtils::make_unique<GenericMuonSimHitCollection>();
-#else
-  if (!m_GenericMuonHitCollection.isValid())
-    m_GenericMuonHitCollection = CxxUtils::make_unique<GenericMuonSimHitCollection>();
-#endif
+  if (!m_GenericMuonHitCollection.isValid()) m_GenericMuonHitCollection = CxxUtils::make_unique<GenericMuonSimHitCollection>();
 }
 
 G4bool MicromegasSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) 

@@ -25,11 +25,7 @@ TGCSensitiveDetectorCosmics::TGCSensitiveDetectorCosmics(const std::string& name
 // Implemenation of member functions
 void TGCSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*)
 {
-#ifdef ATHENAHIVE // temporary until WriteHandle fix for Hive
-  myTGCHitColl = CxxUtils::make_unique<TGCSimHitCollection>();
-#else
   if (!myTGCHitColl.isValid()) myTGCHitColl = CxxUtils::make_unique<TGCSimHitCollection>();
-#endif
   mom = Amg::Vector3D(0.,0.,0.);
   globH = Amg::Vector3D(0.,0.,0.);
 }
@@ -182,10 +178,10 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
         else
           gasGap = 2-(volCopyNo-3)/4;
       } else {
-        if (iStation == 1)
+//        if (iStation == 1)
           gasGap = (volCopyNo-3)/4+1;
-        else
-          gasGap = (volCopyNo-3)/4+1;
+//        else
+//          gasGap = (volCopyNo-3)/4+1;
       }
     } else if ((npos = volName.find("TGCGas")) != std::string::npos) {
 

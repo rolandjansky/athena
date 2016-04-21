@@ -19,11 +19,11 @@ typedef std::istringstream my_isstream;
 // construction/destruction
 MDTSensitiveDetectorCosmics::MDTSensitiveDetectorCosmics(const std::string& name, const std::string& hitCollectionName)
   : G4VSensitiveDetector( name )
-  , momMag(0.)
+  , m_momMag(0.)
   , m_MDTHitColl( hitCollectionName )
   , m_driftRadius(0.)
   , m_globalTime(0.)
-  , DEFAULT_TUBE_RADIUS( std::numeric_limits<double>::max() )
+  , m_DEFAULT_TUBE_RADIUS( std::numeric_limits<double>::max() )
 {
   m_muonHelper = MdtHitIdHelper::GetHelper();
 }
@@ -31,14 +31,10 @@ MDTSensitiveDetectorCosmics::MDTSensitiveDetectorCosmics(const std::string& name
 // Implemenation of member functions
 void MDTSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*)
 {
-#ifdef ATHENAHIVE // temporary until WriteHandle fix for Hive
-  m_MDTHitColl = CxxUtils::make_unique<MDTSimHitCollection>();
-#else
   if (!m_MDTHitColl.isValid()) m_MDTHitColl = CxxUtils::make_unique<MDTSimHitCollection>();
-#endif
-  m_driftRadius = DEFAULT_TUBE_RADIUS;
-  mom = Amg::Vector3D(0.,0.,0.);
-  globH = Amg::Vector3D(0.,0.,0.);
+  m_driftRadius = m_DEFAULT_TUBE_RADIUS;
+  m_mom = Amg::Vector3D(0.,0.,0.);
+  m_globH = Amg::Vector3D(0.,0.,0.);
 }
 
 G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) {
@@ -72,23 +68,23 @@ G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
   double tOrigin = dist / lightspeed;
 
   G4int trackid = aStep->GetTrack()->GetTrackID();
-  currVertex = Amg::Hep3VectorToEigen( aStep->GetTrack()->GetVertexPosition() );
+  m_currVertex = Amg::Hep3VectorToEigen( aStep->GetTrack()->GetVertexPosition() );
 
   // for cosmics: only primary muon tracks - track momentum when first entering the spectrometer (one muon per event)
-  if ((currVertex != vertex) && (trackid == 1)) {
+  if ((m_currVertex != m_vertex) && (trackid == 1)) {
     // after calculationg the momentum magnidude, normalize it
-    mom = Amg::Hep3VectorToEigen( currentTrack->GetMomentum() );
-    momMag = mom.mag();
-    mom.normalize();
-    // the direction of the primary mu is used to calculate the t0, the position ot the t0, globH, is ONE for a track
+    m_mom = Amg::Hep3VectorToEigen( currentTrack->GetMomentum() );
+    m_momMag = m_mom.mag();
+    m_mom.normalize();
+    // the direction of the primary mu is used to calculate the t0, the position ot the t0, m_globH, is ONE for a track
     Amg::Vector3D globVrtxFix = Amg::Hep3VectorToEigen( globVrtx );
-    double AlphaGlobal = -1*(globVrtxFix[0]*mom[0] + globVrtxFix[1]*mom[1] + globVrtxFix[2]*mom[2])/(mom[0]*mom[0] + mom[1]*mom[1] + mom[2]*mom[2]);
-    globH = globVrtxFix + AlphaGlobal*mom;
+    double AlphaGlobal = -1*(globVrtxFix[0]*m_mom[0] + globVrtxFix[1]*m_mom[1] + globVrtxFix[2]*m_mom[2])/(m_mom[0]*m_mom[0] + m_mom[1]*m_mom[1] + m_mom[2]*m_mom[2]);
+    m_globH = globVrtxFix + AlphaGlobal*m_mom;
 //     G4cout << "COSMICS MAIN TRACK IN THE MDT!" << G4endl;
   }
-  double globalDist = sqrt((globH[0] - globVrtx[0])*(globH[0] - globVrtx[0]) +
-                           (globH[1] - globVrtx[1])*(globH[1] - globVrtx[1]) +
-                           (globH[2] - globVrtx[2])*(globH[2] - globVrtx[2]));
+  double globalDist = sqrt((m_globH[0] - globVrtx[0])*(m_globH[0] - globVrtx[0]) +
+                           (m_globH[1] - globVrtx[1])*(m_globH[1] - globVrtx[1]) +
+                           (m_globH[2] - globVrtx[2])*(m_globH[2] - globVrtx[2]));
   double tof = globalDist / lightspeed;
 
   // transform pre and post step positions to local positions
@@ -129,12 +125,12 @@ G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
       globalTime = aStep->GetPostStepPoint()->GetGlobalTime();
     }
   }
-  vertex = Amg::Hep3VectorToEigen( aStep->GetTrack()->GetVertexPosition() );
+  m_vertex = Amg::Hep3VectorToEigen( aStep->GetTrack()->GetVertexPosition() );
 
   if( driftRadius < m_driftRadius ){  // check if current step came closer to the wire than the previous ones
     m_driftRadius = driftRadius;
-    // if the track vertex is far from (0,0,0), takes the tof, otherwise take the "usual" g4 globalTime
-    ((((vertex.mag()) < 100) || ((fabs(globalTime - tOrigin)) < 0.1) ) ? (m_globalTime  = globalTime) : (m_globalTime = tof));
+    // if the track m_vertex is far from (0,0,0), takes the tof, otherwise take the "usual" g4 globalTime
+    ((((m_vertex.mag()) < 100) || ((fabs(globalTime - tOrigin)) < 0.1) ) ? (m_globalTime  = globalTime) : (m_globalTime = tof));
     // if m_globalTime  != globalTime and m_globalTime != tof in the output, this is due to multiple hits
     // before founding the good one (small approximation)
     m_localPosition = localPosition;
@@ -159,7 +155,7 @@ G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
                           currentTrack->GetDefinition()->GetPDGEncoding(),
                           aStep->GetPreStepPoint()->GetKineticEnergy());
 
-    m_driftRadius = DEFAULT_TUBE_RADIUS; // reset start value of driftRadius
+    m_driftRadius = m_DEFAULT_TUBE_RADIUS; // reset start value of driftRadius
   }
   return true;
 }

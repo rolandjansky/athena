@@ -11,7 +11,7 @@
 #include "G4ChargedGeantino.hh"
 
 #include "CxxUtils/make_unique.h" // For make unique
-#include "SimHelpers/DetectorGeometryHelper.h"
+//#include "SimHelpers/DetectorGeometryHelper.h"
 #include "MCTruth/TrackHelper.h"
 #include <sstream>
 
@@ -20,30 +20,26 @@
 // construction/destruction
 RPCSensitiveDetector::RPCSensitiveDetector(const std::string& name, const std::string& hitCollectionName)
   : G4VSensitiveDetector( name )
-  , myRPCHitColl( hitCollectionName )
+  , m_myRPCHitColl( hitCollectionName )
   , m_isGeoModel(true)
 {
-  muonHelper = RpcHitIdHelper::GetHelper();
+  m_muonHelper = RpcHitIdHelper::GetHelper();
 }
 
 void RPCSensitiveDetector::Initialize(G4HCofThisEvent*)
 {
-#ifdef ATHENAHIVE // temporary until WriteHandle fix for Hive
-  myRPCHitColl = CxxUtils::make_unique<RPCSimHitCollection>();
-#else
-  if (!myRPCHitColl.isValid()) myRPCHitColl = CxxUtils::make_unique<RPCSimHitCollection>();
-#endif
+  if (!m_myRPCHitColl.isValid()) m_myRPCHitColl = CxxUtils::make_unique<RPCSimHitCollection>();
   //FIXME probably only need to call this bit at start of the event
   //loop rather than the start of each G4Event.
   if (verboseLevel>5) G4cout << "Initializing SD"  << G4endl;
-  DetectorGeometryHelper DGHelp;
+/*  DetectorGeometryHelper DGHelp;
   if(  DGHelp.GeometryType("Muon") == GeoModel ){
     m_isGeoModel = true;
     if (verboseLevel>5) G4cout << "Muon Geometry is from GeoModel" << G4endl;
   } else {
     m_isGeoModel = false;
     if (verboseLevel>5) G4cout << "Muon Geometry is from pure G4" << G4endl;
-  }
+  } */
 }
 
 G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
@@ -276,10 +272,10 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
     G4cout << "constructing ids (stName, stEta, stPhi, dr, dZ, dPhi)= "<<stationName<< " "<< stationEta<<" " << stationPhi<< " "<<doubletR<< " "<< mydbZ<< " "<<mydbP << G4endl;
   }
 
-  HitID RPCid_eta = muonHelper->BuildRpcHitId(stationName, stationPhi, stationEta,
+  HitID RPCid_eta = m_muonHelper->BuildRpcHitId(stationName, stationPhi, stationEta,
                                               mydbZ, doubletR, gasGap, mydbP,0);
 
-  HitID RPCid_phi = muonHelper->BuildRpcHitId(stationName, stationPhi, stationEta,
+  HitID RPCid_phi = m_muonHelper->BuildRpcHitId(stationName, stationPhi, stationEta,
                                               mydbZ, doubletR, gasGap, mydbP,1);
 
   // retrieve track barcode
@@ -288,13 +284,13 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
   int barcode = trHelp.GetBarcode();
 
   //construct new rpc hit
-  myRPCHitColl->Emplace(RPCid_eta, globalTime,
+  m_myRPCHitColl->Emplace(RPCid_eta, globalTime,
                         localPosition, barcode, localPostPosition,
                         aStep->GetTotalEnergyDeposit(),
                         aStep->GetStepLength(),
                         track->GetDefinition()->GetPDGEncoding(),
                         aStep->GetPreStepPoint()->GetKineticEnergy());
-  myRPCHitColl->Emplace(RPCid_phi, globalTime,
+  m_myRPCHitColl->Emplace(RPCid_phi, globalTime,
                         localPosition, barcode, localPostPosition,
                         aStep->GetTotalEnergyDeposit(),
                         aStep->GetStepLength(),

@@ -18,19 +18,15 @@
 CSCSensitiveDetector::CSCSensitiveDetector(const std::string& name,
                                            const std::string& hitCollectionName)
   : G4VSensitiveDetector( name )
-  , myCSCHitColl( hitCollectionName )
+  , m_myCSCHitColl( hitCollectionName )
 {
-  muonHelper = CscHitIdHelper::GetHelper();
+  m_muonHelper = CscHitIdHelper::GetHelper();
 }
 
 // Implemenation of memebr functions
 void CSCSensitiveDetector::Initialize(G4HCofThisEvent*)
 {
-#ifdef ATHENAHIVE // temporary until WriteHandle fix for Hive
-  myCSCHitColl = CxxUtils::make_unique<CSCSimHitCollection>();
-#else
-  if (!myCSCHitColl.isValid()) myCSCHitColl = CxxUtils::make_unique<CSCSimHitCollection>();
-#endif
+  if (!m_myCSCHitColl.isValid()) m_myCSCHitColl = CxxUtils::make_unique<CSCSimHitCollection>();
 }
 
 G4bool CSCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) {
@@ -204,11 +200,11 @@ G4bool CSCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
   int barcode = trHelp.GetBarcode();
 
   /** construct the hit identifier */
-  HitID CSCid = muonHelper->BuildCscHitId(stationName, stationPhi,
+  HitID CSCid = m_muonHelper->BuildCscHitId(stationName, stationPhi,
                                           stationEta, multiLayer, wireLayer);
 
   /** insert hit in collection */
-  myCSCHitColl->Emplace(CSCid, globalTime, energyDeposit,
+  m_myCSCHitColl->Emplace(CSCid, globalTime, energyDeposit,
                         HitStart, HitEnd, lundcode, barcode, kinEnergy);
 
   return true;

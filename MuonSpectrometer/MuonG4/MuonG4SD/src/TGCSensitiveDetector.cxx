@@ -25,11 +25,7 @@ TGCSensitiveDetector::TGCSensitiveDetector(const std::string& name, const std::s
 // Implemenation of member functions
 void TGCSensitiveDetector::Initialize(G4HCofThisEvent*)
 {
-#ifdef ATHENAHIVE // temporary until WriteHandle fix for Hive
-  myTGCHitColl = CxxUtils::make_unique<TGCSimHitCollection>();
-#else
   if (!myTGCHitColl.isValid()) myTGCHitColl = CxxUtils::make_unique<TGCSimHitCollection>();
-#endif
 }
 
 G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
@@ -56,7 +52,7 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
       std::string volName = touchHist->GetVolume(i)->GetName();
       if ((volName.find("Q02")) != std::string::npos) m_layout=Q02;
     }
-    G4cout << "TGCSensitiveDetector: Layout set to: " << m_layout << G4cout;
+    G4cout << "TGCSensitiveDetector: Layout set to: " << m_layout << G4endl;
   }
 
   // fields for the TGC identifier construction
@@ -249,10 +245,10 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
         else
           gasGap = 2-(volCopyNo-3)/4;
       } else {
-        if (iStation == 1)
+//        if (iStation == 1)
           gasGap = (volCopyNo-3)/4+1;
-        else
-          gasGap = (volCopyNo-3)/4+1;
+//        else
+//          gasGap = (volCopyNo-3)/4+1;
       }
     } else if ((npos = volName.find("TGCGas")) != std::string::npos) {
 
