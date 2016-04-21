@@ -676,7 +676,7 @@ void HLTJetMonTool::bookJetHists() {
 
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-  //::  fillBasic0L1forChain - "roidesc_eta;roidesc_phi;roidesc_phi_vs_eta;unmatched_eta"; // all with L1 prefix
+  //::  fillBasicL1forChain - "roidesc_eta;roidesc_phi;roidesc_phi_vs_eta;unmatched_eta"; // all with L1 prefix
   //::                      - "et;eta;phi;phi_vs_eta;"; // all with L1 prefix
   //:: 
 
@@ -867,13 +867,13 @@ for(JetSigIter hj= m_basicHLTTrig.begin(); hj != m_basicHLTTrig.end(); ++hj) {
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
-  if(m_debuglevel) {
-    std::ostringstream mongrps;
-    std::map<std::string, std::string>::iterator it = m_monGroups.begin();
-    for(; it != m_monGroups.end(); it++ )
-      mongrps << Form("\n\t%10s <==> %10s",((*it).first).c_str(), ((*it).second).c_str());
-    ATH_MSG_DEBUG( mongrps.str() );
-  }
+ if(m_debuglevel) {
+   std::ostringstream mongrps;
+   std::map<std::string, std::string>::iterator it = m_monGroups.begin();
+   for(; it != m_monGroups.end(); it++ )
+     mongrps << Form("\n\t%10s <==> %10s",((*it).first).c_str(), ((*it).second).c_str());
+   ATH_MSG_DEBUG( mongrps.str() );
+ }
 
 } // end bookJetHists
 
@@ -1321,7 +1321,7 @@ StatusCode HLTJetMonTool::retrieveContainers() {
     ATH_MSG_INFO ("Could not retrieve LVL1JetRoIs with key \"" << m_L1xAODJetKey << "\" from TDS"  );
   }
   else {
-    ATH_MSG_INFO(" Retrieved LVL1JetROIs with key \"" << m_L1xAODJetKey << "\" from TDS" );
+    ATH_MSG_DEBUG(" Retrieved LVL1JetROIs with key \"" << m_L1xAODJetKey << "\" from TDS" );
   }
   
   // retrieve HLT jets
@@ -1334,7 +1334,7 @@ StatusCode HLTJetMonTool::retrieveContainers() {
       ATH_MSG_INFO ("Could not retrieve JetCollection with key \"" << (*hltj).second << "\" from TDS"  );
     }
     else {
-      ATH_MSG_INFO ("FOUND JetCollection with key \"" << (*hltj).second << "\" from TDS"  );
+      ATH_MSG_DEBUG("FOUND JetCollection with key \"" << (*hltj).second << "\" from TDS"  );
     }
     m_HLTJetC.push_back(hltcoll);
   } // end for
@@ -1350,7 +1350,7 @@ StatusCode HLTJetMonTool::retrieveContainers() {
       ATH_MSG_INFO ("Could not retrieve JetCollection with key \"" << (*ofj).second << "\" from TDS"  );
     }
     else {
-      ATH_MSG_INFO ("FOUND JetCollection with key \"" << (*ofj).second << "\" from TDS"  );
+      ATH_MSG_DEBUG ("FOUND JetCollection with key \"" << (*ofj).second << "\" from TDS"  );
     }
     m_OFJetC.push_back(jetcoll);
   } // end for
@@ -1389,7 +1389,7 @@ StatusCode HLTJetMonTool::fill() {
     ATH_MSG_WARNING ( "HLTJetMonTool::retrieveContainers() failed" );
     return StatusCode::SUCCESS;
   }
-  ATH_MSG_INFO ( "HLTJetMonTool::retrieveContainers() returned success" );
+  ATH_MSG_DEBUG ( "HLTJetMonTool::retrieveContainers() returned success" );
 
   // fill histograms
   sc = fillJetHists();
@@ -1397,7 +1397,7 @@ StatusCode HLTJetMonTool::fill() {
     ATH_MSG_WARNING ( "HLTJetMonTool::fillJetHists() failed" );
     return StatusCode::SUCCESS;
   }
-  ATH_MSG_INFO ( "HLTJetMonTool::fillJetHists() returned success" );
+  ATH_MSG_DEBUG ( "HLTJetMonTool::fillJetHists() returned success" );
 
   return StatusCode::SUCCESS;
 
@@ -1423,7 +1423,7 @@ StatusCode HLTJetMonTool::fillJetHists() {
     ATH_MSG_WARNING ( "HLTJetMonTool::fillBasicHists() failed" );
     return StatusCode::SUCCESS;
   }
-  ATH_MSG_INFO ( "HLTJetMonTool::fillBasicHists() returned success" );
+  ATH_MSG_DEBUG ( "HLTJetMonTool::fillBasicHists() returned success" );
 
   // fill offline jet and trigger eff hists
  
@@ -1433,17 +1433,17 @@ StatusCode HLTJetMonTool::fillJetHists() {
       ATH_MSG_WARNING ( "HLTJetMonTool::fillOfflineHists() failed" );
       return StatusCode::SUCCESS;
     }
-    ATH_MSG_INFO ( "HLTJetMonTool::fillOfflineHists() returned success" );    
+    ATH_MSG_DEBUG ( "HLTJetMonTool::fillOfflineHists() returned success" );    
   }
-  /*
+  
 // fill dijet monitoring hists
     sc = fillDiJetHists();
     if (sc.isFailure()) {
       ATH_MSG_WARNING ( "HLTJetMonTool::fillDiJetHists() failed" );
       return StatusCode::SUCCESS;
     }
-    ATH_MSG_INFO ( "HLTJetMonTool::fillDiJetHists() returned success" );    
-  */
+    ATH_MSG_DEBUG ( "HLTJetMonTool::fillDiJetHists() returned success" );    
+  
   return StatusCode::SUCCESS;
 
 } // end fillJetHists
@@ -1530,7 +1530,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
       std::string lvl = m_HLTpfx; 
       std::string mgrp = m_monGroups[Form("%s%d",m_HLTpfx.c_str(),k)];
       
-      if(m_debuglevel)ATH_MSG_INFO( "level set to " << lvl <<  " and mongroup set to " << mgrp );
+      if(m_debuglevel)ATH_MSG_DEBUG( "level set to " << lvl <<  " and mongroup set to " << mgrp );
       setCurrentMonGroup(mgrp);
       
       if((h  = hist(Form("%sSigma_vs_LB",lvl.c_str())))){    
@@ -1544,23 +1544,23 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	
       	if(m_debuglevel) {
 	  //checks jet variables
-	  ATH_MSG_INFO( "REGTEST Looking at jet " << n_HLTJet);
-	  ATH_MSG_INFO( "REGTEST    pt: " << thisjet->pt() );
-	  ATH_MSG_INFO( "REGTEST    eta: " << thisjet->eta() );
-	  ATH_MSG_INFO( "REGTEST    phi: " << thisjet->phi() );
-	  ATH_MSG_INFO( "REGTEST    m: " << thisjet->m() );
-	  ATH_MSG_INFO( "REGTEST    e: " << thisjet->e() );
-	  ATH_MSG_INFO( "REGTEST    emfrac: " << /*thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac) */1); 
-	  ATH_MSG_INFO( "REGTEST    hecfrac: " << /*thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac)*/1); 
-	  ATH_MSG_INFO( "REGTEST    px: " << thisjet->px() );
-	  ATH_MSG_INFO( "REGTEST    py: " << thisjet->py() );
-	  ATH_MSG_INFO( "REGTEST    pz: " << thisjet->pz() );
-	  ATH_MSG_INFO( "REGTEST    type: " << thisjet->type() );
-	  ATH_MSG_INFO( "REGTEST    algorithm (kt: 0, cam: 1, antikt: 2, ...): " << thisjet->getAlgorithmType() );
-	  ATH_MSG_INFO( "REGTEST    size parameter: " << thisjet->getSizeParameter() );
-	  ATH_MSG_INFO( "REGTEST    input (LCTopo: 0, EMTopo: 1, ...): " << thisjet->getInputType() );
-	  ATH_MSG_INFO( "REGTEST    constituents signal state (uncalibrated: 0, calibrated: 1): " << thisjet->getConstituentsSignalState() );
-	  ATH_MSG_INFO( "REGTEST    number of constituents: " << thisjet->numConstituents() );      
+	  ATH_MSG_DEBUG( "REGTEST Looking at jet " << n_HLTJet);
+	  ATH_MSG_DEBUG( "REGTEST    pt: " << thisjet->pt() );
+	  ATH_MSG_DEBUG( "REGTEST    eta: " << thisjet->eta() );
+	  ATH_MSG_DEBUG( "REGTEST    phi: " << thisjet->phi() );
+	  ATH_MSG_DEBUG( "REGTEST    m: " << thisjet->m() );
+	  ATH_MSG_DEBUG( "REGTEST    e: " << thisjet->e() );
+	  ATH_MSG_DEBUG( "REGTEST    emfrac: " << thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac)); 
+	  ATH_MSG_DEBUG( "REGTEST    hecfrac: " << thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac)); 
+	  ATH_MSG_DEBUG( "REGTEST    px: " << thisjet->px() );
+	  ATH_MSG_DEBUG( "REGTEST    py: " << thisjet->py() );
+	  ATH_MSG_DEBUG( "REGTEST    pz: " << thisjet->pz() );
+	  ATH_MSG_DEBUG( "REGTEST    type: " << thisjet->type() );
+	  ATH_MSG_DEBUG( "REGTEST    algorithm (kt: 0, cam: 1, antikt: 2, ...): " << thisjet->getAlgorithmType() );
+	  ATH_MSG_DEBUG( "REGTEST    size parameter: " << thisjet->getSizeParameter() );
+	  ATH_MSG_DEBUG( "REGTEST    input (LCTopo: 0, EMTopo: 1, ...): " << thisjet->getInputType() );
+	  ATH_MSG_DEBUG( "REGTEST    constituents signal state (uncalibrated: 0, calibrated: 1): " << thisjet->getConstituentsSignalState() );
+	  ATH_MSG_DEBUG( "REGTEST    number of constituents: " << thisjet->numConstituents() );      
 	}
 	
         // for basic hists, don't cut eta/pt
@@ -1572,8 +1572,8 @@ StatusCode HLTJetMonTool::fillBasicHists() {
         if(et < epsilon) et = 0;
         double eta = thisjet->eta();
         double phi = thisjet->phi();
- 	double  emfrac  = /*thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac)*/1; 
-	double  hecfrac = /*thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac)*/1; 
+ 	double  emfrac  = thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
+	double  hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
         if(m_debuglevel) ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac <<"\thecfrac");
 	
         if((h  = hist(Form("%sJet_Et",lvl.c_str()))))           h->Fill(et,lumi_weight);
@@ -2925,7 +2925,9 @@ StatusCode HLTJetMonTool::proc( ) {
       if(jetcoll) {
 	std::string lvl = m_OFpfx; 
 	std::string mgrp = m_monGroups[Form("%s%d",m_OFpfx.c_str(),k)];
-	setCurrentMonGroup(mgrp);
+
+
+	setCurrentMonGroup(mgrp.c_str());
 	
 	if((h  = hist(Form("%sSigma_vs_LB",lvl.c_str())))){      
 	  if (v_lbn.size()>0) h->GetXaxis()->SetRangeUser((*std::min_element(v_lbn.begin(),v_lbn.end()))-1,(*std::max_element(v_lbn.begin(),v_lbn.end()))+1);
@@ -2938,11 +2940,8 @@ StatusCode HLTJetMonTool::proc( ) {
 	mgrp = m_monGroups[malg];
 	std::string mgrp_eff = m_monGroups[Form("%s%dEff",m_OFpfx.c_str(),k)];
 
+
 	setCurrentMonGroup(mgrp_eff);
-
-
-	ATH_MSG_DEBUG("mon group "<<mgrp_eff.c_str());
-
 		
 	for(lIt = m_L1Items.begin(); lIt != m_L1Items.end(); ++lIt) {
 	  std::string L1itemName = (*lIt).first;       
@@ -3064,6 +3063,8 @@ StatusCode HLTJetMonTool::proc( ) {
       if(jetcoll) {
 	std::string lvl = m_HLTpfx; 
 	std::string mgrp = m_monGroups[Form("%s%d",m_HLTpfx.c_str(),k)];
+
+
 	setCurrentMonGroup(mgrp);
 	
 	if((h  = hist(Form("%sSigma_vs_LB",lvl.c_str())))){    

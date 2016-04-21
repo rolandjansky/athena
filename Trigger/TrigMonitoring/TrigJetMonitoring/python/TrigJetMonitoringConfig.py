@@ -118,7 +118,7 @@ of_DijetChains  = ['AntiKt4EMTopoJets']
 
 ############################################ pp Config ###############################################
 
-if (pp) or (pPb):
+if (pp):
 
   hlt_JetKeys = { "a10tcemsubFS"    : "HLT_xAOD__JetContainer_a10tcemsubFS",
                   "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS", 
@@ -339,7 +339,7 @@ if (pp) or (pPb):
 
 ############################################# HI Config #########################################################
   
-if (hi):
+if (hi) or (pPb):
 
   hlt_JetKeys = { "a10tcemsubFS"    : "HLT_xAOD__JetContainer_a10tcemsubFS",
                   "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS", 
@@ -562,14 +562,14 @@ if (cosmics):
 
 
   hlt_level1EtThresholds        = { 'L1_J10':0.,
-                                    'L1_J15':5.,}
+                                    'L1_J15':5.}
   
   hlt_l1EtaLowThresholds        = { 'L1_J10':0.,
                                     'L1_J15':0.}
   
   
   hlt_l1EtaHighThresholds        = { 'L1_J10':4.9,
-                                     'L1_J15':4.9,}
+                                     'L1_J15':4.9}
   
   
 # HLT items
