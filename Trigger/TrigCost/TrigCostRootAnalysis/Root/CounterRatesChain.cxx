@@ -60,7 +60,7 @@ namespace TrigCostRootAnalysis {
 
         if ( _L1->getPassRaw() == kFALSE ) continue;
         if ( _usePrescale == kTRUE && _L1->getPassPS() == kFALSE) continue;
-        return 1.; // This chain and lower chain have both passed raw and passed PS
+        return 1; // This chain and lower chain have both passed raw and passed PS
 
       }
       return 0.;
@@ -71,7 +71,7 @@ namespace TrigCostRootAnalysis {
       // L1 must pass raw and pass PS
       if (_L1->getPassRaw() == kFALSE) return 0.;
       if (_usePrescale == kTRUE && _L1->getPassPS() == kFALSE) return 0.;
-      return 1.;
+      return 1;
 
     }
   }
@@ -80,7 +80,7 @@ namespace TrigCostRootAnalysis {
    * If this chain passes-raw at both the HLT and L1 levels, then calculate the effective weight from all prescale factors.
    * @return Event prescale weight for this chain 0 < PS weight < 1
    */
-  Double_t CounterRatesChain::runWeight() {
+  Double_t CounterRatesChain::runWeight(Bool_t _includeExpress) {
     // This is a sub-case of the ChainOR, however here we know we only have one chain at L2.
     // However, this chain may have been seeded by many L1's.
 
@@ -109,11 +109,13 @@ namespace TrigCostRootAnalysis {
 
       }
 
-      return _L2->getPSWeight() * ( 1. - _L1Weight );
+      m_eventLumiExtrapolation = _L2->getLumiExtrapolationFactor();
+      return _L2->getPSWeight(_includeExpress) * ( 1. - _L1Weight );
 
     } else { // A L1Chain
 
       RatesChainItem* _L1 = (*m_L1s.begin());
+      m_eventLumiExtrapolation = _L1->getLumiExtrapolationFactor();
       return _L1->getPassRawOverPS();
 
     }

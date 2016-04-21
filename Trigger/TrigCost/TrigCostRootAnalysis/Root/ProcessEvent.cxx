@@ -35,6 +35,7 @@
 #include "../TrigCostRootAnalysis/MonitorEventProfile.h"
 #include "../TrigCostRootAnalysis/MonitorRates.h"
 #include "../TrigCostRootAnalysis/MonitorRatesUpgrade.h"
+#include "../TrigCostRootAnalysis/MonitorSliceCPU.h"
 #include "../TrigCostRootAnalysis/TrigCostData.h"
 #include "../TrigCostRootAnalysis/Config.h"
 #include "../TrigCostRootAnalysis/EnergyExtrapolation.h"
@@ -58,7 +59,6 @@ namespace TrigCostRootAnalysis {
     m_threadFnPtr = &newEventThreaded;
     m_ratesOnly = Config::config().getIsSet(kRatesOnly);
     m_isCPUPrediction = (Bool_t) Config::config().getInt(kIsCPUPrediction);
-    m_doNotLumiWeightUnbiased = (Bool_t) Config::config().getInt(kDoNotLumiWeightUnbiased);
     m_pass = 0;
   }
 
@@ -163,6 +163,9 @@ namespace TrigCostRootAnalysis {
         case kDoRatesUpgradeMonitor:
           _costMonitor = new MonitorRatesUpgrade( m_costData );
           break;
+        case kDoSliceCPUMonitor:
+          _costMonitor = new MonitorSliceCPU( m_costData );
+          break;
         default:
           Error("ProcessEvent::setMonitoringMode", "Unknown or unimplemented Monitor Type with enum:%i", _type );
           return;
@@ -199,14 +202,6 @@ namespace TrigCostRootAnalysis {
     //Check for enhanced bias weights.
     if (Config::config().getInt(kDoEBWeighting) == kTRUE) {
       _weight *= TrigXMLService::trigXMLService().getEventWeight( m_costData->getEventNumber(), m_costData->getLumi(), getPass() );
-
-      if (m_doNotLumiWeightUnbiased) { // Have this is a flag - it tends to underestimate low thresholds (but they can otherwise be overestimated!)
-        // If this event was random online, we want to *undo* the lumi extrapolation weight
-        // Random events do not depend on Lumi. This is a bit ugly. To be sorted out at next refactor
-        if (Config::config().getInt(kCurrentEventWasRandomOnline) == kTRUE) {
-          _weight /= Config::config().getFloat(kLumiExtrapWeight);
-        }
-      }
     }
 
     // For each active monitoring type, process event

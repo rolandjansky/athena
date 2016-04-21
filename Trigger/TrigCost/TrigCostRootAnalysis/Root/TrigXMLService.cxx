@@ -50,6 +50,7 @@ namespace TrigCostRootAnalysis {
       m_menuName(),
       m_prescalSetName(),
       m_serviceEnabled(kFALSE),
+      m_hasExpressPrescaleInfo(kFALSE),
       m_eventsPerBGCounter(),
       m_unbiasedPerBGCounter(),
       m_weightsServiceEnabled(kFALSE),
@@ -184,10 +185,44 @@ namespace TrigCostRootAnalysis {
         "This is obviously wrong. No scaling will be perfomed.");
       return 1.;
     }
+
+    // Do we have a target mu?
+    if ( !isZero(Config::config().getFloat(kTargetPeakMuAverage)) && Config::config().getIsSet(kOnlinePeakMuAverage) ) {
+      Float_t _lumiScaling = _predictionLumi / _runLumi;
+      Float_t _targetMu = Config::config().getFloat(kTargetPeakMuAverage);
+      Float_t _onlineMu = Config::config().getFloat(kOnlinePeakMuAverage);
+      Float_t _muScaling = _targetMu / _onlineMu;
+      if (_muScaling >= _lumiScaling) { // The scaling from pileup must be smaller than the total scaling
+        Error("TrigXMLService::getLumiExtrapWeight", "Cannot have a --targetMu of %.2f (would give factor %.2f increase in lumi) when the requested lumi extrapolation to L %.2f is only a factor %.2f. Choose a larger extrapolation lumi or reduce targetMu.",
+          _targetMu, _muScaling, _predictionLumi, _lumiScaling);
+        abort();
+      }
+      Float_t _lumiMuScaling = _muScaling;// / _muScaling;
+      Float_t _lumiBunchScaling = _lumiScaling / _lumiMuScaling;//- _lumiMuScaling;
+      Int_t _targetBunches = (Int_t) (m_bunchGroupXML[1].second * _lumiBunchScaling);
+      Info("TrigXMLService::getLumiExtrapWeight", "Using targetMu setting %.2f. <mu> scaling factor: %.2f->%.2f = %.2f. Bunch scaling factor: %i->%i = %.2f. Total lumi scaling factor = %.2f",
+        _targetMu, _onlineMu, _targetMu, _lumiMuScaling, m_bunchGroupXML[1].second, _targetBunches, _lumiBunchScaling, _lumiScaling);
+      Info("TrigXMLService::getLumiExtrapWeight", "The targetMu setting allows for the rates prediction to properly extrapolate random seeded chains. Otherwise their rates are overestimated.");
+      if (_targetBunches > 2808) {
+        Warning("TrigXMLService::getLumiExtrapWeight", "To get to L=%.2f with a --targetMu of %.2f requires %i bunches. This is more than the maximum the LHC can suport, 2808!",
+          _predictionLumi, _targetMu, _targetBunches);
+      }
+      // Write info
+      Config::config().set(kDoAdvancedLumiScaling, 1, "DoAdvancedLumiScaling");
+      Config::config().setFloat(kPredictionLumiFinalMuComponent, _lumiMuScaling, "PredictionLumiFinalMuComponent");
+      Config::config().setFloat(kPredictionLumiFinalBunchComponent, _lumiBunchScaling, "PredictionLumiFinalBunchComponent");
+      Config::config().set(kTargetPairedBunches, _targetBunches, "TargetPairedBunches");
+    } else {
+      Config::config().set(kDoAdvancedLumiScaling, 0, "DoAdvancedLumiScaling");
+    }
+
+
     Float_t _scalingFactor = _predictionLumi / _runLumi;
     _scalingFactor *= 1 + _onlineDeadtime;
     Info("TrigXMLService::getLumiExtrapWeight","Predictions will be scaled by %.4f from EB RunLumi %.2e to "
       "PredictionLumi %.2e. Including a %.2f%% correction for online deadtime. PredictionLumi taken from %s.", _scalingFactor, _runLumi, _predictionLumi, _onlineDeadtime*100., _predFrom.c_str());
+
+
     Config::config().setFloat(kLumiExtrapWeight, _scalingFactor, "FinalLumiExtrapWeight", kLocked); // Keep a note of this factor
     Config::config().setFloat(kPredictionLumiFinal, _predictionLumi, "PredictionLumiFinal", kLocked); 
     Config::config().setFloat(kDeadtimeScalingFinal, (1. + _onlineDeadtime), "DeadtimeScalingFinal", kLocked); 
@@ -271,18 +306,23 @@ namespace TrigCostRootAnalysis {
         if (_xml->GetAttr(_chainNode, "chain_counter"))    m_chainCounter[_chainName]  = stringToInt( _xml->GetAttr(_chainNode, "chain_counter") );
         if (_xml->GetAttr(_chainNode, "lower_chain_name")) m_chainLowerLvl[_chainName] = _xml->GetAttr(_chainNode, "lower_chain_name");
         if (_xml->GetAttr(_chainNode, "prescale"))         m_chainPS[_chainName]       = stringToDouble( _xml->GetAttr(_chainNode, "prescale") );
-        if (_xml->GetAttr(_chainNode, "pass_through"))     m_chainPT[_chainName]       = stringToInt( _xml->GetAttr(_chainNode, "pass_through") );
+        if (_xml->GetAttr(_chainNode, "pass_through"))     m_chainPT[_chainName]       = stringToDouble( _xml->GetAttr(_chainNode, "pass_through") );
         if (_xml->GetAttr(_chainNode, "rerun_prescale"))   m_chainRerunPS[_chainName]  = stringToDouble( _xml->GetAttr(_chainNode, "rerun_prescale") );
+        if (_xml->GetAttr(_chainNode, "express_prescale")) {
+          m_chainExpressPS[_chainName] =  stringToDouble( _xml->GetAttr(_chainNode, "express_prescale") );
+          m_hasExpressPrescaleInfo = kTRUE;
+        }
         ++_chainsRead;
 
         if (Config::config().debug()) {
-          Info("TrigXMLService::parseMenuXML","Parsed Chain:%s, Counter:%i, LowerChain:%s, PS:%f, PT:%i RerunPS:%f",
+          Info("TrigXMLService::parseMenuXML","Parsed Chain:%s, Counter:%i, LowerChain:%s, PS:%f, PT:%f, RerunPS:%f, Express:%f",
             _chainName.c_str(),
             m_chainCounter[_chainName],
             m_chainLowerLvl[_chainName].c_str(),
             m_chainPS[_chainName],
             m_chainPT[_chainName],
-            m_chainRerunPS[_chainName]);
+            m_chainRerunPS[_chainName],
+            m_chainExpressPS[_chainName]);
         }
         _chainNode = _xml->GetNext(_chainNode);
       }
@@ -438,7 +478,12 @@ namespace TrigCostRootAnalysis {
           } else if (_detail == "rate_err") {
             m_chainRateErr[_chainName] = stringToFloat( _xml->GetNodeContent(_sigDetailsNode) );
           } else if (_detail == "passthrough") {
-            m_chainPT[_chainName] = stringToInt( _xml->GetNodeContent(_sigDetailsNode) );
+            m_chainPT[_chainName] = stringToDouble( _xml->GetNodeContent(_sigDetailsNode) );
+          } else if (_detail == "rerun_prescale") {
+            m_chainRerunPS[_chainName] = stringToDouble( _xml->GetNodeContent(_sigDetailsNode) );
+          } else if (_detail == "express_prescale") {
+            m_chainExpressPS[_chainName] = stringToDouble( _xml->GetNodeContent(_sigDetailsNode) );
+            m_hasExpressPrescaleInfo = kTRUE;
           } else if (_detail == "efficiency") {
             m_chainEff[_chainName] = stringToFloat( _xml->GetNodeContent(_sigDetailsNode) );
           } else if (_detail == "efficiency_err") {
@@ -471,7 +516,9 @@ namespace TrigCostRootAnalysis {
             "Rate:%.2f, "
             "RateErr:%.2f, "
             "PS:%f, "
-            "PT:%i, "
+            "PT:%f, "
+            "RerunPS:%f, "
+            "ExpressPS:%f, "
             "Lower:%s, "
             "Eff:%.2f, "
             "EffErr%.2f, "
@@ -485,6 +532,8 @@ namespace TrigCostRootAnalysis {
             m_chainRateErr[_chainName],
             m_chainPS[_chainName],
             m_chainPT[_chainName],
+            m_chainRerunPS[_chainName],
+            m_chainExpressPS[_chainName],
             m_chainLowerLvl[_chainName].c_str(),
             m_chainEff[_chainName],
             m_chainEffErr[_chainName],
@@ -589,40 +638,55 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * Get if a given LB was flagged bad in the Run XML by rates experts. Usually because of detector issues which could affect rates prediction
+   * @return if a given LB was flagged bad in the Run XML by rates experts. Usually because of detector issues which could affect rates prediction
    */
   Bool_t TrigXMLService::getIsLBFlaggedBad(Int_t _lb) {
     return (Bool_t) m_badLumiBlocks.count( _lb );
   }
 
   /**
-   * Get if we managed to parse the run XML, unlocks XML bunchgroup info and nEvent/LB info
+   * @return if we managed to parse the run XML, unlocks XML bunchgroup info and nEvent/LB info
    */
   Bool_t TrigXMLService::getParsedRunXML() { return m_parsedRunXML; }
 
   /**
-   * Return the number of bunch groups loaded in XML
+   * @return the number of bunch groups loaded in XML
    */
   Int_t TrigXMLService::getNBunchGroups() {
     return (Int_t)m_bunchGroupXML.size();
   }
 
   /**
-   * Get the name of a bunch group loaded from the run XML
+   * @return  the number of bunch groups loaded in XML
+   */
+  Bool_t TrigXMLService::hasExpressPrescaleInfo() {
+    return m_hasExpressPrescaleInfo;
+  }
+
+  /**
+   * @return  the number of bunch groups loaded in XML
+   */
+  Double_t TrigXMLService::getExpressPrescaleInfo(const std::string& _name) {
+    return m_chainExpressPS[_name];
+  }
+
+
+  /**
+   * @return the name of a bunch group loaded from the run XML
    */
   std::string TrigXMLService::getBunchGroupName(Int_t _id) {
     return m_bunchGroupXML[ _id ].first;
   }
 
   /**
-   * Get the size of a bunch group loaded from the run XML
+   * @return the size of a bunch group loaded from the run XML
    */
   Int_t TrigXMLService::getBunchGroupSize(Int_t _id) {
     return m_bunchGroupXML[ _id ].second;
   }
 
   /**
-   * Get the total number of events to expect for a given LB, lets us know if we saw all the data
+   * @return the total number of events to expect for a given LB, lets us know if we saw all the data
    */
   Int_t TrigXMLService::getOnlineEventsInLB(Int_t _lb) {
     return m_totalEventsPerLB[ _lb ];
@@ -963,7 +1027,7 @@ namespace TrigCostRootAnalysis {
       _xml.addNode(_fout, "Luminosity", floatToString(_runLumi) );
 
       _xml.addNode(_fout, "GenEff", intToString(0)); // TODO
-      _xml.addNode(_fout, "n_evts", intToString(Config::config().getInt(kEventsProcessed)) );
+      _xml.addNode(_fout, "n_evts", intToString(Config::config().getLong(kEventsProcessed)) );
 
       Float_t _predictionLumi = 0.;
       if ( Config::config().getIsSet(kPredictionLumi) ) _predictionLumi = Config::config().getFloat(kPredictionLumi);

@@ -105,9 +105,14 @@ int main(int argc, char* argv[]) {
   TrigCostData _EFData;
   TrigCostData _HLTData;
 
-  if ( _config.getInt(kDoL2) == kTRUE ) _L2Data.setup( _event, _config.getStr(kL2Prefix).c_str(), &_chain );
-  if ( _config.getInt(kDoEF) == kTRUE ) _EFData.setup( _event, _config.getStr(kEFPrefix).c_str(), &_chain );
-  if ( _config.getInt(kDoHLT) == kTRUE ) _HLTData.setup( _event, _config.getStr(kHLTPrefix).c_str(), &_chain );
+  // Need to be explicit here else coverity pipes up
+  const Bool_t _doL2  = _config.getInt(kDoL2);
+  const Bool_t _doEF  = _config.getInt(kDoEF);
+  const Bool_t _doHLT = _config.getInt(kDoHLT);
+
+  if (_doL2 ) _L2Data.setup( _event, _config.getStr(kL2Prefix).c_str(), &_chain );
+  if (_doEF ) _EFData.setup( _event, _config.getStr(kEFPrefix).c_str(), &_chain );
+  if (_doHLT) _HLTData.setup( _event, _config.getStr(kHLTPrefix).c_str(), &_chain );
 
   // Create event processors. These hold individual monitors and distribute data in the event loop.
   ProcessEvent* _processEventL2  = new ProcessEvent(&_L2Data,  2, _config.getStr(kL2String));
@@ -119,14 +124,14 @@ int main(int argc, char* argv[]) {
 
   for (UInt_t _mon = kDoAllMonitor; _mon > kMonitorBegin; --_mon) {
     ConfKey_t _monKey = static_cast<ConfKey_t>(_mon);
-    if ( _config.getInt(kDoL2) == kTRUE ) _processEventL2->setMonitoringMode(   _monKey, _config.getInt(_monKey) );
-    if ( _config.getInt(kDoEF) == kTRUE ) _processEventEF->setMonitoringMode(   _monKey, _config.getInt(_monKey) );
-    if ( _config.getInt(kDoHLT) == kTRUE ) _processEventHLT->setMonitoringMode( _monKey, _config.getInt(_monKey) );
+    if (_doL2 ) _processEventL2->setMonitoringMode(  _monKey, _config.getInt(_monKey) );
+    if (_doEF ) _processEventEF->setMonitoringMode(  _monKey, _config.getInt(_monKey) );
+    if (_doHLT) _processEventHLT->setMonitoringMode( _monKey, _config.getInt(_monKey) );
     // If kAllMonitors was true we can stop here
     if (_monKey == kDoAllMonitor && _config.getInt(kDoAllMonitor) == kTRUE) break;
   }
 
-  UInt_t _eventsSinceLastPrint = 0, _messageNumber = 0;
+  Long64_t _eventsSinceLastPrint = 0, _messageNumber = 0;
   UInt_t _reportAfter = CLOCKS_PER_SEC * _config.getInt(kMessageWait);
   time_t _onlineTime = 0;
   Float_t _effectivePrescale = 0.;
@@ -136,9 +141,9 @@ int main(int argc, char* argv[]) {
   std::string _outputProgressFile;
   // Begin event loop
 
-  _config.set(kEventsInFiles, (Int_t) _chain.GetEntries(), "EventsInFiles");
-  Info("D3PD","Events in files: %i", _config.getInt(kEventsInFiles) );
-  if (!_config.getInt(kEventsInFiles)) abort();
+  _config.setLong(kEventsInFiles, _chain.GetEntries(), "EventsInFiles");
+  Info("D3PD","Events in files: %lli", _config.getLong(kEventsInFiles) );
+  if (!_config.getLong(kEventsInFiles)) abort();
 
   _tProgress = _tStart;
 
@@ -149,8 +154,8 @@ int main(int argc, char* argv[]) {
     _processEventL2->setPass( _pass );
     _processEventEF->setPass( _pass );
     _processEventHLT->setPass( _pass );
-    _config.set(kEventsProcessed, 0, "EventsProcessed", kUnlocked);
-    _config.set(kEventsSkipped, 0, "EventsSkipped", kUnlocked);
+    _config.setLong(kEventsProcessed, 0, "EventsProcessed", kUnlocked);
+    _config.setLong(kEventsSkipped, 0, "EventsSkipped", kUnlocked);
 
     for(Long64_t _masterEvent = 0; _masterEvent < _chain.GetEntries(); ++_masterEvent ) {
 
@@ -166,13 +171,13 @@ int main(int argc, char* argv[]) {
       // If first event, perform configuration on loaded treesf
       if (_masterEvent == 0 && _pass == 1 && _config.getInt(kWriteEBWeightXML) == kFALSE)  {
         // Get the run number
-        if ( _config.getInt(kDoL2) && _config.getIsSet(kRunNumber) == kFALSE ) {
+        if ( _doL2 && _config.getIsSet(kRunNumber) == kFALSE ) {
           _config.set(kRunNumber, _L2Data.getRunNumber(), "RunNumber" );
           _onlineTime = _L2Data.getCostRunSec();
-        } else if ( _config.getInt(kDoEF) && _config.getIsSet(kRunNumber) == kFALSE ) {
+        } else if ( _doEF && _config.getIsSet(kRunNumber) == kFALSE ) {
           _config.set(kRunNumber, _EFData.getRunNumber(), "RunNumber" );
           _onlineTime = _EFData.getCostRunSec();
-        } else if ( _config.getInt(kDoHLT) && _config.getIsSet(kRunNumber) == kFALSE )  {
+        } else if ( _doHLT && _config.getIsSet(kRunNumber) == kFALSE )  {
           _config.set(kRunNumber, _HLTData.getRunNumber(), "RunNumber" );
           _onlineTime = _HLTData.getCostRunSec();
         }
@@ -239,7 +244,7 @@ int main(int argc, char* argv[]) {
       //TrigConfInterface::getEntry( _event ); //not needed
 
       // Skip N events at beginning
-      if ( _config.getInt(kEventsSkipped) < _config.getInt(kNSkip)) {
+      if ( _config.getLong(kEventsSkipped) < _config.getLong(kNSkip)) {
         _config.increment(kEventsSkipped);
         continue;
       }
@@ -258,7 +263,7 @@ int main(int argc, char* argv[]) {
       Bool_t _eventAccepted = kFALSE;
 
       // Execute L2 monitoring
-      if (_config.getInt(kDoL2) && !isZero(_weight)) {
+      if (_doL2 && !isZero(_weight)) {
         // Check lumi block
         if ( _L2Data.getLumi() >= _config.getInt(kLumiStart) && _L2Data.getLumi() <= _config.getInt(kLumiEnd) ) {
           _eventAccepted = _processEventL2->newEvent( _weight );
@@ -266,7 +271,7 @@ int main(int argc, char* argv[]) {
       }
 
       // Execute EF monitoring
-      if (_config.getInt(kDoEF) && !isZero(_weight)) {
+      if (_doEF && !isZero(_weight)) {
         // Check lumi block
         if ( _EFData.getLumi() >= _config.getInt(kLumiStart) && _EFData.getLumi() <= _config.getInt(kLumiEnd) ) {
           _eventAccepted = _processEventEF->newEvent( _weight );
@@ -274,7 +279,7 @@ int main(int argc, char* argv[]) {
       }
 
       // Execute HLT monitoring
-      if (_config.getInt(kDoHLT)  && !isZero(_weight) ) {
+      if (_doHLT && !isZero(_weight) ) {
         if (_config.getInt(kWriteEBWeightXML) == kTRUE) {
           TrigXMLService::trigXMLService().exportEnhancedBiasXML( _HLTData.getEventNumber(), _HLTData.getEBWeight(), _HLTData.getEBWeightBG(), _HLTData.getEBUnbiased() );
         } else if ( _HLTData.getLumi() >= _config.getInt(kLumiStart) && _HLTData.getLumi() <= _config.getInt(kLumiEnd) && TrigXMLService::trigXMLService().getIsLBFlaggedBad( _HLTData.getLumi() ) == kFALSE ) {
@@ -294,11 +299,11 @@ int main(int argc, char* argv[]) {
         getrusage(RUSAGE_SELF, &_resources);
         Float_t _memoryUsage = (Float_t)_resources.ru_maxrss / 1024.;
         Float_t _timeSoFar = (Float_t)(_tProgress - _tStart)/CLOCKS_PER_SEC;
-        Int_t _nEventsProcessedOrSkipped = _config.getInt(kEventsProcessed)+_config.getInt(kEventsSkipped);
-        UInt_t _nEventsLeft =
+        Long64_t _nEventsProcessedOrSkipped = _config.getLong(kEventsProcessed)+_config.getLong(kEventsSkipped);
+        Long64_t _nEventsLeft =
           std::min(
-            _config.getInt(kNEvents) - _nEventsProcessedOrSkipped,
-            _config.getInt(kEventsInFiles) - _nEventsProcessedOrSkipped);
+            _config.getLong(kNEvents) - _nEventsProcessedOrSkipped,
+            _config.getLong(kEventsInFiles) - _nEventsProcessedOrSkipped);
         UInt_t _minsLeft = 0;
         if (_nEventsProcessedOrSkipped) _minsLeft = (_nEventsLeft * ( _timeSoFar/(Float_t)_nEventsProcessedOrSkipped )) / 60.;
         UInt_t _hoursLeft = _minsLeft / 60;
@@ -307,10 +312,10 @@ int main(int argc, char* argv[]) {
         if (_nEventsProcessedOrSkipped - _eventsSinceLastPrint) {
           _timePerEventLastFewSecs = (_reportAfter/CLOCKS_PER_SEC)/(Float_t)(_nEventsProcessedOrSkipped - _eventsSinceLastPrint) * 1000.;
         }
-        Info("TrigCostD3PD","| %-*lli | %-*d | %-*d | %-*.2f | %-*.2f | %-*.2f | %*d:%-*d |",
+        Info("TrigCostD3PD","| %-*lli | %-*lli | %-*lli | %-*.2f | %-*.2f | %-*.2f | %*d:%-*d |",
         8, _masterEvent,
-        9, _config.getInt(kEventsProcessed),
-        8, _config.getInt(kEventsSkipped),
+        9, _config.getLong(kEventsProcessed),
+        8, _config.getLong(kEventsSkipped),
         10, _memoryUsage,
         8, _timeSoFar,
         10, _timePerEventLastFewSecs,
@@ -320,8 +325,8 @@ int main(int argc, char* argv[]) {
         std::ofstream _fout(_outputProgressFile.c_str());
         JsonExport _json;
         _json.addNode(_fout, "progress");
-        _json.addLeafCustom(_fout, "EventsProcessed", intToString(_config.getInt(kEventsProcessed)) );
-        _json.addLeafCustom(_fout, "EventsInFiles", intToString(_config.getInt(kEventsInFiles)) );
+        _json.addLeafCustom(_fout, "EventsProcessed", intToString(_config.getLong(kEventsProcessed)) );
+        _json.addLeafCustom(_fout, "EventsInFiles", intToString(_config.getLong(kEventsInFiles)) );
         _json.addLeafCustom(_fout, "HoursLeft", intToString(_hoursLeft) );
         _json.addLeafCustom(_fout, "MinsLeft", intToString(_minsLeft) );
         _json.endNode(_fout);
@@ -338,7 +343,7 @@ int main(int argc, char* argv[]) {
       _timerLoop.stop();
 
       //Early exit from enough events or ctrl-C
-      if (_config.getInt(kEventsProcessed) >= _config.getInt(kNEvents) || _terminateCalls) {
+      if (_config.getLong(kEventsProcessed) >= _config.getLong(kNEvents) || _terminateCalls) {
         break;
       }
     } // MassterEvent loop
@@ -350,7 +355,7 @@ int main(int argc, char* argv[]) {
   _tEnd = clock();
   Float_t _time = ((Float_t)_tEnd-(Float_t)_tStart)/CLOCKS_PER_SEC;
   getrusage(RUSAGE_SELF, &_resources);
-  Info("TrigCostD3PD","End of Event Loop Processed:%i Skipped:%i", _config.getInt(kEventsProcessed), _config.getInt(kEventsSkipped));
+  Info("TrigCostD3PD","End of Event Loop Processed:%lli Skipped:%lli", _config.getLong(kEventsProcessed), _config.getLong(kEventsSkipped));
   // Do breakdown?
   if (_config.getInt(kDoEBWeighting) != 0) {
     IntIntMap_t _bgMap = TrigXMLService::trigXMLService().getBGMap();
@@ -362,8 +367,8 @@ int main(int argc, char* argv[]) {
         _bgUbMap[ (*_it).first ]);
     }
   }
-  if (_config.getInt(kEventsProcessed) != 0) {
-    Info("TrigCostD3PD","Program execution CPU wall time:%.2f s, Per-Event:%.2f ms", _time, ( _time/(Float_t)_config.getInt(kEventsProcessed) ) * 1000. );
+  if (_config.getLong(kEventsProcessed) != 0) {
+    Info("TrigCostD3PD","Program execution CPU wall time:%.2f s, Per-Event:%.2f ms", _time, ( _time/(Float_t)_config.getLong(kEventsProcessed) ) * 1000. );
   }
   Info("TrigCostD3PD","Program execution final memory footprint: %.2f Mb with %u histograms.",
     (Float_t)_resources.ru_maxrss / 1024.,
@@ -404,7 +409,7 @@ int main(int argc, char* argv[]) {
         _userDetails.replace( _userDetails.find("%l"), 2, intToString( (Int_t) _lbProcessed.size() ) );
       }
       if ( _userDetails.find("%e") != std::string::npos ) { //If this string is present, replace it with n events
-        _userDetails.replace( _userDetails.find("%e"), 2, floatToString( Float_t (_config.getInt(kEventsProcessed) * _effectivePrescale) ) );
+        _userDetails.replace( _userDetails.find("%e"), 2, floatToString( Float_t (_config.getLong(kEventsProcessed) * _effectivePrescale) ) );
       }
       _config.set(kUserDetails, _userDetails, "Details", kLocked);
     }

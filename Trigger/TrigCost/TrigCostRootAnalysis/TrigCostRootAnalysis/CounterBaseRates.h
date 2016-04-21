@@ -40,7 +40,7 @@ namespace TrigCostRootAnalysis {
     ~CounterBaseRates();
 
     void startEvent();
-    void processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight = 1.);
+    void processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight = 0.);
     void endEvent(Float_t _weight = 1);
 
     void   addL1Item  ( RatesChainItem* _toAdd );
@@ -48,7 +48,7 @@ namespace TrigCostRootAnalysis {
     void   addL2Items( ChainItemSet_t _toAdd );
     void   addL3Item ( RatesChainItem* _toAdd );
     void   addL3Items( ChainItemSet_t _toAdd );
-    void   addCPSItem( RatesCPSGroup* _toAdd);
+    void   addCPSItem( RatesCPSGroup* _toAdd, std::string _name);
     void   addOverlap ( CounterBase* _overlap );
     void   setMyUniqueCounter( CounterBaseRates* _c ) { m_myUniqueCounter = _c; }
     void   setGlobalRateCounter(CounterBaseRates* _c) { m_globalRates = _c; }
@@ -64,13 +64,15 @@ namespace TrigCostRootAnalysis {
     CounterBaseRates* getMyUniqueCounter() { return m_myUniqueCounter; }
     CounterBaseRates* getGlobalRateCounter() { return m_globalRates; }
     Double_t getLastWeight();
+    Double_t getLumiExtrapolationFactor();
 
     virtual void    finalise();
     virtual Float_t runDirect(Bool_t _usePrescale = kTRUE) = 0; // Pure virtual calls! Please override-me with appropriate trigger logic
-    virtual Double_t runWeight() = 0;
+    virtual Double_t runWeight(Bool_t _includeExpress = kFALSE) = 0;
 
   protected:
 
+    void startRun();
     Double_t getPrescaleFactor(UInt_t _e = INT_MAX); // Unused here
 
     CounterSet_t       m_ovelapCounters; //!< List of all counters to be queried at end of run to get my overlap with them
@@ -85,6 +87,10 @@ namespace TrigCostRootAnalysis {
     Bool_t             m_doSacleByPS;    //!< If we are configured to scale all rates by their PS
     Bool_t             m_doDirectPS;     //!< If we are applying prescales directly (not with weights)
     Double_t           m_cachedWeight;   //!< Holds the most recently calculated weight. Used so other chains can get the global monitor's weight for the current event.
+    Bool_t             m_alwaysDoExpressPS; //!< Used only by the RATE_EPRESS monitor to always use the chain's EXPRESS prescale when calculating the rates for the monitor
+    StringSet_t        m_myCPSChains;    //!< HLT chains in my group (if I'm a group) Used by the coherent prescale logic.
+    Double_t           m_eventLumiExtrapolation; //!< Filled during runWeight(), this is the weighted average L extrapolation factor to use for this counter.
+
 
   }; //class CounterBaseRates
 

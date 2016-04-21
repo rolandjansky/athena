@@ -52,16 +52,16 @@ namespace TrigCostRootAnalysis {
 
     void    finalise();
     Float_t runDirect(Bool_t _usePrescale = kTRUE);
-    Double_t runWeight();
+    Double_t runWeight(Bool_t _includeExpress = kFALSE);
 
    protected:
 
     void classify();
     Double_t runWeight_OnlyL1();
-    Double_t runWeight_AllToAll();
-    Double_t runWeight_AllOneToOne();
-    Double_t runWeight_AllOneToMany();
-    Double_t runWeight_ManyToMany();
+    Double_t runWeight_AllToAll(Bool_t _includeExpress = kFALSE);
+    Double_t runWeight_AllOneToOne(Bool_t _includeExpress = kFALSE);
+    Double_t runWeight_AllOneToMany(Bool_t _includeExpress = kFALSE);
+    Double_t runWeight_ManyToMany(Bool_t _includeExpress = kFALSE);
 
     CombinationClassification m_combinationClassification; //!< Hold the classified topology of the set of chains in this Union.
 

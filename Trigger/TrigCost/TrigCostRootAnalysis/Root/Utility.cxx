@@ -132,7 +132,19 @@ namespace TrigCostRootAnalysis {
    * @returns String of integer.
    */
   std::string intToString(UInt_t _i, UInt_t _pad) {
-    return intToString((Int_t) _i, _pad);
+    return intToString((Long64_t) _i, _pad);
+  }
+
+  /**
+   * Helper function, converts long integer to string.
+   * @param _i Long64_t to convert.
+   * @returns String of integer.
+   */
+  std::string intToString(Long64_t _i, UInt_t _pad) {
+    std::ostringstream _ss;
+    if (_pad) _ss << std::setfill('0') << std::setw(_pad); 
+    _ss << std::fixed << _i;
+    return _ss.str();
   }
   
   /**
@@ -141,10 +153,7 @@ namespace TrigCostRootAnalysis {
    * @returns String of integer.
    */
   std::string intToString(Int_t _i, UInt_t _pad) {
-    std::ostringstream _ss;
-    if (_pad) _ss << std::setfill('0') << std::setw(_pad); 
-    _ss << std::fixed << _i;
-    return _ss.str();
+    return intToString((Long64_t) _i, _pad);
   }
   
   /**

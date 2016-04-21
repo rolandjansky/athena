@@ -44,14 +44,17 @@ namespace TrigCostRootAnalysis {
     m_lowerGlobalRates(0),
     m_doSacleByPS(0),
     m_doDirectPS(0),
-    m_cachedWeight(0)
+    m_cachedWeight(0),
+    m_alwaysDoExpressPS(kFALSE)
   {
 
       if (m_detailLevel == 0) m_dataStore.setHistogramming(kFALSE);
       m_doSacleByPS = Config::config().getInt(kRatesScaleByPS);
       m_doDirectPS = Config::config().getInt(kDirectlyApplyPrescales);
+      decorate(kDecDoExpressChain, 0); // this will be overwritten as needed
 
       if (m_doDirectPS == kTRUE) m_dataStore.newVariable(kVarEventsPassedDP).setSavePerCall();
+      m_dataStore.newVariable(kVarEventsPassedExpress).setSavePerCall();
       m_dataStore.newVariable(kVarUnbiasedPassed).setSavePerCall();
       m_dataStore.newVariable(kVarUnbiasedRun).setSavePerCall();
       m_dataStore.newVariable(kVarEventsPassed).setSavePerCall();
@@ -60,8 +63,8 @@ namespace TrigCostRootAnalysis {
       m_dataStore.newVariable(kVarEventsPassRawStat).setSavePerCall();
       m_dataStore.newVariable(kVarEventsRunRawStat).setSavePerCall();
 
+      if (_name == Config::config().getStr(kRateExpressString)) m_alwaysDoExpressPS = kTRUE;
       //m_dataStore.newVariable(kVarEventsPerLumiblock).setSavePerCall("Rate Per Lumi Block;Lumi Block;Rate [Hz]");
-
   }
 
   /**
@@ -98,26 +101,39 @@ namespace TrigCostRootAnalysis {
       _scaleByPS = getDecoration(kDecPrescaleValOnlineL1);
     }
 
-    // DIRECT Prescale
-    if (m_doDirectPS == kTRUE) {
-      Float_t _weightDirect = runDirect();
-      if (!isZero( _weightDirect )) m_dataStore.store(kVarEventsPassedDP, 1., _weightDirect * _weight * _scaleByPS); // Chain passes with weight from PS either 0 or 1. All other weights inc.
-    }
-
     // WEIGHTED Prescale
-    Double_t _weightPS = runWeight();
-
+    Double_t _weightPS = runWeight(m_alwaysDoExpressPS); // alwaysDoExpressPS is *only* for the express group
+    Double_t _weightLumi = getLumiExtrapolationFactor(); // This is calculated by runWeight()
     if (!isZero( _weightPS )) {
-      m_dataStore.store(kVarEventsPassed, 1., _weightPS * _weight * _scaleByPS); // Chain passes with weight from PS as a float 0-1. All other weights inc.
+      m_dataStore.store(kVarEventsPassed, 1., _weightPS * _weight * _weightLumi * _scaleByPS); // Chain passes with weight from PS as a float 0-1. All other weights inc.
       //m_dataStore.store(kVarEventsPerLumiblock, m_costData->getLumi(), (_weightPS * _weight * _scaleByPS)/((Float_t)m_costData->getLumiLength()) );
     }
 
+    // DIRECT Prescale
+    if (m_doDirectPS == kTRUE) {
+      Float_t _weightDirect = runDirect();
+      if (!isZero( _weightDirect )) m_dataStore.store(kVarEventsPassedDP, 1., _weightDirect * _weight * _weightLumi * _scaleByPS); // Chain passes with weight from PS either 0 or 1. All other weights inc.
+    }
+
+    if (getIntDecoration(kDecDoExpressChain) == 1) {
+      Double_t _weightPSExpress = runWeight(/*doExpress =*/ kTRUE);
+      if (!isZero( _weightPSExpress )) m_dataStore.store(kVarEventsPassedExpress, 1., _weightPSExpress * _weight * _weightLumi * _scaleByPS); 
+    }
+
     Float_t _passBeforePS = runDirect(/*usePrescales =*/ kFALSE);
-    m_dataStore.store(kVarEventsPassedNoPS, 1., _passBeforePS * _weight * _scaleByPS); // Times chain passes, irrespective of any PS. All other weights inc.
-    m_dataStore.store(kVarEventsRun, 1., _weight * _scaleByPS); // Times chain is processed, regardless of decision. All other weights inc.
+    m_dataStore.store(kVarEventsPassedNoPS, 1., _passBeforePS * _weight * _weightLumi * _scaleByPS); // Times chain passes, irrespective of any PS. All other weights inc.
+    m_dataStore.store(kVarEventsRun, 1., _weight * _weightLumi * _scaleByPS); // Times chain is processed, regardless of decision. All other weights inc.
     m_dataStore.store(kVarEventsPassRawStat, 1., _passBeforePS); // Times chain passes, zero other weights (underlying statistics of input file)
     m_dataStore.store(kVarEventsRunRawStat, 1.); // Times chain is processed, regardless of decision, zero other weights (underlying statistics of input file).
 
+  }
+
+  /**
+   * @return What this combination of items weighted average lumi extrapolation weight is
+   * This should be applied on top of the EB weight. It is 
+   */
+  Double_t CounterBaseRates::getLumiExtrapolationFactor() {
+    return m_eventLumiExtrapolation;
   }
 
   /**
@@ -204,10 +220,11 @@ namespace TrigCostRootAnalysis {
 
   /**
    * @param _toAdd Add a grouping of items in a CPS.
+   * @param _name The name of the chain in this CPS group which is to be active in this counter
    */
-  void CounterBaseRates::addCPSItem( RatesCPSGroup* _toAdd ) {
-    assert( _toAdd != nullptr);
-    m_cpsGroups.insert( _toAdd );
+  void CounterBaseRates::addCPSItem( RatesCPSGroup* _toAdd, std::string _name) {
+    if ( _toAdd != nullptr) m_cpsGroups.insert( _toAdd );
+    m_myCPSChains.insert( _name );
   }
 
   /**
@@ -240,6 +257,7 @@ namespace TrigCostRootAnalysis {
       //TODO do i need to add this counter to the L1s here? Don't think so
     }
   }
+
 
   /**
    * @param _toAdd Add multiple HLT TriggerItems which should be used by this rates counter
@@ -362,12 +380,24 @@ namespace TrigCostRootAnalysis {
     // This has just been set
     Float_t _walltime = getDecoration(kDecLbLength);
 
+    // Check express
+    if (getIntDecoration(kDecDoExpressChain) == 1 || m_alwaysDoExpressPS) {
+      Float_t _rateExp = m_dataStore.getValue(kVarEventsPassedExpress, kSavePerCall);
+      if (m_alwaysDoExpressPS) _rateExp = m_dataStore.getValue(kVarEventsPassed, kSavePerCall); // Duplicate this info
+      _rateExp /= _walltime;
+      decorate(kDecExpressRate, floatToString(_rateExp, 4)); // Save as string
+      decorate(kDecExpressRate, _rateExp); // Save as float too
+    } else {
+      decorate(kDecExpressRate, std::string("-")); // Not calculated
+      decorate(kDecExpressRate, (Float_t)0.); // Not calculated
+    }   
+
     // Get unique rates
     Float_t _uniqueRate = 0.;
     if (getMyUniqueCounter() != 0) {
       _uniqueRate = getMyUniqueCounter()->getValue(kVarEventsPassed, kSavePerCall);
       _uniqueRate /= _walltime;
-      Info(getMyUniqueCounter()->getName().c_str(), "Pass %f Rate %f",getMyUniqueCounter()->getValue(kVarEventsPassed, kSavePerCall), _uniqueRate );
+      Info(getMyUniqueCounter()->getName().c_str(), "Rate %f Hz, Unique Rate %f Hz", m_dataStore.getValue(kVarEventsPassed, kSavePerCall)/_walltime, _uniqueRate);
       decorate(kDecUniqueRate, floatToString(_uniqueRate, 4)); // Save as string
       decorate(kDecUniqueRate, _uniqueRate); // Save as float too
     } else {

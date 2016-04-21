@@ -648,18 +648,22 @@ namespace TrigCostRootAnalysis {
     return getTCT()->GetChainStreamName(_c, _g);
   }
 
-  std::vector<std::string> TrigConfInterface::getChainRatesGroupNames(UInt_t _c) {
-    std::vector<std::string> _groups;
-    for (UInt_t _group = 0; _group < getTCT()->GetChainGroupNameSize(_c); ++_group) {
-      std::string _groupName = getTCT()->GetChainGroupName(_c, _group);
-      if (_groupName.find("Rate:") != std::string::npos || _groupName.find("RATE:") != std::string::npos) {
-        // Veto CPS groups - these have their own system
-        if (_groupName.find("CPS") != std::string::npos) continue;
-        std::replace( _groupName.begin(), _groupName.end(), ':', '_'); // A ":" can cause issues in TDirectory naming structure. "_" is safe.
-        _groups.push_back(_groupName);
+  const std::vector<std::string>& TrigConfInterface::getChainRatesGroupNames(UInt_t _c) { // Now with caching
+    static std::map<UInt_t, std::vector<std::string> > _groups;
+    static std::vector<std::string> _emptyVector;
+    if (_groups.count(_c) == 0) { // Populate
+      _groups[_c] = std::vector<std::string>();
+      for (UInt_t _group = 0; _group < getTCT()->GetChainGroupNameSize(_c); ++_group) {
+        std::string _groupName = getTCT()->GetChainGroupName(_c, _group);
+        if (_groupName.find("Rate:") != std::string::npos || _groupName.find("RATE:") != std::string::npos) {
+          // Veto CPS groups - these have their own system
+          if (_groupName.find("CPS") != std::string::npos) continue;
+          std::replace( _groupName.begin(), _groupName.end(), ':', '_'); // A ":" can cause issues in TDirectory naming structure. "_" is safe.
+          _groups[_c].push_back(_groupName);
+        }
       }
     }
-    return _groups;
+    return _groups[_c]; 
   }
 
   std::vector<std::string> TrigConfInterface::getChainStreamNames(UInt_t _c) {

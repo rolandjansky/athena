@@ -39,7 +39,7 @@ namespace TrigCostRootAnalysis {
     void debug(UInt_t _e);
 
     Float_t runDirect(Bool_t _usePrescale = kTRUE);
-    Double_t runWeight();
+    Double_t runWeight(Bool_t _includeExpress = kFALSE);
 
    private:
 

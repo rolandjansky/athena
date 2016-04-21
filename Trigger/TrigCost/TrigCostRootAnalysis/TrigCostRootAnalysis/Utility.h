@@ -179,6 +179,7 @@ namespace TrigCostRootAnalysis {
     kDoSequenceAlgorithmMonitor,
     kDoAlgorithmMonitor,
     kDoAlgorithmClassMonitor,
+    kDoSliceCPUMonitor,
     kDoROSMonitor,
     kDoROBINMonitor,
     kDoROSAlgorithmMonitor,
@@ -247,9 +248,11 @@ namespace TrigCostRootAnalysis {
     kPredictionLumiRunXML, // From the EB XML (prioirty 3)
     kPredictionLumiMenuXML, // From the prescales XML (priority 2)
     kPredictionLumiFinal, // The value actually chosen to be used
+    kPredictionLumiFinalMuComponent, // What part of PredictionLumiFinal is due to increased mu
+    kPredictionLumiFinalBunchComponent, // What part of PredictionLumiFinal is due to extra bunches
+    kDoAdvancedLumiScaling,
     kTargetPeakMuAverage,
     kTargetPairedBunches,
-    kDoNotLumiWeightUnbiased,
     kPatternsExactMatch,
     kJIRA,
     kRunLumi,
@@ -303,6 +306,7 @@ namespace TrigCostRootAnalysis {
     kRateGlobalL2String,
     kRateGlobalL1String,
     kRateGlobalL0String,
+    kRateExpressString,
     kRateUniqueString,
     kRateFallbackPrescaleL1,
     kRateFallbackPrescaleHLT,
@@ -364,6 +368,7 @@ namespace TrigCostRootAnalysis {
     kVarUnbiasedRun,
     kVarEventsPassRawStat,
     kVarEventsRunRawStat,
+    kVarEventsPassedExpress,
     kVarEventsSlow,
     kVarTotalPrescale,
     kVarL1PassEvents,
@@ -393,6 +398,7 @@ namespace TrigCostRootAnalysis {
     kDecType,
     kDecID,
     kDecIsCPS,
+    kDecDoExpressChain,
     kDecElapsedTime,
     kDecRatesGroupName,
     kDecPrescaleStr,
@@ -400,6 +406,7 @@ namespace TrigCostRootAnalysis {
     kDecPrescaleValOnlineL1,
     kDecUniqueRate,
     kDecUniqueFraction,
+    kDecExpressRate,
     kDecMyROS,
     kMsgNonPhysics,     // Error message suppression ENUM
     kMsgDivZero,
@@ -503,6 +510,9 @@ namespace TrigCostRootAnalysis {
   typedef std::set< Int_t >        IntSet_t;
   typedef IntSet_t::const_iterator IntSetIt_t;
 
+  typedef std::set< std::string >     StringSet_t;
+  typedef StringSet_t::const_iterator StringSetIt_t;
+
   typedef std::map< std::string, IntSet_t > StringIntSetMap_t;
   typedef StringIntSetMap_t::const_iterator StringIntSetMapIt_t;
   typedef StringIntSetMap_t::iterator       StringIntSetMapNonConstIt_t;
@@ -520,6 +530,7 @@ namespace TrigCostRootAnalysis {
   Int_t stringToInt(const std::string &_i);
   Float_t stringToFloat(const std::string &_i);
   Double_t stringToDouble(const std::string &_i);
+  std::string intToString(Long64_t _i, UInt_t _pad = 0);
   std::string intToString(Int_t _i, UInt_t _pad = 0);
   std::string intToString(UInt_t _i, UInt_t _pad = 0);
   std::string floatToString(Float_t _f, Int_t _precision = 4);

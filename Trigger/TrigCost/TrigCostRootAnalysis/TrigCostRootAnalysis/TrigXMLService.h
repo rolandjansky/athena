@@ -49,6 +49,8 @@ namespace TrigCostRootAnalysis {
     void saveXMLElement(std::ofstream& _fout, XMLExport& _xml, CounterBaseRates* _counter);
     void parseUpgradeXML(StringIntMap_t& _isoBits, std::multiset<ChainInfo>& _upgradeChains);
 
+    Bool_t hasExpressPrescaleInfo();
+    Double_t getExpressPrescaleInfo(const std::string& _name);
 
     void parseEnhancedBiasXML();
     void exportEnhancedBiasXML(UInt_t _eventNumber, Float_t _weight, UInt_t _bunchGroup, Int_t _unbiased);
@@ -102,12 +104,14 @@ namespace TrigCostRootAnalysis {
     StringIntMap_t    m_chainCounter; //!< Holds chain counter ID number
     StringStringMap_t m_chainLowerLvl; //!< Holds string of seeding chains for HLT chain
     StringDoubleMap_t m_chainPS; //!< Holds chain prescales
-    StringIntMap_t    m_chainPT; //!< Holds chain passthrough
+    StringDoubleMap_t m_chainPT; //!< Holds chain passthrough
     StringDoubleMap_t m_chainRerunPS; //!< Holds chain re-run prescales
+    StringDoubleMap_t m_chainExpressPS;  //!< Holds chain re-run prescales
 
     IntStringMap_t    m_CTPIDToL1Name; //<! Used when decoding a L1 menu XML
 
     Bool_t            m_serviceEnabled; //!< True if at least one XML has been fully parsed
+    Bool_t            m_hasExpressPrescaleInfo; //!< True if the loaded XML has info on express stream prescales
 
     StringIntMap_t    m_chainEvtPassed; //!< Events passed (TrigCostPython import)
     StringFloatMap_t  m_chainEvtPassedWeighted; //!< Events passed weighted (TrigCostPython import)
