@@ -38,6 +38,7 @@
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h" // 15/06/2015 T.Saito
 
 #include "HitManagement/TimedHitCollection.h"
 #include "MuonSimEvent/GenericMuonSimHitCollection.h"
@@ -55,6 +56,10 @@
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 #include "MM_Digitization/StripsResponse.h"
 #include "MM_Digitization/ElectronicsResponse.h"
+
+#include "xAODEventInfo/EventInfo.h"   // SubEventIterator
+#include "xAODEventInfo/EventAuxInfo.h"// SubEventIterator
+
    
 #include <string>
 #include <sstream>
@@ -64,7 +69,8 @@
 namespace MuonGM{
   class MuonDetectorManager;
   class MMReadoutElement;
-  class MuonChannelDesign;
+  //class MuonChannelDesign;
+    struct MuonChannelDesign;
 }
 namespace CLHEP{
   class HepRandomEngine;
@@ -98,32 +104,32 @@ public:
   MmDigitizationTool(const std::string& type, const std::string& name, const IInterface* parent);
 
   /** Initialize */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override final;
 
   /** When being run from PileUpToolsAlgs, this method is called at the start of the subevts loop. Not able to access SubEvents */
-  StatusCode prepareEvent(const unsigned int /*nInputEvents*/);
+  StatusCode prepareEvent(const unsigned int /*nInputEvents*/) override final;
   
   /** When being run from PileUpToolsAlgs, this method is called for each active bunch-crossing to process current SubEvents bunchXing is in ns */
   StatusCode  processBunchXing(int bunchXing,
- 			       PileUpEventInfo::SubEvent::const_iterator bSubEvents,
- 			       PileUpEventInfo::SubEvent::const_iterator eSubEvents); 
+ 			       SubEventIterator bSubEvents,
+ 			       SubEventIterator eSubEvents) override final; 
  
   /** When being run from PileUpToolsAlgs, this method is called at the end of the subevts loop. Not (necessarily) able to access SubEvents */
-  StatusCode mergeEvent();
+  StatusCode mergeEvent() override final;
 
   /** When being run from MM_Digitizer, this method is called during the event loop */
 
   /** alternative interface which uses the PileUpMergeSvc to obtain 
       all the required SubEvents. */ 
-  virtual StatusCode processAllSubEvents(); 
+  virtual StatusCode processAllSubEvents() override final; 
  		 
   /** Just calls processAllSubEvents - leaving for back-compatibility 
       (IMuonDigitizationTool) */ 
 
-  StatusCode digitize();
+  StatusCode digitize() override;
 
   /** Finalize */
-  StatusCode finalize();
+  StatusCode finalize() override final;
 
   /** accessors */
   ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
@@ -139,6 +145,8 @@ private:
 
   ServiceHandle<StoreGateSvc> m_sgSvc;
   ActiveStoreSvc*             m_activeStore;
+
+  ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc; // 27/05/2015 T.Saito
   
   /** Record MmDigitContainer and MuonSimDataCollection */
   StatusCode recordDigitAndSdoContainers();
@@ -204,6 +212,7 @@ private:
   StripsResponse *m_StripsResponse;
   float m_qThreshold, m_diffusSigma, m_LogitundinalDiffusSigma, m_driftGap, m_driftVelocity, m_crossTalk1, m_crossTalk2;
   float m_qThresholdForTrigger;
+  std::string m_gasFileName; // 27/05/2015 T.Saito
 
   // ElectronicsResponse stuff...
   ElectronicsResponse *m_ElectronicsResponse;

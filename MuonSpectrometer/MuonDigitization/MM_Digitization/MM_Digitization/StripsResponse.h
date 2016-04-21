@@ -38,6 +38,7 @@ Comments to be added here...
 /// Projects
 #include "MM_Digitization/MmDigitToolInput.h"
 #include "MM_Digitization/MmDigitToolOutput.h"
+#include "MM_Digitization/GarfieldGas.h" // 28/05/2015 T.Saito
 
 /// STD'S
 #include <algorithm>
@@ -63,6 +64,8 @@ class ElectronicsResponse;
 class MmDigitToolInput;
 class MmDigitToolOutput;
 
+class GarfieldGas; // 28/05/2015 T.Saito
+
 class StripsResponse {
   
 private:
@@ -84,6 +87,11 @@ private:
 
   /// ToDo: random number from custom functions
   TF1 *polya, *conv_gaus;
+
+  GarfieldGas* gas; // 27/05/2015 T.Saito
+
+  StripsResponse & operator=(const StripsResponse &right);
+  StripsResponse(const StripsResponse&);
  
 public :
 
@@ -104,6 +112,8 @@ public :
   void clearValues ();
   void initFunctions ();
   void whichStrips(const float & hitx, const int & stripOffest, const float & thetaD, const int & stripMaxID);
+
+  void loadGasFile      (const std::string fileName); // 27/05/2015 T.Saito
   
   inline void set_qThreshold (float val) { qThreshold = val; };
   inline void set_diffusSigma (float val) { diffusSigma = val; };

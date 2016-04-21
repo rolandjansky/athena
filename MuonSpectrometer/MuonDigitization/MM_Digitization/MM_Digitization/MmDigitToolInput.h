@@ -5,6 +5,7 @@
 #ifndef MM_DIGITIZATION_MMDIGITTOOLINPUT_H
 #define MM_DIGITIZATION_MMDIGITTOOLINPUT_H
 #include "Identifier/Identifier.h"
+#include "GeoPrimitives/GeoPrimitives.h" // 27/05/2015 T. Saito
 /*-----------------------------------------------
  
 Created March 2013 by Nektarios Chr. Benekos
@@ -24,7 +25,8 @@ Class to store input needed for the MM_Digitization tools:
 class MmDigitToolInput {
  public:
  
-  MmDigitToolInput(int stripIdLocal, double posx, double incomingAngle, double field, int stripMaxId)
+ MmDigitToolInput(int stripIdLocal, double posx, double incomingAngle, const Amg::Vector3D& field, int stripMaxId)   // 27/05/2015 T.Saito
+   //  MmDigitToolInput(int stripIdLocal, double posx, double incomingAngle, double field, int stripMaxId)
    :  m_stripIDLocal(stripIdLocal),
       m_xpos(posx),
       m_incomingAngle(incomingAngle),
@@ -38,7 +40,8 @@ class MmDigitToolInput {
       int    stripIDLocal()        const { return m_stripIDLocal; }
       double positionWithinStrip() const { return m_xpos; }
       double incomingAngle()       const { return m_incomingAngle; }
-      double magneticField()       const { return m_field; }
+      const Amg::Vector3D& magneticField()       const { return m_field; }// 27/05/2015 T.Saito kT unit, local cordinate
+      //      double magneticField()       const { return m_field; }
       int    stripMaxID()          const { return m_stripMaxId; }
       Identifier getHitID()        const { return m_hitID; }
        
@@ -46,7 +49,8 @@ class MmDigitToolInput {
       int    m_stripIDLocal;
       double m_xpos; 
       double m_incomingAngle;
-      double m_field; 
+      Amg::Vector3D m_field;  // 27/05/2015 T.Saito
+      //      double m_field; 
       int    m_stripMaxId;
       Identifier m_hitID;
 };
