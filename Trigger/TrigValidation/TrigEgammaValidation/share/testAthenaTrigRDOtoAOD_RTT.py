@@ -17,6 +17,10 @@ rec.doWriteAOD=True
 rec.doWriteESD=False
 rec.doWriteTAG=False
 rec.doAOD=True
+rec.doJetMissingETTag=True
+rec.doMuonCombined=False
+rec.doTau=False
+rec.doBTagging=False
 #rec.doESD.set_Value_and_Lock(False) 
 rec.doESD=True
 doTAG=False
@@ -40,7 +44,13 @@ TriggerFlags.readLVL1configFromXML=False
 #if  ('menu' in dir()):
    # TiriggerFlags.triggerMenuSetup=menu 
 
-TriggerFlags.triggerMenuSetup="MC_pp_v5"
+#include("TrigEgammaValidation/TrigEgammaValidation_RTT_Chains.py") # uncomment to get used-defined trigger list
+
+#egammatrigChainlist=electronChains() #Retrieve trigger menu to run from TrigEgammaValidation_RTT_Chains.py
+#TriggerFlags.triggerMenuSetup="MC_pp_v5"
+TriggerFlags.Slices_all_setOff()
+TriggerFlags.EgammaSlice.setAll()
+#TriggerFlags.EgammaSlice.signatures = egammatrigChainlist
 
 
 TriggerFlags.doHLT=True
