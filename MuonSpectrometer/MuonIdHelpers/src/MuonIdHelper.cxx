@@ -53,7 +53,7 @@ MuonIdHelper::MuonIdHelper(): m_station_region_index(0), m_module_hash_max(0),
 
 MuonIdHelper::~MuonIdHelper()
 {
-  if(m_Log) delete m_Log; m_Log=NULL;
+  if(m_Log) delete m_Log;
 }
 
 int
@@ -105,10 +105,10 @@ MuonIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   ExpandedIdentifier region_id;
   region_id.add(muonField);
   Range prefix;
-  MultiRange m_muon_range = m_dict->build_multirange(region_id, prefix, "technology");
-  if (m_muon_range.size() > 0 ) {
+  MultiRange muon_range = m_dict->build_multirange(region_id, prefix, "technology");
+  if (muon_range.size() > 0 ) {
     (*m_Log) << MSG::INFO << "MultiRange built successfully to Technology " 
-	     << "MultiRange size is " << m_muon_range.size() << endreq;
+	     << "MultiRange size is " << muon_range.size() << endreq;
   } else {
     (*m_Log) << MSG::ERROR << "Muon MultiRange is empty" << endreq;
   }

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonStationIndex.cxx 681314 2015-07-08 12:01:26Z neldik $
+// $Id: MuonStationIndex.cxx 732860 2016-03-30 08:53:44Z mcorradi $
 
 // Local include(s):
 #include "MuonIdHelpers/MuonStationIndex.h"
@@ -31,9 +31,9 @@ namespace Muon {
                                           STATION_INDEX_NAMES +
                                           N_STATION_INDEX );
 
-   static const int N_PHI_INDEX = 11;
+   static const int N_PHI_INDEX = 12;
    static const char* PHI_INDEX_NAMES[ N_PHI_INDEX ] = {
-      "BM1", "BM2", "BO1", "T1", "T2", "T3", "T4", "CSC", "STGC1",
+       "BM1", "BM2", "BO1", "BO2", "T1", "T2", "T3", "T4", "CSC", "STGC1",
       "STGC2", "PhiIndexMax"
    };
 
