@@ -3,26 +3,13 @@
    <class name="FADS::ParticleManipulator"/>
    <class name="FADS::VertexManipulator"/>
    <class name="EtaPhiFilters"/>
-   <class name="VertexPositioner"/>
    <class name="VertexRangeChecker"/>
-   <class name="PrimaryEventRotations"/>
-   <class name="BeamEffectTransformation"/>
    <exclusion>
      <class name="EtaPhiFilters">
        <method name="EditParticle"/>
      </class>
-     <class name="VertexPositioner">
-       <method name="EditVertex"/>
-     </class>
      <class name="VertexRangeChecker">
        <method name="EditVertex"/>
-     </class>
-     <class name="PrimaryEventRotations">
-       <method name="EditParticle"/>
-     </class>
-     <class name="BeamEffectTransformation">
-       <method name="EventInitialization"/>
-       <method name="EditParticle"/>
      </class>
    </exclusion>
 </lcgdict>
