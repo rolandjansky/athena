@@ -9,6 +9,7 @@ atlas_subdir( TRT_ToT_Tools )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
+                          InnerDetector/InDetConditions/TRT_ConditionsServices
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrack
@@ -29,7 +30,7 @@ atlas_add_component( TRT_ToT_Tools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps GaudiKernel TrkEventPrimitives TrkParameters TrkTrack StoreGateLib SGtests AthenaPoolUtilities xAODEventInfo InDetIdentifier InDetReadoutGeometry InDetRIO_OnTrack )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib TrkEventPrimitives TrkParameters TrkTrack StoreGateLib SGtests AthenaPoolUtilities xAODEventInfo InDetIdentifier InDetReadoutGeometry InDetRIO_OnTrack )
 
 # Install files from the package:
 atlas_install_headers( TRT_ToT_Tools )
