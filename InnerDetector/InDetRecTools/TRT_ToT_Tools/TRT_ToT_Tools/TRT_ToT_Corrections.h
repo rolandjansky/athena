@@ -5,50 +5,63 @@
 #ifndef DEDXCORRECTIONTOOL_H
 #define DEDXCORRECTIONTOOL_H
 
+
 namespace Dedxcorrection {
    
-  double paraL_dEdx_p1;
-  double paraL_dEdx_p2;
-  double paraL_dEdx_p3;
-  double paraL_dEdx_p4;
-  double paraL_dEdx_p5;
+  double paraL_dEdx_p1[3];
+  double paraL_dEdx_p2[3];
+  double paraL_dEdx_p3[3];
+  double paraL_dEdx_p4[3];
+  double paraL_dEdx_p5[3];
 
-  double para_dEdx_p1;
-  double para_dEdx_p2;
-  double para_dEdx_p3;
-  double para_dEdx_p4;
-  double para_dEdx_p5;
+  double para_dEdx_p1[3];
+  double para_dEdx_p2[3];
+  double para_dEdx_p3[3];
+  double para_dEdx_p4[3];
+  double para_dEdx_p5[3];
 
       
   // resolution depends on the number of hits (and is different for e)
-  double resolution[4];
-  double resolution_e[4];
+  double resolution[3][4];
+  double resolution_e[3][4];
 
   // corrections for pile-up (as a function of NVtx linear behavior observed)
   // was in principle also done separately for different detector regions
   // should be checked in more details when high pileup data available
 
-  double norm_offset_data;  // offset in normalization between data and MC
-  double norm_slope_tot;    // nvtx dependence for ToT
-  double norm_slope_totl;   // nvtx dependence for ToT/L
-  double norm_offset_tot;  // nvtx dependence for ToT
-  double norm_offset_totl; // nvtx dependence for ToT/L
-  int norm_nzero;          // for which average NVtx the fit parameters were determined
+  double norm_offset_data[3];  // offset in normalization between data and MC
+  double norm_slope_tot[3];    // nvtx dependence for ToT
+  double norm_slope_totl[3];   // nvtx dependence for ToT/L
+  double norm_offset_tot[3];   // nvtx dependence for ToT
+  double norm_offset_totl[3];  // nvtx dependence for ToT/L
+  int norm_nzero[3];           // for which average NVtx the fit parameters were determined
 
-  double para_long_corrRZ[3240];
-  double para_short_corrRZ[216];
-  double para_end_corrRZ[336];
-  double para_long_corrRZ_MC[3240];
-  double para_short_corrRZ_MC[216];
-  double para_end_corrRZ_MC[336]; 
-  double para_long_corrRZL_MC[630];
-  double para_short_corrRZL_MC[144];
-  double para_end_corrRZL_MC[252];
-  double para_long_corrRZL_DATA[630];
-  double para_short_corrRZL_DATA[63];
-  double para_end_corrRZL_DATA[252]; 
+  double para_long_corrRZ[3][3240];
+  double para_short_corrRZ[3][216];
+  double para_end_corrRZ[3][336];
+  
+  double para_long_corrRZ_MC[3][3240];
+  double para_short_corrRZ_MC[3][216];
+  double para_end_corrRZ_MC[3][336]; 
+  double para_long_corrRZL_MC[3][630];
+  double para_short_corrRZL_MC[3][144];
+  double para_end_corrRZL_MC[3][252];
+  
+  double para_long_corrRZL_DATA[3][630];
+  double para_short_corrRZL_DATA[3][63];
+  double para_end_corrRZL_DATA[3][252]; 
+
+  float para_end_mimicToXe_MC[3][560];
+  float para_end_mimicToXe_DATA[3][560];
+
+  float para_short_mimicToXe_MC[3][180];
+  float para_short_mimicToXe_DATA[3][180];
+  float para_long_mimicToXe_MC[3][1800];
+  float para_long_mimicToXe_DATA[3][1800];
+ 
+//==============================================================  
+  
 
 }
-
 
 #endif  /* DEDXCORRECTIONTOOL_H */

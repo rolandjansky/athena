@@ -10,6 +10,7 @@ use TrkEventPrimitives		TrkEventPrimitives-*		Tracking/TrkEvent
 use TrkTrack			TrkTrack-*			Tracking/TrkEvent
 #for track refit
 use TrkParameters       	TrkParameters-*         	Tracking/TrkEvent
+use TRT_ConditionsServices TRT_ConditionsServices-* InnerDetector/InDetConditions
 
 private 
 use AtlasROOT			AtlasROOT-*			External
