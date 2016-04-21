@@ -23,7 +23,7 @@ use  TrkEventPrimitives         TrkEventPrimitives-*            Tracking/TrkEven
 use  TrkSurfaces                TrkSurfaces-*                   Tracking/TrkDetDescr
 use  MuonRecToolInterfaces      MuonRecToolInterfaces-*         MuonSpectrometer/MuonReconstruction/MuonRecTools
 use  PathResolver               PathResolver-*                  Tools
-
+use  MuonAGDDDescription        MuonAGDDDescription-*           MuonSpectrometer/MuonDetDescr
 
 public
 library MuonFastDigitization *.cxx components/*.cxx
