@@ -11,6 +11,7 @@ use AtlasROOT                   AtlasROOT-*             External
 use PATCore                     PATCore-*               PhysicsAnalysis/AnalysisCommon
 use PATInterfaces               PATInterfaces-*         PhysicsAnalysis/AnalysisCommon
 use AsgTools                    AsgTools-*              Control/AthToolSupport
+use  AthContainers              AthContainers-*         Control
 use xAODEgamma                  xAODEgamma-*            Event/xAOD
 use AtlasBoost                  AtlasBoost-*            External
 
@@ -20,8 +21,13 @@ private
 use  GaudiInterface             GaudiInterface-*                External
 use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 use  PathResolver               PathResolver-*                  Tools
-use  AthenaBaseComps            AthenaBaseComps-*               Control #new
-use  xAODCore                   xAODCore-*                      Event/xAOD #new
+
+#new
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  xAODCore                   xAODCore-*                      Event/xAOD
+#next two are needed to get checkreq to shhh about the util stuff... this is annoying, but that's life! (will@cern)
+use xAODCaloEvent xAODCaloEvent-* Event/xAOD
+use xAODTracking xAODTracking-* Event/xAOD 
 end_private
 ##
 
@@ -35,7 +41,8 @@ branches ElectronEfficiencyCorrection python src Root share data
 
 # Create a dual-use library
 #apply_pattern dual_use_library files="../Root/*.cxx"
-apply_pattern dual_use_library files="*.cxx ../scr/*.cxx ../Root/*.cxx components/*.cxx"
+#apply_pattern dual_use_library files="*.cxx ../scr/*.cxx ../Root/*.cxx components/*.cxx"
+apply_pattern dual_use_library files="*.cxx ../scr/*.cxx ../Root/*.cxx"
 
 ## install our python modules
 apply_pattern declare_python_modules files="*.py"

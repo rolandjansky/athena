@@ -15,16 +15,14 @@ namespace xAOD{
 }
 
 
-class IAsgElectronEfficiencyCorrectionTool : virtual public asg::IAsgTool, virtual public CP::ISystematicsTool
+class IAsgElectronEfficiencyCorrectionTool : virtual public CP::ISystematicsTool
 {
   ASG_TOOL_INTERFACE(IAsgElectronEfficiencyCorrectionTool)
 
   public:
-
-
+  ///The interface for Scale Factors
   virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::Electron& inputObject, double& efficiencyScaleFactor) const = 0;
-  virtual CP::CorrectionCode applyEfficiencyScaleFactor(xAOD::Electron& inputObject) const = 0;
-
+  virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::Electron& inputObject) const = 0;
   virtual ~IAsgElectronEfficiencyCorrectionTool() {}
 
 };
