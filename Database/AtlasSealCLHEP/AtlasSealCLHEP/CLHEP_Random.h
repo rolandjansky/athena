@@ -3,6 +3,12 @@
 */
 
 #include "CLHEP/Random/Randomize.h"
+#include "CxxUtils/unused.h"
+
+namespace {
+  // Suppress unused variable warning from clhep header.
+  static const int UNUSED(HepRandomGenActive_x) = CLHEP::HepRandomGenActive;
+}
 
 //----Functions missing in the implementation and required by the dictionary
 //    [ Bug #1806 ] Missing method implementations

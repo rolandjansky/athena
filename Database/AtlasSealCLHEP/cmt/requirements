@@ -4,6 +4,7 @@ author RD Schaffer <R.D.Schaffer@cern.ch>
 
 use AtlasPolicy AtlasPolicy-*
 use AtlasCLHEP  AtlasCLHEP-* External
+use CxxUtils            CxxUtils-*             Control
 use AthenaPoolServices  AthenaPoolServices-*   Database/AthenaPOOL
 
 
@@ -36,3 +37,7 @@ apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
 
 
+private 
+
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=OldCLHEPStreamers
