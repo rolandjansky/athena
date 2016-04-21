@@ -21,6 +21,7 @@ application MainLayerAnalysis ../exe/MainLayerAnalysis.cxx
 
 
 private
+use GeoPrimitives       GeoPrimitives-*        DetectorDescription
 apply_tag ROOTMathLibs
 apply_tag ROOTGraphicsLibs
 

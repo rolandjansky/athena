@@ -62,6 +62,7 @@ namespace MuonHough {
     void initForWrite(TTree& tree);
 
     void initForRead(TTree& tree);
+    void initForReadseg(TTree& tree);
     
     void fill( std::vector<MuonDebugInfo>& muons );
     void fill( MuonDebugInfo& muon );
@@ -75,6 +76,7 @@ namespace MuonHough {
     void fill( int sTgcPadAssociated, int sTgcPadNotAssociated);
 
     bool read( EventData& event, std::vector<MuonDebugInfo>& muons );
+    bool readseg( std::vector<SegDebugInfo>& segments );
     
     void reset();
     void init();
@@ -165,6 +167,21 @@ namespace MuonHough {
     int    ntrpcs[MUONSIZE];
     int    nttgcs[MUONSIZE];
     int    ntcscs[MUONSIZE];
+
+    // muon truth seg info
+    static const int SEGSIZE =  150;
+    int    nsegs;
+    int    sbarcode[SEGSIZE];
+    float  sposx[SEGSIZE];
+    float  sposy[SEGSIZE];
+    float  sposz[SEGSIZE];
+    float  sdirx[SEGSIZE];
+    float  sdiry[SEGSIZE];
+    float  sdirz[SEGSIZE];
+    int    snPrecHits[SEGSIZE];
+    int    snTrigHits[SEGSIZE];
+    int    sSector[SEGSIZE];
+    int    sChIndex[SEGSIZE];
 
   };   
 }

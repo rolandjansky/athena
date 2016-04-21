@@ -44,21 +44,48 @@ namespace MuonHough {
 
     /// struct representing the maximum in the hough space 
     struct Maximum {
-      Maximum() : max(0.), pos(0.), theta(0.), binpos(-1), binposmin(-1),
-                  binposmax(-1), bintheta(-1), triggerConfirmed(0), hough(0) {}
+      Maximum() : max(0.), pos(0.), theta(0.), refpos(0.), refregion(0), refchIndex(0), binpos(-1), binposmin(-1),
+                        binposmax(-1), binsize(0.), bintheta(-1), triggerConfirmed(0), hough(0) {}
 
       float max;    // value of the maximum
       float pos;    // spacial position
       float theta;  // angle
 
+      float refpos; // reference position
+      int refregion;  // reference region
+      int refchIndex;  // reference chamber index
+      
       int binpos;    // position bin
       int binposmin; // lower edge of the maximum
       int binposmax; // upper edge of the maximu 
+      float binsize; // size of bin
       int bintheta;  // theta bin
       int triggerConfirmed; // number of in time trigger hits associated with the maximum
       std::vector<Hit*> hits; // vector of associated hits
        
       const MuonLayerHough* hough;  // pointer to the corresponding hough
+
+      bool isEndcap() const{   
+        Muon::MuonStationIndex::DetectorRegionIndex region = hough->m_descriptor.region;;
+        if (region != Muon::MuonStationIndex::Barrel) {return true;}
+        return false;
+      };
+      float getGlobalR() const{
+        if (isEndcap()){return pos;}
+        return refpos;
+      };
+      float getGlobalZ() const{
+        if (isEndcap()){return refpos;}
+        return pos;
+      };
+      float getGlobalTheta() const{
+        if (isEndcap()){
+          //return M_PI/2.0 - theta;
+          if (theta > 0) {return M_PI/2.0 - theta;}
+          else {return -M_PI/2.0 - theta;}
+        }
+        return theta;
+      };
     };
   
 
@@ -134,7 +161,7 @@ namespace MuonHough {
     int maxhist;
     int maxbin;
     bool m_debug;
-    std::vector< unsigned int* > m_histos;
+    std::vector< unsigned int* > m_histos;//the maximum contents of all the histograms, overlayed
     RegionDescriptor m_descriptor;
   };
 
