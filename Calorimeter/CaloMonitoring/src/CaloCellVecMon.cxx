@@ -101,7 +101,7 @@ CaloCellVecMon::CaloCellVecMon(const std::string& type, const std::string& name,
   declareProperty("doDatabaseNoiseVsEtaPhi",m_doDatabaseNoiseVsEtaPhi=true);
   declareProperty("doKnownBadChannelsVsEtaPhi",m_doKnownBadChannelsVsEtaPhi);
   declareProperty("doDBNoiseNormalized1DEnergy", m_doDBNormalized1DEnergy=false);
-  declareProperty("doEnergyVsTime", m_doEnergyVsTime=false);
+  declareProperty("doEnergyVsTime", m_doEnergyVsTime=true);
   declareProperty("doUnnormalized1DEnergy", m_doUnnormalized1DEnergy=false);
   declareProperty("useLogarithmicEnergyBinning", m_useLogarithmicEnergyBinning=false);
 
