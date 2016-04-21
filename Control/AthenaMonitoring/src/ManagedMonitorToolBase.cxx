@@ -182,7 +182,7 @@ ISvcLocator* ManagedMonitorToolBase::Imp::s_svcLocator(0);
 namespace {
 
    std::string strToLower( const std::string& str );
-   std::string strToUpper( const std::string& str );
+   //std::string strToUpper( const std::string& str );
 
 } // unnamed namespace
 
@@ -418,8 +418,8 @@ ManagedMonitorToolBase( const std::string & type, const std::string & name,
    , m_hasRetrievedLumiTool(false)
    , m_bookHistogramsInitial(false)
    , m_useLumi(false)
-   , m_cycleNum(0)
-   , d(new Imp(this))
+    //, m_cycleNum(0)
+   , m_d(new Imp(this))
 {
 //   ManagedMonitorToolBase_resetHistStatistics(this);
    declareInterface<IMonitorToolBase>(this);
@@ -478,7 +478,7 @@ ManagedMonitorToolBase::
          i != mdend; ++i ) {
       delete (i->second);
    }
-   delete d;
+   delete m_d;
 }
 
 
@@ -652,7 +652,7 @@ StatusCode
 ManagedMonitorToolBase::
 initialize()
 {
-   d->m_warnAboutMissingInitialize = false;
+   m_d->m_warnAboutMissingInitialize = false;
 
    StatusCode sc = AthAlgTool::initialize();
    if( !sc.isSuccess() )
@@ -660,7 +660,7 @@ initialize()
 
    ATH_MSG_DEBUG("ManagedMonitorToolBase::initialize():");
    
-   d->m_doResourceMon = msgLvl(AthMonBench::s_resourceMonThreshold);
+   m_d->m_doResourceMon = msgLvl(AthMonBench::s_resourceMonThreshold);
 
    sc = m_THistSvc.retrieve();
    if( !sc.isSuccess() ) {
@@ -793,8 +793,8 @@ ManagedMonitorToolBase::
 fillHists()
 {
 
-   if (d->m_warnAboutMissingInitialize) {
-       d->m_warnAboutMissingInitialize = false;
+   if (m_d->m_warnAboutMissingInitialize) {
+       m_d->m_warnAboutMissingInitialize = false;
        msg(MSG::WARNING) << "ManagedMonitorToolBase::initialize() never called from reimplementation!" << endreq;
    }
 
@@ -870,13 +870,13 @@ fillHists()
 
       // Process histograms from the previous lumiBlock/run
       if( m_nEvents != 1 ) {
-	     d->benchPreProcHistograms();
+	     m_d->benchPreProcHistograms();
          sc0 = procHistograms();
-	     d->benchPostProcHistograms();
+	     m_d->benchPostProcHistograms();
          sc0.setChecked();
       }
       // Re-book new histograms
-      d->benchPreBookHistograms();
+      m_d->benchPreBookHistograms();
 
       if (!m_bookHistogramsInitial) {
           sc1 = bookHistograms();
@@ -897,7 +897,7 @@ fillHists()
       
       sc3 = bookHistogramsRecurrent( );
       
-      d->benchPostBookHistograms();
+      m_d->benchPostBookHistograms();
       sc1.setChecked();
       sc3.setChecked();
    }
@@ -919,10 +919,10 @@ fillHists()
        || (m_vTrigChainNames.size()>0 && trigChainsArePassed(m_vTrigChainNames))
        || (m_vTrigGroupNames.size()>0 && trigChainsArePassed(m_vTrigGroupNames))) ) {
      ATH_MSG_DEBUG("Passed trigger, presumably");
-      d->benchPreFillHistograms();
+      m_d->benchPreFillHistograms();
       StatusCode sc3 = fillHistograms();
       m_haveClearedLastEventBlock = true;
-      d->benchPostFillHistograms();
+      m_d->benchPostFillHistograms();
       sc3.setChecked();
       ++m_nEvents;
    } else { ATH_MSG_DEBUG("Failed trigger, presumably"); }
@@ -979,7 +979,7 @@ registerMetadata(const std::string& streamName, const std::string& hName,
 
 StatusCode 
 ManagedMonitorToolBase::
-regManagedHistograms(std::vector< MgmtParams<TH1> >& m_templateHistograms)
+regManagedHistograms(std::vector< MgmtParams<TH1> >& templateHistograms)
 {
       // The method registers histograms with the THistSvc and saves them to file.
 
@@ -995,7 +995,7 @@ regManagedHistograms(std::vector< MgmtParams<TH1> >& m_templateHistograms)
       //     m_manager->writeAndDelete( genericName );
       bool allIsOk = true;  
    
-      for( std::vector< MgmtParams<TH1> >::iterator it = m_templateHistograms.begin(); it != m_templateHistograms.end(); ++it ) {
+      for( std::vector< MgmtParams<TH1> >::iterator it = templateHistograms.begin(); it != templateHistograms.end(); ++it ) {
           MonGroup group = (*it).m_group;
 
           // Get a handle to the histogram
@@ -1083,12 +1083,12 @@ THistSvc_deReg_fixTGraph( TFile* file, TGraph* theGraph, std::string& directoryN
 
 StatusCode 
 ManagedMonitorToolBase::
-regManagedGraphs(std::vector< MgmtParams<TGraph> >& m_templateGraphs)
+regManagedGraphs(std::vector< MgmtParams<TGraph> >& templateGraphs)
 {
       // See the description for the regManagedHistograms method
       bool allIsOk = true;  
    
-      for( std::vector< MgmtParams<TGraph> >::iterator it = m_templateGraphs.begin(); it != m_templateGraphs.end(); ++it ) {
+      for( std::vector< MgmtParams<TGraph> >::iterator it = templateGraphs.begin(); it != templateGraphs.end(); ++it ) {
           MonGroup group = (*it).m_group;
 
           // Get a handle to the graph
@@ -1155,12 +1155,12 @@ regManagedGraphs(std::vector< MgmtParams<TGraph> >& m_templateGraphs)
 
 StatusCode 
 ManagedMonitorToolBase::
-regManagedTrees(std::vector< MgmtParams<TTree> >& m_templateTrees)
+regManagedTrees(std::vector< MgmtParams<TTree> >& templateTrees)
 {
       // See the description for the regManagedHistograms method
       bool allIsOk = true;  
    
-      for( std::vector< MgmtParams<TTree> >::iterator it = m_templateTrees.begin(); it != m_templateTrees.end(); ++it ) {
+      for( std::vector< MgmtParams<TTree> >::iterator it = templateTrees.begin(); it != templateTrees.end(); ++it ) {
           MonGroup group = (*it).m_group;
 
           // Get a handle to the original tree
@@ -1209,12 +1209,12 @@ regManagedTrees(std::vector< MgmtParams<TTree> >& m_templateTrees)
 
 StatusCode
 ManagedMonitorToolBase::
-regManagedLWHistograms(std::vector<MgmtParams<LWHist> >& m_templateLWHistograms)
+regManagedLWHistograms(std::vector<MgmtParams<LWHist> >& templateLWHistograms)
 {
     StatusCode sc1;
     sc1.setChecked();
 
-    for( std::vector< MgmtParams<LWHist> >::iterator it = m_templateLWHistograms.begin(); it != m_templateLWHistograms.end(); ++it ) {
+    for( std::vector< MgmtParams<LWHist> >::iterator it = templateLWHistograms.begin(); it != templateLWHistograms.end(); ++it ) {
         // Get histogram group
         MonGroup group = (*it).m_group;
 
@@ -1235,7 +1235,7 @@ finalHists()
    // This assumes that the end of a file will naturally end a run, which is not always true.
    // A merging application run afterwards should be able to put parts of a run together.
    if( m_nEvents != 1 ) {
-     d->benchPreProcHistograms();
+     m_d->benchPreProcHistograms();
 
      // Set end flags for the LowStat, LumiBlock and Run variables.
      // This is needed to be used in the procHistograms method below.
@@ -1245,10 +1245,12 @@ finalHists()
      endOfRun = true;
 
      StatusCode sc = procHistograms();
-     
+
+/*
      StatusCode sc1( StatusCode::SUCCESS );
      sc1.setChecked();
 
+#if 0
      for (const auto interval: m_supportedIntervalsForRebooking) {
        //sc1 = regManagedHistograms(m_templateHistograms[interval], false);
        //sc1 = regManagedGraphs(m_templateGraphs[interval], false);
@@ -1258,8 +1260,9 @@ finalHists()
        //sc1 = regManagedLWHistograms(m_templateLWHistograms[interval], false, true);
        sc1.setChecked();
      }
+*/
 
-     d->benchPostProcHistograms();
+     m_d->benchPostProcHistograms();
      return sc;
    }
    return StatusCode::SUCCESS;
@@ -1370,7 +1373,7 @@ regHist( TH1* h, const MonGroup& group )
        MonGroup group_unmanaged( this, group.system(), group.interval(), ATTRIB_UNMANAGED, group.chain(), group.merge());
 
        if (m_supportedIntervalsForRebooking.count(group.interval())) {
-	       m_templateHistograms[group.interval()].push_back( MgmtParams<TH1>(h, group_unmanaged) );
+         m_templateHistograms[group.interval()].push_back( MgmtParams<TH1>(h, group_unmanaged) );
        } else {
 	       ATH_MSG_ERROR("Attempt to book managed histogram " << h->GetName() << " with invalid interval type " << intervalEnumToString(group.interval()));
 	       return StatusCode::FAILURE;
@@ -1910,7 +1913,7 @@ lbDuration()
 
 ManagedMonitorToolBase::OutputMetadata::
    OutputMetadata( TTree* metadata )
-   : charArrSize(100)
+   : m_charArrSize(100)
    , m_metadata(metadata)
    , m_nameData(0)
    //, m_levelData(0)
@@ -1918,11 +1921,11 @@ ManagedMonitorToolBase::OutputMetadata::
    , m_triggerData(0)
    , m_mergeData(0)
 {
-   m_nameData = new char[charArrSize];
-   //m_levelData = new char[charArrSize];
-   m_intervalData = new char[charArrSize];
-   m_triggerData = new char[charArrSize];
-   m_mergeData = new char[charArrSize];
+   m_nameData = new char[m_charArrSize];
+   //m_levelData = new char[m_charArrSize];
+   m_intervalData = new char[m_charArrSize];
+   m_triggerData = new char[m_charArrSize];
+   m_mergeData = new char[m_charArrSize];
    m_metadata->Branch( "Name", m_nameData, "Name/C" );
    //m_metadata->Branch( "LevelOfDetail", m_levelData, "LevelOfDetail/C" );
    m_metadata->Branch( "Interval", m_intervalData, "Interval/C" );
@@ -1974,8 +1977,8 @@ copyString( char* to, const std::string& from )
 {
    int i = 0;
    const char* f = from.c_str();
-   while( (++i < charArrSize) && ((*to++ = *f++) != 0) ) {};
-   if( i == charArrSize ) {
+   while( (++i < m_charArrSize) && ((*to++ = *f++) != 0) ) {};
+   if( i == m_charArrSize ) {
       *to = 0;
    }
 }
@@ -2302,6 +2305,7 @@ namespace {
    }
 
 
+#if 0
    std::string strToUpper( const std::string& str )
    {
       std::string ustr(str);
@@ -2313,6 +2317,7 @@ namespace {
       }
       return ustr;
    }
+#endif
 
 } // unnamed namespace
 

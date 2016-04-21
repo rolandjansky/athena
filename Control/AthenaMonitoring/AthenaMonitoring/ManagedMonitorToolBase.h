@@ -703,19 +703,19 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
    protected:
       std::map< Interval_t, std::vector< MgmtParams<TH1> > > m_templateHistograms;
       // Runs over the vector of managed histograms, register clonned histogram and saves it to a file.
-      StatusCode regManagedHistograms(std::vector< MgmtParams<TH1> >& m_templateHistograms);
+      StatusCode regManagedHistograms(std::vector< MgmtParams<TH1> >& templateHistograms);
 
       std::map< Interval_t, std::vector< MgmtParams<TGraph> > > m_templateGraphs;
       // Runs over the vector of managed graphs, register clonned graph and saves it to a file.
-      StatusCode regManagedGraphs(std::vector< MgmtParams<TGraph> >& m_templateGraphs);
+      StatusCode regManagedGraphs(std::vector< MgmtParams<TGraph> >& templateGraphs);
 
       std::map< Interval_t, std::vector< MgmtParams<TTree> > > m_templateTrees;
       // Runs over the vector of managed trees, register clonned tree and saves it to a file.
-      StatusCode regManagedTrees(std::vector< MgmtParams<TTree> >& m_templateTrees);
+      StatusCode regManagedTrees(std::vector< MgmtParams<TTree> >& templateTrees);
 
       std::map< Interval_t, std::vector< MgmtParams<LWHist> > > m_templateLWHistograms;
       // Runs over the vector of managed histograms and register them (just a helper method).
-      StatusCode regManagedLWHistograms(std::vector< MgmtParams<LWHist> >& m_templateLWHistograms);
+      StatusCode regManagedLWHistograms(std::vector< MgmtParams<LWHist> >& templateLWHistograms);
 
       std::vector<std::string> m_vTrigChainNames, m_vTrigGroupNames;
       StatusCode parseList(const std::string&, std::vector<std::string>&);
@@ -750,7 +750,7 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
 
          protected:
             void copyString( char* to, const std::string& from );
-            const int charArrSize;
+            const int m_charArrSize;
             TTree* m_metadata;
             char* m_nameData;
             //char* m_levelData;
@@ -824,6 +824,18 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
 
       bool endOfEventsBlock, endOfLowStat, endOfLumiBlock, endOfRun;
 
+      bool newLowStatIntervalFlag() const { return newLowStatInterval; }
+      bool newMedStatIntervalFlag() const { return newMedStatInterval; }
+      bool newHigStatIntervalFlag() const { return newHigStatInterval; }
+      bool newLowStatFlag() const { return newLowStat; }
+      bool newLumiBlockFlag() const { return newLumiBlock; }
+      bool newRunFlag() const { return newRun; }
+      bool newEventsBlockFlag() const { return newEventsBlock; }
+      bool endOfEventsBlockFlag() const { return endOfEventsBlock; }
+      bool endOfLowStatFlag() const { return endOfLowStat; }
+      bool endOfLumiBlockFlag() const { return endOfLumiBlock; }
+      bool endOfRunFlag() const { return endOfRun; }
+
       typedef std::map<std::string,OutputMetadata*> MDMap_t;
       MDMap_t m_metadataMap;
 
@@ -887,12 +899,12 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
       bool m_hasRetrievedLumiTool;
       bool m_bookHistogramsInitial;
       bool m_useLumi;
-      int m_cycleNum;
+      //int m_cycleNum;
       std::set<Interval_t> m_supportedIntervalsForRebooking;
 
       // Use private implementation idiom for more flexible development.
       class Imp;
-      Imp * d;
+      Imp * m_d;
 
 };
 

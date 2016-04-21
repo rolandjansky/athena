@@ -93,6 +93,7 @@ class AthenaMonManager : public AthAlgorithm {
 
       virtual StatusCode initialize();
       virtual StatusCode execute();
+      virtual StatusCode stop();
       virtual StatusCode finalize();
 
       virtual StatusCode beginRun();
@@ -127,7 +128,7 @@ class AthenaMonManager : public AthAlgorithm {
    private:
       // Use private implementation idiom for more flexible development.
       class Imp;
-      Imp *d;
+      Imp *m_d;
 };
 
 #endif
