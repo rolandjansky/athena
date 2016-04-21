@@ -41,7 +41,7 @@ class MmSortedHitVector : public HitVector {
 };
 /*******************************************************************************/
 inline void MmSortedHitVector::sort() {
-  std::sort(HitVector::begin(),HitVector::end());
+  std::stable_sort(HitVector::begin(),HitVector::end());
   m_isSorted = true;
 }
 /*******************************************************************************/

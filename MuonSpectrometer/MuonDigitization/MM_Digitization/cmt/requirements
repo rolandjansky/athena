@@ -4,18 +4,23 @@ author   Nektarios Benekos <nectarios.benekos@cern.ch>
 manager  Nektarios Benekos <nectarios.benekos@cern.ch>
 
 public
-use  AtlasPolicy                AtlasPolicy-*                   
+use  AtlasPolicy                AtlasPolicy-*
 use  AthenaKernel               AthenaKernel-*                  Control
 use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  PileUpTools                PileUpTools-*                   Control
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
 use  GaudiInterface             GaudiInterface-*                External
-use  AtlasROOT                  AtlasROOT-*                     External 
+use  AtlasROOT                  AtlasROOT-*                     External
 use  Identifier                 Identifier-*                    DetectorDescription
 use  HitManagement              HitManagement-*                 Simulation
 use  MuonDigToolInterfaces      MuonDigToolInterfaces-*         MuonSpectrometer/MuonDigitization
 use  MuonSimEvent               MuonSimEvent-*                  MuonSpectrometer
- 
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
+
+# 15/06/2015 T.Saito
+use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
+use  MagFieldInterfaces         MagFieldInterfaces-*            MagneticField
+
 private
 use  StoreGate                  StoreGate-*                     Control
 use  AtlasAIDA                  AtlasAIDA-*                     External
@@ -32,21 +37,27 @@ use  EventInfo                  EventInfo-*                     Event
 use  EventInfoMgt               EventInfoMgt-*                  Event
 ###use  MuonCondInterface          MuonCondInterface-*             MuonSpectrometer/MuonConditions/MuonCondGeneral
 use  MuonReadoutGeometry        MuonReadoutGeometry-*           MuonSpectrometer/MuonDetDescr
+use  MuonAGDDDescription        MuonAGDDDescription-*           MuonSpectrometer/MuonDetDescr
 #use  MuonDigiExample            MuonDigiExample-*               MuonSpectrometer/MuonDigitization
-use  AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-*   Simulation/Tools
+use  AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-*  Simulation/Tools
 
 
 
 
 public
-library MM_Digitization *.cxx components/*.cxx
-apply_pattern component_library
+#library MM_Digitization *.cxx components/*.cxx
+#apply_pattern component_library
+
 apply_pattern declare_joboptions files="-s=../share *.txt *.py"
-apply_pattern declare_python_modules files="*.py" 
+apply_pattern declare_python_modules files="*.py"
 #apply_pattern declare_runtime_extras extras="*.rt"
+
+# 15/06/2015 T.Saito
+apply_pattern declare_runtime files="*.gas"
+apply_pattern dual_use_library files="*.cxx"
  
 apply_tag  ROOTBasicLibs 
 apply_tag  ROOTMathLibs 
 apply_tag  ROOTSTLDictLibs 
 apply_tag  ROOTGraphicsLibs
-apply_tag  ROOTTableLibs 
+apply_tag  ROOTTableLibs
