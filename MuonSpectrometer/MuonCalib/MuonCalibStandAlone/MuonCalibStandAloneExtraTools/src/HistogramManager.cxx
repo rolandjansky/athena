@@ -760,7 +760,7 @@ void HistogramManager::buildSector(string region, string side, int sector) {
   std::vector<MDTName> chamberList = GetChamberList(region, side, sector);
 
   // Sort Chambers By chamberType
-  std::sort(chamberList.begin(), chamberList.end(), sortMdtChambersByName() );
+  std::stable_sort(chamberList.begin(), chamberList.end(), sortMdtChambersByName() ) ;
   int numTotChambers=chamberList.size();
 
   string previousChamberType = "XXX";
