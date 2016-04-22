@@ -15,8 +15,8 @@ from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 
 from LongLivedParticleDPDMaker.HipsFlags import primHIPsDESD
 
-streamName = primDPD.WriteDESD_HIPsStream.StreamName
-fileName   = buildFileName( primDPD.WriteDESD_HIPsStream )
+streamName = primDPD.WriteDESDM_EXOTHIPStream.StreamName
+fileName   = buildFileName( primDPD.WriteDESDM_EXOTHIPStream )
 HIPsStream      = MSMgr.NewPoolStream( streamName,fileName )
 
 

@@ -4,6 +4,7 @@
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool as skimtool
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel as kernel
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
 
  ## needs package PhysicsAnalysis/DerivationFramework/DerivationFrameworkTools-00-00-20 or later..
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
@@ -23,6 +24,30 @@ ToolSvc += HVSkimmingTool
 #                       SkimmingTools = [HVSkimmingTool],
 #                       )
 #RPVLLfilterNames.extend(["RPVLL_HV_TriggerFilterKernel"])
+
+###########################################################################################
+# HV Prescaled Trigger Filter
+###########################################################################################
+
+HVPrescaledTriggerTool = DerivationFramework__TriggerSkimmingTool(   name                    = "HVPrescaledTriggerTool",
+                                                                      TriggerListOR          = primRPVLLDESDM.HV_prescaledTriggerFilterFlags.TriggerNames )
+ToolSvc += HVPrescaledTriggerTool
+
+HVPrescaleTool = DerivationFramework__PrescaleTool(name = "HVPrescaleTool",
+                                                   Prescale = primRPVLLDESDM.HV_prescaledTriggerFilterFlags.Prescale
+                                                   )
+ToolSvc += HVPrescaleTool
+
+HVPrescaledSkimmingTool = DerivationFramework__FilterCombinationAND( name = "HVPrescaledSkimmingTool",
+                                                                     FilterList = [HVPrescaledTriggerTool,
+                                                                                   HVPrescaleTool,
+                                                                                   ],
+                                                                     )
+ToolSvc += HVPrescaledSkimmingTool
+
+###########################################################################################
+# HV jet/MET Filter
+###########################################################################################
 
 HVJetMETTrigTool = DerivationFramework__TriggerSkimmingTool(   name                    = "HVJetMETTrigTool",
                                                              TriggerListOR          = primRPVLLDESDM.HV_jetMETFilterFlags.TriggerNames )
@@ -46,12 +71,16 @@ HV_JetMETFinalFilter = DerivationFramework__FilterCombinationAND( name = "HV_Jet
                                                                )
 ToolSvc += HV_JetMETFinalFilter
 
+###########################################################################################
+# HV Filter combination
+###########################################################################################
+
 #HV_FinalFilter =  DerivationFramework__FilterCombinationOR( name = "HV_FinalFilter",
 #                                                          FilterList=[HVSkimmingTool,HV_JetMETFinalFilter],
 #                                                          OutputLevel=DEBUG
 #                                                          )
  
-HV_FinalFilter = DerivationFramework__FilterCombinationOR( name = "HV_FinalFilter", FilterList=[HVSkimmingTool,HV_JetMETFinalFilter] )
+HV_FinalFilter = DerivationFramework__FilterCombinationOR( name = "HV_FinalFilter", FilterList=[HVSkimmingTool,HVPrescaledSkimmingTool,HV_JetMETFinalFilter] )
  #                                                       OutputLevel=DEBUG
                                  
 ToolSvc+=HV_FinalFilter
