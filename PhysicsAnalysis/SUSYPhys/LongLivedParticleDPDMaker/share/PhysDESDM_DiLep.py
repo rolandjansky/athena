@@ -9,26 +9,26 @@ from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFr
 # define cut values of the filters
 ToolSvc += filters( "DiLepFilters",
                     
-                    SiPhTrigger   = "HLT_g140_loose",
-                    DiPhTrigger   = "HLT_2g50_loose",
-                    SiMuTrigger   = "HLT_mu60_0eta105_msonly",
+                    SiPhTriggers  = primRPVLLDESDM.DiLep_FilterFlags.SiPhTriggers,
+                    DiPhTriggers  = primRPVLLDESDM.DiLep_FilterFlags.DiPhTriggers,
+                    SiMuTriggers  = primRPVLLDESDM.DiLep_FilterFlags.SiMuTriggers,
                     
-                    ElEtaMax      = 2.5,
-                    PhEtaMax      = 2.5,
-                    MuEtaMax      = 2.5,
-                    MuBaEtaMax    = 1.07,
+                    ElEtaMax      = primRPVLLDESDM.DiLep_FilterFlags.ElEtaMax,
+                    PhEtaMax      = primRPVLLDESDM.DiLep_FilterFlags.PhEtaMax,
+                    MuEtaMax      = primRPVLLDESDM.DiLep_FilterFlags.MuEtaMax,
+                    MuBaEtaMax    = primRPVLLDESDM.DiLep_FilterFlags.MuBaEtaMax,
                     
-                    ElD0Min       = 2.0,
-                    MuD0Min       = 1.5,
+                    ElD0Min       = primRPVLLDESDM.DiLep_FilterFlags.ElD0Min,
+                    MuD0Min       = primRPVLLDESDM.DiLep_FilterFlags.MuD0Min,
                     
-                    SiElPtMin     = 140.,
-                    SiPhPtMin     = 150.,
-                    SiPhXPtMin    =  10.,
-                    SiMuPtMin     =  60.,
-                    DiElPtMin     =  50.,
-                    DiPhPtMin     =  50.,
-                    DiElPhPtMin   =  50.,
-                    DiLoElPhPtMin =  50.
+                    SiElPtMin     = primRPVLLDESDM.DiLep_FilterFlags.SiElPtMin,
+                    SiPhPtMin     = primRPVLLDESDM.DiLep_FilterFlags.SiPhPtMin,
+                    SiPhXPtMin    = primRPVLLDESDM.DiLep_FilterFlags.SiPhXPtMin,
+                    SiMuPtMin     = primRPVLLDESDM.DiLep_FilterFlags.SiMuPtMin,
+                    DiElPtMin     = primRPVLLDESDM.DiLep_FilterFlags.DiElPtMin,
+                    DiPhPtMin     = primRPVLLDESDM.DiLep_FilterFlags.DiPhPtMin,
+                    DiElPhPtMin   = primRPVLLDESDM.DiLep_FilterFlags.DiElPhPtMin,
+                    DiLoElPhPtMin = primRPVLLDESDM.DiLep_FilterFlags.DiLoElPhPtMin
                   )
 
 # ##########################################################################################

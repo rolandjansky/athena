@@ -11,8 +11,8 @@
 #define DERIVATIONFRAMEWORK_DILEPFILTERS_H 1
 
 // STL
-#include <cmath>
 #include <string>
+#include <vector>
 
 // Athena
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -55,9 +55,9 @@ namespace DerivationFramework
       ToolHandle<Trig::TrigDecisionTool> m_tdt;
 
       // trigger names
-      std::string m_trig_siph;
-      std::string m_trig_diph;
-      std::string m_trig_simu;
+      std::vector<std::string> m_trig_siph;
+      std::vector<std::string> m_trig_diph;
+      std::vector<std::string> m_trig_simu;
 
       // trigger flags
       bool m_pass_siph;

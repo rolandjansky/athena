@@ -18,9 +18,6 @@
 #include "DerivationFrameworkInterfaces/ISkimmingTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LongLivedParticleDPDMaker/DiLepFilters.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODMuon/MuonContainer.h"
 
 namespace DerivationFramework
 {
