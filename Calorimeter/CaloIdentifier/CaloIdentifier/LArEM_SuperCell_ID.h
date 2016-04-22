@@ -111,8 +111,6 @@
 * 
 * Grand Total : 12672
 *
-* No disconnected channels are defined for supercells.
-*
 * @author RD Schaffer, Denis Oliveira Damazio, scott snyder
 */
 

@@ -65,4 +65,4 @@ apply_pattern lcgdict dict=CaloIdentifier selectionfile=selection.xml headerfile
 
 private
 #macro_append cppflags " -Winline 
-macro_append cppflags " --param inline-unit-growth=300"
+macro_append cppflags "" gcc " --param inline-unit-growth=300"

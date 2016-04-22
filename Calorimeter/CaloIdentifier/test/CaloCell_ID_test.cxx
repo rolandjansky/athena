@@ -18,7 +18,7 @@
 #include "calocell_id_test_common.cxx"
 
 
-CaloCell_ID* make_calo_id (bool do_neighbours = false)
+std::unique_ptr<CaloCell_ID> make_calo_id (bool do_neighbours = false)
 {
   return make_calo_id_t<CaloCell_ID,
                         LArEM_ID,
@@ -28,17 +28,17 @@ CaloCell_ID* make_calo_id (bool do_neighbours = false)
 }
 
 
-void test_neighbours (const CaloCell_ID* calo_id)
+void test_neighbours (const CaloCell_ID& calo_id)
 {
   std::cout << "test_neighbours\n";
   
-  for (unsigned int iCell = 0 ; iCell < calo_id->calo_cell_hash_max(); ++iCell){
-    Identifier cellId = calo_id->cell_id(iCell);
+  for (unsigned int iCell = 0 ; iCell < calo_id.calo_cell_hash_max(); ++iCell){
+    Identifier cellId = calo_id.cell_id(iCell);
     IdentifierHash hash_min = 888888 ;
     IdentifierHash hash_max = 0 ;
-    calo_id->calo_cell_hash_range(cellId, hash_min, hash_max);
+    calo_id.calo_cell_hash_range(cellId, hash_min, hash_max);
     std::vector<IdentifierHash> neighbourList;
-    assert (calo_id->get_neighbours(iCell, LArNeighbours::all3D, neighbourList)
+    assert (calo_id.get_neighbours(iCell, LArNeighbours::all3D, neighbourList)
             == 0);
     std::vector<IdentifierHash>::iterator first=neighbourList.begin();
     std::vector<IdentifierHash>::iterator last=neighbourList.end();
@@ -53,15 +53,15 @@ void test_neighbours (const CaloCell_ID* calo_id)
 
 int main()
 {
-  CaloCell_ID* calo_id = make_calo_id();
-  CaloCell_ID* calo_id_n = make_calo_id(true);
+  std::unique_ptr<CaloCell_ID> calo_id = make_calo_id();
+  std::unique_ptr<CaloCell_ID> calo_id_n = make_calo_id(true);
   try {
-    test_cells (calo_id);
-    test_sample (calo_id, false);
-    test_subcalo (calo_id);
-    test_regions (calo_id);
-    test_neighbours (calo_id_n);
-    test_exceptions (calo_id);
+    test_cells (*calo_id);
+    test_sample (*calo_id, false);
+    test_subcalo (*calo_id);
+    test_regions (*calo_id);
+    test_neighbours (*calo_id_n);
+    test_exceptions (*calo_id);
   }
   catch(LArID_Exception & except){
     std::cout << "Unexpected exception: " << (std::string) except << std::endl ;

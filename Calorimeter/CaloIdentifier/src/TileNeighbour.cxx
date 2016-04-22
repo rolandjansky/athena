@@ -93,7 +93,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
   //
   // Parse the input file
   //
-  unsigned int line=0, record=0, error=0;              // file line number, record number
+  unsigned int line=0, record=0;              // file line number, record number
   char token[MAX_TOKEN_SIZE];                 // input token
 
   log << MSG::VERBOSE << "Parsing input file:" << endreq;
@@ -139,9 +139,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
  
   fin.close();
 
-  log << MSG::DEBUG << "Processed " << line << " lines, " << record << " records";
-  if ( error > 0 ) log << ", " << error << " of them are ignored." << endreq;
-  else log << "." << endreq;
+  log << MSG::DEBUG << "Processed " << line << " lines, " << record << " records." << endreq;
 
   unsigned int curSize = allCells.size();
   for (unsigned int i=0; i<curSize; ++i) {
@@ -585,7 +583,7 @@ void TileNeighbour::get_id(std::string & strName, Identifier & id, const Tile_Ba
     std::string::size_type pos = strName.find( "-", 0 );
     if ( std::string::npos != pos ) sd = -1; else sd = 1;
 
-    sscanf(name+2,"%d",&tw);
+    sscanf(name+2,"%80d",&tw);
     if (tw<0) tw *= -1;
 
     switch ( name[0] ) {

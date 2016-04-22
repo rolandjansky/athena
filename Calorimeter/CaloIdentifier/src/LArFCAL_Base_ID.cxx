@@ -30,49 +30,6 @@ LArFCAL_Base_ID::LArFCAL_Base_ID(const std::string& name, bool supercell)
   m_two_sym_sides = 1;
 }
 
-bool LArFCAL_Base_ID::is_connected ( int pos_neg, int module, int eta, int phi) const throw(LArID_Exception)
-{
-  bool result=false;
-  // Check that id is within allowed range
-  // Fill expanded id
-  ExpandedIdentifier expId(lar_fcal_exp());
-  expId << pos_neg << module << eta << phi << m_slar ;
-
-  if( expId.last_error () != ExpandedIdentifier::none) {
-    std::string errorMessage =
-      "Error in LArFCAL_Base_ID::is_connected, " +
-      strformat ("pos_neg: %d , module: %d, eta: %d, phi: %d ",
-                 pos_neg , module , eta , phi);
-    throw LArID_Exception(errorMessage , 10);
-  }
-
-  if (m_full_channel_range.match(expId)) { 
-    result = true;
-  }
-  return(result);
-}
-
-bool LArFCAL_Base_ID::is_disconnected ( int pos_neg, int module, int eta, int phi) const throw(LArID_Exception)
-{
-  bool result=false;
-  // Check that id is within allowed range
-  // Fill expanded id
-  ExpandedIdentifier expId(lar_exp());
-  expId << -3 << pos_neg << module << eta << phi << m_slar ;
-
-  if( expId.last_error () != ExpandedIdentifier::none) {
-    std::string errorMessage =
-      "Error in LArFCAL_Base_ID::is_disconnected, " + 
-      strformat ("pos_neg: %d , module: %d, eta: %d, phi: %d ",
-                 pos_neg , module , eta , phi);
-    throw LArID_Exception(errorMessage , 10);
-  }
-
-  if (m_full_disc_channel_range.match(expId)) { 
-    result = true;
-  }
-  return(result);
-}
 
 bool LArFCAL_Base_ID::is_supercell (const Identifier id)const
 {
@@ -173,16 +130,6 @@ int LArFCAL_Base_ID::phi_max(const Identifier modId) const
   return (-999);  // default
 }
 
-int         LArFCAL_Base_ID::disc_eta             (const Identifier id)const
-{
-  return(m_eta_impl.unpack(id));
-}
-
-int         LArFCAL_Base_ID::disc_phi             (const Identifier id)const
-{
-  return(m_phi_impl.unpack(id));
-}
-
 IdContext	
 LArFCAL_Base_ID::module_context 		(void) const
 {
@@ -252,25 +199,8 @@ int  LArFCAL_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr
       return (1);
     }
 
-  // Find value for the field LArFCALdisc
-    int larFcalDiscField   = -1;
-    if (dict()->get_label_value("part", "LArFCALdisc", larFcalDiscField)) {
-      std::stringstream strm ;
-      strm <<  atlasDict->m_name ;
-      strg = "Could not get value for label 'LArFCALdisc' of field 'part' in dictionary " 
-      + strm.str();
-      if(m_msgSvc) {
-	log << MSG::ERROR << strg << endreq;
-      }
-      else {
-	std::cout << strg << std::endl;
-      }
-        return (1);
-    }
-
     // Set up id for region and range prefix
 
-    // (1) Connected channels
     ExpandedIdentifier region_id;
     region_id.add(larField);
     region_id.add(larFcalField);
@@ -278,40 +208,22 @@ int  LArFCAL_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr
     m_full_channel_range = dict()->build_multirange(region_id, group_name, prefix);
     m_full_module_range = dict()->build_multirange(region_id, group_name, prefix, "module");
 
-    // (2) disconnected channels
-    ExpandedIdentifier region_id2;
-    region_id2.add(larField);
-    region_id2.add(larFcalDiscField);
-    Range prefix2;
-
-    m_full_disc_channel_range = dict()->build_multirange(region_id2, group_name, prefix2);
-    m_full_disc_module_range = dict()->build_multirange(region_id2, group_name, prefix2, "module");
-
     std::string strg0 = " initialize_from_dict : " ;
     std::string strg1 = " channel range -> " + (std::string)m_full_channel_range;
     std::string strg2 = " module range -> "  + (std::string)m_full_module_range;
-    std::string strg3 = " disconnected channel range -> "  + (std::string)m_full_disc_channel_range;
-    std::string strg4 = " disconnected module range -> "  + (std::string)m_full_disc_module_range;
     if(m_msgSvc) {
       log << MSG::DEBUG << strg0 << endreq;
       log << MSG::DEBUG << strg1 << endreq;
       log << MSG::DEBUG << strg2 << endreq;
-      log << MSG::DEBUG << strg3 << endreq;
-      log << MSG::DEBUG << strg4 << endreq;
     }
     else {
       std::cout << strg0 << std::endl;
       std::cout << strg1 << std::endl;
       std::cout << strg2 << std::endl;
-      std::cout << strg3 << std::endl;
-      std::cout << strg4 << std::endl;
     }
 
     // Setup the hash tables
     if(init_hashes()) return (1);
-
-    // Setup the disc hash tables
-    if(init_disc_hashes()) return (1);
 
     // initilize m_two_sym_sides
     m_two_sym_sides = ( dictionaryVersion() == "fullAtlas" );
@@ -402,74 +314,6 @@ void   LArFCAL_Base_ID::channel_id_checks   (const Identifier moduleId,
   }
 }
 
-void LArFCAL_Base_ID::disc_module_id_checks ( int pos_neg, int module ) const throw(LArID_Exception)
-{
-	
-  // Check that id is within allowed range
-  // Fill expanded id
-  ExpandedIdentifier expId(lar_exp());
-  expId << -3 << pos_neg << module;
-
-  if(  expId.last_error () != ExpandedIdentifier::none ){
-    std::string errorMessage  =
-      "Error in LArFCAL_Base_ID::module_id, " +
-      strformat ("pos_neg: %d , module: %d", pos_neg , module);
-    throw LArID_Exception(errorMessage , 9);
-  }
-
-  if (!m_full_disc_module_range.match(expId)) { 
-    std::string errorMessage = "LArFCAL_Base_ID::module_id() result is not OK: ID, range = "
-      + std::string(expId) + " , " + (std::string)m_full_disc_module_range;
-    throw LArID_Exception(errorMessage , 6);
-  }
-}
-
-void LArFCAL_Base_ID::disc_channel_id_checks ( int pos_neg, int module, int eta, int phi) const throw(LArID_Exception)
-{
-	
-  // Check that id is within allowed range
-  // Fill expanded id
-  ExpandedIdentifier expId(lar_exp());
-  expId << -3 << pos_neg << module << eta << phi << m_slar ;
-
-  if( expId.last_error () != ExpandedIdentifier::none) {
-    std::string errorMessage =
-      "Error in LArFCAL_Base_ID::channel_id, " + 
-      strformat ("pos_neg: %d , module: %d, eta: %d, phi: %d ",
-                 pos_neg , module , eta , phi);
-    throw LArID_Exception(errorMessage , 10);
-  }
-
-  if (!m_full_disc_channel_range.match(expId)) { 
-    std::string errorMessage = "LArFCAL_Base_ID::channel_id() result is not OK: ID, range = "
-      + std::string(expId) + " , " + (std::string)m_full_disc_channel_range;
-    throw LArID_Exception(errorMessage , 10);
-  }
-}
-
-void   LArFCAL_Base_ID::disc_channel_id_checks   (const Identifier moduleId,
-					     int eta, int phi) const throw(LArID_Exception)
-{
-  // Check that id is within allowed range
-  // Fill expanded id
-  ExpandedIdentifier expId; 
-
-  IdContext context = module_context();
-  if (get_disc_expanded_id(moduleId, expId, &context)) {
-    std::string errorMessage = "LArFCAL_Base_ID::channel_id(modId) result is not OK: ID = "
-      + show_to_string(moduleId) ;
-    throw LArID_Exception(errorMessage , 10);
-  }
-
-  expId << eta << phi << m_slar ;
-
-  if (!m_full_disc_channel_range.match(expId)) { 
-    std::string errorMessage = "LArFCAL_Base_ID::channel_id(modId) result is not OK: ID, range = "
-      + std::string(expId) + " , " + (std::string)m_full_disc_channel_range;
-    throw LArID_Exception(errorMessage , 10);
-  }
-}
-
 int  LArFCAL_Base_ID::get_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const
 {
     // We assume that the context is >= region
@@ -485,26 +329,6 @@ int  LArFCAL_Base_ID::get_expanded_id  (const Identifier& id, ExpandedIdentifier
 	    if ( context->end_index() >= m_SLAR_INDEX) {
               exp_id << (unsigned)is_supercell(id);
             }
-	}
-    }
-    return (0);
-}
-
-int  LArFCAL_Base_ID::get_disc_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const
-{
-    // We assume that the context is >= region
-    exp_id.clear();
-    exp_id << lar_field_value()
-      	   << -3
-	   << pos_neg(id)
-	   << module(id);
-    if(context && context->end_index() >= m_ETA_INDEX) {
-	exp_id << eta(id);
-	if(context->end_index() >= m_PHI_INDEX) {
-	    exp_id << phi(id);
-	    if (context->end_index() >= m_SLAR_INDEX) {
-	      exp_id << (unsigned)is_supercell(id);
-	    }
 	}
     }
     return (0);
@@ -722,23 +546,6 @@ int         LArFCAL_Base_ID::init_hashes(void)
   return (0);
 }
 
-int         LArFCAL_Base_ID::init_disc_hashes(void) 
-{
-  if (m_disc_channels.init (*this, "channels",
-                            m_full_disc_channel_range,
-                            &LArFCAL_Base_ID::disc_channel_id,
-                            m_SLAR_INDEX))
-    return 1;
-  if (m_disc_modules.init (*this, "regions",
-                           m_full_disc_module_range,
-                           &LArFCAL_Base_ID::disc_module_id,
-                           m_MODULE_INDEX))
-    return 1;
-
-  return (0);
-}
-
-
 int   LArFCAL_Base_ID::get_neighbours(const IdentifierHash id, const LArNeighbours::neighbourOption& option, 
 				 std::vector<IdentifierHash>& neighbourList) const
 {
@@ -760,10 +567,12 @@ int   LArFCAL_Base_ID::get_neighbours(const IdentifierHash id, const LArNeighbou
   if(id>=channel_hash_max()) {
     if(m_msgSvc) {
       MsgStream log(m_msgSvc, "LArFCAL_Base_ID" );
-      log << MSG::WARNING << "neighbours requested for unconnected channel -- this is not implemented" << endreq;
+      log << MSG::WARNING << "neighbours requested for  non-existing channel -- id/max " << id << "/"
+          << channel_hash_max() << endreq;
     }
     else {
-      std::cout << " neighbours requested for unconnected channel -- this is not implemente" << std::endl;
+      std::cout << " neighbours requested for non-existing channel -- id/max " << id << "/"
+                << channel_hash_max() << std::endl;
     }
     return result;
   }

@@ -107,67 +107,6 @@
 * 
 * Grand Total : 63744
 *
-*             Disconnected channels :
-*             ---------------------
-* barrel_ec        +/-1             positive/negative barrel - A/C side or P/M half barrel
-* "                +/-2             positive/negative endcap outer wheel - A/C side 
-* "                +/-3             positive/negative endcap inner wheel - A/C side
-* 
-* sampling         0                both presamplers
-* "                [1,3]            barrel and endcap outer wheel 
-* "                [1,2]            endcap inner wheel
-* 
-* region           0                both presamplers
-* "                0                barrel sampling 2 
-* "                0                barrel sampling 3
-* "
-* "                1,3,5            endcap outer wheel sampling 1
-* "                0                endcap inner wheel sampling 1
-* "                0                endcap inner wheel sampling 2
-* 
-* 
-* eta for barrel   [61,63]        presampler
-* "                [56,63]        sampling 2 region 0
-* "                27             sampling 3 region 0 
-* "
-* phi for barrel   [0,63]         barrel presampler 
-* "                [0,255]        sampling 2 region 0
-* "                [0,255]        sampling 3 region 0
-* 
-* number of disconnected cells in barrel :
-* presampler :  384
-* sampling 2 :  128
-* sampling 3 :  512
-* total      : 1024
-*
-* 
-* eta for endcap   [12,19]     presampler  sampling 0 region 0 
-* "                [0,2]       outer wheel sampling 1 region 1 
-* "                [0,47]      outer wheel sampling 1 region 3 
-* "                [0,3]       outer wheel sampling 1 region 5 
-* "                [0,6]       inner wheel sampling 1 region 0 
-* "                [0,6]       inner wheel sampling 2 region 0 
-* 
-* phi for endcap   [0,63]      presampler  sampling 0 region 0      
-* "                [0,63]      outer wheel sampling 1 regions 1,3,5
-* "                [0,63]      inner wheel sampling 1 region 0     
-* "                [0,63]      inner wheel sampling 2 region 0      
-* 
-* number of cells in endcap :
-* presampler  : 1024
-* Outer wheel:
-* sampling 1  : 3072
-* total       : 4096
-* Inner wheel:
-* sampling 1  : 128
-* sampling 2  : 128
-* total       : 256
-* 
-* Grand Total : 4352
-*
-* In the hash series, the diconnected channels are put at the end, after the connected channels.
-* channel_hash_min = 0 ; disc_channel_hash_min = channel_hash_max ;
-*
 * </pre>
 * @author started by RD Schaffer
 * @author maintained by Fabienne Ledroit

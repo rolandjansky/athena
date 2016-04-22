@@ -49,20 +49,20 @@ public:
 
   ~LArHEC_Base_ID();
 
-  /** region identifier for a connected channel from ExpandedIdentifier*/
+  /** region identifier for a channel from ExpandedIdentifier*/
   Identifier  region_id (const ExpandedIdentifier& exp_id ) const ;
 
-  /** channel identifier for a connected channel from ExpandedIdentifier*/
+  /** channel identifier for a channel from ExpandedIdentifier*/
   Identifier  channel_id (const ExpandedIdentifier& exp_id ) const ;
 
-  /** build a region identifier for a connected channel  */
+  /** build a region identifier for a channel  */
   Identifier  region_id   	(int pos_neg, int sampling, int region ) const ;
 
-  /** build a cell identifier for a connected channel  */
+  /** build a cell identifier for a channel  */
   Identifier  channel_id   	(int pos_neg, int sampling, int region,
 				 int eta,     int phi ) const ;
 				 
-  /** build a cell identifier for a connected channel  <br>
+  /** build a cell identifier for a channel  <br>
       eta counting includes regions     */
   Identifier  channel_id  ( int pos_neg, int sampling,
 			    int eta,     int phi ) const throw(LArID_Exception) ;
@@ -80,60 +80,22 @@ public:
   Identifier  channel_id  ( int pos_neg, int sampling, int sector, int region, 
 			    int eta,     int phi_sector ) const throw(LArID_Exception);
 
-
-  /** region identifier for disconnected channels, from ExpandedIdentifier */
-  Identifier  disc_region_id (const ExpandedIdentifier& exp_id) const;
-
-  /**  cell identifier for disconnected channels, from ExpandedIdentifier  */
-  Identifier  disc_channel_id (const ExpandedIdentifier& exp_id) const;
-
-  /** build a region identifier for disconnected channels  */
-  Identifier  disc_region_id   	(int pos_neg, int sampling, int region ) const ;
-
-  /** build a cell identifier for disconnected channels  */
-  Identifier  disc_channel_id 	(int pos_neg, int sampling, int region,
-				 int eta,     int phi ) const ;
-
   /** allows to know in which region is a channel/cell
-      -- valid for both kinds of channels (connected or not) */
+      -- valid for both kinds of channels */
   Identifier  region_id   	(const Identifier channelId) const ;
 
   /** allows to build a channel id starting from a region id (e.g. from descriptors) 
-      -- valid for both kinds of channels (connected or not) */
+      -- valid for both kinds of channels */
   Identifier  channel_id   	(const Identifier regionId,
 				 int eta,       int phi ) const ;
-
-  /** to disentangle between connected and disconnected channels 
-      this method is CPU cheap */
-  bool is_connected (const IdentifierHash hashId) const;
-  /** to disentangle between connected and disconnected channels 
-      this method is CPU cheap */
-  bool is_connected (const Identifier channelId) const;
-  /** to disentangle between connected and disconnected channels 
-      this method is CPU expensive */
-  bool is_connected ( int pos_neg,  int sampling, int region, int eta, int phi )  const throw(LArID_Exception);
-  /** to disentangle between connected and disconnected channels 
-      this method is CPU expensive */
-  bool is_disconnected ( int pos_neg,  int sampling, int region, int eta, int phi )  const throw(LArID_Exception);
 
   /** Test if the identifier represents a supercell. */
   bool        is_supercell    (const Identifier id)const;
 				 
-  /** create hash id from connected channel id  */
+  /** create hash id from channel id  */
   IdentifierHash channel_hash (Identifier channelId) const;
-  /** create hash id from connected channel id  -- method NOT optimised, please use channel_hash() above */
+  /** create hash id from channel id  -- method NOT optimised, please use channel_hash() above */
   IdentifierHash channel_hash_binary_search (Identifier channelId) const;
-
-  /** create channel id from hash id (all channels, connected + diconnected, together) */
-  Identifier disc_channel_id	(IdentifierHash disc_channel_hash_id) const;	
-
-  /** create hash id from channel id*/
-  IdentifierHash disc_channel_hash (Identifier discChannelId) const;
-
-  /** cell hash table max size (all channels: connected + disconnected) */
-  size_type     disc_channel_hash_max (void) const;
-  /** disconnected cell/channel hash table min index */
-  size_type     disc_channel_hash_min (void) const;
 
   /** begin iterator over set of region Identifiers */
   id_iterator reg_begin    (void) const;
@@ -142,26 +104,12 @@ public:
   /** Range over set of Region Identifiers. */
   id_range reg_range () const;
 
-  /** begin iterator over full set of Hec Identifiers for connected channels */
+  /** begin iterator over full set of Hec Identifiers for channels */
   id_iterator hec_begin    (void) const;
-  /** end iterator over full set of Hec Identifiers for connected channels */
+  /** end iterator over full set of Hec Identifiers for channels */
   id_iterator hec_end      (void) const;
   /** Range over full set of HEC Identifiers. */
   id_range hec_range () const;
-
-  /** begin iterator over full set of Hec Identifiers for DISconnected channels */
-  id_iterator disc_hec_begin    (void) const;
-  /** end iterator over full set of Hec Identifiers for DISconnected channels */
-  id_iterator disc_hec_end      (void) const;
-  /** Range over full set of HEC Identifiers for DISconnected channels (only) */
-  id_range disc_hec_range () const;
-
-  /** begin iterator over full set of Hec Identifiers for DISconnected regions */
-  id_iterator disc_reg_begin    (void) const;
-  /** end iterator over full set of Hec Identifiers for DISconnected channels */
-  id_iterator disc_reg_end      (void) const;
-  /** Range over full set of HEC Identifiers for DISconnected channels (only) */
-  id_range disc_reg_range () const;
 
   /** provide access to channel id vector, accessed via hash */
   const std::vector<Identifier>& channel_ids() const;
@@ -178,10 +126,10 @@ public:
   /** return region [0,1] */
   int         region          (const Identifier id)const;  
 
-  /** return eta [0,9] outer part [0,3] inner part, -999 if disconnected channel */
+  /** return eta [0,9] outer part [0,3] inner part */
   int         eta             (const Identifier id)const; 
 
-  /** return phi[0,63] outer part [0,31] inner part, -999 if disconnected channel */
+  /** return phi[0,63] outer part [0,31] inner part */
   int         phi             (const Identifier id)const;
 
   /** min value of eta index (-999 == failure) 
@@ -197,12 +145,6 @@ public:
       @warning input = REGION ID !! */
   int phi_max(const Identifier regId) const;
   
-
-  /** eta index -- only for checks, since dummy for disconnected channels */
-  int         disc_eta             (const Identifier id)const; 
-  /** phi index -- only for checks, since dummy for disconnected channels */
-  int         disc_phi             (const Identifier id)const; 
-
 
   /** initialization from the identifier dictionary*/
   int  initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
@@ -223,8 +165,7 @@ public:
 	                       not only touching cells but all corner cells forming a square (in case of change in eta granularity ) <br>
 	       all2D means faces2D + corners2D <br>
 	       upAndDown means prevInSamp + nextInSamp <br>
-	       all3D means all2D + upAndDown <br> 
-  Nota Bene = neighbours do not include disconnected channels */
+	       all3D means all2D + upAndDown <br> */
   int    get_neighbours(const IdentifierHash id,
                         const LArNeighbours::neighbourOption& option,
                         std::vector<IdentifierHash>& neighbourList) const;
@@ -267,20 +208,13 @@ private:
 				 int eta,       int phi ) const throw(LArID_Exception);
   void  channel_id_checks   	(const Identifier regionId,
 				 int eta,       int phi ) const throw(LArID_Exception);
-  void  disc_region_id_checks   	(int pos_neg, int sampling, int region ) const throw(LArID_Exception);
-  void  disc_channel_id_checks   	(int pos_neg, int sampling, int region,
-					 int eta,       int phi ) const throw(LArID_Exception);
-  void  disc_channel_id_checks   	(const Identifier regionId,
-					 int eta,       int phi ) const throw(LArID_Exception);
 
   /** create expanded Identifier from Identifier (return == 0 for OK) */
   virtual int  get_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const;
-  int  get_disc_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const;
 
   int         initLevelsFromDict (const std::string& group_name) ;
 
   int         init_hashes(void) ;
-  int         init_disc_hashes(void) ;
 
   int   get_prevInPhi(const LArHEC_region* hecRegion, const unsigned int& index, const short int& nPhi, const unsigned int& minHash, 
 		      int& neighbourIndex, IdentifierHash* neighbList) const;
@@ -320,12 +254,6 @@ private:
 
   MultiRange                    m_full_channel_range;
   MultiRange                    m_full_region_range;
-
-  MultiRange                    m_full_disc_channel_range;
-  MultiRange                    m_full_disc_region_range;
-
-  CaloIDHelper::HashGroup       m_disc_channels;
-  CaloIDHelper::HashGroup       m_disc_regions;
 
   bool                          m_two_sym_sides;
 

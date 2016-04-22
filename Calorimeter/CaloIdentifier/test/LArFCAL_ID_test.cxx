@@ -13,7 +13,7 @@
 #undef NDEBUG
 
 #include "CaloIdentifier/LArFCAL_ID.h"
-#include "IdDictParser/IdDictParser.h"
+#include "CxxUtils/make_unique.h"
 #include "boost/foreach.hpp"
 #include <iostream>
 #include <string>
@@ -21,27 +21,6 @@
 
 
 #include "larfcal_id_test_common.cxx"
-
-
-LArFCAL_ID* make_helper (bool do_neighbours = false)
-{
-  LArFCAL_ID* idhelper = new LArFCAL_ID;
-  IdDictParser* parser = new IdDictParser;
-  parser->register_external_entity ("LArCalorimeter",
-                                    "IdDictLArCalorimeter_DC3-05-Comm-01.xml");
-  IdDictMgr& idd = parser->parse ("IdDictParser/ATLAS_IDS.xml");
-  idd.add_metadata("FCAL2DNEIGHBORS",     "FCal2DNeighbors-DC3-05-Comm-01.txt");  
-  idd.add_metadata("FCAL3DNEIGHBORSNEXT", "FCal3DNeighborsNext-DC3-05-Comm-01.txt");  
-  idd.add_metadata("FCAL3DNEIGHBORSPREV", "FCal3DNeighborsPrev-DC3-05-Comm-01.txt");  
-  idhelper->set_do_neighbours (do_neighbours);
-  assert (idhelper->initialize_from_dictionary (idd) == 0);
-
-  assert (!idhelper->do_checks());
-  idhelper->set_do_checks (true);
-  assert (idhelper->do_checks());
-
-  return idhelper;
-}
 
 
 // neighbors
@@ -91,12 +70,15 @@ void test_basic (const LArFCAL_ID& idhelper)
 
 int main()
 {
-  LArFCAL_ID* idhelper = make_helper();
-  LArFCAL_ID* idhelper_n = make_helper(true);
+  IdDictMgr& idd = getDictMgr();
+  idd.add_metadata("FCAL2DNEIGHBORS",     "FCal2DNeighbors-DC3-05-Comm-01.txt");  
+  idd.add_metadata("FCAL3DNEIGHBORSNEXT", "FCal3DNeighborsNext-DC3-05-Comm-01.txt");  
+  idd.add_metadata("FCAL3DNEIGHBORSPREV", "FCal3DNeighborsPrev-DC3-05-Comm-01.txt");  
+  std::unique_ptr<LArFCAL_ID> idhelper = make_helper<LArFCAL_ID>();
+  std::unique_ptr<LArFCAL_ID> idhelper_n = make_helper<LArFCAL_ID>(true);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, false);
-    test_disco (*idhelper);
     test_exceptions (*idhelper);
     test4 (*idhelper_n);
   }

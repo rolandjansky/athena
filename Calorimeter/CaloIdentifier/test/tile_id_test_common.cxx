@@ -14,6 +14,7 @@
 
 
 #include "hash_test.h"
+#include "make_idhelper_common.cxx"
 
 
 // This because test differencing ignored lines containing `0x...'
@@ -77,14 +78,14 @@ void CellCounter::report()
   unsigned tot[N_REG] = {0};
   printf ("Sampling  Barrel     Ext Barrel     Gap      Other\n");
   for (unsigned s=0; s < N_SAMP; s++) {
-    printf ("%2d          %4d        %4d       %4d       %4d\n",
+    printf ("%2u          %4d        %4d       %4d       %4d\n",
             s,
             m_counts[0][s], m_counts[1][s], m_counts[2][s],
             m_counts[3][s]);
     for (unsigned b=0; b < N_REG; b++)
       tot[b] += m_counts[b][s];
   }
-  printf ("Total       %4d        %4d       %4d       %4d   Grand total: %4d\n",
+  printf ("Total       %4u        %4u       %4u       %4u   Grand total: %4u\n",
           tot[0], tot[1], tot[2], tot[3],
           tot[0]+tot[1]+tot[2]+tot[3]);
 }

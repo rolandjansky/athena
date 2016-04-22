@@ -14,29 +14,11 @@
 #undef NDEBUG
 
 #include "CaloIdentifier/LArHEC_SuperCell_ID.h"
-#include "IdDictParser/IdDictParser.h"
+#include "CxxUtils/make_unique.h"
 #include <iostream>
 
 
 #include "larhec_id_test_common.cxx"
-
-
-LArHEC_SuperCell_ID* make_helper(bool do_neighbours = false)
-{
-  LArHEC_SuperCell_ID* idhelper = new LArHEC_SuperCell_ID;
-  IdDictParser* parser = new IdDictParser;
-  parser->register_external_entity ("LArCalorimeter",
-                                    "IdDictLArCalorimeter_DC3-05-Comm-01.xml");
-  IdDictMgr& idd = parser->parse ("IdDictParser/ATLAS_IDS.xml");
-  idhelper->set_do_neighbours (do_neighbours);
-  assert (idhelper->initialize_from_dictionary (idd) == 0);
-
-  assert (!idhelper->do_checks());
-  idhelper->set_do_checks (true);
-  assert (idhelper->do_checks());
-
-  return idhelper;
-}
 
 
 void test_basic (const LArHEC_Base_ID& idhelper)
@@ -83,12 +65,11 @@ void test_neighbors (const LArHEC_SuperCell_ID& idhelper)
 
 int main()
 {
-  LArHEC_SuperCell_ID* idhelper = make_helper();
-  LArHEC_SuperCell_ID* idhelper_n = make_helper(true);
+  std::unique_ptr<LArHEC_SuperCell_ID> idhelper = make_helper<LArHEC_SuperCell_ID>();
+  std::unique_ptr<LArHEC_SuperCell_ID> idhelper_n = make_helper<LArHEC_SuperCell_ID>(true);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, true);
-    test_disco (*idhelper);
     test_exceptions (*idhelper);
     test_neighbors (*idhelper_n);
     test_hec (*idhelper);

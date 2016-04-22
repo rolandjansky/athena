@@ -13,30 +13,12 @@
 #undef NDEBUG
 
 #include "CaloIdentifier/LArHEC_ID.h"
-#include "IdDictParser/IdDictParser.h"
+#include "CxxUtils/make_unique.h"
 #include "boost/foreach.hpp"
 #include <iostream>
 
 
 #include "larhec_id_test_common.cxx"
-
-
-LArHEC_ID* make_helper (bool do_neighbours = false)
-{
-  LArHEC_ID* idhelper = new LArHEC_ID;
-  IdDictParser* parser = new IdDictParser;
-  parser->register_external_entity ("LArCalorimeter",
-                                    "IdDictLArCalorimeter_DC3-05-Comm-01.xml");
-  IdDictMgr& idd = parser->parse ("IdDictParser/ATLAS_IDS.xml");
-  idhelper->set_do_neighbours (do_neighbours);
-  assert (idhelper->initialize_from_dictionary (idd) == 0);
-
-  assert (!idhelper->do_checks());
-  idhelper->set_do_checks (true);
-  assert (idhelper->do_checks());
-
-  return idhelper;
-}
 
 
 void test_basic (const LArHEC_ID& idhelper)
@@ -85,12 +67,11 @@ void test_neighbors (const LArHEC_ID& idhelper)
 
 int main()
 {
-  LArHEC_ID* idhelper = make_helper();
-  LArHEC_ID* idhelper_n = make_helper(true);
+  std::unique_ptr<LArHEC_ID> idhelper = make_helper<LArHEC_ID>();
+  std::unique_ptr<LArHEC_ID> idhelper_n = make_helper<LArHEC_ID>(true);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, false);
-    test_disco (*idhelper);
     test_exceptions (*idhelper);
     test_neighbors (*idhelper_n);
     test_hec (*idhelper);

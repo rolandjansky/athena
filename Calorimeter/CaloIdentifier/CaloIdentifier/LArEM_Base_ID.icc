@@ -83,62 +83,6 @@ LArEM_Base_ID::channel_id   ( int barrel_ec, int sampling, int region,
     return result;
 }
 
-//----------------------------------------------------------------------------
-inline Identifier 
-LArEM_Base_ID::disc_region_id (int barrel_ec, int sampling, int region) const 
-{
-    // Do checks
-    if(m_do_checks) {
-      disc_region_id_checks ( barrel_ec, sampling, region );
-    }
-
-    Identifier result(0);
-
-    // Pack fields independently
-    m_lar_impl.pack      (lar_field_value(),    result);
-    m_em_impl.pack       (-1,                   result);
-    m_bec_impl.pack      (barrel_ec,            result);
-    m_sampling_impl.pack (sampling,             result);
-    m_region_impl.pack   (region,               result);
-    m_slar_impl.pack     (m_slar,               result);
-
-    return result;
-}
-
-//----------------------------------------------------------------------------
-inline Identifier 
-LArEM_Base_ID::disc_channel_id (const ExpandedIdentifier& exp_id) const
-{
-  return this->disc_channel_id (exp_id[m_BEC_INDEX],
-                                exp_id[m_SAMPLING_INDEX], 
-                                exp_id[m_REGION_INDEX],
-                                exp_id[m_ETA_INDEX],
-                                exp_id[m_PHI_INDEX]);
-}
-
-//----------------------------------------------------------------------------
-inline Identifier 
-LArEM_Base_ID::disc_channel_id   ( int barrel_ec, int sampling, int region,
-                                   int eta,       int phi ) const 
-{  
-    // Do checks
-    if(m_do_checks) {
-      disc_channel_id_checks( barrel_ec, sampling, region, eta, phi );
-    }
-
-    Identifier result(0);
-    // Pack fields independently
-    m_lar_impl.pack      (lar_field_value(),    result);
-    m_em_impl.pack       (-1,                   result);
-    m_bec_impl.pack      (barrel_ec,            result);
-    m_sampling_impl.pack (sampling,             result);
-    m_region_impl.pack   (region,               result);
-    m_eta_impl.pack      (eta,                  result);
-    m_phi_impl.pack      (phi,                  result);
-    m_slar_impl.pack     (m_slar,               result);
-
-    return result;
-}
 
 //----------------------------------------------------------------------------
 inline Identifier 
@@ -159,11 +103,7 @@ LArEM_Base_ID::channel_id   ( const Identifier regionId,
 {
     // Do checks
     if(m_do_checks) {
-      if(is_connected(regionId)) {
-	channel_id_checks( regionId, eta, phi );
-      } else {
-	disc_channel_id_checks( regionId, eta, phi );
-      }
+        channel_id_checks( regionId, eta, phi );
     }
 
     Identifier result(regionId);
@@ -179,18 +119,6 @@ LArEM_Base_ID::channel_id   ( const Identifier regionId,
 }
 
 //----------------------------------------------------------------------------
-inline bool LArEM_Base_ID::is_connected(const IdentifierHash hashId) const
-{
-  return ( hashId < channels().hash_max() );
-}
-
-//----------------------------------------------------------------------------
-inline bool LArEM_Base_ID::is_connected(const Identifier channelId) const
-{
-    return ( m_em_impl.unpack(channelId) == 1 );
-}
-
-//----------------------------------------------------------------------------
 inline IdentifierHash LArEM_Base_ID::channel_hash (Identifier channelId) const
 {
     const HashCalc& hc = m_hash_calcs[m_bec_reg_impl.unpack(channelId)];
@@ -202,44 +130,6 @@ inline IdentifierHash LArEM_Base_ID::channel_hash (Identifier channelId) const
 inline IdentifierHash LArEM_Base_ID::channel_hash_binary_search  (Identifier channelId) const
 {
   return CaloIDHelper::channel_hash (channelId);
-}
-
-//----------------------------------------------------------------------------
-inline Identifier LArEM_Base_ID::disc_channel_id    (IdentifierHash disc_channel_hash_id) const
-{
-  if(disc_channel_hash_id < channels().hash_max()) {
-    return channel_id (disc_channel_hash_id);
-  }
-  else {
-    return m_disc_channels.id (disc_channel_hash_id - channels().hash_max());
-  }
-}
-
-//----------------------------------------------------------------------------
-inline IdentifierHash LArEM_Base_ID::disc_channel_hash (Identifier disc_channel_id) const
-{
-  if (is_connected(disc_channel_id)) {
-    const HashCalc& hc = m_hash_calcs[m_bec_reg_impl.unpack(disc_channel_id)];
-    return (hc.m_hash + (eta(disc_channel_id)-hc.m_etamin)*hc.m_nphi + phi(disc_channel_id)-hc.m_phimin );
-  }
-  else {
-    IdentifierHash hash = m_disc_channels.hash (disc_channel_id);
-    if (hash.is_valid())
-      hash += channels().hash_max();
-    return hash;
-  }
-}
-
-//----------------------------------------------------------------------------
-inline LArEM_Base_ID::size_type     LArEM_Base_ID::disc_channel_hash_max (void) const
-{
-  return channels().hash_max() + m_disc_channels.hash_max();
-}
-
-//----------------------------------------------------------------------------
-inline LArEM_Base_ID::size_type     LArEM_Base_ID::disc_channel_hash_min (void) const
-{
-  return channels().hash_max();
 }
 
 //----------------------------------------------------------------------------
@@ -276,24 +166,6 @@ inline LArEM_Base_ID::id_iterator LArEM_Base_ID::em_end      (void) const
 inline LArEM_Base_ID::id_range LArEM_Base_ID::em_range      (void) const
 {
   return channels().range();
-}
-
-//----------------------------------------------------------------------------
-inline LArEM_Base_ID::id_iterator LArEM_Base_ID::disc_em_begin    (void) const
-{
-  return m_disc_channels.begin();
-}
-
-//----------------------------------------------------------------------------
-inline LArEM_Base_ID::id_iterator LArEM_Base_ID::disc_em_end      (void) const
-{
-  return m_disc_channels.end();
-}
-
-//----------------------------------------------------------------------------
-inline LArEM_Base_ID::id_range LArEM_Base_ID::disc_em_range      (void) const
-{
-  return m_disc_channels.range();
 }
 
 //----------------------------------------------------------------------------
@@ -347,16 +219,14 @@ inline int LArEM_Base_ID::region(const Identifier id)const
 //----------------------------------------------------------------------------
 inline int LArEM_Base_ID::eta(const Identifier id)const
 {
-  int result = -999 ;
-  if(is_connected(id)) result = m_eta_impl.unpack(id);
+  int result = m_eta_impl.unpack(id);
   return(result);
 }
 
 //----------------------------------------------------------------------------
 inline int LArEM_Base_ID::phi(const Identifier id)const
 {
-  int result = -999 ;
-  if(is_connected(id)) result = m_phi_impl.unpack(id);
+  int result = m_phi_impl.unpack(id);
   return(result);
 }
 
