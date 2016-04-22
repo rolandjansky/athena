@@ -12,7 +12,6 @@
 #include "FadsKinematics/FadsGenerator.h"
 #include "FadsKinematics/VertexManipulator.h"
 #include "FadsKinematics/ParticleManipulator.h"
-#include "FadsKinematics/G4EventAnalyzer.h"
 #include "FadsKinematics/HepMCEventConverter.h"
 
 #include "G4Event.hh"
@@ -29,122 +28,117 @@
 #include "HepMC/GenVertex.h"
 
 #include <iostream>
- 
+
 namespace FADS {
- 
-// ====================================================================
-//
-// class description
-//
-// ====================================================================
 
-GeneratorCenter* GeneratorCenter::thePointer=GeneratorCenter::GetGeneratorCenter();
+  // ====================================================================
+  //
+  // class description
+  //
+  // ====================================================================
 
-GeneratorCenter::GeneratorCenter()
-  : currentGenerator(0), hepmcEvent(0), eventIsDeleted(true), hepmcCollection("GEN_EVENT") , m_IncludeParentsInG4Event(false), m_randomnumberservice("AtRndmGenSvc")
-{
-  HepMCconverter= new HepMCEventConverter;
-}
+  GeneratorCenter* GeneratorCenter::m_thePointer=GeneratorCenter::GetGeneratorCenter();
 
-void GeneratorCenter::SetHepMCEventConverter(const HepMCEventConverter* hc)
-{
-	// check if, by chance, they're one and the same
-	if (hc==HepMCconverter) return ;
-	delete HepMCconverter;
-	HepMCconverter=hc;
-}
-
-GeneratorCenter::~GeneratorCenter()
-{
-  if(hepmcEvent) delete hepmcEvent;  
-  if(HepMCconverter) delete HepMCconverter;
-}
-
-GeneratorCenter* GeneratorCenter::GetGeneratorCenter()
-{
-  if (!thePointer) thePointer=new  GeneratorCenter;
-  return thePointer;
-}
-
-void GeneratorCenter::RegisterGenerator(FadsGenerator* g)
-{
-  generatorCatalog[g->GetName()]=g;
-}
-
-void GeneratorCenter::SelectGenerator(std::string n)
-{
-  if (generatorCatalog.find(n)==generatorCatalog.end()) {
-    std::cout<<" GeneratorCenter Warning!!! Generator "<<n
-	     <<" not found!!!!"<<std::endl;
-    return;
-  }
-  //if (currentGenerator && n==currentGenerator->GetName()) return;
-  if (currentGenerator) currentGenerator->Terminate();
-  currentGenerator=generatorCatalog[n];
-  currentGenerator->Create();
-  //currentGenerator->Initialize();
-}
-
-void GeneratorCenter::InitializeGenerator()
-{
-  currentGenerator->Initialize();
-}
-
-void GeneratorCenter::PrintGeneratorList()
-{
-  genMap::const_iterator it;
-  std::cout<<" List of Kinematics Generators available: "<<std::endl;
-  for (it=generatorCatalog.begin();it!=generatorCatalog.end();++it)
-    std::cout<<"\t---> "<<(*it).first<<"\t\t<---"<<std::endl;
-  std::cout<<" <--------------------------------------->"<<std::endl;
-}
-
-void GeneratorCenter::AddVertexManipulator(VertexManipulator* v)
-{
-  vertexMod[v->GetName()]=v;
-}
-
-void GeneratorCenter::AddParticleManipulator(ParticleManipulator* v)
-{
-  particleMod[v->GetName()]=v;
-}
-
-void GeneratorCenter::AddEventAnalyzer(G4EventAnalyzer *v)
-{
-  evtAnalyses[v->GetName()]=v;
-}
-
-///////////////////////////////////////////////////////
-void GeneratorCenter::GenerateAnEvent(G4Event* anEvent)
-///////////////////////////////////////////////////////
-{  
-  if (currentGenerator==0){
-    std::cout<<"GeneratorCenter: Something wrong - no generator assigned!!!!"<<std::endl;
-    G4RunManager::GetRunManager()-> AbortRun();
-    return;
+  GeneratorCenter::GeneratorCenter()
+    : m_currentGenerator(0), m_hepmcEvent(0), m_eventIsDeleted(true), m_IncludeParentsInG4Event(false)
+  {
+    m_HepMCconverter= new HepMCEventConverter;
   }
 
-  // clear previous event
-  if (eventIsDeleted) delete hepmcEvent; // delete previous HepMC event
-//  g4primary2genMap.clear();
-
-  // generate next event
-  hepmcEvent = currentGenerator-> GenerateAnEvent();
-  if(! hepmcEvent) {
-    G4cout << "GeneratorCenter: no generated particles. run terminated..." 
-           << G4endl;
-    G4RunManager::GetRunManager()-> AbortRun();
-    return;
+  void GeneratorCenter::SetHepMCEventConverter(const HepMCEventConverter* hc)
+  {
+    // check if, by chance, they're one and the same
+    if (hc==m_HepMCconverter) return ;
+    delete m_HepMCconverter;
+    m_HepMCconverter=hc;
   }
-  HepMC2G4(hepmcEvent, anEvent);
-}
+
+  GeneratorCenter::~GeneratorCenter()
+  {
+    if(m_hepmcEvent) delete m_hepmcEvent;
+    if(m_HepMCconverter) delete m_HepMCconverter;
+  }
+
+  GeneratorCenter* GeneratorCenter::GetGeneratorCenter()
+  {
+    if (!m_thePointer) m_thePointer=new  GeneratorCenter;
+    return m_thePointer;
+  }
+
+  void GeneratorCenter::RegisterGenerator(FadsGenerator* g)
+  {
+    m_generatorCatalog[g->GetName()]=g;
+  }
+
+  void GeneratorCenter::SelectGenerator(std::string n)
+  {
+    if (m_generatorCatalog.find(n)==m_generatorCatalog.end()) {
+      std::cout<<" GeneratorCenter Warning!!! Generator "<<n
+               <<" not found!!!!"<<std::endl;
+      return;
+    }
+    //if (m_currentGenerator && n==m_currentGenerator->GetName()) return;
+    if (m_currentGenerator) m_currentGenerator->Terminate();
+    m_currentGenerator=m_generatorCatalog[n];
+    m_currentGenerator->Create();
+    //m_currentGenerator->Initialize();
+  }
+
+  void GeneratorCenter::InitializeGenerator()
+  {
+    m_currentGenerator->Initialize();
+  }
+
+  void GeneratorCenter::PrintGeneratorList()
+  {
+    genMap::const_iterator it;
+    std::cout<<" List of Kinematics Generators available: "<<std::endl;
+    for (it=m_generatorCatalog.begin();it!=m_generatorCatalog.end();++it)
+      std::cout<<"\t---> "<<(*it).first<<"\t\t<---"<<std::endl;
+    std::cout<<" <--------------------------------------->"<<std::endl;
+  }
+
+  void GeneratorCenter::AddVertexManipulator(VertexManipulator* v)
+  {
+    m_vertexMod[v->GetName()]=v;
+  }
+
+  void GeneratorCenter::AddParticleManipulator(ParticleManipulator* v)
+  {
+    m_particleMod[v->GetName()]=v;
+  }
+
+  ///////////////////////////////////////////////////////
+  void GeneratorCenter::GenerateAnEvent(G4Event* anEvent)
+  ///////////////////////////////////////////////////////
+  {
+    if (m_currentGenerator==0){
+      std::cout<<"GeneratorCenter: Something wrong - no generator assigned!!!!"<<std::endl;
+      G4RunManager::GetRunManager()->AbortRun();
+      return;
+    }
+
+    // clear previous event
+    if (m_eventIsDeleted) delete m_hepmcEvent; // delete previous HepMC event
+    //  g4primary2genMap.clear();
+
+    // generate next event
+    m_hepmcEvent = m_currentGenerator->GenerateAnEvent();
+    if(!m_hepmcEvent) {
+      G4cout << "GeneratorCenter: no generated particles. run terminated..."
+             << G4endl;
+      G4RunManager::GetRunManager()->AbortRun();
+      return;
+    }
+    HepMC2G4(m_hepmcEvent, anEvent);
+  }
 
 
-////////////////////////////////////////////////////////////////////////////
-void GeneratorCenter::HepMC2G4(const HepMC::GenEvent* evt, G4Event* anEvent)
-////////////////////////////////////////////////////////////////////////////
-{
-	HepMCconverter->HepMC2G4(evt,anEvent,m_IncludeParentsInG4Event);
-}
+  ////////////////////////////////////////////////////////////////////////////
+  void GeneratorCenter::HepMC2G4(const HepMC::GenEvent* evt, G4Event* anEvent)
+  ////////////////////////////////////////////////////////////////////////////
+  {
+    m_HepMCconverter->HepMC2G4(evt,anEvent,m_IncludeParentsInG4Event);
+  }
 
-}	// end namespace
+} // end namespace
