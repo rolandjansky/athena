@@ -3,7 +3,7 @@
 import os, re, shutil, sys
 import Tools
 
-def CreateWebPage( List, InputTemplate, OutputFile ):
+def CreateWebPage( Name, List, InputTemplate, OutputFile ):
   Prefix = set()
   Variables = set()
   Levels = set()
@@ -20,7 +20,7 @@ def CreateWebPage( List, InputTemplate, OutputFile ):
       Prefix.add( os.path.basename( Split[ 0 ] ) )
       Variables.add( Split[ 1 ] )
       Levels.add( Split[ 2 ] )
-  if not Prefix: return ''
+  if not Name in Prefix: return ''
   #####
   File = open( OutputFile, 'w' ) 
   replacing = '<select id="VARIABLES" onchange="update()" onload="update()" multiple>\n'
@@ -31,7 +31,7 @@ def CreateWebPage( List, InputTemplate, OutputFile ):
   #####
   replacing += '<select id="LEVEL" onchange="update()" onload="update()" multiple>\n'
   replacing += '<option value="none" disabled="disabled">Choose the level(s)</option>\n'
-  for Level in Tools.NatSorted( list( Levels ) ):
+  for Level in Levels:
     replacing += '<option value="%s">%s</option>\n' % ( Level, Level )
   replacing += '</select>\n'
   #####
@@ -54,9 +54,9 @@ def CreateWebPage( List, InputTemplate, OutputFile ):
   replacing += '    for( var j = 0; j < levels.length; j++ ) {\n'
   if Regions:
     replacing += '      for( var k = 0; k < regions.length; k++ ) {\n'
-    replacing += '        var plot_name = "plots/%s___" + regions[ k ] + "___" + variables[ i ] + "___" + levels[ j ] + ".png"\n' % list( Prefix )[ 0 ]
+    replacing += '        var plot_name = "plots/%s___" + regions[ k ] + "___" + variables[ i ] + "___" + levels[ j ] + ".png"\n' % Name #list( Prefix )[ 0 ]
   else:
-    replacing += '        var plot_name = "plots/%s___" + variables[ i ] + "___" + levels[ j ] + ".png"\n' % list( Prefix )[ 0 ]
+    replacing += '        var plot_name = "plots/%s___" + variables[ i ] + "___" + levels[ j ] + ".png"\n' % Name #list( Prefix )[ 0 ]
   replacing += '        document.getElementById( "myfigure" ).innerHTML += \'<img src="\' + plot_name + \'" alt="\' + plot_name + \'" height=400px>\';\n'
   if Regions:
     replacing += '      }\n'

@@ -84,7 +84,8 @@ bool Regions::LoadConfiguration( TString name, TString root_file_name ) {
           else if( ( unsigned int ) i == ( m_Variables.size() * 2 ) + 1 ) tempInfo->Order = TempString.Atoi();
           else {
             std::cerr << "Wrong formatting of file: too many entries on a row!" << std::endl;
-            delete tempInfo; tempInfo=NULL;
+            delete tempInfo; 
+            tempInfo = NULL;
             return kFALSE;
           }
         }

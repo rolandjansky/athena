@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Reader_h
-#define Reader_h
+#ifndef Reweighting_h
+#define Reweighting_h
 
 #include <vector>
 
@@ -13,13 +13,13 @@
 #include <TFile.h>
 #include <TSelector.h>
 #include <TH2.h>
+#include <TMath.h>
+#include <TLorentzVector.h>
 #include <TStyle.h>
 
-#include "MuonCalibrationFit/ProgressBar.h"
-#include "MuonCalibrationFit/GRLReader.h"
-#include "MuonCalibrationFit/Tools.h"
+#define MuonMass 0.10565837 
 
-class Reader : public TSelector {
+class Reweighting : public TSelector {
 public :
   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
   //::: Declaration of leaf types
@@ -81,7 +81,6 @@ public :
   Int_t           Neg_EnergyLossType;
   Int_t           Neg_PrimarySector;
   Int_t           Neg_SecondarySector;
-
   //::: List of branches
   TBranch        *b_RunNumber;   //!
   TBranch        *b_EvtNumber;   //!
@@ -142,49 +141,19 @@ public :
   TBranch        *b_Neg_PrimarySector;   //!
   TBranch        *b_Neg_SecondarySector;   //!
   //:::
-  int          m_type;
-  TString      m_GRL_Name;
-  Long_t       m_N_events;
-  Bool_t       m_detector;
-  Bool_t       m_usePB;
-  Float_t      m_MinMuonsPtForJpsi;
-  Float_t      m_MaxMuonsPtForJpsi;
-  Float_t      m_MinLeadingMuonPtForZ;
-  Float_t      m_MinSubLeadingMuonPtForZ;
-  std::vector< Tools::RegionInfo* > m_AllRegInfo;
-  std::vector< Tools::RegionInfo* > m_IDRegInfo;
-  Tools::RegionInfo* m_RegInfo;
-  Tools::RegionInfo* m_RegInfoForPos;
-  Tools::RegionInfo* m_RegInfoForNeg;
-  Tools::RegionInfo* m_IDRegInfoForPos;
-  Tools::RegionInfo* m_IDRegInfoForNeg;
-  std::vector< Tools::Info >* m_SingleInfo; 
-  std::vector< Tools::Info >* m_BothInfo; 
-  Long_t       m_entry;
-  GRLReader*   m_GRL;
-  ProgressBar* m_prog;
-  TRandom3*    m_random;
-  TString      m_JpsiRewFileName;
-  TString      m_ZRewFileName;
-  Bool_t       m_PreviousCorrectionsForAll;
-  TFile*       m_JpsiRewFile;
-  //TH2F*        m_JpsiRewHist;
-  //TH2F*        m_JpsiRewHistDummy;
-  TH1F*        m_JpsiRewHist;
-  TH1F*        m_JpsiRewHistDummy;
-  TFile*       m_ZRewFile;
-  //TH2F*        m_ZRewHist;
-  //TH2F*        m_ZRewHistDummy;
-  TH1F*        m_ZRewHist;
-  TH1F*        m_ZRewHistDummy;
-  Bool_t       m_Print;
+  TFile* m_Input;
+  TH2F*  m_RewHistPt;
+  TH2F*  m_RewHistPtDummy;
+  TFile* m_Output;
+  TTree* m_Tree;
+  Int_t m_Type;
+  Float_t m_Weight;
+  Float_t m_Lead_Pt, m_Lead_Eta, m_Lead_Phi;
+  Float_t m_Sub_Pt, m_Sub_Eta, m_Sub_Phi;
+  Float_t m_Pair_Pt, m_Pair_Eta, m_Pair_Phi, m_Pair_Mass, m_Pair_y, m_Pair_Theta, m_Pair_CosTheta, m_Pair_DeltaR, m_Pair_DeltaPhi;
   //:::
-  std::map< int, int > m_Jpsi_Counter;
-  std::map< int, int > m_Z_Counter;
-  //:::
-  Reader( TTree * /*tree*/ = 0 ) : fChain( 0 ) { m_SingleInfo = NULL; m_BothInfo = NULL; }
-  Reader( int type, TString grl_name, Long_t n, Bool_t detector, Bool_t pb, Float_t min_pt_cut_jpsi, Float_t max_pt_cut_jpsi, Float_t min_pt_cut_leadZ, Float_t min_pt_cut_subleadZ, std::vector< Tools::RegionInfo* > vec_reg, std::vector< Tools::RegionInfo* > vec_reg_ID, Tools::RegionInfo* reg, std::vector< Tools::Info >* vec_info_single, std::vector< Tools::Info >* vec_info_double, TString jpsi_rew_file_name, TString z_rew_file_name, Bool_t correct_all ) : fChain( 0 ), m_type( type ), m_GRL_Name( grl_name ), m_N_events( n ), m_detector( detector ), m_usePB( pb ), m_MinMuonsPtForJpsi( min_pt_cut_jpsi ), m_MaxMuonsPtForJpsi( max_pt_cut_jpsi ), m_MinLeadingMuonPtForZ( min_pt_cut_leadZ ), m_MinSubLeadingMuonPtForZ( min_pt_cut_subleadZ ), m_AllRegInfo( vec_reg ), m_IDRegInfo( vec_reg_ID ), m_RegInfo( reg ), m_SingleInfo( vec_info_single ), m_BothInfo( vec_info_double ), m_JpsiRewFileName( jpsi_rew_file_name ), m_ZRewFileName( z_rew_file_name ), m_PreviousCorrectionsForAll( correct_all ) { }
-  virtual ~Reader() { }
+  Reweighting( TTree * /*tree*/ = 0 ) : fChain( 0 ) {}; 
+  virtual ~Reweighting() { }
   virtual Int_t   Version() const { return 2; }
   virtual void    Begin( TTree *tree );
   virtual void    SlaveBegin( TTree *tree );
@@ -198,34 +167,13 @@ public :
   virtual TList  *GetOutputList() const { return fOutput; }
   virtual void    SlaveTerminate();
   virtual void    Terminate();
+  Float_t GetWeight( Float_t varX, Float_t varY );
   //:::
-  void BeginFirstEvent();
-  void SetType( int val ) { m_type = val; }
-  void SetAllRegionInfo( std::vector< Tools::RegionInfo* > r ) { m_AllRegInfo = r; }
-  void SetIDRegionInfo( std::vector< Tools::RegionInfo* > r ) { m_IDRegInfo = r; }
-  void SetRegionInfo( Tools::RegionInfo* r ) { m_RegInfo = r; }
-  void SetSingleInfo( std::vector< Tools::Info >* v ) { m_SingleInfo = v; }
-  void SetBothInfo( std::vector< Tools::Info >* v ) { m_BothInfo = v; }
-  void SetNEvents( Long_t n ) { m_N_events = n; }
-  void UseProgressBar( Bool_t val ) { m_usePB = val; }
-  //:::
-  std::vector< Tools::RegionInfo* > GetAllRegionInfo() { return m_AllRegInfo; }
-  //:::
-  Float_t Correct( Float_t pt, Float_t r0, Float_t add, Tools::RegionInfo* rI );
-  //:::
-  //Float_t GetWeight( Float_t pair_mass, Float_t pair_pt, Float_t pair_y );
-  Float_t GetWeight( Float_t pair_mass, Float_t eta1, Float_t eta2 );
-  //:::
-  void Add( std::vector< Tools::Info >* info_vec, Tools::Info info );
-  //:::
-  void FillCounter( int Key, std::map< int, int >& Map );
-  void PrintCounter( TString name, std::map< int, int > Map );
-  //ClassDef( Reader, 0 );
 };
 #endif
 
-#ifdef Reader_cxx
-void Reader::Init( TTree *tree ) {
+#ifdef Reweighting_cxx
+void Reweighting::Init( TTree *tree ) {
   if ( !tree ) return;
   fChain = tree;
   fChain->SetMakeClass( 1 );
@@ -289,8 +237,8 @@ void Reader::Init( TTree *tree ) {
   fChain->SetBranchAddress( "Neg_SecondarySector", &Neg_SecondarySector, &b_Neg_SecondarySector );
 }
 
-Bool_t Reader::Notify( ) {
+Bool_t Reweighting::Notify( ) {
   return kTRUE;
 }
 
-#endif // #ifdef Reader_cxx
+#endif // #ifdef Reweighting_cxx
