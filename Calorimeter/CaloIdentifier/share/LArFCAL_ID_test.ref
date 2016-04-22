@@ -15,8 +15,6 @@ is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffff
  initialize_from_dict : 
  channel range -> 4/3/-2,2/1/0:62/0:15/0 | 4/3/-2,2/2/0:29/0,7,8,15/0 | 4/3/-2,2/2/0:30/3,4,11,12/0 | 4/3/-2,2/2/0:31/1,2,5,6,9,10,13,14/0 | 4/3/-2,2/3/0:14/2,10/0 | 4/3/-2,2/3/0:14/0,1,3,4,5,6,7,8,9,11,12,13,14,15/0 | 4/3/-2,2/3/15/0,1,2,3,4,6,7,8,9,10,11,12,14,15/0
  module range -> 4/3/-2,2/1 | 4/3/-2,2/2 | 4/3/-2,2/3
- disconnected channel range -> 4/-3/-2,2/1/63/0:15 | 4/-3/-2,2/2/30:31/0,7,8,15 | 4/-3/-2,2/2/31/3,4,11,12 | 4/-3/-2,2/3/15/5,13
- disconnected module range -> 4/-3/-2,2/1 | 4/-3/-2,2/2 | 4/-3/-2,2/3
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
@@ -34,12 +32,10 @@ is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffff
  initialize_from_dict : 
  channel range -> 4/3/-2,2/1/0:62/0:15/0 | 4/3/-2,2/2/0:29/0,7,8,15/0 | 4/3/-2,2/2/0:30/3,4,11,12/0 | 4/3/-2,2/2/0:31/1,2,5,6,9,10,13,14/0 | 4/3/-2,2/3/0:14/2,10/0 | 4/3/-2,2/3/0:14/0,1,3,4,5,6,7,8,9,11,12,13,14,15/0 | 4/3/-2,2/3/15/0,1,2,3,4,6,7,8,9,10,11,12,14,15/0
  module range -> 4/3/-2,2/1 | 4/3/-2,2/2 | 4/3/-2,2/3
- disconnected channel range -> 4/-3/-2,2/1/63/0:15 | 4/-3/-2,2/2/30:31/0,7,8,15 | 4/-3/-2,2/2/31/3,4,11,12 | 4/-3/-2,2/3/15/5,13
- disconnected module range -> 4/-3/-2,2/1 | 4/-3/-2,2/2 | 4/-3/-2,2/3
 LarFCal_Base_ID::init_neighbours 
-LArFCAL_Base_ID      INFO Reading file /home/sss/atlas/supercell2/build/share/FCal2DNeighbors-DC3-05-Comm-01.txt
-LArFCAL_Base_ID      INFO Reading file /home/sss/atlas/supercell2/build/share/FCal3DNeighborsNext-DC3-05-Comm-01.txt
-LArFCAL_Base_ID      INFO Reading file /home/sss/atlas/supercell2/build/share/FCal3DNeighborsPrev-DC3-05-Comm-01.txt
+LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/work/s/schaffer/public/work-20.x.64bitIdFix_1/InstallArea/share/FCal2DNeighbors-DC3-05-Comm-01.txt
+LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/work/s/schaffer/public/work-20.x.64bitIdFix_1/InstallArea/share/FCal3DNeighborsNext-DC3-05-Comm-01.txt
+LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/work/s/schaffer/public/work-20.x.64bitIdFix_1/InstallArea/share/FCal3DNeighborsPrev-DC3-05-Comm-01.txt
 LarFCal_Base_ID::init_neighbours status: 0
 test_basic
 [4.3.2.1.1.1.0] hex(3602200000000000)
@@ -58,9 +54,6 @@ Module [4.3.2.1.0.0.0]    eta: 3.200000 0.025000 0  62 phi: 0.0 0.392699 0  15
 Module [4.3.2.2.0.0.0]    eta: 3.200000 0.050000 0  31 phi: 0.0 0.392699 0  15
 Module [4.3.2.3.0.0.0]    eta: 3.200000 0.100000 0  15 phi: 0.0 0.392699 0  15
   Module counts: 2016 1000 508 ; total: 3524
-test_disco
-  nchan 60
-  Module counts: 32 24 4 ; total: 60
 test_exeptions
 Exception 1: LArID_Exception - Error code: 6 
  LArFCAL_Base_ID::module_id() result is not OK: ID, range = 4/3/0/99 , 4/3/-2,2/1 | 4/3/-2,2/2 | 4/3/-2,2/3

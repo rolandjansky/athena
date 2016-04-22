@@ -18,7 +18,7 @@
 #include "calocell_id_test_common.cxx"
 
 
-CaloCell_SuperCell_ID* make_calo_id ()
+std::unique_ptr<CaloCell_SuperCell_ID> make_calo_id ()
 {
   return make_calo_id_t<CaloCell_SuperCell_ID,
                         LArEM_SuperCell_ID,
@@ -30,13 +30,13 @@ CaloCell_SuperCell_ID* make_calo_id ()
 
 int main()
 {
-  CaloCell_SuperCell_ID* calo_id = make_calo_id();
+  std::unique_ptr<CaloCell_SuperCell_ID> calo_id = make_calo_id();
   try {
-    test_cells (calo_id, true);
-    test_sample (calo_id, true);
-    test_subcalo (calo_id);
-    test_regions (calo_id);
-    test_exceptions (calo_id);
+    test_cells (*calo_id, true);
+    test_sample (*calo_id, true);
+    test_subcalo (*calo_id);
+    test_regions (*calo_id);
+    test_exceptions (*calo_id);
   }
   catch(LArID_Exception & except){
     std::cout << "Unexpected exception: " << (std::string) except << std::endl ;

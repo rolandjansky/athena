@@ -40,7 +40,7 @@ LArHEC_Base_ID::region_id (int pos_neg, int sampling, int region) const
 {
     // Do checks 
     if(m_do_checks) {
-	region_id_checks ( pos_neg, sampling, region );
+        region_id_checks ( pos_neg, sampling, region );
     }
 
     Identifier result(0);
@@ -63,79 +63,13 @@ LArHEC_Base_ID::channel_id   ( int pos_neg, int sampling, int region,
 {  
     // Do checks 
     if(m_do_checks) {
-	channel_id_checks( pos_neg, sampling, region, eta, phi );
+        channel_id_checks( pos_neg, sampling, region, eta, phi );
     }
 
     Identifier result(0);
     // Pack fields independently
     m_lar_impl.pack      (lar_field_value(),    result);
     m_hec_impl.pack      (lar_hec_field_value(),result);
-    m_pn_impl.pack       (pos_neg,              result);
-    m_sampling_impl.pack (sampling,             result);
-    m_region_impl.pack   (region,               result);
-    m_eta_impl.pack      (eta,                  result);
-    m_phi_impl.pack      (phi,                  result);
-    m_slar_impl.pack     (m_slar,               result);
-
-    return result;
-}
-
-//----------------------------------------------------------------------------
-inline Identifier 
-LArHEC_Base_ID::disc_region_id (const ExpandedIdentifier& exp_id) const 
-{
-  return this->disc_region_id   ( exp_id[m_POSNEG_INDEX],
-                                  exp_id[m_SAMPLING_INDEX], 
-                                  exp_id[m_REGION_INDEX] );
-}
-
-//----------------------------------------------------------------------------
-inline Identifier 
-LArHEC_Base_ID::disc_channel_id (const ExpandedIdentifier& exp_id) const 
-{
-  return this->disc_channel_id (exp_id[m_POSNEG_INDEX],
-                                exp_id[m_SAMPLING_INDEX], 
-                                exp_id[m_REGION_INDEX],
-                                exp_id[m_ETA_INDEX],
-                                exp_id[m_PHI_INDEX]);
-}
-
-//----------------------------------------------------------------------------
-inline Identifier 
-LArHEC_Base_ID::disc_region_id (int pos_neg, int sampling, int region) const 
-{
-    // Do checks 
-    if(m_do_checks) {
-	disc_region_id_checks ( pos_neg, sampling, region );
-    }
-
-    Identifier result(0);
-
-    // Pack fields independently
-    m_lar_impl.pack      (lar_field_value(),    result);
-    m_hec_impl.pack      (-2                   ,result);  // fix me !!!
-    m_pn_impl.pack       (pos_neg,              result);
-    m_sampling_impl.pack (sampling,             result);
-    m_region_impl.pack   (region,               result);
-    m_slar_impl.pack     (m_slar,               result);
-
-    return result;
-}
-
-//----------------------------------------------------------------------------
-inline Identifier 
-LArHEC_Base_ID::disc_channel_id   ( int pos_neg, int sampling, int region,
-                                    int eta,     int phi ) const 
-{  
-    // Do checks 
-    if(m_do_checks) {
-	disc_channel_id_checks( pos_neg, sampling, region, eta, phi );
-    }
-
-    Identifier result(0);
-    // Pack fields independently
-    m_lar_impl.pack      (lar_field_value(),    result);
-    m_hec_impl.pack      (-2                   ,result);  // fix me !!!
     m_pn_impl.pack       (pos_neg,              result);
     m_sampling_impl.pack (sampling,             result);
     m_region_impl.pack   (region,               result);
@@ -166,11 +100,7 @@ LArHEC_Base_ID::channel_id   ( const Identifier regionId,
 {
     // Do checks 
     if(m_do_checks) {
-      if(is_connected(regionId)) {
-	channel_id_checks( regionId, eta, phi );
-      } else {
-	disc_channel_id_checks( regionId, eta, phi );
-      }
+      channel_id_checks( regionId, eta, phi );
     }
 
     Identifier result(regionId);
@@ -186,18 +116,6 @@ LArHEC_Base_ID::channel_id   ( const Identifier regionId,
 }
 
 //----------------------------------------------------------------------------
-inline bool LArHEC_Base_ID::is_connected(const IdentifierHash hashId) const
-{
-  return ( hashId < channel_hash_max() );
-}
-
-//----------------------------------------------------------------------------
-inline bool LArHEC_Base_ID::is_connected(const Identifier channelId) const
-{
-    return ( m_hec_impl.unpack(channelId) == 2 );
-}
-
-//----------------------------------------------------------------------------
 inline IdentifierHash LArHEC_Base_ID::channel_hash (Identifier channelId) const
 {
     const HashCalc& hc = m_hash_calcs[m_pn_reg_impl.unpack(channelId)];
@@ -209,44 +127,6 @@ inline IdentifierHash LArHEC_Base_ID::channel_hash (Identifier channelId) const
 inline IdentifierHash LArHEC_Base_ID::channel_hash_binary_search  (Identifier channelId) const
 {
   return CaloIDHelper::channel_hash (channelId);
-}
-
-//----------------------------------------------------------------------------
-inline Identifier LArHEC_Base_ID::disc_channel_id    (IdentifierHash disc_channel_hash_id) const
-{
-  if(disc_channel_hash_id < channels().hash_max()) {
-    return channel_id (disc_channel_hash_id);
-  }
-  else {
-    return m_disc_channels.id (disc_channel_hash_id - channels().hash_max());
-  }
-}
-
-//----------------------------------------------------------------------------
-inline IdentifierHash LArHEC_Base_ID::disc_channel_hash (Identifier discChannelId) const
-{
-  if (is_connected(discChannelId)) {
-    const HashCalc& hc = m_hash_calcs[m_pn_reg_impl.unpack(discChannelId)];
-    return (hc.m_hash + (eta(discChannelId)-hc.m_etamin)*hc.m_nphi + phi(discChannelId)-hc.m_phimin);
-  }
-  else {
-    IdentifierHash hash = m_disc_channels.hash (discChannelId);
-    if (hash.is_valid())
-      hash += channels().hash_max();
-    return hash;
-  }
-}
-
-//----------------------------------------------------------------------------
-inline LArHEC_Base_ID::size_type LArHEC_Base_ID::disc_channel_hash_max () const
-{
-  return channel_hash_max() + m_disc_channels.hash_max();
-}
-
-//----------------------------------------------------------------------------
-inline LArHEC_Base_ID::size_type LArHEC_Base_ID::disc_channel_hash_min () const
-{
-  return channel_hash_max();
 }
 
 //----------------------------------------------------------------------------
@@ -286,42 +166,6 @@ inline LArHEC_Base_ID::id_range LArHEC_Base_ID::hec_range      (void) const
 }
 
 //----------------------------------------------------------------------------
-inline LArHEC_Base_ID::id_iterator LArHEC_Base_ID::disc_hec_begin () const
-{
-  return m_disc_channels.begin();
-}
-
-//----------------------------------------------------------------------------
-inline LArHEC_Base_ID::id_iterator LArHEC_Base_ID::disc_hec_end () const
-{
-  return m_disc_channels.end();
-}
-
-//----------------------------------------------------------------------------
-inline LArHEC_Base_ID::id_range LArHEC_Base_ID::disc_hec_range () const
-{
-  return m_disc_channels.range();
-}
-
-//----------------------------------------------------------------------------
-inline LArHEC_Base_ID::id_iterator LArHEC_Base_ID::disc_reg_begin () const
-{
-  return m_disc_regions.begin();
-}
-
-//----------------------------------------------------------------------------
-inline LArHEC_Base_ID::id_iterator LArHEC_Base_ID::disc_reg_end () const
-{
-  return m_disc_regions.end();
-}
-
-//----------------------------------------------------------------------------
-inline LArHEC_Base_ID::id_range LArHEC_Base_ID::disc_reg_range () const
-{
-  return m_disc_regions.range();
-}
-
-//----------------------------------------------------------------------------
 inline const std::vector<Identifier>& LArHEC_Base_ID::channel_ids() const
 {
   return channels().ids();
@@ -354,16 +198,14 @@ inline int LArHEC_Base_ID::region(const Identifier id)const
 //----------------------------------------------------------------------------
 inline int LArHEC_Base_ID::eta(const Identifier id)const
 {
-  int result = -999 ;
-  if(is_connected(id)) result = m_eta_impl.unpack(id);
+  int result = m_eta_impl.unpack(id);
   return(result);
 }
 
 //----------------------------------------------------------------------------
 inline int LArHEC_Base_ID::phi(const Identifier id)const
 {
-  int result = -999 ;
-  if(is_connected(id)) result = m_phi_impl.unpack(id);
+  int result = m_phi_impl.unpack(id);
   return(result);
 }
 

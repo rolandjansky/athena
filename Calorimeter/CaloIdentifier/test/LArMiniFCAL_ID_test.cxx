@@ -14,10 +14,12 @@
 
 #include "CaloIdentifier/LArMiniFCAL_ID.h"
 #include "IdDictParser/IdDictParser.h"
+#include "CxxUtils/make_unique.h"
 #include <iostream>
 
 
 #include "hash_test.h"
+#include "make_idhelper_common.cxx"
 
 
 class LArMiniFCAL_ID_Test
@@ -27,27 +29,6 @@ public:
   using LArMiniFCAL_ID::lar_field_value;
   using LArMiniFCAL_ID::lar_fcal_field_value;
 };
-
-
-LArMiniFCAL_ID* make_helper (bool do_neighbours = false)
-{
-  LArMiniFCAL_ID* idhelper = new LArMiniFCAL_ID;
-  IdDictParser* parser = new IdDictParser;
-  parser->register_external_entity ("LArCalorimeter",
-                                    "IdDictLArCalorimeter_sLHC-MiniFcal-00.xml");
-  IdDictMgr& idd = parser->parse ("IdDictParser/ATLAS_IDS.xml");
-  idd.add_metadata("FCAL2DNEIGHBORS",     "FCal2DNeighbors-DC3-05-Comm-01.txt");  
-  idd.add_metadata("FCAL3DNEIGHBORSNEXT", "FCal3DNeighborsNext-DC3-05-Comm-01.txt");  
-  idd.add_metadata("FCAL3DNEIGHBORSPREV", "FCal3DNeighborsPrev-DC3-05-Comm-01.txt");  
-  idhelper->set_do_neighbours (do_neighbours);
-  assert (idhelper->initialize_from_dictionary (idd) == 0);
-
-  assert (!idhelper->do_checks());
-  idhelper->set_do_checks (true);
-  assert (idhelper->do_checks());
-
-  return idhelper;
-}
 
 
 // This because test differencing ignored lines containing `0x...'
@@ -113,10 +94,10 @@ void CellCounter::report()
   unsigned tot = 0;
   printf ("Sampling\n");
   for (unsigned s=0; s < N_SAMP; s++) {
-    printf ("%1d          %6d\n", s, m_counts[s]);
+    printf ("%1u          %6u\n", s, m_counts[s]);
     tot += m_counts[s];
   }
-  printf ("Total      %6d\n", tot);
+  printf ("Total      %6u\n", tot);
 }
 
 
@@ -130,8 +111,6 @@ void test_connected (const LArMiniFCAL_ID& idhelper)
   CellCounter counts;
   TEST_LOOP(Identifier id, idhelper.minifcal_range()) {
     IdentifierHash hashId = idhelper.channel_hash (id);
-    assert (idhelper.is_connected(id));
-    assert (idhelper.is_connected(hashId));
     assert (hashId == idhelper.channel_hash_binary_search (id));
 
     assert (idhelper.is_supercell(id) == false);
@@ -143,8 +122,6 @@ void test_connected (const LArMiniFCAL_ID& idhelper)
     int phi   = idhelper.phi (id);
 
     assert (id == idhelper.channel_id (side, mod, depth, eta, phi));
-    assert (idhelper.is_connected (side, mod, depth, eta, phi));
-    assert (!idhelper.is_disconnected (side, mod, depth, eta, phi));
 
     Identifier mod_id = idhelper.module_id (side, mod);
     assert (id == idhelper.channel_id (mod_id, depth, eta, phi));
@@ -195,75 +172,6 @@ void test_connected (const LArMiniFCAL_ID& idhelper)
 }
 
 
-void test_disco (const LArMiniFCAL_ID& idhelper)
-{
-  std::cout << "test_disco\n";
-
-  // No disconnected channels.
-
-  assert (idhelper.disc_channel_hash_min() == idhelper.channel_hash_max());
-  assert (idhelper.disc_channel_hash_min() == idhelper.disc_channel_hash_max());
-
-  assert (idhelper.disc_minifcal_begin() == idhelper.disc_minifcal_end());
-  int n = 0;
-  TEST_LOOP(Identifier id, idhelper.disc_minifcal_range()) {
-    ++n;
-    IdentifierHash hashId = idhelper.disc_channel_hash(id);
-    assert (id == idhelper.disc_channel_id(hashId));
-
-    assert (idhelper.is_supercell(id) == false);
-
-    int side  = idhelper.pos_neg (id);
-    int mod   = idhelper.module (id);
-    int depth = idhelper.depth (id);
-
-    assert (idhelper.eta(id) == -999);
-    assert (idhelper.phi(id) == -999);
-    int eta  = idhelper.disc_eta(id);
-    int phi  = idhelper.disc_phi(id);
-
-    assert (id == idhelper.disc_channel_id (side, mod, depth, eta, phi));
-
-    assert (!idhelper.is_connected(id));
-    assert (!idhelper.is_connected(hashId));
-    assert (!idhelper.is_connected (side, mod, depth, eta, phi));
-    assert (idhelper.is_disconnected (side, mod, depth, eta, phi));
-
-    assert (idhelper.module_id(id) == idhelper.disc_module_id (side, mod));
-
-    ExpandedIdentifier exp_id;
-    LArMiniFCAL_ID_Test* idhelper_test = (LArMiniFCAL_ID_Test*)&idhelper;
-    exp_id << idhelper_test->lar_field_value()
-      	   << idhelper_test->lar_fcal_field_value()
-	   << idhelper.pos_neg(id)
-	   << idhelper.module(id)
-	   << idhelper.depth(id)
-           << idhelper.eta(id)
-           << idhelper.phi(id);
-    assert (idhelper.disc_channel_id (exp_id) == id);
-  }
-  assert (n == 0);
-
-  BOOST_FOREACH (Identifier id, idhelper.disc_mod_range()) {
-    ExpandedIdentifier exp_id;
-    LArMiniFCAL_ID_Test* idhelper_test = (LArMiniFCAL_ID_Test*)&idhelper;
-    exp_id << idhelper_test->lar_field_value()
-      	   << idhelper_test->lar_fcal_field_value()
-	   << idhelper.pos_neg(id)
-	   << idhelper.module(id)
-	   << idhelper.depth(id);
-    assert (idhelper.disc_module_id (exp_id) == id);
-    ++n;
-  }
-
-  for (LArMiniFCAL_ID::id_iterator it = idhelper.disc_mod_begin();
-       it != idhelper.disc_mod_end();
-       ++it)
-  {
-    --n;
-  }
-  assert (n == 0);
-}
 
 
 void test_exceptions (const LArMiniFCAL_ID& idhelper)
@@ -325,12 +233,17 @@ void test_neighbors (const LArMiniFCAL_ID& idhelper)
 
 int main()
 {
-  LArMiniFCAL_ID* idhelper = make_helper();
-  LArMiniFCAL_ID* idhelper_n = make_helper(true);
+  idDictXmlFile = "IdDictLArCalorimeter_sLHC-MiniFcal-00.xml";
+  IdDictMgr& idd = getDictMgr();
+  idd.add_metadata("FCAL2DNEIGHBORS",     "FCal2DNeighbors-DC3-05-Comm-01.txt");  
+  idd.add_metadata("FCAL3DNEIGHBORSNEXT", "FCal3DNeighborsNext-DC3-05-Comm-01.txt");  
+  idd.add_metadata("FCAL3DNEIGHBORSPREV", "FCal3DNeighborsPrev-DC3-05-Comm-01.txt");  
+
+  std::unique_ptr<LArMiniFCAL_ID> idhelper = make_helper<LArMiniFCAL_ID>();
+  std::unique_ptr<LArMiniFCAL_ID> idhelper_n = make_helper<LArMiniFCAL_ID>(true);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper);
-    test_disco (*idhelper);
     test_exceptions (*idhelper);
     test_neighbors (*idhelper_n);
   }

@@ -47,24 +47,6 @@
   *
   * 3524 connected cells in total  <br>
   *
-  *             Disconnected channels :
-  *             ------------------
-  * pos_neg = +/- 2 (A/C side)<br><br>
-  *
-  * module = [1,3] : 1 EM , 2-3 Hadronic <br><br>
-  *
-  * phi = [0,15] <br><br>
-  *
-  * eta =  63     module 1 ;  <br>
-  * eta =  31     module 2  phi=3,4,11,12 <br>
-  *     = [30,31] module 2, phi=0,7,8,15 ;  <br>
-  * eta =  15     module 3, phi=2,10 (old FCAL description) <br>
-  *                         phi=3,15 (new FCAL description) <br><br>
-  *
-  * 60 disconnected cells in total <br>
-  * In the hash series, the diconnected channels are put at the end, after the connected channels.
-  * channel_hash_min = 0 ; disc_channel_hash_min = channel_hash_max ;
-  *
   * @author started by RD Schaffer
   * @author maintained by F Ledroit
   * @author neighbour list/code provided by Sven Menke

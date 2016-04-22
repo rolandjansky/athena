@@ -16,8 +16,6 @@ is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffff
 initialize_from_dict : 
  channel range -> 4/2/-2,2/0/0/0:9/0:63/1 | 4/2/-2,2/0/1/0:3/0:31/1
  region range -> 4/2/-2,2/0/0 | 4/2/-2,2/0/1
- disconnected channel range -> 
- disconnected region range -> 
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
@@ -36,8 +34,6 @@ is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffff
 initialize_from_dict : 
  channel range -> 4/2/-2,2/0/0/0:9/0:63/1 | 4/2/-2,2/0/1/0:3/0:31/1
  region range -> 4/2/-2,2/0/0 | 4/2/-2,2/0/1
- disconnected channel range -> 
- disconnected region range -> 
  LArHEC_Base_ID::init_neighbors 
 test_basic
 [4.2.2.0.0.0.1.1] hex(3200180000000000)
@@ -57,14 +53,6 @@ Region [4.2.-2.0.0.0.0.1] eta: 1.500000 0.100000 0   9 phi: 0.0 0.098175 0  63
 Region [4.2.-2.0.1.0.0.1] eta: 2.500000 0.200000 0   3 phi: 0.0 0.196350 0  31
 Region [4.2.2.0.0.0.0.1]  eta: 1.500000 0.100000 0   9 phi: 0.0 0.098175 0  63
 Region [4.2.2.0.1.0.0.1]  eta: 2.500000 0.200000 0   3 phi: 0.0 0.196350 0  31
-test_disco
-  nchan 0
-Sampling   Outer         Inner
-0               0             0
-1               0             0
-2               0             0
-3               0             0
-Total           0             0   Grand total:      0
 test_exceptions
 Exception 1: LArID_Exception - Error code: 7 
  LArHEC_Base_ID::region_id() result is not OK: ID, range = 4/2/0/99/0 , 4/2/-2,2/0/0 | 4/2/-2,2/0/1

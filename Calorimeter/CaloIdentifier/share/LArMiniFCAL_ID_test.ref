@@ -1,3 +1,7 @@
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
 decode index and bit fields for each level: 
@@ -12,8 +16,10 @@ initialize_from_dict :
  channel range -> 4/3/-2,2/0/0:3/0/0:85 | 4/3/-2,2/0/0:3/1/0:79 | 4/3/-2,2/0/0:3/2/0:73 | 4/3/-2,2/0/0:3/3/0:66 | 4/3/-2,2/0/0:3/4/0:60 | 4/3/-2,2/0/0:3/5/0:54 | 4/3/-2,2/0/0:3/6/0:47 | 4/3/-2,2/0/0:3/7/0:41 | 4/3/-2,2/0/0:3/8/0:35
  module range -> 4/3/-2,2/0
  depth range -> 4/3/-2,2/0/0:3
- disconnected channel range -> 
- disconnected module range -> 
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
 decode index and bit fields for each level: 
@@ -28,15 +34,13 @@ initialize_from_dict :
  channel range -> 4/3/-2,2/0/0:3/0/0:85 | 4/3/-2,2/0/0:3/1/0:79 | 4/3/-2,2/0/0:3/2/0:73 | 4/3/-2,2/0/0:3/3/0:66 | 4/3/-2,2/0/0:3/4/0:60 | 4/3/-2,2/0/0:3/5/0:54 | 4/3/-2,2/0/0:3/6/0:47 | 4/3/-2,2/0/0:3/7/0:41 | 4/3/-2,2/0/0:3/8/0:35
  module range -> 4/3/-2,2/0
  depth range -> 4/3/-2,2/0/0:3
- disconnected channel range -> 
- disconnected module range -> 
 LArMiniFCAL_ID::init_neighbors 
 LArMiniFCAL_ID::init_neighbors_from_file 
-LArMiniFCAL_ID       INFO Reading file /home/sss/atlas/supercell2/build/share/FCal2DNeighbors-DC3-05-Comm-01.txt
+LArMiniFCAL_ID       INFO Reading file /afs/cern.ch/work/s/schaffer/public/work-20.x.64bitIdFix_1/InstallArea/share/FCal2DNeighbors-DC3-05-Comm-01.txt
 LArMiniFCAL_ID::init_neighbors_from_file 
-LArMiniFCAL_ID       INFO Reading file /home/sss/atlas/supercell2/build/share/FCal3DNeighborsNext-DC3-05-Comm-01.txt
+LArMiniFCAL_ID       INFO Reading file /afs/cern.ch/work/s/schaffer/public/work-20.x.64bitIdFix_1/InstallArea/share/FCal3DNeighborsNext-DC3-05-Comm-01.txt
 LArMiniFCAL_ID::init_neighbors_from_file 
-LArMiniFCAL_ID       INFO Reading file /home/sss/atlas/supercell2/build/share/FCal3DNeighborsPrev-DC3-05-Comm-01.txt
+LArMiniFCAL_ID       INFO Reading file /afs/cern.ch/work/s/schaffer/public/work-20.x.64bitIdFix_1/InstallArea/share/FCal3DNeighborsPrev-DC3-05-Comm-01.txt
 test_basic
 [4.3.2.0.0.0.0] hex(3600000000000000)
 [4.3.2.0.1.0.0] hex(3620000000000000)
@@ -55,7 +59,6 @@ Sampling
 Total        4392
 Region [4.3.-2.0.0.0.0]   eta: 4.750000 0.150000 0   8 phi: 0.0 0.174533 0  85
 Region [4.3.2.0.0.0.0]    eta: 4.750000 0.150000 0   8 phi: 0.0 0.174533 0  85
-test_disco
 test_exceptions
 Exception 1: LArID_Exception - Error code: 6 
  LArMiniFCAL_ID::module_id() result is not OK: ID, range = 4/3/99/0 , 4/3/-2,2/0

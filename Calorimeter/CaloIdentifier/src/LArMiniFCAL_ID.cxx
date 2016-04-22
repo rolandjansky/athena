@@ -42,51 +42,6 @@ LArMiniFCAL_ID::LArMiniFCAL_ID(void)
 LArMiniFCAL_ID::~LArMiniFCAL_ID(void) 
 {}
 
-bool LArMiniFCAL_ID::is_connected ( int pos_neg, int module, int depth, int eta, int phi) const throw(LArID_Exception)
-{
-  bool result=false;
-  // Check that id is within allowed range
-  // Fill expanded id
-  ExpandedIdentifier expId(lar_fcal_exp());
-  //expId << pos_neg << module << depth << eta << phi ;
-  expId << pos_neg << 0 << depth << eta << phi ;
-
-  if( expId.last_error () != ExpandedIdentifier::none) {
-    std::string errorMessage =
-      "Error in LArMiniFCAL_ID::is_connected, " +
-      strformat ("pos_neg: %d , module: %d, depth: %d, eta: %d, phi: %d ",
-                 pos_neg , module , depth , eta , phi);
-    throw LArID_Exception(errorMessage , 10);
-  }
-
-  if (m_full_channel_range.match(expId)) { 
-    result = true;
-  }
-  return(result);
-}
-
-bool LArMiniFCAL_ID::is_disconnected ( int pos_neg, int module, int depth, int eta, int phi) const throw(LArID_Exception)
-{
-  bool result=false;
-  // Check that id is within allowed range
-  // Fill expanded id
-  ExpandedIdentifier expId(lar_exp());
-  expId << -3 << pos_neg << module << depth << eta << phi ;
-
-  if( expId.last_error () != ExpandedIdentifier::none) {
-    std::string errorMessage =
-      "Error in LArMiniFCAL_ID::is_disconnected, " +
-      strformat ("pos_neg: %d , module: %d, depth: %d, eta: %d, phi: %d ",
-                 pos_neg , module , depth , eta , phi);
-    throw LArID_Exception(errorMessage , 10);
-  }
-
-  if (m_full_disc_channel_range.match(expId)) { 
-    result = true;
-  }
-  return(result);
-}
-
 int LArMiniFCAL_ID::eta_min(const Identifier modId) const
 {
   ExpandedIdentifier expId;
@@ -201,10 +156,12 @@ int   LArMiniFCAL_ID::get_neighbours(const IdentifierHash id, const LArNeighbour
   if(id>=channels().hash_max()) {
     if(m_msgSvc) {
       MsgStream log(m_msgSvc, "LArMiniFCAL_ID" );
-      log << MSG::WARNING << "neighbours requested for unconnected channel -- this is not implemented" << endreq;
+      log << MSG::WARNING << "neighbours requested for  non-existing channel -- id/max " << id << "/"
+          << channel_hash_max() << endreq;
     }
     else {
-      std::cout << " neighbours requested for unconnected channel -- this is not implemente" << std::endl;
+      std::cout << " neighbours requested for non-existing channel -- id/max " << id << "/"
+                << channel_hash_max() << std::endl;
     }
     return result;
   }
@@ -245,16 +202,6 @@ int   LArMiniFCAL_ID::get_neighbours(const IdentifierHash id, const LArNeighbour
     }
   }
   return result;
-}
-
-int         LArMiniFCAL_ID::disc_eta             (const Identifier id)const
-{
-  return(m_eta_impl.unpack(id));
-}
-
-int         LArMiniFCAL_ID::disc_phi             (const Identifier id)const
-{
-  return(m_phi_impl.unpack(id));
 }
 
 IdContext	
@@ -343,27 +290,10 @@ int  LArMiniFCAL_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
       return (1);
     }
 
-    // Find value for the field LArMiniFCALdisc
-    int larFcalDiscField   = -1;
-    if (dict()->get_label_value("part", "LArFCALdisc", larFcalDiscField)) {
-      std::stringstream strm ;
-      strm <<  atlasDict->m_name ;
-      strg = "Could not get value for label 'LArMiniFCALdisc' of field 'part' in dictionary " 
-      + strm.str();
-      if(m_msgSvc) {
-	log << MSG::ERROR << strg << endreq;
-      }
-      else {
-	std::cout << strg << std::endl;
-      }
-        return (1);
-    }
-
     // Set up id for region and range prefix
 
     // RDS: need to find the range for MiniFCAL module 0, which includes
     // both pos/neg endcaps
-    // (1) Connected channels
     ExpandedIdentifier region_id;
     region_id.add(larField);
     region_id.add(larFcalField);
@@ -373,43 +303,25 @@ int  LArMiniFCAL_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     m_full_module_range = dict()->build_multirange(region_id, str, prefix, "module");
     m_full_depth_range = dict()->build_multirange(region_id, str, prefix, "depth-mfcal");
 
-    // (2) disconnected channels
-    ExpandedIdentifier region_id2;
-    region_id2.add(larField);
-    region_id2.add(larFcalDiscField);
-    Range prefix2;
-
-    m_full_disc_channel_range = dict()->build_multirange(region_id2, str, prefix2);
-    m_full_disc_module_range = dict()->build_multirange(region_id2, str,prefix2, "module");
-
     std::string strg0 = "initialize_from_dict : " ;
     std::string strg1 = " channel range -> " + (std::string)m_full_channel_range;
     std::string strg2 = " module range -> "  + (std::string)m_full_module_range;
     std::string strg2a= " depth range -> "   + (std::string)m_full_depth_range;
-    std::string strg3 = " disconnected channel range -> "  + (std::string)m_full_disc_channel_range;
-    std::string strg4 = " disconnected module range -> "   + (std::string)m_full_disc_module_range;
     if(m_msgSvc) {
       log << MSG::DEBUG << strg0 << endreq;
       log << MSG::DEBUG << strg1 << endreq;
       log << MSG::DEBUG << strg2 << endreq;
       log << MSG::DEBUG << strg2a<< endreq;
-      log << MSG::DEBUG << strg3 << endreq;
-      log << MSG::DEBUG << strg4 << endreq;
     }
     else {
       std::cout << strg0 << std::endl;
       std::cout << strg1 << std::endl;
       std::cout << strg2 << std::endl;
       std::cout << strg2a<< std::endl;
-      std::cout << strg3 << std::endl;
-      std::cout << strg4 << std::endl;
     }
 
     // Setup the hash tables
     if(init_hashes()) return (1);
-
-    // Setup the disc hash tables
-    if(init_disc_hashes()) return (1);
 
     // initilize m_two_sym_sides
     m_two_sym_sides = ( dictionaryVersion() == "fullAtlas" );
@@ -506,74 +418,6 @@ void   LArMiniFCAL_ID::channel_id_checks   (const Identifier moduleId, int depth
   }
 }
 
-void LArMiniFCAL_ID::disc_module_id_checks ( int pos_neg, int module ) const throw(LArID_Exception)
-{
-	
-  // Check that id is within allowed range
-  // Fill expanded id
-  ExpandedIdentifier expId(lar_exp());
-  expId << -3 << pos_neg << module;
-
-  if(  expId.last_error () != ExpandedIdentifier::none ){
-    std::string errorMessage =
-      "Error in LArMiniFCAL_ID::module_id, " +
-      strformat ("pos_neg: %d , module: %d", pos_neg , module);
-    throw LArID_Exception(errorMessage , 9);
-  }
-
-  if (!m_full_disc_module_range.match(expId)) { 
-    std::string errorMessage = "LArMiniFCAL_ID::module_id() result is not OK: ID, range = "
-      + std::string(expId) + " , " + (std::string)m_full_disc_module_range;
-    throw LArID_Exception(errorMessage , 6);
-  }
-}
-
-void LArMiniFCAL_ID::disc_channel_id_checks ( int pos_neg, int module, int depth, int eta, int phi) const throw(LArID_Exception)
-{
-	
-  // Check that id is within allowed range
-  // Fill expanded id
-  ExpandedIdentifier expId(lar_exp());
-  expId << -3 << pos_neg << module << eta << phi ;
-
-  if( expId.last_error () != ExpandedIdentifier::none) {
-    std::string errorMessage =
-      "Error in LArMiniFCAL_ID::channel_id, " + 
-      strformat ("pos_neg: %d , module: %d, depth: %d, eta: %d, phi: %d ",
-                 pos_neg , module , depth , eta , phi);
-    throw LArID_Exception(errorMessage , 10);
-  }
-
-  if (!m_full_disc_channel_range.match(expId)) { 
-    std::string errorMessage = "LArMiniFCAL_ID::channel_id() result is not OK: ID, range = "
-      + std::string(expId) + " , " + (std::string)m_full_disc_channel_range;
-    throw LArID_Exception(errorMessage , 10);
-  }
-}
-
-void   LArMiniFCAL_ID::disc_channel_id_checks   (const Identifier moduleId,  int depth,
-					     int eta, int phi) const throw(LArID_Exception)
-{
-  // Check that id is within allowed range
-  // Fill expanded id
-  ExpandedIdentifier expId; 
-
-  IdContext context = module_context();
-  if (get_disc_expanded_id(moduleId, expId, &context)) {
-    std::string errorMessage = "LArMiniFCAL_ID::channel_id(modId) result is not OK: ID = "
-      + show_to_string(moduleId) ;
-    throw LArID_Exception(errorMessage , 10);
-  }
-
-  expId << depth << eta << phi ;
-
-  if (!m_full_disc_channel_range.match(expId)) { 
-    std::string errorMessage = "LArMiniFCAL_ID::channel_id(modId) result is not OK: ID, range = "
-      + std::string(expId) + " , " + (std::string)m_full_disc_channel_range;
-    throw LArID_Exception(errorMessage , 10);
-  }
-}
-
 int  LArMiniFCAL_ID::get_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const
 {
     // We assume that the context is >= region
@@ -581,34 +425,17 @@ int  LArMiniFCAL_ID::get_expanded_id  (const Identifier& id, ExpandedIdentifier&
     exp_id << lar_field_value()
       	   << lar_fcal_field_value()
 	   << pos_neg(id)
-      	   << module(id)
-    //	   << 0
-	   << depth(id) ;
-    if(context && context->end_index() >= m_ETA_INDEX) {
-	exp_id << eta(id);
-	if(context->end_index() >= m_PHI_INDEX) {
-	    exp_id << phi(id);
-	}
+      	   << module(id);
+    if (context && context->end_index() >= m_DEPTH_INDEX) {
+      exp_id << depth(id);
+      if (context->end_index() >= m_ETA_INDEX) {
+        exp_id << eta(id);
+        if (context->end_index() >= m_PHI_INDEX) {
+          exp_id << phi(id);
+        }
+      }
     }
-    return (0);
-}
-
-int  LArMiniFCAL_ID::get_disc_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const
-{
-    // We assume that the context is >= region
-    exp_id.clear();
-    exp_id << lar_field_value()
-      	   << -3
-	   << pos_neg(id)
-	   << module(id)
-	   << depth(id);
-    if(context && context->end_index() >= m_ETA_INDEX) {
-	exp_id << eta(id);
-	if(context->end_index() >= m_PHI_INDEX) {
-	    exp_id << phi(id);
-	}
-    }
-    return (0);
+    return 0;
 }
 
 int         LArMiniFCAL_ID::initLevelsFromDict(void) 
@@ -833,21 +660,6 @@ int         LArMiniFCAL_ID::init_hashes(void)
   return (0);
 }
 
-int         LArMiniFCAL_ID::init_disc_hashes(void) 
-{
-  if (m_disc_channels.init (*this, "chanenls",
-                            m_full_disc_channel_range,
-                            &LArMiniFCAL_ID::disc_channel_id,
-                            m_PHI_INDEX))
-    return 1;
-  if (m_disc_modules.init (*this, "regions",
-                           m_full_disc_module_range,
-                           &LArMiniFCAL_ID::disc_module_id,
-                           m_MODULE_INDEX))
-    return 1;
-
-  return (0);
-}
 
 int         LArMiniFCAL_ID::init_neighbors_from_file(std::string filename, std::vector<std::set<IdentifierHash> > & vec)
 {
