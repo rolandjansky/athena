@@ -103,33 +103,13 @@ RemoveTauVariables = ".-"+identifier.join(UnusedTauVariables)
 # temporary functionality to discover version of EDM
 ####################
     
-def chooseOneWithDefinedCCLID(a, b):
-    from CLIDComps.clidGenerator import clidGenerator
-    cgen = clidGenerator("", False)
-
-    def isCLIDDefined(typename):
-        c = cgen.genClidFromName(typename)
-        pkg = cgen.getPackageFromClid(c)     
-        return bool(pkg)
-
-    aCLID = isCLIDDefined(a)
-    bCLID = isCLIDDefined(b)
-    #    assert not(aCLID == True and bCLID == True), "Both classes " + a +" " + b + "have CLIDs defined"
-    assert not(aCLID == False and bCLID == False), "None of two classes " + a +" " + b + "have CLIDs defined"    
-    if aCLID and bCLID: # preffer CLID of unversioned class
-        return b if "_v" in a else a
-    return a if aCLID else b
-
-
-
-
 
 TriggerHLTList = [
  
     #steer
     ('TrigRoiDescriptor#HLT_secondaryRoI_HLT',                             'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigOperationalInfo#HLT_OPI_HLT',                                    'BS',                      'Steer'),
-    ('TrigOperationalInfo#HLT_EXPRESS_OPI_HLT',                            'BS',                      'Steer'),
+    ('TrigOperationalInfo#HLT_EXPRESS_OPI_HLT',                            'BS ESD',                  'Steer'),
     ('TrigMonConfig#HLT_OPI_HLT_monitoring_config',                        'BS',                      'Steer'),
     ('TrigMonEvent#HLT_OPI_HLT_monitoring_event',                          'BS',                      'Steer'), 
 
@@ -137,6 +117,9 @@ TriggerHLTList = [
     ('xAOD::TrigCompositeAuxContainer#HLT_L1TopoCompositeAux.',            'BS ESD AODFULL AODSLIM',  'Steer'),  
     ('xAOD::TrigCompositeContainer#HLT_L1TopoMET',                         'BS ESD AODFULL AODSLIM',  'Steer'),  
     ('xAOD::TrigCompositeAuxContainer#HLT_L1TopoMETAux.',                  'BS ESD AODFULL AODSLIM',  'Steer'),  
+
+    ('xAOD::TrigCompositeContainer#HLT_MuonRoICluster',                   'BS ESD AODFULL AODSLIM',  'Combined'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_MuonRoIClusterAux.',            'BS ESD AODFULL AODSLIM',  'Combined'),
 
     ('xAOD::TrigCompositeContainer#HLT_MuonCalibrationStream', 		   'DS',	 	      'Muon'),
     ('xAOD::TrigCompositeAuxContainer#HLT_MuonCalibrationStreamAux.',      'DS', 		      'Muon'),
@@ -329,16 +312,16 @@ TriggerHLTList = [
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnvTRTOnly_FullScan_EFID',  '',          'Bphys'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_MuonIso_EFID',          'BS ESD AODFULL',          'Muon'),
     #
-    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Electron_FTF',         'BS ESD AODFULL',  'Egamma'),
-    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Electron_L2ID',        'BS ESD AODFULL',  'Egamma'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Electron_FTF',         'BS ESD AODFULL AODSLIM',  'Egamma'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Electron_L2ID',        'BS ESD AODFULL',          'Egamma'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Muon_FTF',             'BS ESD AODFULL AODSLIM',  'Muon'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Tau_FTF',              'BS ESD AODFULL AODSLIM',  'Tau'),
-    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_TauCore_FTF',              'BS ESD AODFULL AODSLIM',  'Tau'),
-    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_TauIso_FTF',              'BS ESD AODFULL AODSLIM',  'Tau'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_TauCore_FTF',          'BS ESD AODFULL AODSLIM',  'Tau'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_TauIso_FTF',           'BS ESD AODFULL AODSLIM',  'Tau'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_FTF',             'BS ESD AODFULL AODSLIM',  'Bjet'),
-    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF',             'BS ESD AODFULL AODSLIM',  'Bjet'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF',       'BS ESD AODFULL AODSLIM',  'Bjet'),
 
-    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Electron_IDTrig',      'BS ESD AODFULL',  'Egamma'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Electron_IDTrig',      'BS ESD AODFULL AODSLIM',  'Egamma'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Muon_IDTrig',          'BS ESD AODFULL AODSLIM',  'Muon'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Tau_IDTrig',           'BS ESD AODFULL AODSLIM',  'Tau'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_IDTrig',          'BS ESD AODFULL AODSLIM',  'Bjet'),
@@ -551,10 +534,8 @@ TriggerHLTList = [
     ('xAOD::VertexContainer#HLT_SecondaryVertex',                        'BS ESD AODFULL AODSLIM', 'Bjet'),
     ('xAOD::VertexAuxContainer#HLT_SecondaryVertexAux.',                 'BS ESD AODFULL AODSLIM', 'Bjet'), 
 
-    (chooseOneWithDefinedCCLID('xAOD::HIEventShapeContainer_v1',
-                               'xAOD::HIEventShapeContainer')+ '#HLT_HIUE',                          'BS ESD AODFULL AODSLIM', 'HeavyIon'),
-    (chooseOneWithDefinedCCLID('xAOD::HIEventShapeAuxContainer_v1', 
-                               'xAOD::HIEventShapeAuxContainer')+'#HLT_HIUEAux.',                   'BS ESD AODFULL AODSLIM', 'HeavyIon'),
+    ('xAOD::HIEventShapeContainer#HLT_HIUE',                          'BS ESD AODFULL AODSLIM', 'HeavyIon'),
+    ('xAOD::HIEventShapeAuxContainer#HLT_HIUEAux.',                   'BS ESD AODFULL AODSLIM', 'HeavyIon'),
 
     # start of L2+EF list
 
@@ -805,6 +786,9 @@ TriggerLvl1List=[
     ('xAOD::EnergySumRoI#LVL1EnergySumRoI' ,          'ESD AODFULL AODSLIM', 'L1'),
     ('xAOD::EnergySumRoIAuxInfo#LVL1EnergySumRoIAux.','ESD AODFULL AODSLIM', 'L1'),
 
+    ('xAOD::L1TopoRawDataContainer#L1TopoRawData'       , 'ESD', 'L1'),
+    ('xAOD::L1TopoRawDataAuxContainer#L1TopoRawDataAux.', 'ESD', 'L1'),
+
     ('DataVector<LVL1::JetElement>#JetElements' ,        'ESD', 'L1'),
     ('DataVector<LVL1::JetElement>#JetElementsOverlap' , 'ESD', 'L1'),
     ('DataVector<LVL1::CPMTower>#CPMTowers' ,            'ESD', 'L1'),
@@ -890,24 +874,24 @@ TriggerIDTruth= [
 
 
 TriggerRoiList = [
-    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_secondaryRoI_L2" , "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStoreAuxInfo_secondaryRoI_L2Aux", 
-    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_secondaryRoI_EF" , "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStoreAuxInfo_secondaryRoI_EFAux",
-    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_secondaryRoI_HLT", "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStoreAuxInfo_secondaryRoI_HLTAux",
-    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_initialRoI" ,      "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStoreAuxInfo_initialRoIAux" ,    
-    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_ReverseRoI" ,      "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStoreAuxInfo_ReverseRoIAux" ,    
+    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_secondaryRoI_L2" , "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStore_secondaryRoI_L2Aux.", 
+    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_secondaryRoI_EF" , "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStore_secondaryRoI_EFAux.",
+    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_secondaryRoI_HLT", "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStore_secondaryRoI_HLTAux.",
+    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_initialRoI" ,      "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStore_initialRoIAux." ,    
+    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_ReverseRoI" ,      "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStore_ReverseRoIAux." ,    
     #    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore" ,          
-    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_forID" ,           "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStoreAuxInfo_forIDAux" ,         
-    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_forID1" ,          "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStoreAuxInfo_forID1Aux" ,         
-    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_forID2" ,          "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStoreAuxInfo_forID2Aux" ,         
-    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_forID3" ,          "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStoreAuxInfo_forID3Aux" ,         
-    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_forMS" ,           "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStoreAuxInfo_forMSAux" ,         
+    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_forID" ,           "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStore_forIDAux." ,         
+    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_forID1" ,          "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStore_forID1Aux." ,         
+    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_forID2" ,          "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStore_forID2Aux." ,         
+    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_forID3" ,          "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStore_forID3Aux." ,         
+    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_forMS" ,           "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStore_forMSAux." ,         
     #   "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_TrigT2CaloJet",
     #   "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_TrigT2CosmicJet",
-    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_T2TauFinal" ,      "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStoreAuxInfo_T2TauFinalAux" ,       
-    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_TrigT2CaloTau" ,   "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStoreAuxInfo_TrigT2CaloTauAux" ,    
+    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_T2TauFinal" ,      "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStore_T2TauFinalAux." ,       
+    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_TrigT2CaloTau" ,   "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStore_TrigT2CaloTauAux." ,    
     #   "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_TrigJetRec" ,   
-    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_SplitJet",         "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStoreAuxInfo_SplitJetAux" ,         
-    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_SuperRoi",         "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStoreAuxInfo_SuperRoiAux"          
+    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_SplitJet",         "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStore_SplitJetAux." ,         
+    "xAOD::RoiDescriptorStore#HLT_xAOD__RoiDescriptorStore_SuperRoi",         "xAOD::RoiDescriptorStoreAuxInfo#HLT_xAOD__RoiDescriptorStore_SuperRoiAux."          
     ]
  
 
@@ -1080,8 +1064,8 @@ EDMDetails["xAOD::TauJetAuxContainer" ]        = {'persistent':"",              
 EDMDetails["xAOD::VertexContainer" ]           = {'persistent':"",              'typealias':'' }
 EDMDetails["xAOD::VertexAuxContainer" ]        = {'persistent':"",              'typealias':'', 'parent': 'xAOD::VertexContainer'}
 
-EDMDetails[chooseOneWithDefinedCCLID("xAOD::HIEventShapeContainer_v1", "xAOD::HIEventShapeContainer") ]    = {'persistent':"",              'typealias':'' }
-EDMDetails[chooseOneWithDefinedCCLID("xAOD::HIEventShapeAuxContainer_v1", "xAOD::HIEventShapeAuxContainer") ] = {'persistent':"",              'typealias':'', 'parent': chooseOneWithDefinedCCLID('xAOD::HIEventShapeContainer_v1', 'xAOD::HIEventShapeContainer')}
+EDMDetails["xAOD::HIEventShapeContainer"]    = {'persistent':"",              'typealias':'' }
+EDMDetails["xAOD::HIEventShapeAuxContainer"] = {'persistent':"",              'typealias':'', 'parent': 'xAOD::HIEventShapeContainer'}
 
 EDMDetails["xAOD::TrigCompositeContainer"]     = {'persistent':'', 		'typealias':''} 
 EDMDetails["xAOD::TrigCompositeAuxContainer"]  = {'persistent':'', 		'typealias':'', 'parent': 'xAOD::TrigCompositeContainer'} 
@@ -1096,6 +1080,9 @@ EDMDetails["xAOD::JetEtRoI"]                   = {'persistent':"",              
 EDMDetails["xAOD::JetEtRoIAuxInfo"]            = {'persistent':"",              'typealias':'', 'parent': 'xAOD::JetEtRoI'}
 EDMDetails["xAOD::EnergySumRoI"]               = {'persistent':"",              'typealias':'' }
 EDMDetails["xAOD::EnergySumRoIAuxInfo"]        = {'persistent':"",              'typealias':'', 'parent': 'xAOD::EnergySumRoI'}
+
+EDMDetails['xAOD::L1TopoRawDataContainer']     = {'persistent':"",              'typealias':'' }
+EDMDetails['xAOD::L1TopoRawDataAuxContainer']  = {'persistent':"",              'typealias':'', 'parent': 'xAOD::L1TopoRawDataContainer'}
 
 EDMDetails["xAOD::ElectronContainer"]          = {'persistent':"",              'typealias':'' }
 EDMDetails["xAOD::ElectronTrigAuxContainer"]   = {'persistent':"",              'typealias':'', 'parent': 'xAOD::ElectronContainer'}
@@ -1204,6 +1191,7 @@ EDMLibraries = [ 'TrigSteeringEvent', 'TrigMuonEvent',
 		 'tauEventTPCnvDict',          'RecTPCnvDict',
 		 'TrigMonitoringEventTPCnvDict',
 		 'OLD_RecTPCnvDict',
+                 'TrigCosmicEvent',
 #
 		 #'TrigCombinedEventTPCnv1Dict',     'TrigCaloEventTPCnv1Dict',          
                  #'TrigDecisionEventTPCnv1Dict',     'TrigInDetEventTPCnv1Dict',
