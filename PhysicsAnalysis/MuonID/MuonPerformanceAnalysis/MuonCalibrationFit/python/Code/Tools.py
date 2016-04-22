@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import os, shlex, shutil, subprocess, sys
+import ROOT
 
 def SendCommand( the_command ):
   p = subprocess.Popen( shlex.split( the_command ), stdout = subprocess.PIPE, stderr = subprocess.PIPE )
@@ -44,6 +45,22 @@ def MergePaths( first, second ):
   else:
     first += '/'
   return first + second
+
+def TrimRootFile( Input, Output ): 
+  InputFile = ROOT.TFile( Input )
+  OutputFile = ROOT.TFile( Output, 'recreate' )
+
+  for Key in InputFile.GetListOfKeys():
+
+    Name = Key.GetName()
+    if 'FinalResults' in Name:
+      Obj = InputFile.Get( Name )
+      OutputFile.cd()
+      Obj.Write( Name  )
+
+  InputFile.Close()
+  OutputFile.Close()
+  return Output
 
 def MergeRootFiles( final, the_list ):
   Com = 'hadd %s' % final
@@ -99,6 +116,8 @@ def BeautifyVariable( var ):
     return 'm(J/&psi;)'
   elif var == 'MassZ':
     return 'm(Z)'
+  elif var == 'RhoZ':
+    return '&rho;(Z)'
   if 'RoF' in var:
     newvar = var.replace( 'InRoF', '(in RoF)' )
     newvar = newvar.replace( 'OutRoF', '(outside RoF)' )
@@ -156,3 +175,16 @@ def GetInfoOnLink( theLink ):
     return ( 6, '<a href="%s">Overview Plots</a>' % theLink )
   else:
     return ( 0, '<a href="%s">General</a>' % theLink )
+
+def PBSJobEnded( job_name, job_output_file = None ): 
+  TempOut = SendCommand( 'qstat %s' % job_name )
+  print 'qstat %s' % job_name
+  print TempOut
+  if TempOut[ 0 ] == '':
+    if not job_output_file:
+      return True
+    with open( job_output_file, 'r') as inF:
+      for line in inF:
+        if 'INFO leaving with code 0: "successful run"' in line or 'the winner is:' in line:
+          return True
+  return False

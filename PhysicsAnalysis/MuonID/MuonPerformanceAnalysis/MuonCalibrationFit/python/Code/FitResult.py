@@ -6,6 +6,12 @@ import Tools
 import PlottingTools
 import AtlasStyle
 
+def GetFunctionIndex( function_name ):
+  if function_name == 'Chi2':
+    return 15
+  if function_name == 'Likelihood':
+    return 16
+
 class FitResult:
   
   def __init__ ( self, name, the_file ):
@@ -33,6 +39,7 @@ class FitResult:
     self.Val_nll  = the_vector[ 16 ]
     self.eUp_nll  = 0 
     self.eLo_nll  = 0 
+    self.NdoF     = the_vector[ 17 ]
     self.Name = name
     self.Dir = os.path.dirname( os.path.abspath( the_file.GetName() ) ).rstrip( '/' ) 
      
@@ -100,31 +107,61 @@ class IterOverview:
       
   def DoPlot ( self, AllFitRes, Detector, Stat ):
     AllDone = []
+    Colors = [ ROOT.kAzure + 2, ROOT.kRed + 1 ]
+    Markers = [ 21, 25 ] 
     for Key in self.BinObjects:
       if 'eta' in Key:
-        for var in [ 's1', 'p1', 'p2', 'chi2' ]:
-          theGraph = self.GetGraph( self.BinObjects[ Key ], var, AllFitRes, True )
+        TheList = [ 's1', 'p1', 'p2', 'chi2' ]
+        if Detector == 'MS':
+          TheList = [ 's0', 's1', 'p0', 'p1', 'p2', 'chi2' ]
+        for var in TheList: 
+          if Detector == 'MS':
+            theGraphs = self.GetGraphs( self.BinObjects[ Key ], var, AllFitRes, True, [ ( 0, 'Small' ), ( 1, 'Large' ) ] )
+          else:
+            theGraph = self.GetGraph( self.BinObjects[ Key ], var, AllFitRes, True )
           varTitle = PlottingTools.Convert( var, Detector )
 
+          plotOpt = 'pa'
+          if var == 'chi2':
+            if Detector == 'MS':
+              theGraphs[ 0 ].SetMinimum( 0 )
+            else:
+              theGraph.SetMinimum( 0 )
           Can = ROOT.TCanvas( '%s___%s___OverviewPlot' % ( self.IterName, var ), '', 800, 800 ) 
-          theGraph.SetLineWidth( 2 )
-          theGraph.SetLineColor( ROOT.kBlack )
-          theGraph.SetMarkerColor( ROOT.kBlack )
-          theGraph.SetMarkerStyle( 20 )
-          theGraph.SetLineStyle( 1 )
-          theGraph.Draw( 'pa' )
-          theGraph.GetXaxis().SetLimits( self.BinObjects[ Key ].Mins[ 0 ], self.BinObjects[ Key ].Maxs[ -1 ] )
-          theGraph.GetXaxis().SetTitle( Tools.GetAxisQuality( Key ) )
-          theGraph.GetYaxis().SetTitle( varTitle ) 
-          theGraph.Draw( 'pa' )
-          theTempFunc = GetCorrespondingTruth( var, Detector )
-          theTempFunc.SetRange( self.BinObjects[ Key ].Mins[ 0 ], self.BinObjects[ Key ].Maxs[ -1 ] )
-          theFunc = theTempFunc.Clone( 'temp_function' )
-          theFunc.SetLineColor( ROOT.kRed + 1 )
-          theFunc.SetLineStyle( 2 )
-          theFunc.SetLineWidth( 2 )
-          theFunc.Draw( 'same' )
-          theGraph.Draw( 'p' )
+          if Detector == 'MS':
+            for index, graph in enumerate( theGraphs ):
+              graph.SetLineWidth( 2 )
+              graph.SetLineColor( Colors[ index ] )
+              graph.SetMarkerColor( Colors[ index ] )
+              graph.SetMarkerStyle( Markers[ index ] )
+              graph.SetLineStyle( 1 )
+              if index == 0:
+                graph.Draw( plotOpt )
+                graph.GetXaxis().SetLimits( self.BinObjects[ Key ].Mins[ 0 ], self.BinObjects[ Key ].Maxs[ -1 ] )
+                graph.GetXaxis().SetTitle( Tools.GetAxisQuality( Key ) )
+                graph.GetYaxis().SetTitle( varTitle ) 
+                graph.Draw( plotOpt )
+              else:
+                graph.Draw( plotOpt.replace( 'a', 'same' ) )
+            Leg = ROOT.TLegend( 0.7, 0.9, 0.85, 0.8 )
+            Leg.SetFillStyle( 0 )
+            Leg.SetBorderSize( 0 )
+            Leg.SetTextFont( 42 )
+            Leg.SetTextSize( 0.03 )
+            Leg.AddEntry( theGraphs[ 0 ], 'Small Sectors', 'pe' )
+            Leg.AddEntry( theGraphs[ 1 ], 'Large Sectors', 'pe' )
+            Leg.Draw()
+          else:
+            theGraph.SetLineWidth( 2 )
+            theGraph.SetLineColor( ROOT.kBlack )
+            theGraph.SetMarkerColor( ROOT.kBlack )
+            theGraph.SetMarkerStyle( 20 )
+            theGraph.SetLineStyle( 1 )
+            theGraph.Draw( plotOpt )
+            theGraph.GetXaxis().SetLimits( self.BinObjects[ Key ].Mins[ 0 ], self.BinObjects[ Key ].Maxs[ -1 ] )
+            theGraph.GetXaxis().SetTitle( Tools.GetAxisQuality( Key ) )
+            theGraph.GetYaxis().SetTitle( varTitle ) 
+            theGraph.Draw( plotOpt )
           Lat = ROOT.TLatex()
           Lat.SetNDC()
           Lat.SetTextFont( 42 )
@@ -136,21 +173,38 @@ class IterOverview:
           Lat.DrawLatex( 0.2, 0.85, '#sqrt{s} = 13 TeV  #lower[-0.15]{#scale[0.6]{#int}}Ldt = %.1f fb^{-1}' % Stat ) 
           Lat.SetTextSize( 0.025 )
           Can.SaveAs( '.png' )
+          Can.SaveAs( '.eps' )
           
           Can2 = ROOT.TCanvas( '%s___%s___NoErrorsPlot' % ( self.IterName, var ), '', 800, 800 ) 
-          theNoErrGraph = self.GetGraph( self.BinObjects[ Key ], var, AllFitRes, False )
-          theNoErrGraph.GetXaxis().SetLimits( self.BinObjects[ Key ].Mins[ 0 ], self.BinObjects[ Key ].Maxs[ -1 ] )
-          theNoErrGraph.GetXaxis().SetTitle( Tools.GetAxisQuality( Key ) )
-          theNoErrGraph.GetYaxis().SetTitle( varTitle ) 
-          theNoErrGraph.Draw( 'pa' )
-          theTempFunc = GetCorrespondingTruth( var, Detector )
-          theTempFunc.SetRange( self.BinObjects[ Key ].Mins[ 0 ], self.BinObjects[ Key ].Maxs[ -1 ] )
-          theFunc = theTempFunc.Clone( 'temp_function' )
-          theFunc.SetLineColor( ROOT.kAzure + 1 )
-          theFunc.SetLineStyle( 2 )
-          theFunc.SetLineWidth( 2 )
-          theFunc.Draw( 'same' )
-          theNoErrGraph.Draw( 'p' )
+          if Detector == 'MS':
+            theNoErrGraphs = self.GetGraphs( self.BinObjects[ Key ], var, AllFitRes, False, [ ( 0, 'Small' ), ( 1, 'Large' ) ] )
+            for index, graph in enumerate( theNoErrGraphs ):
+              graph.SetLineWidth( 2 )
+              graph.SetLineColor( Colors[ index ] )
+              graph.SetMarkerColor( Colors[ index ] )
+              graph.SetMarkerStyle( Markers[ index ] )
+              graph.SetLineStyle( 1 )
+              if index == 0:
+                graph.Draw( plotOpt )
+                graph.GetXaxis().SetLimits( self.BinObjects[ Key ].Mins[ 0 ], self.BinObjects[ Key ].Maxs[ -1 ] )
+                graph.GetXaxis().SetTitle( Tools.GetAxisQuality( Key ) )
+                graph.GetYaxis().SetTitle( varTitle ) 
+                graph.Draw( plotOpt )
+              else:
+                graph.Draw( plotOpt.replace( 'a', 'same' ) )
+            Leg = ROOT.TLegend( 0.7, 0.9, 0.85, 0.75 )
+            Leg.SetFillStyle( 0 )
+            Leg.SetBorderSize( 0 )
+            Leg.SetTextFont( 42 )
+            Leg.SetTextSize( 0.04 )
+            Leg.AddEntry( theNoErrGraphs[ 0 ], 'Small Sectors', 'pe' )
+            Leg.AddEntry( theNoErrGraphs[ 1 ], 'Large Sectors', 'pe' )
+          else:
+            theNoErrGraph = self.GetGraph( self.BinObjects[ Key ], var, AllFitRes, False )
+            theNoErrGraph.GetXaxis().SetLimits( self.BinObjects[ Key ].Mins[ 0 ], self.BinObjects[ Key ].Maxs[ -1 ] )
+            theNoErrGraph.GetXaxis().SetTitle( Tools.GetAxisQuality( Key ) )
+            theNoErrGraph.GetYaxis().SetTitle( varTitle ) 
+            theNoErrGraph.Draw( 'pa' )
           Lat = ROOT.TLatex()
           Lat.SetNDC()
           Lat.SetTextFont( 42 )
@@ -162,75 +216,13 @@ class IterOverview:
           Lat.DrawLatex( 0.2, 0.85, '#sqrt{s} = 13 TeV  #lower[-0.15]{#scale[0.6]{#int}}Ldt = %.1f fb^{-1}' % Stat ) 
           Lat.SetTextSize( 0.025 )
           Can2.SaveAs( '.png' )
+          Can2.SaveAs( '.eps' )
 
-          Can3 = ROOT.TCanvas( '%s___%s___PullPlot' % ( self.IterName, var ), '', 800, 800 )  
-          if not 'chi2' in var: 
-            res = ROOT.TH1F( 'res_%s_%s' % ( self.IterName, var ), ';(%s(fit)-%s(true))/#sigma(fit);Entries' % ( varTitle, varTitle ), 10, -5, 5 ) 
-            res.SetBinErrorOption( 1 ) 
-            for Bin in range( theGraph.GetN() ): 
-              X, Y = ROOT.Double( 0. ), ROOT.Double( 0. ) 
-              theGraph.GetPoint( Bin, X, Y ) 
-              Ytruth = theTempFunc.Eval( X ) 
-              if X == 0: 
-                Ytruth = theTempFunc.Eval( 0.00000001 ) 
-              if Ytruth > Y: 
-                res.Fill( ( Y - Ytruth ) / theGraph.GetErrorYhigh( Bin ) ) 
-              else: 
-                res.Fill( ( Y - Ytruth ) / theGraph.GetErrorYlow( Bin ) ) 
-            res.SetLineWidth( 2 ) 
-            res.SetLineColor( ROOT.kBlack ) 
-            res.SetMarkerColor( ROOT.kBlack ) 
-            res.SetMarkerStyle( 20 ) 
-            res.SetLineStyle( 1 ) 
-            res.Draw( 'pe' ) 
-            theFunc2 = ROOT.TF1( 'theFunc', 'gaus', -5, 5 ) 
-            theFunc2.SetParameter( 0, theGraph.GetN() / math.sqrt( 2 * math.pi ) )
-            theFunc2.SetParameter( 1, 0 ) 
-            theFunc2.SetParameter( 2, 1 ) 
-            theFunc2.SetLineColor( ROOT.kOrange + 7 ) 
-            theFunc2.SetLineStyle( 2 ) 
-            theFunc2.SetLineWidth( 2 ) 
-            res.Draw( 'pe' ) 
-            theFunc2.Draw( 'same' ) 
-            res.Draw( 'pesame' ) 
-            Lat3 = ROOT.TLatex() 
-            Lat3.SetNDC() 
-            Lat3.SetTextFont( 42 ) 
-            Lat3.SetTextSize( 0.035 ) 
-            Lat3.SetTextColor( 1 ) 
-            Lat3.SetTextAlign( 12 ) 
-            Lat3.DrawLatex( 0.2, 0.9, '#bf{#it{ATLAS}} Internal' )  
-            Lat3.SetTextSize( 0.03 ) 
-            Lat3.DrawLatex( 0.2, 0.85, '#sqrt{s} = 13 TeV  #lower[-0.15]{#scale[0.6]{#int}}Ldt = %.1f fb^{-1}' % Stat )  
-            #Lat3.SetTextSize( 0.025 ) 
-            #Lat3.DrawLatex( 0.2, 0.8, '#color[807]{Gaussian fit:}' )  
-            #Lat3.DrawLatex( 0.2, 0.77, '#color[807]{ #mu = %+.3f #pm %.3f}' % ( theFunc2.GetParameter( 1 ), theFunc2.GetParError( 1 ) ) ) 
-            #Lat3.DrawLatex( 0.2, 0.74, '#color[807]{ #sigma = %+.3f #pm %.3f}' % ( theFunc2.GetParameter( 2 ), theFunc2.GetParError( 2 ) ) ) 
-          Can3.SaveAs( '.png' )
-
-          AllDone.append( ( Can.GetName() + '.png', Can2.GetName() + '.png', Can3.GetName() + '.png' ) )
+          AllDone.append( ( Can.GetName() + '.png', Can2.GetName() + '.png' ) )
 
     return AllDone      
 
-  def GetAverageError( self, AllFitRes ):
-    All = []
-    for Key in self.BinObjects:
-      if 'eta' in Key:
-        TrueValues = { 's1': 0.001, 'p1': 0.01, 'p2': 0.0005 }
-        for var in [ 's1', 'p1', 'p2' ]:
-          theGraph = self.GetGraph( self.BinObjects[ Key ], var, AllFitRes, True )
-          Total, TotalSq = 0., 0.
-          NumberOfValues = 0.
-          for index in range( theGraph.GetN() ):
-            for Val in [ theGraph.GetErrorYhigh( index ), theGraph.GetErrorYlow( index ) ]:
-              Total += Val #/ TrueValues[ var ]
-              TotalSq += Val*Val #math.pow( Val / TrueValues[ var ], 2 )
-              NumberOfValues += 1. 
-          All.append( ( var, Total / NumberOfValues, math.sqrt( TotalSq / NumberOfValues - math.pow( Total / NumberOfValues, 2 ) ) / math.sqrt( NumberOfValues ) ) )
-    return All
-
   def GetGraph ( self, bo, var, allfitres, do_err_y ):
-
     x, y = array.array( 'd' ), array.array( 'd' )
     xerr, yerr_up, yerr_low = array.array( 'd' ), array.array( 'd' ), array.array( 'd' )
     for Index, Value in enumerate( bo.BinExtremes ):
@@ -240,15 +232,65 @@ class IterOverview:
       xerr.append( math.fabs( bo.BinExtremes[ Index + 1 ] - bo.BinExtremes[ Index ] ) * 0.5 )
       for fr in allfitres:
         if fr.Type == 'FinalResults':
-          if '%s___%s' % ( fr.Iter, fr.Reg ) == bo.Names[ Index ]:
-            y.append( getattr( fr, 'Val_%s' % var ) )
+          if RmLS( '%s___%s' % ( fr.Iter, fr.Reg ) ) == RmLS( bo.Names[ Index ] ):
+            theVal = getattr( fr, 'Val_%s' % var )
+            if var == 'chi2':
+              theVal = theVal / float( fr.NdoF )
+            y.append( theVal )
             if do_err_y:
-              yerr_up.append( getattr( fr, 'eUp_%s' % var ) )
-              yerr_low.append( getattr( fr, 'eLo_%s' % var ) )
+              up_err = getattr( fr, 'eUp_%s' % var )
+              if up_err > 0.9:
+                up_err = 0
+              yerr_up.append( up_err )
+              # Careful when handling these, for p0, p1 and p2 
+              low_err = getattr( fr, 'eLo_%s' % var )
+              if var == 'p0' or var == 'p1' or var == 'p2':
+                if theVal - low_err < 0:
+                  low_err = theVal
+              yerr_low.append( low_err )
             else:
               yerr_up.append( 0 ) 
               yerr_low.append( 0 )
     return ROOT.TGraphAsymmErrors( len( bo.BinExtremes ) - 1, x, y, xerr, xerr, yerr_low, yerr_up )
+
+  def GetGraphs ( self, bo, var, allfitres, do_err_y, the_list ):
+    x = array.array( 'd' )
+    xerr = array.array( 'd' )
+    y = {}
+    yerr_up = {}
+    yerr_low = {}
+    for ( index, name ) in the_list:
+      y[ name ] = array.array( 'd' )
+      yerr_up[ name ] = array.array( 'd' )
+      yerr_low[ name ] = array.array( 'd' )
+    Graphs = []
+
+    for ( index, name ) in the_list:
+      for Index, Value in enumerate( bo.BinExtremes ):
+        if Index == len( bo.BinExtremes ) - 1:
+          continue
+        x.append( ( bo.BinExtremes[ Index + 1 ] + bo.BinExtremes[ Index ] ) * 0.5 )
+        xerr.append( math.fabs( bo.BinExtremes[ Index + 1 ] - bo.BinExtremes[ Index ] ) * 0.5 )
+        for fr in allfitres:
+          if fr.Type == 'FinalResults':
+            if '%s___%s' % ( fr.Iter, fr.Reg ) == bo.Names[ Index ].replace( 'Small', name ):
+              theVal = getattr( fr, 'Val_%s' % var )
+              if var == 'chi2':
+                theVal = theVal / float( fr.NdoF )
+              y[ name ].append( theVal )
+              if do_err_y:
+                yerr_up[ name ].append( getattr( fr, 'eUp_%s' % var ) )
+                # Careful when handling these, for p0, p1 and p2 
+                low_err = getattr( fr, 'eLo_%s' % var )
+                if var == 'p0' or var == 'p1' or var == 'p2':
+                  if theVal - low_err < 0:
+                    low_err = theVal
+                yerr_low[ name ].append( low_err )
+              else:
+                yerr_up[ name ].append( 0 ) 
+                yerr_low[ name ].append( 0 )
+      Graphs.append( ROOT.TGraphAsymmErrors( len( bo.BinExtremes ) - 1, x, y[ name ], xerr, xerr, yerr_low[ name ], yerr_up[ name ] ) )
+    return Graphs 
       
   def __str__ ( self ):
 
@@ -308,12 +350,12 @@ class BinObject:
 
   def Check ( self ):
 
-    if len( set( self.Mins ) ) == 1 and len( set( self.Mins ) ) == 1:
+    if len( set( self.Mins ) ) == 1 and len( set( self.Maxs ) ) == 1:
       self.Type = False
       return
       
-    self.Mins = sorted( self.Mins )
-    self.Maxs = sorted( self.Maxs )
+    self.Mins = sorted( set( self.Mins ) )
+    self.Maxs = sorted( set( self.Maxs ) )
     for Index, Value in enumerate( self.Mins ):
       if Index == 0:
         continue
@@ -328,9 +370,16 @@ class BinObject:
       if Index == len( self.BinExtremes ) - 1:
         continue
       for theRegVar in self.AllRegVars:
-        if theRegVar.Min == self.BinExtremes[ Index ] and theRegVar.Max == self.BinExtremes[ Index + 1 ]:
+        #print theRegVar.Min, self.BinExtremes[ Index ]
+        #print theRegVar.Max, self.BinExtremes[ Index + 1 ]
+        #print theRegVar.RegName
+        #print
+        if theRegVar.Min == self.BinExtremes[ Index ] and theRegVar.Max == self.BinExtremes[ Index + 1 ] and not 'Large' in theRegVar.RegName:
           self.Names.append( theRegVar.RegName )
     self.Type = True
+
+  def __str__ ( self ):
+    return 'Regions -> %s\nMins -> %s\nMaxs -> %s\nNames -> %s' % ( self.AllRegVars, self.Mins, self.Maxs, ', '.join( self.Names ) )
 
 def GetCorrespondingTruth( var, det ):
   if det == 'ID':
@@ -349,3 +398,9 @@ def GetCorrespondingTruth( var, det ):
     if var == 'p2':
       #return ROOT.TF1( 'p2_func', '0.0005', -2.5, 2.5 ) 
       return ROOT.TF1( 'p2_func', '0.00016 * ( 2 + TMath::Erf( x ) )', -2.5, 2.5 )
+
+def RmLS ( name ):
+  res = name.replace( 'Large', '' )
+  res = res.replace( 'Small', '' )
+  return res
+

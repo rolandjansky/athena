@@ -16,7 +16,12 @@ MuonCalibrationFit::MuonCalibrationFit( const std::string& name, ISvcLocator* pS
   declareProperty( "DataFile", m_DataFile = "Data.root" );
   declareProperty( "BackgroundFile", m_BackgroundFile = "Background.root" );
   declareProperty( "MonteCarloFile", m_MonteCarloFile = "MonteCarlo.root" );
+  declareProperty( "JpsiReweightingFile", m_JpsiReweightingFile = "JpsiReweighting.root" );
+  declareProperty( "ZReweightingFile", m_ZReweightingFile = "ZReweighting.root" );
   declareProperty( "MaxEvents", m_MaxEvents = -1 );
+  declareProperty( "MonitoringPlots", m_MonitoringPlots = kFALSE );
+  declareProperty( "RequireErrors", m_RequireErrors = kFALSE );
+  declareProperty( "GRL_Name", m_GRL_Name = "" );
   //::: Fitting properties
   declareProperty( "Detector", m_Detector = "ID" );
   declareProperty( "FitType", m_FitType = "Chi2" );
@@ -26,15 +31,15 @@ MuonCalibrationFit::MuonCalibrationFit( const std::string& name, ISvcLocator* pS
   declareProperty( "ProbThreshold", m_ProbThreshold = 0.1 );
   //::: Parameters' properties
   declareProperty( "S0_Init", m_Init[ Par::s0 ] = 0. ); //::: ???
-  declareProperty( "S0_Step", m_Step[ Par::s0 ] = 0.01 );
+  declareProperty( "S0_Step", m_Step[ Par::s0 ] = 0.1 );
   declareProperty( "S1_Init", m_Init[ Par::s1 ] = 0. ); //::: -0.001
   declareProperty( "S1_Step", m_Step[ Par::s1 ] = 0.001 );
   declareProperty( "P0_Init", m_Init[ Par::p0 ] = 0. ); //::: ???
-  declareProperty( "P0_Step", m_Step[ Par::p0 ] = 0.1 );
+  declareProperty( "P0_Step", m_Step[ Par::p0 ] = 0.01 );
   declareProperty( "P1_Init", m_Init[ Par::p1 ] = 0. ); //::: 0.01
-  declareProperty( "P1_Step", m_Step[ Par::p1 ] = 0.003 );
+  declareProperty( "P1_Step", m_Step[ Par::p1 ] = 0.001 );
   declareProperty( "P2_Init", m_Init[ Par::p2 ] = 0. ); //::: 0.0005
-  declareProperty( "P2_Step", m_Step[ Par::p2 ] = 0.001 );
+  declareProperty( "P2_Step", m_Step[ Par::p2 ] = 0.0001 );
   declareProperty( "Use_S0", m_Use[ Par::s0 ] = kFALSE );
   declareProperty( "Use_S1", m_Use[ Par::s1 ] = kFALSE );
   declareProperty( "Use_P0", m_Use[ Par::p0 ] = kFALSE );
@@ -43,6 +48,10 @@ MuonCalibrationFit::MuonCalibrationFit( const std::string& name, ISvcLocator* pS
   //::: Templates' properties
   declareProperty( "Splitting", m_Splitting = 1 );
   declareProperty( "NumRandomValues", m_NumRandomValues = 1 );
+  declareProperty( "MinMuonsPtForJpsi", m_MinMuonsPtForJpsi = 8 );
+  declareProperty( "MaxMuonsPtForJpsi", m_MaxMuonsPtForJpsi = 17 );
+  declareProperty( "MinLeadingMuonPtForZ", m_MinLeadingMuonPtForZ = 26 );
+  declareProperty( "MinSubLeadingMuonPtForZ", m_MinSubLeadingMuonPtForZ = 15 );
   declareProperty( "JpsiMass_Bins", m_JpsiMass_Bins = 80 );
   declareProperty( "JpsiMass_Min", m_JpsiMass_Min = 2.7 );
   declareProperty( "JpsiMass_Max", m_JpsiMass_Max = 3.5 );
@@ -52,8 +61,8 @@ MuonCalibrationFit::MuonCalibrationFit( const std::string& name, ISvcLocator* pS
   declareProperty( "ZMass_Max", m_ZMass_Max = 116 );
   declareProperty( "ZMass_Pts", m_ZMass_Pts = "" );
   declareProperty( "ZRho_Bins", m_ZRho_Bins = 50 );
-  declareProperty( "ZRho_Min", m_ZRho_Min = -0.2 );
-  declareProperty( "ZRho_Max", m_ZRho_Max = 0.2 );
+  declareProperty( "ZRho_Min", m_ZRho_Min = -0.3 );
+  declareProperty( "ZRho_Max", m_ZRho_Max = 0.3 );
   declareProperty( "ZRho_Pts", m_ZRho_Pts = "" );
 }
 
@@ -74,6 +83,7 @@ StatusCode MuonCalibrationFit::initialize() {
   ATH_MSG_DEBUG( "Bkg: " << m_Bkg );
   ATH_MSG_DEBUG( "RunMode: " << m_RunMode );
   ATH_MSG_DEBUG( "ProbThreshold: " << m_ProbThreshold );
+  ATH_MSG_DEBUG( "GRL_Name:" << m_GRL_Name );
   ATH_MSG_DEBUG( "S0_Fit: " << m_Use[ Par::s0 ] );
   ATH_MSG_DEBUG( "S0_Init: " << m_Init[ Par::s0 ] );
   ATH_MSG_DEBUG( "S0_Step: " << m_Step[ Par::s0 ] );
@@ -99,6 +109,10 @@ StatusCode MuonCalibrationFit::initialize() {
   ATH_MSG_DEBUG( "ZMass_Min: " << m_ZMass_Min );
   ATH_MSG_DEBUG( "ZMass_Max: " << m_ZMass_Max );
   ATH_MSG_DEBUG( "ZMass_Pts: " << m_ZMass_Pts );
+  ATH_MSG_DEBUG( "ZRho_Bins: " << m_ZRho_Bins );
+  ATH_MSG_DEBUG( "ZRho_Min: " << m_ZRho_Min );
+  ATH_MSG_DEBUG( "ZRho_Max: " << m_ZRho_Max );
+  ATH_MSG_DEBUG( "ZRho_Pts: " << m_ZRho_Pts );
   //:::
   RooMsgService::instance().setGlobalKillBelow( RooFit::WARNING );
   RooMsgService::instance().setSilentMode( kTRUE ); 
@@ -147,26 +161,39 @@ StatusCode MuonCalibrationFit::initialize() {
   m_MinStep[ Par::s0 ] = 0.01;    m_MaxStep[ Par::s0 ] = 0.1;  
   m_MinStep[ Par::s1 ] = 0.0001;  m_MaxStep[ Par::s1 ] = 0.01; 
   m_MinStep[ Par::p0 ] = 0.01;    m_MaxStep[ Par::p0 ] = 0.1;    
-  m_MinStep[ Par::p1 ] = 0.001;   m_MaxStep[ Par::p1 ] = 0.1;    
-  m_MinStep[ Par::p2 ] = 0.00001; m_MaxStep[ Par::p2 ] = 0.01;    
+  m_MinStep[ Par::p1 ] = 0.001;   m_MaxStep[ Par::p1 ] = 0.01;    
+  m_MinStep[ Par::p2 ] = 0.00001; m_MaxStep[ Par::p2 ] = 0.001;    
+
+  m_Prev[ Par::s0 ] = m_Init[ Par::s0 ];
+  m_Prev[ Par::s1 ] = m_Init[ Par::s1 ];
+  m_Prev[ Par::p0 ] = m_Init[ Par::p0 ];
+  m_Prev[ Par::p1 ] = m_Init[ Par::p1 ];
+  m_Prev[ Par::p2 ] = m_Init[ Par::p2 ];
   //:::
-  if( m_Detector == "ID" ) {
-    //::: Some overrides, just to be 110% sure...
-    m_Use[ Par::s0 ] = kFALSE;
-    m_Use[ Par::p0 ] = kFALSE;
-  }
+  //if( m_Detector == "ID" ) {
+  //  //::: Some overrides, just to be 110% sure...
+  //  m_Use[ Par::s0 ] = kFALSE;
+  //  m_Use[ Par::p0 ] = kFALSE;
+  //}
   //:::
   return StatusCode::SUCCESS;
 }
 
 StatusCode MuonCalibrationFit::execute() {
-  ATH_MSG_INFO( "executing" );
+  ATH_MSG_INFO( "executing MuonCalibrationFit" );
   Regions* InReg = new Regions( m_InputRegionsFile, m_Input, kFALSE );
+  InReg->Print();
   Regions* InRegForID = NULL;
-  if( m_InputRegionsFileForID != "" && m_InputForID != "" ) InRegForID = new Regions( m_InputRegionsFileForID, m_InputForID, kFALSE );
+  if( m_InputRegionsFileForID != "" && m_InputForID != "" ) {
+    InRegForID = new Regions( m_InputRegionsFileForID, m_InputForID, kFALSE );
+    //InRegForID->Print();
+  }
   Regions* OutReg = new Regions( m_OutputRegionsFile, "", kFALSE );
+  //OutReg->Print();
   //::: Loop on Regions
   std::vector< Tools::RegionInfo* > InRegInfos = InReg->GetRegions();
+        
+  for( std::vector< Tools::RegionInfo* >::iterator It = InRegInfos.begin(); It != InRegInfos.end(); ++It ) ATH_MSG_DEBUG( ( *It )->GetInfo() ); 
   std::vector< Tools::RegionInfo* > InRegInfosForID;
   if( InRegForID != NULL ) InRegInfosForID = InRegForID->GetRegions();
   std::vector< Tools::RegionInfo* > OutRegInfos = OutReg->GetRegions();
@@ -179,6 +206,8 @@ StatusCode MuonCalibrationFit::execute() {
     }
     g_NLL = -1.;
     g_Chi2 = -1.;
+    g_best_NLL = 1.E09;
+    g_best_Chi2 = 1.E09;
     g_ScanIter = 1;
     g_ScanPar = -1;
     g_FitTrial = 0;
@@ -214,28 +243,27 @@ StatusCode MuonCalibrationFit::execute() {
     }
     if( m_ZRho_Pts     != "" ) g_CurrentTemplate->AddRhoZ( m_ZRho_Bins, m_ZRho_Min, m_ZRho_Max, GetVector( m_ZRho_Pts ) );
     g_Output->cd();
-    FillVectors( InRegInfos, InRegInfosForID, *It );
-    //::://::://::: Truth part 
-    float AverageEta = ( *It )->GetEta();
-    if( AverageEta < -100 ) ATH_MSG_WARNING( "Unable to retrieve meaningful average eta!!!" ); 
-    const double true_pars[ Par::N ] = { GetTruth( AverageEta, Par::s0 ), GetTruth( AverageEta, Par::s1 ), GetTruth( AverageEta, Par::p0 ), GetTruth( AverageEta, Par::p1 ), GetTruth( AverageEta, Par::p2 ) };
-    const double true_errors[ Par::N ] = { 0, 0, 0, 0, 0 };
-    GetFunction( true_pars );
-    DoMonitoringPlots( true_pars );
-    g_CurrentTemplate->Write( "TrueFit" ); 
-    SaveParameters( "TrueFit", true_pars, true_errors );
-    g_CurrentTemplate->Print();
-    //::: Set Initial parameters based on true ones!
-    for( int par_index = 0; par_index < Par::N; par_index++ ) {
-      m_Init[ par_index ] = true_pars[ par_index ];
+    //::://::://::: NoCorrections part 
+    FillVectors( InRegInfos, InRegInfosForID, *It, false );
+    const double nocorr_pars[ Par::N ] = { 0, 0, 0, 0, 0 };
+    const double nocorr_errors[ Par::N ] = { 0, 0, 0, 0, 0 };
+    GetFunction( nocorr_pars );
+    if( m_MonitoringPlots ) DoMonitoringPlots( nocorr_pars );
+    g_CurrentTemplate->Write( "NoCorrections" ); 
+    SaveParameters( "NoCorrections", nocorr_pars, nocorr_errors );
+    //::://::://::: InitialCorrections part
+    FillVectors( InRegInfos, InRegInfosForID, *It, true );
+    const double init_pars[ Par::N ] = { m_Init[ Par::s0 ], m_Init[ Par::s1 ], m_Init[ Par::p0 ], m_Init[ Par::p1 ], m_Init[ Par::p2 ] };
+    const double init_errors[ Par::N ] = { 0, 0, 0, 0, 0 };
+    if( m_RunMode == "" ) {
+      GetFunction( nocorr_pars );
     }
-    //::://::://::: PreFit part 
-    // const double init_pars[ Par::N ] = { m_Init[ Par::s0 ], m_Init[ Par::s1 ], m_Init[ Par::p0 ], m_Init[ Par::p1 ], m_Init[ Par::p2 ] };
-    // const double init_errors[ Par::N ] = { 0, 0, 0, 0, 0 };
-    // GetFunction( init_pars );
-    // DoMonitoringPlots( init_pars );
-    // g_CurrentTemplate->Write( "PreFit" ); 
-    // SaveParameters( "PreFit", init_pars, init_errors );
+    else {
+      GetFunction( init_pars );
+    }
+    if( m_MonitoringPlots ) DoMonitoringPlots( init_pars );
+    g_CurrentTemplate->Write( "InitialCorrections" ); 
+    SaveParameters( "InitialCorrections", init_pars, init_errors );
     //::://::://::: Extracting Run Mode Information
     boost::char_separator< char > BigSep( "+" );
     boost::char_separator< char > SmallSep( ":" );
@@ -254,7 +282,18 @@ StatusCode MuonCalibrationFit::execute() {
           if( index == 1 ) max_retrials = atoi( ( *SmallToken ).c_str() ); 
           index++;
         }
-        converged = RunMinimizationStep( algo_name, max_retrials );
+        size_t init = algo_name.find( "[" ) + 1;
+        size_t end = algo_name.find( "]" );
+        std::string active_pars = "";
+        if( ( init != std::string::npos ) && ( end != std::string::npos ) ) {
+          active_pars = algo_name.substr( init, end - init );
+        }
+        //::: Reset the variables to be used according to the general job configuration
+        ResetParameters();
+        ActivateParameters( active_pars );
+        converged = RunMinimizationStep( algo_name.substr( 0, init - 1 ), max_retrials );
+        ATH_MSG_DEBUG( "converged " << converged );
+        CopyToBestFitParameters();
       }
     }
     //::://::://:::
@@ -264,8 +303,41 @@ StatusCode MuonCalibrationFit::execute() {
   g_Output->Close();
   delete InReg;
   delete OutReg;
-  if(InRegForID) { delete InRegForID; InRegForID = NULL; }
+  if( InRegForID ) { delete InRegForID; InRegForID = NULL; }
   return StatusCode::SUCCESS;
+}
+
+void MuonCalibrationFit::ActivateParameters( std::string active_pars ) {
+  ATH_MSG_DEBUG( "active_pars ---->" << active_pars << "<----" );
+  //:::
+  if( active_pars == "" ) {
+    for( int index_par = 0; index_par < Par::N; index_par++ ) {
+      m_UseLocally[ index_par ] = m_Use[ index_par ]; 
+    }
+    return;
+  }
+  //::: First, turn them all off!
+  for( int index_par = 0; index_par < Par::N; index_par++ ) m_UseLocally[ index_par ] = kFALSE; 
+  //:::
+  boost::char_separator< char > sep( "," );
+  boost::tokenizer< boost::char_separator< char > > tokens( active_pars, sep );
+  bool problem_parsing = false;
+  for( boost::tokenizer< boost::char_separator< char > >::iterator token = tokens.begin(); token != tokens.end(); ++token ) {
+    std::string par_name = *token; 
+    if( par_name == "s0" ) m_UseLocally[ Par::s0 ] = kTRUE; 
+    else if( par_name == "s1" ) m_UseLocally[ Par::s1 ] = kTRUE; 
+    else if( par_name == "p0" ) m_UseLocally[ Par::p0 ] = kTRUE; 
+    else if( par_name == "p1" ) m_UseLocally[ Par::p1 ] = kTRUE; 
+    else if( par_name == "p2" ) m_UseLocally[ Par::p2 ] = kTRUE; 
+    else problem_parsing = true;
+  }
+  if( problem_parsing ) {
+    ATH_MSG_WARNING( "Unable to properly parse string (" << active_pars << "). For security reasons, set usage of all parameters to general configuration!" );
+    for( int index_par = 0; index_par < Par::N; index_par++ ) m_UseLocally[ index_par ] = m_Use[ index_par ]; 
+  }
+  for( int index_par = 0; index_par < Par::N; index_par++ ) {
+    ATH_MSG_DEBUG( "Parameter n." << index_par << ", general conf: " << m_Use[ index_par ] << ", local conf: " << m_UseLocally[ index_par ] ); 
+  }
 }
 
 StatusCode MuonCalibrationFit::finalize() {
@@ -323,7 +395,7 @@ void MuonCalibrationFit::DoMonitoringPlots( const double* par ) {
   }
   //::: MonteCarlo
   //::: Single Muon Correction
-  TRandom2 rand_gen( 19101985 );
+  TRandom3 rand_gen( 2988100123 );
   BOOST_FOREACH( Tools::Info theInfo, *g_MonteCarloSingleInfo ) {
     if( ! theInfo.IsOS ) continue;
     double rnd = rand_gen.Gaus( 0, 1 );
@@ -345,30 +417,37 @@ void MuonCalibrationFit::DoMonitoringPlots( const double* par ) {
   g_CurrentTemplate->MonitoredPlotsAreEmpty( false );
 }
 
-void MuonCalibrationFit::FillVectors( std::vector< Tools::RegionInfo* > RegInfos, std::vector< Tools::RegionInfo* > RegInfosForID, Tools::RegionInfo* RegInfo ) {
+void MuonCalibrationFit::FillVectors( std::vector< Tools::RegionInfo* > RegInfos, std::vector< Tools::RegionInfo* > RegInfosForID, Tools::RegionInfo* RegInfo, bool can_correct_all ) {
+
+  //::: Debugging
+  for( auto reg: RegInfos ) {
+    ATH_MSG_INFO( reg->GetInfo() );
+  }
+  //::: General Flag: correct all muons with those obtained from previous iteration (for check job)
+  bool correct_all = ( m_RunMode == "" && m_InputRegionsFile != "" && can_correct_all );
   //::: Data 
   g_DataSingleInfo->clear();
   g_DataBothInfo->clear();
-  TChain chainData( "muon" );
+  TChain chainData( "MuonMomentumCalibrationTree" );
   chainData.Add( m_DataFile.c_str() ); 
   Long_t MaxEvents = ( m_MaxEvents < 0 ) ? chainData.GetEntries() : m_MaxEvents;
-  Reader readerData( Type::Data, MaxEvents, ( m_Detector == "ID" ), !m_BatchMode, RegInfos, RegInfosForID, RegInfo, g_DataSingleInfo, g_DataBothInfo );
+  Reader readerData( Type::Data, m_GRL_Name, MaxEvents, ( m_Detector == "ID" ), !m_BatchMode, m_MinMuonsPtForJpsi, m_MaxMuonsPtForJpsi, m_MinLeadingMuonPtForZ, m_MinSubLeadingMuonPtForZ, RegInfos, RegInfosForID, RegInfo, g_DataSingleInfo, g_DataBothInfo, "", "", correct_all );
   chainData.Process( &readerData, "", MaxEvents, 0 );
   //::: Background 
   g_BackgroundSingleInfo->clear();
   g_BackgroundBothInfo->clear();
-  TChain chainBackground( "muon" );
+  TChain chainBackground( "MuonMomentumCalibrationTree" );
   chainBackground.Add( m_BackgroundFile.c_str() ); 
   MaxEvents = ( m_MaxEvents < 0 ) ? chainBackground.GetEntries() : m_MaxEvents;
-  Reader readerBackground( Type::Background, MaxEvents, ( m_Detector == "ID" ), !m_BatchMode, RegInfos, RegInfosForID, RegInfo, g_BackgroundSingleInfo, g_BackgroundBothInfo );
+  Reader readerBackground( Type::Background, "", MaxEvents, ( m_Detector == "ID" ), !m_BatchMode, m_MinMuonsPtForJpsi, m_MaxMuonsPtForJpsi, m_MinLeadingMuonPtForZ, m_MinSubLeadingMuonPtForZ, RegInfos, RegInfosForID, RegInfo, g_BackgroundSingleInfo, g_BackgroundBothInfo, "", "", correct_all );
   chainBackground.Process( &readerBackground, "", MaxEvents, 0 );
   //::: MonteCarlo 
   g_MonteCarloSingleInfo->clear();
   g_MonteCarloBothInfo->clear();
-  TChain chainMonteCarlo( "muon" );
+  TChain chainMonteCarlo( "MuonMomentumCalibrationTree" );
   chainMonteCarlo.Add( m_MonteCarloFile.c_str() ); 
   MaxEvents = ( m_MaxEvents < 0 ) ? chainMonteCarlo.GetEntries() : m_MaxEvents;
-  Reader readerMonteCarlo( Type::MC, MaxEvents, ( m_Detector == "ID" ), !m_BatchMode, RegInfos, RegInfosForID, RegInfo, g_MonteCarloSingleInfo, g_MonteCarloBothInfo );
+  Reader readerMonteCarlo( Type::MC, "", MaxEvents, ( m_Detector == "ID" ), !m_BatchMode, m_MinMuonsPtForJpsi, m_MaxMuonsPtForJpsi, m_MinLeadingMuonPtForZ, m_MinSubLeadingMuonPtForZ, RegInfos, RegInfosForID, RegInfo, g_MonteCarloSingleInfo, g_MonteCarloBothInfo, m_JpsiReweightingFile, m_ZReweightingFile, correct_all );
   chainMonteCarlo.Process( &readerMonteCarlo, "", MaxEvents, 0 );
   std::cout << std::endl;
   ATH_MSG_INFO( "Size of    data    vector with 1 object  in region: " << g_DataSingleInfo->size() );
@@ -399,7 +478,7 @@ void MuonCalibrationFit::SaveTime( TString name, float time ) {
 }
 
 void MuonCalibrationFit::SaveParameters( TString name, const double* pars, const double* errs_up, const double* errs_low ) {
-  TVectorD temp_vector( 3 * Par::N + 2 ); // For each parameter save value, error+, error-, likelihood and chi2
+  TVectorD temp_vector( 3 * Par::N + 3 ); // For each parameter save value, error+, error-, likelihood and chi2
   for( int index = 0; index < Par::N; index++ ) {
     if( m_PosDef[ index ] && pars[ index ] < 0 ) {
       temp_vector[ 3 * index ]     =  - pars[ index ];
@@ -414,11 +493,44 @@ void MuonCalibrationFit::SaveParameters( TString name, const double* pars, const
   }
   temp_vector[ 3 * Par::N ]     = g_NLL;
   temp_vector[ 3 * Par::N + 1 ] = g_Chi2;
+  temp_vector[ 3 * Par::N + 2 ] = g_CurrentTemplate->GetDegreesOfFreedom();
   TString template_name = g_CurrentTemplate->GetName();
   temp_vector.Write( name + "___" + template_name );
   if( name == "PreFit" || name == "FirstEstimate" || name == "TrueFit" ) {
     ATH_MSG_INFO( "  " << name << "  ---> nll = " << std::setw( 10 ) << g_NLL << " | chi2 = " << std::setw( 10 ) << g_Chi2 << " | s0 = " << std::setw( 10 ) << pars[ Par::s0 ] << " | s1 = " << std::setw( 10 ) << pars[ Par::s1 ] << " | p0 = " << std::setw( 10 ) << pars[ Par::p0 ] << " | p1 = " << std::setw( 10 ) << pars[ Par::p1 ] << " | p2 = " << std::setw( 10 ) << pars[ Par::p2 ] ); 
   }
+}
+
+void MuonCalibrationFit::CopyToBestFitParameters() {
+  bool overwrite = false;
+  if( m_FitType == "Chi2" ) {
+    overwrite = ( g_Chi2 < g_best_Chi2 || TMath::AreEqualAbs( g_Chi2, g_best_Chi2, 0.01 ) );
+  }
+  else {
+    overwrite = ( g_NLL < g_best_NLL || TMath::AreEqualAbs( g_NLL, g_best_NLL, 0.01 ) );
+  }
+  ATH_MSG_DEBUG( "overwrite flag: " << overwrite );
+  ATH_MSG_DEBUG( "chi2: " << g_Chi2 );
+  ATH_MSG_DEBUG( "best chi2: " << g_best_Chi2 );
+  ATH_MSG_DEBUG( "first part: " << ( g_Chi2 < g_best_Chi2 ) );
+  ATH_MSG_DEBUG( "second part: " << TMath::AreEqualAbs( g_Chi2, g_best_Chi2, 0.01 ) );
+  if( m_RequireErrors ) {
+    bool can_overwrite = false;
+    for( int index = 0; index < Par::N; index++ ) {
+      if( ( g_errs_low[ index ] > 0 ) || ( g_errs_up[ index ] > 0 ) ) can_overwrite = true;
+    }
+    if( ! can_overwrite ) overwrite = false;
+  }
+  if( overwrite ) {
+    for( int index = 0; index < Par::N; index++ ) {
+      g_best_pars[ index ] = g_pars[ index ];
+      g_best_errs_up[ index ] = g_errs_up[ index ];
+      g_best_errs_low[ index ] = g_errs_low[ index ];
+    }
+    g_best_Chi2 = g_Chi2;
+    g_best_NLL = g_NLL;
+  }
+  ATH_MSG_INFO( "  Best So Far  ---> nll = " << std::setw( 10 ) << g_best_NLL << " | chi2 = " << std::setw( 10 ) << g_best_Chi2 << " | s0 = " << std::setw( 10 ) << g_best_pars[ Par::s0 ] << " +" << g_best_errs_up[ Par::s0 ] << " -" << g_best_errs_low[ Par::s0 ] << " | s1 = " << std::setw( 10 ) << g_best_pars[ Par::s1 ] << " +" << g_best_errs_up[ Par::s1 ] << " -" << g_best_errs_low[ Par::s1 ] << " | p0 = " << std::setw( 10 ) << g_best_pars[ Par::p0 ] << " +" << g_best_errs_up[ Par::p0 ] << " -" << g_best_errs_low[ Par::p0 ] << " | p1 = " << std::setw( 10 ) << g_best_pars[ Par::p1 ] << " +" << g_best_errs_up[ Par::p1 ] << " -" << g_best_errs_low[ Par::p1 ] << " | p2 = " << std::setw( 10 ) << g_best_pars[ Par::p2 ] << " +" << g_best_errs_up[ Par::p2 ] << " -" << g_best_errs_low[ Par::p2 ] ); 
 }
 
 void MuonCalibrationFit::SaveParameters( TString name, const double* pars, const double* errs ) {
@@ -435,12 +547,17 @@ void MuonCalibrationFit::Stop( Tools::RegionInfo* fitRegion ) {
   g_Tree->Write();
   //:::
   for( int index = 0; index < Par::N; index++ ) {
-    fitRegion->par[ index ] = g_pars[ index ];
-    fitRegion->err_up[ index ] = g_errs_up[ index ];
-    fitRegion->err_low[ index ] = g_errs_low[ index ];
+    if( m_Use[ index ] ) {
+      fitRegion->par[ index ] = g_best_pars[ index ];
+      fitRegion->err_up[ index ] = g_best_errs_up[ index ];
+      fitRegion->err_low[ index ] = g_best_errs_low[ index ];
+    }
+    else {
+      fitRegion->par[ index ] = m_Prev[ index ];
+    }
   }
   fitRegion->Corrected = kTRUE;
-  fitRegion->SaveToFile( g_Output, g_Chi2, g_NLL );
+  fitRegion->SaveToFile( g_Output, g_Chi2, g_NLL, g_CurrentTemplate->GetDegreesOfFreedom() );
   //:::
   delete g_CurrentTemplate;
 }
@@ -468,6 +585,13 @@ void MuonCalibrationFit::GetMemoryUsage() {
 }
 
 bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
+  //::: Resetting Initial Values to Best Values Found so Far!
+  for( int index = 0; index < Par::N; index++ ) {
+    if( g_best_NLL < 1E8 || g_best_Chi2 < 1E8 ) { 
+      m_Init[ index ] = g_best_pars[ index ];
+    }
+  }
+  //:::
   ATH_MSG_INFO( "Minimization Step: Algorithm = " << what << ", Retrials = " << times );
   if( what == "Single" ) {
     return kTRUE;
@@ -485,15 +609,18 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
     int fit_trial = 0;
     TRandom random_value( 0 );
     while( ! successful_fit && fit_trial < times ) {
-      if( g_FitTrial > 0 ) {
+      //if( g_FitTrial > 0 ) {
+      //::: Reset initial values of the parameters only if not first local iteration
+      if( fit_trial > 0 ) {
         for( int index = 0; index < Par::N; index++ ) {
           m_Init[ index ] = random_value.Uniform( m_MinInit[ index ], m_MaxInit[ index ] );
           m_Step[ index ] = random_value.Uniform( m_MinStep[ index ], m_MaxStep[ index ] );
         }
       }
-      SetVariables( MinSimplex );
+      SetParameters( MinSimplex );
       ATH_MSG_INFO( "fit_trial = " << fit_trial << ", ndof: " << g_CurrentTemplate->GetDegreesOfFreedom() );
       successful_fit = ( MinSimplex->Minimize() && TMath::Prob( MinSimplex->MinValue(), g_CurrentTemplate->GetDegreesOfFreedom() ) > m_ProbThreshold );
+      ATH_MSG_VERBOSE( "chi2_prob: " << TMath::Prob( MinSimplex->MinValue(), g_CurrentTemplate->GetDegreesOfFreedom() ) );
       fit_trial++;
       g_FitTrial++;
     }
@@ -501,7 +628,7 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
     const double *fit_errors = MinSimplex->Errors();
     double pars[ Par::N ];
     double errors[ Par::N ];
-    FoldVariables( fit_pars, fit_errors, pars, errors );
+    FoldParameters( fit_pars, fit_errors, pars, errors );
     ATH_MSG_INFO( "Simplex minimum found (no errors given):" );
     for( int index = 0; index < Par::N; index++ ) {
       ATH_MSG_INFO( "  " << m_ParNames[ index ] << " = " << std::setw( 15 ) << std::left << pars[ index ] );
@@ -509,7 +636,7 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
     if( m_DoNLL )  ATH_MSG_INFO( " nll = " << std::setw( 15 ) << std::left << MinSimplex->MinValue() ); 
     if( m_DoChi2 ) ATH_MSG_INFO( "chi2 = " << std::setw( 15 ) << std::left << MinSimplex->MinValue() ); 
     UpdateGlobalValues( MinSimplex->MinValue(), pars, errors );
-    DoMonitoringPlots( g_pars );
+    if( m_MonitoringPlots ) DoMonitoringPlots( g_pars );
     g_CurrentTemplate->Write( "PostSimplexFit" ); 
     SaveParameters( "PostSimplexFit", pars, errors );
     for( int index = 0; index < Par::N; index++ ) {
@@ -537,7 +664,7 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
           m_Step[ index ] = random_value.Uniform( m_MinStep[ index ], m_MaxStep[ index ] );
         }
       }
-      SetVariables( MinMigrad );
+      SetParameters( MinMigrad );
       successful_fit = MinMigrad->Minimize(); 
       fit_trial++;
     }
@@ -545,7 +672,7 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
     const double *fit_errors = MinMigrad->Errors();
     double pars[ Par::N ];
     double errors[ Par::N ];
-    FoldVariables( fit_pars, fit_errors, pars, errors );
+    FoldParameters( fit_pars, fit_errors, pars, errors );
     ATH_MSG_INFO( "Migrad minimum found:" );
     for( int index = 0; index < Par::N; index++ ) {
       ATH_MSG_INFO( "  " << m_ParNames[ index ] << " = " << std::setw( 15 ) << std::left << pars[ index ] << " +/- " << std::setw( 15 ) << std::left << errors[ index ] );
@@ -553,9 +680,40 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
     if( m_DoNLL )  ATH_MSG_INFO( " nll = " << std::setw( 15 ) << std::left << MinMigrad->MinValue() ); 
     if( m_DoChi2 ) ATH_MSG_INFO( "chi2 = " << std::setw( 15 ) << std::left << MinMigrad->MinValue() ); 
     UpdateGlobalValues( MinMigrad->MinValue(), pars, errors );
-    DoMonitoringPlots( g_pars );
+    if( m_MonitoringPlots ) DoMonitoringPlots( g_pars );
     g_CurrentTemplate->Write( "PostMigradFit" ); 
     SaveParameters( "PostMigradFit", pars, errors );
+    for( int index = 0; index < Par::N; index++ ) {
+      m_Init[ index ] = pars[ index ];
+    }
+    return kTRUE;
+  }
+  else if( what == "InitScan" ) { 
+    ROOT::Math::Functor Fun( this, ( m_DoChi2 ) ? &MuonCalibrationFit::GetChiSquare : &MuonCalibrationFit::GetNegLogLikelihood, Par::N ); 
+    ROOT::Math::Minimizer* MinInitScan = ROOT::Math::Factory::CreateMinimizer( "Minuit2", "Scan" );
+    MinInitScan->SetPrintLevel( 0 );
+    MinInitScan->SetStrategy( 2 );
+    MinInitScan->SetTolerance( 1 );
+    MinInitScan->SetMaxFunctionCalls( 100000 );
+    MinInitScan->SetFunction( Fun );
+    MinInitScan->SetErrorDef( m_Error );
+    SetParameters( MinInitScan, true );
+    MinInitScan->Minimize();
+    const double *fit_pars = MinInitScan->X();
+    const double *fit_errors = MinInitScan->Errors();
+    double pars[ Par::N ];
+    double errors[ Par::N ];
+    FoldParameters( fit_pars, fit_errors, pars, errors );
+    ATH_MSG_INFO( "InitScan minimum found (no errors given):" );
+    for( int index = 0; index < Par::N; index++ ) {
+      ATH_MSG_INFO( "  " << m_ParNames[ index ] << " = " << std::setw( 15 ) << std::left << pars[ index ] );
+    }
+    if( m_DoNLL )  ATH_MSG_INFO( " nll = " << std::setw( 15 ) << std::left << MinInitScan->MinValue() ); 
+    if( m_DoChi2 ) ATH_MSG_INFO( "chi2 = " << std::setw( 15 ) << std::left << MinInitScan->MinValue() ); 
+    UpdateGlobalValues( MinInitScan->MinValue(), pars, errors );
+    if( m_MonitoringPlots ) DoMonitoringPlots( g_pars );
+    g_CurrentTemplate->Write( "PostInitScanFit" ); 
+    SaveParameters( "PostInitScanFit", pars, errors );
     for( int index = 0; index < Par::N; index++ ) {
       m_Init[ index ] = pars[ index ];
     }
@@ -576,7 +734,7 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
       double final_alpha_neg[ Par::N ] = { 0., 0., 0., 0., 0. };
       TRandom random_value( 0 );
       for( int var_index = 0; var_index < Par::N; var_index++ ) {
-        if( ! m_Use[ var_index ] ) continue; // It means the variable is turned off in the fit, no need to scan it!
+        if( ! m_UseLocally[ var_index ] ) continue; // It means the variable is turned off in the fit, no need to scan it!
         double alpha_pos[ Par::N ] = { 0., 0., 0., 0., 0. };
         alpha_pos[ var_index ] = 0.5;
         bool found = kFALSE;
@@ -591,21 +749,24 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
               temp_pars[ var2_index ] = pars[ var2_index ] * ( 1. + alpha_pos[ var2_index ] );
             }
           }
-          // for( int var2_index = 0; var2_index < Par::N; var2_index++ ) {
-          //   ATH_MSG_DEBUG( "temp_pars[ " << var2_index << " ] = " << temp_pars[ var2_index ] );
-          //   ATH_MSG_DEBUG( "pars[ " << var2_index << " ] = " << pars[ var2_index ] );
-          //   ATH_MSG_DEBUG( "alpha_pos[ " << var2_index << " ] = " << alpha_pos[ var2_index ] );
-          // }
           double TempMin = GetFunction( temp_pars );
-          double Dist = fabs( TempMin - g_GlobalMinimum );
+          double Dist = TempMin - g_GlobalMinimum;
+          //::: if new minimum (deltachi2 < 1) is found 
+          if( Dist < -1 ) {
+            for( int index = 0; index < Par::N; index++ ) {
+              m_Init[ index ] = temp_pars[ index ];
+            }
+            return kFALSE;
+          }
           //::: if between 2 and 3 sigmas on one side
-          if( Dist > 4 * m_Error && Dist < 9 * m_Error ) {
+          else if( Dist > 4 * m_Error && Dist < 9 * m_Error ) {
             found = kTRUE;
             final_alpha_pos[ var_index ] = alpha_pos[ var_index ];
             ATH_MSG_DEBUG( "Eureka: alpha_pos[ " << var_index << " ] = " << alpha_pos[ var_index ] << "  ===>  pars[ var_index ] = " << pars[ var_index ] * ( 1. + alpha_pos[ var_index ] ) );
           }
           else {
-            alpha_pos[ var_index ] *= sqrt( random_value.Uniform( 4 * m_Error, 9 * m_Error ) / Dist );
+            float sf = sqrt( random_value.Uniform( 4 * m_Error, 9 * m_Error ) / TMath::Abs( Dist ) );
+            alpha_pos[ var_index ] *= sf;
           }
         }
         double alpha_neg[ Par::N ] = { 0., 0., 0., 0., 0. };
@@ -622,13 +783,15 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
               temp_pars[ var2_index ] = pars[ var2_index ] * ( 1. - alpha_neg[ var2_index ] );
             }
           }
-          // for( int var2_index = 0; var2_index < Par::N; var2_index++ ) {
-          //   ATH_MSG_DEBUG( "temp_pars[ " << var2_index << " ] = " << temp_pars[ var2_index ] );
-          //   ATH_MSG_DEBUG( "pars[ " << var2_index << " ] = " << pars[ var2_index ] );
-          //   ATH_MSG_DEBUG( "alpha_neg[ " << var2_index << " ] = " << alpha_neg[ var2_index ] );
-          // }
           double TempMin = GetFunction( temp_pars );
-          double Dist = fabs( TempMin - g_GlobalMinimum );
+          double Dist = TempMin - g_GlobalMinimum;
+          //::: if new minimum (deltachi2 < 1) is found 
+          if( Dist < -1 ) {
+            for( int index = 0; index < Par::N; index++ ) {
+              m_Init[ index ] = temp_pars[ index ];
+            }
+            return kFALSE;
+          }
           //::: if between 2 and 3 sigmas on one side
           if( Dist > 4 * m_Error && Dist < 9 * m_Error ) {
             found = kTRUE;
@@ -636,13 +799,13 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
             ATH_MSG_DEBUG( "Eureka: alpha_neg[ " << var_index << " ] = " << alpha_neg[ var_index ] << "  ===>  pars[ var_index ] = " << pars[ var_index ] * ( 1. - alpha_neg[ var_index ] ) );
           }
           else {
-            alpha_neg[ var_index ] *= sqrt( random_value.Uniform( 4 * m_Error, 9 * m_Error ) / Dist );
+            alpha_neg[ var_index ] *= sqrt( random_value.Uniform( 4 * m_Error, 9 * m_Error ) / TMath::Abs( Dist ) );
             if( m_PosDef[ var_index ] && pars[ var_index ] * ( 1. - alpha_neg[ var_index ] ) < 0 ) {
               ATH_MSG_DEBUG( "Ouch! alpha_neg = " << alpha_neg[ var_index ] << ", temp_pars[ var_index ] = " << pars[ var_index ] * ( 1. - alpha_neg[ var_index ] ) );
               found = kTRUE;
               alpha_neg[ var_index ] = 1.; 
               final_alpha_neg[ var_index ] = alpha_neg[ var_index ];
-              ATH_MSG_DEBUG( "Eureka (forded): alpha_neg[ " << var_index << " ] = " << alpha_neg[ var_index ] << "  ===>  pars[ var_index ] = " << pars[ var_index ] * ( 1. - alpha_neg[ var_index ] ) );
+              ATH_MSG_DEBUG( "Eureka: alpha_neg[ " << var_index << " ] = " << alpha_neg[ var_index ] << "  ===>  pars[ var_index ] = " << pars[ var_index ] * ( 1. - alpha_neg[ var_index ] ) );
             }
           }
         }
@@ -655,7 +818,7 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
       }
       bool NewMinimumFound = kFALSE;
       for( int the_index = 0; the_index < Par::N; the_index++ ) {
-        if( ! m_Use[ the_index ] ) {
+        if( ! m_UseLocally[ the_index ] ) {
           errors_up[ the_index ] = 0.;
           errors_low[ the_index ] = 0.;
           continue; // It means the variable is turned off in the fit, no need to scan it!
@@ -674,40 +837,20 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
           double currentX = temp_pars[ the_index ]; 
           double currentY = GetFunction( temp_pars );
           //::: Case 1: current sampling sufficiently < than global minimum
-          NewMinimumFound = ( currentY < g_GlobalMinimum && ! TMath::AreEqualAbs( currentY, g_GlobalMinimum, 0.1 ) ); 
-          // if( currentY < g_GlobalMinimum && ! TMath::AreEqualAbs( currentY, g_GlobalMinimum, 0.1 ) && AddIterCounter != times ) {
-          //   g_GlobalMinimum = currentY;
-          //   g_ScanIter++;
-          //   for( int the_2nd_index = 0; the_2nd_index < Par::N; the_2nd_index++ ) {
-          //     pars[ the_2nd_index ] = temp_pars[ the_2nd_index ];
-          //   }
-          //   error_left = -999.;
-          //   error_right = -999.;
-          //   break; 
-          // }
+          NewMinimumFound = ( currentY < g_GlobalMinimum && ! TMath::AreEqualAbs( currentY, g_GlobalMinimum, 0.3 ) ); 
+          ATH_MSG_DEBUG( "currentY = " << currentY << "  g_GlobalMinimum = " << g_GlobalMinimum << "  NewMinimumFound = " << NewMinimumFound );
+          if( NewMinimumFound ) return kFALSE;
           //::: Case 2: previous sampling > m_Error and current < m_Error
           if( previousY - g_GlobalMinimum > m_Error && currentY - g_GlobalMinimum < m_Error ) {
-            // ATH_MSG_DEBUG( "----- Case 2 -----" );
-            // ATH_MSG_DEBUG( "-----       Previous: ( " << previousX << ", " << previousY << " )" );
-            // ATH_MSG_DEBUG( "-----        Current: ( " << currentX << ", " << currentY << " )" );
-            // ATH_MSG_DEBUG( "----- Global Minimum: ( " << pars[ the_index ] << ", " << g_GlobalMinimum << " )" );
             double interY = g_GlobalMinimum + m_Error;
             double interX = ( currentX * ( previousY - interY ) + previousX * ( interY - currentY ) ) / ( previousY - currentY );
             error_left = fabs( interX - pars[ the_index ] );
-            // ATH_MSG_DEBUG( "-----   Interpolated: ( " << interX << ", " << interY << " )" );
-            // ATH_MSG_DEBUG( "-----          Error: ( " << error_left << " )" );
           }
           //::: Case 3: previous sampling < m_Error and current > m_Error
           if( previousY - g_GlobalMinimum < m_Error && currentY - g_GlobalMinimum > m_Error ) {
-            // ATH_MSG_DEBUG( "----- Case 3 -----" );
-            // ATH_MSG_DEBUG( "-----       Previous: ( " << previousX << ", " << previousY << " )" );
-            // ATH_MSG_DEBUG( "-----        Current: ( " << currentX << ", " << currentY << " )" );
-            // ATH_MSG_DEBUG( "----- Global Minimum: ( " << pars[ the_index ] << ", " << g_GlobalMinimum << " )" );
             double interY = g_GlobalMinimum + m_Error;
             double interX = ( currentX * ( previousY - interY ) + previousX * ( interY - currentY ) ) / ( previousY - currentY );
             error_right = fabs( interX - pars[ the_index ] );
-            // ATH_MSG_DEBUG( "-----   Interpolated: ( " << interX << ", " << interY << " )" );
-            // ATH_MSG_DEBUG( "-----          Error: ( " << error_right << " )" );
           }
           previousX = currentX;
           previousY = currentY;
@@ -726,7 +869,7 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
       }
       bool AllScansDone = kTRUE;
       for( int the_index = 0; the_index < Par::N; the_index++ ) {
-        if( ! m_Use[ the_index ] ) continue;
+        if( ! m_UseLocally[ the_index ] ) continue;
         if( errors_up[ the_index ] < 0 ) AllScansDone = kFALSE;
       }
       if( AllScansDone || ( AddIterCounter == times ) ) {
@@ -739,7 +882,7 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
         if( m_DoNLL )  ATH_MSG_INFO( " nll = " << std::setw( 15 ) << std::left << g_GlobalMinimum ); 
         if( m_DoChi2 ) ATH_MSG_INFO( "chi2 = " << std::setw( 15 ) << std::left << g_GlobalMinimum ); 
         UpdateGlobalValues( g_GlobalMinimum, pars, errors_up, errors_low );
-        DoMonitoringPlots( g_pars );
+        if( m_MonitoringPlots ) DoMonitoringPlots( g_pars );
         g_CurrentTemplate->Write( "PostScanFit" ); 
         SaveParameters( "PostScanFit", pars, errors_up, errors_low ); 
         //::: Reset Initial Parameters
@@ -780,27 +923,34 @@ void MuonCalibrationFit::UpdateTemplates( const double* par ) {
     g_CurrentTemplate->ClearData();
     BOOST_FOREACH( Tools::Info theInfo, *g_DataSingleInfo ) {
       if( ! theInfo.IsOS ) continue;
+      float pt_for_binning = ( theInfo.GetMass() < 10 ) ? std::min( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ) : std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt );
       //::://::://:::
       //::: Mass
       //::: Method 1: pt bin chosen with muon to be corrected
       //g_CurrentTemplate->FillMass( Type::Data, theInfo.GetMass(), theInfo.First_Mu_pt );
-      //::: Method 2: pt bin chosen with leading muon!
-      g_CurrentTemplate->FillMass( Type::Data, theInfo.GetMass(), std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ) );
+      //:::
+      //::: Method 2: pt bin chosen with leading muon (Z), subleading muon (Jpsi)!
+      g_CurrentTemplate->FillMass( Type::Data, theInfo.GetMass(), pt_for_binning );
+      //:::
+      //::: Method 3: use only events where leading muon is in RoF!
+      //if( theInfo.First_Mu_pt > theInfo.Second_Mu_pt ) {
+      //  g_CurrentTemplate->FillMass( Type::Data, theInfo.GetMass(), theInfo.First_Mu_pt );
+      //}
       //::://::://:::
       //::: Rho 
       g_CurrentTemplate->FillRho( Type::Data, theInfo.GetRho().first, theInfo.First_Mu_pt );
-      g_CurrentTemplate->FillRho( Type::Data, theInfo.GetRho().second, theInfo.Second_Mu_pt );
     }
     BOOST_FOREACH( Tools::Info theInfo, *g_DataBothInfo ) {
       if( ! theInfo.IsOS ) continue;
+      float pt_for_binning = ( theInfo.GetMass() < 10 ) ? std::min( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ) : std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt );
       //::://::://:::
       //::: Mass
       //::: Method 1: pt bin chosen with muon to be corrected
       //g_CurrentTemplate->FillMass( Type::Data, theInfo.GetMass(), theInfo.First_Mu_pt );
       //g_CurrentTemplate->FillMass( Type::Data, theInfo.GetMass(), theInfo.Second_Mu_pt );
-      //::: Method 2: pt bin chosen with leading muon!
+      //::: Method 2/3: pt bin chosen with leading muon / use only events where leading muon is in RoF
       //theInfo.Print( Type::Data );
-      g_CurrentTemplate->FillMass( Type::Data, theInfo.GetMass(), std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ) );
+      g_CurrentTemplate->FillMass( Type::Data, theInfo.GetMass(), pt_for_binning );
       //::://::://:::
       //::: Rho 
       g_CurrentTemplate->FillRho( Type::Data, theInfo.GetRho().first, theInfo.First_Mu_pt );
@@ -810,26 +960,31 @@ void MuonCalibrationFit::UpdateTemplates( const double* par ) {
     g_CurrentTemplate->ClearBackground();
     BOOST_FOREACH( Tools::Info theInfo, *g_BackgroundSingleInfo ) {
       if( ! theInfo.IsOS ) continue;
+      float pt_for_binning = ( theInfo.GetMass() < 10 ) ? std::min( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ) : std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt );
       //::://::://:::
       //::: Mass
       //::: Method 1: pt bin chosen with muon to be corrected
       //g_CurrentTemplate->FillMass( Type::Background, theInfo.GetMass(), theInfo.First_Mu_pt, theInfo.Weight );
       //::: Method 2: pt bin chosen with leading muon!
-      g_CurrentTemplate->FillMass( Type::Background, theInfo.GetMass(), std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ), theInfo.Weight );
+      g_CurrentTemplate->FillMass( Type::Background, theInfo.GetMass(), pt_for_binning, theInfo.Weight );
+      //::: Method 3: use only events where leading muon is in RoF!
+      //if( theInfo.First_Mu_pt > theInfo.Second_Mu_pt ) {
+      //  g_CurrentTemplate->FillMass( Type::Background, theInfo.GetMass(), theInfo.First_Mu_pt, theInfo.Weight );
+      //}
       //::://::://:::
       //::: Rho 
       g_CurrentTemplate->FillRho( Type::Background, theInfo.GetRho().first, theInfo.First_Mu_pt, theInfo.Weight );
-      g_CurrentTemplate->FillRho( Type::Background, theInfo.GetRho().second, theInfo.Second_Mu_pt, theInfo.Weight );
     }
     BOOST_FOREACH( Tools::Info theInfo, *g_BackgroundBothInfo ) {
       if( ! theInfo.IsOS ) continue;
+      float pt_for_binning = ( theInfo.GetMass() < 10 ) ? std::min( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ) : std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt );
       //::://::://:::
       //::: Mass
       //::: Method 1: pt bin chosen with muon to be corrected
       //g_CurrentTemplate->FillMass( Type::Background, theInfo.GetMass(), theInfo.First_Mu_pt, theInfo.Weight );
       //g_CurrentTemplate->FillMass( Type::Background, theInfo.GetMass(), theInfo.Second_Mu_pt, theInfo.Weight );
-      //::: Method 2: pt bin chosen with leading muon!
-      g_CurrentTemplate->FillMass( Type::Background, theInfo.GetMass(), std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ), theInfo.Weight );
+      //::: Method 2/3: pt bin chosen with leading muon!
+      g_CurrentTemplate->FillMass( Type::Background, theInfo.GetMass(), pt_for_binning, theInfo.Weight );
       //::://::://:::
       //::: Rho 
       g_CurrentTemplate->FillRho( Type::Background, theInfo.GetRho().first, theInfo.First_Mu_pt, theInfo.Weight );
@@ -840,37 +995,55 @@ void MuonCalibrationFit::UpdateTemplates( const double* par ) {
   }
   //::: MonteCarlo
   //::: Single Muon Correction
+  TRandom3 rand_gen( 2988100123 );
   BOOST_FOREACH( Tools::Info theInfo, *g_MonteCarloSingleInfo ) {
     if( ! theInfo.IsOS ) continue;
-    TRandom2 rand_gen( int( TMath::Abs( theInfo.Gamma ) * 1000000 ) );
+    //std::cout << "GREP ME ====== " << int( TMath::Abs( theInfo.Gamma ) * 1000000 ) << std::endl;
     for( int index = 0; index < m_NumRandomValues; index++ ) {
       double rnd = rand_gen.Gaus( 0, 1 );
+      float pt_for_binning = ( theInfo.GetMass() < 10 ) ? std::min( theInfo.Corr_First_Mu_pt( par, rnd ), theInfo.Second_Mu_pt ) : std::max( theInfo.Corr_First_Mu_pt( par, rnd ), theInfo.Second_Mu_pt );
       //::://::://:::
       //::: Mass
       //::: Method 1: pt bin chosen with muon to be corrected
       //g_CurrentTemplate->FillMass( Type::MC, theInfo.GetMassSingle( par, rnd ), theInfo.Corr_First_Mu_pt( par, rnd ), theInfo.Weight / ( float ) m_NumRandomValues );
       //::: Method 2: pt bin chosen with leading muon!
-      g_CurrentTemplate->FillMass( Type::MC, theInfo.GetMassSingle( par, rnd ), std::max( theInfo.Corr_First_Mu_pt( par, rnd ), theInfo.Second_Mu_pt ), theInfo.Weight / ( float ) m_NumRandomValues );
+      g_CurrentTemplate->FillMass( Type::MC, theInfo.GetMassSingle( par, rnd ), pt_for_binning, theInfo.Weight / ( float ) m_NumRandomValues );
+      //::: Method 3: use only events where leading muon is in RoF!
+      //if( theInfo.Corr_First_Mu_pt( par, rnd ) > theInfo.Second_Mu_pt ) {
+      //  g_CurrentTemplate->FillMass( Type::MC, theInfo.GetMassSingle( par, rnd ), theInfo.Corr_First_Mu_pt( par, rnd ), theInfo.Weight / ( float ) m_NumRandomValues );
+      //}
       //::://::://:::
       //::: Rho 
       g_CurrentTemplate->FillRho( Type::MC, theInfo.GetRho( par, rnd ).first, theInfo.Corr_First_Mu_pt( par, rnd ), theInfo.Weight / ( float ) m_NumRandomValues );
-      g_CurrentTemplate->FillRho( Type::MC, theInfo.GetRho( par, rnd ).second, theInfo.Corr_Second_Mu_pt( par, rnd ), theInfo.Weight / ( float ) m_NumRandomValues );
     }
   }
   //::: Double Muon Correction
   BOOST_FOREACH( Tools::Info theInfo, *g_MonteCarloBothInfo ) {
     if( ! theInfo.IsOS ) continue;
-    TRandom2 rand_gen( int( TMath::Abs( theInfo.Gamma ) * 1000000 ) );
+    //std::cout << "GREP ME ====== " << int( TMath::Abs( theInfo.Gamma ) * 1000000 ) << std::endl;
+    //TRandom2 rand_gen( int( TMath::Abs( theInfo.Gamma ) * 1000000 ) );
     for( int index = 0; index < m_NumRandomValues; index++ ) {
       double rnd1 = rand_gen.Gaus( 0, 1 );
       double rnd2 = rand_gen.Gaus( 0, 1 );
+      float pt_for_binning = ( theInfo.GetMass() < 10 ) ? std::min( theInfo.Corr_First_Mu_pt( par, rnd1 ), theInfo.Corr_Second_Mu_pt( par, rnd2 ) ) : std::max( theInfo.Corr_First_Mu_pt( par, rnd1 ), theInfo.Corr_Second_Mu_pt( par, rnd2 ) ); 
       //::://::://:::
       //::: Mass
       //::: Method 1: pt bin chosen with muon to be corrected
       //g_CurrentTemplate->FillMass( Type::MC, theInfo.GetMassBoth( par, rnd1, rnd2 ), theInfo.Corr_First_Mu_pt( par, rnd1 ), theInfo.Weight / ( float ) m_NumRandomValues );
       //g_CurrentTemplate->FillMass( Type::MC, theInfo.GetMassBoth( par, rnd1, rnd2 ), theInfo.Corr_Second_Mu_pt( par, rnd2 ), theInfo.Weight / ( float ) m_NumRandomValues );
+      //if( theInfo.EvtNum == 911 || theInfo.EvtNum == 991 || theInfo.EvtNum == 239 || theInfo.EvtNum == 144 || theInfo.EvtNum == 68 ) {
+      //  std::cout << " evt: " << theInfo.EvtNum << std::endl; 
+      //  std::cout << " bef: " << theInfo.First_Mu_pt << ", aft: " << theInfo.Corr_First_Mu_pt( par, rnd1 ) << std::endl;
+      //  std::cout << " bef: " << theInfo.Second_Mu_pt << ", aft: " << theInfo.Corr_Second_Mu_pt( par, rnd2 ) << std::endl;
+      //  std::cout << " pars: ";
+      //  for( int i = 0; i < Par::N; i++ ) std::cout << "( " << i << "," << par[i] << ") ";
+      //  std::cout << std::endl;
+      //  std::cout << theInfo.GetMassBoth( par, rnd1, rnd2 ) << std::endl;
+      //  std::cout << pt_for_binning << std::endl;
+      //}
       //::: Method 2: pt bin chosen with leading muon!
-      g_CurrentTemplate->FillMass( Type::MC, theInfo.GetMassBoth( par, rnd1, rnd2 ), std::max( theInfo.Corr_First_Mu_pt( par, rnd1 ), theInfo.Corr_Second_Mu_pt( par, rnd2 ) ), theInfo.Weight / ( float ) m_NumRandomValues );
+      //std::cout << " evt: " << theInfo.EvtNum << std::endl; 
+      g_CurrentTemplate->FillMass( Type::MC, theInfo.GetMassBoth( par, rnd1, rnd2 ), pt_for_binning, theInfo.Weight / ( float ) m_NumRandomValues );
       //::://::://:::
       //::: Rho 
       g_CurrentTemplate->FillRho( Type::MC, theInfo.GetRho( par, rnd1 ).first, theInfo.Corr_First_Mu_pt( par, rnd1 ), theInfo.Weight / ( float ) m_NumRandomValues );
@@ -880,7 +1053,7 @@ void MuonCalibrationFit::UpdateTemplates( const double* par ) {
   g_UpdatedTemplates++;
 }
 
-void MuonCalibrationFit::FoldVariables( const double* fit_pars, const double* fit_errs, double* pars, double* errs ) {
+void MuonCalibrationFit::FoldParameters( const double* fit_pars, const double* fit_errs, double* pars, double* errs ) {
   for( int index = 0; index < Par::N; index++ ) {
     if( m_PosDef[ index ] ) {
       pars[ index ] = TMath::Abs( fit_pars[ index ] );
@@ -913,24 +1086,42 @@ void MuonCalibrationFit::UpdateGlobalValues( double min, const double* pars, con
   UpdateGlobalValues( min, pars, errs, errs ); 
 }
 
-void MuonCalibrationFit::SetVariables( ROOT::Math::Minimizer* Minim ) {
-  for( int index = 0; index < Par::N; index++ ) {
-    if( ! m_Use[ index ] ) {
-      ATH_MSG_INFO( "Setting Constant Variable Named: " << m_ParNames[ index ] );
-      Minim->SetFixedVariable( index, m_ParNames[ index ], 0 ); 
+void MuonCalibrationFit::ResetParameters() {
+  //::: Go back to general configuration for parameters to be fit
+  for( int index_minuit = 0; index_minuit < Par::N; index_minuit++ ) {
+    m_UseLocally[ index_minuit ] = m_Use[ index_minuit ];
+  }
+  return;
+}
+
+void MuonCalibrationFit::SetParameters( ROOT::Math::Minimizer* Minim, bool forScan ) {
+  std::vector< unsigned int > ordered_indeces;
+  // if( forScan ) {
+  //   ordered_indeces = { Par::p0, Par::p1, Par::p2, Par::s0, Par::s1 };
+  // }
+  // else {
+  ordered_indeces = { Par::s0, Par::s1, Par::p0, Par::p1, Par::p2 };
+  // }
+  for( int index_minuit = 0; index_minuit < Par::N; index_minuit++ ) {
+    int index = ordered_indeces[ index_minuit ];
+    if( ! m_UseLocally[ index ] ) {
+      float fixed_value = g_best_pars[ index ];
+      if( ! m_Use[ index ] ) {
+        //::: If not generally used in the fit:
+        fixed_value = m_Init[ index ];
+      }
+      ATH_MSG_INFO( "Setting Constant Variable Named: " << m_ParNames[ index ] << " at: " << fixed_value );
+      Minim->SetFixedVariable( index_minuit, m_ParNames[ index ], fixed_value ); 
     }
-    //::: Deactivated due to possible bug: step not used!!!!!!!
-    //::: else if( m_PosDef[ index ] ) {
-    //:::   ATH_MSG_INFO( "Setting Lower Limited Variable Named: " << m_ParNames[ index ] << ", Init: " << m_Init[ index ] << ", Step: " << m_Step[ index ] );
-    //:::   Minim->SetLowerLimitedVariable( index, m_ParNames[ index ], m_Init[ index ], m_Step[ index ], 0. );
-    //::: }
     else {
-      ATH_MSG_INFO( "Setting Variable Named: " << m_ParNames[ index ] << ", Init: " << m_Init[ index ] << ", Step: " << m_Step[ index ] );
-      Minim->SetVariable( index, m_ParNames[ index ], m_Init[ index ], m_Step[ index ] );
+      float ScaleFactorForScan = ( forScan ) ? 5 : 1;
+      ATH_MSG_INFO( "Setting Variable Named: " << m_ParNames[ index ] << ", Init: " << m_Init[ index ] << ", Step: " << m_Step[ index ] * ScaleFactorForScan );
+      Minim->SetVariable( index_minuit, m_ParNames[ index ], m_Init[ index ], m_Step[ index ] * ScaleFactorForScan );
     }
   }
 }
 
+/*
 float MuonCalibrationFit::GetTruth( float eta, int par ) {
   if( par == Par::s0 ) {
     TF1 func( "func", "0.", -2.5, 2.5 ); 
@@ -959,3 +1150,4 @@ float MuonCalibrationFit::GetTruth( float eta, int par ) {
     return -666.;
   }
 }
+*/

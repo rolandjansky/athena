@@ -30,6 +30,10 @@ namespace Bkg { enum { Exp, Lin, N }; }
 
 namespace Tools {
 
+  float GetWeight( int chNum );
+
+  float GetNormPhi( float phi, float eta ); //::: Return 0.5 for Large sectors and 1.5 for Small ones
+
   struct BoundsInfo {
     float Min;
     float Max;
@@ -112,13 +116,15 @@ namespace Tools {
     double err_low[ Par::N ];
     bool Corrected;
     //::://:::
-    bool HasMuon( double eta, double phi ) { 
+    bool HasMuon( double eta, double phi, int sector ) { 
       for( std::vector< VariableInfo >::iterator It = VarInfo.begin(); It != VarInfo.end(); ++It ) {
         double cut_var = -666.;
         if     ( ( *It ).Name == "eta"    ) cut_var = eta;
         else if( ( *It ).Name == "abseta" ) cut_var = TMath::Abs( eta );
         else if( ( *It ).Name == "phi" )    cut_var = phi;
         else if( ( *It ).Name == "absphi" ) cut_var = TMath::Abs( phi );
+        else if( ( *It ).Name == "normphi" ) cut_var = GetNormPhi( phi, eta );
+        else if( ( *It ).Name == "sector" ) cut_var = sector % 2;
         else {
           std::cerr << "Unknown variable in Regions file!" << std::endl; 
           return kFALSE;
@@ -134,9 +140,9 @@ namespace Tools {
     //::://:::
     TString GetString() { TString res; res.Form( "\nRegion n.%d, called %s", Order, Name.Data() ); return res; }
     //::://:::
-    void SaveToFile( TFile* file, float chi2, float nll ) { 
+    void SaveToFile( TFile* file, float chi2, float nll, int ndof ) { 
       file->cd(); 
-      TVectorD temp_vector( 3 * Par::N + 2 ); 
+      TVectorD temp_vector( 3 * Par::N + 3 ); 
       for( int index = 0; index < Par::N; index++ ) {
         temp_vector[ 3 * index ]     = par[ index ];
         temp_vector[ 3 * index + 1 ] = err_up[ index ];
@@ -144,12 +150,25 @@ namespace Tools {
       }
       temp_vector[ 3 * Par::N ] = chi2;
       temp_vector[ 3 * Par::N + 1 ] = nll;
+      temp_vector[ 3 * Par::N + 2 ] = ndof;
       temp_vector.Write( "FinalResults___" + Name ); 
       TString res = Name;
       res.ReplaceAll( "___", ":::" );
       for( std::vector< VariableInfo >::iterator It = VarInfo.begin(); It != VarInfo.end(); ++It ) {
         TString cut_var = "";
-        if     ( ( *It ).Name == "eta"    ) cut_var = "#eta";
+        if( ( *It ).Name == "sector" ) {
+          if     ( ( *It ).Min == 0 && ( *It ).Max == 0 ) res += ":::Small sectors"; 
+          else if( ( *It ).Min == 1 && ( *It ).Max == 1 ) res += ":::Large sectors"; 
+          else if( ( *It ).Min == 0 && ( *It ).Max == 1 ) res += ":::All sectors"; 
+          continue;
+        }
+        if( ( *It ).Name == "normphi" ) {
+          if     ( ( *It ).Min == 1 && ( *It ).Max == 2 ) res += ":::Small sectors"; 
+          else if( ( *It ).Min == 0 && ( *It ).Max == 1 ) res += ":::Large sectors"; 
+          else if( ( *It ).Min == 0 && ( *It ).Max == 2 ) res += ":::All sectors"; 
+          continue;
+        }
+        else if( ( *It ).Name == "eta"    ) cut_var = "#eta";
         else if( ( *It ).Name == "abseta" ) cut_var = "|#eta|";
         else if( ( *It ).Name == "phi" )    cut_var = "#phi";
         else if( ( *It ).Name == "absphi" ) cut_var = "|#phi|";
@@ -169,8 +188,8 @@ namespace Tools {
       return -999.;
     }
     //::://:::
-    Float_t Correct( Float_t pt, Float_t r0 ) {
-      return ( par[ Par::s0 ] + ( 1. + par[ Par::s1 ] ) * pt ) / ( 1 + r0 * TMath::Sqrt( TMath::Power( par[ Par::p0 ] / pt, 2 ) + TMath::Power( par[ Par::p1 ], 2 ) + TMath::Power( par[ Par::p2 ] * pt, 2 ) ) );
+    Float_t Correct( Float_t pt, Float_t r0, Float_t add ) {
+      return ( par[ Par::s0 ] + ( 1. + par[ Par::s1 ] ) * pt ) / ( 1 + r0 * TMath::Sqrt( TMath::Power( par[ Par::p0 ] / pt, 2 ) + TMath::Power( par[ Par::p1 ], 2 ) + TMath::Power( par[ Par::p2 ] * pt * add * add, 2 ) ) );
     }
   } RegionInfo;
   
@@ -187,6 +206,8 @@ namespace Tools {
     float Gamma;
     ULong64_t EvtNum;
     bool  IsOS;
+    float FirstAdd = 1.;
+    float SecondAdd = 1.;
     //::://:::
     Info( float pt1, float pt1_id, float eta1, float phi1, float pt2, float pt2_id, float eta2, float phi2, float weight, ULong64_t evt_num, bool is_os ) : First_Mu_pt( pt1 ), First_Mu_pt_id( pt1_id ), First_Mu_eta( eta1 ), First_Mu_phi( phi1 ), Second_Mu_pt( pt2 ), Second_Mu_pt_id( pt2_id ), Second_Mu_eta( eta2 ), Second_Mu_phi( phi2 ), Weight( weight ), EvtNum( evt_num ), IsOS( is_os ) {
       TLorentzVector a, b;
@@ -200,6 +221,11 @@ namespace Tools {
       float First_Mu_Taylor = 1. + First_Mu_epsilon / 2. - First_Mu_epsilon * First_Mu_epsilon / 8.;
       float Second_Mu_Taylor = 1. + Second_Mu_epsilon / 2. - Second_Mu_epsilon * Second_Mu_epsilon / 8.;
       float Angle = a.Angle( b.Vect() );
+      if( First_Mu_pt_id < 0.000001 && TMath::Abs( First_Mu_eta ) > 2 ) FirstAdd = TMath::Power( TMath::SinH( First_Mu_eta ), 2 );
+      if( Second_Mu_pt_id < 0.000001 && TMath::Abs( Second_Mu_eta ) > 2 ) SecondAdd = TMath::Power( TMath::SinH( Second_Mu_eta ), 2 );
+      //std::cout << "Just to check, First_Mu_eta=" << First_Mu_eta << " Second_Mu_eta=" << Second_Mu_eta << std::endl;
+      //std::cout << "First_Mu_pt_id=" << First_Mu_pt_id << " First_Mu_pt_id < 0.000001=" << ( First_Mu_pt_id < 0.000001 ) << " First_Mu_eta=" << First_Mu_eta << " TMath::Abs( First_Mu_eta ) > 2=" << ( TMath::Abs( First_Mu_eta ) > 2 ) << " FirstAdd=" << FirstAdd << std::endl; 
+      //std::cout << "Second_Mu_pt_id=" << Second_Mu_pt_id << " Second_Mu_pt_id < 0.000001=" << ( Second_Mu_pt_id < 0.000001 ) << " Second_Mu_eta=" << Second_Mu_eta << " TMath::Abs( Second_Mu_eta ) > 2=" << ( TMath::Abs( Second_Mu_eta ) > 2 ) << " SecondAdd=" << SecondAdd << std::endl; 
       Gamma = ( First_Mu_Taylor * Second_Mu_Taylor - TMath::Cos( Angle ) ) / ( First_Mu_sintheta * Second_Mu_sintheta );
     }
     //::://:::
@@ -280,6 +306,14 @@ namespace Tools {
     }
     //::://:::
     float GetMass( float pt1, float pt2 ) {
+      //TLorentzVector a, b;
+      //a.SetPtEtaPhiM( pt1, First_Mu_eta, First_Mu_phi, MuonMass ); 
+      //b.SetPtEtaPhiM( pt2, Second_Mu_eta, Second_Mu_phi, MuonMass ); 
+      ////std::cout << "TLV    Output: " << ( a + b ).M() << std::endl;
+      ////std::cout << "Taylor Output: " << TMath::Sqrt( 2. * ( MuonMass * MuonMass + pt1 * pt2 * Gamma ) ) << std::endl << std::endl;
+      //float m1 = ( a + b ).M();
+      //float m2 = TMath::Sqrt( 2. * ( MuonMass * MuonMass + pt1 * pt2 * Gamma ) );
+      //if( fabs( m1 - m2 ) > 0.0001 ) std::cout << m1 - m2 << "   " << m1 << "   " << m2 << std::endl;
       return TMath::Sqrt( 2. * ( MuonMass * MuonMass + pt1 * pt2 * Gamma ) );
     }
     //::://:::
@@ -308,15 +342,16 @@ namespace Tools {
     }
     //::://:::
     float Corr_First_Mu_pt( const double* par, double rnd ) {
-      return Corr_Mu_pt( par, First_Mu_pt, rnd ); 
+      return Corr_Mu_pt( par, First_Mu_pt, FirstAdd, rnd ); 
     }
     //::://:::
     float Corr_Second_Mu_pt( const double* par, double rnd ) {
-      return Corr_Mu_pt( par, Second_Mu_pt, rnd ); 
+      return Corr_Mu_pt( par, Second_Mu_pt, SecondAdd, rnd ); 
     }
     //::://:::
-    float Corr_Mu_pt( const double* par, float pt, float rnd ) {
-      return ( par[ Par::s0 ] + ( 1. + par[ Par::s1 ] ) * pt ) / ( 1 + rnd * TMath::Sqrt( TMath::Power( par[ Par::p0 ] / pt, 2 ) + TMath::Power( par[ Par::p1 ], 2 ) + TMath::Power( par[ Par::p2 ] * pt, 2 ) ) );
+    float Corr_Mu_pt( const double* par, float pt, float add, float rnd ) {
+      //std::cout << " Checking ---> " << add << std::endl;
+      return ( par[ Par::s0 ] + ( 1. + par[ Par::s1 ] ) * pt ) / ( 1 + rnd * TMath::Sqrt( TMath::Power( par[ Par::p0 ] / pt, 2 ) + TMath::Power( par[ Par::p1 ], 2 ) + TMath::Power( par[ Par::p2 ] * pt * add, 2 ) ) );
     }
   }; 
 

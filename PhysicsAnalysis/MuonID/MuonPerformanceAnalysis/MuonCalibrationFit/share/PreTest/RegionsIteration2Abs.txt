@@ -1,0 +1,10 @@
+Var:abseta[min]  Var:abseta[max]  Var:sector[min]  Var:sector[max]  Name
+0.00             0.40             0                1                Region1
+0.40             0.80             0                1                Region2
+0.80             1.05             0                1                Region3
+1.05             1.25             0                1                Region4
+1.25             1.50             0                1                Region5
+1.50             1.70             0                1                Region6
+1.70             2.00             0                1                Region7
+2.00             2.30             0                1                Region8
+2.30             2.50             0                1                Region9

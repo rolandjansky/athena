@@ -5,6 +5,7 @@
 #ifndef MuonCalibrationFit_h
 #define MuonCalibrationFit_h
 
+#include <array>
 #include <iostream>
 #include <iomanip>
 #include <random>
@@ -60,31 +61,42 @@ public:
   double GetFunction( const double* par ) { if( m_DoNLL ) return GetNegLogLikelihood( par ); else if( m_DoChi2  ) return GetChiSquare( par ); else return -666.; }
   double GetNegLogLikelihood( const double *par );
   double GetChiSquare( const double *par );
-  float GetTruth( float eta, int par ); 
+  // float GetTruth( float eta, int par ); 
   //:::
-  void SetVariables( ROOT::Math::Minimizer* Minim );
+  void SetParameters( ROOT::Math::Minimizer* Minim, bool forScan = false );
+  void ResetParameters();
+  void ActivateParameters( std::string active_pars );
   void UpdateTemplates( const double* par );
   void UpdateGlobalValues( double min, const double* pars, const double* errs_up, const double* errs_low );
   void UpdateGlobalValues( double min, const double* pars, const double* errs );
-  void FoldVariables( const double* fit_pars, const double* fit_errs, double* pars, double* errs );
+  void FoldParameters( const double* fit_pars, const double* fit_errs, double* pars, double* errs );
   void DoMonitoringPlots( const double* par );
   void SaveParameters( TString name, const double* pars, const double* errs_up, const double* errs_low );
   void SaveParameters( TString name, const double* pars, const double* errs );
+  void CopyToBestFitParameters();
   void SaveTime( TString name, float time );
   bool RunMinimizationStep( std::string what, int times );
   void Stop( Tools::RegionInfo* fitRegion );
-  void FillVectors( std::vector< Tools::RegionInfo* > RegInfos, std::vector< Tools::RegionInfo* > RegInfosForID, Tools::RegionInfo* RegInfo );
+  void FillVectors( std::vector< Tools::RegionInfo* > RegInfos, std::vector< Tools::RegionInfo* > RegInfosForID, Tools::RegionInfo* RegInfo, bool can_correct_all );
   void GetMemoryUsage();
 
 private:
   bool     g_FilledData;
   TFile*   g_Output;
   TTree*   g_Tree;
+  //::: Running parameters
   double   g_pars[ Par::N ];
   double   g_errs_up[ Par::N ];
   double   g_errs_low[ Par::N ];
   double   g_NLL; 
   double   g_Chi2; 
+  //::: Best (so far) parameters
+  double   g_best_pars[ Par::N ];
+  double   g_best_errs_up[ Par::N ];
+  double   g_best_errs_low[ Par::N ];
+  double   g_best_NLL; 
+  double   g_best_Chi2; 
+  //:::
   double   g_GlobalMinimum; 
   int      g_Index;
   int      g_ScanPar;
@@ -109,6 +121,7 @@ private:
   std::string m_RunMode;
   int         m_MaxRetrials;
   float       m_ProbThreshold;
+  std::string m_GRL_Name;
   std::string m_Input;
   std::string m_InputForID;
   std::string m_Output;
@@ -118,18 +131,29 @@ private:
   std::string m_InputRegionsFile;
   std::string m_InputRegionsFileForID;
   std::string m_OutputRegionsFile;
+  std::string m_JpsiReweightingFile;
+  std::string m_ZReweightingFile;
   bool        m_BatchMode;
+  bool        m_MonitoringPlots;
+  bool        m_RequireErrors;
   bool        m_DoNLL;
   bool        m_DoChi2;
   double      m_Error;
   int         m_MaxEvents;
   bool        m_Use[ Par::N ];
+  bool        m_UseLocally[ Par::N ];
+  float       m_Prev[ Par::N ];
   float       m_Init[ Par::N ], m_MinInit[ Par::N ], m_MaxInit[ Par::N ];
   float       m_Step[ Par::N ], m_MinStep[ Par::N ], m_MaxStep[ Par::N ];
   bool        m_PosDef[ Par::N ];
   std::string m_ParNames[ Par::N ];
   int         m_Splitting;
   float       m_NumRandomValues;
+  float       m_MinMuonsPt;
+  float       m_MinMuonsPtForJpsi;
+  float       m_MaxMuonsPtForJpsi;
+  float       m_MinLeadingMuonPtForZ;
+  float       m_MinSubLeadingMuonPtForZ;
   int         m_JpsiMass_Bins;
   float       m_JpsiMass_Min;
   float       m_JpsiMass_Max;

@@ -35,6 +35,7 @@ class PlotObject:
     self.p2errLo = parameters[ 14 ]
     self.nll     = parameters[ 15 ]
     self.chi2    = parameters[ 16 ]
+    self.NdoF    = parameters[ 17 ]
     #=====#
     self.Hist.SetLineColor( ROOT.kBlack )
     self.Hist.SetLineStyle( 1 )
@@ -44,14 +45,20 @@ class PlotObject:
     else:
       if 'Jpsi' in self.Variable:
         if 'MC' in self.DataType:
-          self.Hist.SetFillColor( ROOT.TColor.GetColor( '#FFFFCC' ) ) 
+          #self.Hist.SetFillColor( ROOT.TColor.GetColor( '#FFFFCC' ) ) 
+          #self.Hist.SetFillColor( ROOT.TColor.GetColor( '#FFFFFF' ) ) 
+          self.Hist.SetFillColor( ROOT.TColor.GetColor( '#ffffff' ) ) 
         elif 'Bkg' in self.DataType:
-          self.Hist.SetFillColor( ROOT.TColor.GetColor( '#FFAD33' ) )  #ROOT.TColor.GetColor( '#AFEEEE' ) ) #ROOT.TColor.GetColor( '#336699' ) ) 
+          #self.Hist.SetFillColor( ROOT.TColor.GetColor( '#FFAD33' ) )  #ROOT.TColor.GetColor( '#AFEEEE' ) ) #ROOT.TColor.GetColor( '#336699' ) ) 
+          #self.Hist.SetFillColor( ROOT.TColor.GetColor( '#002147' ) )  #ROOT.TColor.GetColor( '#AFEEEE' ) ) #ROOT.TColor.GetColor( '#336699' ) ) 
+          self.Hist.SetFillColor( ROOT.TColor.GetColor( '#b5d4e3' ) )   #ROOT.TColor.GetColor( '#69913B' ) )  #ROOT.TColor.GetColor( '#AFEEEE' ) ) #ROOT.TColor.GetColor( '#336699' ) ) 
       else:
         if 'MC' in self.DataType:
-          self.Hist.SetFillColor( ROOT.TColor.GetColor( '#FFE6FF' ) ) 
+          #self.Hist.SetFillColor( ROOT.TColor.GetColor( '#FFE6FF' ) ) 
+          self.Hist.SetFillColor( ROOT.TColor.GetColor( '#ffff94' ) ) #'#FF8566' ) ) #CEE6FF' ) ) 
         elif 'Bkg' in self.DataType:
-          self.Hist.SetFillColor( ROOT.TColor.GetColor( '#471947' ) ) 
+          #self.Hist.SetFillColor( ROOT.TColor.GetColor( '#471947' ) ) 
+          self.Hist.SetFillColor( ROOT.TColor.GetColor( '#eb8847' ) ) #'#B80000' ) ) #'#002147' ) ) 
 
   def __str__( self ):
     return '%s - %s - %s - %s - %s' % ( self.FitLevel, self.Region, self.Variable, self.PtBin, self.DataType )

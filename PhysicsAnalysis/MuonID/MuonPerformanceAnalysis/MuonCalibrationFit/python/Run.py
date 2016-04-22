@@ -5,76 +5,56 @@ import Code.JobUtils as JobUtils
 
 def main():
 
-  ##########################
-  ###  Setting Up Job  ###
-  ######################
+  CurrentDir = '$TestArea/PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonCalibrationFit'
   
-  #TestJob1 = JobUtils.Job( 'TestJob1' )
-  #TestJob1.Level = 'VERBOSE'
-  #TestJob1.Detector = 'ID'
-  #TestJob1.FitType = 'Chi2'
-  #TestJob1.Splittings = 1000
-  #TestJob1.NumRandomValues = 10
-  #TestJob1.RunMode = 'Simplex:20'
-  #TestJob1.Regions = os.path.expandvars( '$TestArea/MuonCalibrationFit/share/Iter0Regions.txt' )
-  #TestJob1.Files = JobUtils.Files( '$TestArea/MuonCalibrationFit/data/One', 'Data.root', 'MonteCarlo.root', 'Background.root' ) 
-  #TestJob1.Stat = 1
-  #TestJob1.JpsiMassPts = '6 50'
-  #TestJob1.ZMassPts = '6 1000'
-  #TestJob1.Run() 
+  #Parallel_ID_Job01 = JobUtils.Job( Name = 'Parallel_ID_Job01', Detector = 'ID' )
+  #Parallel_ID_Job01.Level = 'INFO'
+  #Parallel_ID_Job01.FitType = 'Likelihood'
+  #Parallel_ID_Job01.Splittings = 1
+  #Parallel_ID_Job01.NumRandomValues = 1
+  #Parallel_ID_Job01.RunMode = 'InitScan:1+Simplex:1'
+  #Parallel_ID_Job01.MaxRetrials = 1
+  ##Parallel_ID_Job01.Regions = os.path.expandvars( '%s/share/OrderedRegionsIDAbsEtaEight.txt' % CurrentDir )
+  #Parallel_ID_Job01.Regions = os.path.expandvars( '%s/share/OrderedRegionsID.txt' % CurrentDir )
+  #Parallel_ID_Job01.Files = JobUtils.Files( '%s/data/25ns' % CurrentDir, 'Data2015.root', 'MonteCarlo.root', 'Background.root' ) 
+  #Parallel_ID_Job01.GRL = os.path.expandvars( '%s/grl/data15_13TeV.periodAllYear_DetStatus-v73-pro19-08_DQDefects-00-01-02_PHYS_StandardGRL_All_Good_25ns.xml' % CurrentDir )
+  #Parallel_ID_Job01.Stat = 3.2 
+  #Parallel_ID_Job01.JpsiMassPts = '5 7 20'
+  #Parallel_ID_Job01.ZMassPts = '22 47 300'
+  #Parallel_ID_Job01.JpsiRewFile = os.path.expandvars( '%s/reweighting/JpsiRew.root' % CurrentDir )
+  #Parallel_ID_Job01.ZRewFile = os.path.expandvars( '%s/reweighting/ZRew.root' % CurrentDir )
+  #Parallel_ID_Job01.Fit_s0 = False
+  #Parallel_ID_Job01.Fit_s1 = True
+  #Parallel_ID_Job01.Fit_p0 = False
+  #Parallel_ID_Job01.Fit_p1 = True
+  #Parallel_ID_Job01.Fit_p2 = True
+  #Parallel_ID_Job01.RunningSystem = 'PBS'
+  #Parallel_ID_Job01.RegionHandling = 'Parallel'
+  #Parallel_ID_Job01.JobsPerRegion = 10
+  #Parallel_ID_Job01.Run() 
 
-  TestJob2 = JobUtils.Job( 'TestJob2' )
-  TestJob2.StartFrom( 'TestJob1' )
-  TestJob2.RunMode = 'Simplex:20+Migrad:1'
-  TestJob2.NumRandomValues = 1
-  TestJob2.Regions = os.path.expandvars( '$TestArea/MuonCalibrationFit/share/Iter3Regions.txt' )
-  TestJob2.JpsiMassPts = '6 10 50'
-  TestJob2.ZMassPts = '6 45 1000'
-  TestJob2.Run() 
-  '''
-  #FunctionsJob2 = JobUtils.Job( 'FunctionsJob2' )
-  #FunctionsJob2.StartFrom( 'FunctionsJob1' )
-  #FunctionsJob2.RunMode = 'Simplex:20+Migrad:1'
-  #FunctionsJob2.Regions = os.path.expandvars( '$TestArea/MuonCalibrationFit/share/Iter4Regions.txt' )
-  #FunctionsJob2.JpsiMassPts = '6 10 50'
-  #FunctionsJob2.ZMassPts = '6 45 1000'
-  #FunctionsJob2.Run() 
+  for Index in [ 2, 3, 4 ]:
+  #for Index in [ 2, 3, 4, 5, 6 ]:
+  #for Index in [ 8, 9, 10 ]:
+    locals()[ 'Parallel_ID_Job0%d' % Index ] = JobUtils.Job( Name = 'Parallel_ID_Job0%d' % Index, Detector = 'ID' )
+    locals()[ 'Parallel_ID_Job0%d' % Index ].StartFrom( 'Parallel_ID_Job0%d' % ( Index - 1 ) )
+    locals()[ 'Parallel_ID_Job0%d' % Index ].Splittings = 1000
+    locals()[ 'Parallel_ID_Job0%d' % Index ].Files = JobUtils.Files( '%s/data/25ns' % CurrentDir, 'Data2015.root.new', 'MonteCarlo.root.new.2', 'Background.root.new' ) 
+    locals()[ 'Parallel_ID_Job0%d' % Index ].JobsPerRegion = 15
+    locals()[ 'Parallel_ID_Job0%d' % Index ].Run()
 
-  #FunctionsJob3 = JobUtils.Job( 'FunctionsJob3retry' )
-  #FunctionsJob3.StartFrom( 'FunctionsJob2' )
-  #FunctionsJob3.NumRandomValues = 10
-  #FunctionsJob3.RunMode = 'Simplex:20+Migrad:1+SimpleScan:20'
-  #FunctionsJob3.Regions = os.path.expandvars( '$TestArea/MuonCalibrationFit/share/Iter4Regions.txt' )
-  #FunctionsJob3.JpsiMassPts = '6 9 12 50'
-  #FunctionsJob3.ZMassPts = '6 25 40 50 1000'
-  #FunctionsJob3.Run() 
+  #Parallel_ID_Job02 = JobUtils.Job( Name = 'Parallel_ID_Job02', Detector = 'ID' )
+  #Parallel_ID_Job02.StartFrom( 'Parallel_ID_Job01' )
+  #Parallel_ID_Job02.Regions = os.path.expandvars( '%s/share/OrderedRegionsID.txt' % CurrentDir )
+  #Parallel_ID_Job02.Run()
 
-  FunctionsJobEnd = JobUtils.Job( 'FunctionsJobEnd' )
-  FunctionsJobEnd.StartFrom( 'FunctionsJobTest' )
-  FunctionsJobEnd.RunMode = 'Simplex:20+Migrad:1+SimpleScan:30'
-  FunctionsJobEnd.Regions = os.path.expandvars( '$TestArea/MuonCalibrationFit/share/Iter5Regions.txt' )
-  FunctionsJobEnd.NumRandomValues = 100
-  FunctionsJobEnd.Run() 
+  #Parallel_ID_Job03 = JobUtils.Job( Name = 'Parallel_ID_Job03', Detector = 'ID' )
+  #Parallel_ID_Job03.StartFrom( 'Parallel_ID_Job02' )
+  #Parallel_ID_Job03.Run()
 
-  #FunctionsJob4 = JobUtils.Job( 'FunctionsJob4' )
-  #FunctionsJob4.StartFrom( 'FunctionsJob3' )
-  #FunctionsJob4.Regions = os.path.expandvars( '$TestArea/MuonCalibrationFit/share/Iter4Regions.txt' )
-  #FunctionsJob4.Run() 
-
-  #FunctionsJob5 = JobUtils.Job( 'FunctionsJob5' )
-  #FunctionsJob5.StartFrom( 'FunctionsJob4' )
-  #FunctionsJob5.NumRandomValues = 50
-  #FunctionsJob5.RunMode = 'Simplex:10+Migrad:1+SimpleScan:30'
-  #FunctionsJob5.Regions = os.path.expandvars( '$TestArea/MuonCalibrationFit/share/Iter4Regions.txt' )
-  #FunctionsJob5.Run() 
-
-  #FunctionsJob7 = JobUtils.Job( 'FunctionsJob7' )
-  #FunctionsJob7.StartFrom( 'FunctionsJob5' )
-  #FunctionsJob7.NumRandomValues = 10
-  #FunctionsJob7.RunMode = 'Simplex:10+Migrad:1+SimpleScan:20'
-  #FunctionsJob7.Regions = os.path.expandvars( '$TestArea/MuonCalibrationFit/share/Iter5Regions.txt' )
-  #FunctionsJob7.Run() 
-  '''
+  #Parallel_ID_Job04 = JobUtils.Job( Name = 'Parallel_ID_Job04', Detector = 'ID' )
+  #Parallel_ID_Job04.StartFrom( 'Parallel_ID_Job03' )
+  #Parallel_ID_Job04.Run()
 
 if __name__ == '__main__':
   sys.exit( main() )

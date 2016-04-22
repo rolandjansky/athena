@@ -16,37 +16,29 @@ Template::Template( TString name, TString title, int splitting, std::string bkg 
   m_MassJpsiContentBuffer_Data = NULL;
   m_MassZContentBuffer_Data = NULL;
   m_RhoZContentBuffer_Data = NULL;
-  m_RhoWContentBuffer_Data = NULL;
   m_MassJpsiContentBuffer_MonteCarlo = NULL;
   m_MassJpsiErrorBuffer_MonteCarlo = NULL;
   m_MassZContentBuffer_MonteCarlo = NULL;
   m_MassZErrorBuffer_MonteCarlo = NULL;
   m_RhoZContentBuffer_MonteCarlo = NULL;
   m_RhoZErrorBuffer_MonteCarlo = NULL;
-  m_RhoWContentBuffer_MonteCarlo = NULL;
-  m_RhoWErrorBuffer_MonteCarlo = NULL;
   m_MassJpsiContentBuffer_Background = NULL;
   m_MassJpsiErrorBuffer_Background = NULL;
   m_MassZContentBuffer_Background = NULL;
   m_MassZErrorBuffer_Background = NULL;
   m_RhoZContentBuffer_Background = NULL;
   m_RhoZErrorBuffer_Background = NULL;
-  m_RhoWContentBuffer_Background = NULL;
-  m_RhoWErrorBuffer_Background = NULL;
   m_MassJpsiAddWeightBuffer_MonteCarlo = NULL;
   m_MassZAddWeightBuffer_MonteCarlo = NULL;
   m_RhoZAddWeightBuffer_MonteCarlo = NULL;
-  m_RhoWAddWeightBuffer_MonteCarlo = NULL;
   m_MassJpsi = NULL;
   m_MassZ = NULL;
   m_EtaZ = NULL;
   m_PtZ = NULL;
   m_RhoZ = NULL;
-  m_RhoW = NULL;
   m_MassJpsiPtBins = NULL;
   m_MassZPtBins = NULL;
   m_RhoZPtBins = NULL;
-  m_RhoWPtBins = NULL;
   m_Weights = new TH1F( m_Name + "_Weights_DummyHistogram", "", 1, 0, 1 );
   m_SetGlobalWeights = kFALSE;
   m_SetAverageWeight = kFALSE;
@@ -63,37 +55,29 @@ Template::~Template() {
   if( m_MassJpsiContentBuffer_Data )         Delete( m_MassJpsiContentBuffer_Data );
   if( m_MassZContentBuffer_Data )            Delete( m_MassZContentBuffer_Data );
   if( m_RhoZContentBuffer_Data )             Delete( m_RhoZContentBuffer_Data );
-  if( m_RhoWContentBuffer_Data )             Delete( m_RhoWContentBuffer_Data );
   if( m_MassJpsiContentBuffer_MonteCarlo )   Delete( m_MassJpsiContentBuffer_MonteCarlo );
   if( m_MassJpsiErrorBuffer_MonteCarlo )     Delete( m_MassJpsiErrorBuffer_MonteCarlo );
   if( m_MassZContentBuffer_MonteCarlo )      Delete( m_MassZContentBuffer_MonteCarlo );
   if( m_MassZErrorBuffer_MonteCarlo )        Delete( m_MassZErrorBuffer_MonteCarlo );
   if( m_RhoZContentBuffer_MonteCarlo )       Delete( m_RhoZContentBuffer_MonteCarlo );
   if( m_RhoZErrorBuffer_MonteCarlo )         Delete( m_RhoZErrorBuffer_MonteCarlo );
-  if( m_RhoWContentBuffer_MonteCarlo )       Delete( m_RhoWContentBuffer_MonteCarlo );
-  if( m_RhoWErrorBuffer_MonteCarlo )         Delete( m_RhoWErrorBuffer_MonteCarlo );
   if( m_MassJpsiContentBuffer_Background )   Delete( m_MassJpsiContentBuffer_Background );
   if( m_MassJpsiErrorBuffer_Background )     Delete( m_MassJpsiErrorBuffer_Background );
   if( m_MassZContentBuffer_Background )      Delete( m_MassZContentBuffer_Background );
   if( m_MassZErrorBuffer_Background )        Delete( m_MassZErrorBuffer_Background );
   if( m_RhoZContentBuffer_Background )       Delete( m_RhoZContentBuffer_Background );
   if( m_RhoZErrorBuffer_Background )         Delete( m_RhoZErrorBuffer_Background );
-  if( m_RhoWContentBuffer_Background )       Delete( m_RhoWContentBuffer_Background );
-  if( m_RhoWErrorBuffer_Background )         Delete( m_RhoWErrorBuffer_Background );
   if( m_MassJpsiAddWeightBuffer_MonteCarlo ) Delete( m_MassJpsiAddWeightBuffer_MonteCarlo );
   if( m_MassZAddWeightBuffer_MonteCarlo )    Delete( m_MassZAddWeightBuffer_MonteCarlo );
   if( m_RhoZAddWeightBuffer_MonteCarlo )     Delete( m_RhoZAddWeightBuffer_MonteCarlo );
-  if( m_RhoWAddWeightBuffer_MonteCarlo )     Delete( m_RhoWAddWeightBuffer_MonteCarlo );
   if( m_MassJpsi != NULL ) delete m_MassJpsi;
   if( m_MassZ != NULL ) delete m_MassZ;
   if( m_EtaZ != NULL ) delete m_EtaZ;
   if( m_PtZ != NULL ) delete m_PtZ;
   if( m_RhoZ != NULL ) delete m_RhoZ;
-  if( m_RhoW != NULL ) delete m_RhoW;
   if( m_MassJpsiPtBins != NULL ) delete m_MassJpsiPtBins;
   if( m_MassZPtBins != NULL ) delete m_MassZPtBins;
   if( m_RhoZPtBins != NULL ) delete m_RhoZPtBins;
-  if( m_RhoWPtBins != NULL ) delete m_RhoWPtBins;
   if( m_Weights != NULL ) delete m_Weights;
   for( int i = 0; i < Type::N; i++ ) {
     for( std::vector< Tools::FitInfo* >::iterator iter = m_FitInfo[ i ]->begin(); iter != m_FitInfo[ i ]->end(); ++iter ) {
@@ -132,10 +116,6 @@ void Template::AddMassZ( int nBins, float xMin, float xMax, std::vector< float >
 
 void Template::AddRhoZ( int nBins, float xMin, float xMax, std::vector< float >* ptBins ) {
   return Add( nBins, xMin, xMax, ptBins, m_RhoZ, m_RhoZPtBins, m_RhoZContentBuffer_Data, m_RhoZContentBuffer_MonteCarlo, m_RhoZErrorBuffer_MonteCarlo, m_RhoZAddWeightBuffer_MonteCarlo, m_RhoZContentBuffer_Background, m_RhoZErrorBuffer_Background ); 
-}
-
-void Template::AddRhoW( int nBins, float xMin, float xMax, std::vector< float >* ptBins ) {
-  return Add( nBins, xMin, xMax, ptBins, m_RhoW, m_RhoWPtBins, m_RhoWContentBuffer_Data, m_RhoWContentBuffer_MonteCarlo, m_RhoWErrorBuffer_MonteCarlo, m_RhoWAddWeightBuffer_MonteCarlo, m_RhoWContentBuffer_Background, m_RhoWErrorBuffer_Background ); 
 }
 
 void Template::AddMonitoredVariable( std::string name, std::string title, std::string axistitle, int jpsi_n_bins, float jpsi_min, float jpsi_max, int z_n_bins, float z_min, float z_max ) {
@@ -180,6 +160,8 @@ void Template::FillMass( int type, float mass, float pt, float weight ) {
             break;
           //::: MC without smoothing
           case Type::MC:
+            //std::cout << "  ---  " << Bin << "  ---  " << PtBin << "  ---  " << mass << "  ---  " << weight << std::endl;
+            //std::cout << "  ---  " << mass << "  ---  " << std::endl;
             m_MassZContentBuffer_MonteCarlo[ ( PtBin - 1 ) * m_MassZ->NTotalBins() + Bin - 1 ] += weight; 
             m_MassZErrorBuffer_MonteCarlo[ ( PtBin - 1 ) * m_MassZ->NTotalBins() + Bin - 1 ] += ( weight * weight ); 
             break;
@@ -525,15 +507,12 @@ std::vector< TH1F* >* Template::GetAllHistograms( TString PreFix, bool recalcula
   if( !t_MassJpsiVec_MC.empty() )    m_VectorHistograms->insert( m_VectorHistograms->end(), t_MassJpsiVec_MC.begin(), t_MassJpsiVec_MC.end() );
   if( !t_MassZVec_MC.empty() )       m_VectorHistograms->insert( m_VectorHistograms->end(), t_MassZVec_MC.begin(),    t_MassZVec_MC.end() );
   if( !t_RhoZVec_MC.empty() )        m_VectorHistograms->insert( m_VectorHistograms->end(), t_RhoZVec_MC.begin(),     t_RhoZVec_MC.end() );
-  if( !t_RhoWVec_MC.empty() )        m_VectorHistograms->insert( m_VectorHistograms->end(), t_RhoWVec_MC.begin(),     t_RhoWVec_MC.end() );
   if( !t_MassJpsiVec_Bkg.empty() )   m_VectorHistograms->insert( m_VectorHistograms->end(), t_MassJpsiVec_Bkg.begin(), t_MassJpsiVec_Bkg.end() );
   if( !t_MassZVec_Bkg.empty() )      m_VectorHistograms->insert( m_VectorHistograms->end(), t_MassZVec_Bkg.begin(),    t_MassZVec_Bkg.end() );
   if( !t_RhoZVec_Bkg.empty() )       m_VectorHistograms->insert( m_VectorHistograms->end(), t_RhoZVec_Bkg.begin(),     t_RhoZVec_Bkg.end() );
-  if( !t_RhoWVec_Bkg.empty() )       m_VectorHistograms->insert( m_VectorHistograms->end(), t_RhoWVec_Bkg.begin(),     t_RhoWVec_Bkg.end() );
   if( !t_MassJpsiVec_Data.empty() )  m_VectorHistograms->insert( m_VectorHistograms->end(), t_MassJpsiVec_Data.begin(), t_MassJpsiVec_Data.end() );
   if( !t_MassZVec_Data.empty() )     m_VectorHistograms->insert( m_VectorHistograms->end(), t_MassZVec_Data.begin(),    t_MassZVec_Data.end() );
   if( !t_RhoZVec_Data.empty() )      m_VectorHistograms->insert( m_VectorHistograms->end(), t_RhoZVec_Data.begin(),     t_RhoZVec_Data.end() );
-  if( !t_RhoWVec_Data.empty() )      m_VectorHistograms->insert( m_VectorHistograms->end(), t_RhoWVec_Data.begin(),     t_RhoWVec_Data.end() );
   return m_VectorHistograms;
 }
 
@@ -547,7 +526,6 @@ void Template::ClearData() {
   if( m_MassJpsiContentBuffer_Data ) ClearVector( m_MassJpsiContentBuffer_Data, m_MassJpsiPtBins->Nbins * m_MassJpsi->NTotalBins() );
   if( m_MassZContentBuffer_Data ) ClearVector( m_MassZContentBuffer_Data, m_MassZPtBins->Nbins * m_MassZ->NTotalBins() );
   if( m_RhoZContentBuffer_Data ) ClearVector( m_RhoZContentBuffer_Data, m_RhoZPtBins->Nbins * m_RhoZ->NTotalBins() );
-  if( m_RhoWContentBuffer_Data ) ClearVector( m_RhoWContentBuffer_Data, m_RhoWPtBins->Nbins * m_RhoW->NTotalBins() );
 }
 
 void Template::ClearMonteCarlo() {
@@ -560,9 +538,6 @@ void Template::ClearMonteCarlo() {
   if( m_RhoZContentBuffer_MonteCarlo )       ClearVector( m_RhoZContentBuffer_MonteCarlo,       m_RhoZPtBins->Nbins * m_RhoZ->NTotalBins() );
   if( m_RhoZErrorBuffer_MonteCarlo )         ClearVector( m_RhoZErrorBuffer_MonteCarlo,         m_RhoZPtBins->Nbins * m_RhoZ->NTotalBins() );
   //if( m_RhoZAddWeightBuffer_MonteCarlo )     ClearVector( m_RhoZAddWeightBuffer_MonteCarlo,     m_RhoZPtBins->Nbins * m_RhoZ->NTotalBins() );
-  if( m_RhoWContentBuffer_MonteCarlo )       ClearVector( m_RhoWContentBuffer_MonteCarlo,       m_RhoWPtBins->Nbins * m_RhoW->NTotalBins() );
-  if( m_RhoWErrorBuffer_MonteCarlo )         ClearVector( m_RhoWErrorBuffer_MonteCarlo,         m_RhoWPtBins->Nbins * m_RhoW->NTotalBins() );
-  //if( m_RhoWAddWeightBuffer_MonteCarlo )     ClearVector( m_RhoWAddWeightBuffer_MonteCarlo,     m_RhoWPtBins->Nbins * m_RhoW->NTotalBins() );
   if( m_Weights != NULL ) m_Weights->Reset();
 }
 
@@ -573,8 +548,6 @@ void Template::ClearBackground() {
   if( m_MassZErrorBuffer_Background ) ClearVector( m_MassZErrorBuffer_Background, m_MassZPtBins->Nbins * m_MassZ->NTotalBins() );
   if( m_RhoZContentBuffer_Background ) ClearVector( m_RhoZContentBuffer_Background, m_RhoZPtBins->Nbins * m_RhoZ->NTotalBins() );
   if( m_RhoZErrorBuffer_Background ) ClearVector( m_RhoZErrorBuffer_Background, m_RhoZPtBins->Nbins * m_RhoZ->NTotalBins() );
-  if( m_RhoWContentBuffer_Background ) ClearVector( m_RhoWContentBuffer_Background, m_RhoWPtBins->Nbins * m_RhoW->NTotalBins() );
-  if( m_RhoWErrorBuffer_Background ) ClearVector( m_RhoWErrorBuffer_Background, m_RhoWPtBins->Nbins * m_RhoW->NTotalBins() );
 }
 
 void Template::ClearVector( float* Vec, int n ) {
@@ -603,7 +576,7 @@ void Template::SetGlobalWeights() {
         BackgroundTot += m_MassJpsiContentBuffer_Background[ theBin ]; 
         MonteCarloTot += m_MassJpsiContentBuffer_MonteCarlo[ theBin ]; 
       }
-      //std::cout << "m_GlobalWeights ( MassJpsi, ptbin #" << ptBin << " ) ---> " << ( DataTot - BackgroundTot ) / MonteCarloTot << std::endl;
+      std::cout << "m_GlobalWeights ( MassJpsi, ptbin #" << ptBin << " ) ---> " << ( DataTot - BackgroundTot ) / MonteCarloTot << std::endl;
       for( int varBin = 1; varBin < m_MassJpsi->NTotalBins() + 1; varBin++ ) {
         int theBin = ( ptBin - 1 ) * m_MassJpsi->NTotalBins() + varBin - 1;
         m_MassJpsiAddWeightBuffer_MonteCarlo[ theBin ] = ( DataTot - BackgroundTot ) / MonteCarloTot;
@@ -619,7 +592,7 @@ void Template::SetGlobalWeights() {
         BackgroundTot += m_MassZContentBuffer_Background[ theBin ]; 
         MonteCarloTot += m_MassZContentBuffer_MonteCarlo[ theBin ]; 
       }
-      //std::cout << "m_GlobalWeights ( MassZ, ptbin #" << ptBin << " ) ---> " << ( DataTot - BackgroundTot ) / MonteCarloTot << std::endl;
+      std::cout << "m_GlobalWeights ( MassZ, ptbin #" << ptBin << " ) ---> " << ( DataTot - BackgroundTot ) / MonteCarloTot << std::endl;
       for( int varBin = 1; varBin < m_MassZ->NTotalBins() + 1; varBin++ ) {
         int theBin = ( ptBin - 1 ) * m_MassZ->NTotalBins() + varBin - 1;
         m_MassZAddWeightBuffer_MonteCarlo[ theBin ] = ( DataTot - BackgroundTot ) / MonteCarloTot;
@@ -635,26 +608,10 @@ void Template::SetGlobalWeights() {
         BackgroundTot += m_RhoZContentBuffer_Background[ theBin ]; 
         MonteCarloTot += m_RhoZContentBuffer_MonteCarlo[ theBin ]; 
       }
-      //std::cout << "m_GlobalWeights ( RhoZ, ptbin #" << ptBin << " ) ---> " << ( DataTot - BackgroundTot ) / MonteCarloTot << std::endl;
+      std::cout << "m_GlobalWeights ( RhoZ, ptbin #" << ptBin << " ) ---> " << ( DataTot - BackgroundTot ) / MonteCarloTot << std::endl;
       for( int varBin = 1; varBin < m_RhoZ->NTotalBins() + 1; varBin++ ) {
         int theBin = ( ptBin - 1 ) * m_RhoZ->NTotalBins() + varBin - 1;
         m_RhoZAddWeightBuffer_MonteCarlo[ theBin ] = ( DataTot - BackgroundTot ) / MonteCarloTot;
-      }
-    }
-  }
-  if( m_RhoWPtBins != NULL ) {
-    for( int ptBin = 1; ptBin < m_RhoWPtBins->Nbins + 1; ptBin++ ) {
-      float DataTot( 0. ), MonteCarloTot( 0. ), BackgroundTot( 0. );
-      for( int varBin = 1; varBin < m_RhoW->NTotalBins() + 1; varBin++ ) {
-        int theBin = ( ptBin - 1 ) * m_RhoW->NTotalBins() + varBin - 1;
-        DataTot += m_RhoWContentBuffer_Data[ theBin ]; 
-        BackgroundTot += m_RhoWContentBuffer_Background[ theBin ]; 
-        MonteCarloTot += m_RhoWContentBuffer_MonteCarlo[ theBin ]; 
-      }
-      //std::cout << "m_GlobalWeights ( RhoW, ptbin #" << ptBin << " ) ---> " << ( DataTot - BackgroundTot ) / MonteCarloTot << std::endl;
-      for( int varBin = 1; varBin < m_RhoW->NTotalBins() + 1; varBin++ ) {
-        int theBin = ( ptBin - 1 ) * m_RhoW->NTotalBins() + varBin - 1;
-        m_RhoWAddWeightBuffer_MonteCarlo[ theBin ] = ( DataTot - BackgroundTot ) / MonteCarloTot;
       }
     }
   }
@@ -668,6 +625,7 @@ void Template::EvaluateBackground() {
       TString wsName = Form( "%s~BkgFit~MassJpsi~%.1f_pt_%.1f", m_Name.Data(), m_MassJpsiPtBins->GetLowEdge( ptBin + 1 ), m_MassJpsiPtBins->GetHighEdge( ptBin + 1 ) );
       TString wsTitle = Form( "%s:::BkgFit:::MassJpsi:::%.1f<p_{T}[GeV]<%.1f", m_Title.Data(), m_MassJpsiPtBins->GetLowEdge( ptBin + 1 ), m_MassJpsiPtBins->GetHighEdge( ptBin + 1 ) );
       RooWorkspace ws( wsName, wsTitle );
+      RooRealVar x( "x", "m_{#mu#mu}", m_MassJpsi->Min, m_MassJpsi->Max, "GeV" );
       //::: Let's fit MC first
       TH1F tempHist_MC( "tempHist_MC", "", m_MassJpsi->NTotalBins(), m_MassJpsi->Min, m_MassJpsi->Max ); 
       for( int varBin = 0; varBin < m_MassJpsi->NTotalBins(); varBin++ ) {
@@ -675,19 +633,27 @@ void Template::EvaluateBackground() {
         tempHist_MC.SetBinError( varBin + 1, TMath::Sqrt( m_MassJpsiErrorBuffer_MonteCarlo[ ptBin * m_MassJpsi->NTotalBins() + varBin ] ) );
       }
       tempHist_MC.Rebin( m_MassJpsi->Split );
-      RooRealVar x( "x", "m_{#mu#mu}", m_MassJpsi->Min, m_MassJpsi->Max, "GeV" );
       RooDataHist tempDataSet_MC( "tempDataSet_MC", "", RooArgList( x ), &tempHist_MC );
-      //:::
-      RooRealVar m( "m", "#mu", 3.1, 3.05, 3.15 );
-      RooRealVar s( "s", "#sigma", 0.05, 0.01, 0.2 );
-      RooRealVar a( "a", "#alpha", 2, 0.5, 4 );
-      RooRealVar e( "e", "#eta", 10, 0, 100 );
-      RooCBShape tempCB_MC( "tempCB_MC", "Crystal-Ball", x, m, s, a, e );
-      tempCB_MC.fitTo( tempDataSet_MC );
+      //::: Writing fit as in the validation case
+      RooRealVar mean( "mean", "#mu", 3.1, 3.05, 3.15 );
+      RooRealVar sigma( "ssigma", "#sigma", 0.05, 0.0001, 0.5 );
+      RooRealVar alpha( "a", "#alpha", 2, 0.5, 4 );
+      RooRealVar eta( "e", "#eta", 10, 0, 100 );
+      RooCBShape tempCB_MC( "tempCB_MC", "Crystal-Ball", x, mean, sigma, alpha, eta );
+
+      RooRealVar sigma_gauss( "sigma_gauss", "#sigma_{gauss}", 1, 0.05, 1 );
+      RooGaussian tempGauss_MC( "tempGauss_MC", "Gauss", x, mean, sigma_gauss );
+      RooRealVar frac_1( "frac_1", "frac_1", 0.5, 0., 1. );
+
+      RooAddPdf tempModel_MC( "tempModel_MC", "ModelMC", tempCB_MC, tempGauss_MC, frac_1 );
+      tempModel_MC.fitTo( tempDataSet_MC );
+      //ws.import( tempModel_MC );
       ws.import( tempDataSet_MC );
-      ws.import( tempCB_MC );
-      a.setConstant();
-      e.setConstant();
+      frac_1.setConstant( kTRUE );
+      sigma_gauss.setConstant( kTRUE );
+      alpha.setConstant( kTRUE );
+      eta.setConstant( kTRUE );
+
       //::: Move on to data!
       TH1F tempHist_Data( "tempHist_Data", "", m_MassJpsi->NTotalBins(), m_MassJpsi->Min, m_MassJpsi->Max ); 
       for( int varBin = 0; varBin < m_MassJpsi->NTotalBins(); varBin++ ) {
@@ -695,28 +661,27 @@ void Template::EvaluateBackground() {
       }
       tempHist_Data.Rebin( m_MassJpsi->Split );
       float Est_BkgNorm = 0.5 * ( tempHist_Data.GetBinContent( 1 ) + tempHist_Data.GetBinContent( m_MassJpsi->Nbins ) ) * m_MassJpsi->Nbins; 
-      float Est_CBNorm = tempHist_Data.Integral() - Est_BkgNorm;
+      float Est_SigNorm = tempHist_Data.Integral() - Est_BkgNorm;
       RooDataHist tempDataSet_Data( "tempDataSet_Data", "", RooArgList( x ), &tempHist_Data );
       RooRealVar tempBkgNorm( "tempBkgNorm", "Exponential Coefficient", Est_BkgNorm, 0, 10000000 );
-      RooRealVar tempCBNorm( "tempCBNorm", "Crystal-Ball Coefficient", Est_CBNorm, 0, 10000000 );
+      RooRealVar tempSigNorm( "tempSigNorm", "Signal Coefficient", Est_SigNorm, 0, 10000000 );
       //::: In case we fit the background with an exponential p.d.f.
       RooRealVar t( "t", "#tau", -1, -10, 0, "" );
       RooExponential tempExpo( "tempExpo", "Exponential", x, t );
       //::: In case we fit the background with a linear p.d.f.
-      RooRealVar x1( "x1", "x_{1}", -1, -10, 0, "" );
-      RooChebychev tempCheby( "tempCheby", "Chebychev polynomial", x, x1 );
-      //:::
-      RooCBShape tempCB( "tempCB", "Crystal-Ball", x, m, s, a, e );
+      RooRealVar x1( "x1", "x_{1}", 0, -10, 10, "" );
+      RooRealVar x2( "x2", "x_{2}", 0, -10, 10, "" );
+      RooChebychev tempCheby( "tempCheby", "Chebychev polynomial", x, RooArgList( x1, x2 ) );
       //:::
       if( m_Bkg == "Exponential" ) {
-        RooAddPdf tempModel( "tempModel", "Complete Model", RooArgList( tempExpo, tempCB ), RooArgList( tempBkgNorm, tempCBNorm ) );
+        RooAddPdf tempModel( "tempModel", "Complete Model", RooArgList( tempExpo, tempModel_MC ), RooArgList( tempBkgNorm, tempSigNorm ) );
         tempModel.fitTo( tempDataSet_Data );
         ws.import( tempDataSet_Data );
         ws.import( tempModel );
         ws.Write( wsName.ReplaceAll( ".", "_" ) );
       }
       else {
-        RooAddPdf tempModel( "tempModel", "Complete Model", RooArgList( tempCheby, tempCB ), RooArgList( tempBkgNorm, tempCBNorm ) );
+        RooAddPdf tempModel( "tempModel", "Complete Model", RooArgList( tempCheby, tempModel_MC ), RooArgList( tempBkgNorm, tempSigNorm ) );
         tempModel.fitTo( tempDataSet_Data );
         ws.import( tempDataSet_Data );
         ws.import( tempModel );
@@ -730,39 +695,6 @@ void Template::EvaluateBackground() {
         m_MassJpsiContentBuffer_Background[ ptBin * m_MassJpsi->NTotalBins() + Bin ] = nominalHist->GetBinContent( Bin + 1 );
         m_MassJpsiErrorBuffer_Background[ ptBin * m_MassJpsi->NTotalBins() + Bin ] = nominalHist->GetBinError( Bin + 1 );
       }
-      Tools::FitInfo* myFitInfo = new Tools::FitInfo;
-      myFitInfo->Mean = m.getVal();
-      myFitInfo->MeanError = m.getError();
-      myFitInfo->Sigma = s.getVal();
-      myFitInfo->SigmaError = s.getError();
-      myFitInfo->Pt = 0.; //m_MassJpsiPtBins->GetAveragePt( Type::Data, ptBin );
-      m_FitInfo[ Type::Data ]->push_back( myFitInfo );
-      /* Calculation of errors "by hand"
-      std::cout << "    Nominal: " << nominalHist->GetBinContent( 1 ) << " +/- " << nominalHist->GetBinError( 1 ) << std::endl; 
-      TH1F* variationsHist[ 4 ] = { NULL, NULL, NULL, NULL };
-      variationsHist[ 0 ] = x.createHistogram( Form( "norm_upHist_%d", ptBin ), "", m_MassJpsi->Min, m_MassJpsi->Max, m_MassJpsi->NTotalBins() ); 
-      tempExpo.fillHistogram( variationsHist[ 0 ], RooArgList( x ), tempBkgNorm.getVal() + tempBkgNorm.getError() );
-      std::cout << "   Error Up: " << variationsHist[ 0 ]->GetBinContent( 1 ) << " +/- " << variationsHist[ 0 ]->GetBinError( 1 ) << std::endl; 
-      variationsHist[ 1 ] = x.createHistogram( Form( "norm_downHist_%d", ptBin ), "", m_MassJpsi->Min, m_MassJpsi->Max, m_MassJpsi->NTotalBins() ); 
-      tempExpo.fillHistogram( variationsHist[ 1 ], RooArgList( x ), tempBkgNorm.getVal() - tempBkgNorm.getError() );
-      std::cout << " Error Down: " << variationsHist[ 1 ]->GetBinContent( 1 ) << " +/- " << variationsHist[ 1 ]->GetBinError( 1 ) << std::endl; 
-      variationsHist[ 2 ] = x.createHistogram( Form( "slope_upHist_%d", ptBin ), "", m_MassJpsi->Min, m_MassJpsi->Max, m_MassJpsi->NTotalBins() ); 
-      t.setVal( t.getVal() + t.getError() );
-      tempExpo.fillHistogram( variationsHist[ 2 ], RooArgList( x ), tempBkgNorm.getVal() );
-      std::cout << "   Slope Up: " << variationsHist[ 2 ]->GetBinContent( 1 ) << " +/- " << variationsHist[ 2 ]->GetBinError( 1 ) << std::endl; 
-      variationsHist[ 3 ] = x.createHistogram( Form( "slope_downHist_%d", ptBin ), "", m_MassJpsi->Min, m_MassJpsi->Max, m_MassJpsi->NTotalBins() ); 
-      t.setVal( t.getVal() - 2. * t.getError() );
-      tempExpo.fillHistogram( variationsHist[ 3 ], RooArgList( x ), tempBkgNorm.getVal() );
-      std::cout << " Slope Down: " << variationsHist[ 3 ]->GetBinContent( 1 ) << " +/- " << variationsHist[ 3 ]->GetBinError( 1 ) << std::endl; 
-      for( int Bin = 0; Bin < m_MassJpsi->NTotalBins(); Bin++ ) {
-        m_MassJpsiContentBuffer_Background[ ptBin ][ Bin ] = nominalHist->GetBinContent( Bin + 1 );
-        double err( 0. );
-        for( int var = 0; var < 4; var++ ) {
-          err += TMath::Power( variationsHist[ var ]->GetBinContent( Bin + 1 ) - nominalHist->GetBinContent( Bin + 1 ), 2 );
-        }
-        m_MassJpsiErrorBuffer_Background[ ptBin ][ Bin ] = err;
-      }
-      */
     }
   }
   m_EvaluatedBackground = kTRUE;
@@ -939,6 +871,5 @@ double Template::GetDegreesOfFreedom() {
   if( m_MassJpsi ) count += m_MassJpsi->Nbins * m_MassJpsiPtBins->Nbins; 
   if( m_MassZ )    count += m_MassZ   ->Nbins * m_MassZPtBins   ->Nbins; 
   if( m_RhoZ )     count += m_RhoZ    ->Nbins * m_RhoZPtBins    ->Nbins; 
-  if( m_RhoW )     count += m_RhoW    ->Nbins * m_RhoWPtBins    ->Nbins; 
   return count;
 }

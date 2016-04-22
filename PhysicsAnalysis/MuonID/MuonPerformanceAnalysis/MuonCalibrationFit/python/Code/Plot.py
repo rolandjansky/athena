@@ -22,7 +22,7 @@ def OverallPlot( Input, Detector, Stat ):
 
   for Key in Keys:
     TheName = Key.GetName()
-    if 'TVectorT<double>' in Key.GetClassName() and not 'PreFit' in TheName:
+    if 'TVectorT<double>' in Key.GetClassName() and not 'NoCorrections' in TheName and not 'InitialCorrections' in TheName:
       FitRes = FitResult.FitResult( TheName, InputFile )
       Iterations.add( ( FitRes.Iter, FitRes.RegFile ) )
       ToBeUsed.append( FitRes )
@@ -32,10 +32,9 @@ def OverallPlot( Input, Detector, Stat ):
 
   AllPlotsDone = []
   for GlobIter in GlobIters:
-    for OvPlot, NoErrPlot, PullPlot in GlobIter.DoPlot( ToBeUsed, Detector, Stat ):
+    for OvPlot, NoErrPlot in GlobIter.DoPlot( ToBeUsed, Detector, Stat ):
       AllPlotsDone.append( os.path.abspath( OvPlot ) )
       AllPlotsDone.append( os.path.abspath( NoErrPlot ) )
-      AllPlotsDone.append( os.path.abspath( PullPlot ) )
   return AllPlotsDone
 
 
@@ -84,6 +83,7 @@ def BkgPlot( Input, Detector, Stat ):
     Match = Reg.search( Key.GetName() )
     if not Match:
       continue
+    #print Key.GetName()
     Region = Match.group( 1 )
     Variable = Match.group( 2 )
     PtBin = Match.group( 3 )
@@ -98,7 +98,7 @@ def BkgPlot( Input, Detector, Stat ):
   return AllPlotsDone
 
 
-def Plot( Input, Detector, Stat ):
+def Plot( Input, Detector, Stat, IsCheck ):
 
   ##### General commands #####
   ROOT.gROOT.SetBatch()
@@ -145,7 +145,7 @@ def Plot( Input, Detector, Stat ):
             continue
           NeededObjects.append( MyObject )
         if NeededObjects:
-          AllPlotsDone.append( os.path.abspath( PlottingTools.DoGeneralPlot( NeededObjects, Detector, Stat ) ) )
+          AllPlotsDone.append( os.path.abspath( PlottingTools.DoGeneralPlot( NeededObjects, Detector, Stat, IsCheck ) ) )
   return AllPlotsDone
 
 def PlotDistr( Input, Detector, Stat ):
@@ -169,7 +169,7 @@ def PlotDistr( Input, Detector, Stat ):
     Variable = Match.group( 3 )
     DataType = Match.group( 4 )
     PtBin = Match.group( 5 )
-    if 'RoF' in Variable:
+    if 'RoF' in Variable and FitLevel == 'NoCorrections':
       AllTypes[ 'FitLevels' ].add( FitLevel )
       AllTypes[ 'Regions' ].add( Region )
       AllTypes[ 'VarPtBins' ].add( ( Variable, PtBin ) )

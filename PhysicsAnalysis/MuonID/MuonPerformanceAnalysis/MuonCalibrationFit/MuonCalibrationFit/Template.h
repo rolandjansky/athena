@@ -26,6 +26,7 @@
 #include "RooChebychev.h"
 #include "RooExponential.h"
 #include "RooAddPdf.h"
+#include "RooFFTConvPdf.h"
 #include "RooPlot.h"
 #include "RooWorkspace.h"
 
@@ -44,46 +45,38 @@ private:
   float* m_MassJpsiContentBuffer_Data;
   float* m_MassZContentBuffer_Data;
   float* m_RhoZContentBuffer_Data;
-  float* m_RhoWContentBuffer_Data;
   //:::
   float* m_MassJpsiContentBuffer_MonteCarlo;
   float* m_MassZContentBuffer_MonteCarlo;
   float* m_RhoZContentBuffer_MonteCarlo;
-  float* m_RhoWContentBuffer_MonteCarlo;
   //:::
   float* m_MassJpsiErrorBuffer_MonteCarlo;
   float* m_MassZErrorBuffer_MonteCarlo;
   float* m_RhoZErrorBuffer_MonteCarlo;
-  float* m_RhoWErrorBuffer_MonteCarlo;
   //:::
   float* m_MassJpsiAddWeightBuffer_MonteCarlo;
   float* m_MassZAddWeightBuffer_MonteCarlo;
   float* m_RhoZAddWeightBuffer_MonteCarlo;
-  float* m_RhoWAddWeightBuffer_MonteCarlo;
   //:::
   float* m_MassJpsiContentBuffer_Background;
   float* m_MassZContentBuffer_Background;
   float* m_RhoZContentBuffer_Background;
-  float* m_RhoWContentBuffer_Background;
   //:::
   float* m_MassJpsiErrorBuffer_Background;
   float* m_MassZErrorBuffer_Background;
   float* m_RhoZErrorBuffer_Background;
-  float* m_RhoWErrorBuffer_Background;
   //:::
   std::vector< Tools::FitInfo* >* m_FitInfo[ Type::N ];
   //:::
   Tools::BoundsInfo* m_MassJpsi;
   Tools::BoundsInfo* m_MassZ;
   Tools::BoundsInfo* m_RhoZ;
-  Tools::BoundsInfo* m_RhoW;
   Tools::BoundsInfo* m_EtaZ;
   Tools::BoundsInfo* m_PtZ;
   //:::
   Tools::FloatBoundsInfo* m_MassJpsiPtBins;
   Tools::FloatBoundsInfo* m_MassZPtBins;
   Tools::FloatBoundsInfo* m_RhoZPtBins;
-  Tools::FloatBoundsInfo* m_RhoWPtBins;
   //:::
   TH1F* m_Weights;
   //:::
@@ -103,7 +96,6 @@ public:
   void AddMassJpsi( int nBins, float xMin, float xMax, std::vector< float >* ptBins ); 
   void AddMassZ( int nBins, float xMin, float xMax, std::vector< float >* ptBins ); 
   void AddRhoZ( int nBins, float xMin, float xMax, std::vector< float >* ptBins ); 
-  void AddRhoW( int nBins, float xMin, float xMax, std::vector< float >* ptBins ); 
   //:::
   void AddMonitoredVariable( std::string name, std::string title, std::string axistitle, int n_bins, float min, float max ) { AddMonitoredVariable( name, title, axistitle, n_bins, min, max, n_bins, min, max ); } 
   void AddMonitoredVariable( std::string name, std::string title, std::string axistitle, int jpsi_n_bins, float jpsi_min, float jpsi_max, int z_n_bins, float z_min, float z_max ); 
