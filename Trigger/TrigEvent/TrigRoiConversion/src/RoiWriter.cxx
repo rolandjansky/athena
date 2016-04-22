@@ -47,8 +47,8 @@ StatusCode RoiWriter::execute() {
     std::string keybase = keys[ik];
     keybase.erase( 0, keybase.find(collectionname)+collectionname.size() );
     
-    std::string newkey      = "HLT_xAOD__RoiDescriptorStore"        + keybase;
-    std::string newstorekey = "HLT_xAOD__RoiDescriptorStoreAuxInfo" + keybase + "Aux";
+    std::string newkey      = "HLT_xAOD__RoiDescriptorStore" + keybase;
+    std::string newstorekey = "HLT_xAOD__RoiDescriptorStore" + keybase + "Aux.";
 
     /// don't continue, overwrite instead
     //    if ( evtStore()->contains<xAOD::RoiDescriptorStore>( newkey ) ) continue; 
