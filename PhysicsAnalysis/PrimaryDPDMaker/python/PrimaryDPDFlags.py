@@ -181,7 +181,7 @@ class WriteDESDM_MSPerfStream(JobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
-    StreamName   = "StreamDESDM_MSPerf"
+    StreamName   = "StreamDESDM_MCP"
     FileName     = ""
     isVirtual    = False
     DPDMakerScript = "PrimaryDPDMaker/PerfDESDM_MS.py"

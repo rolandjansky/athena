@@ -332,8 +332,7 @@ if dumpTruthInfo:
   IDNCBStream.AddItem("xAOD::TruthEventAuxContainer#*")
 
 #SKC---always include BCM information!
-#PJL -----> Problems compiling BCM packages, NEED TO ADD BACK !!!!!!
-#IDNCBStream.AddItem("BCM_RDO_Container#BCM_RDOs")
+IDNCBStream.AddItem("BCM_RDO_Container#BCM_RDOs")
 
 if dumpTriggerInfo:
     IDNCBStream.AddMetaDataItem("xAOD::TriggerMenuContainer#TriggerMenu")
