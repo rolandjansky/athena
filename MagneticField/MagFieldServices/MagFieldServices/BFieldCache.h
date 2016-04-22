@@ -43,7 +43,7 @@ private:
     double m_rmin, m_rmax; // bin range in r
     double m_phimin, m_phimax; // bin range in phi
     float m_invz, m_invr, m_invphi; // 1/(bin size) in z, r, phi
-    short m_field[3][8]; // (Bz,Br,Bphi) at 8 corners of the bin
+    float m_field[3][8]; // (Bz,Br,Bphi) at 8 corners of the bin
     float m_scale; // unit of m_field in kT
 };
 
@@ -67,7 +67,7 @@ BFieldCache::getB( const double *xyz, double r, double phi, double *B, double *d
     // interpolate field values in z, r, phi
     float Bzrphi[3];
     for ( int i = 0; i < 3; i++ ) { // z, r, phi components
-        const short *field = m_field[i];
+        const float *field = m_field[i];
         Bzrphi[i] = m_scale*( gz*( gr*( gphi*field[0] + fphi*field[1] ) +
                                    fr*( gphi*field[2] + fphi*field[3] ) ) +
                               fz*( gr*( gphi*field[4] + fphi*field[5] ) +
@@ -95,7 +95,7 @@ BFieldCache::getB( const double *xyz, double r, double phi, double *B, double *d
         float sphi = m_scale*m_invphi;
         float dBdz[3], dBdr[3], dBdphi[3];
         for ( int j = 0; j < 3; j++ ) { // Bz, Br, Bphi components
-            const short *field = m_field[j];
+            const float *field = m_field[j];
             dBdz[j]   = sz*( gr*( gphi*(field[4]-field[0]) + fphi*(field[5]-field[1]) ) +
                              fr*( gphi*(field[6]-field[2]) + fphi*(field[7]-field[3]) ) );
             dBdr[j]   = sr*( gz*( gphi*(field[2]-field[0]) + fphi*(field[3]-field[1]) ) +
