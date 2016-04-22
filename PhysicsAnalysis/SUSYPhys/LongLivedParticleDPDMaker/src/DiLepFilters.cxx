@@ -7,11 +7,14 @@
 /////////////////////////////////////////////////////////////////
 // Author: Dominik Krauss (krauss@mpp.mpg.de)
 
+// STL
+#include <cmath>
+
+// Athena
 #include "LongLivedParticleDPDMaker/DiLepFilters.h"
 
 DerivationFramework::DiLepFilters::DiLepFilters(const std::string& t, const std::string& n, const IInterface* p)
                                                : AthAlgTool(t, n, p), m_tdt("Trig::TrigDecisionTool/TrigDecisionTool"),
-                                                 m_trig_siph(""), m_trig_diph(""), m_trig_simu(""),
                                                  m_pass_siph(false), m_pass_diph(false), m_pass_simu(false),
                                                  m_el_eta(0.), m_ph_eta(0.), m_mu_eta(0.), m_mu_beta(0.),
                                                  m_el_d0(0.), m_mu_d0(0.),
@@ -22,9 +25,9 @@ DerivationFramework::DiLepFilters::DiLepFilters(const std::string& t, const std:
 
   declareProperty("TrigDecisionTool", m_tdt);
 
-  declareProperty("SiPhTrigger", m_trig_siph);
-  declareProperty("DiPhTrigger", m_trig_diph);
-  declareProperty("SiMuTrigger", m_trig_simu);
+  declareProperty("SiPhTriggers", m_trig_siph);
+  declareProperty("DiPhTriggers", m_trig_diph);
+  declareProperty("SiMuTriggers", m_trig_simu);
 
   declareProperty("ElEtaMax", m_el_eta);
   declareProperty("PhEtaMax", m_ph_eta);
@@ -55,9 +58,34 @@ StatusCode DerivationFramework::DiLepFilters::initialize()
 
 bool DerivationFramework::DiLepFilters::GetTriggers()
 {
-  m_pass_siph = m_tdt->isPassed(m_trig_siph);
-  m_pass_diph = m_tdt->isPassed(m_trig_diph);
-  m_pass_simu = m_tdt->isPassed(m_trig_simu);
+  m_pass_siph = false;
+  m_pass_diph = false;
+  m_pass_simu = false;
+
+  for(const std::string& tn: m_trig_siph)
+  {
+    if(m_tdt->isPassed(tn))
+    {
+      m_pass_siph = true;
+      break;
+    }
+  }
+  for(const std::string& tn: m_trig_diph)
+  {
+    if(m_tdt->isPassed(tn))
+    {
+      m_pass_diph = true;
+      break;
+    }
+  }
+  for(const std::string& tn: m_trig_simu)
+  {
+    if(m_tdt->isPassed(tn))
+    {
+      m_pass_simu = true;
+      break;
+    }
+  }
 
   return m_pass_siph || m_pass_diph || m_pass_simu;
 }
@@ -218,7 +246,7 @@ bool DerivationFramework::DiLepFilters::IsGood(const xAOD::Muon& mu) const
   if(!mu.parameter(dof, xAOD::Muon::msInnerMatchDOF)) return false;
   if(dof == 0) dof = 1;
 
-  return (chi2 / static_cast<float>(dof)) < 5.;
+  return (chi2 / static_cast<float>(dof)) < 50.;
 }
 
 bool DerivationFramework::DiLepFilters::PassCuts(const xAOD::Electron& el, double pt_cut, bool loose) const

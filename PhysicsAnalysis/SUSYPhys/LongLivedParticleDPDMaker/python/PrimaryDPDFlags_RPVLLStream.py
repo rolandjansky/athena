@@ -32,6 +32,7 @@ jobproperties.add_Container(PrimaryDPDFlags_RPVLLStream)
 
 primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 
+import DiLepFlags
 import DVFlags
 import KinkedTrackFlags
 import StoppedFlags

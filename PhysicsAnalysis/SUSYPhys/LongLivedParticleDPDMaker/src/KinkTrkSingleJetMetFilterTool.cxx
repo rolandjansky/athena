@@ -7,6 +7,7 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include "FourMomUtils/P4Helpers.h"
 #include <vector>
 
@@ -106,6 +107,9 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
   ATH_CHECK( evtStore()->retrieve(jetContainer, m_jetSGKey) );
   ATH_MSG_DEBUG("retrieved jet collection size "<< jetContainer->size());
 
+  // leading jet pt > 120 GeV
+  // Good Jets pt > 50 GeV
+  // Pt cut size = 2
   bool passJet1(false);
   std::vector<const xAOD::Jet*> goodJets;
   for (const auto jet: *jetContainer) {
@@ -120,6 +124,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 
   if (!passJet1) return acceptEvent;
 
+  // dPhi > 1.0 cut
   float minDphi = 9999;
   for (unsigned int i=0; i<goodJets.size(); i++) {
     if (i >= m_jetPtCuts.size()) break;
@@ -129,6 +134,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
   }
   if (minDphi < m_jetMetDphiMin) return acceptEvent; 
   
+  // Lepton VETO
   if (m_LeptonVeto) {
     // Retrieve muon container	
     const xAOD::MuonContainer* muons(0);
@@ -171,6 +177,83 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
     }
   }
 
+  // at least 1 isolated pixel tracklet OR standard track
+  //if(m_isolatedTracklet){
+  if(true){
+    // Find IsolatedTracklet
+    bool passIsolatedTracklet = false;
+    const xAOD::TrackParticleContainer *pixelTrackletContainer=NULL;
+    ATH_CHECK( evtStore()->retrieve(pixelTrackletContainer, "InDetPixelPrdAssociationTrackParticles") );
+    
+    for(auto Tracklet : *pixelTrackletContainer){
+      passIsolatedTracklet = true;
+      for(int i=0;i<goodJets.size();i++){
+	double deltaPhi = (fabs(Tracklet->phi() - goodJets.at(i)->phi()) > M_PI) ? 2.0*M_PI-fabs(Tracklet->phi()-goodJets.at(i)->phi()) : fabs(Tracklet->phi()-goodJets.at(i)->phi());
+	double deltaEta = fabs(Tracklet->eta() - goodJets.at(i)->eta());
+	double deltaR = sqrt(deltaPhi*deltaPhi + deltaEta*deltaEta);
+
+	//if(P4Helpers::deltaR(Tracklet->p4(), goodJets.at(i)->eta(), goodJets.at(i)->phi()) < 0.3){
+	if(deltaR < 0.3){
+	  passIsolatedTracklet = false;
+	}
+      }// for goodJets
+      
+      if(passIsolatedTracklet)
+	break;
+    }// for Tracklet
+
+    if(passIsolatedTracklet==false){
+      //return acceptEvent; // std track OFF
+
+      bool passIsolatedStdTrack = false;
+      const xAOD::TrackParticleContainer *standardTrackContainer=NULL;
+      ATH_CHECK( evtStore()->retrieve(standardTrackContainer, "InDetTrackParticles") );
+      
+      for(auto StdTrack : *standardTrackContainer){
+	if(StdTrack->pt()/1000.0 < 20.0)
+	  continue;
+
+	passIsolatedStdTrack = true;
+
+	for(int i=0;i<goodJets.size();i++){
+	  double deltaPhi = (fabs(StdTrack->phi() - goodJets.at(i)->phi()) > M_PI) ? 2.0*M_PI-fabs(StdTrack->phi()-goodJets.at(i)->phi()) : fabs(StdTrack->phi()-goodJets.at(i)->phi());
+	  double deltaEta = fabs(StdTrack->eta() - goodJets.at(i)->eta());
+	  double deltaR = sqrt(deltaPhi*deltaPhi + deltaEta*deltaEta);
+	  //if(P4Helpers::deltaR(StdTrack->p4(), goodJets.at(i)->eta(), goodJets.at(i)->phi()) < 0.3){
+	  if(deltaR < 0.3){
+	    passIsolatedStdTrack = false;
+	  }
+	}// for goodJets
+	
+	if(passIsolatedStdTrack){
+	  double ptcone20 = 0.0;
+	  for(auto Track : *standardTrackContainer){
+	    if(Track->pt()/1000.0 < 0.4)
+	      continue;
+
+	    double deltaPhi = (fabs(StdTrack->phi() - Track->phi()) > M_PI) ? 2.0*M_PI-fabs(StdTrack->phi()-Track->phi()) : fabs(StdTrack->phi()-Track->phi());
+	    double deltaEta = fabs(StdTrack->eta() - Track->eta());
+	    double deltaR = sqrt(deltaPhi*deltaPhi + deltaEta*deltaEta);
+	    //if(P4Helpers::deltaR(StdTrack->p4(), Track->p4()) < 0.2)
+	    if(deltaR < 0.2)
+	      ptcone20 += Track->pt();
+	  }// for Track
+	  
+	  ptcone20 = (ptcone20 - StdTrack->pt())/StdTrack->pt();
+	  if(ptcone20 < 0.04){
+	    break;
+	  }else{
+	    passIsolatedStdTrack = false;
+	  }
+	}
+      }// for StdTrack
+
+      if(passIsolatedStdTrack==false)
+	return acceptEvent;
+    }// if there is no isolated pixel tracklet, find isolated standard track
+    
+  }// m_isolatedTracklet
+  
   acceptEvent = true;
   ++m_npass;
   return acceptEvent; 

@@ -7,7 +7,11 @@
 /////////////////////////////////////////////////////////////////
 // Author: Dominik Krauss (krauss@mpp.mpg.de)
 
+// Athena
 #include "LongLivedParticleDPDMaker/DiLepSkimTools.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODMuon/MuonContainer.h"
 
 DerivationFramework::DiLepSkim::DiLepSkim(const std::string& t, const std::string& n, const IInterface* p)
                                          : AthAlgTool(t, n, p), m_dlf("DerivationFramework::DiLepFilters/DiLepFilters"),
