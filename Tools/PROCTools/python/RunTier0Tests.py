@@ -9,15 +9,18 @@ import subprocess
 import os
 import threading
 import time
+import uuid
 
-def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir):
+def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID):
     q=qtest
     if q != "q221":
         extraArg=""
     print "Running clean in rel "+release+" \"Reco_tf.py --AMI "+q+" "+extraArg+"\""
     #Check if CleanRunHead directory exists if not exist with a warning 
 
-    cmd = "mkdir -p "+CleanRunHeadDir+" ; cd "+CleanRunHeadDir+"; mkdir -p clean_run_"+q+" ; cd clean_run_"+q+"; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea `pwd` >& /dev/null ; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
+    CleanDirName="clean_run_"+q+"_"+UniqID
+
+    cmd = "mkdir -p "+CleanRunHeadDir+" ; cd "+CleanRunHeadDir+"; mkdir -p "+CleanDirName+" ; cd "+CleanDirName+" ; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea `pwd` >& /dev/null ; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
     subprocess.call(cmd,shell=True)
     print "Finished clean \"Reco_tf.py --AMI "+q+"\""
     pass
@@ -77,27 +80,6 @@ def GetReleaseSetup():
         
     return setup
 
-################################################################
-############ Does the user have a valid proxy grid certificate?
-def valid_grid_cert():
-    #    cmd = "voms-proxy-info ; echo $?"
-    cmd = "ls -rt /tmp/ | grep \"x509\" | tail -n1"
-    output,error = subprocess.Popen(['/bin/bash', '-c', cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-    filename="/tmp/"+str(output.rstrip())
-    if "x509" in filename and (time.time() - os.path.getmtime(filename) < 12 * 60 * 60) :
-        print "You have a valid grid certificate proxy to run Tier0 q-tests."
-    else :
-        print "You require a valid grid certificate proxy to run Tier0 q-tests. Please run:"
-        print ""
-        print "setupATLAS"
-        print "localSetupPyAMI"
-        print "voms-proxy-init --voms atlas"
-        print ""
-        print "in this terminal or another terminal on this machine"
-        print "before attempting to run this test again"
-        sys.exit()
-    pass
-
 ###############################
 ########### List patch packages
 def list_patch_packages():
@@ -120,11 +102,11 @@ def list_patch_packages():
 ###############################
 ########### Was the q test successful? To check simply count the number of lines containing the string "successful run"
 
-def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir):
+def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqID):
     print "-----------------------------------------------------" 
     print "Did each step of the "+q+" test complete successfully?" 
 
-    test_dir = CleanRunHeadDir+"/clean_run_"+q
+    test_dir = CleanRunHeadDir+"/clean_run_"+q+"_"+UniqID
 
     _Test=True
     for step in qTestsToRun[q]:
@@ -156,10 +138,12 @@ def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir):
              
 
 ############### Run Frozen Tier0 Policy Test 
-def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir):
+def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID):
     print "---------------------------------------------------------------------------------------" 
     print "Running "+q+" Frozen Tier0 Policy Test on "+inputFormat+" for "+str(maxEvents)+" events" 
-    comparison_command = "acmd.py diff-root "+CleanRunHeadDir+"/clean_run_"+q+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --ignore-leaves --ignore-leaves  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"   
+    clean_dir = CleanRunHeadDir+"/clean_run_"+q+"_"+UniqID
+
+    comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --ignore-leaves --ignore-leaves  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"   
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
     passed_frozen_tier0_test=False
@@ -181,10 +165,11 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir):
     pass
 
 ############### Run A Very Simple Test 
-def RunTest(q,qTestsToRun,TestName,SearchString,MeasurementUnit,FieldNumber,Threshold,CleanRunHeadDir):
+def RunTest(q,qTestsToRun,TestName,SearchString,MeasurementUnit,FieldNumber,Threshold,CleanRunHeadDir,UniqID):
     print "-----------------------------------------------------" 
     print "Running "+q+" "+TestName+" Test" 
-    test_dir = CleanRunHeadDir+"/clean_run_"+q
+
+    test_dir = CleanRunHeadDir+"/clean_run_"+q+"_"+UniqID
     
     _Test=True 
     for step in qTestsToRun[q]:
@@ -295,9 +280,6 @@ def main():
             print "Please be aware that you are running in a base release rather than a Tier0 release, where in general q-tests are not guaranteed to work." 
 
 
-########### Does the user have a valid grid proxy
-        valid_grid_cert()
-
 ########### Define which q-tests to run
         qTestsToRun = { 
             'q221':[ 'HITtoRDO','RAWtoESD','ESDtoAOD','AODtoTAG'],          
@@ -319,19 +301,21 @@ def main():
         else:
             list_patch_packages()
 
-
+########### Get unique name for the clean run directory
+            UniqName = str(uuid.uuid4())
 
 ########### Define and run jobs
         mythreads={}
 #        mysetup=mysetup+",builds"
         print "------------------ Run Athena q-test jobs---------------"                
 
+
         if RunFast:
             for qtest in qTestsToRun:
                 q=str(qtest)
 
                 def mycleanqtest():
-                    RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir)
+                    RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     pass
     
                 def mypatchedqtest():
@@ -351,7 +335,7 @@ def main():
                 q=str(qtest)
 
                 def mycleanqtest():
-                    RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir)
+                    RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     pass
                 
                 def mypatchedqtest():
@@ -372,19 +356,19 @@ def main():
             print "-----------------------------------------------------"    
             print "----------- Post-processing of "+q+" Test -----------"    
 
-            QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir)
+            QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqName)
             
-            RunFrozenTier0PolicyTest(q,"ESD",10,CleanRunHeadDir)
+            RunFrozenTier0PolicyTest(q,"ESD",10,CleanRunHeadDir,UniqName)
 
-            RunFrozenTier0PolicyTest(q,"AOD",20,CleanRunHeadDir)
+            RunFrozenTier0PolicyTest(q,"AOD",20,CleanRunHeadDir,UniqName)
 
-            RunTest(q,qTestsToRun,"CPU Time"       ,"evtloop_time"    ,"sec/event"   ,4,0.4,CleanRunHeadDir)
+            RunTest(q,qTestsToRun,"CPU Time"       ,"evtloop_time"    ,"sec/event"   ,4,0.4,CleanRunHeadDir,UniqName)
 
-            RunTest(q,qTestsToRun,"Physical Memory","VmRSS"           ,"kBytes"      ,4,0.2,CleanRunHeadDir)
+            RunTest(q,qTestsToRun,"Physical Memory","VmRSS"           ,"kBytes"      ,4,0.2,CleanRunHeadDir,UniqName)
 
-            RunTest(q,qTestsToRun,"Virtual Memory" ,"VmSize"          ,"kBytes"      ,4,0.2,CleanRunHeadDir)
+            RunTest(q,qTestsToRun,"Virtual Memory" ,"VmSize"          ,"kBytes"      ,4,0.2,CleanRunHeadDir,UniqName)
 
-            RunTest(q,qTestsToRun,"Memory Leak"    ,"leakperevt_evt11","kBytes/event",7,0.05,CleanRunHeadDir)
+            RunTest(q,qTestsToRun,"Memory Leak"    ,"leakperevt_evt11","kBytes/event",7,0.05,CleanRunHeadDir,UniqName)
 
 
 if __name__ == '__main__':
