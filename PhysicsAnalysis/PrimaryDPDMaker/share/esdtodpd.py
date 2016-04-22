@@ -60,15 +60,15 @@ AODFlags.Tau                = False
 AODFlags.Trigger            = False
 AODFlags.ParticleJet        = False
 
-if primDPD.WritePreselectElectronStreamFromESDInput.writeAODContent :
-    rec.doAOD.set_Value_and_Lock(True)
-    rec.doAODCaloCells.set_Value_and_Lock(True)
-    AODFlags.Photon             = True
-    AODFlags.Electron           = True
-    AODFlags.egammaTrackSlimmer = True
-    AODFlags.MuonTrackSlimmer   = True
-    AODFlags.TauTrackSlimmer    = True
-    pass
+#if primDPD.WritePreselectElectronStreamFromESDInput.writeAODContent :
+#    rec.doAOD.set_Value_and_Lock(True)
+#    rec.doAODCaloCells.set_Value_and_Lock(True)
+#    AODFlags.Photon             = True
+#    AODFlags.Electron           = True
+#    AODFlags.egammaTrackSlimmer = True
+#    AODFlags.MuonTrackSlimmer   = True
+#    AODFlags.TauTrackSlimmer    = True
+#    pass
     
 #These containers do not exists in the ESD. They have to be created on the fly if using AOD-based tools later on.
 #AODFlags.Muon        = True
