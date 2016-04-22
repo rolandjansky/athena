@@ -48,7 +48,8 @@ namespace DerivationFramework {
     std::string m_metSGKey;
     std::string m_jetSGKey; 
     double m_MeffCut;
-    double m_METoverMeffCut;
+    double m_METoverMeffCutMin;
+    double m_METoverMeffCutMax;
     double m_jetPtCut;
     double m_jetEtaCut;
     double m_METCut;

@@ -38,7 +38,6 @@ class RPVLLTestRates : public AthAlgorithm  {
  private:
 
    int m_EventCounter;
-   StoreGateSvc * m_MetaDataStore;
    ServiceHandle<ITHistSvc> m_tHistSvc;
 
    std::vector<std::string> m_DecisionLabel;

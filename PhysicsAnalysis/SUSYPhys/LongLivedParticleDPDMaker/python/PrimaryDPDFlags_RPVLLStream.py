@@ -92,7 +92,7 @@ primRPVLLDESDM.add_JobProperty(doQuirks)
 class doHips(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = True
+    StoredValue = False
     pass
 primRPVLLDESDM.add_JobProperty(doHips)
 
