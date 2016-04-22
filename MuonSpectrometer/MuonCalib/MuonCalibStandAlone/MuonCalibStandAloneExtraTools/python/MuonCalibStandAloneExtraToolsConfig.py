@@ -3,10 +3,10 @@
 from MuonCalibStandAloneTools.MuonCalibStandAloneToolsConfig import *
 from MuonCalibStandAloneExtraTools.MuonCalibStandAloneExtraToolsConf import *
 
-#list tools that do not need any reclaibration
+#list tools that do not need any recalibration
 NoRecalibration += ["Splitter"]
 
-#list tools that needs the t0 revertetd
+#list tools that needs the t0 reverted
 #RevertT0 += []
 
 #list tools, that needs the t0 recalibrated
@@ -34,6 +34,6 @@ def CreateCalibExtraTool(CalibrationTool):
 	if CalibrationTool == "Splitter":
 		return MuonCalib__NtupleSplitterTool()
 	else:
-		print "WARNING: Unnknown tool name '" + CalibrationTool + "'!"
+		print "WARNING: Unknown tool name '" + CalibrationTool + "'!"
 		return None
 	

@@ -41,6 +41,7 @@ class TrackSecondCoordinateToSegment : public AthAlgTool, virtual public CalibSe
   TH1F *m_delta_sx;
   TH1F *m_delta_hit_x;
   inline void apply_2n_coordinate(const  MuonCalibExtendedTrack *track, MuonCalibSegment *segment) const;
+  inline void updatePosition(Amg::Vector3D & position, const Amg::Vector3D & seg_pos, const Amg::Vector3D &seg_dir) const;
   //  inline void updatePosition(HepGeom::Point3D<double> &position, const HepGeom::Point3D<double> &seg_pos, const HepGeom::Vector3D<double> &seg_dir) const;
 };
 	

@@ -39,7 +39,7 @@ class ExtraRegionSelectorSuperFast : public AthAlgTool, virtual public CalibSegm
   void prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> &segments);
  private:
   //=========================private data=========================================
-  //if set to true, segments wich are not comletely in the selected calibration region will be dropped - job options
+  //if set to true, segments wich are not completely in the selected calibration region will be dropped - job options
   bool m_exclusive_segments;
   //minimum and maximum number of segment hits
   int m_min_hits, m_max_hits;

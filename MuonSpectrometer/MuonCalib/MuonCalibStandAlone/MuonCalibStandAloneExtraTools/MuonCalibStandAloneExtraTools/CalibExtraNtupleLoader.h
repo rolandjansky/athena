@@ -33,7 +33,7 @@ class CalibExtraNtupleLoader: public AthAlgTool, virtual public CalibSegmentPrep
   //initialize and finalize
   StatusCode initialize(void);
   inline StatusCode finalize(void) {
-    return StatusCode :: SUCCESS;
+    return StatusCode::SUCCESS;
   }
   //load event
   void prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> &segments);
