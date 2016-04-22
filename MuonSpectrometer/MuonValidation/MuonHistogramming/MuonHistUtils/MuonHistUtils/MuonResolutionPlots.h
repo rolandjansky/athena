@@ -24,7 +24,10 @@ class MuonResolutionPlots:public PlotBase {
   TH2* Res_pT_vs_pT;
   TH2* Res_pT_vs_eta;
   TH2* Res_pT_vs_phi;
-  
+
+  TH2* Res_eta_vs_pT;
+  TH2* Res_phi_vs_pT;
+
  private:
   std::string m_sType;
   bool m_doBinnedResolutionPlots;

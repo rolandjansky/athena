@@ -79,16 +79,18 @@ TruthRelatedMuonPlotOrganizer::~TruthRelatedMuonPlotOrganizer()
 
 void TruthRelatedMuonPlotOrganizer::fill(const xAOD::TruthParticle& truthMu, const xAOD::Muon& mu, const xAOD::TrackParticleContainer* MSTracks){
   if (m_oMatchedPlots) m_oMatchedPlots->fill( truthMu );
-  if (m_oMatchedRecoPlots) m_oMatchedRecoPlots->fill( mu );
   if (m_oMuonHitDiffSummaryPlots) m_oMuonHitDiffSummaryPlots->fill(mu, truthMu);
   
   // Tracking related plots
-  const xAOD::TrackParticle* primaryTrk = mu.trackParticle(xAOD::Muon::Primary);
+  const xAOD::TrackParticle* primaryTrk = (mu.muonType()==xAOD::Muon::SiliconAssociatedForwardMuon)? mu.trackParticle(xAOD::Muon::CombinedTrackParticle)    : mu.trackParticle(xAOD::Muon::Primary); //fix for SiliconAssociatedForwardMuon
+  //const xAOD::TrackParticle* meTrk = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
+  
   if (!primaryTrk) return;
+  if (m_oMatchedRecoPlots) m_oMatchedRecoPlots->fill( *primaryTrk );
   if (m_oMSHitDiffPlots) m_oMSHitDiffPlots->fill(*primaryTrk, truthMu);
   if (m_oMuonResolutionPlots) m_oMuonResolutionPlots->fill(*primaryTrk, truthMu);
   if (m_oDefParamPullPlots) m_oDefParamPullPlots->fill(*primaryTrk, truthMu);
-
+  
   if (m_oMomentumTruthPullPlots_NoTail || m_oMomentumTruthPullPlots_Tail) {
     //muon spectrometer track at MS entry (not extrapolated)
     const xAOD::TrackParticle *msTrk(0);  
@@ -150,9 +152,10 @@ void TruthRelatedMuonPlotOrganizer::fill(const xAOD::TruthParticle& truthMu, con
 void TruthRelatedMuonPlotOrganizer::fill(const xAOD::TruthParticle& truthMu, const xAOD::TrackParticle& muTP){
   // Tracking related plots
   if (m_oMatchedPlots) m_oMatchedPlots->fill( truthMu );
-  if (m_oMSHitDiffPlots) m_oMSHitDiffPlots->fill(muTP, truthMu);
-  if (m_oMuonResolutionPlots) m_oMuonResolutionPlots->fill(muTP, truthMu);
+  if (m_oMatchedRecoPlots) m_oMatchedRecoPlots->fill( muTP );
   if (m_oDefParamPullPlots) m_oDefParamPullPlots->fill(muTP, truthMu);
+  if (m_oMuonResolutionPlots) m_oMuonResolutionPlots->fill(muTP, truthMu);
+  if (m_oMSHitDiffPlots) m_oMSHitDiffPlots->fill(muTP, truthMu);
 }
   
 }//close namespace
