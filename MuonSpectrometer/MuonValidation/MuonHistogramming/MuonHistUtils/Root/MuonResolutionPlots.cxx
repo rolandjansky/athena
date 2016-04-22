@@ -15,6 +15,8 @@ MuonResolutionPlots::MuonResolutionPlots(PlotBase* pParent, std::string sDir, st
   Res_pT_vs_pT(NULL),
   Res_pT_vs_eta(NULL),
   Res_pT_vs_phi(NULL),
+  Res_eta_vs_pT(NULL),
+  Res_phi_vs_pT(NULL),
   m_sType(sType),
   m_doBinnedResolutionPlots(doBinnedResolutionPlots)
 {
@@ -35,7 +37,12 @@ MuonResolutionPlots::MuonResolutionPlots(PlotBase* pParent, std::string sDir, st
     Res_pT_vs_eta = Book2D("Res"+m_sType+"_pT_vs_eta","Res"+m_sType+"_pT vs eta;eta,eta-etatruth",
 			   sizeOf_etaBins-1, &etaBins[0], 100,-0.5,0.5);
     Res_pT_vs_phi = Book2D("Res"+m_sType+"_pT_vs_phi","Res"+m_sType+"_pT vs phi;phi,phi-phitruth",
-			   sizeOf_phiBins-1, &phiBins[0], 100,-0.5,0.5);					
+			   sizeOf_phiBins-1, &phiBins[0], 100,-0.5,0.5);
+
+    Res_eta_vs_pT = Book2D("Res"+m_sType+"_eta_vs_pT","Res"+m_sType+"_eta vs pT;pT [GeV];eta-etatruth",
+			   sizeOf_ptBins-1, &ptBins[0],  100,-0.5,0.5);
+    Res_phi_vs_pT = Book2D("Res"+m_sType+"_phi_vs_pT","Res"+m_sType+"_phi vs pT;pT [GeV];phi-phitruth",
+			   sizeOf_ptBins-1, &ptBins[0],  100,-0.5,0.5);
   }
 
 }
@@ -57,6 +64,9 @@ void MuonResolutionPlots::fill(const xAOD::TrackParticle& muPrimaryTrk, const xA
     Res_pT_vs_pT->Fill(pt,respt);
     Res_pT_vs_eta->Fill(eta,respt);
     Res_pT_vs_phi->Fill(phi,respt);
+
+    Res_eta_vs_pT->Fill(pt, muPrimaryTrk.eta()-eta);
+    Res_phi_vs_pT->Fill(pt, muPrimaryTrk.phi()-phi);
   }
 }
 

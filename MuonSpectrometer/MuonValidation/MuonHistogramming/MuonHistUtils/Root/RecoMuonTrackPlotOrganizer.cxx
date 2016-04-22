@@ -12,7 +12,8 @@ RecoMuonTrackPlotOrganizer::RecoMuonTrackPlotOrganizer(PlotBase* pParent, std::s
   , m_oTrkParamPlots(NULL)
   , m_oTrkRecoInfoPlots(NULL)
   , m_oImpactPlots(NULL)
-  //  , m_oMSHitPlots(NULL)
+  , m_oMSHitPlots(NULL)
+  , m_oIDHitPlots(NULL)
 {
   
   if (!selPlots) {
@@ -35,11 +36,14 @@ RecoMuonTrackPlotOrganizer::RecoMuonTrackPlotOrganizer(PlotBase* pParent, std::s
       m_oImpactPlots = new Trk::ImpactPlots(this, "/parameters/");
       m_allPlots.push_back(m_oImpactPlots);
       break;
-    // case TRK_MSHITS:
-    //   m_oMSHitPlots = new Trk::MSHitPlots(this,"/hits/");
-    //   m_allPlots.push_back(m_oMSHitPlots);
-    //   break;
-    // }
+    case TRK_MSHITS:
+      m_oMSHitPlots = new Trk::MSHitPlots(this,"/hits/");
+      m_allPlots.push_back(m_oMSHitPlots);
+      break;    
+    case TRK_IDHITS:
+      m_oIDHitPlots = new Muon::IDHitSummaryPlots(this,"/hits/");
+      m_allPlots.push_back(m_oIDHitPlots);
+      break;
     }
   }
 }
@@ -53,8 +57,9 @@ RecoMuonTrackPlotOrganizer::~RecoMuonTrackPlotOrganizer()
 void RecoMuonTrackPlotOrganizer::fill(const xAOD::TrackParticle& tp) {
   if (m_oTrkParamPlots) m_oTrkParamPlots->fill(tp);
   if (m_oTrkRecoInfoPlots) m_oTrkRecoInfoPlots->fill(tp);
-  if (m_oImpactPlots) m_oImpactPlots->fill(tp);
-  //  if (m_oMSHitPlots) m_oMSHitPlots->fill(tp);
+  if (m_oImpactPlots) m_oImpactPlots->fill(tp);  
+  if (m_oMSHitPlots) m_oMSHitPlots->fill(tp);
+  if (m_oIDHitPlots) m_oIDHitPlots->fill(tp);
 }
 
 }

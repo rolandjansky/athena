@@ -10,6 +10,8 @@ namespace Muon{
 MuonHitSummaryPlots::MuonHitSummaryPlots(PlotBase* pParent, std::string sDir):
 PlotBase(pParent, sDir),
 
+m_oMSHitPlots(this, ""),
+
 innerSmallHits(this, "innersmallhits", "inner small hits", 0, 20),
 innerLargeHits(this, "innerlargehits", "inner large hits", 0, 30),
 middleSmallHits(this, "middlesmallhits", "middle small hits", 0, 20),
@@ -55,7 +57,11 @@ etaphiHoles(this, "etaphiHoles", "eta+phi holes", 0, 5)
 {  }	
 
  
-void MuonHitSummaryPlots::fill(const xAOD::Muon& muon){ 
+void MuonHitSummaryPlots::fill(const xAOD::Muon& muon){
+
+  const xAOD::TrackParticle *tp = (muon.muonType()==xAOD::Muon::SiliconAssociatedForwardMuon)? muon.trackParticle(xAOD::Muon::CombinedTrackParticle) : muon.trackParticle(xAOD::Muon::Primary);
+  if (tp) m_oMSHitPlots.fill(*tp);
+  
   fillPlot(innerSmallHits, xAOD::innerSmallHits, muon);
   fillPlot(innerLargeHits, xAOD::innerLargeHits, muon);
   fillPlot(middleSmallHits, xAOD::middleSmallHits, muon);
@@ -110,6 +116,9 @@ void MuonHitSummaryPlots::fill(const xAOD::Muon& muon){
 }
 
 void MuonHitSummaryPlots::fill(const xAOD::TruthParticle& truthprt){
+
+  m_oMSHitPlots.fill(truthprt);
+  
   fillPlot(innerSmallHits, "innerSmallHits", truthprt);
   fillPlot(innerLargeHits, "innerLargeHits", truthprt);
   fillPlot(middleSmallHits, "middleSmallHits", truthprt);

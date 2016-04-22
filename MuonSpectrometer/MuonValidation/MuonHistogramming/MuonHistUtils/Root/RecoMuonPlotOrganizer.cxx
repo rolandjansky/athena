@@ -9,6 +9,7 @@ namespace Muon{
   RecoMuonPlotOrganizer::RecoMuonPlotOrganizer(PlotBase* pParent, std::string sDir, std::vector<int> *selPlots):
   PlotBase(pParent, sDir)
   // Reco plots
+  , m_oIDHitPlots(NULL)
   , m_oTrkParamPlots(NULL)
   , m_oImpactPlots(NULL)
   , m_oMuonParamPlots(NULL)
@@ -48,9 +49,13 @@ namespace Muon{
       m_oMomentumPullPlots = new Muon::MomentumPullPlots(this, "/momentumPulls/");
       m_allPlots.push_back(m_oMomentumPullPlots);
       break;
-    case MUON_HITS:
+    case MUON_HITS:    
       m_oMuonHitSummaryPlots = new Muon::MuonHitSummaryPlots(this,"/hits/");
       m_allPlots.push_back(m_oMuonHitSummaryPlots);
+      break;
+    case MUON_IDHITS:
+      m_oIDHitPlots = new Muon::IDHitSummaryPlots(this,"/hits/");
+      m_allPlots.push_back(m_oIDHitPlots);
       break;
     case MUON_ISO:	
       m_oMuonIsolationPlots = new Muon::MuonIsolationPlots(this,"/isolation/");
@@ -73,7 +78,14 @@ RecoMuonPlotOrganizer::~RecoMuonPlotOrganizer()
 }
   
 void RecoMuonPlotOrganizer::fill(const xAOD::Muon& mu) {
-  if (m_oTrkParamPlots) m_oTrkParamPlots->fill(mu);
+  if (m_oIDHitPlots && (mu.inDetTrackParticleLink().isValid())) m_oIDHitPlots->fill(*mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle));
+  if (m_oTrkParamPlots) {
+    if (mu.muonType()==xAOD::Muon::SiliconAssociatedForwardMuon) {
+      if (mu.combinedTrackParticleLink().isValid()) { 
+	m_oTrkParamPlots->fill(*mu.trackParticle(xAOD::Muon::CombinedTrackParticle));
+      }
+    } else m_oTrkParamPlots->fill(mu);
+  }
   if (m_oMuonParamPlots) m_oMuonParamPlots->fill(mu);
   if (m_oMuRecoInfoPlots) m_oMuRecoInfoPlots->fill(mu);
   if (m_oMomentumPullPlots) m_oMomentumPullPlots->fill(mu);
