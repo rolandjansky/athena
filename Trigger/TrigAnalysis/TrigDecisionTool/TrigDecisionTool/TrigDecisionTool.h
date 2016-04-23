@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionTool.h 650489 2015-02-27 20:16:43Z lheinric $
+// $Id: TrigDecisionTool.h 740675 2016-04-15 16:45:37Z lheinric $
 #ifndef TrigDecision_TrigDecisionTool_h
 #define TrigDecision_TrigDecisionTool_h
 /**********************************************************************************
@@ -19,12 +19,24 @@
  * @author Joerg Stelzer  <Joerg.Stelzer@cern.ch>  - DESY
  *
  ***********************************************************************************/
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
+
+#include "AsgTools/AsgToolsConf.h"
+#include "AsgTools/AsgMetadataTool.h"
+#include "AsgTools/ToolHandle.h"
+
+#include "TrigConfInterfaces/ITrigConfigTool.h" 
+#ifdef ASGTOOL_ATHENA
+
+
+#ifndef XAOD_ANALYSIS
+#include "TrigNavigation/Navigation.h"
+#include "TrigConfInterfaces/ITrigConfigSvc.h" 
 #include "GaudiKernel/IIncidentListener.h"
-#include "StoreGate/DataHandle.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+#endif
+
+#endif
+
 
 // interface to implement for offline access (outside AtlasTrigger)
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
@@ -33,30 +45,26 @@
 #include "TrigDecisionTool/TrigDecisionToolCore.h"
 #include "TrigDecisionTool/Logger.h"
 
-#include "TrigNavigation/Navigation.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h" 
-
-
 namespace TrigConf {
    class ITrigConfigSvc;
 }
 
 namespace Trig {
-  static const InterfaceID IID_TrigDecisionTool("Trig::TrigDecisionTool", 1, 0);
-
   class TrigDecisionTool :
-    public AthAlgTool,
+    public asg::AsgMetadataTool,
     virtual Trig::ITrigDecisionTool,
-    virtual public IIncidentListener,
-    public TrigDecisionToolCore,
-    public virtual Logger
-      
+    public TrigDecisionToolCore   
   { 
-      
-  public:
     // constructors, destructor
-    TrigDecisionTool(const std::string& name, const std::string& type,
-                     const IInterface* parent = 0);
+    ASG_TOOL_INTERFACE(Trig::TrigDecisionTool)
+    ASG_TOOL_CLASS2(TrigDecisionTool,Trig::ITrigDecisionTool,Trig::TrigDecisionTool)
+
+  public:
+    using Logger::msgLvl;//resolve ambiguity from also inheriting from Logger
+    using Logger::msg;   //resolve ambiguity from also inheriting from Logger
+
+    // constructors, destructor
+    TrigDecisionTool(const std::string& name);
     virtual ~TrigDecisionTool();
 
     // initialize routine as required for an Algorithm
@@ -64,12 +72,19 @@ namespace Trig {
 
     StatusCode beginEvent();
 
+    StatusCode beginInputFile();
+
     StatusCode finalize();
-      
-    static const InterfaceID& interfaceID() { return IID_TrigDecisionTool; }
-      
+
+    #ifdef ASGTOOL_ATHENA
+    void outputlevelupdateHandler(Property& p);  //propagates outputlevel changes to the Logger
+    
+    #endif
+
+#ifndef XAOD_ANALYSIS
     // this is called by Incident dispatcher
     virtual void handle(const Incident& inc); 
+#endif
 
     /**
      * @brief true if given chain passed
@@ -91,12 +106,19 @@ namespace Trig {
 
   private:
       
+    bool configKeysMatch(uint32_t smk, uint32_t lvl1psk, uint32_t hltpsk);
+    std::vector<uint32_t> m_configKeysCache; //cache for config keys. only update CacheGlobalMemory when these change
+    bool m_configKeysCached; // flag to indicate if we have ever cached config keys (set to true on first caching)
+    ToolHandle<TrigConf::ITrigConfigTool> m_configTool;    //!< trigger configuration service handle
+
+ 
+
+    //full Athena
+    #if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
     ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;    //!< trigger configuration service handle
-
-    ServiceHandle<StoreGateSvc> m_store;
-
-    ToolHandle<HLT::Navigation> m_navigation;
-
+    ToolHandle<HLT::Navigation> m_fullNavigation;
+    #endif
+    HLT::TrigNavStructure* m_navigation;
     
     bool m_useAODDecision;
     std::string m_decisionKey;

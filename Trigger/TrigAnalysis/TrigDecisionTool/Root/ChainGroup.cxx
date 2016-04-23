@@ -25,23 +25,24 @@
 #include "TrigConfL1Data/TriggerItem.h"
 #include "TrigConfL1Data/TriggerItemNode.h"
 #include "TrigSteeringEvent/Chain.h"
-#include "TrigSteeringEvent/Lvl1Result.h"
-#include "TrigNavigation/ComboIterator.h"
+#include "TrigSteeringEvent/Lvl1Item.h"
+#include "TrigNavStructure/ComboIterator.h"
 
 #include "TrigDecisionTool/ChainGroup.h"
 #include "TrigDecisionTool/TDTUtilities.h"
 #include "TrigDecisionTool/Logger.h"
 
-#define MLOG(x)   if (log().level()<=MSG::x) log() << MSG::x
+
+
 
 using namespace std;
 
 Trig::ChainGroup::ChainGroup(const std::vector< std::string >& triggerNames,
                              const Trig::CacheGlobalMemory&  parent) 
-  : Logger("ChainGroup"),
-    m_patterns(triggerNames),
-    m_cgm(parent),
-    m_prescale(0.)
+  :
+  m_patterns(triggerNames),
+  m_cgm(parent),
+  m_prescale(0.)
 {}
 
 const Trig::ChainGroup& Trig::ChainGroup::operator+(const Trig::ChainGroup& rhs) {
@@ -115,17 +116,16 @@ bool Trig::ChainGroup::HLTResult(const std::string& chain, unsigned int conditio
   if (condition & TrigDefs::eventAccepted) {
     if ( (RAW  && !PRESCALED) ||  PASSTHROUGH) {chainRESULT=true;}
   }
-  MLOG(DEBUG) << "ChainGroup::HLTResult Counter = " << std::setw(4) << fchain->getChainCounter()
-	      << " name = "  << fchain->getChainName()
-	      << " level = " << fchain->getConfigChain()->level()
-	      << " success (raw) = " << fchain->chainPassedRaw()
-	      << " pass-through = " << fchain->isPassedThrough()
-	      << " prescaled = " << fchain->isPrescaled()
-	      << " rerun = " << fchain->isResurrected()
-	      << " lastActiveStep = " << fchain->getChainStep()
-	      << " name = " << std::setw(35) << fchain->getChainName() 
-	      << " result = " << chainRESULT
-	      << endreq; 
+  ATH_MSG_DEBUG("ChainGroup::HLTResult Counter = " << std::setw(4) << fchain->getChainCounter()
+		<< " name = "  << fchain->getChainName()
+		<< " level = " << fchain->getConfigChain()->level()
+		<< " success (raw) = " << fchain->chainPassedRaw()
+		<< " pass-through = " << fchain->isPassedThrough()
+		<< " prescaled = " << fchain->isPrescaled()
+		<< " rerun = " << fchain->isResurrected()
+		<< " lastActiveStep = " << fchain->getChainStep()
+		<< " name = " << std::setw(35) << fchain->getChainName() 
+		<< " result = " << chainRESULT);
 
   return chainRESULT;
 }
@@ -143,11 +143,10 @@ bool Trig::ChainGroup::L1Result(const std::string& item, unsigned int condition)
   }
   const LVL1CTP::Lvl1Item* fitem=cgm()->item(item);
   if (fitem==0) return r;
-  MLOG(DEBUG) << " success (raw) = " << fitem->isPassedBeforePrescale()
-	<< " prescaled = " << fitem->isPrescaled()
-	<< " vetoed = " << fitem->isVeto()
-	<< " name = " << std::setw(35) << fitem->name() 
-	<< endreq; 
+  ATH_MSG_DEBUG(" success (raw) = " << fitem->isPassedBeforePrescale()
+		<< " prescaled = " << fitem->isPrescaled()
+		<< " vetoed = " << fitem->isVeto()
+		<< " name = " << std::setw(35) << fitem->name()); 
 
   r = fitem->isPassedAfterVeto();
 
@@ -167,8 +166,7 @@ std::string Trig::ChainGroup::getLowerName(const std::string& name) const {
     return "";
   const TrigConf::HLTChain* cchain = cgm(true)->config_chain(name);
   if (cchain==0){
-    log() << MSG::WARNING
-	  << " Lower chain name used by:  " << name << " is not in the configuration " << endreq;
+    ATH_MSG_WARNING(" Lower chain name used by:  " << name << " is not in the configuration ");
     return "BAD NAME";
   }
   return cchain->lower_chain_name();
@@ -179,10 +177,8 @@ std::string Trig::ChainGroup::getLowerName(const std::string& name) const {
 bool Trig::ChainGroup::isPassed(unsigned int condition) const 
 {
 
-  if (msgLvl(MSG::DEBUG)) {
-    log() << MSG::DEBUG << " Got CG to work with " << patterns() << endreq;
-    log() << MSG::DEBUG << " Got CG to work with " << names() << endreq;
-  }
+  //ATH_MSG_DEBUG(" Got CG to work with " << patterns());
+  //ATH_MSG_DEBUG(" Got CG to work with " << names());
 
   ChainGroup::const_conf_chain_iterator chIt;
 
@@ -311,24 +307,11 @@ float Trig::ChainGroup::HLTPrescale(const std::string& chain, unsigned int /*con
 
   const TrigConf::HLTChain* fchain=cgm(true)->config_chain(chain);
   if (fchain==0) { // this is error condition, we always need configuration of the chains in the chaon group!
-    log() << MSG::WARNING
-          << "Configuration for the chain: " << chain << " not known" << endreq;
+    ATH_MSG_WARNING("Configuration for the chain: " << chain << " not known");
     return std::numeric_limits<float>::quiet_NaN();
   }
   float chainRESULT = fchain->prescale();
   
-  //  log() << MSG::VERBOSE
-  //  	<< "Configuration for the chain: " << chain << " for prescale: " << chainRESULT << endreq;
-
-  /*
-  // Resurrection makes this unprescaled!
-  if (fchain->isResurrected() && condition & TrigDefs::allowResurrectedDecision) {
-  const TrigConf::HLTChain* cchain=fchain->getConfigChain();
-  if (cchain) {
-  chainRESULT=cchain->rerun_prescale();
-  }
-  }
-  */
   if (chainRESULT < 1)
     chainRESULT = 0.;
     
@@ -336,35 +319,34 @@ float Trig::ChainGroup::HLTPrescale(const std::string& chain, unsigned int /*con
 }
 
 
-int Trig::ChainGroup::L1Prescale(const std::string& item, unsigned int /*condition*/) const {
+float Trig::ChainGroup::L1Prescale(const std::string& item, unsigned int /*condition*/) const {
   if (item=="") return 0;
 
   if(item.find(',')==std::string::npos) {
     const  TrigConf::TriggerItem* fitem=cgm(true)->config_item(item);
     if (fitem==0) {
-      log() << MSG::WARNING
-            << "Configuration for the item: " << item << " not known" << endreq;
+      ATH_MSG_WARNING("Configuration for the item: " << item << " not known");
       return std::numeric_limits<int>::quiet_NaN();
     }
     // now we can;t access the prescale value because this information doe not come togehther as in HLT
     // we need to go to the cache of L1 items and get it from there  
     int ctpid = fitem->ctpId();
-    int itemprescale = cgm(true)->item_prescale(ctpid);
+    float itemprescale = cgm(true)->item_prescale(ctpid);
     if ( itemprescale < 1)
       itemprescale = 0;
     return itemprescale;
   } else {
-    int minprescale=0;
+    float minprescale=0;
     std::vector< std::string > items = convertStringToVector(item);
     std::vector< std::string >::iterator itit = items.begin();
     for(;itit != items.end(); ++itit) {
       const  TrigConf::TriggerItem* fitem=cgm(true)->config_item(*itit);
       if (fitem==0) {
-        log() << MSG::WARNING << "Configuration for the item: " << *itit << " not known" << endreq;
-        return std::numeric_limits<int>::quiet_NaN();
+        ATH_MSG_WARNING("Configuration for the item: " << *itit << " not known");
+        return std::numeric_limits<float>::quiet_NaN();
       }
       int ctpid = fitem->ctpId();
-      int itemprescale = cgm(true)->item_prescale(ctpid);
+      float itemprescale = cgm(true)->item_prescale(ctpid);
       if ( itemprescale < 1)
 	itemprescale = 0;
       minprescale = (minprescale&&(minprescale<itemprescale)?minprescale:itemprescale); // takes min, except the first time
@@ -425,7 +407,7 @@ float Trig::ChainGroup::calculatePrescale(unsigned int condition)
   for ( iIt = conf_item_begin(); iIt != conf_item_end(); ++iIt) {
 
     const std::string & l1ItemName = (*iIt)->name();
-    int itemRESULT = L1Prescale(l1ItemName,condition);
+    float itemRESULT = L1Prescale(l1ItemName,condition);
     if(l1ItemName.find(',')!=std::string::npos) singleTrigger=false;
 
     if (singleTrigger) return itemRESULT; // for a single trigger we are done
@@ -757,8 +739,7 @@ Trig::ChainGroup::features(unsigned int condition) const {
       appendFeatures(tes, f);    
    }
     
-   if (msgLvl(MSG::DEBUG))
-      log() << MSG::DEBUG << "features: features container size: "<< f.getCombinations().size() << endreq;
+   ATH_MSG_DEBUG("features: features container size: "<< f.getCombinations().size());
    return f;
 }
 
@@ -773,8 +754,7 @@ void Trig::ChainGroup::appendFeatures(std::vector< std::vector< HLT::TriggerElem
   while (combination.isValid()) {
     fc.addWithChecking(Combination(*combination, cgm())); 
 
-    if (msgLvl(MSG::VERBOSE))
-      log() << MSG::VERBOSE << " adding combination" << Combination(*combination, cgm()) << endreq;
+    ATH_MSG_VERBOSE(" adding combination" << Combination(*combination, cgm()));
 
     ++combination;
   }
@@ -786,138 +766,3 @@ namespace ChainGroup_impl {
     return a.size() < b.size();
   }
 }
-/*
-bool Trig::ChainGroup::getTEs(const TrigConf::HLTChain* conf, std::vector< std::vector<HLT::TriggerElement*> >& tes,
-                              unsigned int condition) const
-{
-  if ( condition != TrigDefs::Physics && condition != TrigDefs::alsoDeactivateTEs ) {
-    throw std::runtime_error("Only two flags can be supplied to features");
-  }
-
-  std::vector<TrigConf::HLTSignature*> sigs  = conf->signatureList();
-
-  if (sigs.size() == 0 )
-    return true;  // this is chain w/o signatures
-  if ( !sigs.back()) 
-    return false; // this is bad condition, we are missing configuration
- 
-  const std::vector<TrigConf::HLTTriggerElement*>& finalTypes = sigs.back()->outputTEs();
-  if ( log().level() <= MSG::VERBOSE ) {
-    log() << MSG::VERBOSE << "getTEs: finalTEs list: " << finalTypes.size() << endreq;
-    
-  }
-  std::vector<unsigned int> finalTEIds;
-  std::back_insert_iterator<std::vector<unsigned int> > idsInserter(finalTEIds);
-  transform(finalTypes.begin(), finalTypes.end(), idsInserter, std::mem_fun(&TrigConf::HLTTriggerElement::id));
-
-  if ( log().level() <= MSG::VERBOSE ) {
-    log() << MSG::VERBOSE << "getTEs: finalTEs ids: " << finalTEIds << endreq;
-  }
-  std::vector< std::vector<TrigConf::HLTTriggerElement*> > teTypes;
-
-  // in case we only need passing TEs we call this method with second arg beeing true
-  collectConfigurationTEs(conf, condition == TrigDefs::Physics, teTypes);
-  log() << MSG::VERBOSE << "getTEs: all configuration TEs: " << teTypes << endreq;
-
-  // we know now all the types
-  // they are in 2D array 
-  // 1st dimension is number of chain steps
-  // 2nd dimension is number of TEs in signatures
-  // now we need to loop over number of dimensions of the and collect terminal TEs
-  
-  unsigned int sigSize  = 0;
-  if ( !teTypes.empty() ) {
-    // calculate longest signature 
-    sigSize = max_element(teTypes.begin(), teTypes.end(), ChainGroup_impl::vsize)->size(); // find max
-  }
-  if ( log().level() <= MSG::VERBOSE ) {
-    log() << MSG::VERBOSE << "getTEs: sig size: " << sigSize << endreq;
-  }
-
-  for ( unsigned int teI = 0; teI < sigSize; ++teI ) {
-    std::vector<HLT::TriggerElement*> terminalTEs;
-    for ( unsigned int sigI = 0; sigI < teTypes.size(); ++sigI ) {
-      // protect against shorter signatures
-      if ( teI < teTypes[sigI].size() )  
-	collectNavigationTEs(teTypes[sigI][teI]->id(), (condition==TrigDefs::Physics), finalTEIds, terminalTEs);
-    }
-    if ( log().level() <= MSG::VERBOSE ) {
-      log() << MSG::VERBOSE << "getTEs: terminalTEs size: " << terminalTEs.size() << endreq;
-    }
-    tes.push_back(terminalTEs);
-  }
-  return true;
-}
-
-
-bool Trig::ChainGroup::collectConfigurationTEs(const TrigConf::HLTChain* conf, bool onlyFinals, 
-					       std::vector< std::vector<TrigConf::HLTTriggerElement*> >& tes) const {
-  std::vector<TrigConf::HLTSignature*> sigs  = conf->signatureList();
-  if (sigs.size() == 0 || !sigs.back()) return true;
-
-  if (onlyFinals) {
-    tes.push_back( sigs.back()->outputTEs());
-
-  } else {
-    //  const std::vector<TrigConf::HLTTriggerElement*>& finalTypes = sigs.back()->outputTEs();      
-    std::vector<TrigConf::HLTSignature*>::const_iterator typesIt;
-    for ( typesIt = sigs.begin(); typesIt != sigs.end(); ++typesIt ) {
-      tes.push_back( (*typesIt)->outputTEs() );
-    }
-  }
-  if ( log().level() <= MSG::VERBOSE ) {
-    std::string message;
-    std::vector< std::vector<TrigConf::HLTTriggerElement*> >::const_iterator vvIt;
-    std::vector<TrigConf::HLTTriggerElement*>::const_iterator vIt;
-    for ( vvIt = tes.begin(); vvIt != tes.end(); ++vvIt ) {
-      for ( vIt = vvIt->begin(); vIt != vvIt->end(); ++vIt ) {
-	message += (*vIt)->name() + " ";
-      }
-      message += " / "; 
-    }
-    log() << MSG::VERBOSE << "Config TE: " << message << endreq;
-  }
-
-  return true;
-}
-
-
-
-
-
-struct NotLastInThisLevelNorTerminal {
-       NotLastInThisLevelNorTerminal(const std::vector<unsigned int>& ids) 
-    : m_ids(ids){}
-  bool operator()(const HLT::TriggerElement* te) {
-    if (  HLT::NavigationCore::isTerminalNode(te) )
-      return false;
-    if ( count(m_ids.begin(), m_ids.end(), te->getId()))
-      return false;
-    return true;
-  }
-  const std::vector<unsigned int>&  m_ids;
-};
-
-
-bool Trig::ChainGroup::collectNavigationTEs(unsigned int TEid,
-					    bool activeOnly,
-					    const std::vector<unsigned int>& lastIds,
-					    std::vector<HLT::TriggerElement*>& tes) const {
-  std::vector<HLT::TriggerElement*> thisTypeTEs;
-  std::back_insert_iterator<std::vector<HLT::TriggerElement*> > outputIt( tes );
-
-  cgm()->navigation()->getAllOfType(TEid, thisTypeTEs, activeOnly);
-  if ( log().level() <= MSG::VERBOSE ) {
-    log() << MSG::VERBOSE << "collectNavigationTEs: id: " << TEid
-	  << " got back " << thisTypeTEs 
-	  << " active " << activeOnly << endreq;
-  }
-  if ( !activeOnly )
-    remove_copy_if(thisTypeTEs.begin(), thisTypeTEs.end(), outputIt, NotLastInThisLevelNorTerminal(lastIds));
-  else
-    copy(thisTypeTEs.begin(), thisTypeTEs.end(), outputIt);
-
-  return true;
-}
-
-*/	

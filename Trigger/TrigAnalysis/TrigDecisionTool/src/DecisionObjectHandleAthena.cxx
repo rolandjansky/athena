@@ -10,8 +10,7 @@
 using namespace Trig;
 
 DecisionObjectHandleAthena::DecisionObjectHandleAthena( StoreGateSvc* sg, const std::string& key )
-  : asg::AsgMessaging("DecisionObjectHandleAthena"),
-    m_sg(sg),
+  : m_sg(sg),
     m_key(key),
     m_object(nullptr)
 {

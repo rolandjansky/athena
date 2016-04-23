@@ -7,7 +7,7 @@
 #include "TrigConfHLTData/HLTTriggerElement.h"
 
 #include "TrigDecisionTool/TDTUtilities.h"
-#include "TrigNavigation/TriggerElement.h"
+#include "TrigNavStructure/TriggerElement.h"
 
 #include <string>
 #include <vector>

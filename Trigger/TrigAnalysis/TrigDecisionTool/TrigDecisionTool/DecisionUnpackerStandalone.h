@@ -19,90 +19,79 @@
 // Local include(s):
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
+#include "TrigDecisionTool/EventPtrDef.h"
 
 // Forward declaration(s):
 namespace HLT {
-   class TrigNavStructure;
+  class TrigNavStructure;
 }
-namespace asg {
-   class SgTEvent;
-}
-class StoreGateSvc;
+
+
 namespace TrigConf {
-   class ITrigConfigTool;
+  class ITrigConfigTool;
 }
 
 namespace Trig {
 
-   // Forward declaration(s):
-   class DecisionObjectHandleStandalone;
+  // Forward declaration(s):
+  class DecisionObjectHandleStandalone;
 
-   /// Helper class for unpacking the xAOD trigger decision/navigation
-   class DecisionUnpackerStandalone : public IDecisionUnpacker, public asg::AsgMessaging {
+  /// Helper class for unpacking the xAOD trigger decision/navigation
+  class DecisionUnpackerStandalone : public IDecisionUnpacker, public Logger {
 
-   public:
-      /// @name Declaration of the event store's type
-      /// @{
+  public:
+    /// Constructor with arguments
+    DecisionUnpackerStandalone( EventPtr_t sg, const std::string& deckey,
+				const std::string& navikey);
+    /// Destructor
+    virtual ~DecisionUnpackerStandalone();
 
-#ifdef ASGTOOL_STANDALONE
-      typedef asg::SgTEvent* EventPtr_t;
-#elif defined(ASGTOOL_ATHENA)
-      typedef StoreGateSvc*  EventPtr_t;
-#else
-#   error "Wrong environment configuration detected!"
-#endif
+    DecisionUnpackerStandalone( const DecisionUnpackerStandalone& ) = delete;
+    DecisionUnpackerStandalone& operator= ( const DecisionUnpackerStandalone& ) = delete;
 
-      /// @}
+    /// Function unpacking the payload of the trigger decision
+    virtual StatusCode
+    unpackDecision( std::map< std::string,
+		    const LVL1CTP::Lvl1Item* >& itemsByName,
+		    std::map< CTPID, LVL1CTP::Lvl1Item* >& itemsCache,
+		    std::map< std::string,
+		    const HLT::Chain* >& l2chainsByName,
+		    std::map< CHAIN_COUNTER, HLT::Chain* >& l1chainsCache,
+		    std::map< std::string,
+		    const HLT::Chain* >& efchainsByName,
+		    std::map< CHAIN_COUNTER, HLT::Chain* >& efchainsCache,
+		    char& bgCode,
+		    bool unpackHLT );
+    /// Function unpacking the payload of the trigger navigation
 
-      /// Constructor with arguments
-      DecisionUnpackerStandalone( EventPtr_t sg, const std::string& deckey,
-                                  const std::string& navikey);
-      /// Destructor
-      virtual ~DecisionUnpackerStandalone();
+    virtual StatusCode unpackNavigation( HLT::TrigNavStructure* nav );
 
-      /// Function unpacking the payload of the trigger decision
-      virtual StatusCode
-      unpackDecision( std::map< std::string,
-                                const LVL1CTP::Lvl1Item* >& itemsByName,
-                      std::map< CTPID, LVL1CTP::Lvl1Item* >& itemsCache,
-                      std::map< std::string,
-                                const HLT::Chain* >& l2chainsByName,
-                      std::map< CHAIN_COUNTER, HLT::Chain* >& l1chainsCache,
-                      std::map< std::string,
-                                const HLT::Chain* >& efchainsByName,
-                      std::map< CHAIN_COUNTER, HLT::Chain* >& efchainsCache,
-                      char& bgCode,
-                      bool unpackHLT );
-      /// Function unpacking the payload of the trigger navigation
-      virtual StatusCode unpackNavigation( HLT::TrigNavStructure* nav );
+    /// @name Functions checking/changing the state of the object
+    /// @{
+    
+    virtual bool assert_handle();
+    virtual void validate_handle();
+    virtual void invalidate_handle();
 
-      /// @name Functions checking/changing the state of the object
-      /// @{
+    /// @}
 
-      virtual bool assert_handle();
-      virtual void validate_handle();
-      virtual void invalidate_handle();
+  private:
+    /// Function unpacking the decision of the LVL1 items
+    StatusCode unpackItems( std::map< CTPID, LVL1CTP::Lvl1Item* >& itemsCache,
+			    std::map< std::string,
+			    const LVL1CTP::Lvl1Item*>& itemsByName );
+    /// Function unpacking the decision of the HLT chains
+    StatusCode unpackChains( std::map< unsigned, HLT::Chain* >& cache,
+			     const std::vector< uint32_t >& raw,
+			     const std::vector< uint32_t >& passedThrough,
+			     const std::vector< uint32_t >& prescaled,
+			     const std::vector< uint32_t >& resurrected,
+			     std::map< std::string,
+			     const HLT::Chain* >& output );
 
-      /// @}
-
-   private:
-      /// Function unpacking the decision of the LVL1 items
-      StatusCode unpackItems( std::map< CTPID, LVL1CTP::Lvl1Item* >& itemsCache,
-                              std::map< std::string,
-                                        const LVL1CTP::Lvl1Item*>& itemsByName );
-      /// Function unpacking the decision of the HLT chains
-      StatusCode unpackChains( std::map< unsigned, HLT::Chain* >& cache,
-                               const std::vector< uint32_t >& raw,
-                               const std::vector< uint32_t >& passedThrough,
-                               const std::vector< uint32_t >& prescaled,
-                               const std::vector< uint32_t >& resurrected,
-                               std::map< std::string,
-                                         const HLT::Chain* >& output );
-
-      /// Helper object for retrieving the event information
-      DecisionObjectHandleStandalone* m_handle;
-
-   }; // class DecisionUnpackerStandalone
+    /// Helper object for retrieving the event information
+    DecisionObjectHandleStandalone* m_handle;
+  }; // class DecisionUnpackerStandalone
 
 } // namespace Trig
 

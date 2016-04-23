@@ -22,32 +22,13 @@
 #include <string>
 #include <boost/algorithm/string/predicate.hpp>
 
-
-#include "AnalysisTriggerEvent/Muon_ROI.h"
-#include "AnalysisTriggerEvent/EmTau_ROI.h"
-#include "AnalysisTriggerEvent/Jet_ROI.h"
-#include "AnalysisTriggerEvent/JetET_ROI.h"
-#include "AnalysisTriggerEvent/EnergySum_ROI.h"
-#include "AnalysisTriggerEvent/LVL1_ROI.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
-
-#include "GaudiKernel/MsgStream.h"
-//#include "TrigNavigation/NavigationCore.h"
-#include "TrigNavigation/TriggerElement.h"
-#include "TrigNavigation/Holder.h"
-#include "TrigNavigation/TrigFeatureLink.h"
-#include "TrigDecisionEvent/TrigDecision.h"
+#include "TrigNavStructure/TriggerElement.h"
 #include "TrigDecisionTool/Logger.h"
 #include "TrigDecisionTool/Conditions.h"
 #include "TrigDecisionTool/Combination.h"
 #include "TrigDecisionTool/Feature.h"
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/ChainGroup.h"
-//#include "TrigDecisionTool/ClassTraits.h"
-
-#include "TrigStorageDefinitions/EDM_TypeInfoMethods.h"
-
 
 namespace HLT {
   class Chain;
@@ -141,13 +122,6 @@ namespace Trig {
     template<class T>
     const std::vector<Trig::Feature<T> > ancestors(const HLT::TriggerElement* te, std::string label = "", unsigned int condition=TrigDefs::Physics, const std::string& teName = "") const;
 
-
-    template<class T>
-    const T* featureLink2Object(const TrigFeatureLink& ) const;
-
-    template<class T>
-    ElementLink<typename Object2Container<T>::type> featureLink2ElementLink(const TrigFeatureLink& ) const; 
-
   protected:
 
     friend class Combination;    
@@ -164,17 +138,6 @@ namespace Trig {
     //unsigned int initRoIWord(const HLT::TriggerElement* te) const;
 
   };
-
-
-//   template<> 
-//   const Feature<Muon_ROI> DecisionAccess::ancestor<Muon_ROI>(const HLT::TriggerElement* te, std::string /*label*/ ) const ;
-
-//   template<> 
-//   const Feature<Jet_ROI> DecisionAccess::ancestor<Jet_ROI>(const HLT::TriggerElement* te, std::string /*label*/ ) const ;
-
-//   template<> 
-//   const Feature<EmTau_ROI> DecisionAccess::ancestor<EmTau_ROI>(const HLT::TriggerElement* te, std::string /*label*/ ) const ;
-
 } // End of namespace
 
 
@@ -182,12 +145,12 @@ namespace Trig {
 
 
 
-
+#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
 template<class T> 
 const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement* te, std::string label) const {
   Trig::Feature<T> f;
   std::vector<Trig::Feature<T> > data;
-  FeatureAccessImpl::collect<T>(te, data, label, TrigDefs::alsoDeactivateTEs, "", cgm()->navigation_feature());
+  FeatureAccessImpl::collect<T>(te, data, label, TrigDefs::alsoDeactivateTEs, "", const_cast<HLT::TrigNavStructure*>(cgm()->navigation()));
 
   BOOST_FOREACH( Feature<T>& f, data ) {
     if ( f.owned() ) {
@@ -204,7 +167,7 @@ const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement*
 template<class T>
 const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::TriggerElement* te, std::string label, unsigned int condition, const std::string& teName) const {
   std::vector<Trig::Feature<T> > data;
-  FeatureAccessImpl::collect<T>(te, data, label, condition, teName, cgm()->navigation_feature());
+  FeatureAccessImpl::collect<T>(te, data, label, condition, teName, const_cast<HLT::TrigNavStructure*>(cgm()->navigation()));
   BOOST_FOREACH( Feature<T>& f, data ) {
     if ( f.owned() ) {
       cgm()->deleteAtTheEndOfEvent(const_cast<T*>( f.cptr() ));
@@ -212,78 +175,19 @@ const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::
   }
   return data;
 }
-
-
+#else
+template<class T> 
+const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement* /*te*/, std::string /*label*/) const {
+  ATH_MSG_WARNING("DecisionAccess::ancestor not implemented in Standalone mode, since it needs compile-time type information. Returning empty Feature");  
+  return Trig::Feature<T>();
+}
 template<class T>
-const T* Trig::DecisionAccess::featureLink2Object(const TrigFeatureLink& flink ) const {
-  return const_cast<HLT::NavigationCore*>(cgm()->navigation())->featureLink2Object<T>(flink);
+const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::TriggerElement* /*te*/, std::string /*label*/, unsigned int /*condition*/, const std::string& /*teName*/) const {
+  ATH_MSG_WARNING("DecisionAccess::ancestor not implemented in Standalone mode, since it needs compile-time type information. Returning empty vector");  
+  return  std::vector<Trig::Feature<T> >();
 }
 
-
-namespace DecisionAccessDetails {
-
-  template<class F1, class F2> 
-  struct getHolderImp {
-    static  const HLTNavDetails::IHolder* do_it(HLT::NavigationCore* nav, const TrigFeatureLink& flink) {    
-      if ( ClassID_traits<F1>::ID() == flink.clid() )
-	return nav->getHolder<F1>(flink.subTypeIndex());
-      if ( ClassID_traits<F2>::ID() == flink.clid() )
-	return nav->getHolder<F2>(flink.subTypeIndex());
-      return 0;
-    }
-  };
-  
-  
-  template<class F1> 
-  struct getHolderImp< F1, HLT::TypeInformation::nil> {
-    static  const HLTNavDetails::IHolder* do_it(HLT::NavigationCore* nav, const TrigFeatureLink& flink) {    
-      if ( ClassID_traits<F1>::ID() == flink.clid() )
-	return nav->getHolder<F1>(flink.subTypeIndex());    
-      return 0;
-    }
-  };
-  
-  template<class list>
-  struct first {
-    typedef typename list::first type;
-  };
-  
-  template<>
-  struct first<HLT::TypeInformation::nil> {
-    typedef typename HLT::TypeInformation::nil type;
-  };
-}
-
-template<class T>
-ElementLink<typename Object2Container<T>::type>
-Trig::DecisionAccess::featureLink2ElementLink(const TrigFeatureLink& flink ) const {
-  
-  using namespace HLT::TypeInformation;
-  using namespace DecisionAccessDetails;
-  typedef typename Object2Container<T>::type container;
-  typedef typename Object2Features<T>::type list_of_possible_features;
-
-  typedef typename first<list_of_possible_features>::type feature0;
-  typedef typename first<typename list_of_possible_features::rest>::type feature1;
-
-  // I expected this to work actually this to work
-  //  typedef typename at<list_of_possible_features, 0>::type feature0;
-  //  typedef typename at<list_of_possible_features, 1>::type feature1;
-  // but it failed recursing to -99
-    
-  
-  // two cases need to be sorted out, because object can come from the feasures exisinging as a single (2) or features which are collections (2)
-  // we distinguish the two cases by looking at the feature at the index 1, it is the "nil" type then we have  (1) otherwise (2)
-  const HLTNavDetails::IHolder* holder = getHolderImp<feature0, feature1>
-    ::do_it( const_cast<HLT::NavigationCore*>(cgm()->navigation()), flink);  
-
-  // it may well be 0 of CLIDs are not matching
-  if ( holder != 0 ) { 
-    ElementLink<container> el( holder->key(), flink.index() );
-    return el;
-  }
-  return ElementLink<container>();
-}
+#endif
 
 
 #endif

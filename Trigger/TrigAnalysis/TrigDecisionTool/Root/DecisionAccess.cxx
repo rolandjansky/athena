@@ -16,12 +16,7 @@
 
 #include <vector>
 #include <exception>
-#include "AthenaKernel/getMessageSvc.h"
-
 #include "TrigDecisionTool/DecisionAccess.h"
-
-
-#include "TrigNavigation/AccessProxy.h"
 
 #include "TrigSteeringEvent/Chain.h"
 #include "TrigConfHLTData/HLTSignature.h"
@@ -31,8 +26,7 @@
 #include "TrigDecisionTool/CacheGlobalMemory.h"
 
 
-Trig::DecisionAccess::DecisionAccess() 
-  : Logger("DecisionAccess") {}
+Trig::DecisionAccess::DecisionAccess() {}
 
 Trig::DecisionAccess::~DecisionAccess() {}
 
@@ -82,65 +76,9 @@ Trig::DecisionAccess::features(const std::string& chain, unsigned int condition)
 char
 Trig::DecisionAccess::getBGCode() const {
   if( ! const_cast< Trig::CacheGlobalMemory* >( cgm() )->assert_decision() ) {
-    log() << MSG::ERROR << "Something went wrong in decoding the trigger decision" << endreq;
+    ATH_MSG_ERROR("Something went wrong in decoding the trigger decision");
     return 0;
   }
   return cgm()->m_bgCode;
 }
 
-/*
-unsigned int Trig::DecisionAccess::initRoIWord(const HLT::TriggerElement* te) const {
-    Feature<TrigRoiDescriptor> roi = ancestor<TrigRoiDescriptor>(te,"initialRoI");
-    if ( roi.empty() )
-      return 0;
-    return roi.cptr()->roiWord();
-}
-
-
-  template<class T> 
-  const T* Trig::DecisionAccess::getL1RoI(const std::vector<T>& rois, unsigned int id) const {
-    typename std::vector<T>::const_iterator it;
-    for ( it = rois.begin(); it != rois.end(); ++it ) {
-      if ( it->getROIWord() == id ) {
-	return &*it;
-	break;
-      }
-    }    
-    return 0;
-  }
-
-
-template<> 
-const Trig::Feature<Muon_ROI> Trig::DecisionAccess::ancestor<Muon_ROI>(const HLT::TriggerElement* te, std::string  ) const {
-  Trig::Feature<Muon_ROI> feature;
-  const LVL1_ROI* lvl1;
-  if ( cgm()->navigation()->getAccessProxy()->retrieve<LVL1_ROI>(lvl1, "LVL1_ROI").isFailure() ) {
-    return feature;
-    }
-  feature = Trig::Feature<Muon_ROI>( getL1RoI(lvl1->getMuonROIs(), initRoIWord(te)), te, "" );
-  return feature;
-}
-
-template<> 
-const Trig::Feature<Jet_ROI> Trig::DecisionAccess::ancestor<Jet_ROI>(const HLT::TriggerElement* te, std::string  ) const {
-  Trig::Feature<Jet_ROI> feature;
-  const LVL1_ROI* lvl1;
-  if ( cgm()->navigation()->getAccessProxy()->retrieve<LVL1_ROI>(lvl1, "LVL1_ROI").isFailure() ) {
-      return feature;
-  }
-  feature = Trig::Feature<Jet_ROI>( getL1RoI(lvl1->getJetROIs(), initRoIWord(te)), te, "" );
-  return feature;
-} 
-
-template<> 
-const Trig::Feature<EmTau_ROI> Trig::DecisionAccess::ancestor<EmTau_ROI>(const HLT::TriggerElement* te, std::string  ) const {
-  Trig::Feature<EmTau_ROI> feature;
-  const LVL1_ROI* lvl1;
-  if ( cgm()->navigation()->getAccessProxy()->retrieve<LVL1_ROI>(lvl1, "LVL1_ROI").isFailure() ) {
-      return feature;
-  }
-  feature = Trig::Feature<EmTau_ROI>( getL1RoI(lvl1->getEmTauROIs(), initRoIWord(te)), te, "" );
-  return feature;
-}
-
-*/

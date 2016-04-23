@@ -16,6 +16,8 @@
 #include "TrigDecisionTool/Combination.h"
 #include "TrigDecisionTool/CacheGlobalMemory.h"
 
+#include "TrigDecisionTool/FeatureCollectStandalone.h"
+
 Trig::Combination::Combination() 
 : m_cgm(0) {}
 
@@ -33,9 +35,19 @@ bool Trig::Combination::active() const {
   return true;
 }
 
-HLT::NavigationCore* Trig::Combination::navigation() const
+HLT::TrigNavStructure* Trig::Combination::navigation() const
 {
-  return const_cast<HLT::NavigationCore*>(m_cgm->navigation());
+  return const_cast<HLT::TrigNavStructure*>(m_cgm->navigation());
+}
+
+const std::vector<Trig::TypelessFeature> Trig::Combination::typelessGet(HLT::class_id_type clid, const std::string& label, unsigned int condition, const std::string & /*teName*/) const {
+  //we will query the navigation for all features of this CLID, starting from the TE's in the combination and going up the navigation recursively.
+  std::vector<Trig::TypelessFeature> features;
+  
+  for(auto& te : m_tes){
+    FeatureAccessImpl::typelessCollect(te, clid,features, label, condition, navigation()); 
+  }
+  return features;
 }
 
 

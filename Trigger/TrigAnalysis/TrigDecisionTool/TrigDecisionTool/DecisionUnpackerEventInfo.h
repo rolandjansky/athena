@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIG_DECISIONUNPACKERATHENA_H
-#define TRIG_DECISIONUNPACKERATHENA_H
+#ifndef TRIG_DECISIONUNPACKEREVENTINFO_H
+#define TRIG_DECISIONUNPACKEREVENTINFO_H
 
 #include "TrigConfHLTData/HLTChain.h"
 #include "TrigConfL1Data/CTPConfig.h"
@@ -11,9 +11,9 @@
 
 
 #include "TrigDecisionTool/IDecisionUnpacker.h"
-#include "TrigDecisionTool/Logger.h"
 #include "AsgTools/AsgMessaging.h"
 
+#include "DecisionObjectHandleEventInfo.h"
 
 class StoreGateSvc;
 
@@ -27,14 +27,12 @@ namespace LVL1CTP{
 }
 
 namespace Trig{  
+  
 
-
-  class DecisionObjectHandleAthena;  
-
-  class DecisionUnpackerAthena : public IDecisionUnpacker, public Logger {
+  class DecisionUnpackerEventInfo : public IDecisionUnpacker, public Logger {
   public:
-    DecisionUnpackerAthena(StoreGateSvc* sg, const std::string& key);
-    virtual ~DecisionUnpackerAthena();
+    DecisionUnpackerEventInfo(StoreGateSvc* sg, const std::string& key);
+    virtual ~DecisionUnpackerEventInfo();
     virtual StatusCode unpackDecision(std::map<std::string, const LVL1CTP::Lvl1Item*>&,
 				      std::map<CTPID, LVL1CTP::Lvl1Item*>&,
 				      std::map<std::string, const HLT::Chain*>&,
@@ -49,11 +47,11 @@ namespace Trig{
     virtual void validate_handle();
     virtual void invalidate_handle();
   private:
-    DecisionObjectHandleAthena* m_handle;
-    StatusCode unpackItems(const LVL1CTP::Lvl1Result& result,
-			   std::map<CTPID, LVL1CTP::Lvl1Item*>&,
-			   std::map<std::string, const LVL1CTP::Lvl1Item*>&);
-    StatusCode unpackChains(const std::vector<uint32_t>& serialized_chains,
+    DecisionObjectHandleEventInfo* m_handle;
+    StatusCode unpackItems(const std::vector<uint32_t>& level1TriggerInfo,
+			   std::map<CTPID, LVL1CTP::Lvl1Item*>& itemsCache,
+			   std::map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName);
+    StatusCode unpackChains(const std::vector<uint32_t>& chainTriggerInfo,
 			    std::map<unsigned, HLT::Chain*>& cache,
 			    std::map<std::string, const HLT::Chain*>& output);
 

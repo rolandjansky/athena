@@ -2,7 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "iostream"
+#include "AsgTools/AsgToolsConf.h"
+#include <iostream>
+#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+
 #include "vector"
 
 #include "TrigNavigation/NavigationInit.h"
@@ -97,6 +100,7 @@ void testFeatureGroup() {
   }
 }
 
+#if 0
 void testFeatureLink() {
   TrigDecisionTool* tdt(0);
   TrigFeatureLink fl;
@@ -110,9 +114,11 @@ void testFeatureLink() {
 
 }
 
+#endif
 
 /**/
 //////////////////////////////////////////////////////////////////
+#endif
 
 
 
@@ -122,3 +128,4 @@ int main() {
   std::cout << "done" << std::endl;
   return 0;
 }
+
