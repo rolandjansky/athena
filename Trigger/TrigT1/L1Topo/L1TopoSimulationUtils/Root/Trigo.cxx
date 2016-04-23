@@ -11,6 +11,7 @@
 **********************************/
 
 #include "L1TopoSimulationUtils/Trigo.h"
+#include <cmath>
 
 const std::vector<std::string> TSU::Trigo::Cos= {
 	std::string("010000000"),  // 1.0
@@ -150,16 +151,16 @@ const std::vector<std::string> TSU::Trigo::Sin = {
 int TSU::Trigo::atan2(TSU::L1TopoDataTypes<16,0> x, TSU::L1TopoDataTypes<16,0> y){
          short int octant=0;
          if((x.value()&(1<<16))&&(y.value()&(1<<16))){ // Ex and Ey negative
-            if(abs(y.to_float()) < abs(x.to_float())) octant = 4; //100
+           if(std::abs(y.to_float()) < std::abs(x.to_float())) octant = 4; //100
             else octant = 5; // 101
          } else if(x.value()&(1<<16)){
-            if(abs(y.to_float()) < abs(x.to_float())) octant = 3; //011
+            if(std::abs(y.to_float()) < std::abs(x.to_float())) octant = 3; //011
             else octant = 2; // 010
          } else if(y.value()&(1<<16)){
-            if(abs(y.to_float()) < abs(x.to_float())) octant = 7; //111
+            if(std::abs(y.to_float()) < std::abs(x.to_float())) octant = 7; //111
             else octant = 6; // 110
          } else { // Ex and Ey both positive
-            if(abs(y.to_float()) < abs(x.to_float())) octant = 0; //000
+            if(std::abs(y.to_float()) < std::abs(x.to_float())) octant = 0; //000
             else octant = 1; // 001
          }
 
