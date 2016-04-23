@@ -380,7 +380,8 @@ class SetupTrigConfigSvc:
             trigSvc = TrigConfigSvc("TrigConfigSvc")
             trigSvc.PriorityList = self.states
             ServiceMgr += trigSvc
-
+            from AthenaCommon.AppMgr import theApp
+            theApp.CreateSvc += [ ServiceMgr.TrigConfigSvc.getFullName() ]
 
         def GetPlugin(self):
             if not self.initialised:
