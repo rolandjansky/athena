@@ -20,12 +20,12 @@
 // Include the interfaces
 #include "PATCore/IAsgSelectionTool.h"
 #include "ElectronPhotonSelectorTools/IAsgEGammaIsEMSelector.h"
-// Include the return object and the underlying ROOT tool
-#include "PATCore/TAccept.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
 
 // Forward declarations
-
+namespace Root{
+  class TAccept;
+}
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/ElectronFwd.h"

@@ -18,35 +18,21 @@ except :
 from ROOT import LikeEnum
 
 class electronLHmenu:
-    menu2012 = 0
-    customMenu = 1
-    trigger2012 = 2
-    trigger2015 = 3
-    offline2015 = 4
+    customMenu = 0
+    trigger2012 = 1
+    trigger2015 = 2
+    offline2015 = 3
 
 import ElectronPhotonSelectorTools.ElectronLikelihoodMenuDefs as ElectronLikelihoodMenuDefs
 
 # format - key: (mask, function)
-
-ElectronLHMap2012 = {
-    #
-    # This menu is exactly like the medium operating point, but it employs the "custom" framework
-    #
-    LikeEnum.VeryTight: ( LikeEnum.VeryTight, ElectronLikelihoodMenuDefs.ElectronLikelihoodVeryTightConfig2012 ),
-    LikeEnum.Tight: ( LikeEnum.Tight, ElectronLikelihoodMenuDefs.ElectronLikelihoodTightConfig2012 ),
-    LikeEnum.Medium: ( LikeEnum.Medium, ElectronLikelihoodMenuDefs.ElectronLikelihoodMediumConfig2012 ),
-    LikeEnum.Loose: ( LikeEnum.Loose, ElectronLikelihoodMenuDefs.ElectronLikelihoodLooseConfig2012 ),
-    LikeEnum.VeryLoose: ( LikeEnum.VeryLoose, ElectronLikelihoodMenuDefs.ElectronLikelihoodVeryLooseConfig2012 ),
-    LikeEnum.LooseRelaxed: ( LikeEnum.LooseRelaxed, ElectronLikelihoodMenuDefs.ElectronLikelihoodLooseRelaxedConfig2012 )
-    }
-
 ElectronLHMapCustom = {
     LikeEnum.Medium:( LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodCUSTOMMediumConfig )
     }
 
 ElectronLHMapTrigger2012 = {
     LikeEnum.Medium:( LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodCUSTOMMediumNoGSFConfig )
-}
+    }
 
 ElectronLHMapTrigger2015 = {
     LikeEnum.Loose: ( LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodLooseTriggerConfig2015 ),
@@ -62,9 +48,7 @@ ElectronLHMapOffline2015 = {
     }
 
 def ElectronLikelihoodMap(quality, menu):
-    if menu == electronLHmenu.menu2012:
-        return ElectronLHMap2012[quality]
-    elif menu == electronLHmenu.customMenu:
+    if menu == electronLHmenu.customMenu:
         return ElectronLHMapCustom[quality]
     elif menu == electronLHmenu.trigger2012:
         return ElectronLHMapTrigger2012[quality]

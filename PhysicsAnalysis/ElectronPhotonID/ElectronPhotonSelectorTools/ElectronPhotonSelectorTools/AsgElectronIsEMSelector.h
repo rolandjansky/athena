@@ -112,6 +112,9 @@ private:
 			float eta2, double et, double energy,
 			unsigned int iflag) const;
 
+  /** Working Point */
+  std::string m_WorkingPoint;
+
   /** Config File */
   std::string m_configFile;
 

@@ -41,7 +41,6 @@
          May  9, 2011: Change EgPidUndefined back to 0.
          May 31, 2011: Change EgPidUndefined back to UINT_MAX. Add flag on whether
 	               the variable was found. Add ++ definitions
-
    @author Dirk Zerwas
 */
 
@@ -49,50 +48,6 @@
 
 namespace egammaPID { 
   
- /*! \enum Bitdefinitons for the egamma identification tools */
-  enum PID {
-    /** @brief cut-based identification for egamma objects (cluster and track-based) */
-    IsEM                = 0,
-    /** @brief loglikelihood identification */
-    ElectronWeight,
-    /** @brief loglikelihood identification */
-    BgWeight,
-    NeuralNet,
-    Hmatrix,
-    Hmatrix5,
-    /** @brief cut-based identification for softe electrons in jets (for btag) */
-    SofteIsEM,
-    /** @brief loglikelihood identification */
-    SofteElectronWeight,
-    /** @brief loglikelihood identification */
-    SofteBgWeight,
-    SofteNeuralNet,
-    /** @brief Isolation Likelihood for jet separation*/
-    IsolationLikelihood_jets,
-    /** @brief Isolation Likelihood for separation of electrons from heavy quark decays*/
-    IsolationLikelihood_HQDelectrons,
-    AdaBoost,
-    /** @brief loglikelihood identification */
-    PhotonWeight,
-    /** @brief loglikelihood identification */
-    BgPhotonWeight,
-    /** @brief Fisher variable */
-    FisherScore, 
-    /** @brief Object Quality variable */
-    IsGoodOQ,
-    /** @brief cut-based identification for egamma objects (Loose) */
-    IsEMLoose,
-    /** @brief cut-based identification for egamma objects (Medium) */
-    IsEMMedium,
-    /** @brief cut-based identification for egamma objects (Tight) */
-    IsEMTight,
-    /** @brief Ringer Neural Network Output */
-    RingerNN,
-    /** @brief Default for the last enum (don't change it !)*/
-    LastEgammaPID
-  };
-
-
   enum egammaIDQuality {
     ElectronIDLoose,
     ElectronIDLoosePP,
@@ -130,7 +85,6 @@ namespace egammaPID {
     PhotonIDMediumEF
   };
     
-
   //const double EgPidUndefined = -999.;
   //const unsigned int EgPidUndefined = 0.;
   const unsigned int EgPidUndefined = UINT_MAX;
@@ -140,10 +94,8 @@ namespace egammaPID {
   enum BitDefElectron {
     /** @brief cluster eta range */
     ClusterEtaRange_Electron        =  0,
-    
     /** @brief matching to photon (not necessarily conversion--the name is historical) */
-    ConversionMatch_Electron        =  1,
-    
+    ConversionMatch_Electron        =  1,    
     /** @brief cluster leakage into the hadronic calorimeter */
     ClusterHadronicLeakage_Electron =  2,
     /** @brief energy in 2nd sampling (e.g E277>0) */
@@ -154,10 +106,8 @@ namespace egammaPID {
     ClusterMiddleEratio33_Electron  =  5,
     /** @brief width in the second sampling (e.g Weta2) */
     ClusterMiddleWidth_Electron     =  6,
-
     /** @brief energy fraction in the third layer */
     ClusterBackEnergyFraction_Electron = 7,
-
     /** @brief fraction of energy found in 1st sampling (NB: not used in fact for electrons)*/
     ClusterStripsEratio_Electron    =  8,
     /** @brief energy of 2nd maximum in 1st sampling ~e2tsts1/(1000+const_lumi*et) */
@@ -170,7 +120,6 @@ namespace egammaPID {
     ClusterStripsFracm_Electron     = 12,
     /** @brief shower width weighted by distance from the maximum one */
     ClusterStripsWeta1c_Electron    = 13,
-
     /** @brief difference between max and 2nd max in strips */
     ClusterStripsDEmaxs1_Electron   = 15,
     /** @brief B layer hit */
@@ -187,7 +136,6 @@ namespace egammaPID {
     TrackMatchPhi_Electron          = 21,
     /** @brief energy-momentum match */
     TrackMatchEoverP_Electron       = 22,
-
     /** @brief Cut on the TRT eProbabilityHT_Electron */
     TrackTRTeProbabilityHT_Electron   = 23,
     /** @brief number of TRT hits */
@@ -196,13 +144,11 @@ namespace egammaPID {
     TrackTRTratio_Electron          = 25,
     /** @brief ratio of high to all TRT hits for non-isolated electrons (not for new ++ menus) */    
     TrackTRTratio90_Electron        = 26,
-
     /** @brief distance of closet approach for tight selection (!! Used in new ++ menus dc14) */
     TrackA0Tight_Electron           = 27,
     /** @brief eta difference between cluster and extrapolated track in the 1st sampling for 
 	tight selection (!! Used in new ++ menus dc14)*/
     TrackMatchEtaTight_Electron     = 28,
-
     /** @brief isolation */
     Isolation_Electron              = 29,
     /** @brief calorimetric isolation */
@@ -216,13 +162,10 @@ namespace egammaPID {
   enum BitDefPhoton {
     /** @brief cluster eta range */
     ClusterEtaRange_Photon        =  0,
-
     /** @brief energy fraction in the third layer */
     ClusterBackEnergyFraction_Photon = 7,
-
     /** @brief cluster leakage into the hadronic calorimeter */
     ClusterHadronicLeakage_Photon =  10,
-
     /** @brief energy in 2nd sampling (e277) */
     ClusterMiddleEnergy_Photon    =  11, 
     /** @brief energy ratio in 2nd sampling */
@@ -231,7 +174,6 @@ namespace egammaPID {
     ClusterMiddleEratio33_Photon  =  13,
     /** @brief width in the second sampling */
     ClusterMiddleWidth_Photon     =  14,
-
     /** @brief fraction of energy found in 1st sampling */
     ClusterStripsEratio_Photon    =  15,
     /** @brief energy of 2nd maximum in 1st sampling ~e2tsts1/(1000+const_lumi*et) */
@@ -246,13 +188,10 @@ namespace egammaPID {
     ClusterStripsWeta1c_Photon    = 20,
     /** @brief difference between max and 2nd max in strips */
     ClusterStripsDEmaxs1_Photon  = 21,
-
     /** @brief energy-momentum match for photon selection*/
     TrackMatchEoverP_Photon       = 22,
-    
     /** @brief ambiguity resolution for photon (vs electron) */
     AmbiguityResolution_Photon    = 23,
-
     /** @brief isolation */
     Isolation_Photon              = 29,
     /** @brief calorimetric isolation for photon selection */
@@ -364,10 +303,9 @@ namespace egammaPID {
   const unsigned int ALL_ELECTRON = 
     ALLNOTRT_ELECTRON | TRT_ELECTRON;
 
-
   //////////////////////////
   // new ++ menus
-
+  //
   /** @brief Loose++ electron selection */
   const unsigned int ElectronLoosePP = 
     CALOMIDDLE_ELECTRON | HADLEAKETA_ELECTRON | CALOSTRIPS_LOOSE_ELECTRON | 
@@ -405,20 +343,15 @@ namespace egammaPID {
   const unsigned int ElectronTightPPIso = 
     ElectronTightPP |
     ISOLATION_ELECTRON;
-
-
   //////////////////////////
   // definitions as in 16.6, but with outliers
-
   /** @brief Loose electron selection */
   const unsigned int ElectronLoose = 
     CALOMIDDLE_ELECTRON | HADLEAKETA_ELECTRON;
-
   /** @brief Loose electron selecton with isolation */
   const unsigned int ElectronLooseIso = 
     ElectronLoose |
     ISOLATION_ELECTRON;
-
   /** @brief Medium electron selection with the delta eta cut has been removed */
   const unsigned int ElectronMedium_WithoutTrackMatch = 
     CALO_ELECTRON | TRACKINGNOBLAYER_ELECTRON;
@@ -437,8 +370,6 @@ namespace egammaPID {
   const unsigned int ElectronMedium = ElectronMedium_WithTrackMatch;
   /** @brief MediumIso electron selecton */
   const unsigned int ElectronMediumIso = ElectronMediumIso_WithTrackMatch;
-
-
   /** @brief Tight electron without track match (corresponds to RobusterTight in 15.6.X but 
       without the deltaEta bits TrackMatchEta_Electron and TrackMatchEtaTight_Electron) */
   const unsigned int ElectronTight_WithoutTrackMatch = 
@@ -461,7 +392,6 @@ namespace egammaPID {
   const unsigned int ElectronTightIso_WithoutTrackMatch = 
     ElectronTight_WithoutTrackMatch | 
     ISOLATION_ELECTRON;
-
 
   /** @brief Tight electron selection with track match*/
   const unsigned int ElectronTight_WithTrackMatch = 
@@ -573,7 +503,6 @@ namespace egammaPID {
   const unsigned int ElectronLooseHLT = 
     CALOMIDDLE_ELECTRON | HADLEAKETA_ELECTRON | CALOSTRIPS_LOOSE_ELECTRON | 
     TRACKMATCHDETA_ELECTRON | TRACKINGLOOSE_ELECTRON;
-
   /** @brief Medium 2014 tunes electron selecton */
   // Add Rphi to Calo selection and CALOBACK
   const unsigned int ElectronMediumHLT =
@@ -592,7 +521,6 @@ namespace egammaPID {
     TRACKMATCHDETA_ELECTRON |
     TRACKMATCHTIGHT_ELECTRON |
     TRT_ELECTRON;
-
   //
   // for photon selection
   //
@@ -600,14 +528,12 @@ namespace egammaPID {
   const unsigned int HADLEAKETA_PHOTON = 
     0x1 << ClusterEtaRange_Photon        | 
     0x1 << ClusterHadronicLeakage_Photon;
-
   /** @brief cuts in middle sampling*/
   const unsigned int CALOMIDDLE_PHOTON =    
     0x1 << ClusterMiddleEnergy_Photon     |
     0x1 << ClusterMiddleEratio37_Photon   |
     0x1 << ClusterMiddleEratio33_Photon   |
     0x1 << ClusterMiddleWidth_Photon     ;
-
  /** @brief cuts in strips (with ClusterStripsDEmaxs1)*/
   const unsigned int CALOSTRIPS_PHOTONTIGHT =
     0x1 << ClusterStripsEratio_Photon     |
@@ -635,15 +561,12 @@ namespace egammaPID {
   /** @brief isolation for photons is combination of calo and tracker */
   const unsigned int CALOTRACKISOLATION_PHOTON = 
     CALORIMETRICISOLATION_PHOTON | TRACKINGISOLATION_PHOTON;
-
   /** @brief Track cluster matching E/p for photons*/
   const unsigned int TRACKMATCH_PHOTON =
     0x1 << TrackMatchEoverP_Photon  ;
-
   /** @brief Ambigiuty resolve for photons */
   const unsigned int AMBIGUITYRESOLVE_PHOTON =
     0x1 << AmbiguityResolution_Photon;
-
   /** @brief bit definitions for Photon triggers */
   // Added for Trigger
   /** @brief cuts of hadronic leakage (for Loose selection) */
@@ -667,7 +590,6 @@ namespace egammaPID {
   const unsigned int PhotonLooseAR = PhotonLoose | AMBIGUITYRESOLVE_PHOTON;
   /** @brief Loose photon selection with Ambiguity resolver and Isolation*/
   const unsigned int PhotonLooseARIso = PhotonLooseAR | ISOLATION_PHOTON;
-
   /** @brief Medium photon selection */
   const unsigned int PhotonMedium = HADLEAKETA_PHOTON | CALOMIDDLE_PHOTON | CALOSTRIPS_PHOTONMEDIUM;
   /** @brief Medium photon selection with Isolation*/
@@ -676,7 +598,6 @@ namespace egammaPID {
   const unsigned int PhotonMediumAR = PhotonMedium | AMBIGUITYRESOLVE_PHOTON;
   /** @brief Medium photon selection with Ambiguity resolver and Isolation*/
   const unsigned int PhotonMediumARIso = PhotonMediumAR | ISOLATION_PHOTON;
-
   /** @brief Tight photon selection */
   const unsigned int PhotonTight = HADLEAKETA_PHOTON | CALOMIDDLE_PHOTON | CALOSTRIPS_PHOTONTIGHT;
   /** @brief Tight photon selection with isolation*/
@@ -685,11 +606,9 @@ namespace egammaPID {
   const unsigned int PhotonTightAR = PhotonTight | AMBIGUITYRESOLVE_PHOTON;
   /** @brief Tight photon selection with isolation and Ambiguity resolver*/
   const unsigned int PhotonTightARIso = PhotonTightAR | ISOLATION_PHOTON;
-
   /** @brief TrigEgamma Pid Definitions */
   /** @brief Loose photon selection for online EF */
   const unsigned int PhotonLooseEF =  CALOMIDDLE_PHOTON | HADLEAKETA_PHOTON_EF;
-
   // Added for 2g20_medium
   /** @brief Medium photon selection for online EF */
   const unsigned int PhotonMediumEF = HADLEAKETA_PHOTON_EF | CALO_PHOTON_RETA_WETA2_ERATIO;
@@ -697,25 +616,18 @@ namespace egammaPID {
 enum BitDefForwardElectron {
         /** @brief cluster eta range */
         BinEta_ForwardElectron        =  0,
-
         /** @brief second lambda shape moment */
         SECONDLAMBDA_ForwardElectron        =  1,
-
         /** @brief lateral shape moment */
         LATERAL_ForwardElectron        =  2,
-
         /** @brief Longitudinal shape moment */
         LONGITUDINAL_ForwardElectron        =  3,
-
         /** @brief cell max frac shape moment */
         CELLMAXFRAC_ForwardElectron        =  4,
-
         /** @brief secondR shape moment */
         SECONDR_ForwardElectron        =  5,
-
         /** @brief center lambda shape moment */
         CENTERLAMBDA_ForwardElectron        =  6,
-
 
 };
 
@@ -731,25 +643,6 @@ enum BitDefForwardElectron {
     0x1 << CELLMAXFRAC_ForwardElectron   |
     0x1 << SECONDR_ForwardElectron       |
     0x1 << CENTERLAMBDA_ForwardElectron  ;
-
-//std::cout <<" MAsk "<< (unsigned int)ID_ForwardElectron<<std::endl; 
-//ATH_MSG_ERROR(" MAsk "<< (unsigned int)ID_ForwardElectron);
-  /**@brief forward electron flavours */
-  /*
-    --variables:
-
-    ["FIRST_ENG_DENS"] =1;
-    ["ENG_FRAC_MAX"]   =2;
-    ["LONGITUDINAL"]   =4;
-    ["SECOND_LAMBDA"]  =8;
-    ["LATERAL"]        =16;
-    ["SECOND_R"]       =32;
-    ["CENTER_LAMBDA"]  =64;
-    
-    --Flavors
-    Tight: All avriables except First_ENG_DENS
-    Loose: SECOND_LAMBDA, SECOND_R, CENTER_LAMBDA 
-  */
   
   const unsigned int ForwardElectronTight = 126;
   const unsigned int ForwardElectronLoose = 104;

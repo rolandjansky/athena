@@ -16,16 +16,15 @@
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "EGSelectorConfigurationMapping.h"
 
 // STL includes
 #include <string>
 #include <cstdint>
 #include <cmath>
 
-#include "TSystem.h"
-
+//EDM includes
 #include "xAODEgamma/Electron.h"
-#include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -47,6 +46,7 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   m_rootTool = new Root::TElectronLikelihoodTool( ("T"+myname).c_str() );
 
   // Declare the needed properties
+  declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point");
   declareProperty("ConfigFile",m_configFile="","The config file to use");
   declareProperty("usePVContainer", m_usePVCont=true, "Whether to use the PV container");
   declareProperty("nPVdefault", m_nPVdefault = 0, "The default number of PVs if not counted");
@@ -58,8 +58,6 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   //
   // pdf file name. Managed in the Asg tool.
   declareProperty("inputPDFFileName",  m_pdfFileName="", "The input ROOT file name that holds the PDFs" );
-  // Operating Point. Managed in the Asg tool.
-  declareProperty("OperatingPoint",m_operatingPoint=0,"Likelihood operating point");
   // the variable names, if non-standard - nope, it's done above!
   declareProperty("VariableNames",m_rootTool->VariableNames,"Variable names input to the LH");
   // The likelihood cut values
@@ -82,6 +80,10 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("CutDeltaEta",m_rootTool->CutDeltaEta,"Cut on deltaEta");
   // cut on deltaPhiRes
   declareProperty("CutDeltaPhiRes",m_rootTool->CutDeltaPhiRes,"Cut on deltaPhiRes");
+  // cut on Wstot above 125 GeV
+  declareProperty("CutWstotAtHighET",m_rootTool->CutWstotAtHighET,"Cut on Wstot above 100 GeV");
+  // cut on EoverP above 125 GeV
+  declareProperty("CutEoverPAtHighET",m_rootTool->CutEoverPAtHighET,"Cut on EoverP above 100 GeV");
   // cut on precision hits
   declareProperty("CutSi",m_rootTool->CutSi,"Cut on precision hits");
   // turn off f3 at high Et
@@ -92,6 +94,8 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("doSmoothBinInterpolation",m_rootTool->doSmoothBinInterpolation,"use smooth interpolation between LH bins");
   // use binning for high ET LH
   declareProperty("useHighETLHBinning",m_rootTool->useHighETLHBinning,"Use binning for high ET LH");
+  // use one extra bin for high ET LH
+  declareProperty("useOneExtraHighETLHBin",m_rootTool->useOneExtraHighETLHBin,"Use one extra bin for high ET LH");
   // do pileup-dependent transform on discriminant value
   declareProperty("doPileupTransform",m_rootTool->doPileupTransform,"Do pileup-dependent transform on discriminant value");
   // reference disc for very hard cut; used by pileup transform
@@ -136,16 +140,21 @@ StatusCode AsgElectronLikelihoodTool::initialize()
 // TODO: Sort out this set operating point stuff.
   std::string PDFfilename(""); //Default
 
-
+  if(!m_WorkingPoint.empty()){
+    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::m_LHPointToConfFile);
+    ATH_MSG_INFO("operating point : " << this->getOperatingPointName());
+  }
+  
   if(!m_configFile.empty()){
     std::string configFile = PathResolverFindCalibFile( m_configFile);
-     if(configFile=="")
-      { 
+    if(configFile==""){ 
 	ATH_MSG_ERROR("Could not locate " << m_configFile );
 	return StatusCode::FAILURE;
-      } 
-    TEnv env(configFile.c_str());
+    } 
 
+    ATH_MSG_DEBUG("Configfile to use  " << m_configFile );
+    TEnv env(configFile.c_str());
+    
     // Get the input PDFs in the tool.
     ATH_MSG_DEBUG("Get the input PDFs in the tool ");
     
@@ -191,16 +200,20 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->CutDeltaEta = AsgConfigHelper::HelperDouble("CutDeltaEta", env);
     // cut on deltaPhiRes
     m_rootTool->CutDeltaPhiRes = AsgConfigHelper::HelperDouble("CutDeltaPhiRes", env);
+    // cut on Wstot above 125 GeV 
+    m_rootTool->CutWstotAtHighET = AsgConfigHelper::HelperDouble("CutWstotAtHighET", env);
+    // cut on EoverP above 125 GeV 
+    m_rootTool->CutEoverPAtHighET = AsgConfigHelper::HelperDouble("CutEoverPAtHighET", env);
     // turn off f3 at high Et
     m_rootTool->doRemoveF3AtHighEt = env.GetValue("doRemoveF3AtHighEt", false);
     // turn off TRTPID at high Et
     m_rootTool->doRemoveTRTPIDAtHighEt = env.GetValue("doRemoveTRTPIDAtHighEt", false);
     // do smooth interpolation between bins
     m_rootTool->doSmoothBinInterpolation = env.GetValue("doSmoothBinInterpolation", false);
-    m_operatingPoint = env.GetValue("OperatingPoint", 0);
     m_caloOnly = env.GetValue("caloOnly", false);
 
     m_rootTool->useHighETLHBinning = env.GetValue("useHighETLHBinning", false);
+    m_rootTool->useOneExtraHighETLHBin = env.GetValue("useOneExtraHighETLHBin", false);
 
     m_rootTool->doPileupTransform = env.GetValue("doPileupTransform", false);
     m_rootTool->DiscHardCutForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutForPileupTransform",env);
@@ -219,24 +232,12 @@ StatusCode AsgElectronLikelihoodTool::initialize()
   }
 
 ///-----------End of text config----------------------------
-  //First try the PathResolver
-//  std::string filename = PathResolverFindCalibFile( m_pdfFileName );
-//  if (filename.empty()){
-//    ATH_MSG_WARNING ( "Could NOT resolve file name " << m_pdfFileName );
-//  }  else{
-//    ATH_MSG_INFO(" Path found = "<<filename);
-//  }
 
- // const char* fname= filename.c_str();
- // m_rootTool->setPDFFileName ( fname );
-
-  m_rootTool->setOperatingPoint( (LikeEnum::Menu)m_operatingPoint );
   // Get the name of the current operating point, and massage the other strings accordingly
   ATH_MSG_VERBOSE( "Going to massage the labels based on the provided operating point..." );
 
   // Get the message level and set the underlying ROOT tool message level accordingly
   m_rootTool->msg().setLevel(this->msg().level());
-
   
   // We need to initialize the underlying ROOT TSelectorTool
   if ( 0 == m_rootTool->initialize() )
@@ -251,9 +252,6 @@ StatusCode AsgElectronLikelihoodTool::initialize()
 
   return StatusCode::SUCCESS ;
 }
-
-
-
 
 
 //=============================================================================
@@ -315,12 +313,19 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   uint8_t expectBlayer(true);
   uint8_t nBlayerHits(0); 
   uint8_t nBlayerOutliers(0); 
+  uint8_t expectNextToInnerMostLayer(true);
+  uint8_t nNextToInnerMostLayerHits(0); 
+  uint8_t nNextToInnerMostLayerOutliers(0); 
   float d0(0.0);
   float deltaEta=0, deltaPhiRescaled2=0;
+  float wstot=0, EoverP=0;
   int convBit(0); // this no longer works
   double ip(0);
 
   bool allFound = true;
+
+  // Wstot for use when CutWstotAtHighET vector is filled
+  allFound = allFound && eg->showerShapeValue(wstot, xAOD::EgammaParameters::wtots1);
 
   if(!m_caloOnly) {
       // retrieve associated track
@@ -338,7 +343,10 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
            allFound = allFound && t->summaryValue(expectBlayer, xAOD::expectBLayerHit);
            allFound = allFound && t->summaryValue(nBlayerHits, xAOD::numberOfBLayerHits);
            allFound = allFound && t->summaryValue(nBlayerOutliers, xAOD::numberOfBLayerOutliers);
-
+	   allFound = allFound && t->summaryValue(expectNextToInnerMostLayer,  xAOD::expectNextToInnermostPixelLayerHit);
+           allFound = allFound && t->summaryValue(nNextToInnerMostLayerHits, xAOD::numberOfNextToInnermostPixelLayerHits);
+           allFound = allFound && t->summaryValue(nNextToInnerMostLayerOutliers,  xAOD::numberOfNextToInnermostPixelLayerOutliers);
+           EoverP = fabs(t->qOverP()) * energy;
         }
       else
         {
@@ -361,11 +369,13 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   // for now don't cache. 
   double likelihood = calculate(eg, ip); 
 
-  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSi=%i, nSiDeadSensors=%i, nPix=%i, nPixDeadSensors=%i, nBlayerHits=%i, nBlayerOutliers=%i, expectBlayer=%i, convBit=%i, d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, ip=%8.5f",
+  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSi=%i, nSiDeadSensors=%i, nPix=%i, nPixDeadSensors=%i, nBlayerHits=%i, nBlayerOutliers=%i, expectBlayer=%i, nNextToInnerMostLayerHits=%i, nNextToInnerMostLayerOutliers=%i, expectNextToInnerMostLayer=%i, convBit=%i, d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, wstot=%8.5f, EoverP=%8.5f, ip=%8.5f",
                          likelihood, eta, et,
                          nSi, nSiDeadSensors, nPix, nPixDeadSensors,
                          nBlayerHits, nBlayerOutliers, expectBlayer,
-                         convBit, d0, deltaEta, deltaPhiRescaled2, ip ) );
+			 nNextToInnerMostLayerHits, nNextToInnerMostLayerOutliers, expectNextToInnerMostLayer,
+                         convBit, d0, deltaEta, deltaPhiRescaled2, 
+                         wstot, EoverP, ip ) );
 
 
   if (!allFound) {
@@ -383,12 +393,17 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
                              nBlayerHits,
                              nBlayerOutliers,
                              expectBlayer,
+			     nNextToInnerMostLayerHits,
+                             nNextToInnerMostLayerOutliers,
+                             expectNextToInnerMostLayer,
                              convBit,
-			     d0,
-			     deltaEta,
-			     deltaPhiRescaled2,
+                             d0,
+                             deltaEta,
+                             deltaPhiRescaled2,
+                             wstot,
+                             EoverP,
                              ip
-                             );
+                           );
 }
 
 //=============================================================================
@@ -432,7 +447,10 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
   uint8_t nPixDeadSensors(0); 
   uint8_t expectBlayer(true);
   uint8_t nBlayerHits(0); 
-  uint8_t nBlayerOutliers(0); 
+  uint8_t nBlayerOutliers(0);
+  uint8_t expectNextToInnerMostLayer(true);
+  uint8_t nNextToInnerMostLayerHits(0); 
+  uint8_t nNextToInnerMostLayerOutliers(0); 
   int convBit(0); // this no longer works
 
   // Get the pileup information
@@ -447,13 +465,24 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
   // for now don't cache. 
   double likelihood = calculate(eg, ip); 
 
-  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSi=%i, nSiDeadSensors=%i, nPix=%i, nPixDeadSensors=%i, nBlayerHits=%i, nBlayerOutliers=%i, expectBlayer=%i, convBit=%i, ip=%8.5f",
+  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSi=%i, nSiDeadSensors=%i, nPix=%i, nPixDeadSensors=%i, nBlayerHits=%i, nBlayerOutliers=%i, expectBlayer=%i,  nNextToInnerMostLayerHits=%i, nNextToInnerMostLayerOutliers=%i, expectNextToInnerMostLayer=%i, convBit=%i, ip=%8.5f",
                          likelihood, eta, et,
                          nSi, nSiDeadSensors, nPix, nPixDeadSensors,
                          nBlayerHits, nBlayerOutliers, expectBlayer,
+			 nNextToInnerMostLayerHits, nNextToInnerMostLayerOutliers, expectNextToInnerMostLayer,
                          convBit, ip ) );
 
   double deltaEta=0,deltaPhiRescaled2=0,d0=0;
+  float wstot=0, EoverP=0;
+
+  bool allFound = true;
+
+  // Wstot for use when CutWstotAtHighET vector is filled
+  allFound = allFound && eg->showerShapeValue(wstot, xAOD::EgammaParameters::wtots1);
+
+  if (!allFound) {
+    ATH_MSG_WARNING("Have some variables missing.");
+  }
 
   // Get the answer from the underlying ROOT tool
   return m_rootTool->accept( likelihood,
@@ -466,12 +495,17 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
                              nBlayerHits,
                              nBlayerOutliers,
                              expectBlayer,
+			     nNextToInnerMostLayerHits,
+                             nNextToInnerMostLayerOutliers,
+                             expectNextToInnerMostLayer,
                              convBit,
-			     d0,
-			     deltaEta,
-			     deltaPhiRescaled2,
+                             d0,
+                             deltaEta,
+                             deltaPhiRescaled2,
+                             wstot,
+                             EoverP,
                              ip
-                             );
+                           );
 }
    
 
@@ -777,18 +811,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
 //=============================================================================
 std::string AsgElectronLikelihoodTool::getOperatingPointName() const
 {
-  if ( m_rootTool->OperatingPoint == LikeEnum::VeryLoose ){ return "LHVeryLoose"; }
-  else if (m_rootTool->OperatingPoint == LikeEnum::Loose ){ return "LHLoose"; }
-  else if (m_rootTool->OperatingPoint == LikeEnum::Medium ){ return "LHMedium"; }
-  else if (m_rootTool->OperatingPoint == LikeEnum::Tight ){ return "LHTight"; }
-  else if (m_rootTool->OperatingPoint == LikeEnum::VeryTight ){ return "LHVeryTight"; }
-  else if (m_rootTool->OperatingPoint == LikeEnum::LooseRelaxed ){ return "LHLooseRelaxed"; }
-  else if (m_rootTool->OperatingPoint == LikeEnum::CustomOperatingPoint ){ return "LHCustomOperatingPoint"; }
-  else
-    {
-      ATH_MSG_ERROR( "Didn't recognize the given operating point enum: " <<  m_operatingPoint );
-      return "";
-    }
+  return m_WorkingPoint;
 }
 //=============================================================================
 const Root::TAccept& AsgElectronLikelihoodTool::accept(const xAOD::IParticle* part) const

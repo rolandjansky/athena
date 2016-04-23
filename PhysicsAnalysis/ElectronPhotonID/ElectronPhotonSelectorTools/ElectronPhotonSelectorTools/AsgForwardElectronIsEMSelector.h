@@ -109,8 +109,11 @@ class AsgForwardElectronIsEMSelector : public asg::AsgTool,
 				float eta2, float nvtx,
 				unsigned int iflag) const;
 
+		/** Working Point */
+                std::string m_WorkingPoint;
+
 		/** Config File */
-		std::string m_configForwardFile;
+		std::string m_configFile;
 
 		/** Pointer to the underlying ROOT based tool */
 		Root::TForwardElectronIsEMSelector* m_rootForwardTool;

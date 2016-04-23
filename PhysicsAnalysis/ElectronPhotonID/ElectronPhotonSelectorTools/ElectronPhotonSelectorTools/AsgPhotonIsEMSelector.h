@@ -103,6 +103,9 @@ class AsgPhotonIsEMSelector : public asg::AsgTool,
 
 private:
 
+  /** Working Point */
+  std::string m_WorkingPoint;
+
   /** Config File */
   std::string m_configFile;
 

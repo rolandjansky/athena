@@ -14,18 +14,12 @@
    12-MAR-2014, convert to ASG tool
 
 */
-
-
-// CONSIDER MERGING THIS WITH IASGELECTRONLIKELIHOODTOOL, SINCE THE INTERFACE
-// IS EXACTLY THE SAME. LEAVING THEM SEPERATE FOR NOW IN CASE THEY DIVERGE
-
 // Include the interfaces
 #include "PATCore/IAsgSelectionTool.h"
-
-// Include the return object and the underlying ROOT tool
-#include "PATCore/TAccept.h"
-
 // Forward declarations
+namespace Root{
+  class TAccept;
+}
 #include "xAODEgamma/ElectronFwd.h"
 
 class IAsgElectronMultiLeptonSelector : virtual public IAsgSelectionTool

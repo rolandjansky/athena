@@ -15,16 +15,13 @@
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "EGSelectorConfigurationMapping.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
-
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/Electron.h"
-#include "xAODTracking/Vertex.h"
-#include "xAODTracking/TrackParticle.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "PathResolver/PathResolver.h"
 #include "TEnv.h"
-
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
 //=============================================================================
@@ -38,7 +35,8 @@ AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(std::string myname) :
 
   m_rootTool = new Root::TPhotonIsEMSelector(myname.c_str());
   m_rootTool->msg().setLevel(this->msg().level());
-  
+
+  declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point");  
   declareProperty("ConfigFile",m_configFile="","The config file to use (if not setting cuts one by one)");
 
   // Name of the PID
@@ -234,19 +232,21 @@ StatusCode AsgPhotonIsEMSelector::initialize()
   // The standard status code
   StatusCode sc = StatusCode::SUCCESS ;
 
+  if(!m_WorkingPoint.empty()){
+    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::m_PhotonCutPointToConfFile);
+    m_rootTool->isEMMask=AsgConfigHelper::findMask(m_WorkingPoint,EgammaSelectors::m_PhotonCutPointToMask);
+  }
+
   if(!m_configFile.empty()){
     //find the file and read it in
-
     std::string filename = PathResolverFindCalibFile( m_configFile);
-    if(filename=="")
-      { 
+    if(filename==""){ 
 	ATH_MSG_ERROR("Could not locate " << m_configFile );
       	sc = StatusCode::FAILURE;
 	return sc;
       } 
-    
-    TEnv env(filename.c_str());
-    
+    ATH_MSG_DEBUG("Configfile to use  " << m_configFile );
+    TEnv env(filename.c_str());    
     ///------- Read in the TEnv config ------///
     ATH_MSG_DEBUG("Read in the TEnv config ");
     //Override the mask via the config only if it is not set     

@@ -19,53 +19,6 @@ std.vector('int')
 # Import a needed helper
 from PATCore.HelperUtils import *
 
-def ElectronLikelihoodVeryTightConfig2012(theTool) :
-    '''
-    This is for VeryTight LH
-    '''
-    theTool = GetTool(theTool)
-    theTool.OperatingPoint = LikeEnum.VeryTight
-    theTool.inputPDFFileName = "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root"
-
-def ElectronLikelihoodTightConfig2012(theTool) :
-    '''
-    This is for Tight LH
-    '''
-    theTool = GetTool(theTool)
-    theTool.OperatingPoint = LikeEnum.Tight
-    theTool.inputPDFFileName = "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root"
-
-def ElectronLikelihoodMediumConfig2012(theTool) :
-    '''
-    This is for Medium LH
-    '''
-    theTool = GetTool(theTool)
-    theTool.OperatingPoint = LikeEnum.Medium
-    theTool.inputPDFFileName = "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root"
-
-def ElectronLikelihoodLooseConfig2012(theTool) :
-    '''
-    This is for Loose LH
-    '''
-    theTool = GetTool(theTool)
-    theTool.OperatingPoint = LikeEnum.Loose
-    theTool.inputPDFFileName = "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root"
-
-def ElectronLikelihoodVeryLooseConfig2012(theTool) :
-    '''
-    This is for VeryLoose LH
-    '''
-    theTool = GetTool(theTool)
-    theTool.OperatingPoint = LikeEnum.VeryLoose
-    theTool.inputPDFFileName = "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root"
-
-def ElectronLikelihoodLooseRelaxedConfig2012(theTool) :
-    '''
-    This is for LooseRelaxed LH
-    '''
-    theTool = GetTool(theTool)
-    theTool.OperatingPoint = LikeEnum.LooseRelaxed
-    theTool.inputPDFFileName = "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root"
 
 def ElectronLikelihoodCUSTOMMediumConfig(theTool) :
     '''
@@ -77,10 +30,7 @@ def ElectronLikelihoodCUSTOMMediumConfig(theTool) :
     # Variable names in the likelihood. Use these exact names! Comma-separated.
     theTool.VariableNames = "el_deltaeta1,el_weta2,el_TRTHighTOutliersRatio,el_f1,el_f3,el_eratio,el_rphi,el_rhad,el_reta,el_DeltaPoverP,el_deltaphiRescaled,el_trackd0pvunbiased,el_d0significance"
 
-    # Operating point.
-    theTool.OperatingPoint = LikeEnum.CustomOperatingPoint
-
-    # PdfFileNameOB
+    # PdfFileName
     theTool.inputPDFFileName = "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root"
 
     # do cut on conversion
@@ -134,8 +84,6 @@ def ElectronLikelihoodCUSTOMMediumNoGSFConfig(theTool) :
     # No deltapoverp, no deltaphires
     theTool.VariableNames = "el_deltaeta1,el_weta2,el_TRTHighTOutliersRatio,el_f1,el_f3,el_eratio,el_rphi,el_rhad,el_reta,el_trackd0pvunbiased,el_d0significance"
 
-    # Operating point.
-    theTool.OperatingPoint = LikeEnum.CustomOperatingPoint
 
     # PdfFileName
     theTool.inputPDFFileName = "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root"
@@ -191,7 +139,6 @@ def ElectronLikelihoodLooseTriggerConfig2015(theTool) :
     This uses Online PDFs, and currently has no conversion bit either. Also note that the PDF for trackd0 comes from
     trig_EF_trackd0_physics, but the LH tool requires it to be named el_trackd0pvunbiased. (NOTE: same signal eff as offline Loosepp + 1%)
     '''
-    
     theTool = GetTool(theTool)
     theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150712/ElectronLikelihoodLooseTriggerConfig2015.conf"
 
@@ -202,7 +149,6 @@ def ElectronLikelihoodMediumTriggerConfig2015(theTool) :
     This uses Online PDFs, and currently has no conversion bit either. Also note that the PDF for trackd0 comes from
     trig_EF_trackd0_physics, but the LH tool requires it to be named el_trackd0pvunbiased. (NOTE: same signal eff as Offline Mediumpp + 1%)
     '''
-    
     theTool = GetTool(theTool)
     theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150712/ElectronLikelihoodMediumTriggerConfig2015.conf"
 
@@ -214,7 +160,6 @@ def ElectronLikelihoodTightTriggerConfig2015(theTool) :
     This uses Online PDFs, and currently has no conversion bit either. Also note that the PDF for trackd0 comes from
     trig_EF_trackd0_physics, but the LH tool requires it to be named el_trackd0pvunbiased. (NOTE: same signal eff as offline Tightpp + 1%)
     '''
-
     theTool = GetTool(theTool)
     theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150712/ElectronLikelihoodTightTriggerConfig2015.conf"
 
@@ -224,9 +169,8 @@ def ElectronLikelihoodVeryLooseOfflineConfig2015(theTool) :
     This is for the custom implementation of the VeryLoose offline likelihood for MC15 / Run 2.
     This uses Offline PDFs, but does not yet have the pileup dependent discriminant cut.
     '''
-    
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20151012/ElectronLikelihoodVeryLooseOfflineConfig2015.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodVeryLooseOfflineConfig2015.conf"
     
     
 def ElectronLikelihoodLooseOfflineConfig2015(theTool) :
@@ -235,9 +179,8 @@ def ElectronLikelihoodLooseOfflineConfig2015(theTool) :
     This uses Offline PDFs, but does not yet have the pileup dependent discriminant cut.
     (NOTE: same signal eff as offline Loosepp + 1%)
     '''
-    
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20151012/ElectronLikelihoodLooseOfflineConfig2015.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseOfflineConfig2015.conf"
 
     
 def ElectronLikelihoodMediumOfflineConfig2015(theTool) :
@@ -245,10 +188,9 @@ def ElectronLikelihoodMediumOfflineConfig2015(theTool) :
     This is for the custom implementation of the Medium offline likelihood for MC15 / Run 2.
     This uses Offline PDFs, but does not yet have the pileup dependent discriminant cut.
     (NOTE: same signal eff as offline Mediumpp + 1%)
-    '''
-    
+    '''    
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20151012/ElectronLikelihoodMediumOfflineConfig2015.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodMediumOfflineConfig2015.conf"
 
     
 def ElectronLikelihoodTightOfflineConfig2015(theTool) :
@@ -257,8 +199,7 @@ def ElectronLikelihoodTightOfflineConfig2015(theTool) :
     This uses Offline PDFs, but does not yet have the pileup dependent discriminant cut.
     (NOTE: same signal eff as offline Tightpp + 1%)
     '''
-    
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20151012/ElectronLikelihoodTightOfflineConfig2015.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodTightOfflineConfig2015.conf"
 
     
