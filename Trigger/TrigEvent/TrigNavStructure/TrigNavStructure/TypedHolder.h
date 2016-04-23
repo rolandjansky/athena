@@ -35,6 +35,11 @@ typedef StoreGateSvc* EventPtr;
 
 #include "AsgTools/AsgMessaging.h"
 
+
+//forward declarations
+class TrigRoiDescriptor;
+class TrigRoiDescriptorCollection;
+
 namespace HLTNavDetails{
   /**
    * @brief standalone method implementing trigger core software naming scheme
@@ -43,6 +48,16 @@ namespace HLTNavDetails{
 }
 
 namespace HLT{
+
+
+  template<typename FEATURE, typename CONTAINER> class TypedHolder;
+
+
+  /**
+   * @brief specialization for RoIs. The definition is done by the TDT
+   **/
+  template<>
+  class TypedHolder<TrigRoiDescriptor,TrigRoiDescriptorCollection>;
   
   /**
    * @brief doubly templated class interfacing access to feature containers in StoreGate.
@@ -156,18 +171,19 @@ namespace HLT{
       if(m_cont) return StatusCode::SUCCESS;
 
       StatusCode sc = m_store->retrieve(m_cont,key());
+      
       //sanity checks
       if(sc.isFailure()) return StatusCode::FAILURE;
       if(!m_cont) return StatusCode::FAILURE;
 
       return StatusCode::SUCCESS;
     }
-
+    
     TypedHolder(){;}
     EventPtr m_store;
     const CONTAINER* m_cont;
     std::string m_key;
-  };
+  };    
 
 }//namespace HLT
 
