@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: testIsolationSelectionTool.cxx 680194 2015-07-03 15:31:36Z jdevivi $
+// $Id: testIsolationSelectionTool.cxx 697464 2015-09-29 17:27:13Z dzhang $
 
 // Mindlessly copied from CPAnalysisExamples
 #ifndef CPANALYSISEXAMPLES_ERRORCHECK_H
@@ -95,9 +95,12 @@ int main( int argc, char* argv[] ) {
 
   // The most simple case, just select electron and muon
   CP::IsolationSelectionTool iso_1( "iso_1" );
-  CHECK( iso_1.setProperty("MuonWP","Loose") );
-  CHECK( iso_1.setProperty("ElectronWP","Tight") );
-//   CHECK( iso_1.setProperty("PhotonWP","Cone40") );
+//   CHECK( iso_1.setProperty("MuonWP","Loose") );
+  CHECK( iso_1.setProperty("MuonWP","MuonFixedCutLoose") );
+//   CHECK( iso_1.setProperty("ElectronWP","Tight") );
+  CHECK( iso_1.setProperty("ElectronWP","ElecFixedCutLoose") );
+  CHECK( iso_1.setProperty("PhotonWP","Cone40") );
+  CHECK( iso_1.setProperty("doCutInterpolation",true) );
   CHECK( iso_1.initialize() );
 
   // use a user configured Muon WP?
@@ -134,7 +137,7 @@ int main( int argc, char* argv[] ) {
       if (x->pt() > 7000.) {
         if (x->caloCluster() != nullptr) {
           if (fabs(x->caloCluster()->eta()) < 2.47) {
-            if (iso_2.accept( *x )) {
+            if (iso_1.accept( *x )) {
               Info(APP_NAME," Photon passes Isolation");
             }else{
               Info(APP_NAME," Photon FAILS Isolation");
@@ -151,7 +154,7 @@ int main( int argc, char* argv[] ) {
       if (x->pt() > 7000.) {
         if (x->caloCluster() != nullptr) {
           if (fabs(x->caloCluster()->eta()) < 2.47) {
-            if (iso_2.accept( *x )) {
+            if (iso_1.accept( *x )) {
               Info(APP_NAME," Electron passes Isolation");
             }
           }

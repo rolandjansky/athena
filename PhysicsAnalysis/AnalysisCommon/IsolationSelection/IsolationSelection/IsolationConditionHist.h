@@ -18,6 +18,8 @@
 // Forward Declaration(s)
 class TF1;
 class TH3F;
+
+class Interp3D;
   
 namespace CP
 {
@@ -26,19 +28,24 @@ namespace CP
       IsolationConditionHist(std::string name, xAOD::Iso::IsolationType isoType, const std::string& isolationFunction, const std::shared_ptr<TH3F> efficiencyHisto3D);
       virtual ~IsolationConditionHist(){}
       
-      IsolationConditionHist() = delete;
+//       IsolationConditionHist() = delete;
       IsolationConditionHist(const IsolationConditionHist& rhs) = delete;
       IsolationConditionHist& operator=(const IsolationConditionHist& rhs) = delete;
-      
+      void setCut(xAOD::Iso::IsolationType isoType, const std::string& isolationFunction, const std::shared_ptr<TH3F> efficiencyHisto3D=nullptr); 
+
       std::string name(){return m_name;}
       bool accept(const xAOD::IParticle& x, std::map< xAOD::Iso::IsolationType, float >* cutValues=0);
       bool accept(const strObj& x, std::map< xAOD::Iso::IsolationType, float >* cutValues=0);
       void getCutValue(const float pt, const float eta);
 
+      void setInterp(Interp3D* interp) { m_interp = interp; };
+
     private:      
       std::shared_ptr<TH3F> m_efficiencyHisto3D;
       std::shared_ptr<TF1>  m_isolationFunction;
       bool m_ptGeV;
+
+      Interp3D* m_interp;
   };
 }
 #endif
