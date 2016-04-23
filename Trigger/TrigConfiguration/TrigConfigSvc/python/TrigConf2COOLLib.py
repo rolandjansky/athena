@@ -28,11 +28,11 @@ class TmpThr(threading.Thread):
         output = os.popen(self.syscmd).readlines()
         maxlevel = 0
         for line in output:
-            if 'warning' in line.lower():
+            if ' warning ' in line.lower():
                 maxlevel = max(1,maxlevel)
-            if 'error' in line.lower():
+            if ' error ' in line.lower():
                 maxlevel = max(2,maxlevel)
-            elif 'fatal' in line.lower() or 'exception' in line.lower():
+            elif ' fatal ' in line.lower() or 'exception ' in line.lower():
                 maxlevel = max(3,maxlevel)
         output = ''.join(output)
         if maxlevel==1:
@@ -99,6 +99,7 @@ class ConfToCoolSQlite:
             self.smk    = 0
             self.l1psk  = 0
             self.hltpsk = 0
+            self.bgsk   = 1
             self.useFrontier = tf.triggerUseFrontier()
             
         def setTriggerDBConnection(self,trigDbConnectionParameters):
@@ -130,10 +131,10 @@ class ConfToCoolSQlite:
             else:  # db
                 if self.smk==0 or self.l1psk==0 or self.hltpsk==0:
                     raise RuntimeError, "Source of trigger menu configuration is the TriggerDB, but no keys are specified: %i/%i/%i" % (self.smk, self.l1psk, self.hltpsk)
-                msg.info("Writing menu (keys: %i/%i/%i) from triggerDB (%s) to COOL (%s)" % (self.smk, self.l1psk, self.hltpsk, self.trigdb, self.dbfilename) )
+                msg.info("Writing menu (keys: %i/%i/%i/%i) from triggerDB (%s) to COOL (%s)" % (self.smk, self.l1psk, self.hltpsk, self.bgsk, self.trigdb, self.dbfilename) )
                 syscmd  = "rm -f %s; TrigConf2COOLApp -e createwrite" % self.dbfilename
                 syscmd += " --cooldb 'sqlite://;schema=%s;dbname=%s'" % (self.dbfilename,self.dbname)
-                syscmd += " --trigdb '%s' --configkey %i --prescalekeylvl1 %i --prescalekeyhlt %i" % (self.trigdb, self.smk, self.l1psk, self.hltpsk)
+                syscmd += " --trigdb '%s' --configkey %i --prescalekeylvl1 %i --prescalekeyhlt %i --bgkey %i" % (self.trigdb, self.smk, self.l1psk, self.hltpsk, self.bgsk)
                 if self.useFrontier:
                     syscmd += " --usefrontier"
                 syscmd += " --infiov"
