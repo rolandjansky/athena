@@ -325,11 +325,11 @@ bool Trig::CacheGlobalMemory::assert_decision() {
     //we're hardcoding in order not to require python configuration changes
 
 
-    bool contains_decision = false;
-    bool is_l1result_configured = false;
     bool contains_xAOD_decision = store()->contains<xAOD::TrigDecision>("xTrigDecision");
-
 #ifndef XAOD_ANALYSIS
+    bool is_l1result_configured = false;
+    bool contains_decision = false;
+
     contains_decision = store()->contains<TrigDec::TrigDecision>("TrigDecision");
     if(contains_decision) {
       const TrigDec::TrigDecision * trigDec(0);

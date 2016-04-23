@@ -34,12 +34,18 @@
 #include "TrigSteeringEvent/TrigPassBits.h"
 #include "TrigSteeringEvent/TrigPassBitsCollection.h"
 
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "TrigRoiConversion/RoiSerialise.h"
+#include "xAODTrigger/RoiDescriptorStore.h"
+
 #include "TrigDecisionTool/TypelessFeature.h"
 #include "TrigDecisionTool/EventPtrDef.h"
 
 #include "TrigNavStructure/TrigNavStructure.h"
 
 #include "AsgTools/AsgToolsConf.h"
+#include "AsgTools/Check.h"
+
 #include "TrigNavStructure/TypedHolder.h"
 
 namespace HLT{
@@ -113,9 +119,8 @@ namespace Trig {
     }
 
     template<typename STORED>
-    std::shared_ptr<const STORED> filter_if(boost::mpl::bool_<false> is_same, std::shared_ptr<const STORED>& original,const TrigPassBits* bits){
+    std::shared_ptr<const STORED> filter_if(boost::mpl::bool_<false> /*is_same*/, std::shared_ptr<const STORED>& original,const TrigPassBits* /*bits*/){
       //nothing
-      (void)is_same;
       return original;
     }
 
@@ -158,16 +163,78 @@ namespace Trig {
 	  insert_flatten_if(typedvec,feature,owned);
 	}
 	else{
-	  //storegate owns the pointer
-	  insert_element(typedvec,feature,dest);
+	  if(boost::is_same<STORED,TrigRoiDescriptor>::value){
+	     std::shared_ptr<const STORED> owned(dest);
+	     //TrigRoiDescriptor needs deletiong by us.. a bit hacky but oh well...
+	     insert_flatten_if(typedvec,feature,owned);
+	  }
+	  else{
+	    //storegate owns the pointer
+	    insert_element(typedvec,feature,dest);
+	  }
 	}
       }
       return typedvec;
     }
-
   } // EOF namespace FeatureAccessImpl
 
 } // EOF namespace Trig
+
+
+namespace HLT{
+  template<>
+  class TypedHolder<TrigRoiDescriptor,TrigRoiDescriptorCollection> : public TypelessHolder, public asg::AsgMessaging {
+  public:
+    TypedHolder(const BaseHolder& baseholder, EventPtr store, const std::string& container_name = "") 
+      : TypelessHolder(baseholder.typeClid(),baseholder.label(),baseholder.subTypeIndex()), 
+	asg::AsgMessaging("TypedHolder"),
+	m_store(store){
+      (void)container_name;//unused
+    };
+    
+    StatusCode get(const TrigRoiDescriptor*& destination, HLT::TriggerElement::ObjectIndex idx){
+
+      std::string key = HLTNavDetails::formatSGkey("HLT","xAOD::RoiDescriptorStore",this->label());
+      const xAOD::RoiDescriptorStore* roistore = 0;
+      ASG_CHECK(m_store->retrieve(roistore,key));
+      
+      // so what's happening here is a bit hacky since StoreGate stores (and owns)
+      // the RoiDescriptorStore. But the IRoiDescriptor pointers that get created
+      // by RoiUtil::deserialize are new pointers, so we need to manage them
+      // So we deserialize the entire collection, pick the one pointed to by 
+      // the object index and mark it as the return value and the delete the rest again
+      // Later the single remaining element will be deleted by the Feature
+      // (which will have the owning flag set for RoIs). Hopefully the performance
+      // penalty is not too large
+
+      std::vector<const IRoiDescriptor*> rois;
+      RoiUtil::deserialise( roistore->serialised(), rois );
+      if((idx.objectsEnd() - idx.objectsBegin())!=1){
+	ATH_MSG_ERROR("accessing RoI holder with key: is not single element: ");
+	return StatusCode::FAILURE;
+      }
+      
+      if(rois.size() < idx.objectsBegin()){
+	ATH_MSG_ERROR("deserialized roi collection too small");
+	return StatusCode::FAILURE;
+      };
+      for (unsigned int index = 0; index < rois.size(); ++index){
+	if(index == idx.objectsBegin()){
+	  destination = dynamic_cast<const TrigRoiDescriptor*>(rois.at(index));
+	}
+	else{
+	  delete rois.at(index);
+	}
+      }
+      return StatusCode::SUCCESS;    
+    }
+  private:
+    EventPtr m_store;
+  };
+}
+
+
+
 #endif
 
 

@@ -58,9 +58,17 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
    declareProperty( "ConfigTool", m_configTool);
 #endif
 
-   //just for Athena/AthAnalysisBase
+
 #ifndef XAOD_STANDALONE
-   this->outputLevelProperty().declareUpdateHandler(&Trig::TrigDecisionTool::outputlevelupdateHandler, this );
+   //just for Athena/AthAnalysisBase
+   auto props = getProperties();
+   for( Property* prop : props ) {
+     if( prop->name() != "OutputLevel" ) {
+       continue;
+     }
+     prop->declareUpdateHandler( &Trig::TrigDecisionTool::outputlevelupdateHandler, this );
+     break;
+   }
 #endif
     Logger::setMessaging(this);
 

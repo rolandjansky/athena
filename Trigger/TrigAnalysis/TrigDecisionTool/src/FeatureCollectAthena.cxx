@@ -62,7 +62,7 @@ namespace Trig{
 
       const LVL1_ROI* lvl1(0);
 
-      if ( navigation->getAccessProxy()->retrieve(lvl1, "LVL1_ROI").isFailure() || lvl1 == 0 ) {
+      if ( !navigation || navigation->getAccessProxy()->retrieve(lvl1, "LVL1_ROI").isFailure() || lvl1 == 0 ) {
 	return;
       }
 
@@ -103,8 +103,7 @@ namespace Trig{
     
       //get all EmTau RoIs
       const ROICONTAINER* cont;
-      StatusCode sc = navigation->getAccessProxy()->retrieve(cont,sgkey);
-      if(sc.isFailure()){
+      if (!navigation || navigation->getAccessProxy()->retrieve(cont,sgkey).isFailure()) {
 	REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR,"Feature.cxx:xAODcollect") << "failed retrieving RoI container" << endreq;
 
 	REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR,"Feature.cxx:xAODcollect") << "\n" << navigation->getAccessProxy()->dump() << endreq;      

@@ -51,9 +51,9 @@
 // boost::is_same<T,struct Muon_ROI>::value
 //so that it does not end up to be a check on is_same<T,Trig::Muon_ROI> 
 #if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
-struct Muon_ROI;
-struct EmTau_ROI;
-struct Jet_ROI;
+class Muon_ROI;
+class EmTau_ROI;
+class Jet_ROI;
 #endif
 
 #include "xAODBase/IParticle.h"

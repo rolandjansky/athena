@@ -33,14 +33,14 @@
 
 Trig::ExpertMethods::ExpertMethods(Trig::CacheGlobalMemory* cgm) 
   : m_cacheGlobalMemory(cgm),
-    useExperimentalAndExpertMethods(false)   
+    m_useExperimentalAndExpertMethods(false)   
 {
 }
 
 Trig::ExpertMethods::~ExpertMethods() {}
 
 bool Trig::ExpertMethods::checkExperimentalAndExpertMethods() const {
-  if (useExperimentalAndExpertMethods) return true;
+  if (m_useExperimentalAndExpertMethods) return true;
   else {
     ATH_MSG_ERROR("You have not confirmed the use of experimental or expert TrigDecisionTool methods at this time.  Please take care before using such methods.");
     return false;
@@ -105,8 +105,8 @@ bool Trig::ExpertMethods::isHLTTruncated() const {
 #if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
 const HLT::HLTResult* res(0);
 auto navigation = dynamic_cast<HLT::NavigationCore*>(const_cast<HLT::TrigNavStructure*>(cgm()->navigation()));
-if(navigation->getAccessProxy()->retrieve(res, "HLTResult_L2").isFailure()) {
-ATH_MSG_WARNING("TDT has not ben able to get HLTResult_L2");
+if(!navigation || navigation->getAccessProxy()->retrieve(res, "HLTResult_L2").isFailure()) {
+ATH_MSG_WARNING("TDT has not been able to get HLTResult_L2");
 return false;
 } 
 return res->isHLTResultTruncated();    

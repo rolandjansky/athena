@@ -36,6 +36,8 @@
 
 #include "TrigDecisionTool/FeatureCollectStandalone.h"
 
+class HltNaviChecker;
+
 namespace Trig {
 
   class CacheGlobalMemory;
@@ -151,6 +153,7 @@ namespace Trig {
     
 
   private:
+    friend class ::HltNaviChecker;
 
     // helper functionality for collect using traits class to determine how to access
     // the navigation

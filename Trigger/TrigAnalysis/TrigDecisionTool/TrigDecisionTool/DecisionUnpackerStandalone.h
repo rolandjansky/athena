@@ -46,6 +46,9 @@ namespace Trig {
     /// Destructor
     virtual ~DecisionUnpackerStandalone();
 
+    DecisionUnpackerStandalone( const DecisionUnpackerStandalone& ) = delete;
+    DecisionUnpackerStandalone& operator= ( const DecisionUnpackerStandalone& ) = delete;
+
     /// Function unpacking the payload of the trigger decision
     virtual StatusCode
     unpackDecision( std::map< std::string,

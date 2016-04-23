@@ -1,6 +1,9 @@
+// Emacs -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
+
 
 #include "TrigDecisionTool/FeatureCollectStandalone.h"
 
@@ -8,6 +11,8 @@
 #include "TrigNavStructure/TrigNavStructure.h"
 
 #include "TrigSteeringEvent/TrigPassBits.h"
+
+
 
 //pretty printing a TypelessFeature object
 std::ostream & Trig::operator<<(std::ostream & o, const Trig::TypelessFeature & feat) {
@@ -59,13 +64,20 @@ namespace Trig{
 
     void typelessCollect( const HLT::TriggerElement* te, HLT::class_id_type clid,
 			  std::vector<Trig::TypelessFeature>& data,
-			  const std::string& label, unsigned int /*condition*/,
+			  const std::string& label, unsigned int condition,
 			  HLT::TrigNavStructure* navigation ){
       //collect recursively features for this trigger element
+      if (condition == TrigDefs::Physics && !te->getActiveState() ) return;   
 
       const HLT::TriggerElement* source = 0;
       HLT::TriggerElement::FeatureAccessHelper answer = navigation->getFeatureRecursively(te,clid,label,source);
-      if(answer.valid()){      
+      if(!answer.valid() && source){
+	//source was set but answer invalid -> bifurcation
+	for(auto& predecessor : navigation->getDirectPredecessors(source)){
+	  typelessCollect(predecessor,clid,data,label,condition,navigation);
+	}
+      }
+      if(answer.valid()){    
 	auto typelessholder = navigation->getHolder(answer);
 	if(!typelessholder){
 	  //this can happen, because features were thinned away (which deletes the Holders, but doesn't touch the TE structure)
@@ -77,3 +89,4 @@ namespace Trig{
     }
   } // EOF namespace FeatureAccessImpl 
 } // EOF namespace Trig
+

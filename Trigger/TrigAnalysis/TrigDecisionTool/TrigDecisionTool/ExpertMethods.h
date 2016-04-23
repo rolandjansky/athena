@@ -57,11 +57,11 @@ namespace Trig {
     /**
      * @brief enable use of Experimental or expert methods
      **/
-    void enable() {useExperimentalAndExpertMethods=true;};
+    void enable() {m_useExperimentalAndExpertMethods=true;};
     /**
      * @brief disable use of Experimental or expert methods
      **/
-    void disable() {useExperimentalAndExpertMethods=false;};
+    void disable() {m_useExperimentalAndExpertMethods=false;};
 
     /**
      * @brief return TrigConf::TriggerItem
@@ -107,7 +107,7 @@ namespace Trig {
     Trig::CacheGlobalMemory*    m_cacheGlobalMemory;    
     Trig::CacheGlobalMemory* cgm(bool onlyConfig=false) const;
 
-    bool useExperimentalAndExpertMethods;
+    bool m_useExperimentalAndExpertMethods;
 
     bool checkExperimentalAndExpertMethods() const;
 

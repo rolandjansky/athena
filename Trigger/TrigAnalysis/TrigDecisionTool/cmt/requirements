@@ -12,9 +12,10 @@ use_ifndef pplist="XAOD_ANALYSIS" pkg="Trigger/TrigEvent/TrigNavigation"
 
 use  AtlasBoost                 AtlasBoost-*                    External
 use  AtlasROOT                  AtlasROOT-*                     External
-use  AthenaKernel               AthenaKernel-*                  Control
+#use  AthenaKernel               AthenaKernel-*                  Control
 use  StoreGate                  StoreGate-*                     Control
 use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  TrigRoiConversion          TrigRoiConversion-*		Trigger/TrigEvent
 use  TrigConfInterfaces         TrigConfInterfaces-*            Trigger/TrigConfiguration
 use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
 use  TrigConfHLTData            TrigConfHLTData-*               Trigger/TrigConfiguration
@@ -35,8 +36,8 @@ end_public
 private
 #use  AthenaKernel               AthenaKernel-*                  Control
 use  AthenaBaseComps		AthenaBaseComps-*		Control
-use  CxxUtils                   CxxUtils-*                      Control
-use  AthContainers              AthContainers-*                 Control
+#use  CxxUtils                   CxxUtils-*                      Control
+#use  AthContainers              AthContainers-*                 Control
 use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
 #use  TrigMuonEvent              TrigMuonEvent-*                 Trigger/TrigEvent
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Trigger/TrigEvent/TrigMuonEvent"
@@ -77,3 +78,6 @@ macro_append TrigDecisionToolLib_shlibflags " $(TrigDecisionTool_extralibs) "
 end_private
 
 apply_pattern declare_python_modules files="*.py"
+
+# Declare the library's dependency on PyROOT for CMake:
+apply_pattern cmake_add_command command="find_package( ROOT COMPONENTS PyROOT )"

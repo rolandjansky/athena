@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionTool.h 740715 2016-04-15 19:01:11Z lheinric $
+// $Id: TrigDecisionTool.h 740675 2016-04-15 16:45:37Z lheinric $
 #ifndef TrigDecision_TrigDecisionTool_h
 #define TrigDecision_TrigDecisionTool_h
 /**********************************************************************************
@@ -108,8 +108,8 @@ namespace Trig {
       
     bool configKeysMatch(uint32_t smk, uint32_t lvl1psk, uint32_t hltpsk);
     std::vector<uint32_t> m_configKeysCache; //cache for config keys. only update CacheGlobalMemory when these change
-    ToolHandle<TrigConf::ITrigConfigTool> m_configTool;    //!< trigger configuration service handle
     bool m_configKeysCached; // flag to indicate if we have ever cached config keys (set to true on first caching)
+    ToolHandle<TrigConf::ITrigConfigTool> m_configTool;    //!< trigger configuration service handle
 
  
 
