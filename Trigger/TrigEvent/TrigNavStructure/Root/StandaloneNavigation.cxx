@@ -85,7 +85,11 @@ bool HLT::StandaloneNavigation::deserialize( const std::vector<uint32_t>& input 
 
   const size_t totalSize = *inputIt++;   
 
-  if (!deserializeTEs(inputIt,input.end())) {    
+  //remove unused warning;
+  (void)(version);
+  (void)(totalSize);
+  
+  if (!deserializeTEs(inputIt,input.size())) {    
     return false;
   }
 

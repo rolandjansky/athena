@@ -139,7 +139,7 @@ namespace HLT {
      * @return if true then OK else some sort of failure happened (likely badly truncated structure)
      */
     bool serializeTEs( std::vector<uint32_t>& output ) const;
-    bool deserializeTEs( std::vector<uint32_t>::const_iterator& start, const std::vector<uint32_t>::const_iterator& end);
+    bool deserializeTEs( std::vector<uint32_t>::const_iterator& start, unsigned int totalSize);
 
     /**
      * @brief method serizlizes entire navigation
@@ -321,14 +321,14 @@ namespace HLT {
     std::string label(class_id_type clid, const index_or_label_type& sti_or_label) const;
 
 
-    bool getFeatureAccessors( const TriggerElement* te, class_id_type clid,
-			      const index_or_label_type& index_or_label,
-			      bool only_single_feature,
-			      TriggerElement::FeatureVec& features, 
-			      bool with_cache_recording,
-			      bool travel_backward_recursively,
-			      const TriggerElement*& source = m_unspecifiedTE, 
-			      std::string& sourcelabel  = m_unspecifiedLabel) const;
+    virtual bool getFeatureAccessors( const TriggerElement* te, class_id_type clid,
+				      const index_or_label_type& index_or_label,
+				      bool only_single_feature,
+			      	      TriggerElement::FeatureVec& features, 
+			              bool with_cache_recording,
+			              bool travel_backward_recursively,
+			              const TriggerElement*& source = m_unspecifiedTE, 
+			              std::string& sourcelabel  = m_unspecifiedLabel) const;
   protected:
 
     virtual bool getFeatureAccessorsSingleTE( const TriggerElement* te, class_id_type clid,

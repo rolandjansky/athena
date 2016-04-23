@@ -35,6 +35,11 @@ typedef StoreGateSvc* EventPtr;
 
 #include "AsgTools/AsgMessaging.h"
 
+
+//forward declarations
+class TrigRoiDescriptor;
+class TrigRoiDescriptorCollection;
+
 namespace HLTNavDetails{
   /**
    * @brief standalone method implementing trigger core software naming scheme
@@ -43,6 +48,16 @@ namespace HLTNavDetails{
 }
 
 namespace HLT{
+
+
+  template<typename FEATURE, typename CONTAINER> class TypedHolder;
+
+
+  /**
+   * @brief specialization for RoIs. The definition is done by the TDT
+   **/
+  template<>
+  class TypedHolder<TrigRoiDescriptor,TrigRoiDescriptorCollection>;
   
   /**
    * @brief doubly templated class interfacing access to feature containers in StoreGate.
@@ -58,31 +73,34 @@ namespace HLT{
     /**
      * @brief constructor from BaseHolder. Throws runtime exception if clids of BaseHolder and FEATURE type don't match
      **/
-    TypedHolder(const BaseHolder& baseholder, EventPtr store) 
+
+    TypedHolder(const BaseHolder& baseholder, EventPtr store, const std::string& container_name = ClassID_traits<CONTAINER>::typeName()) 
       : TypelessHolder(baseholder.typeClid(),baseholder.label(),baseholder.subTypeIndex()), 
 	asg::AsgMessaging("TypedHolder"),
 	m_store(store),
 	m_cont(0) {
-      if(this->typeClid() != ClassID_traits<FEATURE>::ID())
-	throw std::runtime_error("attempted construction with CLID mismatch! Check template parameter and passed typeless holder");
+      //      if(!clidCheck<FEATURE>())
+      //throw std::runtime_error("attempted construction with CLID mismatch! Check template parameter and passed typeless holder");
+      m_key = HLTNavDetails::formatSGkey("HLT",container_name,this->label());
     }
-
+    
     /**
      * @brief constructor from BaseHolder. Throws runtime exception if clids of BaseHolder and FEATURE type don't match
      **/
-    TypedHolder(const TypelessHolder& typeless, EventPtr store) 
+    TypedHolder(const TypelessHolder& typeless, EventPtr store, const std::string& container_name = ClassID_traits<CONTAINER>::typeName()) 
       : TypelessHolder(typeless),
 	asg::AsgMessaging("TypedHolder"),
 	m_store(store),
 	m_cont(0) {
-      if(typeClid() != ClassID_traits<FEATURE>::ID())
-	throw std::runtime_error("attempted construction with CLID mismatch! Check template parameter and passed typeless holder");
+      //if(!clidCheck<FEATURE>())
+      //	throw std::runtime_error("attempted construction with CLID mismatch! Check template parameter and passed typeless holder");
+      m_key = HLTNavDetails::formatSGkey("HLT",container_name,this->label());
     }
 
     /**
      * @brief key used to access EventStore
      **/
-    std::string key(){return HLTNavDetails::formatSGkey("HLT",ClassID_traits<CONTAINER>::typeName(),this->label());}
+    std::string key(){return m_key;}
 
     /**
      * @brief method creates a new VIEW container containing pointers to the elements pointed to by the ObjectIndex.
@@ -153,17 +171,19 @@ namespace HLT{
       if(m_cont) return StatusCode::SUCCESS;
 
       StatusCode sc = m_store->retrieve(m_cont,key());
+      
       //sanity checks
       if(sc.isFailure()) return StatusCode::FAILURE;
       if(!m_cont) return StatusCode::FAILURE;
 
       return StatusCode::SUCCESS;
     }
-
+    
     TypedHolder(){;}
     EventPtr m_store;
     const CONTAINER* m_cont;
-  };
+    std::string m_key;
+  };    
 
 }//namespace HLT
 

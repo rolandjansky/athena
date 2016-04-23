@@ -37,7 +37,7 @@ bool HLT::TrigHolderStructure::registerHolder(const std::shared_ptr<BaseHolder>&
   auto label = holder->label();
 
   if(getHolder(clid,subtypeindex)){
-    ATH_MSG_ERROR("we already have a holder like this!");
+    ATH_MSG_WARNING("we already have a holder like this! clid:" << clid << " subtypeIndex: " << subtypeindex << " label: " << label);
     return false;
   }
   

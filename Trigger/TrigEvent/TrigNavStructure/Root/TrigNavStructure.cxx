@@ -247,16 +247,14 @@ bool TrigNavStructure::serializeTEs( std::vector<uint32_t>& output ) const {
  *
  *****************************************************************************/
 
-bool TrigNavStructure::deserializeTEs(std::vector<uint32_t>::const_iterator& start, const std::vector<uint32_t>::const_iterator& end) {
+bool TrigNavStructure::deserializeTEs(std::vector<uint32_t>::const_iterator& start, unsigned int totalSize) {
   m_factory.reset();
-
+  
   std::vector<uint32_t>::const_iterator& inputIt = start;
   const size_t payloadSize = *inputIt++; 
-
-  const size_t distance =  std::distance(inputIt,end);
-
-  if ( distance < payloadSize ) { // not all TEs were recorded
-    std::cerr << "size of the navigation payload smaller then reported size used to save TEs. " << distance << " < " << payloadSize << std::endl;
+  
+  if ( totalSize < payloadSize ) { // not all TEs were recorded
+    std::cerr << "size of the navigation payload smaller then reported size used to save TEs. " << totalSize << " < " << payloadSize << std::endl;
     return false;
   }
 
@@ -264,7 +262,7 @@ bool TrigNavStructure::deserializeTEs(std::vector<uint32_t>::const_iterator& sta
   const unsigned int size = *inputIt++; // size in terms of number of TEs
   TriggerElement* previous = 0;
   std::map<uint16_t, TriggerElement* > keys;
-
+  
   for ( unsigned int i = 0; i < size; ++i ) {
     // create new TE
     TriggerElement* te = m_factory.produce(TriggerElement::enquireId(inputIt)); //
@@ -273,7 +271,7 @@ bool TrigNavStructure::deserializeTEs(std::vector<uint32_t>::const_iterator& sta
     // keys table for deserialization of other TEs
     keys[i] = te;
   }
-
+  
   if ( not m_factory.empty() ) {
     // rebuild  sameRoI relations (this can't be done by TEs deserialization)
     TriggerElement* initialNode = getInitialNode();
@@ -764,6 +762,9 @@ bool TrigNavStructure::getFeatureAccessorsSingleTE( const TriggerElement* te, cl
   // ATH_MSG_VERBOSE("getFeatureAccessorsSingleTE: looking for:" << (only_single_feature ? "one object" : "many objects" ) << " of CLID: " << clid
   // 		  << " label: \"" << label << "\"" << " starting from TE: " << te->getId());
 
+  //remove unused warning
+  (void)(with_cache_recording);
+  
   int size = te->getFeatureAccessHelpers().size(), it;
   
   // loop the feature access helper in order depending of type of request (i.e. if single featyure needed then loop from back, if all then loop from the front)
