@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IsolationSelectionTool.h 680193 2015-07-03 15:30:37Z jdevivi $
+// $Id: IsolationSelectionTool.h 704447 2015-10-29 12:00:39Z jdevivi $
 #ifndef ISOLATIONSELECTION_ISOLATIONSELECTIONTOOL_H
 #define ISOLATIONSELECTION_ISOLATIONSELECTIONTOOL_H
 
@@ -20,6 +20,8 @@
 class TFile;
 class TH1F;
 
+class Interp3D;
+
 namespace CP 
 {
 
@@ -29,8 +31,8 @@ namespace CP
   /// @author John Morris <john.morris@cern.ch>
   /// @author Dongliang Zhang <dongliang.zhang@cern.ch>
   ///
-  /// $Revision: 680193 $
-  /// $Date: 2015-07-03 17:30:37 +0200 (Fri, 03 Jul 2015) $
+  /// $Revision: 704447 $
+  /// $Date: 2015-10-29 13:00:39 +0100 (Thu, 29 Oct 2015) $
   ///
   
   class IsolationSelectionTool :  public virtual CP::IIsolationSelectionTool,
@@ -75,6 +77,11 @@ namespace CP
       std::vector< IsolationWP* >& getPhotonWPs(){return m_phWPs;}
       std::vector< IsolationWP* >& getObjWPs(){return m_objWPs;}
 
+      // Clearing, for very special use
+      void clearPhotonWPs()   { m_phWPs.clear();}
+      void clearElectronWPs() { m_elWPs.clear();}
+      void clearMuonWPs()     { m_muWPs.clear();}
+    
     private:
       // Stupid ROOT
       TDirectory* getTemporaryDirectory(void) const;
@@ -105,6 +112,14 @@ namespace CP
       /// Iparticle interface
       std::vector< IsolationWP* >* m_iparWPs;
       mutable Root::TAccept* m_iparAccept;
+
+      // for cut interpolation
+      bool m_doInterpM, m_doInterpE;
+      Interp3D *m_Interp;
+
+      // Doc
+      std::string m_TwikiLoc;
+
   };
 } // namespace
 

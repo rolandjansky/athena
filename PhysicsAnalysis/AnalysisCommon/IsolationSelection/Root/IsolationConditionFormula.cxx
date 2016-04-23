@@ -17,7 +17,13 @@ namespace CP
   {
     m_cutFunction = std::shared_ptr<TF1>(new TF1(cutFunction.c_str(), cutFunction.c_str()));
   }
-  
+
+  void IsolationConditionFormula::setCut(xAOD::Iso::IsolationType isoType, const std::string& cutFunction)
+  {
+    IsolationCondition::setCut(isoType);
+    m_cutFunction = std::shared_ptr<TF1>(new TF1(cutFunction.c_str(), cutFunction.c_str()));
+  }
+
   bool IsolationConditionFormula::accept(const xAOD::IParticle& x, std::map< xAOD::Iso::IsolationType, float >* c)
   {
     getCutValue(x.pt());

@@ -1,4 +1,4 @@
-#################################################
+##################################################
 package IsolationSelection
 
 author John Morris <john.morris@cern.ch>
@@ -20,5 +20,5 @@ use  GaudiInterface             GaudiInterface-*                External
 use  PathResolver               PathResolver-*                  Tools
 end_private
 
-apply_pattern dual_use_library files= "../Root/*.cxx ../src/*.cxx ../src/components/*.cxx"
-#################################################
+apply_pattern dual_use_library files= "../Root/*.cxx ../src/*.cxx"
+##################################################

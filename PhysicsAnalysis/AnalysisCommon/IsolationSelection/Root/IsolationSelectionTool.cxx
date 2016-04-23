@@ -6,6 +6,7 @@
 #include <IsolationSelection/IsolationSelectionTool.h>
 #include <IsolationSelection/IsolationConditionHist.h>
 #include <IsolationSelection/IsolationConditionFormula.h>
+#include <IsolationSelection/Interp3D.h>
 #include "PathResolver/PathResolver.h"
 #include <TROOT.h>
 #include <TFile.h>
@@ -17,7 +18,6 @@ namespace CP
   IsolationSelectionTool::IsolationSelectionTool( const std::string& name ) :
     asg::AsgTool( name ),  
     /// input file 
-    m_calibFileName("IsolationSelection/v1/DC14_IsolationCutValues_TruthBased_Zee_Zmumu.root"),
     m_calibFile(nullptr),
     
     /// TAccept's
@@ -26,15 +26,19 @@ namespace CP
     m_muonAccept("IsolationSelectionToolMuonTAccept"),
     m_objAccept("IsolationSelectionToolObjTAccept"),
     m_iparWPs(0),
-    m_iparAccept(0)
+    m_iparAccept(0),
+    m_TwikiLoc("https://twiki.cern.ch/twiki/bin/view/AtlasProtected/IsolationSelectionTool#List_of_current_official_working")
   {
-    declareProperty("CalibFileName", m_calibFileName = "IsolationSelection/v1/MC15_Z_Jpsi_cutMap.root", "The config file to use");
-    declareProperty("MuonWP", m_muWPname = "Undefined" , "Working point for muon");
-    declareProperty("ElectronWP", m_elWPname = "Undefined" , "Working point for electron");
-    declareProperty("PhotonWP", m_phWPname = "Undefined" , "Working point for photon");
-    declareProperty("MuonKey", m_muWPKey = "/Muons/DFCommonGoodMuon/mu_cutValues_", "path of the cut map for muon");
-    declareProperty("ElectronKey", m_elWPKey = "/ElectronPhoton/LHTight/el_cutValues_", "path of the cut map for electron");
-    declareProperty("PhotonKey", m_phWPKey = "/ElectronPhoton/LHTight/el_cutValues_", "path of the cut map for photon");
+    declareProperty("CalibFileName", m_calibFileName = "IsolationSelection/v2/MC15_Z_Jpsi_cutMap.root", "The config file to use");
+    declareProperty("MuonWP",      m_muWPname = "Undefined" , "Working point for muon");
+    declareProperty("ElectronWP",  m_elWPname = "Undefined" , "Working point for electron");
+    declareProperty("PhotonWP",    m_phWPname = "Undefined" , "Working point for photon");
+    declareProperty("MuonKey",     m_muWPKey  = "/Muons/DFCommonGoodMuon/mu_cutValues_", "path of the cut map for muon");
+    declareProperty("ElectronKey", m_elWPKey  = "/ElectronPhoton/LHTight/el_cutValues_", "path of the cut map for electron");
+    declareProperty("PhotonKey",   m_phWPKey  = "/ElectronPhoton/LHTight/el_cutValues_", "path of the cut map for photon");
+
+    declareProperty("doCutInterpolationMuon", m_doInterpM = false, "flag to perform cut interpolation, muon");
+    declareProperty("doCutInterpolationElec", m_doInterpE = false, "flag to perform cut interpolation, electron");
   }
 
   IsolationSelectionTool::~IsolationSelectionTool(){
@@ -56,6 +60,30 @@ namespace CP
     TObjString* versionInfo = (TObjString*)m_calibFile->Get("VersionInfo");
     if(versionInfo) ATH_MSG_INFO( "VersionInfo:" << versionInfo->String());
     else ATH_MSG_WARNING( "VersionInfo of input file (" << filename << ") is missing.");
+
+    if (m_doInterpE || m_doInterpM) {
+      // special setting for electrons
+      // do not apply interpolation in crack vicinity for topoetcone
+      std::vector<std::pair<double,double>> rangeEtaNoInt;
+      std::pair<double,double> apair(1.26,1.665);
+      rangeEtaNoInt.push_back(apair);
+      // do not apply interpolation between Z defined and J/Psi defined cuts (pT < > 15 GeV/c) for both calo and track iso
+      std::vector<std::pair<double,double>> rangePtNoInt;
+      apair.first  = 12.5;
+      apair.second = 17.5;
+      rangePtNoInt.push_back(apair);
+      std::map<std::string,Interp3D::VetoInterp> amap;
+      Interp3D::VetoInterp veto;
+      veto.xRange = rangePtNoInt;
+      veto.yRange = std::vector<std::pair<double,double>>();
+      amap.insert(std::make_pair(std::string("el_cutValues_ptvarcone20"),veto));
+      veto.yRange = rangeEtaNoInt;
+      amap.insert(std::make_pair(std::string("el_cutValues_topoetcone20"),veto));
+      m_Interp = new Interp3D(amap);
+      m_Interp->debug(false);
+      //m_Interp->debug();
+    }
+
 
     /// setup working points
     if(m_phWPname != "Undefined") ATH_CHECK(addPhotonWP(m_phWPname));
@@ -92,42 +120,47 @@ namespace CP
     tempDir->cd();    
     
     std::shared_ptr<TH3F> histogram((TH3F*)m_calibFile->Get(key.c_str())->Clone());
-    wp->addCut(new IsolationConditionHist(varname, t, expression, histogram));
+    IsolationConditionHist *ich = new IsolationConditionHist(varname, t, expression, histogram);
+    if ( (m_doInterpM && key.find("Muon") != std::string::npos) || (m_doInterpE && key.find("Electron") != std::string::npos) )
+      ich->setInterp(m_Interp);
+    wp->addCut(ich);
   }
 
   StatusCode IsolationSelectionTool::addMuonWP(std::string muWPname)
   {
     auto wp = new IsolationWP(muWPname);
-//     if(muWPname == "VeryLooseTrackOnly"){
+    // For flat efficiency in (pT,eta)
     if(muWPname == "LooseTrackOnly"){
-      addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "99");
-//     }else if(muWPname == "VeryLoose"){
+      addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30,  "99");
     }else if(muWPname == "Loose"){
-      addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "99");
+      addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30,  "99");
       addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "99");
-//     }else if(muWPname == "Loose"){
     }else if(muWPname == "Tight"){
-      addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "99");
+      addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30,  "99");
       addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "96");
-//     }else if(muWPname == "Tight"){
-//       addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "94");
-//       addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "89");
+    // For gradient efficiency in pT
     }else if(muWPname == "Gradient"){
-      addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "0.1143*x+92.14");
+      addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30,  "0.1143*x+92.14");
       addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "0.1143*x+92.14");
     }else if(muWPname == "GradientLoose"){
-      addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "0.057*x+95.57");
+      addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30,  "0.057*x+95.57");
       addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "0.057*x+95.57");
     }else if(muWPname == "GradientT1"){
-      addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "0.1713*x+88.71");
+      addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30,  "0.1713*x+88.71");
       addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "0.1713*x+88.71");
+      ATH_MSG_WARNING("Obsolete muon WP " << muWPname << ". Check Twiki " << m_TwikiLoc);
     }else if(muWPname == "GradientT2"){
-      addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "0.2283*x+85.28");
+      addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30,  "0.2283*x+85.28");
       addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "0.2283*x+85.28");
-    }else if(muWPname == "MU0p06"){
-      wp->addCut(new IsolationConditionFormula("ptvarcone30R0p06", xAOD::Iso::ptvarcone30, "0.06*x"));
+      ATH_MSG_WARNING("Obsolete muon WP " << muWPname << ". Check Twiki " << m_TwikiLoc);
+    // Using fixed cuts 
+    }else if(muWPname == "FixedCutTightTrackOnly"){
+      wp->addCut(new IsolationConditionFormula("ptvarcone30R0p06",        xAOD::Iso::ptvarcone30,  "0.06*x"));
+    }else if(muWPname == "FixedCutLoose"){
+      wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_track", xAOD::Iso::ptvarcone30,  "0.15*x"));
+      wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_calo",  xAOD::Iso::topoetcone20, "0.30*x"));
     }else{
-      ATH_MSG_ERROR("Unknown muon isolaiton WP: " << muWPname);
+      ATH_MSG_ERROR("Unknown muon isolation WP: " << muWPname);
       delete wp;
       return StatusCode::FAILURE;
     }
@@ -142,16 +175,29 @@ namespace CP
   StatusCode IsolationSelectionTool::addPhotonWP(std::string phWPname)
   {   
     auto wp = new IsolationWP(phWPname);
+    // The old ones (kept here for backward compatibility for the time being)
     if(phWPname == "Cone40CaloOnly"){
       wp->addCut(new IsolationConditionFormula("topoetcone40", xAOD::Iso::topoetcone40, "0.024*x+2900"));
+      ATH_MSG_WARNING("Obsolete photon WP " << phWPname<< ". Check Twiki " << m_TwikiLoc);
     }else if(phWPname == "Cone40"){
-      wp->addCut(new IsolationConditionFormula("Cone40_calo", xAOD::Iso::topoetcone40, "0.028*x+3400"));
-      wp->addCut(new IsolationConditionFormula("Cone40_track", xAOD::Iso::ptcone40, "0.12*x"));
+      wp->addCut(new IsolationConditionFormula("Cone40_calo",  xAOD::Iso::topoetcone40, "0.028*x+3400"));
+      wp->addCut(new IsolationConditionFormula("Cone40_track", xAOD::Iso::ptcone40,     "0.12*x"));
+      ATH_MSG_WARNING("Obsolete photon WP " << phWPname<< ". Check Twiki " << m_TwikiLoc);
     }else if(phWPname == "Cone20"){
-      wp->addCut(new IsolationConditionFormula("Cone20_calo", xAOD::Iso::topoetcone20, "0.015*x+1500"));
-      wp->addCut(new IsolationConditionFormula("Cone20_track", xAOD::Iso::ptcone20, "0.04*x"));
+      wp->addCut(new IsolationConditionFormula("Cone20_calo",  xAOD::Iso::topoetcone20, "0.015*x+1500"));
+      wp->addCut(new IsolationConditionFormula("Cone20_track", xAOD::Iso::ptcone20,     "0.04*x"));
+      ATH_MSG_WARNING("Obsolete photon WP " << phWPname<< ". Check Twiki " << m_TwikiLoc);
+      // The new ones, 08/10/2015
+    }else if(phWPname == "FixedCutTightCaloOnly"){
+      wp->addCut(new IsolationConditionFormula("PhFixedCut_calo40",  xAOD::Iso::topoetcone40, "0.022*x+2450"));
+    }else if(phWPname == "FixedCutTight"){
+      wp->addCut(new IsolationConditionFormula("PhFixedCut_calo40",  xAOD::Iso::topoetcone40, "0.022*x+2450"));
+      wp->addCut(new IsolationConditionFormula("PhFixedCut_track20", xAOD::Iso::ptcone20,     "0.05*x"));
+    }else if(phWPname == "FixedCutLoose"){
+      wp->addCut(new IsolationConditionFormula("PhFixedCut_calo20",  xAOD::Iso::topoetcone20, "0.065*x"));
+      wp->addCut(new IsolationConditionFormula("PhFixedCut_track20", xAOD::Iso::ptcone20,     "0.05*x"));
     }else{
-      ATH_MSG_ERROR("Unknown photon isolaiton WP: " << phWPname);
+      ATH_MSG_ERROR("Unknown photon isolation WP: " << phWPname);
       delete wp;
       return StatusCode::FAILURE;
     }
@@ -167,37 +213,42 @@ namespace CP
   StatusCode IsolationSelectionTool::addElectronWP(std::string elWPname)
   {
     auto wp = new IsolationWP(elWPname);
-//     if(elWPname == "VeryLooseTrackOnly"){
+
+    // For flat efficiency in (pT,eta)
     if(elWPname == "LooseTrackOnly"){
-      addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20, "99");
-//     }else if(elWPname == "VeryLoose"){
+      addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20,  "99");
     }else if(elWPname == "Loose"){
-      addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20, "99");
+      addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20,  "99");
       addCutToWP(wp, m_elWPKey, xAOD::Iso::topoetcone20, "99");
-//     }else if(elWPname == "Loose"){
     }else if(elWPname == "Tight"){
-      addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20, "99");
+      addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20,  "99");
       addCutToWP(wp, m_elWPKey, xAOD::Iso::topoetcone20, "96");
-//     }else if(elWPname == "Tight"){
-//       addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20, "94");
-//       addCutToWP(wp, m_elWPKey, xAOD::Iso::topoetcone20, "89");
+    // For gradient efficiency in pT
     }else if(elWPname == "Gradient"){
-      addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20, "0.1143*x+92.14");
+      addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20,  "0.1143*x+92.14");
       addCutToWP(wp, m_elWPKey, xAOD::Iso::topoetcone20, "0.1143*x+92.14");
     }else if(elWPname == "GradientLoose"){
-      addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20, "0.057*x+95.57");
+      addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20,  "0.057*x+95.57");
       addCutToWP(wp, m_elWPKey, xAOD::Iso::topoetcone20, "0.057*x+95.57");
     }else if(elWPname == "GradientT1"){
-      addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20, "0.1713*x+88.71");
+      addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20,  "0.1713*x+88.71");
       addCutToWP(wp, m_elWPKey, xAOD::Iso::topoetcone20, "0.1713*x+88.71");
+      ATH_MSG_WARNING("Obsolete electron WP " << elWPname << ". Check Twiki " << m_TwikiLoc);
     }else if(elWPname == "GradientT2"){
-      addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20, "0.2283*x+85.28");
+      addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20,  "0.2283*x+85.28");
       addCutToWP(wp, m_elWPKey, xAOD::Iso::topoetcone20, "0.2283*x+85.28");
-    }else if(elWPname == "EL0p06"){
-      wp->addCut(new IsolationConditionFormula("ptvarcone20R0p06", xAOD::Iso::ptvarcone20, "0.06*x"));
-      wp->addCut(new IsolationConditionFormula("topoetcone20R0p06", xAOD::Iso::topoetcone20, "0.06*x"));
+      ATH_MSG_WARNING("Obsolete electron WP " << elWPname << ". Check Twiki " << m_TwikiLoc);
+    // Using fixed cuts 
+    }else if(elWPname == "FixedCutTight"){
+      wp->addCut(new IsolationConditionFormula("ptvarcone20R0p06",    xAOD::Iso::ptvarcone20,  "0.06*x"));
+      wp->addCut(new IsolationConditionFormula("topoetcone20R0p06",   xAOD::Iso::topoetcone20, "0.06*x"));
+    }else if(elWPname == "FixedCutTightTrackOnly"){
+      wp->addCut(new IsolationConditionFormula("ptvarcone20R0p06",    xAOD::Iso::ptvarcone20,  "0.06*x"));
+    }else if(elWPname == "FixedCutLoose"){
+      wp->addCut(new IsolationConditionFormula("FixedCutLoose_track", xAOD::Iso::ptvarcone20,  "0.15*x"));
+      wp->addCut(new IsolationConditionFormula("FixedCutLoose_calo",  xAOD::Iso::topoetcone20, "0.20*x"));
     }else{
-      ATH_MSG_ERROR("Unknown electron isolaiton WP: " << elWPname);
+      ATH_MSG_ERROR("Unknown electron isolation WP: " << elWPname);
       delete wp;
       return StatusCode::FAILURE;
     }
@@ -315,7 +366,7 @@ namespace CP
   const Root::TAccept& IsolationSelectionTool::accept(const strObj& x) const
   {
     m_objAccept.clear();
-    for(auto i : m_objWPs){ 
+    for(auto i : m_objWPs){
       if(i->accept(x)){
         m_objAccept.setCutResult(i->name(), true);
       }

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IIsolationSelectionTool.h 672685 2015-06-05 11:01:39Z dzhang $
+// $Id: IIsolationSelectionTool.h 697402 2015-09-29 14:32:10Z dzhang $
 // #ifndef ISOLATIONSELECTION_IISOLATIONSELECTIONTOOL_H
 // #define ISOLATIONSELECTION_IISOLATIONSELECTIONTOOL_H
 #ifndef ELECTRONISOLATIONSELECTION_IISOLATIONSELECTIONTOOL_H
@@ -28,12 +28,13 @@
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 672685 $
-  /// $Date: 2015-06-05 13:01:39 +0200 (Fri, 05 Jun 2015) $
+  /// $Revision: 697402 $
+  /// $Date: 2015-09-29 16:32:10 +0200 (Tue, 29 Sep 2015) $
   ///
   /// @brief Select isolated Photons, Electrons and Muons
   ///  
-  
+struct strObj;
+
 namespace CP
 {
   class IIsolationSelectionTool :  virtual public asg::IAsgTool {
@@ -46,10 +47,14 @@ namespace CP
       virtual const Root::TAccept& accept( const xAOD::Photon& x   ) const = 0;
       virtual const Root::TAccept& accept( const xAOD::Electron& x ) const = 0;
       virtual const Root::TAccept& accept( const xAOD::Muon& x     ) const = 0;
+      virtual const Root::TAccept& accept( const strObj& x         ) const = 0;
+      virtual const Root::TAccept& accept(const xAOD::IParticle& x ) const = 0;
+      virtual StatusCode setIParticleCutsFrom(xAOD::Type::ObjectType ObjType) = 0;
       
       virtual const Root::TAccept& getPhotonTAccept()   const = 0;
       virtual const Root::TAccept& getElectronTAccept() const = 0;
       virtual const Root::TAccept& getMuonTAccept()     const = 0;       
+      virtual const Root::TAccept& getObjTAccept()      const = 0;
       
   };
 } // end namespace
