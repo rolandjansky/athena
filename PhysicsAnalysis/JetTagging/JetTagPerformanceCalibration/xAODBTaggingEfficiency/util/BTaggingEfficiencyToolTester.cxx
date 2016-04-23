@@ -16,7 +16,7 @@ int main() {
 
   BTaggingEfficiencyTool * tool = new BTaggingEfficiencyTool("BTagTest");
   // tagger name as specified in the CDI file
-  StatusCode code = tool->setProperty("TaggerName",          "MV2c10");
+  StatusCode code = tool->setProperty("TaggerName",          "MV2c20");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool TaggerName property" << std::endl;
   // operating point as specified in the CDI file
   code = tool->setProperty("OperatingPoint",      "FixedCutBEff_77");
@@ -25,7 +25,7 @@ int main() {
   code = tool->setProperty("JetAuthor",           "AntiKt4EMTopoJets");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool JetAuthor property" << std::endl;
   // name of the CDI file
-  code = tool->setProperty("ScaleFactorFileName", "13TeV/2016-20_7-13TeV-MC15-CDI-May31_v1.root");
+  code = tool->setProperty("ScaleFactorFileName", "13TeV/2016-Winter-13TeV-MC15-CDI-March10_v1.root");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool ScaleFactorFileName property" << std::endl;
   // calibration specification (there should always be a "default" available so this doesn't need to be set
   // tool->setProperty("ScaleFactorBCalibration", "ttbar_PDF_7b_SF");

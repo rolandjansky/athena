@@ -52,7 +52,6 @@ class BTaggingSelectionTool: public asg::AsgTool,
 
   /// Get the decision using thet jet's pt and mv2c20 weight values
   virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* mv2c20 weight */ ) const;
-  virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* mv2c00 weight */, double /* mv2c100 weight */ ) const;
 
   /// Decide in which quantile of the MV2c20 weight distribution the jet belongs (continuous tagging)
   /// The return value represents the bin index of the quantile distribution
@@ -60,7 +59,7 @@ class BTaggingSelectionTool: public asg::AsgTool,
   virtual int getQuantile( const xAOD::Jet& ) const;
   virtual int getQuantile( double /* jet pt */, double /* jet eta */, double /* mv2c20 weight */  ) const;
 
-  virtual double getCutValue() const; // Only for 1D flat cut
+  virtual double getCutValue() const;
 
 private:
   /// Helper function that decides whether a jet belongs to the correct jet selection for b-tagging

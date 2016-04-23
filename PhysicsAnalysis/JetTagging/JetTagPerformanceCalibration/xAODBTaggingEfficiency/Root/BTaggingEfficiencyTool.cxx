@@ -153,7 +153,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
   ATH_MSG_INFO( " Hello BTaggingEfficiencyTool user... initializing");
   ATH_MSG_INFO( " TaggerName = " << m_taggerName);
   ATH_MSG_INFO( " OP = " << m_OP);
-  if (m_OP == "Continuous") {
+  if (m_OP == "continuous") {
     // continuous tagging is special in two respects:
     // 1  the tag weight needs to be retrieved
     // 2  the generator dependent scale factor rescaling is done differently, and therefore
@@ -302,14 +302,11 @@ StatusCode BTaggingEfficiencyTool::initialize() {
       // First, handle any named variations
       std::vector<std::string> systematics = m_CDI->listScaleFactorUncertainties(idRef,true);
       // "Cosmetic" fix: the outside world wants to see "FT_EFF_" prefixes but internally these don't always exist.
-      // We cannot fix this generically but we can at least do so for the "extrapolation" uncertainty.
-      // Also replace any spaces with underscores (this is to make ROOT browsing happy)
+      // We cannot fix this generically but we can at least do so for the "extrapolation" uncertainty
       for (unsigned int i = 0, n = systematics.size(); i < n; ++i) {
 	if (systematics[i] == "extrapolation") {
 	  systematics[i] = "FT_EFF_extrapolation";
 	  break;
-	} else {
-	  std::replace_if(systematics[i].begin(), systematics[i].end(), [] (char c) { return c == ' '; }, '_');
 	}
       }
       if (!addSystematics(systematics, flavourID, SFNamed)) {
@@ -329,7 +326,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
 	// And from this list extract only this particular uncertainty (if it exists)
 	const std::string s_tau_extrap = "extrapolation from charm";
 	if (std::find(all_systematics.begin(), all_systematics.end(), s_tau_extrap) != all_systematics.end()) {
-	  std::string entry = "FT_EFF_extrapolation_from_charm";
+	  std::string entry = "FT_EFF_" + s_tau_extrap;
 	  std::vector<std::string> extrapSyst; extrapSyst.push_back(entry);
 	  if (! addSystematics(extrapSyst, flavourID, TauExtrapolation)) {
 	    ATH_MSG_ERROR("SFEigen model: error adding charm->tau systematics for flavour " << getLabel(flavourID) << ", invalid initialization");
@@ -381,7 +378,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
 	// And from this list extract only this particular uncertainty (if it exists)
 	const std::string s_tau_extrap = "extrapolation from charm";
 	if (std::find(all_systematics.begin(), all_systematics.end(), s_tau_extrap) != all_systematics.end()) {
-	  std::vector<std::string> extrapSyst; extrapSyst.push_back("FT_EFF_extrapolation_from_charm");
+	  std::vector<std::string> extrapSyst; extrapSyst.push_back("FT_EFF_" + s_tau_extrap);
 	  if (! addSystematics(extrapSyst, flavourID, TauExtrapolation)) {
 	    ATH_MSG_ERROR("Envelope model: error adding charm->tau systematics for flavour " << getLabel(flavourID) << ", invalid initialization");
 	    return StatusCode::FAILURE;

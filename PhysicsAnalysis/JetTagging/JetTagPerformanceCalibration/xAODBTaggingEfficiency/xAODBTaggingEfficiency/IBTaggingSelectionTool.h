@@ -29,7 +29,6 @@ class IBTaggingSelectionTool : virtual public asg::IAsgTool {
     virtual const Root::TAccept& accept( const xAOD::Jet& j ) const = 0;
     /// Get the decision using thet jet's pt and mv2c20 weight values
     virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* mv2c20 weight */ ) const = 0;
-    virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* mv2c20 weight */, double /* mv2c20 weight */ ) const = 0;
     /// Decide in which quantile of the MV2c20 weight distribution the jet belongs
     /// The return value represents the bin index of the quantile distribution
     virtual int getQuantile( const xAOD::IParticle* ) const = 0;
