@@ -7,6 +7,11 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigInterfaces/FexAlgo.h"
+#include "JetEDM/LabelIndex.h"
+#include "JetEDM/PseudoJetVector.h"
+
+using jet::LabelIndex;
+using jet::PseudoJetVector;
 
 class IEventShapeTool;
 class ITriggerPseudoJetGetter;
@@ -31,7 +36,21 @@ private:
      The algorithm loads the psg, the iest processes them. */
   ToolHandle<ITriggerPseudoJetGetter>  m_pseudoJetGetter;
 
-  std::string m_eventShapeSGKey;  // allow fetching and monitoring.
+  // allow fetching and monitoring of the energy density calculated
+  // by the tool.
+  std::string m_eventShapeSGKey;
+
+  // allow different calo cluster sources
+  std::string m_caloClusterContainerSGKey;  
+
+// LC or EM - used to set the cluster lacal calibration
+  std::string m_clusterCalib;
+
   float m_energyDensity;  // allow monitoring.
+
+  HLT::ErrorCode getPseudoJets(const xAOD::CaloClusterContainer*,
+                               LabelIndex*,
+                               PseudoJetVector&);
+
 }; 
 #endif
