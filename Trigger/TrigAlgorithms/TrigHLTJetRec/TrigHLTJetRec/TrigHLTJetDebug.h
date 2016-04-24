@@ -20,11 +20,11 @@ public:
 
 
 private:
-  std::string m_chainName;
-  std::string m_eventShapeSGKey;
+  std::string m_chainName{""};
+  std::string m_eventShapeSGKey{""};
 
   /** @brief Pointer to StoreGateSvc service.*/
-  StoreGateSvc* m_storeGate;
+  StoreGateSvc* m_storeGate{nullptr};
 
 }; 
 
