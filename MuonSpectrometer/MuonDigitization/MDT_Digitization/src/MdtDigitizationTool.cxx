@@ -322,45 +322,43 @@ StatusCode MdtDigitizationTool::prepareEvent(unsigned int nInputEvents) {
   return StatusCode::SUCCESS;
 }
 
+StatusCode MdtDigitizationTool::processBunchXing(int bunchXing,
+                                                 SubEventIterator bSubEvents,
+                                                 SubEventIterator eSubEvents)
+{
+  ATH_MSG_DEBUG( "MdtDigitizationTool::processBunchXing() " << bunchXing);
+  SubEventIterator iEvt = bSubEvents;
+  for (; iEvt!=eSubEvents; ++iEvt)
+    {
+        StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
+        PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
+        ATH_MSG_VERBOSE( "SubEvt StoreGate " << seStore.name() << " :"
+                         << " bunch crossing : " << bunchXing
+                         << " time offset : " << iEvt->time()
+                         << " event number : " << iEvt->ptr()->eventNumber()
+                         << " run number : " << iEvt->ptr()->runNumber());
+        const MDTSimHitCollection* seHitColl(nullptr);
+        if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess())
+          {
+            ATH_MSG_ERROR ( "SubEvent MDTSimHitCollection not found in StoreGate " << seStore.name() );
+            return StatusCode::FAILURE;
+          }
+        ATH_MSG_VERBOSE ( "MDTSimHitCollection found with " << seHitColl->size() << " hits" );
+        //Copy hit Collection
+        MDTSimHitCollection* MDTHitColl = new MDTSimHitCollection("MDT_Hits");
+        MDTSimHitCollection::const_iterator i = seHitColl->begin();
+        MDTSimHitCollection::const_iterator e = seHitColl->end();
 
-StatusCode MdtDigitizationTool::processBunchXing(int bunchXing, PileUpEventInfo::SubEvent::const_iterator bSubEvents, PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
+        // Read hits from this collection
+        for (; i!=e; ++i)
+          {
+            MDTHitColl->Emplace(*i);
+          }
+        m_thpcMDT->insert(thisEventIndex, MDTHitColl);
+        //store these for deletion at the end of mergeEvent
+        m_MDTHitCollList.push_back(MDTHitColl);
+    }
 
-  ATH_MSG_DEBUG ( "MdtDigitizationTool::in processBunchXing()" );
-
-  PileUpEventInfo::SubEvent::const_iterator iEvt = bSubEvents;
-  //loop on event and sub-events for the current bunch Xing
-  for (; iEvt!=eSubEvents; ++iEvt) {
-    StoreGateSvc& seStore = *iEvt->pSubEvtSG;
-    PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
-    const EventInfo* pEI = 0;
-    if (seStore.retrieve(pEI).isSuccess()) {
-      ATH_MSG_VERBOSE( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
-		       << " bunch crossing : " << bunchXing
-		       << " time offset : " << iEvt->time()
-		       << " event number : " << pEI->event_ID()->event_number()
-		       << " run number : " << pEI->event_ID()->run_number() );
-    }
-    
-    const MDTSimHitCollection* seHitColl = 0;
-    if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess()) {
-      ATH_MSG_ERROR ( "SubEvent MDTSimHitCollection not found in StoreGate " << seStore.name() );
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_VERBOSE ( "MDTSimHitCollection found with " << seHitColl->size() << " hits" );
-    //Copy hit Collection
-    MDTSimHitCollection* MDTHitColl = new MDTSimHitCollection("MDT_Hits");
-    MDTSimHitCollection::const_iterator i = seHitColl->begin();
-    MDTSimHitCollection::const_iterator e = seHitColl->end();
-    
-    // Read hits from this collection
-    for (; i!=e; ++i){
-      MDTHitColl->Emplace(*i);
-    }
-    m_thpcMDT->insert(thisEventIndex, MDTHitColl);
-    //store these for deletion at the end of mergeEvent
-    m_MDTHitCollList.push_back(MDTHitColl);
-  }
-  
   return StatusCode::SUCCESS;
 }
 
@@ -751,7 +749,7 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit){
       // two chambers in ATLAS are installed with Twin Tubes; in detector coordinates BOL4A13 & BOL4C13; only INNER multilayer(=1) is with twin tubes
       bool BOL4X13 = false;
       // find these two chambers in identifier scheme coordinates as in MdtIdHelper
-      if(stationName == "BOL" && fabs(stationEta) == 4 && stationPhi == 7 && multilayer == 1){
+      if(stationName == "BOL" && std::abs(stationEta) == 4 && stationPhi == 7 && multilayer == 1){ 
 	BOL4X13 = true;
       }
     
@@ -1039,6 +1037,7 @@ bool MdtDigitizationTool::createDigits(){
       const Amg::Vector3D& tempLocPos = (*(it->simhit))->localPosition();
       Amg::Vector3D p = geo->localToGlobalCoords(tempLocPos,idDigit);
       tempSDO.setPosition(p); 
+      tempSDO.setTime( hit.globalTime() );
       m_sdoContainer->insert ( std::make_pair ( idDigit, tempSDO ) );
 	
     } else {

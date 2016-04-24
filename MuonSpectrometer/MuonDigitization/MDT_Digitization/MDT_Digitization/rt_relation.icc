@@ -67,9 +67,6 @@ inline double Rt_relation::r(const double & t, const int & option) const {
 		return r_drift[0];
 	}
 
-	if (out_of_range == 1) {
-		return r_drift[nb_pairs-1];
-	}
 
 	for (int k=1; k<nb_pairs; k++) {
 		if (t>=t_drift[k-1] && t<t_drift[k]) {
@@ -78,6 +75,12 @@ inline double Rt_relation::r(const double & t, const int & option) const {
 					(t_drift[k]-t_drift[k-1]));
 		}
 	}
+	
+	// Remove last if statement so always have a return, if get here out_of_range = 1
+	//if (out_of_range == 1) {
+	return r_drift[nb_pairs-1];
+	//}
+
 
 }
 
@@ -172,9 +175,6 @@ inline double Rt_relation::error(const double & t, const int & option) const {
 		return r_err[0];
 	}
 
-	if (out_of_range == 1) {
-		return r_err[nb_pairs-1];
-	}
 
 	for (int k=1; k<nb_pairs; k++) {
 		if (t>=t_drift[k-1] && t<t_drift[k]) {
@@ -183,6 +183,13 @@ inline double Rt_relation::error(const double & t, const int & option) const {
 			return err;
 		}
 	}
+
+	// rmoving last if statement. If reach here must be out of range so just return (avoids having no return) 
+	//if (out_of_range == 1) {
+	return r_err[nb_pairs-1];
+	//}
+
+
 }
 
 
@@ -214,11 +221,6 @@ inline double Rt_relation::t_error(const double & t,const int & option) const {
 						(r_drift[1]-r_drift[0]));
 	}
 
-	if (out_of_range == 1) {
-		return r_err[nb_pairs-1]*
-			fabs((t_drift[nb_pairs-1]-t_drift[nb_pairs-2])/
-				(r_drift[nb_pairs-2]-r_drift[nb_pairs-1]));
-	}
 
 	for (int k=1; k<nb_pairs; k++) {
 		if (t>=t_drift[k-1] && t<t_drift[k]) {
@@ -229,6 +231,15 @@ inline double Rt_relation::t_error(const double & t,const int & option) const {
 			return scal*err;
 		}
 	}
+
+	// remove this conditional here so always have a return statment. If reach here it is out of range 
+	//if (out_of_range == 1) {
+	return r_err[nb_pairs-1]*
+		fabs((t_drift[nb_pairs-1]-t_drift[nb_pairs-2])/
+		     (r_drift[nb_pairs-2]-r_drift[nb_pairs-1]));
+	//}
+
+
 }
 
 inline double Rt_relation::t_error_garfield(const double & r,
