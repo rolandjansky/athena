@@ -272,7 +272,8 @@ StatusCode BCM_RodDecoder::fillCollection(const ROBFragment *robFrag, BCM_RDO_Co
 ////////////////////////
 unsigned int BCM_RodDecoder::getChannelID(int ROD_source_ID, unsigned int dataword_position) {
   switch(ROD_source_ID) {
-  case 0x0081000A:
+    // Run-1 Fragment 
+  case 0x0081000A:  
     switch(dataword_position) {
     case 0:
       return 0;   
@@ -293,7 +294,52 @@ unsigned int BCM_RodDecoder::getChannelID(int ROD_source_ID, unsigned int datawo
     default:
       return 0xffffffff;
     }
-  case 0x0081000C:
+    // Run-2 Fragment
+  case 0x0081004A:  
+    switch(dataword_position) {
+    case 0:
+      return 0;   
+    case 1:
+      return 9;
+    case 2:
+      return 2;
+    case 3:
+      return 11;
+    case 4:
+      return 4;   
+    case 5:
+      return 13;
+    case 6:
+      return 6;
+    case 7:
+      return 15;
+    default:
+      return 0xffffffff;
+    }
+    // Run-1 Fragment
+    case 0x0081000C:
+    switch(dataword_position) {
+    case 0:
+      return 8;   
+    case 1:
+      return 1;
+    case 2:
+      return 10;
+    case 3:
+      return 3;
+    case 4:
+      return 12;   
+    case 5:
+      return 5;
+    case 6:
+      return 14;
+    case 7:
+      return 7;
+    default:
+      return 0xffffffff;
+    }
+    // Run-2 fragment
+  case 0x0081004C:
     switch(dataword_position) {
     case 0:
       return 8;   
