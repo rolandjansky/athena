@@ -24,6 +24,8 @@
 //#include "GaudiKernel/IToolSvc.h"
 
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "PileUpTools/IPileUpTool.h" // for SubEventIterator
+#include "xAODEventInfo/EventInfo.h"
 
 //run number from geometry DB
 #include "GeoModelInterfaces/IGeoModelSvc.h"
@@ -161,35 +163,43 @@ StatusCode TgcDigitizationTool::prepareEvent(unsigned int)
 }
 
 //--------------------------------------------
-StatusCode TgcDigitizationTool::processBunchXing(int /*bunchXing*/,
-						 PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-						 PileUpEventInfo::SubEvent::const_iterator eSubEvents) 
-{
-  PileUpEventInfo::SubEvent::const_iterator iEvt = bSubEvents;
-  while(iEvt != eSubEvents) {
-    StoreGateSvc& seStore(*iEvt->pSubEvtSG);
+StatusCode TgcDigitizationTool::processBunchXing(int bunchXing,
+                                                 SubEventIterator bSubEvents,
+                                                 SubEventIterator eSubEvents) {
+  ATH_MSG_DEBUG ("TgcDigitizationTool::processBunchXing() " << bunchXing);
+  
+  SubEventIterator iEvt = bSubEvents;
+  while(iEvt!=eSubEvents)
+    {
+      StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
+      PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
+      ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"
+                      << " bunch crossing : " << bunchXing
+                      << " time offset : " << iEvt->time()
+                      << " event number : " << iEvt->ptr()->eventNumber()
+                      << " run number : " << iEvt->ptr()->runNumber());
 
-    PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()), iEvt->index());
-    const TGCSimHitCollection* seHitColl = 0;
-    if(!seStore.retrieve(seHitColl, m_inputHitCollectionName).isSuccess()) {
-      ATH_MSG_FATAL("SubEvent TGCSimHitCollection not found in StoreGate " << seStore.name());
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_VERBOSE("TGCSimHitCollection found with " << seHitColl->size() << " hits");
-    //Copy Hit Collection
-    TGCSimHitCollection* TGCHitColl = new TGCSimHitCollection("TGC_Hits");
-    TGCSimHitCollection::const_iterator i = seHitColl->begin();
-    TGCSimHitCollection::const_iterator e = seHitColl->end();
-    // Read hits from this collection
-    for(; i!=e; ++i) {
-      TGCHitColl->Emplace(*i);
-    }
-    m_thpcTGC->insert(thisEventIndex, TGCHitColl);
-    //store these for deletion at the end of mergeEvent
-    m_TGCHitCollList.push_back(TGCHitColl);
+      const TGCSimHitCollection* seHitColl(nullptr);
+      if(!seStore.retrieve(seHitColl, m_inputHitCollectionName).isSuccess()) {
+        ATH_MSG_FATAL("SubEvent TGCSimHitCollection not found in StoreGate " << seStore.name());
+        return StatusCode::FAILURE;
+      }
+      ATH_MSG_VERBOSE("TGCSimHitCollection found with " << seHitColl->size() << " hits");
+      //Copy Hit Collection
+      TGCSimHitCollection* TGCHitColl = new TGCSimHitCollection("TGC_Hits");
+      TGCSimHitCollection::const_iterator i = seHitColl->begin();
+      TGCSimHitCollection::const_iterator e = seHitColl->end();
+      // Read hits from this collection
+      for(; i!=e; ++i)
+        {
+          TGCHitColl->Emplace(*i);
+        }
+      m_thpcTGC->insert(thisEventIndex, TGCHitColl);
+      //store these for deletion at the end of mergeEvent
+      m_TGCHitCollList.push_back(TGCHitColl);
 
-    ++iEvt;
-  }
+      ++iEvt;
+    }
   
   return StatusCode::SUCCESS;
 }
@@ -456,6 +466,7 @@ StatusCode TgcDigitizationTool::digitizeCore() {
 	  deposits.push_back(deposit);
           MuonSimData simData(deposits,0);
           simData.setPosition(gpos);
+          simData.setTime(hit.globalTime());
 	  m_sdoContainer->insert(std::make_pair(newDigiId, simData));
 	}
 	

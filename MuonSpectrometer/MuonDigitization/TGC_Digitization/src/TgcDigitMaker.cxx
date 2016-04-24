@@ -59,7 +59,7 @@ TgcDigitMaker::~TgcDigitMaker()
 //------------------------------------------------------
 // Initialize
 //------------------------------------------------------
-StatusCode TgcDigitMaker::initialize(CLHEP::HepRandomEngine *m_rndmEngine)
+StatusCode TgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine)
 {
   // Initialize TgcIdHelper
   if(!m_hitIdHelper) {
@@ -72,7 +72,7 @@ StatusCode TgcDigitMaker::initialize(CLHEP::HepRandomEngine *m_rndmEngine)
   readFileOfTimeJitter();
 
   // getting our random numbers stream
-  m_engine = m_rndmEngine;
+  m_engine = rndmEngine;
 
   // Read share/TGC_Digitization_energyThreshold.dat file and store values in m_energyThreshold. 
   readFileOfEnergyThreshold();
@@ -192,7 +192,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
     int iWireGroup[2];
     float posInWireGroup[2] = {0., 0.};
     for(int iPosition=0; iPosition<2; iPosition++) {
-      int nWireOffset = (fabs(stationEta) == 5 || stationName.substr(0,2) == "T4") ? 1 : 0;
+      int nWireOffset = (std::abs(stationEta) == 5 || stationName.substr(0,2) == "T4") ? 1 : 0;
       // for chambers in which only the first wire  is not connected                                 : 1
       // for chambers in which the first and last wires are not connected OR all wires are connected : 0
 
@@ -833,7 +833,7 @@ void TgcDigitMaker::readFileOfDeadChamber() {
   std::string comment;
   while(ifs.good()) {
     ifs >> iStationName >> stationEta >> stationPhi >> gasGap;
-    bool valid = getline(ifs, comment); 
+    bool valid = getline(ifs, comment).good(); 
     if(!valid) break; 
 
     if(msgLevel(MSG::DEBUG)) { 
