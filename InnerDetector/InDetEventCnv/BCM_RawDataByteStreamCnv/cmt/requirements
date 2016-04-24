@@ -15,6 +15,9 @@ use AthenaKernel         AthenaKernel-*                 Control
 private
 use StoreGate            StoreGate-*                    Control
 
+# Declare the tdaq-common components that are required (only relevent for cmake - invisible to CMT)
+apply_pattern cmake_add_command command="find_package(tdaq-common COMPONENTS eformat_write DataWriter)"
+
 public
 # create the regular dual_use_lib for the Container converters + helper
 #   classes 

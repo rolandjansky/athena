@@ -76,12 +76,40 @@ StatusCode BCM_RawDataProvider::execute() {
   }
 
   // ask ROBDataProviderSvc for the vector of ROBFragment for all BCM ROBIDs
+  // std::vector<const ROBFragment*> listOfRobf_all;
   std::vector<const ROBFragment*> listOfRobf;
+  
+  // std::vector<unsigned int> ROBIDs_all;
   std::vector<unsigned int> ROBIDs;
+  // changed 0x0081000A -> 0x0081004A and 0x0081000C -> 0x0081004C
+  /*
+  // Run-1 IDs
+  ROBIDs_all.push_back(0x0081000A);
+  ROBIDs_all.push_back(0x0081000C);
+  
+  //Run-2 IDs
+  ROBIDs_all.push_back(0x0081004A);
+  ROBIDs_all.push_back(0x0081004C);
+  */
+  //Run-1 ID
   ROBIDs.push_back(0x0081000A);
   ROBIDs.push_back(0x0081000C);
+  //Run-2 IDs
+  ROBIDs.push_back(0x0081004A);
+  ROBIDs.push_back(0x0081004C);
+  
+  //m_robDataProvider->getROBData(ROBIDs_all, listOfRobf_all);
+  
   m_robDataProvider->getROBData(ROBIDs, listOfRobf);
-
+  
+  // For Run-1 if 4 fragment present select only the PRO BCM 
+  /*
+  if(  listOfRobf_all.size() == 4 ) {
+    ROBIDs.push_back(0x0081000A);
+    ROBIDs.push_back(0x0081000C);
+  }
+  */
+  
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of ROB fragments is " << listOfRobf.size() << endreq;
 
   // ask BCM_RawDataProviderTool to decode it and to fill the container

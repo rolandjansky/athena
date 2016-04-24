@@ -123,39 +123,40 @@ const InterfaceID& BCM_RawContByteStreamTool::interfaceID() {
 // getSourceID - convert channelID into ROD source ID
 ////////////////////////
 unsigned int BCM_RawContByteStreamTool::getSourceID(int ChannelID) {
+  // CHANGED TO NEW SOURCE ID 0x0081000A -> 0x0081004A and 0x0081000C ->  0x0081004C 
   switch(ChannelID) {
   case 0:
-    return 0x0081000A;
+    return 0x0081004A;
   case 1:
-    return 0x0081000C;
+    return 0x0081004C;
   case 2:
-    return 0x0081000A;
+    return 0x0081004A;
   case 3:
-    return 0x0081000C;
+    return 0x0081004C;
   case 4:
-    return 0x0081000A;
+    return 0x0081004A;
   case 5:
-    return 0x0081000C;
+    return 0x0081004C;
   case 6:
-    return 0x0081000A;
+    return 0x0081004A;
   case 7:
-    return 0x0081000C;
+    return 0x0081004C;
   case 8:
-    return 0x0081000C;
+    return 0x0081004C;
   case 9:
-    return 0x0081000A;
+    return 0x0081004A;
   case 10:
-    return 0x0081000C;
+    return 0x0081004C;
   case 11:
-    return 0x0081000A;
+    return 0x0081004A;
   case 12:
-    return 0x0081000C;
+    return 0x0081004C;
   case 13:
-    return 0x0081000A;
+    return 0x0081004A;
   case 14:
-    return 0x0081000C;
+    return 0x0081004C;
   case 15:
-    return 0x0081000A;
+    return 0x0081004A;
   default:
     return 0xffffffff;
   }
