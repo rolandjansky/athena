@@ -11,8 +11,8 @@
 
 namespace MuonSimDataDict
 {
-    std::pair< HepMcParticleLink ,MuonMCData>  m_pair1;
-    std::pair< HepMcParticleLink,CscMcData>    m_pair2;
+    std::pair< HepMcParticleLink ,MuonMCData>  pair1;
+    std::pair< HepMcParticleLink,CscMcData>    pair2;
     // Amg::Vector3D                              dummy(1.,2.,3.);
 }
 
