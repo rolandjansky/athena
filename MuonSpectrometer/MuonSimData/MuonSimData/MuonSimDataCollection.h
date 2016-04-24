@@ -13,18 +13,10 @@
 #ifndef MUONSIMDATA_MUONSIMDATACOLLECTION_H
 # define MUONSIMDATA_MUONSIMDATACOLLECTION_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
 #include "CLIDSvc/CLASS_DEF.h"
 #include "MuonSimData/MuonSimData.h"
 #include "Identifier/Identifier.h"
 #include <map>
-
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 class MuonSimDataCollection : public std::map<Identifier,MuonSimData> {
  public:
@@ -37,9 +29,6 @@ class MuonSimDataCollection : public std::map<Identifier,MuonSimData> {
 };
 CLASS_DEF(MuonSimDataCollection, 41658935, 1)
 
-
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 #endif // MUONSIMDATA_MUONSIMDATACLASS_DEF_H
 

@@ -22,4 +22,4 @@ library MuonSimData *.cxx
 # selection.xml.
 
 apply_pattern lcgdict dict=MuonSimData selectionfile=selection.xml headerfiles="../MuonSimData/MuonSimDataDict.h"
-macro_append reflex_dict_options_cppflags " -DEIGEN_DONT_VECTORIZE "
+#macro_append reflex_dict_options_cppflags " -DEIGEN_DONT_VECTORIZE "
