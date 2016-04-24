@@ -92,6 +92,11 @@ def _getJetBuildTool(merge_param,
 
     assert merge_param > 0.
 
+    # PS, SSchramm - hack until 2016 lcw constants are available.
+    # until then change jet calib from subjesIS to subjes
+    if jet_calib == 'subjesIS' and cluster_calib == 'LC':
+        jet_calib = 'subjes'
+
     _is_calibration_supported(int_merge_param, jet_calib, cluster_calib)
 
     mygetters = [_getTriggerPseudoJetGetter(cluster_calib)]
@@ -101,16 +106,22 @@ def _getJetBuildTool(merge_param,
     # tell the offline code which calibration is requested
     calib_str = {'jes': 'calib:j:triggerNoPileup:HLTKt4',
                  'subjes': 'calib:aj:trigger:HLTKt4',
-                 'sub': 'calib:a:trigger:HLTKt4'}.get(jet_calib, '')
+                 'sub': 'calib:a:trigger:HLTKt4',
+                 'subjesIS': 'calib:ajgi:trigger2016:HLTKt4'}.get(jet_calib, '')
     
-    mymods = [calib_str] if calib_str else []
+    # mymods = [calib_str] if calib_str else []
     
-    mymods.extend([
-            jtm.jetens,
-            jtm.caloqual_cluster,
-            jtm.clsmoms,
-            ])
+    # mymods.extend([
+    #         jtm.jetens,
+    #         jtm.caloqual_cluster,
+    #        jtm.clsmoms,
+    #        ])
 
+    # with S Schramm very early 18/4/2016
+    mymods = [jtm.jetens]
+    if calib_str: mymods.append(calib_str)
+    mymods.extend([jtm.caloqual_cluster, jtm.clsmoms])
+    
     if not do_minimalist_setup:
         # add in extra modofiers. This allows monitoring the ability
         # to run with the extra modifiers, which may be required in the
@@ -193,6 +204,7 @@ def _is_calibration_supported(int_merge_param, jet_calib, cluster_calib):
     """Check if the calibration is supported by the offline code"""
 
     do_jes = 'jes' in jet_calib
+    do_insitu = 'IS' in jet_calib
 
     bad_combinations = [
         {'merge_param': 10, 'do_jes': True, 'cluster_calib': 'EM'}]
@@ -206,6 +218,14 @@ def _is_calibration_supported(int_merge_param, jet_calib, cluster_calib):
                 str(int_merge_param), str(cluster_calib), str(do_jes))
         raise RuntimeError(m)
 
+    if do_insitu and not (do_jes and
+                          int_merge_param == 4 and
+                          cluster_calib == 'EM'):
+        m = 'TrigHLTJetRecConfig._getJetBuildTool: no insitu calibration support'\
+            ' for merge_param %s, cluster calib %s, jes calibration: %s' % (
+                str(int_merge_param), str(cluster_calib), str(do_jes))
+        raise RuntimeError(m)
+
 
 def _getTriggerPseudoJetGetter(cluster_calib):
     # Build a new list of jet inputs. original: mygetters = [jtm.lcget]
@@ -214,6 +234,8 @@ def _getTriggerPseudoJetGetter(cluster_calib):
     # with the += operator
     global jtm
 
+    # The 'Label' must be one of the values found in JetContainerInfo.h
+    # LC or EM
     label = cluster_calib + 'Topo'
     pjg_name = 'triggerPseudoJetGetter_%s' % label
 
@@ -224,8 +246,7 @@ def _getTriggerPseudoJetGetter(cluster_calib):
         # which pushes it to the ToolSvc in __iadd__
         # This is done in the same as PseudoJetGetter is added in
         # JetRecStandardTools.py.
-        # The 'Label' must be one of the values found in JetContainerInfo.h
-        pjg = TriggerPseudoJetGetter(pjg_name, label=label)
+        pjg = TrigHLTJetRecConf.TriggerPseudoJetGetter(pjg_name, Label=label)
 
         # adds arg to Tool Service and returns arg
         jtm.add(pjg)
@@ -258,7 +279,7 @@ def _getEnergyDensityTool(toolname, **options):
     return energyDensityTool
 
     
-def _getIParticleSelectorAll(toolname, **options):
+def _getPseudoJetSelectorAll(toolname, **options):
 
     # set up a tool to select all pseudo jets
     # declare jtm as global as this function body may modify it
@@ -269,21 +290,21 @@ def _getIParticleSelectorAll(toolname, **options):
     try:
         selector = getattr(jtm, toolname)
     except AttributeError:
-        # Add the IParticleSelectorAll to the JetTool Manager,
+        # Add the PseudoJetSelectorAll to the JetTool Manager,
         # which pushes it to the ToolSvc in __iadd__
         # This is done in the same as PseudoJetGetter is added in
         # JetRecStandardTools.py.
         # The 'Label' must be one of the values found in JetContainerInfo.h
-        selector = TrigHLTJetRecConf.IParticleSelectorAll(name=toolname)
+        selector = TrigHLTJetRecConf.PseudoJetSelectorAll(name=toolname)
         jtm += selector
         selector = getattr(jtm, toolname)
-        print 'TrigHLTJetRecConfig._getIParticleSelectorAll '\
+        print 'TrigHLTJetRecConfig._getPseudoJetSelectorAll '\
             'Added selector "%s" to jtm' % toolname
 
     return selector
 
 
-def _getIParticleSelectorEtaPt(toolname, **kwds):
+def _getPseudoJetSelectorEtaPt(toolname, **kwds):
 
     # set up a tool to select all pseudo jets
     # declare jtm as global as this function body may modify it
@@ -294,16 +315,16 @@ def _getIParticleSelectorEtaPt(toolname, **kwds):
     try:
         selector = getattr(jtm, toolname)
     except AttributeError:
-        # Add the IParticleSelectorEtaPt to the JetTool Manager,
+        # Add the PseudoJetSelectorEtaPt to the JetTool Manager,
         # which pushes it to the ToolSvc in __iadd__
         # This is done in the same as PseudoJetGetter is added in
         # JetRecStandardTools.py.
         # The 'Label' must be one of the values found in JetContainerInfo.h
-        selector = IParticleSelectorEtaPt(toolname, **kwds)
+        selector = PseudoJetSelectorEtaPt(toolname, **kwds)
 
         jtm += selector
         selector = getattr(jtm, toolname)
-        print 'TrigHLTJetRecConfig._getIParticleSelectorEtaPt '\
+        print 'TrigHLTJetRecConfig._getPseudoJetSelectorEtaPt '\
             'Added selector "%s" to jtm' % toolname
 
     return selector
@@ -371,8 +392,8 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
 
         
-        self.iParticleSelector = _getIParticleSelectorAll(
-            'iParticleSelectorAll')
+        self.iPseudoJetSelector = _getPseudoJetSelectorAll(
+            'iPseudoJetSelectorAll')
 
         self.jetBuildTool = _getJetBuildTool(
             float(int(merge_param))/10.,
@@ -401,15 +422,15 @@ class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
                  output_collection_label='reclusteredJets',  # do not use this
                  pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromJet',
                  ptMinCut=15000.,
-                 etaMaxCut=3.2,
+                 etaMaxCut=10.0, # no effect, to be removed
                  ):
         TrigHLTJetRecConf.TrigHLTJetRecFromJet.__init__(self, name=name)
 
         self.cluster_calib = cluster_calib
         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
 
-        self.iParticleSelector = _getIParticleSelectorEtaPt(
-            'iParticleSelectorEtaPt_%d_%d' % (int(10 * etaMaxCut),
+        self.iPseudoJetSelector = _getPseudoJetSelectorEtaPt(
+            'iPseudoJetSelectorEtaPt_%d_%d' % (int(10 * etaMaxCut),
                                               int(ptMinCut)),
             **{'etaMax': etaMaxCut, 'ptMin': ptMinCut})
 
@@ -450,9 +471,9 @@ class TrigHLTJetRecFromTriggerTower(
         self.cluster_calib = cluster_calib
         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
 
-        self.iParticleSelector = _getIParticleSelectorEtaPt(
-            'iParticleSelectorEtaPt_%d_%d' % (int(10 * etaMaxCut),
-                                              int(ptMinCut)),
+        self.iPseudoJetSelector = _getPseudoJetSelectorEtaPt(
+            'iPseudoJetSelectorEtaPt_%d_%d' % (int(10 * etaMaxCut),
+                                               int(ptMinCut)),
             **{'etaMax': etaMaxCut, 'ptMin': ptMinCut})
 
 
@@ -520,7 +541,7 @@ class TrigHLTJetDebug(TrigHLTJetRecConf.TrigHLTJetDebug):
         # by a direct StoreGate retireve. TtigHLTEnergyDensity writes
         # this object directly to SG without passing via navigation.
         self.eventshape_key = _getEventShapeSGKey(ed_merge_param,
-                                                  pseudoJetGetter.Label) 
+                                                  cluster_calib + 'Topo') 
 
 
 class TrigHLTEnergyDensity(TrigHLTJetRecConf.TrigHLTEnergyDensity):
@@ -558,8 +579,12 @@ class TrigHLTEnergyDensity(TrigHLTJetRecConf.TrigHLTEnergyDensity):
         self.AthenaMonTools = [ validation, online, cosmic ]
         # share the pseudojet getter betwen the algorithm an the tool.
         # the alg passes pseudojets to the pseudojetgetter. The
-        # energy density tool obtains the oseudojets from the pseudojet getter.
+        # energy density tool obtains the pseudojets from the pseudojet getter.
         pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
+
+        # store cluster_calib is used by TrigEnergyDensity (C++)
+        # to set the CaloCluster local calibration: EM, LC
+        self.cluster_calib = cluster_calib
 
         # attribute operator causes type conversion.
         # e.g. instance conversion from <TriggerPseudoJetGetter/
@@ -585,8 +610,9 @@ class TrigHLTEnergyDensity(TrigHLTJetRecConf.TrigHLTEnergyDensity):
         OutputContainer = None
         if eventShapeSGKey is None:
             # jets: eventShapeSGKey is calculated here
-            self.eventShapeSGKey = _getEventShapeSGKey(ed_merge_param,
-                                                       pseudoJetGetter.Label)
+            self.eventShapeSGKey = _getEventShapeSGKey(
+                ed_merge_param,
+                cluster_calib + 'Topo')
         else:
             # other: eventShapeSGKey is passed in
             self.eventShapeSGKey = eventShapeSGKey
@@ -609,12 +635,6 @@ class TrigHLTJetDSSelector(TrigHLTJetRecConf.TrigHLTJetDSSelector):
         self.maxNJets = maxNJets
 
 
-class TriggerPseudoJetGetter(TrigHLTJetRecConf.TriggerPseudoJetGetter):
-    def __init__(self, name, label):
-        TrigHLTJetRecConf.TriggerPseudoJetGetter.__init__(self, name)        
-        self.Label = label
-
-
 class PseudoJetSelectorEtaPt(TrigHLTJetRecConf.PseudoJetSelectorEtaPt):
     def __init__(self, name, etaMax, ptMin):
         TrigHLTJetRecConf.PseudoJetSelectorEtaPt.__init__(self, name)        
@@ -622,7 +642,7 @@ class PseudoJetSelectorEtaPt(TrigHLTJetRecConf.PseudoJetSelectorEtaPt):
         self.ptMin = ptMin
 
 
-class IParticleSelectorEtaPt(TrigHLTJetRecConf.IParticleSelectorEtaPt):
+class PseudoJetSelectorEtaPt(TrigHLTJetRecConf.PseudoJetSelectorEtaPt):
     def __init__(self, name, **kwds):
-        TrigHLTJetRecConf.IParticleSelectorEtaPt.__init__(self, name, **kwds)
+        TrigHLTJetRecConf.PseudoJetSelectorEtaPt.__init__(self, name, **kwds)
 

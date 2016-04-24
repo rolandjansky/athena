@@ -11,11 +11,10 @@
 #include "EventShapeTools/EventDensityTool.h"
 #include "TrigHLTJetRec/ITriggerPseudoJetGetter.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "JetEDM/LabelIndex.h"
 #include "TrigHLTJetRec/AnyToPseudoJet.h"
+#include "TrigHLTJetRec/ClusterToPseudoJetConverter.h"
 #include "xAODEventShape/EventShape.h"
 
-using jet::LabelIndex;
 
 TrigHLTEnergyDensity::TrigHLTEnergyDensity(const std::string& name, 
                                            ISvcLocator* pSvcLocator):
@@ -24,6 +23,8 @@ TrigHLTEnergyDensity::TrigHLTEnergyDensity(const std::string& name,
   declareProperty("pseudoJetGetter", m_pseudoJetGetter);
   declareProperty("eventShapeSGKey", m_eventShapeSGKey);
   declareProperty("caloClusterContainerSGKey", m_caloClusterContainerSGKey="");
+  declareProperty( "cluster_calib", m_clusterCalib);
+
 
   declareMonitoredVariable("energyDensity", m_energyDensity);
 
@@ -40,6 +41,7 @@ HLT::ErrorCode TrigHLTEnergyDensity::hltInitialize() {
 
 StatusCode sc;
  ATH_MSG_INFO("Initializing " << name() << "...");
+
  ATH_MSG_INFO("Retrieving tools...");
  sc = m_energyDensityTool.retrieve();
 
@@ -64,9 +66,10 @@ StatusCode sc;
   ATH_MSG_INFO("    " << m_energyDensityTool->name());
   m_energyDensityTool->print();
   
-  ATH_MSG_INFO("  Shared PseudojetGetter:");
+  ATH_MSG_INFO("  Shared PseudoJetGetter:");
   ATH_MSG_INFO("    " << m_pseudoJetGetter->name());
   
+  ATH_MSG_INFO("  EventShape storegate key: " << m_eventShapeSGKey);
   return HLT::OK;
 }
 
@@ -107,23 +110,19 @@ TrigHLTEnergyDensity::hltExecute(const HLT::TriggerElement* inputTE,
   
   ATH_MSG_DEBUG("Number of incoming clusters: " << clusterContainer->size());
   
-  PseudoJetVector pjv;
-
-  // setup LabelIndex: m_clusterCalib = "LC" or"EM"
-  
   LabelIndex* indexMap = new LabelIndex("PseudoJetLabelMapTrigger");
   indexMap->addLabel("Topo");
-  
   // setup CaloCluster to PseudoJet convertor
   AnyToPseudoJet<const xAOD::CaloCluster*> ctpj(indexMap);
+  PseudoJetVector pjv;
 
-  // convert incoming calo clusters to the pseudo jets needed by jetrec
-  pjv.resize(clusterContainer -> size());
-  std::transform(clusterContainer -> begin(),
-                 clusterContainer -> end(),
-                 pjv.begin(),
-                 // std::back_inserter(pjv),
-                 ctpj);
+  auto status = this -> getPseudoJets(clusterContainer, indexMap, pjv);
+  if (status == HLT::OK) {
+    ATH_MSG_DEBUG("Obtained pseudojets");
+  } else {
+    ATH_MSG_ERROR("Failed to get pseudojets ");
+    return status;
+  }
 
   ATH_MSG_DEBUG("No of pseudojets: " << pjv.size());
   // Load the pseudo jets into the TriggerSPseudoJetGetter tool
@@ -162,6 +161,39 @@ TrigHLTEnergyDensity::hltExecute(const HLT::TriggerElement* inputTE,
  
   delete indexMap;
   
+  return HLT::OK;
+}
+
+
+HLT::ErrorCode 
+TrigHLTEnergyDensity::getPseudoJets(const xAOD::CaloClusterContainer* ic,
+                                    LabelIndex* indexMap,
+                                    PseudoJetVector& pjv){
+
+  // convert elements of DataVector<CaloCluster> to pseudojets
+  // after switching the state of the CaloCluster objects to
+  // the calibration determined by clusterCalib, which is
+  // set when the Algorithm is configured.
+
+  auto uncalibrated = m_clusterCalib == "EM" ? true : false;
+
+  indexMap->addLabel(m_clusterCalib + "Topo");
+  AnyToPseudoJet<xAOD::CaloClusterContainer::const_value_type> apj(indexMap);
+  
+  ClusterToPseudoJetConverter converter(apj, uncalibrated);
+
+  // create the pseudojets
+  std::transform(ic->cbegin(),
+                 ic->cend(),
+                 std::back_inserter(pjv),
+                 converter);
+
+  ATH_MSG_DEBUG("No of pseudojets: " << pjv.size());
+  for(auto ps : pjv) {ATH_MSG_VERBOSE("PseudoJetDump " << ps.Et() << " "
+                                      << std::boolalpha
+                                      << uncalibrated << " "
+                                      << m_clusterCalib);}
+
   return HLT::OK;
 }
 
