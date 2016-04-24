@@ -31,7 +31,7 @@ class TriggerPseudoJetGetter: public PseudoJetGetter,
                          const std::string&,
                          const IInterface*); 
 
-  virtual ~TriggerPseudoJetGetter(){}
+  virtual ~TriggerPseudoJetGetter();
 
   StatusCode initialize();
 
@@ -49,9 +49,6 @@ class TriggerPseudoJetGetter: public PseudoJetGetter,
 
   bool m_primed;  // Indicates if prime has been called before get()
 
-  // conform to the offline jets. This attribute is used by other offline tools
-  std::string m_label;
-                
   const PseudoJetVector*  m_pseudoJetVector;
 
 };

@@ -16,7 +16,7 @@
 #include "xAODJet/JetTrigAuxContainer.h"
 #include "JetEDM/LabelIndex.h"
 #include "TrigHLTJetRec/AnyToPseudoJet.h"
-#include "TrigHLTJetRec/IIParticleSelector.h"
+#include "TrigHLTJetRec/IPseudoJetSelector.h"
 #include "TrigHLTJetRec/ITriggerPseudoJetGetter.h"
 
 using jet::LabelIndex;
@@ -31,7 +31,7 @@ HLT::FexAlgo( name, pSvcLocator ) {
   declareProperty( "cluster_calib", m_clusterCalib);
   declareProperty( "output_collection_label", m_outputCollectionLabel);
   declareProperty( "pseudojet_labelindex_arg", m_pseudoJetLabelIndexArg);
-  declareProperty( "iParticleSelector", m_IParticleSelector);
+  declareProperty( "iPseudoJetSelector", m_IPseudoJetSelector);
 }
 
 
@@ -57,11 +57,11 @@ HLT::ErrorCode TrigHLTJetRecBase<InputContainer>::hltInitialize() {
     return HLT::ERROR;
   }
 
-  if  (m_IParticleSelector.retrieve().isSuccess()){
-    ATH_MSG_INFO("Retrieved IParticleSelector "
-                 <<  m_IParticleSelector->name());
+  if  (m_IPseudoJetSelector.retrieve().isSuccess()){
+    ATH_MSG_INFO("Retrieved IPseudoJetSelector "
+                 <<  m_IPseudoJetSelector->name());
   } else {
-    ATH_MSG_ERROR("Unable to retrieve the IParticleSelector");
+    ATH_MSG_ERROR("Unable to retrieve the IPseudoJetSelector");
     return HLT::ERROR;
   }
 
@@ -122,32 +122,40 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
     return status;
   }
 
-  // copy inputs to a container 
-  IParticleVector ipContainer(inContainer->cbegin(), inContainer->cend());
-
-  // select inputs
-  auto sc = m_IParticleSelector->select(ipContainer);
-  if (sc == StatusCode::SUCCESS) {
-    ATH_MSG_DEBUG("Selected jet reconstruction inputs "
-                  << ipContainer.size());
-  } else {
-    ATH_MSG_ERROR("Failed to select jet reconstruction constituents");
-    return HLT::ERROR;
-  }
- 
 
   //convert selected inputs to pseudojets
   // LabelIndex* indexMap = new LabelIndex("PseudoJetLabelMapTrigger");
   LabelIndex* indexMap = new LabelIndex(m_pseudoJetLabelIndexArg);
-  PseudoJetVector pjv;
+  PseudoJetVector pjv_in;
   
-  status = this -> getPseudoJets(ipContainer, indexMap, pjv);
+  status = this -> getPseudoJets(inContainer, indexMap, pjv_in);
   if (status == HLT::OK) {
     ATH_MSG_DEBUG("Obtained pseudojets");
   } else {
     ATH_MSG_ERROR("Failed to get pseudojets ");
     return status;
   }
+
+  // select inputs
+  PseudoJetVector pjv;
+  auto sc = m_IPseudoJetSelector->select(pjv_in, pjv);
+
+  if (sc == StatusCode::SUCCESS) {
+    ATH_MSG_DEBUG("Selected jet reconstruction inputs "
+                  << pjv.size());
+  } else {
+    ATH_MSG_ERROR("Failed to select jet reconstruction constituents");
+    return HLT::ERROR;
+  }
+
+  for(auto p: pjv)
+    {
+      ATH_MSG_DEBUG("pseudojet "  
+                    << " E " 
+                    << p.e() << " " 
+                    <<p.eta() );
+    }
+  
 
   // Load the pseudo jets into the TriggerSPseudoJetGetter tool
   // Despite the name, we push the pseudojets into the tool. This is
@@ -164,6 +172,20 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
   }
 
   ATH_MSG_DEBUG(j_container->size() << " jets reconstructed");
+  unsigned int j_count{0};
+  for(auto j: *j_container)
+    {
+      ATH_MSG_DEBUG("jet "  
+                      << j_count 
+                      << " E " 
+                      << j->e() << " " 
+                      <<j->eta() );
+      ATH_MSG_VERBOSE("EMScale E " 
+                      << j->getAttribute<xAOD::JetFourMom_t>("JetEMScaleMomentum").E());
+      ATH_MSG_VERBOSE("Constit E " 
+                      << j->getAttribute<xAOD::JetFourMom_t>("JetConstitScaleMomentum").E());
+      ++j_count;
+    }
 
   delete indexMap;
 
@@ -239,20 +261,20 @@ TrigHLTJetRecBase<InputContainer>::getInputContainer(const HLT::TriggerElement*
 
 template<typename InputContainer>
 HLT::ErrorCode
-  TrigHLTJetRecBase<InputContainer>::getPseudoJets(const IParticleVector&
-                                                   ipContainer,
-                                                   LabelIndex* indexMap,
-                                                   PseudoJetVector& pjv){
+TrigHLTJetRecBase<InputContainer>::getPseudoJets(const InputContainer* ic,
+                                                 LabelIndex* indexMap,
+                                                 PseudoJetVector& pjv){
 
   indexMap->addLabel(m_clusterCalib + "Topo");
 
   // convert IParticle objects to the fastjet::Pseudojets.
   // setup input object to PseudoJet convertor
-  AnyToPseudoJet<const IParticle*> toPseudoJet(indexMap);
+  AnyToPseudoJet<typename InputContainer::const_value_type> 
+    toPseudoJet(indexMap);
 
   // create the pseudojets
-  std::transform(ipContainer.cbegin(),
-                 ipContainer.cend(),
+  std::transform(ic->cbegin(),
+                 ic->cend(),
                  std::back_inserter(pjv),
                  toPseudoJet);
 

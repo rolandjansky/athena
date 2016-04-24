@@ -23,7 +23,8 @@ public:
 
   ~PseudoJetSelectorAll(){};
   
-  StatusCode select(PseudoJetVector&) const override;
+  StatusCode select(const PseudoJetVector&,
+                    PseudoJetVector&) const override;
 };
 
 #endif
