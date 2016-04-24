@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/** @class MdtDigitizationTool
+/** @Class MdtDigitizationTool
 
     In the initialize() method, the PileUpMerge and StoreGate services are 
     initialized, and a pointer to an instance of the class MuonDetectorManager 
@@ -39,6 +39,11 @@
 #include "MuonSimEvent/MDTSimHit.h"
 #include "PileUpTools/PileUpToolBase.h"
 #include "Identifier/Identifier.h"
+
+#include "xAODEventInfo/EventInfo.h"             // NEW EDM
+#include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
+
+
 
 #include "MDT_Response/MDT_Response.h"
 #include "MDT_Digitization/MDT_SortedHitVector.h"
@@ -100,27 +105,30 @@ class MdtDigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
   ~MdtDigitizationTool();  
 
   /** Initialize */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override final;
 
   /** When being run from PileUpToolsAlgs, this method is called at the start of the subevts loop. Not able to access SubEvents */
-  StatusCode prepareEvent(const unsigned int /*nInputEvents*/);
+  StatusCode prepareEvent(const unsigned int /*nInputEvents*/) override final;
   
   /** When being run from PileUpToolsAlgs, this method is called for each active bunch-crossing to process current SubEvents bunchXing is in ns */
-  StatusCode  processBunchXing(int bunchXing, PileUpEventInfo::SubEvent::const_iterator bSubEvents, PileUpEventInfo::SubEvent::const_iterator eSubEvents); 
-
+   virtual StatusCode processBunchXing(
+                                int bunchXing,
+                                SubEventIterator bSubEvents,
+                                SubEventIterator eSubEvents
+                                ) override final;
   /** When being run from PileUpToolsAlgs, this method is called at the end of the subevts loop. Not (necessarily) able to access SubEvents */
-  StatusCode mergeEvent();
+  StatusCode mergeEvent() override final;
 
   /** alternative interface which uses the PileUpMergeSvc to obtain
   all the required SubEvents. */
-  virtual StatusCode processAllSubEvents();
+  virtual StatusCode processAllSubEvents() override final;
 
   /** Just calls processAllSubEvents - leaving for back-compatibility
       (IMuonDigitizationTool) */
-  StatusCode digitize();
+  StatusCode digitize() override final;
 
   /** Finalize */
-  StatusCode finalize();
+  StatusCode finalize() override final;
 
   /** accessors */
   ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service

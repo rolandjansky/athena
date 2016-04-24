@@ -6,3 +6,6 @@ addTool("MDT_Digitization.MdtDigitizationConfig.MdtDigitizationTool"     , "MdtD
 addTool("MDT_Digitization.MdtDigitizationConfig.RT_Relation_DB_DigiTool" , "RT_Relation_DB_DigiTool")
 addTool("MDT_Digitization.MdtDigitizationConfig.MDT_Response_DigiTool"   , "MDT_Response_DigiTool")
 addTool("MDT_Digitization.MdtDigitizationConfig.getMdtRange"             , "MdtRange")
+addTool("MDT_Digitization.MdtDigitizationConfig.Mdt_OverlayDigitizationTool", "Mdt_OverlayDigitizationTool")
+
+

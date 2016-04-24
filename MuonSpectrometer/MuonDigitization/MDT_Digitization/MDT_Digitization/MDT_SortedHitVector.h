@@ -42,7 +42,7 @@ class MDT_SortedHitVector : public HitVector {
 };
 inline
 void MDT_SortedHitVector::sort() {
-  std::sort(HitVector::begin(),HitVector::end());
+  std::stable_sort(HitVector::begin(),HitVector::end());
   m_isSorted = true;
 }
 inline
