@@ -4,7 +4,7 @@ from TrigValAlgs.TrigValAlgsConf import TrigCountDumper
 from TrigValAlgs.TrigValAlgsConf import TrigDecisionChecker
 from TrigValAlgs.TrigValAlgsConf import TrigEDMChecker
 from TrigValAlgs.TrigValAlgsConf import TrigSlimValAlg
-
+from TrigValAlgs.TrigValAlgsConf import TrigEDMAuxChecker
 # TrigCountDumper configurable
 # Run with TrigCountDumper configured from AOD header
 class TrigCountDumper ( TrigCountDumper ):
@@ -90,6 +90,7 @@ class TrigDecisionChecker ( TrigDecisionChecker ):
                          'mu14_tau25_medium1_tracktwo_xe50',
                          'mu14_iloose_tau25_medium1_tracktwo_xe50'
                          ]
+        self.MetItems = ['HLT_xe80']
 
 
 # Run with TrigDecisionTool configured from XML files
@@ -147,3 +148,24 @@ class TrigSlimValAlg ( TrigSlimValAlg ):
     self.SlimmingTool = "HLT::TrigNavigationSlimmingTool/TrigNavigationSlimmingTool"
 
 
+def getEDMAuxList():
+    from TrigEDMConfig.TriggerEDM import getTriggerObjList,TriggerHLTList
+    tlist=getTriggerObjList('AODFULL',[TriggerHLTList])
+    objlist=[]
+    for t,kset in tlist.iteritems():
+        for k in kset:
+             if 'Aux' in k: 
+                 s = k.split('-',1)[0]
+                 objlist += [s]
+    return objlist 
+# TrigEDMChecker configurable
+class TrigEDMAuxChecker ( TrigEDMAuxChecker ):
+    __slots__ = []
+    def __init__(self, name="TrigEDMAuxChecker"):
+        super( TrigEDMAuxChecker, self ).__init__( name )
+
+    def setDefaults(self, handle) :
+        #self.AuxContainerList=['HLT_xAOD__PhotonContainer_egamma_PhotonsAux.']
+        self.AuxContainerList=getEDMAuxList()
+    
+    
