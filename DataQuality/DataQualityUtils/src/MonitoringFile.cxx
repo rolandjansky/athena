@@ -3,7 +3,7 @@
 */
 
 // **********************************************************************
-// $Id: MonitoringFile.cxx 675315 2015-06-15 15:11:06Z ponyisi $
+// $Id: MonitoringFile.cxx 730604 2016-03-17 00:02:59Z ponyisi $
 // **********************************************************************
 
 #include "DataQualityUtils/MonitoringFile.h"
@@ -688,9 +688,10 @@ MonitoringFile::
 fillMetaDataMap( std::map<std::string,dqutils::MonitoringFile::MetaData>& mdMap, TDirectory* dir )
 {
   if (dir == 0) return;
-  TKey *mdKey = dynamic_cast<TKey*>(dir->GetListOfKeys()->FindObject("metadata"));
-  if (mdKey == 0) return;
-  TTree *md = dynamic_cast<TTree*>(mdKey->ReadObj());
+  //  TKey *mdKey = dynamic_cast<TKey*>(dir->GetListOfKeys()->FindObject("metadata"));
+  //if (mdKey == 0) return;
+  //TTree *md = dynamic_cast<TTree*>(mdKey->ReadObj());
+  TTree *md = dynamic_cast<TTree*>(dir->Get("metadata"));
   if (md == 0) return;
 
   char* i_name = new char[100];
@@ -1759,9 +1760,12 @@ int MonitoringFile::mergeObjs(TObject *objTarget, TObject *obj, std::string merg
        merge_RMSpercentDeviation( *h, *nextH );
      }else if( mergeType == "lowerLB" ) {
        merge_lowerLB( *h, *nextH );
-     }else {
-       //TList tl; tl.Add(nextH); h->Merge(&tl);
-       h->Add( nextH );
+     }else if( mergeType == "merge" ) {
+       TList tl; tl.Add(nextH); h->Merge(&tl);
+     } else {
+       if (!h->Add( nextH )) {
+	 std::cerr << "Histogram " << h->GetName() << " should NOT be using Add: needs to specify a merge method (e.g. merge) in its metadata";
+       }
      }
    }else if( (g = dynamic_cast<TGraph*>( objTarget )) ) {  // TGraphs
      if( mergeType != "<default>" ) {
@@ -1774,7 +1778,9 @@ int MonitoringFile::mergeObjs(TObject *objTarget, TObject *obj, std::string merg
      g->Merge( &listG );
      listG.Clear();
    }else if ((t = dynamic_cast<TTree*>( objTarget ))) { // TTrees
-     std::cout << "Merging Tree " << obj->GetName() << std::endl;
+     if ( debugLevel >= VERBOSE) {
+       std::cout << "Merging Tree " << obj->GetName() << std::endl;
+     }
      if( mergeType != "<default>" ) {
        std::cerr << name << ": TTree " << obj->GetName() << " request mergeType = " << mergeType
 		 << " but only default merging implemented for TTrees\n";            
@@ -2128,7 +2134,10 @@ int MonitoringFile::mergeLB_processLBinterval(std::vector<TDirectory*>& v_dirsSt
       // write metadata tree
       dir_out->cd();
       mdTree->SetDirectory(dir_out);
-      mdTree->Write(0, kOverwrite);
+      // When fix for https://sft.its.cern.ch/jira/browse/ROOT-8055 is available
+      // we can use kOverwrite again
+      // until then we will have multiple cycles
+      mdTree->Write();
       delete mdTree;
 
    } 

@@ -104,7 +104,7 @@ void TwoDto2D_Eff(TH2 * Numerator, TH2 * Denominator, TH2 * Efficiency, bool reb
   return;
 }
 
-void TwoDto1D_Mean(TH2 * m_parent, TH1 * m_child, int rebinning = 2){
+void TwoDto1D_Mean(TH2 * m_parent, TH1 * m_child, int rebinning = 1){
   //the input histograms must have the same dimension!
   if (m_parent == NULL || m_child == NULL ) {return;}
   if (m_parent->GetNbinsX() != m_child->GetNbinsX()){return;}
@@ -266,7 +266,7 @@ namespace dqutils {
       
       TString muonqualstr[4] = {"Tight", "Medium", "Loose", "Veryloose"};
       // Divide the efficiency histograms
-      TH2F* m_EffDenominator = (TH2F*)dir1->Get(Form("%sMuons_%s_eta_phi", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_EffDenominator = (TH2F*)dir1->Get(Form("%sMuons_%s_Origin_eta_phi", plotdirname.Data(), recalg_path.Data()));
       //m_EffDenominator->Rebin2D();//here change the default binnning of eta-phi! disabled once we are in 64 bins
       for (int i = 0; i < 4; i++){
         TH2F* m_EffNumerator = (TH2F*)dir1->Get(Form("%sMuons_%s_%s_eta_phi", plotdirname.Data(), recalg_path.Data(), muonqualstr[i].Data()));
@@ -312,26 +312,26 @@ namespace dqutils {
       for (int i = 0; i < 3; i++){
         TH2F* m_parent_lb = (TH2F*)dir1->Get(Form("%sOverview_%s_n%s_LB_2D", plotdirname.Data(), recalg_path.Data(), montype[i].Data()));
         TH1F* m_child_lb = (TH1F*)dir1->Get(Form("%sOverview_%s_n%s_LB", plotdirname.Data(), recalg_path.Data(), montype[i].Data()));
-        TH2F* m_parent_inst = (TH2F*)dir1->Get(Form("%sOverview_%s_n%s_Inst_2D", plotdirname.Data(), recalg_path.Data(), montype[i].Data()));
-        TH1F* m_child_inst = (TH1F*)dir1->Get(Form("%sOverview_%s_n%s_Inst", plotdirname.Data(), recalg_path.Data(), montype[i].Data()));
-        TH2F* m_parent_intlumi = (TH2F*)dir1->Get(Form("%sOverview_%s_n%s_IntLumi_2D", plotdirname.Data(), recalg_path.Data(), montype[i].Data()));
-        TH1F* m_child_intlumi = (TH1F*)dir1->Get(Form("%sOverview_%s_n%s_IntLumi", plotdirname.Data(), recalg_path.Data(), montype[i].Data()));
-        TwoDto1D_Mean(m_parent_lb, m_child_lb, 5);
-        TwoDto1D_Mean(m_parent_inst, m_child_inst);
-        TwoDto1D_Mean(m_parent_intlumi, m_child_intlumi);
+        //TH2F* m_parent_inst = (TH2F*)dir1->Get(Form("%sOverview_%s_n%s_Inst_2D", plotdirname.Data(), recalg_path.Data(), montype[i].Data()));
+        //TH1F* m_child_inst = (TH1F*)dir1->Get(Form("%sOverview_%s_n%s_Inst", plotdirname.Data(), recalg_path.Data(), montype[i].Data()));
+        //TH2F* m_parent_intlumi = (TH2F*)dir1->Get(Form("%sOverview_%s_n%s_IntLumi_2D", plotdirname.Data(), recalg_path.Data(), montype[i].Data()));
+        //TH1F* m_child_intlumi = (TH1F*)dir1->Get(Form("%sOverview_%s_n%s_IntLumi", plotdirname.Data(), recalg_path.Data(), montype[i].Data()));
+        TwoDto1D_Mean(m_parent_lb, m_child_lb);
+        //TwoDto1D_Mean(m_parent_inst, m_child_inst);
+        //TwoDto1D_Mean(m_parent_intlumi, m_child_intlumi);
       }
       TString resonance[2] = {"Z", "Jpsi"};
       // Divide the efficiency histograms
       for (int i = 0; i < 2; i++){
         TH2F* m_parent_lb = (TH2F*)dir1->Get(Form("%sOverview_%s_n%s_LB_2D", plotdirname.Data(), recalg_path.Data(), resonance[i].Data()));
         TH1F* m_child_lb = (TH1F*)dir1->Get(Form("%sOverview_%s_n%s_LB", plotdirname.Data(), recalg_path.Data(), resonance[i].Data()));
-        TH2F* m_parent_inst = (TH2F*)dir1->Get(Form("%sOverview_%s_n%s_Inst_2D", plotdirname.Data(), recalg_path.Data(), resonance[i].Data()));
-        TH1F* m_child_inst = (TH1F*)dir1->Get(Form("%sOverview_%s_n%s_Inst", plotdirname.Data(), recalg_path.Data(), resonance[i].Data()));
-        TH2F* m_parent_intlumi = (TH2F*)dir1->Get(Form("%sOverview_%s_n%s_IntLumi_2D", plotdirname.Data(), recalg_path.Data(), resonance[i].Data()));
-        TH1F* m_child_intlumi = (TH1F*)dir1->Get(Form("%sOverview_%s_n%s_IntLumi", plotdirname.Data(), recalg_path.Data(), resonance[i].Data()));
-        TwoDto1D_Sum(m_parent_lb, m_child_lb, 5);
-        TwoDto1D_Sum(m_parent_inst, m_child_inst);
-        TwoDto1D_Sum(m_parent_intlumi, m_child_intlumi);
+        //TH2F* m_parent_inst = (TH2F*)dir1->Get(Form("%sOverview_%s_n%s_Inst_2D", plotdirname.Data(), recalg_path.Data(), resonance[i].Data()));
+        //TH1F* m_child_inst = (TH1F*)dir1->Get(Form("%sOverview_%s_n%s_Inst", plotdirname.Data(), recalg_path.Data(), resonance[i].Data()));
+        //TH2F* m_parent_intlumi = (TH2F*)dir1->Get(Form("%sOverview_%s_n%s_IntLumi_2D", plotdirname.Data(), recalg_path.Data(), resonance[i].Data()));
+        //TH1F* m_child_intlumi = (TH1F*)dir1->Get(Form("%sOverview_%s_n%s_IntLumi", plotdirname.Data(), recalg_path.Data(), resonance[i].Data()));
+        TwoDto1D_Sum(m_parent_lb, m_child_lb);
+        //TwoDto1D_Sum(m_parent_inst, m_child_inst);
+        //TwoDto1D_Sum(m_parent_intlumi, m_child_intlumi);
       }
     }//ends different subfolder for luminosity
 
