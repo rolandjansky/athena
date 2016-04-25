@@ -34,8 +34,7 @@
 
 #include "TrigConfigSvc/DSConfigSvc.h"
 
-#include "TrigSteeringEvent/Lvl1Result.h"
-
+#include "TrigSteeringEvent/Lvl1Item.h"
 
 using namespace xercesc;
 using namespace trigcount;

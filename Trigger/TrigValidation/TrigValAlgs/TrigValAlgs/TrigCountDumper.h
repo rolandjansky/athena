@@ -162,8 +162,6 @@ namespace trigcount {
      */
     TriggerMenu(uint32_t smk=0);
     /// Copy constructor
-    TriggerMenu(const TriggerMenu &src);
-    TriggerMenu& operator=(const TriggerMenu&) & = default;
     /** Adds an event with the given number of interactions to those the menu has seen.
      This increments the number of events which have been triggered by this menu by
      one and increases the number of interactions by the number of interactions in
@@ -203,11 +201,6 @@ namespace trigcount {
   
   inline TriggerMenu::TriggerMenu(uint32_t smk) : 
     std::map<std::string,TriggerCount>(), m_smk(smk), m_count(0), m_ninteractions(0) {
-  }
-  
-  inline TriggerMenu::TriggerMenu(const TriggerMenu &src) : 
-    std::map<std::string,TriggerCount>(src), m_smk(src.m_smk), m_count(src.m_count),
-    m_ninteractions(0) {
   }
   
   inline void TriggerMenu::addEvent(uint32_t nint) {
