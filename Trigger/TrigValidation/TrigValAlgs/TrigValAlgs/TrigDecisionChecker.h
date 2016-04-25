@@ -76,6 +76,8 @@ class TrigDecisionChecker : public AthAlgorithm
 
   StatusCode checkJetEDM(std::string trigItem);
 
+  StatusCode checkMetEDM(std::string trigItem);
+
   uint32_t m_smk; ///< Super Master Key
   uint32_t m_l1psk; ///< LVL1 Prescale Key
   uint32_t m_hltpsk; ///< HLT Prescale Key
@@ -142,6 +144,9 @@ class TrigDecisionChecker : public AthAlgorithm
     
   // Jet triggers to test output for
   std::vector<std::string> m_jetItems;
+
+  // Met triggers to test output for
+  std::vector<std::string> m_metItems;
     
   // ...check prescale and passthrough factors 
   std::vector<float> m_chain_prescales;

@@ -2,7 +2,7 @@
 
 #include "GaudiKernel/LoadFactoryEntries.h"
 
-LOAD_FACTORY_ENTRIES(TrigP1Test)
+LOAD_FACTORY_ENTRIES(TrigValAlgs)
 
 
 
