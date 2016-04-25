@@ -1071,13 +1071,12 @@ StatusCode HLTMETMonTool::fillMETHist() {
   }
 
   //////////////////////////
-  // fill in HLT status and component histograms without trigger requirement
+  // fill in HLT component histograms without trigger requirement
+  // Available only for cell based MET
   const xAOD::TrigMissingET *missETEF = 0;
 
-  //if (m_hlt_cell_met_cont && m_hlt_cell_met_cont->size()) {
-  //missETEF = *(m_hlt_cell_met_cont->begin());
-  if (m_hlt_topocl_met_cont && m_hlt_topocl_met_cont->size()) {
-      missETEF = *(m_hlt_topocl_met_cont->begin());
+  if (m_hlt_cell_met_cont && m_hlt_cell_met_cont->size()) {
+    missETEF = *(m_hlt_cell_met_cont->begin()); // cell based
 
       //////////////////////////
       // status histogram
@@ -1206,7 +1205,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
       //m_hlt_met = m_hlt_cell_met_cont->at(0);
       //}
       if (m_hlt_topocl_met_cont && m_hlt_topocl_met_cont->size()) {
-	m_hlt_met = m_hlt_topocl_met_cont->at(0);
+	m_hlt_met = m_hlt_topocl_met_cont->at(0); // tclcw
       }
 
       if (m_hlt_met) {  
@@ -1261,7 +1260,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 	if ((h2 = hist2("HLT_MET_etaphi_etweight"))) h2->Fill(hlt_eta, hlt_phi, hlt_met);
 	if ((h = hist("HLT_XS"))) h->Fill(hlt_significance);
 
-	// status histogram
+	// status histogram; available only for cell MET
 	missETEF = *(m_hlt_cell_met_cont->begin());
 	//ATH_MSG_INFO("missETEF = " << missETEF);
 	//ATH_MSG_INFO("missETEF flag = " << missETEF->flag());
