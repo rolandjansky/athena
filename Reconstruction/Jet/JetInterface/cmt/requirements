@@ -9,6 +9,7 @@ use AsgTools            AsgTools-*              Control/AthToolSupport
 
 use xAODJet             xAODJet-*               Event/xAOD
 use xAODTracking        xAODTracking-*          Event/xAOD
+use xAODBase		xAODBase-* 		Event/xAOD
 use xAODEventInfo       xAODEventInfo-*         Event/xAOD
 
 library JetInterface ../Root/*.cxx
