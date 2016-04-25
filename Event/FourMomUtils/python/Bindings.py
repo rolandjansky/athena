@@ -13,6 +13,8 @@ def _installBindings():
     import cppyy
     cppyy.loadDictionary('libFourMomUtilsDict')
 
+    x = cppyy.gbl.xAOD.Helpers._importHelper()
+
     return
 
 # execute at module import

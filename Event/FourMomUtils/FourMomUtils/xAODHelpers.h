@@ -35,6 +35,8 @@ namespace xAOD
   namespace Helpers
   {
 
+    class _importHelper { /* dummy */  };
+    
 // Define a pre-processor macro for the implementations of all these methods
 #define GET_VAL( FUNCNAME, VALTYPE, PERSVALTYPE )                                      \
     inline bool FUNCNAME( const SG::AuxElement& auxEle, const std::string& varName ) { \
