@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxStoreWrapper.cxx 586335 2014-03-05 13:50:34Z krasznaa $
+// $Id: AuxStoreWrapper.cxx 695881 2015-09-21 08:47:05Z will $
 
 // Gaudi/Athena include(s):
 #include "SGTools/DataProxy.h"
@@ -10,8 +10,12 @@
 #include "AthenaKernel/errorcheck.h"
 
 // EDM include(s):
+#include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreHolder.h"
+#include "AthContainers/AuxTypeRegistry.h"
+#include "AthContainers/AuxVectorBase.h"
+#include "AthContainers/AuxElement.h"
 
 // xAOD include(s):
 #include "xAODCore/AuxContainerBase.h"
@@ -21,6 +25,7 @@
 #include "AuxStoreWrapper.h"
 
 namespace {
+
    /// Helper operator for printing the contents of vectors
    template< typename T >
    MsgStream& operator<< ( MsgStream& out,
@@ -36,16 +41,54 @@ namespace {
       out << "]";
       return out;
    }
+
+   /// Helper function for deep copying the payload of auxiliary stores
+   void copyAuxStore( const SG::IConstAuxStore& orig,
+                      SG::IAuxStore& copy ) {
+
+      // Access the auxiliary type registry:
+      SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+
+      // The auxiliary IDs that the original container has:
+      SG::auxid_set_t auxids = orig.getAuxIDs();
+
+      // Set the container to the right size:
+      const size_t size = orig.size();
+      copy.resize( size );
+ 
+      // Loop over all the variables of the original container:
+      for( SG::auxid_t auxid : auxids ) {
+
+         // Create the target variable:
+         void* dst = copy.getData( auxid, size, size );
+
+         // Access the source variable:
+         const void* src = orig.getData( auxid );
+         if( ! src ) {
+            continue;
+         }
+
+         // Copy over all elements:
+         for( std::size_t i = 0; i < size; ++i ) {
+            r.copy( auxid, dst, i, src, i );
+         }
+      }
+
+      return;
+   }
+
 } // private namespace
 
 namespace xAODMaker {
 
    AuxStoreWrapper::AuxStoreWrapper( const std::string& name,
                                      ISvcLocator* svcLoc )
-      : AthAlgorithm( name, svcLoc ) {
+      : AthAlgorithm( name, svcLoc ), m_cachesSet( false ),
+        m_clidSvc( "ClassIDSvc", name ) {
 
       declareProperty( "SGKeys", m_keys,
                        "StoreGate keys of the store objects to be wrapped" );
+      declareProperty( "ClassIDSvc", m_clidSvc, "Service providing CLID info" );
    }
 
    StatusCode AuxStoreWrapper::initialize() {
@@ -53,9 +96,17 @@ namespace xAODMaker {
       ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
       ATH_MSG_DEBUG( "  StoreGate keys: " << m_keys );
 
+      // Retrieve the needed component(s):
+      ATH_CHECK( m_clidSvc.retrieve() );
+
       // Pack the SG keys into a structure that's more efficient during
       // event processing:
       m_keysSet.insert( m_keys.begin(), m_keys.end() );
+
+      // Reset the caches:
+      m_cachesSet = false;
+      m_toConvert.clear();
+      m_clids.clear();
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -63,120 +114,273 @@ namespace xAODMaker {
 
    StatusCode AuxStoreWrapper::execute() {
 
-      // Ask StoreGate for all the objects that it's holding on to:
-      const std::vector< const SG::DataProxy* > proxies =
-         evtStore()->proxies();
+      // The StoreGate content before the object wrapping:
+      ATH_MSG_VERBOSE( "Event store before wrapping:\n" << evtStore()->dump() );
 
-      // List of objects already "converted":
-      std::set< std::string > converted;
+      // If we don't have a list of keys to be converted yet, get one now:
+      if( ! m_cachesSet ) {
 
-      // Loop over them:
-      std::vector< const SG::DataProxy* >::const_iterator itr = proxies.begin();
-      std::vector< const SG::DataProxy* >::const_iterator end = proxies.end();
-      for( ; itr != end; ++itr ) {
+         // Ask StoreGate for all the objects that it's holding on to:
+         const std::vector< const SG::DataProxy* > proxies =
+            evtStore()->proxies();
 
-         ATH_MSG_VERBOSE( "Evaluating object with name \"" << ( *itr )->name()
-                          << "\" and CLID " << ( *itr )->clID() );
+         // Loop over them:
+         for( const SG::DataProxy* proxy : proxies ) {
 
-         // Check if we need to worry about this object:
-         if( m_keysSet.size() ) {
-            if( m_keysSet.find( ( *itr )->name() ) == m_keysSet.end() ) {
-               // This SG key was not mentioned in the jobOptions...
-               ATH_MSG_VERBOSE( "Conversion for this key was not requested" );
+            ATH_MSG_VERBOSE( "Evaluating object with name \"" << proxy->name()
+                             << "\" and CLID " << proxy->clID() );
+
+            // Check if we need to worry about this object:
+            if( m_keysSet.size() ) {
+               if( m_keysSet.find( proxy->name() ) == m_keysSet.end() ) {
+                  // This SG key was not mentioned in the jobOptions...
+                  ATH_MSG_VERBOSE( "Conversion for this key was not "
+                                   "requested" );
+                  // But if this is a proxy for an interface container for which
+                  // we wrap the auxiliary container, then let's remember it.
+                  if( m_keysSet.find( proxy->name() + "Aux." ) !=
+                      m_keysSet.end() ) {
+                     std::string typeName;
+                     ATH_CHECK( m_clidSvc->getTypeNameOfID( proxy->clID(),
+                                                            typeName ) );
+                     if( typeName.substr( 0, 6 ) == "xAOD::" ) {
+                        m_clids[ proxy->name() ] = proxy->clID();
+                     }
+                  }
+                  continue;
+               }
+            }
+            ATH_MSG_VERBOSE( "The wrapping of this object was requested" );
+
+            // Remember the CLID of this type, if it's an xAOD type:
+            std::string typeName;
+            ATH_CHECK( m_clidSvc->getTypeNameOfID( proxy->clID(),
+                                                   typeName ) );
+            if( ( typeName.substr( 0, 6 ) == "xAOD::" ) &&
+                ( typeName != "xAOD::ByteStreamAuxContainer_v1" ) ) {
+               m_clids[ proxy->name() ] = proxy->clID();
+            }
+
+            // Check if the key of the object looks like it is an auxiliary
+            // store. (To try to avoid unnecessary warnings.)
+            if( proxy->name().find( "Aux." ) !=
+                ( proxy->name().size() - 4 ) ) {
+               ATH_MSG_VERBOSE( "Key doesn't look like that of an auxiliary "
+                                << "store" );
                continue;
             }
-         }
-         ATH_MSG_VERBOSE( "The wrapping of this object was requested" );
+            ATH_MSG_VERBOSE( "StoreGate key looks like that of an auxiliary "
+                             << "store..." );
 
-         // Check if the key of the object looks like it is an auxiliary store.
-         // (To try to avoid unnecessary warnings.)
-         if( ( *itr )->name().find( "Aux." ) !=
-             ( ( *itr )->name().size() - 4 ) ) {
-            ATH_MSG_VERBOSE( "Key doesn't look like that of an auxiliary "
-                             << "store" );
+            // This object/container will be converted:
+            m_toConvert.insert( proxy->name() );
+         }
+
+         // The caches are now set:
+         m_cachesSet = true;
+      }
+
+      // Now do the wrapping on the selected objects/containers:
+      for( const std::string& name : m_toConvert ) {
+
+         // Tell the user what's happening:
+         ATH_MSG_VERBOSE( "Now wrapping object: " << name );
+
+         // Access the object with an SG::IAuxStore pointer:
+         const SG::IAuxStore* original = 0;
+         if( ! evtStore()->retrieve( original, name ).isSuccess() ) {
+            ATH_MSG_WARNING( "Couldn't retrieve object \"" << name << "\" "
+                             << "with interface SG::IAuxStore" );
             continue;
          }
-         ATH_MSG_VERBOSE( "StoreGate key looks like that of an auxiliary "
-                          << "store..." );
-
-         // Check if we already tried to convert it. It should only be tried
-         // once...
-         if( ! converted.insert( ( *itr )->name() ).second ) {
-            ATH_MSG_VERBOSE( "\"" << ( *itr )->name() << "\" was already "
-                             "converted" );
-            continue;
-         }
-         ATH_MSG_VERBOSE( "Object was not yet processed" );
-
-         // Retrieve a private copy of the object:
-         std::auto_ptr< SG::IAuxStore >
-            ptr( evtStore()->readPrivateCopy< SG::IAuxStore >( ( *itr )->name() ) );
-         if( ! ptr.get() ) {
-            ATH_MSG_WARNING( "Private copy for object \""
-                             << ( *itr )->name()
-                             << "\" could not be retrieved!" );
-            ATH_MSG_WARNING( "Slimming for the object not possible!" );
-            continue;
-         }
-
-         // Take over the memory management from std::auto_ptr. It's the
-         // created AuxContainerBase and AuxInfoBase objects that take ownership
-         // of this object in the end.
-         SG::IAuxStore* store = ptr.release();
 
          // Check if the object implements the IAuxStoreHolder interface
          // as well.
          const SG::IAuxStoreHolder* holder =
-            dynamic_cast< const SG::IAuxStoreHolder* >( store );
+            dynamic_cast< const SG::IAuxStoreHolder* >( original );
          if( ! holder ) {
             // If not, let's just assume that it describes a container.
-            CHECK( changeContainer( store, *itr ) );
+            CHECK( changeContainer( original, name ) );
             continue;
          }
 
          // Decide how to replace it exactly:
          if( holder->getStoreType() == SG::IAuxStoreHolder::AST_ObjectStore ) {
-            CHECK( changeElement( store, *itr ) );
+            CHECK( changeElement( original, name ) );
          } else {
-            CHECK( changeContainer( store, *itr ) );
+            CHECK( changeContainer( original, name ) );
          }
       }
 
+      // The StoreGate content before the object wrapping:
+      ATH_MSG_VERBOSE( "Event store after wrapping:\n" << evtStore()->dump() );
+
       // Return gracefully:
       return StatusCode::SUCCESS;
    }
 
-   StatusCode AuxStoreWrapper::changeContainer( SG::IAuxStore* store,
-                                                const SG::DataProxy* proxy ) {
+   StatusCode AuxStoreWrapper::changeContainer( const SG::IAuxStore* store,
+                                                const std::string& name ) {
 
-      // Create the new object:
+      // Make StoreGate forget about this object:
+      auto aux_clid_itr = m_clids.find( name );
+      if( aux_clid_itr == m_clids.end() ) {
+         ATH_MSG_FATAL( "Didn't find a CLID for key: " << name );
+         ATH_MSG_FATAL( "This is an internal logic error" );
+         return StatusCode::FAILURE;
+      }
+      evtStore()->releaseObject( aux_clid_itr->second, name );
+      ATH_MSG_VERBOSE( "Released object with CLID " << aux_clid_itr->second
+                       << " and name \"" << name << "\"" );
+
+      // Get the pointer for the proxy of the auxiliary store:
+      SG::DataProxy* storeProxy =
+         evtStore()->proxy( ClassID_traits< SG::IAuxStore >::ID(), name );
+      if( ! storeProxy ) {
+         ATH_MSG_FATAL( "Couldn't get proxy for the "
+                        "SG::IAuxStore base class of: " << name );
+         return StatusCode::FAILURE;
+      }
+      // Now make StoreGate forget about this proxy completely:
+      CHECK( evtStore()->removeProxy( storeProxy, 0, true ) );
+
+      // Create the new object as a wrapper around the original:
       xAOD::AuxContainerBase* holder = new xAOD::AuxContainerBase();
-      holder->setStore( store );
+      holder->setStore( const_cast< SG::IAuxStore* >( store ) );
 
       // Record the new container with the same key:
-      CHECK( evtStore()->overwrite( holder, proxy->name(), false, false ) );
+      CHECK( evtStore()->overwrite( holder, name, false, true ) );
 
-      ATH_MSG_DEBUG( "Wrapped store object with key \""
-                     << proxy->name() << "\" into xAOD::AuxContainerBase "
+      ATH_MSG_DEBUG( "Overwrote store object with key \""
+                     << name << "\" with an xAOD::AuxContainerBase "
                      << "object" );
+
+      // The key of the interface container:
+      const std::string intName = name.substr( 0, name.size() - 4 );
+
+      // The CLID for the interface container:
+      CLID intId = 0;
+      auto clid_itr = m_clids.find( intName );
+      if( clid_itr == m_clids.end() ) {
+         ATH_MSG_WARNING( "Didn't cache a CLID for key: " << intName );
+         ATH_MSG_WARNING( "Interface container can't be updated, the job will "
+                          "likely crash" );
+         return StatusCode::SUCCESS;
+      }
+      intId = clid_itr->second;
+
+      // Try to access the proxy for the interface container:
+      SG::DataProxy* proxy = evtStore()->proxy( intId, intName );
+      if( ! proxy ) {
+         // If there is none, return at this point:
+         ATH_MSG_VERBOSE( "Interface container with key \"" << intName
+                          << "\" not available" );
+         return StatusCode::SUCCESS;
+      }
+
+      // Get the raw pointer to the object:
+      void* ptr = SG::DataProxy_cast( proxy, intId );
+      if( ! ptr ) {
+         REPORT_ERROR( StatusCode::FAILURE )
+            << "Couldn't retrieve raw pointer to interface container";
+         return StatusCode::FAILURE;
+      }
+
+      // Since all the "wrapped" objects should be xAOD objects, for which
+      // the interface containers all implement a straight inheritance tree
+      // back to SG::AuxVectorBase, the following ugly operation should be
+      // safe:
+      SG::AuxVectorBase* interface =
+         reinterpret_cast< SG::AuxVectorBase* >( ptr );
+
+      // And now connect the interface to the store depending on the const-ness
+      // of the interface:
+      if( proxy->isConst() ) {
+         interface->setConstStore( holder );
+      } else {
+         interface->setStore( holder );
+      }
+
+      ATH_MSG_DEBUG( "Interface container with key \"" << intName
+                     << "\" updated" );
 
       // Return gracefully:
       return StatusCode::SUCCESS;
    }
 
-   StatusCode AuxStoreWrapper::changeElement( SG::IAuxStore* store,
-                                              const SG::DataProxy* proxy ) {
+   StatusCode AuxStoreWrapper::changeElement( const SG::IAuxStore* store,
+                                              const std::string& name ) {
 
-      // Create the new object:
+      // Make StoreGate forget about this object:
+      auto aux_clid_itr = m_clids.find( name );
+      if( aux_clid_itr == m_clids.end() ) {
+         ATH_MSG_FATAL( "Didn't find a CLID for key: " << name );
+         ATH_MSG_FATAL( "This is an internal logic error" );
+         return StatusCode::FAILURE;
+      }
+      evtStore()->releaseObject( aux_clid_itr->second, name );
+      ATH_MSG_VERBOSE( "Released object with CLID " << aux_clid_itr->second
+                       << " and name \"" << name << "\"" );
+
+      // Create the new as a wrapper around the original:
       xAOD::AuxInfoBase* holder = new xAOD::AuxInfoBase();
-      holder->setStore( store );
+      holder->setStore( const_cast< SG::IAuxStore* >( store ) );
 
       // Record the new container with a different key:
-      CHECK( evtStore()->overwrite( holder, proxy->name(), false, false ) );
+      CHECK( evtStore()->overwrite( holder, name, false, true ) );
 
       ATH_MSG_DEBUG( "Wrapped store object with key \""
-                     << proxy->name() << "\" into xAOD::AuxInfoBase "
+                     << name << "\" into xAOD::AuxInfoBase "
                      << "object" );
+
+       // The key of the interface object:
+      const std::string intName = name.substr( 0, name.size() - 4 );
+
+      // The CLID for the interface object:
+      CLID intId = 0;
+      auto clid_itr = m_clids.find( intName );
+      if( clid_itr == m_clids.end() ) {
+         ATH_MSG_WARNING( "Didn't cache a CLID for key: " << intName );
+         ATH_MSG_WARNING( "Interface object can't be updated, the job will "
+                          "likely crash" );
+         return StatusCode::SUCCESS;
+      }
+      intId = clid_itr->second;
+
+      // Try to access the proxy for the interface object:
+      SG::DataProxy* proxy = evtStore()->proxy( intId, intName );
+      if( ! proxy ) {
+         // If there is none, return at this point:
+         ATH_MSG_VERBOSE( "Interface object with key \"" << intName
+                          << "\" not available" );
+         return StatusCode::SUCCESS;
+      }
+
+      // Get the raw pointer to the object:
+      void* ptr = SG::DataProxy_cast( proxy, intId );
+      if( ! ptr ) {
+         REPORT_ERROR( StatusCode::FAILURE )
+            << "Couldn't retrieve raw pointer to interface object";
+         return StatusCode::FAILURE;
+      }
+
+      // Since all the "wrapped" objects should be xAOD objects, for which
+      // the interface objects all implement a straight inheritance tree
+      // back to SG::AuxElement, the following ugly operation should be
+      // safe:
+      SG::AuxElement* interface =
+         reinterpret_cast< SG::AuxElement* >( ptr );
+
+      // And now connect the interface to the store depending on the const-ness
+      // of the interface:
+      if( proxy->isConst() ) {
+         interface->setConstStore( holder );
+      } else {
+         interface->setStore( holder );
+      }
+
+      ATH_MSG_DEBUG( "Interface object with key \"" << intName
+                     << "\" updated" );
 
       // Return gracefully:
       return StatusCode::SUCCESS;

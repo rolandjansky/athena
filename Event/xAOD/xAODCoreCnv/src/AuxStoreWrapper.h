@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxStoreWrapper.h 583869 2014-02-18 11:31:09Z krasznaa $
+// $Id: AuxStoreWrapper.h 665308 2015-05-06 14:41:26Z krasznaa $
 #ifndef XAODCORECNV_AUXSTOREWRAPPER_H
 #define XAODCORECNV_AUXSTOREWRAPPER_H
 
@@ -12,9 +12,15 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <map>
 
 // Gaudi/Athena include(s):
+#include "GaudiKernel/ClassID.h"
+#include "GaudiKernel/ServiceHandle.h"
+#define private public
 #include "AthenaBaseComps/AthAlgorithm.h"
+#undef private
+#include "AthenaKernel/IClassIDSvc.h"
 
 // Forward declaration(s):
 namespace SG {
@@ -33,8 +39,8 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 583869 $
-    * $Date: 2014-02-18 12:31:09 +0100 (Tue, 18 Feb 2014) $
+    * $Revision: 665308 $
+    * $Date: 2015-05-06 16:41:26 +0200 (Wed, 06 May 2015) $
     */
    class AuxStoreWrapper : public AthAlgorithm {
 
@@ -49,16 +55,26 @@ namespace xAODMaker {
 
    private:
       /// Create a new container store
-      StatusCode changeContainer( SG::IAuxStore* store,
-                                  const SG::DataProxy* proxy  );
+      StatusCode changeContainer( const SG::IAuxStore* store,
+                                  const std::string& name  );
       /// Create a new element store
-      StatusCode changeElement( SG::IAuxStore* store,
-                                const SG::DataProxy* proxy );
+      StatusCode changeElement( const SG::IAuxStore* store,
+                                const std::string& name );
 
       /// StoreGate keys of the store objects to be wrapped
       std::vector< std::string > m_keys;
       /// Keys of the objects to be wrapped, in a set container
       std::set< std::string > m_keysSet;
+
+      /// Flag specifying whether the internal caches were set already
+      bool m_cachesSet;
+      /// Keys of the auxiliary stores that need to be converted in the end
+      std::set< std::string > m_toConvert;
+      /// Keys and CLIDs of the interface containers touched
+      std::map< std::string, CLID > m_clids;
+
+      /// Handle to the Class ID service
+      ServiceHandle< ::IClassIDSvc > m_clidSvc;
 
    }; // class AuxStoreWrapper
 
