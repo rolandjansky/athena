@@ -73,10 +73,10 @@ void TRTDigCondBase::initialize() {
   InDetDD::TRT_DetElementCollection::const_iterator itE(m_detmgr->getDetectorElementEnd());
 
   unsigned int strawcount(0);
-  unsigned int nBAA[3][3]  = { 0 }; // [ringwheel=0,1,2][strawGasType=0,1,2]
-  unsigned int nBAC[3][3]  = { 0 }; // [ringwheel=0,1,2][strawGasType=0,1,2]
-  unsigned int nECA[14][3] = { 0 }; // [ringwheel=0--13][strawGasType=0,1,2]
-  unsigned int nECC[14][3] = { 0 }; // [ringwheel=0--13][strawGasType=0,1,2]
+  unsigned int nBAA[3][3]  = {{0}}; // [ringwheel=0,1,2][strawGasType=0,1,2]
+  unsigned int nBAC[3][3]  = {{0}}; // [ringwheel=0,1,2][strawGasType=0,1,2]
+  unsigned int nECA[14][3] = {{0}}; // [ringwheel=0--13][strawGasType=0,1,2]
+  unsigned int nECC[14][3] = {{0}}; // [ringwheel=0--13][strawGasType=0,1,2]
 
   for (;it!=itE;++it) { // loop over straws
 

@@ -22,7 +22,6 @@ use AthenaPoolUtilities           AthenaPoolUtilities-*           Database/Athen
 use AtlasCLHEP                    AtlasCLHEP-*                    External
 use AtlasCLHEP_RandomGenerators   AtlasCLHEP_RandomGenerators-*   Simulation/Tools
 #use CommissionEvent               CommissionEvent-*               Commission
-use EventInfo                     EventInfo-*                     Event
 use GeneratorObjects              GeneratorObjects-*              Generators
 use GeoModelInterfaces            GeoModelInterfaces-*            DetectorDescription/GeoModel
 use GeoModelUtilities             GeoModelUtilities-*             DetectorDescription/GeoModel
@@ -44,6 +43,7 @@ use MagFieldInterfaces            MagFieldInterfaces-*            MagneticField
 #use AtlasDetDescr                 AtlasDetDescr-*                 DetectorDescription
 #use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
 use TRT_ConditionsData            TRT_ConditionsData-*            InnerDetector/InDetConditions
+use xAODEventInfo                 xAODEventInfo-*                 Event/xAOD
 
 end_private
 

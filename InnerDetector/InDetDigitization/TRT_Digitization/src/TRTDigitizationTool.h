@@ -13,7 +13,7 @@
 #include <list>
 #include <utility> /* pair */
 
-#include "EventInfo/PileUpEventInfo.h"  /*SubEvent*/
+#include "xAODEventInfo/EventInfo.h"  /*SubEvent*/
 #include "PileUpTools/PileUpToolBase.h"
 
 #include "TRTDigit.h"
@@ -63,8 +63,8 @@ public:
   StatusCode mergeEvent();
   ///called for each active bunch-crossing to process current SubEvents bunchXing is in ns
   StatusCode processBunchXing( int bunchXing,
-			       PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-			       PileUpEventInfo::SubEvent::const_iterator eSubEvents );
+			       SubEventIterator bSubEvents,
+			       SubEventIterator eSubEvents );
   /// return false if not interested in  certain xing times (in ns)
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   //  virtual bool toProcess(int bunchXing) const;
@@ -128,7 +128,7 @@ private:
   TRTNoise* m_pNoise;
   TRT_RDO_Container* m_container;   /**< RDO container */
 
-  unsigned int m_timer_eventcount;
+  //unsigned int m_timer_eventcount;
   ServiceHandle <IAtRndmGenSvc> m_atRndmGenSvc;  /**< Random number service */
   ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
 

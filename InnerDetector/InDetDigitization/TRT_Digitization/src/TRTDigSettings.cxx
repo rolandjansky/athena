@@ -507,17 +507,18 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   // HT middle-bit fraction tune - wider shaping function; 01-00-24
   // Delta-ray suppression tune tagged as 01-01-03
   // Delta-ray suppression tune with backward compatibility with non suppressed delta-ray simulation tagged as 01-01-07
+  // Delta-ray suppression HT middle-bit fraction tune - 2015 data; 01-01-16
   m_trtRangeCutProperty = m_doubleparMap["TrtRangeCutProperty"].valueSetByUser;//To avoid overwritting warning message and to use python configured value
   if(fabs(m_trtRangeCutProperty-0.05) >= std::numeric_limits<double>::epsilon()){ 
     m_lowThresholdBar        = 0.260*CLHEP::keV;
     m_lowThresholdEC         = 0.275*CLHEP::keV;
-    m_highThresholdBarShort  = 5.412*CLHEP::keV;
-    m_highThresholdBarLong   = 4.949*CLHEP::keV;
-    m_highThresholdECAwheels = 5.251*CLHEP::keV;
-    m_highThresholdECBwheels = 5.072*CLHEP::keV;
+    m_highThresholdBarShort  = 5.195*CLHEP::keV;
+    m_highThresholdBarLong   = 4.751*CLHEP::keV;
+    m_highThresholdECAwheels = 5.513*CLHEP::keV;
+    m_highThresholdECBwheels = 5.326*CLHEP::keV;
     m_trEfficiencyBarrel = 0.774;
-    m_trEfficiencyEndCapA = 0.932;
-    m_trEfficiencyEndCapB = 0.830;
+    m_trEfficiencyEndCapA = 0.909;
+    m_trEfficiencyEndCapB = 0.809;
   }
   else {
     m_lowThresholdBar        = 0.260*CLHEP::keV;
@@ -534,26 +535,29 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
 
   // (Argon) Initial tuning by Artem July 2014. See log file. Requires fine tuning.
   // HT middle-bit fraction tune - wider shaping function; 01-00-24
-  m_lowThresholdBarArgon        = 0.070*CLHEP::keV; // Argon needs tuning (0.100)
-  m_lowThresholdECArgon         = 0.070*CLHEP::keV; // Argon needs tuning (0.106)
-  m_highThresholdBarShortArgon  = 2.660*CLHEP::keV; // Argon needs fine tuning
-  m_highThresholdBarLongArgon   = 2.352*CLHEP::keV; // Argon needs fine tuning
-  m_highThresholdECAwheelsArgon = 2.414*CLHEP::keV; // Argon needs fine tuning
-  m_highThresholdECBwheelsArgon = 2.295*CLHEP::keV; // Argon needs fine tuning
-  m_trEfficiencyBarrelArgon = 0.55; // Argon needs fine tuning
-  m_trEfficiencyEndCapAArgon = 0.80; // Argon needs fine tuning
-  m_trEfficiencyEndCapBArgon = 0.80; // Argon needs fine tuning
+  // HT middle-bit fraction tune - 2015 data; 01-01-16
+  m_lowThresholdBarArgon        = 0.070*CLHEP::keV; 
+  m_lowThresholdECArgon         = 0.070*CLHEP::keV;
+  m_highThresholdBarShortArgon  = 2.607*CLHEP::keV;
+  m_highThresholdBarLongArgon   = 2.540*CLHEP::keV;
+  m_highThresholdECAwheelsArgon = 2.414*CLHEP::keV;
+  m_highThresholdECBwheelsArgon = 2.295*CLHEP::keV;
+  m_trEfficiencyBarrelArgon = 0.61;
+  m_trEfficiencyEndCapAArgon = 0.80;
+  m_trEfficiencyEndCapBArgon = 0.80;
 
-  // (Krypton) Guess! pls tune in June 2015, and final tune Sept 2015
+  // (Krypton) 
+  // Initial implementation in May 2015 - guess; 01-01-00
+  // Tuning from 2015 data by Kevin in April 2016, no LT tune; 01-02-01
   m_lowThresholdBarKrypton = 0.140*CLHEP::keV;
   m_lowThresholdECKrypton  = 0.150*CLHEP::keV;
-  m_highThresholdBarShortKrypton  = 3.3*CLHEP::keV;
-  m_highThresholdBarLongKrypton   = 3.0*CLHEP::keV;
-  m_highThresholdECAwheelsKrypton = 3.2*CLHEP::keV;
-  m_highThresholdECBwheelsKrypton = 3.1*CLHEP::keV;
-  m_trEfficiencyBarrelKrypton = 0.6; // no idea!
-  m_trEfficiencyEndCapAKrypton = 0.9; // no idea!
-  m_trEfficiencyEndCapBKrypton = 0.9; // no idea!
+  m_highThresholdBarShortKrypton  = 3.07*CLHEP::keV;
+  m_highThresholdBarLongKrypton   = 2.90*CLHEP::keV;
+  m_highThresholdECAwheelsKrypton = 3.15*CLHEP::keV;
+  m_highThresholdECBwheelsKrypton = 3.02*CLHEP::keV;
+  m_trEfficiencyBarrelKrypton = 0.49; 
+  m_trEfficiencyEndCapAKrypton = 0.68;
+  m_trEfficiencyEndCapBKrypton = 0.68;
 
   // Noise
   m_fastElectronicsNoisePulseDistance = 1.0*CLHEP::ns;
