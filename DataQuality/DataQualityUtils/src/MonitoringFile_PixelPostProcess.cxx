@@ -106,11 +106,11 @@ namespace dqutils {
 	return;
       }
 
-      const static int nlayer = 6;
+      const static int nlayer = 8;
       float nevents = h_norm->Integral();
-      TString layerName[nlayer] = {"IBL", "B0", "B1", "B2", "ECA", "ECC"};
-      float npixel[nlayer] = {26880, 46080, 46080, 46080, 46080, 46080};
-      float nmodule[nlayer] = {280., 286., 494., 676., 144., 144.};
+      TString layerName[nlayer] = {"IBL", "B0", "B1", "B2", "ECA", "ECC", "IBL2D", "IBL3D"};
+      float npixel[nlayer] = {26880, 46080, 46080, 46080, 46080, 46080, 26880, 26880};
+      float nmodule[nlayer] = {280., 286., 494., 676., 144., 144., 168., 112.};
 
       const static int nerror = 5;
       //TString errorName[nerror] = {"OpticalErrors_", "SEUErrors_", "SyncErrors_", "TimeoutErrors_", "TruncErrors_"};

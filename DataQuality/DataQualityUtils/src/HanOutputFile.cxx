@@ -32,6 +32,9 @@
 #include <TMath.h>
 #include <THStack.h>
 
+#define BINLOEDGE(h,n) h->GetXaxis()->GetBinLowEdge(n)
+#define BINWIDTH(h,n) h->GetXaxis()->GetBinWidth(n)
+
 ClassImp(dqutils::HanOutputFile)
 
 namespace {
@@ -922,6 +925,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
   TObject* hobj = hkey->ReadObj();
   TObject* ref(0);
   TH1* hRef(0);
+  TH2* h2Ref(0);
   std::vector<TH1*> hRefs;
   bool hasPlotted(false);
   TH1* h = dynamic_cast<TH1*>( hobj );
@@ -953,7 +957,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
     // if(  h->GetMinimum() >= 0) {
     //       gPad->SetLogy(display.find("LogY")!=std::string::npos );
     //     }
-    //     if( h->GetBinLowEdge(1)  > 0) {
+    //     if( BINLOEDGE(h, 1)  > 0) {
     //       gPad->SetLogx(display.find("LogX")!=std::string::npos );
     //     }
     gPad->SetGridx(display.find("SetGridx")!=std::string::npos );
@@ -1127,7 +1131,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
 	gPad->SetLogy(display.find("LogY")!=std::string::npos );
 	gPad->SetLogz(display.find("LogZ")!=std::string::npos );
       }
-      if( h2->GetBinLowEdge(1)  > 0) {
+      if( BINLOEDGE(h2,1)  > 0) {
 	gPad->SetLogx(display.find("LogX")!=std::string::npos );
       }
       
@@ -1155,6 +1159,15 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
       if (drawopt.find("lego") == std::string::npos) {
 	myC->RedrawAxis();
       }
+
+      if(drawRefs){
+          groupDir->cd((nameHis+"_/Results").c_str());
+          gDirectory->GetObject("Reference;1",ref);
+          h2Ref = (TH2*)(ref);
+          if (h2Ref)
+              ratioplot2D(myC, h2, h2Ref, display);
+      }
+
       polynomial(myC,display,h2);
       TLatex t;
       t.SetNDC();
@@ -1164,8 +1177,11 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
       tt.SetNDC();
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
+
       myC->SaveAs( name.c_str() );
-    } else if( h != 0 ){
+
+    }
+    else if( h != 0 ){
       formatTH1( myC, h );
       if(display.find("StatBox")!=std::string::npos){
 	h->SetStats(kTRUE);
@@ -1224,13 +1240,13 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
 	    double ymax = ( hRef->GetMaximum() > h->GetMaximum() )? hRef->GetMaximum(): h->GetMaximum();
 	    double xmin, xmax;
 	    if (PlotOverflows) {
-	      xmin = ( hRef->GetBinLowEdge(1) <  h->GetBinLowEdge(1)) ?   hRef->GetBinLowEdge(1)-hRef->GetBinWidth(1) : h->GetBinLowEdge(1)-h->GetBinWidth(1);
-	      xmax = ( hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  hRef->GetBinWidth( hRef->GetNbinsX() ) >   h->GetBinLowEdge( h->GetNbinsX() ) +  h->GetBinWidth( h->GetNbinsX() ) ) ?  
-		hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  2.0*hRef->GetBinWidth( hRef->GetNbinsX() ):  h->GetBinLowEdge( h->GetNbinsX() ) +  2.0*h->GetBinWidth( h->GetNbinsX() ) ;
+	      xmin = ( BINLOEDGE(hRef,1) <  BINLOEDGE(h,1) ?   BINLOEDGE(hRef,1)-BINWIDTH(hRef,1) : BINLOEDGE(h,1)-BINWIDTH(h,1) );
+	      xmax = ( BINLOEDGE(hRef, hRef->GetNbinsX() ) + BINWIDTH(hRef, hRef->GetNbinsX() ) > BINLOEDGE(h, h->GetNbinsX() ) + BINWIDTH(h, h->GetNbinsX() ) ) ?  
+		BINLOEDGE(hRef, hRef->GetNbinsX() ) + 2.0*BINWIDTH(hRef, hRef->GetNbinsX() ):  BINLOEDGE(h, h->GetNbinsX() ) + 2.0*BINWIDTH(h, h->GetNbinsX() ) ;
 	    } else {
-	      xmin = ( hRef->GetBinLowEdge(1) <  h->GetBinLowEdge(1)) ? hRef->GetBinLowEdge(1) : h->GetBinLowEdge(1);
-	      xmax = ( hRef->GetBinLowEdge( hRef->GetNbinsX() ) > h->GetBinLowEdge( h->GetNbinsX() ) ?  
-		       hRef->GetBinLowEdge( hRef->GetNbinsX() ) + hRef->GetBinWidth( hRef->GetNbinsX() ):  h->GetBinLowEdge( h->GetNbinsX() ) + h->GetBinWidth( h->GetNbinsX() ) ) ;
+	      xmin = ( BINLOEDGE(hRef, 1) <  BINLOEDGE(h, 1)) ? BINLOEDGE(hRef, 1) : BINLOEDGE(h, 1);
+	      xmax = ( BINLOEDGE(hRef, hRef->GetNbinsX() ) > BINLOEDGE(h, h->GetNbinsX() ) ?  
+		       BINLOEDGE(hRef, hRef->GetNbinsX() ) + BINWIDTH(hRef, hRef->GetNbinsX() ):  BINLOEDGE(h, h->GetNbinsX() ) + BINWIDTH(h, h->GetNbinsX() ) ) ;
 	    }
 	    // 	  double y_av = (ymax + ymin)/2;
 	    // 	  double y_halv = (ymax-ymin)*0.6;
@@ -1255,7 +1271,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
 	    if(  h->GetMinimum()>= 0. && hRef->GetMinimum()>= 0. && h->GetMaximum()> 0. && hRef->GetMaximum()> 0.) {
 	      gPad->SetLogy(display.find("LogY")!=std::string::npos );
 	    }
-	    if( h->GetBinLowEdge(1)>0 && hRef->GetBinLowEdge(1)  > 0) {
+	    if( BINLOEDGE(h, 1)>0 && BINLOEDGE(hRef, 1)  > 0) {
 	      gPad->SetLogx(display.find("LogX")!=std::string::npos );
 	    }
 	    if (!hasPlotted) {
@@ -1278,11 +1294,11 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
 	    double ymax = ( hRef->GetMaximum() > h->GetMaximum() )? hRef->GetMaximum(): h->GetMaximum();
 	    double xmin, xmax;
 	    if (PlotOverflows) {
-	      xmin = ( hRef->GetBinLowEdge(1) <  h->GetBinLowEdge(1)) ?   hRef->GetBinLowEdge(1)-hRef->GetBinWidth(1) : h->GetBinLowEdge(1)-h->GetBinWidth(1);
-	      xmax = ( hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  hRef->GetBinWidth( hRef->GetNbinsX() ) >   h->GetBinLowEdge( h->GetNbinsX() ) +  h->GetBinWidth( h->GetNbinsX() ) ) ?  hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  2.0*hRef->GetBinWidth( hRef->GetNbinsX() ):  h->GetBinLowEdge( h->GetNbinsX() ) +  2.0*h->GetBinWidth( h->GetNbinsX() ) ;
+	      xmin = ( BINLOEDGE(hRef, 1) <  BINLOEDGE(h, 1)) ?   BINLOEDGE(hRef, 1)-BINWIDTH(hRef, 1) : BINLOEDGE(h, 1)-BINWIDTH(h, 1);
+	      xmax = ( BINLOEDGE(hRef, hRef->GetNbinsX()) +  BINWIDTH(hRef, hRef->GetNbinsX()) >   BINLOEDGE(h, h->GetNbinsX()) +  BINWIDTH(h, h->GetNbinsX()) ) ?  BINLOEDGE(hRef, hRef->GetNbinsX()) +  2.0*BINWIDTH(hRef, hRef->GetNbinsX()):  BINLOEDGE(h, h->GetNbinsX()) +  2.0*BINWIDTH(h, h->GetNbinsX()) ;
 	    } else {
-	      xmin = ( hRef->GetBinLowEdge(1) <  h->GetBinLowEdge(1)) ?   hRef->GetBinLowEdge(1) : h->GetBinLowEdge(1);
-	      xmax = ( hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  hRef->GetBinWidth( hRef->GetNbinsX() ) >   h->GetBinLowEdge( h->GetNbinsX() ) +  h->GetBinWidth( h->GetNbinsX() ) ) ?  hRef->GetBinLowEdge( hRef->GetNbinsX() ) + hRef->GetBinWidth( hRef->GetNbinsX() ):  h->GetBinLowEdge( h->GetNbinsX() ) + h->GetBinWidth( h->GetNbinsX() ) ;
+	      xmin = ( BINLOEDGE(hRef, 1) <  BINLOEDGE(h, 1)) ?   BINLOEDGE(hRef, 1) : BINLOEDGE(h, 1);
+	      xmax = ( BINLOEDGE(hRef, hRef->GetNbinsX()) +  BINWIDTH(hRef, hRef->GetNbinsX()) >   BINLOEDGE(h, h->GetNbinsX()) +  BINWIDTH(h, h->GetNbinsX()) ) ?  BINLOEDGE(hRef, hRef->GetNbinsX()) + BINWIDTH(hRef, hRef->GetNbinsX()):  BINLOEDGE(h, h->GetNbinsX()) + BINWIDTH(h, h->GetNbinsX()) ;
 	    }
 
 	    // 	  double y_av = (ymax + ymin)/2;
@@ -1311,7 +1327,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
 	    if(  h->GetMinimum()>= 0 && hRef->GetMinimum()>= 0 && h->GetMaximum()> 0. && hRef->GetMaximum()> 0.) {
 	      gPad->SetLogy(display.find("LogY")!=std::string::npos );
 	    }
-	    if( h->GetBinLowEdge(1)>0 && hRef->GetBinLowEdge(1)  > 0) {
+	    if( BINLOEDGE(h, 1)>0 && BINLOEDGE(hRef, 1)  > 0) {
 	      gPad->SetLogx(display.find("LogX")!=std::string::npos );
 	    }
 	    axisOption(display,h);
@@ -1330,7 +1346,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
 	if(  h->GetMinimum() >= 0) {
 	  gPad->SetLogy(display.find("LogY")!=std::string::npos );
 	}
-	if( h->GetBinLowEdge(1)  > 0) {
+	if( BINLOEDGE(h, 1)  > 0) {
 	  gPad->SetLogx(display.find("LogX")!=std::string::npos );
 	}
 	axisOption(display,h);
@@ -1367,7 +1383,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
     if(  g->GetMinimum() >= 0. && g->GetMaximum()>0.) {
       gPad->SetLogy(display.find("LogY")!=std::string::npos );
     }
-//       if( h2->GetBinLowEdge(1)  > 0) {
+//       if( BINLOEDGE(h2, 1)  > 0) {
 // 	gPad->SetLogx(display.find("LogX")!=std::string::npos );
 //       }
 //     gPad->SetLogz(display.find("LogZ")!=std::string::npos );
@@ -1597,7 +1613,7 @@ bool HanOutputFile::drawH2(TCanvas* myC,TH2* h2,std::string &drawop,std::string 
   }else{
     gPad->SetLogy(false );
   }
-  if( h2->GetBinLowEdge(1)  > 0) {
+  if( BINLOEDGE(h2, 1)  > 0) {
     gPad->SetLogx(display.find("LogX")!=std::string::npos );
   }else{
     gPad->SetLogx(false );
@@ -1822,7 +1838,7 @@ bool HanOutputFile::drawH1(TCanvas* myC,TH1* h,TH1* hRef,std::string &drawopt,st
     }else{
       gPad->SetLogy(false);
     }
-    if( h->GetBinLowEdge(1)  > 0) {
+    if( BINLOEDGE(h, 1)  > 0) {
       gPad->SetLogx(display.find("LogX")!=std::string::npos );
     }else{
       gPad->SetLogx(false );
@@ -1845,12 +1861,12 @@ bool HanOutputFile::drawReference(TCanvas* myC,TH1* hRef,TH1* h,std::string &dra
     hRef->SetLineWidth(2);
     double ymin = ( hRef->GetMinimum() < h->GetMinimum() )? hRef->GetMinimum(): h->GetMinimum(); 
     double ymax = ( hRef->GetMaximum() > h->GetMaximum() )? hRef->GetMaximum(): h->GetMaximum(); 
-    //double xmin = ( hRef->GetBinLowEdge(1) <  h->GetBinLowEdge(1)) ?   hRef->GetBinLowEdge(1)-hRef->GetBinWidth(1) : h->GetBinLowEdge(1)-h->GetBinWidth(1);
-    //double xmax = ( hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  hRef->GetBinWidth( hRef->GetNbinsX() ) >   h->GetBinLowEdge( h->GetNbinsX() ) +  h->GetBinWidth( h->GetNbinsX() ) ) ?  
-    //  hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  2.0*hRef->GetBinWidth( hRef->GetNbinsX() ):  h->GetBinLowEdge( h->GetNbinsX() ) +  2.0*h->GetBinWidth( h->GetNbinsX() ) ;
-    double xmin = ( hRef->GetBinLowEdge(1) <  h->GetBinLowEdge(1)) ?   hRef->GetBinLowEdge(1) : h->GetBinLowEdge(1);
-    double xmax = ( hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  hRef->GetBinWidth( hRef->GetNbinsX() ) >   h->GetBinLowEdge( h->GetNbinsX() ) +  h->GetBinWidth( h->GetNbinsX() ) ) ?  
-      hRef->GetBinLowEdge( hRef->GetNbinsX() ) + hRef->GetBinWidth( hRef->GetNbinsX() ):  h->GetBinLowEdge( h->GetNbinsX() ) + h->GetBinWidth( h->GetNbinsX() ) ;
+    //double xmin = ( BINLOEDGE(hRef, 1) <  BINLOEDGE(h, 1)) ?   BINLOEDGE(hRef, 1)-BINWIDTH(hRef, 1) : BINLOEDGE(h, 1)-BINWIDTH(h, 1);
+    //double xmax = ( BINLOEDGE(hRef, hRef->GetNbinsX()) +  BINWIDTH(hRef, hRef->GetNbinsX()) >   BINLOEDGE(h, h->GetNbinsX()) +  BINWIDTH(h, h->GetNbinsX()) ) ?  
+    //  BINLOEDGE(hRef, hRef->GetNbinsX()) +  2.0*BINWIDTH(hRef, hRef->GetNbinsX()):  BINLOEDGE(h, h->GetNbinsX()) +  2.0*BINWIDTH(h, h->GetNbinsX()) ;
+    double xmin = ( BINLOEDGE(hRef, 1) <  BINLOEDGE(h, 1)) ?   BINLOEDGE(hRef, 1) : BINLOEDGE(h, 1);
+    double xmax = ( BINLOEDGE(hRef, hRef->GetNbinsX()) +  BINWIDTH(hRef, hRef->GetNbinsX()) >   BINLOEDGE(h, h->GetNbinsX()) +  BINWIDTH(h, h->GetNbinsX()) ) ?  
+      BINLOEDGE(hRef, hRef->GetNbinsX()) + BINWIDTH(hRef, hRef->GetNbinsX()):  BINLOEDGE(h, h->GetNbinsX()) + BINWIDTH(h, h->GetNbinsX()) ;
     // 	  double y_av = (ymax + ymin)/2;
     // 	  double y_halv = (ymax-ymin)*0.6;
     bool isLogY=(display.find("LogY")!=std::string::npos);
@@ -1874,7 +1890,7 @@ bool HanOutputFile::drawReference(TCanvas* myC,TH1* hRef,TH1* h,std::string &dra
     if(  h->GetMinimum()>= 0 && hRef->GetMinimum()>= 0 && h->GetMaximum()> 0 && hRef->GetMaximum()> 0 ) {
       gPad->SetLogy(display.find("LogY")!=std::string::npos );
     }
-    if( h->GetBinLowEdge(1)>0 && hRef->GetBinLowEdge(1)  > 0) {
+    if( BINLOEDGE(h, 1)>0 && BINLOEDGE(hRef, 1)  > 0) {
       gPad->SetLogx(display.find("LogX")!=std::string::npos );
     }
     h->Draw(drawopt.c_str());
@@ -1893,10 +1909,10 @@ bool HanOutputFile::drawReference(TCanvas* myC,TH1* hRef,TH1* h,std::string &dra
     hRef->SetLineColor(15);
     double ymin = ( hRef->GetMinimum() < h->GetMinimum() )? hRef->GetMinimum(): h->GetMinimum(); 
     double ymax = ( hRef->GetMaximum() > h->GetMaximum() )? hRef->GetMaximum(): h->GetMaximum(); 
-    //double xmin = ( hRef->GetBinLowEdge(1) <  h->GetBinLowEdge(1)) ?   hRef->GetBinLowEdge(1)-hRef->GetBinWidth(1) : h->GetBinLowEdge(1)-h->GetBinWidth(1);
-    //double xmax = ( hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  hRef->GetBinWidth( hRef->GetNbinsX() ) >   h->GetBinLowEdge( h->GetNbinsX() ) +  h->GetBinWidth( h->GetNbinsX() ) ) ?  hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  2.0*hRef->GetBinWidth( hRef->GetNbinsX() ):  h->GetBinLowEdge( h->GetNbinsX() ) +  2.0*h->GetBinWidth( h->GetNbinsX() ) ;
-    double xmin = ( hRef->GetBinLowEdge(1) <  h->GetBinLowEdge(1)) ? hRef->GetBinLowEdge(1) : h->GetBinLowEdge(1);
-    double xmax = ( hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  hRef->GetBinWidth( hRef->GetNbinsX() ) >   h->GetBinLowEdge( h->GetNbinsX() ) +  h->GetBinWidth( h->GetNbinsX() ) ) ?  hRef->GetBinLowEdge( hRef->GetNbinsX() ) + hRef->GetBinWidth( hRef->GetNbinsX() ):  h->GetBinLowEdge( h->GetNbinsX() ) + h->GetBinWidth( h->GetNbinsX() ) ;
+    //double xmin = ( BINLOEDGE(hRef, 1) <  BINLOEDGE(h, 1)) ?   BINLOEDGE(hRef, 1)-BINWIDTH(hRef, 1) : BINLOEDGE(h, 1)-BINWIDTH(h, 1);
+    //double xmax = ( BINLOEDGE(hRef, hRef->GetNbinsX()) +  BINWIDTH(hRef, hRef->GetNbinsX()) >   BINLOEDGE(h, h->GetNbinsX()) +  BINWIDTH(h, h->GetNbinsX()) ) ?  BINLOEDGE(hRef, hRef->GetNbinsX()) +  2.0*BINWIDTH(hRef, hRef->GetNbinsX()):  BINLOEDGE(h, h->GetNbinsX()) +  2.0*BINWIDTH(h, h->GetNbinsX()) ;
+    double xmin = ( BINLOEDGE(hRef, 1) <  BINLOEDGE(h, 1)) ? BINLOEDGE(hRef, 1) : BINLOEDGE(h, 1);
+    double xmax = ( BINLOEDGE(hRef, hRef->GetNbinsX()) +  BINWIDTH(hRef, hRef->GetNbinsX()) >   BINLOEDGE(h, h->GetNbinsX()) +  BINWIDTH(h, h->GetNbinsX()) ) ?  BINLOEDGE(hRef, hRef->GetNbinsX()) + BINWIDTH(hRef, hRef->GetNbinsX()):  BINLOEDGE(h, h->GetNbinsX()) + BINWIDTH(h, h->GetNbinsX()) ;
     // 	  double y_av = (ymax + ymin)/2;
     // 	  double y_halv = (ymax-ymin)*0.6;
     bool isLogY=(display.find("LogY")!=std::string::npos);
@@ -1923,7 +1939,7 @@ bool HanOutputFile::drawReference(TCanvas* myC,TH1* hRef,TH1* h,std::string &dra
     if(  h->GetMinimum()>= 0. && hRef->GetMinimum()>= 0. && h->GetMaximum()> 0. && hRef->GetMaximum()> 0. ) {
       gPad->SetLogy(display.find("LogY")!=std::string::npos );
     }
-    if( h->GetBinLowEdge(1)>0 && hRef->GetBinLowEdge(1)  > 0) {
+    if( BINLOEDGE(h, 1)>0 && BINLOEDGE(hRef, 1)  > 0) {
       gPad->SetLogx(display.find("LogX")!=std::string::npos );
     }
     axisOption(display,h);
@@ -2021,12 +2037,12 @@ axisOption( std::string str, TH1* h )
         if(txt[1]=='M'){
           if (txt=="XMax")
         {
-          double xmin = h->GetBinLowEdge(1);
+          double xmin = BINLOEDGE(h, 1);
 	  h->GetXaxis()->SetRangeUser(xmin,x1);
         }
           if (txt=="XMin")
         {
-          double xmax = h->GetBinLowEdge( h->GetNbinsX() ) + h->GetBinWidth( h->GetNbinsX() ) ;
+          double xmax = BINLOEDGE(h, h->GetNbinsX()) + BINWIDTH(h, h->GetNbinsX()) ;
 	  h->GetXaxis()->SetRangeUser(x1,xmax);
         }
           if (txt=="YMax")
@@ -2096,8 +2112,8 @@ void HanOutputFile::ratioplot (TCanvas* myC_upperpad ,TH1* h,TH1* hRef,std::stri
     //method belove might be a problem when axis range changed
     double xmin=clonehist->GetXaxis()->GetXmin();
     double xmax=clonehist->GetXaxis()->GetXmax();
-    //double xmin = clonehist->GetBinLowEdge(1)-clonehist->GetBinWidth(1);
-    //double xmax = clonehist->GetBinLowEdge( clonehist->GetNbinsX() ) +  2.0*clonehist->GetBinWidth( clonehist->GetNbinsX() ) ;
+    //double xmin = BINLOEDGE(clonehist, 1)-BINWIDTH(clonehist, 1);
+    //double xmax = BINLOEDGE(clonehist, clonehist->GetNbinsX() ) +  2.0*BINWIDTH(clonehist, clonehist->GetNbinsX() ) ;
     line->DrawLine(xmin,1,xmax,1);
     upperPad->cd();
     myC_upperpad->SetBottomMargin(0);
@@ -2108,6 +2124,91 @@ void HanOutputFile::ratioplot (TCanvas* myC_upperpad ,TH1* h,TH1* hRef,std::stri
     myC_upperpad->cd();
     myC_upperpad->Clear();
     myC_main->DrawClonePad();
+}
+
+void HanOutputFile::ratioplot2D (TCanvas* canvas_top, TH2* h2, TH2* h2Ref, std::string display) {
+
+    if (display.find("Ref2DRatio")  == std::string::npos && 
+        display.find("Ref2DSignif") == std::string::npos
+        )
+        return;
+
+    TCanvas *canvas_bot = new TCanvas("canvas_bottom", "canvas_bottom", canvas_top->GetWw(), canvas_top->GetWh());
+    TCanvas *canvas_all = new TCanvas("canvas_all",    "canvas_all",    canvas_top->GetWw(), canvas_top->GetWh());
+
+    canvas_bot->cd();
+    canvas_bot->SetTopMargin(0);
+
+    h2Ref->Scale(h2->Integral() / h2Ref->Integral());
+
+    TH2* comparison = (TH2*)(h2->Clone());
+    comparison->Divide(h2, h2Ref, 1.0, 1.0);
+    comparison->SetTitle("");
+    formatTH2(canvas_bot, comparison);
+
+    if (display.find("Ref2DRatio") != std::string::npos){
+
+        comparison->GetZaxis()->SetTitle("ratio to ref.");
+        comparison->SetAxisRange(0.0, 2.0, "Z");
+
+    }
+
+    else if (display.find("Ref2DSignif") != std::string::npos){
+
+        comparison->GetZaxis()->SetTitle("difference to ref. (#sigma)");
+        comparison->SetAxisRange(-4.5, 4.5, "Z");
+
+        double value_a = 0; double value_b = 0; 
+        double sigma_a = 0; double sigma_b = 0;
+        double signif  = 0;
+
+        for (int binx=0; binx <= comparison->GetNbinsX(); binx++) {
+            for (int biny=0; biny <= comparison->GetNbinsY(); biny++) {
+
+                value_a = h2   ->GetBinContent(binx, biny);
+                value_b = h2Ref->GetBinContent(binx, biny);
+                
+                sigma_a = h2   ->GetBinError(binx, biny);
+                sigma_b = h2Ref->GetBinError(binx, biny);
+
+                if (sigma_a == 0 && sigma_b == 0)
+                    signif = 0;
+                else
+                    signif = (value_a - value_b) / sqrt((sigma_a*sigma_a + sigma_b*sigma_b));
+
+                comparison->SetBinContent(binx, biny, signif);
+            }
+        }
+    }
+
+    comparison->Draw("colz");
+
+    canvas_all->cd();
+    TPad* pad_bot = new TPad("pad_bot", "pad_bot", 0.005, 0.060, 0.995, 0.550);
+    TPad* pad_top = new TPad("pad_top", "pad_top", 0.005, 0.550, 0.995, 0.995);
+
+    pad_bot->SetTopMargin(0);
+    pad_top->SetBottomMargin(0);
+
+    pad_bot->SetFillStyle(0);
+    pad_top->SetFillStyle(0);
+
+    pad_bot->Draw();
+    pad_top->Draw();
+
+    pad_bot->cd();
+    canvas_bot->DrawClonePad();
+
+    pad_top->cd();
+    canvas_top->SetBottomMargin(0);
+    canvas_top->SetFillStyle(0);
+    h2->GetXaxis()->SetLabelSize(0.);
+    h2->GetXaxis()->SetTitleSize(0.);
+    canvas_top->DrawClonePad();
+    canvas_top->cd();
+    canvas_top->Clear();
+
+    canvas_all->DrawClonePad();
 }
 
 //-----------------------------
