@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxStoreWrapper.cxx 671696 2015-06-02 13:03:09Z krasznaa $
+// $Id: AuxStoreWrapper.cxx 695881 2015-09-21 08:47:05Z will $
 
 // Gaudi/Athena include(s):
 #include "SGTools/DataProxy.h"
@@ -249,7 +249,7 @@ namespace xAODMaker {
       holder->setStore( const_cast< SG::IAuxStore* >( store ) );
 
       // Record the new container with the same key:
-      CHECK( evtStore()->overwrite( holder, name, false, false, true ) );
+      CHECK( evtStore()->overwrite( holder, name, false, true ) );
 
       ATH_MSG_DEBUG( "Overwrote store object with key \""
                      << name << "\" with an xAOD::AuxContainerBase "
@@ -327,7 +327,7 @@ namespace xAODMaker {
       holder->setStore( const_cast< SG::IAuxStore* >( store ) );
 
       // Record the new container with a different key:
-      CHECK( evtStore()->overwrite( holder, name, false, false, true ) );
+      CHECK( evtStore()->overwrite( holder, name, false, true ) );
 
       ATH_MSG_DEBUG( "Wrapped store object with key \""
                      << name << "\" into xAOD::AuxInfoBase "

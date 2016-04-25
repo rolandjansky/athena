@@ -1,5 +1,5 @@
 package xAODCoreCnv
-# $Id: requirements 654409 2015-03-16 15:48:18Z krasznaa $
+# $Id: requirements 742532 2016-04-25 07:57:58Z krasznaa $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -29,3 +29,5 @@ apply_pattern component_library
 
 # Install the jobOptions:
 apply_pattern declare_joboptions files=*.py
+
+# Useless comment, to allow modifying the CMakeLists.txt file
