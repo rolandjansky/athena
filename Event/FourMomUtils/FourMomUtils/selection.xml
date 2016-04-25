@@ -1,6 +1,25 @@
 <lcgdict>
 
-  <function pattern="xAOD::Helpers::*" />
+  <function name="xAOD::Helpers::getBool" />
+  <function name="xAOD::Helpers::getInt" />
+  <function name="xAOD::Helpers::getFloat" />
+  <function name="xAOD::Helpers::getUInt" />
+  <function name="xAOD::Helpers::getDouble" />
+
+  <function name="xAOD::Helpers::setBool" />
+  <function name="xAOD::Helpers::setInt" />
+  <function name="xAOD::Helpers::setFloat" />
+  <function name="xAOD::Helpers::setUInt" />
+  <function name="xAOD::Helpers::setDouble" />
+
+  <function name="xAOD::Helpers::decoBool" />
+  <function name="xAOD::Helpers::decoInt" />
+  <function name="xAOD::Helpers::decoFloat" />
+  <function name="xAOD::Helpers::decoUInt" />
+  <function name="xAOD::Helpers::decoDouble" />
+
+  <class name="xAOD::Helpers::_importHelper" />
+  
   <function pattern="xAOD::P4Helpers::*" />
   <function pattern="FourMomUtils::*" />
   <function pattern="P4Helpers::*" />
