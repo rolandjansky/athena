@@ -65,7 +65,7 @@ AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu',
                       'Trkloose', 'Zmumu', 'noL2', 'noEFbph',
                       'noinvm', 'ss', 'BpmumuKp',
                       '11invm24', '24invm60',
-                      'tightChi2', 'Lxy0']
+                      'tightChi2', 'Lxy0', 'Ftk']
 AllowedTopos_jet = ['muvtx',
                     'llp',
 		    'noiso',
@@ -101,13 +101,13 @@ JetChainParts = {
     'etaRange'     : ['0eta490','0eta320','0eta240', '240eta490','280eta320', '320eta490'],
     'trigType'     : ['j'],
     'extra'        : ['noL1','test1','test2','test3'],
-    'cleaning'     : ['cleanL','cleanT','cleanL','cleanLLP',
-                      'cleanLA','cleanTA','cleanLA','cleanLLPA', 'noCleaning'
+    'cleaning'     : ['cleanL','cleanT','cleanLLP',
+                      'cleanLA','cleanTA','cleanLLPA', 'noCleaning'
                       ],
     'recoAlg'      : ["a3","a4", "a10", "a10r"],
     'dataType'     : ['TT', 'tc', 'cc', 'ion'],
     'calib'        : ["had","lcw","em"],
-    'jetCalib'     : ["jes","sub","subjes", "nojcalib"],
+    'jetCalib'     : ["jes","sub","subjes","subjesIS", "nojcalib"],
     'scan'         : ['FS','PS'],
     'addInfo'      : ['perf'],    
     'TLA'          : ['0i1c200m400TLA', '0i1c400m600TLA', '0i1c600m800TLA',
@@ -219,6 +219,7 @@ MuonChainParts_Default = {
 #AllowedMatchingKeywords = ['antidr']
 # ---- Bphysics Dictinary of all allowed Values ----
 BphysicsChainParts = deepcopy(MuonChainParts)
+#BphysicsChainParts['bTracking'] = ['FTK']
 BphysicsChainParts['signature'] = ['Bphysics']
 BphysicsChainParts['topo'] = AllowedTopos_bphys
 # ---- Bphysics Dictinary of default Values ----
@@ -236,7 +237,7 @@ TauChainParts = {
     'L1item'       : '',
     'chainPartName': '',
     'threshold'    : '',
-    'preselection' : ['r1', 'FTK', 'FTKRefit', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'trackcalo', 'tracktwocalo','tracktwo2015'],
+    'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'trackcalo', 'tracktwocalo','tracktwo2015'],
     'selection'    : ['loose1', 'medium1', 'tight1', 'perf', 'r1medium1', 'r1perf', 'cosmic', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight',  'medium1HighptL', 'medium1HighptM', 'medium1HighptH'],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
@@ -474,8 +475,8 @@ MinBiasChainParts = {
     'trkInfo'        : ['hlttr', 'ftk', 'costr'],
     'hypoL2Info'     : ['sp2', 'sp300', 'sp400', 'sp500', 'sp600', 'sp700', 'sp800', 'sp900',
                         'sp1000', 'sp1200', 'sp1300', 'sp1400', 'sp1500', 'sp1600', 'sp1700', 'sp1800', 
-                        'sp2000', 'sp2100', 'sp2200', 'sp2400', 'sp2500', 'sp2700', 'sp3000', ],
-    'pileupInfo'     : ['pusup350', 'pusup400', 'pusup500', 'pusup550', 'pusup600', 'pusup700', 'pusup750', 'pusup800',
+                        'sp2000', 'sp2100', 'sp2200', 'sp2300', 'sp2400', 'sp2500', 'sp2700', 'sp3000', ],
+    'pileupInfo'     : ['pusup350', 'pusup400', 'pusup450', 'pusup500', 'pusup550', 'pusup600', 'pusup700', 'pusup750', 'pusup800', 'pusup900',
                         'pusup1000', 'pusup1100', 'pusup1200', 'pusup1300', 'pusup1400', 'pusup1500',],
     'hypoEFInfo'     : ['trk10', 'trk40', 'trk45', 'trk50', 'trk55', 'trk60', 'trk65', 'trk70', 'trk75', 'trk80', 'trk90',
                         'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 
@@ -687,7 +688,7 @@ CalibChainParts_Default = {
 #==========================================================
 # ---- MonitorDef chains -----
 #==========================================================
-AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner', 'idmon', 'costmonitor','cscmon','l1calooverflow','mistimemonl1bccorr','mistimemonl1bccorrnomu']
+AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner', 'idmon', 'costmonitor','cscmon','l1calooverflow','mistimemonl1bccorr','mistimemonl1bccorrnomu','mistimemoncaltimenomu']
 
 # ---- Monitor Chain Dictinary of all allowed Values ----
 MonitorChainParts = {

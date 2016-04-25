@@ -844,6 +844,8 @@ class ItemDef:
 
         # TGC
         LVL1MenuItem('L1_TGC_BURST').setLogic(NIMTGC & physcond).setTriggerType(TT.nim)
+        LVL1MenuItem('L1_TGC_BURST_EMPTY').setLogic(NIMTGC & cosmiccond).setTriggerType(TT.nim)
+
 
         # LHCF
         LVL1MenuItem('L1_LHCF').setLogic( NIMLHCF & physcond).setTriggerType(TT.nim)

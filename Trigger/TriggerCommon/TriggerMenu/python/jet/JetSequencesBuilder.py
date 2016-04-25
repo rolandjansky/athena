@@ -51,6 +51,7 @@ class JetSequencesBuilder(object):
         # table giving legal sequence connections
         # fs: full scan
         # cmfs: cell/cluster maker using full scan tools in CellMaker
+        # ed: EnergyDensity
         # jr: jet rec
         # jh: EFJetHypo
         # jh_ht: HT hypo
@@ -72,7 +73,8 @@ class JetSequencesBuilder(object):
         # set up a sequence key (str) to function to make an Alglist
         # table
         self.router = {'fs': self.make_fs,  # full scan
-                       'cmfs': self.make_cmfs,  # cell maker full scan
+                       'cmfs': self.make_cmfs,  # cell/cluster maker full scan
+                       'ed': self.make_ed,  # energy density
                        'jr': self.make_jr_clusters,  # jet rec
                        'hijr': self.make_hijr,  # hi jet rec
                        'rc': self.make_jr_recluster,  # recluster jets
@@ -126,7 +128,8 @@ class JetSequencesBuilder(object):
         data_type = menu_data.data_type
         scan_type = menu_data.scan_type
         seq_order = {
-            ('tc', 'FS'): ['fs', 'cmfs', 'jr'],
+            ('tc', 'FS'): ['fs', 'cmfs', 'ed', 'jr'],
+            # ('tc', 'FS'): ['fs', 'cmfs', 'jr'],
             ('tc', 'PS'): ['ps', 'cm', 'jr'],
             ('ion', 'FS'): ['fs','hicm','hijr'],
             ('TT', 'FS'): ['tt', 'jt']}.get((data_type, scan_type), [])
@@ -198,16 +201,23 @@ class JetSequencesBuilder(object):
         cluster_params = self.chain_config.menu_data.cluster_params
         alias = 'cluster_%s' % cluster_params.cluster_label
 
-        # the EnergyDensity tool is placed in this sequence.
-        # it is expected that it will always be run with
-        # a radius of 0.4 (it does its own jet finding).
-        # if this is ever varied, it should go into ists own
-        # sequence.
-        
         algs = []
         [algs.extend(f()) for f in (self.alg_factory.cellMaker_fullcalo_topo,
-                                    self.alg_factory.topoClusterMaker,
-                                    self.alg_factory.energyDensityAlg)]
+                                    self.alg_factory.topoClusterMaker,)
+                                    # self.alg_factory.energyDensityAlg,)
+        ]
+
+        return AlgList(algs, alias=alias)
+
+
+    def make_ed(self):
+        """Return Energy Density Alg"""
+
+        fex_params = self.chain_config.menu_data.fex_params
+        alias = 'rho_04_%s' % fex_params.cluster_calib
+
+        algs = []
+        [algs.extend(f()) for f in (self.alg_factory.energyDensityAlg,)]
 
         return AlgList(algs, alias=alias)
 

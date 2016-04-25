@@ -115,8 +115,6 @@ class AlgFactory(object):
         # enum?). And thus limited to a finite set of values. "LC" and "EM"
         # are strings in this set.
 
-        self.cluster_calib = "'LC'" if self.cluster_params.do_lc else "'EM'"
-
         self.fex_params = self.menu_data.fex_params
         self.last_fex_params = self.menu_data.last_fex_params
         self.recluster_params = self.menu_data.recluster_params
@@ -133,27 +131,6 @@ class AlgFactory(object):
 
     def fullscan_roi(self):
         return [Alg('DummyAlgo', ('"RoiCreator"',), {})]
-
-    def jetrec(self):
-        """Instantiate a python object for TrigHLTJetRec. Incoming
-        fex_data is of type MenuData"""
-
-        merge_param_str = str(self.fex_params.merge_param).zfill(2)
-    
-        # assign a name which identifies the fex sequence and
-        # the python class to be instantiated.
-        name = "'TrigHLTJetRec_param_%s'" % (self.fex_params.fex_label)
-
-        kwds = {
-            'name': name,
-            'merge_param': "'%s'" % merge_param_str,
-            'jet_calib': "'%s'" % self.fex_params.jet_calib,
-            'cluster_calib': self.cluster_calib,
-            'output_collection_label': "'%s'" % (
-            self.fex_params.fex_label)
-        }
-        
-        return [Alg('TrigHLTJetRec_param', (), kwds)]
 
     def jetrec_triggertowers(self):
         """Instantiate a python object for TrigHLTJetRec that will
@@ -183,7 +160,7 @@ class AlgFactory(object):
             'jet_calib': "'nojcalib'",
             'cluster_calib': "'EM'",
             'output_collection_label': "'tcollection'",
-            'ptMinCut': 20.0
+            'ptMinCut': 20.0  # Note: 20 MeV
         }
 
         return [Alg(factory, (), kwds)]
@@ -202,11 +179,10 @@ class AlgFactory(object):
             'name': name,  # instance label
             'merge_param': "'%s'" % merge_param_str,
             'jet_calib': "'%s'" % self.fex_params.jet_calib,
-            'cluster_calib': self.cluster_calib,
+            'cluster_calib': '"%s"' % self.fex_params.cluster_calib_fex,
             'output_collection_label': "'%s'" % (
             self.fex_params.fex_label)
         }
-
         return [Alg(factory, (), kwds)]
 
 
@@ -224,7 +200,7 @@ class AlgFactory(object):
             'name': name,  # instance label
             'merge_param': "'%s'" % merge_param_str,
             'jet_calib': "'%s'" % self.recluster_params.jet_calib,
-            'cluster_calib': self.cluster_calib,
+            'cluster_calib': "'%s'" % self.fex_params.cluster_calib_fex,
             'output_collection_label': "'%s'" % (
                 self.recluster_params.fex_label),
             # ptMinCut and etaMaxCut are cuts applied to the
@@ -250,7 +226,7 @@ class AlgFactory(object):
             'name': name,  # instance label
             'merge_param': "'%s'" % merge_param_str,
             'jet_calib': "'%s'" % self.fex_params.jet_calib,
-            'cluster_calib': self.cluster_calib,
+            'cluster_calib': self.fex_params.cluster_calib_fex,
             'output_collection_label': "'%s'" % (
             self.fex_params.fex_label)
         }
@@ -324,7 +300,7 @@ class AlgFactory(object):
                                    (ja,
                                     self.last_fex_params.fex_alg_name,
                                     self.last_fex_params.data_type,
-                                    self.cluster_params.cluster_calib,
+                                    self.fex_params.cluster_calib,
                                     self.last_fex_params.jet_calib,
                                     self.menu_data.scan_type)])
         
@@ -383,7 +359,7 @@ class AlgFactory(object):
                                    (ja,
                                     self.last_fex_params.fex_alg_name,
                                     self.last_fex_params.data_type,
-                                    self.cluster_params.cluster_calib,
+                                    self.fex_params.cluster_calib,
                                     self.last_fex_params.jet_calib,
                                     self.menu_data.scan_type,
                                     cleaningAlg,
@@ -462,7 +438,7 @@ class AlgFactory(object):
             self.hypo_params.attributes_to_string(),
             self.last_fex_params.fex_alg_name,
             self.last_fex_params.data_type,
-            self.cluster_params.cluster_calib,
+            self.fex_params.cluster_calib_fex,
             self.last_fex_params.jet_calib,
             self.menu_data.scan_type)])
 
@@ -534,13 +510,12 @@ class AlgFactory(object):
         # will be placed in and the python class to be instantiated.
 
         class_name = 'TrigCaloClusterMaker_topo'
-        instance_name = '"%s_%s"' % (class_name,
-                                     self.cluster_params.cluster_label)
+        instance_name = '"TrigCaloClusterMaker_topo"'
 
         return [Alg(class_name,
                    (instance_name,),
                    {'doMoments': True,
-                    'doLC': self.cluster_params.do_lc})]
+                    'doLC': True})]
     #HI
     def hiEventShapeMaker(self):
 
@@ -623,7 +598,7 @@ class AlgFactory(object):
 
         kwds = {'name': name,
                 'chain_name': '"%s"' % self.chain_name_esc,
-                'cluster_calib': self.cluster_calib,
+                'cluster_calib': self.fex_params.cluster_calib_fex,
                 'ed_merge_param': ed_merge_param,
             }
         return [Alg(factory, (), kwds)]
@@ -655,14 +630,14 @@ class AlgFactory(object):
         name = '"%s_%s%s"' % (
             factory, 
             str(int(10 * ed_merge_param)).zfill(2),
-            self.cluster_params.cluster_label,
+            self.fex_params.cluster_calib,
         )
 
         # we do not carry the energy density calculation merge_param
         # so hard wire it here (to be fixed). This is not the fex
         # merge param!
         kwds = {'name':  name,
-                'cluster_calib': self.cluster_calib,
+                'cluster_calib': '"%s"' % self.fex_params.cluster_calib_fex,
                 'ed_merge_param': ed_merge_param
             }
     
@@ -703,7 +678,7 @@ class AlgFactory(object):
         object. These arguments arr not provided by the ChainConfig
         object, from which other Alg objects get their parmeters"""
 
-        jetPtThreshold = 0.* GeV
+        jetPtThreshold = 20.* GeV
         maxNJets = -1
         name_frag = ""
         if (maxNJets<0) : 

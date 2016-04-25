@@ -9,37 +9,42 @@
 """
 
 import importlib
-import sys, re
+import sys, re, os
 
 tag = "pp_v6"
 if len(sys.argv) > 1:
 	tag = sys.argv[1]
 
+import checkTigherThanPrimary
+tighter_than_primaries = set([x for x, y in checkTigherThanPrimary.main()])
+
 def swapItems():
 	physics_rulemod		 = importlib.import_module("TrigMenuRulebook.Physics_%s_rules" % tag)
+	start_rulemod		 = importlib.import_module("TrigMenuRulebook.Physics_%s_startup_rules" % tag)
 	monitoring_rulemod = importlib.import_module("TrigMenuRulebook.Monitoring_%s_rules" % tag)
 	standby_rulemod		 = importlib.import_module("TrigMenuRulebook.Standby_%s_rules" % tag)
 	cosmic_rulemod		 = importlib.import_module("TrigMenuRulebook.Cosmic_%s_rules" % tag)
+	commissioning_rulemod		 = importlib.import_module("TrigMenuRulebook.Commissioning2016_rules")
 	monitoring_rulemod.rules = monitoring_rulemod.physics_rules
-	modules = (physics_rulemod,monitoring_rulemod,standby_rulemod,cosmic_rulemod)
+	modules = (physics_rulemod,monitoring_rulemod,standby_rulemod,cosmic_rulemod,commissioning_rulemod,start_rulemod)
 	
 	dontmove = ['L1_BPH-7M15-2MU4_BPH-0DR24-2MU4', 'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4', 'L1_DR-EM15TAU12I']
 	
-	def isDisabled(item):
+	def getPS(item):
 		hlt = "HLT_"+item
-		disabled = True
-		if item=="noalg_L12MU6": print item
+		ps = -1
 		for mod in modules:
 			if	 hlt	in mod.rules.keys(): key = hlt
 			elif item in mod.rules.keys(): key = item
 			else: continue
-			if item=="noalg_L12MU6": print mod.rules[key]
 			for rule in mod.rules[key].itervalues():
-				if "PS" not in rule.keys() or rule["PS"] > -1:
-						disabled = False
-						break
-			if not disabled: break
-		return disabled
+				if "PS" not in rule.keys():
+					if "rate" in rule.keys(): return 2
+					else: ps = 1
+				if rule["PS"] > ps:
+					ps = rule["PS"]
+					if ps > 1: return ps
+		return ps
 	
 	lines_Physics = {}
 	lines_MC = {}
@@ -48,6 +53,8 @@ def swapItems():
 	count_toMC 			= 0
 	count_toPhysics = 0
 	items_MC_fromPhysics = set()
+	items_Physics_fromMC_withPS = set()
+	items_Physics_withPS = set()
 	
 	current_Physics = "../python/menu/Physics_%s.py" % tag
 	current_MC			 = "../python/menu/MC_%s.py" % tag
@@ -81,14 +88,19 @@ def swapItems():
 			m = re.search(item_pattern,line)
 			if m and not commented:
 				assert(currentSlice != None)
-				disabled = isDisabled(m.group(1))
-				if disabled: 
+				name = m.group(1)
+				ps = getPS(name)
+				if name in tighter_than_primaries:
+					print "Found item that is tighter than primary, instead of moving to MC please enable the rule in RB:", name
+				if ps==-1 and not name in tighter_than_primaries: 
 					lines_MC_fromPhysics[currentSlice] += linebuffer+line
-					items_MC_fromPhysics.add(m.group(1))
+					items_MC_fromPhysics.add(name)
 					count_toMC += 1
 				else: 
 					lines_Physics[currentSlice] += linebuffer+line
 				linebuffer = ""
+				if ps>1:
+					items_Physics_withPS.add(name)
 				continue
 			# Slice start pattern
 			m = re.search(slice_start_pattern,line)
@@ -131,11 +143,13 @@ def swapItems():
 			m = re.search(item_pattern,line)
 			if m and not commented and not if_ftk: 
 				assert(currentSlice != None)
-				disabled = isDisabled(m.group(1))
-				if disabled or any([vetoitem in line for vetoitem in dontmove]): 
+				ps = getPS(m.group(1))
+				if ps==-1 or any([vetoitem in line for vetoitem in dontmove]): 
 					lines_MC[currentSlice] += linebuffer+line
 				else: 
 					lines_Physics_fromMC[currentSlice] += linebuffer+line
+					if ps>1:
+						items_Physics_fromMC_withPS.add(m.group(1))
 					count_toPhysics +=1
 				linebuffer = ""
 				continue
@@ -186,8 +200,12 @@ def swapItems():
 	with open (current_MC+".edit","w") as outfile_MC:
 		outfile_MC.write(output_MC)
 	
-	print "Items moved MC -> Physics:",count_toPhysics
 	print "Items moved Physics -> MC:",count_toMC
+	print "Items moved MC -> Physics:",count_toPhysics
+	if items_Physics_fromMC_withPS:
+		print "Some new items in Physics are prescaled, you probably want to add them to CPS.py:"
+		print sorted(list(items_Physics_fromMC_withPS))
+
 	return items_MC_fromPhysics
 
 def cleanCPS(movedToMC):

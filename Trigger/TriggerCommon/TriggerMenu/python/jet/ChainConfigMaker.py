@@ -66,7 +66,7 @@ class ChainConfigMaker(object):
 
     def __init__(self, d):
             
-        self.err_hdr = '%s.process_part: ' % self.__class__.__name__
+        self.err_hdr = '%s._process_part: ' % self.__class__.__name__
         self.n_parts = 0
 
         self.data_type = ''
@@ -76,9 +76,36 @@ class ChainConfigMaker(object):
         self.run_rtt_diags = d['run_rtt_diags']
         self.chain_name = d['chainName']
         self.seed = d['L1item']
-        [self.process_part(p) for p in d['chainParts']]
 
-    def process_part(self, part):
+        # error check: count the number of hypos requested. Should
+        # only be one.
+        self.hypo_types = []
+        [self._process_part(p) for p in d['chainParts']]
+
+        self._ensure_single_hypo()
+        
+    def _ensure_single_hypo(self):
+        """hypo specification is spread over > 1 chain parts
+        (multi Et levels for the Eta-pt hypo) or specified
+        in a single chainpart (eg TLA hypo). Make sure that
+        not more than one hypo has been specied."""
+
+        htypes = set(self.hypo_types)
+        counter = {}
+        for ht in htypes: counter[ht] = 0
+        for ht in self.hypo_types:
+            if ht in ('HLThypo', 'HLTSRhypo', 'run1hypo'):
+                counter[ht] = 1
+            else:
+                counter[ht] += 1
+
+        nhypos = sum(counter.values())
+
+        if nhypos > 1:
+            raise RuntimeError('%s  %d hypo types calculated: %s' % (
+                self.err_hdr, nhypos, str(counter)))
+            
+    def _process_part(self, part):
         """Process chain parts. If there is more than one chain part,
         the fex data must always be the same: multiple chain parts
         convey information about different thresholds in for the
@@ -107,33 +134,18 @@ class ChainConfigMaker(object):
         #    'had': {'cluster_dolc': False, 'do_jes': True}
         # }
 
-        # calib used to (prior to 1/12/2014) refer to cluster
-        # and jet calibration. Now it only determines the
-        # cluster calibration.
-        cluster_do_lcs = {
-            'em':  False,
-            'lcw': True,
-            'had': False,
-        }
-
-        cluster_do_lc = cluster_do_lcs.get(part['calib'])
+        cluster_calib = part['calib']
+        assert cluster_calib in ('em', 'lcw')
         
-        self.check_and_set('cluster_calib', 'lcw' if
-                           cluster_do_lc else 'em')
+        # 25/02/2016 cluster will aways be made with local calibration on.
+        # cluster_calib will be used only by the TrigJetReco to
+        # decide if the the clusters should be switched to uncalibrated
+        self.check_and_set('cluster_calib', cluster_calib)
 
-        if cluster_do_lc is None:
-            msg = '%s Unknown cluster calibration %s, possible values: %s' % (
-                err_hdr, p['calib'], str(cluster_do_lcs.keys())) 
-            raise RuntimeError(msg)
-            
-        self.check_and_set('cluster_do_lc', cluster_do_lc)
-
-        cluster_calib = 'lcw' if self.cluster_do_lc else 'em'
-
-        # set up an identifier for the clutering algorithm
+        # the cluster algorithm is always run with local calibration on
         cluster_label = reduce(lambda x, y: x + y,
                                (part['dataType'],
-                                self.cluster_calib,
+                                'lcw',
                                 part["scan"]))
         self.check_and_set('cluster_label', cluster_label)
 
@@ -157,7 +169,7 @@ class ChainConfigMaker(object):
 
             self.check_and_set('recl_fex_name', 'antikt')
             self.check_and_set('recl_ptMinCut', 15.)
-            self.check_and_set('recl_etaMaxCut', 2.0)
+            self.check_and_set('recl_etaMaxCut', 10.0)  # no effect, to be removed
             self.check_and_set('recl_merge_param', part['recoAlg'][1:-1])
             self.check_and_set('recl_jet_calib', 'nojcalib')
             self.check_and_set('recl_fex_alg_name', part["recoAlg"])
@@ -166,7 +178,7 @@ class ChainConfigMaker(object):
                            (part["recoAlg"],
                             '_',
                             part["dataType"],
-                            cluster_calib,
+                            self.cluster_calib,
                             part["jetCalib"],
                             part["scan"]))
 
@@ -267,6 +279,8 @@ class ChainConfigMaker(object):
                 self.err_hdr, part['trigType'], self.test_flag, part['TLA'])
             raise RuntimeError(msg)
 
+        self.hypo_types.append(hypo_type)
+        
         self.check_and_set('hypo_type', hypo_type)
 
         # convert the cleaner names obtained from the chain name to 
@@ -322,14 +336,13 @@ class ChainConfigMaker(object):
         # algorithm to use, and the corresponding algorithm dependent
         # parameters
 
-        cluster_args = {'do_lc': self.cluster_do_lc,
-                        'cluster_calib': self.cluster_calib,
-                        'label': self.cluster_label}
+        cluster_args = {'label': self.cluster_label}
         
         cluster_params = clusterparams_factory(cluster_args)
 
         fex_args = {'merge_param': self.merge_param,
                     'jet_calib': self.jet_calib,
+                    'cluster_calib': self.cluster_calib,
                     'fex_label': self.fex_label,
                     'data_type': self.data_type,
                     'fex_alg_name': self.fex_alg_name,  # for labelling

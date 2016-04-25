@@ -32,6 +32,7 @@ class _JetFexParams(object):
     def __init__(self,
                  merge_param,
                  jet_calib,
+                 cluster_calib,
                  fex_label,
                  data_type,
                  fex_alg_name,
@@ -43,6 +44,8 @@ class _JetFexParams(object):
         # jet_calib:
         # string used by offline to determine which calibration to perform
         self.jet_calib = jet_calib 
+        self.cluster_calib = cluster_calib
+        self.cluster_calib_fex = {'em': 'EM', 'lcw': 'LC'}.get(cluster_calib)
         self.fex_label = fex_label
         self.fex_alg_name = fex_alg_name  # from input dictionary
         

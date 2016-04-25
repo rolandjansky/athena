@@ -1,3 +1,9 @@
+2016-04-12   Peter Sherwood  <peter@pb-d-128-141-159-167.cern.ch>
+
+	* ChainConfigMaker.py (ChainConfigMaker._process_part): 
+	extended 'recl_etaMaxCut to 10 to eliminate any effective eta cut.
+	(with S Schramm).
+
 2016-03-16   Peter Sherwood  <peter@MacBook-Pro-7.fritz.box>
 
 	* JetDef.py (_check_input): removed the constraint that there be
@@ -13,6 +19,37 @@
 	protection has been put in place for this as the current
 	checks are sufficient to stop this kind of misconfiguration.
 
+2016-03-14   Peter Sherwood  <peter@pb-d-128-141-248-249.cern.ch>
+
+	* ChainConfigMaker_test.py (Test_ChainConfigMaker.setUp): 
+	update mock dictionaeries to include new items.
+
+	* AlgFactory.py: remove unused functions
+
+	* JetDef_test.py: remove unused import
+
+	* JetDef.py (_check_input): remove check on the number of
+	chain parts. More relevant tests added to ChainConfigMaker
+	(see below). Update test code (__main__)
+
+	* ChainConfigMaker.py (ChainConfigMaker.ensure_single_hypo): 
+	new function to count the number of hypos specied by the input
+	dictionary.
+
+2016-02-25   Peter Sherwood  <peter@pb-d-128-141-26-222.cern.ch>
+
+	* the cluster_calib variable in ClusterParams used to used to 
+	determine whether local calibration should  be performed.
+	Now TrigClusterCaloMaker is always run with local calibration on
+	and TrgHLTJetMaker uses cluster_calib to detemine whether
+	the calorimeter clusters should be put back into the uncalibrated
+	state prior to jet building
+	
+	* AlgFactory.py (AlgFactory.energyDensityAlg): set the cluster
+	calib label to 'LC' always
+
+	* ChainConfigMaker.py (ChainConfigMaker.process_part): 
+	set cluster_calib to 'lcw' always in the cluster algorithm algorihm
 2015-12-14  Peter Sherwood  <sherwood@lxplus0065.cern.ch>
 
 	* AlgFactory.py (AlgFactory.hlt_hypo_tla):

@@ -238,10 +238,15 @@ class L2EFChain_met(L2EFChainDef):
         output1 =jetChainDef.sequenceList[1]['output']
         algo1 =jetChainDef.sequenceList[1]['algorithm']
 
-        #obtaining TrigHLTJetRecFromCluster
+        #obtaining TrigHLTEnergyDensity
         input2=jetChainDef.sequenceList[2]['input']
         output2 =jetChainDef.sequenceList[2]['output']
         algo2 =jetChainDef.sequenceList[2]['algorithm']
+
+        #obtaining TrigHLTJetRecFromCluster
+        input3=jetChainDef.sequenceList[3]['input']
+        output3 =jetChainDef.sequenceList[3]['output']
+        algo3 =jetChainDef.sequenceList[3]['algorithm']
 
 
         #---End of obtaining jet TEs------------------------------
@@ -281,8 +286,8 @@ class L2EFChain_met(L2EFChainDef):
             self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
             self.EFsequenceList +=[[ input1,algo1,  output1 ]]            
             self.EFsequenceList +=[[ input2,algo2,  output2 ]]            
-
-            self.EFsequenceList +=[[ [output2], [theEFMETFex], 'EF_xe_step1' ]]
+            self.EFsequenceList +=[[ input3,algo3,  output3 ]]            
+            self.EFsequenceList +=[[ [output3], [theEFMETFex], 'EF_xe_step1' ]]
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
 
         #cell based MET

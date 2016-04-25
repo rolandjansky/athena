@@ -374,7 +374,7 @@ def defineMenu():
         #'L1_JJ15.23ETA49', # 4x4 window
 
         # single MU
-        "L1_MU4", "L1_MU6", "L1_MU10", "L1_MU15", "L1_MU20",
+        "L1_MU4", "L1_MU6", "L1_MU10", "L1_MU11", "L1_MU15", "L1_MU20",
 
         "L1_MU4_EMPTY", "L1_MU6_EMPTY", "L1_MU4_FIRSTEMPTY", "L1_MU11_EMPTY",
         'L1_MU4_UNPAIRED_ISO',
@@ -555,6 +555,7 @@ def defineMenu():
 
         # TGC
         "L1_TGC_BURST",
+        "L1_TGC_BURST_EMPTY",
 
         # LHCF
         "L1_LHCF", "L1_LHCF_UNPAIRED_ISO", "L1_LHCF_EMPTY",
@@ -842,6 +843,7 @@ def defineMenu():
         'L1_MU4' : 14,
         'L1_MU6' : 15,
         'L1_MU10' : 16,
+        'L1_MU11' : 256,
         'L1_MU15' : 17,
         'L1_MU20' : 18,
         'L1_MU4_EMPTY' : 19,
@@ -1069,7 +1071,7 @@ def defineMenu():
         'L1_RD0_EMPTY' : 202,
         'L1_RD1_FILLED' : 203,
         'L1_RD1_EMPTY' : 204,
-        'L1_RD1_BGRP14' : 188,
+        'L1_RD1_BGRP10' : 188,
         'L1_RD2_FILLED' : 205,
         'L1_RD2_EMPTY' : 206,
         'L1_RD3_FILLED' : 207,
@@ -1086,6 +1088,7 @@ def defineMenu():
         'L1_TRT_FILLED' : 218,
         'L1_TRT_EMPTY' : 219,
         'L1_TGC_BURST' : 220,
+        'L1_TGC_BURST_EMPTY' : 184,
         'L1_LHCF' : 221,
         'L1_BCM_Wide_BGRP0' : 222,
         'L1_BCM_AC_CA_BGRP0' : 223,

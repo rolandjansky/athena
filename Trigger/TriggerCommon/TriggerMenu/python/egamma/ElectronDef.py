@@ -571,7 +571,7 @@ class L2EFChain_e(L2EFChainDef):
 
             [theL2CaloRingerFex,theL2CaloRingerHypo] = TrigL2CaloRingerFexHypo_e_EtCut(threshold)
             theEFTrackHypo      = EFTrackHypo_e_NoCut("EFTrackHypo_e"+str(threshold)+"_NoCut",threshold) 
-            
+            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+str(threshold)+"_EtCut",threshold);
             if 'trkcut' in self.chainPart['addInfo']:
                 theEFElectronHypo = TrigEFElectronHypo_e_WTP("TrigEFElectronHypo_e"+str(threshold)+"_WTP",threshold)
             else:
@@ -594,6 +594,8 @@ class L2EFChain_e(L2EFChainDef):
 
             # L2 Calo
             [theL2CaloRingerFex, theL2CaloRingerHypo] = TrigL2CaloRingerFexHypo_e_ID(threshold,IDinfo,self.chainName)
+            # EF Calo
+            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+str(threshold)+"_EtCut",threshold);
             # EF Track
             theEFTrackHypo     = EFTrackHypo_e("EFTrackHypo_e"+str(threshold)+"_"+str(IDinfo),threshold)
             # EF Electron
@@ -638,11 +640,11 @@ class L2EFChain_e(L2EFChainDef):
                                  'EF_e_step1']]
         
         self.EFsequenceList += [[['EF_e_step1'], 
-                                 [self.theTrigEFCaloCalibFex], 
+                                 [self.theTrigEFCaloCalibFex,theTrigEFCaloHypo], 
                                  'EF_e_step2']]
         
         self.EFsequenceList += [[['EF_e_step2'], 
-                                 trkfast+trkprec+[ theEFTrackHypo],
+                                 trkfast+trkprec,
                                  'EF_e_step3']]
         
         self.EFsequenceList += [[['EF_e_step3'], 

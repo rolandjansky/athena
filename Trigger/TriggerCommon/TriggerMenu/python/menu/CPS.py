@@ -395,6 +395,8 @@ def defineCPSGroups():
         'RATE:CPS:HLT_mu_jet_L1MU4' : ['mu4_j15_bperf_split_dr05_dz02',
                                        'mu4_j25_bperf_split_dr05_dz02',
                                        'mu4_j35_bperf_split_dr05_dz02',
+				       'mu4_j35_bperf_split_dr05',
+				       'mu4_j35_bperf_split',
 				       ],
 				       
 				       
@@ -404,11 +406,15 @@ def defineCPSGroups():
 				       ],
         'RATE:CPS:HLT_mu_jet_L1MU6_J40' : [
 					'mu6_j150_bperf_split_dr05_dz02',
+					'mu6_j150_bperf_split_dr05',
+					'mu6_j150_bperf_split',
 					'mu6_j175_bperf_split_dr05_dz02',	
 				       ],
         'RATE:CPS:HLT_mu_jet_L1MU6_J75' : [
 						'mu6_j260_bperf_split_dr05_dz02',
 						'mu6_j320_bperf_split_dr05_dz02',
+						'mu6_j320_bperf_split_dr05',
+						'mu6_j320_bperf_split',
 						'mu6_j400_bperf_split_dr05_dz02',     
 				       ],			    
         }
@@ -501,7 +507,22 @@ def defineCPSGroups():
                                             'xe90_mht_wEFMu_L1XE70_BGRP7',
                                             'xe90_pueta_wEFMu_L1XE70_BGRP7',
                                             'xe90_pufit_wEFMu_L1XE70_BGRP7',
-                                            ],}) 
+                                            ],
+					    
+         'RATE:CPS:HLT_mu_jet_L1MU4' : ['mu4_j15_bperf_split_dr05_dz02',
+                                       'mu4_j25_bperf_split_dr05_dz02',
+                                       'mu4_j35_bperf_split_dr05_dz02',
+				       ],   
+        'RATE:CPS:HLT_mu_jet_L1MU6_J40' : [
+					'mu6_j150_bperf_split_dr05_dz02',
+					'mu6_j175_bperf_split_dr05_dz02',	
+				       ],
+        'RATE:CPS:HLT_mu_jet_L1MU6_J75' : [
+						'mu6_j260_bperf_split_dr05_dz02',
+						'mu6_j320_bperf_split_dr05_dz02',
+						'mu6_j400_bperf_split_dr05_dz02',     
+				       ],
+					    }) 
 
     if "v6" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
@@ -688,6 +709,7 @@ def defineCPSGroups():
                                        'xe100_tc_lcw_wEFMu_L1XE35',
                                        'xe100_tc_em_wEFMu_L1XE35', 
                                        'xe100_mht_wEFMu_L1XE35',   
+                                       'xe100_wEFMu_L1XE35',   
                                        ],         
         
         

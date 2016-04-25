@@ -164,6 +164,9 @@ class L2EFChain_tau(L2EFChainDef):
             [trkfast, trkprec[:]] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=["PT"]).getSequence()
         elif preselection == 'FTKRefit':
             [trkfast, trkprec[:]] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=["refit","PT"]).getSequence()
+        elif preselection == 'FTKNoPrec':
+            [trkfast] = TrigInDetFTKSequence("Tau","tau","").getSequence()
+            [trkprec[:]] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=["refit"]).getSequence()
         else:
             [trkfast, trkprec[:]] = TrigInDetSequence("Tau", "tau", "IDTrig").getSequence()
         # Use cosmic-specific tracking algorithm
@@ -302,10 +305,10 @@ class L2EFChain_tau(L2EFChainDef):
                          'trackcalo', 'tracktwocalo','tracktwo2015']
         # Strategies which need fast-track finding
         needsTrackTwoPre = ['tracktwo', 'tracktwoonly', 'tracktwocalo','tracktwo2015']
-        needsTrackPre    = ['track', 'trackonly', 'trackcalo', 'FTK', 'FTKRefit']
+        needsTrackPre    = ['track', 'trackonly', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec']
         # Strategies which need Run-II final hypo
         needsRun2Hypo = ['calo', 'ptonly', 'mvonly', 'caloonly',
-                         'trackonly', 'track', 'tracktwo', 'tracktwocalo', 'trackcalo', 'FTK', 'FTKRefit','tracktwo2015']
+                         'trackonly', 'track', 'tracktwo', 'tracktwocalo', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec', 'tracktwo2015']
         fastTrackingUsed = needsTrackPre + needsTrackTwoPre
         
         #Set the default values
@@ -321,7 +324,7 @@ class L2EFChain_tau(L2EFChainDef):
             selection = 'perf'
 
         #Create FTK chain or other chains
-        if preselection == 'FTK' or preselection == 'FTKRefit':           
+        if preselection == 'FTK' or preselection == 'FTKRefit' or preselection == 'FTKNoPrec':           
             self.addCaloSequence(threshold, selection, preselection)
             self.addTrackingSequence(threshold,selection,preselection,idperf,trkprec)
             self.addVertexSequence(threshold,selection,preselection,idperf)
@@ -370,12 +373,10 @@ class L2EFChain_tau(L2EFChainDef):
             if preselection not in fastTrackingUsed:
                 efidinsideout = trkcore+trkprec
 
-
             # Precision tracking
             self.EFsequenceList += [[[ self.currentItem ],
                                      efidinsideout,
                                      self.continueChain('EF', 'tr')]]
-
 
             # TrigTauRec and Hypo (no BDT)
             if selection == 'dikaon' or selection == 'dikaontight' or selection == 'dikaonmass' or selection == 'dikaonmasstight' or selection == 'singlepion' or selection == 'singlepiontight':

@@ -616,7 +616,12 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
         if topo2StartFrom:
             topo2StartFrom = L2TEname
         
-    [trkfast, trkprec] = TrigInDetSequence("Bphysics", "bphysics", "IDTrig").getSequence()
+    if 'Ftk' in topoAlgs:
+        from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
+        trkftk = TrigInDetFTKSequence("BeamSpot", "beamSpot", "").getSequence()
+    else:
+        from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+        [trkfast, trkprec] = TrigInDetSequence("Bphysics", "bphysics", "IDTrig").getSequence()
 
 #    from InDetTrigRecExample.EFInDetConfig import *
 #    theTrigEFIDInsideOut = TrigEFIDInsideOut_Bphysics().getSequence()
@@ -642,14 +647,20 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
         EFHypo = EFBMuMuXHypo_BplusMuMuKplus()
         
     elif 'bBmumuxv2' in topoAlgs:
-        #from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_1
-        #from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_1
-        from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_1
-        from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_1
-        #L2Fex  = L2BMuMuFex_1()
-        #L2Hypo = L2BMuMuHypo_1()
-        EFFex  =  EFBMuMuXFex_1()
-        EFHypo = EFBMuMuXHypo_1()
+        if 'Ftk' in topoAlgs:
+           from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_FTK
+           from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_FTK
+           EFFex  =  EFBMuMuXFex_FTK()
+           EFHypo = EFBMuMuXHypo_FTK()
+        else:
+           #from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_1
+           #from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_1
+           from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_1
+           from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_1  
+           #L2Fex  = L2BMuMuFex_1()
+           #L2Hypo = L2BMuMuHypo_1()  
+           EFFex  =  EFBMuMuXFex_1()
+           EFHypo = EFBMuMuXHypo_1()
         
     elif 'bBmumuxv3' in topoAlgs:
         print 'MOOOO in bBmumuxv3'
@@ -712,11 +723,45 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
         theChainDef.addSequence([EFFex, EFHypo], EFoutTEs, EFChainName)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
     
+    elif 'Ftk' in topoAlgs:
+    
+    #------- L2 Sequences -------
+    # create the individual outputTEs together with the first sequences that are run
+        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2TEname, topo_start_from = topoStartFrom)
+        theChainDef.addSignatureL2([L2TEname])
+
+
+    #------- EF Sequences -------
+        from TrigGenericAlgs.TrigGenericAlgsConf import  PESA__DummyUnseededAllTEAlgo
+        dummyAlgo = PESA__DummyUnseededAllTEAlgo("EFDummyAlgo")
+        trkFTK=[dummyAlgo]+trkftk[0]
+        EFTEcount = 0; EFoutputTEsftk = [];
+        for EFinputTE in inputTEsEF:
+            EFoutputTEdummy = EFinputTE+'_dummy'
+            EFTEcount = EFTEcount + 1
+            EFoutputTEftk = EFinputTE+'_ftk'+str(EFTEcount)
+            EFoutputTEsftk.append(EFoutputTEftk)
+        EFoutputTEftk = inputTEsEF[0]+'_ftk'
+
+        theChainDef.addSequence(trkFTK , L2TEname, EFoutputTEftk)
+
+        inputTEs_ftk = [EFoutputTEftk]+inputTEsEF
+
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFoutputTEftk])
+
+
+
+        theChainDef.addSequence([EFFex, EFHypo], inputTEs_ftk , EFTEname, topo_start_from = topo2StartFrom)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])        
+
+
     else:
     #------- L2 Sequences -------
     # create the individual outputTEs together with the first sequences that are run
         theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2TEname, topo_start_from = topoStartFrom)
         theChainDef.addSignatureL2([L2TEname])
+
+
     #------- EF Sequences -------
         EFTEcount = 0; EFoutTEsfast = []; 
         for EFinputTE in inputTEsEF:

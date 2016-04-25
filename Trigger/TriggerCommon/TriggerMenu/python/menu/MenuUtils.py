@@ -182,7 +182,6 @@ def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=Tr
             # if a topo is appended after the chain merging, or in same special cases, the replication of the last TEs is not necessary
             if noTEreplication:
                 log.warning("Removing replication of the TE for chain: %s" %(chainDef.chain_name))
-                print "BETTA: ", jet_count, met_count
                 signatureToAdd = signature['listOfTriggerElements'] 
             else:
                 signatureToAdd = signature['listOfTriggerElements'] if doTopo else signature['listOfTriggerElements'] + currentLastTEs 

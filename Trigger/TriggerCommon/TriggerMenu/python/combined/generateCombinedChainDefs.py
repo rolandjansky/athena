@@ -10,6 +10,8 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
+import re
+
 from copy import deepcopy
 
 ###########################################################################
@@ -97,6 +99,22 @@ def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
     return theChainDef
 
 
+
+##############################################################################
+#Helper
+
+def isJetTE(myString):
+    
+    
+    #print "BETTA: ", myString
+
+    if re.match("EF_[_0-9]+_hypo",myString) or re.match("EF_[_0-9]+_jetrec",myString) :
+        print "BETTA Pass :",myString
+        return True
+    else:
+        print "BETTA Fail :",myString
+        return False
+
 ##############################################################################
 def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs): 
 
@@ -141,9 +159,11 @@ def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs):
 
     # Second TE: jets
     for cD in listOfChainDefs:
-        if [x for x in cD.signatureList[-1]['listOfTriggerElements'] if 'EF__' in x]:
+        if [x for x in cD.signatureList[-1]['listOfTriggerElements'] if isJetTE(x)]:
+            #print "BETTA: found ", x
             inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
             break
+
 
     #for cD in listOfChainDefs: 
     #    inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
