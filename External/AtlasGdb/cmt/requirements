@@ -11,7 +11,7 @@ apply_pattern declare_scripts files="atlasAddress2Line"
 application resolveAtlasAddr2Line ../app/resolveAtlasAddr2Line.cpp
 macro_append resolveAtlasAddr2Line_dependencies " external_make_all "
 
-macro AtlasGdb_native_version "7.8.1"
+macro AtlasGdb_native_version "7.11"
 macro AtlasGdb_lib "$(AtlasGdb_root)/$(CMTCONFIG)/lib"
 
 private
@@ -20,6 +20,9 @@ private
 macro_remove cflags "-std=c11"
 macro_remove cflags "-std=c11"
 
+# Suppress some compilation warnings.
+macro_append cflags " -Wno-implicit-function-declaration "
+
 # make sure, 32 bit executable is created for i686 (fixing another compilation failure)
 macro supp_conf_flags "" target-i686 " --build=i686-linux"
 
@@ -27,7 +30,7 @@ macro supp_conf_flags "" target-i686 " --build=i686-linux"
 #  here, one additional step is involved to get the include files installed
 #  into the location <package>_root
 
-action external_untar "(cd ../$(CMTCONFIG); tar xvfJ ../src/gdb-$(AtlasGdb_native_version).tar.xz )"
+action external_untar "(cd ../$(CMTCONFIG); tar xvfJ ../src/gdb-$(AtlasGdb_native_version).tar.xz ; cp -f ../src/missing gdb-$(AtlasGdb_native_version) )"
 
 # gdb is a standalone executable, independent of compiler flags used for the rest of the atlas software
 #  only exception is that we need to link against libiberty and bfd, so build and expose them
@@ -67,9 +70,9 @@ macro_append install_exe_dependencies " external_make_install "
 end_private
 
 macro_append AtlasGdb_linkopts "" \
-  slc6&64&clang32 \ 
+  target-slc6&x86_64&target-clang \ 
  " $(AtlasGdb_root)/$(tag)/lib/libbfd.a \ 
-   $(AtlasGdb_root)/$(tag)/lib/x86_64/libiberty.a -lz " \
+   $(AtlasGdb_root)/$(tag)/lib64/libiberty.a -lz " \
   slc6&64&icc13 \ 
  " $(AtlasGdb_root)/$(tag)/lib/libbfd.a \ 
    $(AtlasGdb_root)/$(tag)/lib/libiberty.a -lz " \
@@ -79,4 +82,3 @@ macro_append AtlasGdb_linkopts "" \
   slc6 \
  " $(AtlasGdb_root)/$(tag)/lib/libbfd.a \
    $(AtlasGdb_root)/$(tag)/lib64/libiberty.a -lz "
-

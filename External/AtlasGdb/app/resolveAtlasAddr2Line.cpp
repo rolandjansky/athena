@@ -174,7 +174,7 @@ main (int argc, char **argv)
   if ( bool(avalue) && bool(fvalue) )
     {
       unsigned long l(0);
-      sscanf(avalue,"%lx",&l);
+      sscanf(avalue,"%80lx",&l);
       resolve((void*)l,fvalue); 
     }
   
