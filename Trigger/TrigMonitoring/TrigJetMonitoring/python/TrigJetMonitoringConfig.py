@@ -695,6 +695,13 @@ def TrigJetMonitoringTool():
             HLTEtaLowThres            = hlt_hltEtaLowThresholds,
 
             HLTJetn                   =hlt_hltJetn,
+            
+            # collision mode flags
+
+            isPP=pp,
+            isHI=hi,
+            isCosmic=cosmics,
+            isPPb=pPb,
 
             # L1 Items for trigger efficiency
             primary_l1jet           = hltmonList.primary_l1jet,
