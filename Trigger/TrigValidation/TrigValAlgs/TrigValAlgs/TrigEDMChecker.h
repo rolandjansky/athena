@@ -48,124 +48,124 @@ class TrigEDMChecker : public AthAlgorithm  {
 
 
    /** a handle on Store Gate for access to the Event Store */
-   bool doDumpAll;
+   bool m_doDumpAll;
 
-   bool doDumpLVL1_ROI;
+   bool m_doDumpLVL1_ROI;
   StatusCode dumpLVL1_ROI();
 
-   bool doDumpTrackParticleContainer;
+   bool m_doDumpTrackParticleContainer;
    StatusCode dumpTrackParticleContainer();
 
-   bool doDumpTrigMissingET;
+   bool m_doDumpTrigMissingET;
    StatusCode dumpTrigMissingET();
 
-   bool doDumpxAODTrigMissingET;
+   bool m_doDumpxAODTrigMissingET;
    StatusCode dumpxAODTrigMissingET();
 
-   bool doDumpxAODJetContainer;
+   bool m_doDumpxAODJetContainer;
    StatusCode dumpxAODJetContainer();
 
-   bool doDumpTrigL2BphysContainer;
+   bool m_doDumpTrigL2BphysContainer;
    StatusCode dumpTrigL2BphysContainer();
 
-   bool doDumpTrigEFBphysContainer;
+   bool m_doDumpTrigEFBphysContainer;
    StatusCode dumpTrigEFBphysContainer();
 
-   bool doDumpTrigEFBjetContainer;
+   bool m_doDumpTrigEFBjetContainer;
    StatusCode dumpTrigEFBjetContainer();
 
-   bool doDumpTrigL2BjetContainer;
+   bool m_doDumpTrigL2BjetContainer;
    StatusCode dumpTrigL2BjetContainer();
 
-   bool doDumpTrigTauClusterContainer;
+   bool m_doDumpTrigTauClusterContainer;
    StatusCode dumpTrigTauClusterContainer();
 
-   bool doDumpTrigEMCluster;
+   bool m_doDumpTrigEMCluster;
    StatusCode dumpTrigEMCluster();
 
-   bool doDumpTrigEMClusterContainer;
+   bool m_doDumpTrigEMClusterContainer;
    StatusCode dumpTrigEMClusterContainer();
 
 
-   bool doDumpxAODTrigEMCluster;
+   bool m_doDumpxAODTrigEMCluster;
    StatusCode dumpxAODTrigEMCluster();
 
-   bool doDumpxAODTrigEMClusterContainer;
+   bool m_doDumpxAODTrigEMClusterContainer;
    StatusCode dumpxAODTrigEMClusterContainer();
 
-   bool doDumpCombinedMuonFeature;
+   bool m_doDumpCombinedMuonFeature;
    StatusCode dumpCombinedMuonFeature();
    StatusCode dumpCombinedMuonFeatureContainer();
 
-   bool doDumpMuonFeature;
+   bool m_doDumpMuonFeature;
    StatusCode dumpMuonFeature();
 
-   bool doDumpTileMuFeature;
+   bool m_doDumpTileMuFeature;
    StatusCode dumpTileMuFeatureContainer();
 
-   bool doDumpTileTrackMuFeature;
+   bool m_doDumpTileTrackMuFeature;
    StatusCode dumpTileTrackMuFeatureContainer();
 
-   bool doDumpTrigPhotonContainer;
+   bool m_doDumpTrigPhotonContainer;
    StatusCode dumpTrigPhotonContainer();
 
-   bool doDumpTrigMuonEFContainer;
+   bool m_doDumpTrigMuonEFContainer;
    StatusCode dumpTrigMuonEFContainer();
 
-   bool doDumpTrigMuonEFInfoContainer;
+   bool m_doDumpTrigMuonEFInfoContainer;
    StatusCode dumpTrigMuonEFInfoContainer();
-   void printMuonTrk(MsgStream &mLog, TrigMuonEFTrack* muonTrack);
-   void printMuonTrk(MsgStream &mLog, TrigMuonEFCbTrack* muonTrack);
+   void printMuonTrk(MsgStream &mLog, const TrigMuonEFTrack* muonTrack);
+   void printMuonTrk(MsgStream &mLog, const TrigMuonEFCbTrack* muonTrack);
 
-   bool doDumpxAODMuonContainer;
+   bool m_doDumpxAODMuonContainer;
    StatusCode dumpxAODMuonContainer();
 
-   bool doDumpTrigMuonEFIsolationContainer;
+   bool m_doDumpTrigMuonEFIsolationContainer;
    StatusCode dumpTrigMuonEFIsolationContainer();
 
-   bool doDumpTrigElectronContainer;
+   bool m_doDumpTrigElectronContainer;
    StatusCode dumpTrigElectronContainer();
 
-   bool doDumpxAODTrigElectronContainer;
+   bool m_doDumpxAODTrigElectronContainer;
    StatusCode dumpxAODTrigElectronContainer();
    
-   bool doDumpxAODTrigPhotonContainer;
+   bool m_doDumpxAODTrigPhotonContainer;
    StatusCode dumpxAODTrigPhotonContainer();
    
-   bool doDumpxAODElectronContainer;
+   bool m_doDumpxAODElectronContainer;
    StatusCode dumpxAODElectronContainer();
    
-   bool doDumpxAODPhotonContainer;
+   bool m_doDumpxAODPhotonContainer;
    StatusCode dumpxAODPhotonContainer();
    
-   bool doDumpTrigTauContainer;
+   bool m_doDumpTrigTauContainer;
    StatusCode dumpTrigTauContainer();
 
-   bool doDumpTrigTauTracksInfo;
+   bool m_doDumpTrigTauTracksInfo;
    StatusCode dumpTrigTauTracksInfo();
 
-   bool doDumpHLTResult;
+   bool m_doDumpHLTResult;
    StatusCode dumpHLTResult();
 
-   bool doDumpTrigInDetTrackCollection;
+   bool m_doDumpTrigInDetTrackCollection;
    StatusCode dumpTrigInDetTrackCollection();
 
-   bool doDumpTrigVertexCollection;
+   bool m_doDumpTrigVertexCollection;
    StatusCode dumpTrigVertexCollection();
 
-   bool doDumpxAODTauJetContainer;
+   bool m_doDumpxAODTauJetContainer;
    StatusCode dumpxAODTauJetContainer();
  
-   bool doDumpTauJetContainer;
+   bool m_doDumpTauJetContainer;
    StatusCode dumpTauJetContainer();
 
-   bool doDumpxAODTrackParticle;
+   bool m_doDumpxAODTrackParticle;
    StatusCode dumpxAODTrackParticle();
 
-   bool doDumpxAODVertex;
+   bool m_doDumpxAODVertex;
    StatusCode dumpxAODVertex();
 
-   bool doDumpxAODTrigMinBias;
+   bool m_doDumpxAODTrigMinBias;
    StatusCode dumpxAODTrigMinBias();
    void dumpTrigSpacePointCounts(MsgStream &mLog);
    void dumpTrigT2MBTSBits(MsgStream &mLog);

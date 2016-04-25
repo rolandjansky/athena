@@ -16,6 +16,8 @@
 #include "TrigCaloEvent/TrigTauClusterContainer.h"
 #include "TrigInDetEvent/TrigTauTracksInfoCollection.h"
 
+#include "TrigSteeringEvent/Lvl1Item.h"
+
 // Muon includes
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
@@ -35,6 +37,7 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODTrigMissingET/TrigMissingETContainer.h"
 
 // bjet includes
 #include "xAODTracking/VertexContainer.h"
@@ -51,8 +54,6 @@
 #include "VxSecVertex/VxSecVKalVertexInfo.h"
 
 #include "TrigConfigSvc/DSConfigSvc.h"
-
-#include "TrigSteeringEvent/Lvl1Result.h"
 
 // Gaudi inlcudes
 //#include "AthenaBaseComps/AthAlgorithm.h"
@@ -139,6 +140,7 @@ TrigDecisionChecker::TrigDecisionChecker(const std::string &name, ISvcLocator *p
     declareProperty("TauItems",       m_TauItems, "Tau triggers to test");
     declareProperty("MinBiasItems",      m_minBiasItems, "MinBias triggers to test");
     declareProperty("JetItems",       m_jetItems, "Jet triggers to test");
+    declareProperty("MetItems",       m_metItems, "Met triggers to test");
     
 }
 
@@ -483,8 +485,17 @@ StatusCode TrigDecisionChecker::execute()
             return sc;
         }
     }
-    ATH_MSG_INFO("REGTEST ==========END of Jet EDM/Navigatinon check===========");
+    ATH_MSG_INFO("REGTEST ==========END of Jet EDM/Navigation check===========");
     
+    ATH_MSG_INFO("REGTEST ==========START of Met EDM/Navigation check===========");
+    for(auto metItem : m_metItems) {
+        sc = checkMetEDM(metItem);
+        if ( sc.isFailure() ) {
+            ATH_MSG_INFO("REGTEST Could not finish checkMetEDM test for chain " << metItem);
+            return sc;
+        }
+    }
+    ATH_MSG_INFO("REGTEST =========END of Met EDM/Navigation check============");
     
     if (m_event_decision_printout) {
         msg(MSG::INFO) << "TrigDecisionChecker::execute" << endreq;
@@ -1215,4 +1226,39 @@ StatusCode TrigDecisionChecker::checkJetEDM(std::string trigItem){
     return StatusCode::SUCCESS;
 }
 
+StatusCode TrigDecisionChecker::checkMetEDM(std::string trigItem){
+    ATH_MSG_DEBUG("in checkMetEDM()");
 
+    ATH_MSG_INFO("REGTEST =====For chain " << trigItem << "=====");
+
+    ATH_MSG_INFO("Chain passed = " << m_trigDec->isPassed(trigItem));
+
+    Trig::FeatureContainer fc = m_trigDec->features(trigItem);
+    const std::vector< Trig::Feature<xAOD::TrigMissingETContainer> > vec_met = fc.get<xAOD::TrigMissingETContainer>();
+    ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::TrigMissingETContainer> > = " << vec_met.size());
+    for(auto metfeat : vec_met){
+        const xAOD::TrigMissingETContainer * metCont = metfeat.cptr();
+
+        ATH_MSG_INFO("REGTEST Fot trigMet container, size: " << metCont->size());
+
+        const xAOD::TrigMissingET * metObj = metCont->front(); // the first object in the container typically holds the total MET, other objects hold components
+
+        if (metObj){
+            ATH_MSG_DEBUG("REGTEST    Checking met variables");
+            ATH_MSG_INFO("REGTEST    ex: " << metObj->ex() );
+            ATH_MSG_INFO("REGTEST    ey: " << metObj->ey() );
+            ATH_MSG_INFO("REGTEST    sumEt: " << metObj->sumEt() );
+            ATH_MSG_INFO("REGTEST    ez: " << metObj->ez() );
+            ATH_MSG_INFO("REGTEST    sumE: " << metObj->sumE() );
+            ATH_MSG_INFO("REGTEST    number of components: " << metObj->getNumberOfComponents() );
+        }
+        else{
+            ATH_MSG_ERROR("REGTEST Problem with met pointer" );
+            return StatusCode::FAILURE;
+        }
+    }
+    
+    ATH_MSG_DEBUG("leaving checkMetEDM()");
+
+    return StatusCode::SUCCESS;
+}
