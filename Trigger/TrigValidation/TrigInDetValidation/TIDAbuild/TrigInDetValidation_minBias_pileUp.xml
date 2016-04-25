@@ -1,0 +1,38 @@
+  <athena userJobId='TrigInDetValidation_minBias_pileUp'>
+            <doc>Tests LVL2 and EF ID full scan instance of tracking algorithms in the tTbar Pileup  sample</doc>
+            <displayName>FullScan on tTBar events</displayName>
+	    <commandLineFlags>EventMax=1000;</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+
+           
+#          include "samples/TrigInDetValidation_minBias_sample1.xml"
+           
+     <action position="01">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat -f data-monitor-pileup.root -b Test_bin.dat </argvalue>
+                </arg>
+            </action>
+	    	    
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+            <auxFilePattern>expert-monitoring-minBias_pileUp-ref.root</auxFilePattern>
+#           include "TrigInDetValidation_aux.xml"	    
+
+
+          <athenaCommonFlags /> 
+	  </athena>
+
+

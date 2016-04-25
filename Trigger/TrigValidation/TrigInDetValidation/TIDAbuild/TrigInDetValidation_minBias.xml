@@ -1,0 +1,58 @@
+         <athena userJobId='TrigInDetValidation_minBias'>
+            <doc>Tests LVL2 and EF ID full scan instance of tracking algorithms in the di-jet sample</doc>
+            <displayName>FullScan on di-jet events</displayName>
+	    <commandLineFlags>EventMax=1000;</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+ 
+#          include "samples/TrigInDetValidation_minBias_sample0.xml"
+	    
+            <action position="01">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat -f data-monitor.root -b Test_bin.dat </argvalue>
+                </arg>
+            </action>
+
+            <action position="02">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-monitor.root data-minBias-reference.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots </argvalue>
+              </arg>
+            </action>
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+#         include "TrigInDetValidation_extra.xml"
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+
+	    <auxFilePattern>data-minBias-reference.root</auxFilePattern>
+
+            <auxFilePattern>expert-monitoring-minBias-ref.root</auxFilePattern>
+#           include "TrigInDetValidation_aux.xml"
+
+
+          <athenaCommonFlags /> 
+	  <alwaysRunPostProc />
+	  </athena>
+

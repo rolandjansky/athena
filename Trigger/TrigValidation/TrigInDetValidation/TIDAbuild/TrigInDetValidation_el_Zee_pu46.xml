@@ -1,0 +1,106 @@
+	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_Zee_pu46'>
+           <doc>Electron Zee, pu46, run2 chains</doc>
+           <displayName>ElectronSlice- Zee mu=46, run2 chains</displayName>
+           <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
+           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+           <package>Trigger/TrigValidation/TrigInDetValidation</package>
+           <group>TrigInDetValidation</group>
+           <queue>long</queue>
+
+#          include "samples/TrigInDetValidation_el_sample5.xml"
+
+	   
+           <action position="01">
+             <modulename>RttLibraryTools</modulename> 
+             <testname>ExeRunner</testname> 
+             <arg> 
+               <argname>exeName</argname>
+               <argvalue>TIDArdict.exe</argvalue> 
+             </arg>
+             <arg> 
+               <argname>exeParamString</argname>
+               <argvalue>TIDAdata11-rtt.dat -f data-electron-merge.root -p 11 -b Test_bin.dat </argvalue>
+             </arg>
+           </action>
+	   
+	   
+
+     <action position="02">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron-merge.root data-el_Zee_pu46-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
+              </arg>
+            </action>
+
+     <action position="03">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron-merge.root data-el_Zee_pu46-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots </argvalue>
+              </arg>
+            </action>
+
+     <action position="04">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron-merge.root data-el_Zee_pu46-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
+              </arg>
+            </action>
+
+
+
+     <action position="05">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron-merge.root data-el_Zee_pu46-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+              </arg>
+            </action>
+
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+#         include "TrigInDetValidation_extra.xml"
+
+
+
+
+	   
+           <testToRemove>
+             <jobGroupName>RTT:Top</jobGroupName>
+             <testidentifier>CheckFileRunner0</testidentifier>
+           </testToRemove>
+	   
+
+           <auxFilePattern>data-el_Zee_pu46-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-el_Zee_pu46-ref.root</auxFilePattern>
+#           include "TrigInDetValidation_aux.xml"
+           <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
+
+
+           <athenaCommonFlags /> 
+         </athena>
+
+

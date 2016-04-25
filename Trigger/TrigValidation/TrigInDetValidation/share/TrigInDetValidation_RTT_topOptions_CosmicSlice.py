@@ -37,8 +37,8 @@ if not use_new_tm:
   pass
 else:
   cosmicTrigChainlist.append(['id_cosmic',               '', [], ['IDCosmic', 'express'], ['RATE:CosmicSlice', 'RATE:Cosmic_Tracking', 'BW:Detector'], 1])
-  cosmicTrigChainlist.append(['id_cosmic_trtxk',         '', [], ['IDCosmic'], ['RATE:CosmicSlice', 'BW:Detector'], 1])
-  cosmicTrigChainlist.append(['id_cosmic_trtxk_central', '', [], ['IDCosmic'], ['RATE:CosmicSlice', 'BW:Detector'], 1])
+#  cosmicTrigChainlist.append(['id_cosmic_trtxk',         '', [], ['IDCosmic'], ['RATE:CosmicSlice', 'BW:Detector'], 1])
+#  cosmicTrigChainlist.append(['id_cosmic_trtxk_central', '', [], ['IDCosmic'], ['RATE:CosmicSlice', 'BW:Detector'], 1])
 
   tidaAnalysischains.append('HLT_id_cosmic*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID')
 
@@ -58,7 +58,6 @@ def resetSigs():
   TriggerFlags.CosmicSlice.signatures = cosmicTrigChainlist
 
 PdgId=13
-triggerMenuVersion='LS1_v1'
 
 #disable pixel cluster splitting in the offline reco
 from InDetRecExample.InDetJobProperties import InDetFlags

@@ -45,8 +45,14 @@ if 'runMergedChain' in dir() and runMergedChain==True:
 rID=False
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
   rID = True
+rFTK=False
+if 'doFTK' in dir() and doFTK==True:
+  from TriggerJobOpts.TriggerFlags import TriggerFlags
+  TriggerFlags.doFTK=True
+  rFTK=True
 
-(idtrigChainlist, tidaAnalysischains) = bjetChains(rMC,rID)
+(idtrigChainlist, tidaAnalysischains) = bjetChains(rMC,rID,rFTK)
+
 
 def resetSigs():
   #TriggerFlags.doMuon=False         #dependency of L1Topo

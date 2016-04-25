@@ -1,0 +1,72 @@
+  <athena trendId='muonTrend' userJobId='TrigInDetValidation_mu_single_mu_larged0_PU'>
+            <doc>Single muon 100 GeV, run2 chains </doc>
+            <displayName>MuonSlice-single muon larged0, pu, run2 chains</displayName>
+            <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+#          include "samples/TrigInDetValidation_mu_sample8.xml"
+           <action position="01">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArdict.exe</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>TIDAdata11-rtt-larged0.dat -f data-muon.root -p 13  -b Test_bin.dat </argvalue>
+              </arg>
+            </action>
+
+
+     <action position="02">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-muon.root data-mu_single_mu_larged0_PU-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu6_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig -d HLTEF-plots </argvalue>
+              </arg>
+            </action>
+
+     <action position="03">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-muon.root data-mu_single_mu_larged0_PU-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
+              </arg>
+            </action>
+
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+#         include "TrigInDetValidation_extra.xml"
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+
+	    <auxFilePattern>data-mu_single_mu_larged0_PU-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-mu_single_mu_larged0_PU-ref.root</auxFilePattern>
+#           include "TrigInDetValidation_aux.xml"
+
+
+         <athenaCommonFlags />
+         </athena>
+
+
+

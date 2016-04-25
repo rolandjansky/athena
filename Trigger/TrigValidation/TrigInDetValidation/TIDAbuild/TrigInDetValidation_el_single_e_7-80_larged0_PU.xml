@@ -1,0 +1,102 @@
+         <athena trendId='electronIBLTrend' userJobId='TrigInDetValidation_el_single_e_7-80_larged0_PU'>
+            <doc>Single part electron test 7-80 GeV, larged0</doc>
+            <displayName>ElectronSlice single particle e 7-80 GeV, larged0</displayName>
+	    <commandLineFlags>EventMax=6000;runMergedChain=True</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+
+#          include "samples/TrigInDetValidation_el_sample8.xml"
+
+
+            <action position="01">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDArdict.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>TIDAdata11-rtt-larged0-el.dat -f data-electron-IBL.root -p 11 -b Test_bin.dat </argvalue>
+              </arg>
+            </action>
+
+
+     <action position="02">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
+              </arg>
+            </action>
+
+     <action position="03">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
+              </arg>
+            </action>
+
+
+     <action position="04">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots </argvalue>
+              </arg>
+            </action>
+
+     <action position="05">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+              </arg>
+            </action>
+
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+#         include "TrigInDetValidation_extra.xml"
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+
+	    <auxFilePattern>data-el_single_e_7-80_larged0-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-el_single_e_7-80_larged0-ref.root</auxFilePattern>
+#           include "TrigInDetValidation_aux.xml"
+	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>	
+
+
+         <athenaCommonFlags /> 
+         </athena>
+
+

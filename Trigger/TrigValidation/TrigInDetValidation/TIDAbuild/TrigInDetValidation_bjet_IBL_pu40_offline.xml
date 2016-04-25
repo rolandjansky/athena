@@ -1,0 +1,75 @@
+         <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_offline'>
+            <doc>Bjetslice, ttbar, pu40, IBL, run2 chains, vs offline</doc>
+            <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains, vs offline</displayName>
+	    <commandLineFlags>EventMax=900;doIDNewTracking=True;runMergedChain=True;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_BjetSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+	   
+#          include "samples/TrigInDetValidation_ttbar_sample1.xml"
+
+            <action position="01">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt-offline.dat -f data-bjet-pileup.root -b Test_bin.dat </argvalue>
+                </arg>
+            </action>
+
+           <action position="02">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDAcomparitor.exe</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-pileup.root data-bjet-pileup.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
+                </arg>
+            </action>
+
+
+            <action position="03">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDAcomparitor.exe</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-pileup.root data-bjet-pileup.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
+                </arg>
+            </action>
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+#         include "TrigInDetValidation_extra.xml"
+
+
+
+        
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+
+            <auxFilePattern>data-bjet_IBL_pu40-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-bjet_IBL_pu40-ref.root</auxFilePattern>
+#           include "TrigInDetValidation_aux.xml"
+
+   
+         <athenaCommonFlags /> 
+         </athena>
+
+
+
