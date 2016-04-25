@@ -26,14 +26,6 @@
 // CLHEP includes
 #include "CLHEP/Geometry/Point3D.h"
 
-// G4TruthStrategies
-#include "G4TruthStrategies/BremsstrahlungStrategy.h"
-#include "G4TruthStrategies/ComptonStrategy.h"
-#include "G4TruthStrategies/ConversionStrategy.h"
-#include "G4TruthStrategies/DecayStrategy.h"
-#include "G4TruthStrategies/HadronicInteractionStrategy.h"
-#include "G4TruthStrategies/IonizationStrategy.h"
-
 // DetectorDescription
 #include "AtlasDetDescr/AtlasRegionHelper.h"
 

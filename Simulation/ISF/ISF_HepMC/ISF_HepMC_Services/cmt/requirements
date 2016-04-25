@@ -18,7 +18,6 @@ use AtlasDetDescr                 AtlasDetDescr-*         DetectorDescription
 use AtlasHepMC                    AtlasHepMC-*            External
 use AtlasCLHEP                    AtlasCLHEP-*            External
 use BarcodeInterfaces             BarcodeInterfaces-*     Simulation/Barcode
-use G4TruthStrategies             G4TruthStrategies-*     Simulation/G4Utilities
 use GeneratorObjects              GeneratorObjects-*      Generators
 use ISF_Event                     ISF_Event-*             Simulation/ISF/ISF_Core
 use ISF_HepMC_Interfaces          ISF_HepMC_Interfaces-*  Simulation/ISF/ISF_HepMC
