@@ -231,7 +231,7 @@ topSequence = AlgSequence()
 from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
 tdt = Trig__TrigDecisionTool("TrigDecisionTool")
 ToolSvc += tdt
-tdt.OutputLevel = INFO
+# tdt.OutputLevel = INFO
 
 ##### Histogram File Part #################
 
@@ -250,7 +250,7 @@ svcMgr += BeamCondSvc(name="InDetBeamSpotOnline")
 
 from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestMonToolAC
 TestMonTool = TrigTestMonToolAC( name="TestMonToolAC")
-TestMonTool.OutputLevel = INFO
+# TestMonTool.OutputLevel = INFO
 try:
   TestMonTool.EnableLumi = False
 except:
