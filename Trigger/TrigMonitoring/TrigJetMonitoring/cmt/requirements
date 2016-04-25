@@ -16,14 +16,11 @@ use xAODTrigger			xAODTrigger-*               Event/xAOD
 use xAODEventInfo               xAODEventInfo-*             Event/xAOD
 
 private
-use EventKernel                 EventKernel-*               Event
 use AtlasBoost                  AtlasBoost-*                External
 use AtlasROOT                   AtlasROOT-*                 External
 use StoreGate                   StoreGate-*                 Control
-use JetUtils		        JetUtils-*		            Reconstruction/Jet
-use JetEvent                    JetEvent-*                  Reconstruction/Jet
+use TrigSteeringEvent           TrigSteeringEvent-*         Trigger/TrigEvent
 use TrigDecisionTool            TrigDecisionTool-*          Trigger/TrigAnalysis
-use TrigObjectMatching          TrigObjectMatching-*        Trigger/TrigAnalysis
 
 apply_tag ROOTGraphicsLibs
 apply_tag ROOTMathLibs
