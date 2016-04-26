@@ -13,17 +13,11 @@
 #include <TFile.h>
 #include <TSystem.h>
 
-#ifndef ROOTCORE
 #include "PathResolver/PathResolver.h"
-#endif
 
 
 corr_HV_EMBPS::corr_HV_EMBPS(){
-#ifdef ROOTCORE
-  std::string filename = "$(ROOTCOREBIN)/data/egammaLayerRecalibTool/HVmaps_embps_2012.root";
-#else 
-  std::string filename = PathResolver::find_file ("HVmaps_embps_2012.root", "DATAPATH");
-#endif
+  std::string filename = PathResolverFindCalibFile("egammaLayerRecalibTool/v1/HVmaps_embps_2012.root");
   m_file = TFile::Open(filename.c_str());
   if (not m_file or m_file->IsZombie()) {
     std::cerr << "FATAL: cannot open " << filename << std::endl;
@@ -51,7 +45,7 @@ corr_HV_EMBPS::~corr_HV_EMBPS()
 float corr_HV_EMBPS::getCorr(int run, float eta,float phi) const
 {
    if (fabs(eta) > 1.5) return 1.;
-   if (run<200804 || run>216432) return 1.;
+   if (run<200804) return 1.;
    int iperiod;
    if (run<204932) iperiod=0;
    else if (run<205112) iperiod=1;
@@ -97,7 +91,7 @@ float corr_HV_EMBPS::getCorr(int run, float eta,float phi) const
    //std::cout << " newCorr " << newCorr << std::endl;
 
    return newCorr;
-   
+
 }
 
 //===============================================================================
