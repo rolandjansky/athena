@@ -296,10 +296,13 @@ class TrigHLTHIJetRecFromHICluster(TrigHLTJetRecFromCluster):
          if (doSubtraction) :
             hicluster_name = "TrigCaloClusterMaker_topo_ionemFS"
 
-       from  TrigHLTJetRec.TrigHLTJetRecConfig import _getIParticleSelectorAll
+       from  TrigHLTJetRec.TrigHLTJetRecConfig import _getPseudoJetSelectorAll		#_getIParticleSelectorAll
        
-       self.iParticleSelector = _getIParticleSelectorAll(
-           'iParticleSelectorAll')
+       #self.iParticleSelector = _getIParticleSelectorAll(
+       #    'iParticleSelectorAll')
+       
+       self.iPseudoJetSelector = _getPseudoJetSelectorAll(				
+           'iPseudoJetSelectorAll')
 
        if (doSubtraction) : 
           jetBuildTool = _getHIJetBuildTool(
