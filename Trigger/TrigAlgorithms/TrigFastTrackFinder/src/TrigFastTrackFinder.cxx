@@ -382,20 +382,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
 
   clearMembers();
 
-  // Retrieve vertexing information if needed
-
-  const TrigVertexCollection* vertexCollection = nullptr;
-
-  if(m_vertexSeededMode) {
-    //HLT::ErrorCode status = getFeature(inputTE, vertexCollection,"");
-    //
-    //NOTE the inputTE vs outputTE difference - the feature is assumed to come from the same step in the sequence
-    HLT::ErrorCode status = getFeature(outputTE, vertexCollection);
-    if(status != HLT::OK) return status;
-    if(vertexCollection==nullptr) return HLT::ERROR;
-  }
-
- 
   // 2. Retrieve beam spot and magnetic field information 
   //
 
@@ -513,7 +499,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     if (m_doZFinder) {
       if ( timerSvc() ) m_ZFinderTimer->start();
       superRoi->setComposite(true);
-      vertexCollection = m_trigZFinder->findZ( convertedSpacePoints, *internalRoI);
+      TrigVertexCollection* vertexCollection = m_trigZFinder->findZ( convertedSpacePoints, *internalRoI);
       ATH_MSG_VERBOSE("vertexCollection->size(): " << vertexCollection->size());
       for (auto vertex : *vertexCollection) {
         ATH_MSG_DEBUG("REGTEST / ZFinder vertex: " << *vertex);
@@ -527,6 +513,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
       }
       m_tcs.roiDescriptor = superRoi.get();
       ATH_MSG_DEBUG("REGTEST / superRoi: " << *superRoi);
+      delete vertexCollection;
       if ( timerSvc() ) m_ZFinderTimer->stop();
     }
     m_currentStage = 3;
