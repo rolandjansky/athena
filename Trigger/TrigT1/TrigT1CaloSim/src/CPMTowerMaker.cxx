@@ -113,7 +113,7 @@ StatusCode CPMTowerMaker::execute( )
   }
       
   // Finally, store CPMTs and we are done
-  StatusCode sc = evtStore()->overwrite(vectorOfCPMTs, m_cpmTowerLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(vectorOfCPMTs, m_cpmTowerLocation, true);
   
   // Report success or failure
   if (sc != StatusCode::SUCCESS) {

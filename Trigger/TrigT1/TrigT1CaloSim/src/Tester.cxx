@@ -358,7 +358,6 @@ void LVL1::Tester::compareROIWords(){
 	return;
 }//end of compareROIWords
 
-  // Now test new jet trigger implementation
 
 /** prints useful TriggerTower values*/
 void LVL1::Tester::dumpEDM(){
