@@ -134,8 +134,6 @@ protected:
   float m_tripletMinPtFrac;
   float m_pTmin;
   float m_initialD0Max;
-  float m_doublet_dR_Max;
-  float m_seedRadBinWidth;
 
   bool m_checkSeedRedundancy;
 
@@ -247,6 +245,8 @@ protected:
   Trk::ParticleHypothesis m_particleHypothesis;//particle hypothesis to attach to each track - usually pion, can be set to other values
 
   std::map<Identifier, std::vector<long int> > m_siClusterMap;
+
+  bool m_useNewLayerNumberScheme;
 
 };
 
