@@ -339,13 +339,6 @@ function showBuildFailures(failures,link) {
     }
     print "Nightly wiki page name using postfix: $nightlywiki\n";
     
-#    print HTMLOUT "<p>Shifter: before modifing the wiki test that you are authenticated <A  HREF=\"https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerValidationATNStatusDummy\" onClick=\"return popup(this, 'notes')\">here</A><br>\n";
-# doesnt' work    print HTMLOUT <A  HREF=\"https://login.cern.ch/adfs/ls/?wa=wsignout1.0\"> logout </A> \n"; 
-
-#    print HTMLOUT "Update wiki with  problems common to multiple tests <A  HREF=\"https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerValidationATNStatus$nightlywiki#Current_issues_in_nightly_ATN_te\" onClick=\"return popup(this, 'notes')\">here</A> </p>\n";
-
-    print HTMLOUT "<p><b>Shifter:</b> <a href=\"https://savannah.cern.ch/bugs/?group=atlas-trig&func=browse&set=custom&msort=0&custom_sb6[]=101&assigned_to[]=0&date[]=1900-1-1&priority[]=0&resolution_id=3,4,5,8,100,101,378&severity[]=0&status_id[]=1&release[]=&fix_release[]=&date_op[]=%3E&advsrch=0&msort=0&chunksz=150&spamscore=5&report_id=378&sumORdet=&morder=resolution_id<,bug_id>&order=bug_id#results\">Click here</a> to get a list of Savannah bugs flagged as affecting ATLAS nightlies. Please create a new bug report, with \"Affects ATN\" set to true for all issues not listed there.</p>";
-    
     print HTMLOUT "\n<table class=\"sortable\" id=\"ATNResults\" border=1><thead><tr>
 <th title=\"Click to sort by test suite\">Test name</th> 
 <th>Wiki</th>
