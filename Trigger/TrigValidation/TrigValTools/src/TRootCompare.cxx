@@ -263,13 +263,16 @@ void TRootCompare::processKey(TDirectory& dir, TKey& key)
           title+=href.GetName();          
           text.DrawTextNDC(0.5,0.99,title);
 
+          const int maxchars = 120; // max #chars for title
           if (_file) {
             text.SetTextColor(kBlue);
-            text.DrawTextNDC(0.5,0.96,_file->GetName());
+            string s(_file->GetName());
+            text.DrawTextNDC(0.5,0.93,s.substr(s.size()-maxchars).c_str());
           }
           if (_refFile) {
             text.SetTextColor(kRed);
-            text.DrawTextNDC(0.5,0.93,_refFile->GetName());
+            string s(_refFile->GetName());
+            text.DrawTextNDC(0.5,0.96,s.substr(s.size()-maxchars).c_str());
           }
                                  
           if (_psFile!="") printCanvas(_psFile);

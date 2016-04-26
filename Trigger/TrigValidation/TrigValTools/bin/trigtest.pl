@@ -50,7 +50,8 @@ $docout = "doc.txt";
 # bit positions marked 1 will be used, 0 will not be used.
 # SCRIPT_MISC is on the right, ATN_TIME_LIMIT on the left
 # This default mask can be modified via the 'extra_failure_codes' test directive
-$default_exitmask = 0b00101001;
+# only "shout" if we see/have: ATHENA_BAD_EXIT => 8 decimal 8 in bit is 0b00001000 thus 
+$default_exitmask = 0b00001000;
 
 # Exit mask of the last run test. Not nice but the easiest way to implement
 # this on top of all the other ugly things in this script.
@@ -179,14 +180,14 @@ sub command_line(){
                            'debug!' => \$debug,
                            'verify!' => \$verify,
                            'verifyconfig!' => \$verifyconfig,
-			   'showsummary' => \$showsummary,
+                           'showsummary' => \$showsummary,
                            'failkey=s' => \$failkey,
                            'warnkey=s' => \$warnkey,
                            'config=s' => \$configfile,
-			   'test=s' => \@tests,
-			   'rundir=s' => \$run_dir,
-			   'cleardir!' => \$clear_dir,
-			   'package=s' => \$testpackagefq);
+			               'test=s' => \@tests,
+			               'rundir=s' => \$run_dir,
+			               'cleardir!' => \$clear_dir,
+			               'package=s' => \$testpackagefq);
   if ($help || !$result) {
       usage();
       prog_error_exit("usage",'SCRIPT_MISC');
@@ -1048,7 +1049,13 @@ sub run_test($){
  
     # get the nightly we are using form the CMTPATH    
     my $nightly = "";
-    my $cmt = $ENV{'CMTPATH'};   
+    my $cmt = "";
+    if(defined $ENV{'CMAKE_PREFIX_PATH'}){
+        $cmt = $ENV{'CMAKE_PREFIX_PATH'};
+    }
+    else{        
+        $cmt = $ENV{'CMTPATH'};
+    }
     my $nightlykey =  'builds/nightlies/';
     my $keylength  = length $nightlykey;
     my $start  = rindex($cmt,$nightlykey) ;
@@ -1065,13 +1072,16 @@ sub run_test($){
     # rootcomp
     if ($config{$id}->{'rootcomp'}){
       	my $rootcomp_file1 =  $config{$id}->{'rootcomp_file1'};
-	my $rootcomp_file2 =  $config{$id}->{'rootcomp_file2'};
+        my $rootcomp_file2 =  $config{$id}->{'rootcomp_file2'};
         if( $nightly ne "" ) {
            # allow for custom tests with two files
            $rootcomp_file2  =~ s/latest/$nightly/g ;
 	}
         $rootcomp_file1 = resolveSymlinks($rootcomp_file1);
         $rootcomp_file2 = resolveSymlinks($rootcomp_file2);
+    
+    if (-e $rootcomp_file1) {
+        if (-e $rootcomp_file2) {
 	my $rc=systemcall("$config{$id}->{'rootcomp_cmd'} $rootcomp_file1 $rootcomp_file2 > $rootcompout 2>&1", TRUE);
  	if ($rc != 0){
 	    print "=== $name WARNING: monitoring histogram mismatch detected by rootcomp\n";
@@ -1079,8 +1089,18 @@ sub run_test($){
 	} else {
 	    print "=== $name: rootcomp: monitoring histograms match. \n";
 	}
+        }
+        else {
+            print "=== Alert: $rootcomp_file2 does not exist \n";
+        }
+    }
+        else {
+            print "=== Alert: $rootcomp_file1 does not exist \n";
+        }
 	#systemcall("cat $rootcompout");
+        if (-e $rootcompout) {
 	systemcall("grep -A 5 '^Summary' $rootcompout");
+        }
       }
 
     # checkcount
@@ -1258,6 +1278,8 @@ sub run_test($){
   	} else {
 	  print "=== This test looks for reference from svn\n";
 	}
+        if (-e $reffile) {
+            #            print "old/reference file exists!\n";
 	systemcall("echo -e 'total lines in old/reference:' `wc -l $reffile` >>$regtestout",TRUE); 
 	systemcall("echo -e 'total lines in new/test     :' `wc -l $newfile` >>$regtestout",TRUE); 
 	systemcall("echo -e '< old/reference\n> new/test' >> $regtestout", TRUE);
@@ -1283,6 +1305,10 @@ sub run_test($){
 	    $regtestresult = FALSE;
 	    next REGTEST;
 	}
+        }
+        else {
+          print "=== Alert! old/reference file: $reffile does not exist - check if this is a new release!\n";  
+        }
     }
     if (!$regtestresult){
 	push @statuscodes, 'ATHENA_REGTEST_FAILED';

@@ -30,8 +30,9 @@ if len(sys.argv) < 2:
 output = sys.stdout
 if len(sys.argv)==3:
    output = open(sys.argv[2],'w')
-   
-project = os.environ.get('AtlasProject',os.environ.get('NICOS_PROJECT_NAME',''))
+
+# Get project from NICOS or asetup environment   
+project = os.environ.get('NICOS_PROJECT_NAME',os.environ.get('AtlasProject',''))
 if len(project)==0:
    print 'Cannot read $AtlasProject or $NICOS_PROJECT_NAME'
    sys.exit(1)
