@@ -10,6 +10,8 @@ private:
   unsigned int m_ncombs; // number of combinations
   unsigned int m_nfits; // number of fitted combinations
   unsigned int m_nfits_maj; // number of fitted combinations in majority roads
+  unsigned int m_nfits_maj_pix; // number of fitted combinations in majority roads for pix missing
+  unsigned int m_nfits_maj_SCT; // number of fitted combinations in majority roads for SCT missing
   unsigned int m_nfits_rec; // number of full fits attempted to recover
   unsigned int m_nfits_addrec; // additional fits performed because the recovery
   unsigned int m_nfits_bad; // # fits with a bad chi^2
@@ -23,6 +25,8 @@ public:
   void setNCombs(int v) { m_ncombs = v; }
   void setNFits(int v) { m_nfits = v; }
   void setNFitsMajority(int v) { m_nfits_maj = v; }
+  void setNFitsMajority_pix(int v) { m_nfits_maj_pix = v; }
+  void setNFitsMajority_SCT(int v) { m_nfits_maj_SCT = v; }
   void setNFitsRecovery(int v) { m_nfits_rec = v; }
   void setNAddFitsRecovery(int v) { m_nfits_addrec = v; }
   void setNFitsBad(int v) { m_nfits_bad = v; }
@@ -33,6 +37,8 @@ public:
   void addNCombs(int v) { m_ncombs += v; }
   void addNFits(int v) { m_nfits += v; }
   void addNFitsMajority(int v) { m_nfits_maj += v; }
+  void addNFitsMajority_pix(int v) { m_nfits_maj_pix += v; }
+  void addNFitsMajority_SCT(int v) { m_nfits_maj_SCT += v; }
   void addNFitsRecovery(int v) { m_nfits_rec += v; }
   void addNAddFitsRecovery(int v) { m_nfits_addrec += v; }
   void addNFitsBad(int v) { m_nfits_bad += v; }
@@ -43,6 +49,8 @@ public:
   unsigned int getNCombs() const { return m_ncombs; }
   unsigned int getNFits() const { return m_nfits; }
   unsigned int getNFitsMajority() const { return m_nfits_maj; }
+  unsigned int getNFitsMajority_pix() const { return m_nfits_maj_pix; }
+  unsigned int getNFitsMajority_SCT() const { return m_nfits_maj_SCT; }
   unsigned int getNFitsRecovery() const { return m_nfits_rec; }
   unsigned int getNAddFitsRecovery() const { return m_nfits_addrec; }
   unsigned int getNFitsBad() const { return m_nfits_bad; }
@@ -53,6 +61,6 @@ public:
 };
 
 #include "CLIDSvc/CLASS_DEF.h"
-CLASS_DEF(FTKTrackFitterStats,764785,1)
+CLASS_DEF(FTKTrackFitterStats,764785,2)
 
 #endif // FTKTRACKFITTERSTATS_H
