@@ -83,8 +83,6 @@ def _getHIJetBuildTool(merge_param,
     from JetRec.JetRecConf import JetFilterTool
     jetfil5=JetFilterTool("HLT_a"+str(int_merge_param)+"jetfil5", PtMin = 5000)
     jtm.add(jetfil5)
-    jetfil8=JetFilterTool("HLT_a"+str(int_merge_param)+"jetfil8", PtMin = 8000)
-    jtm.add(jetfil8)
     jetfil20=JetFilterTool("HLT_a"+str(int_merge_param)+"jetfil20", PtMin = 20000)
     jtm.add(jetfil20)
 
@@ -132,8 +130,7 @@ def _getHIJetBuildTool(merge_param,
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
     #calib_tool=JetCalibrationTool("HLT_a"+str(int_merge_param)+"HICalibTool",JetCollection="AntiKt4TopoEM",ConfigFile="JES_Full2012dataset_Preliminary_Jan13.config",CalibSequence="AbsoluteEtaJES")
     #calib_tool=JetCalibrationTool("HLT_a"+str(int_merge_param)+"HICalibTool",JetCollection="AntiKt4EMTopo",ConfigFile="JES_Full2012dataset_May2014.config",CalibSequence="JetArea_Residual_Origin_EtaJES_GSC",IsData=False)
-    #calib_tool=JetCalibrationTool("HLT_a"+str(int_merge_param)+"HICalibTool",JetCollection="AntiKt4EMTopo",ConfigFile="JES_MC15Prerecommendation_April2015.config",CalibSequence="EtaJES", IsData=False)
-    calib_tool=JetCalibrationTool("HLT_a"+str(int_merge_param)+"HICalibTool",JetCollection="AntiKt4EMTopo",ConfigFile="JES_Full2012dataset_Preliminary_Jan13.config",CalibSequence="AbsoluteEtaJES", IsData=False)
+    calib_tool=JetCalibrationTool("HLT_a"+str(int_merge_param)+"HICalibTool",JetCollection="AntiKt4EMTopo",ConfigFile="JES_MC15Prerecommendation_April2015.config",CalibSequence="EtaJES", IsData=False)
 
 
     jtm.add(calib_tool)
@@ -194,7 +191,7 @@ def _getHIJetBuildTool(merge_param,
     jtm.add(subtr1)
 
     seeds1_name = "TrigAntiKt2HIJets_seeds1_a"+str(int_merge_param)
-    seeds1=jtm.addJetCopier(seeds1_name,a2_unsubtracted_name,[subtr1,calib_tool,jetfil8],isTrigger=True,shallow=False) #add calib tool
+    seeds1=jtm.addJetCopier(seeds1_name,a2_unsubtracted_name,[subtr1,calib_tool,jetfil20],isTrigger=True,shallow=False) #add calib tool
 
     iter1_name = "a"+str(int_merge_param)+"iter1"
     iter1=TrigHIEventShapeJetIteration(iter1_name)
@@ -272,8 +269,8 @@ class TrigHLTHIJetRecFromHICluster(TrigHLTJetRecFromCluster):
                  alg="AntiKt",
                  merge_param="04",
                  #r_values=[0.2,0.4],
-                 ptmin=8.0 * GeV,
-                 ptminFilter=8.0 * GeV,
+                 ptmin=20.0 * GeV,
+                 ptminFilter=20.0 * GeV,
                  jet_calib='jes',
                  cluster_calib='EM',	# not needed (our clusters are made of towers at EM scale)
                  output_collection_label='HIJetsWithSubtraction',
@@ -283,7 +280,7 @@ class TrigHLTHIJetRecFromHICluster(TrigHLTJetRecFromCluster):
        #TrigHLTJetRecConf.
        TrigHLTJetRecFromCluster.__init__(self, name=name)
  
-       hicluster_name = "TrigHIClusterMaker_hijet_ionlcwFS"
+       hicluster_name = "TrigHIClusterMaker_hijet_ionemFS"
 
        doSubtraction = True
        doHIClusters = True

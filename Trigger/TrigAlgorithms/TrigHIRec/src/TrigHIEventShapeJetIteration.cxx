@@ -59,7 +59,7 @@ int TrigHIEventShapeJetIteration::execute() const
   const HIEventShapeIndex* es_index=HIEventShapeMap::getIndex(unaltered_input_event_shape_key); //m_input_event_shape_key);
   if(es_index==nullptr)
   {
-    ATH_MSG(ERROR) << "No HIEventShapeIndex w/ name " << m_input_event_shape_key << endmsg;
+    ATH_MSG(ERROR) << "No HIEventShapeIndex w/ name " << m_input_event_shape_key << endreq;
     return StatusCode::FAILURE;
   }
   if(!m_isInit)
@@ -87,7 +87,7 @@ int TrigHIEventShapeJetIteration::execute() const
       {
 	//this should only happen if SOME of the jets in the collection are missing the association
 	//technically possible, but should NOT happen
-	ATH_MSG(ERROR) << "Individual jet missing association " << m_association_key << endmsg;
+	ATH_MSG(ERROR) << "Individual jet missing association " << m_association_key << endreq;
 	return StatusCode::FAILURE;
       }
     }
@@ -99,7 +99,7 @@ int TrigHIEventShapeJetIteration::execute() const
 		  << std::setw(10) << jet4mom.Phi()
 		  << std::setw(10) << jet4mom.E()*1e-3
 		  << std::setw(25) << " has " << assoc_clusters.size() << " assoc. clusters"
-		  << endmsg;
+		  << endreq;
     */
 
     /*

@@ -87,15 +87,15 @@ HLT::ErrorCode TrigHIClusterMaker::hltExecute(const HLT::TriggerElement* inputTE
   std::vector<const CaloTowerContainer*> vectorOfTowerContainers;
 
   if ( getFeatures(outputTE, vectorOfTowerContainers, "") != HLT::OK ) {
-    msg() << MSG::ERROR << "Failed to get TrigTowers" << endmsg;
+    msg() << MSG::ERROR << "Failed to get TrigTowers" << endreq;
     return HLT::ERROR;
   }
 
-  msg() << MSG::DEBUG << "Got vector with " << vectorOfTowerContainers.size() << " TowerContainers" << endmsg;
+  msg() << MSG::DEBUG << "Got vector with " << vectorOfTowerContainers.size() << " TowerContainers" << endreq;
 
   // if no containers were found, just leave the vector empty and leave
   if ( vectorOfTowerContainers.size() < 1) {
-    msg() << MSG::ERROR << "No towers to analyse, leaving!" << endmsg;
+    msg() << MSG::ERROR << "No towers to analyse, leaving!" << endreq;
     return HLT::ERROR;
   }
 
@@ -107,8 +107,8 @@ HLT::ErrorCode TrigHIClusterMaker::hltExecute(const HLT::TriggerElement* inputTE
   getStoreGateKey( theCont, towCollKey );
   
   //if(msgLvl() <= MSG::WARNING) {
-    msg() << MSG::DEBUG << " REGTEST: Retrieved the tower container: " << towCollKey << endmsg;
-    msg() << MSG::DEBUG << " REGTEST: Retrieved a tower container of size = " << theCont->size() << endmsg;
+    msg() << MSG::DEBUG << " REGTEST: Retrieved the tower container: " << towCollKey << endreq;
+    msg() << MSG::DEBUG << " REGTEST: Retrieved a tower container of size = " << theCont->size() << endreq;
   //}
 
   
@@ -119,7 +119,7 @@ HLT::ErrorCode TrigHIClusterMaker::hltExecute(const HLT::TriggerElement* inputTE
   HLT::ErrorCode sc = getFeatures(outputTE, vectorOfCellContainers, "");
   if (sc != HLT::OK) {
     if(msgLvl() <= MSG::WARNING) {
-      msg() << MSG::WARNING << "Failed to get TrigCells" << endmsg;
+      msg() << MSG::WARNING << "Failed to get TrigCells" << endreq;
     }
 
     // return OK anyways, for some reason...
@@ -128,19 +128,19 @@ HLT::ErrorCode TrigHIClusterMaker::hltExecute(const HLT::TriggerElement* inputTE
     
   if(msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "Got vector with " << vectorOfCellContainers.size()
-          << " CellContainers" << endmsg;
+          << " CellContainers" << endreq;
   }
     
   // if no containers were found, just leave the vector empty and leave
   if ( vectorOfCellContainers.size() < 1) {
-    if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "No cells to analyse, leaving!" << endmsg;
+    if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "No cells to analyse, leaving!" << endreq;
     return HLT::OK;
   }
     
   // Get the last container in the vector. Should be th one produced by the previous TrigCaloCellMaker.
   const CaloCellContainer* theCellCont = vectorOfCellContainers.back();
   if(!theCellCont){
-    if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "No Cells found in the RoI" << endmsg;
+    if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "No Cells found in the RoI" << endreq;
     return HLT::OK;
   }
 
@@ -149,8 +149,8 @@ HLT::ErrorCode TrigHIClusterMaker::hltExecute(const HLT::TriggerElement* inputTE
   getStoreGateKey( theCellCont, cellCollKey );
   
   //if(msgLvl() <= MSG::WARNING) {
-    msg() << MSG::DEBUG << " REGTEST: Retrieved the cell container: " << cellCollKey << endmsg;
-    msg() << MSG::DEBUG << " REGTEST: Retrieved a Cell Container of size = " << theCellCont->size() << endmsg;
+    msg() << MSG::DEBUG << " REGTEST: Retrieved the cell container: " << cellCollKey << endreq;
+    msg() << MSG::DEBUG << " REGTEST: Retrieved a Cell Container of size = " << theCellCont->size() << endreq;
   //}
  
   // Create a cluster collection
@@ -165,35 +165,35 @@ HLT::ErrorCode TrigHIClusterMaker::hltExecute(const HLT::TriggerElement* inputTE
   std::string persKeyLink = "";
   if (store()->retrieve( pTrigCaloQuality, cellCollKey ).isFailure()) {
     pTrigCaloQuality=0;
-    msg() << MSG::WARNING << "cannot retireve TrigCaloQuality with key=" << cellCollKey << endmsg;
+    msg() << MSG::WARNING << "cannot retireve TrigCaloQuality with key=" << cellCollKey << endreq;
   } else {
     persKey     = (pTrigCaloQuality->getPersistencyFlag() ? name() : "TrigHIClusterMaker");
     persKeyLink = persKey + "_Link";
   }
-  msg() << MSG::DEBUG << "CaloClusterContainer is stored with key  = " << persKey << endmsg;
-  msg() << MSG::DEBUG << "CaloCellLinkContainer is stored with key = " << persKeyLink << endmsg;
+  msg() << MSG::DEBUG << "CaloClusterContainer is stored with key  = " << persKey << endreq;
+  msg() << MSG::DEBUG << "CaloCellLinkContainer is stored with key = " << persKeyLink << endreq;
 
-  //  msg() << MSG::DEBUG << store()->dump() << endmsg;
+  //  msg() << MSG::DEBUG << store()->dump() << endreq;
   sc = getUniqueKey( cl_container, clusterCollKey, persKey );
   if (sc != HLT::OK) {
-    msg() << MSG::DEBUG << "Could not retrieve the cluster collection key" << endmsg;
+    msg() << MSG::DEBUG << "Could not retrieve the cluster collection key" << endreq;
     return sc;
   }
 	
   if (store()->record (cl_container, clusterCollKey).isFailure()) {
-    msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << clusterCollKey << "> failed" << endmsg;
+    msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << clusterCollKey << "> failed" << endreq;
     delete cl_container;
     return HLT::TOOL_FAILURE;
   } 
   */
 
   if (store()->overwrite(cl_container, m_output_key).isFailure()) {	// overwrite <- record
-    msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << m_output_key << "> failed" << endmsg;
+    msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << m_output_key << "> failed" << endreq;
     delete cl_container;
     return HLT::ERROR;
   }
   else {
-    msg() << MSG::DEBUG << "recording CaloClusterContainer with key <" << m_output_key << "> succeeded" << endmsg;
+    msg() << MSG::DEBUG << "recording CaloClusterContainer with key <" << m_output_key << "> succeeded" << endreq;
   }
 
 
@@ -201,12 +201,12 @@ HLT::ErrorCode TrigHIClusterMaker::hltExecute(const HLT::TriggerElement* inputTE
   xAOD::CaloClusterAuxContainer* cl_container_aux = new xAOD::CaloClusterAuxContainer();
 
   if (store()->overwrite(cl_container_aux, m_output_key+"Aux").isFailure()) {
-    msg() << MSG::ERROR << "recording CaloClusterAuxContainer with key <" << m_output_key+"Aux" << "> failed" << endmsg;
+    msg() << MSG::ERROR << "recording CaloClusterAuxContainer with key <" << m_output_key+"Aux" << "> failed" << endreq;
     delete cl_container_aux;
     return HLT::ERROR;
   }
   else {
-    msg() << MSG::DEBUG << "recording CaloClusterAuxContainer with key <" << m_output_key+"Aux" << "> succeeded" << endmsg;
+    msg() << MSG::DEBUG << "recording CaloClusterAuxContainer with key <" << m_output_key+"Aux" << "> succeeded" << endreq;
   }
 
   cl_container->setStore( cl_container_aux );
@@ -337,10 +337,10 @@ HLT::ErrorCode TrigHIClusterMaker::hltExecute(const HLT::TriggerElement* inputTE
                                                         m_output_key, msg());
 
   if ( !status ) {  
-    msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << m_output_key << "> failed" << endmsg;
+    msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << m_output_key << "> failed" << endreq;
     return HLT::ERROR;
   } else {
-      msg() << MSG::DEBUG << " REGTEST: The cluster container finalized " << endmsg;
+      msg() << MSG::DEBUG << " REGTEST: The cluster container finalized " << endreq;
   }
 
 
@@ -349,11 +349,11 @@ HLT::ErrorCode TrigHIClusterMaker::hltExecute(const HLT::TriggerElement* inputTE
   status = reAttachFeature(outputTE, cl_container, aliasKey, m_output_key );
 
   if (status != (bool)HLT::OK) {
-    msg() << MSG::ERROR << "Write of Cluster Container into outputTE failed" << endmsg;
+    msg() << MSG::ERROR << "Write of Cluster Container into outputTE failed" << endreq;
     return HLT::ERROR;
   } 
   else {
-    msg() << MSG::DEBUG << "ClusterContainer reattached with aliasKey" << aliasKey << endmsg;
+    msg() << MSG::DEBUG << "ClusterContainer reattached with aliasKey" << aliasKey << endreq;
   }
 
 
@@ -361,17 +361,17 @@ HLT::ErrorCode TrigHIClusterMaker::hltExecute(const HLT::TriggerElement* inputTE
   aliasKey = "HIClustersLinks";
   const CaloClusterCellLinkContainer* pCaloCellLinkContainer = 0;
   if (store()->retrieve( pCaloCellLinkContainer, m_output_key+"_links").isFailure()) {
-    msg() << MSG::WARNING << "cannot get CaloClusterCellLinkContainer (not return FAILURE) " << endmsg;
+    msg() << MSG::WARNING << "cannot get CaloClusterCellLinkContainer (not return FAILURE) " << endreq;
   }
   else {
     status = reAttachFeature(outputTE, pCaloCellLinkContainer, aliasKey, m_output_key+"_Link" );
     if (status != (bool)HLT::OK) {
-      msg() << MSG::ERROR << "Write of RoI CellLink Container into outputTE failed" << endmsg;
+      msg() << MSG::ERROR << "Write of RoI CellLink Container into outputTE failed" << endreq;
     }
-    else msg() << MSG::DEBUG << "Writing succesfully the CellLink Container with aliasKey" << aliasKey << endmsg;
+    else msg() << MSG::DEBUG << "Writing succesfully the CellLink Container with aliasKey" << aliasKey << endreq;
   }
 
-  //msg() << MSG::INFO << store()->dump() << endmsg;
+  //msg() << MSG::INFO << store()->dump() << endreq;
 
   return HLT::OK;
 }
