@@ -163,7 +163,7 @@ void LVL1::JEMEnergySim::storeJEMEtSums() {
 
   ATH_MSG_DEBUG( JEMRvector->size()<<" JEMEtSums objects are being saved");
   
-  StatusCode sc = evtStore()->overwrite(JEMRvector, m_jemEtSumsLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(JEMRvector, m_jemEtSumsLocation, true);
   if (sc != StatusCode::SUCCESS) ATH_MSG_ERROR ( "Error registering JEMEtSums collection in TDS " );
   else {
     StatusCode sc2 = evtStore()->setConst(JEMRvector);
@@ -189,7 +189,7 @@ void LVL1::JEMEnergySim::storeBackplaneData() {
 
   ATH_MSG_DEBUG( bpVector->size()<<" EnergyCMXData objects are being saved");
   
-  StatusCode sc = evtStore()->overwrite(bpVector, m_energyCMXDataLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(bpVector, m_energyCMXDataLocation, true);
   if (sc != StatusCode::SUCCESS) ATH_MSG_ERROR ( "Error registering EnergyCMXData collection in TDS " );
   
   return;

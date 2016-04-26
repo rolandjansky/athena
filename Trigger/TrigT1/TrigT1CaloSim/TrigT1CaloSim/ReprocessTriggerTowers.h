@@ -38,13 +38,6 @@
 #include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 
-// L1Calo conditions
-//#include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
-#include "TrigT1CaloCalibConditions/L1CaloPedestalContainer.h"
-#include "TrigT1CaloCalibConditions/L1CaloPprLutContainer.h"
-#include "TrigT1CaloCalibConditions/L1CaloPpmDeadChannelContainer.h"
-#include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannelContainer.h"
-
  namespace LVL1 {
 
    //Doxygen Class definition below:

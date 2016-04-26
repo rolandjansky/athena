@@ -48,7 +48,7 @@ using namespace TrigConf;
 CPMSim::CPMSim
   ( const std::string& name, ISvcLocator* pSvcLocator )
     : AthAlgorithm( name, pSvcLocator ), 
-      m_cpmTowers(nullptr),
+      //m_cpmTowers(nullptr),
       m_allTOBs(nullptr),
       m_CMXData(nullptr),
       m_CPMTowerLocation(TrigT1CaloDefs::CPMTowerLocation),
@@ -200,7 +200,7 @@ StatusCode CPMSim::execute( )
 void CPMSim::storeBackplaneTOBs() {
 
   // Store backplane data objects
-  StatusCode sc = evtStore()->overwrite(m_CMXData, m_CPMCMXDataLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(m_CMXData, m_CPMCMXDataLocation,true);
 
   if (sc.isSuccess()) {
     ATH_MSG_VERBOSE ( "Stored " << m_CMXData->size()
@@ -219,7 +219,7 @@ void CPMSim::storeBackplaneTOBs() {
 /** place final ROI objects in the TES. */
 void CPMSim::storeModuleRoIs() {
 
-  StatusCode sc = evtStore()->overwrite(m_allTOBs, m_CPMTobRoILocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(m_allTOBs, m_CPMTobRoILocation,true);
 
   if (sc.isSuccess()) {
     ATH_MSG_VERBOSE ( "Stored " << m_allTOBs->size()
@@ -280,7 +280,7 @@ void CPMSim::storeSlinkObjects(){
   */
 
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfCPRoIRODs;++i){
-    StatusCode sc = evtStore()->overwrite(m_CPRoIROD[i],emTauSlinkLocation[i],true,false,false);
+    StatusCode sc = evtStore()->overwrite(m_CPRoIROD[i],emTauSlinkLocation[i],true);
     if (sc.isSuccess() ){
       ATH_MSG_DEBUG("Stored EM/Tau Slink object at "<< emTauSlinkLocation[i] <<" with "
           <<(m_CPRoIROD[i]->size())<<" words");
