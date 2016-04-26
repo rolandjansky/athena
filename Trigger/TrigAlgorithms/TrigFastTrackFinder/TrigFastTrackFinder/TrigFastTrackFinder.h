@@ -246,6 +246,8 @@ protected:
 
   std::map<Identifier, std::vector<long int> > m_siClusterMap;
 
+  bool m_useNewLayerNumberScheme;
+
 };
 
 #endif

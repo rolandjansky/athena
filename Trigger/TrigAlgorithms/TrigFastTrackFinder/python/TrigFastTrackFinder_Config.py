@@ -316,14 +316,17 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         self.retrieveBarCodes = False#Look at truth information for spacepoints from barcodes
         #self.SignalBarCodes = [10001] #single particles
         self.SignalBarCodes = [11 ,12] #z->mumu
-       
+        
+        self.useNewLayerNumberScheme = True
+        
         self.OutputCollectionSuffix = type
         from AthenaCommon.AppMgr import ToolSvc
 
-        numberingTool = TrigL2LayerNumberTool()
+        numberingTool = TrigL2LayerNumberTool(name = "TrigL2LayerNumberTool_FTF")
+        numberingTool.UseNewLayerScheme = self.useNewLayerNumberScheme
         ToolSvc += numberingTool
-        self.LayerNumberTool=numberingTool
-
+        self.LayerNumberTool = numberingTool
+        
         timeHist = TrigTimeHistToolConfig("Time")
         timeHist.TimerHistLimits = [0,10000]
         from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
@@ -343,11 +346,13 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import TrigSpacePointConversionTool
           spTool = TrigSpacePointConversionTool().clone('TrigSpacePointConversionTool' + remapped_type)
           spTool.DoPhiFiltering = InDetTrigSliceSettings[('doSpPhiFiltering',remapped_type)]
+          spTool.UseNewLayerScheme = self.useNewLayerNumberScheme
           spTool.UseBeamTilt = False
+          spTool.layerNumberTool = numberingTool
           ToolSvc += spTool
           self.SpacePointProviderTool=spTool
           self.MinSPs = 5 #Only process RoI with more than 5 spacepoints 
-
+          
           self.Triplet_MinPtFrac = 1
           self.Triplet_nMaxPhiSlice = 53
           if remapped_type=="cosmics":
@@ -438,6 +443,8 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
             from IDScanZFinder.IDScanZFinderConf import TrigZFinder
             theTrigZFinder = TrigZFinder()
             theTrigZFinder.NumberOfPeaks = 3
+            theTrigZFinder.LayerNumberTool=numberingTool
+            
             theTrigZFinder.FullScanMode = True #TODO: know this from the RoI anyway - should set for every event
             ToolSvc += theTrigZFinder
             self.trigZFinder = theTrigZFinder
@@ -455,7 +462,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           ToolSvc += resCalc
           self.TrigL2ResidualCalculator = resCalc
           self.doCloneRemoval = InDetTrigSliceSettings[('doCloneRemoval',remapped_type)]
-        print self
 
 
 class TrigFastTrackFinder_Muon(TrigFastTrackFinderBase):

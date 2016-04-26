@@ -55,6 +55,7 @@
 #include "TrigInDetPattRecoEvent/TrigL2TimeoutException.h"
 #include "TrigInDetPattRecoEvent/TrigInDetTriplet.h"
 
+
 #include "InDetRecToolInterfaces/ISiTrackMaker.h" 
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
 #include "TrigInDetPattRecoTools/TrigTrackSeedGenerator.h"
@@ -118,7 +119,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_pixelId(0),
   m_sctId(0),
   m_idHelper(0),
-  m_particleHypothesis(Trk::pion)
+  m_particleHypothesis(Trk::pion),
+  m_useNewLayerNumberScheme(false)
 {
 
   /** Doublet finding properties. */
@@ -170,6 +172,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty("FTK_Mode",            m_ftkMode = false);
   declareProperty("FTK_DataProviderService",             m_ftkDataProviderSvc);
   declareProperty("FTK_Refit",           m_ftkRefit = false);
+
+  declareProperty("useNewLayerNumberScheme", m_useNewLayerNumberScheme = false);
 
   // declare monitoring histograms
 
@@ -369,6 +373,12 @@ HLT::ErrorCode TrigFastTrackFinder::hltBeginRun()
   m_tcs.m_minEndcapPix    = m_numberingTool->offsetEndcapPixels(); 
   m_tcs.m_maxEndcapPix    = m_numberingTool->offsetEndcapSCT();
   m_tcs.m_maxSiliconLayer = m_numberingTool->maxSiliconLayerNum();
+  m_tcs.m_layerGeometry.clear();
+
+  if(m_useNewLayerNumberScheme) {
+    const std::vector<TRIG_INDET_SI_LAYER>* pVL = m_numberingTool->layerGeometry();
+    std::copy(pVL->begin(),pVL->end(),std::back_inserter(m_tcs.m_layerGeometry));
+  }
 
   return HLT::OK;
 }
@@ -382,20 +392,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
 
   clearMembers();
 
-  // Retrieve vertexing information if needed
-
-  const TrigVertexCollection* vertexCollection = nullptr;
-
-  if(m_vertexSeededMode) {
-    //HLT::ErrorCode status = getFeature(inputTE, vertexCollection,"");
-    //
-    //NOTE the inputTE vs outputTE difference - the feature is assumed to come from the same step in the sequence
-    HLT::ErrorCode status = getFeature(outputTE, vertexCollection);
-    if(status != HLT::OK) return status;
-    if(vertexCollection==nullptr) return HLT::ERROR;
-  }
-
- 
   // 2. Retrieve beam spot and magnetic field information 
   //
 
@@ -481,7 +477,29 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     //  m_sp_z.push_back((*spIt).z());
     //  m_sp_r.push_back((*spIt).r());
     //}
-    
+    /*    
+    std::vector<int> lCounter;
+    for(int l=0;l<50;l++) lCounter.push_back(0);
+    for(std::vector<TrigSiSpacePointBase>::const_iterator spIt = convertedSpacePoints.begin(); spIt != convertedSpacePoints.end(); ++spIt) {
+      if((*spIt).layer()>31 || (*spIt).layer()<0) {
+	std::cout<<"Wrong layer "<<(*spIt).layer()<<" z="<<(*spIt).z()<<" r="<<(*spIt).r()<<std::endl;
+      }
+      else lCounter[(*spIt).layer()]++;
+    }
+    int nTotal=0;
+    for(int l=0;l<50;l++) {
+      nTotal+=lCounter[l];
+      std::cout<<"L="<<l<<" nSP="<<lCounter[l]<<std::endl;
+    }
+    std::cout<<"Total "<<nTotal<<" spacepoints out of "<<convertedSpacePoints.size()<<std::endl;
+
+    //  m_sp_x.push_back((*spIt).original_x());
+    //  m_sp_y.push_back((*spIt).original_y());
+    //  m_sp_z.push_back((*spIt).z());
+    //  m_sp_r.push_back((*spIt).r());
+    //}
+    */
+
     if(sc.isFailure()) { 
       ATH_MSG_WARNING("REGTEST / Failed to retrieve offline spacepoints ");
       return HLT::TOOL_FAILURE;
@@ -513,8 +531,11 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     if (m_doZFinder) {
       if ( timerSvc() ) m_ZFinderTimer->start();
       superRoi->setComposite(true);
-      vertexCollection = m_trigZFinder->findZ( convertedSpacePoints, *internalRoI);
-      ATH_MSG_VERBOSE("vertexCollection->size(): " << vertexCollection->size());
+
+      TrigVertexCollection* vertexCollection = m_trigZFinder->findZ( convertedSpacePoints, *internalRoI);
+      ATH_MSG_DEBUG("vertexCollection->size(): " << vertexCollection->size());
+
+
       for (auto vertex : *vertexCollection) {
         ATH_MSG_DEBUG("REGTEST / ZFinder vertex: " << *vertex);
         float z      = vertex->z();
@@ -527,6 +548,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
       }
       m_tcs.roiDescriptor = superRoi.get();
       ATH_MSG_DEBUG("REGTEST / superRoi: " << *superRoi);
+      delete vertexCollection;
       if ( timerSvc() ) m_ZFinderTimer->stop();
     }
     m_currentStage = 3;
@@ -562,7 +584,9 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     if ( timerSvc() ) m_TripletMakingTimer->start();
     
     TRIG_TRACK_SEED_GENERATOR seedGen(m_tcs);
+
     seedGen.loadSpacePoints(convertedSpacePoints);
+
     seedGen.createSeeds();
     std::vector<TrigInDetTriplet*> triplets;
     seedGen.getSeeds(triplets);
