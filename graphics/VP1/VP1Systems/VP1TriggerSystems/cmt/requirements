@@ -2,6 +2,7 @@ package VP1TriggerSystems
 
 author Manuel Proissl <mproissl@cern.ch>
 manager Manuel Proissl <mproissl@cern.ch>
+manager Riccardo Maria BIANCHI <rbianchi@cern.ch>
 
 public
 use  AtlasPolicy                AtlasPolicy-*                   

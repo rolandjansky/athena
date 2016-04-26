@@ -17,7 +17,7 @@
 #include "ui_tracksystemcontrollerform.h"
 
 //Track includes
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"

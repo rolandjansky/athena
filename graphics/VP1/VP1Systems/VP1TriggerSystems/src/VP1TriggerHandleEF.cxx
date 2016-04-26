@@ -154,7 +154,7 @@ bool VP1Trig::VP1TriggerHandleEF::loadTrackContainer()
   count_mg=0;
   
   if(m_containerEF->hasTrack()) { //Muon in RoI
-    TrigMuonEFInfoTrackContainer *tc = m_containerEF->TrackContainer(); //TrackContainer: more than one muon in RoI
+    const TrigMuonEFInfoTrackContainer *tc = m_containerEF->TrackContainer(); //TrackContainer: more than one muon in RoI
     TrigMuonEFInfoTrackContainer::const_iterator TrackItr;
     
     for(TrackItr = tc->begin(); TrackItr!=tc->end(); TrackItr++) {
