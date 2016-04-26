@@ -7,17 +7,18 @@ use AtlasExternalArea AtlasExternalArea-* External
 use ThePEG            ThePEG-*            External
 use AtlasHepMC        AtlasHepMC-*        External
 
-#macro LCG_config_version "61g"
-#macro Herwigpp_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/herwig++"
+##macro my_LCG_config_version "67c"
+##macro Herwigpp_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(my_LCG_config_version)/herwig++"
 macro Herwigpp_home "$(LCG_external)/MCGenerators/herwig++"
-macro Herwigpp_version "2.7.1"
-macro Herwigpp_native_version "$(Herwigpp_version)_lcgcmt$(LCG_config_version)"
+macro Herwigpp_version "7.0.1"
+# note small modification of the native_version ("a" added) to be removed with version update
+macro Herwigpp_native_version "$(Herwigpp_version)a_lcgcmt$(my_LCG_config_version)"
 macro Herwigpp_system "$(LCG_ext_system)"
 macro Herwigpp_installdir "$(Herwigpp_home)/$(Herwigpp_version)/$(Herwigpp_system)"
 macro Herwigpp_inc "$(Herwigpp_installdir)/include"
-macro Herwigpp_lib "$(Herwigpp_installdir)/lib/Herwig++"
+macro Herwigpp_lib "$(Herwigpp_installdir)/lib/Herwig"
 macro Herwigpp_moduledir "$(Herwigpp_lib)"
-macro Herwigpp_datadir "$(Herwigpp_installdir)/share/Herwig++"
+macro Herwigpp_datadir "$(Herwigpp_installdir)/share/Herwig"
 
 # Paths are specified separately so they get packed even if any is symlink
 macro Herwigpp_export_paths "$(Herwigpp_installdir)/include $(Herwigpp_installdir)/lib $(Herwigpp_installdir)/bin $(Herwigpp_installdir)/share"
