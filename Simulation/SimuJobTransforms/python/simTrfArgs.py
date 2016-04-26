@@ -31,6 +31,9 @@ def addForwardDetTrfArgs(parser):
     parser.add_argument('--FwdRegionOn',
                         type=argFactory(argBool),
                         help='Switch on FwdRegion simulation/digitization.', group='ForwardDetector')
+    parser.add_argument('--HGTDOn',
+                        type=argFactory(argBool),
+                        help='Switch on HGTD simulation/digitization.', group='ForwardDetector')
 
 ## Add Basic digitization arguments to an argparse ArgumentParser
 def addBasicDigiArgs(parser):
