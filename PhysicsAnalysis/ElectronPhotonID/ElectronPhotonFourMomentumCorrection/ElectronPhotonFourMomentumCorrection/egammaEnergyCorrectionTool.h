@@ -25,6 +25,8 @@
 
 // PAT includes
 #include "PATCore/PATCoreEnums.h"
+#include <AsgTools/AsgMessaging.h>
+
 
 // ROOT includes
 #include "TRandom3.h"
@@ -37,9 +39,6 @@
 #include "TF1.h"
 
 // Forward declarations
-class egammaMVACalib;
-class egammaLayerRecalibTool;
-struct StdCalibrationInputs;
 class eg_resolution;
 class get_MaterialResolutionEffect;
 class e1hg_systematics;
@@ -123,6 +122,10 @@ namespace egEnergyCorr {
       // ... LAr systematics on scale and material determinations : correlated vs eta
       LArCalibUp, LArCalibDown, LArUnconvCalibUp, LArUnconvCalibDown, LArElecCalibUp, LArElecCalibDown, LArElecUnconvUp, LArElecUnconvDown,
 
+      // extra systematics for 2015PRE*
+      LArCalibExtra2015PreUp, LArCalibExtra2015PreDown,
+      LArTemperature2015PreUp, LArTemperature2015PreDown,
+
       // ... G4 systematics on E1/E2
       G4Up, G4Down,
 
@@ -150,6 +153,7 @@ namespace egEnergyCorr {
 
       // All (Only for error plotting - not correct when running over a sample!)
       AllUp, AllDown,
+      AllCorrelated2015PREUp, AllCorrelated2015PREDown,
 
       // to help with loops
       LastScaleVariation
@@ -179,7 +183,10 @@ namespace egEnergyCorr {
 
     es2015_day0_3percent,   // temporary for day0 run2
     es2012XX,               // as es2012 + mc15 MVA calibration + new scales
-    es2015PRE,               // as es2012 + mc15 MVA calibration + new scales + additional unc
+    es2015PRE,              // as es2012 + mc15 MVA calibration + new scales + additional unc
+    es2015PRE_res_improved,
+    es2015cPRE,             // as 2015PRE but with new MVA calibration for crack for rel 20.7
+    es2015cPRE_res_improved,
 
     UNDEFINED
 
@@ -211,82 +218,9 @@ namespace AtlasRoot {
   // Taken from CLHEP/Units/SystemOfUnits.h
   static const double GeV = 1.e+3;
 
-  class egammaEnergyCorrectionTool {
+  class egammaEnergyCorrectionTool : public asg::AsgMessaging {
 
   public:
-    // input struct
-    struct ParticleInformation {
-      float rawcl_Es0;
-      float rawcl_Es1;
-      float rawcl_Es2;
-      float rawcl_Es3;
-      float cl_eta;
-      float cl_phi;
-      float trk_eta;
-      float cl_E;
-      float cl_etaCalo;
-      float cl_phiCalo;
-      float ptconv;
-      float pt1conv;
-      float pt2conv;
-      int convtrk1nPixHits;
-      int convtrk1nSCTHits;
-      int convtrk2nPixHits;
-      int convtrk2nSCTHits;
-      float Rconv;
-      PATCore::ParticleType::Type ptype;
-
-      ParticleInformation(float rawcl_Es0,
-			  float rawcl_Es1,
-			  float rawcl_Es2,
-			  float rawcl_Es3,
-			  float cl_eta,
-			  float cl_phi,
-			  float cl_E,
-			  float cl_etaCalo,
-			  float cl_phiCalo,
-			  float ptconv,
-			  float pt1conv,
-			  float pt2conv,
-			  int convtrk1nPixHits,
-			  int convtrk1nSCTHits,
-			  int convtrk2nPixHits,
-			  int convtrk2nSCTHits,
-			  float Rconv)
-	: rawcl_Es0(rawcl_Es0), rawcl_Es1(rawcl_Es1), rawcl_Es2(rawcl_Es2), rawcl_Es3(rawcl_Es3),
-	  cl_eta(cl_eta), cl_phi(cl_phi), trk_eta(cl_eta), cl_E(cl_E), // cl_eta -> trk_eta
-	  cl_etaCalo(cl_etaCalo), cl_phiCalo(cl_phiCalo),
-	  ptconv(ptconv), pt1conv(pt1conv), pt2conv(pt2conv),
-	  convtrk1nPixHits(convtrk1nPixHits), convtrk1nSCTHits(convtrk1nSCTHits),
-	  convtrk2nPixHits(convtrk2nPixHits), convtrk2nSCTHits(convtrk2nSCTHits),
-	  Rconv(Rconv),
-	  ptype((Rconv > 0 and Rconv < 800) ? PATCore::ParticleType::ConvertedPhoton : PATCore::ParticleType::UnconvertedPhoton) { } // I am a photon
-
-      ParticleInformation(float rawcl_Es0,
-			  float rawcl_Es1,
-			  float rawcl_Es2,
-			  float rawcl_Es3,
-			  float cl_eta,
-			  float cl_phi,
-			  float trk_eta,
-			  float cl_E,
-			  float cl_etaCalo,
-			  float cl_phiCalo)
-	: rawcl_Es0(rawcl_Es0), rawcl_Es1(rawcl_Es1), rawcl_Es2(rawcl_Es2), rawcl_Es3(rawcl_Es3),
-	  cl_eta(cl_eta), cl_phi(cl_phi), trk_eta(trk_eta), cl_E(cl_E),
-	  cl_etaCalo(cl_etaCalo), cl_phiCalo(cl_phiCalo),
-	  ptconv(-999), pt1conv(-999), pt2conv(-999),
-	  convtrk1nPixHits(-999), convtrk1nSCTHits(-999),
-	  convtrk2nPixHits(-999), convtrk2nSCTHits(-999),
-	  Rconv(-999), ptype(PATCore::ParticleType::Electron) { } // I am an electron
-
-    };
-
-  public:
-
-    // Standard constructor and destructor
-    //////////////////////////////////////
-
     egammaEnergyCorrectionTool();
     virtual ~egammaEnergyCorrectionTool();
 
@@ -305,40 +239,15 @@ namespace AtlasRoot {
     // ... set input file
     inline void setFileName ( const std::string& val ){ m_rootFileName = val; }
 
-    inline void setMVAfolder(const std::string& val) { m_MVAfolder = val; }
-
-    // ... use/tweak Layer correction (set properly according to esmodel). !!! Switch at own risk !!!
-    void useLayerCorrection( bool val ) { m_use_layer_correction = val; }
-    void applyPSCorrection( bool val ) { m_applyPSCorrection = val; }
-    void applyS12Correction( bool val ) { m_applyS12Correction = val; }
-
-    // change layer 2 when calibrate E1/E2 (default = true)
-    void useLayer2Recalibration( bool val ) { m_use_layer2_recalibration = val; }
-
-    // ... use uniformity corrections (default = true )
-    void useIntermoduleCorrection( bool val ) { m_use_intermodule_correction = val; }
-    void usePhiUniformCorrection( bool val ) { m_use_phi_unif_correction = val; }
-
-    // ... use gain correction
-    void useGainCorrection( bool val ) { m_use_gain_correction = val; }
-
-    bool useIntermoduleCorrection() const { return m_use_intermodule_correction; }
-    bool usePhiUniformCorrection() const { return m_use_phi_unif_correction; }
-    bool useMVA ( ) const { return m_use_MVA_calibration; }
-    void useMVA (bool val) { m_use_MVA_calibration = val; }
-    bool useLayer2Recalibration ( ) const { return m_use_layer2_recalibration; }
-    bool useGainCorrection ( ) const { return m_use_gain_correction; }
-
     // ... set a seed for the random number generator
     void setRandomSeed( unsigned seed=0 ) { m_random3.SetSeed(seed); }
-
-    // ... Set output level to debug
-    void setDebug( bool flag=false ) { m_debug=flag; }
 
     void useStatErrorScaling(bool flag) { m_use_stat_error_scaling = flag; }
 
     void use_temp_correction201215(bool flag) { m_use_temp_correction201215 = flag; }
     void use_uA2MeV_2015_first2weeks_correction(bool flag) { m_use_uA2MeV_2015_first2weeks_correction = flag; }
+
+    double applyMCCalibration( double eta, double ET, PATCore::ParticleType::Type ptype ) const;
 
     /** take eta and uncorrected energy of electron, return  corrected energy,
 	apply given variation, for given particle type
@@ -357,89 +266,14 @@ namespace AtlasRoot {
 			       PATCore::ParticleType::Type ptype,
 			       double cl_eta,
              double cl_etaCalo,
-			       double trk_eta,
 			       double energy,
 			       double energyS2,
+             double eraw,
 			       egEnergyCorr::Scale::Variation scaleVar = egEnergyCorr::Scale::None,
 			       egEnergyCorr::Resolution::Variation resVar = egEnergyCorr::Resolution::None,
                                egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90,
 			       double varSF = 1.0 ) const;
 
-    double getCorrectedEnergy( unsigned int runnumber,
-			       PATCore::ParticleDataType::DataType dataType,
-			       const ParticleInformation & particle_info,
-			       egEnergyCorr::Scale::Variation scaleVar = egEnergyCorr::Scale::None,
-			       egEnergyCorr::Resolution::Variation resVar = egEnergyCorr::Resolution::None,
-                               egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90,
-			       double varSF = 1.0 ) const;
-
-    double getCorrectedEnergy( unsigned int runnumber,
-			       PATCore::ParticleDataType::DataType dataType,
-			       PATCore::ParticleType::Type ptype,
-			       float rawcl_Es0,
-			       float rawcl_Es1,
-			       float rawcl_Es2,
-			       float rawcl_Es3,
-			       float cl_eta,
-			       float cl_phi,
-			       float trk_eta,
-			       float cl_E,
-			       float cl_etaCalo,
-			       float cl_phiCalo,
-			       float ptconv = -999,
-			       float pt1conv = -999 ,
-			       float pt2conv = -999,
-			       int convtrk1nPixHits = -999,
-			       int convtrk1nSCTHits = -999,
-			       int convtrk2nPixHits = -999,
-			       int convtrk2nSCTHits = -999,
-			       float Rconv = -999,
-			       egEnergyCorr::Scale::Variation scaleVar = egEnergyCorr::Scale::None,
-			       egEnergyCorr::Resolution::Variation resVar = egEnergyCorr::Resolution::None,
-                               egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90,
-			       double varSF = 1.0 ) const;
-
-    double getCorrectedEnergyPhoton( unsigned int runnumber,
-				     PATCore::ParticleDataType::DataType dataType,
-				     float rawcl_Es0,
-				     float rawcl_Es1,
-				     float rawcl_Es2,
-				     float rawcl_Es3,
-				     float cl_eta,
-				     float cl_phi,
-				     float cl_E,
-				     float cl_etaCalo,
-				     float cl_phiCalo,
-				     float ptconv,
-				     float pt1conv,
-				     float pt2conv,
-				     int convtrk1nPixHits,
-				     int convtrk1nSCTHits,
-				     int convtrk2nPixHits,
-				     int convtrk2nSCTHits,
-				     float Rconv,
-				     egEnergyCorr::Scale::Variation scaleVar = egEnergyCorr::Scale::None,
-				     egEnergyCorr::Resolution::Variation resVar = egEnergyCorr::Resolution::None,
-                                     egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90,
-				     double varSF = 1.0 ) const;
-
-
-    double getCorrectedEnergyElectron( unsigned int runnumber,
-				       PATCore::ParticleDataType::DataType dataType,
-				       float rawcl_Es0,
-				       float rawcl_Es1,
-				       float rawcl_Es2,
-				       float rawcl_Es3,
-				       float cl_eta,
-				       float cl_phi,
-				       float trk_eta,
-				       float cl_E,
-				       float cl_etaCalo,
-				       float cl_phiCalo,
-				       egEnergyCorr::Scale::Variation scaleVar = egEnergyCorr::Scale::None,
-				       egEnergyCorr::Resolution::Variation resVar = egEnergyCorr::Resolution::None,
-                                       egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90,
-				       double varSF = 1.0 ) const;
 
     double resolution(double energy, double cl_eta, double cl_etaCalo,
                       PATCore::ParticleType::Type ptype,
@@ -452,9 +286,6 @@ namespace AtlasRoot {
                               egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::Gaussian) const;
 
 
-    StdCalibrationInputs* getCalibInputs() { return m_calibInputs; }
-    float getCalibInputs(int i);
-
     std::string variationName(egEnergyCorr::Scale::Variation& var) const;
     std::string variationName(egEnergyCorr::Resolution::Variation& var) const;
 
@@ -465,17 +296,13 @@ namespace AtlasRoot {
     const TAxis& get_ZeeStat_eta_axis() const { return *m_zeeNom->GetXaxis(); }
 
   private:
-
-    mutable egammaMVACalib* m_mva_electron_tool;
-    mutable egammaMVACalib* m_mva_photon_tool;
-    mutable egammaLayerRecalibTool* m_layer_recalibration_tool;
     mutable egGain::GainTool* m_gain_tool;
     mutable eg_resolution* m_resolution_tool;
     mutable get_MaterialResolutionEffect* m_getMaterialDelta;
     mutable e1hg_systematics* m_e1hg_tool;
 
     double getAlphaValue(long int runnumber, double cl_eta, double cl_etaCalo,
-      double energy, double energyS2,
+      double energy, double energyS2, double eraw,
       PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron,
       egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal,
       double varSF = 1. ) const;
@@ -483,6 +310,7 @@ namespace AtlasRoot {
     double getAlphaUncertainty(long int runnumber, double cl_eta, double cl_etaCalo,
 				double energy,
 				double energyS2,
+        double eraw,
                                 PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron,
                                 egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal,
                                 double varSF = 1. ) const;
@@ -499,15 +327,9 @@ namespace AtlasRoot {
 
     /// MC calibration corrections
 
-    double applyMCCalibration( double eta, double ET, PATCore::ParticleType::Type ptype ) const;
+
     double applyAFtoG4(double eta, PATCore::ParticleType::Type ptype) const;
     double applyFStoG4(double eta) const;
-
-
-    /// Phi uniformity corrections
-
-    static double IntermoduleCorrectionTool(double Ecl, double phi, double eta);
-    double CorrectionPhiUnif(double eta, double phi) const;
 
     // functions for resolution uncertainty evaluation
 
@@ -554,7 +376,7 @@ namespace AtlasRoot {
     double getAlphaConvSyst(double cl_eta, double energy, PATCore::ParticleType::Type ptype,
 			    egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
 
-    double getAlphaPedestal(double cl_eta, double energy, PATCore::ParticleType::Type ptype, bool isRef,
+    double getAlphaPedestal(double cl_eta, double energy, double eraw, PATCore::ParticleType::Type ptype, bool isRef,
 			    egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
 
     double getLayerPedestal(double cl_eta, PATCore::ParticleType::Type ptype, int iLayer,
@@ -579,11 +401,9 @@ namespace AtlasRoot {
 
   private:
 
-    StdCalibrationInputs* m_calibInputs;
 
     TFile* m_rootFile;
     std::string m_rootFileName;
-    std::string m_MVAfolder;
 
     mutable TRandom3   m_random3;
 
@@ -679,21 +499,13 @@ namespace AtlasRoot {
 
     // general switches
 
-    bool m_use_layer_correction;       // default = true for es2011d and es2012c; false otherwise
-    bool m_use_MVA_calibration;        // default = true for es2011d and es2012c; false otherwise
-    bool m_use_intermodule_correction; // default = true
-    bool m_use_phi_unif_correction;    // default = true
-    bool m_use_layer2_recalibration;   // default = true
-    bool m_use_gain_correction;        // default = false; true only for es2012c
     bool m_use_etaCalo_scales;         // true for >= es2012XX
-    bool m_use_mapping_correction;     // true for run1 using phi uniformity corrections
 
     // for tests
     bool m_applyPSCorrection;          // default = true
     bool m_applyS12Correction;          // default = true
 
     bool m_initialized;
-    bool m_debug;
     bool m_use_new_resolution_model;
     bool m_use_stat_error_scaling;  // default = false
 

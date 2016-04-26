@@ -23,9 +23,7 @@
 
 #include "ElectronPhotonFourMomentumCorrection/EgammaFactory.h"
 
-
-EgammaFactory::EgammaFactory()
-: asg::AsgMessaging("EgammaFactory")
+void EgammaFactory::create_structure()
 {
   ATH_MSG_DEBUG("Creating calo cluster container");
   m_clusters = new xAOD::CaloClusterContainer();
@@ -61,6 +59,13 @@ EgammaFactory::EgammaFactory()
   m_electrons->setStore(m_electronsAux);
   if (!m_store.record(m_electrons, "Electrons").isSuccess()) { ATH_MSG_ERROR("Cannot create electron collection"); };
   if (!m_store.record(m_electronsAux, "ElectronsAux.").isSuccess()) { ATH_MSG_ERROR("Cannot create electron aux collection"); };
+}
+
+
+EgammaFactory::EgammaFactory()
+: asg::AsgMessaging("EgammaFactory")
+{
+  create_structure();
 
   ATH_MSG_DEBUG("opening average file");
   std::string fpath = "$ROOTCOREBIN/data/ElectronPhotonFourMomentumCorrection/average_layers.root";
@@ -104,6 +109,7 @@ std::array<double, 4> EgammaFactory::get_layers_fraction(const std::array<TProfi
 void EgammaFactory::clear()
 {
   m_store.clear();
+  create_structure();
 }
 
 

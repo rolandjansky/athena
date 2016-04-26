@@ -22,7 +22,7 @@ testAthenaEgammaCalibTool::testAthenaEgammaCalibTool( const std::string& name, I
   : AthAlgorithm( name, svcLoc ),
     m_EgammaCalibrationAndSmearingTool("CP::EgammaCalibrationAndSmearingTool/EgammaCalibrationAndSmearingTool", this)
 {
-  declareProperty( "SG_Electrons", m_sg_electrons = "ElectronCollection" );
+  declareProperty( "SG_Electrons", m_sg_electrons = "Electrons" );
   declareProperty( "EgammaCalibrationAndSmearingTool", m_EgammaCalibrationAndSmearingTool);
 }
 
@@ -79,7 +79,7 @@ StatusCode testAthenaEgammaCalibTool::execute()
   for (; el_it != el_it_last; ++el_it, ++i) {
     xAOD::Electron* el = *el_it;
     ATH_MSG_INFO("Electron " << i); 
-    ATH_MSG_INFO("xAOD/raw pt = " << el->pt()); 
+    ATH_MSG_INFO("xAOD/raw pt, eta, phi = " << el->pt() << ", " << el->eta() << ", " << el->phi()); 
     
     if(m_EgammaCalibrationAndSmearingTool->applyCorrection(*el) != CP::CorrectionCode::Ok){
       ATH_MSG_WARNING("Cannot calibrate electron");

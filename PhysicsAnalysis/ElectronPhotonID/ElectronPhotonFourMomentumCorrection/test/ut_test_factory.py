@@ -130,6 +130,37 @@ class TestEgammaFactory(unittest.TestCase):
         self.assertEqual(el.caloCluster().e(), e)
         self.assertAlmostEqual(el.trackParticle().eta(), eta, delta=0.00001)
 
+    def test_clean(self):
+        event = ROOT.xAOD.TEvent()
+
+        factory = ROOT.EgammaFactory()
+        runnumber = 10000
+        ei = factory.create_eventinfo(True, runnumber)
+        self.assertEqual(ei.runNumber(), runnumber)
+
+        el = factory.create_electron(1, 2, 3, 4, 5, 6, 7)
+        self.assertAlmostEqual(el.eta(), 1)
+
+        factory.clear()
+
+        el = factory.create_electron(1, 2, 3, 4, 5, 6, 7)
+        self.assertAlmostEqual(el.eta(), 1)
+
+    def test_decoration(self):
+        event = ROOT.xAOD.TEvent()
+
+        factory = ROOT.EgammaFactory()
+        runnumber = 10000
+        ei = factory.create_eventinfo(True, runnumber)
+        self.assertEqual(ei.runNumber(), runnumber)
+
+        el = factory.create_electron(1, 2, 3, 4, 5, 6, 7)
+        el.auxdecor("double")("mydeco")
+        el.auxdataConst("double")("mydeco")
+
+        #factory.clear()
+        el = factory.create_electron(1, 2, 3, 4, 5, 6, 7)
+        el.auxdataConst("double")("mydeco")
 
 if __name__ == '__main__':
     ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")

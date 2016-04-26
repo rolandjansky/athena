@@ -20,7 +20,7 @@ CalibratedEgammaProvider::CalibratedEgammaProvider( const std::string& name, ISv
     m_tool("")
 {  
   declareProperty( "InputEventInfo", m_inputEventInfo = "", "Specify an EventInfo, if blank, will try to retrieve without key" );
-  declareProperty( "Input", m_inputKey = "ElectronCollection", "Electron or photon input collection to calibrate" );
+  declareProperty( "Input", m_inputKey = "Electrons", "Electron or photon input collection to calibrate" );
   declareProperty( "Output", m_outputKey = "CalibratedElectrons", "Name of output collection. If same as input key, will try to modify in-situ" );
   declareProperty( "Tool", m_tool, "Leave blank to get an autoconfigured instance");
 }
@@ -83,8 +83,8 @@ StatusCode CalibratedEgammaProvider::execute() {
 
    //record to storegate (if not modifying insitu) .. must ensure we record with the proper type
    if(m_inputKey!=m_outputKey) {
-      if(a) CHECK( evtStore()->record( dynamic_cast<xAOD::ElectronContainer*>(out.first), m_outputKey ) );
-      else CHECK( evtStore()->record( dynamic_cast<xAOD::PhotonContainer*>(out.first), m_outputKey ) );
+      if(a) CHECK( evtStore()->record( static_cast<xAOD::ElectronContainer*>(out.first), m_outputKey ) );
+      else CHECK( evtStore()->record( static_cast<xAOD::PhotonContainer*>(out.first), m_outputKey ) );
       CHECK( evtStore()->record( out.second, m_outputKey+"Aux.") );
    }
 

@@ -16,4 +16,5 @@
 #include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
 #include "ElectronPhotonFourMomentumCorrection/eg_resolution.h"
 #include "ElectronPhotonFourMomentumCorrection/EgammaFactory.h"
+#include "ElectronPhotonFourMomentumCorrection/LArTemperatureCorrectionTool.h"
 #endif

@@ -1,15 +1,15 @@
-## automatically generated CMT requirements file
+### automatically generated CMT requirements file
 package ElectronPhotonFourMomentumCorrection
 author  kkoeneke
 
 public
 ## for athena policies: this has to be the first use statement
-use  AtlasPolicy                AtlasPolicy-*                   
+use  AtlasPolicy                AtlasPolicy-*
 use  AtlasROOT                  AtlasROOT-*                     External
 use  PATCore                    PATCore-*                       PhysicsAnalysis/AnalysisCommon
 use  PATInterfaces              PATInterfaces-*                 PhysicsAnalysis/AnalysisCommon
 use  AsgTools                   AsgTools-*                      Control/AthToolSupport
-use  xAODEgamma                 xAODEgamma-*                    Event/xAOD  
+use  xAODEgamma                 xAODEgamma-*                    Event/xAOD
 use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
 use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 
@@ -19,9 +19,15 @@ use  GaudiInterface             GaudiInterface-*                External
 use  PathResolver               PathResolver-*                  Tools
 use  egammaLayerRecalibTool     egammaLayerRecalibTool-*        Reconstruction/egamma
 use  egammaMVACalib             egammaMVACalib-*                Reconstruction/egamma
-use  xAODTracking 	        xAODTracking-*   		Event/xAOD 
-use  xAODCore     	        xAODCore-*       		Event/xAOD
-use  xAODBase     	        xAODBase-*			Event/xAOD
+use  xAODTracking		xAODTracking-*               		Event/xAOD
+use  xAODCore			xAODCore-*                   		Event/xAOD
+use  xAODBase			xAODBase-*				Event/xAOD
+use  CxxUtils                   CxxUtils-*                      Control
+use  AtlasBoost                 AtlasBoost-*                    External
+use  xAODMetaData               xAODMetaData-*                  Event/xAOD
+use  AthAnalysisBaseComps	AthAnalysisBaseComps-*		Control
+
+
 end_private
 
 branches ElectronPhotonFourMomentumCorrection src src/components Root doc python share
@@ -51,4 +57,3 @@ apply_pattern athenarun_test \
    options="ElectronPhotonFourMomentumCorrection/CalibrationExample2_jobOptions.py" \
    pre_script="../cmt/setup.sh"  \
    post_script="${TESTTOOLSROOT}/share/post.sh EgammaCalibrationAndSmearing_test"
-
