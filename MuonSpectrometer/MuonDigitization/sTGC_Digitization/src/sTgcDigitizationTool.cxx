@@ -274,25 +274,38 @@ StatusCode sTgcDigitizationTool::prepareEvent(unsigned int nInputEvents) {
   return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing, 
+
+#ifdef ATHENA_20_20
+StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing,
+						  PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+						  PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
+#else
+StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing,
 						  SubEventIterator bSubEvents,
 						  SubEventIterator eSubEvents) {
-  
+#endif
   ATH_MSG_DEBUG ( "sTgcDigitizationTool::in processBunchXing()" );
   if(!m_thpcsTGC) {
     m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>();
   }
-
+#ifdef ATHENA_20_20
+  PileUpEventInfo::SubEvent::const_iterator iEvt = bSubEvents;
+#else
   SubEventIterator iEvt = bSubEvents;
+#endif
   //loop on event and sub-events for the current bunch Xing
   for (; iEvt!=eSubEvents; ++iEvt) {
+#ifdef ATHENA_20_20
+    StoreGateSvc& seStore = *iEvt->pSubEvtSG;
+#else
     StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
+#endif
     PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
     ATH_MSG_VERBOSE( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
-                     << " bunch crossing : " << bunchXing
-                     << " time offset : " << iEvt->time()
-                     << " event number : " << iEvt->ptr()->eventNumber()
-                     << " run number : " << iEvt->ptr()->runNumber() );
+                     << " bunch crossing : " << bunchXing );
+//                     << " time offset : " << iEvt->time()
+//                     << " event number : " << iEvt->ptr()->eventNumber()
+//                     << " run number : " << iEvt->ptr()->runNumber() );
     const GenericMuonSimHitCollection* seHitColl(nullptr);
     if (!seStore.retrieve(seHitColl,m_inputHitCollectionName).isSuccess()) {
       ATH_MSG_ERROR ( "SubEvent sTGC SimHitCollection not found in StoreGate " << seStore.name() );
