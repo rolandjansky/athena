@@ -15,6 +15,7 @@
 
 #include "TrigNavigation/TriggerElement.h"
 
+
 #include "TestTypes.h"
 #include "TestUtils.h"
 
@@ -126,6 +127,39 @@ StatusCode firsInsertDecidesPolicy() {
   END_TEST;
 }
 
+StatusCode viewContainerAttachTest() {
+  BEGIN_TEST("testing if the xAOD view container works");
+  TestBContainer *b1 = makeContainer(SG::OWN_ELEMENTS, 2);
+  TestBContainerView* view1 = new TestBContainerView();
+  TestBContainerView* view2 = new TestBContainerView();
+  REPORT_AND_CONTINUE("Objects prepared");
+  view1->push_back(b1->at(0));
+  view1->push_back(b1->at(2)); // i.e. the el of index 1 is missing from the view
+
+  view2->push_back(b1->at(0));
+  view2->push_back(b1->at(1));
+
+  REPORT_AND_CONTINUE("View filled");
+  TriggerElement* te =  makeTE(hns);
+  REPORT_AND_CONTINUE("TE in place - attaching");
+  std::string key_back;
+  bool stat = hns->attachFeature(te, view1, Navigation::ObjectCreatedByNew, key_back, "BView");  
+  if (  stat == false ) {
+    REPORT_AND_STOP("attachFeature failed (for the first view)");
+  }
+  REPORT_AND_CONTINUE("First View attach worked");
+  // another attach ( this is append effectively ) 
+  stat = hns->attachFeature(te, view2, Navigation::ObjectCreatedByNew, key_back, "BView");  
+  if (  stat == false ) {
+    REPORT_AND_STOP("attachFeature failed (for the second view)");
+  }
+  REPORT_AND_CONTINUE("Second View attach worked");
+
+
+  END_TEST;
+}
+
+
 
 
 int main() {
@@ -175,6 +209,10 @@ int main() {
     ABORT("");
   
   
+
+  if ( viewContainerAttachTest().isFailure() ) {
+    ABORT("");
+  }
 
 
   REPORT_AND_CONTINUE( "END all went fine" );

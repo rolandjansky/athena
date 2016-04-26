@@ -21,6 +21,15 @@
 #define HMLOG(x)   HOLDERLOG(Holder<STORED>::m_log, x)
 #define MLOG(x)    HOLDERLOG(m_log, x)
 
+/*
+template<class T>
+std::string type_real_name() {
+  std::string name(__PRETTY_FUNCTION__);   
+  size_t op = name.find('=');
+  size_t cl = name.find(']');
+  return name.substr(op+1, cl-op-1);
+}
+*/
 
 /////////////////////////////////////////////////////////////////////////////
 // T is for objects, C for container for this objects
@@ -173,6 +182,7 @@ void  HLTNavDetails::HolderImp<STORED, CONTAINER>::prepare(MsgStream* log, HLT::
 /////////////////////////////////////////////////////////////////////////////
 template<class STORED, class CONTAINER> 
 bool  HLTNavDetails::HolderImp<STORED, CONTAINER>::syncWithSG(SG::OwnershipPolicy policy) {
+  HMLOG(WARNING) << "HolderImp::syncWithSG policy " << policy << endreq;
   typedef Holder<STORED> H;
   if ( !H::m_storeGate ) {    
     HMLOG(WARNING) << "HolderImp::syncWithSG no SG available " << *this << endreq;
@@ -208,8 +218,17 @@ bool  HLTNavDetails::HolderImp<STORED, CONTAINER>::syncWithSG(SG::OwnershipPolic
       HMLOG(WARNING) << "HolderImp::syncWithSG can not create container " << *this << endreq;
       return false;
     }
+    /*
+    typedef DataVector<typename CONTAINER::value_type> DV;
+    const bool is_not_view = boost::is_same<CONTAINER, DV>::value;
+    HMLOG(WARNING) << "HolderImp::syncWithSG is_not_view " << is_not_view  
+		   << " cont "  << type_real_name<CONTAINER>() 
+		   << " DV " << type_real_name<DV>()   << endreq;
+    */
 
-    m_containerProxy.data()->clear(policy);
+    auto defaultPolicy = m_containerProxy.data()->ownPolicy();
+    m_containerProxy.data()->clear( defaultPolicy == SG::VIEW_ELEMENTS ? SG::VIEW_ELEMENTS : policy);
+
     
     CLID auxCLID = auxCLIDOrZero<typename Container2Aux<CONTAINER>::type>::get();
     if ( auxCLID and policy != SG::VIEW_ELEMENTS ) {

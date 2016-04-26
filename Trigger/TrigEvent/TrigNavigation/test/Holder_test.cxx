@@ -29,8 +29,6 @@ StoreGateSvc* pStore(0);
 
 
 
-
-
 template<class HTYPE> 
 StatusCode reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typename HTYPE::base_type*& base_holder ) {
   BEGIN_TEST("Registration");
@@ -66,7 +64,7 @@ StatusCode creation() {
   REPORT_AND_CONTINUE( "Creation of the holders Object <-> Container" );
   Holder<TestA>* oc(0); 
   if ( reg(new HolderImp<TestA, TestAContainer >(), "creation1", 1, 0, oc).isFailure() ) REPORT_AND_STOP("reg creation1") ;
-  
+
 
   //////////////////////////////////////////////////////////////////
   REPORT_AND_CONTINUE( "Creation of the holders Container <-> Container with details" );
@@ -79,6 +77,12 @@ StatusCode creation() {
   Holder<TestA>* oc_dec(0); 
   if ( reg(new HolderImp<TestA, TestAContainer >(), "creation3", 3, deco, oc_dec).isFailure() ) REPORT_AND_STOP("reg creation3") ;
 
+  Holder<TestBContainerView >* cc_view(0);  
+  if (  reg( new HolderImp<TestBContainerView, TestBContainerView >() , "creation4", 0, 0, cc_view).isFailure() ) REPORT_AND_STOP( "reg creation4" );
+  
+  //  REPORT_AND_CONTINUE( "Creation of the holders ViewObject <-> ViewContainer" );
+  //  Holder<TestB >* cc_view_obj(0);
+  //  if (  reg( new HolderImp<TestB, TestBContainerView >() , "creation0", 0, 0, cc_view_obj).isFailure() ) REPORT_AND_STOP( "reg creation5" );
   END_TEST;
 }
 
