@@ -31,3 +31,4 @@ atlas_add_dictionary( xAODTrigCaloDict
                       LINK_LIBRARIES ${ROOT_LIBRARIES} CaloGeoHelpers AthContainers xAODCore AthLinks xAODTrigCalo
                       EXTRA_FILES Root/dict/*.cxx )
 
+
