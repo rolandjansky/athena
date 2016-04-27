@@ -109,7 +109,7 @@ double
 MuonMeanMDTdADCFillerTool::meanMDTdADCFiller (const Trk::Track& track) const
 {
 
-	bool m_doMdtGasGainCorrectionForMc=false;// default value for DATA
+	bool doMdtGasGainCorrectionForMc=false;// default value for DATA
 	
 	// Event information
 	const xAOD::EventInfo* eventInfo = 0; 
@@ -117,7 +117,7 @@ MuonMeanMDTdADCFillerTool::meanMDTdADCFiller (const Trk::Track& track) const
 
 	// check if data or MC
 	if(eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION ) ){
-		m_doMdtGasGainCorrectionForMc=true; // set "true" for MC 
+		doMdtGasGainCorrectionForMc=true; // set "true" for MC 
 	}
 
     // return mean Number of ADC counts for MDT tubes on the track
@@ -143,8 +143,11 @@ MuonMeanMDTdADCFillerTool::meanMDTdADCFiller (const Trk::Track& track) const
     double meandADC = 0.;
     std::vector<double> dADCvec;
     dADCvec.clear();
-	double meanMDTdADC = 0.;
+         double meanMDTdADC = 0.;
 	
+    testEta = asinh(1. / tan(track.perigeeParameters()->parameters()[Trk::theta]));	
+    double track_phi = track.perigeeParameters()->parameters()[Trk::phi];	
+
     for(int nhits = 0; tsit != tsit_end; ++tsit, ++nhits)  {
         // outliers can have type measurement, in Muid
         if(!(*tsit)->type(Trk::TrackStateOnSurface::Measurement) ||(*tsit)->type(Trk::TrackStateOnSurface::Outlier)) {
@@ -179,12 +182,11 @@ MuonMeanMDTdADCFillerTool::meanMDTdADCFiller (const Trk::Track& track) const
                 // Calculate deltaADC as difference of number of ADC counts for given hit and datfit(Rdrift),
                 // where datfit(Rdrift) is the result of the fit of <ADC> in the given bin of Rdrift dependence on Rdrift
                 absR = fabs(mdtcirc->driftRadius());
-                testEta = asinh(1. / tan(track.perigeeParameters()->parameters()[Trk::theta]));
 
-		if(absR <= 0.4 || absR >= 14.)
-		{
+		bool isInBme = fabs(testEta)>=0.644 && fabs(testEta)<=0.772 && track_phi>=-1.72 && track_phi<=-1.42;
+		
+		if ((!isInBme && (absR <= 0.4 || absR >= 14.)) || (isInBme && (absR <= 0.4 || absR >= 6.5)))
 			continue;
-		}
                 nhitsadc++;
 
 
@@ -201,7 +203,7 @@ MuonMeanMDTdADCFillerTool::meanMDTdADCFiller (const Trk::Track& track) const
 
 
 
-                if(m_doMdtGasGainCorrectionForMc) 
+                if(doMdtGasGainCorrectionForMc) 
 		{
 			correction=datfit/mcfit; //gas gain correction factor for MC
 			meandADC += (correction*rawdata->adc() - datfit);
@@ -237,51 +239,32 @@ MuonMeanMDTdADCFillerTool::meanMDTdADCFiller (const Trk::Track& track) const
 		meandADC = double(meandADC - maxhit) / double(nhitsadc - 1);
 	}
 
-	double track_phi = track.perigeeParameters()->parameters()[Trk::phi];
+	
 
-
-	if (!m_doMdtGasGainCorrectionForMc)
+	if (doMdtGasGainCorrectionForMc)
 	{
-//		std::cout << "data, phi = " << track_phi << std::endl;
-		if (track_phi > -3.2 && track_phi < -2.87)
-		{
-			PhiFit = -14.8628*pow(track_phi,2) - 51.2725*track_phi- 22.3451;
-		}
-		if (track_phi > -2.87 && track_phi < -2.13)
-		{
-			PhiFit = 56.0143*pow(track_phi,2) + 284.87*track_phi + 353.856;
-		}
-		if (track_phi > -2.13 && track_phi < -1.37)
-		{
-			PhiFit = 69.2674*pow(track_phi,2) + 242.025*track_phi + 201.895;
-		}
-		if (track_phi > -1.37 && track_phi < -0.57)
-		{
-			PhiFit = 76.2431*pow(track_phi,2) + 149.965*track_phi + 63.5698;
-		}
+		if (track_phi > -3.2 && track_phi <= -2.87)
+			PhiFit = -13.5471*pow(track_phi,2) - 39.0001*track_phi + 4.23613;
+		if (track_phi > -2.87 && track_phi <= -2.13)
+			PhiFit = 53.209*pow(track_phi,2) + 272.502*track_phi + 342.867;
+		if (track_phi > -2.13 && track_phi <= -1.37)
+			PhiFit = 72.4707*pow(track_phi,2) + 254.911*track_phi + 216.811;
+		if (track_phi > -1.37 && track_phi <= -0.57)
+			PhiFit = 77.218*pow(track_phi,2) + 149.676*track_phi + 65.371;
 		if (track_phi > -0.57 && track_phi < 0.21)
-		{
-			PhiFit = 76.4402*pow(track_phi,2) + 26.5563*track_phi - 6.76955;
-		}
-		if (track_phi > 0.21 && track_phi < 1.00)
-		{
-			PhiFit = 76.1828*pow(track_phi,2) - 92.6354*track_phi + 20.1347;
-		}
-		if (track_phi > 1.00 && track_phi < 1.79)
-		{
-			PhiFit = 81.0784*pow(track_phi,2) - 225.365*track_phi+ 148.311;
-		}
-		if (track_phi > 1.79 && track_phi < 2.60)
-		{
-			PhiFit = 78.0441*pow(track_phi,2) - 341.223*track_phi + 365.407;
-		}
+			PhiFit = 86.977*pow(track_phi,2) + 29.0558*track_phi - 6.09313;
+		if (track_phi >= 0.21 && track_phi <= 1.00)
+			PhiFit = 79.203*pow(track_phi,2) - 92.9512*track_phi + 21.6361;
+		if (track_phi > 1.00 && track_phi <= 1.79)
+			PhiFit = 85.5711*pow(track_phi,2) - 239.068*track_phi + 161.918;
+		if (track_phi > 1.79 && track_phi <= 2.60)
+			PhiFit = 82.8996*pow(track_phi,2) - 362.665*track_phi + 391.419;
 		if (track_phi > 2.60 && track_phi < 3.20)
-		{
-			PhiFit = 78.5415*pow(track_phi,2) - 466.747*track_phi + 684.038;
-		}
-		meandADC -= (PhiFit+5.761);
-	}	
-
+			PhiFit = 73.8744*pow(track_phi,2) - 443.274*track_phi + 656.926;
+ 
+		meandADC += PhiFit - 5.01 + 9.46;
+	}
+	
 	dADCvec.clear();
 
 	meanMDTdADC = meandADC; 
