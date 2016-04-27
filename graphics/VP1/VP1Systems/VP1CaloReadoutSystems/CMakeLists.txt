@@ -15,12 +15,22 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Coin3D )
+find_package( Qt4 COMPONENTS QtCore QtOpenGL QtGui )
 
 include_directories( /usr/X11R6/include )
 
+# Generate UI files automatically:
+set( CMAKE_AUTOUIC TRUE )
+# Generate MOC files automatically:
+set( CMAKE_AUTOMOC TRUE )
+# Generate resource files automatically:
+set( CMAKE_AUTORCC TRUE )
+# to let CMake find .h files automatically-generated from .ui files
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+
 # Component(s) in the package:
-atlas_add_library( VP1CaloReadoutSystems
-                   src/*.c*
+atlas_add_library( VP1CaloReadoutSystems VP1CaloReadoutSystems/*.h src/*.h src/*.cxx src/*.qrc  
                    PUBLIC_HEADERS VP1CaloReadoutSystems
                    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS}
                    LINK_LIBRARIES VP1Base GL
