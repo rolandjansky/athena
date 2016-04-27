@@ -61,7 +61,6 @@ int main()
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, true);
-    test_disco (*idhelper);
     test_exceptions (*idhelper);
   }
   catch(LArID_Exception & except){

@@ -139,11 +139,9 @@ void test_connected (const LArEM_Base_ID& em_id, bool supercell = false)
   for(; itId!=itIdEnd; ++itId) {
     Identifier ch_id = *itId;
     assert (em_id.is_lar_em (ch_id));
-    assert (em_id.is_connected (ch_id));
 
     IdentifierHash hashId;
     assert (em_id.get_hash (ch_id, hashId, &channelContext) == 0);
-    assert (em_id.is_connected (hashId));
     Identifier ch_id2;
     assert (em_id.get_id (hashId, ch_id2, &channelContext) == 0);
     assert (ch_id == ch_id2);
@@ -166,9 +164,6 @@ void test_connected (const LArEM_Base_ID& em_id, bool supercell = false)
 
     assert (em_id.is_supercell(ch_id) == supercell);
       
-    assert (em_id.is_connected (bec, samp, reg, eta, phi));
-    assert (!em_id.is_disconnected (bec, samp, reg, eta, phi));
-
     ch_id2 = em_id.channel_id (bec, samp, reg, eta, phi);
     assert (ch_id == ch_id2);
 
@@ -259,88 +254,6 @@ void test_connected (const LArEM_Base_ID& em_id, bool supercell = false)
   BOOST_FOREACH (Identifier ch_id, em_id.reg_range()) {
 #endif
     hashsum -= em_id.region_hash (ch_id);
-  }
-  assert (hashsum == 0);
-
-  counts.report();
-}
-
-
-void test_disco (const LArEM_Base_ID& em_id)
-{
-  std::cout << "test_disco\n";
-
-  // disconnected channels
-  //IdContext channelContext = em_id.channel_context();
-  std::vector<Identifier>::const_iterator itId = em_id.disc_em_begin();
-  std::vector<Identifier>::const_iterator itIdEnd = em_id.disc_em_end();
-  CellCounter counts;
-
-  std::cout << "  nchan " << itIdEnd - itId << "\n";
-
-  assert (em_id.channel_hash_max() == em_id.disc_channel_hash_min());
-  std::vector<bool> hashvec(em_id.disc_channel_hash_max() - em_id.disc_channel_hash_min());
-
-  int hashsum = 0;
-  for (; itId!=itIdEnd; ++itId) {
-    Identifier ch_id = *itId;
-    assert (em_id.is_lar_em (ch_id));
-    assert (!em_id.is_connected (ch_id));
-
-    IdentifierHash hashId = em_id.disc_channel_hash (ch_id) ;
-    assert (!em_id.is_connected (hashId));
-    Identifier ch_id2 = em_id.disc_channel_id(hashId);
-    assert (ch_id == ch_id2);
-    assert (hashId >= em_id.channel_hash_max());
-    assert (!hashvec[hashId - em_id.disc_channel_hash_min()]);
-    hashvec[hashId - em_id.disc_channel_hash_min()] = true;
-
-    hashsum += hashId;
-
-    int bec  = em_id.barrel_ec(ch_id);
-    int samp = em_id.sampling(ch_id);
-    int reg  = em_id.region(ch_id);
-    region_test (em_id, ch_id);
-    counts.count (bec, samp);
-
-    assert (em_id.is_supercell(ch_id) == false);
-
-    assert (em_id.eta(ch_id) == -999);
-    assert (em_id.phi(ch_id) == -999);
-    int eta  = em_id.disc_eta(ch_id);
-    int phi  = em_id.disc_phi(ch_id);
-
-    assert (!em_id.is_connected (bec, samp, reg, eta, phi));
-    assert (em_id.is_disconnected (bec, samp, reg, eta, phi));
-      
-    ch_id2 = em_id.disc_channel_id (bec, samp, reg, eta, phi);
-    assert (ch_id == ch_id2);
-
-    Identifier reg_id = em_id.disc_region_id (bec, samp, reg);
-    ch_id2 = em_id.channel_id (reg_id, eta, phi);
-    assert (ch_id == ch_id2);
-
-    ExpandedIdentifier exp_id;
-    LArEM_ID_Test* em_id_test = (LArEM_ID_Test*)&em_id;
-    exp_id << em_id_test->lar_field_value()
-      	   << em_id_test->lar_em_field_value()
-	   << em_id.barrel_ec(ch_id)
-	   << em_id.sampling(ch_id)
-	   << em_id.region(ch_id)
-           << em_id.disc_eta(ch_id)
-           << em_id.disc_phi(ch_id)
-           << (unsigned)em_id.is_supercell(ch_id);
-    assert (em_id.disc_channel_id (exp_id) == ch_id);
-  }
-  for (size_t i = 0; i < hashvec.size(); i++)
-    assert (hashvec[i]);
-
-#if __cplusplus > 201100
-  for (Identifier ch_id : em_id.disc_em_range()) {
-#else
-  BOOST_FOREACH (Identifier ch_id, em_id.disc_em_range()) {
-#endif
-    hashsum -= em_id.disc_channel_hash (ch_id);
   }
   assert (hashsum == 0);
 

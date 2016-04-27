@@ -88,7 +88,6 @@ int main()
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, true);
-    test_disco (*idhelper);
     test_exceptions (*idhelper);
     test_neighbors (*idhelper_n);
     test_hec (*idhelper);

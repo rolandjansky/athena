@@ -1,3 +1,7 @@
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
 decode index and bit fields for each level: 
@@ -11,8 +15,6 @@ is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffff
  initialize_from_dict : 
  channel range -> 4/3/-2,2/1/0:11/0:15/1 | 4/3/-2,2/2/0:7/0:15/1 | 4/3/-2,2/3/0:3/0:15/1
  module range -> 4/3/-2,2/1 | 4/3/-2,2/2 | 4/3/-2,2/3
- disconnected channel range -> 
- disconnected module range -> 
 test_basic
 [4.3.2.1.1.1.1] hex(3602300000000000)
 [4.3.2.2.1.1.1] hex(3682300000000000)
@@ -30,9 +32,6 @@ Module [4.3.2.1.0.0.1]    eta: 3.200000 0.140000 0  11 phi: 0.0 0.392699 0  15
 Module [4.3.2.2.0.0.1]    eta: 3.200000 0.160000 0   7 phi: 0.0 0.392699 0  15
 Module [4.3.2.3.0.0.1]    eta: 3.200000 0.320000 0   3 phi: 0.0 0.392699 0  15
   Module counts: 384 256 128 ; total: 768
-test_disco
-  nchan 0
-  Module counts: 0 0 0 ; total: 0
 test_exeptions
 Exception 1: LArID_Exception - Error code: 6 
  LArFCAL_Base_ID::module_id() result is not OK: ID, range = 4/3/0/99 , 4/3/-2,2/1 | 4/3/-2,2/2 | 4/3/-2,2/3

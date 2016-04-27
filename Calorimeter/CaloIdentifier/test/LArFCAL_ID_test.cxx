@@ -96,7 +96,6 @@ int main()
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, false);
-    test_disco (*idhelper);
     test_exceptions (*idhelper);
     test4 (*idhelper_n);
   }

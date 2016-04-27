@@ -21,10 +21,11 @@
 CaloCell_ID* make_calo_id (bool do_neighbours = false)
 {
   return make_calo_id_t<CaloCell_ID,
-                        LArEM_ID,
-                        LArHEC_ID,
-                        LArFCAL_ID,
-                        TileID> (do_neighbours);
+    LArEM_ID,
+    LArHEC_ID,
+    LArFCAL_ID,
+    TileID,
+    HGTD_ID> (do_neighbours);
 }
 
 

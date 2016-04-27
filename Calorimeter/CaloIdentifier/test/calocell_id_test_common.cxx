@@ -174,12 +174,14 @@ template <class CALOCELL_ID_T,
           class LAREM_ID_T,
           class LARHEC_ID_T,
           class LARFCAL_ID_T,
-          class TILE_ID_T>
+          class TILE_ID_T,
+	  class HGTD_ID_T>
 CALOCELL_ID_T* make_calo_id_t (bool do_neighbours = false)
 {
   IdDictParser* parser = new IdDictParser;
   parser->register_external_entity ("LArCalorimeter",
-                                    "IdDictLArCalorimeter_DC3-05-Comm-01.xml");
+				    "IdDictLArCalorimeter_DC3-05-Comm-01.xml");
+				    //    "IdDictLArCalorimeter_HGTD_01.xml");
   IdDictMgr& idd = parser->parse ("IdDictParser/ATLAS_IDS.xml");
 
   // Set some default file names for neighbours (RDS 12/2009):
@@ -207,12 +209,14 @@ CALOCELL_ID_T* make_calo_id_t (bool do_neighbours = false)
   LArMiniFCAL_ID* minifcal_id = make_helper<LArMiniFCAL_ID> (/*mini_*/idd,do_neighbours);
 
   TILE_ID_T* tile_id = make_helper<TILE_ID_T> (idd, do_neighbours);
+  HGTD_ID_T* hgtd_id = make_helper<HGTD_ID_T> (idd, do_neighbours);
 
   CALOCELL_ID_T* calo_id = new CALOCELL_ID_T (em_id,
                                               hec_id,
                                               fcal_id,
                                               minifcal_id,
-                                              tile_id);
+                                              tile_id,
+					      hgtd_id);
   assert (calo_id->initialize_from_dictionary (idd) == 0);
 
   assert (!calo_id->do_checks());
@@ -240,6 +244,7 @@ void region_test (const CaloCell_Base_ID& calo_id, const Identifier& ch_id)
   assert (calo_id.is_fcal(ch_id) == calo_id.is_fcal(hashId));
   assert (calo_id.is_minifcal(ch_id) == calo_id.is_minifcal(hashId));
   assert (calo_id.is_tile(ch_id) == calo_id.is_tile(hashId));
+  assert (calo_id.is_hgtd(ch_id) == calo_id.is_hgtd(hashId));
 
   if (calo_id.is_em (ch_id)) {
     assert (calo_id.sub_calo (hashId) == CaloCell_Base_ID::LAREM);
@@ -334,6 +339,9 @@ void region_test (const CaloCell_Base_ID& calo_id, const Identifier& ch_id)
             (calo_id.sample (ch_id) == TileID::SAMP_E));
   }
 
+  else if (calo_id.is_hgtd (ch_id)) {
+    assert (calo_id.sub_calo (hashId) == CaloCell_Base_ID::HGTD);
+  }
   else
     std::abort();
 }
@@ -357,7 +365,6 @@ void test_cells (const CaloCell_Base_ID* calo_id, bool supercell = false)
   for(; itId!=itIdEnd; ++itId) {
     Identifier chId = *itId;
     region_test (*calo_id, chId);
-
     int subcalo0 = -1;
 
     if (calo_id->is_em (chId)) {
@@ -390,13 +397,19 @@ void test_cells (const CaloCell_Base_ID* calo_id, bool supercell = false)
       assert (calo_id->is_supercell (chId) == supercell);
     }
 
+    else if (calo_id->is_hgtd (chId)) {
+      counts.count ("HGTD", calo_id->pos_neg(chId), calo_id->sampling(chId));
+      subcalo0 = CaloCell_Base_ID::HGTD;
+      assert (calo_id->is_supercell (chId) == supercell);
+    }
+
     else
       std::abort();
 
     IdentifierHash hashId = calo_id->calo_cell_hash ( chId );
     int subcalo1 = calo_id->sub_calo(hashId);
     hashsum += hashId;
-
+    
     assert (hashId < hash_counts.size());
     assert (hash_counts[hashId] == 0);
     hash_counts[hashId] = 1;
@@ -431,6 +444,7 @@ void test_cells (const CaloCell_Base_ID* calo_id, bool supercell = false)
     int reg    = 888888;
     int eta    = 888888;
     int phi    = 888888;
+
     if(calo_id->is_lar(chId)) {  
       bec    = calo_id->pos_neg(chId);
       samp   = calo_id->sampling(chId);

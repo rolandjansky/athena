@@ -56,7 +56,8 @@ public:
                         const LArHEC_SuperCell_ID*   hec_id,
                         const LArFCAL_SuperCell_ID*  fcal_id, 
                         const LArMiniFCAL_ID*        minifcal_id,
-                        const Tile_SuperCell_ID*     tile_id) ;
+                        const Tile_SuperCell_ID*     tile_id,
+			const HGTD_ID*               hgtd_id) ;
         
   ~CaloCell_SuperCell_ID(void);
 

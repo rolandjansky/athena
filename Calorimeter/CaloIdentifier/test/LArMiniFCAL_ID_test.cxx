@@ -130,8 +130,6 @@ void test_connected (const LArMiniFCAL_ID& idhelper)
   CellCounter counts;
   TEST_LOOP(Identifier id, idhelper.minifcal_range()) {
     IdentifierHash hashId = idhelper.channel_hash (id);
-    assert (idhelper.is_connected(id));
-    assert (idhelper.is_connected(hashId));
     assert (hashId == idhelper.channel_hash_binary_search (id));
 
     assert (idhelper.is_supercell(id) == false);
@@ -143,8 +141,6 @@ void test_connected (const LArMiniFCAL_ID& idhelper)
     int phi   = idhelper.phi (id);
 
     assert (id == idhelper.channel_id (side, mod, depth, eta, phi));
-    assert (idhelper.is_connected (side, mod, depth, eta, phi));
-    assert (!idhelper.is_disconnected (side, mod, depth, eta, phi));
 
     Identifier mod_id = idhelper.module_id (side, mod);
     assert (id == idhelper.channel_id (mod_id, depth, eta, phi));
@@ -195,75 +191,6 @@ void test_connected (const LArMiniFCAL_ID& idhelper)
 }
 
 
-void test_disco (const LArMiniFCAL_ID& idhelper)
-{
-  std::cout << "test_disco\n";
-
-  // No disconnected channels.
-
-  assert (idhelper.disc_channel_hash_min() == idhelper.channel_hash_max());
-  assert (idhelper.disc_channel_hash_min() == idhelper.disc_channel_hash_max());
-
-  assert (idhelper.disc_minifcal_begin() == idhelper.disc_minifcal_end());
-  int n = 0;
-  TEST_LOOP(Identifier id, idhelper.disc_minifcal_range()) {
-    ++n;
-    IdentifierHash hashId = idhelper.disc_channel_hash(id);
-    assert (id == idhelper.disc_channel_id(hashId));
-
-    assert (idhelper.is_supercell(id) == false);
-
-    int side  = idhelper.pos_neg (id);
-    int mod   = idhelper.module (id);
-    int depth = idhelper.depth (id);
-
-    assert (idhelper.eta(id) == -999);
-    assert (idhelper.phi(id) == -999);
-    int eta  = idhelper.disc_eta(id);
-    int phi  = idhelper.disc_phi(id);
-
-    assert (id == idhelper.disc_channel_id (side, mod, depth, eta, phi));
-
-    assert (!idhelper.is_connected(id));
-    assert (!idhelper.is_connected(hashId));
-    assert (!idhelper.is_connected (side, mod, depth, eta, phi));
-    assert (idhelper.is_disconnected (side, mod, depth, eta, phi));
-
-    assert (idhelper.module_id(id) == idhelper.disc_module_id (side, mod));
-
-    ExpandedIdentifier exp_id;
-    LArMiniFCAL_ID_Test* idhelper_test = (LArMiniFCAL_ID_Test*)&idhelper;
-    exp_id << idhelper_test->lar_field_value()
-      	   << idhelper_test->lar_fcal_field_value()
-	   << idhelper.pos_neg(id)
-	   << idhelper.module(id)
-	   << idhelper.depth(id)
-           << idhelper.eta(id)
-           << idhelper.phi(id);
-    assert (idhelper.disc_channel_id (exp_id) == id);
-  }
-  assert (n == 0);
-
-  BOOST_FOREACH (Identifier id, idhelper.disc_mod_range()) {
-    ExpandedIdentifier exp_id;
-    LArMiniFCAL_ID_Test* idhelper_test = (LArMiniFCAL_ID_Test*)&idhelper;
-    exp_id << idhelper_test->lar_field_value()
-      	   << idhelper_test->lar_fcal_field_value()
-	   << idhelper.pos_neg(id)
-	   << idhelper.module(id)
-	   << idhelper.depth(id);
-    assert (idhelper.disc_module_id (exp_id) == id);
-    ++n;
-  }
-
-  for (LArMiniFCAL_ID::id_iterator it = idhelper.disc_mod_begin();
-       it != idhelper.disc_mod_end();
-       ++it)
-  {
-    --n;
-  }
-  assert (n == 0);
-}
 
 
 void test_exceptions (const LArMiniFCAL_ID& idhelper)
@@ -330,7 +257,6 @@ int main()
   try {
     test_basic (*idhelper);
     test_connected (*idhelper);
-    test_disco (*idhelper);
     test_exceptions (*idhelper);
     test_neighbors (*idhelper_n);
   }

@@ -99,9 +99,7 @@ void test_connected (const LArHEC_Base_ID& idhelper, bool supercell)
   CellCounter counts;
   TEST_LOOP (Identifier id, idhelper.hec_range()) {
     assert (idhelper.is_lar_hec (id));
-    assert (idhelper.is_connected (id));
     IdentifierHash hashId = idhelper.channel_hash (id);
-    assert (idhelper.is_connected (hashId));
     assert (hashId == idhelper.channel_hash_binary_search (id));
 
     int side = idhelper.pos_neg(id);
@@ -112,9 +110,6 @@ void test_connected (const LArHEC_Base_ID& idhelper, bool supercell)
 
     assert (idhelper.is_supercell(id) == supercell);
       
-    assert (idhelper.is_connected (side, samp, reg, eta, phi));
-    assert (!idhelper.is_disconnected (side, samp, reg, eta, phi));
-
     Identifier id2 = idhelper.channel_id (side, samp, reg, eta, phi);
     assert (id == id2);
 
@@ -171,100 +166,6 @@ void test_connected (const LArHEC_Base_ID& idhelper, bool supercell)
   }
 }
 
-
-void test_disco (const LArHEC_Base_ID& idhelper)
-{
-  std::cout << "test_disco\n";
-
-  // disconnected channels
-  std::vector<Identifier>::const_iterator itId = idhelper.disc_hec_begin();
-  std::vector<Identifier>::const_iterator itIdEnd = idhelper.disc_hec_end();
-  CellCounter counts;
-
-  std::cout << "  nchan " << itIdEnd - itId << "\n";
-
-  assert (idhelper.channel_hash_max() == idhelper.disc_channel_hash_min());
-  std::vector<bool> hashvec(idhelper.disc_channel_hash_max() - idhelper.disc_channel_hash_min());
-
-  int hashsum = 0;
-  for (; itId != itIdEnd; ++itId) {
-    Identifier id = *itId;
-    assert (idhelper.is_lar_hec (id));
-    assert (!idhelper.is_connected (id));
-
-    IdentifierHash hashId = idhelper.disc_channel_hash (id) ;
-    assert (!idhelper.is_connected (hashId));
-    Identifier id2 = idhelper.disc_channel_id(hashId);
-    assert (id == id2);
-    assert (hashId >= idhelper.channel_hash_max());
-    assert (!hashvec[hashId - idhelper.disc_channel_hash_min()]);
-    hashvec[hashId - idhelper.disc_channel_hash_min()] = true;
-
-    hashsum += hashId;
-
-    int side = idhelper.pos_neg(id);
-    int samp = idhelper.sampling(id);
-    int reg  = idhelper.region(id);
-    counts.count (reg, samp);
-
-    assert (idhelper.is_supercell(id) == false);
-
-    assert (idhelper.eta(id) == -999);
-    assert (idhelper.phi(id) == -999);
-    int eta  = idhelper.disc_eta(id);
-    int phi  = idhelper.disc_phi(id);
-
-    assert (!idhelper.is_connected (side, samp, reg, eta, phi));
-    assert (idhelper.is_disconnected (side, samp, reg, eta, phi));
-      
-    id2 = idhelper.disc_channel_id (side, samp, reg, eta, phi);
-    assert (id == id2);
-
-    Identifier reg_id = idhelper.disc_region_id (side, samp, reg);
-    id2 = idhelper.channel_id (reg_id, eta, phi);
-    assert (id == id2);
-
-    ExpandedIdentifier exp_id;
-    LArHEC_ID_Test* idhelper_test = (LArHEC_ID_Test*)&idhelper;
-    exp_id << idhelper_test->lar_field_value()
-      	   << idhelper_test->lar_hec_field_value()
-	   << idhelper.pos_neg(id)
-	   << idhelper.sampling(id)
-	   << idhelper.region(id)
-           << idhelper.disc_eta(id)
-           << idhelper.disc_phi(id)
-           << (unsigned)idhelper.is_supercell(id);
-    assert (idhelper.disc_channel_id (exp_id) == id);
-  }
-  for (size_t i = 0; i < hashvec.size(); i++)
-    assert (hashvec[i]);
-
-  TEST_LOOP (Identifier id, idhelper.disc_hec_range()) {
-    hashsum -= idhelper.disc_channel_hash (id);
-  }
-  assert (hashsum == 0);
-
-  hashsum = 0;
-  BOOST_FOREACH (Identifier id, idhelper.disc_reg_range()) {
-    ExpandedIdentifier exp_id;
-    LArHEC_ID_Test* idhelper_test = (LArHEC_ID_Test*)&idhelper;
-    exp_id << idhelper_test->lar_field_value()
-      	   << idhelper_test->lar_hec_field_value()
-	   << idhelper.pos_neg(id)
-	   << idhelper.sampling(id)
-	   << idhelper.region(id);
-    assert (idhelper.disc_region_id (exp_id) == id);
-    ++hashsum;
-  }
-
-  itId = idhelper.disc_reg_begin();
-  itIdEnd = idhelper.disc_reg_end();
-  for (; itId != itIdEnd; ++itId)
-    --hashsum;
-  assert (hashsum == 0);
-
-  counts.report();
-}
 
 
 void test_exceptions (const LArHEC_Base_ID& idhelper)

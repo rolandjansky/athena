@@ -21,10 +21,10 @@
 CaloCell_SuperCell_ID* make_calo_id ()
 {
   return make_calo_id_t<CaloCell_SuperCell_ID,
-                        LArEM_SuperCell_ID,
-                        LArHEC_SuperCell_ID,
-                        LArFCAL_SuperCell_ID,
-                        Tile_SuperCell_ID> ();
+    LArEM_SuperCell_ID,
+    LArHEC_SuperCell_ID,
+    LArFCAL_SuperCell_ID,
+    Tile_SuperCell_ID, HGTD_ID> ();
 }
 
 
