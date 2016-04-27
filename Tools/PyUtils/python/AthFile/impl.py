@@ -7,7 +7,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 662725 $"
+__version__ = "$Revision: 723532 $"
 __author__  = "Sebastien Binet"
 __doc__ = "implementation of AthFile-server behind a set of proxies to isolate environments"
 
@@ -29,6 +29,9 @@ except:
     pass
 
 ### globals -------------------------------------------------------------------
+DEFAULT_AF_RUN = os.environ.get('DEFAULT_AF_RUN', False)
+'''Revert to old file peeking via Athena sub-process if True.'''
+
 DEFAULT_AF_CACHE_FNAME = os.environ.get('DEFAULT_AF_CACHE_FNAME',
                                         'athfile-cache.ascii.gz')
 
@@ -113,6 +116,7 @@ def _create_file_infos():
         'beam_energy': [],
         'beam_type':   [],
         'stream_tags': [],
+        'mc_channel_number': [],
         'metadata_items': None,
         'eventdata_items': None,
         'stream_names': None,
@@ -271,6 +275,13 @@ class AthFile (object):
     run_numbers = run_number
     
     @property
+    def mc_channel_number (self):
+        """return the list of unique mc_channel-numbers the @c AthFile contains"""
+        return list(set(self.infos['mc_channel_number']))
+    # ATEAM-168: requested for derivations
+    mc_channel_numbers = mc_channel_number
+    
+    @property
     def evt_number (self):
         """return the list of unique evt-numbers the @c AthFile contains"""
         return list(set(self.infos['evt_number']))
@@ -395,7 +406,7 @@ class AthFileServer(object):
         # speed-up by tampering LD_LIBRARY_PATH to not load reflex-dicts
         import re, os
         restrictedProjects = ['AtlasCore']
-        if(os.environ.get("AtlasProject",None)=="AthAnalysisBase"): restrictedProjects=[] #special case for athanalysisbase
+        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulationBase" in os.environ.get("CMTEXTRATAGS",""): restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             with H.ShutUp(filters=[
                 re.compile(
@@ -1027,7 +1038,7 @@ class FilePeeker(object):
         import PyUtils.Helpers as H
         restrictedProjects = ['AtlasCore']
         import os
-        if(os.environ.get("AtlasProject",None)=="AthAnalysisBase"): restrictedProjects=[] #special case for athanalysisbase
+        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulationBase" in os.environ.get("CMTEXTRATAGS",""): restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             import re
@@ -1068,7 +1079,7 @@ class FilePeeker(object):
         import PyUtils.Helpers as H
         restrictedProjects = ['AtlasCore']
         import os
-        if(os.environ.get("AtlasProject",None)=="AthAnalysisBase"): restrictedProjects=[] #special case for athanalysisbase
+        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulationBase" in os.environ.get("CMTEXTRATAGS",""): restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             do_close = True
@@ -1135,7 +1146,7 @@ class FilePeeker(object):
         import PyUtils.Helpers as H
         restrictedProjects = ['AtlasCore']
         import os
-        if(os.environ.get("AtlasProject",None)=="AthAnalysisBase"): restrictedProjects=[] #special case for athanalysisbase
+        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulationBase" in os.environ.get("CMTEXTRATAGS",""): restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             do_close = True
@@ -1158,7 +1169,7 @@ class FilePeeker(object):
      
     def _process_call(self, fname, evtmax, projects=['AtlasCore']):
         import os
-        if(os.environ.get("AtlasProject",None)=="AthAnalysisBase"): projects=[] #special case for athanalysisbase
+        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulationBase" in os.environ.get("CMTEXTRATAGS",""): projects=[] #special cases
         msg = self.msg()
         import PyUtils.Helpers as H
         f = _create_file_infos()
@@ -1185,9 +1196,11 @@ class FilePeeker(object):
                 # FIXME: best would be to do that in athfile_peeker.py but
                 #        athena.py closes sys.stdin when in batch, which confuses
                 #        PyCmt.Cmt:subprocess.getstatusoutput
-                cmd = ['pool_insertFileToCatalog.py',
-                       file_name,]
-                subprocess.call(cmd, env=self._sub_env)
+                #
+                # ATEAM-192: avoid the PoolFileCatalog.xml conflict
+                #cmd = ['pool_insertFileToCatalog.py',
+                #       file_name,]
+                #subprocess.call(cmd, env=self._sub_env)
                 #
                 #with H.restricted_ldenviron(projects=None):
                 # MN: disabled clean environ to let ROOT6 find headers
@@ -1208,8 +1221,8 @@ class FilePeeker(object):
                         os.close(fd_pkl)
                         if os.path.exists(out_pkl_fname):
                             os.remove(out_pkl_fname)
-                        print "\n  ---------   runnign Athena peeker"
-                        print  os.environ['CMTPATH']
+                        print "\n  ---------   running Athena peeker"
+                        print  os.environ.get('CMTPATH','')
 
                         import AthenaCommon.ChapPy as api
                         app = api.AthenaApp(cmdlineargs=["--nprocs=0"])
@@ -1254,7 +1267,17 @@ class FilePeeker(object):
                         print >> stdout,self._sub_env
                         print >> stdout,"="*80
                         stdout.flush()
-                        sc = app.run(stdout=stdout, env=self._sub_env)
+                        if DEFAULT_AF_RUN:
+                            sc = app.run(stdout=stdout, env=self._sub_env)
+                        else:
+                            import PyUtils.FilePeekerTool as fpt
+                            fp = fpt.FilePeekerTool(f_root)
+                            sc, fp_pkl_fname = fp.run()
+                            # revert to athena sub-process in case of file with old schema
+                            if sc == 0:
+                                out_pkl_fname = fp_pkl_fname
+                            else:
+                                sc = app.run(stdout=stdout, env=self._sub_env)
                         stdout.flush()
                         stdout.close()
                         import AthenaCommon.ExitCodes as ath_codes

@@ -8,7 +8,7 @@
 from __future__ import with_statement
 
 __doc__ = "a few utils to ease the day-to-day work with ROOT"
-__version__ = "$Revision: 678771 $"
+__version__ = "$Revision: 739816 $"
 __author__ = "Sebastien Binet"
 
 __all__ = [
@@ -39,8 +39,14 @@ def import_root(batch=True):
     if batch:
         ROOT.PyConfig.IgnoreCommandLineOptions = True
     import cppyy
+    if os.environ.get('GLIBCXX_USE_CXX11_ABI') == '0':
+        cmd = ROOT.gSystem.GetMakeSharedLib()
+        if cmd.find('GLIBCXX_USE_CXX11_ABI') < 0:
+            cmd = cmd.replace ('$SourceFiles', '$SourceFiles -D_GLIBCXX_USE_CXX11_ABI=0 ')
+            ROOT.gSystem.SetMakeSharedLib(cmd)
     return ROOT
 
+_tempfiles = []
 def root_compile(src=None, fname=None, batch=True):
     """a helper method to compile a set of C++ statements (via ``src``) or
     a C++ file (via ``fname``) via ACLiC
@@ -71,6 +77,17 @@ def root_compile(src=None, fname=None, batch=True):
         src_file.flush()
         src_file.seek(0)
         fname = src_file.name
+
+        # Apparently, cling caches files by inode.
+        # If you ask it to read a file that has the same inode as one
+        # that it has already read, then it will just use the cached
+        # contents rather than rereading.  This, however, doesn't play
+        # very well if we're reading temp files, where inodes may be reused,
+        # giving rise to hard-to-reproduce failures.
+        #
+        # Try to avoid this by keeping the temp files open until the
+        # the program exits.
+        _tempfiles.append (src_file)
         pass
 
     elif fname:
@@ -318,8 +335,8 @@ def _test_main():
     no_raise("problem pythonizing TFile", fct=_pythonize_tfile)
     no_raise("problem compiling dummy one-liner",
              root_compile, "void foo1() { return ; }")
-#    no_raise("problem compiling dummy one-liner w/ kwds",
-#             fct=root_compile, src="void foo1() { return ; }")
+    no_raise("problem compiling dummy one-liner w/ kwds",
+             fct=root_compile, src="void foo1a() { return ; }")
     import tempfile
     # PvG workaround for ROOT-7059
     dummy = tempfile.NamedTemporaryFile(prefix="foo_",suffix=".cxx")

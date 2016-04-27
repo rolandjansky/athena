@@ -5,7 +5,7 @@
 # @author Sebastien Binet
 # @date February 2010
 
-__version__ = "$Revision: 636895 $"
+__version__ = "$Revision: 717788 $"
 __doc__ = "Submit one or more TAGs to TagCollector."
 __author__ = "Sebastien Binet, Frank Winklmeier"
 
@@ -18,7 +18,10 @@ import os.path as osp
 import sys
 
 import PyUtils.acmdlib as acmdlib
-import pyAMI.exception
+try:
+   import pyAMI.exception
+except ImportError:
+   pass #do nothing
 import PyCmt.Cmt as cmt
 
 ### functions -----------------------------------------------------------------
