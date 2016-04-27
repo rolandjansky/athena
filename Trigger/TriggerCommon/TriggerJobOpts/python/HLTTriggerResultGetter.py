@@ -339,7 +339,7 @@ class HLTTriggerResultGetter(Configured):
             objKeyStore.addManyTypesStreamAOD(getTrigIDTruthList(TriggerFlags.AODEDMSet()))
 
 
-        if rec.doAOD():
+        if rec.doAOD() or rec.doWriteAOD():
             # schedule the RoiDescriptorStore conversion
             # log.warning( "HLTTriggerResultGetter - setting up RoiWriter" )
             topSequence += RoiWriter()
