@@ -76,14 +76,7 @@ StatusCode Trk::TrackDiff::initialize() {
           ATH_MSG_ERROR ( "Unable to retrieve pointer to THistSvc" );
           return sc;
         }
-    
-    //     // retrieve TTree
-    //     sc = tHistSvc->getTree(AANTupleParams::c_TreeID,m_nt);
-    //     if (sc.isFailure()) {
-    //         log << MSG::ERROR << "Unable to retrieve TTree : " << AANTupleParams::c_TreeID );
-    //         return sc;
-    //     }
-    
+
         // ---------------------------
         // create tree and register it to THistSvc
         m_nt = new TTree(TString(m_ntupleTreeName), "Track diff output");
@@ -98,20 +91,10 @@ StatusCode Trk::TrackDiff::initialize() {
         //-----------------
         // add items
         // event info:
-        //m_nt->Branch("RunNumber",  &m_runNumber );
         m_nt->Branch("EventNumber",             &m_eventNumber );
         m_nt->Branch("RefTrackPhi0",            &m_trackPhi    );
         m_nt->Branch("RefTrackEta0",            &m_trackEta    );
-        // efficiencies / fake rates
-        //m_missingType = new std::vector<int>(Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes, 0);
-        //m_fakeType = new std::vector<int>(Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes, 0);
-        //m_PRD_Mismatches = new std::vector<int>(8, 0);
-    //     m_nt->Branch("nFakeStates",             &m_fakes  );
-    //     m_nt->Branch("nMissedStates",           &m_missed );
-    //     m_nt->Branch("nMissedTypes",            &m_missingType);
-    //     m_nt->Branch("nFakeTypes",              &m_fakeType);
-    //     m_nt->Branch("nPRD_Mismatches",         &m_PRD_Mismatches);
-    //     m_nt->Branch("nDriftCircleSignFlips",   &m_driftCircleSignFlips);
+        
         m_nt->Branch("nRefStates",              &m_nRefStates, "nRefStates[8]/I");
         m_nt->Branch("nCompareStates",          &m_nCompStates, "nRefStates[8]/I");
         m_nt->Branch("nFakeStates",             &m_fakes, "nFakeStates[8]/I");
@@ -139,12 +122,7 @@ StatusCode Trk::TrackDiff::initialize() {
         m_surfX             = new std::vector<float>();
         m_surfY             = new std::vector<float>();
         m_surfZ             = new std::vector<float>();
-//         m_refTrackX         = new std::vector<float>();
-//         m_refTrackY         = new std::vector<float>();
-//         m_refTrackZ         = new std::vector<float>();
-//         m_compTrackX        = new std::vector<float>();
-//         m_compTrackY        = new std::vector<float>();
-//         m_compTrackZ        = new std::vector<float>();
+
         m_nt->Branch("DetectorType",            &m_detectorType);
         m_nt->Branch("IsFake",                  &m_isFake);
         m_nt->Branch("IsMissing",               &m_isMissing);
@@ -158,14 +136,7 @@ StatusCode Trk::TrackDiff::initialize() {
         m_nt->Branch("SurfaceX" ,               &m_surfX);
         m_nt->Branch("SurfaceY" ,               &m_surfY);
         m_nt->Branch("SurfaceZ" ,               &m_surfZ);
-//         m_nt->Branch("RefTrackX" ,              &m_refTrackX);
-//         m_nt->Branch("RefTrackY" ,              &m_refTrackY);
-//         m_nt->Branch("RefTrackZ" ,              &m_refTrackZ);
-//         m_nt->Branch("CompTrackX" ,             &m_compTrackX);
-//         m_nt->Branch("CompTrackY" ,             &m_compTrackY);
-//         m_nt->Branch("CompTrackZ" ,             &m_compTrackZ);
-        //m_nt->Branch("TrackLocal1" ,            &m_trkLoc1) ;
-        //m_nt->Branch("TrackLocal2" ,            &m_trkLoc2) ;
+
         if (m_writeCompetingROT) {
             m_maxAssignProb = new std::vector<float>();
             m_sumAssignProb = new std::vector<float>();
@@ -235,20 +206,7 @@ StatusCode Trk::TrackDiff::diff (
     }
     EventID* myEventID=eventInfo->event_ID();
 
-//     if (m_lastEventNumber!=myEventID->event_number()) {
-//         // we have a new event!
-//         // reset TrackID:
-//         m_TrackIDcounter = 0;
-//         m_lastEventNumber = myEventID->event_number();
-//     }
-//
-//     // ---------------------------------------------
-//     // track id (increase if a new iteration was started = iterationIndex==0)
-//     if (iterationIndex == 0) {
-//         m_TrackIDcounter++;
-//     }
-//     m_TrackID = m_TrackIDcounter;
-//     m_iterIndex = iterationIndex;
+
     m_eventNumber = myEventID->event_number();
     if (referenceTrack.perigeeParameters()) {
         m_trackPhi = referenceTrack.perigeeParameters()->parameters()[Trk::phi0];
@@ -257,23 +215,7 @@ StatusCode Trk::TrackDiff::diff (
         m_trackPhi = -1000.;
         m_trackEta = -1000.;
     }
-    //ATH_MSG_VERBOSE  << "Event: " << m_eventNumber << MSG::VERBOSE << " TrackID: " << m_TrackID << " iteration index: " << m_iterIndex );
-//    const DataVector< const MeasurementBase > *refMeasurements = referenceTrack.measurementsOnTrack();
-//    const DataVector< const MeasurementBase > *measurements = comparedTrack.measurementsOnTrack();
-//    const DataVector< const MeasurementBase > *outliers = comparedTrack.outliersOnTrack();
-    
-//     //----------------------------------------------
-//     // fill info about trackstates in ntuple
-//     ATH_MSG_VERBOSE  << "loop over track states of reference track" );
-//     // Get pointer to reference track state on surfaces
-//     const DataVector<const Trk::TrackStateOnSurface>* refTrackStates = referenceTrack.trackStateOnSurfaces();
-//     if (!refTrackStates) {
-//         ATH_MSG_MSG::ERROR ( "reference track containes no track states, diff impossible" );
-//         return StatusCode::FAILURE;
-//     }
-// 
-//     // comparison iterator
-//     DataVector<const Trk::TrackStateOnSurface>::const_iterator compareIter = compareTrackStates->begin();
+ 
 
     // list of track state data of the reference track
     DataList< const Trk::TrackStateData > *refTrackStateData;
@@ -324,10 +266,7 @@ StatusCode Trk::TrackDiff::diff (
                 if ( refPRD == ((*compIter)->rot()->prepRawData()) ) {
                     // we found a track state belonging to the same PrepRawData
                     foundMatchingState = true;
-                    //m_nCompStates[ compIter->detType() ]++;
-                    //if (diffStateInfo( refIter, compIter ) {
-                    //    foundDiff = true;
-                    //}
+                   
                     // there should be only one track state
                     // belonging to the same PRD, so we can stop searching!
                     break;
@@ -343,24 +282,7 @@ StatusCode Trk::TrackDiff::diff (
             // drop the compared track state from our list:
             compareTrackStateData->erase(compIter);
         }
-// looking at the compared states we jumped over now would be more efficient
-// concerning fake states and would sort the fake states in the correct order,
-// but it makes the code much more difficult to understand
-// so we just proceed with the reference states...
-//         else if ( compIter != compareTrackStateData->begin() ) {
-//             // we jumped over some track states on the compared track!
-//             // Try to match them with other states on the reference track
-//             // this means we do the search the other way round!
-//             DataList< const Trk::TrackStateData >::const_iterator refIter2 = refTrackStateData->begin();
-//             DataList< const Trk::TrackStateData >::const_iterator compIter2 = compareTrackStateData->begin();
-//             // loop over all comparison stated we jumped over:
-//             for (; compIter2 != compIter; compIter2++ ) {
-//                 // loop over the reference track to find a matching state:
-//                 refIter2 = refTrackStateData->begin();
-//                 for (; refIter2 != refTrackStateData->end(); refIter2++ ) {
-//                 } // end loop over reference states
-//             } // end loop over jumped comparison states
-//         } // end if (jumped over comparison states)
+
     } // end loop over reference states
 
     // loop over the remaining compared states: They are fakes
@@ -370,17 +292,13 @@ StatusCode Trk::TrackDiff::diff (
     }
     // -----------------------
     // output some statistics:
-//    ATH_MSG_VERBOSE  ( "PRD mismatches  (Pixel/SCT/TRT): " << m_PRD_Mismatches->operator[](Pixel) << "/" << m_PRD_Mismatches->operator[](SCT) << "/" << m_PRD_Mismatches->operator[](TRT) );
-//    ATH_MSG_VERBOSE  ( "missing TSoS types: (Meas/Outl): " << m_missingType->operator[](Trk::TrackStateOnSurface::Measurement) << "/" << m_missingType->operator[](Trk::TrackStateOnSurface::Outlier) );
-//    ATH_MSG_VERBOSE  ( "fake    TSoS types: (Meas/Outl): " << m_fakeType->operator[](Trk::TrackStateOnSurface::Measurement) << "/" << m_fakeType->operator[](Trk::TrackStateOnSurface::Outlier) );
+
     ATH_MSG_VERBOSE  ( "reference  TSoS  (Pixel/SCT/TRT): " << m_nRefStates[Trk::TrackState::Pixel] << "/" << m_nRefStates[Trk::TrackState::SCT] << "/" << m_nRefStates[Trk::TrackState::TRT] );
     ATH_MSG_VERBOSE  ( "compared   TSoS  (Pixel/SCT/TRT): " << m_nCompStates[Trk::TrackState::Pixel] << "/" << m_nCompStates[Trk::TrackState::SCT] << "/" << m_nCompStates[Trk::TrackState::TRT] );
     ATH_MSG_VERBOSE  ( "missed     TSoS  (Pixel/SCT/TRT): " << m_missed[Trk::TrackState::Pixel] << "/" << m_missed[Trk::TrackState::SCT] << "/" << m_missed[Trk::TrackState::TRT] );
     ATH_MSG_VERBOSE  ( "faked      TSoS  (Pixel/SCT/TRT): " << m_fakes[Trk::TrackState::Pixel] << "/" << m_fakes[Trk::TrackState::SCT] << "/" << m_fakes[Trk::TrackState::TRT] );
     ATH_MSG_VERBOSE  ( "wrong type TSoS  (Pixel/SCT/TRT): " << m_wrongType[Trk::TrackState::Pixel] << "/" << m_wrongType[Trk::TrackState::SCT] << "/" << m_wrongType[Trk::TrackState::TRT] );
     ATH_MSG_VERBOSE  ( "PRD mismatches   (Pixel/SCT/TRT): " << m_PRD_Mismatches[Trk::TrackState::Pixel] << "/" << m_PRD_Mismatches[Trk::TrackState::SCT] << "/" << m_PRD_Mismatches[Trk::TrackState::TRT] );
-//    ATH_MSG_VERBOSE ( "reference TSoS types: (Meas/Outl): " << m_refType[Trk::TrackStateOnSurface::Measurement] << "/" << m_refType[Trk::TrackStateOnSurface::Outlier] );
-//    ATH_MSG_VERBOSE  ("compared  TSoS types: (Meas/Outl): " << m_compareType[Trk::TrackStateOnSurface::Measurement] << "/" << m_compareType[Trk::TrackStateOnSurface::Outlier] );
     ATH_MSG_VERBOSE  ( "missing   TSoS types: (Meas/Outl): " << m_missingType[Trk::TrackStateOnSurface::Measurement] << "/" << m_missingType[Trk::TrackStateOnSurface::Outlier] );
     ATH_MSG_VERBOSE  ( "fake      TSoS types: (Meas/Outl): " << m_fakeType[Trk::TrackStateOnSurface::Measurement] << "/" << m_fakeType[Trk::TrackStateOnSurface::Outlier] );
     if (m_writeNtuple) {
@@ -529,22 +447,13 @@ void Trk::TrackDiff::resetVariables() const {
         m_surfX->clear();
         m_surfY->clear();
         m_surfZ->clear();
-//         m_refTrackX->clear();
-//         m_refTrackY->clear();
-//         m_refTrackZ->clear();
-//         m_compTrackX->clear();
-//         m_compTrackY->clear();
-//         m_compTrackZ->clear();
+
         if (m_writeCompetingROT) {
             m_maxAssignProb->clear();
             m_sumAssignProb->clear();
         } // end if writeComepetingROT
     }
-//    m_refIsMeasurement->push_back(0);
-//    m_refIsOutlier->push_back(0);
-//    m_compIsMeasurement->push_back(0);
-//    m_compIsOutlier->push_back(false);
-    
+
 }
 
 /// determine detector type
@@ -639,23 +548,7 @@ bool Trk::TrackDiff::diffStateInfo(const Trk::TrackStateData* refTrackState,
 
         // find differences in the TrackStateOnSurface types:
         if (m_compareAll) {
-//             // loop over all possible track state on surface types to compare them
-//             for (Trk::TrackStateOnSurface::TrackStateOnSurfaceType stateType = Trk::TrackStateOnSurface::Measurement;
-//                 stateType < Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes;
-//                 stateType++ ) {
-//                 if ( refTrackState->trackStateOnSurface()->type(stateType) != compareTrackState->trackStateOnSurface()->type(stateType) ) {
-//                     // states differ in type
-//                     foundDiff = true;
-//                     wrongType = true;
-//                     if (refTrackState->trackStateOnSurface()->type(stateType)) {
-//                         (m_missingType[stateType])++;
-//                        ATH_MSG_DEBUG ( "TSoS type mismatch: reference is of type " << stateType );
-//                     } else {
-//                         (m_fakeType[stateType])++;
-//                        ATH_MSG_DEBUG ( "TSoS type mismatch: reference is not of type " << stateType );
-//                     }
-//                 } // end if track state differ
-//             } // end loop over track state types
+
         } else {
             if (m_compareOutliers && (refIsOutlier != compIsOutlier)) {
                 foundDiff = true;

@@ -156,22 +156,6 @@ StatusCode Trk::TruthNtupleTool::initBranches(const std::vector<const Trk::ITrac
                 etaBins
             ) );
         }
-//         m_recoTrackCounts.push_back( TH2I(
-//             ("reco"+classifierName).c_str(),
-//             ("reco"+classifierName).c_str(),
-//             classifiers[classIndex]->numberOfClassifiers(),
-//             0,
-//             classifiers[classIndex]->numberOfClassifiers(),
-//             m_etaBins
-//             ) );
-//         m_truthTrackCounts.push_back( TH2I(
-//             ("true"+classifierName).c_str(),
-//             ("true"+classifierName).c_str(),
-//             classifiers[classIndex]->numberOfClassifiers(),
-//             0,
-//             classifiers[classIndex]->numberOfClassifiers(),
-//             m_etaBins
-//             ) );
     }
 
     // add branches with links to the reconstructed tracks:
@@ -207,17 +191,13 @@ StatusCode Trk::TruthNtupleTool::finalize() {
       return sc;
     }
 
-    msg(MSG::INFO) << "Efficiencies:" << endreq;
-    msg(MSG::INFO) << std::endl;
+    ATH_MSG_INFO ( "Efficiencies:" );
 
     //Double_t* efficiencyValues;
     for (unsigned int classifierIndex = 0; classifierIndex < m_trackTruthClassifiers.size(); ++classifierIndex ) {
         for (unsigned int clIndex = 0; clIndex < m_trackTruthClassifiers[classifierIndex]->numberOfClassifiers(); clIndex++) {
             // output:
-/*            m_log << "true " << m_trackTruthClassifiers[classifierIndex]->classificationAsString(clIndex) << "\t";
-            for (int etaBin = 0; etaBin < m_truthTrackCounts[classifierIndex][clIndex]->GetNbinsX(); etaBin++) {
-                m_log << m_truthTrackCounts[classifierIndex][clIndex]->GetBinContent(etaBin+1) << "\t";
-            }*/
+
           msg() << std::resetiosflags(std::ios::right) << std::setiosflags(std::ios::left) << std::setw(15) << m_trackTruthClassifiers[classifierIndex]->classificationAsString(clIndex);
           msg() << std::resetiosflags(std::ios::left)  << std::setiosflags(std::ios::right);
           for (int etaBin = 0; etaBin < m_recoTrackCounts[classifierIndex][clIndex]->GetNbinsX(); etaBin++) {
@@ -237,11 +217,7 @@ StatusCode Trk::TruthNtupleTool::finalize() {
               ATH_MSG_ERROR ("ROOT Graph registration failed");
               return sc;
             }
-//             efficiencyValues = effPlot->GetY();
-//             for (int etaBin = 0; etaBin < effPlot->GetN(); etaBin++) {
-//                 m_log << m_recoTrackCounts[classifierIndex][clIndex]->GetBinContent(etaBin+1) << " (" << efficiencyValues[etaBin] << ")" << "\t";
-//             }
-            msg() << std::endl;
+            msg() << "\n";
             delete m_recoTrackCounts[classifierIndex][clIndex];
             m_recoTrackCounts[classifierIndex][clIndex] = 0;
             delete m_truthTrackCounts[classifierIndex][clIndex];
@@ -333,16 +309,12 @@ StatusCode Trk::TruthNtupleTool::writeTruthData (
 
             // do statistics:
             for (unsigned int classIndex = 0; classIndex < m_classifications.size(); ++classIndex ) {
-                //m_truthTrackCounts[classIndex].fill(m_classifications[classIndex], m_mc_eta);
-                //m_log << MSG::INFO << "classifier " << classIndex << " class: " << m_classifications[classIndex] << " eta=" << m_mc_eta << " no. matched=" << truthToTrackIndices[index].size() << endreq;
                 m_truthTrackCounts[classIndex][m_classifications[classIndex]]->Fill(fabs(m_mc_eta));
                 if (truthData[index].truthToTrackIndices[0].size() > 0) {
                     // TODO: do statistics for each input track collection
                     m_recoTrackCounts[classIndex][m_classifications[classIndex]]->Fill(fabs(m_mc_eta));
                 }
-                //for (int etaBin = 0; etaBin < m_recoTrackCounts[classIndex][m_classifications[classIndex]]->GetNbinsX(); etaBin++) {
-                //    m_log << m_recoTrackCounts[classIndex][m_classifications[classIndex]]->GetBinContent(etaBin+1) << "\t";
-                //}
+               
             }
 
         }

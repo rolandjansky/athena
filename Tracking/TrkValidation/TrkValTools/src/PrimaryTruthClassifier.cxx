@@ -12,7 +12,6 @@
 #include "TrkValTools/PrimaryTruthClassifier.h"
 #include "TrkValEvent/TruthClassificationDefs.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-// #include "CLHEP/Geometry/Point3D.h"
 #include "HepMC/GenVertex.h"
 
 Trk::PrimaryTruthClassifier::PrimaryTruthClassifier(const std::string& type, const std::string& name, const IInterface* parent)
@@ -65,18 +64,7 @@ void Trk::PrimaryTruthClassifier::initClassification
 //////////////////////////////////////////
 unsigned int Trk::PrimaryTruthClassifier::classify(const HepMC::GenParticle& genParticle) const {
 
-  /*
-  std::vector<unsigned int> particleClassification;
-  particleClassification.reserve(selectedGenParticles.size());
-  if (selectedGenParticles.size()==0) {
-    m_log << MSG::WARNING << "size of generated-particle vector 0,"
-          << " client code should work with protection instead." << endreq;
-    return particleClassification;
-    } 
-  for ( std::vector<HepMC::GenParticle * >::const_iterator it = 
-          selectedGenParticles.begin(); it != selectedGenParticles.end(); ++it) {
-  */    
-
+ 
   /* note on using HepMC::ThreeVector against HepGeom::Point3D<double>: ThreeVector does not know
      operator+, operator- etc. */
 
