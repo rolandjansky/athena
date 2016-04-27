@@ -1,5 +1,5 @@
 package xAODTrigCalo
-# $Id: requirements 631625 2014-11-27 17:24:55Z gwatts $
+# $Id: requirements 743126 2016-04-27 08:32:06Z will $
 
 author Arantxa Ruiz Martinez <aranzazu.ruiz.martinez@cern.ch>
 
@@ -25,3 +25,6 @@ use AthLinks                AthLinks-*                Control
 apply_pattern lcgdict dict=xAODTrigCalo selectionfile=selection.xml \
                       headerfiles="../xAODTrigCalo/xAODTrigCaloDict.h" \
                       extralibfiles=../Root/dict/*.cxx
+
+apply_pattern do_genCLIDDB library=xAODTrigCalo
+
