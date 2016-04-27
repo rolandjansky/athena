@@ -23,7 +23,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary
-                          Tracking/TrkExtrapolation/TrkExInterfaces )
+                          Tracking/TrkExtrapolation/TrkExInterfaces
+                          Tracking/TrkEvent/TrkCaloClusterROI )
+
+
 
 # External dependencies:
 find_package( CLHEP )
@@ -37,7 +40,7 @@ atlas_add_component( InDetTrackScoringTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel TrkEventPrimitives TrkToolInterfaces GeoPrimitives InDetIdentifier InDetRIO_OnTrack InDetRecToolInterfaces MagFieldInterfaces TrkParameters TrkPseudoMeasurementOnTrack TrkTrack TrkTrackSummary TrkExInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel TrkEventPrimitives TrkToolInterfaces GeoPrimitives InDetIdentifier InDetRIO_OnTrack InDetRecToolInterfaces MagFieldInterfaces TrkParameters TrkPseudoMeasurementOnTrack TrkTrack TrkTrackSummary TrkExInterfaces TrkCaloClusterROI)
 
 # Install files from the package:
 atlas_install_headers( InDetTrackScoringTools )

@@ -15,6 +15,7 @@
 #include "TrkEventPrimitives/TrackScore.h"
 #include "TrkToolInterfaces/ITrackScoringTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "TrkParameters/TrackParameters.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include <vector>
 #include <string>
@@ -37,7 +38,9 @@ namespace InDet {
 class ITrtDriftCircleCutTool;
 
 /**Concrete implementation of the ITrackScoringTool pABC*/
-class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool, public AthAlgTool
+class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,  
+                             virtual public IIncidentListener, 
+                             public AthAlgTool
 {
 
  public:
@@ -45,6 +48,8 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool, public AthAl
   virtual ~InDetAmbiScoringTool ();
   virtual StatusCode initialize();
   virtual StatusCode finalize  ();
+  /** handle for incident service */
+  virtual void handle(const Incident& inc); 
   /** create a score based on how good the passed track is*/
   Trk::TrackScore score( const Trk::Track& track, const bool suppressHoleSearch );
   
@@ -56,6 +61,15 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool, public AthAl
   
   void setupScoreModifiers();
   
+  
+    /** Check if the cluster is compatible with a EM cluster*/
+  bool isEmCaloCompatible(const Trk::Track& track) const;      
+  
+  /** Fill hadronic & EM cluster map*/
+  void newEvent();
+
+  
+  
   //these are used for ScoreModifiers 
   int m_maxDblHoles, m_maxPixHoles, m_maxSCT_Holes,  m_maxHits, m_maxSigmaChi2, m_maxTrtRatio, m_maxTrtFittedRatio,
     m_maxB_LayerHits, m_maxPixelHits, m_maxPixLay, m_maxLogProb, m_maxGangedFakes;
@@ -65,18 +79,22 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool, public AthAl
     m_boundsTrtRatio, m_factorTrtRatio, m_boundsTrtFittedRatio, m_factorTrtFittedRatio;
   
   /**\todo make this const, once createSummary method is const*/
-  ToolHandle<Trk::ITrackSummaryTool> m_trkSummaryTool;
+  ToolHandle<Trk::ITrackSummaryTool>         m_trkSummaryTool;
 
   /** Returns minimum number of expected TRT drift circles depending on eta. */
-  ToolHandle<ITrtDriftCircleCutTool>           m_selectortool;
+  ToolHandle<ITrtDriftCircleCutTool>          m_selectortool;
   
   /**holds the scores assigned to each Trk::SummaryType from the track's Trk::TrackSummary*/
-  std::vector<Trk::TrackScore>   m_summaryTypeScore;
+  std::vector<Trk::TrackScore>           m_summaryTypeScore;
   
-  ServiceHandle<IBeamCondSvc>    m_iBeamCondSvc; //!< pointer to the beam condition service
+  ServiceHandle<IBeamCondSvc>            m_iBeamCondSvc; //!< pointer to the beam condition service
   
-  ToolHandle<Trk::IExtrapolator>          m_extrapolator;
+  ToolHandle<Trk::IExtrapolator>         m_extrapolator;
   ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
+
+  /** IncidentSvc to catch begining of event and end of event */   
+  ServiceHandle<IIncidentSvc>           m_incidentSvc;   
+
   
   /** use the scoring tuned to Ambiguity processing or not */
   bool m_useAmbigFcn;
@@ -102,8 +120,23 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool, public AthAl
   int    m_minTRTonTrk;   //!< minimum number of TRT hits
   double m_minTRTprecision;   //!< minimum fraction of TRT precision hits
   int    m_minPixel;      //!< minimum number of pixel clusters
+  double m_maxRPhiImpEM;    //!< maximal RPhi impact parameter cut track that match EM clusters
 
   mutable bool m_holesearch; 
+  
+  bool  m_useEmClusSeed;
+  float m_minPtEm;
+  float m_phiWidthEm;
+  float m_etaWidthEm;
+
+  std::string m_inputEmClusterContainerName;
+  std::vector<double>   m_emF;
+  std::vector<double>   m_emE;
+  std::vector<double>   m_emR;
+  std::vector<double>   m_emZ;
+
+  bool                  m_mapFilled;
+  
 };
 
 

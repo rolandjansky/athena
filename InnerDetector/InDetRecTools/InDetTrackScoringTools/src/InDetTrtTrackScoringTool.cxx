@@ -32,17 +32,18 @@ InDet::InDetTrtTrackScoringTool::InDetTrtTrackScoringTool(const std::string& t,
   // cuts for tracks
   
   // declare properties
-  declareProperty("SummaryTool" ,       m_trkSummaryTool );
-  declareProperty("DriftCircleCutTool", m_selectortool   );
-  declareProperty("useAmbigFcn",        m_useAmbigFcn    = true );
-  declareProperty("useSigmaChi2",       m_useSigmaChi2   = false);
-  declareProperty("useLogProbBins",     m_useLogProbBins = false);
-  declareProperty("minTRTonTrk",        m_minTRTonTrk    = 15);
-  declareProperty("maxEta",             m_maxEta         = 2.1);
-  declareProperty("PtMin",              m_ptmin          = 1.0); //pt min cut
-  declareProperty("UseParameterization",m_parameterization = true);
-  declareProperty("OldTransitionLogic" ,m_oldLogic         = false);
-  declareProperty("MagFieldSvc", m_magFieldSvc);
+  declareProperty("SummaryTool" ,            m_trkSummaryTool );
+  declareProperty("DriftCircleCutTool",      m_selectortool   );
+  declareProperty("useAmbigFcn",             m_useAmbigFcn    = true );
+  declareProperty("useSigmaChi2",            m_useSigmaChi2   = false);
+  declareProperty("useLogProbBins",          m_useLogProbBins = false);
+  declareProperty("minTRTonTrk",             m_minTRTonTrk    = 15 );
+  declareProperty("maxEta",                  m_maxEta         = 2.1);
+  declareProperty("PtMin",                   m_ptmin          = 1.0); //pt min cut
+  declareProperty("UseParameterization",     m_parameterization = true);
+  declareProperty("OldTransitionLogic" ,     m_oldLogic         = false);
+  declareProperty("minTRTPrecisionFraction", m_minTRTprecision  = 0.5);
+  declareProperty("MagFieldSvc",             m_magFieldSvc);
   m_summaryTypeScore[Trk::numberOfTRTHits]	        =   1;  // 10 straws ~ 1 SCT
   m_summaryTypeScore[Trk::numberOfTRTHighThresholdHits] =   0;  // addition for being TR
     
@@ -117,9 +118,9 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::score( const Trk::Track& track,
   else
     summary = m_trkSummaryTool->createSummary(track);
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Track has TrackSummary "<<*summary<<endreq;
+  ATH_MSG_VERBOSE("Track has TrackSummary "<<*summary);
   Trk::TrackScore score = Trk::TrackScore( simpleScore(track, *summary) );
-  if (msgLvl(MSG::DEBUG)) msg(MSG::VERBOSE)<<"Track has Score: "<<score<<endreq;
+  ATH_MSG_VERBOSE("Track has Score: "<<score);
   delete summary;
   return score;
 }
@@ -128,12 +129,19 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::score( const Trk::Track& track,
 
 Trk::TrackScore InDet::InDetTrtTrackScoringTool::simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary )
 {
-  int numTRT  = trackSummary.get(Trk::numberOfTRTHits);
+  int numTRT     = trackSummary.get(Trk::numberOfTRTHits);
+  int numTRTTube = trackSummary.get(Trk::numberOfTRTTubeHits);
+
+  // TRT precision hits cut  
+  if (numTRT >= 15 && ((double)(numTRT-numTRTTube))/numTRT < m_minTRTprecision) {  
+    ATH_MSG_VERBOSE ("Track has " << ((double)numTRTTube)/numTRT << " TRT tube hit fraction,  reject it");
+    return Trk::TrackScore(0);  
+  } 
 
   // Cut on the minimum number of hits
   bool isGood = isGoodTRT(track);
   if(!isGood){
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Track has " << numTRT << " TRT hits,  reject it"<<endreq;
+    ATH_MSG_VERBOSE("Track has " << numTRT << " TRT hits,  reject it");
     return Trk::TrackScore(0);
   } 
 
@@ -143,13 +151,13 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::simpleScore( const Trk::Track& 
   ///Reject track below the pT cut
   if (m_magFieldSvc->solenoidOn()) {
     if(input->pT() < m_ptmin) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Reject track below Pt cut !" << endreq;
+      ATH_MSG_DEBUG( "Reject track below Pt cut !");
       return Trk::TrackScore(0);
     }
   }
 
   if (fabs(input->eta()) > m_maxEta) {
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Track eta > "<<m_maxEta<<", reject it"<<endreq;
+    ATH_MSG_VERBOSE( "Track eta > "<<m_maxEta<<", reject it" );
     return Trk::TrackScore(0);
   }
   //
@@ -175,17 +183,17 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::simpleScore( const Trk::Track& 
       int value = trackSummary.get(static_cast<Trk::SummaryType>(i));
       //value is -1 if undefined.
       if (value>0) { 
-	score+=m_summaryTypeScore[i]*value; 
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\tType ["<<i<<"], value \t= "<<value<<"], score \t="<<score<<endreq;
+        score+=m_summaryTypeScore[i]*value; 
+        ATH_MSG_VERBOSE("\tType ["<<i<<"], value \t= "<<value<<"], score \t="<<score);
       }
     }
     // --- prob(chi2,NDF), protect for chi2 <= 0
     if (track.fitQuality()!=0 && track.fitQuality()->chiSquared()>0 && track.fitQuality()->numberDoF()>0 ) {
       double p = 1.0-Genfun::CumulativeChiSquare(track.fitQuality()->numberDoF())(track.fitQuality()->chiSquared());
       if ( p > 0 )
-	score += log10( p );
+        score += log10( p );
       else
-	score -= 50;
+        score -= 50;
     }
     return score;
   }
@@ -202,7 +210,7 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::TRT_ambigScore( const Trk::Trac
   //double prob = 1.;
   double pt = fabs(track.trackParameters()->front()->pT());
   double prob = log10( pt ) - 1.; // 100 MeV is min and gets score 1
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Modifier for pt = " << pt / 1000. << " GeV is: "<< prob << endreq;
+  ATH_MSG_VERBOSE( "Modifier for pt = " << pt / 1000. << " GeV is: "<< prob );
 
   //
   // --- special treatment for TRT hits
@@ -210,22 +218,22 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::TRT_ambigScore( const Trk::Trac
   int iTRT_Hits     = trackSummary.get(Trk::numberOfTRTHits);
   int iTRT_Outliers = trackSummary.get(Trk::numberOfTRTOutliers);
   //
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRT HITS " << iTRT_Hits << " TRT OUTLIERS " << iTRT_Outliers << endreq;
+  ATH_MSG_VERBOSE( "TRT HITS " << iTRT_Hits << " TRT OUTLIERS " << iTRT_Outliers );
 
   if ( iTRT_Hits > 0 && m_maxTrtRatio > 0) {
     // get expected number of TRT hits
     double nTrtExpected = 30.;
     nTrtExpected = m_selectortool->minNumberDCs(const_cast<const Trk::TrackParameters*>(track.trackParameters()->front()));
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Expected number of TRT hits: " << nTrtExpected << " for eta: "
-					       << fabs(track.trackParameters()->front()->eta()) << endreq;
+    ATH_MSG_VERBOSE( "Expected number of TRT hits: " << nTrtExpected << " for eta: "
+					       << fabs(track.trackParameters()->front()->eta()) );
     double ratio = iTRT_Hits / nTrtExpected;
     if (ratio > m_boundsTrtRatio[m_maxTrtRatio]) ratio = m_boundsTrtRatio[m_maxTrtRatio];
     for (int i=0; i<m_maxTrtRatio; ++i) {
       if ( m_boundsTrtRatio[i] < ratio && ratio <= m_boundsTrtRatio[i+1]) {
-	prob*= m_factorTrtRatio[i];
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Modifier for " << iTRT_Hits << " TRT hits (ratio " << ratio
-						    << ") is : "<< m_factorTrtRatio[i] << "  New score now: " << prob << endreq;	    
-	break;
+        prob*= m_factorTrtRatio[i];
+        ATH_MSG_VERBOSE( "Modifier for " << iTRT_Hits << " TRT hits (ratio " << ratio
+                          << ") is : "<< m_factorTrtRatio[i] << "  New score now: " << prob );	    
+        break;
       }
     }	
   }
@@ -235,10 +243,10 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::TRT_ambigScore( const Trk::Trac
     if (fitted > m_boundsTrtFittedRatio[m_maxTrtFittedRatio]) fitted = m_boundsTrtFittedRatio[m_maxTrtFittedRatio];
     for (int i=0; i<m_maxTrtFittedRatio; ++i) {
       if (fitted <= m_boundsTrtFittedRatio[i+1]) {
-	prob*= m_factorTrtFittedRatio[i];
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Modifier for TRT fitted ratio of " << fitted
-						    << " is : "<< m_factorTrtFittedRatio[i] << "  New score now: " << prob << endreq;	    
-	break;
+        prob*= m_factorTrtFittedRatio[i];
+        ATH_MSG_VERBOSE( "Modifier for TRT fitted ratio of " << fitted
+                        << " is : "<< m_factorTrtFittedRatio[i] << "  New score now: " << prob );	    
+        break;
       }
     }	
   }
@@ -251,8 +259,8 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::TRT_ambigScore( const Trk::Trac
       double chi2  = track.fitQuality()->chiSquared();
       double fac   = 1. / log10 (10. + 10. * chi2 / indf); // very soft chi2 
       prob        *= fac;
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Modifier for chi2 = " << chi2 << " and NDF = " << indf
-						  << " is : "<< fac << "  New score now: " << prob << endreq;	    
+      ATH_MSG_VERBOSE( "Modifier for chi2 = " << chi2 << " and NDF = " << indf
+						            << " is : "<< fac << "  New score now: " << prob );	    
 
     }
   }
@@ -269,55 +277,55 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::TRT_ambigScore( const Trk::Trac
       // --- binned chi2/NDF score
       //
       if (m_useLogProbBins) {
-	double p = TMath::Prob(ichi2,indf);
-	if (p>0.) {
-	  p=log(p); 
-	  if ( m_boundsLogProb[0]<p && p<=m_boundsLogProb[m_maxLogProb] ) {
-	    for (int ii=0; ii<m_maxLogProb; ++ii) {
-	      if ( m_boundsLogProb[ii]<p && p<=m_boundsLogProb[ii+1] ) {
-		prob *= m_factorLogProb[ii];
-		if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Modifier for WITHIN BOUNDS " << p << " prob.-log.: "<< m_factorLogProb[ii]
-							    << "  New score now: " << prob << endreq;	    
-	      }
-	    }
-	  } else if ( p < m_boundsLogProb[0] ) {
-	    prob *= m_factorLogProb[0];
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << MSG::VERBOSE << "Modifier for LOW BOUND " << p << " prob.-log.: "<< m_factorLogProb[0]
-							<< "  New score now: " << prob << endreq;	    
-	  } else {
-	    prob *= m_factorLogProb[m_maxLogProb-1];
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Modifier for HIGH BOUND " << p << " prob.-log.: "<< m_factorLogProb[m_maxLogProb-1]
-							<< "  New score now: " << prob << endreq;	    
-	  }
-	}
+        double p = TMath::Prob(ichi2,indf);
+        if (p>0.) {
+          p=log(p); 
+          if ( m_boundsLogProb[0]<p && p<=m_boundsLogProb[m_maxLogProb] ) {
+            for (int ii=0; ii<m_maxLogProb; ++ii) {
+              if ( m_boundsLogProb[ii]<p && p<=m_boundsLogProb[ii+1] ) {
+          prob *= m_factorLogProb[ii];
+          ATH_MSG_VERBOSE( "Modifier for WITHIN BOUNDS " << p << " prob.-log.: "<< m_factorLogProb[ii]
+                            << "  New score now: " << prob );	    
+              }
+            }
+          } else if ( p < m_boundsLogProb[0] ) {
+            prob *= m_factorLogProb[0];
+            ATH_MSG_VERBOSE( "Modifier for LOW BOUND " << p << " prob.-log.: "<< m_factorLogProb[0]
+                             << "  New score now: " << prob );	    
+          } else {
+            prob *= m_factorLogProb[m_maxLogProb-1];
+            ATH_MSG_VERBOSE( "Modifier for HIGH BOUND " << p << " prob.-log.: "<< m_factorLogProb[m_maxLogProb-1]
+                              << "  New score now: " << prob );	    
+          }
+        }
       }
       
       //
       // --- binned sigma chi2 score
       //
       if (m_useSigmaChi2) {
-	int sigmaChi2times100 = trackSummary.get(Trk::standardDeviationOfChi2OS);
-	if (sigmaChi2times100>0) {
-	  double  testvar = double(sigmaChi2times100)/100. - sqrt(2.*ichi2/indf);
-	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "sigma chi2 = " << testvar << endreq;
-	  if ( testvar< m_boundsSigmaChi2[0] ) {
-	    prob *= m_factorSigmaChi2[0];
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Modifier for LOW BOUND " << testvar << " sigma chi2: "<< m_factorSigmaChi2[0]
-							<< "  New score now: " << prob << endreq;	    
-	  } else if (m_boundsSigmaChi2[m_maxSigmaChi2] <= testvar) {
-	    prob *= m_factorSigmaChi2[m_maxSigmaChi2-1];
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Modifier for HIGH BOUND " << testvar << " sigma chi2: "<< m_factorSigmaChi2[m_maxSigmaChi2-1]
-							<< "  New score now: " << prob << endreq;	    
-	  } else {
-	    for (int i = 0 ; i<m_maxSigmaChi2 ; ++i ) {
-	      if ( m_boundsSigmaChi2[i]<=testvar && testvar<m_boundsSigmaChi2[i+1] ) {		     
-		prob *= m_factorSigmaChi2[i];
-		if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Modifier for WITHIN BOUNDS " << testvar << " sigma chi2: "<< m_factorSigmaChi2[i]
-							    << "  New score now: " << prob << endreq;	    
-	      }
-	    }
-	  }
-	}
+        int sigmaChi2times100 = trackSummary.get(Trk::standardDeviationOfChi2OS);
+        if (sigmaChi2times100>0) {
+          double  testvar = double(sigmaChi2times100)/100. - sqrt(2.*ichi2/indf);
+          ATH_MSG_VERBOSE( "sigma chi2 = " << testvar );
+          if ( testvar< m_boundsSigmaChi2[0] ) {
+            prob *= m_factorSigmaChi2[0];
+            ATH_MSG_VERBOSE( "Modifier for LOW BOUND " << testvar << " sigma chi2: "<< m_factorSigmaChi2[0]
+                    << "  New score now: " << prob );	    
+          } else if (m_boundsSigmaChi2[m_maxSigmaChi2] <= testvar) {
+            prob *= m_factorSigmaChi2[m_maxSigmaChi2-1];
+            ATH_MSG_VERBOSE( "Modifier for HIGH BOUND " << testvar << " sigma chi2: "<< m_factorSigmaChi2[m_maxSigmaChi2-1]
+                    << "  New score now: " << prob );	    
+          } else {
+            for (int i = 0 ; i<m_maxSigmaChi2 ; ++i ) {
+              if ( m_boundsSigmaChi2[i]<=testvar && testvar<m_boundsSigmaChi2[i+1] ) {		     
+                prob *= m_factorSigmaChi2[i];
+                ATH_MSG_VERBOSE( "Modifier for WITHIN BOUNDS " << testvar << " sigma chi2: "<< m_factorSigmaChi2[i]
+                                  << "  New score now: " << prob );	    
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -414,25 +422,25 @@ void InDet::InDetTrtTrackScoringTool::setupTRT_ScoreModifiers()
   }
    
   if (msgLvl(MSG::VERBOSE))
-    {
-	  
-      for (int i=0; i<m_maxTrtRatio; ++i)
-	msg(MSG::VERBOSE) << "Modifier for " << m_boundsTrtRatio[i] << " < TRT ratio  < " << m_boundsTrtRatio[i+1]
-			  << "  : " <<m_factorTrtRatio[i] <<endreq;
+  {
+  
+    for (int i=0; i<m_maxTrtRatio; ++i)
+      ATH_MSG_VERBOSE( "Modifier for " << m_boundsTrtRatio[i] << " < TRT ratio  < " << m_boundsTrtRatio[i+1]
+                        << "  : " <<m_factorTrtRatio[i] );
 
-      for (int i=0; i<m_maxTrtFittedRatio; ++i)
-	msg(MSG::VERBOSE) << "Modifier for " << m_boundsTrtFittedRatio[i] << " < TRT fitted ratio  < " << m_boundsTrtFittedRatio[i+1]
-			  << "  : " <<m_factorTrtFittedRatio[i] <<endreq;
+    for (int i=0; i<m_maxTrtFittedRatio; ++i)
+      ATH_MSG_VERBOSE( "Modifier for " << m_boundsTrtFittedRatio[i] << " < TRT fitted ratio  < " << m_boundsTrtFittedRatio[i+1]
+                        << "  : " <<m_factorTrtFittedRatio[i] );
 
-      // only if used !
-      for (int i=0; i<m_maxLogProb; ++i)
-	msg(MSG::VERBOSE) << "Modifier for " << m_boundsLogProb[i] << " LogProb: " << m_factorLogProb[i] <<endreq;
-	  
-      // only if used !
-      for (int i=0; i<m_maxSigmaChi2; ++i)
-	msg(MSG::VERBOSE) << "Modifier for " << m_boundsSigmaChi2[i] << " SigmaChi2: " << m_factorSigmaChi2[i] <<endreq;
-	  
-    }
+    // only if used !
+    for (int i=0; i<m_maxLogProb; ++i)
+      ATH_MSG_VERBOSE( "Modifier for " << m_boundsLogProb[i] << " LogProb: " << m_factorLogProb[i] );
+  
+    // only if used !
+    for (int i=0; i<m_maxSigmaChi2; ++i)
+      ATH_MSG_VERBOSE( "Modifier for " << m_boundsSigmaChi2[i] << " SigmaChi2: " << m_factorSigmaChi2[i] );
+  
+  }
 }
 
 bool InDet::InDetTrtTrackScoringTool::isGoodTRT(const Trk::Track& track)
@@ -478,9 +486,9 @@ bool InDet::InDetTrtTrackScoringTool::isGoodTRT(const Trk::Track& track)
     // Cases where the min number of required TRT drift circles drops to 10
     if(m_oldLogic && int(trkV->size()) <= m_minTRTonTrk) {
       if((nEC>0 && nBRL>0) || 
-	 (nEC==0 && nBRL>0 && lastLayer<2) || 
-	 (nEC>0 && nBRL==0 && (firstWheel>10 || firstWheel<2))){
-	toLower = true;
+         (nEC==0 && nBRL>0 && lastLayer<2) || 
+         (nEC>0 && nBRL==0 && (firstWheel>10 || firstWheel<2))){
+        toLower = true;
       }
     }
 
