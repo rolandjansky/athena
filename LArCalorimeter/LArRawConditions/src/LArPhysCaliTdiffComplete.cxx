@@ -52,15 +52,15 @@ const float& LArPhysCaliTdiffComplete::Tdiff(const Identifier&  CellID, int gain
   IToolSvc* toolSvc;
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isSuccess()) {
-    LArCablingService* m_cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
+    LArCablingService* cablingService;
+    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArPhysCaliTdiffComplete");
       logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endreq;
       static float empty = ERRORCODE ; 
       return empty; 
     }
-    OnId = m_cablingService->createSignalChannelID(CellID);  
+    OnId = cablingService->createSignalChannelID(CellID);  
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArPhysCaliTdiffComplete");
     logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;

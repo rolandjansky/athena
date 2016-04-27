@@ -74,14 +74,14 @@ void LArRampCompleteBase::set(const HWIdentifier& CellID, int gain,
   IToolSvc* toolSvc;
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isSuccess()) {
-    LArCablingService* m_cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
+    LArCablingService* cablingService;
+    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArRampComplete");
       logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endreq;
       return empty(); 
     }
-    OnId = m_cablingService->createSignalChannelID(CellID);  
+    OnId = cablingService->createSignalChannelID(CellID);  
     
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArRampComplete");

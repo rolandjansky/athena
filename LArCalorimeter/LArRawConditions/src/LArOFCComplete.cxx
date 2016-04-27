@@ -148,7 +148,7 @@ void LArOFCComplete::dumpOFC(std::string output_file_name) const {
       for ( ; it_chan !=it_chan_e ;++it_chan  ) {
 	  const LArOFCP1&   chunkOFC = *it_chan ;
 	  unsigned int     chID     = it_chan.channelId().get_identifier32().get_compact();
-	  fprintf( f , "---------------------- Gain = %1d ; Channel = %10x ----------------------\n", 
+	  fprintf( f , "---------------------- Gain = %1u ; Channel = %10x ----------------------\n", 
 		   iGain, chID ) ;
 	  unsigned nTbin = chunkOFC.OFC_aSize() ;
 	  assert( nTbin == chunkOFC.OFC_bSize() ) ;
@@ -156,7 +156,7 @@ void LArOFCComplete::dumpOFC(std::string output_file_name) const {
 	  for ( unsigned kBin=0 ; kBin<nTbin ; kBin++ ) {
               unsigned nSample = (chunkOFC.OFC_a (kBin)).size() ;
 	      assert( nSample == (chunkOFC.OFC_b (kBin)).size() ) ;
-	      fprintf( f , "\t%2d\t |" , kBin ) ;
+	      fprintf( f , "\t%2u\t |" , kBin ) ;
 	      for ( unsigned kSample=0 ; kSample<nSample ; kSample++ ) {
                 fprintf( f , "\t%8.3f" , chunkOFC.OFC_a(kBin)[kSample] ) ;
 	      }

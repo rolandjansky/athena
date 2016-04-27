@@ -50,15 +50,15 @@ const float& LArMinBiasAverageComplete::minBiasAverage(const Identifier&  CellID
   IToolSvc* toolSvc;
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isSuccess()) {
-    LArCablingService* m_cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
+    LArCablingService* cablingService;
+    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
     if(sc.isFailure()){
       std::cout<<"LArMinBiasAverageComplete: "
 	       <<"Could not retrieve LArCablingService Tool"
 	       << std::endl;
       return dummy; 
     }
-    OnId = m_cablingService->createSignalChannelID(CellID);  
+    OnId = cablingService->createSignalChannelID(CellID);  
     
   } else {
     std::cout << "LArMinBiasAverageComplete: Could not retrieve ToolSvc " 
