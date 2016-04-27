@@ -129,23 +129,20 @@ TCS::MuonTOB
 MuonInputProvider::createMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
 
 
-   ATH_MSG_DEBUG("Muon ROI (MuCTPiToTopo): thr ID = " << roi.getptThresholdID() << " eta = " << roi.geteta() << " phi = " << roi.getphi() << ", w   = " << MSG::hex << std::setw( 8 ) << roi.getRoiID() << MSG::dec);
+  ATH_MSG_DEBUG("Muon ROI (MuCTPiToTopo): thr ID = " << roi.getptThresholdID() << " eta = " << roi.geteta() << " phi = " << roi.getphi()  
+                << ", w   = " << MSG::hex << std::setw( 8 ) << roi.getRoiID() << MSG::dec );
+  ATH_MSG_DEBUG("                            Oct = " << roi.getMioctID() << " etacode=" <<  roi.getetacode() << " phicode= " <<  
+                 roi.getphicode()<< ", Sector="<< roi.getSectorName() );
 
+   // The L1 topo hardware works with phi in [0,2pi]. The MuCTPi give muons in [0,2pi].
+   // However, L1 topo simulation works with [-pi, pi] and otherwise it crashes. Thus we have to convert here
+    int etaTopo = roi.getieta();
+    int phiTopo = roi.getiphi();
+    if( phiTopo > 31 ) phiTopo -= 64;
 
-   // Here it is unclear. The L1 topo hardware works with phi in [0,2pi]. The MuCTPi give muons in [0,2pi].
-   // However, L1 topo simulation works with [-pi, pi] and otherwise it crashes. Thus we have to put check here
-   float phi = roi.getphi();
-   if(phi<-M_PI) phi+=2.0*M_PI;
-   if(phi> M_PI) phi-=2.0*M_PI;
-
-   TCS::MuonTOB muon( roi.getptValue(), 0, int(10*roi.geteta()), int(10*phi), roi.getRoiID() );
-
-   //OI this does not work cout << " Trying getphi "<<roi.getphi()<<" \n";
-   // phi has to be in [-pi,pi] range, although hardware works with [0,2pi]
-   //TCS::MuonTOB muon( roi.getptValue(), 0, int(10*roi.geteta()), int(10*roi.getphi()), 0 );
-
-   muon.setEtaDouble( roi.geteta() );
-   muon.setPhiDouble( phi );
+    TCS::MuonTOB muon( roi.getptValue(), 0, etaTopo, phiTopo, roi.getRoiID() );
+    muon.setEtaDouble( etaTopo );
+    muon.setPhiDouble( phiTopo );
 
    m_hPt->Fill(muon.Et());
    m_hEtaPhi->Fill(muon.eta(),muon.phi());

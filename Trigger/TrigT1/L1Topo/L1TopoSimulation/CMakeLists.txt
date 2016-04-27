@@ -1,4 +1,4 @@
-# $Id$
+# $Id: CMakeLists.txt 740810 2016-04-17 06:58:44Z krasznaa $
 ################################################################################
 # Package: L1TopoSimulation
 ################################################################################
@@ -29,8 +29,7 @@ atlas_depends_on_subdirs(
 find_package( ROOT COMPONENTS Core Hist )
 
 # Do not use --as-needed for the linking:
-string( REPLACE "-Wl,-as-needed" "" CMAKE_MODULE_LINKER_FLAGS
-   "${CMAKE_MODULE_LINKER_FLAGS}" )
+atlas_disable_as_needed()
 
 # Component(s) in the package:
 atlas_add_library( L1TopoSimulationLib
