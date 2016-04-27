@@ -1406,7 +1406,6 @@ Track *GlobalChi2Fitter::backupCombinationStrategy(const Track&             intr
 Track* GlobalChi2Fitter::fit (const Track&             inputTrack,
                               const RunOutlierRemoval  runOutlier,
                               const ParticleHypothesis matEffects) const {
- 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "--> entering GlobalChi2Fitter::fit(Track,,)" << endreq;
 #ifdef GXFDEBUGCODE
   if (m_truth) retrieveTruth();	
@@ -1672,8 +1671,15 @@ Track* GlobalChi2Fitter::fit(const PrepRawDataSet&    prds,
       rot=m_ROTcreator->correct(**it,atasl);
     }    
     else if (plsurf) {
-      AtaPlane atapl(plsurf->center(),param.parameters()[Trk::phi],param.parameters()[Trk::theta],param.parameters()[Trk::qOverP],*plsurf);
-      rot=m_ROTcreator->correct(**it,atapl);
+      if(param.covariance()){
+        AtaPlane atapl(plsurf->center(),param.parameters()[Trk::phi],param.parameters()[Trk::theta],param.parameters()[Trk::qOverP],*plsurf,new AmgSymMatrix  (5)(*param.covariance()));
+        rot=m_ROTcreator->correct(**it,atapl);
+      }
+      else{      
+        AtaPlane atapl(plsurf->center(),param.parameters()[Trk::phi],param.parameters()[Trk::theta],param.parameters()[Trk::qOverP],*plsurf);
+        rot=m_ROTcreator->correct(**it,atapl);
+      }
+        
     }    
     if (rot) rots.push_back(rot);
     //delete prevparam;
@@ -1784,9 +1790,11 @@ Track* GlobalChi2Fitter::fit(const Track&             intrk,
        delete prevparam;
        return 0;
     } */
+    Amg::VectorX parameterVector            = hitparam->parameters();
+    std::unique_ptr<const TrackParameters> trackparForCorrect( hitparam->associatedSurface().createTrackParameters(parameterVector[Trk::loc1],parameterVector[Trk::loc2],parameterVector[Trk::phi],parameterVector[Trk::theta],parameterVector[Trk::qOverP],new AmgSymMatrix  (5)(*hitparam->covariance())) );
     const RIO_OnTrack* rot=0;
     if (!m_broadROTcreator.empty() && dynamic_cast<const StraightLineSurface*>(&prdsurf)) rot=m_broadROTcreator->correct(**it,*hitparam);
-    else rot=m_ROTcreator->correct(**it,*hitparam);
+    else {rot=m_ROTcreator->correct(**it,*trackparForCorrect);}
     if (rot) rots.push_back(rot);
     //delete prevparam;
     //prevparam=hitparam;
@@ -4666,7 +4674,6 @@ void GlobalChi2Fitter::runTrackCleanerMDT(GXFTrajectory &trajectory,TMatrixDSym 
 }
 
 GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajectory,TMatrixDSym &a,TMatrixDSym &fullcov,TVectorD &b,bool runoutlier) const{
-  
   bool trackok=false;
   GXFTrajectory *oldtrajectory=&trajectory;  
   std::unique_ptr<GXFTrajectory> cleanup_oldtrajectory;                   
@@ -4768,12 +4775,14 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
       double *olderror=state_maxsipull->measurementErrors();
       TrackState::MeasurementType hittype_maxsipull=state_maxsipull->measurementType();
       const TrackParameters *trackpar_maxsipull=state_maxsipull->trackParameters();
+      Amg::VectorX parameterVector            = trackpar_maxsipull->parameters();
+      std::unique_ptr<const TrackParameters> trackparForCorrect( trackpar_maxsipull->associatedSurface().createTrackParameters(parameterVector[Trk::loc1],parameterVector[Trk::loc2],parameterVector[Trk::phi],parameterVector[Trk::theta],parameterVector[Trk::qOverP],new AmgSymMatrix(5)(*state_maxsipull->trackCovariance())) );
       double newerror[5];
       newerror[0]=newerror[1]=newerror[2]=newerror[3]=newerror[4]=-1;
       double newpull=-1,newpull1=-1,newpull2=-1,newres1=-1,newres2=-1;
       double newsinstereo=0;
         
-      if (prd && !state_maxsipull->isRecalibrated() && maxpull>2.5 && oldtrajectory->chi2()/trajectory.nDOF()>.3*m_chi2cut && m_sirecal) broadrot.reset( m_broadROTcreator->correct(*prd,*state_maxsipull->trackParameters()) );
+      if (prd && !state_maxsipull->isRecalibrated() && maxpull>2.5 && oldtrajectory->chi2()/trajectory.nDOF()>.3*m_chi2cut && m_sirecal) {broadrot.reset( m_broadROTcreator->correct(*prd,*trackparForCorrect) );}
       if (broadrot) {  
         const Amg::MatrixX &covmat=broadrot->localCovariance();
         newerror[0]=sqrt(covmat(0,0));
