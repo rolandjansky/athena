@@ -1973,12 +1973,12 @@ namespace InDet {
       if( m_idHelper->is_barrel(modID) || m_alignLevel==1  || m_alignLevel==11) {
         ATH_MSG_DEBUG("Pixel barrel module with id "<<AlimodID);
         if(  (fullModPars->at(ipar)->paramType() == Trk::AlignModule::TransX && m_alignBarrelX)
-          || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::TransY && m_alignBarrelY)
-          || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::TransZ && m_alignBarrelZ)
-          || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::RotX   && m_alignBarrelRotX)
-          || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::RotY   && m_alignBarrelRotY)
-          || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::RotZ   && m_alignBarrelRotZ)
-          || (m_idHelper->layer_disk(modID)==0 && fullModPars->at(ipar)->paramType() == Trk::AlignModule::BowX   && m_alignBarrelBowX) )  { //Bowing is only allowed for the IBL for now
+	     || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::TransY && m_alignBarrelY)
+	     || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::TransZ && m_alignBarrelZ)
+	     || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::RotX   && m_alignBarrelRotX)
+	     || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::RotY   && m_alignBarrelRotY)
+	     || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::RotZ   && m_alignBarrelRotZ)
+	     || (m_idHelper->layer_disk(modID)==0 && m_idHelper->is_blayer(modID)  && fullModPars->at(ipar)->paramType() == Trk::AlignModule::BowX   && m_alignBarrelBowX) )  { //Bowing is only allowed for the IBL for now
           ATH_MSG_DEBUG("parameter type "<<fullModPars->at(ipar)->paramType()<<" \'"<<fullModPars->at(ipar)->dumpType()<<"\' is now active");
           activeModPars->push_back(fullModPars->at(ipar));
         }
@@ -1988,11 +1988,11 @@ namespace InDet {
       else {
         ATH_MSG_DEBUG("Pixel endcap module with id "<<AlimodID);
         if(  (fullModPars->at(ipar)->paramType() == Trk::AlignModule::TransX && m_alignEndcapX)
-          || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::TransY && m_alignEndcapY)
-          || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::TransZ && m_alignEndcapZ)
-          || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::RotX   && m_alignEndcapRotX)
-          || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::RotY   && m_alignEndcapRotY)
-          || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::RotZ   && m_alignEndcapRotZ) ) {
+	     || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::TransY && m_alignEndcapY)
+	     || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::TransZ && m_alignEndcapZ)
+	     || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::RotX   && m_alignEndcapRotX)
+	     || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::RotY   && m_alignEndcapRotY)
+	     || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::RotZ   && m_alignEndcapRotZ) ) {
           ATH_MSG_DEBUG("parameter type "<<fullModPars->at(ipar)->paramType()<<" \'"<<fullModPars->at(ipar)->dumpType()<<"\' is now active");
           activeModPars->push_back(fullModPars->at(ipar));
         }
