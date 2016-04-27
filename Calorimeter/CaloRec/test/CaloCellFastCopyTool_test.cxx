@@ -128,6 +128,7 @@ private:
     , m_fcalID(0)
     , m_minifcalID(0)
     , m_tileID(0)
+    , m_hgtdID(0)
     , m_parser(0)
     , m_caloID(0)
   {
@@ -141,6 +142,7 @@ private:
     m_fcalID = new LArFCAL_ID;
     m_minifcalID = new LArMiniFCAL_ID;
     m_tileID = new TileID;
+    m_hgtdID = new HGTD_ID;
 
     IdDictParser* m_parser = new IdDictParser;
     m_parser->register_external_entity("LArCalorimeter", "IdDictLArCalorimeter.xml");
@@ -154,8 +156,9 @@ private:
     m_minifcalID->initialize_from_dictionary(idd);
     m_tileID->set_do_neighbours(false);
     m_tileID->initialize_from_dictionary(idd);
+    m_hgtdID->initialize_from_dictionary(idd);
 
-    m_caloID = new CaloCell_ID(m_emID, m_hecID, m_fcalID, m_minifcalID, m_tileID);
+    m_caloID = new CaloCell_ID(m_emID, m_hecID, m_fcalID, m_minifcalID, m_tileID, m_hgtdID);
     m_caloID->initialize_from_dictionary(idd);
   }
 
@@ -166,6 +169,7 @@ private:
   LArFCAL_ID* m_fcalID;
   LArMiniFCAL_ID* m_minifcalID;
   TileID* m_tileID;
+  HGTD_ID* m_hgtdID;
   IdDictParser* m_parser;
   CaloCell_ID* m_caloID;
   std::map<Identifier, CaloDetDescriptor*> m_ddmap;
