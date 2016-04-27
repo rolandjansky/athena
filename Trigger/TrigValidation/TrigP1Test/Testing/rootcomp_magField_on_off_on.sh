@@ -7,7 +7,7 @@ alias log='echo [`basename $0`] '
 
 log "command: $0 $*"
 
-if [ $# -ne 1 ]; then
+if [ $# -ne 2 ]; then
    log "Syntax: `basename $0` reference"
    exit 1
 fi

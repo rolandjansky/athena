@@ -296,7 +296,7 @@
      
         <TEST name="HLT_physicsV6_run_stop_run" type="script" suite="TrigP1HLTvarious">
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_run_stop_run --rundir HLT_physicsV6_run_stop_run --conf TrigP1Test.conf</options_atn>
-            <timelimit>35</timelimit>
+            <timelimit>40</timelimit>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -344,6 +344,7 @@
         <TEST name="UploadMenuKeys" type="script" suite="TrigP1HLTmenus">
             <options_atn>trigtest.pl --cleardir  --test UploadMenuKeys --rundir UploadMenuKeys --conf TrigP1Test.conf</options_atn>
             <timelimit>35</timelimit>
+            <platform>opt</platform>
             <!--<mailto>joerg.stelzer@cern.ch</mailto>-->    
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -355,6 +356,7 @@
             <options_atn>trigtest.pl --cleardir  --test UploadMenuKeys_rerunLvL1 --rundir UploadMenuKeys_rerunLvL1 --conf TrigP1Test.conf</options_atn>
             <timelimit>35</timelimit>
             <!--<mailto>joerg.stelzer@cern.ch</mailto>-->    
+            <platform>opt</platform>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -368,7 +370,7 @@
             <timelimit>5</timelimit>
             <nightly_exclude>.*</nightly_exclude>
             <!--<mailto>joerg.stelzer@cern.ch</mailto>--> 
-            <!--<platform>opt</platform>--> 
+            <platform>opt</platform> 
             
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -379,6 +381,7 @@
         <TEST name="HLT_physicsV6_menu_rerundb" type="script" suite="TrigP1HLTmenus">
             <options_atn>trigtest.pl --cleardir  --test HLT_physicsV6_menu_rerundb --rundir HLT_physicsV6_menu_rerundb --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
+            <platform>opt</platform>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -388,6 +391,7 @@
         <TEST name="HLT_physicsV6_rerunLvL1_menu_rerundb" type="script" suite="TrigP1HLTmenus">
             <options_atn>trigtest.pl --cleardir  --test HLT_physicsV6_rerunLvL1_menu_rerundb --rundir HLT_physicsV6_rerunLvL1_menu_rerundb --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
+            <platform>opt</platform>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -398,6 +402,7 @@
             <options_atn>trigtest.pl --cleardir  --test TrfTestPPV6 --rundir TrfTestPPV6 --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
             <nightly_exclude>.*</nightly_exclude>
+            <platform>opt</platform>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -408,6 +413,7 @@
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_prescaleChange --rundir HLT_physicsV6_prescaleChange --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
             <nightly_exclude>.*</nightly_exclude>
+            <platform>opt</platform>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -418,7 +424,8 @@
         
         <TEST name="HLT_physicsV6_rerun" type="script" suite="TrigP1HLTmenus">
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_rerun --rundir HLT_physicsV6_rerun --conf TrigP1Test.conf</options_atn>
-            <timelimit>20</timelimit>          
+            <timelimit>20</timelimit> 
+            <platform>opt</platform>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -428,8 +435,9 @@
                 
         <TEST name="CheckKeysV6" type="script" suite="TrigP1HLTmenus">
             <options_atn>trigtest.pl --cleardir  --test CheckKeysV6 --rundir CheckKeysV6 --conf TrigP1Test.conf</options_atn>
-            <timelimit>40</timelimit>     
+            <timelimit>50</timelimit>     
             <mailto>joerg.stelzer@cern.ch</mailto> 
+            <platform>opt</platform>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -439,6 +447,7 @@
         <TEST name="PrepareMenuKeys_p1" type="script" suite="TrigP1HLTmenus">
             <options_atn>trigtest.pl --cleardir  --test PrepareMenuKeys_p1 --rundir PrepareMenuKeys_p1 --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
+            <platform>opt</platform>
             <nightly_exclude>.*</nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>

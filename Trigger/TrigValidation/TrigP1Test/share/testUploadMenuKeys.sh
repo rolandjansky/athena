@@ -11,6 +11,7 @@ fi
 #setup the TT
 get_files -data -symlink TrigDb.jar
 get_files -data -symlink TriggerTool.jar
+export JAVA_VER="1.8.0"
 source /afs/cern.ch/sw/lcg/external/Java/bin/setup.sh
 export _JAVA_OPTIONS="-Xms512m -Xmx1048m"
 export DBConn="TRIGGERDBATN"
@@ -87,7 +88,7 @@ rundate=`date +%F" "%H:%M" "`
 
 # Upload SMK
 
-cmd="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest'  -l FINE --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK1"
+cmd="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest'  -l FINE --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 50 -w_t 60  >& uploadSMK1"
 
 echo $cmd
 eval $cmd &> uploadSMK.log
@@ -128,7 +129,7 @@ echo "Generating RuleBook_HLTPS_Physics${lumi}.xml by running\ncnvXML.py --ps_na
 cnvXML.py --ps_name=Physics${lumi} --ps_xml=prescales${lumi}.xml
 
 # Upload
-java -jar TriggerTool.jar -dbConn $DBConn -psup RuleBook_HLTPS_Physics${lumi}.xml -smk $smk -w_n 5 -w_t 60 &> uploadPSK.log
+java -jar TriggerTool.jar -dbConn $DBConn -psup RuleBook_HLTPS_Physics${lumi}.xml -smk $smk -w_n 50 -w_t 60 &> uploadPSK.log
 hltpsk2=`grep 'HLT Prescale set saved with id' uploadPSK.log | sed 's#.*: \([0-9]*\)\.#\1#'`
 if [ -z "$hltpsk2" ]; then
     echo "ERROR Upload of prescale key failed"

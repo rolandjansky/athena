@@ -23,6 +23,8 @@ class Config:
                        4:(5,7),
                        6:(6,7)}  
 
+trigbs_replaceLB.Config.eventsPerLB = 5
+
 log = logging.getLogger(__name__)
 log.info('Will perform beamspot udpate on these LBs (LB,status): %s' % sorted(Config.lb_updateBeamspot.values()))
 
