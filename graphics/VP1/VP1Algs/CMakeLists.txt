@@ -26,4 +26,5 @@ atlas_install_headers( VP1Algs )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( share/vp1 )
+atlas_install_scripts( share/clear-bash-hash-table-vp1 )
 

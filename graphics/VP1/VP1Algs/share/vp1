@@ -5,7 +5,7 @@
 # Author: Thomas.Kittelmann@cern.ch
 # First useful version: July 2007
 # Modified: Manuel.Proissl@cern.ch, March 2012
-#           Riccardo.Maria.Bianchi@cern.ch, November 2012
+#           Riccardo.Maria.Bianchi@cern.ch, multiple times
 #           Edward.Moyse@cern.ch, multiple times
 #
 #
@@ -70,6 +70,9 @@ SKIPEVENTS=""
 CRUISEWITHTIME=""
 LOGFILE=""
 FILTEREVENTS=""
+FLAG_BATCH=0
+FLAG_BATCH_ALL_EVENTS=0
+FLAG_BATCH_OUT_FOLDER=""
 FLAG_LARHV=0
 # FLAG_FULLTOROIDS=0
 FLAG_DONTCLEANUPEVTCPY=0
@@ -110,11 +113,26 @@ ATHENAOPTS=""
 ##    Decode command line options    ##
 #######################################
 
+#echo -e "\nnumber of positional parameters (args): " $# # for DEBUG only
+
+# index init
 i=1
+
+# start looping over the number of positional parameters ($#)
 while [ $i -le $# ]; do
+    
+    # get the i-positional parameter
     arg=${!i}
+    
+    #echo -e "\nevaluating arg: " $arg # for DEBUG only
+    
+    ################
+    # HELP / USAGE #
+    ################
     if [ "x${arg}" == "x-h" -o "x${arg}" == "x-help" -o "x${arg}" == "x--help" ]; then
 	FLAG_HELP=1
+    
+    
     elif [ "x${arg}" == "x-larhv" ]; then
 	FLAG_LARHV=1
   #     elif [ "x${arg}" == "x-fulltoroids" ]; then
@@ -123,6 +141,52 @@ while [ $i -le $# ]; do
 	FLAG_LIVE=1
     elif [ "x${arg}" == "x-livelocal" ]; then
 	FLAG_LIVELOCAL=1
+	#
+	#
+	#
+	##############
+	# BATCH MODE #
+    ##############
+	# check if the user provided config files with -batch/-b options
+	elif [ "x${arg}" == "x-batch" -o "x${arg}" == "x-b" ]; then 
+		if [[ "$*" == *.vp1* ]]
+        then
+    		#echo "config file: YES"
+			FLAG_BATCH=1
+			# text in bold, note in bold and red. at the end we reset the text style
+			echo ""
+			echo -e "\e[1m\e[31m\e[4mNote!\e[24m You chose to run VP1 in 'batch-mode' ('${arg}').\e[39m"
+			echo -e "Thus the main VP1 window will be not shown, but in the end you will get a PNG file with the rendered image of the 3D window, based on the configuration file you provided.\e[0m"
+			echo ""
+			echo "(sleeping for 2 secs...)"
+			echo ""
+			sleep 2s # to let the user read the warning message about the batch mode
+		else
+    		#echo "config file: NO"
+			ERRORS="$ERRORS\nBatch mode needs a configuration file ('.vp1')"
+		fi
+	elif [ "x${arg}" == "x-batch-all-events" ]; then 
+		FLAG_BATCH_ALL_EVENTS=1
+		if [ "x$FLAG_BATCH_ALL_EVENTS" == "x1" -a "x$FLAG_BATCH" == "x0" ]; then
+    		ERRORS="$ERRORS\nOption '-batch-all-events' can't be used without '-batch'..."
+		fi
+	#elif [ "x${arg}" == "x-batch-output-folder" ]; then 
+	elif [ "x${arg:0:21}" == "x-batch-output-folder=" ]; then
+    	FLAG_BATCH_OUT_FOLDER=${arg:21:$((${#arg}-21))}
+	    if [ "x$FLAG_BATCH_OUT_FOLDER" == "x" ]; then
+	   	ERRORS="$ERRORS\nNeed argument to -batch-output-folder. Ex: -batch-output-folder=myFolder"
+	    fi
+    	if [ "x$FLAG_BATCH_OUT_FOLDER" != "x" -a "x$FLAG_BATCH" == "x0" ]; then
+    		ERRORS="$ERRORS\nOption '-batch-output-folder' can't be used without '-batch'..."
+    	fi
+	elif [ "x${arg:0:21}" == "x-batch-output-folder" ]; then # catch arg without '=' character
+    	FLAG_BATCH_OUT_FOLDER_2=${arg:20:$((${#arg}-20))}
+	    if [ "x$FLAG_BATCH_OUT_FOLDER_2" == "x" ]; then
+	   	ERRORS="$ERRORS\nNeed argument to -batch-output-folder. Ex: -batch-output-folder=path/to/myFolder"
+	    fi
+	### end of batch mode settings
+	#
+	#
     elif [ "x${arg}" == "x-noautoconf" ]; then
 	FLAG_NOAUTOCONF=1
     elif [ "x${arg}" == "x-nocleanupeventcpy" ]; then
@@ -186,6 +250,11 @@ while [ $i -le $# ]; do
 	DETDESCRTAG=${arg:10:$((${#arg}-10))}
 	if [ "x$DETDESCRTAG" == "x" ]; then
 	    ERRORS="$ERRORS\nNeed argument to -detdescr"
+	fi
+    elif [ "x${arg:0:10}" == "x-detdescr" ]; then
+	DETDESCRTAG_2=${arg:9:$((${#arg}-9))}
+	if [ "x$DETDESCRTAG_2" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -detdescr. Example: -detdescr=ATLAS-GEO-20-00-01"
 	fi
     elif [ "x${arg:0:10}" == "x-globcond=" ]; then
 	GLOBCONDTAG=${arg:10:$((${#arg}-10))}
@@ -259,20 +328,69 @@ while [ $i -le $# ]; do
 		LOCALEVENTSRC_AVAILDIRS[${#LOCALEVENTSRC_AVAILDIRS[@]}]="$EXTRADIR"
 	    fi
 	fi
+    
+    ###################
+    # VP1 CONFIG FILE #
+    ###################
     elif [ ${#arg} -gt 4 -a ${arg:$((${#arg}-4)):4} == ".vp1" ]; then
 	FILES_VP1CFG[${#FILES_VP1CFG[@]}]="${arg}"
+    
+    #####################
+    # EXTRA JOB OPTIONS #
+    #####################
     elif [ ${#arg} -gt 3 -a ${arg:$((${#arg}-3)):3} == ".py" ]; then
 	FILES_EXTRAJOBOPT[${#FILES_EXTRAJOBOPT[@]}]="${arg}"
-    elif [[ ${#arg} -gt 3 && ${arg:0:1} != "-" && ( "${arg}" =~ "^LFN:" || -f "${arg}" ) ]]; then
-	FILES_POOLROOT[${#FILES_POOLROOT[@]}]="${arg}"
-    elif [[ ${#arg} -gt 3 && ${arg:0:1} != "-" && ( "${arg}" =~ "^root:" || -f "${arg}" ) ]]; then
-	echo "Opening a file through the 'root://' protocol..."
-    FILES_POOLROOT[${#FILES_POOLROOT[@]}]="${arg}"
+    
+    ########################
+    # EOS / LFN INPUT DATA #
+    ########################
+    
+    # NOTES:
+    # - about reg-exp matching: https://its.cern.ch/jira/browse/ATLASVPONE-314
+    # - 'elif' first checks if argument length is > 3 and if not begins with "-", 
+    #   then it checks the match with the reg-exp
+    
+    elif [[ ${#arg} -gt 3 && ${arg:0:1} != "-" && ( "${arg}" =~ ^LFN: ) ]]; then
+        echo -e "\n\e[1;94mOpening a file through the \e[4m'LFN:'\e[24m protocol...\e[0m"
+        FILES_POOLROOT[${#FILES_POOLROOT[@]}]="${arg}"
+        echo -e "\e[94mOpening the file: " $FILES_POOLROOT "\e[0m\n"
+
+    elif [[ ${#arg} -gt 3 && ${arg:0:1} != "-" && ( "${arg}" =~ ^root: ) ]]; then
+        echo -e "\n\e[1;94mOpening a file through the \e[4m'root:'\e[24m protocol...\e[0m"
+        FILES_POOLROOT[${#FILES_POOLROOT[@]}]="${arg}"
+        echo -e "\e[94mOpening the file: " $FILES_POOLROOT "\e[0m\n" 
+    
+    ####################
+    # LOCAL INPUT DATA #
+    ####################
+
+    # NOTES:
+    # - 'elif' first checks if argument length is > 3 and if not begins with "-", 
+    #   then it checks if the file exists
+
+    elif [[ ${#arg} -gt 3 && ${arg:0:1} != "-" && ( -f "${arg}" ) ]]; then
+        FILES_POOLROOT[${#FILES_POOLROOT[@]}]="${arg}"
+        echo -e "\n\e[94mOpening the local file: " $FILES_POOLROOT "\e[0m\n" 
+
+
+    ###################
+    # DEFAULT (ERROR) #
+    ###################
     else
 	ERRORS="$ERRORS\nUnknown argument: ${arg}"
     fi
+    
+    # INCREMENT THE INDEX
     i=$((i+1))
 done
+
+
+
+
+
+########################
+###     SETTINGS     ###
+########################
 
 #live & noautoconf flags (AutoConfiguration is disabled in live and livelocal modes)
 
@@ -367,7 +485,7 @@ if [ "x$MULTINP_CPY" != "x" -a -f "$MULTINP_CPY" ]; then
     ERRORS="$ERRORS\n-eventcpy directory set to point to a file"
 fi
 
-
+# TODO: Check this "bootstrap": what is it? Is it still needed?
 BOOTSTRAPNAME="bootstrapevent.pool.root"
 BOOTSTRAPFILE="${MULTINP_CPY}/${BOOTSTRAPNAME}"
 BOOTSTRAP_HTTPFILEINFO="${MULTINP_CPY}/bootstrap_fileinfo.txt"
@@ -437,7 +555,14 @@ if [ "x$FLAG_HELP" != "x0" ]; then
     echo
     echo "  -h, -help, --help           : Display this help (with examples) and exit."
     echo
+    echo "  -batch                      : Run VP1 in 'batch' mode with a given configuration file."
+    echo
+    echo "  -batch-all-events           : Process all events in the input data file in '-batch' mode. Use this together with '-batch'."
+    echo
+    echo "  -batch-output-folder        : Specify an output folder to store the event displays produced with the '-batch' option."
+    echo
     echo "  -larhv                      : Access current LAr HV data in the DCS_OFL database via VP1 CaloReadout system."
+    echo
     echo "  -data                       : Input files are data [default assumption is simulation]. "
     echo
     echo "  -detdescr=TAG               : Set global geometry tag. Overrides autoconfiguration"
@@ -450,11 +575,11 @@ if [ "x$FLAG_HELP" != "x0" ]; then
     echo "                                Format is a comma separated list of event numbers, where each event number"
     echo "                                can optionally be preceeded by a run number and a semicolon."
     echo "                                Prepend the list with an \"%\" to instead exclude the events."
-    echo "                                For instance select a few nice events like: --evtfilter=7,13,5300:26,54"
-    echo "                                Or exclude a few bad events like: --evtfilter=%7,13,5300:26,54"
+    echo "                                For instance select a few nice events like: -evtfilter=7,13,5300:26,54"
+    echo "                                Or exclude a few bad events like: -evtfilter=%7,13,5300:26,54"
     echo
     echo "                                It is also possible to specify one or more files with run/evt numbers"
-    echo "                                specified on each line: --evtfilter=%7,13,5300:26,54,myevents1.txt"
+    echo "                                specified on each line: -evtfilter=%7,13,5300:26,54,myevents1.txt"
     echo
     echo "  -cruise=N                   : Start in cruise mode, changing events after N seconds"
     echo
@@ -577,6 +702,11 @@ if [ "x$FLAG_HELP" != "x0" ]; then
     echo "  * Run on myevents1.pool.root, and preload the tab/channel configuration files myconfig1.vp1 and myconfig2.vp1:"
     echo
     echo "     \$>$APP myevents1.pool.root myconfig1.vp1 myconfig2.vp1"
+    echo
+    echo "  * Run in 'batch mode' on 'myevents1.pool.root' with the configuration file 'myconfig1.vp1'."
+    echo "    No graphical window will appear, but in the end you will get the PNG file containing the render of the 3D window."
+    echo
+    echo "     \$>$APP -batch myevents.pool.root myconfig1.vp1"
     echo
     echo "  * Some more advanced examples, using several options at once:"
     echo
@@ -709,6 +839,18 @@ fi
 if [ "x$FLAG_NOSORTDBREPLICAS" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}vp1NoSortDBReplicas=True"
+fi
+if [ "x$FLAG_BATCH" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1Batch=True"
+fi
+if [ "x$FLAG_BATCH_ALL_EVENTS" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1BatchAllEvents=True"
+fi
+if [ "x$FLAG_BATCH_OUT_FOLDER" != "x" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1BatchOutFolder=\"$FLAG_BATCH_OUT_FOLDER\""
 fi
 if [ "x$FLAG_LARHV" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
