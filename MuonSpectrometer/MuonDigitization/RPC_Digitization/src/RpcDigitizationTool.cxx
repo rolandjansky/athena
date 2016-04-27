@@ -121,7 +121,10 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   declareProperty("FracClusterSizeTail_C"     ,  m_FracClusterSizeTail_C	    );
   declareProperty("MeanClusterSizeTail_C"     ,  m_MeanClusterSizeTail_C	    );
   declareProperty("turnON_efficiency"         ,  m_turnON_efficiency    = true      );
+  declareProperty("Minimum_efficiency"        ,  m_Minimum_efficiency   = 0.5       );
+  declareProperty("ApplyEfficiencyThreshold"  ,  m_applyEffThreshold    = false     );
   declareProperty("Efficiency_fromCOOL"       ,  m_Efficiency_fromCOOL  = false     );
+  declareProperty("KillDeadStrips"            ,  m_kill_deadstrips      = false     );
   declareProperty("EfficiencyPatchForBMShighEta", m_EfficiencyPatchForBMShighEta = false );
   declareProperty("turnON_clustersize"        ,  m_turnON_clustersize   = true      );
   declareProperty("ClusterSize_fromCOOL"      ,  m_ClusterSize_fromCOOL = false     );
@@ -129,12 +132,12 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   declareProperty("ClusterSize1_2uncorr"      ,  m_ClusterSize1_2uncorr   = 0       );
   declareProperty("FirstClusterSizeInTail"    ,  m_FirstClusterSizeInTail = 3       );
   declareProperty("PrintCalibrationVector"    ,  m_PrintCalibrationVector = 0       );
-  declareProperty("Force_BOG_BOF_DoubletR2_OFF"     ,  m_BOG_BOF_DoubletR2_OFF  = true  );
+  declareProperty("Force_BOG_BOF_DoubletR2_OFF",  m_BOG_BOF_DoubletR2_OFF  = false  );
   declareProperty("IgnoreRunDependentConfig"  ,  m_ignoreRunDepConfig     = false   );
   declareProperty("RPCInfoFromDb"             ,  m_RPCInfoFromDb          = false   );
   declareProperty("DumpFromDbFirst"           ,  m_DumpFromDbFirst        = false   );
   declareProperty("CutMaxClusterSize"         ,  m_CutMaxClusterSize      = 5.0     );
-  declareProperty("CutProjectedTracks"        ,  m_CutProjectedTracks     = 50      );
+  declareProperty("CutProjectedTracks"        ,  m_CutProjectedTracks     = 100     );
   declareProperty("RPCCondSummarySvc"         ,  m_rSummarySvc                      );
   declareProperty("ValidationSetup"           ,  m_validationSetup        = false   );
 }
@@ -160,6 +163,8 @@ StatusCode RpcDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "RPC_TimeSchema         " << m_RPC_TimeSchema            );
   ATH_MSG_DEBUG ( "RPCSDOareRPCDigits     " << m_sdoAreOnlyDigits          );
 
+
+  ATH_MSG_DEBUG ( "IgnoreRunDependentConfig "<< m_ignoreRunDepConfig       );  
   ATH_MSG_DEBUG ( "turnON_efficiency      " <<  m_turnON_efficiency        );
   ATH_MSG_DEBUG ( "Efficiency_fromCOOL    " <<  m_Efficiency_fromCOOL      );
   ATH_MSG_DEBUG ( "turnON_clustersize     " <<  m_turnON_clustersize       );
@@ -227,6 +232,7 @@ StatusCode RpcDigitizationTool::initialize() {
   } 
 
   bool m_run1 = true;
+  std::string configVal = "";
   const IGeoModelSvc* geoModel = 0; 
   result = service("GeoModelSvc", geoModel); 
   if (result.isFailure()) { 
@@ -240,11 +246,14 @@ StatusCode RpcDigitizationTool::initialize() {
     if(atlasCommonRec->size()==0) { 
       m_run1 = true; 
     } else { 
-      std::string configVal = (*atlasCommonRec)[0]->getString("CONFIG"); 
-      if(configVal=="RUN1" || m_GMmgr->geometryVersion().substr(0,4)=="R.06"){ 
+      configVal = (*atlasCommonRec)[0]->getString("CONFIG"); 
+      ATH_MSG_INFO( "From DD Database, Configuration is "<< configVal );
+      std::string MSgeoVersion = m_GMmgr->geometryVersion().substr(0,4);
+      ATH_MSG_INFO( "From DD Database, MuonSpectrometer geometry version is "<< MSgeoVersion );
+      if(configVal=="RUN1" || MSgeoVersion=="R.06"){ 
         m_run1 = true; 
       } 
-      else if(configVal=="RUN2") { 
+      else if(configVal=="RUN2" || MSgeoVersion=="R.07") { 
         m_run1 = false; 
       } 
       else { 
@@ -253,20 +262,32 @@ StatusCode RpcDigitizationTool::initialize() {
       } 
     } 
     // 
-    if (m_run1) ATH_MSG_DEBUG("From Geometry DB: MuonSpectrometer configuration is: RUN1"); 
-    else        ATH_MSG_DEBUG("From Geometry DB: MuonSpectrometer configuration is: RUN2"); 
+    if (m_run1) ATH_MSG_INFO("From Geometry DB: MuonSpectrometer configuration is: RUN1 or MuonGeometry = R.06"); 
+    else        ATH_MSG_INFO("From Geometry DB: MuonSpectrometer configuration is: RUN2 or MuonGeometry = R.07"); 
   }
   if (m_ignoreRunDepConfig==false) 
     {
+      m_BOG_BOF_DoubletR2_OFF = false;
+      m_Efficiency_fromCOOL   = false;
+      m_ClusterSize_fromCOOL  = false;
+      m_RPCInfoFromDb         = false;
+      m_kill_deadstrips       = false;
+      m_applyEffThreshold     = false;
       if (m_run1)
 	{
 	  //m_BOG_BOF_DoubletR2_OFF = true 
 	  //m_Efficiency_fromCOOL   = true 
 	  //m_ClusterSize_fromCOOL  = true
 	  m_BOG_BOF_DoubletR2_OFF = true;
-	  m_Efficiency_fromCOOL   = true;
-	  m_ClusterSize_fromCOOL  = true;
-	  m_RPCInfoFromDb         = true;
+	  if (configVal=="RUN1") 
+	    {// MC12 setup 
+	      m_Efficiency_fromCOOL   = true;
+	      m_ClusterSize_fromCOOL  = true;
+	      m_RPCInfoFromDb         = true;
+	      m_kill_deadstrips       = true;
+	      m_applyEffThreshold     = false;
+	      m_CutProjectedTracks    = 50;
+	    }
 	}
       else 
 	{
@@ -274,15 +295,24 @@ StatusCode RpcDigitizationTool::initialize() {
 	  //m_Efficiency_fromCOOL   = false # use common average values in python conf. 
 	  //m_ClusterSize_fromCOOL  = false # use common average values in python conf. 
 	  m_BOG_BOF_DoubletR2_OFF = false;
-	  m_Efficiency_fromCOOL   = false;
-	  m_ClusterSize_fromCOOL  = false;
-	  m_RPCInfoFromDb         = false;
+	   if (configVal=="RUN2") 
+	    {// MC15c setup 
+	      m_Efficiency_fromCOOL   = true;
+	      m_ClusterSize_fromCOOL  = true;
+	      m_RPCInfoFromDb         = true;
+	      m_kill_deadstrips       = false;
+	      m_applyEffThreshold     = true;
+	      m_CutProjectedTracks    = 100;
+	    }
 	}
       ATH_MSG_DEBUG ( "Run1/Run2-dependent configuration is enforced; option setting reset for: " );
       ATH_MSG_DEBUG ( "......Efficiency_fromCOOL    " <<  m_Efficiency_fromCOOL      );
       ATH_MSG_DEBUG ( "......ClusterSize_fromCOOL   " <<  m_ClusterSize_fromCOOL     );
       ATH_MSG_DEBUG ( "......BOG_BOF_DoubletR2_OFF  " <<  m_BOG_BOF_DoubletR2_OFF    );
       ATH_MSG_DEBUG ( "......RPCInfoFromDb          " <<  m_RPCInfoFromDb            );
+      ATH_MSG_DEBUG ( "......KillDeadStrips         " <<  m_kill_deadstrips          );
+      ATH_MSG_DEBUG ( "......ApplyEffThreshold      " <<  m_applyEffThreshold        );
+      ATH_MSG_DEBUG ( "......CutProjectedTracks     " <<  m_CutProjectedTracks       ); 
     }
   else
     {
@@ -291,6 +321,9 @@ StatusCode RpcDigitizationTool::initialize() {
       ATH_MSG_DEBUG ( "......ClusterSize_fromCOOL   " <<  m_ClusterSize_fromCOOL     );
       ATH_MSG_DEBUG ( "......BOG_BOF_DoubletR2_OFF  " <<  m_BOG_BOF_DoubletR2_OFF    );
       ATH_MSG_DEBUG ( "......RPCInfoFromDb          " <<  m_RPCInfoFromDb            );
+      ATH_MSG_DEBUG ( "......KillDeadStrips         " <<  m_kill_deadstrips          );
+      ATH_MSG_DEBUG ( "......ApplyEffThreshold      " <<  m_applyEffThreshold        );
+      ATH_MSG_DEBUG ( "......CutProjectedTracks     " <<  m_CutProjectedTracks       ); 
     }
 
 
@@ -368,40 +401,44 @@ StatusCode RpcDigitizationTool::prepareEvent(unsigned int) {
 }
 
 //--------------------------------------------
-StatusCode RpcDigitizationTool::processBunchXing(int /*bunchXing*/,
-					    PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-					    PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
-
+StatusCode RpcDigitizationTool::processBunchXing(int bunchXing,
+                                                 SubEventIterator bSubEvents,
+                                                 SubEventIterator eSubEvents)
+{
   ATH_MSG_DEBUG ( "RpcDigitizationTool::in processBunchXing()" );
 
-  PileUpEventInfo::SubEvent::const_iterator iEvt(bSubEvents);
-  while (iEvt != eSubEvents) {
-    StoreGateSvc& seStore(*iEvt->pSubEvtSG);
-    //John's Hacks START
+  SubEventIterator iEvt = bSubEvents;
+  while(iEvt!=eSubEvents)
+    {
+      StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
+      PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
+      ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"
+                      << " bunch crossing : " << bunchXing
+                      << " time offset : " << iEvt->time()
+                      << " event number : " << iEvt->ptr()->eventNumber()
+                      << " run number : " << iEvt->ptr()->runNumber());
+      const RPCSimHitCollection* seHitColl(nullptr);
+      if (!seStore.retrieve(seHitColl,m_inputHitCollectionName).isSuccess())
+        {
+          ATH_MSG_ERROR ("SubEvent RPCSimHitCollection not found in StoreGate " << seStore.name());
+          return StatusCode::FAILURE;
+        }
+      ATH_MSG_VERBOSE ("RPCSimHitCollection found with " << seHitColl->size() << " hits");
+      //Copy Hit Collection
+      RPCSimHitCollection* RPCHitColl = new RPCSimHitCollection("RPC_Hits");
+      RPCSimHitCollection::const_iterator i = seHitColl->begin();
+      RPCSimHitCollection::const_iterator e = seHitColl->end();
+      // Read hits from this collection
+      for (; i!=e; ++i)
+        {
+          RPCHitColl->Emplace(*i);
+        }
+      m_thpcRPC->insert(thisEventIndex, RPCHitColl);
+      //store these for deletion at the end of mergeEvent
+      m_RPCHitCollList.push_back(RPCHitColl);
 
-    PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
-    const RPCSimHitCollection* seHitColl = 0;
-    if (!seStore.retrieve(seHitColl,m_inputHitCollectionName).isSuccess()) {
-      ATH_MSG_ERROR ("SubEvent RPCSimHitCollection not found in StoreGate " << seStore.name());
-      return StatusCode::FAILURE;
+      ++iEvt;
     }
-    ATH_MSG_VERBOSE ("RPCSimHitCollection found with " << seHitColl->size() << " hits");
-    //Copy Hit Collection
-    RPCSimHitCollection* RPCHitColl = new RPCSimHitCollection("RPC_Hits");
-    RPCSimHitCollection::const_iterator i = seHitColl->begin();
-    RPCSimHitCollection::const_iterator e = seHitColl->end();
-    // Read hits from this collection
-    for (; i!=e; ++i) {
-      RPCHitColl->Emplace(*i);
-    }
-    m_thpcRPC->insert(thisEventIndex, RPCHitColl);
-    //m_thpcRPC->insert(iEvt->time(), RPCHitColl);
-    //store these for deletion at the end of mergeEvent
-    m_RPCHitCollList.push_back(RPCHitColl);
-    //John's Hacks END
-
-    ++iEvt;
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -577,6 +614,8 @@ StatusCode RpcDigitizationTool::doDigitization() {
   //StatusCode status = StatusCode::SUCCESS;
   //status.ignore();
   
+  int nKilledStrips = 0;
+  
   RPCSimHitCollection* inputSimHitColl=NULL;
   
  if (m_validationSetup)
@@ -607,6 +646,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
       Identifier channelId;
       std::vector<MuonSimData::Deposit> deposits;
       Amg::Vector3D gpos;
+      float simTime;
     };
     std::map<Identifier,SimDataContent> channelSimDataMap; 
 
@@ -771,6 +811,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
             content.channelId = atlasId;
             content.deposits.push_back(deposit);
             content.gpos = intersection.position;
+            content.simTime = hit.globalTime();
             ATH_MSG_VERBOSE("adding SDO entry: r " << content.gpos.perp() << " z " << content.gpos.z() );
           }
         }
@@ -789,14 +830,15 @@ StatusCode RpcDigitizationTool::doDigitization() {
 
 	  Identifier newId = m_idHelper->channelID(m_idHelper->elementID(stationName, stationEta,
 									 stationPhi,doubletR), doubletZ, doubletPhi,gasGap, imeasphi, clus);
-	  // here kill dead strips if using COOL input for the detector status 
+	  // here count and maybe kill dead strips if using COOL input for the detector status 
 	  if (m_Efficiency_fromCOOL) {
 	    if ( !(undefPhiStripStat && imeasphi==1) )
 	      {
 		if(m_rSummarySvc->RPC_DeadStripList().find( newId )  != m_rSummarySvc->RPC_DeadStripList().end()) 
 		  {
-		    ATH_MSG_DEBUG ( "In the Loop over cluster strips to fill the sdo_tmp_map: strip "<< m_idHelper->show_to_string(newId) <<" is dead - skip it ");
-		    continue;
+		    ATH_MSG_DEBUG ( "After DetectionEfficiency: strip "<< m_idHelper->show_to_string(newId) <<" in a cluster of size "<< pcs[2]-pcs[1]+1<<" is dead - kill it ");
+		    ++nKilledStrips;
+		    if (m_kill_deadstrips) continue;//gabriele
 		  }
 	      }
 	  }
@@ -832,6 +874,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
         
         MuonSimData simData(it->second.deposits,0);
         simData.setPosition(it->second.gpos);
+        simData.setTime(it->second.simTime);
         auto insertResult = m_sdoContainer->insert(std::make_pair( it->first,simData) );
         if (!insertResult.second) ATH_MSG_ERROR ( "Attention: this sdo is not recorded, since the identifier already exists in the m_sdoContainer map" );
       }
@@ -1005,6 +1048,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
     m_thpcRPC=0;
   }
 
+  ATH_MSG_DEBUG ("EndOf Digitize() n. of strips Killed (dead) in the DB = "<<nKilledStrips);
   return StatusCode::SUCCESS;
 }
 
@@ -1027,7 +1071,6 @@ std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const Identifier* id, 
 
 
   //  CLHEP::HepRandomEngine*      engine  =       p_AtRndmGenSvc->GetEngine("RPCDIGI");
-
   //    std::cout<<"test1 "<< p_engine->getSeeds()[0]<<" " << p_engine->getSeeds()[1]<<std::endl;
 
 
@@ -1087,7 +1130,9 @@ std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const Identifier* id, 
     if(stationEta<0){ // fix needed only for negative half-barrel
       int totEtaStrips=ele->Nstrips(measuresPhi);
       nstrip=totEtaStrips-nstrip+1;
-      // prova=totEtaStrips-prova+1;
+      // if stationEta<0, invert the numbering AND invert the position of the hit in the strip 
+      // s.spagnolo 20/10/2015; this fixes a small bias in the digit positions for clusters with size > 1  
+      xstrip=30.-xstrip;
     }
   }
 
@@ -1554,7 +1599,17 @@ int RpcDigitizationTool::findStripNumber(Amg::Vector3D posInGap, Identifier digi
   //  std::cout<<" Nphigasgaps, NphiStripPanels "<< ele->Nphigasgaps()<< " "<< ele->NphiStripPanels()<<std::endl;
 
 
-  int result= abs(int((min_-impact)/pitch))+1;
+  //  int result= abs(int((min_-impact)/pitch))+1; // the original 
+  //  int result= abs(int((min_-impact)/pitch)+1);
+  int result= int((impact-min_)/pitch)+1;
+  if (result<1 || result>nstrips) 
+    {
+      ATH_MSG_WARNING("strip closest to hit is outside the strip panel boundaries: impact, min_, max_ "
+		      <<impact<<" ["<<min_<<", "<<max_<<"]  strip # "<<result<<" [1, "<<nstrips<<"]   pitch = "<<pitch);
+      if (result>nstrips) result=nstrips;
+      else if (result<1) result=1;
+    }
+  
 
   //  std::cout<<"\t start stop length impact pitch strip are "<<min_<< " "<<max_<< " "<<nstrips*pitch+2<< " "<< impact<< " "<<pitch<<" " << result<<std::endl;
 
@@ -1850,13 +1905,21 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
     bool noEntryInDb=false;
     
     if( m_rSummarySvc->RPC_FracDeadStripMap()  .find(IdEta) == m_rSummarySvc->RPC_FracDeadStripMap()  .end()){
-      ATH_MSG_DEBUG ( "Not In CoolDB the Panel IdEtaRpcStrip :  "  << IdEta << " ");
+      ATH_MSG_DEBUG ( "Not In CoolDB the Panel IdEtaRpcStrip :  "  << IdEta << " i.e. "<<m_idHelper->show_to_string(IdEta));
       noEntryInDb=true;      
     }
+    else
+      {
+	ATH_MSG_DEBUG ( "Found In CoolDB the Panel IdEtaRpcStrip :  "  << IdEta << " i.e. "<<m_idHelper->show_to_string(IdEta));
+      }
     if( m_rSummarySvc->RPC_FracDeadStripMap()  .find(IdPhi) == m_rSummarySvc->RPC_FracDeadStripMap()  .end()) {
-      ATH_MSG_DEBUG ( "Not In CoolDB the Panel IdPhiRpcStrip :  "  << IdPhi << " ");
+      ATH_MSG_DEBUG ( "Not In CoolDB the Panel IdPhiRpcStrip :  "  << IdPhi << " i.e. "<<m_idHelper->show_to_string(IdPhi));
       noEntryInDb=true;
     }
+    else
+      {
+	ATH_MSG_DEBUG ( "Found In CoolDB the Panel IdPhiRpcStrip :  "  << IdPhi << " i.e. "<<m_idHelper->show_to_string(IdPhi));
+      }
     
     if( m_rSummarySvc->RPC_FracDeadStripMap()  .find(IdEta) != m_rSummarySvc->RPC_FracDeadStripMap()  .end()) FracDeadStripEta        = m_rSummarySvc->RPC_FracDeadStripMap  ().find(IdEta)->second ;
     if( m_rSummarySvc->RPC_FracDeadStripMap()  .find(IdPhi) != m_rSummarySvc->RPC_FracDeadStripMap()  .end()) FracDeadStripPhi        = m_rSummarySvc->RPC_FracDeadStripMap  ().find(IdPhi)->second ;
@@ -1937,8 +2000,9 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
     if( m_PanelId_OK_fromlist && ( GoodPanel_fromlist.find(IdPhi) != GoodPanel_fromlist.end()) )  stripphigood =  GoodPanel_fromlist.find(IdPhi)->second;
     
 
-    //..stefania - if there are dead strips renormalize the eff. to the active area  
-    if ((FracDeadStripEta>0.0&&FracDeadStripEta<1.0) || (FracDeadStripPhi>0.0&&FracDeadStripPhi<1.0) || (noEntryInDb))
+    //gabriele //..stefania - if there are dead strips renormalize the eff. to the active area  
+    if(m_kill_deadstrips){
+     if ((FracDeadStripEta>0.0&&FracDeadStripEta<1.0) || (FracDeadStripPhi>0.0&&FracDeadStripPhi<1.0) || (noEntryInDb))
       {
 	EtaPanelEfficiency= EtaPanelEfficiency/(maxGeomEff-FracDeadStripEta);
 	PhiPanelEfficiency= PhiPanelEfficiency/(maxGeomEff-FracDeadStripPhi);
@@ -1953,7 +2017,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
 	if (PhiPanelEfficiency>GapEfficiency) GapEfficiency=PhiPanelEfficiency;
 	ATH_MSG_DEBUG ("Eff Redefined (to correct for deadfrac): FracDeadStripEta/Phi "<<" Eta/PhiPanelEfficiency "<<EtaPanelEfficiency<<"/"<<PhiPanelEfficiency<<" gapEff "<<GapEfficiency);
       }
-					    
+    }				    
 
     //values from COOLDB (eventually overwritten later)
     PhiAndEtaEff =  float(EtaPanelEfficiency + PhiPanelEfficiency - GapEfficiency) ;
@@ -1963,6 +2027,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
     OnlyPhiEff   =  float(PhiPanelEfficiency - PhiAndEtaEff) ;
     if (OnlyPhiEff<0.) OnlyPhiEff=0.;
 
+   
     
     /* // here is where originally dead strips were killed - including the protection (on phi strips) for dead eta panel
     if(FracDeadStripEta>0.0&&FracDeadStripEta<1.0){
@@ -1995,17 +2060,19 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
 
       //std::cout<<" do we ever enter here ? "<<std::endl;
       unsigned int index = stationName - 2 ;
-      ATH_MSG_DEBUG ( "Special condition met here" << index ) ;
       // BML and BMS, BOL and BOS  come first (stationName= 2 and 3, 4 and 5 -> index 0-3)
       if(stationName>5 && stationName<50) index = index - 2 ;
       // BMF, BOF and BOG are 8,9,10 => must be 4,5 and 6
       else if(stationName>50) index = index - 44 ;
       // BME and BOE 53 and 54 are at indices 7 and 8 
+      ATH_MSG_DEBUG ( "Some special condition met here - resetting eff.s to python values at index=" << index << " i.e. StName="<<stationName) ;
 
       if( index>m_PhiAndEtaEff_A.size() || index>m_OnlyEtaEff_A.size() || index>m_OnlyPhiEff_A.size()) {
 	ATH_MSG_ERROR ( "Index out of array in Detection Efficiency SideA COOLDB" << index <<" stationName = "<<stationName) ;
 	return StatusCode::FAILURE;
       }
+      if (RPC_ProjectedTracksEta<m_CutProjectedTracks) ATH_MSG_DEBUG ( "# of proj tracks = "<<RPC_ProjectedTracksEta<<" < cut = "<<m_CutProjectedTracks
+								       <<" resetting eff. from cool with default(python) values ");
 
       PhiAndEtaEff = m_PhiAndEtaEff_A [index];
       OnlyEtaEff   = m_OnlyEtaEff_A   [index];
@@ -2020,7 +2087,22 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
 	OnlyEtaEff   = m_OnlyEtaEff_C	[index];
 	OnlyPhiEff   = m_OnlyPhiEff_C	[index];
       }
-
+      
+      
+      if (m_applyEffThreshold) { 
+	//gabriele Set efficiency from dead strip fraction instead of nominal value
+	float effgap = PhiAndEtaEff+OnlyEtaEff+OnlyPhiEff;
+	float s_EtaPanelEfficiency=1.-FracDeadStripEta;
+	float s_PhiPanelEfficiency=1.-FracDeadStripPhi;
+	float s_PhiAndEtaEff      =  s_EtaPanelEfficiency        *   s_PhiPanelEfficiency  /effgap;
+	if(s_PhiAndEtaEff<PhiAndEtaEff)PhiAndEtaEff=s_PhiAndEtaEff;
+	float s_OnlyEtaEff        =  s_EtaPanelEfficiency        -   PhiAndEtaEff        ;
+	float s_OnlyPhiEff        =  s_PhiPanelEfficiency        -   PhiAndEtaEff        ;  
+      
+	if(s_OnlyEtaEff  <OnlyEtaEff  )OnlyEtaEff  =s_OnlyEtaEff  ;
+	if(s_OnlyPhiEff  <OnlyPhiEff  )OnlyPhiEff  =s_OnlyPhiEff  ;
+      }
+     
     }
     /* 
     //if strip dead overwrite previous values
@@ -2054,15 +2136,42 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
 
   }
 
+
+  if (m_applyEffThreshold) {
+      //gabriele //apply minimum allowed efficiency criteria
+
+      if(OnlyEtaEff+PhiAndEtaEff<m_Minimum_efficiency && OnlyPhiEff+PhiAndEtaEff<m_Minimum_efficiency){
+	// eta panel eff < Minimum AND phi panel eff < Minimum and 
+	PhiAndEtaEff   =m_Minimum_efficiency; 
+	OnlyEtaEff     =0.;
+	OnlyPhiEff     =0.; 
+      } 
+      else if(OnlyEtaEff+PhiAndEtaEff<m_Minimum_efficiency && OnlyPhiEff+PhiAndEtaEff>m_Minimum_efficiency){
+	// eta panel eff < Minimum AND phi panel eff > Minimum and 
+	double phiEff = OnlyPhiEff+PhiAndEtaEff;
+	PhiAndEtaEff   =m_Minimum_efficiency; 
+	OnlyEtaEff     =0.;
+	OnlyPhiEff     =phiEff-PhiAndEtaEff; // Phi Panel Efficiency stays unchanged
+      }
+      else if(OnlyEtaEff+PhiAndEtaEff>m_Minimum_efficiency && OnlyPhiEff+PhiAndEtaEff<m_Minimum_efficiency){
+	// eta panel eff > Minimum AND phi panel eff < Minimum and 
+	double etaEff = OnlyEtaEff+PhiAndEtaEff;
+	PhiAndEtaEff   =m_Minimum_efficiency; 
+	OnlyPhiEff     =0.;
+	OnlyEtaEff     =etaEff-PhiAndEtaEff; // Eta Panel Efficiency stays unchanged
+      }
+
+    }
+
   float I0	  = PhiAndEtaEff			    ;
   float I1	  = PhiAndEtaEff +  OnlyEtaEff  	    ;
-  float ITot   = PhiAndEtaEff +  OnlyEtaEff + OnlyPhiEff ;
+  float ITot   = PhiAndEtaEff +  OnlyEtaEff + OnlyPhiEff    ;
 
   float GapEff = PhiAndEtaEff + OnlyEtaEff + OnlyPhiEff;
   float PhiEff = PhiAndEtaEff + OnlyPhiEff             ;
   float EtaEff = PhiAndEtaEff + OnlyEtaEff             ;
 
-  ATH_MSG_DEBUG ( "Efficiency Final " << PhiAndEtaEff << "=PhiAndEtaEff " <<OnlyEtaEff << "=OnlyEtaEff " <<OnlyPhiEff << "=OnlyPhiEff " << GapEff << "=GapEff " << EtaEff << "=EtaEff " << PhiEff << "=PhiEff ");
+  ATH_MSG_DEBUG ( "DetectionEfficiency: Final Efficiency Values applied for "<<m_idHelper->show_to_string(*IdEtaRpcStrip)<<" are " << PhiAndEtaEff << "=PhiAndEtaEff " <<OnlyEtaEff << "=OnlyEtaEff " <<OnlyPhiEff << "=OnlyPhiEff " << GapEff << "=GapEff " << EtaEff << "=EtaEff " << PhiEff << "=PhiEff ");
 
   float rndmEff = CLHEP::RandFlat::shoot(m_rndmEngine, 1) ;
 
@@ -2387,14 +2496,18 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
     if( itr->second  < 1.   )NpanelEffLess1++   ;
     if( itr->second == 1.   )NpanelEff1++       ;
 
-    ATH_MSG_DEBUG ( "Summary Id/RPC_EfficiencyMap: " << itr->first << " "<< itr->second );
+    ATH_MSG_DEBUG ( "Summary Id/RPC_EfficiencyMap: " << itr->first <<" i.e. "
+		    <<(itr->first).get_identifier32().get_compact()<<" "
+		    <<m_idHelper->show_to_string(itr->first)<< " "<< itr->second );
   }
 
 
   ATH_MSG_DEBUG ( "Size Summary RPC_EfficiencyGapMap: " << m_rSummarySvc->RPC_EfficiencyGapMap().size() );
   for (itr=m_rSummarySvc->RPC_EfficiencyGapMap().begin(); itr!=m_rSummarySvc->RPC_EfficiencyGapMap().end(); ++itr) {
 
-    ATH_MSG_DEBUG ( "Summary Id/RPC_EfficiencyGapMap: " << itr->first << " " << itr->second );
+    ATH_MSG_DEBUG ( "Summary Id/RPC_EfficiencyGapMap: " << itr->first <<" i.e. "
+		    <<(itr->first).get_identifier32().get_compact()<<" "
+		    <<m_idHelper->show_to_string(itr->first)<< " " << itr->second );
   }
 
 
@@ -2406,21 +2519,27 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
     if( itr->second  <  2.5  )NpanelCSLess25++  ;
     if( itr->second >=  5.0  )NpanelCSMore5++   ;
 
-    ATH_MSG_DEBUG ( "Summary Id/RPC_MeanClusterSizeMap: " << itr->first << " " << itr->second );
+    ATH_MSG_DEBUG ( "Summary Id/RPC_MeanClusterSizeMap: " << itr->first <<" i.e. "
+		    <<(itr->first).get_identifier32().get_compact()<<" "
+		    <<m_idHelper->show_to_string(itr->first)<< " " << itr->second );
   }
 
 
   ATH_MSG_DEBUG ( "Size Summary RPC_FracClusterSize1Map: " << m_rSummarySvc->RPC_FracClusterSize1Map().size() );
   for (itr=m_rSummarySvc->RPC_FracClusterSize1Map().begin(); itr!=m_rSummarySvc->RPC_FracClusterSize1Map().end(); ++itr) {
 
-    ATH_MSG_DEBUG ( "Summary Id/RPC_FracClusterSize1Map: " << itr->first << " " << itr->second );
+    ATH_MSG_DEBUG ( "Summary Id/RPC_FracClusterSize1Map: " << itr->first <<" i.e. "
+		    <<(itr->first).get_identifier32().get_compact()<<" "
+		    <<m_idHelper->show_to_string(itr->first)<< " " << itr->second );
   }
 
 
   ATH_MSG_DEBUG ( "Size Summary RPC_FracClusterSize2Map: " << m_rSummarySvc->RPC_FracClusterSize2Map().size() );
   for (itr=m_rSummarySvc->RPC_FracClusterSize2Map().begin(); itr!=m_rSummarySvc->RPC_FracClusterSize2Map().end(); ++itr) {
 
-    ATH_MSG_DEBUG ( "Summary Id/RPC_FracClusterSize2Map: " << itr->first << " " << itr->second );
+    ATH_MSG_DEBUG ( "Summary Id/RPC_FracClusterSize2Map: " << itr->first <<" i.e. "
+		    <<(itr->first).get_identifier32().get_compact()<<" "
+		    <<m_idHelper->show_to_string(itr->first)<< " " << itr->second );
   }
 
 
@@ -2436,7 +2555,10 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
     else if(itrs->second.size()==64){ NpanelWith64Strip++; }
     else if(itrs->second.size()==80){ NpanelWith80Strip++; }
     else { NpanelWithXStrip++; ATH_MSG_DEBUG ( "Anomalous "<< itrs->second.size() );}
-    ATH_MSG_DEBUG ( "Summary Id/RPC_DeadStripListMap: " << itrs->first << " " << itrs->second );
+    ATH_MSG_DEBUG ( "Summary Id/RPC_DeadStripListMap: " << itrs->first << " i.e. " 
+		    <<(itrs->first).get_identifier32().get_compact()<<" "
+		    <<m_idHelper->show_to_string(itrs->first)<< " " 
+		    << itrs->second );
   }
 
 
@@ -2447,7 +2569,28 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
     if( itrf->second  < 1.   )NpanelFracDeadLess1++   ;
     if( itrf->second == 1.   )NpanelFracDead1++       ;
 
-    ATH_MSG_DEBUG ( "Summary Id/RPC_FracDeadStripMap: " << itrf->first << " " << itrf->second );
+    ATH_MSG_DEBUG ( "Summary Id/RPC_FracDeadStripMap: " << itrf->first << " i.e. " 
+		    <<(itrf->first).get_identifier32().get_compact()<<" "
+		    <<m_idHelper->show_to_string(itrf->first)<< " " 
+		    << itrf->second );
+    if (itrf->second > 0.50) {
+      if (itrf->second <= 0.75)
+	ATH_MSG_DEBUG ( "Summary Id/RPC_FracDeadStripMap: panel with fraction of dead strips >50% and <=75% " << itrf->first << " i.e. " 
+			<<(itrf->first).get_identifier32().get_compact()<<" "
+			<<m_idHelper->show_to_string(itrf->first)<< " " 
+			<< itrf->second );
+      else if (itrf->second > 0.75) {
+	if (itrf->second <= 0.90)
+	  ATH_MSG_DEBUG ( "Summary Id/RPC_FracDeadStripMap: panel with fraction of dead strips >75% and <=90% " << itrf->first << " i.e. " 
+			  <<(itrf->first).get_identifier32().get_compact()<<" "
+			  <<m_idHelper->show_to_string(itrf->first)<< " " 
+			  << itrf->second );
+	else if (itrf->second > 0.90) ATH_MSG_DEBUG ( "Summary Id/RPC_FracDeadStripMap: panel with fraction of dead strips >90% " << itrf->first << " i.e. " 
+						      <<(itrf->first).get_identifier32().get_compact()<<" "
+						      <<m_idHelper->show_to_string(itrf->first)<< " " 
+						      << itrf->second );
+      }
+    }
   }
 
 
@@ -2459,11 +2602,17 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
     if(itri->second<  10)  NpanelTrackLess10++;
     if(itri->second==  0)       NpanelTrack0++;
 
-    ATH_MSG_DEBUG ( "Summary Id/RPC_ProjectedTracksMap: " << itri->first << " " << itri->second );
+    ATH_MSG_DEBUG ( "Summary Id/RPC_ProjectedTracksMap: " << itri->first << " i.e. " 
+		    <<(itri->first).get_identifier32().get_compact()<<" "
+		    <<m_idHelper->show_to_string(itri->first)<< " " 
+		    << itri->second );
   }
   ATH_MSG_DEBUG ( "Size Summary RPC_DeadStripList: " << m_rSummarySvc->RPC_DeadStripList().size() );
   for (itri=m_rSummarySvc->RPC_DeadStripList().begin(); itri!=m_rSummarySvc->RPC_DeadStripList().end(); ++itri) {
-    ATH_MSG_DEBUG ( "Summary Id/RPC_DeadStripList: " << itri->first << " " << itri->second );
+    ATH_MSG_DEBUG ( "Summary Id/RPC_DeadStripList: " << itri->first << " i.e. " 
+		    <<(itri->first).get_identifier32().get_compact()<<" "
+		    <<m_idHelper->show_to_string(itri->first)<< " " 
+		    << itri->second );
   }
 
   ATH_MSG_INFO ( "********************SUMMARY RPC CONDITIONS********************" )	    ;

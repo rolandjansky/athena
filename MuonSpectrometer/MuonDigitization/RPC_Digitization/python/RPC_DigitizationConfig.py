@@ -34,19 +34,20 @@ def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
     kwargs.setdefault("DeadTime", 100)  
     kwargs.setdefault("PatchForRpcTime"       ,True  )	    
     # kwargs.setdefault("PatchForRpcTimeShift"  ,9.6875)  
-    kwargs.setdefault("PatchForRpcTimeShift"  ,12.5)  
-    kwargs.setdefault("turnON_efficiency"     ,True  )  
-    kwargs.setdefault("turnON_clustersize"    ,True  )  
-    kwargs.setdefault("testbeam_clustersize"  ,0     )  
-    kwargs.setdefault("ClusterSize1_2uncorr"  ,0     ) 
-    kwargs.setdefault("CutProjectedTracks"    ,50    )	    
-    kwargs.setdefault("RPCInfoFromDb"         ,True  )  
-    kwargs.setdefault("Efficiency_fromCOOL"   ,True  )
-    kwargs.setdefault("EfficiencyPatchForBMShighEta"   ,True  )   
-    kwargs.setdefault("ClusterSize_fromCOOL"  ,True  )  
-    kwargs.setdefault("DumpFromDbFirst"       ,False )  
-    kwargs.setdefault("PanelId_OFF_fromlist"  ,False )  
-    kwargs.setdefault("PanelId_OK_fromlist"   ,False ) 
+    kwargs.setdefault("PatchForRpcTimeShift"           ,12.5)  
+    kwargs.setdefault("turnON_efficiency"              ,True  )  
+    kwargs.setdefault("turnON_clustersize"             ,True  )  
+    kwargs.setdefault("testbeam_clustersize"           ,0     )  
+    kwargs.setdefault("ClusterSize1_2uncorr"           ,0     ) 
+    kwargs.setdefault("CutProjectedTracks"             ,100   ) 
+    kwargs.setdefault("RPCInfoFromDb"                  ,True  )  
+    kwargs.setdefault("Efficiency_fromCOOL"            ,True  )
+    kwargs.setdefault("EfficiencyPatchForBMShighEta"   ,False )   
+    kwargs.setdefault("ClusterSize_fromCOOL"           ,True  )  
+    kwargs.setdefault("DumpFromDbFirst"                ,False )  
+    kwargs.setdefault("PanelId_OFF_fromlist"           ,False )  
+    kwargs.setdefault("PanelId_OK_fromlist"            ,False ) 
+    kwargs.setdefault("IgnoreRunDependentConfig"       ,False ) 
  
     #Printout Eff and CS average parameters
     kwargs.setdefault("PrintCalibrationVector",False )
@@ -147,5 +148,11 @@ def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
     #kwargs.setdefault("OnlyEtaEff_C"      ,[0.030,  0.030,  0.030,  0.030,  0.030,  0.030, 0.030] ) #ref. par.s low pt plateau w.r.t. reco = 77.7%
     
     return CfgMgr.RpcDigitizationTool(name, **kwargs)
+
+def Rpc_OverlayDigitizationTool(name="RpcDigitizationTool", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
+    return RpcDigitizationTool(name, **kwargs)
+
 
 

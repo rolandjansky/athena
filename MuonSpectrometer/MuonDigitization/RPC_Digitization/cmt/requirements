@@ -11,7 +11,7 @@ use  MuonDigToolInterfaces      MuonDigToolInterfaces-*         MuonSpectrometer
 use  MuonSimData                MuonSimData-*                   MuonSpectrometer
 use  MuonSimEvent               MuonSimEvent-*                  MuonSpectrometer
 use  PileUpTools                PileUpTools-*                   Control
-    
+use  xAODEventInfo       	xAODEventInfo-*    		Event/xAOD        
 
 
 private
