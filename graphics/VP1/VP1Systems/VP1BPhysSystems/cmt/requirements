@@ -1,6 +1,7 @@
 package VP1BPhysSystems
 
 author Daniel Scheirich <Daniel.Scheirich@cern.ch>
+author R.M. BIANCHI <rbianchi@cern.ch>
 
 use AtlasPolicy           AtlasPolicy-*
 use VP1Base               VP1Base-*                graphics/VP1

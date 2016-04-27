@@ -23,16 +23,26 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Coin3D )
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Table MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
+find_package( Qt4 COMPONENTS QtCore QtOpenGL QtGui )
 
 include_directories( /usr/X11R6/include )
+
+# Generate UI files automatically:
+set( CMAKE_AUTOUIC TRUE )
+# Generate MOC files automatically:
+set( CMAKE_AUTOMOC TRUE )
+# Generate resource files automatically:
+set( CMAKE_AUTORCC TRUE )
+# to let CMake find .h files automatically-generated from .ui files
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 
 # tag ROOTSTLDictLibs was not recognized in automatic conversion in cmt2cmake
 
 # tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
 
 # Component(s) in the package:
-atlas_add_library( VP1BPhysSystems
-                   src/*.c*
+atlas_add_library( VP1BPhysSystems VP1BPhysSystems/*.h src/*.h src/*.cxx src/*.qrc  
                    PUBLIC_HEADERS VP1BPhysSystems
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${COIN3D_INCLUDE_DIRS}
