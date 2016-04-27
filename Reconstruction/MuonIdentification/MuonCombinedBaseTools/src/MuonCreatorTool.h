@@ -52,6 +52,7 @@ namespace Rec {
   class IMuonMeanMDTdADCFiller;  
   class IParticleCaloClusterAssociationTool;
   class IParticleCaloCellAssociationTool;
+  class IMuonTrackQuery;
 }
 namespace MuonCombined {
   class IMuonCombinedTagTool;
@@ -182,6 +183,7 @@ namespace MuonCombined {
     ToolHandle <ICaloNoiseTool>                   m_caloNoiseTool; 
     ToolHandle<Trk::ITrkMaterialProviderTool>     m_caloMaterialProvider;
     ToolHandle<Muon::TrackSegmentAssociationTool> m_trackSegmentAssociationTool;
+    ToolHandle<Rec::IMuonTrackQuery>              m_trackQuery;
     Rec::CaloCellCollector                        m_cellCollector;
     std::string                                   m_cellContainerName;
   };
