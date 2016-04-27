@@ -17,8 +17,8 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-#include "TrkGeometry/TrackingVolume.h"
-#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
+//#include "TrkGeometry/TrackingVolume.h"
+//#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 
 using CLHEP::GeV;
 
@@ -31,10 +31,10 @@ MuonMomentumBalanceSignificanceTool::MuonMomentumBalanceSignificanceTool
 (const std::string&      type,
  const std::string&      name, 
  const IInterface*       parent)
-  : AthAlgTool              (type, name, parent),
-    m_trackingVolumesSvc    ("TrackingVolumesSvc/TrackingVolumesSvc",name),
-    m_calorimeterVolume     (0),
-    m_indetVolume           (0)
+  : AthAlgTool              (type, name, parent)
+    //m_trackingVolumesSvc    ("TrackingVolumesSvc/TrackingVolumesSvc",name),
+    //m_calorimeterVolume     (0),
+    //m_indetVolume           (0)
 
 {
   declareInterface<IMuonMomentumBalanceSignificance>(this);
@@ -47,8 +47,9 @@ MuonMomentumBalanceSignificanceTool::~MuonMomentumBalanceSignificanceTool (void)
 StatusCode MuonMomentumBalanceSignificanceTool::initialize()
 {
   ATH_MSG_INFO( "Initializing MuonMomentumBalanceSignificanceTool - package version " << PACKAGE_VERSION );
-
+  /*
   // need to know which TrackingVolume we are in: indet/calo/spectrometer
+  // no we don't, these aren't used any more
   if (m_trackingVolumesSvc.retrieve().isFailure()) {
     ATH_MSG_FATAL( "Failed to retrieve Svc " << m_trackingVolumesSvc );
     return StatusCode::FAILURE;
@@ -59,7 +60,7 @@ StatusCode MuonMomentumBalanceSignificanceTool::initialize()
     m_indetVolume           =
       new Trk::Volume(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::CalorimeterEntryLayer));
   }
-
+  */
   return StatusCode::SUCCESS;
 }
 

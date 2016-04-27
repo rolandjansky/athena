@@ -16,10 +16,12 @@
 #include "MuonCombinedToolInterfaces/IMuonMomentumBalanceSignificance.h"
 
 // class IIncidentSvc;
+/*
 namespace Trk {
   class ITrackingVolumesSvc;
   class Volume;
 }
+*/
 
 namespace Rec
 {
@@ -50,11 +52,11 @@ namespace Rec
   private:
 
     // tools and services
-    ServiceHandle<Trk::ITrackingVolumesSvc>  m_trackingVolumesSvc; //!< geometry for analysing track lengths
+    //ServiceHandle<Trk::ITrackingVolumesSvc>  m_trackingVolumesSvc; //!< geometry for analysing track lengths
 
     // constants 
-    const Trk::Volume*                  m_calorimeterVolume; //!< cache the calo volume pointer
-    const Trk::Volume*                  m_indetVolume;       //!< cache the ID volume pointer
+    //const Trk::Volume*                  m_calorimeterVolume; //!< cache the calo volume pointer
+    //const Trk::Volume*                  m_indetVolume;       //!< cache the ID volume pointer
 
   };
  
