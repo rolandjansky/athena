@@ -335,7 +335,7 @@ LArWave LArWaveHelper::subSample(const LArWave& theWave,unsigned Nfirst,unsigned
 {
   unsigned length = theWave.getSize() ;
   if ( length <= 0 ) return LArWave() ;
-  unsigned Nsamp = (int)ceil( (length-Nfirst)/deltaN ) ;
+  unsigned Nsamp = (length-Nfirst + (deltaN-1)) / deltaN ;
   LArWave w( Nsamp , deltaN*theWave.getDt() ) ;
   for (unsigned i=0;i<Nsamp;i++) {
     unsigned j = Nfirst + i * deltaN ;
