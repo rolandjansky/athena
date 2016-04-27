@@ -1,0 +1,21 @@
+// Author: Miguel Angel Olivo Gomez   7/12/06
+
+TrackProperties
+
+Stand-alone ROOT application that produces TH1's and TH2's of 
+track properties, plots them and stores them in a root file 
+(histTrkProp.root) for further analysis.
+This application reads a rootFile and gets an ntuple or tree 
+(e.g. ValidationNtuple written by the BasicValidationNtupleTool 
+from /Tracking/TrkValidation/TrkValTools) contained in a directory.
+
+
+compile in ROOT with:
+
+.L TH1TrkProp.cxx++
+.L TH2TrkProp.cxx++
+.L createTrkProp.cxx++
+
+run in ROOT:
+
+createTrkProp()

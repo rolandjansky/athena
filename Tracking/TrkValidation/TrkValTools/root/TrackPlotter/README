@@ -1,0 +1,18 @@
+TrackPlotter
+
+Stand-alone ROOT application to plot tracks.
+This application runs on the ValidationNtuple written by the
+BasicValidationNtupleTool (from Tracking/TrkValidation/TrkValTools)
+resp. TrackValidationNtupleWriter (from Tracking/TrkValidation/TrkValAlgs).
+
+compile this tool by:
+make trackplotter
+
+to run:
+./trackplotter
+or 
+./trackplotter TrkValidation.root
+
+This tool needs a correctly set up ROOT installation.
+If you get the message "cannot run in batch mode", please make sure
+you have a valid X11 connection.
