@@ -97,6 +97,7 @@ CaloCell_ID* make_helper ()
   LArHEC_ID*  hec_id  = new LArHEC_ID;
   LArFCAL_ID* fcal_id = new LArFCAL_ID;
   LArMiniFCAL_ID* minifcal_id = new LArMiniFCAL_ID;
+  HGTD_ID* hgtd_id = new HGTD_ID;
 
   IdDictParser* parser = new IdDictParser;
   parser->register_external_entity ("LArCalorimeter",
@@ -111,12 +112,14 @@ CaloCell_ID* make_helper ()
   minifcal_id->initialize_from_dictionary (idd);
   tile_id->set_do_neighbours (false);
   tile_id->initialize_from_dictionary (idd);
+  hgtd_id->initialize_from_dictionary (idd);
 
   CaloCell_ID* calo_helper = new CaloCell_ID (em_id,
                                               hec_id,
                                               fcal_id,
                                               minifcal_id,
-                                              tile_id);
+                                              tile_id,
+					      hgtd_id);
   calo_helper->initialize_from_dictionary (idd);
   return calo_helper;
 }
@@ -129,6 +132,7 @@ CaloCell_SuperCell_ID* make_sc_helper ()
   LArHEC_SuperCell_ID*  hec_id  = new LArHEC_SuperCell_ID;
   LArFCAL_SuperCell_ID* fcal_id = new LArFCAL_SuperCell_ID;
   LArMiniFCAL_ID*       minifcal_id = new LArMiniFCAL_ID;
+  HGTD_ID*              hgtd_id = new HGTD_ID;
 
   IdDictParser* parser = new IdDictParser;
   parser->register_external_entity ("LArCalorimeter",
@@ -143,13 +147,15 @@ CaloCell_SuperCell_ID* make_sc_helper ()
   minifcal_id->initialize_from_dictionary (idd);
   tile_id->set_do_neighbours (false);
   tile_id->initialize_from_dictionary (idd);
+  hgtd_id->initialize_from_dictionary (idd);
 
   CaloCell_SuperCell_ID* calo_helper =
     new CaloCell_SuperCell_ID (em_id,
                                hec_id,
                                fcal_id,
                                minifcal_id,
-                               tile_id);
+                               tile_id,
+			       hgtd_id);
   calo_helper->initialize_from_dictionary (idd);
   return calo_helper;
 }
