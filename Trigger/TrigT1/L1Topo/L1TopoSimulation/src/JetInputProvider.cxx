@@ -58,7 +58,7 @@ JetInputProvider::handle(const Incident& incident) {
    m_hPt2 = new TH1I( "TOBPt2", "Jet TOB Pt 2", 40, 0, 200);
    m_hPt2->SetXTitle("p_{T}");
 
-   m_hEtaPhi = new TH2I( "TOBPhiEta", "Jet TOB Location", 25, -50, 50, 32, -32, 32);
+   m_hEtaPhi = new TH2I( "TOBPhiEta", "Jet TOB Location", 25, -50, 50, 64, 0, 64);
    m_hEtaPhi->SetXTitle("#eta");
    m_hEtaPhi->SetYTitle("#phi");
 

@@ -59,13 +59,13 @@ EMTauInputProvider::handle(const Incident& incident) {
 
    m_hEMEt = new TH1I( "EMTOBEt", "EM TOB Et", 40, 0, 200);
    m_hEMEt->SetXTitle("E_{T}");
-   m_hEMEtaPhi = new TH2I( "EMTOBPhiEta", "EM TOB Location", 25, -50, 50, 32, -32, 32);
+   m_hEMEtaPhi = new TH2I( "EMTOBPhiEta", "EM TOB Location", 25, -50, 50, 64, 0, 64);
    m_hEMEtaPhi->SetXTitle("#eta");
    m_hEMEtaPhi->SetYTitle("#phi");
 
    m_hTauEt = new TH1I( "TauTOBEt", "Tau TOB Et", 40, 0, 200);
    m_hTauEt->SetXTitle("E_{T}");
-   m_hTauEtaPhi = new TH2I( "TauTOBPhiEta", "Tau TOB Location", 25, -50, 50, 32, -32, 32);
+   m_hTauEtaPhi = new TH2I( "TauTOBPhiEta", "Tau TOB Location", 25, -50, 50, 64, 0, 64);
    m_hTauEtaPhi->SetXTitle("#eta");
    m_hTauEtaPhi->SetYTitle("#phi");
 
