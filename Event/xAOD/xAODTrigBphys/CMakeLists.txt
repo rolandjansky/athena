@@ -31,3 +31,4 @@ atlas_add_dictionary( xAODTrigBphysDict
                       LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore xAODTracking AthLinks xAODTrigBphys
                       EXTRA_FILES Root/dict/*.cxx )
 
+

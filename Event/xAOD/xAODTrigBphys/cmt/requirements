@@ -26,3 +26,5 @@ use AthLinks                AthLinks-*                Control
 apply_pattern lcgdict dict=xAODTrigBphys selectionfile=selection.xml \
                       headerfiles="../xAODTrigBphys/xAODTrigBphysDict.h" \
                       extralibfiles=../Root/dict/*.cxx
+
+apply_pattern do_genCLIDDB library=xAODTrigBphys
