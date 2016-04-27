@@ -17,28 +17,28 @@ class CavernPropertyCalculator(object):
     EmaxDict = {'slice1':  100.*1000., # 100 GeV
                 'slice2':  300.*1000., # 300 GeV
                 'slice3': 1000.*1000., #   1 TeV
-                'slice4': 1000.*1000., #   5 TeV
-                'NONE': 100.*1000. }
+                'slice4': 5000.*1000., #   5 TeV
+                'NONE': 5000.*1000. }
     xvert_lowDict = {'slice1':  -1000.*200., # 200 m
                      'slice2':  -1000.*600., # 600 m
                      'slice3': -1000.*1000., #   1 km
                      'slice4': -1000.*3000., #   3 km
-                     'NONE':  -301700. }
+                     'NONE':  -200000. }
     xvert_highDict = {'slice1':  1000.*200., # 200 m
                       'slice2':  1000.*600., # 600 m
                       'slice3': 1000.*1000., #   1 km
                       'slice4': 1000.*3000., #   3 km
-                      'NONE': 298300. }
+                      'NONE': 200000. }
     zvert_lowDict = {'slice1':  -1000.*200., # 200 m
                      'slice2':  -1000.*600., # 600 m
                      'slice3': -1000.*1000., #   1 km
                      'slice4': -1000.*3000., #   3 km
-                     'NONE': -300000. }
+                     'NONE': -200000. }
     zvert_highDict = {'slice1':  1000.*200., # 200 m
                       'slice2':  1000.*600., # 600 m
                       'slice3': 1000.*1000., #   1 km
                       'slice4': 1000.*3000., #   3 km
-                      'NONE': 300000. }
+                      'NONE': 200000. }
 
     def recalculate(self):
         from G4AtlasApps.SimFlags import simFlags
@@ -54,8 +54,8 @@ class CavernPropertyCalculator(object):
         else:
             n_value = simFlags.CosmicPtSlice.get_Value()
             self.xvert_low  = self.xvert_lowDict[n_value]
-            self.xvert_high = self.zvert_lowDict[n_value]
-            self.zvert_low  = self.xvert_highDict[n_value]
+            self.xvert_high = self.xvert_highDict[n_value]
+            self.zvert_low  = self.zvert_lowDict[n_value]
             self.zvert_high = self.zvert_highDict[n_value]
             #self.radius     =
             self.emin       = self.EminDict[n_value]
@@ -205,7 +205,7 @@ def getInput_GenericCosmicGenerator(name="GenericCosmicGenerator", **kwargs):
         kwargs.setdefault('doReweighting', True)           # Whether to use reweighting for cosmic ray generation
         kwargs.setdefault('rvert_max', 300000.)            # - radius in mm for generating primary vertex
 
-    if simFlags.CosmicPtSlice.statusOn:
+    if simFlags.CosmicPtSlice.statusOn and simFlags.CosmicPtSlice() is not 'NONE':
         print "Configuring cosmic pT slice: %s" % simFlags.CosmicPtSlice.get_Value()
         theCavern.reconfigureCavernGeometry()
 
