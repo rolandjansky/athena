@@ -1,6 +1,8 @@
 package VP1LegoSystems
 
 author Joe Boudreau <boudreau@pitt.edu>
+manager Riccardo Maria BIANCHI <rbianchi@cern.ch>
+
 
 use AtlasPolicy          AtlasPolicy-*
 use VP1Base              VP1Base-*              graphics/VP1
