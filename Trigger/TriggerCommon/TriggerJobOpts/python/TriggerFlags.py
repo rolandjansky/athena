@@ -253,6 +253,14 @@ class doCalo(JobProperty):
 
 _flags.append(doCalo)
 
+class doCaloOffsetCorrection(JobProperty):
+    """ enable Calo pileup offset BCID correction """
+    statusOn=True
+    allowedType=['bool']
+    StoredValue=True
+
+_flags.append(doCaloOffsetCorrection)
+
 class doBcm(JobProperty):
     """ if False, disable BCM algorithms at LVL2 & EF """
     statusOn=True

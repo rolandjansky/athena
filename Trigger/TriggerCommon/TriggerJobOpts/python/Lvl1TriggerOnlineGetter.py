@@ -64,6 +64,24 @@ class Lvl1SimulationGetter (Configured):
                 topSequence += L1TopoSimulation()
                 topSequence.L1TopoSimulation.OutputLevel = DEBUG
 
+                try: # this is temporary until TrigT1Muctpi-00-06-29 is in the release
+                    from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+                    from AthenaCommon.AppMgr import ToolSvc
+                    ToolSvc += L1MuctpiTool()
+                    topSequence.L1TopoSimulation.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
+                except ImportError:
+                    pass
+
+                # enable the reduced (coarse) granularity topo simulation
+                # currently only for MC
+                from AthenaCommon.GlobalFlags  import globalflags
+                if globalflags.DataSource()!='data':
+                    log.info("Muon eta/phi encoding with reduced granularity for MC (L1 Simulation)")
+                    topSequence.L1TopoSimulation.MuonInputProvider.MuonEncoding = 1
+                else:
+                    log.info("Muon eta/phi encoding with full granularity for data (L1 Simulation) - should be faced out")
+                    topSequence.L1TopoSimulation.MuonInputProvider.MuonEncoding = 1
+
             log.info("adding ctp simulation to the topSequence")
             topSequence += CTPSimulation("CTPSimulation")
             
