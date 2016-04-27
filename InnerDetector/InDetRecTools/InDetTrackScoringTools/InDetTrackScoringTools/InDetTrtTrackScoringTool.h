@@ -82,12 +82,14 @@ private:
 
   
   /** cuts for selecting good tracks*/
-  int    m_minTRTonTrk;   //!< minimum number of TRT hits
-  double m_maxEta;        //!< maximal Eta cut
-  bool m_fieldOn;         //!< do we have field on ?
-  double m_ptmin;         //!< Minimum Pt
+  int    m_minTRTonTrk;      //!< minimum number of TRT hits
+  double m_maxEta;           //!< maximal Eta cut
+  bool   m_fieldOn;          //!< do we have field on ?
+  double m_ptmin;            //!< Minimum Pt
   bool   m_parameterization; //!< use parameterization to cut instead of custom cut  
-  bool   m_oldLogic;      //!< use old transition hit logic
+  bool   m_oldLogic;         //!< use old transition hit logic
+  double m_minTRTprecision;  //!< minimum fraction of TRT precision hits
+
 };
 
 
