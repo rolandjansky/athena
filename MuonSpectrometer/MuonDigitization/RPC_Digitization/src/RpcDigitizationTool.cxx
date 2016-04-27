@@ -401,40 +401,44 @@ StatusCode RpcDigitizationTool::prepareEvent(unsigned int) {
 }
 
 //--------------------------------------------
-StatusCode RpcDigitizationTool::processBunchXing(int /*bunchXing*/,
-					    PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-					    PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
-
+StatusCode RpcDigitizationTool::processBunchXing(int bunchXing,
+                                                 SubEventIterator bSubEvents,
+                                                 SubEventIterator eSubEvents)
+{
   ATH_MSG_DEBUG ( "RpcDigitizationTool::in processBunchXing()" );
 
-  PileUpEventInfo::SubEvent::const_iterator iEvt(bSubEvents);
-  while (iEvt != eSubEvents) {
-    StoreGateSvc& seStore(*iEvt->pSubEvtSG);
-    //John's Hacks START
+  SubEventIterator iEvt = bSubEvents;
+  while(iEvt!=eSubEvents)
+    {
+      StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
+      PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
+      ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"
+                      << " bunch crossing : " << bunchXing
+                      << " time offset : " << iEvt->time()
+                      << " event number : " << iEvt->ptr()->eventNumber()
+                      << " run number : " << iEvt->ptr()->runNumber());
+      const RPCSimHitCollection* seHitColl(nullptr);
+      if (!seStore.retrieve(seHitColl,m_inputHitCollectionName).isSuccess())
+        {
+          ATH_MSG_ERROR ("SubEvent RPCSimHitCollection not found in StoreGate " << seStore.name());
+          return StatusCode::FAILURE;
+        }
+      ATH_MSG_VERBOSE ("RPCSimHitCollection found with " << seHitColl->size() << " hits");
+      //Copy Hit Collection
+      RPCSimHitCollection* RPCHitColl = new RPCSimHitCollection("RPC_Hits");
+      RPCSimHitCollection::const_iterator i = seHitColl->begin();
+      RPCSimHitCollection::const_iterator e = seHitColl->end();
+      // Read hits from this collection
+      for (; i!=e; ++i)
+        {
+          RPCHitColl->Emplace(*i);
+        }
+      m_thpcRPC->insert(thisEventIndex, RPCHitColl);
+      //store these for deletion at the end of mergeEvent
+      m_RPCHitCollList.push_back(RPCHitColl);
 
-    PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
-    const RPCSimHitCollection* seHitColl = 0;
-    if (!seStore.retrieve(seHitColl,m_inputHitCollectionName).isSuccess()) {
-      ATH_MSG_ERROR ("SubEvent RPCSimHitCollection not found in StoreGate " << seStore.name());
-      return StatusCode::FAILURE;
+      ++iEvt;
     }
-    ATH_MSG_VERBOSE ("RPCSimHitCollection found with " << seHitColl->size() << " hits");
-    //Copy Hit Collection
-    RPCSimHitCollection* RPCHitColl = new RPCSimHitCollection("RPC_Hits");
-    RPCSimHitCollection::const_iterator i = seHitColl->begin();
-    RPCSimHitCollection::const_iterator e = seHitColl->end();
-    // Read hits from this collection
-    for (; i!=e; ++i) {
-      RPCHitColl->Emplace(*i);
-    }
-    m_thpcRPC->insert(thisEventIndex, RPCHitColl);
-    //m_thpcRPC->insert(iEvt->time(), RPCHitColl);
-    //store these for deletion at the end of mergeEvent
-    m_RPCHitCollList.push_back(RPCHitColl);
-    //John's Hacks END
-
-    ++iEvt;
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -642,6 +646,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
       Identifier channelId;
       std::vector<MuonSimData::Deposit> deposits;
       Amg::Vector3D gpos;
+      float simTime;
     };
     std::map<Identifier,SimDataContent> channelSimDataMap; 
 
@@ -806,6 +811,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
             content.channelId = atlasId;
             content.deposits.push_back(deposit);
             content.gpos = intersection.position;
+            content.simTime = hit.globalTime();
             ATH_MSG_VERBOSE("adding SDO entry: r " << content.gpos.perp() << " z " << content.gpos.z() );
           }
         }
@@ -868,6 +874,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
         
         MuonSimData simData(it->second.deposits,0);
         simData.setPosition(it->second.gpos);
+        simData.setTime(it->second.simTime);
         auto insertResult = m_sdoContainer->insert(std::make_pair( it->first,simData) );
         if (!insertResult.second) ATH_MSG_ERROR ( "Attention: this sdo is not recorded, since the identifier already exists in the m_sdoContainer map" );
       }
