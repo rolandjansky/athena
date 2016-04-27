@@ -20,6 +20,7 @@
 #include "TrkValTools/GenParticleJetFinder.h"
 #include "TrkValTools/EventPropertyNtupleTool.h"
 #include "TrkValTools/EventToTrackLinkNtupleTool.h"
+#include "TrkValTools/TrkObserverTool.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 // using namespace Trk;
@@ -46,6 +47,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( Trk, GenParticleJetFinder )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trk, JetTruthNtupleTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trk, EventPropertyNtupleTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trk, EventToTrackLinkNtupleTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( Trk, TrkObserverTool )
 
 DECLARE_FACTORY_ENTRIES(TrkValTools)
 { // in this package name these methods are registered
@@ -71,5 +73,6 @@ DECLARE_FACTORY_ENTRIES(TrkValTools)
   DECLARE_NAMESPACE_TOOL(Trk, JetTruthNtupleTool )
   DECLARE_NAMESPACE_TOOL(Trk, EventPropertyNtupleTool )
   DECLARE_NAMESPACE_TOOL(Trk, EventToTrackLinkNtupleTool )
+  DECLARE_NAMESPACE_TOOL(Trk, TrkObserverTool)
 }
 

@@ -14,13 +14,14 @@ use TrkValEvent             TrkValEvent-*               Tracking/TrkValidation
 use DataModel               DataModel-*                 Control
 use AtlasHepMC              AtlasHepMC-*                External
 use HepPDT                  v*                          LCG_Interfaces
-
+use SGTools                 SGTools-*                   Control	
+use xAODTracking            xAODTracking-*              Event/xAOD
+use TrkToolInterfaces       TrkToolInterfaces-*         Tracking/TrkTools
 private
 use AtlasCLHEP              AtlasCLHEP-*                External
 use AtlasROOT               AtlasROOT-*                 External
 use AtlasDetDescr           AtlasDetDescr-*             DetectorDescription
 use EventPrimitives         EventPrimitives-*           Event
-use TrkToolInterfaces       TrkToolInterfaces-*         Tracking/TrkTools
 use TrkFitterUtils          TrkFitterUtils-*            Tracking/TrkFitter
 use TrkEventUtils           TrkEventUtils-*             Tracking/TrkEvent
 use TrkMaterialOnTrack      TrkMaterialOnTrack-*        Tracking/TrkEvent
