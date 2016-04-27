@@ -20,7 +20,6 @@
 #include "MuonCombinedToolInterfaces/IMuonPrintingTool.h"
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
-#include "TrkParameters/TrackParameters.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCreatorTool.h"
@@ -66,6 +65,8 @@
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 
+#include "MuidInterfaces/IMuonTrackQuery.h"
+
 #include "TrackSegmentAssociationTool.h"
 
 #include "xAODTruth/TruthEventContainer.h"
@@ -94,7 +95,8 @@ namespace MuonCombined {
     m_meanMDTdADCTool("Rec::MuonMeanMDTdADCFillerTool/MuonMeanMDTdADCFillerTool"),
     m_caloNoiseTool(""),
     m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool"),
-    m_trackSegmentAssociationTool("Muon::TrackSegmentAssociationTool/TrackSegmentAssociationTool")
+    m_trackSegmentAssociationTool("Muon::TrackSegmentAssociationTool/TrackSegmentAssociationTool"),
+    m_trackQuery("Rec::MuonTrackQuery/MuonTrackQuery")
   {
     declareInterface<IMuonCreatorTool>(this);
     declareProperty("MakeTrackAtMSLink",m_makeMSPreExtrapLink=false);
@@ -146,6 +148,7 @@ namespace MuonCombined {
     ATH_CHECK(m_muonDressingTool.retrieve());
     ATH_CHECK(m_muonSegmentConverterTool.retrieve());
     ATH_CHECK(m_trackSegmentAssociationTool.retrieve());
+    ATH_CHECK(m_trackQuery.retrieve());
     if(!m_momentumBalanceTool.empty()) ATH_CHECK(m_momentumBalanceTool.retrieve());
     if(!m_scatteringAngleTool.empty()) ATH_CHECK(m_scatteringAngleTool.retrieve());   
     if(!m_selectorTool.empty()) ATH_CHECK(m_selectorTool.retrieve());
@@ -269,8 +272,8 @@ namespace MuonCombined {
     if(tags.size()==1 && !m_buildStauContainer){
       const MuGirlLowBetaTag* muGirlLowBetaTag = dynamic_cast<const MuGirlLowBetaTag*>(tags[0]);
       if (muGirlLowBetaTag){
-	ATH_MSG_DEBUG("Track has only a MuGirlLowBetaTag but Staus are not being built, so will not create muon");
-	return 0;
+        ATH_MSG_DEBUG("Track has only a MuGirlLowBetaTag but Staus are not being built, so will not create muon");
+        return 0;
       }
     }
     
@@ -289,6 +292,14 @@ namespace MuonCombined {
     
     ATH_MSG_DEBUG("creating Muon with " << tags.size() << " tags ");
     // loop over the tags
+    
+    // Set variables to zero by calling the functions with null pointers.
+    addCaloTag(*muon,0);
+    addCombinedFit(*muon,0, outputData );
+    addStatisticalCombination(*muon,candidate,0, outputData );
+    addMuGirl(*muon,0, outputData );  
+    addSegmentTag(*muon,0);
+    
     bool first = true;
     for( auto tag : tags ){
 
@@ -360,8 +371,7 @@ namespace MuonCombined {
           
           addCombinedFit(*muon,cbFitTag, outputData );
           addStatisticalCombination(*muon,candidate,stacoTag, outputData );
-          addMuGirl(*muon,muGirlTag, outputData );
-          
+          addMuGirl(*muon,muGirlTag, outputData );          
           if (! (cbFitTag||stacoTag||muGirlTag) ) {
             ATH_MSG_WARNING("Unknown combined tag ");
           }
@@ -715,7 +725,6 @@ namespace MuonCombined {
   }
 
   void MuonCreatorTool::addCaloTag( xAOD::Muon& mu, const CaloTag* tag ) const {
-    ATH_MSG_DEBUG("Adding Calo Muon  " << tag->author() << " type " << tag->type());
     
     if (!tag){
       // init variables if necessary.
@@ -732,6 +741,8 @@ namespace MuonCombined {
       return; 
     }
     
+    ATH_MSG_DEBUG("Adding Calo Muon  " << tag->author() << " type " << tag->type());
+
     //if (!m_haveAddedCaloInformation){
     //mu.setParameter(static_cast<float>( tag->fsrCandidateEnergy() ), xAOD::Muon::FSR_CandidateEnergy);
     //std::cout<<"EJWM Adding Calo muon with elt="<<tag->energyLossType()<<std::endl;
@@ -823,7 +834,6 @@ namespace MuonCombined {
     // }
     muon.setTrackParticleLink(xAOD::Muon::MuonSpectrometerTrackParticle, candidate.muonSpectrometerTrackLink() );
     
-
     // we need both the container and the extrapolated muon track to add the link
     if( !outputData.extrapolatedTrackParticleContainer || (!candidate.extrapolatedTrack() && !updatedExtrapolatedTrack) ) {
       delete updatedExtrapolatedTrack;
@@ -832,12 +842,46 @@ namespace MuonCombined {
     
     // now a bit of nasty logic to ensure the extrapolated track of the candidate is always released so the candidate is flagged as 'used'
     const Trk::Track* extrapolatedTrack = const_cast<MuonCandidate&>(candidate).releaseExtrapolatedTrack();
+
+    if (! extrapolatedTrack || !extrapolatedTrack->perigeeParameters()) {
+      ATH_MSG_DEBUG("Something is wrong with this track.");
+      if (!extrapolatedTrack) 
+        ATH_MSG_WARNING("Track doesn't have extrapolated track. Skipping");
+      if (extrapolatedTrack && !extrapolatedTrack->perigeeParameters()) 
+        ATH_MSG_WARNING("Track doesn't have perigee parameters on extrapolated track. Skipping");
+      ATH_MSG_DEBUG("Set values to -999.0.");
+      muon.setParameter( (float)-999.0, xAOD::Muon::d0_sa);
+      muon.setParameter( (float)-999.0, xAOD::Muon::z0_sa);
+      muon.setParameter( (float)-999.0, xAOD::Muon::phi0_sa);
+      muon.setParameter( (float)-999.0, xAOD::Muon::theta_sa);
+      muon.setParameter( (float)-999.0, xAOD::Muon::qOverP_sa);
+      muon.setParameter( (float)-999.0, xAOD::Muon::Eloss_sa);
+    } else {
+      //add the perigee parameters for the original extrapolated track
+      float d0_sa=extrapolatedTrack->perigeeParameters()->parameters()[Trk::d0];
+      muon.setParameter(d0_sa, xAOD::Muon::d0_sa);
+      float z0_sa=extrapolatedTrack->perigeeParameters()->parameters()[Trk::z0];
+      muon.setParameter(z0_sa, xAOD::Muon::z0_sa);
+      float phi0_sa=extrapolatedTrack->perigeeParameters()->parameters()[Trk::phi0];
+      muon.setParameter(phi0_sa, xAOD::Muon::phi0_sa);
+      float theta_sa=extrapolatedTrack->perigeeParameters()->parameters()[Trk::theta];
+      muon.setParameter(theta_sa, xAOD::Muon::theta_sa);
+      float qOverP_sa=extrapolatedTrack->perigeeParameters()->parameters()[Trk::qOverP];
+      muon.setParameter(qOverP_sa, xAOD::Muon::qOverP_sa);
+      if(muon.author()==xAOD::Muon::MuidCo){ //only want this for combined tracks when there could have been a refit
+	const CaloEnergy* caloEnergy = m_trackQuery->caloEnergy(*extrapolatedTrack);
+	if(caloEnergy){
+	  float Eloss_sa=caloEnergy->deltaE();
+	  muon.setParameter(Eloss_sa, xAOD::Muon::Eloss_sa);
+	}
+      }
+    }
     if( updatedExtrapolatedTrack ){
       delete extrapolatedTrack; // delete to avoid leak
       extrapolatedTrack = updatedExtrapolatedTrack;
     }
 
-    // create element link from the track, const_cast for now until we sort out the constness of the MuonCanidates
+    // create element link from the track, const_cast for now until we sort out the constness of the MuonCandidates
     ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
 										     *outputData.extrapolatedTrackParticleContainer,
 										     outputData.extrapolatedTrackCollection );
@@ -1119,9 +1163,22 @@ namespace MuonCombined {
         }
       }
     }else{
-      ATH_MSG_ERROR("No primary track particle set, deleting muon");
+      ATH_MSG_WARNING("No primary track particle set, deleting muon");
       return false;
     }
+
+    //set original extrapolated muon parameters to 0 if not already set (for MuGirl, segment-tagged, and calo-tagged)
+    if(muon.author()>2 && muon.author()!=5){ //needed for muons not combined, sa, or staco, for which addMuonCandidate isn't called
+      ATH_MSG_DEBUG("set parameters to 0");
+      float val=0;
+      muon.setParameter(val, xAOD::Muon::d0_sa);
+      muon.setParameter(val, xAOD::Muon::z0_sa);
+      muon.setParameter(val, xAOD::Muon::phi0_sa);
+      muon.setParameter(val, xAOD::Muon::theta_sa);
+      muon.setParameter(val, xAOD::Muon::qOverP_sa);
+      muon.setParameter(val, xAOD::Muon::Eloss_sa);
+    }
+    //else ATH_MSG_DEBUG("found d0_sa: "<<d0test);
     
     // add hit summary
     m_muonDressingTool->addMuonHitSummary(muon);
