@@ -1119,14 +1119,14 @@ namespace MuonCombined {
         }
       }
     }else{
-      if ( muon.muonType() == xAOD::Muon::Combined && muon.inDetTrackParticleLink().isValid() ){
-         const xAOD::TrackParticle* muontpID = muon.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
-         if (!muon.combinedTrackParticleLink().isValid() && muontpID && muontpID->pt() < 3000.){
-             ATH_MSG_WARNING("No primary track particle set, deleting muon");
-             return false;
-         }
-      }
-      ATH_MSG_ERROR("No primary track particle set, deleting muon");
+//      if ( muon.muonType() == xAOD::Muon::Combined && muon.inDetTrackParticleLink().isValid() ){
+//         const xAOD::TrackParticle* muontpID = muon.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
+//         if (!muon.combinedTrackParticleLink().isValid() && muontpID && muontpID->pt() < 3000.){
+//             ATH_MSG_WARNING("No primary track particle set, deleting muon");
+//             return false;
+//         }
+//      }
+      ATH_MSG_WARNING("No primary track particle set, deleting muon");
       return false;
     }
     
