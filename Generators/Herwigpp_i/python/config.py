@@ -15,12 +15,11 @@ set /Herwig/Shower/Evolver:IntrinsicPtGaussian %f*GeV
 
 ## Make PDF object
 def mkpdf_cmds(setname, localname):
-    """Create a named PDF as requested by arg e.g. pass 'MRST07lomod.LHgrid' for LO*,
+    """Create a named PDF as requested by arg e.g. pass 'MMHT2014lo68cl.LHpdf' for MMHT2014 LO,
     'MRSTMCal.LHgrid' to get MRST LO**, 'cteq6ll.LHpdf' to get the MC08 LO PDF, ..."""
     cmds = ""
     cmds += "## Create PDF set\n"
     cmds += "create ThePEG::LHAPDF /Herwig/Partons/%s ThePEGLHAPDF.so\n" % localname
-    cmds += "set /Herwig/Partons/%s:VerboseLevel 1\n" % localname
     cmds += "set /Herwig/Partons/%s:PDFName %s\n" % (localname, setname)
     cmds += "set /Herwig/Partons/%s:RemnantHandler /Herwig/Partons/HadronRemnants\n" % localname
     return cmds
@@ -45,9 +44,11 @@ def lo_pdf_cmds(lo_setname):
     """Set LO PDF as requested by arg, defaulting to current production PDF."""
     cmds = pdf_cmds(lo_setname, "LO")
     cmds += "\n"
-    cmds += "## Set PDF explicitly for MPI.\n"
+    cmds += "## Set PDF explicitly for MPI and shower.\n"
     cmds += "set /Herwig/Partons/MPIExtractor:FirstPDF  /Herwig/Partons/AtlasPDFsetLO\n"
     cmds += "set /Herwig/Partons/MPIExtractor:SecondPDF /Herwig/Partons/AtlasPDFsetLO\n"
+    cmds += "set /Herwig/Shower/ShowerHandler:PDFA /Herwig/Partons/AtlasPDFsetLO\n"
+    cmds += "set /Herwig/Shower/ShowerHandler:PDFB /Herwig/Partons/AtlasPDFsetLO\n"
     cmds += "\n"
     return cmds 
 
@@ -224,6 +225,8 @@ def ue_tune_cmds(tune_name):
         cmds = ue_cmds(3.91, 0.33, 2.30, 0.80, preco=0.49)
     elif tune_name == "UE-EE-5-LO**":
         cmds = ue_cmds(4.620, 0.314, 2.240, 0.860, preco=0.420)
+    elif tune_name == "H7-UE-MMHT":
+        cmds = ue_cmds(4.39, 0.366, 2.30, 0.798, preco=0.4276)
     else:
         raise Exception("Tune name '%s' unknown" % tune_name)
 
@@ -267,9 +270,6 @@ set /Herwig/Shower/KinematicsReconstructor:InitialInitialBoostOption LongTransBo
 create ThePEG::FixedCMSLuminosity /Herwig/Generators/FCMSLuminosity
 set /Herwig/EventHandlers/LHEHandler:LuminosityFunction /Herwig/Generators/FCMSLuminosity
 
-## According to H++ authors, without the following line the decay of heavy particles is
-## delayed until after the showering, which usually goes wrong somewhere.
-insert /Herwig/EventHandlers/LHEHandler:PreCascadeHandlers 0 /Herwig/NewPhysics/DecayHandler
 # Turn on QED radiation
 insert /Herwig/EventHandlers/LHEHandler:PostSubProcessHandlers[0] /Herwig/QEDRadiation/QEDRadiationHandler
 
@@ -513,9 +513,6 @@ cd /Herwig/EventHandlers
 ########################################################### 
 # A couple of commands from lhef_cmds which may be useful # 
 ########################################################### 
-## According to H++ authors, without the following line the decay of heavy particles is
-## delayed until after the showering, which usually goes wrong somewhere.
-insert /Herwig/EventHandlers/theLesHouchesHandler:PreCascadeHandlers 0 /Herwig/NewPhysics/DecayHandler
 #Include spin effects
 set /Herwig/EventHandlers/theLHReader:IncludeSpin Yes
 #Turn on QED radiation
@@ -705,10 +702,6 @@ def powheg_cmds():
 
 ## Set up Powheg truncated shower
 set /Herwig/Shower/Evolver:HardEmissionMode POWHEG
-
-## Use 2-loop alpha_s
-create Herwig::O2AlphaS /Herwig/AlphaQCD_O2
-set /Herwig/Generators/LHCGenerator:StandardModelParameters:QCD/RunningAlphaS /Herwig/AlphaQCD_O2
 
 """
 
