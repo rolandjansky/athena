@@ -31,3 +31,5 @@ apply_pattern lcgdict dict=xAODTrigMissingET selectionfile=selection.xml \
 #use TestPolicy                  TestPolicy-*
 #use TestTools                  TestTools-*             AtlasTest
 #apply_pattern CppUnit name=xAODTrigMissingET files="-s=../test TrigMissingETTest_CppUnit.cxx"
+
+apply_pattern do_genCLIDDB library=xAODTrigMissingET
