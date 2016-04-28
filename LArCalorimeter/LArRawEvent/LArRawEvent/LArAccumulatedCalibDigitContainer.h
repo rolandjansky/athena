@@ -40,7 +40,7 @@ class LArAccumulatedCalibDigitContainer : public DataVector<LArAccumulatedCalibD
   double m_delayScale;
 
   /** @brief SG ownership policy  */
-  SG::OwnershipPolicy  m_ownPolicy ;
+  //SG::OwnershipPolicy  m_ownPolicy ;
 };
 
 

@@ -7,8 +7,8 @@
 
 LArAccumulatedCalibDigitContainer::LArAccumulatedCalibDigitContainer(SG::OwnershipPolicy ownPolicy ) : 
   DataVector<LArAccumulatedCalibDigit>(ownPolicy), 
-  m_delayScale(1*CLHEP::ns),
-  m_ownPolicy(ownPolicy)
+  m_delayScale(1*CLHEP::ns)
+  //m_ownPolicy(ownPolicy)
 {}
 
 LArAccumulatedCalibDigitContainer::~LArAccumulatedCalibDigitContainer() 

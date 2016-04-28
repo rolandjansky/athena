@@ -42,13 +42,19 @@ LArAccumulatedDigit::LArAccumulatedDigit(HWIdentifier & channel_value)
 LArAccumulatedDigit::~LArAccumulatedDigit() {}
 
 
-float LArAccumulatedDigit::mean() const {
+float LArAccumulatedDigit::mean(int n_min, int n_max) const {
   //float mean;
+  unsigned imin=0;
   const size_t nS=m_sampleSum.size();
-  const double n    = nS*m_nTrigger;
+  if(nS==0) return 0.;
+  if(n_min>0 && (unsigned)n_min<nS) imin=n_min;
+  unsigned imax=nS-1;
+  if(n_max>0 && n_max>n_min && (unsigned)n_max<nS) imax=n_max;
+
+  const double n    = (imax-imin+1)*m_nTrigger;
   if(n<=0) return 0;
   uint64_t x=0;
-  for(size_t i=0;i<nS;i++) {
+  for(size_t i=imin;i<=imax;i++) {
     //std::cout << "Computing mean: " << x << " += " << m_sampleSum[i] << " [" << i << "] ";
     x += m_sampleSum[i];
     //std::cout << " = " << x << std::endl;
@@ -59,18 +65,26 @@ float LArAccumulatedDigit::mean() const {
   return x/n;
 }
 
-float LArAccumulatedDigit::RMS() const 
+float LArAccumulatedDigit::RMS(int n_min, int n_max) const 
 {
+  unsigned imin=0; 
   const size_t nS=m_sampleSum.size();
-  const double n    = nS*m_nTrigger;
+  if(nS==0) return 0.;
+  if(n_min>0 && (unsigned)n_min<nS) imin=n_min;
+  unsigned imax=nS-1;
+  if(n_max>0 && n_max>n_min && (unsigned)n_max<nS) imax=n_max;
+
+  const double n    = (imax-imin+1)*m_nTrigger;
   if(n<=0) return 0;
   if(m_sampleSquare.size()<1) return 0;
   
   uint64_t x=0;
-  for(size_t i=0;i<nS;i++)
+  for(size_t i=imin;i<=imax;i++)
     x += m_sampleSum[i];
-  double mean2 = x/n; mean2=mean2*mean2;
-  const double rms2=m_sampleSquare[0]/n - mean2;
+  const double inv_n = 1. / n;
+  double mean2 = x * inv_n;
+  mean2=mean2*mean2;
+  const double rms2=m_sampleSquare[0]*inv_n - mean2;
   if (rms2<0.0) { //W.L 2010-12-07 protect against FPE due to rounding error
     //std::cout << "ERROR negative squareroot:" << rms2 <<  std::endl;
     return 0.0;
@@ -252,8 +266,9 @@ void LArAccumulatedDigit::getCov(std::vector<float>& cov, int normalize) const
   if (norm==0.0) 
     cov.assign(nS-1,0.0);
   else {
+    const double inv_norm = 1. / norm;
     for(uint32_t i=1;i<nS;i++) {
-      cov.push_back((m_sampleSquare[i]/(n*(nS-i)) - mean2[i])/norm);
+      cov.push_back((m_sampleSquare[i]/(n*(nS-i)) - mean2[i])*inv_norm);
     }
   }
 

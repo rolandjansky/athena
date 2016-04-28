@@ -88,7 +88,7 @@ class LArAutoCorr
 
   // Compute the autocorrelation elements
   //MGV implement switch m_normalize to normalize
-  const std::vector<double> & get_cov(int m_normalize, int m_phys) ;
+  const std::vector<double> & get_cov(int normalize, int phys) ;
 
 
 };

@@ -71,7 +71,7 @@ double  LArAutoCorr::get_mean() const
 
 
 //----------------------------------------------------------------------------
-const  std::vector<double> & LArAutoCorr::get_cov(int m_normalize, int m_phys) 
+const  std::vector<double> & LArAutoCorr::get_cov(int normalize, int phys) 
 //----------------------------------------------------------------------------
 { 
   int nsamples = m_sum.size();
@@ -83,7 +83,7 @@ const  std::vector<double> & LArAutoCorr::get_cov(int m_normalize, int m_phys)
   }
 
   //MGV normalize covariance elements if required
-  if (m_normalize == 1 && m_phys == 0 ){
+  if (normalize == 1 && phys == 0 ){
     k=0;
     int si,sj;
     si=0;
@@ -99,7 +99,7 @@ const  std::vector<double> & LArAutoCorr::get_cov(int m_normalize, int m_phys)
   }
   //MGV
 
-  if (m_phys==0) {
+  if (phys==0) {
     double sum;
     int s;
     for(int diag =1;diag<nsamples;diag++)

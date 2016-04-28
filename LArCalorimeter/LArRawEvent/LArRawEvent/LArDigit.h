@@ -41,8 +41,16 @@ class LArDigit  {
       @param[in] gain_value  Gain
       @param[in] sample_value Reference of vector with ADC samples
   */
-  LArDigit(HWIdentifier & channel_value, CaloGain::CaloGain gain_value, const std::vector < short > & sample_values):
+  LArDigit(const HWIdentifier & channel_value, CaloGain::CaloGain gain_value, const std::vector < short > & sample_values):
     m_hardwareID(channel_value), m_gain(gain_value),m_samples(sample_values) {}
+
+  LArDigit(const HWIdentifier & channel_value,
+           CaloGain::CaloGain gain_value,
+           std::vector < short > && sample_values)
+    : m_hardwareID(channel_value),
+      m_gain(gain_value),
+      m_samples(std::move(sample_values))
+  {}
     
     /** @return HWIdentifier */
     const HWIdentifier & hardwareID() const {return m_hardwareID; }
