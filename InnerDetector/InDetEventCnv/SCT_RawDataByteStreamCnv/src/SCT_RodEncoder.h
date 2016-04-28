@@ -88,7 +88,7 @@ class SCT_RodEncoder : virtual public ISCT_RodEncoder, virtual public AthAlgTool
   int groupSize(const RDO * rdo) {return rdo->getGroupSize(); }
   
   /// Get the strip number info from the RDO  
-  int strip(const RDO * rdo) {return rdo->getStrip() ; }
+  int strip(const RDO * rdo) ;
  
   /// Get the offline Identifirer from the RDO  
   Identifier offlineId(const RDO * rdo) ;

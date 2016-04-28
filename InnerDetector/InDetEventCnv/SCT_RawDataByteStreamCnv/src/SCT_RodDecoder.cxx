@@ -48,6 +48,7 @@ SCT_RodDecoder::SCT_RodDecoder
      m_incidentSvc("IncidentSvc", name)
 {
   declareProperty("CablingSvc",m_cabling);
+  declareProperty("ErrorsSvc",m_byteStreamErrSvc);
   declareProperty("ByteStreamErrContainer",m_bsErrContainerName="SCT_ByteStreamErrs");
   declareProperty("TriggerMode",m_triggerMode=true);
   declareInterface< ISCT_RodDecoder  >( this );
@@ -119,7 +120,7 @@ StatusCode SCT_RodDecoder::initialize() {
   m_RODClockErrorNumber  = 0 ;
   m_truncatedRODNumber   = 0 ;
   m_numMissingLinkHeader = 0 ;
-  
+  m_numUnknownOfflineId  = 0 ;
 
   m_errorHit = new std::vector<int>;
   return StatusCode::SUCCESS ;
@@ -173,7 +174,7 @@ SCT_RodDecoder::finalize() {
   msg(MSG::INFO)<<"Number of SCT RDOs created->       "<<m_nRDOs<<endreq;
 
   if (m_numMissingLinkHeader > 0) msg(MSG::WARNING)<<"SCT Missing Link Headers found "<<m_numMissingLinkHeader<<endreq;
-  
+  if (m_numUnknownOfflineId  > 0) ATH_MSG_WARNING("SCT unknown onlineId found "<<m_numUnknownOfflineId);
 
 
   StatusCode sc = AlgTool::finalize();
@@ -756,6 +757,9 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
     } else saved[strip] = rdoMade; 
   }
 
+  // Set this ROD as decoded in SCT_ByteStreamErrorSvc
+  m_byteStreamErrSvc->setDecodedROD(robid);
+
   if (sc.isFailure() and msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "One or more ByteStream errors found " << endreq;
   return sc;
 }
@@ -777,7 +781,10 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize,int tbin, uint32_t onlineId
   /** get offlineId from the link number and ROB number */
   IdentifierHash idCollHash =  m_cabling->getHashFromOnlineId(onlineId) ;
   if (idCollHash==0xffffffff) {
-    msg(MSG::ERROR) <<"Unknown offlineId for OnlineId 0x"<<std::hex<<onlineId <<" -> cannot create RDO"<<std::dec<<endreq ;
+    m_numUnknownOfflineId++;
+    ATH_MSG_ERROR("Unknown OfflineId for OnlineId -> cannot create RDO");
+    ATH_MSG_WARNING("Unknown OfflineId for OnlineId "<<std::hex<<onlineId <<" -> cannot create RDO"<<std::dec);
+
     //fire an incident whenever there is a "unknown offline id..." so they are listened by /InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/src/SCT_CalibEventInfo
     m_incidentSvc->fireIncident(Incident(name(), "UnknownOfflineId"));
     return -1;

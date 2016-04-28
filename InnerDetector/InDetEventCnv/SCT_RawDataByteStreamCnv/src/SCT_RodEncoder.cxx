@@ -386,6 +386,12 @@ uint32_t SCT_RodEncoder::set32bits(const unsigned short int * v16, const unsigne
 ///=========================================================================
 ///  Link and Side Numbers 
 ///=========================================================================
+/** Strip number  */ 
+int SCT_RodEncoder::strip(const RDO * rdo) {
+  Identifier rdoId     = rdo->identify() ;               
+  return m_sct_id->strip(rdoId) ;
+}
+
 /** RDO ID  */
 Identifier SCT_RodEncoder::offlineId(const RDO * rdo) {
   Identifier rdoId     = rdo->identify() ;               
