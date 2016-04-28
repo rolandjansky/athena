@@ -5,8 +5,8 @@
 #ifndef LARTBCALIBCONTAINER_H
 #define LARTBCALIBCONTAINER_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "SGTools/CLASS_DEF.h"
 #include "LArTBEvent/LArTBCalib.h"
 
 

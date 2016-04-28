@@ -4,8 +4,8 @@
 
 #ifndef LARTBEVENT_LARTBSLOWCONTROL_H
 #define LARTBEVENT_LARTBSLOWCONTROL_H
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "SGTools/CLASS_DEF.h"
 
 #include <vector>
 
