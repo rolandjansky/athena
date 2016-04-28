@@ -21,7 +21,9 @@
 #include "VP1Utils/VP1SGContentsHelper.h"
 #include "VP1Utils/VP1SGAccessHelper.h"
 #include "LUCID_RawEvent/LUCID_DigitContainer.h"
-#include "LUCID_RawEvent/LUCID_RawEvent/LUCID_Digit.h"
+
+//#include "LUCID_RawEvent/LUCID_RawEvent/LUCID_Digit.h" // old CMT
+#include "LUCID_RawEvent/LUCID_Digit.h" // new CMake
 
 
 //____________________________________________________________________
