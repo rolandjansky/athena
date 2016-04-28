@@ -101,7 +101,8 @@ bool
 SCT_RODVetoSvc::isGood(const IdentifierHash & hashId){
   if (not filled() and fillData().isFailure()) ATH_MSG_WARNING("Data structure could not be filled");
   Identifier elementId=m_pHelper->wafer_id(hashId);
-  return isGood(elementId);
+  Identifier moduleId =m_pHelper->module_id(elementId);
+  return isGood(moduleId);
 }
 
 StatusCode 

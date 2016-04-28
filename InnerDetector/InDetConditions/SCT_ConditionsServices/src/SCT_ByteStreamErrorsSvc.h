@@ -95,6 +95,9 @@ public:
 
   virtual void disableRODs();
 
+  virtual void setDecodedROD(const boost::uint32_t rodId);
+  virtual std::vector<boost::uint32_t> getRODOuts() const;
+
 private:
 
   const SCT_ID* m_sct_id;
@@ -152,6 +155,8 @@ private:
 
   bool m_disableRODs;
   double m_rodFailureFraction;
+
+  std::map<boost::uint32_t, bool> m_rodDecodeStatuses;
 };
 
 #endif
