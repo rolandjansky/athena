@@ -1,0 +1,25 @@
+package HGTDG4SD
+author Jalal Abdallah <Jalal.Abdallah@cern.ch>
+
+public
+
+use AtlasPolicy           AtlasPolicy-*
+
+private
+
+use AtlasCLHEP            AtlasCLHEP-*            External
+use CaloIdentifier        CaloIdentifier-*        Calorimeter
+use CxxUtils              CxxUtils-*              Control
+use G4AtlasTools          G4AtlasTools-*          Simulation/G4Atlas
+use GaudiInterface        GaudiInterface-*        External
+use Geant4                Geant4-*                External
+use LArSimEvent           LArSimEvent-*           LArCalorimeter
+use MCTruth               MCTruth-*               Simulation/G4Sim
+use StoreGate             StoreGate-*             Control
+
+public
+apply_pattern declare_python_modules files="*.py"
+
+# define link options
+library HGTDG4SD *.cxx components/*.cxx
+apply_pattern component_library
