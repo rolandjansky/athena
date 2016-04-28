@@ -13,6 +13,8 @@
 #include "GaudiKernel/GaudiException.h"
 //Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
+
+#include "TrkDetDescrUtils/DistanceCalculations.h"
 #include "TrkDetDescrUtils/BinningType.h"
 
 #include <vector>
@@ -36,6 +38,43 @@ namespace Trk {
         
         @author Andreas.Salzburger @ cern.ch, Sharka.Todorova @ cern.ch 
    */
+
+
+  typedef std::pair<float,int> BinIntersection;
+
+  struct BinPath 
+  {
+    std::vector<BinIntersection> steps;
+
+    BinPath(){};
+
+    BinPath(BinIntersection bi)
+    { steps.push_back(bi); }
+
+    // 
+    int add(BinIntersection bi) {
+
+      if (!steps.size() || bi.first>=steps.back().first) {
+        steps.push_back(bi);
+        return steps.size()-1;
+      }
+
+      int ipos = 0;
+      std::vector<BinIntersection>::iterator it=steps.begin();
+      while (it!=steps.end() && bi.first>(*it).first) {it++; ipos++;}
+      steps.insert(it,bi);
+      return ipos;
+    }
+
+    void dump() {
+      std::vector<BinIntersection>::iterator it=steps.begin();
+      while (it!=steps.end() ) {
+	std::cout <<"BinPath dump:"<<int(it-steps.begin())<<":"<<it->first<<","<<it->second<<std::endl;
+        it++;
+      }
+    }
+
+  };
    
    class BinningData {
      public :
@@ -49,8 +88,9 @@ namespace Trk {
        float                               step;
        float                               subStep;
        std::vector<float>                  boundaries;
-       float                               refphi;    // ref Phi for binH
+       float                               refphi;    // reference value 
        std::vector<std::pair<int,float> >  hbounds;   // boundary for binH
+       float                               stepVal;   // modulus value 
        
        /** Constructor */
        BinningData ( BinningType bType, 
@@ -62,18 +102,19 @@ namespace Trk {
                      float  bStep,
                      float  bSubStep = 0,
                      std::vector<float> bBoundaries = std::vector<float>() ) :
-	    type(bType),
-	    option(bOption),
-	    binvalue(bValue),
-	    bins(bBins),    
-	    min(bMin),                
-	    max(bMax),                
-	    step( bStep!= 0. ? bStep : 1.),          
-	    subStep(bSubStep),
-  	    boundaries(bBoundaries),
-  	    refphi(0.),
-  	    hbounds(std::vector<std::pair<int,float> >()),
-            m_mixPtr( nullptr )
+           type(bType),
+	   option(bOption),
+	   binvalue(bValue),
+	   bins(bBins),    
+	   min(bMin),                
+	   max(bMax),                
+	   step( bStep!= 0. ? bStep : 1.),          
+	   subStep(bSubStep),
+	   boundaries(bBoundaries),
+	   refphi((bValue==Trk::XmodPhi || bValue==Trk::modZ)? bSubStep : 0.),
+  	   hbounds(std::vector<std::pair<int,float> >()),
+	   stepVal((bValue==Trk::XmodPhi || bValue==Trk::modZ)? bStep : 0.),
+           m_mixPtr( nullptr )
 	      {
 	        if (bType == Trk::equidistant) m_functionPtr = &searchEaquidstantWithBoundary;
 	        else if (bType == Trk::biequidistant) m_functionPtr = &searchBiequidistantWithBoundary;
@@ -82,11 +123,12 @@ namespace Trk {
   
      /** Constructor for binH type : non-equidistant binning assumed */
      BinningData ( BinningOption bOption, 
-		 float  bRefPhi,
-		 const std::vector< std::pair<int,float> >& bBoundaries) :
+		   float  bRefPhi,
+		   const std::vector< std::pair<int,float> >& bBoundaries,
+		   BinningValue value, float bRefStep) :
        type(Trk::arbitrary),
        option(bOption),
-       binvalue(Trk::binH),
+       binvalue(value),
        bins(bOption==Trk::open? bBoundaries.size()-1 : bBoundaries.size()),    
        min(bBoundaries.front().second),                
        max(bBoundaries.back().second),                
@@ -95,24 +137,53 @@ namespace Trk {
        boundaries(std::vector<float>()),
        refphi(bRefPhi),
        hbounds(bBoundaries),
+       stepVal(bRefStep),
        m_functionPtr( nullptr ),
        m_mixPtr( &searchInVectorWithMixedBoundary )
-      {}
+      { }
+
+       /** Copy constructor */
+   BinningData(const BinningData& bd ):
+       type(bd.type),
+	 option(bd.option),
+	 binvalue(bd.binvalue),
+         bins(bd.bins),
+         min(bd.min),
+         max(bd.max),
+         step(bd.step),
+         subStep(bd.subStep),
+         boundaries(bd.boundaries.size() ? std::vector<float>(bd.boundaries) : std::vector<float>()),
+         refphi(bd.refphi),
+         hbounds(bd.hbounds.size() ? std::vector<std::pair<int,float> >(bd.hbounds) : std::vector<std::pair<int,float> >()),
+         stepVal(bd.stepVal),
+         m_functionPtr(bd.m_functionPtr),
+         m_mixPtr(bd.m_mixPtr)
+       {} 
+
   	
      /** take the right float value - assumes the correct local position expression */
      float value(const Amg::Vector2D& lposition) const {
        // ordered after occurence   
        if ( binvalue == Trk::binR || binvalue == Trk::binRPhi || binvalue == Trk::binX || binvalue == Trk::binH ) return lposition[0]; 
+       if ( binvalue == Trk::HmodPhi) return lposition[0]; 
        if ( binvalue == Trk::binPhi ) return gaugePhi(lposition[1]);
+       if ( binvalue == Trk::modPhi ) return dPhi(lposition);
        return lposition[1];
      }
   
      /** take the right float value */
      float value(const Amg::Vector3D& position) const {
        // ordered after occurence
-       if ( binvalue == Trk::binR || binvalue == Trk::binH ) return (position.perp());
+       if ( binvalue == Trk::binR || binvalue == Trk::binH || binvalue == Trk::HmodPhi ) return (position.perp());
        if ( binvalue == Trk::binRPhi ) return  (position.perp()*position.phi());
        if ( binvalue == Trk::binEta ) return (position.eta());
+       if ( binvalue == Trk::modPhi ) return dPhi(position);
+       if ( binvalue == Trk::modZ ) {
+         float dz = fmod(position.z()-refphi,step);
+         while (dz<0.) dz +=step;
+	 return dz;
+       }
+       if ( binvalue == Trk::XmodPhi ) return position.perp()*sin(dPhi(position));
        if ( binvalue < 3  ) return (position[binvalue]);
        // phi gauging
        return gaugePhi(position.phi());
@@ -126,15 +197,35 @@ namespace Trk {
          }
          return phi;
      }
-  
+
+     /** reference phi for H, HmodPhi, XmodPhi */
+     float dPhi(const Amg::Vector2D& lposition) const {
+       if (binvalue == Trk::binH) return refphi-lposition[1];
+
+       float redphi = fmod(lposition[1]-refphi,step);
+       if (redphi> 0.5*step) redphi-= step;
+       if (redphi<-0.5*step) redphi+= step;
+       return redphi;
+     }
+
+     /** reference phi for H, HmodPhi */
+     float dPhi(const Amg::Vector3D& position) const {
+       if (binvalue == Trk::binH ) return refphi-position.phi();
+       
+       float redphi = fmod(position.phi()-refphi,stepVal);
+       if (redphi> 0.5*stepVal) redphi-= stepVal;
+       if (redphi<-0.5*stepVal) redphi+= stepVal;
+       return redphi;
+     }  
+
      /** take float values for binH */
      std::pair<float,float> valueH(const Amg::Vector2D& lposition ) const {
-       return (std::pair<double,double> (lposition[0],lposition[0]*cos(fabs(refphi-lposition[1])))); 
+       return (std::pair<double,double> (lposition[0],lposition[0]*cos(fabs(dPhi(lposition))))); 
      }
      
      /** take float values for binH */
      std::pair<float,float> valueH(const Amg::Vector3D& position ) const {
-       return (std::pair<double,double> (position.perp(),position.perp()*cos(fabs(position.phi()-refphi))));
+       return (std::pair<double,double> (position.perp(),position.perp()*cos(fabs(dPhi(position)))));
      }
     
      /** Check if bin is inside from Vector3D */
@@ -142,7 +233,7 @@ namespace Trk {
        // closed one is always inside
        if (option == Trk::closed) return true;
        // all other options except value H
-       if ( binvalue != Trk::binH ) {
+       if ( binvalue != Trk::binH && binvalue != Trk::HmodPhi) {
 	    float val = value(position);
 	    return ( val > min-0.001 && val < max+0.001);
        } 
@@ -156,7 +247,7 @@ namespace Trk {
      /** Check if bin is inside from Vector2D */
      bool inside(const Amg::Vector2D& lp) const  {
        if (option == Trk::closed) return true;
-       if ( binvalue != Trk::binH ) {
+       if ( binvalue != Trk::binH && binvalue != Trk::HmodPhi) {
 	    float val = value(lp);
 	    return ( val > min-0.001 && val < max+0.001);
        } 
@@ -168,12 +259,12 @@ namespace Trk {
     
      /** generic search from a 2D position --- corresponds to local coordinate schema */
      size_t searchLocal(const Amg::Vector2D& lposition) const {
-       return (binvalue==Trk::binH) ? searchH(valueH(lposition)) : search(value(lposition));
+       return (binvalue==Trk::binH || binvalue==Trk::HmodPhi ) ? searchH(valueH(lposition)) : search(value(lposition));
      }
      
      /** generic search from a 3D position */
      size_t searchGlobal(const Amg::Vector3D& position) const {
-       return (binvalue==Trk::binH) ? searchH(valueH(position)) : search(value(position));
+       return (binvalue==Trk::binH || binvalue==Trk::HmodPhi) ? searchH(valueH(position)) : search(value(position));
      }
   
      /** generic search - forwards to correct function pointer */
@@ -184,7 +275,7 @@ namespace Trk {
      
      /** the entry bin */
      size_t entry(const Amg::Vector3D& position ) const {
-       size_t bin = (binvalue==Trk::binH) ? searchH(valueH(position)) : search(value(position));
+       size_t bin = (binvalue==Trk::binH || binvalue==Trk::HmodPhi) ? searchH(valueH(position)) : search(value(position));
        return (bin < bins-bin) ? bin : bins-1;
      }
   	
@@ -193,7 +284,7 @@ namespace Trk {
        float   val    = value(position);
        Amg::Vector3D probe = position+0.5*step*dir.normalized();
        float  nextval = value( probe);
-       int bin        = (binvalue==Trk::binH) ? searchH(valueH(position)) : search(val);
+       int bin        = (binvalue==Trk::binH || binvalue==Trk::HmodPhi) ? searchH(valueH(position)) : search(val);
        bin = (nextval > val && bin != int(bins-1)) ? bin+1 : (bin) ? bin-1 : 0;  
        // closed setup
        if ( option == closed) 
@@ -208,9 +299,9 @@ namespace Trk {
        float   val    = (binvalue==Trk::binH) ? valueH(position).first : value(position);
        // probe value
        Amg::Vector3D probe = position+0.5*step*dir.normalized();
-       float  nextval = (binvalue==Trk::binH) ? valueH(probe).first : value(probe);
+       float  nextval = (binvalue==Trk::binH || binvalue==Trk::HmodPhi) ? valueH(probe).first : value(probe);
        // current bin
-       int bin0        = (binvalue==Trk::binH) ? searchH(valueH(position)) : search(val);
+       int bin0        = (binvalue==Trk::binH || binvalue==Trk::HmodPhi) ? searchH(valueH(position)) : search(val);
        // next bin
        int bin =  (nextval-val) >0. ? bin0+1 : bin0-1;
        if (bin > int(bins)-1) bin = (option==closed) ? 0 : bin0;
@@ -218,7 +309,7 @@ namespace Trk {
 
        // boundary value
        float bval = 0.;
-       if  (binvalue==Trk::binH) {
+       if  (binvalue==Trk::binH || binvalue==Trk::HmodPhi) {
 	         bval = (nextval >val) ? hbounds[bin0+1].second : hbounds[bin0].second;    // non-equidistant
 
          // may need to recalculate current value and probe
@@ -243,12 +334,15 @@ namespace Trk {
        float dist = fabs(dd)>1.e-06 ? (bval-val)/dd : 1.e06 ;      
        return std::pair<size_t, float> (bin,dist);
      }
+
+     /** distance to boundary value (exact calculation) */
+     BinPath binPath(const Amg::Vector3D& position, const Amg::Vector3D& dir, float min, float max) const;
          
      /** layer order is needed for value H binning */    
      LayerOrder orderDirection(const Amg::Vector3D& position, const Amg::Vector3D& dir) const {
-       float     val  = (binvalue==Trk::binH) ? valueH(position).first : value(position);
+       float     val  = (binvalue==Trk::binH || binvalue==Trk::HmodPhi) ? valueH(position).first : value(position);
        Amg::Vector3D probe = position+0.5*step*dir.normalized();
-       float  nextval = (binvalue==Trk::binH) ? valueH(probe).first : value( probe );
+       float  nextval = (binvalue==Trk::binH || binvalue==Trk::HmodPhi) ? valueH(probe).first : value( probe );
        return (nextval > val ) ? Trk::next : Trk::previous;
      }
 
@@ -267,9 +361,6 @@ namespace Trk {
 
      
    private:
-     /** the pointer to the function to be used */
-     size_t (*m_functionPtr) (float, const BinningData&);
-     size_t (*m_mixPtr) (std::pair<float,float>, const BinningData&);
      
      /** Equidistant search : equidist 0 */
      static size_t searchEaquidstantWithBoundary(float value, const BinningData& bData) {
@@ -315,8 +406,9 @@ namespace Trk {
        // search
        std::vector<float>::const_iterator vIter = bData.boundaries.begin();
        size_t bin = 0; 
-       for ( ; vIter !=  bData.boundaries.end() ;  ++vIter, ++bin )
+       for ( ; vIter !=  bData.boundaries.end() ;  ++vIter, ++bin ) {
 	 if ((*vIter) > value) break; 
+       }
        return (bin-1);            
      }
      
@@ -374,6 +466,27 @@ namespace Trk {
        return nbelow;
        
      }
+     
+     /** distance to boundary value (exact calculation) */
+     bool distance(const Amg::Vector3D& position, const Amg::Vector3D& dir, int binB, float& dist, float min, float max) const;
+
+     /** distance to phi bin boundary */
+     std::pair<float,float> distanceToPhiBounds(const Amg::Vector3D& pos, const Amg::Vector3D& dir) const;
+
+     /** phi bin for HmodPhi,XmodPhi */
+     int binPh(const Amg::Vector3D& position) const {
+       int bPhi = int((position.phi()+0.5*stepVal-refphi)/stepVal);
+       if (bPhi>int(bins-1)) bPhi=0;
+       if (bPhi<0) bPhi=bins-1;
+       return bPhi;
+     }
+
+     /** the pointer to the function to be used */
+     size_t (*m_functionPtr) (float, const BinningData&);
+     size_t (*m_mixPtr) (std::pair<float,float>, const BinningData&);
+
+     /** distance calculations */
+     Trk::DistanceCalculations   m_distCalculs;
      
    };
    

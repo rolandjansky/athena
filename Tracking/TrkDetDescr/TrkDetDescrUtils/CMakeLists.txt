@@ -11,7 +11,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/SGTools
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
-                          Tracking/TrkEvent/TrkEventPrimitives )
+                          Tracking/TrkEvent/TrkEventPrimitives
+			  PRIVATE
+			  Control/CxxUtils )
 
 # External dependencies:
 find_package( Eigen )
@@ -21,5 +23,6 @@ atlas_add_library( TrkDetDescrUtils
                    src/*.cxx
                    PUBLIC_HEADERS TrkDetDescrUtils
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} SGTools GeoPrimitives GaudiKernel TrkEventPrimitives )
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} SGTools GeoPrimitives GaudiKernel TrkEventPrimitives
+                   PRIVATE_LINK_LIBRARIES CxxUtils )
 
