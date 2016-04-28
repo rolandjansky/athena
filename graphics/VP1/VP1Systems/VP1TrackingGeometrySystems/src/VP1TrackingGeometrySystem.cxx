@@ -34,8 +34,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 
-#include "ISF_FatrasDetDescrModel/PlanarDetElement.h"
-
 #include <vector>
 #include <map>
 #include <string>
@@ -1122,11 +1120,6 @@ void VP1TrackingGeometrySystem::processTrkVolume(const Trk::TrackingVolume* tvol
             // push_back the surface
             if (*surfaceIter)
               processTrkSurface(*surfaceIter, surfaceSepHelper, tvol->colorCode());
-	    if (*surfaceIter) {
-	      const iFatras::PlanarDetElement* pElement  = dynamic_cast<const iFatras::PlanarDetElement*>((*surfaceIter)->associatedDetectorElement());
-	      if (pElement && pElement->otherSide())
-	    	processTrkSurface(&(pElement->otherSide()->surface()),surfaceSepHelper, tvol->colorCode());
-	    }
           } 
         }
       }
