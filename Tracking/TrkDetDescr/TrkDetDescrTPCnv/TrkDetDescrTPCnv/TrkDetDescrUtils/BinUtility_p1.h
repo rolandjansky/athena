@@ -28,8 +28,9 @@ namespace Trk
           step(),
           subStep(),
           boundaries(),
-          refphi(),    
-          hbounds() 
+          refphi(),
+	  hbounds(), 
+	  stepVal()  
         {} 
         
          std::vector<int>                                  type;
@@ -41,10 +42,12 @@ namespace Trk
          std::vector<float>                                step;
          std::vector<float>                                subStep;
          std::vector< std::vector<float> >                 boundaries;
-         std::vector<float>                                refphi;    // ref Phi for binH
+         std::vector<float>                                refphi;    // reference value
          std::vector< std::vector<std::pair<int,float> > > hbounds;   // boundary for binH
+         std::vector<float>                                stepVal;   // modulus
          
     };
 }
 
 #endif // GENERICBINUTILITY_P1_TRK_H
+

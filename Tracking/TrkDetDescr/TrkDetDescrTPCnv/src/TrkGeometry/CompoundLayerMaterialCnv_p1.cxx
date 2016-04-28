@@ -5,11 +5,7 @@
 //////////////////////////////////////////////////////////////////
 // CompoundLayerMaterialCnv_p1.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-#define private public
-#define protected public
 #include "TrkGeometry/CompoundLayerMaterial.h"
-#undef private
-#undef protected
 #include "TrkDetDescrUtils/BinUtility.h"
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkGeometry/Material.h"
@@ -23,7 +19,7 @@ void CompoundLayerMaterialCnv_p1::persToTrans( const Trk::CompoundLayerMaterial_
 {
 
     // create the transient BinUtility
-    transObj->m_binUtility  = new Trk::BinUtility;
+  transObj->updateBinning (new Trk::BinUtility);
     m_gBinUtilityCnv.persToTrans(&persObj->binUtility, transObj->m_binUtility, mlog);
     
     // the minimum values    
