@@ -10,8 +10,8 @@
 
     @author A. Abdesselam and P. Ghez
 */
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "SGTools/CLASS_DEF.h"
 
 
 class LArTBEvent {

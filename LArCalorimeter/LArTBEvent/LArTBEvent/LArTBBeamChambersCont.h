@@ -5,8 +5,8 @@
 #ifndef LARTBBEAMCHAMBERSCONT_H
 #define LARTBBEAMCHAMBERSCONT_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "SGTools/CLASS_DEF.h"
 #include "LArTBEvent/LArTBBeamChambers.h"
 
 
