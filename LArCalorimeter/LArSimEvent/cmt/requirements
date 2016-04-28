@@ -6,6 +6,7 @@ author Johann Collot <collot@in2p3.fr>
 
 use AtlasPolicy    AtlasPolicy-* 
 use CLIDSvc        CLIDSvc-*           Control 
+use AthenaKernel   AthenaKernel-*      Control
 use AtlasCLHEP     AtlasCLHEP-*        External
 
 use Identifier     Identifier-*        DetectorDescription

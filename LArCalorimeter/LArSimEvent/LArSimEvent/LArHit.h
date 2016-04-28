@@ -16,7 +16,7 @@
 #define LArSimEvent_LArHit_h
 
 #include "Identifier/Identifier.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 
 class LArHit 
 
@@ -142,8 +142,8 @@ inline
 void
 LArHit::finalize()
 {
-  m_time = m_energy==0 ? 0. : (double)(m_time/m_energy)/CLHEP::ns;
-  m_energy = m_energy/CLHEP::MeV;
+  m_time = m_energy==0 ? 0. : (double)(m_time/m_energy)/Athena::Units::ns;
+  m_energy = m_energy/Athena::Units::MeV;
 }
 
 #endif  // LArSimEvent_LArHit_h
