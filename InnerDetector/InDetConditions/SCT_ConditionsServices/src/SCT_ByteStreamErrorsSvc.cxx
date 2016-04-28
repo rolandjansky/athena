@@ -194,12 +194,16 @@ void
 SCT_ByteStreamErrorsSvc::handle(const Incident& inc) {
   if ((inc.type() == "BeginRun") && (m_useRXredundancy)) {
     m_rxRedundancy->clear();
+    m_rodDecodeStatuses.clear();
 
     std::vector<boost::uint32_t> listOfRODs;
     m_cabling->getAllRods(listOfRODs);
     std::vector<boost::uint32_t>::iterator rodIter = listOfRODs.begin();
     std::vector<boost::uint32_t>::iterator rodEnd = listOfRODs.end();
     for (; rodIter != rodEnd; ++rodIter) {
+      // Store ROD ID and set all RODs as not decoded
+      m_rodDecodeStatuses.insert(std::pair<boost::uint32_t, bool>(*rodIter, false));
+
       std::vector<IdentifierHash> listOfHashes;
       m_cabling->getHashesForRod(listOfHashes,*rodIter);
       std::vector<IdentifierHash>::iterator hashIt = listOfHashes.begin();
@@ -220,10 +224,15 @@ SCT_ByteStreamErrorsSvc::handle(const Incident& inc) {
     
   } else if (inc.type() == "BeginEvent") {
     this->resetSets();
+    this->resetCounts();
     m_filled = false;
     m_numRODsHVon=0;
     m_numRODsTotal=0;
     if (m_disableRODs) disableRODs();
+    // Set all RODs as not decoded
+    for(auto& rodDecodeStatus: m_rodDecodeStatuses) {
+      rodDecodeStatus.second = false;
+    }
   }
   return;
 }
@@ -740,4 +749,23 @@ SCT_ByteStreamErrorsSvc::getNumberOfErrors(int errorType) {
   return 0;
 }
 
+void
+SCT_ByteStreamErrorsSvc::setDecodedROD(const boost::uint32_t rodId) {
+  // If the rodId is found, set the ROD as decoded.
+  auto rodDecodeStatus = m_rodDecodeStatuses.find(rodId);
+  if(rodDecodeStatus!=m_rodDecodeStatuses.end()) {
+    rodDecodeStatus->second = true;
+  }
+}
 
+std::vector<boost::uint32_t>
+SCT_ByteStreamErrorsSvc::getRODOuts() const {
+  std::vector<boost::uint32_t> rodOuts;
+  // Create a vector of undecoded RODs as ROD outs
+  for(auto& rodDecodeStatus: m_rodDecodeStatuses) {
+    if(not rodDecodeStatus.second) {
+      rodOuts.push_back(rodDecodeStatus.first);
+    }
+  }
+  return rodOuts;
+}

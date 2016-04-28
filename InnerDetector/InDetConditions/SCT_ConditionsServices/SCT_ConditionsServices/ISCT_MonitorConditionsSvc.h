@@ -39,9 +39,9 @@ public:
   /// Return a list of bad stip Identifiers
   virtual void badStrips(std::set<Identifier>& strips)=0;
   /// Return a list of bad stip Identifiers for a given module
-  virtual void badStrips(Identifier moduleId, std::set<Identifier>& strips)=0;
+  virtual void badStrips(const Identifier & moduleId, std::set<Identifier>& strips)=0;
   /// Return a (space-separated) string of bad stip numbers (including hyphanated ranges) as they are written to the DB 
-  virtual std::string badStripsAsString(Identifier moduleId)=0;
+  virtual std::string badStripsAsString(const Identifier & moduleId)=0;
 
 private:
 
