@@ -36,9 +36,6 @@
 #include "VP1Utils/VP1SGContentsHelper.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "InDetIdentifier/PixelID.h"
-#include "InDetIdentifier/SCT_ID.h"
-#include "ISF_FatrasDetDescrModel/PlanarDetElement.h"
 
 class VP1SimHitSystem::Clockwork
 {
@@ -54,7 +51,8 @@ public:
 VP1SimHitSystem::VP1SimHitSystem()
   :IVP13DSystemSimple("Sim Hits","Display simulation hits from trackers","Vakho Tsulaia <Vakhtang.Tsulaia@cern.ch>"),
    _clockwork(new Clockwork())
-{}
+{
+}
 
 VP1SimHitSystem::~VP1SimHitSystem()
 {
@@ -209,61 +207,13 @@ void VP1SimHitSystem::buildHitTree(const QString& detector)
     const DataHandle<SiHitCollection> p_collection;
     if(sg->retrieve(p_collection,"PixelHits")==StatusCode::SUCCESS)
     {
-      StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-      
-      iFatras::IdHashDetElementCollection *PixelDetElementMap = new iFatras::IdHashDetElementCollection;
-      const PixelID* pixel_ID = 0;
-      
-      //Retrieve the map with IdHash to DetElement
-      if ((detStore->contains<iFatras::IdHashDetElementCollection>("Pixel_IdHashDetElementMap"))){
-	if((detStore->retrieve(PixelDetElementMap, "Pixel_IdHashDetElementMap")).isFailure()){
-	  message("Could not retrieve collection Pixel_IdHashDetElementMap.");
-	}
-	else {
-	  messageVerbose("Pixel_IdHashDetElementMap successfully retrieved.");
-	    
-	  if (detStore->retrieve(pixel_ID, "PixelID").isFailure()) 
-	    message("Could not retrieve PixelID.");
-	  else {
-	    messageVerbose("PixelID successfully retrieved.");
-	  }
-	}
-      }
-            
       for(SiHitConstIterator i_hit=p_collection->begin(); i_hit!=p_collection->end(); ++i_hit)
-	{
-	  GeoSiHit ghit(*i_hit);
-	  if(!ghit) continue;
-	  HepGeom::Point3D<double> u = ghit.getGlobalPosition();
-	  
-	  if(PixelDetElementMap && pixel_ID) {
-	    int barrelEC = i_hit->getBarrelEndcap();
-	    int layerDisk = i_hit->getLayerDisk();
-	    int phiModule = i_hit->getPhiModule();
-	    int etaModule = i_hit->getEtaModule();
-	    
-	    Identifier idwafer = pixel_ID->wafer_id(barrelEC,layerDisk,phiModule,etaModule);
-	    IdentifierHash idhash = pixel_ID->wafer_hash(pixel_ID->wafer_id(idwafer));
-	    auto it_map = PixelDetElementMap->find(idhash);
-	    if (it_map == PixelDetElementMap->end()) 
-	      message("IdentifierHash not found in the map from id hash to planar detector element.");
-	    else{
-	      messageVerbose("IdentifierHash found in the map.");
-	      const iFatras::PlanarDetElement* hitPlanarDetElement = it_map->second;
-	      
-	      if(hitPlanarDetElement) {
-		const HepGeom::Point3D<double> averagePosition =  0.5*(i_hit->localStartPosition() + i_hit->localEndPosition());
-		const HepGeom::Point3D<double> CorrectedGlobalStartPosition = hitPlanarDetElement->transformHit() * averagePosition;
-		u = HepGeom::Point3D<double>(CorrectedGlobalStartPosition.x(),
-					     CorrectedGlobalStartPosition.y(),
-					     CorrectedGlobalStartPosition.z());
-		
-	      } else 
-		message("Problem with the PlanarDetElement for Pixel");
-	    }
-	  }  
-	  hitVtxProperty->vertex.set1Value(hitCount++,u.x(),u.y(),u.z());
-	}
+      {
+        GeoSiHit ghit(*i_hit);
+        if(!ghit) continue;
+        HepGeom::Point3D<double> u = ghit.getGlobalPosition();
+        hitVtxProperty->vertex.set1Value(hitCount++,u.x(),u.y(),u.z());
+      }
     }
     else
       message("Unable to retrieve Pixel Hits");
@@ -276,59 +226,11 @@ void VP1SimHitSystem::buildHitTree(const QString& detector)
     const DataHandle<SiHitCollection> s_collection;
     if(sg->retrieve(s_collection,"SCT_Hits")==StatusCode::SUCCESS)
     {
-      StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-      
-      iFatras::IdHashDetElementCollection *SCT_DetElementMap = new iFatras::IdHashDetElementCollection;
-      const SCT_ID* SCT_ID = 0;
-      
-      //Retrieve the map with IdHash to DetElement
-      if ((detStore->contains<iFatras::IdHashDetElementCollection>("SCT_IdHashDetElementMap"))){
-	if((detStore->retrieve(SCT_DetElementMap, "SCT_IdHashDetElementMap")).isFailure()){
-	  message("Could not retrieve collection SCT_IdHashDetElementMap.");
-	}
-	else {
-	  messageVerbose("SCT_IdHashDetElementMap successfully retrieved.");
-	    
-	  if (detStore->retrieve(SCT_ID, "SCT_ID").isFailure()) 
-	    message("Could not retrieve SCT_ID.");
-	  else {
-	    messageVerbose("SCT_ID successfully retrieved.");
-	  }
-	}
-      }
-
       for(SiHitConstIterator i_hit=s_collection->begin();i_hit!=s_collection->end();++i_hit)
       {
         GeoSiHit ghit(*i_hit);
         if (!ghit) continue;
         HepGeom::Point3D<double> u = ghit.getGlobalPosition();
-	if(SCT_DetElementMap && SCT_ID) {
-	    int barrelEC  = i_hit->getBarrelEndcap();
-	    int layerDisk = i_hit->getLayerDisk();
-	    int phiModule = i_hit->getPhiModule();
-	    int etaModule = i_hit->getEtaModule();
-	    int side      = i_hit->getSide();
-	    
-	    Identifier idwafer = SCT_ID->wafer_id(barrelEC,layerDisk,phiModule,etaModule,side);
-	    IdentifierHash idhash = SCT_ID->wafer_hash(SCT_ID->wafer_id(idwafer));
-	    auto it_map = SCT_DetElementMap->find(idhash);
-	    if (it_map == SCT_DetElementMap->end()) 
-	      message("IdentifierHash not found in the map from id hash to planar detector element.");
-	    else{
-	      messageVerbose("IdentifierHash found in the map.");
-	      const iFatras::PlanarDetElement* hitPlanarDetElement = it_map->second;
-	      
-	      if(hitPlanarDetElement) {
-		const HepGeom::Point3D<double> averagePosition =  0.5*(i_hit->localStartPosition() + i_hit->localEndPosition());
-		const HepGeom::Point3D<double> CorrectedGlobalStartPosition = hitPlanarDetElement->transformHit() * averagePosition;
-		u = HepGeom::Point3D<double>(CorrectedGlobalStartPosition.x(),
-					     CorrectedGlobalStartPosition.y(),
-					     CorrectedGlobalStartPosition.z());
-		
-	      } else 
-		message("Problem with the PlanarDetElement for SCT");
-	    }
-	}  
         hitVtxProperty->vertex.set1Value(hitCount++,u.x(),u.y(),u.z());
       }
     }

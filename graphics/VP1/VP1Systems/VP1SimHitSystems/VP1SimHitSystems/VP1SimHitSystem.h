@@ -6,7 +6,6 @@
 #define VP1SIMHITSYSTEM_H
 
 #include "VP1Base/IVP13DSystemSimple.h"
-#include "ISF_FatrasDetDescrModel/IdHashDetElementCollection.h"
 
 class VP1SimHitSystem: public IVP13DSystemSimple
 {
