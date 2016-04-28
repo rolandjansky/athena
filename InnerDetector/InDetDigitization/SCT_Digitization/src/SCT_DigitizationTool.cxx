@@ -896,7 +896,7 @@ SCT_RDO_Collection *SCT_DigitizationTool::createRDO(
                 }
                 int stripIn11bits = strip & 0x7ff;
                 if (stripIn11bits != strip) {
-                    ATH_MSG_ERROR("Strip number " << strip <<
+                    ATH_MSG_DEBUG("Strip number " << strip <<
                                   " doesn't fit into 11 bits - will be truncated");
                 }
 
@@ -1034,10 +1034,38 @@ void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection *collection) {
 
         // add the simdata object to the map:
         if (real_particle_hit || m_createNoiseSDO) {
-            m_simDataCollMap->insert(
-                std::make_pair(collection->getId((*i_chargedDiode).first),
-                               InDetSimData(deposits,
-                                            (*i_chargedDiode).second.flag())));
+            // m_simDataCollMap->insert(
+                // std::make_pair(collection->getId((*i_chargedDiode).first),
+                               // InDetSimData(deposits,
+                                            // (*i_chargedDiode).second.flag())));
+
+          InDetDD::SiReadoutCellId roCell =
+            (*i_chargedDiode).second.getReadoutCell();
+
+          int strip = roCell.strip();
+
+          const InDetDD::SiDetectorDesign &detDesign =
+            collection->design();
+
+          const InDetDD::SCT_ModuleSideDesign &sctDesign =
+            dynamic_cast<const InDetDD::SCT_ModuleSideDesign &> (detDesign);
+
+          int row2D = sctDesign.row(strip);
+          Identifier id_readout;
+          if (row2D < 0) { // SCT sensors
+            id_readout = m_detID->strip_id(collection->identify(),strip);
+          }
+
+          else { // Upgrade sensors
+            int strip2D = sctDesign.strip(strip);
+            id_readout = m_detID->strip_id(collection->identify(),row2D, strip2D);
+          }
+
+          m_simDataCollMap->insert(
+            std::make_pair(id_readout,
+                           InDetSimData(deposits,
+                                        (*i_chargedDiode).second.flag())));
+
         }
     }
 }
