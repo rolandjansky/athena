@@ -3,16 +3,21 @@ package VP1TestSystems
 author Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
 manager Riccardo Maria BIANCHI <rbianchi@cern.ch>
 
-use AtlasPolicy           AtlasPolicy-*
-use VP1Base VP1Base-*     graphics/VP1
-use AtlasCoinInventor     AtlasCoinInventor-*      External
 
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  VP1Base                    VP1Base-*                       graphics/VP1
+use  VP1Utils                   VP1Utils-*                      graphics/VP1
 private
-use StoreGate             StoreGate-*              Control
-use TrkTrack              TrkTrack-*               Tracking/TrkEvent
-use TrkParameters         TrkParameters-*          Tracking/TrkEvent
-use  GaudiInterface       GaudiInterface-*         External
-use  GeoPrimitives        GeoPrimitives-*          DetectorDescription
+use  AtlasCoinInventor          AtlasCoinInventor-*             External
+use  GaudiInterface             GaudiInterface-*                External
+use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
+use  StoreGate                  StoreGate-*                     Control
+use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
+use  TrkSurfaces                TrkSurfaces-*                   Tracking/TrkDetDescr
+use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
+use  VP1Qt                      VP1Qt-*                         graphics/VP1
+end_private
 
 public
 
