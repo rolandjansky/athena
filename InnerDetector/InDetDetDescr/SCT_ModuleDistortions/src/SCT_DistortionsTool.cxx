@@ -22,8 +22,18 @@
 
 SCT_DistortionsTool::SCT_DistortionsTool(const std::string& type, const std::string& name, const IInterface* parent):
   AthAlgTool(type,name,parent),
-  m_sctID(0),
-  m_doCorrections(1)
+  m_sctID(nullptr),
+  m_doCorrections(true),
+  m_dataJap1_S0(nullptr),
+  m_dataJap2_S0(nullptr),
+  m_dataUK_S0(nullptr),
+  m_dataUSA_S0(nullptr),
+  m_dataScand_S0(nullptr),
+  m_dataJap1_S1(nullptr),
+  m_dataJap2_S1(nullptr),
+  m_dataUK_S1(nullptr),
+  m_dataUSA_S1(nullptr),
+  m_dataScand_S1(nullptr)
 {
   declareInterface<ISCT_ModuleDistortionsTool>(this);
   declareProperty("TextFileName1",m_textFileNameJ1="HashJap1.txt","Read this file for hash id"); 
@@ -36,11 +46,11 @@ SCT_DistortionsTool::SCT_DistortionsTool(const std::string& type, const std::str
 }
 
 StatusCode SCT_DistortionsTool::initialize(){
-  msg(MSG::INFO)<< "initialize()"<< endreq;
+  ATH_MSG_DEBUG("initialize()");
   
   // Get the SCT helper
   if (detStore()->retrieve(m_sctID, "SCT_ID").isFailure()) {
-    if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
+    ATH_MSG_FATAL( "Could not get SCT ID helper");
     return StatusCode::FAILURE;
   }
   
@@ -58,7 +68,7 @@ StatusCode SCT_DistortionsTool::initialize(){
   
   bool readFiles = loadData();
   if (!readFiles){
-    if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Could not Read Files" << endreq;
+    ATH_MSG_FATAL( "Could not Read Files" );
     return StatusCode::FAILURE;
   }
 
@@ -66,14 +76,14 @@ StatusCode SCT_DistortionsTool::initialize(){
 }
 
 StatusCode SCT_DistortionsTool::execute() {
-  msg(MSG::INFO)<< "execute()"<< endreq;
-  msg(MSG::INFO)<< "SCT_DistortionsTool successfully installed"<< endreq;
+  ATH_MSG_DEBUG( "execute()");
+  ATH_MSG_INFO( "SCT_DistortionsTool successfully installed");
   return StatusCode::SUCCESS;
 }
 
 double SCT_DistortionsTool::correctReconstruction( const Trk::TrackParameters & trackPar, const InDetDD::SiDetectorElement & Element, Trk::LocalParameters & LocPar, const Amg::Vector2D & loct) const 
 {
-  msg(MSG::DEBUG) << "*** Including Distortions In Reconstruction ***"<<endreq;
+  ATH_MSG_DEBUG( "*** Including Distortions In Reconstruction ***");
   Trk::LocalParameters * locpar(&LocPar);
   Amg::Vector2D locpos( loct.y(),(*locpar)[Trk::locX] );
 
@@ -94,16 +104,16 @@ double SCT_DistortionsTool::correctReconstruction( const Trk::TrackParameters & 
   Amg::Vector3D dir(ydir ,xdir ,zdir );
   Amg::Vector2D Corr = correction(id, locpos, dir);// Correction gives X, Y shift
 
-  msg(MSG::DEBUG)<< "correction = "<<Corr<< endreq;
+  ATH_MSG_DEBUG( "correction = "<<Corr);
   return (Corr.y());
 }
 
 Amg::Vector2D SCT_DistortionsTool::correctSimulation(IdentifierHash id, double xhit, double yhit, double cEta, double cPhi, double cDep ) const 
 {
-  msg(MSG::DEBUG) << "*** Including Distortions In Digitization ***"<<endreq;
+  ATH_MSG_DEBUG( "*** Including Distortions In Digitization ***");
   Identifier waferIdHash = m_sctID->wafer_id(id);
   int sctSide   = m_sctID->side(waferIdHash);
-  msg(MSG::DEBUG) << "hash = "<< id <<" side = "<<sctSide <<" xhit = "<< xhit<< " yhit = " << yhit << "cEta = " << cEta << " cPhi = " << cPhi << "cDep = " << cDep <<endreq;
+  ATH_MSG_DEBUG( "hash = "<< id <<" side = "<<sctSide <<" xhit = "<< xhit<< " yhit = " << yhit << "cEta = " << cEta << " cPhi = " << cPhi << "cDep = " << cDep );
   double Dx = cEta, Dy = cPhi, Dz = cDep;
   double NewX = xhit, NewY = yhit;
   if(sctSide == 0)NewY = -yhit;
@@ -113,12 +123,12 @@ Amg::Vector2D SCT_DistortionsTool::correctSimulation(IdentifierHash id, double x
 
   Amg::Vector2D TempCorrSim;
   TempCorrSim = correction(id, newlocpos, Direction);// Correction gives X, Y shift
-  msg(MSG::DEBUG) << "TempCorrSim = " << TempCorrSim << endreq;
+  ATH_MSG_DEBUG( "TempCorrSim = " << TempCorrSim );
   xhit += TempCorrSim.x();
   if(sctSide == 1)yhit += TempCorrSim.y();
   if(sctSide == 0)yhit -= TempCorrSim.y();
   Amg::Vector2D NewPos( xhit, yhit);
-  msg(MSG::DEBUG) << " newpos = "<<NewPos <<endreq;
+  ATH_MSG_DEBUG( " newpos = "<<NewPos );
   return NewPos;
 }
 // **********************************************
@@ -142,12 +152,12 @@ Amg::Vector2D SCT_DistortionsTool::correction(IdentifierHash id, const Amg::Vect
   if( Side != 0) ID = ID - 1;
   Region = identifyRegion(ID);
   if (Region != 0) {
-    msg(MSG::DEBUG)<< " Hash = "<< id<< " ID = " << ID <<" Side = "<< Side <<" Region = "<< Region <<endreq;
+    ATH_MSG_DEBUG( " Hash = "<< id<< " ID = " << ID <<" Side = "<< Side <<" Region = "<< Region );
     // ***** Read in appropriate Z profile *****
     const std::vector<float>* ZVec = readDistortions(Region,Side);
     // ***** Find shift in Z for x,y position *****
     float delZ = zShift(xhit, yhit, ZVec );
-    msg(MSG::DEBUG)<< " x = "<< xhit<< " y = " << yhit<<" delZ = "<< delZ <<endreq;
+    ATH_MSG_DEBUG( " x = "<< xhit<< " y = " << yhit<<" delZ = "<< delZ );
     // ***** Calculate correction *****
     float tanThetaX = xdir/zdir; 
     float tanThetaY = ydir/zdir;
@@ -185,7 +195,7 @@ float SCT_DistortionsTool::zShift(const double xhit,const double yhit,const std:
   int k = 0;
   for(; ZVecFirst != ZVecLast; ++ZVecFirst){
     zGrid[k] = (*ZVecFirst) * m_distortionsScale;
-    msg(MSG::DEBUG) << "zvec =  " <<(*ZVecFirst)  << endreq; 
+    ATH_MSG_DEBUG( "zvec =  " <<(*ZVecFirst)  ); 
     k++;
   }
 
@@ -522,7 +532,7 @@ bool SCT_DistortionsTool::loadData() const
    
 int SCT_DistortionsTool::identifyRegion(IdentifierHash id) const 
 {  
-  msg(MSG::DEBUG) << "Identifying module common profile region: " << endreq; 
+  ATH_MSG_DEBUG( "Identifying module common profile region: " ); 
   //int REGION=0;//1=J1,2=J2,3=UK,4=USA,5=Scand
   //Identifier::value_type ID = id.get_compact();
   std::map<int,int>::iterator it;
@@ -539,7 +549,7 @@ int SCT_DistortionsTool::identifyRegion(IdentifierHash id) const
 }
 
 StatusCode SCT_DistortionsTool::finalize() {
-  msg(MSG::INFO)<<"finalize()"<< endreq;
+  ATH_MSG_INFO("finalize()");
   
   delete  m_dataJap1_S0;
   delete  m_dataJap2_S0;
