@@ -14,6 +14,11 @@
 
 #include "VP1RawDataSystems/VP1RawDataHandle_LUCID_Digit.h"
 
+//#include "LUCID_RawEvent/LUCID_RawEvent/LUCID_Digit.h" // CMT compilation
+#include "LUCID_RawEvent/LUCID_Digit.h"   // new CMake compilation
+
+
+
 //____________________________________________________________________
 VP1RawDataHandle_LUCID_Digit::VP1RawDataHandle_LUCID_Digit(VP1RawDataCollBase* coll,const LUCID_Digit *data)
   : VP1RawDataHandle_LUCID(coll),m_data(data)
@@ -36,7 +41,6 @@ QStringList VP1RawDataHandle_LUCID_Digit::clicked(bool verbose) const
   return l;
 }
 
-#include "LUCID_RawEvent/LUCID_RawEvent/LUCID_Digit.h"
 unsigned short VP1RawDataHandle_LUCID_Digit::getTubeID() const { return m_data->getTubeID(); }
 unsigned short VP1RawDataHandle_LUCID_Digit::getQDC() const { return m_data->getQDC(); }
 unsigned short VP1RawDataHandle_LUCID_Digit::getTDC() const { return m_data->getTDC(); }
