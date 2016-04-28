@@ -30,7 +30,7 @@ LArDigit::operator std::string() const{
  
  const char * stname = typeid( *this ).name() ; 
  int lname ; 
- sscanf( stname , "%d%s" , &lname , classNameOfDigit ) ;
+ sscanf( stname , "%80d%47s" , &lname , classNameOfDigit ) ;
  
  
  sprintf( stNumberOfSamples , "# of samples = %d " , this->nsamples() ) ;

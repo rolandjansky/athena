@@ -71,6 +71,21 @@ double  LArPedestal::get_sum() const
 }
 
 //----------------------------------------------------------------------------
+double  LArPedestal::get_mean(const unsigned isample_min, const unsigned isample_max) const
+//----------------------------------------------------------------------------
+{
+  unsigned imin=0;
+  unsigned imax=m_sum.size()-1;
+
+  if (isample_min > 0 && isample_min < m_sum.size()) imin=isample_min;
+  if (isample_max > 0 && isample_max < m_sum.size()) imax=isample_max;
+  double mean = 0;
+  for(unsigned i=0; i<=imax; ++i) mean += m_sum[i];
+  mean /= ((imax-imin+1)*(double) m_nped);
+
+  return mean;
+}
+//----------------------------------------------------------------------------
 double  LArPedestal::get_mean(const unsigned isample) const
 //----------------------------------------------------------------------------
 {
@@ -96,6 +111,27 @@ double  LArPedestal::get_mean() const
   return double(imean)/(nsamples*m_nped);
 
 
+}
+
+//----------------------------------------------------------------------------
+double  LArPedestal::get_rms(const unsigned isample_min, const unsigned isample_max) const
+//----------------------------------------------------------------------------
+{
+  unsigned imin=0;
+  unsigned imax=m_sum.size()-1;
+
+  if (isample_min > 0 && isample_min < m_sum.size()) imin=isample_min;
+  if (isample_max > 0 && isample_max < m_sum.size()) imax=isample_max;
+  //const int nsamples = m_sum.size();
+  uint64_t x=0, y=0;
+  for(unsigned i=imin; i<=imax; i++) {
+    x+=m_sum[i];
+    y+=m_sumSquares[i];
+  }
+  
+  const double mean=double(x)/((imax-imin+1)*m_nped);
+  const double ss=double(y)/((imax-imin+1)*m_nped);
+  return sqrt(ss-mean*mean);
 }
 
 

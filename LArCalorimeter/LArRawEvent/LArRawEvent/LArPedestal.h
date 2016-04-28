@@ -65,9 +65,13 @@ class LArPedestal
   double get_mean() const;
   double get_mean(const unsigned isample) const;
 
-  // Get rms value
-  double get_rms() const;
-  double get_rms(const unsigned isample) const;
+  double get_mean(const unsigned isample_min, const unsigned isample_max) const;
+
+   // Get rms value
+   double get_rms() const;
+   double get_rms(const unsigned isample) const;
+   double get_rms(const unsigned isample_min, const unsigned isample_max) const;
+
 
   // Get number of samples
   inline unsigned get_nsamples() const { return m_sum.size();}
