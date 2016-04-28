@@ -3,6 +3,7 @@ package VP1VertexSystems
 author Andreas Wildauer <Andreas.Wildauer@cern.ch>
 manager Riccardo Maria BIANCHI <rbianchi@cern.ch>
 
+
 public
 use  AtlasPolicy                AtlasPolicy-*                   
 use  VP1Base                    VP1Base-*                       graphics/VP1
