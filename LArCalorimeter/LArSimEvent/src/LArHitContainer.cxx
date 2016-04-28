@@ -26,7 +26,7 @@ LArHitContainer::operator std::string () const {
  
  const char * stname = typeid( *this ).name() ; 
  int lname ; 
- sscanf( stname , "%d%s" , &lname , nameOfContainer ) ;
+ sscanf( stname , "%80d%47s" , &lname , nameOfContainer ) ;
  
  std::string newline( "\n" ) ;    
  std::string hitContainerString = nameOfContainer ;
