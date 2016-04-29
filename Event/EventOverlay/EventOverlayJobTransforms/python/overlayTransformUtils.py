@@ -2,7 +2,7 @@
 
 ## @brief Specialist reconstruction and bytestream transforms
 #  @author atlas-comp-jt-dev@cern.ch
-#  @version $Id: overlayTransformUtils.py 733403 2016-04-01 18:38:53Z ahaas $
+#  @version $Id: overlayTransformUtils.py 744063 2016-04-29 22:49:04Z ahaas $
 
 import os
 import re
@@ -182,8 +182,10 @@ def addOverlay_BSArguments(parser):
 
 ### Add Sub-step Methods
 def addOverlayBSTrigFilterSubstep(executorSet):
+    od = ['BS_TRIGSKIM']
+    for n in range(1,50): od+=['BS_TRIGSKIM'+str(n)]
     executorSet.add(BSJobSplitterExecutor(name = 'BSTrigFilter', skeletonFile = 'EventOverlayJobTransforms/skeleton.BSOverlayFilter_tf.py', substep='overlayBSTrigFilt',
-                                          perfMonFile = 'ntuple.pmon.gz', inData = ['ZeroBiasBS','BS_SKIM'], outData = ['BS_TRIGSKIM']))
+                                          perfMonFile = 'ntuple.pmon.gz', inData = ['ZeroBiasBS','BS_SKIM'], outData=od ))
 def addOverlayBSFilterSubstep(executorSet):
     executorSet.add(BSJobSplitterExecutor(name = 'BSFilter', skeletonFile = 'EventOverlayJobTransforms/skeleton.BSOverlayFilter_tf.py', substep='overlayBSFilt',
                                           perfMonFile = 'ntuple.pmon.gz', inData = ['ZeroBiasBS','BSCONFIG'], outData = ['BS_SKIM','TXT_EVENTID']))
