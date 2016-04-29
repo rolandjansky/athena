@@ -5,7 +5,7 @@
 beamspotnt is a command line utility for beam spot ntuples.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: beamspotnt.py 721726 2016-02-03 22:13:01Z beringer $'
+__version__ = '$Id: beamspotnt.py 743501 2016-04-28 09:56:37Z amorley $'
 __usage__   = '''%prog [options] command [args ...]
 
 Commands are:
@@ -31,7 +31,7 @@ beamspotnt -t BeamSpotCOOL -f IndetBeampos-ES1-UPD2 --ru 165815 --rl 165815 dump
 #periodDef = '/afs/cern.ch/atlas/www/GROUPS/DATAPREPARATION/DataPeriods'
 periodDef = '/afs/cern.ch/user/a/atlidbs/nt/DataPeriods'
 
-import sys, os, time, glob, re
+import sys, os, time, glob, re, copy
 
 # Create a properly quoted string of the command line to save
 qargv = [ ]
@@ -141,6 +141,7 @@ parser.add_option('', '--fullCorrelations', dest='fullCorrelations', action='sto
 parser.add_option('', '--scans', dest='scans', default='', help='comma-separated list of hypenated lb ranges for lumi scans')
 parser.add_option('', '--acqFlag', dest='acqFlag', default = False, action='store_true', help='Cut on AcquistionFlag=1.0 for stationary points of VdM scan')
 parser.add_option('', '--overlayScans', dest='overlayScans', default = False, action='store_true', help='overlay VdM scans on same plot')
+parser.add_option('', '--useAve', dest='useAve', action='store_true', default=False, help='Average over poor fits in the beamspot -- performed during merging step')
 (options,args) = parser.parse_args()
 if len(args) < 1:
     parser.error('wrong number of command line arguments')
@@ -268,6 +269,127 @@ def getNt():
     print nt.summary()
     print nt.cutSummary()
     return nt
+    
+def cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize ):
+    i=0 
+    while  i < len( allBSResultsInNt ):
+      b = allBSResultsInNt[i]
+      if b.status < 70 and b.nValid < 2000 and b.nValid < averagenVtx:
+        print "Will take an average for  lb's " + str(b.lbStart) +" to " + str(b.lbEnd) + " which has " + str(b.nValid) + " verticies" 
+        lastGoodEntry = b
+        nextGoodEntry = b
+        iNeg = i-1;
+        # Find previous good entry
+        while iNeg >= 0:
+          if allBSResultsInNt[iNeg].status == 59 and allBSResultsInNt[iNeg].nValid > 2000 :
+            lastGoodEntry = allBSResultsInNt[iNeg]
+            print " --- Starting with lb : " + str(lastGoodEntry.lbStart) +" to " + str(lastGoodEntry.lbEnd)
+            break
+          iNeg -= 1 
+    
+        # Find the next good entry
+        iPos = i+1;
+        while iPos < len(allBSResultsInNt):
+          if allBSResultsInNt[iPos].status == 59 and allBSResultsInNt[iPos].nValid > 2000:
+            nextGoodEntry = allBSResultsInNt[iPos]
+            print " --- Ending with lb   : " + str(nextGoodEntry.lbStart) +" to " + str(nextGoodEntry.lbEnd)
+            break
+          iPos += 1 
+    
+        #if all entries are useless then we are in trouble dont do anything
+        if lastGoodEntry == b and nextGoodEntry == b :
+          print "Failed to do average - no good entries were found"
+          i+=1
+          continue
+
+
+        #check the entries are reasonablly close to each other
+        if( (nextGoodEntry.lbStart - b.lbEnd) > lbSize  and (b.lbStart - lastGoodEntry.lbEnd) > lbSize):
+          print "Failed to do average - entries were too far away"
+          i+=1
+          continue 
+        
+        
+        #Calculate the average beamspot position for the following parameters
+        varList = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ','tiltX','tiltY','rhoXY','sigmaXY']
+        calc = BeamSpotAverage(varList ,weightedAverage=True)
+        #Add current entry if it is reliable 
+        if( b.status == 59 and b.posXErr != 0):
+          calc.add(b)
+        #Add previous entry if it is not too far away in time
+        if lastGoodEntry != b and (b.lbStart - lastGoodEntry.lbEnd) <= lbSize :
+          calc.add(lastGoodEntry)
+        #Add next entry if it is not too far away in time
+        if nextGoodEntry != b and (nextGoodEntry.lbStart - b.lbEnd) <= lbSize :
+          calc.add(nextGoodEntry)
+        calc.average()
+
+        ave = calc.ave
+        err = calc.err
+        b.status = 666 #b.status << 4
+        bcopy = copy.deepcopy(b)
+
+        for var in varList:
+          #print "Var,index: {:>10} ,  {:>3}".format( var,  calc.varList.index(var))
+          setattr(bcopy, var,       ave[calc.varList.index(var)])
+          setattr(bcopy, var+"Err", err[calc.varList.index(var)])
+        
+        bcopy.status = 59        
+        i += 1
+        allBSResultsInNt.insert(i, bcopy)
+      i += 1
+
+
+
+
+def fillInMissingLbs(allBSResultsInNt, lbSize):
+      i=0
+      lastValidEntry  = -1
+      nextValidEntry  = -1
+      while  i < len( allBSResultsInNt ):
+        if allBSResultsInNt[i].status != 59: 
+          i += 1
+          continue
+
+        nextValidEntry = i
+          
+        if(lastValidEntry >= 0):
+          if allBSResultsInNt[nextValidEntry].lbStart !=  allBSResultsInNt[lastValidEntry].lbEnd + 1:
+            print "Missing Lumi block from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd, allBSResultsInNt[nextValidEntry].lbStart + 1)
+            if allBSResultsInNt[nextValidEntry].lbStart -  allBSResultsInNt[lastValidEntry].lbEnd + 1 > lbSize:
+              print "--Lumi block gap too large wont fill in the gap"           
+            else:
+              varList = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ','tiltX','tiltY','rhoXY','sigmaXY']
+              calc = BeamSpotAverage(varList ,weightedAverage=True)
+              calc.add(allBSResultsInNt[nextValidEntry])
+              calc.add(allBSResultsInNt[lastValidEntry])
+              calc.average()
+
+              ave = calc.ave
+              err = calc.err
+
+              bcopy = copy.deepcopy(b)
+              
+              for var in varList:
+                #print "Var,index: {:>10} ,  {:>3}".format( var,  calc.varList.index(var))
+                setattr(bcopy, var,       ave[calc.varList.index(var)])
+                setattr(bcopy, var+"Err", err[calc.varList.index(var)])
+
+              bcopy.status    = 59
+              bcopy.timeStart = 0 
+              bcopy.timeEnd   = 0   
+              bcopy.nEvents   = 0   
+              bcopy.nValid    = 0    
+              bcopy.nVtxAll   = 0   
+              bcopy.nVtxPrim  = 0  
+              bcopy.lbStart   = allBSResultsInNt[lastValidEntry].lbEnd + 1    
+              bcopy.lbEnd     = allBSResultsInNt[nextValidEntry].lbStart-1
+              allBSResultsInNt.insert(lastValidEntry+1, bcopy)
+              i += 1
+
+        lastValidEntry = nextValidEntry
+        i += 1  
+
 
 
 class Plots(ROOTUtils.PlotLibrary):
@@ -1028,13 +1150,39 @@ if cmd=='inspect' and len(args)==1:
 #
 if cmd=='merge' and len(args)==2:
     srcNtClass = locals()[options.srctype]
-    srcNt = srcNtClass(args[1])
+    srcNt = srcNtClass(args[1],fullCorrelations=options.fullCorrelations)
     setCuts(srcNt)
     print '\nImporting from '+srcNt.summary()
     print srcNt.cutSummary()
-    dstNt = ntClass(options.ntname,True,fullCorrelations=True)
+    dstNt = ntClass(options.ntname,True,fullCorrelations=options.fullCorrelations)
     print '\nMerging into '+dstNt.summary()
+    
+    totalEntries = 0 
+    totalVtxs = 0
+    lbSize = 0 
+    allBSResultsInNt = []
     for b in srcNt:
+      allBSResultsInNt.append( b )
+      if b.status == 59:
+        totalEntries += 1
+        totalVtxs += b.nValid
+        lbSize += b.lbStart - b.lbEnd 
+        
+    averagenVtx = totalVtxs/totalEntries  
+    print 'Average Entries: '+ str(averagenVtx)
+    averagenVtx *= 0.33
+    
+    lbSize = lbSize/totalEntries + 1
+    print 'Average number of lb used for fit: '+ str( lbSize )
+    
+    #Sort entries in order of lb number       
+    #allBSResultsInNt.sort(key=lambda x: x.lbStart, reverse=False)  
+    allBSResultsInNt.sort()  
+    if options.useAve:
+        cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize * 10)
+        fillInMissingLbs(allBSResultsInNt, lbSize * 10)
+                   
+    for b in allBSResultsInNt:
         if options.fillcooldata:
             b.fillDataFromCOOL()
         if options.pseudoLbFile:

@@ -130,7 +130,7 @@ class PlotBeamSpotCompareReproc(PostProcessingStep):
     def run(self):
         outFileNameGIF = self.getFileName('.gif')
         outFileNamePDF = self.getFileName('.pdf')
-        ntFileName = self.getFileName('-nt.root','MergeNt')
+        ntFileName = self.getFileName('-nt.root','BeamSpotNt')
         
         # Resolve beamspot tag.  Since reprocessing results will be uploaded to the "next" tag, the "current"
         # tag will be the one containing the best results to date and hence we compare to that
@@ -151,7 +151,7 @@ class PlotOnlineOfflineCompare(PostProcessingStep):
     def run(self):
         outFileNameGIF = self.getFileName('.gif')
         outFileNamePDF = self.getFileName('.pdf')
-        ntFileName = self.getFileName('-nt.root','MergeNt')
+        ntFileName = self.getFileName('-nt.root','BeamSpotNt')
         if os.path.exists('/'.join([self.taskDir,ntFileName])):
             cmd = 'cd %s; plotBeamSpotCompare.py -b -o %s,%s --online2 --config="OnlineOffline" %s %s' % (self.taskDir, outFileNameGIF, outFileNamePDF, ntFileName, beamspottagonline)
             status=self.logExec(cmd,doPrint=True,abortOnError=False)
@@ -211,7 +211,7 @@ class PlotBeamSpot(PostProcessingStep):
             self.addResult(outFileNameGIF)
             self.addResult(outFileNamePDF)
         else:
-            raise PostProcessingError('ERROR: No ntuple file %s - did MergeNt step run?\n' % ntFileName,self.executedSteps)
+            raise PostProcessingError('ERROR: No ntuple file %s - did BeamSpotNt step run?\n' % ntFileName,self.executedSteps)
 
 
 class LinkResults(PostProcessingStep):
@@ -234,7 +234,7 @@ class LinkResults(PostProcessingStep):
 
 class AveBeamSpot(PostProcessingStep):
     def run(self):
-        ntFileName              = self.getFileName('-nt.root','MergeNt')
+        ntFileName              = self.getFileName('-nt.root','BeamSpotNt')
         beamSpotDbFileName      = self.getFileName('-beamspot.db')
         #dataQualityDbFileName   = self.getFileName('-dqflags.db')
 
@@ -289,7 +289,7 @@ class AveBeamSpot(PostProcessingStep):
             # Set links by hand
             self.taskman.setValue(self.dsName,self.taskName,'RESULTLINKS',resultLinks)
         else:
-            raise PostProcessingError('ERROR: No ntuple file %s - did MergeNt step run?\n' % ntFileName,self.executedSteps)
+            raise PostProcessingError('ERROR: No ntuple file %s - did BeamSpotNt step run?\n' % ntFileName,self.executedSteps)
 
 
 class CheckT0Status(PostProcessingStep):
@@ -352,7 +352,7 @@ class UploadBeamSpot(PostProcessingStep):
 class DQBeamSpot(PostProcessingStep):
     """Automatically determine DQ info (after uploading beamspot)"""
     def run(self, absent=False):
-        ntFileName              = self.getFileName('-nt.root','MergeNt')
+        ntFileName              = self.getFileName('-nt.root','BeamSpotNt')
         dataQualityDbFileName   = self.getFileName('-dqflags.db')
 
         if os.path.exists('/'.join([self.taskDir,dataQualityDbFileName])):
@@ -390,7 +390,7 @@ class DQBeamSpot(PostProcessingStep):
             # Set links by hand
             self.taskman.setValue(self.dsName,self.taskName,'RESULTLINKS',resultLinks)
         else:
-            raise PostProcessingError('ERROR: No ntuple file %s - did MergeNt step run?\n' % ntFileName,self.executedSteps)
+            raise PostProcessingError('ERROR: No ntuple file %s - did BeamSpotNt step run?\n' % ntFileName,self.executedSteps)
 
 class DQBeamSpotReproc(DQBeamSpot):
     """Automatically determine DQ info (after uploading beamspot).  For reprocessing also upload absent defects to remove previosuly set ones"""
@@ -414,7 +414,7 @@ class BeamSpotNt(PostProcessingStep):
         ntFileName = self.getFileName('-nt.root','MergeNt')
         bsNtFileName = self.getFileName('-nt.root')
         if os.path.exists('/'.join([self.taskDir,ntFileName])):
-            self.logExec("cd %s; rm -f %s; beamspotnt.py -f %s --status '' --fillCOOL merge %s" % (self.taskDir,bsNtFileName,bsNtFileName,ntFileName))
+            self.logExec("cd %s; rm -f %s; beamspotnt.py -f %s --status '' --useAve --fillCOOL merge %s" % (self.taskDir,bsNtFileName,bsNtFileName,ntFileName))
             self.addResult(bsNtFileName)
         else:
             raise PostProcessingError('ERROR: No merged ntuple file %s - did MergeNt step run?\n' % ntFileName,self.executedSteps)
@@ -439,7 +439,7 @@ class BeamSpotGlobalNt(PostProcessingStep):
         if not os.path.exists(globalNtDir):
             raise PostProcessingError('ERROR: Cannot access directory with global beam spot ntuple: %s' % globalNtDir, self.executedSteps)
         if os.path.exists('/'.join([self.taskDir,ntFileName])):
-            self.logExec("cd %s; beamspotnt.py -f %s --status '' --fillCOOL merge %s" % (self.taskDir,globalNtFileName,ntFileName))
+            self.logExec("cd %s; beamspotnt.py -f %s --status '' --fillCOOL --useAve merge %s" % (self.taskDir,globalNtFileName,ntFileName))
         else:
             raise PostProcessingError('ERROR: No merged ntuple file %s - did MergeNt step run?\n' % ntFileName, self.executedSteps)
 
