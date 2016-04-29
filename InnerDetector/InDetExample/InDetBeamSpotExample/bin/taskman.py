@@ -5,7 +5,7 @@
 taskman is a command line utility to run TaskManager functions.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: taskman.py 739380 2016-04-11 14:56:48Z amorley $'
+__version__ = '$Id: taskman.py 739379 2016-04-11 14:52:08Z amorley $'
 __usage__   = '''%prog [options] taskdbconn command [args ...]
 
 Commands are:
