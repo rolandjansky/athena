@@ -3,7 +3,7 @@ package RecEventTPCnv
 author Rolf Seuster <seuster@cern.ch>
 
 use AtlasPolicy		 AtlasPolicy-*
-use CLIDSvc              CLIDSvc-*                  Control
+#use CLIDSvc              CLIDSvc-*                  Control
 
 use AthenaPoolCnvSvc	 AthenaPoolCnvSvc-*	    Database/AthenaPOOL
 

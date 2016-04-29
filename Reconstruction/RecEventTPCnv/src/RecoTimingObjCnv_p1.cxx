@@ -83,7 +83,7 @@ void RecoTimingObjCnv_p1::transToPers( const RecoTimingObj* trans,
 	  unsigned long a2(-1);
 	  FILE *proc = fopen("/proc/self/statm","r");
 	  if (proc) {
-	    fscanf(proc, "%lu %lu %lu", &a0, &a1, &a2);
+	    fscanf(proc, "%80lu %80lu %80lu", &a0, &a1, &a2);
             fclose(proc);
           }
 	  f0=float(a0*m_pagesize)-f0;
