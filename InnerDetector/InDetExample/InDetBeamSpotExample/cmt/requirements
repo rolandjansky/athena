@@ -35,6 +35,7 @@ apply_pattern declare_scripts files="-s=$(InDetBeamSpotExample_root)/bin \
   beamSpotT1_Vertex_trf.py \
   dumpLBFileMap.py \
   makeDatasetOnDiskList \
+  makeDatasetOnDiskList2 \
   plotBeamSpotCompare.py \
   dqBeamSpot.py \
   periodInfo.py \

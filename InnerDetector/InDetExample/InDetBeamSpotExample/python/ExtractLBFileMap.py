@@ -36,8 +36,8 @@ def getLBs(tt, name):
         esi = getattr(tt, name)
         if esi == None:
             print "Could not get object for EventStreamInfo: ", name
-
-        return esi.lumi_blocks()
+        else:
+            return esi.lumi_blocks()
     
     except Exception, e:
         print "## Caught exception [%s] !!" % str(e.__class__)
@@ -68,7 +68,9 @@ def extract(dirs, filter, prefix = True):
                 fileNames.append('root://eosatlas/'+line.rstrip())
 
     fileNames = set( fileNames )
+    return extractFromFiles(fileNames)
 
+def extractFromFiles(fileNames):
     sc = 0
     lbDict = {}
     # Loop over files
@@ -136,7 +138,7 @@ def extract(dirs, filter, prefix = True):
                 sc = 1
                 pass
 
-            if not "eos" in arg and not "eos" in fileName:
+            if not "eos" in fileName:
                 f.Close()
         
         except Exception, e:

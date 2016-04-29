@@ -65,6 +65,7 @@ parser.add_option('', '--status', dest='status',action='store',default=59,help='
 parser.add_option('', '--multicanv', dest='multicanv', action='store_true',default=False,help="create multiple canvases")
 parser.add_option('', '--outtag', dest='outtag', action='store', default='', help="string to prepend to output file names.")
 parser.add_option('', '--html', dest='html', action='store_true', default=False, help="create an HTML page to see plots more easily.  Only really useful with multicanv.")
+parser.add_option('', '--htmltag', dest='htmltag', action='store', default='', help="tag to distinguish different HTML pages")
 (options,args) = parser.parse_args()
 
 tag1=''
@@ -191,7 +192,8 @@ if options.RooFit:
         BS2_status=59
     else:
         BS2_status=107
-BSData2.statusList=[BS2_status]
+if not options.config=='OnlineOffline':
+    BSData2.statusList=[BS2_status]
 BS2Dict = BSData2.getDataCache()
     
 if(len(BS2Dict)==0):
@@ -266,6 +268,8 @@ for BS1 in BSData1:
                         if BS2.status == 107: pass2 = True
                     elif options.status==107:
                         if BS2.status == 59: pass2 = True
+                elif options.config=='OnlineOffline':
+                    if (BS2.status%8)==7: pass2=True
                 else:
                     if BS2.status == options.status: pass2 = True
 
@@ -323,6 +327,8 @@ for run in BS2Dict:
                 if BS2.status == 107: pass2 = True
             elif options.status==107:
                 if BS2.status == 59: pass2 = True
+        elif options.config=="OnlineOffline":
+            if (BS2.status%8)==7: pass2=True
         else:
             if BS2.status == options.status: pass2 = True
 
@@ -560,8 +566,10 @@ def drawSummary(var=''):
     elif options.config == 'Reproc':
         if not options.multicanv:
             descrText += 'Reprocessed - Tier0 comparison'
-        legText1 = 'Tier0'
-        legText2 = 'Reproc'
+        if options.label1 == '':
+            legText1 = 'Tier0'
+        if options.label2 == '':
+            legText2 = 'Reproc'
     else:
         legText1 = 'Beamspots 1'
         legText2 = 'Beamspots 2'
@@ -587,7 +595,7 @@ def drawSummary(var=''):
     legendList.append([gr2, legText2, 'LP'])
     legendList.append([grdiff, 'Difference', 'LP'])
     if options.multicanv:
-        ROOTUtils.drawLegend(0.25, 0.6, 0.55, 0.9, legendList)
+        ROOTUtils.drawLegend(0.25, 0.6, 0.60, 0.92, legendList)
     elif not options.plotHistos:
         ROOTUtils.drawLegend(0.14, 0.67, 0.9, 0.9, legendList)
     if runNumber != 0:
@@ -623,7 +631,7 @@ if options.output:
         basename=tag2.replace(".BeamSpotNt-nt.root",".PlotBeamSpotCompareReproc").replace(".MergeNt-nt.root",".PlotBeamSpotCompareReproc")
         basename=basename[basename.rfind('/')+1:]
         if options.html and options.outtag.find('/'):
-            basename=options.outtag[:options.outtag.rfind('/')+1]+basename+"."
+            basename=options.outtag[:options.outtag.rfind('/')+1]+basename+options.htmltag+"."
     elif options.runNumber>0:
         basename+=str(options.runNumber)
         basename+="_"
@@ -639,13 +647,18 @@ if options.output:
                 htmlstart=0
                 if basename.find('/')>0:
                     htmlstart=basename.rfind('/')+1
-                html=open(basename[htmlstart:-1]+".html",'w')
+                htmlfilename=basename[htmlstart:-1]+".html"
+                html=open(htmlfilename,'w')
+                print "writing html file %s" % htmlfilename
             for var,canv in canvases.iteritems():
                 canv.Print(basename+var+o)
             if o==".png" and options.html:
                 for var in ['posX', 'posY', 'posZ', 'sigmaX', 'sigmaY', 'sigmaZ', 'rhoXY', 'tiltX', 'tiltY', 'k', 'nEvents']:
                     if var in canvases:
-                        html.write("<img src=\""+basename+var+o+"\" width=\"33%\">")
+                        if "pdf" in options.output:
+                            html.write("<a href=\""+basename+var+".pdf\"><img src=\""+basename+var+o+"\" width=\"33%\"></a>")
+                        else:
+                            html.write("<img src=\""+basename+var+o+"\" width=\"33%\">")
             if options.html:
                 html.close()
         else:

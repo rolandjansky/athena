@@ -7,7 +7,7 @@ ntuple, store them in a standalone ntuple for use in RooFit, and run
 different RooFit beam spot fits.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: fitman.py 644343 2015-02-05 02:37:20Z beringer $'
+__version__ = '$Id: fitman.py 721742 2016-02-03 23:34:44Z beringer $'
 __usage__   = """%prog [options] [cmd ...]
 
 Commands are:
@@ -78,11 +78,14 @@ parser.add_option('-f', '--nt', dest='ntName', default='vtx.root', help='file na
 parser.add_option('-g', '--nttree', dest='ntTree', default="Vertices", help='name of TTree with vertices')
 parser.add_option('', '--plot', dest='plot', default='ALL', help='what to plot (default: ALL)')
 parser.add_option('', '--canvas', dest='canvas', default='default', help='canvas size: default, page, wide, extrawide or square')
+parser.add_option('', '--lsize', dest='lsize', type='float', default=0.05, help='axis label size')
 parser.add_option('', '--hnbins', dest='hnbins', type='int', default=None, help='number of histogram bins')
 parser.add_option('', '--hmin', dest='hmin', type='float', default=None, help='histogram x axis minimum')
 parser.add_option('', '--hmax', dest='hmax', type='float', default=None, help='histogram x axis maximum')
 parser.add_option('', '--hrange', dest='hrange', type='float', default=None, help='histogram x axis range')
 parser.add_option('', '--fixK', dest='fixK', type='float', default=None, help='stdfit: fix k factor in fit')
+parser.add_option('', '--showbs', dest='showbs', action='store_true', default=False, help='show beam spot')
+parser.add_option('', '--showratio', dest='showratio', action='store_true', default=False, help='show ratio data/fit')
 parser.add_option('', '--minrange', dest='minrange', type='float', default=0.1, help='min range of x-axis on plots')
 parser.add_option('', '--logy', dest='logy', action='store_true', default=False, help='log scale')
 parser.add_option('-s', '--stats', dest='stats', action='store_true', default=False, help='show statistics box on plot')
@@ -91,10 +94,13 @@ parser.add_option('', '--prelim', dest='prelim', action='store_true', default=Fa
 parser.add_option('', '--approval', dest='approval', action='store_true', default=False, help='Label figure ATLAS for approval')
 parser.add_option('', '--published', dest='published', action='store_true', default=False, help='add ATLAS to figure')
 parser.add_option('', '--atlasx', dest='atlasx', type='float', default=0.2, help='x position for drawing ATLAS (Preliminary) label')
-parser.add_option('', '--atlasy', dest='atlasy', type='float', default=0.87, help='y position for drawing ATLAS (Preliminary) label')
+parser.add_option('', '--atlasy', dest='atlasy', type='float', default=0.85, help='y position for drawing ATLAS (Preliminary) label')
 parser.add_option('', '--atlasdx', dest='atlasdx', type='float', default=0.115, help='x position offset for drawing Preliminary label')
 parser.add_option('', '--comment', dest='comment', default='', help='additional text (use semicolon to indicate line breaks)')
-parser.add_option('', '--commentx', dest='commentx', type='float', default=0.65, help='x position for additional text')
+parser.add_option('', '--commentx', dest='commentx', type='float', default=0.2, help='x position for additional text')
+parser.add_option('', '--commenty', dest='commenty', type='float', default=0.69, help='y position for additional text')
+parser.add_option('', '--legendx', dest='legendx', type='float', default=0.70, help='x position of legend')
+parser.add_option('', '--legendy', dest='legendy', type='float', default=0.93, help='y position of legend')
 parser.add_option('', '--name', dest='name', default='fitman', help='name for set of plots (default: fitman)')
 parser.add_option('-o', '--output', dest='output', default='.gif', help='comma-separated list of output files or formats (default: .gif)')
 parser.add_option('-c', '--cpu', dest='nCpu', type='int', default=2, help='number of CPUs to use for RooFit')
@@ -156,6 +162,74 @@ class Plots(ROOTUtils.PlotLibrary):
         self.allCanvasDivs = (2,2)
         self.singleCanvasSize = options.canvas
 
+    def prepareMainPad(self):
+        mainPad = self.protect( ROOT.TPad("mainPad","mainPad",0.,0.3,1.,1.) )
+        mainPad.SetBottomMargin(0.03) # with space between the two pads
+        #mainPad.SetBottomMargin(0.00) # w/o space between the two pads
+        mainPad.Draw()
+        mainPad.cd()
+        return mainPad
+
+    def drawRatioPad(self,frame,hmin,hmax):
+        ROOT.gROOT.ProcessLine(".L ratioPlot.C+")
+        axisTitle = frame.GetXaxis().GetTitle()
+        frame.GetXaxis().SetTitle('')
+        frame.GetXaxis().SetLabelSize(0.)
+        frame.GetYaxis().SetTitleOffset(1.0)
+        canvas = ROOT.gPad.GetCanvas()
+        canvas.cd()
+        ratioPad = self.protect( ROOT.TPad("ratioPad","ratioPad",0.,0.,1.,0.3) )
+        ratioPad.SetTopMargin(0.)
+        ratioPad.SetBottomMargin(0.3)
+        ratioPad.Draw()
+        ratioPad.cd()
+        dataHist = frame.getObject(0)
+        fitCurve = frame.getObject(1)
+        #global pull
+        #pull = dataHist.makeResidHist(fitCurve,True,True)
+        global ratio
+        ratio = ROOT.ratioPlot(dataHist,fitCurve)
+        ratio.Draw('AP')
+        # NOTE: SetRangeUser chooses bin edges, so ratio plot would not be perfectly aligned
+        ratio.GetXaxis().SetLimits(hmin,hmax)
+        scale = 2.5
+        size = scale*options.lsize
+        ratio.GetXaxis().SetLabelSize(size)
+        ratio.GetXaxis().SetTitle(axisTitle)
+        ratio.GetXaxis().SetTitleSize(size)
+        ratio.GetXaxis().SetTitleOffset(1.)
+        ratio.GetYaxis().SetRangeUser(0.3,1.7)
+        ratio.GetYaxis().SetLabelSize(size)
+        ratio.GetYaxis().SetTitle('Data / fit')
+        #ratio.GetYaxis().SetTitleSize(scale*ratio.GetYaxis().GetTitleSize())
+        ratio.GetYaxis().SetTitleSize(size)
+        ratio.GetYaxis().SetTitleOffset(1.0/scale)
+        ratio.GetYaxis().SetNdivisions(504)
+        ratio.SetMarkerSize(0.7)
+        line = self.protect( ROOT.TLine(hmin,1,hmax,1) )
+        line.Draw()
+
+
+    def labels(self):
+        # ATLAS labels and other text
+        if options.prelim:
+            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,True,offset=options.atlasdx,energy=8,size=options.lsize)
+        if options.approval:
+            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,False,offset=options.atlasdx,isForApproval=True,energy=8,size=options.lsize)
+        if options.published:
+            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,False,offset=options.atlasdx,energy=8,size=options.lsize)
+        if options.comment:
+            self.protect( ROOTUtils.drawText(options.commentx,options.commenty,0.06,options.comment,font=42) )
+
+    def legend(self,frame):
+        legendList = []
+        legendList.append([frame.getObject(0),'Data','P'])
+        legendList.append([frame.getObject(1),'Fit projection','L'])
+        if options.showbs:
+            legendList.append([frame.getObject(2),'Beam spot','L'])
+        legendMinY = max(options.legendy-options.lsize*1.4*len(legendList),0.2)
+        self.protect( ROOTUtils.drawLegend(options.legendx,legendMinY,0.92,options.legendy,legendList,textSize=options.lsize) )
+
     def hist(self,what):
         if not what:
             return
@@ -172,9 +246,12 @@ class Plots(ROOTUtils.PlotLibrary):
             ROOT.gPad.SetLogy(options.logy)
 
     def x(self):
+        if options.showratio:
+            self.prepareMainPad()
         dx = options.hrange/2 if options.hrange else max(options.minrange/2.,8.*sx.getVal())
         hmin = options.hmin if options.hmin is not None else mx.getVal()-dx
         hmax = options.hmax if options.hmax is not None else mx.getVal()+dx
+        global xframe
         xframe = self.protect( x.frame(hmin,hmax) )
         if options.hnbins is not None:
             binning = ROOT.RooBinning(hmin, hmax)
@@ -184,21 +261,35 @@ class Plots(ROOTUtils.PlotLibrary):
         else:
             data.plotOn(xframe)
             xbinWidth = xframe.GetXaxis().GetBinWidth(1)
-        xframe.GetYaxis().SetTitle("Number of primary vertices per %3.1f #mum" % round(1000.*xbinWidth,1))
+        #xframe.GetYaxis().SetTitle("Number of primary vertices per %3.1f #mum" % round(1000.*xbinWidth,1))
+        xframe.GetYaxis().SetTitle("Events / %1.0f #mum" % round(1000.*xbinWidth,1))
+        xframe.GetYaxis().SetLabelSize(options.lsize)
+        xframe.GetYaxis().SetTitleSize(options.lsize)
         if options.stats:
             data.statOn(xframe)
         cov = RooArgSet(vxx,vyy,vxy)
         fitmodel.plotOn(xframe,RooFit.ProjWData(cov,data),
                         RooFit.NumCPU(options.nCpu))
+        if options.showbs:
+            k.setVal(0.0)
+            fitmodel.plotOn(xframe,RooFit.ProjWData(cov,data),
+                            RooFit.NumCPU(options.nCpu),
+                            RooFit.LineStyle(RooFit.kDashed))
         xframe.Draw()
         if options.logy:
             ROOT.gPad.SetLogy(options.logy)
         self.labels()
+        self.legend(xframe)
+        if options.showratio:
+            self.drawRatioPad(xframe,hmin,hmax)
 
     def y(self):
+        if options.showratio:
+            self.prepareMainPad()
         dy = options.hrange/2 if options.hrange else max(options.minrange/2.,8.*sy.getVal())
         hmin = options.hmin if options.hmin is not None else my.getVal()-dy
         hmax = options.hmax if options.hmax is not None else my.getVal()+dy
+        global yframe
         yframe = self.protect( y.frame(hmin,hmax) )
         if options.hnbins is not None:
             binning = ROOT.RooBinning(hmin, hmax)
@@ -208,22 +299,36 @@ class Plots(ROOTUtils.PlotLibrary):
         else:
             data.plotOn(yframe)
             ybinWidth = yframe.GetXaxis().GetBinWidth(1)
-        yframe.GetYaxis().SetTitle("Number of primary vertices per %3.1f #mum" % round(1000.*ybinWidth,1))
+        #yframe.GetYaxis().SetTitle("Number of primary vertices per %3.1f #mum" % round(1000.*ybinWidth,1))
+        yframe.GetYaxis().SetTitle("Events / %1.0f #mum" % round(1000.*ybinWidth,1))
+        yframe.GetYaxis().SetLabelSize(options.lsize)
+        yframe.GetYaxis().SetTitleSize(options.lsize)
         if options.stats:
             data.statOn(yframe)
         cov = RooArgSet(vxx,vyy,vxy)
         fitmodel.plotOn(yframe,RooFit.ProjWData(cov,data),
                         RooFit.NumCPU(options.nCpu))
+        if options.showbs:
+            k.setVal(0.0)
+            fitmodel.plotOn(yframe,RooFit.ProjWData(cov,data),
+                            RooFit.NumCPU(options.nCpu),
+                            RooFit.LineStyle(RooFit.kDashed))
         yframe.Draw()
         if options.logy:
             ROOT.gPad.SetLogy(options.logy)
         self.labels()
+        self.legend(yframe)
+        if options.showratio:
+            self.drawRatioPad(yframe,hmin,hmax)
 
     def z(self):
+        if options.showratio:
+            self.prepareMainPad()
         dz = options.hrange/2 if options.hrange else max(options.minrange/2.,8.*sz.getVal())
         hmin = options.hmin if options.hmin is not None else mz.getVal()-dz
         hmax = options.hmax if options.hmax is not None else mz.getVal()+dz
-        zframe = self.protect( z.frame(mz.getVal()-dz,mz.getVal()+dz) )
+        global zframe
+        zframe = self.protect( z.frame(hmin,hmax) )
         if options.hnbins is not None:
             binning = ROOT.RooBinning(hmin, hmax)
             binning.addUniform(options.hnbins, hmin, hmax)
@@ -232,27 +337,27 @@ class Plots(ROOTUtils.PlotLibrary):
         else:
             data.plotOn(zframe)
             zbinWidth = zframe.GetXaxis().GetBinWidth(1)
-        zframe.GetYaxis().SetTitle("Number of primary vertices per %3.1f mm" % round(zbinWidth,1))
+        #zframe.GetYaxis().SetTitle("Number of primary vertices per %3.1f mm" % round(zbinWidth,1))
+        zframe.GetYaxis().SetLabelSize(options.lsize)
+        zframe.GetYaxis().SetTitleSize(options.lsize)
+        zframe.GetYaxis().SetTitle("Events / %1.0f mm" % round(zbinWidth,1))
         if options.stats:
             data.statOn(zframe)
         cov = RooArgSet(vxx,vyy,vxy)
         fitmodel.plotOn(zframe,RooFit.ProjWData(cov,data),
                         RooFit.NumCPU(options.nCpu))   # could also use e.g. RooFit.Range(-100.,100.)
+        if options.showbs:
+            k.setVal(0.0)
+            fitmodel.plotOn(zframe,RooFit.ProjWData(cov,data),
+                            RooFit.NumCPU(options.nCpu),
+                            RooFit.LineStyle(RooFit.kDashed))
         zframe.Draw()
         if options.logy:
             ROOT.gPad.SetLogy(options.logy)
         self.labels()
-
-    def labels(self):
-        # ATLAS labels and other text
-        if options.prelim:
-            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,True,offset=options.atlasdx,energy=8)
-        if options.approval:
-            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,False,offset=options.atlasdx,isForApproval=True,energy=8)
-        if options.published:
-            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,False,offset=options.atlasdx,energy=8)
-        if options.comment:
-            self.protect( ROOTUtils.drawText(options.commentx,options.atlasy,0.06,options.comment,font=42) )
+        self.legend(zframe)
+        if options.showratio:
+            self.drawRatioPad(zframe,hmin,hmax)
 
 
 #
@@ -390,9 +495,12 @@ from ROOT import RooFit, RooRealVar, RooDataSet, RooFormulaVar, RooArgList, RooA
 from ROOT import RooAddPdf
 
 # Observables and data
-x = RooRealVar("x","Primary vertex x [mm]",-3,3)
-y = RooRealVar("y","Primary vertex y [mm]",-3,3)
-z = RooRealVar("z","Primary vertex z [mm]",-300,300)
+#x = RooRealVar("x","Primary vertex x [mm]",-3,3)
+#y = RooRealVar("y","Primary vertex y [mm]",-3,3)
+#z = RooRealVar("z","Primary vertex z [mm]",-300,300)
+x = RooRealVar("x","x [mm]",-3,3)
+y = RooRealVar("y","y [mm]",-3,3)
+z = RooRealVar("z","z [mm]",-300,300)
 vxx = RooRealVar("vxx","vxx",-3,3)
 vyy = RooRealVar("vyy","vyy",-3,3)
 vxy = RooRealVar("vxy","vxy",-3,3)
@@ -417,7 +525,7 @@ sy = RooRealVar("sy","Sigma y",   hy.GetRMS(),      0,     1)
 ay = RooRealVar("ay","Tilt y",              0,  -1e-3,  1e-3)
 mz = RooRealVar("mz","Mean z",   hz.GetMean(),   -300,   300)
 sz = RooRealVar("sz","Sigma z",   hz.GetRMS(),      0,   100)
-k  = RooRealVar("k","Error scale factor",   1,    0.5,     3)
+k  = RooRealVar("k","Error scale factor",   1,    0.0,     3)
 if options.fixK:
     k.setVal(options.fixK)
     k.setConstant(kTRUE)

@@ -5,7 +5,7 @@
 beamspotnt is a command line utility for beam spot ntuples.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: beamspotnt.py 674514 2015-06-11 18:30:26Z mhance $'
+__version__ = '$Id: beamspotnt.py 743501 2016-04-28 09:56:37Z amorley $'
 __usage__   = '''%prog [options] command [args ...]
 
 Commands are:
@@ -31,7 +31,7 @@ beamspotnt -t BeamSpotCOOL -f IndetBeampos-ES1-UPD2 --ru 165815 --rl 165815 dump
 #periodDef = '/afs/cern.ch/atlas/www/GROUPS/DATAPREPARATION/DataPeriods'
 periodDef = '/afs/cern.ch/user/a/atlidbs/nt/DataPeriods'
 
-import sys, os, time, glob, re
+import sys, os, time, glob, re, copy
 
 # Create a properly quoted string of the command line to save
 qargv = [ ]
@@ -78,7 +78,6 @@ parser.add_option('', '--fillDQ', dest='filldqdata', action='store_true', defaul
 parser.add_option('', '--pLbFile', dest='pseudoLbFile', default=None, help='File for pseudo LB info from scan')
 parser.add_option('', '--pLbTimeUnit', dest='pseudoLbTimeUnit', default=1., help='Time unit for pseudo LB relative to seconds, e.g. 1e-9 for ns')
 parser.add_option('', '--tz', dest='timezone', default='CET', help='time zone to use for time represenation (default: CERN local time)')
-parser.add_option('', '--summertime', dest='summertime', action='store_true', default=False, help='present times for daylight savings')
 parser.add_option('', '--simpleaverage', dest='simpleaverage', action='store_true', default=False, help='use simple instead of weighted average (for checks only)')
 parser.add_option('', '--lumicalcnt', dest='lumicalcnt', default=None, help='ave: use luminosity ntuple (from iLumiCalc.exe) for weighted average')
 parser.add_option('', '--latex', dest='latex', action='store_true', default=False, help='output results in LaTeX')
@@ -91,6 +90,7 @@ parser.add_option('-n', '--nbins', dest='nbins', type='int', default=None, help=
 parser.add_option('', '--xmin', dest='xmin', default=None, help='x axis minimum')
 parser.add_option('', '--xmax', dest='xmax', default=None, help='x axis maximum')
 parser.add_option('', '--timeaxis', dest='timeaxis', action='store_true', default=False, help='use time on x axis instead of run or LB numbers')
+parser.add_option('', '--talabel', dest='talabel', default=None, help='time axis label (default: Time (timezone))')
 parser.add_option('', '--perbcid', dest='perbcid', action='store_true', default=False, help='plot per BCID instead of vs time/LB')
 parser.add_option('', '--separation', dest='separation', action='store_true', default=False, help='plot versus beam separation for scans')
 parser.add_option('', '--vsbunchpos', dest='vsbunchpos', action='store_true', default=False, help='plot versus bunch position in train')
@@ -99,6 +99,7 @@ parser.add_option('', '--ymin', dest='ymin', type='float', default=None, help='y
 parser.add_option('', '--ymax', dest='ymax', type='float', default=None, help='y axis maximum')
 parser.add_option('-y', '--yscale', dest='yscale', type='float', default=1.0, help='y axis scale factor')
 parser.add_option('-m', '--msize', dest='msize', type='float', default=None, help='set marker size')
+parser.add_option('', '--lsize', dest='lsize', type='float', default=None, help='set axis label size')
 parser.add_option('', '--ydef', dest='ydef', action='store_true', default=False, help='use default y range for given quantity')
 parser.add_option('', '--defaults', dest='defaults', default='Gen', help='choose varDef defauls (default: Gen')
 parser.add_option('', '--logy', dest='logy', action='store_true', default=False, help='log scale')
@@ -125,6 +126,7 @@ parser.add_option('', '--prelim', dest='prelim', action='store_true', default=Fa
 parser.add_option('', '--approval', dest='approval', action='store_true', default=False, help='Label figure ATLAS for approval')
 parser.add_option('', '--published', dest='published', action='store_true', default=False, help='add ATLAS to figure')
 parser.add_option('', '--customlabel', dest='customlabel', default='', help='add custom label after ATLAS to figure')
+parser.add_option('', '--xtitoffset', dest='xtitoffset', type='float', default=None, help='x axis title offset')
 parser.add_option('', '--ytitoffset', dest='ytitoffset', type='float', default=None, help='y axis title offset')
 parser.add_option('', '--atlasx', dest='atlasx', type='float', default=None, help='x position for drawing ATLAS (Preliminary) label')
 parser.add_option('', '--atlasy', dest='atlasy', type='float', default=None, help='y position for drawing ATLAS (Preliminary) label')
@@ -139,6 +141,7 @@ parser.add_option('', '--fullCorrelations', dest='fullCorrelations', action='sto
 parser.add_option('', '--scans', dest='scans', default='', help='comma-separated list of hypenated lb ranges for lumi scans')
 parser.add_option('', '--acqFlag', dest='acqFlag', default = False, action='store_true', help='Cut on AcquistionFlag=1.0 for stationary points of VdM scan')
 parser.add_option('', '--overlayScans', dest='overlayScans', default = False, action='store_true', help='overlay VdM scans on same plot')
+parser.add_option('', '--useAve', dest='useAve', action='store_true', default=False, help='Average over poor fits in the beamspot -- performed during merging step')
 (options,args) = parser.parse_args()
 if len(args) < 1:
     parser.error('wrong number of command line arguments')
@@ -174,12 +177,11 @@ if options.interactive:
 if options.timezone:
     os.environ['TZ'] = options.timezone
     time.tzset()
-    if (options.timezone == 'CET' and options.summertime):
-        timeLabel = 'Time (%s)' % 'CEST'
-    else:
-        timeLabel = 'Time (%s)' % options.timezone
+    timeLabel = 'Time (%s)' % options.timezone
 else:
     timeLabel = 'Local time'
+if options.talabel:
+    timeLabel = options.talabel
 
 if not options.datefmt:
     if options.public:
@@ -267,6 +269,127 @@ def getNt():
     print nt.summary()
     print nt.cutSummary()
     return nt
+    
+def cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize ):
+    i=0 
+    while  i < len( allBSResultsInNt ):
+      b = allBSResultsInNt[i]
+      if b.status < 70 and b.nValid < 2000 and b.nValid < averagenVtx:
+        print "Will take an average for  lb's " + str(b.lbStart) +" to " + str(b.lbEnd) + " which has " + str(b.nValid) + " verticies" 
+        lastGoodEntry = b
+        nextGoodEntry = b
+        iNeg = i-1;
+        # Find previous good entry
+        while iNeg >= 0:
+          if allBSResultsInNt[iNeg].status == 59 and allBSResultsInNt[iNeg].nValid > 2000 :
+            lastGoodEntry = allBSResultsInNt[iNeg]
+            print " --- Starting with lb : " + str(lastGoodEntry.lbStart) +" to " + str(lastGoodEntry.lbEnd)
+            break
+          iNeg -= 1 
+    
+        # Find the next good entry
+        iPos = i+1;
+        while iPos < len(allBSResultsInNt):
+          if allBSResultsInNt[iPos].status == 59 and allBSResultsInNt[iPos].nValid > 2000:
+            nextGoodEntry = allBSResultsInNt[iPos]
+            print " --- Ending with lb   : " + str(nextGoodEntry.lbStart) +" to " + str(nextGoodEntry.lbEnd)
+            break
+          iPos += 1 
+    
+        #if all entries are useless then we are in trouble dont do anything
+        if lastGoodEntry == b and nextGoodEntry == b :
+          print "Failed to do average - no good entries were found"
+          i+=1
+          continue
+
+
+        #check the entries are reasonablly close to each other
+        if( (nextGoodEntry.lbStart - b.lbEnd) > lbSize  and (b.lbStart - lastGoodEntry.lbEnd) > lbSize):
+          print "Failed to do average - entries were too far away"
+          i+=1
+          continue 
+        
+        
+        #Calculate the average beamspot position for the following parameters
+        varList = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ','tiltX','tiltY','rhoXY','sigmaXY']
+        calc = BeamSpotAverage(varList ,weightedAverage=True)
+        #Add current entry if it is reliable 
+        if( b.status == 59 and b.posXErr != 0):
+          calc.add(b)
+        #Add previous entry if it is not too far away in time
+        if lastGoodEntry != b and (b.lbStart - lastGoodEntry.lbEnd) <= lbSize :
+          calc.add(lastGoodEntry)
+        #Add next entry if it is not too far away in time
+        if nextGoodEntry != b and (nextGoodEntry.lbStart - b.lbEnd) <= lbSize :
+          calc.add(nextGoodEntry)
+        calc.average()
+
+        ave = calc.ave
+        err = calc.err
+        b.status = 666 #b.status << 4
+        bcopy = copy.deepcopy(b)
+
+        for var in varList:
+          #print "Var,index: {:>10} ,  {:>3}".format( var,  calc.varList.index(var))
+          setattr(bcopy, var,       ave[calc.varList.index(var)])
+          setattr(bcopy, var+"Err", err[calc.varList.index(var)])
+        
+        bcopy.status = 59        
+        i += 1
+        allBSResultsInNt.insert(i, bcopy)
+      i += 1
+
+
+
+
+def fillInMissingLbs(allBSResultsInNt, lbSize):
+      i=0
+      lastValidEntry  = -1
+      nextValidEntry  = -1
+      while  i < len( allBSResultsInNt ):
+        if allBSResultsInNt[i].status != 59: 
+          i += 1
+          continue
+
+        nextValidEntry = i
+          
+        if(lastValidEntry >= 0):
+          if allBSResultsInNt[nextValidEntry].lbStart !=  allBSResultsInNt[lastValidEntry].lbEnd + 1:
+            print "Missing Lumi block from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd, allBSResultsInNt[nextValidEntry].lbStart + 1)
+            if allBSResultsInNt[nextValidEntry].lbStart -  allBSResultsInNt[lastValidEntry].lbEnd + 1 > lbSize:
+              print "--Lumi block gap too large wont fill in the gap"           
+            else:
+              varList = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ','tiltX','tiltY','rhoXY','sigmaXY']
+              calc = BeamSpotAverage(varList ,weightedAverage=True)
+              calc.add(allBSResultsInNt[nextValidEntry])
+              calc.add(allBSResultsInNt[lastValidEntry])
+              calc.average()
+
+              ave = calc.ave
+              err = calc.err
+
+              bcopy = copy.deepcopy(b)
+              
+              for var in varList:
+                #print "Var,index: {:>10} ,  {:>3}".format( var,  calc.varList.index(var))
+                setattr(bcopy, var,       ave[calc.varList.index(var)])
+                setattr(bcopy, var+"Err", err[calc.varList.index(var)])
+
+              bcopy.status    = 59
+              bcopy.timeStart = 0 
+              bcopy.timeEnd   = 0   
+              bcopy.nEvents   = 0   
+              bcopy.nValid    = 0    
+              bcopy.nVtxAll   = 0   
+              bcopy.nVtxPrim  = 0  
+              bcopy.lbStart   = allBSResultsInNt[lastValidEntry].lbEnd + 1    
+              bcopy.lbEnd     = allBSResultsInNt[nextValidEntry].lbStart-1
+              allBSResultsInNt.insert(lastValidEntry+1, bcopy)
+              i += 1
+
+        lastValidEntry = nextValidEntry
+        i += 1  
+
 
 
 class Plots(ROOTUtils.PlotLibrary):
@@ -314,14 +437,15 @@ class Plots(ROOTUtils.PlotLibrary):
 
         self.protect( ROOTUtils.drawText(0.2,0.79,0.06,';'.join(comments),font=42) )
         # ATLAS (preliminary) label
+        logoSize = options.lsize if options.lsize else 0.5
         if options.prelim:
-            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,True,offset=options.atlasdx,energy=options.energy)
+            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,True,offset=options.atlasdx,energy=options.energy,size=logoSize)
         if options.approval:
-            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,False,offset=options.atlasdx,isForApproval=True,energy=options.energy)
+            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,False,offset=options.atlasdx,isForApproval=True,energy=options.energy,size=logoSize)
         if options.published:
-            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,False,offset=options.atlasdx,energy=options.energy)
+            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,False,offset=options.atlasdx,energy=options.energy,size=logoSize)
         if options.customlabel!="":
-            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,False,offset=options.atlasdx,isForApproval=False,customstring=options.customlabel,energy=options.energy)
+            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,False,offset=options.atlasdx,isForApproval=False,customstring=options.customlabel,energy=options.energy,size=logoSize)
         # Legend
         if legendList:
             legendMinY = max(0.91-0.07*len(legendList),0.2)
@@ -516,12 +640,13 @@ class Plots(ROOTUtils.PlotLibrary):
             ROOT.gPad.SetLogy(options.logy)
         if options.timeaxis:
             xAxis = frame.GetXaxis()
+            yAxis = frame.GetYaxis()
             xAxis.SetTimeDisplay(1)
 
             # this may or may not be needed depending on the ROOT version...  not sure whether to specify it or not.  
             # Setting this option in 5.34 seems to work, in 5.30 it offsets things by an hour, but then not setting it
             # appears to result in bogus x-axis values.
-            xAxis.SetTimeOffset(0) 
+            xAxis.SetTimeOffset(0)   # FIXME: this ignores options.timezone!
 
             if (xmax-xmin)/86400 < 1:
                 xAxis.SetTimeFormat('%H:%M')
@@ -534,8 +659,14 @@ class Plots(ROOTUtils.PlotLibrary):
                     xAxis.SetTimeFormat('%b %d')
                 else:
                     xAxis.SetTimeFormat('#splitline{%b %d}{%H:%M}')
-                xAxis.SetLabelOffset(0.025)
-                xAxis.SetTitleOffset(1.6)
+            xAxis.SetLabelOffset(0.02)
+            xAxis.SetTitleOffset(1.6)
+            if options.lsize:
+                xAxis.SetLabelSize(options.lsize)
+                xAxis.SetTitleSize(options.lsize)
+                yAxis.SetLabelSize(options.lsize)
+                yAxis.SetTitleSize(options.lsize)
+            else:
                 xAxis.SetLabelSize(0.044)
             if options.adatefmt:
                 xAxis.SetTimeFormat(options.adatefmt)
@@ -543,8 +674,10 @@ class Plots(ROOTUtils.PlotLibrary):
                 xAxis.SetNdivisions(options.ndivs,0)
             frame.LabelsOption('d','X')   # Doesn't seem to work
 
+        if options.xtitoffset:
+            xAxis.SetTitleOffset(options.xtitoffset)
         if options.ytitoffset:
-            frame.GetYaxis().SetTitleOffset(options.ytitoffset)
+            yAxis.SetTitleOffset(options.ytitoffset)
 
         legendList = []
 
@@ -1017,13 +1150,39 @@ if cmd=='inspect' and len(args)==1:
 #
 if cmd=='merge' and len(args)==2:
     srcNtClass = locals()[options.srctype]
-    srcNt = srcNtClass(args[1])
+    srcNt = srcNtClass(args[1],fullCorrelations=options.fullCorrelations)
     setCuts(srcNt)
     print '\nImporting from '+srcNt.summary()
     print srcNt.cutSummary()
-    dstNt = ntClass(options.ntname,True,fullCorrelations=True)
+    dstNt = ntClass(options.ntname,True,fullCorrelations=options.fullCorrelations)
     print '\nMerging into '+dstNt.summary()
+    
+    totalEntries = 0 
+    totalVtxs = 0
+    lbSize = 0 
+    allBSResultsInNt = []
     for b in srcNt:
+      allBSResultsInNt.append( b )
+      if b.status == 59:
+        totalEntries += 1
+        totalVtxs += b.nValid
+        lbSize += b.lbStart - b.lbEnd 
+        
+    averagenVtx = totalVtxs/totalEntries  
+    print 'Average Entries: '+ str(averagenVtx)
+    averagenVtx *= 0.33
+    
+    lbSize = lbSize/totalEntries + 1
+    print 'Average number of lb used for fit: '+ str( lbSize )
+    
+    #Sort entries in order of lb number       
+    #allBSResultsInNt.sort(key=lambda x: x.lbStart, reverse=False)  
+    allBSResultsInNt.sort()  
+    if options.useAve:
+        cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize * 10)
+        fillInMissingLbs(allBSResultsInNt, lbSize * 10)
+                   
+    for b in allBSResultsInNt:
         if options.fillcooldata:
             b.fillDataFromCOOL()
         if options.pseudoLbFile:
@@ -1276,6 +1435,7 @@ if cmd=='summary' and len(args)==1:
     if options.perbcid:
         plots.genPlot('all','perbcid',labels=labels)
     elif options.vsbunchpos:
+        plots.whatList.remove('nValid')
         plots.genPlot('all','vsBunchPos',labels=labels)
     else:
         plots.genPlot('all','plot',labels=labels)

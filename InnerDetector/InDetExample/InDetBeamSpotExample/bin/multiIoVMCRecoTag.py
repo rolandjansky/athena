@@ -43,9 +43,17 @@ tagdict = {
     (219366, 222222) : "IndetBeampos-unconstrained",                        # unused, unconstrained
     (222222, 222250) : "IndetBeampos-13TeV-0.45m-300urad",                  # DC14 (mu=30), 25ns
     (222250, 222500) : "IndetBeampos-13TeV-0.45m-300urad",                  # DC14 (mu=30), 50ns
-    (222500, 222509) : "IndetBeampos-data15_13TeV-LowMu-ave-sigmazp1mm-001",# mc15 low-mu averages from data, with sigmaz inflated by +1mm (requested by Anthony Morley)
-    (222509, 222525) : "IndetBeampos-13TeV-0.80m-290urad-1.24ns-2.7umr",    # mc15 50ns
-    (222525, 0)      : "IndetBeampos-13TeV-0.80m-290urad-1.24ns-2.7umr",    # mc15 25ns
+		(222500, 222506) : "IndetBeampos-13TeV-LowMu-001",                      # mc15 50ns, low-mu
+    #(222500, 222509) : "IndetBeampos-data15_13TeV-LowMu-ave-sigmazp1mm-001",# mc15 low-mu averages from data, with sigmaz inflated by +1mm (requested by Anthony Morley)
+    (222506, 222508) : "IndetBeampos-data15_PbPb-ave-001",                  # Average PbPb pp beam in 2015 data
+		(222508, 222510) : "IndetBeampos-data15_5TeV-ave-001",                  # Average 5 TeV pp beamspot in 2015 data
+		(222510, 222525) : "IndetBeampos-13TeV-0.80m-290urad-1.24ns-2.7umr",    # mc15 50ns
+    (222525, 226000) : "IndetBeampos-13TeV-0.80m-290urad-1.24ns-2.7umr",    # mc15 25ns 
+    (226000, 228000) : "IndetBeampos-data15_PbPb-ave-001",                  # Average PbPb pp beam in 2015 data
+    (228000, 230000) : "IndetBeampos-data15_5TeV-ave-001",                  # Average 5 TeV pp beamspot in 2015 data
+    (230000, 240000) : "IndetBeampos-13TeV-0.80m-290urad-1.24ns-2.7umr",    # mc15 25ns
+    (240000, 250000) : "IndetBeampos-14TeV-SigmaXY12um-SigmaZ50mm-001",     # tag for upgrade studies
+    (250000, 0     ) : "IndetBeampos-13TeV-0.80m-290urad-1.24ns-2.7umr"     # mc15 25ns 
     }
 
 
@@ -59,7 +67,7 @@ for (rl,ru) in sorted(tagdict.iterkeys(),reverse=True):
 assert(len(runmin) == len(runmax) == len(tags))
 nTag = len(tags)
 
-tag='IndetBeampos-RunDep-MC15-BestKnowledge-003'
+tag='IndetBeampos-RunDep-MC15-BestKnowledge-002-03'
 dbfile = tag + '.db'
 folderHandle = openBeamSpotDbFile(dbfile, dbName = 'OFLP200', forceNew = True)
 
