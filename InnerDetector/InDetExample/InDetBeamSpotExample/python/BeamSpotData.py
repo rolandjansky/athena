@@ -9,7 +9,7 @@ Frontier outside of CERN. For example:
 setenv FRONTIER_SERVER "(serverurl=http://squid-frontier.usatlas.bnl.gov:23128/frontieratbnl)"
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: BeamSpotData.py 739380 2016-04-11 14:56:48Z amorley $'
+__version__ = '$Id: BeamSpotData.py 742523 2016-04-25 07:30:44Z amorley $'
 
 import time
 import copy
@@ -543,6 +543,13 @@ class BeamSpotValue:
         s += '};'
         return s
 
+    def __cmp__(self, other):
+      if self.run != other.run:
+        return self.run.__cmp__(other.run) 
+      if self.bcid != other.bcid:
+        return self.bcid.__cmp__(other.bcid) 
+      
+      return self.lbStart.__cmp__(other.lbStart) 
 
 
 class BeamSpotAverage:
@@ -609,11 +616,11 @@ class BeamSpotAverage:
             self.sumx[i] += val
             self.sumxx[i] += val*val
             if self.lumiData is None:
-                try:
+                if valErr != 0. :
                     w = 1./valErr/valErr
-                except:
+                else:
                     w = 0.
-                    print 'WARNING: Divison by zero for parameter %s   (valErr = %f)\n' % (parName,valErr)
+                    print 'WARNING: Divison by zero for parameter %s   (val = %f  valErr = %f)\n' % (parName,val,valErr)
                     self.nWarnings += 1
             else:
                 w = lumi

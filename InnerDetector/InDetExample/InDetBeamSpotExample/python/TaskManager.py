@@ -14,7 +14,7 @@ analysis accross tasks.
 Written by Juerg Beringer (LBNL) in 2009.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: TaskManager.py 739380 2016-04-11 14:56:48Z amorley $'
+__version__ = '$Id: TaskManager.py 739379 2016-04-11 14:52:08Z amorley $'
 
 import time, os, glob, dircache
 
