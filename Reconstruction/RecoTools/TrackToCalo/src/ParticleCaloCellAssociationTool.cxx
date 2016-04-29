@@ -133,7 +133,7 @@ namespace Rec {
             double detaCheck = -log(tan((theta+dtheta)/2.)) + log(tan((theta)/2.));
             ATH_MSG_VERBOSE(" FIX cell sampling " << cell->caloDDE()->getSampling() << " deta " << cell->caloDDE()->deta() << " detaCheck " << detaCheck << " drFix " << drFix);
           }else{
-            ATH_MSG_WARNING(" FIXR cell sampling failed: theta " << theta << " dtheta " << dtheta << " sum/pi " << (theta+dtheta)/M_PI 
+            ATH_MSG_WARNING(" FIXR cell sampling failed: theta " << theta << " dtheta " << dtheta << " sum/pi " << (theta+dtheta)*M_1_PI 
                             << " deta " << cell->caloDDE()->deta());
           }
 //          ATH_MSG_VERBOSE(" FIX cell sampling deta " << deta << " dtheta " << dtheta  << "  scale " <<  scale << " theta " << theta );
@@ -172,7 +172,7 @@ namespace Rec {
             double dz = fabs(cell->caloDDE()->r()/tan(theta+dtheta) - cell->caloDDE()->r()/tan(theta));
             dzFix = dz; 
           }else{
-            ATH_MSG_WARNING(" FIXZ cell sampling failed: theta " << theta << " dtheta " << dtheta << " sum/pi " << (theta+dtheta)/M_PI 
+            ATH_MSG_WARNING(" FIXZ cell sampling failed: theta " << theta << " dtheta " << dtheta << " sum/pi " << (theta+dtheta)*M_1_PI 
                             << " deta " << cell->caloDDE()->deta());
           }
           double detaCheck = -log(tan((theta+dtheta)/2.)) + log(tan((theta)/2.));
@@ -215,8 +215,8 @@ namespace Rec {
       if(barrel)  drFix = drTG;
 
       if(use3D) {
-      //pathLenUtil.pathInsideCell( *cell, entryExitLayerMap);
-        double pathInMM = pathLenUtil.get3DPathLength(*cell, pos->second.first, pos2->second.second,drFix,dzFix);
+      //m_pathLenUtil.pathInsideCell( *cell, entryExitLayerMap);
+        double pathInMM = m_pathLenUtil.get3DPathLength(*cell, pos->second.first, pos2->second.second,drFix,dzFix);
         double totpath =  (pos->second.first-pos2->second.second).mag();
         path = totpath!=0 ? pathInMM / totpath : 0.; 
         if(path>0||cell->energy()>50.) { 

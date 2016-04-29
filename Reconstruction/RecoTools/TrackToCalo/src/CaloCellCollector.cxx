@@ -22,8 +22,8 @@ typedef CaloCell_ID::CaloSample CaloSample;
 
 Rec::CaloCellCollector::CaloCellCollector ()
     :
-    // m_doDebug(true)
-    m_doDebug(false)
+  //m_doDebug(true)
+  m_doDebug(false)
 {
 
     // For EM, set explicit window per layer, for rest use input dR
@@ -160,6 +160,7 @@ Rec::CaloCellCollector::collectCells( const Trk::CaloExtension& extension,
     std::map<CaloSample, SampData > sampleEtaPhiMap;
     float                           etot = 0;
     unsigned int                    samplingPattern = 0;
+    Amg::Vector3D clusVec(0,0,0);
     
     // loop over samples using explicit sample window sizes
 
@@ -168,6 +169,7 @@ Rec::CaloCellCollector::collectCells( const Trk::CaloExtension& extension,
         if( pos != entryExitLayerMap.end() ) {
             samplingPattern |= CaloSampling::getSamplingPattern(samp); // add in sampling to pattern for cluster
             auto midPoint = 0.5 * (pos->second.first + pos->second.second);
+	    clusVec=clusVec+midPoint;
             myList.select(midPoint.eta(), midPoint.phi(), m_dEtadPhi[samp].first,  m_dEtadPhi[samp].second,  samp);
             cells.insert(cells.end(), myList.begin(), myList.end());
             float e = 0;
@@ -187,6 +189,7 @@ Rec::CaloCellCollector::collectCells( const Trk::CaloExtension& extension,
         if( pos != entryExitLayerMap.end() ) {
             samplingPattern |= CaloSampling::getSamplingPattern(samp); // add in sampling to pattern for cluster
             auto midPoint = 0.5 * (pos->second.first + pos->second.second);
+	    clusVec=clusVec+midPoint;
             myList.select(midPoint.eta(), midPoint.phi(), 0.1,  samp);
             cells.insert(cells.end(), myList.begin(), myList.end());
             float e = 0;
@@ -205,7 +208,10 @@ Rec::CaloCellCollector::collectCells( const Trk::CaloExtension& extension,
                       << " " << cell->eta() << "/" << cell->phi() << std::endl;
     }
 
-    if (m_doDebug) std::cout << "associated cells " << cells.size() << std::endl;
+    if (m_doDebug){
+      std::cout << "associated cells " << cells.size() << std::endl;
+      std::cout <<"cluster eta: " << clusVec.eta() << ", phi: " << clusVec.phi() << std::endl;
+    }
 
     
     // create cluster
@@ -236,6 +242,9 @@ Rec::CaloCellCollector::collectCells( const Trk::CaloExtension& extension,
                                    << cluster->phiSample(entry.first) << std::endl;
         }
     }
+
+    cluster->setEta(clusVec.eta());
+    cluster->setPhi(clusVec.phi());
     
     return cluster;
 }
