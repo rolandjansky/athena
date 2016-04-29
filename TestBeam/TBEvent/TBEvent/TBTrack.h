@@ -50,6 +50,8 @@ class TBTrack
   
   // Getter --------------------------------  
   
+  int getHitNumberU() const { return m_hitNumberU; }
+  int getHitNumberV() const { return m_hitNumberV; }
 
   double getChi2_global() const { return m_chi2; }
   double getChi2_u() const { return m_chi2u; }
@@ -65,6 +67,9 @@ class TBTrack
 
   double getResidualv(int ind) const 
   { return ind<m_hitNumberV ? m_residualv[ind]: 0; }
+
+  const std::vector<double>& getResidualu() const { return m_residualu; }
+  const std::vector<double>& getResidualv() const { return m_residualv; }
 
   double getCryoHitu() const {return m_cryou;}
   double getCryoHitv() const {return m_cryov;}

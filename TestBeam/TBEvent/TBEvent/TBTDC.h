@@ -30,6 +30,8 @@ class TBTDC
   inline int tdcmin() const
     {return m_tdcmin;}
 
+  float scale() const { return m_scale; }
+
  private:
   int m_tdc;
   int m_tdcmin;

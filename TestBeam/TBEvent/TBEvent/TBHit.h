@@ -29,7 +29,7 @@ class TBHit
   // Constructors and Destructor //
   /////////////////////////////////
     
-   TBHit(){};
+   TBHit();
 
    ~TBHit(){};
   
