@@ -59,6 +59,8 @@ def TrigEgammaMonitoringTool():
             PlotTool=HLTEgammaPlotTool,
             Tools=[HLTEgammaEffTool,HLTEgammaResTool,HLTEgammaDistTool],
             TriggerList=monitoring_L1Calo+monitoring_electron,
+            ForceProbeIsolation=True,
+            DefaultProbePid="LHLoose",
             File="",
             OutputLevel=debugLevel,DetailedHistograms=False)
     PhotonAnalysis = TrigEgammaNavAnalysisTool(name='HLTEgammaPhotonAnalysis',
