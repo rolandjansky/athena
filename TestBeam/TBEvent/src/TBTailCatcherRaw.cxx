@@ -45,7 +45,7 @@ const TBScintillatorRaw*
 TBTailCatcherRaw::getScintillator(std::string thisScintName) const
 {
   DataVector< TBScintillatorRaw >::const_iterator first = this->begin();
-  while ( (*first)->getDetectorName() != thisScintName && first != this->end() )
+  while ( first != this->end() && (*first)->getDetectorName() != thisScintName )
     {
       first++;
     }
@@ -80,7 +80,7 @@ TBTailCatcherRaw::findIndex(std::string thisScintName) const
 {
   DataVector< TBScintillatorRaw >::const_iterator first = this->begin();
   unsigned int theIndex = 0;
-  while( thisScintName != (*first)->getDetectorName() && first != this->end() )
+  while( first != this->end() && thisScintName != (*first)->getDetectorName() )
     {
       first++;
       theIndex++;

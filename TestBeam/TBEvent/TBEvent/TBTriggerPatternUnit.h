@@ -45,6 +45,7 @@ class TBTriggerPatternUnit
     void setTriggerWord(unsigned int word);
 
     bool getBit(unsigned int i) const {return i<m_triggers.size()? m_triggers[i]:false ;}
+    const std::vector<bool>& getTriggers() const { return m_triggers; }
 
     unsigned int getTriggerWord() const {return m_triggerWord;}
     
