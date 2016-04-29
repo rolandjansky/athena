@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 740532 2016-04-15 11:01:50Z graemes $
+# @version $Id: trfExe.py 740201 2016-04-14 09:50:40Z aalshehr $
 
 import copy
 import json
@@ -20,6 +20,7 @@ import sys
 import time
 
 import logging
+from fnmatch import fnmatch
 msg = logging.getLogger(__name__)
 
 from PyJobTransforms.trfJobOptions import JobOptionsTemplate
@@ -723,7 +724,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 740532 2016-04-15 11:01:50Z graemes $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 740201 2016-04-14 09:50:40Z aalshehr $')
         else:
             self._jobOptionsTemplate = None
 

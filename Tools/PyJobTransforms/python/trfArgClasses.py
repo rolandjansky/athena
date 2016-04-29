@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 740512 2016-04-15 10:13:14Z graemes $
+# @version $Id: trfArgClasses.py 743343 2016-04-27 15:47:21Z graemes $
 
 import argparse
 import bz2
@@ -21,7 +21,7 @@ msg = logging.getLogger(__name__)
 
 import PyJobTransforms.trfExceptions as trfExceptions
 
-from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, urlType, ROOTGetSize, inpFileInterestingKeys
+from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, urlType, ROOTGetSize
 from PyJobTransforms.trfUtils import call, cliToKey
 from PyJobTransforms.trfExitCodes import trfExit as trfExit
 from PyJobTransforms.trfDecorators import timelimited
@@ -1034,6 +1034,7 @@ class argFile(argList):
                             msg.debug('No cached value for {0}:{1}. Calling generator function {2} ({3})'.format(fname, key, self._metadataKeys[key].func_name, self._metadataKeys[key]))
                             try:
                                 # For efficiency call this routine with all files we have
+                                msg.info("Metadata generator called to obtain {0} for {1}".format(key, files))
                                 self._metadataKeys[key](files)
                             except trfExceptions.TransformMetadataException, e:
                                 msg.error('Calling {0!s} raised an exception: {1!s}'.format(self._metadataKeys[key].func_name, e))
@@ -1252,19 +1253,15 @@ class argAthenaFile(argFile):
         elif self._type.upper() in ('TAG'):
             aftype = 'TAG'
 
-        # retrieve GUID and nentries without runMiniAthena subprocess for input POOL files or temporary files
-        if aftype == 'POOL' and (self._io == 'input' or self._io == 'temporary'):
-            retrieveKeys = inpFileInterestingKeys
-
         # get G4Version for HITSFiles
-        if self._type.upper() in ('HITS'):
-            retrieveKeys.append('G4Version')
+#         if self._type.upper() in ('HITS'):
+#             retrieveKeys.append('G4Version')
 
         # N.B. Could parallelise here            
         for fname in myFiles:
             athFileMetadata = AthenaLiteFileInfo(fname, aftype, retrieveKeys=retrieveKeys)
             if athFileMetadata == None:
-                raise trfExceptions.TransformMetadataException(trfExit.nameToCode('TRF_METADATA_CALL_FAIL'), 'Call to AthenaFileInfo failed')
+                raise trfExceptions.TransformMetadataException(trfExit.nameToCode('TRF_METADATA_CALL_FAIL'), 'Call to AthenaLiteFileInfo failed')
             msg.debug('Setting metadata for file {0} to {1}'.format(fname, athFileMetadata[fname]))
             self._fileMetadata[fname].update(athFileMetadata[fname])
 
@@ -2080,10 +2077,17 @@ class argSubstepSteering(argSubstep):
     # "no" - a convenience null option for production managers, does nothing
     # "doRDO_TRIG" - run split trigger for Reco_tf and friends
     # "afterburn" - run the B decay afterburner for event generation
+    # "doRAWtoALL" - produce all DESDs and AODs directly from bytestream
     steeringAlises = {
                       'no': {},
                       'doRDO_TRIG': {'RAWtoESD': [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG'), ('in', '-', 'BS')]},
-                      'afterburn': {'generate': [('out', '-', 'EVNT')]}, 
+                      'afterburn': {'generate': [('out', '-', 'EVNT')]},
+                      'doRAWtoALL': {'RAWtoALL': [('in', '+', 'BS'), ('in', '+', 'RDO'), ('in', '+', 'RDO_FTK'),
+                                                  ('in', '+', 'DRAW_ZMUMU'), ('in', '+', 'DRAW_ZEE'), ('in', '+', 'DRAW_EMU'), ('in', '+', 'DRAW_RPVLL'), 
+                                                  ('out', '+', 'ESD'), ('out', '+', 'AOD'), ('out', '+', 'HIST_R2A')],
+                                     'RAWtoESD': [('in', '-', 'BS'), ('in', '-', 'RDO'), ('in', '-', 'RDO_FTK'),
+                                                  ('out', '-', 'ESD'),],
+                                     'ESDtoAOD': [('in', '-', 'ESD'), ('out', '-', 'AOD'),]}
                       }
     
     # Reset getter

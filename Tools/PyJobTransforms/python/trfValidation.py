@@ -6,7 +6,7 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 740537 2016-04-15 11:28:11Z graemes $
+# @version $Id: trfValidation.py 740535 2016-04-15 11:21:07Z graemes $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,

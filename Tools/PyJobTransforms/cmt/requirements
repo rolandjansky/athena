@@ -23,6 +23,7 @@ apply_pattern generic_declare_for_link kind=runtime files='-s=../share *.db' pre
 #      By default taken from ../share
 #      These will be installed in the Installarea/jobOptions/<package>
 #
+# 
 pattern declare_job_transforms \
         private ; \
     apply_pattern generic_declare_for_link kind=tfs_exe files='-s=${tfs_dir} <tfs>' prefix=share/bin ; \
