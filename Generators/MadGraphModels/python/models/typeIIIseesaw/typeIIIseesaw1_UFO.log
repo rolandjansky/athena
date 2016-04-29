@@ -1,0 +1,72 @@
+# This file was automatically created by FeynRules $Revision: 709 $
+# Mathematica version: 8.0 for Linux x86 (64-bit) (February 23, 2011)
+# Date: Tue 25 Oct 2011 09:50:00
+
+
+# 
+# This is the logfile for the model typeIIIseesaw1
+
+# Authors: C.Biggio, F. Bonnet
+# Model version: 1.0
+# Checking the Lagrangians
+   * All Lagrangians are ok.
+#
+# Particle definitions
+#
+
+   * No particles removed. All particles correspond to GenInt setup.
+
+# Automatically assigned PDG numbers
+   * Assigned PDG number 9000001 to particle ghA
+   * Assigned PDG number 9000002 to particle ghZ
+   * Assigned PDG number 9000003 to particle ghWp
+   * Assigned PDG number 9000004 to particle ghWm
+   * Assigned PDG number 9000005 to particle ghG
+
+
+# Compulsory PDG codes:
+   * Class SM leptons complete.
+   * Class SM neutrinos incomplete. 12, 14, 16 missing.
+   * Class SM quarks complete.
+   * Class SM gauge bosons complete.
+#
+# Parameter definitions
+#
+
+   * All parameters are ok.
+
+
+# Vertices
+   * Calling FeynmanRules for 5 Lagrangians.
+   * Number of classes vertices: 95
+   * Number of flavored vertices: 282
+   * Saved vertices in InterfaceRun[ 1 ].
+   * Checked QNumber conservation.
+      - Quantum number GhostNumber conserved in all vertices.
+      - Quantum number Q conserved in all vertices.
+   * particles.py written.
+   * parameters.py written.
+#
+# Vertex definitions
+#
+
+   * 282 vertices written.
+   * vertices.py written.
+#
+# Lorentz structure definitions
+#
+
+   * 25 lorentz structures written.
+   * lorentz.py written.
+#
+# Coupling definitions
+#
+
+   * 330 couplings written.
+   * couplings.py written.
+#
+# Coupling order definitions
+#
+
+   * 0 couplings orders written.
+   * coupling_orders.py written.

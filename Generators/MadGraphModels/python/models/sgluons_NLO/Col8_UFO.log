@@ -1,0 +1,129 @@
+# This file was automatically created by FeynRules 2.1.78
+# Mathematica version: 9.0 for Mac OS X x86 (64-bit) (January 24, 2013)
+# Date: Fri 17 Oct 2014 08:58:49
+
+
+# 
+# This is the logfile for the model ColoredScalars
+
+# Authors: Benjamin Fuks
+# Model version: 1.0
+# Checking the Quantum numbers
+   * Electric charge defined.
+# Checking the Lagrangians
+   * All Lagrangians are ok.
+#
+# Particle definitions
+#
+
+   * No particles removed. All particles correspond to GenInt setup.
+
+# Automatically assigned PDG numbers
+   * Assigned PDG number 9000005 to particle ghA
+   * Assigned PDG number 9000002 to particle ghZ
+   * Assigned PDG number 9000003 to particle ghWp
+   * Assigned PDG number 9000004 to particle ghWm
+
+
+# Compulsory PDG codes:
+   * Class SM leptons complete.
+   * Class SM neutrinos complete.
+   * Class SM quarks complete.
+   * Class SM gauge bosons complete.
+#
+# Parameter definitions
+#
+
+   * Parameter g8g has no value. Default value 1 assigned.
+   * Parameter g8Ld1x1 has no value. Default value 1 assigned.
+   * Parameter g8Ld1x2 has no value. Default value 1 assigned.
+   * Parameter g8Ld1x3 has no value. Default value 1 assigned.
+   * Parameter g8Ld2x1 has no value. Default value 1 assigned.
+   * Parameter g8Ld2x2 has no value. Default value 1 assigned.
+   * Parameter g8Ld2x3 has no value. Default value 1 assigned.
+   * Parameter g8Ld3x1 has no value. Default value 1 assigned.
+   * Parameter g8Ld3x2 has no value. Default value 1 assigned.
+   * Parameter g8Ld3x3 has no value. Default value 1 assigned.
+   * Parameter g8Lu1x1 has no value. Default value 1 assigned.
+   * Parameter g8Lu1x2 has no value. Default value 1 assigned.
+   * Parameter g8Lu1x3 has no value. Default value 1 assigned.
+   * Parameter g8Lu2x1 has no value. Default value 1 assigned.
+   * Parameter g8Lu2x2 has no value. Default value 1 assigned.
+   * Parameter g8Lu2x3 has no value. Default value 1 assigned.
+   * Parameter g8Lu3x1 has no value. Default value 1 assigned.
+   * Parameter g8Lu3x2 has no value. Default value 1 assigned.
+   * Parameter g8Lu3x3 has no value. Default value 1 assigned.
+   * Parameter g8Rd1x1 has no value. Default value 1 assigned.
+   * Parameter g8Rd1x2 has no value. Default value 1 assigned.
+   * Parameter g8Rd1x3 has no value. Default value 1 assigned.
+   * Parameter g8Rd2x1 has no value. Default value 1 assigned.
+   * Parameter g8Rd2x2 has no value. Default value 1 assigned.
+   * Parameter g8Rd2x3 has no value. Default value 1 assigned.
+   * Parameter g8Rd3x1 has no value. Default value 1 assigned.
+   * Parameter g8Rd3x2 has no value. Default value 1 assigned.
+   * Parameter g8Rd3x3 has no value. Default value 1 assigned.
+   * Parameter g8Ru1x1 has no value. Default value 1 assigned.
+   * Parameter g8Ru1x2 has no value. Default value 1 assigned.
+   * Parameter g8Ru1x3 has no value. Default value 1 assigned.
+   * Parameter g8Ru2x1 has no value. Default value 1 assigned.
+   * Parameter g8Ru2x2 has no value. Default value 1 assigned.
+   * Parameter g8Ru2x3 has no value. Default value 1 assigned.
+   * Parameter g8Ru3x1 has no value. Default value 1 assigned.
+   * Parameter g8Ru3x2 has no value. Default value 1 assigned.
+   * Parameter g8Ru3x3 has no value. Default value 1 assigned.
+
+
+# Vertices
+   * Calling FeynmanRules for 1 Lagrangians.
+   * Number of classes vertices: 169
+   * Number of flavored vertices: 163
+   * Saved vertices in InterfaceRun[ 1 ].
+   * Checked QNumber conservation.
+      - Quantum number GhostNumber conserved in all vertices.
+      - Quantum number LeptonNumber conserved in all vertices.
+      - Quantum number Q conserved in all vertices.
+      - Quantum number Y conserved in all vertices.
+   * particles.py written.
+   * parameters.py written.
+#
+# Vertex definitions
+#
+
+   * 142 vertices written.
+   * vertices.py written.
+#
+# Lorentz structure definitions
+#
+
+   * 61 lorentz structures written.
+   * lorentz.py written.
+#
+# Coupling definitions
+#
+
+   * 92 couplings written.
+   * couplings.py written.
+#
+# Coupling order definitions
+#
+
+   * 0 couplings orders written.
+   * coupling_orders.py written.
+#
+# Decay definitions
+#
+
+   * 7 decays written.
+   * decay.py not written
+#
+# CTCoupling definitions
+#
+
+   * 311 CTcouplings written.
+   * CT_couplings.py written.
+#
+# CTVertex definitions
+#
+
+   * 132 CTvertices written.
+   * CT_vertices.py written.

@@ -1,0 +1,3 @@
+c      Input values....
+      double precision a_cp ,b_cp ,c_cp ,d_cp ,e_cp ,f1_cp ,f2_cp ,g_cp ,h_cp 
+      common /USR_PARAM/  a_cp ,b_cp ,c_cp ,d_cp ,e_cp ,f1_cp ,f2_cp ,g_cp ,h_cp 

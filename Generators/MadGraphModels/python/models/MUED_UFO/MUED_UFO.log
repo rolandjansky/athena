@@ -1,0 +1,73 @@
+# This file was automatically created by FeynRules $Revision: 845 $
+# Mathematica version: 8.0 for Linux x86 (64-bit) (November 7, 2010)
+# Date: Wed 14 Dec 2011 14:38:56
+
+
+# 
+# This is the logfile for the model MUED
+
+# Authors: Priscila de Aquino
+# Model version: 1.4
+# Checking the Lagrangians
+   * All Lagrangians are ok.
+#
+# Particle definitions
+#
+
+   * No particles removed. All particles correspond to GenInt setup.
+
+# Automatically assigned PDG numbers
+   * Assigned PDG number 9000001 to particle ghA
+   * Assigned PDG number 9000002 to particle ghZ
+   * Assigned PDG number 9000003 to particle ghWp
+   * Assigned PDG number 9000004 to particle ghWm
+   * Assigned PDG number 9000005 to particle ghG
+
+
+# Compulsory PDG codes:
+   * Class SM leptons complete.
+   * Class SM neutrinos complete.
+   * Class SM quarks complete.
+   * Class SM gauge bosons complete.
+#
+# Parameter definitions
+#
+
+   * All parameters are ok.
+
+
+# Vertices
+   * Calling FeynmanRules for 1 Lagrangians.
+   * Number of classes vertices: 272
+   * Number of flavored vertices: 272
+   * Saved vertices in InterfaceRun[ 1 ].
+   * Checked QNumber conservation.
+      - Quantum number GhostNumber conserved in all vertices.
+      - Quantum number LeptonNumber conserved in all vertices.
+      - Quantum number Q conserved in all vertices.
+   * particles.py written.
+   * parameters.py written.
+#
+# Vertex definitions
+#
+
+   * 272 vertices written.
+   * vertices.py written.
+#
+# Lorentz structure definitions
+#
+
+   * 14 lorentz structures written.
+   * lorentz.py written.
+#
+# Coupling definitions
+#
+
+   * 58 couplings written.
+   * couplings.py written.
+#
+# Coupling order definitions
+#
+
+   * 0 couplings orders written.
+   * coupling_orders.py written.

@@ -1,0 +1,583 @@
+# This file was automatically created by FeynRules 2.3.1
+# Mathematica version: 10.1.0  for Mac OS X x86 (64-bit) (March 24, 2015)
+# Date: Wed 27 May 2015 17:47:39
+
+
+# 
+# This is the logfile for the model lrsm_mix_1_3
+
+# Authors: G. Eilam, S. Bar-Shalom, A. Roitgrund, M. Nemevsek, F. Nesti, A. Maiezza
+# Model version: 1.1
+# Checking the Quantum numbers
+   * Electric charge defined.
+# Checking the Lagrangians
+   * All Lagrangians are ok.
+#
+# Particle definitions
+#
+
+   * No particles removed. All particles correspond to GenInt setup.
+
+# Automatically assigned PDG numbers
+   * Assigned PDG number 9000001 to particle ghG
+
+
+# Compulsory PDG codes:
+   * Class SM leptons complete.
+   * Class SM neutrinos complete.
+   * Class SM quarks complete.
+   * Class SM gauge bosons complete.
+#
+# Parameter definitions
+#
+
+   * Parameter GD is complex, but declared as real. Changing type to complex.
+
+
+# Vertices
+   * Calling FeynmanRules for 1 Lagrangians.
+   * Number of classes vertices: 459
+   * Number of flavored vertices: 697
+   * Saved vertices in InterfaceRun[ 1 ].
+   * Removing all ghosts and Goldstone bosons form the output.
+   * Checked QNumber conservation.
+      - Quantum number GhostNumber conserved in all vertices.
+      - Quantum number LeptonNumber NOT conserved in the following vertices
+          {HP2bar, ebar, v1}
+          {HP2bar, ebar, N1}
+          {HP2bar, mubar, v2}
+          {HP2bar, mubar, N2}
+          {HP2bar, tabar, v3}
+          {HP2bar, tabar, N3}
+          {HP2, v1, e}
+          {HP2, v2, mu}
+          {HP2, v3, ta}
+          {HP2, N1, e}
+          {HP2, N2, mu}
+          {HP2, N3, ta}
+          {HPPRbar, ebar, ebar}
+          {HPPRbar, mubar, mubar}
+          {HPPRbar, tabar, tabar}
+          {HP1bar, ebar, v1}
+          {HP1bar, ebar, N1}
+          {HP1bar, mubar, v2}
+          {HP1bar, mubar, N2}
+          {HP1bar, tabar, v3}
+          {HP1bar, tabar, N3}
+          {HPPLbar, ebar, ebar}
+          {HPPLbar, mubar, mubar}
+          {HPPLbar, tabar, tabar}
+          {HPPR, e, e}
+          {HPPR, mu, mu}
+          {HPPR, ta, ta}
+          {HP1, v1, e}
+          {HP1, v2, mu}
+          {HP1, v3, ta}
+          {HP1, N1, e}
+          {HP1, N2, mu}
+          {HP1, N3, ta}
+          {HPPL, e, e}
+          {HPPL, mu, mu}
+          {HPPL, ta, ta}
+          {W, v1, e}
+          {W, v2, mu}
+          {W, v3, ta}
+          {W, N1, e}
+          {W, N2, mu}
+          {W, N3, ta}
+          {W2, v1, e}
+          {W2, v2, mu}
+          {W2, v3, ta}
+          {W2, N1, e}
+          {W2, N2, mu}
+          {W2, N3, ta}
+          {W2bar, ebar, v1}
+          {W2bar, ebar, N1}
+          {W2bar, mubar, v2}
+          {W2bar, mubar, N2}
+          {W2bar, tabar, v3}
+          {W2bar, tabar, N3}
+          {Wbar, ebar, v1}
+          {Wbar, ebar, N1}
+          {Wbar, mubar, v2}
+          {Wbar, mubar, N2}
+          {Wbar, tabar, v3}
+          {Wbar, tabar, N3}
+      - Quantum number Q conserved in all vertices.
+      - Quantum number Y conserved in all vertices.
+   * particles.py written.
+   * parameters.py written.
+#
+# Vertex definitions
+#
+
+   * 1478 vertices written.
+   * vertices.py written.
+#
+# Lorentz structure definitions
+#
+
+   * 25 lorentz structures written.
+   * lorentz.py written.
+#
+# Coupling definitions
+#
+
+   >>>> Non positive interaction order EWL found for coupling GC_130.
+   >>>> Non positive interaction order EWL found for coupling GC_131.
+   >>>> Non positive interaction order EWL found for coupling GC_132.
+   >>>> Non positive interaction order EWL found for coupling GC_133.
+   >>>> Non positive interaction order EWL found for coupling GC_142.
+   >>>> Non positive interaction order EWL found for coupling GC_143.
+   >>>> Non positive interaction order EWL found for coupling GC_173.
+   >>>> Non positive interaction order EWL found for coupling GC_174.
+   >>>> Non positive interaction order EWL found for coupling GC_175.
+   >>>> Non positive interaction order EWL found for coupling GC_176.
+   >>>> Non positive interaction order EWL found for coupling GC_177.
+   >>>> Non positive interaction order EWL found for coupling GC_178.
+   >>>> Non positive interaction order EWL found for coupling GC_179.
+   >>>> Non positive interaction order EWL found for coupling GC_180.
+   >>>> Non positive interaction order EWL found for coupling GC_181.
+   >>>> Non positive interaction order EWL found for coupling GC_182.
+   >>>> Non positive interaction order EWL found for coupling GC_183.
+   >>>> Non positive interaction order EWL found for coupling GC_184.
+   >>>> Non positive interaction order EWL found for coupling GC_185.
+   >>>> Non positive interaction order EWL found for coupling GC_186.
+   >>>> Non positive interaction order EWL found for coupling GC_187.
+   >>>> Non positive interaction order EWL found for coupling GC_188.
+   >>>> Non positive interaction order EWL found for coupling GC_189.
+   >>>> Non positive interaction order EWL found for coupling GC_190.
+   >>>> Non positive interaction order EWL found for coupling GC_192.
+   >>>> Non positive interaction order EWL found for coupling GC_194.
+   >>>> Non positive interaction order EWL found for coupling GC_196.
+   >>>> Non positive interaction order EWL found for coupling GC_198.
+   >>>> Non positive interaction order EWL found for coupling GC_199.
+   >>>> Non positive interaction order EWL found for coupling GC_200.
+   >>>> Non positive interaction order EWL found for coupling GC_201.
+   >>>> Non positive interaction order EWL found for coupling GC_202.
+   >>>> Non positive interaction order EWL found for coupling GC_233.
+   >>>> Non positive interaction order EWL found for coupling GC_234.
+   >>>> Non positive interaction order EWL found for coupling GC_235.
+   >>>> Non positive interaction order EWL found for coupling GC_236.
+   >>>> Non positive interaction order EWL found for coupling GC_237.
+   >>>> Non positive interaction order EWL found for coupling GC_238.
+   >>>> Non positive interaction order EWL found for coupling GC_239.
+   >>>> Non positive interaction order EWL found for coupling GC_240.
+   >>>> Non positive interaction order EWL found for coupling GC_241.
+   >>>> Non positive interaction order EWL found for coupling GC_242.
+   >>>> Non positive interaction order EWL found for coupling GC_243.
+   >>>> Non positive interaction order EWL found for coupling GC_244.
+   >>>> Non positive interaction order EWL found for coupling GC_245.
+   >>>> Non positive interaction order EWL found for coupling GC_246.
+   >>>> Non positive interaction order EWL found for coupling GC_247.
+   >>>> Non positive interaction order EWL found for coupling GC_248.
+   >>>> Non positive interaction order EWL found for coupling GC_249.
+   >>>> Non positive interaction order EWL found for coupling GC_250.
+   >>>> Non positive interaction order EWL found for coupling GC_262.
+   >>>> Non positive interaction order EWL found for coupling GC_263.
+   >>>> Non positive interaction order EWL found for coupling GC_264.
+   >>>> Non positive interaction order EWL found for coupling GC_265.
+   >>>> Non positive interaction order EWL found for coupling GC_266.
+   >>>> Non positive interaction order EWL found for coupling GC_267.
+   >>>> Non positive interaction order EWL found for coupling GC_268.
+   >>>> Non positive interaction order EWL found for coupling GC_269.
+   >>>> Non positive interaction order EWL found for coupling GC_270.
+   >>>> Non positive interaction order EWL found for coupling GC_271.
+   >>>> Non positive interaction order EWL found for coupling GC_272.
+   >>>> Non positive interaction order EWL found for coupling GC_273.
+   >>>> Non positive interaction order EWL found for coupling GC_274.
+   >>>> Non positive interaction order EWL found for coupling GC_275.
+   >>>> Non positive interaction order EWL found for coupling GC_276.
+   >>>> Non positive interaction order EWL found for coupling GC_296.
+   >>>> Non positive interaction order EWL found for coupling GC_297.
+   >>>> Non positive interaction order EWL found for coupling GC_298.
+   >>>> Non positive interaction order EWL found for coupling GC_299.
+   >>>> Non positive interaction order EWL found for coupling GC_300.
+   >>>> Non positive interaction order EWL found for coupling GC_307.
+   >>>> Non positive interaction order EWL found for coupling GC_308.
+   >>>> Non positive interaction order EWL found for coupling GC_309.
+   >>>> Non positive interaction order EWL found for coupling GC_310.
+   >>>> Non positive interaction order EWL found for coupling GC_311.
+   >>>> Non positive interaction order EWL found for coupling GC_312.
+   >>>> Non positive interaction order EWL found for coupling GC_316.
+   >>>> Non positive interaction order EWL found for coupling GC_317.
+   >>>> Non positive interaction order EWL found for coupling GC_321.
+   >>>> Non positive interaction order EWL found for coupling GC_322.
+   >>>> Non positive interaction order EWL found for coupling GC_329.
+   >>>> Non positive interaction order EWL found for coupling GC_330.
+   >>>> Non positive interaction order EWL found for coupling GC_331.
+   >>>> Non positive interaction order EWL found for coupling GC_332.
+   >>>> Non positive interaction order EWL found for coupling GC_333.
+   >>>> Non positive interaction order EWL found for coupling GC_334.
+   >>>> Non positive interaction order EWL found for coupling GC_335.
+   >>>> Non positive interaction order EWL found for coupling GC_336.
+   >>>> Non positive interaction order EWL found for coupling GC_337.
+   >>>> Non positive interaction order EWL found for coupling GC_338.
+   >>>> Non positive interaction order EWL found for coupling GC_339.
+   >>>> Non positive interaction order EWL found for coupling GC_340.
+   >>>> Non positive interaction order EWL found for coupling GC_341.
+   >>>> Non positive interaction order EWL found for coupling GC_342.
+   >>>> Non positive interaction order EWL found for coupling GC_345.
+   >>>> Non positive interaction order EWL found for coupling GC_346.
+   >>>> Non positive interaction order EWL found for coupling GC_347.
+   >>>> Non positive interaction order EWL found for coupling GC_348.
+   >>>> Non positive interaction order EWL found for coupling GC_351.
+   >>>> Non positive interaction order EWL found for coupling GC_352.
+   >>>> Non positive interaction order EWL found for coupling GC_353.
+   >>>> Non positive interaction order EWL found for coupling GC_354.
+   >>>> Non positive interaction order EWL found for coupling GC_357.
+   >>>> Non positive interaction order EWL found for coupling GC_358.
+   >>>> Non positive interaction order EWL found for coupling GC_360.
+   >>>> Non positive interaction order EWL found for coupling GC_362.
+   >>>> Non positive interaction order EWL found for coupling GC_393.
+   >>>> Non positive interaction order EWL found for coupling GC_394.
+   >>>> Non positive interaction order EWL found for coupling GC_395.
+   >>>> Non positive interaction order EWL found for coupling GC_396.
+   >>>> Non positive interaction order EWL found for coupling GC_397.
+   >>>> Non positive interaction order EWL found for coupling GC_398.
+   >>>> Non positive interaction order EWL found for coupling GC_399.
+   >>>> Non positive interaction order EWL found for coupling GC_400.
+   >>>> Non positive interaction order EWL found for coupling GC_401.
+   >>>> Non positive interaction order EWL found for coupling GC_402.
+   >>>> Non positive interaction order EWL found for coupling GC_405.
+   >>>> Non positive interaction order EWL found for coupling GC_408.
+   >>>> Non positive interaction order EWL found for coupling GC_413.
+   >>>> Non positive interaction order EWL found for coupling GC_414.
+   >>>> Non positive interaction order EWL found for coupling GC_415.
+   >>>> Non positive interaction order EWL found for coupling GC_416.
+   >>>> Non positive interaction order EWL found for coupling GC_417.
+   >>>> Non positive interaction order EWL found for coupling GC_418.
+   >>>> Non positive interaction order EWL found for coupling GC_419.
+   >>>> Non positive interaction order EWL found for coupling GC_420.
+   >>>> Non positive interaction order EWL found for coupling GC_423.
+   >>>> Non positive interaction order EWL found for coupling GC_424.
+   >>>> Non positive interaction order EWL found for coupling GC_425.
+   >>>> Non positive interaction order EWL found for coupling GC_426.
+   >>>> Non positive interaction order EWL found for coupling GC_429.
+   >>>> Non positive interaction order EWL found for coupling GC_430.
+   >>>> Non positive interaction order EWL found for coupling GC_431.
+   >>>> Non positive interaction order EWL found for coupling GC_432.
+   >>>> Non positive interaction order EWL found for coupling GC_435.
+   >>>> Non positive interaction order EWL found for coupling GC_436.
+   >>>> Non positive interaction order EWL found for coupling GC_437.
+   >>>> Non positive interaction order EWL found for coupling GC_439.
+   >>>> Non positive interaction order EWL found for coupling GC_441.
+   >>>> Non positive interaction order EWL found for coupling GC_461.
+   >>>> Non positive interaction order EWL found for coupling GC_462.
+   >>>> Non positive interaction order EWL found for coupling GC_463.
+   >>>> Non positive interaction order EWL found for coupling GC_464.
+   >>>> Non positive interaction order EWL found for coupling GC_465.
+   >>>> Non positive interaction order EWL found for coupling GC_466.
+   >>>> Non positive interaction order EWL found for coupling GC_471.
+   >>>> Non positive interaction order EWL found for coupling GC_472.
+   >>>> Non positive interaction order EWL found for coupling GC_473.
+   >>>> Non positive interaction order EWL found for coupling GC_474.
+   >>>> Non positive interaction order EWL found for coupling GC_501.
+   >>>> Non positive interaction order EWL found for coupling GC_502.
+   >>>> Non positive interaction order EWL found for coupling GC_503.
+   >>>> Non positive interaction order EWL found for coupling GC_504.
+   >>>> Non positive interaction order EWL found for coupling GC_505.
+   >>>> Non positive interaction order EWL found for coupling GC_506.
+   >>>> Non positive interaction order EWL found for coupling GC_507.
+   >>>> Non positive interaction order EWL found for coupling GC_508.
+   >>>> Non positive interaction order EWL found for coupling GC_509.
+   >>>> Non positive interaction order EWL found for coupling GC_510.
+   >>>> Non positive interaction order EWL found for coupling GC_511.
+   >>>> Non positive interaction order EWL found for coupling GC_518.
+   >>>> Non positive interaction order EWL found for coupling GC_519.
+   >>>> Non positive interaction order EWL found for coupling GC_520.
+   >>>> Non positive interaction order EWL found for coupling GC_521.
+   >>>> Non positive interaction order EWL found for coupling GC_522.
+   >>>> Non positive interaction order EWL found for coupling GC_523.
+   >>>> Non positive interaction order EWL found for coupling GC_529.
+   >>>> Non positive interaction order EWL found for coupling GC_540.
+   >>>> Non positive interaction order EWL found for coupling GC_541.
+   >>>> Non positive interaction order EWL found for coupling GC_542.
+   >>>> Non positive interaction order EWL found for coupling GC_543.
+   >>>> Non positive interaction order EWL found for coupling GC_544.
+   >>>> Non positive interaction order EWL found for coupling GC_547.
+   >>>> Non positive interaction order EWL found for coupling GC_548.
+   >>>> Non positive interaction order EWL found for coupling GC_549.
+   >>>> Non positive interaction order EWL found for coupling GC_550.
+   >>>> Non positive interaction order EWL found for coupling GC_551.
+   >>>> Non positive interaction order EWL found for coupling GC_552.
+   >>>> Non positive interaction order EWL found for coupling GC_553.
+   >>>> Non positive interaction order EWL found for coupling GC_558.
+   >>>> Non positive interaction order EWL found for coupling GC_563.
+   >>>> Non positive interaction order EWL found for coupling GC_564.
+   >>>> Non positive interaction order EWL found for coupling GC_565.
+   >>>> Non positive interaction order EWL found for coupling GC_566.
+   >>>> Non positive interaction order EWL found for coupling GC_567.
+   >>>> Non positive interaction order EWL found for coupling GC_568.
+   >>>> Non positive interaction order EWL found for coupling GC_569.
+   >>>> Non positive interaction order EWL found for coupling GC_570.
+   >>>> Non positive interaction order EWL found for coupling GC_571.
+   >>>> Non positive interaction order EWL found for coupling GC_572.
+   >>>> Non positive interaction order EWL found for coupling GC_579.
+   >>>> Non positive interaction order EWL found for coupling GC_580.
+   >>>> Non positive interaction order EWL found for coupling GC_581.
+   >>>> Non positive interaction order EWL found for coupling GC_582.
+   >>>> Non positive interaction order EWL found for coupling GC_583.
+   >>>> Non positive interaction order EWL found for coupling GC_584.
+   >>>> Non positive interaction order EWL found for coupling GC_585.
+   >>>> Non positive interaction order EWL found for coupling GC_586.
+   >>>> Non positive interaction order EWL found for coupling GC_587.
+   >>>> Non positive interaction order EWL found for coupling GC_588.
+   >>>> Non positive interaction order EWL found for coupling GC_589.
+   >>>> Non positive interaction order EWL found for coupling GC_590.
+   >>>> Non positive interaction order EWL found for coupling GC_591.
+   >>>> Non positive interaction order EWL found for coupling GC_592.
+   >>>> Non positive interaction order EWL found for coupling GC_593.
+   >>>> Non positive interaction order EWL found for coupling GC_594.
+   >>>> Non positive interaction order EWL found for coupling GC_595.
+   >>>> Non positive interaction order EWL found for coupling GC_596.
+   >>>> Non positive interaction order EWL found for coupling GC_597.
+   >>>> Non positive interaction order EWL found for coupling GC_598.
+   >>>> Non positive interaction order EWL found for coupling GC_599.
+   >>>> Non positive interaction order EWL found for coupling GC_600.
+   >>>> Non positive interaction order EWL found for coupling GC_601.
+   >>>> Non positive interaction order EWL found for coupling GC_602.
+   >>>> Non positive interaction order EWL found for coupling GC_603.
+   >>>> Non positive interaction order EWL found for coupling GC_604.
+   >>>> Non positive interaction order EWL found for coupling GC_605.
+   >>>> Non positive interaction order EWL found for coupling GC_606.
+   >>>> Non positive interaction order EWL found for coupling GC_607.
+   >>>> Non positive interaction order EWL found for coupling GC_608.
+   >>>> Non positive interaction order EWL found for coupling GC_610.
+   >>>> Non positive interaction order EWL found for coupling GC_611.
+   >>>> Non positive interaction order EWL found for coupling GC_613.
+   >>>> Non positive interaction order EWL found for coupling GC_615.
+   >>>> Non positive interaction order EWL found for coupling GC_616.
+   >>>> Non positive interaction order EWL found for coupling GC_617.
+   >>>> Non positive interaction order EWL found for coupling GC_618.
+   >>>> Non positive interaction order EWL found for coupling GC_674.
+   >>>> Non positive interaction order EWL found for coupling GC_675.
+   >>>> Non positive interaction order EWL found for coupling GC_679.
+   >>>> Non positive interaction order EWL found for coupling GC_680.
+   >>>> Non positive interaction order EWL found for coupling GC_685.
+   >>>> Non positive interaction order EWL found for coupling GC_690.
+   >>>> Non positive interaction order EWL found for coupling GC_694.
+   >>>> Non positive interaction order EWL found for coupling GC_695.
+   >>>> Non positive interaction order EWL found for coupling GC_697.
+   >>>> Non positive interaction order EWL found for coupling GC_699.
+   >>>> Non positive interaction order EWL found for coupling GC_700.
+   >>>> Non positive interaction order EWL found for coupling GC_701.
+   >>>> Non positive interaction order EWL found for coupling GC_702.
+   >>>> Non positive interaction order EWL found for coupling GC_703.
+   >>>> Non positive interaction order EWL found for coupling GC_712.
+   >>>> Non positive interaction order EWL found for coupling GC_713.
+   >>>> Non positive interaction order EWL found for coupling GC_720.
+   >>>> Non positive interaction order EWL found for coupling GC_721.
+   >>>> Non positive interaction order EWL found for coupling GC_722.
+   >>>> Non positive interaction order EWL found for coupling GC_726.
+   >>>> Non positive interaction order EWL found for coupling GC_730.
+   >>>> Non positive interaction order EWL found for coupling GC_740.
+   >>>> Non positive interaction order EWL found for coupling GC_741.
+   >>>> Non positive interaction order EWL found for coupling GC_745.
+   >>>> Non positive interaction order EWL found for coupling GC_749.
+   >>>> Non positive interaction order EWL found for coupling GC_753.
+   >>>> Non positive interaction order EWL found for coupling GC_754.
+   >>>> Non positive interaction order EWL found for coupling GC_755.
+   >>>> Non positive interaction order EWL found for coupling GC_756.
+   >>>> Non positive interaction order EWL found for coupling GC_757.
+   >>>> Non positive interaction order EWL found for coupling GC_758.
+   >>>> Non positive interaction order EWL found for coupling GC_759.
+   >>>> Non positive interaction order EWL found for coupling GC_761.
+   >>>> Non positive interaction order EWL found for coupling GC_762.
+   >>>> Non positive interaction order EWL found for coupling GC_763.
+   >>>> Non positive interaction order EWL found for coupling GC_765.
+   >>>> Non positive interaction order EWL found for coupling GC_766.
+   >>>> Non positive interaction order EWL found for coupling GC_767.
+   >>>> Non positive interaction order EWL found for coupling GC_778.
+   >>>> Non positive interaction order EWL found for coupling GC_779.
+   >>>> Non positive interaction order EWL found for coupling GC_783.
+   >>>> Non positive interaction order EWL found for coupling GC_784.
+   >>>> Non positive interaction order EWL found for coupling GC_786.
+   >>>> Non positive interaction order EWL found for coupling GC_787.
+   >>>> Non positive interaction order EWL found for coupling GC_791.
+   >>>> Non positive interaction order EWL found for coupling GC_801.
+   >>>> Non positive interaction order EWL found for coupling GC_802.
+   >>>> Non positive interaction order EWL found for coupling GC_803.
+   >>>> Non positive interaction order EWL found for coupling GC_807.
+   >>>> Non positive interaction order EWL found for coupling GC_808.
+   >>>> Non positive interaction order EWL found for coupling GC_809.
+   >>>> Non positive interaction order EWL found for coupling GC_810.
+   >>>> Non positive interaction order EWL found for coupling GC_811.
+   >>>> Non positive interaction order EWL found for coupling GC_812.
+   >>>> Non positive interaction order EWL found for coupling GC_817.
+   >>>> Non positive interaction order EWL found for coupling GC_818.
+   >>>> Non positive interaction order EWL found for coupling GC_819.
+   >>>> Non positive interaction order EWL found for coupling GC_820.
+   >>>> Non positive interaction order EWL found for coupling GC_821.
+   >>>> Non positive interaction order EWL found for coupling GC_822.
+   >>>> Non positive interaction order EWL found for coupling GC_824.
+   >>>> Non positive interaction order EWL found for coupling GC_825.
+   >>>> Non positive interaction order EWL found for coupling GC_826.
+   >>>> Non positive interaction order EWL found for coupling GC_827.
+   >>>> Non positive interaction order EWL found for coupling GC_828.
+   >>>> Non positive interaction order EWL found for coupling GC_830.
+   >>>> Non positive interaction order EWL found for coupling GC_1035.
+   >>>> Non positive interaction order EWL found for coupling GC_1060.
+   >>>> Non positive interaction order EWL found for coupling GC_1061.
+   >>>> Non positive interaction order EWL found for coupling GC_1063.
+   >>>> Non positive interaction order EWL found for coupling GC_1064.
+   >>>> Non positive interaction order EWL found for coupling GC_1065.
+   >>>> Non positive interaction order EWL found for coupling GC_1066.
+   >>>> Non positive interaction order EWL found for coupling GC_1067.
+   >>>> Non positive interaction order EWL found for coupling GC_1068.
+   >>>> Non positive interaction order EWL found for coupling GC_1069.
+   >>>> Non positive interaction order EWL found for coupling GC_1070.
+   >>>> Non positive interaction order EWL found for coupling GC_1071.
+   >>>> Non positive interaction order EWL found for coupling GC_1072.
+   >>>> Non positive interaction order EWL found for coupling GC_1074.
+   >>>> Non positive interaction order EWL found for coupling GC_1075.
+   >>>> Non positive interaction order EWL found for coupling GC_1076.
+   >>>> Non positive interaction order EWL found for coupling GC_1077.
+   >>>> Non positive interaction order EWL found for coupling GC_1079.
+   >>>> Non positive interaction order EWL found for coupling GC_1080.
+   >>>> Non positive interaction order EWL found for coupling GC_1081.
+   >>>> Non positive interaction order EWL found for coupling GC_1082.
+   >>>> Non positive interaction order EWL found for coupling GC_1083.
+   >>>> Non positive interaction order EWL found for coupling GC_1084.
+   >>>> Non positive interaction order EWL found for coupling GC_1085.
+   >>>> Non positive interaction order EWL found for coupling GC_1086.
+   >>>> Non positive interaction order EWL found for coupling GC_1087.
+   >>>> Non positive interaction order EWL found for coupling GC_1088.
+   >>>> Non positive interaction order EWL found for coupling GC_1098.
+   >>>> Non positive interaction order EWL found for coupling GC_1099.
+   >>>> Non positive interaction order EWL found for coupling GC_1100.
+   >>>> Non positive interaction order EWL found for coupling GC_1106.
+   >>>> Non positive interaction order EWL found for coupling GC_1107.
+   >>>> Non positive interaction order EWL found for coupling GC_1108.
+   >>>> Non positive interaction order EWL found for coupling GC_1114.
+   >>>> Non positive interaction order EWL found for coupling GC_1115.
+   >>>> Non positive interaction order EWL found for coupling GC_1116.
+   >>>> Non positive interaction order EWL found for coupling GC_1117.
+   >>>> Non positive interaction order EWL found for coupling GC_1118.
+   >>>> Non positive interaction order EWL found for coupling GC_1125.
+   >>>> Non positive interaction order EWL found for coupling GC_1130.
+   >>>> Non positive interaction order EWL found for coupling GC_1131.
+   >>>> Non positive interaction order EWL found for coupling GC_1132.
+   >>>> Non positive interaction order EWL found for coupling GC_1134.
+   >>>> Non positive interaction order EWL found for coupling GC_1135.
+   >>>> Non positive interaction order EWL found for coupling GC_1138.
+   >>>> Non positive interaction order EWL found for coupling GC_1139.
+   >>>> Non positive interaction order EWL found for coupling GC_1140.
+   >>>> Non positive interaction order EWL found for coupling GC_1142.
+   >>>> Non positive interaction order EWL found for coupling GC_1146.
+   >>>> Non positive interaction order EWL found for coupling GC_1147.
+   >>>> Non positive interaction order EWL found for coupling GC_1148.
+   >>>> Non positive interaction order EWL found for coupling GC_1149.
+   >>>> Non positive interaction order EWL found for coupling GC_1150.
+   >>>> Non positive interaction order EWL found for coupling GC_1151.
+   >>>> Non positive interaction order EWL found for coupling GC_1152.
+   >>>> Non positive interaction order EWL found for coupling GC_1153.
+   >>>> Non positive interaction order EWL found for coupling GC_1157.
+   >>>> Non positive interaction order EWL found for coupling GC_1158.
+   >>>> Non positive interaction order EWL found for coupling GC_1160.
+   >>>> Non positive interaction order EWL found for coupling GC_1161.
+   >>>> Non positive interaction order EWL found for coupling GC_1162.
+   >>>> Non positive interaction order EWL found for coupling GC_1163.
+   >>>> Non positive interaction order EWL found for coupling GC_1164.
+   >>>> Non positive interaction order EWL found for coupling GC_1165.
+   >>>> Non positive interaction order EWL found for coupling GC_1166.
+   >>>> Non positive interaction order EWL found for coupling GC_1167.
+   >>>> Non positive interaction order EWL found for coupling GC_1168.
+   >>>> Non positive interaction order EWL found for coupling GC_1169.
+   >>>> Non positive interaction order EWL found for coupling GC_1170.
+   >>>> Non positive interaction order EWL found for coupling GC_1172.
+   >>>> Non positive interaction order EWR found for coupling GC_1272.
+   >>>> Non positive interaction order EWL found for coupling GC_1273.
+   >>>> Non positive interaction order EWR found for coupling GC_1274.
+   >>>> Non positive interaction order EWL found for coupling GC_1275.
+   >>>> Non positive interaction order EWL found for coupling GC_1276.
+   >>>> Non positive interaction order EWL found for coupling GC_1277.
+   >>>> Non positive interaction order EWR found for coupling GC_1278.
+   >>>> Non positive interaction order EWL found for coupling GC_1281.
+   >>>> Non positive interaction order EWL found for coupling GC_1282.
+   >>>> Non positive interaction order EWR found for coupling GC_1283.
+   >>>> Non positive interaction order EWL found for coupling GC_1286.
+   >>>> Non positive interaction order EWL found for coupling GC_1287.
+   >>>> Non positive interaction order EWR found for coupling GC_1288.
+   >>>> Non positive interaction order EWL found for coupling GC_1290.
+   >>>> Non positive interaction order EWL found for coupling GC_1291.
+   >>>> Non positive interaction order EWL found for coupling GC_1292.
+   >>>> Non positive interaction order EWL found for coupling GC_1293.
+   >>>> Non positive interaction order EWR found for coupling GC_1294.
+   >>>> Non positive interaction order EWL found for coupling GC_1296.
+   >>>> Non positive interaction order EWL found for coupling GC_1297.
+   >>>> Non positive interaction order EWL found for coupling GC_1298.
+   >>>> Non positive interaction order EWL found for coupling GC_1299.
+   >>>> Non positive interaction order EWL found for coupling GC_1301.
+   >>>> Non positive interaction order EWL found for coupling GC_1303.
+   >>>> Non positive interaction order EWL found for coupling GC_1304.
+   >>>> Non positive interaction order EWL found for coupling GC_1305.
+   >>>> Non positive interaction order EWL found for coupling GC_1306.
+   >>>> Non positive interaction order EWL found for coupling GC_1307.
+   >>>> Non positive interaction order EWL found for coupling GC_1308.
+   >>>> Non positive interaction order EWL found for coupling GC_1309.
+   >>>> Non positive interaction order EWR found for coupling GC_1310.
+   >>>> Non positive interaction order EWL found for coupling GC_1314.
+   >>>> Non positive interaction order EWL found for coupling GC_1315.
+   >>>> Non positive interaction order EWR found for coupling GC_1316.
+   >>>> Non positive interaction order EWL found for coupling GC_1320.
+   >>>> Non positive interaction order EWL found for coupling GC_1321.
+   >>>> Non positive interaction order EWR found for coupling GC_1322.
+   >>>> Non positive interaction order EWL found for coupling GC_1325.
+   >>>> Non positive interaction order EWL found for coupling GC_1326.
+   >>>> Non positive interaction order EWL found for coupling GC_1327.
+   >>>> Non positive interaction order EWL found for coupling GC_1328.
+   >>>> Non positive interaction order EWL found for coupling GC_1329.
+   >>>> Non positive interaction order EWR found for coupling GC_1330.
+   >>>> Non positive interaction order EWL found for coupling GC_1333.
+   >>>> Non positive interaction order EWL found for coupling GC_1334.
+   >>>> Non positive interaction order EWL found for coupling GC_1335.
+   >>>> Non positive interaction order EWL found for coupling GC_1336.
+   >>>> Non positive interaction order EWL found for coupling GC_1337.
+   >>>> Non positive interaction order EWR found for coupling GC_1338.
+   >>>> Non positive interaction order EWL found for coupling GC_1340.
+   >>>> Non positive interaction order EWL found for coupling GC_1341.
+   >>>> Non positive interaction order EWL found for coupling GC_1342.
+   >>>> Non positive interaction order EWR found for coupling GC_1343.
+   >>>> Non positive interaction order EWL found for coupling GC_1345.
+   >>>> Non positive interaction order EWL found for coupling GC_1346.
+   >>>> Non positive interaction order EWL found for coupling GC_1347.
+   >>>> Non positive interaction order EWL found for coupling GC_1349.
+   >>>> Non positive interaction order EWL found for coupling GC_1351.
+   >>>> Non positive interaction order EWL found for coupling GC_1353.
+   >>>> Non positive interaction order EWL found for coupling GC_1354.
+   >>>> Non positive interaction order EWL found for coupling GC_1355.
+   >>>> Non positive interaction order EWL found for coupling GC_1357.
+   >>>> Non positive interaction order EWL found for coupling GC_1358.
+   >>>> Non positive interaction order EWL found for coupling GC_1359.
+   >>>> Non positive interaction order EWL found for coupling GC_1360.
+   >>>> Non positive interaction order EWL found for coupling GC_1361.
+   >>>> Non positive interaction order EWL found for coupling GC_1417.
+   >>>> Non positive interaction order EWL found for coupling GC_1419.
+   >>>> Non positive interaction order EWL found for coupling GC_1421.
+   >>>> Non positive interaction order EWL found for coupling GC_1423.
+   >>>> Non positive interaction order EWL found for coupling GC_1425.
+   >>>> Non positive interaction order EWL found for coupling GC_1427.
+   >>>> Non positive interaction order EWL found for coupling GC_1429.
+   >>>> Non positive interaction order EWL found for coupling GC_1431.
+   >>>> Non positive interaction order EWL found for coupling GC_1433.
+   * 1433 couplings written.
+   * couplings.py written.
+#
+# Coupling order definitions
+#
+
+   * 0 couplings orders written.
+   * coupling_orders.py written.
+#
+# Decay definitions
+#
+
+   * 29 decays written.
+   * decay.py not written
+#
+# CTCoupling definitions
+#
+
+   * 0 CTcouplings written.
+   * CT_couplings.py written.

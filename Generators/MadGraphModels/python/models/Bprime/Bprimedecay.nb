@@ -1,0 +1,560 @@
+(* Content-type: application/mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 6.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       145,          7]
+NotebookDataLength[     17622,        551]
+NotebookOptionsPosition[     15246,        465]
+NotebookOutlinePosition[     15675,        482]
+CellTagsIndexPosition[     15632,        479]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["B-prime Decay Width Calculation", "Title",
+ CellChangeTimes->{{3.5243221607181797`*^9, 3.5243222564846354`*^9}, {
+  3.531853088599731*^9, 3.531853102473845*^9}}],
+
+Cell["\<\
+
+Jianghao Yu
+Michigan State University
+Last revised : Dec. 1, 2011
+\
+\>", "Author",
+ CellChangeTimes->{{3.473182091159673*^9, 3.473182117352276*^9}, {
+   3.477226541846195*^9, 3.477226550463255*^9}, {3.477996032340277*^9, 
+   3.477996044003227*^9}, 3.477996081628216*^9, {3.5127517082344503`*^9, 
+   3.512751708433414*^9}, {3.5131005570294447`*^9, 3.5131005613044033`*^9}, {
+   3.518734101238459*^9, 3.51873410518614*^9}, {3.524322277645603*^9, 
+   3.524322281082416*^9}, {3.531853105637076*^9, 3.531853113505475*^9}},
+ TextAlignment->Center],
+
+Cell[CellGroupData[{
+
+Cell["Initialization", "Section"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"ClearAll", "[", "\"\<Global`*\>\"", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Off", "[", 
+   RowBox[{
+    RowBox[{"General", "::", "spell"}], ",", " ", 
+    RowBox[{"General", "::", "spell1"}]}], "]"}], ";"}]}], "Input",
+ CellChangeTimes->{{3.469794908966503*^9, 3.469794911720066*^9}, {
+   3.469799632259783*^9, 3.469799633745438*^9}, 3.477226584883044*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Decay Formulae", "Section",
+ CellChangeTimes->{{3.527358600529746*^9, 3.527358605209174*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"Lambda", "[", 
+    RowBox[{"m0_", ",", "m1_", ",", "m2_"}], "]"}], ":=", 
+   RowBox[{
+    SuperscriptBox["m0", "4"], "+", 
+    SuperscriptBox["m1", "4"], "+", 
+    SuperscriptBox["m2", "4"], "-", 
+    RowBox[{"2", "*", 
+     SuperscriptBox["m0", "2"], "*", 
+     SuperscriptBox["m1", "2"]}], "-", 
+    RowBox[{"2", "*", 
+     SuperscriptBox["m0", "2"], "*", 
+     SuperscriptBox["m2", "2"]}], "-", 
+    RowBox[{"2", "*", 
+     SuperscriptBox["m1", "2"], "*", 
+     SuperscriptBox["m2", "2"]}]}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.527358667015126*^9, 3.527358720379986*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"GWid", "[", 
+    RowBox[{"gL_", ",", "gR_", ",", "mF_", ",", "mf_", ",", "mv_"}], "]"}], ":=", 
+   RowBox[{
+    FractionBox[
+     RowBox[{"Sqrt", "[", 
+      RowBox[{"Lambda", "[", 
+       RowBox[{"1", ",", 
+        FractionBox["mf", "mF"], ",", 
+        FractionBox["mv", "mF"]}], "]"}], "]"}], 
+     RowBox[{"32", "*", "\[Pi]", "*", "mF"}]], "*", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{
+         SuperscriptBox["gL", "2"], "+", 
+         SuperscriptBox["gR", "2"]}], ")"}], "*", 
+       RowBox[{"(", 
+        RowBox[{
+         SuperscriptBox["mF", "2"], "+", 
+         SuperscriptBox["mf", "2"], "-", 
+         RowBox[{"2", "*", 
+          SuperscriptBox["mv", "2"]}], "+", 
+         FractionBox[
+          SuperscriptBox[
+           RowBox[{"(", 
+            RowBox[{
+             SuperscriptBox["mF", "2"], "-", 
+             SuperscriptBox["mf", "2"]}], ")"}], "2"], 
+          SuperscriptBox["mv", "2"]]}], ")"}]}], "-", 
+      RowBox[{"12", "*", "gL", "*", "gR", "*", "mF", "*", "mf"}]}], ")"}]}]}],
+   ";"}]], "Input",
+ CellChangeTimes->{{3.5273586365471973`*^9, 3.5273586598989773`*^9}, {
+  3.5273587330697002`*^9, 3.527358904206265*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"GWidA", "[", 
+    RowBox[{"gL_", ",", "mF_", ",", "mf_", ",", "mv_"}], "]"}], ":=", 
+   RowBox[{
+    SuperscriptBox["gL", "2"], "*", 
+    FractionBox["1", 
+     SuperscriptBox["mF", "2"]], "*", 
+    FractionBox[
+     RowBox[{"Sqrt", "[", 
+      RowBox[{"Lambda", "[", 
+       RowBox[{"1", ",", 
+        FractionBox["mf", "mF"], ",", 
+        FractionBox["mv", "mF"]}], "]"}], "]"}], 
+     RowBox[{"32", "*", "\[Pi]", "*", "mF"}]], "*", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"2", "*", 
+       SuperscriptBox[
+        RowBox[{"(", 
+         RowBox[{
+          SuperscriptBox["mF", "2"], "-", 
+          SuperscriptBox["mf", "2"]}], ")"}], "2"]}], "-", 
+      RowBox[{
+       SuperscriptBox["mv", "2"], 
+       RowBox[{"(", 
+        RowBox[{
+         SuperscriptBox["mF", "2"], "+", 
+         SuperscriptBox["mf", "2"]}], ")"}]}], "-", 
+      SuperscriptBox["mv", "4"]}], ")"}]}]}], ";"}]], "Input",
+ CellChangeTimes->{
+  3.527358912519775*^9, {3.527358952242138*^9, 3.527359052468195*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Decay Width", "Section",
+ CellChangeTimes->{{3.531853165020584*^9, 3.531853169070854*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"SMPara", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"ee", "\[Rule]", "0.313451"}], ",", 
+     RowBox[{"gs", "\[Rule]", "1.2177158"}], ",", 
+     RowBox[{"gw", "\[Rule]", "0.65189214"}], ",", 
+     RowBox[{"gz", "\[Rule]", "0.743479602"}], ",", 
+     RowBox[{"cw", "\[Rule]", "0.876812409"}], ",", 
+     RowBox[{"sw", "\[Rule]", "0.480832611"}], ",", 
+     RowBox[{"v", "\[Rule]", "246.259632"}], ",", 
+     RowBox[{"mw", "\[Rule]", "80.267"}], ",", 
+     RowBox[{"mz", "\[Rule]", "91.545"}]}], "}"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.527373302392411*^9, 3.527373325759576*^9}, {
+   3.527373390891768*^9, 3.52737343931609*^9}, {3.531853220554414*^9, 
+   3.531853220817739*^9}, 3.531853330624303*^9}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  FractionBox["ee", 
+   RowBox[{"sw", " ", "cw"}]], "/.", "SMPara"}]], "Input",
+ CellChangeTimes->{{3.531853698292171*^9, 3.531853712723496*^9}}],
+
+Cell[BoxData[
+ FormBox["0.7434796015591686`", TraditionalForm]], "Output",
+ CellChangeTimes->{3.53185371348665*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["B - prime", "Subsection",
+ CellChangeTimes->{{3.531854015936019*^9, 3.531854017369577*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["B - prime decay to top and W", "Subsubsection",
+ CellChangeTimes->{{3.5318532398440657`*^9, 3.531853277938489*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"\[CapitalGamma]btw", "[", 
+    RowBox[{"mF_", ",", "mf_"}], "]"}], ":=", 
+   RowBox[{
+    RowBox[{"GWid", "[", 
+     RowBox[{
+      RowBox[{
+       FractionBox["gw", 
+        SqrtBox["2"]], "*", 
+       FractionBox["v", "mF"]}], ",", "0", ",", "mF", ",", "mf", ",", "mw"}], 
+     "]"}], "/.", "SMPara"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.527359079417481*^9, 3.527359139689972*^9}, {
+   3.5273734448969*^9, 3.527373491302326*^9}, {3.527374168840746*^9, 
+   3.5273741693192987`*^9}, 3.527374214735744*^9, {3.527374714968745*^9, 
+   3.527374724556871*^9}, {3.527377330189086*^9, 3.5273773509834146`*^9}, 
+   3.527384918509457*^9, {3.5273849565382023`*^9, 3.527384965923842*^9}, {
+   3.531853214955319*^9, 3.531853236426742*^9}, {3.5318533149508677`*^9, 
+   3.5318533548937693`*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["B - prime decay to b and Z", "Subsubsection",
+ CellChangeTimes->{{3.5318532398440657`*^9, 3.53185326484226*^9}, {
+  3.531853309372533*^9, 3.531853311754043*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"\[CapitalGamma]bbz", "[", 
+    RowBox[{"mF_", ",", "mf_"}], "]"}], ":=", 
+   RowBox[{
+    RowBox[{"GWid", "[", 
+     RowBox[{
+      RowBox[{
+       FractionBox["gw", 
+        RowBox[{"2", "cw"}]], "*", 
+       FractionBox["v", "mF"]}], ",", "0", ",", "mF", ",", "mf", ",", "mz"}], 
+     "]"}], "/.", "SMPara"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.527359193564106*^9, 3.527359201460576*^9}, {
+   3.527374186273354*^9, 3.527374210797604*^9}, {3.527374243861702*^9, 
+   3.527374245489748*^9}, {3.5273744472441473`*^9, 3.527374447803751*^9}, {
+   3.527374717320644*^9, 3.527374730255933*^9}, 3.5273849250757504`*^9, {
+   3.531853363910595*^9, 3.531853382832944*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["B - prime decay to b and g", "Subsubsection",
+ CellChangeTimes->{{3.5318532398440657`*^9, 3.53185326484226*^9}, {
+  3.531853309372533*^9, 3.531853311754043*^9}, {3.531853474100129*^9, 
+  3.531853474266293*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"\[CapitalGamma]bbg", "[", 
+    RowBox[{"mF_", ",", "mf_"}], "]"}], ":=", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"GWidA", "[", 
+      RowBox[{"gs", ",", "mF", ",", "mf", ",", "0"}], "]"}], "*", 
+     FractionBox["4", "3"]}], "/.", "SMPara"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.531853482179715*^9, 3.531853504718419*^9}, 
+   3.531853546330165*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["B - prime decay to b and photon", "Subsubsection",
+ CellChangeTimes->{{3.5318532398440657`*^9, 3.53185326484226*^9}, {
+  3.531853309372533*^9, 3.531853311754043*^9}, {3.531853474100129*^9, 
+  3.531853474266293*^9}, {3.531853531457707*^9, 3.531853534110889*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"\[CapitalGamma]bb\[Gamma]", "[", 
+    RowBox[{"mF_", ",", "mf_"}], "]"}], ":=", 
+   RowBox[{
+    RowBox[{"GWidA", "[", 
+     RowBox[{"ee", ",", "mF", ",", "mf", ",", "0"}], "]"}], "/.", 
+    "SMPara"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.531853553829453*^9, 3.531853579832457*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["B - prime decay to b and z (anomalous)", "Subsubsection",
+ CellChangeTimes->{{3.5318532398440657`*^9, 3.53185326484226*^9}, {
+  3.531853309372533*^9, 3.531853311754043*^9}, {3.531853474100129*^9, 
+  3.531853474266293*^9}, {3.531853531457707*^9, 3.531853534110889*^9}, {
+  3.53185365426893*^9, 3.5318536579942217`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"\[CapitalGamma]bbZ2", "[", 
+    RowBox[{"mF_", ",", "mf_"}], "]"}], ":=", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"GWidA", "[", 
+      RowBox[{"gzd", ",", "mF", ",", "mf", ",", "mz"}], "]"}], "/.", 
+     "SMPara"}], "/.", 
+    RowBox[{"{", 
+     RowBox[{"gzd", "\[Rule]", "0.31444"}], "}"}]}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.531853673821969*^9, 3.531853687068288*^9}, {
+  3.53185374612328*^9, 3.531853747850505*^9}, {3.531853791281004*^9, 
+  3.53185389393801*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Total Width", "Subsubsection",
+ CellChangeTimes->{{3.531853902915065*^9, 3.531853907711746*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"\[CapitalGamma]Bwid", "[", "mF_", "]"}], ":=", 
+   RowBox[{
+    RowBox[{"\[CapitalGamma]btw", "[", 
+     RowBox[{"mF", ",", "174.3"}], "]"}], "+", 
+    RowBox[{"\[CapitalGamma]bbz", "[", 
+     RowBox[{"mF", ",", "4.7"}], "]"}], "+", 
+    RowBox[{"\[CapitalGamma]bbg", "[", 
+     RowBox[{"mF", ",", "4.7"}], "]"}], "+", 
+    RowBox[{"\[CapitalGamma]bb\[Gamma]", "[", 
+     RowBox[{"mF", ",", "4.7"}], "]"}], "+", 
+    RowBox[{"\[CapitalGamma]bbZ2", "[", 
+     RowBox[{"mF", ",", "4.7"}], "]"}]}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.5318537635298843`*^9, 3.5318537806786747`*^9}, 
+   3.5318538686148567`*^9}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"\[CapitalGamma]Bwid", "[", "500", "]"}], ",", 
+   RowBox[{"\[CapitalGamma]Bwid", "[", "600", "]"}], ",", 
+   RowBox[{"\[CapitalGamma]Bwid", "[", "700", "]"}], ",", 
+   RowBox[{"\[CapitalGamma]Bwid", "[", "800", "]"}], ",", 
+   RowBox[{"\[CapitalGamma]Bwid", "[", "900", "]"}], ",", 
+   RowBox[{"\[CapitalGamma]Bwid", "[", "1000", "]"}], ",", 
+   RowBox[{"\[CapitalGamma]Bwid", "[", "1100", "]"}], ",", 
+   RowBox[{"\[CapitalGamma]Bwid", "[", "1200", "]"}]}], "}"}]], "Input",
+ CellChangeTimes->{{3.531853920822855*^9, 3.531853965263727*^9}}],
+
+Cell[BoxData[
+ FormBox[
+  RowBox[{"{", 
+   RowBox[{
+   "33.249233709665646`", ",", "41.01467548399149`", ",", 
+    "48.68053559331662`", ",", "56.27222698845127`", ",", 
+    "63.80912290897725`", ",", "71.30504288863389`", ",", 
+    "78.76978259674809`", ",", "86.21036509949738`"}], "}"}], 
+  TraditionalForm]], "Output",
+ CellChangeTimes->{{3.531853923291729*^9, 3.531853966110207*^9}}]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["T - prime", "Subsection",
+ CellChangeTimes->{{3.531854027361287*^9, 3.53185402957689*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["T - prime decay to b and W", "Subsubsection",
+ CellChangeTimes->{{3.5318532398440657`*^9, 3.531853277938489*^9}, {
+  3.5318540801850653`*^9, 3.531854083821266*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"\[CapitalGamma]tbw", "[", 
+    RowBox[{"mF_", ",", "mf_"}], "]"}], ":=", 
+   RowBox[{
+    RowBox[{"GWid", "[", 
+     RowBox[{
+      RowBox[{
+       FractionBox["gw", 
+        SqrtBox["2"]], "*", 
+       FractionBox["v", "mF"]}], ",", "0", ",", "mF", ",", "mf", ",", "mw"}], 
+     "]"}], "/.", "SMPara"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.527377438757833*^9, 3.5273774681943073`*^9}, 
+   3.5273850109758244`*^9, {3.531854097478677*^9, 3.5318541075729218`*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["T - prime decay to t and Z", "Subsubsection",
+ CellChangeTimes->{{3.5318532398440657`*^9, 3.531853277938489*^9}, {
+  3.5318540801850653`*^9, 3.531854083821266*^9}, {3.531854147287121*^9, 
+  3.5318541498598747`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"\[CapitalGamma]ttz", "[", 
+    RowBox[{"mF_", ",", "mf_"}], "]"}], ":=", 
+   RowBox[{
+    RowBox[{"GWid", "[", 
+     RowBox[{
+      RowBox[{
+       FractionBox["gw", 
+        RowBox[{"2", "cw"}]], "*", 
+       FractionBox["v", "mF"]}], ",", "0", ",", "mF", ",", "mf", ",", "mz"}], 
+     "]"}], "/.", "SMPara"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.527377458956852*^9, 3.527377474945868*^9}, 
+   3.52738501767941*^9, {3.531854115877792*^9, 3.5318541393910437`*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Total Width", "Subsubsection",
+ CellChangeTimes->{{3.531853902915065*^9, 3.531853907711746*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"\[CapitalGamma]Twid", "[", "mF_", "]"}], ":=", 
+   RowBox[{
+    RowBox[{"\[CapitalGamma]ttz", "[", 
+     RowBox[{"mF", ",", "174.3"}], "]"}], "+", 
+    RowBox[{"\[CapitalGamma]tbw", "[", 
+     RowBox[{"mF", ",", "4.7"}], "]"}]}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.5318537635298843`*^9, 3.5318537806786747`*^9}, 
+   3.5318538686148567`*^9, {3.531854172857171*^9, 3.531854190008026*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"\[CapitalGamma]Twid", "[", "500", "]"}], ",", 
+   RowBox[{"\[CapitalGamma]Twid", "[", "600", "]"}], ",", 
+   RowBox[{"\[CapitalGamma]Twid", "[", "700", "]"}], ",", 
+   RowBox[{"\[CapitalGamma]Twid", "[", "800", "]"}], ",", 
+   RowBox[{"\[CapitalGamma]Twid", "[", "900", "]"}], ",", 
+   RowBox[{"\[CapitalGamma]Twid", "[", "1000", "]"}]}], "}"}]], "Input",
+ CellChangeTimes->{{3.531853920822855*^9, 3.531853965263727*^9}, {
+  3.531854194617216*^9, 3.5318542103041143`*^9}}],
+
+Cell[BoxData[
+ FormBox[
+  RowBox[{"{", 
+   RowBox[{
+   "13.27788409293292`", ",", "16.493852460651528`", ",", 
+    "19.657130677154893`", ",", "22.78227592589415`", ",", 
+    "25.87962908473851`", ",", "28.956358144646657`"}], "}"}], 
+  TraditionalForm]], "Output",
+ CellChangeTimes->{{3.531853923291729*^9, 3.531853966110207*^9}, {
+  3.531854210852888*^9, 3.531854220722293*^9}}]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1276, 756},
+WindowMargins->{{4, Automatic}, {Automatic, 0}},
+Magnification->1.5,
+FrontEndVersion->"7.0 for Mac OS X x86 (32-bit) (February 18, 2009)",
+StyleDefinitions->FrontEnd`FileName[{"Creative"}, "PastelColor.nb", 
+  CharacterEncoding -> "UTF-8"]
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[567, 22, 167, 2, 99, "Title"],
+Cell[737, 26, 552, 13, 108, "Author"],
+Cell[CellGroupData[{
+Cell[1314, 43, 33, 0, 108, "Section"],
+Cell[1350, 45, 394, 9, 79, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1781, 59, 99, 1, 108, "Section"],
+Cell[1883, 62, 627, 18, 61, "Input"],
+Cell[2513, 82, 1240, 36, 133, "Input"],
+Cell[3756, 120, 1043, 32, 97, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4836, 157, 96, 1, 108, "Section"],
+Cell[4935, 160, 747, 16, 79, "Input"],
+Cell[CellGroupData[{
+Cell[5707, 180, 169, 4, 80, "Input"],
+Cell[5879, 186, 115, 2, 55, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[6031, 193, 97, 1, 51, "Subsection"],
+Cell[CellGroupData[{
+Cell[6153, 198, 121, 1, 36, "Subsubsection"],
+Cell[6277, 201, 834, 19, 87, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7148, 225, 167, 2, 36, "Subsubsection"],
+Cell[7318, 229, 715, 17, 80, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[8070, 251, 216, 3, 36, "Subsubsection"],
+Cell[8289, 256, 399, 11, 83, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[8725, 272, 267, 3, 36, "Subsubsection"],
+Cell[8995, 277, 334, 9, 57, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[9366, 291, 324, 4, 36, "Subsubsection"],
+Cell[9693, 297, 520, 14, 57, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[10250, 316, 102, 1, 36, "Subsubsection"],
+Cell[10355, 319, 659, 16, 57, "Input"],
+Cell[CellGroupData[{
+Cell[11039, 339, 593, 11, 79, "Input"],
+Cell[11635, 352, 388, 9, 55, "Output"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[12084, 368, 96, 1, 51, "Subsection"],
+Cell[CellGroupData[{
+Cell[12205, 373, 170, 2, 36, "Subsubsection"],
+Cell[12378, 377, 514, 14, 87, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[12929, 396, 221, 3, 36, "Subsubsection"],
+Cell[13153, 401, 516, 14, 80, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[13706, 420, 102, 1, 36, "Subsubsection"],
+Cell[13811, 423, 439, 10, 57, "Input"],
+Cell[CellGroupData[{
+Cell[14275, 437, 524, 10, 55, "Input"],
+Cell[14802, 449, 380, 9, 55, "Output"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)

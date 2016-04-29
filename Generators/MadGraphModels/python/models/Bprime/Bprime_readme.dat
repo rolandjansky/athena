@@ -1,0 +1,114 @@
+/////////////////////////////////////////////////////////////////////////////////////
+///////////////////////    README FOR BPRIME MODEL   ////////////////////////////////
+///////////////////////////////////////   BY Jiang-Hao Yu  //////////////////////////
+///////////////////////////////////////////////////// Michigan State University /////  
+////////////////////////////////////////////////////////   July, 2011  //////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
+updates: 
+2014-06, Reinhard Schwienhorst: Make it work with versions other than Madraph 1.3.2.
+         The b-b*-gluon coupling was off by a factor two. This caused the cross
+         section calculation to be off in recent Madgraph versions. It is fixed 
+         in this new version.
+         Also include the root macro bprimeWidth.C in this directory.
+
+The anomolous couplings of Bprime: 
+
+		Bprime-top-Wboson, Bprime-b-gluon, Bprime-b-photon, Bprime-b-Zboson
+		
+are implemented into this madgraph 5 model file.
+
+Purpose:
+
+	This model file is for the top + X project. 
+
+
+Model Check:
+
+To make sure the implementation is correct, an independent hanlib code is written.
+The two codes: 
+
+		madgraph 5 with this model file
+		hanlib code
+		
+		 			obtain the same cross section.
+
+
+HOW-TO: 
+
+To use this model file in madgraph 5, the following steps are needed:
+
+	(1) Download Madgraph 5, go to models directory;
+	
+	(2) Copy this model file to $(MADGRAPH_PATH)/models/
+	
+	(3) Go back to madgraph main directory, and run
+	
+			./bin/mg5
+			
+	(4) You will see the python interpreter >>, run the following commands:
+	
+		(here we take one leptonic decay channel for this process as example)
+	
+			import model Bprime
+			
+			define p = p b b~
+			
+			generate p p > t w- QAD=2 QCD=0 QED=0, t > b j j, w- > l- vl~
+			                                
+			add process p p > t w- QAD=2 QCD=0 QED=0, t > b l+ vl, w- > j j
+			                                 
+			add process p p > t~ w+ QAD=2 QCD=0 QED=0, t~ > b~ j j, w+ > l+ vl 
+      		                                
+			add process p p > t~ w+ QAD=2 QCD=0 QED=0, t~ > b~ l- vl~, w+ > j j
+			
+			output Bprime_pp2tw
+			
+			(
+			
+				here you can modify 
+					the parameter card to change
+			 			B-prime mass, width, and couplings
+					and run_card  to change 
+						collision energy to 7 TeV, factorization scale, ...
+					similar to madgraph 4
+			)
+
+NOTE:
+
+	(1) This model file cannot be used in madgraph 4;
+
+	(2) In the parameter cards inside Cards/ directory, the parameter notation is
+	
+			Bprime mass MBP,  default is MBP = 1000 GeV
+			Bprime width WBP, default is WBP = 59 GeV
+				this has to be updated each time you change couplings.
+				Use the root macro bprimeWidth.C to calculate the width.
+			Coupling strength , controlled by fnew:
+				Bprime-top-Wboson = fnewL  * (SM-like Bprime-top-Wboson coupling)
+				default is fnewL = 0.25, fnewR = 0
+				Bprime-b-gluon = fnew * (SM-like Bprime-b-gluon anomalous coupling)
+				default is SM-like anomalous coupling, with fnew = 1
+				
+		You can change to other parameter points.
+				
+	(3) In above example run, both the new physics and SM contributions are considered. If you only want to
+	    generate New physics contribution, you need to run 
+	
+				
+	(4) Advanced use: 
+	
+		If you don not want to change parameter points in every run, you can go to model file	
+		directly change parameters.py file.
+		
+		
+	
+Update Notes:
+
+	Sep 19, 2011: default parameters are 1000 GeV B-prime with 59.0 GeV width.
+	
+		
+		
+		
+	
+
