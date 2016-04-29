@@ -3,12 +3,10 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## Reco_tf.py - New transform re-implementation of the beast that is Reco_trf.
-# @version $Id: Reco_tf.py 654717 2015-03-17 13:39:36Z graemes $ 
+# @version $Id: Reco_tf.py 743340 2016-04-27 15:43:19Z graemes $ 
 
 import sys
 import time
-
-import logging
 
 # Setup core logging here
 from PyJobTransforms.trfLogger import msg
@@ -18,7 +16,7 @@ from PyJobTransforms.transform import transform
 from PyJobTransforms.trfExe import athenaExecutor
 from PyJobTransforms.trfArgs import addAthenaArguments, addDetectorArguments, addTriggerArguments
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
-from RecJobTransforms.recTransformUtils import addAllRecoArgs, addRecoSubsteps
+from RecJobTransforms.recTransformUtils import addAllRecoArgs, addRecoSubsteps, detectRAWtoALL
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
@@ -30,7 +28,11 @@ def main():
     
     msg.info('This is %s' % sys.argv[0])
 
-    trf = getTransform()
+    RAWtoALL = detectRAWtoALL(sys.argv[1:])
+    if RAWtoALL:
+        msg.info("RAWtoALL workflow detected")
+
+    trf = getTransform(RAWtoALL)
     trf.parseCmdLineArgs(sys.argv[1:])
 
     # Just add a note here that this is the place to insert extra checks or manipulations
@@ -43,7 +45,7 @@ def main():
     msg.info("%s stopped at %s, trf exit code %d" % (sys.argv[0], time.asctime(), trf.exitCode))
     sys.exit(trf.exitCode)
 
-def getTransform():
+def getTransform(RAWtoALL=False):
     executorSet = set()
     addRecoSubsteps(executorSet)
 
@@ -54,7 +56,7 @@ def getTransform():
     addAthenaArguments(trf.parser)
     addDetectorArguments(trf.parser)
     addTriggerArguments(trf.parser)
-    addAllRecoArgs(trf)
+    addAllRecoArgs(trf, RAWtoALL)
     
     # For digi step - make sure we can add the digitisation/simulation arguments
     # before we add this substep; allows Reco_tf to work without AtlasSimulation
