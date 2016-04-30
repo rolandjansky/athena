@@ -218,39 +218,14 @@ class InDetTrigParticleCreation_EF( InDet__TrigParticleCreator ):
       InDetTrigPartCreaPrdAssociationTool     = None
       InDetTrigPartCreaTrackSummaryHelperTool = InDetTrigTrackSummaryHelperTool
       
-      # if InDetTrigFlags.doHolesOnTrack():
-      #    from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
-      #    InDetTrigPartCreaTrackSummaryTool = Trk__TrackSummaryTool( name = "InDetTrigTrackSummaryToolHolesShared",
-      #                                                               InDetSummaryHelperTool = InDetTrigPartCreaTrackSummaryHelperTool,
-      #                                                               InDetHoleSearchTool = InDetTrigHoleSearchTool,
-      #                                                               doSharedHits = False )
 
-      #    ToolSvc += InDetTrigPartCreaTrackSummaryTool
-      # else:
-      #    InDetTrigPartCreaTrackSummaryTool   = InDetTrigTrackSummaryTool
-         
-      # load patricle creator tool
-      #
-      creatorName = "InDetTrigParticleCreatorTool"
-      keepPars=True
+      from TrigInDetConf.TrigInDetPostTools import InDetTrigParticleCreatorTool,InDetTrigParticleCreatorToolParams
+
+      creatorTool = InDetTrigParticleCreatorTool
       if type=="photon":
-         creatorName = "InDetTrigParticleCreatorToolParams"
-         keepPars = True
+        creatorTool = InDetTrigParticleCreatorToolParams
 
-      from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
-      InDetTrigParticleCreatorTool = \
-          Trk__TrackParticleCreatorTool( name = creatorName,
-                                         Extrapolator = InDetTrigExtrapolator,
-                                         TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
-                                         KeepParameters = keepPars,
-                                         ForceTrackSummaryUpdate = False,  #summary update moved (in the slimmer now)
-                                         )
-
-      ToolSvc += InDetTrigParticleCreatorTool
-      if (InDetTrigFlags.doPrintConfigurables()):
-         print InDetTrigParticleCreatorTool
-
-      self.ParticleCreatorTool = Trk__TrackParticleCreatorTool(creatorName)
+      self.ParticleCreatorTool = creatorTool
       self.PRDAssociationTool = InDetTrigPrdAssociationTool #for b-tagging
 
       #monitoring
@@ -281,30 +256,24 @@ class InDetTrigTrackingxAODCnv_EF( InDet__TrigTrackingxAODCnv ):
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
           InDetTrigTrackSummaryHelperTool, InDetTrigTrackSummaryTool, InDetTrigTrackSummaryToolSharedHits, \
           InDetTrigHoleSearchTool,InDetTrigExtrapolator
-      
+      from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
+
          
       # load patricle creator tool
       #
-      creatorName = "InDetTrigParticleCreatorTool"
-      keepPars=True
-      if type=="photon":
-         creatorName = "InDetTrigParticleCreatorToolParams"
-         keepPars = True
 
-      from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
-      InDetTrigParticleCreatorTool = \
-          Trk__TrackParticleCreatorTool( name = creatorName,
-                                         Extrapolator = InDetTrigExtrapolator,
-                                         TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
-                                         KeepParameters = keepPars,
-                                         ForceTrackSummaryUpdate = False,  #summary update moved (in the slimmer now)
-                                         )
 
-      ToolSvc += InDetTrigParticleCreatorTool
-      if (InDetTrigFlags.doPrintConfigurables()):
-         print InDetTrigParticleCreatorTool
+      from TrigInDetConf.TrigInDetPostTools import InDetTrigParticleCreatorToolWithSummary, \
+          InDetTrigParticleCreatorToolFTF,InDetTrigParticleCreatorToolWithSummaryTRTPid
 
-      self.ParticleCreatorTool = Trk__TrackParticleCreatorTool(creatorName)
+      creatorTool = InDetTrigParticleCreatorToolWithSummary
+
+      if "_FTF" in name:
+        creatorTool = InDetTrigParticleCreatorToolFTF
+      elif "_IDTrig" in name and type=="electron":
+        creatorTool = InDetTrigParticleCreatorToolWithSummaryTRTPid
+
+      self.ParticleCreatorTool = creatorTool
 
       #monitoring
       self.MonSliceSpecific = True
