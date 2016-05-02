@@ -58,6 +58,7 @@ L1TriggerTowerTool::L1TriggerTowerTool(const std::string& t,
   m_ttSvc("CaloTriggerTowerService/CaloTriggerTowerService"),
   m_mappingTool("LVL1::PpmCoolOrBuiltinMappingTool/PpmCoolOrBuiltinMappingTool"),
   m_l1CondSvc("L1CaloCondSvc", n),
+  m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", n),
   m_isRun2(false),
   m_dbFineTimeRefsTowers(0),
   m_correctFir(false)
@@ -66,6 +67,7 @@ L1TriggerTowerTool::L1TriggerTowerTool(const std::string& t,
 
   declareProperty( "BaselineCorrection", m_correctFir );
   declareProperty( "L1DynamicPedestalProvider", m_dynamicPedestalProvider );
+  declareProperty("LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
 }
 
 //================ Destructor =================================================
@@ -82,6 +84,7 @@ StatusCode L1TriggerTowerTool::initialize()
 
 
   CHECK(m_l1CondSvc.retrieve());
+  CHECK(m_configSvc.retrieve());
   CHECK(m_l1CaloTTIdTools.retrieve());
 
   if(!m_ttSvc.retrieve().isSuccess()) {
@@ -810,7 +813,6 @@ void L1TriggerTowerTool::cpLut(const std::vector<int> &fir, const L1CaloCoolChan
   unsigned int noiseCut = 0;
   bool disabled = disabledChannel(channelId, noiseCut);
   if (noiseCut > 0) cut = noiseCut;
-
   if(strategy == 2) {
     // take the global scale into account - translate strategy to 1 for Run-1 compatible treatment
     lut(fir, scale*slope, scale*offset, scale*cut, ped, 1, disabled, output);
@@ -821,13 +823,17 @@ void L1TriggerTowerTool::cpLut(const std::vector<int> &fir, const L1CaloCoolChan
 
 void L1TriggerTowerTool::jepLut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output)
 {   
-  int strategy = 0;
-  int offset   = 0;
-  int slope    = 0;
-  int cut      = 0;
-  unsigned short scale = 0;
-
-  int ped      = 0;
+  int strategy   = 0;
+  int offset     = 0;
+  int slope      = 0;
+  int cut        = 0;
+  unsigned short scale_db   = 0;
+  unsigned short scale_menu = 0;
+  int ped        = 0;
+  short par1     = 0;
+  short par2     = 0;
+  short par3     = 0;
+  short par4     = 0;
 
   if(!m_isRun2) {
     // assert instead ?!
@@ -838,12 +844,19 @@ void L1TriggerTowerTool::jepLut(const std::vector<int> &fir, const L1CaloCoolCha
     auto conditionsContainer = boost::any_cast<L1CaloPprConditionsContainerRun2*>(m_conditionsContainer);
     const L1CaloPprConditionsRun2* settings = conditionsContainer->pprConditions(channelId.id());
     if (settings) {
-      strategy = settings->lutJepStrategy();
-      offset   = settings->lutJepOffset();
-      slope    = settings->lutJepSlope();
-      cut      = settings->lutJepNoiseCut();
-      scale    = settings->lutJepScale();
-      ped      = settings->pedValue();
+      strategy   = settings->lutJepStrategy();
+      offset     = settings->lutJepOffset();
+      slope      = settings->lutJepSlope();
+      cut        = settings->lutJepNoiseCut();
+      ped        = settings->pedValue();
+      scale_db   = settings->lutJepScale();
+      scale_menu = m_configSvc->thresholdConfig()->caloInfo().globalJetScale(); // Retrieve scale param from menu instead of coolDB
+      if (strategy == 3) {
+        par1  = settings->lutJepPar1();
+        par2  = settings->lutJepPar2();
+        par3  = settings->lutJepPar3();
+        par4  = settings->lutJepPar4();
+      }
     } else ATH_MSG_WARNING( "::jepLut: No L1CaloPprConditions found" );
   } else ATH_MSG_WARNING( "::jepLut: No Conditions Container retrieved" );
 
@@ -854,9 +867,12 @@ void L1TriggerTowerTool::jepLut(const std::vector<int> &fir, const L1CaloCoolCha
   bool disabled = disabledChannel(channelId, noiseCut);
   if (noiseCut > 0) cut = noiseCut;
 
-  if(strategy == 2) {
+  if(strategy == 3) {
+    nonLinearLut(fir, slope, offset, cut, scale_db, par1, par2, par3, par4, disabled, output);
+  } 
+  else if(strategy == 2) {
     // take the global scale into account - translate strategy to 1 for Run-1 compatible treatment
-    lut(fir, scale*slope, scale*offset, scale*cut, ped, 1, disabled, output);
+    lut(fir, scale_menu*slope, scale_menu*offset, scale_menu*cut, ped, 1, disabled, output);
   }else if(strategy == 1 || strategy == 0) {
     lut(fir, slope, offset, cut, ped, strategy, disabled, output);
   } else ATH_MSG_WARNING(" ::jepLut: Unknown stragegy: " << strategy);
@@ -890,6 +906,46 @@ void L1TriggerTowerTool::lut(const std::vector<int> &fir, int slope, int offset,
   } 
 }
 
+void L1TriggerTowerTool::nonLinearLut(const std::vector<int> &fir, int slope, int offset, int cut, int scale, short par1, short par2, short par3, short par4, bool disabled, std::vector<int> &output)
+{
+  output.clear();
+  output.reserve(fir.size()); // avoid frequent reallocations
+
+  std::vector<int>::const_iterator it = fir.begin();
+  for ( ; it != fir.end(); ++it) {
+    int out = 0;
+    if (!disabled) {
+      // turn shorts into double
+      double nll_slope = 0.001 * scale;
+      double nll_offset = 0.001 * par1;
+      double nll_ampl = 0.001 * par2;
+      double nll_expo = 0.;
+      if(par3) {
+        nll_expo = -1. / (4096 * 0.001*par3);
+      } else {
+        nll_ampl = 0.;
+      }
+      double nll_noise = 0.001 * par4;
+      
+      // noise cut
+      if ((*it) * slope < offset + nll_noise * cut) {
+        output.push_back(0);
+        continue;
+      }
+      // actual calculation
+      out = int((((int)(2048 + nll_slope * ((*it) * slope - offset)))>>12) + nll_offset + nll_ampl * std::exp(nll_expo * ((*it) * slope - offset)));
+
+      if(out > s_saturationValue) out = s_saturationValue;
+      if(out < 0)                 out = 0;
+    }
+    output.push_back(out);
+  }
+  if (m_debug) {
+    ATH_MSG_VERBOSE( "::nonLinearLut: output: ");
+    printVec(output);
+   ATH_MSG_VERBOSE(" ");
+  } 
+}
 /** Use ET range to return appropriate ET value
     Do not test BCID here, since no guarantee enough ADC samples to evaluate it reliably */
 
