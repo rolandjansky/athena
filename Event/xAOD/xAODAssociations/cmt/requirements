@@ -1,4 +1,5 @@
 package xAODAssociations
+# $Id: requirements 744228 2016-05-02 14:34:11Z krasznaa $
 
 author niels.van.eldik@cern.ch
 author Edward.Moyse@cern.ch
