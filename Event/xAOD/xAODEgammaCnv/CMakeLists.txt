@@ -18,8 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTruth
                           PhysicsAnalysis/AnalysisCommon/ParticleEvent
                           Reconstruction/Particle
-                          Reconstruction/egamma/egammaEvent
-                          Reconstruction/egamma/egammaInterfaces )
+                          Reconstruction/egamma/egammaEvent )
 
 # Component(s) in the package:
 atlas_add_component( xAODEgammaCnv

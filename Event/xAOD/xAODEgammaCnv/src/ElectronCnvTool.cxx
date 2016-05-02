@@ -8,8 +8,6 @@
 // Old egamma Includes:
 #include "egammaEvent/ElectronContainer.h"
 #include "egammaEvent/egammaParamDefs.h"
-#include "egammaInterfaces/IegammaBaseTool.h"
-#include "egammaInterfaces/IEMClusterTool.h"
 
 //New egamma
 #include "xAODEgamma/ElectronAuxContainer.h"
@@ -26,13 +24,10 @@ namespace xAODMaker {
   ElectronCnvTool::ElectronCnvTool(const std::string& type, 
 				  const std::string& name,
 				  const IInterface* parent )
-    : AthAlgTool( type, name, parent ) {
-
+    : AthAlgTool( type, name, parent )
+  {
     // Declare the interface(s) provided by the tool:
     declareInterface< IElectronCnvTool >(this);
-
-    declareProperty( "RunPID", m_runPID=true );
-    declareProperty("PIDBuilder", m_PIDBuilder, "The PID Builder tool configured for electrons");
 
     declareProperty( "xAODElectronTrackContainerName", m_inDetTrackParticlesGSF = "GSFTrackParticles" );
     declareProperty( "xAODElectronOrigTrackContainerName", m_inDetTrackParticles = "InDetTrackParticles" );
@@ -41,19 +36,12 @@ namespace xAODMaker {
     declareProperty( "xAODCaloClusterFrwdContainerName", m_caloClustersFrwd = "LArClusterEMFrwd");
     declareProperty( "xAODCaloClusterOtherContainerName", m_caloClustersOther = "egClusterCollection", 
 		     "Most likely used for trigger objects");
-		declareProperty( "EMClusterTool", m_EMClusterTool, "EMClusterTool" );
 
   }
   
   StatusCode ElectronCnvTool::initialize() {
 
     ATH_MSG_DEBUG( "Initializing - Package version: " << PACKAGE_VERSION );
-
-    if (m_runPID) {
-      CHECK(m_PIDBuilder.retrieve());
-    }
-
-    CHECK(m_EMClusterTool.retrieve());
     
     // Return gracefully:
     return StatusCode::SUCCESS;
@@ -155,9 +143,6 @@ namespace xAODMaker {
 	  // set derived parameters - should be done last
 	  setDerivedParameters(*electron);
   
-	  if (m_runPID) {
-	    CHECK(m_PIDBuilder->execute(electron));
-	  }
 	} else {
 	  ATH_MSG_WARNING("Found a regular electron, but xaod == NULL");
 	}
@@ -314,18 +299,7 @@ namespace xAODMaker {
     linksToClusters.push_back(newclusterElementLink);
     xaodel.setCaloClusterLinks(linksToClusters);
     
-    // Decorate cluster with position in calo
-    if (newclusterElementLink.isValid())
-    { 
-      ATH_MSG_DEBUG("Decorating cluster");
-      xAOD::CaloCluster *cluster = const_cast<xAOD::CaloCluster*>(*newclusterElementLink);
-      if (cluster)
-      {
-        m_EMClusterTool->fillPositionsInCalo(cluster);
-      }
-      else ATH_MSG_DEBUG("Could not dereference / cast link to cluster");
-    }
-    else ATH_MSG_WARNING("Invalid link to cluster");
+    if (!newclusterElementLink.isValid()) ATH_MSG_WARNING("Invalid link to cluster");
     
   }
   
@@ -378,20 +352,24 @@ namespace xAODMaker {
     
     /// ethad/et
     const xAOD::CaloCluster*   el_cl = xaodel.caloCluster();
-    float elEta    = fabs(el_cl->etaBE(2));
-    float elEt     = el_cl->e()/cosh(elEta);
-    float ethad    = 0;
-    if (xaodel.showerShapeValue(ethad, xAOD::EgammaParameters::ethad)) {
-      float raphad = fabs(elEt) != 0. ? ethad/elEt : 0.;
-      xaodel.setShowerShapeValue(raphad, xAOD::EgammaParameters::Rhad);
-     }
-    
-    ///  ethad1/et
-    float ethad1   = 0;
-    if (xaodel.showerShapeValue(ethad1, xAOD::EgammaParameters::ethad1)) {
-      float raphad1    = fabs(elEt) != 0. ? ethad1/elEt : 0.;
-      xaodel.setShowerShapeValue(raphad1, xAOD::EgammaParameters::Rhad1);
-     }
+    if(el_cl != nullptr) {
+      float elEta    = fabs(el_cl->etaBE(2));
+      float elEt     = el_cl->e()/cosh(elEta);
+      float ethad    = 0;
+      if (xaodel.showerShapeValue(ethad, xAOD::EgammaParameters::ethad)) {
+	float raphad = fabs(elEt) != 0. ? ethad/elEt : 0.;
+	xaodel.setShowerShapeValue(raphad, xAOD::EgammaParameters::Rhad);
+      }
+      
+      ///  ethad1/et
+      float ethad1   = 0;
+      if (xaodel.showerShapeValue(ethad1, xAOD::EgammaParameters::ethad1)) {
+	float raphad1    = fabs(elEt) != 0. ? ethad1/elEt : 0.;
+	xaodel.setShowerShapeValue(raphad1, xAOD::EgammaParameters::Rhad1);
+      }
+    } else {
+      ATH_MSG_WARNING("No xAOD::CaloCluster was found during the conversion egammaContainer -> xAOD::ElectronContainer");
+    }
   }
 
 } // namespace xAODMaker

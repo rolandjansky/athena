@@ -9,7 +9,6 @@
 #include "egammaEvent/PhotonContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/PhotonAuxContainer.h"
-#include "egammaInterfaces/IegammaBaseTool.h"
 
 // Local include(s):
 #include "PhotonCnvAlg.h"
