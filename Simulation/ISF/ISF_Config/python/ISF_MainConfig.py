@@ -189,14 +189,8 @@ def getKernel_GenericSimulator(name="ISF_Kernel_GenericSimulator", **kwargs):
     kwargs.setdefault("DoMemoryMonitoring"      , ISF_Flags.DoMemoryMonitoring()       )
     kwargs.setdefault("ValidationOutput"        , ISF_Flags.ValidationMode()           )
 
-
     from ISF_Algorithms.ISF_AlgorithmsConf import ISF__SimKernel
-    SimKernel = ISF__SimKernel(name, **kwargs)
-    ##FIXME shouldn't really be doing this here
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence += SimKernel
-    return SimKernel
+    return ISF__SimKernel(name, **kwargs)
 
 ############## Simulator: GenericSimulatorNoG4 ###############
 def getKernel_GenericSimulatorNoG4(name="ISF_Kernel_GenericSimulatorNoG4", **kwargs):

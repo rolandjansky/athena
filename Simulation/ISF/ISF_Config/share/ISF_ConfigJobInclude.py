@@ -123,7 +123,8 @@ from ISF_Example.ISF_Input import ISF_Input
 #from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__SDActivateUserAction
 #ToolSvc += iGeant4__SDActivateUserAction("ISFSDActivateUserAction",
 #                                        OutputLevel=INFO)
-SimKernel = getAlgorithm(ISF_Flags.Simulator.KernelName())
+simKernel = getAlgorithm(ISF_Flags.Simulator.KernelName())
+topSequence += simKernel
 
 # Temporary work-around - see ATLASSIM-2351
 if ISF_Flags.UsingGeant4():
@@ -147,6 +148,8 @@ simFlags.RandomSeedList.printSeeds()
 # Setup the ISF Output
 #--------------------------------------------------------------
 from ISF_Example.ISF_Output import ISF_HITSStream
+
+topSequence += getAlgorithm("ISF_CollectionMerger")
 
 #--------------------------------------------------------------
 # Post kernel configuration
