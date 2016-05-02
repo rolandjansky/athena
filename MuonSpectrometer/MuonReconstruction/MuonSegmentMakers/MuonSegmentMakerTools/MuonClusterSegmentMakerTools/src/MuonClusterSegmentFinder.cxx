@@ -29,6 +29,8 @@
 #include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
+#include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
+#include "MuonClusterization/IMuonClusterizationTool.h"
      
 namespace Muon {
 
@@ -39,6 +41,7 @@ namespace Muon {
     m_muonPrepRawDataCollectionProviderTool("Muon::MuonPrepRawDataCollectionProviderTool/MuonPrepRawDataCollectionProviderTool"),
     m_muonPRDSelectionTool("Muon::MuonPRDSelectionTool/MuonPRDSelectionTool"),
     m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
+    m_clusterTool("Muon::MuonClusterizationTool/MuonClusterizationTool"),
     m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
     m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"),
     m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitter"),
@@ -49,7 +52,8 @@ namespace Muon {
  {
 
     declareInterface<IMuonClusterSegmentFinder>(this);
-
+    
+    declareProperty("MuonClusterizationTool", m_clusterTool);
     declareProperty("MuonIdHelperTool",m_idHelper );    
     declareProperty("MuonEDMPrinterTool",m_printer );    
     declareProperty("MuonPrepRawDataCollectionProviderTool",m_muonPrepRawDataCollectionProviderTool );    
@@ -67,6 +71,11 @@ namespace Muon {
  MuonClusterSegmentFinder::~MuonClusterSegmentFinder() { }
 
   StatusCode MuonClusterSegmentFinder::finalize() {
+
+    if( m_clusterTool.retrieve().isFailure() ){
+      ATH_MSG_FATAL("Could not get " << m_clusterTool);
+      return StatusCode::FAILURE;
+    }
 
     if( m_doNtuple ){
       TDirectory* cdir = gDirectory;
@@ -151,7 +160,57 @@ return (fabs(i.z()) < fabs(j.z()));}
     return false;
   }
 
-  void MuonClusterSegmentFinder::findSegments( const std::vector<const TgcPrepDataCollection*>& tgcCols, std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const {
+  std::vector<const Muon::MuonSegment*>* MuonClusterSegmentFinder::getClusterSegments(bool doTGCClust, bool doRPCClust) const {
+    std::vector<const Muon::MuonSegment*>* segs = new std::vector<const Muon::MuonSegment*>;
+    
+    if (doTGCClust) { 
+      const Muon::TgcPrepDataContainer* tgcPrds = new Muon::TgcPrepDataContainer;
+      const std::string keyTgc ("TGC_Measurements");
+      if ( evtStore()->contains<Muon::TgcPrepDataContainer>(keyTgc) && evtStore()->retrieve(tgcPrds,keyTgc).isFailure()) {
+        ATH_MSG_WARNING("Cannot retrieve TgcPrepDataContainer " << keyTgc);
+      }
+
+      Muon::TgcPrepDataContainer* clusterPRD = m_clusterTool->cluster(*tgcPrds);
+      std::vector<const Muon::TgcPrepDataCollection*> theTGCs;
+      Muon::TgcPrepDataContainer::const_iterator theIt = clusterPRD->begin();
+      int theEmpty(0),contInt(-1);
+      for (;theIt!=clusterPRD->end();theIt++){
+        contInt++;
+        if ((*theIt)->size() == 0) {
+          theEmpty++;
+        }
+        theTGCs.push_back(*theIt);
+      }
+
+      if (tgcPrds) findSegments(theTGCs,segs);
+    }//end if TGC
+
+    if (doRPCClust) {
+      const Muon::RpcPrepDataContainer* rpcPrds = new Muon::RpcPrepDataContainer;
+      const std::string keyRpc ("RPC_Measurements");
+      if ( evtStore()->contains<Muon::RpcPrepDataContainer>(keyRpc) && evtStore()->retrieve(rpcPrds,keyRpc).isFailure()) {
+        ATH_MSG_WARNING("Cannot retrieve RpcPrepDataContainer " << keyRpc);
+      }
+
+      Muon::RpcPrepDataContainer* clusterPRD = m_clusterTool->cluster(*rpcPrds);
+      std::vector<const Muon::RpcPrepDataCollection*> theRPCs;
+      Muon::RpcPrepDataContainer::const_iterator theIt = clusterPRD->begin();
+      int theEmpty(0),contInt(-1);
+      for (;theIt!=clusterPRD->end();theIt++){
+        contInt++;
+        if ((*theIt)->size() == 0) {
+          theEmpty++;
+        }
+        theRPCs.push_back(*theIt);
+      }
+
+      if (rpcPrds) findSegments(theRPCs,segs);
+    }//end if rpc
+
+    return segs;
+  }
+
+  void MuonClusterSegmentFinder::findSegments( std::vector<const TgcPrepDataCollection*>& tgcCols, std::vector<const Muon::MuonSegment*>* segments) const {
     ATH_MSG_INFO ("Executing " << name() << "...");
 
     candEvent*  thisEvent = new candEvent;
@@ -161,12 +220,12 @@ return (fabs(i.z()) < fabs(j.z()));}
     makeClusterVecs(truthCollectionTGC,tgcCols,thisEvent);
 	
     ClusterSeg::ClusterAnalysis theAnalysis;
-    ATH_MSG_INFO("the size of Clust is " << thisEvent->Clust().size() );
+    ATH_MSG_DEBUG("the size of Clust is " << thisEvent->Clust().size() );
     std::vector<std::vector<ClusterSeg::SpacePoint>> sPoints = theAnalysis.analyse(thisEvent->Clust());
 	
     processSpacePoints(thisEvent,sPoints);
-    if(thisEvent->segTrkColl()->size() > 0) ATH_MSG_INFO( "it made at least one track " );
-    else ATH_MSG_INFO("processSpacePoints didn't make anything");
+    if(thisEvent->segTrkColl()->size() > 0) ATH_MSG_DEBUG( "it made at least one track " );
+    else ATH_MSG_DEBUG("processSpacePoints didn't make anything");
 
     std::map<int,bool> themap;
     findOverlap(themap,thisEvent);
@@ -174,10 +233,10 @@ return (fabs(i.z()) < fabs(j.z()));}
 
     std::vector<const MuonSegment*> resolvedSegments = getSegments(thisEvent);
 
-    ATH_MSG_INFO("the size of resolved segments " << resolvedSegments.size() );
+    ATH_MSG_DEBUG("the size of resolved segments " << resolvedSegments.size() );
 
     for( auto seg : resolvedSegments ){
-      segments.push_back( std::shared_ptr<const MuonSegment>(seg) );
+      segments->push_back(seg);
     }
     	
     if (m_doNtuple) {
@@ -187,22 +246,23 @@ return (fabs(i.z()) < fabs(j.z()));}
     delete thisEvent;
   }
 
-  void MuonClusterSegmentFinder::findSegments( const std::vector<const RpcPrepDataCollection*>& rpcCols, std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const {
-    ATH_MSG_DEBUG ("Executing " << name() << "...");
+  void MuonClusterSegmentFinder::findSegments(std::vector<const RpcPrepDataCollection*>& rpcCols, std::vector<const Muon::MuonSegment*>* segments ) const {
+    ATH_MSG_INFO ("Executing " << name() << "...");
 
     candEvent * thisEvent = new candEvent;
 
     const PRD_MultiTruthCollection* truthCollectionRPC = m_doTruth ? getTruth("RPC_TruthMap") : 0;
+    
     makeClusterVecs(truthCollectionRPC,rpcCols,thisEvent);
  
     ClusterSeg::ClusterAnalysis theAnalysis;
-    ATH_MSG_INFO("the size of Clust is " << thisEvent->Clust().size() );
+    ATH_MSG_DEBUG("the size of Clust is " << thisEvent->Clust().size() );
     std::vector<std::vector<ClusterSeg::SpacePoint>> sPoints = theAnalysis.analyse(thisEvent->Clust()); 
 
 
     processSpacePoints(thisEvent,sPoints);
     if(thisEvent->segTrkColl()->size() > 0) ATH_MSG_DEBUG( "it made at least one track " );
-    else ATH_MSG_INFO("processSpacePoints didn't make anything");
+    else ATH_MSG_DEBUG("processSpacePoints didn't make anything");
 
     std::map<int,bool> themap;
     findOverlap(themap,thisEvent);
@@ -210,10 +270,10 @@ return (fabs(i.z()) < fabs(j.z()));}
 
     std::vector<const MuonSegment*> resolvedSegments = getSegments(thisEvent);
 
-    ATH_MSG_INFO("the size of resolved segments " << resolvedSegments.size() );
+    ATH_MSG_DEBUG("the size of resolved segments " << resolvedSegments.size() );
 
     for( auto seg : resolvedSegments ){
-      segments.push_back( std::shared_ptr<const MuonSegment>(seg) );
+      segments->push_back(seg);
     }
 
     if (m_doNtuple) {
@@ -263,7 +323,25 @@ return (fabs(i.z()) < fabs(j.z()));}
     }
     return segtrack;
   }
-  
+
+  void MuonClusterSegmentFinder::makeClusterVecs(const std::vector<const Muon::MuonClusterOnTrack*>& clustCol,candEvent* theEvent) const {
+    for( std::vector<const Muon::MuonClusterOnTrack*>::const_iterator colIt = clustCol.begin(); colIt != clustCol.end(); ++ colIt ){
+      const MuonClusterOnTrack* clust = *colIt;
+      MuonStationIndex::PhiIndex pIndex = m_idHelper->phiIndex(clust->identify());
+      bool tmatch(false);
+      int barcode(0);
+      if (m_idHelper->measuresPhi( clust->identify())){
+        theEvent->clusters().push_back(clust);
+        ClusterSeg::Cluster* cluster = new ClusterSeg::Cluster(clust->globalPosition().x(),clust->globalPosition().y(),clust->globalPosition().z(),true,MuonStationIndex::TechnologyIndex::TGC,pIndex,tmatch,barcode);
+        theEvent->Clust().push_back(cluster);
+      } else {
+        theEvent->clusters().push_back(clust);
+        ClusterSeg::Cluster* cluster = new ClusterSeg::Cluster(clust->globalPosition().x(),clust->globalPosition().y(),clust->globalPosition().z(),false,MuonStationIndex::TechnologyIndex::TGC,pIndex,tmatch,barcode);
+        theEvent->Clust().push_back(cluster);
+      }
+    }
+  }
+
   void MuonClusterSegmentFinder::makeClusterVecs(const PRD_MultiTruthCollection* truthCollectionTGC, const std::vector<const TgcPrepDataCollection*>& tgcCols,candEvent* theEvent) const {
     for( std::vector<const TgcPrepDataCollection*>::const_iterator colIt = tgcCols.begin(); colIt != tgcCols.end(); ++ colIt ){
       TgcPrepDataCollection::const_iterator pit = (*colIt)->begin();
@@ -323,7 +401,6 @@ return (fabs(i.z()) < fabs(j.z()));}
     int fakeCounter(0);
     unsigned int barcodeCounter(0);
     int barcodeVal(0);
-    bool trackBarcode(false);
 
     for(auto sit : sPoints){
       if (sit.size() < 2) continue;
@@ -344,7 +421,6 @@ return (fabs(i.z()) < fabs(j.z()));}
         } else if (barcodeVal == sit[i].barcode()) barcodeCounter++;
       }
 	  
-      if (barcodeCounter == sit.size()) trackBarcode = true;
       if (fakeCounter != 0) truthSeed = false;
       std::sort (vec2.begin(),vec2.end(), sortfunctionMB);
       Trk::TrackParameters* startpar = 0;

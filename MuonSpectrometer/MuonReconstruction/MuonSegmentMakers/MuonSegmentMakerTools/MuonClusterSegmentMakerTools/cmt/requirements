@@ -16,7 +16,7 @@ use MuonDetDescrUtils   MuonDetDescrUtils-*     MuonSpectrometer/MuonDetDescr
 use MuonSegment         MuonSegment-*           MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use MuonPrepRawData     MuonPrepRawData-*       MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use MuonRIO_OnTrack     MuonRIO_OnTrack-*       MuonSpectrometer/MuonReconstruction/MuonRecEvent
-
+use MuonClusterization  MuonClusterization-*  MuonSpectrometer/MuonReconstruction/MuonDataPrep
 use MuonRecToolInterfaces      MuonRecToolInterfaces-*      MuonSpectrometer/MuonReconstruction/MuonRecTools
 use MuonRecHelperTools         MuonRecHelperTools-*         MuonSpectrometer/MuonReconstruction/MuonRecTools
 use MuonSegmentMakerToolInterfaces MuonSegmentMakerToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools

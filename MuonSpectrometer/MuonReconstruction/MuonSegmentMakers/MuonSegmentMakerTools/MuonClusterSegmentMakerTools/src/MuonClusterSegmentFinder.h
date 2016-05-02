@@ -94,6 +94,7 @@ namespace Muon {
   class MuonEDMHelperTool;
   class IMuonTrackCleaner;
   class IMuonSegmentOverlapRemovalTool;
+  class IMuonClusterizationTool;
 
   class MuonClusterSegmentFinder : virtual public IMuonClusterSegmentFinder, public AthAlgTool{
   public:
@@ -102,11 +103,12 @@ namespace Muon {
     virtual ~MuonClusterSegmentFinder();
     StatusCode initialize();
     StatusCode finalize();
-    
+
+    std::vector<const Muon::MuonSegment*>* getClusterSegments(bool doTGCClust, bool doRPCClust) const;
     /** tgc segment finding */
-    void findSegments( const std::vector<const TgcPrepDataCollection*>& tgcCols, std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const;
+    void findSegments(std::vector<const TgcPrepDataCollection*>& tgcCols, std::vector<const Muon::MuonSegment*>* segments ) const;
     /** rpc segment finding */
-    void findSegments( const std::vector<const RpcPrepDataCollection*>& rpcCols, std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const;
+    void findSegments(std::vector<const RpcPrepDataCollection*>& rpcCols, std::vector<const Muon::MuonSegment*>* segments ) const;
 
   private:
     ToolHandle<MuonIdHelperTool>                      m_idHelper; 
@@ -114,6 +116,7 @@ namespace Muon {
     ToolHandle<MuonPrepRawDataCollectionProviderTool> m_muonPrepRawDataCollectionProviderTool;
     ToolHandle<IMuonPRDSelectionTool>                 m_muonPRDSelectionTool;
     ToolHandle<IMuonSegmentMaker>                     m_segmentMaker;
+    ToolHandle<Muon::IMuonClusterizationTool>         m_clusterTool;     //<! clustering tool
     ToolHandle<IMuonClusterOnTrackCreator>            m_clusterCreator;
     ToolHandle<IMuonTrackToSegmentTool>               m_trackToSegmentTool; //<! track to segment converter
     ToolHandle<Trk::ITrackFitter>                     m_slTrackFitter;  //<! fitter, always use straightline
@@ -131,6 +134,7 @@ namespace Muon {
     const PRD_MultiTruthCollection* getTruth(std::string name) const;
     bool matchTruth(const PRD_MultiTruthCollection& truthCol, const Identifier& id, int& barcode) const;
     Trk::Track* fit( const std::vector<const Trk::MeasurementBase*>& vec2, const Trk::TrackParameters& startpar ) const;
+    void makeClusterVecs(const std::vector<const Muon::MuonClusterOnTrack*>& clustCol, candEvent* theEvent) const;
     void makeClusterVecs(const PRD_MultiTruthCollection* truthCollectionTGC, const std::vector<const TgcPrepDataCollection*>& tgcCols, candEvent* theEvent) const;
     void makeClusterVecs(const PRD_MultiTruthCollection* truthCollectionRPC, const std::vector<const RpcPrepDataCollection*>& rpcCols, candEvent* theEvent) const;
     void findOverlap(std::map<int,bool>& themap,candEvent* theEvent) const;
