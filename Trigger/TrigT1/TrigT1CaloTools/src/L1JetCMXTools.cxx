@@ -185,27 +185,25 @@ void L1JetCMXTools::formCMXJetHitsCrate(
   std::vector<HitsVector> hitVecF(2 * m_crates);
   std::vector<ErrorVector> errVecM(2 * m_crates);  // Need overflow
   std::vector<ErrorVector> errVecF(2 * m_crates);
-  HitsVector hit0;
-  HitsVector hit1;
+  HitsVector hit10, hit20;
+  HitsVector hit11, hit21;
   xAOD::CMXJetTobContainer::const_iterator pos = cmxTobVec->begin();
   xAOD::CMXJetTobContainer::const_iterator pose = cmxTobVec->end();
   for (; pos != pose; ++pos) {
     const xAOD::CMXJetTob* tob = *pos;
     const int index = 2 * tob->crate();
-    const int jem = tob->jem();
-    const bool forward = (jem == 0 || jem == 7 || jem == 8 || jem == 15);
-    const HitsType type = (forward) ? FORWARD_HITS : MAIN_HITS;
     const std::vector<uint32_t> error(tob->errorVec());
-    hit0.clear();
-    hit1.clear();
-    getHits(tob, hit0, hit1);
-    if (forward) {
-      addCMXJetHits(hitVecF[index], hit0, type);
-      addCMXJetHits(hitVecF[index + 1], hit1, type);
-    } else {
-      addCMXJetHits(hitVecM[index], hit0, type);
-      addCMXJetHits(hitVecM[index + 1], hit1, type);
-    }
+    hit10.clear();
+    hit11.clear();
+    hit20.clear();
+    hit21.clear();
+    getHits(tob, hit10, hit11, hit20, hit21);
+
+    addCMXJetHits(hitVecM[index], hit10, MAIN_HITS);
+    addCMXJetHits(hitVecM[index + 1], hit11, MAIN_HITS);
+    addCMXJetHits(hitVecF[index], hit20, FORWARD_HITS);
+    addCMXJetHits(hitVecF[index + 1], hit21, FORWARD_HITS);
+
     addOverflow(errVecF[index], error);
     addOverflow(errVecF[index + 1], error);
     addOverflow(errVecM[index], error);
@@ -342,14 +340,17 @@ void L1JetCMXTools::formCMXJetHitsTopo(
 
 /** Temporary for testing, mostly lifted from JetAlgorithm */
 
-void L1JetCMXTools::getHits(const xAOD::CMXJetTob* tob, HitsVector& hit0,
-                            HitsVector& hit1) const {
+void L1JetCMXTools::getHits(const xAOD::CMXJetTob* tob, HitsVector& hit10,
+                            HitsVector& hit11, HitsVector& hit20,
+                            HitsVector& hit21) const {
   using namespace TrigConf;
   const std::vector<uint16_t>& energyLg(tob->energyLargeVec());
   const std::vector<uint16_t>& energySm(tob->energySmallVec());
   const int timeslices = energyLg.size();
-  hit0.assign(timeslices, 0);
-  hit1.assign(timeslices, 0);
+  hit10.assign(timeslices, 0);
+  hit11.assign(timeslices, 0);
+  hit20.assign(timeslices, 0);
+  hit21.assign(timeslices, 0);
 
   std::vector<TrigConf::TriggerThreshold*> thresholds =
       m_configSvc->ctpConfig()->menu().thresholdVector();
@@ -363,84 +364,28 @@ void L1JetCMXTools::getHits(const xAOD::CMXJetTob* tob, HitsVector& hit0,
                       energyLg[slice], energySm[slice]);
     LVL1::RecJetRoI roi(tobRoi.roiWord(), &thresholds);
 
-    int numThresholdsHalf = roi.isForwardJet() ? 8 : 5;
-    int numBitsPerCounter = roi.isForwardJet() ? 2 : 3;
+    int numThresholdsHalf = 5;
+    int numBitsPerCounter = 3;
 
-    auto passedThreshold = roi.isForwardJet()
-                               ? std::bind(&LVL1::RecJetRoI::passedFwdThreshold,
-                                           &roi, std::placeholders::_1)
-                               : std::bind(&LVL1::RecJetRoI::passedThreshold,
-                                           &roi, std::placeholders::_1);
     for (int i = 0; i < numThresholdsHalf * 2; ++i) {
-      if (passedThreshold(i)) {
-        HitsVector& hit = i < numThresholdsHalf ? hit0 : hit1;
+      if (roi.passedThreshold(i)) {
+        HitsVector& hit = i < numThresholdsHalf ? hit10 : hit11;
         int ibit = i < numThresholdsHalf ? i : i - numThresholdsHalf;
         hit[slice] |= (1 << (ibit * numBitsPerCounter));
       }
     }
 
-    // auto pattern = roi.thresholdPattern();
+    numThresholdsHalf = 8;
+    numBitsPerCounter = 2;
 
-    //   for (it = thresholds.begin(); it != itE; ++it) {
-    //     if ((*it)->type() == jetTriggerType) { //only use Jet Thresholds
-    //       int threshNum = (*it)->thresholdNumber();
-    //       if (threshNum >= 0 && threshNum <
-    //       (int)TrigT1CaloDefs::numOfJetThresholds) {
-    //         int size = 0;
-    //         int value = 1023;  // Set impossible default in case no threshold
-    //         found
-    //         TriggerThresholdValue* tv = (*it)->triggerThresholdValue(ieta,
-    //         iphi);
-    //         if (tv != 0) {
-    //           JetThresholdValue* jtv;
-    //           jtv = dynamic_cast<JetThresholdValue*> (tv);
-    //           if (jtv) {
-    //             size = jtv->window();
-    //             value = jtv->thresholdValueCount();
-    //           }
-    //         }
-    //         if (m_debug) {
-    //           msg(MSG::DEBUG) << "JetAlgorithm: Test jet threshold " <<
-    //           threshNum
-    //                           << " with type = " << jetTriggerType << ",
-    //                           threshold = "
-    //                           << value << " and window = " << size << endreq;
-    //         }
-    //         bool passes = false;
-    //         switch (size) {
-    //         case 4 :
-    //           passes = (energySm[slice] > value); //<<== CHECK
-    //           break;
-    //         case 6 :
-    //           //passes = (ET6x6() > value);
-    //           break;
-    //         case 8 :
-    //           passes = (energyLg[slice] > value);
-    //           break;
-    //         default :
-    //           if (m_debug) {
-    //             msg(MSG::DEBUG) << "ERROR IN JetAlgorithm WITH COORDS "
-    //                             << phi << ", " << eta << ". WINDOW SIZE OF "
-    //                             << size << " NOT RECOGNISED" << endreq;
-    //           }
-    //         }//end switch
+    for (int i = 0; i < numThresholdsHalf * 2; ++i) {
+      if (roi.passedThreshold(10 + i)) {
+        HitsVector& hit = i < numThresholdsHalf ? hit20 : hit21;
+        int ibit = i < numThresholdsHalf ? i : i - numThresholdsHalf;
+        hit[slice] |= (1 << (ibit * numBitsPerCounter));
+      }
+    }
 
-    //         /** Set bit if passed */
-    //         if (passes) {
-    //           if (forward) {
-    //             if (threshNum < 8) hit0[slice] |= (1 << (threshNum * 2));
-    //             else if (TrigT1CaloDefs::numOfJetThresholds < 8) hit1[slice]
-    //             |= (1 << ((threshNum - 8) * 2)); // for coverity issue #
-    //             29171
-    //           } else {
-    //             if (threshNum < 5) hit0[slice] |= (1 << (threshNum * 3));
-    //             else               hit1[slice] |= (1 << ((threshNum - 5) *
-    //             3));
-    //           }
-    //         }
-    //       } // end if valid threshold
-    //     }//endif - is jet threshold
-    //   }//end thresh for-loop
   }  // end slice for-loop
 }
 
