@@ -8,7 +8,8 @@
 #include "GaudiKernel/IAlgTool.h"
 #include <vector>
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
-
+#include "MuonPrepRawData/RpcPrepDataCollection.h"
+#include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 
 static const InterfaceID IID_IMuonClusterSegmentFinder("Muon::IMuonClusterSegmentFinder",1,0);
 
@@ -23,8 +24,13 @@ namespace Muon {
     /** IAlgTool interface */
     static const InterfaceID& interfaceID();
 
+    virtual std::vector<const Muon::MuonSegment*>* getClusterSegments(bool doTGCClust, bool doRPCClust) const = 0;
+
     /** @brief Find tgc + mdt segments for a given set of TGC hit collections */
-    virtual void findSegments( const std::vector<const TgcPrepDataCollection*>& tgcCols, std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const = 0;
+    virtual void findSegments( std::vector<const TgcPrepDataCollection*>& tgcCols, std::vector<const Muon::MuonSegment*>* segments ) const = 0;
+
+    /** @brief Find rpc + mdt segments for a given set of RPC hit collections */
+    virtual void findSegments( std::vector<const RpcPrepDataCollection*>& rpcCols, std::vector<const Muon::MuonSegment*>* segments ) const = 0;
 
   };
  
