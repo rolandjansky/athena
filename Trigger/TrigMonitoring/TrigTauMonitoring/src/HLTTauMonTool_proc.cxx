@@ -21,12 +21,12 @@
 
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/Feature.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
+//#include "TrigSteeringEvent/TrigOperationalInfo.h"
+//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
+//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 
 #include "TrigConfL1Data/PrescaleSet.h"
 
@@ -263,7 +263,7 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
             plotUnderOverFlow(hist("hL1RoIeT"));
             plotUnderOverFlow(hist("hL1RoIisol"));
             plotUnderOverFlow(hist("hL1RoITauClus"));
-            plotUnderOverFlow(hist("hL1RoITauClus2"));
+            //plotUnderOverFlow(hist("hL1RoITauClus2"));
             plotUnderOverFlow(hist("hL1RoIEMIso"));
             plotUnderOverFlow(hist("hL1RoIHadCore"));
             plotUnderOverFlow(hist("hL1RoIHadIsol"));
@@ -563,8 +563,10 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
 		divide("hRecoHLT25NTrackNum","hRecoTau25NTrackDenom","hRecoHLT25NTrackEfficiency","HLT/TauMon/Expert/HLTefficiency");
 		divide("hRecoHLT25NVtxNum","hRecoTau25NVtxDenom","hRecoHLT25NVtxEfficiency","HLT/TauMon/Expert/HLTefficiency");
 		divide("hRecoHLT25MuNum","hRecoTau25MuDenom","hRecoHLT25MuEfficiency","HLT/TauMon/Expert/HLTefficiency");
-	
-
+*/	
+		divide2("hRecoHLT25EtaVsPhiNum","hRecoTau25EtaVsPhiDenom","hRecoHLT25EtaVsPhiEfficiency","HLT/TauMon/Expert/HLTefficiency");
+		divide2("hRecoHLT25EtaVsPhiNum_2","hRecoTau25EtaVsPhiDenom_2","hRecoHLT25EtaVsPhiEfficiency_2","HLT/TauMon/Expert/HLTefficiency");
+/*
 		divide("hRecoHLT25PtNum_2","hRecoTau25PtDenom_2","hRecoHLT25PtEfficiency_2","HLT/TauMon/Expert/HLTefficiency");
                 divide("hRecoHLT25Pt1PNum_2","hRecoTau25Pt1PDenom_2","hRecoHLT25Pt1PEfficiency_2","HLT/TauMon/Expert/HLTefficiency");
                 divide("hRecoHLT25Pt3PNum_2","hRecoTau25Pt3PDenom_2","hRecoHLT25Pt3PEfficiency_2","HLT/TauMon/Expert/HLTefficiency");
@@ -625,6 +627,7 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
             cloneHistogram2("hL1RoITauClusEMIso","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
 
 	    if(m_emulation){
+		divide("hL1Emulation","hL1EmulationPassTDT","hL1Emulation","HLT/TauMon/Expert/Emulation");
 		setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/Emulation");
 	    	cloneHistogram("hL1Emulation","HLT/TauMon/Expert/Emulation");
 	    }
@@ -752,7 +755,7 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
                 //         cloneHistogram("hRecoHLTNVtxEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
                 
                 cloneProfile("TProfRecoL1PtEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
-                cloneProfile("TProfRecoL1HighPt1PEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
+                cloneProfile("TProfRecoL1HighPtEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
                 cloneProfile("TProfRecoHLTHighPtEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
                 cloneProfile("TProfRecoHLTPtEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
                 cloneProfile("TProfRecoL1PhiEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");

@@ -21,12 +21,12 @@
 
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/Feature.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
+//#include "TrigSteeringEvent/TrigOperationalInfo.h"
+//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
+//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 
 #include "TrigConfL1Data/PrescaleSet.h"
 
@@ -91,7 +91,7 @@ const float TWOPI=2.0*PI;
 void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     
     const int nbin_pt = 13;
-    double bins_pt[nbin_pt] = {10.,20.,25.,30.,35.,40.,45.,50.,60.,70.,100.,150.,200.};
+    double bins_pt[nbin_pt] = {20.,25.,30.,35.,40.,45.,50.,55.,60.,70.,100.,150.,200.};
 
 
 //    const int nbin_leppt = 32;
@@ -118,13 +118,13 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     
     addHistogram(new TH2F("hL1EtaVsPhi","L1 RoI Eta vs Phi; #eta; #phi",100,-2.6,2.6,100,-3.2,3.2));
     addHistogram(new TH1F("hL1RoIisol","L1 RoI Isolation; RoI Isolation Bit; N RoI",10,0.5,9.5));
-    addHistogram(new TH1F("hL1RoIeT","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",200,0.,100.));
-    addHistogram(new TH1F("hL1RoITauClus","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",200,0.,100.));
-    addHistogram(new TH1F("hL1RoITauClus2","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",200,0.,1000.));
+    addHistogram(new TH1F("hL1RoIeT","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",260,0.,130.));
+    addHistogram(new TH1F("hL1RoITauClus","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",260,0.,130.));
+    //addHistogram(new TH1F("hL1RoITauClus2","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",200,0.,1000.));
     addHistogram(new TH1F("hL1RoIEMIso","L1 RoI EM Isol ; E_{T}^{EM Isol}[GeV]; N RoI",16,-2,30));
     addHistogram(new TH1F("hL1RoIHadCore","L1 RoI HAD Core ; E_{T}^{HAD}[GeV]; N RoI",16,-2,30));
     addHistogram(new TH1F("hL1RoIHadIsol","L1 RoI HAD Isol ; E_{T}^{HAD Isol}[GeV]; N RoI",16,-2,30));
-    addHistogram(new TH2F("hL1RoITauClusEMIso","L1 RoI TauClus vs EMiso ; E_{T}[GeV]; E_{T}^{EM Isol}[GeV]",25,0.,100.,16,-2,30));
+    addHistogram(new TH2F("hL1RoITauClusEMIso","L1 RoI TauClus vs EMiso ; E_{T}[GeV]; E_{T}^{EM Isol}[GeV]",140.,10.,80.,42,-1.,20.));
     addHistogram(new TH2F("hL1RoITauVsJet","L1 RoI Tau Et vs Jet Et ; Tau E_{T} [GeV]; Jet E_{T} [GeV]",200,0.,100.,200,0.,100));
     addHistogram(new TH2F("hL1RoITauVsJetMismatch","L1 RoI Tau-Jet deta-dphi if Jet Et< Tau Et ; d#eta; d#phi",50,-0.3,0.3,50,-0.3,0.3));
     addHistogram(new TH2F("hL1RoITauVsJetDEt","L1 RoI Tau-Jet dEt if Jet Et< Tau Et ; Tau E_{t}; dE_{T}",200,0.,100.,50,0.,25.));
@@ -166,8 +166,8 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     //Basic kinematic variables
     addHistogram(new TH1F("hEFEt","EF Et;E_{T}[GeV];Nevents",50,0.0,100.0));
     addHistogram(new TH1F("hEFEta","EF TrigCaloCluster Eta; #eta ; Nevents",26,-2.6,2.6));
-    addHistogram(new TH1F("hEFNUM","EF Number of vertex; N_(vertex) ; Nevents",50,15,65));
-    addHistogram(new TH2F("hEFNUMvsmu","Number of vertex vs offline mu; N_(vertex) ; #mu",  50,15,65,50,15,65));
+    addHistogram(new TH1F("hEFNUM","Online mu; Online #mu ; Nevents",50,0,50));
+    addHistogram(new TH2F("hEFNUMvsmu","Online vs offline mu; Online #mu ; Offline #mu",  50,0,50,50,0,50));
     addHistogram(new TH1F("hEFPhi","EF TrigCaloCluster Phi; #phi ; Nevents",16,-3.2,3.2));
     addHistogram(new TH1F("hEFnTrack","EF number of tracks;number of tracks;Nevents",10,0,10));
     addHistogram(new TH2F("hEFEtaVsPhi","EF TrigCaloCluster Eta vs Phi; #eta ; #phi ; Nevents",26,-2.6,2.6,16,-3.2,3.2));
@@ -735,7 +735,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         
 
 
-	double hbins_pt[nbin_pt] = {10.,25.,35.,65.,70.,100.,200., 250., 300., 350.,  400., 500., 600.};
+	double hbins_pt[nbin_pt] = {20.,30.,50.,70.,100.,150.,200., 250., 300., 350.,  400., 500., 600.};
         addProfile(new TProfile("TProfRecoL1HighPtEfficiency", "L1 Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
         addProfile(new TProfile("TProfRecoL1HighPt1PEfficiency", "L1 Vs Reco Efficiency; Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
         addProfile(new TProfile("TProfRecoL1HighPt3PEfficiency", "L1 Vs Reco Efficiency; Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
@@ -972,8 +972,8 @@ void HLTTauMonTool::bookHistogramsAllItem(){
         }
     }
     const int nbin_pt = 13;
-    double bins_pt[nbin_pt] = {10.,20.,25.,30.,35.,40.,45.,50.,60.,70.,100.,150.,200.};
-    double hbins_pt[nbin_pt] = {10.,25.,35.,65.,70.,100.,200., 250., 300., 350.,  400., 500., 600.};
+    double bins_pt[nbin_pt] = {20.,25.,30.,35.,40.,45.,50.,60.,70.,80.,100.,150.,200.};
+    double hbins_pt[nbin_pt] = {20.,30.,50.,70.,100.,150.,200., 250., 300., 350.,  400., 500., 600.};
     const int nbin_eta = 9;
     double bins_eta[nbin_eta] = {-2.47,-1.52,-1.37,-0.69,0.,0.69,1.37,1.52,2.47};
     const int nbin_nvtx = 6;
