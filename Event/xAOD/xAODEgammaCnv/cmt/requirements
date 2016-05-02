@@ -19,7 +19,6 @@ use  egammaEvent                  egammaEvent-*                   Reconstruction
 use  xAODTracking                 xAODTracking-*                  Event/xAOD
 use  xAODTruth                    xAODTruth-*                     Event/xAOD
 use  FourMom                      FourMom-*                       Event 
-use  egammaInterfaces             egammaInterfaces-*              Reconstruction/egamma
 
 end_private
 

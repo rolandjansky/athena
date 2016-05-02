@@ -18,9 +18,6 @@
 
 #include "xAODEgammaCnv/IPhotonCnvTool.h"
 
-// Forward declaration(s):
-class IegammaBaseTool;
-class IEMClusterTool;
 
 namespace xAODMaker {
 
@@ -47,7 +44,7 @@ namespace xAODMaker {
     virtual StatusCode initialize();
     
     /// Function that fills an existing xAOD::PhotonContainer
-    virtual StatusCode convert( const DataVector<egamma>* aod,
+    virtual StatusCode convert( const egammaContainer* aod,
 				xAOD::PhotonContainer* xaod) const;
     
   private:
@@ -68,13 +65,6 @@ namespace xAODMaker {
     std::string   m_caloClustersTopo;    //!< Location/Key for xAOD::CaloClusters for topo seeded photons
     std::string   m_caloClustersOther;      //!< Location/Key for xAOD::CaloClusters for other (trigger?) electrons
     
-    bool m_runPID;
-    
-    /** @brief Tools to perform identification*/
-    ToolHandle<IegammaBaseTool>                 m_PIDBuilder;
-    
-    /** @brief Tool to decorate clusters */
-    ToolHandle<IEMClusterTool>                 m_EMClusterTool;
     
   }; // class PhotonCnvTool
   
