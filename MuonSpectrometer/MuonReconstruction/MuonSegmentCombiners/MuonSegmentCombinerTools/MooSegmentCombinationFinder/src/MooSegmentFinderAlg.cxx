@@ -6,10 +6,10 @@
 #include "MuonSegmentCombinerToolInterfaces/IMooSegmentCombinationFinder.h"
 
 #include "MuonRecToolInterfaces/IMuonPatternSegmentAssociationTool.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
 
-
-
-
+#include "MuonSegment/MuonSegment.h"
+#include "MuonSegment/MuonSegmentCombination.h"
 
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
@@ -19,7 +19,8 @@
 MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator), 
   m_segmentFinder("Muon::MooSegmentCombinationFinder/MooSegmentCombinationFinder"),
-  m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool")
+  m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool"),
+  m_clusterSegMaker("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder")
 {
   declareProperty("UseRPC",m_useRpc = true);
   declareProperty("UseTGC",m_useTgc = true);
@@ -27,6 +28,10 @@ MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* p
   declareProperty("UseTGCNextBC",m_useTgcNextBC = false);
   declareProperty("UseCSC",m_useCsc = true);
   declareProperty("UseMDT",m_useMdt = true);
+
+  declareProperty("doTGCClust",m_doTGCClust = false);
+  declareProperty("doRPCClust",m_doRPCClust = false);
+
 
   declareProperty("CscPrepDataContainer", m_keyCsc = "CSC_Clusters");
   declareProperty("MdtPrepDataContainer", m_keyMdt = "MDT_DriftCircles");
@@ -40,6 +45,7 @@ MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* p
   declareProperty("MuonSegmentCombinationOutputLocation",m_segmentCombiLocation = "MooreSegmentCombinations");
 
   declareProperty("SegmentFinder", m_segmentFinder );
+  declareProperty("MuonClusterSegmentFinderTool",m_clusterSegMaker);
 }
 
 MooSegmentFinderAlg::~MooSegmentFinderAlg()
@@ -54,6 +60,11 @@ StatusCode MooSegmentFinderAlg::initialize()
   
   if( m_segmentFinder.retrieve().isFailure() ){
     ATH_MSG_FATAL("Could not get " << m_segmentFinder); 
+    return StatusCode::FAILURE;
+  }
+  
+  if( m_clusterSegMaker.retrieve().isFailure() ){
+    ATH_MSG_FATAL("Could not get " << m_clusterSegMaker);
     return StatusCode::FAILURE;
   }
 
@@ -82,7 +93,11 @@ StatusCode MooSegmentFinderAlg::execute()
   if( m_useRpc ) retrieveCollections(rpcCols,m_keyRpc);
 
   Muon::IMooSegmentCombinationFinder::Output* output = m_segmentFinder->findSegments( mdtCols, cscCols, tgcCols, rpcCols );
- 
+
+  //do cluster based segment finding
+  std::vector<const Muon::MuonSegment*>* segs(NULL);
+  if (m_doTGCClust || m_doRPCClust) segs = m_clusterSegMaker->getClusterSegments(m_doTGCClust,m_doRPCClust);
+
   const MuonSegmentCombinationCollection* segmentCombinations = output ? output->segmentCombinations : 0;
   if( !segmentCombinations ) segmentCombinations = new MuonSegmentCombinationCollection();
 
@@ -95,9 +110,19 @@ StatusCode MooSegmentFinderAlg::execute()
     }
   }
   
-  const Trk::SegmentCollection* segmentCollection = output ? output->segmentCollection : 0;
+  Trk::SegmentCollection* segmentCollection = output ? const_cast<Trk::SegmentCollection*>(output->segmentCollection) : 0;
   if( !segmentCollection ) segmentCollection = new Trk::SegmentCollection();
-  
+
+  //add the cluster segments to the segmentCollection
+  if (segs){ 
+    for( std::vector<const Muon::MuonSegment*>::iterator sit = segs->begin(); sit!=segs->end();++sit ){
+      Muon::MuonSegment* nonConstIt = const_cast<Muon::MuonSegment*>(*sit);
+      Trk::Segment* trkSeg = nonConstIt;
+      segmentCollection->push_back(trkSeg);
+    }
+    delete segs;
+  }
+ 
   if (evtStore()->record(segmentCollection,m_segmentLocation).isSuccess() ){
     ATH_MSG_VERBOSE("stored MuonSegmentCollection at " <<  m_segmentLocation 
 			   << " size " << segmentCollection->size());
@@ -119,10 +144,6 @@ StatusCode MooSegmentFinderAlg::execute()
 
   return StatusCode::SUCCESS;
 } // execute
-
-
-
-
 
 StatusCode MooSegmentFinderAlg::finalize()
 {

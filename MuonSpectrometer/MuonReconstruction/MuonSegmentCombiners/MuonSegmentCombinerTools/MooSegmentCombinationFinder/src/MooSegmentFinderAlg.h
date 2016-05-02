@@ -20,6 +20,7 @@ class MsgStream;
 class StoreGateSvc;
 
 namespace Muon {
+  class IMuonClusterSegmentFinder;
   class IMuonPatternSegmentAssociationTool;
   class IMooSegmentCombinationFinder;
 }
@@ -34,7 +35,6 @@ class MooSegmentFinderAlg : public AthAlgorithm
   virtual StatusCode initialize();
   virtual StatusCode execute();
   virtual StatusCode finalize();
-
 
  private:
   
@@ -55,6 +55,10 @@ class MooSegmentFinderAlg : public AthAlgorithm
   bool                m_useCsc;
   bool                m_useMdt;
 
+  /** selection flags for cluster based segment finding */
+  bool                m_doTGCClust;
+  bool                m_doRPCClust;
+
   /** storegate location of the MuonPrepDataContainer for all four technologies */
   std::string         m_keyTgc;
   std::string         m_keyTgcPriorBC;
@@ -67,8 +71,9 @@ class MooSegmentFinderAlg : public AthAlgorithm
   std::string         m_segmentLocation;
   std::string         m_segmentCombiLocation;
 
-  ToolHandle<Muon::IMooSegmentCombinationFinder> m_segmentFinder;     //<! pointer to the segment finder 
+  ToolHandle<Muon::IMooSegmentCombinationFinder> m_segmentFinder;     //<! pointer to the segment finder
   ToolHandle<Muon::IMuonPatternSegmentAssociationTool> m_assocTool;
+  ToolHandle<Muon::IMuonClusterSegmentFinder> m_clusterSegMaker;
 
 };
 

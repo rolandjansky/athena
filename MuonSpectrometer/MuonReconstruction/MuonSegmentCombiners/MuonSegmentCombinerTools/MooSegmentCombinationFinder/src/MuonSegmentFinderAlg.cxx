@@ -18,6 +18,7 @@
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentCombination.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
 
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 
@@ -29,9 +30,10 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
   m_patternCalibration("Muon::MuonPatternCalibration/MuonPatternCalibration"),
   m_patternSegmentMaker("Muon::MuonPatternSegmentMaker/MuonPatternSegmentMaker"),
   m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
+  m_clusterSegMaker("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder"),
   m_segmentOverlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool"),
   m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-  m_clusterSegMaker("Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool"),
+  m_clusterSegMakerNSW("Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool"),
   m_truthSummaryTool("Muon::MuonTruthSummaryTool/MuonTruthSummaryTool"),
   m_csc2dSegmentFinder("Csc2dSegmentMaker/Csc2dSegmentMaker"),
   m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker")
@@ -43,14 +45,17 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
   declareProperty("MuonPatternSegmentMaker", m_patternSegmentMaker);
   declareProperty("SegmentMaker",m_segmentMaker);
   declareProperty("ClusterCreator",m_clusterCreator);
-  declareProperty("MuonClusterSegmentFinderTool",m_clusterSegMaker);
+  declareProperty("MuonClusterSegmentFinderTool",m_clusterSegMakerNSW);
   declareProperty("MuonTruthSummaryTool",m_truthSummaryTool);
   declareProperty("Csc2dSegmentMaker", m_csc2dSegmentFinder);
   declareProperty("Csc4dSegmentMaker", m_csc4dSegmentFinder);
   declareProperty("PrintSummary",m_printSummary = false);
+  declareProperty("MuonClusterSegmentFinder",m_clusterSegMaker);
   //
   declareProperty("SegmentCollectionName",m_segmentCollectionName="MuonSegments");
   declareProperty("UseNSWMode",m_useNSWMode = false);
+  declareProperty("doTGCClust",m_doTGCClust = false);
+  declareProperty("doRPCClust",m_doRPCClust = false);
 
 }
 
@@ -86,6 +91,10 @@ StatusCode MuonSegmentFinderAlg::initialize()
   if( m_segmentMaker.retrieve().isFailure() ){
     ATH_MSG_FATAL( "Could not get " << m_segmentMaker );
     return StatusCode::FAILURE;
+  }
+  if( m_clusterSegMaker.retrieve().isFailure() ){
+    ATH_MSG_FATAL("Could not get " << m_clusterSegMaker);
+    return StatusCode::FAILURE;
   }  
   if( !m_truthSummaryTool.empty() && m_truthSummaryTool.retrieve().isFailure() ){
     ATH_MSG_FATAL( "Could not get " << m_truthSummaryTool );
@@ -95,8 +104,8 @@ StatusCode MuonSegmentFinderAlg::initialize()
     ATH_MSG_FATAL( "Could not get " << m_clusterCreator );
     return StatusCode::FAILURE;
   }
-  if( m_clusterSegMaker.retrieve().isFailure() ){
-    ATH_MSG_FATAL( "Could not get " << m_clusterSegMaker );
+  if( m_clusterSegMakerNSW.retrieve().isFailure() ){
+    ATH_MSG_FATAL( "Could not get " << m_clusterSegMakerNSW );
     return StatusCode::FAILURE;
   }
 
@@ -138,6 +147,13 @@ StatusCode MuonSegmentFinderAlg::execute()
 
   }//end SG container check
   
+  //do cluster based segment finding
+  std::vector<const Muon::MuonSegment*>* clustSegs(NULL);
+  if (m_doTGCClust || m_doRPCClust) clustSegs = m_clusterSegMaker->getClusterSegments(m_doTGCClust,m_doRPCClust);   
+  if (clustSegs) {
+    segs.insert(segs.end(),clustSegs->begin(),clustSegs->end());
+    delete clustSegs;
+  }
 
   std::vector<const Muon::MuonSegment*> resolvedSegments = m_segmentOverlapRemovalTool->removeDuplicates(segs);
   
@@ -255,7 +271,7 @@ void MuonSegmentFinderAlg::createSegmentsFromClusters(Muon::MuonPatternCombinati
   std::map<int,std::vector<const Muon::MuonClusterOnTrack*> >::iterator sit_end = clustersPerSector.end();
   for( ;sit!=sit_end;++sit ){
     std::vector<const Muon::MuonClusterOnTrack*>& clusters = sit->second;
-    std::vector<const Muon::MuonSegment*>* segs = m_clusterSegMaker->find(clusters);
+    std::vector<const Muon::MuonSegment*>* segs = m_clusterSegMakerNSW->find(clusters);
 
     //cleanup the memory
     for(std::vector<const Muon::MuonClusterOnTrack*>::iterator cit = clusters.begin(); cit!=clusters.end(); ++cit) {

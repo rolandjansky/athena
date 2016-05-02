@@ -483,7 +483,7 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection( const MuonSegmentCo
   MuonSegmentCombinationCollection::const_iterator cit_end = combiCol.end();
   for(; cit!=cit_end;++cit ){
     if( !*cit ) {
-      ATH_MSG_INFO(" empty MuonSegmentCombination!!! ");
+      ATH_MSG_DEBUG(" empty MuonSegmentCombination!!! ");
       continue;
     }
     const Muon::MuonSegmentCombination& combi = **cit;
