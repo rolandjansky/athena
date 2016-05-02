@@ -20,6 +20,7 @@
 // Local include(s):
 #include "xAODCutFlow/CutBookkeeperContainer.h"
 #include "xAODCutFlow/CutBookkeeperAuxContainer.h"
+#include "xAODCutFlow/xAODCutFlowHelpers.h"
 
 
 
