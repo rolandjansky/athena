@@ -352,20 +352,24 @@ namespace xAODMaker {
     
     /// ethad/et
     const xAOD::CaloCluster*   el_cl = xaodel.caloCluster();
-    float elEta    = fabs(el_cl->etaBE(2));
-    float elEt     = el_cl->e()/cosh(elEta);
-    float ethad    = 0;
-    if (xaodel.showerShapeValue(ethad, xAOD::EgammaParameters::ethad)) {
-      float raphad = fabs(elEt) != 0. ? ethad/elEt : 0.;
-      xaodel.setShowerShapeValue(raphad, xAOD::EgammaParameters::Rhad);
-     }
-    
-    ///  ethad1/et
-    float ethad1   = 0;
-    if (xaodel.showerShapeValue(ethad1, xAOD::EgammaParameters::ethad1)) {
-      float raphad1    = fabs(elEt) != 0. ? ethad1/elEt : 0.;
-      xaodel.setShowerShapeValue(raphad1, xAOD::EgammaParameters::Rhad1);
-     }
+    if(el_cl != nullptr) {
+      float elEta    = fabs(el_cl->etaBE(2));
+      float elEt     = el_cl->e()/cosh(elEta);
+      float ethad    = 0;
+      if (xaodel.showerShapeValue(ethad, xAOD::EgammaParameters::ethad)) {
+	float raphad = fabs(elEt) != 0. ? ethad/elEt : 0.;
+	xaodel.setShowerShapeValue(raphad, xAOD::EgammaParameters::Rhad);
+      }
+      
+      ///  ethad1/et
+      float ethad1   = 0;
+      if (xaodel.showerShapeValue(ethad1, xAOD::EgammaParameters::ethad1)) {
+	float raphad1    = fabs(elEt) != 0. ? ethad1/elEt : 0.;
+	xaodel.setShowerShapeValue(raphad1, xAOD::EgammaParameters::Rhad1);
+      }
+    } else {
+      ATH_MSG_WARNING("No xAOD::CaloCluster was found during the conversion egammaContainer -> xAOD::ElectronContainer");
+    }
   }
 
 } // namespace xAODMaker
