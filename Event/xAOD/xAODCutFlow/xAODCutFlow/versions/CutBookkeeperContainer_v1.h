@@ -54,6 +54,15 @@ namespace xAOD {
     /// Pull in usage of the base class operator[]
     using DataVector<CutBookkeeper_v1>::operator[];
 
+    /// Merge the content of another xAOD::CutBookkeeperContainer into this one
+    void merge( const CutBookkeeperContainer_v1* otherCont );
+
+    /// Get the minimum cycle number of any xAOD::CutBookkeepers in the container
+    int minCycle() const;
+
+    /// Get the maximum cycle number of any xAOD::CutBookkeepers in the container
+    int maxCycle() const;
+
   };
 
 } // namespace xAOD
