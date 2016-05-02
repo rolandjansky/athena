@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfo_v1.cxx 682504 2015-07-13 11:53:50Z krasznaa $
+// $Id: EventInfo_v1.cxx 729717 2016-03-14 18:52:01Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -55,6 +55,32 @@ namespace xAOD {
       : SG::AuxElement(), m_streamTags(), m_updateStreamTags( false ),
         m_subEvents(), m_updateSubEvents( false ), m_evtStore( 0 ) {
 
+   }
+
+   EventInfo_v1::EventInfo_v1( const EventInfo_v1& parent )
+      : SG::AuxElement(), m_streamTags(),
+        m_updateStreamTags( true ), m_subEvents(), m_updateSubEvents( true ),
+        m_evtStore( parent.m_evtStore ) {
+
+      makePrivateStore( parent );
+   }
+
+   EventInfo_v1& EventInfo_v1::operator=( const EventInfo_v1& rhs ) {
+
+      if (&rhs != this) {
+        // Clear out the caches:
+        m_streamTags.clear(); m_updateStreamTags = true;
+        m_subEvents.clear(); m_updateSubEvents = true;
+
+        // Copy the event store pointer:
+        m_evtStore = rhs.m_evtStore;
+
+        // Copy the auxiliary variables:
+        SG::AuxElement::operator=( rhs );
+      }
+
+      // Return this object:
+      return *this;
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -322,15 +348,20 @@ namespace xAOD {
                                          setAverageInteractionsPerCrossing )
 
    EventInfo_v1::SubEvent::
-   SubEvent( uint16_t time, PileUpType type,
+   SubEvent( int16_t time, uint16_t index, PileUpType type,
              const ElementLink< EventInfoContainer_v1 >& link )
-      : m_time( time ), m_type( type ), m_link( link ) {
+      : m_time( time ), m_index( index ), m_type( type ), m_link( link ) {
 
    }
 
-   uint16_t EventInfo_v1::SubEvent::time() const {
+   int16_t EventInfo_v1::SubEvent::time() const {
 
       return m_time;
+   }
+
+   uint16_t EventInfo_v1::SubEvent::index() const {
+
+      return m_index;
    }
 
    EventInfo_v1::PileUpType EventInfo_v1::SubEvent::type() const {
@@ -383,8 +414,10 @@ namespace xAOD {
    //
    // Accessor objects for the sub-event properties:
    //
-   static SG::AuxElement::Accessor< std::vector< uint16_t > >
+   static SG::AuxElement::Accessor< std::vector< int16_t > >
       timeAcc( "subEventTime" );
+   static SG::AuxElement::Accessor< std::vector< uint16_t > >
+      indexAcc( "subEventIndex" );
    static SG::AuxElement::Accessor< std::vector< ElementLink< EventInfoContainer_v1 > > >
       linkAcc( "subEventLink" );
    static SG::AuxElement::Accessor< std::vector< uint16_t > >
@@ -401,6 +434,7 @@ namespace xAOD {
          m_subEvents.clear();
          // Check if any of the information is available:
          if( ( ! timeAcc.isAvailable( *this ) ) &&
+             ( ! indexAcc.isAvailable( *this ) ) &&
              ( ! linkAcc.isAvailable( *this ) ) &&
              ( ! typeAcc.isAvailable( *this ) ) ) {
             // If not, return right away:
@@ -410,6 +444,8 @@ namespace xAOD {
          size_t size = 0;
          if( timeAcc.isAvailable( *this ) ) {
             size = timeAcc( *this ).size();
+         } else if( indexAcc.isAvailable( *this ) ) {
+            size = indexAcc( *this ).size();
          } else if( linkAcc.isAvailable( *this ) ) {
             size = linkAcc( *this ).size();
          } else if( typeAcc.isAvailable( *this ) ) {
@@ -421,6 +457,8 @@ namespace xAOD {
          }
          if( ( timeAcc.isAvailable( *this ) &&
                ( size != timeAcc( *this ).size() ) ) ||
+             ( indexAcc.isAvailable( *this ) &&
+               ( size != indexAcc( *this ).size() ) ) ||
              ( linkAcc.isAvailable( *this ) &&
                ( size != linkAcc( *this ).size() ) ) ||
              ( typeAcc.isAvailable( *this ) &&
@@ -429,6 +467,9 @@ namespace xAOD {
                       << "the sub-event information" << std::endl;
             std::cerr << "subEventTime  = "
                       << ( timeAcc.isAvailable( *this ) ? timeAcc( *this ) :
+                           std::vector< int16_t >() ) << std::endl;
+            std::cerr << "subEventIndex  = "
+                      << ( indexAcc.isAvailable( *this ) ? indexAcc( *this ) :
                            std::vector< uint16_t >() ) << std::endl;
             std::cerr << "subEventLink = "
                       << ( linkAcc.isAvailable( *this ) ? linkAcc( *this ) :
@@ -441,8 +482,10 @@ namespace xAOD {
          }
          // Fill up the cache:
          for( size_t i = 0; i < size; ++i ) {
-            const uint16_t time =
+            const int16_t time =
                timeAcc.isAvailable( *this ) ? timeAcc( *this )[ i ] : 0;
+            const uint16_t index =
+               indexAcc.isAvailable( *this ) ? indexAcc( *this )[ i ] : 0;
             const ElementLink< EventInfoContainer_v1 > link =
                linkAcc.isAvailable( *this ) ? linkAcc( *this )[ i ] :
                ElementLink< EventInfoContainer_v1 >();
@@ -450,7 +493,7 @@ namespace xAOD {
                ( typeAcc.isAvailable( *this ) ?
                  static_cast< PileUpType >( typeAcc( *this )[ i ] ) :
                  Unknown );
-            m_subEvents.push_back( SubEvent( time, type, link ) );
+            m_subEvents.push_back( SubEvent( time, index, type, link ) );
          }
       }
 
@@ -464,19 +507,49 @@ namespace xAOD {
       m_subEvents = value;
 
       // Clear the persistent information:
-      timeAcc( *this ).clear(); linkAcc( *this ).clear();
-      typeAcc( *this ).clear();
+      timeAcc( *this ).clear(); indexAcc( *this ).clear();
+      typeAcc( *this ).clear(); linkAcc( *this ).clear();
 
       // Fill the persistent information:
       std::vector< SubEvent >::const_iterator itr = value.begin();
       std::vector< SubEvent >::const_iterator end = value.end();
       for( ; itr != end; ++itr ) {
          timeAcc( *this ).push_back( itr->time() );
+         indexAcc( *this ).push_back( itr->index() );
          typeAcc( *this ).push_back( static_cast< uint16_t >( itr->type() ) );
          linkAcc( *this ).push_back( itr->link() );
       }
 
       // The cache is now up to date:
+      m_updateSubEvents = false;
+
+      return;
+   }
+
+   void EventInfo_v1::addSubEvent( const SubEvent& subEvent ) {
+
+      // First, make sure that the persistent and transient variables are in
+      // sync:
+      subEvents();
+
+      // Now, add the new sub-event:
+      m_subEvents.push_back( subEvent );
+      timeAcc( *this ).push_back( subEvent.time() );
+      indexAcc( *this ).push_back( subEvent.index() );
+      typeAcc( *this ).push_back( static_cast< uint16_t >( subEvent.type() ) );
+      linkAcc( *this ).push_back( subEvent.link() );
+
+      return;
+   }
+
+   void EventInfo_v1::clearSubEvents() {
+
+      // Clear both the transient and persistent variables:
+      m_subEvents.clear();
+      timeAcc( *this ).clear(); indexAcc( *this ).clear();
+      typeAcc( *this ).clear(); linkAcc( *this ).clear();
+
+      // Things are definitely in sync right now:
       m_updateSubEvents = false;
 
       return;

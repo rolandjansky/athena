@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ut_xaodeventinfo_evtstore_test.cxx 682504 2015-07-13 11:53:50Z krasznaa $
+// $Id: ut_xaodeventinfo_evtstore_test.cxx 727083 2016-03-01 15:20:50Z krasznaa $
 
 // System include(s):
 #include <memory>
@@ -19,6 +19,7 @@
 // Local include(s):
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventInfoContainer.h"
+#include "xAODEventInfo/EventInfoAuxContainer.h"
 
 /// Dummy implementation useful for simple testing
 class StoreGateSvc {
@@ -57,6 +58,8 @@ int main() {
    std::unique_ptr< xAOD::EventInfo > ei( new xAOD::EventInfo() );
    std::unique_ptr< xAOD::EventInfoContainer >
       eic( new xAOD::EventInfoContainer );
+   xAOD::EventInfoAuxContainer aux1;
+   eic->setStore( &aux1 );
 
    // Create a vector of StoreGateSvc instances that the EventInfo objects can
    // point at:
@@ -72,6 +75,7 @@ int main() {
       xAOD::EventInfo* e = new xAOD::EventInfo();
       eic->push_back( e );
       e->setEvtStore( &evtStores[ i ] );
+      e->setEventNumber( i );
    }
 
    // Test that the pointers were kept correctly:
@@ -79,6 +83,25 @@ int main() {
    for( int i = 0; i < 5; ++i ) {
       SIMPLE_ASSERT( ( *eic )[ i ]->evtStore() == ( &evtStores[ i ] ) );
       SIMPLE_ASSERT( ( *eic )[ i ]->evtStore()->number() == i );
+   }
+
+   // Copy the container:
+   xAOD::EventInfoContainer eicCopy;
+   xAOD::EventInfoAuxContainer aux2;
+   eicCopy.setStore( &aux2 );
+   for( const xAOD::EventInfo* ptr : *eic ) {
+      eicCopy.push_back( new xAOD::EventInfo( *ptr ) );
+      SIMPLE_ASSERT( ptr->evtStore() == eicCopy.back()->evtStore() );
+      SIMPLE_ASSERT( ptr->eventNumber() == eicCopy.back()->eventNumber() );
+   }
+
+   // Copy it again, this time testing the assignment operator:
+   eicCopy.clear();
+   for( const xAOD::EventInfo* ptr : *eic ) {
+      eicCopy.push_back( new xAOD::EventInfo() );
+      *( eicCopy.back() ) = *ptr;
+      SIMPLE_ASSERT( ptr->evtStore() == eicCopy.back()->evtStore() );
+      SIMPLE_ASSERT( ptr->eventNumber() == eicCopy.back()->eventNumber() );
    }
 
    //
