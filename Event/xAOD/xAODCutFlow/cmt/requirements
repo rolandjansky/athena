@@ -8,12 +8,12 @@ use AtlasPolicy                 AtlasPolicy-*
 use  AthContainers              AthContainers-*                 Control
 use  AthLinks                   AthLinks-*                      Control
 use  xAODCore                   xAODCore-*                      Event/xAOD
+use  AtlasROOT                  AtlasROOT-*                     External
 
 private
 use  AtlasROOT                  AtlasROOT-*                     External
 use  AtlasReflex                AtlasReflex-*                   External
 end_private
-
 
 branches Root
 
