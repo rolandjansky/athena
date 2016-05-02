@@ -1,5 +1,5 @@
 package xAODEventShape
-# $Id: requirements 671649 2015-06-02 11:18:11Z will $
+# $Id: requirements 744251 2016-05-02 15:37:06Z krasznaa $
 
 author P-A Delsart <delsart in2p3 fr>
 
@@ -25,6 +25,5 @@ use AtlasReflex AtlasReflex-* External -no_auto_imports
 # Generate the necessary Reflex dictionaries:
 apply_pattern lcgdict dict=xAODEventShape selectionfile=selection.xml \
                       headerfiles="../xAODEventShape/xAODEventShapeDict.h"
-
 
 apply_pattern do_genCLIDDB library=xAODEventShape
