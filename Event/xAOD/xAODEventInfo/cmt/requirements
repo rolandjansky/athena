@@ -1,4 +1,5 @@
 package xAODEventInfo
+# $Id: requirements 744185 2016-05-02 09:31:12Z krasznaa $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -20,4 +21,12 @@ use AtlasROOT     AtlasROOT-*     External
 
 apply_pattern lcgdict dict=xAODEventInfo selectionfile=selection.xml \
                       headerfiles="../xAODEventInfo/xAODEventInfoDict.h" \
+                      extralibfiles="../Root/dict/*.cxx" \
                       extraselection="selectionAthSuppress.xml"
+
+# Declare the unit test(s) of the package:
+use TestTools     TestTools-*     AtlasTest
+
+apply_pattern UnitTest_run unit_test=ut_xaodeventinfo_evtstore
+apply_pattern UnitTest_run unit_test=ut_xaodeventinfo_printop
+apply_pattern UnitTest_run unit_test=ut_xaodeventinfo_subevent

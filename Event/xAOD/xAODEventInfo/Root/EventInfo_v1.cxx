@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfo_v1.cxx 658946 2015-04-03 14:17:17Z ssnyder $
+// $Id: EventInfo_v1.cxx 729717 2016-03-14 18:52:01Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -48,12 +48,39 @@ namespace xAODEventInfoPrivate {
 } // private namespace
 
 namespace xAOD {
-using xAODEventInfoPrivate::operator<<;
+
+   using xAODEventInfoPrivate::operator<<;
 
    EventInfo_v1::EventInfo_v1()
       : SG::AuxElement(), m_streamTags(), m_updateStreamTags( false ),
-        m_subEvents(), m_updateSubEvents( false ) {
+        m_subEvents(), m_updateSubEvents( false ), m_evtStore( 0 ) {
 
+   }
+
+   EventInfo_v1::EventInfo_v1( const EventInfo_v1& parent )
+      : SG::AuxElement(), m_streamTags(),
+        m_updateStreamTags( true ), m_subEvents(), m_updateSubEvents( true ),
+        m_evtStore( parent.m_evtStore ) {
+
+      makePrivateStore( parent );
+   }
+
+   EventInfo_v1& EventInfo_v1::operator=( const EventInfo_v1& rhs ) {
+
+      if (&rhs != this) {
+        // Clear out the caches:
+        m_streamTags.clear(); m_updateStreamTags = true;
+        m_subEvents.clear(); m_updateSubEvents = true;
+
+        // Copy the event store pointer:
+        m_evtStore = rhs.m_evtStore;
+
+        // Copy the auxiliary variables:
+        SG::AuxElement::operator=( rhs );
+      }
+
+      // Return this object:
+      return *this;
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -321,15 +348,20 @@ using xAODEventInfoPrivate::operator<<;
                                          setAverageInteractionsPerCrossing )
 
    EventInfo_v1::SubEvent::
-   SubEvent( uint16_t time, PileUpType type,
+   SubEvent( int16_t time, uint16_t index, PileUpType type,
              const ElementLink< EventInfoContainer_v1 >& link )
-      : m_time( time ), m_type( type ), m_link( link ) {
+      : m_time( time ), m_index( index ), m_type( type ), m_link( link ) {
 
    }
 
-   uint16_t EventInfo_v1::SubEvent::time() const {
+   int16_t EventInfo_v1::SubEvent::time() const {
 
       return m_time;
+   }
+
+   uint16_t EventInfo_v1::SubEvent::index() const {
+
+      return m_index;
    }
 
    EventInfo_v1::PileUpType EventInfo_v1::SubEvent::type() const {
@@ -382,8 +414,10 @@ using xAODEventInfoPrivate::operator<<;
    //
    // Accessor objects for the sub-event properties:
    //
-   static SG::AuxElement::Accessor< std::vector< uint16_t > >
+   static SG::AuxElement::Accessor< std::vector< int16_t > >
       timeAcc( "subEventTime" );
+   static SG::AuxElement::Accessor< std::vector< uint16_t > >
+      indexAcc( "subEventIndex" );
    static SG::AuxElement::Accessor< std::vector< ElementLink< EventInfoContainer_v1 > > >
       linkAcc( "subEventLink" );
    static SG::AuxElement::Accessor< std::vector< uint16_t > >
@@ -400,6 +434,7 @@ using xAODEventInfoPrivate::operator<<;
          m_subEvents.clear();
          // Check if any of the information is available:
          if( ( ! timeAcc.isAvailable( *this ) ) &&
+             ( ! indexAcc.isAvailable( *this ) ) &&
              ( ! linkAcc.isAvailable( *this ) ) &&
              ( ! typeAcc.isAvailable( *this ) ) ) {
             // If not, return right away:
@@ -409,6 +444,8 @@ using xAODEventInfoPrivate::operator<<;
          size_t size = 0;
          if( timeAcc.isAvailable( *this ) ) {
             size = timeAcc( *this ).size();
+         } else if( indexAcc.isAvailable( *this ) ) {
+            size = indexAcc( *this ).size();
          } else if( linkAcc.isAvailable( *this ) ) {
             size = linkAcc( *this ).size();
          } else if( typeAcc.isAvailable( *this ) ) {
@@ -420,6 +457,8 @@ using xAODEventInfoPrivate::operator<<;
          }
          if( ( timeAcc.isAvailable( *this ) &&
                ( size != timeAcc( *this ).size() ) ) ||
+             ( indexAcc.isAvailable( *this ) &&
+               ( size != indexAcc( *this ).size() ) ) ||
              ( linkAcc.isAvailable( *this ) &&
                ( size != linkAcc( *this ).size() ) ) ||
              ( typeAcc.isAvailable( *this ) &&
@@ -428,6 +467,9 @@ using xAODEventInfoPrivate::operator<<;
                       << "the sub-event information" << std::endl;
             std::cerr << "subEventTime  = "
                       << ( timeAcc.isAvailable( *this ) ? timeAcc( *this ) :
+                           std::vector< int16_t >() ) << std::endl;
+            std::cerr << "subEventIndex  = "
+                      << ( indexAcc.isAvailable( *this ) ? indexAcc( *this ) :
                            std::vector< uint16_t >() ) << std::endl;
             std::cerr << "subEventLink = "
                       << ( linkAcc.isAvailable( *this ) ? linkAcc( *this ) :
@@ -440,8 +482,10 @@ using xAODEventInfoPrivate::operator<<;
          }
          // Fill up the cache:
          for( size_t i = 0; i < size; ++i ) {
-            const uint16_t time =
+            const int16_t time =
                timeAcc.isAvailable( *this ) ? timeAcc( *this )[ i ] : 0;
+            const uint16_t index =
+               indexAcc.isAvailable( *this ) ? indexAcc( *this )[ i ] : 0;
             const ElementLink< EventInfoContainer_v1 > link =
                linkAcc.isAvailable( *this ) ? linkAcc( *this )[ i ] :
                ElementLink< EventInfoContainer_v1 >();
@@ -449,7 +493,7 @@ using xAODEventInfoPrivate::operator<<;
                ( typeAcc.isAvailable( *this ) ?
                  static_cast< PileUpType >( typeAcc( *this )[ i ] ) :
                  Unknown );
-            m_subEvents.push_back( SubEvent( time, type, link ) );
+            m_subEvents.push_back( SubEvent( time, index, type, link ) );
          }
       }
 
@@ -463,19 +507,49 @@ using xAODEventInfoPrivate::operator<<;
       m_subEvents = value;
 
       // Clear the persistent information:
-      timeAcc( *this ).clear(); linkAcc( *this ).clear();
-      typeAcc( *this ).clear();
+      timeAcc( *this ).clear(); indexAcc( *this ).clear();
+      typeAcc( *this ).clear(); linkAcc( *this ).clear();
 
       // Fill the persistent information:
       std::vector< SubEvent >::const_iterator itr = value.begin();
       std::vector< SubEvent >::const_iterator end = value.end();
       for( ; itr != end; ++itr ) {
          timeAcc( *this ).push_back( itr->time() );
+         indexAcc( *this ).push_back( itr->index() );
          typeAcc( *this ).push_back( static_cast< uint16_t >( itr->type() ) );
          linkAcc( *this ).push_back( itr->link() );
       }
 
       // The cache is now up to date:
+      m_updateSubEvents = false;
+
+      return;
+   }
+
+   void EventInfo_v1::addSubEvent( const SubEvent& subEvent ) {
+
+      // First, make sure that the persistent and transient variables are in
+      // sync:
+      subEvents();
+
+      // Now, add the new sub-event:
+      m_subEvents.push_back( subEvent );
+      timeAcc( *this ).push_back( subEvent.time() );
+      indexAcc( *this ).push_back( subEvent.index() );
+      typeAcc( *this ).push_back( static_cast< uint16_t >( subEvent.type() ) );
+      linkAcc( *this ).push_back( subEvent.link() );
+
+      return;
+   }
+
+   void EventInfo_v1::clearSubEvents() {
+
+      // Clear both the transient and persistent variables:
+      m_subEvents.clear();
+      timeAcc( *this ).clear(); indexAcc( *this ).clear();
+      typeAcc( *this ).clear(); linkAcc( *this ).clear();
+
+      // Things are definitely in sync right now:
       m_updateSubEvents = false;
 
       return;
@@ -664,6 +738,17 @@ using xAODEventInfoPrivate::operator<<;
    //
    /////////////////////////////////////////////////////////////////////////////
 
+   StoreGateSvc* EventInfo_v1::evtStore() const {
+
+      return m_evtStore;
+   }
+
+   void EventInfo_v1::setEvtStore( StoreGateSvc* svc ) {
+
+      m_evtStore = svc;
+      return;
+   }
+
    void EventInfo_v1::toPersistent() {
 
       // Check if the ElementLink variable is available, and writable:
@@ -681,51 +766,70 @@ using xAODEventInfoPrivate::operator<<;
       return;
    }
 
-/// This operator is provided to make it convenient to print debug messages
-/// including information about the current event. With something like:
-///
-/// <code>
-///   const xAOD::EventInfo* ei = ...;<br/>
-///   std::cout << "Event = " << *ei << std::endl;
-/// </code>
-///
-/// or:
-///
-/// <code>
-///   const xAOD::EventInfo* ei = ...;<br/>
-///   ATH_MSG_VERBOSE( "Event = " << *ei );
-/// </code>
-///
-/// @param out The output stream to write EventInfo information to
-/// @param ei The EventInfo object to print information about
-/// @returns The same output stream that the operator received
-///
-std::ostream& operator<< ( std::ostream& out, const xAOD::EventInfo_v1& ei ) {
+   /// As it is now fairly complicated to prepare an EventInfo object for
+   /// usage after it's been read in from a branch, it seemed to make sense
+   /// to put the code that's used to do this, into a separate function. It
+   /// tries to do the right thing in all situations...
+   ///
+   void EventInfo_v1::toTransient() {
 
-   // Get the current state of the stream:
-   const char fillChar = out.fill();
-   const std::ios_base::fmtflags flags = out.flags();
-   const std::streamsize width = out.width();
+      m_updateStreamTags = true;
+      m_updateSubEvents = true;
+      m_evtStore = 0;
 
-   // Do the printout:
-   out << "[Run,Evt,Lumi,Time,BunchCross,DetMask] = [" 
-       << ei.runNumber() 
-       << "," << ei.eventNumber()
-       << "," << ei.lumiBlock()
-       << "," << ei.timeStamp()
-       << ":" << ei.timeStampNSOffset()
-       << "," << ei.bcid()
-       << ",0x" << std::hex << std::setw( 16 ) << std::setfill( '0' )
-       << ei.detectorMask()
-       << "]";
+      if( usingStandaloneStore() ) {
+         setStore( ( SG::IAuxStore* ) 0 );
+      }
 
-   // Restore the original state of the stream:
-   out.fill( fillChar );
-   out.flags( flags );
-   out.width( width );
+      return;
+   }
 
-   // Return the stream:
-   return out;
-}
+   /// This operator is provided to make it convenient to print debug messages
+   /// including information about the current event. With something like:
+   ///
+   /// <code>
+   ///   const xAOD::EventInfo* ei = ...;<br/>
+   ///   std::cout << "Event = " << *ei << std::endl;
+   /// </code>
+   ///
+   /// or:
+   ///
+   /// <code>
+   ///   const xAOD::EventInfo* ei = ...;<br/>
+   ///   ATH_MSG_VERBOSE( "Event = " << *ei );
+   /// </code>
+   ///
+   /// @param out The output stream to write EventInfo information to
+   /// @param ei The EventInfo object to print information about
+   /// @returns The same output stream that the operator received
+   ///
+   std::ostream& operator<< ( std::ostream& out,
+                              const xAOD::EventInfo_v1& ei ) {
+
+      // Get the current state of the stream:
+      const char fillChar = out.fill();
+      const std::ios_base::fmtflags flags = out.flags();
+      const std::streamsize width = out.width();
+
+      // Do the printout:
+      out << "[Run,Evt,Lumi,Time,BunchCross,DetMask] = ["
+          << ei.runNumber()
+          << "," << ei.eventNumber()
+          << "," << ei.lumiBlock()
+          << "," << ei.timeStamp()
+          << ":" << ei.timeStampNSOffset()
+          << "," << ei.bcid()
+          << ",0x" << std::hex << std::setw( 16 ) << std::setfill( '0' )
+          << ei.detectorMask()
+          << "]";
+
+      // Restore the original state of the stream:
+      out.fill( fillChar );
+      out.flags( flags );
+      out.width( width );
+
+      // Return the stream:
+      return out;
+   }
 
 } // namespace xAOD

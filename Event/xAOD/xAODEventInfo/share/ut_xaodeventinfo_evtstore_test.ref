@@ -1,0 +1,18 @@
+Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libRootCnvDict.so  is already in StorageSvcDict.so 
+Warning in <TInterpreter::ReadRootmapFile>: class  pair<int,float> found in libCore.so  is already in AtlasSTLAddReflexDict.so 
+Warning in <TInterpreter::ReadRootmapFile>: class  pair<string,double> found in libCore.so  is already in AtlasSTLAddReflexDict.so 
+Warning in <TInterpreter::ReadRootmapFile>: class  ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > found in libGenVector.so  is already in xAODCoreAthenaDict.so 
+Warning in <TInterpreter::ReadRootmapFile>: class  ROOT::Math::PtEtaPhiM4D<double> found in libGenVector.so  is already in xAODCoreAthenaDict.so 
+******************************************************************************
+*Tree    :TestTree  : Test Tree                                              *
+*Entries :        1 : Total =            1863 bytes  File  Size =          0 *
+*        :          : Tree compression factor =   1.00                       *
+******************************************************************************
+*Br    0 :EventInfo : xAOD::EventInfo_v1                                     *
+*Entries :        1 : Total  Size=        698 bytes  One basket in memory    *
+*Baskets :        0 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br    1 :EventInfoContainer : DataVector<xAOD::EventInfo_v1>                *
+*Entries :        1 : Total  Size=        748 bytes  One basket in memory    *
+*Baskets :        0 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*

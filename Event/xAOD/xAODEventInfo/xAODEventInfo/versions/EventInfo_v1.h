@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfo_v1.h 658946 2015-04-03 14:17:17Z ssnyder $
+// $Id: EventInfo_v1.h 727083 2016-03-01 15:20:50Z krasznaa $
 #ifndef XAODEVENTINFO_VERSIONS_EVENTINFO_V1_H
 #define XAODEVENTINFO_VERSIONS_EVENTINFO_V1_H
 
@@ -22,6 +22,9 @@ extern "C" {
 #include "AthContainers/DataVector.h"
 #include "AthLinks/ElementLink.h"
 
+// Forward declaration(s):
+class StoreGateSvc;
+
 /// Namespace holding all the xAOD classes/functions
 namespace xAOD {
 
@@ -38,14 +41,19 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 658946 $
-   /// $Date: 2015-04-03 16:17:17 +0200 (Fri, 03 Apr 2015) $
+   /// $Revision: 727083 $
+   /// $Date: 2016-03-01 16:20:50 +0100 (Tue, 01 Mar 2016) $
    ///
    class EventInfo_v1 : public SG::AuxElement {
 
    public:
       /// Default constructor
       EventInfo_v1();
+      /// Copy constructor
+      EventInfo_v1( const EventInfo_v1& parent );
+
+      /// Assignment operator
+      EventInfo_v1& operator=( const EventInfo_v1& rhs );
 
       /// @name Basic event information
       /// @{
@@ -254,11 +262,13 @@ namespace xAOD {
 
       public:
          /// Constructor giving all relevant information to the object
-         SubEvent( uint16_t time, PileUpType type,
+         SubEvent( int16_t time, uint16_t index, PileUpType type,
                    const ElementLink< EventInfoContainer_v1 >& link );
 
          /// Get the time wrt. the signal event (which has time() == 0)
-         uint16_t time() const;
+         int16_t time() const;
+         /// Get the index of the sub-event
+         uint16_t index() const;
          /// Get the type of the pileup event
          PileUpType type() const;
          /// The string name of the type
@@ -270,7 +280,8 @@ namespace xAOD {
          const EventInfo_v1* ptr() const;
 
       private:
-         uint16_t m_time; ///< The time wrt. the signal event
+         int16_t m_time; ///< The time wrt. the signal event
+         uint16_t m_index; ///< The index of the pileup event
          PileUpType m_type; ///< The type of the pileup event
          /// Link to the EventInfo object in question
          ElementLink< EventInfoContainer_v1 > m_link;
@@ -281,6 +292,10 @@ namespace xAOD {
       const std::vector< SubEvent >& subEvents() const;
       /// Set the pileup events that were used in the simulation
       void setSubEvents( const std::vector< SubEvent >& value );
+      /// Add one sub-event to the existing list
+      void addSubEvent( const SubEvent& subEvent );
+      /// Clear all the currently held sub-events
+      void clearSubEvents();
 
       /// @}
 
@@ -408,8 +423,22 @@ namespace xAOD {
 
       /// @}
 
+      /// @name Functions used by pile-up digitisation
+      /// @{
+
+#if not defined(__GCCXML__) and not defined(__ROOTCLING__)
+      /// Get the pointer to the event store associated with this event
+      StoreGateSvc* evtStore() const;
+      /// Set the pointer to the event store associated with this event
+      void setEvtStore( StoreGateSvc* svc );
+#endif // not genreflex or rootcint/rootcling
+
+      /// @}
+
       /// Prepare the object for writing
       void toPersistent();
+      /// Cleanse the object after being read in
+      void toTransient();
 
    private:
       /// Cached stream tag objects
@@ -421,12 +450,16 @@ namespace xAOD {
       /// Flag for updating the cached sub-events if necessary
       mutable bool m_updateSubEvents;
 
+#ifndef __GCCXML__
+      /// Transient pointer to the StoreGateSvc instance associated with the
+      /// event (Needed for pile-up digitisation)
+      StoreGateSvc* m_evtStore;
+#endif // not __GCCXML__
+
    }; // class EventInfo_v1
 
-
-
-/// A helper operator to be able to print debug messages easily
-std::ostream& operator<< ( std::ostream& out, const xAOD::EventInfo_v1& ei );
+   /// A helper operator to be able to print debug messages easily
+   std::ostream& operator<< ( std::ostream& out, const xAOD::EventInfo_v1& ei );
 
 } // namespace xAOD
 

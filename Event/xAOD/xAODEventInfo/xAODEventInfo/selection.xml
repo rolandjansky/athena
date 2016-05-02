@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 652717 2015-03-09 16:06:05Z mnowak $ -->
+<!-- $Id: selection.xml 682504 2015-07-13 11:53:50Z krasznaa $ -->
 <lcgdict>
 
   <class name="xAOD::EventInfo_v1"
@@ -7,6 +7,7 @@
     <field name="m_updateStreamTags" transient="true" />
     <field name="m_subEvents" transient="true" />
     <field name="m_updateSubEvents" transient="true" />
+    <field name="m_evtStore" transient="true" />
   </class>
   <class name="xAOD::EventAuxInfo_v1"
          id="2CFD72A2-D3AA-4C18-9B40-E5ACBA20D785" />
@@ -14,23 +15,7 @@
   <read sourceClass="xAOD::EventInfo_v1" version="[1-]"
         targetClass="xAOD::EventInfo_v1" source="" target="" >
     <![CDATA[
-       newObj->setStore( ( SG::IAuxStore* ) 0 );
-     ]]>
-  </read>
-
-  <read sourceClass="xAOD::EventInfo_v1" version="[1-]"
-        targetClass="xAOD::EventInfo_v1" source=""
-        target="m_updateStreamTags" >
-    <![CDATA[
-       m_updateStreamTags = true;
-     ]]>
-  </read>
-
-  <read sourceClass="xAOD::EventInfo_v1" version="[1-]"
-        targetClass="xAOD::EventInfo_v1" source=""
-        target="m_updateSubEvents" >
-    <![CDATA[
-       m_updateSubEvents = true;
+       newObj->toTransient();
      ]]>
   </read>
 
