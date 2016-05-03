@@ -42,9 +42,9 @@ StatusCode BSFilter::initialize()
     FILE *vfile = fopen(m_filterfile.c_str(),"r");
     if (vfile){
       msg(MSG::INFO)<<"Opened filter file: "<<m_filterfile<<endreq;
-      int vrun=0, vevent=0, vtrig=0, vnvtx=0; double vdt=0.0; int ne=0;
+      int vrun=0, vtrig=0, vnvtx=0; double vdt=0.0; int ne=0; uint64_t vevent=0;
       while (true){
-        int r = fscanf(vfile, "%i %i %i %i %lf\n", &vrun, &vevent, &vtrig, &vnvtx, &vdt);
+        int r = fscanf(vfile, "%i %lu %i %i %lf\n", &vrun, &vevent, &vtrig, &vnvtx, &vdt);
         if (r>0){
           msg(MSG::DEBUG) << "Read "<<r<<" filter values: "<<vrun<<"/"<<vevent<<" "<<vtrig<<","<<vnvtx<<","<<vdt<<endreq;
           if (filtermap[vrun][vevent].magic==777){
@@ -102,16 +102,16 @@ StatusCode BSFilter::execute()
     ATH_MSG_ERROR(" Cant retrieve EventInfo ");
     return StatusCode::FAILURE;
   }
-  uint32_t run     = d->event_ID()->run_number();
-  uint32_t  event = d->event_ID()->event_number();
+  uint32_t run   = d->event_ID()->run_number();
+  uint64_t event = d->event_ID()->event_number();
   //uint64_t bc_time    = d->event_ID()->time_stamp() + ((uint64_t)(d->event_ID()->time_stamp_ns_offset()) << 32);
-  uint32_t bc_time_sec    = d->event_ID()->time_stamp();
-  //uint32_t bc_time_ns     = d->event_ID()->time_stamp_ns_offset();
+  uint32_t bc_time_sec = d->event_ID()->time_stamp();
+  //uint32_t bc_time_ns = d->event_ID()->time_stamp_ns_offset();
   //uint32_t run_type   = 0;
   //uint32_t lvl1_id    = event; // FIXME... temp place for event number
   //uint32_t lvl1_type  = d->trigger_info()->level1TriggerType();
   //uint32_t global_id  = event;
-  uint16_t lbn = d->event_ID()->lumi_block();
+  uint32_t lbn = d->event_ID()->lumi_block();
   //uint16_t bcid = d->event_ID()->bunch_crossing_id();
   ////////////////////////////////////////////////////////////
 
@@ -193,7 +193,7 @@ StatusCode BSFilter::execute()
 	  msg(MSG::ERROR)<<"Could not open FilterFile output for Trigger info: "<<m_filterfile<<endreq;
 	}
       }
-      if (ffile) fprintf(ffile,"run_nbr=%d, evt_nbr=%d, time_stamp=%d, lbk_nbr=%d, noalg=%d, j40=%d, noalgps=%d, j40ps=%d\n",
+      if (ffile) fprintf(ffile,"run_nbr=%d, evt_nbr=%ld, time_stamp=%d, lbk_nbr=%d, noalg=%d, j40=%d, noalgps=%d, j40ps=%d\n",
 			 run,event,bc_time_sec,lbn,passed_noalg,passed_j40,prescale_noalg,prescale_j40);
     }
     
@@ -203,7 +203,7 @@ StatusCode BSFilter::execute()
       ATH_MSG_INFO("Filter Passed");
       setFilterPassed(true);
       pass++;
-      if (efile) fprintf(efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%d, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,event,bc_time_sec,lbn);
+      if (efile) fprintf(efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%d, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,(uint32_t)event,bc_time_sec,lbn); //should be "%ld" for evt_nbr, but need fix for https://its.cern.ch/jira/browse/ATEAM-286 first!
     }
     else    {
       ATH_MSG_INFO("Filter Failed");
@@ -242,7 +242,7 @@ StatusCode BSFilter::execute()
       ATH_MSG_INFO("Filter Passed");
       setFilterPassed(true);
       pass++;
-      if (efile) fprintf(efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%d, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,event,bc_time_sec,lbn);
+      if (efile) fprintf(efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%d, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,(uint32_t)event,bc_time_sec,lbn);
     }
     else    {
       ATH_MSG_INFO("Filter Failed");
@@ -253,3 +253,4 @@ StatusCode BSFilter::execute()
   }
   return StatusCode::SUCCESS;
 }
+

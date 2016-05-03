@@ -45,8 +45,10 @@ public:
 	if (noalgps>0){
 	  //check if the chosen event is a j40
 	  while (trigmap[chosen_evt]==1){
-	    //skip it, with probability 1/noalgps
-	    if (myrand.Uniform(1.0)>(1.0/noalgps)){
+	    //skip it, with probability j40ps/noalgps
+	    assert(noalgps>=j40ps);
+	    double psratio = (double)j40ps/(double)noalgps;
+	    if (myrand.Uniform(1.0)>psratio){
 	      //skip it, choose another random event
 	      chosen_evt = myrand.Integer(nevt);
 	    }
@@ -200,7 +202,7 @@ void ByteStreamMultipleOutputStreamCopyTool::initlbnmap(){
       ATH_MSG_DEBUG(run<<" "<<lbn<<" has "<<nevt<<" events and we want "<<nwanted<<" of them for stream "<<stream);
       runlbnmap[run][lbn].magic=9999;
       runlbnmap[run][lbn].nevt=nevt;
-      runlbnmap[run][lbn].wantedmap[stream]=nwanted;
+      for (int w=0; w<m_NoutputSvc; ++w){runlbnmap[run][lbn].wantedmap[w]=nwanted;}
     }
     else{
       ATH_MSG_ERROR("Line in "<<file<<" not understood!");
