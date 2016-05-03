@@ -35,5 +35,4 @@ use TestTools TestTools-* AtlasTest
 
 apply_pattern UnitTest_run unit_test=xAODMuon_Muon
 
-
 apply_pattern do_genCLIDDB library=xAODMuon
