@@ -19,11 +19,18 @@ namespace CP
 {
   class CorrectionCode;
   template<class T> class ICorrectionTool;
+  class MakeSystematicsVector;
   class ISystematicsTool;
   class SystematicCode;
   class SystematicVariation;
   class SystematicSet;
   class SystematicsTool;
 }
+
+bool operator < (const CP::SystematicVariation& a, const CP::SystematicVariation& b);
+bool operator == (const CP::SystematicVariation& a, const CP::SystematicVariation& b);
+
+bool operator < (const CP::SystematicSet& a, const CP::SystematicSet& b);
+bool operator == (const CP::SystematicSet& a, const CP::SystematicSet& b);
 
 #endif

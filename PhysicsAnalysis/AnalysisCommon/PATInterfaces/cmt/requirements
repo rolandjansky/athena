@@ -1,4 +1,5 @@
 package PATInterfaces
+# $Id: requirements 744627 2016-05-03 18:51:43Z krasznaa $
 author NLAA
 
 use AtlasPolicy AtlasPolicy-*
@@ -12,3 +13,11 @@ end_private
 
 library PATInterfaces "../Root/*.cxx"
 apply_pattern installed_library
+
+apply_pattern have_root_headers root_headers="SystematicVariation.h \
+                                              SystematicSet.h \
+                                              SystematicRegistry.h \
+                                              SystematicsUtil.h \
+                                              StreamTestWrapper.h \
+                                              ../Root/LinkDef.h" \
+                                headers_lib=PATInterfaces
