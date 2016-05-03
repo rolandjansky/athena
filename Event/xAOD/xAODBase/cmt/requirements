@@ -1,5 +1,6 @@
 package xAODBase
-# $Id: requirements 618658 2014-09-26 09:31:10Z krasznaa $
+# $Id: requirements 744422 2016-05-03 11:34:39Z krasznaa $
+#
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -24,6 +25,7 @@ use AthLinks      AthLinks-*      Control
 apply_pattern lcgdict dict=xAODBase selectionfile=selection.xml \
                       headerfiles="../xAODBase/xAODBaseDict.h"
 
+# Set up the test(s):
 use TestTools     TestTools-*     AtlasTest
 
 apply_pattern UnitTest_run unit_test=ut_xAODObjectType
