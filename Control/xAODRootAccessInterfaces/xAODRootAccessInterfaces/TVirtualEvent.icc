@@ -1,0 +1,69 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: TVirtualEvent.icc 687912 2015-08-06 13:18:57Z krasznaa $
+#ifndef XAODROOTACCESSINTERFACES_TVIRTUALEVENT_ICC
+#define XAODROOTACCESSINTERFACES_TVIRTUALEVENT_ICC
+
+// ROOT include(s):
+#include <TError.h>
+
+namespace xAOD {
+
+   /// This is the function used by all the smart pointers to get access
+   /// to objects in the event.
+   ///
+   /// @param obj    The pointer that should be set [output]
+   /// @param key    The hashed key of the object to retrieve
+   /// @param silent When set to <code>true</code>, failure is handled silently
+   /// @returns <code>true</code> if the operation was successful,
+   ///          <code>false</code> otherwise
+   ///
+   template< typename T >
+   bool TVirtualEvent::retrieve( const T*& obj, uint32_t key, bool silent ) {
+
+      // Look among the output objects first:
+      const void* result = getOutputObject( key, typeid( T ) );
+      // Check if it succeeded:
+      if( ! result ) {
+         // Try the input then:
+         result = getInputObject( key, typeid( T ), silent );
+         if( ! result ) {
+            if( ! silent ) {
+               ::Warning( "xAOD::TVirtualEvent::retrieve",
+                          "Couldn't retrieve %s/0x%08x",
+                          typeid( T ).name(), key );
+            }
+            return false;
+         }
+      }
+
+      // If we were successful:
+      obj = reinterpret_cast< const T* >( result );
+      return true;
+   }
+
+   /// This is a convenience function for human users for getting access to
+   /// an existing object, using a string key instead of a hashed identifier.
+   ///
+   /// Internally it just creates a hash from the key, and perform the retrieve
+   /// with that.
+   ///
+   /// @param obj The pointer that should be set [output]
+   /// @param key The key of the object to retrieve
+   /// @returns <code>true</code> if the operation was successful,
+   ///          <code>false</code> otherwise
+   ///
+   template< typename T >
+   bool TVirtualEvent::retrieve( const T*& obj, const std::string& key,
+                                 bool silent ) {
+
+      return retrieve( obj, getHash( key ), silent );
+   }
+
+} // namespace xAOD
+
+#endif // XAODROOTACCESSINTERFACES_TVIRTUALEVENT_ICC
