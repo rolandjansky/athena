@@ -786,8 +786,8 @@ TriggerLvl1List=[
     ('xAOD::EnergySumRoI#LVL1EnergySumRoI' ,          'ESD AODFULL AODSLIM', 'L1'),
     ('xAOD::EnergySumRoIAuxInfo#LVL1EnergySumRoIAux.','ESD AODFULL AODSLIM', 'L1'),
 
-    ('xAOD::L1TopoRawDataContainer#L1TopoRawData'       , 'ESD', 'L1'),
-    ('xAOD::L1TopoRawDataAuxContainer#L1TopoRawDataAux.', 'ESD', 'L1'),
+    ('xAOD::L1TopoRawDataContainer#L1TopoRawData'       , 'ESD AODFULL', 'L1'),
+    ('xAOD::L1TopoRawDataAuxContainer#L1TopoRawDataAux.', 'ESD AODFULL', 'L1'),
 
     ('DataVector<LVL1::JetElement>#JetElements' ,        'ESD', 'L1'),
     ('DataVector<LVL1::JetElement>#JetElementsOverlap' , 'ESD', 'L1'),
