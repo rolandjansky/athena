@@ -29,6 +29,8 @@ end_private
 private
 apply_tag ROOTGraphicsLibs
 apply_tag ROOTMathLibs
+end_private
 
+public
 apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_joboptions files="*.py"
