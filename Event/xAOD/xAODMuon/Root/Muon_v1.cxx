@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Muon_v1.cxx 695385 2015-09-17 12:51:32Z emoyse $
+// $Id: Muon_v1.cxx 743483 2016-04-28 09:17:28Z emoyse $
 // Misc includes
 #include <vector>
 
@@ -28,6 +28,30 @@ namespace xAOD {
 
   Muon_v1::Muon_v1()
   : m_p4(), m_p4Cached1( false ) {
+  }
+  
+  Muon_v1::Muon_v1(const Muon_v1& rhs)
+    : IParticle(rhs), //IParticle does not have a copy constructor. AuxElement has one with same behavior as default ctor
+       m_p4(rhs.m_p4), m_p4Cached1( rhs.m_p4Cached1 )
+  {
+    this->makePrivateStore(rhs);
+  }
+  
+  Muon_v1& Muon_v1::operator=(const Muon_v1& rhs ){
+    if(this == &rhs) return *this;
+ 
+    if( ( ! hasStore() ) && ( ! container() ) ) {
+       makePrivateStore();
+    }
+    this->IParticle::operator=( rhs );
+    
+    m_p4       = rhs.m_p4;
+    m_p4Cached1 = rhs.m_p4Cached1;
+    
+    return *this;
+  }
+  
+  Muon_v1::~Muon_v1(){
   }
 
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( Muon_v1, float, double, pt)
@@ -370,11 +394,11 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
     MuonType type = muonType();
     switch ( type ) {
       case Combined :
+      case SiliconAssociatedForwardMuon :
         return combinedTrackParticleLink();
         break;
       case SegmentTagged :
       case CaloTagged :
-      case SiliconAssociatedForwardMuon :
         return inDetTrackParticleLink();
         break;
       case MuonStandAlone :
@@ -406,6 +430,7 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
     MuonType type = muonType();      
     switch( type ) {
       case Combined:
+      case SiliconAssociatedForwardMuon :
          {
             static Accessor< ElementLink< TrackParticleContainer > > acc( "combinedTrackParticleLink" );
             if( ! acc.isAvailable( *this ) ) return 0;
@@ -417,7 +442,6 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
          }
       case SegmentTagged:
       case CaloTagged :
-      case SiliconAssociatedForwardMuon :
         {
            static Accessor< ElementLink< TrackParticleContainer > > acc( "inDetTrackParticleLink" );
            if( ! acc.isAvailable( *this ) ) return 0;

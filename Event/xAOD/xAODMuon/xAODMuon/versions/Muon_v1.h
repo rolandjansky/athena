@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Muon_v1.h 731310 2016-03-21 01:15:58Z wleight $
+// $Id: Muon_v1.h 743483 2016-04-28 09:17:28Z emoyse $
 #ifndef XAODMUON_VERSIONS_MUON_V1_H
 #define XAODMUON_VERSIONS_MUON_V1_H
 
@@ -38,6 +38,16 @@ namespace xAOD {
   public:
     /// Default constructor
     Muon_v1();
+    
+    /// Copy constructor
+    Muon_v1(const Muon_v1& rhs);
+    
+    /// Destructor
+    virtual ~Muon_v1();
+    
+    /// Assignment operator
+    Muon_v1& operator=(const Muon_v1& rhs);
+    
     /// @name IParticle functions
     /// @{
     /// The transverse momentum (\f$p_T\f$) of the particle.
