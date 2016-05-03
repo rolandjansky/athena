@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IParticleHelpers.cxx 618909 2014-09-29 10:16:52Z krasznaa $
+// $Id: IParticleHelpers.cxx 700032 2015-10-12 11:38:33Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -69,6 +69,11 @@ namespace xAOD {
    /// navigate back to them. (This is mostly necessary for proper MET
    /// handling.)
    ///
+   /// This function assumes that the original container is *not* a view
+   /// container, to be able to optimise the code a bit. If you want to use
+   /// a view container, loop over its elements by hand, and use the version
+   /// of this function operating on individual xAOD::IParticle objects.
+   ///
    /// @param original Reference to the original container
    /// @param copy Reference to the (deep/shallow) copy of the original
    ///             container
@@ -85,26 +90,41 @@ namespace xAOD {
          return false;
       }
 
+      // Make sure that the original is not a view container. As the function
+      // doesn't work correctly for those.
+      if( original.ownPolicy() != SG::OWN_ELEMENTS ) {
+         std::cerr << "xAOD::setOriginalObjectLink   ERROR Received a view "
+                   << "container" << std::endl;
+         return false;
+      }
+
       // If the containers are empty, we're done:
       if( ! copy.size() ) {
          return true;
       }
 
+      // Create an ElementLink to the first element in the original container.
+      // To be able to re-use the hashed key of this object in the loop.
+      const ElementLink< IParticleContainer > refLink( original, 0 );
+
       // Loop over the copied container:
       IParticleContainer::const_iterator orig_itr = original.begin();
       IParticleContainer::const_iterator orig_end = original.end();
       IParticleContainer::iterator copy_itr = copy.begin();
-      IParticleContainer::iterator copy_end = copy.end();
-      for( ; orig_itr != orig_end; ++orig_itr, ++copy_itr ) {
-         // Construct the ElementLink with the same logic as in the previous
-         // function:
-         const ElementLink< IParticleContainer > link =
-            ( acc.isAvailable( **orig_itr ) ?
-              acc( **orig_itr ) :
-              ElementLink< IParticleContainer >( original,
-                                                 ( *orig_itr )->index() ) );
-         // Set the link on the object:
-         acc( **copy_itr ) = link;
+      // To speed up the loop over large containers a bit, make the decision
+      // about how to create the links, just once:
+      if( acc.isAvailable( **orig_itr ) ) {
+         for( ; orig_itr != orig_end; ++orig_itr, ++copy_itr ) {
+            // Copy the variable from the original object:
+            acc( **copy_itr ) = acc( **orig_itr );
+         }
+      } else {
+         for( ; orig_itr != orig_end; ++orig_itr, ++copy_itr ) {
+            // Construct the link from scratch:
+            acc( **copy_itr ) =
+               ElementLink< IParticleContainer >( refLink.key(),
+                                                  ( *orig_itr )->index() );
+         }
       }
 
       // We were successful:
