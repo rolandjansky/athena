@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODCaloTowerContainerCnv.cxx 700671 2015-10-15 08:33:38Z wlampl $
+// $Id: xAODCaloTowerContainerCnv.cxx 744625 2016-05-03 18:42:58Z ssnyder $
 
 // System include(s):
 #include <exception>
@@ -51,12 +51,8 @@ xAOD::CaloTowerContainer*
 xAODCaloTowerContainerCnv::
 createPersistent( xAOD::CaloTowerContainer* trans ) {
 
-   // Create a view copy of the container:
-   xAOD::CaloTowerContainer* result =
-     new xAOD::CaloTowerContainer(*trans,SG::VIEW_ELEMENTS);
-
-   // Return the new container:
-   return result;
+  // Return a view copy of the container:
+  return new xAOD::CaloTowerContainer(*trans);
 }
 
 xAOD::CaloTowerContainer* xAODCaloTowerContainerCnv::createTransient() {

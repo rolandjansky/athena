@@ -1,5 +1,5 @@
 package xAODCaloEventAthenaPool
-# $Id: requirements 700671 2015-10-15 08:33:38Z wlampl $
+# $Id: requirements 711952 2015-12-01 17:02:06Z ssnyder $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -31,7 +31,6 @@ apply_pattern poolcnv typesWithNamespace="xAOD::CaloClusterContainer \
                                           xAOD::CaloClusterAuxContainer \
 					  xAOD::CaloTowerContainer \
                                           xAOD::CaloTowerAuxContainer" \
-
                       files="-s=${xAODCaloEvent_root}/xAODCaloEvent \
                              CaloClusterContainer.h \
                              CaloClusterAuxContainer.h \
