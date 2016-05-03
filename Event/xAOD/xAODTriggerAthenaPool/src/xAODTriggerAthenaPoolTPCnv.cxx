@@ -22,6 +22,8 @@
 #include "xAODJetRoIContainerCnv_v1.h"
 #include "xAODEmTauRoIAuxContainerCnv_v1.h"
 #include "xAODJetRoIAuxContainerCnv_v1.h"
+#include "xAODEnergySumRoIAuxInfoCnv_v1.h"
+#include "xAODEnergySumRoICnv_v1.h"
 
 // Declare the T/P converter(s):
 DECLARE_TPCNV_FACTORY( xAODEmTauRoIContainerCnv_v1,
@@ -42,5 +44,15 @@ DECLARE_TPCNV_FACTORY( xAODEmTauRoIAuxContainerCnv_v1,
 DECLARE_TPCNV_FACTORY( xAODJetRoIAuxContainerCnv_v1,
                        xAOD::JetRoIAuxContainer,
                        xAOD::JetRoIAuxContainer_v1,
+                       Athena::TPCnvVers::Old )
+
+DECLARE_TPCNV_FACTORY( xAODEnergySumRoIAuxInfoCnv_v1,
+                       xAOD::EnergySumRoIAuxInfo,
+                       xAOD::EnergySumRoIAuxInfo_v1,
+                       Athena::TPCnvVers::Old )
+
+DECLARE_TPCNV_FACTORY( xAODEnergySumRoICnv_v1,
+                       xAOD::EnergySumRoI,
+                       xAOD::EnergySumRoI_v1,
                        Athena::TPCnvVers::Old )
 
