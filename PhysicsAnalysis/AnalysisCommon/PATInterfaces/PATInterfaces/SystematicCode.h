@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: SystematicCode.h 600738 2014-06-07 14:34:05Z krasznaa $
+// $Id: SystematicCode.h 717600 2016-01-13 17:48:13Z krumnack $
 #ifndef PATINTERFACES_SYSTEMATICCODE_H
 #define PATINTERFACES_SYSTEMATICCODE_H
 
@@ -31,8 +31,8 @@ namespace CP {
    /// @author Nils Krumnack <krumnack@iastate.edu>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 600738 $
-   /// $Date: 2014-06-07 16:34:05 +0200 (Sat, 07 Jun 2014) $
+   /// $Revision: 717600 $
+   /// $Date: 2016-01-13 18:48:13 +0100 (Wed, 13 Jan 2016) $
    ///
    class SystematicCode {
 
@@ -82,5 +82,25 @@ namespace CP {
    }; // class SystematicCode
 
 } // namespace CP
+
+namespace asg
+{
+  template<typename T> struct CheckHelper;
+
+  template<> struct CheckHelper<CP::SystematicCode>
+  {
+    /// \brief whether the status code reports a success
+    static inline bool isSuccess (const CP::SystematicCode& sc) {
+      return sc == CP::SystematicCode::Ok; }
+
+    /// \brief produce a status code to report success
+    static inline CP::SystematicCode successCode () {
+      return CP::SystematicCode::Ok;}
+
+    /// \brief produce a status code to report failure
+    static inline CP::SystematicCode failureCode () {
+      return CP::SystematicCode::Unsupported;}
+  };
+}
 
 #endif // PATINTERFACES_SYSTEMATICCODE_H
