@@ -44,7 +44,7 @@ StatusCode BSFilter::initialize()
       msg(MSG::INFO)<<"Opened filter file: "<<m_filterfile<<endreq;
       int vrun=0, vtrig=0, vnvtx=0; double vdt=0.0; int ne=0; uint64_t vevent=0;
       while (true){
-        int r = fscanf(vfile, "%i %lui %i %i %lf\n", &vrun, &vevent, &vtrig, &vnvtx, &vdt);
+        int r = fscanf(vfile, "%i %lu %i %i %lf\n", &vrun, &vevent, &vtrig, &vnvtx, &vdt);
         if (r>0){
           msg(MSG::DEBUG) << "Read "<<r<<" filter values: "<<vrun<<"/"<<vevent<<" "<<vtrig<<","<<vnvtx<<","<<vdt<<endreq;
           if (filtermap[vrun][vevent].magic==777){
