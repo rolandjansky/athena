@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 739266 2016-04-11 09:04:26Z krasznaa $
+# $Id: CMakeLists.txt 744627 2016-05-03 18:51:43Z krasznaa $
 ################################################################################
 # Package: PATInterfaces
 ################################################################################
@@ -38,7 +38,7 @@ atlas_add_library( PATInterfaces
 macro( _add_test name )
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
-      LINK_LIBRARIES PATInterfaces )
+      LINK_LIBRARIES PATInterfaces RootCoreUtils )
 endmacro( _add_test )
 
 # Test(s) in the package:
