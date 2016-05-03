@@ -11,12 +11,9 @@ use  AtlasReflex                AtlasReflex-*                   External        
 use  GaudiInterface             GaudiInterface-*                External
 use  AthContainers              AthContainers-*                 Control
 
-
-
 ## macros   
 apply_tag       ROOTBasicLibs
 apply_tag       ROOTMathLibs
-
 
 ## declare the directories CMT should know about
 branches python share Root
@@ -31,7 +28,6 @@ apply_pattern declare_python_modules files="*.py"
 
 ## install our job options files
 apply_pattern declare_joboptions files="*.py"
-
 
 ## For reflex dictionary generation
 use AtlasReflex   AtlasReflex-*   External -no_auto_imports
