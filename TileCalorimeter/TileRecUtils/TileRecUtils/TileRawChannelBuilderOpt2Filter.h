@@ -20,7 +20,6 @@
 // Tile includes
 #include "TileRecUtils/TileRawChannelBuilder.h"
 #include "TileConditions/ITileCondToolOfc.h"
-#include "TileConditions/TileCondToolOfcCool.h"
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
 
@@ -72,23 +71,17 @@ class TileRawChannelBuilderOpt2Filter: public TileRawChannelBuilder {
 
     ToolHandle<TileCondToolTiming> m_tileToolTiming;
     ToolHandle<ITileCondToolOfc> m_tileCondToolOfc;
-    ToolHandle<TileCondToolOfcCool> m_tileCondToolOfcCool;
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provides noise values
 
     //!< Applies OF algorithm
     double filter(int ros, int drawer, int channel, int &gain, double &pedestal, double &amplitude, double &time);
     int findMaxDigitPosition();  //!< Finds maximum digit position in the pulse
-    //!< Sets pedestal estimation for OF1
-    float setPedestal(int ros, int drawer, int channel, int gain);
+    //!< Gets pedestal estimation for OF1
+    float getPedestal(int ros, int drawer, int channel, int gain);
     //!< Apply the number of iterations needed for reconstruction by calling the Filter method
-    int iterate(int ros, int drawer, int channel, int gain, double &pedestal, double &amplitude, double &time,
-        double &chi2);
+    int iterate(int ros, int drawer, int channel, int gain, double &pedestal, double &amplitude, double &time, double &chi2);
     //!< Computes A,time,ped using OF. If iterations are required, the Iterator method is used
-    double compute(int ros, int drawer, int channel, int gain, double &pedestal, double &amplitude, double &time,
-        double phase);
-
-//    void BuildPulseShape(std::vector<double> &m_pulseShape, std::vector<double> &m_pulseShapeX
-//        , std::vector<double> &m_pulseShapeT, int dignum, MsgStream &log); //!< Builds pulse shapes
+    double compute(int ros, int drawer, int channel, int gain, double &pedestal, double &amplitude, double &time, double& phase);
 
     void ofc2int(int nDigits, double* w_off, short* w_int, short& scale); // convert weights to dsp short int format
 
@@ -102,7 +95,6 @@ class TileRawChannelBuilderOpt2Filter: public TileRawChannelBuilder {
     bool m_correctTimeNI; //!< If true, resulting time is corrected when using method  without iteration
 
     bool m_bestPhase; // if true, use best phase from COOL DB in "fixed phase" mode (i.e., no iterations)
-    bool m_ofcFromCool; // if true, take OFCs from DB (no on-fly calculations)
     bool m_emulateDsp; // if true, emulate DSP reconstruction algorithm
     int m_nSignal; //!< internal counters
     int m_nNegative;  //!< internal counters
@@ -114,15 +106,6 @@ class TileRawChannelBuilderOpt2Filter: public TileRawChannelBuilder {
     double m_maxTime; //!< max allowed time = 25*(m_nSamples-1)/2
     double m_minTime; //!< min allowed time = -25*(m_nSamples-1)/2
 
-//    std::vector<double> m_LpulseShape_cis;  //!< vector for low gain/CIS pulse shape
-//    std::vector<double> m_HpulseShape_cis;  //!< vector for high gain/CIS pulse shape
-//    std::vector<double> m_LpulseShape_phys; //!< vector for low gain/Physics pulse shape
-//    std::vector<double> m_HpulseShape_phys; //!< vector for high gain/Physics pulse shape
-//
-//    std::vector<double> m_LdpulseShape_cis;  //!< vector for low gain/CIS pulse derivative
-//    std::vector<double> m_HdpulseShape_cis;  //!< vector for high gain/CIS pulse derivative
-//    std::vector<double> m_LdpulseShape_phys; //!< vector for low gain/Physics pulse derivative
-//    std::vector<double> m_HdpulseShape_phys; //!< vector for high gain/Physics pulse derivative
 
     std::vector<float> m_digits;
 };

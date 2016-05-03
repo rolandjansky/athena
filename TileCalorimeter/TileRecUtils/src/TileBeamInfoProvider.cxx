@@ -340,9 +340,13 @@ void TileBeamInfoProvider::handle(const Incident& inc) {
                 }
                   break;
                 case 0x07: {
-                  unsigned int *iCharge = &m_cispar[17];
-                  float *fCharge = reinterpret_cast<float *>(iCharge); // this is for the charge
-                  m_cispar[17] = *fCharge;
+                  // Warning: nonportable.
+                  union {
+                    unsigned int i;
+                    float f;
+                  } chargeCnv;
+                  chargeCnv.i = m_cispar[17];
+                  m_cispar[17] = chargeCnv.f;
 
                   int aux_ext = m_cispar[18];
                   m_cispar[18] = (aux_ext & 0x00ff) - 1; // pmt ext cispar starts from 1

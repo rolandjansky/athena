@@ -19,9 +19,6 @@
 #include "CaloIdentifier/TileID.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileInfo.h"
-//#include "TileRecUtils/TileFilterManager.h"
-//#include "TileRecUtils/TileFilterTester.h"
-#include "TileRecUtils/TileRawChannelBuilderOpt2Filter.h"
 #include "TileConditions/TileOptFilterWeights.h"
 #include "TileConditions/TilePulseShapes.h"
 #include "CLHEP/Matrix/Matrix.h"
@@ -44,7 +41,7 @@ TileRawChannelBuilderMF::TileRawChannelBuilderMF(const std::string& type, const 
     : TileRawChannelBuilder(type, name, parent)
     , m_tileToolTiming("TileCondToolTiming")
     , m_tileCondToolOfc("TileCondToolOfc")
-    , m_tileCondToolOfcCool("TileCondToolOfcCool")
+    , m_tileCondToolOfcOnFly("TileCondToolOfc")
     , m_tileToolNoiseSample("TileCondToolNoiseSample")
     , m_nSamples(0)
     , m_t0SamplePosition(0)
@@ -61,7 +58,7 @@ TileRawChannelBuilderMF::TileRawChannelBuilderMF(const std::string& type, const 
   //declare properties
   declareProperty("TileCondToolTiming", m_tileToolTiming);
   declareProperty("TileCondToolOfc", m_tileCondToolOfc, "TileCondToolOfc");
-  declareProperty("TileCondToolOfcCool", m_tileCondToolOfcCool, "TileCondToolOfcCool");
+  declareProperty("TileCondToolOfcOnFly", m_tileCondToolOfcOnFly, "TileCondToolOfc");
   declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample);
   declareProperty("AmplitudeCorrection", m_correctAmplitude = false);
   declareProperty("PedestalMode", m_pedestalMode = 1);
@@ -70,7 +67,6 @@ TileRawChannelBuilderMF::TileRawChannelBuilderMF(const std::string& type, const 
   declareProperty("MaxIterations", m_maxIterations = 5);
   declareProperty("BestPhase", m_bestPhase = false);
   declareProperty("TimeFromCOF", m_timeFromCOF = false);
-  declareProperty("OfcfromCool", m_ofcFromCool = false);
 }
 
 /**
@@ -105,13 +101,10 @@ StatusCode TileRawChannelBuilderMF::initialize() {
   m_maxTime = 25 * (m_nSamples - m_t0SamplePosition - 1);
   m_minTime = -25 * m_t0SamplePosition;
 
-  if (m_ofcFromCool) {
-    //=== get TileCondToolOfcCool
-    CHECK(m_tileCondToolOfcCool.retrieve());
-  } else {
-    //=== get TileCondToolOfc
-    CHECK(m_tileCondToolOfc.retrieve());
-  }
+  CHECK(m_tileCondToolOfcOnFly.retrieve());
+  //=== get TileCondToolOfc
+  CHECK(m_tileCondToolOfc.retrieve());
+
 
   if (m_bestPhase) {
     //=== get TileToolTiming
@@ -233,12 +226,11 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
     t_ch = -phase;
     for (int it = 0; it < m_maxIterations; it++) {
 
+      float ofcPhase(-t_ch);
       const TileOfcWeightsStruct* weights;
-      if (m_ofcFromCool) {
-        weights = m_tileCondToolOfcCool->getOfcWeights(drawerIdx, channel, gain, -t_ch, true);
-      } else {
-        weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, -t_ch, true);
-      }
+      weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, ofcPhase, true);
+      
+      t_ch = -ofcPhase;
 
       double g[9] = {0};
       double b[9] = {0};
@@ -421,7 +413,8 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
       // amplitude correction for central BC (same as parabolic correction)
       if (m_correctAmplitude && cof[3] > m_ampMinThresh && t_ch > m_timeMinThresh && t_ch < m_timeMaxThresh) {
         double correction = 0.0;
-        weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, -t_ch, true);
+        ofcPhase = -t_ch;
+        weights = m_tileCondToolOfcOnFly->getOfcWeights(drawerIdx, channel, gain, ofcPhase, true);
         for (j = 0; j < n; ++j) {
           correction += weights->g[j] * resultH[iBC3][j];
         }

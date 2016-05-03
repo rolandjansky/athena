@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 //////////////////////////////////////////////////////////////////////
 //
 //     Base on the code of Ximo Poveda.
@@ -58,7 +59,6 @@ TileRawChannelBuilderOpt2Filter::TileRawChannelBuilderOpt2Filter(const std::stri
   : TileRawChannelBuilder(type, name, parent)
   , m_tileToolTiming("TileCondToolTiming")
   , m_tileCondToolOfc("TileCondToolOfc")
-  , m_tileCondToolOfcCool("TileCondToolOfcCool")
   , m_tileToolNoiseSample("TileCondToolNoiseSample")
   , m_nSignal(0)
   , m_nNegative(0)
@@ -78,7 +78,6 @@ TileRawChannelBuilderOpt2Filter::TileRawChannelBuilderOpt2Filter(const std::stri
   //declare properties
   declareProperty("TileCondToolTiming", m_tileToolTiming);
   declareProperty("TileCondToolOfc",    m_tileCondToolOfc  ,"TileCondToolOfc");
-  declareProperty("TileCondToolOfcCool",m_tileCondToolOfcCool  ,"TileCondToolOfcCool");
   declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample,"TileCondToolNoiseSample");
   declareProperty("MaxIterations",m_maxIterations = 5);
   declareProperty("PedestalMode",m_pedestalMode = 17);
@@ -89,7 +88,6 @@ TileRawChannelBuilderOpt2Filter::TileRawChannelBuilderOpt2Filter(const std::stri
   declareProperty("AmplitudeCorrection",m_correctAmplitude = false);
   declareProperty("TimeCorrection", m_correctTimeNI = false);
   declareProperty("BestPhase",m_bestPhase = false);
-  declareProperty("OfcfromCool",m_ofcFromCool = false);
   declareProperty("EmulateDSP",m_emulateDsp = false);
 }
 
@@ -172,17 +170,11 @@ StatusCode TileRawChannelBuilderOpt2Filter::initialize() {
 
 StatusCode TileRawChannelBuilderOpt2Filter::geoInit(IOVSVC_CALLBACK_ARGS) {
   
-  if (m_ofcFromCool) {
-    //=== get TileCondToolOfcCool
-    CHECK( m_tileCondToolOfcCool.retrieve() );
-  } else {
-    //=== get TileCondToolOfc
-    CHECK( m_tileCondToolOfc.retrieve() );
-  }
+  //=== get TileCondToolOfc
+  CHECK( m_tileCondToolOfc.retrieve() );
   
   //=== get TileCondToolNoiseSample
   CHECK( m_tileToolNoiseSample.retrieve() );
-
 
   if (m_bestPhase) {
     //=== get TileToolTiming
@@ -318,7 +310,7 @@ int TileRawChannelBuilderOpt2Filter::findMaxDigitPosition() {
 }
 
 
-float TileRawChannelBuilderOpt2Filter::setPedestal(int ros, int drawer, int channel, int gain) {
+float TileRawChannelBuilderOpt2Filter::getPedestal(int ros, int drawer, int channel, int gain) {
   float pedestal = 0.;
   
   switch (m_pedestalMode) {
@@ -352,7 +344,7 @@ float TileRawChannelBuilderOpt2Filter::setPedestal(int ros, int drawer, int chan
       break;
   }
 
-  ATH_MSG_VERBOSE("setPedestal(): pedestal=" << pedestal);
+  ATH_MSG_VERBOSE("getPedestal(): pedestal=" << pedestal);
   
   return pedestal;
 }
@@ -382,7 +374,7 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
 
   } else {
 
-    pedestal = setPedestal(ros, drawer, channel, gain);
+    pedestal = getPedestal(ros, drawer, channel, gain);
     double phase = 0.;
     int nIterations = 0;
 
@@ -397,7 +389,8 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
                         << " channel " << channel );
       }
       
-      chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase);
+      double ofcPhase(phase);
+      chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, ofcPhase);
 
       // If weights for tau=0 are used, deviations are seen in the amplitude =>
       // function to correct the amplitude
@@ -418,6 +411,8 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
 
         time += correctTime(time, m_of2);
       }
+
+      time += (phase - ofcPhase); // correct time if actual phase used in the calculation is different from required
 
       if (time > m_maxTime) time = m_maxTime;
       if (time < m_minTime) time = m_minTime;
@@ -519,8 +514,6 @@ int TileRawChannelBuilderOpt2Filter::iterate(int ros, int drawer, int channel, i
 
     if (m_emulateDsp)
       phase -= round(time); // rounding phase to integer like in DSP
-    else if (m_ofcFromCool)
-      phase -= round(time * 10.) / 10.; // rounding phase to 0.1 - OFC in DB are stored with 0.1ns steps
     else
       phase -= time; // no rounding at all for OFC on the fly
 
@@ -549,7 +542,7 @@ int TileRawChannelBuilderOpt2Filter::iterate(int ros, int drawer, int channel, i
 
 
 double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel, int gain,
-    double &pedestal, double &amplitude, double &time, double phase) {
+    double &pedestal, double &amplitude, double &time, double& phase) {
 
  ATH_MSG_VERBOSE( "compute();"
                  << " ros=" << ros
@@ -571,11 +564,9 @@ double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel
 
   unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
   const TileOfcWeightsStruct* weights;
-  if (m_ofcFromCool) {
-    weights = m_tileCondToolOfcCool->getOfcWeights(drawerIdx, channel, gain, ofcPhase, m_of2);
-  } else {
-    weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, ofcPhase, m_of2);
-  }
+  weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, ofcPhase, m_of2);
+
+  phase = ofcPhase;
 
   for (i = 0; i < digits_size; ++i) {
     a[i] = weights->w_a[i];

@@ -64,7 +64,7 @@ class TileRawChannelBuilderOptFilter: public TileRawChannelBuilder {
     float findMaxDigit(); //!< Finds maximum digit value in the pulse
     int findMaxDigitPosition();  //!< Finds maximum digit position in the pulse
     bool are3FF(); //!< Checks that all the samples are 0x3FF (as sent by the DSP when no data arrives)
-    float setPedestal(); //!< Sets pedestal estimation for OF1
+    float getPedestal(); //!< Gets pedestal estimation for OF1
     //!< Apply the number of iterations needed for reconstruction by calling the Filter method
     int iterate(int ros, int drawer, int channel, int gain, double &pedestal, double &amplitude, double &time,
         double &chi2);

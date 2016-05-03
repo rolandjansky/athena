@@ -158,7 +158,6 @@ class TileRawChannelGetter ( Configured)  :
                 ##theTileRawChannelBuilderQIEFilter.MaxIterations = 5
                 ##theTileRawChannelBuilderQIEFilter.Minus1Iteration = True
                 ##theTileRawChannelBuilderQIEFilter.AmplitudeCorrection = False; # don't need correction after iterations
-                ##theTileRawChannelBuilderQIEFilter.OfcfromCool = jobproperties.TileRecFlags.OfcFromCOOL()            
                 #from TileConditions.TileCondToolConf import getTileCondToolPulseShape
                 #ToolSvc.TileCondToolOfc.TileCondToolPulseShape = getTileCondToolPulseShape('COOL','PHY')
       
@@ -293,6 +292,7 @@ class TileRawChannelGetter ( Configured)  :
                     from TileConditions.TileInfoConfigurator import TileInfoConfigurator
                     tileInfoConfigurator = TileInfoConfigurator()
                     tileInfoConfigurator.setupCOOLOFC()
+                    theTileRawChannelBuilderMF.TileCondToolOfc = ToolSvc.TileCondToolOfcCool
                 else:
                     from TileConditions.TileInfoConfigurator import TileInfoConfigurator
                     tileInfoConfigurator = TileInfoConfigurator()
@@ -313,7 +313,6 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderMF.MaxIterations = 5; # iterative mode on
                 theTileRawChannelBuilderMF.AmplitudeCorrection = False
                 theTileRawChannelBuilderMF.TimeFromCOF = False
-                theTileRawChannelBuilderMF.OfcfromCool = jobproperties.TileRecFlags.OfcFromCOOL()            
                 theTileRawChannelBuilderMF.AmpMinForAmpCorrection = jobproperties.TileRecFlags.AmpMinForAmpCorrection()
                 if jobproperties.TileRecFlags.TimeMaxForAmpCorrection() > jobproperties.TileRecFlags.TimeMinForAmpCorrection():
                     theTileRawChannelBuilderMF.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
@@ -367,6 +366,7 @@ class TileRawChannelGetter ( Configured)  :
                     from TileConditions.TileInfoConfigurator import TileInfoConfigurator
                     tileInfoConfigurator = TileInfoConfigurator()
                     tileInfoConfigurator.setupCOOLOFC()
+                    theTileRawChannelBuilderOF1.TileCondToolOfc = ToolSvc.TileCondToolOfcCool
                 else:
                     from TileConditions.TileInfoConfigurator import TileInfoConfigurator
                     tileInfoConfigurator = TileInfoConfigurator()
@@ -389,8 +389,7 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderOF1.MaxIterations = 1; # just one iteration
                 theTileRawChannelBuilderOF1.Minus1Iteration = False; # assume that max sample is at t=0
                 theTileRawChannelBuilderOF1.AmplitudeCorrection = jobproperties.TileRecFlags.correctAmplitude()
-                theTileRawChannelBuilderOF1.TimeCorrection = jobproperties.TileRecFlags.correctTimeNI()
-                theTileRawChannelBuilderOF1.OfcfromCool = jobproperties.TileRecFlags.OfcFromCOOL()            
+                theTileRawChannelBuilderOF1.TimeCorrection = False
                 theTileRawChannelBuilderOF1.AmpMinForAmpCorrection = jobproperties.TileRecFlags.AmpMinForAmpCorrection()
                 if jobproperties.TileRecFlags.TimeMaxForAmpCorrection() > jobproperties.TileRecFlags.TimeMinForAmpCorrection():
                     theTileRawChannelBuilderOF1.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
@@ -415,6 +414,7 @@ class TileRawChannelGetter ( Configured)  :
                     from TileConditions.TileInfoConfigurator import TileInfoConfigurator
                     tileInfoConfigurator = TileInfoConfigurator()
                     tileInfoConfigurator.setupCOOLOFC()
+                    theTileRawChannelBuilderOpt2Filter.TileCondToolOfc = ToolSvc.TileCondToolOfcCool
                 else:
                     from TileConditions.TileInfoConfigurator import TileInfoConfigurator
                     tileInfoConfigurator = TileInfoConfigurator()
@@ -435,7 +435,6 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderOpt2Filter.Minus1Iteration = True
                 theTileRawChannelBuilderOpt2Filter.AmplitudeCorrection = False; # don't need correction after iterations
                 theTileRawChannelBuilderOpt2Filter.TimeCorrection    = False; # don't need correction after iterations
-                theTileRawChannelBuilderOpt2Filter.OfcfromCool = jobproperties.TileRecFlags.OfcFromCOOL()            
                 #from TileConditions.TileCondToolConf import getTileCondToolPulseShape
                 #ToolSvc.TileCondToolOfc.TileCondToolPulseShape = getTileCondToolPulseShape('COOL','PHY')
       
@@ -460,6 +459,7 @@ class TileRawChannelGetter ( Configured)  :
                     from TileConditions.TileInfoConfigurator import TileInfoConfigurator
                     tileInfoConfigurator = TileInfoConfigurator()
                     tileInfoConfigurator.setupCOOLOFC()
+                    theTileRawChannelBuilderOptATLAS.TileCondToolOfc = ToolSvc.TileCondToolOfcCool
                 else:
                     from TileConditions.TileInfoConfigurator import TileInfoConfigurator
                     tileInfoConfigurator = TileInfoConfigurator()
@@ -488,7 +488,6 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderOptATLAS.Minus1Iteration = False; # assume that max sample is at t=0
                 theTileRawChannelBuilderOptATLAS.AmplitudeCorrection = jobproperties.TileRecFlags.correctAmplitude()
                 theTileRawChannelBuilderOptATLAS.TimeCorrection = jobproperties.TileRecFlags.correctTimeNI()
-                theTileRawChannelBuilderOptATLAS.OfcfromCool = jobproperties.TileRecFlags.OfcFromCOOL()            
                 theTileRawChannelBuilderOptATLAS.AmpMinForAmpCorrection = jobproperties.TileRecFlags.AmpMinForAmpCorrection()
                 if jobproperties.TileRecFlags.TimeMaxForAmpCorrection() > jobproperties.TileRecFlags.TimeMinForAmpCorrection():
                     theTileRawChannelBuilderOptATLAS.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
