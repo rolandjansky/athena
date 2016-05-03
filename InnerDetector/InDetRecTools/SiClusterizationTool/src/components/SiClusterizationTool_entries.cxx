@@ -12,6 +12,9 @@
 #include "SiClusterizationTool/NnPixelClusterSplitter.h"
 #include "SiClusterizationTool/NnClusterizationFactory.h"
 #include "SiClusterizationTool/NnPixelClusterSplitProbTool.h"
+#include "SiClusterizationTool/TruthPixelClusterSplitter.h"
+#include "SiClusterizationTool/TruthClusterizationFactory.h"
+#include "SiClusterizationTool/TruthPixelClusterSplitProbTool.h"
 
 using namespace InDet;
 
@@ -23,6 +26,9 @@ DECLARE_NAMESPACE_TOOL_FACTORY( InDet, TotPixelClusterSplitter )
 DECLARE_NAMESPACE_TOOL_FACTORY( InDet, NnPixelClusterSplitter )
 DECLARE_NAMESPACE_TOOL_FACTORY( InDet, NnClusterizationFactory )
 DECLARE_NAMESPACE_TOOL_FACTORY( InDet, NnPixelClusterSplitProbTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( InDet, TruthPixelClusterSplitter )
+DECLARE_NAMESPACE_TOOL_FACTORY( InDet, TruthClusterizationFactory )
+DECLARE_NAMESPACE_TOOL_FACTORY( InDet, TruthPixelClusterSplitProbTool )
 
 DECLARE_FACTORY_ENTRIES( SiClusterizationTool ){
 
@@ -34,6 +40,9 @@ DECLARE_FACTORY_ENTRIES( SiClusterizationTool ){
   DECLARE_NAMESPACE_TOOL( InDet, NnPixelClusterSplitter )
   DECLARE_NAMESPACE_TOOL( InDet, NnClusterizationFactory )
   DECLARE_NAMESPACE_TOOL( InDet, NnPixelClusterSplitProbTool )
+  DECLARE_NAMESPACE_TOOL( InDet, TruthPixelClusterSplitter )
+  DECLARE_NAMESPACE_TOOL( InDet, TruthClusterizationFactory )
+  DECLARE_NAMESPACE_TOOL( InDet, TruthPixelClusterSplitProbTool )
   
 }
 

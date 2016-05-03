@@ -67,7 +67,9 @@ namespace InDet {
     m_doMergeBrokenClusters(false),             /* ITk: switch to turn ON/OFF merging of broken clusters */
     m_doRemoveClustersWithToTequalSize(false),  /* ITk: switch to remove clusters with ToT=size */
     m_doCheckSizeBeforeMerging(false),          /* ITk: switch to check size to-be-merged clusters */
-    m_beam_spread(200.0),                       /* ITk: size of luminous region, needed for cluster size check */  
+    m_beam_spread(200.0),                       /* ITk: size of luminous region, needed for cluster size check */
+    m_lossThreshold(0.001),                     /* ITk: maximum probability to loose N_mis consequitive pixels in a cluster */
+    m_pixelEff(0.90),                           /* ITk: pixel efficiency (it depends on cluster eta; use smaller pixel efficiency) */
     m_splitClusterMap(0),
     m_splitClusterMapName("SplitClusterAmbiguityMap"),
     m_processedClusters(0),
@@ -94,6 +96,8 @@ namespace InDet {
       declareProperty("DoRemoveClustersWithToTequalSize",m_doRemoveClustersWithToTequalSize); // ITk: switch to remove clusters with ToT=size
       declareProperty("DoCheckSizeBeforeMerging",    m_doCheckSizeBeforeMerging); // ITk: switch to check size to-be-merged clusters
       declareProperty("BeamSpread",                  m_beam_spread); // ITk: size of luminous region, needed for cluster size check
+      declareProperty("LossProbability",             m_lossThreshold); // ITk: maximum probability to loose N_mis consequitive pixels in a cluster
+      declareProperty("MinPixelEfficiency",          m_pixelEff); // ITk: pixel efficiency (it depends on cluster eta; use smaller pixel efficiency)    
     }
   
 //---------------------------------------------------------------------------
@@ -1040,7 +1044,7 @@ bool MergedPixelsTool::mergeTwoBrokenClusters(const std::vector<Identifier>& gro
 	  float cl2_ave_row=0.0; // average row # in cluster2
 	  unsigned int cl1_size=group1.size(); // number of pixels in cluster-1
 	  unsigned int cl2_size=group2.size(); // number of pixels in cluster-2
-	  
+
 	  // determin cluster-1 boundaries
 	  for(; group1Begin!=group1End; ++group1Begin)
 	    {
@@ -1076,27 +1080,37 @@ bool MergedPixelsTool::mergeTwoBrokenClusters(const std::vector<Identifier>& gro
 	  int cl1_sizePhi=cl1_rowMax - cl1_rowMin + 1;
 	  int cl2_sizePhi=cl2_rowMax - cl2_rowMin + 1;
 	  
-	  int col_last=  cl1_colMax<cl2_colMin ? cl1_colMax : cl2_colMin; 
-	  int col_first= cl2_colMin<cl1_colMax ? cl2_colMin : cl1_colMax;
+	  int col_last= 0; 
+	  int col_first= 0;
+	  if(cl1_colMax<cl2_colMax)
+	    {
+	      col_last=cl1_colMax;
+	      col_first=cl2_colMin;
+	    }
+	  else 
+	    {
+	      col_last=cl2_colMax;
+	      col_first=cl1_colMin;	      
+	    }
 	  
 	  int clMerged_sizePhi= std::max(cl1_rowMax,cl2_rowMax) - std::min(cl1_rowMin,cl2_rowMin) + 1;
-	  
+	 
 	  // these are intial values for merging, to be optimized in studies
 	  if( (cl1_colMin<=cl2_colMin && cl2_colMin<=cl1_colMax) 
 	      || (cl2_colMin<=cl1_colMin && cl1_colMin<=cl2_colMax) )  return mergeClusters; // don't merge, clusters overlap in column number; original default
 	  if(cl1_sizePhi>cl1_sizeZ || cl2_sizePhi>cl2_sizeZ) return mergeClusters; // for now, don't merge clusters if sizePhi>sizeZ; original default 
-	  if(col_first - col_last >= std::min(cl1_sizeZ,cl2_sizeZ)) return mergeClusters; // don't merge clusters where gap in eta is larger than min size; original default 
 	  
-	  if(col_first - col_last > 3) return mergeClusters; // don't merge clusters if gap in eta is larger than 3 pixels; original default
-	  
-	  // it doesn't matter that much which row number is used as input to checkSizeZ() 
+	  int maxNmis=maxGap(std::min(cl1_colMin,cl2_colMin),std::max(cl1_colMax,cl2_colMax),cl1_rowMin,element);
+	  if(col_first - col_last > maxNmis) return mergeClusters; // don't merge clusters because gap is too large 
+	  if(col_first - col_last > std::max(cl1_sizeZ,cl2_sizeZ)) return mergeClusters; // don't merge clusters where gap in eta is larger than max size  
+
 	  if(checkSizeZ(cl1_colMin,cl1_colMax,cl1_rowMin,element)>0) return mergeClusters; // don't merge, cluster1 is too large; original default
 	  if(checkSizeZ(cl2_colMin,cl2_colMax,cl2_rowMin,element)>0) return mergeClusters; // don't merge, cluster2 is too large; original default
 	  if(checkSizeZ(std::min(cl1_colMin,cl2_colMin),std::max(cl1_colMax,cl2_colMax),cl2_rowMin,element)>0) return mergeClusters; // don't merge, new cluster is too large; original default
 	  
 	  if(clMerged_sizePhi>(cl1_sizePhi+cl2_sizePhi-1)) return mergeClusters; // don't merge, cluster1 is too large in sizePhi; to be replaced by eta-dependent cut in the future; original default
-	  if(fabs(cl1_ave_row - cl2_ave_row)<1.0) mergeClusters=true; // merge clusters only if ave_row(CL1) and ave_row(CL2) are more than one pixel apart (test-2)  
-	  
+	  // Note that the last condition (if satisfied) should always be mergeClusters=true  
+	  if(fabs(cl1_ave_row - cl2_ave_row)<1.0) mergeClusters=true; // merge clusters only if ave_row(CL1) and ave_row(CL2) are less than one pixel apart (test-2)  
 	}
     }
   return mergeClusters;
@@ -1151,14 +1165,11 @@ bool MergedPixelsTool::mergeTwoClusters(const std::vector<Identifier>& group1,
 	      if(row<cl2_rowMin) cl2_rowMin=row;
 	      if(row>cl2_rowMax) cl2_rowMax=row;
 	    }
-	  
+	  	  
 	  // it doesn't matter that much which row number is used as input to checkSizeZ() 
 	  if(checkSizeZ(cl1_colMin,cl1_colMax,cl1_rowMin,element)>0) return false; // don't merge, cluster1 is too large (original default)
 	  if(checkSizeZ(cl2_colMin,cl2_colMax,cl2_rowMin,element)>0) return false; // don't merge, cluster2 is too large (original default)
-	  //       if(checkSizeZ(cl1_colMin,cl1_colMax,cl1_rowMin,element)>=0) return false; // don't merge, cluster1 is good or too large
-	  //       if(checkSizeZ(cl2_colMin,cl2_colMax,cl2_rowMin,element)>=0) return false; // don't merge, cluster2 is good or too large
 	  if(checkSizeZ(std::min(cl1_colMin,cl2_colMin),std::max(cl1_colMax,cl2_colMax),cl2_rowMin,element)>0) return false; // don't merge, new cluster is too large
-
 	}
     }
   return mergeClusters;
@@ -1203,6 +1214,43 @@ int MergedPixelsTool::checkSizeZ(int colmin, int colmax, int row, InDetDD::SiDet
 
   return pass_code;
 }
+
+// this function returns expected sizeZ
+int MergedPixelsTool::expectedSizeZ(int colmin, int colmax, int row, InDetDD::SiDetectorElement* element) const {
+  int exp_sizeZ=1;
+  const InDetDD::PixelModuleDesign* design(dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
+  if (not design)
+    {
+      ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of MergedPixelsTool. This cluster will not be considered for merging");
+      return 1; 
+    }
+  // calculating cluster position in the global coordinate system
+  InDetDD::SiLocalPosition sumOfPositions(0,0,0);
+  InDetDD::SiLocalPosition siLocalPosition1(design->positionFromColumnRow(colmin,row)); 
+  InDetDD::SiLocalPosition siLocalPosition2(design->positionFromColumnRow(colmax,row)); 
+  sumOfPositions = siLocalPosition1+siLocalPosition2;
+  InDetDD::SiLocalPosition centroid(sumOfPositions/2);
+  Amg::Vector3D globalPos = element->globalPosition(centroid);
+  // calculating min and max size of a cluster assuming its global position and +/-20 cm luminous region 
+  float sensorThickness = element->thickness();
+  float pitch = design->etaPitch();
+  float length1= fabs(globalPos.z()+m_beam_spread)*sensorThickness/globalPos.perp();
+  float length2= fabs(globalPos.z()-m_beam_spread)*sensorThickness/globalPos.perp();
+  float length=std::max(length1,length2);
+  exp_sizeZ=int(length/pitch+0.5);
+  return exp_sizeZ;
+}
+
+// this function returns size of the maximum gap between two cluster fragments
+int MergedPixelsTool::maxGap(int colmin, int colmax, int row, InDetDD::SiDetectorElement* element) const {
+  int Nmis=1;
+  int Nexp=expectedSizeZ(colmin,colmax,row,element);
+  if(Nexp<=3) return 0; // there should not be any gap for very small clusters
+  int gap=(int)((log(m_lossThreshold)-log(1.0*(Nexp-2)))/log(1.0-m_pixelEff)+0.5);
+  Nmis=std::min(gap,Nexp-2);
+  return Nmis;
+}
+
 
 
 }

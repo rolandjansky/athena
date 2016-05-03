@@ -39,6 +39,8 @@ use TrkNeuralNetworkUtils               TrkNeuralNetworkUtils-*         Tracking
 use VxVertex                            VxVertex-*                      Tracking/TrkEvent
 use TrkSurfaces                         TrkSurfaces-*                   Tracking/TrkDetDescr
 use PixelGeoModel                       PixelGeoModel-*                 InnerDetector/InDetDetDescr 
+use InDetSimData                        InDetSimData-*                  InnerDetector/InDetRawEvent
+use AtlasHepMC                          AtlasHepMC-*                    External
 
 public
 
