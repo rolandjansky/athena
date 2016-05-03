@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: ISystematicsTool.h 640628 2015-01-20 19:07:05Z sfarrell $
+// $Id: ISystematicsTool.h 676499 2015-06-18 20:13:50Z sfarrell $
 #ifndef PATINTERFACES_ISYSTEMATICSTOOL_H
 #define PATINTERFACES_ISYSTEMATICSTOOL_H
 
@@ -30,8 +30,8 @@ namespace CP {
    /// @author Nils Krumnack <nils.erik.krumnack@cern.ch>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 640628 $
-   /// $Date: 2015-01-20 20:07:05 +0100 (Tue, 20 Jan 2015) $
+   /// $Revision: 676499 $
+   /// $Date: 2015-06-18 22:13:50 +0200 (Thu, 18 Jun 2015) $
    ///
    class ISystematicsTool : public virtual asg::IAsgTool {
 
@@ -43,7 +43,7 @@ namespace CP {
       /// Virtual destructor
       virtual ~ISystematicsTool(){};
 
-      /// returns: whether this tool is affected by the given systematis
+      /// returns: whether this tool is affected by the given systematics
       virtual bool
       isAffectedBySystematic( const SystematicVariation& systematic ) const = 0;
 
