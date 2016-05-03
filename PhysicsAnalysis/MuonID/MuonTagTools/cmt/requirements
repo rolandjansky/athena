@@ -11,13 +11,16 @@ use xAODMuon		xAODMuon-*				Event/xAOD
 use MuonSelectorTools 	MuonSelectorTools-* 			PhysicsAnalysis/MuonID
 use xAODEventInfo          xAODEventInfo-*         Event/xAOD
 use IsolationSelection     IsolationSelection-*    PhysicsAnalysis/AnalysisCommon
+
 private
 
 use xAODTracking	xAODTracking-*				Event/xAOD
 use AnalysisUtils	AnalysisUtils-*				PhysicsAnalysis/AnalysisCommon
 use AthContainers       AthContainers-*				Control 
-apply_pattern dual_use_library files=*.cxx
+end_private
 
+public
+apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_joboptions files="*.py"
 
 
