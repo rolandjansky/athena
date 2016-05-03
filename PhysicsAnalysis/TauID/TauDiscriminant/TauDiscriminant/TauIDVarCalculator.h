@@ -22,7 +22,7 @@ class TauIDVarCalculator: virtual public TauDiscriToolBase
 
     public:
   
-  TauIDVarCalculator(const std::string& name);
+  TauIDVarCalculator(const std::string& name = "TauIDVarCalculator");
   
   virtual ~TauIDVarCalculator() {}
 
@@ -40,7 +40,6 @@ class TauIDVarCalculator: virtual public TauDiscriToolBase
 
   std::string m_vertexContainerKey;
   int m_nVtx;
-
 };
 
 #endif

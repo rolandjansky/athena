@@ -96,7 +96,7 @@ StatusCode TauDiscriBuilder::execute()
 	}
 	
 	for(auto tau: *tau_container){
-	  if(! m_tauIDTool->applyDiscriminant(*tau) == CP::CorrectionCode::Ok){
+	  if(! (m_tauIDTool->applyDiscriminant(*tau) == CP::CorrectionCode::Ok)){
 	    ATH_MSG_FATAL("TauDiscriminant failed to execute all tools");
 	    return StatusCode::FAILURE;
 	  }

@@ -596,9 +596,11 @@ Node* TreeReader::readTree(
 TreeReader::TreeReader(const string& filename):
   AsgMessaging("TauDiscriminant:TreeReader"),
   m_fileName(filename),
-  floatVariables(0),
-  intVariables(0),
-  m_treeInfo(nullptr)
+  floatVariables(nullptr),
+  intVariables(nullptr),
+  m_treeInfo(nullptr),
+  m_treeFile(),
+  m_treeString()
 {
     if (hasEnding(m_fileName, ".bin"))
     {
@@ -663,6 +665,12 @@ TreeReader::TreeReader(const string& filename):
     {
         ATH_MSG_ERROR("Failed extracting the number of binning variables in the discriminant file!");
         return;
+    }
+
+    //input validation to make Coverity happy
+    if(numBinningVariables > 10000){
+      ATH_MSG_ERROR("You have over 10k binning variables, are you sure you want to do this? If so, raise the limit.");
+      return;
     }
     
     m_binningVariableList = vector<string>(numBinningVariables,"");

@@ -24,6 +24,7 @@ class TauDiscriToolBase: public asg::AsgTool, virtual public ITauToolBase
     public:
   TauDiscriToolBase(const std::string& name) : asg::AsgTool(name) {
     declareProperty("inTrigger", m_in_trigger=false);
+    declareProperty("calibFolder", m_calibFolder="TauDiscriminant/02-00-09/");
   }
   
   virtual ~TauDiscriToolBase(){}
@@ -40,6 +41,8 @@ class TauDiscriToolBase: public asg::AsgTool, virtual public ITauToolBase
   
   virtual void setTauEventData(TauEventData*) {}
 
+  virtual StatusCode readConfig();
+  
  protected:
   std::string find_calibFile(const std::string& name) const;
   
@@ -47,15 +50,16 @@ class TauDiscriToolBase: public asg::AsgTool, virtual public ITauToolBase
 
  private:
   bool m_in_trigger;
+  std::string m_calibFolder;
 
 };
 
 inline std::string TauDiscriToolBase::find_calibFile(const std::string& name) const {
-  static const std::string calibDataTag = "TauDiscriminant/02-00-00/";
+  //  static const std::string calibDataTag = "TauDiscriminant/02-00-08/";
   std::string location;
   //offline calib files are in GroupData
   //online calib files are in release
-  if( inTrigger()==false ) location = PathResolverFindCalibFile(calibDataTag+name);
+  if( inTrigger()==false ) location = PathResolverFindCalibFile(m_calibFolder+name);
   if( location == "" ){
     //assume this is from TrigTauDiscriminant
     //    location = PathResolverFindCalibFile("TrigTauDiscriminant/share/"+name);

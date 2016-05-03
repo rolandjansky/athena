@@ -31,7 +31,7 @@ class TauEleBDT: virtual public TauDiscriToolBase
     public:
 
         //!< Constructor
-        TauEleBDT(const string& name):
+        TauEleBDT(const string& name = "TauEleBDT"):
             TauDiscriToolBase(name),
 	    eleScore(-1.),
             eleBDTFile(""),

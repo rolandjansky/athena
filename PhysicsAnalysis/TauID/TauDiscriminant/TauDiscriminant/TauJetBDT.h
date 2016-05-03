@@ -19,8 +19,6 @@
 #include <string>
 #include "xAODTau/TauJet.h"
 
-using namespace std;
-using namespace TauID;
 
 class TauJetBDT: virtual public TauDiscriToolBase
 {
@@ -29,26 +27,7 @@ class TauJetBDT: virtual public TauDiscriToolBase
 
   
         //!< Constructor
- TauJetBDT(const string& name):
-  TauDiscriToolBase(name),
-    jetScore(-1.),
-    jetBDTFile(""),
-    jetSigBitsFile(""),
-    jetBkgBitsFile(""),
-    jetSigTransFile(""),
-    jetBkgTransFile(""),
-    jetBDT(NULL),
-    jetSigBits(NULL),
-    jetBkgBits(NULL),
-    jetSigTrans(NULL),
-    jetBkgTrans(NULL)
-      {
-	declareProperty("jetBDT", this->jetBDTFile);
-        declareProperty("jetSigBits",this->jetSigBitsFile);
-        declareProperty("jetBkgBits",this->jetBkgBitsFile);
-        declareProperty("jetSigTrans",this->jetSigTransFile);
-        declareProperty("jetBkgTrans",this->jetBkgTransFile);
-      }
+        TauJetBDT(const std::string& name = "TauJetBDT");
 
         //!< Destructor
         virtual ~TauJetBDT() {}
@@ -76,17 +55,14 @@ class TauJetBDT: virtual public TauDiscriToolBase
 
         float jetScore;                     //!< Holds the current jet score which is used by a MethodCuts instance to determine if it passes loose, medium, or tight.
 
-        string jetBDTFile;                  //!< The @c string name of the bdt file for jet rejection.
-        string jetSigBitsFile;              //!< The @c string name of the file used to define the loose, medium, and tight cuts on the signal taus for jet rejection.
-        string jetBkgBitsFile;              //!< The @c string name of the file used to define the loose, medium, and tight cuts on the background jets for jet rejection.
-        string jetSigTransFile;
-        string jetBkgTransFile;
+	std::string jetBDTFile;                  //!< The @c string name of the bdt file for jet rejection.
+	std::string jetSigBitsFile;              //!< The @c string name of the file used to define the loose, medium, and tight cuts on the signal taus for jet rejection.
+	std::string jetSigTransFile;
 
-        MethodBDT* jetBDT;                  //!< A pointer to the @c MethodBDT used to construct and evaluate BDTs used for jet discrimination.
-        MethodCuts* jetSigBits;             //!< A pointer to the @c MethodCuts used to determine whether the current jet BDT score passes loose, medium, or tight signal cut.
-        MethodCuts* jetBkgBits;             //!< A pointer to the @c MethodCuts used to determine whether the current jet BDT score passes loose, medium, or tight background cut.
-        MethodTransform* jetSigTrans;
-        MethodTransform* jetBkgTrans;
+	TauID::MethodBDT* jetBDT;                  //!< A pointer to the @c MethodBDT used to construct and evaluate BDTs used for jet discrimination.
+	TauID::MethodCuts* jetSigBits;             //!< A pointer to the @c MethodCuts used to determine whether the current jet BDT score passes loose, medium, or tight signal cut.
+	TauID::MethodTransform* jetSigTrans;
+
 };
 
 #endif
