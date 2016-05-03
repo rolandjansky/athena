@@ -21,6 +21,7 @@ Purpose : build the Photon Tag objects - PhotonTagCollection.h.
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "IsolationSelection/IsolationSelectionTool.h"
 #include "ElectronPhotonShowerShapeFudgeTool/IElectronPhotonShowerShapeFudgeTool.h"
+#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
 #include <map>
 
 class PhotonTagCollection;
@@ -81,6 +82,9 @@ private:
   ToolHandle<CP::IIsolationSelectionTool> m_cone40_calo_isolation;//!
   ToolHandle<CP::IIsolationSelectionTool> m_cone40_isolation;//!
   ToolHandle<CP::IIsolationSelectionTool> m_cone20_isolation;//!
+
+  /** calib tool */
+  ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_EgammaCalibrationAndSmearingTool;
 
  };
 

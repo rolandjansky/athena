@@ -7,8 +7,6 @@ VeryLooseLHSelector = ConfiguredAsgElectronLikelihoodTool("VeryLooseLHSelector",
 ToolSvc+=VeryLooseLHSelector
 LooseLHSelector = ConfiguredAsgElectronLikelihoodTool("LooseLHSelector", LikeEnum.Loose)
 ToolSvc+=LooseLHSelector
-LooseLHSelector = ConfiguredAsgElectronLikelihoodTool("LooseLHSelector", LikeEnum.Loose)
-ToolSvc+=LooseLHSelector
 MediumLHSelector = ConfiguredAsgElectronLikelihoodTool("MediumLHSelector", LikeEnum.Medium)
 ToolSvc+=MediumLHSelector
 TightLHSelector = ConfiguredAsgElectronLikelihoodTool("TightLHSelector", LikeEnum.Tight)
@@ -70,5 +68,7 @@ ElectronTagTool = ConfiguredElectronTagTool(
      GradientIsolation      = GradientIsoTool   ,
      GradientLooseIsolation = GradientLooseIsoTool  
      )
+
+ElectronTagTool.EgammaCalibrationAndSmearingTool.ESModel =  "es2015PRE"
 
 ToolSvc += ElectronTagTool

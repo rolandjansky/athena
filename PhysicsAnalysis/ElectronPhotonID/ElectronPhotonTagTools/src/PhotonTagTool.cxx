@@ -25,7 +25,7 @@ Purpose : create a collection of PhotonTag
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
-
+#include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
 
 #include <sstream>
 
@@ -41,8 +41,9 @@ PhotonTagTool::PhotonTagTool (const std::string& type, const std::string& name,
   /**Initializing private member for the isolation tool*/
   m_cone40_calo_isolation(""),
   m_cone40_isolation(""),
-  m_cone20_isolation("")
-{
+  m_cone20_isolation(""),
+  m_EgammaCalibrationAndSmearingTool("CP::EgammaCalibrationAndSmearingTool/EgammaCalibrationAndSmearingTool", this) {
+
   /** Photon AOD Container Name */
   declareProperty("Container",     m_containerName = "PhotonCollection");
 
@@ -67,8 +68,10 @@ PhotonTagTool::PhotonTagTool (const std::string& type, const std::string& name,
   declareProperty("cone40CaloOnlyIsoTool", m_cone40_calo_isolation);
   declareProperty("cone40IsoTool",         m_cone40_isolation);
   declareProperty("cone20IsoTool",         m_cone20_isolation);
-  
-  
+
+  /** CP tool to calib objects */
+  declareProperty( "EgammaCalibrationAndSmearingTool", m_EgammaCalibrationAndSmearingTool);
+
   declareInterface<PhotonTagTool>( this );
 }
 
@@ -89,7 +92,10 @@ StatusCode  PhotonTagTool::initialize() {
   CHECK(m_cone40_isolation.retrieve());
   CHECK(m_cone40_calo_isolation.retrieve());
   
-    if (m_etconeisocutvalues.size() > 4) {
+  /** retrieve and check the calibration tool */
+  CHECK(m_EgammaCalibrationAndSmearingTool.retrieve());
+
+  if (m_etconeisocutvalues.size() > 4) {
     ATH_MSG_FATAL ("More than four Etcone values are not permitted");
     return StatusCode::FAILURE;
   }
@@ -168,18 +174,29 @@ StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& ma
   
   // create a shallow copy of the photon container
   std::pair< xAOD::PhotonContainer*, xAOD::ShallowAuxContainer* >  shallowCopy = xAOD::shallowCopyContainer(*photonContainer);
-  xAOD::PhotonContainer *photonContainerShallowCopy           = shallowCopy.first;
+  xAOD::PhotonContainer     *photonContainerShallowCopy    = shallowCopy.first;
   xAOD::ShallowAuxContainer *photonAuxContainerShallowCopy = shallowCopy.second;
   
   CHECK( evtStore()->record(photonContainerShallowCopy,    "PhotonsShallowTAG"));
   CHECK( evtStore()->record(photonAuxContainerShallowCopy, "PhotonsShallowTAGAux."));
   
   static SG::AuxElement::Accessor< xAOD::IParticleLink > accSetOriginLink ("originalObjectLink");
-  for ( xAOD::Photon *shallowCopyPhoton : * photonContainerShallowCopy ) {
+  for ( xAOD::Photon* shallowCopyPhoton : *photonContainerShallowCopy ) {
 
-    /**applying shower shape correction*/
+    /** applying shower shape correction */
     if (m_isFullsim) CP::CorrectionCode correctionCode = m_shower_shape_fudge->applyCorrection(*shallowCopyPhoton);
-    
+
+    /** fix calibration using tool */
+    if ((shallowCopyPhoton->author() & xAOD::EgammaParameters::AuthorCaloTopo35) > 0) {
+      ATH_MSG_DEBUG("Author " <<xAOD::EgammaParameters::AuthorCaloTopo35<< " photon pt = " << shallowCopyPhoton->pt() << " do not calibrate, not supported "); 
+    } else {
+      ATH_MSG_DEBUG("Un-Calibrated pt = " << shallowCopyPhoton->pt()); 
+      if(m_EgammaCalibrationAndSmearingTool->applyCorrection(*shallowCopyPhoton) != CP::CorrectionCode::Ok){
+	ATH_MSG_WARNING("Cannot calibrate electron");
+      }
+      ATH_MSG_DEBUG("Calibrated pt = " << shallowCopyPhoton->pt()); 
+    }
+
     const xAOD::IParticleLink originLink( *photonContainer, shallowCopyPhoton->index() );
     accSetOriginLink(*shallowCopyPhoton) = originLink;
   }
@@ -207,6 +224,7 @@ StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& ma
     if ( select) { 
       
       if ( i<max ) {
+
         /**Filling TAG variables*/
 
         /** pt */
