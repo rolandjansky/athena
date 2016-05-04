@@ -238,13 +238,13 @@ HLT::ErrorCode TrigCountSpacePointsHypo::checkDetectorMask() {
 
 HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 						    bool& pass) {
-  float ratioA, ratioB;
+  float ratioA = -1. , ratioB = -1. ;
   bool pixelClusPass, sctSpPass;
 
   // Do initialisation at start of first event
   if (m_hltExecuteInitialisationRun == false) {
-    HLT::ErrorCode _ec = checkDetectorMask();
-    if (_ec != HLT::OK) return _ec;
+    HLT::ErrorCode ec = checkDetectorMask();
+    if (ec != HLT::OK) return ec;
   }
 
   pass = false;

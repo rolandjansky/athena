@@ -96,27 +96,27 @@ HLT::ErrorCode T2ZdcFex::hltExecute(std::vector<std::vector<HLT::TriggerElement*
   m_triggerEntries.resize(xAOD::TrigT2ZdcSignals::NUM_ZDC,0.);
 
   for( m_zt = m_zBegin; m_zt!=m_zEnd; ++m_zt){ // loop on ZdcRawChannelCollection iterators
-    ZdcRawChannel* zdc = (*m_zt);
+    const ZdcRawChannel* zdc = (*m_zt);
     const Identifier& id = zdc->identify();
     // type = 0 (1 is pixel)
     // module = 0,1,2,3
     // side = -1 (C), 1 (A)
     // channel = 0
-    int m_type = m_zdcID->type(id);
-    if(m_type!=0) continue; // dont consider pixel
-    int m_side =  m_zdcID->side(id);
-    int m_module =  m_zdcID->module(id);
+    int type = m_zdcID->type(id);
+    if(type!=0) continue; // dont consider pixel
+    int side =  m_zdcID->side(id);
+    int module =  m_zdcID->module(id);
     //int m_channel =  m_zdcID->channel(id); //Not currently used
     
-    int my_module = ((1.-m_side)/2)*4 + m_module;
+    int my_module = ((1.-side)/2)*4 + module;
     
-    float m_energy = zdc->getEnergy(m_ZdcEnRecoOpt);
-    float m_time = zdc->getTime(m_ZdcTimeRecoOpt);
-    float m_chi = zdc->getChi(m_ZdcEnRecoOpt);
-    if(m_energy > m_en_threshold && (m_chi < m_chi_threshold || m_chi_threshold<0 ) ){
+    float energy = zdc->getEnergy(m_ZdcEnRecoOpt);
+    float time = zdc->getTime(m_ZdcTimeRecoOpt);
+    float chi = zdc->getChi(m_ZdcEnRecoOpt);
+    if(energy > m_en_threshold && (chi < m_chi_threshold || m_chi_threshold<0 ) ){
       ++m_triggerEntries[my_module];
-      m_triggerEnergies[my_module] += m_energy;
-      m_triggerTimes[my_module] = m_time/m_triggerEntries[my_module] + 
+      m_triggerEnergies[my_module] += energy;
+      m_triggerTimes[my_module] = time/m_triggerEntries[my_module] + 
 	m_triggerTimes[my_module]*(1.-(1./m_triggerEntries[my_module]));
       
     }
