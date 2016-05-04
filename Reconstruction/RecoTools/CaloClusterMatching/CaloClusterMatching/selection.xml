@@ -1,0 +1,15 @@
+<lcgdict>
+   <namespace name="ClusterMatching">
+   <enum name="ClusterMatching::ClusterSortMethod">
+   <class name="ICaloClusterMatchingTool" />
+
+   <class name="std::pair<const xAOD::CaloCluster*,float>" />
+   <class name="std::vector<std::pair<const xAOD::CaloCluster*,float> >" />
+   <class name="ClusterMatching::CaloClusterMatchingTool" />
+   <class name="ClusterMatching::CaloClusterMatchingLinkAlg" />
+
+  <!-- Suppress the unwanted classes found by ROOT 6. -->
+  <!-- Hopefully we can remove these extra lines at one point... -->
+  <exclusion>
+  </exclusion>
+</lcgdict>
