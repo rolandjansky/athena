@@ -8,25 +8,22 @@ __doc__="Definition of bphysics chains"
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-logBphysDef = logging.getLogger("TriggerMenu.bphysics.BphysicsDef")
+log = logging.getLogger(__name__)
 
-from TriggerMenu.menu.MenuUtils import *
+from TriggerMenu.menu.MenuUtils import setupTopoStartFrom
+from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+
 ###########################################################################
 ###########################################################################
 
 def generateChainDefs(chainDict):
-    chainParts = chainDict['chainParts']
     
-    listOfChainDicts = splitChainDict(chainDict)
-    listOfChainDefs = []
-
     from TriggerMenu.muon.generateMuonChainDefs import generateChainDefs as genMuonChainDefs
     theChainDef =     genMuonChainDefs(chainDict)
 
     if not chainDict["topo"]:
-        logBphysDef.error( "No topo given -> not a bphysics chain...")
+        log.error( "No topo given -> not a bphysics chain...")
     else:
-        logBphysDef.info("Adding Bphysics Topo...")
         theChainDef = _addTopoInfo(theChainDef,chainDict)    
 
     return theChainDef
@@ -44,9 +41,6 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
     inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex]['listOfTriggerElements'] 
     inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
 
-    L2ChainName = "L2_" + chainDict['chainName']
-    EFChainName = "EF_" + chainDict['chainName']
-    HLTChainName = "HLT_" + chainDict['chainName']   
     topoAlgs = chainDict["topo"]
 
     SameConfigTopos = ['bJpsi', 'bDimu', 'bTau', 'bBmumu', 'bJpsimumu', 'bUpsimumu', 'Zmumu','bUpsi']
@@ -120,30 +114,29 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         for part in chainParts :
             mult = mult + int(part['multiplicity'])
 
-        from TrigBphysHypo.TrigL2MultiMuFexConfig import L2MultiMuFex_Tau
-        from TrigBphysHypo.TrigL2MultiMuFexConfig import L2MultiMuFex_Tau2
-        from TrigBphysHypo.TrigL2MultiMuHypoConfig import L2MultiMuHypo_Tau
         from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau
         from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau2
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Tau
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Tau2
 
         if ('nscan' in chainDict['chainName'] ): # do not do L2
             L2Fex = None
             L2Hypo = None
             if mult == 2 :
                 EFFex = EFMultiMuFex_Tau2()
+                EFHypo = EFMultiMuHypo_Tau2()            
             else :
                 EFFex = EFMultiMuFex_Tau()
-            EFHypo = EFMultiMuHypo_Tau()
+                EFHypo = EFMultiMuHypo_Tau()
         else :
+            L2Fex = None
+            L2Hypo = None
             if mult == 2 :
-                L2Fex = L2MultiMuFex_Tau2()
                 EFFex = EFMultiMuFex_Tau2()
+                EFHypo = EFMultiMuHypo_Tau2()
             else :
-                L2Fex = L2MultiMuFex_Tau()
                 EFFex = EFMultiMuFex_Tau()
-            L2Hypo = L2MultiMuHypo_Tau()
-            EFHypo = EFMultiMuHypo_Tau()
+                EFHypo = EFMultiMuHypo_Tau()
 
     
     elif (mtopo == 'bUpsi'):
@@ -188,7 +181,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
 
     elif (mtopo == 'Zmumu'):
         from TrigBphysHypo.TrigL2BMuMuFexConfig import  L2BMuMuFex_noId_Z
-        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Z,L2BMuMuHypo_Z        
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Z
         from TrigBphysHypo.TrigEFBMuMuFexConfig import  EFBMuMuFex_Z
         from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_Z
         L2Fex  = L2BMuMuFex_noId_Z() 
@@ -197,7 +190,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         EFHypo = EFBMuMuHypo_Z()
 
     else:
-        logBphysDef.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], mtopo ))
+        log.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], mtopo ))
    
     if  L2Fex != None :
         theChainDef.addSequence([L2Fex, L2Hypo], inputTEsL2, L2TEname, topo_start_from = topoStartFrom)
@@ -218,9 +211,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
 ###################################################################################
 ###################################################################################
 def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
-    L2ChainName = "L2_" + chainDict['chainName']
-    EFChainName = "EF_" + chainDict['chainName']
-    HLTChainName = "HLT_" + chainDict['chainName']   
+
     topoAlgs = chainDict["topo"]
     TEname = findL2teBaseName(chainDict['chainName'],topoAlgs)
     
@@ -327,7 +318,7 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             mult = mult + int(part['multiplicity'])
         from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Tau
-        from TrigBphysHypo.TrigL2MultiMuFexConfig import L2MultiMuFex_Tau2
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Tau2
         from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau2
 
         if ('nscan' in chainDict['chainName'] or  'noL2' in topoAlgs ): # do not do L2
@@ -335,20 +326,19 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Hypo = None
             if mult ==  2 :
                 EFFex = EFMultiMuFex_Tau2()
+                EFHypo = EFMultiMuHypo_Tau2()
             else :
                 EFFex = EFMultiMuFex_Tau()
-            EFHypo = EFMultiMuHypo_Tau()
+                EFHypo = EFMultiMuHypo_Tau()
         else :
-            from TrigBphysHypo.TrigL2MultiMuFexConfig import L2MultiMuFex_Tau
-            from TrigBphysHypo.TrigL2MultiMuHypoConfig import L2MultiMuHypo_Tau
+            L2Fex = None
+            L2Hypo = None
             if mult ==  2 :
-                L2Fex = L2MultiMuFex_Tau2()
                 EFFex = EFMultiMuFex_Tau2()
+                EFHypo = EFMultiMuHypo_Tau2()
             else :
-                L2Fex = L2MultiMuFex_Tau()
                 EFFex = EFMultiMuFex_Tau()
-            L2Hypo = L2MultiMuHypo_Tau()
-            EFHypo = EFMultiMuHypo_Tau()
+                EFHypo = EFMultiMuHypo_Tau()
 
      
     elif ('bDimu' in topoAlgs) & ('novtx' in topoAlgs) & ('noos' in topoAlgs) & ('noL2' in topoAlgs):
@@ -508,7 +498,7 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         EFFex  = EFBMuMuFex_B()
         EFHypo = EFBMuMuHypo_B_Lxy0() 
     else:
-        logBphysDef.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], topoAlgs ))
+        log.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], topoAlgs ))
 
     if L2Fex != None :
         theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2TEname, topo_start_from = topoStartFrom)
@@ -523,27 +513,21 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
 ###################################################################################
 ###################################################################################
 def bMuTrack(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
-    L2ChainName = "L2_" + chainDict['chainName']
+
     EFChainName = "EF_" + chainDict['chainName']
-    HLTChainName = "HLT_" + chainDict['chainName']   
     topoAlgs = chainDict["topo"]
 
-    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
     [trkfast, trkprec] = TrigInDetSequence("Bphysics", "bphysics", "IDTrig").getSequence()
 
 
     if ('bJpsi' in topoAlgs) & ('Trkloose' in topoAlgs):
-        from TrigBphysHypo.TrigL2TrkMassFexConfig  import L2TrkMassFex_Jpsimumu_loose
-        from TrigBphysHypo.TrigL2TrkMassHypoConfig import L2TrkMassHypo_Jpsimumu_loose
         from TrigBphysHypo.TrigEFTrkMassFexConfig  import EFTrkMassFex_Jpsimumu_loose
         from TrigBphysHypo.TrigEFTrkMassHypoConfig import EFTrkMassHypo_Jpsimumu_loose        
-        L2Fex  = L2TrkMassFex_Jpsimumu_loose()
-        L2Hypo = L2TrkMassHypo_Jpsimumu_loose()
         EFFex  = EFTrkMassFex_Jpsimumu_loose()
         EFHypo = EFTrkMassHypo_Jpsimumu_loose()
 
     else:
-        logBphysDef.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], topoAlgs ))
+        log.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], topoAlgs ))
 
     # Commented out section for L2 and EF sequence - not working with current FTF and prec tracking
     #    L2TEcount = 0; L2outTEs = []
@@ -606,7 +590,6 @@ def bMuTrack(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
 def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
     L2ChainName = "L2_" + chainDict['chainName']
     EFChainName = "EF_" + chainDict['chainName']
-    HLTChainName = "HLT_" + chainDict['chainName']   
     topoAlgs = chainDict["topo"]
     TEname = findL2teBaseName(chainDict['chainName'],topoAlgs)
     
@@ -633,9 +616,12 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
         if topo2StartFrom:
             topo2StartFrom = L2TEname
         
-
-    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-    [trkfast, trkprec] = TrigInDetSequence("Bphysics", "bphysics", "IDTrig").getSequence()
+    if 'Ftk' in topoAlgs:
+        from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
+        trkftk = TrigInDetFTKSequence("BeamSpot", "beamSpot", "").getSequence()
+    else:
+        from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+        [trkfast, trkprec] = TrigInDetSequence("Bphysics", "bphysics", "IDTrig").getSequence()
 
 #    from InDetTrigRecExample.EFInDetConfig import *
 #    theTrigEFIDInsideOut = TrigEFIDInsideOut_Bphysics().getSequence()
@@ -661,14 +647,20 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
         EFHypo = EFBMuMuXHypo_BplusMuMuKplus()
         
     elif 'bBmumuxv2' in topoAlgs:
-        #from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_1
-        #from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_1
-        from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_1
-        from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_1
-        #L2Fex  = L2BMuMuFex_1()
-        #L2Hypo = L2BMuMuHypo_1()
-        EFFex  =  EFBMuMuXFex_1()
-        EFHypo = EFBMuMuXHypo_1()
+        if 'Ftk' in topoAlgs:
+           from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_FTK
+           from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_FTK
+           EFFex  =  EFBMuMuXFex_FTK()
+           EFHypo = EFBMuMuXHypo_FTK()
+        else:
+           #from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_1
+           #from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_1
+           from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_1
+           from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_1  
+           #L2Fex  = L2BMuMuFex_1()
+           #L2Hypo = L2BMuMuHypo_1()  
+           EFFex  =  EFBMuMuXFex_1()
+           EFHypo = EFBMuMuXHypo_1()
         
     elif 'bBmumuxv3' in topoAlgs:
         print 'MOOOO in bBmumuxv3'
@@ -731,11 +723,45 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
         theChainDef.addSequence([EFFex, EFHypo], EFoutTEs, EFChainName)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
     
+    elif 'Ftk' in topoAlgs:
+    
+    #------- L2 Sequences -------
+    # create the individual outputTEs together with the first sequences that are run
+        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2TEname, topo_start_from = topoStartFrom)
+        theChainDef.addSignatureL2([L2TEname])
+
+
+    #------- EF Sequences -------
+        from TrigGenericAlgs.TrigGenericAlgsConf import  PESA__DummyUnseededAllTEAlgo
+        dummyAlgo = PESA__DummyUnseededAllTEAlgo("EFDummyAlgo")
+        trkFTK=[dummyAlgo]+trkftk[0]
+        EFTEcount = 0; EFoutputTEsftk = [];
+        for EFinputTE in inputTEsEF:
+            EFoutputTEdummy = EFinputTE+'_dummy'
+            EFTEcount = EFTEcount + 1
+            EFoutputTEftk = EFinputTE+'_ftk'+str(EFTEcount)
+            EFoutputTEsftk.append(EFoutputTEftk)
+        EFoutputTEftk = inputTEsEF[0]+'_ftk'
+
+        theChainDef.addSequence(trkFTK , L2TEname, EFoutputTEftk)
+
+        inputTEs_ftk = [EFoutputTEftk]+inputTEsEF
+
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFoutputTEftk])
+
+
+
+        theChainDef.addSequence([EFFex, EFHypo], inputTEs_ftk , EFTEname, topo_start_from = topo2StartFrom)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])        
+
+
     else:
     #------- L2 Sequences -------
     # create the individual outputTEs together with the first sequences that are run
         theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2TEname, topo_start_from = topoStartFrom)
         theChainDef.addSignatureL2([L2TEname])
+
+
     #------- EF Sequences -------
         EFTEcount = 0; EFoutTEsfast = []; 
         for EFinputTE in inputTEsEF:

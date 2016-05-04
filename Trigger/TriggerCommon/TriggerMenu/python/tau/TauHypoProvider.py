@@ -72,13 +72,29 @@ class TauHypoProvider:
                         theVars = ['massTrkSysMin', 'massTrkSysMax', 'leadTrkPtMin','EtCalibMin','EMPOverTrkSysPMax']
                         theThresh = self.thresholdsEF_dikaon[(criteria, int(threshold))]
                         currentHypo = EFTauDiKaonHypo(currentHypoKey, theVars, theThresh)
+                    elif criteria=='dikaonmass' or criteria=='dikaonmasstight':
+                        from TrigTauHypo.TrigTauHypoConfig2012 import EFTauDiKaonHypo
+                        theVars = ['massTrkSysKaonMin', 'massTrkSysKaonMax', 'leadTrkPtMin','EtCalibMin','EMPOverTrkSysPMax','nWideTrackMax']
+                        theThresh = self.thresholdsEF_dikaonmass[(criteria, int(threshold))]
+                        currentHypo = EFTauDiKaonHypo(currentHypoKey, theVars, theThresh)
+                    elif criteria=='singlepion' or criteria=='singlepiontight':
+                        from TrigTauHypo.TrigTauHypoConfig2012 import EFTauDiKaonHypo
+                        theVars = ['leadTrkPtMin','EtCalibMin','nTrackMax','nWideTrackMax','dRmaxMax','etOverPtLeadTrkMin','etOverPtLeadTrkMax']
+                        theThresh = self.thresholdsEF_singlepion[(criteria, int(threshold))]
+                        currentHypo = EFTauDiKaonHypo(currentHypoKey, theVars, theThresh)
+                    elif criteria=='medium1HighptL' or criteria=='medium1HighptM' or criteria=='medium1HighptH':
+                        from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo_highpt
+                        theVars = ['NTrackMax', 'EtCalibMin', 'Level','HighptTrkThr','HighptIDThr','HighptJetThr']
+                        theThresh = self.thresholdsEF[(criteria, int(threshold))]
+                        theThresh.extend(self.thresholdsHighpt[(criteria)])
+                        currentHypo = EFTauMVHypo_highpt(currentHypoKey, theVars, theThresh)
                     else:
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
                         theVars = ['NTrackMax', 'EtCalibMin', 'Level']
                         theThresh = self.thresholdsEF[(criteria, int(threshold))]
                         currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
 
-        if strategy == 'calo' or strategy =='ptonly' or strategy == 'mvonly' or strategy == 'caloonly' or strategy == 'track' or strategy == 'trackonly' or strategy == 'tracktwo' or strategy == 'trackcalo' or strategy == 'tracktwocalo' or strategy == 'tracktwo2015' or strategy == 'FTK' or strategy == 'FTKRefit':
+        if strategy == 'calo' or strategy =='ptonly' or strategy == 'mvonly' or strategy == 'caloonly' or strategy == 'track' or strategy == 'trackonly' or strategy == 'tracktwo' or strategy == 'trackcalo' or strategy == 'tracktwocalo' or strategy == 'tracktwo2015' or strategy == 'FTK' or strategy == 'FTKRefit' or strategy == 'FTKNoPrec':
 
             # Simple implementation of 2015 pre-selection
             currentHypoKey = 'l2'+part+'_tau'+threshold+'_'+criteria+'_'+strategy
@@ -116,16 +132,22 @@ class TauHypoProvider:
             if part == 'id':
                 from TrigTauHypo.TrigTauHypoBase import HLTTrackTauHypo
                 from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
+                from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo_highpt
                 # Important Note: the pT cut here is an unused dummy
                 if criteria != 'cosmic':
-                    if strategy != 'tracktwo':
+                    if strategy != 'tracktwo' and strategy != 'FTK' and strategy != 'FTKRefit' and strategy != 'FTKNoPrec':
                         theVars = ['LowerPtCut','LowerTrackPtCut']
                         theThresh = [int(threshold)*self.GeV,1.*self.GeV]
                         currentHypo = HLTTrackTauHypo(currentHypoKey, theVars, theThresh)
                     else:
                         theVars = ['NTrackMin','NTrackMax','NWideTrackMax','EtCalibMin', 'Level','Method']
                         theThresh = [1,3,1,0.*self.GeV,-1111,0]
-                        currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
+                        if criteria=='medium1HighptL' or criteria=='medium1HighptM' or criteria=='medium1HighptH':
+                            theVars.extend(['HighptTrkThr','HighptIDThr','HighptJetThr'])
+                            theThresh.extend(self.thresholdsHighpt[(criteria)])
+                            currentHypo = EFTauMVHypo_highpt(currentHypoKey, theVars, theThresh)
+                        else:
+                            currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
                 else:
                     theVars = ['LowerPtCut', 'TracksInCoreCut', 'TracksInIsoCut', 'DeltaZ0Cut']
                     theThresh = [int(threshold)*self.GeV, 9999, 9999, 9999.]
@@ -211,14 +233,15 @@ class TauHypoProvider:
         ('loose1', 80): [3,  80.0*GeV, 1],
         ('loose1', 115): [3, 115.0*GeV, 1],
         ('loose1', 125): [3, 125.0*GeV, 1], 
-        ('loose1', 160): [3, 160.0*GeV, 1], 
+        ('loose1', 160): [3, 160.0*GeV, 1],
+        ('medium1', 0): [3,  0.0*GeV, 2], 
         ('medium1', 20): [3,  20.0*GeV, 2],
         ('medium1', 25): [3,  25.0*GeV, 2],
         ('medium1', 29): [3,  29.0*GeV, 2],
         ('medium1', 35): [3,  35.0*GeV, 2],
         ('medium1', 38): [3,  38.0*GeV, 2],
         ('medium1', 50): [3,  50.0*GeV, 2],
-        ('medium1', 60): [3,  60.0*GeV, 1],
+        ('medium1', 60): [3,  60.0*GeV, 2],
         ('medium1', 80): [3,  80.0*GeV, 2],
         ('medium1', 115): [3, 115.0*GeV, 2],
         ('medium1', 125): [3, 125.0*GeV, 2], 
@@ -229,11 +252,50 @@ class TauHypoProvider:
         ('tight1', 35): [3,  35.0*GeV, 3],
         ('tight1', 38): [3,  38.0*GeV, 3],
         ('tight1', 50): [3,  50.0*GeV, 3],
-        ('tight1', 60): [3,  60.0*GeV, 1],
+        ('tight1', 60): [3,  60.0*GeV, 3],
         ('tight1', 80): [3,  80.0*GeV, 3],
         ('tight1', 115): [3, 115.0*GeV, 3],
         ('tight1', 125): [3, 125.0*GeV, 3], 
-        ('tight1', 160): [3, 160.0*GeV, 3] 
+        ('tight1', 160): [3, 160.0*GeV, 3],
+        ('medium1HighptL', 20): [3,  20.0*GeV, 2],
+        ('medium1HighptL', 25): [3,  25.0*GeV, 2],
+        ('medium1HighptL', 29): [3,  29.0*GeV, 2],
+        ('medium1HighptL', 35): [3,  35.0*GeV, 2],
+        ('medium1HighptL', 38): [3,  38.0*GeV, 2],
+        ('medium1HighptL', 50): [3,  50.0*GeV, 2],
+        ('medium1HighptL', 60): [3,  60.0*GeV, 2],
+        ('medium1HighptL', 80): [3,  80.0*GeV, 2],
+        ('medium1HighptL', 115): [3, 115.0*GeV, 2],
+        ('medium1HighptL', 125): [3, 125.0*GeV, 2],
+        ('medium1HighptL', 160): [3, 160.0*GeV, 2],
+        ('medium1HighptM', 20): [3,  20.0*GeV, 2],
+        ('medium1HighptM', 25): [3,  25.0*GeV, 2],
+        ('medium1HighptM', 29): [3,  29.0*GeV, 2],
+        ('medium1HighptM', 35): [3,  35.0*GeV, 2],
+        ('medium1HighptM', 38): [3,  38.0*GeV, 2],
+        ('medium1HighptM', 50): [3,  50.0*GeV, 2],
+        ('medium1HighptM', 60): [3,  60.0*GeV, 2],
+        ('medium1HighptM', 80): [3,  80.0*GeV, 2],
+        ('medium1HighptM', 115): [3, 115.0*GeV, 2],
+        ('medium1HighptM', 125): [3, 125.0*GeV, 2],
+        ('medium1HighptM', 160): [3, 160.0*GeV, 2],
+        ('medium1HighptH', 20): [3,  20.0*GeV, 2],
+        ('medium1HighptH', 25): [3,  25.0*GeV, 2],
+        ('medium1HighptH', 29): [3,  29.0*GeV, 2],
+        ('medium1HighptH', 35): [3,  35.0*GeV, 2],
+        ('medium1HighptH', 38): [3,  38.0*GeV, 2],
+        ('medium1HighptH', 50): [3,  50.0*GeV, 2],
+        ('medium1HighptH', 60): [3,  60.0*GeV, 2],
+        ('medium1HighptH', 80): [3,  80.0*GeV, 2],
+        ('medium1HighptH', 115): [3, 115.0*GeV, 2],
+        ('medium1HighptH', 125): [3, 125.0*GeV, 2],
+        ('medium1HighptH', 160): [3, 160.0*GeV, 2] 
+        }
+
+    thresholdsHighpt = {
+        ('medium1HighptL'):[250.0*GeV,330.0*GeV,410.0*GeV], 
+        ('medium1HighptM'):[200.0*GeV,330.0*GeV,410.0*GeV],
+        ('medium1HighptH'):[160.0*GeV,330.0*GeV,410.0*GeV]   
         }
 
     thresholdsEF_dikaon = {
@@ -242,3 +304,16 @@ class TauHypoProvider:
         ('dikaontight', 25): [0.2*GeV, 0.45*GeV, 15.0*GeV, 25.0*GeV, 1.0],
         ('dikaontight', 35): [0.2*GeV, 0.45*GeV, 25.0*GeV, 35.0*GeV, 1.0]
         }
+    thresholdsEF_dikaonmass = {
+        ('dikaonmass', 25): [0.987*GeV, 1.060*GeV, 15.0*GeV, 25.0*GeV, 1.5, 1],
+        ('dikaonmass', 35): [0.987*GeV, 1.060*GeV, 25.0*GeV, 35.0*GeV, 1.5, 1],
+        ('dikaonmasstight', 25): [0.987*GeV, 1.060*GeV, 15.0*GeV, 25.0*GeV, 1.0, 1],
+        ('dikaonmasstight', 35): [0.987*GeV, 1.060*GeV, 25.0*GeV, 35.0*GeV, 1.0, 1]
+        }
+
+
+    thresholdsEF_singlepion = {
+        ('singlepion', 25): [30.0*GeV, 25.0*GeV, 1, 0, 0.06, 0.4, 0.85],
+        ('singlepiontight', 25): [30.0*GeV, 25.0*GeV, 1, 0, 0.06, 0.4, 0.80]
+        }
+

@@ -7,12 +7,43 @@ __version__ = ""
 __doc__="Implementation of Missing ET slice in new TM framework "
 ##########################################################
 
+from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-logMETDef = logging.getLogger("TriggerMenu.met.MissingETDef")
+log = logging.getLogger("TriggerMenu.met.MissingETDef")
 
+from TrigEFMissingET.TrigEFMissingETConfig import (EFMissingET_Fex_2sidednoiseSupp,
+                                                   EFMissingET_Fex_Jets,
+                                                   EFMissingET_Fex_topoClusters,
+                                                   EFMissingET_Fex_topoClustersPS, 
+                                                   EFMissingET_Fex_topoClustersPUC)
+
+from TrigL2MissingET.TrigL2MissingETConfig import (L2CaloMissingET_Fex_ReadL2L1,
+                                                   L2MissingET_Fex)
+
+from TrigMissingETHypo.TrigMissingETHypoConfig import (EFMetHypoJetsXE,
+                                                       EFMetHypoTCPSXE,
+                                                       EFMetHypoTCPUCXE, 
+                                                       EFMetHypoTCXE,
+                                                       EFMetHypoTE,
+                                                       EFMetHypoXE, 
+                                                       EFMetHypoXS_2sided,
+                                                       L2MetHypoFEBXE,
+                                                       L2MetHypoXE)
+
+from TrigMissingETMuon.TrigMissingETMuonConfig import (EFTrigMissingETMuon_Fex,
+                                                       EFTrigMissingETMuon_Fex_Jets,
+                                                       EFTrigMissingETMuon_Fex_topocl,
+                                                       EFTrigMissingETMuon_Fex_topoclPS,
+                                                       EFTrigMissingETMuon_Fex_topoclPUC,
+                                                       L2CaloTrigMissingETMuon_Fex,
+                                                       L2TrigMissingETMuon_Fex)
+
+from TriggerMenu.jet.JetDef import generateHLTChainDef
+from TriggerMenu.menu import DictFromChainName
 from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
-from AthenaCommon.SystemOfUnits import GeV
+from TriggerMenu.menu.MenuUtils import splitChainDict
+from TriggerMenu.muon.MuonDef import L2EFChain_mu
 
 #############################################################################
 class L2EFChain_met(L2EFChainDef):
@@ -77,17 +108,14 @@ class L2EFChain_met(L2EFChainDef):
         #--------------------------------------
         #obtaining the muon sequences & signature:
         #--------------------------------------
-        logMETDef.info("Creating muon sequence")
+        log.debug("Creating muon sequence")
         
         chain = ['mu8', 'L1_MU6',  [], ["Main"], ['RATE:SingleMuon', 'BW:Muon'], -1]
 
-        from TriggerMenu.menu import DictFromChainName
         theDictFromChainName = DictFromChainName.DictFromChainName()
         muonChainDict = theDictFromChainName.getChainDict(chain)
-        from TriggerMenu.menu.MenuUtils import *
         listOfChainDicts = splitChainDict(muonChainDict)
         muDict = listOfChainDicts[0]
-        from TriggerMenu.muon.MuonDef import L2EFChain_mu
         muDict['chainCounter'] = 9150
         muonthing = L2EFChain_mu(muDict, False, ['8GeV']) 
         muonSeed = muonthing.EFsignatureList[-1][0][0]
@@ -100,24 +128,18 @@ class L2EFChain_met(L2EFChainDef):
 
         ########### Imports for hypos and fexes  ###########
         ##L1 MET 
-        from TrigL2MissingET.TrigL2MissingETConfig import L2MissingET_Fex
         theL2Fex     = L2MissingET_Fex()
-        from TrigMissingETMuon.TrigMissingETMuonConfig import L2TrigMissingETMuon_Fex
         theL2MuonFex = L2TrigMissingETMuon_Fex()
         
         ##FEB MET at L2
-        from TrigL2MissingET.TrigL2MissingETConfig import L2CaloMissingET_Fex_ReadL2L1
         theL2FEBL1Check  =  L2CaloMissingET_Fex_ReadL2L1()
         
-        from TrigMissingETMuon.TrigMissingETMuonConfig import L2CaloTrigMissingETMuon_Fex
         theL2FEBMuonFex  =  L2CaloTrigMissingETMuon_Fex() 
 
         mucorr=  '_wMu' if L2muon else '' 
         if L2recoAlg=="L2FS":
-            from TrigMissingETHypo.TrigMissingETHypoConfig import L2MetHypoFEBXE
             theL2MuonHypo  =  L2MetHypoFEBXE(name='L2MetHypo_xe%d%s_FEB'%(threshold,mucorr),l2_thr=threshold*GeV)
         else:            
-            from TrigMissingETHypo.TrigMissingETHypoConfig import L2MetHypoXE
             theL2MuonHypo  =  L2MetHypoXE('L2MetHypo_xe_noL2%s' %mucorr,l2_thr=threshold*GeV)
 
 
@@ -128,59 +150,45 @@ class L2EFChain_met(L2EFChainDef):
             ##Topo-cluster
             if EFrecoAlg=='tc':
                 #MET fex
-                from TrigEFMissingET.TrigEFMissingETConfig import EFMissingET_Fex_topoClusters 
                 theEFMETFex     = EFMissingET_Fex_topoClusters()                         
                 #Muon correction fex
-                from TrigMissingETMuon.TrigMissingETMuonConfig import EFTrigMissingETMuon_Fex_topocl
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_topocl()        
 
                 #TC hypo
                 #mucorr=  '_wMu' if EFmuon else ''      
-                from TrigMissingETHypo.TrigMissingETHypoConfig import EFMetHypoTCXE           
 
                 if self.chainPart['trigType'] == "xs":
-                    from TrigMissingETHypo.TrigMissingETHypoConfig import EFMetHypoXS_2sided
                     theEFMETHypo = EFMetHypoXS_2sided('EFMetHypo_xs_2sided_%i%s' % (threshold, mucorr),ef_thr=float(threshold)*0.1)
                 elif  self.chainPart['trigType'] == "te":
-                    from TrigMissingETHypo.TrigMissingETHypoConfig import EFMetHypoTE
                     theEFMETHypo = EFMetHypoTE('EFMetHypo_te%d' % threshold,ef_thr=float(threshold)*GeV)
                 else:               
                     theEFMETHypo = EFMetHypoTCXE('EFMetHypo_TC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)  
                 
             if EFrecoAlg=='pufit':
                 #MET fex
-                from TrigEFMissingET.TrigEFMissingETConfig import EFMissingET_Fex_topoClustersPUC
                 theEFMETFex = EFMissingET_Fex_topoClustersPUC() 
                 #Muon correction fex
-                from TrigMissingETMuon.TrigMissingETMuonConfig import EFTrigMissingETMuon_Fex_topoclPUC
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPUC()
                 mucorr= '_wMu' if EFmuon else '' 
-                from TrigMissingETHypo.TrigMissingETHypoConfig import EFMetHypoTCPUCXE 
                 theEFMETHypo = EFMetHypoTCPUCXE('EFMetHypo_TCPUC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
 
             ##MET based on trigger jets
             if EFrecoAlg=='mht':
                 #MET fex
-                from TrigEFMissingET.TrigEFMissingETConfig import EFMissingET_Fex_Jets
                 theEFMETFex = EFMissingET_Fex_Jets()
                 #Muon correction fex
-                from TrigMissingETMuon.TrigMissingETMuonConfig import EFTrigMissingETMuon_Fex_Jets
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_Jets()
                 #mucorr= '_wMu' if EFmuon else ''
-                from TrigMissingETHypo.TrigMissingETHypoConfig import EFMetHypoJetsXE
                 theEFMETHypo = EFMetHypoJetsXE('EFMetHypo_Jets_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
                 
         
             ##Topo-cluster with Pile-up suppression
             if EFrecoAlg=='pueta':
                 #MET fex
-                from TrigEFMissingET.TrigEFMissingETConfig import EFMissingET_Fex_topoClustersPS 
                 theEFMETFex = EFMissingET_Fex_topoClustersPS() 
                 #Muon correction fex
-                from TrigMissingETMuon.TrigMissingETMuonConfig import EFTrigMissingETMuon_Fex_topoclPS
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPS()        
 
-                from TrigMissingETHypo.TrigMissingETHypoConfig import EFMetHypoTCPSXE                          
                 theEFMETHypo = EFMetHypoTCPSXE('EFMetHypo_TCPS_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
 
 
@@ -188,37 +196,30 @@ class L2EFChain_met(L2EFChainDef):
         ##2-SidedNoise Cell
         elif EFrecoAlg=='cell':
             #MET fex
-            from TrigEFMissingET.TrigEFMissingETConfig import EFMissingET_Fex_2sidednoiseSupp
             theEFMETFex = EFMissingET_Fex_2sidednoiseSupp()
 
             #Muon correction fex
-            from TrigMissingETMuon.TrigMissingETMuonConfig import EFTrigMissingETMuon_Fex
             theEFMETMuonFex = EFTrigMissingETMuon_Fex()        
             
             #Hypo
             if self.chainPart['trigType'] == "xs":
-                from TrigMissingETHypo.TrigMissingETHypoConfig import EFMetHypoXS_2sided
                 theEFMETHypo = EFMetHypoXS_2sided('EFMetHypo_xs_2sided_%d%s' % (threshold, mucorr),ef_thr=float(threshold)*0.1)                    
             elif  self.chainPart['trigType'] == "te":
-                from TrigMissingETHypo.TrigMissingETHypoConfig import EFMetHypoTE
                 theEFMETHypo = EFMetHypoTE('EFMetHypo_te%d'% threshold,ef_thr=threshold*GeV)
             else:               
-                from TrigMissingETHypo.TrigMissingETHypoConfig import EFMetHypoXE 
                 theEFMETHypo = EFMetHypoXE('EFMetHypo_xe%s%s'%(threshold,mucorr),ef_thr=float(threshold)*GeV)  
 
         else:
-            logMETDef.warning("MET EF algorithm not recognised")
+            log.warning("MET EF algorithm not recognised")
         
         #----------------------------------------------------
         # Obtaining the needed jet TEs from the jet code
         #----------------------------------------------------
         chain = ['j0_lcw', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
         
-        from TriggerMenu.menu import DictFromChainName
         theDictFromChainName = DictFromChainName.DictFromChainName()
         jetChainDict = theDictFromChainName.getChainDict(chain)
         
-        from TriggerMenu.jet.JetDef import generateHLTChainDef
         jetChainDict['chainCounter'] = 9151
         jetChainDef = generateHLTChainDef(jetChainDict)
             
@@ -237,10 +238,15 @@ class L2EFChain_met(L2EFChainDef):
         output1 =jetChainDef.sequenceList[1]['output']
         algo1 =jetChainDef.sequenceList[1]['algorithm']
 
-        #obtaining TrigHLTJetRecFromCluster
+        #obtaining TrigHLTEnergyDensity
         input2=jetChainDef.sequenceList[2]['input']
         output2 =jetChainDef.sequenceList[2]['output']
         algo2 =jetChainDef.sequenceList[2]['algorithm']
+
+        #obtaining TrigHLTJetRecFromCluster
+        input3=jetChainDef.sequenceList[3]['input']
+        output3 =jetChainDef.sequenceList[3]['output']
+        algo3 =jetChainDef.sequenceList[3]['algorithm']
 
 
         #---End of obtaining jet TEs------------------------------
@@ -280,8 +286,8 @@ class L2EFChain_met(L2EFChainDef):
             self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
             self.EFsequenceList +=[[ input1,algo1,  output1 ]]            
             self.EFsequenceList +=[[ input2,algo2,  output2 ]]            
-
-            self.EFsequenceList +=[[ [output2], [theEFMETFex], 'EF_xe_step1' ]]
+            self.EFsequenceList +=[[ input3,algo3,  output3 ]]            
+            self.EFsequenceList +=[[ [output3], [theEFMETFex], 'EF_xe_step1' ]]
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
 
         #cell based MET

@@ -7,6 +7,7 @@ __version__="Implementation of Tau Slice"
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
+log = logging.getLogger(__name__)
 
 from AthenaCommon.SystemOfUnits import mm
 
@@ -15,26 +16,21 @@ try:
     from TriggerMenu.tau.TauDefIdTest import L2EFChain_tau as L2EFChain_tau_IdTest
 except:
     log.error('generateTauChainDefs: Problems when importing TauDefIdTest.')
+    import traceback
     log.info(traceback.print_exc())
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-from TriggerMenu.menu.MenuUtils import *
+from TriggerMenu.menu.MenuUtils import splitChainDict, mergeChainDefs
 
 # Try new HypoProvider
 from TriggerMenu.tau.TauHypoProvider import TauHypoProvider
 
 
-Taus = []
-
 ##########################################################################################
 ##########################################################################################
-
 
 
 def generateChainDefs(chainDict):          
 
-    chainParts = chainDict['chainParts']
-    
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []
 

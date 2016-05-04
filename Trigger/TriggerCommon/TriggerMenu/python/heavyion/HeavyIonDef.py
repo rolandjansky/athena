@@ -7,54 +7,26 @@
 #########################################################################
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
+log = logging.getLogger(__name__)
 
-logHeavyIonDef = logging.getLogger("TriggerMenu.heavyion.HeavyIonDef")
+from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
 
-from AthenaCommon import CfgGetter
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from TrigT2MinBias.TrigT2MinBiasConfig import MbMbtsHypo, L2MbMbtsFex, L2MbSpFex, L2MbSpUPC
 
-import re
-
-from TriggerJobOpts.TriggerFlags            import TriggerFlags
-
-from TriggerMenu.heavyion.HeavyIonSliceFlags  import HeavyIonSliceFlags
-
-from TriggerMenu.menu.HltConfig import *
-
-from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
-
-#theTrigEFIDInsideOut_FullScan = TrigEFIDSequence("FullScan","fullScan")
-
-from TrigT2MinBias.TrigT2MinBiasConfig import *
 from InDetTrigRecExample.EFInDetConfig import TrigEFIDSequence
 #fexes.efid = TrigEFIDSequence("minBias","minBias","InsideOut").getSequence()
 #fexes.efid2P = TrigEFIDSequence("minBias2P","minBias2","InsideOutLowPt").getSequence()
-
 efiddataprep = TrigEFIDSequence("minBias","minBias","DataPrep").getSequence()
 efid = TrigEFIDSequence("minBias","minBias","InsideOut").getSequence()
 efid_heavyIon = TrigEFIDSequence("heavyIonFS","heavyIonFS","InsideOut").getSequence()
 efid2P = TrigEFIDSequence("minBias2P","minBias2","InsideOutLowPt").getSequence()
 
-from TrigMinBias.TrigMinBiasConfig import *
-
-
 from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyRoI
-from TrigGenericAlgs.TrigGenericAlgsConf import PrescaleAlgo
 dummyRoI=DummyRoI(name='MinBiasDummyRoI', createRoIDescriptors = True, NumberOfOutputTEs=1)
-terminateAlgo = PrescaleAlgo('terminateAlgo')
-
 
 # for HI
 from TrigHIHypo.TrigHIHypoConfig import HIEFTrackHypo_AtLeastOneTrack
 atLeastOneTrack = HIEFTrackHypo_AtLeastOneTrack(name='HIEFTrackHypo_AtLeastOneTrack')
-
-from TrigHIHypo.TrigHIHypoConfig import *
-#hypos.update(hi_hypos)
-
-#L2 pileup suppression
-from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_FullScan_ZF_OnlyA  #TrigL2SiTrackFinder_FullScanA_ZF_OnlyA
-
-theL2PileupSup = TrigL2SiTrackFinder_FullScan_ZF_OnlyA()
 
 ###########################################################################
 #  All min bias

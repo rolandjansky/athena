@@ -7,19 +7,20 @@
 __author__  = 'M.Backes, C.Bernius, O.Igonkina, P.Bell'
 __version__=""
 __doc__="Implementation of calib trigger sequence "
-from TriggerMenu.menu.HltConfig import *
-from AthenaCommon.Include import include
-from AthenaCommon.SystemOfUnits import GeV
-from TriggerJobOpts.TriggerFlags                       import TriggerFlags
 
+from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-mlog = logging.getLogger("TriggerMenu.calibcosmic.CalibDef")
+log = logging.getLogger(__name__)
 
+from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
+from TrigDetCalib.TrigDetCalibConfig import (LArL2ROBListWriter, 
+                                             TileROBSelector,
+                                             CSCSubDetListWriter,
+                                             L2ROBListWriter)
 
-from TrigDetCalib.TrigDetCalibConfig import *
-#from TrigSteeringTest.TrigSteeringTestConf import PESA__dummyAlgo
 ###########################################################################
 # Helper classes
 ###########################################################################
@@ -100,11 +101,11 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
       #   self.L2InputTE = self.L2InputTE.replace("L1_","")
       #   self.L2InputTE = self.L2InputTE.split("_")[0]
       #   self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
-      
+      #roi1 = 'HA8'
       if 'idcalib' in self.chainPart['purpose']:         
         if not 'HI_' in TriggerFlags.triggerMenuSetup():
           roi1 = 'HA8'
-          #mlog.info('Using '+roi1+' as ROI for calibtrk chains, triggered by non-HI menuname)
+          #log.info('Using '+roi1+' as ROI for calibtrk chains, triggered by non-HI menuname)
           self.L2InputTE = roi1
         self.setupTrkCalibChains()
       elif 'ibllumi' in self.chainPart['purpose']:
@@ -130,8 +131,11 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         self.setupL1SaturatedMon()
       elif 'zdcpeb' in self.chainPart['purpose']:
         self.setupZDCPEBChains()
+      elif 'calibAFP' in self.chainPart['purpose']:
+        self.setupAFPCalibrationChains()
+        
       else:
-         mlog.error('Chain %s could not be assembled' % (self.chainPartName))
+         log.error('Chain %s could not be assembled' % (self.chainPartName))
          return False      
 
       L2EFChainDef.__init__(self, self.chainName, self.L2Name, self.chainCounter,
@@ -216,7 +220,7 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
             self.AlgList = [alg]
         
       if len(self.AlgList) == 0:
-         mlog.error('Chain %s could not be assembled' % (self.chainPartName))
+         log.error('Chain %s could not be assembled' % (self.chainPartName))
          return False      
 
       self.L2sequenceList += [[self.L2InputTE, self.AlgList, 'L2_']]
@@ -246,7 +250,7 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         self.L2sequenceList += [[ ['L2_step1'], [self.l2_tileSubDetListWriter], 'L2_step2']]
         Tespecifier='Tilesubdetlistwriter'
       else:
-        mlog.error('Cannot find the right sequence for this chain.')
+        log.error('Cannot find the right sequence for this chain.')
         Tespecifier=''
 
       self.L2signatureList += [ [['L2_step1']] ]
@@ -277,6 +281,26 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.TErenamingDict = {
        'L2_':     'L2_l1ALFAcalib',
        }
+
+
+   ###########################################################################
+   # AFP Calibration chains
+   ###########################################################################
+   def setupAFPCalibrationChains(self):
+     
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     
+     l2_AFPSubDetListWriter = TrigSubDetListWriter("AFPSubDetListWriter")
+     l2_AFPSubDetListWriter.SubdetId = ['TDAQ_CTP','FORWARD_AFP']
+     l2_AFPSubDetListWriter.MaxRoIsPerEvent=1
+     
+     self.robWriter = [l2_AFPSubDetListWriter]            
+     self.L2sequenceList += [['', self.robWriter, 'L2_']]
+     
+     self.L2signatureList += [[['L2_']]]
+     self.TErenamingDict = {
+       'L2_':     'L2_l1AFPcalib',
+       }
      
    ###########################################################################
    # LarNoiseBurst chains
@@ -285,7 +309,6 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
 
      from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyAlgo
      theDummyRoiCreator = DummyAlgo('RoiCreator')
-     efht_thresh = '10'
 
      from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_jet_fullcalo
      theTrigCaloCellMaker_jet_fullcalo = TrigCaloCellMaker_jet_fullcalo("CellMakerFullCalo_topo", doNoise=0, AbsE=True, doPers=True)
@@ -350,7 +373,6 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
    ###########################################################################
    def setupL1SaturatedMon(self):
 
-     threshold=self.chainName.split("_")[0].replace("l1satmon","")
      from TrigCaloRec.TrigCaloRecConf import TrigL1BSTowerMaker
      from TrigCaloRec.TrigCaloRecConfig import TrigL1BSTowerHypoConfig
      theL1BS = TrigL1BSTowerMaker()
@@ -365,7 +387,6 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.TErenamingDict = { 'L2_l1bs_step1':  mergeRemovingOverlap('L2_', self.chainName.replace(".","")+'_l1bs'),
                              'L2_l1bs_step2':  mergeRemovingOverlap('L2_', self.chainName.replace(".","")+'_l1bsHypo'),
      }
-     print self
 
 
    ###########################################################################
@@ -417,7 +438,6 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.L2sequenceList += [['', self.robWriter, 'L2_alfaid']]     
      self.L2signatureList += [[['L2_alfaid']]]
 
-
 #####################################################################
    def setupZDCPEBChains(self):
      from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
@@ -428,4 +448,5 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.robWriter = [zdcSubDetListWriter]            
      self.L2sequenceList += [['', self.robWriter, 'L2_zdc']]     
      self.L2signatureList += [[['L2_zdc']]]
+
 

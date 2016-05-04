@@ -5,9 +5,41 @@ from Lvl1MenuItems import LVL1MenuItem
 
 from PrescaleHelper import getCutFromPrescale
 
+from Logic import Logic
+from Lvl1Condition import Lvl1InternalTrigger, ThrCondition
+from CaloInfo import MinimumTOBPt
+from Lvl1MonCounters import Lvl1MonCounters, Lvl1CtpinCounter, Lvl1CtpmonCounter
+
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerConfigLVL1")
+
+
+def readLogic( logicElement, thresholdMap ):
+
+    if logicElement.tag == 'InternalTrigger':
+        return Lvl1InternalTrigger( logicElement.get('name') )
+
+    if logicElement.tag == 'TriggerCondition':
+        thr = thresholdMap[ logicElement.get('triggerthreshold') ]
+        return ThrCondition(thr, int(logicElement.get('multi')) )
+    
+    L = Logic()
+    if logicElement.tag == 'AND':
+        L.logic = Logic.AND
+    elif logicElement.tag == 'OR':
+        L.logic = Logic.OR
+    elif logicElement.tag == 'NOT':
+        L.logic = Logic.NOT
+    else:
+        raise RuntimeError("ERROR: don't understand tag %s" % logicElement.tag)
+
+    for c in logicElement.getchildren():
+        L.subConditions += [ readLogic(c, thresholdMap) ]
+
+    return L
+    
+
 
 def readMenuFromXML(l1menu, filename):
 
@@ -42,28 +74,12 @@ def readMenuFromXML(l1menu, filename):
         else:
             psMap[int(ps['ctpid'])] = getCutFromPrescale(int(ps.strippedText())) # old style
 
-    # Items
-    for x in reader.getL1Items():
-        ctpid            = int(x['ctpid'])
-        complex_deadtime = int(x['complex_deadtime'] if 'complex_deadtime' in x else prioMap[ctpid])
-        psCut            = psMap[ctpid]
-        triggerType      = int( x['trigger_type'], 2 )
 
-        item = LVL1MenuItem(x['name'], ctpid = ctpid, complex_deadtime = complex_deadtime, psCut = psCut).setTriggerType( triggerType )
-
-        if 'monitor' in x and x['monitor'].startswith('LF'):
-            lf,hf = [ int(m[-3:],2) for m in x['monitor'].split('|') ]
-            from TriggerMenu.l1menu.MonitorDef import MonitorDef
-            item.addMonitor(lf, MonitorDef.LOW_FREQ)
-            item.addMonitor(hf, MonitorDef.HIGH_FREQ)
-
-        l1menu.addItem( item )
-
-    # Thresholds
+    # Thresholds from the TriggerThresholds section
     for x in reader.getL1Thresholds():
         seed = seed_type = ''
         seed_multi = bcdelay = 0
-        
+
         if x['type']=='ZB':
             seed       = x['seed']
             seed_multi = x['seed_multi']
@@ -76,9 +92,9 @@ def readMenuFromXML(l1menu, filename):
             si = ca.Signal
             firstbit = int(si['range_begin'])
             lastbit = int(si['range_end'])
-            thr = LVL1TopoInput( thresholdName = x['name'], mapping = int(x['mapping']), connector = ca['connector'],
+
+            thr = LVL1TopoInput( thresholdName = x['name'], ttype = x['type'], mapping = int(x['mapping']), connector = ca['connector'],
                                  firstbit = firstbit, numberOfBits = lastbit - firstbit + 1, clock = int(si['clock']))
-            
         else:
             thr = LVL1Threshold( name=x['name'], ttype=x['type'], mapping = x['mapping'], active = x['active'],
                                  seed_type = seed_type, seed = seed, seed_multi = seed_multi, bcdelay = bcdelay)
@@ -86,9 +102,9 @@ def readMenuFromXML(l1menu, filename):
 
         ca = x.Cable
         thr.setCableInput()
-        print "x[bitnum]", x['bitnum']
-        print "type x[bitnum]", type(x['bitnum'])
-        print "x['type']", x['type']
+        #print "x[bitnum]", x['bitnum']
+        #print "type x[bitnum]", type(x['bitnum'])
+        #print "x['type']", x['type']
 
 
         # overwrite cable info with data from xml file
@@ -116,12 +132,44 @@ def readMenuFromXML(l1menu, filename):
                     had_isolation = int(xV['had_isolation'])
                     had_veto = int(xV['had_veto'])
                     isobits = xV['isobits'] if 'isobits' in xV else '00000'
-                    use_relIso = xV['use_relIso'] if 'use_relIso' in xV else False
+                    use_relIso = xV['use_relIso'] if 'use_relIso' in xV else True
                     thrVal.setIsolation(em_isolation, had_isolation, had_veto, isobits, use_relIso)
                 
                 thr.thresholdValues.append(thrVal)
 
         l1menu.thresholds.thresholds += [ thr ]
+
+    # for faster lookup, needed when building the items
+    thresholdMap = {}
+    for thr in l1menu.thresholds:
+        thresholdMap[thr.name] = thr
+
+    # Items
+    for itemelem in reader.getL1Items():
+        ctpid            = int(itemelem['ctpid'])
+        partition        = int(itemelem['partition'])
+        complex_deadtime = int(itemelem['complex_deadtime'] if 'complex_deadtime' in itemelem else prioMap[ctpid])
+        psCut            = psMap[ctpid]
+        triggerType      = int( itemelem['trigger_type'], 2 )
+
+        item = LVL1MenuItem( itemelem['name'], ctpid = ctpid, complex_deadtime = complex_deadtime, psCut = psCut).setTriggerType( triggerType )
+        item.partition = partition
+        
+        # read the thresholds for each item
+        if hasattr(itemelem,'AND'):
+            topLevelLogic = readLogic( itemelem.AND.element, thresholdMap )
+        else:
+            # L1_BGRP0 has no AND around, it is a single InternalTrigger
+            topLevelLogic = readLogic( itemelem.InternalTrigger.element, thresholdMap )
+        item.setLogic(topLevelLogic)
+
+        if 'monitor' in itemelem and itemelem['monitor'].startswith('LF'):
+            lf,hf = [ int(m[-3:],2) for m in itemelem['monitor'].split('|') ]
+            from TriggerMenu.l1menu.MonitorDef import MonitorDef
+            item.addMonitor(lf, MonitorDef.LOW_FREQ)
+            item.addMonitor(hf, MonitorDef.HIGH_FREQ)
+
+        l1menu.addItem( item )
 
 
 
@@ -170,3 +218,41 @@ def readMenuFromXML(l1menu, filename):
         # jet weights
         jw = [x[1] for x in sorted([ ( int(jw['num']),int(jw.strippedText())) for jw in reader.LVL1Config.CaloInfo.JetWeights])]
         l1menu.CaloInfo.setJetWeights(jw)
+
+
+
+    for iso in reader.LVL1Config.CaloInfo.Isolations:
+        isoGroupName = iso['thrtype']
+        for p in iso.Parametrizations:
+            l1menu.CaloInfo.isolation[isoGroupName].addIsolation( isobit=p['isobit'],
+                                                                  offset=p['offset'],
+                                                                  slope=p['slope'],
+                                                                  mincut=p['mincut'],
+                                                                  upperlimit=p['upperlimit'],
+                                                                  etamin=p['etamin'],
+                                                                  etamax=p['etamax'],
+                                                                  priority=p['priority'])
+
+
+    for mintobpt in reader.LVL1Config.CaloInfo.MinimumTOBPts:
+        l1menu.CaloInfo.minTOBPt += [ MinimumTOBPt( thrtype = mintobpt['thrtype'],
+                                                    ptmin = mintobpt['ptmin'],
+                                                    window = mintobpt['window'] if 'window' in mintobpt else 0,
+                                                    etamin  = mintobpt['etamin'],
+                                                    etamax = mintobpt['etamax'],
+                                                    priority = mintobpt['priority']) ]
+
+
+    # Trigger counters for monitoring
+    for triggercounter in reader.LVL1Config.TriggerCounterList.TriggerCounters:
+        counterType = triggercounter['type']
+
+        triggerCondition = triggercounter.TriggerCondition
+
+        if counterType=='CTPIN':
+            l1menu.counters.addCounter( Lvl1CtpinCounter(  triggerCondition['triggerthreshold'], triggerCondition['multi']) )
+        elif counterType=='CTPMON':
+            l1menu.counters.addCounter( Lvl1CtpmonCounter(  triggerCondition['triggerthreshold'], triggerCondition['multi']) )
+        else:
+            raise RuntimeError("Monitoring counter of unknown type '%s'" % counterType)
+

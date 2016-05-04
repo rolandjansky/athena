@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# flags
 from TriggerJobOpts.TriggerFlags                       import TriggerFlags
 from TriggerMenu.muon.MuonSliceFlags                   import MuonSliceFlags
 from TriggerMenu.bphysics.BphysicsSliceFlags           import BphysicsSliceFlags
@@ -20,43 +19,28 @@ from TriggerMenu.calibcosmicmon.BeamspotSliceFlags     import BeamspotSliceFlags
 from TriggerMenu.calibcosmicmon.EnhancedBiasSliceFlags import EnhancedBiasSliceFlags
 from TriggerMenu.test.TestSliceFlags                   import TestSliceFlags
 
-
-# hlt
 from TriggerMenu.menu.TriggerPythonConfig  import TriggerPythonConfig
-from TriggerMenu.menu.CPS  import addCPS
-
+from TriggerMenu.menu.CPS                  import addCPS
 from TriggerMenu.menu.Lumi                 import lumi, applyPrescales
-from TriggerMenu.menu.MenuUtil             import checkTriggerGroupAssignment, checkStreamConsistency, getStreamTagForRerunChains
-import TriggerMenu.menu.MenuUtils       
-import traceback
-import operator
-from copy import deepcopy
+from TriggerMenu.menu.MenuUtil             import checkTriggerGroupAssignment, checkStreamConsistency, getStreamTagForRerunChains,checkGroups
+from TriggerMenu.menu.HLTObjects           import HLTChain, HLTSequence
+from TriggerMenu.menu                      import StreamInfo, DictFromChainName
+import TriggerMenu.menu.MenuUtils
+
+import os, traceback, operator, commands, time
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenu.menu.GenerateMenu' )
 
 
-# HLTObjects
-from TriggerMenu.menu.HLTObjects            import HLTChain, HLTSequence
-
-
-def reportSliceImportError(flags):
-    if flags.signatures() == None or len(flags.signatures()) == 0:
-        log.warning("Error in configuration of "+flags.__class__.__name__+" but it is not required so we can continue")
-    else:
-        log.error("Error in configuration of "+flags.__class__.__name__)
-        raise
-
 _func_to_modify_the_menu = None
 _func_to_modify_signatures = None
 
 
-
-class GenerateMenu:
-    
+class GenerateMenu:   
     
     def overwriteSignaturesWith(f):
-        log.info('GenerateMenu: In overwriteSignaturesWith ')
+        log.info('In overwriteSignaturesWith ')
         global _func_to_modify_signatures
         if _func_to_modify_signatures != None:
             log.warning('Updating the function to modify signatures from %s to %s'\
@@ -64,7 +48,7 @@ class GenerateMenu:
         _func_to_modify_signatures = f
 
     def overwriteMenuWith(f):
-        log.info('GenerateMenu: In overwriteSignaturesWith ')
+        log.info('In overwriteSignaturesWith ')
         global _func_to_modify_the_menu
         if _func_to_modify_the_menu != None:
             log.warning('Updating the function to modify the menu from %s to %s'\
@@ -81,7 +65,9 @@ class GenerateMenu:
         self.chainDefs = []
         self.listOfErrorChainDefs = []
         self.signaturesOverwritten = False
-
+        self.L1Prescales = None
+        self.HLTPrescales = None
+        
         # flags
         self.doEgammaChains      = True
         self.doJetChains         = True
@@ -119,14 +105,13 @@ class GenerateMenu:
         == returns the list of chain names that are in the menu 
         """
         
-        log.info('GenerateMenu: In generateHLTConfig')                
-        log.debug('GenerateMenu: In generateHLTConfig: Creating list of all available slice signatures flags')
+        log.debug('Creating list of all available slice signatures flags')
         # make one big list of enabled signatures        
         chains = []
 
         if (CombinedSliceFlags.signatures() or EgammaSliceFlags.signatures()) and self.doEgammaChains:
             chains += EgammaSliceFlags.signatures()        
-            log.debug('GenerateMenu : Electrons and Photons : '+str(chains))
+            log.debug('GenerateMenu : Electrons and Photons : %s', chains)
         else:
             self.doEgammaChains   = False
 
@@ -142,90 +127,90 @@ class GenerateMenu:
 
         if (CombinedSliceFlags.signatures() or MuonSliceFlags.signatures()) and self.doMuonChains:
             chains += MuonSliceFlags.signatures()
-            log.debug('GenerateMenu : Muons : '+str(chains))
+            log.debug('GenerateMenu : Muons : %s', chains)
         else:
             self.doMuonChains = False
 
         if (CombinedSliceFlags.signatures() or BphysicsSliceFlags.signatures()) and self.doBphysicsChains:
             chains += BphysicsSliceFlags.signatures()
-            log.debug('GenerateMenu : Bphysics : '+str(chains))
+            log.debug('GenerateMenu : Bphysics : %s', chains)
         else:
             self.doBphysicsChains = False
 
         if (CombinedSliceFlags.signatures() or METSliceFlags.signatures()) and self.doMETChains:
             chains += METSliceFlags.signatures()
-            log.debug('GenerateMenu : MET : '+str(chains))
+            log.debug('GenerateMenu : MET : %s', chains)
         else:
             self.doMETChains = False
 
         if (CombinedSliceFlags.signatures() or TauSliceFlags.signatures()) and self.doTauChains:
             chains += TauSliceFlags.signatures()
-            log.debug('GenerateMenu : Tau : '+str(chains))
+            log.debug('GenerateMenu : Tau : %s', chains)
         else:
             self.doTauChains = False
 
         if (CombinedSliceFlags.signatures() or MinBiasSliceFlags.signatures()) and self.doMinBiasChains:
             chains += MinBiasSliceFlags.signatures()
-            log.debug('GenerateMenu : MinBias : '+str(chains))
+            log.debug('GenerateMenu : MinBias : %s', chains)
         else:
             self.doMinBiasChains = False
 
         if (CombinedSliceFlags.signatures() or HeavyIonSliceFlags.signatures()) and self.doHeavyIonChains:
             chains += HeavyIonSliceFlags.signatures()
-            log.debug('GenerateMenu : HeavyIon : '+str(chains))
+            log.debug('GenerateMenu : HeavyIon : %s', chains)
         else:
             self.doHeavyIonChains = False
 
         if CosmicSliceFlags.signatures() and self.doCosmicChains:
             chains += CosmicSliceFlags.signatures()
-            log.debug('GenerateMenu : Cosmic : '+str(chains))
+            log.debug('GenerateMenu : Cosmic : %s', chains)
         else:
             self.doCosmicChains = False
 
         if CalibSliceFlags.signatures() and self.doCalibrationChains:
             chains += CalibSliceFlags.signatures()
-            log.debug('GenerateMenu : Calibration : '+str(chains))
+            log.debug('GenerateMenu : Calibration : %s', chains)
         else:
             self.doCalibrationChains = False
 
         if StreamingSliceFlags.signatures() and self.doStreamingChains:
             chains += StreamingSliceFlags.signatures()            
-            log.debug('GenerateMenu : Streaming : '+str(chains))
+            log.debug('GenerateMenu : Streaming : %s', chains)
         else:
             self.doStreamingChains   = False
 
         if MonitorSliceFlags.signatures() and self.doMonitorChains:
             chains += MonitorSliceFlags.signatures()            
-            log.debug('GenerateMenu : Monitor : '+str(chains))
+            log.debug('GenerateMenu : Monitor : %s', chains)
         else:
             self.doMonitorChains   = False
 
         if BeamspotSliceFlags.signatures() and self.doBeamspotChains:
             chains += BeamspotSliceFlags.signatures()            
-            log.debug('GenerateMenu : Beamspot : '+str(chains))
+            log.debug('GenerateMenu : Beamspot : %s', chains)
         else:
             self.doBeamspotChains   = False
 
         if EnhancedBiasSliceFlags.signatures() and self.doEnhancedBiasChains:
             chains += EnhancedBiasSliceFlags.signatures()            
-            log.debug('GenerateMenu : EnhancedBias : '+str(chains))
+            log.debug('GenerateMenu : EnhancedBias : %s', chains)
         else:
             self.doEnhancedBiasChains   = False
 
         if TestSliceFlags.signatures() and self.doTestChains:
             chains += TestSliceFlags.signatures()            
-            log.debug('GenerateMenu : Test chains : '+str(chains))
+            log.debug('GenerateMenu : Test chains : %s', chains)
         else:
             self.doTestChains   = False
 
-        log.debug( 'Enabled before comb chains: '+str(chains) )
+        log.debug( 'Enabled before comb chains: %s', chains)
         if CombinedSliceFlags.signatures():
             chains += CombinedSliceFlags.signatures()
         else:
             self.doCombinedChains = False
-        log.debug( 'Enabled after comb chains: '+str(chains) )
+        log.debug( 'Enabled after comb chains: %s', chains)
         
-        log.debug('GenerateMenu : all Chains : '+str(chains))
+        log.debug('GenerateMenu : all Chains : %s', chains)
         return chains
         
 
@@ -234,7 +219,7 @@ class GenerateMenu:
         l1itemnames = [i.name for i in self.trigConfL1.menu.items]
         missingL1items = []
         for chain in chains:
-            log.debug('chain %s' % chain)
+            log.debug('chain %s', chain)
             l1item = chain[1]
             if (l1item not in l1itemnames) & (l1item != ''):
                 myl1item = getSpecificL1Seeds(l1item, self.trigConfL1.menu.items)
@@ -245,7 +230,7 @@ class GenerateMenu:
         if  len(missingL1items) > 0 :
             log.error('The following L1 items were not found in the corresponding L1 menu: '+str(missingL1items))
 
-        log.debug('GenerateMenu : all Chains : '+str(chains))
+        log.debug('GenerateMenu : all Chains : %s', chains)
         return chains
 
     def checkUnusedL1Items(self,chains):
@@ -256,7 +241,7 @@ class GenerateMenu:
         list(set(l1ItemsInHLTMenu))
         for l1ItemInL1Menu in l1ItemsInL1Menu:
             if not l1ItemInL1Menu in l1ItemsInHLTMenu:
-                log.warning('L1 item %s is not used by any HLT chain' % l1ItemInL1Menu)
+                log.info('L1 item %s is not used by any HLT chain' % l1ItemInL1Menu)
             
             
     def CheckIntraSignatureTopo(self,chainDicts):
@@ -283,7 +268,7 @@ class GenerateMenu:
             try:
                 import TriggerMenu.muon.generateMuonChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing MuonDef.py, disabling muon chains.')
+                log.error('Problems when importing MuonDef.py, disabling muon chains.')
                 log.info(traceback.print_exc())
                 self.doMuonChains = False
                         
@@ -291,7 +276,7 @@ class GenerateMenu:
             try:
                 import TriggerMenu.bphysics.generateBPhysicsChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing BphysicsDef.py, disabling Bphysics chains.')
+                log.error('Problems when importing BphysicsDef.py, disabling Bphysics chains.')
                 log.info(traceback.print_exc())
                 self.doBphysicsChains = False
                 
@@ -299,7 +284,7 @@ class GenerateMenu:
             try:
                 import TriggerMenu.met.generateMETChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing MissingETDef.py, disabling MET chains.')
+                log.error('Problems when importing MissingETDef.py, disabling MET chains.')
                 log.info(traceback.print_exc())
                 self.doMETChains = False
 
@@ -307,7 +292,7 @@ class GenerateMenu:
             try:
                 import TriggerMenu.tau.generateTauChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing TauDef.py, disabling tau chains.')
+                log.error('Problems when importing TauDef.py, disabling tau chains.')
                 log.info(traceback.print_exc())
                 self.doTauChains = False
 
@@ -316,7 +301,7 @@ class GenerateMenu:
                 import TriggerMenu.egamma.generateElectronChainDefs 
                 import TriggerMenu.egamma.generatePhotonChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing EgammaDef.py or PhotonDef.py, disabling egamma chains.')
+                log.error('Problems when importing EgammaDef.py or PhotonDef.py, disabling egamma chains.')
                 log.info(traceback.print_exc())
                 self.doEgammaChains = False
 
@@ -324,7 +309,7 @@ class GenerateMenu:
             try:
                 import TriggerMenu.jet.generateJetChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing JetDef.py or JetDef_HT.py, disabling jet chains.')
+                log.error('Problems when importing JetDef.py or JetDef_HT.py, disabling jet chains.')
                 log.info(traceback.print_exc())
                 self.doJetChains = False
 
@@ -332,7 +317,7 @@ class GenerateMenu:
             try:
                 import TriggerMenu.bjet.generateBjetChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing BjetDef.py disabling bjet chains.')
+                log.error('Problems when importing BjetDef.py disabling bjet chains.')
                 log.info(traceback.print_exc())
                 self.doBjetChains = False
 
@@ -340,7 +325,7 @@ class GenerateMenu:
             try:
                 import TriggerMenu.minbias.generateMinBiasChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing MinBiasDef.py, disabling MinBias chains.')
+                log.error('Problems when importing MinBiasDef.py, disabling MinBias chains.')
                 log.info(traceback.print_exc())
                 self.doMinBiasChains = False
 
@@ -348,7 +333,7 @@ class GenerateMenu:
             try:
                 import TriggerMenu.heavyion.generateHeavyIonChainDefs
             except:
-                log.error('GenerateMenu: Problems when importing HeavyIonDef.py, disabling HeavyIon chains.')
+                log.error('Problems when importing HeavyIonDef.py, disabling HeavyIon chains.')
                 log.info(traceback.print_exc())
                 self.doHeavyIonChains = False
 
@@ -356,7 +341,7 @@ class GenerateMenu:
             try:
                 import TriggerMenu.calibcosmicmon.generateCosmicChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing CosmicDef.py, disabling cosmic chains.')
+                log.error('Problems when importing CosmicDef.py, disabling cosmic chains.')
                 log.info(traceback.print_exc())
                 self.doCosmicChains = False
 
@@ -364,7 +349,7 @@ class GenerateMenu:
             try:
                 import TriggerMenu.calibcosmicmon.generateCalibChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing CalibDef.py, disabling calibration chains.')
+                log.error('Problems when importing CalibDef.py, disabling calibration chains.')
                 log.info(traceback.print_exc())
                 self.doCalibrationChains = False
                 
@@ -372,7 +357,7 @@ class GenerateMenu:
             try:
                 import TriggerMenu.calibcosmicmon.generateStreamingChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing Streaming.py, disabling streaming chains.')
+                log.error('Problems when importing Streaming.py, disabling streaming chains.')
                 log.info(traceback.print_exc())
                 self.doStreamingChains = False
                 
@@ -381,7 +366,7 @@ class GenerateMenu:
             try:
                 import TriggerMenu.calibcosmicmon.generateMonitoringChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing Monitor.py, disabling monitoring chains.')
+                log.error('Problems when importing Monitor.py, disabling monitoring chains.')
                 log.info(traceback.print_exc())
                 self.doMonitorChains = False
 
@@ -389,7 +374,7 @@ class GenerateMenu:
             try:
                 import TriggerMenu.calibcosmicmon.generateBeamspotChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing Beamspot.py, disabling beamspot chains.')
+                log.error('Problems when importing Beamspot.py, disabling beamspot chains.')
                 log.info(traceback.print_exc())
                 self.doBeamspotChains = False
 
@@ -397,7 +382,7 @@ class GenerateMenu:
             try:
                 import TriggerMenu.calibcosmicmon.generateEnhancedBiasChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing EnhancedBias.py, disabling EnhancedBias chains.')
+                log.error('Problems when importing EnhancedBias.py, disabling EnhancedBias chains.')
                 log.info(traceback.print_exc())
                 self.doEnhancedBiasChains = False
 
@@ -405,7 +390,7 @@ class GenerateMenu:
             try:
                 import TriggerMenu.test.generateTestChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing Test.py, disabling Test chains.')
+                log.error('Problems when importing Test.py, disabling Test chains.')
                 log.info(traceback.print_exc())
                 self.doTestChains = False
 
@@ -414,7 +399,7 @@ class GenerateMenu:
             try:
                 import TriggerMenu.combined.generateCombinedChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing generateCombinedChainDefs.py, disabling Topo on combined chains.')
+                log.error('Problems when importing generateCombinedChainDefs.py, disabling Topo on combined chains.')
                 log.info(traceback.print_exc())
                 self.doCombinedChains = False
 
@@ -425,16 +410,16 @@ class GenerateMenu:
         
         listOfChainDefs = []
 
-        log.debug("\n chainDicts1 %s " % chainDicts)
+        log.debug("\n chainDicts1 %s ", chainDicts)
         chainDicts = TriggerMenu.menu.MenuUtils.splitInterSignatureChainDict(chainDicts)        
-        log.debug("\n chainDicts2 %s" % chainDicts)
+        log.debug("\n chainDicts2 %s", chainDicts)
         
 
         #print 'doEgammaChains, doMuonChains', self.doEgammaChains, self.doMuonChains
 
         for chainDict in chainDicts:
             chainDef = None
-            print 'checking chainDict for chain %s %s %r' %(chainDict['chainName'],chainDict["signature"], self.doEnhancedBiasChains)
+            #print 'checking chainDict for chain %s %s %r' %(chainDict['chainName'],chainDict["signature"], self.doEnhancedBiasChains)
 
             if (chainDict["signature"] == "Jet" or chainDict["signature"] == "HT") and (self.doJetChains or self.doBjetChains):
                 bjetchain = False
@@ -446,7 +431,7 @@ class GenerateMenu:
                         chainDef = TriggerMenu.bjet.generateBjetChainDefs.generateChainDefs(chainDict)
                         #print 'chainDef for bjet chains', chainDef
                     except:
-                        log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                        log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                         log.info(traceback.print_exc())
                         continue
                 elif self.doJetChains:                    
@@ -454,7 +439,7 @@ class GenerateMenu:
                         chainDef = TriggerMenu.jet.generateJetChainDefs.generateChainDefs(chainDict)
                         #print 'chainDef for jet/ht chains', chainDef
                     except:
-                        log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                        log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                         log.info(traceback.print_exc())
                         continue
 
@@ -463,7 +448,7 @@ class GenerateMenu:
                 try:
                     chainDef = TriggerMenu.muon.generateMuonChainDefs.generateChainDefs(chainDict)
                 except:
-                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
 
@@ -471,7 +456,7 @@ class GenerateMenu:
                 try:
                     chainDef = TriggerMenu.bphysics.generateBPhysicsChainDefs.generateChainDefs(chainDict)
                 except:
-                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
 
@@ -479,7 +464,7 @@ class GenerateMenu:
                 try:
                     chainDef = TriggerMenu.egamma.generateElectronChainDefs.generateChainDefs(chainDict)
                 except:
-                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
 
@@ -487,7 +472,7 @@ class GenerateMenu:
                 try:
                     chainDef = TriggerMenu.egamma.generatePhotonChainDefs.generateChainDefs(chainDict)
                 except:
-                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
 
@@ -495,7 +480,7 @@ class GenerateMenu:
                 try:
                     chainDef = TriggerMenu.met.generateMETChainDefs.generateChainDefs(chainDict)
                 except:
-                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
 
@@ -503,7 +488,7 @@ class GenerateMenu:
                 try:
                     chainDef = TriggerMenu.tau.generateTauChainDefs.generateChainDefs(chainDict)
                 except:
-                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
 
@@ -511,7 +496,7 @@ class GenerateMenu:
                 try:
                     chainDef = TriggerMenu.minbias.generateMinBiasChainDefs.generateChainDefs(chainDict)
                 except:
-                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
 
@@ -519,7 +504,7 @@ class GenerateMenu:
                 try:
                     chainDef = TriggerMenu.heavyion.generateHeavyIonChainDefs.generateChainDefs(chainDict)
                 except:
-                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
 
@@ -527,7 +512,7 @@ class GenerateMenu:
                 try:
                     chainDef = TriggerMenu.calibcosmicmon.generateCosmicChainDefs.generateChainDefs(chainDict)
                 except:
-                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
 
@@ -535,7 +520,7 @@ class GenerateMenu:
                 try:
                     chainDef = TriggerMenu.calibcosmicmon.generateCalibChainDefs.generateChainDefs(chainDict)
                 except:
-                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
 
@@ -543,7 +528,7 @@ class GenerateMenu:
                 try:
                     chainDef = TriggerMenu.calibcosmicmon.generateStreamingChainDefs.generateChainDefs(chainDict)
                 except:
-                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
 
@@ -551,7 +536,7 @@ class GenerateMenu:
                 try:
                     chainDef = TriggerMenu.calibcosmicmon.generateMonitoringChainDefs.generateChainDefs(chainDict)
                 except:
-                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
 
@@ -559,7 +544,7 @@ class GenerateMenu:
                 try:
                     chainDef = TriggerMenu.calibcosmicmon.generateBeamspotChainDefs.generateChainDefs(chainDict)
                 except:
-                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
 
@@ -567,7 +552,7 @@ class GenerateMenu:
                 try:
                     chainDef = TriggerMenu.calibcosmicmon.generateEnhancedBiasChainDefs.generateChainDefs(chainDict)
                 except:
-                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
 
@@ -576,14 +561,14 @@ class GenerateMenu:
                 try:
                     chainDef = TriggerMenu.test.generateTestChainDefs.generateChainDefs(chainDict)
                 except:
-                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
 
 
             else:                
                 log.error('Chain %s ignored - either because the trigger signature ("slice") has been turned off or because the corresponding chain dictionary cannot be read.' %(chainDict['chainName']))
-                log.debug('Chain dictionary of failed chain is %s.' %(str(chainDict)))
+                log.debug('Chain dictionary of failed chain is %s.', chainDict)
                          
             
             from ChainDef import ErrorChainDef,ChainDef
@@ -600,7 +585,7 @@ class GenerateMenu:
             return False
         elif len(listOfChainDefs)>1:
             if ("mergingStrategy" in chainDicts[0].keys()):
-                theChainDef = TriggerMenu.menu.MenuUtils.mergeChainDefs(listOfChainDefs,chainDicts[0]["mergingStrategy"],chainDicts[0]["mergingOffset"],doTopo=doTopo)
+                theChainDef = TriggerMenu.menu.MenuUtils.mergeChainDefs(listOfChainDefs,chainDicts[0]["mergingStrategy"],chainDicts[0]["mergingOffset"],doTopo=doTopo,chainDicts=chainDicts)
             else:
                 log.error("No merging strategy specified for combined chain %s" % chainDicts[0]['chainName'])
                 
@@ -617,26 +602,18 @@ class GenerateMenu:
 
     
     def setupMenu(self):
-        log.info('GenerateMenu: setupMenu ')
         # go over the slices and put together big list of signatures requested
-        #log.info('GenerateMenu: setupMenu: modifying menu according to the luminosity and prescaling setup')
      
         #(L1Prescales, HLTPrescales, streamConfig) = lumi(self.triggerPythonConfig)
-        (L1Prescales, HLTPrescales) = lumi(self.triggerPythonConfig)
+        (self.L1Prescales, self.HLTPrescales) = lumi(self.triggerPythonConfig)
         global _func_to_modify_signatures
         if _func_to_modify_signatures != None:
-            log.info('GenerateMenu: setupMenu:  Modifying trigger signatures in TriggerFlags with %s' % \
+            log.info('setupMenu:  Modifying trigger signatures in TriggerFlags with %s' % \
                      _func_to_modify_signatures.__name__)
-            #log.info('GenerateMenu: setupMenu:  start')
             _func_to_modify_signatures()
             self.signaturesOverwritten = True
 
-            #log.info('GenerateMenu: setupMenu:  stop')
-
-        #log.info('GenerateMenu: setupMenu: Enabled signatures: '+str(sigs) )
-        #log.info('GenerateMenu: setupMenu END ')
-        #return (HLTPrescales, streamConfig)
-        return (HLTPrescales)
+        return (self.HLTPrescales)
 
         
 
@@ -676,8 +653,7 @@ class GenerateMenu:
 
         # remove duplicates 
         allTEs = list(set(allTEs))
-
-        log.debug("allTEs %s" % allTEs)
+        log.debug("allTEs %s", allTEs)
         
         def inputsAreTEs(inputs):
             for input in inputs:
@@ -719,7 +695,7 @@ class GenerateMenu:
         return True
 
     def dumpSignatureList(self, l1_items, fname):
-        #log.info('GenerateMenu: dumpSignatureList ')
+
         def dumpIt(fp, sigs, slicename):
             log.info("SignatureList %s" % sigs)
             fp.write('%sSliceFlags.signatures = [\n' % slicename)
@@ -825,7 +801,7 @@ class GenerateMenu:
 
         #calling TriggerPythonConfig
         self.triggerPythonConfig = TriggerPythonConfig(TriggerFlags.outputHLTconfigFile(),
-                                                       TriggerFlags.outputLVL1configFile(),self.signaturesOverwritten)
+                                                       self.signaturesOverwritten)
         #Setting trigger menu name
         self.triggerPythonConfig.menuName = TriggerFlags.triggerMenuSetup()
         
@@ -835,24 +811,21 @@ class GenerateMenu:
         #############################
         # Start HLT menu generation #
         #############################
-        m_chainsInMenu = self.getChainsFromMenu() # get names of chains to be generated
+        chainsInMenu = self.getChainsFromMenu() # get names of chains to be generated
         if hasattr(self, 'trigConfL1'):
-            self.checkL1SeedsForChainsFromMenu(m_chainsInMenu)
-            self.checkUnusedL1Items(m_chainsInMenu)
+            self.checkL1SeedsForChainsFromMenu(chainsInMenu)
+            self.checkUnusedL1Items(chainsInMenu)
                       
                             
         # instantiate parser
-        import DictFromChainName
         theDictFromChainName = DictFromChainName.DictFromChainName()
-        import StreamInfo
         
         counter = 0
-
-        for chain in m_chainsInMenu:
-            log.info("Processing chain : %s" % chain)
+        for chain in chainsInMenu:
+            log.info("Processing chain : %s", chain)
             chainDicts = theDictFromChainName.getChainDict(chain)
             counter += 1 
-            chainCounter =  counter
+            chainCounter = counter
             chainDicts['chainCounter'] = chainCounter
 
             chainDicts['topoThreshold'] = None
@@ -883,9 +856,9 @@ class GenerateMenu:
             streamTag = StreamInfo.getStreamTag(streams)
 
             if not chainDef:
-                log.error('No chainDef for chain %s returned. Will ignore and continue.' % chain)
+                log.error('No chainDef for chain %s returned. Will ignore and continue.', chain)
                 continue                
-            log.debug("GenerateMenu chainDef: %s" % chainDef)
+            log.debug("GenerateMenu chainDef: %s", chainDef)
         
             # generate HLTChains and associated sequences
             if  not self.chainDefIsConsistent(chainDef):
@@ -917,101 +890,62 @@ class GenerateMenu:
         #-----------------------------------
         # info print out
         #-----------------------------------
-        log.info('GenerateMenu: generating XML configuration files (true?): ')
+        log.info('generating XML configuration files (true?): ')
         if self.trigConfL1.inputFile!=None:
-            log.info('LVL1: %s (not generated but read in)' % self.trigConfL1.inputFile)
+            log.info('LVL1: %s (not generated but read in)', self.trigConfL1.inputFile)
         else:
-            log.info('LVL1: %s' % self.trigConfL1.outputFile)
-        log.info('HLT : '+str(self.triggerPythonConfig.getHLTConfigFile()))
-        log.info('N L1 items     : %s ' % len(self.trigConfL1.menu.items) )
-        log.info('N L1 thresholds: %s ' % len(self.trigConfL1.menu.thresholds) )
-        log.info('GenerateMenu: generate: NOTE: only these chains enter current config: ')
-        log.info("All chains: %s " %self.triggerPythonConfig.allChains.keys())
-       
-        """
-        log.info('GenerateMenu: generate: Adding HLT chain')
-        for name, chains in self.triggerPythonConfig.allChains.iteritems():
-            if name in sigs: #sigs only stores the signatures which are actually in the menu, not the ones in all the slice flags
-                log.info("GenerateMenu: generate: placing in the configuration chains for: %s" % name )
-                # [self.triggerPythonConfig.addHLTChain(c) for c in chains]
-                for c in chains:
-                    if c.level == 'L2':
-                        names = map(lambda x: x.chain_name, self.triggerPythonConfig.theL2HLTChains)
-                        if c.chain_name not in names:
-                            log.info('GenerateMenu: generate: add L2 chain: %s <- %s (%d sigs)' % (c.chain_name, c.lower_chain_name, len(c.siglist)))
-                            self.triggerPythonConfig.addHLTChain(c)
-                        else:
-                            log.info('GenerateMenu: generate: not adding %s' % c.chain_name)
-                    if TriggerFlags.doEF() and c.level == 'EF':
-                        names = map(lambda x: x.chain_name, self.triggerPythonConfig.theEFHLTChains)
-                        if c.chain_name not in names:
-                            log.info('GenerateMenu: generate: add EF chain: %s  (%d sigs)' % (c.chain_name, len(c.siglist)))
-                            self.triggerPythonConfig.addHLTChain(c)
-        """
-
+            log.info('LVL1: %s', self.trigConfL1.outputFile)
+        log.info('HLT : %s', self.triggerPythonConfig.getHLTConfigFile())
+        log.info('N L1 items     : %s ', len(self.trigConfL1.menu.items) )
+        log.info('N L1 thresholds: %s ', len(self.trigConfL1.menu.thresholds) )
+        log.info("N HLT chains: %s ", len(self.triggerPythonConfig.allChains.keys()))
+        log.debug("All chains: %s ", self.triggerPythonConfig.allChains.keys())       
         
-        log.info('GenerateMenu: generate: checkTriggerGroupAssignment')
+        #log.info('checkTriggerGroupAssignment')
         #checkTriggerGroupAssignment(self.triggerPythonConfig)
 
+        log.info('checkGroups')
+        checkGroups(self.triggerPythonConfig)
 
         cpsMenus = ['Physics_pp_v5','Physics_pp_v6']
-        if TriggerFlags.triggerMenuSetup() in cpsMenus :
+        ##if TriggerFlags.triggerMenuSetup() in cpsMenus:
+        if TriggerFlags.triggerMenuSetup().find("pp_v")>=0:            
             log.info('Assigning CPS groups now')
             addCPS(self.triggerPythonConfig,self.signaturesOverwritten)
 
-        # (*)
-        #log.info('GenerateMenu: generate: applyPrescales')
         applyPrescales(self.triggerPythonConfig, HLTPrescales)
 
         # Modifying menu in TriggerPythonConfig
         # is not being executed
         global _func_to_modify_the_menu
         if _func_to_modify_the_menu != None:
-            log.info('GenerateMenu: generate: Modifying the trigger menu in TriggerPythonConfig with %s' % \
+            log.info('generate: Modifying the trigger menu in TriggerPythonConfig with %s' % \
                      _func_to_modify_the_menu.__name__)
             _func_to_modify_the_menu(self.triggerPythonConfig)
 
 
         #dump configuration files
-        log.info('GenerateMenu: generate: dump configuration Files')
+        log.info('generate: dump configuration Files')
         lvl1_items = [x.name for x in self.trigConfL1.menu.items]
         #self.dumpSignatureList(self.trigConfL1.menu.items.itemNames(),'hltsigs.txt')
-        self.triggerPythonConfig.writeConfigFiles("hlt") # "hlt" is needed, since L1 is written by TriggerConfigLVL1 (at some point remove writing L1 from TriggerPythonConfig)
-        self.triggerPythonConfig.dot(algs=True)
+        self.triggerPythonConfig.writeConfigFiles()
+        if log.isEnabledFor(logging.DEBUG): self.triggerPythonConfig.dot(algs=True)
 
         #checking Stream Consistency
-        log.info('GenerateMenu: generate:checkStreamConsistency')
-        #checkStreamConsistency(self.triggerPythonConfig,streamConfig)
+        log.info('checkStreamConsistency')
         checkStreamConsistency(self.triggerPythonConfig)
 
         # TrigConfConsistencyChecker
-        log.info('GenerateMenu: generate: importing TrigConfConsistencyChecker')
-        import os
-        import commands
-        from AthenaCommon.Utils.unixtools import FindFile
         log.info("Running TrigConfConsistencyChecker...")
 
         # Check for the Lvl1 XML first in the current dir, then in $XMLPATH
-        #path = ["./"] + os.environ.get("XMLPATH","").split(":")
-        #(ret, output) = commands.getstatusoutput('TrigConfConsistencyChecker --lvl1xml %s --hltxml %s --exceptions %s' % \
-        #                                         (FindFile(TriggerFlags.inputLVL1configFile(),path,os.R_OK),  # FindFile doesn't work when the package name is
-        #                                                                                                      # missing, but then it doesn't work with local path
-        #                                          TriggerFlags.inputHLTconfigFile(),
-        #                                          "TriggerMenu/menu_check_exceptions.xml"))  
-        #Z.C(ret, output) = commands.getstatusoutput('TrigConfConsistencyChecker --lvl1xml %s --hltxml %s --exceptions --disable L1CaloThrOrder %s '% \
         (ret, output) = commands.getstatusoutput('TrigConfConsistencyChecker --lvl1xml %s --hltxml %s --exceptions  %s '% \
                                                  ( self.trigConfL1.inputFile if self.trigConfL1.inputFile!=None else self.trigConfL1.outputFile,
                                                    self.triggerPythonConfig.getHLTConfigFile(),
                                                    "TriggerMenu/menu_check_exceptions.xml") )
         print output
-        #if  ("ERROR" in output):
-        #    log.error("There are ERRORs in the TrigConfConsistency checker, please check carefully!!")
-        #if  ("WARNING" in output):
-        #    log.warning("There are WARNING in the TrigConfConsistency checker, please check carefully!!")
-
- 
-
-       # this does test the triggertype (JS)
+  
+        # this does test the triggertype (JS)
         #for bit in xrange(8):
         #    print "TriggerType",bit,":",self.triggerPythonConfig.Lvl1ItemByTriggerType(0x01<<bit,0x01<<bit)
 
@@ -1024,13 +958,12 @@ class GenerateMenu:
             if line.find('Warning Cannot find threshold') >= 0:
                 log.error('%s -> add the threshold explicitly' % line.split()[-1])
 
-
-
-        for name, chains in self.triggerPythonConfig.allChains.iteritems():
-            for c in chains:
-                log.info('Registered chain  %04d %s' % \
-                          (int(c.chain_counter), c.chain_name))
-
+        # print all chain counters
+        if log.isEnabledFor(logging.DEBUG):
+            for name, chains in self.triggerPythonConfig.allChains.iteritems():
+                for c in chains:
+                    log.debug('Registered chain  %04d %s',
+                              int(c.chain_counter), c.chain_name)
 
         # print all the chains that returned an ERROR chainDef object
         if self.listOfErrorChainDefs:
@@ -1042,21 +975,12 @@ class GenerateMenu:
         log.info ('Check the List of chains in rerun with a special stream tag')
         self.GetStreamTagForRerunChains()
 
-        log.info('GenerateMenu: generate END')
+        log.info('generate END')
 
 
-    def GetHLTPrescales(self) :
-        (L1Prescales, HLTPrescales) = lumi(self.triggerPythonConfig)
-        return HLTPrescales
-
-        
-    ##Note, when doing modification for this function, please, test with run_HLTstandalone
-    ##as this function is not called during simple XML generation
     def GetStreamTagForRerunChains(self):
-        log.info('GenerateMenu.py:retrieve list of stream tags for rerun chain ')        
-        ##Fill the list of streams to be assigned to rerun chains
-        (HLTPrescales) = self.GetHLTPrescales()
-        list= getStreamTagForRerunChains(self.triggerPythonConfig, HLTPrescales)
+        log.info('retrieve list of stream tags for rerun chain ')        
+        list= getStreamTagForRerunChains(self.triggerPythonConfig, self.HLTPrescales)
         if not list:
             log.warning('no rerun chain with special stream')
 

@@ -137,6 +137,10 @@ class L2EFChain_MB(L2EFChainDef):
         if 'ion' in self.chainPart['extra']:
             doHeavyIon=True
 
+        doSpNcb=False
+        if 'ncb' in  self.chainPart['extra']:
+            doSpNcb=True
+
         doSptrk=False
         if "sptrk" in self.chainPart['recoAlg']: #do EFID
             doSptrk=True
@@ -157,6 +161,10 @@ class L2EFChain_MB(L2EFChainDef):
         if "noisesup" in self.chainPart['extra']:
             chainSuffix = "sptrk_noisesup"
             theL2Fex  = L2MbSpFex_SCTNoiseSup
+        elif doSpNcb:
+            # spacepoint halo trigger is SCT only
+            theL2Fex  = L2MbSpFex_noPix
+            chainSuffix = "sp_ncb"
         else:
             theL2Fex  = L2MbSpFex
             if doSptrk:
@@ -170,7 +178,10 @@ class L2EFChain_MB(L2EFChainDef):
             if "vetombts1side2in" in self.chainPart['extra']:
                 chainSuffix = chainSuffix+"_vetombts1side2in"
 
-        theL2Hypo = L2MbSpHypo
+        if doSpNcb:
+            theL2Hypo = L2MbSpHypo_ncb
+        else:
+            theL2Hypo = L2MbSpHypo
 
         ########## EF algos ##################
         #if "sptrk" in self.chainPart['recoAlg']:

@@ -32,6 +32,8 @@ class Test_ChainConfigMaker(unittest.TestCase):
                                               'signature': 'Jet',
                                               'calib': 'em',
                                               'addInfo': [],
+                                              'cleaning': 'noCleaning',
+                                              'TLA': '',
                                               'L1item': ''}],
                               'topo': [],
                               'chainCounter': 412,
@@ -65,6 +67,8 @@ class Test_ChainConfigMaker(unittest.TestCase):
                                    'dataScouting': '',
                                    'signature': 'Jet',
                                    'calib': 'lcw',
+                                   'TLA': '',
+                                   'cleaning': 'noCleaning',
                                    'addInfo': [],
                                    'L1item': ''}],
                               'topo': [],
@@ -104,16 +108,6 @@ class Test_ChainConfigMaker(unittest.TestCase):
         print chainConfig
         self.assertTrue(chainConfig.__class__.__name__ == 'ChainConfig')
 
-    def test_3(self):
-        """Create ChainConfig instance"""
-
-        for c in self.from_central1['chainParts']:
-            c['extra'] = 'test3'
-
-        ccm = ChainConfigMaker(self.from_central1)
-        chainConfig = ccm()
-        print chainConfig
-        self.assertTrue(chainConfig.__class__.__name__ == 'ChainConfig')
 
 
 

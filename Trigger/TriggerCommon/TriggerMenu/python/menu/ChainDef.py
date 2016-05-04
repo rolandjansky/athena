@@ -6,6 +6,7 @@ which is often maintained by a slice domain expertto the central
 trigger menu code."""
 
 import pprint
+pp = pprint.PrettyPrinter(indent=4, depth=8)
 
 class ChainDef:
  
@@ -113,8 +114,6 @@ class ChainDef:
 
     def __str__(self):
         """Provide a string representation of the chain"""
-
-        pp = pprint.PrettyPrinter(indent=4, depth=8)
 
         s = ['chain_name:       %s ' % self.chain_name,
              'lower chain name: %s ' % self.lower_chain_name,

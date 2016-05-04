@@ -35,9 +35,9 @@ def generateChainDefs(chainDict):
     
     jetgroup_chain = True
     chainName = chainDict['chainName']
-    print 'processing chain part 1 start', chainName
+    #print 'processing chain part 1 start', chainName
     theChainDef = generateHLTChainDef(chainDict)
-    print 'processing chain part 2 end', chainName
+    #print 'processing chain part 2 end', chainName
 
     listOfChainDicts = splitChainDict(chainDict)
 
@@ -171,9 +171,13 @@ def generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, to
     from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import TrigNewLoFHypoConfig
     hypo_LoF = TrigNewLoFHypoConfig()
 
+    from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConfig import getBHremovalInstance
+    theBHremoval=getBHremovalInstance()
+
     TE_SplitJets = HLTChainName+'_SplitJetTool'
     TE_TrackMuonIsoB = HLTChainName+'_TrkMuIsoB'
     TE_LogRatioCut = HLTChainName+'_LogRatioCut'
+    TE_LogRatioCut_Fcalo = HLTChainName+'_LogRatioCut_Fcalo'
     TE_BeamHaloRemoval = HLTChainName+'_BeamHaloRemoval'
 
     # split into several trigger elements
@@ -189,7 +193,24 @@ def generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, to
 
     # adding LoF sequence
     if ('noiso' not in topoAlgs):
-        theChainDef.addSequence([hypo_LoF],TE_LogRatioCut,TE_BeamHaloRemoval)
+        # create a dummy roi and get full calo
+        from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyAlgo
+        theDummyRoiCreator = DummyAlgo('RoiCreator')
+
+        from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_jet_fullcalo    
+        theTrigCaloCellMaker_jet_fullcalo = TrigCaloCellMaker_jet_fullcalo("CellMakerFullCalo_topo", doNoise=0, AbsE=True, doPers=True)
+
+        theChainDef.addSequence(theDummyRoiCreator,'', 'EF_full_roi')
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, ['EF_full_roi'])
+
+        theChainDef.addSequence(theTrigCaloCellMaker_jet_fullcalo,'EF_full_roi', 'EF_full_cell')
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, ['EF_full_cell'])
+
+        # adding beam halo removal sequence
+        theChainDef.addSequence(theBHremoval, ['EF_full_cell',TE_LogRatioCut],TE_LogRatioCut_Fcalo)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_LogRatioCut_Fcalo])
+
+        theChainDef.addSequence([hypo_LoF], TE_LogRatioCut_Fcalo,TE_BeamHaloRemoval)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_BeamHaloRemoval])
 
     return theChainDef

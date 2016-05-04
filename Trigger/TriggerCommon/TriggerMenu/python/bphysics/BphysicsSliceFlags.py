@@ -2,8 +2,7 @@
 
 """ Bphysics slice specific flags  """
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper, AllowedList
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 
 __author__  = 'T. Bold'
 __version__="$Revision: 1.30 $"

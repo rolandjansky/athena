@@ -26,9 +26,9 @@ def splitInterSignatureChainDict(chainDict):
     #oder the splitted dicts
     orderedListOfSplitChainDicts = []
     if not chainDict.has_key("mergingOrder"):
-        log.debug("No merging order given for chain %s." % (chainDict['chainName']))
+        log.debug("No merging order given for chain %s.", chainDict['chainName'])
     elif chainDict["mergingOrder"] == []:
-        log.info("No merging order given for chain %s." % (chainDict['chainName']))
+        log.info("No merging order given for chain %s.", chainDict['chainName'])
     else:
         for chainPartName in chainDict["mergingOrder"]:
             for splitChainDict in listOfSplitChainDicts:
@@ -109,31 +109,50 @@ def _replicateMissingSignatures(listOfChainDefs,unevenSigs,level):
                 elif level == "L2":
                     chainDef.addSignatureL2(deepcopy(listOfLastTEs))
                 log.info("Added %s signature with TEs %s to ChainDef of chain %s in preparation for parallel merging." % (level,str(listOfLastTEs),chainDef.chain_name))
-                log.debug("ChainDef with replicated signatures at %s: %s" % (str(level),str(chainDef)))
+                log.debug("ChainDef with replicated signatures at %s: %s", level, chainDef)
                 
 
 
 
-def mergeChainDefs(listOfChainDefs,strategy="parallel",offset=-1,preserveL2EFOrder=True,removeDuplicateTEs=False,doTopo=True):
+def mergeChainDefs(listOfChainDefs,strategy="parallel",offset=-1,preserveL2EFOrder=True,removeDuplicateTEs=False,doTopo=True,chainDicts=''):
 
-    log.debug("Combine using %s  merging" %(strategy))
+    log.debug("Combine using %s  merging", strategy)
 
     if strategy=="parallel":
         return _mergeChainDefsParallel(listOfChainDefs,offset,removeDuplicateTEs)
     elif strategy=="serial":
-        return _mergeChainDefsSerial(listOfChainDefs,offset,doTopo=doTopo)
+        return _mergeChainDefsSerial(chainDicts,listOfChainDefs,offset,doTopo=doTopo)
     else:
         log.error("Merging failed for chain %s. Merging strategy '%s' not known." % (level, chainDef.chain_name))
         return -1
 
 
 
-def _mergeChainDefsSerial(listOfChainDefs,offset,preserveL2EFOrder=True,doTopo=True):
+def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=True,doTopo=True):
 
     """
     serial merging of chain def objects for combined chains
     """
-    
+
+    noTEreplication=False
+    #Add few exception to the replication of the TE
+    jet_count=0
+    met_count=0
+    try:
+        for chainDict in ChainDicts:
+            if (chainDict["signature"] == "Jet"):
+                jet_count=+1
+            if (chainDict["signature"] == "MET"):
+                for chainpart in chainDict["chainParts"]:
+                    if 'xe' in chainpart['trigType'] and 'cell' not in chainpart['EFrecoAlg']:
+                        met_count=+1
+    except:
+        pass
+
+    if jet_count > 0 and met_count > 0:
+        noTEreplication=True        
+        
+
     listOfChainDefs = deepcopy(listOfChainDefs) 
 
     # get last TEs of all ChainDefs
@@ -160,8 +179,13 @@ def _mergeChainDefsSerial(listOfChainDefs,offset,preserveL2EFOrder=True,doTopo=T
             mergedChainDef = _addSequence(mergedChainDef,sequence)
 
         for signatureIdx,signature in enumerate(chainDef.signatureList):
-            # if a topo is appended after the chain merging the replication of the last TEs is not necessary
-            signatureToAdd = signature['listOfTriggerElements'] if doTopo else signature['listOfTriggerElements'] + currentLastTEs 
+            # if a topo is appended after the chain merging, or in same special cases, the replication of the last TEs is not necessary
+            if noTEreplication:
+                log.info("Removing replication of the TE for chain: %s" %(chainDef.chain_name))
+                signatureToAdd = signature['listOfTriggerElements'] 
+            else:
+                signatureToAdd = signature['listOfTriggerElements'] if doTopo else signature['listOfTriggerElements'] + currentLastTEs 
+            #signatureToAdd = signature['listOfTriggerElements'] 
             if preserveL2EFOrder:
                 if not offset == -1:
                     log.error("L2/EF preserving serial merging with offset not yet implemented.")
@@ -200,7 +224,7 @@ def _mergeChainDefsParallel(listOfChainDefs,offset=-1,removeDuplicateTEs=False):
     listOfChainDefs = deepcopy(listOfChainDefs) 
 
     for chainDef in listOfChainDefs:
-        log.debug("List of ChainDefs to be merged %s " % str(chainDef))
+        log.debug("List of ChainDefs to be merged %s ", chainDef)
         
     newSequenceList = []
 
@@ -234,15 +258,15 @@ def _mergeChainDefsParallel(listOfChainDefs,offset=-1,removeDuplicateTEs=False):
     countsHLT = Counter(nHLTsigs)
     unevenHLTSigs = [val for val, count in countsHLT.items() if count <= 1]
 
-    log.debug("nL2sigs " + str(nL2sigs))
-    log.debug("countsL2 " + str(countsL2))
-    log.debug("unevenL1Sigs " + str(unevenL2Sigs))
-    log.debug("nEFsigs " + str(nEFsigs))
-    log.debug("countsEF " + str(countsEF))
-    log.debug("unevenEFSigs " + str(unevenEFSigs))
-    log.debug("nHLTsigs " + str(nHLTsigs))
-    log.debug("countsHLT " + str(countsHLT))
-    log.debug("unevenHLTSigs " + str(unevenHLTSigs))
+    log.debug("nL2sigs %s", nL2sigs)
+    log.debug("countsL2 %s", countsL2)
+    log.debug("unevenL1Sigs %s", unevenL2Sigs)
+    log.debug("nEFsigs %s", nEFsigs)
+    log.debug("countsEF %s", countsEF)
+    log.debug("unevenEFSigs %s", unevenEFSigs)
+    log.debug("nHLTsigs %s", nHLTsigs)
+    log.debug("countsHLT %s", countsHLT)
+    log.debug("unevenHLTSigs %s", unevenHLTSigs)
 
     nL2sigs = []
     nEFsigs = []
@@ -287,7 +311,7 @@ def _mergeChainDefsParallel(listOfChainDefs,offset=-1,removeDuplicateTEs=False):
     mergedChainDef = listOfChainDefs[0]
     listOfChainDefs.pop(0)
 
-    log.debug("mergedChainDef prior to merging:"+str(mergedChainDef))
+    log.debug("mergedChainDef prior to merging: %s", mergedChainDef)
 
 
     for chainDef in listOfChainDefs:
@@ -297,9 +321,9 @@ def _mergeChainDefsParallel(listOfChainDefs,offset=-1,removeDuplicateTEs=False):
         for chainDefSignature in chainDef.signatureList:
             for mergedChainDefSignature in mergedChainDef.signatureList: 
                 if int(chainDefSignature['signature_counter']) == int(mergedChainDefSignature['signature_counter']):
-                    log.debug("mergedChainDef signatureList before a step:"+str(mergedChainDef.signatureList))
+                    log.debug("mergedChainDef signatureList before a step: %s", mergedChainDef.signatureList)
                     mergedChainDefSignature['listOfTriggerElements'] += chainDefSignature['listOfTriggerElements']
-                    log.debug("mergedChainDef signatureList after a step:"+str(mergedChainDef.signatureList))
+                    log.debug("mergedChainDef signatureList after a step: %s", mergedChainDef.signatureList)
 
 
 

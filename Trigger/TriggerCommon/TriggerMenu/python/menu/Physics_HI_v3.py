@@ -20,6 +20,12 @@ def setupMenu():
     MinBiasStream="MinBias"
     UPCStream="UPC"
 
+    # Disable Calo offset correction for HI menus (ATR-13323)
+    from CaloTools.CaloNoiseFlags import jobproperties
+    jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(0)
+    TriggerFlags.doCaloOffsetCorrection.set_Value_and_Lock(False)
+    log.info("Calo offset correction for HI trigger menu:%s" % TriggerFlags.doCaloOffsetCorrection)
+            
     # INPUT FORMAT FOR CHAINS:
     # ['chainName', 'L1itemforchain', [L1 items for chainParts], [stream], [groups], EBstep]
 
@@ -80,91 +86,91 @@ def setupMenu():
 
     TriggerFlags.JetSlice.signatures = [
 	#performance
-	['j0_perf_L1ZDC_A_C',     'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j0_perf_L1RD0_FILLED',     'L1_RD0_FILLED',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j0_perf_L1ZDC_A_C',     'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j0_perf_L1RD0_FILLED',     'L1_RD0_FILLED',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
 	#physics
 	#R=0.4 jets
-	['j20_ion_L1TE20',         'L1_TE20',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jets'], -1],
-        ['j25_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j30_ion_L1TE20',         'L1_TE20',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jets'], -1],   
-	['j40_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j50_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j30_ion_L1TE50',         'L1_TE50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jets'], -1],   
-	['j40_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j50_ion_L1TE50',         'L1_TE50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j60_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j75_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j100_ion_L1TE50',         'L1_TE50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j150_ion_L1TE50',         'L1_TE50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j50_ion_L1J10',         'L1_J10',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j60_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j75_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j100_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j150_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],	
-	['j30_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j40_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j50_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j60_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j75_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j20_ion_L1TE20',         'L1_TE20',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j25_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j30_ion_L1TE20',         'L1_TE20',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],   
+	['j40_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j50_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j30_ion_L1TE50',         'L1_TE50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],   
+	['j40_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j50_ion_L1TE50',         'L1_TE50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j60_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j100_ion_L1TE50',         'L1_TE50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j150_ion_L1TE50',         'L1_TE50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j50_ion_L1J10',         'L1_J10',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j60_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j100_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j150_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],	
+	['j30_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j40_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j50_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j60_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	
 	#R=0.3 jets
-	['j20_a3_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j25_a3_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j30_a3_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],   
-	['j40_a3_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j50_a3_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j30_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jets'], -1],   
-	['j40_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j50_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j60_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j75_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j100_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j150_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j50_a3_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j60_a3_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j75_a3_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j100_a3_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j150_a3_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j30_a3_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j40_a3_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j50_a3_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j60_a3_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j75_a3_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j20_a3_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_a3_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j30_a3_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],   
+	['j40_a3_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j50_a3_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j30_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],   
+	['j40_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j50_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j60_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j100_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j150_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j50_a3_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j60_a3_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_a3_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j100_a3_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j150_a3_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j30_a3_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j40_a3_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j50_a3_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j60_a3_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_a3_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
 	#forward jets ATR-12623
-	['j25_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j25_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j30_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-        ['j30_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j40_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-        ['j40_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-	['j50_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-        ['j50_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j25_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j30_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j30_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j40_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j40_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j50_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j50_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
-	['j25_a3_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-        ['j25_a3_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-        ['j30_a3_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-        ['j30_a3_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-        ['j40_a3_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-        ['j40_a3_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-        ['j50_a3_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-        ['j50_a3_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j25_a3_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j25_a3_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j30_a3_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j30_a3_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j40_a3_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j40_a3_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j50_a3_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j50_a3_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
 	#multijets ATR-12737
-	['j60_ion_2j30_ion_L1TE50',    'L1_TE50', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jets'], -1],
-	['j75_ion_2j30_ion_L1TE50',    'L1_TE50', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jets'], -1],
-	['j75_ion_2j40_ion_L1TE50',    'L1_TE50', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jets'], -1],
-	['j100_ion_2j30_ion_L1TE50',   'L1_TE50', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jets'], -1],
-	['j100_ion_2j40_ion_L1TE50',   'L1_TE50', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jets'], -1],
-	['j100_ion_2j50_ion_L1TE50',   'L1_TE50', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jets'], -1],
+	['j60_ion_2j30_ion_L1TE50',    'L1_TE50', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['j75_ion_2j30_ion_L1TE50',    'L1_TE50', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['j75_ion_2j40_ion_L1TE50',    'L1_TE50', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['j100_ion_2j30_ion_L1TE50',   'L1_TE50', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['j100_ion_2j40_ion_L1TE50',   'L1_TE50', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['j100_ion_2j50_ion_L1TE50',   'L1_TE50', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jet'], -1],
 
-	['j60_ion_2j30_ion_L1J10',     'L1_J10', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jets'], -1],
-	['j75_ion_2j30_ion_L1J10',     'L1_J10', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jets'], -1],
-	['j75_ion_2j40_ion_L1J10',     'L1_J10', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jets'], -1],
-	['j100_ion_2j30_ion_L1J10',    'L1_J10', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jets'], -1],
-	['j100_ion_2j40_ion_L1J10',    'L1_J10', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jets'], -1],
-	['j100_ion_2j50_ion_L1J10',    'L1_J10', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jets'], -1],
+	['j60_ion_2j30_ion_L1J10',     'L1_J10', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['j75_ion_2j30_ion_L1J10',     'L1_J10', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['j75_ion_2j40_ion_L1J10',     'L1_J10', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['j100_ion_2j30_ion_L1J10',    'L1_J10', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['j100_ion_2j40_ion_L1J10',    'L1_J10', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['j100_ion_2j50_ion_L1J10',    'L1_J10', [], [HardProbesStream], ['RATE:MultiJet',  'BW:Jet'], -1],
 
         #photoproduction ATR-12923
         ['j5_ion_L1TE5_VTE200',                 'L1_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
@@ -334,63 +340,63 @@ def setupMenu():
         ]
 
     TriggerFlags.CombinedSlice.signatures = [
-	['mu4_j20_a3_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j20_a3_ion'] ]],
-	['mu4_j20_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream, 'express'], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j20_ion'] ]],
+	['mu4_j20_a3_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j20_a3_ion'] ]],
+	['mu4_j20_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream, 'express'], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j20_ion'] ]],
 
-	['mu4_j25_a3_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j25_a3_ion'] ]],
-	['mu4_j25_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j25_ion'] ]],
+	['mu4_j25_a3_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j25_a3_ion'] ]],
+	['mu4_j25_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j25_ion'] ]],
 
-	['mu4_j30_a3_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j30_a3_ion'] ]],
-	['mu4_j30_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j30_ion'] ]],
+	['mu4_j30_a3_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j30_a3_ion'] ]],
+	['mu4_j30_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j30_ion'] ]],
 
-	['mu4_j40_a3_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j40_a3_ion'] ]],
-	['mu4_j40_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j40_ion'] ]],
+	['mu4_j40_a3_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j40_a3_ion'] ]],
+	['mu4_j40_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j40_ion'] ]],
 	
-	['mu4_j50_a3_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j50_a3_ion'] ]],
-	['mu4_j50_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j50_ion'] ]],
+	['mu4_j50_a3_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j50_a3_ion'] ]],
+	['mu4_j50_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j50_ion'] ]],
 
-	['mu4_j60_a3_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j60_a3_ion'] ]],
-	['mu4_j60_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream, 'express'], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j60_ion'] ]],
+	['mu4_j60_a3_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j60_a3_ion'] ]],
+	['mu4_j60_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream, 'express'], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j60_ion'] ]],
 
 
-	['mu6_j20_a3_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu6', 'j20_a3_ion'] ]],
-	['mu6_j20_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu6', 'j20_ion'] ]],
+	['mu6_j20_a3_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j20_a3_ion'] ]],
+	['mu6_j20_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j20_ion'] ]],
 
-	['mu6_j25_a3_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu6', 'j25_a3_ion'] ]],
-	['mu6_j25_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu6', 'j25_ion'] ]],
+	['mu6_j25_a3_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j25_a3_ion'] ]],
+	['mu6_j25_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j25_ion'] ]],
 
-	['mu6_j30_a3_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu6', 'j30_a3_ion'] ]],
-	['mu6_j30_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream, 'express'], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu6', 'j30_ion'] ]],
+	['mu6_j30_a3_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j30_a3_ion'] ]],
+	['mu6_j30_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream, 'express'], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j30_ion'] ]],
 
 	#supporting triggers
-	['mu4_j20_a3_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j20_a3_ion'] ]],
-	['mu4_j20_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j20_ion'] ]],
+	['mu4_j20_a3_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j20_a3_ion'] ]],
+	['mu4_j20_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j20_ion'] ]],
 
-	['mu4_j25_a3_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j25_a3_ion'] ]],
-	['mu4_j25_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j25_ion'] ]],
+	['mu4_j25_a3_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j25_a3_ion'] ]],
+	['mu4_j25_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j25_ion'] ]],
     
-	['mu4_j30_a3_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j30_a3_ion'] ]],
-	['mu4_j30_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j30_ion'] ]],
+	['mu4_j30_a3_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j30_a3_ion'] ]],
+	['mu4_j30_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j30_ion'] ]],
 
-	['mu4_j40_a3_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j40_a3_ion'] ]],
-	['mu4_j40_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j40_ion'] ]],
+	['mu4_j40_a3_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j40_a3_ion'] ]],
+	['mu4_j40_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j40_ion'] ]],
 
-	['mu4_j50_a3_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j50_a3_ion'] ]],
-	['mu4_j50_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j50_ion'] ]],
+	['mu4_j50_a3_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j50_a3_ion'] ]],
+	['mu4_j50_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j50_ion'] ]],
 
-	['mu4_j60_a3_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j60_a3_ion'] ]],
-	['mu4_j60_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j60_ion'] ]],
+	['mu4_j60_a3_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j60_a3_ion'] ]],
+	['mu4_j60_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j60_ion'] ]],
 
         
 
-	['mu6_j20_a3_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu6', 'j20_a3_ion'] ]],
-	['mu6_j20_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu6', 'j20_ion'] ]],
+	['mu6_j20_a3_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j20_a3_ion'] ]],
+	['mu6_j20_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j20_ion'] ]],
 
-	['mu6_j25_a3_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu6', 'j25_a3_ion'] ]],
-	['mu6_j25_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu6', 'j25_ion'] ]],
+	['mu6_j25_a3_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j25_a3_ion'] ]],
+	['mu6_j25_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j25_ion'] ]],
 
-	['mu6_j30_a3_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu6', 'j30_a3_ion'] ]],
-	['mu6_j30_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu6', 'j30_ion'] ]],
+	['mu6_j30_a3_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j30_a3_ion'] ]],
+	['mu6_j30_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j30_ion'] ]],
         ]
    
     TriggerFlags.HeavyIonSlice.signatures = [
@@ -657,8 +663,8 @@ def setupMenu():
 	['noalg_L1ZDC_XOR_TRT_VTE200',   'L1_ZDC_XOR_TRT_VTE200', [], [UPCStream], ["BW:UPC", "RATE:UPC"], 1],
 
 	#beam spot
-	['noalg_L1J10_VTE100',   'L1_J10_VTE100', [], [HardProbesStream], ["BW:Jets", "RATE:Jets"], 1],
-	['noalg_L1J10_VTE200',   'L1_J10_VTE200', [], [HardProbesStream], ["BW:Jets", "RATE:Jets"], 1],
+	['noalg_L1J10_VTE100',   'L1_J10_VTE100', [], [HardProbesStream], ["BW:Jet", "RATE:Jets"], 1],
+	['noalg_L1J10_VTE200',   'L1_J10_VTE200', [], [HardProbesStream], ["BW:Jet", "RATE:Jets"], 1],
 	['noalg_L1MU0_VTE50',   'L1_MU0_VTE50', [], [UPCStream], ["BW:UPC", "RATE:UPC"], 1],
 
 	#muon
@@ -670,14 +676,14 @@ def setupMenu():
 
 
 	#jets
-	['noalg_L1J10',   'L1_J10', [], [HardProbesStream], ["BW:Jets", "RATE:Jets"], 1],
-	['noalg_L1J15',   'L1_J15', [], [HardProbesStream], ["BW:Jets", "RATE:Jets"], 1],
-        ['noalg_L1J20',   'L1_J20', [], [HardProbesStream], ["BW:Jets", "RATE:Jets"], 1],
-        ['noalg_L1J30',   'L1_J30', [], [HardProbesStream], ["BW:Jets", "RATE:Jets"], 1],
-	['noalg_L1J35',   'L1_J35', [], [HardProbesStream], ["BW:Jets", "RATE:Jets"], 1],
-	['noalg_L1J50',   'L1_J50', [], [HardProbesStream], ["BW:Jets", "RATE:Jets"], 1],
-	['noalg_L1J75',   'L1_J75', [], [HardProbesStream], ["BW:Jets", "RATE:Jets"], 1],
-	['noalg_L1J175',   'L1_J175', [], [HardProbesStream], ["BW:Jets", "RATE:Jets"], 1],
+	['noalg_L1J10',   'L1_J10', [], [HardProbesStream], ["BW:Jet", "RATE:Jets"], 1],
+	['noalg_L1J15',   'L1_J15', [], [HardProbesStream], ["BW:Jet", "RATE:Jets"], 1],
+        ['noalg_L1J20',   'L1_J20', [], [HardProbesStream], ["BW:Jet", "RATE:Jets"], 1],
+        ['noalg_L1J30',   'L1_J30', [], [HardProbesStream], ["BW:Jet", "RATE:Jets"], 1],
+	['noalg_L1J35',   'L1_J35', [], [HardProbesStream], ["BW:Jet", "RATE:Jets"], 1],
+	['noalg_L1J50',   'L1_J50', [], [HardProbesStream], ["BW:Jet", "RATE:Jets"], 1],
+	['noalg_L1J75',   'L1_J75', [], [HardProbesStream], ["BW:Jet", "RATE:Jets"], 1],
+	['noalg_L1J175',   'L1_J175', [], [HardProbesStream], ["BW:Jet", "RATE:Jets"], 1],
 
 	#egamma
 	['noalg_L1EM7',    'L1_EM7',  [], [HardProbesStream], ["BW:SingleElectron", "RATE:Egamma"], 1],
@@ -716,9 +722,9 @@ def setupMenu():
         # Cosmic calo streamer
         ['noalg_cosmiccalo_L1EM7_EMPTY',         'L1_EM7_EMPTY',        [], ['CosmicCalo'], ["BW:MinBias", "RATE:Cosmic_Calo"], -1],
         ['noalg_cosmiccalo_L1RD1_EMPTY',         'L1_RD1_EMPTY',        [], ['CosmicCalo', 'express'], ["RATE:Calibration", "BW:Detector"], -1],
-        ['noalg_cosmiccalo_L1J3031ETA49_EMPTY',  'L1_J30.31ETA49_EMPTY',[], ['CosmicCalo'], ["BW:Jets", "RATE:Cosmic_Calo"], -1],
-        ['noalg_cosmiccalo_L1J12_EMPTY',         'L1_J12_EMPTY',        [], ['CosmicCalo', 'express'], ["BW:Jets", "RATE:Cosmic_Calo"], -1],
-        ['noalg_cosmiccalo_L1J30_EMPTY',         'L1_J30_EMPTY',        [], ['CosmicCalo', 'express'], ["BW:Jets", "RATE:Cosmic_Calo"], -1],
+        ['noalg_cosmiccalo_L1J3031ETA49_EMPTY',  'L1_J30.31ETA49_EMPTY',[], ['CosmicCalo'], ["BW:Jet", "RATE:Cosmic_Calo"], -1],
+        ['noalg_cosmiccalo_L1J12_EMPTY',         'L1_J12_EMPTY',        [], ['CosmicCalo', 'express'], ["BW:Jet", "RATE:Cosmic_Calo"], -1],
+        ['noalg_cosmiccalo_L1J30_EMPTY',         'L1_J30_EMPTY',        [], ['CosmicCalo', 'express'], ["BW:Jet", "RATE:Cosmic_Calo"], -1],
 
         #background streamers
         ['noalg_bkg_L1Bkg',               'L1_Bkg',               [], ['Background'], ["RATE:SeededStreamers", "BW:Other"], -1],  

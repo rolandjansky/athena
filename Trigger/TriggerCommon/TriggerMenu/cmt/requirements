@@ -7,35 +7,11 @@ use AtlasPolicy AtlasPolicy-*
 
 apply_pattern declare_joboptions files="*.py"
 
-pattern declare_python_submodule \
-  apply_pattern generic_declare_for_link kind=python_modules files='-s=../python/<submodule>/<subsubmodule> <files>' prefix=python/<package>/<submodule>/<subsubmodule> name=<submodule><subsubmodule> ; \
-  private ; \
-  macro_append <package>_python_init_dependencies " install_<submodule><subsubmodule>python_modules " ; \
-  end_private
-
-apply_pattern declare_python_modules files="*.py"
-
-apply_pattern declare_python_submodule files="*.py" submodule=menu
-apply_pattern declare_python_submodule files="*.py" submodule=l1
-apply_pattern declare_python_submodule files="*.py" submodule=l1menu
-apply_pattern declare_python_submodule files="*.py" submodule=l1topo
-apply_pattern declare_python_submodule files="*.py" submodule=l1topomenu
-apply_pattern declare_python_submodule files="*.py" submodule=egamma
-apply_pattern declare_python_submodule files="*.py" submodule=muon
-apply_pattern declare_python_submodule files="*.py" submodule=jet
-apply_pattern declare_python_submodule files="*.py" submodule=bjet
-apply_pattern declare_python_submodule files="*.py" submodule=met
-apply_pattern declare_python_submodule files="*.py" submodule=tau
-apply_pattern declare_python_submodule files="*.py" submodule=minbias
-apply_pattern declare_python_submodule files="*.py" submodule=heavyion
-apply_pattern declare_python_submodule files="*.py" submodule=bphysics
-apply_pattern declare_python_submodule files="*.py" submodule=calibcosmicmon
-apply_pattern declare_python_submodule files="*.py" submodule=test
-apply_pattern declare_python_submodule files="*.py" submodule=combined
-
-
-
-#apply_pattern declare_python_modules files="*.py ../scripts/cnvXml_express.py"
+apply_pattern declare_python_modules files="*.py menu l1 l1menu l1topo \
+                                            l1topomenu egamma muon jet \
+                                            bjet met tau minbias heavyion \
+                                            bphysics calibcosmicmon test \
+                                            combined"
 
 apply_pattern declare_xmls
 

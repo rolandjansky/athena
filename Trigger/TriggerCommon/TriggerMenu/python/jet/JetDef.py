@@ -47,19 +47,10 @@ def _check_input(in_data):
                 in_data.keys())
             raise RuntimeError(msg)
 
-    # expect two chain parts for bjets: these sepecify different
-    # multiplicities and thresholds for the jet hypo.
-    # all remaining dictionaries should be the same.
-
-    chain_parts = in_data['chainParts']
-    if len(chain_parts) > 2:
-        msg = '%s Unexpected input data: no of chain' \
-            ' parts %s: max: 2' % (err_hdr, len(chain_parts))
-        raise RuntimeError(msg)
-
     # if there are more than one chain part, the differences should
     # only refer to the jet hypo. If this is not the case, we do
     # not know what is going on
+    chain_parts = in_data['chainParts']
     _check_chainpart_consistency(chain_parts)
     _check_values(chain_parts)
 
@@ -257,6 +248,11 @@ def generateHLTChainDef(caller_data):
     Debug and testing actions are controlled by environment variables.
     See commnets in usage()."""
 
+    # selected_chains = ('j85_lcw',)
+    # chain_name = caller_data['chainName']
+    # if chain_name not in selected_chains:
+    #    return ErrorChainDef('Not a selected chain', chain_name)
+
     # maintain a copy of the incoming dictionary - to be used
     # for debugging, will not be overwritten.
 
@@ -370,8 +366,8 @@ if __name__ == '__main__':
             assert False, "unhandled option"
 
     # chain_defs = run_test()
-    from test_functions import run_strawman_test
-    chain_defs = run_strawman_test()
+    from test_functions import run_test_dicts
+    chain_defs = run_test_dicts()
     for c in chain_defs:
         print '\n-----------------------\n'
         print c
