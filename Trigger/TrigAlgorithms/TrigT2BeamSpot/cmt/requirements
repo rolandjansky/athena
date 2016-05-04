@@ -1,5 +1,5 @@
 #
-# $Id: requirements 708673 2015-11-18 12:31:05Z baines $
+# $Id: requirements 723137 2016-02-10 15:52:24Z fwinkl $
 #
 
 package TrigT2BeamSpot
@@ -46,8 +46,3 @@ library TrigT2BeamSpot *.cxx components/TrigT2*.cxx
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
 
-# update the version.h file with an svn Id tag
-# note that $ signs need to be quoted for make
-
-action version_tag "sed -i -e 's/\$$Id[^$$]*/$$Id/' $(src)version.cxx"
-# macro_append TrigT2BeamSpot_dependencies " version_tag "
