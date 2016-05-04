@@ -13,7 +13,8 @@ using namespace PESA;
 
 DummyUnseededAllTEAlgo::DummyUnseededAllTEAlgo(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::AllTEAlgo(name, pSvcLocator),
-    m_was_run(false)
+    m_was_run(false),
+    m_regionSelector(0)
 {
   declareProperty("NumberOfOutputTEs", m_numberOfOutputTEs = 1, "configure the number of output TEs this algorithm will create");
   declareProperty("createRoIDescriptors",  m_createRoIDescriptors=true, "create RoI descriptors ate eta&phi == 0 if set true");
