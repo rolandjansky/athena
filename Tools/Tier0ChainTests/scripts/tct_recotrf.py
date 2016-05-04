@@ -257,6 +257,7 @@ def parseCmdLine(args):
     parser.add_option("--postExec_e2a", dest="postExec_e2a", help="postExec_e2a options", default='')
     parser.add_option("--triggerConfig", dest="triggerConfig", help="Trigger configuration", default='')
     parser.add_option("--RunNumber", dest="RunNumber", help="Run number", default='')
+    parser.add_option("--steering", dest="steering", help="transform steering", default='')
     parser.add_option("--HI", dest="doHI_", help="Run with Heavy ions settings",
                       action='store_true', default=False)
     parser.add_option("--HIP", dest="doHIP_", help="Run with proton-lead settings",
