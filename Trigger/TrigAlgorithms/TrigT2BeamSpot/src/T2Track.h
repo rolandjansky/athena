@@ -4,7 +4,7 @@
 
 /**********************************************************************************
  *
- * @version: $Id: T2Track.h 648108 2015-02-19 13:15:50Z smh $
+ * @version: $Id: T2Track.h 708673 2015-11-18 12:31:05Z baines $
  *
  * @project: HLT, PESA algorithms
  * @package: TrigT2BeamSpot
@@ -24,6 +24,7 @@
 /// Externals
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrkTrack/Track.h" 
+#include "TrkTrackSummary/TrackSummary.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
 #include "GaudiKernel/SystemOfUnits.h"
 using Gaudi::Units::GeV;
@@ -58,7 +59,7 @@ namespace PESA {
       , m_Z0err   ( track.param()->ez0()          )
       , m_D0err   ( track.param()->ea0()          )
       , m_NDF     ( trackNDF( track )             )
-      , m_Qual    ( track.chi2()                  ) // Note this is the reduced chi2 (chi2/NFD)
+      , m_Qual    ( track.chi2()                  ) // Note this is the reduced chi2 (chi2/NDF)
       , m_Chi2Prob( -1.                           ) // lazy evaluation
       , m_SiHits  ( track.siSpacePoints()->size() )
       , m_PIXHits ( track.NPixelSpacePoints()     )
@@ -67,6 +68,7 @@ namespace PESA {
       {}
 
     T2Track( const Trk::Track& track )
+      : m_Chi2Prob( -1.                           ) // lazy evaluation
       {
         
         const Trk::TrackParameters* trackPars = track.perigeeParameters();
@@ -81,33 +83,38 @@ namespace PESA {
           float theta = trackPars->parameters()[Trk::theta]; 
           m_Eta = -log(tan(0.5*theta)); 
           float qOverP = trackPars->parameters()[Trk::qOverP]; 
-          m_Pt = std::sin(theta)/qOverP;
+          m_Pt = std::abs(std::sin(theta)/qOverP)/GeV;
 
           const Trk::FitQuality* fq = track.fitQuality();
           m_Qual = 1e8;
-          m_NDF = 0;
+          //m_NDF = 0;
           if (fq) {
             if(fq->numberDoF()!=0) {
-              m_Qual = fq->chiSquared();
-              m_NDF = fq->numberDoF();
+              m_Qual = fq->chiSquared()/fq->numberDoF();
+              //m_NDF = fq->numberDoF() - 5;//Remove 5 helix parameters
             }
           }
           int nPix=0;
           int nSct=0;
-
-          for(auto tSOS = track.trackStateOnSurfaces()->begin();  
-              tSOS!=track.trackStateOnSurfaces()->end(); ++tSOS) { 
-            if ((*tSOS)->type(Trk::TrackStateOnSurface::Perigee) == false) {
-              const Trk::FitQualityOnSurface* fq =  (*tSOS)->fitQualityOnSurface(); 
-              if(!fq) continue; 
-              int nd = fq->numberDoF(); 
-              if(nd==2) nPix++;
-              if(nd==1) nSct++;
-            }
-          }
+	  if( track.trackSummary() != nullptr){
+	    nPix =    track.trackSummary()->get(Trk::numberOfPixelHits);
+	    nSct =  track.trackSummary()->get(Trk::numberOfSCTHits);
+	  } else {
+	    for(auto tSOS = track.trackStateOnSurfaces()->begin();  
+		tSOS!=track.trackStateOnSurfaces()->end(); ++tSOS) { 
+	      if ((*tSOS)->type(Trk::TrackStateOnSurface::Perigee) == false) {
+		const Trk::FitQualityOnSurface* fq =  (*tSOS)->fitQualityOnSurface(); 
+		if(!fq) continue; 
+		int nd = fq->numberDoF(); 
+		if(nd==2) nPix++;
+		if(nd==1) nSct++;
+	      }
+	    }
+	  }
           m_PIXHits = nPix; 
           m_SCTHits = nSct/2; 
           m_SiHits = m_PIXHits + m_SCTHits; 
+          m_NDF = (m_PIXHits + m_SCTHits)*2 - 5;
           m_TRTHits = 0; //for now: FTF tracks have no TRT extension in any case
         }
       }

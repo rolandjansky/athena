@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: T2VertexBeamSpotConfig.py 673818 2015-06-09 19:27:01Z bartoldu $
+# $Id: T2VertexBeamSpotConfig.py 708692 2015-11-18 13:29:32Z baines $
 #
 
 from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpot
@@ -229,4 +229,25 @@ class T2VertexBeamSpot_activeTE_FTF ( T2VertexBeamSpot_activeTE ) :
     __slots__ = []
     def __init__ (self, name="T2VertexBeamSpot_activeTE_FTF"):
         super(T2VertexBeamSpot_activeTE_FTF, self).__init__(name, detail=0)
+        self.TrackAlgoID    = AlgoId.FTF
+
+ # Setup for using FTK tracks
+class T2VertexBeamSpot_FTK ( T2VertexBeamSpot ) :
+    __slots__ = []
+    def __init__ (self, name="T2VertexBeamSpot_FTK"):
+        super(T2VertexBeamSpot_FTK, self).__init__(name, detail=2)
+        self.TrackAlgoID    = AlgoId.FTF
+ 
+# Setup for writing out all events seen by the BeamSpot algorithm with FTK tracks
+class T2VertexBeamSpot_activeAllTE_FTK ( T2VertexBeamSpot_activeAllTE ) :
+    __slots__ = []
+    def __init__ (self, name="T2VertexBeamSpot_activeAllTE_FTK"):
+        super(T2VertexBeamSpot_activeAllTE_FTK, self).__init__(name, detail=0)
+        self.TrackAlgoID    = AlgoId.FTF
+ 
+# Setup for writing out events with a "good" vertex seen by the BeamSpot algorithm with FTK tracks
+class T2VertexBeamSpot_activeTE_FTK ( T2VertexBeamSpot_activeTE ) :
+    __slots__ = []
+    def __init__ (self, name="T2VertexBeamSpot_activeTE_FTK"):
+        super(T2VertexBeamSpot_activeTE_FTK, self).__init__(name, detail=0)
         self.TrackAlgoID    = AlgoId.FTF

@@ -4,7 +4,7 @@
 
 ///============================================================
 ///
-/// $Id: T2TrackManager.cxx 361213 2011-04-23 18:26:44Z bartoldu $
+/// $Id: T2TrackManager.cxx 702277 2015-10-22 10:33:51Z smh $
 ///
 /// T2TrackManager.h, (c) ATLAS Detector software
 /// Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -65,6 +65,42 @@ T2TrackManager::split( const TrigInDetTrackCollection& cluster )
 
   // Iterate over all the tracks in the cluster
   for ( TrigInDetTrackCollection::const_iterator c_itr = cluster.begin();
+        c_itr != cluster.end(); ++c_itr ) {
+    // By default (if the splitting algorithm doesn't exist) store
+    // tracks in the 1st collection
+    int nPos = 0;
+    if (m_alg == Alternating)
+      nPos = alternatingSplit();
+    else if (m_alg == Pt)
+      nPos = orderedSplit(nEntries);
+
+    // Add the track to the appropriate collection
+    trackCollections[nPos].push_back(*c_itr);
+  }
+
+  //  if (!m_doCluster) {
+  return trackCollections;
+}
+
+// The meat of the class, return a vector of split clusters
+std::vector< TrackCollection >
+T2TrackManager::split( const TrackCollection& cluster )
+{
+  const int nEntries = cluster.size();
+
+  //std::cout << "Reserve space" << std::endl;
+
+  // Set up the output, reserve space, init collections
+  TrackCollection splitColl;
+  splitColl.clear( SG::VIEW_ELEMENTS );
+  splitColl.reserve( nEntries / m_nSplit );
+  std::vector< TrackCollection > trackCollections( m_nSplit, splitColl );
+
+  //if (m_alg == Pt)
+  //sort(holder.begin(), holder.end(), ptSort);
+
+  // Iterate over all the tracks in the cluster
+  for ( TrackCollection::const_iterator c_itr = cluster.begin();
         c_itr != cluster.end(); ++c_itr ) {
     // By default (if the splitting algorithm doesn't exist) store
     // tracks in the 1st collection

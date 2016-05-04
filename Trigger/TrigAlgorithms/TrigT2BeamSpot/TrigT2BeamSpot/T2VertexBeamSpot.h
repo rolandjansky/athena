@@ -27,7 +27,7 @@
  * @author David W. Miller    <David.W.Miller@cern.ch>     - SLAC, Stanford University
  *
  * File and Version Information:
- * $Id: T2VertexBeamSpot.h 648108 2015-02-19 13:15:50Z smh $
+ * $Id: T2VertexBeamSpot.h 702277 2015-10-22 10:33:51Z smh $
  **********************************************************************************/
 
 #ifndef TRIGT2BEAMSPOT_T2VERTEXBEAMSPOT_H
@@ -82,6 +82,9 @@ namespace PESA {
 
       /// Implementation class
       class T2VertexBeamSpotImpl* impl;
+
+      //Switch to use TrigInDetTrack (i.e. L2Star algorithms)
+      bool m_doTrigInDetTrack;
 
       // Need this to get access to protected msg() and msgLvl()
       friend class T2VertexBeamSpotImpl;

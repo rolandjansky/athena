@@ -3,7 +3,7 @@
 */
 
 //
-// $Id: T2Track.cxx 648108 2015-02-19 13:15:50Z smh $
+// $Id: T2Track.cxx 702277 2015-10-22 10:33:51Z smh $
 //
 
 #include "T2Track.h"
@@ -18,7 +18,6 @@ namespace PESA
     const int trackNDF = ( track.NPixelSpacePoints() + track.NSCT_SpacePoints() ) * 2 - 5;
     return trackNDF;
   }
-
 
   double trackChi2Prob( const T2Track& track )
   {

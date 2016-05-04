@@ -4,7 +4,7 @@
 
 /**********************************************************************************
  *
- * @version: $Id: T2Vertex.h 648108 2015-02-19 13:15:50Z smh $
+ * @version: $Id: T2Vertex.h 702277 2015-10-22 10:33:51Z smh $
  *
  * @project: HLT, PESA algorithms
  * @package: TrigT2BeamSpot
@@ -26,6 +26,7 @@
 
 /// External classes
 #include "TrigInDetEvent/TrigVertex.h"
+#include "TrkTrack/TrackCollection.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
 #include "TMath.h"
 
@@ -42,6 +43,9 @@ namespace PESA
   double vertexChi2Prob( const T2Vertex& vertex );
   double vertexSumPt ( const TrackInVertexList& tracks );
   double vertexSumPt2( const TrackInVertexList& tracks );
+
+  double vertexSumPt ( const TrackCollection& tracks );
+  double vertexSumPt2( const TrackCollection& tracks );
 
   double tiltedBeamPositionAtZPoint( double Zref, double nominalZPosition,
                                      double nominalTransversePosition, double tilt );
@@ -99,6 +103,30 @@ namespace PESA
       , m_XY      ( 0.                             )
       , m_Pull    ( vertex.z() - seedZ             ) // FIXME: that's not a pull
       , m_tracks  ( vertex.tracks()                )
+      , m_trkTracks  ( nullptr                     )
+      {
+        const double beamXatVtx =
+          tiltedBeamPositionAtZPoint( Z(), beamSpot.posZ(), beamSpot.posX(), beamSpot.tiltX() );
+        const double beamYatVtx =
+          tiltedBeamPositionAtZPoint( Z(), beamSpot.posZ(), beamSpot.posY(), beamSpot.tiltY() );
+
+        m_XZoom = X() - beamXatVtx;                                                        
+        m_YZoom = Y() - beamYatVtx;                                                        
+        m_ZZoom = Z() - beamSpot.posZ();
+      }
+
+    T2Vertex( const TrigVertex& vertex, TrackCollection* tracks, const T2BeamSpot& beamSpot, double seedZ )
+      : T2SimpleVertex( vertex )
+      , m_SumPt   ( -1.                            ) // lazy evaluation
+      , m_SumPt2  ( -1.                            )
+      , m_Mass    ( vertex.mass()                  )
+      , m_NDF     ( vertex.ndof()                  )
+      , m_Qual    ( vertex.chi2() / vertex.ndof()  ) // FIXME: ndof==0 ?
+      , m_Chi2Prob( -1.                            ) // lazy evaluation
+      , m_XY      ( 0.                             )
+      , m_Pull    ( vertex.z() - seedZ             ) // FIXME: that's not a pull
+      , m_tracks  ( nullptr                )
+      , m_trkTracks  (tracks)
       {
         const double beamXatVtx =
           tiltedBeamPositionAtZPoint( Z(), beamSpot.posZ(), beamSpot.posX(), beamSpot.tiltX() );
@@ -111,8 +139,36 @@ namespace PESA
       }
 
     // Accessors
-    double   SumPt   () const { if ( m_SumPt  < 0. ) m_SumPt  = m_tracks ? vertexSumPt ( *m_tracks ) : 0.; return m_SumPt ; }
-    double   SumPt2  () const { if ( m_SumPt2 < 0. ) m_SumPt2 = m_tracks ? vertexSumPt2( *m_tracks ) : 0.; return m_SumPt2; }
+    double   SumPt   () const { 
+      if ( m_SumPt  < 0. ) {
+        if (m_tracks) { 
+          return vertexSumPt ( *m_tracks );
+        }
+        else if (m_trkTracks) {
+          return vertexSumPt ( *m_trkTracks );
+        }
+        else return 0; 
+      }
+      else {
+        return m_SumPt;
+      }
+    }
+
+    double   SumPt2   () const { 
+      if ( m_SumPt2  < 0. ) {
+        if (m_tracks) { 
+          return vertexSumPt2 ( *m_tracks );
+        }
+        else if (m_trkTracks) {
+          return vertexSumPt2 ( *m_trkTracks );
+        }
+        else return 0;
+      }
+      else {
+        return m_SumPt2;
+      }
+    }
+
     double   Mass    () const { return m_Mass    ; }
     double   NDF     () const { return m_NDF     ; }
     double   Qual    () const { return m_Qual    ; }
@@ -123,7 +179,15 @@ namespace PESA
     double   XY      () const { return m_XY      ; }
     double   Pull    () const { return m_Pull    ; }
 
-    unsigned NTrksInVtx() const { return m_tracks->size(); }
+    unsigned NTrksInVtx() const { 
+                                  if (m_tracks) {
+                                    return m_tracks->size();
+                                  } 
+                                  else if (m_trkTracks) {
+                                    return m_trkTracks->size();
+                                  }
+                                  else return 0;
+                                }
 
 
   private:
@@ -140,7 +204,7 @@ namespace PESA
     double   m_XY      ;
     double   m_Pull    ;   
 
-    TrackInVertexList* m_tracks;
+    TrackInVertexList* m_tracks; TrackCollection* m_trkTracks;
   };
 
 

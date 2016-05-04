@@ -1,5 +1,5 @@
 #
-# $Id: requirements 648108 2015-02-19 13:15:50Z smh $
+# $Id: requirements 723137 2016-02-10 15:52:24Z fwinkl $
 #
 
 package TrigT2BeamSpot
@@ -27,6 +27,7 @@ private
 
 use TrigInDetEvent          TrigInDetEvent-*          Trigger/TrigEvent
 use TrkTrack		            TrkTrack-* 		            Tracking/TrkEvent
+use TrkParameters	          TrkParameters-*           Tracking/TrkEvent
 use EventPrimitives         EventPrimitives-*         Event
 use GaudiInterface          GaudiInterface-*          External
 use AtlasROOT               AtlasROOT-*               External
@@ -36,7 +37,7 @@ use TrigNavigation          TrigNavigation-*          Trigger/TrigEvent
 use TrigTimeAlgs            TrigTimeAlgs-*            Trigger/TrigTools
 use DataModel               DataModel-*               Control
 use TrigInDetToolInterfaces     TrigInDetToolInterfaces-* Trigger/TrigTools
-
+use TrkTrackSummary            TrkTrackSummary-*          Tracking/TrkEvent
 #------------------------------------------------------------------
 
 apply_pattern component_library
@@ -45,8 +46,3 @@ library TrigT2BeamSpot *.cxx components/TrigT2*.cxx
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
 
-# update the version.h file with an svn Id tag
-# note that $ signs need to be quoted for make
-
-action version_tag "sed -i -e 's/\$$Id[^$$]*/$$Id/' $(src)version.cxx"
-# macro_append TrigT2BeamSpot_dependencies " version_tag "
