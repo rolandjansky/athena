@@ -200,9 +200,19 @@
             </expectations> 
         </TEST> 
         
-        
         <TEST name="AthenaTrigAOD_TrigEDMCheck" type="script" suite="tat_MCSlim"> 
             <options_atn>trigtest.pl --test AthenaTrigAOD_TrigEDMCheck --run AthenaTrigAOD_TrigEDMCheck --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="AthenaTrigAOD_TrigEDMAuxCheck" type="script" suite="tat_MCSlim"> 
+            <options_atn>trigtest.pl --test AthenaTrigAOD_TrigEDMAuxCheck --run AthenaTrigAOD_TrigEDMAuxCheck --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
             <project_exclude>AthAnalysis</project_exclude>
