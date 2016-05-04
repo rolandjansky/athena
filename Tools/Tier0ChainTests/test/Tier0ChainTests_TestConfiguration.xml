@@ -1128,7 +1128,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>LatestRun_Main1</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=1 --trigStream=Main --nfiles=1 --maxEvents=250 --latestrun --castordir=/eos/atlas/atlastier0/rucio/data15_13TeV --AMI=f611 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'all:from MuonRecExample.MuonRecFlags import muonRecFlags;muonRecFlags.useLooseErrorTuning.set_Value_and_Lock(True);DQMonFlags.doCTPMon=True;'"
+                                    tct_recotrf.py --jobnum=1 --trigStream=Main --nfiles=1 --maxEvents=250 --latestrun --castordir=/eos/atlas/atlastier0/rucio/data16_13TeV --AMI=f694 --dropDESDs --dropDRAWs --dropNTUPs
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
