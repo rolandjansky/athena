@@ -5,11 +5,15 @@ private
 
 #use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
 #use AthenaKernel        AthenaKernel-*          Control
-#use LArRecConditions    LArRecConditions-*      LArCalorimeter 
-    
+#use LArRecConditions    LArRecConditions-*      LArCalorimeter     
 
 #use CaloEvent           CaloEvent-*             Calorimeter
 #use CaloDetDescr        CaloDetDescr-*          Calorimeter
+
+
+use AtlasFastJet            AtlasFastJet-*              External
+use AtlasFastJetContrib     AtlasFastJetContrib-*       External
+macro AtlasFastJetContrib_linkopts "-L$(AtlasFastJetContrib_lib) -lSoftKiller"
 
 public
 
@@ -30,7 +34,10 @@ use JetEDM              JetEDM-*                Reconstruction/Jet
 use JetInterface        JetInterface-*          Reconstruction/Jet
 #use JetUtils            JetUtils-*              Reconstruction/Jet
 use JetRec              JetRec-*              Reconstruction/Jet
-
+use xAODCore                xAODCore-*                  Event/xAOD
+use xAODBase                xAODBase-*                  Event/xAOD
+use xAODCaloEvent                               xAODCaloEvent-*                                 Event/xAOD
+use xAODTracking        xAODTracking-*          Event/xAOD
 use AsgTools            AsgTools-*              Control/AthToolSupport
 
 use PFlowUtils          PFlowUtils-*            Reconstruction/PFlow
@@ -39,11 +46,12 @@ use PFlowUtils          PFlowUtils-*            Reconstruction/PFlow
 private
 # Add explicit dependency against xAODPFlow to avoid indirect dependency from PFlowUtils
 # which creates a component library and cmake (correctly) does not propagate such dependencies
-#use xAODPFlow           xAODPFlow-*             Event/xAOD
+use xAODTruth           xAODTruth-*             Event/xAOD
+use xAODPFlow           xAODPFlow-*             Event/xAOD
 end_private
 
 
-use xAODTracking        xAODTracking-*          Event/xAOD
+#use xAODTracking        xAODTracking-*          Event/xAOD 
 #use TrkToolInterfaces   TrkToolInterfaces-*     Tracking/TrkTools
 
 # Add explicit dependency against xAODPFlow to avoid indirect dependency from PFlowUtils

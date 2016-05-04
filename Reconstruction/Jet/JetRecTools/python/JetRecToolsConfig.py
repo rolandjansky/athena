@@ -1,17 +1,19 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import os
-from JetRec.JetToolSupport import jtm
+from AthenaCommon import Logging
+#from JetRec.JetToolSupport import jtm
+from JetRec.JetRecStandard import jtm
 import JetRec.JetRecStandardTools
-from JetRecTools.JetRecToolsConf import JetTrackSelectionTool , TrackVertexAssociationTool, MissingCellListTool, TrackPseudoJetGetter
+from JetRecTools.JetRecToolsConf import JetTrackSelectionTool , TrackVertexAssociationTool, TrackPseudoJetGetter #MissingCellListTool, 
 
 
-# ------------------------------------------------
-# Bad/Missing Cells list creation
-jtm += MissingCellListTool("MissingCellListTool",
-                           AddBadCells = True,
-                           )
-# ------------------------------------------------
+## # ------------------------------------------------
+## # Bad/Missing Cells list creation
+## jtm += MissingCellListTool("MissingCellListTool",
+##                            AddBadCells = True,
+##                            )
+## # ------------------------------------------------
 
 # Bad channel correction tools
 def badChanInputHistoHelper():
@@ -35,3 +37,128 @@ def badChanInputHistoHelper():
 badChanInputHistoHelper()
 from JetMomentTools.JetMomentToolsConf import JetBadChanCorrTool
 jtm += JetBadChanCorrTool("JetBadChanCorrTool", MissingCellMap="MissingCaloCellsMap")
+
+
+# -----------------------------------
+# ConstitModifier
+# -----------------------------------
+class ConstituentToolManager(object):
+    """This class is modelled after JetToolManager.
+    It is intended to be a central place where to
+      * register constituent modifier tools
+      * map them to shortcut
+      * collect them in a mod sequencer tool
+    This class is provided standalone, but could be merged with JetToolManager if needed.
+
+    and example call could be :
+
+    clustModSeq = ctm.buildConstitModifSequence( 'JetWeightedTopoClusters',
+                                             inputName= 'CaloCalTopoClusters',
+                                             modList = [  'clust_weight'] )
+
+
+    """
+
+    # map of tool names or alias to tool instance
+    #  (there can be multiple entries pointing to the same instance) 
+    modifiersMap = dict()
+    # map of named standard list of modifiers
+    standardModifierLists = dict()
+    # map of known input collection to their type
+    inputContainerMap = dict( CaloCalTopoClusters = "CaloCluster", CaloTopoClusters = "CaloCluster",
+                              InDetTrackParticles = "TrackParticles")
+        
+
+    log = Logging.logging.getLogger("ConstituentToolManager")
+
+    def add(self, tool, alias=None):
+        """Register a tool in the manager.  If alias is given, the tool is also registered under the alias key"""
+        name = tool.name()
+        if name in self.modifiersMap:
+            self.log.warning("Tool named "+name+" already registered. Not adding a new one")
+            return self.modifiersMap[name]
+        if alias is not None and alias in self.modifiersMap:
+            self.log.warning("Tool named "+alias+" already registered. Not adding a new one under this alias. Was "+name)            
+            return self.modifiersMap[alias]
+
+        from AthenaCommon.AppMgr import ToolSvc
+
+        ToolSvc += tool
+        self.modifiersMap[name] = tool
+        if alias: self.modifiersMap[alias] = tool
+        return tool
+
+    
+    def __iadd__(self, tool):
+        """Enables the += syntax to add tool """
+        self.add(tool)
+        return self
+
+    def buildConstitModifSequence(self, outputName , inputName, modList, inputType=None):
+        """Returns a configured JetConstituentModSequence instance.
+        The tool is build according to
+           outputName (str) : name of desired output constituents container
+           inputName  (str) : name of input constituents container
+           modList (str or list): if str this is taken as a shortcut to a knonw, default list of modifier tools (from self.standardModifierLists)
+                                  if list, entries are eihter configured modifier tools, either strings in which case they are shortcut to known modifier tool (in self.modifiersMap).
+          inputType : (str or None) the type of particles in the input container. If None attempt is made to guess it from inputName (from self.inputContainerMap).
+          
+        """
+        
+        seqName = outputName+'_modSeq'
+
+        # Deal with input -----------------
+        if inputType is None:
+            # get it from the knonw inputs
+            inputType = self.inputContainerMap[ inputName ]
+        if inputType is None:
+            self.log.error( seqName+'. Unknonw input container : '+inputName )
+            return 
+
+        # deal with modifiers ---------------
+        if isinstance(modList, str):
+            modKey = modList
+            # translate into a knonw list :
+            modList = self.standardModifierLists.get( modKey , None)
+            if modList is None :
+                self.log.error( seqName+". Uknown shortcut for constit modifier list : "+modKey)
+                return None
+        # loop over modList
+        finalList = []
+        for t in modList:
+            if isinstance(t,str):
+                # translate into a real tool
+                tool = self.modifiersMap.get(t,None)
+                if tool is None:
+                    self.log.error( seqName+". Uknown shortcut for constit modifier list : "+modKey)
+                    return None
+                t = tool
+            # append to the final list
+            finalList.append( t )
+            
+        clustModSeq = JetConstituentModSequence( seqName, # the name of the tool 
+                                                 InputContainer = inputName,
+                                                 OutputContainer = outputName,
+                                                 InputType = inputType,
+                                                 Modifiers = finalList, # pass the list of modifier we want 
+                                                 )
+        self += clustModSeq
+        
+        return clustModSeq
+
+
+# -----------------------------------
+# the main ConstituentToolManager instance
+ctm = ConstituentToolManager()
+# -----------------------------------
+    
+# -----------------------------------
+# add standard tools to ctm
+from JetRecTools.JetRecToolsConf import  JetConstituentModSequence, CaloClusterConstituentsWeight, SoftKillerWeightTool
+
+ctm.add( CaloClusterConstituentsWeight("JetConstit_ClustWeight") ,
+         alias = 'clust_weight' ) 
+
+ctm.add( SoftKillerWeightTool("JetConstit_SoftKiller", SKGridSize=0.45) ,
+         alias = 'softkiller' )
+
