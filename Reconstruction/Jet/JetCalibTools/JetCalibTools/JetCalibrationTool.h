@@ -59,7 +59,8 @@ public:
                      bool isData = true,
 		     bool mass = false,
                      TString rhoKey = "auto",
-                     TString dir = "JetCalibTools/CalibrationConfigs/");
+                     TString dir = "JetCalibTools/CalibrationConfigs/",
+                     TString eInfoName = "EventInfo");
 
 
   /// Destructor: 
@@ -102,10 +103,12 @@ private:
   std::string m_config;
   std::string m_calibSeq;
   std::string m_calibAreaTag;
+  bool m_devMode;
   bool m_isData;
   bool m_mass;
   std::string m_rhoKey;
   std::string m_dir;
+  std::string m_eInfoName;
 
   //TEnv to hold the global text config
   TEnv * m_globalConfig;
@@ -115,6 +118,7 @@ private:
   bool m_doJetArea;
   bool m_doResidual;
   bool m_doOrigin;
+  bool m_doGSC;
 
   //Class objects for each calibration step
   std::vector<JetCalibrationToolBase*> m_calibClasses;

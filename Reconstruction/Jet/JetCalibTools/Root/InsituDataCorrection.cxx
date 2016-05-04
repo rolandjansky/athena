@@ -7,17 +7,17 @@
 
 InsituDataCorrection::InsituDataCorrection()
   : asg::AsgTool( "InsituDataCorrection::InsituDataCorrection" ), JetCalibrationToolBase::JetCalibrationToolBase(),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_insituCorr(NULL), m_insituCorr_ResidualMCbased(NULL)
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_insituCorr(NULL), m_insituCorr_ResidualMCbased(NULL)
 { }
 
 InsituDataCorrection::InsituDataCorrection(const std::string& name)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_insituCorr(NULL), m_insituCorr_ResidualMCbased(NULL)
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_insituCorr(NULL), m_insituCorr_ResidualMCbased(NULL)
 { }
 
-InsituDataCorrection::InsituDataCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag)
+InsituDataCorrection::InsituDataCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_insituCorr(NULL), m_insituCorr_ResidualMCbased(NULL)
+    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev), m_insituCorr(NULL), m_insituCorr_ResidualMCbased(NULL)
 { }
 
 InsituDataCorrection::~InsituDataCorrection() {
@@ -56,14 +56,18 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
 
   //Find the absolute path to the insitu root file
   if ( !insitu_filename.EqualTo("None") ){
-    insitu_filename.Insert(14,m_calibAreaTag);
+    if(m_dev){
+      insitu_filename.Insert(0,"JetCalibTools/");
+      insitu_filename.Insert(28,m_calibAreaTag);
+    }
+    else{insitu_filename.Insert(14,m_calibAreaTag);}
     insitu_filename=PathResolverFindCalibFile(insitu_filename.Data());
   }
 
   TFile *insitu_file = TFile::Open(insitu_filename);
   if ( !insitu_file ) { ATH_MSG_FATAL( "Cannot open InsituCalibrationFile: " << insitu_filename ); return StatusCode::FAILURE; }
 
-  ATH_MSG_INFO("\n  Reading In-situ correction factors from:\n    " << insitu_filename << "\n\n");
+  ATH_MSG_INFO("Reading In-situ correction factors from: " << insitu_filename);
 
   rel_histoname.ReplaceAll("JETALGO",m_jetAlgo); abs_histoname.ReplaceAll("JETALGO",m_jetAlgo);
   if(m_applyRelativeandAbsoluteInsitu){
@@ -102,7 +106,8 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
   }
 
   //insitu_file->Close();
-  ATH_MSG_INFO( "\n  Tool configured to calibrate data.\n  In-situ correction to be applied:\n    " << insitu_desc << "\n" );
+  ATH_MSG_INFO("Tool configured to calibrate data");
+  ATH_MSG_INFO("In-situ correction to be applied: " << insitu_desc << "\n");
   return StatusCode::SUCCESS;
 
 }
@@ -118,6 +123,11 @@ StatusCode InsituDataCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) co
   xAOD::JetFourMom_t calibP4=jetStartP4;
   
   if(m_applyResidualMCbasedInsitu) calibP4=calibP4*getInsituCorr( calibP4.pt(), fabs(detectorEta), "ResidualMCbased" );
+
+  if(m_dev){
+    float insituFactor = getInsituCorr( jetStartP4.pt(), detectorEta, "RelativeAbs" );
+    jet.setAttribute<float>("JetRelativeAbsInsituCalibFactor",insituFactor);
+  }
 
   if(m_applyRelativeandAbsoluteInsitu) calibP4=calibP4*getInsituCorr( jetStartP4.pt(), detectorEta, "RelativeAbs" );
 

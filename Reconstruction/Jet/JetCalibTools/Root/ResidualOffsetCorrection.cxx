@@ -7,19 +7,19 @@
 
 ResidualOffsetCorrection::ResidualOffsetCorrection()
   : asg::AsgTool( "ResidualOffsetCorrection::ResidualOffsetCorrection" ),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_isData(false),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_isData(false),
     m_npvBeamspotCorr(NULL), m_resOffsetBins(NULL)
 { }
 
 ResidualOffsetCorrection::ResidualOffsetCorrection(const std::string& name)
   : asg::AsgTool( name ),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_isData(false),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_isData(false),
     m_npvBeamspotCorr(NULL), m_resOffsetBins(NULL)
 { }
 
-ResidualOffsetCorrection::ResidualOffsetCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool isData)
+ResidualOffsetCorrection::ResidualOffsetCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool isData, bool dev)
   : asg::AsgTool( name ),
-    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_isData(isData),
+    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev), m_isData(isData),
     m_npvBeamspotCorr(NULL), m_resOffsetBins(NULL)
 { }
 
@@ -46,14 +46,18 @@ StatusCode ResidualOffsetCorrection::initializeTool(const std::string&) {
 
   //Add the residual offset correction factors to the config TEnv
   TString ResidualOffsetCalibFile = m_config->GetValue("ResidualOffset.CalibFile","");
-  ResidualOffsetCalibFile.Insert(14,m_calibAreaTag);
+  if(m_dev){
+    ResidualOffsetCalibFile.Insert(0,"JetCalibTools/");
+    ResidualOffsetCalibFile.Insert(28,m_calibAreaTag);
+  }
+  else{ResidualOffsetCalibFile.Insert(14,m_calibAreaTag);}
   TString calibFile = PathResolverFindCalibFile(ResidualOffsetCalibFile.Data());
   m_config->ReadFile(calibFile, kEnvLocal);
   //Retrieve information specific to the residual offset correction from the TEnv
   TString offsetName = m_config->GetValue("ResidualOffsetCorrection.Name","");
   m_resOffsetDesc = m_config->GetValue(offsetName+".Description","");
-  ATH_MSG_INFO("  Reading residual jet-area pile-up correction factors from:\n    " << calibFile << "\n");
-  ATH_MSG_INFO("  Description:\n    " << m_resOffsetDesc << "\n");
+  ATH_MSG_INFO("Reading residual jet-area pile-up correction factors from: " << calibFile);
+  ATH_MSG_INFO("Description: " << m_resOffsetDesc << "\n");
 
   std::vector<double> offsetEtaBins = JetCalibUtils::VectorizeD( m_config->GetValue(offsetName+".AbsEtaBins","") );
   if (offsetEtaBins.size()<3) { ATH_MSG_FATAL(offsetName << ".AbsEtaBins not specified"); return StatusCode::FAILURE; }

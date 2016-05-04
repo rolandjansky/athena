@@ -7,7 +7,7 @@
 
 EtaJESCorrection::EtaJESCorrection()
   : asg::AsgTool( "EtaJESCorrection::EtaJESCorrection" ), JetCalibrationToolBase::JetCalibrationToolBase(),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_mass(false),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_mass(false), m_dev(false),
     m_minPt_JES(10), m_minPt_EtaCorr(8), m_maxE_EtaCorr(2500),
     m_lowPtExtrap(0), m_lowPtMinR(0.25),
     m_etaBinAxis(NULL)
@@ -15,15 +15,15 @@ EtaJESCorrection::EtaJESCorrection()
 
 EtaJESCorrection::EtaJESCorrection(const std::string& name)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_mass(false),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_mass(false), m_dev(false),
     m_minPt_JES(10), m_minPt_EtaCorr(8), m_maxE_EtaCorr(2500),
     m_lowPtExtrap(0), m_lowPtMinR(0.25),
     m_etaBinAxis(NULL)
 { }
 
-EtaJESCorrection::EtaJESCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool mass)
+EtaJESCorrection::EtaJESCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool mass, bool dev)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_mass(mass),
+    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_mass(mass), m_dev(dev),
     m_minPt_JES(10), m_minPt_EtaCorr(8), m_maxE_EtaCorr(2500),
     m_lowPtExtrap(0), m_lowPtMinR(0.25),
     m_etaBinAxis(NULL)
@@ -42,12 +42,16 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
 
   //TString calibFile = FindFile(m_config->GetValue("AbsoluteJES.CalibFile",""));
   TString absoluteJESCalibFile = m_config->GetValue("AbsoluteJES.CalibFile","");
-  absoluteJESCalibFile.Insert(14,m_calibAreaTag);
+  if(m_dev){
+    absoluteJESCalibFile.Insert(0,"JetCalibTools/");
+    absoluteJESCalibFile.Insert(28,m_calibAreaTag);
+  }
+  else{absoluteJESCalibFile.Insert(14,m_calibAreaTag);}
   TString calibFile = PathResolverFindCalibFile(absoluteJESCalibFile.Data());
   m_config->ReadFile(calibFile, kEnvLocal);
-  ATH_MSG_INFO("  \n\nReading absolute calibration factors from:\n    " << calibFile << "\n");
+  ATH_MSG_INFO("Reading absolute calibration factors from: " << calibFile);
   m_jesDesc = m_config->GetValue("AbsoluteJES.Description","");
-  ATH_MSG_INFO("  Description:\n    " << m_jesDesc << "\n");
+  ATH_MSG_INFO("Description: " << m_jesDesc << "\n");
 
   // minPt_JES (always in GeV) determines at which point we stop using the correction curve and switch to an extrapolated value
   m_minPt_JES = m_config->GetValue(m_jetAlgo+".MinPtForETAJES",10);
@@ -80,7 +84,7 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
   m_applyMassCorrection = m_config->GetValue("ApplyMassCorrection",false);
 
   if(m_mass){ // Only for the calibration sequence: EtaMassJES
-    if(m_applyMassCorrection) ATH_MSG_INFO("  Jet mass correction will be applied.\n");
+    if(m_applyMassCorrection) ATH_MSG_INFO("Jet mass correction will be applied.\n");
     else { ATH_MSG_FATAL( "You can't apply the mass correction unless you specify ApplyMassCorrection: true in the configuration file!"); return StatusCode::FAILURE; }
   }
 
@@ -160,6 +164,10 @@ StatusCode EtaJESCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const 
   //Apply the JES calibration scale factor
   //Takes the uncorrected jet eta (in case the origin and/or 4vector jet area corrections were applied
   float detectorEta = jet.getAttribute<float>("DetectorEta");
+  if(m_dev){
+    float JESFactor = getJES( jetStartP4.e(),detectorEta );
+    jet.setAttribute<float>("JetJESCalibFactor",JESFactor);
+  }
   xAOD::JetFourMom_t calibP4 = jetStartP4*getJES( jetStartP4.e(), detectorEta );
 
   const double etaCorr = calibP4.eta() + getEtaCorr( calibP4.e(), detectorEta );

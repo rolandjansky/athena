@@ -25,6 +25,8 @@ apply_pattern component_library
 
 #apply_pattern dual_use_library files="*.cxx ../Root/*.cxx"
 
+apply_pattern declare_calib files="-s=../share *"
+
 apply_pattern generic_declare_for_link files="../data/CalibrationConfigs/*.config" kind=calib prefix=share/JetCalibTools/CalibrationConfigs name=CalibrationConfigs
 apply_pattern generic_declare_for_link files="../data/CalibrationFactors/*.config ../data/CalibrationFactors/*.root" kind=calib prefix=share/JetCalibTools/CalibrationFactors name=CalibrationFactors
 apply_pattern generic_declare_for_link files="../data/InsituCalibration/*.root" kind=calib prefix=share/JetCalibTools/InsituCalibration name=InsituCalibration

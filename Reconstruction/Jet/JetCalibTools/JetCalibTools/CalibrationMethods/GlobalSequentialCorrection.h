@@ -33,7 +33,7 @@ class GlobalSequentialCorrection
 
   GlobalSequentialCorrection();
   GlobalSequentialCorrection(const std::string& name);
-  GlobalSequentialCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag); //Apply the full GS calibration by default
+  GlobalSequentialCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev); //Apply the full GS calibration by default
   virtual ~GlobalSequentialCorrection();
 
   virtual StatusCode initializeTool(const std::string& name);
@@ -46,10 +46,11 @@ class GlobalSequentialCorrection
   double getNTrkResponse(double pT, uint etabin, double nTrk) const;
   double getTile0Response(double pT, uint etabin, double Tile0) const;
   double getEM3Response(double pT, uint etabin, double EM3) const;
+  double getChargedFractionResponse(double pT, uint etabin, double ChargedFraction) const;
   double getPunchThroughResponse(double E, double eta_det, int Nsegments) const;
 
   double getGSCCorrection(xAOD::JetFourMom_t jetP4, double eta,
-			  double trackWIDTH, double nTrk, double Tile0, double EM3, int Nsegments) const;
+			  double trackWIDTH, double nTrk, double Tile0, double EM3, int Nsegments, double ChargedFraction) const;
 
   double getJetPropertyMax(TString jetPropName, unsigned int etabin) {
     if ( jetPropName.Contains("EM3") && etabin < m_EM3MaxEtaBin ) return m_respFactorsEM3[etabin]->GetYaxis()->GetXmax();
@@ -99,20 +100,22 @@ class GlobalSequentialCorrection
   //end shared functions
 
  private:
-  enum m_GSCSeq { ApplyTile0 = 1, ApplyEM3 = 2, ApplynTrk = 4, ApplytrackWIDTH = 8, ApplyPunchThrough = 16 };
+  enum m_GSCSeq { ApplyChargedFraction = 1, ApplyTile0 = 2, ApplyEM3 = 4, ApplynTrk = 8, ApplytrackWIDTH = 16, ApplyPunchThrough = 32 };
 
   //Private members set in the constructor
   TEnv * m_config;
   TString m_jetAlgo, m_depthString, m_calibAreaTag;
+  bool m_dev;
 
   //Private members set during initialization
-  VecTH2F m_respFactorsEM3, m_respFactorsnTrk, m_respFactorstrackWIDTH, m_respFactorsTile0, m_respFactorsPunchThrough;
+  VecTH2F m_respFactorsEM3, m_respFactorsnTrk, m_respFactorstrackWIDTH, m_respFactorsTile0, m_respFactorsPunchThrough, m_respFactorsChargedFraction;
   double m_binSize;
-  uint m_depth, m_trackWIDTHMaxEtaBin, m_nTrkMaxEtaBin, m_Tile0MaxEtaBin, m_EM3MaxEtaBin;
+  uint m_depth, m_trackWIDTHMaxEtaBin, m_nTrkMaxEtaBin, m_Tile0MaxEtaBin, m_EM3MaxEtaBin, m_chargedFractionMaxEtaBin;
   //double m_etaGapMin, m_etaGapMax;
   VecD m_punchThroughEtaBins;
   double m_punchThroughMinPt;
   bool m_turnOffTrackCorrections;
+  bool m_PFlow;
   bool m_pTResponseRequirementOff;
   double m_turnOffStartingpT, m_turnOffEndpT;
 
