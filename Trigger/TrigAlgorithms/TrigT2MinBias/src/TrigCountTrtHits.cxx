@@ -174,8 +174,8 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
 
   // Do initialisation at start of first event
   if (m_hltExecuteInitialisationRun == false) {
-    HLT::ErrorCode _ec = checkDetectorMask();
-    if (_ec != HLT::OK) return _ec;
+    HLT::ErrorCode ec = checkDetectorMask();
+    if (ec != HLT::OK) return ec;
   }
 
   m_log << MSG::DEBUG << "Executing this TrigCountTrtHits " << name() << endreq;
@@ -251,8 +251,8 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
       m_dataLoopTimer->start();
     }
 
-    const TRT_RDO_Container *m_trtContainer;
-    StatusCode sc_sg = m_storeGate->retrieve( m_trtContainer, m_trtRdoContainerName );
+    const TRT_RDO_Container *trtContainer;
+    StatusCode sc_sg = m_storeGate->retrieve( trtContainer, m_trtRdoContainerName );
 
     if( sc_sg.isFailure() ){
       m_log << MSG::ERROR << " Failed to retrieve trt data from SG. " << endreq; 
@@ -262,8 +262,8 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
       m_log << MSG::DEBUG << " Successfully retrieved trt data from SG. " << endreq; 
     
     // loop over collections of container
-    TRT_RDO_Container::const_iterator trthitsCollIt = m_trtContainer->begin();
-    TRT_RDO_Container::const_iterator trthitsCollItEnd = m_trtContainer->end();
+    TRT_RDO_Container::const_iterator trthitsCollIt = trtContainer->begin();
+    TRT_RDO_Container::const_iterator trthitsCollItEnd = trtContainer->end();
     
     for( ; trthitsCollIt!=trthitsCollItEnd; ++trthitsCollIt ){  
       if( trthitsCollIt == trthitsCollItEnd ) continue;
@@ -333,7 +333,7 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
   // Create an output TE seeded by the inputs
   HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
   outputTE->setActiveState(true);  
-
+  
   HLT::ErrorCode hltStatus = attachFeature( outputTE, m_trtHitCounts, "TrtHitCount");
   if(hltStatus != HLT::OK) {
     m_log << MSG::ERROR << "Unable to attach HLT feature TrtHitCount to output TE." << endreq;

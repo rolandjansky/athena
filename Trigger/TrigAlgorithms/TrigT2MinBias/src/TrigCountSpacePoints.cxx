@@ -55,7 +55,7 @@ TrigCountSpacePoints::TrigCountSpacePoints(const std::string& name, ISvcLocator*
   declareProperty( "ReadSctSp",                               m_doSctSp = true );
 
   // note, these are dummy values, they are set in TriggerMenuPython/python/MinBiasDef.py
-  declareProperty( "MaxNModIdentifier",                       maxnid = 100 );
+  declareProperty( "MaxNModIdentifier",                       m_maxnid = 100 );
   declareProperty( "PixelModuleThreshold",                    m_pixModuleThreshold = 50 );
   declareProperty( "SCTModuleThreshold",                      m_sctModuleThreshold = 100 );
   declareProperty( "PixelClusToTCut",                         m_pixelClusToTCut = 20. );
@@ -126,17 +126,17 @@ TrigCountSpacePoints::TrigCountSpacePoints(const std::string& name, ISvcLocator*
   declareProperty( "pixel_barrel",   m_pixel_barrel = true );
   declareProperty( "pixel_b_layer",  m_pixel_b_layer = true );
   declareProperty( "pixel_disk",     m_pixel_disk = true );
-  declareProperty( "nPixSP",         nPixSP = 0. );
+  declareProperty( "nPixSP",         m_nPixSP = 0. );
   declareProperty( "pixClSize",      m_pixClSize = 0. );
-  declareProperty( "nPixCL_1",       nPixCL_1 = 0. );
-  declareProperty( "nPixCL_2",       nPixCL_2 = 0. );
-  declareProperty( "nPixCLmin3",     nPixCLmin3 = 0. );
+  declareProperty( "nPixCL_1",       m_nPixCL_1 = 0. );
+  declareProperty( "nPixCL_2",       m_nPixCL_2 = 0. );
+  declareProperty( "nPixCLmin3",     m_nPixCLmin3 = 0. );
   declareProperty( "pixclToT",       m_pixclToT = 0. );
   declareProperty( "totNumPixCL_1",  m_totNumPixCL_1 = 0. );
   declareProperty( "totNumPixCL_2",  m_totNumPixCL_2 = 0. );
   declareProperty( "totNumPixCLmin3",m_totNumPixCLmin3 = 0. );
-  declareProperty( "pixListSize",    pixListSize = 0 );
-  declareProperty( "sctListSize",    sctListSize = 0 );
+  declareProperty( "pixListSize",    m_pixListSize = 0 );
+  declareProperty( "sctListSize",    m_sctListSize = 0 );
   declareProperty( "SPpixBarr",      m_SPpixBarr = 0 );
   declareProperty( "SPpixECA",       m_SPpixECA = 0 );
   declareProperty( "SPpixECC",       m_SPpixECC = 0 );
@@ -310,8 +310,8 @@ HLT::ErrorCode TrigCountSpacePoints::checkDetectorMask() {
 HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& tes_in, unsigned int type_out) {
   // Do initialisation at start of first event
   if (m_hltExecuteInitialisationRun == false) {
-    HLT::ErrorCode _ec = checkDetectorMask();
-    if (_ec != HLT::OK) return _ec;
+    HLT::ErrorCode ec = checkDetectorMask();
+    if (ec != HLT::OK) return ec;
   }
 
   if ( msgLvl() <= MSG::DEBUG) {
@@ -366,19 +366,19 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
   m_pixelClusBarrel->clear();
   m_pixelClusEndcapA->clear();
   
-  nPixSP = 0; 
+  m_nPixSP = 0; 
   m_pixelDataErrors.clear();
   m_pixSpPerModule.clear();
 
   // for storing noisy modules
-  std::vector<Identifier> m_droppedPixelModules;
-  m_droppedPixelModules.clear();
+  std::vector<Identifier> droppedPixelModules;
+  droppedPixelModules.clear();
   
   // pixel cluster part
   m_pixClSize = 0; 
-  nPixCL_1 = 0; 
-  nPixCL_2 = 0; 
-  nPixCLmin3 = 0; // # pixel clusters with size >= 3 
+  m_nPixCL_1 = 0; 
+  m_nPixCL_2 = 0; 
+  m_nPixCLmin3 = 0; // # pixel clusters with size >= 3 
   m_totNumPixSP = 0;
   m_totNumPixCL_1 = 0; 
   m_totNumPixCL_2 = 0; 
@@ -414,9 +414,9 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
     }
     
     m_regionSelector->DetHashIDList(PIXEL, m_listOfPixIds );
-    pixListSize = m_listOfPixIds.size();
+    m_pixListSize = m_listOfPixIds.size();
     
-    if( pixListSize != 0 ){
+    if( m_pixListSize != 0 ){
       // Initialise monitoring histogram variables
       m_pixECA_clust_occ_disk.clear();
       m_pixECC_clust_occ_disk.clear();
@@ -464,10 +464,10 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	  m_pixclToT = pixClust->totalToT();
 	  
 	  if( m_pixclToT > m_pixelClusToTCut ){
-	    ++nPixSP;
-	    if( m_pixClSize == 1 )++nPixCL_1; 
-	    if( m_pixClSize == 2 )++nPixCL_2; 
-	    if( m_pixClSize >= 3 )++nPixCLmin3; 
+	    ++m_nPixSP;
+	    if( m_pixClSize == 1 )++m_nPixCL_1; 
+	    if( m_pixClSize == 2 )++m_nPixCL_2; 
+	    if( m_pixClSize >= 3 )++m_nPixCLmin3; 
 	  }
 	  
 	  // Histogram time over threshold against pixel size {1,2,3+}
@@ -492,35 +492,35 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	
 	// barrel
 	if( bec==0 ){
-	  m_SPpixBarr = nPixSP;
-	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << nPixSP << " PIX spacepoints in PIX Barrel after ToT cut." << endreq;
+	  m_SPpixBarr = m_nPixSP;
+	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << m_nPixSP << " PIX spacepoints in PIX Barrel after ToT cut." << endreq;
 	}
 	  
 	// endcap A
 	else if( bec==2 ){
-	  m_SPpixECA = nPixSP;
-	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << nPixSP << " PIX spacepoints in PIX ECA after ToT cut." << endreq;
+	  m_SPpixECA = m_nPixSP;
+	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << m_nPixSP << " PIX spacepoints in PIX ECA after ToT cut." << endreq;
 	}
 	  
 	// endcap C
 	else if( bec==-2 ){
-	  m_SPpixECC = nPixSP;
-	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << nPixSP << " PIX spacepoints in PIX ECC after ToT cut." << endreq;
+	  m_SPpixECC = m_nPixSP;
+	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << m_nPixSP << " PIX spacepoints in PIX ECC after ToT cut." << endreq;
 	}
 	
 	// total 
-	m_pixSpPerModule.push_back(nPixSP);
+	m_pixSpPerModule.push_back(m_nPixSP);
 	  
 	
 	// check if there is a hot module and monitor it
 	if( (m_SPpixBarr > m_pixModuleThreshold) || (m_SPpixECA > m_pixModuleThreshold) || (m_SPpixECC > m_pixModuleThreshold) ){
-	  if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << " This pixel module : " << pixid << " produced " << nPixSP << " pix spacepoints. " << endreq;
+	  if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << " This pixel module : " << pixid << " produced " << m_nPixSP << " pix spacepoints. " << endreq;
 	  
-	  unsigned int nPixModId = m_droppedPixelModules.size();
-	  if( nPixModId <= maxnid ) {
-	    m_droppedPixelModules.push_back(pixid);
+	  unsigned int nPixModId = droppedPixelModules.size();
+	  if( nPixModId <= m_maxnid ) {
+	    droppedPixelModules.push_back(pixid);
 	  } else {
-	    if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "More than " << maxnid << " pixel modules are noisy, dump their id : " << pixid << endreq;
+	    if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "More than " << m_maxnid << " pixel modules are noisy, dump their id : " << pixid << endreq;
 	  }
 
 	  int layer_disk  = m_pixHelper->layer_disk(pixid);
@@ -534,7 +534,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	      m_log << MSG::DEBUG << " PIX module in the barrel in disk " << layer_disk 
 		    << " with eta index " << eta_module 
 		    << " and phi_module " << phi_module 
-		    << " produced " << nPixSP << " spacepoints!" << endreq;
+		    << " produced " << m_nPixSP << " spacepoints!" << endreq;
 	      m_log << MSG::DEBUG << " Will not account them. " <<endreq;
 	    }
 	    if( layer_disk==0 ){
@@ -556,7 +556,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	      m_log << MSG::DEBUG << " PIX module in the ECA in disk " << layer_disk 
 		    << " with eta index " << eta_module 
 		    << " and phi_module " << phi_module 
-		    << " produced " << nPixSP << " spacepoints!" << endreq;
+		    << " produced " << m_nPixSP << " spacepoints!" << endreq;
 	      m_log << MSG::DEBUG << " Will not account them. " <<endreq;
 	    }
 	    m_pixECA_clust_occ_disk.push_back( layer_disk );
@@ -567,7 +567,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	      m_log << MSG::DEBUG << " PIX module in the ECC in disk " << layer_disk 
 		    << " with eta index " << eta_module 
 		    << " and phi_module " << phi_module 
-		    << " produced " << nPixSP << " spacepoints!" << endreq;
+		    << " produced " << m_nPixSP << " spacepoints!" << endreq;
 	      m_log << MSG::DEBUG << " Will not account them. " <<endreq;
 	    }
 	    m_pixECC_clust_occ_disk.push_back( layer_disk );
@@ -576,26 +576,26 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	}
 	  
 	else{
-	  m_totNumPixSP += nPixSP;	
-	  m_totNumPixCL_1 += nPixCL_1; 
-	  m_totNumPixCL_2 += nPixCL_2; 
-	  m_totNumPixCLmin3 += nPixCLmin3; 
+	  m_totNumPixSP += m_nPixSP;	
+	  m_totNumPixCL_1 += m_nPixCL_1; 
+	  m_totNumPixCL_2 += m_nPixCL_2; 
+	  m_totNumPixCLmin3 += m_nPixCLmin3; 
 	  m_pixClBarrel += m_SPpixBarr;
 	  m_pixClEndcapA += m_SPpixECA;
 	  m_pixClEndcapC += m_SPpixECC;
 	}
 	  
-	nPixSP = 0;      
-	nPixSP = 0; 
-	nPixCL_1 = 0; 
-	nPixCL_2 = 0; 
-	nPixCLmin3 = 0; 
+	m_nPixSP = 0;      
+	m_nPixSP = 0; 
+	m_nPixCL_1 = 0; 
+	m_nPixCL_2 = 0; 
+	m_nPixCLmin3 = 0; 
 	m_SPpixBarr = 0;
 	m_SPpixECA = 0;
 	m_SPpixECC = 0;
       }
       
-    } //end //if( pixListSize != 0 ){
+    } //end //if( m_pixListSize != 0 ){
     else{
       if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Data is ok, but pixel detector might be off or not a single pixel hit was produced." << endreq;    
     }// end of pixel data quality check
@@ -646,8 +646,8 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
     m_sctSPCTimer->start();
   
 
-  std::vector<Identifier> m_droppedSctModules;
-  m_droppedSctModules.clear();
+  std::vector<Identifier> droppedSctModules;
+  droppedSctModules.clear();
 
   m_nSctSP = 0;
   m_sctDataErrors.clear();
@@ -678,9 +678,9 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
     }
       
     m_regionSelector->DetHashIDList(SCT, m_listOfSctIds );
-    sctListSize = m_listOfSctIds.size();
+    m_sctListSize = m_listOfSctIds.size();
     
-    if( sctListSize !=0 ){
+    if( m_sctListSize !=0 ){
       // initialise histogram values
       m_sctBarrL1_sp_occ_eta.clear();
       m_sctBarrL2_sp_occ_eta.clear();
@@ -745,11 +745,11 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	// check if there is a tripped module
 	if( (m_SPsctBarr > m_sctModuleThreshold) || (m_SPsctECA > m_sctModuleThreshold) || (m_SPsctECC > m_sctModuleThreshold) ){
 	  
-	  unsigned int nSctModIds = m_droppedSctModules.size();
-	  if( nSctModIds <= maxnid ) {
-	    m_droppedSctModules.push_back(sctid);
+	  unsigned int nSctModIds = droppedSctModules.size();
+	  if( nSctModIds <= m_maxnid ) {
+	    droppedSctModules.push_back(sctid);
 	  } else {
-	    if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "More than " << maxnid << " sct modules are noisy, dump their id : " << sctid << endreq;
+	    if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "More than " << m_maxnid << " sct modules are noisy, dump their id : " << sctid << endreq;
 	  }
 	  
 	  int layer_disk  = m_sctHelper->layer_disk(sctid); // reference table in SCT_ID.h
@@ -820,7 +820,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	m_SPsctECC = 0;
       m_nSctSP = 0;
       }
-    }//end of //if( sctListSize !=0 )
+    }//end of //if( m_sctListSize !=0 )
     
     m_totNumSctSP = m_sctSpEndcapC + m_sctSpBarrel + m_sctSpEndcapA;
     if( msgLvl() <= MSG::DEBUG ){ 

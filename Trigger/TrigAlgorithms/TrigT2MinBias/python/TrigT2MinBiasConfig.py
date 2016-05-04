@@ -605,7 +605,32 @@ L2MbSpHypo_cos.SctSpEndcapA_max = -1. # Disable
 L2MbSpHypo_cos.SctSpEndcaps_cut = -1. # Disable
 hypos["L2MbSpHypo_cos"] = L2MbSpHypo_cos
 
-
+# Setup for 2016 SCT only non collision bacground filtering
+L2MbSpHypo_ncb = MbSpHypo("L2MbSpHypo_ncb")
+L2MbSpHypo_ncb.AcceptAll = False
+L2MbSpHypo_ncb.TriggerTypeAND = False # SCT only
+L2MbSpHypo_ncb.SctSpEndcaps_cut = 100 # max(SCT_EC_A, SCT_EC_C)
+L2MbSpHypo_ncb.TotalPixelClus = -1. # Disable
+L2MbSpHypo_ncb.TotalPixelClus = -1. # Disable
+L2MbSpHypo_ncb.TotalPixelClus = -1. # Disable
+L2MbSpHypo_ncb.PixelClusRatioA = -1. # Disable
+L2MbSpHypo_ncb.PixelClusRatioB = -1. # Disable
+L2MbSpHypo_ncb.PixelClusEndcapC = -1. # Disable
+L2MbSpHypo_ncb.PixelClusBarrel = -1. # Disable
+L2MbSpHypo_ncb.PixelClusEndcapA = -1. # Disable
+L2MbSpHypo_ncb.PixelClusEndcapC_max = -1. # Disable
+L2MbSpHypo_ncb.PixelClusBarrel_max = -1. # Disable
+L2MbSpHypo_ncb.PixelClusEndcapA_max = -1. # Disable
+L2MbSpHypo_ncb.PixelClusEndcaps_cut = -1. # Disable
+L2MbSpHypo_ncb.TotalSctSp = -1. # Disable
+L2MbSpHypo_ncb.SctSpEndcapC = -1. # Disable
+L2MbSpHypo_ncb.SctSpBarrel = -1. # Disable
+L2MbSpHypo_ncb.SctSpEndcapA = -1. # Disable
+L2MbSpHypo_ncb.SctSpEndcapC_max = -1. # Disable
+L2MbSpHypo_ncb.SctSpBarrel_max = -1. # Disable
+L2MbSpHypo_ncb.SctSpEndcapA_max = -1. # Disable
+L2MbSpHypo_ncb.SctSpEndcaps_cut = -1. # Disable
+hypos["L2MbSpHypo_ncb"] = L2MbSpHypo_ncb
 
 # ... setup for halo event trigger
 L2MbSpHypoBg = MbSpHypo("L2MbSpHypoBg")
