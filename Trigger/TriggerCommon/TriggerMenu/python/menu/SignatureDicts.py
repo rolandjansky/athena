@@ -469,7 +469,7 @@ MinBiasChainParts = {
     'multiplicity'   : '',    
     'trigType'       : ['mb'],
     'threshold'      : '',
-    'extra'          : ['noisesup', 'vetombts2in', 'vetombts1side2in', 'ion',],
+    'extra'          : ['noisesup', 'vetombts2in', 'vetombts1side2in', 'ion', 'ncb',], #non collision background
     'IDinfo'         : [],
     'ZDCinfo'        : ['lg', 'hg'],
     'trkInfo'        : ['hlttr', 'ftk', 'costr'],
@@ -688,7 +688,7 @@ CalibChainParts_Default = {
 #==========================================================
 # ---- MonitorDef chains -----
 #==========================================================
-AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner', 'idmon', 'costmonitor','cscmon','l1calooverflow','mistimemonl1bccorr','mistimemonl1bccorrnomu','mistimemoncaltimenomu']
+AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner', 'idmon', 'costmonitor','cscmon','l1calooverflow','mistimemonl1bccorr','mistimemonl1bccorrnomu','mistimemoncaltimenomu','mistimemoncaltime','mistimemonj400']
 
 # ---- Monitor Chain Dictinary of all allowed Values ----
 MonitorChainParts = {

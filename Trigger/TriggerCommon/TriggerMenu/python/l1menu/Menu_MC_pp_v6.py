@@ -458,6 +458,7 @@ def defineMenu():
         "L1_J20.28ETA31",
         #'L1_J40.0ETA25', 
         "L1_J12_EMPTY","L1_J12_FIRSTEMPTY", "L1_J12_UNPAIRED_ISO", "L1_J12_UNPAIRED_NONISO", "L1_J12_ABORTGAPNOTCALIB", 
+        "L1_J15.31ETA49_UNPAIRED_ISO",
         "L1_J30_EMPTY", "L1_J30_FIRSTEMPTY", "L1_J30.31ETA49_EMPTY", "L1_J30.31ETA49_UNPAIRED_ISO",
         "L1_J30.31ETA49_UNPAIRED_NONISO",
         "L1_J50_UNPAIRED_ISO", "L1_J50_UNPAIRED_NONISO", "L1_J50_ABORTGAPNOTCALIB",         
@@ -821,6 +822,14 @@ def defineMenu():
         'L1_ALFA_B7L1U_OD','L1_ALFA_B7L1L_OD','L1_ALFA_A7L1U_OD','L1_ALFA_A7L1L_OD','L1_ALFA_A7R1U_OD','L1_ALFA_A7R1L_OD','L1_ALFA_B7R1U_OD','L1_ALFA_B7R1L_OD',
         'L1_ALFA_B7L1_OD','L1_ALFA_A7L1_OD','L1_ALFA_B7R1_OD','L1_ALFA_A7R1_OD',
 
+        'L1_AFP_C_MBTS_A',
+        'L1_AFP_C_ZDC_C',
+        'L1_AFP_C_J12',
+        'L1_AFP_C_EM3',
+        'L1_AFP_C_TE5',
+        'L1_AFP_C_ALFA_C',
+        'L1_AFP_C_ALFA_A',
+        'L1_AFP_C_ANY_MBTS_A'
         ]
     
     # the CTP ID mapping still has to be defined, currently it is taken from the order of the items
@@ -944,6 +953,7 @@ def defineMenu():
         'L1_J12_UNPAIRED_ISO' : 113,
         'L1_J12_UNPAIRED_NONISO' : 114,
         'L1_J12_ABORTGAPNOTCALIB' : 115,
+        'L1_J15.31ETA49_UNPAIRED_ISO' : 75,
         'L1_J30_EMPTY' : 116,
         'L1_J30_FIRSTEMPTY' : 117,
         'L1_J30.31ETA49_EMPTY' : 118,
@@ -1055,6 +1065,16 @@ def defineMenu():
         'L1_J40.0ETA25_2J15.31ETA49' : 181,
         'L1_J40.0ETA25_2J25_J20.31ETA49' : 182,
 
+        ## the ctp ids are a mess.. no 7 consequetive ids are free.. but these here are:
+        'L1_AFP_C_MBTS_A':183,
+        'L1_AFP_C_ZDC_C':189,
+        'L1_AFP_C_J12':190,
+        'L1_AFP_C_EM3':191,
+        'L1_AFP_C_TE5':192,
+        'L1_AFP_C_ALFA_C':193,
+        'L1_AFP_C_ALFA_A':170,
+        'L1_AFP_C_ANY_MBTS_A':174,
+        
         
 #        'L1_EM8I' : 183,
 #        'L1_EM15I': 184,
@@ -1372,6 +1392,7 @@ def defineMenu():
 #        'L1_LHCF_ALFA_ANY_C' : 468,
 #        'L1_LHCF_ALFA_ANY_A_UNPAIRED_ISO' : 469,
 #        'L1_LHCF_ALFA_ANY_C_UNPAIRED_ISO' : 470,
+        
         'L1_ALFA_BGT' : 471,
         'L1_ALFA_BGT_UNPAIRED_ISO' : 472,
         'L1_ALFA_BGT_BGRP10' : 473,
@@ -1412,6 +1433,7 @@ def defineMenu():
         'L1_ALFA_A7R1_OD'  : 508,
         'L1_CALREQ2' : 511,  # never use 509-511 for anything else than CALREQ triggers
 
+        
 }
     
     Lvl1Flags.prescales = {}

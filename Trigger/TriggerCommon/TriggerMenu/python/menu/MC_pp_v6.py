@@ -950,6 +950,12 @@ def setupMenu():
         ['tau80_medium1_calo',                     'L1_TAU40', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau125_medium1_calo',                    'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
 
+        #photon+tau chain (ATR-11531) 
+        ['tau25_dikaon_tracktwo',                    'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau35_dikaon_tracktwo_L1TAU12',            'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau25_dikaontight_tracktwo',                    'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau35_dikaontight_tracktwo_L1TAU12',            'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+
 
         ['tau35_loose1_tracktwo_tau25_loose1_tracktwo_L1TAU20ITAU12I-J25',   'L1_TAU20ITAU12I-J25',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_loose1_tracktwo","tau25_loose1_tracktwo"]]], 
         ['tau35_loose1_tracktwo_tau25_loose1_tracktwo_L1DR-TAU20ITAU12I',   'L1_DR-TAU20ITAU12I',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_loose1_tracktwo","tau25_loose1_tracktwo"]]],
@@ -1919,6 +1925,10 @@ def setupMenu():
         #tau + photon
         ['g35_medium_tau25_perf_tracktwo_L1TAU12',     'L1_EM22VHI', ['L1_EM22VHI','L1_TAU12'], [PhysicsStream], ['RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,["g35_medium","tau25_perf_tracktwo_L1TAU12"]]],
 
+        ['g35_medium_tau25_dikaon_tracktwo_L1TAU12',     'L1_EM22VHI', ['L1_EM22VHI','L1_TAU12'], [PhysicsStream], ['RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,["g35_medium","tau25_dikaon_tracktwo_L1TAU12"]]],
+        ['g35_medium_tau35_dikaon_tracktwo_L1TAU12',     'L1_EM22VHI', ['L1_EM22VHI','L1_TAU12'], [PhysicsStream], ['RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,["g35_medium","tau35_dikaon_tracktwo_L1TAU12"]]],
+        ['g35_medium_tau25_dikaontight_tracktwo_L1TAU12',     'L1_EM22VHI', ['L1_EM22VHI','L1_TAU12'], [PhysicsStream], ['RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,["g35_medium","tau25_dikaontight_tracktwo_L1TAU12"]]],
+        ['g35_medium_tau35_dikaontight_tracktwo_L1TAU12',     'L1_EM22VHI', ['L1_EM22VHI','L1_TAU12'], [PhysicsStream], ['RATE:TauGamma', 'BW:Tau', 'BW:Egamma'],-1,['serial',-1,["g35_medium","tau35_dikaontight_tracktwo_L1TAU12"]]],
 
 
 
@@ -2274,7 +2284,22 @@ def setupMenu():
         # Asymmetric items
         ['mu6_j50_dr05_2j35_L13J15_BTAG-MU6J25', 'L1_3J15_BTAG-MU6J25', ['L1_MU6', '', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j50', '2j35'] ], False],
         ['mu4_j60_dr05_2j35_L13J15_BTAG-MU4J30', 'L1_3J15_BTAG-MU4J30', ['L1_MU4', '', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j60', '2j35'] ], False],
-			 ]
+
+
+        ## Lepton + jets with unisolated leptons:
+        ['e24_lhmedium_4j20_L1EM13VH_3J20',    	'L1_EM13VH_3J20',    ['L1_EM13VH_3J20',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["e24_lhmedium","4j20"] ]],
+        ['mu20_4j20_L1MU10_3J20',    	'L1_MU10_3J20',    ['L1_MU10_3J20',''], [PhysicsStream], ['RATE:MuonJet', 'BW:Muon', 'BW:Jet'],-1, ['serial',-1,["mu20","4j20"] ]], 
+
+        ['e24_lhmedium_4j25_L1EM13VH_3J20',    	'L1_EM13VH_3J20',    ['L1_EM13VH_3J20',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["e24_lhmedium","4j25"] ]],
+        ['mu20_4j25_L1MU10_3J20',    	'L1_MU10_3J20',    ['L1_MU10_3J20',''], [PhysicsStream], ['RATE:MuonJet', 'BW:Muon', 'BW:Jet'],-1, ['serial',-1,["mu20","4j25"] ]],
+
+        ['e24_lhmedium_5j20_L1EM13VH_3J20',    	'L1_EM13VH_3J20',    ['L1_EM13VH_3J20',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["e24_lhmedium","5j20"] ]],
+        ['mu22_5j20_L1MU10_3J20',    	'L1_MU10_3J20',    ['L1_MU10_3J20',''], [PhysicsStream], ['RATE:MuonJet', 'BW:Muon', 'BW:Jet'],-1, ['serial',-1,["mu22","5j20"] ]], 
+
+        
+
+
+    ]
 
     TriggerFlags.MinBiasSlice.signatures = TriggerFlags.MinBiasSlice.signatures() + [
         #HMT
@@ -2359,6 +2384,7 @@ def setupMenu():
     TriggerFlags.MonitorSlice.signatures =  TriggerFlags.MonitorSlice.signatures()  + [
         ## # enhancedbias
         ['mistimemoncaltimenomu', '', [], ['Mistimed'], ["RATE:Monitoring","BW:Other"], -1],
+        ['mistimemonj400', '', [], ['Mistimed'], ["RATE:Monitoring","BW:Other"], -1],
     ]
     #TriggerFlags.GenericSlice.signatures = TriggerFlags.GenericSlice.signatures() + []
 
@@ -2853,6 +2879,8 @@ ps_minb_list=[
     'mb_sptrk_costr_L1RD0_EMPTY',
     'mb_sptrk_L1RD0_EMPTY',
     'mb_sptrk_L1RD0_UNPAIRED_ISO',
+    'mb_sp_L1RD0_UNPAIRED_ISO',
+    'mb_sp_ncb_L1RD0_UNPAIRED_ISO',
     'mb_sptrk_L1RD3_FILLED',
     'mb_sptrk_noisesup',
     'mb_sptrk_noisesup_L1RD0_EMPTY',

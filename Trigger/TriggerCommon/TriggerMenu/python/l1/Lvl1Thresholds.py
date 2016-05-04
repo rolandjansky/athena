@@ -69,7 +69,7 @@ class ThresholdValue:
             s += 'isobits="%s" ' % self.isobits
         s += 'name="%s" phimin="%i" phimax="%i" priority="%i" thresholdval="%g" type="%s" window="%i"' % (self.name, self.phimin, self.phimax, self.priority, self.value, self.type, self.window)
         if self.type=='JET':
-            s += ' windowSize="%s"' % 'LARGE' # FIX
+            s += ' windowSize="%s"' % ( 'LARGE'  if self.window==8 else 'SMALL' ) 
         s += '/>\n'
         return s
 

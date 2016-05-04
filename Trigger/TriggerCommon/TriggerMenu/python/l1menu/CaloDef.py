@@ -52,23 +52,26 @@ class CaloDef:
         priority   : 0
         """
 
+
+        # for unused bits, fill with the loosest existing option (ATR-13892)
         caloInfo.isolation["EMIsoForEMthr"] .addIsolation( isobit=1, slope=0, offset=0, upperlimit=0)\
                                             .addIsolation( isobit=2, slope=80, offset=-18, mincut=20, upperlimit=50)\
                                             .addIsolation( isobit=3, slope=80, offset=-18, mincut=20, upperlimit=50)\
                                             .addIsolation( isobit=4, slope=80, offset=-18, mincut=20, upperlimit=50)\
-                                            .addIsolation( isobit=5, slope=0, offset=0, upperlimit=0)
-                                            
+                                            .addIsolation( isobit=5, slope=80, offset=-18, mincut=20, upperlimit=50)
+
         caloInfo.isolation["HAIsoForEMthr"] .addIsolation( isobit=1, slope=230, offset=-2, mincut=10, upperlimit=50)\
                                             .addIsolation( isobit=2, slope=0, offset=0, upperlimit=0)\
                                             .addIsolation( isobit=3, slope=230, offset=-2, mincut=10, upperlimit=50)\
                                             .addIsolation( isobit=4, slope=230, offset=-2, mincut=10, upperlimit=50)\
-                                            .addIsolation( isobit=5, slope=0, offset=0, upperlimit=0)
+                                            .addIsolation( isobit=5, slope=230, offset=-2, mincut=10, upperlimit=50)
 
         caloInfo.isolation["EMIsoForTAUthr"] .addIsolation( isobit=1, slope=100, offset=30, upperlimit=60 )\
                                              .addIsolation( isobit=2, slope=100, offset=20, upperlimit=60 )\
                                              .addIsolation( isobit=3, slope=100, offset=15, upperlimit=60 )\
-                                             .addIsolation( isobit=4, slope=0, offset=40)\
-                                             .addIsolation( isobit=5, slope=0, offset=0, upperlimit=0)
+                                             .addIsolation( isobit=4, slope=0, offset=40, upperlimit=124 )\
+                                             .addIsolation( isobit=5, slope=100, offset=30, upperlimit=60 )
+
 
 
         # min PT for TOBs

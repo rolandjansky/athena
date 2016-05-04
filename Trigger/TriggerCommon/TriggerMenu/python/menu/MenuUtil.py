@@ -7,6 +7,7 @@ from AthenaCommon.Logging        import logging
 log = logging.getLogger('TriggerMenu.menu.MenuUtil.py')
 
 
+
 def getStreamTagForRerunChains(triggerPythonConfig, HLTPrescale):
     list=[]
     for item, prescales in HLTPrescale.iteritems():
@@ -53,6 +54,25 @@ def applyHLTPrescale(triggerPythonConfig, HLTPrescale):
             hltchain.rerun_prescale = str(prescales[2])
        
         log.info('Applied HLTPS to the item '+item+': PS'+ hltchain.prescale+" PT"+hltchain.pass_through+" RerunPS"+hltchain.rerun_prescale)
+
+def checkGroups(triggerPythonConfig):
+    """ Make sure the groups used in Physics and MC menu exists
+    """
+    menu_name = TriggerFlags.triggerMenuSetup()
+    log.info( "Menu: " + menu_name)
+    
+    from TriggerMenu.menu.GroupInfo       import getAllAllowedGroups
+    allgroup=getAllAllowedGroups(menu_name)
+
+    for chain in triggerPythonConfig.theHLTChains:
+        if len(chain.groups) == 0:
+            log.error( "group undefined for chain: " + str(chain.chain_name) )
+        for i in chain.groups:
+            if 'BW' in i:
+                if i.split('BW:')[1] not in allgroup:
+                    log.error( "BW Group " + str(i)+ " for chain "+ str(chain.chain_name) + " not allowed." )
+
+                  
         
 def checkTriggerGroupAssignment(triggerPythonConfig):
     """ Checks menu consistency

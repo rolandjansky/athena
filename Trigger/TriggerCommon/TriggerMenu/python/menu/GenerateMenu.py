@@ -22,7 +22,7 @@ from TriggerMenu.test.TestSliceFlags                   import TestSliceFlags
 from TriggerMenu.menu.TriggerPythonConfig  import TriggerPythonConfig
 from TriggerMenu.menu.CPS                  import addCPS
 from TriggerMenu.menu.Lumi                 import lumi, applyPrescales
-from TriggerMenu.menu.MenuUtil             import checkTriggerGroupAssignment, checkStreamConsistency, getStreamTagForRerunChains
+from TriggerMenu.menu.MenuUtil             import checkTriggerGroupAssignment, checkStreamConsistency, getStreamTagForRerunChains,checkGroups
 from TriggerMenu.menu.HLTObjects           import HLTChain, HLTSequence
 from TriggerMenu.menu                      import StreamInfo, DictFromChainName
 import TriggerMenu.menu.MenuUtils
@@ -904,6 +904,8 @@ class GenerateMenu:
         #log.info('checkTriggerGroupAssignment')
         #checkTriggerGroupAssignment(self.triggerPythonConfig)
 
+        log.info('checkGroups')
+        checkGroups(self.triggerPythonConfig)
 
         cpsMenus = ['Physics_pp_v5','Physics_pp_v6']
         ##if TriggerFlags.triggerMenuSetup() in cpsMenus:

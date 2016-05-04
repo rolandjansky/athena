@@ -569,11 +569,13 @@ def defineCPSGroups():
          "RATE:CPS:HLT_e10_vloose_L1EM7" : ['e10_lhvloose_L1EM7',
                                            'e10_lhvloose_nod0_L1EM7',
                                            'e15_lhvloose_nod0_L1EM7',
+                                           'e15_lhvloose_L1EM7',
+                                           'e15_lhvloose_nod0_L1EM7',
                                             ],
                                            
         
-        "RATE:CPS:HLT_e15_vloose_L1EM7" : ['e15_lhvloose_L1EM7',
-                                           'e15_lhvloose_nod0_L1EM7'],
+#        "RATE:CPS:HLT_e15_vloose_L1EM7" : ['e15_lhvloose_L1EM7',
+#                                           'e15_lhvloose_nod0_L1EM7'],
 
 
         "RATE:CPS:HLT_e20_vloose_L1EM12" : ['e20_lhvloose_L1EM12',
