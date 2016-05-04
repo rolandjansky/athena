@@ -139,7 +139,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
     if is_gen_from_gridpack(grid_pack):
         if gridpack_dir and nevents and random_seed:
             mglog.info('Running event generation from gridpack (using smarter mode from generate() function)')
-            generate_from_gridpack(run_name=run_name,gridpack_dir=gridpack_dir,nevents=nevents,random_seed=random_seed,card_check=proc_dir,param_card=param_card_loc,madspin_card=madspin_card_loc,proc_dir=proc_dir,extlhapath=extlhapath) 
+            generate_from_gridpack(run_name=run_name,gridpack_dir=gridpack_dir,nevents=nevents,random_seed=random_seed,card_check=proc_dir,param_card=param_card_loc,madspin_card=madspin_card_loc,extlhapath=extlhapath) 
             return
         else:
             mglog.info('Detected gridpack mode for generating events but asssuming old configuration (using sepatate generate_from_gridpack() call)')
@@ -429,7 +429,10 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
             mglog.info('Tidying up gridpack (%s)...'%gridpack_name)
             
             os.chdir(currdir)
-            shutil.copy((proc_dir+'/'+run_name+'_gridpack.tar.gz'),gridpack_name)
+            if madspin_card_loc:
+                shutil.copy((proc_dir+'/'+run_name+'_decayed_1_gridpack.tar.gz'),gridpack_name)
+            else:
+                shutil.copy((proc_dir+'/'+run_name+'_gridpack.tar.gz'),gridpack_name)
             
             if gridpack_compile:
                 mkdir = subprocess.Popen(['mkdir','tmp%i/'%os.getpid()])
@@ -506,7 +509,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
         mglog.info('Moving generated events to be in correct format for arrange_output().')
         mglog.info('Unzipping generated events.')
-        unzip = subprocess.Popen(['gunzip','Events/'+run_name+'/events.lhe.gz'])
+        unzip = subprocess.Popen(['gunzip','-f','Events/'+run_name+'/events.lhe.gz'])
         unzip.wait()
         
         mglog.info('Moving file over to '+'Events/'+run_name+'/unweighted_events.lhe')
@@ -524,15 +527,15 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
     return 0
 
 
-def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,random_seed=-1,card_check=None,param_card=None,madspin_card=None,proc_dir=None,extlhapath=None):
+def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,random_seed=-1,card_check=None,param_card=None,madspin_card=None,extlhapath=None):
 
     isNLO=is_NLO_run(proc_dir=gridpack_dir)
     LHAPATH=os.environ['LHAPATH'].split(':')[0]
 
     version = getMadGraphVersion()
-    (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(isNLO, version=version, proc_dir=proc_dir, extlhapath=extlhapath) 
+    (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(isNLO, version=version, proc_dir=gridpack_dir, extlhapath=extlhapath) 
 
-    setupFastjet(isNLO, proc_dir=proc_dir)
+    setupFastjet(isNLO, proc_dir=gridpack_dir)
 
     if param_card is not None:
         # only copy param_card if name of destination directory differs
@@ -697,19 +700,27 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
     mglog.info('Copying generated events to %s.'%currdir)
 
     if madspin_card:
-        if os.path.exists(gridpack_dir+'Events/'+run_name+'_decayed_1'): 
-            if not isNLO:
-                shutil.copy(gridpack_dir+'/Events/'+run_name+'_decayed_1'+'/unweighted_events.lhe.gz','events.lhe.gz') 
-            else:
-                shutil.copy(gridpack_dir+'/Events/'+run_name+'_decayed_1'+'/events.lhe.gz','events.lhe.gz') 
-        else: 
-            mglog.error('MadSpin was run but can\'t find output folder %s.'%('Events/'+run_name+'_decayed_1/')) 
-            raise RuntimeError('MadSpin was run but can\'t find output folder %s.'%('Events/'+run_name+'_decayed_1/')) 
+        #if os.path.exists(gridpack_dir+'Events/'+run_name+'_decayed_1'): 
+        if not isNLO:
+            LOdir='Events/GridRun_%i'%random_seed+'_decayed_1'
+            if os.path.exists(gridpack_dir+'/'+LOdir):
+                shutil.copy(gridpack_dir+'/'+LOdir+'/unweighted_events.lhe.gz','events.lhe.gz') 
+            else: 
+                mglog.error('MadSpin was run but can\'t find output folder %s.'%LOdir)
+                raise RuntimeError('MadSpin was run but can\'t find output folder %s.'%LOdir)
+        else:
+            NLOdir='Events/'+run_name+'_decayed_1'
+            if os.path.exists(gridpack_dir+'/'+NLOdir):
+                shutil.copy(gridpack_dir+'/'+NLOdir+'/events.lhe.gz','events.lhe.gz') 
+            else: 
+                mglog.error('MadSpin was run but can\'t find output folder %s.'%NLOdir)
+                raise RuntimeError('MadSpin was run but can\'t find output folder %s.'%NLOdir)
+
+
+
     else: 
 
-        if os.path.exists(gridpack_dir+'Events/GridRun_%i/'%random_seed):
-            shutil.copy(gridpack_dir+'/Events/GridRun_%i/events.lhe.gz'%random_seed,'events.lhe.gz') 
-        else:
+        if not os.path.exists(gridpack_dir+'Events/GridRun_%i/'%random_seed):
             shutil.copy(gridpack_dir+'/Events/'+run_name+'/events.lhe.gz','events.lhe.gz') 
 
  
@@ -720,7 +731,7 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
  
     mglog.info('Moving generated events to be in correct format for arrange_output().')
     mglog.info('Unzipping generated events.')
-    unzip = subprocess.Popen(['gunzip','events.lhe.gz'])
+    unzip = subprocess.Popen(['gunzip','-f','events.lhe.gz'])
     unzip.wait()
 
     mglog.info('Moving file over to '+gridpack_dir+'/Events/'+run_name+'/unweighted_events.lhe')
@@ -882,7 +893,7 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None):
             shutil.rmtree(proc_dir+'/lib/PDFsets')
         os.symlink(LHADATAPATH,proc_dir+'/lib/PDFsets')
         mglog.info('Available PDFs are:')
-        mglog.info( sorted( os.listdir( proc_dir+'/lib/PDFsets/' ) ) )
+        mglog.info( sorted( [ x for x in os.listdir(proc_dir+'/lib/PDFsets') if not ".tar.gz" in x ] ) )
         
     else:
         # Nasty fixes for MG5v1:
@@ -1004,10 +1015,10 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
 
     mglog.info('Unzipping generated events.')
     if hasUnweighted:
-        unzip = subprocess.Popen(['gunzip',proc_dir+'/Events/'+run_name+'/unweighted_events.lhe.gz'])
+        unzip = subprocess.Popen(['gunzip','-f',proc_dir+'/Events/'+run_name+'/unweighted_events.lhe.gz'])
         unzip.wait()
     else:
-        unzip = subprocess.Popen(['gunzip',proc_dir+'/Events/'+run_name+'/events.lhe.gz'])
+        unzip = subprocess.Popen(['gunzip','-f',proc_dir+'/Events/'+run_name+'/events.lhe.gz'])
         unzip.wait()
 
     mglog.info('Putting a copy in place for the transform.')
@@ -1213,6 +1224,8 @@ def get_variations( gentype , masses , syst_mod , xqcut = None ):
             if masses['1000024']<xqcut*4.: xqcut = masses['1000024']*0.25
         elif 'Stau'==gentype:
             if masses['1000015']<xqcut*4.: xqcut = masses['1000015']*0.25
+        if 'T2' in gentype:
+            if masses['2000006']<xqcut*4.: xqcut = masses['2000006']*0.25
         else:
             if 'G' in gentype or 'ALL' in gentype:
                 if masses['1000021']<xqcut*4.: xqcut = masses['1000021']*0.25
@@ -1271,7 +1284,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
 
     xqcut , alpsfact , scalefact = get_variations( gentype , masses , syst_mod )
 
-    if not SLHAonly:
+    if not SLHAonly and (writeGridpack or gridpackDirName is None):
         # Generate the new process!
         thedir = new_process(card_loc=process)
         if 1==thedir:
@@ -1305,24 +1318,10 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
         mglog.info('Not running generation - only setting up SLHA file')
         return [xqcut,'dummy']
 
-    # Grab the run card and move it into place
-    if 'phot' in gentype:
-        build_run_card(run_card_old='run_card.SMphot.dat',run_card_new='run_card.dat',
-                   xqcut=xqcut,nevts=nevts,rand_seed=rand_seed,beamEnergy=beamEnergy, scalefact=scalefact, alpsfact=alpsfact)
-
-    else:
-       if getnewruncard==True:
-           extras = { 'ktdurham':xqcut , 'lhe_version':'2.0' , 'cut_decays':'F' , 'pdlabel':pdlabel , 'lhaid':lhaid , 'drjj':0.0 }
-           build_run_card(run_card_old=get_default_runcard(thedir),run_card_new='run_card.dat',xqcut=0,
-                                  nevts=nevts,rand_seed=rand_seed,beamEnergy=beamEnergy, scalefact=scalefact, alpsfact=alpsfact,extras=extras)
-       else:
-           build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
-                       xqcut=xqcut,nevts=nevts,rand_seed=rand_seed,beamEnergy=beamEnergy, scalefact=scalefact, alpsfact=alpsfact)
-
     # Generate events!
     if gridpackDirName is not None:
         if writeGridpack==False:
-            mglog.info('Generateing events from gridpack')
+            mglog.info('Generating events from gridpack')
             if generate_from_gridpack(run_name='Test',gridpack_dir=gridpackDirName,nevents=int(nevts),random_seed=rand_seed,param_card='param_card.dat'):
                 mglog.error('Error generating events!')
                 return -1
@@ -1331,6 +1330,21 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
             mglog.error('Wrong combination of arguments! writeGridpack='+str(writeGridpack)+' gridpackDirName='+str(gridpackDirName))
             return -1
     else:
+
+        # Grab the run card and move it into place
+        if 'phot' in gentype:
+            build_run_card(run_card_old='run_card.SMphot.dat',run_card_new='run_card.dat',
+                       xqcut=xqcut,nevts=nevts,rand_seed=rand_seed,beamEnergy=beamEnergy, scalefact=scalefact, alpsfact=alpsfact)
+        else:
+           if getnewruncard==True:
+               extras = { 'ktdurham':xqcut , 'lhe_version':'2.0' , 'cut_decays':'F' , 'pdlabel':pdlabel , 'lhaid':lhaid , 'drjj':0.0 }
+               build_run_card(run_card_old=get_default_runcard(thedir),run_card_new='run_card.dat',xqcut=0,
+                                      nevts=nevts,rand_seed=rand_seed,beamEnergy=beamEnergy, scalefact=scalefact, alpsfact=alpsfact,extras=extras)
+           else:
+               build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
+                           xqcut=xqcut,nevts=nevts,rand_seed=rand_seed,beamEnergy=beamEnergy, scalefact=scalefact, alpsfact=alpsfact)
+
+        # Now do the actual event generation
         if generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir=thedir,grid_pack=writeGridpack,madspin_card_loc=madspin_card):
             mglog.error('Error generating events!')
             return -1
@@ -1348,7 +1362,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
 def SUSY_SM_Generation(runArgs = None, process='', gentype='SS',decaytype='direct',masses=None,\
                        nevts=None, syst_mod=None,xqcut=None, SLHAonly=False, keepOutput=False, SLHAexactCopy=False,\
                        writeGridpack=False,gridpackDirName=None,MSSMCalc=False,pdlabel="'cteq6l1'",lhaid=10042,\
-                       madspin_card=None,decays={}):
+                       madspin_card=None,decays={},extras=None):
     # Set beam energy
     beamEnergy = 6500.
     if hasattr(runArgs,'ecmEnergy'): beamEnergy = runArgs.ecmEnergy * 0.5
@@ -1370,7 +1384,7 @@ def SUSY_SM_Generation(runArgs = None, process='', gentype='SS',decaytype='direc
 
     xqcut , alpsfact , scalefact = get_variations( gentype , masses , syst_mod , xqcut=xqcut )
 
-    if not SLHAonly:
+    if not SLHAonly and (writeGridpack or gridpackDirName is None):
         # Generate the new process!
         if 'import model' in process:
             mglog.info('Assuming that you have specified the model in your process string already')
@@ -1429,15 +1443,27 @@ output -f
         mglog.info('Not running generation - only setting up SLHA file')
         return [xqcut,'dummy']
 
-    # Grab the run card and move it into place
-    extras = { 'ktdurham':xqcut , 'lhe_version':'2.0' , 'cut_decays':'F' , 'pdlabel':pdlabel , 'lhaid':lhaid , 'drjj':0.0 }
-    build_run_card(run_card_old=get_default_runcard(thedir),run_card_new='run_card.dat',xqcut=0,
-                   nevts=nevts,rand_seed=rand_seed,beamEnergy=beamEnergy, scalefact=scalefact, alpsfact=alpsfact,extras=extras)
+    # Set up the extras dictionary
+    if extras is None:
+        extras = { 'ktdurham':xqcut , 'lhe_version':'2.0' , 'cut_decays':'F' , 'pdlabel':pdlabel , 'lhaid':lhaid , 'drjj':0.0 }
+    else:
+        if 'drjj' not in extras: extras['drjj']=0.0
+        if 'lhe_version' not in extras: extras['lhe_version']='2.0'
+        if 'cut_decays' not in extras: extras['cut_decays']='F'
+        if ('pdlabel' in extras and pdlabel is not None) or\
+           ('lhaid' in extras and lhaid is not None) or\
+           ('ktdurham' in extras and xqcut is not None):
+            mglog.error('Tried to define variables in two places.  Please pass pdlabel, lhaid, and ktduram ONLY through either the extras dictionary OR the function parameters')
+            return -1
+
+        if 'pdlabel' not in extras: extras['pdlabel']=pdlabel
+        if 'lhaid' not in extras: extras['lhaid']=lhaid
+        if 'ktdurham' not in extras: extras['ktdurham']=xqcut
 
     # Generate events!
     if gridpackDirName is not None:
         if writeGridpack==False:
-            mglog.info('Generateing events from gridpack')
+            mglog.info('Generating events from gridpack')
             if generate_from_gridpack(run_name='Test',gridpack_dir=gridpackDirName,nevents=int(nevts),random_seed=rand_seed,param_card='param_card.dat'):
                 mglog.error('Error generating events!')
                 return -1
@@ -1446,6 +1472,9 @@ output -f
             mglog.error('Wrong combination of arguments! writeGridpack='+str(writeGridpack)+' gridpackDirName='+str(gridpackDirName))
             return -1
     else:
+        # Grab the run card and move it into place
+        build_run_card(run_card_old=get_default_runcard(thedir),run_card_new='run_card.dat',xqcut=0,
+                       nevts=nevts,rand_seed=rand_seed,beamEnergy=beamEnergy, scalefact=scalefact, alpsfact=alpsfact,extras=extras)
         if generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir=thedir,grid_pack=writeGridpack,madspin_card_loc=madspin_card):
             mglog.error('Error generating events!')
             return -1
@@ -1626,6 +1655,12 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
             newcard.write(' %3.2f     = alpsfact         ! scale factor for QCD emission vx \n'%(alpsfact))
         else:
             for ak in extras:
+                excludeList=['xqcut','nevents','iseed','ebeam1','ebeam2','scalefact','alpsfact']
+                if ak in excludeList:
+                    mglog.error('You are trying to set "%s" with the extras parameter in build_run_card, this must be set in the build_run_card arguments instead.'%ak)
+                    raise RuntimeError('You are trying to set "%s" with the extras parameter in build_run_card, this must be set in the build_run_card arguments instead.'%ak)
+                    return -1
+
                 #if '='+ak.strip() in line.replace(' ',''):
                 if '='+ak.strip() in line.replace(' ','') and (len(line.strip().split(ak.strip())[1])==0 or line.split(ak.strip())[1][0]==" "):
                     newcard.write( ' '+str(extras[ak])+'    ='+'='.join(line.split('=')[1:]) )
