@@ -21,3 +21,4 @@ macro AtlasDataArea_platform "" PACK noarch
 path_remove DATAPATH "/offline/ReleaseData"
 path_append DATAPATH "${ATLASCALDATA}"
 path_append DATAPATH "${ATLASTESTDATA}"
+
