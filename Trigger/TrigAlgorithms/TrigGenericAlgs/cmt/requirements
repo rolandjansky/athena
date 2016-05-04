@@ -8,9 +8,10 @@ use TrigSteeringEvent	TrigSteeringEvent-*          Trigger/TrigEvent
 use TrigInterfaces        TrigInterfaces-*             Trigger/TrigSteer
 use TrigT1Interfaces    TrigT1Interfaces-*       Trigger/TrigT1
 use TrigMuonRoITools    TrigMuonRoITools-*       Trigger/TrigTools
-use  TrigConfInterfaces         TrigConfInterfaces-*            Trigger/TrigConfiguration
-use  xAODCaloEvent        xAODCaloEvent-*              Event/xAOD
-use  TrigCaloEvent              TrigCaloEvent-*                 Trigger/TrigEvent
+use TrigConfInterfaces         TrigConfInterfaces-*            Trigger/TrigConfiguration
+use TrigCaloEvent        TrigCaloEvent-*                 Trigger/TrigEvent
+use xAODTrigL1Calo          xAODTrigL1Calo-*             Event/xAOD
+
 private
 
 use TrigT1Result	  TrigT1Result-*               Trigger/TrigT1

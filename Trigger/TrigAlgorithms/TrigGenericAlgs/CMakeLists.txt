@@ -12,8 +12,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigT1/TrigT1Interfaces
                           Trigger/TrigTools/TrigMuonRoITools
-			  Event/xAOD/xAODCaloEvent
 			  Trigger/TrigEvent/TrigCaloEvent
+			  Event/xAOD/xAODTrigL1Calo
                           PRIVATE
                           Control/AthenaKernel
                           DetectorDescription/IRegionSelector

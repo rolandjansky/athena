@@ -62,6 +62,7 @@ L1CorrelationAlgo::L1CorrelationAlgo(const std::string& name, ISvcLocator* pSvcL
     m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc",name)
 {
 
+  declareProperty("currentBCinclusive",   m_currentBCincl = false, "Do not ask for any specific L1 item in the current BCID");
   declareProperty("noMuon",   m_nomuon = false, "no muon in the list of items to be correlated");
   declareProperty("m_l1itemlist",   m_l1itemlist = {"L1_EM22VHI","L1_J400","L1_MU20"}, "list of l1 items to be used");
   
@@ -373,7 +374,14 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& fake_seed,
   firedbc_jet[1]=0;
   firedbc_jet[2]=0;  
 
-
+  // if currentBCincl flag is toggled don't ask for any specific trigger in the central BCID
+  if(m_currentBCincl){
+    firedbc[1]=1;
+    firedbc_ele[1]=1;
+    firedbc_mu[1]=1;
+    firedbc_jet[1]=1;
+  }
+  
   unsigned int ibc=0;
   for(unsigned int bc=l1a-1; bc<l1a+2; bc++) {
     
@@ -444,96 +452,89 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& fake_seed,
      
     }
 
-    std::vector<HLT::TriggerElement*> empty_seed;
-    HLT::TriggerElement* te = config()->getNavigation()->addNode(empty_seed, output);
-    te->setActiveState(true);
-
+   
       
-    if(debugoutput){
-      printf(" Full DEBUG output: \n");
+    // if(debugoutput){
+    //   printf(" Full DEBUG output: \n");
     
-  
-
-      bool fired[1];
-      for(unsigned int bc=l1a-1; bc<l1a+2; bc++) {
-	int nBITs=m_nitems-1;
-	tbp = CTPfragment::triggerDecisionBeforePrescales(rbf,bc);
-	unsigned ntbpwords(tbp.size());
-	for(int iw=ntbpwords-1; iw>=0; iw--  ) {
-	  //	printf("will try to access iw %u \n", iw);
-	  uint32_t tmpand = tbp[iw] & m_bitmasks[iw];
-	  std::cout << std::setw(3) << std::dec;
-	  for (int32_t bit = 31; bit>=0;--bit,--nBITs) {
-	    fired[0]=(((tmpand)>>bit) & 1);
+    //   bool fired[1];
+    //   for(unsigned int bc=l1a-1; bc<l1a+2; bc++) {
+    // 	int nBITs=m_nitems-1;
+    // 	tbp = CTPfragment::triggerDecisionBeforePrescales(rbf,bc);
+    // 	unsigned ntbpwords(tbp.size());
+    // 	for(int iw=ntbpwords-1; iw>=0; iw--  ) {
+    // 	  //	printf("will try to access iw %u \n", iw);
+    // 	  uint32_t tmpand = tbp[iw] & m_bitmasks[iw];
+    // 	  std::cout << std::setw(3) << std::dec;
+    // 	  for (int32_t bit = 31; bit>=0;--bit,--nBITs) {
+    // 	    fired[0]=(((tmpand)>>bit) & 1);
 	    
-	    if(fired[0]) {
-	      if(bc!=l1a) std::cout << "  BC " << std::setw(2) << bc << " Item " << std::setw(3) << nBITs << " ";
-	      else std::cout << "> BC " << std::setw(2) << bc << " Item " << std::setw(3) << nBITs << " ";
-	      if(fired[0]) std::cout << "TBP "; else std::cout << "    ";
+    // 	    if(fired[0]) {
+    // 	      if(bc!=l1a) std::cout << "  BC " << std::setw(2) << bc << " Item " << std::setw(3) << nBITs << " ";
+    // 	      else std::cout << "> BC " << std::setw(2) << bc << " Item " << std::setw(3) << nBITs << " ";
+    // 	      if(fired[0]) std::cout << "TBP "; else std::cout << "    ";
 	      
-	      std::cout << std::endl;
-	    }
-	  }
-	}
-      }// bc
+    // 	      std::cout << std::endl;
+    // 	    }
+    // 	  }
+    // 	}
+    //   }// bc
     
-      //    printf("second monitoring block \n");
+    //   //    printf("second monitoring block \n");
     
-      //    for(unsigned int bc=0; bc<nBC; bc++) {
-      for(unsigned int bc=l1a-1; bc<l1a+2; bc++) {
-	int nBITs=m_nitems-1;
-	tbp = CTPfragment::triggerDecisionBeforePrescales(rbf,bc);
-	tbp_it = tbp.rbegin();
+    //   //    for(unsigned int bc=0; bc<nBC; bc++) {
+    //   for(unsigned int bc=l1a-1; bc<l1a+2; bc++) {
+    // 	int nBITs=m_nitems-1;
+    // 	tbp = CTPfragment::triggerDecisionBeforePrescales(rbf,bc);
+    // 	tbp_it = tbp.rbegin();
       
-	for(; tbp_it != tbp.rend(); ++tbp_it) {
-	  std::cout << std::setw(3) << std::dec;
-	  for (int32_t bit = 31; bit>=0;--bit,--nBITs) {
-	    fired[0]=(((*tbp_it)>>bit) & 1);
+    // 	for(; tbp_it != tbp.rend(); ++tbp_it) {
+    // 	  std::cout << std::setw(3) << std::dec;
+    // 	  for (int32_t bit = 31; bit>=0;--bit,--nBITs) {
+    // 	    fired[0]=(((*tbp_it)>>bit) & 1);
 	  
-	    if(fired[0]) {
-	      if(bc!=l1a) std::cout << "  BC " << std::setw(2) << bc << " Item " << std::setw(3) << nBITs << " ";
-	      else std::cout << "> BC " << std::setw(2) << bc << " Item " << std::setw(3) << nBITs << " ";
-	      if(fired[0]) std::cout << "TBP "; else std::cout << "    ";
+    // 	    if(fired[0]) {
+    // 	      if(bc!=l1a) std::cout << "  BC " << std::setw(2) << bc << " Item " << std::setw(3) << nBITs << " ";
+    // 	      else std::cout << "> BC " << std::setw(2) << bc << " Item " << std::setw(3) << nBITs << " ";
+    // 	      if(fired[0]) std::cout << "TBP "; else std::cout << "    ";
 
-	      std::cout << std::endl;
-	    }
-	  }
-	}
-      }// bc
+    // 	      std::cout << std::endl;
+    // 	    }
+    // 	  }
+    // 	}
+    //   }// bc
+    // }
+
+
+
+    // if nomuon version of chain => accept
+    // else accept only if not  second BC triggered by only muon and current BCID including a muon
+    // otherwise need to check that the first muon trigger signal is not a long one which extends into the next BC
+    if(m_nomuon || !( ( m_l1a_type == 2 ||m_l1a_type == 4 ||m_l1a_type == 6 ||m_l1a_type == 7  ) && m_other_type == 2)){
+      
+      std::vector<HLT::TriggerElement*> empty_seed;
+      HLT::TriggerElement* te = config()->getNavigation()->addNode(empty_seed, output);
+      te->setActiveState(true);
+      afterExecMonitors().ignore();
+      return HLT::OK;
+
     }
-
-
-    if (!m_nomuon){
-
+    else{
+      
       /// now try to take a look into out of time muons:
-      int nmuons = distance(m_trigMuonRoITool->begin_OutOfTimeRoIs(),m_trigMuonRoITool->end_OutOfTimeRoIs());
-      if(debugoutput){
-	std::cout <<  "=====================================================" << std::endl;
-	std::cout <<  " RoIs out of time with event BCID:  Number of RoIs = "
-		  << nmuons << std::endl;
-	std::cout <<  "=====================================================" << std::endl;
-      }
-    
-      std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator it_begin_ot, it_end_ot;
-    
-      if(debugoutput)
-	std::cout <<  "===> execute() TrigMuonRoITool Test Algorithm: get begin in time iterator" << std::endl;
-    
-      it_begin_ot = m_trigMuonRoITool->begin_OutOfTimeRoIs();
-      if(debugoutput)
-	std::cout <<  "===> execute() TrigMuonRoITool Test Algorithm: get end   in time iterator" << std::endl;
-    
-      it_end_ot   = m_trigMuonRoITool->end_OutOfTimeRoIs();
+      
       if(debugoutput)
 	std::cout <<  "===> execute() TrigMuonRoITool Test Algorithm: print out of time RoIs" << std::endl;
     
       for  (std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator it = m_trigMuonRoITool->begin_OutOfTimeRoIs();
 	    it != m_trigMuonRoITool->end_OutOfTimeRoIs(); ++it) {
 
+	// look at the neighbouring bcs only 
 	if (abs((*it).second) !=1) continue;
+	// only look at highgest pt candidates:
+	// if ( !((*it).first).getCandidateIsHighestPt() ) continue;
+	
 	if(debugoutput){
-	  std::cout <<  " Difference(RoI(BCID) - Event(BCID)) = " << (*it).second << std::endl;
-	  std::cout <<  " ------------------------------------- " << std::endl;
 	  std::cout <<  "RoIB word               : 0x" << MSG::hex << ((*it).first).roIWord() << MSG::dec << std::endl;
 	  std::cout <<  "Threshold               :  pt" << ((*it).first).pt() << std::endl;
 	  std::cout <<  "Sector ID               :  " << ((*it).first).getSectorID() << std::endl;
@@ -543,7 +544,26 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& fake_seed,
 	  std::cout <<  "RoI number              :  " << ((*it).first).getRoiNumber() << std::endl;
 	  std::cout <<  "IsHighestPt             :  " << ((*it).first).getCandidateIsHighestPt() << std::endl;
 	}
+	
 
+	// loop over in time muon rois and veto event if the same muon roi is present in both BCIDs
+	bool overlapsInTime=false;
+	for  (std::vector< ROIB::MuCTPIRoI >::const_iterator it_intime = m_trigMuonRoITool->begin_InTimeRoIs();
+	      it_intime != m_trigMuonRoITool->end_InTimeRoIs(); ++it) {
+	  if( ((*it).first).getSectorID() == (*it_intime).getSectorID() &&
+	      ((*it).first).getSectorAddress() == (*it_intime).getSectorAddress() //&&
+	      //((*it).first).pt() == (*it_intime).pt()
+	      ){
+	    //std::cout <<  "Overlaps with intime muon roi .. rejecting event" << std::endl;
+	    m_beforeafterflag = 0;
+	    m_l1a_type = 0;
+	    m_other_type = 0;
+	    afterExecMonitors().ignore();
+	    return HLT::OK;
+	    overlapsInTime=true;
+	  }
+	}
+	
 	unsigned int temp_sysID = getBitMaskValue(((*it).first).getSectorAddress(), LVL1::SysIDMask );
 	unsigned int sysID = 0;                // Barrel
 	if( temp_sysID & 0x2 ) sysID = 1;      // Endcap
@@ -578,11 +598,37 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& fake_seed,
      
       }
     }
-    afterExecMonitors().ignore();
-  
+    
+
+    // if(debugoutput)
+    //   std::cout <<  "===> execute() TrigMuonRoITool Test Algorithm: print out in time RoIs" << std::endl;
+    
+    // for  (std::vector< ROIB::MuCTPIRoI >::const_iterator it = m_trigMuonRoITool->begin_InTimeRoIs();
+    // 	  it != m_trigMuonRoITool->end_InTimeRoIs(); ++it) {
+
+    //   if(debugoutput){
+    // 	std::cout <<  "RoIB word               : 0x" << MSG::hex << ((*it)).roIWord() << MSG::dec << std::endl;
+    // 	std::cout <<  "Threshold               :  pt" << ((*it)).pt() << std::endl;
+    // 	std::cout <<  "Sector ID               :  " << ((*it)).getSectorID() << std::endl;
+    // 	std::cout <<  "Sector addr             :  0x" << MSG::hex << ((*it)).getSectorAddress() << MSG::dec << std::endl;
+    // 	std::cout <<  "Sector overflow         :  " << ((*it)).getSectorOverflow() << std::endl;
+    // 	std::cout <<  "RoI overflow            :  " << ((*it)).getRoiOverflow() << std::endl;
+    // 	std::cout <<  "RoI number              :  " << ((*it)).getRoiNumber() << std::endl;
+    // 	std::cout <<  "IsHighestPt             :  " << ((*it)).getCandidateIsHighestPt() << std::endl;
+    //   }
+      
+    // }
+    
+    std::vector<HLT::TriggerElement*> empty_seed;
+    HLT::TriggerElement* te = config()->getNavigation()->addNode(empty_seed, output);
+    te->setActiveState(true);
+
   }
-  
+  afterExecMonitors().ignore();
+
+ 
   return HLT::OK;
+  
 }
 
 

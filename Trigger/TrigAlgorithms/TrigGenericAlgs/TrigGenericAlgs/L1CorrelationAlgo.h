@@ -92,6 +92,7 @@ private:
   /* int m_nitems; */
   
   bool m_nomuon;
+  bool m_currentBCincl;
   std::vector<float> m_etaOutOfTimeMuon;
   std::vector<float> m_phiOutOfTimeMuon;
   std::vector<float> m_ptThrOutOfTimeMuon;
