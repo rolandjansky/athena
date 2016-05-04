@@ -1,0 +1,892 @@
+<?xml version="1.0"?> 
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd"> 
+<!-- NB validate this file here before committing to svn:
+ python /afs/cern.ch/user/r/rtt/public/xmlvalidate.py TrigAnalysisTest_TestConfiguration.xml
+ RTT: for single file use: jp.AthenaCommonFlags.FilesInput=['root://eosatlas/eos/atlas/...
+ and for multiple files use: dsName="/eos/atlas/...";fileRange=[1,2]
+ -->
+<unifiedTestConfiguration>
+    
+    <!-- ATN tests configured here -->
+    <atn>
+        <!-- always KEEP this one --> 
+        <TEST name="AthenaTrigRDOtoESDAOD" type="script" suite="tat_RDOtoESDAOD"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDOtoESDAOD --run AthenaTrigRDOtoESDAOD --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        
+        <TEST name="AthenaTrigESD_HLTMonitoring" type="script" suite="tat_RDOtoESDAOD"> 
+            <options_atn>trigtest.pl --test AthenaTrigESD_HLTMonitoring --run AthenaTrigESD_HLTMonitoring --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>60</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        
+        <TEST name="AthenaTrigRDOtoBS" type="script" suite="tat_BS"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDOtoBS --run AthenaTrigRDOtoBS --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="AthenaTrigBStoESD" type="script" suite="tat_BS"> 
+            <options_atn>trigtest.pl --test AthenaTrigBStoESD --run AthenaTrigBStoESD --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <!--TEST name="AthenaTrigRDOtoBS_MC" type="script" suite="tat_BS_MC"-->         
+        <TEST name="AthenaTrigRDOtoBS_MC" type="script" suite="tat_BS"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDOtoBS_MC --run AthenaTrigRDOtoBS_MC --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <!--TEST name="AthenaTrigBStoESD_MC" type="script" suite="tat_BS_MC"--> 
+        <TEST name="AthenaTrigBStoESD_MC" type="script" suite="tat_BS"> 
+            <options_atn>trigtest.pl --test AthenaTrigBStoESD_MC --run AthenaTrigBStoESD_MC --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <!--TEST name="MC_standalone" type="script" suite="tat_BS_MC"--> 
+        <!--TEST name="MC_standalone" type="script" suite="tat_BS"> 
+         <options_atn>trigtest.pl - -test MC_standalone - -run MC_standalone - -conf TrigAnalysisTest.conf</options_atn> 
+         <timelimit>30</timelimit> 
+         <author>TrigAnalysis validation</author> 
+	      		<project_exclude>AthAnalysis</project_exclude>
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST--> 
+        
+        <!--TEST name="AthenaTrigRDOtoESDAOD_Physics" type="script" suite="tat_Phys_EA"--> 
+        <TEST name="AthenaTrigRDOtoESDAOD_Physics" type="script" suite="tat_EA"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDOtoESDAOD_Physics --run AthenaTrigRDOtoESDAOD_Physics --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        
+        <!--TEST name="AthenaTrigRDOtoESDAOD_MC" type="script" suite="tat_MC_EA"--> 
+        <TEST name="AthenaTrigRDOtoESDAOD_MC" type="script" suite="tat_EA"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDOtoESDAOD_MC --run AthenaTrigRDOtoESDAOD_MC --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="AthenaTrigRDOtoTAG" type="script" suite="tat_tag"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDOtoTAG --run AthenaTrigRDOtoTAG --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <!--TEST name="AthenaTrigRDOtoAOD_Physics" type="script" suite="tat_AOD_Phys"--> 
+        <TEST name="AthenaTrigRDOtoAOD_Physics" type="script" suite="tat_AOD"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDOtoAOD_Physics --run AthenaTrigRDOtoAOD_Physics --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        
+        <TEST name="AthenaTrigRDOtoAOD" type="script" suite="tat_AOD"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDOtoAOD --run AthenaTrigRDOtoAOD --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <!--TEST name="AthenaTrigRDOtoAOD_SLIM" type="script" suite="tat_AOD_SLIM"--> 
+        <TEST name="AthenaTrigRDOtoAOD_SLIM" type="script" suite="tat_AOD"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDOtoAOD_SLIM --run AthenaTrigRDOtoAOD_SLIM --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        
+        <!--TEST name="AthenaTrigRDO_TDT" type="script" suite="tat_TDT"-->
+        <TEST name="AthenaTrigRDO_TDT" type="script" suite="tat_EA">  
+            <options_atn>trigtest.pl --test AthenaTrigRDO_TDT --run AthenaTrigRDO_TDT --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="AthenaTrigRDOtoAOD_MC" type="script" suite="tat_MCSlim"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDOtoAOD_MC --run AthenaTrigRDOtoAOD_MC --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name= "AthenaTrigAODtoAOD_TrigNavSlimming" type="script" suite="tat_MCSlim"> 
+            <options_atn>trigtest.pl --test AthenaTrigAODtoAOD_TrigNavSlimming --run AthenaTrigAODtoAOD_TrigNavSlimming --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <mailto> tbold@mail.cern.ch</mailto> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="AthenaTrigAOD_TrigEDMCheck" type="script" suite="tat_MCSlim"> 
+            <options_atn>trigtest.pl --test AthenaTrigAOD_TrigEDMCheck --run AthenaTrigAOD_TrigEDMCheck --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="AthenaTrigAOD_TrigEDMAuxCheck" type="script" suite="tat_MCSlim"> 
+            <options_atn>trigtest.pl --test AthenaTrigAOD_TrigEDMAuxCheck --run AthenaTrigAOD_TrigEDMAuxCheck --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="AthenaTrigAOD_TrigDecTool" type="script" suite="tat_MCSlim"> 
+            <options_atn>trigtest.pl --test AthenaTrigAOD_TrigDecTool --run AthenaTrigAOD_TrigDecTool --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name= "TrigHLT_Run1BStoxAOD" type="script" suite="tat_Run1"> 
+            <options_atn>trigtest.pl --test TrigHLT_Run1BStoxAOD --run TrigHLT_Run1BStoxAOD --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>45</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <mailto> oleg.kuprash@cern.ch </mailto> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST>  
+        
+        <TEST name= "TrigHLT_Run1BStoxAOD_validation" type="script" suite="tat_Run1"> 
+            <options_atn>trigtest.pl --test TrigHLT_Run1BStoxAOD_validation --run TrigHLT_Run1BStoxAOD_validation --conf TrigAnalysisTest.conf</options_atn>
+            <timelimit>45</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <mailto> oleg.kuprash@cern.ch </mailto> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST>  
+        
+        <TEST name= "AthenaTrigRDOtoAOD_MC_pp_v6" type="script" suite="tat_MCv6"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDOtoAOD_MC_pp_v6 --run AthenaTrigRDOtoAOD_MC_pp_v6 --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name= "AthenaTrigRDOtoESDAOD_MC_pp_v6" type="script" suite="tat_MCv6"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDOtoESDAOD_MC_pp_v6 --run AthenaTrigRDOtoESDAOD_MC_pp_v6 --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        
+        <!-- Summary table -->
+        <TEST name="atn_timeline" type="script" suite="triganalysis_index0">
+            <doc>ATN timeline</doc>
+            <options_atn>atn_timeline.py --atn -p TrigAnalysisTest </options_atn>
+            <timelimit>10</timelimit>
+            <author>Frank Winklmeier</author>
+            <!--prerequisite>tat_RDOtoESDAOD</prerequisite>
+             <prerequisite>tat_BS_MC</prerequisite>
+             <prerequisite>tat_Phys_EA</prerequisite>
+             <prerequisite>tat_MC_EA</prerequisite>
+             <prerequisite>tat_tag</prerequisite>
+             <prerequisite>tat_AOD_Phys</prerequisite>
+             <prerequisite>tat_AOD</prerequisite>
+             <prerequisite>tat_AOD_SLIM</prerequisite>
+             <prerequisite>tat_TDT</prerequisite-->
+            <prerequisite>tat_RDOtoESDAOD</prerequisite>
+            <prerequisite>tat_BS</prerequisite>
+            <prerequisite>tat_Run1</prerequisite>
+            <prerequisite>tat_EA</prerequisite>            
+            <prerequisite>tat_tag</prerequisite>
+            <prerequisite>tat_AOD</prerequisite>
+            <prerequisite>tat_MCSlim</prerequisite>
+            <prerequisite>tat_MCv6</prerequisite>
+            <!--prerequisite>tat_PhysVal</prerequisite-->
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <TEST name="atn_xml_summary_table" type="script" suite="triganalysis_index">
+            <options_atn>atn_summary.pl </options_atn>
+            <timelimit>2</timelimit>
+            <author>TrigAnalysis validation</author>
+            <prerequisite>triganalysis_index0</prerequisite>
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <!--TEST name="sendmail2shifter" type="script" suite="triganalysis_index">
+         <options_atn>echo $ATN_PACKAGE | mail -s "TrigAnalysisTest ATN done" "czodrows@cern.ch" </options_atn>
+         <timelimit>2</timelimit>
+         <author>TrigAnalysis validation</author>
+         <prerequisite>triganalysis_index0</prerequisite>
+	      		<project_exclude>AthAnalysis</project_exclude>
+         <expectations>
+         <returnValue>0</returnValue>
+         </expectations
+         </TEST-->
+        
+    </atn>
+    
+    <!-- No KV tests configured here -->
+    <kv/>
+    
+    
+    <!-- RTT tests configured here -->
+    <rtt  xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+        
+        <!--rttContactPerson>Simon George (S.George@rhul.ac.uk)</rttContactPerson>
+         <rttContactPerson>David Strom (David.Strom@cern)</rttContactPerson>
+         <rttContactPerson>Patrick Czodrowski (czodrows@cern)</rttContactPerson-->
+        <rttContactPerson>Oleg Kuprash (oleg.kuprash@cern.ch)</rttContactPerson>
+        
+        <jobList>
+            <classification>
+                <displayClass>OfflineValidation</displayClass>
+                <displayProcess>Reco</displayProcess>
+                <displayComponent>Trig-Common</displayComponent>
+            </classification> 
+            
+            <athena userJobId="RDOtoAOD_Physics" doMonitoring="True">
+                <doc>
+                    Menu: Physics_pp_v5 Sample: top - produces AOD 100 events
+                </doc>
+                <displayName>RDOtoAOD_Physics</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='Physics_pp_v5';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                </commandLineFlags>
+                <options>testAthenaTrigRDOtoAOD.py</options>
+                <package>Trigger/TrigValidation/TrigAnalysisTest</package>
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="RDOtoAOD_MC" doMonitoring="True">
+                <doc>
+                    Menu: MC_pp_v6 Sample: top - produces AOD 100 events
+                </doc>
+                <displayName>RDOtoAOD_MC</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='MC_pp_v6';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                </commandLineFlags>
+                <options>testAthenaTrigRDOtoAOD.py</options>
+                <package>Trigger/TrigValidation/TrigAnalysisTest</package>
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="RDOtoESDAOD_MC" doMonitoring="True">
+                <doc>
+                    Menu: MC_pp_v6 Sample: top - produces AOD and ESD 100 events
+                </doc>
+                <displayName>RDOtoESDAOD_MC</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='MC_pp_v6';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                </commandLineFlags>    
+                <options>testAthenaTrigRDOtoESDAOD.py</options>
+                <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue> 
+                <alwaysRunPostProc />  
+            </athena>
+            
+            <athena userJobId="RDOtoESDAOD_Physics" doMonitoring="True">
+                <doc>
+                    Menu: Physics_pp_v5 Sample: top - produces AOD and ESD 100 events
+                </doc>
+                <displayName>RDOtoESDAOD_Physics</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='Physics_pp_v5';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                </commandLineFlags>    
+                <options>testAthenaTrigRDOtoESDAOD.py</options>
+                <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue> 
+                <alwaysRunPostProc />  
+            </athena>
+            
+            <chain>
+                <chainName>AthenaTrigAOD_TrigEDMandTDTCheck_MC_pp_v6_chain</chainName>
+                <abortOnError />
+                <sequential>
+                    
+                    <chainElement>
+                        <athena userJobId="RDOtoAOD_MC_pp_v6" doMonitoring="True">
+                            <doc> Menu: MC_pp_v6 Sample: top - produces AOD 100 events</doc>
+                            <displayName>RDOtoAOD_MC_pp_v6</displayName>
+                            <commandLineFlags>
+                                RunningRTT=TRUE;menu='MC_pp_v6';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                            </commandLineFlags>
+                            <options>testAthenaTrigRDOtoAOD.py</options>
+                            <group>TrigAnalysisTestIOTests</group>
+                            <queue>long</queue>
+                            
+                            <athenaCommonFlags />
+                            <alwaysRunPostProc />
+                        </athena>
+                        <chainfileout>AOD.pool.root</chainfileout>
+                        
+                    </chainElement>
+                    
+                    <parallel>
+                        <chainElement>
+                            <athena userJobId="AOD_TrigEDMCheck_MC_pp_v6">
+                                <doc> AthenaTrigAOD_TrigEDMCheck on Menu: MC_pp_v6 Sample: top AOD from RDO</doc>
+                                <displayName>AthenaTrigAOD_TrigEDMCheck_MC_pp_v6</displayName>
+                                <commandLineFlags>RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=["AOD.pool.root"]</commandLineFlags>
+                                <options>testAthenaTrigAOD_TrigEDMCheck.py</options>
+                                <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                                <group>TrigAnalysisTestIOTests</group>
+                                <queue>long</queue> 
+                                <chaindataset_info>
+                                    <dc2/>
+                                    <chaindatasetName>AOD.pool.root</chaindatasetName>
+                                    <dataset_info>
+                                        <dc2 />
+                                        <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_AOD.pool.root</datasetName>
+                                    </dataset_info>
+                                </chaindataset_info>
+                                <testToRemove>
+                                    <jobGroupName>RTT:Top</jobGroupName>
+                                    <testidentifier>CheckFileRunner0</testidentifier>
+                                </testToRemove>
+                                <testToRemove>
+                                    <jobGroupName>TrigAnalysisTest:AthenaTrigAnalysisTestIOTests</jobGroupName>
+                                    <testidentifier>chainDump</testidentifier>
+                                </testToRemove>
+                                <alwaysRunPostProc />
+                            </athena>
+                        </chainElement>
+                        
+                        <chainElement>
+                            <athena userJobId="AOD_TrigDecTool_MC_pp_v6">
+                                <doc> AthenaTrigAOD_TrigDecTool on Menu: MC_pp_v6 Sample: top AOD from RDO</doc>
+                                <displayName>AthenaTrigAOD_TrigDecTool_MC_pp_v6</displayName>
+                                <commandLineFlags>RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=["AOD.pool.root"]</commandLineFlags>
+                                <options>testAthenaTrigAOD_TrigDecTool.py</options>
+                                <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                                <group>TrigAnalysisTestIOTests</group>
+                                <queue>long</queue>  
+                                <chaindataset_info>
+                                    <dc2/>
+                                    <chaindatasetName>AOD.pool.root</chaindatasetName>
+                                    <dataset_info>
+                                        <dc2 />
+                                        <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_AOD.pool.root</datasetName>
+                                    </dataset_info>
+                                </chaindataset_info>
+                                <testToRemove>
+                                    <jobGroupName>RTT:Top</jobGroupName>
+                                    <testidentifier>CheckFileRunner0</testidentifier>
+                                </testToRemove>
+                                <testToRemove>
+                                    <jobGroupName>TrigAnalysisTest:AthenaTrigAnalysisTestIOTests</jobGroupName>
+                                    <testidentifier>chainDump</testidentifier> 
+                                </testToRemove>
+                                <alwaysRunPostProc />
+                            </athena>
+                        </chainElement>
+                    </parallel>
+                    
+                </sequential>
+            </chain>
+            
+            <chain>
+                <chainName>AthenaTrigESDAOD_Perf_and_HLTMons_MC_pp_v6_chain</chainName>
+                <abortOnError />
+                <sequential>
+                    
+                    <chainElement>
+                        <athena userJobId="RDOtoESD_MC_pp_v6" doMonitoring="True">
+                            <doc> Menu: MC_pp_v6 Sample: top - produces AOD 100 events</doc>
+                            <displayName>RDOtoAOD_MC_pp_v6</displayName>
+                            <commandLineFlags>
+                                RunningRTT=TRUE;menu='MC_pp_v6';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                            </commandLineFlags>
+                            <options>testAthenaTrigRDOtoAOD.py</options>
+                            <group>TrigAnalysisTestIOTests</group>
+                            <queue>long</queue> 
+                            <athenaCommonFlags />
+                            <alwaysRunPostProc />
+                        </athena>
+                        <chainfileout>AOD.pool.root</chainfileout>
+                    </chainElement>
+                    
+                    <parallel>
+                        
+                        <sequential>
+                            <chainElement>
+                                <athena userJobId="ESDtoAOD_MC_pp_v6" doMonitoring="True">
+                                    <doc> Menu: MC_pp_v6 Sample: top - produces AOD 100 events</doc>
+                                    <displayName>RDOtoAOD_MC_pp_v6</displayName>
+                                    <commandLineFlags>
+                                        RunningRTT=TRUE;menu='MC_pp_v6';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                                    </commandLineFlags>
+                                    <options>testAthenaTrigRDOtoAOD.py</options>
+                                    <group>TrigAnalysisTestIOTests</group>
+                                    <queue>long</queue> 
+                                    <athenaCommonFlags />
+                                    <alwaysRunPostProc />
+                                </athena>
+                                <chainfileout>AOD.pool.root</chainfileout>
+                            </chainElement>
+                            
+                            
+                            <chainElement>
+                                <athena userJobId="HLTMon">
+                                    <doc> AthenaTrigAOD_TrigEDMCheck on Menu: MC_pp_v6 Sample: top AOD from RDO</doc>
+                                    <displayName>AthenaTrigAOD_TrigEDMCheck_MC_pp_v6</displayName>
+                                    <commandLineFlags>RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=["AOD.pool.root"]</commandLineFlags>
+                                    <options>testAthenaTrigAOD_TrigEDMCheck.py</options>
+                                    <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                                    <group>TrigAnalysisTestIOTests</group>
+                                    <queue>long</queue>
+                                    <chaindataset_info>
+                                        <dc2/>
+                                        <chaindatasetName>AOD.pool.root</chaindatasetName>
+                                        <dataset_info>
+                                            <dc2 />
+                                            <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_AOD.pool.root</datasetName>
+                                        </dataset_info>
+                                    </chaindataset_info>
+                                    <testToRemove>
+                                        <jobGroupName>RTT:Top</jobGroupName>
+                                        <testidentifier>CheckFileRunner0</testidentifier>
+                                    </testToRemove>
+                                    <testToRemove>
+                                        <jobGroupName>TrigAnalysisTest:AthenaTrigAnalysisTestIOTests</jobGroupName>
+                                        <testidentifier>chainDump</testidentifier>
+                                    </testToRemove>
+                                    <alwaysRunPostProc />
+                                </athena>
+                            </chainElement>
+                            
+                            
+                            <chainElement>
+                                <athena userJobId="PhysValMon_ESD">
+                                    <doc> AthenaTrigAOD_TrigDecTool on Menu: MC_pp_v6 Sample: top AOD from RDO</doc>
+                                    <displayName>AthenaTrigAOD_TrigDecTool_MC_pp_v6</displayName>
+                                    <commandLineFlags>RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=["AOD.pool.root"]</commandLineFlags>
+                                    <options>testAthenaTrigAOD_TrigDecTool.py</options>
+                                    <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                                    <group>TrigAnalysisTestIOTests</group>
+                                    <queue>long</queue>  
+                                    <chaindataset_info>
+                                        <dc2/>
+                                        <chaindatasetName>AOD.pool.root</chaindatasetName>
+                                        <dataset_info>
+                                            <dc2 />
+                                            <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_AOD.pool.root</datasetName>
+                                        </dataset_info>
+                                    </chaindataset_info>
+                                    <testToRemove>
+                                        <jobGroupName>RTT:Top</jobGroupName>
+                                        <testidentifier>CheckFileRunner0</testidentifier>
+                                    </testToRemove>
+                                    <testToRemove>
+                                        <jobGroupName>TrigAnalysisTest:AthenaTrigAnalysisTestIOTests</jobGroupName>
+                                        <testidentifier>chainDump</testidentifier>
+                                    </testToRemove>
+                                    <alwaysRunPostProc />
+                                </athena>
+                            </chainElement>
+                            
+                        </sequential>
+                        
+                        <chainElement>
+                            <athena userJobId="PhysValMon_xAOD">
+                                <doc> AthenaTrigAOD_TrigDecTool on Menu: MC_pp_v6 Sample: top AOD from RDO</doc>
+                                <displayName>AthenaTrigAOD_TrigDecTool_MC_pp_v6</displayName>
+                                <commandLineFlags>RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=["AOD.pool.root"]</commandLineFlags>
+                                <options>testAthenaTrigAOD_TrigDecTool.py</options>
+                                <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                                <group>TrigAnalysisTestIOTests</group>
+                                <queue>long</queue> 
+                                <chaindataset_info>
+                                    <dc2/>
+                                    <chaindatasetName>AOD.pool.root</chaindatasetName>
+                                    <dataset_info>
+                                        <dc2 />
+                                        <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_AOD.pool.root</datasetName>
+                                    </dataset_info>
+                                </chaindataset_info>
+                                <testToRemove>
+                                    <jobGroupName>RTT:Top</jobGroupName>
+                                    <testidentifier>CheckFileRunner0</testidentifier>
+                                </testToRemove>
+                                <testToRemove>
+                                    <jobGroupName>TrigAnalysisTest:AthenaTrigAnalysisTestIOTests</jobGroupName>
+                                    <testidentifier>chainDump</testidentifier>
+                                </testToRemove>
+                                <alwaysRunPostProc />
+                            </athena>
+                        </chainElement>
+                    </parallel>
+                    
+                </sequential>
+            </chain>
+            
+            
+            
+            
+            <athena userJobId="RDOtoAOD_MC_pp_v6_loose_mc_prescale" doMonitoring="True">
+                <doc>
+                    Menu: MC_pp_v6_loose_mc_prescale Sample: top - produces AOD 100 events
+                </doc>
+                <displayName>RDOtoAOD_MC_pp_v6_loose_mc_prescale</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='MC_pp_v6_loose_mc_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                </commandLineFlags>
+                <options>testAthenaTrigRDOtoAOD.py</options>
+                <package>Trigger/TrigValidation/TrigAnalysisTest</package>
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="RDOtoAOD_MC_pp_v6_tight_mc_prescale" doMonitoring="True">
+                <doc>
+                    Menu: MC_pp_v6_tight_mc_prescale Sample: top - produces AOD 100 events
+                </doc>
+                <displayName>RDOtoAOD_MC_pp_v6_tight_mc_prescale</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='MC_pp_v6_tight_mc_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                </commandLineFlags>
+                <options>testAthenaTrigRDOtoAOD.py</options>
+                <package>Trigger/TrigValidation/TrigAnalysisTest</package>
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            
+            <athena userJobId="RDOtoAOD_MC_pp_v6_1000" doMonitoring="True">
+                <doc>
+                    Menu: RDOtoAOD_MC_pp_v6 Sample: top - produces AOD 1000 events
+                </doc>
+                <displayName>RDOtoAOD_MC_pp_v6_1000</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='MC_pp_v6';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                </commandLineFlags>
+                <options>testAthenaTrigRDOtoAOD.py</options>
+                <package>Trigger/TrigValidation/TrigAnalysisTest</package>
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            
+            <athena userJobId="RDOtoAOD_MC_pp_v6_bphysics_1000" doMonitoring="True">
+                <doc>
+                    Menu: RDOtoAOD_MC_pp_v6 Sample: bphysics - produces AOD 1000 events
+                </doc>
+                <displayName>RDOtoAOD_MC_pp_v6_bphysics_1000</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='MC_pp_v6';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_RTT_1000_Bphysics_toAOD_r6889/Bphysics_RDO_r6889_mixed.pool.root']
+                </commandLineFlags>
+                <options>testAthenaTrigRDOtoAOD.py</options>
+                <package>Trigger/TrigValidation/TrigAnalysisTest</package>
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>            
+            
+            
+            <athena userJobId="RDOtoAOD_MC_pp_v6_BphysExo_1000" doMonitoring="True">
+                <doc>
+                    Menu: RDOtoAOD_MC_pp_v6 Sample: bphysics and muons - produces AOD 1000 events on mc15_13TeV.180593.Pythia8_AUMSTW2008LO_Wtaunu_3mu_noPhotos see ATR-13193  
+                </doc>
+                <displayName>RDOtoAOD_MC_pp_v6_BphysExo_1000</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='MC_pp_v6';sliceName='mubphysics';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_13TeV.180593.Pythia8_AUMSTW2008LO_Wtaunu_3mu_noPhotos.recon.RDO.e3802_s2608_s2183_r6790/RDO.05594910._000008.pool.root.1']
+                </commandLineFlags>
+                <options>testAthenaTrigRDOtoAOD.py</options>
+                <package>Trigger/TrigValidation/TrigAnalysisTest</package>
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>     
+            
+            <athena userJobId="RDOtoAODSLIM_MC_pp_v6_tight_mc_prescale" doMonitoring="True">
+                <doc>
+                    Menu: MC_pp_v6_tight_mc_prescale Sample: top - produces AODSLIM 100 events
+                </doc>
+                <displayName>RDOtoAODSLIM_MC_pp_v6_tight_mc_prescale</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='MC_pp_v6_tight_mc_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                </commandLineFlags>
+                <options>testAthenaTrigRDOtoAODSLIM.py</options>
+                <package>Trigger/TrigValidation/TrigAnalysisTest</package>
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="RDOtoESDAOD_MC_pp_v6_loose_mc_prescale" doMonitoring="True">
+                <doc>
+                    Menu: MC_pp_v6_loose_mc_prescale Sample: top - produces AOD and ESD 100 events
+                </doc>
+                <displayName>RDOtoESDAOD_MC_pp_v6_loose_mc_prescale</displayName>
+                <commandLineFlags> 
+                    RunningRTT=TRUE;menu='MC_pp_v6_loose_mc_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                </commandLineFlags>    
+                <options>testAthenaTrigRDOtoESDAOD.py</options>
+                <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue> 
+                <alwaysRunPostProc />  
+            </athena>
+            
+            <athena userJobId="RDOtoESDAOD_MC_pp_v6_tight_mc_prescale" doMonitoring="True">
+                <doc>
+                    Menu: MC_pp_v6_tight_mc_prescale Sample: top - produces AOD and ESD 100 events
+                </doc>
+                <displayName>RDOtoESDAOD_MC_pp_v6_tight_mc_prescale</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='MC_pp_v6_tight_mc_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                </commandLineFlags>    
+                <options>testAthenaTrigRDOtoESDAOD.py</options>
+                <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue> 
+                <alwaysRunPostProc />  
+            </athena>
+            
+            <athena userJobId="RDO_ElectronSlice_xAOD" doMonitoring="True">
+                <doc>
+                    Menu:MC, Sample:top - produces xAOD 1000 events
+                </doc>
+                <displayName>RDO_ElectronSlice_xAOD</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00';fileRange=[1,10]
+                </commandLineFlags>
+                <options>testAthenaTrigRDO_ElectronSlice_MC.py</options>
+                <package>Trigger/TrigValidation/TrigAnalysisTest</package>
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+        </jobList>
+        
+        
+        <!-- Define job groups here -->
+        <jobGroups>
+            <jobGroup name="AthenaTrigAnalysisTestIOTests" parent="Athena">
+                <keepFilePattern info="Log files" displayColor="red">*.txt</keepFilePattern>
+                <keepFilePattern info="Test log file" displayColor="blue">*test*.log</keepFilePattern>
+                <keepFilePattern info="Action log file" displayColor="blue">*action*.log</keepFilePattern>
+                <keepFilePattern info="Monitoring histograms">*-monitoring.root</keepFilePattern>
+                <keepFilePattern info="Timing histograms">timing-histograms.root</keepFilePattern>
+                <keepFilePattern info="checkfilelog">*checkFile*</keepFilePattern>
+                <keepFilePattern info="PerfMon ntuple">*.pmon.gz</keepFilePattern>
+                <keepFilePattern info="PerfMon Hephaestus file">*.heph.log</keepFilePattern>
+                <keepFilePattern info="PerfMon xml">*.xml</keepFilePattern>
+                <keepFilePattern info="POOL files">*.pool.root</keepFilePattern>
+                <keepFilePattern info="GIF files">*.gif</keepFilePattern>
+                <keepFilePattern info="PDF files">*.pdf</keepFilePattern>
+                <keepFilePattern info="ROOT files">*.root</keepFilePattern> 
+                <keepFilePattern info="ROOT macros">*.C</keepFilePattern>
+                <keepFilePattern info="ROOT macros">*.cxx</keepFilePattern>
+                <keepFilePattern info="Bytestream files">*.data</keepFilePattern>
+                <keepFilePattern info="Bytestream files">*.php</keepFilePattern>
+                <keepFilePattern info="igprof files"> igprof.*.gz</keepFilePattern>
+                <keepFilePattern info="igprof files"> cgi-bin/data/*.sql3</keepFilePattern>
+                <keepFilePattern info="igprof files"> cgi-bin/igprof-navigator</keepFilePattern>
+                <keepFilePattern info="TrigCostMon files"> costMonitoring*/* </keepFilePattern>
+                <keepFilePattern maxsize="100">*/TrigCostRoot_Results.root</keepFilePattern>
+                <keepFilePattern maxsize="100">trig_cost.root</keepFilePattern>
+                <keepFilePattern maxsize="100">costMonitoring*/*</keepFilePattern>
+                <keepFilePattern maxsize="100">*log</keepFilePattern>
+                <keepFilePattern maxsize="100">*log_1</keepFilePattern>  
+                
+                <!--binRefFile>*-monitoring.root</binRefFile-->
+                <auxFilePattern>checklogTriggerTest.conf</auxFilePattern>
+                <test position="1">
+                    <modulename>chainDump</modulename>
+                    <testname>chainDump</testname>
+                    <testidentifier>chainDump</testidentifier>
+                    <arg>
+                        <argname>rootFile</argname>
+                        <argvalue>expert-monitoring.root</argvalue>
+                    </arg>
+                </test>
+                <test position="2">
+                    <modulename>LogTail_TrigAnalysisTest</modulename>
+                    <testname>LogTail_TrigAnalysisTest</testname>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>tail -10000  %JOBLOG >%JOBLOG.tail.txt </argvalue>
+                    </arg>
+                </test>
+                <test position="3">
+                    <modulename>CheckLog_TrigAnalysisTest</modulename>
+                    <testname>CheckLog_TrigAnalysisTest</testname>
+                    <testidentifier>CheckLog_TrigAnalysisTest</testidentifier>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>check_log.pl --conf checklogTriggerTest.conf  %JOBLOG</argvalue>
+                    </arg>
+                </test>
+                <!--test position="3">
+                 <modulename>TruncateLog_TrigAnalysisTest</modulename>
+                 <testname>TruncateLog_TrigAnalysisTest</testname>
+                 <arg>
+                 <argname>command</argname>
+                 <argvalue>mv %JOBLOG tmp.delete; head -n150000 tmp.delete  >%JOBLOG; rm tmp.delete</argvalue>
+                 </arg>
+                 </test-->
+                <test position="4">
+                    <modulename>RttLibraryTools</modulename>
+                    <testname>PerfMonRunner</testname>
+                    <testidentifier>PerfMonRunner</testidentifier>
+                    <arg>
+                        <argname>fileName</argname>
+                        <argvalue>ntuple.pmon.gz</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>options</argname>
+                        <argvalue>-f 0.90</argvalue>
+                    </arg>	
+                </test>
+                <!--test position="5">
+                 <modulename>RttLibraryTools</modulename>
+                 <testname>RTTPerfMonPlotter</testname>
+                 <arg>
+                 <argname>outputFile</argname>
+                 <argvalue>rttPerfmonPlotter.xml</argvalue>
+                 </arg>
+                 <keepFilePattern info="">RttLibraryTools_RTTPerfmonPlotter.postprocessing.log</keepFilePattern>
+                 </test-->
+                
+                <!-- rm noalarm label once this thing is fixed ... -->
+                <test position="5"> 
+                    <modulename>checkFileTrigSize_RTT</modulename>
+                    <testname>checkFileTrigSize_RTT</testname>
+                    <testidentifier>checkFileTrigSize_RTT</testidentifier>
+                    <arg>
+                        <argname>checkFile</argname>
+                        <argvalue>AOD.pool.root.checkFile</argvalue>
+                    </arg>
+                    <noalarm />
+                </test>
+                
+                <testToRemove>
+                    <jobGroupName>RTT:Top</jobGroupName>
+                    <testidentifier>PerfMonDozer0</testidentifier>
+                </testToRemove>
+                
+            </jobGroup>
+        </jobGroups>
+        
+    </rtt>
+    
+</unifiedTestConfiguration>
