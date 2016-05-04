@@ -1083,6 +1083,44 @@
                             
                         </chainElement>
                         
+
+			<!-- Same as above but in RAWtoALL workflow -->
+			<chainElement>
+                            
+                            <jobTransform userJobId="ExpressStream_4_Run276689_Collisions_RAWtoALL">
+                                <doc>RecoTrf</doc>
+                                <jobTransformJobName>ExpressStream_4_Run276689_Collisions</jobTransformJobName>
+                                <jobTransformCmd>   
+                                    tct_recotrf.py --jobnum=3 --trigStream=express --nfiles=2 --maxEvents=30 --runnum=00276689 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00276689/express_express/ --AMI=f628 --lumiblock=226,227 --dropDESDs --dropDRAWs --dropNTUPs --steering=doRAWtoALL
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>medium</queue>
+                                <batchWallTime>420</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>ExpressStream_4_Run276689_Collisions_RAWtoALL.summary.txt</argvalue> 
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                                
+                            </jobTransform>
+                            
+                        </chainElement>
+
+
+
                         <!-- Reconstruction job, using latest castor collections -->
                         <chainElement>
                             
@@ -1090,7 +1128,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>LatestRun_Main1</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=1 --trigStream=Main --nfiles=1 --maxEvents=250 --latestrun --castordir=/eos/atlas/atlastier0/rucio/data15_13TeV --AMI=f611 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'all:from MuonRecExample.MuonRecFlags import muonRecFlags;muonRecFlags.useLooseErrorTuning.set_Value_and_Lock(True);DQMonFlags.doCTPMon=True;'"
+                                    tct_recotrf.py --jobnum=1 --trigStream=Main --nfiles=1 --maxEvents=250 --latestrun --castordir=/eos/atlas/atlastier0/rucio/data16_13TeV --AMI=f694 --dropDESDs --dropDRAWs --dropNTUPs
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
