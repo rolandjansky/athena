@@ -1,0 +1,21 @@
+# $Id: AtlasDataAreaEnvironmentConfig.cmake.in 732720 2016-03-29 11:55:19Z krasznaa $
+#
+# This file takes care of setting up environment variables for accessing the
+# ATLAS data area.
+#
+
+# Set the environment variable(s):
+set( ATLASDATAAREAENVIRONMENT_ENVIRONMENT
+   SET SITEROOT "@SITEROOT@"
+   SET ATLAS_RELEASEDATA "@ATLAS_RELEASEDATA@"
+   FORCESET ATLASCALDATA
+   "\${ATLAS_RELEASEDATA}/@AtlasDataArea_native_version@"
+   FORCESET ATLASTESTDATA
+   "\${ATLAS_RELEASEDATA}/@AtlasDataArea_native_version@/testfile"
+   APPEND DATAPATH
+   "\${ATLAS_RELEASEDATA}/@AtlasDataArea_native_version@"
+   APPEND DATAPATH
+   "\${ATLAS_RELEASEDATA}/@AtlasDataArea_native_version@/testfile" )
+
+# Silently declare the module found:
+set( ATLASDATAAREAENVIRONMENT_FOUND TRUE )
