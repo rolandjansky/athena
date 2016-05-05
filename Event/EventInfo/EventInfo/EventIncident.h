@@ -44,6 +44,12 @@ public:
   EventIncident(const EventInfo& event, 
 		const std::string& source,
 		const std::string& type=std::string("BeginEvent"));
+  #ifdef ATHENAHIVE
+  EventIncident(const EventInfo& event, 
+		const std::string& source,
+		const std::string& type,
+		EventContext& ctx);
+  #endif
   // Use default copy constructor.
   virtual ~EventIncident();
   //@}

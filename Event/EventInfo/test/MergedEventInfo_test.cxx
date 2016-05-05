@@ -7,15 +7,15 @@
 #include <cmath>
 #include <iostream>
 #include <limits>
-using namespace std;
 #include "EventInfo/MergedEventInfo.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/TriggerInfo.h"
+using namespace std;
 
 int main() {
   cout << "*** MergedEventInfo_test starts ***" << endl;
   MergedEventInfo empty;
-  assert( 0 == empty.event_ID()->run_number() );
+  assert( static_cast<EventID::number_type>(-1) == empty.event_ID()->run_number() );
   EventInfo anInfo(new EventID(1, 23), new EventType(), new TriggerInfo());
 
   MergedEventInfo merged(anInfo, 3, 33);

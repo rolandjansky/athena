@@ -243,7 +243,7 @@ EventInfo::actualInteractionsPerCrossing() const
     if (Lumi < m_event_flags.size()) {
         unsigned int interactions = m_event_flags[Lumi];
         result = (float)(interactions & ACTUAL_INTERACTS_BITS);
-        result /= 100.f;
+        result *= 0.01;
     }
     return result;
 }
@@ -257,7 +257,7 @@ EventInfo::averageInteractionsPerCrossing() const
     if (Lumi < m_event_flags.size()) {
         unsigned int interactions = m_event_flags[Lumi];
         result = (float)((interactions & AVE_INTERACTS_BITS) >> AVE_INTERACTS_SHIFT);
-        result /= 100.f;
+        result *= 0.01;
     }
     return result;
 }

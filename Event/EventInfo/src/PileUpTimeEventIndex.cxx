@@ -11,11 +11,11 @@
 
 const std::string&
 PileUpTimeEventIndex::typeName(PileUpTimeEventIndex::PileUpType typ) {
-  static std::string _typNam[PileUpTimeEventIndex::NTYPES+1] = 
+  static std::string typNam[PileUpTimeEventIndex::NTYPES+1] = 
     {"Unknown" /*-1*/, "Signal" /*0*/, "MinimumBias" /*1*/, "Cavern" /*2*/,
      "HaloGas"/*3*/, "ZeroBias"/*4*/ };
   assert(typ < PileUpTimeEventIndex::NTYPES);
-  return _typNam[typ+1];
+  return typNam[typ+1];
 } 
 PileUpTimeEventIndex::PileUpType
 PileUpTimeEventIndex::ushortToType(unsigned short uType) {
