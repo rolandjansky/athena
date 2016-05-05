@@ -10,7 +10,6 @@
 #include "TrigMonitorBase/TrigMonitorToolBase.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/MsgStream.h"
 class TH1;
 class TH2;
 class TProfile;
@@ -60,8 +59,6 @@ public:
 			    const IInterface* parent);
   virtual ~TrigGenericMonitoringTool();
   
-  virtual StatusCode initialize();
-  //  virtual StatusCode finalize(); 
   virtual StatusCode bookHists();
 
   virtual StatusCode fillHists();   //!< does histograms filling
@@ -80,17 +77,17 @@ private:
     std::string title;              //!< title of the histogram
     std::string opt;                //!< options
     
-    int xbins;  //!< number of bins in X
-    float xmin; //!< left
-    float xmax; //!< right
+    int xbins{0};  //!< number of bins in X
+    float xmin{0}; //!< left
+    float xmax{0}; //!< right
     
-    int ybins;  //!< number of bins in Y
-    float ymin; //!< bottom
-    float ymax; //!< top
+    int ybins{0};  //!< number of bins in Y
+    float ymin{0}; //!< bottom
+    float ymax{0}; //!< top
     
 
-    bool  ok;	//!<  good declaration
-    bool  ycut;	//!<  TProfile with cut on y
+    bool  ok{false};	//!<  good declaration
+    bool  ycut{false};	//!<  TProfile with cut on y
 
     std::vector<std::string> labels; //!< bins labels
   };
@@ -185,7 +182,6 @@ private:
   const IMonitoredAlgo* m_algo;   //!< ptr to the algorithm to which tool is attached (variables coming from)
   std::string m_parentName;       //!< name of parent algo (used in printouts to help debugging)
   ITHistSvc *m_rootHistSvc;   
-  MsgStream m_log;
   
   std::vector<HistogramFiller*> m_fillers;   //!< list of fillers
 
