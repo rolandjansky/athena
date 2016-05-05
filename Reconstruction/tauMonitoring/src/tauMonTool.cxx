@@ -448,12 +448,12 @@ StatusCode tauMonTool::fillIDHistos(s_idFolder& folder,  const xAOD::TauJet* tau
 	folder.h_tauBDTLoose         ->Fill(tau->isTau(xAOD::TauJetParameters::JetBDTSigLoose));
 	folder.h_tauBDTMedium        ->Fill(tau->isTau(xAOD::TauJetParameters::JetBDTSigMedium));
 	folder.h_tauBDTTight         ->Fill(tau->isTau(xAOD::TauJetParameters::JetBDTSigTight));
-	folder.h_tauLlhLoose         ->Fill(tau->isTau(xAOD::TauJetParameters::TauLlhLoose));
-	folder.h_tauLlhMedium        ->Fill(tau->isTau(xAOD::TauJetParameters::TauLlhMedium));
-	folder.h_tauLlhTight         ->Fill(tau->isTau(xAOD::TauJetParameters::TauLlhTight));
-	folder.h_electronVetoLoose   ->Fill(tau->isTau(xAOD::TauJetParameters::ElectronVetoLoose));
-	folder.h_electronVetoMedium  ->Fill(tau->isTau(xAOD::TauJetParameters::ElectronVetoMedium));
-	folder.h_electronVetoTight   ->Fill(tau->isTau(xAOD::TauJetParameters::ElectronVetoTight));
+	// folder.h_tauLlhLoose         ->Fill(tau->isTau(xAOD::TauJetParameters::TauLlhLoose));
+	// folder.h_tauLlhMedium        ->Fill(tau->isTau(xAOD::TauJetParameters::TauLlhMedium));
+	// folder.h_tauLlhTight         ->Fill(tau->isTau(xAOD::TauJetParameters::TauLlhTight));
+	// folder.h_electronVetoLoose   ->Fill(tau->isTau(xAOD::TauJetParameters::ElectronVetoLoose));
+	// folder.h_electronVetoMedium  ->Fill(tau->isTau(xAOD::TauJetParameters::ElectronVetoMedium));
+	// folder.h_electronVetoTight   ->Fill(tau->isTau(xAOD::TauJetParameters::ElectronVetoTight));
 	folder.h_muonVeto            ->Fill(tau->isTau(xAOD::TauJetParameters::MuonVeto));
 	folder.h_eleBDTLoose         ->Fill(tau->isTau(xAOD::TauJetParameters::EleBDTLoose));
 	folder.h_eleBDTMedium        ->Fill(tau->isTau(xAOD::TauJetParameters::EleBDTMedium));
@@ -461,7 +461,7 @@ StatusCode tauMonTool::fillIDHistos(s_idFolder& folder,  const xAOD::TauJet* tau
 	folder.h_BDTJetScore         ->Fill(tau->discriminant(xAOD::TauJetParameters::BDTJetScore));
 
 	folder.h_BDTJetScoreSigTrans ->Fill(tau->discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans));
-	folder.h_BDTJetScoreBkgTrans ->Fill(tau->discriminant(xAOD::TauJetParameters::BDTJetScoreBkgTrans));
+	//folder.h_BDTJetScoreBkgTrans ->Fill(tau->discriminant(xAOD::TauJetParameters::BDTJetScoreBkgTrans));
 
 	if(tau->isTau(xAOD::TauJetParameters::JetBDTSigLoose) && tau->pt() >= 15000.0 ){
 		if ( fillBDTHistos   (folder.BDTLooseFolder, tau) . isFailure()) ATH_MSG_ERROR("Failed to fill JetBDTLoose histograms");
@@ -491,7 +491,7 @@ StatusCode tauMonTool::fillTrackHistos(s_trkFolder& folder, const xAOD::TauJet* 
 	//--------------------
 //     if ( tau->nTracks() == 0) return StatusCode::SUCCESS;
 
-	const xAOD::TrackParticle* track = tau->track(0);
+	const xAOD::TrackParticle* track = tau->track(0)->track();
 	const Trk::Perigee perigee = track->perigeeParameters();
 
 	uint8_t dummy(0);
@@ -516,8 +516,8 @@ StatusCode tauMonTool::fillCaloHistos(s_caloFolder& folder, const xAOD::TauJet* 
 {
 	folder.h_eta                   ->Fill( tau->eta() );
 	folder.h_phi                   ->Fill( tau->phi() );
-	folder.h_etEMCalib             ->Fill( tau->detail<float>(xAOD::TauJetParameters::etEMCalib) / GeV);
-	folder.h_etHadCalib            ->Fill( tau->detail<float>(xAOD::TauJetParameters::etHadCalib) / GeV);
+	// folder.h_etEMCalib             ->Fill( tau->detail<float>(xAOD::TauJetParameters::etEMCalib) / GeV);
+	// folder.h_etHadCalib            ->Fill( tau->detail<float>(xAOD::TauJetParameters::etHadCalib) / GeV);
 	folder.h_etEMAtEMScale         ->Fill( tau->detail<float>(xAOD::TauJetParameters::etEMAtEMScale) / GeV);
 	folder.h_etHadAtEMScale        ->Fill( tau->detail<float>(xAOD::TauJetParameters::etHadAtEMScale) / GeV);
 	folder.h_EMRadius              ->Fill( tau->detail<float>(xAOD::TauJetParameters::EMRadius) );
@@ -589,7 +589,7 @@ StatusCode tauMonTool::fillSubStructureHistos( s_sbstrctFolder& folder, const xA
 
        //  results from panTau 
         int panmode = -1 ;
-        tau->panTauDetail(xAOD::TauJetParameters::pantau_CellBasedInput_DecayMode, panmode); 
+        tau->panTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, panmode); 
         folder.h_panmode->Fill( panmode ) ;
 
         float pphi = tau->phiPanTauCellBased() ;
@@ -628,13 +628,13 @@ StatusCode tauMonTool::bookBasicPlots(s_basicPlots& someBasicPlots, MonGroup &aG
 	CHECK( Book1DHist ( &someBasicPlots.h_ntaus, &aGroup, prefix + "nTauCandidates", "Number of tau candidates;Number of Taus per Event", 31, -0.5, 30.5) );
 	CHECK( Book1DHist ( &someBasicPlots.h_eta, &aGroup, prefix + "tauEta", "Eta of tau candidates);Eta);Number of Candidates", 51, -2.55, 2.55) );
 	CHECK( Book1DHist ( &someBasicPlots.h_phi, &aGroup, prefix + "tauPhi", "Phi of tau candidates);Phi);Number of Candidates", 65, -3.1415926-0.098174/2., 3.1415926+0.098174/2.) );
-	CHECK( Book1DHist ( &someBasicPlots.h_et, &aGroup, prefix + "tauEt", "Et of tau candidates);Transverse Energy (GeV) );Number of Candidates", 50, 0.0, 250.0) );
+	CHECK( Book1DHist ( &someBasicPlots.h_et, &aGroup, prefix + "tauEt", "Et of tau candidates);Transverse Energy (GeV) );Number of Candidates", 60, 0.0, 300.0) );
 	CHECK( Book1DHist ( &someBasicPlots.h_charge, &aGroup, prefix + "tauCharge", "Charge of tau candidates);Charge);Number of Candidates", 11, -5.5, 5.5) );
 	CHECK( Book1DHist ( &someBasicPlots.h_numTracks, &aGroup, prefix + "tauNumTracks", "Number of Tracks for tau candidates);Number of Tracks);Number of Candidates", 21, -0.5, 20.5) );
 	CHECK( Book1DHist ( &someBasicPlots.h_nclst, &aGroup, prefix + "nCluster","Number of CaloTopoClusters", 40, 0, 40 ) );
 	CHECK( Book1DHist ( &someBasicPlots.h_nHighPTtaus, &aGroup, prefix + "nHighPtTauCandidates", "Number of High pT tau candidates;Number of Taus per Event", 21, -0.5, 20.5) );
 	CHECK( Book2DHist ( &someBasicPlots.h_EtVsEta, &aGroup, prefix + "tauEtVsEta", "Tau Et vs. Eta);Eta);Transverse Energy (GeV) );Number of Candidates",  51, -2.55, 2.55, 100, 0, 200) );
-	CHECK( Book2DHist ( &someBasicPlots.h_EtVsPhi, &aGroup, prefix + "tauEtVsPhi", "Tau Et vs. Phi);Phi);Transverse Energy (GeV)", 65, PHIMIN+PHIMIN/64., PHIMAX+PHIMAX/64., 100, 0, 200) );
+	CHECK( Book2DHist ( &someBasicPlots.h_EtVsPhi, &aGroup, prefix + "tauEtVsPhi", "Tau Et vs. Phi);Phi);Transverse Energy (GeV)", 65, PHIMIN+PHIMIN/64., PHIMAX+PHIMAX/64., 100, 0, 300) );
 	CHECK( Book2DHist ( &someBasicPlots.h_PhiVsEta, &aGroup, prefix + "tauPhiVsEta", "Tau Phi vs. Eta;Eta);Phi);Number of Candidates", 51, -2.55, 2.55, 65, PHIMIN+PHIMIN/64., PHIMAX+PHIMAX/64.) );
 	CHECK( Book2DHist ( &someBasicPlots.h_PhiVsEta_et15, &aGroup, prefix + "tauPhiVsEta_et15", "Tau Phi vs. Eta (Et>15GeV); Eta);Phi);Number of Candidates", 51, -2.55, 2.55, 65, PHIMIN+PHIMIN/64., PHIMAX+PHIMAX/64.) );
 
@@ -677,7 +677,7 @@ StatusCode tauMonTool::bookKinHistos(s_kinFolder& folder,  MonGroup &aGroup)
 	CHECK( Book1DHist ( &folder.h_ntaus, &aGroup, prefix + "_nTauCandidates", "Number of tau candidates;Number of Taus per Event", 31, -0.5, 30.5) );
 	CHECK( Book1DHist ( &folder.h_eta, &aGroup, prefix + "_tauEta", "Eta of tau candidates;Eta;Number of Candidates", 51, -2.55, 2.55) );
 	CHECK( Book1DHist ( &folder.h_phi, &aGroup, prefix + "_tauPhi", "Phi of tau candidates;Phi;Number of Candidates", 65, -3.1415936-0.098174/2., 3.1415936+0.098174/2.) );
-	CHECK( Book1DHist ( &folder.h_et, &aGroup, prefix + "_tauEt", "Et of tau candidates;Transverse Energy (GeV) );Number of Candidates", 50, 0.0, 250.0) );
+	CHECK( Book1DHist ( &folder.h_et, &aGroup, prefix + "_tauEt", "Et of tau candidates;Transverse Energy (GeV) );Number of Candidates", 60, 0.0, 300.0) );
 	CHECK( Book1DHist ( &folder.h_charge, &aGroup, prefix + "_tauCharge", "Charge of tau candidates;Charge;Number of Candidates", 11, -5.5, 5.5) );
 	CHECK( Book2DHist ( &folder.h_PhiVsEta, &aGroup, prefix + "_tauPhiVsEta", "Tau Phi vs. Eta;Eta;Phi;Number of Candidates", 51, -2.55, 2.55, 65, PHIMIN+PHIMIN/64., PHIMAX+PHIMAX/64.) );
 	CHECK( Book2DHist ( &folder.h_Eta_vs_LB, &aGroup, prefix + "_tauEtaVsLB", "Tau Eta vs Lumiblock;Eta;Lumiblock", 51, -2.55, 2.55, m_maxNLB/10+1, -5.0, (double)m_maxNLB+5.0) );
@@ -737,26 +737,26 @@ StatusCode tauMonTool::bookTrackHistos(s_trkFolder& folder,std::string folderNam
 	MonGroup aGroup(this, folderName, interval);
 	folderName = this->fixName(folderName);
 
-	CHECK( Book1DHist ( &folder.h_leadTrkPt, &aGroup, folderName + "_leadTrkPt","Pt of Leading track;Transverse Momentum (GeV)", 50, 0, 150) );
+	CHECK( Book1DHist ( &folder.h_leadTrkPt, &aGroup, folderName + "_leadTrkPt","Pt of Leading track;Transverse Momentum (GeV)", 50, 0, 200) );
 	CHECK( Book1DHist ( &folder.h_massTrkSys, &aGroup, folderName + "_massTrkSys","Mass of the Track System;Invariant Mass (GeV)", 30, -1.0, 5.0) );
 	CHECK( Book1DHist ( &folder.h_trkWidth2, &aGroup, folderName + "_trkWidth2","Weighted Track Width;Momentum-Weighted Width of Track System", 25, 0.0, 0.1) );
 	CHECK( Book1DHist ( &folder.h_trFlightPathSig, &aGroup, folderName + "_trFlightPathSig","Track Transverse Flight Path Significance;Transverse Flight Path Significance", 50, -5.0, 5.0) );
 	CHECK( Book1DHist ( &folder.h_ipSigLeadTrk, &aGroup, folderName + "_ipSigLeadTrk","Impact Parameter Significance of Leading Track;Transverse Impact Parameter Significance", 50, -5.0, 5.0) );
 	CHECK( Book1DHist ( &folder.h_ipZ0SinThetaSigLeadTrk, &aGroup, folderName + "_ipZ0SinThetaSigLeadTrk","Impact Parameter z0 Sine Theta Significance of Leading Track;Z0SinTheta Significance", 50, -10.0, 10.0) );
 	CHECK( Book1DHist ( &folder.h_d0, &aGroup, folderName + "_d0","Track d0;Transverse Impact Parameter (mm)", 50, -5.0, 15.0) );
-	CHECK( Book1DHist ( &folder.h_z0, &aGroup, folderName + "_z0","Track z0;Longitudinal Impact Parameter (mm)", 50, -25.0, 25.0) );
+	CHECK( Book1DHist ( &folder.h_z0, &aGroup, folderName + "_z0","Track z0;Longitudinal Impact Parameter (mm)", 50, -35.0, 35.0) );
 	CHECK( Book1DHist ( &folder.h_phi, &aGroup, folderName + "_phi","Track Phi;Phi", 65, PHIMIN+PHIMIN/64., PHIMAX+PHIMAX/64.) );
 	CHECK( Book1DHist ( &folder.h_eta, &aGroup, folderName + "_eta","Track Eta;Eta", 51, -2.55, 2.55) );
-	CHECK( Book1DHist ( &folder.h_pT, &aGroup, folderName + "_pT","Track pT;Transverse Momentum (GeV)", 50, 0.0, 150.0) );
+	CHECK( Book1DHist ( &folder.h_pT, &aGroup, folderName + "_pT","Track pT;Transverse Momentum (GeV)", 50, 0.0, 200.0) );
 	CHECK( Book1DHist ( &folder.h_nHighPTtaus, &aGroup, folderName + "_nHighPTtaus","Number of High-pT Tau Candidates;Number of Taus per Event", 21, -0.5, 20.5) );
 	CHECK( Book1DHist ( &folder.h_numberOfTRTHighThresholdHits, &aGroup, folderName + "_numberOfTRTHighThresholdHits","Number of TRT High Threshold Hits;Number of High Threshold TRT Hits", 15, -0.5, 14.5) );
 	CHECK( Book1DHist ( &folder.h_numberOfTRTHits, &aGroup, folderName + "_numberOfTRTHits","Number of TRT Low Threshold Hits;Number of Low Threshold TRT Hits", 101, -0.5, 100.5) );
 	CHECK( Book1DHist ( &folder.h_numberOfTRTHighThresholdOutliers, &aGroup, folderName + "_numberOfTRTHighThresholdOutliers","Number of TRT High Threshold Outliers;Number of TRT High Threshold Outliers", 26, -0.5, 25.5) );
-	CHECK( Book1DHist ( &folder.h_numberOfTRTOutliers, &aGroup, folderName + "_numberOfTRTOutliers","Number of TRT Low Threshold Outliers;Number of TRT Low Threshold Outliers", 26, -0.5, 25.5) );
+	CHECK( Book1DHist ( &folder.h_numberOfTRTOutliers, &aGroup, folderName + "_numberOfTRTOutliers","Number of TRT Low Threshold Outliers;Number of TRT Low Threshold Outliers", 31, -0.5, 30.5) );
 	CHECK( Book1DHist ( &folder.h_numberOfSCTHits, &aGroup, folderName + "_numberOfSCTHits","Number of SCT Hits;Number of SCT Hits", 51, -0.5, 50.5) );
 	CHECK( Book1DHist ( &folder.h_numberOfPixelHits, &aGroup, folderName + "_numberOfPixelHits","Number of Pixel Hits;Number of Pixel Hits", 26, -0.5, 25.5) );
-	CHECK( Book2DHist ( &folder.h_z0_vs_LB, &aGroup, folderName + "_z0VsLB", "Track z0 vs Lumiblock;Longitudinal Impact Parameter (mm) );Lumiblock" , 50, -25.0, 25.0 , m_maxNLB/10+1, -5.0, (double)m_maxNLB+5.0) );
-	CHECK( Book1DHist ( &folder.h_etOverPtLeadTrack, &aGroup, folderName + "_etOverPtLeadTrack","Et over Pt of lead track of tau candidates;Et/Pt;Number of Candidates", 50, 0.0, 10.0) );
+	CHECK( Book2DHist ( &folder.h_z0_vs_LB, &aGroup, folderName + "_z0VsLB", "Track z0 vs Lumiblock;Longitudinal Impact Parameter (mm) );Lumiblock" , 50, -30.0, 30.0 , m_maxNLB/10+1, -5.0, (double)m_maxNLB+5.0) );
+	CHECK( Book1DHist ( &folder.h_etOverPtLeadTrack, &aGroup, folderName + "_etOverPtLeadTrack","Et over Pt of lead track of tau candidates;Et/Pt;Number of Candidates", 50, 0.0, 12.0) );
 
 	return StatusCode::SUCCESS;
 }
@@ -771,14 +771,14 @@ StatusCode tauMonTool::bookCaloHistos(s_caloFolder& folder,std::string folderNam
 	CHECK( Book1DHist ( &folder.h_phi, &aGroup, folderName + "_phi","Calorimeter phi of tau candidates;Phi;Number of Candidates", 65, PHIMIN+PHIMIN/64., PHIMAX+PHIMAX/64.) );
 	CHECK( Book1DHist ( &folder.h_etEMCalib, &aGroup, folderName + "_etEMCalib","Calibrated EM ET of tau candidates;Calibrated EM ET (in GeV) );Number of Candidates", 50, 0.0, 150.0) );
 	CHECK( Book1DHist ( &folder.h_etHadCalib, &aGroup, folderName + "_etHadCalib","Calibrated Had ET of tau candidates;Calibrated Hadronic ET (in GeV) );Number of Candidates", 50, 0.0, 150.0) );
-	CHECK( Book1DHist ( &folder.h_etHadAtEMScale, &aGroup, folderName + "_etHadAtEMScale","Hadronic Energy at the EM Scale;Had Et (GeV) );Number of Candidates", 50, 0.0, 150.0) );
-	CHECK( Book1DHist ( &folder.h_etEMAtEMScale, &aGroup, folderName + "_etEMAtEMScale","EM energy at the EM scale;EM Et (GeV) );Number of Candidates", 50, 0.0, 150.0) );
-	CHECK( Book1DHist ( &folder.h_EMRadius, &aGroup, folderName + "_EMRadius","Uncalibrated EM Radius;EM Radius;Number of Candidates", 50, 0.0, 1.0) );
+	CHECK( Book1DHist ( &folder.h_etHadAtEMScale, &aGroup, folderName + "_etHadAtEMScale","Hadronic Energy at the EM Scale;Had Et (GeV) );Number of Candidates", 50, 0.0, 200.0) );
+	CHECK( Book1DHist ( &folder.h_etEMAtEMScale, &aGroup, folderName + "_etEMAtEMScale","EM energy at the EM scale;EM Et (GeV) );Number of Candidates", 50, 0.0, 200.0) );
+	CHECK( Book1DHist ( &folder.h_EMRadius, &aGroup, folderName + "_EMRadius","Uncalibrated EM Radius;EM Radius;Number of Candidates", 50, 0.0, 1.2 ) );
 	CHECK( Book1DHist ( &folder.h_centFrac, &aGroup, folderName + "_centralityFraction","Centrality fraction of tau candidates;Centrality Fraction;Number of Candidates", 51, 0.0, 1.02) );
 	CHECK( Book1DHist ( &folder.h_hadRadius, &aGroup, folderName + "_hadRadius","Hadronic Radius of tau candidates;Hadronic Radius;Number of Candidates", 50, 0.0, 1.0) );
 	CHECK( Book1DHist ( &folder.h_isolFrac, &aGroup, folderName + "_isolFrac","Isolation Fraction;Et Isolation Fraction;Number of Candidates", 51, 0.0, 1.02) );
-	CHECK( Book1DHist ( &folder.h_stripWidth2, &aGroup, folderName + "_stripWidth2","Strip Width of tau candidates;Strip Width;Number of Candidates", 50, -0.1, 0.1) );
-	CHECK( Book1DHist ( &folder.h_nStrip, &aGroup, folderName + "_nStrip","Number of strip cells of tau candidates;Number of Strip Cells;Number of Candidates", 50, -0.5, 49.5) );
+	CHECK( Book1DHist ( &folder.h_stripWidth2, &aGroup, folderName + "_stripWidth2","Strip Width of tau candidates;Strip Width;Number of Candidates", 50, -0.1, 0.12 ) );
+	CHECK( Book1DHist ( &folder.h_nStrip, &aGroup, folderName + "_nStrip","Number of strip cells of tau candidates;Number of Strip Cells;Number of Candidates", 56, -0.5, 55.5) );
 	CHECK( Book1DHist ( &folder.h_trkAvgDist, &aGroup, folderName + "_trkAvgDist","Average Track Distance from Calorimeter Seed;Distance (mm) );Number of Candidates", 50, -1.0, 1.0) );
 	CHECK( Book1DHist ( &folder.h_dRmax, &aGroup, folderName + "_dRmax", "Maximum delta R;delta R;Number of Candidates", 42, 0.0, 0.21) );
 	CHECK( Book2DHist ( &folder.h_centFrac_vs_LB, &aGroup, folderName + "_centFracVsLB", "Centrality Fraction vs Lumiblock;Centrality Fraction;Lumiblock", 51, 0.0, 1.02, m_maxNLB/10+1, -5.0, (double)m_maxNLB+5.0 ) );
