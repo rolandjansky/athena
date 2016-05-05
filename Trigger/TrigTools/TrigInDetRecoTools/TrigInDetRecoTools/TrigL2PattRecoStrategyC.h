@@ -26,7 +26,6 @@ class SpacePointContainer;
 
 class IRegSelSvc;
 
-class StoreGateSvc;
 
 class SCT_ID;
 class PixelID;
@@ -98,7 +97,6 @@ class TrigL2PattRecoStrategyC: public AthAlgTool, virtual public ITrigL2PattReco
 
   TrigInDetTrack* convertOutputTracks(Trk::Track*);
 
-  StoreGateSvc*        m_StoreGate;
   const SCT_ID* m_sctId;
   const PixelID* m_pixelId;
 

@@ -26,8 +26,6 @@ class TrigInDetTrackCollection;
 
 class IRegSelSvc;
 
-class StoreGateSvc;
-
 class SCT_ID;
 class PixelID;
 
@@ -76,7 +74,6 @@ class TrigL2PattRecoStrategyF: public AthAlgTool, virtual public ITrigL2PattReco
   StatusCode retrieveIDC();
   TrigInDetTrack* createOutputTrack(const TrigInDetTrack*);
 
-  StoreGateSvc*        m_StoreGate;
   const SCT_ID* m_sctId;
   const PixelID* m_pixelId;
 

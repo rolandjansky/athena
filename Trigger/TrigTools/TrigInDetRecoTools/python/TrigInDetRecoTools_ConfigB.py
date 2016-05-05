@@ -56,7 +56,6 @@ class FactoryForStrategyB() :
             
             ## Vertexing properties ##           
             self.strategy.Vertexing_Enable                = self.settings[('Vertexing_Enable',instName)]
-            self.strategy.Vertexing_CutRZ                 = self.settings[('Vertexing_CutRZ',instName)]
             self.strategy.Vertexing_CutRPhi               = self.settings[('Vertexing_CutRPhi',instName)]
             self.strategy.Vertexing_MaxVertices           = 3
             self.strategy.Vertexing_WindowSize            = self.settings[('Vertexing_WindowSize',instName)]

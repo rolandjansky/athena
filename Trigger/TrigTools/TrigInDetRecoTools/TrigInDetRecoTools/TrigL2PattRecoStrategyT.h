@@ -18,7 +18,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 class IRegSelSvc;
-class StoreGateSvc;
 class IROBDataProviderSvc;
 
 
@@ -94,9 +93,6 @@ class TrigL2PattRecoStrategyT: public AthAlgTool, virtual public ITrigL2SeededPa
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
 
   ToolHandle<InDet::ITRT_TrackSegmentsMaker>    m_segmentsmaker   ;
-
-
-  StoreGateSvc*        m_StoreGate;
 
 
   InDet::TRT_DriftCircleContainer* m_filteredDriftCircleContainer;
