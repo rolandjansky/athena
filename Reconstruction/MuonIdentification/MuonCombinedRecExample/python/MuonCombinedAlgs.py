@@ -65,6 +65,7 @@ def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("MuonContainerLocation","Staus")
     kwargs.setdefault("CombinedLocation","CombinedStau")
     kwargs.setdefault("ExtrapolatedLocation","ExtrapolatedStau")
+    kwargs.setdefault("MSOnlyExtrapolatedLocation","MSOnlyExtrapolatedStau")
     kwargs.setdefault("MuonCandidateLocation","")
     kwargs.setdefault("SegmentContainerName","StauSegments")
     kwargs.setdefault("BuildSlowMuon",1)
@@ -90,10 +91,10 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
             topSequence += getAlgorithm("MuonCombinedAlg") 
 
         if muonCombinedRecFlags.doMuGirl():
-            #topSequence += getAlgorithm("MuonInsideOutRecoAlg") 
-            topSequence += getAlgorithm("MuGirlAlg") 
-            #if muonCombinedRecFlags.doMuGirlLowBeta():
-            #    topSequence += getAlgorithm("MuGirlStauAlg")
+            topSequence += getAlgorithm("MuonInsideOutRecoAlg") 
+            #topSequence += getAlgorithm("MuGirlAlg") 
+            if muonCombinedRecFlags.doMuGirlLowBeta():
+                topSequence += getAlgorithm("MuGirlStauAlg")
 
         if muonCombinedRecFlags.doCaloTrkMuId():
             topSequence += getAlgorithm("MuonCaloTagAlg") 
