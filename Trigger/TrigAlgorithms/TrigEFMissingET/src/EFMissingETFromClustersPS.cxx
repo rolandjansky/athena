@@ -298,7 +298,7 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
          // Identify which ring the cluster belongs to
          int Iring = -1;
          for(int j = 0; j < m_pileupnumrings; j++) {
-             if(eta >= (-5.0+j) && eta < (-5.0+(j+1))) Iring = j;
+             if(eta >= (-5.0+static_cast<double>(j)*etaDelta) && eta < (-5.0+static_cast<double>(j+1)*etaDelta)) Iring = j;
          }
          // Continue only if the cluster is in the allowed eta region
          // Sometimes the second_r and center_mag moments are zero (but the cluster has energy!)
@@ -316,9 +316,11 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
       
              // Calculate corrected energy of cluster and the correction factor to be applied to the components
              double clSolidAngle = 4.0 * PI * second_r / ( center_mag * center_mag );
-             double etaL = -5.0 + Iring;
+             double etaL = -5.0 + static_cast<double>(Iring)*etaDelta;
              double etaU = etaL + etaDelta;
-             double deltaTheta = 2.0 * atan(exp(-etaL)) - 2.0 * atan(exp(-etaU));
+             //msg() << MSG::INFO << "etaL = " << etaL << endreq;
+             //msg() << MSG::INFO << "etaU = " << etaU << endreq;
+              double deltaTheta = 2.0 * atan(exp(-etaL)) - 2.0 * atan(exp(-etaU));
              double ringSolidAngle = (2.0 * PI) * deltaTheta;
              double EclNew = E - ringE_Cl_thresh[Iring] * clSolidAngle / ringSolidAngle;
              double corrFactor = 1.0;

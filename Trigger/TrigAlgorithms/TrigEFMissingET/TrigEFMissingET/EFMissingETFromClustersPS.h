@@ -58,7 +58,7 @@ class EFMissingETFromClustersPS : public EFMissingETBaseTool
     xAOD::CaloCluster_v1::State m_clusterstate;
 
     // March 6 2013
-    int m_metType;
+    //int m_metType;
 
 };
 

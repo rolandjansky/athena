@@ -48,7 +48,7 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
   declareProperty("MissingETOutputKey",m_metOutputKey = "TrigEFMissingET", "label for the MET feature in the HLT navigation");
   declareProperty("Tools", m_tools, "list of missEt tools");
   declareProperty("doTimers", m_doTimers = true, "switch on/off internal timers");
-  declareProperty("DecodeDetMask", m_decodeDetMask = true, "switch on/off DetMask decoding");
+  declareProperty("DecodeDetMask", m_decodeDetMask = false, "switch on/off DetMask decoding");
   declareProperty("doTopoClusters", m_doTopoClusters = false, "run with or without topo. clusters");
   declareProperty("doJets", m_doJets = false, "run with or without jets");
   declareProperty("doPUC", m_doPUC = false, "run with or without pile-up correction fit");
@@ -415,6 +415,8 @@ HLT::ErrorCode EFMissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   m_tool_time_LoadCol = 0;
   m_tool_time_Loop = 0;
 
+  m_jets = 0;
+  m_caloCluster = 0;
 
   if(msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "Executing EFMissingET::hltExecute()" << endreq;
@@ -454,17 +456,16 @@ HLT::ErrorCode EFMissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
         m_TileExtBarCside=true;
 
         if (m_decodeDetMask) {
-          uint64_t mask0 = pEvent->detectorMask0();
-          uint64_t mask1 = pEvent->detectorMask1();
+	  uint64_t mask64 = pEvent->detectorMask();
           if(msgLvl() <= MSG::DEBUG){
             char buff[512];
-            snprintf(buff,512,"REGTEST: DetMask_1 = 0x%08lu, DetMask_0 = 0x%08lu",mask1,mask0);
+            snprintf(buff,512,"REGTEST: DetMask_1 = 0x%08lu",mask64);
             msg() << MSG::DEBUG << buff << endreq;
           }
 
-          if (!(mask0==0 && mask1==0)) {  // 0 means present
+          if (!(mask64==0)) {  // 0 means present
 
-            eformat::helper::DetectorMask dm(mask1, mask0);
+            eformat::helper::DetectorMask dm(mask64);
             m_LArEMbarrelAside  = dm.is_set(eformat::LAR_EM_BARREL_A_SIDE);
             m_LArEMbarrelCside  = dm.is_set(eformat::LAR_EM_BARREL_C_SIDE);
             m_LArEMendCapAside  = dm.is_set(eformat::LAR_EM_ENDCAP_A_SIDE);
@@ -602,7 +603,12 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
 
     
   if(m_doTopoClusters && !m_caloCluster) {  // check if one should process topo. clusters and if pointer is present  
-     msg() << MSG::DEBUG << " Error: configured to run over topo. clusters but no TriggerElement was passed to the FEX -- check menu configuration!! " << endreq;
+     msg() << MSG::INFO << " Error: configured to run over topo. clusters but no TriggerElement was passed to the FEX -- check menu configuration!! " << endreq;
+     return HLT::ERROR;    
+  }
+
+  if(m_doJets && !m_jets) {  // check if one should process jets and if pointer is present  
+     msg() << MSG::INFO << " Error: configured to run over jets but no TriggerElement was passed to the FEX -- check menu configuration!! " << endreq;
      return HLT::ERROR;    
   }
       
