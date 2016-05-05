@@ -29,7 +29,13 @@ PURPOSE: Cone Tool for all T2CaloJet.  Does simple cone alg after data
 T2CaloJetConeTool::T2CaloJetConeTool(const std::string& type,
 				     const std::string& name,
 				     const IInterface* parent):
-  T2CaloJetBaseTool(type, name, parent)
+  T2CaloJetBaseTool(type, name, parent),
+  m_inCone(0),
+  m_outCone(0),
+  m_totalCell(0),
+  m_pTimerService(NULL),
+  m_fcal_timer(NULL),
+  m_other_timer(NULL)
 {  
   declareProperty("numberOfIterations", m_nIterations = 1);
   declareProperty("coneRadius", m_coneRadius = 0.7);
@@ -75,7 +81,7 @@ StatusCode T2CaloJetConeTool::execute()
 
 //StatusCode T2CaloJetConeTool::execute(TrigT2Jet* jet,double etamin, double etamax, double phimin, double phimax)
 //StatusCode T2CaloJetConeTool::execute(TrigT2Jet* jet,double /*etamin*/, double /*etamax*/, double /*phimin*/, double /*phimax*/)
-StatusCode T2CaloJetConeTool::execute(TrigT2Jet* jet, const IRoiDescriptor& roi )
+StatusCode T2CaloJetConeTool::execute(TrigT2Jet* jet, const IRoiDescriptor& /*roi*/ )
 {
 
   MsgStream mLog(msgSvc(), name());

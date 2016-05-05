@@ -21,6 +21,7 @@ PURPOSE: Data preparation tool from Lvl1 Trigger Towers (accessed via Lvl1 PPr B
 #include "GaudiKernel/AlgTool.h"
 
 class TrigT2Jet;
+class Trig3Momentum;
 
 class T2CaloJetGridFromLvl1Ppr : public T2CaloJetBaseTool
 {
@@ -37,6 +38,8 @@ class T2CaloJetGridFromLvl1Ppr : public T2CaloJetBaseTool
   virtual StatusCode finalize();
 
   virtual StatusCode execute(TrigT2Jet* jet,double etamin, double etamax, double phimin, double phimax);
+  private:
+    Trig3Momentum* m_gridElement;
   
 };
 

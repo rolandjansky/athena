@@ -29,7 +29,11 @@ T2CaloJetGridFromFEBHeader::T2CaloJetGridFromFEBHeader(const std::string& type,
 				     const std::string& name,
 				     const IInterface* parent):
   T2CaloJetBaseTool(type, name, parent),
-  m_timerSvc(0)
+  m_data(NULL),
+  m_gridElement(NULL),
+  m_usedfeb(NULL),
+  m_timerSvc(0),
+  m_log(NULL)
 {  
   declareProperty("doTiming", m_doTiming= false );
 }

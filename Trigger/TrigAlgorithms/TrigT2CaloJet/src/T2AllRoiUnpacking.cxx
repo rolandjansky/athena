@@ -357,26 +357,26 @@ void T2AllRoiUnpacking::determineOverlaps(const EtaPhiRectangle &l2Roi)
 
 EtaPhiRectangle::EtaPhiRectangle(const double &etaMin, const double &etaMax,
 			       const double &phiMin, const double &phiMax){
-  etaMin_ = etaMin;
-  etaMax_ = etaMax;
-  phiMin_ = phiMin;
-  phiMax_ = phiMax;
-  wrapsAroundPi_ = std::abs(phiMax_-phiMin_) > M_PI;
+  m_etaMin = etaMin;
+  m_etaMax = etaMax;
+  m_phiMin = phiMin;
+  m_phiMax = phiMax;
+  m_wrapsAroundPi = std::abs(m_phiMax-m_phiMin) > M_PI;
   computeCenterCoord();
 }
 //--------------------------------------------------------------
 bool EtaPhiRectangle::contains(const EtaPhiPoint &point) const {
-  return ((fabs(point.first - etaCen_) < etaHw_)
-	  && fabs(phi_mpi_pi(point.second - phiCen_)) < phiHw_);
+  return ((fabs(point.first - m_etaCen) < m_etaHw)
+	  && fabs(phi_mpi_pi(point.second - m_phiCen)) < m_phiHw);
 }
 //--------------------------------------------------------------
 void EtaPhiRectangle::computeCenterCoord(){
-  etaCen_ = 0.5*(etaMin_ + etaMax_);
+  m_etaCen = 0.5*(m_etaMin + m_etaMax);
   // this takes care of the 2pi wrap
-  phiCen_ = atan2(sin(phiMin_) + sin(phiMax_),
-		  cos(phiMin_) + cos(phiMax_));
-  etaHw_ = 0.5*fabs(etaMax_ - etaMin_);
-  phiHw_ = 0.5*fabs(phi_mpi_pi(phiMax_ - phiMin_));
+  m_phiCen = atan2(sin(m_phiMin) + sin(m_phiMax),
+		  cos(m_phiMin) + cos(m_phiMax));
+  m_etaHw = 0.5*fabs(m_etaMax - m_etaMin);
+  m_phiHw = 0.5*fabs(phi_mpi_pi(m_phiMax - m_phiMin));
 }
 //--------------------------------------------------------------
 double EtaPhiRectangle::phi_mpi_pi(const double &val) {
@@ -447,7 +447,7 @@ EtaPhiRectangle EtaPhiRectangle::overlappingRectangle(const EtaPhiRectangle &lhs
 
 //--------------------------------------------------------------
 void EtaPhiRectangle::print(std::ostream& stream) const {
-  stream<<"eta ["<<etaMin_<<", "<<etaMax_<<"], phi ["<<phiMin_<<", "<<phiMax_<<"]";
+  stream<<"eta ["<<m_etaMin<<", "<<m_etaMax<<"], phi ["<<m_phiMin<<", "<<m_phiMax<<"]";
 }
 //--------------------------------------------------------------
 std::ostream& operator<< (std::ostream& stream, const EtaPhiRectangle &epr) {

@@ -43,12 +43,12 @@ GridsHandler::GridsHandler()
 
   for(unsigned int iS=0; iS<samples.size(); iS++){
     CaloSampling::CaloSample &sample = samples[iS];
-    grids_[sample] = vector< HashedTrig3Momentum >(0);
-    grids_[sample].reserve(defaultSizes[iS]);
+    m_grids[sample] = vector< HashedTrig3Momentum >(0);
+    m_grids[sample].reserve(defaultSizes[iS]);
   } // end for(iS)
 
   copy(samples.begin(), samples.end(),
-       back_inserter< vector< CaloSampling::CaloSample> >(allSamples_));
+       back_inserter< vector< CaloSampling::CaloSample> >(m_allSamples));
 }
 
 //------------------------------------------------
@@ -56,17 +56,17 @@ void clearGrid(CsVmcPair &map){ map.second.clear(); }
 //------------------------------------------------
 void GridsHandler::clearAllGrids()
 {
-  std::for_each(grids_.begin(), grids_.end(), clearGrid);
+  std::for_each(m_grids.begin(), m_grids.end(), clearGrid);
 }
 
 //------------------------------------------------
 Vmc& GridsHandler::grid(const CaloSampling::CaloSample &sample)
 {
-  return grids_[sample];
+  return m_grids[sample];
 }
 //------------------------------------------------
 void GridsHandler::appendAllGrids(Vt3m &output) const
 {
-  for(CsVmcMap::const_iterator it=grids_.begin(); it != grids_.end(); ++it)
+  for(CsVmcMap::const_iterator it=m_grids.begin(); it != m_grids.end(); ++it)
     output.insert(output.end(), it->second.begin(), it->second.end());
 }

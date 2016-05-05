@@ -135,21 +135,21 @@ class EtaPhiRectangle{
  public:
   //! default c'tor
   EtaPhiRectangle():
-    etaMin_(0.), etaMax_(0.), etaCen_(0.), etaHw_(0.),
-    phiMin_(0.), phiMax_(0.), phiCen_(0.), phiHw_(0.),
-    wrapsAroundPi_(false) {};
+    m_etaMin(0.), m_etaMax(0.), m_etaCen(0.), m_etaHw(0.),
+    m_phiMin(0.), m_phiMax(0.), m_phiCen(0.), m_phiHw(0.),
+    m_wrapsAroundPi(false) {};
   //! constructor: defined like this because these are usually the edges we get for an ROI
   EtaPhiRectangle(const double &etaMin, const double &etaMax,
 		 const double &phiMin, const double &phiMax);
-  double area() const { return 2.0*etaHw_*2.0*phiHw_; };
-  double eta() const { return etaCen_; };
-  double phi() const { return phiCen_; };
-  double etaMin() const { return etaMin_; };
-  double etaMax() const { return etaMax_; };
-  double phiMin() const { return phiMin_; };
-  double phiMax() const { return phiMax_; };
-  double etaHalfWidth() const {return etaHw_; };
-  double phiHalfWidth() const {return phiHw_; };
+  double area() const { return 2.0*m_etaHw*2.0*m_phiHw; };
+  double eta() const { return m_etaCen; };
+  double phi() const { return m_phiCen; };
+  double etaMin() const { return m_etaMin; };
+  double etaMax() const { return m_etaMax; };
+  double phiMin() const { return m_phiMin; };
+  double phiMax() const { return m_phiMax; };
+  double etaHalfWidth() const {return m_etaHw; };
+  double phiHalfWidth() const {return m_phiHw; };
   //! determine whether a given point in (\eta,\phi) is inside this EtaPhiRectangle
   bool contains(const EtaPhiPoint &point) const;
   //! same as above, but less safe agaist eta-phi swap
@@ -174,15 +174,15 @@ class EtaPhiRectangle{
    */
   void computeCenterCoord();
  private:
-  double etaMin_; //!< minimum eta
-  double etaMax_; //!< maximum eta
-  double etaCen_; //!< central eta
-  double etaHw_;  //!< eta half width
-  double phiMin_; //!< minimum phi
-  double phiMax_; //!< maximum phi
-  double phiCen_; //!< central phi
-  double phiHw_;  //!< phi half width
-  bool wrapsAroundPi_; //!< whether the rectangle crosses over \phi = \pi
+  double m_etaMin; //!< minimum eta
+  double m_etaMax; //!< maximum eta
+  double m_etaCen; //!< central eta
+  double m_etaHw;  //!< eta half width
+  double m_phiMin; //!< minimum phi
+  double m_phiMax; //!< maximum phi
+  double m_phiCen; //!< central phi
+  double m_phiHw;  //!< phi half width
+  bool m_wrapsAroundPi; //!< whether the rectangle crosses over \phi = \pi
 
 }; // end EtaPhiRectangle
 
