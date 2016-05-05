@@ -11,7 +11,9 @@ namespace Tau{
 	m_sTauJetContainerName(sTauJetContainerName){	
 	}
 	
-  
+	RecoTauPlots::~RecoTauPlots()
+	{
+	}
   void RecoTauPlots::initializePlots(){
     
     //  m_oParamPlots.initialize();
@@ -45,7 +47,7 @@ namespace Tau{
 	m_cellBased_neuPFO_Eta      = Book1D("cellBased_PFO_n_Eta",m_sTauJetContainerName + " Neutral PFO eta; eta; # PFO",128,-3.2,3.2);
 	m_cellBased_neuPFO_Phi      = Book1D("cellBased_PFO_n_Phi",m_sTauJetContainerName + " Neutral PFO phi; phi; # PFO",128,-3.2,3.2);
 	m_cellBased_neuPFO_E      = Book1D("cellBased_PFO_n_E",m_sTauJetContainerName + " Neutral PFO E; E; # PFO",200,0.,200000.);
-	m_cellBased_neuPFO_bdtPi0Score = Book1D("cellBased_PFO_n_bdtPi0Score",m_sTauJetContainerName + " Neutral PFO BDT Pi0 Score; Score; # PFO",60,-.6,.6);
+	m_cellBased_neuPFO_bdtPi0Score = Book1D("cellBased_PFO_n_bdtPi0Score",m_sTauJetContainerName + " Neutral PFO BDT Pi0 Score; Score; # PFO",60,-1.0,1.0);
 
 
     /*+++++++++++++++++++++++++++++++++++++++++++++++++
@@ -161,67 +163,67 @@ namespace Tau{
     int panTauIntiger = 0;
     float panTauFloat = 0;
     
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_isPanTauCandidate,panTauIntiger);
+    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_isPanTauCandidate,panTauIntiger);
     m_pantau_CellBasedInput_isPanTauCandidate->Fill(panTauIntiger);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_DecayMode,panTauIntiger);
+    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode,panTauIntiger);
     m_pantau_CellBasedInput_DecayMode->Fill(panTauIntiger);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_BDTValue_1p0n_vs_1p1n,panTauFloat);
+    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTValue_1p0n_vs_1p1n,panTauFloat);
     m_pantau_CellBasedInput_BDTValue_1p0n_vs_1p1n->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn,panTauFloat);
+    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTValue_1p1n_vs_1pXn,panTauFloat);
     m_pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn,panTauFloat);
+    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTValue_3p0n_vs_3pXn,panTauFloat);
     m_pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_BDTVar_Basic_NNeutralConsts,panTauIntiger);
+    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTVar_Basic_NNeutralConsts,panTauIntiger);
     m_pantau_CellBasedInput_BDTVar_Basic_NNeutralConsts->Fill(panTauIntiger);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt,panTauFloat);
+    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTVar_Charged_JetMoment_EtDRxTotalEt,panTauFloat);
     m_pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_BDTVar_Charged_StdDev_Et_WrtEtAllConsts,panTauFloat);
+    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTVar_Charged_StdDev_Et_WrtEtAllConsts,panTauFloat);
     m_pantau_CellBasedInput_BDTVar_Charged_StdDev_Et_WrtEtAllConsts->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM,panTauFloat);
+    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTVar_Neutral_HLV_SumM,panTauFloat);
     m_pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_1,panTauFloat);
+    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_1,panTauFloat);
     m_pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_1->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2,panTauFloat);
+    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_2,panTauFloat);
     m_pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts,panTauFloat);
+    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts,panTauFloat);
     m_pantau_CellBasedInput_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts,panTauFloat);
+    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTVar_Neutral_Ratio_EtOverEtAllConsts,panTauFloat);
     m_pantau_CellBasedInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_BDTVar_Neutral_Shots_NPhotonsInSeed,panTauFloat);
+    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTVar_Neutral_Shots_NPhotonsInSeed,panTauFloat);
     m_pantau_CellBasedInput_BDTVar_Neutral_Shots_NPhotonsInSeed->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged,panTauFloat);
+    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTVar_Combined_DeltaR1stNeutralTo1stCharged,panTauFloat);
     m_pantau_CellBasedInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_isPanTauCandidate,panTauIntiger);
-    m_pantau_eflowRecInput_isPanTauCandidate->Fill(panTauIntiger);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_DecayMode,panTauIntiger);
-    m_pantau_eflowRecInput_DecayMode->Fill(panTauIntiger);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTValue_1p0n_vs_1p1n,panTauFloat);
-    m_pantau_eflowRecInput_BDTValue_1p0n_vs_1p1n->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTValue_1p1n_vs_1pXn,panTauFloat);
-    m_pantau_eflowRecInput_BDTValue_1p1n_vs_1pXn->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTValue_3p0n_vs_3pXn,panTauFloat);
-    m_pantau_eflowRecInput_BDTValue_3p0n_vs_3pXn->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Basic_NPi0NeutConsts,panTauIntiger);
-    m_pantau_eflowRecInput_BDTVar_Basic_NPi0NeutConsts->Fill(panTauIntiger);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Basic_NNeutralConsts,panTauIntiger);
-    m_pantau_eflowRecInput_BDTVar_Basic_NNeutralConsts->Fill(panTauIntiger);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Charged_Ratio_EtOverEtAllConsts,panTauFloat);
-    m_pantau_eflowRecInput_BDTVar_Charged_Ratio_EtOverEtAllConsts->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Neutral_HLV_SumM,panTauFloat);
-    m_pantau_eflowRecInput_BDTVar_Neutral_HLV_SumM->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_EtSort_1,panTauFloat);
-    m_pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_EtSort_1->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2,panTauFloat);
-    m_pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts,panTauFloat);
-    m_pantau_eflowRecInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Neutral_Mean_DRToLeading_WrtEtAllConsts,panTauFloat);
-    m_pantau_eflowRecInput_BDTVar_Neutral_Mean_DRToLeading_WrtEtAllConsts->Fill(panTauFloat);
-    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged,panTauFloat);
-    m_pantau_eflowRecInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged->Fill(panTauFloat);
+    // thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_isPanTauCandidate,panTauIntiger);
+    // m_pantau_eflowRecInput_isPanTauCandidate->Fill(panTauIntiger);
+    // thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_DecayMode,panTauIntiger);
+    // m_pantau_eflowRecInput_DecayMode->Fill(panTauIntiger);
+    // thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTValue_1p0n_vs_1p1n,panTauFloat);
+    // m_pantau_eflowRecInput_BDTValue_1p0n_vs_1p1n->Fill(panTauFloat);
+    // thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTValue_1p1n_vs_1pXn,panTauFloat);
+    // m_pantau_eflowRecInput_BDTValue_1p1n_vs_1pXn->Fill(panTauFloat);
+    // thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTValue_3p0n_vs_3pXn,panTauFloat);
+    // m_pantau_eflowRecInput_BDTValue_3p0n_vs_3pXn->Fill(panTauFloat);
+    // thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Basic_NPi0NeutConsts,panTauIntiger);
+    // m_pantau_eflowRecInput_BDTVar_Basic_NPi0NeutConsts->Fill(panTauIntiger);
+    // thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Basic_NNeutralConsts,panTauIntiger);
+    // m_pantau_eflowRecInput_BDTVar_Basic_NNeutralConsts->Fill(panTauIntiger);
+    // thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Charged_Ratio_EtOverEtAllConsts,panTauFloat);
+    // m_pantau_eflowRecInput_BDTVar_Charged_Ratio_EtOverEtAllConsts->Fill(panTauFloat);
+    // thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Neutral_HLV_SumM,panTauFloat);
+    // m_pantau_eflowRecInput_BDTVar_Neutral_HLV_SumM->Fill(panTauFloat);
+    // thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_EtSort_1,panTauFloat);
+    // m_pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_EtSort_1->Fill(panTauFloat);
+    // thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2,panTauFloat);
+    // m_pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2->Fill(panTauFloat);
+    // thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts,panTauFloat);
+    // m_pantau_eflowRecInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts->Fill(panTauFloat);
+    // thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Neutral_Mean_DRToLeading_WrtEtAllConsts,panTauFloat);
+    // m_pantau_eflowRecInput_BDTVar_Neutral_Mean_DRToLeading_WrtEtAllConsts->Fill(panTauFloat);
+    // thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::pantau_eflowRecInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged,panTauFloat);
+    // m_pantau_eflowRecInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged->Fill(panTauFloat);
 
  
-  m_oParamPlots.fill(thisTau);
+    m_oParamPlots.fill(thisTau);
   }
 
 }

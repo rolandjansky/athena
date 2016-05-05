@@ -8,11 +8,11 @@ use AtlasPolicy         AtlasPolicy-*
 
 ## put here your package dependencies...
 use AtlasROOT           AtlasROOT-*            External
-#use xAODBase            xAODBase-*             Event/xAOD
+use xAODBase            xAODBase-*             Event/xAOD
 use xAODTau             xAODTau-*              Event/xAOD
 use xAODPFlow             xAODPFlow-*              Event/xAOD
 #use xAODTruth           xAODTruth-*            Event/xAOD
-use TrkValHistUtils     TrkValHistUtils-*      Tracking/TrkValidation
+#use TrkValHistUtils     TrkValHistUtils-*      Tracking/TrkValidation
 
 private
 #use xAODTracking        xAODTracking-*         Event/xAOD

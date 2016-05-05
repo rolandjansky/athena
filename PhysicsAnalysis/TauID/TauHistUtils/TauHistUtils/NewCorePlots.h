@@ -13,7 +13,7 @@ namespace Tau{
 class NewCorePlots: public PlotBase {
   public:
     NewCorePlots(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
-
+    virtual ~NewCorePlots();
     void fill(const xAOD::TauJet& tau);
 
     TH1*  m_ipZ0SinThetaSigLeadTrk;
@@ -45,6 +45,9 @@ class NewCorePlots: public PlotBase {
     TH1*  m_PSSFraction;
     TH1*  m_ChPiEMEOverCaloEME;
     TH1*  m_EMPOverTrkSysP;
+    TH1*  m_innerTrkAvgDist;
+    TH1*  m_ptRatioEflowApprox;
+    TH1*  m_mEflowApprox;
 
 		
   private:
