@@ -23,7 +23,7 @@ void NewCorePlots::initializePlots(){
     m_massTrkSys 		       = Book1D("massTrkSys",m_sTauJetContainerName + "Tau massTrkSys ;massTrkSys ;# of Taus",    20,  0,   2500    );	      
     m_trkWidth2 		       = Book1D("trkWidth2",m_sTauJetContainerName + "Tau trkWidth2 ;trkWidth2 ;# of Taus", 20,  0,   1.0     );		      
     m_trFlightPathSig 	               = Book1D("trFlightPathSig",m_sTauJetContainerName + "Tau trFlightPathSig ;trFlightPathSig ;# of Taus",   100,  -10,   20      );
-    m_nPi0                             = Book1D("NPio",m_sTauJetContainerName + "Tau NPio ;NPi0 ;# of Taus",  10,  0,   15      );
+    //    m_nPi0                             = Book1D("NPio",m_sTauJetContainerName + "Tau NPio ;NPi0 ;# of Taus",  10,  0,   15      );
     m_EMRadius                         = Book1D("Seed_Calo_EMRadius",m_sTauJetContainerName + "Tau Seed Calo EMRadius ;EMRadius ;# of Taus",    10,  -0.5,1       );	  
     m_hadRadius 	               = Book1D("Seed_Calo_hadRadius",m_sTauJetContainerName + "Tau Seed Calo hadRadius ;hadRadius ;# of Taus",   10,  -0.5,2       ); 
     m_isolFrac 	                       = Book1D("Seed_Calo_isolFrac",m_sTauJetContainerName + "Tau Seed Calo isolFrac ;isolFrac ;# of Taus",    40,  -0.0,2       );	  
@@ -37,9 +37,9 @@ void NewCorePlots::initializePlots(){
     m_caloIsoCorrected   	       = Book1D("Seed_Calo_caloIsoCorrected",m_sTauJetContainerName + "Tau Seed Calo caloIsoCorrected ;caloIsoCorrected ;# of Taus",    15,  0,   200     );                                 
     m_tauDRMax                         =       Book1D("DRMax",m_sTauJetContainerName + " Tau DR Max track-seed; DRMax; # Taus",10,0.,0.5);		  
     m_tauSflight                       =     Book1D("Sflight",m_sTauJetContainerName + " Tau flight sign. ; Sflight; # Taus",100,-10.,20.);
-    m_mEflowTopo                       = Book1D("mEflowTopo",m_sTauJetContainerName + "Tau mEflowTopo; mEflowTopo; #Taus",30,0,300);
-    m_ptRatioEflowTopo                 = Book1D("ptRatioEflowTopo",m_sTauJetContainerName + "Tau ptRatioEflowTopo; ptRatioEflowTopo; # of Taus", 10, 0, 10);
-    m_nPi0Topo                         = Book1D("nPi0Topo",m_sTauJetContainerName + "Tau nPi0Topo; nPi0Topo; # of Taus", 100, -1, 1);
+    // m_mEflowTopo                       = Book1D("mEflowTopo",m_sTauJetContainerName + "Tau mEflowTopo; mEflowTopo; #Taus",30,0,300);
+    // m_ptRatioEflowTopo                 = Book1D("ptRatioEflowTopo",m_sTauJetContainerName + "Tau ptRatioEflowTopo; ptRatioEflowTopo; # of Taus", 10, 0, 10);
+    // m_nPi0Topo                         = Book1D("nPi0Topo",m_sTauJetContainerName + "Tau nPi0Topo; nPi0Topo; # of Taus", 100, -1, 1);
     m_PSSFraction                      = Book1D("PSSFraction",m_sTauJetContainerName + "Tau PSSFraction; PSSFraction; # of Taus", 30, -15, 15);
     m_ChPiEMEOverCaloEME               = Book1D("ChPiEMEOverCaloEME",m_sTauJetContainerName + "Tau ChPiEMEOverCaloEME; ChPiEMEOverCaloEME; # of Taus", 30, -15, 15);
     m_EMPOverTrkSysP                   = Book1D("EMPOverTrkSysP",m_sTauJetContainerName + "Tau EMPOverTrkSysP; EMPOverTrkSysP; # of Taus", 81, -1, 80);
@@ -84,8 +84,8 @@ void NewCorePlots::fill(const xAOD::TauJet& tau) {
   //  test=tau.detail(xAOD::TauJetParameters::mEflow, avariable);
   //  if(test)     m_mEflow->Fill(avariable,1.);
   
-  test=tau.detail(xAOD::TauJetParameters::nPi0, bvariable);
-  if(test)     m_nPi0->Fill(bvariable,1.);
+  // test=tau.detail(xAOD::TauJetParameters::nPi0, bvariable);
+  // if(test)     m_nPi0->Fill(bvariable,1.);
   
   test=tau.detail(xAOD::TauJetParameters::EMRadius, avariable);
   if(test)     m_EMRadius->Fill(avariable,1.);
@@ -120,14 +120,14 @@ void NewCorePlots::fill(const xAOD::TauJet& tau) {
   test=tau.detail(xAOD::TauJetParameters::caloIsoCorrected, avariable);
   if(test)     m_caloIsoCorrected->Fill(avariable,1.);
 
-  test=tau.detail(xAOD::TauJetParameters::mEflowTopo, avariable);
-  if(test)     m_mEflowTopo ->Fill(avariable/1000,1.);
+  // test=tau.detail(xAOD::TauJetParameters::mEflowTopo, avariable);
+  // if(test)     m_mEflowTopo ->Fill(avariable/1000,1.);
   
-  test=tau.detail(xAOD::TauJetParameters::ptRatioEflowTopo, avariable);
-  if(test)     m_ptRatioEflowTopo->Fill(avariable,1.);
+  // test=tau.detail(xAOD::TauJetParameters::ptRatioEflowTopo, avariable);
+  // if(test)     m_ptRatioEflowTopo->Fill(avariable,1.);
 
-  test=tau.detail(xAOD::TauJetParameters::nPi0Topo, bvariable);
-  if(test)     m_nPi0Topo->Fill(bvariable,1.);
+  // test=tau.detail(xAOD::TauJetParameters::nPi0Topo, bvariable);
+  // if(test)     m_nPi0Topo->Fill(bvariable,1.);
 
   test=tau.detail(xAOD::TauJetParameters::PSSFraction, avariable);
   if(test)     m_PSSFraction->Fill(avariable,1.);
