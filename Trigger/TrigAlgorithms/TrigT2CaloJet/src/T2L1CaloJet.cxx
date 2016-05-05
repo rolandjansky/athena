@@ -78,7 +78,7 @@ HLT::ErrorCode T2L1CaloJet::hltInitialize()
     (*m_log) << MSG::INFO << "Retrieved " << m_jetL1Tools << endreq;
   }
 
-  m_storedJEs = new DataVector<LVL1::JetElement>(SG::VIEW_ELEMENTS);
+  m_storedJEs = new ConstDataVector<DataVector<LVL1::JetElement> >(SG::VIEW_ELEMENTS);
   
 
   return HLT::OK;
@@ -215,7 +215,7 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   
   std::map<int, LVL1::JetInput*> jetInputs;  // This will have to be cleared after being used
   if (m_retrievedJetTool) {
-      m_jetL1Tools->mapJetInputs(m_storedJEs, &jetInputs);
+      m_jetL1Tools->mapJetInputs(m_storedJEs->asDataVector(), &jetInputs);
   }
   
   double roiPhi = (roiDescriptor)->phi();

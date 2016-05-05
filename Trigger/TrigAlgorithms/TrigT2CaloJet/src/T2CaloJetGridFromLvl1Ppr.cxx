@@ -23,7 +23,7 @@ PURPOSE: Data preparation from Lvl1 Calo
 T2CaloJetGridFromLvl1Ppr::T2CaloJetGridFromLvl1Ppr(const std::string& type,
 				     const std::string& name,
 				     const IInterface* parent):
-  T2CaloJetBaseTool(type, name, parent)
+  T2CaloJetBaseTool(type, name, parent), m_gridElement(0)
 {  
 }
 
@@ -33,7 +33,7 @@ T2CaloJetGridFromLvl1Ppr::~T2CaloJetGridFromLvl1Ppr()
 
 StatusCode T2CaloJetGridFromLvl1Ppr::initialize() 
 {
-  m_gridElement = new Trig3Momentum();
+  if ( !m_gridElement ) m_gridElement = new Trig3Momentum();
   return StatusCode::SUCCESS;
 }
 
@@ -81,7 +81,7 @@ StatusCode T2CaloJetGridFromLvl1Ppr::execute(TrigT2Jet* jet,
 
 StatusCode T2CaloJetGridFromLvl1Ppr::finalize()
 {
-  delete m_gridElement;
+  if ( m_gridElement ) delete m_gridElement;
   m_gridElement = 0;
   return StatusCode::SUCCESS;
 }

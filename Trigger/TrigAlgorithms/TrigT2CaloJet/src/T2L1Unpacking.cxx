@@ -107,11 +107,11 @@ HLT::ErrorCode T2L1Unpacking::hltInitialize()
     }
     
     // settings for Trigger tower retrieval
-    etaMin = -5.;
-    etaMax = 5.;
-    phiMin = 0.;
-    phiMax = 2 * M_PI;
-    fullScan = true; 
+    m_etaMin = -5.;
+    m_etaMax = 5.;
+    m_phiMin = 0.;
+    m_phiMax = 2 * M_PI;
+    m_fullScan = true; 
  
     /// aha! fullscan should be from -pi to pi
    
@@ -198,11 +198,11 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
                 (*m_log) << MSG::DEBUG   << "Loading the L1 data using ITrigT1CaloDataAccess tool"<< endreq;
 		(*m_log) << MSG::DEBUG   << "Getting trigger towers using "
 			 << " roi: " << *roi 
-		   //         << "  etaMin: " << etaMin 
-		   //         << ", etaMax: " << etaMax
-		   //         << ", phiMin: " << phiMin
-		   //         << ", phiMax: " << phiMax
-                         << ", full: "   << fullScan << endreq;
+		   //         << "  etaMin: " << m_etaMin 
+		   //         << ", etaMax: " << m_etaMax
+		   //         << ", phiMin: " << m_phiMin
+		   //         << ", phiMax: " << m_phiMax
+                         << ", full: "   << m_fullScan << endreq;
             }
 #endif
             if(doTiming()) m_l1_unpacking_timer->start();
@@ -223,7 +223,7 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
 #endif
         }
         for(; tt_begj!=tt_endj;++tt_begj){
-            LVL1::TriggerTower* TT = (*tt_begj);
+            const LVL1::TriggerTower* TT = (*tt_begj);
 #ifndef NDEBUG   
             if((*m_log).level() <= MSG::DEBUG){
                 (*m_log) << MSG::DEBUG  << "TriggerTower[" << counter
@@ -342,7 +342,7 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
         }
         
         for(; je_begj!=je_endj;++je_begj){
-            LVL1::JetElement* JE = (*je_begj); 
+            const LVL1::JetElement* JE = (*je_begj); 
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
                (*m_log) << MSG::DEBUG  << "JetElement[" << counter

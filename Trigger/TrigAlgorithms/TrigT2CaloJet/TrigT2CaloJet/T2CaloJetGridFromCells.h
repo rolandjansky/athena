@@ -92,10 +92,10 @@ class T2CaloJetGridFromCells : public T2CaloJetBaseTool
 
 
 
-  int ncell_roi;
-  int nnegcell_roi;
-  double eem_roi;
-  double etot_roi;
+  //int ncell_roi;
+  //int nnegcell_roi;
+  //double eem_roi;
+  //double etot_roi;
 
   bool m_applyNoiseCut;
   double m_noiseCutValue;

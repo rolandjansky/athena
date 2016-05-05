@@ -51,7 +51,7 @@ class T2L1CaloFullScanJet: public HLT::AllTEAlgo {
 
  private:
 
-  TrigT2Jet* m_jet;
+  const TrigT2Jet* m_jet;
   DataVector<TrigT2Jet>* m_jets;
   ToolHandleArray< T2L1CaloJetFullScanBaseTool > m_tools;
   

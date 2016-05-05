@@ -9,6 +9,7 @@ author Matthew Tamsett <tamsett@cern.ch>
 
 use AtlasPolicy         AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*                    External
+use AthContainers       AthContainers-*                     Control
 use TrigT2CaloCommon    TrigT2CaloCommon-*                  Trigger/TrigAlgorithms 
 use TrigSteeringEvent   TrigSteeringEvent-*                 Trigger/TrigEvent
 use TrigCaloEvent       TrigCaloEvent-*                     Trigger/TrigEvent
