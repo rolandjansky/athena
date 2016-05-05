@@ -45,14 +45,20 @@ def MuonCombinedInDetDetailedTrackSelectorTool( name='MuonCombinedInDetDetailedT
         kwargs.setdefault("useTrackQualityInfo", False )
     kwargs.setdefault("TrackSummaryTool", getPublicTool("AtlasTrackSummaryTool") )
     kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
-    return CfgMgr.InDet__InDetDetailedTrackSelectorTool(name,**kwargs)
+    return CfgMgr.InDet__InDetDetailedTrackSelectorTool(name,**kwargs) 
 
+def MuonInDetForwardCandidateTool( name = 'MuonInDetForwardCandidateTool', **kwargs):
+   #import pdb ; pdb.set_trace()
+   idCandTool = getPublicToolClone("InDetForwardCandidateTool","InDetCandidateTool", TrackSelector = getPublicTool("MuonCombinedInDetDetailedForwardTrackSelectorTool") )
+   idCandTool.FlagCandidatesAsSiAssociated = True
+   return idCandTool
 
 def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
     import MuonCombinedRecExample.CombinedMuonTrackSummary
     kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
     kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
     kwargs.setdefault("KeepAllPerigee",True )
+    kwargs.setdefault("UseMuonSummaryTool",True )
     return CfgMgr.Trk__TrackParticleCreatorTool(name,**kwargs)
 
 def MuonCaloParticleCreator(name="MuonCaloParticleCreator",**kwargs):

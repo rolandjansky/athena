@@ -17,6 +17,8 @@ if DetFlags.detdescr.Muon_on():
    MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#"+MuonCbKeys.CombinedFitParticles()+"Aux." + excludedAuxData ]
    MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#"+MuonCbKeys.ExtrapolatedMSParticles() ]
    MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#"+MuonCbKeys.ExtrapolatedMSParticles()+"Aux." + excludedAuxData ]
+   MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#"+MuonCbKeys.ExtrapolatedMSOnlyParticles() ]
+   MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#"+MuonCbKeys.ExtrapolatedMSOnlyParticles()+"Aux." + excludedAuxData ]
    MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#"+MuonCbKeys.SpectrometerParticles() ]
    MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#"+MuonCbKeys.SpectrometerParticles()+"Aux." + excludedAuxData ]
    MuonCombinedAODList+=[ "xAOD::MuonContainer#Muons" ]

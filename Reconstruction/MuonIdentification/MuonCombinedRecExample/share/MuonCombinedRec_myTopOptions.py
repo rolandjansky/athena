@@ -33,8 +33,8 @@ fileListT1 = [ "root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSam
 fileListMu10 = [ "root://eosatlas//eos/atlas/user/n/nrbern/mc12_8TeV.107211.ParticleGenerator_mu_Pt10.recon.RDO.e1717/Pt10.rdo.pool.root"]
 
 athenaCommonFlags.FilesInput = fileListZ
-athenaCommonFlags.FilesInput = fileListT1
-athenaCommonFlags.FilesInput = fileListMu10
+#athenaCommonFlags.FilesInput = fileListT1
+#athenaCommonFlags.FilesInput = fileListMu10
 useIBLRDO = False
 athenaCommonFlags.FilesInput = fileListT1
 if useIBLRDO:
@@ -221,3 +221,8 @@ try:
 except:
     print 'got an exception' 
     pass
+
+from AthenaCommon.ConfigurationShelve import saveToAscii
+saveToAscii("config.txt")
+from MuonRecExample.MuonRecUtils import dumpDetFlags
+dumpDetFlags("config.txt")

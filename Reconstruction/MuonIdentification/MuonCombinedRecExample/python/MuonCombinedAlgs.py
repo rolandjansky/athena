@@ -1,10 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-from AthenaCommon.CfgGetter import getPublicTool, getAlgorithm
+from AthenaCommon.CfgGetter import getPublicTool, getAlgorithm,getPublicToolClone
 from MuonRecExample.ConfiguredMuonRec import ConfiguredMuonRec
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon import CfgMgr
+
 
 def MuonCombinedInDetExtensionAlg(name="MuonCombinedInDetExtensionAlg",**kwargs):
     tools = []
@@ -42,6 +43,9 @@ def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
 
 def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs ):
     kwargs.setdefault("InDetCandidateTool",getPublicTool("InDetCandidateTool") )
+    if muonCombinedRecFlags.doSiAssocForwardMuons():
+        kwargs.setdefault("DoSiliconAssocForwardMuons", True )
+        kwargs.setdefault("InDetForwardCandidateTool", getPublicTool("MuonInDetForwardCandidateTool") )
     return CfgMgr.MuonCombinedInDetCandidateAlg(name,**kwargs)
     
 def MuonCombinedMuonCandidateAlg( name="MuonCombinedMuonCandidateAlg", **kwargs ):
@@ -61,6 +65,7 @@ def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("MuonContainerLocation","Staus")
     kwargs.setdefault("CombinedLocation","CombinedStau")
     kwargs.setdefault("ExtrapolatedLocation","ExtrapolatedStau")
+    kwargs.setdefault("MSOnlyExtrapolatedLocation","MSOnlyExtrapolatedStau")
     kwargs.setdefault("MuonCandidateLocation","")
     kwargs.setdefault("SegmentContainerName","StauSegments")
     kwargs.setdefault("BuildSlowMuon",1)

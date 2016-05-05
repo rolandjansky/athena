@@ -261,13 +261,24 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     # configure tools for data reprocessing 
     if muonRecFlags.enableErrorTuning():
        # enable error scaling for Muid/MuGirl
-       kwargs.setdefault("MuonErrorOptimizer", getPublicToolClone("MuidErrorOptimisationTool",
+       kwargs.setdefault("MuonScaledErrorOptimizer", getPublicToolClone("MuidScaledErrorOptimisationTool",
                                                                   "MuonErrorOptimisationTool",
                                                                   PrepareForFit              = False,
                                                                   RecreateStartingParameters = False,
-                                                                  RefitTool = getPublicToolClone("MuidRefitTool",
+                                                                  RefitTool = getPublicToolClone("MuidScaledRefitTool",
                                                                                                  "MuonRefitTool",
+                                                                  				 AlignmentErrors = False,
                                                                                                  Fitter = getPublicTool("iPatFitter"))))
+       # use alignment effects on track in the fitter
+       kwargs.setdefault("MuonAlignmentErrorOptimizer", getPublicToolClone("MuidAlignmentErrorOptimisationTool",
+                                                                  "MuonErrorOptimisationTool",
+                                                                  PrepareForFit              = False,
+                                                                  RecreateStartingParameters = False,
+                                                                  RefitTool = getPublicToolClone("MuidAlignmentRefitTool",
+                                                                                                 "MuonRefitTool",
+                                                                  				 AlignmentErrors = False,
+                                                                                                 Fitter = getPublicTool("iPatFitter"))))
+
 
     if muonRecFlags.doSegmentT0Fit():
         kwargs.setdefault("MdtRotCreator"                 , "" )
@@ -324,10 +335,11 @@ def OutwardsCombinedMuonTrackBuilder( name = 'OutwardsCombinedMuonTrackBuilder',
     kwargs.setdefault("MuonHoleRecovery"     , getPublicTool("OutwardsSegmentRegionRecoveryTool") )
     kwargs.setdefault("AllowCleanerVeto"     , False)
     if muonRecFlags.enableErrorTuning():
-       kwargs.setdefault("MuonErrorOptimizer", getPublicToolClone("OutwardsErrorOptimisationTool", "MuidErrorOptimisationTool",
+       kwargs.setdefault("MuonErrorOptimizer", getPublicToolClone("OutwardsScaledErrorOptimisationTool", "MuidScaledErrorOptimisationTool",
                                                                   PrepareForFit=False,RecreateStartingParameters=False,
                                                                   RefitTool = getPublicToolClone("OutwardsRefitTool",
                                                                                                  "MuonRefitTool",
+                                                                  				 AlignmentErrors = False,
                                                                                                  Fitter = getPublicTool("MuonCombinedTrackFitter"))))
 
     return CfgMgr.Rec__OutwardsCombinedMuonTrackBuilder(name,**kwargs)

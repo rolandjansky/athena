@@ -21,7 +21,18 @@ addTool("MuonCombinedRecExample.MuGirlTagTool.MuonCandidateTrackBuilderTool","Mu
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonLayerSegmentMatchingTool","MuonLayerSegmentMatchingTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonLayerAmbiguitySolverTool","MuonLayerAmbiguitySolverTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonRecoValidationTool","MuonRecoValidationTool")
+
+addTool("MuonCombinedRecExample.MuGirlTagTool.DCMathStauSegmentMaker","DCMathStauSegmentMaker")
+addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauChamberHoleRecoveryTool","MuonStauChamberHoleRecoveryTool")
+addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauSeededSegmentFinder","MuonStauSeededSegmentFinder")
+addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauSegmentRegionRecoveryTool","MuonStauSegmentRegionRecoveryTool")
+addTool("MuonCombinedRecExample.MuGirlTagTool.CombinedStauTrackBuilderFit",'CombinedStauTrackBuilderFit')
+addTool("MuonCombinedRecExample.MuGirlTagTool.CombinedStauTrackBuilder",'CombinedStauTrackBuilder')
+addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauCandidateTrackBuilderTool","MuonStauCandidateTrackBuilderTool")
+addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauInsideOutRecoTool","MuonStauInsideOutRecoTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauRecoTool","MuonStauRecoTool")
+
+
 
 addTool("MuonCombined::MuonCombinedStacoTagTool","MuonCombinedStacoTagTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedFitTagTool","MuonCombinedFitTagTool")
@@ -51,6 +62,8 @@ addTool("MuonCombinedRecExample.MuonSegmentTaggerTools.MuTagAmbiguitySolverTool"
 addTool("MuonCombinedRecExample.MuonSegmentTaggerTools.MuonSegmentTagTool","MuonSegmentTagTool")
 
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedInDetDetailedTrackSelectorTool","MuonCombinedInDetDetailedTrackSelectorTool")
+addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedInDetDetailedTrackSelectorTool","MuonCombinedInDetDetailedForwardTrackSelectorTool", nHitSct=0)
+addTool("MuonCombinedRecExample.MuonCombinedTools.MuonInDetForwardCandidateTool","MuonInDetForwardCandidateTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedParticleCreator","MuonCombinedParticleCreator")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCaloParticleCreator","MuonCaloParticleCreator")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","MuonCreatorTool")
