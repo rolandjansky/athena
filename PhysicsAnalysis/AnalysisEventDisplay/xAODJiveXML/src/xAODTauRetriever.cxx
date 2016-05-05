@@ -7,6 +7,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "xAODTau/TauJetContainer.h" 
+#include "xAODTau/TauxAODHelpers.h"
 
 namespace JiveXML {
 
@@ -127,8 +128,12 @@ namespace JiveXML {
       // InnerDetector/InDetRecAlgs/InDetPriVxFinder/InDetVxLinksToTrackParticles
 
       int trkCnt = 0;
+#ifndef XAODTAU_VERSIONS_TAUTRACK_V1_H      
       const std::vector< ElementLink< xAOD::TrackParticleContainer > > tpLinks =  (*tauItr)->trackLinks();
-   
+#else
+      const std::vector< ElementLink< xAOD::TrackParticleContainer > > tpLinks =  xAOD::TauHelpers::trackParticleLinks(*tauItr);
+#endif
+      
       //iterating over the links
       unsigned int tp_size = tpLinks.size();
       numTracks.push_back(DataType( tp_size )); // same as:  (*tauItr)->nTracks()
