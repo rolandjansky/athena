@@ -10,19 +10,31 @@ branches run
 
 public
 use     AtlasPolicy             AtlasPolicy-*
-#use     StoreGate               StoreGate-*             Control
+use     AthenaBaseComps     	AthenaBaseComps-*       	Control
 use     AthenaMonitoring        AthenaMonitoring-*       Control
 use     GaudiInterface          GaudiInterface-*         External
 use     MuonPrepRawData		    MuonPrepRawData-* 	     MuonSpectrometer/MuonReconstruction/MuonRecEvent 
+use	MuonSegment		MuonSegment-*	         	MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use     TrigDecisionTool        TrigDecisionTool-*       Trigger/TrigAnalysis
+## EDM dependencies
+use     TrkParameters           TrkParameters-*                 Tracking/TrkEvent
+use     TrkTrack                TrkTrack-*                      Tracking/TrkEvent
+use     TrkSegment              TrkSegment-*                    Tracking/TrkEvent
+
 
 private
+use     StoreGate               StoreGate-*             Control
 use     AtlasROOT               AtlasROOT-*              External
 use     CscCalibTools           CscCalibTools-*          MuonSpectrometer/MuonCalib/CscCalib
 use	    CscClusterization	    CscClusterization-*	     MuonSpectrometer/MuonReconstruction/MuonDataPrep 
 use     MuonCSC_CnvTools        MuonCSC_CnvTools-*       MuonSpectrometer/MuonCnv 
 use     MuonIdHelpers           MuonIdHelpers-*          MuonSpectrometer
+use     MuonRIO_OnTrack         MuonRIO_OnTrack-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent 
+use     MuonRecHelperTools      MuonRecHelperTools-*     MuonSpectrometer/MuonReconstruction/MuonRecTools
 use     MuonRDO                 MuonRDO-*                MuonSpectrometer
+use     TrkCompetingRIOsOnTrack TrkCompetingRIOsOnTrack-*       Tracking/TrkEvent
+use     TrkEventPrimitives      TrkEventPrimitives-*            Tracking/TrkEvent
+use     TrkSurfaces             TrkSurfaces-*                   Tracking/TrkDetDescr
 use     xAODEventInfo           xAODEventInfo-*          Event/xAOD
 end_private
 

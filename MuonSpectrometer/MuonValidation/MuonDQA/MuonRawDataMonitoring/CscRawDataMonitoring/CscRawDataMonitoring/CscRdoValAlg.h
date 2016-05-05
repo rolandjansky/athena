@@ -35,10 +35,16 @@ class CscRdoValAlg: public ManagedMonitorToolBase
 
  private:
 
+  // initialize histograms
+  void initHistograms();
+
+  // register histograms
+  void bookRdoHistograms();
+
   size_t m_cscNoiseCut;
   std::string m_cscRdoKey, m_cscRDOPath, m_cscGenPath;
   const CscIdHelper * m_cscIdHelper;
-  
+
   // CSC RDO Decoder
   ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;
      
