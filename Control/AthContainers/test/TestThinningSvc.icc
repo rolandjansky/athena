@@ -12,89 +12,87 @@
 
 
 #include "SGTools/DataProxy.h"
+#include "SGTools/TestStore.h"
 #include "AthenaKernel/IThinningSvc.h"
 #include <map>
 
 
 class TestThinningSvc
-  : public IThinningSvc
+  : virtual public IThinningSvc, public SGTest::TestStore
 {
 public:
-  unsigned long addRef()
-  { std::cout << "addRef\n"; std::abort(); }
-  unsigned long release()
-  { std::cout << "release\n"; std::abort(); }
-  StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/)
-  { std::cout << "queryInterface\n"; std::abort(); }
-  const std::string& name() const
-  { std::cout << "name\n"; std::abort(); }
-  SG::DataProxy* proxy(const void* const /*pTransient*/) const
-  { std::cout << "proxy\n"; std::abort(); }
-  SG::DataProxy* proxy(const CLID& /*id*/) const
-  { std::cout << "proxy2\n"; std::abort(); }
-  SG::DataProxy* proxy(const CLID& /*id*/, const std::string& /*key*/) const
-  { std::cout << "proxy3\n"; std::abort(); }
-  virtual SG::DataProxy* proxy_exact (SG::sgkey_t /*sgkey*/) const 
-  { std::cout << "proxy_exact\n"; std::abort(); }
-  StatusCode addToStore (CLID /*id*/, SG::DataProxy* /*proxy*/)
-  { std::cout << "addToStore\n"; std::abort(); }
-  std::vector<const SG::DataProxy*> proxies() const
-  { std::cout << "proxies\n"; std::abort(); }
-  StatusCode sysInitialize()
+  StatusCode sysInitialize() override
   { std::cout << "sysInitialize\n"; std::abort(); }
-  StatusCode sysStart()
+  StatusCode sysStart() override
   { std::cout << "sysStart\n"; std::abort(); }
-  StatusCode sysStop()
+  StatusCode sysStop() override
   { std::cout << "sysStop\n"; std::abort(); }
-  StatusCode sysFinalize()
+  StatusCode sysFinalize() override
   { std::cout << "sysFinalize\n"; std::abort(); }
-  StatusCode sysReinitialize()
+  StatusCode sysReinitialize() override
   { std::cout << "sysReinitialize\n"; std::abort(); }
-  StatusCode sysRestart()
+  StatusCode sysRestart() override
   { std::cout << "sysRestart\n"; std::abort(); }
-  StatusCode configure()
+  StatusCode configure() override
   { std::cout << "configure\n"; std::abort(); }
-  StatusCode initialize()
+  StatusCode initialize() override
   { std::cout << "initialize\n"; std::abort(); }
-  StatusCode start()
+  StatusCode start() override
   { std::cout << "start\n"; std::abort(); }
-  StatusCode stop()
+  StatusCode stop() override
   { std::cout << "stop\n"; std::abort(); }
-  StatusCode finalize()
+  StatusCode finalize() override
   { std::cout << "finalize\n"; std::abort(); }
-  StatusCode terminate()
+  StatusCode terminate() override
   { std::cout << "terminate\n"; std::abort(); }
-  StatusCode reinitialize()
+  StatusCode reinitialize() override
   { std::cout << "reinitialize\n"; std::abort(); }
-  StatusCode restart()
+  StatusCode restart() override
   { std::cout << "restart\n"; std::abort(); }
-  Gaudi::StateMachine::State FSMState() const
+  Gaudi::StateMachine::State FSMState() const override
   { std::cout << "FSMState\n"; std::abort(); }
-  Gaudi::StateMachine::State targetFSMState() const
+  Gaudi::StateMachine::State targetFSMState() const override
   { std::cout << "targetFSMState\n"; std::abort(); }
-  void setServiceManager (ISvcManager*)
+  void setServiceManager (ISvcManager*) override
   { std::cout << "setServiceManager\n"; std::abort(); }
-  StatusCode register_slimmer (Athena::ISlimmingHdlr */*handler*/)
+  StatusCode register_slimmer (Athena::ISlimmingHdlr */*handler*/) override
   { std::cout << "register_slimmer\n"; std::abort(); }
-  virtual Athena::IThinningHdlr* handler( SG::DataProxy* /*proxy*/ )
+  virtual Athena::IThinningHdlr* handler( SG::DataProxy* /*proxy*/ ) override
   { std::cout << "handler\n"; std::abort(); }
   virtual StatusCode
   filter_impl( Athena::IThinningHdlr* /*handler*/,
                SG::DataProxy* /*proxy*/,
                const Filter_t& /*filter*/,
-               const IThinningSvc::Operator::Type /*op*/ = Operator::And )
+               const IThinningSvc::Operator::Type /*op*/ = Operator::And ) override
   { std::cout << "filter_impl\n"; std::abort(); }
-  StatusCode commit()
+  StatusCode commit() override
   { std::cout << "commit\n"; std::abort(); }
-  StatusCode rollback()
+  StatusCode rollback() override
   { std::cout << "rollback\n"; std::abort(); }
+  virtual
+  sgkey_t stringToKey (const std::string& /*str*/, CLID /*clid*/) override
+  { std::abort(); }
+  virtual
+  const std::string* keyToString (sgkey_t /*key*/) const override
+  { std::abort(); }
+  virtual
+  const std::string* keyToString (sgkey_t /*key*/,
+                                  CLID& /*clid*/) const override
+  { std::abort(); }
+  virtual
+  void registerKey (sgkey_t /*key*/,
+                    const std::string& /*str*/,
+                    CLID /*clid*/) override
+  { std::abort(); }
 
-  bool thinningOccurred() const
+  virtual
+  bool thinningOccurred() const override
   {
     return m_map.size() > 0;
   }
 
-  bool is_thinned_impl(const SG::DataProxy* p) const
+  virtual
+  bool is_thinned_impl(const SG::DataProxy* p) const override
   {
     proxymap_t::const_iterator i = m_map.find (p);
     if (i != m_map.end())
@@ -102,7 +100,9 @@ public:
     return false;
   }
 
-  SG::DataProxy* deep_proxy(const void* const pTransient) const
+  using SGTest::TestStore::proxy;
+  virtual
+  SG::DataProxy* proxy(const void* const pTransient) const override
   {
     objmap_t::const_iterator i = m_objmap.find (pTransient);
     if (i != m_objmap.end())
@@ -110,8 +110,9 @@ public:
     return 0;
   }
 
+  virtual
   std::size_t index_impl( const SG::DataProxy* objProxy, 
-                          std::size_t idx ) const 
+                          std::size_t idx ) const override
   {
     proxymap_t::const_iterator i = m_map.find (objProxy);
     if (i != m_map.end()) {

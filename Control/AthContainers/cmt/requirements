@@ -1,4 +1,5 @@
 package AthContainers
+# $Id: requirements 744397 2016-05-03 10:03:07Z krasznaa $
 
 author Paolo Calafiura   <Paolo.Calafiura@cern.ch>
 author Hong Ma           <hma@bnl.gov>
@@ -63,6 +64,8 @@ apply_pattern UnitTest_run unit_test=PackedParameters
 apply_pattern UnitTest_run unit_test=PackedConverter
 apply_pattern UnitTest_run unit_test=PackedContainer
 apply_pattern UnitTest_run unit_test=debug
+apply_pattern UnitTest_run unit_test=dataVectorAsELV
+apply_pattern UnitTest_run unit_test=ViewVector
 
 macro_append DOXYGEN_INPUT " ../doc" 
 

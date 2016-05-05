@@ -20,9 +20,10 @@
 
 
 #ifndef XAOD_STANDALONE
-#include "TestStore.icc"
+#include "SGTools/TestStore.h"
 #include "SGTools/CLASS_DEF.h"
 CLASS_DEF (std::vector<int*>, 28374627, 0)
+using namespace SGTest;
 #endif
 
 
@@ -331,7 +332,7 @@ void test_copyForOutput()
 
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
   SG::auxid_t auxid = r.getAuxID<EL> ("EL");
-  SG::auxid_t auxid_v = r.getAuxID<std::vector<EL> > ("ELv");
+  SG::auxid_t auxid_v = r.getAuxID<std::vector<EL> > ("ELV");
 
   r.copyForOutput (auxid, &el2, 0, &el1, 0);
   assert (el2.key() == 123);
@@ -366,7 +367,7 @@ void test_copyForOutput()
 int main()
 {
 #ifndef XAOD_STANDALONE
-  SG::getDataSourcePointerFunc = getTestDataSourcePointer;
+  initTestStore();
 #endif
 
   test2();

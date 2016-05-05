@@ -585,7 +585,7 @@ StatusCode thinningHook (const SG::AuxVectorData* in,
                          const IThinningSvc::Operator::Type op )
 {
   const SG::IConstAuxStore* store = in->getConstStore();
-  if (store && svc->deep_proxy (store))
+  if (store && svc->proxy (store))
     return svc->typelessFilter (store, filter, op);
   return StatusCode::SUCCESS;
 }

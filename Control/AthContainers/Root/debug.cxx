@@ -17,6 +17,7 @@
 #include "AthContainersInterfaces/IConstAuxStore.h"
 #include "CxxUtils/StrFormat.h"
 #include <vector>
+#include <sstream>
 
 
 namespace SGdebug {

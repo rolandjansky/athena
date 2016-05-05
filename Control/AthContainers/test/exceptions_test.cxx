@@ -50,6 +50,9 @@ void test1()
   std::cout << SG::ExcUnknownAuxItem("foo").what() << "\n";
   std::cout << SG::ExcUnknownAuxItem("foo", "bar").what() << "\n";
   std::cout << SG::ExcUnknownAuxItem("foo", "bar", &typeid(int)).what() << "\n";
+  std::cout << SG::ExcDVToELV("why").what() << "\n";
+  std::cout << SG::ExcViewVectorNotView().what() << "\n";
+  std::cout << SG::ExcMissingViewVectorCLID(typeid(int)).what() << "\n";
 }
 
 

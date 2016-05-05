@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxVectorData.h 700415 2015-10-13 20:18:21Z ssnyder $
+// $Id: AuxVectorData.h 718910 2016-01-20 22:30:05Z ssnyder $
 /**
  * @file AthContainers/AuxVectorData.h
  * @author scott snyder <snyder@bnl.gov>
@@ -222,6 +222,15 @@ public:
    * is associated with this object.
    */
   const SG::IConstAuxStore* getConstStore() const;
+
+
+  /**
+   * @brief Return the data link to the current store, as a const interface.
+   *
+   * This is set by persistency when reading an object, but it may
+   * be overridden by setting the store pointer directly.
+   */
+  const DataLink<SG::IConstAuxStore> getConstStoreLink() const;
 
 
   /**

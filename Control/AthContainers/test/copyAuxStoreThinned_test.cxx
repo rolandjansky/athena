@@ -18,6 +18,7 @@
 #include "AthContainers/tools/copyAuxStoreThinned.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/AuxTypeRegistry.h"
+#include "AthContainers/PackedContainer.h"
 #include "AthContainers/tools/foreach.h"
 #include <vector>
 #include <iostream>
@@ -49,6 +50,18 @@ private:
 };
 
 
+void compare (const SG::PackedParameters& a,
+              const SG::PackedParameters& b)
+{
+  assert (a.nbits() == b.nbits());
+  assert (a.isFloat() == b.isFloat());
+  assert (a.isSigned() == b.isSigned());
+  assert (a.rounding() == b.rounding());
+  assert (a.nmantissa() == b.nmantissa());
+  assert (a.scale() == b.scale());
+}
+
+              
 void compare (const SG::AuxStoreInternal& a,
               const SG::AuxStoreInternal& b,
               bool thinned = false,
@@ -79,6 +92,22 @@ void compare (const SG::AuxStoreInternal& a,
         ++ib;
       }
     }
+
+    assert (a.getIOType(id) == b.getIOType(id));
+    if (a.getIOType(id) == &typeid(SG::PackedContainer<int>)) {
+      const SG::PackedContainer<int>* ap
+        = reinterpret_cast<const SG::PackedContainer<int>*> (a.getIOData(id));
+      const SG::PackedContainer<int>* bp
+        = reinterpret_cast<const SG::PackedContainer<int>*> (b.getIOData(id));
+      compare (ap->parms(), bp->parms());
+    }
+    else if (a.getIOType(id) == &typeid(SG::PackedContainer<float>)) {
+      const SG::PackedContainer<float>* ap
+        = reinterpret_cast<const SG::PackedContainer<float>*> (a.getIOData(id));
+      const SG::PackedContainer<float>* bp
+        = reinterpret_cast<const SG::PackedContainer<float>*> (b.getIOData(id));
+      compare (ap->parms(), bp->parms());
+    }
   }
 }
 
@@ -99,12 +128,27 @@ void test1()
 
   SG::auxid_t ityp = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt");
   SG::auxid_t ftyp = SG::AuxTypeRegistry::instance().getAuxID<float> ("aFloat");
+  SG::auxid_t pityp = SG::AuxTypeRegistry::instance().getAuxID<int> ("pInt");
+  SG::auxid_t pftyp = SG::AuxTypeRegistry::instance().getAuxID<float> ("pFloat");
 
   int* iptr = reinterpret_cast<int*> (src.getData (ityp, 10, 10));
   float* fptr = reinterpret_cast<float*> (src.getData (ftyp, 10, 10));
+  int* piptr = reinterpret_cast<int*> (src.getData (pityp, 10, 10));
+  float* pfptr = reinterpret_cast<float*> (src.getData (pftyp, 10, 10));
+
+  src.setOption (pityp, SG::AuxDataOption ("nbits", 10));
+  src.setOption (pityp, SG::AuxDataOption ("signed", false));
+  src.setOption (pftyp, SG::AuxDataOption ("nbits", 12));
+  src.setOption (pftyp, SG::AuxDataOption ("signed", true));
+  src.setOption (pftyp, SG::AuxDataOption ("rounding", true));
+  src.setOption (pftyp, SG::AuxDataOption ("nmantissa", 8));
+  src.setOption (pftyp, SG::AuxDataOption ("scale", 2.0));
+
   for (int i=0; i < 10; i++) {
     iptr[i] = i;
-    fptr[i] = 10*i;
+    fptr[i] = 10*i + 0.5;
+    piptr[i] = i + 13;
+    pfptr[i] = 10*i + 0.5 + 13;
   }
 
   SG::AuxStoreInternal src2;

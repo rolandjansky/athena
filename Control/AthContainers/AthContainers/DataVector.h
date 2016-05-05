@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataVector.h 642914 2015-01-30 03:23:46Z ssnyder $
+// $Id: DataVector.h 741471 2016-04-19 20:58:27Z ssnyder $
 
 /**
  * @file  AthContainers/DataVector.h
@@ -257,11 +257,11 @@
  * public:
  *   // A getter for an aux data item.
  *   float foo() const
- *   { static ConstAccessor<float> acc ("foo");  return acc(*this); }
+ *   { const static ConstAccessor<float> acc ("foo");  return acc(*this); }
  *
  *   // A setter for an aux data item.
  *   void foo(float x)
- *   { static Accessor<float> acc ("foo");  acc(*this) = x; }
+ *   { const static Accessor<float> acc ("foo");  acc(*this) = x; }
  * };
  *
  * ...
@@ -1773,7 +1773,8 @@ public:
 
 private:
   friend class DataModel_detail::ElementProxy<DataVector>;
-  friend class ConstDataVector<DataVector>;
+  template <class DV>
+  friend class ConstDataVector;
   friend void test2_assignelement1<DataVector>();
   friend void test2_assignelement2<DataVector>();
 
@@ -2953,7 +2954,8 @@ public:
 
 private:
   friend class DataModel_detail::ElementProxy<DataVector>;
-  friend class ConstDataVector<DataVector>;
+  template <class DV>
+  friend class ConstDataVector;
   friend void test2_assignelement1<DataVector>();
   friend void test2_assignelement2<DataVector>();
 

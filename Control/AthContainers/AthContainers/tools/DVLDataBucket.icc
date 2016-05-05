@@ -15,10 +15,59 @@
  */
 
 
+#include "AthContainers/exceptions.h"
 #include "SGTools/IRegisterTransient.h"
 
 
 namespace SG {
+
+
+/**
+ * @brief Is a @c DataVector we're trying to record actually a @c ViewVector?
+ * @param data Object being recorded.
+ * @param[out] clid If the object is a @c ViewVector, set to the CLID
+ *                  of that class.  Otherwise unchanged.
+ * @returns The @c type_info for the object being recorded, either the
+ *          @c DataVector or a @c ViewVector that derives from it.
+ */
+template <class T>
+const std::type_info* testViewVector (const DataVector<T>& data,
+                                      CLID& clid)
+{
+  // If this is a view container, test for @c ViewVector.
+  if (data.ownPolicy() == SG::VIEW_ELEMENTS) {
+    // See if we actually have a @c ViewVector.
+    // FIXME: This doesn't work if @c ViewVector is templated on an intermediate
+    // class rather than @c DataVector directly.
+    if (dynamic_cast<const ViewVector<DataVector<T> >*> (&data)) {
+      const std::type_info& ti = typeid(ViewVector<DataVector<T> >);
+      const SG::BaseInfoBase* bib = SG::BaseInfoBase::find (ti);
+      if (bib) {
+        clid = bib->clid();
+        if (clid == CLID_NULL)
+          SG::throwExcMissingViewVectorCLID (ti);
+        return &ti;
+      }
+      else {
+        SG::throwExcMissingBaseInfo (ti);
+      }
+    }
+  }
+  return &typeid(DataVector<T>);
+}
+
+
+/**
+ * @brief Is a @c DataVector we're trying to record actually a @c ViewVector?
+ *
+ * Handle the case where the object being recorded is not a @c DataVector.
+ */
+template <class T>
+const std::type_info* testViewVector (const T& ,
+                                      CLID& )
+{
+  return &typeid(T);
+}
 
 
 /**
@@ -29,6 +78,8 @@ template <class T>
 DVLDataBucket<T>::DVLDataBucket (T* data)
   : DataBucket<T> (data)
 {
+  m_clid = DataBucket<T>::classID();
+  m_ti = testViewVector (*this->ptr(), m_clid);
 }
 
 
@@ -41,6 +92,8 @@ template <class T>
 DVLDataBucket<T>::DVLDataBucket (std::unique_ptr<T> data)
   : DataBucket<T> (std::move (data))
 {
+  m_clid = DataBucket<T>::classID();
+  m_ti = testViewVector (*this->ptr(), m_clid);
 }
 #endif
 
@@ -52,7 +105,9 @@ DVLDataBucket<T>::DVLDataBucket (std::unique_ptr<T> data)
 template <typename T>
 DVLDataBucket<T>::DVLDataBucket (const DVLDataBucket& other)
   : SG::DataBucket<T> (new T (*(T*)(other.cptr()))),
-    m_copies (other.m_copies)
+    m_copies (other.m_copies),
+    m_ti (other.m_ti),
+    m_clid (other.m_clid)
 {
   // Make a copy of each of the copies.
   vec_t::iterator end = m_copies.end();
@@ -89,8 +144,14 @@ void*
 DVLDataBucket<T>::cast (CLID clid, IRegisterTransient* irt /*= 0*/,
                         bool /*isConst = true*/) const
 {
-  // First try looking for a true base conversion.
   const T* ptr = *((DataBucket<T>*)this);
+
+  // Test for trivial conversion.
+  // FIXME: Assumes we can reinterpret_cast between DV* and ViewVector<DV>*.
+  if (clid == m_clid || clid == DataBucket<T>::classID())
+    return const_cast<T*>(ptr);
+
+  // Try looking for a true base conversion.
   void* ret = SG::BaseInfo<T>::cast (const_cast<T*>(ptr), clid);
   if (ret)
     return ret;
@@ -135,8 +196,14 @@ DVLDataBucket<T>::cast (const std::type_info& tinfo,
                         IRegisterTransient* irt /*= 0*/,
                         bool /*isConst = true*/) const
 {
-  // First try looking for a true base conversion.
   const T* ptr = *((DataBucket<T>*)this);
+
+  // Test for trivial conversion.
+  // FIXME: Assumes we can reinterpret_cast between DV* and ViewVector<DV>*.
+  if (&tinfo == m_ti || tinfo == DataBucket<T>::tinfo())
+    return const_cast<T*>(ptr);
+
+  // Try looking for a true base conversion.
   void* ret = SG::BaseInfo<T>::cast (const_cast<T*>(ptr), tinfo);
   if (ret)
     return ret;
@@ -175,6 +242,32 @@ template <typename T>
 DVLDataBucket<T>* DVLDataBucket<T>::clone() const
 { 
   return new DVLDataBucket<T> (*this);
+}
+
+
+/**
+ * @brief The CLID for the class of object we're holding.
+ *
+ * May be different from that of the base @c DataVector in the case
+ * of a @c ViewVector.
+ */
+template <typename T>
+const CLID& DVLDataBucket<T>::clID() const
+{
+  return m_clid;
+}
+
+
+/**
+ * @brief The std::type_info for the class of object we're holding.
+ *
+ * May be different from that of the base @c DataVector in the case
+ * of a @c ViewVector.
+ */
+template <typename T>
+const std::type_info& DVLDataBucket<T>::tinfo() const
+{
+  return *m_ti;
 }
 
 

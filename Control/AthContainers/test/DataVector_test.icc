@@ -19,6 +19,7 @@
 #include "AthContainers/exceptions.h"
 #include "AthContainers/tools/foreach.h"
 #include "TestTools/expect_exception.h"
+#include "SGTools/TestStore.h"
 #include <stdexcept>
 #include <string>
 #include <sstream>
@@ -180,6 +181,7 @@ SG_BASES2 (P, SG_VIRTUAL(N), SG_VIRTUAL(O));
 CLASS_DEF( DataVector<N> , 9884 , 1 )
 CLASS_DEF( DataVector<O> , 9885 , 1 )
 CLASS_DEF( DataVector<M> , 9887 , 1 )
+CLASS_DEF( DataVector<P> , 9888 , 1 )
 
 
 struct Q : virtual public M
@@ -3504,6 +3506,9 @@ void test2_clear2()
     caught = true;
   }
   myassert (caught || !typename SG::AuxStore_traits<T>::flag());
+
+  ConstDataVector<DV> cdv;
+  cdv.clear (SG::VIEW_ELEMENTS, SG::NEVER_TRACK_INDICES);
 }
 template <class B, class D>
 void test2_clear()
@@ -5927,6 +5932,57 @@ void test2_offset()
 
 
 template <class B, class D>
+void test2_elconversions1()
+{
+  DataVector<D> v1;
+  for (int i=0; i<5; i++)
+    v1.push_back (CxxUtils::make_unique<D>(i));
+  DataVector<D> v2;
+  for (int i=5; i<10; i++)
+    v2.push_back (CxxUtils::make_unique<D>(i));
+
+  SGTest::TestStore store;
+  SG::CurrentEventStore::setStore (&store);
+  store.record (&v1, "v1");
+  store.record (&v2, "v2");
+
+  std::vector<ElementLink<DataVector<D> > > links;
+  for (int i=0; i<5; i++) {
+    links.emplace_back ("v1", i);
+    links.emplace_back ("v2", i);
+  }
+
+  std::vector<ElementLink<DataVector<D> > > links2;
+  for (int i=0; i<5; i++) {
+    links2.emplace_back ("v2", i);
+    links2.emplace_back ("v1", i);
+  }
+
+  ConstDataVector<DataVector<B> > dv (links);
+  for (int i=0; i<5; i++) {
+    assert (dv[i*2] == v1[i]);
+    assert (dv[i*2+1] == v2[i]);
+  }
+
+  ConstDataVector<DataVector<B> > dv2;
+  dv2.assign (links2);
+  for (int i=0; i<5; i++) {
+    assert (dv2[i*2] == v2[i]);
+    assert (dv2[i*2+1] == v1[i]);
+  }
+}
+
+
+template <class B, class D>
+void test2_elconversions()
+{
+  test2_elconversions1<B,B>();
+  test2_elconversions1<D,D>();
+  test2_elconversions1<B,D>();
+}
+
+
+template <class B, class D>
 void do_test2()
 {
   boost::function_requires<boost::ForwardContainerConcept<DataVector<B> > >();
@@ -5986,6 +6042,7 @@ void do_test2()
   test2_resortaux<B,D> ();
   test2_move<B,D> ();
   test2_offset<B,D> ();
+  test2_elconversions<B,D>();
 }
 
 
