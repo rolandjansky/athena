@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: PropertyMgr.icc 612908 2014-08-21 16:19:03Z krasznaa $
+// $Id: PropertyMgr.icc 689119 2015-08-13 12:38:32Z krasznaa $
 #ifndef ASGTOOLS_PROPERTYMGR_ICC
 #define ASGTOOLS_PROPERTYMGR_ICC
 
@@ -37,7 +37,7 @@ StatusCode PropertyMgr::setProperty( const std::string& name, const T& rval ) {
    // Access the property object:
    Property* pprop = iprop->second;
    // Create a helper property object:
-   std::auto_ptr< Property > pinprop( createProperty( rval ) );
+   std::unique_ptr< Property > pinprop( createProperty( rval ) );
    // Try setting the managed property using the helper property object:
    if( pprop->setFrom( *pinprop ) ) {
       ATH_MSG_ERROR(  "Value assignment failed for " << name );
@@ -62,7 +62,7 @@ StatusCode PropertyMgr::getProperty( const std::string& name,
    // Access the property object:
    Property* pprop = iprop->second;
    // Create a helper property object:
-   std::auto_ptr< Property > pretprop( createProperty( valout ) );
+   std::unique_ptr< Property > pretprop( createProperty( valout ) );
    // Try retrieving the property using the helper property object:
    if( pretprop->setFrom( *pprop ) ) {
       ATH_MSG_ERROR(  "Value retrieval failed for " << name );

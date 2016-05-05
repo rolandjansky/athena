@@ -1,4 +1,4 @@
-// $Id: AsgTool.cxx 620407 2014-10-07 13:40:28Z krasznaa $
+// $Id: AsgTool.cxx 745116 2016-05-05 15:59:32Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -7,12 +7,65 @@
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolStore.h"
 
+#ifdef ASGTOOL_ATHENA
+
+
+namespace asg {
+
+// Helpers to pack/unpack the PTR#TYPE/NAME string set up by the macros
+// in AsgToolMacros.h.
+
+std::string ptrToString (const void* p)
+{
+  char buf[80];
+  snprintf (buf, 80, "%p", p);
+  return buf;
+}
+
+std::string getType (const std::string& s)
+{
+  std::string::size_type pos1 = s.find('#');
+  if (pos1 == std::string::npos)
+    pos1 = 0;
+  else
+    ++pos1;
+  std::string::size_type pos2 = s.find('/', pos1);
+  if (pos2 != std::string::npos)
+    return s.substr (pos1, pos2-pos1);
+  return "";
+}
+
+std::string getName (const std::string& s)
+{
+  std::string::size_type pos = s.find('/');
+  if (pos == std::string::npos)
+    return s;
+  return s.substr (pos+1, std::string::npos);
+}
+
+const IInterface* getParent (const std::string& s)
+{
+  std::string::size_type pos = s.find('#');
+  if (pos == std::string::npos)
+    return Gaudi::svcLocator()->service( "ToolSvc" );
+  void* p;
+  std::string ss = s.substr (0, pos);
+  sscanf (ss.c_str(), "%p", &p);
+  if (p != nullptr)
+    return reinterpret_cast<IInterface*>(p);
+  return Gaudi::svcLocator()->service( "ToolSvc" );
+}
+
+} // anonymous namespace
+#endif // ASGTOOL_ATHENA
+
+
 namespace asg {
 
    AsgTool::AsgTool( const std::string& name )
       : AsgToolBase(
 #ifdef ASGTOOL_ATHENA
-                    "", name, Gaudi::svcLocator()->service( "ToolSvc" )
+                    getType(name), getName(name), getParent(name)
 #elif defined(ASGTOOL_STANDALONE)
                     this
 #else
@@ -25,16 +78,18 @@ namespace asg {
    {
 #ifdef ASGTOOL_STANDALONE
       declareProperty( "OutputLevel", msg().mutable_level() );
-      ToolStore::put( this ).ignore(); // Register the tool in the ToolStore
+      
 #endif // ASGTOOL_STANDALONE
+      ToolStore::put( this ).ignore(); // Register the tool in the ToolStore
    }
 
    AsgTool::~AsgTool() {
 
 #ifdef ASGTOOL_STANDALONE
-      ToolStore::remove( this ).ignore(); // Remove the tool from the ToolStore
+      
       delete m_ppropmgr;
 #endif // ASGTOOL_STANDALONE
+      ToolStore::remove( this ).ignore(); // Remove the tool from the ToolStore
    }
 
 #ifdef ASGTOOL_STANDALONE

@@ -1,4 +1,4 @@
-// $Id: AsgMetadataTool.cxx 670266 2015-05-27 15:11:30Z krasznaa $
+// $Id: AsgMetadataTool.cxx 692722 2015-09-02 13:06:02Z krasznaa $
 
 // System include(s):
 #include <stdexcept>
@@ -113,6 +113,7 @@ namespace asg {
       // Set up the right callbacks:
       incSvc->addListener( this, IncidentType::BeginEvent, 0, true );
       incSvc->addListener( this, IncidentType::BeginInputFile, 0, true );
+      incSvc->addListener( this, IncidentType::EndInputFile, 0, true );
       incSvc->addListener( this, IncidentType::MetaDataStop, 70, true );
 
       // Let the base class do its thing:
@@ -135,6 +136,11 @@ namespace asg {
             ATH_MSG_FATAL( "Failed to call beginInputFile()" );
             throw std::runtime_error( "Couldn't call beginInputFile()" );
          }
+      } else if( inc.type() == IncidentType::EndInputFile ) {
+         if( endInputFile().isFailure() ) {
+            ATH_MSG_FATAL( "Failed to call endInputFile()" );
+            throw std::runtime_error( "Couldn't call endInputFile()" );
+         }
       } else if( inc.type() == IncidentType::BeginEvent ) {
          if( beginEvent().isFailure() ) {
             ATH_MSG_FATAL( "Failed to call beginEvent()" );
@@ -155,6 +161,14 @@ namespace asg {
    /// Dummy implementation that can be overridden by the derived tool.
    ///
    StatusCode AsgMetadataTool::beginInputFile() {
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+   /// Dummy implementation that can be overridden by the derived tool.
+   ///
+   StatusCode AsgMetadataTool::endInputFile() {
 
       // Return gracefully:
       return StatusCode::SUCCESS;

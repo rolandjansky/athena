@@ -1,4 +1,4 @@
-// $Id: ut_asgtools_toolstore.cxx 620407 2014-10-07 13:40:28Z krasznaa $
+// $Id: ut_asgtools_toolstore.cxx 671353 2015-06-01 13:33:51Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -27,6 +27,14 @@ int main() {
    // Check that they are found by the store now:
    SIMPLE_ASSERT( asg::ToolStore::get( "dummyTool1" ) != 0 );
    SIMPLE_ASSERT( asg::ToolStore::get( "dummyTool2" ) != 0 );
+   SIMPLE_ASSERT( asg::ToolStore::contains< asg::AsgMetadataTool >( "dummyTool1" ) ==
+                  false );
+   SIMPLE_ASSERT( asg::ToolStore::contains< asg::AsgTool >( "dummyTool1" ) ==
+                  true );
+   SIMPLE_ASSERT( asg::ToolStore::contains< asg::AsgMetadataTool >( "dummyTool2" ) ==
+                  true );
+   SIMPLE_ASSERT( asg::ToolStore::contains< asg::AsgTool >( "dummyTool2" ) ==
+                  true );
 
    // Remove both tools from the store now:
    asg::ToolStore::remove( "dummyTool1" ).ignore();
