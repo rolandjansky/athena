@@ -57,9 +57,6 @@ private:
     /** SG key for TrigTauCluster*/
     std::string m_trigTauClusterKey;
 
-    /** not used */
-    int m_index;
-
     /** EMRadius variable for monitoring */
     double m_EMRadius;
     /** EMRadius3S variable for monitoring */
