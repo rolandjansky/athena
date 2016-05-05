@@ -106,6 +106,9 @@ T2CaloTau::T2CaloTau(const std::string & name, ISvcLocator* pSvcLocator) : T2Cal
     declareMonitoredVariable("AlgorithmErrors",  m_algorithmError);
 
     declareMonitoredStdContainer("Quality", m_quality);
+
+    m_Container = 0;
+
 }
 
 T2CaloTau::~T2CaloTau()
