@@ -184,7 +184,13 @@ HLT::ErrorCode TrigBHremoval::hltExecute(std::vector<std::vector<HLT::TriggerEle
 	msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_minLogRatio << " threshold for the log-ratio cut; logRatio = " << jetRatio << "; skipping this jet." << endreq;
       continue;
     }
+
     int countCaloCell=0;
+//    float min_dPhi=99;
+    //calculate number of cells in line of fire
+    double countCell_layer[4] = {0,0,0,0};
+//    int layer = -1;
+
     //calculate number of cells in line of fire
     for(CaloCellContainer::const_iterator celliter = theCellCont->begin(); celliter != theCellCont->end(); ++celliter){
     //LoF cell selection:
@@ -210,12 +216,20 @@ HLT::ErrorCode TrigBHremoval::hltExecute(std::vector<std::vector<HLT::TriggerEle
 	    if((fabs(t - (z-sqrt(z*z + r*r))/c) < 5.0) || (fabs(t - (-z-sqrt(z*z + r*r))/c) < 5.0)){
 	      msg() << MSG::DEBUG << " cell is tile; cell E = " << (*celliter)->energy() << " cell phi = " << (*celliter)->phi() << " cell eta = " << (*celliter)->eta() << " cell r = " << r << endreq;
 	      
-	          countCaloCell++;
+            if(r<2200){ countCell_layer[0]++;}// layer=0;}
+            else if(r>=2200 && r<2600){ countCell_layer[1]++;}// layer=1;}
+            else if(r>=2600 && r<3100){ countCell_layer[2]++;}//  layer=2;}
+            else if(r>=3100){ countCell_layer[3]++;}//  layer=3;}
+
 	    }
           }
 	}
       }
     }
+
+    for(int i=0; i<4; i++) 
+      if(countCaloCell<countCell_layer[i]) countCaloCell=countCell_layer[i];
+
 
     if (msgLvl() <= MSG::DEBUG)
       msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi <<"; logRatio " << jetRatio << "; LoF Cells " << countCaloCell << endreq;
