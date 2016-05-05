@@ -748,6 +748,12 @@ namespace MC {
 
     //@}
 
+    /// @brief Identify if the particle with given PDG ID would produce ID tracks but not shower in the detector if stable
+    inline bool isChargedNonShowering(int pid) {
+        if (isMuon(pid)) return true;
+        if (isSUSY(pid)) return true; //(meta)stable charginos, R-hadrons etc
+        return false;
+    }
 
   }
 }
