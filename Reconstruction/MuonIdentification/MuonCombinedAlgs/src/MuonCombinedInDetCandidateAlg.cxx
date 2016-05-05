@@ -65,8 +65,7 @@ StatusCode MuonCombinedInDetCandidateAlg::execute()
     }
 
     if( !indetTrackParticles ){ 
-      ATH_MSG_WARNING("InDetTrackParticles tracks not found in StoreGate");
-      return StatusCode::SUCCESS;
+      continue;
     }
 
     InDetCandidateCollection* tempCandidates = new InDetCandidateCollection(SG::VIEW_ELEMENTS);
@@ -77,6 +76,11 @@ StatusCode MuonCombinedInDetCandidateAlg::execute()
     indetCandidateCollection->insert(indetCandidateCollection->end(), tempCandidates->begin(), tempCandidates->end());
 
     delete tempCandidates;
+  }
+
+  if(!indetCandidateCollection){
+    ATH_MSG_WARNING("InDetTrackParticles tracks not found in StoreGate");
+    return StatusCode::SUCCESS;
   }
 
   if(evtStore()->record(indetCandidateCollection,m_candidateCollectionName).isFailure()) {

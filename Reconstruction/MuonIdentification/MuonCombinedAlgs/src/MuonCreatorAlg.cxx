@@ -28,6 +28,7 @@ MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("SlowMuonContainerLocation",m_slowMuonCollectionName = "SlowMuons" );
   declareProperty("CombinedLocation", m_combinedCollectionName = "CombinedMuon" );
   declareProperty("ExtrapolatedLocation", m_extrapolatedCollectionName = "ExtrapolatedMuon" );
+  declareProperty("MSOnlyExtrapolatedLocation", m_msOnlyExtrapolatedCollectionName = "MSOnlyExtrapolatedMuon" );
   declareProperty("InDetCandidateLocation",m_indetCandidateCollectionName = "InDetCandidates" );
   declareProperty("MuonCandidateLocation", m_muonCandidateCollectionName = "MuonCandidates" );
   declareProperty("SegmentContainerName", m_segContainerName = "MuonSegments" );
@@ -94,6 +95,9 @@ StatusCode MuonCreatorAlg::execute()
 
   // extrapolated tracks
   ATH_CHECK(createAndRecord(output.extrapolatedTrackParticleContainer,output.extrapolatedTrackCollection,m_extrapolatedCollectionName));
+
+  //MS-only extrapolated tracks
+  ATH_CHECK(createAndRecord(output.msOnlyExtrapolatedTrackParticleContainer,output.msOnlyExtrapolatedTrackCollection,m_msOnlyExtrapolatedCollectionName));
 
   // segments
   ATH_CHECK(createAndRecordSegments(output.xaodSegmentContainer,output.muonSegmentCollection,m_segContainerName));
