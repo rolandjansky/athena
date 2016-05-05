@@ -89,7 +89,8 @@ namespace TrigCostRootAnalysis {
         const std::string _algType = TrigConfInterface::getHLTAlgClassNameFromSeqIDAndAlgPos( _seqIndex, _seqAlgPos );
         Int_t _seqAlgNameHash = TrigConfInterface::getHLTAlgClassNameIDFromSeqIDAndAlgPos( _seqIndex, _seqAlgPos );
 
-        const std::string _chainGroup = ( TrigConfInterface::getNHLTGroupNamesFromChainID( _chainID ) > 0 ? TrigConfInterface::getHLTGroupNameFromChainID(_chainID, 0) : "");
+        // Not currently used, save some CPU
+        const std::string _chainGroup = ""; // ( TrigConfInterface::getNHLTGroupNamesFromChainID( _chainID ) > 0 ? TrigConfInterface::getHLTGroupNameFromChainID(_chainID, 0) : "");
 
         m_algsInEvent.push_back( AlgsInEvent(_algName, _algType, _seqName, _chainName, _chainGroup, _seqAlgNameHash, _s, _a) );
 

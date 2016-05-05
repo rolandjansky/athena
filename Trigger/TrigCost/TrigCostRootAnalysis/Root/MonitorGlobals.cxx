@@ -140,13 +140,21 @@ namespace TrigCostRootAnalysis {
     }
 
     if ( _isAPrediction == kTRUE ) {
-      _toSave.push_back( TableColumnFormatter("Predicted HLT Cores Required",
+      _toSave.push_back( TableColumnFormatter("Predicted HLT Cores From Algs",
         "Approximated by Total HLT Algorithm Time / Effective Lumi Block Length",
         &tableFnGlobalGetHLTNodePrediction, 2) );
 
-      _toSave.push_back( TableColumnFormatter("Predicted Cores Err",
+      _toSave.push_back( TableColumnFormatter("Predicted Cores (Algs) Err",
         "sqrt(sumW2 AlgTime) / Effective Lumi Block Length",
         &tableFnGlobalGetHLTNodePredictionErr, 2) );
+
+      _toSave.push_back( TableColumnFormatter("Predicted HLT Cores From Steering",
+        "Approximated by Total HLT Algorithm Time / Effective Lumi Block Length",
+        &tableFnGlobalGetHLTNodePredictionSteering, 2) );
+
+      _toSave.push_back( TableColumnFormatter("Predicted Cores (Steer) Err",
+        "sqrt(sumW2 AlgTime) / Effective Lumi Block Length",
+        &tableFnGlobalGetHLTNodePredictionErrSteering, 2) );
     } else {
       _toSave.push_back( TableColumnFormatter("Farm Usage from Steering (%)",
         "Approximated by Total HLT Steering Time / (Lumi Block Length * N HLT PUs)",

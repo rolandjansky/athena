@@ -171,8 +171,8 @@ namespace TrigCostRootAnalysis {
     kCurrentEventEBWeight,
     kCurrentEventWasRandomOnline, // <BEGIN> Monitors - ORDERING IS IMPORTANT HERE
     kMonitorBegin, //!< This entry must be first (used in loops elsewhere). The rest of the monitors can technically come in any order, and new ones may be added
-    kDoRatesMonitor, //<! Keep me first, breaks the partitioning (to be fixed :( ) but other monitors can read from this one
     kDoRatesUpgradeMonitor,
+    kDoRatesMonitor, //<! Keep RATES first, breaks the partitioning (to be fixed :( ) but other monitors can read from this one. TODO - this is no longer true?
     kDoChainMonitor,
     kDoChainAlgorithmMonitor,
     kDoSequenceMonitor,
@@ -397,6 +397,7 @@ namespace TrigCostRootAnalysis {
     kDecLbLength,
     kDecType,
     kDecID,
+    kDecComment,
     kDecIsCPS,
     kDecDoExpressChain,
     kDecElapsedTime,
@@ -430,6 +431,7 @@ namespace TrigCostRootAnalysis {
     kMsgNewUniqueCounter,
     kMsgLumiScaling,
     kMsgNoTETOB,
+    kMsgNoGroup,
     kConfKey_SIZE //!<  END of config. ENUM keysNumber of configuration keys - keep me as last entry
   };
 

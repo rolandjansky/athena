@@ -14,6 +14,7 @@
 #include <iostream>
 #include <assert.h>
 #include <sstream>
+#include <cmath>
 #include <stdlib.h>
 #include <algorithm> //find
 
@@ -51,6 +52,7 @@ namespace TrigCostRootAnalysis {
       m_prescalSetName(),
       m_serviceEnabled(kFALSE),
       m_hasExpressPrescaleInfo(kFALSE),
+      m_hasComments(kFALSE),
       m_eventsPerBGCounter(),
       m_unbiasedPerBGCounter(),
       m_weightsServiceEnabled(kFALSE),
@@ -131,7 +133,7 @@ namespace TrigCostRootAnalysis {
    * @return Ratio of (predictionLumi / runLumi), or 1 if insufficient/obviously wrong infomration present.
    */
   Float_t  TrigXMLService::getLumiExtrapWeight() {
-    Config::config().setFloat(kLumiExtrapWeight, 1., "FinalLumiExtrapWeight", kUnlocked); // This should be overwritten with the real weight below
+
 
     // Do we know the effective L of the run? If not return 1.
     if ( !Config::config().getIsSet(kRunLumi) && !Config::config().getIsSet(kRunLumiXML) ) {
@@ -191,20 +193,14 @@ namespace TrigCostRootAnalysis {
       Float_t _lumiScaling = _predictionLumi / _runLumi;
       Float_t _targetMu = Config::config().getFloat(kTargetPeakMuAverage);
       Float_t _onlineMu = Config::config().getFloat(kOnlinePeakMuAverage);
-      Float_t _muScaling = _targetMu / _onlineMu;
-      if (_muScaling >= _lumiScaling) { // The scaling from pileup must be smaller than the total scaling
-        Error("TrigXMLService::getLumiExtrapWeight", "Cannot have a --targetMu of %.2f (would give factor %.2f increase in lumi) when the requested lumi extrapolation to L %.2f is only a factor %.2f. Choose a larger extrapolation lumi or reduce targetMu.",
-          _targetMu, _muScaling, _predictionLumi, _lumiScaling);
-        abort();
-      }
-      Float_t _lumiMuScaling = _muScaling;// / _muScaling;
-      Float_t _lumiBunchScaling = _lumiScaling / _lumiMuScaling;//- _lumiMuScaling;
-      Int_t _targetBunches = (Int_t) (m_bunchGroupXML[1].second * _lumiBunchScaling);
+      Float_t _lumiMuScaling = _targetMu / _onlineMu;
+      Float_t _lumiBunchScaling = _lumiScaling / _lumiMuScaling;
+      Int_t _targetBunches = (Int_t) std::round(m_bunchGroupXML[1].second * _lumiBunchScaling);
       Info("TrigXMLService::getLumiExtrapWeight", "Using targetMu setting %.2f. <mu> scaling factor: %.2f->%.2f = %.2f. Bunch scaling factor: %i->%i = %.2f. Total lumi scaling factor = %.2f",
         _targetMu, _onlineMu, _targetMu, _lumiMuScaling, m_bunchGroupXML[1].second, _targetBunches, _lumiBunchScaling, _lumiScaling);
       Info("TrigXMLService::getLumiExtrapWeight", "The targetMu setting allows for the rates prediction to properly extrapolate random seeded chains. Otherwise their rates are overestimated.");
-      if (_targetBunches > 2808) {
-        Warning("TrigXMLService::getLumiExtrapWeight", "To get to L=%.2f with a --targetMu of %.2f requires %i bunches. This is more than the maximum the LHC can suport, 2808!",
+      if (_targetBunches > 2830 || _targetBunches < 1) {
+        Warning("TrigXMLService::getLumiExtrapWeight", "To get to L=%.2e with a --targetMu of %.2f requires %i bunches. A full ring is 2808!",
           _predictionLumi, _targetMu, _targetBunches);
       }
       // Write info
@@ -212,10 +208,7 @@ namespace TrigCostRootAnalysis {
       Config::config().setFloat(kPredictionLumiFinalMuComponent, _lumiMuScaling, "PredictionLumiFinalMuComponent");
       Config::config().setFloat(kPredictionLumiFinalBunchComponent, _lumiBunchScaling, "PredictionLumiFinalBunchComponent");
       Config::config().set(kTargetPairedBunches, _targetBunches, "TargetPairedBunches");
-    } else {
-      Config::config().set(kDoAdvancedLumiScaling, 0, "DoAdvancedLumiScaling");
     }
-
 
     Float_t _scalingFactor = _predictionLumi / _runLumi;
     _scalingFactor *= 1 + _onlineDeadtime;
@@ -492,6 +485,9 @@ namespace TrigCostRootAnalysis {
             m_chainPSEff[_chainName] = stringToFloat( _xml->GetNodeContent(_sigDetailsNode) );
           } else if (_detail == "prescaled_efficiency_error") {
             m_chainPSEffErr[_chainName] = stringToFloat( _xml->GetNodeContent(_sigDetailsNode) );
+          } else if (_detail == "comment") {
+            m_chainComment[_chainName] = _xml->GetNodeContent(_sigDetailsNode);
+            m_hasComments = kTRUE;
           }
 
           _sigDetailsNode = _xml->GetNext(_sigDetailsNode);
@@ -657,19 +653,34 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * @return  the number of bunch groups loaded in XML
+   * @return If the file has at least some express stream prescales
    */
   Bool_t TrigXMLService::hasExpressPrescaleInfo() {
     return m_hasExpressPrescaleInfo;
   }
 
   /**
+   * @return if the file has at least some comments on some chains
+   */
+  Bool_t TrigXMLService::hasChainComments() {
+    return m_hasComments;
+  }
+
+  /**
    * @return  the number of bunch groups loaded in XML
    */
   Double_t TrigXMLService::getExpressPrescaleInfo(const std::string& _name) {
+    if (m_chainExpressPS.count(_name) == 0) return -1.;
     return m_chainExpressPS[_name];
   }
 
+  /**
+   * @return  the comment on the chain, if any
+   */
+  std::string TrigXMLService::getChainComment(const std::string& _name) {
+    if (m_chainComment.count(_name) == 0) return "";
+    return m_chainComment[_name];
+  }
 
   /**
    * @return the name of a bunch group loaded from the run XML

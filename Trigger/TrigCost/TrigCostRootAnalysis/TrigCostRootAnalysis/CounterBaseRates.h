@@ -53,6 +53,7 @@ namespace TrigCostRootAnalysis {
     void   setMyUniqueCounter( CounterBaseRates* _c ) { m_myUniqueCounter = _c; }
     void   setGlobalRateCounter(CounterBaseRates* _c) { m_globalRates = _c; }
     void   setLowerGlobalRateCounter(CounterBaseRates* _c) { m_lowerGlobalRates = _c; }
+    void   setAdvancedLumiScaling(Bool_t _set) { m_advancedLumiScaling = _set; }
 
     Bool_t getInEvent();
 
@@ -88,6 +89,7 @@ namespace TrigCostRootAnalysis {
     Bool_t             m_doDirectPS;     //!< If we are applying prescales directly (not with weights)
     Double_t           m_cachedWeight;   //!< Holds the most recently calculated weight. Used so other chains can get the global monitor's weight for the current event.
     Bool_t             m_alwaysDoExpressPS; //!< Used only by the RATE_EPRESS monitor to always use the chain's EXPRESS prescale when calculating the rates for the monitor
+    Bool_t             m_advancedLumiScaling; //!< If true, apply the per-chain advanced lumi scaling method to get RD seeded chains correct
     StringSet_t        m_myCPSChains;    //!< HLT chains in my group (if I'm a group) Used by the coherent prescale logic.
     Double_t           m_eventLumiExtrapolation; //!< Filled during runWeight(), this is the weighted average L extrapolation factor to use for this counter.
 

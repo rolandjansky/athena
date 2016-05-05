@@ -188,6 +188,8 @@ namespace TrigCostRootAnalysis {
       }
     }
 
+    for (const auto _chainItem : m_chainItemsL1)  _chainItem.second->classifyLumiAndRandom(); // should not be needed, do different lumi scaling here
+    for (const auto _chainItem : m_chainItemsL2)  _chainItem.second->classifyLumiAndRandom();
   }
 
   /**
@@ -213,6 +215,7 @@ namespace TrigCostRootAnalysis {
     m_globalRateL3Counter->decorate(kDecRatesGroupName, Config::config().getStr(kAllString));
     m_globalRateL3Counter->decorate(kDecPrescaleValOnlineL1, (Float_t)0);
     m_globalRateL3Counter->decorate(kDecType, "Union");
+    m_globalRateL3Counter->setAdvancedLumiScaling(kFALSE);
     (*_counterMap)[Config::config().getStr(kRateGlobalHLTString)] = static_cast<CounterBase*>(m_globalRateL3Counter);
 
     // Crate the global L2 counter, this will be the OR of everything L2
@@ -221,6 +224,7 @@ namespace TrigCostRootAnalysis {
     m_globalRateL2Counter->decorate(kDecRatesGroupName, Config::config().getStr(kAllString));
     m_globalRateL2Counter->decorate(kDecPrescaleValOnlineL1, (Float_t)0);
     m_globalRateL2Counter->decorate(kDecType, "Union");
+    m_globalRateL2Counter->setAdvancedLumiScaling(kFALSE);;
     (*_counterMap)[Config::config().getStr(kRateGlobalL2String)] = static_cast<CounterBase*>(m_globalRateL2Counter);
 
     // Crate the global L1 counter, this will be the OR of everything L1
@@ -229,6 +233,7 @@ namespace TrigCostRootAnalysis {
     m_globalRateL1Counter->decorate(kDecRatesGroupName, Config::config().getStr(kAllString));
     m_globalRateL1Counter->decorate(kDecPrescaleValOnlineL1, (Float_t)0);
     m_globalRateL1Counter->decorate(kDecType, "Union");
+    m_globalRateL1Counter->setAdvancedLumiScaling(kFALSE);
     (*_counterMap)[Config::config().getStr(kRateGlobalL1String)] = static_cast<CounterBase*>(m_globalRateL1Counter);
   }
 
@@ -260,6 +265,7 @@ namespace TrigCostRootAnalysis {
       _L1Chain->decorate(kDecRatesGroupName, _group );
       _L1Chain->decorate(kDecPrescaleStr, _prescaleStr);
       _L1Chain->decorate(kDecType, "L1");
+      _L1Chain->setAdvancedLumiScaling(kFALSE);
       _L1Chain->addL1Item( _chainItemL1 ); // Link it to where it'll be getting its pass/fail info
       (*_counterMap)[_chainName] = static_cast<CounterBase*>(_L1Chain); // Insert into the counterMap
       Info("MonitorRatesUpgrade::createL1Counters","Made a L1 counter for: %s", _L1Chain->getName().c_str() );
@@ -279,6 +285,7 @@ namespace TrigCostRootAnalysis {
         _ratesGroup->decorate(kDecPrescaleVal, (Float_t)0.);
         _ratesGroup->decorate(kDecRatesGroupName, _item.m_group);
         _ratesGroup->decorate(kDecType, "Union");
+        _ratesGroup->setAdvancedLumiScaling(kFALSE);
         _ratesGroup->addL1Item( _chainItemL1 ); // Add initial counter
         (*_counterMap)[_group] = static_cast<CounterBase*>(_ratesGroup); // Instert into the map
       }
@@ -328,6 +335,7 @@ namespace TrigCostRootAnalysis {
         _ratesGroup->decorate(kDecPrescaleVal, (Float_t)0.);
         _ratesGroup->decorate(kDecRatesGroupName, _group);
         _ratesGroup->decorate(kDecType, "Union");
+        _ratesGroup->setAdvancedLumiScaling(kFALSE);
         _ratesGroup->addL1Item( _chainItemL2 ); // Add initial counter
         (*_counterMap)[_group] = static_cast<CounterBase*>(_ratesGroup); // Instert into the map
       }
@@ -514,7 +522,7 @@ namespace TrigCostRootAnalysis {
       for (; _it != _counterMap->end(); ++_it) {
         _it->second->processEventCounter(0, 1, _weightUpgrade);
       }
-      if (m_upgradePileupScaling == kFALSE) validateTriggerEmulation(_counterMap, _thisEvent, kFALSE /*print*/);
+      if (m_upgradePileupScaling == kFALSE && 0) validateTriggerEmulation(_counterMap, _thisEvent, kFALSE /*print*/);
     }
 
     for (const auto _chainItem : m_chainItemsL1) _chainItem.second->endEvent();

@@ -45,7 +45,8 @@ namespace TrigCostRootAnalysis {
     m_doSacleByPS(0),
     m_doDirectPS(0),
     m_cachedWeight(0),
-    m_alwaysDoExpressPS(kFALSE)
+    m_alwaysDoExpressPS(kFALSE),
+    m_advancedLumiScaling(kTRUE)
   {
 
       if (m_detailLevel == 0) m_dataStore.setHistogramming(kFALSE);
@@ -103,7 +104,7 @@ namespace TrigCostRootAnalysis {
 
     // WEIGHTED Prescale
     Double_t _weightPS = runWeight(m_alwaysDoExpressPS); // alwaysDoExpressPS is *only* for the express group
-    Double_t _weightLumi = getLumiExtrapolationFactor(); // This is calculated by runWeight()
+    Double_t _weightLumi = m_advancedLumiScaling == kTRUE ? getLumiExtrapolationFactor() : 1.; // This is calculated by runWeight()
     if (!isZero( _weightPS )) {
       m_dataStore.store(kVarEventsPassed, 1., _weightPS * _weight * _weightLumi * _scaleByPS); // Chain passes with weight from PS as a float 0-1. All other weights inc.
       //m_dataStore.store(kVarEventsPerLumiblock, m_costData->getLumi(), (_weightPS * _weight * _scaleByPS)/((Float_t)m_costData->getLumiLength()) );

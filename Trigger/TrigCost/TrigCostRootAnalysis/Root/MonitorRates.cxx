@@ -185,6 +185,7 @@ namespace TrigCostRootAnalysis {
     m_globalRateHLTCounter->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
     m_globalRateHLTCounter->decorate(kDecRatesGroupName, Config::config().getStr(kAllString));
     m_globalRateHLTCounter->decorate(kDecPrescaleValOnlineL1, (Float_t)0);
+    m_globalRateHLTCounter->decorate(kDecComment, "");
     m_globalRateHLTCounter->decorate(kDecType, "Union");
 
     // I will be the OR of everything which has a stream tag of Main
@@ -192,6 +193,7 @@ namespace TrigCostRootAnalysis {
     m_globalRatePhysicsMainCounter->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
     m_globalRatePhysicsMainCounter->decorate(kDecRatesGroupName, Config::config().getStr(kAllString));
     m_globalRatePhysicsMainCounter->decorate(kDecPrescaleValOnlineL1, (Float_t)0);
+    m_globalRatePhysicsMainCounter->decorate(kDecComment, "");
     m_globalRatePhysicsMainCounter->decorate(kDecType, "Union");
 
     // Crate the global L1 counter, this will be the OR of everything L1
@@ -199,6 +201,7 @@ namespace TrigCostRootAnalysis {
     m_globalRateL1Counter->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
     m_globalRateL1Counter->decorate(kDecRatesGroupName, Config::config().getStr(kAllString));
     m_globalRateL1Counter->decorate(kDecPrescaleValOnlineL1, (Float_t)0);
+    m_globalRateL1Counter->decorate(kDecComment, "");
     m_globalRateL1Counter->decorate(kDecType, "Union");
   }
 
@@ -237,6 +240,7 @@ namespace TrigCostRootAnalysis {
       const UInt_t _chainID = TrigConfInterface::getChainCounter(_i);
       const std::string _chainName = TrigConfInterface::getChainName(_i);
       const std::string _uniqueName = Config::config().getStr(kRateUniqueString) + _chainName;
+      const std::string _comment = TrigXMLService::trigXMLService().getChainComment(_chainName);
 
       if ( checkPatternNameMonitor( _chainName, m_invertFilter ) == kFALSE ) continue;
 
@@ -266,6 +270,7 @@ namespace TrigCostRootAnalysis {
             _thisChainsUniqueCounter->decorate(kDecPrescaleStr, _prescaleStr);
             _thisChainsUniqueCounter->decorate(kDecPrescaleVal, (Float_t)_prescaleVal);
             _thisChainsUniqueCounter->decorate(kDecPrescaleValOnlineL1, (Float_t)_prescaleValOnlineL1);
+            _thisChainsUniqueCounter->decorate(kDecComment, _comment);
             continue; // I'm the unique counter for *this* chain - *don't* add me!
           }
           _counter->addL1Item( _chainItemL1 ); // Add *all other* L1 items [remember unique = global - (global except for one chain)]
@@ -277,6 +282,7 @@ namespace TrigCostRootAnalysis {
       _L1Chain->decorate(kDecPrescaleStr, _prescaleStr);
       _L1Chain->decorate(kDecPrescaleVal, (Float_t)_prescaleVal);
       _L1Chain->decorate(kDecPrescaleValOnlineL1, _prescaleValOnlineL1);
+      _L1Chain->decorate(kDecComment, _comment);
       _L1Chain->decorate(kDecType, "L1");
       _L1Chain->addL1Item( _chainItemL1 ); // Link it to where it'll be getting its pass/fail info
       _L1Chain->setMyUniqueCounter( _thisChainsUniqueCounter ); // Link it to its corresponding unique counter.
@@ -299,7 +305,6 @@ namespace TrigCostRootAnalysis {
         const UInt_t _chainID = TrigConfInterface::getChainCounter(_i);
         const std::string _chainName = TrigConfInterface::getChainName(_i);
         const std::string _uniqueName = Config::config().getStr(kRateUniqueString) + _chainName;
-
         if ( checkPatternUnique( _chainName, kFALSE ) == kFALSE ) continue; // In the list of unique counters?
         if ( checkPatternNameMonitor( _chainName, m_invertFilter ) == kFALSE ) continue;
 
@@ -336,6 +341,7 @@ namespace TrigCostRootAnalysis {
 
       const UInt_t _chainID = TrigConfInterface::getChainCounter(_i);
       const std::string _chainName = TrigConfInterface::getChainName(_i);
+      const std::string _comment = TrigXMLService::trigXMLService().getChainComment(_chainName);
       const std::string _uniqueName = Config::config().getStr(kRateUniqueString) + _chainName;
       const std::vector<std::string> _chainGroups = TrigConfInterface::getChainRatesGroupNames(_i);
       std::string _chainGroupsText = "";
@@ -403,6 +409,7 @@ namespace TrigCostRootAnalysis {
             _thisChainsUniqueCounter->decorate(kDecPrescaleStr, _prescaleStr);
             _thisChainsUniqueCounter->decorate(kDecPrescaleVal, _prescaleVal);
             _thisChainsUniqueCounter->decorate(kDecPrescaleValOnlineL1, _prescaleValOnlineL1);
+            _thisChainsUniqueCounter->decorate(kDecComment, _comment);
             continue; // I'm the unique counter for *this* chain - *don't* add me!
           }
           // Chain *may* be part of a CPS group
@@ -431,6 +438,7 @@ namespace TrigCostRootAnalysis {
       _ratesChain->decorate(kDecPrescaleStr, _prescaleStr);
       _ratesChain->decorate(kDecPrescaleVal, _prescaleVal);
       _ratesChain->decorate(kDecPrescaleValOnlineL1, _prescaleValOnlineL1);
+      _ratesChain->decorate(kDecComment, _comment);
       _ratesChain->decorate(kDecType, "Chain");
       _ratesChain->setMyUniqueCounter( _thisChainsUniqueCounter ); // Link it to its corresponding unique counter.
       _ratesChain->setGlobalRateCounter(m_globalRateHLTCounter);
@@ -483,6 +491,7 @@ namespace TrigCostRootAnalysis {
       _ratesCpsGroup->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
       _ratesCpsGroup->decorate(kDecPrescaleVal, (Float_t)0.);
       _ratesCpsGroup->decorate(kDecPrescaleValOnlineL1, (Float_t)0.);
+      _ratesCpsGroup->decorate(kDecComment, "");
       _ratesCpsGroup->decorate(kDecRatesGroupName, _chainCPSGroup);
       _ratesCpsGroup->decorate(kDecType, "Union");
       _ratesCpsGroup->setGlobalRateCounter(m_globalRateHLTCounter);
@@ -506,6 +515,7 @@ namespace TrigCostRootAnalysis {
       _expressGroup->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
       _expressGroup->decorate(kDecRatesGroupName, Config::config().getStr(kAllString));
       _expressGroup->decorate(kDecPrescaleValOnlineL1, (Float_t)0);
+      _expressGroup->decorate(kDecComment, "");
       _expressGroup->decorate(kDecType, "Union");
       (*_counterMap)[Config::config().getStr(kRateExpressString)] = static_cast<CounterBase*>(_expressGroup); // Instert into the map
     }
@@ -560,6 +570,7 @@ namespace TrigCostRootAnalysis {
           _ratesGroup->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
           _ratesGroup->decorate(kDecPrescaleVal, (Float_t)0.);
           _ratesGroup->decorate(kDecPrescaleValOnlineL1, (Float_t)0.);
+          _ratesGroup->decorate(kDecComment, "");
           _ratesGroup->decorate(kDecRatesGroupName, _chainGroup);
           _ratesGroup->decorate(kDecType, "Union");
           _ratesGroup->setGlobalRateCounter(m_globalRateHLTCounter);
@@ -625,6 +636,7 @@ namespace TrigCostRootAnalysis {
         CounterRatesIntersection* _overlapCounter = new CounterRatesIntersection(m_costData, _name, 0, 10, (MonitorBase*)this); // Mint new counter
         _overlapCounter->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
         _overlapCounter->decorate(kDecPrescaleValOnlineL1, (Float_t)0.);
+        _overlapCounter->decorate(kDecComment, "");
         _overlapCounter->decorate(kDecRatesGroupName, _counterA->getStrDecoration(kDecRatesGroupName));
         _overlapCounter->decorate(kDecType, "Intersection");
         _overlapCounter->addL2Items( _counterA->getL2ItemSet() );
@@ -985,6 +997,12 @@ namespace TrigCostRootAnalysis {
     _toSaveTable.push_back( TableColumnFormatter("Pass Weighted PS",
       "Number of events this chain or combination passed after applying prescales as weighting factors.",
       kVarEventsPassed, kSavePerCall, 4 ) );
+
+    if (TrigXMLService::trigXMLService().hasChainComments() == kTRUE) {
+      _toSaveTable.push_back( TableColumnFormatter("Comment",
+        "Comment from the rulebook.",
+        kDecComment, kSavePerCall, 0, kFormatOptionUseStringDecoration) );
+    }
 
 
 

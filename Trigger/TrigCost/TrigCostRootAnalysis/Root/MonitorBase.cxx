@@ -125,7 +125,7 @@ namespace TrigCostRootAnalysis {
     DBKey _key = TrigConfInterface::getCurrentDBKey();
 
     if (m_currentCollectionLBNumber == _lumiBlockNumber && m_currentDBKey == _key) {
-      // We do not need to recalculate the list of counter collections, but do still need to account for the lumi
+      // We do not need to recalculate the list of counter collections, but do still need to account for the lumi bookkeeping
       for (std::set<std::string>::const_iterator _it = m_collectionsToProcessNames.begin(); _it != m_collectionsToProcessNames.end(); ++_it) {
         recordLumi( *_it, _lumiBlockNumber, _lumiLength);
       }
@@ -199,7 +199,8 @@ namespace TrigCostRootAnalysis {
       } else { // seen this one before
 
         // Check LB range
-        if (Int_t(_lumiBlockNumber - m_perKeySummaryLBStart[ _key ]) >= Config::config().getInt(kNLbPerHLTConfig)) {
+        Int_t _diff = _lumiBlockNumber - m_perKeySummaryLBStart[ _key ];
+        if (_diff < 0 || _diff >= Config::config().getInt(kNLbPerHLTConfig)) {
           _doKeySummaryDesicion = kFALSE;
         }
 

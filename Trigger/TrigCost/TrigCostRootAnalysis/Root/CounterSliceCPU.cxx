@@ -60,10 +60,11 @@ namespace TrigCostRootAnalysis {
    * @param _weight Event weight.
    */
   void CounterSliceCPU::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
+    UNUSED(_f);
     ++m_calls;
 
     m_dataStore.store(kVarCalls, 1., _weight);
-    m_dataStore.store(kVarTime, m_costData->getSeqAlgTimer(_e, _f), _weight);
+    m_dataStore.store(kVarTime, m_costData->getChainTimerFromSequences(_e), _weight);
   }
 
   /**

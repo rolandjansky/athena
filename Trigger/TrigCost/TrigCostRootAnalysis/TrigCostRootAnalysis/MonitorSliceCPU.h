@@ -17,7 +17,6 @@
 
 // Local include(s):
 #include "MonitorBase.h"
-#include "MonitorAlgorithmCommon.h"
 
 namespace TrigCostRootAnalysis {
 
@@ -28,7 +27,7 @@ namespace TrigCostRootAnalysis {
    * @class MonitorSliceCPU
    * Keep track of CPU usage per chain
    */
-  class MonitorSliceCPU : public MonitorBase, public MonitorAlgorithmCommon {
+  class MonitorSliceCPU : public MonitorBase {
   
    public:
    

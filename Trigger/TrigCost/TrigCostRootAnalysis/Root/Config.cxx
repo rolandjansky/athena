@@ -160,7 +160,7 @@ namespace TrigCostRootAnalysis {
     std::string _prescaleXML1 = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
     std::string _prescaleXML2 = "";
     std::string _ROSXML = "rob-ros-robin-2015.xml";
-    std::string _version = "TrigCostRootAnalysis-00-09-02";
+    std::string _version = "TrigCostRootAnalysis-00-09-05";
     std::string _upgradeScenario = "";
     std::string _jira = "";
     Int_t _lbBegin = INT_MIN;
@@ -317,7 +317,8 @@ namespace TrigCostRootAnalysis {
         {"upgradeScenario",        required_argument, 0,                      'm'},
         {"messageWait",            required_argument, 0,                      'z'},
         {"jira",                   required_argument, 0,                      'Z'},
-        {"targetMu",               required_argument, 0,                      '0'},
+        {"targetMu",               required_argument, 0,                      '0'}, // allow either
+        {"predictionMu",           required_argument, 0,                      '0'}, // allow either
         {0, 0, 0, 0}
       };
 
@@ -1143,7 +1144,7 @@ namespace TrigCostRootAnalysis {
     set(kPatternsExactMatch, _patternsExactMatch, "PatternsExactMatch");
     set(kIgnoreNonPhysBunchGroups, _ignoreNonPhysBunchGroups, "IgnoreNonPhyBunchgroups");
     set(kNoLBRescaling, _noLBRescaling, "NoLBRescaling");
-    setFloat(kTargetPeakMuAverage, _targetMu, "TargetMu");
+    setFloat(kTargetPeakMuAverage, _targetMu, "TargetMu", kUnlocked);
 
     set(kMaxMultiSeed, _maxMultiSeed, "MaxMultiSeed");
     if (_runNumber != 0) set(kRunNumber, _runNumber, "RunNucmber");
@@ -1253,6 +1254,8 @@ namespace TrigCostRootAnalysis {
     set(kUpgradeEMCountsPerGeV, 2, "UpgradeEMCountsPerGeV");
     set(kUpgradeJetCountsPerGeV, 1, "UpgradeJetCountsPerGeV");
     set(kUpgradeJetLargeWindow, 1, "UpgradeJetLargeWindow");
+    setFloat(kLumiExtrapWeight, 1., "FinalLumiExtrapWeight", kUnlocked); // This should be overwritten with the real weight later
+    set(kDoAdvancedLumiScaling, 0, "DoAdvancedLumiScaling", kUnlocked); // This should be overwritten if decided it is enabled
 
     // Maximum number of certain messages to show
     setDisplayMsg(kMsgDivZero, 5, "Division by zero");
@@ -1276,6 +1279,7 @@ namespace TrigCostRootAnalysis {
     setDisplayMsg(kMsgLumiScaling, 1, "No XML to do partial run scaling (only important if processing an EB run)");
     setDisplayMsg(kMsgNoTETOB, 5, "Event did not contain any Total Energy TOB");
     setDisplayMsg(kMsgDupeTOB, 5, "Event contained multiple TOBs with the same ID");
+    setDisplayMsg(kMsgNoGroup, 5, "Chain had no BW group associated with it");
 
     // Const strings literals to be referenced throughout
     set(kL0String,"L0");
