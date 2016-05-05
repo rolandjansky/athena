@@ -31,11 +31,14 @@
 
 class StoreGateSvc;
 class TH1F;
-
+class AtlasDetectorID;
+class Identifier;
+class PixelID;
+ 
 
 namespace Trk {
   class ITrackParticleCreatorTool;
-  //  class IPRD_AssociationTool;
+  class IResidualPullCalculator;
 }
 
 
@@ -59,9 +62,13 @@ namespace InDet
     void ResetMon();
     void FillMonPerTrack(const xAOD::TrackParticle *, const double&, const double&);
     void FillMonPerRoi(const TrigRoiDescriptor* , const double&, const double&);
+    void fillIBLResidual(const Trk::Track *track);
 
   private:
     ToolHandle< Trk::ITrackParticleCreatorTool > m_particleCreatorTool;
+    ToolHandle< Trk::IResidualPullCalculator > m_residualCalc;
+    const AtlasDetectorID* m_idHelper;
+    const PixelID* m_pixelId;
 
     const TrackCollection*       m_tracks;
 
@@ -112,6 +119,11 @@ namespace InDet
     float                       m_dqm_ta_sum_ch;  //+++ Charge sum all tracks
     float                       m_dqm_ta_asy_ch;  //+++ Charge asymmetry all tracks
     float                       m_dqm_ta_m;       //+++ Inv mass all tracks
+
+    //
+    std::vector<float>          m_dqm_ibl_z;         //IBL coordinate along z 
+    std::vector<float>          m_dqm_ibl_res_x;
+    std::vector<float>          m_dqm_ibl_res_y;
 
   };
 

@@ -21,6 +21,12 @@ use Particle        Particle-*            Reconstruction
 use TrkToolInterfaces  TrkToolInterfaces-*  Tracking/TrkTools
 use xAODTracking                xAODTracking-*                  Event/xAOD
 
+#residual tool
+use AtlasDetDescr        AtlasDetDescr*            DetectorDescription 
+use IdDictDetDescr       IdDictDetDescr*           DetectorDescription 
+use InDetIdentifier      InDetIdentifier-*         InnerDetector/InDetDetDescr
+use Identifier           Identifier-*              DetectorDescription
+
 #linkage of TrigStorage
 use TrigParticle        TrigParticle-*          Trigger/TrigEvent
 use TrkTrackSummary     TrkTrackSummary-*       Tracking/TrkEvent

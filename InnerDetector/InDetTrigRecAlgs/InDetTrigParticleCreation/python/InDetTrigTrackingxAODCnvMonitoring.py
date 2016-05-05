@@ -95,7 +95,32 @@ class InDetTrigTrackingxAODCnvMonitorBase(TrigGenericMonitoringToolConfig):
     self.Histograms += [ defineHistogram('roi_zWidth',
                                          type='TH1F',
                                          title="z width of the input RoI",
-                                         xbins = 100, xmin=0, xmax=500)]                                         
+                                         xbins = 100, xmin=0, xmax=500)]                           
+              
+    # self.Histograms += [ defineHistogram('IBLz, IBLresx',
+    #                                      type='TH2F',
+    #                                      title="IBLresx vs z",
+    #                                      xbins=35, xmin=-350., xmax=350.,
+    #                                      ybins=100, ymin=-0.1, ymax=0.1 ) ]
+
+    # self.Histograms += [ defineHistogram('IBLz, IBLresy',
+    #                                      type='TH2F',
+    #                                      title="IBLresy vs z",
+    #                                      xbins=35, xmin=-350., xmax=350.,
+    #                                      ybins=100, ymin=-0.1, ymax=+0.1 ) ]
+
+    self.Histograms += [ defineHistogram('IBLz, IBLresx',
+                                         type='TProfile',
+                                         title="IBLresx vs z (profile)",
+                                         xbins=70, xmin=-350., xmax=350.,
+                                         ymin=-0.1, ymax=0.1 ) ]
+
+    self.Histograms += [ defineHistogram('IBLz, IBLresy',
+                                         type='TProfile',
+                                         title="IBLresy vs z (profile)",
+                                         xbins=70, xmin=-350., xmax=350.,
+                                         ymin=-0.1, ymax=+0.1 ) ]
+
 
     # Slice Specific Histograms
     if (type=="bjet"):
