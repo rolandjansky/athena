@@ -81,7 +81,7 @@ TrigL2PattRecoStrategyT::TrigL2PattRecoStrategyT(const std::string& t,
   m_sctOnlineSpacePointsName("TrigSCT_SpacePoints"), 
   m_pixelOnlineSpacePointsName("TrigPixelSpacePoints")
 {
-  declareInterface< ITrigL2PattRecoStrategy >( this ); 
+  declareInterface< ITrigL2SeededPattRecoStrategy >( this ); 
 
   declareProperty("TrackTool"         ,m_trackmaker    );
   declareProperty("FreeClustersCut"   ,m_nfreeCut      );

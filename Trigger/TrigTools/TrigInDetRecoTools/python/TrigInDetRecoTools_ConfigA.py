@@ -45,7 +45,6 @@ class FactoryForStrategyA() :
                                         VrtxMixing      = self.settings[('VrtxMixing',instName)],  
                                         TripletMode     = self.settings[('TripletMode',instName)],
                                         nFirstLayers    = self.settings[('nFirstLayers',instName)],
-                                        MaxZ            = self.settings[('MaxZ',instName)],
                                         WeightThreshold = self.settings[('WeightThreshold',instName)]
                                         )
             

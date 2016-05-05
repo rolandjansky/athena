@@ -99,8 +99,9 @@ TrigL2PattRecoStrategyB::TrigL2PattRecoStrategyB(const std::string& t, const std
 
   /** Vertexing properties. */
   declareProperty("Vertexing_Enable",                 m_vertexingEnable            = false);
-  declareProperty("Vertexing_CutRZ",                  m_vertexingCutRZ             = 1000);
   declareProperty("Vertexing_CutRPhi",                m_vertexingCutRPhi           = 0.00025);
+  //declareProperty("Vertexing_CutRZ",                  m_vertexingCutRZ             = 1000);
+  m_vertexingCutRZ = 1000;
   declareProperty("Vertexing_MaxVertices",            m_vertexingMaxVertices       = 3);
   declareProperty("Vertexing_WindowSize",             m_vertexingWindowSize        = 2.0);
   declareProperty("Vertexing_WindowSegments",         m_vertexingWindowSegments    = 4);
@@ -171,6 +172,10 @@ StatusCode TrigL2PattRecoStrategyB::initialize() {
     athenaLog << MSG::FATAL << "Unable to retrieve RegionSelector tool " << m_regionSelector.type() << endreq;
     return sc;
   }
+
+  //Set vertexing RZ cut to max z-width of fullscan RoI
+  TrigRoiDescriptor fs_roi(true);
+  m_vertexingCutRZ = fs_roi.zedPlus() + 30;//z-width should be symmetric
 
 
   /************************************/

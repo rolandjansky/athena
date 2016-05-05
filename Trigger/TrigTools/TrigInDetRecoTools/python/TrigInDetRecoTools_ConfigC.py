@@ -32,7 +32,6 @@ class FactoryForStrategyC() :
                                                                   useSCT   = DetFlags.haveRIO.SCT_on(),
                                                                   SpacePointsSCTName = 'SCT_TempSpacePoints',
                                                                   SpacePointsPixelName = 'PixelTempSpacePoints',
-                                                                  SpacePointsOverlapName = '',
                                                                   radMax = InDetTrigCutValues.radMax(),
                                                                   #maxNumberVertices=5,    #not fully tested
                                                                   )
