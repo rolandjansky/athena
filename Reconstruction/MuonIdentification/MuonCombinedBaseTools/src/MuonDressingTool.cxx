@@ -185,6 +185,7 @@ namespace MuonCombined {
       }
 
       // hack for now to get hit counts onto the track particle
+      /*
       ElementLink< xAOD::TrackParticleContainer > tpLink = muon.combinedTrackParticleLink();
       if( !tpLink.isValid() ) tpLink = muon.muonSpectrometerTrackParticleLink();
       if( tpLink.isValid() ){
@@ -204,6 +205,7 @@ namespace MuonCombined {
 	  tp->setSummaryValue(numberOfTriggerEtaHoleLayers,xAOD::numberOfTriggerEtaHoleLayers);
 	}
       }
+      */
 
       if( trackSummary->muonTrackSummary() ){
 	const Trk::MuonTrackSummary& mts = *trackSummary->muonTrackSummary();
@@ -283,7 +285,7 @@ namespace MuonCombined {
 	      phiHoles = &phiLayer3Holes;
 	      etaHits = &etaLayer3Hits;
 	      etaHoles = &etaLayer3Holes;
-	    }else if( index == Muon::MuonStationIndex::T3 ){
+	    }else if( index == Muon::MuonStationIndex::BO2 || index == Muon::MuonStationIndex::T3 ){
 	      phiHits = &phiLayer4Hits;
 	      phiHoles = &phiLayer4Holes;
 	      etaHits = &etaLayer4Hits;

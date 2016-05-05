@@ -67,7 +67,7 @@ namespace MuonCombined {
     bool combinedTrackQualityCheck(const Trk::Track& combinedTrack,
 				   const Trk::Track& indetTrack) const;
       
-    void evaluateMatchProperties(CombinedFitTag& tag, const Trk::Track& idTrack);
+    void evaluateMatchProperties(CombinedFitTag& tag, const Trk::Track& idTrack, const xAOD::TrackParticle& idTrackParticle);
 
     bool extrapolatedNeedsRefit(const Trk::Track& combTrack,
 				const Trk::Track* extrTrack) const;

@@ -39,7 +39,7 @@
 #include "TrkEventUtils/IdentifierExtractor.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
-
+#include "xAODTracking/Vertex.h"
 
 namespace MuonCombined {
  
@@ -142,7 +142,7 @@ namespace MuonCombined {
       // ensure that the id trackparticle has a track
       if( ! (*rit).second->indetTrackParticle().track() ) continue;
 
-      if(outputLevel() >= MSG::VERBOSE) {
+      if(msgLevel() >= MSG::VERBOSE) {
         ATH_MSG_VERBOSE("Doing combined fit with ID track "<<*((*rit).second->indetTrackParticle().track()));
         ATH_MSG_VERBOSE("Doing combined fit with MS track "<<muonCandidate.muonSpectrometerTrack());
       }      
@@ -156,7 +156,7 @@ namespace MuonCombined {
         continue;
       }
 
-      if(outputLevel() >= MSG::DEBUG) {
+      if(msgLevel() >= MSG::DEBUG) {
         dumpCaloEloss(combinedTrack, "Combined Track ");
         dumpCaloEloss(muonCandidate.extrapolatedTrack(), "Extrapolated Track ");
       }
@@ -168,7 +168,7 @@ namespace MuonCombined {
       CombinedFitTag* currentTag = new CombinedFitTag(xAOD::Muon::MuidCo, muonCandidate, *combinedTrack, score);
 
       // re-fit standalone track (if needed) and store output into tag object
-      evaluateMatchProperties(*currentTag, *((*rit).second->indetTrackParticle().track()));
+      evaluateMatchProperties(*currentTag, *((*rit).second->indetTrackParticle().track()), (*rit).second->indetTrackParticle());
       
       // select the best combined track
       if(!bestCandidate || bestMatchChooser(*((*rit).second), *currentTag,
@@ -197,13 +197,13 @@ namespace MuonCombined {
             // add fit info into tag object
             CombinedFitTag* currentTag = new CombinedFitTag(xAOD::Muon::MuidCo, muonCandidate, *combinedTrack, score);
 
-            if(outputLevel() >= MSG::DEBUG) {
+            if(msgLevel() >= MSG::DEBUG) {
               dumpCaloEloss(combinedTrack, "Recovery Combined Track ");
               dumpCaloEloss(muonCandidate.extrapolatedTrack(), "Recovery Extrapolated Track ");
             }
 
             // re-fit standalone track (if needed) and store output into tag object
-            evaluateMatchProperties(*currentTag, *((*rit).second->indetTrackParticle().track()));
+            evaluateMatchProperties(*currentTag, *((*rit).second->indetTrackParticle().track()), (*rit).second->indetTrackParticle());
 	    
             // select the best combined track
             if(!bestCandidate || bestMatchChooser(*((*rit).second), *currentTag,
@@ -229,7 +229,7 @@ namespace MuonCombined {
       if( bestCandidate->indetTrackParticle().trackLink().isValid() && extrapolatedTrack ){
         outerMatchChi2 = m_tagTool->chi2(*bestCandidate->indetTrackParticle().track(),*extrapolatedTrack);
         
-        if(outputLevel() >= MSG::DEBUG) {
+        if(msgLevel() >= MSG::DEBUG) {
           dumpCaloEloss(&(bestTag->combinedTrack()), " bestCandidate Combined Track ");
           dumpCaloEloss(extrapolatedTrack, " bestCandidate Extrapolated Track ");
         }
@@ -338,7 +338,7 @@ namespace MuonCombined {
   }
 
 
-  void MuonCombinedFitTagTool::evaluateMatchProperties(CombinedFitTag& tag, const Trk::Track& idTrack) 
+  void MuonCombinedFitTagTool::evaluateMatchProperties(CombinedFitTag& tag, const Trk::Track& idTrack, const xAOD::TrackParticle& idTrackParticle) 
   {
     // evaluate field integral and momentum balance significance for combined track
     tag.fieldIntegral(m_trackQuery->fieldIntegral(tag.combinedTrack()));
@@ -379,10 +379,28 @@ namespace MuonCombined {
     // no SA refit for Toroid off 
     if (!m_magFieldSvc->toroidOn()) dorefit = false;
 
+    float bs_x = 0.;
+    float bs_y = 0.;
+    float bs_z = 0.;
+
+    const xAOD::Vertex* matchedVertex = idTrackParticle.vertex();
+    if(matchedVertex) {
+      bs_x = matchedVertex->x();  
+      bs_y = matchedVertex->y();  
+      bs_z = matchedVertex->z();  
+      ATH_MSG_DEBUG( " found matched vertex  bs_x " << bs_x << " bs_y " << bs_y<< " bs_z " << bs_z);  
+    } else {
+//    take for beamspot point of closest approach of ID track in  x y z 
+      bs_x = -idTrackParticle.d0()*sin(idTrackParticle.phi()) + idTrackParticle.vx(); 
+      bs_y =  idTrackParticle.d0()*cos(idTrackParticle.phi()) + idTrackParticle.vy(); 
+      bs_z = idTrackParticle.z0() + idTrackParticle.vz(); 
+      ATH_MSG_DEBUG( " NO matched vertex  take track perigee  x " << bs_x << " y " << bs_y<< " z " << bs_z);  
+    }
+
     ATH_MSG_DEBUG( " refit SA track " << dorefit);  
     if(dorefit) {
-      if (! m_trackBuilder.empty())                                   refittedExtrapolatedTrack = m_trackBuilder->standaloneRefit(tag.combinedTrack());
-      if (! refittedExtrapolatedTrack && ! m_outwardsBuilder.empty()) refittedExtrapolatedTrack = m_outwardsBuilder->standaloneRefit(tag.combinedTrack());
+      if (! m_trackBuilder.empty())                                   refittedExtrapolatedTrack = m_trackBuilder->standaloneRefit(tag.combinedTrack(), bs_x, bs_y, bs_z);
+      if (! refittedExtrapolatedTrack && ! m_outwardsBuilder.empty()) refittedExtrapolatedTrack = m_outwardsBuilder->standaloneRefit(tag.combinedTrack(), bs_x, bs_y, bs_z);
     } 
     // include vertex region pseudo for extrapolation failure
     unsigned numberPseudo = tag.muonCandidate().extrapolatedTrack() ? 

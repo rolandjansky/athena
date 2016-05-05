@@ -103,7 +103,7 @@ namespace MuonCombined {
     double m_eIsoPtRatioTransitionCut;  //!< Energy isolation  for a .45 cone in Barrel-EndCap transition region, normalized to track pt
     double m_eIsoPtRatioEndCapCut;      //!< Energy isolation for a .45 cone in Endcap, normalized to track pt
     double m_CaloLRlikelihoodCut;       //!< CaloLR likelihood cut
-    double m_coreDR;                    //!< deltaR of the core
+    //double m_coreDR;                    //!< deltaR of the core
     double m_trackIsoCone;              //!< Cone size for track isolation
     double m_energyIsoCone;             //!< Cone size for energy isolation
     

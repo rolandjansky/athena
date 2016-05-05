@@ -125,6 +125,7 @@ namespace MuonCombined {
     declareProperty("SigmaCaloNoiseCut", m_sigmaCaloNoiseCut=3.4);
     declareProperty("CaloMaterialProvider", m_caloMaterialProvider);
     declareProperty("FillTimingInformation", m_fillTimingInformation = true );
+    declareProperty("FillTimingInformationOnMuon", m_fillTimingInformationOnMuon = false );
     declareProperty("FillMuonTruthLinks", m_fillMuonTruthLinks = true );
      
   }
@@ -178,10 +179,16 @@ namespace MuonCombined {
     unsigned int numIdCan = inDetCandidates ? inDetCandidates->size() : 0;
     unsigned int numMuCan = muonCandidates  ? muonCandidates->size() : 0;
     ATH_MSG_DEBUG("Creating xAOD::Muons from: " << numIdCan << " indet candidates and " << numMuCan << " muon candidates ");
-
+    
+    // Add RPC timing information to all MS tracks
+    if( m_fillTimingInformation  ) 
+      for (auto candidate : *muonCandidates) 
+	if(candidate->muonSpectrometerTrackLink().isValid())
+	  addRpcTiming(**(candidate->muonSpectrometerTrackLink()));    
+    
     // Create containers for resolved candidates (always of type VIEW_ELEMENTS)
-    InDetCandidateCollection resolvedInDetCandidates( SG::VIEW_ELEMENTS );
-    MuonCandidateCollection resolvedMuonCandidates( SG::VIEW_ELEMENTS );
+    std::vector<const MuonCombined::InDetCandidate*> resolvedInDetCandidates;
+    std::vector<const MuonCombined::MuonCandidate*> resolvedMuonCandidates;
     
     // Resolve Overlap
     if (!m_buildStauContainer) resolveOverlaps(inDetCandidates, muonCandidates, resolvedInDetCandidates, resolvedMuonCandidates);    
@@ -466,7 +473,7 @@ namespace MuonCombined {
             muon.setTrackParticleLink(xAOD::Muon::CombinedTrackParticle, link);
           }
           // for the purpose of the truth matching, set the track link to point to the ID track
-          tp->setTrackLink(candidate.indetTrackParticle().trackLink());
+          //tp->setTrackLink(candidate.indetTrackParticle().trackLink());
         }
       } //endif outputData.combinedTrackParticleContainer 
     }
@@ -742,7 +749,6 @@ namespace MuonCombined {
     }
     
     ATH_MSG_DEBUG("Adding Calo Muon  " << tag->author() << " type " << tag->type());
-
     //if (!m_haveAddedCaloInformation){
     //mu.setParameter(static_cast<float>( tag->fsrCandidateEnergy() ), xAOD::Muon::FSR_CandidateEnergy);
     //std::cout<<"EJWM Adding Calo muon with elt="<<tag->energyLossType()<<std::endl;
@@ -849,15 +855,16 @@ namespace MuonCombined {
         ATH_MSG_WARNING("Track doesn't have extrapolated track. Skipping");
       if (extrapolatedTrack && !extrapolatedTrack->perigeeParameters()) 
         ATH_MSG_WARNING("Track doesn't have perigee parameters on extrapolated track. Skipping");
-      ATH_MSG_DEBUG("Set values to -999.0.");
-      muon.setParameter( (float)-999.0, xAOD::Muon::d0_sa);
-      muon.setParameter( (float)-999.0, xAOD::Muon::z0_sa);
-      muon.setParameter( (float)-999.0, xAOD::Muon::phi0_sa);
-      muon.setParameter( (float)-999.0, xAOD::Muon::theta_sa);
-      muon.setParameter( (float)-999.0, xAOD::Muon::qOverP_sa);
-      muon.setParameter( (float)-999.0, xAOD::Muon::Eloss_sa);
+      //ATH_MSG_DEBUG("Set values to -999.0.");
+      //muon.setParameter( (float)-999.0, xAOD::Muon::d0_sa);
+      //muon.setParameter( (float)-999.0, xAOD::Muon::z0_sa);
+      //muon.setParameter( (float)-999.0, xAOD::Muon::phi0_sa);
+      //muon.setParameter( (float)-999.0, xAOD::Muon::theta_sa);
+      //muon.setParameter( (float)-999.0, xAOD::Muon::qOverP_sa);
+      //muon.setParameter( (float)-999.0, xAOD::Muon::Eloss_sa);
     } else {
       //add the perigee parameters for the original extrapolated track
+      /*
       float d0_sa=extrapolatedTrack->perigeeParameters()->parameters()[Trk::d0];
       muon.setParameter(d0_sa, xAOD::Muon::d0_sa);
       float z0_sa=extrapolatedTrack->perigeeParameters()->parameters()[Trk::z0];
@@ -875,27 +882,42 @@ namespace MuonCombined {
 	  muon.setParameter(Eloss_sa, xAOD::Muon::Eloss_sa);
 	}
       }
-    }
-    if( updatedExtrapolatedTrack ){
-      delete extrapolatedTrack; // delete to avoid leak
-      extrapolatedTrack = updatedExtrapolatedTrack;
-    }
+      */
+      //Now we just add the original extrapolated track itself
+      if(outputData.msOnlyExtrapolatedTrackParticleContainer){
+	ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
+											 *outputData.msOnlyExtrapolatedTrackParticleContainer,
+											 outputData.msOnlyExtrapolatedTrackCollection );
 
-    // create element link from the track, const_cast for now until we sort out the constness of the MuonCandidates
-    ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
-										     *outputData.extrapolatedTrackParticleContainer,
-										     outputData.extrapolatedTrackCollection );
+	if( link.isValid() ) {
+	  ATH_MSG_DEBUG("Adding MS-only extrapolated track: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
+	  //link.toPersistent();
+	  muon.setTrackParticleLink(xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle, link );
+	}
+      }
+    }
+    if( updatedExtrapolatedTrack ){ //since we save the original extrapolated track separately, no need to create this if no updated extrapolated track
+      //I don't think this is a leak any more, since we keep this track now
+      //delete extrapolatedTrack; // delete to avoid leak
+      extrapolatedTrack = updatedExtrapolatedTrack;
+
+      // create element link from the track, const_cast for now until we sort out the constness of the MuonCandidates
+      ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
+										       *outputData.extrapolatedTrackParticleContainer,
+										       outputData.extrapolatedTrackCollection );
     
-    if( link.isValid() ) {
-      ATH_MSG_DEBUG("Adding standalone fit: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
-      //link.toPersistent();
-      muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
+      if( link.isValid() ) {
+	ATH_MSG_DEBUG("Adding standalone fit: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
+	//link.toPersistent();
+	muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
+      }
     }
   }
 
-  void MuonCreatorTool::selectStaus( const InDetCandidateCollection* inDetCandidates,InDetCandidateCollection& resolvedInDetCandidates) const {
+  void MuonCreatorTool::selectStaus( const InDetCandidateCollection* inDetCandidates,
+                                     std::vector<const MuonCombined::InDetCandidate*>& resolvedInDetCandidates) const {
     //staus need to be kept so can go into separate xAOD staucontainer, if desired
-    std::vector< InDetCandidate* > staus;
+    std::vector< const InDetCandidate* > staus;
 
     if( inDetCandidates ) {
 
@@ -937,14 +959,16 @@ namespace MuonCombined {
   }
 
   void MuonCreatorTool::resolveOverlaps( const InDetCandidateCollection* inDetCandidates, const MuonCandidateCollection* muonCandidates, 
-					 InDetCandidateCollection& resolvedInDetCandidates, MuonCandidateCollection& resolvedMuonCandidates) const {
+					 std::vector<const MuonCombined::InDetCandidate*>& resolvedInDetCandidates, 
+                                         std::vector<const MuonCombined::MuonCandidate*>& resolvedMuonCandidates) const
+  {
     
     TrackCollection* resolvedTracks=0;
     TrackCollection* muonTracksToDelete = new TrackCollection;
     std::set<const Trk::Track*> alreadyIncluded;
     
     // the muons only found by the calo tagger should always be kept so we can filter them out from the start
-    std::vector< InDetCandidate* > caloMuons;
+    std::vector< const InDetCandidate* > caloMuons;
 
     // Each InDetCandidate corresponds to a different ID track.
     // Resolve overlap among InDetCandidates for cases where different 
@@ -980,7 +1004,7 @@ namespace MuonCombined {
       // create a track collection for MS info, to be overlap removed
       // a dummy track for segment tagged candidates to be used in the overlap check
       TrackCollection* muonTracks = new TrackCollection(SG::VIEW_ELEMENTS);
-      std::map<const Trk::Track*, InDetCandidate*> trackInDetCandLinks;
+      std::map<const Trk::Track*, const InDetCandidate*> trackInDetCandLinks;
 
       for(auto candidate : resolvedInDetCandidates) {
         // retrieve the primary tag
@@ -1056,7 +1080,7 @@ namespace MuonCombined {
       }
 
       // add MS tracks to resolvedTrack collection and store a link between tracks and muon candidates
-      std::map<const Trk::Track*, MuonCandidate*> trackMuonCandLinks;
+      std::map<const Trk::Track*, const MuonCandidate*> trackMuonCandLinks;
       for(auto candidate : *muonCandidates) {
         const Trk::Track* track = candidate->extrapolatedTrack() ? candidate->extrapolatedTrack() : &candidate->muonSpectrometerTrack();
         if( alreadyIncluded.count(track) ){
@@ -1163,11 +1187,12 @@ namespace MuonCombined {
         }
       }
     }else{
-      ATH_MSG_WARNING("No primary track particle set, deleting muon");
+      ATH_MSG_ERROR("No primary track particle set, deleting muon");
       return false;
     }
 
     //set original extrapolated muon parameters to 0 if not already set (for MuGirl, segment-tagged, and calo-tagged)
+    /*
     if(muon.author()>2 && muon.author()!=5){ //needed for muons not combined, sa, or staco, for which addMuonCandidate isn't called
       ATH_MSG_DEBUG("set parameters to 0");
       float val=0;
@@ -1178,6 +1203,7 @@ namespace MuonCombined {
       muon.setParameter(val, xAOD::Muon::qOverP_sa);
       muon.setParameter(val, xAOD::Muon::Eloss_sa);
     }
+    */
     //else ATH_MSG_DEBUG("found d0_sa: "<<d0test);
     
     // add hit summary
@@ -1232,7 +1258,7 @@ namespace MuonCombined {
       }
     }
 
-    if( m_fillTimingInformation  ) addRpcTiming(muon);
+    if( m_fillTimingInformationOnMuon  ) addRpcTiming(muon);
     
     if( !m_trackSegmentAssociationTool.empty() ) addSegmentsOnTrack(muon);
 
@@ -1240,6 +1266,51 @@ namespace MuonCombined {
     return true;
   }
 
+  void MuonCreatorTool::getRpcTiming(const xAOD::TrackParticle& tp,
+				     std::vector<unsigned int>& rpcHitIdentifier,
+				     std::vector<float>& rpcHitPositionX,
+				     std::vector<float>& rpcHitPositionY,
+				     std::vector<float>& rpcHitPositionZ,
+				     std::vector<float>& rpcHitTime) const
+  {
+    // loop over measurements
+    const DataVector<const Trk::TrackStateOnSurface>& tsos = *(tp.track()->trackStateOnSurfaces());
+    auto end = tsos.end();
+    for( auto it = tsos.begin(); it!=end;++it ){
+      
+      // require measurement and track parameters 
+      const Trk::MeasurementBase* meas = (*it)->measurementOnTrack();
+      const Trk::TrackParameters* pars = (*it)->trackParameters();
+      if( !meas || !pars ) continue;
+      
+      // only consider RPC hits
+      Identifier mid = m_edmHelper->getIdentifier(*meas);
+      if( !m_idHelper->isMuon(mid) || !m_idHelper->isRpc(mid) ) continue;
+      
+      // lambda to add a hit
+      auto addHit = [&]( const Trk::MeasurementBase& meas) { 
+	const Muon::RpcClusterOnTrack* rot = dynamic_cast<const Muon::RpcClusterOnTrack*>(&meas);
+	if( !rot ) return;
+	
+	rpcHitIdentifier.push_back(rot->identify().get_identifier32().get_compact());
+	rpcHitPositionX.push_back(pars->position().x());
+	rpcHitPositionY.push_back(pars->position().y());
+	rpcHitPositionZ.push_back(pars->position().z());
+	rpcHitTime.push_back(rot->time()); 
+      };
+      
+      // in case competing rots loop over the contained rots
+      const Muon::CompetingMuonClustersOnTrack* crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
+      if( crot ){
+	for( unsigned int i=0;i<crot->numberOfContainedROTs();++i){
+	  addHit(crot->rioOnTrack(i));
+	}
+      }else{
+	addHit(*meas);
+      }
+    }    
+  }		     
+  
   void MuonCreatorTool::addRpcTiming( xAOD::Muon& muon ) const {
 
     // vectors to be filled
@@ -1253,43 +1324,12 @@ namespace MuonCombined {
     // it has an associated track with track states 
     const xAOD::TrackParticle* tp = muon.primaryTrackParticle();        
     if( tp && tp->track() && tp->track()->trackStateOnSurfaces() && tp != muon.trackParticle( xAOD::Muon::InnerDetectorTrackParticle) ){
-      
-      // loop over measurements
-      const DataVector<const Trk::TrackStateOnSurface>& tsos = *(tp->track()->trackStateOnSurfaces());
-      auto end = tsos.end();
-      for( auto it = tsos.begin(); it!=end;++it ){
-
-        // require measurement and track parameters 
-        const Trk::MeasurementBase* meas = (*it)->measurementOnTrack();
-        const Trk::TrackParameters* pars = (*it)->trackParameters();
-        if( !meas || !pars ) continue;
-        
-        // only consider RPC hits
-        Identifier mid = m_edmHelper->getIdentifier(*meas);
-        if( !m_idHelper->isMuon(mid) || !m_idHelper->isRpc(mid) ) continue;
-
-        // lambda to add a hit
-        auto addHit = [&]( const Trk::MeasurementBase& meas) { 
-          const Muon::RpcClusterOnTrack* rot = dynamic_cast<const Muon::RpcClusterOnTrack*>(&meas);
-          if( !rot ) return;
-
-          rpcHitIdentifier.push_back(rot->identify().get_identifier32().get_compact());
-          rpcHitPositionX.push_back(pars->position().x());
-          rpcHitPositionY.push_back(pars->position().y());
-          rpcHitPositionZ.push_back(pars->position().z());
-          rpcHitTime.push_back(rot->time()); 
-        };
-        
-        // in case competing rots loop over the contained rots
-        const Muon::CompetingMuonClustersOnTrack* crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
-        if( crot ){
-          for( unsigned int i=0;i<crot->numberOfContainedROTs();++i){
-            addHit(crot->rioOnTrack(i));
-          }
-        }else{
-          addHit(*meas);
-        }
-      }
+      getRpcTiming(*tp,
+		   rpcHitIdentifier,
+		   rpcHitPositionX,
+		   rpcHitPositionY,
+		   rpcHitPositionZ,
+		   rpcHitTime);
     }
     // always add vectors 
     muon.auxdata< std::vector<unsigned int> >("rpcHitIdentifier") = rpcHitIdentifier;
@@ -1297,6 +1337,32 @@ namespace MuonCombined {
     muon.auxdata< std::vector<float> >("rpcHitPositionY")         = rpcHitPositionY;
     muon.auxdata< std::vector<float> >("rpcHitPositionZ")         = rpcHitPositionZ;
     muon.auxdata< std::vector<float> >("rpcHitTime")              = rpcHitTime;
+  }
+
+  void MuonCreatorTool::addRpcTiming( const xAOD::TrackParticle& tp ) const {
+
+    // vectors to be filled
+    std::vector<unsigned int> rpcHitIdentifier;
+    std::vector<float> rpcHitPositionX;
+    std::vector<float> rpcHitPositionY;
+    std::vector<float> rpcHitPositionZ;
+    std::vector<float> rpcHitTime;
+    
+    // only fill if the  track particle has an associated track with track states 
+    if( tp.track() && tp.track()->trackStateOnSurfaces() ){
+      getRpcTiming(tp,
+		   rpcHitIdentifier,
+		   rpcHitPositionX,
+		   rpcHitPositionY,
+		   rpcHitPositionZ,
+		   rpcHitTime);
+    }
+    // always add vectors 
+    tp.auxdecor< std::vector<unsigned int> >("rpcHitIdentifier") = rpcHitIdentifier;
+    tp.auxdecor< std::vector<float> >("rpcHitPositionX")         = rpcHitPositionX;
+    tp.auxdecor< std::vector<float> >("rpcHitPositionY")         = rpcHitPositionY;
+    tp.auxdecor< std::vector<float> >("rpcHitPositionZ")         = rpcHitPositionZ;
+    tp.auxdecor< std::vector<float> >("rpcHitTime")              = rpcHitTime;
   }
   
   void MuonCreatorTool::addSegmentsOnTrack( xAOD::Muon& muon ) const {
@@ -1324,9 +1390,9 @@ namespace MuonCombined {
     }
 
     // find last ID TSOS with track parameters
-    const Trk::TrackStateOnSurface* lastID=0;
-    std::vector<const Trk::TrackStateOnSurface*>::const_reverse_iterator it = trk->trackStateOnSurfaces()->rbegin();
-    std::vector<const Trk::TrackStateOnSurface*>::const_reverse_iterator itEnd = trk->trackStateOnSurfaces()->rend();
+    const Trk::TrackStateOnSurface* lastID = nullptr;
+    DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator it = trk->trackStateOnSurfaces()->rbegin();
+    DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator itEnd = trk->trackStateOnSurfaces()->rend();
     for(; it!=itEnd; ++it) {
       if((*it)->trackParameters()) {
         lastID = *it;

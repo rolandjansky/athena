@@ -111,10 +111,16 @@ namespace MuonCombined {
         xAOD::MuonSegmentContainer& xaodSegments,
         Trk::SegmentCollection* muonSegmentCollection = 0 ) const ;
 
+  private:
     void resolveOverlaps( const InDetCandidateCollection* inDetCandidates, const MuonCandidateCollection* muonCandidates, 
-        InDetCandidateCollection& resolvedInDetCandidates, MuonCandidateCollection& resolvedMuonCandidates) const;
+			  std::vector<const MuonCombined::InDetCandidate*>& resolvedInDetCandidates,
+                          std::vector<const MuonCombined::MuonCandidate*>& resolvedMuonCandidates) const;
     
     void selectStaus( const InDetCandidateCollection* inDetCandidates, InDetCandidateCollection& resolvedInDetCandidates) const;
+
+  public:
+    void selectStaus( const InDetCandidateCollection* inDetCandidates,
+                      std::vector<const MuonCombined::InDetCandidate*>& resolvedInDetCandidates) const;
 
     Trk::Track* createDummyTrack( std::vector<const Muon::MuonSegment*> segments, const Trk::Track& indetTrack ) const;
     void setMuonHitCounts( xAOD::Muon& muon ) const;
@@ -129,6 +135,13 @@ namespace MuonCombined {
 
     void collectCells( xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer ) const;
 
+    void getRpcTiming(const xAOD::TrackParticle& tp,
+		      std::vector<unsigned int>& rpcHitIdentifier,
+		      std::vector<float>& rpcHitPositionX,
+		      std::vector<float>& rpcHitPositionY,
+		      std::vector<float>& rpcHitPositionZ,
+		      std::vector<float>& rpcHitTime) const;
+    void addRpcTiming( const xAOD::TrackParticle& track ) const;
     void addRpcTiming( xAOD::Muon& muon ) const;
     void addSegmentsOnTrack( xAOD::Muon& muon ) const;
 
@@ -161,6 +174,7 @@ namespace MuonCombined {
     
     /// enable filling of timing information
     bool m_fillTimingInformation;
+    bool m_fillTimingInformationOnMuon;
 
     /// copy truth links from primary track particle (or put dummy link if this is missing)
     bool m_fillMuonTruthLinks;
