@@ -40,6 +40,7 @@ class MuonCreatorAlg : public AthAlgorithm
   std::string m_slowMuonCollectionName;
   std::string m_combinedCollectionName;
   std::string m_extrapolatedCollectionName;
+  std::string m_msOnlyExtrapolatedCollectionName;
   std::string m_indetCandidateCollectionName;
   std::string m_muonCandidateCollectionName;
   std::string m_segContainerName;
