@@ -26,7 +26,7 @@ ToolSvc += thexAODElectronRetriever
 from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODMissingETRetriever
 thexAODMissingETRetriever = JiveXML__xAODMissingETRetriever (name = "xAODMissingETRetriever")
 #thexAODMissingETRetriever.StoreGateKey = "MET_RefFinal"
-thexAODMissingETRetriever.FavouriteMETCollection="MET_Reference_AntiKt4LCTopo"
+thexAODMissingETRetriever.FavouriteMETCollection="MET_Reference_AntiKt4EMTopo"
 ## If this list is not set, all other collections will be retrieved
 thexAODMissingETRetriever.OtherMETCollections=["MET_Calo","MET_LocHadTopo","MET_Core_AntiKt4LCTopo"]
 #### to request all collections:

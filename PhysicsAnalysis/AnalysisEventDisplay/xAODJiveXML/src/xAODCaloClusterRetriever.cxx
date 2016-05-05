@@ -157,12 +157,14 @@ namespace JiveXML {
 // sanity cut: emfrac should be within [0,1]
       if ( emfrac > 1.0 ) emfrac = 1.;
       if ( emfrac < 0.0 ) emfrac = 0.;
-      emfracVec.push_back( emfrac );
+      emfracVec.push_back(  DataType(emfrac).toString() );
 
-      label = "AllMeV_SumEMSampl=" + DataType( eInSample ).toString() +
-  	"_SumAllSampl=" + DataType( eInSampleFull ).toString() +
-  	"_calcEMFrac=" + DataType( rawemfrac ).toString()+
-  	"_outEMFrac=" + DataType( emfrac ).toString();
+      if ( DataType( eInSample ).toString() != 0. ){
+       label = "AllMeV_SumEMSampl=" + DataType( eInSample ).toString() +
+  	 "_SumAllSampl=" + DataType( eInSampleFull ).toString() +
+  	 "_calcEMFrac=" + DataType( rawemfrac ).toString()+
+  	 "_outEMFrac=" + DataType( emfrac ).toString();
+      }else{ label = "n_a"; }
       eInSample = 0.;
       eInSampleFull = 0.;
 
