@@ -4,7 +4,7 @@
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 #ifndef TAUDQA_PHYSVALTAU_H
-#define TAUDQA_PHYSVALTAU_H 1
+#define TAUDQA_PHYSVALTAU_H
 
 // STL includes
 #include <string>
@@ -12,10 +12,11 @@
 
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
-
+#include "GaudiKernel/ToolHandle.h"
 // Local includes
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "TauValidationPlots.h"
+#include "TauAnalysisTools/ITauTruthMatchingTool.h"
 //#include "TauTools/TruthHandler.h"
 //#include "TauTools/MatchingTools_depreciated.h"
 #include <TLorentzVector.h>
@@ -24,6 +25,7 @@
 #include "TruthHandler.h"
 #include "RecoTypes.h"
 //#include "TauTools/MatchingTools.h"
+
 
 
 // Forward declaration
@@ -77,6 +79,8 @@ class PhysValTau
   std::string m_TauJetContainerName; 
   std::string m_TauDetailsContainerName; 
   std::string m_TruthParticleContainerName; 
+
+    bool            m_isMC;           //!< Are we running over MC data?
     
     //Variable Definitiona
     /** provides tools to match tau candidates to truth taus (from TauTools). */
@@ -115,12 +119,15 @@ class PhysValTau
     /** Object to define Truth Handler Tool*/
     TruthHandler truthHandler;
 
+    //    std::unique_ptr<TauAnalysisTools::TauTruthMatchingTool> m_tTauTruthMatchingTool;
+    ToolHandle < TauAnalysisTools::ITauTruthMatchingTool > m_tTauTruthMatchingTool;
+
   //Histograms
   // general tau all prongs plots
   std::unique_ptr<TauValidationPlots> m_oTauValidationPlots;
   // TauValidationPlots m_oTauValidationPlots;
     bool matchTrueAndRecoTau     (const xAOD::TauJetContainer *&taus, const xAOD::TruthParticle* trueTau, const xAOD::TauJet* &matchedRecoTau );
-  
+
 }; 
 
 // I/O operators

@@ -26,6 +26,7 @@ use xAODTruth           xAODTruth-*             Event/xAOD
 use TauHistUtils        TauHistUtils-*          PhysicsAnalysis/TauID
 #use TauTools            TauTools-*              PhysicsAnalysis/TauID
 use TrkValHistUtils     TrkValHistUtils-*       Tracking/TrkValidation
+use TauAnalysisTools        TauAnalysisTools-*          PhysicsAnalysis/TauID
 
 use McParticleEvent             McParticleEvent-*        PhysicsAnalysis/TruthParticleID
 #use tauEvent                    tauEvent-*               Reconstruction
