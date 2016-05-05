@@ -2108,7 +2108,13 @@ float HLTXAODBphysMonTool::cosMethod(const TLorentzVector & Mu1, const TLorentzV
     
     double pp = MuMu.Px()*MuPlus.Px() + MuMu.Py()*MuPlus.Py() + MuMu.Pz()*MuPlus.Pz();
     
-    float cosTheta = (float)((MuMu.Energy()*pp - P_MuMu*P_MuMu*MuPlus.Energy())/(MuMu_mass*ps*P_MuMu));
+    //ATH_MSG_DEBUG("pssq = " << pssq << ", ps = " << ps << ", P_MuMu = " << P_MuMu << ", MuMu_mass = " << MuMu_mass);
+    
+    float cosTheta(-99.);
+    if(ps == 0.) 
+      ATH_MSG_DEBUG("Two muons with equal momenta - cosTheta will return an unphysical value");
+    else
+      cosTheta = (float)((MuMu.Energy()*pp - P_MuMu*P_MuMu*MuPlus.Energy())/(MuMu_mass*ps*P_MuMu));
     
     
     return cosTheta;
