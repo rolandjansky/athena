@@ -5,6 +5,7 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "InDetTrigParticleCreation/TrigTrackingxAODCnv.h"
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "VxVertex/VxContainer.h"
@@ -20,6 +21,11 @@
 #include "IRegionSelector/IRegSelSvc.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
+#include "Identifier/Identifier.h"
+#include "InDetIdentifier/PixelID.h"
+#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "IdDictDetDescr/IdDictManager.h"
+
 #include <cmath>
 #include <algorithm>
 
@@ -31,6 +37,7 @@ namespace InDet
 					   ISvcLocator *pSvcLocator)
     : HLT::FexAlgo (name, pSvcLocator),
       m_particleCreatorTool("Trk::ParticleCreatorTool"),
+      m_residualCalc("Trk::ResidualPullCalculator"),
       m_tracks(0),
       m_slice_name(""),
       m_mon_doSliceSpecific(true),
@@ -39,6 +46,7 @@ namespace InDet
       m_mon_ptmin(1)
   {
     declareProperty("ParticleCreatorTool", m_particleCreatorTool);
+    declareProperty("ResidualPullCalculator", m_residualCalc);
 
     //+++ DQM (SA): monitoring
     declareProperty("MonSliceSpecific", m_mon_doSliceSpecific);
@@ -87,6 +95,10 @@ namespace InDet
     declareMonitoredVariable("ta_sumCh",  m_dqm_ta_sum_ch);
     declareMonitoredVariable("ta_asyCh",  m_dqm_ta_asy_ch);
     declareMonitoredVariable("ta_m",       m_dqm_ta_m);
+    //
+    declareMonitoredStdContainer("IBLz", m_dqm_ibl_z);
+    declareMonitoredStdContainer("IBLresx", m_dqm_ibl_res_x);
+    declareMonitoredStdContainer("IBLresy", m_dqm_ibl_res_y);
 
   }
 
@@ -111,8 +123,26 @@ namespace InDet
 
     msg() << MSG::DEBUG << name() << " initialize() " << PACKAGE_VERSION << endreq;
 
+    if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
+      msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
+    
+    if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
+      msg(MSG::ERROR) << "Could not get PixelID helper !" << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
+
     if ( m_particleCreatorTool.retrieve().isFailure() ) {
       msg() << MSG::FATAL << "Failed to retrieve tool " << m_particleCreatorTool << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
+    else{
+      msg() << MSG::INFO << "Retrieved tool " << m_particleCreatorTool << endreq;
+    }
+
+    if ( m_residualCalc.retrieve().isFailure() ) {
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_residualCalc << endreq;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else{
@@ -215,6 +245,8 @@ namespace InDet
       for(unsigned int idtr=0; idtr< m_tracks->size(); ++idtr) {
         const ElementLink<TrackCollection> trackLink(*m_tracks, idtr);
 
+	fillIBLResidual(m_tracks->at(idtr));
+
         xAOD::TrackParticle* tp = m_particleCreatorTool->createParticle( trackLink, tpCont);
 
         if((outputLevel <= MSG::DEBUG) && (tp != 0)){
@@ -264,7 +296,7 @@ namespace InDet
     for (xAOD::TrackParticleContainer::iterator itr = tpCont->begin();
      itr != tpCont->end(); ++itr)  {
       FillMonPerTrack(*itr, tmp_eta_roi, tmp_phi_roi);
-    }
+     }
 
     if (runAlg){
       //+++ DQM (SA): per RoI quantities
@@ -351,6 +383,60 @@ namespace InDet
     }
 
     return;
+  }
+
+  void TrigTrackingxAODCnv::fillIBLResidual(const Trk::Track *track){
+    
+    const DataVector<const Trk::TrackStateOnSurface>* trackStates=track->trackStateOnSurfaces();    
+    
+    for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->begin();
+	 it!=trackStates->end();
+	 it++) {
+      if (!(*it)) {
+	msg(MSG::WARNING) << "TrackStateOnSurface == Null" << endreq;
+	continue;
+      }
+      
+      if ((*it)->type(Trk::TrackStateOnSurface::Measurement) ){
+	
+	ATH_MSG_VERBOSE ("try to get measurement for track state");
+	// Get pointer to measurement on track
+	const Trk::MeasurementBase *measurement = (*it)->measurementOnTrack();
+	
+	
+	if(  (*it)->trackParameters() !=0 &&
+	     &((*it)->trackParameters()->associatedSurface()) !=0 &&  
+	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement() !=0 && 
+	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() !=0 )
+	  {  
+	    
+	    Identifier id;
+	    id = (*it)->trackParameters()->associatedSurface().associatedDetectorElement()->identify();
+	    float zmod = (*it)->trackParameters()->associatedSurface().associatedDetectorElement()->center().z();
+	    if (m_idHelper->is_pixel(id)) 
+	      {
+		ATH_MSG_DEBUG("Found pixel module : Associated track parameter");
+		if(m_pixelId->is_barrel(id)) 
+		  { 
+		    ATH_MSG_DEBUG("Found pixel barrel");
+		    if(m_pixelId->layer_disk(id) == 0) 
+		      {
+			if (msgLvl(MSG::DEBUG)) 
+			  {
+			    msg(MSG::DEBUG) << "Found Innermost Pixel Layer  " << id.get_compact() << endreq;       
+			  }
+			
+			const Trk::ResidualPull* pull = m_residualCalc->residualPull(measurement,(*it)->trackParameters(),Trk::ResidualPull::Unbiased);
+			m_dqm_ibl_z.push_back(zmod);
+			m_dqm_ibl_res_x.push_back(pull->residual()[Trk::locX]);
+			m_dqm_ibl_res_y.push_back(pull->residual()[Trk::locY]);
+		      }
+		  }
+	      }
+	  }
+      }
+    }
+   
   }
 
 
@@ -525,6 +611,10 @@ namespace InDet
     m_dqm_ntrkpart = 0;
     m_dqm_ntrk = 0;
     m_dqm_nvertex = 0;
+
+    m_dqm_ibl_z.clear();
+    m_dqm_ibl_res_x.clear();
+    m_dqm_ibl_res_y.clear();
 
     // Bjet
     m_dqm_bj_sumpt = 0;
