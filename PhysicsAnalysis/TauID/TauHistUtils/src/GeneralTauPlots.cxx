@@ -33,8 +33,8 @@ void GeneralTauPlots::fill(const xAOD::TauJet& tau) {
   m_oParamPlots.fill(tau);
   m_tauCharge->Fill(tau.charge(), 1.); 
   m_tauNCoreTracks->Fill(tau.nTracks(), 1.);
-  m_tauNWideTracks->Fill(tau.nWideTracks(), 1.);
-  if( tau.hasDiscriminant(xAOD::TauJetParameters::BDTJetScore) )m_id_BDTJetScore->Fill(tau.discriminant(xAOD::TauJetParameters::BDTJetScore));
+  //  m_tauNWideTracks->Fill(tau.nWideTracks(), 1.);
+  m_tauNWideTracks->Fill(tau.nTracks(xAOD::TauJetParameters::classifiedIsolation), 1.); // 
   if( tau.hasDiscriminant(xAOD::TauJetParameters::BDTJetScore) )m_id_BDTJetScore->Fill(tau.discriminant(xAOD::TauJetParameters::BDTJetScore));
   if(tau.isTau(xAOD::TauJetParameters::JetBDTSigLoose))   m_pt_jetBDTloose->Fill( tau.pt()/1000,1);
   if(tau.isTau(xAOD::TauJetParameters::JetBDTSigMedium))  m_pt_jetBDTmed  ->Fill( tau.pt()/1000,1);
