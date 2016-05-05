@@ -448,12 +448,12 @@ StatusCode tauMonTool::fillIDHistos(s_idFolder& folder,  const xAOD::TauJet* tau
 	folder.h_tauBDTLoose         ->Fill(tau->isTau(xAOD::TauJetParameters::JetBDTSigLoose));
 	folder.h_tauBDTMedium        ->Fill(tau->isTau(xAOD::TauJetParameters::JetBDTSigMedium));
 	folder.h_tauBDTTight         ->Fill(tau->isTau(xAOD::TauJetParameters::JetBDTSigTight));
-	folder.h_tauLlhLoose         ->Fill(tau->isTau(xAOD::TauJetParameters::TauLlhLoose));
-	folder.h_tauLlhMedium        ->Fill(tau->isTau(xAOD::TauJetParameters::TauLlhMedium));
-	folder.h_tauLlhTight         ->Fill(tau->isTau(xAOD::TauJetParameters::TauLlhTight));
-	folder.h_electronVetoLoose   ->Fill(tau->isTau(xAOD::TauJetParameters::ElectronVetoLoose));
-	folder.h_electronVetoMedium  ->Fill(tau->isTau(xAOD::TauJetParameters::ElectronVetoMedium));
-	folder.h_electronVetoTight   ->Fill(tau->isTau(xAOD::TauJetParameters::ElectronVetoTight));
+	// folder.h_tauLlhLoose         ->Fill(tau->isTau(xAOD::TauJetParameters::TauLlhLoose));
+	// folder.h_tauLlhMedium        ->Fill(tau->isTau(xAOD::TauJetParameters::TauLlhMedium));
+	// folder.h_tauLlhTight         ->Fill(tau->isTau(xAOD::TauJetParameters::TauLlhTight));
+	// folder.h_electronVetoLoose   ->Fill(tau->isTau(xAOD::TauJetParameters::ElectronVetoLoose));
+	// folder.h_electronVetoMedium  ->Fill(tau->isTau(xAOD::TauJetParameters::ElectronVetoMedium));
+	// folder.h_electronVetoTight   ->Fill(tau->isTau(xAOD::TauJetParameters::ElectronVetoTight));
 	folder.h_muonVeto            ->Fill(tau->isTau(xAOD::TauJetParameters::MuonVeto));
 	folder.h_eleBDTLoose         ->Fill(tau->isTau(xAOD::TauJetParameters::EleBDTLoose));
 	folder.h_eleBDTMedium        ->Fill(tau->isTau(xAOD::TauJetParameters::EleBDTMedium));
@@ -461,7 +461,7 @@ StatusCode tauMonTool::fillIDHistos(s_idFolder& folder,  const xAOD::TauJet* tau
 	folder.h_BDTJetScore         ->Fill(tau->discriminant(xAOD::TauJetParameters::BDTJetScore));
 
 	folder.h_BDTJetScoreSigTrans ->Fill(tau->discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans));
-	folder.h_BDTJetScoreBkgTrans ->Fill(tau->discriminant(xAOD::TauJetParameters::BDTJetScoreBkgTrans));
+	//folder.h_BDTJetScoreBkgTrans ->Fill(tau->discriminant(xAOD::TauJetParameters::BDTJetScoreBkgTrans));
 
 	if(tau->isTau(xAOD::TauJetParameters::JetBDTSigLoose) && tau->pt() >= 15000.0 ){
 		if ( fillBDTHistos   (folder.BDTLooseFolder, tau) . isFailure()) ATH_MSG_ERROR("Failed to fill JetBDTLoose histograms");
@@ -491,7 +491,7 @@ StatusCode tauMonTool::fillTrackHistos(s_trkFolder& folder, const xAOD::TauJet* 
 	//--------------------
 //     if ( tau->nTracks() == 0) return StatusCode::SUCCESS;
 
-	const xAOD::TrackParticle* track = tau->track(0);
+	const xAOD::TrackParticle* track = tau->track(0)->track();
 	const Trk::Perigee perigee = track->perigeeParameters();
 
 	uint8_t dummy(0);
@@ -516,8 +516,8 @@ StatusCode tauMonTool::fillCaloHistos(s_caloFolder& folder, const xAOD::TauJet* 
 {
 	folder.h_eta                   ->Fill( tau->eta() );
 	folder.h_phi                   ->Fill( tau->phi() );
-	folder.h_etEMCalib             ->Fill( tau->detail<float>(xAOD::TauJetParameters::etEMCalib) / GeV);
-	folder.h_etHadCalib            ->Fill( tau->detail<float>(xAOD::TauJetParameters::etHadCalib) / GeV);
+	// folder.h_etEMCalib             ->Fill( tau->detail<float>(xAOD::TauJetParameters::etEMCalib) / GeV);
+	// folder.h_etHadCalib            ->Fill( tau->detail<float>(xAOD::TauJetParameters::etHadCalib) / GeV);
 	folder.h_etEMAtEMScale         ->Fill( tau->detail<float>(xAOD::TauJetParameters::etEMAtEMScale) / GeV);
 	folder.h_etHadAtEMScale        ->Fill( tau->detail<float>(xAOD::TauJetParameters::etHadAtEMScale) / GeV);
 	folder.h_EMRadius              ->Fill( tau->detail<float>(xAOD::TauJetParameters::EMRadius) );
@@ -589,7 +589,7 @@ StatusCode tauMonTool::fillSubStructureHistos( s_sbstrctFolder& folder, const xA
 
        //  results from panTau 
         int panmode = -1 ;
-        tau->panTauDetail(xAOD::TauJetParameters::pantau_CellBasedInput_DecayMode, panmode); 
+        tau->panTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, panmode); 
         folder.h_panmode->Fill( panmode ) ;
 
         float pphi = tau->phiPanTauCellBased() ;
