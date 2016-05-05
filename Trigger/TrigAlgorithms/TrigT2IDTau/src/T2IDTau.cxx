@@ -482,41 +482,41 @@ HLT::ErrorCode T2IDTau::getPrmVtxCollection(const TrigVertexCollection*& pointer
  //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
- float T2IDTau::getIP1DErr(float param, float errParam) {
-
-   float sd0=errParam;
-
-   if (m_algo == 1) {
-     float eta = fabs(param);
-     float sd0 = 0.173 + 8.43e-3*std::pow(eta,4);
-
-     return sd0;
-   }
-
-   return sd0;
- }
+// float T2IDTau::getIP1DErr(float param, float errParam) {
+//
+//   float sd0=errParam;
+//
+//   if (m_algo == 1) {
+//     float eta = fabs(param);
+//     float sd0 = 0.173 + 8.43e-3*std::pow(eta,4);
+//
+//     return sd0;
+//   }
+//
+//   return sd0;
+// }
 
 
  //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
- float T2IDTau::getIP2DErr(float param, float errParam ) {
-
-   float sd0=errParam;
-
-   if (m_algo == 1) {
-     float pt = fabs(param);
-     float p0 = 0.023, p1=27, p2=1.48;
-     float sd014 = sqrt(p0*p0 + std::pow((float)(p1*(1./14000.)),p2));
-
-     sd0 = sqrt(p0*p0 + std::pow((float)(p1/pt),p2));
-
-     if (pt>14000)
-       sd0 = sd014;
-
-     return sd0*1.5;
-   }
-
-   return sd0;
- }
+// float T2IDTau::getIP2DErr(float param, float errParam ) {
+//
+//   float sd0=errParam;
+//
+//   if (m_algo == 1) {
+//     float pt = fabs(param);
+//     float p0 = 0.023, p1=27, p2=1.48;
+//     float sd014 = sqrt(p0*p0 + std::pow((float)(p1*(1./14000.)),p2));
+//
+//     sd0 = sqrt(p0*p0 + std::pow((float)(p1/pt),p2));
+//
+//     if (pt>14000)
+//       sd0 = sd014;
+//
+//     return sd0*1.5;
+//   }
+//
+//   return sd0;
+// }
      
