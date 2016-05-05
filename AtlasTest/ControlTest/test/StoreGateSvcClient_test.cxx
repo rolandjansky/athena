@@ -23,6 +23,12 @@
 #include "AthenaKernel/ILockable.h"
 
 #ifndef NOGAUDI
+#include "SGTools/BaseInfo.h"
+#include "AthContainers/DataVector.h"
+#include "AthContainers/ConstDataVector.h"
+#include "AthContainers/DataList.h"
+#include "AthContainers/ConstDataList.h"
+
 #include "TestTools/initGaudi.h"
 using namespace Athena_test;
 using namespace std;
@@ -37,11 +43,6 @@ namespace Athena_test {
 //
 
 
-#include "SGTools/BaseInfo.h"
-#include "DataModel/DataVector.h"
-#include "DataModel/ConstDataVector.h"
-#include "AthContainers/DataList.h"
-#include "AthContainers/ConstDataList.h"
 
 namespace Athena_test {
 
@@ -345,6 +346,7 @@ int main() {
   testKeys(*pStore);
 
   testRetrieveAux(*pStore);
+  testBoundReset(*pStore);
 
   test_lock (*pStore);
 

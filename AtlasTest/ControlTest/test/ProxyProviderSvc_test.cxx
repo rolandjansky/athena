@@ -9,8 +9,6 @@
 
 // $Id: ProxyProviderSvc_test.cxx,v 1.7 2008-07-10 00:29:24 calaf Exp $
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "AthenaKernel/IProxyProviderSvc.h"
 
 #include <cassert>
@@ -26,10 +24,13 @@
 #include "SGTools/TransientAddress.h"
 #include "SGTools/DataProxy.h"
 
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/ClassID_traits.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/StoreID.h"
+#include "CxxUtils/make_unique.h"
 
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -44,10 +45,21 @@ using std::cerr;
 using std::cout;
 using std::endl;
 using std::string;
-using SG::DataProxy;
-using SG::TransientAddress;
+using namespace SG;
 
-class FooBar {};
+class FooBar {
+public:
+  FooBar(): m_i(s_i++){}
+  int i() const { return m_i; }
+  ~FooBar() { 
+    cout << "FooBar i=" << i() << " deleted" << endl;
+  }
+private:
+  int m_i;
+  static int s_i;
+};
+int FooBar::s_i=0;
+
 #include "SGTools/CLASS_DEF.h"
 CLASS_DEF(FooBar, 8109, 0)
 
@@ -106,10 +118,10 @@ void testRecordBeforeRead(StoreGateSvc& rSG, IProxyProviderSvc& rPPS) {
 void testReadPrivate(StoreGateSvc& rSG) {
   cout << "*** ProxyProviderSvc_test readPrivate BEGINS ***" <<endl;
   
-  std::auto_ptr<Foo> apFoo;
+  std::unique_ptr<Foo> apFoo;
   SGASSERTERROR((rSG.readPrivateCopy<Foo>("NotThere")).get() != 0);
   
-  apFoo=rSG.readPrivateCopy<Foo>("diskFoo");
+  apFoo=rSG.readUniquePrivateCopy<Foo>("diskFoo");
   assert(0 != &*apFoo);
   assert(floatEQ(0, static_cast<float>(apFoo->a()))); //check that our Foo is the def constr one
 
@@ -117,13 +129,13 @@ void testReadPrivate(StoreGateSvc& rSG) {
   //record must fail because we already have a provider
   //not yet SGASSERTERROR(rSG.record(new Foo(6.28), "privFoo").isSuccess());
   assert(rSG.record(new Foo(6.28), "privFoo").isSuccess());
-  assert(rSG.overwrite(std::auto_ptr<Foo>(new Foo(6.28)), "privFoo").isSuccess());
+  assert(rSG.overwrite(CxxUtils::make_unique<Foo>(6.28), "privFoo").isSuccess());
   
-  apFoo=rSG.readPrivateCopy<Foo>("privFoo");
+  apFoo=rSG.readUniquePrivateCopy<Foo>("privFoo");
   assert(0 != &*apFoo);
   assert(floatNEQ(6.28f, static_cast<float>(apFoo->a()))); //check that our Foo is a different one
   apFoo->setA(3.14);
-  std::auto_ptr<Foo> bpFoo(rSG.readPrivateCopy<Foo>("privFoo"));
+  std::unique_ptr<Foo> bpFoo(rSG.readUniquePrivateCopy<Foo>("privFoo"));
   assert(0 != &*bpFoo);
   assert(&*bpFoo != &*apFoo); //two independent instances
   assert(floatNEQ(6.28f, static_cast<float>(bpFoo->a()))); 
@@ -136,16 +148,17 @@ void testReadPrivate(StoreGateSvc& rSG) {
   assert(plainFoo != &*bpFoo); //yet another instance
   //  cout << "---------ap " << &*apFoo << " bp " << &*bpFoo  <<endl;
   //cout << " pFoo33 " << pFoo33 << endl;
-  
-  assert(rSG.record(apFoo, "silly33").isSuccess());
+
+  const Foo* pFoo33Orig = apFoo.get();
+  assert(rSG.record(std::move(apFoo), "silly33").isSuccess());
   const Foo *pFoo33(rSG.retrieve<Foo>("silly33"));
   assert(0 != pFoo33);
   assert(floatEQ(3.14f, static_cast<float>(pFoo33->a())));
-  assert(pFoo33 != &*apFoo); //not one of the private copies
+  assert(pFoo33 == pFoo33Orig); //the private copy we recorded.
   assert(pFoo33 != &*bpFoo); //not one of the private copies
   SGASSERTERROR((rSG.readPrivateCopy<Foo>("silly33")).get() != 0);
   assert(rSG.retrieve<Foo>("silly33"));
-  std::auto_ptr<Foo> aptrFoo33(rSG.retrievePrivateCopy<Foo>("silly33"));
+  std::unique_ptr<Foo> aptrFoo33(rSG.retrieveUniquePrivateCopy<Foo>("silly33"));
   assert(aptrFoo33.get() == pFoo33);
   assert(floatEQ(3.14f, static_cast<float>(aptrFoo33->a())));
   SGASSERTERROR((pFoo33 = rSG.retrieve<Foo>("silly33")) != 0);
@@ -185,6 +198,34 @@ void testHLTAutoKeyReset(StoreGateSvc& rSG, IProxyProviderSvc& rPPS) {
   assert(2 == pl.size());
   
   cout << "*** ProxyProviderSvc_test HLTAutoKeyReset OK ***\n\n" <<endl;
+}
+
+
+void testOverwrite(StoreGateSvc& rSG, IProxyProviderSvc& rPPS) {
+  cout << "*** ProxyProviderSvc_test Overwrite starts ***\n\n" <<endl;
+  
+  assert(rSG.clearStore(true).isSuccess());
+  rPPS.addProvider(new TestProvider<Foo>("toOverwrite"));
+  //key
+  const std::string KEY("toOverwrite");
+  //our "data members"
+  WriteHandle<FooBar> wFB(KEY);
+  ReadHandle<FooBar> rFB(KEY);
+  //simulate an event loop
+  for (int i=0;i<3;++i) {
+    cout << "=============Event #" << i << " starts" << std::endl;
+    //check we can not retrieve a non const pointer from the PPS
+    assert(!(wFB.isValid()));
+    //overwrite an object coming from the PPS
+    assert(rSG.overwrite(new FooBar(), KEY));
+    //check contents of the overwritten object
+    assert(rFB.isValid());
+    cout << "Overwritten FooBar i="<< rFB->i() << endl;
+    assert(i == rFB->i());
+    //clear the store
+    assert(rSG.clearStore().isSuccess());
+  }
+  cout << "*** ProxyProviderSvc_test Overwrite OK ***\n\n" <<endl;
 }
 
 int main() {
@@ -237,6 +278,7 @@ int main() {
   testRecordBeforeRead(*pStore, *pIPPSvc);
   testReadPrivate(*pStore);
   testHLTAutoKeyReset(*pStore, *pIPPSvc);
+  testOverwrite(*pStore, *pIPPSvc);
   assert(pStore->clearStore(true).isSuccess());
   return 0;
 }

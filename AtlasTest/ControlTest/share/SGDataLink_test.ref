@@ -13,48 +13,46 @@ JobOptionsSvc        INFO # (2,1): MessageSvc.setVerbose += ["ElementLink"]
 JobOptionsSvc        INFO Job options successfully read in from ../share/DataLink_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v2r1)
-                                          running on lxplus0032.cern.ch on Mon Jun  2 16:16:30 2014
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r3)
+                                          running on lxplus0056.cern.ch on Tue Mar 10 19:24:25 2015
 ====================================================================================================================================[m
 ApplicationMgr       INFO Application Manager Configured successfully[m
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-41-13[m
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-11[m
-ClassIDSvc           INFO  getRegistryEntries: read 183 CLIDRegistry entries for module ALL[m
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-07[m
-HistoryStore         INFO Initializing HistoryStore - package version StoreGate-02-41-13[m
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-01-06[m
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-18[m
+ClassIDSvc           INFO  getRegistryEntries: read 188 CLIDRegistry entries for module ALL[m
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-10[m
+HistoryStore         INFO Initializing HistoryStore - package version StoreGate-03-01-06[m
 [93;1mEventLoopMgr      WARNING Unable to locate service "EventSelector" [m
 [93;1mEventLoopMgr      WARNING No events will be processed from external input.[m
 [93;1mHistogramPersis...WARNING Histograms saving not required.[m
 ApplicationMgr       INFO Application Manager Initialized successfully[m
 ApplicationMgr Ready
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-41-13[m
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-01-06[m
 StoreGateSvc        DEBUG Service base class initialized successfully[m
-StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service IncidentSvc[m
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
-StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ProxyProviderSvc[m
-StoreGateSvc        DEBUG Recorded object @0x2193fa0 with key foo2 of type Foo(CLID 8101)
- in DataObject @0x2230db0
+StoreGateSvc        DEBUG Recorded object @0xf43bb0 with key foo2 of type Foo(CLID 8101)
+ in DataObject @0xf724c0
  object modifiable when retrieved[m
 *** DataLink_test - testing DataProxyStorage ***
-StoreGateSvc        DEBUG Recorded object @0x208d680 with key pint of type int(CLID 244260744)
- in DataObject @0x22b85b0
+StoreGateSvc        DEBUG Recorded object @0xf46840 with key pint of type int(CLID 244260744)
+ in DataObject @0xf72990
  object modifiable when retrieved[m
 Now we expect to see an error message:
 ----Error Message Starts--->>
 <<----Error Message Ends-----
-StoreGateSvc        DEBUG Recorded object @0x22b3570 with key pFoo of type Foo(CLID 8101)
- in DataObject @0x22b8b60
+StoreGateSvc        DEBUG Recorded object @0xf43040 with key pFoo of type Foo(CLID 8101)
+ in DataObject @0xf72dd0
  object modifiable when retrieved[m
 *** IntVector test starts ***
-StoreGateSvc        DEBUG Recorded object @0x22b8ea0 with key vint of type IntVector(CLID 7368883)
- in DataObject @0x22b8f80
+StoreGateSvc        DEBUG Recorded object @0xf73060 with key vint of type IntVector(CLID 7368883)
+ in DataObject @0xf73170
  object modifiable when retrieved[m
-vector [1] = 0x22b8d00
+vector [1] = 0xf607c0
 *** IntVector test OK ***
 *** Map test starts ***
-StoreGateSvc        DEBUG Recorded object @0x22b8a90 with key pmint of type map<int,string>(CLID 231411637)
- in DataObject @0x22b8e50
+StoreGateSvc        DEBUG Recorded object @0xf73480 with key pmint of type map<int,string>(CLID 231411637)
+ in DataObject @0xf734c0
  object modifiable when retrieved[m
 map [20] = venti
 *** Map test OK ***
@@ -62,17 +60,17 @@ map [20] = venti
 venti has key 20
 found set element venti
 *** test reverse lookup static functions OK ***
-StoreGateSvc        DEBUG Recorded object @0x22b9460 with key novantanove of type int(CLID 244260744)
- in DataObject @0x22b9640
+StoreGateSvc        DEBUG Recorded object @0xbb5980 with key novantanove of type int(CLID 244260744)
+ in DataObject @0xf73b20
  object modifiable when retrieved[m
 *** DataLink_test DataProxyStorage OK ***
 
 
-StoreGateSvc        DEBUG Recorded object @0x22b9a30 with key a Bar of type Bar(CLID 8107)
- in DataObject @0x22b9c10
+StoreGateSvc        DEBUG Recorded object @0xf65d70 with key a Bar of type Bar(CLID 8107)
+ in DataObject @0xf73cf0
  object modifiable when retrieved[m
-StoreGateSvc        DEBUG Recorded object @0x22b9e80 with key a vector of type IntVector(CLID 7368883)
- in DataObject @0x22b9f60
+StoreGateSvc        DEBUG Recorded object @0xf73e10 with key a vector of type IntVector(CLID 7368883)
+ in DataObject @0xf73f20
  object modifiable when retrieved[m
 *** DataLink_test StoreGate OK ***
 
@@ -80,21 +78,21 @@ StoreGateSvc        DEBUG Recorded object @0x22b9e80 with key a vector of type I
 
 
 DataLink_test testing StateMachine
-StoreGateSvc        DEBUG Recorded object @0x22b9e10 with key pFoo3 of type Foo(CLID 8101)
- in DataObject @0x22b9e30
+StoreGateSvc        DEBUG Recorded object @0xf6acd0 with key pFoo3 of type Foo(CLID 8101)
+ in DataObject @0xf741a0
  object modifiable when retrieved[m
 transition invalid to Accessible OK
 transition Accessible to invalid OK
-StoreGateSvc        DEBUG Recorded object @0x22ba500 with key  of type Foo(CLID 8101)
- in DataObject @0x22ba440
+StoreGateSvc        DEBUG Recorded object @0xf54aa0 with key  of type Foo(CLID 8101)
+ in DataObject @0xf74580
  object modifiable when retrieved[m
 transition invalid to IdentifiedDefault OK
 transition IdentifiedDefault to Accessible OK
 transition Accessible to Persistable OK
 transition invalid to Identified OK
 foo Foo not yet registered. Caught exception -SG::ExcInvalidLink: Attempt to dereference invalid DataLink / ElementLink [8101/foo] (122152060)- as expected
-StoreGateSvc        DEBUG Recorded object @0x22ba760 with key foo of type Foo(CLID 8101)
- in DataObject @0x22ba6a0
+StoreGateSvc        DEBUG Recorded object @0xbb4f30 with key foo of type Foo(CLID 8101)
+ in DataObject @0xf747e0
  object modifiable when retrieved[m
 transition Identified to Accessible OK
 reset Accessible OK

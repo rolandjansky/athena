@@ -4,12 +4,12 @@
 
 #include "TestTools/FLOATassert.h"
 #include "TestTools/SGassert.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "AthLinks/tools/MapIndexingPolicy.h"
 #include "AthLinks/tools/SetIndexingPolicy.h"
-#include "DataModel/DataLink.h"
-#include "DataModel/ElementLink.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/DataLink.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
 #include "AthLinks/DeclareIndexingPolicy.h"
 #include "SGTools/CLASS_DEF.h"
 #include "SGTools/StlVectorClids.h"
@@ -72,7 +72,7 @@ CLASS_DEF(std::vector<Foo>, 2233, 1)
 
 float tv_diff (const timeval& tv1, const timeval& tv2)
 {
-  return static_cast<float>(tv2.tv_sec - tv1.tv_sec + (tv2.tv_usec - tv1.tv_usec) / 1000000.);
+  return static_cast<float>(tv2.tv_sec - tv1.tv_sec + (tv2.tv_usec - tv1.tv_usec) * 1e-6);
 }
 
 

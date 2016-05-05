@@ -1,7 +1,7 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/ElementLinkVector_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/InstallArea/jobOptions/ControlTest/StoreGateTestCommon.txt)
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/InstallArea/jobOptions/ControlTest/StoreGateTestCommon.txt
 JobOptionsSvc        INFO # (5,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore"]
 JobOptionsSvc        INFO # (6,1): AuditorSvc.Auditors += ["AlgContextAuditor"]
 JobOptionsSvc        INFO # (7,1): StoreGateSvc.OutputLevel = 1
@@ -11,35 +11,32 @@ JobOptionsSvc        INFO # (10,1): MessageSvc.useColors = 1
 JobOptionsSvc        INFO Job options successfully read in from ../share/ElementLinkVector_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v1r3p3)
-                                          running on lxplus403.cern.ch on Mon Apr 22 16:04:30 2013
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r3)
+                                          running on lxplus0006.cern.ch on Tue Mar 10 18:59:08 2015
 ====================================================================================================================================[m
 ApplicationMgr       INFO Application Manager Configured successfully[m
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-39-03[m
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-07[m
-ClassIDSvc           INFO  getRegistryEntries: read 137 CLIDRegistry entries for module ALL[m
-ClassIDSvc           INFO  getRegistryEntries: read 137 CLIDRegistry entries for module ALL[m
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-03[m
-HistoryStore         INFO Initializing HistoryStore - package version StoreGate-02-39-03[m
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-01-06[m
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-18[m
+ClassIDSvc           INFO  getRegistryEntries: read 175 CLIDRegistry entries for module ALL[m
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-10[m
+HistoryStore         INFO Initializing HistoryStore - package version StoreGate-03-01-06[m
 [93;1mEventLoopMgr      WARNING Unable to locate service "EventSelector" [m
 [93;1mEventLoopMgr      WARNING No events will be processed from external input.[m
 [93;1mHistogramPersis...WARNING Histograms saving not required.[m
 ApplicationMgr       INFO Application Manager Initialized successfully[m
 ApplicationMgr Ready
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-39-03[m
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-01-06[m
 StoreGateSvc        DEBUG Service base class initialized successfully[m
-StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service IncidentSvc[m
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
-StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ProxyProviderSvc[m
 *** ElementLinkVector_test vector starts ***
 
 
-StoreGateSvc        DEBUG Recorded object @0x18880ae0 with key a vector of type IntVector(CLID 7368883)
- in DataObject @0x18881f50
+StoreGateSvc        DEBUG Recorded object @0x1d0bf50 with key a vector of type IntVector(CLID 7368883)
+ in DataObject @0x1d0bee0
  object modifiable when retrieved[m
-StoreGateSvc        DEBUG Recorded object @0x18881fc0 with key another vector of type IntVector(CLID 7368883)
- in DataObject @0x188822d0
+StoreGateSvc        DEBUG Recorded object @0x1d0c1f0 with key another vector of type IntVector(CLID 7368883)
+ in DataObject @0x1d0c100
  object modifiable when retrieved[m
 *** ElementLinkVector_test vector OK ***
 

@@ -14,31 +14,28 @@ JobOptionsSvc        INFO # (2,1): MessageSvc.setVerbose += ["ElementLink"]
 JobOptionsSvc        INFO Job options successfully read in from ../share/DataLink_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v2r0p3)
-                                          running on lxplus0555 on Mon Nov 18 19:51:05 2013
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r3)
+                                          running on lxplus0006.cern.ch on Tue Mar 10 18:57:41 2015
 ====================================================================================================================================[m
 ApplicationMgr       INFO Application Manager Configured successfully[m
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-39-14[m
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-10[m
-ClassIDSvc           INFO  getRegistryEntries: read 168 CLIDRegistry entries for module ALL[m
-ClassIDSvc           INFO  getRegistryEntries: read 168 CLIDRegistry entries for module ALL[m
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-06[m
-HistoryStore         INFO Initializing HistoryStore - package version StoreGate-02-39-14[m
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-01-06[m
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-18[m
+ClassIDSvc           INFO  getRegistryEntries: read 176 CLIDRegistry entries for module ALL[m
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-10[m
+HistoryStore         INFO Initializing HistoryStore - package version StoreGate-03-01-06[m
 [93;1mEventLoopMgr      WARNING Unable to locate service "EventSelector" [m
 [93;1mEventLoopMgr      WARNING No events will be processed from external input.[m
 [93;1mHistogramPersis...WARNING Histograms saving not required.[m
 ApplicationMgr       INFO Application Manager Initialized successfully[m
 ApplicationMgr Ready
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-39-14[m
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-01-06[m
 StoreGateSvc        DEBUG Service base class initialized successfully[m
-StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service IncidentSvc[m
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
-StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ProxyProviderSvc[m
-StoreGateSvc        DEBUG Recorded object @0x2589a40 with key circVector of type CircularVector(CLID 218202856)
- in DataObject @0x25892c0
+StoreGateSvc        DEBUG Recorded object @0x1134470 with key circVector of type CircularVector(CLID 218202856)
+ in DataObject @0x1134400
  object modifiable when retrieved[m
-StoreGateSvc        DEBUG Recorded object @0x2589af0 with key derCircVector of type DerivedCircularVector(CLID 254054940)
- in DataObject @0x25899d0
+StoreGateSvc        DEBUG Recorded object @0x1134710 with key derCircVector of type DerivedCircularVector(CLID 254054940)
+ in DataObject @0x1134620
  object modifiable when retrieved[m
 *** CircularDep_test OK ***

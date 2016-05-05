@@ -4,9 +4,13 @@
 
 #undef NDEBUG
 #include "TestTools/SGassert.h"
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLink.h"
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLink.h"
 #include "SGTools/BaseInfo.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "TestTools/initGaudi.h"
+#include "SGTools/CLASS_DEF.h"
 
 #include <iostream>
 using std::cerr;
@@ -24,14 +28,10 @@ typedef DataVector<Circular> CircularVector;
 
 class DerivedCircularVector : public DataVector<Circular> {};
 
-#include "SGTools/CLASS_DEF.h"
 CLASS_DEF( CircularVector , 218202856 , 1 )
 CLASS_DEF( DerivedCircularVector , 254054940 , 1 )
 SG_BASE (DerivedCircularVector, CircularVector);
 
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "TestTools/initGaudi.h"
 using namespace Athena_test;
 
 int main() {

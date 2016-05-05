@@ -1,7 +1,7 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/ElementLink_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/InstallArea/jobOptions/ControlTest/StoreGateTestCommon.txt)
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/InstallArea/jobOptions/ControlTest/StoreGateTestCommon.txt
 JobOptionsSvc        INFO # (5,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore"]
 JobOptionsSvc        INFO # (6,1): AuditorSvc.Auditors += ["AlgContextAuditor"]
 JobOptionsSvc        INFO # (7,1): StoreGateSvc.OutputLevel = 1
@@ -11,30 +11,27 @@ JobOptionsSvc        INFO # (10,1): MessageSvc.useColors = 1
 JobOptionsSvc        INFO Job options successfully read in from ../share/ElementLink_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v1r3p3)
-                                          running on lxplus403.cern.ch on Mon Apr 22 16:15:28 2013
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r3)
+                                          running on lxplus0056.cern.ch on Tue Mar 10 19:27:41 2015
 ====================================================================================================================================[m
 ApplicationMgr       INFO Application Manager Configured successfully[m
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-39-03[m
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-07[m
-ClassIDSvc           INFO  getRegistryEntries: read 161 CLIDRegistry entries for module ALL[m
-ClassIDSvc           INFO  getRegistryEntries: read 161 CLIDRegistry entries for module ALL[m
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-03[m
-HistoryStore         INFO Initializing HistoryStore - package version StoreGate-02-39-03[m
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-01-06[m
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-18[m
+ClassIDSvc           INFO  getRegistryEntries: read 200 CLIDRegistry entries for module ALL[m
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-10[m
+HistoryStore         INFO Initializing HistoryStore - package version StoreGate-03-01-06[m
 [93;1mEventLoopMgr      WARNING Unable to locate service "EventSelector" [m
 [93;1mEventLoopMgr      WARNING No events will be processed from external input.[m
 [93;1mHistogramPersis...WARNING Histograms saving not required.[m
 ApplicationMgr       INFO Application Manager Initialized successfully[m
 ApplicationMgr Ready
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-39-03[m
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-01-06[m
 StoreGateSvc        DEBUG Service base class initialized successfully[m
-StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service IncidentSvc[m
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
-StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ProxyProviderSvc[m
  ************* Starting Test 1 
-StoreGateSvc        DEBUG Recorded object @0xbb1ae50 with key fooVec of type DataVector<Foo>(CLID 1234)
- in DataObject @0xbb1c2c0
+StoreGateSvc        DEBUG Recorded object @0x15c61d0 with key fooVec of type DataVector<Foo>(CLID 1234)
+ in DataObject @0x15c6160
  object modifiable when retrieved[m
  Test1: test of contained Element 
  Test1: test of indexed Element 
@@ -44,19 +41,18 @@ StoreGateSvc        DEBUG Recorded object @0xbb1ae50 with key fooVec of type Dat
  Test: test of ElementLink setElement, setStorable
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[97;101;1mElementLink         ERROR toPersistent: the internal state of link @0x7fff45970200 to the collection [] of type [DataVector<Foo>] is INVALID. Looks like you forgot to invoke setStorableObject. This link can not be written[m
 <<---Error Message Ends-------
  >>>>>>>>> Passed Test 1 <<<<<<<<<<< 
  ************* Starting Test 2 
-StoreGateSvc        DEBUG Recorded object @0x7fff45970360 with key  key of type std::vector<std::string>(CLID 25884436)
- in DataObject @0xbb17700
+StoreGateSvc        DEBUG Recorded object @0x7fff6e8df9f0 with key  key of type std::vector<std::string>(CLID 25884436)
+ in DataObject @0x15c6110
  object modifiable when retrieved[m
  Test2: test of contained Element 
  Test2: test of indexed Element 
  >>>>>>>>> Passed Test 2 <<<<<<<<<<< 
  Starting Test 3 
-StoreGateSvc        DEBUG Recorded object @0xbb1cc40 with key fooVec2 of type std::vector<Foo>(CLID 2233)
- in DataObject @0xbb1ce90
+StoreGateSvc        DEBUG Recorded object @0x15b3d80 with key fooVec2 of type std::vector<Foo>(CLID 2233)
+ in DataObject @0x15c6740
  object modifiable when retrieved[m
  Test3: test of contained Element 
  Test3: test of indexed Element 

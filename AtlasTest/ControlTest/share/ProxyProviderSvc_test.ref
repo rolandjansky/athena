@@ -1,16 +1,17 @@
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Root.ErrorIgnoreLevel=Print> for level 1; ignored
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/ProxyProviderSvc_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3a/InstallArea/jobOptions/ControlTest/StoreGateTestCommon.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/work/c/calaf/public/fixOverwrite/InstallArea/jobOptions/ControlTest/StoreGateTestCommon.txt
 JobOptionsSvc        INFO # (5,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore"]
 JobOptionsSvc        INFO # (6,1): AuditorSvc.Auditors += ["AlgContextAuditor"]
 JobOptionsSvc        INFO # (7,1): StoreGateSvc.OutputLevel = 1
 JobOptionsSvc        INFO # (8,1): StoreGateSvc.ActivateHistory = 0
 JobOptionsSvc        INFO # (9,1): CLIDSvc.OutputLevel = 2
 JobOptionsSvc        INFO # (10,1): MessageSvc.useColors = 1
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3a/InstallArea/jobOptions/ToyConversion/ToyConversionOpts.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_1/InstallArea/jobOptions/ToyConversion/ToyConversionOpts.txt
 JobOptionsSvc        INFO # (5,1): EventPersistencySvc.CnvServices += ["ToyConversionSvc"]
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3a/AtlasTest/ControlTest/run/../share/ProxyProviderSvc_test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/work/c/calaf/public/fixOverwrite/AtlasTest/ControlTest/run/../share/ProxyProviderSvc_test.txt
 JobOptionsSvc        INFO # (7,1): ProxyProviderSvc.OutputLevel = 1
 JobOptionsSvc        INFO # (9,1): ClassIDSvc.OutputLevel = 2
 JobOptionsSvc        INFO # (10,1): MessageSvc.setVerbose = ["DataProxy", "EventPersistencySvc", "ToyConversionSvc", "StoreGateSvc", "EventDataSvc", "HistogramDataSvc", "ServiceManager", "HistogramPersistencySvc", "HistoryStore", "DetectorStore", "ApplicationMgr", "ProxyProviderSvc"]
@@ -19,32 +20,36 @@ JobOptionsSvc        INFO Job options successfully read in from ../share/ProxyPr
 ApplicationMgr      DEBUG Getting my own properties[m
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r1)
-                                          running on lxplus0027.cern.ch on Wed Sep  3 17:32:29 2014
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r3)
+                                          running on lxplus0045.cern.ch on Wed Mar 18 02:12:43 2015
 ====================================================================================================================================[m
 ApplicationMgr       INFO Application Manager Configured successfully[m
 ServiceManager      DEBUG Initializing service DetectorStore[m
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-40-00[m
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-01-09[m
 DetectorStore       DEBUG Service base class initialized successfully[m
-DetectorStore     VERBOSE ServiceLocatorHelper::service: found service IncidentSvc[m
 EventPersistenc...  DEBUG  'CnvServices':[ 'ToyConversionSvc' ][m
 EventPersistenc...  DEBUG Service base class initialized successfully[m
 DetectorStore     VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-12[m
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-18[m
 ClassIDSvc          DEBUG Service base class initialized successfully[m
-ClassIDSvc           INFO  getRegistryEntries: read 157 CLIDRegistry entries for module ALL[m
+ClassIDSvc           INFO  getRegistryEntries: read 201 CLIDRegistry entries for module ALL[m
+ClassIDSvc          DEBUG processCLIDDB: read 1246 entries from CLIDDB file: /afs/cern.ch/work/c/calaf/public/fixOverwrite/InstallArea/share/clid.db[m
+ClassIDSvc          DEBUG processCLIDDB: read 1246 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasOffline/rel_1/InstallArea/share/clid.db[m
+ClassIDSvc          DEBUG processCLIDDB: read 1223 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasAnalysis/rel_1/InstallArea/share/clid.db[m
+ClassIDSvc          DEBUG processCLIDDB: read 1065 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasSimulation/rel_1/InstallArea/share/clid.db[m
+ClassIDSvc          DEBUG processCLIDDB: read 1204 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasTrigger/rel_1/InstallArea/share/clid.db[m
+ClassIDSvc          DEBUG processCLIDDB: read 1136 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasReconstruction/rel_1/InstallArea/share/clid.db[m
+ClassIDSvc          DEBUG processCLIDDB: read 1042 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasEvent/rel_1/InstallArea/share/clid.db[m
+ClassIDSvc          DEBUG processCLIDDB: read 251 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/clid.db[m
+ClassIDSvc          DEBUG processCLIDDB: read 92 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_1/InstallArea/share/clid.db[m
 DetectorStore     VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-07[m
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-10[m
 ProxyProviderSvc  VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
-ProxyProviderSvc    DEBUG Service base class initialized successfully[m
-DetectorStore     VERBOSE ServiceLocatorHelper::service: found service ProxyProviderSvc[m
 ServiceManager      DEBUG Initializing service HistoryStore[m
-HistoryStore         INFO Initializing HistoryStore - package version StoreGate-02-40-00[m
+HistoryStore         INFO Initializing HistoryStore - package version StoreGate-03-01-09[m
 HistoryStore        DEBUG Service base class initialized successfully[m
-HistoryStore      VERBOSE ServiceLocatorHelper::service: found service IncidentSvc[m
 HistoryStore      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
 HistoryStore      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
-HistoryStore      VERBOSE ServiceLocatorHelper::service: found service ProxyProviderSvc[m
 ServiceManager      DEBUG Initializing service AppMgrRunable[m
 ServiceManager      DEBUG Initializing service EventLoopMgr[m
 EventDataSvc        DEBUG Service base class initialized successfully[m
@@ -58,21 +63,20 @@ HistogramPersis...  DEBUG Service base class initialized successfully[m
 HistogramDataSvc  VERBOSE ServiceLocatorHelper::service: found service HistogramPersistencySvc[m
 ApplicationMgr       INFO Application Manager Initialized successfully[m
 ApplicationMgr Ready
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-40-00[m
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-01-09[m
 StoreGateSvc        DEBUG Service base class initialized successfully[m
-StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service IncidentSvc[m
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
-StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ProxyProviderSvc[m
-building toy 0x10a74d0
+StoreGateSvc        DEBUG  Bound handle 0x7fff5f6e0000 to proxy 0xe352e0[m
+building toy 0xe35c80
 ToyConversionSvc    DEBUG Service base class initialized successfully[m
 EventPersistenc...VERBOSE ServiceLocatorHelper::service: found service ToyConversionSvc[m
 EventPersistenc...   INFO Added successfully Conversion service:ToyConversionSvc[m
-ClassIDSvc           INFO  getRegistryEntries: read 628 CLIDRegistry entries for module ALL[m
+ClassIDSvc           INFO  getRegistryEntries: read 722 CLIDRegistry entries for module ALL[m
 <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
-StoreGateSvc(StoreGateSvc)::dump():
+SGImplSvc(StoreGateSvc)::dump():
 Found 1 proxy for ClassID 8107 (Bar): 
- flags: (  valid,   locked,  reset) --- data:  0x10a7f50 --- key: aBar
+ flags: (  valid,   locked,  reset) --- data:   0xe365b0 --- key: aBar
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 StoreGateSvc        DEBUG Retrieved const handle to object aFoo  of type Foo(CLID 8101)[m
@@ -82,18 +86,21 @@ StoreGateSvc        DEBUG Retrieved const handle to object aFooBar  of type FooB
 ToyConversionSvc     INFO No converter for object   CLID= 8109[m
 [93;1mDataProxy         WARNING accessData: conversion failed for data object 8109/aFooBar
  Returning NULL DataObject pointer  [m
-[93;1mSG::DataProxy_castWARNING this proxy 0x10213c0 has a NULL data object ptr[m
+[93;1mSG::DataProxy_castWARNING this proxy 0xdf3a00 has a NULL data object ptr[m
 <<---Error Message Ends-------
 *** ProxyProviderSvc_test OK ***
 *** ProxyProviderSvc_test RecordBeforeRead BEGINS ***
 StoreGateSvc        DEBUG Clearing store with forceRemove=0[m
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1022f20, recorded with key=aFoo, CLID=8101, containing data object @0xfc21d0  ... -> DONE[m
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x10a6030, recorded with key=aBar, CLID=8107, containing data object @0x10a7f50  ... -> DONE[m
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x10213c0, recorded with key=aFooBar, CLID=8109, containing data object @0  ... -> DONE[m
+DataProxy         VERBOSE requestRelease():  reset object aFoo CLID 8101 address 0xd528d0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0xde50d0, recorded with key=aFoo, CLID=8101, containing data object @0xd528d0  ... -> DONE[m
+DataProxy         VERBOSE requestRelease():  reset object aBar CLID 8107 address 0xe365b0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0xe352e0, recorded with key=aBar, CLID=8107, containing data object @0xe365b0  ... -> DONE[m
+DataProxy         VERBOSE requestRelease():  reset object aFooBar CLID 8109 address 0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0xdf3a00, recorded with key=aFooBar, CLID=8109, containing data object @0  ... -> DONE[m
 [93;1mStoreGateSvc      WARNING record_impl: you are recording an object with key existingFoo, type Foo (CLID 8101)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead[m
-StoreGateSvc        DEBUG Recorded object @0x109b770 with key existingFoo of type Foo(CLID 8101)
- in DataObject @0x10a7f50
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead[m
+StoreGateSvc        DEBUG Recorded object @0xe2a140 with key existingFoo of type Foo(CLID 8101)
+ in DataObject @0xd89e10
  object modifiable when retrieved[m
 StoreGateSvc        DEBUG Retrieved const handle to object existingFoo  of type Foo(CLID 8101)[m
 6.28
@@ -103,25 +110,25 @@ StoreGateSvc        DEBUG Retrieved const handle to object existingFoo  of type 
 *** ProxyProviderSvc_test readPrivate BEGINS ***
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc      WARNING StoreGateSvc::typeless_readPrivateCopy: did not find object of type Foo with key NotThere[m
+[93;1mStoreGateSvc      WARNING SGImplSvc::typeless_readPrivateCopy: did not find object of type Foo with key NotThere[m
 [93;1mSG::fromStorable  WARNING null input pointer [m
 <<---Error Message Ends-------
 [93;1mStoreGateSvc      WARNING record_impl: you are recording an object with key privFoo, type Foo (CLID 8101)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead[m
-StoreGateSvc        DEBUG Recorded object @0x109fbb0 with key privFoo of type Foo(CLID 8101)
- in DataObject @0xf7ba40
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead[m
+StoreGateSvc        DEBUG Recorded object @0xe293c0 with key privFoo of type Foo(CLID 8101)
+ in DataObject @0xd8d500
  object modifiable when retrieved[m
-StoreGateSvc        DEBUG overwrite: Recorded object @0x107be00 with key privFoo of type Foo(CLID 8101)
- in DataObject @0x1034de0
+StoreGateSvc        DEBUG overwrite: Recorded object @0xe0d840 with key privFoo of type Foo(CLID 8101)
+ in DataObject @0xdf0170
  object modifiable when retrieved[m
 StoreGateSvc        DEBUG Retrieved non-const handle to object privFoo  of type Foo(CLID 8101)[m
-StoreGateSvc        DEBUG Recorded object @0x10a36e0 with key silly33 of type Foo(CLID 8101)
- in DataObject @0x1022be0
+StoreGateSvc        DEBUG Recorded object @0xe2bb10 with key silly33 of type Foo(CLID 8101)
+ in DataObject @0xdf9950
  object modifiable when retrieved[m
 StoreGateSvc        DEBUG Retrieved non-const handle to object silly33  of type Foo(CLID 8101)[m
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc      WARNING StoreGateSvc::typeless_readPrivateCopy: did not find object of type Foo with key silly33[m
+[93;1mStoreGateSvc      WARNING SGImplSvc::typeless_readPrivateCopy: did not find object of type Foo with key silly33[m
 [93;1mSG::fromStorable  WARNING null input pointer [m
 <<---Error Message Ends-------
 StoreGateSvc        DEBUG Retrieved non-const handle to object silly33  of type Foo(CLID 8101)[m
@@ -136,21 +143,68 @@ Now we expect to see an error message:
 
 *** ProxyProviderSvc_test HLTAutoKeyReset BEGINS ***
 StoreGateSvc        DEBUG Clearing store with forceRemove=1[m
-StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1022f20, recorded with key=aFoo, CLID=8101, containing data object @0  ... -> DONE[m
-StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x102a6f0, recorded with key=diskFoo, CLID=8101, containing data object @0  ... -> DONE[m
-StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x10a80a0, recorded with key=existingFoo, CLID=8101, containing data object @0x10a7f50  ... -> DONE[m
-StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x10252c0, recorded with key=privFoo, CLID=8101, containing data object @0x1034de0  ... -> DONE[m
-StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1034470, recorded with key=silly33, CLID=8101, containing data object @0  ... -> DONE[m
-StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x10a6030, recorded with key=aBar, CLID=8107, containing data object @0  ... -> DONE[m
-StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x10213c0, recorded with key=aFooBar, CLID=8109, containing data object @0  ... -> DONE[m
+DataProxy         VERBOSE requestRelease():  release  object aFoo CLID 8101 address 0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0xde50d0, recorded with key=aFoo, CLID=8101, containing data object @0  ... -> DONE[m
+DataProxy         VERBOSE requestRelease():  release  object diskFoo CLID 8101 address 0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0xdf3420, recorded with key=diskFoo, CLID=8101, containing data object @0  ... -> DONE[m
+DataProxy         VERBOSE requestRelease():  release  object existingFoo CLID 8101 address 0xd89e10[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0xde6d20, recorded with key=existingFoo, CLID=8101, containing data object @0xd89e10  ... -> DONE[m
+DataProxy         VERBOSE requestRelease():  release  object privFoo CLID 8101 address 0xdf0170[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0xdf3cb0, recorded with key=privFoo, CLID=8101, containing data object @0xdf0170  ... -> DONE[m
+DataProxy         VERBOSE requestRelease():  release  object silly33 CLID 8101 address 0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0xded920, recorded with key=silly33, CLID=8101, containing data object @0  ... -> DONE[m
+DataProxy         VERBOSE requestRelease():  release  object aBar CLID 8107 address 0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0xe352e0, recorded with key=aBar, CLID=8107, containing data object @0  ... -> DONE[m
+DataProxy         VERBOSE requestRelease():  release  object aFooBar CLID 8109 address 0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0xdf3a00, recorded with key=aFooBar, CLID=8109, containing data object @0  ... -> DONE[m
 StoreGateSvc        DEBUG Clearing store with forceRemove=0[m
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x10213c0, recorded with key=HLTAutoKey_1, CLID=8101, containing data object @0  ... -> DONE[m
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x10a80a0, recorded with key=HLTAutoKey_2, CLID=8101, containing data object @0  ... -> DONE[m
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x102a6f0, recorded with key=HLTAutoKey_3, CLID=8101, containing data object @0  ... -> DONE[m
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x10a58d0, recorded with key=NOT_HLTAutoKey_3, CLID=8101, containing data object @0  ... -> DONE[m
+DataProxy         VERBOSE requestRelease():  release  object HLTAutoKey_1 CLID 8101 address 0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0xde50d0, recorded with key=HLTAutoKey_1, CLID=8101, containing data object @0  ... -> DONE[m
+DataProxy         VERBOSE requestRelease():  release  object HLTAutoKey_2 CLID 8101 address 0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0xde6d20, recorded with key=HLTAutoKey_2, CLID=8101, containing data object @0  ... -> DONE[m
+DataProxy         VERBOSE requestRelease():  release  object HLTAutoKey_3 CLID 8101 address 0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0xdf3a00, recorded with key=HLTAutoKey_3, CLID=8101, containing data object @0  ... -> DONE[m
+DataProxy         VERBOSE requestRelease():  reset object NOT_HLTAutoKey_3 CLID 8101 address 0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0xe350b0, recorded with key=NOT_HLTAutoKey_3, CLID=8101, containing data object @0  ... -> DONE[m
 *** ProxyProviderSvc_test HLTAutoKeyReset OK ***
 
 
+*** ProxyProviderSvc_test Overwrite starts ***
+
+
 StoreGateSvc        DEBUG Clearing store with forceRemove=1[m
-StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x102a6f0, recorded with key=HLTAutoKey_1, CLID=8101, containing data object @0  ... -> DONE[m
-StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x10a58d0, recorded with key=NOT_HLTAutoKey_3, CLID=8101, containing data object @0  ... -> DONE[m
+DataProxy         VERBOSE requestRelease():  release  object HLTAutoKey_1 CLID 8101 address 0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0xdf3a00, recorded with key=HLTAutoKey_1, CLID=8101, containing data object @0  ... -> DONE[m
+DataProxy         VERBOSE requestRelease():  release  object NOT_HLTAutoKey_3 CLID 8101 address 0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0xe350b0, recorded with key=NOT_HLTAutoKey_3, CLID=8101, containing data object @0  ... -> DONE[m
+=============Event #0 starts
+StoreGateSvc        DEBUG overwrite: Recorded object @0xe26b60 with key toOverwrite of type FooBar(CLID 8109)
+ in DataObject @0xd528d0
+ object modifiable when retrieved[m
+Overwritten FooBar i=0
+StoreGateSvc        DEBUG Clearing store with forceRemove=0[m
+DataProxy         VERBOSE requestRelease():  release  object toOverwrite CLID 8109 address 0xd528d0[m
+FooBar i=0 deleted
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0xdf3a00, recorded with key=toOverwrite, CLID=8109, containing data object @0xd528d0  ... -> DONE[m
+=============Event #1 starts
+StoreGateSvc        DEBUG overwrite: Recorded object @0xd7c320 with key toOverwrite of type FooBar(CLID 8109)
+ in DataObject @0xd528d0
+ object modifiable when retrieved[m
+Overwritten FooBar i=1
+StoreGateSvc        DEBUG Clearing store with forceRemove=0[m
+DataProxy         VERBOSE requestRelease():  release  object toOverwrite CLID 8109 address 0xd528d0[m
+FooBar i=1 deleted
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0xde50d0, recorded with key=toOverwrite, CLID=8109, containing data object @0xd528d0  ... -> DONE[m
+=============Event #2 starts
+StoreGateSvc        DEBUG overwrite: Recorded object @0xe2bb10 with key toOverwrite of type FooBar(CLID 8109)
+ in DataObject @0xd528d0
+ object modifiable when retrieved[m
+Overwritten FooBar i=2
+StoreGateSvc        DEBUG Clearing store with forceRemove=0[m
+DataProxy         VERBOSE requestRelease():  release  object toOverwrite CLID 8109 address 0xd528d0[m
+FooBar i=2 deleted
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0xe350b0, recorded with key=toOverwrite, CLID=8109, containing data object @0xd528d0  ... -> DONE[m
+*** ProxyProviderSvc_test Overwrite OK ***
+
+
+StoreGateSvc        DEBUG Clearing store with forceRemove=1[m

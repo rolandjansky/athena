@@ -38,13 +38,13 @@ def test_lock():
     sg = PyAthena.py_svc('StoreGateSvc')
     ei = PyAthena.EventInfo()
     sg.record (ei, 'EventInfo')
-    sg.setConst (ei)
+    sg.setConst (ei).ignore()
 
     ll = PyAthena.MyLockableDataObj()
     assert (not ll.m_locked)
     sg.record (ll, 'lockable')
     assert (not ll.m_locked)
-    sg.setConst (ll)
+    sg.setConst (ll).ignore()
     assert (ll.m_locked)
     print 'done test lock'
     return
@@ -59,7 +59,7 @@ for _ in xrange(10):
 
 test_lock()
 
-theApp.finalize()
+theApp.finalize().ignore()
 print "="*80
 print "test [OK]"
 print "="*80
