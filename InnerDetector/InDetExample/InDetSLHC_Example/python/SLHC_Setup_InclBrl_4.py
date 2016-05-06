@@ -33,6 +33,9 @@ class SLHC_Setup :
     # constructor requires the SLHC_Flags
     def __init__(self):
 
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        from AthenaCommon.AppMgr import ToolSvc as toolSvc
+
         # Only use local text file and dictionary if SLHC_Version set
         if (SLHC_Flags.SLHC_Version() and not (SLHC_Flags.SLHC_Version() == 'None')) : 
 
@@ -55,7 +58,6 @@ class SLHC_Setup :
             database_full_path_name = database_file_path+'/'+database_file
 
             # Pass text file name to GeometryDBSvc
-            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             if not hasattr(svcMgr,'InDetGeometryDBSvc'):
                 from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
                 svcMgr+=GeometryDBSvc("InDetGeometryDBSvc")
@@ -89,9 +91,6 @@ class SLHC_Setup :
                 envName=subDet.upper()+"_"+key+"_GEO_XML"
                 os.environ[envName]=fileName
                 print "ENV ",envName," ",fileName
-
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from AthenaCommon.AppMgr import ToolSvc as toolSvc
 
         print "******************************************************************************************"
         print "PixelGeoModel - import module and design tools"

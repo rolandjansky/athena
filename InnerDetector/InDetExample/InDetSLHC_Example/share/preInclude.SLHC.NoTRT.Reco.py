@@ -12,6 +12,8 @@ rec.doTrigger=False # Otherwise, you will get "Py:TriggerMenu.menu.GenerateMenu 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.BField_setOn()
 
+DetFlags.pileup.all_setOff()
+
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 TrkDetFlags.SLHC_Geometry=True
 
@@ -48,21 +50,30 @@ InDetFlags.doSGDeletion=False # This should be False.
 InDetFlags.doPixelClusterSplitting=False # This should be False.
 InDetFlags.doLowBetaFinder=False # This should be False. 
 
-if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
-    InDetFlags.writeRDOs=True
-    InDetFlags.doSLHCVeryForward=True
-
 # InDetFlags.doStandardPlots=True 
+# InDetFlags.doPrintConfigurables = True
+
+if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
+    InDetFlags.writeRDOs = True
+    InDetFlags.doSLHCVeryForward = True
+    InDetFlags.doPseudoTracking = True
 
 # if rec.OutputFileNameForRecoStep() == 'ESDtoAOD': 
 #     InDetFlags.doNewTracking=False
 #     InDetFlags.doVertexFinding=False
 #     InDetFlags.doPRDFormation=False
 #     InDetFlags.doParticleCreation=False
-#     InDetFlags.disableInDetReco.set_Value_and_Lock(False)
+#     InDetFlags.disableInDetReco=False
 #     InDetFlags.doStatistics=False
 #     InDetFlags.disableTracking=False
 #     InDetFlags.doForwardTracks=False
 #     InDetFlags.doSGDeletion=True
 
-# InDetFlags.doPrintConfigurables.set_Value_and_Lock(True)
+if rec.OutputFileNameForRecoStep() == 'ESDtoDPD': 
+    rec.doDPD = True
+    from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
+    InDetDxAODFlags.DumpUnassociatedHits = False
+    InDetDxAODFlags.DumpPixelInfo = True
+    InDetDxAODFlags.DumpPixelRdoInfo = True
+    InDetDxAODFlags.DumpSctInfo = True
+    InDetDxAODFlags.DumpSctRdoInfo = True

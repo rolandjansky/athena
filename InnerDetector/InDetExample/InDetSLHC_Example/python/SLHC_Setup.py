@@ -59,9 +59,12 @@ class SLHC_Setup :
         else:
             print 'SLHC_Setup: Geometry coming fully from database'
             
-        # Alignments have to disabled for Pixels
-        pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
-        pixelTool.Alignable = False
+        # Alignments have to be disabled for Pixels, but only if they are included
+        try:
+            pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
+            pixelTool.Alignable = False
+        except IndexError:
+            print "    SLHC_Setup.py: Warning: Cannot turn off pixel alignment (perhaps because pixels are not included?)"
 
         
     def search_file(self,filename, search_path):

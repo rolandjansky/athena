@@ -6,8 +6,9 @@
 from InDetSLHC_Example.SLHC_Setup_ExtBrl_4 import SLHC_Setup
 SLHC_Setup = SLHC_Setup()
 
+from AthenaCommon.AppMgr import ServiceMgr
+
 if rec.OutputFileNameForRecoStep() == 'RAWtoESD' or rec.OutputFileNameForRecoStep() == 'ESDtoDPD':
-    from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr.PixelOfflineCalibSvc.HDCFromCOOL = False
 
 from AthenaCommon.DetFlags import DetFlags
@@ -42,6 +43,8 @@ if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     ToolSvc.InDetSpSeedsMakerSLHC.useITKseedCutsDeltaSize = True  
     ToolSvc.InDetSpSeedsMakerSLHC.useITKseedCutsL01hit = True  
     ToolSvc.InDetSpSeedsMakerSLHC.NsigmaClusSizeZcut = 4.0
+    ToolSvc.InDetSpSeedsMakerSLHC.useITKseedCutsPixHole = False
+    ToolSvc.InDetSpSeedsMakerSLHC.useITKseedCutsSctHole = False
 
     ToolSvc.InDetSpSeedsMakerVeryForwardSLHCTracks.usePixelClusterCleanUp = True
     ToolSvc.InDetSpSeedsMakerVeryForwardSLHCTracks.usePixelClusterCleanUpSizePhicutsB = True
@@ -53,4 +56,5 @@ if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     ToolSvc.InDetSpSeedsMakerVeryForwardSLHCTracks.useITKseedCutsDeltaSize = True
     ToolSvc.InDetSpSeedsMakerVeryForwardSLHCTracks.useITKseedCutsL01hit = True
     ToolSvc.InDetSpSeedsMakerVeryForwardSLHCTracks.NsigmaClusSizeZcut = 4.0
-
+    ToolSvc.InDetSpSeedsMakerVeryForwardSLHCTracks.useITKseedCutsPixHole = False
+    ToolSvc.InDetSpSeedsMakerVeryForwardSLHCTracks.useITKseedCutsSctHole = False
