@@ -78,9 +78,9 @@ struct perTestSetup
   }
 };
 
-BOOST_GLOBAL_FIXTURE( globalxAODSetup )
+BOOST_GLOBAL_FIXTURE( globalxAODSetup );
 
-BOOST_FIXTURE_TEST_SUITE(Test_Met_Systematics_Tool , perTestSetup)
+BOOST_FIXTURE_TEST_SUITE(Test_Met_Systematics_Tool , perTestSetup);
 
 BOOST_AUTO_TEST_CASE(testDynamicCast)
 {
@@ -119,20 +119,20 @@ BOOST_AUTO_TEST_CASE( testAddObjToCont ){
 BOOST_AUTO_TEST_CASE( testDefaultHistosFilled ){
   BOOST_REQUIRE(tool.initialize());
 
-  BOOST_REQUIRE(tool.shiftpara_pthard_njet_mu!=nullptr);
-  BOOST_REQUIRE(tool.resopara_pthard_njet_mu !=nullptr);
-  BOOST_REQUIRE(tool.resoperp_pthard_njet_mu !=nullptr);
-  BOOST_REQUIRE(tool.jet_systRpt_pt_eta      ==nullptr);
+  BOOST_REQUIRE(tool.m_shiftpara_pthard_njet_mu!=nullptr);
+  BOOST_REQUIRE(tool.m_resopara_pthard_njet_mu !=nullptr);
+  BOOST_REQUIRE(tool.m_resoperp_pthard_njet_mu !=nullptr);
+  BOOST_REQUIRE(tool.m_jet_systRpt_pt_eta      ==nullptr);
 }
 
 BOOST_AUTO_TEST_CASE( testJetTrkHistosFilled ){
   BOOST_REQUIRE(tool.setProperty("ConfigJetTrkFile" ,"JetTrackSyst.config"));
   BOOST_REQUIRE(tool.initialize());
 
-  BOOST_REQUIRE(tool.shiftpara_pthard_njet_mu!=nullptr);
-  BOOST_REQUIRE(tool.resopara_pthard_njet_mu !=nullptr);
-  BOOST_REQUIRE(tool.resoperp_pthard_njet_mu !=nullptr);
-  BOOST_REQUIRE(tool.jet_systRpt_pt_eta      !=nullptr);
+  BOOST_REQUIRE(tool.m_shiftpara_pthard_njet_mu!=nullptr);
+  BOOST_REQUIRE(tool.m_resopara_pthard_njet_mu !=nullptr);
+  BOOST_REQUIRE(tool.m_resoperp_pthard_njet_mu !=nullptr);
+  BOOST_REQUIRE(tool.m_jet_systRpt_pt_eta      !=nullptr);
 }
 
 BOOST_AUTO_TEST_CASE( testNoCollection ){

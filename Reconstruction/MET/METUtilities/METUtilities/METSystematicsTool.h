@@ -36,17 +36,17 @@ namespace met {
   //please forgive the code duplication :)
   struct missingEt {
     missingEt() : mpx(0), mpy(0), sumet(0), name(""), source(MissingETBase::Source::UnknownType){}
-    missingEt(double _mpx, double _mpy, double _sumet) :
-      mpx(_mpx),
-      mpy(_mpy),
-      sumet(_sumet),
+    missingEt(double mpx_in, double mpy_in, double sumet_in) :
+      mpx(mpx_in),
+      mpy(mpy_in),
+      sumet(sumet_in),
       name(""),
       source(MissingETBase::Source::UnknownType)
     {}
-    missingEt(double _mpx, double _mpy, double _sumet, std::string const & iname, MissingETBase::Types::bitmask_t const & isource ) :
-      mpx(_mpx),
-      mpy(_mpy),
-      sumet(_sumet),
+    missingEt(double mpx_in, double mpy_in, double sumet_in, std::string const & iname, MissingETBase::Types::bitmask_t const & isource ) :
+      mpx(mpx_in),
+      mpy(mpy_in),
+      sumet(sumet_in),
       name(iname),
       source(isource)
     {}
@@ -87,8 +87,7 @@ namespace met {
     METSystematicsTool(const std::string& name);
 
     //Destructor
-    virtual ~METSystematicsTool(){}
-
+    // virtual ~METSystematicsTool(){}
 
     StatusCode softTrkSystInitialize(); //initialize softTrk scale/reo histos from config file
     StatusCode softCaloSystInitialize();//initialize softCalo scale/reso histos from config file
@@ -149,12 +148,12 @@ namespace met {
     std::string m_eventInfo;
     int         m_randSeed ;
 
-    TH3D* shiftpara_pthard_njet_mu;
-    TH3D* resopara_pthard_njet_mu;
-    TH3D* resoperp_pthard_njet_mu;
-    TH2D* jet_systRpt_pt_eta;
-    TH1D* h_calosyst_scale;
-    TH1D* h_calosyst_reso;
+    TH3D* m_shiftpara_pthard_njet_mu;
+    TH3D* m_resopara_pthard_njet_mu;
+    TH3D* m_resoperp_pthard_njet_mu;
+    TH2D* m_jet_systRpt_pt_eta;
+    TH1D* m_h_calosyst_scale;
+    TH1D* m_h_calosyst_reso;
 
     mutable TRandom3 m_rand;//so that we can call this from applyCorrection
 

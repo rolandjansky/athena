@@ -21,7 +21,7 @@
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
-// #include "TauAnalysisTools/ITauSelectionTool.h"
+#include "TauAnalysisTools/ITauSelectionTool.h"
 
 using std::string;
 using namespace xAOD;
@@ -35,8 +35,8 @@ namespace met {
     : ::AthAlgorithm( name, pSvcLocator ),
     m_muonSelTool(""),
     m_elecSelLHTool(""),
-    m_photonSelIsEMTool("")
-    // m_tauSelTool("")
+    m_photonSelIsEMTool(""),
+    m_tauSelTool("")
  {
     declareProperty( "Maker",          m_metmaker                        );
     declareProperty( "METMapName",     m_mapname   = "METAssoc"          );
@@ -55,7 +55,7 @@ namespace met {
     declareProperty( "MuonSelectionTool",        m_muonSelTool           );
     declareProperty( "ElectronLHSelectionTool",  m_elecSelLHTool         );
     declareProperty( "PhotonIsEMSelectionTool" , m_photonSelIsEMTool     );
-    // declareProperty( "TauSelectionTool",         m_tauSelTool            );
+    declareProperty( "TauSelectionTool",         m_tauSelTool            );
 
     declareProperty( "DoTruthLeptons", m_doTruthLep = false              );
 
@@ -92,10 +92,10 @@ namespace met {
       return StatusCode::FAILURE;
     };
 
-    // if( m_tauSelTool.retrieve().isFailure() ) {
-    //   ATH_MSG_ERROR("Failed to retrieve tool: " << m_tauSelTool->name());
-    //   return StatusCode::FAILURE;
-    // };
+    if( m_tauSelTool.retrieve().isFailure() ) {
+      ATH_MSG_ERROR("Failed to retrieve tool: " << m_tauSelTool->name());
+      return StatusCode::FAILURE;
+    };
 
     return StatusCode::SUCCESS;
   }
@@ -275,10 +275,14 @@ namespace met {
     ATH_MSG_DEBUG("Of " << jetCont->size() << " jets, "
 		  << uniques.size() << " are non-overlapping.");
 
-    if( m_metmaker->buildMETSum("FinalTrk", newMet, (*newMet)[m_softtrkname] ? (*newMet)[m_softtrkname]->source() : MissingETBase::Source::Track).isFailure() ){
+    MissingETBase::Types::bitmask_t trksource = MissingETBase::Source::Track;
+    if((*newMet)[m_softtrkname]) trksource = (*newMet)[m_softtrkname]->source();
+    if( m_metmaker->buildMETSum("FinalTrk", newMet, trksource).isFailure() ){
       ATH_MSG_WARNING("Building MET FinalTrk sum failed.");
     }
-    if( m_metmaker->buildMETSum("FinalClus", newMet, (*newMet)[m_softtrkname] ? (*newMet)[m_softclname]->source() : MissingETBase::Source::LCTopo).isFailure() ) {
+    MissingETBase::Types::bitmask_t clsource = MissingETBase::Source::LCTopo;
+    if((*newMet)[m_softclname]) clsource = (*newMet)[m_softclname]->source();
+    if( m_metmaker->buildMETSum("FinalClus", newMet, clsource).isFailure() ) {
       ATH_MSG_WARNING("Building MET FinalClus sum failed.");
     }
 
@@ -306,15 +310,6 @@ namespace met {
   }
 
   bool METMakerAlg::accept(const xAOD::TauJet* tau)
-  {
-    if(tau->pt()<20e3 || fabs(tau->eta())>2.5) return false;
-    // need to accommodate more than one of these?
-    if(!tau->isTau( xAOD::TauJetParameters::IsTauFlag(xAOD::TauJetParameters::JetBDTSigMedium) )) return false;
-    if(tau->isTau( xAOD::TauJetParameters::IsTauFlag(xAOD::TauJetParameters::EleBDTMedium) )) return false;
-    if(tau->isTau( xAOD::TauJetParameters::IsTauFlag(xAOD::TauJetParameters::MuonVeto) )) return false;
-
-    return true;
-  }
-  //  { return m_tauSelTool->accept( *tau ); }
+  { return m_tauSelTool->accept( *tau ); }
 
 }

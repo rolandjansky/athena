@@ -23,9 +23,9 @@ class IAsgPhotonIsEMSelector;
 namespace CP {
   class IMuonSelectionTool;
 }
-// namespace TauAnalysisTools {
-//   class ITauSelectionTool;
-// }
+namespace TauAnalysisTools {
+  class ITauSelectionTool;
+}
 
 namespace met {
   class METMakerAlg : public AthAlgorithm {
@@ -74,7 +74,7 @@ namespace met {
     ToolHandle<CP::IMuonSelectionTool> m_muonSelTool;
     ToolHandle<IAsgElectronLikelihoodTool> m_elecSelLHTool;
     ToolHandle<IAsgPhotonIsEMSelector>     m_photonSelIsEMTool;
-    // ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelTool;
+    ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelTool;
 
   }; 
 

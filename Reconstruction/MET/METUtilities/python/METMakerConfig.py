@@ -14,7 +14,8 @@ def getMETMakerAlg(suffix,jetPtCut=0,jetColl=""):
     metMaker = CfgMgr.met__METMaker('METMaker_'+suffix,
                                     DoPFlow=doPFlow,
                                     DoSoftTruth=doTruth,
-                                    JetPtCut=jetPtCut);
+                                    JetSelection='Tier0',
+                                    );
     ToolSvc += metMaker
 
     muonSel = CfgMgr.CP__MuonSelectionTool("MuonSelectionTool",
@@ -32,9 +33,8 @@ def getMETMakerAlg(suffix,jetPtCut=0,jetColl=""):
                                                  ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150429/PhotonIsEMTightSelectorCutDefs.conf")
     ToolSvc += photonSelIsEM
 
-    # tauSel = CfgMgr.TauAnalysisTools__TauSelectionTool("TauSelectionTool",
-    #                                                    ConfigPath='TauAnalysisTools/00-01-05/Selection/recommended_selection_mc15.conf')
-    # ToolSvc += tauSel
+    tauSel = CfgMgr.TauAnalysisTools__TauSelectionTool("TauSelectionTool")
+    ToolSvc += tauSel
 
     if jetColl=="":
         jetColl = suffix+'Jets'
@@ -48,6 +48,7 @@ def getMETMakerAlg(suffix,jetPtCut=0,jetColl=""):
                                        Maker=metMaker,
                                        MuonSelectionTool=muonSel,
                                        ElectronLHSelectionTool=elecSelLH,
-                                       PhotonIsEMSelectionTool=photonSelIsEM)
-                                       # TauSelectionTool=tauSel)
+                                       PhotonIsEMSelectionTool=photonSelIsEM,
+                                       TauSelectionTool=tauSel,
+                                       )
     return makerAlg

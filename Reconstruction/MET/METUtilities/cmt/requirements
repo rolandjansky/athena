@@ -29,9 +29,11 @@ use xAODCore		xAODCore-*		Event/xAOD
 
 use PathResolver	PathResolver-*		Tools
 
-use ElectronPhotonSelectorTools          ElectronPhotonSelectorTools-*          PhysicsAnalysis/ElectronPhotonID
-use MuonSelectorTools         MuonSelectorTools-*         PhysicsAnalysis/MuonID
-#use TauAnalysisTools TauAnalysisTools-* PhysicsAnalysis/TauID
+use ElectronPhotonSelectorTools  ElectronPhotonSelectorTools-*          PhysicsAnalysis/ElectronPhotonID
+use MuonSelectorTools   MuonSelectorTools-*     PhysicsAnalysis/MuonID
+use TauAnalysisTools 	TauAnalysisTools-* 	PhysicsAnalysis/TauID
+
+use FourMomUtils        FourMomUtils-*		Event
 
 # needed for track momentum errors
 use EventPrimitives	EventPrimitives-*	Event
@@ -50,11 +52,12 @@ branches src src/components doc python share METUtilities Root
 #todo probably remove when we get files in PathResolver space
 apply_pattern declare_calib files="../data/*.config ../data/*.root"
 
-private
-####library METUtilities ../src/*.cxx ../Root/*.cxx -s=components *.cxx
-####apply_pattern component_library
+# needs to be public for linking
+#library METUtilities ../src/*.cxx ../Root/*.cxx -s=components *.cxx
+#apply_pattern component_library
 apply_pattern dual_use_library files="../src/*.cxx ../Root/*.cxx"
 
+private
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
 
@@ -63,5 +66,6 @@ apply_pattern declare_python_modules files="*.py"
 #macro_append METUtilities_dependencies " METUtilitiesLib"
 
 #private
-use AtlasReflex AtlasReflex-* External -no-auto-imports
-apply_pattern lcgdict dict=METUtilities selectionfile=selection.xml headerfiles="../METUtilities/METUtilitiesDict.h"
+#use AtlasReflex AtlasReflex-* External -no-auto-imports
+#apply_pattern lcgdict dict=METUtilities selectionfile=selection.xml headerfiles="../METUtilities/METUtilitiesDict.h"
+

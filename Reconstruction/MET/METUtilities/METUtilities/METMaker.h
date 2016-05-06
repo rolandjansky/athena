@@ -24,6 +24,9 @@
 // EDM includes
 #include "xAODJet/JetContainer.h"
 
+// Tracking Tool
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+
 // Forward declaration
 
 namespace met {
@@ -133,7 +136,8 @@ namespace met {
                              const xAOD::MissingET* coreSoftTrk,
                              bool doJetJVT,
                              std::vector<const xAOD::IParticle*>& uniques,
-                             bool tracksForHardJets = 0);
+                             bool tracksForHardJets = false,
+                             std::vector<const xAOD::IParticle*>* softConst=0);
 
     StatusCode rebuildTrackMET(const std::string& metJetKey,
                              const std::string& softTrkKey,
@@ -183,29 +187,40 @@ namespace met {
 		       xAOD::MissingETContainer * metCont,
 		       const std::string& metKey,
 		       const MissingETBase::Types::bitmask_t metSource);
+    bool acceptTrack(const xAOD::TrackParticle* trk, const xAOD::Vertex* vx) const;
+    const xAOD::Vertex* getPV() const;
 
     // std::string m_pvcoll;
 
     bool m_jetCorrectPhi;
-
-    double m_jetMinPt;
-    double m_jetMinAbsJvt;
     double m_jetMinEfrac;
     double m_jetMinWeightedPt;
     std::string m_jetConstitScaleMom;
     std::string m_jetJvtMomentName;
 
+    double m_CenJetPtCut, m_FwdJetPtCut ; // jet pt cut for central/forward jets(eta<2.4)
+    double m_JvtCut, m_JvtPtMax; // JVT cut and pt region of jets to apply a JVT selection
+    std::string m_jetSelection;
+    // Extra configurables for custom WP
+    double m_customCenJetPtCut,m_customFwdJetPtCut;
+    double m_customJvtCut,m_customJvtPtMax;
+
     bool m_doPFlow;
     bool m_doSoftTruth;
     bool m_doConstJet;
 
+    bool m_useGhostMuons;
+    bool m_doRemoveMuonJets;
+    bool m_doSetMuonJetEMScale;
+
     bool m_muEloss;
-    bool m_muIsolEloss;
+    bool m_orCaloTaggedMuon;
 
     // Set up accessors to original object links in case of corrected copy containers
     SG::AuxElement::ConstAccessor<obj_link_t>  m_objLinkAcc;
 
-    SG::AuxElement::Decorator<char>  m_jetUsedDec;
+    SG::AuxElement::Decorator<char>  m_objUsedDec;
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
     /// Default constructor:
     METMaker();
 

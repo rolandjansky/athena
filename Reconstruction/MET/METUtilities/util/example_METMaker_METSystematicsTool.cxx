@@ -41,7 +41,8 @@
 
 #include "PATInterfaces/SystematicRegistry.h"
 
-static std::string jetType = "AntiKt4EMTopoJets";
+#include "xAODCore/tools/IOStats.h"
+#include "xAODCore/tools/ReadStats.h"
 
 JetCalibrationTool jetCalibrationTool("JetCalibTool");
 
@@ -58,9 +59,19 @@ StatusCode calibrateJetCollection(xAOD::JetContainer* & jets ){
   return StatusCode::SUCCESS;
 }
 
-int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
+int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl;
    // Initialize the application
   xAOD::Init() ;
+
+  TString fileName = gSystem->Getenv("ASG_TEST_FILE_MC");
+  std::string jetType = "AntiKt4EMTopoJets";
+  for (int i=0; i<argc; ++i) {
+    if (std::string(argv[i]) == "-filen" && i+1<argc) {
+      fileName = argv[i+1];
+    } else if (std::string(argv[i]) == "-jetcoll" && i+1<argc) {
+      jetType = argv[i+1];
+    }
+  }
 
   //enable status code failures
   CP::CorrectionCode::enableFailure();
@@ -69,7 +80,6 @@ int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
   xAOD::TReturnCode::enableFailure();
 
   //this test file should work.  Feel free to contact me if there is a problem with the file.
-  TString const fileName = gSystem->Getenv("ASG_TEST_FILE_MC");
   std::auto_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
   assert( ifile.get() );
 
@@ -287,6 +297,8 @@ int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
 
   delete outfile;
   delete event;
+
+  xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
 
   return 0;
  }

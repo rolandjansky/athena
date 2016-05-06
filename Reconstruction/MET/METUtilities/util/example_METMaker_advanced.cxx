@@ -23,26 +23,30 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETComposition.h"
 
-#include "xAODCore/ShallowAuxContainer.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTau/TauJetContainer.h"
+#include "xAODBase/IParticleHelpers.h"
 
 #include "assert.h"
+#include <stdlib.h>
 #include "TFile.h"
 
 #include "JetCalibTools/JetCalibrationTool.h"
+
 #include "METUtilities/METMaker.h"
 #include "METUtilities/CutsMETMaker.h"
+#include "METUtilities/METHelpers.h"
+
+#include "xAODCore/tools/IOStats.h"
+#include "xAODCore/tools/ReadStats.h"
 
 //#include "PATInterfaces/SystematicRegistry.h"
 
-static std::string jetType = "AntiKt4EMTopoJets";
-
-int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
+int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl;
    // Initialize the application
   xAOD::Init() ;
 
@@ -52,8 +56,20 @@ int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
   StatusCode::enableFailure();
   xAOD::TReturnCode::enableFailure();
 
+  std::string jetType = "AntiKt4EMTopoJets";
+  TString fileName = gSystem->Getenv("ASG_TEST_FILE_MC");
+  Long64_t evtmax = 100;
+  for (int i=0; i<argc; ++i) {
+    if (std::string(argv[i]) == "-filen" && i+1<argc) {
+      fileName = argv[i+1];
+    } else if (std::string(argv[i]) == "-jetcoll" && i+1<argc) {
+      jetType = argv[i+1];
+    } else if (std::string(argv[i]) == "-evtmax" && i+1<argc) {
+      evtmax = atoi(argv[i+1]);
+    }
+  }
+
   //this test file should work.  Feel free to contact me if there is a problem with the file.
-  TString const fileName = "/afs/cern.ch/work/r/rsmith/public/METUtilities_testfiles/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s1982_s1964_r6006_tid04628718_00/AOD.04628718._000158.pool.root.1";
   std::auto_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
   assert( ifile.get() );
 
@@ -64,6 +80,9 @@ int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
   // Create a transient object store. Needed for the tools.
   xAOD::TStore store;
   met::METMaker metMaker("METMaker");
+  metMaker.setProperty("DoRemoveMuonJets", true).ignore();
+  metMaker.setProperty("DoSetMuonJetEMScale", true).ignore();
+
   // metMaker.msg().setLevel(MSG::VERBOSE);//If you want more messages, you can turn this up
 
   // std::string const  jetCalibName = ;
@@ -108,8 +127,13 @@ int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
 
 
     //this should probably be a calibrated jet container.  See the METUtilities twiki for more info
-    const xAOD::JetContainer* calibJets = nullptr;
-    assert( event->retrieve(calibJets, jetType));//this retrieves and applies the correction
+    const xAOD::JetContainer* jets = nullptr;
+    assert( event->retrieve(jets, jetType));
+
+    std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > jets_shallowCopy = xAOD::shallowCopyContainer( *jets );
+    //this is a non-const copy of the jet collection that you can calibrate.
+    xAOD::JetContainer* calibJets = jets_shallowCopy.first;
+    xAOD::setOriginalObjectLink(*jets,*calibJets);
 
     //retrieve the MET association map
     const xAOD::MissingETAssociationMap* metMap = nullptr;
@@ -168,7 +192,8 @@ int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
     //Muons
     ConstDataVector<xAOD::MuonContainer> metMuons(SG::VIEW_ELEMENTS);
     for(const auto& mu : *muons) {
-      if(CutsMETMaker::accept(mu)) metMuons.push_back(mu);
+      //      if(CutsMETMaker::accept(mu)) metMuons.push_back(mu);
+      if(mu->muonType()==xAOD::Muon::Combined && mu->pt()>10e3) metMuons.push_back(mu);
     }
     assert(metMaker.rebuildMET("RefMuon",
 			       xAOD::Type::Muon,
@@ -177,6 +202,8 @@ int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
 			       metMap)
 	   );
     
+    met::addGhostMuonsToJets(*muons, *calibJets);
+
     //Now time to rebuild jetMet and get the soft term
     //these functions create an xAODMissingET object with the given names inside the container
     assert(  metMaker.rebuildJetMET("RefJet",        //name of jet met
@@ -223,6 +250,8 @@ int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
 
   delete outfile;
   delete event;
+
+  xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
 
   return 0;
  }

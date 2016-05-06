@@ -12,7 +12,7 @@ PACKAGE_OBJFLAGS =
 PACKAGE_LDFLAGS  = 
 PACKAGE_BINFLAGS = -lboost_unit_test_framework
 PACKAGE_LIBFLAGS = 
-PACKAGE_DEP      = Asg_Boost AsgTools xAODBase xAODTracking xAODMissingET xAODEgamma xAODTruth xAODJet xAODMuon xAODTau xAODPFlow METInterface xAODEventInfo PATInterfaces PathResolver InDetTrackSelectionTool JetCalibTools JetInterface xAODEventShape
+PACKAGE_DEP      = Asg_Boost AsgTools xAODBase xAODTracking xAODMissingET xAODEgamma xAODTruth xAODJet xAODMuon xAODTau xAODPFlow METInterface xAODEventInfo PATInterfaces PathResolver InDetTrackSelectionTool JetCalibTools JetInterface xAODEventShape FourMomUtils xAODCore
 
 PACKAGE_TRYDEP   = 
 PACKAGE_CLEAN    = 
