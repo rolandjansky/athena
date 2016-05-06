@@ -46,7 +46,7 @@
 #include <string>
 
 class JetVertexFractionTool : public JetModifierBase {
-  ASG_TOOL_CLASS(JetVertexFractionTool,IJetModifier);
+  ASG_TOOL_CLASS(JetVertexFractionTool,IJetModifier)
 
 public:  // methods
 

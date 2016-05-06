@@ -15,7 +15,7 @@
 #include "JetRec/JetModifierBase.h"
 
 class JetWidthTool : public JetModifierBase {
-  ASG_TOOL_CLASS(JetWidthTool, IJetModifier);
+  ASG_TOOL_CLASS(JetWidthTool, IJetModifier)
     
 public:
 

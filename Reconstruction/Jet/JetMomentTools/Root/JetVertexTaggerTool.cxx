@@ -53,14 +53,14 @@ StatusCode JetVertexTaggerTool::initialize() {
   }
 
   // Use the Path Resolver to find the jvt file and retrieve the likelihood histogram
-  fn =  PathResolverFindCalibFile(m_jvtfileName);	
+  m_fn =  PathResolverFindCalibFile(m_jvtfileName);	
   ATH_MSG_INFO("  Reading JVT file from:\n    " << m_jvtfileName << "\n");
-  ATH_MSG_INFO("                     resolved in  :\n    " << fn << "\n\n");
+  ATH_MSG_INFO("                     resolved in  :\n    " << m_fn << "\n\n");
 
-  m_jvtfile = TFile::Open(fn);
-  if ( !m_jvtfile ) { ATH_MSG_FATAL( "Cannot open JVTLikelihoodFile: " << fn ); return StatusCode::FAILURE; }
+  m_jvtfile = TFile::Open(m_fn);
+  if ( !m_jvtfile ) { ATH_MSG_FATAL( "Cannot open JVTLikelihoodFile: " << m_fn ); return StatusCode::FAILURE; }
 
- ATH_MSG_VERBOSE("\n Reading JVT likelihood histogram from:\n    " << fn << "\n\n");
+ ATH_MSG_VERBOSE("\n Reading JVT likelihood histogram from:\n    " << m_fn << "\n\n");
 
  m_jvthisto = (TH2F*)m_jvtfile->Get(m_jvtlikelihoodHistName.c_str() );
  if ( !m_jvthisto ) 
@@ -141,23 +141,15 @@ int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
       float jvfcorr = -999.;
       if(tracksums.first + tracksums.second > 0) {
 	jvfcorr = tracksums.first / (tracksums.first + ( tracksums.second / (m_kcorrJVF * std::max(n_putracks, 1) ) ) );
-      } 
-      else { jvfcorr = -1; }
+      } else {
+        jvfcorr = -1;
+      }
       
-      jet->setAttribute(m_jvtName+"Jvfcorr",jvfcorr);
       const float rpt = tracksums.first/jet->pt();
-      jet->setAttribute(m_jvtName+"Rpt",rpt);
+      float jvt = evaluateJvt(rpt, jvfcorr);
   
-      // Look up JVT value
-      float jvt = -999.;
-      if (jvfcorr == -1.) { jvt = -0.1; }
-      else {
-	float rpt_inputtojvt = std::min(rpt, (float) 1. );
-	int bin = m_jvthisto->FindBin(jvfcorr, rpt_inputtojvt);
-	jvt = m_jvthisto->GetBinContent(bin);
-	jvt = m_jvthisto->Interpolate(jvfcorr, rpt_inputtojvt);
-      }  
-      
+      jet->setAttribute(m_jvtName+"Jvfcorr",jvfcorr);
+      jet->setAttribute(m_jvtName+"Rpt",rpt);
       jet->setAttribute(m_jvtName,jvt);
 
       ATH_MSG_VERBOSE("JetVertexTaggerTool " << name()
@@ -178,7 +170,7 @@ int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
 }
 
 //**********************************************************************
- 
+
 float JetVertexTaggerTool::evaluateJvt(float rpt, float jvfcorr) const {
   // Look up JVT value
   float jvt = -999.;
@@ -192,9 +184,9 @@ float JetVertexTaggerTool::evaluateJvt(float rpt, float jvfcorr) const {
   }
   return jvt;
 }  
-       
+      
 //**********************************************************************
- 
+
 float JetVertexTaggerTool::updateJvt(const xAOD::Jet& jet, std::string sjvt, std::string scale) const {
   string sjvfcorr = sjvt + "Jvfcorr";
   string srpt = sjvt + "Rpt";
@@ -203,10 +195,10 @@ float JetVertexTaggerTool::updateJvt(const xAOD::Jet& jet, std::string sjvt, std
   float ptnew = jet.pt();
   float jvfcorr = jet.getAttribute<float>(sjvfcorr);
   float rptold = jet.getAttribute<float>(srpt);
+  //float jvtold = jet.getAttribute<float>(sjvt);
   float rptnew = rptold*ptold/ptnew;
   return evaluateJvt(rptnew, jvfcorr);
 }
-
 
 //**********************************************************************
 
@@ -221,8 +213,7 @@ StatusCode JetVertexTaggerTool::finalize() {
 
 std::pair<float,float> JetVertexTaggerTool::getJetVertexTrackSums(const xAOD::Vertex* vertex, 
 								  const std::vector<const xAOD::TrackParticle*>& tracks, 
-								  const jet::TrackVertexAssociation* tva) const
-{
+								  const jet::TrackVertexAssociation* tva) const {
     float sumTrackPV = 0;
     float sumTracknotPV = 0;
     bool notsel = m_htsel.empty();
@@ -299,6 +290,8 @@ int JetVertexTaggerTool::getPileupTrackCount(const xAOD::Vertex* vertex,
     return n_pileuptracks;
 }
 
+//**********************************************************************
+
 const xAOD::Vertex* JetVertexTaggerTool::findHSVertex(const xAOD::VertexContainer*& vertices) const
 {
   for ( size_t iVertex = 0; iVertex < vertices->size(); ++iVertex ) {
@@ -308,9 +301,8 @@ const xAOD::Vertex* JetVertexTaggerTool::findHSVertex(const xAOD::VertexContaine
       return vertices->at(iVertex);
     }
   }
-
-  ATH_MSG_WARNING("There is no vertex of type PriVx. Taking default vertex."); 
+  ATH_MSG_WARNING("There is no vertex of type PriVx. Taking default vertex.");
   return vertices->at(0);
 }
 
-
+//**********************************************************************

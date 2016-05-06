@@ -16,7 +16,7 @@
 #include <TLorentzVector.h>
 
 class JetConstitFourMomTool : public JetModifierBase {
-  ASG_TOOL_CLASS(JetConstitFourMomTool, IJetModifier);
+  ASG_TOOL_CLASS(JetConstitFourMomTool, IJetModifier)
 
  public:
 

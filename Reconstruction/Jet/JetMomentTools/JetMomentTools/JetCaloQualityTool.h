@@ -34,7 +34,7 @@
 
 
 class JetCaloQualityTool: public JetModifierBase {
-  ASG_TOOL_CLASS0(JetCaloQualityTool);
+  ASG_TOOL_CLASS0(JetCaloQualityTool)
   
 public:
   JetCaloQualityTool(const std::string & name);

@@ -48,7 +48,7 @@ class ITHistSvc;
 
 class JetBadChanCorrTool: public JetModifierBase
 {
-  ASG_TOOL_CLASS0(JetBadChanCorrTool);
+  ASG_TOOL_CLASS0(JetBadChanCorrTool)
 public:
   JetBadChanCorrTool(const std::string& name);
   
@@ -108,33 +108,33 @@ protected:
 		double ptMin=0, double ptMax=9999,
 		double etaMin=0, double etaMax=5.0,
 		double phiMin=-M_PI, double phiMax=M_PI):
-      th(th), sample(sample), 
-      ptMin(ptMin), ptMax(ptMax), 
-      etaMin(etaMin), etaMax(etaMax),
-      phiMin(phiMin), phiMax(phiMax) {}
+      m_th(th), m_sample(sample), 
+      m_ptMin(ptMin), m_ptMax(ptMax), 
+      m_etaMin(etaMin), m_etaMax(etaMax),
+      m_phiMin(phiMin), m_phiMax(phiMax) {}
 
     virtual ~ProfileData(){}
 
     bool match(double pt, int sample, double eta, double phi) const {
-      return ( pt>=ptMin && pt<ptMax 
-	       && sample==this->sample
-	       && fabs(eta)>=etaMin && fabs(eta)<etaMax 
-	       && phi>=phiMin && phi<phiMax);
+      return ( pt>=m_ptMin && pt<m_ptMax 
+	       && sample==m_sample
+	       && fabs(eta)>=m_etaMin && fabs(eta)<m_etaMax 
+	       && phi>=m_phiMin && phi<m_phiMax);
     }
     
     double frac(double dr) const {
-      int idr = th->FindBin(dr);
-      return th->GetBinContent(idr);
+      int idr = m_th->FindBin(dr);
+      return m_th->GetBinContent(idr);
     }
   private:
-    TH1D* th;
-    int sample;
-    double ptMin;
-    double ptMax;
-    double etaMin;
-    double etaMax;
-    double phiMin;
-    double phiMax;
+    TH1D* m_th;
+    int m_sample;
+    double m_ptMin;
+    double m_ptMax;
+    double m_etaMin;
+    double m_etaMax;
+    double m_phiMin;
+    double m_phiMax;
   };
   std::vector<ProfileData> m_profileDatas[CaloCell_ID::Unknown];//24
   

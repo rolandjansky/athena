@@ -22,7 +22,7 @@
 
 
 class JetLArHVTool: public JetModifierBase {
-  ASG_TOOL_CLASS0(JetLArHVTool);
+  ASG_TOOL_CLASS0(JetLArHVTool)
 
 public:
   JetLArHVTool(const std::string & name);

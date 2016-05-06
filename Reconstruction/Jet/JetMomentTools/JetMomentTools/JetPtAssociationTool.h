@@ -20,7 +20,7 @@
 #include "xAODJet/JetContainer.h"
 
 class JetPtAssociationTool : public JetModifierBase {
-  ASG_TOOL_CLASS(JetPtAssociationTool, IJetModifier);
+  ASG_TOOL_CLASS(JetPtAssociationTool, IJetModifier)
     
 public:
 

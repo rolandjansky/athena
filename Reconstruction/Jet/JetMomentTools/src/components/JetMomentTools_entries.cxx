@@ -6,8 +6,11 @@
 #include "JetMomentTools/JetWidthTool.h"
 #include "JetMomentTools/JetVertexFractionTool.h"
 #include "JetMomentTools/JetVertexTaggerTool.h"
+#include "JetMomentTools/JetForwardJvtTool.h"
 #include "JetMomentTools/JetTrackMomentsTool.h"
+#include "JetMomentTools/JetTrackSumMomentsTool.h"
 #include "JetMomentTools/JetClusterMomentsTool.h"
+#include "JetMomentTools/JetVoronoiMomentsTool.h"
 #include "JetMomentTools/JetMuonSegmentMomentsTool.h"
 #include "JetMomentTools/JetPtAssociationTool.h"
 #include "JetMomentTools/JetIsolationTool.h"
@@ -26,8 +29,11 @@ DECLARE_TOOL_FACTORY(JetCaloQualityTool)
 DECLARE_TOOL_FACTORY(JetWidthTool)
 DECLARE_TOOL_FACTORY(JetVertexFractionTool)
 DECLARE_TOOL_FACTORY(JetVertexTaggerTool)
+DECLARE_TOOL_FACTORY(JetForwardJvtTool)
 DECLARE_TOOL_FACTORY(JetTrackMomentsTool)
+DECLARE_TOOL_FACTORY(JetTrackSumMomentsTool)
 DECLARE_TOOL_FACTORY(JetClusterMomentsTool)
+DECLARE_TOOL_FACTORY(JetVoronoiMomentsTool)
 DECLARE_TOOL_FACTORY(JetMuonSegmentMomentsTool)
 DECLARE_TOOL_FACTORY(JetPtAssociationTool)
 DECLARE_TOOL_FACTORY(JetIsolationTool)
@@ -47,9 +53,12 @@ DECLARE_FACTORY_ENTRIES(JetRec) {
   DECLARE_TOOL(JetWidthTool)
   DECLARE_TOOL(JetMuonSegmentMomentsTool)
   DECLARE_TOOL(JetTrackMomentsTool)
+  DECLARE_TOOL(JetTrackSumMomentsTool)
   DECLARE_TOOL(JetClusterMomentsTool)
+  DECLARE_TOOL(JetVoronoiMomentsTool)
   DECLARE_TOOL(JetVertexFractionTool)
   DECLARE_TOOL(JetVertexTaggerTool)
+  DECLARE_TOOL(JetForwardJvtTool)
   DECLARE_TOOL(JetPtAssociationTool)
   DECLARE_TOOL(JetIsolationTool)
   DECLARE_TOOL(JetLArHVTool)

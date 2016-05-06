@@ -20,7 +20,7 @@
 
 class JetMuonSegmentMomentsTool : public JetModifierBase
 {
-    ASG_TOOL_CLASS(JetMuonSegmentMomentsTool,IJetModifier);
+    ASG_TOOL_CLASS(JetMuonSegmentMomentsTool,IJetModifier)
 
     public:
         // Constructor from tool name

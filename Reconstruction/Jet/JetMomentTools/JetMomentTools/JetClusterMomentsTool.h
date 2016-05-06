@@ -13,6 +13,7 @@
 /// Tool to calculate general cluster-based jet moments
 ///
 /// Moments to add:
+///     LeadingClusterPt            xAOD::CaloCluster::pt()
 ///     LeadingClusterSecondLambda  xAOD::CaloCluster::SECOND_LAMBDA
 ///     LeadingClusterCenterLambda  xAOD::CaloCluster::CENTER_LAMBDA
 ///     LeadingClusterSecondR       xAOD::CaloCluster::SECOND_R
@@ -27,7 +28,7 @@
 
 
 class JetClusterMomentsTool : public JetModifierBase {
-    ASG_TOOL_CLASS(JetClusterMomentsTool,IJetModifier);
+    ASG_TOOL_CLASS(JetClusterMomentsTool,IJetModifier)
     public:
         // Constructor from tool name
         JetClusterMomentsTool(const std::string& name);
@@ -46,7 +47,6 @@ class JetClusterMomentsTool : public JetModifierBase {
         const xAOD::CaloCluster * findLeadingCluster(xAOD::Jet& jet) const;
         // Retrieve a moment from cluster
         float getMoment(const xAOD::CaloCluster* cluster, const xAOD::CaloCluster::MomentType& momentType) const;
-
 };
 
 #endif

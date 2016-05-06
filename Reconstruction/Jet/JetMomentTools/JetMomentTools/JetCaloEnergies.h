@@ -11,7 +11,7 @@
 #include <vector>
 
 class JetCaloEnergies : public JetModifierBase {
-  ASG_TOOL_CLASS0(JetCaloEnergies);
+  ASG_TOOL_CLASS0(JetCaloEnergies)
 public:
   
   JetCaloEnergies(const std::string & t);

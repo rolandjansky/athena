@@ -5,20 +5,23 @@ author P-A Delsart <delsart at in2p3 fr>
 private
 use xAODPFlow           xAODPFlow-*             Event/xAOD
 use CaloGeoHelpers      CaloGeoHelpers-*        Calorimeter
+use PathResolver        PathResolver-*          Tools
+use xAODEventInfo       xAODEventInfo-*         Event/xAOD
 
 use_unless tag=AthAnalysisBase pkg=CaloDetDescr   ver="*" root=Calorimeter
 use_unless tag=AthAnalysisBase pkg=CaloEvent      ver="*" root=Calorimeter
-use PathResolver        PathResolver-*          Tools
 use_unless tag=AthAnalysisBase pkg=AthenaKernel   ver="*" root=Control
 
 public
 use AtlasPolicy		AtlasPolicy-*
 use AtlasROOT           AtlasROOT-*             External
+use AtlasBoost          AtlasBoost-*             External
 use GaudiInterface      GaudiInterface-*        External
 use AsgTools            AsgTools-*              Control/AthToolSupport
 
 use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
 use xAODJet             xAODJet-*               Event/xAOD
+use xAODMissingET       xAODMissingET-*         Event/xAOD
 use xAODTracking        xAODTracking-*          Event/xAOD
 
 use CaloIdentifier      CaloIdentifier-*        Calorimeter
@@ -33,5 +36,5 @@ library JetMomentTools *.cxx ../Root/*.cxx -s=components *.cxx
 apply_pattern component_library
 
 apply_pattern declare_runtime files="*.root *.txt"
-
-#macro_prepend asNeeded_linkopt "-lJetEDM "
+apply_pattern declare_calib files="../share/*.root"
+apply_pattern declare_python_modules files="*.py"

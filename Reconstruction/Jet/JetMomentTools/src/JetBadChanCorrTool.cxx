@@ -25,10 +25,10 @@
 #include "JetMomentTools/JetBadChanCorrTool.h"
 #include "JetUtils/JetCellAccessor.h"
 #include "JetUtils/JetDistances.h"
-#include "GaudiKernel/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 
 
-using Gaudi::Units::GeV;
+using Athena::Units::GeV;
 
 
 JetBadChanCorrTool::JetBadChanCorrTool(	const std::string& name) :
@@ -362,8 +362,9 @@ int JetBadChanCorrTool::correctionFromCellsInJet( xAOD::Jet* jet, const jet::Cal
     }
   } // loop over cells
 
-  corr_cell /= rawE;
-  corr_dotx /= rawE;
+  const double inv_rawE = 1. / rawE;
+  corr_cell *= inv_rawE;
+  corr_dotx *= inv_rawE;
   ATH_MSG( DEBUG ) << "pt=" << jet->pt()/GeV << " eta=" << jet->eta() << " phi=" << jet->phi()
                    << " BCH_CORR_CELL=" << corr_cell
                    << " BCH_CORR_DOTX=" << corr_dotx

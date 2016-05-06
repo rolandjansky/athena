@@ -49,7 +49,7 @@
 ///  PUTrkPtCut - the track pT (in MeV) below which tracks associated to no vertex may be assigned to the primary vertex (default is 30000.)
 
 #include "AsgTools/ToolHandle.h"
-
+#include "AsgTools/AsgTool.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticle.h"
@@ -58,78 +58,80 @@
 #include "JetInterface/IJetTrackSelector.h"
 #include "JetRec/JetModifierBase.h"
 #include "JetEDM/TrackVertexAssociation.h"
-
-#include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetModifier.h"
 #include "JetInterface/IJetUpdateJvt.h"
 
 #include <vector>
 #include <string>
 
-
 #include <TFile.h>
 #include <TString.h>
 #include <TH1D.h>
 #include <TH2D.h>
 
-class JetVertexTaggerTool : public asg::AsgTool,virtual public IJetModifier, virtual public IJetUpdateJvt 
-{
-  ASG_TOOL_CLASS2(JetVertexTaggerTool,IJetModifier,IJetUpdateJvt);
+class JetVertexTaggerTool
+: public asg::AsgTool,
+  virtual public IJetModifier,
+  virtual public IJetUpdateJvt {
+  ASG_TOOL_CLASS2(JetVertexTaggerTool,IJetModifier,IJetUpdateJvt)
 
-    public:
-        // Constructor from tool name
-        JetVertexTaggerTool(const std::string& name);
+public:
+  // Constructor from tool name
+  JetVertexTaggerTool(const std::string& name);
 
-	// Initialization.
-	StatusCode initialize();
+  // Initialization.
+  StatusCode initialize();
 
-        // Inherited methods to modify a jet
-	virtual int modify(xAOD::JetContainer& jetCont) const;
+  // Inherited methods to modify a jet
+  virtual int modify(xAOD::JetContainer& jetCont) const;
 
-	// Finalization.
-	StatusCode finalize();
+  // Finalization.
+  StatusCode finalize();
+ 
+  // Evaluate JVT from Rpt and JVFcorr.
+  float evaluateJvt(float rpt, float jvfcorr) const;
 
-	// Evaluate JVT from Rpt and JVFcorr.
-	float evaluateJvt(float rpt, float jvfcorr) const;
+  // Update JVT by scaling Rpt byt the ratio of the current and original jet pT values.
+  //   jet - jet for which JVT is updated
+  //   sjvt - name of the existing JVT moment (and prefix for RpT and JVFcorr).
+  //   scale - name of the jet scale holding the original pT
+  // The new value for JVT is returned.
+  float updateJvt(const xAOD::Jet& jet, std::string sjvt = "Jvt",
+                  std::string scale ="JetPileupScaleMomentum") const;
 
-	// Update JVT by scaling Rpt byt the ratio of the current and original jet pT values.
-	//   jet - jet for which JVT is updated
-	//   sjvt - name of the existing JVT moment (and prefix for RpT and JVFcorr).
-	//   scale - name of the jet scale holding the original pT
-	// The new value for JVT is returned.
-	float updateJvt(const xAOD::Jet& jet, std::string sjvt = "Jvt", std::string scale ="JetPileupScaleMomentum") const;
+  // Local method to return the primary and pileup track pT sums
+  // this method also allows the standard jvf to be calculated
+  std::pair<float,float>
+  getJetVertexTrackSums(const xAOD::Vertex*, 
+                        const std::vector<const xAOD::TrackParticle*>&, 
+                        const jet::TrackVertexAssociation*) const;
 
-	// Local method to return the primary and pileup track pT sums
-	// this method also allows the standard jvf to be calculated
-	std::pair<float,float> getJetVertexTrackSums(const xAOD::Vertex*, 
-						     const std::vector<const xAOD::TrackParticle*>&, 
-						     const jet::TrackVertexAssociation*) const;
+  // Local method to count the number of pileup tracks in the event
+  int getPileupTrackCount(const xAOD::Vertex*, 
+  const xAOD::TrackParticleContainer*&, 
+  const jet::TrackVertexAssociation*) const; 
 
-	// Local method to count the number of pileup tracks in the event
-	int getPileupTrackCount(const xAOD::Vertex*, 
-				const xAOD::TrackParticleContainer*&, 
-				const jet::TrackVertexAssociation*) const; 
+  // Local method to return the HS vertex - that of type PriVtx
+  const xAOD::Vertex* findHSVertex(const xAOD::VertexContainer*&) const;
 
-	// Local method to return the HS vertex - that of type PriVtx
-	const xAOD::Vertex* findHSVertex(const xAOD::VertexContainer*&) const;
+private:  // data
 
- private:   // data
+  // Configurable parameters
+  std::string m_verticesName;
+  std::string m_assocTracksName;
+  std::string m_tvaName;
+  std::string m_tracksName;
+  std::string m_jvtlikelihoodHistName;
+  std::string m_jvtfileName;
+  std::string m_jvtName;
+  ToolHandle<IJetTrackSelector> m_htsel;
+  TString m_fn;
+  TFile * m_jvtfile;
+  TH2F * m_jvthisto;
+  float m_kcorrJVF;
+  float m_z0cut;
+  float m_PUtrkptcut;
 
-        // Configurable parameters
-        std::string m_verticesName;
-        std::string m_assocTracksName;
-        std::string m_tvaName;
-	std::string m_tracksName;
-	std::string m_jvtlikelihoodHistName;
-	std::string m_jvtfileName;
-	std::string m_jvtName;
-	ToolHandle<IJetTrackSelector> m_htsel;
-	TString fn;
-	TFile * m_jvtfile;
-	TH2F * m_jvthisto;
-	float m_kcorrJVF;
-	float m_z0cut;
-	float m_PUtrkptcut;
 };
 
 

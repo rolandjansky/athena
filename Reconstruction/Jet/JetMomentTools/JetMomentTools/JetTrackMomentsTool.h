@@ -32,7 +32,7 @@
 
 
 class JetTrackMomentsTool : public JetModifierBase {
-  ASG_TOOL_CLASS(JetTrackMomentsTool,IJetModifier);
+  ASG_TOOL_CLASS(JetTrackMomentsTool,IJetModifier)
     
 public:
 

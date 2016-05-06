@@ -122,7 +122,7 @@ protected:
 //**********************************************************************
 
 class JetIsolationTool : public JetModifierBase { 
-  ASG_TOOL_CLASS0(JetIsolationTool);
+  ASG_TOOL_CLASS0(JetIsolationTool)
 
 public: 
 
