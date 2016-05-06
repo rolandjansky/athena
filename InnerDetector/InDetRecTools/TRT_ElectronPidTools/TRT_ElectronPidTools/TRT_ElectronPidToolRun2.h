@@ -164,16 +164,16 @@ namespace InDet
 
     //The following class is designed to conatin all code that is used to calculate the likelyhood from ToT.
 
-
-   public:
-    class ToTcalculator;
-   private:
-    ToTcalculator & ToTcalc;
-  
-   public:
-    class HTcalculator;
-   private:
-    HTcalculator & HTcalc;
+    
+    public:
+      class ToTcalculator;
+    private:
+      ToTcalculator & ToTcalc;
+    
+    public:
+     class HTcalculator;
+    private:
+     HTcalculator & HTcalc;
 
 
     public:

@@ -110,12 +110,12 @@ StatusCode TRT_LocalOccupancy::initialize()
     m_lowGate  = m_lowWideGate ;
     m_highGate = m_highWideGate ;
   }  
-  
+
   if( m_TRTStrawStatusSummarySvc.retrieve().isFailure() ) {
     msg(MSG::ERROR) << " Can't do a dynamic cast to TRTStrawStatusSummaryTool" << endreq;
     return StatusCode::FAILURE;
   }
-
+  
   ATH_MSG_INFO ("initialize() successful in " << name());
 
   return sc;
@@ -130,7 +130,7 @@ StatusCode TRT_LocalOccupancy::finalize()
     delete [] m_occ_local[i];
     delete [] m_hit_local[i];
     delete [] m_track_local[i];
-  }
+}
   delete [] m_occ_local;
   delete [] m_hit_local;
   delete [] m_track_local;
