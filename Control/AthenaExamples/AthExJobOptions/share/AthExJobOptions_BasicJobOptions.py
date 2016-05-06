@@ -106,9 +106,14 @@ assert( len(job) == 2 )
 
 # Also, to see the DEBUG messages from TopAlgorithm instances, switch
 # it on for all such algorithms (and only those):
+def setdebug(c):
+   c.OutputLevel = DEBUG
+   for x in c.getAllChildren():
+      setdebug(x)
+   return
 for alg in job:
    if isinstance( alg, TopAlgorithm ):
-      alg.OutputLevel = DEBUG
+      setdebug(alg)
 
 # Print the final job for reference purposes
 print job

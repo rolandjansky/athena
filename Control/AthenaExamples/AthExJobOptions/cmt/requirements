@@ -23,15 +23,16 @@ use StoreGate            StoreGate-*         Control
 apply_pattern install_runtime
 
 use TestTools      TestTools-*        AtlasTest -no_auto_imports 
-apply_pattern athenarun_test name="JobOptionsBasic" \
+apply_pattern athenarun_test name="BasicJobOptions" \
 	      pre_script="../cmt/setup.sh"	\	      
 	      options="AthExJobOptions/AthExJobOptions_BasicJobOptions.py" \
-	      post_script="${TESTTOOLSROOT}/share/post.sh JobOptionsBasic"
-apply_pattern athenarun_test name="JobOptionsCustomTool" \
+	      post_script="${TESTTOOLSROOT}/share/post.sh BasicJobOptions"
+apply_pattern athenarun_test name="CustomToolJobOptions" \
 	      pre_script="../cmt/setup.sh"	\	      
 	      options="AthExJobOptions/AthExJobOptions_CustomToolJobOptions.py" \
-	      post_script="${TESTTOOLSROOT}/share/post.sh JobOptionsCustomTool"
-apply_pattern athenarun_test name="JobOptionsCustomTopAlg" \
+	      post_script="${TESTTOOLSROOT}/share/post.sh CustomToolJobOptions"
+apply_pattern athenarun_test name="CustomTopAlgorithmJobOptions" \
 	      pre_script="../cmt/setup.sh"	\	      
 	      options="AthExJobOptions/AthExJobOptions_CustomTopAlgorithmJobOptions.py" \
-	      post_script="${TESTTOOLSROOT}/share/post.sh JobOptionsCustomTopAlg"
+	      post_script="${TESTTOOLSROOT}/share/post.sh CustomTopAlgorithmJobOptions"
+
