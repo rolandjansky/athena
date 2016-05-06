@@ -29,12 +29,12 @@
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/Feature.h"
 #include "TrigDecisionTool/ChainGroup.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
+//#include "TrigSteeringEvent/TrigOperationalInfo.h"
+//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
+//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 
 #include "xAODTau/TauJet.h"
 #include "xAODTau/TauJetContainer.h"
@@ -88,6 +88,18 @@ using namespace std;
 StatusCode HLTTauMonTool::RealZTauTauEfficiency()
 {
   ATH_MSG_DEBUG("Real ZTauTau Efficiency");  
+
+  // compute eff only for events passing single muon triggers
+  if(! ( getTDT()->isPassed("HLT_mu20_iloose_L1MU15") 
+	|| getTDT()->isPassed("HLT_mu20_ivarloose_L1MU15") 
+	|| getTDT()->isPassed("HLT_mu24_ivarloose") 
+	|| getTDT()->isPassed("HLT_mu24_iloose") 
+	|| getTDT()->isPassed("HLT_mu24_imedium") 
+	|| getTDT()->isPassed("HLT_mu24_ivarmedium") 
+	|| getTDT()->isPassed("HLT_mu26_imedium") 
+	|| getTDT()->isPassed("HLT_mu26_ivarmedium") 
+	|| getTDT()->isPassed("HLT_mu50")
+	) ) return StatusCode::SUCCESS;
  
   const xAOD::TauJetContainer    * reco_cont      = 0;
   const xAOD::MuonContainer      * muon_cont      = 0;
@@ -256,12 +268,12 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
 	  std::string hlt_chain = "HLT_"+m_trigItems[i];
 
 	  setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+m_trigItems[i]);
-	  hist("hRealZttPtDenom")->Fill(Tau_TLV.Pt()/1000.);
+	  //hist("hRealZttPtDenom")->Fill(Tau_TLV.Pt()/1000.);
 
 	  //L1
 	  if(getTDT()->isPassed(l1_chain , TrigDefs::Physics | TrigDefs::allowResurrectedDecision))
 	    {
-	      hist("hRealZttL1PtNum")->Fill(Tau_TLV.Pt()/1000.);
+	      //hist("hRealZttL1PtNum")->Fill(Tau_TLV.Pt()/1000.);
 	      profile("TProfRealZttL1PtEfficiency")->Fill(Tau_TLV.Pt()/1000.,1);
 	    }
 	  else profile("TProfRealZttL1PtEfficiency")->Fill(Tau_TLV.Pt()/1000.,0);
@@ -269,7 +281,7 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
 	  //HLT
 	  if(getTDT()->isPassed(hlt_chain, TrigDefs::Physics | TrigDefs::allowResurrectedDecision))
 	    {
-	      hist("hRealZttHLTPtNum")->Fill(Tau_TLV.Pt()/1000.);
+	      //hist("hRealZttHLTPtNum")->Fill(Tau_TLV.Pt()/1000.);
 	      profile("TProfRealZttHLTPtEfficiency")->Fill(Tau_TLV.Pt()/1000.,1);
 	    }
 	  else profile("TProfRealZttHLTPtEfficiency")->Fill(Tau_TLV.Pt()/1000.,0);

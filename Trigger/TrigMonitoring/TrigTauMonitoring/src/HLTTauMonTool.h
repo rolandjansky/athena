@@ -28,6 +28,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigTauEmulation/ILevel1EmulationTool.h"
 #include "TrigTauEmulation/IHltEmulationTool.h"
+#include "LumiBlockComps/ILuminosityTool.h"
 
 // Forward declarations
 class StatusCode;
@@ -38,6 +39,7 @@ class TrigTau;
 class EmTauRoI;
 class TauJet;
 class TrigRoiDescriptor;
+class ILumiBlockMuTool;
 
 class IInterface;
 class StoreGateSvc;
@@ -174,6 +176,10 @@ class HLTTauMonTool : public IHLTMonTool {
   ToolHandle<TrigTauEmul::ILevel1EmulationTool> m_l1emulationTool;
   ToolHandle<TrigTauEmul::IHltEmulationTool> m_hltemulationTool;
 
+  ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
+  ToolHandle<ILuminosityTool>  m_luminosityToolOnline;
+  double mu_offline;
+  int mu_online;
 
   ///Name of the trigger items to be monitored.
   ///Set by job options

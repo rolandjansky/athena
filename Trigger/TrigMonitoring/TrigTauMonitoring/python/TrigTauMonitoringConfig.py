@@ -15,10 +15,10 @@ def TrigTauMonitoringTool():
 		#  'tau25_idperf_track',
 		#  'tau25_idperf_tracktwo',
                 #  'tau25_perf_tracktwo',
-		  'tau25_perf_track',
-                  'tau25_perf_tracktwo_L1TAU12',
+		#  'tau25_perf_track',
+                #  'tau25_perf_tracktwo_L1TAU12',
                   'tau25_perf_ptonly',
-                  'tau25_perf_ptonly_L1TAU12',
+                #  'tau25_perf_ptonly_L1TAU12',
                   'tau35_perf_tracktwo',
                   'tau35_perf_ptonly',
                   'tau125_perf_tracktwo',
@@ -49,19 +49,23 @@ def TrigTauMonitoringTool():
                   'tau80_medium1_tracktwo_L1TAU60',
                   
                   'tau125_medium1_tracktwo',
-                  'tau160_medium1_tracktwo',
-                  
+                 # 'tau160_medium1_tracktwo',
+
+                  'tau125_medium1HighptL_tracktwo',                  
+                  'tau125_medium1HighptM_tracktwo',
+                  'tau125_medium1HighptH_tracktwo',
+
                   # Ditau Items
                   'tau35_loose1_tracktwo_tau25_loose1_tracktwo',   # seeded by L1_TAU20IM_2TAU12IM_J25_2J20_3J12
-                  'tau35_medium1_tracktwo_tau25_medium1_tracktwo',
+                  #'tau35_medium1_tracktwo_tau25_medium1_tracktwo',
                   'tau35_tight1_tracktwo_tau25_tight1_tracktwo',
                   'tau35_loose1_tracktwo_tau25_loose1_tracktwo_L1TAU20IM_2TAU12IM',
                   'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM',
                   'tau35_tight1_tracktwo_tau25_tight1_tracktwo_L1TAU20IM_2TAU12IM',
                   
-                  'tau35_perf_ptonly_tau25_perf_ptonly_L1TAU20IM_2TAU12IM',
-                  'tau35_medium1_tracktwo_L1TAU20_tau25_medium1_tracktwo_L1TAU12_L1TAU20_2TAU12',
-                  'tau35_perf_tracktwo_L1TAU20_tau25_perf_tracktwo_L1TAU12_L1TAU20_2TAU12',
+                  #'tau35_perf_ptonly_tau25_perf_ptonly_L1TAU20IM_2TAU12IM',
+                  #'tau35_medium1_tracktwo_L1TAU20_tau25_medium1_tracktwo_L1TAU12_L1TAU20_2TAU12',
+                  #'tau35_perf_tracktwo_L1TAU20_tau25_perf_tracktwo_L1TAU12_L1TAU20_2TAU12',
                   
                   'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25',
                   'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I',
@@ -136,14 +140,14 @@ def TrigTauMonitoringTool():
 
 	# Setup emulation 
 	emul_l1_tau = [ 
-        'L1_EM15HI_2TAU12IM',
+        #'L1_EM15HI_2TAU12IM',
         'L1_EM15HI_2TAU12IM_J25_3J12',
         'L1_EM15HI_2TAU12IM_XE35',
-        'L1_MU10_TAU12IM',
+        #'L1_MU10_TAU12IM',
         'L1_MU10_TAU12IM_J25_2J12',
         'L1_MU10_TAU12IM_XE35',
         'L1_TAU20IM_2J20_XE45',
-        'L1_TAU20IM_2TAU12IM',
+        #'L1_TAU20IM_2TAU12IM',
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',
         'L1_TAU20IM_2TAU12IM_XE35',
         'L1_TAU60'
@@ -194,6 +198,12 @@ def TrigTauMonitoringTool():
 	from AthenaCommon.AppMgr import ToolSvc
 	ToolSvc += Level1Emulator
 
+	from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR
+	from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
+	LumiToolOnline = LuminosityToolOnline("OnlLuminosityTool")
+	#LumiToolOnline.OutputLevel = DEBUG
+	ToolSvc += LumiToolOnline
+
 	# get the HLT emulation tool from the emulation python config
 #	from TrigTauEmulation.TrigTauEmulationConfig import get_hlt_emulator
 #	HltEmulator = get_hlt_emulator('HltEmulator', emul_hlt_tau, Level1Emulator)
@@ -214,7 +224,7 @@ def TrigTauMonitoringTool():
 				  TurnOnCurves           = True,
 				  TurnOnCurvesDenom	 = "RecoID", # combined string with combination of "Truth", "Reco", "ID" and "Presel". For Truth doTruth=True!
 				  doTruth		 = False,
-				  doRealZtautauEff       = False,
+				  doRealZtautauEff       = True,
 				  dodijetFakeTausEff     = False,
 				  doBootstrap		 = False,
 				  doEmulation		 = True,
