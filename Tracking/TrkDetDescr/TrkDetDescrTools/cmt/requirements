@@ -6,8 +6,8 @@ author  Andreas Salzburger <Andreas.Salzburger@cern.ch>
 #################################################################
 # public use statements
 use AtlasPolicy            AtlasPolicy-*
-use AthenaKernel           AthenaKernel-*           Control
-use AtlasXercesC           AtlasXercesC-*           External
+#use AthenaKernel           AthenaKernel-*           Control
+#use AtlasXercesC           AtlasXercesC-*           External
 use GeoPrimitives          GeoPrimitives-*          DetectorDescription
 use GaudiInterface         GaudiInterface-*         External
 use AthenaBaseComps        AthenaBaseComps-*        Control

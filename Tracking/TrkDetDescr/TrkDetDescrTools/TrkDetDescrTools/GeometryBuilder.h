@@ -87,7 +87,7 @@ namespace Trk {
 
         ToolHandle<ITrackingVolumeHelper>         m_trackingVolumeHelper;             //!< Helper Tool to create TrackingVolumes
 
-        bool                                      m_inDetGeometry;                     //!< switch on TrackingGeometry for the InnerDetector
+        //bool                                      m_inDetGeometry;                     //!< switch on TrackingGeometry for the InnerDetector
         ToolHandle<IGeometryBuilder>              m_inDetGeometryBuilder;              //!< GeometryBuilder for the InnerDetector
 
         bool                                      m_caloGeometry;                     //!< switch on TrackingGeometry for the Calorimeters
