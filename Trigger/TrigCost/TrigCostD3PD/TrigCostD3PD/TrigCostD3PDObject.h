@@ -141,6 +141,7 @@ namespace D3PDReader {
       VarHandle< std::vector<float,std::allocator<float> >* > roi_eta;
       VarHandle< std::vector<unsigned int,std::allocator<unsigned int> >* > roi_id;
       VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_isTypeEmTau;
+      VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_isTau; // new
       VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_isTypeEnergy;
       VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_isTypeJet;
       VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_isTypeJetEt;
@@ -149,6 +150,16 @@ namespace D3PDReader {
       VarHandle< unsigned short > roi_n;
       VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_nL1Thresholds;
       VarHandle< std::vector<float,std::allocator<float> >* > roi_phi;
+      // New
+      VarHandle< std::vector<float,std::allocator<float> >* > roi_et;
+      VarHandle< std::vector<float,std::allocator<float> >* > roi_etLarge;
+      VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_muCharge;
+      VarHandle< std::vector<unsigned int,std::allocator<unsigned int> >* > roi_isoBits;
+      VarHandle< std::vector<float,std::allocator<float> >* >  roi_vectorEX;
+      VarHandle< std::vector<float,std::allocator<float> >* > roi_vectorEY;
+      VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_overflowEX;
+      VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_overflowEY;
+      VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_overflowET;
       /// Run number for this event
       VarHandle< unsigned int > runNumber;
       /// Start of the event in seconds
