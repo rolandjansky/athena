@@ -6,8 +6,9 @@ PACKAGE_PRELOAD  = Tree
 # disables all branches by default.
 # Remove the COLLECT_D3PD_READING_STATISTICS option to gain a bit
 # of performance...
-PACKAGE_CXXFLAGS = -DCOLLECT_D3PD_READING_STATISTICS
+#PACKAGE_CXXFLAGS = -DCOLLECT_D3PD_READING_STATISTICS
 PACKAGE_LDFLAGS  =
 PACKAGE_DEP      =
+PACKAGE_PEDANTIC = 1
 
 include $(ROOTCOREDIR)/Makefile-common
