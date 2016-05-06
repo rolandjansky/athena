@@ -222,22 +222,22 @@ StatusCode LArHVCorrTool::LoadCalibration(IOVSVC_CALLBACK_ARGS) {
 
       const std::vector<HWIdentifier>& updatedElectrodes=m_hvtool->getUpdatedElectrodes();
       if (updatedElectrodes.size()) {
-	IChronoStatSvc* m_chrono;
-	if (StatusCode::SUCCESS!=service("ChronoStatSvc" , m_chrono )) {
+	IChronoStatSvc* chrono;
+	if (StatusCode::SUCCESS!=service("ChronoStatSvc" , chrono )) {
 	  msg(MSG::ERROR) <<"cannot find chronostat " << std::endl;
 	  return StatusCode::FAILURE;
 	}
 	std::string chronoName = "LArHVCorrTool";
-	m_chrono -> chronoStart( chronoName); 
+	chrono -> chronoStart( chronoName); 
 	StatusCode sc=this->getScale(m_completeRange);
 	if (sc.isFailure()) {
 	  msg(MSG::ERROR) << " LArHVCorrTool::LoadCalibration error in getScale" << endreq;
 	  return sc;
 	}
-	m_chrono -> chronoStop( chronoName );
+	chrono -> chronoStop( chronoName );
 	ATH_MSG_DEBUG("LArHVCorrTool Chrono stop : delta " 
-		      << m_chrono->chronoDelta (chronoName,IChronoStatSvc::USER ) 
-		      * microsecond / second << " second ");
+		      << chrono->chronoDelta (chronoName,IChronoStatSvc::USER ) 
+		      * (microsecond / second) << " second ");
 
       }
     }//end if 

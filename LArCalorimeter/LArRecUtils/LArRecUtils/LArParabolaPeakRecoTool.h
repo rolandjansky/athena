@@ -55,12 +55,12 @@ class LArParabolaPeakRecoTool: public AthAlgTool
 
   // jobOptions for bias correction 
   bool m_correctBias;
-  std::string m_fileShape, m_fileADCcor;
+  std::string m_fileShapeName, m_fileADCcorName;
 
   // file and tables for corrections
-  FILE* fileShape, *fileADCcor;
-  float QT_Shape[4][26];
-  float QT_ADCcor[4][25];
+  FILE* m_fileShape, *m_fileADCcor;
+  float m_QT_Shape[4][26];
+  float m_QT_ADCcor[4][25];
 };
 
 

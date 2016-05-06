@@ -104,7 +104,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
 
   //StoreGate keys for conditions objects for SuperCells
   declareProperty("AutoCorrSCOutput",   m_objInfo[8].m_outputKey="LArAutoCorrSC");
-  declareProperty("uA2MeVSCOutput",     m_objInfo[9].m_outputKey="LAruA2MeVSC");
+  declareProperty("uA2MeVSCOutput",       m_objInfo[9].m_outputKey="LAruA2MeVSC");
   declareProperty("DAC2uAVSCOutput",    m_objInfo[10].m_outputKey="LArDAC2uASC");
   declareProperty("fSamplSCOutput",     m_objInfo[11].m_outputKey="LARfSamplSC");
   declareProperty("NoiseSCOutput",      m_objInfo[12].m_outputKey="LArNoiseSC");
@@ -116,7 +116,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
 
   //Folder names for flat conditions data for regular cells
   declareProperty("uA2MeVInput",        m_objInfo[0].m_inputKey);//="/LAR/ElecCalibFlat/uA2MeV");
-  declareProperty("DAC2uAInput",        m_objInfo[1].m_inputKey);//="/LAR/ElecCalibFlat/DAC2uA");	  
+  declareProperty("DAC2uAInput",       m_objInfo[1].m_inputKey);//="/LAR/ElecCalibFlat/DAC2uA");	  
   declareProperty("HVScaleCorrInput",   m_objInfo[2].m_inputKey);//="/LAR/ElecCalibFlat/HVScaleCorr");
   declareProperty("PedestalInput",      m_objInfo[3].m_inputKey);//="/LAR/ElecCalibFlat/Pedestal");
   declareProperty("RampInput",          m_objInfo[4].m_inputKey);//="/LAR/ElecCalibFlat/Ramp");

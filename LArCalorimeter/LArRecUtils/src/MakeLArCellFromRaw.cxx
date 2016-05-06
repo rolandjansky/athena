@@ -86,6 +86,11 @@ void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
   }
 
 
+  if (m_dataPool) {
+    delete m_dataPool;
+    m_dataPool = nullptr;
+  }
+
   // create DataPool if requested
   if (poolMaxSize!=0) {
     m_dataPool = new DataPool<LArCell>();
