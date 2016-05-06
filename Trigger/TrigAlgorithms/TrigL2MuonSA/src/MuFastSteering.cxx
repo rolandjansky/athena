@@ -29,6 +29,7 @@
 MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc) 
   : HLT::FexAlgo(name, svc), 
     m_storeGate("StoreGateSvc", this->name()), 
+    m_timerSvc(0),
     m_regionSelector(0),
     m_dataPreparator("TrigL2MuonSA::MuFastDataPreparator"),
     m_patternFinder("TrigL2MuonSA::MuFastPatternFinder"),
@@ -42,7 +43,9 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
     m_mdtRegion(), m_muonRoad(),
     m_rpcFitResult(), m_tgcFitResult(),
     m_mdtHits_normal(), m_mdtHits_overlap(),
-    m_cscHits()
+    m_cscHits(),
+    m_ptBarrelLUTSvc(0), m_ptEndcapLUTSvc(0),
+    m_jobOptionsSvc(0), m_trigCompositeContainer(0)
 {
   declareProperty("DataPreparator",    m_dataPreparator,    "data preparator");
   declareProperty("PatternFinder",     m_patternFinder,     "pattern finder");

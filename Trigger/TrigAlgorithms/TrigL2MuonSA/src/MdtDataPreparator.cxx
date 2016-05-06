@@ -300,7 +300,8 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  
     
     std::vector<IdentifierHash> mdtHashList;
     mdtHashList.clear();
-    m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
+    if (iroi) m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
+    else m_regionSelector->DetHashIDList(MDT, mdtHashList);
     msg() << MSG::DEBUG << "size of the hashids in getMdtHits " << mdtHashList.size() << endreq;
     
     if (roi) delete roi;
