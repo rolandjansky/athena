@@ -25,7 +25,7 @@ namespace xAOD {
 
    double PFO_v1::pt() const {
 
-     static Accessor<float> accPt("pt");
+     const static Accessor<float> accPt("pt");
      float pt = accPt(*this);
 
      return pt;
@@ -48,7 +48,7 @@ namespace xAOD {
 
    double PFO_v1::e() const {
 
-     static Accessor<float> accPt("pt");
+     const static Accessor<float> accPt("pt");
      float pt = accPt(*this);
 
      if (pt < 0.0) return -p4().E();
@@ -65,16 +65,16 @@ namespace xAOD {
      // Check if we need to reset the cached object:
      if( ! m_p4Cached ) {
 
-       static Accessor<float> accPt("pt");
+       const static Accessor<float> accPt("pt");
        float pt = accPt(*this);
 
-       static Accessor<float> accEta("eta");
+       const static Accessor<float> accEta("eta");
        float eta = accEta(*this);
 
-       static Accessor<float> accPhi("phi");
+       const static Accessor<float> accPhi("phi");
        float phi = accPhi(*this);
 
-       static Accessor<float> accM("m");
+       const static Accessor<float> accM("m");
        float M = accM(*this);
 
        m_p4.SetPtEtaPhiM(pt,eta,phi,M);
@@ -90,16 +90,16 @@ namespace xAOD {
   /// set the 4-vec
   void PFO_v1::setP4(const FourMom_t& vec) {
 
-    static Accessor<float> accPt("pt");
+    const static Accessor<float> accPt("pt");
     accPt(*this) = vec.Pt();
 
-    static Accessor<float> accEta("eta");
+    const static Accessor<float> accEta("eta");
     accEta(*this) = vec.Eta();
 
-    static Accessor<float> accPhi("phi");
+    const static Accessor<float> accPhi("phi");
     accPhi(*this) = vec.Phi();
 
-    static Accessor<float> accM("m");
+    const static Accessor<float> accM("m");
     accM(*this) = vec.M();
 
     m_p4Cached = false;
@@ -109,16 +109,16 @@ namespace xAOD {
   /// set the 4-vec
   void PFO_v1::setP4(float pt, float eta, float phi, float m) {
     
-    static Accessor<float> accPt("pt");
+    const static Accessor<float> accPt("pt");
     accPt(*this) = pt;
 
-    static Accessor<float> accEta("eta");
+    const static Accessor<float> accEta("eta");
     accEta(*this) = eta;
 
-    static Accessor<float> accPhi("phi");
+    const static Accessor<float> accPhi("phi");
     accPhi(*this) = phi;
 
-    static Accessor<float> accM("m");
+    const static Accessor<float> accM("m");
     accM(*this) = m;
 
     m_p4Cached = false;
@@ -136,10 +136,10 @@ namespace xAOD {
     if (!m_p4EMCached){
 
       //change to use pt, eta, phi ,e 
-      static Accessor<float> accPt("ptEM");
-      static Accessor<float> accEta("eta");
-      static Accessor<float> accPhi("phi");
-      static Accessor<float> accM("mEM");
+      const static Accessor<float> accPt("ptEM");
+      const static Accessor<float> accEta("eta");
+      const static Accessor<float> accPhi("phi");
+      const static Accessor<float> accM("mEM");
 
       m_p4EM.SetPtEtaPhiM(accPt(*this), accEta(*this), accPhi(*this), accM(*this));
       m_p4EMCached = true;
@@ -149,16 +149,16 @@ namespace xAOD {
   }
 
   void PFO_v1::setP4EM(const FourMom_t& p4EM) {
-    static Accessor<float> accPt("ptEM");
+    const static Accessor<float> accPt("ptEM");
     accPt(*this) = p4EM.Pt();
 
-    static Accessor<float> accEta("eta");
+    const static Accessor<float> accEta("eta");
     accEta(*this) = p4EM.Eta();
 
-    static Accessor<float> accPhi("phi");
+    const static Accessor<float> accPhi("phi");
     accPhi(*this) = p4EM.Phi();
 
-    static Accessor<float> accM("mEM");
+    const static Accessor<float> accM("mEM");
     accM(*this) = p4EM.M();
 
     m_p4EMCached = false;
@@ -167,16 +167,16 @@ namespace xAOD {
 
   void PFO_v1::setP4EM(float pt, float eta, float phi, float m) {
     
-    static Accessor<float> accPt("ptEM");
+    const static Accessor<float> accPt("ptEM");
     accPt(*this) = pt;
 
-    static Accessor<float> accEta("eta");
+    const static Accessor<float> accEta("eta");
     accEta(*this) = eta;
 
-    static Accessor<float> accPhi("phi");
+    const static Accessor<float> accPhi("phi");
     accPhi(*this) = phi;
 
-    static Accessor<float> accM("mEM");
+    const static Accessor<float> accM("mEM");
     accM(*this) = m;
 
     m_p4Cached = false;
@@ -186,7 +186,7 @@ namespace xAOD {
 
      if (0.0 != this->charge()) return this->pt();
 
-     static Accessor<float> accPt("ptEM");
+     const static Accessor<float> accPt("ptEM");
      float pt = accPt(*this);
 
      return pt;
@@ -217,7 +217,7 @@ namespace xAOD {
 
      if (0.0 != this->charge()) return this->e();
 
-     static Accessor<float> accPt("ptEM");
+     const static Accessor<float> accPt("ptEM");
      float pt = accPt(*this);
 
      if (pt < 0.0) return -p4EM().E();
@@ -438,6 +438,19 @@ namespace xAOD {
 
   }
 
+  bool PFO_v1::setVertexLink(const ElementLink< xAOD::VertexContainer>& theVertexLink){
+    ElementLink< xAOD::VertexContainer > tempVertexLink;
+
+    if (theVertexLink.isValid()){
+      tempVertexLink.setElement(*theVertexLink);
+      tempVertexLink.setStorableObject(theVertexLink.getStorableObjectRef());
+      tempVertexLink.toPersistent();
+    }
+    const static Accessor<ElementLink<xAOD::VertexContainer> > acc("pfo_vertex");
+    acc(*this) = tempVertexLink;
+    return true;
+  }
+  
 
   bool PFO_v1::setTrackLink(const ElementLink<xAOD::TrackParticleContainer>& theTrack){
     ElementLink< xAOD::TrackParticleContainer > tempTrackLink;
@@ -577,6 +590,16 @@ namespace xAOD {
     }
   }
 
+  const xAOD::Vertex* PFO_v1::vertex() const{
+    const static Accessor<ElementLink<xAOD::VertexContainer> > acc("pfo_vertex");
+    if (!acc.isAvailable(*this)) return nullptr;
+    else{
+      ElementLink<xAOD::VertexContainer> tempVertexLink = acc(*this);
+      if (tempVertexLink.isValid()) return *acc(*this);
+      else return nullptr;
+    }
+  }
+  
   TLorentzVector PFO_v1::GetVertexCorrectedFourVec(const xAOD::Vertex& vertexToCorrectTo) const{
     TVector3 theVertexVector(vertexToCorrectTo.x(), vertexToCorrectTo.y(), vertexToCorrectTo.z());
     return GetVertexCorrectedFourVec(theVertexVector);

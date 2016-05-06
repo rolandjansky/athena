@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PFODefs.h 696622 2015-09-24 14:26:43Z mhodgkin $
+// $Id: PFODefs.h 745308 2016-05-06 14:39:05Z mhodgkin $
 #ifndef XAODPFLOW_PFODEFS_H
 #define XAODPFLOW_PFODEFS_H
 
@@ -58,6 +58,34 @@ namespace PFODetails
     eflowRec_TIMING,
     eflowRec_tracksExpectedEnergyDeposit,
     eflowRec_isInDenseEnvironment,
+    eflowRec_LAYERENERGY_EM,
+    eflowRec_LAYERENERGY_PreSamplerB,
+    eflowRec_LAYERENERGY_EMB1,
+    eflowRec_LAYERENERGY_EMB2,
+    eflowRec_LAYERENERGY_EMB3,
+    eflowRec_LAYERENERGY_PreSamplerE,
+    eflowRec_LAYERENERGY_EME1,
+    eflowRec_LAYERENERGY_EME2,
+    eflowRec_LAYERENERGY_EME3,
+    eflowRec_LAYERENERGY_HEC1,
+    eflowRec_LAYERENERGY_HEC2,
+    eflowRec_LAYERENERGY_HEC3,
+    eflowRec_LAYERENERGY_TileBar0,
+    eflowRec_LAYERENERGY_TileBar1,
+    eflowRec_LAYERENERGY_TileBar2,
+    eflowRec_LAYERENERGY_TileGap1,
+    eflowRec_LAYERENERGY_TileGap2,
+    eflowRec_LAYERENERGY_TileGap3,
+    eflowRec_LAYERENERGY_TileExt0,
+    eflowRec_LAYERENERGY_TileExt1,
+    eflowRec_LAYERENERGY_TileExt2,
+    eflowRec_LAYERENERGY_FCAL0,
+    eflowRec_LAYERENERGY_FCAL1,
+    eflowRec_LAYERENERGY_FCAL2,
+    eflowRec_LAYERENERGY_MINIFCAL0,
+    eflowRec_LAYERENERGY_MINIFCAL1,
+    eflowRec_LAYERENERGY_MINIFCAL2,
+    eflowRec_LAYERENERGY_MINIFCAL3,
     /** These variables belong to the cell-based particle flow algorithm */
     cellBased_FIRST_ETA = 400, 
     cellBased_SECOND_R, 
