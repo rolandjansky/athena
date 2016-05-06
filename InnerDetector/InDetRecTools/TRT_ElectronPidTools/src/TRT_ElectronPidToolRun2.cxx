@@ -276,7 +276,6 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
   double sumToT=0;
   double sumD=0;
 
-
   // ------------------------------------------------------------------------------------
   // Loop over TRT hits on track, and calculate HT and R-ToT probability:
   // ------------------------------------------------------------------------------------
@@ -385,15 +384,17 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
     // Calculate the HT probability:
     // ------------------------------------------------------------------------------------
 
-    // getStatusHT returns enum {Undefined, Dead, Good, Xenon, Argon, Krypton}.
+    // getStatusHT returns enum {Undefined, Dead, Good, Xenon, Argon, Krypton, EmulatedArgon, EmulatedKrypton}.
     // Our representation of 'GasType' is 0:Xenon, 1:Argon, 2:Krypton
     int GasType=0; // Xenon is default
     if (!m_TRTStrawSummarySvc.empty()) {
       int stat = m_TRTStrawSummarySvc->getStatusHT(DCid);
       if       ( stat==2 || stat==3 ) { GasType = 0; } // Xe
       else if  ( stat==1 || stat==4 ) { GasType = 1; } // Ar
-      else if  ( stat==5 )            { GasType = 2; } // Kr
-      else { ATH_MSG_FATAL ("getStatusHT = " << stat << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or 'Krypton(5)!'");
+      else if  ( stat==5 )            { GasType = 1; } // Kr -- ESTIMATED AS AR UNTIL PID IS TUNED TO HANDLE KR
+      else if  ( stat==6 )            { GasType = 1; } // Emulated Ar
+      else if  ( stat==7 )            { GasType = 1; } // Emulated Kr -- ESTIMATED AS AR UNTIL PID IS TUNED TO HANDLE KR
+      else { ATH_MSG_FATAL ("getStatusHT = " << stat << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or 'Krypton(5)' or 'EmulatedArgon(6)' or 'EmulatedKr(7)'!");
              throw std::exception();
            }
     }
@@ -423,9 +424,7 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
     // From now (May 2015) onwards, we ONLY USE MIDDLE HT BIT:
     if (isHTMB) {pHTel_prod *=     pHTel;  pHTpi_prod *=     pHTpi;}
     else        {pHTel_prod *= 1.0-pHTel;  pHTpi_prod *= 1.0-pHTpi;}
-
-    ATH_MSG_DEBUG ("check         pHT(el): " << pHTel << "  pHT(pi): " << pHTpi );
-
+   ATH_MSG_DEBUG ("check         pHT(el): " << pHTel << "  pHT(pi): " << pHTpi );
 
     // ------------------------------------------------------------------------------------
     // Calculate the ToT probability:
@@ -456,6 +455,7 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
     }
 
 
+
   }//of loop over hits
 
 
@@ -465,12 +465,12 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
     //m_timingProfile->chronoStop("Tool::electronProb");
     return PIDvalues;
   }
-
   // this is what the ToT part is returning
   sum_ToT_by_sum_L = sumD > 0 ? (sumToT/sumD) : 0.;
 
   //  ATH_MSG_INFO("Sum ToT = "<<sumToT<<" Sum D = "<<sumD);
   //  ATH_MSG_INFO("sum_ToT_by_sum_L = "<<sum_ToT_by_sum_L);
+
 
   // prob_El_HT = likelProd_El_HT  / (likelProd_El_HT  + likelProd_Pi_HT);
   prob_El_HT = pHTel_prod / (pHTel_prod + pHTpi_prod);
@@ -481,14 +481,14 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
   ATH_MSG_DEBUG ("");
   ATH_MSG_DEBUG ("");
 
-  
+
   if(sumD>0)
     prob_El_ToT  = ToTcalc.GetElProb( sumToT / sumD );
-  
+
   //Calculate the probability based on Brem
   if(m_bremFitterEnabled)
     prob_El_Brem = probBrem(track);
-  
+
   // Limit the probability values the the upper and lower limits that are given/trusted for each part:
   double limProbHT = HTcalc.Limit(prob_El_HT);
   double limProbToT = ToTcalc.Limit(prob_El_ToT);
@@ -566,10 +566,13 @@ StatusCode InDet::TRT_ElectronPidToolRun2::update( IOVSVC_CALLBACK_ARGS_P(I,keys
   const char * storeName[2] = {"/TRT/Calib/PID_vector", "/TRT/Calib/PID_RToTver_New"};
 //  const char * storeName[2] = {"/TRT/Calib/PIDver_New", "/TRT/Calib/PID_RToTver_New"};
   const char * objName[2]   = {"TRT",            "TRT_RToT"};
+
   StatusCode sc = StatusCode::SUCCESS;
+  ATH_MSG_INFO("HT Calculator : Reading vector format");
 
 		// NEW reading from DB
   ATH_MSG_INFO(calcName[0]<<" : Reading vector format");
+
   const DataHandle<CondAttrListVec> channel_values;
   if (StatusCode::SUCCESS == detStore()->retrieve(channel_values, "/TRT/Calib/PID_vector" )){
         sc = HTcalc.ReadVectorDB(        channel_values  );
@@ -604,7 +607,7 @@ StatusCode InDet::TRT_ElectronPidToolRun2::update( IOVSVC_CALLBACK_ARGS_P(I,keys
         ATH_MSG_ERROR ("Problem reading condDB object. -"<<calcName[1]);
   }
 
-  return sc;
+   return sc;
 /*
   for(int ic=0; ic<2; ic++){
     const AthenaAttributeList* atrlist;
@@ -647,6 +650,7 @@ StatusCode InDet::TRT_ElectronPidToolRun2::update( IOVSVC_CALLBACK_ARGS_P(I,keys
   }
   return StatusCode::SUCCESS;
 */
+
 }
 
 /*****************************************************************************\
