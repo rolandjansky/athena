@@ -201,7 +201,7 @@ StatusCode Trk::LayerMaterialProvider::loadMaterialMap() {
             << "' for " <<  m_layerMaterialMap->size() << " layers.");
     
     // screen output as most VERBOSE debugging        
-    if (outputLevel() == MSG::VERBOSE){
+    if (msgLvl (MSG::VERBOSE)) {
         ATH_MSG_VERBOSE("Listing the layer indeces found in the loaded LayerMaterialMap");
         for ( auto& lmIter : (*m_layerMaterialMap) ){
             ATH_MSG_VERBOSE("  -> Found map for layer with index " << lmIter.first);
