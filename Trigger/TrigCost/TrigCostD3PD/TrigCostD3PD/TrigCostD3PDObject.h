@@ -157,9 +157,9 @@ namespace D3PDReader {
       VarHandle< std::vector<unsigned int,std::allocator<unsigned int> >* > roi_isoBits;
       VarHandle< std::vector<float,std::allocator<float> >* >  roi_vectorEX;
       VarHandle< std::vector<float,std::allocator<float> >* > roi_vectorEY;
-      VarHandle< std::vector<unsigned int,std::allocator<unsigned int> >* > roi_overflowEX;
-      VarHandle< std::vector<unsigned int,std::allocator<unsigned int> >* > roi_overflowEY;
-      VarHandle< std::vector<unsigned int,std::allocator<unsigned int> >* > roi_overflowET;
+      VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_overflowEX;
+      VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_overflowEY;
+      VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_overflowET;
       /// Run number for this event
       VarHandle< unsigned int > runNumber;
       /// Start of the event in seconds
