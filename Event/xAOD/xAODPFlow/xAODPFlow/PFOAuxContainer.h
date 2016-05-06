@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PFOAuxContainer.h 630853 2014-11-25 11:15:03Z mhodgkin $
+// $Id: PFOAuxContainer.h 744541 2016-05-03 15:55:30Z krasznaa $
 #ifndef XAODPFLOW_PFOAUXCONTAINER_H
 #define XAODPFLOW_PFOAUXCONTAINER_H
 
@@ -22,10 +22,8 @@ namespace xAOD {
    typedef PFOAuxContainer_v1 PFOAuxContainer;
 }
 
-// Set up a CLID and StoreGate inheritance for the class:                                                                                                                                                                                                                             
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
+// Set up a CLID for the class:
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::PFOAuxContainer , 1222686486 , 1 )
-#endif // xAOD_STANDALONE
 
 #endif // XAODPFLOW_PFOAUXCONTAINER_H

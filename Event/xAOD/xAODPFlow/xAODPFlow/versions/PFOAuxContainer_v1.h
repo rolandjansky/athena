@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PFOAuxContainer_v1.h 630853 2014-11-25 11:15:03Z mhodgkin $
+// $Id: PFOAuxContainer_v1.h 744541 2016-05-03 15:55:30Z krasznaa $
 #ifndef XAODPFLOW_VERSIONS_PFOAUXCONTAINER_V1_H
 #define XAODPFLOW_VERSIONS_PFOAUXCONTAINER_V1_H
 
@@ -64,9 +64,7 @@ namespace xAOD {
 
 } // namespace xAOD
 
-#ifndef XAOD_STANDALONE
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::PFOAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODPFLOW_VERSIONS_PFOAUXCONTAINER_V1_H

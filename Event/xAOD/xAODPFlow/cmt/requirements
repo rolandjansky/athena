@@ -4,7 +4,6 @@ author Michel Janus <janus@cern.ch>
 
 # Central package(s):
 use AtlasPolicy   AtlasPolicy-*
-use SGTools       SGTools-*       Control
 use AthContainers AthContainers-* Control
 use  AtlasROOT    AtlasROOT-*     External
 

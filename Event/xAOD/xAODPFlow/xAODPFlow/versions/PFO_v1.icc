@@ -25,13 +25,13 @@ namespace xAOD{
 
   template<class T> void PFO_v1::setAttribute(const std::string& AttributeType, const T& anAttribute) {
 
-    static Accessor<T> acc(AttributeType);
+    Accessor<T> acc(AttributeType);
     acc(*this) = anAttribute;
 
   }
 
   template<class T> bool PFO_v1::attribute(const std::string& AttributeType, T& anAttribute) const {
-    static Accessor<T> acc(AttributeType);
+    Accessor<T> acc(AttributeType);
     //Check if variable is available
     if( !acc.isAvailable( *this ) ) return false;
     else {

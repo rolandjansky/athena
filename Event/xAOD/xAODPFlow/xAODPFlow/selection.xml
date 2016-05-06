@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 596608 2014-05-12 14:18:21Z mhodgkin $ -->
+<!-- $Id: selection.xml 728402 2016-03-08 14:26:43Z mhodgkin $ -->
 <lcgdict>
 
   <!-- PFO_v1 dictionaries: -->
@@ -50,6 +50,9 @@
     <class name="DataLink<SG::IConstAuxStore>" />
     <class name="DataVector<xAOD::IParticle>" />
     <class name="ElementLink<DataVector<xAOD::IParticle> >" />
+    <class pattern="xAOD::Vertex*" />
+    <class pattern="DataVector<xAOD::Vertex*" />
+    <class pattern="ElementLink<DataVector<xAOD::Vertex*" />
   </exclusion>
 
 </lcgdict>

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PFO_v1.h 624626 2014-10-28 14:55:06Z mhodgkin $
+// $Id: PFO_v1.h 744541 2016-05-03 15:55:30Z krasznaa $
 #ifndef XAODPFLOW_VERSIONS_PFO_V1_H
 #define XAODPFLOW_VERSIONS_PFO_V1_H
 
@@ -20,7 +20,7 @@
 #include "xAODPFlow/PFODefs.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
@@ -123,6 +123,11 @@ namespace xAOD {
     const CaloCluster* cluster(unsigned int index) const;
     /** Retrieve a const pointer to a Rec::TrackParticle */
     const TrackParticle* track(unsigned int index) const;
+    /** Retrieve a const pointer to the xAOD::Vertex a charged PFO is associated to */
+    const xAOD::Vertex* vertex() const;
+
+    /** Set a vertex link */
+    bool setVertexLink(const ElementLink< xAOD::VertexContainer>& theVertexLink);
     
     /** Set a track constituent */
     bool setTrackLink(const ElementLink<xAOD::TrackParticleContainer>& theTrack);
@@ -182,12 +187,6 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::PFO_v1, 104356027, 1 )
-#endif // not XAOD_STANDALONE
-
 // Declare IParticle as a base class of PFO_v1:
 #include "AthContainers/DataVector.h"
 DATAVECTOR_BASE( xAOD::PFO_v1, xAOD::IParticle );
@@ -195,4 +194,3 @@ DATAVECTOR_BASE( xAOD::PFO_v1, xAOD::IParticle );
 #include "xAODPFlow/versions/PFO_v1.icc"
 
 #endif // XAODPFLOW_VERSIONS_PFO_V1_H
-
