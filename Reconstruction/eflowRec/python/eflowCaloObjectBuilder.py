@@ -5,15 +5,15 @@ from AthenaCommon.Logging import logging  # loads logger
 import traceback # to allow printout of trace back
 from RecExConfig.Configured import Configured # import base class 
 
-def setup_eflowObjectBulderTools(Configured, nameModifier,mlog):
+def setup_eflowObjectBuilderTools(Configured, nameModifier,mlog):
 
     if nameModifier != "EM" and nameModifier != "LC":
         mlog.error("Invalid calorimeter scale was specified : should be LC or EM, but was "+nameModifier)
         return False
 
     try:
-        from eflowRec.eflowRecConf import eflowObjectBuilder_Tools
-        ObjectBuilder_Tools=eflowObjectBuilder_Tools("eflowObjectBuilder_Tools_"+nameModifier)
+        from eflowRec.eflowRecConf import eflowCaloObjectBuilder
+        ObjectBuilder_Tools=eflowCaloObjectBuilder("eflowCaloObjectBuilder_"+nameModifier)
     except:
         mlog.error("could not import eflowRec.eflowObjectBuilderTools")
         print traceback.format_exc()

@@ -4,21 +4,21 @@ from AthenaCommon.Logging import logging  # loads logger
 import traceback # to allow printout of trace back
 from RecExConfig.Configured import Configured # import base class 
 
-def setup_eflowCaloObjectBulder(Configured, nameModifier,mlog):
+def setup_eflowCaloObjectCreator(Configured, nameModifier,mlog):
 
     if nameModifier != "EM" and nameModifier != "LC":
         mlog.error("Invalid calorimeter scale was specified : should be LC or EM, but was "+nameModifier)
         return False
 
     try:
-        from eflowRec.eflowRecConf import eflowCaloObjectBuilder
-        eflowCaloObjectBuilderAlgorithm=eflowCaloObjectBuilder("eflow"+nameModifier+"CaloObjectBuilder")
+        from eflowRec.eflowRecConf import eflowPreparation
+        eflowPreparationAlgorithm=eflowPreparation("eflow"+nameModifier+"CaloObjectBuilder")
     except:
-        mlog.error("could not import eflowRec.eflowCaloObjectBuilder")
+        mlog.error("could not import eflowRec.eflowPreparation")
         print traceback.format_exc()
         return False
 
-    Configured._eflowCaloObjectBuilderHandle = eflowCaloObjectBuilderAlgorithm
+    Configured._eflowPreparationHandle = eflowPreparationAlgorithm
 
     try:
         from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool
@@ -28,30 +28,32 @@ def setup_eflowCaloObjectBulder(Configured, nameModifier,mlog):
         print traceback.format_exc()
         return False
 
-    eflowCaloObjectBuilderAlgorithm.TrackExtrapolatorTool = TrackCaloExtensionTool
+    eflowPreparationAlgorithm.TrackExtrapolatorTool = TrackCaloExtensionTool
 
     # sets output key of C++ algorithm equal to the python side 
-    eflowCaloObjectBuilderAlgorithm.EflowCaloObjectsOutputName=Configured.outputKey()
+    eflowPreparationAlgorithm.EflowCaloObjectsOutputName=Configured.outputKey()
 
     from eflowRec.eflowRecFlags import jobproperties
     
     if "EM" == nameModifier:
-        eflowCaloObjectBuilderAlgorithm.ClustersName = "CaloTopoCluster"
+        eflowPreparationAlgorithm.ClustersName = "CaloTopoCluster"
+        eflowPreparationAlgorithm.CalClustersName = "CaloCalTopoClusters"
     elif "LC" == nameModifier:
-        eflowCaloObjectBuilderAlgorithm.ClustersName = "CaloCalTopoCluster"
+        eflowPreparationAlgorithm.ClustersName = "CaloCalTopoClusters"
+        eflowPreparationAlgorithm.CalClustersName = ""
 
     if True == jobproperties.eflowRecFlags.useLeptons:
-        eflowCaloObjectBuilderAlgorithm.useLeptons = True
+        eflowPreparationAlgorithm.useLeptons = True
         if True == jobproperties.eflowRecFlags.storeLeptonCells:
-            eflowCaloObjectBuilderAlgorithm.storeLeptonCells = True
+            eflowPreparationAlgorithm.storeLeptonCells = True
             if "LC" == nameModifier:
-                eflowCaloObjectBuilderAlgorithm.eflowLeptonCellsName="eflowRec_leptonCellContainer_LC"
+                eflowPreparationAlgorithm.eflowLeptonCellsName="eflowRec_leptonCellContainer_LC"
     else:
-        eflowCaloObjectBuilderAlgorithm.useLeptons = False
+        eflowPreparationAlgorithm.useLeptons = False
 
     if "LC" == nameModifier:
-        eflowCaloObjectBuilderAlgorithm.EflowCaloObjectsOutputName="eflowCaloObjects_LC"
-        eflowCaloObjectBuilderAlgorithm.eflowElectronsName="eflowRec_selectedElectrons_LC"
+        eflowPreparationAlgorithm.EflowCaloObjectsOutputName="eflowCaloObjects_LC"
+        eflowPreparationAlgorithm.eflowElectronsName="eflowRec_selectedElectrons_LC"
 
     try:
         from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
@@ -73,13 +75,13 @@ def setup_eflowCaloObjectBulder(Configured, nameModifier,mlog):
     TrackSelectionTool.CutLevel = "TightPrimary"
     TrackSelectionTool.minPt = 500.0 
 
-    eflowCaloObjectBuilderAlgorithm.TrackSelectionTool = TrackSelectionTool
+    eflowPreparationAlgorithm.TrackSelectionTool = TrackSelectionTool
 
     from RecExConfig.ObjKeyStore import objKeyStore
     objKeyStore.addTransient(Configured.outputType(),Configured.outputKey())
 
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
-    topSequence += eflowCaloObjectBuilderAlgorithm ;
+    topSequence += eflowPreparationAlgorithm ;
 
     return True

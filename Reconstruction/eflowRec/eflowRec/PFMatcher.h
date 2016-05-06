@@ -40,14 +40,11 @@ public:
   template<class ClusterType>
   MatchDistance bestMatchDRparametrized(ITrack* track, const std::vector<ClusterType*>& clusters);
   template<class ClusterType>
-  std::vector<MatchDistance> bestMatches(ITrack* track, const std::vector<ClusterType*>& clusters, int n);
+  std::vector<MatchDistance> bestMatches(ITrack* track, const std::vector<ClusterType*>& clusters, int nMatches, double energyThreshold);
   template<class ClusterType>
   double getDRCutSquared(ClusterType* theCluster);
 
 private:
-
-  template<class ClusterType>
-  std::vector<MatchDistance> allMatches(ITrack* track, const std::vector<ClusterType*>& clusters);
 
   IDistanceProvider* m_distanceProvider;
   double m_matchCut;
@@ -81,55 +78,70 @@ template<class ClusterType>
    
    return MatchDistance(bestCluster, bestDistance, bestCluster != 0);
  }
+
  template<class ClusterType>
-std::vector<MatchDistance> TrackClusterMatcher::allMatches(ITrack* track, const std::vector<ClusterType*>& clusters) {
+std::vector<MatchDistance> TrackClusterMatcher::bestMatches(ITrack* track, const std::vector<ClusterType*>& clusters, int nMatches, double energyThreshold) {
+
   std::vector<MatchDistance> result;
+  unsigned const nClusters(clusters.size());
 
-  unsigned int nClusters(clusters.size());
-  for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster){
-
-    ClusterType* thisCluster = clusters[iCluster];
-    double thisDistance(m_distanceProvider->distanceBetween(track, thisCluster));
-
-    if (thisDistance < m_matchCut) {
-      result.push_back(MatchDistance(thisCluster, thisDistance, true));
+  if (nMatches == -1) {
+    for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
+      ClusterType* thisCluster = clusters[iCluster];
+      double thisDistance(m_distanceProvider->distanceBetween(track, thisCluster));
+      if (thisDistance < m_matchCut) {
+        result.push_back(MatchDistance(thisCluster, thisDistance, true));
+      }
     }
+  }
+
+  else{
+    int nLoops = nMatches;
+    std::vector<unsigned int> masked;
+    std::vector<int> maskedType;
+    for (int imatch = 0; imatch < nLoops; ++imatch) {
+      ClusterType* bestCluster(0);
+      double bestDistance(m_matchCut);
+      int iMasked = -1;
+      for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
+        /* Do not consider matched ones. */
+        if (masked.size() != 0 && find(masked.begin(), masked.end(), iCluster) != masked.end()) {
+          continue;
+        }
+
+        ClusterType* thisCluster = clusters[iCluster];
+
+        /* Require that first matched cluster energy is above energyThreshold (10% of track energy). */
+        if(imatch == 0 && thisCluster->e() <= energyThreshold) {
+          continue;
+        }
+
+        /* Do not consider the same type (ECAL or HCAL) ones. */
+        if ((maskedType.size() != 0 && find(maskedType.begin(), maskedType.end(),
+                    thisCluster->getEfRecCluster()->getClusterType()) != maskedType.end())
+            || (thisCluster->getEfRecCluster()->getClusterType() == 3)) {
+          continue;
+        }
+
+        double thisDistance(m_distanceProvider->distanceBetween(track, thisCluster));
+
+        if (thisDistance < bestDistance) {
+          iMasked = iCluster;
+          bestDistance = thisDistance;
+          bestCluster = thisCluster;
+        }
+      }
+      if (iMasked == -1) break;
+
+      masked.push_back(iMasked);
+      maskedType.push_back(bestCluster->getEfRecCluster()->getClusterType());
+
+      result.push_back(MatchDistance(bestCluster, bestDistance, bestCluster != 0));
+    }
+    assert(maskedType.size() == masked.size());
   }
 
   return result;
- }
-
- template<class ClusterType>
-std::vector<MatchDistance> TrackClusterMatcher::bestMatches(ITrack* track, const std::vector<ClusterType*>& clusters, int n) {
-   if(n==-1) {
-     return allMatches(track, clusters);
-   }
-   std::vector<MatchDistance> result;
-   std::vector<unsigned int> masked;
-
-  for (int imatch = 0; imatch < n; ++imatch) {
-    ClusterType* bestCluster(0);
-    double bestDistance(m_matchCut);
-    int iMasked = -1;
-    unsigned int nClusters(clusters.size());
-    for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
-      if (masked.size() != 0 && find(masked.begin(), masked.end(), iCluster) != masked.end()) {
-        continue;
-      }
-      ClusterType* thisCluster = clusters[iCluster];
-      double thisDistance(m_distanceProvider->distanceBetween(track, clusters[iCluster]));
-
-      if (thisDistance < bestDistance) {
-        iMasked = iCluster;
-        bestDistance = thisDistance;
-        bestCluster = thisCluster;
-      }
-    }
-    if (iMasked == -1) continue;
-    masked.push_back(iMasked);
-    result.push_back(MatchDistance(bestCluster, bestDistance, bestCluster != 0));
-  }
-   return result;
 
  }
 

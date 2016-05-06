@@ -51,21 +51,27 @@ public:
   int getNTracks() const { return m_trackMatches.size(); }
   int getClusterId() const { return m_clusterId; }
   void setClusterId(int clusterId) { m_clusterId = clusterId; }
+  void setCellsWeight(std::map<IdentifierHash, double> cellsWeight) { m_cellsWeightMap = cellsWeight; }
+  const std::map<IdentifierHash, double>& getCellsWeight() const { return m_cellsWeightMap; }
 
+  int getClusterType();
   const bool& isTouchable() { return m_isTouchable;}
 
 private:
   int m_clusterId;
-  void replaceClusterByCopyInContainer(xAOD::CaloClusterContainer* container);
-
   const xAOD::CaloCluster* m_cluster;
   ElementLink<xAOD::CaloClusterContainer> m_clusElementLink;
   bool m_isTouchable;
+  /* 1: ECAL, 2: HCAL */
+  int m_type;
 
+  /* for EM mode, LC weight for cells are retrieved before doing any subtraction; they will be used after subtraction */
+  std::map<IdentifierHash,double> m_cellsWeightMap;
 
   eflowMatchCluster* m_matchCluster;
-
   std::vector<eflowTrackClusterLink*> m_trackMatches;
+
+  void replaceClusterByCopyInContainer(xAOD::CaloClusterContainer* container);
 
 public:
   class SortDescendingPt {

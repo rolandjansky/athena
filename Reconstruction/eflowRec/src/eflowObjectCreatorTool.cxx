@@ -17,7 +17,6 @@ CREATED:  15th August, 2005
 #include "eflowRec/eflowRecCluster.h"
 #include "eflowRec/eflowTrackClusterLink.h"
 #include "eflowRec/eflowCaloObject.h"
-#include "eflowEvent/eflowCaloCluster.h"
 
 #include "FourMomUtils/P4DescendingSorters.h"
 #include "xAODPFlow/PFO.h"
@@ -51,7 +50,9 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
     m_eOverPMode(false),
     m_goldenModeString(""),
     m_debug(0),
-    m_LCMode(false)
+    m_LCMode(false),
+    m_trackVertexAssociationTool(""),
+    m_vertexContainerName("PrimaryVertices")
 {
   declareInterface<eflowObjectCreatorTool>(this);
   /* Name of  eflow Container to be created */
@@ -59,6 +60,7 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
   declareProperty("EOverPMode", m_eOverPMode);
   declareProperty("goldenModeString",m_goldenModeString,"run in golden match mode only?");
   declareProperty("LCMode", m_LCMode, "Whether we are in LC or EM mode");
+  declareProperty("TrackVertexAssociationTool", m_trackVertexAssociationTool);
 }
 
 StatusCode eflowObjectCreatorTool::initialize(){
@@ -68,6 +70,11 @@ StatusCode eflowObjectCreatorTool::initialize(){
   if ( service("ToolSvc",myToolSvc).isFailure() ) {
     msg(MSG::WARNING) << " Tool Service Not Found" << endreq;
     return StatusCode::SUCCESS;
+  }
+
+  if(! m_trackVertexAssociationTool.empty() ) {
+     ATH_MSG_VERBOSE("Intialized using ITrackVertexAssociationTool");
+     return m_trackVertexAssociationTool.retrieve();
   }
 
   return StatusCode::SUCCESS;
@@ -86,6 +93,15 @@ StatusCode eflowObjectCreatorTool::execute(eflowCaloObject *energyFlowCaloObject
     createNeutralEflowObjects(energyFlowCaloObject);
   }
 
+  const xAOD::VertexContainer* vertexContainer = nullptr;
+  StatusCode vertexRetrieved =  evtStore()->retrieve(vertexContainer,m_vertexContainerName);
+  if ( vertexRetrieved.isFailure() || vertexContainer==nullptr) {
+    ATH_MSG_WARNING("Could not retrieve the VertexContainer from evtStore: " << m_vertexContainerName);
+  }
+  else{
+    addVertexLinksToChargedEflowObjects(vertexContainer);
+  }
+  
   return StatusCode::SUCCESS;
 
 }
@@ -160,8 +176,24 @@ StatusCode eflowObjectCreatorTool::setupPFOContainers() {
   return StatusCode::SUCCESS;
 }
 
-void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFlowCaloObject, bool addClusters){
+void eflowObjectCreatorTool::addVertexLinksToChargedEflowObjects(const xAOD::VertexContainer* theVertexContainer){
 
+  if (theVertexContainer){
+    //This is a loop on all xAOD::PFO with non-zero charge
+    for (auto theChargedPFO : *m_chargedPFOContainer){
+      const xAOD::TrackParticle* theTrack = theChargedPFO->track(0);
+      if (theTrack){
+	ElementLink< xAOD::VertexContainer> theVertexLink = m_trackVertexAssociationTool->getUniqueMatchVertexLink(*theTrack,*theVertexContainer);
+  	bool haveSetLink = theChargedPFO->setVertexLink(theVertexLink);
+	if (!haveSetLink) msg(MSG::WARNING) << " Could not set vertex link on charged PFO " << endreq;
+      }//if valid pointer to xAOD::TrackParticle
+    }
+  }
+
+}
+
+void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFlowCaloObject, bool addClusters){
+ 
   /* Loop over all tracks in the eflowCaloObject */
   int nTracks = energyFlowCaloObject->nTracks();
   for (int iTrack = 0; iTrack < nTracks; ++iTrack) {
@@ -196,6 +228,15 @@ void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFl
     }
     /* Set the 4-vector of the xAOD::PFO */
     myEflowObject->setP4(efRecTrack->getTrack()->pt(), etaPhi.first, etaPhi.second, efRecTrack->getTrack()->m());
+
+    /* Add the amount of energy the track was expected to deposit in the calorimeter - this is needed to calculate the charged weight in the jet finding */
+    xAOD::PFODetails::PFOAttributes myAttribute_tracksExpectedEnergyDeposit = xAOD::PFODetails::PFOAttributes::eflowRec_tracksExpectedEnergyDeposit;
+    myEflowObject->setAttribute<float>(myAttribute_tracksExpectedEnergyDeposit,efRecTrack->getEExpect() );
+    
+    /* Flag if this track was in a dense environment for later checking */
+    xAOD::PFODetails::PFOAttributes myAttribute_isInDenseEnvironment = xAOD::PFODetails::PFOAttributes::eflowRec_isInDenseEnvironment;
+    //There is some issue using bools - when written to disk they convert to chars. So lets store the bool as an int.
+    myEflowObject->setAttribute<int>(myAttribute_isInDenseEnvironment, (efRecTrack->isInDenseEnvironment()));
 
     /* Optionally we add the links to clusters to the xAOD::PFO */
     if (true == addClusters){
@@ -288,14 +329,109 @@ void eflowObjectCreatorTool::createNeutralEflowObjects(eflowCaloObject* energyFl
       this->addMoment(xAOD::CaloCluster::AVG_TILE_Q,xAOD::PFODetails::PFOAttributes::eflowRec_AVG_TILE_Q,cluster, thisEflowObject);
     }
 
+    //First set all the layer energies
+    float layerEnergy_preSamplerB = cluster->eSample(xAOD::CaloCluster::CaloSample::PreSamplerB);
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_PreSamplerB = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_PreSamplerB;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_PreSamplerB, layerEnergy_preSamplerB);
+
+    float layerEnergy_EMB1 = cluster->eSample(xAOD::CaloCluster::CaloSample::EMB1);
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_EMB1 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EMB1;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_EMB1, layerEnergy_EMB1);
+
+    float layerEnergy_EMB2 = cluster->eSample(xAOD::CaloCluster::CaloSample::EMB2);
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_EMB2 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EMB2;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_EMB2, layerEnergy_EMB2);
+
+    float layerEnergy_EMB3 = cluster->eSample(xAOD::CaloCluster::CaloSample::EMB3);
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_EMB3 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EMB3;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_EMB3, layerEnergy_EMB3);
+
+    float layerEnergy_preSamplerE = cluster->eSample(xAOD::CaloCluster::CaloSample::PreSamplerE);
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_PreSamplerE = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_PreSamplerE;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_PreSamplerE, layerEnergy_preSamplerE);
+
+    float layerEnergy_EME1 = cluster->eSample(xAOD::CaloCluster::CaloSample::EME1);
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_EME1 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EME1;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_EME1, layerEnergy_EME1);
+
+    float layerEnergy_EME2 = cluster->eSample(xAOD::CaloCluster::CaloSample::EME2);
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_EME2 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EME2;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_EME2, layerEnergy_EME2);
+
+    float layerEnergy_EME3 = cluster->eSample(xAOD::CaloCluster::CaloSample::EME3);
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_EME3 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EME3;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_EME3, layerEnergy_EME3);
+
+    float layerEnergy_HEC0 = cluster->eSample(xAOD::CaloCluster::CaloSample::HEC0);
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_HEC0 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC0;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_HEC0, layerEnergy_HEC0);
+
+    float layerEnergy_HEC1 = cluster->eSample(xAOD::CaloCluster::CaloSample::HEC1);
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_HEC1 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC1;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_HEC1, layerEnergy_HEC1);
+
+    float layerEnergy_HEC2 = cluster->eSample(xAOD::CaloCluster::CaloSample::HEC2);
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_HEC2 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC2;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_HEC2, layerEnergy_HEC2);
+
+    float layerEnergy_HEC3 = cluster->eSample(xAOD::CaloCluster::CaloSample::HEC3);
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_HEC3 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC3;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_HEC3, layerEnergy_HEC3);
+
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_TileBar0 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileBar0;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_TileBar0, cluster->eSample(xAOD::CaloCluster::CaloSample::TileBar0));
+
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_TileBar1 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileBar1;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_TileBar1, cluster->eSample(xAOD::CaloCluster::CaloSample::TileBar1));
+
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_TileBar2 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileBar2;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_TileBar2, cluster->eSample(xAOD::CaloCluster::CaloSample::TileBar2));
+
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_TileGap1 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileGap1;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_TileGap1, cluster->eSample(xAOD::CaloCluster::CaloSample::TileGap1));
+
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_TileGap2 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileGap2;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_TileGap2, cluster->eSample(xAOD::CaloCluster::CaloSample::TileGap2));
+
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_TileGap3 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileGap3;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_TileGap3, cluster->eSample(xAOD::CaloCluster::CaloSample::TileGap3));
+
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_TileExt0 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileExt0;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_TileExt0, cluster->eSample(xAOD::CaloCluster::CaloSample::TileExt0));
+
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_TileExt1 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileExt1;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_TileExt1, cluster->eSample(xAOD::CaloCluster::CaloSample::TileExt1));
+
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_TileExt2 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileExt2;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_TileExt2, cluster->eSample(xAOD::CaloCluster::CaloSample::TileExt2));
+
+    float layerEnergy_FCAL0 = cluster->eSample(xAOD::CaloCluster::CaloSample::FCAL0);
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_FCAL0 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_FCAL0;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_FCAL0, layerEnergy_FCAL0);
+
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_FCAL1 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_FCAL1;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_FCAL1, cluster->eSample(xAOD::CaloCluster::CaloSample::FCAL1));
+
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_FCAL2 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_FCAL2;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_FCAL2, cluster->eSample(xAOD::CaloCluster::CaloSample::FCAL2));
+
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_MINIFCAL0 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_MINIFCAL0;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_MINIFCAL0, cluster->eSample(xAOD::CaloCluster::CaloSample::MINIFCAL0));
+
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_MINIFCAL1 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_MINIFCAL1;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_MINIFCAL1, cluster->eSample(xAOD::CaloCluster::CaloSample::MINIFCAL1));
+
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_MINIFCAL2 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_MINIFCAL2;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_MINIFCAL2, cluster->eSample(xAOD::CaloCluster::CaloSample::MINIFCAL2));
+
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_MINIFCAL3 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_MINIFCAL3;
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_MINIFCAL3, cluster->eSample(xAOD::CaloCluster::CaloSample::MINIFCAL3));
+
     //now set the layer energies for EMB3 and Tile0 - these are needed if we want to run a GSC style jet calibration, which is binned in EMB3 and Tile0 layer energies
     
-    float layerEnergy_EMB3 = cluster->eSample(xAOD::CaloCluster::CaloSample::EMB3);
-    float layerEnergy_EME3 = cluster->eSample(xAOD::CaloCluster::CaloSample::EME3);
     float layerEnergy_EM3 = layerEnergy_EMB3 + layerEnergy_EME3;
 
     xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_EM3 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EM3;
-
     thisEflowObject->setAttribute( myAttribute_layerEnergy_EM3, layerEnergy_EM3);
 
     float layerEnergy_TileBar0 = cluster->eSample(xAOD::CaloCluster::CaloSample::TileBar0);
@@ -305,21 +441,16 @@ void eflowObjectCreatorTool::createNeutralEflowObjects(eflowCaloObject* energyFl
     xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_Tile0 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_Tile0;
     thisEflowObject->setAttribute(myAttribute_layerEnergy_Tile0, layerEnergy_Tile0);
 
-    float layerEnergy_HEC0 = cluster->eSample(xAOD::CaloCluster::CaloSample::HEC0);
-
-    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_HEC0 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC0;
-    thisEflowObject->setAttribute(myAttribute_layerEnergy_HEC0, layerEnergy_HEC0);
-
     //now set properties that are required for jet cleaning
-    float layerEnergy_HEC1 = cluster->eSample(xAOD::CaloCluster::CaloSample::HEC1);
-    float layerEnergy_HEC2 = cluster->eSample(xAOD::CaloCluster::CaloSample::HEC2);
-    float layerEnergy_HEC3 = cluster->eSample(xAOD::CaloCluster::CaloSample::HEC3);
-
     float layerEnergy_HEC = layerEnergy_HEC0 + layerEnergy_HEC1 + layerEnergy_HEC2 + layerEnergy_HEC3;
 
     xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_HEC = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC;
     thisEflowObject->setAttribute(myAttribute_layerEnergy_HEC, layerEnergy_HEC);
 
+    float layerEnergy_EM = layerEnergy_preSamplerB + layerEnergy_preSamplerE + layerEnergy_EMB1 + layerEnergy_EMB2 + layerEnergy_EMB3 + layerEnergy_EME1 + layerEnergy_EME2 + layerEnergy_EME3 + layerEnergy_FCAL0;
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_EM = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EM;
+    thisEflowObject->setAttribute(myAttribute_layerEnergy_EM, layerEnergy_EM);
+    
     float clusterTiming = cluster->time();
 
     xAOD::PFODetails::PFOAttributes myAttribute_TIMING = xAOD::PFODetails::PFOAttributes::eflowRec_TIMING;

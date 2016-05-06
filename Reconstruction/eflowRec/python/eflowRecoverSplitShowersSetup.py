@@ -38,8 +38,10 @@ def setup_eflowRecoverSplitShowers(Configured, nameModifier,mlog):
     
     if jobproperties.eflowRecFlags.recoverIsolatedTracks == True:
         Configured.RecoverIsolatedTracks = True
-        
 
+    if jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction == False:
+        Configured.useUpdated2015ChargedShowerSubtraction = False
+        
     try:
         from eflowRec.eflowRecConf import PFTrackClusterMatchingTool
         MatchingTool = PFTrackClusterMatchingTool()

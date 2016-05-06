@@ -33,6 +33,7 @@ class IEFlowCellEOverPTool;
 class eflowEEtaBinnedParameters;
 class eflowLayerIntegrator;
 class PFTrackClusterMatchingTool;
+class eflowRecTrack;
 
 static const InterfaceID IID_eflowCellLevelSubtractionTool("eflowCellLevelSubtractionTool", 1, 0);
 
@@ -68,7 +69,10 @@ public:
   eflowRecClusterContainer* m_eflowClusterContainer;
 
   ToolHandle<PFTrackClusterMatchingTool> m_matchingTool;
-
+  /* Matching tools for calculating the pull */
+  ToolHandle<PFTrackClusterMatchingTool> m_matchingToolForPull_015;
+  ToolHandle<PFTrackClusterMatchingTool> m_matchingToolForPull_02;
+  
   /* Tools for "shower simulation" */
   eflowEEtaBinnedParameters* m_binnedParameters;
   eflowLayerIntegrator* m_integrator;
@@ -84,6 +88,13 @@ public:
 
   // string flag to configure for running in golden e/p match mode
   std::string m_goldenModeString;
+
+  // Number of clusters to match
+  int m_nMatchesInCellLevelSubtraction;
+
+  /** Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density regions  */
+  bool m_useUpdated2015ChargedShowerSubtraction;
+
 };
 
 inline const InterfaceID& eflowCellLevelSubtractionTool::interfaceID()

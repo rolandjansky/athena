@@ -17,7 +17,6 @@ CREATED: 16 January 2014
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "CaloClusterCorrection/CaloClusterLocalCalib.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -93,6 +92,10 @@ private:
 
   /** Count the number of track-cluster matches -- for the summary in finalize */
   unsigned int m_nTrackClusterMatches;
+
+  /** Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density regions  */
+  bool m_useUpdated2015ChargedShowerSubtraction;
+  
 };
 
 inline const InterfaceID& eflowRecoverSplitShowersTool::interfaceID()

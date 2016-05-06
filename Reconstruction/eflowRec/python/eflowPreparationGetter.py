@@ -5,20 +5,19 @@ from AthenaCommon.Constants import * # Loads DEBUG INFO etc..
 from AthenaCommon.Logging import logging  # loads logger 
 import traceback # to allow printout of trace back
 from RecExConfig.Configured import Configured # import base class
-from AthenaCommon.Include import include
 
-class eflowObjectBuilderGetter ( Configured )  :
+class eflowPreparationGetter ( Configured )  :  # python way to define inheritance
 
-    _outputType = "xAOD::PFOContainer"
-    _output = { _outputType : "chargedJetETMiss_eflowRec",   _outputType : "neutralJetETMiss_eflowRec"}
+    _outputType = "eflowCaloObjectContainer"
+    _output = { _outputType : "eflowCaloObjects01" }
 
     def configure(self):
 
-        mlog = logging.getLogger( 'eflowObjectBuilderGetter:configure :' )
+        mlog = logging.getLogger( 'eflowPreparationGetter:configure :' )
         mlog.info("Output="+self.outputKey() ) # prints an info message
 
-        from eflowRec.eflowObjectBuilderSetup import setup_eflowObjectBuilder
-        return setup_eflowObjectBuilder(self, "EM", mlog)
+        from eflowRec.eflowCaloSetup import setup_eflowCaloObjectCreator
+        return setup_eflowCaloObjectCreator(self, "EM", mlog)
 
     def outputKey(self):
         return self._output[self._outputType]
@@ -26,5 +25,5 @@ class eflowObjectBuilderGetter ( Configured )  :
     def outputType(self):
         return self._outputType
 
-    def eflowObjectBuilderHandle(self):
-        return self._eflowObjectBuilderHandle
+    def eflowPreparationHandle(self):
+        return self._eflowPreparationHandle

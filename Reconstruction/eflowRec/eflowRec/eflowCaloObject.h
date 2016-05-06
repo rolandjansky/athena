@@ -79,7 +79,7 @@ public:
   double getExpectedVariance();
   double getClusterEnergy() ;
 
-  void simulateShower(eflowLayerIntegrator *integrator, eflowEEtaBinnedParameters* binnedParameters);
+  void simulateShower(eflowLayerIntegrator *integrator, eflowEEtaBinnedParameters* binnedParameters, bool useUpdated2015ChargedShowerSubtraction);
 
   static xAOD::CaloClusterContainer* getClusterContainerPtr() { return m_clusterContainerPtr;}
   static xAOD::CaloClusterAuxContainer* getClusterAuxContainerPtr() { return m_clusterAuxContainerPtr;}

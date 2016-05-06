@@ -35,7 +35,7 @@ class eflowMomentCalculatorTool : virtual public eflowBaseAlgTool, public AthAlg
   
   eflowMomentCalculatorTool(const std::string& type,const std::string& name,const IInterface* parent);
 
-  ~eflowMomentCalculatorTool() {};
+  ~eflowMomentCalculatorTool() {}
 
   static const InterfaceID& interfaceID();
 

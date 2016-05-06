@@ -44,7 +44,7 @@ class eflowOverlapRemoval : public eflowBaseAlg {
   StoreGateSvc* m_storeGate;
   
   std::string m_egammaContainerName;
-  /** Name of electron container built by eflowRec/eflowCaloObjectBuilder */
+  /** Name of electron container built by eflowRec/eflowPreparation */
   std::string m_eflowElectronContainerName;
 
    /*! \brief Property: reference cluster collection key */

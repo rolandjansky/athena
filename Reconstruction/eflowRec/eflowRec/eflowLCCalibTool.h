@@ -26,6 +26,7 @@ CREATED:  Jan 2014
 #include <cassert>
 
 class eflowCaloObjectContainer;
+class eflowRecCluster;
 
 static const InterfaceID IID_eflowLCCalibTool("eflowLCCalibTool", 1, 0);
 
@@ -35,7 +36,7 @@ class eflowLCCalibTool : virtual public eflowBaseAlgTool, public AthAlgTool {
   
   eflowLCCalibTool(const std::string& type,const std::string& name,const IInterface* parent);
 
-  ~eflowLCCalibTool() {};
+  ~eflowLCCalibTool() {}
 
   static const InterfaceID& interfaceID();
 
@@ -45,9 +46,9 @@ class eflowLCCalibTool : virtual public eflowBaseAlgTool, public AthAlgTool {
 
  private:
 
-  void applyLocalHadronCalibration(xAOD::CaloCluster* cluster);
   void apply(ToolHandle<CaloClusterCollectionProcessor>& calibTool, xAOD::CaloCluster* cluster);
-  void debugPrintCluster(xAOD::CaloCluster* cluster, std::string prefix, bool printMoments = false);
+  void applyLocal(ToolHandle<CaloClusterCollectionProcessor>& calibTool, eflowRecCluster *cluster);
+  void applyLocalWeight(eflowRecCluster* theEFRecCluster);
 
   /** Tool to put all clusters into a temporary container - then we use this to calculate moments, some of which depend on configuration of nearby clusters */
   ToolHandle<IEFlowClusterCollectionTool> m_clusterCollectionTool;
@@ -63,6 +64,8 @@ class eflowLCCalibTool : virtual public eflowBaseAlgTool, public AthAlgTool {
 
   /* Tool for correcting clusters at cell level for dead materia */
   ToolHandle<CaloClusterCollectionProcessor> m_clusterLocalCalibDMTool;
+
+  bool m_useLocalWeight;
 
 };
 

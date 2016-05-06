@@ -5,11 +5,11 @@ topSequence = AlgSequence()
 
 #Jet/MET algorithms - EM input and LC output
 
-from eflowRec.eflowCaloObjectBuilderGetter import eflowCaloObjectBuilderGetter
-CaloObjectBuilderGetter = eflowCaloObjectBuilderGetter()
+from eflowRec.eflowPreparationGetter import eflowPreparationGetter
+CaloObjectBuilderGetter = eflowPreparationGetter()
 
-from eflowRec.eflowObjectBuilderToolsGetter import eflowObjectBuilderToolsGetter
-ObjectBuilderToolsGetter = eflowObjectBuilderToolsGetter()
+from eflowRec.eflowCaloObjectBuilderGetter import eflowCaloObjectBuilderGetter
+ObjectBuilderToolsGetter = eflowCaloObjectBuilderGetter()
 
 from eflowRec.eflowObjectBuilderGetter import eflowObjectBuilderGetter
 ObjectBuilderGetter = eflowObjectBuilderGetter()

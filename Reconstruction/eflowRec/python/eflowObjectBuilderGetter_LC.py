@@ -17,8 +17,8 @@ class eflowObjectBuilderGetter_LC ( Configured )  :
         mlog = logging.getLogger( 'eflowObjectBuilderGetter_LC:configure :' )
         mlog.info("Output="+self.outputKey() ) # prints an info message
 
-        from eflowRec.eflowObjectBuilderSetup import setup_eflowObjectBulder
-        return setup_eflowObjectBulder(self, "LC", mlog)
+        from eflowRec.eflowObjectBuilderSetup import setup_eflowObjectBuilder
+        return setup_eflowObjectBuilder(self, "LC", mlog)
 
     def outputKey(self):
         return self._output[self._outputType]

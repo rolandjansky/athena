@@ -46,13 +46,15 @@ m_binnedParameters(new eflowEEtaBinnedParameters()),
 m_integrator(new eflowLayerIntegrator(m_windowRms, 1.0e-3, 3.0)),
 m_subtractionSigmaCut(1.5),
 m_recoverIsolatedTracks(false),
-m_nTrackClusterMatches(0)
+m_nTrackClusterMatches(0),
+m_useUpdated2015ChargedShowerSubtraction(true)
 {
   declareInterface<eflowRecoverSplitShowersTool>(this);
   declareProperty("SubtractionSigmaCut",m_subtractionSigmaCut);
   declareProperty("eflowCellEOverPTool", m_theEOverPTool,"Energy Flow E/P Values and Shower Parameters Tool");
   declareProperty("PFTrackClusterMatchingTool", m_matchingTool, "The track-cluster matching tool");
   declareProperty("RecoverIsolatedTracks",m_recoverIsolatedTracks,"Whether to recover isolated tracks also");
+  declareProperty("useUpdated2015ChargedShowerSubtraction",m_useUpdated2015ChargedShowerSubtraction,"Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density region");
   eflowRingSubtractionManager::setRMaxAndWeightRange(m_rCell, 1.0e6);
 }
 
@@ -127,10 +129,6 @@ void eflowRecoverSplitShowersTool::getClustersToConsider() {
     eflowCaloObject* thisEflowCaloObject = *itEFCalObject;
 
     if (thisEflowCaloObject->nClusters() == 0) { continue; }
-
-    if (thisEflowCaloObject->nClusters() != 1) {
-      msg(MSG::WARNING) << "eflowCaloObject has "<< thisEflowCaloObject->nClusters() << " instead of 1 cluster! Will not use them for split shower recovery." << endreq;
-    }
 
     for(unsigned i=0; i<thisEflowCaloObject->nClusters(); ++i){
         /* Skip empty clusters (subtraction remnants) */
@@ -218,7 +216,7 @@ int eflowRecoverSplitShowersTool::matchAndCreateEflowCaloObj() {
                 << track->eta() << " and " << track->phi() << std::endl;
     }
     /* Get list of matched clusters */
-    std::vector<eflowRecCluster*> matchedClusters = m_matchingTool->bestMatches(thisEfRecTrack, m_clustersToConsider, -1);
+    std::vector<eflowRecCluster*> matchedClusters = m_matchingTool->doMatches(thisEfRecTrack, m_clustersToConsider, -1);
     if (matchedClusters.empty()) { continue; }
 
     m_nTrackClusterMatches += matchedClusters.size();
@@ -242,7 +240,7 @@ int eflowRecoverSplitShowersTool::matchAndCreateEflowCaloObj() {
   /* integrate cells; determine FLI; eoverp */
   for (unsigned int iCalo = nCaloObj; iCalo < m_eflowCaloObjectContainer->size(); ++iCalo) {
     eflowCaloObject* thisEflowCaloObject = m_eflowCaloObjectContainer->at(iCalo);
-    thisEflowCaloObject->simulateShower(m_integrator, m_binnedParameters);
+    thisEflowCaloObject->simulateShower(m_integrator, m_binnedParameters, m_useUpdated2015ChargedShowerSubtraction);
   }
   return nCaloObj;
 }

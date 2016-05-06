@@ -39,7 +39,7 @@ PURPOSE:  Loop over tracks and clusters to build calo objects, then
 eflowBuilder::eflowBuilder(const std::string& name, 
 		       ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator), 
-  m_eflowCaloObjectBuilderAlgName("eflowCaloObjectBuilder/caloObjectBuilderAlg"),
+  m_eflowPreparationAlgName("eflowPreparation/caloObjectBuilderAlg"),
   m_eflowObjectBuilderAlgName("eflowObjectBuilder/objectBuilderAlg"),
   m_eflowQuantitiesAlgName("eflowQuantities/quantAlg")
 {
@@ -48,11 +48,11 @@ eflowBuilder::eflowBuilder(const std::string& name,
 // (declared in jobOptions file)
                             
   // Names of various sub-algorithms:
-  declareProperty("eflowCaloObjectBuilderAlgName", 
-		  m_eflowCaloObjectBuilderAlgName);
+  declareProperty("eflowPreparationAlgName", 
+		  m_eflowPreparationAlgName);
   declareProperty("eflowObjectBuilderAlgName", m_eflowObjectBuilderAlgName);
   declareProperty("eflowQuantitiesAlgName", m_eflowQuantitiesAlgName);
-  m_eflowCaloObjectBuilderAlg = 0;
+  m_eflowPreparationAlg = 0;
   m_eflowObjectBuilderAlg = 0;
   m_eflowQuantitiesAlg = 0;
 }
@@ -70,24 +70,24 @@ StatusCode eflowBuilder::initialize()
   // Get pointer to StoreGateSvc and cache:
 
   //////////////////////////////////////////////////////////////////
-  // Create the eflowCaloObjectBuilder Algorithm:
+  // Create the eflowPreparation Algorithm:
 
   std::string type, name;
 
-  ListItem caloObjectBuilderAlg(m_eflowCaloObjectBuilderAlgName);
+  ListItem caloObjectBuilderAlg(m_eflowPreparationAlgName);
   sc = createSubAlgorithm(caloObjectBuilderAlg.type(), 
 			  caloObjectBuilderAlg.name(), pAlg);
 
   if( sc.isFailure() ) 
   {
     log << MSG::DEBUG
-	<< "Unable to create " << m_eflowCaloObjectBuilderAlgName
+	<< "Unable to create " << m_eflowPreparationAlgName
 	<< endreq;
-    m_eflowCaloObjectBuilderAlg = 0;
+    m_eflowPreparationAlg = 0;
   } 
   else
   {
-    m_eflowCaloObjectBuilderAlg = dynamic_cast<eflowBaseAlg*>(pAlg);
+    m_eflowPreparationAlg = dynamic_cast<eflowBaseAlg*>(pAlg);
   }
   
   //////////////////////////////////////////////////////////////////
@@ -128,7 +128,7 @@ StatusCode eflowBuilder::initialize()
 /////////////////////////////////////////////////////////////////
 
     log << MSG::INFO << "Using the Algorithms:" << endreq;
-    log << MSG::INFO <<  m_eflowCaloObjectBuilderAlgName << endreq;
+    log << MSG::INFO <<  m_eflowPreparationAlgName << endreq;
     log << MSG::INFO << m_eflowObjectBuilderAlgName << endreq;
     log << MSG::INFO << m_eflowQuantitiesAlgName << endreq;
 
@@ -160,9 +160,9 @@ StatusCode eflowBuilder::execute()
 
   // Build Calorimeter Objects
 
-  if (m_eflowCaloObjectBuilderAlg)
+  if (m_eflowPreparationAlg)
     {
-      sc = m_eflowCaloObjectBuilderAlg->execute();
+      sc = m_eflowPreparationAlg->execute();
     }
 
   // Build Energy Flow Objects
