@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 # Test the various DBRelease scenarios
-# $Id: test_trfUtilsDBRelease.py 740537 2016-04-15 11:28:11Z graemes $
+# $Id: test_trfUtilsDBRelease.py 740535 2016-04-15 11:21:07Z graemes $
 #
 
 import json
