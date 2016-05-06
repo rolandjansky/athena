@@ -83,9 +83,6 @@ namespace TrigL2MuonSA {
     void setMdtDataCollection(bool use_mdtcsm);
     void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
 
-  public:
-    float etaMinChamber[10],etaMaxChamber[10],phiMinChamber[10],phiMaxChamber[10];
-
   private:
     
     MsgStream* m_msg;
