@@ -86,6 +86,8 @@ public:
 
   friend std::ostream& operator<<(std::ostream&,FTKPattern&);
 
+  friend class FTKTSPBank;
+
   void generateHashes();
   unsigned int getHash(int);
   

@@ -33,7 +33,8 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_BarrelOnly(false), m_EnableFTKSim(true),
   m_MaxMissingPlanes(1), m_RoadWarrior(0), m_KeepRemoved(0),
   m_MaxMissingSCTPairs(0), m_RestrictSctPairModule(false), m_RestrictSctPairLayer(false),
-  m_IBLMode(0),
+  m_IBLMode(0), m_fixEndcapL0(false),
+  m_ITkMode(false),
   m_ss_offset_fraction(0),
   m_PixelClusteringMode(0),
   m_DuplicateGanged(1),
@@ -44,7 +45,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_scttrk_nlayers(0), m_scttrk_nsubs(0), m_scttrk_lastlayer(0),
   m_useTSPBank(0), m_useCompressedBank(0), 
   m_BankLevel(1), m_doTSPSim(0), m_minTSPCoverage(0),
-  m_setAMSize(0),
+  m_setAMSize(0), m_setAMSplit(0), m_maxAMAfterSplit(-1), m_minDVolOverDNPatt(0), 
   m_doMakeCache(0), m_CachePath("bankcache.root"),
   m_SaveAllRoads(0),
   m_pmap(0x0), m_pmap_unused(0x0),
@@ -57,6 +58,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_rmap_path(), m_rmapunused_path(),
   m_ssmap_path(), m_ssmapunused_path(), m_ssmaptsp_path(), m_badmap_path(),m_badmap_path2(),
   m_modulelut_path(),
+  m_modulelut2nd_path(),
   m_CachedBank(false),
   m_InputFromWrapper(true), m_RegionalWrapper(false),
   m_doroadfile(false), m_roadfilepath("ftkroads.root"),
@@ -73,6 +75,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("NBanks",m_nbanks);
   declareProperty("NSubRegions",m_nsubregions);
   declareProperty("BarrelOnly",m_BarrelOnly);
+  declareProperty("MaxMissingPlanes",m_MaxMissingPlanes);
   
   declareProperty("pmap_path",m_pmap_path);
   declareProperty("pmapunused_path",m_pmapunused_path);
@@ -85,8 +88,11 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("badmap_path_for_hit",m_badmap_path2);
 
   declareProperty("ModuleLUTPath",m_modulelut_path);
+  declareProperty("ModuleLUTPath2nd",m_modulelut2nd_path);
   
   declareProperty("IBLMode",m_IBLMode);
+  declareProperty("FixEndCapL0",m_fixEndcapL0, "Fix endcap L0 clustering");
+  declareProperty("ITkMode",m_ITkMode);
 
   declareProperty("PixelClusteringMode",m_PixelClusteringMode,"Pixel clustering correction: 0 simple default, 1 channel center and linear ToT interpolation and account for different pixel lengths");
   declareProperty("DuplicateGanged",m_DuplicateGanged,"Duplicate ganged pixels so we don't lose efficiency");
@@ -105,6 +111,9 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("DBBankLevel",m_BankLevel,"ID of the bank, if simulation level is 0");
   declareProperty("TSPMinCoverage",m_minTSPCoverage,"Minimum coverage of the TSP patterns");
   declareProperty("SetAMSize",m_setAMSize,"If 1 or 2 the flag in a TSP simulation decide to set the AM size");
+  declareProperty("SetAMSplit",m_setAMSplit,"default=0: use normal DC bits; if >0 optimize DC bits usage");
+  declareProperty("MaxAMAfterSplit", m_maxAMAfterSplit, "max number of AM patterns after split, default=-1: no limits");
+  declareProperty("MinDVolOverDNPatt", m_minDVolOverDNPatt, "minimum threshold for DVol/DNPatt for split; default=0");
   declareProperty("RoadWarrior",m_RoadWarrior);
   declareProperty("MakeCache",m_doMakeCache,"Enable the cache creation for the TSP bank");
   declareProperty("CachePath",m_CachePath,"Path of the cache file");
@@ -167,6 +176,12 @@ StatusCode FTKRoadFinderAlgo::initialize(){
   log << MSG::INFO << "IBL mode value: " << m_IBLMode << endreq;
   ftkset.setIBLMode(m_IBLMode);
 
+  log << MSG::INFO << "Fix EndcapL0 value: " << m_fixEndcapL0 << endreq;
+  ftkset.setfixEndcapL0(m_fixEndcapL0);
+
+  log << MSG::INFO << "ITk mode value: " << m_ITkMode << endreq;
+  ftkset.setITkMode(m_ITkMode);
+  
   log << MSG::INFO << "HWModeSS value: " << m_HWModeSS << endreq;
   ftkset.setHWModeSS(m_HWModeSS);
 
@@ -223,6 +238,16 @@ StatusCode FTKRoadFinderAlgo::initialize(){
   if (m_pmap_unused) {
     log << MSG::INFO << "Creating region map for the unused layers" << endreq;
     m_rmap_unused = new FTKRegionMap(m_pmap_unused, m_rmap_path.c_str());
+    if (m_HWModeSS==2) {
+      if (m_modulelut2nd_path.empty()) {
+	log << MSG::FATAL << "A module LUT is required when HW SS calculation is required" << m_rmap_path.c_str() << endreq;
+	return StatusCode::FAILURE;
+      }
+      else {      
+	log << MSG::INFO << "Loading module map from: " << m_modulelut2nd_path << endreq; 
+	m_rmap_unused->loadModuleIDLUT(m_modulelut2nd_path.c_str());
+      }
+    }
   }
 
 
@@ -259,11 +284,11 @@ StatusCode FTKRoadFinderAlgo::initialize(){
   else if (m_RegionalWrapper) {
     // the input comes from a wrapper file's format, prepare the standlone like input
     log << MSG::INFO << "Setting FTK_RegionalRawInput as input module" << endreq;
-    FTK_RegionalRawInput *ftkrawinput = new FTK_RegionalRawInput(m_pmap,m_pmap_unused);
+    FTK_RegionalRawInput *ftkrawinput = new FTK_RegionalRawInput(m_pmap,m_pmap_unused,false);
     if (m_pmap_unused) {
       // enable all the flags used for the 2nd stage fitting
-      ftkrawinput->setSaveUnused(true);
-      m_rfobj.setSSSearchUnused(true);
+      ftkrawinput->setSaveUnused(!m_ITkMode);
+      m_rfobj.setSSSearchUnused(!m_ITkMode);
     }
 
     // add the input files
@@ -414,6 +439,9 @@ StatusCode FTKRoadFinderAlgo::initialize(){
       tspbank->setMakeCache(m_doMakeCache);
       tspbank->setCachePath(m_CachePath.c_str());
       tspbank->setAMSize(m_setAMSize);
+      tspbank->setAMSplit(m_setAMSplit);
+      tspbank->setMaxAMAfterSplit(m_maxAMAfterSplit);
+      tspbank->setMinDVolOverDNPatt(m_minDVolOverDNPatt);
       tspbank->setDCMatchMethod(m_DCMatchMethod);
       curbank = tspbank;
     }  else if(m_useCompressedBank) {
@@ -498,7 +526,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
       }
     } else if (bankext == string("root") && !m_CachedBank) {
       // use the ROOT routine      
-      if (curbank->readROOTBank(bankpath.c_str(), m_bankpatterns[ib]) < 0) {
+      if (curbank->readROOTBank(bankpath.c_str(), m_bankpatterns[ib]) < 0 ) {
 	// error reading the file
 	delete curbank;
 	return StatusCode::FAILURE;

@@ -1,5 +1,5 @@
 # FTK Simulation Merge Transform Skeleton Job Options
-# $Id: 
+# $Id:
 
 from AthenaCommon.Logging import logging
 ftkLog = logging.getLogger('FTKStandaloneMerging')
@@ -17,12 +17,12 @@ if hasattr(runArgs,"maxEvents"):
     theApp.EvtMax = runArgs.maxEvents
 else:
     ftkLog.info("Running on all the events")
-    theApp.EvtMax = -1 
+    theApp.EvtMax = -1
 
 from AthenaCommon.AlgSequence import AlgSequence
 alg = AlgSequence()
 
-# Helper function from transforms 
+# Helper function from transforms
 from PyJobTransforms.trfUtils import findFile
 
 # this dictionary describe the standard position for common files, this allow
@@ -40,20 +40,26 @@ else:
 # --------------------------------------------------------------
 # FTK algorithm inclusions
 # --------------------------------------------------------------
-from AthenaCommon.AppMgr import ToolSvc 
+from AthenaCommon.AppMgr import ToolSvc
 from TrigFTKSim.TrigFTKSimConf import FTKMergerAlgo
 import os
 import sys
 
-FTKMerger = FTKMergerAlgo( "FTKMergerAlgo" , OutputLevel=DEBUG)
+FTKMerger = FTKMergerAlgo( "FTKMergerAlgo" , OutputLevel=VERBOSE)
 FTKMerger.doMerging = True # this enables the behavior of the FTKMergerAlgo as FTK streams merger
 
 runArgsMandatory =  ['NBanks', 'NSubRegions', 'pmap_path', 'loadHWConf_path']
 
 runArgsOptional = {'FirstRegion': 0, 'FirstSubreg': 0, 'MergeRegion': -1, 'HWNDiff': 6, 'HitWarrior': 2}
 
+nb=64
+
 # prestore some common configurations that can be called through the option FTKSetupTag
 FTKTagOptions = {}
+
+FTKTagOptions['SectorsAsPatterns12L32b3DHWMode2'] = \
+     {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap',
+      'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
 FTKTagOptions["TDRv0"] = \
     {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_11L.pmap', \
          'loadHWConf_path': 'raw_11L.hw'}
@@ -72,24 +78,12 @@ FTKTagOptions["TDAQTDRv2"] =  \
 FTKTagOptions["Run2v0"] =  \
     {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_12Libl3D.pmap', \
          'loadHWConf_path': 'raw_12L.hw'}
+FTKTagOptions["Run2v1"] =  \
+    {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_12Libl3D.pmap', \
+         'loadHWConf_path': 'raw_12L.hw'}
 FTKTagOptions["Run2TempMapv0"] =  \
     {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_12Libl3D.pmap', \
          'loadHWConf_path': 'raw_12L.hw'}
-FTKTagOptions['SectorsAsPatterns'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap', 
-     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
-FTKTagOptions['SectorsAsPatterns12L'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12Libl.pmap', 
-     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
-FTKTagOptions['SectorsAsPatterns12Lb'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap', 
-     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
-FTKTagOptions['SectorsAsPatternsHWMode2'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap', 
-     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
-FTKTagOptions['SectorsAsPatterns12LHWMode2'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap', 
-     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
 FTKTagOptions['SectorsAsPatterns3D'] = \
     {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap',
      'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
@@ -102,22 +96,72 @@ FTKTagOptions['SectorsAsPatterns3Dv2'] = \
 FTKTagOptions['SectorsAsPatterns12L3Dv2'] = \
     {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12Libl3D.pmap',
      'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
+FTKTagOptions['SectorsAsPatterns8L64b3DHWMode2'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap',
+     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
+FTKTagOptions['SectorsAsPatterns12L64b3DHWMode2'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap',
+     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
+FTKTagOptions["HWMode2Test32Tower"] = \
+   {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
+         'loadHWConf_path': 'raw_8LcIbl123.hw'}
+FTKTagOptions['SectorsAsPatterns'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap',
+     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False}
+FTKTagOptions['SectorsAsPatterns12L'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12Libl.pmap',
+     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False}
+FTKTagOptions['SectorsAsPatterns12L64b'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap',
+     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False}
+FTKTagOptions['SectorsAsPatterns12L64bHWMode2'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap',
+     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False}
+FTKTagOptions['SectorsAsPatterns12L32b'] = \
+    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap',
+     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False}
+FTKTagOptions['SectorsAsPatterns12L32bHWMode2'] = \
+    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap',
+     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False}
+FTKTagOptions['SectorsAsPatterns8L64b'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap',
+     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False}
+FTKTagOptions['SectorsAsPatterns8L64bHWMode2'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap',
+     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False}
+FTKTagOptions['SectorsAsPatterns8L32b'] = \
+    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap',
+     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False}
+FTKTagOptions['SectorsAsPatterns8L32bHWMode2'] = \
+    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap',
+     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False}
+FTKTagOptions['SectorsAsPatternsHWMode2'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap',
+     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False}
+FTKTagOptions['SectorsAsPatterns12LHWMode2'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap',
+     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False}
+
+FTKTagOptions['FitITk'] = {
+    'MergeRoads' : False ,
+    'HitWarrior' : 0 ,
+}
 
 # enable the "Scenario" runarg that sets other runarg values as consequence
 if hasattr(runArgs, 'FTKSetupTag'):
     ftktag = getattr(runArgs,'FTKSetupTag')
-    
+
     ftkLog.info("A FTKSetupTag=%s has been requested, default values will be set, or forced, for specific runArgs" % ftktag)
 
     # loop over the keys to be set
-    for k, v in FTKTagOptions[ftktag].iteritems() :     
+    for k, v in FTKTagOptions[ftktag].iteritems() :
         if hasattr(runArgs,k) :
             info = "User value preferred on default (%s) for the key %s" % (str(v), k)
         else :
             info = "Running arguments set: %s = %s" %(k, str(v))
             setattr(runArgs,k,v)
         ftkLog.info(info)
-        
+
 
 if hasattr(runArgs, 'MergeRoads'):
   FTKMerger.MergeRoads = runArgs.MergeRoads
@@ -132,6 +176,14 @@ if hasattr(runArgs, 'MergeFromTowers') :
       runArgs.NSubRegions = 1
       FTKMerger.FTKUnmergedFormatName = "FTKMergedTracksStream%u"
       FTKMerger.FTKUnmergedRoadFormatName = "FTKMergedRoadsStream%u"
+
+### But overwrite the names if provided, no matter what
+if hasattr(runArgs, 'UnmergedFormatName'):
+  FTKMerger.FTKUnmergedFormatName = runArgs.UnmergedFormatName
+
+### But overwrite the names if provided, no matter what
+if hasattr(runArgs, 'UnmergedRoadFormatName'):
+  FTKMerger.FTKUnmergedRoadFormatName = runArgs.UnmergedRoadFormatName
 
 # set the FTKRoadMerger properties
 for runArgName in runArgsMandatory + runArgsOptional.keys() :
@@ -182,43 +234,43 @@ else:
     FTKMerger.EvtInfoTreeName = ''
 
 # Set output file
-if hasattr(runArgs,'FTKUnmergedInputPath'):
-    doGrid = False 
-    if hasattr(runArgs,'FTKDoGrid') :
+if hasattr(runArgs, 'FTKUnmergedInputPath'):
+    doGrid = False
+    if hasattr(runArgs, 'FTKDoGrid'):
         doGrid = runArgs.FTKDoGrid
-
-    if doGrid :
+    if doGrid:
         ftkLog.info('Searching for input files in: %s' % runArgs.FTKUnmergedInputPath)
         FTKMerger.FTKUnmergedInputPath = runArgs.FTKUnmergedInputPath
         import glob
         filelist = glob.glob(runArgs.FTKUnmergedInputPath+"/NTUP_FTKTMP*.root*")
         filelist.sort() # sort the files by name
-        
-        if len(filelist)==0 :
+
+        if len(filelist) == 0:
             raise RuntimeError, "No input files in: " + runArgs.FTKUnmergedInputPath
         for curfile in filelist :
             ftkLog.info('Adding files to the list: %s' % curfile)
         FTKMerger.FTKToMergePaths = filelist # assign the list of files to the algorithms
-    else :
+    else:
         FTKMerger.FTKUnmergedInputPath = runArgs.FTKUnmergedInputPath
-        import os
-        dirList=os.listdir(runArgs.FTKUnmergedInputPath)
+        dirList = os.listdir(runArgs.FTKUnmergedInputPath)
         fileRoot = "ftkoutput_unmerged"
         for fname in dirList:
             if fname.find(".root") != -1:
                 keys = fname.split("_")
                 nKeys = len(keys)
-                if nKeys > 1:            
-                    fileRoot =fname.replace("_"+keys[nKeys-2]+"_"+keys[nKeys-1],"")
-
-
-        print "Using file root",fileRoot
+                if nKeys > 1:
+                    fileRoot = fname.replace("_"+keys[nKeys-2]+"_"+keys[nKeys-1],"")
+        print "Using file root", fileRoot
         FTKMerger.FTKUnmergedFileRoot = fileRoot
-elif hasattr(runArgs,'inputNTUP_FTKTMPFile'):
-   FTKMerger.FTKToMergePaths = runArgs.inputNTUP_FTKTMPFile
+elif hasattr(runArgs, 'inputNTUP_FTKTMP_00File'):
+    # tower files specified separately
+    FTKMerger.FTKToMergePaths = [
+        getattr(runArgs, 'inputNTUP_FTKTMP_{0:02d}File'.format(tower))[0]
+        for tower in range(runArgs.NBanks)] 
+elif hasattr(runArgs, 'inputNTUP_FTKTMPFile'):
+    FTKMerger.FTKToMergePaths = runArgs.inputNTUP_FTKTMPFile
 else:
     ftkLog.warning('no input files to merge')
-    
 
 # Set output file
 if hasattr(runArgs,'FTKForceAllInput'):
@@ -226,7 +278,7 @@ if hasattr(runArgs,'FTKForceAllInput'):
 
 # enable an internal flag for grid jobs naming conventions
 if hasattr(runArgs,'FTKDoGrid'):
-    FTKMerger.FTKDoGrid = runArgs.FTKDoGrid    
+    FTKMerger.FTKDoGrid = runArgs.FTKDoGrid
 
 if hasattr(runArgs,'outputNTUP_FTKFile') :
     FTKMerger.FTKMergedOutput = runArgs.outputNTUP_FTKFile
@@ -255,17 +307,17 @@ elif hasattr(runArgs,'outputRDO_FTKFile') :
     ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
     # Add the FTK collections to the RDO
     from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-    StreamRDO = AthenaPoolOutputStream( "StreamRDO", runArgs.outputRDO_FTKFile) 
+    StreamRDO = AthenaPoolOutputStream( "StreamRDO", runArgs.outputRDO_FTKFile)
     #StreamRDO.TakeItemsFromInput=True
     StreamRDO.ForceRead=TRUE
     StreamRDO.ItemList+=["FTK_RawTrackContainer#*"]
   else :
     # generate RDO file from scratch, this represents an RDO
-    from OutputStreamAthenaPool.MultipleStreamManager import MSMgr  
-    StreamRDO=MSMgr.NewPoolStream("StreamRDO",runArgs.outputRDO_FTKFile)  
-    StreamRDO.AddItem( ["FTK_RawTrackContainer#*"] ) 
+    from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+    StreamRDO=MSMgr.NewPoolStream("StreamRDO",runArgs.outputRDO_FTKFile)
+    StreamRDO.AddItem( ["FTK_RawTrackContainer#*"] )
     StreamRDO.AddItem( ["TrigInDetTrackCollection#*"] )
 else:
     ftkLog.error('No output file for merge given')
     raise RuntimeError, 'No output file for merge given'
-alg += FTKMerger  
+alg += FTKMerger

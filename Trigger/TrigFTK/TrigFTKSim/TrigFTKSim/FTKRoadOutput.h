@@ -50,6 +50,9 @@ class FTKRoadOutput {
   virtual void naoSetNclus(int, const std::vector<int>&) = 0;
   virtual void naoSetNss(int, const std::vector<int>&) = 0;
   virtual void naoSetNroadsAM(int, int) = 0;
+  virtual void naoSetNroadsAMComplete(int, int) = 0;
+  virtual void naoSetNroadsAMMissPix(int, int) = 0;
+  virtual void naoSetNroadsAMMissSCT(int, int) = 0;
   virtual void naoSetNroadsMOD(int, int) = 0;
   virtual void naoSetNroadsRW(int, int) = 0;
 };

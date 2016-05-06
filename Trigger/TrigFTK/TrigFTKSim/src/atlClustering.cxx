@@ -72,16 +72,22 @@ bool SPLIT_BLAYER_MODULES;
 //bool CLUSTERING_PRINTOUT;
 bool BOUNDING_BOX;
 
-bool hitSelector(const FTKRawHit &hit) {
-    if (hit.getHitType() == PIXEL && hit.getBarrelEC() == 0 && hit.getLayer()== 1) {
-        if (hit.getPhiModule() == 13 && (hit.getEtaModule() <= 0))  {
-            return true;
-        }
-    }
-    else  {
-        return false;
-    }
-    return false;
+/*!
+ * Function examining whether a hit is in a specific ROD
+ * \param hit the hit to be examined
+ * \return true if the hit belongs in the ROD, false otherwise
+ */
+bool hitSelector(const FTKRawHit &/*hit*/) {
+    return true;
+    //if (hit.getHitType() == PIXEL && hit.getBarrelEC() == 0 && hit.getLayer()== 1) {
+        //if (hit.getPhiModule() == 13 && (hit.getEtaModule() <= 0))  {
+            //return true;
+        //}
+    //}
+    //else  {
+        //return false;
+    //}
+    //return false;
 }
 
 cluster::~cluster()
@@ -89,42 +95,69 @@ cluster::~cluster()
     hitlist.clear();
 }
 
-struct fe_hit {
-    int fe, tot, lcol, lrow;
-    fe_hit(const FTKRawHit* hit) {
+/**
+ * This class creates a hit whose coordinates are relative to the Front-End chip
+ * of the module that it belongs to. It is used for the correct ordering of the hits 
+ * in the FTK_IM hit decoder. 
+ */
+class FTK_FECoordsHit {
+    public:
+    /** 
+     * Create an FTK_Hit_FECoords from an FTKRawHit
+     * \param h FTKRawHit to be processed
+     */
+    FTK_FECoordsHit(const FTKRawHit* hit) {
         tot = hit->getTot();
         int acol = hit->getEtaStrip();
         int arow = hit->getPhiSide();
-        if (arow <= 163) {
-            fe = 8 + acol/18;
+        if (arow < ftk::clustering::rowsInFEChipPerPixelModuleRow) {
+            fe = ftk::clustering::feChipsInRowPixel + acol/ftk::clustering::colsInFEChipPerPixelModuleRow;
             lrow = arow;
-            lcol = acol%18;
+            lcol = acol%ftk::clustering::colsInFEChipPerPixelModuleRow;
         } else {
-            fe = 7 - acol/18;
-            lrow = 327 - arow;
-            lcol = 17 - acol%18;
+            fe = (ftk::clustering::feChipsInRowPixel - 1) - acol/ftk::clustering::colsInFEChipPerPixelModuleRow; //-1 because we start counting from 0
+            lrow = (ftk::numberOfPhiPixelsInPixelModule - 1) - arow; //We start counting from 0
+            lcol = (ftk::clustering::colsInFEChipPerPixelModuleRow - 1) - acol%ftk::clustering::colsInFEChipPerPixelModuleRow; //Start counting from 0
         }
     }
+
+    int fe; ///< The FE chip of the hit
+    int tot; ///< ToT of the hit
+    int lcol; ///< Column of the hit expressed in FE coordinates
+    int lrow; ///< Row of the hit expressed in FE coordinates
 };
 
-
-struct cluster_hit
+/**
+ * This class creates a hit whose coordinates are relative to the hit's position
+ * in the cluster. It is used to calculate if a cluster is split and for
+ * printing out the test vectors. 
+ */
+class FTK_ClusterCoordHit
 {
-    int tot, ccol, crow; //cluster coordinates
-    cluster_hit(const FTKRawHit &h, const FTKRawHit* seed) {
+    public:
+    /** 
+     * Create an FTK_Hit_FECoords from an FTKRawHit
+     * \param h FTKRawHit to be processed
+     * \param seed the central hit of the cluster
+     */
+    FTK_ClusterCoordHit(const FTKRawHit &h, const FTKRawHit* seed) {
         tot = h.getTot();
         crow = h.getPhiSide() - (seed->getPhiSide() - 10);
         if (seed->getEtaStrip() %2 != 0) ccol = h.getEtaStrip() - (seed->getEtaStrip() - 1);
         else  ccol = h.getEtaStrip() - (seed->getEtaStrip());
     }
+    int tot; ///<  ToT of the hit in the cluster
+    int ccol; ///< Column of the hit in the cluster
+    int crow; ///< Row of the hit in the cluster
 };
+
 
 bool sortbyFE (const FTKRawHit* i,const  FTKRawHit* j) {
     if (i->getHitType() == SCT || j->getHitType() == SCT)
         return false;
 
-    fe_hit lhit1(i);
-    fe_hit lhit2(j);
+    FTK_FECoordsHit lhit1(i);
+    FTK_FECoordsHit lhit2(j);
 
     if (lhit1.fe != lhit2.fe) return lhit1.fe <= lhit2.fe;
     else if (lhit1.fe == lhit2.fe) {
@@ -135,44 +168,6 @@ bool sortbyFE (const FTKRawHit* i,const  FTKRawHit* j) {
     return false;
 }
 
-bool pixelRowIsGanged(const int row) {
-    switch (row) {
-        case 153:
-        case 155:
-        case 157:
-        case 159:
-        case 168:
-        case 170:
-        case 172:
-        case 174:
-            return row;        // pixel ganged found (readout channel)
-    }
-    if (160<=row && row<=167)
-        return row;        // pixel ganged found (non readout channel)
-    return false;
-}
-
-// int moduleIdToLayer(int modId) {
-//   return (modId/MOD_ID_LAYER_VAL)%MOD_ID_LAYER_MASK;
-// }
-
-// int moduleIdToIsPixel(int modId) {
-//   if (FTKSetup::getFTKSetup().getIBLMode()==1) {
-//     return ( (modId/MOD_ID_LAYER_VAL)%MOD_ID_LAYER_MASK ) < MAX_LAYER_PIXEL+1; // addition of one pixel layer for ibl
-//   }
-//   else {
-//     return ( (modId/MOD_ID_LAYER_VAL)%MOD_ID_LAYER_MASK ) < MAX_LAYER_PIXEL;
-//   }
-// }
-
-// int moduleIdIsEndcap(int modId) {
-//   unsigned int eta = ( (modId/MOD_ID_ETA_VAL)%MOD_ID_ETA_MASK );
-//   if (MAX_BARREL_ETA <= eta && eta < MAX_BARREL_ETA+3)
-//     return 2; // positive endcap
-//   if (MAX_BARREL_ETA+3 <= eta && eta < MAX_ETA)
-//     return -2; // negative encap
-//   return 0;
-// }
 
 double eta(double px, double py, double pz) {
     double theta = atan( sqrt(px*px+py*py)/pz );
@@ -183,21 +178,25 @@ double eta(double px, double py, double pz) {
 
     return - log( tan (theta/2) );
 }
-// double eta(double pt, double pz) {
-//   double theta = atan(pt/pz);
-//   return - log( tan (theta/2) );
-// }
+
 double eta(FTKRawHit &hit) {
     // eta of hit position
     return eta(hit.getX(), hit.getY(), hit.getZ());
 }
 
+/*!
+ * Function examining whether a cluster is split. 
+ * \param clu the cluster to be examined
+ * \return true if the cluster is split, false otherwise
+ */
 bool isSplitCluster(const cluster& clu)
 {
-    //cluster_hit seed = cluster_hit(*clu.seed, clu.seed);
+    //FTK_ClusterCoordHit seed = FTK_ClusterCoordHit(*clu.seed, clu.seed);
     hitVector::const_iterator it = clu.hitlist.begin();
     for (it = clu.hitlist.begin(); it != clu.hitlist.end(); it++) {
-        cluster_hit chit = cluster_hit(**it , clu.seed);
+        if (clu.seed == NULL) 
+            return false;
+        FTK_ClusterCoordHit chit = FTK_ClusterCoordHit(**it , clu.seed);
         if ((chit.ccol >= GRID_COL_MAX - 1) ||  (chit.crow >= (GRID_ROW_MAX - 1)) || ( chit.crow <= 0))
             return true;
     }
@@ -205,9 +204,10 @@ bool isSplitCluster(const cluster& clu)
     return false;
 }
 
+
 #if defined(CLUSTERING_PRINTOUT) || defined(CENTROID_PRINTOUT) || defined(DECODER_INPUT)
 
-bool clusterSort (const cluster_hit &i, const cluster_hit &j)
+bool clusterSort (const FTK_ClusterCoordHit &i, const FTK_ClusterCoordHit &j)
 {
     // reverse the hits on the first row if they are above the seed
     if (i.ccol == 0 && j.ccol == 0 && i.crow <= 10 && j.crow <= 10)
@@ -218,74 +218,19 @@ bool clusterSort (const cluster_hit &i, const cluster_hit &j)
         return i.ccol <= j.ccol;
 }
 
-int getModId(const FTKRawHit* h)
-{
-    return h->getIdentifierHash();
-    //printf("%.8X\n", h->getIdentifierHash());
-
-    int modid = 99;
-    if (h->getLayer() == 1) {
-        //std::cout << " LAYER IS 1 " << h->getPhiModule() << " " << h->getEtaModule() << std::endl;
-        if (h->getPhiModule() == 13 && h->getEtaModule() == 0) modid = 72;
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -1) modid = 70;
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -2) modid = 62;
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -3) modid = 60;
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -4) modid = 10;
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -5) modid = 02;
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -6) modid = 00;
-    }
-    else if (h->getLayer() == 2) {
-
-    }
-    else if (h->getLayer() == 3) {
-        if (h->getPhiModule() == 11 && h->getEtaModule() == 0) modid = 72;
-        else if (h->getPhiModule() == 11 && h->getEtaModule() == -1) modid = 71;
-        else if (h->getPhiModule() == 11 && h->getEtaModule() == -2) modid = 70;
-        else if (h->getPhiModule() == 11 && h->getEtaModule() == -3) modid = 63;
-        else if (h->getPhiModule() == 11 && h->getEtaModule() == -4) modid = 62;
-        else if (h->getPhiModule() == 11 && h->getEtaModule() == -5) modid = 61;
-        else if (h->getPhiModule() == 11 && h->getEtaModule() == -6) modid = 60;
-
-        else if (h->getPhiModule() == 12 && h->getEtaModule() == -1) modid = 41;
-        else if (h->getPhiModule() == 12 && h->getEtaModule() == -2) modid = 42;
-        else if (h->getPhiModule() == 12 && h->getEtaModule() == -3) modid = 43;
-        else if (h->getPhiModule() == 12 && h->getEtaModule() == -4) modid = 50;
-        else if (h->getPhiModule() == 12 && h->getEtaModule() == -5) modid = 51;
-        else if (h->getPhiModule() == 12 && h->getEtaModule() == -6) modid = 52;
-
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -0) modid = 32;
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -1) modid = 31;
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -2) modid = 30;
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -3) modid = 23;
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -4) modid = 22;
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -5) modid = 21;
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -6) modid = 20;
-
-        else if (h->getPhiModule() == 14 && h->getEtaModule() == -1) modid = 01;
-        else if (h->getPhiModule() == 14 && h->getEtaModule() == -2) modid = 02;
-        else if (h->getPhiModule() == 14 && h->getEtaModule() == -3) modid = 03;
-        else if (h->getPhiModule() == 14 && h->getEtaModule() == -4) modid = 10;
-        else if (h->getPhiModule() == 14 && h->getEtaModule() == -5) modid = 11;
-        else if (h->getPhiModule() == 14 && h->getEtaModule() == -6) modid = 12;
-    }
-
-    //printf("0x0200000%02d\n", modid);
-    return modid;
-}
-
 void printClu(const cluster &clu)
 {
     hitVector hs = clu.hitlist;
     hitVector::iterator hit = hs.begin();
 
-    vector<cluster_hit> tmp;
+    vector<FTK_ClusterCoordHit> tmp;
     for (hit = hs.begin(); hit != hs.end(); hit++)
-        tmp.push_back(cluster_hit(**hit, clu.seed));
+        tmp.push_back(FTK_ClusterCoordHit(**hit, clu.seed));
 
     //sort and print the vector.
     if (tmp.size() > 1) std::stable_sort(tmp.begin(), tmp.end(), clusterSort);
 
-    for(vector<cluster_hit>::iterator hit1 = tmp.begin(); hit1 != tmp.end(); hit1++) {
+    for(vector<FTK_ClusterCoordHit>::iterator hit1 = tmp.begin(); hit1 != tmp.end(); hit1++) {
         printf("0000%.2X%.2X%.3X\n",(*hit1).tot, (*hit1).ccol, (*hit1).crow);
         //printf("0000%.2X%.2X%.3X",(*hit1).tot, (*hit1).ccol, (*hit1).crow);
         //printf(" tot: %d col: %d row: %d\n",(*hit1).tot, (*hit1).ccol, (*hit1).crow);
@@ -334,13 +279,23 @@ void printCentroidList(clustersByModuleMap clustersByModule)
         cluList::iterator b = cl->begin();
         FTKRawHit* hit = (*b).hitlist[0];
         if (hitSelector(*hit)) {
-            printf("0x8%.7x\n", getModId(hit));
+           printf("0x8%.7x\n", getModId(hit));
             for (; b != cl->end(); b++) {
                 //printToFile(outcentroid, (*b).clusterEquiv.getHWWord());
                 printf("0x%.8X\n",(*b).clusterEquiv.getHWWord());
             }
             printf("0x40000000\n");
         }
+    }
+}
+
+void printDecoderOutput(hitVector* currentHits)
+{
+    hitVector::iterator hit = currentHits->begin();
+    printf("0x8%.7x\n", getModId(*hit));
+    for(hit = currentHits->begin(); hit!= currentHits->end(); hit++) {
+        printf("0x0%.2X%.2X%.3X",(*hit)->getTot(), (*hit)->getEtaStrip(), (*hit)->getPhiSide());
+        std::cout << (*hit)->getTot() << " " << (*hit)->getEtaStrip() << " " << (*hit)->getPhiSide() << std::endl;
     }
 }
 #endif
@@ -366,7 +321,11 @@ void calcBoundingBox(cluster& clu) {
 #endif
 
 
-
+/*!
+ * Function printing the hit details
+ * \param hit the hit 
+ * \return void
+ */
 void printHit(const FTKRawHit &hit) {
     std::cout << "DEBUG_HITS: "
         << "  isPixel=" << hit.getIsPixel()
@@ -389,11 +348,42 @@ void printHit(const FTKRawHit &hit) {
         << " )\n";
 }
 
+/*!
+ * Function examining whether the a given row has ganged pixels
+ * \param the row to be examined
+ * \return true 
+ */
+bool pixelRowIsGanged(const int row) {
+    switch (row) {
+        case 153:
+        case 155:
+        case 157:
+        case 159:
+        case 168:
+        case 170:
+        case 172:
+        case 174:
+            return row;        // pixel ganged found (readout channel)
+    }
+    if (160<=row && row<=167)
+        return row;        // pixel ganged found (non readout channel)
+    return false;
+}
+
+
+/*!
+ * Function calculating the module id in which the hit belongs to. 
+ * The default mode for now is to check the Identifier Hash of the hit. 
+ * \param hit the hit 
+ * \return the module id
+ *
+ */
 int hitToModuleId(const FTKRawHit &hit) {
-    // returns moduleId of given hit
+
     if (DEBUG_HITS)
         printHit(hit);
 
+    //Default mode, return the Identifier Hash of the hit
     if (hit.getIdentifierHash() > 0 && hit.getHitType() == PIXEL) {
         return hit.getIdentifierHash();
     }
@@ -479,15 +469,15 @@ int hitToModuleId(const FTKRawHit &hit) {
     return ModuleId;
 }
 
+/*!
+ * Check (and define) if two hits are next to each other
+ * For the time being it accepts only pair of hits from the same module and same SCT side.
+ * It crashes if hits are the same.
+ * \param hit1 the first hit
+ * \param hit2 the second hit
+ * \return true if hits are next to each other, false otherwise. 
+ */
 bool neighborhood(const FTKRawHit &hit1, const FTKRawHit &hit2) {
-    /*
-     * Check (and define) if two hits are neighborhood
-     */
-
-    /*
-     * For the time being it accepts only pair of hits from the same module and same SCT side.
-     * It crash if hits are the same.
-     */
 
     // 1st check same module
     if (hit1.getBarrelEC() != hit2.getBarrelEC() || hit1.getHitType() != hit2.getHitType() ||
@@ -580,131 +570,140 @@ int buildUpCluster(hitVector *currentHits, cluster &clu) {
                 ++hitP; // if hit is not a neighborhood then go to next hit
             }
         } // end of loop over hits in module
-        } // end of loop over hits in cluster
+    } // end of loop over hits in cluster
 
-        // if at least one hit was added, check for more neighborhood hits
-        if (newHitsAdded && currentHits->size()) buildUpCluster(currentHits, clu);
-        return clu.hitlist.size();
-    }
+    // if at least one hit was added, check for more neighborhood hits
+    if (newHitsAdded && currentHits->size()) buildUpCluster(currentHits, clu);
+    return clu.hitlist.size();
+}
 
-    void makeClustersLNF(hitVector *currentHits, cluList *currentClusters) {
-        /*
-         * Group all hits from one module into clusters
-         */
+void makeClustersLNF(hitVector *currentHits, cluList *currentClusters) {
+/*
+ * Group all hits from one module into clusters
+ */
 
-        int index=0;
-        while (currentHits->size()) { // as long as we have hits
-            cluster clu;
-            clu.isSafe = false;               // initialitaion
-            clu.isKilled = false;             // initialitaion
-            int cluSize = buildUpCluster(currentHits, clu);
-            currentClusters->push_back(clu);
-            if (0)
-                std::cout << "DEBUG_makeCluster:"
-                    << "  index=" << index
-                    << "  cluSize=" << cluSize
-                    << "  Nclusters=" << currentClusters->size()
-                    << "\n";
-            index++;
-        }
-    }
-
-    void makeClusterFromSeed(hitVector *currentHits, cluList *currentClusters, FTKRawHit* &seed) {
-        //erase seed fom currentHits
-        hitVector::iterator position = std::find(currentHits->begin(), currentHits->end(), seed);
-        if (position != currentHits->end()) {
-            currentHits->erase(position);
-        }
-
+    int index=0;
+    while (currentHits->size()) { // as long as we have hits
         cluster clu;
-        clu.seed = seed;
-        clu.hitlist.push_back(seed);
-        clu.isSafe = false;
-        clu.isKilled = false;
-        if (currentHits->size() > 0) buildUpCluster(currentHits, clu);
+        clu.isSafe = false;               // initialitaion
+        clu.isKilled = false;             // initialitaion
+        int cluSize = buildUpCluster(currentHits, clu);
         currentClusters->push_back(clu);
+        if (0)
+            std::cout << "DEBUG_makeCluster:"
+                << "  index=" << index
+                << "  cluSize=" << cluSize
+                << "  Nclusters=" << currentClusters->size()
+                << "\n";
+        index++;
+    }
+}
+
+void makeClusterFromSeed(hitVector *currentHits, cluList *currentClusters, FTKRawHit* &seed) {
+    //erase seed fom currentHits
+    hitVector::iterator position = std::find(currentHits->begin(), currentHits->end(), seed);
+    if (position != currentHits->end()) {
+        currentHits->erase(position);
+    }
+
+    cluster clu;
+    clu.seed = seed;
+    clu.hitlist.push_back(seed);
+    clu.isSafe = false;
+    clu.isKilled = false;
+    if (currentHits->size() > 0) buildUpCluster(currentHits, clu);
+    currentClusters->push_back(clu);
 
 #ifdef BOUNDING_BOX
-        calcBoundingBox(clu);
+    calcBoundingBox(clu);
 #endif
-    }
-    //
-    bool gangedHitHasNeighborhood(const FTKRawHit &hit, const cluster &clu, hitVector &connectedHits) {
-        bool hasNeighborhood = false;
-        int phi = hitIsGanged(hit);
-        //  std::cout << "phi: " << phi << std::endl;
-        if (phi) { // check hit is ganged
-            int eta = hit.getEtaStrip();
-            hitVector hv = clu.hitlist;
-            hitVector::iterator pp;
-            for (pp=hv.begin(); pp!=hv.end(); ++pp) {
-                if ( eta != (*pp)->getEtaStrip() ) continue;
-                if ( abs(phi - (*pp)->getPhiSide() ) != 1 ) continue;
-                hasNeighborhood = true;
-                FTKRawHit *tmpHit = new FTKRawHit();
-                tmpHit->setHitType( ftk::PIXEL );
-                tmpHit->setModuleType( ftk::MODULETYPE_PIXEL );
-                tmpHit->setEtaStrip( eta );
-                tmpHit->setLayer( hit.getLayer() );
-                tmpHit->setPhiSide( gangedPartner(hit) );
-                if ( !hitIsGanged(*tmpHit) ) {
-                    printHit(*tmpHit);
-                    assert(0);
-                }
-                connectedHits.push_back( tmpHit ); // store connected hit pointer
-            } // end of nested loop over hits
-        } //end of "if (phi)"
-        return hasNeighborhood;
-    }
+}
 
-    bool findConnectedGanged(cluster &clu, hitVector &connectedHits) {
-        assert(clu.hitlist.size()>0); // sanity check
 
-        hitVector::iterator p;
-        bool hasNeighborhood = false;
-        for (p=clu.hitlist.begin(); p!=clu.hitlist.end(); ++p) {
-            if ( gangedHitHasNeighborhood(**p, clu, connectedHits) ) {
-                hasNeighborhood = true;
-            }
-        } // end of first loop over hits
-
-        return hasNeighborhood;
-    }
-
-    bool cluIsGanged(const cluster &clu) {
+bool gangedHitHasNeighborhood(const FTKRawHit &hit, const cluster &clu, hitVector &connectedHits) {
+    bool hasNeighborhood = false;
+    int phi = hitIsGanged(hit);
+    //  std::cout << "phi: " << phi << std::endl;
+    if (phi) { // check hit is ganged
+        int eta = hit.getEtaStrip();
         hitVector hv = clu.hitlist;
-        hitVector::iterator p;
-        for (p=hv.begin(); p!=hv.end(); ++p) {
-            if ( hitIsGanged(**p) ) return true;
-        }
-
-        return false;
-    }
-
-    bool isKilled(const cluster &clu, const hitVector &connectedHits) {
-        hitVector tmphv = clu.hitlist;
-        hitVector::iterator p;
-        for (p=tmphv.begin(); p!=tmphv.end(); ++p) {
-            if ( !hitIsGanged(**p) ) continue;
-            hitVector hv = connectedHits;
-            hitVector::iterator c;
-            for (c=(hv).begin(); c!=(hv).end(); ++c) {
-                assert( hitIsGanged(**c) ); // all connected hits should be ganged !
-                if ( (*c)->getPhiSide() == (*p)->getPhiSide()
-                        && (*c)->getEtaStrip() == (*p)->getEtaStrip() ) return true;
+        hitVector::iterator pp;
+        for (pp=hv.begin(); pp!=hv.end(); ++pp) {
+            if ( eta != (*pp)->getEtaStrip() ) continue;
+            if ( abs(phi - (*pp)->getPhiSide() ) != 1 ) continue;
+            hasNeighborhood = true;
+            FTKRawHit *tmpHit = new FTKRawHit();
+            tmpHit->setHitType( ftk::PIXEL );
+            tmpHit->setModuleType( ftk::MODULETYPE_PIXEL );
+            tmpHit->setEtaStrip( eta );
+            tmpHit->setLayer( hit.getLayer() );
+            tmpHit->setPhiSide( gangedPartner(hit) );
+            if ( !hitIsGanged(*tmpHit) ) {
+                printHit(*tmpHit);
+                assert(0);
             }
-        } // loop over hits in cluster
+            connectedHits.push_back( tmpHit ); // store connected hit pointer
+        } // end of nested loop over hits
+    } //end of "if (phi)"
+    return hasNeighborhood;
+}
 
-        return false;
+bool findConnectedGanged(cluster &clu, hitVector &connectedHits) {
+    assert(clu.hitlist.size()>0); // sanity check
+
+    hitVector::iterator p;
+    bool hasNeighborhood = false;
+    for (p=clu.hitlist.begin(); p!=clu.hitlist.end(); ++p) {
+        if ( gangedHitHasNeighborhood(**p, clu, connectedHits) ) {
+            hasNeighborhood = true;
+        }
+    } // end of first loop over hits
+
+    return hasNeighborhood;
+}
+
+bool cluIsGanged(const cluster &clu) {
+    hitVector hv = clu.hitlist;
+    hitVector::iterator p;
+    for (p=hv.begin(); p!=hv.end(); ++p) {
+        if ( hitIsGanged(**p) ) return true;
     }
 
+    return false;
+}
+
+bool isKilled(const cluster &clu, const hitVector &connectedHits) {
+    hitVector tmphv = clu.hitlist;
+    hitVector::iterator p;
+    for (p=tmphv.begin(); p!=tmphv.end(); ++p) {
+        if ( !hitIsGanged(**p) ) continue;
+        hitVector hv = connectedHits;
+        hitVector::iterator c;
+        for (c=(hv).begin(); c!=(hv).end(); ++c) {
+            assert( hitIsGanged(**c) ); // all connected hits should be ganged !
+            if ( (*c)->getPhiSide() == (*p)->getPhiSide()
+                    && (*c)->getEtaStrip() == (*p)->getEtaStrip() ) return true;
+        }
+    } // loop over hits in cluster
+
+    return false;
+}
+
+/*! 
+ * Function calculating the central position of the cluster (i.e. the centroid) for all possible 
+ * scenarios (SCT, Pixel, IBL). During the execution of this function, the
+ * following variables are set for each cluster: X, Y, Z, 
+ *
+ * \param cluster the cluster whose average is going to be calculated
+ * \return void
+ */
 void averageCluster(cluster &clu) {
     const unsigned int &nHits = clu.hitlist.size();
     assert(nHits>0); // sanity check
 
-    FTKRawHit &av = clu.clusterEquiv; // get pointer to clusterEquivalent
-    FTKRawHit *first = *(clu.hitlist.begin()); // get 1st hit
-    // reset values for clusterEquivalent (alias av)
+    FTKRawHit &av = clu.clusterEquiv; ///< get pointer to clusterEquivalent
+    FTKRawHit *first = *(clu.hitlist.begin()); ///< get 1st hit
+    /// reset values for clusterEquivalent (alias av)
     av.reset();
     av.setX(0);
     av.setY(0);
@@ -723,60 +722,64 @@ void averageCluster(cluster &clu) {
     av.setPhiWidth(0);
     av.setIncludesGanged(false);
 
-    if (DEBUG_AVERAGE)
-        std::cout << "DEBUG_AVERAGE:  isPixel=" << av.getIsPixel()
-            << ", nHits=" << nHits<< "\n";
-
-    hitVector::iterator p;
     int tmp;
     int etaMax = -1;
     int etaMin = 4000;
     int phiMax = -1;
     int phiMin = 4000;
-    // precalculate values for case PIXEL_CLUSTERING_MODE>0
-    int BarrelEndCap = first->getBarrelEC();
-    int layer = first->getLayer();
-    bool isIBLmodule = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer==0;
-    float sensorThickness = ftk::sensorThicknessPixel;
-    float etaPitch = ftk::etaPitchPixel;
-    float numberOfEtaPixelsInModule = ftk::numberOfEtaPixelsInPixelModule;
-    float pixelModuleActiveLength = ftk::lengthOfPixelModuleIn400umPixels*ftk::etaPitchPixel/ftk::micrometer;
-    float pixYScaleFactor = 16.; //multiply by 16 to count in unit of 25um
-    float pixXScaleFactor;
-    // FlagAA: 2015-01-29 making default the units of 6.25um for r-phi coordinates
-    pixXScaleFactor = 8.;
-    float etaModule = first->getEtaModule()-6;
-    const float pixelEndCapRPhiCorrection = 25.4*ftk::micrometer/ftk::phiPitch; // Lorentz angle?
-    const float pixelIblRPhiCorrection = 7*ftk::micrometer/ftk::phiPitch; // Lorentz angle?
-    // FlagAA 2013-07-31: IBL code assumes fully planar geometry as in mc12+IBL
-    // This will change for the real detector!!!
-    if (isIBLmodule) {
-        etaModule = first->getEtaModule()-8;
-        pixYScaleFactor = 10.; //multiply by 10 to count in unit of 25um
-        etaPitch = ftk::etaPitchIbl;
-        //    float sensorThickness = 230*micrometer; // 3D sensors
-        //    pixelModuleActiveLength = 80*0.25;  // 3D sesors ???
-        //    numberOfEtaPixelsInModule = 80; // 3D sesors ???
-        sensorThickness = ftk::sensorThicknessIbl;
-        pixelModuleActiveLength = ftk::lengthOfIblModuleIn250umPixels*ftk::etaPitchIbl/ftk::micrometer; // planar sensors
-        numberOfEtaPixelsInModule = ftk::numberOfEtaPixelsInIblModule;
-    }
-    if (FTKSetup::getFTKSetup().getIBLMode()==0)
-        layer++; // always count IBL as layer0 ad BLayer as layer1
-    float radius = 35.78; // IBL (from fig5 in IBL TDR)
-    if (layer==1)
-        radius = 50.5; // Layer 0 (B-Layer)
-    if (layer==2)
-        radius = 88.5; // Layer 1
-    if (layer==3)
-        radius = 122.5; // Layer 2
-    bool hasGanged=false;
     int rowMin = 99999; //int(2*(design->width()/design->phiPitch()))+1;;
     int rowMax = 0;
     int colMin = 99999; //int(2*(design->length()/design->etaPitch()))+1;
     int colMax = 0;
-    int qRowMin = 0;  int qRowMax = 0;
-    int qColMin = 0;  int qColMax = 0;
+    int qRowMin = 0;  
+    int qRowMax = 0;
+    int qColMin = 0;  
+    int qColMax = 0;
+
+    if (DEBUG_AVERAGE)
+        std::cout << "DEBUG_AVERAGE:  isPixel=" << av.getIsPixel()
+            << ", nHits=" << nHits<< "\n";
+
+    hitVector::iterator p;
+    /// precalculate values for case PIXEL_CLUSTERING_MODE>0
+    int BarrelEndCap = first->getBarrelEC();
+
+    //Calculate the active layer. Start with the layer of the hit. In case 
+    // always count IBL as layer0 and BLayer as layer1
+    int layer = first->getLayer();
+    bool fixEndcapL0 = FTKSetup::getFTKSetup().getfixEndcapL0();
+    bool isIBLmodule  = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer==0 && (BarrelEndCap==0 || !fixEndcapL0);
+    bool isPixelmodule = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer!=0;
+    if (FTKSetup::getFTKSetup().getIBLMode()==0)
+        layer++; 
+    float radius = ftk::clustering::radii[layer];
+
+    //Default values for a pixel module. They are modified for IBL. 
+    float sensorThickness = ftk::sensorThicknessPixel;
+    float etaPitch = ftk::etaPitchPixel;
+    float numberOfEtaPixelsInModule = ftk::numberOfEtaPixelsInPixelModule;
+    float lengthOfPixelModuleInUmPixels = ftk::lengthOfPixelModuleIn400umPixels;
+    float moduleActiveLength = ftk::lengthOfPixelModuleIn400umPixels*ftk::etaPitchPixel/ftk::micrometer;
+    // FlagAA: 2015-01-29 making default the units of 6.25um for r-phi coordinates
+    float pixYScaleFactor = ftk::clustering::yScaleFactorPixel; ///<multiply by 16 to count in unit of 25um
+    float pixXScaleFactor = ftk::clustering::xScaleFactorPixel;
+    float etaModule = first->getEtaModule()-6;
+    // FlagAA 2013-07-31: IBL code assumes fully planar geometry as in mc12+IBL
+    // This will change for the real detector!!!
+    if (isIBLmodule) {
+        sensorThickness = ftk::sensorThicknessIbl;
+        etaPitch = ftk::etaPitchIbl;
+        numberOfEtaPixelsInModule = ftk::numberOfEtaPixelsInIblModule;
+        lengthOfPixelModuleInUmPixels = ftk::lengthOfIblModuleIn250umPixels;
+        moduleActiveLength = ftk::lengthOfIblModuleIn250umPixels*ftk::etaPitchIbl/ftk::micrometer; // planar sensors
+        pixYScaleFactor = ftk::clustering::yScaleFactorPixel; ///<multiply by 10 to count in unit of 25um
+        pixXScaleFactor = ftk::clustering::xScaleFactorPixel;
+        etaModule = first->getEtaModule()-8;
+        //float sensorThickness = 230*micrometer; // 3D sensors
+        //pixelModuleActiveLength = 80*0.25;  // 3D sesors ???
+        //numberOfEtaPixelsInModule = 80; // 3D sesors ???
+    }
+    bool hasGanged = false;
 
     switch (av.getHitType()) {
         case SCT: {
@@ -816,16 +819,54 @@ void averageCluster(cluster &clu) {
             }
             break; // end of SCT
             }
-        case PIXEL:
+        case PIXEL: {
             av.setPhiSide(0); // eta is reset a few lines above
+
+            if (PIXEL_CLUSTERING_MODE == 0) {
+                for (p=clu.hitlist.begin(); p!=clu.hitlist.end(); ++p) { //loop over hits in cluster
+                    assert(av.getLayer()==(*p)->getLayer() && av.getPhiModule()==(*p)->getPhiModule() && av.getEtaModule()==(*p)->getEtaModule() );
+                    if (SAVE_CLUSTER_CONTENT) { // if enabled the cluster also stores also the single channels
+                        FTKRawHit tmpch = *(*p);
+                        // set the barcode of the single channel, this may allow a very refined debugging of
+                        // the cluster content accounting for the single barcode of each channel
+                        MultiTruth mt;
+                        MultiTruth::Barcode uniquecode(tmpch.getEventIndex(),tmpch.getBarcode());
+                        mt.maximize(uniquecode,tmpch.getBarcodePt());
+                        tmpch.setTruth(mt);
+                        av.addChannel(tmpch);
+                    }
+                    av.addX((*p)->getX());
+                    av.addY((*p)->getY());
+                    av.addZ((*p)->getZ());
+                    av.addPhiSide((*p)->getPhiSide());   // phi index
+                    // pixels are counted starting from 0 (left edge) and not 0.5 (center position)
+                    // if only pixel 0 is hit the output value will be 0 and not 0.5 (pixel center)
+                    av.addEtaStrip((*p)->getEtaStrip()); // eta index
+                }
+                tmp = (int)round((av.getEtaStrip()*1.)/nHits);
+                av.setDeltaEta((av.getEtaStrip()*1.)/nHits-tmp);
+                av.setEtaStrip(tmp);
+                tmp = (int)round((av.getPhiSide()*1.)/nHits);
+                av.setDeltaPhi((av.getPhiSide()*1.)/nHits-tmp);
+                av.setPhiSide(tmp);
+                break;
+            }
+
+            /* For PIXEL_CLUSTERING_MODE > 0
+             * calculate cluster center following code at line 701 of
+             * https://svnweb.cern.ch/trac/atlasoff/browser/InnerDetector/InDetRecTools/SiClusterizationTool/trunk/src/MergedPixelsTool.cxx#L701
+             * I.e. m_posStrategy == 1
+             * I.e. use charge imbalance between the two outer most ros (columns) to calculate the centroid
+             * In this code I'll use etaTrack instead of pixel eta for simplicity
+             */
+
             for (p=clu.hitlist.begin(); p!=clu.hitlist.end(); ++p) { //loop over hits in cluster
                 assert(av.getLayer()==(*p)->getLayer() && av.getPhiModule()==(*p)->getPhiModule() && av.getEtaModule()==(*p)->getEtaModule() );
-                //      if (hitIsGanged(**p))
-                //	av.setIncludesGanged(true);
 
                 if (SAVE_CLUSTER_CONTENT) { // if enabled the cluster also stores also the single channels
                     FTKRawHit tmpch = *(*p);
-                    // set the barcode of the single channel, this may allow a very refined debugging of the cluster content accounting for the single barcode of each channel
+                    // set the barcode of the single channel, this may allow a very refined debugging of
+                    // the cluster content accounting for the single barcode of each channel
                     MultiTruth mt;
                     MultiTruth::Barcode uniquecode(tmpch.getEventIndex(),tmpch.getBarcode());
                     mt.maximize(uniquecode,tmpch.getBarcodePt());
@@ -843,81 +884,71 @@ void averageCluster(cluster &clu) {
                 if (!isIBLmodule && pixelRowIsGanged(row))
                     hasGanged = true;
 
-                if (PIXEL_CLUSTERING_MODE>0) {
-                    // calculate cluster center following code at line 701 of
-                    // https://svnweb.cern.ch/trac/atlasoff/browser/InnerDetector/InDetRecTools/SiClusterizationTool/trunk/src/MergedPixelsTool.cxx#L701
-                    // I.e. m_posStrategy == 1
-                    // I.e. use charge imbalance between the two outer most ros (columns) to calculate the centroid
-                    // In this code I'll use etaTrack instead of pixel eta for simplicity
+                if (isPixelmodule) {
+                    // account for 600um pixels in the centroid calculation
+                    // will use units of 100um and the convert to normal pixel units below
+                    // will also indicate the center of the pixel instead of the left edge
+                    // considering center of pixel along eta (left (or top if you prefer) edge along phi)
+                    // each FE number is worth 19*400um pixels (400um*16 + 600um*2)
+                    // multiply FE column by 4 to convert to 100um units
+                    int FEnumber = col/ftk::clustering::colsInFEChipPerPixelModuleRow;
+                    int FEcolumn = col%ftk::clustering::colsInFEChipPerPixelModuleRow;
+                    col = FEnumber*(ftk::clustering::colsInFEChipPerPixelModuleRow+1) + FEcolumn;
+                    col *= pixYScaleFactor;
+                    col += pixYScaleFactor/2; // add half a pixel to align to pixel center (assume normal 400um pixel)
+                    col += pixYScaleFactor/2; // assume 1<=FEcolumn<=16 add half a pixel coming from 600um pixel in FEcolumn==0
+                    if (FEcolumn==0) col -= pixYScaleFactor/4; // correct position for first column in FE chip
+                    if (FEcolumn==(ftk::clustering::colsInFEChipPerPixelModuleRow-1)) col += pixYScaleFactor/4; // correct position for last column in FE chip
+                } else if (isIBLmodule) { // IBL case
+                    //Modifications have to be made to include 3d modules 
+                    int orig_col = col;
+                    col *= pixYScaleFactor; // use units of 25um
+                    col += pixYScaleFactor/2; // add half a pixel to align to pixel center
+                    if (orig_col==0) col += pixYScaleFactor/2; // add half pixel (500um pixel in col0)
+                    if (orig_col>0) col += pixYScaleFactor; // add a pixel (500um pixel in col0)
 
-                    if (!isIBLmodule) {
-                        // account for 600um pixels in the centroid calculation
-                        // will use units of 100um and the convert to normal pixel units below
-                        // will also indicate the center of the pixel instead of the left edge
-                        int FEnumber = col/18;
-                        int FEcolumn = col%18;
-                        // considering center of pixel along eta (left (or top if you prefer) edge along phi)
-                        // each FE number is worth 19*400um pixels (400um*16 + 600um*2)
-                        // multiply FE column by 4 to convert to 100um units
-                        // add 0.5 to account for the extra 200um of the pixel with FEcolumn==0
-                        // add 0.5 to indicate center of pixel
-                        col = FEnumber*19 + FEcolumn;
-                        col *= pixYScaleFactor;
-                        col += pixYScaleFactor/2; // add half a pixel to align to pixel center (assume normal 400um pixel)
-                        col += pixYScaleFactor/2; // assume 1<=FEcolumn<=16 add half a pixel coming from 600um pixel in FEcolumn==0
-                        if (FEcolumn==0) col -= pixYScaleFactor/4; // correct position for first column in FE chip
-                        if (FEcolumn==17) col += pixYScaleFactor/4; // correct position for last column in FE chip
-                    } else { // IBL case
-                        int orig_col = col;
-                        col = col*pixYScaleFactor; // use units of 25um
-                        col += pixYScaleFactor/2; // add half a pixel to align to pixel center
-                        if (orig_col==0) col += pixYScaleFactor/2; // add half pixel (500um pixel in col0)
-                        if (orig_col>0) col += pixYScaleFactor; // add a pixel (500um pixel in col0)
+                    // for 3D modules only
+                    // if (orig_col==79) col += pixYScaleFactor*5/10; // add 5/10 of pixel i.e. 100um (500um pixel in col79)
 
-                        // for 3D modules only
-                        // if (orig_col==79) col += pixYScaleFactor*5/10; // add 5/10 of pixel i.e. 100um (500um pixel in col79)
-
-                        // for planar modules only
-                        if (orig_col==79) col += pixYScaleFactor*4/10; // add 4/10 of pixel i.e. 100um (450um pixel in col79)
-                        if (orig_col==80) col += pixYScaleFactor*12/10; // add 12/10 of pixel i.e. 300um (450um pixel in col79 and col80)
-                        if (orig_col>80) col += pixYScaleFactor*16/10; // add 16/10 of pixel i.e. 400um (450um pixel in col79 and col80)
-                        if (orig_col==159) col += pixYScaleFactor/2; // add half pixel (500um pixel in col159)
-                    }
-
-                    if (row == rowMin) qRowMin += tot;
-                    if (row < rowMin){
-                        rowMin = row;
-                        qRowMin = tot;
-                    }
-
-                    if (row == rowMax) qRowMax += tot;
-                    if (row > rowMax){
-                        rowMax = row;
-                        qRowMax = tot;
-                    }
-
-                    if (col == colMin) qColMin += tot;
-                    if (col < colMin){
-                        colMin = col;
-                        qColMin = tot;
-                    }
-
-                    if (col == colMax) qColMax += tot;
-                    if (col > colMax){
-                        colMax = col;
-                        qColMax = tot;
-
-                    }
-                } else { // PIXEL_CLUSTERING_MODE == 0
-                    av.addPhiSide((*p)->getPhiSide());   // phi index
-                    // pixels are counted starting from 0 (left edge) and not 0.5 (center position)
-                    // if only pixel 0 is hit the output value will be 0 and not 0.5 (pixel center)
-                    av.addEtaStrip((*p)->getEtaStrip()); // eta index
+                    // for planar modules only
+                    if (orig_col==79) col += pixYScaleFactor*4/10; // add 4/10 of pixel i.e. 100um (450um pixel in col79)
+                    if (orig_col==80) col += pixYScaleFactor*12/10; // add 12/10 of pixel i.e. 300um (450um pixel in col79 and col80)
+                    if (orig_col>80) col += pixYScaleFactor*16/10; // add 16/10 of pixel i.e. 400um (450um pixel in col79 and col80)
+                    if (orig_col==159) col += pixYScaleFactor/2; // add half pixel (500um pixel in col159)
                 }
-                if ((*p)->getEtaStrip() > etaMax) etaMax = (*p)->getEtaStrip();
-                if ((*p)->getEtaStrip() < etaMin) etaMin = (*p)->getEtaStrip();
-                if ((*p)->getPhiSide() > phiMax) phiMax = (*p)->getPhiSide();
-                if ((*p)->getPhiSide() < phiMin) phiMin = (*p)->getPhiSide();
+
+                if (row == rowMin) qRowMin += tot;
+                if (row < rowMin){
+                    rowMin = row;
+                    qRowMin = tot;
+                }
+
+                if (row == rowMax) qRowMax += tot;
+                if (row > rowMax){
+                    rowMax = row;
+                    qRowMax = tot;
+                }
+
+                if (col == colMin) qColMin += tot;
+                if (col < colMin){
+                    colMin = col;
+                    qColMin = tot;
+                }
+
+                if (col == colMax) qColMax += tot;
+                if (col > colMax){
+                    colMax = col;
+                    qColMax = tot;
+                }
+
+                if ((*p)->getEtaStrip() > etaMax) 
+                    etaMax = (*p)->getEtaStrip();
+                if ((*p)->getEtaStrip() < etaMin) 
+                    etaMin = (*p)->getEtaStrip();
+                if ((*p)->getPhiSide() > phiMax) 
+                    phiMax = (*p)->getPhiSide();
+                if ((*p)->getPhiSide() < phiMin) 
+                    phiMin = (*p)->getPhiSide();
                 if (DEBUG_AVERAGE)
                     printHit(**p);
                 av.addTot(first->getTot()); // sum ToT for pixel clusters
@@ -926,29 +957,37 @@ void averageCluster(cluster &clu) {
             av.setPhiWidth(phiMax-phiMin+1);
 
             // calculate eta index and eta delta
-            double eta_average, phi_average, delta;
-            if (PIXEL_CLUSTERING_MODE>0) {
+            double eta_average, phi_average;
+            eta_average = (colMin + colMax) / 2.;
+            phi_average = (rowMin + rowMax) / 2.;
+
+            //Correction to the eta_average and phi_average used for
+            //PIXEL_CLUSTERING_MODE 1 and 100 
+            if (PIXEL_CLUSTERING_MODE <= PIXEL_CLUSTERING_MIXED) {
                 float pixelEstimateCotTheta = -9999.;
 
-		/* The next lines calculate CotTheta of a hypothetic track starting from ATLAS (0,0,0) and crossing the center of the bounding box of the cluster.
-		   The Z global position is estimated as: module Z position + cluster Z position within the module.
-		   The radius is a fixed costant depending on the layer. It could be better estimated accounting also for the rphi position within the module.
-		*/
-                pixelEstimateCotTheta = (etaModule+(rowMin+rowMax)/2./pixYScaleFactor/numberOfEtaPixelsInModule-0.5) * pixelModuleActiveLength / radius;
+                /* The next lines calculate CotTheta of a hypothetic track starting from ATLAS (0,0,0) 
+                 * and crossing the center of the bounding box of the cluster.
+                 * The Z global position is estimated as: module Z position + cluster Z position within the module.
+                 *  The radius is a fixed costant depending on the layer. It could be better estimated accounting 
+                 *  also for the rphi position within the module.
+                */
+                pixelEstimateCotTheta = (etaModule+(rowMin+rowMax)/2./pixYScaleFactor/numberOfEtaPixelsInModule-0.5) * moduleActiveLength / radius;
                 if (PIXEL_CLUSTERING_MODE>=PIXEL_CLUSTERING_IDEAL_APRIL_2014_FIX) /* Fixing an error in the formula */
-                    pixelEstimateCotTheta = (etaModule+(colMin+colMax)/2./pixYScaleFactor/numberOfEtaPixelsInModule-0.5) * pixelModuleActiveLength / radius;
+                pixelEstimateCotTheta = (etaModule+(colMin+colMax)/2./pixYScaleFactor/numberOfEtaPixelsInModule-0.5) * moduleActiveLength / radius;
 
                 // Compute eta for charge interpolation correction (if required)
                 // Two pixels may have tot=0 (very rarely, hopefully)
                 float etaRow = -1;
                 float etaCol = -1;
-                if(qRowMin+qRowMax > 0) etaRow = qRowMax/float(qRowMin+qRowMax);
-                if(qColMin+qColMax > 0) etaCol = qColMax/float(qColMin+qColMax);
+                if(qRowMin+qRowMax > 0) 
+                    etaRow = qRowMax/float(qRowMin+qRowMax);
+                if(qColMin+qColMax > 0) 
+                    etaCol = qColMax/float(qColMin+qColMax);
 
                 // Charge interpolation. Very rough guess (one can do better with
                 // candidate track information later) TL
                 //      bool hasGanged = av.getIncludesGanged();
-                int m_posStrategy = 1;
                 float deltax = 0;
                 float deltay = 0;
                 if (BarrelEndCap==0) { //pixelID.is_barrel(elementID)){
@@ -960,74 +999,64 @@ void averageCluster(cluster &clu) {
                     deltay = 10*ftk::micrometer*sqrt(sensorThickness/(250*ftk::micrometer));
                 }
 
-                if(m_posStrategy == 1 && !hasGanged && etaRow>0 && etaCol > 0 && PIXEL_CLUSTERING_MODE <= PIXEL_CLUSTERING_MIXED){
-                    // width of the region of charge sharing // For disks assume normal incidence: delta is small, due to diffusion
-                    // of drifting charges in silicon // For barrel, assume 10 deg. incidence in Rphi, in z compute from
-                    // pseudorapidity // this may be improved with better parameterization, but it is
-                    // probably better to use candidate track information later in // reconstruction. TL
-                    // Values are made dependent on the sensor thickness to accomodate // different sensors layout. AA
-                    //    Point3D<double> globalPos = element->globalPosition(centroid);
-                    //    InDetDD::SiLocalPosition totCorrection(0,0,0);
-                    // calculate centroid expressed in pixel units
-                    phi_average = (rowMin+rowMax)/2. + deltax*(etaRow-0.5)/ftk::phiPitch;
-                    eta_average = (colMin+colMax)/2. + pixYScaleFactor*deltay*(etaCol-0.5)/etaPitch;
-                    //    std::cout << "CENTER: rowMin=" << rowMin << ", rowMax=" << rowMax << ", deltax=" << deltax << ", etaRow=" << etaRow << ", phiPixel=" << phiPixel << std::endl;
-                    //    std::cout << "CENTER: colMin=" << colMin << ", colMax=" << colMax << ", deltay=" << deltay << ", etaCol=" << etaCol << ", etaPixel=" << etaPixel << ", trackCotTheta=" << trackCotTheta << std::endl;
-                } else { // if ganged or no imbalance (etaRow, etaCol) available use center of enclosing box
-                    eta_average = (colMin + colMax) / 2.;
-                    phi_average = (rowMin + rowMax) / 2.;
-                }
-                //std::cout << "\tphi_average: " << phi_average << " eta_average: " << eta_average << std::endl;
-                if (PIXEL_CLUSTERING_MODE <= PIXEL_CLUSTERING_MIXED) {
-                    if (!isIBLmodule) {
-                        // rescale full module length 152*400um to the range 0-144
-                        // here 1 units is 400*19/18um (i.e. average 400/600um pixel length)
-                        eta_average*=ftk::numberOfEtaPixelsInPixelModule/ftk::lengthOfPixelModuleIn400umPixels/pixYScaleFactor;
-                    } else { // IBL case
-                        // rescale from 25um units to 250um (1 "normal" IBL pixel) unit
-                        eta_average*=ftk::numberOfEtaPixelsInIblModule/ftk::lengthOfIblModuleIn250umPixels/pixYScaleFactor;
-                    }
-                }
-                if (phi_average<0) {
-                    assert(phi_average<0);
-                    phi_average = 0;
-                }
-                if (eta_average<0) {
-                    assert(eta_average<0);
-                    eta_average = 0;
-                }
-
-                if (BarrelEndCap!=0) phi_average += pixelEndCapRPhiCorrection;
-                if (isIBLmodule) phi_average += pixelIblRPhiCorrection;
-
-                delta = eta_average - (int) eta_average;
-                av.setDeltaEta(delta);
-                av.setSplit(false);
-                delta = phi_average - (int) phi_average;
-                av.setDeltaPhi(delta);
-                //printf("\tfinal: eta_average: %d (%X) phi_average:%d (%X)\n", lround(eta_average*pixYScaleFactor), int(eta_average), lround(phi_average * pixXScaleFactor), int(phi_average)); //: " << phi_average << " eta_average: " << eta_average << std::endl;
-                av.setEtaStrip( (int) eta_average );
-                av.setPhiSide( (int) phi_average );
-                av.setRowCoordinate( lround(phi_average*pixXScaleFactor) );
-
-                if (PIXEL_CLUSTERING_MODE <= PIXEL_CLUSTERING_MIXED || isIBLmodule) {
-                    av.setColumnCoordinate( lround(eta_average*pixYScaleFactor) );
-                }
-                else if (PIXEL_CLUSTERING_MODE > PIXEL_CLUSTERING_MIXED) {
-                    av.setColumnCoordinate( lround(eta_average) );
-                    if (isSplitCluster(clu))
-                        av.setSplit(true);
-
-                }
-            } else { // PIXEL_CLUSTERING_MODE == 0
-                tmp = (int)round((av.getEtaStrip()*1.)/nHits);
-                av.setDeltaEta((av.getEtaStrip()*1.)/nHits-tmp);
-                av.setEtaStrip(tmp);
-                tmp = (int)round((av.getPhiSide()*1.)/nHits);
-                av.setDeltaPhi((av.getPhiSide()*1.)/nHits-tmp);
-                av.setPhiSide(tmp);
+                // Width of the region of charge sharing. For disks assume normal incidence: delta is small, due to diffusion
+                // of drifting charges in silicon. For barrel, assume 10 deg. incidence in Rphi, in z compute from pseudorapidity 
+                // This may be improved with better parameterization, but it is probably better to use candidate track information 
+                // later in reconstruction. TL
+                // Values are made dependent on the sensor thickness to accomodate // different sensors layout. AA
+                //    Point3D<double> globalPos = element->globalPosition(centroid);
+                //    InDetDD::SiLocalPosition totCorrection(0,0,0);
+                int m_posStrategy = 1; //Same as m_posStrategy == 1 in InDetRecTools/SiClusterizationTool/trunk/src/MergedPixelsTool.cxx#L701
+                if(m_posStrategy == 1 && !hasGanged && etaRow>0 && etaCol > 0){
+                    phi_average += deltax*(etaRow-0.5)/ftk::phiPitch;
+                    eta_average += pixYScaleFactor*deltay*(etaCol-0.5)/etaPitch;
+                } 
             }
+
+            if (phi_average<0) {
+                assert(phi_average<0);
+                phi_average = 0;
+            }
+            if (eta_average<0) {
+                assert(eta_average<0);
+                eta_average = 0;
+            }
+
+            if (BarrelEndCap!=0) phi_average += ftk::clustering::pixelEndCapRPhiCorrection;
+            if (isIBLmodule) phi_average += ftk::clustering::pixelIblRPhiCorrection;
+
+            av.setRowCoordinate( lround(phi_average*pixXScaleFactor) );
+            av.setColumnCoordinate( lround(eta_average) );
+            av.setSplit(false);
+
+            if (PIXEL_CLUSTERING_MODE >= PIXEL_CLUSTERING_MIXED && !isIBLmodule && isSplitCluster(clu)) {
+                    av.setSplit(true);
+            }
+
+            eta_average*=numberOfEtaPixelsInModule/lengthOfPixelModuleInUmPixels/pixYScaleFactor;
+            //if (isPixelmodule) {
+                //// rescale full module length 152*400um to the range 0-144
+                //// here 1 units is 400*19/18um (i.e. average 400/600um pixel length)
+                //eta_average*=numberOfEtaPixelsInModule/ftk::lengthOfPixelModuleIn400umPixels/pixYScaleFactor;
+            //} else if (isIBLmodule && FTKSetup::getFTKSetup().getIBLMode()==1) { 
+                //// rescale from 25um units to 250um (1 "normal" IBL pixel) unit
+                //eta_average*=numberOfEtaPixelsInModule/ftk::lengthOfIblModuleIn250umPixels/pixYScaleFactor;
+            //}
+            //else if (isIBLmodule && FTKSetup::getFTKSetup().getIBLMode()==2)
+                //// rescale from 25um units to 250um (1 "normal" IBL pixel) unit
+                //eta_average*=numberOfEtaPixelsInModule/ftk::lengthOfIblModuleIn250umPixels/pixYScaleFactor;
+            //}
+
+            double delta;
+            delta = eta_average - (int) eta_average;
+            av.setDeltaEta(delta);
+            av.setEtaStrip( (int) eta_average );
+            delta = phi_average - (int) phi_average;
+            av.setDeltaPhi(delta);
+            av.setPhiSide( (int) phi_average );
+
             break; // end of PIXEL
+        }
         default:
             assert(0); // should not get here!
     } // end of switch
@@ -1080,14 +1109,6 @@ void atlClusteringBlayer(vector<FTKRawHit> &hits) {
     }
 }
 
-void printDecoderOutput(hitVector* currentHits)
-{
-    hitVector::iterator hit;
-    for(hit = currentHits->begin(); hit!= currentHits->end(); hit++) {
-        printf("0x0%.2X%.2X%.3X\n",(*hit)->getTot(), (*hit)->getEtaStrip(), (*hit)->getPhiSide());
-        //std::cout << (*hit)->getTot() << " " << (*hit)->getEtaStrip() << " " << (*hit)->getPhiSide() << std::endl;
-    }
-}
 
 
 void realisticPixelDecoder(hitVector* &currentHits)
@@ -1196,13 +1217,19 @@ FTKRawHit* gridAUTH( boost::circular_buffer<FTKRawHit*> &cb, hitVector &fifo, hi
 }
 
 
+/*!
+ * Function responsible for hit clustering and the subsequent centroid
+ * calculation 
+ * \param hits hits which will be clustered
+ * \return void
+ */
 void atlClusteringLNF(vector<FTKRawHit> &hits)
 {
     /*
      * make clusters in every module
      */
-    hitsByModuleMap hitsByModule; // store hits by module
-    hitsByModuleMap hitsByModuleFrozen; // store hits by module
+    hitsByModuleMap hitsByModule; ///< store hits by module
+    hitsByModuleMap hitsByModuleFrozen; ///< store hits by module
 
     // Temporary storage for duplicate copy of ganged pixels
     // Automatically deleted at the end of this function
@@ -1215,9 +1242,7 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
     for(unsigned int i = 0; i < hits.size(); i++) {
         int modId = hitToModuleId(hits[i]);
         if (modId>=0) {
-            //if (hitSelector((hits[i]))) {
             hitsByModule[modId].push_back( &(hits[i]) );
-            //}
             if (DUPLICATE_GANGED && hitIsGanged(hits[i])) {
                 //use the copy constructor instead of manually assigning each
                 //variable, as was done previously. the usage here is the
@@ -1231,6 +1256,7 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
             assert(0); // should not need this any more
         }
     }
+
 #ifdef HAVE_ROOT
     if(ROOTOUTCLU) rootOutput_clu_moduleStat(hitsByModule);
 #endif
@@ -1241,8 +1267,8 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
     /*
      * Second: build the list of clusters
      */
-    clustersByModuleMap clustersByModule; // store clusters by module
-    hitsByModuleFrozen = hitsByModule; // keep hits structure
+    clustersByModuleMap clustersByModule; ///< store clusters by module
+    hitsByModuleFrozen = hitsByModule; ///< keep hits structure
     hitsByModuleMap::iterator p;
     for (p = hitsByModule.begin(); p!=hitsByModule.end(); ++p) { // loop over modules
         hitVector *currentHits = & (p->second);
@@ -1252,21 +1278,21 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
 #if defined(DECODER_OUTPUT)
         printDecoderOutput(currentHits);
 #endif
+        bool isIBLmodule = FTKSetup::getFTKSetup().getIBLMode()!=0 && firstHit.getLayer()==0;
         cluList *currentClusters = new cluList(); // instantiate cluster list
         clustersByModule[modId] = currentClusters;
-        bool isIBLmodule = FTKSetup::getFTKSetup().getIBLMode()!=0 && firstHit.getLayer()==0;
+
+        //The ideal clustering is going to be used in the following cases: 
+        //1. PIXEL_CLUSTERING_MODE is less than 100 (PIXEL_CLUSTERING_MIXED)
+        //2. The module is not a pixel module
         if (PIXEL_CLUSTERING_MODE < PIXEL_CLUSTERING_MIXED || !firstHit.getIsPixel() || isIBLmodule) {
             makeClustersLNF(currentHits, currentClusters); // use ideal clustering
         }
-        else { // use realistic clustering
+        else { // PIXEL_CLUSTERING_MODE >= 100 and pixel module 
             realisticPixelDecoder(currentHits);
-
 
             boost::circular_buffer<FTKRawHit*> circular_buffer (256);
             hitVector gridhits;
-            cluList *currentClusters = new cluList();//  instantiate cluster list
-            clustersByModule[modId] = currentClusters;
-
             hitVector fifo = *currentHits;
             while (!fifo.empty() || !circular_buffer.empty()) {
                 FTKRawHit* seed = gridAUTH(circular_buffer, fifo, gridhits);
@@ -1288,6 +1314,7 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
                 << "\n";
         }
     } // end of loop over modules
+
 
 #ifdef VERBOSE_DEBUG_CLUST
     std::cout << "Clusters made\n";
@@ -1314,13 +1341,7 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
         for (cluP=cluModP->second->begin(); cluP!=cluModP->second->end(); cluP++) {
             if ( (*cluP->hitlist.begin())->getIsPixel() && isKilled(*cluP, connectedHits) ) // set isKilled
                 cluP->isKilled = true;
-
-            if (PIXEL_CLUSTERING_MODE < PIXEL_CLUSTERING_REALISTIC) {
-                averageCluster(*cluP); // use floating-point average
-            } else {
-                averageCluster(*cluP); // use floating-point average
-            }
-
+            averageCluster(*cluP); // use floating-point average
             nTotClu++; // count all clusters
         }
 
@@ -1330,6 +1351,7 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
             delete *connectedP;
         }
     }
+
 #ifdef VERBOSE_DEBUG_CLUST
     std::cout << "Ready to call rootOutput_clu_moduleClusterStat\n";
 #endif
@@ -1348,7 +1370,6 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
     /*
      * Fourth: put clusters/hits back in the event hit list
      */
-
     hits.clear();
 
     int hitCounter=0;
@@ -1372,6 +1393,7 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
         delete cluModP->second;
     }
     assert( (hitCounter+deletedGangedClusters) == nTotClu );
+
 #ifdef VERBOSE_DEBUG_CLUST
     std::cout << "Added clusters to the event hit list\n";
 #endif
@@ -1389,6 +1411,13 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
 #endif
 }
 
+/*!
+ * Function examining if a hit is ganged. In case the hit belongs to a pixel
+ * module and at a row with ganged pixels, the phi coordinate of the pixel is
+ * returned. It always returns 0 if the hit belongs to an IBL module. 
+ * \param hit hit to be examined
+ * \return The phi coordinate of the hit if the hit is ganged, 0 otherwise
+ */
 int hitIsGanged(const FTKRawHit &hit) {
     if (FTKSetup::getFTKSetup().getIBLMode()>=1 && hit.getLayer()==0)
         return 0; // FlagAA: IBL is never ganged
@@ -1399,6 +1428,7 @@ int hitIsGanged(const FTKRawHit &hit) {
     }
     return 0;
 }
+
 
 int gangedPartner(const FTKRawHit &hit) {
     if (hit.getIsPixel()) {

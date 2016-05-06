@@ -32,7 +32,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--RefName", help="Name to print for reference sample",default="Ref")
 parser.add_argument("--RefFile", help="Reference ntuple", required=True)
 parser.add_argument("--ChkName", help="Name to print for sample to be checked",default="New")
-parser.add_argument("--ChkFile", help="Merged ntuple to be checked", default="tmpoutput.root")
+parser.add_argument("--ChkFile", help="Merged ntuple to be checked", default="tempout.root")
 parser.add_argument("--OutFile", help="Name of output file <name.root> (optional)", nargs='?')
 parser.add_argument("--PlotTowers", help="Plot Towers and Subregions in addition to Merge", action="store_true")
 args = parser.parse_args()
@@ -62,15 +62,17 @@ MergedScript = """
 	histo_merged_{NAME}_ref->SetLineColor(kBlack);
 	histo_merged_{NAME}_ref->SetFillColor(kBlack);
 	histo_merged_{NAME}_ref->SetFillStyle(3001);
-	ftkdata->Draw("FTKMergedTracksStream.{VARNAME}>>histo_merged_{NAME}_ref");
+	refftkdata = (TTree*)fileref->Get("ftkdata");
+	refftkdata->Draw("FTKMergedTracksStream.{VARNAME}>>histo_merged_{NAME}_ref");
 	histo_merged_{NAME}_ref->SetDirectory(outfile);
 	filechk->cd();
 	TH1F *histo_merged_{NAME}_chk = new TH1F("histo_merged_{NAME}_chk",";{DISPNAME};",{BINNO},{BINLOW},{BINHIGH});
 	histo_merged_{NAME}_chk->SetLineColor(kRed);
-	ftkdata->Draw("FTKMergedTracksStream.{VARNAME}>>histo_merged_{NAME}_chk");
+	chkftkdata = (TTree*)filechk->Get("ftkdata");
+	chkftkdata->Draw("FTKMergedTracksStream.{VARNAME}>>histo_merged_{NAME}_chk");
 	histo_merged_{NAME}_chk->SetDirectory(outfile);
 	outfile->cd();
-	TCanvas *canvas = new TCanvas("merged_{NAME}","merged_{NAME}",1);
+	canvas = new TCanvas("merged_{NAME}","merged_{NAME}",1);
 	if (histo_merged_{NAME}_ref->GetMaximum()<histo_merged_{NAME}_chk->GetMaximum()) {{
 		histo_merged_{NAME}_chk->Draw();
 		histo_merged_{NAME}_ref->Draw("sames");
@@ -80,10 +82,10 @@ MergedScript = """
 		histo_merged_{NAME}_chk->Draw("sames");
 		}}
 	canvas->Update();
-	TPaveStats *stats = (TPaveStats*) histo_merged_{NAME}_chk->GetFunction("stats");
+	stats = (TPaveStats*) histo_merged_{NAME}_chk->GetFunction("stats");
 	stats->SetTextColor(kRed);
 	stats->SetLineColor(kRed);
-	Double_t height = stats->GetY2NDC()-stats->GetY1NDC();
+	height = stats->GetY2NDC()-stats->GetY1NDC();
 	stats->SetY1NDC(.6);
 	stats->SetY2NDC(.6+height);
 	canvas->Write();
@@ -100,15 +102,17 @@ TowerScript = """
 	histo_tower{TOWERID}_{NAME}_ref->SetLineColor(kBlack);
 	histo_tower{TOWERID}_{NAME}_ref->SetFillColor(kBlack);
 	histo_tower{TOWERID}_{NAME}_ref->SetFillStyle(3001);
-	ftkdata->Draw("FTKMergedTracksStream{TOWERID}.{VARNAME}>>histo_tower{TOWERID}_{NAME}_ref");
+	
+	refftkdata->Draw("FTKMergedTracksStream{TOWERID}.{VARNAME}>>histo_tower{TOWERID}_{NAME}_ref");
 	histo_tower{TOWERID}_{NAME}_ref->SetDirectory(outfile);
 	filechk->cd();
 	TH1F *histo_tower{TOWERID}_{NAME}_chk = new TH1F("histo_tower{TOWERID}_{NAME}_chk",";{DISPNAME};",{BINNO},{BINLOW},{BINHIGH});
 	histo_tower{TOWERID}_{NAME}_chk->SetLineColor(kRed);
-	ftkdata->Draw("FTKMergedTracksStream{TOWERID}.{VARNAME}>>histo_tower{TOWERID}_{NAME}_chk");
+	
+	chkftkdata->Draw("FTKMergedTracksStream{TOWERID}.{VARNAME}>>histo_tower{TOWERID}_{NAME}_chk");
 	histo_tower{TOWERID}_{NAME}_chk->SetDirectory(outfile);
 	outfile->cd();
-	TCanvas *canvas = new TCanvas("tower{TOWERID}_{NAME}","tower{TOWERID}_{NAME}",1);
+	canvas = new TCanvas("tower{TOWERID}_{NAME}","tower{TOWERID}_{NAME}",1);
 	if (histo_tower{TOWERID}_{NAME}_ref->GetMaximum()<histo_tower{TOWERID}_{NAME}_chk->GetMaximum()) {{
 		histo_tower{TOWERID}_{NAME}_chk->Draw();
 		histo_tower{TOWERID}_{NAME}_ref->Draw("sames");
@@ -118,10 +122,10 @@ TowerScript = """
 		histo_tower{TOWERID}_{NAME}_chk->Draw("sames");
 	}}
 	canvas->Update();
-	TPaveStats *stats = (TPaveStats*) histo_tower{TOWERID}_{NAME}_chk->GetFunction("stats");
+	stats = (TPaveStats*) histo_tower{TOWERID}_{NAME}_chk->GetFunction("stats");
 	stats->SetTextColor(kRed);
 	stats->SetLineColor(kRed);
-	Double_t height = stats->GetY2NDC()-stats->GetY1NDC();
+	height = stats->GetY2NDC()-stats->GetY1NDC();
 	stats->SetY1NDC(.6);
 	stats->SetY2NDC(.6+height);
 	canvas->Write();
@@ -211,12 +215,15 @@ Int_t DrawPDF() {{
 	Int_t nfailed = 0;
 	Int_t nskipped = 0;
 	Int_t npassed = 0;
+	TCanvas *curcanvas;
+	TH1 *href;
+	TH1 *hchk;
 	"""
 PDFScriptMerge = """
-	TCanvas *curcanvas = dynamic_cast<TCanvas*>(outfile->Get("merged_{NAME}"));
+	curcanvas = dynamic_cast<TCanvas*>(outfile->Get("merged_{NAME}"));
 	if (curcanvas) {{ 
-		TH1 *href = dynamic_cast<TH1*>(outfile->Get("histo_merged_{NAME}_ref"));
-		TH1 *hchk = dynamic_cast<TH1*>(outfile->Get("histo_merged_{NAME}_chk"));
+		href = dynamic_cast<TH1*>(outfile->Get("histo_merged_{NAME}_ref"));
+		hchk = dynamic_cast<TH1*>(outfile->Get("histo_merged_{NAME}_chk"));
 		if (! isEqual(href,hchk) ) {{
 			curcanvas->SetFillColor(kRed);
 			nfailed += 1;
@@ -233,11 +240,10 @@ PDFScriptTowerTrack = """
 	curcanvas = dynamic_cast<TCanvas*>(outfile->Get("tower{TOWERID}_{NAME}"));
 	if (!curcanvas) {{
 		PrintEmptyPage("{PDFNAME}","No valid data for Tower {TOWERID}");
-		nskipped += 9;
-		continue;
+		nskipped += 1;
 	}}
-	TH1 *hreft = dynamic_cast<TH1*>(outfile->Get("histo_tower{TOWERID}_{NAME}_ref"));
-	TH1 *hchkt = dynamic_cast<TH1*>(outfile->Get("histo_tower{TOWERID}_{NAME}_chk"));
+	hreft = dynamic_cast<TH1*>(outfile->Get("histo_tower{TOWERID}_{NAME}_ref"));
+	hchkt = dynamic_cast<TH1*>(outfile->Get("histo_tower{TOWERID}_{NAME}_chk"));
 	if (! isEqual(hreft,hchkt) ) {{
 		curcanvas->SetFillColor(kRed);
 		nfailed += 1;
@@ -250,7 +256,6 @@ PDFScriptSubRoad = """
 	if (!curcanvas) {{
 		PrintEmptyPage("{PDFNAME}","No valid road data for Tower {TOWERID}, Sub-Region {SUBID}");
 		nskipped += 1;
-		continue;
 	}}
 	TH1 *hreftsr = dynamic_cast<TH1*>(outfile->Get("histo_tower{TOWERID}sub{SUBID}_{NAME}_ref"));
 	TH1 *hchktsr = dynamic_cast<TH1*>(outfile->Get("histo_tower{TOWERID}sub{SUBID}_{NAME}_chk"));
@@ -284,6 +289,13 @@ void CompareFTKSim() {{
 	TFile *outfile = TFile::Open("{OUTFILE}","recreate");
 	TFile *fileref = TFile::Open("{REFFILE}");
 	TFile *filechk = TFile::Open("{CHKFILE}");
+	
+	TTree* refftkdata;
+	TTree* chkftkdata;
+	TCanvas *canvas;
+	TPaveStats *stats;
+	Double_t height;
+	
 """.format(OUTFILE = OutFile, REFFILE = RefFile, CHKFILE = ChkFile)
 #Add the merged level code
 for Variable in TrackVarsMerge:
@@ -340,7 +352,7 @@ PDFFile.close()
 returncode = subprocess.call(["root","-b","-q","-l","DrawPDF.C"])
 
 #Clean up the used .C files
-os.system("rm -f CompareFTKSim.C")
-os.system("rm -f DrawPDF.C")
+#os.system("rm -f CompareFTKSim.C")
+#os.system("rm -f DrawPDF.C")
 
 sys.exit(returncode)

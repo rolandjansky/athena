@@ -112,6 +112,7 @@ private:
   bool		 m_logBeamSpotOutput;
 
   bool           m_readTruthTracks; // if true the truth tracks are read
+  bool           m_UseNominalOrigin; // if true truth values are always with respect to (0,0,0)
 
   bool		 m_dooutFileRawHits; // dump raw hit into bz2 file
 

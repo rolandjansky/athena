@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigFTKSim/FTKSetup.h"
 #include "TrigFTKSim/FTKHit.h"
 #include "TrigFTKSim/MultiTruth.h"
 #include "TrigFTKSim/ftkdefs.h"
@@ -111,6 +110,7 @@ FTKHit::FTKHit() :
   m_sector(-1), m_plane(-1),
   m_etaWidth(0), m_phiWidth(0), m_n_strips(0),
   m_bankID(-1),
+  m_ITkMode(false),
   m_coord(0), m_truth(MultiTruth()),
   m_channels()
 {
@@ -122,6 +122,7 @@ FTKHit::FTKHit(int dim) :
   m_sector(-1), m_plane(-1),
   m_etaWidth(0), m_phiWidth(0), m_n_strips(0),
   m_bankID(-1),
+  m_ITkMode(false),
   m_coord(dim), m_truth(MultiTruth()),
   m_channels(0)
 {
@@ -133,6 +134,7 @@ FTKHit::FTKHit(const FTKHit &hit) :
   m_sector(hit.m_sector), m_plane(hit.m_plane),
   m_etaWidth(hit.m_etaWidth), m_phiWidth(hit.m_phiWidth), 
   m_n_strips(hit.m_n_strips), m_bankID(hit.m_bankID),
+  m_ITkMode(hit.m_ITkMode),
   m_coord(hit.m_coord), m_truth(hit.m_truth),
   m_channels(hit.m_channels)
 {
@@ -152,6 +154,7 @@ FTKHit& FTKHit::operator=(const FTKHit &hit)
       m_phiWidth = hit.m_phiWidth;
       m_n_strips = hit.m_n_strips;
       m_bankID = hit.m_bankID;
+      m_ITkMode = hit.m_ITkMode;
       m_coord = hit.m_coord;
       m_truth = hit.m_truth;
       m_channels = hit.m_channels;
@@ -192,7 +195,10 @@ void FTKHit::setTruth(const MultiTruth& v)
 }
 
 float FTKHit::getLocalCoord(unsigned int i) const {
-  // Returns the i-th module local coordinate in millimiter units.
+  // Returns the i-th module local coordinates in millimiter units. 
+  // The (0,0) position is at the center of the module. 
+  
+  //Please note that the position might be corrected +/- 0.5 pixels. 
 
   unsigned int hitNCoords = this->getDim();
   if (i>=hitNCoords) return -9999;
@@ -208,12 +214,12 @@ float FTKHit::getLocalCoord(unsigned int i) const {
   		* ftk::lengthOfIblModuleIn250umPixels / ftk::numberOfEtaPixelsInIblModule; // planar sensors 
     } else {
       if (i==0) {
-        float localCoordIn400umUnits = m_coord[i]-0.5*ftk::numberOfPhiPixelsInPixelModule;
-        if (this->getIsBarrel()) localCoordIn400umUnits += 0.5; // + half a pixel for barrel layers  
-        return localCoordIn400umUnits*ftk::phiPitch/ftk::millimiter;
+        float localCoordInPixelUnits = m_coord[i]-0.5*ftk::numberOfPhiPixelsInPixelModule; // align to module center
+        if (this->getIsBarrel()) localCoordInPixelUnits += 0.5; // + half a pixel for barrel layers  
+        return localCoordInPixelUnits*ftk::phiPitch/ftk::millimiter; 
       }
-      if (i==1) return (m_coord[i]-0.5*ftk::numberOfEtaPixelsInPixelModule)*ftk::etaPitchPixel/ftk::millimiter
-                  * ftk::lengthOfPixelModuleIn400umPixels / ftk::numberOfEtaPixelsInPixelModule; // planar sensors
+      if (i==1) return (m_coord[i]-0.5*ftk::numberOfEtaPixelsInPixelModule)*ftk::etaPitchPixel/ftk::millimiter // align to module center
+                  * ftk::lengthOfPixelModuleIn400umPixels / ftk::numberOfEtaPixelsInPixelModule;               // correct for average pixel length
     }
   } 
   if (hitNCoords==1) { // SCT case

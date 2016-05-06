@@ -15,7 +15,8 @@ FTKRoadStream:: FTKRoadStream() :
   m_nroads_tot(0), m_nroads_good(), m_nroads_maj(0), m_nroads_maj_good(0),
   m_ssmaps(),
   m_nao_nhits_tot(0), m_nao_nclus_tot(0),
-  m_nao_nroads_am(0), m_nao_nroads_mod(0), m_nao_nroads_rw(0),
+  m_nao_nroads_am(0), m_nao_nroads_am_complete(0), m_nao_nroads_am_misspix(0), m_nao_nroads_am_misssct(0), 
+  m_nao_nroads_mod(0), m_nao_nroads_rw(0),
   m_evtidx(0x0), m_barcode(0x0), m_frac(0x0),
   m_fit_list()
 {

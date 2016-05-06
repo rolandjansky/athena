@@ -99,6 +99,7 @@ private:
   std::string m_path; // configuration file path
   bool m_isok;
   bool m_old_format; // old_format = 8 regions; otherwise 64 towers
+  bool m_ITk_format; // ITk_format = specific to ITk geometry
   FTKPlaneMap *m_pmap;
   FTKPlaneMap *m_m_pmap; //whether this class 'owns' m_pmap
   int m_nregions;
@@ -132,9 +133,11 @@ public:
   int CalcChecksumLUT() ;
 
   void loadModuleIDLUT(const char *);
+  bool isModuleIDLUTloaded(void) const;
   const char *getPath() const { return m_path.c_str(); }
 
   const FTKPlaneMap* getPlaneMap() const { return m_pmap; }
+  FTKPlaneMap* getModifyablePlaneMap() const { return m_pmap; }
 
   const FTKRegionMapItem &getRegionMapItem(int, int, int) const;
   int getNumRegions() const { return m_nregions; }
@@ -142,12 +145,13 @@ public:
 
   const int& getNPlanes() const { return m_nplanes; }
 
-  unsigned int getLocalModuleID(const FTKHit&, unsigned int);
+  unsigned int getLocalModuleID(const FTKHit&, unsigned int) const;
   void convertLocalID(unsigned int, int, int, int, int&, int&);
   unsigned int getLocalID(int towerID,int plane,int section,
                           int modPhi,int modEta) const;
 
   bool isHitInRegion(const FTKHit&,int) const;
+  bool isHitInRegion_ITk(const FTKHit&,int) const;
   bool isHitInRegion_old(const FTKHit&,int) const;
   
   //   (local id) == -1 => module is not in the tower

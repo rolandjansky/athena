@@ -22,18 +22,18 @@ MsgStream* FTKSetup::m_log(0x0);
 
 
 FTKSetup::FTKSetup() :
-   m_BarrelOnly(0), m_SCTtrkMode(0), m_IBLMode(0), m_verbosity(0),
+   m_BarrelOnly(0), m_SCTtrkMode(0), m_IBLMode(0), m_ITkMode(false), m_verbosity(0),
    m_tot_events(0), m_EnableFTKSim(0), m_RawMode(1),
    m_SectorsAsPatterns(0),
    m_MaxMissingPlanes(1), m_MaskLayers(0), m_RoadWarrior(1),
    m_KeepRemoved(0), m_HWModeSS(0), m_event(-1), m_MaxMissingSctPairs(0),
    m_restrictSctPairLayer(0), m_restrictSctPairModule(0),
-   m_usage_ncalls(0)
+   m_usage_ncalls(0),m_fixEndcapL0(false)
 {
-  m_pid = getpid();
-  cout << "FTK Framework created (PID " << m_pid << ")" << endl;
-  gettimeofday(&m_starttime,0);
-  cout << "Start time " << m_starttime.tv_sec << " sec" << endl;
+  //m_pid = getpid();
+  //cout << "FTK Framework created (PID " << m_pid << ")" << endl;
+  //gettimeofday(&m_starttime,0);
+  //cout << "Start time " << m_starttime.tv_sec << " sec" << endl;
 }
 
 
@@ -186,6 +186,7 @@ void FTKSetup::usageStat(const char *header /* =0 */)
 void FTKSetup::PrintMessage(ftk::message_level_t level, const char *msg)
 {
 #ifndef FTK_STANDALONE
+   if(m_log) {
   if (level == ftk::debg) 
     *m_log << MSG::DEBUG;
   else if (level == ftk::warn)
@@ -196,6 +197,9 @@ void FTKSetup::PrintMessage(ftk::message_level_t level, const char *msg)
     *m_log << MSG::INFO;
 
   *m_log << msg  << endreq;
+   } else {
+      cout << "(level="<<level<<") "<<msg << endl;
+   }
 #else
    cout << msg << endl;
 #endif

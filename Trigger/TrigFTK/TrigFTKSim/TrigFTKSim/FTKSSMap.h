@@ -76,6 +76,7 @@ private:
    // global parameters for hardware compressed/DC SSID representation
    int m_eta_nondcbits; // number of eta non-dc bits
    int m_nbitsssid; // total number of ssid bits
+   int m_nbitsssid_SSB; // total number of ssid bits
    int m_nbitsssid_module_pixel; // number of ssid bits to devote to the module id
    int m_nbitsssid_module_strip; // number of ssid bits to devote to the module id
   
@@ -99,6 +100,8 @@ public:
 
    const FTKRegionMap* getRegionMap() const { return m_rmap; }
    const FTKPlaneMap* getPlaneMap() const { return m_rmap->getPlaneMap(); }
+   FTKRegionMap* getModifyableRegionMap() const { return m_rmap; }
+   FTKPlaneMap* getModifyablePlaneMap() const { return m_rmap->getModifyablePlaneMap(); }
 
    void checkPrint(const char *tag) const;
 
@@ -127,10 +130,10 @@ public:
    //     {  return m_ssm[hit.getPlane()][hit.getSection()][0].m_ndcx; }
    //const int& getSSDCY(const FTKHit& hit) const;
    //{  return m_ssm[hit.getPlane()][hit.getSection()][0].m_ndcy; }
-   const int& getSSDCX(int plane,int section) const
-     {  return m_ssm[plane][section][0].m_ndcx; }
-   const int& getSSDCY(int plane,int section) const
-     {  return m_ssm[plane][section][0].m_ndcy; }
+   const int& getSSDCX(int plane) const
+     {  return m_ssm[plane][0][0].m_ndcx; }
+   const int& getSSDCY(int plane) const
+     {  return m_ssm[plane][0][0].m_ndcy; }
 
    const char *getPath() const { return m_path.c_str(); }
    void setSSDCX(const int plane, const int dcx) 
@@ -140,56 +143,50 @@ public:
 
    // primary method that converts a hit to superstrip id
    int getSSGlobal(const FTKHit&, bool quiet = false) const;
-   int getSSTower(const FTKHit&, unsigned int) const;
+   int getSSTower(const FTKHit&, unsigned int,bool SecondStage=false) const;
    int getSS(const FTKHit &hit) const { return getSSGlobal(hit); } // deprecated, use getSSGlobal()
 
    // methods to encode module and local coordinates to Global SSID 
-   int getSS(const int &, const int &, const int &, const int &,
-	     const double &x) const;
-   int getSS(const int &, const int &, const int &, const int &,
-	     const double &x, const double &y) const;
+   // in these methods, "etaofff" is the eta module in the barrel,
+   //  but encodes the "aside" and "section" information in the endcaps 
+   int getSSx(int plane,int section,int phimod,int etaoff,int x) const;
+   int getSSxy(int plane,int section,int phimod,int etaoff,
+               int localX,int localY) const;
 
    // methods to decode Global SSID to local coordinates
-   void decodeSS(int, const int&, const int&,
-		 int &, int &, int &, int &) const;
-   void decodeSS(int, const int&, const int&,
-		 int &, int &, int &, 
-		 int &, int &, int &) const;
+   void decodeSSx(int SSid,int plane,int &section,
+		 int &phimod,int &localX,int &etacode) const;
+   void decodeSSxy(int SSid,int plane,int &section,
+                   int &phimod, int &localX, 
+                   int &etacode,int &localY) const;
 
+#ifdef UNUSED
    // method to decode Tower SSID
    // *NOT* compatible with HWMODEID==2
    void decodeSSTower(int, int, int, int, int&, int&, float&, float&);
+#endif
 
    // method to decode Tower SSID
    // compatible with HWMODEID==2
    void decodeSSTowerXY(int ssid,int towerid,int plane,int section,
-                        int &phimod,int &etamod,float &localX, float &localY);
-   void decodeSSTowerX(int ssid,int towerid,int plane,int section,
-                       int &phimod,int &etamod,float &localX);
+                        int &localmoduleID,int &localX, int &localY, bool SecondStage=false);
+   void decodeSSTowerX(int ssid,int towerid,int plane,int &section,
+                       int &localmoduleID,int &localX, bool SecondStage=false);
 
-   // method to encode Tower SSID
-   // compatible with HWMODEID==2
-   int encodeSSTowerXY(int towerid, int plane, int section,
-                       int phimod, int etamod, 
-                       float localX,float localY) const;
-   int encodeSSTowerX(int towerid, int plane, int section,
-                      int phimod, int etamod, 
-                      float localX) const;
-  
    // generic, multi-use library function (is there a better place for this?)
    // Gray code input n
    static unsigned int gray_code(unsigned int n, int s=0);
   
-   unsigned int compressed_ssid_word(const FTKHit& hit, unsigned localID) const;
+   unsigned int compressed_ssid_word(const FTKHit& hit, unsigned localID,bool SecondStage=false) const;
    // const unsigned int compressed_local_ssid_word_pixel(unsigned int x, unsigned int y, const int plane, const int section) const;
    // const unsigned int compressed_local_ssid_word_strip(unsigned int x, const int plane, const int section) const;
-   unsigned int compressed_ssid_word_pixel(const FTKHit& hit, unsigned localID) const;
-   unsigned int compressed_ssid_word_strip(const FTKHit& hit, unsigned localID) const;
+   unsigned int compressed_ssid_word_pixel(const FTKHit& hit, unsigned localID,bool SecondStage=false) const;
+   unsigned int compressed_ssid_word_strip(const FTKHit& hit, unsigned localID,bool SecondStage=false) const;
    unsigned int compressed_ssid_word_pixel
       (unsigned int localID,int plane,int section,
-       float localX,float localY) const;
+       float localX,float localY,bool SecondStage=false) const;
    unsigned int compressed_ssid_word_strip
-      (int localID,int plane,int section,float localX) const;
+     (int localID,int plane,int section,float localX,bool SecondStage=false) const;
 
    // method to create hardware LUT of local SSIDs for a given module
    std::vector<unsigned int> get_lookup_table(const int plane,const int section, const int id) const;
@@ -199,7 +196,8 @@ public:
    double getOffsetFraction() const { return m_fraction; }
 
    // encoding step for sct and pixels
-   static int getPhiOffset(bool isSCT) {
+   static int getPhiOffset(bool isSCT, bool isITk) {
+     if (isITk) return 1000;
      if (isSCT) return 100;
      return 200; // change to 300 if pixel-eta ss<13
    }
@@ -209,11 +207,13 @@ public:
   // parameters for hardware compressed/DC SSID representation
   void set_eta_nondcbits( const int eta_nondcbits ) { m_eta_nondcbits = eta_nondcbits; }
   void set_nbitsssid( const int nbitsssid ) { m_nbitsssid = nbitsssid; }
+  void set_nbitsssid_SSB( const int nbitsssid_SSB ) { m_nbitsssid_SSB = nbitsssid_SSB; }
   void set_nbitsssid_module_pixel( const int nbitsssid_module ) { m_nbitsssid_module_pixel = nbitsssid_module; }
   void set_nbitsssid_module_strip( const int nbitsssid_module ) { m_nbitsssid_module_strip = nbitsssid_module; }
 
   int get_eta_nondcbits() const { return m_eta_nondcbits; }
   int get_nbitsssid() const { return m_nbitsssid; }
+  int get_nbitsssid_SSB() const { return m_nbitsssid_SSB; }
   int get_nbitsssid_module_pixel() const { return m_nbitsssid_module_pixel; }
   int get_nbitsssid_module_strip() const { return m_nbitsssid_module_strip; }
 

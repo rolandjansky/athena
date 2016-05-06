@@ -33,11 +33,11 @@ TSPROOTBankGenerator::TSPROOTBankGenerator(const char *fname) :
    m_planes(0),
    m_mincoverage(0),
    m_patternID(0),
-   m_preader(NULL),
    m_npatterns(0),
    m_iSub(0),
    m_nSub(0),
-   m_nplanes(0)
+   m_nplanes(0),
+   m_preader(NULL)
 {
   m_bankfile = TFile::Open(fname);
 }
@@ -45,8 +45,8 @@ TSPROOTBankGenerator::TSPROOTBankGenerator(const char *fname) :
 
 TSPROOTBankGenerator::TSPROOTBankGenerator(FTKSetup* setup, const std::vector<FTKSSMap*>& ssMaps, const std::string& inputBank, const std::string& outBank, unsigned planes, int maxPatterns, int mincoverage) :
 
-   m_RemoveTSP(0), m_setup(setup), m_ssMaps(ssMaps), m_maxPatterns(maxPatterns), m_planes(planes),  m_mincoverage(mincoverage), m_patternID(0l),m_preader(NULL),
-   m_iSub(0), m_nSub(0)
+   m_RemoveTSP(0), m_setup(setup), m_ssMaps(ssMaps), m_maxPatterns(maxPatterns), m_planes(planes),  m_mincoverage(mincoverage), m_patternID(0l),
+   m_iSub(0), m_nSub(0),m_preader(NULL)
 {
  
   
@@ -242,7 +242,7 @@ void TSPROOTBankGenerator::generateChildren(int bankID, int planes) throw (TSPPa
                  int ssid = TSPpattern->getSSID(i);
                  
                  // Separate the phi and eta part TOFIX
-                 int ssoff = tspmap.getDim(i)==2 ? m_ssMaps[bankID - 1]->getPhiOffset(false) : m_ssMaps[bankID - 1]->getPhiOffset(true);
+                 int ssoff = tspmap.getDim(i)==2 ? m_ssMaps[bankID - 1]->getPhiOffset(false,FTKSetup::getFTKSetup().getITkMode()) : m_ssMaps[bankID - 1]->getPhiOffset(true,FTKSetup::getFTKSetup().getITkMode());
                  int ssid_eta = ssid % ssoff;
                  
                  int newssid(0);
@@ -251,18 +251,17 @@ void TSPROOTBankGenerator::generateChildren(int bankID, int planes) throw (TSPPa
                     const int &nbitsX = tspmap.getNBits(i,0);
                     const int &nbitsY = tspmap.getNBits(i,1);
                     
-                    int phioff;
                     int phimod;
                     int localX;
-                    int etaoff;
                     int etamod;
                     int localY;
-                    m_ssMaps[bankID - 1]->decodeSS(ssid, i, 0, phioff, phimod, localX, etaoff, etamod, localY);
+                    int section;
+                    m_ssMaps[bankID - 1]->decodeSSxy(ssid, i, section, phimod, localX,etamod, localY);
                     
                     int phiwidth = m_ssMaps[bankID]->getPhiWidthRounded(i);
-                    int phiss = m_ssMaps[bankID]->getMap(i, 0, 0).m_phiss;
+                    int phiss = m_ssMaps[bankID]->getMap(i, section, phimod).m_phiss;
                     int etawidth = m_ssMaps[bankID]->getEtaWidthRounded(i);
-                    int etass = m_ssMaps[bankID]->getMap(i, 0, 0).m_etass;
+                    int etass = m_ssMaps[bankID]->getMap(i, section, etamod).m_etass;
                     
                     newssid = (phiwidth * phimod + localX) / phiss * ssoff + (etawidth * etamod + localY) / etass;
                     
@@ -286,13 +285,13 @@ void TSPROOTBankGenerator::generateChildren(int bankID, int planes) throw (TSPPa
                  } else if ( tspmap.getDim(i)==1) { // SCT case
                     // get the number of bits used to codify the internal position
                     const int &nbitsX = tspmap.getNBits(i,0);
-                    int phioff;
+                    int section;
                     int phimod;
                     int localX;
                     int etaoff;
-                    m_ssMaps[bankID - 1]->decodeSS(ssid, i, 0, phioff, phimod, localX, etaoff);	      
+                    m_ssMaps[bankID - 1]->decodeSSx(ssid, i, section, phimod, localX, etaoff);	      
                     int phiwidth = m_ssMaps[bankID]->getPhiWidthRounded(i);
-                    int phiss = m_ssMaps[bankID]->getMap(i, 0, 0).m_phiss;
+                    int phiss = m_ssMaps[bankID]->getMap(i, section, phimod).m_phiss;
                     newssid = (phiwidth * phimod + localX) / phiss * ssoff + ssid_eta;	      
                     // Half plane bit
                     unsigned int bitlayerX = (localX % phiss)/(m_ssMaps[bankID-1]->getMap(i, 0, 0).m_phiss); // is 0 to (2^nbits-1)

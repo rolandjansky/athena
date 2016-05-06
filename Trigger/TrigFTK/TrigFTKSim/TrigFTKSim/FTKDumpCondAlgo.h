@@ -39,6 +39,8 @@ private:
   bool m_DumpIDMap;
 
   int m_IBLMode;
+  bool m_fixEndcapL0; //fix for endcap L0 in clustering
+
 };
 
 #endif // FTKDumpCondAlgo_h

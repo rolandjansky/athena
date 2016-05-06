@@ -114,13 +114,32 @@ FTKPatternBySectorReader::FTKPatternBySectorReader(FTKRootFileChain &chain)
    }
 }
 
-FTKPatternBySectorReader::FTKPatternBySectorReader
-(TDirectory &dir,const char *filename,
- int nSub,int iSub) : FTKPatternBySectorBase(filename) {
+void FTKPatternBySectorReader::SelectSubregion(int nSub,int iSub) {
    if(nSub>1) {
-      Info("FTKPatternBySectorBlockReader")
+      Info("SelectSubregion")
          <<"splitting subregions nSub="<<nSub<<" iSub="<<iSub<<"\n";
+      int nAll=fPatterns.size();
+      for(PatternTreeBySector_t::iterator iSector=fPatterns.begin();
+          iSector!=fPatterns.end();) {
+         int sector=(*iSector).first;
+         PatternTreeBySector_t::iterator i0=iSector;
+         iSector++;
+         if((sector%nSub)!=iSub) {
+            if((*i0).second) {
+               delete (*i0).second;
+               (*i0).second=0;
+            }
+            fPatterns.erase(i0);
+         }
+      }
+      Info("SelectSubregion")<<"selected "<<fPatterns.size()<<"/"<<nAll
+                             <<" sectors\n";
    }
+}
+
+FTKPatternBySectorReader::FTKPatternBySectorReader
+(TDirectory &dir,const char *filename,std::set<int> const *sectorlist)
+  : FTKPatternBySectorBase(filename) {
    // locate all TTree objects with pattern data
    // and store them in the STL map
    //   fPatterns
@@ -132,7 +151,8 @@ FTKPatternBySectorReader::FTKPatternBySectorReader
    while((o=next())) {
       TString name=((TObjString *)o)->GetString();
       int sector=FTKPatternRootTreeReader::ExtractSectorNumber(name);
-      if((sector>=0)&&((nSub<=1)||((sector%nSub)==iSub))) {
+      if((sector>=0)&&((!sectorlist)||
+                       (sectorlist->find(sector)!=sectorlist->end()))) {
          FTKPatternRootTreeReader * &patternTree=fPatterns[sector];
          if(patternTree) delete patternTree;
          FTKPatternRootTree *tree=new FTKPatternRootTree(dir,sector,0);
@@ -202,6 +222,25 @@ void FTKPatternBySectorReader::GetNPatternsByCoverage
    for(PatternTreeBySector_t::const_iterator i=fPatterns.begin();
        i!=fPatterns.end();i++) {
       FTKPatternRootTreeReader *reader=(*i).second;
+      reader->ReadCoverageOnly(true);
+      reader->Rewind();
+      while(reader->ReadNextPattern()) {
+         coverageMap[reader->GetPattern().GetCoverage()]++;
+      }
+      reader->ReadCoverageOnly(false);      
+   }
+}
+
+void FTKPatternBySectorReader::GetNPatternsBySectorCoverage
+(std::map<int,std::map<int,int> > &sectorCoverageMap) const {
+   if(GetContentType()==CONTENT_NOTMERGED) {
+      Fatal("GetNPatternsBySectorCoverage")<<"patterns are not merged\n";
+   }
+   //Info("GetNPatternsBySectorCoverage")<<"number of sectors "<<fPatterns.size()<<"\n";
+   for(PatternTreeBySector_t::const_iterator i=fPatterns.begin();
+       i!=fPatterns.end();i++) {
+      FTKPatternRootTreeReader *reader=(*i).second;
+      map<int,int> &coverageMap(sectorCoverageMap[(*i).first]);
       reader->ReadCoverageOnly(true);
       reader->Rewind();
       while(reader->ReadNextPattern()) {
@@ -331,8 +370,8 @@ int FTKPatternBySectorReader::WritePatternsToASCIIstream(std::ostream &out,int i
 //================== class FTKPatternBySectorBlockReader ===================
 
 FTKPatternBySectorBlockReader::FTKPatternBySectorBlockReader
-(TDirectory &dir,int nSub,int iSub) :
-   FTKPatternBySectorReader(dir,"FTKPatternBySectorBlockReader",nSub,iSub) {
+(TDirectory &dir,std::set<int> const *sectorList) :
+   FTKPatternBySectorReader(dir,"FTKPatternBySectorBlockReader",sectorList) {
 }
 
 void FTKPatternBySectorBlockReader::Rewind(void) {
@@ -343,7 +382,7 @@ void FTKPatternBySectorBlockReader::Rewind(void) {
        i!=fPatterns.end();i++) {
       FTKPatternRootTreeReader *reader=(*i).second;
       reader->Rewind();
-      bool returned = reader->ReadNextPattern();
+      /*bool returned =*/ reader->ReadNextPattern();
    }
 }
 
@@ -477,6 +516,8 @@ int FTKPatternBySectorWriter::AppendMergedPatterns
    Info("AppendMergedPatterns")<<"loop over sectors\n";
    int nTotal=0;
    int totalCoverage=0;
+   int printed=0;
+   double nextPrint=1.0;
    for(int sector=source.GetFirstSector();sector>=0;
        sector=source.GetNextSector(sector)) {
       //ShowProgress(TString::Format("%d",sector));
@@ -485,9 +526,13 @@ int FTKPatternBySectorWriter::AppendMergedPatterns
       FTKPatternOneSectorOrdered *orderedByCoverage=
          mergedPatterns->OrderPatterns(FTKPatternOrderByCoverage(minCoverage));
       totalCoverage += orderedByCoverage->GetSummedCoverage();
-      ShowProgress(TString::Format("%d %d %d %d",sector,
-				   mergedPatterns->GetNumberOfPatterns(),
-                                   nTotal,totalCoverage));
+      printed++;
+      if(printed>=nextPrint) {
+         ShowProgress(TString::Format("%d %d %d %d",sector,
+                                      mergedPatterns->GetNumberOfPatterns(),
+                                      nTotal,totalCoverage));
+         nextPrint=printed*1.3;
+      }
       error=AppendMergedPatterns(sector,orderedByCoverage);
       if(error) {delete orderedByCoverage; delete mergedPatterns; break;}
       int coverage=0;
@@ -514,6 +559,8 @@ int FTKPatternBySectorWriter::AppendMergedPatterns
       delete orderedByCoverage;
       delete mergedPatterns;
    }
+   Info(TString::Format("nsector=%d npattern=%d npattern*coverage=%d",printed,
+                        nTotal,totalCoverage));
    // save sector index as TTree
 #ifdef WRITE_INDEX_TREE
    fDir.cd();

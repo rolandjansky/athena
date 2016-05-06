@@ -8,9 +8,11 @@
 #include <map>
 #include <iostream>
 #include "../TrigFTKSim/FTKTrackStream.h"
+#include "../TrigFTKSim/FTKRoadStream.h"
 #include "../TrigFTKSim/FTKTruthTrack.h"
 #include "TChain.h"
 #include "TFile.h"
+#include "TProfile.h"
 
 using namespace std;
 
@@ -22,15 +24,8 @@ private:
 public:
   MatchInfo() : m_barcode(0), m_evtindex(-1) {;}
   MatchInfo(int v1, int v2) : m_barcode(v1), m_evtindex(v2) {;}
-  bool operator==(const MatchInfo& o) const {
-    return (m_barcode==o.m_barcode)&&(m_evtindex==o.m_evtindex);
-  }
-  bool operator<(const MatchInfo& o) const {
-    if (m_evtindex!=o.m_evtindex)
-      return (m_evtindex<o.m_evtindex);
-    else
-      return m_barcode<o.m_barcode;
-  }
+  bool operator==(const MatchInfo& o) const { return (m_barcode==o.m_barcode)&&(m_evtindex==o.m_evtindex); }
+  bool operator<(const MatchInfo& o) const { if (m_evtindex!=o.m_evtindex) return (m_evtindex<o.m_evtindex); else return m_barcode<o.m_barcode; }
 };
 
 typedef multimap<MatchInfo,const FTKTrack*> FTKBarcodeMM;
@@ -48,9 +43,12 @@ double Drelpt;
 double Dcurv;
 double Deta;
 double Dz0;
+double ptmincut;
+
 
 // block of generic control histograms for the FTK tracks
 TH2F *histocoordmasketa_ftk;
+TH2F *histocoordmaskz0_ftk;
 TH2F *histocoordmaskphi_ftk;
 TH2F *histonmisseta_ftk;
 TH2F *histochisqndfeta_ftk;
@@ -63,15 +61,62 @@ TH2F *histophid0_ftk;
 TH1F *histocurv_ftk;
 TH1F *histoeta_ftk;
 TH2F *histoetaphi_ftk;
+
+
+TH2F *histoetaphi_ftk_IBL;
+TH2F *histoetaphi_ftk_PixL0;
+TH2F *histoetaphi_ftk_PixL1;
+TH2F *histoetaphi_ftk_PixL2;
+TH2F *histoetaz0_ftk;
+TH2F *histoetaz0_ftk_IBL;
+TH2F *histoetaz0_ftk_PixL0;
+TH2F *histoetaz0_ftk_PixL1;
+TH2F *histoetaz0_ftk_PixL2;
 TH2F *histoetaphi_truth;
 TH2F *histoetaphi_truthM;
-TH2F *histoetaz0_ftk;
 TH2F *histoetaz0_truth;
 TH2F *histoetaz0_truthM;
 TH1F *histopt_ftk;
 
+TH1F *histopt_ftk_lg;
+TH1F *histopt_ftklo_lg;
+
+TH2F *histoetaz0det_ftk_IBL;
+TH2F *histoetaz0det_ftk_PixL0;
+TH2F *histoetaz0det_ftk_PixL1;
+TH2F *histoetaz0det_ftk_PixL2;
+
+TH2F *histophiz0_ftk;
+TH2F *histophiz0_ftk_IBL;
+TH2F *histophiz0_ftk_PixL0;
+TH2F *histophiz0_ftk_PixL1;
+TH2F *histophiz0_ftk_PixL2;
+
+
+TH1F *histopt_ftkzoom;
+TH1F *histocurv_ftkzoom;
+
 // FTK for fakes
 TH1F *histontracks_goodftk;
+
+
+TH1F *histopt_goodftk_lg;
+TH1F *histopt_goodftklo_lg;
+
+TH1F *histopt_goodftkUlo_lg;
+TH1F *histopt_goodftkU_lg;
+
+TH1F *histoetaabs_truth;
+TH1F *histoeff_truth;
+TH1F *histopt_truthlo_lg;
+TH1F *histopt_truth_lg;
+TH1F *histoetaabs_truthM;
+TH1F *histoeff_truthM;
+
+TH1F *histopt_truthMlo_lg;
+TH1F *histopt_truthM_lg;
+
+
 TH1F *histod0_goodftk;
 TH1F *histoz0_goodftk;
 TH1F *histocurv_goodftk;
@@ -105,6 +150,14 @@ TH1F *histophi_truthM;
 TH1F *histopt_truthM;
 TH1F *histod0res;
 TH1F *histoz0res;
+
+TProfile *histod0res_veta;
+TProfile *histoz0res_veta;
+TProfile *histod0res_vphi;
+TProfile *histoz0res_vphi;
+TProfile *histod0res_vz0;
+TProfile *histoz0res_vz0;
+
 TH1F *histocurvres;
 TH1F *histoetares;
 TH1F *histophires;
@@ -119,6 +172,8 @@ TH1F *histocurv_truth_muon;
 TH1F *histoeta_truth_muon;
 TH1F *histophi_truth_muon;
 TH1F *histopt_truth_muon;
+TH1F *histopt_truth_muonlo_lg;
+TH1F *histopt_truth_muon_lg;
 
 TH1F *histontracks_truthM_muon;
 TH1F *histod0_truthM_muon;
@@ -127,9 +182,12 @@ TH1F *histocurv_truthM_muon;
 TH1F *histoeta_truthM_muon;
 TH1F *histophi_truthM_muon;
 TH1F *histopt_truthM_muon;
+TH1F *histopt_truthM_muonlo_lg;
+TH1F *histopt_truthM_muon_lg;
 
 // Things to access variables!
 FTKTrackStream *tracks(0);
+FTKRoadStream *roads(0);
 std::vector<FTKTruthTrack> *truthTracks(0);
 Int_t RunNumber, EventNumber;
 TChain *t_ftkdata;
@@ -137,6 +195,8 @@ TChain *t_truth;
 TChain *t_evtinfo;
 
 int towerNumber;
+/* TString outputname; */
 std::string outputname;
+std::string psfile;
 int ientry2;
-bool Use1stStage;
+Int_t Use1stStage;

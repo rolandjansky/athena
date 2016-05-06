@@ -12,6 +12,10 @@ class FTKTrack;
 #include <Eigen/Core>
 #include <Eigen/LU>
 
+#include <bitset>
+#include <iomanip>
+
+
 class FTKConstantBank {
 private:
   int m_bankID; // ID of the related pattern bank
@@ -50,9 +54,12 @@ private:
   // alternative constant vectors to be used when performing fits with integer precision
   // to match firmware specs -- these are not yet initialized anywhere!
   signed long long ***m_kernel_aux; //[m_nsectors][m_nconstr][m_ncoords] covariance matrix
+  signed long long ***m_kernel_hw;  //[m_nsectors][m_nconstr][m_ncoords] covariance matrix
   signed long long **m_kaverage_aux; //[m_nsectors][m_nconstr] 
   signed long long ***m_maj_invkk_aux; //!
+  signed long long ***m_maj_invkk_hw; //!
   short int ***m_maj_invkk_pow; //!
+  short int ***m_maj_invkk_pow_hw; //!
 
   // function to model behavior of arithmetic shift register, used in firmware tests
   signed long long aux_asr(signed long long input, int shift, int width, bool &overflow) const;
@@ -79,11 +86,21 @@ public:
 
   void doAuxFW(bool a);
 
-  static const int KAVE_SHIFT = 6;
+  static const int KAVE_SHIFT = 6; // 6
+
   static const int KERN_SHIFT = KAVE_SHIFT + 7;
-  static const int EFF_SHIFT  = KAVE_SHIFT + 10;
-  static const int FIT_PREC   = 18;
-  static const int CONST_PREC = 13;
+  static const int EFF_SHIFT  = KERN_SHIFT + 3; // aux coordinates 8x larger
+
+  static const int KERN_SHIFT_HW = KAVE_SHIFT + 7;
+  static const int EFF_SHIFT_HW  = KERN_SHIFT_HW + 3;
+
+  static const int FIT_PREC   = 18; // 18
+  static const int CONST_PREC = 13; // 13
+
+  const int   const_plane_map[11] = {0, 0, 1, 1, 2, 2, 3, 4, 5, 6, 7};
+  const int   const_coord_map[11] = {0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0};
+  const float const_scale_map[11] = {1, 8/16.88, 1, 8/16.88, 1, 8/16.88, 4, 4, 4, 4, 4};
+  // const float const_scale_map[11] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
 
   int  linfit(int, FTKTrack &) const;

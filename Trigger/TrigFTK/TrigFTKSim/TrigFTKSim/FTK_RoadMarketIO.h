@@ -89,6 +89,9 @@ public:
   virtual void naoSetNclus(int, const std::vector<int>&);
   virtual void naoSetNss(int, const std::vector<int>&);
   virtual void naoSetNroadsAM(int, int);
+  virtual void naoSetNroadsAMComplete(int, int);
+  virtual void naoSetNroadsAMMissPix(int, int);
+  virtual void naoSetNroadsAMMissSCT(int, int);
   virtual void naoSetNroadsMOD(int, int);
   virtual void naoSetNroadsRW(int, int);
 };

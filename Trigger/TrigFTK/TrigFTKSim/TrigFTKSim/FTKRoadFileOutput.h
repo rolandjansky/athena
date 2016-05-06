@@ -66,6 +66,9 @@ class FTKRoadFileOutput : public FTKObjectOutput<FTKRoadStream>,
   void naoSetNclus(int bank, const std::vector<int>& val) { m_data[bank]->naoSetNclus(val); }
   void naoSetNss(int bank, const std::vector<int>& val) { m_data[bank]->naoSetNss(val); }
   void naoSetNroadsAM(int bank, int val) { m_data[bank]->naoSetNroadsAM(val); }
+  void naoSetNroadsAMComplete(int bank, int val) { m_data[bank]->naoSetNroadsAMComplete(val); }
+  void naoSetNroadsAMMissPix(int bank, int val) { m_data[bank]->naoSetNroadsAMMissPix(val); }
+  void naoSetNroadsAMMissSCT(int bank, int val) { m_data[bank]->naoSetNroadsAMMissSCT(val); }
   void naoSetNroadsMOD(int bank, int val) { m_data[bank]->naoSetNroadsMOD(val); }
   void naoSetNroadsRW(int bank, int val) { m_data[bank]->naoSetNroadsRW(val); }
 

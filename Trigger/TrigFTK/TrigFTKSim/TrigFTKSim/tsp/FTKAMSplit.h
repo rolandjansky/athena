@@ -26,7 +26,6 @@
 #include <assert.h>
 #include <limits.h>
 
-using namespace std;
 class FTKAMSplit
 {
 private:
@@ -38,19 +37,19 @@ private:
 
     double m_BankVolume;
     double m_volumeReduction;
-    list<AMSelection> SplitAMPatternList;
+    std::list<AMSelection> SplitAMPatternList;
 
 
-    vector< pair<UInt_t, UInt_t> > cluster;
-    vector< vector<int> > sim;
+    std::vector< std::pair<UInt_t, UInt_t> > cluster;
+    std::vector< std::vector<int> > sim;
 
-    vector<UInt_t> dcMask;
-    vector<double> splitVolume;
-    vector<double> deltaVolumeDeltaPattern;
-    vector<double> deltaVolumeCluster;
-    vector<int> deltaPatternCluster;
-    vector< vector<UInt_t> > amPatterns;
-    vector< pair<int, int> > mergelist;
+    std::vector<UInt_t> dcMask;
+    std::vector<double> splitVolume;
+    std::vector<double> deltaVolumeDeltaPattern;
+    std::vector<double> deltaVolumeCluster;
+    std::vector<int> deltaPatternCluster;
+    std::vector< std::vector<UInt_t> > amPatterns;
+    std::vector< std::pair<int, int> > mergelist;
 
     TH1D *DCBitsHist;
     TH1D *deltaVolumeOverDeltaPatternsBin1;
@@ -67,9 +66,26 @@ private:
     TH1D *DeltaVolumeOverDeltaPatternCumulativeH;
 
 
+    int countSetBits( UInt_t dc_mask );
+    int clusterDistanceZeroDCmask( std::pair<UInt_t, UInt_t> &iPair, //
+                                   std::pair<UInt_t, UInt_t> &jPair, //
+                                   UInt_t &dc_mask);
+    int calculateVolume( UInt_t &dc_mask ); 
+    double calculateDeltaVolumeOverDeltaPatternCumulative( TH1D *histo );
+    int calculateThresholdBins( TH1D* histo );
+    void initHistograms();
+    void prepare_similarityMatrix();
+    double calculateAMCoverage( std::list<AMSelection>::iterator iAMDCbits );
+    void selectSplitMethod( std::list<AMSelection>::iterator iAMDCbits, int countDC ); 
+    TH1D* selectHistogram();
+    void printPreliminaryNumbers( int nPatWithDCbits, int nPattWithoutDCbits );
+    void treat_SinglePatternCase( std::list<AMSelection>::iterator iAMDCbits, int &no );
+    UInt_t calculateDCfromHalfPlaneMask( std::list<AMSelection>::iterator iAMDCbits );
+
+
 public:
     FTKAMSplit();
-    FTKAMSplit(int);
+    FTKAMSplit(int AMSplit, int maxAMAfterSplit, int minDVolOverDNPatt);
 
     void setDCSplit(int val){ m_DCSplit = val; }
     const int &getDCSplit(){ return m_DCSplit; }
@@ -84,23 +100,23 @@ public:
     const int &gettotalDeltaPatterns(){ return m_totalDeltaPatterns; }
     // void addtotalDeltaPatterns(int val){ m_totalDeltaPatterns += val; }
 
-    void mergeClusters( pair<int, int> );
+    void mergeClusters( std::pair<int, int> );
 
-    list<AMSelection> splitAMPattern(AMSelection , vector< pair<int, int> > , double , int size = -1);
+    std::list<AMSelection> splitAMPattern(AMSelection , const std::vector< std::pair<int, int> >& , double , int size = -1);
 
     void splitDCThreshold(AMSelection , int );
 
     int calculateClusterDistance(int i, int j, int setDCMask = 0);
 
-    static bool sortPairs(const pair<int, int> &, const pair<int, int> &);
+    static bool sortPairs(const std::pair<int, int> &, const std::pair<int, int> &);
 
-    void determineClusterSplit(AMSelection , vector< pair<int, int> > );
+    void determineClusterSplit(AMSelection , const std::vector< std::pair<int, int> >& );
 
     void clusterAMSplit(AMSelection );
 
-    void bankVolumeCheck(list<AMSelection> AMPatternList);
+    void bankVolumeCheck(const std::list<AMSelection>& AMPatternList);
 
-    list<AMSelection> splittingAlgorithms(list<AMSelection> AMPatternList);
+    std::list<AMSelection> splittingAlgorithms(const std::list<AMSelection>& AMPatternList);
 
 
 

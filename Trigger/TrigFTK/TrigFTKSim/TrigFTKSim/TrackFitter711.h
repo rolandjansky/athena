@@ -108,6 +108,8 @@ protected:
   int m_ncombsI; // number of combinations
   int m_nfitsI; // number of fits tryied in a road
   int m_nfits_majI; // number of majority fits
+  int m_nfits_majI_pix; // number of majority fits with missing pixel hit
+  int m_nfits_majI_SCT; // number of majority fits with missing SCT hit
   int m_nfits_recI; // number of recoverd fits
   int m_nfits_addrecI;
   int m_nfits_badI; // number of fits with a bad chi2

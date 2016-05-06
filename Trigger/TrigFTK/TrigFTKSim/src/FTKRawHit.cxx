@@ -276,6 +276,9 @@ void FTKRawHit::normalizeLayerID()
   if (m_hitType != ftk::SCT ) {
     return;
   }
+  else if( FTKSetup::getFTKSetup().getITkMode() ) {
+    m_layer_disk = (2*m_layer_disk) + m_pi_side;
+  }
   else if (m_barrel_ec == 0){ // is barrel
     if     (m_layer_disk==0 && m_pi_side == 1) m_layer_disk = 0;
     else if(m_layer_disk==0 && m_pi_side == 0) m_layer_disk = 1;
@@ -324,7 +327,16 @@ FTKHit FTKRawHit::getFTKHit(const FTKPlaneMap *pmap) const {
   int plane = pinfo.getPlane();
   int section = pinfo.getSection();
   int sector;
-  if (m_barrel_ec) {
+
+  if( FTKSetup::getFTKSetup().getITkMode() ) {
+    // Working at least for SCT barrel
+    // Ranges from dumping detector info --
+    //   phi_modules in [0,..,72]
+    //   eta_modules in [-52,..,52]
+    //   m_barrel_ec in [-2,0,2] (C-side,B,A-side)
+    sector = (m_phi_module*100000) + ((m_eta_module+60)*100) + ((m_barrel_ec+2)*10) + section;
+  }
+  else if (m_barrel_ec) {
     // is in the end-caps
     int ieta = m_eta_module;
     const int NEGEC (-2);
@@ -347,6 +359,7 @@ FTKHit FTKRawHit::getFTKHit(const FTKPlaneMap *pmap) const {
   // retrieve information
   int ndim = pmap->getPlane(plane,section).getNDimension();
   FTKHit reshit(ndim);
+  reshit.setITkMode( FTKSetup::getFTKSetup().getITkMode() );
   reshit.setIdentifierHash(getIdentifierHash());
   reshit.setPlane(plane);
   reshit.setSector(sector);

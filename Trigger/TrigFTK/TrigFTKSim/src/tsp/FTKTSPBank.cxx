@@ -25,10 +25,11 @@ FTKTSPBank::FTKTSPBank(int bankid, int subid) :
     m_TSPProcessor(0x0),
     m_file(0),
     m_SimulateTSP(0), m_npatternsTSP(0), m_TSPMinCoverage(0),
-    m_setAMSize(0), m_AMSplit(0),
+    m_setAMSize(0), m_AMSplit(0), m_maxAMAfterSplit(-1), m_minDVolOverDNPatt(0),
     m_DCMatchMethod(0),
     m_ssmap_tsp(0x0), m_splitted_ssmap(0x0),
-    m_cachepath(""), m_makecache(false)
+    m_cachepath(""),
+    m_makecache(false)
 {}
 
 
@@ -309,8 +310,9 @@ int FTKTSPBank::readROOTBank(const char *fname, int maxpatt)
     AMPatternList.sort(); // use the sorting metho of the list
 
     if (m_AMSplit>0) {
-      FTKAMSplit amsplit(m_AMSplit); //Set up the functions to split AM Patterns
-      AMPatternList = amsplit.splittingAlgorithms(AMPatternList); //Function that calls the selected splitting algorithm
+//      FTKAMSplit amsplit(m_AMSplit); //Set up the functions to split AM Patterns
+     FTKAMSplit amsplit(m_AMSplit, m_maxAMAfterSplit, m_minDVolOverDNPatt); //Set up the functions to split AM Patterns
+     AMPatternList = amsplit.splittingAlgorithms(AMPatternList); //Function that calls the selected splitting algorithm
     }
 
     ftksetup.usageStat("Reading the AM bank");
@@ -408,12 +410,34 @@ int FTKTSPBank::readROOTBankCache(const char *fname)
        return 0;
     }
     FTKPattern *curpatt = 0x0;
-    amtree->SetBranchAddress("Pattern", &curpatt);
+    // 2016-05-04 STS: add modifications to read flat file
+    TBranch *branch_nplanes=0,*branch_sectorID=0,
+       *branch_ssid=0,*branch_dcmask=0,*branch_hbmask=0;
+    int nplanes;
+    if(amtree->SetBranchAddress("Pattern", &curpatt)!=0) {
+       // no match, assume this is a flat file
+       FTKSetup::PrintMessage(ftk::info,"pcache read failed, try flat format");
+       branch_nplanes=amtree->GetBranch("nplanes");
+       branch_nplanes->SetAddress(&nplanes);
+       branch_nplanes->GetEntry(0);
+       setNPlanes(nplanes);
+       curpatt=new FTKPattern(nplanes);
+       branch_sectorID=amtree->GetBranch("sectorID");
+       branch_ssid=amtree->GetBranch("ssid");
+       branch_dcmask=amtree->GetBranch("dcmask");
+       branch_hbmask=amtree->GetBranch("hbmask");
+       branch_sectorID->SetAddress(&curpatt->m_sectorID);
+       branch_ssid->SetAddress(curpatt->m_ssid);
+       branch_hbmask->SetAddress(&curpatt->m_hbmask);
+       branch_dcmask->SetAddress(&curpatt->m_dcmask);
+    } else {
+       // use the first pattern to setup global variables
+       amtree->GetEntry(0);
+       setNPlanes(curpatt->getNPlanes());
+    }
+
     // get the number of the patterns
     m_npatterns = amtree->GetEntries();
-    // uset the first pattern to setup global variables
-    amtree->GetEntry(0);
-    setNPlanes(curpatt->getNPlanes());
 
     // initialize the AM data structures
     readBankInit();
@@ -440,21 +464,35 @@ int FTKTSPBank::readROOTBankCache(const char *fname)
     {
         if (ipatt % ipatt_step == 0) cout << ipatt / ipatt_step << flush;
 
+        if(!branch_sectorID) {
+           // STS 2016-05-04
+           // this is a bug??? DBID is taken from the previous pattern???
+           //    m_PatternDBID.push_back(curpatt->getPatternDBID());
+           // set the current pattern
+           amtree->GetEntry(ipatt);
+        } else {
+           branch_sectorID->GetEntry(ipatt);
+           branch_ssid->GetEntry(ipatt);
+           branch_dcmask->GetEntry(ipatt);
+           branch_hbmask->GetEntry(ipatt);
+           curpatt->setPatternDBID(ipatt);
+           curpatt->setPatternID(ipatt);
+        }
+        // STS 2016-05-04
+        //  moved here
         m_PatternDBID.push_back(curpatt->getPatternDBID());
-        // set the current pattern
-        amtree->GetEntry(ipatt);
+
         for (int iplane = 0; iplane != m_nplanes; ++iplane)
-        {
-            m_patterns[_SSPOS(ipatt, iplane)] = curpatt->getSSID(iplane);
-        }
+           {
+              m_patterns[_SSPOS(ipatt, iplane)] = curpatt->getSSID(iplane);
+           }
         m_patterns[_SSPOS(ipatt, m_nplanes)] = curpatt->getSectorID();
-
+        
         if (m_SimulateTSP > 1)
-        {
-            int nTSPpatterns = m_TSPProcessor->getPatternInfo(ipatt, curpatt, m_SimulateTSP > 2);
-            m_npatternsTSP += nTSPpatterns;
-        }
-
+           {
+              int nTSPpatterns = m_TSPProcessor->getPatternInfo(ipatt, curpatt, m_SimulateTSP > 2);
+              m_npatternsTSP += nTSPpatterns;
+           }
     } // end pattern loop
     cout << ']' << endl;
 

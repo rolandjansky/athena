@@ -1,13 +1,10 @@
 # This script sets BOOST_LDFLAGS,BOOST_CXXFLAGS,DCAP_LDFLAGS,DCAL_CXXFLAGS from athena environment
 # Note that you must have sourced athena setup.sh -tag=whatever, so that SITEROOT is defined!
-# VERIFIED TO WORK WITH ALL ATHENA VERSIONS BETWEEN 13.0.40 and 15.6.1
 
 # Make sure athena environment has been bootstrapped
 #uct3_64=0 # new uct3 installation not require any special treatment for uct3_64
 
 arch=`echo $CMTCONFIG | cut -d '-' -f 1`
-# Stefan, 2013/12/17, replace == by = otherwise script does not work with zsh
-### if [ "$arch" == "x86_64" ] ; then
 if [ "$arch" = "x86_64" ] ; then
     export uct3_64=1
     echo "Detected 64 bit environment"
@@ -17,7 +14,7 @@ else
 fi
 
 setupATLAS --quiet
-localSetupSFT dcache_client/2.47.6-1
+localSetupSFT --cmtconfig=x86_64-slc6-gcc48-opt dcache_client/2.47.6-1
 export DCAPDIR=$SFT_HOME_dcache_client/dcap
 echo "Trying to find libdcap for localSetupSFT dcache_client/2.47.6-1"
 DCAP_INCDIR="${DCAPDIR}/include"
@@ -42,7 +39,7 @@ fi;
 
 # Make sure boost c++ is present and export compiler flags
 echo "Trying to find boost libraries shipped with athena:"
-localSetupSFT Boost/1.53.0_python2.7
+localSetupSFT --cmtconfig=x86_64-slc6-gcc48-opt Boost/1.53.0_python2.7
 echo "Trying to find boost dir for localSetupSFT Boost/1.53.0_python2.7"
 export BOOSTDIR=$SFT_HOME_Boost
 export BOOST_INCDIR=$SFT_BOOST_INCLUDE

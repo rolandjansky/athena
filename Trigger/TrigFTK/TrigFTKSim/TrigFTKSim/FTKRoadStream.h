@@ -51,6 +51,9 @@ private:
   std::vector<int> m_nao_nclus;    // number of clusters routed into current region [nplanes]
   std::vector<int> m_nao_nss;      // number of superstrips going into AM [nplanes]
   int m_nao_nroads_am;             // number of roads out of AM
+  int m_nao_nroads_am_complete;             // number of roads out of AM, complete no missing hits
+  int m_nao_nroads_am_misspix;             // number of roads out of AM, missing at least one pixel hit
+  int m_nao_nroads_am_misssct;             // number of roads out of AM, missing at least one sct hit
   int m_nao_nroads_mod;            // number of roads (extra counter for split arch)
   int m_nao_nroads_rw;             // number of roads after roadwarrior
  public:
@@ -67,9 +70,15 @@ private:
     std::transform(val.begin(),val.end(),m_nao_nss.begin(),m_nao_nss.begin(),std::plus<int>()); 
   }
   void naoSetNroadsAM(int val) { m_nao_nroads_am=val; }
+  void naoSetNroadsAMComplete(int val) { m_nao_nroads_am_complete=val; }
+  void naoSetNroadsAMMissPix(int val) { m_nao_nroads_am_misspix=val; }
+  void naoSetNroadsAMMissSCT(int val) { m_nao_nroads_am_misssct=val; }
   void naoSetNroadsMOD(int val) { m_nao_nroads_mod=val; }
   void naoSetNroadsRW(int val) { m_nao_nroads_rw=val; }
   void naoAddNroadsAM(int val) { m_nao_nroads_am+=val; }
+  void naoAddNroadsAMComplete(int val) { m_nao_nroads_am_complete+=val; }
+  void naoAddNroadsAMMissPix(int val) { m_nao_nroads_am_misspix+=val; }
+  void naoAddNroadsAMMissSCT(int val) { m_nao_nroads_am_misssct+=val; }
   void naoAddNroadsMOD(int val) { m_nao_nroads_mod+=val; }
   void naoAddNroadsRW(int val) { m_nao_nroads_rw+=val; }
 
@@ -80,6 +89,9 @@ private:
   const std::vector<int>& naoGetNclus() { return m_nao_nclus; }
   const std::vector<int>& naoGetNss() { return m_nao_nss; }
   int naoGetNroadsAM() const { return m_nao_nroads_am; }
+  int naoGetNroadsAMComplete() const { return m_nao_nroads_am_complete; }
+  int naoGetNroadsAMMissPix() const { return m_nao_nroads_am_misspix; }
+  int naoGetNroadsAMMissSCT() const { return m_nao_nroads_am_misssct; }
   int naoGetNroadsMOD() const { return m_nao_nroads_mod; }
   int naoGetNroadsRW() const { return m_nao_nroads_rw; }
 
@@ -178,7 +190,7 @@ public:
   FTKRoad* fetchRoad(); // get the current road and point to the next
   void rewindFitList() { m_fit_iter = m_fit_list.begin(); }
 
-  ClassDef(FTKRoadStream,10)
+  ClassDef(FTKRoadStream,11)
 };
 
 #endif // FTKROADSTREAM_H

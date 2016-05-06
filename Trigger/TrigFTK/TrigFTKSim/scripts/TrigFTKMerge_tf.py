@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## FTK Simulation Merge Transform
-# @version $Id: TrigFTKMerge_tf.py 519203 2012-09-27 12:02:09Z gvolpi $ 
+# @version $Id: TrigFTKMerge_tf.py 519203 2012-09-27 12:02:09Z gvolpi $
 
 import argparse
 import sys
@@ -25,13 +25,12 @@ from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTra
 import PyJobTransforms.trfExceptions as trfExceptions
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
-ListOfDefaultPositionalKeys=['--FTKDoGrid', '--FTKForceAllInput', '--FTKSetupTag', '--FTKUnmergedInputPath', '--FirstRegion', '--FirstSubreg', '--MergeFromTowers', '--MergeRegion', '--NBanks', '--NSubRegions', '--amiConfig', '--amiMetadataTag', '--asetup', '--athena', '--athenaopts', '--checkEventCount', '--command', '--env', '--eventAcceptanceEfficiency', '--execOnly', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--imf', '--inputNTUP_FTKTMPFile', '--loadHWConf_path', '--maxEvents', '--outputNTUP_FTKFile', '--pmap_path', '--pmapunused_path', '--postExec', '--postInclude', '--preExec', '--preInclude', '--reportName', '--reportType', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--tcmalloc']
 
 @stdTrfExceptionHandler
 @sigUsrStackTrace
 def main():
     msg.info('This is %s' % sys.argv[0])
-        
+
     trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
     trf.execute()
@@ -43,7 +42,7 @@ def main():
 
 ## Get the base transform with all arguments added
 def getTransform():
-    trf = transform(executor = athenaExecutor(name = 'FTKSimulationMerge', 
+    trf = transform(executor = athenaExecutor(name = 'FTKSimulationMerge',
                                               skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py'))
     addAthenaArguments(trf.parser)
     addFTKMergerArgs(trf.parser)
@@ -55,41 +54,41 @@ def addFTKMergerArgs(parser):
     parser.defineArgGroup('TrigFTKSim', 'Fast tracker simulation options')
     parser.defineArgGroup('TrigFTKMerge', 'Fast tracker simulation merge options')
 
-    parser.add_argument('--NBanks', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+    parser.add_argument('--NBanks', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='Number of pattern banks', group='TrigFTKSim')
-    parser.add_argument('--NSubRegions', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+    parser.add_argument('--NSubRegions', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='Number of sub-regions', group='TrigFTKSim')
     parser.add_argument('--FirstRegion', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='First ID of the region (def: 0)',group='TrigFTKMerge')
     parser.add_argument('--FirstSubreg', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='First ID of the subregions (def: 0)',group="TrigFTKMerge")
-    
-    parser.add_argument('--pmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+
+    parser.add_argument('--pmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of pmap file', group='TrigFTKMerge')
-    parser.add_argument('--pmapunused_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--pmapunused_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of pmapunused file', group='TrigFTKMerge')
-    
-    parser.add_argument('--loadHWConf_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+
+    parser.add_argument('--loadHWConf_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
 
                         help='Location of HW configuration file', group='TrigFTKMerge')
-    parser.add_argument('--inputNTUP_FTKTMPFile', 
+    parser.add_argument('--inputNTUP_FTKTMPFile',
                         type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='input', type='ntup_ftktmp', treeNames='ftkdata'),
                         help='Input file path', group='TrigFTKMerge',nargs='+')
-    parser.add_argument('--outputNTUP_FTKFile', 
+    parser.add_argument('--outputNTUP_FTKFile',
                         type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='output', type='ntup_ftk', treeNames='ftkdata'),
                         help='Output file path', group='TrigFTKMerge',nargs='+')
 
     parser.add_argument('--FTKSetupTag', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Setup the FTK architecture tag, if specific values are also used they have priority', group='TrigFTKMerge')
-    parser.add_argument('--FTKUnmergedInputPath', 
+    parser.add_argument('--FTKUnmergedInputPath',
                         type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Unmerged Input file path', group='TrigFTKMerge')
 
-    parser.add_argument('--FTKForceAllInput', 
+    parser.add_argument('--FTKForceAllInput',
                         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Force all Input files to be present', group='TrigFTKMerge')
 
-    parser.add_argument('--FTKDoGrid', 
+    parser.add_argument('--FTKDoGrid',
                         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Use the naming for the grid input', group='TrigFTKMerge')
 
@@ -100,6 +99,18 @@ def addFTKMergerArgs(parser):
     parser.add_argument('--MergeFromTowers',
                         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="This option can be used to merge NTUP_FTK files produced from a previous partial merging job", group="TrigFTKMerge")
+    parser.add_argument('--SaveTruthTree',
+                        type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help="Add truth information to output", group="TrigFTKMerge")
+    parser.add_argument('--inputNTUP_FTKIPFile',
+                        type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True),
+                        help="Original FTKIPO file with truth information", group="TrigFTKMerge")
+    parser.add_argument('--TruthTrackTreeName',
+                        type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='Truth tracks tree name', group='TrigFTKMerge')
+    parser.add_argument('--EvtInfoTreeName',
+                        type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='Event info tree name', group='TrigFTKMerge')
 
 if __name__ == '__main__':
     main()

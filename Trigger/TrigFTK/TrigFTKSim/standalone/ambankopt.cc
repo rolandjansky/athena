@@ -3,7 +3,7 @@
 */
 
 
-#include "TrigFTKSim/FTKAMSplit.h"
+#include "TrigFTKSim/tsp/FTKAMSplit.h"
 #include "TCanvas.h"
 
 using namespace std;
@@ -22,7 +22,18 @@ int main(int argc, char *argv[])
        and the number of TSP pattern to read.
        In the number of options grows consider moving to getopt (google it)
        or an input file (if really many) */
+
+    // init a FTKSetup object
     FTKSetup &ftksetup = FTKSetup::getFTKSetup();
+
+    // print arguments
+    std::cout << "\n\t input arguments: ";
+    for ( int i=1; i<argc; i++ ) {
+       std::cout << "\n\t\t ["<<i<<"] : " << argv[i];
+     }
+    std::cout << "\n----------------------------\n\n" << std::flush;
+
+
 
     cout << "Reading TSP ROOT bank: " << argv[1] << endl;
     TFile *m_file = TFile::Open(argv[1]);
@@ -33,17 +44,21 @@ int main(int argc, char *argv[])
     }
 
     int maxpatt = atoi(argv[2]);
-    int m_setAMSize;
+    int m_setAMSize = 0;
 
     if ( argc == 4)
     {
         m_setAMSize = atoi(argv[3]);
         cout << "GOT AM SIZE:\t " << m_setAMSize << endl;
     }
-    else
-    {
-        // m_setAMSize = 0;
-    }
+
+    int maxDCbits = atoi(argv[4]);
+    
+
+//    else
+//    {
+//        // m_setAMSize = 0;
+//    }
 
     /* this is the pointer to the TTree containing the AM bank,
        if a real TSP/DC simulation is performed this points to Bank1,
@@ -66,6 +81,7 @@ int main(int argc, char *argv[])
 
     // get the maxium number of TSP patterns
     Long64_t m_npatternsTSP = TSPBank->GetEntries();
+    std::cout << "\n\t m_npatternsTSP: " << m_npatternsTSP << std::endl;
 
     // prepare to read the patterns
     FTKPattern *tsppatt = new FTKPattern();
@@ -111,7 +127,7 @@ int main(int argc, char *argv[])
         // m_patternsTSP is set to the maximum number or patterns
         if (maxpatt < m_npatternsTSP) m_npatternsTSP = maxpatt;
 
-        // set m_npatterns to an impossible value the AM generation loop to stop
+	// set m_npatterns to an impossible value the AM generation loop to stop
         m_npatterns = -1;
     }
     else
@@ -132,10 +148,15 @@ int main(int argc, char *argv[])
         if (maxpatt < m_npatterns) m_npatterns = maxpatt;
     }
 
+    
+    std::cout << "\n\t values after applying maxpatt:\t m_npatternsTSP: " << m_npatternsTSP << "\t m_npatterns: " << m_npatterns << std::endl; 
     int nAMPatterns(0); // number of AM patterns loaded
 
     for (int ipatt = 0; ipatt != m_npatternsTSP; ++ipatt) // loop over TSP patterns
     {
+
+        if ( ipatt%1000000==0 )
+          std::cout << "\t processing pattern #" << ipatt << " in bank " << TSPBank->GetName() << std::endl;
         // get the ID of this TSP pattern
         TSPRelation->GetEntry(ipatt);
         TSPBank->GetEntry(ipatt);
@@ -184,13 +205,18 @@ int main(int argc, char *argv[])
     // order the AM bank by coverage
     list<AMSelection> AMPatternList;
     map< int, AMSelection >::const_iterator iAMmap = AMPatternMap.begin();
-    FTKAMSplit *amsplit = new FTKAMSplit(5);
+    FTKAMSplit *amsplit = new FTKAMSplit( maxDCbits );
     for (; iAMmap != AMPatternMap.end(); ++iAMmap)
     {
         AMPatternList.push_back((*iAMmap).second);
     }
     AMPatternMap.clear(); // remove the map used to store the AM patterns
     AMPatternList.sort(); // use the sorting metho of the list
+
+
+    // TEST threshold
+    //    amsplit->setdeltaThresholdBin( 66 );
+    // result: this cause a crash!
 
     if (m_setAMSize > 0)
     {

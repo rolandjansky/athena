@@ -24,13 +24,10 @@ from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTra
 import PyJobTransforms.trfExceptions as trfExceptions
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
-###ntowers = 2
 ntowers = 64
 subregions = 4
 
 from TrigFTKSim.FTKSimOptions import *
-
-ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--CachePath','--CachedBank', '--ConstantsDir', '--DBBankLevel', '--DCMatchMethod','--DoRoadFile', '--DuplicateGanged', '--FTKDoGrid','--FTKForceAllInput', '--FTKSetupTag', '--FTKUnmergedInputPath','--FitConstantsVersion', '--GangedPatternReco', '--HWModeSS','--HWNDiff', '--HitWarrior', '--IBLMode', '--MakeCache', '--MaxNcomb','--MaxNhitsPerPlane', '--MergeRoads', '--JAA', '--MergeRoadsDetailed','--NBanks', '--NSubRegions', '--PatternsVersion','--PixelClusteringMode', '--RoadFilesDir', '--SSFAllowExtraMiss','--SSFMultiConnection', '--SSFNConnections', '--SSFTRDefn','--SSFTRMaxEta', '--SSFTRMinEta', '--Save1stStageTrks', '--SaveRoads','--SaveTruthTree', '--SctClustering', '--SecondStageFit','--SectorsAsPatterns', '--SetAMSize', '--TRACKFITTER_MODE','--TSPMinCoverage', '--TSPSimulationLevel', '--UberFinalMerge','--UseTSPBank', '--argJSON', '--attempt', '--badmap_path','--badmap_path_for_hit', '--bankpatterns', '--checkEventCount','--doAuxFW', '--dumpJSON', '--dumpPickle', '--env', '--execOnly','--fileValidation', '--firstEvent', '--skipEvents', '--firstEventFTK','--fit711constantspath', '--fitconstantspath', '--ignoreErrors','--ignoreFiles', '--ignorePatterns', '--imf', '--inputFileValidation','--inputNTUP_FTKFile', '--inputNTUP_FTKIPFile','--inputNTUP_FTKTMP_0_0File', '--inputNTUP_FTKTMP_0_1File','--inputNTUP_FTKTMP_0_2File', '--inputNTUP_FTKTMP_0_3File','--inputNTUP_FTKTMP_10_0File', '--inputNTUP_FTKTMP_10_1File','--inputNTUP_FTKTMP_10_2File', '--inputNTUP_FTKTMP_10_3File','--inputNTUP_FTKTMP_11_0File', '--inputNTUP_FTKTMP_11_1File','--inputNTUP_FTKTMP_11_2File', '--inputNTUP_FTKTMP_11_3File','--inputNTUP_FTKTMP_12_0File', '--inputNTUP_FTKTMP_12_1File','--inputNTUP_FTKTMP_12_2File', '--inputNTUP_FTKTMP_12_3File','--inputNTUP_FTKTMP_13_0File', '--inputNTUP_FTKTMP_13_1File','--inputNTUP_FTKTMP_13_2File', '--inputNTUP_FTKTMP_13_3File','--inputNTUP_FTKTMP_14_0File', '--inputNTUP_FTKTMP_14_1File','--inputNTUP_FTKTMP_14_2File', '--inputNTUP_FTKTMP_14_3File','--inputNTUP_FTKTMP_15_0File', '--inputNTUP_FTKTMP_15_1File','--inputNTUP_FTKTMP_15_2File', '--inputNTUP_FTKTMP_15_3File','--inputNTUP_FTKTMP_16_0File', '--inputNTUP_FTKTMP_16_1File','--inputNTUP_FTKTMP_16_2File', '--inputNTUP_FTKTMP_16_3File','--inputNTUP_FTKTMP_17_0File', '--inputNTUP_FTKTMP_17_1File','--inputNTUP_FTKTMP_17_2File', '--inputNTUP_FTKTMP_17_3File','--inputNTUP_FTKTMP_18_0File', '--inputNTUP_FTKTMP_18_1File','--inputNTUP_FTKTMP_18_2File', '--inputNTUP_FTKTMP_18_3File','--inputNTUP_FTKTMP_19_0File', '--inputNTUP_FTKTMP_19_1File','--inputNTUP_FTKTMP_19_2File', '--inputNTUP_FTKTMP_19_3File','--inputNTUP_FTKTMP_1_0File', '--inputNTUP_FTKTMP_1_1File','--inputNTUP_FTKTMP_1_2File', '--inputNTUP_FTKTMP_1_3File','--inputNTUP_FTKTMP_20_0File', '--inputNTUP_FTKTMP_20_1File','--inputNTUP_FTKTMP_20_2File', '--inputNTUP_FTKTMP_20_3File','--inputNTUP_FTKTMP_21_0File', '--inputNTUP_FTKTMP_21_1File','--inputNTUP_FTKTMP_21_2File', '--inputNTUP_FTKTMP_21_3File','--inputNTUP_FTKTMP_22_0File', '--inputNTUP_FTKTMP_22_1File','--inputNTUP_FTKTMP_22_2File', '--inputNTUP_FTKTMP_22_3File','--inputNTUP_FTKTMP_23_0File', '--inputNTUP_FTKTMP_23_1File','--inputNTUP_FTKTMP_23_2File', '--inputNTUP_FTKTMP_23_3File','--inputNTUP_FTKTMP_24_0File', '--inputNTUP_FTKTMP_24_1File','--inputNTUP_FTKTMP_24_2File', '--inputNTUP_FTKTMP_24_3File','--inputNTUP_FTKTMP_25_0File', '--inputNTUP_FTKTMP_25_1File','--inputNTUP_FTKTMP_25_2File', '--inputNTUP_FTKTMP_25_3File','--inputNTUP_FTKTMP_26_0File', '--inputNTUP_FTKTMP_26_1File','--inputNTUP_FTKTMP_26_2File', '--inputNTUP_FTKTMP_26_3File','--inputNTUP_FTKTMP_27_0File', '--inputNTUP_FTKTMP_27_1File','--inputNTUP_FTKTMP_27_2File', '--inputNTUP_FTKTMP_27_3File','--inputNTUP_FTKTMP_28_0File', '--inputNTUP_FTKTMP_28_1File','--inputNTUP_FTKTMP_28_2File', '--inputNTUP_FTKTMP_28_3File','--inputNTUP_FTKTMP_29_0File', '--inputNTUP_FTKTMP_29_1File','--inputNTUP_FTKTMP_29_2File', '--inputNTUP_FTKTMP_29_3File','--inputNTUP_FTKTMP_2_0File', '--inputNTUP_FTKTMP_2_1File','--inputNTUP_FTKTMP_2_2File', '--inputNTUP_FTKTMP_2_3File','--inputNTUP_FTKTMP_30_0File', '--inputNTUP_FTKTMP_30_1File','--inputNTUP_FTKTMP_30_2File', '--inputNTUP_FTKTMP_30_3File','--inputNTUP_FTKTMP_31_0File', '--inputNTUP_FTKTMP_31_1File','--inputNTUP_FTKTMP_31_2File', '--inputNTUP_FTKTMP_31_3File','--inputNTUP_FTKTMP_32_0File', '--inputNTUP_FTKTMP_32_1File','--inputNTUP_FTKTMP_32_2File', '--inputNTUP_FTKTMP_32_3File','--inputNTUP_FTKTMP_33_0File', '--inputNTUP_FTKTMP_33_1File','--inputNTUP_FTKTMP_33_2File', '--inputNTUP_FTKTMP_33_3File','--inputNTUP_FTKTMP_34_0File', '--inputNTUP_FTKTMP_34_1File','--inputNTUP_FTKTMP_34_2File', '--inputNTUP_FTKTMP_34_3File','--inputNTUP_FTKTMP_35_0File', '--inputNTUP_FTKTMP_35_1File','--inputNTUP_FTKTMP_35_2File', '--inputNTUP_FTKTMP_35_3File','--inputNTUP_FTKTMP_36_0File', '--inputNTUP_FTKTMP_36_1File','--inputNTUP_FTKTMP_36_2File', '--inputNTUP_FTKTMP_36_3File','--inputNTUP_FTKTMP_37_0File', '--inputNTUP_FTKTMP_37_1File','--inputNTUP_FTKTMP_37_2File', '--inputNTUP_FTKTMP_37_3File','--inputNTUP_FTKTMP_38_0File', '--inputNTUP_FTKTMP_38_1File','--inputNTUP_FTKTMP_38_2File', '--inputNTUP_FTKTMP_38_3File','--inputNTUP_FTKTMP_39_0File', '--inputNTUP_FTKTMP_39_1File','--inputNTUP_FTKTMP_39_2File', '--inputNTUP_FTKTMP_39_3File','--inputNTUP_FTKTMP_3_0File', '--inputNTUP_FTKTMP_3_1File','--inputNTUP_FTKTMP_3_2File', '--inputNTUP_FTKTMP_3_3File','--inputNTUP_FTKTMP_40_0File', '--inputNTUP_FTKTMP_40_1File','--inputNTUP_FTKTMP_40_2File', '--inputNTUP_FTKTMP_40_3File','--inputNTUP_FTKTMP_41_0File', '--inputNTUP_FTKTMP_41_1File','--inputNTUP_FTKTMP_41_2File', '--inputNTUP_FTKTMP_41_3File','--inputNTUP_FTKTMP_42_0File', '--inputNTUP_FTKTMP_42_1File','--inputNTUP_FTKTMP_42_2File', '--inputNTUP_FTKTMP_42_3File','--inputNTUP_FTKTMP_43_0File', '--inputNTUP_FTKTMP_43_1File','--inputNTUP_FTKTMP_43_2File', '--inputNTUP_FTKTMP_43_3File','--inputNTUP_FTKTMP_44_0File', '--inputNTUP_FTKTMP_44_1File','--inputNTUP_FTKTMP_44_2File', '--inputNTUP_FTKTMP_44_3File','--inputNTUP_FTKTMP_45_0File', '--inputNTUP_FTKTMP_45_1File','--inputNTUP_FTKTMP_45_2File', '--inputNTUP_FTKTMP_45_3File','--inputNTUP_FTKTMP_46_0File', '--inputNTUP_FTKTMP_46_1File','--inputNTUP_FTKTMP_46_2File', '--inputNTUP_FTKTMP_46_3File','--inputNTUP_FTKTMP_47_0File', '--inputNTUP_FTKTMP_47_1File','--inputNTUP_FTKTMP_47_2File', '--inputNTUP_FTKTMP_47_3File','--inputNTUP_FTKTMP_48_0File', '--inputNTUP_FTKTMP_48_1File','--inputNTUP_FTKTMP_48_2File', '--inputNTUP_FTKTMP_48_3File','--inputNTUP_FTKTMP_49_0File', '--inputNTUP_FTKTMP_49_1File','--inputNTUP_FTKTMP_49_2File', '--inputNTUP_FTKTMP_49_3File','--inputNTUP_FTKTMP_4_0File', '--inputNTUP_FTKTMP_4_1File','--inputNTUP_FTKTMP_4_2File', '--inputNTUP_FTKTMP_4_3File','--inputNTUP_FTKTMP_50_0File', '--inputNTUP_FTKTMP_50_1File','--inputNTUP_FTKTMP_50_2File', '--inputNTUP_FTKTMP_50_3File','--inputNTUP_FTKTMP_51_0File', '--inputNTUP_FTKTMP_51_1File','--inputNTUP_FTKTMP_51_2File', '--inputNTUP_FTKTMP_51_3File','--inputNTUP_FTKTMP_52_0File', '--inputNTUP_FTKTMP_52_1File','--inputNTUP_FTKTMP_52_2File', '--inputNTUP_FTKTMP_52_3File','--inputNTUP_FTKTMP_53_0File', '--inputNTUP_FTKTMP_53_1File','--inputNTUP_FTKTMP_53_2File', '--inputNTUP_FTKTMP_53_3File','--inputNTUP_FTKTMP_54_0File', '--inputNTUP_FTKTMP_54_1File','--inputNTUP_FTKTMP_54_2File', '--inputNTUP_FTKTMP_54_3File','--inputNTUP_FTKTMP_55_0File', '--inputNTUP_FTKTMP_55_1File','--inputNTUP_FTKTMP_55_2File', '--inputNTUP_FTKTMP_55_3File','--inputNTUP_FTKTMP_56_0File', '--inputNTUP_FTKTMP_56_1File','--inputNTUP_FTKTMP_56_2File', '--inputNTUP_FTKTMP_56_3File','--inputNTUP_FTKTMP_57_0File', '--inputNTUP_FTKTMP_57_1File','--inputNTUP_FTKTMP_57_2File', '--inputNTUP_FTKTMP_57_3File','--inputNTUP_FTKTMP_58_0File', '--inputNTUP_FTKTMP_58_1File','--inputNTUP_FTKTMP_58_2File', '--inputNTUP_FTKTMP_58_3File','--inputNTUP_FTKTMP_59_0File', '--inputNTUP_FTKTMP_59_1File','--inputNTUP_FTKTMP_59_2File', '--inputNTUP_FTKTMP_59_3File','--inputNTUP_FTKTMP_5_0File', '--inputNTUP_FTKTMP_5_1File','--inputNTUP_FTKTMP_5_2File', '--inputNTUP_FTKTMP_5_3File','--inputNTUP_FTKTMP_60_0File', '--inputNTUP_FTKTMP_60_1File','--inputNTUP_FTKTMP_60_2File', '--inputNTUP_FTKTMP_60_3File','--inputNTUP_FTKTMP_61_0File', '--inputNTUP_FTKTMP_61_1File','--inputNTUP_FTKTMP_61_2File', '--inputNTUP_FTKTMP_61_3File','--inputNTUP_FTKTMP_62_0File', '--inputNTUP_FTKTMP_62_1File','--inputNTUP_FTKTMP_62_2File', '--inputNTUP_FTKTMP_62_3File','--inputNTUP_FTKTMP_63_0File', '--inputNTUP_FTKTMP_63_1File','--inputNTUP_FTKTMP_63_2File', '--inputNTUP_FTKTMP_63_3File','--inputNTUP_FTKTMP_6_0File', '--inputNTUP_FTKTMP_6_1File','--inputNTUP_FTKTMP_6_2File', '--inputNTUP_FTKTMP_6_3File','--inputNTUP_FTKTMP_7_0File', '--inputNTUP_FTKTMP_7_1File','--inputNTUP_FTKTMP_7_2File', '--inputNTUP_FTKTMP_7_3File','--inputNTUP_FTKTMP_8_0File', '--inputNTUP_FTKTMP_8_1File','--inputNTUP_FTKTMP_8_2File', '--inputNTUP_FTKTMP_8_3File','--inputNTUP_FTKTMP_9_0File', '--inputNTUP_FTKTMP_9_1File','--inputNTUP_FTKTMP_9_2File', '--inputNTUP_FTKTMP_9_3File','--inputRDOFile', '--inputTXT_FTKIPFile', '--jobid','--loadHWConf_path', '--maxEvents', '--orphanKiller','--outputFileValidation', '--outputNTUP_FTKFile','--outputNTUP_FTKIPFile', '--outputNTUP_FTKTMP_0File','--outputNTUP_FTKTMP_0_0File', '--outputNTUP_FTKTMP_0_1File','--outputNTUP_FTKTMP_0_2File', '--outputNTUP_FTKTMP_0_3File','--outputNTUP_FTKTMP_10File', '--outputNTUP_FTKTMP_10_0File','--outputNTUP_FTKTMP_10_1File', '--outputNTUP_FTKTMP_10_2File','--outputNTUP_FTKTMP_10_3File', '--outputNTUP_FTKTMP_11File','--outputNTUP_FTKTMP_11_0File', '--outputNTUP_FTKTMP_11_1File','--outputNTUP_FTKTMP_11_2File', '--outputNTUP_FTKTMP_11_3File','--outputNTUP_FTKTMP_12File', '--outputNTUP_FTKTMP_12_0File','--outputNTUP_FTKTMP_12_1File', '--outputNTUP_FTKTMP_12_2File','--outputNTUP_FTKTMP_12_3File', '--outputNTUP_FTKTMP_13File','--outputNTUP_FTKTMP_13_0File', '--outputNTUP_FTKTMP_13_1File','--outputNTUP_FTKTMP_13_2File', '--outputNTUP_FTKTMP_13_3File','--outputNTUP_FTKTMP_14File', '--outputNTUP_FTKTMP_14_0File','--outputNTUP_FTKTMP_14_1File', '--outputNTUP_FTKTMP_14_2File','--outputNTUP_FTKTMP_14_3File', '--outputNTUP_FTKTMP_15File','--outputNTUP_FTKTMP_15_0File', '--outputNTUP_FTKTMP_15_1File','--outputNTUP_FTKTMP_15_2File', '--outputNTUP_FTKTMP_15_3File','--outputNTUP_FTKTMP_16File', '--outputNTUP_FTKTMP_16_0File','--outputNTUP_FTKTMP_16_1File', '--outputNTUP_FTKTMP_16_2File','--outputNTUP_FTKTMP_16_3File', '--outputNTUP_FTKTMP_17File','--outputNTUP_FTKTMP_17_0File', '--outputNTUP_FTKTMP_17_1File','--outputNTUP_FTKTMP_17_2File', '--outputNTUP_FTKTMP_17_3File','--outputNTUP_FTKTMP_18File', '--outputNTUP_FTKTMP_18_0File','--outputNTUP_FTKTMP_18_1File', '--outputNTUP_FTKTMP_18_2File','--outputNTUP_FTKTMP_18_3File', '--outputNTUP_FTKTMP_19File','--outputNTUP_FTKTMP_19_0File', '--outputNTUP_FTKTMP_19_1File','--outputNTUP_FTKTMP_19_2File', '--outputNTUP_FTKTMP_19_3File','--outputNTUP_FTKTMP_1File', '--outputNTUP_FTKTMP_1_0File','--outputNTUP_FTKTMP_1_1File', '--outputNTUP_FTKTMP_1_2File','--outputNTUP_FTKTMP_1_3File', '--outputNTUP_FTKTMP_20File','--outputNTUP_FTKTMP_20_0File', '--outputNTUP_FTKTMP_20_1File','--outputNTUP_FTKTMP_20_2File', '--outputNTUP_FTKTMP_20_3File','--outputNTUP_FTKTMP_21File', '--outputNTUP_FTKTMP_21_0File','--outputNTUP_FTKTMP_21_1File', '--outputNTUP_FTKTMP_21_2File','--outputNTUP_FTKTMP_21_3File', '--outputNTUP_FTKTMP_22File','--outputNTUP_FTKTMP_22_0File', '--outputNTUP_FTKTMP_22_1File','--outputNTUP_FTKTMP_22_2File', '--outputNTUP_FTKTMP_22_3File','--outputNTUP_FTKTMP_23File', '--outputNTUP_FTKTMP_23_0File','--outputNTUP_FTKTMP_23_1File', '--outputNTUP_FTKTMP_23_2File','--outputNTUP_FTKTMP_23_3File', '--outputNTUP_FTKTMP_24File','--outputNTUP_FTKTMP_24_0File', '--outputNTUP_FTKTMP_24_1File','--outputNTUP_FTKTMP_24_2File', '--outputNTUP_FTKTMP_24_3File','--outputNTUP_FTKTMP_25File', '--outputNTUP_FTKTMP_25_0File','--outputNTUP_FTKTMP_25_1File', '--outputNTUP_FTKTMP_25_2File','--outputNTUP_FTKTMP_25_3File', '--outputNTUP_FTKTMP_26File','--outputNTUP_FTKTMP_26_0File', '--outputNTUP_FTKTMP_26_1File','--outputNTUP_FTKTMP_26_2File', '--outputNTUP_FTKTMP_26_3File','--outputNTUP_FTKTMP_27File', '--outputNTUP_FTKTMP_27_0File','--outputNTUP_FTKTMP_27_1File', '--outputNTUP_FTKTMP_27_2File','--outputNTUP_FTKTMP_27_3File', '--outputNTUP_FTKTMP_28File','--outputNTUP_FTKTMP_28_0File', '--outputNTUP_FTKTMP_28_1File','--outputNTUP_FTKTMP_28_2File', '--outputNTUP_FTKTMP_28_3File','--outputNTUP_FTKTMP_29File', '--outputNTUP_FTKTMP_29_0File','--outputNTUP_FTKTMP_29_1File', '--outputNTUP_FTKTMP_29_2File','--outputNTUP_FTKTMP_29_3File', '--outputNTUP_FTKTMP_2File','--outputNTUP_FTKTMP_2_0File', '--outputNTUP_FTKTMP_2_1File','--outputNTUP_FTKTMP_2_2File', '--outputNTUP_FTKTMP_2_3File','--outputNTUP_FTKTMP_30File', '--outputNTUP_FTKTMP_30_0File','--outputNTUP_FTKTMP_30_1File', '--outputNTUP_FTKTMP_30_2File','--outputNTUP_FTKTMP_30_3File', '--outputNTUP_FTKTMP_31File','--outputNTUP_FTKTMP_31_0File', '--outputNTUP_FTKTMP_31_1File','--outputNTUP_FTKTMP_31_2File', '--outputNTUP_FTKTMP_31_3File','--outputNTUP_FTKTMP_32File', '--outputNTUP_FTKTMP_32_0File','--outputNTUP_FTKTMP_32_1File', '--outputNTUP_FTKTMP_32_2File','--outputNTUP_FTKTMP_32_3File', '--outputNTUP_FTKTMP_33File','--outputNTUP_FTKTMP_33_0File', '--outputNTUP_FTKTMP_33_1File','--outputNTUP_FTKTMP_33_2File', '--outputNTUP_FTKTMP_33_3File','--outputNTUP_FTKTMP_34File', '--outputNTUP_FTKTMP_34_0File','--outputNTUP_FTKTMP_34_1File', '--outputNTUP_FTKTMP_34_2File','--outputNTUP_FTKTMP_34_3File', '--outputNTUP_FTKTMP_35File','--outputNTUP_FTKTMP_35_0File', '--outputNTUP_FTKTMP_35_1File','--outputNTUP_FTKTMP_35_2File', '--outputNTUP_FTKTMP_35_3File','--outputNTUP_FTKTMP_36File', '--outputNTUP_FTKTMP_36_0File','--outputNTUP_FTKTMP_36_1File', '--outputNTUP_FTKTMP_36_2File','--outputNTUP_FTKTMP_36_3File', '--outputNTUP_FTKTMP_37File','--outputNTUP_FTKTMP_37_0File', '--outputNTUP_FTKTMP_37_1File','--outputNTUP_FTKTMP_37_2File', '--outputNTUP_FTKTMP_37_3File','--outputNTUP_FTKTMP_38File', '--outputNTUP_FTKTMP_38_0File','--outputNTUP_FTKTMP_38_1File', '--outputNTUP_FTKTMP_38_2File','--outputNTUP_FTKTMP_38_3File', '--outputNTUP_FTKTMP_39File','--outputNTUP_FTKTMP_39_0File', '--outputNTUP_FTKTMP_39_1File','--outputNTUP_FTKTMP_39_2File', '--outputNTUP_FTKTMP_39_3File','--outputNTUP_FTKTMP_3File', '--outputNTUP_FTKTMP_3_0File','--outputNTUP_FTKTMP_3_1File', '--outputNTUP_FTKTMP_3_2File','--outputNTUP_FTKTMP_3_3File', '--outputNTUP_FTKTMP_40File','--outputNTUP_FTKTMP_40_0File', '--outputNTUP_FTKTMP_40_1File','--outputNTUP_FTKTMP_40_2File', '--outputNTUP_FTKTMP_40_3File','--outputNTUP_FTKTMP_41File', '--outputNTUP_FTKTMP_41_0File','--outputNTUP_FTKTMP_41_1File', '--outputNTUP_FTKTMP_41_2File','--outputNTUP_FTKTMP_41_3File', '--outputNTUP_FTKTMP_42File','--outputNTUP_FTKTMP_42_0File', '--outputNTUP_FTKTMP_42_1File','--outputNTUP_FTKTMP_42_2File', '--outputNTUP_FTKTMP_42_3File','--outputNTUP_FTKTMP_43File', '--outputNTUP_FTKTMP_43_0File','--outputNTUP_FTKTMP_43_1File', '--outputNTUP_FTKTMP_43_2File','--outputNTUP_FTKTMP_43_3File', '--outputNTUP_FTKTMP_44File','--outputNTUP_FTKTMP_44_0File', '--outputNTUP_FTKTMP_44_1File','--outputNTUP_FTKTMP_44_2File', '--outputNTUP_FTKTMP_44_3File','--outputNTUP_FTKTMP_45File', '--outputNTUP_FTKTMP_45_0File','--outputNTUP_FTKTMP_45_1File', '--outputNTUP_FTKTMP_45_2File','--outputNTUP_FTKTMP_45_3File', '--outputNTUP_FTKTMP_46File','--outputNTUP_FTKTMP_46_0File', '--outputNTUP_FTKTMP_46_1File','--outputNTUP_FTKTMP_46_2File', '--outputNTUP_FTKTMP_46_3File','--outputNTUP_FTKTMP_47File', '--outputNTUP_FTKTMP_47_0File','--outputNTUP_FTKTMP_47_1File', '--outputNTUP_FTKTMP_47_2File','--outputNTUP_FTKTMP_47_3File', '--outputNTUP_FTKTMP_48File','--outputNTUP_FTKTMP_48_0File', '--outputNTUP_FTKTMP_48_1File','--outputNTUP_FTKTMP_48_2File', '--outputNTUP_FTKTMP_48_3File','--outputNTUP_FTKTMP_49File', '--outputNTUP_FTKTMP_49_0File','--outputNTUP_FTKTMP_49_1File', '--outputNTUP_FTKTMP_49_2File','--outputNTUP_FTKTMP_49_3File', '--outputNTUP_FTKTMP_4File','--outputNTUP_FTKTMP_4_0File', '--outputNTUP_FTKTMP_4_1File','--outputNTUP_FTKTMP_4_2File', '--outputNTUP_FTKTMP_4_3File','--outputNTUP_FTKTMP_50File', '--outputNTUP_FTKTMP_50_0File','--outputNTUP_FTKTMP_50_1File', '--outputNTUP_FTKTMP_50_2File','--outputNTUP_FTKTMP_50_3File', '--outputNTUP_FTKTMP_51File','--outputNTUP_FTKTMP_51_0File', '--outputNTUP_FTKTMP_51_1File','--outputNTUP_FTKTMP_51_2File', '--outputNTUP_FTKTMP_51_3File','--outputNTUP_FTKTMP_52File', '--outputNTUP_FTKTMP_52_0File','--outputNTUP_FTKTMP_52_1File', '--outputNTUP_FTKTMP_52_2File','--outputNTUP_FTKTMP_52_3File', '--outputNTUP_FTKTMP_53File','--outputNTUP_FTKTMP_53_0File', '--outputNTUP_FTKTMP_53_1File','--outputNTUP_FTKTMP_53_2File', '--outputNTUP_FTKTMP_53_3File','--outputNTUP_FTKTMP_54File', '--outputNTUP_FTKTMP_54_0File','--outputNTUP_FTKTMP_54_1File', '--outputNTUP_FTKTMP_54_2File','--outputNTUP_FTKTMP_54_3File', '--outputNTUP_FTKTMP_55File','--outputNTUP_FTKTMP_55_0File', '--outputNTUP_FTKTMP_55_1File','--outputNTUP_FTKTMP_55_2File', '--outputNTUP_FTKTMP_55_3File','--outputNTUP_FTKTMP_56File', '--outputNTUP_FTKTMP_56_0File','--outputNTUP_FTKTMP_56_1File', '--outputNTUP_FTKTMP_56_2File','--outputNTUP_FTKTMP_56_3File', '--outputNTUP_FTKTMP_57File','--outputNTUP_FTKTMP_57_0File', '--outputNTUP_FTKTMP_57_1File','--outputNTUP_FTKTMP_57_2File', '--outputNTUP_FTKTMP_57_3File','--outputNTUP_FTKTMP_58File', '--outputNTUP_FTKTMP_58_0File','--outputNTUP_FTKTMP_58_1File', '--outputNTUP_FTKTMP_58_2File','--outputNTUP_FTKTMP_58_3File', '--outputNTUP_FTKTMP_59File','--outputNTUP_FTKTMP_59_0File', '--outputNTUP_FTKTMP_59_1File','--outputNTUP_FTKTMP_59_2File', '--outputNTUP_FTKTMP_59_3File','--outputNTUP_FTKTMP_5File', '--outputNTUP_FTKTMP_5_0File','--outputNTUP_FTKTMP_5_1File', '--outputNTUP_FTKTMP_5_2File','--outputNTUP_FTKTMP_5_3File', '--outputNTUP_FTKTMP_60File','--outputNTUP_FTKTMP_60_0File', '--outputNTUP_FTKTMP_60_1File','--outputNTUP_FTKTMP_60_2File', '--outputNTUP_FTKTMP_60_3File','--outputNTUP_FTKTMP_61File', '--outputNTUP_FTKTMP_61_0File','--outputNTUP_FTKTMP_61_1File', '--outputNTUP_FTKTMP_61_2File','--outputNTUP_FTKTMP_61_3File', '--outputNTUP_FTKTMP_62File','--outputNTUP_FTKTMP_62_0File', '--outputNTUP_FTKTMP_62_1File','--outputNTUP_FTKTMP_62_2File', '--outputNTUP_FTKTMP_62_3File','--outputNTUP_FTKTMP_63File', '--outputNTUP_FTKTMP_63_0File','--outputNTUP_FTKTMP_63_1File', '--outputNTUP_FTKTMP_63_2File','--outputNTUP_FTKTMP_63_3File', '--outputNTUP_FTKTMP_6File','--outputNTUP_FTKTMP_6_0File', '--outputNTUP_FTKTMP_6_1File','--outputNTUP_FTKTMP_6_2File', '--outputNTUP_FTKTMP_6_3File','--outputNTUP_FTKTMP_7File', '--outputNTUP_FTKTMP_7_0File','--outputNTUP_FTKTMP_7_1File', '--outputNTUP_FTKTMP_7_2File','--outputNTUP_FTKTMP_7_3File', '--outputNTUP_FTKTMP_8File','--outputNTUP_FTKTMP_8_0File', '--outputNTUP_FTKTMP_8_1File','--outputNTUP_FTKTMP_8_2File', '--outputNTUP_FTKTMP_8_3File','--outputNTUP_FTKTMP_9File', '--outputNTUP_FTKTMP_9_0File','--outputNTUP_FTKTMP_9_1File', '--outputNTUP_FTKTMP_9_2File','--outputNTUP_FTKTMP_9_3File', '--outputRDO_FTKFile','--parallelFileValidation', '--patternbankspath', '--pmap_path','--pmapcomplete_path', '--pmapunused_path', '--postExec','--postInclude', '--preExec', '--preInclude', '--reportName','--reportType', '--rmap_path', '--runNum', '--sectorspath','--separateSubRegFitConst', '--showGraph', '--showPath', '--showSteps','--skipFileValidation', '--skipInputFileValidation','--skipOutputFileValidation', '--ssmap_path', '--ssmaptsp_path','--ssmapunused_path', '--steering', '--taskid', '--tcmalloc','--useDBPath', '--versionTag', '--inputNTUP_FTKTMPFile','--inputNTUP_FTKTMP_0_File', '--inputNTUP_FTKTMP_10_File','--inputNTUP_FTKTMP_11_File', '--inputNTUP_FTKTMP_12_File','--inputNTUP_FTKTMP_13_File', '--inputNTUP_FTKTMP_14_File','--inputNTUP_FTKTMP_15_File', '--inputNTUP_FTKTMP_16_File','--inputNTUP_FTKTMP_17_File', '--inputNTUP_FTKTMP_18_File','--inputNTUP_FTKTMP_19_File', '--inputNTUP_FTKTMP_1_File','--inputNTUP_FTKTMP_20_File', '--inputNTUP_FTKTMP_21_File','--inputNTUP_FTKTMP_22_File', '--inputNTUP_FTKTMP_23_File','--inputNTUP_FTKTMP_24_File', '--inputNTUP_FTKTMP_25_File','--inputNTUP_FTKTMP_26_File', '--inputNTUP_FTKTMP_27_File','--inputNTUP_FTKTMP_28_File', '--inputNTUP_FTKTMP_29_File','--inputNTUP_FTKTMP_2_File', '--inputNTUP_FTKTMP_30_File','--inputNTUP_FTKTMP_31_File', '--inputNTUP_FTKTMP_32_File','--inputNTUP_FTKTMP_33_File', '--inputNTUP_FTKTMP_34_File','--inputNTUP_FTKTMP_35_File', '--inputNTUP_FTKTMP_36_File','--inputNTUP_FTKTMP_37_File', '--inputNTUP_FTKTMP_38_File','--inputNTUP_FTKTMP_39_File', '--inputNTUP_FTKTMP_3_File','--inputNTUP_FTKTMP_40_File', '--inputNTUP_FTKTMP_41_File','--inputNTUP_FTKTMP_42_File', '--inputNTUP_FTKTMP_43_File','--inputNTUP_FTKTMP_44_File', '--inputNTUP_FTKTMP_45_File','--inputNTUP_FTKTMP_46_File', '--inputNTUP_FTKTMP_47_File','--inputNTUP_FTKTMP_48_File', '--inputNTUP_FTKTMP_49_File','--inputNTUP_FTKTMP_4_File', '--inputNTUP_FTKTMP_50_File','--inputNTUP_FTKTMP_51_File', '--inputNTUP_FTKTMP_52_File','--inputNTUP_FTKTMP_53_File', '--inputNTUP_FTKTMP_54_File','--inputNTUP_FTKTMP_55_File', '--inputNTUP_FTKTMP_56_File','--inputNTUP_FTKTMP_57_File', '--inputNTUP_FTKTMP_58_File','--inputNTUP_FTKTMP_59_File', '--inputNTUP_FTKTMP_5_File','--inputNTUP_FTKTMP_60_File', '--inputNTUP_FTKTMP_61_File','--inputNTUP_FTKTMP_62_File', '--inputNTUP_FTKTMP_63_File','--inputNTUP_FTKTMP_6_File', '--inputNTUP_FTKTMP_7_File','--inputNTUP_FTKTMP_8_File', '--inputNTUP_FTKTMP_9_File']
 
 @stdTrfExceptionHandler
 @sigUsrStackTrace
@@ -64,13 +61,13 @@ def getTransform():
             pos = tower * subregions + subregion
             executorSet.add(
                 athenaExecutor(
-                    name='FTKFullSimulationBank{0}Sub{1}'.format(
-                        tower,subregion),
+                    name='FTKFullSimulationBank{0:02d}Sub{1}'.format(
+                        tower, subregion),
                     skeletonFile='TrigFTKSim/skeleton.FTKStandaloneSim.py',
-                    substep='FTKTwr{0}Sub{1}'.format(tower, subregion),
-                    inData=['NTUP_FTKIP','TXT_FTKIP'],
+                    substep='FTKTwr{0:02d}Sub{1}'.format(tower, subregion),
+                    inData=['NTUP_FTKIP', 'TXT_FTKIP'],
                     inputEventTest = False,
-                    outData=['NTUP_FTKTMP_{0}_{1}'.format(tower, subregion)],
+                    outData=['NTUP_FTKTMP_{0:02d}_{1}'.format(tower, subregion)],
                     extraRunargs={
                         'bankregion': [tower],
                         'banksubregion': [subregion]},
@@ -78,34 +75,41 @@ def getTransform():
                     runtimeRunargs={
                         'bankregion': [tower],
                         'subregions': [subregion],
-                        'patternbankpath': '[runArgs.patternbankspath[{0}]]'.format(pos),
-                        'fitconstantspath': '[runArgs.fitconstantspath[{0}]]'.format(tower),
-                        'fit711constantspath': '[runArgs.fit711constantspath[{0}]]'.format(tower),
-                        'sectorpath': '[runArgs.sectorspath[{0}]]'.format(tower),
-                        'outputNTUP_FTKTMPFile': 'runArgs.outputNTUP_FTKTMP_{0}_{1}File'.format(tower,subregion)}))
+                        'patternbankpath':
+                            '[runArgs.patternbankspath[{0}]]'.format(pos),
+                        'fitconstantspath':
+                            '[runArgs.fitconstantspath[{0}]]'.format(tower),
+                        'fit711constantspath':
+                            '[runArgs.fit711constantspath[{0}]]'.format(tower),
+                        'sectorpath':
+                            '[runArgs.sectorspath[{0}]]'.format(tower),
+                        'outputNTUP_FTKTMPFile':
+                            'runArgs.outputNTUP_FTKTMP_{0:02d}_{1}File'.format(
+                                tower, subregion)}))
         #TODO: the current scheme hijack the input and output names using the
         # extraRunargs and runtimeRunargs, this doesn't really allow to change
         # (not really important) to control what happens to the intermediate
         # files. To avoid this hack the skeleton should be more flexible and
-        # check for the numebr of region subregion within the skeleton file
+        # check for the number of region subregion within the skeleton file
         executorSet.add(
             athenaExecutor(
-                name='FTKSimulationMerge{0}'.format(tower),
+                name='FTKSimulationMerge{0:02d}'.format(tower),
                 skeletonFile='TrigFTKSim/skeleton.FTKStandaloneMerge.py',
-                substep='FTKMTwr{0}'.format(tower),
+                substep='FTKMTwr{0:02d}'.format(tower),
                 inputEventTest = False,
                 inData=[tuple([
-                    'NTUP_FTKTMP_{0}_{1}'.format(tower,subregion)
+                    'NTUP_FTKTMP_{0:02d}_{1}'.format(tower, subregion)
                         for subregion in range(subregions)])],
-                outData=['NTUP_FTKTMP_{0}'.format(tower)],
+                outData=['NTUP_FTKTMP_{0:02d}'.format(tower)],
                 extraRunargs={
                     'inputNTUP_FTKTMPFile': [
-                        'tmp.NTUP_FTKTMP_{0}_{1}'.format(tower,subregion)
+                        'tmp.NTUP_FTKTMP_{0:02d}_{1}'.format(tower, subregion)
                             for subregion in range(subregions)]},
                 runtimeRunargs={
                     'MergeRegion': tower,
                     'FirstRegion': tower,
-                    'outputNTUP_FTKTMPFile': 'runArgs.outputNTUP_FTKTMP_{0}File'.format(tower)}))
+                    'outputNTUP_FTKTMPFile':
+                        'runArgs.outputNTUP_FTKTMP_{0:02d}File'.format(tower)}))
 
     # add final merge for all the tower, generating a NTUP_FTK file
     executorSet.add(
@@ -114,19 +118,15 @@ def getTransform():
             substep = "FTKFinal",
             inputEventTest = False,
             inData=[tuple([
-                'NTUP_FTKTMP_{0}'.format(tower)
+                'NTUP_FTKTMP_{0:02d}'.format(tower)
                 for tower in range(ntowers)]) + ('NTUP_FTKIP',)],
             outData=['NTUP_FTK'],
-            extraRunargs={
-                'inputNTUP_FTKTMPFile': [
-                    'tmp.NTUP_FTKTMP_{0}'.format(tower)
-                    for tower in range(ntowers)]},
             runtimeRunargs={
                 'MergeFromTowers': True,
                 'FirstRegion': 0,
-                'TruthTrackTreeName' : "'truthtracks'",
-                'EvtInfoTreeName' : "'evtinfo'",
-                'SaveTruthTree' : '1'}))
+                'TruthTrackTreeName': "'truthtracks'",
+                'EvtInfoTreeName': "'evtinfo'",
+                'SaveTruthTree': '1'}))
 
     executorSet.add(
         athenaExecutor(
@@ -134,15 +134,15 @@ def getTransform():
             skeletonFile='TrigFTKSim/skeleton.RDO_FTK_Creator.py',
             substep='r2eFTK', inData=[('RDO','NTUP_FTK')],
             outData=['RDO_FTK'], inputEventTest = False,
-            perfMonFile = 'ntuple_RDOFTKCreator.pmon.gz'))
+            perfMonFile='ntuple_RDOFTKCreator.pmon.gz'))
 
     trf = transform(executor=executorSet,
                     description='FTK simulation for {0} towers, with {1} '
                                 'subregions merge and final merge.'.format(
-                                    ntowers,subregions))
+                                    ntowers, subregions))
 
     #addAthenaArguments(trf.parser)
-    addTrigFTKSimOptions(trf.parser,nsubregions=subregions)
+    addTrigFTKSimOptions(trf.parser, nsubregions=subregions)
     addTrigFTKSimMergeOptions(trf.parser);
     addTrigFTKSimTFOptions(trf.parser)
     addTrigFTKSimRFOptions(trf.parser)
@@ -160,29 +160,33 @@ def addFTKSimulationArgs(parser):
     parser.add_argument(
         '--UseTSPBank',
         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-        help='TSP bank utilisation', group='TrigFTKRoadFinder')
+        help='TSP bank utilisation',
+        group='TrigFTKRoadFinder')
 
     parser.add_argument(
         '--UberFinalMerge',
         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-        help='Final merge is done fully across towers', group='TrigFTKMerge')
+        help='Final merge is done fully across towers',
+        group='TrigFTKMerge')
 
     for tower in range(ntowers):
         parser.add_argument(
-            '--inputNTUP_FTKTMP_{0}File'.format(tower),
-            type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile,
-                                          runarg=True, io='input',
-                                          type='ntup_ftkiptmp',
-                                          treeNames='ftkdata'),
+                '--inputNTUP_FTKTMP_{0:02d}File'.format(tower),
+            type=trfArgClasses.argFactory(
+                trfArgClasses.argNTUPFile,
+                runarg=True, io='input',
+                type='ntup_ftkiptmp',
+                treeNames='ftkdata'),
             help='FTK NTUP input file from tower {0}'.format(tower),
             group='TrigFTKSim')
 
     parser.add_argument(
-        '--inputNTUP_FTKTMPFile'.format(tower),
-        type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,
-                                      io='input', type='ntup_ftkiptmp',
-                                      treeNames='ftkdata'),
-        help='FTK NTUP input files'.format(tower),
+        '--inputNTUP_FTKTMPFile',
+        type=trfArgClasses.argFactory(
+            trfArgClasses.argNTUPFile, runarg=True,
+            io='input', type='ntup_ftkiptmp',
+            treeNames='ftkdata'),
+        help='FTK NTUP input files',
         group='TrigFTKMerge')
 
     # File handling
@@ -193,27 +197,31 @@ def addFTKSimulationArgs(parser):
         group='Reco Files')
     parser.add_argument(
         '--outputNTUP_FTKIPFile',
-        type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,
-                                      io='output', type='ntup_ftkip',
-                                      treeNames='ftkhits'),
-        help='FTK RDO file in ROOT format', group='TrigFTKSim')
+        type=trfArgClasses.argFactory(
+            trfArgClasses.argNTUPFile, runarg=True,
+            io='output', type='ntup_ftkip',
+            treeNames='ftkhits'),
+        help='FTK RDO file in ROOT format',
+        group='TrigFTKSim')
     parser.add_argument(
         '--inputNTUP_FTKIPFile',
-        type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,
-                                      io='input', type='ntup_ftkip',
-                                      treeNames='ftkhits'),
+        type=trfArgClasses.argFactory(
+            trfArgClasses.argNTUPFile, runarg=True,
+            io='input', type='ntup_ftkip',
+            treeNames='ftkhits'),
         help='FTK RDO file in ROOT format', group='TrigFTKSim', nargs='+')
     parser.add_argument(
         '--inputTXT_FTKIPFile',
-        type=trfArgClasses.argFactory(trfArgClasses.argFTKIPFile, runarg=True,
-                                      io='input', type='txt_ftkip'),
+        type=trfArgClasses.argFactory(
+            trfArgClasses.argFTKIPFile, runarg=True,
+            io='input', type='txt_ftkip'),
         help='Wrapper files (in .dat.bz2 format)',
         group='TrigFTKSim', nargs='+')
 
     # The following for testing only
     for tower in range(ntowers):
         parser.add_argument(
-            '--outputNTUP_FTKTMP_{0}File'.format(tower),
+            '--outputNTUP_FTKTMP_{0:02d}File'.format(tower),
             type=trfArgClasses.argFactory(
                 trfArgClasses.argNTUPFile, runarg=True, io='output',
                 type='ntup_ftk', treeNames='ftkdata'),
@@ -222,41 +230,44 @@ def addFTKSimulationArgs(parser):
 
         for subregion in range(subregions):
             parser.add_argument(
-                '--inputNTUP_FTKTMP_{0}_{1}File'.format(tower,subregion),
+                '--inputNTUP_FTKTMP_{0:02d}_{1}File'.format(tower, subregion),
                 type=trfArgClasses.argFactory(
                     trfArgClasses.argNTUPFile, runarg=True, io='input',
                     type='ntup_ftkiptmp', treeNames='ftkdata'),
                     help='FTK NTUP file from tower {0} subregion {1} (for '
-                        'testing only)'.format(tower,subregion),
+                        'testing only)'.format(tower, subregion),
                     group='TrigFTKSim')
             parser.add_argument(
-                '--outputNTUP_FTKTMP_{0}_{1}File'.format(tower,subregion),
+                '--outputNTUP_FTKTMP_{0:02d}_{1}File'.format(tower, subregion),
                 type=trfArgClasses.argFactory(
                     trfArgClasses.argNTUPFile, runarg=True, io='output',
                     type='ntup_ftkiptmp', treeNames='ftkdata'),
                 help='FTK NTUP file from tower {0} subregion {1} '
-                    '(for testing only)'.format(tower,subregion),
+                    '(for testing only)'.format(tower, subregion),
                 group='TrigFTKSim')
 
     parser.add_argument(
         '--outputNTUP_FTKFile',
-        type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,
-                                      io='output', type='ntup_ftk',
-                                      treeNames='ftkdata'),
+        type=trfArgClasses.argFactory(
+            trfArgClasses.argNTUPFile, runarg=True,
+            io='output', type='ntup_ftk',
+            treeNames='ftkdata'),
         help='FTK merged tracks file',
         group='TrigFTKMerge')
     parser.add_argument(
         '--inputNTUP_FTKFile',
-        type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,
-                                      io='input', type='ntup_ftk',
-                                      treeNames='ftkdata'),
+        type=trfArgClasses.argFactory(
+            trfArgClasses.argNTUPFile, runarg=True,
+            io='input', type='ntup_ftk',
+            treeNames='ftkdata'),
         help='FTK merged tracks file',
         group='TrigFTKMerge')
 
     parser.add_argument(
         '--outputRDO_FTKFile','--outputRDOFile',
         type=trfArgClasses.argFactory(trfArgClasses.argRDOFile, io='output'),
-        help='Output RDO_FTK file', group='Reco Files')
+        help='Output RDO_FTK file',
+        group='Reco Files')
 
 if __name__ == '__main__':
     main()

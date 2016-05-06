@@ -1,0 +1,45 @@
+#
+#  level 0: suppress FATAL,ERROR,WARNING,INFO,PROGRESS (no printout at all)
+#  level 1: suppress ERROR,WARNING,INFO,PROGRESS
+#  level 2: suppress WARNING,INFO,PROGRESS
+#  level 3: suppress INFO,PROGRESS
+#  level 4: suppress PROGRESS (default)
+#  level 5: print everything
+LOGGING_PRINT_LEVEL 4
+#
+#  level 0: always continue
+#  level 1: stop if FATAL
+#  level 2: stop if FATAL,ERROR (default)
+#  level 3: stop if FATAL,ERROR,WARNING
+LOGGING_ABORT_LEVEL 2
+#
+absetarange 0.0 1.0
+#
+NREG 32
+NSUB 4
+#
+# 2M per SR
+ NPATTERN 2097152
+#
+# non-partitioned bank, 32 tower x 8 M
+#efficiency_file /afs/desy.de/user/s/sschmitt/xxl-atlas/ftk_code/20.3.1/output/batch/efficiency_30x64x72Ibl_4SR.root
+#pattern_bank_path /nfs/dust/atlas/user/sschmitt/patternbank_30x64x72Ibl/split_pcache/
+#
+## iterate
+efficiency_file /afs/desy.de/user/s/sschmitt/xxl-atlas/ftk_code/20.3.1/output/batch/efficiency_30x64x72Ibl-eta11-iter0.root
+pattern_bank_path /nfs/dust/atlas/user/sschmitt/patternbank_30x64x72Ibl-eta11-iter0
+#
+#
+# 8M per SR
+#NPATTERN 8388608
+#
+# non-partitioned bank, 32 tower x 32 M
+#efficiency_file /afs/desy.de/user/s/sschmitt/xxl-atlas/ftk_code/20.3.1/output/batch/efficiency_30x32x72Ibl.root
+#pattern_bank_path /nfs/dust/atlas/user/sschmitt/patternbank_30x32x72Ibl
+#
+efficiency_plot greffeta
+#
+epsilonLimit 0.95
+weightLimit 0.1
+#
+slices_file_path /nfs/dust/atlas/user/britzger/Run2_xm06_ym06_Reb32_v1/SectorConstHW
