@@ -25,26 +25,47 @@ PURPOSE:  Calorimeter Object data class
 class eflowRecCluster;
 class eflowRecTrack;
 class eflowTrackClusterLink;
+class eflowLayerIntegrator;
+class eflowEEtaBinnedParameters;
 
 class eflowCaloObject {
 public:
 
-  eflowCaloObject();
+  eflowCaloObject() { m_eflowRecClusters.clear(); m_trackClusterLinks.clear(); m_eflowRecTracks.clear(); }
   ~eflowCaloObject();
   
+  void addTrack(eflowRecTrack* track) { m_eflowRecTracks.push_back(track); }
+  void addCluster(eflowRecCluster* cluster) { m_eflowRecClusters.push_back(cluster); }
+  void addTrackClusterLinks(std::vector<eflowTrackClusterLink*> trackClusterLink) {
+    for (unsigned int i=0; i<trackClusterLink.size(); ++i) {
+      addTrackClusterLink(trackClusterLink.at(i));
+    }
+  }
+  void addTracks(std::vector<eflowRecTrack*> tracks) {
+    for (unsigned int i=0; i<tracks.size(); ++i) {
+      addTrack(tracks.at(i));
+    }
+  }
+  void addClusters(std::vector<eflowRecCluster*> clusters) {
+    for (unsigned int i=0; i<clusters.size(); ++i) {
+      addCluster(clusters.at(i));
+    }
+  }
+
   /* Track accessor methods */
-
   eflowRecTrack* efRecTrack(int i) { return m_eflowRecTracks[i]; }
-  int nTracks() { return m_eflowRecTracks.size(); }
-
-  void addTrack(eflowRecTrack* track, eflowTrackClusterLink* trackClusterLink = 0);
+  unsigned nTracks() const{ return m_eflowRecTracks.size(); }
+  void clearTracks() { m_eflowRecTracks.clear(); }
 
   /* Cluster accessor methods */
-
   eflowRecCluster* efRecCluster(int i) { return m_eflowRecClusters[i]; }
-  int nClusters() { return m_eflowRecClusters.size(); }
+  unsigned nClusters() const{ return m_eflowRecClusters.size(); }
+  void clearClusters() { m_eflowRecClusters.clear(); }
 
-  void addCluster(eflowRecCluster* cluster);
+
+  /* Link accessor methods */
+  std::vector<eflowTrackClusterLink*> efRecLink() { return m_trackClusterLinks; }
+  void clearLinks() { m_trackClusterLinks.clear(); }
 
   /* Static container accessors */
   static void setClusterContainerPtr(xAOD::CaloClusterContainer* clusCont, xAOD::CaloClusterAuxContainer* auxCont) {
@@ -53,8 +74,19 @@ public:
     m_clusterContainerPtr->setStore(m_clusterAuxContainerPtr);
   }
 
+  /* Calculate total tracks energy, total tracks energy variance, total cluster energy for subtraction */
+  double getExpectedEnergy();
+  double getExpectedVariance();
+  double getClusterEnergy() ;
+
+  void simulateShower(eflowLayerIntegrator *integrator, eflowEEtaBinnedParameters* binnedParameters, bool useUpdated2015ChargedShowerSubtraction);
+
   static xAOD::CaloClusterContainer* getClusterContainerPtr() { return m_clusterContainerPtr;}
   static xAOD::CaloClusterAuxContainer* getClusterAuxContainerPtr() { return m_clusterAuxContainerPtr;}
+
+private:
+
+  void addTrackClusterLink(eflowTrackClusterLink* trackClusterLink) { m_trackClusterLinks.push_back(trackClusterLink); }
 
  private:
   /* Vector of clusters */

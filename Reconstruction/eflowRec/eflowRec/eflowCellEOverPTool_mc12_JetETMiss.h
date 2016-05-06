@@ -30,7 +30,7 @@ class eflowCellEOverPTool_mc12_JetETMiss : public IEFlowCellEOverPTool {
   ~eflowCellEOverPTool_mc12_JetETMiss() {};
 
   StatusCode initialize();
-  StatusCode execute(eflowBinnedParameters *binnedParameters) ;
+  StatusCode execute(eflowEEtaBinnedParameters *binnedParameters) ;
   StatusCode finalize() ;
 
  private:

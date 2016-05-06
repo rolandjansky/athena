@@ -39,7 +39,6 @@ public:
 
   ElementLink<xAOD::CaloClusterContainer> getClusElementLink() const { return m_clusElementLink; }
 
-
   eflowMatchCluster* getMatchCluster() const { return m_matchCluster; }
 
   double getSumExpectedEnergy();
@@ -48,21 +47,31 @@ public:
 
   void addTrackMatch(eflowTrackClusterLink* trackMatch) { m_trackMatches.push_back(trackMatch); }
   const std::vector<eflowTrackClusterLink*>& getTrackMatches() const { return m_trackMatches; }
+  void clearTrackMatches() { m_trackMatches.clear(); }
   int getNTracks() const { return m_trackMatches.size(); }
+  int getClusterId() const { return m_clusterId; }
+  void setClusterId(int clusterId) { m_clusterId = clusterId; }
+  void setCellsWeight(std::map<IdentifierHash, double> cellsWeight) { m_cellsWeightMap = cellsWeight; }
+  const std::map<IdentifierHash, double>& getCellsWeight() const { return m_cellsWeightMap; }
 
+  int getClusterType();
   const bool& isTouchable() { return m_isTouchable;}
 
 private:
-  void replaceClusterByCopyInContainer(xAOD::CaloClusterContainer* container);
-
+  int m_clusterId;
   const xAOD::CaloCluster* m_cluster;
   ElementLink<xAOD::CaloClusterContainer> m_clusElementLink;
   bool m_isTouchable;
+  /* 1: ECAL, 2: HCAL */
+  int m_type;
 
+  /* for EM mode, LC weight for cells are retrieved before doing any subtraction; they will be used after subtraction */
+  std::map<IdentifierHash,double> m_cellsWeightMap;
 
   eflowMatchCluster* m_matchCluster;
-
   std::vector<eflowTrackClusterLink*> m_trackMatches;
+
+  void replaceClusterByCopyInContainer(xAOD::CaloClusterContainer* container);
 
 public:
   class SortDescendingPt {
@@ -141,4 +150,18 @@ private:
   mutable bool m_calVariance;
 };
 
+#include "AthContainers/DataVector.h"
+#include "CLIDSvc/CLASS_DEF.h"
+
+class eflowRecClusterContainer : public DataVector< eflowRecCluster >
+
+{
+
+ public:
+
+  void print() { };
+
+};
+
+CLASS_DEF(eflowRecClusterContainer, 8904, 1)
 #endif /* EFLOWRECCLUSTER_H_ */

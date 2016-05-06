@@ -31,8 +31,6 @@ class eflowFirstInt {
   void setFudgeMean(double fudgeMean)      {m_fudgeMean = fudgeMean;}
   void setFudgeStdDev(double fudgeStdDev)  {m_fudgeStdDev = fudgeStdDev;}
   
-  void printFudge() {std::cout << "rhs.m_fudgeMean is " << m_fudgeMean << std::endl; std::cout << "rhs.m_fudgeStdDev is " << m_fudgeStdDev << std::endl;}
-
  protected:
 
   double m_fudgeMean;

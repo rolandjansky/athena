@@ -16,6 +16,8 @@
 
 class eflowRecCluster;
 class eflowRecTrack;
+class eflowRecClusterContainer;
+class eflowMatchCluster;
 
 namespace PFMatch{
 class TrackClusterMatcher;
@@ -34,13 +36,12 @@ public:
   StatusCode initialize();
   StatusCode finalize();
 
-  /** Get the cluster that matches best to a given track */
-  eflowRecCluster* bestMatch(const eflowRecTrack* track, const std::vector<eflowRecCluster*>& clusters);
-
-  /** Get all clusters that match to a given track */
-  std::vector<eflowRecCluster*> allMatches(const eflowRecTrack* track, const std::vector<eflowRecCluster*>& clusters);
+  /** Get n clusters that matches best to a given track */
+  std::vector<eflowRecCluster*> doMatches(const eflowRecTrack* track, const eflowRecClusterContainer* clusters, int n);
+  std::vector<eflowRecCluster*> doMatches(const eflowRecTrack* track, const std::vector<eflowRecCluster*> clusters, int n);
 
 private:
+
   /** The type of track position to be used for matching */
   std::string m_trackPositionType;
   /** The type of cluster position to be used for matching */

@@ -43,22 +43,22 @@ class AllLayersEtaPhi {
 public:
   AllLayersEtaPhi() { }
   virtual ~AllLayersEtaPhi() {
-    unsigned int nLay = _etaphiInLayer.size();
-    for(unsigned int iLay = 0; iLay < nLay; ++iLay) { delete _etaphiInLayer[iLay]; }
+    unsigned int nLay = m_etaphiInLayer.size();
+    for(unsigned int iLay = 0; iLay < nLay; ++iLay) { delete m_etaphiInLayer[iLay]; }
   }
 
-  std::vector<EtaPhi*> _etaphiInLayer;
+  std::vector<EtaPhi*> m_etaphiInLayer;
 };
 
 class EtaPhiWithVariance: public EtaPhi {
 public:
   EtaPhiWithVariance(eflowEtaPhiPosition etaphi, double etaVar, double phiVar):
-    EtaPhi(etaphi), _etaVariance(etaVar), _phiVariance(phiVar) { }
-  EtaPhiWithVariance(): _etaVariance(NAN), _phiVariance(NAN) { }
+    EtaPhi(etaphi), m_etaVariance(etaVar), m_phiVariance(phiVar) { }
+  EtaPhiWithVariance(): m_etaVariance(NAN), m_phiVariance(NAN) { }
   virtual ~EtaPhiWithVariance() { }
 
-  double _etaVariance;
-  double _phiVariance;
+  double m_etaVariance;
+  double m_phiVariance;
 };
 
 
@@ -88,14 +88,14 @@ private:
 class TrackEtaPhiInFixedLayersProvider: public TrackPositionProvider<EtaPhi> {
 public:
   TrackEtaPhiInFixedLayersProvider(LayerType barrelLayer, LayerType endcapLayer):
-    _barrelLayer(barrelLayer), _endcapLayer(endcapLayer) { }
+    m_barrelLayer(barrelLayer), m_endcapLayer(endcapLayer) { }
   virtual ~TrackEtaPhiInFixedLayersProvider() { }
 
   EtaPhi* getPosition(const ITrack* track);
 
 private:
-  LayerType _barrelLayer;
-  LayerType _endcapLayer;
+  LayerType m_barrelLayer;
+  LayerType m_endcapLayer;
 };
 
 

@@ -79,15 +79,8 @@ class useLeptons(JobProperty):
     allowedTypes = ['bool']
     StoredValue = True
 
-class useUpdated2015LeptonID(JobProperty):
-    """ Flag to toggle updating of 2015 lepton ID - if on we use updated versions of lepton ID
-    """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = True
-
 class storeLeptonCells(JobProperty):
-    """ Flag to toggle storage of lepton cells on/off - if on will put lepton cells in storegate in eflowCaloObjectBuilder
+    """ Flag to toggle storage of lepton cells on/off - if on will put lepton cells in storegate in eflowPreparation
     """
     statusOn = True
     allowedTypes = ['bool']
@@ -117,7 +110,7 @@ class eflowRecFlags(JobPropertyContainer):
 # add the flags container to the top container 
 jobproperties.add_Container(eflowRecFlags)
 
-eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useUpdated2015LeptonID, useLCInput,useUpdated2015ChargedShowerSubtraction]
+eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction]
 
 for i in eflowJobProperties :
     jobproperties.eflowRecFlags.add_JobProperty(i)

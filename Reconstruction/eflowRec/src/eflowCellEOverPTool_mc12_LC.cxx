@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "eflowRec/eflowBinnedParameters.h"
+#include "eflowRec/eflowEEtaBinnedParameters.h"
 #include "eflowRec/eflowCellEOverPTool_mc12_LC.h"
 #include "eflowRec/eflowCaloRegions.h"
 
@@ -39,7 +39,7 @@ StatusCode eflowCellEOverPTool_mc12_LC::initialize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode eflowCellEOverPTool_mc12_LC::execute(eflowBinnedParameters *binnedParameters){
+StatusCode eflowCellEOverPTool_mc12_LC::execute(eflowEEtaBinnedParameters *binnedParameters){
 
   if (binnedParameters) {
     

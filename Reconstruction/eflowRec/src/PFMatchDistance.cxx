@@ -29,7 +29,7 @@ double EtaPhiSqDistanceCalculator::distanceBetween(EtaPhi* position1, EtaPhi* po
 double EtaPhiSqSignificanceCalculator::distanceBetween(EtaPhi* position1, EtaPhiWithVariance* position2){
    double dEta = position1->getEta() - position2->getEta();
    double dPhi = position1->getPhi().getAbsDifference(position2->getPhi());
-   return dEta*dEta/position2->_etaVariance + dPhi*dPhi/position2->_phiVariance;
+   return dEta*dEta/position2->m_etaVariance + dPhi*dPhi/position2->m_phiVariance;
 }
 //
 //double EtaPhiSqSignificanceCalculator::distanceBetween(IPosition* position1,

@@ -62,54 +62,37 @@ StatusCode PFTrackClusterMatchingTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-eflowRecCluster* PFTrackClusterMatchingTool::bestMatch(const eflowRecTrack* track, const std::vector<eflowRecCluster*>& clusters) {
-  m_tracksProcessed++;
-
-  /* Transform the vector of eflowRecCluster into a vector of eflowMatchClusters */
-  unsigned int nClusters = clusters.size();
-  const float trackE=track->getTrack()->e();
-  std::vector<const eflowMatchCluster*> matchClusters;
-  for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
-    if (clusters[iCluster]->getCluster()->e()>0.1*trackE) matchClusters.push_back(clusters[iCluster]->getMatchCluster());
+std::vector<eflowRecCluster*> PFTrackClusterMatchingTool::doMatches(const eflowRecTrack* track, const eflowRecClusterContainer* clusters, int nMatches) {
+  std::vector<eflowRecCluster*> vec_clusters;
+  for (unsigned int iCluster = 0; iCluster < clusters->size(); ++iCluster) {
+    eflowRecCluster* thisEFRecCluster = const_cast<eflowRecCluster*>(clusters->at(iCluster));
+    vec_clusters.push_back(thisEFRecCluster);
   }
-
-  /* Use the TrackClusterMatcher to retrieve the best match */
-  eflowRecMatchTrack matchTrack(track);
-  MatchDistance bestMatch = m_matcher->bestMatch(&matchTrack, matchClusters);
-
-  /* If there's no match, return a null pointer */
-  if (!bestMatch._isMatch) { return 0; }
-
-  /* Increment the match counter and return the corresponding eflowRecCluster */
-  m_tracksMatched++;
-  const eflowMatchCluster* bestMatchCluster = dynamic_cast<const eflowMatchCluster*>(bestMatch._cluster);
-  
-  if (bestMatchCluster) return bestMatchCluster->getEfRecCluster();
-  else return nullptr;
+  const std::vector<eflowRecCluster*> const_clusters = vec_clusters;
+  return doMatches(track, const_clusters, nMatches);
 }
 
-std::vector<eflowRecCluster*> PFTrackClusterMatchingTool::allMatches(const eflowRecTrack* track, const std::vector<eflowRecCluster*>& clusters) {
+std::vector<eflowRecCluster*> PFTrackClusterMatchingTool::doMatches(const eflowRecTrack* track, const std::vector<eflowRecCluster*> clusters, int nMatches) {
   m_tracksProcessed++;
 
   /* Transform the vector of eflowRecCluster into a vector of eflowMatchClusters */
   unsigned int nClusters = clusters.size();
-  std::vector<const eflowMatchCluster*> matchClusters(nClusters);
+  std::vector<const eflowMatchCluster*> matchClusters;
   for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
-    matchClusters[iCluster] = clusters[iCluster]->getMatchCluster();
+      matchClusters.push_back(clusters.at(iCluster)->getMatchCluster());
   }
 
-  /* Use the TrackClusterMatcher to retrieve the all matches */
+  /* Use the TrackClusterMatcher to retrieve the matches */
   eflowRecMatchTrack matchTrack(track);
-  std::vector<MatchDistance> allMatches = m_matcher->allMatches(&matchTrack, matchClusters);
+  std::vector<MatchDistance> allMatches = m_matcher->bestMatches(&matchTrack, matchClusters, nMatches, 0.1*track->getTrack()->e());
 
   /* Transform the vector of MatchDistance objects into a vector of eflowRecClusters and return it */
-  std::vector<eflowRecCluster*> result;
-  unsigned int nMatches = allMatches.size();
-  for (unsigned int iMatch = 0; iMatch < nMatches; ++iMatch) {
-    const eflowMatchCluster* thisMatch = dynamic_cast<const eflowMatchCluster*>(allMatches[iMatch]._cluster);
-    if (thisMatch) result.push_back(thisMatch->getEfRecCluster());
+  std::vector<eflowRecCluster*> results;
+  for (unsigned int imatch = 0; imatch < allMatches.size(); ++imatch) {
+    const eflowMatchCluster* thisMatch = dynamic_cast<const eflowMatchCluster*>(allMatches.at(
+        imatch).m_cluster);
+    if (thisMatch) results.push_back(thisMatch->getEfRecCluster());
   }
-  m_tracksMatched+=result.size(); // Increment the matched tracks counter appropriately
-
-  return result;
+  m_tracksMatched += results.size(); // Increment the matched tracks counter appropriately
+  return results;
 }

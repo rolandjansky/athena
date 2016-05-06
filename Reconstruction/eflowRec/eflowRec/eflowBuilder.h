@@ -37,12 +37,12 @@ class eflowBuilder : public AthAlgorithm
 
  private:
 
-  std::string m_eflowCaloObjectBuilderAlgName;
+  std::string m_eflowPreparationAlgName;
   std::string m_eflowObjectBuilderAlgName;
   std::string m_eflowQuantitiesAlgName;
 
   // Pointers to the corresponding sub-algorithms:
-  eflowBaseAlg* m_eflowCaloObjectBuilderAlg;   // Build calo objects
+  eflowBaseAlg* m_eflowPreparationAlg;   // Build calo objects
   eflowBaseAlg* m_eflowObjectBuilderAlg;       // Build eflow objects
   eflowBaseAlg* m_eflowQuantitiesAlg;          // Calculate eflow, pTmiss
 

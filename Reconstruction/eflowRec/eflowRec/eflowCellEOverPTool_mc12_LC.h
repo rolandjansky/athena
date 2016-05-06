@@ -30,7 +30,7 @@ class eflowCellEOverPTool_mc12_LC : public IEFlowCellEOverPTool {
   ~eflowCellEOverPTool_mc12_LC() {};
 
   StatusCode initialize();
-  StatusCode execute(eflowBinnedParameters *binnedParameters) ;
+  StatusCode execute(eflowEEtaBinnedParameters *binnedParameters) ;
   StatusCode finalize() ;
 
  private:

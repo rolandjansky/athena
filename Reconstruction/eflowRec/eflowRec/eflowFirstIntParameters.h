@@ -29,19 +29,26 @@ class eflowFirstIntParameters :  public eflowFirstInt {
   eflowFirstIntParameters();
   ~eflowFirstIntParameters()  {}
 
-  const std::vector<double>& getShapeParameters(eflowCaloENUM layer) const  {return m_p[layer];}
-  double getShapeParameter(eflowCaloENUM layer, int paramIndex) const  {return m_p[layer][paramIndex];}
+  bool getWeightedParameters(const eflowFirstIntParameters* bin1, const eflowFirstIntParameters* bin2, const double w1);
 
-  void setShapeParameters(eflowCaloENUM layer, const std::vector<double>& p)  {m_p[layer] = p;}
-  void setShapeParameter(eflowCaloENUM layer, int paramNumber, double shapeParam)   {m_p[layer][paramNumber] = shapeParam;}
+  const std::vector<double>& getShapeParameters(eflowCaloENUM layer) const  {return m_parameters[layer];}
+  double getShapeParameter(eflowCaloENUM layer, int paramIndex) const  {return m_parameters[layer][paramIndex];}
 
-  //TEMPORARY accessor to m_p
-  void printM_P();
+  void setShapeParameter(eflowCaloENUM layer, int paramNumber, double shapeParam)   {m_parameters[layer][paramNumber] = shapeParam;}
 
+  //TEMPORARY accessor to m_parameters
+  void printM_Parameters();
+  static int nShapeParams() {
+    return m_nShapeParams;
+  }
 
- protected:
+ private:
 
-  std::vector< std::vector<double> > m_p;
+  void setShapeParameters(eflowCaloENUM layer, const std::vector<double>& p)  {m_parameters[layer] = p;}
+
+ private:
+  static const int m_nShapeParams;
+  std::vector< std::vector<double> > m_parameters;
 
 };
 #endif

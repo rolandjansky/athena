@@ -8,7 +8,7 @@
 
 /********************************************************************
 
-NAME:     eflowBaseInterpolatedEEtaBinSystem.h
+NAME:     eflowEEtaBinBase.h
 PACKAGE:  offline/Reconstruction/eflowRec
 
 AUTHOR:   R Duxfield
@@ -18,15 +18,15 @@ CREATED:  17th May, 2006
 
 #include <vector>
 
-class eflowParamEtaBin;
+class eflowParameters;
 
-class eflowBaseInterpolatedEEtaBinSystem {
+class eflowEEtaBinBase {
  public:
 
   enum EnergyInterpolationMode { LIN, LOG };
 
-  eflowBaseInterpolatedEEtaBinSystem() :  m_mode(LOG)  { m_useAbsEta = true; }
-  virtual ~eflowBaseInterpolatedEEtaBinSystem();
+  eflowEEtaBinBase() :  m_mode(LOG)  { m_useAbsEta = true; }
+  virtual ~eflowEEtaBinBase();
   
   bool binExists(double e, double eta) const  { return (getEBinIndex(e) >= 0 && getEtaBinIndex(eta) >= 0); }
 
@@ -36,8 +36,6 @@ class eflowBaseInterpolatedEEtaBinSystem {
 
   int getNumEBins() const { return m_eBinBounds.size(); }
   int getNumEtaBins() const { return m_etaBinBounds.size(); }
-
-  void getInterpolation(const eflowParamEtaBin** bin1, const eflowParamEtaBin** bin2, double& w1, double e, double eta) const;
 
   int getEBinIndex(double e) const;
   int getEtaBinIndex(double eta) const;
@@ -50,6 +48,5 @@ class eflowBaseInterpolatedEEtaBinSystem {
   bool m_useAbsEta;
   std::vector<double> m_eBinBounds;
   std::vector<double> m_etaBinBounds;
-  std::vector< std::vector<eflowParamEtaBin*> > m_bins;
 };
 #endif

@@ -31,22 +31,16 @@ use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
 use xAODPFlow           xAODPFlow-*             Event/xAOD
 use xAODTracking        xAODTracking-*          Event/xAOD
 use TrkParameters 	TrkParameters-* 	Tracking/TrkEvent
-use eflowEvent          eflowEvent-*            Reconstruction
 
 use InDetTrackSelectionTool InDetTrackSelectionTool-*	InnerDetector/InDetRecTools
+use TrackVertexAssociationTool TrackVertexAssociationTool-* InnerDetector/InDetRecTools
+
+use AtlasROOT           AtlasROOT-*             External
 
 private
 
-use xAODTau             xAODTau-*               Event/xAOD
-use xAODBase            xAODBase-*              Event/xAOD
-use xAODJet             xAODJet-*               Event/xAOD
-
-use VxVertex            VxVertex-*              Tracking/TrkEvent
-use ParticleEvent       ParticleEvent-*         PhysicsAnalysis/AnalysisCommon
-
 use PathResolver        PathResolver-*          Tools
-use TrkToolInterfaces   TrkToolInterfaces-*     Tracking/TrkTools
-use TrkTrack 		TrkTrack-* 		Tracking/TrkEvent
+
 use TrkCaloExtension	TrkCaloExtension-*	Tracking/TrkEvent
 use TrkParametersIdentificationHelpers	TrkParametersIdentificationHelpers-* Tracking/TrkEvent
 
@@ -60,16 +54,9 @@ use StoreGate           StoreGate-*             Control
 
 public
 
-use AtlasROOT           AtlasROOT-*             External
-
-# Specify the required ROOT components for cmake (transparent to CMT)
-apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS TMVA)"
-
-apply_pattern declare_runtime files="../share/TMVAClassification_Pi0BDT.weights.xml ../share/rmsvsdr.dat"
+apply_pattern declare_runtime files=" ../share/rmsvsdr.dat"
 
 apply_pattern component_library library=eflowRec
-
-macro_append eflowRec_linkopts " -lTMVA"
 
 library eflowRec *.cxx components/*.cxx
 apply_pattern declare_joboptions files="*.txt *.py"

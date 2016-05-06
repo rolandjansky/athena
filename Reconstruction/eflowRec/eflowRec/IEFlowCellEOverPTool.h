@@ -19,7 +19,7 @@ Description: This class can take via python a set of EOverP values and cell subt
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-class eflowBinnedParameters;
+class eflowEEtaBinnedParameters;
 
 /** Must declare this, with name of interface*/
 static const InterfaceID IID_IEFlowCellEOverPTool("IEFlowCellEOverPTool", 1, 0);
@@ -35,7 +35,7 @@ class IEFlowCellEOverPTool : public AthAlgTool {
   static const InterfaceID& interfaceID();
 
   virtual StatusCode intialize() {return StatusCode::SUCCESS;};
-  virtual StatusCode execute(eflowBinnedParameters *binnedParameters) = 0 ;
+  virtual StatusCode execute(eflowEEtaBinnedParameters *binnedParameters) = 0 ;
   virtual StatusCode finalize() {return StatusCode::SUCCESS;};
 
 };

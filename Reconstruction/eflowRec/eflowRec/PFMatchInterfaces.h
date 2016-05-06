@@ -130,28 +130,28 @@ public:
   DistanceProvider(IPositionProvider*   trackPosition,
                    IPositionProvider* clusterPosition,
                    DistanceCalculator<TrackPositionType, ClusterPositionType>* distanceCalculator):
-        _distanceCalculator(distanceCalculator) {
-    _trackPosition   = dynamic_cast<TrackPositionProvider<TrackPositionType>*>(trackPosition);
-    _clusterPosition = dynamic_cast<ClusterPositionProvider<ClusterPositionType>*>(clusterPosition);
-    assert(_trackPosition);
-    assert(_clusterPosition);
-    assert(_distanceCalculator);
+        m_distanceCalculator(distanceCalculator) {
+    m_trackPosition   = dynamic_cast<TrackPositionProvider<TrackPositionType>*>(trackPosition);
+    m_clusterPosition = dynamic_cast<ClusterPositionProvider<ClusterPositionType>*>(clusterPosition);
+    assert(m_trackPosition);
+    assert(m_clusterPosition);
+    assert(m_distanceCalculator);
   }
   virtual ~DistanceProvider() {
-    delete _trackPosition;
-    delete _clusterPosition;
-    delete _distanceCalculator;
+    delete m_trackPosition;
+    delete m_clusterPosition;
+    delete m_distanceCalculator;
   }
 
   double distanceBetween(const ITrack* track, const ICluster* cluster) {
-    return _distanceCalculator->distanceBetween(_trackPosition->getPosition(track),
-                                                _clusterPosition->getPosition(cluster));
+    return m_distanceCalculator->distanceBetween(m_trackPosition->getPosition(track),
+                                                m_clusterPosition->getPosition(cluster));
   }
 
 private:
-  TrackPositionProvider<TrackPositionType>* _trackPosition;
-  ClusterPositionProvider<ClusterPositionType>* _clusterPosition;
-  DistanceCalculator<TrackPositionType, ClusterPositionType>* _distanceCalculator;
+  TrackPositionProvider<TrackPositionType>* m_trackPosition;
+  ClusterPositionProvider<ClusterPositionType>* m_clusterPosition;
+  DistanceCalculator<TrackPositionType, ClusterPositionType>* m_distanceCalculator;
 };
 
 

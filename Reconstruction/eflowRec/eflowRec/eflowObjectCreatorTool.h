@@ -22,8 +22,14 @@ CREATED:  15th August, 2005
 #include "AthLinks/ElementLink.h"
 #include "xAODCaloEvent/CaloCluster.h"
 
+#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
+
+#include "xAODTracking/VertexContainer.h"
+
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/PFOContainer.h"
+
+#include <cassert>
 
 class eflowRecTrack;
 class eflowRecCluster;
@@ -52,6 +58,10 @@ class eflowObjectCreatorTool : virtual public eflowBaseAlgTool, public AthAlgToo
   void createChargedEflowObjects(eflowCaloObject* energyFlowCaloObject, bool addClusters = false);
   void createChargedEflowObject(eflowRecTrack* efRecTrack, bool addClusters = false);
   void createNeutralEflowObjects(eflowCaloObject* energyFlowCaloObject);
+
+  /** Function to add links to the vertex to which a charged PFO is matched (using the tracking CP loose vertex association tool) */
+  void addVertexLinksToChargedEflowObjects(const xAOD::VertexContainer* theVertexContainer);
+
   /** Function to add cluster moments onto PFO */
   void addMoment(xAOD::CaloCluster::MomentType momentType, xAOD::PFODetails::PFOAttributes pfoAttribute, const xAOD::CaloCluster* theCluster, xAOD::PFO* thePFO);
 
@@ -73,9 +83,13 @@ class eflowObjectCreatorTool : virtual public eflowBaseAlgTool, public AthAlgToo
   /* Bool to toggle which jetetmiss configuration we are in - EM cluster input or LC cluster input */
   bool m_LCMode;
 
-  /** Flag to toggle usage of updated 2015 charged shower subtraction - this disabled charged shower subtraction for tracks found to be in dense environments */
-  bool m_useUpdated2015ChargedShowerSubtraction;
+  /* ToolHandle to tracking CP loose vertex selection tool */
+  ToolHandle<CP::ITrackVertexAssociationTool> m_trackVertexAssociationTool;
 
+  /* String to specify name of VertexContainer to retrieve */
+  std::string m_vertexContainerName;
+  
+  
 };
 
 inline const InterfaceID& eflowObjectCreatorTool::interfaceID() { return IID_eflowObjectCreatorTool; }

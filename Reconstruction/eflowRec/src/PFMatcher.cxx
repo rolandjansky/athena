@@ -14,11 +14,11 @@
 #include <fstream>
 namespace PFMatch {
 
-TrackClusterMatcher::~TrackClusterMatcher() { delete _distanceProvider; }
+TrackClusterMatcher::~TrackClusterMatcher() { delete m_distanceProvider; }
 
 MatchDistance TrackClusterMatcher::match(const ITrack* track, const ICluster* cluster) {
-  double distance = _distanceProvider->distanceBetween(track, cluster);
-  return MatchDistance(cluster, distance, distance<_matchCut);
+  double distance = m_distanceProvider->distanceBetween(track, cluster);
+  return MatchDistance(cluster, distance, distance<m_matchCut);
 }
 void TrackClusterMatcher::setDRParameters(){
   std::string theFileName = PathResolver::find_file ("rmsvsdr.dat", "DATAPATH");

@@ -47,7 +47,7 @@ void eflowCellList::setNewExtrapolatedTrack(const eflowTrackCaloPoints& trackCal
 void eflowCellList::addCell(std::pair<CaloCell*,int> cell) {
   eflowCellPosition myPos(this,cell.first);
 
-  std::map<eflowCellPosition, std::vector<std::pair<CaloCell*,int> > >::iterator inmap = m_cellPositionToCellMap.find( myPos );
+  CellIt inmap = m_cellPositionToCellMap.find( myPos );
 
   if (inmap != m_cellPositionToCellMap.end()) inmap->second.push_back(cell);
   else {
@@ -75,9 +75,7 @@ void eflowCellList::reorderWithoutLayers() {
     itInserted->second.insert(itInserted->second.end(), pairVector.begin(), pairVector.end());
 
     /* Remove the original CellPosition from the map */
-    std::map<eflowCellPosition,std::vector<std::pair<CaloCell*,int> > >::iterator tempIt = it;
-    ++it;
-    m_cellPositionToCellMap.erase(tempIt);
+    m_cellPositionToCellMap.erase(it++);
   }
 }
 

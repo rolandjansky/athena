@@ -17,14 +17,22 @@
 #include <vector>
 #include <iostream>
 
+#include <cassert>
+#include "GaudiKernel/ToolHandle.h"
+
+#include "CxxUtils/fpcompare.h"
+#include "eflowRec/eflowRecTrack.h"
+
 class eflowRecTrack;
 class eflowRecCluster;
 
 class eflowTrackClusterLink {
 private:
   typedef std::map<std::pair<eflowRecTrack*, eflowRecCluster*>, eflowTrackClusterLink*> InstanceMap;
+
   eflowTrackClusterLink(eflowRecTrack* track, eflowRecCluster* cluster) :
-      m_track(track), m_cluster(cluster) { }
+      m_track(track), m_cluster(cluster)/*,  m_eExpect(NAN), m_varEExpect(NAN)*/ { }
+
   virtual ~eflowTrackClusterLink() { }
 
 public:
@@ -42,7 +50,6 @@ public:
   static void clearInstances();
 
   eflowRecCluster* getCluster() const { return m_cluster; }
-
   eflowRecTrack* getTrack() const { return m_track; }
 
   void setClusterIntegral(const std::vector<double>& clusterIntegral) {
@@ -54,12 +61,12 @@ public:
   const std::vector<double>& getClusterIntegral() const { return m_clusterIntegral; }
 
 private:
-eflowRecTrack* m_track;
-eflowRecCluster* m_cluster;
+  eflowRecTrack* m_track;
+  eflowRecCluster* m_cluster;
 
-std::vector<double> m_clusterIntegral;
+  std::vector<double> m_clusterIntegral;
 
-static InstanceMap m_instances;
+  static InstanceMap m_instances;
 };
 
 #endif /* EFLOWTRACKCLUSTERLINK_H_ */

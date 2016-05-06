@@ -19,9 +19,9 @@ namespace PFMatch {
 /* Track position providers */
 
 EtaPhi* TrackEtaPhiInFixedLayersProvider::getPosition(const ITrack* track) {
-  eflowEtaPhiPosition etaphi = track->etaPhiInLayer(_barrelLayer);
+  eflowEtaPhiPosition etaphi = track->etaPhiInLayer(m_barrelLayer);
   if (etaphi.getEta() == -999.){
-    etaphi = track->etaPhiInLayer(_endcapLayer);
+    etaphi = track->etaPhiInLayer(m_endcapLayer);
   }
   *m_position = EtaPhi(etaphi);
   return m_position;

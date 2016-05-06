@@ -5,15 +5,15 @@ from AthenaCommon.Logging import logging  # loads logger
 import traceback # to allow printout of trace back
 from RecExConfig.Configured import Configured # import base class 
 
-def setup_eflowObjectBulderTools(Configured, nameModifier,mlog):
+def setup_eflowObjectBuilderTools(Configured, nameModifier,mlog):
 
     if nameModifier != "EM" and nameModifier != "LC":
         mlog.error("Invalid calorimeter scale was specified : should be LC or EM, but was "+nameModifier)
         return False
 
     try:
-        from eflowRec.eflowRecConf import eflowObjectBuilder_Tools
-        ObjectBuilder_Tools=eflowObjectBuilder_Tools("eflowObjectBuilder_Tools_"+nameModifier)
+        from eflowRec.eflowRecConf import eflowCaloObjectBuilder
+        ObjectBuilder_Tools=eflowCaloObjectBuilder("eflowCaloObjectBuilder_"+nameModifier)
     except:
         mlog.error("could not import eflowRec.eflowObjectBuilderTools")
         print traceback.format_exc()
@@ -61,59 +61,6 @@ def setup_eflowObjectBulderTools(Configured, nameModifier,mlog):
                 return False
             ObjectBuilder_Tools.PrivateToolList += [RecoverSplitShowersToolDefault_LC]
 
-    try:
-        from eflowRec.eflowMomentCalculatorToolDefault import eflowMomentCalculatorToolDefault
-        MomentCalculatorTool = eflowMomentCalculatorToolDefault("eflowMomentCalculatorTool_"+nameModifier)
-    except:
-        mlog.error("could not import eflowRec.eflowMomentCalculatorTool")
-        print traceback.format_exc()
-        return False
-
-    if nameModifier == "LC":
-        MomentCalculatorTool.LCMode = True
-
-    ObjectBuilder_Tools.PrivateToolList += [MomentCalculatorTool]
-
-    if nameModifier == "EM":        
-        try:
-            from eflowRec.eflowLCCalibToolDefault import eflowLCCalibToolDefault
-            LCCalibTool = eflowLCCalibToolDefault("eflowLCCalibTool_"+nameModifier)
-        except:
-            mlog.error("could not import eflowRec.eflowLCCalibTool")
-            print traceback.format_exc()
-            return False
-
-        ObjectBuilder_Tools.PrivateToolList += [LCCalibTool]
-        
-    try:
-        from eflowRec.eflowObjectCreatorToolDefault import eflowObjectCreatorToolDefault
-        ObjectCreatorTool=eflowObjectCreatorToolDefault("eflowObjectCreatorTool_"+nameModifier)
-    except:
-        mlog.error("could not import eflowRec.eflowObjectCreatorTool")
-        print traceback.format_exc()
-        return False
-
-    if "LC" == nameModifier:
-        ObjectCreatorTool.PFOOutputName="JetETMiss_LCPFO"
-        ObjectCreatorTool.LCMode=True
-        ObjectBuilder_Tools.EflowClustersOutputName="PFOClusters_JetETMiss_LC"
-        ObjectBuilder_Tools.EflowCaloObjectsName="eflowCaloObjects_LC"
-
-    if True == jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
-        ObjectCreatorTool.useUpdated2015ChargedShowerSubtraction = True
-    else:
-        ObjectCreatorTool.useUpdated2015ChargedShowerSubtraction = False
-
-    ObjectBuilder_Tools.PrivateToolList += [ObjectCreatorTool]
-
-    if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
-        ObjectCreatorTool.PFOOutputName = 'EOverP'
-        ObjectBuilder_Tools.EflowClustersOutputName="eflowCluster01"
-        _output = { _outputType : "eflowObjects01" }
-        
-    from RecExConfig.ObjKeyStore import objKeyStore
-    objKeyStore.addTransient(Configured.outputType(),Configured.outputKey())
-        
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
     topSequence += ObjectBuilder_Tools

@@ -17,26 +17,29 @@ CREATED: 16 January 2014
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "CaloClusterCorrection/CaloClusterLocalCalib.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "eflowRec/eflowBaseAlgTool.h"
+#include "eflowRec/eflowISubtractionAlgTool.h"
+
+#include <cassert>
 
 class eflowCaloObjectContainer;
-class eflowCaloObject;
 class eflowRecCluster;
 class eflowRecTrack;
 class eflowTrackCaloPoints;
-class eflowCellList;
 class eflowLayerIntegrator;
-class eflowBinnedParameters;
-class eflowCellEOverPTool;
+class eflowEEtaBinnedParameters;
+class IEFlowCellEOverPTool;
 class PFTrackClusterMatchingTool;
+class eflowRingSubtractionManager;
+class eflowRecTrackContainer;
+class eflowRecClusterContainer;
+class eflowCaloObject;
 
 static const InterfaceID IID_eflowRecoverSplitShowersTool("eflowRecoverSplitShowersTool", 1, 0);
 
-class eflowRecoverSplitShowersTool : virtual public eflowBaseAlgTool, public AthAlgTool {
+class eflowRecoverSplitShowersTool : virtual public eflowISubtractionAlgTool, public AthAlgTool {
   
  public:
 
@@ -47,20 +50,23 @@ class eflowRecoverSplitShowersTool : virtual public eflowBaseAlgTool, public Ath
   static const InterfaceID& interfaceID();
 
   virtual StatusCode initialize();
-  virtual void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer);
+  void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer*, eflowRecClusterContainer*);
   virtual StatusCode finalize();
 
  private:
+
+  void recycleTracksClusters();
   void getClustersToConsider();
   void getTracksToRecover();
-  void performRecovery();
-  void subtractTrackFromClusters(eflowRecTrack* efRecTrack,
-                                 std::vector<eflowRecCluster*> matchedClusters);
-  void makeOrderedCellList(const eflowTrackCaloPoints& trackCalo, const std::vector<xAOD::CaloCluster*>& clusters, eflowCellList& orderedCells);
+  int matchAndCreateEflowCaloObj();
+  void performRecovery(int const nOriginalObj);
+  void subtractTrackFromClusters(const eflowTrackCaloPoints& trackCalo, eflowRingSubtractionManager& ranking, eflowRecTrack* efRecTrack, std::vector<xAOD::CaloCluster*> clusterSubtractionList);
   double getSumEnergy(const std::vector<xAOD::CaloCluster*>& clusters);
-  void clearClusters(std::vector<xAOD::CaloCluster*>& clusters);
 
   void printClusterList(std::vector<xAOD::CaloCluster*>& clusters, std::string prefix);
+  void performSubtraction(eflowCaloObject* thisEflowCaloObject);
+
+private:
 
   int m_debug;
 
@@ -72,12 +78,12 @@ class eflowRecoverSplitShowersTool : virtual public eflowBaseAlgTool, public Ath
   double m_windowRms;
 
   /* Tool for getting e/p values and hadronic shower cell ordering principle parameters */
-  ToolHandle<eflowCellEOverPTool> m_theEOverPTool;
+  ToolHandle<IEFlowCellEOverPTool> m_theEOverPTool;
 
   /** Track-Cluster matching tool */
   ToolHandle<PFTrackClusterMatchingTool> m_matchingTool;
 
-  eflowBinnedParameters* m_binnedParameters;
+  eflowEEtaBinnedParameters* m_binnedParameters;
   eflowLayerIntegrator* m_integrator;
 
   double m_subtractionSigmaCut;
@@ -86,6 +92,10 @@ class eflowRecoverSplitShowersTool : virtual public eflowBaseAlgTool, public Ath
 
   /** Count the number of track-cluster matches -- for the summary in finalize */
   unsigned int m_nTrackClusterMatches;
+
+  /** Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density regions  */
+  bool m_useUpdated2015ChargedShowerSubtraction;
+  
 };
 
 inline const InterfaceID& eflowRecoverSplitShowersTool::interfaceID()

@@ -47,3 +47,4 @@ class eflowLCCalibToolDefault(eflowLCCalibTool) :
             return False
 
         self.eflowRecClusterCollectionTool = eflowClusterCollectionTool 
+        self.UseLocalWeight = False

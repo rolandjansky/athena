@@ -23,6 +23,8 @@ CREATED:  May 2014
 #include "eflowRec/eflowBaseAlgTool.h"
 #include "eflowRec/IEFlowClusterCollectionTool.h"
 
+#include <cassert>
+
 class eflowCaloObjectContainer;
 
 static const InterfaceID IID_eflowMomentCalculatorTool("eflowMomentCalculatorTool", 1, 0);
@@ -33,7 +35,7 @@ class eflowMomentCalculatorTool : virtual public eflowBaseAlgTool, public AthAlg
   
   eflowMomentCalculatorTool(const std::string& type,const std::string& name,const IInterface* parent);
 
-  ~eflowMomentCalculatorTool() {};
+  ~eflowMomentCalculatorTool() {}
 
   static const InterfaceID& interfaceID();
 

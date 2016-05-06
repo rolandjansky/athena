@@ -8,6 +8,7 @@
 #include "GaudiKernel/IAlgTool.h"
 
 class eflowCaloObjectContainer;
+class eflowRecClusterContainer;
 
 static const InterfaceID IID_IEFlowClusterCollectionTool("IEFlowClusterCollectionTool", 1, 0);
 
@@ -19,7 +20,8 @@ class IEFlowClusterCollectionTool : virtual public IAlgTool {
   
    /** Put all clusters into a temporary container - then we use this to calculate moments, some of which depend on configuration of nearby clusters */
   virtual xAOD::CaloClusterContainer* execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters) = 0;
-  
+  virtual eflowRecClusterContainer* retrieve(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters) = 0;
+
 };
 
 inline const InterfaceID& IEFlowClusterCollectionTool::interfaceID()
