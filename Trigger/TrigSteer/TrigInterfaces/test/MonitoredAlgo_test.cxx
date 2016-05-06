@@ -79,14 +79,14 @@ public:
     const DummyTrack* specialPtr =  new DummyTrack();
     const DummyCluster *clu  = new DummyCluster();
     
-    declareMonitoredVariable( "a", a);
-    declareMonitoredVariable( "b", b, 2);
-    declareMonitoredStdContainer( "x", just_doubles);
-    declareMonitoredStdContainer( "y", just_doubles, AutoClear);
+    declareMonitoredVariable( "a", m_a);
+    declareMonitoredVariable( "b", m_b, 2);
+    declareMonitoredStdContainer( "x", m_just_doubles);
+    declareMonitoredStdContainer( "y", m_just_doubles, AutoClear);
 
 
-    declareMonitoredVariable( "error1", err);
-    declareMonitoredVariable( "error2", err, ErrorCode(1));
+    declareMonitoredVariable( "error1", m_err);
+    declareMonitoredVariable( "error2", m_err, ErrorCode(1));
 
     //
     //declareMonitoredCollection( "trk", trk);
@@ -104,7 +104,7 @@ public:
     declareMonitoredCollection( "CustemStaticFunGet1", trk, &SomeAlgo::InnerGetTrackX1 );
 
     // vector with values
-    declareMonitoredCollection("col_by_val", tracks_by_val, &DummyTrack::getNhits);
+    declareMonitoredCollection("col_by_val", m_tracks_by_val, &DummyTrack::getNhits);
 
 
     //use member function to get an access
@@ -124,12 +124,12 @@ public:
 
   }
 
-  void updateA(int x) {a = x;}
-  void updateB(float x) {b = x;}
-  float getB() const {return b;}
-  int getC(int a) const {return int(b*a);}
+  void updateA(int x) {m_a = x;}
+  void updateB(float x) {m_b = x;}
+  float getB() const {return m_b;}
+  int getC(int a) const {return int(m_b*a);}
 
-  void appendToX(double a) { just_doubles.push_back(a); }
+  void appendToX(double a) { m_just_doubles.push_back(a); }
 
 private:
 
@@ -141,11 +141,11 @@ private:
   }
 
 
-  int a;
-  float b;
-  std::vector<double> just_doubles;
-  std::vector<DummyTrack> tracks_by_val;
-  ErrorCode err;
+  int m_a;
+  float m_b;
+  std::vector<double> m_just_doubles;
+  std::vector<DummyTrack> m_tracks_by_val;
+  ErrorCode m_err;
 };
 //////////////////////////////////////////////////////////////////
 

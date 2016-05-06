@@ -5,7 +5,6 @@
 #ifndef TRIGINTERFACES_Algo_H
 #define TRIGINTERFACES_Algo_H
 
-
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigSteeringEvent/Enums.h"
@@ -15,27 +14,16 @@
 #include "TrigStorageDefinitions/EDM_TypeInfo.h"
 
 #include "TrigNavigation/Holder.h"
-//#include "TrigNavigation/Holder.icc"
 #include "TrigNavigation/Navigation.h"
-//#include "TrigNavigation/Navigation.icc"
 #include "TrigNavigation/NavigationCore.h"
-//#include "TrigNavigation/NavigationCore.icc"
-//#include "TrigNavigation/AccessProxy.h"
-//#include "TrigNavigation/AccessProxy.icc"
 
-
-
-#include "StoreGate/StoreGateSvc.h"
 #include "DataModel/ElementLink.h"
 #include "DataModel/ElementLinkVector.h"
 
-//#include "AthenaBaseComps/AthMessaging.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
 class ISvcLocator;
-class MsgStream;
 class ITrigTimerSvc;
 class TrigTimer;
+class StoreGateSvc;
 #include "AthenaMonitoring/IMonitorToolBase.h"
 
 #include <map>
@@ -172,8 +160,6 @@ namespace HLT
      */
     virtual HLT::ErrorCode hltStop() { return HLT::OK; }
 
-
-
     
     /**
      * @brief Method to be redefined by the user to implement the actions performed
@@ -183,7 +169,6 @@ namespace HLT
      * This method is called from within finalize() in the base class.
      */
     virtual HLT::ErrorCode hltFinalize() = 0;
-
 
 
     /**
@@ -250,6 +235,12 @@ namespace HLT
     TrigTimer* timer(std::string label) const; 
     TrigTimer* totalTimeTimer() const; 
 
+    /**
+     * @brief Accessor method for the message level variable.
+     * @return value of the message level for this algorithm.
+     */
+    inline unsigned int msgLvl() const { return msg().level(); }
+    using AthAlgorithm::msgLvl;   // import the msgLvl(MSG::Level) version
 
     friend class TrigSteer;
     friend class Sequence;
@@ -370,20 +361,6 @@ namespace HLT
     AlgoConfig* m_config;
 
     /**
-     * @brief Accessor method for the MsgStream.
-     * @return handle to the MsgStream.
-     */
-    inline MsgStream& msg() const { return *m_msg; }
-    inline MsgStream& msg( const MSG::Level lvl) const { return *m_msg << lvl; }
-
-    /**
-     * @brief Accessor method for the message level variable.
-     * @return value of the message level for this algorithm.
-     */
-    inline unsigned int msgLvl() const { return m_msgLvl; }
-    inline bool msgLvl(const MSG::Level lvl) const { return m_msg->level() <= lvl; }
-
-    /**
      * @brief Method used to retrieve single features attached to a TE.
      * @param te pointer to the TE from which the feature has to be retrieved.
      * @param feature reference to the requested feature.
@@ -445,10 +422,48 @@ namespace HLT
 							 const std::string& label = "");
 
 
+    /**
+     * @brief Method used to attach a new feature to a TE.
+     * @return HLT::ErrorCode for feature attaching.
+     * @param te pointer to the TE to which the feature must be attached.
+     * @param feature pointer to the feature to be attached.
+     * @param label label used to identify the attached feature.
+     *
+     * This method enables to attach a new feature to a TE; this is the method recommended for
+     * attaching features in case no StoreGate storage is required.
+     */
+    template<class T> HLT::ErrorCode attachFeature(TriggerElement* te, T* feature, 
+						   const std::string& label = "");
 
 
 
+    /**
+     * @brief Method used to store a new feature and attach it to a TE.
+     * @return HLT::ErrorCode for feature recording and attaching.
+     * @param te pointer to the TE to which the feature must be attached.
+     * @param feature pointer to the feature to be attached.
+     * @param key store key used to identify the attached feature.
+     * @param label label used to identify the attached feature.
+     *
+     * This method enables to store a new feature and attach it to a TE.
+     */
+    template<class T> HLT::ErrorCode recordAndAttachFeature(TriggerElement* te, T* feature,
+							    std::string& key,
+							    const std::string& label = "");
 
+    /**
+     * @brief Method used to attach an already stored feature to a TE.
+     * @return HLT::ErrorCode for feature attaching.
+     * @param te pointer to the TE to which the feature must be attached.
+     * @param feature pointer to the feature to be attached.
+     * @param key store key used to identify the attached feature.
+     * @param label label used to identify the attached feature.
+     *
+     * This method enables to store a new feature and attach it to a TE.
+     */
+    template<class T> HLT::ErrorCode reAttachFeature(TriggerElement* te, T* feature,
+						     std::string& key,
+						     const std::string& label = "");
 
 
     /**
@@ -481,8 +496,6 @@ namespace HLT
      * This method has to be used by developers to request an handle to the StoreGateSvc service.
      */
     StoreGateSvc* store() { return evtStore().operator->(); }
-
-    
 
     /**
      * @brief Method performing monitoring operations associated to the Initialize transition.
@@ -594,11 +607,11 @@ namespace HLT
   protected:
 
     /** @brief ErrorCode map inputs **/
-    map<string, string>   m_errorCodeMap;
-     //     map<int, int> m_mapCodeInt;
+    std::map<std::string, std::string>   m_errorCodeMap;
+     //     std::map<int, int> m_mapCodeInt;
  
     /** @brief Actual ErrorCode map **/
-    map<ErrorCode, ErrorCode> m_ecMap;
+    std::map<ErrorCode, ErrorCode> m_ecMap;
     unsigned                  m_ecMapSize;
  
     /** @brief Find the mapped return ErrorCode */
@@ -617,12 +630,6 @@ namespace HLT
     /** @brief Gaudi auditor enable/disable flag.*/
     bool m_doAuditors;
     
-    /** @brief Pointer to MsgStream.*/
-    MsgStream* m_msg;
-
-    /** @brief Message level for this algorithm.*/
-    unsigned int m_msgLvl;
- 
     /** @brief Pointer to TrigTimerSvc service.*/
     ITrigTimerSvc* m_timerSvc;
 
@@ -635,6 +642,23 @@ namespace HLT
     /** @brief List of declared monitoring tools.*/
     ToolHandleArray < IMonitorToolBase > m_monitors;
 
+    /**
+     * @brief Method used to attach a new feature to a TE.
+     * @return HLT::ErrorCode for feature attaching.
+     * @param te pointer to the TE to which the feature must be attached.
+     * @param feature pointer to the feature to be attached.
+     * @param key store key used to identify the attached feature.
+     * @param label label used to identify the attached feature.
+     * @param mm memory management for the HLT::Navigation.
+     *
+     * This method enables to attach a new feature to a TE.
+     */
+    template<class T> HLT::ErrorCode attachFeature(TriggerElement* te, T* feature,
+						   std::string& key,
+						   const std::string& label,
+						   HLT::Navigation::MemoryManagement mm);
+
+    
   };
 
   template<class T> HLT::ErrorCode Algo::getFeature(const TriggerElement* te, const T*&  feature, 
@@ -715,6 +739,60 @@ namespace HLT
     return HLT::OK;
   }
 
+
+  template<class T> HLT::ErrorCode 
+    Algo::attachFeature(TriggerElement* te, T* feature,	std::string& key,
+			const std::string& label, 
+			HLT::Navigation::MemoryManagement mm) {    
+    if (!feature) {
+      msg() << MSG::FATAL << "Cannot attach null feature!" << endreq;
+      return HLT::FATAL;
+    }
+    
+    if (!m_config || !m_config->getNavigation() ||
+	!m_config->getNavigation()->attachFeature(te, feature, mm, key, label)) {
+      msg() << MSG::ERROR << "Failed to attach feature!" << endreq;
+      return HLT::NAV_ERROR;
+    }
+    
+    return HLT::OK;
+  }
+  
+  template<class T> HLT::ErrorCode 
+    Algo::attachFeature(TriggerElement* te, T* feature,	const std::string& label) {
+
+    // not used
+    std::string key = "";
+    return attachFeature(te, feature, key, label, HLT::Navigation::ObjectCreatedByNew);
+  }
+
+  template<class T> HLT::ErrorCode 
+    Algo::recordAndAttachFeature(TriggerElement* te, T* feature, std::string& key,
+				 const std::string& label) { 
+
+    std::string aliasKey = key;
+    HLT::ErrorCode status = attachFeature(te, feature, key, label, HLT::Navigation::ObjectToStoreGate);
+    if (status != HLT::OK) return status;
+
+    if (aliasKey == "") return HLT::OK;
+    if (!store() || store()->setAlias(feature, aliasKey).isFailure()) 
+      return HLT::NAV_ERROR;
+
+    return HLT::OK;
+  }
+
+  template<class T> HLT::ErrorCode 
+    Algo::reAttachFeature(TriggerElement* te, T* feature, std::string& key,
+			  const std::string& label) {
+    
+    return attachFeature(te, feature, key, label, HLT::Navigation::ObjectInStoreGate);
+  }
+
+
+  
 } // end namespace
+
+
+
 
 #endif

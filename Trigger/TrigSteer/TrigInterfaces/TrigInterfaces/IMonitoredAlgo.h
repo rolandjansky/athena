@@ -108,7 +108,7 @@ namespace {
   template<class T>
   struct container_reset<T, false> { // the object is const, resetting is not allowed
     static void go(T& container, bool do_reset) {
-      typedef typename dereference<T, boost::is_pointer<T>::value>::type deref;
+      //typedef typename dereference<T, boost::is_pointer<T>::value>::type deref;
 
       if (do_reset){        	
 	dereference<T, boost::is_pointer<T>::value>::go(container).clear();
@@ -416,6 +416,16 @@ class IMonitoredAlgo {
 			     const DataVector<T>* const & coll, U (*method)(const T*)) {
  
     return declareMonitoredCustomVariable(name, new StdContainerSmartGetter<const DataVector<T>*const, U >(coll, method));
+  }
+
+
+  // Explicit specialization needed to avoid clang compilation error.
+  template <class T> 
+  IGetter*
+  declareMonitoredCollection(const std::string& name, 
+                            const DataVector<T>* const & coll, float (*method)(const T*)) {
+ 
+    return declareMonitoredCustomVariable(name, new StdContainerSmartGetter<const DataVector<T>*const, float >(coll, method));
   }
 
 
