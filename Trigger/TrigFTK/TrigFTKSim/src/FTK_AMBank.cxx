@@ -1379,6 +1379,7 @@ void FTK_AMBank::am_output() {
 
   clearNRoads();
   int iroads(0); //same as getNRroads(), but keeps total count of roads (even those in excess of MAXROADS)
+  const FTKPlaneMap *pmap = getSSMap()->getPlaneMap();
 
   vector<int>::iterator fpiter = m_fired_patts.begin();
   for (;fpiter!=m_fired_patts.end();++fpiter) {
@@ -1405,6 +1406,20 @@ void FTK_AMBank::am_output() {
       m_roads.push_front(FTKRoad(getNRoads()-1,getBankID()+100*getSubID(),
 				 ipatt,m_nplanes,
 				 nhit,getBitmask(ipatt)));
+      FTKRoad &road=* m_roads.begin();
+
+      // Want to count if we're missing hits
+      bool misspix(false), misssct(false);
+      for(int ip = 0; ip < getNPlanes(); ++ip) {
+	if (!road.hasHitOnLayer(ip)) {
+	  if (pmap->isSCT(ip)) misssct = true;
+	  else misspix = true;
+	}
+      }
+      if (misspix) countNRoads_misspix();
+      if (misssct) countNRoads_misssct();
+      if (!misspix && !misssct) countNRoads_complete();
+
     } else if ( nhit >= m_nplanes-MAX_MISSING_PLANES-MAX_MISSING_SCT_PAIRS ) {
       
       // check requirements on first or last layers
@@ -1443,6 +1458,20 @@ void FTK_AMBank::am_output() {
 	m_roads.push_front(FTKRoad(getNRoads()-1,getBankID()+100*getSubID(),
 				   ipatt,m_nplanes,
 				   nhit,getBitmask(ipatt))); 
+	FTKRoad &road=* m_roads.begin();
+		  
+	// Want to count if we're missing hits
+	bool misspix(false), misssct(false);
+	for(int ip = 0; ip < getNPlanes(); ++ip) {
+	  if (!road.hasHitOnLayer(ip)) {
+	    if (pmap->isSCT(ip)) misssct = true;
+	    else misspix = true;
+	  }
+	}
+	if (misspix) countNRoads_misspix();
+	if (misssct) countNRoads_misssct();
+	if (!misspix && !misssct) countNRoads_complete();
+	
       } // if allowed
     } // if checking for missing SCT pairs
     else {
@@ -1463,11 +1492,29 @@ void FTK_AMBank::am_output() {
 	m_roads.push_front(FTKRoad(getNRoads()-1,getBankID()+100*getSubID(),
 				   ipatt,m_nplanes,
 				   nhit,getBitmask(ipatt)));
+	FTKRoad &road=* m_roads.begin();
+
+	// Want to count if we're missing hits
+	bool misspix(false), misssct(false);
+	for(int ip = 0; ip < getNPlanes(); ++ip) {
+	  if (!road.hasHitOnLayer(ip)) {
+	    if (pmap->isSCT(ip)) misssct = true;
+	    else misspix = true;
+	  }
+	}
+	if (misspix) countNRoads_misspix();
+	if (misssct) countNRoads_misssct();
+	if (!misspix && !misssct) countNRoads_complete();
+
       }
     }
   }
 
   naoSetNroadsAM(getNRoads());
+  naoSetNroadsAMComplete(getNRoads_complete());
+  naoSetNroadsAMMissPix(getNRoads_misspix());
+  naoSetNroadsAMMissSCT(getNRoads_misssct());
+
   if(FTKSetup::getDBG()) {
     cout << "DBG: AM found " << m_roads.size() << " roads" << endl;
   }

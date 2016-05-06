@@ -240,6 +240,21 @@ void FTK_RoadMarketOutput::naoSetNroadsAM(int bank, int val)
   m_market->getStream(bank)->naoSetNroadsAM(val);
 }
 
+void FTK_RoadMarketOutput::naoSetNroadsAMComplete(int bank, int val)
+{
+  m_market->getStream(bank)->naoSetNroadsAMComplete(val);
+}
+
+void FTK_RoadMarketOutput::naoSetNroadsAMMissPix(int bank, int val)
+{
+  m_market->getStream(bank)->naoSetNroadsAMMissPix(val);
+}
+
+void FTK_RoadMarketOutput::naoSetNroadsAMMissSCT(int bank, int val)
+{
+  m_market->getStream(bank)->naoSetNroadsAMMissSCT(val);
+}
+
 
 void FTK_RoadMarketOutput::naoSetNroadsMOD(int bank, int val)
 {

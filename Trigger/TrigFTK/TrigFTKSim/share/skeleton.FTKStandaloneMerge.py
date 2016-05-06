@@ -56,6 +56,10 @@ nb=64
 
 # prestore some common configurations that can be called through the option FTKSetupTag
 FTKTagOptions = {}
+
+FTKTagOptions['SectorsAsPatterns12L32b3DHWMode2'] = \
+     {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap',
+      'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
 FTKTagOptions["TDRv0"] = \
     {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_11L.pmap', \
          'loadHWConf_path': 'raw_11L.hw'}
@@ -99,7 +103,7 @@ FTKTagOptions['SectorsAsPatterns12L64b3DHWMode2'] = \
     {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap',
      'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
 FTKTagOptions["HWMode2Test32Tower"] = \
-   {'NBanks': 32, 'NSubRegions': 4, 'pmap_path': 'raw_12LiblHW3D.pmap', \
+   {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
          'loadHWConf_path': 'raw_8LcIbl123.hw'}
 FTKTagOptions['SectorsAsPatterns'] = \
     {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap',
@@ -172,6 +176,14 @@ if hasattr(runArgs, 'MergeFromTowers') :
       runArgs.NSubRegions = 1
       FTKMerger.FTKUnmergedFormatName = "FTKMergedTracksStream%u"
       FTKMerger.FTKUnmergedRoadFormatName = "FTKMergedRoadsStream%u"
+
+### But overwrite the names if provided, no matter what
+if hasattr(runArgs, 'UnmergedFormatName'):
+  FTKMerger.FTKUnmergedFormatName = runArgs.UnmergedFormatName
+
+### But overwrite the names if provided, no matter what
+if hasattr(runArgs, 'UnmergedRoadFormatName'):
+  FTKMerger.FTKUnmergedRoadFormatName = runArgs.UnmergedRoadFormatName
 
 # set the FTKRoadMerger properties
 for runArgName in runArgsMandatory + runArgsOptional.keys() :

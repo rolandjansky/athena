@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## FTK Simulation Transform
-# @version $Id: TrigFTKSim_tf.py 718238 2016-01-18 11:05:57Z sschmitt $
+# @version $Id: TrigFTKSim_tf.py 727800 2016-03-04 17:07:37Z sschmitt $
 
 import argparse
 import sys
@@ -190,8 +190,12 @@ def addFTKSimulationArgs(parser):
                         help='SSID encoding scheme', group='TrigFTKSim')
     parser.add_argument('--ModuleLUTPath', default=0, type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='module LUT for HWModeSS=2', group='TrigFTKSim')
+    parser.add_argument('--ModuleLUTPath2nd', default=0, type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='module LUT for HWModeSS=2, unused layers', group='TrigFTKSim')
     parser.add_argument('--MaxMissingSCTPairs', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='6/8 option for transition region', group='TrigFTKSim')
+    parser.add_argument('--Save1stStageTrks', default=False, type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='keep 1st stage tracks', group='TrigFTKSim')
     #end JDC
 
 

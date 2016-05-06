@@ -446,9 +446,9 @@ StatusCode FTKMergerAlgo::initialize(){
 	fin >> pos >> fval;
 	m_HW_dev[pos] = fval;
       }
+      //log<< MSG::INFO << "DONE Load Hit Warrior Configuration" << endreq;
     }
   }
-
   return StatusCode::SUCCESS;
 }
 
@@ -473,6 +473,9 @@ StatusCode FTKMergerAlgo::execute() {
                m_banks[ib]->naoSetNhitsTot(0);
                m_banks[ib]->naoSetNclusTot(0);
                m_banks[ib]->naoSetNroadsAM(0);
+               m_banks[ib]->naoSetNroadsAMComplete(0);
+               m_banks[ib]->naoSetNroadsAMMissPix(0);
+               m_banks[ib]->naoSetNroadsAMMissSCT(0);
                m_banks[ib]->naoSetNroadsMOD(0);
                m_banks[ib]->naoSetNclus(zerovec);
                m_banks[ib]->naoSetNss(zerovec);
@@ -491,6 +494,9 @@ StatusCode FTKMergerAlgo::execute() {
          m_banks[m_nregions]->naoSetNhitsTot(0);
          m_banks[m_nregions]->naoSetNclusTot(0);
          m_banks[m_nregions]->naoSetNroadsAM(0);
+         m_banks[m_nregions]->naoSetNroadsAMComplete(0);
+         m_banks[m_nregions]->naoSetNroadsAMMissPix(0);
+         m_banks[m_nregions]->naoSetNroadsAMMissSCT(0);
          m_banks[m_nregions]->naoSetNroadsMOD(0);
          m_banks[m_nregions]->naoSetNclus(zerovec);
          m_banks[m_nregions]->naoSetNss(zerovec);
@@ -2152,6 +2158,8 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
       merged_tracks->addNCombs(reg_tracks[ireg][isub]->getNCombs());
       merged_tracks->addNFits( reg_tracks[ireg][isub]->getNFits());
       merged_tracks->addNFitsMajority(reg_tracks[ireg][isub]->getNFitsMajority());
+      merged_tracks->addNFitsMajority_pix(reg_tracks[ireg][isub]->getNFitsMajority_pix());
+      merged_tracks->addNFitsMajority_SCT(reg_tracks[ireg][isub]->getNFitsMajority_SCT());
       merged_tracks->addNFitsRecovery(reg_tracks[ireg][isub]->getNFitsRecovery());
       merged_tracks->addNAddFitsRecovery(reg_tracks[ireg][isub]->getNAddFitsRecovery());
       merged_tracks->addNFitsBad(reg_tracks[ireg][isub]->getNFitsBad());
@@ -2164,6 +2172,8 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
       merged_tracks->addNCombsI(reg_tracks[ireg][isub]->getNCombsI());
       merged_tracks->addNFitsI(reg_tracks[ireg][isub]->getNFitsI());
       merged_tracks->addNFitsMajorityI(reg_tracks[ireg][isub]->getNFitsMajorityI());
+      merged_tracks->addNFitsMajorityI_pix(reg_tracks[ireg][isub]->getNFitsMajorityI_pix());
+      merged_tracks->addNFitsMajorityI_SCT(reg_tracks[ireg][isub]->getNFitsMajorityI_SCT());
       merged_tracks->addNFitsRecoveryI(reg_tracks[ireg][isub]->getNFitsRecoveryI());
       merged_tracks->addNAddFitsRecoveryI(reg_tracks[ireg][isub]->getNAddFitsRecoveryI());
       merged_tracks->addNFitsBadI(reg_tracks[ireg][isub]->getNFitsBadI());
@@ -2373,6 +2383,9 @@ StatusCode FTKMergerAlgo::merge_roads(FTKRoadStream * &newbank,FTKRoadStream **o
          found = true;
       }
       newbank->naoAddNroadsAM(oldbanks[isr]->naoGetNroadsAM());
+      newbank->naoAddNroadsAMComplete(oldbanks[isr]->naoGetNroadsAMComplete());
+      newbank->naoAddNroadsAMMissPix(oldbanks[isr]->naoGetNroadsAMMissPix());
+      newbank->naoAddNroadsAMMissSCT(oldbanks[isr]->naoGetNroadsAMMissSCT());
       newbank->naoAddNroadsMOD(oldbanks[isr]->naoGetNroadsMOD());
       int nroads = oldbanks[isr]->getNRoads();
       for (int iroad=0;iroad<nroads && m_MergeRoadsDetailed;++iroad) {

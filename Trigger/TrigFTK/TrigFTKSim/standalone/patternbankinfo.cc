@@ -42,16 +42,24 @@ int main(int argc, char const *argv[]) {
        ("help,h", "Print this help message")
        ("output,o",po::value<std::string>(&output),
         "Name of output root file for histograms")
-       ("files,f", po::value<std::vector<std::string> >(&files),
+       ("files", po::value<std::vector<std::string> >(),
         "Input files with pattern banks (sector,pcache,ccache)")
        ;
+    po::positional_options_description p;
+    p.add("files", -1);
+
     po::variables_map vm;
-    po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
+
+    po::store(po::command_line_parser(argc, argv).options(desc)
+              .positional(p).run(), vm);
     if (vm.count("help")) {
        cout << desc << "\n";
        return 1;
     }
     po::notify(vm);
+
+    files=vm["files"].as< vector<string> >();
+
    } catch (std::exception& e) {
       logging.Error("parse_arguments")<< e.what()<<"\n";
       return 1;
@@ -154,17 +162,32 @@ int main(int argc, char const *argv[]) {
                   <<"\""<<bankFile->GetName()<<"\" number of patterns: "
                   <<nPattern<<"\n";
                FTKPattern *pattern=new FTKPattern();
-               tree->SetBranchAddress("Pattern",&pattern);
-               TBranch *branch_sectorID=tree->GetBranch("m_sectorID");
+               if(tree->SetBranchAddress("Pattern",&pattern)!=0) {
+                  // no match, assume this is a flat file
+                  logging.Info("readPCachedBank")<<"try to read flat format\n";
+                  delete pattern;
+                  pattern=0;
+               }
+               TBranch *branch_sectorID;
+               int sectorID;
+               if(!pattern) {
+                  branch_sectorID=tree->GetBranch("sectorID");
+                  branch_sectorID->SetAddress(&sectorID);
+               } else {
+                  branch_sectorID=tree->GetBranch("m_sectorID");
+               }
+               map<int,int>sectorPatterns;
                for(int iPattern=0;iPattern<nPattern;++iPattern) {
                   branch_sectorID->GetEntry(iPattern);
-                  int sector=pattern->getSectorID();
-                  int i100=sector/100;
+                  if(pattern) sectorID=pattern->getSectorID();
+                  int i100=sectorID/100;
                   s100pattern[i100]++;
-                  uint64_t &npatt=s1pattern[sector];
+                  uint64_t &npatt=s1pattern[sectorID];
                   if(!npatt) s100sector[i100]++; // count sector only once
+                  sectorPatterns[sectorID]++;
                   npatt++;
                }
+               logging.Info("stat")<<"non-empty sectors: "<<sectorPatterns.size()<<"\n";
             }
             delete bankFile;
          }

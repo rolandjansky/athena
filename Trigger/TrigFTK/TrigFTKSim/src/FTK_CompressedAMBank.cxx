@@ -34,7 +34,6 @@
 #define PRINT_SS PRINT_DETAILS_NEVENT
 // #define PRINT_MULTIPLICITY
 // #define WRITE_DEADMODULE_TEMPLATE
-// #define DC_PATTERNS_REVERSE_SECTOR_ORDER
 // #define TESTDCSSID 19
 
 int const FTK_CompressedAMBank::MAX_NROAD=300000;
@@ -358,29 +357,30 @@ void FTK_CompressedAMBank::readSectorDefinition
 
 */
 int FTK_CompressedAMBank::writePCachedBankFile
-(char const *cachedBankFile,int flatFormat) const {
+(char const *cachedBankFile,int flatFormat,int nsub) const {
    TDirectory *outputFile=
       FTKRootFile::Instance()->CreateRootFile(cachedBankFile);
    TTree *amtree;
+   // loop over subregions
+   //  if(nsub==0) the loop is executed only once and all patterns are
+   //    stored in one TTree
+   //  if(nsub>0) the loopi s executed multiple times and
+   //    subregions are stored in different TTrees
    amtree=new TTree("Bank","Pattern bank");
    FTKPattern *curpatt =0;
-   int patternID; // pattern identification
-   int patternDBID; // pattern identification	
+   //int patternID; // pattern identification
    int nplanes; // number of planes
    int ssid[8]; //[m_nplanes] SS id on each plane
-   unsigned int ndc[8]; // number of DC bits per plane
    int sectorID; // sector containing this pattern
-   int coverage; // number of events that created this pattern
+   //int coverage; // number of events that created this pattern
    int dcmask; // DC mask for this pattern
    int hbmask; // half-bin mask
    if(flatFormat) {
-      amtree->Branch("patternID",&patternID,"patternID/I");
-      amtree->Branch("patternDBID",&patternDBID,"patternDBID/I");
+      //amtree->Branch("patternID",&patternID,"patternID/I");
       amtree->Branch("nplanes",&nplanes,"nplanes/I");
       amtree->Branch("ssid",ssid,"ssid[nplanes]/I");
-      amtree->Branch("ndc",ndc,"ndc[nplanes]/I");
       amtree->Branch("sectorID",&sectorID,"sectorID/I");
-      amtree->Branch("coverage",&coverage,"coverage/I");
+      //amtree->Branch("coverage",&coverage,"coverage/I");
       amtree->Branch("dcmask",&dcmask,"dcmask/I");
       amtree->Branch("hbmask",&hbmask,"hbmask/I");
    } else {
@@ -395,43 +395,33 @@ int FTK_CompressedAMBank::writePCachedBankFile
    }
    // the coverage in the cache file is arbitrary set to -1
    if(flatFormat) {
-      coverage=-1;
-      // set number of DC bits per plane (constant)
-      for(int i=0;i<getNPlanes();i++) {
-         ndc[i]=m_TSPmap->getNBits(i  );
-      }
+      //coverage=-1;
    } else {
       curpatt->setCoverage(-1);
    }
    // loop over sectors
+   int isub=getSubID();
+   VECTOR<int> sectorWritten;
    for(MAP<int,std::pair<int,int> >::const_iterator isector=
           m_SectorFirstLastPattern.begin();
        isector!=m_SectorFirstLastPattern.end();isector++) {
       int sector=(*isector).first;
-      if(!(sector%100)) {
+      if(nsub && (!flatFormat) &&((sector %nsub)!=isub)) continue;
+      if(!((sector-isub)%100)) {
          Info("writePCachedBankFile")<<"sector="<<sector<<"\n";
       }
+      sectorWritten.push_back(sector);
       int firstPattern=(*isector).second.first;
       int lastPattern=(*isector).second.second;
       // loop over all patterns in the sector
       for(int ipattern=firstPattern;ipattern<=lastPattern;ipattern++) {
          if(flatFormat) {
-            patternID=ipattern;
-            patternDBID=ipattern+1;
+            //patternID=ipattern+1;
          } else {
             curpatt->clearSubPatterns();
-            curpatt->setPatternID(ipattern);
+            curpatt->setPatternID(ipattern+1);
             curpatt->setPatternDBID(ipattern+1);
          }
-         // unpack pattern info: SSID and DC bits
-#ifdef BIT_PACKED_BANK
-         // FIXME:  this code is partially duplicated in simulateAM()
-         // the base bit is the start bit of the next pattern
-         // the planes are extracted in reverse order
-         uint64_t baseBit=
-            ((uint64_t)(ipattern+1))*m_bank.m_PatternBitsTotal;
-#endif
-         //
          // DC bits and HB mask are composed inside the loop 
          dcmask=0;
          hbmask=0;
@@ -465,7 +455,7 @@ int FTK_CompressedAMBank::writePCachedBankFile
             } else {
                curpatt->setSSID(ipl,dcSSID);
             }
-         }
+            }
          if(flatFormat) {
             sectorID=sector;
          } else {
@@ -479,11 +469,42 @@ int FTK_CompressedAMBank::writePCachedBankFile
          amtree->Fill();
       }
    }
+   if(curpatt) delete curpatt;
    // write tree
    amtree->Write("", TObject::kOverwrite);
+
+   if(flatFormat) {
+      TTree *auxtree=new TTree("Sector","Sector information");
+      unsigned int ndc[8]; // number of DC bits per plane
+      int sector,firstPattern,lastPattern,isub;
+      auxtree->Branch("nplanes",&nplanes,"nplanes/I");
+      auxtree->Branch("ndc",ndc,"ndc[nplanes]/I");
+      auxtree->Branch("sector",&sector,"sector/I");
+      auxtree->Branch("first",&firstPattern,"first/I");
+      auxtree->Branch("last",&lastPattern,"last/I");
+      auxtree->Branch("isub",&isub,"isub/I");
+      // set number of DC bits per plane (constant)
+      for(int i=0;i<getNPlanes();i++) {
+         ndc[i]=m_TSPmap->getNBits(i  );
+      }
+      for(int i=0;i<sectorWritten.size();i++) {
+         sector=sectorWritten[i];
+         MAP<int,std::pair<int,int> >::const_iterator isector=
+            m_SectorFirstLastPattern.find(sector);
+         firstPattern=(*isector).second.first;
+         lastPattern=(*isector).second.second;
+         isub= nsub ? (sector % nsub) : 0;
+         auxtree->Fill();
+      }
+      auxtree->Write("", TObject::kOverwrite);
+   }
+   //
+   // silently add ccache format
+   if(flatFormat>1) {
+      writeCCachedBankFile(outputFile);
+   }
    // close file
    delete outputFile;
-   if(curpatt) delete curpatt;
    return 0;
 }
 
@@ -523,6 +544,13 @@ std::pair<int,int> const &FTK_CompressedAMBank::getDCssid
       i=m_TSPtoDC[layer][sector].find(tspSSID);
    }   
    return (*i).second;
+}
+
+int FTK_CompressedAMBank::getDCssidConst
+(int layer,int sector,int tspSSID) const {
+   MAP<int,std::pair<int,int> >::const_iterator
+      i=(*m_TSPtoDC[layer].find(sector)).second.find(tspSSID);
+   return (*i).second.first;
 }
 
 /**
@@ -914,7 +942,7 @@ int FTK_CompressedAMBank::readROOTBankCache(char const *cachedBank) {
    read bank in pcache format (the format written by FTKTSPBank)
 */
 
-int FTK_CompressedAMBank::readPCachedBank(TDirectory *inputDir) {
+int FTK_CompressedAMBank::readPCachedBank(TDirectory *inputDir,int nsub) {
    MAP<int,int> sectorcount;
    int error=0;
    int32_t *ssidData=0;
@@ -958,14 +986,18 @@ int FTK_CompressedAMBank::readPCachedBank(TDirectory *inputDir) {
       }
       // loop over all patterns, determine maximum sector number
       //   and number of planes
+      int isub=getSubID();
       for(int iPattern=0;iPattern<nPattern;++iPattern) {
          // only read the branches which are really required
-         branch_nplanes->GetEntry(iPattern);
          branch_sectorID->GetEntry(iPattern);
+         if(pattern) {
+            sectorID=pattern->getSectorID();
+         }
+         if(nsub && (sectorID %nsub != isub)) continue;
+         branch_nplanes->GetEntry(iPattern);
          if(pattern) {
             // non-flat format, extract data from class FTKPattern
             nplanes=pattern->getNPlanes();
-            sectorID=pattern->getSectorID();
          }
          if(nplanes>nLayer) {
             nLayer=nplanes;
@@ -1316,225 +1348,11 @@ void FTK_CompressedAMBank::importDCpatterns
    }
 }
 
-/**
-   writeBinaryFile()
-
-   write out pattern bank as binary file
-
-   Fast but machine dependent. Use only for debugging.
-*/
-int FTK_CompressedAMBank::writeBinaryFile
-(char const *binaryFile) const {
-  int error=0;
-  int32_t sectorCountTotal=0;
-  int32_t ssidCountTotal=0;
-  std::ofstream ssidBinary(binaryFile);
-  if(!ssidBinary.is_open()) {
-    Fatal("writeBinaryFile")
-      <<"failed to create file \""<<binaryFile<<"\"\n";
-    return 1;
-  }
-  // number of layers
-  int32_t layerCount=m_bank.m_PatternByLayer.size();
-  ssidBinary.write((const char *)&layerCount,sizeof(int32_t));
-  // loop over all layers
-  for(unsigned layer=0;layer<m_bank.m_PatternByLayer.size();layer++) {
-     LayerData const &layerData=m_bank.m_PatternByLayer[layer];
-     int32_t ssidCount=layerData.m_SSidData.size();
-     Debug("writeBinaryFile")
-        <<"layer="<<layer
-        <<" number of SSIDs="<<ssidCount
-        <<" file="<<binaryFile
-        <<"\n";
-     ssidBinary.write((const char *)&ssidCount,sizeof(int32_t));
-     if(ssidBinary.fail()) {
-        Error("writeBinaryFile")
-           <<"problem to write header layer="<<layer<<"\n";
-        error++;
-        break;
-     }
-     ssidCountTotal += ssidCount;
-     // loop over all SSIDs in this layer
-     for(PatternBySectorSSidMap_t::const_ptr ssid=
-           layerData.m_SSidData.beginPtr();
-	ssid!=layerData.m_SSidData.endPtr();++ssid) {
-      int32_t ssidID=(*ssid).first;
-      int32_t sectorCount = (*ssid).second.size();
-      ssidBinary.write((const char *)&ssidID,sizeof(int32_t));
-      if(ssidBinary.write((const char *)&sectorCount,sizeof(int32_t)).
-	 fail()) {
-         error++;
-        Error("writeBinaryFile")
-           <<"problem to write sector count layer="<<layer
-           <<" ssid="<<ssidID<<" count="<<sectorCount<<"\n";
-      }
-      sectorCountTotal += sectorCount;
-      // loop over sectors with several patterns
-      for(PatternBySector_t::const_ptr sector=(*ssid).second.beginPtr();
-          sector!=(*ssid).second.endPtr();++sector) {
-	int32_t sectorID=(*sector).first;
-	ssidBinary.write((const char *)&sectorID,sizeof(int32_t));
-	SectorData const &data=(*sector).second;
-        int32_t firstPattern;
-        firstPattern=data.m_FirstPattern;
-	ssidBinary.write((const char *)&firstPattern,sizeof(int32_t));
-	ssidBinary.write((const char *)&data.m_NPattern,sizeof(int32_t));
-	uint32_t nData=data.m_length;
-	ssidBinary.write((const char *)&nData,sizeof(uint32_t));
-	if(nData>0)
-           // here the bulk of the data is written
-           //  dump all pattern data for this layer/ssid/sector
-           ssidBinary.write((const char *)
-                            m_bank.m_PatternByLayer[layer].
-                            m_CompressedDeltaBySector[sectorID].data(),
-                            nData*sizeof(uint8_t));
-        if(ssidBinary.fail()) {
-           Error("writeBinaryFile")
-              <<"problem to write sector data layer="<<layer
-              <<" ssid="<<ssidID<<" sector="<<sectorID
-              <<" nPattern="<<data.m_NPattern
-              <<" nData="<<nData<<"\n";
-           error++;
-           if(error) break;
-        }
-      }
-      if(error) break;
-    }
-    if(error) break;
-  }
-  if(error) {
-    Error("writeBinaryFile")
-      <<"problem with writing binary file \""
-      <<binaryFile
-      <<"\"\n";
-  }
-  Info("writeBinaryFile")
-    <<"number of SSIDs="<<ssidCountTotal
-    <<" total number of sectors="<<sectorCountTotal<<"\n"
-    <<" average number of sectors per SSID="
-    << ((ssidCountTotal > 0) ? (sectorCountTotal/(double)ssidCountTotal) : -1 )<<"\n";
-  return error;
-}
-
 void FTK_CompressedAMBank::erase(void) {
    m_bank.m_PatternByLayer.resize(0);
    m_bank.m_pattern8Data.resize(0);
    m_bank.m_pattern16Data.resize(0);
    setNPlanes(0);
-}
-
-/**
-   readBinaryFile()
-
-   read bank data from a binary file
-
-   Fast but machine dependent. Use only for debugging.
-*/
-int FTK_CompressedAMBank::readBinaryFile
-(char const *binaryFile) {
-   erase();
-   std::ifstream ssidBinary(binaryFile);
-   if(!ssidBinary.is_open()) {
-      Fatal("readBinaryFile")
-         <<"failed to open file \""<<binaryFile<<"\"\n";
-      return 1;
-   }
-   // number of layers
-   uint32_t nLayer=0;
-   ssidBinary.read((char *)&nLayer,sizeof(int32_t));
-   int error=0;
-   if(ssidBinary.fail()) {
-      error++;
-      nLayer=0;
-   }
-   Debug("readBinaryFile")<<"Number of layers: "<<nLayer<<"\n";
-   m_bank.m_PatternByLayer.resize(nLayer);
-   setNPlanes(nLayer);
-   for(uint32_t layer=0;layer<nLayer;layer++) {
-      int32_t ssidCount;
-      ssidBinary.read((char *)&ssidCount,sizeof(int32_t));
-      if(ssidBinary.fail()) {
-         if(!error) {
-            Error("readBinaryFile")
-               <<"problem to read layer #"<<layer
-               <<" nSSid="<<ssidCount<<"\n";
-         }
-         error++;
-         break;
-      }
-      LayerData &layerData=m_bank.m_PatternByLayer[layer];
-      Debug("readBinaryFile")
-         <<"layer="<<layer<<" number of SSIDs="<<ssidCount<<"\n";
-    //PatternBySectorSSidMap_t &layerMap=ssidMap[layerId];
-      for(int iSSid=0;iSSid<ssidCount;iSSid++) {
-         int32_t ssidID=-1;
-         int32_t sectorCount=-1;
-         ssidBinary.read((char *)&ssidID,sizeof(int32_t));
-         ssidBinary.read((char *)&sectorCount,sizeof(int32_t));
-         if(ssidBinary.fail()) {
-            if(!error) {
-               Error("readBinaryFile")
-                  <<"problem to read ssid #"<<iSSid
-                  <<" (layer="<<layer
-                  <<") ID="<<ssidID<<" nSector="<<sectorCount<<"\n";
-            }
-            error++;
-            break;
-         }
-         for(int iSector=0;iSector<sectorCount;iSector++) {
-            int32_t sectorID=-1;
-            int32_t firstPattern=-1;
-            int32_t nPattern=-1;
-            uint32_t nData=-1;
-            ssidBinary.read((char *)&sectorID,sizeof(int32_t));
-            ssidBinary.read((char *)&firstPattern,sizeof(int32_t));
-            ssidBinary.read((char *)&nPattern,sizeof(int32_t));
-            ssidBinary.read((char *)&nData,sizeof(int32_t));
-            SectorData &sectorData=layerData.m_SSidData[ssidID][sectorID];
-            sectorData.m_FirstPattern=firstPattern;
-            sectorData.m_NPattern=nPattern;
-            if((int)m_bank.m_PatternByLayer[layer].
-               m_CompressedDeltaBySector.size()<sectorID+1) {
-               m_bank.m_PatternByLayer[layer].
-                  m_CompressedDeltaBySector.resize(sectorID+1);
-            }
-            sectorData.m_offset=
-               m_bank.m_PatternByLayer[layer].
-               m_CompressedDeltaBySector[sectorID].size();
-            sectorData.m_length=nData;
-            if(nData) {
-               m_bank.m_PatternByLayer[layer].
-                  m_CompressedDeltaBySector[sectorID].resize
-                  (sectorData.m_offset+nData);
-               ssidBinary.read((char*)m_bank.m_PatternByLayer[layer].
-                               m_CompressedDeltaBySector
-                               [sectorID].data()+sectorData.m_offset,
-                               nData*sizeof(uint8_t));
-            }
-            if(ssidBinary.fail()) {
-               if(!error) {
-                  Error("readBinaryFile")
-                     <<"problem to read sector data #"<<iSector
-                     <<" (layer="<<layer<<" ssid="<<ssidID
-                     <<") ID="<<sectorID
-                     <<" firstPattern="<<firstPattern
-                     <<" nPattern="<<nPattern
-                     <<" nData="<<nData
-                     <<"\n";
-               }
-               error++;
-               break;
-            }
-         }
-      }
-   }
-   if(error) {
-      Fatal("readBinaryFile")
-         <<"nError="<<error<<" reading SSID banks from "<<binaryFile<<"\n";
-      return error;
-   }
-   readBankPostprocessing("readBinaryFile");
-   return 0;
 }
 
 /**
@@ -1925,9 +1743,6 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
                         sectordata.m_FirstPattern,sectordata.m_NPattern);
          }
       }
-#ifdef BIT_PACKED_BANK
-      layerBaseBit += nBitLayer;
-#endif
    }
    // count number of encoded patterns
    uint64_t nTSPpatterns=0;
@@ -2016,11 +1831,19 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
 */
 void FTK_CompressedAMBank::readWildcards(void) {
    // read wildcards from file
+   int maxSector=0;
+   if(m_SectorFirstLastPattern.rbegin()!=m_SectorFirstLastPattern.rend()) 
+      maxSector=(*m_SectorFirstLastPattern.rbegin()).first+1;
    std::string wildcardFileName[2];
    wildcardFileName[0]=getBadSSMapPath();
    wildcardFileName[1]=getBadSSMapPath2();
-   VECTOR<std::set<int> > wildcards(getNPlanes());
+   m_badSSID.resize(0);
+   m_SectorWC.resize(0);
+   m_SectorWC.resize(maxSector);
+   m_badSSID.resize(getNPlanes());
+   VECTOR<HitPattern_t> sectorWithDeadModuleList(maxSector);
    for(int iFile=0;iFile<2;iFile++) {
+      VECTOR<std::set<int> > wildcards(getNPlanes());
       if(!wildcardFileName[iFile].size()) continue;
       Info("readWildcards")<<"reading from "<<wildcardFileName[iFile]<<"\n";
       std::ifstream wildcardFile(wildcardFileName[iFile].c_str());
@@ -2065,90 +1888,155 @@ void FTK_CompressedAMBank::readWildcards(void) {
             if(localid!=-1) {
                wildcards[tmpPlane].insert(localid);
                //std::cout<<"wildcard for plane="<<tmpPlane
-               //       <<" local="<<localid<<" global="<<tmpidhash<<"\n";
+               //      <<" local="<<localid<<" global="<<tmpidhash<<"\n";
             } else {
                //std::cout<<"skipping global="<<tmpidhash<<"\n";
             }
          }
       }
+      // store wildcards in sector table and in list of bad SSIDs
+      for(int iPlane=0;iPlane<getNPlanes();iPlane++) {
+         if(! wildcards[iPlane].size()) continue;
+         Info("readWildcards")
+            <<"plane="<<iPlane<<" read "
+            <<wildcards[iPlane].size()<<" modules\n";
+         //for(std::set<int>::const_iterator wc=wildcards[iPlane].begin();
+         //    wc!=wildcards[iPlane].end();wc++) {
+         //}
+         PatternBySectorSSidMap_t const &planeData=
+            m_bank.m_PatternByLayer[iPlane].m_SSidData;
+         MAP<int,int> sectorFlag;
+         for(PatternBySectorSSidMap_t::const_ptr iSSid=planeData.beginPtr();
+             iSSid!=planeData.endPtr();++iSSid) {
+            int nDim=m_TSPmap->getDim(iPlane);
+            int tspSSID=(*iSSid).first;
+            int phimod=-1,etacode=-1,section=0;
+            int localX=0,localY=0;
+            int moduleId=0;
+            if (getHWModeSS_tsp()==0) {
+               // ********* GLOBAL SSID HW Format **********
+               if(nDim==2) {
+                  // PXL case
+                  getSSMapTSP()->decodeSSxy
+                     (tspSSID,iPlane,section,phimod,localX,etacode,localY);
+                  moduleId=getSSMapTSP()->getSSxy
+                     (iPlane,section,phimod,etacode,0,0);
+               } else {
+                  // SCT case
+                  getSSMapTSP()->decodeSSx
+                     (tspSSID,iPlane,section,phimod,localX,etacode);
+                  moduleId=getSSMapTSP()->getSSx(iPlane,section,phimod,etacode,0);
+               }
+            } else if (getHWModeSS_tsp()==2) {
+               // here, assume section=0 for encoding/decoding the SSID
+               if(nDim==2) {
+                  getSSMapTSP()->decodeSSTowerXY
+                     (tspSSID,getBankID(),iPlane,section,
+                      moduleId,localX,localY);
+               } else {
+                  getSSMapTSP()->decodeSSTowerX(tspSSID,getBankID(),iPlane,section,
+                                                moduleId,localX);
+               }
+            }
+            int mask=1;
+            if(wildcards[iPlane].find(moduleId)!=wildcards[iPlane].end()) {
+               mask=2;
+               m_badSSID[iPlane].insert(tspSSID);
+               //std::cout<<" found SSID "<<tspSSID<<" bad module "<<moduleId<<"\n";
+            }
+            for(PatternBySector_t::const_ptr sector=(*iSSid).second.beginPtr();
+                sector!=(*iSSid).second.endPtr();++sector) {
+               sectorFlag[(*sector).first] |= mask;
+               if(mask & 2) {
+                  sectorWithDeadModuleList[(*sector).first] |= (1<<iPlane);
+               }
+            }
+         }
+         if(iFile==0) {
+            // iFile==0: excluded modules should be used as wildcards
+            //  sectorFlag[]
+            //     1 : module not bad in this (plane,sector)
+            //     2 : module is bad in this (plane,sector)
+            //     3 : inconsistency
+            int n2=0,n3=0;
+            for(MAP<int,int>::const_iterator sector=sectorFlag.begin();
+                sector!=sectorFlag.end();sector++) {
+               if((*sector).second==2) {
+                  // in this sector, all SSid fulfil the condition
+               m_SectorWC[(*sector).first] |= 1<<iPlane;
+               n2++;
+               } else if((*sector).second==3) {
+                  n3++;
+               }
+            }
+            if(n3) {
+               Fatal("readWildcards")<<"module wildcards plane="<<iPlane<<" can not be applied: n3="<<n3<<"\n";
+            }
+         }
+      }
    }
-   // store wildcards in sector table and in list of bad SSIDs
-   m_badSSID.resize(0);
-   int maxSector=0;
-   if(m_SectorFirstLastPattern.rbegin()!=m_SectorFirstLastPattern.rend()) 
-      maxSector=(*m_SectorFirstLastPattern.rbegin()).first+1;
-   m_SectorWC.resize(0);
-   m_SectorWC.resize(maxSector);
-   m_badSSID.resize(getNPlanes());
-   for(int iPlane=0;iPlane<getNPlanes();iPlane++) {
-      if(! wildcards[iPlane].size()) continue;
+   // filter wildcards according to Alberto's prescription
+   //   (email received 16/02/25)
+   int n0wc=0,n1wc=0,n2wc=0,nSilent=0;
+   for(unsigned sectorID=0;sectorID<m_SectorWC.size();sectorID++) {
+      int nDeadPlane=m_nHit16[m_SectorWC[sectorID]];
+      if(nDeadPlane<2) {
+         // zero or one dead plane: keep wildcard
+         //   -> 7/8 or 6/7 hits required
+         if(nDeadPlane==1) n1wc++;
+         else n0wc++;
+         continue; 
+      } else if(nDeadPlane==2) {
+         n2wc++;
+         // two dead planes, remove wildcard for one of them
+         //  -> 6/6 hits required
+         for(int mask=(1<<(getNPlanes()-1));mask;mask>>=1) {
+            if(m_SectorWC[sectorID] & mask) {
+               m_SectorWC[sectorID] &= ~mask;
+               break;
+            }
+         }
+      } else {
+         nSilent++;
+         // more than two dead planes, remove all wildcards
+         //  -> sector is made silent
+         m_SectorWC[sectorID]=0;
+      }
+   }
+
+   // print a summary
+   int nSectorWithDeadModule=0;
+   VECTOR<int> nDeadPlanes(getNPlanes()+1);
+   // count number of sectors with dead modules and with wildcard
+   for(unsigned sectorID=0;sectorID<m_SectorWC.size();sectorID++) {
+      if(sectorWithDeadModuleList[sectorID]) nSectorWithDeadModule++;
+      nDeadPlanes[m_nHit16[sectorWithDeadModuleList[sectorID]]]++;
+   }
+   int np=getNPlanes();
+   Info("readWildcards")
+      <<"number of sectors with dead module(s): "<<nSectorWithDeadModule<<"\n";
+   Info("readWildcards")
+      <<"sectors with ("<<(np-1)<<"/"<<np<<"): "<<n0wc<<"\n";
+   if(n1wc) {
       Info("readWildcards")
-         <<"plane="<<iPlane<<" read "<<wildcards[iPlane].size()<<" wildcards\n";
-      for(std::set<int>::const_iterator wc=wildcards[iPlane].begin();
-          wc!=wildcards[iPlane].end();wc++) {
-         //std::cout<<" "<<(*wc)<<"\n";
-      }
-      PatternBySectorSSidMap_t const &planeData=
-         m_bank.m_PatternByLayer[iPlane].m_SSidData; MAP<int,int> sectorFlag;
-      for(PatternBySectorSSidMap_t::const_ptr iSSid=planeData.beginPtr();
-          iSSid!=planeData.endPtr();++iSSid) {
-         int nDim=m_TSPmap->getDim(iPlane);
-         int tspSSID=(*iSSid).first;
-         int phimod=-1,etacode=-1,section=0;
-         int localX=0,localY=0;
-         int moduleId=0;
-         if (getHWModeSS_tsp()==0) {
-            // ********* GLOBAL SSID HW Format **********
-            if(nDim==2) {
-               // PXL case
-               getSSMapTSP()->decodeSSxy
-                  (tspSSID,iPlane,section,phimod,localX,etacode,localY);
-               moduleId=getSSMapTSP()->getSSxy
-                  (iPlane,section,phimod,etacode,0,0);
-            } else {
-               // SCT case
-               getSSMapTSP()->decodeSSx
-                  (tspSSID,iPlane,section,phimod,localX,etacode);
-               moduleId=getSSMapTSP()->getSSx(iPlane,section,phimod,etacode,0);
-            }
-         } else if (getHWModeSS_tsp()==2) {
-            // here, assume section=0 for encoding/decoding the SSID
-            if(nDim==2) {
-               getSSMapTSP()->decodeSSTowerXY
-                  (tspSSID,getBankID(),iPlane,section,
-                   moduleId,localX,localY);
-            } else {
-               getSSMapTSP()->decodeSSTowerX(tspSSID,getBankID(),iPlane,section,
-                                             moduleId,localX);
-            }
-         }
-         int mask=1;
-         if(wildcards[iPlane].find(moduleId)!=wildcards[iPlane].end()) {
-            mask=2;
-            m_badSSID[iPlane].insert(tspSSID);
-            //std::cout<<" found SSID "<<tspSSID<<" bad module "<<moduleId<<"\n";
-         }
-         for(PatternBySector_t::const_ptr sector=(*iSSid).second.beginPtr();
-             sector!=(*iSSid).second.endPtr();++sector) {
-            sectorFlag[(*sector).first] |= mask;
-         }
-      }
-      int n2=0,n3=0;
-      for(MAP<int,int>::const_iterator sector=sectorFlag.begin();
-          sector!=sectorFlag.end();sector++) {
-         if((*sector).second==2) {
-            // in this sector, all SSid fulfil the condition
-            m_SectorWC[(*sector).first] |= 1<<iPlane;
-            n2++;
-         } else if((*sector).second==3) {
-            n3++;
-         }
-      }
-      if(n2) {
-         Info("readWildcards")<<"module wildcards plane="<<iPlane<<" #sectors="<<n2<<"\n";
-      }
-      if(n3) {
-         Fatal("readWildcards")<<"module  wildcards plane="<<iPlane<<" can not be applied: n3="<<n3<<"\n";
+         <<"sectors with ("<<(np-2)<<"/"<<(np-1)<<"): "<<n1wc<<"\n";
+   }
+   if(n2wc) {
+      Info("readWildcards")
+         <<"sectors with ("<<(np-2)<<"/"<<(np-2)<<"): "<<n2wc<<"\n";
+   }
+   if(nSilent) {
+      Info("readWildcards")
+         <<"disabled sectors: "<<nSilent<<"\n";
+   }
+   for(int i=0;i<=getNPlanes();i++) {
+      if(!nDeadPlanes[i]) continue;
+      if(i<2) {
+         Info("readWildcards")
+            <<"sectors with "<<i<<" dead module(s): "<<nDeadPlanes[i]<<"\n";
+      } else if(i<4) {
+         Warning("readWildcards")
+            <<"sectors with "<<i<<" dead module(s): "<<nDeadPlanes[i]<<"\n";
       }
    }
 }
@@ -2404,9 +2292,28 @@ int FTK_CompressedAMBank::readCCachedBank(TDirectory *inputDir) {
           nData : size of compressed data
     data[nData] : compressed pattern data
 */
-int FTK_CompressedAMBank::writeCCachedBankFile(char const *filename) const {
+int FTK_CompressedAMBank::writeCCachedBankFile(char const *filename,int flatFormat) const {
+   int error;
+   if(flatFormat==0) {
+      TDirectory *out=FTKRootFile::Instance()->CreateRootFile(filename);
+      if(out) {
+         error=writeCCachedBankFile(out);
+         delete out;
+      } else {
+         error=1;
+         Error("writeCCachedBankFile")
+            <<" could not open \""<<filename<<"\" for writing\n";
+      }
+   } else {
+      error=writeBANKjson(filename);
+   }
+   return error;
+}
+
+int FTK_CompressedAMBank::writeCCachedBankFile(TDirectory *out) const {
    int error=0;
-   TDirectory *out=FTKRootFile::Instance()->CreateRootFile(filename);
+   TDirectory *back=gDirectory;
+   out->cd();
    for(unsigned layer=0;layer<m_bank.m_PatternByLayer.size();layer++) {
       LayerData const &layerData=m_bank.m_PatternByLayer[layer];
       TString treeName(TString::Format("Layer%d",layer));
@@ -2421,9 +2328,9 @@ int FTK_CompressedAMBank::writeCCachedBankFile(char const *filename) const {
             if(nword>maxDataSize) maxDataSize=nword;
          }
       }
-      Info("writeCCachedBankFile")
-         <<"layer="<<layer<<" file="<<filename
-         <<" maxDeltaSize="<<maxDataSize<<"\n";
+      /* Info("writeCCachedBankFile")
+         <<"layer="<<layer
+         <<" maxDeltaSize="<<maxDataSize<<"\n"; */
       Int_t ssidVar,sectorVar,firstPatternVar,nPatternVar,nDataVar;
       std::vector<Int_t> data(maxDataSize);
       ssidTree->Branch("ssid",&ssidVar,"ssid/I");
@@ -2454,13 +2361,200 @@ int FTK_CompressedAMBank::writeCCachedBankFile(char const *filename) const {
       }
       ssidTree->Write("", TObject::kOverwrite);      
       Info("writeCCachedBankFile")
-         <<"layer="<<layer<<" file="<<filename
+         <<"layer="<<layer
          <<" nSector="<<ssidTree->GetEntriesFast()<<" written\n";
    }
-   delete out;
+   back->cd();
    return error;
 }
 
+void  FTK_CompressedAMBank::SplitlistHUF
+(uint64_t code,int *i2char,int *integral,int i0,int i1,
+ VECTOR<int> &huftable,VECTOR<uint64_t> &hufcode) const {
+   if(i0==i1) {
+      huftable.push_back(0);
+      huftable.push_back(i2char[i0]);
+      hufcode[i2char[i0]]=code;
+   } else {
+      int thresh=(integral[i0]+integral[i1])/2;
+      int j0=i0;
+      int j1=i1;
+      while(j0<j1) {
+         int j2=(j0+j1)/2;
+         if(integral[j2]<=thresh) {
+            j0=j2+1;
+         } else {
+            j1=j2;
+         }
+      }
+      int hufindex=huftable.size();
+      huftable.push_back(0);
+      SplitlistHUF((code<<1)+1,i2char,integral,j0,i1,huftable,hufcode);
+      huftable[hufindex]=huftable.size()-hufindex;
+      SplitlistHUF((code<<1),i2char,integral,i0,j0-1,huftable,hufcode);
+   }
+}
+
+int FTK_CompressedAMBank::writeBANKjson(char const *jsonFile) const {
+   int error=0;
+   std::ofstream out(jsonFile);
+   MAP< int,VECTOR< MAP<int,MAP<int,SectorData const *> > > > tspBySectorDC;
+
+#ifdef JSON_HUF
+   // set up tables for huf encoding
+   VECTOR<VECTOR<int> > multiplicity(m_bank.m_PatternByLayer.size());
+   VECTOR<VECTOR<int> > huftable(m_bank.m_PatternByLayer.size());
+   VECTOR<VECTOR<int> > hufcodeSize(m_bank.m_PatternByLayer.size());
+   VECTOR<VECTOR<uint64_t> > hufcode(m_bank.m_PatternByLayer.size());
+#endif
+   for(unsigned layer=0;layer<m_bank.m_PatternByLayer.size();layer++) {
+#ifdef JSON_HUF
+      multiplicity[layer].resize(256);
+#endif
+      LayerData const &layerData=m_bank.m_PatternByLayer[layer];
+      for(PatternBySectorSSidMap_t::const_ptr ssid=
+             layerData.m_SSidData.beginPtr();
+          ssid!=layerData.m_SSidData.endPtr();++ssid) {
+         for(PatternBySector_t::const_ptr sector=(*ssid).second.beginPtr();
+             sector!=(*ssid).second.endPtr();++sector) {
+            VECTOR< MAP<int,MAP<int,SectorData const *> > >
+               &layerData=tspBySectorDC[(*sector).first];
+            if(!layerData.size()) layerData.resize(getNPlanes());
+            int dc=getDCssidConst(layer,(*sector).first,(*ssid).first);
+            SectorData const *sd=&(*sector).second;
+            layerData[layer][dc][(*ssid).first]=sd;
+#ifdef JSON_HUF
+            uint8_t const *ptr=m_bank.m_PatternByLayer[layer]
+               .m_CompressedDeltaBySector[(*sector).first].data()+sd->m_offset;
+            for(int i=sd->m_length;i;i--) {
+               multiplicity[layer][*(ptr++)]++;
+            }
+#endif
+         }
+      }
+#ifdef JSON_HUF
+      MAP<int64_t,int> ordered;
+      for(int i=0;i<256;i++) {
+         if(multiplicity[layer][i]) {
+            ordered[(multiplicity[layer][i]<<8)+i]=i;
+         }
+      }
+      Info("writeBANKjson")<<"layer "<<layer
+                           <<" HUF tree number of characters "
+                           <<ordered.size()<<"\n";
+      int sum=0,ii=0;
+      int integral[256],i2char[256];
+      for(MAP<int64_t,int>::const_iterator i=ordered.begin();
+          i!=ordered.end();i++) {
+         sum += (*i).first>>8;
+         integral[ii]=sum;
+         i2char[ii++]=(*i).second;
+      }
+      hufcode[layer].resize(256);
+      hufcodeSize[layer].resize(256);
+      SplitlistHUF(1,i2char,integral,0,ordered.size()-1,huftable[layer],
+                   hufcode[layer]);
+      for(int i=0;i<256;i++) {
+         int b;
+         for(b=31;b;b--) {
+            if(hufcode[layer][i] & (1<<b)) break;
+         }
+         hufcodeSize[layer][i]=b;
+      }
+#endif
+   }
+   
+
+   Info("writeBANKjson")<<"output file=\""<<jsonFile<<"\"\n";
+#ifdef JSON_HUF
+   out<<"{\"huftables\":[\n";
+   for(int l=0;l<huftable.size();l++) {
+      if(l)out<<",\n";
+      out<<"{\"layer\":"<<l<<",\"huf\":[\n";
+      for(int i=0;i<huftable[l].size();i++) {
+         if(i) out<<",";
+         out<<huftable[l][i];
+      }
+      out<<"\n]}\n";
+   }
+   out<<"],";
+#else
+   out<<"{";
+#endif
+   out<<"\"patterns\":[";
+   for( MAP< int,VECTOR< MAP<int, MAP<int,SectorData const *> > > >
+           ::const_iterator
+           iSector=tspBySectorDC.begin();iSector!=tspBySectorDC.end();
+        iSector++) {
+      if(iSector!=tspBySectorDC.begin()) out<<",\n";
+      int sector=(*iSector).first;
+      std::pair<int,int> firstLast=
+         (*m_SectorFirstLastPattern.find(sector)).second;
+      out<<"{\"sector\":"<<sector
+         <<",\"first\":"<<firstLast.first
+         <<",\"last\":"<<firstLast.second
+         <<",[\n";
+      for(unsigned layer=0;layer<(*iSector).second.size();layer++) {
+         MAP<int, MAP<int,SectorData const *> >
+            const &ssidData((*iSector).second[layer]);
+         if(layer) out<<",\n";
+         out<<" {\"layer\":"<<layer<<",[\n";
+         for(MAP<int, MAP<int,SectorData const *> >::const_iterator
+                iDC=ssidData.begin();iDC!=ssidData.end();
+             iDC++) {
+            if(iDC!=ssidData.begin()) out<<",\n";
+            out<<"  {\"DCssid\":"<<(*iDC).first<<",\"tspList\":[\n";
+            for(MAP<int,SectorData const *>::const_iterator
+                   iTSP=(*iDC).second.begin();
+                iTSP!=(*iDC).second.end();iTSP++) {
+               SectorData const *sd=(*iTSP).second;
+               if(iTSP!=(*iDC).second.begin()) out<<",\n";
+               out<<"   {\"TSPssid\":"<<(*iTSP).first
+                  <<",\"first\":"<<sd->m_FirstPattern
+                  <<",\"nPatt\":"<<sd->m_NPattern
+                  <<",\"nData\":"<<sd->m_length
+                  <<",\"data\":\"";
+               uint8_t const *ptr=m_bank.m_PatternByLayer[layer]
+                  .m_CompressedDeltaBySector[sector].data()+sd->m_offset;
+#ifdef JSON_HUF
+               char c=0;
+               int ibit=5;
+               for(int i=sd->m_length;i;i--) {
+                  int data=*(ptr++);
+                  uint64_t code=hufcode[layer][data];
+                  for(int b=hufcodeSize[layer][data];b>=0;b--) {
+                     if(code & (1LL<<b)) c|=(1<<ibit);
+                     ibit--;
+                     if(ibit<0) {
+                        out<<(char)(c+'0');
+                        c=0;
+                        ibit=5;
+                     }
+                  }
+               }
+               if(ibit!=5) out<<(char)(c+'0');
+#else
+               for(int i=sd->m_length;i;i--) {
+                  uint8_t data=*(ptr++)+0x33;
+                  if((data>=23)&&(data<127)&&(data!='\\')) {
+                     out<<(char)data;
+                  } else {
+                     out<<"\\h"<<std::setbase(16)<<std::setw(2)
+                        <<(int)data<<std::setbase(10);
+                  }
+               }
+#endif
+               out<<"\"}";
+            }
+            out<<"]}";
+         }
+         out<<"\n ]}";
+      }
+      out<<"\n]}";
+   }
+   out<<"\n]\n}\n";
+   return error;
+}
 
 void FTK_CompressedAMBank::insertPatterns
 (int sector,FTKPatternOneSector const *patterns,
@@ -2530,7 +2624,7 @@ void FTK_CompressedAMBank::insertPatterns
    interface provided by base class
 */
 int FTK_CompressedAMBank::readROOTBank(const char *name, int maxpatts) {
-   return readSectorOrderedBank(name,maxpatts,1);
+   return readSectorOrderedBank(name,maxpatts,1,0);
 }
 
 
@@ -2539,118 +2633,337 @@ int FTK_CompressedAMBank::readROOTBank(const char *name, int maxpatts) {
    readSectorOrderedBank()
 
    read sector-ordered bank, convert to DC patterns
-   possibly split bank into subregions
+   only one subregion is selected, see
+      FTKPatternBySectorReader::SelectSubregion()
 */
 int FTK_CompressedAMBank::readSectorOrderedBank(const char *name, int maxpatts,
-                                                int nSub) {
+                                                int nSub,int numSectorMax) {
+   // create partitions based on the number of subregions
+   std::list<Partition> partitions;
+   TDirectory *infile=FTKRootFile::Instance()->OpenRootFileReadonly(name);
+   if(infile) {
+      std::set<int> subregion;
+      {
+         FTKPatternBySectorReader reader(*infile,"FTKPatternBySectorReader");
+         reader.SelectSubregion(nSub,getSubID());
+         for(int sector=reader.GetFirstSector();sector>=0;
+             sector=reader.GetNextSector(sector)) {
+            subregion.insert(sector);
+         }
+         int nSectorMax=-1;
+         if(numSectorMax>0) {
+            nSectorMax=nSub>0 ? numSectorMax/nSub : numSectorMax;
+         }
+         partitions.push_back(Partition(maxpatts,nSectorMax,subregion));
+      }
+      delete infile;
+   } else {
+      Error("readSectorOrderedBank")<<"failed to open \""<<name<<"\"\n";
+   }
+   return readPartitionedSectorOrderedBank(name,partitions);
+}
+
+/**
+   readSectorOrderedBank()
+
+   read sector-ordered bank, convert to DC patterns
+   the DC patterns are filled using the predefined partitions, each partition
+   with a maximum number of patterns
+
+   here, the partition list is read from an ASCII file
+
+   if(nSub>0), split the list into subregions and read only one subregion
+   otherwise, all partitions are read
+*/
+
+int FTK_CompressedAMBank::readSectorOrderedBank
+(const char *name,const char *partitionListName,int nSub,int numSectorMax) {
+   std::list<Partition> partitionList;
+   ftk_dcap::istream *partitionFile=ftk_dcap::open_for_read(partitionListName);
+   if(!partitionFile) {
+      Error("readSectorOrderedBank")
+         <<"partition file \""<<partitionListName<<"\" can not be opened\n";
+   }
+   std::map<int,int> allSectors;
+   std::vector<int> nPatternBySR(nSub>0 ? nSub : 1);
+   for(int partition=0;!partitionFile->eof();partition++) {
+      std::string id="";
+      int iPart=-1,nPatt=-1,nSect=-1;
+      (*partitionFile)>>id;
+      if(partitionFile->fail()) break;
+      (*partitionFile)>>iPart>>nPatt>>nSect;
+      if((partitionFile->fail())||(id!="PARTITION")) {
+         Error("readSectorOrderedBank")
+            <<"failed to read partition header from file "
+            <<partitionListName
+            <<" ("<<id<<" "<<iPart<<" "<<nPatt<<" "<<nSect<<")\n";
+         break;
+      }
+      if(iPart!=partition) {
+         Warning("readSectorOrderedBank")
+            <<"Partition numbers "<<iPart<<" not in sequence , expect "
+            <<partition<<"\n";
+      }
+      if(nSect<=0) {
+         Error("readSectorOrderedBank")
+            <<"invalid number of sector for partition "<<iPart<<" nsect="
+            <<nSect<<"\n";
+         break;
+      }
+      std::set<int> sectors;
+      int isub=-1;
+      for(int i=0;i<nSect;i++) {
+         int sector=-1;
+         (*partitionFile)>>sector;
+         if(partitionFile->fail()||(sector<0)) {
+             Error("readSectorOrderedBank")
+                <<"invalid sector number "<<sector<<" (position "<<i
+                <<" in partition "<<iPart<<")\n";
+             break;
+         }
+         if(nSub) {
+            int jsub=sector%nSub;
+            if((isub>=0)&&(jsub!=isub)) {
+               Error("readSectorOrderedBank")
+                  <<"subregion splitting requested, but partition "
+                  <<iPart<<" includes sectors from several subregions"
+                  <<" isub="<<isub<<" sector="<<sector<<"\n";
+            }
+            isub=jsub;
+            if(isub!=getSubID()) continue;
+         }
+         if(!sectors.insert(sector).second) {
+            Error("readSectorOrderedBank")
+               <<"duplicate sector ID "<<sector
+               <<" within partition "<<iPart<<"\n";
+         } else {
+            std::pair<std::map<int,int>::iterator,bool> r=
+               allSectors.insert(std::make_pair(sector,iPart));
+            if(!r.second) {
+               Error("readSectorOrderedBank")
+                  <<"duplicate sector ID "<<sector
+                  <<" in partition "<<iPart<<" and "<<(*r.first).second<<"\n";
+            }
+         }
+      }
+      if(!sectors.size()) continue;
+      if(sectors.size()!=(unsigned)nSect) break;
+      partitionList.push_back(Partition(nPatt,-1,sectors));
+      nPatternBySR[isub>=0 ? isub : 0]+=nPatt;
+   }
+   // implement limit on the number of sectors
+   if(numSectorMax>0) {
+      int numSectorTotal=0;
+      for(std::list<Partition>::const_iterator ip=partitionList.begin();ip!=partitionList.end();ip++) {
+         numSectorTotal+=(*ip).fSectorSet.size();
+      }
+      Info("readSectorOrderedBank")
+         <<"region="<<getBankID()
+         <<" numSectorMax="<<numSectorMax
+         <<" numSectorTotal="<<numSectorTotal<<"\n";
+      if(numSectorTotal>numSectorMax) {
+         int numSectorImplemented=0;
+         std::multimap<int,std::list<Partition>::iterator> multiplicity;
+         for(std::list<Partition>::iterator ip=partitionList.begin();ip!=partitionList.end();ip++) {
+            // limit
+            (*ip).fNumSectorMax=(int)((numSectorMax*(double)(*ip).fSectorSet.size())/numSectorTotal+0.5);
+            numSectorImplemented+=(*ip).fNumSectorMax;
+            multiplicity.insert(std::make_pair((*ip).fSectorSet.size(),ip));
+         }
+         // adjust until number of sector precisely matches
+         if(numSectorImplemented!=numSectorMax) {
+            // if there is a sector with a limit of zero , increase it
+            for(std::multimap<int,std::list<Partition>::iterator>::iterator im=multiplicity.begin();im!=multiplicity.end();im++) {
+               std::list<Partition>::iterator ip=(*im).second;
+               if((numSectorImplemented<numSectorMax)&&((*ip).fNumSectorMax==0)) {
+                  (*ip).fNumSectorMax++;
+                  numSectorImplemented++;
+               } else if((numSectorImplemented>=numSectorMax)||((*ip).fNumSectorMax)) {
+                  break;
+               }
+            }
+            for(std::multimap<int,std::list<Partition>::iterator>::iterator im=multiplicity.begin();im!=multiplicity.end();im++) {
+               std::list<Partition>::iterator ip=(*im).second;
+               if(numSectorImplemented<numSectorMax) {
+                  (*ip).fNumSectorMax++;
+                  numSectorImplemented++;
+               } else if(numSectorImplemented>numSectorMax) {
+                  (*ip).fNumSectorMax--;
+                  numSectorImplemented--;
+               } else {
+                  break;
+               }
+            }
+         }
+      }
+   }
+   for(int isub=0;(isub<nSub)||(!isub);isub++) {
+      Info("readSectorOrderedBank")
+         <<"Subregion "<<isub<<" number of patterns: "<<nPatternBySR[isub]
+         <<std::setbase(16)<<" (0x"<<nPatternBySR[isub]
+         <<std::setbase(10)<<")\n";
+   }
+   delete partitionFile;
+   return readPartitionedSectorOrderedBank(name,partitionList);
+}
+
+/**
+   readPartitionedSectorOrderedBank()
+
+   read sector-ordered bank, convert to DC patterns
+   the DC patterns are filled using the predefined partitions, each partition
+   with a maximum number of patterns
+*/
+int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
+(const char *name,std::list<FTK_CompressedAMBank::Partition> const &partitionList) {
    // open file
    int error=0;
    TDirectory *infile=FTKRootFile::Instance()->OpenRootFileReadonly(name);
    // read sector-ordered root file (TSP patterns)
    if(infile) {
-      FTKPatternBySectorBlockReader reader(*infile,nSub,getSubID());
-      Info("readSectorOrderedBank")
-         <<"reading from "<<name<<" nLayer="<<reader.GetNLayers()<<"\n";
-      setNPlanes(reader.GetNLayers());
-      std::map<int,int> coverageMap;
-      reader.GetNPatternsByCoverage(coverageMap);
-      std::map<int,int>::const_reverse_iterator i=coverageMap.rbegin();
+      int partitionCount=0;
+      int sectorCount=0;
+      int nLayer=0;
+      // determine largest sector number
+      int largestSector=0;
+      for(std::list<FTK_CompressedAMBank::Partition>::const_iterator
+             iPartition=partitionList.begin();iPartition!=partitionList.end();
+          iPartition++) {
+         for(std::set<int>::const_iterator iSector=
+                (*iPartition).fSectorSet.begin();
+             iSector!=(*iPartition).fSectorSet.end();iSector++) {
+            if((*iSector)>largestSector) largestSector=(*iSector);
+         }
+      }
+      // store patterns here
+      VECTOR<HitPatternMap_t> dcPatterns(largestSector+1);
       int nDC=0;
       int nTSP=0;
-      reader.Rewind();
-      // determine largest sector number
-      int maxSector=0;
-      std::list<int> sectorNumbers;
-      for(int sector=reader.GetFirstSector();sector>=0;
-          sector=reader.GetNextSector(sector)) {
-         if(sector>maxSector) maxSector=sector;
-#ifdef DC_PATTERNS_REVERSE_SECTOR_ORDER
-         sectorNumbers.push_front(sector);
-#else
-         sectorNumbers.push_back(sector);
-#endif
-      }
-      if(i!=coverageMap.rend()) {
-         Info("readSectorOrderedBank")
-            <<"maxSector="<<maxSector<<" coverage range ["
-            <<(*coverageMap.begin()).first<<";"<<(*i).first<<"]\n";
-      } else {
-         Error("readSectorOrderedBank")
-            <<"maxSector="<<maxSector<<" [bank is empty]\n";
-      }
-      // print bank statistics
-      // determine total number of patterns , patterns*coverage, <coverage>
-      uint32_t totalPatterns=0;
-      uint64_t totalPatternsCoverage=0;
-      for(std::map<int,int>::const_iterator j=coverageMap.begin();
-          j!=coverageMap.end();j++) {
-         totalPatterns += (*j).second;
-         totalPatternsCoverage += (*j).first*(uint64_t)(*j).second;
-      }
-      Info("readSectorOrderedBank")
-         <<"input patterns (TSP): "<<totalPatterns
-         <<" generated patterns (TSP): "<<totalPatternsCoverage
-         <<" average coverage: "<<totalPatternsCoverage/(double)totalPatterns
-         <<"\n";
-      // store patterns here
-      VECTOR<HitPatternMap_t> dcPatterns(maxSector+1);
-      int covEnd;
-      do {
-         std::map<int,int>::const_reverse_iterator j=i;
-         int npattEstimate=nDC;
-         covEnd=(*i).first;
-         while((j!=coverageMap.rend())&&
-               ((maxpatts<0)||(npattEstimate<maxpatts))) {
-            npattEstimate += (*j).second;
-            covEnd=(*j).first;
-            j++;
+      int maxpatts=0;
+      for(std::list<FTK_CompressedAMBank::Partition>::const_iterator
+             iPartition=partitionList.begin();iPartition!=partitionList.end();
+          iPartition++) {
+         maxpatts+=(*iPartition).fNumPatternMax;
+         // the FTKPatternBySectorBlockReader is reading the patterns
+         // sector-by-sector, in a pre-defined coverage range
+         //
+         // if the number of subregions is specified, it will ignore all
+         // sectors which do not belong to the active subregion
+         FTKPatternBySectorBlockReader reader(*infile,&(*iPartition).fSectorSet);
+         if(!nLayer) {
+            setNPlanes(reader.GetNLayers());
+            nLayer=reader.GetNLayers();
          }
          Info("readSectorOrderedBank")
-            <<"adding coverage range "<<(*i).first<<"-"<<covEnd
-            <<" extra patterns="<<npattEstimate-nDC<<"\n";
-         // read all patterns in the given coverage range
-         // (not reading the smallest coverage)
-         //for(int sector=reader.GetFirstSector();sector>=0;
-         //    sector=reader.GetNextSector(sector)) {
-         for(std::list<int>::const_iterator sectorPtr=sectorNumbers.begin();
-             sectorPtr!=sectorNumbers.end();sectorPtr++) {
-            int sector=*sectorPtr;
-            FTKPatternOneSector *patterns=reader.Read(sector,covEnd+1);
-            if(patterns) {
-               insertPatterns(sector,patterns,maxpatts,dcPatterns,nDC,nTSP);
-               delete patterns;
-            }
+            <<"reading from "<<name<<" nLayer="<<reader.GetNLayers()
+            <<" partition "<<partitionCount<<" maxpattern="
+            <<(*iPartition).fNumPatternMax<<" maxSector="<<(*iPartition).fNumSectorMax
+            <<"\n";
+         // the coverage map holds for each coverage the number of patterns
+         // it is used in order to estimate down to which coverage the patterns
+         // can be read
+         std::map<int,int> coverageMap;
+         reader.GetNPatternsByCoverage(coverageMap);
+         std::map<int,int>::const_reverse_iterator i=coverageMap.rbegin();
+         reader.Rewind();
+         // print bank statistics
+         // determine total number of patterns , patterns*coverage, <coverage>
+         uint32_t totalPatterns=0;
+         uint64_t totalPatternsCoverage=0;
+         int nDC0=nDC;
+         for(std::map<int,int>::const_iterator j=coverageMap.begin();
+             j!=coverageMap.end();j++) {
+            totalPatterns += (*j).second;
+            totalPatternsCoverage += (*j).first*(uint64_t)(*j).second;
          }
-         // read patterns for the smallest coverage
-         for(std::list<int>::const_iterator sectorPtr=sectorNumbers.begin();
-             sectorPtr!=sectorNumbers.end();sectorPtr++) {
-            int sector=*sectorPtr;
-            FTKPatternOneSector *patterns=reader.Read(sector,covEnd);
-            if(patterns) {
-               insertPatterns(sector,patterns,maxpatts,dcPatterns,nDC,nTSP);
-               delete patterns;
-               if(nDC>=maxpatts) break;
+         Info("readSectorOrderedBank")
+            <<"input patterns (TSP): "<<totalPatterns
+            <<" generated patterns (TSP): "<<totalPatternsCoverage
+            <<" average coverage: "
+            <<(totalPatterns ? (totalPatternsCoverage/(double)totalPatterns):0)
+            <<"\n";
+         int covEnd;
+         std::set<int> loadedSectorList;
+         int maxNumSector=(*iPartition).fNumSectorMax;
+         if(maxNumSector<0) maxNumSector=(*iPartition).fSectorSet.size();
+         do {
+            std::map<int,int>::const_reverse_iterator j=i;
+            int npattEstimate=nDC;
+            covEnd=(*i).first;
+            while((j!=coverageMap.rend())&&(npattEstimate<maxpatts)) {
+               npattEstimate += (*j).second;
+               covEnd=(*j).first;
+               j++;
             }
-         }
-         i=j;
-      } while((i!=coverageMap.rend())&&(nDC<maxpatts));
+            Info("readSectorOrderedBank")
+               <<"adding coverage range "<<(*i).first<<"-"<<covEnd
+               <<" extra patterns="<<npattEstimate-nDC<<"\n";
+            // read all patterns in the given coverage range
+            // (not reading the smallest coverage)
+            // these patterns for sure will fit into the DC bank
+            //for(int sector=reader.GetFirstSector();sector>=0;
+            //    sector=reader.GetNextSector(sector)) {
+            for(std::set<int>::const_iterator sectorPtr=
+                   (*iPartition).fSectorSet.begin();
+                sectorPtr!=(*iPartition).fSectorSet.end();sectorPtr++) {
+               int sector=*sectorPtr;
+               if(loadedSectorList.find(sector)==loadedSectorList.end()) {
+                  if(loadedSectorList.size()>=maxNumSector) continue;
+                  loadedSectorList.insert(sector);
+               }
+               FTKPatternOneSector *patterns=reader.Read(sector,covEnd+1);
+               if(patterns) {
+                  insertPatterns(sector,patterns,maxpatts,dcPatterns,nDC,nTSP);
+                  delete patterns;
+               }
+            }
+            // read patterns for the smallest coverage
+            // these patterns will partially fit into the bank
+            for(std::set<int>::const_iterator sectorPtr=
+                   (*iPartition).fSectorSet.begin();
+                sectorPtr!=(*iPartition).fSectorSet.end();sectorPtr++) {
+               int sector=*sectorPtr;
+               if(loadedSectorList.find(sector)==loadedSectorList.end()) {
+                  if(loadedSectorList.size()>=maxNumSector) continue;
+                  loadedSectorList.insert(sector);
+               }
+               FTKPatternOneSector *patterns=reader.Read(sector,covEnd);
+               if(patterns) {
+                  insertPatterns(sector,patterns,maxpatts,dcPatterns,nDC,nTSP);
+                  delete patterns;
+                  if(nDC>=maxpatts) break;
+               }
+            }
+            i=j;
+             // stop if all patterns have been read
+            // or if the maximum number of patterns is reached
+         } while((i!=coverageMap.rend())&&(nDC<maxpatts));
+         Info("readSectorOrderedBank")
+            <<"partition "<<partitionCount<<" number of DC patterns: "<<nDC-nDC0
+            <<" smallest coverage="<<covEnd
+            <<" #sectors="<<loadedSectorList.size()
+            <<" maxnsector="<<maxNumSector
+            <<"\n";
+         partitionCount++;
+         sectorCount += loadedSectorList.size();
+      }
       Info("readSectorOrderedBank")
-         <<"number of patterns read "<<nTSP<<" stored "<<nDC
+         <<"total number of patterns read "<<nTSP<<" stored "<<nDC
          <<" packing "<<(nDC?(nTSP/(double)nDC):0.)
-         <<" smallest coverage="<<covEnd<<"\n";
-
+         <<" #sector="<<sectorCount<<"\n";
       // now all patterns are stored here
       //   VECTOR<HitPatternMap_t> dcPatterns(maxSector+1);
       // next, loop over all DC patterns and
       //   insert the corresponding TSP patterns
       int nDCHB=2;
-      int nLayer=reader.GetNLayers();
       int offsetSSID=nLayer+nDCHB;
       int pos=0;
       VECTOR<std::pair<int,int> > sectorPointer(dcPatterns.size());
+      int numPattern=0;
       for(unsigned sector=0;sector<sectorPointer.size();sector++) {
          sectorPointer[sector]=std::make_pair(pos,pos);
          pos += dcPatterns[sector].size()*offsetSSID;
+         numPattern+=dcPatterns[sector].size();
       }
       int32_t *ssidData=new int32_t[pos];
       for(unsigned sector=0;sector<dcPatterns.size();sector++) {
@@ -2680,6 +2993,7 @@ int FTK_CompressedAMBank::readSectorOrderedBank(const char *name, int maxpatts,
       dcPatterns.resize(0);
       importDCpatterns(nLayer,offsetSSID,ssidData,sectorPointer);
       delete [] ssidData;
+
       readBankPostprocessing("readSectorOrderedBank");
    } else {
       Error("readSectorOrderedBank")<<"failed to open \""<<name<<"\"\n";
@@ -3110,6 +3424,9 @@ void FTK_CompressedAMBank::am_output() {
       int patternID=m_roadCand[iCand].first;
       int sector=m_roadCand[iCand].second;
 #endif
+
+      const FTKPlaneMap *pmap = getSSMap()->getPlaneMap();
+
       HitPattern_t hitmaskWithWC=m_hitPatterns[patternID];
       HitPattern_t hitmaskNoWC=hitmaskWithWC & ~m_SectorWC[sector];
       uint8_t nhWC=m_nHit16[hitmaskWithWC];
@@ -3123,6 +3440,7 @@ void FTK_CompressedAMBank::am_output() {
          bool first_check = (!getRequireFirst()) || (hitmaskWithWC & 1);
          bool missinglast = ! (hitmaskWithWC & lastPlaneMask);
          bool last_check = (!getRequireLast()) || !missinglast;
+
          if( first_check && last_check &&
              (nhWC>= getNPlanes()-m_MAX_MISSING_PLANES)) {
             //
@@ -3144,6 +3462,19 @@ void FTK_CompressedAMBank::am_output() {
                  hitmaskNoWC // FTK_TSPBANK::attach_SS
                  ));
             FTKRoad &road=* m_roads.begin();
+
+	    // Want to count if we're missing hits
+	    bool misspix(false), misssct(false);
+	    for(int ip = 0; ip < getNPlanes(); ++ip) {
+	      if (!road.hasHitOnLayer(ip)) {
+		if (pmap->isSCT(ip)) misssct = true;
+		else misspix = true;
+	      }
+	    }
+	    if (misspix) countNRoads_misspix();
+	    if (misssct) countNRoads_misssct();
+	    if (!misspix && !misssct) countNRoads_complete();
+
             //
             road.setDCMatchMode(1);
             //
@@ -3210,6 +3541,9 @@ void FTK_CompressedAMBank::am_output() {
       }
    }
    naoSetNroadsAM(getNRoads());
+   naoSetNroadsAMComplete(getNRoads_complete());
+   naoSetNroadsAMMissPix(getNRoads_misspix());
+   naoSetNroadsAMMissSCT(getNRoads_misssct());
 }
 
 /*******************************************

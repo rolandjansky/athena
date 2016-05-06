@@ -81,6 +81,8 @@ private:
 
   int m_usage_ncalls; // counter of the statistic calls
 
+  bool m_fixEndcapL0; //fix for endcap L0 in clustering
+
   FTKSetup(); // private constructor
 
 
@@ -104,6 +106,9 @@ public:
 
   void setIBLMode(int v) { m_IBLMode = v; }
   int getIBLMode() const { return m_IBLMode; }
+
+  void setfixEndcapL0(bool v) {m_fixEndcapL0 = v;}
+  bool getfixEndcapL0() const { return m_fixEndcapL0;}
 
   void setITkMode(bool v) { m_ITkMode = v; }
   bool getITkMode() const { return m_ITkMode; }

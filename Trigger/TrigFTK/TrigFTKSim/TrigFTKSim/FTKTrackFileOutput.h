@@ -65,6 +65,10 @@ class FTKTrackFileOutput : public FTKObjectOutput<FTKTrackStream>, public FTKTra
     { m_data[ib]->addNFits(v); }
   void addNFitsMajority(int ib, int v)
     { m_data[ib]->addNFitsMajority(v); }
+  void addNFitsMajority_pix(int ib, int v)
+    { m_data[ib]->addNFitsMajority_pix(v); }
+  void addNFitsMajority_SCT(int ib, int v)
+    { m_data[ib]->addNFitsMajority_SCT(v); }
   void addNFitsRecovery(int ib, int v)
     { m_data[ib]->addNFitsRecovery(v); }
   void addNAddFitsRecovery(int ib, int v)
@@ -86,6 +90,10 @@ class FTKTrackFileOutput : public FTKObjectOutput<FTKTrackStream>, public FTKTra
     { m_data[ib]->addNFitsI(v); }
   void addNFitsMajorityI(int ib, int v)
     { m_data[ib]->addNFitsMajorityI(v); }
+  void addNFitsMajorityI_SCT(int ib, int v)
+    { m_data[ib]->addNFitsMajorityI_SCT(v); }
+  void addNFitsMajorityI_pix(int ib, int v)
+    { m_data[ib]->addNFitsMajorityI_pix(v); }
   void addNFitsRecoveryI(int ib, int v)
     { m_data[ib]->addNFitsRecoveryI(v); }
   void addNAddFitsRecoveryI(int ib, int v)

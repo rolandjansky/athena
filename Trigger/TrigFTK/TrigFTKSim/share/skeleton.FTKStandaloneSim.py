@@ -1,5 +1,5 @@
 # FTK Simulation Transform Skeleton Job Options
-# $Id: skeleton.FTKStandaloneSim.py 718877 2016-01-20 17:26:56Z jwebster $
+# $Id: skeleton.FTKStandaloneSim.py 744352 2016-05-03 02:00:18Z jahreda $
 
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 from AthenaCommon.Logging import logging
@@ -54,12 +54,14 @@ FTKTrackFitter = FTKTrackFitterAlgo( "FTKTrackFitterAlgo" , OutputLevel=INFO)
 NBanks = 64
 NSubRegions = 4
 IBLMode = 1
+FixEndCapL0 = False
 
 #FTKRoadFinderAlgo.CachePath
 ##FTKRoadFinderAlgo.CachedBank = True
 FTKRoadFinder.CachedBank = False
 FTKRoadFinder.DBBankLevel = 1 # read-only
 FTKRoadFinder.IBLMode = IBLMode
+FTKRoadFinder.FixEndCapL0 = FixEndCapL0
 FTKRoadFinder.InputFromWrapper = True
 FTKRoadFinder.MaxMissingSCTPairs = 1
 #FTKRoadFinder.NBanks = NBanks  # is read-only (??)
@@ -115,7 +117,6 @@ runArgsFromTrfMandatoryTF = [
 # These arguments are optional - give a dict with their default values
 runArgsFromTrfOptionalRF = {
     'TSPMinCoverage': 0,
-    'RoadWarrior': 0,
     'badmap_path': 'empty.bmap',
     'badmap_path_for_hit': '',
     'MakeCache': False,
@@ -127,6 +128,7 @@ runArgsFromTrfOptionalRF = {
     'SetAMSize': 0,
     'SetAMSplit' : 5,
     'IBLMode': 0,
+    'FixEndCapL0': False,
     'ITkMode': False,
     'PixelClusteringMode': 0,
     'GangedPatternReco' : 0,
@@ -139,11 +141,13 @@ runArgsFromTrfOptionalRF = {
     'DCMatchMethod': 1,
     'HWModeSS': 0,
     'ModuleLUTPath': "",
+    'ModuleLUTPath2nd': "",
     'UseCompressedBank': False
     }
 
 runArgsFromTrfOptionalTF = {
     'IBLMode': 0,
+    'FixEndCapL0': False,
     'ITkMode': False,
     'Chi2Cut': 17,
     'Chi2Cut_Maj': 14,
@@ -164,6 +168,7 @@ runArgsFromTrfOptionalTF = {
     'SSFTRDefn': 1,
     'SSFTRMinEta': 1.0,
     'SSFTRMaxEta': 1.4,
+    'ModuleLUTPath2nd': "",
     'Save1stStageTrks': False
     }
 
@@ -251,6 +256,7 @@ else:
         'badmap_path': os.path.join(ftkBaseConfigDir, 'bad_modules'),
         'badmap_path_for_hit': os.path.join(ftkBaseConfigDir, 'bad_modules'),
         'ModuleLUTPath': os.path.join(ftkBaseConfigDir, 'map_files'),
+        'ModuleLUTPath2nd': os.path.join(ftkBaseConfigDir, 'map_files'),
         }
 
 # Preliminary check that the most important arguments are set
@@ -275,24 +281,28 @@ FTKTagOptions = {}
 
 
 FTKTagOptions["HWMode2Test32Tower"] = {
-    'NBanks': 32, 'NSubRegions': 4,
+    'NBanks': 32, 'NSubRegions': 1,
     'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl32TmodB_3D_t13.tmap',
     'ssmap_path': 'raw_30x64x72Ibl.ss',
     'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss',
     'pmapunused_path': 'raw_8LcIbl123_unused.pmap',
-    'bankpatterns': [2097152]*NumberOfSubregions,
-    'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': True,
-####    'ModuleLUTPath': 'raw_12LiblHW_32.moduleidmap',
+    'bankpatterns': [8388608]*NumberOfSubregions,
+    'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 
+    'UseTSPBank': False,
+    'UseCompressedBank': True,
     'ModuleLUTPath': 'raw_8LcIbl123_32.moduleidmap',
+    'ModuleLUTPath2nd': 'raw_12LiblHW_32.moduleidmap',
     'DBBankLevel': 1, 'TSPSimulationLevel': 2,
-    'loadHWConf_path': 'raw_8LcIbl123.hw', 'pmapcomplete_path': 'raw_12LiblHW3D.pmap',
+    'loadHWConf_path': 'raw_12L.hw', 'pmapcomplete_path': 'raw_12LiblHW3D.pmap',
     'SetAMSize': 2, 'TRACKFITTER_MODE': 3,
-    'SecondStageFit': False,
+    'SecondStageFit': True,
     'SSFMultiConnection': True, 'SSFNConnections': 4,
     'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4,
     'SSFTRMinEta': 1.0,
+    'MaxNcomb': 1024,
+    'MaxNhitsPerPlane': 8,
     'HWModeSS': 2,
-    'IBLMode': 2, 'PixelClusteringMode': 1,
+    'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 1,
     'GangedPatternReco': 0, 'DuplicateGanged': 1
     }
 
@@ -331,7 +341,7 @@ FTKTagOptions["TDAQTDRv0"] = {
     'loadHWConf_path': 'raw_12L.hw', 'pmapcomplete_path': 'raw_12Libl.pmap',
     'SetAMSize': 2, 'SecondStageFit': True, 'TRACKFITTER_MODE': 1,
     'SSFMultiConnection': True, 'SSFNConnections': 4,
-    'IBLMode': 1, 'PixelClusteringMode': 1
+    'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1
     }
 FTKTagOptions["TDAQTDRv1"] = {
     'NBanks': 64, 'NSubRegions': 4,
@@ -347,7 +357,7 @@ FTKTagOptions["TDAQTDRv1"] = {
     'SSFMultiConnection': True, 'SSFNConnections': 4,
     'SSFAllowExtraMiss': 0, 'SSFTRDefn': 1,
     'SSFTRMaxEta': 1.4, 'SSFTRMinEta': 1.0,
-    'IBLMode': 1, 'PixelClusteringMode': 1
+    'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1
     }
 FTKTagOptions["TDAQTDRv2"] = {
     'NBanks': 64, 'NSubRegions': 4,
@@ -363,7 +373,7 @@ FTKTagOptions["TDAQTDRv2"] = {
     'SSFMultiConnection': True, 'SSFNConnections': 4,
     'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4,
     'SSFTRMinEta': 1.0,
-    'IBLMode': 1, 'PixelClusteringMode': 1,
+    'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1,
     'GangedPatternReco': 0, 'DuplicateGanged': 1
     }
 FTKTagOptions["TDAQTDRv2_testFederico"] = {
@@ -380,7 +390,7 @@ FTKTagOptions["TDAQTDRv2_testFederico"] = {
     'TRACKFITTER_MODE': 3, 'SSFMultiConnection': True, 'SSFNConnections': 4,
     'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4,
     'SSFTRMinEta': 1.0,
-    'IBLMode': 1, 'PixelClusteringMode': 1,
+    'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1,
     'GangedPatternReco': 0, 'DuplicateGanged': 1
     }
 FTKTagOptions["Run2v0"] = {
@@ -396,7 +406,7 @@ FTKTagOptions["Run2v0"] = {
     'SSFMultiConnection': True, 'SSFNConnections': 4,
     'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4,
     'SSFTRMinEta': 1.0,
-    'IBLMode': 2, 'PixelClusteringMode': 1,
+    'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 1,
     'GangedPatternReco': 0, 'DuplicateGanged': 1
     }
 FTKTagOptions["Run2v1"] = {
@@ -412,7 +422,7 @@ FTKTagOptions["Run2v1"] = {
     'SSFMultiConnection': True, 'SSFNConnections': 4,
     'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4,
     'SSFTRMinEta': 1.0,
-    'IBLMode': 2, 'PixelClusteringMode': 1,
+    'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 1,
     'GangedPatternReco': 0, 'DuplicateGanged': 1
     }
 
@@ -436,7 +446,7 @@ FTKTagOptions["Run2TempMapv0"] = {
     'SSFMultiConnection': True, 'SSFNConnections': 4,
     'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4,
     'SSFTRMinEta': 1.0,
-    'IBLMode': 2, 'PixelClusteringMode': 1,
+    'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 1,
     'GangedPatternReco': 0, 'DuplicateGanged': 1
     }
 FTKTagOptions["TDAQTDRv2HWMode2"] = {
@@ -453,7 +463,7 @@ FTKTagOptions["TDAQTDRv2HWMode2"] = {
     'SSFMultiConnection': True, 'SSFNConnections': 4,
     'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4,
     'SSFTRMinEta': 1.0,
-    'IBLMode': 1, 'PixelClusteringMode': 1,
+    'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1,
     'GangedPatternReco': 0, 'DuplicateGanged': 1
     }
 FTKTagOptions['SectorsAsPatterns3D'] = {
@@ -465,7 +475,7 @@ FTKTagOptions['SectorsAsPatterns3D'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_8Lc.hw','SecondStageFit': False,
-    'TRACKFITTER_MODE': 1, 'IBLMode': 2, 'PixelClusteringMode': 1,
+    'TRACKFITTER_MODE': 1, 'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 1,
     'SectorsAsPatterns': 1 , 'SaveRoads': True
     }
 FTKTagOptions['SectorsAsPatterns12L3D'] = {
@@ -474,7 +484,7 @@ FTKTagOptions['SectorsAsPatterns12L3D'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_12L.hw', 'SecondStageFit': False,
-    'TRACKFITTER_MODE': 1, 'IBLMode': 2, 'PixelClusteringMode': 1,
+    'TRACKFITTER_MODE': 1, 'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 1,
     'SectorsAsPatterns': 1 , 'SaveRoads': True
     }
 FTKTagOptions['SectorsAsPatterns3Dv2'] = {
@@ -486,7 +496,7 @@ FTKTagOptions['SectorsAsPatterns3Dv2'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_8Lc.hw', 'SecondStageFit': False,
-    'TRACKFITTER_MODE': 1, 'IBLMode': 2, 'PixelClusteringMode': 1,
+    'TRACKFITTER_MODE': 1, 'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 1,
     'SectorsAsPatterns': 1 , 'SaveRoads': True
     }
 FTKTagOptions['SectorsAsPatterns12L3Dv2'] = {
@@ -495,7 +505,7 @@ FTKTagOptions['SectorsAsPatterns12L3Dv2'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_12L.hw', 'SecondStageFit': False,
-    'TRACKFITTER_MODE': 1, 'IBLMode': 2, 'PixelClusteringMode': 1,
+    'TRACKFITTER_MODE': 1, 'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 1,
     'SectorsAsPatterns': 1 , 'SaveRoads': True
     }
 FTKTagOptions['SectorsAsPatterns12L'] = {
@@ -504,7 +514,7 @@ FTKTagOptions['SectorsAsPatterns12L'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_12L.hw', 'SecondStageFit': False,
-    'TRACKFITTER_MODE': 1, 'IBLMode': 1, 'PixelClusteringMode': 1,
+    'TRACKFITTER_MODE': 1, 'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1,
     'SectorsAsPatterns': 1 , 'SaveRoads': True
     }
 FTKTagOptions['SectorsAsPatterns'] = {
@@ -516,7 +526,7 @@ FTKTagOptions['SectorsAsPatterns'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_8Lc.hw', 'SecondStageFit': False,
-    'TRACKFITTER_MODE': 1, 'IBLMode': 1, 'PixelClusteringMode': 1,
+    'TRACKFITTER_MODE': 1, 'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1,
     'SectorsAsPatterns': 1 , 'SaveRoads': True
     }
 FTKTagOptions['SectorsAsPatterns12LHWMode2'] = {
@@ -525,7 +535,7 @@ FTKTagOptions['SectorsAsPatterns12LHWMode2'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_12L.hw','SecondStageFit': False,
-    'IBLMode': 1, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1,
+    'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1,
     'MaxMissingSCTPairs': 0,
     'HWModeSS': 2,'ModuleLUTPath': 'raw_12Libl.moduleidmap',
     'SaveRoads': True
@@ -536,7 +546,7 @@ FTKTagOptions['SectorsAsPatternsHWMode2'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_8Lc.hw','SecondStageFit': False,
-    'IBLMode': 1, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1,
+    'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1,
     'MaxMissingSCTPairs': 0,
     'HWModeSS': 2,'ModuleLUTPath': 'raw_8LcIbl123.moduleidmap',
     'SaveRoads': True
@@ -548,7 +558,7 @@ FTKTagOptions['SectorsAsPatterns12L64b3DHWMode2'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, \
     'loadHWConf_path': 'raw_12L.hw', 'SecondStageFit': False,
-    'TRACKFITTER_MODE': 1, 'IBLMode': 2, 'PixelClusteringMode': 1,
+    'TRACKFITTER_MODE': 1, 'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 1,
     'SectorsAsPatterns': 1 , 'MaxMissingSCTPairs': 1,
     'HWModeSS': 2, 'ModuleLUTPath': 'raw_12Libl.moduleidmap',
     'SaveRoads': True
@@ -560,7 +570,7 @@ FTKTagOptions['SectorsAsPatterns8L64b3DHWMode2'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_8Lc.hw','SecondStageFit': False,
-    'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1,
+    'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1,
     'MaxMissingSCTPairs': 0,
     'HWModeSS': 2,'ModuleLUTPath': 'raw_8LcIbl123.moduleidmap',
     'SaveRoads': True
@@ -571,13 +581,13 @@ FTKTagOptions['SectorsAsPatterns12L32b3DHWMode2'] = \
     {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', 'rmap_path': 'raw_12Libl32TmodB_3D_t13.tmap', 'bankpatterns': [-1]*NumberOfSubregions, \
      'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, \
      'loadHWConf_path': 'raw_12L.hw','SecondStageFit': False, 'TRACKFITTER_MODE': 1,
-     'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1 , 'MaxMissingSCTPairs': 1, 'HWModeSS': 2,'ModuleLUTPath': 'raw_12Libl.moduleidmap', 'SaveRoads': True}
+     'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1 , 'MaxMissingSCTPairs': 1, 'HWModeSS': 2,'ModuleLUTPath': 'raw_12Libl.moduleidmap', 'SaveRoads': True}
 FTKTagOptions['SectorsAsPatterns8L32b3DHWMode2'] = \
     {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl32TmodB_3D_t13.tmap',
      'bankpatterns': [-1]*NumberOfSubregions, \
      'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, \
      'loadHWConf_path': 'raw_8Lc.hw','SecondStageFit': False,
-     'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1,
+     'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1,
      'MaxMissingSCTPairs': 0,
      'HWModeSS': 2,'ModuleLUTPath': 'raw_8LcIbl123.moduleidmap', 'SaveRoads': True}
 
@@ -585,13 +595,13 @@ FTKTagOptions['SectorsAsPatterns12L32b3D'] = \
     {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', 'rmap_path': 'raw_12Libl32TmodB_3D_t13.tmap', 'bankpatterns': [-1]*NumberOfSubregions, \
      'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, \
      'loadHWConf_path': 'raw_12L.hw','SecondStageFit': False, 'TRACKFITTER_MODE': 1,
-     'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1 , 'SaveRoads': True}
+     'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1 , 'SaveRoads': True}
 FTKTagOptions['SectorsAsPatterns8L32b3D'] = \
     {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl32TmodB_3D_t13.tmap',
      'bankpatterns': [-1]*NumberOfSubregions, \
      'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, \
      'loadHWConf_path': 'raw_8Lc.hw','SecondStageFit': False,
-     'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1, 'SaveRoads': True}
+     'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1, 'SaveRoads': True}
 
 FTKTagOptions['SectorsAsPatterns12L64b'] = {
     'NBanks': 64, 'NSubRegions': 1,
@@ -599,7 +609,7 @@ FTKTagOptions['SectorsAsPatterns12L64b'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_12L.hw', 'SecondStageFit': False,
-    'TRACKFITTER_MODE': 1, 'IBLMode': 1, 'PixelClusteringMode': 1,
+    'TRACKFITTER_MODE': 1, 'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1,
     'SectorsAsPatterns': 1, 'SaveRoads': True
     }
 FTKTagOptions['SectorsAsPatterns8L64b'] = {
@@ -608,7 +618,7 @@ FTKTagOptions['SectorsAsPatterns8L64b'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_8Lc.hw', 'SecondStageFit': False,
-    'TRACKFITTER_MODE': 1, 'IBLMode': 1, 'PixelClusteringMode': 1,
+    'TRACKFITTER_MODE': 1, 'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1,
     'SectorsAsPatterns': 1 , 'SaveRoads': True
     }
 FTKTagOptions['SectorsAsPatterns12L64bHWMode2'] = {
@@ -617,7 +627,7 @@ FTKTagOptions['SectorsAsPatterns12L64bHWMode2'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_12L.hw', 'SecondStageFit': False,
-    'TRACKFITTER_MODE': 1, 'IBLMode': 1, 'PixelClusteringMode': 1,
+    'TRACKFITTER_MODE': 1, 'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1,
     'SectorsAsPatterns': 1 , 'MaxMissingSCTPairs': 1, 'HWModeSS': 2,
     'ModuleLUTPath': 'raw_12Libl.moduleidmap', 'SaveRoads': True
     }
@@ -627,7 +637,7 @@ FTKTagOptions['SectorsAsPatterns8L64bHWMode2'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_8Lc.hw','SecondStageFit': False,
-    'IBLMode': 1, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1,
+    'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1,
     'MaxMissingSCTPairs': 0,
     'HWModeSS': 2,'ModuleLUTPath': 'raw_8LcIbl123.moduleidmap',
     'SaveRoads': True
@@ -638,7 +648,7 @@ FTKTagOptions['SectorsAsPatterns12L32b'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_12L.hw', 'SecondStageFit': False,
-    'TRACKFITTER_MODE': 1, 'IBLMode': 1, 'PixelClusteringMode': 1,
+    'TRACKFITTER_MODE': 1, 'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1,
     'SectorsAsPatterns': 1 , 'SaveRoads': True
     }
 FTKTagOptions['SectorsAsPatterns8L32b'] = {
@@ -647,7 +657,7 @@ FTKTagOptions['SectorsAsPatterns8L32b'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_8Lc.hw', 'SecondStageFit': False,
-    'TRACKFITTER_MODE': 1, 'IBLMode': 1, 'PixelClusteringMode': 1,
+    'TRACKFITTER_MODE': 1, 'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1,
     'SectorsAsPatterns': 1 , 'SaveRoads': True
     }
 FTKTagOptions['SectorsAsPatterns12L32bHWMode2'] = {
@@ -656,7 +666,7 @@ FTKTagOptions['SectorsAsPatterns12L32bHWMode2'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_12L.hw', 'SecondStageFit': False,
-    'TRACKFITTER_MODE': 1, 'IBLMode': 1, 'PixelClusteringMode': 1,
+    'TRACKFITTER_MODE': 1, 'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1,
     'SectorsAsPatterns': 1 , 'HWModeSS': 2,
     'ModuleLUTPath': 'raw_12Libl.moduleidmap', 'SaveRoads': True
     }
@@ -666,7 +676,7 @@ FTKTagOptions['SectorsAsPatterns8L32bHWMode2'] = {
     'bankpatterns': [-1]*NumberOfSubregions,
     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False,
     'loadHWConf_path': 'raw_8Lc.hw', 'SecondStageFit': False,
-    'IBLMode': 1, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1,
+    'FixEndCapL0': False, 'IBLMode': 1, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1,
     'MaxMissingSCTPairs': 0,
     'HWModeSS': 2,'ModuleLUTPath': 'raw_8LcIbl123.moduleidmap',
     'SaveRoads': True
@@ -681,7 +691,7 @@ FTKTagOptions['FitITk'] = {
     'SecondStageFit': False,
     'TRACKFITTER_MODE': 1,
     'Chi2DofCut': 1000,
-    'IBLMode': 0,
+    'FixEndCapL0': False, 'IBLMode': 0,
     'ITkMode': True,
     'bankpatterns': [-1]*NumberOfSubregions,
     'PixelClusteringMode': 1,

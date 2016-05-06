@@ -27,7 +27,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   m_roadMarketTool("FTK_RoadMarketTool/FTK_RoadMarketTool"),
   m_trackOutputTool("FTK_SGTrackOutput/FTK_SGTrackOutput"),
   m_SecondStageFit(false),
-  m_IBLMode(0),
+  m_IBLMode(0), m_fixEndcapL0(false),
   m_ITkMode(false),
   m_nbanks(0), m_nsubregions(1),
   m_verbosity(0),
@@ -61,13 +61,14 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   m_trackfilepath("./"), 
   m_trackfilename("ftktracks.root"),
   m_pmap(0x0),m_pmap_path(),m_pmap_complete(0x0),m_pmapcomplete_path(),m_pmap_unused(0x0),m_pmapunused_path(),
-  m_rmap(0x0), m_rmap_unused(0x0), 
+  m_rmap(0x0), m_rmap_unused(0x0),m_modulelut2nd_path(), 
   m_ssmap(0x0), m_ssmap_unused(0x0), 
   m_rmap_path(), m_ssmap_path(), m_ssmapunused_path(),
   m_AutoDisable(false)
 {
   declareProperty("SecondStageFit",m_SecondStageFit,"Enable the second-stage fitter code");
   declareProperty("IBLMode",m_IBLMode,"Switch on the IBL layer");
+  declareProperty("FixEndCapL0",m_fixEndcapL0, "Fix endcap L0 clustering");
   declareProperty("ITkMode",m_ITkMode,"Use ITk geometry, for Phase-II studies");
   declareProperty("NBanks",m_nbanks); // number of banks
   declareProperty("NSubRegions",m_nsubregions);
@@ -91,6 +92,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   declareProperty("pmap_path",m_pmap_path);
   declareProperty("pmapcomplete_path",m_pmapcomplete_path);
   declareProperty("pmapunused_path",m_pmapunused_path);
+  declareProperty("ModuleLUTPath2nd",m_modulelut2nd_path);
   declareProperty("fitconstantspath",m_fitconstantspath,"Array with bank paths");
   declareProperty("fit711constantspath",m_fit711constantspath,"Array with bank paths for 11L");
   declareProperty("sectorpath", m_sectorpath,"Array with sector paths for 11L");
@@ -136,6 +138,9 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 
   log << MSG::INFO << "IBLMode value: " << m_IBLMode << endreq;
   FTKSetup::getFTKSetup().setIBLMode(m_IBLMode);
+
+  log << MSG::INFO << "Fix EndcapL0 value: " << m_fixEndcapL0 << endreq;
+  FTKSetup::getFTKSetup().setfixEndcapL0(m_fixEndcapL0);
 
   log << MSG::INFO << "ITkMode value: " << m_ITkMode << endreq;
   FTKSetup::getFTKSetup().setITkMode(m_ITkMode);
@@ -217,9 +222,20 @@ StatusCode FTKTrackFitterAlgo::initialize(){
       return StatusCode::FAILURE;
     }
 
+
     if (m_pmap_complete) {
       log << MSG::INFO << "Creating region map for the unused layers" << endreq;
       m_rmap_unused = new FTKRegionMap(m_pmap_complete, m_rmap_path.c_str());
+      if( FTKSetup::getFTKSetup().getHWModeSS()==2) {
+	if (m_modulelut2nd_path.empty()) {
+	  log << MSG::FATAL << "A module LUT is required when HW SS calculation is required" << m_modulelut2nd_path << endreq;
+	  return StatusCode::FAILURE;
+	}
+	else {
+	  log << MSG::INFO << "Loading module map from: " << m_modulelut2nd_path << endreq;
+	  m_rmap_unused->loadModuleIDLUT(m_modulelut2nd_path.c_str()); //"/afs/cern.ch/work/v/vcavalie/HWMODE2/InstallArea/share/ftk_configuration/map_files/raw_12LiblHW_32.moduleidmap");
+	}
+      }
     }
 
 

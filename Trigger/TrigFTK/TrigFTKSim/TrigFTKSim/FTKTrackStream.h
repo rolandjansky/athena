@@ -23,6 +23,8 @@ private:
   int m_ncombs; // number of combinations
   int m_nfits; // number of fitted combinations
   int m_nfits_maj; // number of fitted combinations in majority roads
+  int m_nfits_maj_SCT; // number of fitted combinations in majority roads, missing hit in SCT layer
+  int m_nfits_maj_pix; // number of fitted combinations in majority roads, missing hit in pixel layer
   int m_nfits_rec; // number of full fits attempted to recover
   int m_nfits_addrec; // additional fits performed because the recovery
   int m_nfits_bad; // # fits with a bad chi^2
@@ -40,6 +42,8 @@ private:
   int m_ncombsI;
   int m_nfitsI;
   int m_nfits_majI;
+  int m_nfits_majI_SCT;
+  int m_nfits_majI_pix;
   int m_nfits_recI;
   int m_nfits_addrecI;
   int m_nfits_badI;
@@ -72,6 +76,8 @@ public:
   void addNCombs(int v) { m_ncombs += v; }
   void addNFits(int v) { m_nfits += v; }
   void addNFitsMajority(int v) { m_nfits_maj += v; }
+  void addNFitsMajority_pix(int v) { m_nfits_maj_pix += v; }
+  void addNFitsMajority_SCT(int v) { m_nfits_maj_SCT += v; }
   void addNFitsRecovery(int v) { m_nfits_rec += v; }
   void addNAddFitsRecovery(int v) { m_nfits_addrec += v; }
   void addNFitsBad(int v) { m_nfits_bad += v; }
@@ -82,6 +88,8 @@ public:
   int getNCombs() const { return m_ncombs; }
   int getNFits() const { return m_nfits; }
   int getNFitsMajority() const { return m_nfits_maj; }
+  int getNFitsMajority_pix() const { return m_nfits_maj_pix; }
+  int getNFitsMajority_SCT() const { return m_nfits_maj_SCT; }
   int getNFitsRecovery() const { return m_nfits_rec; }
   int getNAddFitsRecovery() const { return m_nfits_addrec; }
   int getNFitsBad() const { return m_nfits_bad; }
@@ -92,6 +100,8 @@ public:
   void addNCombsI(int v) { m_ncombsI += v; }
   void addNFitsI(int v) { m_nfitsI += v; }
   void addNFitsMajorityI(int v) { m_nfits_majI += v; }
+  void addNFitsMajorityI_pix(int v) { m_nfits_majI_pix += v; }
+  void addNFitsMajorityI_SCT(int v) { m_nfits_majI_SCT += v; }
   void addNFitsRecoveryI(int v) { m_nfits_recI += v; }
   void addNAddFitsRecoveryI(int v) { m_nfits_addrecI += v; }
   void addNFitsBadI(int v) { m_nfits_badI += v; }
@@ -102,6 +112,8 @@ public:
   int getNCombsI() const { return m_ncombsI; }
   int getNFitsI() const { return m_nfitsI; }
   int getNFitsMajorityI() const { return m_nfits_majI; }
+  int getNFitsMajorityI_pix() const { return m_nfits_majI_pix; }
+  int getNFitsMajorityI_SCT() const { return m_nfits_majI_SCT; }
   int getNFitsRecoveryI() const { return m_nfits_recI; }
   int getNAddFitsRecoveryI() const { return m_nfits_addrecI; }
   int getNFitsBadI() const { return m_nfits_badI; }
@@ -113,7 +125,7 @@ public:
 
   int Print(int level=0,std::ostream &out=std::cout);
 
-  ClassDef(FTKTrackStream,9)
+  ClassDef(FTKTrackStream,11)
 };
 
 

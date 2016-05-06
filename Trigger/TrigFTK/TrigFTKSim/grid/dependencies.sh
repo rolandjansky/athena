@@ -14,7 +14,7 @@ else
 fi
 
 setupATLAS --quiet
-localSetupSFT dcache_client/2.47.6-1
+localSetupSFT --cmtconfig=x86_64-slc6-gcc48-opt dcache_client/2.47.6-1
 export DCAPDIR=$SFT_HOME_dcache_client/dcap
 echo "Trying to find libdcap for localSetupSFT dcache_client/2.47.6-1"
 DCAP_INCDIR="${DCAPDIR}/include"
@@ -39,7 +39,7 @@ fi;
 
 # Make sure boost c++ is present and export compiler flags
 echo "Trying to find boost libraries shipped with athena:"
-localSetupSFT Boost/1.53.0_python2.7
+localSetupSFT --cmtconfig=x86_64-slc6-gcc48-opt Boost/1.53.0_python2.7
 echo "Trying to find boost dir for localSetupSFT Boost/1.53.0_python2.7"
 export BOOSTDIR=$SFT_HOME_Boost
 export BOOST_INCDIR=$SFT_BOOST_INCLUDE

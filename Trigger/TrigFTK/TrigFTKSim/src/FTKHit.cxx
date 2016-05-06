@@ -195,7 +195,10 @@ void FTKHit::setTruth(const MultiTruth& v)
 }
 
 float FTKHit::getLocalCoord(unsigned int i) const {
-  // Returns the i-th module local coordinate in millimiter units.
+  // Returns the i-th module local coordinates in millimiter units. 
+  // The (0,0) position is at the center of the module. 
+  
+  //Please note that the position might be corrected +/- 0.5 pixels. 
 
   unsigned int hitNCoords = this->getDim();
   if (i>=hitNCoords) return -9999;
@@ -211,12 +214,12 @@ float FTKHit::getLocalCoord(unsigned int i) const {
   		* ftk::lengthOfIblModuleIn250umPixels / ftk::numberOfEtaPixelsInIblModule; // planar sensors 
     } else {
       if (i==0) {
-        float localCoordIn400umUnits = m_coord[i]-0.5*ftk::numberOfPhiPixelsInPixelModule;
-        if (this->getIsBarrel()) localCoordIn400umUnits += 0.5; // + half a pixel for barrel layers  
-        return localCoordIn400umUnits*ftk::phiPitch/ftk::millimiter;
+        float localCoordInPixelUnits = m_coord[i]-0.5*ftk::numberOfPhiPixelsInPixelModule; // align to module center
+        if (this->getIsBarrel()) localCoordInPixelUnits += 0.5; // + half a pixel for barrel layers  
+        return localCoordInPixelUnits*ftk::phiPitch/ftk::millimiter; 
       }
-      if (i==1) return (m_coord[i]-0.5*ftk::numberOfEtaPixelsInPixelModule)*ftk::etaPitchPixel/ftk::millimiter
-                  * ftk::lengthOfPixelModuleIn400umPixels / ftk::numberOfEtaPixelsInPixelModule; // planar sensors
+      if (i==1) return (m_coord[i]-0.5*ftk::numberOfEtaPixelsInPixelModule)*ftk::etaPitchPixel/ftk::millimiter // align to module center
+                  * ftk::lengthOfPixelModuleIn400umPixels / ftk::numberOfEtaPixelsInPixelModule;               // correct for average pixel length
     }
   } 
   if (hitNCoords==1) { // SCT case

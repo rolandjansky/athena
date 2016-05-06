@@ -33,7 +33,8 @@ FTK_AMsimulation_base::FTK_AMsimulation_base(int id, int subid) :
    m_nplanes(0),
    m_require_first(false), m_require_last(false),
    m_ssmap(0x0), m_ssmap_unused(0x0),
-   m_nao_nroads_am(0), m_nao_nroads_rw(0),
+   m_nao_nroads_am(0), m_nao_nroads_am_complete(0), m_nao_nroads_am_misspix(0), m_nao_nroads_am_misssct(0),
+   m_nao_nroads_rw(0),
    m_stat_totroads(0.),
    m_stat_nevents(0),
    m_nroads(0),
@@ -52,6 +53,9 @@ void FTK_AMsimulation_base::naoClear(void) {
    m_nao_nclus.clear();
    m_nao_nss.clear();
    m_nao_nroads_am = 0;
+   m_nao_nroads_am_complete = 0;
+   m_nao_nroads_am_misspix = 0;
+   m_nao_nroads_am_misssct = 0;
    m_nao_nroads_rw = 0;
 }
 

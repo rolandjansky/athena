@@ -81,10 +81,19 @@ class FTK_AMsimulation_base {
    bool getUseMinimalAMIN() const { return m_useMinimalAMIN; }
 
    // control road counter
-   void clearNRoads() { m_nroads=0; }
+   void clearNRoads() { m_nroads=0; m_nroads_complete = 0; m_nroads_misspix = 0; m_nroads_misssct = 0;}
    void setNRoads(long nroad) { m_nroads=nroad; }
+   void setNRoads_complete(long nroad) { m_nroads_complete=nroad; }
+   void setNRoads_misspix(long nroad) { m_nroads_misspix=nroad; }
+   void setNRoads_misssct(long nroad) { m_nroads_misssct=nroad; }
    void countNRoads(long delta=1) { m_nroads+=delta; }
+   void countNRoads_complete(long delta=1) { m_nroads_complete+=delta; }
+   void countNRoads_misspix(long delta=1) { m_nroads_misspix+=delta; }
+   void countNRoads_misssct(long delta=1) { m_nroads_misssct+=delta; }
    long getNRoads() const { return m_nroads; }
+   long getNRoads_complete() const { return m_nroads_complete; }
+   long getNRoads_misspix() const { return m_nroads_misspix; }
+   long getNRoads_misssct() const { return m_nroads_misssct; }
 
    // bank and subregion identifier
    int getBankID() const { return m_BankID; }
@@ -98,8 +107,14 @@ class FTK_AMsimulation_base {
    void naoClusPushBack(int i) { m_nao_nclus.push_back(i); }
    void naoSSPushBack(int i) { m_nao_nss.push_back(i); }
    int naoGetNroadsAM() const { return m_nao_nroads_am; }
+   int naoGetNroadsAMComplete() const { return m_nao_nroads_am_complete; }
+   int naoGetNroadsAMMissPix() const { return m_nao_nroads_am_misspix; }
+   int naoGetNroadsAMMissSCT() const { return m_nao_nroads_am_misssct; }
    int naoGetNroadsRW() const { return m_nao_nroads_rw; }
    void naoSetNroadsAM(int i) { m_nao_nroads_am=i; }
+   void naoSetNroadsAMComplete(int i) { m_nao_nroads_am_complete=i; }
+   void naoSetNroadsAMMissPix(int i) { m_nao_nroads_am_misspix=i; }
+   void naoSetNroadsAMMissSCT(int i) { m_nao_nroads_am_misssct=i; }
    void naoSetNroadsRW(int i) { m_nao_nroads_rw=i; }
 
    // count events and number of roads
@@ -190,11 +205,17 @@ class FTK_AMsimulation_base {
    std::vector<int> m_nao_nclus;    // number of clusters routed into current region [nplanes]
    std::vector<int> m_nao_nss;      // number of superstrips going into AM [nplanes]
    int m_nao_nroads_am;             // number of roads out of AM
+   int m_nao_nroads_am_complete;             // number of roads out of AM, no missing hits
+   int m_nao_nroads_am_misspix;             // number of roads out of AM, missing at least one hit in pixel layer
+   int m_nao_nroads_am_misssct;             // number of roads out of AM, missing at least one hit in sct layer
    int m_nao_nroads_rw;             // number of roads after roadwarrior
 
    float m_stat_totroads; // count all the found roads to keep statistical information
    int m_stat_nevents; // number of processed events
    long m_nroads; // number of roads found
+   long m_nroads_complete; // number of roads that are complete
+   long m_nroads_misspix; // number of roads missing at least one pixel hit
+   long m_nroads_misssct; // number of roads missing at least one silicon hit
 
    std::string m_badmap_path;
    std::string m_badmap_path2;

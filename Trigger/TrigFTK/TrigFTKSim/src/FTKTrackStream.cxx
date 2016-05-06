@@ -10,10 +10,10 @@ using namespace std;
 
 FTKTrackStream::FTKTrackStream() :
   m_run_number(0ul), m_event_number(0ul),
-  m_ntracks(0), m_ncombs(0),m_nfits(0), m_nfits_maj(0),
+  m_ntracks(0), m_ncombs(0),m_nfits(0), m_nfits_maj(0), m_nfits_maj_pix(0), m_nfits_maj_SCT(0),
   m_nfits_rec(0), m_nfits_addrec(0), m_nfits_bad(0), m_nfits_rej(0),
   m_nfits_badmaj(0), m_nfits_rejmaj(0),
-  m_ntracksI(0), m_ncombsI(0),m_nfitsI(0), m_nfits_majI(0),
+  m_ntracksI(0), m_ncombsI(0),m_nfitsI(0), m_nfits_majI(0), m_nfits_majI_pix(0), m_nfits_majI_SCT(0),
   m_nfits_recI(0), m_nfits_addrecI(0), m_nfits_badI(0), m_nfits_rejI(0),
   m_nfits_badmajI(0), m_nfits_rejmajI(0)
 {
@@ -92,6 +92,8 @@ void FTKTrackStream::clear()
   m_ncombs = 0;
   m_nfits = 0;
   m_nfits_maj = 0;
+  m_nfits_maj_pix = 0;
+  m_nfits_maj_SCT = 0;
   m_nfits_bad = 0;
   m_nfits_badmaj = 0;
   m_nfits_rec = 0;
@@ -102,6 +104,8 @@ void FTKTrackStream::clear()
   m_ncombsI = 0;
   m_nfitsI = 0;
   m_nfits_majI = 0;
+  m_nfits_majI_pix = 0;
+  m_nfits_majI_SCT = 0;
   m_nfits_badI = 0;
   m_nfits_badmajI = 0;
   m_nfits_recI = 0;

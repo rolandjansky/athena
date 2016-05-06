@@ -256,6 +256,9 @@ int RoadFinder::nextEvent()
      m_roadoutput->naoSetNclus(ibank,pbank->naoGetNclus());
      m_roadoutput->naoSetNss(ibank,pbank->naoGetNss());
      m_roadoutput->naoSetNroadsAM(ibank,pbank->naoGetNroadsAM());
+     m_roadoutput->naoSetNroadsAMComplete(ibank,pbank->naoGetNroadsAMComplete());
+     m_roadoutput->naoSetNroadsAMMissPix(ibank,pbank->naoGetNroadsAMMissPix());
+     m_roadoutput->naoSetNroadsAMMissSCT(ibank,pbank->naoGetNroadsAMMissSCT());
      m_roadoutput->naoSetNroadsRW(ibank,pbank->naoGetNroadsRW());
 
      const list<FTKRoad>& roadslist = pbank->getRoads();

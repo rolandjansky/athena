@@ -526,7 +526,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         // get the det element from the det element collection
         const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(rdoId);
         const InDetDD::SCT_ModuleSideDesign& design = dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(sielement->design());
-        const InDetDD::SiLocalPosition localPos = design.positionFromStrip((*iRDO)->getStrip());
+        const InDetDD::SiLocalPosition localPos = design.positionFromStrip(m_sctId->strip(rdoId));
         const Amg::Vector3D gPos = sielement->globalPosition(localPos);
         hitIndexMap[rdoId] = hitIndex;
         ++hitIndex;
@@ -647,7 +647,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
           const Identifier rdoId = (*iRDO)->identify();
           const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(rdoId);
           const InDetDD::SCT_ModuleSideDesign& design = dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(sielement->design());
-          const InDetDD::SiLocalPosition localPos = design.positionFromStrip((*iRDO)->getStrip());
+          const InDetDD::SiLocalPosition localPos = design.positionFromStrip(m_sctId->strip(rdoId));
           const Amg::Vector3D gPos = sielement->globalPosition(localPos);
 
           if(m_dooutFileRawHits){

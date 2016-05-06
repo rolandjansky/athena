@@ -165,6 +165,13 @@ void Init() {
   histopt_truthM_lg = new TH1F("histopt_truthM_lg",";p_{T} (GeV);N Tracks",npt,ptlogbins);
   histopt_truthMlo_lg = new TH1F("histopt_truthMlo_lgw",";p_{T} (GeV);N Tracks",nptl,ptlowlog);
 
+  histod0res_veta = new TProfile("histod0res_veta","#Delta d_{0} (mm);#eta", nbins, etamin, etamax);
+  histoz0res_veta = new TProfile("histoz0res_veta","#Delta z_{0} (mm);eta", nbins, etamin, etamax);
+  histod0res_vphi = new TProfile("histod0res_vphi","#Delta d_{0} (mm);#phi", nbins, phimin, phimax);
+  histoz0res_vphi = new TProfile("histoz0res_vphi","#Delta z_{0} (mm);#phi", nbins, phimin, phimax);
+  histod0res_vz0 = new TProfile("histod0res_vz0","#Delta d_{0} (mm);z_{0} (mm)", nbins, z0min, z0max);
+  histoz0res_vz0 = new TProfile("histoz0res_vz0","#Delta z_{0} (mm);z_{0} (mm)", nbins, z0min, z0max);
+
   histod0res = new TH1F("histod0res",";#Delta d_{0} (mm);N Tracks", nbins,-Dd0,Dd0);
   histoz0res = new TH1F("histoz0res",";#Delta z_{0} (mm);N Tracks",nbins,-Dz0,Dz0);
   histocurvres = new TH1F("histocurvres",";#Delta 1/(2p_{T}) (GeV^{-1});Ntracks",nbins,-Dcurv,Dcurv);
@@ -527,6 +534,13 @@ void Process(Long64_t ientry) {
       if (bestftk) {
 	histod0res->Fill(d0-bestftk->getIP());
 	histoz0res->Fill(z0-bestftk->getZ0());
+	histod0res_veta->Fill(eta,d0-bestftk->getIP());
+	histoz0res_veta->Fill(eta,z0-bestftk->getZ0());
+	histod0res_vphi->Fill(curtruth.getPhi(),d0-bestftk->getIP());
+	histoz0res_vphi->Fill(curtruth.getPhi(),z0-bestftk->getZ0());
+	histod0res_vz0->Fill(z0,d0-bestftk->getIP());
+	histoz0res_vz0->Fill(z0,z0-bestftk->getZ0());
+
 	histocurvres->Fill(curv-bestftk->getHalfInvPt()*1e3);
 	histophires->Fill(curtruth.getPhi()-bestftk->getPhi());
 	histoetares->Fill(eta-bestftk->getEta());
@@ -735,6 +749,13 @@ void Terminate(std::string& outputname) {
   ofile->Add(histopt_truthMlo_lg);
   ofile->Add(histod0res);
   ofile->Add(histoz0res);
+  ofile->Add(histod0res_veta);
+  ofile->Add(histoz0res_veta);
+  ofile->Add(histod0res_vphi);
+  ofile->Add(histoz0res_vphi);
+  ofile->Add(histod0res_vz0);
+  ofile->Add(histoz0res_vz0);
+
   ofile->Add(histocurvres);
   ofile->Add(histoetares);
   ofile->Add(histophires);

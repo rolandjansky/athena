@@ -42,6 +42,9 @@ private:
   // enable the use of IBL
   int m_IBLMode;
 
+  bool m_fixEndcapL0; //fix for endcap L0 in clustering
+
+
   // use ITk geometry
   bool m_ITkMode;
   
@@ -97,7 +100,7 @@ private:
   std::string m_pmapcomplete_path;
   FTKPlaneMap *m_pmap_unused;
   std::string m_pmapunused_path;
-
+  std::string m_modulelut2nd_path; // LUT to map global ID in local IDs for HWModeSS=2          
 
   std::vector<std::string> m_fitconstantspath;
   std::vector<std::string> m_fit711constantspath;

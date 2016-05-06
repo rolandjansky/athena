@@ -11,13 +11,34 @@
         <chainName>RunMulitpleTowers</chainName>
         
         <sequential>
+
+          <chainElement>
+            <jobTransform userJobId="MakeFTKIPFile">
+              <jobTransformJobName>FTKSimMakeFTKIP</jobTransformJobName>
+              <jobTransformCmd>echo "placeholder"</jobTransformCmd>
+              <group>FTKSimValidation</group>
+              <queue>medium</queue>
+             
+            </jobTransform>
+            <chainfileout>NTUP_FTKIP.root</chainfileout>
+          </chainElement>
+
+
           <parallel>
             
             <chainElement>
               <jobTransform userJobId="RunTower00">
                 <jobTransformJobName>FTKSimTower00</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_00 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 0</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_00 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 0</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_00</chainfileout>
@@ -26,8 +47,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower01">
                 <jobTransformJobName>FTKSimTower01</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_01 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 1</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_01 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 1</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_01</chainfileout>
@@ -36,8 +65,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower02">
                 <jobTransformJobName>FTKSimTower02</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_02 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 2</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_02 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 2</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_02</chainfileout>
@@ -46,8 +83,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower03">
                 <jobTransformJobName>FTKSimTower03</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_03 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 3</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_03 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 3</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_03</chainfileout>
@@ -56,8 +101,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower04">
                 <jobTransformJobName>FTKSimTower04</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_04 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 4</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_04 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 4</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_04</chainfileout>
@@ -66,8 +119,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower05">
                 <jobTransformJobName>FTKSimTower05</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_05 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 5</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_05 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 5</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_05</chainfileout>
@@ -76,8 +137,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower06">
                 <jobTransformJobName>FTKSimTower06</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_06 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 6</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_06 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 6</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_06</chainfileout>
@@ -86,8 +155,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower07">
                 <jobTransformJobName>FTKSimTower07</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_07 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 7</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_07 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 7</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_07</chainfileout>
@@ -96,8 +173,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower08">
                 <jobTransformJobName>FTKSimTower08</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_08 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 8</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_08 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 8</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_08</chainfileout>
@@ -106,8 +191,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower09">
                 <jobTransformJobName>FTKSimTower09</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_09 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 9</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_09 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 9</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_09</chainfileout>
@@ -116,8 +209,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower10">
                 <jobTransformJobName>FTKSimTower10</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_10 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 10</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_10 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 10</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_10</chainfileout>
@@ -126,8 +227,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower11">
                 <jobTransformJobName>FTKSimTower11</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_11 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 11</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_11 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 11</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_11</chainfileout>
@@ -136,8 +245,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower12">
                 <jobTransformJobName>FTKSimTower12</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_12 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 12</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_12 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 12</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_12</chainfileout>
@@ -146,8 +263,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower13">
                 <jobTransformJobName>FTKSimTower13</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_13 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 13</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_13 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 13</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_13</chainfileout>
@@ -156,8 +281,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower14">
                 <jobTransformJobName>FTKSimTower14</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_14 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 14</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_14 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 14</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_14</chainfileout>
@@ -166,8 +299,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower15">
                 <jobTransformJobName>FTKSimTower15</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_15 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 15</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_15 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 15</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_15</chainfileout>
@@ -176,8 +317,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower16">
                 <jobTransformJobName>FTKSimTower16</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_16 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 16</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_16 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 16</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_16</chainfileout>
@@ -186,8 +335,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower17">
                 <jobTransformJobName>FTKSimTower17</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_17 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 17</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_17 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 17</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_17</chainfileout>
@@ -196,8 +353,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower18">
                 <jobTransformJobName>FTKSimTower18</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_18 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 18</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_18 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 18</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_18</chainfileout>
@@ -206,8 +371,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower19">
                 <jobTransformJobName>FTKSimTower19</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_19 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 19</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_19 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 19</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_19</chainfileout>
@@ -216,8 +389,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower20">
                 <jobTransformJobName>FTKSimTower20</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_20 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 20</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_20 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 20</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_20</chainfileout>
@@ -226,8 +407,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower21">
                 <jobTransformJobName>FTKSimTower21</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_21 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 21</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_21 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 21</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_21</chainfileout>
@@ -236,8 +425,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower22">
                 <jobTransformJobName>FTKSimTower22</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_22 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 22</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_22 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 22</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_22</chainfileout>
@@ -246,8 +443,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower23">
                 <jobTransformJobName>FTKSimTower23</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_23 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 23</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_23 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 23</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_23</chainfileout>
@@ -256,8 +461,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower24">
                 <jobTransformJobName>FTKSimTower24</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_24 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 24</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_24 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 24</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_24</chainfileout>
@@ -266,8 +479,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower25">
                 <jobTransformJobName>FTKSimTower25</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_25 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 25</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_25 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 25</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_25</chainfileout>
@@ -276,8 +497,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower26">
                 <jobTransformJobName>FTKSimTower26</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_26 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 26</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_26 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 26</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_26</chainfileout>
@@ -286,8 +515,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower27">
                 <jobTransformJobName>FTKSimTower27</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_27 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 27</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_27 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 27</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_27</chainfileout>
@@ -296,8 +533,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower28">
                 <jobTransformJobName>FTKSimTower28</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_28 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 28</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_28 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 28</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_28</chainfileout>
@@ -306,8 +551,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower29">
                 <jobTransformJobName>FTKSimTower29</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_29 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 29</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_29 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 29</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_29</chainfileout>
@@ -316,8 +569,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower30">
                 <jobTransformJobName>FTKSimTower30</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_30 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 30</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_30 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 30</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_30</chainfileout>
@@ -326,8 +587,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower31">
                 <jobTransformJobName>FTKSimTower31</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_31 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 31</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_31 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 31</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_31</chainfileout>
@@ -336,8 +605,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower32">
                 <jobTransformJobName>FTKSimTower32</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_32 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 32</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_32 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 32</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_32</chainfileout>
@@ -346,8 +623,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower33">
                 <jobTransformJobName>FTKSimTower33</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_33 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 33</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_33 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 33</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_33</chainfileout>
@@ -356,8 +641,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower34">
                 <jobTransformJobName>FTKSimTower34</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_34 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 34</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_34 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 34</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_34</chainfileout>
@@ -366,8 +659,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower35">
                 <jobTransformJobName>FTKSimTower35</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_35 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 35</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_35 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 35</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_35</chainfileout>
@@ -376,8 +677,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower36">
                 <jobTransformJobName>FTKSimTower36</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_36 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 36</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_36 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 36</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_36</chainfileout>
@@ -386,8 +695,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower37">
                 <jobTransformJobName>FTKSimTower37</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_37 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 37</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_37 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 37</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_37</chainfileout>
@@ -396,8 +713,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower38">
                 <jobTransformJobName>FTKSimTower38</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_38 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 38</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_38 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 38</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_38</chainfileout>
@@ -406,8 +731,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower39">
                 <jobTransformJobName>FTKSimTower39</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_39 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 39</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_39 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 39</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_39</chainfileout>
@@ -416,8 +749,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower40">
                 <jobTransformJobName>FTKSimTower40</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_40 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 40</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_40 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 40</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_40</chainfileout>
@@ -426,8 +767,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower41">
                 <jobTransformJobName>FTKSimTower41</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_41 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 41</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_41 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 41</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_41</chainfileout>
@@ -436,8 +785,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower42">
                 <jobTransformJobName>FTKSimTower42</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_42 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 42</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_42 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 42</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_42</chainfileout>
@@ -446,8 +803,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower43">
                 <jobTransformJobName>FTKSimTower43</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_43 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 43</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_43 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 43</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_43</chainfileout>
@@ -456,8 +821,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower44">
                 <jobTransformJobName>FTKSimTower44</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_44 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 44</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_44 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 44</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_44</chainfileout>
@@ -466,8 +839,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower45">
                 <jobTransformJobName>FTKSimTower45</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_45 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 45</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_45 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 45</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_45</chainfileout>
@@ -476,8 +857,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower46">
                 <jobTransformJobName>FTKSimTower46</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_46 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 46</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_46 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 46</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_46</chainfileout>
@@ -486,8 +875,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower47">
                 <jobTransformJobName>FTKSimTower47</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_47 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 47</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_47 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 47</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_47</chainfileout>
@@ -496,8 +893,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower48">
                 <jobTransformJobName>FTKSimTower48</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_48 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 48</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_48 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 48</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_48</chainfileout>
@@ -506,8 +911,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower49">
                 <jobTransformJobName>FTKSimTower49</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_49 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 49</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_49 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 49</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_49</chainfileout>
@@ -516,8 +929,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower50">
                 <jobTransformJobName>FTKSimTower50</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_50 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 50</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_50 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 50</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_50</chainfileout>
@@ -526,8 +947,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower51">
                 <jobTransformJobName>FTKSimTower51</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_51 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 51</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_51 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 51</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_51</chainfileout>
@@ -536,8 +965,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower52">
                 <jobTransformJobName>FTKSimTower52</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_52 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 52</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_52 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 52</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_52</chainfileout>
@@ -546,8 +983,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower53">
                 <jobTransformJobName>FTKSimTower53</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_53 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 53</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_53 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 53</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_53</chainfileout>
@@ -556,8 +1001,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower54">
                 <jobTransformJobName>FTKSimTower54</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_54 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 54</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_54 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 54</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_54</chainfileout>
@@ -566,8 +1019,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower55">
                 <jobTransformJobName>FTKSimTower55</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_55 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 55</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_55 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 55</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_55</chainfileout>
@@ -576,8 +1037,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower56">
                 <jobTransformJobName>FTKSimTower56</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_56 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 56</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_56 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 56</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_56</chainfileout>
@@ -586,8 +1055,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower57">
                 <jobTransformJobName>FTKSimTower57</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_57 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 57</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_57 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 57</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_57</chainfileout>
@@ -596,8 +1073,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower58">
                 <jobTransformJobName>FTKSimTower58</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_58 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 58</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_58 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 58</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_58</chainfileout>
@@ -606,8 +1091,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower59">
                 <jobTransformJobName>FTKSimTower59</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_59 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 59</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_59 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 59</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_59</chainfileout>
@@ -616,8 +1109,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower60">
                 <jobTransformJobName>FTKSimTower60</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_60 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 60</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_60 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 60</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_60</chainfileout>
@@ -626,8 +1127,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower61">
                 <jobTransformJobName>FTKSimTower61</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_61 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 61</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_61 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 61</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_61</chainfileout>
@@ -636,8 +1145,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower62">
                 <jobTransformJobName>FTKSimTower62</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_62 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 62</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_62 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 62</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_62</chainfileout>
@@ -646,8 +1163,16 @@
             <chainElement>
               <jobTransform userJobId="RunTower63">
                 <jobTransformJobName>FTKSimTower63</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 3000 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_63 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 63</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 500 --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_63 --FTKSetupTag Run2TempMapv0 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion test.run2.v0.1 --PatternsVersion test.run2.v0.1 --bankregion 63</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7579/NTUP_FTKIP.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_63</chainfileout>
@@ -658,7 +1183,7 @@
           <chainElement>
             <jobTransform userJobId="MergeTowers">
               <jobTransformJobName>FTKSimMerge</jobTransformJobName>
-              <jobTransformCmd>TrigFTKTM64SM4Un_tf.py --maxEvents 3000 --MergeRoads=True --UberFinalMerge=False --FTKSetupTag Run2TempMapv0 --inputNTUP_FTKTMP_00File=tmp.NTUP_FTKTMP_00 --inputNTUP_FTKTMP_01File=tmp.NTUP_FTKTMP_01 --inputNTUP_FTKTMP_02File=tmp.NTUP_FTKTMP_02 --inputNTUP_FTKTMP_03File=tmp.NTUP_FTKTMP_03 --inputNTUP_FTKTMP_04File=tmp.NTUP_FTKTMP_04 --inputNTUP_FTKTMP_05File=tmp.NTUP_FTKTMP_05 --inputNTUP_FTKTMP_06File=tmp.NTUP_FTKTMP_06 --inputNTUP_FTKTMP_07File=tmp.NTUP_FTKTMP_07 --inputNTUP_FTKTMP_08File=tmp.NTUP_FTKTMP_08 --inputNTUP_FTKTMP_09File=tmp.NTUP_FTKTMP_09 --inputNTUP_FTKTMP_10File=tmp.NTUP_FTKTMP_10 --inputNTUP_FTKTMP_11File=tmp.NTUP_FTKTMP_11 --inputNTUP_FTKTMP_12File=tmp.NTUP_FTKTMP_12 --inputNTUP_FTKTMP_13File=tmp.NTUP_FTKTMP_13 --inputNTUP_FTKTMP_14File=tmp.NTUP_FTKTMP_14 --inputNTUP_FTKTMP_15File=tmp.NTUP_FTKTMP_15 --inputNTUP_FTKTMP_16File=tmp.NTUP_FTKTMP_16 --inputNTUP_FTKTMP_17File=tmp.NTUP_FTKTMP_17 --inputNTUP_FTKTMP_18File=tmp.NTUP_FTKTMP_18 --inputNTUP_FTKTMP_19File=tmp.NTUP_FTKTMP_19 --inputNTUP_FTKTMP_20File=tmp.NTUP_FTKTMP_20 --inputNTUP_FTKTMP_21File=tmp.NTUP_FTKTMP_21 --inputNTUP_FTKTMP_22File=tmp.NTUP_FTKTMP_22 --inputNTUP_FTKTMP_23File=tmp.NTUP_FTKTMP_23 --inputNTUP_FTKTMP_24File=tmp.NTUP_FTKTMP_24 --inputNTUP_FTKTMP_25File=tmp.NTUP_FTKTMP_25 --inputNTUP_FTKTMP_26File=tmp.NTUP_FTKTMP_26 --inputNTUP_FTKTMP_27File=tmp.NTUP_FTKTMP_27 --inputNTUP_FTKTMP_28File=tmp.NTUP_FTKTMP_28 --inputNTUP_FTKTMP_29File=tmp.NTUP_FTKTMP_29 --inputNTUP_FTKTMP_30File=tmp.NTUP_FTKTMP_30 --inputNTUP_FTKTMP_31File=tmp.NTUP_FTKTMP_31 --inputNTUP_FTKTMP_32File=tmp.NTUP_FTKTMP_32 --inputNTUP_FTKTMP_33File=tmp.NTUP_FTKTMP_33 --inputNTUP_FTKTMP_34File=tmp.NTUP_FTKTMP_34 --inputNTUP_FTKTMP_35File=tmp.NTUP_FTKTMP_35 --inputNTUP_FTKTMP_36File=tmp.NTUP_FTKTMP_36 --inputNTUP_FTKTMP_37File=tmp.NTUP_FTKTMP_37 --inputNTUP_FTKTMP_38File=tmp.NTUP_FTKTMP_38 --inputNTUP_FTKTMP_39File=tmp.NTUP_FTKTMP_39 --inputNTUP_FTKTMP_40File=tmp.NTUP_FTKTMP_40 --inputNTUP_FTKTMP_41File=tmp.NTUP_FTKTMP_41 --inputNTUP_FTKTMP_42File=tmp.NTUP_FTKTMP_42 --inputNTUP_FTKTMP_43File=tmp.NTUP_FTKTMP_43 --inputNTUP_FTKTMP_44File=tmp.NTUP_FTKTMP_44 --inputNTUP_FTKTMP_45File=tmp.NTUP_FTKTMP_45 --inputNTUP_FTKTMP_46File=tmp.NTUP_FTKTMP_46 --inputNTUP_FTKTMP_47File=tmp.NTUP_FTKTMP_47 --inputNTUP_FTKTMP_48File=tmp.NTUP_FTKTMP_48 --inputNTUP_FTKTMP_49File=tmp.NTUP_FTKTMP_49 --inputNTUP_FTKTMP_50File=tmp.NTUP_FTKTMP_50 --inputNTUP_FTKTMP_51File=tmp.NTUP_FTKTMP_51 --inputNTUP_FTKTMP_52File=tmp.NTUP_FTKTMP_52 --inputNTUP_FTKTMP_53File=tmp.NTUP_FTKTMP_53 --inputNTUP_FTKTMP_54File=tmp.NTUP_FTKTMP_54 --inputNTUP_FTKTMP_55File=tmp.NTUP_FTKTMP_55 --inputNTUP_FTKTMP_56File=tmp.NTUP_FTKTMP_56 --inputNTUP_FTKTMP_57File=tmp.NTUP_FTKTMP_57 --inputNTUP_FTKTMP_58File=tmp.NTUP_FTKTMP_58 --inputNTUP_FTKTMP_59File=tmp.NTUP_FTKTMP_59 --inputNTUP_FTKTMP_60File=tmp.NTUP_FTKTMP_60 --inputNTUP_FTKTMP_61File=tmp.NTUP_FTKTMP_61 --inputNTUP_FTKTMP_62File=tmp.NTUP_FTKTMP_62 --inputNTUP_FTKTMP_63File=tmp.NTUP_FTKTMP_63 --outputNTUP_FTKFile=tempout.root --inputNTUP_FTKIPFile=/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_RDO.e3698_s2608_s2183_r7192.FTK_RDO.v6_EXT0/NTUP_FTKIP.root</jobTransformCmd>
+              <jobTransformCmd>TrigFTKTM64SM4Un_tf.py --maxEvents 500 --MergeRoads=True --UberFinalMerge=False --FTKSetupTag Run2TempMapv0 --inputNTUP_FTKTMP_00File=tmp.NTUP_FTKTMP_00 --inputNTUP_FTKTMP_01File=tmp.NTUP_FTKTMP_01 --inputNTUP_FTKTMP_02File=tmp.NTUP_FTKTMP_02 --inputNTUP_FTKTMP_03File=tmp.NTUP_FTKTMP_03 --inputNTUP_FTKTMP_04File=tmp.NTUP_FTKTMP_04 --inputNTUP_FTKTMP_05File=tmp.NTUP_FTKTMP_05 --inputNTUP_FTKTMP_06File=tmp.NTUP_FTKTMP_06 --inputNTUP_FTKTMP_07File=tmp.NTUP_FTKTMP_07 --inputNTUP_FTKTMP_08File=tmp.NTUP_FTKTMP_08 --inputNTUP_FTKTMP_09File=tmp.NTUP_FTKTMP_09 --inputNTUP_FTKTMP_10File=tmp.NTUP_FTKTMP_10 --inputNTUP_FTKTMP_11File=tmp.NTUP_FTKTMP_11 --inputNTUP_FTKTMP_12File=tmp.NTUP_FTKTMP_12 --inputNTUP_FTKTMP_13File=tmp.NTUP_FTKTMP_13 --inputNTUP_FTKTMP_14File=tmp.NTUP_FTKTMP_14 --inputNTUP_FTKTMP_15File=tmp.NTUP_FTKTMP_15 --inputNTUP_FTKTMP_16File=tmp.NTUP_FTKTMP_16 --inputNTUP_FTKTMP_17File=tmp.NTUP_FTKTMP_17 --inputNTUP_FTKTMP_18File=tmp.NTUP_FTKTMP_18 --inputNTUP_FTKTMP_19File=tmp.NTUP_FTKTMP_19 --inputNTUP_FTKTMP_20File=tmp.NTUP_FTKTMP_20 --inputNTUP_FTKTMP_21File=tmp.NTUP_FTKTMP_21 --inputNTUP_FTKTMP_22File=tmp.NTUP_FTKTMP_22 --inputNTUP_FTKTMP_23File=tmp.NTUP_FTKTMP_23 --inputNTUP_FTKTMP_24File=tmp.NTUP_FTKTMP_24 --inputNTUP_FTKTMP_25File=tmp.NTUP_FTKTMP_25 --inputNTUP_FTKTMP_26File=tmp.NTUP_FTKTMP_26 --inputNTUP_FTKTMP_27File=tmp.NTUP_FTKTMP_27 --inputNTUP_FTKTMP_28File=tmp.NTUP_FTKTMP_28 --inputNTUP_FTKTMP_29File=tmp.NTUP_FTKTMP_29 --inputNTUP_FTKTMP_30File=tmp.NTUP_FTKTMP_30 --inputNTUP_FTKTMP_31File=tmp.NTUP_FTKTMP_31 --inputNTUP_FTKTMP_32File=tmp.NTUP_FTKTMP_32 --inputNTUP_FTKTMP_33File=tmp.NTUP_FTKTMP_33 --inputNTUP_FTKTMP_34File=tmp.NTUP_FTKTMP_34 --inputNTUP_FTKTMP_35File=tmp.NTUP_FTKTMP_35 --inputNTUP_FTKTMP_36File=tmp.NTUP_FTKTMP_36 --inputNTUP_FTKTMP_37File=tmp.NTUP_FTKTMP_37 --inputNTUP_FTKTMP_38File=tmp.NTUP_FTKTMP_38 --inputNTUP_FTKTMP_39File=tmp.NTUP_FTKTMP_39 --inputNTUP_FTKTMP_40File=tmp.NTUP_FTKTMP_40 --inputNTUP_FTKTMP_41File=tmp.NTUP_FTKTMP_41 --inputNTUP_FTKTMP_42File=tmp.NTUP_FTKTMP_42 --inputNTUP_FTKTMP_43File=tmp.NTUP_FTKTMP_43 --inputNTUP_FTKTMP_44File=tmp.NTUP_FTKTMP_44 --inputNTUP_FTKTMP_45File=tmp.NTUP_FTKTMP_45 --inputNTUP_FTKTMP_46File=tmp.NTUP_FTKTMP_46 --inputNTUP_FTKTMP_47File=tmp.NTUP_FTKTMP_47 --inputNTUP_FTKTMP_48File=tmp.NTUP_FTKTMP_48 --inputNTUP_FTKTMP_49File=tmp.NTUP_FTKTMP_49 --inputNTUP_FTKTMP_50File=tmp.NTUP_FTKTMP_50 --inputNTUP_FTKTMP_51File=tmp.NTUP_FTKTMP_51 --inputNTUP_FTKTMP_52File=tmp.NTUP_FTKTMP_52 --inputNTUP_FTKTMP_53File=tmp.NTUP_FTKTMP_53 --inputNTUP_FTKTMP_54File=tmp.NTUP_FTKTMP_54 --inputNTUP_FTKTMP_55File=tmp.NTUP_FTKTMP_55 --inputNTUP_FTKTMP_56File=tmp.NTUP_FTKTMP_56 --inputNTUP_FTKTMP_57File=tmp.NTUP_FTKTMP_57 --inputNTUP_FTKTMP_58File=tmp.NTUP_FTKTMP_58 --inputNTUP_FTKTMP_59File=tmp.NTUP_FTKTMP_59 --inputNTUP_FTKTMP_60File=tmp.NTUP_FTKTMP_60 --inputNTUP_FTKTMP_61File=tmp.NTUP_FTKTMP_61 --inputNTUP_FTKTMP_62File=tmp.NTUP_FTKTMP_62 --inputNTUP_FTKTMP_63File=tmp.NTUP_FTKTMP_63 --outputNTUP_FTKFile=NTUP_FTK.root</jobTransformCmd>
               <group>FTKSimValidation</group>
               
               <chaindataset_info>
@@ -1259,18 +1784,18 @@
               </test>
  
             </jobTransform>
-            <chainfileout>tempout.root</chainfileout>
+            <chainfileout>NTUP_FTK.root</chainfileout>
           </chainElement>
             
           <parallel>
             <chainElement>
               <jobTransform userJobId="ConsistencyCheck">
                 <jobTransformJobName>OutputConsistencyCheck</jobTransformJobName>
-                <jobTransformCmd>CompareFTKSimDirectories_RTT.py --RefFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout_ref.root --ChkFile tempout.root --PlotTowers</jobTransformCmd>
+                <jobTransformCmd>CompareFTKSimDirectories_RTT.py --RefFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout_ref.root --ChkFile NTUP_FTK.root --PlotTowers</jobTransformCmd>
                 <group>FTKSimValidation</group>
                 <chaindataset_info>
                   <jobTransformData />
-                  <chaindatasetName>tempout.root</chaindatasetName>
+                  <chaindatasetName>NTUP_FTK.root</chaindatasetName>
                   <dataset_info>
                     <jobTransformData />
                     <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout.root</datasetName>
@@ -1283,11 +1808,11 @@
             <chainElement>
               <jobTransform userJobId="EfficiencyPlots">
                 <jobTransformJobName>EfficiencyPlots</jobTransformJobName>
-                <jobTransformCmd>trigftk_efficiency.exe --files tempout.root</jobTransformCmd>
+                <jobTransformCmd>trigftk_efficiency.exe --files NTUP_FTK.root</jobTransformCmd>
                 <group>FTKSimValidation</group>
                 <chaindataset_info>
                   <jobTransformData />
-                  <chaindatasetName>tempout.root</chaindatasetName>
+                  <chaindatasetName>NTUP_FTK.root</chaindatasetName>
                   <dataset_info>
                     <jobTransformData />
                     <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout.root</datasetName>
@@ -1301,11 +1826,11 @@
             <chainElement>
               <jobTransform userJobId="Dataflow">
                 <jobTransformJobName>Dataflow</jobTransformJobName>
-                <jobTransformCmd>root -q -b -l 'plot_simple_dataflow.C("tempout.root",-1)'</jobTransformCmd>
+                <jobTransformCmd>root -q -b -l 'plot_simple_dataflow.C("NTUP_FTK.root",-1)'</jobTransformCmd>
                 <group>FTKSimValidation</group>
                 <chaindataset_info>
                   <jobTransformData />
-                  <chaindatasetName>tempout.root</chaindatasetName>
+                  <chaindatasetName>NTUP_FTK.root</chaindatasetName>
                   <dataset_info>
                     <jobTransformData />
                     <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout.root</datasetName>
@@ -1314,9 +1839,32 @@
                 <queue>medium</queue>
                 <auxFilePattern>plot_simple_dataflow.C</auxFilePattern>
               </jobTransform>
-            </chainElement>         
-        </parallel>
-       </sequential>
+            </chainElement>
+            
+            <sequential>
+              
+              <chainElement>
+                <jobTransform userJobId="MakeRDO_FTK">
+                  <jobTransformJobName>MakeRDO_FTK</jobTransformJobName>
+                  <jobTransformCmd>echo "placeholder"</jobTransformCmd>
+                  <group>FTKSimValidation</group>
+                  <chaindataset_info>
+                    <jobTransformData />
+                    <chaindatasetName>NTUP_FTK.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData />
+                      <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <chainfileout>RDO_FTK.root</chainfileout>
+              </chainElement>
+            
+            </sequential>
+          
+          </parallel>
+        </sequential>
       </chain>
     </jobList>
 

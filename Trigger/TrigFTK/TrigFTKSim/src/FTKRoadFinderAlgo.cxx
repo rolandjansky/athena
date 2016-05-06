@@ -33,7 +33,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_BarrelOnly(false), m_EnableFTKSim(true),
   m_MaxMissingPlanes(1), m_RoadWarrior(0), m_KeepRemoved(0),
   m_MaxMissingSCTPairs(0), m_RestrictSctPairModule(false), m_RestrictSctPairLayer(false),
-  m_IBLMode(0),
+  m_IBLMode(0), m_fixEndcapL0(false),
   m_ITkMode(false),
   m_ss_offset_fraction(0),
   m_PixelClusteringMode(0),
@@ -58,6 +58,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_rmap_path(), m_rmapunused_path(),
   m_ssmap_path(), m_ssmapunused_path(), m_ssmaptsp_path(), m_badmap_path(),m_badmap_path2(),
   m_modulelut_path(),
+  m_modulelut2nd_path(),
   m_CachedBank(false),
   m_InputFromWrapper(true), m_RegionalWrapper(false),
   m_doroadfile(false), m_roadfilepath("ftkroads.root"),
@@ -87,8 +88,10 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("badmap_path_for_hit",m_badmap_path2);
 
   declareProperty("ModuleLUTPath",m_modulelut_path);
+  declareProperty("ModuleLUTPath2nd",m_modulelut2nd_path);
   
   declareProperty("IBLMode",m_IBLMode);
+  declareProperty("FixEndCapL0",m_fixEndcapL0, "Fix endcap L0 clustering");
   declareProperty("ITkMode",m_ITkMode);
 
   declareProperty("PixelClusteringMode",m_PixelClusteringMode,"Pixel clustering correction: 0 simple default, 1 channel center and linear ToT interpolation and account for different pixel lengths");
@@ -173,6 +176,9 @@ StatusCode FTKRoadFinderAlgo::initialize(){
   log << MSG::INFO << "IBL mode value: " << m_IBLMode << endreq;
   ftkset.setIBLMode(m_IBLMode);
 
+  log << MSG::INFO << "Fix EndcapL0 value: " << m_fixEndcapL0 << endreq;
+  ftkset.setfixEndcapL0(m_fixEndcapL0);
+
   log << MSG::INFO << "ITk mode value: " << m_ITkMode << endreq;
   ftkset.setITkMode(m_ITkMode);
   
@@ -232,6 +238,16 @@ StatusCode FTKRoadFinderAlgo::initialize(){
   if (m_pmap_unused) {
     log << MSG::INFO << "Creating region map for the unused layers" << endreq;
     m_rmap_unused = new FTKRegionMap(m_pmap_unused, m_rmap_path.c_str());
+    if (m_HWModeSS==2) {
+      if (m_modulelut2nd_path.empty()) {
+	log << MSG::FATAL << "A module LUT is required when HW SS calculation is required" << m_rmap_path.c_str() << endreq;
+	return StatusCode::FAILURE;
+      }
+      else {      
+	log << MSG::INFO << "Loading module map from: " << m_modulelut2nd_path << endreq; 
+	m_rmap_unused->loadModuleIDLUT(m_modulelut2nd_path.c_str());
+      }
+    }
   }
 
 

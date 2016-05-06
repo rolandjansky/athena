@@ -221,6 +221,16 @@ void FTK_SGTrackOutput::addNFitsMajority(int ib, int v)
   m_TFstats[ib]->addNFitsMajority(v);
 }
 
+void FTK_SGTrackOutput::addNFitsMajority_SCT(int ib, int v)
+{
+   //m_TFstats[ib]->addNFitsMajority_SCT(v);
+}
+
+void FTK_SGTrackOutput::addNFitsMajority_pix(int ib, int v)
+{
+   //m_TFstats[ib]->addNFitsMajority_pix(v);
+}
+
 
 void FTK_SGTrackOutput::addNFitsRecovery(int ib, int v)
 {
@@ -312,6 +322,14 @@ void FTK_SGTrackOutput::addNFitsI(int ib, int v)
 void FTK_SGTrackOutput::addNFitsMajorityI(int ib, int v)
 {
   m_TFstatsI[ib]->addNFitsMajority(v);
+}
+void FTK_SGTrackOutput::addNFitsMajorityI_pix(int ib, int v)
+{
+   //m_TFstatsI[ib]->addNFitsMajority_pix(v);
+}
+void FTK_SGTrackOutput::addNFitsMajorityI_SCT(int ib, int v)
+{
+   //m_TFstatsI[ib]->addNFitsMajority_SCT(v);
 }
 
 

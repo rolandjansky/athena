@@ -747,7 +747,8 @@ void averageCluster(cluster &clu) {
     //Calculate the active layer. Start with the layer of the hit. In case 
     // always count IBL as layer0 and BLayer as layer1
     int layer = first->getLayer();
-    bool isIBLmodule   = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer==0;
+    bool fixEndcapL0 = FTKSetup::getFTKSetup().getfixEndcapL0();
+    bool isIBLmodule  = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer==0 && (BarrelEndCap==0 || !fixEndcapL0);
     bool isPixelmodule = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer!=0;
     if (FTKSetup::getFTKSetup().getIBLMode()==0)
         layer++; 

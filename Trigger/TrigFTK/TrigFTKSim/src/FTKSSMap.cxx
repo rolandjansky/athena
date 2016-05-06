@@ -31,7 +31,7 @@ const TString FTKSSMap::s_dirnameTSP = "SSMap_TSP";
 
 FTKSSMap::FTKSSMap() :
   m_isok(false), m_rmap(0), m_ssm(0), m_fraction(0), m_bound_checks(false), m_useHWCoords(false),
-  m_eta_nondcbits(0), m_nbitsssid(0), m_nbitsssid_module_pixel(0),
+  m_eta_nondcbits(0), m_nbitsssid(0), m_nbitsssid_SSB(0), m_nbitsssid_module_pixel(0),
   m_nbitsssid_module_strip(0)
 {
   // nothing special to do
@@ -59,12 +59,13 @@ FTKSSMap::~FTKSSMap()
 FTKSSMap::FTKSSMap(FTKRegionMap *rmap, const char *fname, 
                    bool BoundChecks)
   : m_rmap(rmap), m_ssm(0), m_fraction(0), m_bound_checks(BoundChecks),
-    m_eta_nondcbits(0), m_nbitsssid(0), m_nbitsssid_module_pixel(0),
+    m_eta_nondcbits(0), m_nbitsssid(0), m_nbitsssid_SSB(0), m_nbitsssid_module_pixel(0),
     m_nbitsssid_module_strip(0)
 {
   // input stream
   ifstream fin(fname);
   if (!fin) {
+     std::cout<<" bad file name \""<<fname<<"\"\n";
     FTKSetup::PrintMessage(ftk::sevr,"Error opening SS file");
   }
 
@@ -276,6 +277,7 @@ FTKSSMap::FTKSSMap(FTKRegionMap *rmap, const char *fname,
   if( true ) {
     // hardware representation
     set_nbitsssid(15);
+    set_nbitsssid_SSB(16);
     set_nbitsssid_module_pixel(6); // tower module id
     set_nbitsssid_module_strip(6); // tower module id
     set_eta_nondcbits(2);
@@ -359,6 +361,7 @@ FTKSSMap::FTKSSMap(TDirectory* file, TString DCorTSP) : m_isok(false)
    tConst->GetBranch("bound_checks")->SetAddress(&m_bound_checks);
    tConst->GetBranch("eta_nondcbits")->SetAddress(&m_eta_nondcbits);
    tConst->GetBranch("nbitsssid")->SetAddress(&m_nbitsssid);
+   tConst->GetBranch("nbitsssid_SSB")->SetAddress(&m_nbitsssid_SSB);
    tConst->GetBranch("nbitsssid_module_pixel")->SetAddress(&m_nbitsssid_module_pixel);
    tConst->GetBranch("nbitsssid_module_strip")->SetAddress(&m_nbitsssid_module_strip);
    int chksum;
@@ -495,6 +498,7 @@ void FTKSSMap::WriteMapToRootFile(TDirectory* file, TString DCorTSP){
    tConst.Branch("bound_checks",&m_bound_checks,"bound_checks/O");
    tConst.Branch("eta_nondcbits",&m_eta_nondcbits,"eta_nondcbits/I");
    tConst.Branch("nbitsssid",&m_nbitsssid,"nbitsssid/I");
+   tConst.Branch("nbitsssid_SSB",&m_nbitsssid_SSB,"nbitsssid_SSB/I");
    tConst.Branch("nbitsssid_module_pixel",&m_nbitsssid_module_pixel,"nbitsssid_module_pixel/I");
    tConst.Branch("nbitsssid_module_strip",&m_nbitsssid_module_strip,"nbitsssid_module_strip/I");
    int chksum = CalcChecksum();
@@ -939,7 +943,7 @@ int FTKSSMap::ssround(int width, int ss)
 }
 
 
-int FTKSSMap::getSSTower(const FTKHit &hit, unsigned int TowerID) const {
+int FTKSSMap::getSSTower(const FTKHit &hit, unsigned int TowerID,bool SecondStage) const {
   int ss(-1);
 
   // old calculation:
@@ -975,7 +979,7 @@ int FTKSSMap::getSSTower(const FTKHit &hit, unsigned int TowerID) const {
         errmsg << "getSSTower: Error in the DC configuration, ID " << hit.getIdentifierHash() << " not found in Tower " << TowerID << " layer " << hit.getPlane() << ends;
         throw FTKException(errmsg.str().c_str());
       }
-      return compressed_ssid_word(hit,localID);
+      return compressed_ssid_word(hit,localID,SecondStage);
   }
 
   localID = m_rmap->getLocalModuleID(hit,TowerID);
@@ -1087,15 +1091,19 @@ void FTKSSMap::decodeSSTower(int ssid, int towerid, int plane, int section,
    It handles the pixel layers
 */
 void FTKSSMap::decodeSSTowerXY(int ssid, int towerid, int plane, int section,
-                               int &localmoduleID,int &localX, int &localY) {
+                               int &localmoduleID,int &localX, int &localY, bool SecondStage) {
    int phi_dc_bits = getSSDCX(plane);
    int eta_dc_bits = getSSDCY(plane);
+   
+   int nbitsSSID_available = m_nbitsssid;
+   if(SecondStage) nbitsSSID_available = m_nbitsssid_SSB;
+
    const unsigned int max_compressed_ssid_phi_dc =
       std::min( 1<<phi_dc_bits , getSSOffsetInternal(plane,section) );
    const unsigned int max_compressed_ssid_etaphi_dc =
       std::min( 1<<eta_dc_bits<<phi_dc_bits , getSSOffset(plane,section) );
    const unsigned int total_localssid_bits =
-      m_nbitsssid-m_nbitsssid_module_pixel;
+      nbitsSSID_available-m_nbitsssid_module_pixel;
    const unsigned int total_nondc_bits =
      total_localssid_bits-phi_dc_bits-eta_dc_bits;
    const unsigned int nondcbits_x =
@@ -1141,10 +1149,14 @@ void FTKSSMap::decodeSSTowerXY(int ssid, int towerid, int plane, int section,
    It handles the strip layers
 */
 void FTKSSMap::decodeSSTowerX(int ssid, int towerid, int plane, int &section,
-                             int &localmoduleID,int &localX) {
+			      int &localmoduleID,int &localX, bool SecondStage) {
    int phi_dc_bits = getSSDCX(plane);
+
+   int nbitsSSID_available = m_nbitsssid;
+   if(SecondStage) nbitsSSID_available = m_nbitsssid_SSB;
+   
    const unsigned int total_localssid_bits =
-      m_nbitsssid-m_nbitsssid_module_strip;
+      nbitsSSID_available-m_nbitsssid_module_strip;
    unsigned int max_compressed_ssid =
       std::min((1<<total_localssid_bits)-1,getSSOffset(plane,section));
    max_compressed_ssid =
@@ -1530,12 +1542,12 @@ FTKSSMap::getNumSuperstrips(const int plane, const int section, const int toweri
 
 
 unsigned int
-FTKSSMap::compressed_ssid_word(const FTKHit &hit, unsigned int localID) const
+FTKSSMap::compressed_ssid_word(const FTKHit &hit, unsigned int localID, bool SecondStage) const
 {
   //const FTKSetup &ftkset = FTKSetup::getFTKSetup();
   //int debug = ftkset.getVerbosity();
-  if( hit.getDim()==2 ) { return compressed_ssid_word_pixel(hit, localID); }
-  else if( hit.getDim()==1 ) { return compressed_ssid_word_strip(hit,localID); }
+  if( hit.getDim()==2 ) { return compressed_ssid_word_pixel(hit, localID,SecondStage); }
+  else if( hit.getDim()==1 ) { return compressed_ssid_word_strip(hit,localID,SecondStage); }
   else {
     FTKSetup::PrintMessageFmt(ftk::sevr,"Hit with dim %d not supported",hit.getDim());
   }
@@ -1543,7 +1555,7 @@ FTKSSMap::compressed_ssid_word(const FTKHit &hit, unsigned int localID) const
 }
 
 unsigned int
-FTKSSMap::compressed_ssid_word_pixel(const FTKHit &hit, unsigned int local_module_id) const
+FTKSSMap::compressed_ssid_word_pixel(const FTKHit &hit, unsigned int local_module_id, bool SecondStage) const
 {
   if(m_useHWCoords){
     // Note: getHWCoord(1) is in units of 6.25um, to get it into SSID units which are 50um divide by 8
@@ -1553,22 +1565,29 @@ FTKSSMap::compressed_ssid_word_pixel(const FTKHit &hit, unsigned int local_modul
     float localY = (hit.getHwCoord(1)>>4);    
 
     return compressed_ssid_word_pixel
-      (local_module_id,hit.getPlane(),hit.getSection(),localX,localY);
+      (local_module_id,hit.getPlane(),hit.getSection(),localX,localY,SecondStage);
   }
 
+  // return compressed_ssid_word_pixel
+  //   (local_module_id,hit.getPlane(),hit.getSection(),hit[0],hit[1]);
   return compressed_ssid_word_pixel
-    (local_module_id,hit.getPlane(),hit.getSection(),hit[0],hit[1]);
+    (local_module_id,hit.getPlane(),0,hit[0],hit[1],SecondStage);
+
 }
 
 unsigned int
 FTKSSMap::compressed_ssid_word_pixel
 (unsigned int local_module_id,int plane,int section,
- float localX,float localY) const
+ float localX,float localY,bool SecondStage) const
 {
    int phi_dc_bits = getSSDCX(plane);
    int eta_dc_bits = getSSDCY(plane);
+
+   int nbitsSSID_available = m_nbitsssid;
+   if(SecondStage) nbitsSSID_available = m_nbitsssid_SSB;
+
    const unsigned int total_localssid_bits =
-      m_nbitsssid-m_nbitsssid_module_pixel;
+      nbitsSSID_available-m_nbitsssid_module_pixel;
   const unsigned int total_nondc_bits =
      total_localssid_bits-phi_dc_bits-eta_dc_bits;
   const unsigned int nondcbits_x =
@@ -1651,7 +1670,7 @@ FTKSSMap::compressed_ssid_word_pixel
 
 
 unsigned int
-FTKSSMap::compressed_ssid_word_strip(const FTKHit &hit, unsigned int local_module_id) const {
+FTKSSMap::compressed_ssid_word_strip(const FTKHit &hit, unsigned int local_module_id,bool SecondStage) const {
 
   if(m_useHWCoords){
 
@@ -1659,20 +1678,26 @@ FTKSSMap::compressed_ssid_word_strip(const FTKHit &hit, unsigned int local_modul
     float localX = (hit.getHwCoord(0)>>1);
 
     return compressed_ssid_word_strip
-      (local_module_id,hit.getPlane(),hit.getSection(),localX);
+      (local_module_id,hit.getPlane(),hit.getSection(),localX,SecondStage);
   }
 
+  // return compressed_ssid_word_strip
+  //   (local_module_id,hit.getPlane(),hit.getSection(),hit[0]);
   return compressed_ssid_word_strip
-    (local_module_id,hit.getPlane(),hit.getSection(),hit[0]);
+    (local_module_id,hit.getPlane(),0,hit[0]);
 }
 
 unsigned int
 FTKSSMap::compressed_ssid_word_strip(int localID,int plane,int section,
-                                     float localX) const
+                                     float localX,bool SecondStage) const
 {
    int phi_dc_bits = getSSDCX(plane);
+
+   int nbitsSSID_available = m_nbitsssid;
+   if(SecondStage) nbitsSSID_available = m_nbitsssid_SSB;
+
   const unsigned int total_localssid_bits =
-     m_nbitsssid-m_nbitsssid_module_strip;
+     nbitsSSID_available-m_nbitsssid_module_strip;
   const unsigned int total_nondc_bits = total_localssid_bits-phi_dc_bits;
   const unsigned int nondcbits_x = total_nondc_bits;
   // full-precision representation of coordinate / ss size (11-1=10 bits / size)

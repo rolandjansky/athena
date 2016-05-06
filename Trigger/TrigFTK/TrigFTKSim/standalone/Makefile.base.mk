@@ -95,6 +95,9 @@ MSB_OBJS = makecompressedbank.o \
 PBI_OBJS = patternbankinfo.o \
         $(DICT_OBJS)
 
+PAB_OBJS = partitionbalancing.o \
+        $(DICT_OBJS)
+
 CFO_OBJS = compare_fitter_output.o \
         $(DICT_OBJS)
 
@@ -206,6 +209,11 @@ patternbankinfo: $(PBI_OBJS) libTrigFTKSim.a
 	$(CXX) -o $@ $(PBI_OBJS) $(LIBS) libTrigFTKSim.a
 patternbankinfo.clean:
 	rm -f $(PBI_OBJS) patternbankinfo patternbankinfo.o patternbankinfo.d
+
+partitionbalancing: $(PAB_OBJS) libTrigFTKSim.a
+	$(CXX) -o $@ $(PAB_OBJS) $(LIBS) libTrigFTKSim.a
+partitionbalancing.clean:
+	rm -f $(PAB_OBJS) partitionbalancing partitionbalancing.o partitionbalancing.d
 
 compare_fitter_output: $(CFO_OBJS) libTrigFTKSim.a
 	$(CXX) -o $@ $(CFO_OBJS) $(LIBS) libTrigFTKSim.a
@@ -321,7 +329,8 @@ clean : pattvolume.clean efficiency.clean convert_lookup.clean road_finder.clean
         quick_fit.clean patmerge.clean patmergeroot.clean patmergetest.clean \
         sectorwalk.clean sectorfoam.clean \
         ftkascii2root.clean libftk_classes.so.clean libTrigFTKSim.a.clean \
-        ambankopt.clean makecompressedbank.clean patternbankinfo.clean compare_fitter_output.clean \
+        ambankopt.clean makecompressedbank.clean patternbankinfo.clean \
+	partitionbalancing.clean compare_fitter_output.clean \
         # ftkamsplit.clean \
         ftk_DCBankStat.clean
 	rm -f tmp/TrigFTKSim_Dic.C tmp/TrigFTKSim_Dic.h tmp/*.d tmp/tsp/*.d common_fcn.d common_fcn.o

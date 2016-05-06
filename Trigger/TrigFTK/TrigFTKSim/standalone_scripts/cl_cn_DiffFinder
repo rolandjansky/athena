@@ -1,0 +1,423 @@
+#!/usr/bin/python
+
+#######################################################################################
+#                                                                                     #
+#    Author: Akis Gkaitatzis                                                          #
+#    Email: Stamatios.Gkaitatzis@cern.ch                                              #
+#    First upload: 10 March 2016                                                      #
+#                                                                                     #
+#    Usage Instructions:                                                              #
+#    https://twiki.cern.ch/twiki/bin/view/Atlas/FastTrackerSoftwareValidationScripts  #    
+#                                                                                     #
+#######################################################################################
+
+import os
+import sys
+import itertools
+import argparse
+from collections import defaultdict
+
+
+#Known words necessary to interpret the wordlist
+start_event  = ['B0F']
+start_rod    = ['EE1234EE']
+end_header   = ['2E5E27ED']
+
+start_module    = ['0X8']
+cluster_hit     = ['0X0']
+cluster_end     = ['0X2', '0X3']
+end_module      = ['0X4']
+
+start_trailer = ['E0DA']
+end_event    = ['E0F']
+
+class DictDiffer(object):
+    """ Find differences between two dictionaries as:
+    1. items added
+    2. items removed
+    3. keys same in both but changed values
+    4. keys same in both and unchanged values
+    5. same items """
+    def __init__(self, current_dict, past_dict):
+        self.current_dict, self.past_dict = current_dict, past_dict
+        self.current_keys, self.past_keys = [
+            set(d.keys()) for d in (current_dict, past_dict)
+        ]
+        self.intersect = self.current_keys.intersection(self.past_keys)
+
+    def added(self):
+        return self.current_keys - self.intersect
+
+    def removed(self):
+        return self.past_keys - self.intersect
+
+    def changed(self):
+        return set(o for o in self.intersect
+                   if self.past_dict[o] != self.current_dict[o])
+
+    def unchanged(self):
+        return set(o for o in self.intersect
+                   if self.past_dict[o] == self.current_dict[o])
+
+    def common(self):
+        return self.intersect
+
+
+"""Small function just printing the keys of a dictionary"""
+def printDict(d):
+    for i in sorted(d):
+        print i,
+    print
+
+
+"""Function which makes the data structure which will then be compared.
+   It basically makes a multidimensional map:
+   event[event_number][module_number] = centroid list (for centroid comparison)
+   or
+   event[event_number][module_number] = hit list (for decoder comparison)"""
+def make_3l_tree(wlist, simple_format):
+    events = defaultdict(list)
+    modules = defaultdict(list)
+    items = []
+    trailer = False
+    evline = False
+    modN = -1
+
+    if simple_format:
+        for word in wlist:
+            # Begin event
+            if word.startswith('0X2'):
+                event_number = word[4:]
+                modules = defaultdict(list)
+            #  Begin module
+            elif word.startswith('0X08'):
+                module_number = word[5:]
+            # Hit
+            elif word.startswith('0X00'):
+                items.append(word[4:])
+            # End module
+            elif word.startswith('0X040000000'):
+                modules[module_number] = items
+                items = []
+            # End event
+            elif word.startswith('0X1'):
+                events[event_number] = modules
+
+    # CODE HAS NOT BEEN TESTED AT THIS VERSION
+    # ALSO HAS TO BE SIMPLIFIED
+    elif not simple_format:
+        for line in wlist:
+            if any(key in line for key in start_event):
+                # print line, 'event start'
+                header = not header
+                modules = defaultdict(list)
+            elif any(key in line for key in start_rod) and header:
+                # print line, 'reset counter'
+                rod_header_line = 0
+            elif any(key not in line for key in end_header) and rod_header_line != 4 and header:
+                rod_header_line = rod_header_line + 1
+            elif rod_header_line == 4 and header:
+                event_id = line[6:]
+                rod_header_line = rod_header_line + 1
+            elif any(key in line for key in end_header) and header:
+                rod_header_line = 0
+                header = not header
+            # Begin module
+            elif any(key in line for key in start_module) and not header and not trailer:
+                inModule = True
+                modN = line[9:-1]
+            # Hit
+            elif any(key in line for key in cluster_hit) and not header and not trailer and inModule:
+                items.append(line[4:-1])
+            # End module
+            elif any(key in line for key in end_module) and not header and not trailer and inModule:
+                inModule = False
+                modules[modN] = items
+                items = []
+            #TRAILER
+            elif any(key in line for key in start_trailer) and not header:
+                trailer = True
+            elif any(key in line for key in end_event) and not header and trailer:
+                events[event_id] = modules
+                trailer = False
+    return events
+        # END OF UNTESTED CODE
+
+    return events
+
+#Compare the two dictionaries
+def compare_3l_trees(tree1, name1, tree2, name2, mode):
+    """Differences in the event numbers"""
+    ev = DictDiffer(tree1, tree2)
+    if (ev.added()):
+        print 'Events existing on', name1, 'but not on', name2, ':',
+        printDict(ev.added())
+    if (ev.removed()):
+        print 'Events existing on', name2, 'but not on', name1, ':',
+        printDict(ev.removed())
+
+    mod1 = defaultdict(list)
+    mod2 = defaultdict(list)
+    for evN in sorted(ev.common()):
+        """Loop over the events and find the different modules in each"""
+        mod1 = (tree1.get(evN))
+        mod2 = (tree2.get(evN))
+
+        mod = DictDiffer(mod1, mod2)
+        if (mod.added()):
+            print 'Event:', evN, 'Modules in', name1, 'but not in', name2, ':',
+            printDict(mod.added())
+        if (mod.removed()):
+            print 'Event:', evN, 'Modules in', name2, 'but not in', name1, ':',
+            printDict(mod.removed())
+        for modN in sorted(mod.changed()):
+            print 'Event:', evN, 'Module:', modN
+            for i, j in itertools.izip_longest(mod1.get(modN), mod2.get(modN)):
+                    # print '\t%s | %s'%(i,j)
+                if i not in mod2.get(modN) and i is not None:
+                    print '\t', mode, 'in', name1, 'but not in', name2, ':', i
+                elif j not in mod1.get(modN) and j is not None:
+                    print '\t', mode, 'in', name2, 'but not in', name1, ':', i
+
+
+
+"""Function finding the differences in the data structure"""
+def compare_4l_trees(events1, name1, events2, name2, mode):
+    """Differences in the event numbers"""
+    ev = DictDiffer(events1, events2)
+    if (ev.added()):
+        print 'Events existing on', name1, 'but not on', name2, ':',
+        printDict(ev.added())
+    if (ev.removed()):
+        print 'Events existing on file2 but not on file1:',
+        printDict(ev.removed())
+
+    mod1 = defaultdict(list)
+    mod2 = defaultdict(list)
+    for event_id in sorted(ev.common()):
+        """Loop over the events and find the different modules in each"""
+        mod1 = (events1.get(event_id))
+        mod2 = (events2.get(event_id))
+
+        mod = DictDiffer(mod1, mod2)
+        if (mod.added()):
+            print 'Event:', event_id, 'Modules in', name1, 'but not in', name2,':',
+            printDict(mod.added())
+        if (mod.removed()):
+            print 'Event:', event_id, 'Modules in', name2, 'but not in', name1,':',
+            printDict(mod.removed())
+
+        clu1 = defaultdict(list)
+        clu2 = defaultdict(list)
+        for mod_id in sorted(mod.common()):
+            """Loop over the modules and find the different reference hits"""
+            clu1 = mod1.get(mod_id)
+            clu2 = mod2.get(mod_id)
+
+            clu = DictDiffer(clu1, clu2)
+            if (clu.added()):
+                print 'Event:', event_id,' Module:', mod_id,
+                print '- Clusters in', name1, 'but not in', name2 ,':',
+                printDict(clu.added())
+            if (clu.removed()):
+                print 'Event:', event_id,' Module:', mod_id,
+                print '- Clusters in file2 but not in file1:',
+                printDict(clu.removed())
+
+            for ref in clu.changed():
+                print 'Event:', event_id, 'Module:', mod_id, 'Reference:', ref
+                for i,j in itertools.izip_longest(clu1.get(ref), clu2.get(ref)):
+                    print '\t%s | %s'%(i,j)
+
+
+def make_4l_tree(wlist, simple_format):
+    events = defaultdict(list)
+    modules = defaultdict(list)
+    clusters = defaultdict(list)
+    hitlist = []
+    header = False
+    trailer = False
+    inModule = False
+    mod_id = -1
+    event_id = -1
+
+    rod_header_line = 0
+
+
+    if simple_format:
+        print 'TODO'
+    elif not simple_format:
+        for line in wlist:
+            #HEADER
+            if any(key in line for key in start_event):
+                # print line, 'event start'
+                header = not header
+                modules = defaultdict(list)
+            elif any(key in line for key in start_rod) and header:
+                # print line, 'reset counter'
+                rod_header_line = 0
+            elif any(key not in line for key in end_header) and rod_header_line != 4 and header:
+                rod_header_line = rod_header_line + 1
+            elif rod_header_line == 4 and header:
+                event_id = line[6:]
+                rod_header_line = rod_header_line + 1
+            elif any(key in line for key in end_header) and header:
+                rod_header_line = 0
+                header = not header
+            #MODULE LIST
+            elif any(key in line for key in start_module) and not header and not trailer:
+                # print line, 'mod start', event_id
+                inModule = True
+                mod_id = line[6:]
+            elif any(key in line for key in cluster_hit) and not header and not trailer and inModule:
+                hitlist.append(line[4:])
+            elif any(key in line for key in cluster_end) and not header and not trailer and inModule:
+                cluRef = line[3:]
+                clusters[cluRef] = sorted(hitlist)
+                hitlist = []
+            elif any(key in line for key in end_module) and not header and not trailer and inModule:
+                inModule = False
+                modules[mod_id] = clusters
+                clusters = defaultdict(list)
+            #TRAILER
+            elif any(key in line for key in start_trailer) and not header:
+                trailer = True
+            elif any(key in line for key in end_event) and not header and trailer:
+                events[event_id] = modules
+                trailer = False
+    return events
+
+
+def write_3l_tree(tree, name):
+
+    try:
+        f = open(name + '.stats', 'w')
+    except IOError:
+        print 'File', name, 'cannot be opened for writing'
+
+    for event_number, modules in sorted(tree.iteritems()):
+        f.write('Event: ' + event_number + '\t# of Modules: ' +  str(len(modules)) + '\n')
+        for module_number, items in sorted(modules.iteritems()):
+
+            f.write('\tModule: ' + module_number + '\t#of Items:'
+                    +str(len(items)) + '\n')
+            for item in items:
+                f.write('\t\tItem: ' + item + '\n')
+
+
+# function keeping only lines starting with 0x or 0X. Also it
+# makes the file uppercase and removes the module number if necessary
+# Last, it detects the formatting of the list. This can be either the simple
+# (with events starting with 0x2 and ending with 0x1) or expanded (with events
+# starting with 0xb0f and ending with 0xe0f)
+def make_wordlist(f, strip):
+    file = open(f, 'r')
+    ucase_list = []
+    for line in file:
+        if strip and line.startswith('0x08') or line.startswith('0X08'):
+            ucase_list.append('0X080000000')
+        elif line.startswith('0x') or line.startswith('0X') or line.startswith('000'):
+            ucase_list.append(line[:-1].upper())
+    file.close()
+
+    simple_format = False
+    #print ucase_list
+    if ucase_list[0].startswith('0X2'):
+        simple_format = True
+    elif ucase_list[0].startswith('0XB0F'):
+        simple_format = False
+
+    return ucase_list, simple_format
+
+
+# function removing empty events (0x2 followed by 0x1)
+def remove_empty_events(l):
+    new_list = []
+    skip = False
+    for l1, l2 in zip(l, l[1:]):
+        if l1.startswith('0X2') and l2.startswith('0X1'):
+            skip = True
+            continue
+        if skip:
+            skip = False
+            continue
+        new_list.append(l1)
+    new_list.append(l[-1])
+
+    return new_list
+
+
+def main(argv):
+
+    parser = argparse.ArgumentParser('Find cluster differences in between two files')
+    parser.add_argument('-f1', dest='file1', required=True,
+                        help='Input files 1')
+    parser.add_argument('-f2', dest='file2', required=True,
+                        help='Input files 2')
+    parser.add_argument('-n1', dest='name1', default='file1',
+                        help='Short name of first file')
+    parser.add_argument('-n2', dest='name2', default='file2',
+                        help='Short name of second file')
+    parser.add_argument('-dc', action='store_true',
+                        help='Find differences in decoder level')
+    parser.add_argument('-cl', action='store_true',
+                        help='Find differences in cluster level')
+    parser.add_argument('-cn', action='store_true',
+                        help='Find differences in centroid level')
+    parser.add_argument('-s', action='store_true',
+                        help='strip module numbers')
+    parser.add_argument('-v', action='store_true',
+                        help='create .info for input files')
+    args = parser.parse_args()
+
+    # check that only one argument for diff is given (lame way of checking,
+    # please fix)
+    argn = 0
+    if (args.dc):
+        argn = argn + 1
+        mode = 'Decoder'
+    if (args.cl):
+        argn = argn + 1
+        mode = 'Cluster'
+    if (args.cn):
+        argn = argn + 1
+        mode = 'Centroid'
+
+    if not argn == 1:
+        print 'Please provide one argument from -dc, -cl or -cn'
+        sys.exit()
+
+    # certify that both files are in the unix format
+    os.system('dos2unix ' + args.file1)
+    os.system('dos2unix ' + args.file2)
+
+    # retrieve the list of words from each file and certify that they are on the
+    # same format
+    wordlist1, simple_format1 = make_wordlist(args.file1, args.s)
+    wordlist2, simple_format2 = make_wordlist(args.file2, args.s)
+
+    # close the files, they are not needed any more
+    # args.file1.close()
+    # args.file2.close()
+
+    # remove empty events
+    wordlist1 = remove_empty_events(wordlist1)
+    wordlist2 = remove_empty_events(wordlist2)
+
+    # create and compare the two event trees
+    if args.dc or args.cn:
+        eventtree1 = make_3l_tree(wordlist1, simple_format1)
+        eventtree2 = make_3l_tree(wordlist2, simple_format2)
+        compare_3l_trees(eventtree1, args.name1, eventtree2, args.name2, mode)
+
+    if args.cl:
+        eventtree1 = make_4l_tree(wordlist1, simple_format1)
+        eventtree2 = make_4l_tree(wordlist2, simple_format2)
+        compare_4l_trees(eventtree1, args.name1, eventtree2, args.name2, mode)
+
+    if args.v and (args.dc or args.cn):
+        write_3l_tree(eventtree1, args.file1)
+        write_3l_tree(eventtree2, args.file2)
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

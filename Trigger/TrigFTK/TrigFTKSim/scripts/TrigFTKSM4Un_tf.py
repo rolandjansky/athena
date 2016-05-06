@@ -4,7 +4,7 @@
 
 ## FTK Simulation Transform
 #  Specialist version to do sim x 4 subregions and merge in one job
-# @version $Id: TrigFTKSM4Un_tf.py 719637 2016-01-25 17:41:15Z sschmitt $
+# @version $Id: TrigFTKSM4Un_tf.py 725454 2016-02-22 09:44:33Z sschmitt $
 
 import sys
 import time
@@ -128,6 +128,8 @@ def addFTKSimulationArgs(parser):
                         help='SSID encoding scheme', group='TrigFTKSim')
     parser.add_argument('--ModuleLUTPath', default=0, type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='module LUT for HWModeSS=2', group='TrigFTKSim')
+    parser.add_argument('--ModuleLUTPath2nd', default=0, type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='module LUT for HWModeSS=2, unused layers', group='TrigFTKSim')
     parser.add_argument('--MaxMissingSCTPairs', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='6/8 option for transition region', group='TrigFTKSim')
     parser.add_argument('--UseTSPBank', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
@@ -136,8 +138,6 @@ def addFTKSimulationArgs(parser):
                         help='use compressed bank algorithm', group='TrigFTKSim')
     parser.add_argument('--badmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='bad module map', group='TrigFTKSim')
-    parser.add_argument('--RoadWarrior', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-                        help='road warrior', group='TrigFTKSim')
 
 
     # The following for testing only

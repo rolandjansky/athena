@@ -84,6 +84,8 @@ protected:
   int m_ncombs; // number of combinations
   int m_nfits; // number of fits tryied in a road
   int m_nfits_maj; // number of majority fits
+  int m_nfits_maj_pix; // number of majority fits with missing in PIX layer
+  int m_nfits_maj_SCT; // number of majority fits with missing in SCT layer
   int m_nfits_rec; // number of recoverd fits
   int m_nfits_addrec; // number of recoverd fits
   int m_nfits_bad; // number of fits with a bad chi2

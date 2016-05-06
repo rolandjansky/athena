@@ -17,6 +17,7 @@
 #include <string>
 #include <cassert>
 #include <cstdio>
+#include <cmath>
 using namespace std;
 
 //#define SIMPLEMJ // ibl undefined simple majority to see if we can get majority for ibl
@@ -32,7 +33,8 @@ FTKConstantBank::FTKConstantBank() :
   m_invfit_consts(0x0),
   m_maj_a(0), m_maj_kk(0), m_maj_invkk(0),
   m_kernel_aux(0), 
-  m_kaverage_aux(0), m_maj_invkk_aux(0), m_maj_invkk_pow(0)
+  m_kernel_hw(0), 
+  m_kaverage_aux(0), m_maj_invkk_hw(0), m_maj_invkk_aux(0), m_maj_invkk_pow(0), m_maj_invkk_pow_hw(0)
 {
   // nothing to do
 }
@@ -44,9 +46,12 @@ FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
   m_AUX(false),
   m_invfit_consts(0x0),
   m_kernel_aux(0),
+  m_kernel_hw(0),
   m_kaverage_aux(0),
+  m_maj_invkk_hw(0),
   m_maj_invkk_aux(0),
-  m_maj_invkk_pow(0)
+  m_maj_invkk_pow(0),
+  m_maj_invkk_pow_hw(0)
 {
   //TODO: make possible to read constants in different formats
   m_ncoords = ncoords;
@@ -108,17 +113,24 @@ FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
   m_kernel = new float**[m_nsectors];
   m_kaverage = new float*[m_nsectors];
 
+  cout<<"FTKConstantBank settings: m_ncoords="<<m_ncoords<<" m_npars="<<m_npars<<"\n";
+
   int isec_step = 1 + m_nsectors/10;
   for (int isec=0;isec<m_nsectors;++isec) { // loop over sectors
 
     double dval; // tmp value used to conver from double to float
-    if (isec%isec_step == 0)
+
+    if ((isec%isec_step == 0) /* ||(isec<10) */)
       cout << "Load sector: " << isec << "/" << m_nsectors << endl;
 
     // check variable initilized to "false"
     m_isgood[isec] = false;
 
     geocfile >> key >> ival;
+    /* if(key!="sector") {
+       cerr << "expect key=\"sector\" found key=\""<<key<<"\"\n";
+       } */
+
     if (ival!=isec) {
       cerr << "Attempt to read sector # " << ival << " (" << isec << ")" << endl;
       FTKSetup::PrintMessage(ftk::sevr,"Lost sync in constants file");
@@ -142,6 +154,12 @@ FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
       geocfile >> key;
       for (int icoord=0;icoord<m_ncoords;++icoord) { // coords loop
         geocfile >> dval;
+        if(geocfile.fail()) {
+           FTKSetup::PrintMessageFmt
+              (ftk::sevr,"par loop (1) key=\"%s\" ipar,icoord=%d,%d\n",
+               key.c_str(),ipar,icoord);
+        }
+        //cout<<dval<<"\n";
         if (dval!=0.) m_isgood[isec] = true;
         m_fit_pars[isec][ipar][icoord] = dval;
       } // end coords loop
@@ -168,6 +186,7 @@ FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
 
     for (int ipar=0;ipar<m_npars;++ipar) { // pars loop
       geocfile >> key;
+      //cout<<"second pars loop key="<<key<<"\n";
       geocfile >> dval;
       if (dval!=0.) m_isgood[isec] = true;
       m_fit_const[isec][ipar] = dval;
@@ -228,46 +247,63 @@ void FTKConstantBank::doAuxFW(bool do_it) {
   if (m_ncoords == 16) return;
 
   m_kernel_aux = new signed long long**[m_nsectors];
+  m_kernel_hw = new signed long long**[m_nsectors];
   m_kaverage_aux = new signed long long*[m_nsectors];
 
   for (int isec=0;isec<m_nsectors;++isec) { // loop over sectors
     
     m_kernel_aux[isec] = new signed long long*[m_nconstr];
+    m_kernel_hw[isec] = new signed long long*[m_nconstr];
     m_kaverage_aux[isec] = new signed long long[m_nconstr];
     for (int i=0;i<m_nconstr;++i) {
       m_kernel_aux[isec][i] = new signed long long[m_ncoords];
+      m_kernel_hw[isec][i] = new signed long long[m_ncoords];
     }
 
-    bool ofl = false; // overflow for aux shifts.
+    bool oflAUX = false, oflHW = false; // overflow for aux shifts.
     for (int ik=0;ik<m_nconstr;++ik) { // loop kaverages
-      m_kaverage_aux[isec][ik] = aux_asr(m_kaverage[isec][ik] * pow(2., KAVE_SHIFT), 0, FIT_PREC, ofl);
+      m_kaverage_aux[isec][ik] = aux_asr(m_kaverage[isec][ik] * pow(2., KAVE_SHIFT), 0, FIT_PREC, oflAUX); 
+      m_kaverage_aux[isec][ik] = aux_asr(m_kaverage[isec][ik] * pow(2., KAVE_SHIFT), 0, FIT_PREC, oflHW); 
     } // end loop kaverages
+    if (oflAUX) FTKSetup::PrintMessageFmt(ftk::warn, "  AUX kaverage overflowed allowed precision in sector %d.\n", isec);
+    if (oflHW)  FTKSetup::PrintMessageFmt(ftk::warn, "  HW  kaverage overflowed allowed precision in sector %d.\n", isec);
 
+    oflAUX = oflHW = false;
     for (int ik=0;ik<m_nconstr;++ik) { // loop kaverages
       for (int ik2=0;ik2<m_ncoords;++ik2) { // loop kaverages
-        m_kernel_aux[isec][ik][ik2] = aux_asr(m_kernel[isec][ik][ik2] * pow(2., KERN_SHIFT), 0, FIT_PREC, ofl);
+        m_kernel_aux[isec][ik][ik2] = aux_asr(m_kernel[isec][ik][ik2] * pow(2., KERN_SHIFT), 0, FIT_PREC, oflAUX); 
+        m_kernel_hw[isec][ik][ik2]  = aux_asr(const_scale_map[ik2] * m_kernel[isec][ik][ik2] * pow(2., KERN_SHIFT_HW), 0, 50, oflHW); // FIT_PREC
       }
     } // end loop kaverages
 
-    if (ofl) FTKSetup::PrintMessageFmt(ftk::warn, "  kernel/kaverage overflowed allowed precision in sector %d.\n", isec);
+    if (oflAUX) FTKSetup::PrintMessageFmt(ftk::warn, "  AUX kernel overflowed allowed precision in sector %d.\n", isec);
+    if (oflHW)  FTKSetup::PrintMessageFmt(ftk::warn, "  HW  kernel overflowed allowed precision in sector %d.\n", isec);
   
   } // end loop over sectors
 
 
 
   // pre-calculate the majority logic elements
+  m_maj_invkk_hw = new signed long long**[m_nsectors];
   m_maj_invkk_aux = new signed long long**[m_nsectors];
   m_maj_invkk_pow = new short int**[m_nsectors];
+  m_maj_invkk_pow_hw = new short int**[m_nsectors];
   for (int isec=0;isec!=m_nsectors;++isec) { // sector loop
+    m_maj_invkk_hw [isec] = new signed long long*[m_ncoords];
     m_maj_invkk_aux[isec] = new signed long long*[m_ncoords];
     m_maj_invkk_pow[isec] = new short int*[m_ncoords];
+    m_maj_invkk_pow_hw[isec] = new short int*[m_ncoords];
     for (int ix=0;ix!=m_ncoords;++ix) { // 1st coordinate loop    
 
+      m_maj_invkk_hw [isec][ix] = new signed long long[m_ncoords];
       m_maj_invkk_aux[isec][ix] = new signed long long[m_ncoords];
       m_maj_invkk_pow[isec][ix] = new short int[m_ncoords];
+      m_maj_invkk_pow_hw[isec][ix] = new short int[m_ncoords];
       for (int jx=0;jx!=m_ncoords;++jx) { // 2nd coordinate loop
+        m_maj_invkk_hw [isec][ix][jx] = 0;
         m_maj_invkk_aux[isec][ix][jx] = 0;
         m_maj_invkk_pow[isec][ix][jx] = 0;
+        m_maj_invkk_pow_hw[isec][ix][jx] = 0;
       	for (int row=0;row!=m_nconstr;++row) {
           m_maj_kk[isec][ix][jx] += m_kernel[isec][row][ix]*m_kernel[isec][row][jx];
       	}
@@ -279,28 +315,43 @@ void FTKConstantBank::doAuxFW(bool do_it) {
     // int npixcy = FTKSetup::getFTKSetup().getIBLMode()==1 ? 8 : 6; // this is for ibl, to know how many pixel coords there are
     int npixcy = 6; // we have 6 pixel coords -- not sure what to do about this!!
     /* PIXEL layer [0-5]*/
+    bool ofl = false;
     for (int ix=0;ix!=npixcy;ix+=2) { // pxl layers loop (2 coordinates each)
 
-      m_maj_invkk_pow[isec][ix][ix]     = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix][ix]    ))) - 1;
-      m_maj_invkk_pow[isec][ix][ix+1]   = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix][ix+1]  ))) - 1;
-      m_maj_invkk_pow[isec][ix+1][ix]   = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix+1][ix]  ))) - 1;
-      m_maj_invkk_pow[isec][ix+1][ix+1] = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix+1][ix+1]))) - 1;
+      m_maj_invkk_pow[isec][ix][ix]        = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix][ix]    ))) - 1;
+      m_maj_invkk_pow[isec][ix][ix+1]      = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix][ix+1]  ))) - 1;
+      m_maj_invkk_pow[isec][ix+1][ix]      = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix+1][ix]  ))) - 1;
+      m_maj_invkk_pow[isec][ix+1][ix+1]    = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix+1][ix+1]))) - 1;
 
-      bool ofl = false;
+      m_maj_invkk_pow_hw[isec][ix][ix]     = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(8./(const_scale_map[ix]   * const_scale_map[ix]  ) * m_maj_invkk[isec][ix][ix]    ))) - 1;
+      m_maj_invkk_pow_hw[isec][ix][ix+1]   = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(8./(const_scale_map[ix]   * const_scale_map[ix+1]) * m_maj_invkk[isec][ix][ix+1]  ))) - 1;
+      m_maj_invkk_pow_hw[isec][ix+1][ix]   = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(8./(const_scale_map[ix+1] * const_scale_map[ix]  ) * m_maj_invkk[isec][ix+1][ix]  ))) - 1;
+      m_maj_invkk_pow_hw[isec][ix+1][ix+1] = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(8./(const_scale_map[ix+1] * const_scale_map[ix+1]) * m_maj_invkk[isec][ix+1][ix+1]))) - 1;
+
+
       m_maj_invkk_aux[isec][ix][ix]     = aux_asr(m_maj_invkk[isec][ix][ix]     * pow(2, m_maj_invkk_pow[isec][ix][ix]),     0, CONST_PREC, ofl);
       m_maj_invkk_aux[isec][ix][ix+1]   = aux_asr(m_maj_invkk[isec][ix][ix+1]   * pow(2, m_maj_invkk_pow[isec][ix][ix+1]),   0, CONST_PREC, ofl);
       m_maj_invkk_aux[isec][ix+1][ix]   = aux_asr(m_maj_invkk[isec][ix+1][ix]   * pow(2, m_maj_invkk_pow[isec][ix+1][ix]),   0, CONST_PREC, ofl);
       m_maj_invkk_aux[isec][ix+1][ix+1] = aux_asr(m_maj_invkk[isec][ix+1][ix+1] * pow(2, m_maj_invkk_pow[isec][ix+1][ix+1]), 0, CONST_PREC, ofl);
+
+      m_maj_invkk_hw [isec][ix][ix]     = aux_asr(8./(const_scale_map[ix]   * const_scale_map[ix]  ) * m_maj_invkk[isec][ix][ix]     * pow(2, m_maj_invkk_pow_hw[isec][ix][ix]),     0, CONST_PREC, ofl);
+      m_maj_invkk_hw [isec][ix][ix+1]   = aux_asr(8./(const_scale_map[ix]   * const_scale_map[ix+1]) * m_maj_invkk[isec][ix][ix+1]   * pow(2, m_maj_invkk_pow_hw[isec][ix][ix+1]),   0, CONST_PREC, ofl);
+      m_maj_invkk_hw [isec][ix+1][ix]   = aux_asr(8./(const_scale_map[ix+1] * const_scale_map[ix]  ) * m_maj_invkk[isec][ix+1][ix]   * pow(2, m_maj_invkk_pow_hw[isec][ix+1][ix]),   0, CONST_PREC, ofl);
+      m_maj_invkk_hw [isec][ix+1][ix+1] = aux_asr(8./(const_scale_map[ix+1] * const_scale_map[ix+1]) * m_maj_invkk[isec][ix+1][ix+1] * pow(2, m_maj_invkk_pow_hw[isec][ix+1][ix+1]), 0, CONST_PREC, ofl);
 
     } // end pxl layers loop
     /* SCT layers */
     for (int ix=npixcy;ix!=m_ncoords;++ix) { // SCT layers loop (1 coordinate each)
       m_maj_invkk[isec][ix][ix] = 1./m_maj_kk[isec][ix][ix];      
 
-      bool ofl = false;
       m_maj_invkk_pow[isec][ix][ix] = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix][ix]))) - 1;
       m_maj_invkk_aux[isec][ix][ix] = aux_asr(m_maj_invkk[isec][ix][ix] * pow(2, m_maj_invkk_pow[isec][ix][ix]), 0, CONST_PREC, ofl);
+
+      m_maj_invkk_pow_hw[isec][ix][ix] = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(8./(const_scale_map[ix] * const_scale_map[ix]) * m_maj_invkk[isec][ix][ix]))) - 1;
+      m_maj_invkk_hw    [isec][ix][ix] = aux_asr(8./(const_scale_map[ix] * const_scale_map[ix]) * m_maj_invkk[isec][ix][ix] * pow(2, m_maj_invkk_pow_hw[isec][ix][ix]), 0, CONST_PREC, ofl);
     } // end SCT layers loop
+
+    if (ofl) FTKSetup::PrintMessageFmt(ftk::warn, "  maj/invkk overflowed allowed precision in sector %d.\n", isec);
 
   } // end sector loop
 
@@ -320,16 +371,20 @@ FTKConstantBank::~FTKConstantBank()
       for (int icoord=0;icoord<m_nconstr;++icoord) {
       	delete [] m_kernel[isec][icoord];
       	if (m_kernel_aux) delete [] m_kernel_aux[isec][icoord];
+      	if (m_kernel_hw) delete [] m_kernel_hw[isec][icoord];
       }
       delete [] m_kernel[isec];
       delete [] m_kaverage[isec];
       if (m_kernel_aux) delete [] m_kernel_aux[isec];
+      if (m_kernel_hw) delete [] m_kernel_hw[isec];
       if (m_kaverage_aux) delete [] m_kaverage_aux[isec];
 
       for (int ix=0;ix!=m_ncoords;++ix) {
         if (m_maj_kk) delete [] m_maj_kk[isec][ix];
+        if (m_maj_invkk_hw) delete [] m_maj_invkk_hw[isec][ix];
         if (m_maj_invkk_aux) delete [] m_maj_invkk_aux[isec][ix];
         if (m_maj_invkk_pow) delete [] m_maj_invkk_pow[isec][ix];
+        if (m_maj_invkk_pow_hw) delete [] m_maj_invkk_pow_hw[isec][ix];
       }
     }
 
@@ -338,12 +393,15 @@ FTKConstantBank::~FTKConstantBank()
     delete [] m_kernel;
     delete [] m_kaverage;
     if (m_kernel_aux) delete [] m_kernel_aux;
+    if (m_kernel_hw) delete [] m_kernel_hw;
     if (m_kaverage_aux) delete [] m_kaverage_aux;
 
     delete [] m_maj_a;
     delete [] m_maj_kk;
+    if (m_maj_invkk_hw) delete [] m_maj_invkk_hw;
     if (m_maj_invkk_aux) delete [] m_maj_invkk_aux;
     if (m_maj_invkk_pow) delete [] m_maj_invkk_pow;
+    if (m_maj_invkk_pow_hw) delete [] m_maj_invkk_pow_hw;
     delete [] m_maj_invkk;
     delete [] m_isgood;
   }
@@ -366,7 +424,8 @@ int FTKConstantBank::linfit(int secid, FTKTrack &track) const
     // guess_res = missing_point_guess(track,secid);    
     if (m_ncoords == 11 && m_AUX) guess_res = missing_point_guess_aux(track, secid);    
     else guess_res = missing_point_guess(track,secid);    
-  }
+  } 
+  // else cout << " JS :: NO MISSING HITS -- NOMINAL FIT" << endl;
    
 
   if (nmissing!=guess_res) {
@@ -705,6 +764,9 @@ int FTKConstantBank::invlinfit(int secid, FTKTrack &track, double *constr) const
   for (int ip=0;ip!=m_npars;++ip) {
     // The first elements are the track parameters. The track are shifted using the sector constants
      pars(ip) = track.getParameter(ip,true)-m_fit_const[secid][ip];
+     // STS: 2016/4/18
+     // fix bug with wrap-around in phi
+     if(ip==2)  pars(ip)=remainder( pars(ip),2.*M_PI);
   }
   for (int ic=0;ic!=m_nconstr;++ic) {
     // The rest of the paramaters are the external cosntraints. The external constraint it is also shifted by the kAverage value
@@ -812,24 +874,33 @@ void FTKConstantBank::linfit_chisq_aux(int secid, FTKTrack &trk) const {
 
   long double chi2(0);
   long long chi2LL(0);
+  long long chi2HW(0);
 
   bool ofl = false; // overflow
+
+  // cout << __LINE__ << "::" << __FUNCTION__ << "  sector=" << secid << endl;
 
   for( int i = 0 ; i < m_nconstr ; ++i ) {
 
     long double chi_component = m_kaverage[secid][i];
-    signed long long chi_componentLL = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // to the same level as the Sij
+    signed long long chi_componentLL = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // 30 to the same level as the Sij
+    signed long long chi_componentHW = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); 
     
-
-    //   for (int ip = 0; ip < trk.getNPlanes(); ip++) {
-    // if dim = 2 can use both, otherwise use first one
-    //   ///      cerr << "JAAAAAAAAAAAAAAAA ip = " << ip <<" and coord0 " << trk.getHwCoord(ip,0) << " and 1 = " << trk.getHwCoord(ip,1) << " and dim = "<< trk.getFTKHit(ip).getDim() << endl;
-    // }
-
     for( int j = 0 ; j < m_ncoords ; ++j ) {
 
-      chi_component += m_kernel[secid][i][j] * trk.getCoord(j); 
-      chi_componentLL += m_kernel_aux[secid][i][j] * trk.getAUXCoord(j); // AUX = a factor of 2^3
+      int p = const_plane_map[j]; int c = const_coord_map[j]; 
+
+      chi_component   += m_kernel[secid][i][j]     * trk.getCoord(j); 
+      chi_componentLL += m_kernel_aux[secid][i][j] * trk.getAUXCoord(j);
+      chi_componentHW += m_kernel_hw [secid][i][j] * trk.getHwCoord(p, c);
+
+
+
+      // if (i == 0 && !trk.getNMissing() && (j < 6) && (j % 2)) 
+      //   cerr << "JS: " << __FUNCTION__ << "::" << __LINE__ << "   sector=" << secid
+      //                        << "    plane=" << p
+      //                        << "    coord=" << setfill('0') << setw(4) << trk.getHwCoord(p, c)
+      //                        << "    one?=" << setprecision(4) << 8/16.88 * trk.getHwCoord(j/2, 1) / trk.getAUXCoord(j) << endl;
 
     }
 
@@ -838,17 +909,68 @@ void FTKConstantBank::linfit_chisq_aux(int secid, FTKTrack &trk) const {
     chi_componentLL = aux_asr(chi_componentLL, 0, 30, ofl);
     chi2LL += (chi_componentLL * chi_componentLL);
 
+    chi_componentHW = aux_asr(chi_componentHW, 0, 30, ofl);
+    chi2HW += (chi_componentHW * chi_componentHW);
+
+
   }  
 
-
   chi2LL = aux_asr(chi2LL, 0, 45, ofl);
+  chi2HW = aux_asr(chi2HW, 0, 45, ofl);
 
   // If there was a bit overflow, set the chi-square to some artificially large value so it fails the cut.
   // Otherwise, set to the caluclated value, scaled back to nominal units.
 
-  trk.setChi2FW(chi2LL/pow(2., 2.*EFF_SHIFT));
-  // float fchi2 = ofl ? 9999999. : static_cast<float>(chi2) / pow(2.0,26.0);
-  trk.setChi2(chi2); // fchi2
+  float fchi2 = ofl ? 9999999. : chi2HW / pow(2.0, 2.*EFF_SHIFT);
+  trk.setChi2FW(fchi2);
+  trk.setChi2  (fchi2);
+
+  // any negative hits?
+  bool negatives = false;
+  if (trk.getNMissing()) 
+    for( int j = 0 ; j < m_ncoords ; ++j )
+      if (!m_coordsmask[j] && trk.getCoord(j) < 0) negatives = true;
+
+  if (!negatives && chi2HW/pow(2., 2.*EFF_SHIFT) - chi2 > 2. && 
+      abs(1 - chi2HW/(pow(2., 2.*EFF_SHIFT) * chi2)) - abs(1 - chi2LL/(pow(2., 2.*EFF_SHIFT) * chi2)) > 0.1) {
+
+    cerr << __LINE__ <<   " JS FLAG: " 
+      << "  chiR=" << 1.*chi2HW/chi2LL 
+      << "  chi=" << chi2 << "  chi2LL=" << chi2LL/pow(2., 2.*EFF_SHIFT) << "  chi2HW=" << chi2HW/pow(2., 2.*EFF_SHIFT) 
+      << (!trk.getNMissing() ? "  NOMINAL  " : "  MAJORITY  ")
+      << "  sector=" << secid 
+      << "  ofl=" << ofl;
+
+    // keep track of which hits are missing.
+    if (trk.getNMissing()) {
+      cerr << "     MISSING COORDS: ";
+      for( int j = 0 ; j < m_ncoords ; ++j )
+        if (!m_coordsmask[j]) cerr  << "  " << j;
+    }
+
+    cerr << endl;
+
+    ///   ios init(NULL);
+    ///   init.copyfmt(cout);
+    ///   for( int i = 0 ; i < m_nconstr ; ++i ) {
+    ///     for( int j = 0 ; j < m_ncoords ; ++j ) {
+
+    ///       int p = const_plane_map[j]; int c = const_coord_map[j]; 
+
+    ///       if (abs(1. - const_scale_map[j] * m_kernel_aux[secid][i][j] / m_kernel_hw[secid][i][j]) > 0.01 || 
+    ///           abs(1. - const_scale_map[j] * trk.getHwCoord(p, c)      / trk.getAUXCoord(j)) > 0.01)  {
+
+    ///         cout << __LINE__ << "  >>>   JS FLAG:  notone    constr=" << i << ",coord=" << j << setprecision(3) 
+    ///           << "  const:" << const_scale_map[j] * m_kernel_aux[secid][i][j] / m_kernel_hw[secid][i][j] << "  (" << m_kernel_hw[secid][i][j] << "/" << const_scale_map[j] * m_kernel_aux[secid][i][j] << ")"
+    ///           << "  coord:" << const_scale_map[j] * trk.getHwCoord(p, c)      / trk.getAUXCoord(j)       << "  (" << trk.getHwCoord(p, c) << "/" << trk.getAUXCoord(j)/const_scale_map[j]  << ")"
+    ///           << endl;
+    ///       }
+    ///     }
+    ///   }
+    ///   cout.copyfmt(init);
+
+  }
+
 
 }
 
@@ -893,38 +1015,52 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
   // calculate the chi partials
   // long double* m_partials = new long double [m_ncoords];
   long long*   m_partialsLL = new long long [m_ncoords];
+  long long*   m_partialsHW = new long long [m_ncoords];
   for (int i = 0; i < m_nconstr; ++i) {
 
     // m_partials[i]   = m_kaverage[secid][i]; 
-    m_partialsLL[i] = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl);
+    m_partialsLL[i] = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // 30
+    m_partialsHW[i] = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // 30
 
     for (int j = 0 ; j < m_ncoords ; ++j ) {
       if (m_coordsmask[j]) {
+
+        int p = const_plane_map[j]; int c = const_coord_map[j]; 
+
         // m_partials[i]   += m_kernel[secid][i][j] * track.getCoord(j);
         m_partialsLL[i] += m_kernel_aux[secid][i][j] * track.getAUXCoord(j); 
+        m_partialsHW[i] += m_kernel_hw[secid][i][j]  * track.getHwCoord(p, c); 
       }
     }
   }  
 
   if (ofl) {
-    FTKSetup::PrintMessage(ftk::warn, "AUX-style TF calculation had an overflow!!!\n");
+    FTKSetup::PrintMessage(ftk::warn, "AUX-style partials calculation had an overflow!!!\n");
     delete [] m_partialsLL;
+    delete [] m_partialsHW;
     return 0; 
   }
 
   // calculate the t-vectors
   // TVectorD t(nmissing);
   long long tLL[2] = {0, 0};
+  long long tHW[2] = {0, 0};
   for (int j = 0; j < nmissing; ++j) {
     for (int i = 0; i < m_nconstr; ++i ) {
       // t[j] -= m_kernel[secid][i][m_missid[j]] * m_partials[i];
       tLL[j] -= m_kernel_aux[secid][i][m_missid[j]] * m_partialsLL[i];
+      tHW[j] -= m_kernel_hw[secid][i][m_missid[j]]  * m_partialsHW[i];
     }
 
-    tLL[j] = aux_asr(tLL[j], 0, 50, ofl);
+    tLL[j] = aux_asr(tLL[j], 0, 50, ofl); // 50
+    tHW[j] = aux_asr(tHW[j], 0, 50, ofl); // 50
+    // cerr << "JS: " << j << " ofl=" << ofl << "  tHW[j]/tLL[j]=" << (1./const_scale_map[m_missid[j]])*tHW[j]/tLL[j] << endl;
   }
   // delete [] m_partials;
   delete [] m_partialsLL;
+  delete [] m_partialsHW;
+
+  if (ofl) FTKSetup::PrintMessage(ftk::warn, "AUX-style t-vector calculation had an overflow!!!\n");
 
   // preserved only for testing purposes --
   // delete once all validation is complete.
@@ -940,13 +1076,36 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
 
 
   // get the pointer to the track coordinates
+  unsigned int cHW[2] = {0, 0};
   float *coords = track.getCoords();
   if (nmissing == 1) {
 
     coords[m_missid[0]] = tLL[0] * m_maj_invkk_aux[secid][m_missid[0]][m_missid[0]]
                           / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]] - 1);
 
-    // outfs << "finally coord0: " << newcoord[0] << "  " << coords[m_missid[0]] << endl;
+    cHW[0] = tHW[0] * m_maj_invkk_hw[secid][m_missid[0]][m_missid[0]]
+             / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]] - 1);
+
+    FTKHit newhit(1);
+    newhit.setHwCoord(0, cHW[0]);
+    track.setFTKHit(const_plane_map[m_missid[0]], newhit);
+
+
+    ///  cout << __LINE__ << "  JS: pow  aux=" << m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]] << "   hw=" << m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]] << endl;
+    ///  cout << __LINE__ << "  JS: aux=" << tLL[0] * m_maj_invkk_aux[secid][m_missid[0]][m_missid[0]] 
+    ///                                      / pow(2., KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]] - 1) 
+    ///                   << "      hw="  << tHW[0] * m_maj_invkk_hw[secid][m_missid[0]][m_missid[0]] 
+    ///                                      / pow(2., KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]] - 1) << endl;
+
+    ///  cout << __LINE__ << "  JS:  " << m_missid[0] << "    C=" << track.getCoord(m_missid[0]) 
+    ///                                               << "    A=" << 1.*track.getAUXCoord(m_missid[0]) / const_scale_map[m_missid[0]]
+    ///                                               << "    H=" << track.getHwCoord(const_plane_map[m_missid[0]], 0) << endl;
+    ///  cout << __LINE__ << "  JS:  " << m_missid[0] << "  A/C=" << 0.125 * track.getAUXCoord(const_plane_map[m_missid[0]])   / track.getCoord(m_missid[0]) 
+    ///                                               << "  H/C=" << 1. * track.getHwCoord(const_plane_map[m_missid[0]], 0) / track.getCoord(m_missid[0])
+    ///                                               << "  H/A=" << 1. * track.getHwCoord(const_plane_map[m_missid[0]], 0) * const_scale_map[m_missid[0]] / track.getAUXCoord(m_missid[0]) 
+    ///                                               << "  set/ret=" << 1. * cHW[0] / track.getHwCoord(const_plane_map[m_missid[0]], 0) << endl;
+
+
 
   } else if (nmissing == 2) {
 
@@ -960,8 +1119,46 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
                           + tLL[1] * m_maj_invkk_aux[secid][m_missid[1]][m_missid[1]]
                             / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[1]][m_missid[1]]);
 
-    // outfs << "finally coord0: " << newcoord[0] << "  " << coords[m_missid[0]] << endl;
-    // outfs << "finally coord1: " << newcoord[1] << "  " << coords[m_missid[1]] << endl;
+
+    cHW[0] =   tHW[0] * m_maj_invkk_hw[secid][m_missid[0]][m_missid[0]]
+                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]])
+             + tHW[1] * m_maj_invkk_hw[secid][m_missid[0]][m_missid[1]]
+                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[1]]);
+
+    cHW[1] =   tHW[0] * m_maj_invkk_hw[secid][m_missid[1]][m_missid[0]]
+                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[1]][m_missid[0]])
+             + tHW[1] * m_maj_invkk_hw[secid][m_missid[1]][m_missid[1]]
+                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[1]][m_missid[1]]);
+
+    FTKHit newhit(2);
+    newhit.setHwCoord(0, cHW[0]);
+    newhit.setHwCoord(1, cHW[1]);
+    track.setFTKHit(const_plane_map[m_missid[0]], newhit);
+
+
+    ////  cout << __LINE__ << "  JS: pow  aux=" << m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]] << "   hw=" << m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]] << endl;
+    ////  cout << __LINE__ << "  JS: aux=" << tLL[0] * m_maj_invkk_aux[secid][m_missid[0]][m_missid[0]] 
+    ////                                      / pow(2., KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]] - 1) 
+    ////                   << "      hw="  << tHW[0] * m_maj_invkk_hw[secid][m_missid[0]][m_missid[0]] 
+    ////                                      / pow(2., KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]] - 1) << endl;
+
+
+    ////  cout << __LINE__ << "  JS:  " << m_missid[0] << "   C=" << track.getCoord(m_missid[0]) 
+    ////                                               << "   A=" << track.getAUXCoord(m_missid[0]) 
+    ////                                               << "   H=" << track.getHwCoord(const_plane_map[m_missid[0]], 0) << endl;
+    ////  cout << __LINE__ << "  JS:  " << m_missid[0] << " A/C=" << 1. * track.getAUXCoord(const_plane_map[m_missid[0]])   / track.getCoord(m_missid[0]) 
+    ////                                               << " H/C=" << 1. * track.getHwCoord(const_plane_map[m_missid[0]], 0) / track.getCoord(m_missid[0])
+    ////                                               << " H/A=" << 1. * track.getHwCoord(const_plane_map[m_missid[0]], 0) * const_scale_map[m_missid[0]] / track.getAUXCoord(m_missid[0]) 
+    ////                                               << "  set/ret=" << 1. * cHW[0] / track.getHwCoord(const_plane_map[m_missid[0]], 0) << endl;
+
+
+    ////  cout << __LINE__ << "  JS:  " << m_missid[1] << "   C=" << track.getCoord(m_missid[1]) 
+    ////                                               << "   A=" << track.getAUXCoord(m_missid[1]) 
+    ////                                               << "   H=" << track.getHwCoord(const_plane_map[m_missid[1]], 1) << endl;
+    ////  cout << __LINE__ << "  JS:  " << m_missid[1] << " A/C=" << 1. * track.getAUXCoord(const_plane_map[m_missid[1]])   / track.getCoord(m_missid[1]) 
+    ////                                               << " H/C=" << 1. * track.getHwCoord(const_plane_map[m_missid[1]], 1) / track.getCoord(m_missid[1]) 
+    ////                                               << " H/A=" << 1. * track.getHwCoord(const_plane_map[m_missid[1]], 1) * const_scale_map[m_missid[1]] / track.getAUXCoord(m_missid[1])
+    ////                                               << "  set/ret=" << 1. * cHW[1] / track.getHwCoord(const_plane_map[m_missid[1]], 1) << endl;
 
   } 
 
