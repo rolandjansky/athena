@@ -16,6 +16,7 @@
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauxAODHelpers.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include <vector>
 #include <string>
@@ -134,7 +135,11 @@ StatusCode DerivationFramework::TauTrackParticleThinning::doThinning() const
 	    for (xAOD::TauJetContainer::const_iterator tauIt=importedTaus->begin(); tauIt!=importedTaus->end(); ++tauIt) {
 		if (m_coneSize>0.0) trIC.select(*tauIt,m_coneSize,importedTrackParticles,mask); // check tracks in a cone around the tau if req'd
             	for (unsigned int i=0; i<(*tauIt)->nTracks(); ++i) {
-                	int index = (*tauIt)->trackLinks().at(i).index();
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+		  int index = (*tauIt)->trackLinks().at(i).index();
+#else
+		  int index = xAOD::TauHelpers::trackParticleLinks(*tauIt, xAOD::TauJetParameters::TauTrackFlag::classifiedCharged).at(i).index();
+#endif
                 	mask[index] = true;
             	}
 	    }
@@ -142,7 +147,11 @@ StatusCode DerivationFramework::TauTrackParticleThinning::doThinning() const
         for (std::vector<const xAOD::TauJet*>::iterator tauIt = tauToCheck.begin(); tauIt!=tauToCheck.end(); ++tauIt) {
 	    if (m_coneSize>0.0) trIC.select(*tauIt,m_coneSize,importedTrackParticles,mask); // check tracks in a cone around the tau if req'd	
             for (unsigned int i=0; i<(*tauIt)->nTracks(); ++i) {
-                int index = (*tauIt)->trackLinks().at(i).index();
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+	      int index = (*tauIt)->trackLinks().at(i).index();
+#else
+	      int index = xAOD::TauHelpers::trackParticleLinks(*tauIt, xAOD::TauJetParameters::TauTrackFlag::classifiedCharged).at(i).index();
+#endif
                 mask[index] = true;
             }
         }

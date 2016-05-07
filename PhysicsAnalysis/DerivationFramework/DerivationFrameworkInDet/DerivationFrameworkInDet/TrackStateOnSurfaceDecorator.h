@@ -29,6 +29,7 @@ class ITRT_ToT_dEdx;
 
 
 namespace Trk {
+  class IUpdator;
   class IResidualPullCalculator;
   class ITrackHoleSearchTool;
   class PrepRawData;
@@ -81,25 +82,19 @@ namespace DerivationFramework {
       std::string m_sctMsosName;
       std::string m_trtMsosName;
 
-      std::string m_PriVtxContainerName;
-
       // --- Services and tools
       const AtlasDetectorID* m_idHelper;
       const PixelID*         m_pixId; 
       const SCT_ID*          m_sctId;
       const TRT_ID*          m_trtId;
 
+      ToolHandle<Trk::IUpdator>                 m_updator;
       ToolHandle<Trk::IResidualPullCalculator>  m_residualPullCalculator;
       ToolHandle<Trk::ITrackHoleSearchTool>     m_holeSearchTool;
       ToolHandle<Trk::IExtrapolator>            m_extrapolator;
-      ServiceHandle<ITRT_CalDbSvc>                m_trtcaldbSvc;
+      ServiceHandle<ITRT_CalDbSvc>              m_trtcaldbSvc;
 	  
-      /**tool to calculate dE/dx using TRT ToT*/
-      ToolHandle<ITRT_ToT_dEdx>    m_TRTdEdxTool;
-
       // --- Private other members
-      bool m_firstEventWarnings;
-	  
   }; 
 }
 

@@ -14,6 +14,8 @@
 #include "DerivationFrameworkInDet/LArCollisionTimeDecorator.h"
 #include "DerivationFrameworkInDet/EGammaTracksThinning.h"
 #include "DerivationFrameworkInDet/EGammaPrepRawDataThinning.h"
+#include "DerivationFrameworkInDet/TrackMeasurementThinning.h"
+#include "DerivationFrameworkInDet/EventInfoPixelDecorator.h"
 
 using namespace DerivationFramework;
 
@@ -32,6 +34,8 @@ DECLARE_NAMESPACE_TOOL_FACTORY(DerivationFramework, UnassociatedHitsGetterTool)
 DECLARE_TOOL_FACTORY( LArCollisionTimeDecorator )
 DECLARE_TOOL_FACTORY( EGammaTracksThinning )
 DECLARE_TOOL_FACTORY( EGammaPrepRawDataThinning )
+DECLARE_TOOL_FACTORY( TrackMeasurementThinning )
+DECLARE_TOOL_FACTORY( EventInfoPixelDecorator )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( TrackToVertexWrapper )
@@ -49,5 +53,7 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( LArCollisionTimeDecorator )
    DECLARE_TOOL( EGammaTracksThinning )
    DECLARE_TOOL( EGammaPrepRawDataThinning )
+   DECLARE_TOOL( TrackMeasurementThinning )
+   DECLARE_TOOL( EventInfoPixelDecorator )
 }
 
