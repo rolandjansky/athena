@@ -22,6 +22,7 @@ public:
 
   double m_METmin;
   bool m_useHadronicNu;
+  bool m_useChargedNonShowering;
 
 };
 
