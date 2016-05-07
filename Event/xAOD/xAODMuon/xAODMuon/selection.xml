@@ -5,9 +5,13 @@
   <class name="xAOD::MuonAuxContainer_v2"
          id="AB53C81C-B10C-11E4-AC59-6C3BE51AB9F1"/>
   
-  <!-- MuonAux _v2 dictionaries: -->
+  <!-- MuonAux _v3 dictionaries: -->
   <class name="xAOD::MuonAuxContainer_v3"
                 id="ECC65005-302B-4662-ACBA-D2CE5A0218B8"/>
+
+  <!-- MuonAux _v4 dictionaries: -->
+  <class name="xAOD::MuonAuxContainer_v4"
+	 id="8251F481-EA4C-4852-AE72-BED87E6FD2FB"/>
 
   <!-- Muon_v1 dictionaries: -->
   <class name="xAOD::Muon_v1">

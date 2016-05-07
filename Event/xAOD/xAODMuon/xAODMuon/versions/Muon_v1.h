@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Muon_v1.h 731310 2016-03-21 01:15:58Z wleight $
+// $Id: Muon_v1.h 745098 2016-05-05 15:47:04Z wleight $
 #ifndef XAODMUON_VERSIONS_MUON_V1_H
 #define XAODMUON_VERSIONS_MUON_V1_H
 
@@ -38,6 +38,16 @@ namespace xAOD {
   public:
     /// Default constructor
     Muon_v1();
+    
+    /// Copy constructor
+    Muon_v1(const Muon_v1& rhs);
+    
+    /// Destructor
+    virtual ~Muon_v1();
+    
+    /// Assignment operator
+    Muon_v1& operator=(const Muon_v1& rhs);
+    
     /// @name IParticle functions
     /// @{
     /// The transverse momentum (\f$p_T\f$) of the particle.
@@ -195,13 +205,6 @@ namespace xAOD {
       ParamEnergyLossSigmaPlus=25, //!< Sigma plus of Parametrised energy loss [Mev]
       ParamEnergyLossSigmaMinus=26, //!< Sigma minus of Parametrised energy loss [Mev]
       MeasEnergyLossSigma=27, //!< Sigma of Measured energy loss [Mev]
-      /*Perigee parameters of the original (MS-only) extrapolated track*/
-      d0_sa=28,
-      z0_sa=29,
-      phi0_sa=30,
-      theta_sa=31,
-      qOverP_sa=32,
-      Eloss_sa=33
     };
         
     /// Get a parameter for this Muon - momentumBalanceSignificance for example 
@@ -320,7 +323,9 @@ namespace xAOD {
     /// @brief Returns an ElementLink  to the primary TrackParticle corresponding to the MuonType of this muon. This is determined in the following order:
     ///  1. CombinedTrackParticle
     ///  2. InnerDetectorTrackParticle
-    ///  3. (Extrapolated)MuonSpectrometerTrackParticle
+    ///  3. ExtrapolatedMuonSpectrometerTrackParticle
+    ///  4. MSOnlyExtrapolatedMuonSpectrometerTrackParticle
+    ///  5. MuonSpectrometerTrackParticle
     /// This method can throw a std::runtime_error exception if either the 'muontype' is unknown, or if the type is MuonStandAlone, 
     /// but there is no available extrapolatedMuonSpectrometerTrackParticleLink or muonSpectrometerTrackParticleLink to return.
     const ElementLink< TrackParticleContainer >& primaryTrackParticleLink() const;
@@ -330,7 +335,9 @@ namespace xAOD {
     ///This is determined in the following order:
     ///  1. CombinedTrackParticle
     ///  2. InnerDetectorTrackParticle
-    ///  3. (Extrapolated)MuonSpectrometerTrackParticle
+    ///  3. ExtrapolatedMuonSpectrometerTrackParticle
+    ///  4. MSOnlyExtrapolatedMuonSpectrometerTrackParticle
+    ///  5. MuonSpectrometerTrackParticle    
     const TrackParticle* primaryTrackParticle() const; 
 
     /// @brief Returns an ElementLink to the InnerDetector TrackParticle used in identification of this muon.
@@ -341,9 +348,11 @@ namespace xAOD {
     const ElementLink< TrackParticleContainer >& combinedTrackParticleLink() const;
     /// @brief Returns an ElementLink to the Extrapolated Muon Spectrometer TrackParticle used in identification of this muon.
     const ElementLink< TrackParticleContainer >& extrapolatedMuonSpectrometerTrackParticleLink() const;
+    /// @brief Returns an ElementLink to the MS-only Extrapolated Muon Spectrometer TrackParticle used in identification of this muon.
+    const ElementLink< TrackParticleContainer >& msOnlyExtrapolatedMuonSpectrometerTrackParticleLink() const;
         
     enum TrackParticleType {
-      Primary, InnerDetectorTrackParticle, MuonSpectrometerTrackParticle, CombinedTrackParticle, ExtrapolatedMuonSpectrometerTrackParticle
+      Primary, InnerDetectorTrackParticle, MuonSpectrometerTrackParticle, CombinedTrackParticle, ExtrapolatedMuonSpectrometerTrackParticle, MSOnlyExtrapolatedMuonSpectrometerTrackParticle
     };
     /// @brief Returns an ElementLink to the  TrackParticle used in identification of this muon.
     const ElementLink< TrackParticleContainer >& trackParticleLink( TrackParticleType type) const;

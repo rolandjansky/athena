@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Muon_v1.cxx 695385 2015-09-17 12:51:32Z emoyse $
+// $Id: Muon_v1.cxx 745098 2016-05-05 15:47:04Z wleight $
 // Misc includes
 #include <vector>
 
@@ -28,6 +28,30 @@ namespace xAOD {
 
   Muon_v1::Muon_v1()
   : m_p4(), m_p4Cached1( false ) {
+  }
+  
+  Muon_v1::Muon_v1(const Muon_v1& rhs)
+    : IParticle(rhs), //IParticle does not have a copy constructor. AuxElement has one with same behavior as default ctor
+       m_p4(rhs.m_p4), m_p4Cached1( rhs.m_p4Cached1 )
+  {
+    this->makePrivateStore(rhs);
+  }
+  
+  Muon_v1& Muon_v1::operator=(const Muon_v1& rhs ){
+    if(this == &rhs) return *this;
+ 
+    if( ( ! hasStore() ) && ( ! container() ) ) {
+       makePrivateStore();
+    }
+    this->IParticle::operator=( rhs );
+    
+    m_p4       = rhs.m_p4;
+    m_p4Cached1 = rhs.m_p4Cached1;
+    
+    return *this;
+  }
+  
+  Muon_v1::~Muon_v1(){
   }
 
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( Muon_v1, float, double, pt)
@@ -364,17 +388,18 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
   AUXSTORE_OBJECT_GETTER( Muon_v1, ElementLink< TrackParticleContainer >, inDetTrackParticleLink)
   AUXSTORE_OBJECT_GETTER( Muon_v1, ElementLink< TrackParticleContainer >, muonSpectrometerTrackParticleLink)
   AUXSTORE_OBJECT_GETTER( Muon_v1, ElementLink< TrackParticleContainer >, extrapolatedMuonSpectrometerTrackParticleLink)
+  AUXSTORE_OBJECT_GETTER( Muon_v1, ElementLink< TrackParticleContainer >, msOnlyExtrapolatedMuonSpectrometerTrackParticleLink)
   AUXSTORE_OBJECT_GETTER( Muon_v1, ElementLink< TrackParticleContainer >, combinedTrackParticleLink)
 
   const ElementLink< TrackParticleContainer >& Muon_v1::primaryTrackParticleLink() const{
     MuonType type = muonType();
     switch ( type ) {
       case Combined :
+      case SiliconAssociatedForwardMuon :
         return combinedTrackParticleLink();
         break;
       case SegmentTagged :
       case CaloTagged :
-      case SiliconAssociatedForwardMuon :
         return inDetTrackParticleLink();
         break;
       case MuonStandAlone :
@@ -386,10 +411,15 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
           if ( acc1.isAvailable( *this ) && acc1( *this ).isValid() ) {
             return acc1( *this );
           }
-          
-          static Accessor< ElementLink< TrackParticleContainer > > acc2( "muonSpectrometerTrackParticleLink" );
-          if ( acc2.isAvailable( *this ) && acc2( *this ).isValid()) {            
+
+          static Accessor< ElementLink< TrackParticleContainer > > acc2( "msOnlyExtrapolatedMuonSpectrometerTrackParticleLink" );
+          if ( acc2.isAvailable( *this ) && acc2( *this ).isValid() ) {
             return acc2( *this );
+          }
+          
+          static Accessor< ElementLink< TrackParticleContainer > > acc3( "muonSpectrometerTrackParticleLink" );
+          if ( acc3.isAvailable( *this ) && acc3( *this ).isValid()) {            
+            return acc3( *this );
           }
           // We could also just return a dummy EL here, but the link is part of the aux store, and so it might be that something bad has happened...?
           throw std::runtime_error("Type is MuonStandAlone but no available link to return!");
@@ -406,6 +436,7 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
     MuonType type = muonType();      
     switch( type ) {
       case Combined:
+      case SiliconAssociatedForwardMuon :
          {
             static Accessor< ElementLink< TrackParticleContainer > > acc( "combinedTrackParticleLink" );
             if( ! acc.isAvailable( *this ) ) return 0;
@@ -417,7 +448,6 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
          }
       case SegmentTagged:
       case CaloTagged :
-      case SiliconAssociatedForwardMuon :
         {
            static Accessor< ElementLink< TrackParticleContainer > > acc( "inDetTrackParticleLink" );
            if( ! acc.isAvailable( *this ) ) return 0;
@@ -435,11 +465,18 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
             const ElementLink< TrackParticleContainer >& link = acc1( *this );
             if ( link.isValid() ) return *link;
           }
+
+	  //if no, maybe the MS-only extrapolated track particle?
+          static Accessor< ElementLink< TrackParticleContainer > > acc2( "msOnlyExtrapolatedMuonSpectrometerTrackParticleLink" );
+          if ( acc2.isAvailable( *this ) ) {
+            const ElementLink< TrackParticleContainer >& link = acc2( *this );
+            if ( link.isValid() ) return *link;
+          }
           
           // Try fallback (non-extrapolated MS track particle)...
-          static Accessor< ElementLink< TrackParticleContainer > > acc2( "muonSpectrometerTrackParticleLink" );
-          if ( acc2.isAvailable( *this ) ) {            
-            const ElementLink< TrackParticleContainer >& link = acc2( *this );
+          static Accessor< ElementLink< TrackParticleContainer > > acc3( "muonSpectrometerTrackParticleLink" );
+          if ( acc3.isAvailable( *this ) ) {            
+            const ElementLink< TrackParticleContainer >& link = acc3( *this );
             if ( link.isValid() ) return *link;
           }
         }
@@ -468,6 +505,9 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
       case ExtrapolatedMuonSpectrometerTrackParticle :
         return extrapolatedMuonSpectrometerTrackParticleLink();
         break;
+      case MSOnlyExtrapolatedMuonSpectrometerTrackParticle :
+	return msOnlyExtrapolatedMuonSpectrometerTrackParticleLink();
+	break;
       default:
         throw std::runtime_error("Unknown TrackParticleType - not sure which track particle to return!");
     }
@@ -512,6 +552,10 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
         static Accessor< ElementLink< TrackParticleContainer > > acc4( "extrapolatedMuonSpectrometerTrackParticleLink" );
         acc4(*this)=link;
         break;
+      case MSOnlyExtrapolatedMuonSpectrometerTrackParticle :
+	static Accessor< ElementLink< TrackParticleContainer > > acc5( "msOnlyExtrapolatedMuonSpectrometerTrackParticleLink" );
+	acc5(*this)=link;
+	break;
       case Primary :
       default:
         throw std::runtime_error("Unknown or Primary TrackParticleType - not sure which track particle to set!");
