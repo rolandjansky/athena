@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODMuonDict.h 647346 2015-02-17 10:24:03Z emoyse $
+// $Id: xAODMuonDict.h 745098 2016-05-05 15:47:04Z wleight $
 #ifndef XAODMUON_XAODMUONDICT_H
 #define XAODMUON_XAODMUONDICT_H
 
@@ -20,6 +20,8 @@
 #include "xAODMuon/versions/MuonContainer_v1.h"
 #include "xAODMuon/versions/MuonAuxContainer_v1.h"
 #include "xAODMuon/versions/MuonAuxContainer_v2.h"
+#include "xAODMuon/versions/MuonAuxContainer_v3.h"
+#include "xAODMuon/versions/MuonAuxContainer_v4.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
 #include "xAODMuon/MuonSegmentContainer.h"
