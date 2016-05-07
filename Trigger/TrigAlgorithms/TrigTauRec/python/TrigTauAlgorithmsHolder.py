@@ -523,6 +523,31 @@ def getTauShotFinder():
 
 
 
+#########################################################################
+def getInDetTrackSelectionToolForTJVA():
+    _name = sPrefix + 'InDetTrackSelectionToolForTJVA'  
+    
+    if _name in cached_instances:
+        return cached_instances[_name]
+    
+    #Configures tau track selector tool (should eventually check whether an existing one is available)
+    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+    InDetTrackSelectionToolForTJVA = InDet__InDetTrackSelectionTool(name = _name,
+                                                                    minPt                = 1000.,
+                                                                    maxD0                = 9999.*mm,
+                                                                    maxZ0                = 9999.*mm,                                                                 
+                                                                    minNPixelHits        = 2,  # PixelHits + PixelDeadSensors
+                                                                    minNSctHits          = 0,  # SCTHits + SCTDeadSensors
+                                                                    minNSiHits           = 7,  # PixelHits + SCTHits + PixelDeadSensors + SCTDeadSensors
+                                                                    minNTrtHits          = 0)
+                                                                    #fitChi2OnNdfMax      = 99999,
+                                                                    #TrackSummaryTool     = None,
+                                                                    #Extrapolator         = getAtlasExtrapolator())
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += InDetTrackSelectionToolForTJVA
+    
+    cached_instances[_name] = InDetTrackSelectionToolForTJVA
+    return InDetTrackSelectionToolForTJVA
 
 
 #########################################################################
@@ -625,7 +650,8 @@ def getTauVertexFinder(doUseTJVA=False):
                                       UseTJVA                 = doUseTJVA,
                                       PrimaryVertexContainer  = _DefaultVertexContainer,
                                       AssociatedTracks="GhostTrack", # OK??
-                                      TrackVertexAssociation=sPrefix+"JetTrackVtxAssoc_forTaus"
+                                      TrackVertexAssociation=sPrefix+"JetTrackVtxAssoc_forTaus",
+                                      InDetTrackSelectionToolForTJVA = getInDetTrackSelectionToolForTJVA()
                                       )
     
     cached_instances[_name] = TauVertexFinder         
