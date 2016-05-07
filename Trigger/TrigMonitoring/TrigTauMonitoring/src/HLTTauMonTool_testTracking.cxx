@@ -28,12 +28,12 @@
 
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/Feature.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
+//#include "TrigSteeringEvent/TrigOperationalInfo.h"
+//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
+//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 
 #include "TrigConfL1Data/PrescaleSet.h"
 
@@ -43,7 +43,9 @@
 #include "xAODTau/TauJet.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
+#include "xAODTau/TauTrackContainer.h"
 #include "xAODTau/TauDefs.h"
+#include "xAODTau/TauxAODHelpers.h"
 
 #include "xAODTrigger/EmTauRoI.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
@@ -96,6 +98,7 @@ using namespace AnalysisUtils;
 const float PI=2.0*acos(0.);
 const float TWOPI=2.0*PI;
 
+/*
 StatusCode  HLTTauMonTool::test2StepTracking(){
 
   ATH_MSG_DEBUG("Executing HLTTauMonTool::test2StepTracking()");
@@ -117,7 +120,7 @@ StatusCode  HLTTauMonTool::test2StepTracking(){
     ATH_MSG_DEBUG("tauPrecision: pt "<< pt <<", eta " << eta << ", phi " << phi << ", #tracks "<< nTrack);
 
     bool goodLinks(true);
-    std::vector< ElementLink< xAOD::TrackParticleContainer > > myLinks = (*tauPrecision)->trackLinks();
+    std::vector< ElementLink< xAOD::TrackParticleContainer > > myLinks = xAOD::TauHelpers::trackParticleLinks((*tauPrecision), xAOD::TauJetParameters::classifiedCharged);
     ATH_MSG_DEBUG("Size of links for tauPrecision: " << myLinks.size());
     for(unsigned int i=0;i<myLinks.size();++i){
       ATH_MSG_DEBUG("Get the link: " << i);
@@ -129,7 +132,7 @@ StatusCode  HLTTauMonTool::test2StepTracking(){
       ATH_MSG_DEBUG("TheIndex: " << theLink.index());    
     }
     if(goodLinks)for (unsigned int i=0;i<(*tauPrecision)->nTracks();++i) {
-        const xAOD::TrackParticle* trk = (*tauPrecision)->track(i);
+        const xAOD::TrackParticle* trk = (*tauPrecision)->track(i)->track();
         ATH_MSG_DEBUG("track "<< i <<"-th: index "<< trk->index() << ", d0 " << trk->d0() << ", phi0 "<< trk->phi0() << ", theta " << trk->theta() << ", qOverP  " << trk->qOverP());
     }
   }
@@ -664,9 +667,9 @@ StatusCode  HLTTauMonTool::test2StepTracking(){
   return StatusCode::SUCCESS; 
 }
 
+*/
 
-
-bool  HLTTauMonTool::emulate2StepTracking(float RoI_eta, float RoI_phi, bool do2step, bool doReject0trk, float track_pt_min=0.){
+/*bool  HLTTauMonTool::emulate2StepTracking(float RoI_eta, float RoI_phi, bool do2step, bool doReject0trk, float track_pt_min=0.){
 
 	bool pass(false);
 	
@@ -860,3 +863,5 @@ bool  HLTTauMonTool::emulate2StepTracking(float RoI_eta, float RoI_phi, bool do2
 	ATH_MSG_DEBUG("nCore "<<nCore_track<<", nWide "<<nWide_track<<", pass "<<pass);
 	return pass;
 }
+
+*/

@@ -24,6 +24,7 @@ use tauEvent              tauEvent-*              Reconstruction
 use VxVertex              VxVertex-*              Tracking/TrkEvent
 use TrigConfHLTData       TrigConfHLTData-*       Trigger/TrigConfiguration
 use TrigConfL1Data        TrigConfL1Data-*        Trigger/TrigConfiguration
+use LumiBlockComps        LumiBlockComps-*        LumiBlock
 
 use xAODTau		  xAODTau-*		  Event/xAOD
 use xAODTrigger		  xAODTrigger-*		  Event/xAOD
