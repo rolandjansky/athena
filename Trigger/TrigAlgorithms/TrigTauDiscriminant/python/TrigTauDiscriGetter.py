@@ -51,13 +51,14 @@ class TrigTauDiscriGetter(TrigTauDiscriBuilder):
 
     def BDTtoolset(self):
         from TauDiscriminant.TauDiscriminantConf import TauJetBDT
-        return TauJetBDT(jetBDT = "trigger.jet.BDT.bin",
+        return TauJetBDT(inTrigger = True,
+                         jetBDT = "trigger.jet.BDT.bin",
                          jetSigBits = "trigger.sig.bits.jet.BDT.txt")
 
     def VarCalculatorSet(self):
         from TauDiscriminant.TauDiscriminantConf import TauIDVarCalculator
         tauVarCalc = TauIDVarCalculator()
-        tauVarCalc.doTrigger = True
+        tauVarCalc.inTrigger = True
         return tauVarCalc
 
 
@@ -81,11 +82,15 @@ class TrigTauDiscriGetter2015(TrigTauDiscriBuilder):
 
     def BDTtoolset(self):
         from TauDiscriminant.TauDiscriminantConf import TauJetBDT
-        return TauJetBDT(jetBDT = "offline.jet.BDT.MC15.bin",
-                         jetSigBits = "trigger.sig.bits.jet.BDT.MC15.ver1.txt")
+        return TauJetBDT(inTrigger=True,
+                        # jetBDT = "offline.jet.BDT.MC15.bin",
+                        # jetBDT = "online.jet.BDT.MC15c.bin",
+                         jetBDT = "bdt.2016.bin",
+                         # jetSigBits = "trigger.sig.bits.jet.BDT.MC15.ver1.txt")
+                         jetSigBits = "trigger.sig.bits.jet.BDT.MC15c.ver5.txt")
 
     def VarCalculatorSet(self):
         from TauDiscriminant.TauDiscriminantConf import TauIDVarCalculator
         tauVarCalc = TauIDVarCalculator()
-        tauVarCalc.doTrigger = True
+        tauVarCalc.inTrigger = True
         return tauVarCalc
