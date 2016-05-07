@@ -66,8 +66,11 @@ if InDetFlags.doPRDFormation():
             
             # --- new NN prob tool
             MultiplicityContent = [1 , 1 , 1]
-            from SiClusterizationTool.SiClusterizationToolConf import InDet__NnPixelClusterSplitProbTool
-            NnPixelClusterSplitProbTool=InDet__NnPixelClusterSplitProbTool(name                     = "NnPixelClusterSplitProbTool",
+            if InDetFlags.doSLHC():
+                from SiClusterizationTool.SiClusterizationToolConf import InDet__TruthPixelClusterSplitProbTool as PixelClusterSplitProbTool
+            else:
+                from SiClusterizationTool.SiClusterizationToolConf import InDet__NnPixelClusterSplitProbTool as PixelClusterSplitProbTool
+            NnPixelClusterSplitProbTool=PixelClusterSplitProbTool(name                     = "NnPixelClusterSplitProbTool",
                                                                            PriorMultiplicityContent = MultiplicityContent,
                                                                            NnClusterizationFactory  = NnClusterizationFactory,
                                                                            useBeamSpotInfo          = useBeamConstraint)
@@ -79,17 +82,17 @@ if InDetFlags.doPRDFormation():
             clusterSplitProbTool = NnPixelClusterSplitProbTool
             
             # --- new NN splitter
-            from SiClusterizationTool.SiClusterizationToolConf import InDet__NnPixelClusterSplitter
-            NnPixelClusterSplitter=InDet__NnPixelClusterSplitter(name                                = "NnPixelClusterSplitter",
+            if InDetFlags.doSLHC():
+                from SiClusterizationTool.SiClusterizationToolConf import InDet__TruthPixelClusterSplitter as PixelClusterSplitter
+            else:
+                from SiClusterizationTool.SiClusterizationToolConf import InDet__NnPixelClusterSplitter as PixelClusterSplitter
+            NnPixelClusterSplitter=PixelClusterSplitter(name                                = "NnPixelClusterSplitter",
                                                                  NnClusterizationFactory             = NnClusterizationFactory,
                                                                  ThresholdSplittingIntoTwoClusters   = 0.5, # temp.
                                                                  ThresholdSplittingIntoThreeClusters = 0.25, # temp.
                                                                  SplitOnlyOnBLayer                   = False,
                                                                  useBeamSpotInfo                     = useBeamConstraint)
 
-            # COOL binding
-            from IOVDbSvc.CondDB import conddb
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")
             
             ToolSvc += NnPixelClusterSplitter
             if (InDetFlags.doPrintConfigurables()):

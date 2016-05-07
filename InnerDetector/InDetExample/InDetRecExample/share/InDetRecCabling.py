@@ -11,7 +11,6 @@ if not ('conddb' in dir()):
 # --- Pixel cabling
 #
 if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
-  # fix from John Chapman for pixel cabling to be compatible with Run1 digitization
   from AthenaCommon.CfgGetter import getService
   PixelCablingSvc = getService("PixelCablingSvc")
   ServiceMgr += PixelCablingSvc

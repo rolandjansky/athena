@@ -17,7 +17,7 @@ if use_broad_cluster_sct == None :
 use_broad_cluster_any = use_broad_cluster_pix or use_broad_cluster_sct
 
 #load common NN tools for clustering and ROT creation
-if InDetFlags.doPixelClusterSplitting():
+if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
 
     #
     # --- Neutral Network version ?
@@ -81,14 +81,26 @@ if InDetFlags.doPixelClusterSplitting():
         ToolSvc += NnClusterizationFactory
 
         # special setup for DVRetracking mode
-        if InDetFlags.doDVRetracking() :
+        # if InDetFlags.doDVRetracking() :
            # COOL binding
-           from IOVDbSvc.CondDB import conddb
-           conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")
+        from IOVDbSvc.CondDB import conddb
+        if not conddb.folderRequested('/PIXEL/PixelClustering/PixelClusNNCalib'):
+            # COOL binding
+            conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")
+        if InDetFlags.doTIDE_RescalePixelCovariances() :
+            if not conddb.folderRequested('/PIXEL/PixelClustering/PixelCovCorr'):
+                # COOL binding
+                conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelCovCorr")
 
-        print NnClusterizationFactory  
         if (InDetFlags.doPrintConfigurables()):
             print NnClusterizationFactory
+elif InDetFlags.doPixelClusterSplitting():
+    from SiClusterizationTool.SiClusterizationToolConf import InDet__TruthClusterizationFactory
+    NnClusterizationFactory = InDet__TruthClusterizationFactory( name                 = "TruthClusterizationFactory")
+    ToolSvc += NnClusterizationFactory
+    if (InDetFlags.doPrintConfigurables()):
+        print NnClusterizationFactory
+
 
 
 # --- load cabling (if needed)
@@ -131,16 +143,17 @@ if InDetFlags.loadRotCreator():
         PixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackTool",
                                                                  DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
                                                                  applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() and
-                                                                                       InDetFlags.pixelClusterSplittingType() == 'NeuralNet'),
+                                                                                       InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
                                                                  NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
-                                                                                       InDetFlags.pixelClusterSplittingType() == 'NeuralNet'),
+                                                                                       InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
                                                                  SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
                                                                  RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi()
                                                                  )
-
         if InDetFlags.doPixelClusterSplitting() and InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
             PixelClusterOnTrackTool.NnClusterizationFactory  = NnClusterizationFactory
-
+            if InDetFlags.doTIDE_RescalePixelCovariances() :
+                PixelClusterOnTrackTool.applydRcorrection = True
+            
         if InDetFlags.doCosmics() or  InDetFlags.doDBMstandalone():
           PixelClusterOnTrackTool.ErrorStrategy = 0   
           PixelClusterOnTrackTool.PositionStrategy = 0 
@@ -150,8 +163,21 @@ if InDetFlags.loadRotCreator():
             print  PixelClusterOnTrackTool
             if InDetFlags.doDBM():
                 print PixelClusterOnTrackToolDBM
+                
+        PixelClusterOnTrackToolDigital = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDigital",
+                                                                 DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
+                                                                 applyNNcorrection = False,
+                                                                 NNIBLcorrection = False,
+                                                                 SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
+                                                                 RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
+                                                                 ErrorStrategy = 2,
+                                                                 PositionStrategy = 1 
+                                                                 )
+
+        ToolSvc += PixelClusterOnTrackToolDigital
     else:
         PixelClusterOnTrackTool = None
+        PixelClusterOnTrackToolDigital = None
 
     if DetFlags.haveRIO.SCT_on():
         from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
@@ -187,6 +213,12 @@ if InDetFlags.loadRotCreator():
         ToolSvc += InDetRotCreatorDBM
 
     ToolSvc += InDetRotCreator
+    
+    InDetRotCreatorDigital = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDigital',
+                                              ToolPixelCluster = PixelClusterOnTrackToolDigital,
+                                              ToolSCT_Cluster  = SCT_ClusterOnTrackTool,
+                                              Mode             = 'indet')
+    ToolSvc += InDetRotCreatorDigital
 
     #
     # --- configure broad cluster ROT creator
@@ -200,15 +232,17 @@ if InDetFlags.loadRotCreator():
                                                                           ErrorStrategy      = 0,
                                                                           DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
                                                                           applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() and
-                                                                                                InDetFlags.pixelClusterSplittingType() == 'NeuralNet'),
+                                                                                       InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
                                                                           NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
-                                                                                              InDetFlags.pixelClusterSplittingType() == 'NeuralNet'),
+                                                                                       InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
                                                                           SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
                                                                           RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi()
                                                                           )
             if InDetFlags.doPixelClusterSplitting() and InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
                 BroadPixelClusterOnTrackTool.NnClusterizationFactory  = NnClusterizationFactory
-        
+                if InDetFlags.doTIDE_RescalePixelCovariances() :
+                    BroadPixelClusterOnTrackTool.applydRcorrection = True
+            
             ToolSvc += BroadPixelClusterOnTrackTool
             if (InDetFlags.doPrintConfigurables()):
                 print BroadPixelClusterOnTrackTool
@@ -866,7 +900,14 @@ if InDetFlags.loadSummaryTool():
     InDetTRT_dEdxTool = None
     if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup() :
         from TRT_ToT_Tools.TRT_ToT_ToolsConf import  TRT_ToT_dEdx
-        InDetTRT_dEdxTool = TRT_ToT_dEdx()
+        InDetTRT_dEdxTool = TRT_ToT_dEdx(name="InDetTRT_dEdxTool",
+                                         TRT_dEdx_whichToTEstimatorAlgo=2,  # default is 2
+                                         TRT_dEdx_useTrackPartWithGasType=3, # default is 3
+                                         TRT_dEdx_toolScenario=0, # default is 0
+                                         TRT_dEdx_applyMimicToXeCorrection=False, # default is False
+                                         TRT_dEdx_trackConfig_maxRtrack=1.9, # default is 1.9
+                                         TRT_dEdx_trackConfig_minRtrack=0.01, # default is 0.01
+                                         TRT_dEdx_useZeroRHitCut=True) # default is True
         ToolSvc += InDetTRT_dEdxTool
 
         if (InDetFlags.doPrintConfigurables()):
@@ -992,8 +1033,12 @@ if InDetFlags.loadSummaryTool():
                                                             InDetHoleSearchTool    = InDetHoleSearchTool,
                                                             TRT_ElectronPidTool    = InDetTRT_ElectronPidTool,
                                                             TRT_ToT_dEdxTool       = InDetTRT_dEdxTool,
-                                                            PixelToTPIDTool        = InDetPixelToTPIDTool)                                                  
-    
+                                                            TRTdEdx_DivideByL      = True, # default is True
+                                                            TRTdEdx_useHThits      = True, # default is True
+                                                            TRTdEdx_corrected      = True, # default is True
+                                                            minTRThitsForTRTdEdx   = 1,    # default is 1
+                                                            PixelToTPIDTool        = InDetPixelToTPIDTool)
+
     #InDetTrackSummaryToolSharedHits.OutputLevel = VERBOSE
     ToolSvc += InDetTrackSummaryToolSharedHits
     if (InDetFlags.doPrintConfigurables()):
@@ -1067,7 +1112,7 @@ if InDetFlags.doPattern():
     InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinder',
                                                                  PropagatorTool        = InDetPatternPropagator,
                                                                  UpdatorTool           = InDetPatternUpdator,
-                                                                 RIOonTrackTool        = InDetRotCreator,
+                                                                 RIOonTrackTool        = InDetRotCreatorDigital,
                                                                  AssosiationTool       = InDetPrdAssociationTool,
                                                                  usePixel              = DetFlags.haveRIO.pixel_on(),
                                                                  useSCT                = DetFlags.haveRIO.SCT_on(),
@@ -1767,5 +1812,15 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
 
     print 'ERROR: Sorting option '+InDetFlags.primaryVertexSortingSetup()+' not defined. '
     
-
+# ------------------------------------------------------------
+#
+# ----------- Loading of tool to monitor track candidates in ambi solving
+#
+# ------------------------------------------------------------
+if InDetFlags.doTIDE_AmbiTrackMonitoring():
+  from TrkValTools.TrkValToolsConf import Trk__TrkObserverTool
+  TrackObserverTool = Trk__TrkObserverTool("TrackObserverTool")
+  ToolSvc += TrackObserverTool
+  if InDetFlags.doPrintConfigurables():
+      print TrackObserverTool
 

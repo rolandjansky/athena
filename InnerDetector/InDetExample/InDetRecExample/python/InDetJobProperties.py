@@ -97,7 +97,6 @@ class InDetFlagsJobProperty(JobProperty):
 ##-----------------------------------------------------------------------------
 ## 1st step: define JobProperty classes
 
-
 class doDBMstandalone(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
@@ -262,6 +261,12 @@ class doLowPt(InDetFlagsJobProperty):
                   
 class doVeryLowPt(InDetFlagsJobProperty):
     """Turn running of doVeryLowPt thrid pass on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class doSLHCConversionFinding(InDetFlagsJobProperty):
+    """Turn running of doSLHCConversionFinding second pass on and off"""
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -1032,6 +1037,12 @@ class doTIDE_Ambi(InDetFlagsJobProperty):
   statusOn     = True
   allowedTypes = ['bool']
   StoredValue  = True
+  
+class doTIDE_RescalePixelCovariances(InDetFlagsJobProperty):
+  """ Switch for running TIDE pixel cluster covariance rescaling """
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = False
 
 class doSSSfilter(InDetFlagsJobProperty):
   """ Switch for running SSS filter"""
@@ -1044,6 +1055,12 @@ class pT_SSScut(InDetFlagsJobProperty):
   statusOn     = True
   allowedTypes = ['float']
   StoredValue  = -1
+  
+class doTIDE_AmbiTrackMonitoring(InDetFlagsJobProperty):
+  """ Switch for monitoring track canidates in TIDE Ambi process """
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = False
 
 class ForceCoraCool(InDetFlagsJobProperty):
   """ Use old (non CoolVectorPayload) SCT Conditions """
@@ -1147,6 +1164,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , False)
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , True )
        self.checkThenSet(self.doBeamHalo             , True )
        self.checkThenSet(self.doParticleCreation     , True )
@@ -1170,6 +1188,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
        self.checkThenSet(self.doxKalman              , False)
@@ -1203,6 +1222,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.useZvertexTool         , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBackTracking         , False)
        self.checkThenSet(self.doTRTStandalone        , False)
        self.checkThenSet(self.doTrackSegmentsPixel   , False)
@@ -1236,6 +1256,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doSLHCConversionFinding, True )
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
        self.checkThenSet(self.doxKalman              , False)
@@ -1257,6 +1278,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doTrackSegmentsTRT     , False)
        self.checkThenSet(self.doSlimming             , False)
        self.checkThenSet(self.doSGDeletion           , True )
+       self.checkThenSet(self.doTIDE_RescalePixelCovariances, False)
        # TEMPORARY FIX TO STOP SEG FAULT
        self.checkThenSet(self.doPixelClusterSplitting, False)
        self.checkThenSet(self.doTIDE_Ambi, False)
@@ -1295,6 +1317,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
        self.checkThenSet(self.doxKalman              , False)
@@ -1323,6 +1346,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
        self.checkThenSet(self.doxKalman              , False)
@@ -1361,6 +1385,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
        self.checkThenSet(self.doxKalman              , False)
@@ -1399,6 +1424,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , False )
        self.checkThenSet(self.doLowPt                , False )
        self.checkThenSet(self.doVeryLowPt            , False )
+       self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doForwardTracks        , False )
        self.checkThenSet(self.doBeamGas              , False )
        self.checkThenSet(self.doBeamHalo             , False )
@@ -1561,6 +1587,7 @@ class InDetJobProperties(JobPropertyContainer):
         self.checkThenSet(self.doTrackSegmentsTRT  , True )
         self.checkThenSet(self.doPixelClusterSplitting, False)
         self.checkThenSet(self.doTIDE_Ambi, False)
+        self.checkThenSet(self.doTIDE_RescalePixelCovariances, False)
         self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
 
     if rec.doExpressProcessing() :
@@ -1617,6 +1644,11 @@ class InDetJobProperties(JobPropertyContainer):
       # --------------------------------------------------------------------
       self.doSpacePointFormation = self.preProcessing() and self.doSpacePointFormation() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       self.doPRDFormation        = self.preProcessing() and self.doPRDFormation()        and (DetFlags.makeRIO.pixel_on() or DetFlags.makeRIO.SCT_on() or DetFlags.makeRIO.TRT_on())
+      
+      # --------------------------------------------------------------------
+      # ---- TIDE Pixel cluster covariance rescaling
+      # --------------------------------------------------------------------
+      self.doTIDE_RescalePixelCovariances = self.doTIDE_RescalePixelCovariances() and self.doPixelClusterSplitting() and self.pixelClusterSplittingType() == 'NeuralNet' and self.doTIDE_Ambi()
 
       # --------------------------------------------------------------------
       # --- 1st iteration, inside out tracking
@@ -1632,6 +1664,7 @@ class InDetJobProperties(JobPropertyContainer):
       # no low pt tracking if no new tracking before or if pixels are off (since low-pt tracking is pixel seeded)!      
       self.doVeryLowPt   = self.doVeryLowPt() and self.doLowPt()
       #
+      self.doSLHCConversionFinding = self.doSLHCConversionFinding() and self.doSLHC() and self.doNewTracking() and ( DetFlags.haveRIO.pixel_on() and DetFlags.haveRIO.SCT_on() ) and not self.doCosmics()
       # new forward tracklets
       self.doForwardTracks = self.doForwardTracks() and self.doNewTracking()
       #
@@ -2124,13 +2157,15 @@ class InDetJobProperties(JobPropertyContainer):
        if self.doPixelClusterSplitting():
           if self.doTIDE_Ambi(): 
             print '* - run TIDE ambi with pixel cluster splitting' 
-            print '*   splitting technique: ', self.pixelClusterSplittingType()
-            print '*   split prob1 cut:     ', self.pixelClusterSplitProb1()
-            print '*   split prob2 cut:     ', self.pixelClusterSplitProb2()
-            print '*   Min split   pt: [MeV]', self.pixelClusterSplitMinPt() 
+            print '*   splitting technique:                 ', self.pixelClusterSplittingType()
+            print '*   split prob1 cut:                     ', self.pixelClusterSplitProb1()
+            print '*   split prob2 cut:                     ', self.pixelClusterSplitProb2()
+            print '*   Min split   pt: [MeV]                ', self.pixelClusterSplitMinPt() 
+            if self.doTIDE_RescalePixelCovariances():
+                print '*   rescaling pixel cluster covariances: ', self.doTIDE_RescalePixelCovariances() 
           else:
             print '* - run new Pixel clustering with splitting using analog information'
-            print '*   splitting technique: ', self.pixelClusterSplittingType()   
+            print '*   splitting technique: ', self.pixelClusterSplittingType()
        if self.selectSCTIntimeHits():
            if self.InDet25nsec(): 
                print '* - use 01X masking for SCT readout in reconstruction' 
@@ -2218,6 +2253,10 @@ class InDetJobProperties(JobPropertyContainer):
        print '* LowPtTracking is ON'
        if self.doVeryLowPt() :
           print '* and VeryLowPtTracking is ON'
+    # -----------------------------------------
+    if self.doSLHCConversionFinding() :
+       print '*'
+       print '* SLHCConversionFinding is ON'
     # -----------------------------------------
     if self.doForwardTracks():
        print '*'
@@ -2412,6 +2451,8 @@ class InDetJobProperties(JobPropertyContainer):
           print '* use non-standard SCT DCS based on ~20V HV cut'          
     if self.useTrtDCS():
        print '* use TRT DCS'
+    if self.useDynamicAlignFolders():
+       print '* use of Dynamic alignment folder scheme enabled'
 
     if not self.doPRDFormation():
        print '* PRD Formation is off for all technologies'
@@ -2522,6 +2563,7 @@ _list_InDetJobProperties = [Enabled,
                             doBackTracking,
                             doLowPt,
                             doVeryLowPt,
+                            doSLHCConversionFinding,
                             doForwardTracks,
                             doLargeD0,
                             useExistingTracksAsInput,
@@ -2641,6 +2683,7 @@ _list_InDetJobProperties = [Enabled,
                             doMinBias,
                             doLowMuRunSetup,
                             doRobustReco,
+                            doTIDE_AmbiTrackMonitoring,
                             doSingleCollisionVertexReco,
                             useMBTSTimeDiff,
                             useNewSiSPSeededTF,
@@ -2648,6 +2691,7 @@ _list_InDetJobProperties = [Enabled,
                             doCaloSeededTRTSegments,
                             doInnerDetectorCommissioning,
                             doTIDE_Ambi,
+                            doTIDE_RescalePixelCovariances,
                             doSSSfilter,
                             pT_SSScut,
                             ForceCoraCool,

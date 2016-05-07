@@ -617,6 +617,8 @@ else:
         InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ]
 
 
+
+
     elif InDetFlags.doForwardTracks():
       #
       # --- configure cuts for forward tracklets
@@ -638,6 +640,28 @@ else:
                                                                    TrackCollectionTruthKeys)  
       # --- do not add into list for combination YET
       # InputCombinedInDetTracks += [ InDetVeryLowPtSiPattern.SiTrackCollection() ]
+
+    if InDetFlags.doSLHCConversionFinding() and InDetFlags.doSLHC():
+      #
+      # --- configure cuts for Low Pt tracking
+      #
+      if (not 'InDetNewTrackingCutsSLHCConversionFinding' in dir()):
+        print "InDetRec_jobOptions: InDetNewTrackingCutsSLHCConversionFinding not set before - import them now"
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsSLHCConversionFinding = ConfiguredNewTrackingCuts("SLHCConversionFinding")
+      InDetNewTrackingCutsSLHCConversionFinding.printInfo()
+      #
+      #
+      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
+      InDetSLHCConversionFindingSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
+                                                           InDetKeys.ResolvedSLHCConversionFindingTracks(),
+                                                           InDetKeys.SiSpSeededSLHCConversionFindingTracks(),
+                                                           InDetNewTrackingCutsSLHCConversionFinding,
+                                                           TrackCollectionKeys,
+                                                           TrackCollectionTruthKeys)
+
+      InputCombinedInDetTracks += [ InDetKeys.ResolvedSLHCConversionFindingTracks() ]
+
     
     # ------------------------------------------------------------
     #
@@ -1199,6 +1223,8 @@ else:
         cuts = InDetNewTrackingCutsVeryLowPt
       elif InDetFlags.doLowPt():
         cuts = InDetNewTrackingCutsLowPt
+      elif InDetFlags.doSLHCConversionFinding():
+        cuts = InDetNewTrackingCutsSLHCConversionFinding
       else:
         cuts = InDetNewTrackingCuts
       include("InDetRecExample/ConfiguredInDetValidation.py")
