@@ -57,7 +57,7 @@ def TrigTauMonitoringTool():
 
                   # Ditau Items
                   'tau35_loose1_tracktwo_tau25_loose1_tracktwo',   # seeded by L1_TAU20IM_2TAU12IM_J25_2J20_3J12
-                  'tau35_medium1_tracktwo_tau25_medium1_tracktwo',
+                  #'tau35_medium1_tracktwo_tau25_medium1_tracktwo',
                   'tau35_tight1_tracktwo_tau25_tight1_tracktwo',
                   'tau35_loose1_tracktwo_tau25_loose1_tracktwo_L1TAU20IM_2TAU12IM',
                   'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM',
@@ -224,7 +224,7 @@ def TrigTauMonitoringTool():
 				  TurnOnCurves           = True,
 				  TurnOnCurvesDenom	 = "RecoID", # combined string with combination of "Truth", "Reco", "ID" and "Presel". For Truth doTruth=True!
 				  doTruth		 = False,
-				  doRealZtautauEff       = False,
+				  doRealZtautauEff       = True,
 				  dodijetFakeTausEff     = False,
 				  doBootstrap		 = False,
 				  doEmulation		 = True,

@@ -43,7 +43,9 @@
 #include "xAODTau/TauJet.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
+#include "xAODTau/TauTrackContainer.h"
 #include "xAODTau/TauDefs.h"
+#include "xAODTau/TauxAODHelpers.h"
 
 #include "xAODTrigger/EmTauRoI.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
@@ -118,7 +120,7 @@ StatusCode  HLTTauMonTool::test2StepTracking(){
     ATH_MSG_DEBUG("tauPrecision: pt "<< pt <<", eta " << eta << ", phi " << phi << ", #tracks "<< nTrack);
 
     bool goodLinks(true);
-    std::vector< ElementLink< xAOD::TrackParticleContainer > > myLinks = (*tauPrecision)->trackLinks();
+    std::vector< ElementLink< xAOD::TrackParticleContainer > > myLinks = xAOD::TauHelpers::trackParticleLinks((*tauPrecision), xAOD::TauJetParameters::classifiedCharged);
     ATH_MSG_DEBUG("Size of links for tauPrecision: " << myLinks.size());
     for(unsigned int i=0;i<myLinks.size();++i){
       ATH_MSG_DEBUG("Get the link: " << i);
@@ -130,7 +132,7 @@ StatusCode  HLTTauMonTool::test2StepTracking(){
       ATH_MSG_DEBUG("TheIndex: " << theLink.index());    
     }
     if(goodLinks)for (unsigned int i=0;i<(*tauPrecision)->nTracks();++i) {
-        const xAOD::TrackParticle* trk = (*tauPrecision)->track(i);
+        const xAOD::TrackParticle* trk = (*tauPrecision)->track(i)->track();
         ATH_MSG_DEBUG("track "<< i <<"-th: index "<< trk->index() << ", d0 " << trk->d0() << ", phi0 "<< trk->phi0() << ", theta " << trk->theta() << ", qOverP  " << trk->qOverP());
     }
   }
