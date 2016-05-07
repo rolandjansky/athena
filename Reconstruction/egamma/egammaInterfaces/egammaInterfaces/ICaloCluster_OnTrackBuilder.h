@@ -6,19 +6,14 @@
 #define ICALOCLUSTER_ONTRACKBUILER_H
 
 #include "GaudiKernel/IAlgTool.h"
-
-
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODEgamma/EgammaFwd.h"
-
-
 
 namespace Trk{
   class CaloCluster_OnTrack;
 }
 
 static const InterfaceID IID_caloCluster_OnTrackBuilder("ICaloCluster_OnTrackBuilder",1,0);
-
 
 class ICaloCluster_OnTrackBuilder : virtual public IAlgTool
 {
