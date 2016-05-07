@@ -1,0 +1,35 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "CxxUtils/make_unique.h"
+#include "G4UserActions/HitWrapperTool.h"
+
+namespace G4UA{ 
+
+  //---------------------------------------------------------------------------
+  HitWrapperTool::HitWrapperTool(const std::string& type, const std::string& name,
+                                 const IInterface* parent)
+    : ActionToolBase<HitWrapper>(type, name, parent)
+  {
+    declareProperty("Time", m_config.time);
+  }
+  
+  //---------------------------------------------------------------------------
+  std::unique_ptr<HitWrapper>  HitWrapperTool::makeAction(){
+    ATH_MSG_DEBUG("makeAction");
+    auto action = CxxUtils::make_unique<HitWrapper>(m_config);
+    return std::move(action);
+  }
+  
+  //---------------------------------------------------------------------------
+  StatusCode HitWrapperTool::queryInterface(const InterfaceID& riid, void** ppvIf){
+    
+    if(riid == IEndEventActionTool::interfaceID()) {
+      *ppvIf = (IEndEventActionTool*) this;
+      addRef();
+      return StatusCode::SUCCESS;
+    } return ActionToolBase<HitWrapper>::queryInterface(riid, ppvIf);
+  }
+  
+} // namespace G4UA 
