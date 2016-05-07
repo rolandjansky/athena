@@ -7,17 +7,13 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
-
 #include "xAODEgamma/EgammaContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
-
 #include "xAODTruth/TruthParticleContainer.h"
-
+#include <memory>
 class IMCTruthClassifier;
-class StoreGateSvc;
 
 /**
    @class egammaTruthAssociationAlg
@@ -50,7 +46,8 @@ class egammaTruthAssociationAlg : public AthAlgorithm {
   
   /** @brief Loop over elements in the reco container, decorate them with truth info and
     * decorate the truth particles with links to the reco ones (reco<typeName>Link) **/
-  template<class T> StatusCode match(std::string containerName, std::string typeName) const;
+  template<class T> StatusCode match(std::string containerName, 
+				     const std::string& typeName) const;
 
   /** @brief return the result of MCTruthClassifier::particleTruthClassifier
     * or do a second pass for electrons based on the cluster to find true photons **/
@@ -60,13 +57,13 @@ class egammaTruthAssociationAlg : public AthAlgorithm {
   StatusCode decorateWithTruthInfo(xAOD::IParticle*, MCTruthInfo_t&) const;
   
   /** @brief Decorate truth object with link to reco as recoNameLink **/
-  template<class T> bool decorateWithRecoLink(T* part, const DataVector<T>* container, std::string name) const;
+  template<class T> bool decorateWithRecoLink(T* part, const DataVector<T>* container, 
+					      const std::string& name) const;
   
   /** @brief Create a copy a truth particle, add it to the new container and decorate it
     *  with a link to the original particle **/
   void getNewTruthParticle(const xAOD::TruthParticle *truth, 
-                           const xAOD::TruthParticleContainer *oldContainer,
-                           xAOD::TruthParticleContainer *newContainer) const;
+                           const xAOD::TruthParticleContainer *oldContainer) const;
 
   /** @brief Return true if the truth particle is a prompt electron or photon **/  
   bool isPromptEgammaParticle(const xAOD::TruthParticle *truth) const;
@@ -117,9 +114,7 @@ class egammaTruthAssociationAlg : public AthAlgorithm {
   /** @brief MCTruthClassifier **/
   ToolHandle<IMCTruthClassifier>   m_mcTruthClassifier;
   
-  StoreGateSvc*   m_storeGate;
-  
-  xAOD::TruthParticleContainer *m_egammaTruthContainer; 
+  std::unique_ptr<xAOD::TruthParticleContainer> m_egammaTruthContainer; 
   
 };
 

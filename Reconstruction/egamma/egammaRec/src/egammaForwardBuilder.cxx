@@ -270,13 +270,6 @@ StatusCode egammaForwardBuilder::execute()
     }
   }
   
-//   //lock the ElectronForward collection
-//   sc = evtStore()->setConst(xaodFrwd);
-//   if ( sc.isFailure() ) {
-//     ATH_MSG_WARNING("cannot set electron_container to const ");
-//   }
-  
-  //outClusterContainer->print();
   ATH_MSG_VERBOSE("egammaForward execute completed successfully");
   
   return StatusCode::SUCCESS;
@@ -288,7 +281,6 @@ StatusCode egammaForwardBuilder::ExecObjectQualityTool(xAOD::Egamma *eg)
   //
   // execution of the object quality tools
   //
-
   // protection in case tool is not available
   // return success as algorithm may be able to run without it 
   // in degraded mode

@@ -11,8 +11,8 @@ PACKAGE:  offline/Reconstruction/egammaRec
 
 // INCLUDE HEADER FILES:
 #include "egammaRec/egammaLockCollections.h"
-#include "xAODCaloEvent/CaloCluster.h"
-#include "CaloUtils/CaloClusterStoreHelper.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
 
 //  END OF HEADER FILES INCLUDE
 /////////////////////////////////////////////////////////////////
@@ -23,10 +23,9 @@ egammaLockCollections::egammaLockCollections(const std::string& name,
   AthAlgorithm(name, pSvcLocator){
   // The following properties are specified at run-time
   // (declared in jobOptions file)  
-  declareProperty ("outputClusterKey",m_outputClusterKey="egammaClusters");
-  declareProperty ("outputForwardClusterKey",m_outputForwardClusterKey="ForwardElectronClusters");
-  declareProperty ("outputTopoSeededClusterKey",m_outputTopoSeededClusterKey="egammaTopoSeededClusters");
-
+  declareProperty ("outputElectronKey",m_outputElectronKey="Electrons");
+  declareProperty ("outputPhotonKey",m_outputPhotonKey="Photons");
+  declareProperty ("outputForwardElectronKey",m_outputForwardElectronKey="ForwardElectrons");
 }
 
 // DESTRUCTOR:
@@ -44,7 +43,6 @@ StatusCode egammaLockCollections::initialize(){
 }
 
 // FINALIZE METHOD:
-
 StatusCode egammaLockCollections::finalize() {
   return StatusCode::SUCCESS;
 }
@@ -53,28 +51,11 @@ StatusCode egammaLockCollections::finalize() {
 // ATHENA EXECUTE METHOD:
    
 StatusCode egammaLockCollections::execute() {
-  
   ATH_MSG_DEBUG("Executing egammaLockCollections");
-
-  ATH_CHECK(impl(m_outputClusterKey));
-  ATH_CHECK(impl(m_outputForwardClusterKey));
-  ATH_CHECK(impl(m_outputTopoSeededClusterKey));
-
+  ATH_CHECK(impl<xAOD::ElectronContainer>(m_outputElectronKey));
+  ATH_CHECK(impl<xAOD::PhotonContainer>(m_outputPhotonKey));
+  ATH_CHECK(impl<xAOD::ElectronContainer>(m_outputForwardElectronKey));
   //Return Gracefully
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammaLockCollections::impl(const std::string& name) const {
-  
-  if (evtStore()->contains<xAOD::CaloClusterContainer>(name)){
-    xAOD::CaloClusterContainer* output=0;
-   
-    ATH_CHECK(evtStore()->retrieve(output,name));
-    ATH_CHECK( CaloClusterStoreHelper::finalizeClusters(&*evtStore(),
-						   output,
-						   name, 
-						   msg()) );
-
-  }
- return StatusCode::SUCCESS;
- }

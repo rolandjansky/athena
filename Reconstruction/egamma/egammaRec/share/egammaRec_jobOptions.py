@@ -78,8 +78,8 @@ if jobproperties.egammaRecFlags.doEgammaTruthAssociation() and jobproperties.ega
 # Lock egamma containers
 if rec.doESD():
     try:
-        from egammaRec.egammaRecConf import egammaLockCollections
-        topSequence += egammaLockCollections(name= "egammaLockCollection",
+        from egammaRec.egammaRecConf import egammaFinalizeClusters
+        topSequence += egammaFinalizeClusters(name= "egammaFinalizeClusters",
                                              outputClusterKey=egammaKeys.outputClusterKey(),
                                              outputForwardClusterKey=egammaKeys.outputFwdClusterKey(),
                                              outputTopoSeededClusterKey=egammaKeys.outputTopoSeededClusterKey())

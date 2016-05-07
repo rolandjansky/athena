@@ -55,13 +55,6 @@ class doTopoCaloSeeded (egammaRecFlagsJobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-class doAODRender (JobProperty):
-    """ switch for egamma AOD render algorithm
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
-
 class doConversions (JobProperty):
     """ switch for Conversions
     """
@@ -116,10 +109,30 @@ class doSwitchTRTGas (JobProperty):
 class doSuperclusters (egammaRecFlagsJobProperty):
     """ switch for supercluster TopoCalo algorithm
     """
-    statusOn=False
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
+class inputTopoClusterCollection (JobProperty):
+    """Name of input cluster container for superclustering
+    """
+    statusOn=True
+    allowedTypes=['str']
+    StoredValue='CaloTopoCluster'
+
+class egammaTopoClusterCollection (JobProperty):
+    """Name of input cluster container for superclustering
+    """
+    statusOn=True
+    allowedTypes=['str']
+    StoredValue='egammaTopoCluster'
+
+class doBremFinding (egammaRecFlagsJobProperty):
+    """ switch to use GSF-based brem finder in superclustering
+    """
+    statusOn=True
     allowedTypes=['bool']
     StoredValue=False
-
 #
 # 
 # Defines a sub-container for the algorithm switches
@@ -139,7 +152,7 @@ jobproperties.add_Container(egammaRecFlags)
 
 
 # I want always the following flags in the  container  
-_list_Egamma=[Enabled,doEgammaCaloSeeded,doEgammaForwardSeeded,doAODRender,doConversions,doShowerBuilding,doTopoCaloSeeded,useBremTracks,makeNewConvContainer,cellContainerName,doSwitchTRTGas,doEgammaTruthAssociation, clusterCorrectionVersion, doSuperclusters]
+_list_Egamma=[Enabled,doEgammaCaloSeeded,doEgammaForwardSeeded,doAODRender,doConversions,doShowerBuilding,doTopoCaloSeeded,useBremTracks,makeNewConvContainer,cellContainerName,doSwitchTRTGas,doEgammaTruthAssociation, clusterCorrectionVersion, doSuperclusters, inputTopoClusterCollection, egammaTopoClusterCollection, doBremFinding]
 
 for j in _list_Egamma: 
     jobproperties.egammaRecFlags.add_JobProperty(j)

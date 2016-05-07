@@ -37,8 +37,6 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
-#include "egammaRecEvent/egammaRecContainer.h"
-
 class IegammaBaseTool;
 class IEGammaAmbiguityTool;
 class IEMTrackMatchBuilder;
@@ -51,9 +49,9 @@ class egammaRec;
 class StoreGateSvc;
 
 //Supercluster tools.
-class IegammaSuperClusterBuilder;
-class IegammaTopoClusterMap;
-class IegammaClusterOverlapMarker;
+class IegammaTopoClusterCopier;
+class IelectronSuperClusterBuilder;
+class IphotonSuperClusterBuilder;
 
 class topoEgammaBuilder : public AthAlgorithm
 {
@@ -75,62 +73,18 @@ class topoEgammaBuilder : public AthAlgorithm
   /** Given an egammaRec object, a pointer to the electron container and the author, 
     * create and dress an electron, pushing it back to the container and 
     * calling the relevant tools **/
-  bool getElectron(const egammaRec*, xAOD::ElectronContainer*, unsigned int);
+
+  bool getElectron(const egammaRec* egRec, xAOD::ElectronContainer *electronContainer,
+		   const unsigned int author, const uint8_t type);
 
   /** Given an egammaRec object, a pointer to the photon container and the author, 
     * create and dress a photon, pushing it back to the container and 
     * calling the relevant tools **/
-  bool getPhoton(const egammaRec*, xAOD::PhotonContainer*, unsigned int);
+  bool getPhoton(const egammaRec* egRec, xAOD::PhotonContainer *photonContainer,
+		 const unsigned int author, uint8_t type);
   
-  /** Add topo-seeded photons (that do not overlap with other clusters) 
-    * to the photon container **/
-  StatusCode addTopoSeededPhotons(xAOD::PhotonContainer *photonContainer,
-                                  const xAOD::CaloClusterContainer *clusters,
-				  const EgammaRecContainer *egammaSuperRecs = 0);
-
-  /** Return true if refCluster overlaps with any cluster in the collection 
-    * Used to select topo-seeded clusters **/
-  bool clustersOverlap(const xAOD::CaloCluster *refCluster, 
-                       const xAOD::CaloClusterContainer *clusters);
-
-  bool clustersOverlap(const xAOD::CaloCluster *refCluster, 
-                       const EgammaRecContainer *egammaSuperRecs);
-
 
  private:
-
-  //   
-  //   /** @brief perform the electron tool sequence; takes Electron ownership */
-  //   StatusCode callElectronTools(xAOD::Electron*, const xAOD::CaloCluster*, 
-  // 			       xAOD::CaloClusterContainer *, ElectronContainer *,
-  // 			       bool& addedElectron);
-  // 
-  //   /** @brief perform the photon tool sequence; takes Photon ownership */
-  //   StatusCode callPhotonTools(xAOD::Photon*, const xAOD::CaloCluster*, 
-  // 			     CaloClusterContainer *, PhotonContainer *,
-  // 			     bool& addedPhoton);
-
-
-
-  ///////////////////////////////////////////
-  // Supercluster-specific stuff.
-  //
-  StatusCode RetrieveegammaTopoClusterMap();
-  StatusCode RetrieveegammaSuperClusterBuilder();
-  StatusCode RetrieveegammaClusterOverlapMarker();
-
-  StatusCode ExecTopoClusterMap(const xAOD::CaloClusterContainer*);
-  
-  ToolHandle<IegammaTopoClusterMap>         m_egammaTopoClusterMapTool;
-  ToolHandle<IegammaSuperClusterBuilder>    m_egammaSuperClusterBuilder;
-  ToolHandle<IegammaClusterOverlapMarker>   m_egammaClusterOverlapMarker;
-
-  std::string m_egammaTopoClusterMapToolName;
-  std::string m_egammaSuperClusterBuilderName;
-  std::string m_egammaClusterOverlapMarkerName;
-  //
-  ///////////////////////////////////////////
-  
 
   /** @brief Vector of tools for dressing electrons and photons **/
   ToolHandleArray<IegammaBaseTool> m_egammaTools;
@@ -149,7 +103,11 @@ class topoEgammaBuilder : public AthAlgorithm
                       xAOD::ElectronContainer *electronContainer = 0, 
                       xAOD::PhotonContainer *photonContainer = 0);
 
-  /** @brief retrieve EGammaAmbiguityTool **/
+  /** @brief  Supercluster-specific stuff **/
+  StatusCode RetrieveElectronSuperClusterBuilder();
+  StatusCode RetrievePhotonSuperClusterBuilder();
+  StatusCode RetrieveEGammaTopoClusterCopier();
+  /** @brief retrieve EMAmbiguityTool **/
   StatusCode RetrieveAmbiguityTool();
   /** @brief retrieve EMTrackMatchBuilder **/
   StatusCode RetrieveEMTrackMatchBuilder();
@@ -158,77 +116,51 @@ class topoEgammaBuilder : public AthAlgorithm
   /** @brief retrieve 4-mom builder **/
   StatusCode RetrieveBremCollectionBuilder();
   /** @brief retrieve BremVertexBuilder **/
-  StatusCode RetrieveVertexBuilder();
-  
-  /** @brief Name of the track particle container in StoreGate  */
-  std::string m_tracksName;
-  
+  StatusCode RetrieveVertexBuilder();  
   /** @brief Name of the electron output collection*/
   std::string  m_electronOutputName;
   /** @brief Name of the photon output collection */
   std::string  m_photonOutputName;
-
-  /** @brief Name of the cluster intput collection */
-  std::string  m_inputClusterContainerName;
-
-  /** @brief Name of the topo-seeded cluster collection */
-  std::string  m_topoSeededClusterContainerName;
-
+  /** @brief Name of the topo cluster input collection */
+  std::string  m_inputTopoClusterContainerName;
   /** @brief Name of egammaRec container */
   std::string  m_egammaRecContainerName;
-
+  /** @brief Name of input super cluster electron egammaRec container */
+  std::string  m_electronSuperClusterRecContainerName;
+  /** @brief Name of input super cluster photon egammaRec container */
+  std::string  m_photonSuperClusterRecContainerName;
   //
   // The tools
   //
-  // subalgorithm pointers cached in initialize:
+  /** @brief ToolHandles for the Topo tools*/
+  ToolHandle<IegammaTopoClusterCopier>      m_egammaTopoClusterCopier;
+  ToolHandle<IelectronSuperClusterBuilder>  m_electronSuperClusterBuilder;
+  ToolHandle<IphotonSuperClusterBuilder>  m_photonSuperClusterBuilder;
   /** @brief Tool to resolve electron/photon ambiguity */
   ToolHandle<IEGammaAmbiguityTool>             m_ambiguityTool;
   /** @brief Tool to perform track matching*/
   ToolHandle<IEMTrackMatchBuilder>             m_trackMatchBuilder;
   /** @brief Tool to retrieve the conversions*/
   ToolHandle<IEMConversionBuilder>             m_conversionBuilder;
-  //C.A
   /** @brief Pointer to the BremCollectionBuilder tool*/
   ToolHandle<IEMBremCollectionBuilder>         m_BremCollectionBuilderTool;
-  //C.A
   /** @brief Pointer to the VertexBuilder*/
   ToolHandle<IEMVertexBuilder>                 m_vertexBuilder;
-  
   //
   // All booleans
   //
-
   /** @brief Boolean to do Brem collection building */
   bool         m_doBremCollection;    
   /** @brief private member flag to do the TrackMatching (and conversion building)*/
   bool         m_doTrackMatching;
   /** @brief private member flag to do the conversion building and matching */
   bool         m_doConversions;
-  /** @brief add topo-seeded photons */
-  bool         m_doTopoSeededPhotons;
-  
   //
   // Other properties.
   //
-  /** @brief Discard clusters with energy less than this after corrections. */
-  float        m_clusterEnergyCut;
-  
-  // @brief Minimum deltaEta to check if clusters overlap
-  float m_minDeltaEta;
-  
-  // @brief Minimum deltaPhi to check if clusters overlap
-  float m_minDeltaPhi;  
-  
-  // @brief Minimum transverse energy to accept topo-seeded clusters
-  float m_minEtTopo;
-
-  // @brief Maximum transverse energy to accept topo-seeded clusters
-  float m_maxEtTopo;
-  
   // others:
   bool            m_dump ;
   IChronoStatSvc* m_timingProfile;
-
 };
 
 #endif

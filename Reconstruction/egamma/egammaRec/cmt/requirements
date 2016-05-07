@@ -8,7 +8,6 @@ use AthenaBaseComps     AthenaBaseComps-*       Control
 use EventKernel         EventKernel-*           Event
 use xAODTruth           xAODTruth-*             Event/xAOD
 use MCTruthClassifier   MCTruthClassifier-*     PhysicsAnalysis
-use egammaRecEvent             egammaRecEvent-*  Reconstruction/egamma
 
 private
 use AtlasCLHEP                 AtlasCLHEP-*             External
@@ -17,7 +16,8 @@ use StoreGate                  StoreGate-*              Control
 use PathResolver               PathResolver-*           Tools
 use CaloUtils                  CaloUtils-*              Calorimeter
 use CaloGeoHelpers             CaloGeoHelpers-*         Calorimeter
-
+use CxxUtils                   CxxUtils-*              Control
+use egammaRecEvent             egammaRecEvent-*  Reconstruction/egamma
 use egammaUtils                egammaUtils-*            Reconstruction/egamma
 use egammaInterfaces           egammaInterfaces-*       Reconstruction/egamma
 

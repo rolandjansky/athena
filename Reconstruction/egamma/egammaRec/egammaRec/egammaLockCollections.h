@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef EGAMMAREC_EGAMMALOCKCOLLECTIONS_H
 #define EGAMMAREC_EGAMMALOCKCOLLECTIONS_H
 /**
@@ -30,12 +29,19 @@ class egammaLockCollections : public AthAlgorithm{
   StatusCode execute();
 
  private:
-  StatusCode impl(const std::string& name) const ;
-
-  std::string m_outputClusterKey;
-  std::string m_outputForwardClusterKey;
-  std::string m_outputTopoSeededClusterKey;
-
+  std::string m_outputElectronKey;
+  std::string m_outputPhotonKey;
+  std::string m_outputForwardElectronKey;
+  
+  template<typename T>
+    StatusCode impl(const std::string& name) const {
+    if (evtStore()->contains<T>(name)){
+      T* output=0;   
+      ATH_CHECK(evtStore()->retrieve(output,name));
+      ATH_CHECK(evtStore()->setConst(output));
+    }
+    return StatusCode::SUCCESS;
+  }
 };
 
 #endif
