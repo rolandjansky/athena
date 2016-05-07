@@ -103,9 +103,9 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
 	    for(unsigned int i=0;i<m_trigItems.size();++i)
 	      {
                 setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+m_trigItems[i]);
-                plotUnderOverFlow(hist("hRealZttPtDenom"));
-                plotUnderOverFlow(hist("hRealZttL1PtNum"));
-                plotUnderOverFlow(hist("hRealZttHLTPtNum"));
+                //plotUnderOverFlow(hist("hRealZttPtDenom"));
+                //plotUnderOverFlow(hist("hRealZttL1PtNum"));
+                //plotUnderOverFlow(hist("hRealZttHLTPtNum"));
 	      }
         }
     
@@ -469,8 +469,8 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
             }
             if(m_RealZtautauEff)
             {
-                divide("hRealZttL1PtNum","hRealZttPtDenom","hRealZttL1PtEfficiency","HLT/TauMon/Expert/RealZtautauEff/"+m_trigItems[i]);
-                divide("hRealZttHLTPtNum","hRealZttPtDenom","hRealZttHLTPtEfficiency","HLT/TauMon/Expert/RealZtautauEff/"+m_trigItems[i]);
+                //divide("hRealZttL1PtNum","hRealZttPtDenom","hRealZttL1PtEfficiency","HLT/TauMon/Expert/RealZtautauEff/"+m_trigItems[i]);
+                //divide("hRealZttHLTPtNum","hRealZttPtDenom","hRealZttHLTPtEfficiency","HLT/TauMon/Expert/RealZtautauEff/"+m_trigItems[i]);
             }
 
 	    if (m_doTrackCurves)

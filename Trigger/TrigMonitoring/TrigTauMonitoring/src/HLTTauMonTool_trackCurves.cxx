@@ -149,10 +149,11 @@ StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem){
 	}
 
 	hist2("hreco_vs_pres_coreTracks")->Fill((*recoItr)->nTracks(), matchedTau->nTracks());
-	hist2("hreco_vs_pres_isoTracks")->Fill( (*recoItr)->nWideTracks(), (*recoItr)->nWideTracks() );
+	hist2("hreco_vs_pres_isoTracks")->Fill( (*recoItr)->nTracksIsolation(), 
+						(*recoItr)->nTracksIsolation() );
         
         for (unsigned int recoTrack = 0; recoTrack < (*recoItr)->nTracks(); ++recoTrack){
-            const xAOD::TrackParticle* recotau_trk = (*recoItr)->track(recoTrack);
+            const xAOD::TrackParticle* recotau_trk = (*recoItr)->track(recoTrack)->track();
             float recotau_trk_pt = recotau_trk->pt()/1000.;
             float recotau_trk_eta = recotau_trk->eta();
             float recotau_trk_phi = recotau_trk->phi();
@@ -172,7 +173,7 @@ StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem){
             const xAOD::TrackParticle* pstau_trk_clos = 0;        
 
             for (unsigned int i = 0; i < matchedTau->nTracks(); ++i){
-                const xAOD::TrackParticle* pstau_trk = matchedTau->track(i);
+                const xAOD::TrackParticle* pstau_trk = matchedTau->track(i)->track();
                 double dRtracks = deltaR (pstau_trk->eta(), recotau_trk_eta, pstau_trk->phi(), recotau_trk_phi);
                 if (dRtracks < dRtracksmin) {
                     dRtracksmin = dRtracks;

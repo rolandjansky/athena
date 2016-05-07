@@ -448,11 +448,12 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
        std::vector< uint32_t > jet_roIWord;
        std::vector< float > jet_roi_eta;
        std::vector< float > jet_roi_phi;
+
        for(;comb!=combEnd;++comb){
 
          const std::vector< Trig::Feature<TrigRoiDescriptor> > vec_roi = comb->get<TrigRoiDescriptor>("initialRoI",m_L1TriggerCondition);
          std::vector< Trig::Feature<TrigRoiDescriptor> >::const_iterator roi = vec_roi.begin(), roi_e = vec_roi.end();
-         ATH_MSG_DEBUG("Combination with " << vec_roi.size() << "RoIs");
+         ATH_MSG_DEBUG("Combination with " << vec_roi.size() << "RoIs"); 
 	 
          const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
          if ( m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isFailure() ){ // retrieve arguments: container type, container key
@@ -467,6 +468,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
          for(roi = vec_roi.begin(); roi != roi_e; ++roi)
            if(roi->cptr()){
              for(itEMTau = l1Tau_cont->begin(); itEMTau!=itEMTau_e; ++itEMTau){
+	       if( (*itEMTau)->roiType()!=2 ) continue; // only Run2 TAU RoI!
      	       if(roi->cptr()->roiWord()==(*itEMTau)->roiWord()){
      	         if(!Selection(*itEMTau)) continue;
                  bool newRoI=true;
@@ -521,19 +523,22 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 			}
 		}
 	  }
-	}
-	//  if(trig_item_L1=="L1_TAU20IM_2TAU12IM_J25_2J20_3J12"){ 
-	//	ATH_MSG_WARNING("fired L1_TAU20IM_2TAU12IM_J25_2J20_3J12");
-	//	for(roi = vec_roi.begin(); roi != roi_e; ++roi) if(roi->cptr()){
-	//		ATH_MSG_WARNING("Initial RoI: " << roi->cptr()->roiWord() << ", " << roi->cptr()->phi() << ", " << roi->cptr()->eta() );
-	//	}
-	//	for(itEMTau = l1Tau_cont->begin(); itEMTau!=itEMTau_e; ++itEMTau){
-	//		ATH_MSG_WARNING("EMTau RoI: " << (*itEMTau)->roiWord() << ", " << (*itEMTau)->phi() << ", " << (*itEMTau)->eta() );
-	//	}
-        //        for(itJetRoI = l1jets->begin(); itJetRoI!=itJetRoI_e; ++itJetRoI){
-        //                ATH_MSG_WARNING("Jet RoI: " << (*itJetRoI)->roiWord() << ", " << (*itJetRoI)->phi() << ", " << (*itJetRoI)->eta() );
-        //        }
-	//  }
+	
+	  /*if(trig_item_L1=="L1_TAU20IM_2TAU12IM_J25_2J20_3J12"){ 
+		ATH_MSG_WARNING("fired L1_TAU20IM_2TAU12IM_J25_2J20_3J12");
+		for(roi = vec_roi.begin(); roi != roi_e; ++roi) if(roi->cptr()){
+			ATH_MSG_WARNING("Initial RoI: " << roi->cptr()->roiWord() << ", " << roi->cptr()->phi() << ", " << roi->cptr()->eta() );
+		}
+		for(itEMTau = l1Tau_cont->begin(); itEMTau!=itEMTau_e; ++itEMTau){
+			if( (*itEMTau)->roiType()!=2 ) continue; // only Run2 TAU RoI!
+			ATH_MSG_WARNING("EMTau RoI: " << (*itEMTau)->roiWord() << ", " << (*itEMTau)->phi() << ", " << (*itEMTau)->eta() << ", " << (*itEMTau)->eT()/CLHEP::GeV);
+		}
+                for(itJetRoI = l1jets->begin(); itJetRoI!=itJetRoI_e; ++itJetRoI){
+				ATH_MSG_WARNING("Jet RoI: " << (*itJetRoI)->roiWord() << ", " << (*itJetRoI)->phi() << ", " << (*itJetRoI)->eta() << ", " << (*itJetRoI)->etLarge()/CLHEP::GeV);
+                }
+	  }*/
+
+	} //end loop over L1 combinations
 
         if(trig_item_L1=="L1_TAU20IM_2TAU12IM" && getTDT()->isPassed(trig_item_L1,m_L1TriggerCondition)){
 
@@ -752,7 +757,7 @@ StatusCode HLTTauMonTool::fillPreselTau(const xAOD::TauJet *aEFTau){
     hist2("hEtVsEta")->Fill(aEFTau->eta(),aEFTau->pt()/CLHEP::GeV);
     hist2("hEtVsPhi")->Fill(aEFTau->phi(),aEFTau->pt()/CLHEP::GeV);
     
-    hist("hFTFnWideTrack")->Fill(aEFTau->nWideTracks());
+    hist("hFTFnWideTrack")->Fill(aEFTau->nTracksIsolation());
 
     return StatusCode::SUCCESS;
 
@@ -824,7 +829,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
       hist2("hEFNUMvsmu")->Fill(num_vxt,mu);
       hist("hEFPhi")->Fill(aEFTau->phi());
       hist("hEFnTrack")->Fill(EFnTrack);
-      hist("hEFnWideTrack")->Fill(aEFTau->nWideTracks());
+      hist("hEFnWideTrack")->Fill(aEFTau->nTracksIsolation());
       hist2("hEFEtaVsPhi")->Fill(aEFTau->eta(),aEFTau->phi());
       hist2("hEFEtVsPhi")->Fill(aEFTau->phi(),aEFTau->pt()/CLHEP::GeV);
       hist2("hEFEtVsEta")->Fill(aEFTau->eta(),aEFTau->pt()/CLHEP::GeV);
@@ -1174,7 +1179,8 @@ StatusCode HLTTauMonTool::fillPreselTauVsOffline(const xAOD::TauJet *aEFTau){
 
     int EFnTrack = aEFTau->nTracks(); 
     hist2("hPreselvsOffnTrks")->Fill(aOfflineTau->nTracks(), EFnTrack);
-    hist2("hPreselvsOffnWideTrks")->Fill(aOfflineTau->nWideTracks(), aEFTau->nWideTracks());
+    //Justin Griffiths: is this really a comparison b/w offline and online taus? we may want to do something else.
+    hist2("hPreselvsOffnWideTrks")->Fill(aOfflineTau->nTracksIsolation(), aEFTau->nTracksIsolation());
     FillRelDiffHist(hist("hEFEtRatio"), aOfflineTau->pt(), aEFTau->pt(), 0, 1);
     FillRelDiffHist(hist("hEtaRatio"), aOfflineTau->eta(), aEFTau->eta(), 0, 2);
     hist("hPhiRatio")->Fill( deltaPhi(aOfflineTau->phi(), aEFTau->phi()));
@@ -1351,7 +1357,7 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFVsOffline");
       //Basic Vars
       hist2("hEFvsOffnTrks")->Fill(aOfflineTau->nTracks(), aEFTau->nTracks());
-      hist2("hEFvsOffnWideTrks")->Fill(aOfflineTau->nWideTracks(), aEFTau->nWideTracks());
+      hist2("hEFvsOffnWideTrks")->Fill(aOfflineTau->nTracksIsolation(), aEFTau->nTracksIsolation());
       FillRelDiffHist(hist("hptRatio"), aOfflineTau->pt(), aEFTau->pt(), 0, 1);
       FillRelDiffProfile<float>(profile("hEtRatiovspt"), aOfflineTau->pt(), aEFTau->pt(), aOfflineTau->pt()/1000., 0, 1);
       FillRelDiffProfile<float>(profile("hEtRatiovseta"), aOfflineTau->pt(), aEFTau->pt(), aOfflineTau->eta(), 0, 1);
@@ -2051,7 +2057,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 		for(hltItr=hlt_cont->begin(); hltItr!=hlt_cont_end; ++hltItr){
 			TLorentzVector hltTLV = (*hltItr)->p4();
 			int ntrack_TAU = (*hltItr)->nTracks();
-			int nWideTrack_TAU = (*hltItr)->nWideTracks();	
+			int nWideTrack_TAU = (*hltItr)->nTracksIsolation();	
 			if( !L1TauMatching(l1_chain, hltTLV, 0.3) ) continue;
 			if(ntrack_TAU>3) continue;		
 			if(trigItem.find("perf")==std::string::npos) if(ntrack_TAU==0 || nWideTrack_TAU>1) continue;
