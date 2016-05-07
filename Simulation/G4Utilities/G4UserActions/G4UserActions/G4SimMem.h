@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4SimMem_H
-#define G4SimMem_H
+#ifndef G4UserActions_G4SimMem_H
+#define G4UserActions_G4SimMem_H
 
 #include "G4AtlasTools/UserActionBase.h"
 
