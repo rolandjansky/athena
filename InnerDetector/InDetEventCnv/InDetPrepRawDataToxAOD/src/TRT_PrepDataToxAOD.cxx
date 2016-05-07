@@ -279,6 +279,8 @@ StatusCode TRT_PrepDataToxAOD::execute()
         if       ( stat==1 || stat==4 ) { gas_type = kArgon; }
         else if  ( stat==5 )            { gas_type = kKrypton; }
         else if  ( stat==2 || stat==3 ) { gas_type = kXenon; }
+        else if  ( stat==6 )              gas_type = kEmAr;
+        else if  ( stat==7 )              gas_type = kEmKr;
       }
       xprd->auxdata<char>("gasType")              = gas_type;
 

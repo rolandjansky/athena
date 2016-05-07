@@ -31,7 +31,7 @@ class ITRT_StrawSummarySvc;
 class TRT_PrepDataToxAOD : public AthAlgorithm  {
 
 public:
-  enum EGasType {kUnset=-128,kXenon=0,kArgon=1,kKrypton=2};
+  enum EGasType {kUnset=-128,kXenon=0,kArgon=1,kKrypton=2, kEmAr=6,kEmKr=7};
   // Constructor with parameters:
   TRT_PrepDataToxAOD(const std::string &name,ISvcLocator *pSvcLocator);
 
