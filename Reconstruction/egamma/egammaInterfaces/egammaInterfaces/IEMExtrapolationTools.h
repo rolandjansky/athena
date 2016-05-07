@@ -8,7 +8,7 @@
 #include "GaudiKernel/AlgTool.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
-
+#include "TrkParameters/TrackParameters.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexFwd.h"
@@ -41,13 +41,6 @@ class IEMExtrapolationTools : virtual public IAlgTool {
   virtual StatusCode initialize() =  0;
   /** finalize method*/
   virtual StatusCode finalize() = 0;
-
-  /**  test for cluster/extrapolated track match, from Trk::TrackParticle */
-  virtual bool  matchesAtCalo(const xAOD::CaloCluster*      cluster,       
-                              const xAOD::TrackParticle*    trkPB, 
-                              bool                          isTRT,
-                              unsigned int                  extrapFrom =fromPerigee) = 0;
-
 
   /**  test for cluster/extrapolated track match, from Trk::TrackParticleBase,
    *   returns true for good match, and the values for eta/phi, 
@@ -84,7 +77,7 @@ class IEMExtrapolationTools : virtual public IAlgTool {
                               const Trk::NeutralParameters*      perigee, 
                               bool                               isTRT,
                               double&                            deltaEta,
-                              double&                            deltaPhi) = 0;
+                              double&                            deltaPhi) const = 0;
 
   /** test for vertex-to-cluster match given also the positions 
     * at the calorimeter from the vertex extrapolation  **/
@@ -100,6 +93,12 @@ class IEMExtrapolationTools : virtual public IAlgTool {
                                 float *etaAtCalo,
                                 float *phiAtCalo) const = 0;
 
+  /** get eta, phi at EM2 given NeutralParameters.
+      Return false if the extrapolation fails **/
+  virtual bool getEtaPhiAtCalo (const Trk::TrackParameters* trkPar, 
+				float *etaAtCalo,
+				float *phiAtCalo) const =0;
+  
   /** get the momentum of the i-th at the vertex (designed for conversions) **/
   virtual Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex&, unsigned int) const = 0;
     

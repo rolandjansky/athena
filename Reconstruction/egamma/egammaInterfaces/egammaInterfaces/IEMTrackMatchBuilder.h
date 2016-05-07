@@ -37,8 +37,7 @@ class IEMTrackMatchBuilder : virtual public IegammaBaseTool
   virtual ~IEMTrackMatchBuilder() {};
 	
   /** @brief AlgTool interface methods */
-  static const InterfaceID& interfaceID();
-  
+  static const InterfaceID& interfaceID();  
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
   /** @brief execute method*/

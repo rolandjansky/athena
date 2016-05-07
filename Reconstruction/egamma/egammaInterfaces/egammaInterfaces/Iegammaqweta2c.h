@@ -14,8 +14,8 @@
 ///
 /// @author Frederic Derue derue@lpnhe.in2p3.fr
 ///
-/// $Revision: 583267 $
-/// $Date: 2014-02-14 13:39:31 +0100 (Fri, 14 Feb 2014) $
+/// $Revision: 741442 $
+/// $Date: 2016-04-19 21:13:26 +0200 (Tue, 19 Apr 2016) $
 ///
 
 // Gaudi
@@ -32,8 +32,7 @@ class Iegammaqweta2c : virtual public IAlgTool {
   /** @brief AlgTool interface methods */
   static const InterfaceID& interfaceID(); 
   /** @brief execute method*/
-  virtual StatusCode execute() = 0;
-  
+  virtual StatusCode execute() = 0;  
   /** @brief returns corrected width at eta. */
   virtual float  Correct(float eta, float etacell, float width) = 0;
   /** @brief returns relative position within cell*/

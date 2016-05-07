@@ -23,7 +23,8 @@
   <class name="Iegammaqweta1c" />
   <class name="Iegammaqweta2c" />
   <class name="IegammaTopoClusterMap" />
-  <class name="IegammaSuperClusterBuilder" />
-  <class name="IegammaClusterOverlapMarker" />
+  <class name="IelectronSuperClusterBuilder" />
+  <class name="IphotonSuperClusterBuilder" />
+  <class name="IegammaTopoClusterCopier" />
 </lcgdict>
 

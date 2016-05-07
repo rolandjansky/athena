@@ -15,7 +15,6 @@ MODIFIED :
 
 // INCLUDE HEADER FILES:
 #include "GaudiKernel/IAlgTool.h"
-
 // Forward declarations.
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -23,8 +22,6 @@ MODIFIED :
 class egammaTopoClusterMap;
 
 static const InterfaceID IID_IegammaTopoClusterMap("IegammaTopoClusterMap", 1, 0);
-
-typedef std::map< int, std::map< int, std::vector<const  xAOD::CaloCluster*> > > TopoCluster2DMap;
 
 class IegammaTopoClusterMap : virtual public IAlgTool
 {
@@ -39,19 +36,12 @@ class IegammaTopoClusterMap : virtual public IAlgTool
 
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
-
   virtual StatusCode finalize()   = 0;
   virtual StatusCode execute(const  xAOD::CaloClusterContainer*) = 0;
-  virtual void       InsertTopoCluster(xAOD::CaloCluster*) = 0;
-  virtual void       ClearMap() = 0;
-  virtual            TopoCluster2DMap&     RetrieveMap() = 0;
-  virtual            egammaTopoClusterMap& DuplicateMap() = 0;
 
-  virtual std::vector<const  xAOD::CaloCluster*> RetrieveTopoClusters(double, double, double, double) = 0;
-  virtual std::vector<const  xAOD::CaloCluster*> RetrieveTopoClusters(double, double, double)         = 0;
-  virtual std::vector<const  xAOD::CaloCluster*> RetrieveTopoClusters(int, int)                       = 0;
-
-  virtual void DumpMapContents() = 0;
+  virtual std::vector<const  xAOD::CaloCluster*> RetrieveTopoClusters(double, double, double, double) const = 0;
+  virtual std::vector<const  xAOD::CaloCluster*> RetrieveTopoClusters(double, double, double)      const   = 0;
+  virtual std::vector<const  xAOD::CaloCluster*> RetrieveTopoClusters(int, int)                    const   = 0;
 
 };
 
