@@ -150,7 +150,7 @@ HLT::ErrorCode TrigTauDiscriBuilder::hltExecute(const HLT::TriggerElement* /*inp
 			if ( doTiming() && itimer != m_mytimers.end() ) (*itimer)->stop();
 
 		}
-		m_LLHScore = (*tau_it)->discriminant(xAOD::TauJetParameters::Likelihood);
+		//m_LLHScore = (*tau_it)->discriminant(xAOD::TauJetParameters::Likelihood);
 		m_BDTScore = (*tau_it)->discriminant(xAOD::TauJetParameters::BDTJetScore);
 	}
 
