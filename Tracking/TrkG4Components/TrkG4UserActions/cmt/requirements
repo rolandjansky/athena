@@ -8,31 +8,29 @@ public
 use AtlasPolicy       AtlasPolicy-*
 use AthenaBaseComps   AthenaBaseComps-*  Control
 use GaudiInterface    GaudiInterface-*    External
-use FadsActions       FadsActions-*       Simulation/G4Sim/FADS
+use G4AtlasTools      G4AtlasTools-*      Simulation/G4Atlas
 use TrkGeometry       TrkGeometry-*       Tracking/TrkDetDescr
 use TrkParameters     TrkParameters-*     Tracking/TrkEvent
 use Geant4            Geant4-*            External
-use TrkDetDescrInterfaces  TrkDetDescrInterfaces-*  Tracking/TrkDetDescr
-use TrkMaterialOnTrack TrkMaterialOnTrack-* Tracking/TrkEvent
+use G4AtlasInterfaces G4AtlasInterfaces-* Simulation/G4Atlas
+use StoreGate         StoreGate-*         Control
 
 private
 use AtlasROOT         AtlasROOT-*         External
-use AtlasCLHEP	      AtlasCLHEP-*        External
+#use AtlasCLHEP	      AtlasCLHEP-*        External
 use CxxUtils          CxxUtils-*          Control
-use StoreGate         StoreGate-*         Control
-use GeoPrimitives     GeoPrimitives-*     DetectorDescription
 use SimHelpers        SimHelpers-*        Simulation/G4Sim
-use TrkSurfaces       TrkSurfaces-*       Tracking/TrkDetDescr
-use TrkExInterfaces   TrkExInterfaces-*   Tracking/TrkExtrapolation
-use TrkValInterfaces  TrkValInterfaces-*  Tracking/TrkValidation
-use TrkExUtils        TrkExUtils-*          Tracking/TrkExtrapolation
+#use TrkSurfaces       TrkSurfaces-*       Tracking/TrkDetDescr
+#use TrkExInterfaces   TrkExInterfaces-*   Tracking/TrkExtrapolation
+
 ##
 
 branches src src/components doc python share
 
 private
 ## default is to make component library
-library TrkG4UserActions *.cxx components/*.cxx
+#library TrkG4UserActions GeantFollower.cxx GeantFollowerTool.cxx MaterialStepRecorder.cxx MaterialStepRecorderTool.cxx components/*.cxx
+library TrkG4UserActions MaterialStepRecorder.cxx MaterialStepRecorderTool.cxx components/*.cxx
 
 apply_pattern component_library
 

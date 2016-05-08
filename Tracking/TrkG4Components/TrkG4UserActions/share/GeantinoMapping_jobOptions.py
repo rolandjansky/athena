@@ -5,7 +5,7 @@
 #		of the ATLAS detector and the GeantinoMapping.
 #		It can be run using athena.py
 #
-__version__="$Revision: 674389 $"
+__version__="$Revision: 562193 $"
 #==============================================================
 
 
@@ -45,14 +45,14 @@ if 'myPt' not in dir() :
     myPt = 'pt'  # values are 'p' or 'pt'
 
 if 'myGeo' not in dir() :
-    myGeo = 'ATLAS-R1-2012-02-01-00_VALIDATION'
+    myGeo = 'ATLAS-GEO-20-00-00_VALIDATION'
 
 print 'Random seeds and offset as calcluated by jobOptions ', myRandomSeed1, ' ', myRandomSeed2, ' offset - ', myRandomOffset
 
 
 # Set everything to ATLAS
 DetFlags.ID_setOn()
-DetFlags.Calo_setOff()
+DetFlags.Calo_setOn()
 DetFlags.Muon_setOff()
 # the global flags
 globalflags.ConditionsTag = 'OFLCOND-SIM-00-00-00'
@@ -76,16 +76,20 @@ myMaxEta =  6.0
 
 myPDG    = 999   # 999 = Geantinos, 13 = Muons
 
-include("GeneratorUtils/StdEvgenSetup.py")
-theApp.EvtMax = 100
-
-import ParticleGun as PG
-pg = PG.ParticleGun()
-pg.sampler.pid = 999
-pg.sampler.mom = PG.EEtaMPhiSampler(energy=10000, eta=[-6.,6.])
-topSeq += pg
+## Run ParticleGenerator
+import AthenaCommon.AtlasUnixGeneratorJob
+spgorders = [ 'pdgcode:' + ' constant ' + str(myPDG),
+              'vertX:'   + ' constant 0.0',
+              'vertY:'   + ' constant 0.0',
+              'vertZ:'   + ' constant 0.0',
+              't:'       + ' constant 0.0',
+              'eta:'     + ' flat ' + str(myMinEta) + ' ' + str(myMaxEta),
+              'phi:'     + ' flat  0 6.2831853',
+              myPt + ':' + ' constant ' + str(myMomentum) ]
 
 SimFlags.RandomSeedOffset = myRandomOffset
+
+### new rel17 (check Simulation/G4Atlas/G4AtlasApps/python/SimFlags.py for details)
 SimFlags.RandomSeedList.addSeed( "SINGLE", myRandomSeed1, myRandomSeed2 )
 
 from RngComps.RngCompsConf import AtRndmGenSvc 
@@ -94,6 +98,12 @@ myAtRndmGenSvc.Seeds = ["SINGLE "+str(myRandomSeed1)+" "+str(myRandomSeed2) ]
 myAtRndmGenSvc.OutputLevel 	= VERBOSE
 myAtRndmGenSvc.EventReseeding   = False
 ServiceMgr += myAtRndmGenSvc
+
+from ParticleGenerator.ParticleGeneratorConf import ParticleGenerator
+topSeq += ParticleGenerator()
+topSeq.ParticleGenerator.AtRndmGenSvc = myAtRndmGenSvc 
+topSeq.ParticleGenerator.orders = sorted(spgorders)
+
 
 
 ## Add an action
@@ -106,6 +116,11 @@ def geantino_action():
     AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(GeantinoAction)
 
 SimFlags.InitFunctions.add_function('preInitG4', geantino_action)
+
+# suppress the enormous amount of MC output
+from TruthExamples.TruthExamplesConf import DumpMC
+DumpMC.VerboseOutput = False
+
 
 ############### The Material hit collection ##################
 

@@ -17,9 +17,8 @@
 // Trk
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkParameters/CurvilinearParameters.h"
 #include "TrkSurfaces/PlaneSurface.h"
-// Amg
-#include "GeoPrimitives/GeoPrimitives.h"
 
 // constructor
 Trk::GeantFollowerHelper::GeantFollowerHelper(const std::string& t, const std::string& n, const IInterface* p) :
@@ -145,10 +144,6 @@ void Trk::GeantFollowerHelper::beginEvent() const
 void Trk::GeantFollowerHelper::trackParticle(const G4ThreeVector& pos, const G4ThreeVector& mom, int pdg, double charge, float t, float X0) const
 {
     
-    // construct the intial parameters
-    Amg::Vector3D npos(pos.x(),pos.y(),pos.z());
-    Amg::Vector3D nmom(mom.x(),mom.y(),mom.z());
-        
     if (!m_g4_steps){
         ATH_MSG_INFO("Initial step ... preparing event cache.");
         m_t_x        = pos.x();        
@@ -162,7 +157,8 @@ void Trk::GeantFollowerHelper::trackParticle(const G4ThreeVector& pos, const G4T
         m_t_pdg      = pdg;         
         m_g4_steps   = -1;
         m_tX0Cache   = 0.;
-        m_parameterCache = new Trk::CurvilinearParameters(npos, nmom, charge);
+        // construct the intial parameters
+        m_parameterCache = new Trk::CurvilinearParameters(pos, mom, charge);
         return;
     }
     
@@ -179,13 +175,13 @@ void Trk::GeantFollowerHelper::trackParticle(const G4ThreeVector& pos, const G4T
         return;
     }
     // parameters of the G4 step point
-    Trk::CurvilinearParameters* g4Parameters = new Trk::CurvilinearParameters(npos, nmom, m_t_charge);
+    Trk::CurvilinearParameters* g4Parameters = new Trk::CurvilinearParameters(pos, mom, m_t_charge);
     // destination surface
-    const Trk::PlaneSurface& destinationSurface = g4Parameters->associatedSurface();
+    const Trk::PlaneSurface* destinationSurface = g4Parameters->associatedSurface();
     // extrapolate to the destination surface
     const Trk::TrackParameters* trkParameters = m_extrapolateDirectly ? 
-        m_extrapolator->extrapolateDirectly(*m_parameterCache,destinationSurface,Trk::alongMomentum,false) :
-        m_extrapolator->extrapolate(*m_parameterCache,destinationSurface,Trk::alongMomentum,false);
+        m_extrapolator->extrapolateDirectly(*m_parameterCache,*destinationSurface,Trk::alongMomentum,false) :
+        m_extrapolator->extrapolate(*m_parameterCache,*destinationSurface,Trk::alongMomentum,false);
     // fill the geant information and the trk information
     m_g4_p[m_g4_steps]       =  mom.mag(); 
     m_g4_eta[m_g4_steps]     =  mom.eta();   
