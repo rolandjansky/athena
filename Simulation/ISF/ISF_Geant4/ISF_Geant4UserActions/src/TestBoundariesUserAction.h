@@ -51,4 +51,56 @@ namespace iGeant4 {
 }
 
 
+#include "G4AtlasInterfaces/IBeginRunAction.h"
+#include "G4AtlasInterfaces/IEndRunAction.h"
+#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "AthenaBaseComps/AthMessaging.h"
+
+
+namespace G4UA{
+
+  namespace iGeant4{
+    
+    class TestBoundariesUserAction:
+    public AthMessaging, public IBeginRunAction,  public IEndRunAction,  public ISteppingAction
+    {
+      
+    public:
+      TestBoundariesUserAction();
+      virtual void beginOfRun(const G4Run*) override;
+      virtual void endOfRun(const G4Run*) override;
+      virtual void processStep(const G4Step*) override;
+    private:
+      
+      typedef std::map<std::string,int> SMap;
+      SMap sel;
+      std::map<std::string,std::string> mother;
+      
+      TFile * file;
+      TTree * tree;
+      struct Data {
+	Float_t x,y,z;
+	Int_t volume;
+	Bool_t enter;
+	Bool_t exit;
+	Bool_t leave;
+      Data() : x(0.),y(0.),z(0.), volume(0),enter(false),exit(false),leave(false) {}
+	void Reset() {
+	  enter=exit=leave=false;
+	}
+	void Set(Float_t _x, Float_t _y, Float_t _z,
+		 Int_t _vol) {
+	  x=_x; y=_y; z=_z;
+	  volume=_vol;
+	}
+      } data;
+      
+    }; // class TestBoundariesUserAction
+    
+    
+  } // iGeant4
+  
+} // namespace G4UA 
+  
+  
 #endif //  ISF_Geant4Tools_SteppingUserAction_h
