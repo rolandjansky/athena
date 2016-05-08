@@ -444,14 +444,14 @@ StatusCode HLTMinBiasMonTool::book(bool newEventsBlock, bool newLumiBlock, bool 
 			addHistogram(new TH1F("Efficiency", "Trigger Efficiency;Lumiblock;Efficiency", 1000, -0.5, 999.5));
 			hist("Efficiency")->Sumw2();
 			
-			addHistogram(new TH1F("EfficiencyTracksAll", "Trigger All Efficiency per Track;N_{trk}^{loose};Entries", 300, -0.5, 299.5));
+			addHistogram(new TH1F("EfficiencyTracksAll", "Trigger All Efficiency per Track;N_{trk}^{loose};Entries", 4000, -0.5, 3999.5));
 			hist("EfficiencyTracksAll")->Sumw2();
-			addHistogram(new TH1F("EfficiencyTracksPassed", "Trigger Passed Efficiency per Track;N_{trk}^{loose};Entries", 300, -0.5, 299.5));
+			addHistogram(new TH1F("EfficiencyTracksPassed", "Trigger Passed Efficiency per Track;N_{trk}^{loose};Entries", 4000, -0.5, 3999.5));
 			hist("EfficiencyTracksPassed")->Sumw2();
-			addHistogram(new TH1F("EfficiencyTracks", "Trigger Efficiency per Track;N_{trk}^{loose};Efficiency", 300, -0.5, 299.5));
+			addHistogram(new TH1F("EfficiencyTracks", "Trigger Efficiency per Track;N_{trk}^{loose};Efficiency", 4000, -0.5, 3999.5));
 			hist("EfficiencyTracks")->Sumw2();
 			
-			addHistogram(new TH1I("NumGoodOfflineTracks", "Number of accepted offline tracks (trigger passed);N_{trk}^{loose};Events", 300, 0, 300));
+			addHistogram(new TH1I("NumGoodOfflineTracks", "Number of accepted offline tracks (trigger passed);N_{trk}^{loose};Events", 4000, 0, 4000));
 			
 			addHistogram(new TH1F("GoodOfflineTracksPt", "Transverse momentum of accepted offline tracks (trigger passed);p_{T} [GeV];Entries", 160, 0.4, 20.));
 		}
