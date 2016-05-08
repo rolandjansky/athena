@@ -5,7 +5,7 @@
 triggers_pp = ["mb_sptrk",
                #"mb_sptrk_noisesup",
                #"mb_sptrk_costr",
-               "noalg_mb_L1RD0_FILLED",
+               "noalg_L1RD0_FILLED",
                #"noalg_mb_L1RD0_EMPTY",
                "noalg_mb_L1MBTS_2",
                "mb_perf_L1MBTS_2",	
