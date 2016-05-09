@@ -100,8 +100,8 @@ def TrigIDtrkMonitoringTool():
 			"Offline",
 #			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
 #			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF"
-			"HLT_e24_lhmedium_idperf_L1EM20VH:InDetTrigTrackingxAODCnv_Electron_FTF",
-			"HLT_e24_lhmedium_idperf_L1EM20VH:InDetTrigTrackingxAODCnv_Electron_IDTrig",
+			"HLT_e26_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
+			"HLT_e26_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig"
 			]
 		ToolSvc += tidaegammashift;
 		list += [ "TrigTestBase/IDEgammaShifterTool" ]
@@ -119,8 +119,8 @@ def TrigIDtrkMonitoringTool():
 			"Offline",
 #			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
 #			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF"
-			"HLT_e24_lhmedium_idperf_L1EM20VH:InDetTrigTrackingxAODCnv_Electron_FTF",
-			"HLT_e24_lhmedium_idperf_L1EM20VH:InDetTrigTrackingxAODCnv_Electron_IDTrig",
+			"HLT_e26_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
+			"HLT_e26_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig"
 			]
 		ToolSvc += tidaegammapurity;
 		list += [ "TrigTestBase/IDEgammaPurityTool" ]
@@ -198,7 +198,7 @@ def TrigIDtrkMonitoringTool():
 				       histoPathBase = "/Trigger/HLT")
 		tidatau.AnalysisConfig = "Tier0"
 		tidatau.SliceTag = "HLT/TRIDT/Tau/Expert"
-		tidatau.UseHighestPT = False
+		tidatau.UseHighestPT = True
 		tidatau.ntupleChainNames += [
 			"Offline",
 			"HLT_tau.*idperf.*track:key=InDetTrigTrackingxAODCnv_Tau_IDTrig",
@@ -216,7 +216,7 @@ def TrigIDtrkMonitoringTool():
 					    histoPathBase = "/Trigger/HLT")
 		tidataushift.AnalysisConfig = "Tier0"
 		tidataushift.SliceTag = "HLT/TRIDT/Tau/Shifter"
-		tidataushift.UseHighestPT = False
+		tidataushift.UseHighestPT = True
 		tidataushift.ntupleChainNames += [
 			"Offline",
 #			"HLT_tau.*idperf.*_track.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
@@ -235,7 +235,7 @@ def TrigIDtrkMonitoringTool():
 					    histoPathBase = "/Trigger/HLT")
 		tidataupurity.AnalysisConfig = "Tier0"
 		tidataupurity.SliceTag = "HLT/TRIDT/TauPurity/Shifter"
-		tidataupurity.UseHighestPT = False
+		tidataupurity.UseHighestPT = True
 		tidataupurity.RunPurity = True
 		tidataupurity.ntupleChainNames += [
 			"Offline",
@@ -266,7 +266,10 @@ def TrigIDtrkMonitoringTool():
 			# jet based chains
 			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi",
 			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF"
+			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
+			"HLT_j.*boffperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi",
+			"HLT_j.*boffperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+			"HLT_j.*boffperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF"
                         # non split chains
 			# "HLT_j.*bperf:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 			# "HLT_j.*bperf:key=InDetTrigTrackingxAODCnv_Bjet_FTF"
@@ -277,26 +280,6 @@ def TrigIDtrkMonitoringTool():
 			]
 		ToolSvc += tidabjet;
 		list += [ "TrigTestBase/IDBjetTool" ]
-
-
-                # Shifter instances
-		tidabjetvtxshift = TrigTestBase(name = "IDBjetVtxShifterTool",
-					     histoPathBase = "/Trigger/HLT")
-		tidabjetvtxshift.AnalysisConfig = "Tier0"
-		tidabjetvtxshift.SliceTag = "HLT/TRIDT/BjetVtx/Shifter"
-		tidabjetvtxshift.ntupleChainNames += [
-			"Offline",
-#			"HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-#			"HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
-#			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-#			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_FTF"
-			"HLT_j400_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi"
-#			"HLT_j400_bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
-#			"HLT_j400_bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig"
-			]
-		ToolSvc += tidabjetvtxshift;
-		list += [ "TrigTestBase/IDBjetVtxShifterTool" ]
-
 
 
                 # Shifter instances
@@ -311,8 +294,8 @@ def TrigIDtrkMonitoringTool():
 #			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 #			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_FTF"
 #			"HLT_j400_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi",
-			"HLT_j400_bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
-			"HLT_j400_bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig"
+			"HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
+			"HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig"
 			]
 		ToolSvc += tidabjetshift;
 		list += [ "TrigTestBase/IDBjetShifterTool" ]
@@ -330,11 +313,31 @@ def TrigIDtrkMonitoringTool():
 #			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 #			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_FTF"
 #			"HLT_j400_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi",
-			"HLT_j400_bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
-			"HLT_j400_bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig"
+			"HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
+			"HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig"
 			]
 		ToolSvc += tidabjetpurity;
 		list += [ "TrigTestBase/IDBjetPurityTool" ]
+
+
+                # Shifter instances
+		tidabjetvtxshift = TrigTestBase(name = "IDBjetVtxShifterTool",
+					     histoPathBase = "/Trigger/HLT")
+		tidabjetvtxshift.AnalysisConfig = "Tier0"
+		tidabjetvtxshift.SliceTag = "HLT/TRIDT/BjetVtx/Shifter"
+		tidabjetvtxshift.ntupleChainNames += [
+			"Offline",
+#			"HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+#			"HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
+#			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+#			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_FTF"
+			"HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi"
+#			"HLT_j400_bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
+#			"HLT_j400_bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig"
+			]
+		ToolSvc += tidabjetvtxshift;
+		list += [ "TrigTestBase/IDBjetVtxShifterTool" ]
+
 
 
 
@@ -351,7 +354,7 @@ def TrigIDtrkMonitoringTool():
 		tidabphys.ntupleChainNames += [
 			"Offline",
 			"HLT_mu.*_mu.*idperf.*noid:InDetTrigTrackingxAODCnv_Bphysics_FTF",
-			"HLT_mu.*_mu.*idperf.*noid:InDetTrigTrackingxAODCnv_Bphysics_IDTrig",
+			"HLT_mu.*_mu.*idperf.*noid:InDetTrigTrackingxAODCnv_Bphysics_IDTrig"
 #			"HLT_mu.*_mu.*idperf.*noid:InDetTrigTrackingxAODCnv_Bphysics_EFID"
 #			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_EFID",
 #			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_IDTrig",
@@ -389,12 +392,12 @@ def TrigIDtrkMonitoringTool():
 		# tidabase.OutputLevel = DEBUG
 		tidaminbias.ntupleChainNames += [
 			"Offline",
-			"HLT_mb_.*_idperf.*:InDetTrigTrackingxAODCnv_minBias_EFID",
-			"HLT_mb_.*_idperf.*:InDetTrigTrackingxAODCnv_minBias_IDTrig",
-			"HLT_mb_.*_hmtperf.*:InDetTrigTrackingxAODCnv_minBias_EFID",
-			"HLT_mb_.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_IDTrig",
-			"HLT_mb_.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_FTF",
-			"HLT_mb_sp1400_trk80_hmt_L1MBTS_1_1:key=InDetTrigTrackingxAODCnv_minBias_EFID"
+#			"HLT_mb_.*_idperf.*:InDetTrigTrackingxAODCnv_minBias_EFID",
+#			"HLT_mb_.*_idperf.*:InDetTrigTrackingxAODCnv_minBias_IDTrig",
+#			"HLT_mb_.*_hmtperf.*:InDetTrigTrackingxAODCnv_minBias_EFID",
+#			"HLT_mb_.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_IDTrig",
+#			"HLT_mb_.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_FTF",
+#			"HLT_mb_sp1400_trk80_hmt_L1MBTS_1_1:key=InDetTrigTrackingxAODCnv_minBias_EFID"
 			]
 		ToolSvc += tidaminbias;
 		list += [ "TrigTestBase/IDminBiasTool" ]
@@ -407,10 +410,10 @@ def TrigIDtrkMonitoringTool():
 		tidaminbiasshift.SliceTag = "HLT/TRIDT/minBias/Shifter"
 		tidaminbiasshift.ntupleChainNames += [
 			"Offline",
-			"HLT_mb_.*_idperf.*:InDetTrigTrackingxAODCnv_minBias_EFID",
-			"HLT_mb_.*_idperf.*:InDetTrigTrackingxAODCnv_minBias_IDTrig",
-			"HLT_mb_sp.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_IDTrig",
-			"HLT_mb_sp.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_FTF"
+#			"HLT_mb_.*_idperf.*:InDetTrigTrackingxAODCnv_minBias_EFID",
+#			"HLT_mb_.*_idperf.*:InDetTrigTrackingxAODCnv_minBias_IDTrig",
+#			"HLT_mb_sp.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_IDTrig",
+#			"HLT_mb_sp.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_FTF"
 			]
 		ToolSvc += tidaminbiasshift;
 		list += [ "TrigTestBase/IDminBiasShifterTool" ]
