@@ -50,6 +50,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
         self.do_TJVA = doTJVA
         TauRecConfigured.__init__(self, name)
 
+
  
     def configure(self):
         mlog = logging.getLogger ('TauCoreBuilder.py::configure:')
@@ -131,6 +132,8 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             
             #tools.append(taualgs.getContainerLock())
             
+            from tauRec.tauRecFlags import tauFlags
+            tools+=tauFlags.tauRecToolsDevToolList()
             TauRecConfigured.AddToolsToToolSvc(self, tools)
             self.TauBuilderToolHandle().Tools = tools
             
@@ -270,14 +273,33 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
                 # SWITCHED OFF SELECTOR< SINCE NO CHARGED PFOS AVAILABLE ATM
                 tools.append(taualgs.getPi0Selector())
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
+            tools.append(taualgs.getMvaTESVariableDecorator())
+            tools.append(taualgs.getMvaTESEvaluator())
             tools.append(taualgs.getIDPileUpCorrection())
             #
             ## for testing purpose
             #tools.append(taualgs.getTauTestDump())
             #
+
+            # TauDiscriminant:
+            from tauRec.tauRecFlags import tauFlags
+            if tauFlags.doRunTauDiscriminant() :
+                import TauDiscriminant.TauDiscriGetter as tauDisc
+                tauDiscTools=tauDisc.getTauDiscriminantTools(mlog)
+                if len(tauDiscTools)==0:
+                    try: import DOESNOTEXIST
+                    except Exception:
+                        mlog.error("No TauDiscriminantTools appended")
+                        print traceback.format_exc()
+                        return False
+                    pass                
+                tools+=tauDiscTools
+                pass
+            
+
+            tools+=tauFlags.tauRecToolsDevToolListProcessor()
             ## lock tau containers -> must be the last tau tool!!
             #tools.append(taualgs.getContainerLock())
-
             TauRecConfigured.AddToolsToToolSvc(self, tools)
             self.TauProcessorToolHandle().Tools = tools
         

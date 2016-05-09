@@ -300,9 +300,9 @@ def getIDPileUpCorrection():
         return cached_instances[_name]
     
     from tauRecTools.tauRecToolsConf import TauIDPileupCorrection
-    IDPileUpCorrection = TauIDPileupCorrection(name = _name, \
-                                               calibrationFile1Prong = "pileupForOfflineID_1p.root", \
-                                               calibrationFile3Prong = "pileupForOfflineID_3p.root", \
+    IDPileUpCorrection = TauIDPileupCorrection(name = _name, 
+                                               calibrationFile1Prong = "TF2pileupForOfflineID_1p.root", 
+                                               calibrationFile3Prong = "TF2pileupForOfflineID_3p.root", 
                                                useMu = True)
     
     cached_instances[_name] = IDPileUpCorrection
@@ -722,7 +722,41 @@ def getTauGenericPi0Cone():
 
 #end
 
+
+########################################################################
+# MvaTESVariableDecorator
+def getMvaTESVariableDecorator():
+    _name = sPrefix + 'MvaTESVariableDecorator'
+    from tauRecTools.tauRecToolsConf import MvaTESVariableDecorator
+    MvaTESVariableDecorator = MvaTESVariableDecorator(name = _name)
+    cached_instances[_name] = MvaTESVariableDecorator
+    return MvaTESVariableDecorator
+
+########################################################################
+# MvaTESEvaluator
+def getMvaTESEvaluator():
+    _name = sPrefix + 'MvaTESEvaluator'
+    from tauRecTools.tauRecToolsConf import MvaTESEvaluator
+    MvaTESEvaluator = MvaTESEvaluator(name = _name,
+                                      WeightFileName = 'LC.pantau.interpolPt250GeV_mediumTaus_BDTG.weights.xml')
+    cached_instances[_name] = MvaTESEvaluator
+    return MvaTESEvaluator
+
+########################################################################
+# CombinedP4FromRecoTaus
+def getCombinedP4FromRecoTaus():
+    _name = sPrefix + 'CombinedP4FromRecoTaus'
+    from tauRecTools.tauRecToolsConf import CombinedP4FromRecoTaus
+    CombinedP4FromRecoTaus = CombinedP4FromRecoTaus(name = _name,
+                                                    WeightFileName = 'CombinedP4CalibWeightsFile.root')
+    cached_instances[_name] = CombinedP4FromRecoTaus
+    return CombinedP4FromRecoTaus
+
+
+   
 """ obsolete methods
+
+
 
 ########################################################################
 # Tau Origin Cell Correction Tool

@@ -57,11 +57,11 @@ if jobproperties.tauRecFlags.doTauRec() and ( rec.readESD() or  ( DetFlags.haveR
                 jobproperties.tauRecFlags.doPanTau = False
         
         # call TauDiscriminant
-        if jobproperties.tauRecFlags.doRunTauDiscriminant():
-            try:
-                include("TauDiscriminant/TauDiscri_jobOptions.py" )      
-            except Exception:
-                treatException("Could not set up TauDiscriminant. Switched off !")
+        # if jobproperties.tauRecFlags.doRunTauDiscriminant():
+        #     try:
+        #         include("TauDiscriminant/TauDiscri_jobOptions.py" )      
+        #     except Exception:
+        #         treatException("Could not set up TauDiscriminant. Switched off !")
 
         # call DiTauRec
         if jobproperties.DiTauRecFlags.doDiTauRec():
