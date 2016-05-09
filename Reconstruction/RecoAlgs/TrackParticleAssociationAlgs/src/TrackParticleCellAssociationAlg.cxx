@@ -23,7 +23,7 @@ TrackParticleCellAssociationAlg::TrackParticleCellAssociationAlg(const std::stri
 
   declareProperty("ParticleCaloCellAssociationTool",m_caloCellAssociationTool);
   declareProperty("TrackParticleContainerName",m_trackParticleCollectionName = "InDetTrackParticles" );
-  declareProperty("PtCut", m_ptCut = 50000. );
+  declareProperty("PtCut", m_ptCut = 25000. );
 }
 
 TrackParticleCellAssociationAlg::~TrackParticleCellAssociationAlg()
