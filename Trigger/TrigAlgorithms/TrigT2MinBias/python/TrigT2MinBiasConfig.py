@@ -609,7 +609,7 @@ hypos["L2MbSpHypo_cos"] = L2MbSpHypo_cos
 L2MbSpHypo_ncb = MbSpHypo("L2MbSpHypo_ncb")
 L2MbSpHypo_ncb.AcceptAll = False
 L2MbSpHypo_ncb.TriggerTypeAND = False # SCT only
-L2MbSpHypo_ncb.SctSpEndcaps_cut = 100 # max(SCT_EC_A, SCT_EC_C)
+L2MbSpHypo_ncb.SctSpEndcaps_cut = 50 # max(SCT_EC_A, SCT_EC_C)
 L2MbSpHypo_ncb.TotalPixelClus = -1. # Disable
 L2MbSpHypo_ncb.TotalPixelClus = -1. # Disable
 L2MbSpHypo_ncb.TotalPixelClus = -1. # Disable
@@ -629,7 +629,6 @@ L2MbSpHypo_ncb.SctSpEndcapA = -1. # Disable
 L2MbSpHypo_ncb.SctSpEndcapC_max = -1. # Disable
 L2MbSpHypo_ncb.SctSpBarrel_max = -1. # Disable
 L2MbSpHypo_ncb.SctSpEndcapA_max = -1. # Disable
-L2MbSpHypo_ncb.SctSpEndcaps_cut = -1. # Disable
 hypos["L2MbSpHypo_ncb"] = L2MbSpHypo_ncb
 
 # ... setup for halo event trigger
