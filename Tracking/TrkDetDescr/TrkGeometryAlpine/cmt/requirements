@@ -1,5 +1,5 @@
 package TrkGeometryAlpine
-author LAPP Team
+author LAPP Team  
 
 public
 use AtlasPolicy           AtlasPolicy-*
