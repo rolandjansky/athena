@@ -8,7 +8,7 @@ use AthenaMonitoring AthenaMonitoring-* Control
 use AtlasROOT        AtlasROOT-*        External
 use JetInterface        JetInterface-*          Reconstruction/Jet
 private
-use EventInfo           EventInfo-*             Event
+use xAODEventInfo    xAODEventInfo-*    Event/xAOD
 use AtlasCLHEP       AtlasCLHEP-*       External
 use GaudiInterface   GaudiInterface-*   External
 use xAODMissingET       xAODMissingET-*         Event/xAOD 
