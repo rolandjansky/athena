@@ -349,12 +349,12 @@ if hasattr(runArgs,"LucidOn") or hasattr(runArgs,"ALFAOn") or hasattr(runArgs,"Z
         DetFlags.all_setOn()
         DetFlags.ALFA_setOff() #Default for now
         DetFlags.ZDC_setOff() #Default for now
-        checkAFPOff = getattr(DetFlags, 'AFP_setOff', None)
-        if checkAFPOff is not None:
-            checkAFPOff() #Default for now
-        checkFwdRegionOff = getattr(DetFlags, 'FwdRegion_setOff', None)
-        if checkFwdRegionOff is not None:
-            checkFwdRegionOff() #Default for now
+        DetFlags.AFP_setOff() #Default for now
+        DetFlags.FwdRegion_setOff() #Default for now
+        checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
+        if checkHGTDOff is not None:
+            checkHGTDOff() #Default for now
+
 
     if hasattr(runArgs,"LucidOn"):
         if not runArgs.LucidOn:
@@ -367,18 +367,18 @@ if hasattr(runArgs,"LucidOn") or hasattr(runArgs,"ALFAOn") or hasattr(runArgs,"Z
             DetFlags.ZDC_setOn()
     if hasattr(runArgs, "AFPOn"):
         if runArgs.AFPOn:
-            checkAFPOn = getattr(DetFlags, 'AFP_setOn', None)
-            if checkAFPOn is not None:
-                checkAFPOn()
-            else:
-                digilog.warning('The AFP DetFlag is not supported in this release')
+            DetFlags.AFP_setOn()
     if hasattr(runArgs, "FwdRegionOn"):
         if runArgs.FwdRegionOn:
-            checkFwdRegionOn = getattr(DetFlags, 'FwdRegion_setOn', None)
-            if checkFwdRegionOn is not None:
-                checkFwdRegionOn()
+            DetFlags.FwdRegion_setOn()
+    if hasattr(runArgs, "HGTDOn"):
+        if runArgs.HGTDOn:
+            checkHGTDOn = getattr(DetFlags, 'HGTD_setOn', None)
+            if checkHGTDOn is not None:
+                checkHGTDOn()
             else:
-                digilog.warning('The FwdRegion DetFlag is not supported in this release')
+                digilog.warning('The HGTD DetFlag is not supported in this release')
+
 
 def NoTriggerConfig(runArgs):
     if hasattr(runArgs,"triggerConfig"):

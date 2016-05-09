@@ -163,14 +163,6 @@ except:
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
 
-from PyJobTransforms.trfUtils import releaseIsOlderThan
-if releaseIsOlderThan(17,6):
-    ## Random number configuration
-    from G4AtlasAlg.G4AtlasAlgConf import G4AtlasAlg
-    g4AtlasAlg = G4AtlasAlg()
-    g4AtlasAlg.RandomGenerator = "athena"
-    g4AtlasAlg.AtRndmGenSvc = simFlags.RandomSvc.get_Value()
-
 ## Add AMITag MetaData to TagInfoMgr
 if hasattr(runArgs, 'AMITag'):
     if runArgs.AMITag != "NONE":

@@ -124,6 +124,10 @@ if 'DetFlags' not in dir():
 DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
 DetFlags.Truth_setOn()
 DetFlags.Forward_setOff() # Forward dets are off by default
+checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
+if checkHGTDOff is not None:
+    checkHGTDOff() #Default for now
+
 if hasattr(runArgs, "AFPOn"):
     if runArgs.AFPOn:
         DetFlags.AFP_setOn()
@@ -139,6 +143,13 @@ if hasattr(runArgs, "LucidOn"):
 if hasattr(runArgs, "ZDCOn"):
     if runArgs.ZDCOn:
         DetFlags.ZDC_setOn()
+if hasattr(runArgs, "HGTDOn"):
+    if runArgs.HGTDOn:
+        checkHGTDOn = getattr(DetFlags, 'HGTD_setOn', None)
+        if checkHGTDOn is not None:
+            checkHGTDOn()
+        else:
+            atlasG4log.warning('The HGTD DetFlag is not supported in this release')
 
 DetFlags.Print()
 
@@ -217,6 +228,9 @@ try:
 except:
     atlasG4log.warning('Could not add TimingAlg, no timing info will be written out.')
 
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
+
 # Add G4 alg to alg sequence
 try:
     # the non-hive version of G4AtlasApps provides PyG4AtlasAlg
@@ -229,14 +243,6 @@ except ImportError:
         svcMgr += PyG4AtlasSvc()
     except ImportError:
         atlasG4log.fatal("Failed to import PyG4AtlasAlg/Svc")
-        
-from PyJobTransforms.trfUtils import releaseIsOlderThan
-if releaseIsOlderThan(17,6):
-    ## Random number configuration
-    from G4AtlasAlg.G4AtlasAlgConf import G4AtlasAlg
-    g4AtlasAlg = G4AtlasAlg()
-    g4AtlasAlg.RandomGenerator = "athena"
-    g4AtlasAlg.AtRndmGenSvc = simFlags.RandomSvc.get_Value()
 
 ## Add AMITag MetaData to TagInfoMgr
 if hasattr(runArgs, 'AMITag'):
@@ -277,15 +283,20 @@ if hasattr(runArgs, "postExec"):
 
 ## Always enable the looper killer, unless it's been disabled
 if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    # configure the non-MT looperkiller
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-    # add default configurable
-    UAStore.addAction('LooperKiller',['Step'])
-    # configure the MT looperkiller
-    from G4UserActions import G4UserActionsConfig
-    try:
-        G4UserActionsConfig.addLooperKillerTool()
-    except AttributeError:
-        atlasG4log.warning("Could not add the MT-version of the LooperKiller")
+    if (hasattr(simFlags, 'UseV2UserActions') and simFlags.UseV2UserActions()):
+        # this configures the MT LooperKiller
+        from G4UserActions import G4UserActionsConfig
+        try:
+            G4UserActionsConfig.addLooperKillerTool()
+        except AttributeError:
+            atlasG4log.warning("Could not add the MT-version of the LooperKiller")
+    else:
+        # this configures the non-MT looperKiller
+        try:
+            from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+        except ImportError:
+            from G4AtlasServices.UserActionStore import UAStore
+        # add default configurable
+        UAStore.addAction('LooperKiller',['Step'])
 else:
     atlasG4log.warning("The looper killer will NOT be run in this job.")

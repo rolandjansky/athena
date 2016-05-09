@@ -139,6 +139,9 @@ except:
     DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
     DetFlags.Truth_setOn()
     DetFlags.Forward_setOff() # Forward dets are off by default
+    checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
+    if checkHGTDOff is not None:
+        checkHGTDOff() #Default for now
 
 ## Configure Forward Detector DetFlags based on command-line options
 from AthenaCommon.DetFlags import DetFlags
@@ -157,6 +160,13 @@ if hasattr(runArgs, "LucidOn"):
 if hasattr(runArgs, "ZDCOn"):
     if runArgs.ZDCOn:
         DetFlags.ZDC_setOn()
+if hasattr(runArgs, "HGTDOn"):
+    if runArgs.HGTDOn:
+        checkHGTDOn = getattr(DetFlags, 'HGTD_setOn', None)
+        if checkHGTDOn is not None:
+            checkHGTDOn()
+        else:
+            atlasG4log.warning('The HGTD DetFlag is not supported in this release')
 
 DetFlags.Print()
 
@@ -302,15 +312,21 @@ if hasattr(runArgs, "postExec"):
 
 ## Always enable the looper killer, unless it's been disabled
 if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    # this configures the non-MT looperKiller
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-    # add default configurable
-    UAStore.addAction('LooperKiller',['Step'])
-    # this configures the MT ooperKiller
-    from G4UserActions import G4UserActionsConfig
-    try:
-        G4UserActionsConfig.addLooperKillerTool()
-    except AttributeError:
-        atlasG4log.warning("Could not add the MT-version of the LooperKiller")
+    if ISF_Flags.UsingGeant4():
+        if (hasattr(simFlags, 'UseV2UserActions') and simFlags.UseV2UserActions()):
+            # this configures the MT LooperKiller
+            from G4UserActions import G4UserActionsConfig
+            try:
+                G4UserActionsConfig.addLooperKillerTool()
+            except AttributeError:
+                atlasG4log.warning("Could not add the MT-version of the LooperKiller")
+        else:
+            # this configures the non-MT looperKiller
+            try:
+                from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+            except ImportError:
+                from G4AtlasServices.UserActionStore import UAStore
+            # add default configurable
+            UAStore.addAction('LooperKiller',['Step'])
 else:
     atlasG4log.warning("The looper killer will NOT be run in this job.")
