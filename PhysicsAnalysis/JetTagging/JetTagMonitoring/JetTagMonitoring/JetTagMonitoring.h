@@ -214,6 +214,15 @@ private:
     TH1F_LW* m_tag_mv2c20_w_phi_frac77OP = nullptr;
     TH1F_LW* m_tag_mv2c20_w_phi_frac70OP = nullptr;
     TH1F_LW* m_tag_mv2c20_w_phi_frac50OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_sum85OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_sum77OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_sum70OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_sum50OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_sumAll = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_frac85OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_frac77OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_frac70OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_frac50OP = nullptr;
     TH1F_LW* m_tag_mv2c20_w_sj = nullptr;
     TH1F_LW* m_tag_mv2c20_w_sj_pT10_20 = nullptr;
     TH1F_LW* m_tag_mv2c20_w_sj_pT20_50 = nullptr;
@@ -239,6 +248,15 @@ private:
     TH1F_LW* m_tag_mv2c20_w_sj_phi_frac77OP = nullptr;
     TH1F_LW* m_tag_mv2c20_w_sj_phi_frac70OP = nullptr;
     TH1F_LW* m_tag_mv2c20_w_sj_phi_frac50OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_sum85OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_sum77OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_sum70OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_sum50OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_sumAll = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_frac85OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_frac77OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_frac70OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_frac50OP = nullptr;
     /** @brief To monitor number of Jets. */
     TH1F_LW* m_jet_n = nullptr;
     /** @brief To monitor number of TrackParticles. */
