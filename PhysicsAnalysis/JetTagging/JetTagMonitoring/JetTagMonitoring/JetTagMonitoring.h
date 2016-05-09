@@ -86,11 +86,11 @@ private:
     void fillJetHistograms();
     void fillGoodJetHistos(const xAOD::Jet *jet);
     void fillSuspectJetHistos(const xAOD::Jet *jet);
-    void fillDetailedHistograms(const xAOD::Jet *jet);
-    //void fillElectronHistograms(const xAOD::Jet *jet);
-    //void fillMuonHistograms(const xAOD::Jet *jet);
+    void fillBadJetHistos(const xAOD::Jet *jet);
+    void fillDetailedHistograms(const xAOD::Jet *jet, Jet_t quality);
     void fillTrackInJetHistograms(const xAOD::Jet *jet);
     void fillBadTrackBits(const std::bitset<17> failedCuts, double eta, double phi);
+    void fillEffHist(TH1 * h_passed, TH1 * h_all, TH1F_LW * effHist);
     //void fillBadZone(int zone, double w);
     bool isGoodJet(const xAOD::Jet *jet);
 
@@ -133,41 +133,56 @@ private:
     /** @brief Use Analysis::TrigDecisionTool. */
     bool m_use_trigdectool;
 
-
     /** @brief To monitor number of tracks used to evaluate IP2D weight. */
     TH1F_LW* m_tag_ip2d_n = nullptr;
+    TH1F_LW* m_tag_ip2d_n_sj = nullptr;
     /** @brief To monitor jet likelihood value if coming from b decay for IP2D tagger. */
     TH1F_LW* m_tag_ip2d_b = nullptr;
+    TH1F_LW* m_tag_ip2d_b_sj = nullptr;
     /** @brief To monitor jet likelihood value if coming from u decay for IP2D tagger. */
     TH1F_LW* m_tag_ip2d_u = nullptr;
+    TH1F_LW* m_tag_ip2d_u_sj = nullptr;
     /** @brief To monitor jet likelihood value if coming from c decay for IP2D tagger. */
     TH1F_LW* m_tag_ip2d_c = nullptr;
+    TH1F_LW* m_tag_ip2d_c_sj = nullptr;
      /** @brief To monitor jet log likelihood ratio for IP2D tagger. */
     TH1F_LW* m_tag_ip2d_llr = nullptr;   
+    TH1F_LW* m_tag_ip2d_llr_sj = nullptr;   
     /** @brief To monitor number of tracks used to evaluate IP3D weight. */   
     TH1F_LW* m_tag_ip3d_n = nullptr;
+    TH1F_LW* m_tag_ip3d_n_sj = nullptr;
     /** @brief To monitor jet likelihood value if coming from b decay for IP3D tagger. */
     TH1F_LW* m_tag_ip3d_b = nullptr;
+    TH1F_LW* m_tag_ip3d_b_sj = nullptr;
     /** @brief To monitor jet likelihood value if coming from u decay for IP3D tagger. */
     TH1F_LW* m_tag_ip3d_u = nullptr;
+    TH1F_LW* m_tag_ip3d_u_sj = nullptr;
     /** @brief To monitor jet likelihood value if coming from c decay for IP3D tagger. */
     TH1F_LW* m_tag_ip3d_c = nullptr;   
+    TH1F_LW* m_tag_ip3d_c_sj = nullptr;   
      /** @brief To monitor jet log likelihood ratio for IP3D tagger. */
     TH1F_LW* m_tag_ip3d_llr = nullptr;     
+    TH1F_LW* m_tag_ip3d_llr_sj = nullptr;     
     /** @brief To monitor jet 3D significance of SV0 tagger. */
     TH1F_LW* m_tag_sv0_sig3d = nullptr;
     /** @brief To monitor jet likelihood value if coming from b decay for SV1 tagger. */
     TH1F_LW* m_tag_sv1_b = nullptr;
+    TH1F_LW* m_tag_sv1_b_sj = nullptr;
     /** @brief To monitor jet likelihood value if coming from u decay for SV1 tagger. */
     TH1F_LW* m_tag_sv1_u = nullptr;
+    TH1F_LW* m_tag_sv1_u_sj = nullptr;
      /** @brief To monitor jet likelihood value if coming from c decay for SV1 tagger. */
     TH1F_LW* m_tag_sv1_c = nullptr;    
+    TH1F_LW* m_tag_sv1_c_sj = nullptr;    
       /** @brief To monitor jet log likelihood ratio for SV1 tagger. */
     TH1F_LW* m_tag_sv1_llr = nullptr;    
+    TH1F_LW* m_tag_sv1_llr_sj = nullptr;    
     /** @brief To monitor log likelihood ratio for JetFitter. */
     TH1F_LW* m_tag_jetfitter_llr = nullptr;    
+    TH1F_LW* m_tag_jetfitter_llr_sj = nullptr;    
     /** @brief To monitor log likelihood ratio for combined tagger JetFitterCOMBNN. */
     TH1F_LW* m_tag_jfcnn_llr = nullptr;
+    TH1F_LW* m_tag_jfcnn_llr_sj = nullptr;
     
     /** @brief To monitor likelihood weight based on combined tagger (IP3D+SV1). */
     TH1F_LW* m_tag_sv1ip3d_w = nullptr;
@@ -175,7 +190,73 @@ private:
    
     /** @brief To monitor likelihood weight based on MV2c20 tagger. */
     TH1F_LW* m_tag_mv2c20_w = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_pT10_20 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_pT20_50 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_pT50_100 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_pT100_200 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_pT200 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta0_05 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta05_10 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta10_15 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta15_20 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta20_25 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi0_07 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi07_14 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi14_21 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi21_28 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi28 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_sum85OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_sum77OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_sum70OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_sum50OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_sumAll = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_frac85OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_frac77OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_frac70OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_frac50OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_sum85OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_sum77OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_sum70OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_sum50OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_sumAll = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_frac85OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_frac77OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_frac70OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_frac50OP = nullptr;
     TH1F_LW* m_tag_mv2c20_w_sj = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_pT10_20 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_pT20_50 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_pT50_100 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_pT100_200 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_pT200 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta0_05 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta05_10 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta10_15 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta15_20 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta20_25 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi0_07 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi07_14 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi14_21 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi21_28 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi28 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_sum85OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_sum77OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_sum70OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_sum50OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_sumAll = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_frac85OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_frac77OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_frac70OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_frac50OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_sum85OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_sum77OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_sum70OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_sum50OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_sumAll = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_frac85OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_frac77OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_frac70OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta_frac50OP = nullptr;
     /** @brief To monitor number of Jets. */
     TH1F_LW* m_jet_n = nullptr;
     /** @brief To monitor number of TrackParticles. */
@@ -258,6 +339,7 @@ private:
     TH2F_LW* m_jet_2D_kinematic_LS = nullptr;
     TH2F_LW* m_jet_2D_quality = nullptr;
     TH2F_LW* m_jet_2D_suspect = nullptr;
+    TH2F_LW* m_jet_2D_bad = nullptr;
 
     /** @brief 2D map of tag rates. */
     TH2F_LW* m_sv1ip3d_tag_pos_rate_2D = nullptr;
@@ -292,6 +374,8 @@ private:
     TH2F_LW* m_tracks_fitChi2_2D = nullptr;
     TH2F_LW* m_tracks_fitProb_2D = nullptr;
     TH2F_LW* m_tracks_fitChi2OnNdfMax_2D = nullptr;
+
+    TH2F_LW* m_tracks_passedCuts_2D = nullptr;
 
     TH2F_LW* m_tracks_all_2D_LS = nullptr;
     TH2F_LW* m_tracks_pTMin_2D_LS = nullptr;
