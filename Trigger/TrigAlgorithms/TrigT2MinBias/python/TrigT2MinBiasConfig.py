@@ -605,7 +605,31 @@ L2MbSpHypo_cos.SctSpEndcapA_max = -1. # Disable
 L2MbSpHypo_cos.SctSpEndcaps_cut = -1. # Disable
 hypos["L2MbSpHypo_cos"] = L2MbSpHypo_cos
 
-
+# Setup for 2016 SCT only non collision bacground filtering
+L2MbSpHypo_ncb = MbSpHypo("L2MbSpHypo_ncb")
+L2MbSpHypo_ncb.AcceptAll = False
+L2MbSpHypo_ncb.TriggerTypeAND = False # SCT only
+L2MbSpHypo_ncb.SctSpEndcaps_cut = 50 # max(SCT_EC_A, SCT_EC_C)
+L2MbSpHypo_ncb.TotalPixelClus = -1. # Disable
+L2MbSpHypo_ncb.TotalPixelClus = -1. # Disable
+L2MbSpHypo_ncb.TotalPixelClus = -1. # Disable
+L2MbSpHypo_ncb.PixelClusRatioA = -1. # Disable
+L2MbSpHypo_ncb.PixelClusRatioB = -1. # Disable
+L2MbSpHypo_ncb.PixelClusEndcapC = -1. # Disable
+L2MbSpHypo_ncb.PixelClusBarrel = -1. # Disable
+L2MbSpHypo_ncb.PixelClusEndcapA = -1. # Disable
+L2MbSpHypo_ncb.PixelClusEndcapC_max = -1. # Disable
+L2MbSpHypo_ncb.PixelClusBarrel_max = -1. # Disable
+L2MbSpHypo_ncb.PixelClusEndcapA_max = -1. # Disable
+L2MbSpHypo_ncb.PixelClusEndcaps_cut = -1. # Disable
+L2MbSpHypo_ncb.TotalSctSp = -1. # Disable
+L2MbSpHypo_ncb.SctSpEndcapC = -1. # Disable
+L2MbSpHypo_ncb.SctSpBarrel = -1. # Disable
+L2MbSpHypo_ncb.SctSpEndcapA = -1. # Disable
+L2MbSpHypo_ncb.SctSpEndcapC_max = -1. # Disable
+L2MbSpHypo_ncb.SctSpBarrel_max = -1. # Disable
+L2MbSpHypo_ncb.SctSpEndcapA_max = -1. # Disable
+hypos["L2MbSpHypo_ncb"] = L2MbSpHypo_ncb
 
 # ... setup for halo event trigger
 L2MbSpHypoBg = MbSpHypo("L2MbSpHypoBg")
@@ -812,6 +836,21 @@ L2MbSpMhNoPixHypo_tight_eff.SctSpEndcapC_max = -1. # Disable
 L2MbSpMhNoPixHypo_tight_eff.SctSpBarrel_max = -1. # Disable
 L2MbSpMhNoPixHypo_tight_eff.SctSpEndcapA_max = -1. # Disable
 hypos["L2MbSpMhNoPixHypo_tight_eff"] = L2MbSpMhNoPixHypo_tight_eff
+
+
+class L2MbSpUPC(MbSpHypo):
+    def __init__(self, name, minTh, maxTh):        
+        super(L2MbSpUPC, self).__init__(name)
+        self.VetoLargeSP = True
+        self.TriggerTypeAND = False
+        self.TotalPixelClus = maxTh+0.1 # this is negated selection due to the VetoLargeSP and we want inclusive 8 - 24 selection
+        self.TotalPixelClusMin = minTh-0.1 
+        self.TotalSctSp=-1
+
+
+hypos["L2MbSpUPC_nominal"] = L2MbSpUPC("L2MbSpUPC_nominal", 8, 24)
+hypos["L2MbSpUPC_loose"]   = L2MbSpUPC("L2MbSpUPC_loose", 6, 28)
+
 
 
 # .... setup for HI High Multiplicity chains (SCT SP=2000)
@@ -1177,7 +1216,18 @@ L2MbMbtsHypo_1_1_inn_veto.TimeCut = trigT2MinBiasProperties.mbtsTimeCut()
 #L2MbMbtsHypo11.Threshold = 0.18 # pC
 hypos["L2MbMbtsHypo_1_1_inn_veto"] = L2MbMbtsHypo_1_1_inn_veto 
 
-
+#photoproduction in PbPb ATR-12470
+# the following mean that only events with 0_2+, 2+_0, 2+_1 and 1_2+ will pass
+L2MbMbtsHypo_1_1_inn_one_side_veto = MbMbtsHypo("L2MbMbtsHypo_1_1_inn_one_side_veto")
+L2MbMbtsHypo_1_1_inn_one_side_veto.AcceptAll = False
+L2MbMbtsHypo_1_1_inn_one_side_veto.MbtsCounters = 2
+L2MbMbtsHypo_1_1_inn_one_side_veto.Coincidence = False
+L2MbMbtsHypo_1_1_inn_one_side_veto.Or = True
+L2MbMbtsHypo_1_1_inn_one_side_veto.Veto = True
+L2MbMbtsHypo_1_1_inn_one_side_veto.MBTSMode = 1 # inner
+L2MbMbtsHypo_1_1_inn_one_side_veto.TimeCut = trigT2MinBiasProperties.mbtsTimeCut()
+#L2MbMbtsHypo11.Threshold = 0.18 # pC
+hypos["L2MbMbtsHypo_1_1_inn_one_side_veto"] = L2MbMbtsHypo_1_1_inn_one_side_veto
 
 #########
 ### ZDC
@@ -1324,7 +1374,6 @@ class ZdcHypo ( T2ZdcHypo ):
         self.AthenaMonTools += [ ZdcHypoMonitoring(), time]
 
 
-
 L2MbZdcHypo_PT = ZdcHypo("L2MbZdcHypo_PT")
 L2MbZdcHypo_PT.AcceptAll = True
 L2MbZdcHypo_PT.TimeLogic = 0
@@ -1417,3 +1466,17 @@ L2MbZdcHypo_hip_hi_sideC.MultCut = [ -1 , -1 ]
 L2MbZdcHypo_hip_hi_sideC.TimeCut= -1.
 hypos["L2MbZdcHypo_hip_hi_sideC"] = L2MbZdcHypo_hip_hi_sideC
 
+### ZDC both sides low threshold
+L2MbZdcHypo_sideAC_zdc_LG = ZdcHypo("L2MbZdcHypo_sideAC_zdc_LG")
+L2MbZdcHypo_sideAC_zdc_LG.AcceptAll = False
+L2MbZdcHypo_sideAC_zdc_LG.TimeLogic = 0
+L2MbZdcHypo_sideAC_zdc_LG.EnergyLogic = 1 ## AND
+L2MbZdcHypo_sideAC_zdc_LG.MultiplicityLogic = 0
+L2MbZdcHypo_sideAC_zdc_LG.TimeOffset = [0., 0., 0., 0., 0., 0., 0., 0.]
+L2MbZdcHypo_sideAC_zdc_LG.Pedestal = [0., 0., 0., 0., 0., 0., 0., 0.]
+L2MbZdcHypo_sideAC_zdc_LG.EnergyCalibration = [1., 1., 1., 1., 1., 1., 1., 1.]
+L2MbZdcHypo_sideAC_zdc_LG.TimeModuleCut = 99999.
+L2MbZdcHypo_sideAC_zdc_LG.SumEnergyCut = [0.,trigT2MinBiasProperties.zdcVetoThresholdLG(), 0.,trigT2MinBiasProperties.zdcVetoThresholdLG()] # 1<A<2 || 3<C<4 - LONG LINE!
+L2MbZdcHypo_sideAC_zdc_LG.MultCut = [ -1 , -1 ]
+L2MbZdcHypo_sideAC_zdc_LG.TimeCut= -1.
+hypos["L2MbZdcHypo_sideAC_zdc_LG"] = L2MbZdcHypo_sideAC_zdc_LG

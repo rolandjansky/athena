@@ -19,6 +19,17 @@ TrigCountTrtHitsHypo::TrigCountTrtHitsHypo(const std::string& name, ISvcLocator*
   declareProperty( "TrtHitsEndcaps",             m_trtHitsEC_cut = 60. );     
   declareProperty( "TotalTrtHits",               m_totalTrtHits_cut = -1. );
   declareMonitoredVariable("NTrtRDO",            m_nTrtHits);
+
+  // Additional initialization for Coverity cleaning
+  declareProperty( "hltExecuteInitialisationRun", m_hltExecuteInitialisationRun = true);
+  declareProperty( "trt_barrel_a_side",   m_trt_barrel_a_side = true );     
+  declareProperty( "trt_barrel_c_side",   m_trt_barrel_c_side = true );     
+  declareProperty( "trt_endcap_a_side",   m_trt_endcap_a_side = true );     
+  declareProperty( "trt_endcap_c_side",   m_trt_endcap_c_side = true );     
+  declareProperty( "nTrtHits_B",          m_nTrtHits_B = 0. );     
+  declareProperty( "nTrtHits_A",          m_nTrtHits_A = 0. );     
+  declareProperty( "nTrtHits_C",          m_nTrtHits_C = 0. );     
+  declareProperty( "maxTrtHitsEC",        m_maxTrtHitsEC = 0. );     
 }
 
 //-----------------------------------------------------------------------------
@@ -109,8 +120,8 @@ HLT::ErrorCode TrigCountTrtHitsHypo::hltExecute(const HLT::TriggerElement* outpu
 
   // Do initialisation at start of first event
   if (m_hltExecuteInitialisationRun == false) {
-    HLT::ErrorCode _ec = checkDetectorMask();
-    if (_ec != HLT::OK) return _ec;
+    HLT::ErrorCode ec = checkDetectorMask();
+    if (ec != HLT::OK) return ec;
   }
 
   if(msgLvl() <= MSG::DEBUG) {
@@ -179,9 +190,8 @@ HLT::ErrorCode TrigCountTrtHitsHypo::hltExecute(const HLT::TriggerElement* outpu
   else if( m_totalTrtHits_cut >= 0. ){
     
     // trigger decision
-    if( m_nTrtHits >= m_totalTrtHits_cut )
-      pass=true;
-      m_log << MSG::DEBUG <<  "REGTEST: event passed with " << m_nTrtHits << endreq;          
+    if( m_nTrtHits >= m_totalTrtHits_cut ) pass=true;
+    m_log << MSG::DEBUG <<  "REGTEST: event passed with " << m_nTrtHits << endreq;          
   }
   else 
     m_log << MSG::DEBUG <<  "REGTEST: event failed with " << m_nTrtHits << endreq;

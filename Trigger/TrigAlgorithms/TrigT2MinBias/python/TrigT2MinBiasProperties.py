@@ -90,6 +90,10 @@ class mbtsGlobalTimeOffset(JobProperty):
     allowedTypes = ['float']
     StoredValue = 0.
 
+class zdcVetoThresholdLG(JobProperty): # Threshold for ZDC veto in Low Gain
+    statusOn = True
+    allowedTypes = ['float']
+    StoredValue = 1300. # default
  
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -139,6 +143,7 @@ trigT2MinBiasProperties.add_JobProperty(trtHitTotMax)
 trigT2MinBiasProperties.add_JobProperty(mbtsThreshold)
 trigT2MinBiasProperties.add_JobProperty(mbtsTimeCut)
 trigT2MinBiasProperties.add_JobProperty(mbtsGlobalTimeOffset)
+trigT2MinBiasProperties.add_JobProperty(zdcVetoThresholdLG)
 
 ##-----------------------------------------------------------------------------
 ## 5th step

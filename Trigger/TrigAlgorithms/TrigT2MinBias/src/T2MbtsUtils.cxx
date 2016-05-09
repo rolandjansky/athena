@@ -19,7 +19,7 @@ T2MbtsUtils::T2MbtsUtils(): m_threshold(0.),
 }
 
 int T2MbtsUtils::calculateMultiplicities(const xAOD::TrigT2MbtsBits *t2mbtsBits,
-					 int m_mode,
+					 int mode,
 					 MsgStream& mlog, 
 					 unsigned int msgLvl) {
   m_mult = std::make_pair(0,0);
@@ -40,8 +40,8 @@ int T2MbtsUtils::calculateMultiplicities(const xAOD::TrigT2MbtsBits *t2mbtsBits,
 
   if(msgLvl <= MSG::DEBUG) mlog << MSG::DEBUG << "Forming hit multiplicities." << endreq;
   
-  std::bitset<16> ebaTriggerBits(0);
-  std::bitset<16> ebcTriggerBits(0);
+  std::bitset<16> ebaTriggerBits;
+  std::bitset<16> ebcTriggerBits;
   unsigned ibit;
   int ebaCounters=0, ebcCounters=0;
 
@@ -52,8 +52,8 @@ int T2MbtsUtils::calculateMultiplicities(const xAOD::TrigT2MbtsBits *t2mbtsBits,
 
   // Loop over each counter and form bit sets from time and energy (optional).
   for(ibit=0; ibit< xAOD::TrigT2MbtsBits::NUM_MBTS; ibit++) {
-    if(m_mode==1 && !( ibit<8               || (ibit>=16 && ibit<24) )) continue; // count only inner
-    if(m_mode==2 && !((ibit >=8 && ibit<16) || (ibit>=24 && ibit<32) )) continue;  // count only outer
+    if(mode==1 && !( ibit<8               || (ibit>=16 && ibit<24) )) continue; // count only inner
+    if(mode==2 && !((ibit >=8 && ibit<16) || (ibit>=24 && ibit<32) )) continue;  // count only outer
     
     // Check the energy threshold.
     if(triggerEnergies[ibit] <= m_threshold) continue; 
