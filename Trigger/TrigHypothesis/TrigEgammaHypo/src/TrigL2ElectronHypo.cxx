@@ -167,14 +167,16 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   // generate TrigPassBits mask to flag which TrigElectrons pass hypo cuts
   TrigPassBits* passBits = HLT::makeTrigPassBits(trigElecColl);
 
-  // if no electrons were found, just leave TrigElectronColl. empty and leave
+  // if no electrons were found, continue algorithm but set hasContainer=False 
+  // does not require managing bits
   if ( trigElecColl->size() == 0 ) {
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "No electrons to analyse, leaving!" << endreq;
-    return HLT::OK;
-  }
-  hasContainer=true;
- // initialize counter after all error conditions checked
+      ATH_MSG_DEBUG("No electrons to analyse!");
+      hasContainer=false;
+  } else
+      hasContainer=true;
+ 
+  
+  // initialize counter after all error conditions checked
   m_egamma_container = trigElecColl;
   m_cutCounter=0;
   bool pTcaloCut=false;
