@@ -14,7 +14,7 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "xAODMissingET/MissingET.h" 
 #include "xAODMissingET/MissingETContainer.h" 
@@ -59,11 +59,11 @@ METMonTool::METMonTool(const std::string& type, const std::string& name, const I
     m_jetColKey("AntiKt4LCTopoJets"),
     m_eleColKey("Electrons"),
     m_muoColKey("Muons"),
+    m_met_cut_80(false),
     m_etabin(100),
     m_phibin(100),
     m_etbin(800),
     m_met_cut(0.0),
-    m_met_cut_80(false),
     m_etrange(400.),
     m_etrangeSumFactor(10.),
     m_doFillNegativeSumEt(false),
@@ -895,14 +895,14 @@ StatusCode METMonTool::fillHistograms()
 
     ATH_MSG_DEBUG("in fillHistograms()");
 
-    const EventInfo* thisEventInfo = 0;
+    const xAOD::EventInfo* thisEventInfo = 0;
     StatusCode sc(evtStore()->retrieve(thisEventInfo));
 
     if (sc != StatusCode::SUCCESS)
         ATH_MSG_DEBUG("No EventInfo object found! Can't access LAr event info status!");
     else
     {
-        if (thisEventInfo->errorState(EventInfo::LAr) == EventInfo::Error)
+        if (thisEventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error)
         {
             return StatusCode::SUCCESS;
         }
@@ -1277,12 +1277,19 @@ StatusCode METMonTool::fillSourcesHistograms()
 
                         if (TMath::Abs(et) < m_truncatedMean)
                         {
-                            //msg_info// ATH_MSG_INFO("METMonTool::FILL_TWO_TWO::1095");
-                            if (xjet != 0)
+			  if (xJetCollection != 0)
                             {
-                                const xAOD::JetFourMom_t& jetP4 = xjet->jetP4();
-
-                                fillProfileHistograms(et, phi, jetP4.eta(), jetP4.phi(), m_iJet).ignore();
+			      
+			      xAOD::JetContainer::const_iterator jetItrE = xJetCollection->end();
+			      
+			      xAOD::JetContainer::const_iterator jetItr = xJetCollection->begin();
+			      for (; jetItr != jetItrE; ++jetItr)
+				{
+				  
+				  const xAOD::Jet* xjet = *jetItr;
+				  const xAOD::JetFourMom_t& jetP4 = xjet->jetP4();
+				   if (xjet != 0) fillProfileHistograms(et, phi, jetP4.eta(), jetP4.phi(), m_iJet).ignore();
+				}
                             }
 
                             if (xhEle != 0) fillProfileHistograms(et, phi, xhEle->eta(), xhEle->phi(), m_iEle).ignore();
@@ -1505,7 +1512,6 @@ StatusCode METMonTool::fillProfileHistograms(float et, float phi, float objEta, 
     //m_metPerpVsPhi[i]->Fill( objPhi, et*sin(dphi) );
     m_dphiVsPhi[i]->Fill(objPhi, dphi);
     m_metVsEtaPhi[i]->Fill(objEta, objPhi, et);
-
     return StatusCode::SUCCESS;
 }
 
