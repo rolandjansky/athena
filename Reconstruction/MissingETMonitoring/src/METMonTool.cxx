@@ -14,7 +14,7 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "xAODMissingET/MissingET.h" 
 #include "xAODMissingET/MissingETContainer.h" 
@@ -59,6 +59,7 @@ METMonTool::METMonTool(const std::string& type, const std::string& name, const I
     m_jetColKey("AntiKt4LCTopoJets"),
     m_eleColKey("Electrons"),
     m_muoColKey("Muons"),
+    m_met_cut_80(false),
     m_etabin(100),
     m_phibin(100),
     m_etbin(800),
@@ -109,7 +110,7 @@ METMonTool::METMonTool(const std::string& type, const std::string& name, const I
     m_regStrings.push_back("EndCap");
     m_regStrings.push_back("Forward");
 
-    m_met_cut_80 = false;
+    //    m_met_cut_80 = false;
 
     float etRegFactors[] = { 0.1, 0.1, 0.1 };
     m_etrangeRegFactors.assign(etRegFactors, etRegFactors + 3);
@@ -144,6 +145,7 @@ METMonTool::METMonTool(const std::string& type, const std::string& name, const I
     declareProperty("doJetcleaning", m_doJetcleaning); //name used in python to overwrite
     declareProperty("badJets", m_badJets);
     declareProperty("maxNumContainerWarnings", m_maxNumContainerWarnings);
+    declareProperty("JetSelectorTool", m_selTool);
 
     m_Pi = 3.141592653589793238462;
 }
@@ -159,6 +161,12 @@ StatusCode METMonTool::initialize()
     //resize vector with number of WARNINGs already displayed for retrieval of a certain container
     m_ContainerWarnings_metKeys.resize(m_metKeys.size(), 0);
 
+    if (!service("THistSvc", m_thistSvc).isSuccess()) {
+    //	m_log << MSG::ERROR << "Unable to locate THistSvc" << endreq;
+      return StatusCode::FAILURE;
+    }
+
+    if (m_badJets || m_doJetcleaning)   CHECK(m_selTool.retrieve());
     return ManagedMonitorToolBase::initialize();
 }
 
@@ -271,7 +279,6 @@ StatusCode METMonTool::bookHistograms()
     if (m_metRegKey != "") bookRegionsHistograms(met_regions).ignore();
 
     bookSummaryHistograms(met_summary).ignore();
-
 
     ATH_MSG_DEBUG("bookHistograms() ended");
     return StatusCode::SUCCESS;
@@ -888,14 +895,14 @@ StatusCode METMonTool::fillHistograms()
 
     ATH_MSG_DEBUG("in fillHistograms()");
 
-    const EventInfo* thisEventInfo = 0;
+    const xAOD::EventInfo* thisEventInfo = 0;
     StatusCode sc(evtStore()->retrieve(thisEventInfo));
 
     if (sc != StatusCode::SUCCESS)
         ATH_MSG_DEBUG("No EventInfo object found! Can't access LAr event info status!");
     else
     {
-        if (thisEventInfo->errorState(EventInfo::LAr) == EventInfo::Error)
+        if (thisEventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error)
         {
             return StatusCode::SUCCESS;
         }
@@ -915,7 +922,7 @@ StatusCode METMonTool::fillSourcesHistograms()
 {
 
     // MET > 80 cut
-
+  /*
     const xAOD::MissingETContainer* xMissEt80 = 0;
 
     if (m_met_cut > 0) {
@@ -937,6 +944,9 @@ StatusCode METMonTool::fillSourcesHistograms()
             }
         }
     }
+  */
+
+
 
     //msg_info// ATH_MSG_INFO("METMonTool::880");
     //msg_info// ATH_MSG_INFO("METMonTool::880");
@@ -945,12 +955,12 @@ StatusCode METMonTool::fillSourcesHistograms()
     ATH_MSG_DEBUG("in fillSourcesHistograms()");
 
     const xAOD::Jet* xjet = 0;
+    const xAOD::JetContainer* xJetCollection = 0;
     if (m_jetColKey != "")
     {
 
-        const xAOD::JetContainer* xJetCollection = 0;
-        ATH_CHECK(evtStore()->retrieve(xJetCollection, "AntiKt4LCTopoJets"));
 
+        ATH_CHECK(evtStore()->retrieve(xJetCollection, "AntiKt4LCTopoJets"));
         if (!xJetCollection)
         {
             ATH_MSG_WARNING("Unable to retrieve JetContainer: " << "AntiKt4LCTopoJets");
@@ -969,69 +979,6 @@ StatusCode METMonTool::fillSourcesHistograms()
             {
                 xAOD::JetContainer::const_iterator jetItr = xJetCollection->begin();
 
-                xjet = (*jetItr);
-
-                if (m_doJetcleaning && !m_badJets)
-                {
-                    //Jet cleaning. No event with at least one bad (loose) jet is kept
-
-                    xAOD::JetContainer::const_iterator jetItrE = xJetCollection->end();
-
-                    for (; jetItr != jetItrE; ++jetItr)
-                    {
-
-                        const xAOD::Jet* xjet_ = *jetItr;
-                        const xAOD::JetFourMom_t& jetP4 = xjet_->jetP4();
-
-                        ATH_MSG_DEBUG("Before touching signal state:" << (*jetItr)->pt());
-
-                        double emf = xjet_->getAttribute<float>(xAOD::JetAttribute::EMFrac);
-                        double jetQuality = xjet_->getAttribute<float>(xAOD::JetAttribute::LArQuality);
-                        double jetTime = xjet_->getAttribute<float>(xAOD::JetAttribute::Timing);
-                        //int SamplingMax = CaloSampling::Unknown;
-                        double fracSamplingMax = xjet_->getAttribute<float>(xAOD::JetAttribute::FracSamplingMax);
-                        double hecf = xjet_->getAttribute<float>(xAOD::JetAttribute::HECFrac);
-                        double hecq = xjet_->getAttribute<float>(xAOD::JetAttribute::HECQuality);
-                        double emjes = 1.0;
-                        double etajet = jetP4.Eta();
-                        double ptjet = jetP4.Pt();
-                        double negE = xjet_->getAttribute<float>(xAOD::JetAttribute::NegativeE);
-
-                        std::vector<float> SumPtTrk_;
-                        double chf = 1.0; // set to 1.0 if not found. Prefer 0.0?
-                        StatusCode xjet_sumpt;
-
-                        bool caught_error = false;
-                        try
-                        {
-                            xjet_sumpt = xjet_->getAttribute(xAOD::JetAttribute::SumPtTrkPt500, SumPtTrk_);
-                        }
-                        catch (...)
-                        {
-                            caught_error = true;
-                        }
-
-                        if (!caught_error && xjet_sumpt.isSuccess() && SumPtTrk_.size() > 0)
-                        {
-                            chf = SumPtTrk_[0] / ptjet;
-                        }
-
-                        if (ptjet*emjes > 20000)
-                        {
-                            if ((emf > 0.95 && fabs(jetQuality) > 0.8 && fabs(etajet) < 2.8)   //EM coherent noise
-                                || (hecf > 0.5 && fabs(hecq) > 0.5)                            //HEC spike
-                                || (fabs(negE) > 60000)
-                                || (hecf > 0.5 && fabs(jetQuality) > 0.5)
-                                || (fabs(jetTime) > 25)                                        //cosmic-beam background
-                                || (emf < 0.05 && chf < 0.05 && fabs(etajet) < 2.)
-                                || (emf < 0.05 && fabs(etajet) >= 2.)
-                                || (fracSamplingMax > 0.99 && fabs(etajet) < 2.0))
-                            {
-                                return StatusCode::SUCCESS;
-                            }
-                        }
-                    }
-                }
 
                 if (m_badJets)
                 {
@@ -1042,56 +989,10 @@ StatusCode METMonTool::fillSourcesHistograms()
                     for (; jetItr != jetItrE; ++jetItr)
                     {
 
-                        const xAOD::Jet* xjet_ = *jetItr;
-                        const xAOD::JetFourMom_t& jetP4 = xjet_->jetP4();
-
-                        double emf = xjet_->getAttribute<float>(xAOD::JetAttribute::EMFrac);
-                        double jetQuality = xjet_->getAttribute<float>(xAOD::JetAttribute::LArQuality);
-                        double jetTime = xjet_->getAttribute<float>(xAOD::JetAttribute::Timing);
-                        //int SamplingMax = CaloSampling::Unknown;
-                        double fracSamplingMax = xjet_->getAttribute<float>(xAOD::JetAttribute::FracSamplingMax);
-                        double hecf = xjet_->getAttribute<float>(xAOD::JetAttribute::HECFrac);
-                        double hecq = xjet_->getAttribute<float>(xAOD::JetAttribute::HECQuality);
-                        double emjes = 1.0;
-                        double etajet = jetP4.Eta();
-                        double ptjet = jetP4.Pt();
-                        double negE = xjet_->getAttribute<float>(xAOD::JetAttribute::NegativeE);
-
-                        std::vector<float> SumPtTrk_;
-                        double chf = 1.0; // set to 1.0 if not found. Prefer 0.0?
-                        StatusCode xjet_sumpt;
-
-                        bool caught_error = false;
-                        try
-                        {
-                            xjet_sumpt = xjet_->getAttribute(xAOD::JetAttribute::SumPtTrkPt500, SumPtTrk_);
-                        }
-                        catch (...)
-                        {
-                            caught_error = true;
-                        }
-
-                        if (!caught_error && xjet_sumpt.isSuccess() && SumPtTrk_.size() > 0)
-                        {
-                            chf = SumPtTrk_[0] / ptjet;
-                        }
-
-                        //Rel. 16 2011
-                        if (ptjet*emjes > 20000)
-                        {
-                            if ((emf > 0.95 && fabs(jetQuality) > 0.8 && fabs(etajet) < 2.8)    //EM coherent noise
-                                || (hecf > 0.5 && fabs(hecq) > 0.5)                            //HEC spike
-                                || (fabs(negE) > 60000)
-                                || (hecf > 0.5 && fabs(jetQuality) > 0.5)
-                                || (fabs(jetTime) > 25)                                      //cosmic-beam background
-                                || (emf < 0.05 && chf < 0.05 && fabs(etajet) < 2.)
-                                || (emf < 0.05 && fabs(etajet) >= 2.)
-                                || (fracSamplingMax > 0.99 && fabs(etajet) < 2.0))
-                            {
-                                counterbadjets++;
-                            }
-                        }
-
+                        const xAOD::Jet* xjet = *jetItr;
+			if( m_selTool->keep(*xjet) ) continue; //jetsel tool
+			counterbadjets++;
+		
                     }
                     if (counterbadjets == 0)
                     {
@@ -1159,6 +1060,33 @@ StatusCode METMonTool::fillSourcesHistograms()
 
     bool doSummary = (m_metKeys.size() > 1);
     // const MissingET *missET;
+
+    if (m_met_cut_80) {
+      if (evtStore()->contains<xAOD::MissingETContainer>("MET_Reference_AntiKt4LCTopo")) {
+	const xAOD::MissingETContainer* xMissEt_forCut = 0;
+	ATH_CHECK(evtStore()->retrieve(xMissEt_forCut, "MET_Reference_AntiKt4LCTopo"));
+	float et_RefFinal = (*xMissEt_forCut)["FinalClus"]->met() / CLHEP::GeV;
+	if (et_RefFinal < m_met_cut) return StatusCode::SUCCESS;
+      }
+    }
+    
+    if (m_doJetcleaning && !m_badJets)
+      {
+	if (xJetCollection->size() > 0){
+	  xAOD::JetContainer::const_iterator jetItrE = xJetCollection->end();
+	  
+	  xAOD::JetContainer::const_iterator jetItr = xJetCollection->begin();
+	  for (; jetItr != jetItrE; ++jetItr)
+	    {
+	      
+	      const xAOD::Jet* xjet = *jetItr;
+	      bool isgoodjet =  m_selTool->keep(*xjet);
+	      if(! isgoodjet )  return StatusCode::SUCCESS;
+	    }
+	}
+      }
+    
+
 
     for (unsigned int i = 0; i < m_metKeys.size(); i++)
     {
@@ -1325,6 +1253,11 @@ StatusCode METMonTool::fillSourcesHistograms()
                 float et = (*xMissEt)[xaod_subkey]->met() / CLHEP::GeV;
                 float phi = (*xMissEt)[xaod_subkey]->phi();
                 float sumet = (*xMissEt)[xaod_subkey]->sumet() / CLHEP::GeV;
+
+	
+
+	
+
                 if (et > 0.)
                 {
                     m_et[i]->Fill(et);
@@ -1344,12 +1277,19 @@ StatusCode METMonTool::fillSourcesHistograms()
 
                         if (TMath::Abs(et) < m_truncatedMean)
                         {
-                            //msg_info// ATH_MSG_INFO("METMonTool::FILL_TWO_TWO::1095");
-                            if (xjet != 0)
+			  if (xJetCollection != 0)
                             {
-                                const xAOD::JetFourMom_t& jetP4 = xjet->jetP4();
-
-                                fillProfileHistograms(et, phi, jetP4.eta(), jetP4.phi(), m_iJet).ignore();
+			      
+			      xAOD::JetContainer::const_iterator jetItrE = xJetCollection->end();
+			      
+			      xAOD::JetContainer::const_iterator jetItr = xJetCollection->begin();
+			      for (; jetItr != jetItrE; ++jetItr)
+				{
+				  
+				  const xAOD::Jet* xjet = *jetItr;
+				  const xAOD::JetFourMom_t& jetP4 = xjet->jetP4();
+				   if (xjet != 0) fillProfileHistograms(et, phi, jetP4.eta(), jetP4.phi(), m_iJet).ignore();
+				}
                             }
 
                             if (xhEle != 0) fillProfileHistograms(et, phi, xhEle->eta(), xhEle->phi(), m_iEle).ignore();
@@ -1410,15 +1350,50 @@ StatusCode METMonTool::fillCalosHistograms()
         {
             ATH_MSG_DEBUG("Filling histograms per calorimeter subsystem with key " << m_metCalKey);
 
+	    if (m_met_cut_80) {
+	      if (evtStore()->contains<xAOD::MissingETContainer>("MET_Reference_AntiKt4LCTopo")) {
+		const xAOD::MissingETContainer* xMissEt_forCut = 0;
+		ATH_CHECK(evtStore()->retrieve(xMissEt_forCut, "MET_Reference_AntiKt4LCTopo"));
+		float et_RefFinal = (*xMissEt_forCut)["FinalClus"]->met() / CLHEP::GeV;
+
+		if (et_RefFinal < m_met_cut) return StatusCode::SUCCESS;
+	      }
+	    }
+
+	    
+	    if (m_doJetcleaning && !m_badJets)
+	      {
+		const xAOD::JetContainer* xJetCollection = 0;
+		ATH_CHECK(evtStore()->retrieve(xJetCollection, "AntiKt4LCTopoJets"));
+		if (!xJetCollection)
+		  {
+		    ATH_MSG_WARNING("Unable to retrieve JetContainer: " << "AntiKt4LCTopoJets");
+		    //return StatusCode::FAILURE;
+		  }
+		if (xJetCollection->size() > 0){
+		  xAOD::JetContainer::const_iterator jetItrE = xJetCollection->end();
+		  
+		  xAOD::JetContainer::const_iterator jetItr = xJetCollection->begin();
+		  for (; jetItr != jetItrE; ++jetItr)
+		    {
+		      
+		      const xAOD::Jet* xjet = *jetItr;
+		      bool isgoodjet =  m_selTool->keep(*xjet);
+		      if(! isgoodjet )  return StatusCode::SUCCESS;
+		    }
+		}
+	      }
+	    
             for (unsigned int i = 0; i < m_calIndices.size(); i++)
             {
 
                 float ex = (*xmetCal)[m_calStrings[i]]->mpx() / CLHEP::GeV;
-                float ey = (*xmetCal)[m_calStrings[i]]->mpy() / CLHEP::GeV;
+		float ey = (*xmetCal)[m_calStrings[i]]->mpy() / CLHEP::GeV;
                 float et = sqrt(ex*ex + ey*ey);// (*xmetCal)["LocHadTopo"]->met() / CLHEP::GeV;
                 float phi = atan2(ey, ex);//  (*xmetCal)["LocHadTopo"]->phi() / CLHEP::GeV;
                 float sumet = (*xmetCal)[m_calStrings[i]]->sumet() / CLHEP::GeV;
-
+		
+		
                 if (et > 0.)
                 {
                     m_etCal[i]->Fill(et);
@@ -1537,7 +1512,6 @@ StatusCode METMonTool::fillProfileHistograms(float et, float phi, float objEta, 
     //m_metPerpVsPhi[i]->Fill( objPhi, et*sin(dphi) );
     m_dphiVsPhi[i]->Fill(objPhi, dphi);
     m_metVsEtaPhi[i]->Fill(objEta, objPhi, et);
-
     return StatusCode::SUCCESS;
 }
 
