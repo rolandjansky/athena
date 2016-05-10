@@ -97,5 +97,5 @@ if DetFlags.readRDOBS.Lucid_on():
 
 if DetFlags.readRDOBS.ZDC_on():
     protectedInclude ("ZdcByteStream/ZdcByteStreamRawDataCnvV2.py")
-    svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/ZdcTriggerTowers"]
+    svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/ZdcTriggerTowers"]	
     svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerAuxContainer/ZdcTriggerTowersAux."]

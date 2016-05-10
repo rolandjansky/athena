@@ -60,17 +60,11 @@ if rec.Production():
 #grep "\-\ " all.log | awk {'print $2'} | sort | uniq -c | sort -n | tail -20
 # then find jobo number in log file and add the jobo to exclude list
 from AthenaCommon.Include import excludeTracePattern
-excludeTracePattern.append("*/TriggerMenuPython/CommonSliceHelper.py")
 excludeTracePattern.append("*/CLIDComps/clidGenerator.py")
 excludeTracePattern.append("*/RecExConfig/Resilience.py")
 excludeTracePattern.append("*/AthenaCommmon/Resilience.py")
 excludeTracePattern.append("*/OutputStreamAthenaPool/MultipleStreamManager.py")
 excludeTracePattern.append("*/GaudiKernel/GaudiHandles.py")
-excludeTracePattern.append ("*/TriggerMenuPython/HltConfig.py")
-excludeTracePattern.append ("*/TriggerMenuPython/MinBias.py")
-excludeTracePattern.append ("*/TriggerMenuPython/Lvl1.py")
-excludeTracePattern.append ("*/TriggerMenuPython/MuonDef.py")
-excludeTracePattern.append ("*/TriggerMenuPython/BphysicsDef.py")
 excludeTracePattern.append ( "*/MuonRecExample/MuonRecUtils.py")
 excludeTracePattern.append ("athfile-cache.ascii")
 excludeTracePattern.append ("*/IOVDbSvc/CondDB.py")

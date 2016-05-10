@@ -112,8 +112,7 @@ except Exception:
 ######################
 # Performance Monitor
 
-
-if rec.doPerfMon() or rec.doDetailedPerfMon() or rec.doSemiDetailedPerfMon():
+if rec.doPerfMon() :
     try:
         # see https://twiki.cern.ch/twiki/bin/view/Atlas/PerfMonComps
         # and https://twiki.cern.ch/twiki/bin/view/Atlas/PerfMonSD
@@ -194,7 +193,14 @@ if hasattr(svcMgr, 'AthenaPoolCnvSvc'):
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; COMPRESSION_LEVEL = '5'" ]
         # Optimize Basket Sizes to store data for 100 entries/events
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '100';"]
+
 	# Switch on splitting for the 2-3 largest container (default off)
+        if rec.doTruth():
+            svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree(TruthParticlesAux.)'; CONTAINER_SPLITLEVEL = '99'" ]
+
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree(InDetTrackParticlesAux.)'; CONTAINER_SPLITLEVEL = '99'" ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree(CaloCalTopoClustersAux.)'; CONTAINER_SPLITLEVEL = '99'" ]
+
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'CollectionTreeInDet::Track_tlp2'; TREE_AUTO_FLUSH = '0'" ]
         # Base the xAOD branch names just on the SG keys:
         StreamAOD.WritingTool.SubLevelBranchName = "<key>"
