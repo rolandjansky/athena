@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<atn>
+
+  <TEST name="AsgToolsTest" type="makecheck" suite="Examples">
+    <package>Control/AthToolSupport/AsgTools</package>
+    <timelimit>5</timelimit>
+    <author>Attila Krasznahorkay</author>
+    <mailto>Attila.Krasznahorkay@cern.ch</mailto>
+    <expectations>
+      <errorMessage>Athena exited abnormally</errorMessage>
+      <errorMessage>differ</errorMessage>
+      <warningMessage> # WARNING MESSAGE : post.sh> ERROR</warningMessage>
+      <successMessage>check ok</successMessage>
+      <returnValue>0</returnValue>
+    </expectations>
+  </TEST>
+
+</atn>

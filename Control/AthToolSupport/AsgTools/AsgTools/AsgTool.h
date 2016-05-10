@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: AsgTool.h 619923 2014-10-03 18:49:49Z dadams $
+// $Id: AsgTool.h 741760 2016-04-20 20:12:12Z ssnyder $
 #ifndef ASGTOOLS_ASGTOOL_H
 #define ASGTOOLS_ASGTOOL_H
 
@@ -40,8 +40,8 @@ namespace asg {
    ///
    /// @author David Adams <dladams@bnl.gov>
    ///
-   /// $Revision: 619923 $
-   /// $Date: 2014-10-03 20:49:49 +0200 (Fri, 03 Oct 2014) $
+   /// $Revision: 741760 $
+   /// $Date: 2016-04-20 22:12:12 +0200 (Wed, 20 Apr 2016) $
    ///
    class AsgTool : public virtual IAsgTool,
                    public AsgToolBase {
@@ -51,6 +51,9 @@ namespace asg {
       AsgTool( const std::string& name );
       /// Destructor
       ~AsgTool();
+
+
+     
 
 #ifdef ASGTOOL_STANDALONE
 
@@ -92,13 +95,7 @@ namespace asg {
 #endif // ASGTOOL_STANDALONE
 
 #ifdef ASGTOOL_ATHENA
-
-      /// Method to set the type for Gaudi AlgTools.
-      /// For expert use only.
-      /// The ctor macros call this to set the type which is needed
-      /// by the trigger DB
-      void setAlgToolType( const std::string& type );
-
+   public:
       /// Pull in the usage of the base class's getProperty function
       using ::AthAlgTool::getProperty;
 
@@ -139,5 +136,8 @@ namespace asg {
 
 // Include the implementation of the template functions:
 #include "AsgTools/AsgTool.icc"
+
+// Include static methods for working with AsgTools
+#include "AsgTools/SetProperty.h"
 
 #endif // ASGTOOLS_ASGTOOL_H

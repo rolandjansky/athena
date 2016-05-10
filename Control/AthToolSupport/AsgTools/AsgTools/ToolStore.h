@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: ToolStore.h 620407 2014-10-07 13:40:28Z krasznaa $
+// $Id: ToolStore.h 671353 2015-06-01 13:33:51Z krasznaa $
 #ifndef ASGTOOLS_TOOLSTORE_H
 #define ASGTOOLS_TOOLSTORE_H
 
@@ -24,8 +24,8 @@ namespace asg {
    /// @author David Adams <dladams@bnl.gov>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 620407 $
-   /// $Date: 2014-10-07 15:40:28 +0200 (Tue, 07 Oct 2014) $
+   /// $Revision: 671353 $
+   /// $Date: 2015-06-01 15:33:51 +0200 (Mon, 01 Jun 2015) $
    ///
    class ToolStore {
 
@@ -39,13 +39,20 @@ namespace asg {
       static StatusCode put( IAsgTool* ptool, const std::string& name );
 
       /// Retrieve a tool by name.
-      static IAsgTool* get( const std::string& name );
+      static IAsgTool* get( const std::string& name, bool silent = false );
 
       /// Retrieve a tool by name and interface.
       template< typename T >
       static T* get( const std::string& name ) {
 
          return dynamic_cast< T* >( get( name ) );
+      }
+
+      /// Check whether a tool with a given type and name is known in the store
+      template< typename T >
+      static bool contains( const std::string& name ) {
+
+         return ( dynamic_cast< T* >( get( name, true ) ) != 0 );
       }
 
       /// Remove the specified tool from the store

@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: AsgToolsDict.h 649187 2015-02-24 08:46:57Z krasznaa $
+// $Id: AsgToolsDict.h 743773 2016-04-28 21:21:41Z krumnack $
 #ifndef ASGTOOLS_ASGTOOLSDICT_H
 #define ASGTOOLS_ASGTOOLSDICT_H
 
@@ -26,12 +26,29 @@
 
 // Declare all possible setProperty template instantiations to Reflex:
 SETPROPERTY_INSTAN( bool );
+SETPROPERTY_INSTAN( short );
+SETPROPERTY_INSTAN( unsigned short );
 SETPROPERTY_INSTAN( int );
+SETPROPERTY_INSTAN( unsigned int );
+SETPROPERTY_INSTAN( long );
+SETPROPERTY_INSTAN( unsigned long );
+SETPROPERTY_INSTAN( long long );
+SETPROPERTY_INSTAN( unsigned long long );
 SETPROPERTY_INSTAN( float );
 SETPROPERTY_INSTAN( double );
 SETPROPERTY_INSTAN( std::string );
+
+SETPROPERTY_INSTAN( std::vector< bool > );
+SETPROPERTY_INSTAN( std::vector< short > );
+SETPROPERTY_INSTAN( std::vector< unsigned short > );
 SETPROPERTY_INSTAN( std::vector< int > );
+SETPROPERTY_INSTAN( std::vector< unsigned int > );
+SETPROPERTY_INSTAN( std::vector< long > );
+SETPROPERTY_INSTAN( std::vector< unsigned long > );
+SETPROPERTY_INSTAN( std::vector< long long > );
+SETPROPERTY_INSTAN( std::vector< unsigned long long > );
 SETPROPERTY_INSTAN( std::vector< float > );
+SETPROPERTY_INSTAN( std::vector< double > );
 SETPROPERTY_INSTAN( std::vector< std::string > );
 
 // Make the compiler forget about this macro now...
