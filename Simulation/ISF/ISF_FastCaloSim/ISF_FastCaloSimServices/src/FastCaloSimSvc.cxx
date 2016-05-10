@@ -16,8 +16,6 @@
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/ISFParticleContainer.h"
-#include "ISF_Event/ITruthBinding.h"
-#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
 
 // HepMC include needed for FastCaloSim
 #include "HepMC/GenParticle.h"
@@ -351,6 +349,16 @@ StatusCode ISF::FastCaloSimSvc::processOneParticle( const ISF::ISFParticle& isfp
     if (m_chrono) m_chrono->chronoStop( chronoName );
     //ATH_MSG_DEBUG( m_screenOutputPrefix << "Chrono stop : delta " << m_chrono->chronoDelta (chronoName,IChronoStatSvc::USER ) * CLHEP::microsecond / CLHEP::second << " second " );
   } //end of for-loop
+
+  if(hitVector) {
+    for(std::vector<Trk::HitInfo>::iterator it = hitVector->begin();it < hitVector->end();++it)  {
+      if((*it).trackParms) {
+        delete (*it).trackParms;
+        (*it).trackParms=0;
+      }  
+    }
+    delete hitVector;
+  }  
 
   //  ATH_MSG_VERBOSE ( m_screenOutputPrefix << "kill the particle in the end");
   return StatusCode::SUCCESS;
