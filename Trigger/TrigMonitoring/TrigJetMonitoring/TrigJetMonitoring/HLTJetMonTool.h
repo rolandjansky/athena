@@ -149,20 +149,19 @@ class HLTJetMonTool : public IHLTMonTool {
 
     float m_MinPtCut, m_EtaCut /*m_jetTimens, m_badQFrac*/ ;
     int m_MaxNJet /*, m_n90Cut*/ ;
-   
 
-    std::vector<TLorentzVector> v_HLTjet;
-    std::vector<TLorentzVector> v_L1jet;
-    std::vector<TLorentzVector> v_OFjet;
-    std::vector<int> v_HLTindex;
-    std::vector<int> v_L1index;
-    std::vector<int> v_OFindex;
+    std::vector<TLorentzVector> m_v_HLTjet;
+    std::vector<TLorentzVector> m_v_L1jet;
+    std::vector<TLorentzVector> m_v_OFjet;
+    std::vector<int> m_v_HLTindex;
+    std::vector<int> m_v_L1index;
+    std::vector<int> m_v_OFindex;
 
-    int n_index = 0;
+    int m_n_index = 0;
 
-    double lumi_weight = 0;
+    double m_lumi_weight = 0;
     int m_lumiBlock = -1;
-    std::vector<int> v_lbn;
+    std::vector<int> m_v_lbn;
 
     std::string m_p4State;
    
@@ -205,7 +204,7 @@ class HLTJetMonTool : public IHLTMonTool {
 
     void setHistProperties(TH1* h);
     void set2DHistProperties(TH2* h);
-    int basicKineVar(const std::string& hist, std::vector<std::string>& m_kinevars);
+    int basicKineVar(const std::string& hist, std::vector<std::string>& kinevars);
     void clearVectors();
     
     // offline jet cuts

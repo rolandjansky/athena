@@ -185,9 +185,7 @@ if (pp):
                                      'j85_cleanLLP':30,
                                      'j85_cleanL':30,
                                      'j85_cleanT':30,
-                                     'j0_1i2c400m600TLA':0.,
-                                     'j0_0i1c400m600TLA':0.,
-                                     'j0_1i2c500m900TLA':0.,
+                                     'j0_1i2c300m500TLA':0.,
                                      'j0_0i1c500m900TLA':0.
                                      }
   
@@ -212,9 +210,7 @@ if (pp):
                                      'j85_cleanLLP':3.2,
                                      'j85_cleanL':3.2,
                                      'j85_cleanT':3.2,
-                                     'j0_1i2c400m600TLA':3.2,
-                                     'j0_0i1c400m600TLA':3.2,
-                                     'j0_1i2c500m900TLA':3.2,
+                                     'j0_1i2c300m500TLA':3.2,
                                      'j0_0i1c500m900TLA':3.2}
   
   hlt_hltEtaLowThresholds        = { 'j25':0.,
@@ -239,9 +235,7 @@ if (pp):
                                      'j85_cleanLLP':0.,
                                      'j85_cleanL':0.,
                                      'j85_cleanT':0.,
-                                     'j0_1i2c400m600TLA':0.,
-                                     'j0_0i1c400m600TLA':0.,
-                                     'j0_1i2c500m900TLA':0.,
+                                     'j0_1i2c300m500TLA':0.,
                                      'j0_0i1c500m900TLA':0.}
   
   
@@ -267,9 +261,7 @@ if (pp):
                                      'j85_cleanLLP':1,
                                      'j85_cleanL':1,
                                      'j85_cleanT':1,
-                                     'j0_1i2c400m600TLA':1,
-                                     'j0_0i1c400m600TLA':1,
-                                     'j0_1i2c500m900TLA':1,
+                                     'j0_1i2c300m500TLA':1,
                                      'j0_0i1c500m900TLA':1}
   
   
@@ -295,9 +287,7 @@ if (pp):
                                     'j85_cleanLLP':'a4tcemsubjesFS',
                                     'j85_cleanL':'a4tcemsubjesFS',
                                     'j85_cleanT':'a4tcemsubjesFS',
-                                    'j0_1i2c400m600TLA':'a4tcemsubjesFS',
-                                    'j0_0i1c400m600TLA':'a4tcemsubjesFS',
-                                    'j0_1i2c500m900TLA':'a4tcemsubjesFS',
+                                    'j0_1i2c300m500TLA':'a4tcemsubjesFS',
                                     'j0_0i1c500m900TLA':'a4tcemsubjesFS'}
                 
                 
@@ -325,9 +315,7 @@ if (pp):
                                      'j85_cleanLLP':30,
                                      'j85_cleanL':30,
                                      'j85_cleanT':30,
-                                     'j0_1i2c400m600TLA':0.,
-                                     'j0_0i1c400m600TLA':0.,
-                                     'j0_1i2c500m900TLA':0.,
+                                     'j0_1i2c300m500TLA':0.,
                                      'j0_0i1c500m900TLA':0.}
 #Dijet chains
   

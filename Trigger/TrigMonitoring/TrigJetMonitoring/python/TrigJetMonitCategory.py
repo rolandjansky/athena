@@ -75,9 +75,7 @@ primary_jet                = ['j25',
                                  'j85_cleanLLP',
                                  'j85_cleanL',
                                  'j85_cleanT',
-                                 'j0_1i2c400m600TLA',
-                                 'j0_0i1c400m600TLA',
-                                 'j0_1i2c500m900TLA',
+                                 'j0_1i2c300m500TLA',
                                  'j0_0i1c500m900TLA'] 
 
 
@@ -116,9 +114,7 @@ monitoring_jet_pp = ['j25',
                      'j85_cleanLLP',
                      'j85_cleanL',
                      'j85_cleanT',
-                     'j0_1i2c400m600TLA',
-                     'j0_0i1c400m600TLA',
-                     'j0_1i2c500m900TLA',
+                     'j0_1i2c300m500TLA',
                      'j0_0i1c500m900TLA'] 
 
 
@@ -157,9 +153,7 @@ primary_jet_pp                = ['j25',
                                  'j85_cleanLLP',
                                  'j85_cleanL',
                                  'j85_cleanT',
-                                 'j0_1i2c400m600TLA',
-                                 'j0_0i1c400m600TLA',
-                                 'j0_1i2c500m900TLA',
+                                 'j0_1i2c300m500TLA',
                                  'j0_0i1c500m900TLA'] 
 
 
