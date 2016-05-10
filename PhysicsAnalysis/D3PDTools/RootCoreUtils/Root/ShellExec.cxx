@@ -36,6 +36,17 @@ namespace RCU
 
     std::string exec_read (const std::string& cmd)
     {
+      int rc = 0;
+      std::string result = exec_read (cmd, rc);
+      if (rc != 0)
+	RCU_THROW_MSG ("command failed: " + cmd + "\nwith output:\n" + result);
+      return result;
+    }
+
+
+
+    std::string exec_read (const std::string& cmd, int& rc)
+    {
       std::string result;
       FILE *pipe = 0;
       try
@@ -48,15 +59,15 @@ namespace RCU
 	{
 	  result.append (&buffer[0], read);
 	}
+	rc = pclose (pipe);
+	pipe = nullptr;
+	return result;
       } catch (...)
       {
 	if (pipe)
-	  pclose (pipe);
+	  rc = pclose (pipe);
 	throw;
       }
-      if (pclose (pipe) != 0)
-	RCU_THROW_MSG ("command failed: " + cmd + "\nwith output:\n" + result);
-      return result;
     }
 
 

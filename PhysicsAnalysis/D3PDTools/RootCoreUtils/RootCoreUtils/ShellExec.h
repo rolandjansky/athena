@@ -41,6 +41,15 @@ namespace RCU
     std::string exec_read (const std::string& cmd);
 
 
+    /// effects: execute the given command and return the output
+    /// returns: the output of the command
+    /// guarantee: strong
+    /// failures: out of memory III
+    /// failures: system failure
+    /// failures: command failure
+    std::string exec_read (const std::string& cmd, int& rc);
+
+
     /// effects: quote the given name to protect it from the shell
     /// returns: the quoted name
     /// guarantee: strong
