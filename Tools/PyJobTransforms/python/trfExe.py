@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 740201 2016-04-14 09:50:40Z aalshehr $
+# @version $Id: trfExe.py 745958 2016-05-10 15:15:37Z graemes $
 
 import copy
 import json
@@ -118,7 +118,6 @@ class transformExecutor(object):
         # Some information to produce helpful log messages
         
         self._name = forceToAlphaNum(name)
-        self._myMerger=None
         # Data this executor can start from and produce
         # Note we transform NULL to inNULL and outNULL as a convenience
         self._inData = set(inData)
@@ -169,11 +168,15 @@ class transformExecutor(object):
         self._athenaMP = None
         self._dbMonitor = None
         
+        # Holder for execution information about any merges done by this executor in MP mode
+        self._myMerger = []
+
         
     ## Now define properties for these data members
     @property
     def myMerger(self):
         return self._myMerger
+
     @property
     def name(self):
         return self._name
@@ -724,7 +727,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 740201 2016-04-14 09:50:40Z aalshehr $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 745958 2016-05-10 15:15:37Z graemes $')
         else:
             self._jobOptionsTemplate = None
 
@@ -775,7 +778,10 @@ class athenaExecutor(scriptExecutor):
         try:
             # Expected events to process
             if (myMaxEvents != -1):
-                expectedEvents = min(inputEvents-mySkipEvents, myMaxEvents)
+                if (self.inData and next(iter(self.inData)) == 'inNULL'):
+                    expectedEvents = myMaxEvents
+                else:
+                    expectedEvents = min(inputEvents-mySkipEvents, myMaxEvents)
             else:
                 expectedEvents = inputEvents-mySkipEvents
         except TypeError as e:
@@ -1253,7 +1259,7 @@ class athenaExecutor(scriptExecutor):
                 msg.info('Skip merging for single file')
             else:
                 ## We want to parallelise this part!
-                self._myMerger = fileArg.selfMerge(output=mergeName, inputs=mergeGroup, argdict=self.conf.argdict)
+                self._myMerger.append(fileArg.selfMerge(output=mergeName, inputs=mergeGroup, argdict=self.conf.argdict))
 
 
     def _targzipJiveXML(self):

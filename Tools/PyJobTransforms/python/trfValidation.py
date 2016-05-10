@@ -6,7 +6,7 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 740535 2016-04-15 11:21:07Z graemes $
+# @version $Id: trfValidation.py 745958 2016-05-10 15:15:37Z graemes $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
@@ -310,6 +310,10 @@ class athenaLogFileReport(logFileReport):
                         msg.warning('Detected bad_alloc!')
                         self.badAllocExceptionParser(myGen, line, lineCounter)
                         continue
+                    # Parser for ROOT reporting a stale file handle (see ATLASG-448)
+                    if 'SysError in <TFile::ReadBuffer>: error reading from file' in line:
+                        self.rootSysErrorParser(myGen, line, lineCounter)
+                        continue
                     msg.debug('Non-standard line in %s: %s' % (log, line))
                     self._levelCounter['UNKNOWN'] += 1
                     continue
@@ -510,6 +514,12 @@ class athenaLogFileReport(logFileReport):
         msg.debug('Identified bad_alloc - adding to error detail report')
         self._levelCounter['CATASTROPHE'] += 1
         self._errorDetails['CATASTROPHE'].append({'message': badAllocExceptionReport, 'firstLine': firstLineCount, 'count': 1})
+
+
+    def rootSysErrorParser(self, lineGenerator, firstline, firstLineCount):
+        msg.debug('Identified ROOT reading problem - adding to error detail report')
+        self._levelCounter['FATAL'] += 1
+        self._errorDetails['FATAL'].append({'message': firstline, 'firstLine': firstLineCount, 'count': 1})
 
 
     def __str__(self):

@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 743924 2016-04-29 13:18:30Z graemes $
+#  @version $Id: trfReports.py 745958 2016-05-10 15:15:37Z graemes $
 #
 
-__version__ = '$Revision: 743924 $'
+__version__ = '$Revision: 745958 $'
 
 import cPickle as pickle
 import json
@@ -105,7 +105,7 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '2.0.0'
+    _reportVersion = '2.0.1'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
@@ -164,8 +164,8 @@ class trfJobReport(trfReport):
                 # Executor resources are gathered here to unify where this information is held
                 # and allow T0/PanDA to just store this JSON fragment on its own
                 myDict['resource']['executor'][exe.name] = exeResourceReport(exe)
-                if exe.myMerger:
-                    myDict['resource']['executor'][exe.myMerger.name] = exeResourceReport(exe.myMerger)
+                for mergeStep in exe.myMerger:
+                    myDict['resource']['executor'][mergeStep.name] = exeResourceReport(mergeStep)
         # Resource consumption
         reportTime = os.times()
  
