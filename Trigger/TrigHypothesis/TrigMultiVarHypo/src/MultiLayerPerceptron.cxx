@@ -157,7 +157,7 @@ MultiLayerPerceptron::~MultiLayerPerceptron(){
 
   for (unsigned l=0; l<m_nodes.size()-1; l++){
     if (m_bias){
-      if (m_bias[l]!=nullptr){
+      if (m_bias[l]==nullptr){
         delete m_bias[l]; //Deletes null pointer
       }else{
         delete[] m_bias[l]; //Deletes array of values at second dimension of bias
@@ -166,7 +166,7 @@ MultiLayerPerceptron::~MultiLayerPerceptron(){
     for (unsigned i=0; i<m_nodes[l+1]; i++){
       if (m_weights){ 
         if(m_weights[l]){
-          if (m_weights[l][i]!=nullptr){
+          if (m_weights[l][i]==nullptr){
             delete m_weights[l][i]; //Deletes null pointer
           }
         }
@@ -175,33 +175,37 @@ MultiLayerPerceptron::~MultiLayerPerceptron(){
       }
     }
     if (m_weights){
-      if (m_weights[l]!=nullptr){
+      if (m_weights[l]==nullptr){
         delete m_weights[l]; //Deletes null pointer
       }else{
         delete[] m_weights[l]; //Deletes array of pointers at second dimension of weights
       }
     } 
-  }
+  }//Layers
+
   for (unsigned l=0; l<m_nodes.size(); l++){
     if(m_layerOutputs){
-      if (m_layerOutputs[l]!=nullptr){
+      if (m_layerOutputs[l]==nullptr){
         delete m_layerOutputs[l]; //Deletes null pointer
       }
     }else{
       delete[] m_layerOutputs[l]; //Deletes array of values at second dimension of layerOutputs
     }
   }
-  if (m_weights!=nullptr){
+
+  if (m_weights==nullptr){
     delete m_weights; //Deletes null pointer
   }else{
     delete[] m_weights; //Deletes array of pointers at first dimension of weights
   }
-  if (m_bias!=nullptr){
+
+  if (m_bias==nullptr){
     delete m_bias; //Deletes null pointer
   }else{
     delete[] m_bias; //Deletes array of pointers at first dimension of bias
   }
-  if (m_layerOutputs!=nullptr){
+
+  if (m_layerOutputs==nullptr){
     delete m_layerOutputs; //Deletes null pointer
   }else{
     delete[] m_layerOutputs; //Deletes array of pointers at first dimension of layerOutputs
