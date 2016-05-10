@@ -1,4 +1,4 @@
-// $Id: MsgStream.cxx 615760 2014-09-09 12:50:01Z krasznaa $
+// $Id: MsgStream.cxx 687011 2015-08-03 09:25:07Z krasznaa $
 
 // System include(s):
 #include <string>
@@ -7,6 +7,9 @@
 
 // Local include(s):
 #include "AsgTools/MsgStream.h"
+
+// Initialise the source name width to a default:
+size_t MsgStream::s_sourceWidth = 25;
 
 MsgStream::MsgStream( const asg::IAsgTool* tool )
    : m_tool( tool ), m_name( "" ),
@@ -70,22 +73,27 @@ MsgStream& MsgStream::doOutput() {
    if( m_reqlvl >= m_lvl ) {
 
       // Get the name of the parent tool:
-      const std::string& sname = name();
+      std::string sname = name();
       // Get the string representation of the message level:
       const std::string& sreqlvl = MSG::name( m_reqlvl );
 
-      // Print the message source:
-      std::cout << sname;
-      const int npad = 20 - sname.size();
-      for( int i = 0; i < npad; ++i ) {
-         std::cout << " ";
+      // A stream to construct the printed message in. In order not to have to
+      // manipulate std::cout directly.
+      std::ostringstream output;
+
+      // Maximise the width of the message source string:
+      if( sname.size() > s_sourceWidth ) {
+         sname = sname.substr( 0, s_sourceWidth - 3 );
+         sname += "...";
       }
 
-      // Print the message level:
-      std::cout << " " << std::setw( 10 ) << sreqlvl << " ";
+      // Construct the message to be printed:
+      output << std::setiosflags( std::ios::left )
+             << std::setw( s_sourceWidth ) << sname << " " << std::setw( 7 )
+             << sreqlvl << " " << this->str();
 
       // Print the message payload:
-      std::cout << this->str() << std::endl;
+      std::cout << output.str() << std::endl;
    }
 
    // Reset the stream buffer:

@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: SgTEvent.icc 613034 2014-08-22 10:56:10Z krasznaa $
+// $Id: SgTEvent.icc 687011 2015-08-03 09:25:07Z krasznaa $
 #ifndef ASGTOOLS_SGTEVENT_ICC
 #define ASGTOOLS_SGTEVENT_ICC
 
@@ -15,14 +15,14 @@
 namespace asg {
 
    /// A constant used in the error message printouts
-   static const char* ERROR_SOURCE = "asg::SgTEvent           ERROR    ";
+   static const char* ERROR_SOURCE = "asg::SgTEvent             ERROR   ";
 
    template< typename T >
    bool SgTEvent::contains( const std::string& name ) const {
 
       // Make sure the object is initialised:
       if( ( ! m_pevm ) && initialize().isFailure() ) {
-         std::cerr << ERROR_SOURCE << "Couldn't initialise the tool"
+         std::cout << ERROR_SOURCE << "Couldn't initialise the tool"
                    << std::endl;
          return false;
       }
@@ -41,7 +41,7 @@ namespace asg {
 
       // Make sure the object is initialised:
       if( ( ! m_pevm ) && initialize().isFailure() ) {
-         std::cerr << ERROR_SOURCE << "Couldn't initialise the tool"
+         std::cout << ERROR_SOURCE << "Couldn't initialise the tool"
                    << std::endl;
          return false;
       }
@@ -60,7 +60,7 @@ namespace asg {
 
       // Make sure the object is initialised:
       if( ( ! m_pevm ) && initialize().isFailure() ) {
-         std::cerr << ERROR_SOURCE << "Couldn't initialise the tool"
+         std::cout << ERROR_SOURCE << "Couldn't initialise the tool"
                    << std::endl;
          return 0;
       }
@@ -113,7 +113,7 @@ namespace asg {
 
       // Make sure the object is initialised:
       if( ( ! m_pevm ) && initialize().isFailure() ) {
-         std::cerr << ERROR_SOURCE << "Couldn't initialise the tool"
+         std::cout << ERROR_SOURCE << "Couldn't initialise the tool"
                    << std::endl;
          return StatusCode::FAILURE;
       }
@@ -133,6 +133,24 @@ namespace asg {
       } else {
          return StatusCode::FAILURE;
       }
+   }
+
+   /// Container overwriting is not allowed in standalone mode. The function is
+   /// just here to allow the compilation of code that was mainly written for
+   /// the offline environment. (In case the behaviour of the code is chosen
+   /// according to its runtime configuration.)
+   ///
+   /// As it's a dummy, function parameters are not described here. They are
+   /// modeled after the <code>StoreGateSvc::overwrite</code> function.
+   ///
+   template< typename T >
+   StatusCode SgTEvent::overwrite( T* /*obj*/, const std::string& /*name*/,
+                                   bool /*allowMods*/, bool /*resetOnly*/,
+                                   bool /*noHist*/ ) {
+
+      std::cout << ERROR_SOURCE << "Can't use overwrite in standalone mode"
+                << std::endl;
+      return StatusCode::FAILURE;
    }
 
 } // namespace asg

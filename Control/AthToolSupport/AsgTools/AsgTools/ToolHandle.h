@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: ToolHandle.h 659434 2015-04-08 11:53:27Z krasznaa $
+// $Id: ToolHandle.h 724296 2016-02-16 16:24:42Z will $
 #ifndef ASGTOOLS_TOOLHANDLE_H
 #define ASGTOOLS_TOOLHANDLE_H
 
@@ -17,6 +17,10 @@
 // Local include(s):
 #include "AsgTools/StatusCode.h"
 
+namespace asg {
+   class IAsgTool;
+}
+
 /// Non-templated base class for the ToolHandle types
 ///
 /// This base class takes care of implementing all the functionality of
@@ -25,14 +29,14 @@
 ///
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 ///
-/// $Revision: 659434 $
-/// $Date: 2015-04-08 13:53:27 +0200 (Wed, 08 Apr 2015) $
+/// $Revision: 724296 $
+/// $Date: 2016-02-16 17:24:42 +0100 (Tue, 16 Feb 2016) $
 ///
 class ToolHandleBase {
 
 public:
    /// Constructor with a type/name string
-   ToolHandleBase( const std::string& typeAndName = "" );
+   ToolHandleBase( const std::string& typeAndName = "", asg::IAsgTool* parent = 0 );
 
    /// Return the type/name string specified by the user
    const std::string& typeAndName() const;
@@ -40,6 +44,13 @@ public:
    const std::string& type() const;
    /// Return the tool's instance name
    const std::string& name() const;
+   /// Return the tool's parent tool name
+   const std::string& parentName() const;
+
+   /// Change the handle's type and name
+   void setTypeAndName(const std::string& typeAndName);
+   /// Change the handle's name
+   void setName(const std::string& name);
 
 protected:
    /// The type/name string specified in the constructor
@@ -48,6 +59,8 @@ protected:
    std::string m_type;
    /// The instance name of the target tool
    std::string m_name;
+   /// The name of the parent ool
+   std::string m_parentName;
 
 }; // class ToolHandleBase
 
@@ -59,8 +72,8 @@ protected:
 /// @author David Adams <dladams@bnl.gov>
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 ///
-/// $Revision: 659434 $
-/// $Date: 2015-04-08 13:53:27 +0200 (Wed, 08 Apr 2015) $
+/// $Revision: 724296 $
+/// $Date: 2016-02-16 17:24:42 +0100 (Tue, 16 Feb 2016) $
 ///
 template< class T >
 class ToolHandle : public ToolHandleBase {
@@ -73,7 +86,7 @@ public:
    ToolHandle( T* ptool = 0 );
 
    /// Constructor from a tool name.
-   ToolHandle( const std::string& toolname );
+   ToolHandle( const std::string& toolname, asg::IAsgTool* parent = 0 );
 
    /// Dereferencing operator
    T& operator*() const;
@@ -87,6 +100,9 @@ public:
 
    /// Return true if tool has no pointer or name
    bool empty() const;
+
+   /// Return if the pointer is set
+   bool isSet() const;
 
 private:
    /// Pointer to the tool

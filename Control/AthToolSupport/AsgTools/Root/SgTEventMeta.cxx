@@ -1,4 +1,4 @@
-// $Id: SgTEventMeta.cxx 612639 2014-08-20 12:26:10Z krasznaa $
+// $Id: SgTEventMeta.cxx 687011 2015-08-03 09:25:07Z krasznaa $
 
 // xAOD include(s):
 #ifdef ROOTCORE
@@ -33,7 +33,7 @@ namespace asg {
       // Check if there's an active event:
       xAOD::TVirtualEvent* event = xAOD::TActiveEvent::event();
       if( ! event ) {
-         std::cerr << META_ERROR_SOURCE << "Couldn't find an active event in "
+         std::cout << META_ERROR_SOURCE << "Couldn't find an active event in "
                    << "the job" << std::endl;
          return StatusCode::FAILURE;
       }
@@ -41,7 +41,7 @@ namespace asg {
       // This should actually be a TEvent:
       m_event = dynamic_cast< xAOD::TEvent* >( event );
       if( ! m_event ) {
-         std::cerr << META_ERROR_SOURCE << "The active event is not of type "
+         std::cout << META_ERROR_SOURCE << "The active event is not of type "
                    << "xAOD::TEvent?!?" << std::endl;
          return StatusCode::FAILURE;
       }

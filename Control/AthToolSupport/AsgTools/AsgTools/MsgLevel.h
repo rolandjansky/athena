@@ -1,11 +1,11 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: MsgLevel.h 612639 2014-08-20 12:26:10Z krasznaa $
+// $Id: MsgLevel.h 690850 2015-08-24 08:29:10Z krasznaa $
 /// @file AsgTools/MsgLevel.h
 /// @author David Adams <dladams@bnl.gov>
 /// @brief Definition of message levels and a helper function
 ///
-/// $Revision: 612639 $
-/// $Date: 2014-08-20 14:26:10 +0200 (Wed, 20 Aug 2014) $
+/// $Revision: 690850 $
+/// $Date: 2015-08-24 10:29:10 +0200 (Mon, 24 Aug 2015) $
 ///
 #ifndef ASGTOOLS_MSGLEVEL_H
 #define ASGTOOLS_MSGLEVEL_H
@@ -45,6 +45,10 @@ namespace MSG {
 
    /// Convenience function for translating message levels to strings
    const std::string& name( Level lvl );
+
+   /// This struct is here only to make the dictionary generation for types in
+   /// the MSG namespace successful.
+   struct DummyStruct {};
 
 }  // end namespace MSG
 

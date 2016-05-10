@@ -18,6 +18,19 @@
 //   .
 //   .
 //   };
+
+// We need to pass both the tool type and the parent pointer down to
+// AthAlgTool, but the intermediate class only takes a single string parameter.
+// Sort of like passing a camel through the eye of a needle, but as MAD
+// magazine observed, nowhere is the size of the needle specified.
+// So, we pack the type, name, name parent pointer into a string:
+//   PTR#TYPE/NAME
+// where PTR is a hex string representation of the pointer.
+// We then unpack this in the AsgTools constructor.
+
+namespace asg {
+  std::string ptrToString (const void* p);
+}
   
 #define ASG_TOOL_INTERFACE(CLASSNAME) \
 public: \
@@ -40,37 +53,34 @@ public: \
 
 #define ASG_TOOL_CLASS0(CLASSNAME) \
 public: \
-  CLASSNAME(const std::string&, const std::string& myname, const IInterface*) \
-  : CLASSNAME(myname) { \
+  CLASSNAME(const std::string& type, const std::string& myname, const IInterface* parent) \
+: CLASSNAME(asg::ptrToString(parent)+"#"+type+"/"+myname) {                  \
   }
 
 #define ASG_TOOL_CLASS(CLASSNAME, INT1) \
 public: \
-  CLASSNAME(const std::string& type, const std::string& myname, const IInterface*) \
-  : CLASSNAME(myname) { \
+  CLASSNAME(const std::string& type, const std::string& myname, const IInterface* parent) \
+: CLASSNAME(asg::ptrToString(parent)+"#"+type+"/"+myname) {                  \
     declareInterface<INT1>(this); \
-    setAlgToolType(type); \
   }
 
 #define ASG_TOOL_CLASS1 ASG_TOOL_CLASS
 
 #define ASG_TOOL_CLASS2(CLASSNAME, INT1, INT2) \
 public: \
-  CLASSNAME(const std::string& type, const std::string& myname, const IInterface*) \
-  : CLASSNAME(myname) { \
+  CLASSNAME(const std::string& type, const std::string& myname, const IInterface* parent) \
+: CLASSNAME(asg::ptrToString(parent)+"#"+type+"/"+myname) {                  \
     declareInterface<INT1>(this); \
     declareInterface<INT2>(this); \
-    setAlgToolType(type); \
   }
 
 #define ASG_TOOL_CLASS3(CLASSNAME, INT1, INT2, INT3) \
 public: \
-  CLASSNAME(const std::string& type, const std::string& myname, const IInterface*) \
-  : CLASSNAME(myname) { \
+  CLASSNAME(const std::string& type, const std::string& myname, const IInterface* parent) \
+: CLASSNAME(asg::ptrToString(parent)+"#"+type+"/"+myname) {                  \
     declareInterface<INT1>(this); \
     declareInterface<INT2>(this); \
     declareInterface<INT3>(this); \
-    setAlgToolType(type); \
   }
 
 #else
