@@ -11,9 +11,68 @@
 // reports, feature suggestions, praise and complaints.
 
 
-// This module still needs to be documented.  The interface provided
-// in this module is intended for experts only.  The module is
-// considered to be in the pre-alpha stage.
+/// \file MessageCheck.h
+/// \brief macros for messaging and checking status codes
+///
+/// The core of this file is the macro ANA_CHECK.  With it, a simple
+/// main might look like this:
+/// \code{.cpp}
+/// int main ()
+/// {
+///   using namespace asg::msgUserCode;
+///   ANA_CHECK_SET_TYPE (int);
+///
+///   ANA_CHECK (xAOD::Init());
+///   return 0;
+/// }
+/// \endcode
+///
+/// For the most part \ref ANA_CHECK works just like \ref ATH_CHECK,
+/// except it works for any kind of status code (and other things like
+/// bool).  By default it will return a regular StatusCode object, but
+/// you can make it return a different type by specifying \ref
+/// ANA_CHECK_SET_TYPE at the beginning of the function. In the
+/// example I use it to return an int instead.
+///
+/// Unfortunately the example will compile without that line, but it
+/// will not work as expected, i.e. when you return
+/// StatusCode::FAILURE it will convert to a value of 0, which the
+/// shell interprets as success.  There is very little I can do about
+/// that from my side, as that is the intrinsic behavior of StatusCode
+/// itself.  So it is very important that you remember to put that
+/// line in.
+///
+/// If you have a function that needs to indicate failure, but can't
+/// do so via a status code (e.g. a constructor) you can use the macro
+/// \ref ANA_CHECK_THROW, which will throw an exception instead.
+/// However, where possible a status code is preferred.
+///
+/// If this is actually a unit test and you already had the chance to
+/// update it to GoogleTest, then there are also macros
+/// ASSERT_SUCCESS, ASSERT_FAILURE, EXPECT_SUCCESS and EXPECT_FAILURE
+/// defined that integrate with the GoogleTest reporting system.
+///
+///
+/// The other thing needed in the above example is the using namespace
+/// line. This makes the standard messaging macros available in
+/// functions that are not member functions of a tool.  Or almost: It
+/// works fine in RootCore, but for dual-use code you need to use
+/// ANA_MSG_* instead of ATH_MSG_* for sending messages yourself.
+///
+/// The msgUserCode category I used here is meant for things like main
+/// functions, etc.  If you want to use this for other standalone
+/// functions you may consider making your own category (or indeed
+/// several).  For that you put in one of your headers the line:
+/// \code{.cpp}
+/// ANA_MSG_HEADER (msgMyCategory)
+/// \endcode
+/// and then in one of the source files:
+/// \code{.cpp}
+/// ANA_MSG_SOURCE (msgMyCategory, "MyCategory")
+/// \endcode
+/// That way users get the chosen label as part of the messages.  Plus
+/// they can actually set the message level separately for each
+/// category.
 
 
 

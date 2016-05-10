@@ -554,7 +554,7 @@ namespace asg
     // \brief this contains a release function we use, so that we can
     // break down on include dependencies
   private:
-    std::function<void ()> m_releaseFunction;
+    std::function<void (ToolHandle<T> *)> m_releaseFunction;
 
   private:
     std::string fullName () const;
