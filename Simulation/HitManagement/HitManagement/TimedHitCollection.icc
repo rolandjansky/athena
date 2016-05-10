@@ -59,7 +59,7 @@ TimedHitCollection<HIT>::nextDetectorElement(const_iterator& b, const_iterator& 
 template <class HIT>
 void 
 TimedHitCollection<HIT>::sortVector() const {
-  std::sort(m_hits.begin(), m_hits.end());
+  std::stable_sort(m_hits.begin(), m_hits.end());
   m_currentHit = m_hits.begin();
   m_sorted=true;
 }

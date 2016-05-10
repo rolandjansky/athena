@@ -54,8 +54,8 @@ public:
 #else
   AtlasHitsVector<T>(std::string collectionName="DefaultCollectionName", const unsigned int mySize=100)
   {
-    IMessageSvc* m_msgSvc(Athena::getMessageSvc());
-    MsgStream log(m_msgSvc, "AtlasHitsVector");
+    IMessageSvc* msgSvc(Athena::getMessageSvc());
+    MsgStream log(msgSvc, "AtlasHitsVector");
     log << MSG::DEBUG << " initialized AtlasHitVector " << collectionName << endreq;
 
     m_name = collectionName;
@@ -75,13 +75,13 @@ public:
   {
     m_hitvector.push_back(h);
   }
-  void Insert(const T&& h)
+  void Insert(T&& h)
   {
-    m_hitvector.push_back(h);
+    m_hitvector.push_back( std::move(h) );
   }
   template <class... Args> void Emplace(Args&&... args)
   {
-    m_hitvector.emplace_back(args...);
+    m_hitvector.emplace_back( std::forward<Args>(args)... );
   }
   int  Size() const
   {
@@ -121,7 +121,7 @@ public:
   void setName(const std::string& name) {m_name = name;}
   //
   // vector methods.
-  const std::vector<T>& getVector() {return m_hitvector;}
+  const std::vector<T>& getVector() const {return m_hitvector;}
 
   bool empty() const { return m_hitvector.empty(); }
 
