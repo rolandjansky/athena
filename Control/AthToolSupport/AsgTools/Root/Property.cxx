@@ -1,4 +1,4 @@
-// $Id: Property.cxx 612908 2014-08-21 16:19:03Z krasznaa $
+// $Id: Property.cxx 687011 2015-08-03 09:25:07Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -64,6 +64,6 @@ const std::string& Property::typeName() const {
 
 int Property::setFrom( const Property& ) {
 
-   std::cerr << "Property::setFrom: Property not set!" << std::endl;
+   std::cout << "Property::setFrom: Property not set!" << std::endl;
    return -1;
 }

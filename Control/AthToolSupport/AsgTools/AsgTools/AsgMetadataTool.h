@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: AsgMetadataTool.h 670266 2015-05-27 15:11:30Z krasznaa $
+// $Id: AsgMetadataTool.h 676319 2015-06-18 12:12:45Z krasznaa $
 #ifndef ASGTOOLS_ASGMETADATATOOL_H
 #define ASGTOOLS_ASGMETADATATOOL_H
 
@@ -41,8 +41,8 @@ namespace asg {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 670266 $
-   /// $Date: 2015-05-27 17:11:30 +0200 (Wed, 27 May 2015) $
+   /// $Revision: 676319 $
+   /// $Date: 2015-06-18 14:12:45 +0200 (Thu, 18 Jun 2015) $
    ///
    class AsgMetadataTool : public AsgTool,
                            public virtual IIncidentListener {
@@ -108,6 +108,10 @@ namespace asg {
 
       /// Function called when a new input file is opened
       virtual StatusCode beginInputFile();
+
+      /// Function called when the currently open input file got completely
+      /// processed
+      virtual StatusCode endInputFile();
 
       /// Function called when a new events is loaded
       virtual StatusCode beginEvent();

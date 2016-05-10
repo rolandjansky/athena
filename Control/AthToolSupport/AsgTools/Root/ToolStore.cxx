@@ -1,4 +1,4 @@
-// $Id: ToolStore.cxx 649189 2015-02-24 08:59:46Z krasznaa $
+// $Id: ToolStore.cxx 687011 2015-08-03 09:25:07Z krasznaa $
 
 // System include(s):
 #include <map>
@@ -15,8 +15,9 @@
 #endif // ASGTOOL_ATHENA
 
 /// Helper macro for printing nicely formatted error messages
-#define TOOLSTORE_ERROR( FNC, MSG )             \
-   std::cerr << FNC << " ERROR " << MSGSTREAM_REPORT_PREFIX << MSG << std::endl
+#define TOOLSTORE_ERROR( FNC, MSG )                                  \
+   std::cout << FNC << " ERROR   " << MSGSTREAM_REPORT_PREFIX << MSG \
+             << std::endl
 
 /// Convenience type definition
 typedef std::map< std::string, asg::IAsgTool* > ToolMap_t;
@@ -53,7 +54,7 @@ namespace asg {
 
       // Check whether we already have a tool with this name:
       if( tools().find( name ) != tools().end() ) {
-         std::cout << "asg::ToolStore::put     WARNING Tool with name \""
+         std::cout << "asg::ToolStore::put       WARNING Tool with name \""
                    << name << "\" already registered" << std::endl;
          return StatusCode::FAILURE;
       }
@@ -87,12 +88,14 @@ namespace asg {
       return put( ptool );
    }
 
-   IAsgTool* ToolStore::get( const std::string& name ) {
+   IAsgTool* ToolStore::get( const std::string& name, bool silent ) {
 
       ToolMap_t::const_iterator itool = tools().find( name );
       if( itool == tools().end() ) {
-         std::cout << "asg::ToolStore::get     WARNING Tool with name \""
-                   << name << "\" not found" << std::endl;
+         if( ! silent ) {
+            std::cout << "asg::ToolStore::get       WARNING Tool with name \""
+                      << name << "\" not found" << std::endl;
+         }
          return 0;
       }
       return itool->second;

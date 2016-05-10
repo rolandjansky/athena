@@ -1,4 +1,4 @@
-// $Id: SgTEvent.cxx 612654 2014-08-20 13:12:53Z krasznaa $
+// $Id: SgTEvent.cxx 687011 2015-08-03 09:25:07Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -51,7 +51,7 @@ namespace asg {
          // Check if there's an active event:
          xAOD::TVirtualEvent* event = xAOD::TActiveEvent::event();
          if( ! event ) {
-            std::cerr << ERROR_SOURCE << "Couldn't find an active event in "
+            std::cout << ERROR_SOURCE << "Couldn't find an active event in "
                       << "the job" << std::endl;
             return StatusCode::FAILURE;
          }
@@ -59,7 +59,7 @@ namespace asg {
          // This should actually be a TEvent:
          m_pevm = dynamic_cast< xAOD::TEvent* >( event );
          if( ! m_pevm ) {
-            std::cerr << ERROR_SOURCE << "The active event is not of type "
+            std::cout << ERROR_SOURCE << "The active event is not of type "
                       << "xAOD::TEvent?!?" << std::endl;
             return StatusCode::FAILURE;
          }
@@ -69,7 +69,7 @@ namespace asg {
       if( ! m_ptds ) {
          m_ptds = xAOD::TActiveStore::store();
          if( ! m_ptds ) {
-            std::cout << "asg::SgTEvent           WARNING  "
+            std::cout << "asg::SgTEvent             WARNING "
                       << "No xAOD::TStore object is available" << std::endl;
          }
       }

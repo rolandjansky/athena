@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 649187 2015-02-24 08:46:57Z krasznaa $ -->
+<!-- $Id: selection.xml 743773 2016-04-28 21:21:41Z krumnack $ -->
 <lcgdict>
 
    <!-- The basic tool types: -->
@@ -9,5 +9,5 @@
 
    <!-- Helper types: -->
    <class name="asg::ToolStore" />
-
+   
 </lcgdict>

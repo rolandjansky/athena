@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: SgTEvent.icc 669898 2015-05-26 13:49:13Z krasznaa $
+// $Id: SgTEvent.icc 687011 2015-08-03 09:25:07Z krasznaa $
 #ifndef ASGTOOLS_SGTEVENT_ICC
 #define ASGTOOLS_SGTEVENT_ICC
 
@@ -15,14 +15,14 @@
 namespace asg {
 
    /// A constant used in the error message printouts
-   static const char* ERROR_SOURCE = "asg::SgTEvent           ERROR    ";
+   static const char* ERROR_SOURCE = "asg::SgTEvent             ERROR   ";
 
    template< typename T >
    bool SgTEvent::contains( const std::string& name ) const {
 
       // Make sure the object is initialised:
       if( ( ! m_pevm ) && initialize().isFailure() ) {
-         std::cerr << ERROR_SOURCE << "Couldn't initialise the tool"
+         std::cout << ERROR_SOURCE << "Couldn't initialise the tool"
                    << std::endl;
          return false;
       }
@@ -41,7 +41,7 @@ namespace asg {
 
       // Make sure the object is initialised:
       if( ( ! m_pevm ) && initialize().isFailure() ) {
-         std::cerr << ERROR_SOURCE << "Couldn't initialise the tool"
+         std::cout << ERROR_SOURCE << "Couldn't initialise the tool"
                    << std::endl;
          return false;
       }
@@ -60,7 +60,7 @@ namespace asg {
 
       // Make sure the object is initialised:
       if( ( ! m_pevm ) && initialize().isFailure() ) {
-         std::cerr << ERROR_SOURCE << "Couldn't initialise the tool"
+         std::cout << ERROR_SOURCE << "Couldn't initialise the tool"
                    << std::endl;
          return 0;
       }
@@ -113,7 +113,7 @@ namespace asg {
 
       // Make sure the object is initialised:
       if( ( ! m_pevm ) && initialize().isFailure() ) {
-         std::cerr << ERROR_SOURCE << "Couldn't initialise the tool"
+         std::cout << ERROR_SOURCE << "Couldn't initialise the tool"
                    << std::endl;
          return StatusCode::FAILURE;
       }
@@ -148,7 +148,7 @@ namespace asg {
                                    bool /*allowMods*/, bool /*resetOnly*/,
                                    bool /*noHist*/ ) {
 
-      std::cerr << ERROR_SOURCE << "Can't use overwrite in standalone mode"
+      std::cout << ERROR_SOURCE << "Can't use overwrite in standalone mode"
                 << std::endl;
       return StatusCode::FAILURE;
    }
