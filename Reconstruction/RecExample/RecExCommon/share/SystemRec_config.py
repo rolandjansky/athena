@@ -52,6 +52,12 @@ else: #Regular case, dont' run Fatras
         AODFix_postInDetRec()
 
 del runningFatrasID #Not needed any more
+
+
+# functionality : FTK reconstruction
+if DetFlags.detdescr.FTK_on() :
+    protectedInclude( "FTK_RecExample/FTKRec_jobOptions.py")
+         
         
 # functionality : Muon reconstruction
 pdr.flag_domain('muon')

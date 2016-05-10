@@ -55,18 +55,12 @@ if rec.Production():
 # then find jobo number in log file and add the jobo to exclude list
 from AthenaCommon.Include import excludeTracePattern
 excludeTracePattern.append("*/BTagging/BTaggingFlags.py")
-excludeTracePattern.append("*/TriggerMenuPython/CommonSliceHelper.py")
 excludeTracePattern.append("*/CLIDComps/clidGenerator.py")
 excludeTracePattern.append("*/RecExConfig/Resilience.py")
 excludeTracePattern.append("*/AthenaCommmon/Resilience.py")
 excludeTracePattern.append("*/OutputStreamAthenaPool/MultipleStreamManager.py")
 excludeTracePattern.append("*/GaudiKernel/GaudiHandles.py")
 excludeTracePattern.append ("*/TriggerMenu/menu/HLTObjects.py")
-excludeTracePattern.append ("*/TriggerMenuPython/HltConfig.py")
-excludeTracePattern.append ("*/TriggerMenuPython/MinBias.py")
-excludeTracePattern.append ("*/TriggerMenuPython/Lvl1.py")
-excludeTracePattern.append ("*/TriggerMenuPython/MuonDef.py")
-excludeTracePattern.append ("*/TriggerMenuPython/BphysicsDef.py")
 excludeTracePattern.append ( "*/MuonRecExample/MuonRecUtils.py")
 excludeTracePattern.append ("athfile-cache.ascii")
 excludeTracePattern.append ("*/IOVDbSvc/CondDB.py")
@@ -102,9 +96,8 @@ excludeTracePattern.append("*/TrigL2MissingET/TrigL2MissingETMonitoring.py")
 
 include ( "RecExCond/RecExCommon_flags.py" )
 
-if (rec.doRecoTiming() and
-    ( rec.OutputFileNameForRecoStep() == 'RAWtoESD' or
-      rec.OutputFileNameForRecoStep() == 'ESDtoAOD' )):
+if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoAOD')):
+
     from RecAlgs.RecAlgsConf import TimingAlg
     topSequence+=TimingAlg("RecoTimerBegin")
     topSequence.RecoTimerBegin.TimingObjOutputName=rec.OutputFileNameForRecoStep()+"_timings"
@@ -210,8 +203,6 @@ if globalflags.InputFormat()=='pool':
         if not rec.readRDO():
             raise "doMixPoolInput only functional reading RDO"
         import StreamMix.ReadAthenaPool
-        # set elsewhere svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DEFAULT_BUFFERSIZE = '2048'" ]
-        #set elsewhere svcMgr.AthenaPoolCnvSvc.PoolAttributes += [  "TREE_BRANCH_OFFSETTAB_LEN ='100'" ]
         from EventSelectorAthenaPool.EventSelectorAthenaPoolConf   import EventSelectorAthenaPool
         from AthenaServices.AthenaServicesConf import MixingEventSelector
         svcMgr.ProxyProviderSvc.ProviderNames += [ "MixingEventSelector/EventMixer" ]
@@ -223,8 +214,6 @@ if globalflags.InputFormat()=='pool':
     else:
         # to read Pool data
         import AthenaPoolCnvSvc.ReadAthenaPool
-        #set elsewhere svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DEFAULT_BUFFERSIZE = '2048'" ]
-        #set elsewhere svcMgr.AthenaPoolCnvSvc.PoolAttributes += [  "TREE_BRANCH_OFFSETTAB_LEN ='100'" ]
 
         # if file not in catalog put it there
         svcMgr.PoolSvc.AttemptCatalogPatch=True
@@ -641,9 +630,7 @@ if rec.doTrigger:
 AODFix_postTrigger()
 
 if globalflags.DataSource()=='geant4':
-    if (rec.doRecoTiming() and
-        ( rec.OutputFileNameForRecoStep() == 'RAWtoESD' or
-         rec.OutputFileNameForRecoStep() == 'ESDtoAOD' )):
+    if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoAOD')):
         topSequence+=TimingAlg("RecoTimerAfterTrigger")
         topSequence.RecoTimerAfterTrigger.TimingObjOutputName=rec.OutputFileNameForRecoStep()+"_timings"
         try:
@@ -818,9 +805,7 @@ if len(rec.UserExecs())>0:
         exec(uExec)
     del allExecs
 
-if (rec.doRecoTiming() and
-    ( rec.OutputFileNameForRecoStep() == 'RAWtoESD' or
-      rec.OutputFileNameForRecoStep() == 'ESDtoAOD' )):
+if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoAOD')):
     topSequence+=TimingAlg("RecoTimerBeforeOutput")
     topSequence.RecoTimerBeforeOutput.TimingObjOutputName=rec.OutputFileNameForRecoStep()+"_timings"
     try:
@@ -944,7 +929,7 @@ else: # minimal TAG to be written into AOD
         include( "EventTagAlgs/GlobalEventTagBuilder_jobOptions.py" )
         from EventTagUtils.EventTagUtilsConf import GlobalEventTagTool
         GlobalEventTagTool.IncludeEventFlag     = False
-        GlobalEventTagTool.IncludeExtras        = False
+        GlobalEventTagTool.IncludeExtras        = True
         GlobalEventTagTool.IncludeRecoTime      = False
         GlobalEventTagTool.IncludeVertexFlag    = False
         GlobalEventTagTool.UseMC                = False
@@ -1005,8 +990,12 @@ if rec.doWriteRDO():
     ## This line provides the 'old' StreamRDO (which is the Event Stream only)
     ## for backward compatibility
     StreamRDO=StreamRDO_Augmented.GetEventStream()
-    StreamRDO_FH=StreamRDO_Augmented.GetMetaDataStream()
 
+    ## Add TAG attribute list to payload data
+    try:
+        StreamRDO_Augmented.GetEventStream().WritingTool.AttributeListKey = EventTagGlobal.AttributeList
+    except:
+        logRecExCommon_topOptions.warning("Failed to add TAG attribute list to payload data")
 
 if globalflags.InputFormat()=='bytestream':
     # FIXME : metadata store definition is in ReadAthenaPool_jobOptions.py
@@ -1034,9 +1023,15 @@ if rec.doFileMetaData():
 
     #lumiblocks
     if rec.readESD() or rec.readAOD():
-        # Lumi counting tool
-        from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
-        svcMgr.MetaDataSvc.MetaDataTools += [ "LumiBlockMetaDataTool" ]
+        # Lumi counting tool ... but not if in athenaMP ...
+        from AthenaCommon.ConcurrencyFlags import jobproperties as jps
+        if jps.ConcurrencyFlags.NumProcs>=1 or jps.ConcurrencyFlags.NumProcs==-1:
+            #athenaMP ... use the lumiblock making algorithm for now. This will be useless after skimming has occured though!
+            include ("LumiBlockComps/CreateLumiBlockFromFile_jobOptions.py")
+        else:
+            #ok to use the metadata tool if single process
+            from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
+            svcMgr.MetaDataSvc.MetaDataTools += [ "LumiBlockMetaDataTool" ]
         # Trigger tool
         ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool" )
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
@@ -1190,7 +1185,12 @@ if rec.doWriteESD():
     ## This line provides the 'old' StreamESD (which is the Event Stream only)
     ## for backward compatibility
     StreamESD=StreamESD_Augmented.GetEventStream()
-    StreamESD_FH=StreamESD_Augmented.GetMetaDataStream()
+
+    ## Add TAG attribute list to payload data
+    try:
+        StreamESD_Augmented.GetEventStream().WritingTool.AttributeListKey = EventTagGlobal.AttributeList
+    except:
+        logRecExCommon_topOptions.warning("Failed to add TAG attribute list to payload data")
 
     ## now done earlier
     ## protectedInclude ( "RecExPers/RecoOutputESDList_jobOptions.py" )
@@ -1334,12 +1334,12 @@ if rec.doWriteAOD():
     StreamAOD_Augmented=MSMgr.NewPoolStream(streamAODName,athenaCommonFlags.PoolAODOutput(),asAlg=True)
     if rec.doFileMetaData():
         # Trigger tool
-        ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool",
-                                                               OutputLevel = 1 )
+        ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool")
+
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
         # EventFormat tool
-        ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool",
-                                                               OutputLevel = 1 )
+        ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool")
+
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
         # Put MetaData in AOD stream via AugmentedPoolStream_
         # Write all meta data containers
@@ -1351,7 +1351,6 @@ if rec.doWriteAOD():
     ## This line provides the 'old' StreamAOD (which is the Event Stream only)
     ## for backward compatibility
     StreamAOD=StreamAOD_Augmented.GetEventStream()
-    StreamAOD_FH=StreamAOD_Augmented.GetMetaDataStream()
 
     ## Add TAG attribute list to payload data
     try:
@@ -1374,11 +1373,8 @@ if rec.doWriteAOD():
     # this is AOD->AOD copy
     if rec.readAOD():
         # copy does not point to input
-        #StreamAOD.ExtendProvenanceRecord = False
         StreamAOD_Augmented.GetEventStream().ExtendProvenanceRecord = False
-        #StreamAOD_Augmented.Stream.ExtendProvenanceRecord = False
         # all input to be copied to output
-        # StreamAOD.TakeItemsFromInput=True
         StreamAOD_Augmented.GetEventStream().TakeItemsFromInput =True
 
     # print one line for each object to be written out
@@ -1407,10 +1403,6 @@ if rec.doWriteAOD() or rec.doWriteESD(): #For xAOD writing:
                 StreamESD_Augmented.AddMetaDataItem("xAOD::EventFormat#EventFormat")
                 pass
             pass
-        #Moved to RecoUtils - more specific
-        # Congfigure "xAOD behaviour" for the AOD files:
-        #svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DEFAULT_SPLITLEVEL='1'" ]
-        #svcMgr.AthenaPoolCnvSvc.SubLevelBranchName = "<key>"
         pass
     except Exception:
      treatException("Problem with extra attributes for xAOD output")

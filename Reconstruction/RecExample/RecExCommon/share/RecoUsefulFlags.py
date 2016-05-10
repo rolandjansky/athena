@@ -11,7 +11,6 @@ from AthenaCommon.BFieldFlags import jobproperties
 from InDetRecExample.InDetJobProperties import InDetFlags
 
 from AthenaCommon.Include import excludeTracePattern
-excludeTracePattern.append("*/TriggerMenuPython/CommonSliceHelper.py")
 excludeTracePattern.append("*/BTagging/BTaggingFlags.py")
 excludeTracePattern.append("*/RecExConfig/RecoFunctions.py")
 
