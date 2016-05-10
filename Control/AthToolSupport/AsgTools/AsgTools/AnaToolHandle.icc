@@ -88,7 +88,7 @@ namespace asg
       m_parent (val_parent),
       m_originalTypeAndName (m_handle->typeAndName ())
 #ifndef ROOTCORE
-    , m_releaseFunction ([this] () {
+    , m_releaseFunction ([] (ToolHandle<T> *m_handle) {
 	using namespace msgToolHandle;
 	//tool has 2 ref counts out of the box?? (ToolSvc and, and ToolSvc again because of the queryInterface call (line 348 of ToolSvc.cpp .. and see line 34 of AlgTool.cpp))
 	if(m_handle->isSet()) {
@@ -191,7 +191,7 @@ namespace asg
       detail::removePropertyFromCatalogue( fullName() , prop ).ignore();
 
     if (m_releaseFunction)
-      m_releaseFunction ();
+      m_releaseFunction (m_handle.get());
 
 #endif
   }
