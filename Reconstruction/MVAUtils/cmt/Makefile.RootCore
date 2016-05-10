@@ -1,0 +1,14 @@
+# this makefile also gets parsed by shell scripts
+# therefore it does not support full make syntax and features
+# edit with care
+
+PACKAGE          = MVAUtils
+PACKAGE_PRELOAD  = Hist TMVA 
+PACKAGE_CXXFLAGS = 
+PACKAGE_LDFLAGS  = 
+PACKAGE_BINFLAGS = 
+PACKAGE_DEP      = 
+PACKAGE_NOOPT    = 0
+PACKAGE_PEDANTIC = 1
+PACKAGE_REFLEX = 1
+include $(ROOTCOREDIR)/Makefile-common
