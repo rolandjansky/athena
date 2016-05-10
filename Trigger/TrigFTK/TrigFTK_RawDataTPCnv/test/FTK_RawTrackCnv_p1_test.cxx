@@ -23,7 +23,6 @@ void compare (const FTK_RawPixelCluster& p1,
 {
   assert (p1.getWordA() == p2.getWordA());
   assert (p1.getWordB() == p2.getWordB());
-  assert (p1.getLayer() == p2.getLayer());
   assert (p1.getBarcode() == p2.getBarcode());
 }
 
@@ -32,8 +31,6 @@ void compare (const FTK_RawSCT_Cluster& p1,
               const FTK_RawSCT_Cluster& p2)
 {
   assert (p1.getWord() == p2.getWord());
-  // p->t converter starts layer numbers at 4.  Is this a bug???
-  assert (p1.getLayer() == p2.getLayer()-4);
   assert (p1.getBarcode() == p2.getBarcode());
 }
 
@@ -92,12 +89,12 @@ void test1()
   trans1.setBarcode (789);
 
   for (size_t i=0; i < trans1.getPixelClusters().size(); i++) {
-    trans1.setPixelCluster (FTK_RawPixelCluster (11 + i*100, 22 + i*100, i));
+    trans1.setPixelCluster (i,FTK_RawPixelCluster (11 + i*100, 22 + i*100));
     trans1.getPixelClusters()[i].setBarcode (33 + i*100);
   }
     
   for (size_t i=0; i < trans1.getSCTClusters().size(); i++) {
-    trans1.setSCTCluster (FTK_RawSCT_Cluster (44 + i*100, 55 + i*100, i));
+    trans1.setSCTCluster (i,FTK_RawSCT_Cluster (44 + i*100, 55 + i*100));
   }
     
   testit (trans1);
