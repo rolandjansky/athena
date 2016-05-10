@@ -30,37 +30,58 @@ using namespace egammaMVATreeHelpers;
 
 egammaMVATreeEgamma::egammaMVATreeEgamma(const std::string& name,
                                          const std::string& prefix,
-                                         const std::set<std::string>& variables)
+                                         const std::set<std::string>& variables,
+                                         bool use_layer_corrected)
 : TTree(name.c_str(), name.c_str()),
   asg::AsgMessaging(name),
-  m_prefix(prefix)
+  m_prefix(prefix), m_use_layer_corrected(use_layer_corrected)
 {
   SetCacheSize(0);  // this is to avoid creation of (big) cache for the tree
+  ATH_MSG_DEBUG("use layer corrected: " << use_layer_corrected);
   init_variables(variables);
 }
 
 void egammaMVATreeEgamma::init_variables(const std::set<std::string>& variables)
 {
-  const std::map<std::string, std::function<float(const xAOD::CaloCluster&)>> map_float_CaloCluster {
+  std::map<std::string, std::function<float(const xAOD::CaloCluster&)>> map_float_CaloCluster {
     {m_prefix + "_cl_eta", compute_cl_eta},
     {m_prefix + "_cl_phi", compute_cl_phi},
-    {m_prefix + "_rawcl_Es0", compute_rawcl_Es0},
-    {m_prefix + "_rawcl_Es1", compute_rawcl_Es1},
-    {m_prefix + "_rawcl_Es2", compute_rawcl_Es2},
-    {m_prefix + "_rawcl_Es3", compute_rawcl_Es3},
     {m_prefix + "_cl_E", [](const xAOD::CaloCluster& cl) { return cl.e(); }},
     {m_prefix + "_cl_etaCalo", compute_cl_etaCalo},
     {m_prefix + "_cl_phiCalo", compute_cl_phiCalo},
-    {m_prefix + "_rawcl_calibHitsShowerDepth", compute_rawcl_calibHitsShowerDepth},
     {m_prefix + "_cl_E_TileGap3", [](const xAOD::CaloCluster& cl) { return cl.eSample(CaloSampling::TileGap3); }}
   };
 
+  std::map<std::string, std::function<float(const xAOD::Egamma&)>> map_float_particle;
+
+  if (m_use_layer_corrected) {
+    map_float_CaloCluster[m_prefix + "_rawcl_Es0"] = compute_correctedcl_Es0;
+    map_float_CaloCluster[m_prefix + "_rawcl_Es1"] = compute_correctedcl_Es1;
+    map_float_CaloCluster[m_prefix + "_rawcl_Es2"] = compute_correctedcl_Es2;
+    map_float_CaloCluster[m_prefix + "_rawcl_Es3"] = compute_correctedcl_Es3;
+    map_float_CaloCluster[m_prefix + "_rawcl_calibHitsShowerDepth"] = compute_correctedcl_calibHitsShowerDepth;
+  }
+  else
+  {
+    map_float_CaloCluster[m_prefix + "_rawcl_Es0"] = compute_rawcl_Es0;
+    map_float_CaloCluster[m_prefix + "_rawcl_Es1"] = compute_rawcl_Es1;
+    map_float_CaloCluster[m_prefix + "_rawcl_Es2"] = compute_rawcl_Es2;
+    map_float_CaloCluster[m_prefix + "_rawcl_Es3"] = compute_rawcl_Es3;
+    // and everything that depends on
+    // static cast here is needed to resolve overload (std::function is not able to)
+    map_float_CaloCluster[m_prefix + "_rawcl_calibHitsShowerDepth"] = static_cast<float(*)(const xAOD::CaloCluster&)>(compute_rawcl_calibHitsShowerDepth);
+  }
+
   create_structure<float>(variables, map_float_CaloCluster, m_functions_float_from_calo_cluster);
+  create_structure<float>(variables, map_float_particle, m_functions_float_from_particle);
 }
 
 template<> const float* egammaMVATreeEgamma::get_ptr(const std::string& var_name) const
 {
   for (const auto& item : m_functions_float_from_calo_cluster) {
+    if (std::get<0>(item) == var_name) { return &std::get<2>(item); }
+  }
+  for (const auto& item : m_functions_float_from_particle) {
     if (std::get<0>(item) == var_name) { return &std::get<2>(item); }
   }
   return nullptr;
@@ -77,9 +98,9 @@ void egammaMVATreeEgamma::update(const xAOD::Egamma* egamma)
   update(egamma, egamma->caloCluster());
 }
 
-void egammaMVATreeEgamma::update(const xAOD::Egamma*, const xAOD::CaloCluster* cluster)
+void egammaMVATreeEgamma::update(const xAOD::Egamma* particle, const xAOD::CaloCluster* cluster)
 {
-  ATH_MSG_DEBUG("updating egamma");
+  ATH_MSG_DEBUG("updating egamma from cluster");
   ATH_MSG_DEBUG(m_functions_float_from_calo_cluster.size() << " float functions");
   if (!cluster and m_functions_float_from_calo_cluster.size() > 0) { ATH_MSG_FATAL("egamma cluster pointer is null"); }
   for (auto& var_function : m_functions_float_from_calo_cluster) {
@@ -88,11 +109,28 @@ void egammaMVATreeEgamma::update(const xAOD::Egamma*, const xAOD::CaloCluster* c
     var = f(*cluster);
     ATH_MSG_DEBUG(std::get<0>(var_function) << " = " << var << " == " << std::get<2>(var_function));
   }
+  ATH_MSG_DEBUG("updating egamma from particle");
+  ATH_MSG_DEBUG(m_functions_float_from_particle.size() << " float functions");
+  if (!particle and m_functions_float_from_particle.size() > 0) { ATH_MSG_FATAL("particle pointer is null"); }
+  for (auto& var_function : m_functions_float_from_particle) {
+    auto& var = std::get<2>(var_function);
+    const auto& f = std::get<1>(var_function);
+    var = f(*particle);
+    ATH_MSG_DEBUG(std::get<0>(var_function) << " = " << var << " == " << std::get<2>(var_function));
+  }
 }
 
-egammaMVATreeElectron::egammaMVATreeElectron(const std::string& name, const std::set<std::string>& vars)
-:egammaMVATreeEgamma(name, "el", vars)
+egammaMVATreeElectron::egammaMVATreeElectron(const std::string& name,
+                                             const std::set<std::string>& vars,
+                                             bool use_layer_corrected)
+:egammaMVATreeEgamma(name, "el", vars, use_layer_corrected)
 {
+ATH_MSG_INFO("creating tree for " << vars.size() << " variables: "
+             << std::accumulate(vars.begin(), vars.end(), std::string(),
+                                [](const std::string& a, const std::string& b) -> std::string {
+                                    return a + (a.length() > 0 ? "," : "") + b;
+             } ));
+
   init_variables(vars);
 }
 
@@ -170,9 +208,16 @@ template<> const int* egammaMVATreeElectron::get_ptr(const std::string& var_name
 
 egammaMVATreePhoton::egammaMVATreePhoton(const std::string& name,
                                          const std::set<std::string>& vars,
+                                         bool use_layer_corrected,
                                          bool force_conversion_to_zero_when_null_photon/*=false*/)
-: egammaMVATreeEgamma(name, "ph", vars), m_force_conversion_to_zero_when_null_photon(force_conversion_to_zero_when_null_photon)
+: egammaMVATreeEgamma(name, "ph", vars, use_layer_corrected),
+  m_force_conversion_to_zero_when_null_photon(force_conversion_to_zero_when_null_photon)
 {
+    ATH_MSG_INFO("creating tree for " << vars.size() << " variables: "
+                 << std::accumulate(vars.begin(), vars.end(), std::string(),
+                                    [](const std::string& a, const std::string& b) -> std::string {
+                                        return a + (a.length() > 0 ? "," : "") + b;
+                                    } ));
   init_variables(vars);
 }
 

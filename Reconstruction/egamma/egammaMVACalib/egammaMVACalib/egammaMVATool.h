@@ -45,13 +45,13 @@ public:
   StatusCode execute(xAOD::CaloCluster* cluster,const xAOD::Egamma* eg);
   StatusCode hltexecute(xAOD::CaloCluster* cluster, const std::string& egType);
 
-  float getEnergy(xAOD::CaloCluster* cluster, const xAOD::Egamma*);
-  float getEnergy(xAOD::CaloCluster* cluster,const xAOD::Electron*);
-  float getEnergy(xAOD::CaloCluster* cluster,const xAOD::Photon*);
-  float getEnergy(xAOD::CaloCluster* cluster, const std::string&);
+  float getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Egamma*);
+  float getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Electron*);
+  float getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Photon*);
+  float getEnergy(const xAOD::CaloCluster* cluster, const std::string&);
 
 private:
-	std::set<std::string> guess_variables(std::string filename);
+  std::set<std::string> guess_variables(const std::string& filename);
   bool getClusterVariables(const xAOD::CaloCluster*);
   bool getConversionVariables(const xAOD::Vertex*);
 
@@ -62,13 +62,14 @@ private:
 
   egammaMVACalib *m_mvaElectron; /// MVA tool for electron
   egammaMVACalib *m_mvaPhoton; /// MVA tool for photon
-	egammaMVATreeElectron* m_MVATreeElectron;  //!
-	egammaMVATreePhoton* m_MVATreePhoton;    //!
+  egammaMVATreeElectron* m_MVATreeElectron;  //!
+  egammaMVATreePhoton* m_MVATreePhoton;    //!
 
   // here will go variables and stuff
   std::string m_folder; /// string with folder for weight files
 
-	bool m_new_version;
+  bool m_new_version;
+  bool m_use_layer_corrected;
 
   ////////////////////////////////////////////////////////////
   // fields for internal tree

@@ -32,9 +32,22 @@ def xAOD_photon_generator(tree):
             yield el
 
 
+def is_file_readable(path):
+    f = ROOT.TFile.Open(path)
+    return bool(f)
+
+
 class TestEgammaMVACalib(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        cls.particle_tree_electron = cls.ParticleTree(("el_rawcl_Es0", "el_rawcl_Es1", "el_rawcl_Es2", "el_rawcl_Es3",
+                                                       "el_cl_eta", "el_cl_E", "el_cl_etaCalo", "el_cl_phiCalo"))
+        cls.particle_tree_photon = cls.ParticleTree(("ph_rawcl_Es0", "ph_rawcl_Es1", "ph_rawcl_Es2", "ph_rawcl_Es3",
+                                                     "ph_cl_eta", "ph_cl_E", "ph_cl_etaCalo", "ph_cl_phiCalo",
+                                                     "ph_ptconv", "ph_pt1conv", "ph_pt2conv", "ph_convtrk1nPixHits",
+                                                     "ph_convtrk1nSCTHits", "ph_convtrk2nPixHits",
+                                                     "ph_convtrk2nSCTHits", "ph_Rconv"))
+
         cls.photon_tool_v1 = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "egammaMVACalib/v1")
         cls.electron_tool_v1 = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "egammaMVACalib/v1")
         cls.photon_tool_v3 = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "egammaMVACalib/offline/v3")
@@ -42,44 +55,83 @@ class TestEgammaMVACalib(unittest.TestCase):
         cls.photon_tool_v3_online = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "egammaMVACalib/online/v3")
         cls.electron_tool_v3_online = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "egammaMVACalib/online/v3")
 
-        cls.tools = (cls.photon_tool_v1, cls.electron_tool_v1,
-                     cls.photon_tool_v3, cls.electron_tool_v3,
-                     cls.photon_tool_v3_online, cls.electron_tool_v3_online)
+        cls.tools_electron = (cls.electron_tool_v1, cls.electron_tool_v3, cls.electron_tool_v3_online)
+        cls.tools_photon = (cls.photon_tool_v1, cls.photon_tool_v3, cls.photon_tool_v3_online)
 
-        for t in cls.tools:
-            t.InitTree(0)
+        for t in cls.tools_electron:
+            t.InitTree(cls.particle_tree_electron.get_tree())
+        for t in cls.tools_photon:
+            t.InitTree(cls.particle_tree_photon.get_tree())
+
+
+    class ParticleTree(object):
+        def __init__(self, variable_names):
+            from array import array
+            self.tree = ROOT.TTree()
+            self.variable_names = variable_names
+            self.data = []
+            for var_name in self.variable_names:
+                d = array('f', [0])
+                self.data.append(d)
+                self.tree.Branch(var_name, d, "%s/F" % var_name)
+
+        def update(self, vs):
+            if len(vs) != len(self.data):
+                raise ValueError("data and variable list must have the same length")
+            for d, v in zip(self.data, vs):
+                d[0] = v
+
+        def get_tree(self):
+            return self.tree
 
     def test_energy_v1_weights(self):
         """
         test for some fixed case if using run1 weights (v1) the tool reproduces
         the same outputs +/- 1 MeV
         """
-        photon_tool = self.photon_tool_v1
         electron_tool = self.electron_tool_v1
-        photon_tool.InitTree(0)
-        electron_tool.InitTree(0)
+
         # first example
-        Etrue, Ecluster, Emva = 163944.71875, 160612.73, 169953.875
+        example_inputs = (2943.845703125, 20473.12109375, 22390.435546875, 275.47125244140625,
+                          0.5844721794128418, 48970.80859375, 0.5835072994232178, 2.843465566635132)
+        self.particle_tree_electron.update(example_inputs)
+        self.assertAlmostEqual(electron_tool.getMVAEnergy(), 49346.90625, delta=1)
+
+        photon_tool = self.photon_tool_v1
+
         example_inputs = (12222.08, 49425.33, 89170.18, 655.61, 1.663827, 160612.73, 1.6522,
                           2.060981035232544, 71608.8984375, 49311.08984375, 22297.919921875,
                           2, 10, 0, 10, 117.15968322753906)
-        self.assertAlmostEqual(photon_tool.getMVAEnergyPhoton(*example_inputs), Emva, delta=1)
+        self.particle_tree_photon.update(example_inputs)
+        self.assertAlmostEqual(photon_tool.getMVAEnergy(), 169953.875, delta=1.)
 
-        Etrue, Ecluster, Emva = 51110.449624549736, 48970.80859375, 49346.90625
-        example_inputs = (2943.845703125, 20473.12109375, 22390.435546875, 275.47125244140625,
-                          0.5844721794128418, 48970.80859375, 0.5835072994232178, 2.843465566635132)
-
-        self.assertAlmostEqual(electron_tool.getMVAEnergyElectron(*example_inputs), Emva, delta=1.)
+    def do_test_file(self, tool, tree):
+        assert tree
+        tool.InitTree(tree)
+        self.assertGreater(tree.GetEntries(), 0)
+        for i in xrange(tree.GetEntries()):
+            tree.GetEntry(i)
+            output = tool.getMVAEnergy()
+            expected_output = tree.exp_output_v1
+            self.assertAlmostEqual(output, expected_output, delta=1.)
 
     def test_extensive_v1_electron(self):
+        """
+        test the expected output looping on a local file with a simple TTree. Electron, v1
+        """
         electron_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "egammaMVACalib/v1")
-        electron_tool.InitTree(0)
-        self.do_test_file(electron_tool.getMVAEnergyElectron, "electron_test.root", "electron_test")
+        f = ROOT.TFile.Open("electron_test.root")
+        tree = f.Get("electron_test")
+        self.do_test_file(electron_tool, tree)
 
     def test_extensive_v1_photon(self):
+        """
+        test the expected output looping on a local file with a simple TTree. Photons, v1
+        """
         photon_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "egammaMVACalib/v1")
-        photon_tool.InitTree(0)
-        self.do_test_file(photon_tool.getMVAEnergyPhoton, "photon_test.root", "photon_test")
+        f = ROOT.TFile.Open("photon_test.root")
+        tree = f.Get("photon_test")
+        self.do_test_file(photon_tool, tree)
 
     def generator_test_input(self, filename):
         with open(filename) as f:
@@ -151,21 +203,10 @@ class TestEgammaMVACalib(unittest.TestCase):
         for fl in glob.glob("tmp_photon*.root"):
             os.remove(fl)
 
-    def do_test_file(self, function, filename, treename):
-        f = ROOT.TFile.Open(filename)
-        tree = f.Get(treename)
-        assert(tree)
-        br_names = [br.GetName() for br in list(tree.GetListOfBranches())]
-        for ientry in xrange(tree.GetEntries()):
-            tree.GetEntry(ientry)
-            example_input = [tree.__getattr__(varname) for varname in br_names][:-1]
-            expected_output = tree.exp_output_v1
-            output = function(*example_input)
-            self.assertAlmostEqual(output, expected_output, delta=1.)
-        self.assertGreater(tree.GetEntries(), 0)
-
     def test_coverage(self):
-        for tool in self.tools:
+        for tool in self.tools_electron:
+            tool.useClusterIf0(False)
+        for tool in self.tools_photon:
             tool.useClusterIf0(False)
 
         for rconv in (0, 117):
@@ -173,9 +214,10 @@ class TestEgammaMVACalib(unittest.TestCase):
                 inputs = (12222.08, 49425.33, 89170.18, 655.61, eta, 160612.73, eta,
                           2.060981035232544, 71608.8984375, 49311.08984375, 22297.919921875,
                           2, 10, 0, 10, rconv)
-                mva_energy_v1 = self.photon_tool_v1.getMVAEnergyPhoton(*inputs)
-                mva_energy_v3 = self.photon_tool_v3.getMVAEnergyPhoton(*inputs)
-                mva_energy_v3_trigger = self.photon_tool_v3_online.getMVAEnergyPhoton(*inputs)
+                self.particle_tree_photon.update(inputs)
+                mva_energy_v1 = self.photon_tool_v1.getMVAEnergy()
+                mva_energy_v3 = self.photon_tool_v3.getMVAEnergy()
+                mva_energy_v3_trigger = self.photon_tool_v3_online.getMVAEnergy()
                 is_crack = 1.370001 < abs(eta) < 1.5199999
                 is_forward = abs(eta) > 2.4700001 and abs(eta) < 2.5000001
                 is_out = abs(eta) >= 2.5000001
@@ -203,9 +245,11 @@ class TestEgammaMVACalib(unittest.TestCase):
         for eta in arange(-3, 3, 0.01):
             inputs = (2943.845703125, 20473.12109375, 22390.435546875, 275.47125244140625,
                       eta, 48970.80859375, eta, 2.843465566635132)
-            mva_energy_v1 = self.electron_tool_v1.getMVAEnergyElectron(*inputs)
-            mva_energy_v3 = self.electron_tool_v3.getMVAEnergyElectron(*inputs)
-            mva_energy_v3_trigger = self.electron_tool_v3_online.getMVAEnergyElectron(*inputs)
+            self.particle_tree_electron.update(inputs)
+            mva_energy_v1 = self.electron_tool_v1.getMVAEnergy()
+            mva_energy_v3 = self.electron_tool_v3.getMVAEnergy()
+            mva_energy_v3_trigger = self.electron_tool_v3_online.getMVAEnergy()
+
             is_crack = 1.370001 < abs(eta) < 1.5199999
             is_forward = abs(eta) > 2.4700001 and abs(eta) < 2.5000001
             is_out = abs(eta) >= 2.5000001
@@ -226,17 +270,14 @@ class TestEgammaMVACalib(unittest.TestCase):
                 self.assertGreater(mva_energy_v3, 0)
                 self.assertGreater(mva_energy_v3_trigger, 0)
 
-        for tool in self.tools:
+        for tool in self.tools_electron:
+            tool.useClusterIf0(True)
+        for tool in self.tools_photon:
             tool.useClusterIf0(True)
 
     def test_tool_initialization(self):
         tool = ROOT.egammaMVATool('the_tool')
         self.assertTrue(tool)
-
-
-def is_file_readable(path):
-    f = ROOT.TFile.Open(path)
-    return bool(f)
 
 
 @unittest.skipIf(not is_file_readable('root://eosatlas.cern.ch//eos/atlas/user/t/turra/user.blenzi.4956574.EXT0._000001.AOD.pool.root'),
@@ -262,12 +303,17 @@ class TestEgammaMVATool(unittest.TestCase):
         cls.xAOD_tool.setProperty("folder", "egammaMVACalib/v1")
         cls.xAOD_tool.initialize()
 
+    @classmethod
+    def tearDownClass(cls):
+        ROOT.xAOD.ClearTransientTrees()
+
+    ## TODO: recreate file since numbers changed after https://its.cern.ch/jira/browse/ATLASRECTS-2911
     def testElectrons(self):
         N = 200
         for i, el in enumerate(xAOD_electron_generator(self.tree)):
             old_energy = el.e()
             new_energy = self.xAOD_tool.getEnergy(el.caloCluster(), el)
-            self.assertAlmostEqual(old_energy, new_energy, delta=1)
+            self.assertAlmostEqual(old_energy, new_energy, delta=10, msg="energy different than expected %.2f != %.2f at eta=%.2f" % (old_energy, new_energy, el.eta()))
             if i >= N:
                 break
         print "tested %d electrons" % i
@@ -287,7 +333,7 @@ class TestEgammaMVATool(unittest.TestCase):
                 break
         print "tested %d photons" % i
         self.assertGreater(i, 10, msg="too few photons")
-        
+
 
 @unittest.skipIf(not is_file_readable('root://eosatlas.cern.ch//eos/atlas/user/t/turra/user.blenzi.4956574.EXT0._000001.AOD.pool.root'),
                  "input file not available")
@@ -304,10 +350,15 @@ class TestEgammaMVATrigger(unittest.TestCase):
             print "ERROR: problem opening eos file"
         cls.tree = ROOT.xAOD.MakeTransientTree(f, treeName)
 
+    @classmethod
+    def tearDownClass(cls):
+        ROOT.xAOD.ClearTransientTrees()
+
     def testElectron(self):
         """ use the HLT interface to apply electron offline calibration """
         xAOD_tool = ROOT.egammaMVATool("egammaMVATool")
-        xAOD_tool.setProperty("folder", "egammaMVACalib/v1")
+        xAOD_tool.setProperty("folder", "egammaMVACalib/online/v3")
+        xAOD_tool.setProperty("use_layer_corrected", False)
         xAOD_tool.initialize()
         for i, el in enumerate(xAOD_electron_generator(self.tree)):
             self.assertAlmostEqual(xAOD_tool.getEnergy(el.caloCluster(), "Electron"),
@@ -318,6 +369,7 @@ class TestEgammaMVATrigger(unittest.TestCase):
         """ test HLT interface to apply photon trigger calibration positive """
         xAOD_tool = ROOT.egammaMVATool("egammaMVATool")
         xAOD_tool.setProperty("folder", "egammaMVACalib/online/v3")
+        xAOD_tool.setProperty("use_layer_corrected", False)
         xAOD_tool.initialize()
 
         for i, ph in enumerate(xAOD_photon_generator(self.tree)):

@@ -46,6 +46,7 @@ egammaMVATool::egammaMVATool( const std::string &name )
 {
   declareProperty("folder", m_folder="egammaMVACalib/offline/v3");//, "folder with weight files");
   declareProperty("new_version", m_new_version=true);      // this will become the default
+  declareProperty("use_layer_corrected", m_use_layer_corrected=true);
 }
 
 StatusCode egammaMVATool::initialize() {
@@ -65,13 +66,14 @@ StatusCode egammaMVATool::initialize() {
 				     true // ignore spectators
 				     );
   m_mvaElectron->msg().setLevel(this->msg().level());
+  ATH_MSG_INFO(std::string(m_use_layer_corrected ? "U" : "Not u") + "sing layer correction");  // j4f
   if (m_new_version) {
     const std::string filename = PathResolverFindCalibFile(m_folder + "/MVACalib_electron.weights.root");
     ATH_MSG_INFO("configuration does not contain list of variables, try to guess:"); // TODO: because it is not implemented
     std::set<std::string> el_variables = guess_variables(filename);
     el_variables.insert({"el_cl_E", "el_cl_eta", "el_rawcl_Es0", "el_rawcl_Es1", "el_rawcl_Es2", "el_rawcl_Es3"}); // used for binning
     for (const auto var : el_variables) { ATH_MSG_INFO("  " << var); }
-    m_MVATreeElectron = new egammaMVATreeElectron("MVATreeElectron", el_variables);
+    m_MVATreeElectron = new egammaMVATreeElectron("MVATreeElectron", el_variables, m_use_layer_corrected);
     m_MVATreeElectron->msg().setLevel(this->msg().level());
     m_mvaElectron->InitTree(m_MVATreeElectron);
   }
@@ -104,7 +106,7 @@ StatusCode egammaMVATool::initialize() {
     ph_variables.insert(ph_conv_variables.begin(), ph_conv_variables.end());
     ph_variables.insert({"ph_cl_E", "ph_cl_eta", "ph_rawcl_Es0", "ph_rawcl_Es1", "ph_rawcl_Es2", "ph_rawcl_Es3"}); // used for binning
     for (const auto var : ph_variables) { ATH_MSG_INFO("  " << var); }
-    m_MVATreePhoton = new egammaMVATreePhoton("MVATreePhoton", ph_variables, true);
+    m_MVATreePhoton = new egammaMVATreePhoton("MVATreePhoton", ph_variables, m_use_layer_corrected, true);
     m_MVATreePhoton->msg().setLevel(this->msg().level());
     m_mvaPhoton->InitTree(m_MVATreePhoton);
   }
@@ -115,7 +117,7 @@ StatusCode egammaMVATool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-std::set<std::string> egammaMVATool::guess_variables(std::string filename)
+std::set<std::string> egammaMVATool::guess_variables(const std::string& filename)
 {
   TFile f(filename.c_str());
   std::unique_ptr<TObjArray> formulae(dynamic_cast<TObjArray*>(f.Get("formulae")));
@@ -123,7 +125,7 @@ std::set<std::string> egammaMVATool::guess_variables(std::string filename)
   if (not formulae) { ATH_MSG_FATAL("cannot find formulae in " << filename); }
 
   // TODO: use regex parsing (regex supported only in gcc 4.9, TPRegexp sucks)
-  std::vector<std::string> all_possibile_variables = {
+  const std::vector<std::string> all_possible_variables = {
     "el_cl_E", "el_cl_eta", "el_cl_phi", "el_charge", "el_author",
     "el_rawcl_Es0", "el_rawcl_Es1", "el_rawcl_Es2", "el_rawcl_Es3", "el_cl_E_TileGap3",
     "el_cl_etaCalo", "el_cl_phiCalo", "el_rawcl_calibHitsShowerDepth",
@@ -137,14 +139,16 @@ std::set<std::string> egammaMVATool::guess_variables(std::string filename)
   std::set<std::string> variables_found;
   TIter iter(formulae.get());
   while (TNamed* obj = dynamic_cast<TNamed*>(iter())) {
-    std::string expression = obj->GetTitle();
-    for (const auto var : all_possibile_variables) {
-      auto pos = expression.find(var);
+    const std::string expression = obj->GetTitle();
+    ATH_MSG_DEBUG("searching variables in " << expression);
+    for (const auto var : all_possible_variables) {
+      const auto pos = expression.find(var);
       if (pos != std::string::npos) {
         if (pos + var.size() < expression.size()) {
           const char next_char = expression[pos + var.size()];
           if (isalnum(next_char) or next_char == '_') continue;
         }
+	ATH_MSG_DEBUG("found variable '" << var << "' in '" << expression << "'");
         variables_found.insert(var);
       }
     }
@@ -195,7 +199,7 @@ StatusCode egammaMVATool::hltexecute(xAOD::CaloCluster* cluster, const std::stri
   return StatusCode::SUCCESS;
 }
 
-float egammaMVATool::getEnergy(xAOD::CaloCluster* cluster, const std::string& egType){
+float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const std::string& egType){
 
   // Check for errors...
   if ( !cluster ){
@@ -269,7 +273,7 @@ float egammaMVATool::getEnergy(xAOD::CaloCluster* cluster, const std::string& eg
   return 0;
 }
 
-float egammaMVATool::getEnergy(xAOD::CaloCluster* cluster, const xAOD::Egamma* eg){
+float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Egamma* eg){
   ATH_MSG_DEBUG("In execute...");
 
   // Check for errors...
@@ -300,7 +304,7 @@ float egammaMVATool::getEnergy(xAOD::CaloCluster* cluster, const xAOD::Egamma* e
   return 0;
 }
 
-float egammaMVATool::getEnergy(xAOD::CaloCluster* cluster, const xAOD::Electron* el){
+float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Electron* el){
   if(!el){
     ATH_MSG_ERROR("No electron passed");
     return 0;
@@ -325,7 +329,7 @@ float egammaMVATool::getEnergy(xAOD::CaloCluster* cluster, const xAOD::Electron*
     }
 }
 
-float egammaMVATool::getEnergy(xAOD::CaloCluster* cluster, const xAOD::Photon* ph){
+float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Photon* ph){
   if(!ph){
     ATH_MSG_ERROR("No photon passed");
     return 0;

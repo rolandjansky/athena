@@ -14,6 +14,7 @@
 #include <cmath>
 #include <set>
 #include <cstdint>
+#include <numeric>
 
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/Electron.h"
@@ -45,7 +46,7 @@
  *  Developer note: the structure is dynamic, only the needed branches are
  *    created. In addition the class holds the internal variables linked to the
  *    branches. Since variables are of different types this means to have
- *    differenc containers. This is the simplest implementation, but not very
+ *    different containers. This is the simplest implementation, but not very
  *    maintainable. TODO: Consider the usage of type erasure, for example with
  *    boost::variant.
  **/
@@ -73,7 +74,8 @@ public:
   // egammaMVATreeEgamma() : TTree(), asg::AsgMessaging("egammaMVATreeEgamma") { };
   egammaMVATreeEgamma(const std::string& name,
                       const std::string& prefix,
-                      const std::set<std::string>& variables);
+                      const std::set<std::string>& variables,
+                      bool use_layer_corrected=true);
   // Note: using pointer version, so that trigger can use the same
   // interface with egamma = nullptr
   // TODO: move to const reference, to do that
@@ -89,6 +91,7 @@ public:
 private:
   void init_variables(const std::set<std::string>& variables);
   std::string m_prefix;
+  bool m_use_layer_corrected = true;
 protected:
   template<typename T> const T* get_ptr(const std::string&) const
   {
@@ -120,7 +123,7 @@ protected:
     }
 
     for (auto& it: container) {
-      ATH_MSG_INFO("creating branch " << std::get<0>(it) << " at " << &std::get<2>(it));
+      ATH_MSG_DEBUG("creating branch " << std::get<0>(it) << " at " << &std::get<2>(it));
       const std::string root_type_name = detail::ROOT_type_name<T>();
       //if (not root_type_name.empty()) {
       //  Branch((std::get<0>(it)).c_str(), &std::get<2>(it), (std::get<0>(it) + "/" + root_type_name).c_str());
@@ -134,6 +137,8 @@ protected:
 protected:
   typedef std::tuple<std::string, std::function<float(const xAOD::CaloCluster&)>, float> FloatElement; //!
   std::vector<FloatElement> m_functions_float_from_calo_cluster; //!
+  typedef std::tuple<std::string, std::function<float(const xAOD::Egamma&)>, float> FloatElementParticle; //!
+  std::vector<FloatElementParticle> m_functions_float_from_particle; //!
 public:
   template<typename T> const T& get_ref(const std::string& var_name) const
   {
@@ -156,6 +161,7 @@ class egammaMVATreePhoton : public egammaMVATreeEgamma
 public:
   egammaMVATreePhoton(const std::string& name,
                       const std::set<std::string>& variables,
+                      bool use_layer_corrected=true,
                       bool force_conversion_to_zero_when_null_photon=false);
   void update(const xAOD::Photon* photon);
   void update(const xAOD::Photon* photon, const xAOD::CaloCluster* cluster);
@@ -193,7 +199,8 @@ class egammaMVATreeElectron : public egammaMVATreeEgamma
 {
 public:
   egammaMVATreeElectron(const std::string& name,
-                        const std::set<std::string>& variables);
+                        const std::set<std::string>& variables,
+                        bool use_layer_corrected=true);
   void update(const xAOD::Electron* electron);
   void update(const xAOD::Electron* electron, const xAOD::CaloCluster* cluster);
 private:
@@ -225,6 +232,7 @@ namespace egammaMVATreeHelpers
 {
   // inline functions to avoid duplicates problem during linking (and performance)
   // cluster functions
+  // REMEMBER to add the functions using corrected layer energies
   inline float compute_cl_eta(const xAOD::CaloCluster& cluster) { return cluster.eta(); }
   inline float compute_cl_phi(const xAOD::CaloCluster& cluster) { return cluster.phi(); }
   inline float compute_cl_e(const xAOD::CaloCluster& cluster) { return cluster.e(); }
@@ -245,30 +253,60 @@ namespace egammaMVATreeHelpers
   inline float compute_cl_etas1(const xAOD::CaloCluster& cluster) { return cluster.etaBE(1); }
   inline float compute_cl_etas2(const xAOD::CaloCluster& cluster) { return cluster.etaBE(2); }
   inline float compute_rawcl_Es0(const xAOD::CaloCluster& cl) { return cl.energyBE(0); }
+  /*inline std::function<float(const xAOD::CaloCluster&)> compute_rawcl_Es0_auto(bool use_corrected)
+  {
+      if (use_corrected) return [](const xAOD::CaloCluster& cl) { return cl.energyBE(0); };
+      else return [](const xAOD::CaloCluster& cl) { return cl.energyBE(0); };
+  }*/
   inline float compute_rawcl_Es1(const xAOD::CaloCluster& cl) { return cl.energyBE(1); }
   inline float compute_rawcl_Es2(const xAOD::CaloCluster& cl) { return cl.energyBE(2); }
   inline float compute_rawcl_Es3(const xAOD::CaloCluster& cl) { return cl.energyBE(3); }
+
+  inline float compute_correctedcl_Es0(const xAOD::CaloCluster& cl) { return cl.isAvailable<double>("correctedcl_Es0") ? cl.auxdataConst<double>("correctedcl_Es0") : cl.energyBE(0); }
+  inline float compute_correctedcl_Es1(const xAOD::CaloCluster& cl) { return cl.isAvailable<double>("correctedcl_Es1") ? cl.auxdataConst<double>("correctedcl_Es1") : cl.energyBE(1); }
+  inline float compute_correctedcl_Es2(const xAOD::CaloCluster& cl) { return cl.isAvailable<double>("correctedcl_Es2") ? cl.auxdataConst<double>("correctedcl_Es2") : cl.energyBE(2); }
+  inline float compute_correctedcl_Es3(const xAOD::CaloCluster& cl) { return cl.isAvailable<double>("correctedcl_Es3") ? cl.auxdataConst<double>("correctedcl_Es3") : cl.energyBE(3); }
+
   inline float compute_rawcl_Eacc(const xAOD::CaloCluster& cl) { return cl.energyBE(1) + cl.energyBE(2) + cl.energyBE(3); }
   inline float compute_rawcl_f0(const xAOD::CaloCluster& cl) { return cl.energyBE(0) / (cl.energyBE(1) + cl.energyBE(2) + cl.energyBE(3)); }
 
-  inline float compute_rawcl_calibHitsShowerDepth(const xAOD::CaloCluster& cl)
+  inline float compute_correctedcl_Eacc(const xAOD::CaloCluster& cl) { return compute_correctedcl_Es1(cl) + compute_correctedcl_Es2(cl) + compute_correctedcl_Es3(cl); }
+  inline float compute_correctedcl_f0(const xAOD::CaloCluster& cl) { return compute_correctedcl_Es0(cl) / (compute_correctedcl_Eacc(cl)); }
+
+
+  inline float compute_calibHitsShowerDepth(const std::array<float, 4>& cl, float eta)
   {
-    const float eta = compute_cl_eta(cl);
     const std::array<float, 4> radius(get_MVAradius(eta));
-    const std::array<float, 4> raw_cl_Es { compute_rawcl_Es0(cl),
-                                           compute_rawcl_Es1(cl),
-                                           compute_rawcl_Es2(cl),
-                                           compute_rawcl_Es3(cl) };
 
     // loop unrolling
-    const float denominator = raw_cl_Es[0] + raw_cl_Es[1] + raw_cl_Es[2] + raw_cl_Es[3];
+    const float denominator = cl[0] + cl[1] + cl[2] + cl[3];
     if (denominator == 0) return 0.;
 
-    return (radius[0] * raw_cl_Es[0]
-          + radius[1] * raw_cl_Es[1]
-          + radius[2] * raw_cl_Es[2]
-          + radius[3] * raw_cl_Es[3]) / denominator;
+    return (radius[0] * cl[0]
+          + radius[1] * cl[1]
+          + radius[2] * cl[2]
+          + radius[3] * cl[3]) / denominator;
   }
+
+  inline float compute_rawcl_calibHitsShowerDepth(const xAOD::CaloCluster& cl)
+  {
+      const std::array<float, 4> cluster_array { compute_rawcl_Es0(cl),
+                                                 compute_rawcl_Es1(cl),
+                                                 compute_rawcl_Es2(cl),
+                                                 compute_rawcl_Es3(cl) };
+      return compute_calibHitsShowerDepth(cluster_array, compute_cl_eta(cl));
+  }
+
+  inline float compute_correctedcl_calibHitsShowerDepth(const xAOD::CaloCluster& cl) {
+    const std::array<float, 4> cluster_array { compute_correctedcl_Es0(cl),
+                                               compute_correctedcl_Es1(cl),
+                                               compute_correctedcl_Es2(cl),
+                                               compute_correctedcl_Es3(cl) };
+    return compute_calibHitsShowerDepth(cluster_array, compute_cl_eta(cl));
+  }
+
+
+
 
   // electron functions
   inline float compute_el_charge(const xAOD::Electron& el) { return el.charge(); }
@@ -277,6 +315,7 @@ namespace egammaMVATreeHelpers
   inline float compute_el_trackz0(const xAOD::Electron& el) { return el.trackParticle()->z0(); }
   inline float compute_el_refittedTrack_qoverp(const xAOD::Electron& el) { return el.trackParticle()->qOverP(); }
   inline int compute_el_author(const xAOD::Electron& el) { return el.auxdata<unsigned short int>("author"); }
+
 
   // photon functions
   inline int compute_ph_convFlag(const xAOD::Photon& ph) {

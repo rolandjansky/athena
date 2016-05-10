@@ -35,10 +35,10 @@
 
 #include "egammaMVACalib/egammaMVALayerDepth.h"
 #include "egammaMVACalib/egammaMVACalib.h"
-#include "egammaMVACalib/BDT.h"
+#include "MVAUtils/BDT.h"
 #include "PathResolver/PathResolver.h"
 
-using namespace egammaMVACalibNmsp;
+using namespace MVAUtils;
 
 #define CHECK_SETUPBDT(EXP) { \
   if (!EXP) { \
@@ -732,7 +732,6 @@ void egammaMVACalib::predefineFormula(const TString & name, const TString & expr
   {
     ATH_MSG_FATAL("predefineFormula, Expressions for do not match. Old: New:" <<name.Data() << it->second.expression.Data() << expression.Data());
     throw std::runtime_error("Expressions do not match");
-    assert(false);
   }
   else if (infoType == "variable" && it->second.infoType != "variable")
   {
@@ -1007,11 +1006,11 @@ TTree* egammaMVACalib::getMVAResponseTree(TTree *tree, int Nentries, TString bra
 
   // Loop over the entries of the input tree
   if (Nentries == -1) Nentries = tree->GetEntries() - first_event;
-  ATH_MSG_INFO("getMVAResponseTree" << "*** Entries to process: " << Nentries);
+  ATH_MSG_INFO("Entries to process: " << Nentries);
   for (int ientry=first_event; ientry < Nentries + first_event; ++ientry)
   {
     ATH_MSG_DEBUG("Processing entry " << ientry);
-    if (ientry%update == 0) ATH_MSG_INFO ("getMVAResponseTree" << "Processing entry " << ientry);
+    if (ientry%update == 0) ATH_MSG_INFO ("Processing entry " << ientry);
     if (useVector) mvaVector.clear();
     if (tree->GetEntry(ientry) < 0) return mvaTree;
 
@@ -1027,7 +1026,7 @@ TTree* egammaMVACalib::getMVAResponseTree(TTree *tree, int Nentries, TString bra
     }
     if (useVector) mvaTree->Fill();
   }
-  ATH_MSG_INFO("getMVAResponseTree" << "Processing done: " << Nentries << " written");
+  ATH_MSG_INFO("Processing done: " << Nentries << " written");
   return mvaTree;
 }
 
@@ -1126,6 +1125,10 @@ float egammaMVACalib::getMVAEnergyElectron(float el_rawcl_Es0,
     el_rawcl_Es1,
     el_rawcl_Es2,
     el_rawcl_Es3);
+  ATH_MSG_DEBUG("computing getMVAEnergy electron with Es0|Es1|Es2|Es2|cl_eta|cl_E|cl_etaCalo|cl_phiCalo|showerdepth = " <<
+		m_el_rawcl_Es0 << "|" << m_el_rawcl_Es1 << "|" << m_el_rawcl_Es2 << "|" << m_el_rawcl_Es3 << "|" <<
+		m_el_cl_eta << "|" << m_el_cl_E << "|" << m_el_cl_etaCalo << "|" << m_el_cl_phiCalo << "|" <<
+		m_el_rawcl_calibHitsShowerDepth);
   return getMVAEnergy();
 }
 
@@ -1317,7 +1320,7 @@ egammaMVACalib::ParticleType egammaMVACalib::getParticleType(const TString & s)
 void egammaMVACalib::printReadersInfo() const
 {
 
-  ATH_MSG_INFO("printReadersInfo "  << getNreaders() << " readers created");
+  ATH_MSG_INFO(getNreaders() << " readers created");
   TAxis* fAxisEta = m_hPoly->GetXaxis(); // TODO: ???
   TAxis* fAxisEnergy = (m_binMultiplicity > 1 ? m_hPoly->GetYaxis() : 0);
 
@@ -1396,7 +1399,7 @@ void egammaMVACalib::activateBranches()
   TBranch *branch;
   TIter next(getListOfBranches());
   while ((branch = (TBranch*) next())) {
-    ATH_MSG_INFO("activateBranches" << "activating " <<branch->GetName());
+    ATH_MSG_INFO("activating " << branch->GetName());
     m_input_tree->SetBranchStatus(branch->GetName(), true);
   }
 }

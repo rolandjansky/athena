@@ -2,15 +2,33 @@
 
 import ROOT
 import math
-
+from functools import partial
 from itertools import islice
+
 import logging
-logging.basicConfig(level=logging.DEBUG, format="%(filename)s\t%(levelname)s    %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(filename)s\t%(levelname)s    %(message)s")
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 
-def xAOD_electron_generator(tree, event_numbers=None, min_pt=None):
+def get_electron_collection(tree):
+    try:
+        collection = tree.Electrons
+    except AttributeError:
+        collection = tree.ElectronCollection
+    return collection
+
+
+def get_photon_collection(tree):
+    try:
+        collection = tree.Photons
+    except AttributeError:
+        collection = tree.PhotonCollection
+    return collection
+
+
+def xAOD_particle_generator(tree, collection_getter, event_numbers=None,
+                            min_pt=None, min_abseta=None, max_abseta=None):
     if event_numbers is None:
         event_numbers = []
     elif type(event_numbers) is int:
@@ -23,24 +41,21 @@ def xAOD_electron_generator(tree, event_numbers=None, min_pt=None):
             if not ei.eventNumber() in event_numbers:
                 continue
 
-        try:
-            collection = tree.Electrons
-        except AttributeError:
-            collection = tree.ElectronCollection
+        collection = collection_getter(tree)
 
         for i in xrange(collection.size()):
-            el = collection.at(i)
-            if min_pt is not None and el.pT() < min_pt:
+            p = collection.at(i)
+            if min_pt is not None and p.pT() < min_pt:
                 continue
-            yield el
+            if min_abseta is not None and abs(p.eta()) < min_abseta:
+                continue
+            if max_abseta is not None and abs(p.eta()) > max_abseta:
+                continue
+            yield p
 
 
-def xAOD_photon_generator(tree):
-    for ievent in xrange(tree.GetEntries()):
-        tree.GetEntry(ievent)
-        for i in xrange(tree.Photons.size()):
-            ph = tree.Photons.at(i)
-            yield ph
+xAOD_photon_generator = partial(xAOD_particle_generator, collection_getter=get_photon_collection)
+xAOD_electron_generator = partial(xAOD_particle_generator, collection_getter=get_electron_collection)
 
 
 def main(filename, **args):
@@ -53,6 +68,9 @@ def main(filename, **args):
     if args['debug']:
         tool.msg().setLevel(0)
     tool.setProperty("folder", args['mva_folder'])
+    if (args['no_layer_correction']):
+        tool.setProperty("use_layer_corrected", False)
+
     tool.initialize()
 
     tree = None
@@ -72,19 +90,24 @@ def main(filename, **args):
 
     logging.debug("input has %d entries" % tree.GetEntries())
 
-
     logging.debug("creating output tree")
     fout = ROOT.TFile("output.root", "recreate")
     tree_out = ROOT.TNtuple(args["tree_name"], args["tree_name"], "eta:phi:true_e:pdgId:MVA_e:xAOD_e:raw_e:raw_ps")
 
     logging.debug("looping on electron container")
-    generator = xAOD_electron_generator(tree, min_pt=args['min_pt'], event_numbers=args['event_number'])
+    generator = xAOD_electron_generator(tree, min_pt=args['min_pt'],
+                                        min_abseta=args['min_abseta'], max_abseta=args['max_abseta'],
+                                        event_numbers=args['event_number'])
 
     get_truth_particle = ROOT.xAOD.TruthHelpers.getTruthParticle
 
-    for iel, electron in enumerate(generator):
-        logging.debug(" === new electron |eta|phi|e| = |%.2f|%.2f|%.2f| ===", electron.eta(), electron.phi(), electron.e())
-        if args['nparticles'] is not None and iel >= args['nparticles']: break
+    for electron in islice(generator, None, args['nparticles']):
+        logging.debug(" === new electron |eta|phi|e|rawe0|rawe1|TileGap3 = |%.2f|%.2f|%.2f|%.2f|%.2f|%.2f ===",
+                      electron.eta(), electron.phi(), electron.e(),
+                      electron.caloCluster().energyBE(0),
+                      electron.caloCluster().energyBE(1),
+                      electron.caloCluster().eSample(17)
+                      )
         xAOD_energy = electron.e()
         cluster = electron.caloCluster()
         MVA_energy = tool.getEnergy(cluster, electron)
@@ -98,10 +121,10 @@ def main(filename, **args):
         if math.isnan(xAOD_energy) or math.isnan(MVA_energy) or xAOD_energy < 1 or MVA_energy < 1:
             print "==>", electron.author(), electron.eta(), electron.phi(), xAOD_energy, MVA_energy
 
-    tree_out.Print()
-    print tree_out.GetEntries()
+    logging.info("%d events written", tree_out.GetEntries())
 
     tree_out.Write()
+    fout.Close()
 
 if __name__ == '__main__':
     ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")
@@ -113,9 +136,14 @@ if __name__ == '__main__':
     parser.add_argument('--nparticles', type=int, help='number of particles')
     parser.add_argument('--tree-name', type=str, default='CollectionTree')
     parser.add_argument('--min-pt', type=float, help='minimum pT')
+    parser.add_argument('--min-abseta', type=float, help='minimum |eta|')
+    parser.add_argument('--max-abseta', type=float, help='maximum |eta|')
     parser.add_argument('--event-number', type=int)
     parser.add_argument('--debug', action='store_true', default=False)
     parser.add_argument('--mva-folder', type=str, help='folder to be used default=egammaMVACalib/offline/v3_E4crack_bis', default='egammaMVACalib/offline/v3_E4crack_bis')
+    parser.add_argument('--no-layer-correction', action='store_true', default=False)
 
     args = parser.parse_args()
+    if args.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
     main(**vars(args))
