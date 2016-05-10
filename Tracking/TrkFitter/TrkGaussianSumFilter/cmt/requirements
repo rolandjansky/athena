@@ -40,7 +40,7 @@ use TrkFitterUtils        TrkFitterUtils-*            Tracking/TrkFitter
 use TrkFitterInterfaces   TrkFitterInterfaces-*       Tracking/TrkFitter
 
 
-declare_runtime_extras extras = ../Data/*.par
+apply_pattern declare_runtime_extras extras = ../Data/*.par
 
 library TrkGaussianSumFilter *.cxx components/*.cxx
 apply_pattern component_library

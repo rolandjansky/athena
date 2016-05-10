@@ -242,7 +242,7 @@ void Trk::BremFind::BremFinder(const Trk::ForwardTrajectory& forwardTrajectory, 
     retrieveTrackingGeometry();
 
   
-  msg(MSG::INFO) << "Entering BremFinder Function " << endreq;
+  msg(MSG::DEBUG) << "Entering BremFinder Function " << endreq;
 
   m_brem_value = new std::vector<double>;
   m_brem_phi = new std::vector<double>;
@@ -751,18 +751,23 @@ Amg::Vector3D Trk::BremFind::SurfacePosition(const Trk::TrackParameters& trackpa
   
   const Amg::Vector3D position(x,y,z);
   const Amg::Vector3D momentum((&trackparameter)->momentum());
-  
 
-  if (!m_usePropagate) {
-    Trk::CylinderSurface cylinderSurface(new Amg::Transform3D, r, 5000.0);
-    const Trk::TrackParameters *bremParameters = new AtaCylinder(position,momentum,(&trackparameter)->charge(),cylinderSurface);
+  ATH_MSG_DEBUG("x,y,z,r = " << x << "," << y << "," << z << "," << r);
+  ATH_MSG_DEBUG("momentum = " << momentum.mag());
+  ATH_MSG_DEBUG("charge   = " << (&trackparameter)->charge());
+
+  if (!m_usePropagate && momentum.mag() > 0) {
+
+    Amg::Transform3D *trans = new Amg::Transform3D(trackparameter.associatedSurface().transform());
+    Trk::CylinderSurface cylinderSurface(trans, r, 5000.0);
+    const Trk::TrackParameters *bremParameters = new AtaCylinder(position, momentum, (&trackparameter)->charge(), cylinderSurface);
+
+    //Broken code - causes FPEs.
+    //Trk::CylinderSurface cylinderSurface(new Amg::Transform3D, r, 5000.0);
 
     m_brem_TrackParameters.push_back(bremParameters);
     return position;
   }
-
-  
-  
 
   //function will propagate both ways and return the trackparameter that has the closest phi
   //to the measured brem phi angle
