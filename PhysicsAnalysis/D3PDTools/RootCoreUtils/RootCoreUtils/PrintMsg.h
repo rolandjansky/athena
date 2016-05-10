@@ -31,6 +31,15 @@ namespace RCU
 		     MessageType type, const std::string& msg);
   void send_message (const char *package, const char *file, unsigned line,
 		     MessageType type, const TString& msg);
+  [[noreturn]] void
+  send_message_abort (const char *package, const char *file, unsigned line,
+		      MessageType type, const char *msg);
+  [[noreturn]] void
+  send_message_abort (const char *package, const char *file, unsigned line,
+		      MessageType type, const std::string& msg);
+  [[noreturn]] void
+  send_message_abort (const char *package, const char *file, unsigned line,
+		      MessageType type, const TString& msg);
 }
 
 #ifndef ROOTCORE_PACKAGE
@@ -47,6 +56,6 @@ namespace RCU
   ::RCU::send_message (ROOTCORE_PACKAGE, __FILE__, __LINE__, ::RCU::MESSAGE_ERROR, (message));
 
 #define RCU_THROW_MSG(message)						\
-  ::RCU::send_message (ROOTCORE_PACKAGE, __FILE__, __LINE__, ::RCU::MESSAGE_EXCEPTION, (message));
+  ::RCU::send_message_abort (ROOTCORE_PACKAGE, __FILE__, __LINE__, ::RCU::MESSAGE_EXCEPTION, (message));
 
 #endif
