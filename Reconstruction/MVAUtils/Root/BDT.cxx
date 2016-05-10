@@ -17,7 +17,6 @@ using namespace MVAUtils;
 
 /** c-tor from TTree **/
 BDT::BDT(TTree *tree)
-  : m_sumWeights(0)
 {
     std::vector<int> *vars = 0;
     std::vector<float> *values = 0;
@@ -33,12 +32,8 @@ BDT::BDT(TTree *tree)
 	assert (values);
 	m_forest.push_back(m_nodes.size());
 	newTree(*vars, *values);
-	m_weights.push_back(m_offset);
-	m_sumWeights+=m_offset;
     }
     
-    m_offset = m_weights[0];//original use of m_offset
-
     delete vars;
     delete values;
 
@@ -49,21 +44,14 @@ BDT::BDT(TTree *tree)
 }
 
 /** c-tor from TMVA::MethodBDT **/
-BDT::BDT(TMVA::MethodBDT* bdt, bool isRegression, bool useYesNoLeaf)
- : m_sumWeights(0)
+BDT::BDT(TMVA::MethodBDT* bdt)
 {
     assert(bdt);
     m_offset = bdt->GetBoostWeights().size() ? bdt->GetBoostWeights()[0] : 0.;
     std::vector<TMVA::DecisionTree*>::const_iterator it;
     for(it = bdt->GetForest().begin(); it != bdt->GetForest().end(); ++it) {
       m_forest.push_back(m_nodes.size());
-      uint index=it - bdt->GetForest().begin();
-      if( bdt->GetBoostWeights().size() > index ) {
-	m_weights.push_back( bdt->GetBoostWeights()[index]);
-	m_sumWeights+=m_weights.back();
-      }
-      else m_weights.push_back(0);
-      newTree((*it)->GetRoot(), isRegression, useYesNoLeaf);      
+      newTree((*it)->GetRoot());
     }
     // // For Debug
     // std::cout << "Constructed from a MethodBDT" << std::endl;
@@ -105,7 +93,7 @@ void BDT::newTree(const std::vector<int>& vars, const std::vector<float>& values
 /**
  * Creates the full tree structure from TMVA::DecisionTree node.
  **/
-void BDT::newTree(const TMVA::DecisionTreeNode *node, bool isRegression, bool useYesNoLeaf)
+void BDT::newTree(const TMVA::DecisionTreeNode *node)
 {
 
   // index is relative to the current node
@@ -132,8 +120,6 @@ void BDT::newTree(const TMVA::DecisionTreeNode *node, bool isRegression, bool us
 	if (currParentIndex >= 0) {
 	  right[currParentIndex] = i + 1 - currParentIndex;
 	  currNode = currParent->GetCutType() ? currParent->GetLeft() : currParent->GetRight();
-	} else {
-	  currNode = nullptr;
 	}
 	parent.pop();
 	parentIndex.pop();
@@ -156,16 +142,11 @@ void BDT::newTree(const TMVA::DecisionTreeNode *node, bool isRegression, bool us
       ++i;
       if (!currNode->GetLeft()){
 	// a leaf
-	m_nodes.emplace_back(-1, 
-			     isRegression ? 
-			     currNode->GetResponse() : useYesNoLeaf ? currNode->GetNodeType() : currNode->GetPurity(), 
-			     right[i]);
+	m_nodes.emplace_back(-1, currNode->GetResponse(), right[i]);
 	auto currParent = parent.top();
 	// if right has not been visited, next will be right
 	if (currParent) {
 	  currNode = currParent->GetCutType() ? currParent->GetLeft() : currParent->GetRight();
-	} else {
-	  currNode = nullptr;
 	}
 	parent.pop();
       } else {
@@ -195,16 +176,6 @@ float BDT::GetResponse(const std::vector<float*>& pointers) const
     for (auto it = m_forest.begin(); it != m_forest.end(); ++it)
       result += GetTreeResponse(pointers, *it);
     return result;
-}
-
-float BDT::GetClassification(const std::vector<float*>& pointers) const
-{
-    float result = 0;
-    for (auto it = m_forest.begin(); it != m_forest.end(); ++it){
-      uint index = it-m_forest.begin();
-      result += GetTreeResponse(pointers, *it) * m_weights[index];
-    }
-    return result/m_sumWeights;
 }
 
 /** Return 2.0/(1.0+exp(-2.0*sum))-1, with no offset  **/
@@ -328,7 +299,6 @@ TTree* BDT::WriteTree(TString name)
 	vars.push_back(m_nodes[j].GetVar());
 	values.push_back(m_nodes[j].GetVal());
       }
-      m_offset = m_weights[i];
       tree->Fill();
     }	
     return tree;
