@@ -41,6 +41,8 @@
 #include  "InDetRecToolInterfaces/IVertexFinder.h"
 #include  "xAODTracking/Vertex.h"
 #include  "xAODTracking/TrackParticle.h"
+#include  "xAODTracking/VertexContainer.h"
+#include  "xAODTracking/VertexAuxContainer.h"
 //
 
 
@@ -66,8 +68,8 @@ namespace InDet {
 //
 //    Tool interface
 //
-   VxContainer* findVertex(const TrackCollection* trackTES);
-   VxContainer* findVertex(const Trk::TrackParticleBaseCollection* trackTES);
+   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const TrackCollection* trackTES);
+   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const Trk::TrackParticleBaseCollection* trackTES);
    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const xAOD::TrackParticleContainer* trackTES);  
 //
 //Old   VxContainer* findVertex(const Rec::TrackParticleContainer* partTES);
@@ -196,7 +198,7 @@ namespace InDet {
 		    std::vector< std::vector<const Trk::Track*> >         & TrkPerVrt,
 		    std::vector< std::vector<double> >          & TrkWgtPerVrt);
 
-   VxContainer* SaveResults( int NVrt,
+   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> SaveResults( int NVrt,
 	            std::vector< Amg::Vector3D >                & PVrtList,
                     std::vector< AmgSymMatrix(3) >              & ErrorMatrixPerVrt,
 		    std::vector<double>                         & Chi2PerVrt,
@@ -206,6 +208,17 @@ namespace InDet {
 		    std::vector< std::vector<double> >          & TrkWgtPerVrt,
                     const TrackCollection* trackTES = 0,
                     const Trk::TrackParticleBaseCollection* partTES = 0);
+
+//   VxContainer* SaveResults( int NVrt,
+//	            std::vector< Amg::Vector3D >                & PVrtList,
+//                  std::vector< AmgSymMatrix(3) >              & ErrorMatrixPerVrt,
+//		    std::vector<double>                         & Chi2PerVrt,
+//                  std::vector<int>                            & NTrkPerVrt,
+//		    std::vector< std::vector<const Trk::TrackParticleBase*> > & PrtPerVrt,
+//		    std::vector< std::vector<const Trk::Track*> >         & TrkPerVrt,
+//		    std::vector< std::vector<double> >          & TrkWgtPerVrt,
+//                  const TrackCollection* trackTES = 0,
+//                  const Trk::TrackParticleBaseCollection* partTES = 0);
 
    StatusCode CutTrk(double PInvVert, double ThetaVert, double A0Vert, double Chi2, 
            long int PixelHits,long int SctHits,long int SharedHits, long int BLayHits);
