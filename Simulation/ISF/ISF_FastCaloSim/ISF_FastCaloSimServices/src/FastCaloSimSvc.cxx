@@ -16,8 +16,6 @@
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/ISFParticleContainer.h"
-#include "ISF_Event/ITruthBinding.h"
-#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
 
 // HepMC include needed for FastCaloSim
 #include "HepMC/GenParticle.h"
@@ -39,6 +37,7 @@
 /** Constructor **/
 ISF::FastCaloSimSvc::FastCaloSimSvc(const std::string& name,ISvcLocator* svc) :
   BaseSimulationSvc(name, svc),
+  m_extrapolator(),
   m_ownPolicy(static_cast<int>(SG::VIEW_ELEMENTS)),
   m_batchProcessMcTruth(false),
   m_simulateUndefinedBCs(false),
@@ -61,6 +60,7 @@ ISF::FastCaloSimSvc::FastCaloSimSvc(const std::string& name,ISvcLocator* svc) :
   declareProperty("CaloCellsOutputName",               m_caloCellsOutputName) ;
   declareProperty("CaloCellHack",                      m_caloCellHack) ;
   declareProperty("DoPunchThroughSimulation", 	       m_doPunchThrough) ;
+  declareProperty("Extrapolator",                      m_extrapolator );
   declareProperty("SimulateUndefinedBarcodeParticles",
                   m_simulateUndefinedBCs,
                   "Whether or not to simulate paritcles with undefined barcode" );
@@ -93,6 +93,10 @@ StatusCode ISF::FastCaloSimSvc::initialize()
      ATH_MSG_ERROR (m_punchThroughTool.propertyName() << ": Failed to retrieve tool " << m_punchThroughTool.type());
      return StatusCode::FAILURE;
    } 
+
+   // Get TimedExtrapolator 
+   if (!m_extrapolator.empty() && m_extrapolator.retrieve().isFailure())
+     return StatusCode::FAILURE;
  
    ATH_MSG_DEBUG( m_screenOutputPrefix << " Output CaloCellContainer Name " << m_caloCellsOutputName );
    if (m_ownPolicy==SG::OWN_ELEMENTS){
@@ -312,10 +316,15 @@ StatusCode ISF::FastCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 StatusCode ISF::FastCaloSimSvc::processOneParticle( const ISF::ISFParticle& isfp) {
   ATH_MSG_VERBOSE ( m_screenOutputPrefix << "Simulating pdgid = "<< isfp.pdgCode());
 
-  StatusCode sc(StatusCode::SUCCESS);
-
   ToolHandleArray<ICaloCellMakerTool>::iterator itrTool=m_caloCellMakerTools_simulate.begin();
   ToolHandleArray<ICaloCellMakerTool>::iterator endTool=m_caloCellMakerTools_simulate.end();
+
+  std::vector<Trk::HitInfo>* hitVector= caloHits(isfp);
+
+  if (!hitVector || !hitVector->size()) {
+    ATH_MSG_WARNING ( "ISF_FastCaloSim: no hits in calo");
+    return StatusCode::FAILURE;
+  }
 
   // loop on tools
   for (;itrTool!=endTool;++itrTool) {
@@ -330,23 +339,111 @@ StatusCode ISF::FastCaloSimSvc::processOneParticle( const ISF::ISFParticle& isfp
     
     if (m_chrono) m_chrono->chronoStart( chronoName);
 
-    HepMC::FourVector momentum(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z(), sqrt( isfp.mass()*isfp.mass() + isfp.momentum().mag2()) );
-    HepMC::GenParticle* part=new HepMC::GenParticle(momentum,isfp.pdgCode());
-    HepMC::FourVector position(isfp.position().x(),isfp.position().y(),isfp.position().z(),isfp.timeStamp());
-    HepMC::GenVertex vertex(position);
-    vertex.add_particle_out( part ); // HepMC::GenVertex destructor will delete the particle
-
     //sc = (*itrTool)->process(m_theContainer);
-    if(fcs->process_particle(m_theContainer,part,0).isFailure()) {
+    if(fcs->process_particle(m_theContainer,hitVector,
+			     isfp.momentum(),isfp.mass(),isfp.pdgCode(),isfp.barcode()).isFailure()) {
       ATH_MSG_WARNING( m_screenOutputPrefix << "simulation of particle pdgid=" << isfp.pdgCode()<< " failed" );   
-      sc = StatusCode::FAILURE;
+      return StatusCode::FAILURE;
     }
 
     if (m_chrono) m_chrono->chronoStop( chronoName );
     //ATH_MSG_DEBUG( m_screenOutputPrefix << "Chrono stop : delta " << m_chrono->chronoDelta (chronoName,IChronoStatSvc::USER ) * CLHEP::microsecond / CLHEP::second << " second " );
   } //end of for-loop
 
+  if(hitVector) {
+    for(std::vector<Trk::HitInfo>::iterator it = hitVector->begin();it < hitVector->end();++it)  {
+      if((*it).trackParms) {
+        delete (*it).trackParms;
+        (*it).trackParms=0;
+      }  
+    }
+    delete hitVector;
+  }  
+
   //  ATH_MSG_VERBOSE ( m_screenOutputPrefix << "kill the particle in the end");
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
+
+std::vector<Trk::HitInfo>* ISF::FastCaloSimSvc::caloHits(const ISF::ISFParticle& isp) const
+{
+  // Start calo extrapolation
+  ATH_MSG_VERBOSE ("[ fastCaloSim transport ] processing particle "<<isp.pdgCode() );
+
+  std::vector<Trk::HitInfo>*     hitVector =  new std::vector<Trk::HitInfo>;   
+
+  int  absPdg         = abs(isp.pdgCode());
+  bool charged        = isp.charge()*isp.charge() > 0 ;
+
+  // particle Hypothesis for the extrapolation
+
+  Trk::ParticleHypothesis pHypothesis = m_pdgToParticleHypothesis.convert(isp.pdgCode(),isp.charge());
+
+  // geantinos not handled by PdgToParticleHypothesis - fix there
+  if ( absPdg == 999 ) pHypothesis = Trk::geantino;
+
+  // choose the extrapolator
+  //const Trk::ITimedExtrapolator* processor = &(*m_extrapolator); 
+
+  // input parameters : curvilinear parameters
+  Trk::CurvilinearParameters inputPar(isp.position(),isp.momentum(),isp.charge());
+
+  // stable vs. unstable check : ADAPT for FASTCALOSIM 
+  //double freepath = ( !m_particleDecayHelper.empty()) ? m_particleDecayHelper->freePath(isp) : - 1.; 
+  double freepath = -1.;
+  ATH_MSG_VERBOSE( "[ fatras transport ] Particle free path : " << freepath);
+  // path limit -> time limit  ( TODO : extract life-time directly from decay helper )
+  double tDec = freepath > 0. ? freepath : -1.;
+  int decayProc = 0;
+
+  /* stable particles only for the moment
+  // beta calculated here for further use in validation
+  double mass = m_particleMasses.mass[pHypothesis];
+  double mom = isp.momentum().mag();
+  double beta = mom/sqrt(mom*mom+mass*mass); 
+
+  if ( tDec>0.) {
+    tDec = tDec/beta/CLHEP::c_light + isp.timeStamp();
+    decayProc = 201;                
+  }
+  */
+
+  Trk::TimeLimit timeLim(tDec,isp.timeStamp(),decayProc);
+  
+  // prompt decay
+  //if ( freepath>0. && freepath<0.01 ) {
+  //  if (!m_particleDecayHelper.empty()) {
+  //    ATH_MSG_VERBOSE( "[ fatras transport ] Decay is triggered for input particle.");
+  //    m_particleDecayHelper->decay(isp);
+  //  }
+  //  return 0;
+  //}
+
+  // presample interactions - ADAPT FOR FASTCALOSIM ( non-interacting )
+  Trk::PathLimit pathLim(-1.,0);
+  //if (absPdg!=999 && pHypothesis<99) pathLim = m_samplingTool->sampleProcess(mom,isp.charge(),pHypothesis);
+     
+  Trk::GeometrySignature nextGeoID=Trk::GeometrySignature(isp.nextGeoID()); 
+
+  // save Calo entry hit (fallback info)
+  hitVector->push_back(Trk::HitInfo(inputPar.clone(),isp.timeStamp(),nextGeoID,0.));  
+    
+  const Trk::TrackParameters* eParameters = 0;
+
+  if ( !charged ) {
+
+    eParameters = m_extrapolator->transportNeutralsWithPathLimit(inputPar,pathLim,timeLim,Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);  
+ 
+  } else {
+          
+    eParameters = m_extrapolator->extrapolateWithPathLimit(inputPar,pathLim,timeLim,Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);
+
+  }
+  // save Calo exit hit (fallback info)
+  if (eParameters) hitVector->push_back(Trk::HitInfo(eParameters,timeLim.time,nextGeoID,0.));  
+
+  ATH_MSG_VERBOSE( "[ fastCaloSim transport ] number of intersections "<< hitVector->size());
+
+  return hitVector;
+
+}
