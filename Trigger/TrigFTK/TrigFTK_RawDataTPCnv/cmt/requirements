@@ -28,6 +28,7 @@ apply_pattern tpcnv_library
 private
 
 use AthenaKernel         AthenaKernel-*             Control
+use GaudiInterface           GaudiInterface-*                   External
 use AtlasReflex		     AtlasReflex-*		        External
 
 # Create a dictionary for the persistent representation 
@@ -39,3 +40,7 @@ apply_pattern lcgdict dict=TrigFTK_RawDataTPCnv \
   headerfiles="../TrigFTK_RawDataTPCnv/TrigFTK_RawDataTPCnvDict.h"
 
 end_private
+
+private
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=FTK_RawTrackCnv_p1

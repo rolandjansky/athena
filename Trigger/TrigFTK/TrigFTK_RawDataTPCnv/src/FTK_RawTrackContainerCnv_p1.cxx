@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
-#undef private
-#undef protected
-       
 #include "TrigFTK_RawDataTPCnv/FTK_RawTrackContainerCnv_p1.h"
 #include "TrigFTK_RawDataTPCnv/FTK_RawTrackContainer_p1.h"
 
