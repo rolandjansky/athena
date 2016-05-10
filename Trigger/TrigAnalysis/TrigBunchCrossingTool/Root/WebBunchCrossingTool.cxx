@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: WebBunchCrossingTool.cxx 657759 2015-03-30 11:08:15Z krasznaa $
+// $Id: WebBunchCrossingTool.cxx 745783 2016-05-10 06:47:18Z krasznaa $
 
 // System include(s):
 #include <sstream>
@@ -172,10 +172,10 @@ namespace Trig {
          }
 
          // Another sanity check:
-         if( bunchGroups.Size() != 8 ) {
+         if( ( bunchGroups.Size() != 8 ) && ( bunchGroups.Size() != 16 ) ) {
             ATH_MSG_ERROR( "Received information about "
                            << bunchGroups.Size() << " bunch groups "
-                           << "(!=8)" );
+                           << "(!=8|16)" );
             return StatusCode::FAILURE;
          }
 
@@ -523,10 +523,10 @@ namespace Trig {
             const json::Number& lb2  = iovs[ 1 ][ 1 ];
 
             // A sanity check:
-            if( bunchGroups.Size() != 8 ) {
+            if( ( bunchGroups.Size() != 8 ) && ( bunchGroups.Size() != 16 ) ) {
                ATH_MSG_ERROR( "Received information about "
                               << bunchGroups.Size() << " bunch groups "
-                              << "(!=8)" );
+                              << "(!=8|16)" );
                return StatusCode::FAILURE;
             }
 
