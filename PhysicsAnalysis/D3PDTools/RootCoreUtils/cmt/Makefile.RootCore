@@ -3,12 +3,12 @@
 # edit with care
 
 PACKAGE          = RootCoreUtils
-PACKAGE_PRELOAD  = Hist Tree
+PACKAGE_PRELOAD  = Hist Tree boost_regex
 PACKAGE_CXXFLAGS = 
 PACKAGE_OBJFLAGS = 
 PACKAGE_LDFLAGS  = 
 PACKAGE_BINFLAGS = 
-PACKAGE_DEP      = 
+PACKAGE_DEP      = Asg_Boost
 PACKAGE_TRYDEP   = 
 PACKAGE_CLEAN    = 
 PACKAGE_NOGRID   = data/download
