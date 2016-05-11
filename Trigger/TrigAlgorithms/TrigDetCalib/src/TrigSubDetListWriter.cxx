@@ -193,6 +193,9 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
      if (*detit=="FORWARD_ALPHA") {     
          m_sourceid.push_back(eformat::FORWARD_ALPHA);
      }
+     if (*detit=="FORWARD_AFP") {     
+         m_sourceid.push_back(eformat::FORWARD_AFP);
+     }
   }
 
   if (m_detSpec.find("ID") != std::string::npos) {

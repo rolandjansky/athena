@@ -29,6 +29,9 @@ public:
   
 private:
   ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool;
+  bool m_ignoreAbortGap;
+  bool m_acceptCMXOverflows;
+  bool m_acceptCaloRoIBOverflows;
 };
 
 

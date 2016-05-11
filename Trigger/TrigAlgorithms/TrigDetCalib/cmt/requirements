@@ -11,6 +11,7 @@ use 	IRegionSelector      	IRegionSelector-*     DetectorDescription
 private
 use     AthenaBaseComps         AthenaBaseComps-*     Control
 use     EventInfo               EventInfo-*           Event
+use     xAODEventInfo           xAODEventInfo-*       Event/xAOD
 use     AthenaKernel            AthenaKernel-*        Control
 use     TrkTrack                TrkTrack-*            Tracking/TrkEvent
 use     TrigSteering            TrigSteering*         Trigger/TrigSteer
