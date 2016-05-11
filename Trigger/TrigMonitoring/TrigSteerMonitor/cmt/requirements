@@ -18,6 +18,7 @@ use  AtlasROOT                  AtlasROOT-*                     External
 use  DataCollection             DataCollection-*                External
 use  MagFieldInterfaces         MagFieldInterfaces-*            MagneticField
 use  StoreGate                  StoreGate-*                     Control
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 use  TrigConfHLTData            TrigConfHLTData-*               Trigger/TrigConfiguration
 use  TrigConfL1Data             TrigConfL1Data-*                Trigger/TrigConfiguration
 use  TrigInterfaces             TrigInterfaces-*                Trigger/TrigSteer

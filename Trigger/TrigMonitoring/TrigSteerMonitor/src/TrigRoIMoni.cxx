@@ -12,6 +12,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ITHistSvc.h"
 
+#include "xAODEventInfo/EventInfo.h"
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigSteering/LvlConverter.h"
@@ -52,6 +53,9 @@ using namespace HLT;
 #include <boost/regex.hpp>
 #include <cmath>
 
+// BCIDs of the abort gap
+const int ABORT_GAP_START = 3446;
+const int ABORT_GAP_END   = 3563;
 
 TrigRoIMoni::TrigRoIMoni(const std::string & type, const std::string & name,
                          const IInterface* parent)
@@ -59,14 +63,15 @@ TrigRoIMoni::TrigRoIMoni(const std::string & type, const std::string & name,
      m_trigConfigSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
      m_gotL1Config(false),
      m_lvl1Tool("HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool",this),
-     m_trigLvl(""),
+     m_trigLvl("HLT"),
      m_threshMultiMax(100)
    
 {
   declareInterface<IMonitorToolBase>(this);
-  declareProperty("HistoPath", m_histoPathexpert = "/EXPERT/TrigSteering");
-  declareProperty("ThreshMultiMax", m_threshMultiMax = 100, "Upper y-boundary of threshold multi. hist.");
 
+  declareProperty("ThreshMultiMax", m_threshMultiMax = 100, "Upper y-boundary of threshold multi. hist.");
+  declareProperty("HistoPath", m_histoPathexpert = "/EXPERT/TrigSteering");
+  declareProperty("ignoreAbortGap", m_ignoreAbortGap = true, "Ignore RoIs in abort gap");
 }
 
 
@@ -80,8 +85,6 @@ StatusCode TrigRoIMoni::initialize()
      ATH_MSG_ERROR("Unable to cast the parent algorithm to HLT::TrigSteer !");
      return StatusCode::FAILURE;
    }
-
-   m_trigLvl = m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 ? "L2" : m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::EF ? "EF" : "HLT" ;
 
    // Get the trigger configuration service
    StatusCode sc = m_trigConfigSvc.retrieve();
@@ -151,119 +154,116 @@ StatusCode TrigRoIMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewL
    TrigMonGroup expertHistograms( this, m_parentAlg->name(), expert );
 
    // roi & threshold multiplicity hists
-   if (m_trigLvl == "L2" || m_trigLvl == "HLT") { 
+   m_etaphi_EM_all = new 
+     TrigLBNHist<TH2I>(TH2I("AllRoIsEtaPhiEM", 
+                            ("phi vs eta for all L1 EM RoIs "+m_trigLvl).c_str(), 
+                            51, -2.55, 2.55,
+                            64,  -M_PI*(1.-1./64.), M_PI*(1.+1./64.)));
 
-     m_etaphi_EM_all = new 
-       TrigLBNHist<TH2I>(TH2I("AllRoIsEtaPhiEM", 
-                              ("phi vs eta for all L1 EM RoIs "+m_trigLvl).c_str(), 
-                              51, -2.55, 2.55,
-                              64,  -M_PI*(1.-1./64.), M_PI*(1.+1./64.)));
+   if ( expertHistograms.regHist((ITrigLBNHist*)m_etaphi_EM_all).isFailure()) {
+     ATH_MSG_WARNING("Cannot register " << m_etaphi_EM_all->GetName());
+   }
+   m_etaphi_J_all = new  
+     TrigLBNHist<TH2I>(TH2I("AllRoIsEtaPhiJ", 
+                            ("phi vs eta for all L1 jet RoIs "+m_trigLvl).c_str(), 
+                            31, -3.1, 3.1,
+                            32,  -M_PI*(1.-1./32.), M_PI*(1.+1./32.)));
+      
+   if ( expertHistograms.regHist((ITrigLBNHist*)m_etaphi_J_all).isFailure()) {
+     ATH_MSG_WARNING("Cannot register " << m_etaphi_J_all->GetName());
+   }
+      
+   m_etaphi_JF_all = new 
+     TrigLBNHist<TH2I>(TH2I("AllRoIsEtaPhiJF", 
+                            ("phi vs eta for all L1 forward jet RoIs "+m_trigLvl).c_str(),
+                            2, -5., 5.,
+                            32,  -M_PI*(1.-1./32.), M_PI*(1.+1./32.)));
 
-     if ( expertHistograms.regHist((ITrigLBNHist*)m_etaphi_EM_all).isFailure()) {
-       ATH_MSG_WARNING("Cannot register " << m_etaphi_EM_all->GetName());
-     }
-     m_etaphi_J_all = new  
-       TrigLBNHist<TH2I>(TH2I("AllRoIsEtaPhiJ", 
-                              ("phi vs eta for all L1 jet RoIs "+m_trigLvl).c_str(), 
-                              31, -3.1, 3.1,
-                              32,  -M_PI*(1.-1./32.), M_PI*(1.+1./32.)));
+   m_etaphi_JF_all->GetXaxis()->SetBinLabel(1, "eta < -3.2");
+   m_etaphi_JF_all->GetXaxis()->SetBinLabel(2, "eta > 3.2");
+   if ( expertHistograms.regHist((ITrigLBNHist*)m_etaphi_JF_all).isFailure()) {
+     ATH_MSG_WARNING("Cannot register " << m_etaphi_JF_all->GetName());
+   }
       
-     if ( expertHistograms.regHist((ITrigLBNHist*)m_etaphi_J_all).isFailure()) {
-       ATH_MSG_WARNING("Cannot register " << m_etaphi_J_all->GetName());
-     }
-      
-     m_etaphi_JF_all = new 
-       TrigLBNHist<TH2I>(TH2I("AllRoIsEtaPhiJF", 
-                              ("phi vs eta for all L1 forward jet RoIs "+m_trigLvl).c_str(),
-                              2, -5., 5.,
-                              32,  -M_PI*(1.-1./32.), M_PI*(1.+1./32.)));
-
-     m_etaphi_JF_all->GetXaxis()->SetBinLabel(1, "eta < -3.2");
-     m_etaphi_JF_all->GetXaxis()->SetBinLabel(2, "eta > 3.2");
-     if ( expertHistograms.regHist((ITrigLBNHist*)m_etaphi_JF_all).isFailure()) {
-       ATH_MSG_WARNING("Cannot register " << m_etaphi_JF_all->GetName());
-     }
-      
-     m_etaphi_HA_all = new     
-       TrigLBNHist<TH2I>(TH2I("AllRoIsEtaPhiHA", 
-                              ("phi vs eta for all L1 tau RoIs "+m_trigLvl).c_str(), 51, -2.55, 2.55,
-                              64,  -M_PI*(1.-1./64.), M_PI*(1.+1./64.)));
+   m_etaphi_HA_all = new     
+     TrigLBNHist<TH2I>(TH2I("AllRoIsEtaPhiHA", 
+                            ("phi vs eta for all L1 tau RoIs "+m_trigLvl).c_str(), 51, -2.55, 2.55,
+                            64,  -M_PI*(1.-1./64.), M_PI*(1.+1./64.)));
             
-     if ( expertHistograms.regHist((ITrigLBNHist*)m_etaphi_HA_all).isFailure()) {
-       ATH_MSG_WARNING("Cannot register " << m_etaphi_HA_all->GetName());
-     }
+   if ( expertHistograms.regHist((ITrigLBNHist*)m_etaphi_HA_all).isFailure()) {
+     ATH_MSG_WARNING("Cannot register " << m_etaphi_HA_all->GetName());
+   }
       
-     m_etaphi_MU_all = new     
-       TrigLBNHist<TH2I>(TH2I("AllRoIsEtaPhiMU", 
-                              ("phi vs eta for all L1 MU RoIs "+m_trigLvl).c_str(), 
-                              50, -2.5, 2.5,
-                              64,  -M_PI, M_PI));
+   m_etaphi_MU_all = new     
+     TrigLBNHist<TH2I>(TH2I("AllRoIsEtaPhiMU", 
+                            ("phi vs eta for all L1 MU RoIs "+m_trigLvl).c_str(), 
+                            50, -2.5, 2.5,
+                            64,  -M_PI, M_PI));
 
-     if ( expertHistograms.regHist((ITrigLBNHist*)m_etaphi_MU_all).isFailure()) {
-       ATH_MSG_WARNING("Cannot register " << m_etaphi_MU_all->GetName());
-     }
+   if ( expertHistograms.regHist((ITrigLBNHist*)m_etaphi_MU_all).isFailure()) {
+     ATH_MSG_WARNING("Cannot register " << m_etaphi_MU_all->GetName());
+   }
 
-     m_histoverflow = SetupOverflowHist(); 
-     if ( m_histoverflow == 0 || expertHistograms.regHist(m_histoverflow).isFailure()) {
-       ATH_MSG_WARNING("Either can't book or can't register RoIsOverflow");
-     } 
+   m_histoverflow = SetupOverflowHist(); 
+   if ( m_histoverflow == 0 || expertHistograms.regHist(m_histoverflow).isFailure()) {
+     ATH_MSG_WARNING("Either can't book or can't register RoIsOverflow");
+   } 
       
-     m_histLinkMultiplicity = SetupLinkMultiplicityHist(); 
-     if ( m_histLinkMultiplicity == 0 || expertHistograms.regHist(m_histLinkMultiplicity).isFailure()) {
-       ATH_MSG_WARNING("Either can't book or can't register RoIsLinkMultiplicity");
-     }
+   m_histLinkMultiplicity = SetupLinkMultiplicityHist(); 
+   if ( m_histLinkMultiplicity == 0 || expertHistograms.regHist(m_histLinkMultiplicity).isFailure()) {
+     ATH_MSG_WARNING("Either can't book or can't register RoIsLinkMultiplicity");
+   }
 
-     // Get a list of all thresholds for the threshold multiplicity histogram
-     m_histThresholdMultiplicity = 0;
-     if( m_gotL1Config ) {
+   // Get a list of all thresholds for the threshold multiplicity histogram
+   m_histThresholdMultiplicity = 0;
+   if( m_gotL1Config ) {
         
-       const TrigConf::ThresholdConfig* thresholds = m_trigConfigSvc->thresholdConfig();
+     const TrigConf::ThresholdConfig* thresholds = m_trigConfigSvc->thresholdConfig();
 
-       int thresholdBin = 0;
-       m_thresholdNames.clear();
+     int thresholdBin = 0;
+     m_thresholdNames.clear();
 
-       InsertThresholdNames(thresholds->getClusterThresholdVector(), m_thresholdNames, thresholdBin);
-       InsertThresholdNames(thresholds->getJetThresholdVector(), m_thresholdNames, thresholdBin);
-       InsertThresholdNames(thresholds->getFJetThresholdVector(), m_thresholdNames, thresholdBin);
-       InsertThresholdNames(thresholds->getJbThresholdVector(), m_thresholdNames, thresholdBin);
-       InsertThresholdNames(thresholds->getJfThresholdVector(), m_thresholdNames, thresholdBin);
-       InsertThresholdNames(thresholds->getTotEtVector(), m_thresholdNames, thresholdBin);
-       InsertThresholdNames(thresholds->getJetEtVector(), m_thresholdNames, thresholdBin);
-       InsertThresholdNames(thresholds->getMissEtVector(), m_thresholdNames, thresholdBin);
-       InsertThresholdNames(thresholds->getMuonThresholdVector(), m_thresholdNames, thresholdBin);
+     InsertThresholdNames(thresholds->getClusterThresholdVector(), m_thresholdNames, thresholdBin);
+     InsertThresholdNames(thresholds->getJetThresholdVector(), m_thresholdNames, thresholdBin);
+     InsertThresholdNames(thresholds->getFJetThresholdVector(), m_thresholdNames, thresholdBin);
+     InsertThresholdNames(thresholds->getJbThresholdVector(), m_thresholdNames, thresholdBin);
+     InsertThresholdNames(thresholds->getJfThresholdVector(), m_thresholdNames, thresholdBin);
+     InsertThresholdNames(thresholds->getTotEtVector(), m_thresholdNames, thresholdBin);
+     InsertThresholdNames(thresholds->getJetEtVector(), m_thresholdNames, thresholdBin);
+     InsertThresholdNames(thresholds->getMissEtVector(), m_thresholdNames, thresholdBin);
+     InsertThresholdNames(thresholds->getMuonThresholdVector(), m_thresholdNames, thresholdBin);
 
-       /*
-         for(std::map<std::string, std::pair<int, unsigned int> >::const_iterator nameIt = 
-         m_thresholdNames.begin();
-         nameIt != m_thresholdNames.end(); nameIt++) {
-         std::cout << "MMMM Threshold: " << nameIt->first << ": " << nameIt->second.first  
-         << ", id: " << nameIt->second.second << std::endl;
-         }
-       */
+     /*
+       for(std::map<std::string, std::pair<int, unsigned int> >::const_iterator nameIt = 
+       m_thresholdNames.begin();
+       nameIt != m_thresholdNames.end(); nameIt++) {
+       std::cout << "MMMM Threshold: " << nameIt->first << ": " << nameIt->second.first  
+       << ", id: " << nameIt->second.second << std::endl;
+       }
+     */
 
-       if(m_thresholdNames.size() > 0) {
+     if(m_thresholdNames.size() > 0) {
 
-         m_histThresholdMultiplicity =  new TH2I( "NumOfL1Thresholds", 
-                                                  "Number of LVL1 thresholds per events",
-                                                  m_thresholdNames.size(), 0, m_thresholdNames.size(),
-                                                  m_threshMultiMax, 0, m_threshMultiMax);
+       m_histThresholdMultiplicity =  new TH2I( "NumOfL1Thresholds", 
+                                                "Number of LVL1 thresholds per events",
+                                                m_thresholdNames.size(), 0, m_thresholdNames.size(),
+                                                m_threshMultiMax, 0, m_threshMultiMax);
   
-         if ( expertHistograms.regHist(m_histThresholdMultiplicity).isFailure()) {
-           ATH_MSG_WARNING("Cannot register " << m_histThresholdMultiplicity->GetName());
+       if ( expertHistograms.regHist(m_histThresholdMultiplicity).isFailure()) {
+         ATH_MSG_WARNING("Cannot register " << m_histThresholdMultiplicity->GetName());
 
-           delete m_histThresholdMultiplicity;
-           m_histThresholdMultiplicity = 0;
-         } else {
-           TAxis *xax = m_histThresholdMultiplicity->GetXaxis();
-           for(std::map<std::string, std::pair<int, unsigned int> >::const_iterator nIt = 
-                 m_thresholdNames.begin(); nIt != m_thresholdNames.end(); nIt++) {
+         delete m_histThresholdMultiplicity;
+         m_histThresholdMultiplicity = 0;
+       } else {
+         TAxis *xax = m_histThresholdMultiplicity->GetXaxis();
+         for(std::map<std::string, std::pair<int, unsigned int> >::const_iterator nIt = 
+               m_thresholdNames.begin(); nIt != m_thresholdNames.end(); nIt++) {
 
-             xax->SetBinLabel(nIt->second.first + 1, nIt->first.c_str());
-           }
+           xax->SetBinLabel(nIt->second.first + 1, nIt->first.c_str());
          }
        }
      }
-   }
+   }   
 
    float detamin=-0.7,detamax=0.7;
    float dphimin=-1,dphimax=1;
@@ -338,20 +338,27 @@ StatusCode TrigRoIMoni::fillHists()
     return StatusCode::FAILURE;  
   }
   
-  if (m_trigLvl == "L2" || m_trigLvl == "HLT") {
-    FillT1ResultHists();
+  if (m_ignoreAbortGap) {
+    const xAOD::EventInfo* evt(0);
+    CHECK(evtStore()->retrieve(evt));
+    if (evt->bcid() >= ABORT_GAP_START && evt->bcid() <= ABORT_GAP_END) {
+      ATH_MSG_DEBUG("Event with BCID=" << evt->bcid() << " is in the abort gap. Skip monitoring.");
+      return StatusCode::SUCCESS;
+    }
+  }
 
-    // Fill the threshold counts hist
-    if( m_histThresholdMultiplicity != 0) {
-      HLT::Navigation *nav = m_parentAlg->getAlgoConfig()->getNavigation();
+  FillT1ResultHists();
 
-      for(std::map<std::string, std::pair<int, unsigned int> >::const_iterator nameIt = 
-            m_thresholdNames.begin();
-          nameIt != m_thresholdNames.end(); nameIt++) {
+  // Fill the threshold counts hist
+  if( m_histThresholdMultiplicity != 0) {
+    HLT::Navigation *nav = m_parentAlg->getAlgoConfig()->getNavigation();
 
-        unsigned found = nav->countAllOfType(nameIt->second.second, false);
-        m_histThresholdMultiplicity->Fill(nameIt->second.first, found);
-      }
+    for(std::map<std::string, std::pair<int, unsigned int> >::const_iterator nameIt = 
+          m_thresholdNames.begin();
+        nameIt != m_thresholdNames.end(); nameIt++) {
+
+      unsigned found = nav->countAllOfType(nameIt->second.second, false);
+      m_histThresholdMultiplicity->Fill(nameIt->second.first, found);
     }
   }
 
@@ -616,15 +623,11 @@ static double fixphi(double phi) {
 
 void TrigRoIMoni::FillEtaPhiPlots()
 {
-
-  bool isL2 = (m_trigLvl == "L2");
-  bool isHLT = (m_trigLvl == "HLT");
-
-  if ( (isL2 || isHLT) && (m_etaphi_EM_all== 0 ||
-                           m_etaphi_J_all == 0 ||
-                           m_etaphi_JF_all== 0 ||
-                           m_etaphi_HA_all== 0 ||
-                           m_etaphi_MU_all== 0)) {
+  if ( (m_etaphi_EM_all== 0 ||
+        m_etaphi_J_all == 0 ||
+        m_etaphi_JF_all== 0 ||
+        m_etaphi_HA_all== 0 ||
+        m_etaphi_MU_all== 0)) {
     
     ATH_MSG_WARNING("Called FillEtaPhiPlots but >= 1 histo was not booked!");
     return;
@@ -660,7 +663,7 @@ void TrigRoIMoni::FillEtaPhiPlots()
       double phi = fixphi(recRoI->phi());
       //std::cout << "MMMM new RoI, eta,phi: " << eta << ", " << phi << std::endl;
 
-      if((isL2||isHLT) && m_etaphi_MU_all) m_etaphi_MU_all->Fill(eta, phi);
+      if (m_etaphi_MU_all) m_etaphi_MU_all->Fill(eta, phi);
 
       m_histoeta0->Fill(eta);
       m_histophi0->Fill(phi);
@@ -710,8 +713,8 @@ void TrigRoIMoni::FillEtaPhiPlots()
       //std::cout << "MMMM new EMtau RoI, isEM, isTau, eta,phi: " << isEM << ", "
       //                << isTau << ", " << eta << ", " << phi << std::endl;
 
-      if((isL2||isHLT) && isEM && m_etaphi_EM_all)  m_etaphi_EM_all->Fill(eta, phi);
-      if((isL2||isHLT) && isTau && m_etaphi_HA_all) m_etaphi_HA_all->Fill(eta, phi);
+      if (isEM && m_etaphi_EM_all)  m_etaphi_EM_all->Fill(eta, phi);
+      if (isTau && m_etaphi_HA_all) m_etaphi_HA_all->Fill(eta, phi);
 
       m_histoeta0->Fill(eta);
       m_histophi0->Fill(phi);
@@ -743,8 +746,8 @@ void TrigRoIMoni::FillEtaPhiPlots()
       double phi = fixphi(recRoI->phi());
       //std::cout << "MMMM new Jet RoI, eta,phi: " << eta << ", " << phi << std::endl;
 
-      if((isL2||isHLT) && jetERoI->type() == JetRoI && m_etaphi_J_all)         m_etaphi_J_all->Fill(eta, phi);
-      if((isL2||isHLT) && jetERoI->type() == ForwardJetRoI && m_etaphi_JF_all) m_etaphi_JF_all->Fill(eta, phi);
+      if (jetERoI->type() == JetRoI && m_etaphi_J_all)         m_etaphi_J_all->Fill(eta, phi);
+      if (jetERoI->type() == ForwardJetRoI && m_etaphi_JF_all) m_etaphi_JF_all->Fill(eta, phi);
 
       m_histoeta0->Fill(eta);
       m_histophi0->Fill(phi);

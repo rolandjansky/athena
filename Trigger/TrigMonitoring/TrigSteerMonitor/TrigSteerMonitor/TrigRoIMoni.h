@@ -101,6 +101,7 @@ class TrigRoIMoni: public TrigMonitorToolBase {
   std::map< std::string, std::pair<int, unsigned int> > m_thresholdNames; // Lvl1 threshhold --> histo bin/id
   std::string m_trigLvl;
   unsigned int m_threshMultiMax;
+  bool m_ignoreAbortGap;
 };
 
 
