@@ -159,6 +159,8 @@ m_muonMass(105.66)
     declareProperty("Eta_max"                      , m_eta_max              , "Maximum Eta");
     declareProperty("Mu_pt_min"                    , m_mu_pt_min            , "Minimum muon pT");
     declareProperty("Mu_pt_max"                    , m_mu_pt_max            , "Maximum muon pT");
+    declareProperty("Trk_pt_min"                   , m_trk_pt_min           , "Minimum ID track pT");
+    declareProperty("Trk_pt_max"                   , m_trk_pt_max           , "Maximum ID track pT");
     declareProperty("Z0_min"                       , m_z0_min               , "Minimum z0");
     declareProperty("Z0_max"                       , m_z0_max               , "Maximum z0");
     declareProperty("D0_min"                       , m_d0_min               , "Minimum d0");
@@ -1624,6 +1626,13 @@ void HLTXAODBphysMonTool::bookTrigBphysHists(const std::string & groupName ,cons
         else
           addHistogram( new TH1F(Form("%s_%s_fitmass",pref,name) ,  Form("%s_%s_fitmass;fitmass(#mu#mu)[MeV];Candidates",pref,detTitle) ,    200, m_oniamass_min,m_oniamass_max) );
         addHistogram( new TH1F(Form("%s_%s_fitchi2",pref,name) ,  Form("%s_%s_fitchi2;#chi^{2}(#mu#mu);Candidates",pref,detTitle) ,    50, 0.,20.) );
+        // ID tracks monitoring for Bmumux-like chains
+        if ( chainName.find("bBmumux") != std::string::npos ) {
+          addHistogram( new TH1F(Form("%s_%s_pTtrk",pref,name) ,    Form("%s_%s_pTtrk;p_{T}(trk)[GeV];Candidates",pref,detTitle) ,    50, m_trk_pt_min,m_trk_pt_max) );
+          addHistogram( new TH1F(Form("%s_%s_z0trk",pref,name) ,    Form("%s_%s_z0trk;z_{0}(trk)[mm];Candidates",pref,detTitle) ,    150, m_z0_min,m_z0_max) );
+          addHistogram( new TH1F(Form("%s_%s_d0trk",pref,name) ,    Form("%s_%s_d0trk;d_{0}(trk)[mm];Candidates",pref,detTitle) ,    220, m_d0_min,m_d0_max) );
+          
+        }
     }
 
     //************ EXPERT ************* //
@@ -1677,7 +1686,7 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
     }
 
     if (trackVector.size() %2 != 0) {
-        ATH_MSG_DEBUG(" REGTEST uneven number of tracks " );
+        ATH_MSG_DEBUG(" REGTEST uneven number of tracks (may be ok for Bmumux-like chains)" );
     }
 
     
@@ -1700,7 +1709,6 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
     std::vector<ElementLink<xAOD::TrackParticleContainer> >::const_iterator trkIt1=trackVector.begin();
     std::vector<ElementLink<xAOD::TrackParticleContainer> >::const_iterator trkIt2=trackVector.begin();
     for (; trkIt1!= trackVector.end(); ++trkIt1) {
-        trkIt2 = trkIt1 +1; // for track two
         
         if (!(trkIt1->isValid())) {
             ATH_MSG_WARNING("TrackParticleContainer::Invalid ElementLink to track ");
@@ -1728,15 +1736,29 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
         int pixHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfPixelHits)  ?  tmpValue : -99;
         int trtHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfTRTHits)    ?  tmpValue : -99;
         
+        if( chainName.find("bBmumux") != std::string::npos && trkIt1->dataID().find("Bphysics_IDTrig") != std::string::npos ) {
+          // first fill ID track histograms
+          hist(Form("%s_%s_pTtrk",pref,name))->Fill(ptTrk1/1000.);
+          hist(Form("%s_%s_d0trk",pref,name))->Fill(d0Trk1);
+          hist(Form("%s_%s_z0trk",pref,name))->Fill(z0Trk1);
+          continue; // not consider ID tracks which appear in Bmumux-like chains
+        }
+        
         
         ATH_MSG_DEBUG("track1 "  << " pt phi eta " << ptTrk1 << " " <<
                       phiTrk1 << " " << etaTrk1 << "SCT hits: " << sctHitsTrk1);
-
+        
+        // assume that if we found a muon track, the next one is the second muon
+        trkIt2 = trkIt1 +1; // for track two
+        
         if (trkIt2 != trackVector.end()) {
             if (!(trkIt2->isValid())) {
                 ATH_MSG_WARNING("TrackParticleContainer::Invalid ElementLink to track ");
                 continue;
             }
+            
+            if( chainName.find("bBmumux") != std::string::npos && trkIt2->dataID().find("Bphysics_IDTrig") != std::string::npos )
+              continue; // not consider ID tracks which appear in Bmumux-like chains
             
             const xAOD::TrackParticle * ptl2 = **trkIt2;
             if (!ptl2) {
@@ -2108,7 +2130,13 @@ float HLTXAODBphysMonTool::cosMethod(const TLorentzVector & Mu1, const TLorentzV
     
     double pp = MuMu.Px()*MuPlus.Px() + MuMu.Py()*MuPlus.Py() + MuMu.Pz()*MuPlus.Pz();
     
-    float cosTheta = (float)((MuMu.Energy()*pp - P_MuMu*P_MuMu*MuPlus.Energy())/(MuMu_mass*ps*P_MuMu));
+    //ATH_MSG_DEBUG("pssq = " << pssq << ", ps = " << ps << ", P_MuMu = " << P_MuMu << ", MuMu_mass = " << MuMu_mass);
+    
+    float cosTheta(-99.);
+    if(ps == 0.) 
+      ATH_MSG_DEBUG("Two muons with equal momenta - cosTheta will return an unphysical value");
+    else
+      cosTheta = (float)((MuMu.Energy()*pp - P_MuMu*P_MuMu*MuPlus.Energy())/(MuMu_mass*ps*P_MuMu));
     
     
     return cosTheta;
