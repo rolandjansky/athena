@@ -19,6 +19,9 @@ getService('DetectorGeometrySvc').RegionCreators += [getPublicTool('MuonPhysicsR
 #currently initializing the DetectorGeometrySvc too early causes
 #problems with the GeoModelSvc configuration.
 
-from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+try:
+    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+except ImportError:
+    from G4AtlasServices.UserActionStore import UAStore
 svkiller=getPublicTool('ScoringVolumeTrackKiller',tryDefaultConfigurable=True)
 UAStore.addAction(svkiller,['EndOfEvent', 'Step'])
