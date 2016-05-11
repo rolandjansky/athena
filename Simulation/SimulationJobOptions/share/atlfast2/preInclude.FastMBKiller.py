@@ -6,7 +6,10 @@
 # Requested for the Atlfast-II and MinBias groups
 #########################################################
 
-from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+try:
+    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+except ImportError:
+    from G4AtlasServices.UserActionStore import UAStore
 from AthenaCommon.CfgGetter import getPublicTool
 
 FastMBKiller=getPublicTool('FastIDKiller/FastMBKiller',tryDefaultConfigurable=True)

@@ -3,7 +3,10 @@
 # This is VERY handy for looking into problems in G4 - it should NOT be used for standard production.
 # Set "killAfter" in order to crash the job after a certain number of hyperspace particles
 
-from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+try:
+    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+except ImportError:
+    from G4AtlasServices.UserActionStore import UAStore
 from AthenaCommon.CfgGetter import getPublicTool
 
 catcher=getPublicTool('HyperspaceCatcher',tryDefaultConfigurable=True)

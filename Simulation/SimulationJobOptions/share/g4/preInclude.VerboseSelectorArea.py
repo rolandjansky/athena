@@ -4,7 +4,10 @@
 # Verbose level is transmitted to several G4 classes to increase their verbosity.
 # Note that the event number is the number of events into the G4 run, rather than the ATLAS event number.
 
-from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+try:
+    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+except ImportError:
+    from G4AtlasServices.UserActionStore import UAStore
 from AthenaCommon.CfgGetter import getPublicToolClone,getPublicTool
 
 vsArea=getPublicTool('VerboseSelector/VerboseSelectorArea',tryDefaultConfigurable=True)
