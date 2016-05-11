@@ -39,7 +39,7 @@ class SiLocalPosition;
 class SiIntersect;
 
 enum DetectorShape {
-    Box=0, Trapezoid, Other
+  Box=0, Trapezoid, Annulus,Other
 };
 
 /** @class SiDetectorDesign

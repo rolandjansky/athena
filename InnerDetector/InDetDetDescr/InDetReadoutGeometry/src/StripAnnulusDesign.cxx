@@ -24,7 +24,7 @@ StripAnnulusDesign::StripAnnulusDesign(const SiDetectorDesign::Axis stripDirecti
                                const vector<double> stripStartRadius,
                                const vector<double> stripEndRadius) :
     SCT_ModuleSideDesign(thickness, true, true, true, 1, 0, 0, 0, false, carrier,
-                         readoutSide, stripDirection, thicknessDirection) {
+                         readoutSide, stripDirection, thicknessDirection),m_nRows(nRows) {
     if (nRows < 0) {
         throw std::runtime_error(
                   "ERROR: StripAnnulusDesign called with negative number of rows");
@@ -83,7 +83,6 @@ int  StripAnnulusDesign::strip1Dim(int strip, int row) const {
 }
 
 void StripAnnulusDesign::neighboursOfCell(const SiCellId &cellId, std::vector<SiCellId> &neighbours) const {
-cout << "Niggle: Get neighbours\n";
 
     neighbours.clear();
 
@@ -107,12 +106,12 @@ cout << "Niggle: Get neighbours\n";
 }
 
 const Trk::SurfaceBounds &StripAnnulusDesign::bounds() const {
-cout << "Niggle: Get bounds\n";
+
     return *m_bounds;
 }
 
 SiCellId StripAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) const {
-cout << "Niggle: cellIdOfPosition\n";
+
     double r = pos.r();
     double phi = pos.phi();
 //
@@ -138,7 +137,7 @@ cout << "Niggle: cellIdOfPosition\n";
 }
 
 SiLocalPosition StripAnnulusDesign::localPositionOfCell(SiCellId const &cellId) const {
-cout << "Niggle: localPositionOfCell\n";
+
     int strip, row;
     getStripRow(cellId, &strip, &row);
     double r = (m_stripEndRadius[row] - m_stripStartRadius[row]) / 2.;
@@ -149,7 +148,7 @@ cout << "Niggle: localPositionOfCell\n";
 }
 
 SiLocalPosition StripAnnulusDesign::localPositionOfCluster(SiCellId const &cellId, int clusterSize) const {
-cout << "Niggle: localPositionOfCluster\n";
+
     SiLocalPosition pos = localPositionOfCell(cellId);
 
     if (clusterSize <= 1) {
@@ -170,7 +169,7 @@ cout << "Niggle: localPositionOfCluster\n";
 
 /// Give end points of the strip that covers the given position
 std::pair<SiLocalPosition, SiLocalPosition> StripAnnulusDesign::endsOfStrip(SiLocalPosition const &pos) const {
-cout << "Niggle: endsOfStrip\n";
+
     SiCellId cellId = cellIdOfPosition(pos);
 
     int strip, row;
@@ -187,7 +186,7 @@ cout << "Niggle: endsOfStrip\n";
 }
 
 bool StripAnnulusDesign::inActiveArea(SiLocalPosition const &pos, bool /*checkBondGap*/) const {
-cout << "Niggle: inActiveArea\n";
+
 
     SiCellId id = cellIdOfPosition(pos);
 
@@ -196,7 +195,7 @@ cout << "Niggle: inActiveArea\n";
 
 // Used in surfaceChargesGenerator
 double StripAnnulusDesign::scaledDistanceToNearestDiode(SiLocalPosition const &pos) const {
-cout << "Niggle: scaledDistanceToNearestDiode\n";
+
     SiCellId cellId = cellIdOfPosition(pos);
     SiLocalPosition posStrip = localPositionOfCell(cellId);
     int strip, row;
@@ -226,7 +225,7 @@ SiLocalPosition StripAnnulusDesign::positionFromStrip(const int stripNumber1D) c
 //    returns an invalid id.
 //
 SiCellId StripAnnulusDesign::cellIdInRange(const SiCellId &cellId) const {
-cout << "Niggle: cellIdInRange\n";
+
     if (!cellId.isValid()) {
         return SiCellId(); // Invalid
     }
