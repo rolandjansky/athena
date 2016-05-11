@@ -44,8 +44,8 @@ class VolumeTreeNavigator {
       void               SetDepthCutSimple(const int, const int, const int, const int);
       void               SetDepthCutDetail(const char*);
       VolTree            Extract();
-      bool               Ascend(unsigned int levels = 1);
-      bool               Descend(unsigned int levels = 1);
+      bool               Ascend(int levels = 1);
+      bool               Descend(int levels = 1);
       bool               KillProcesses(const int, const char*, ...);
 
       int                GetCurrentDepth();
