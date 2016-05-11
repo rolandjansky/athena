@@ -11,6 +11,8 @@
 #include <string>
 #include <map>
 
+#include "G4Pow.hh"
+
 class TProfile;
 class TProfile2D;
 
@@ -30,8 +32,14 @@ class LengthIntegrator final: public UserActionBase {
   virtual StatusCode queryInterface(const InterfaceID&, void**) override;
   
   virtual StatusCode initialize() override;
+
+  virtual StatusCode finalize() override;
   
  private:
+
+  G4Pow* m_g4pow;
+
+  void addToDetThick(std::string, double, double);
 
   void regAndFillHist(const std::string&,const std::pair<double,double>&);
 
@@ -50,6 +58,13 @@ class LengthIntegrator final: public UserActionBase {
   std::map<std::string,TProfile*,std::less<std::string> > m_phiMapIL;
 
   ServiceHandle<ITHistSvc> m_hSvc;
+
+  std::map<std::string,TProfile2D*,std::less<std::string> > m_rzMapRL;
+  std::map<std::string,TProfile2D*,std::less<std::string> > m_xyMapRL;
+
+  std::map<std::string,TProfile2D*,std::less<std::string> > m_rzMapIL;
+  std::map<std::string,TProfile2D*,std::less<std::string> > m_xyMapIL;
+
 };
 
 #endif
