@@ -22,37 +22,41 @@ simFlags.ReleaseGeoModel=False;
 from AthenaCommon import CfgGetter
 if DetFlags.Truth_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TruthTestTool", checkType=True)]
-    job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("EvgenTruthTestTool", checkType=True)] 
+    job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("EvgenTruthTestTool", checkType=True)]
 if DetFlags.pixel_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("PixelHitsTestTool", checkType=True)]
-if DetFlags.SCT_on(): 
+if DetFlags.SCT_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("SCT_HitsTestTool", checkType=True)]
-if DetFlags.TRT_on(): 
+if DetFlags.TRT_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TrtHitsTestTool", checkType=True)]
-if DetFlags.LAr_on(): 
+if DetFlags.LAr_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("EMBHitsTestTool", checkType=True)]
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("EMECHitsTestTool", checkType=True)]
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("FCALHitsTestTool", checkType=True)]
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("HECHitsTestTool", checkType=True)]
     if DetFlags.Truth_on():
         job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("CaloEntryLayerTestTool", checkType=True)]
-if DetFlags.Tile_on(): 
+if DetFlags.Tile_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TileHitsTestTool", checkType=True)]
-if simFlags.CalibrationRun.get_Value()=='LAr+Tile': 
-    job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("LArActiveCaloCalibHitsTestTool", checkType=True)] 
-    job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("LArInactiveCaloCalibHitsTestTool", checkType=True)] 
-    ##job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("LArDeadMaterialCaloCalibHitsTestTool", checkType=True)] 
-    job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TileActiveCellCaloCalibHitsTestTool", checkType=True)] 
-    job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TileInactiveCellCaloCalibHitsTestTool", checkType=True)] 
-    ##job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TileDeadMaterialCaloCalibHitsTestTool", checkType=True)] 
-if DetFlags.Muon_on(): 
+if simFlags.CalibrationRun.get_Value()=='LAr+Tile':
+    job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("LArActiveCaloCalibHitsTestTool", checkType=True)]
+    job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("LArInactiveCaloCalibHitsTestTool", checkType=True)]
+    ##job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("LArDeadMaterialCaloCalibHitsTestTool", checkType=True)]
+    job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TileActiveCellCaloCalibHitsTestTool", checkType=True)]
+    job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TileInactiveCellCaloCalibHitsTestTool", checkType=True)]
+    ##job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TileDeadMaterialCaloCalibHitsTestTool", checkType=True)]
+if DetFlags.Muon_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MDTHitsTestTool", checkType=True)]
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("RPCHitsTestTool", checkType=True)]
-    job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("CSCHitsTestTool", checkType=True)]
+    if hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel():
+        job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MMHitsTestTool",  checkType=True)]
+        job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("sTGCHitsTestTool",  checkType=True)]
+    else:
+        job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("CSCHitsTestTool", checkType=True)]
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TGCHitsTestTool", checkType=True)]
     if DetFlags.Truth_on():
-        job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MuonEntryLayerTestTool", checkType=True)] 
-        job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MuonExitLayerTestTool", checkType=True)] 
+        job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MuonEntryLayerTestTool", checkType=True)]
+        job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MuonExitLayerTestTool", checkType=True)]
 if DetFlags.Lucid_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("LucidHitsTestTool", checkType=True)]
 if DetFlags.ALFA_on():
