@@ -355,9 +355,16 @@ namespace Muon {
 
     Trk::Track* cleanedTrack = outlierRecovery(*hitTrack);
     // do not discard tracks that fail outlierRecovery, check that the track is ok
-    if( !cleanedTrack || !m_chambersToBeRemoved.empty() || !m_largePullMeasuements.empty() ) {
+    if( !cleanedTrack || !m_chambersToBeRemoved.empty() || !m_largePullMeasurements.empty() ) {
       init(*hitTrack);
-      cleanedTrack = hitTrack;
+      if(!m_chambersToBeRemoved.empty() || !m_largePullMeasurements.empty()){
+        ATH_MSG_DEBUG("outlier recovery has definitely failed, rejecting track");
+        return 0;
+      }
+      else{
+        ATH_MSG_DEBUG("looks like track is ok despite failing outlier recovery");
+        cleanedTrack = hitTrack;
+      }
     }
     
     if( m_nhits < m_noutliers ){
@@ -560,7 +567,7 @@ namespace Muon {
 
   Trk::Track* MuonTrackCleaner::hitCleaning( Trk::Track& track ) const {
 
-    if( m_largePullMeasuements.empty() ) return &track;
+    if( m_largePullMeasurements.empty() ) return &track;
     ATH_MSG_DEBUG(" trying outlier removal " );
 
     Trk::Track* currentTrack = &track;
@@ -572,7 +579,7 @@ namespace Muon {
       ++m_counters.nhitTotCycles;
 
       // sanity check, should not remove too many hits
-      if( m_largePullMeasuements.size() > 10 ) {
+      if( m_largePullMeasurements.size() > 10 ) {
 	ATH_MSG_DEBUG(" Too many outlier, cannot perform cleaning " );
 	++m_counters.nhitTooManyOutliers;
 	return 0;
@@ -602,7 +609,7 @@ namespace Muon {
       InfoIt hit_end = m_measInfo.end();
       for( ;hit!=hit_end;++hit){
 	
-	bool remove = m_largePullMeasuements.count(hit->meas) || !hit->inBounds || hit->isNoise;
+	bool remove = m_largePullMeasurements.count(hit->meas) || !hit->inBounds || hit->isNoise;
 	// hits that are flagged as outlier or hits in the chamber to be removed are added as Outlier
 	if( !hit->useInFit || remove ){
 	  hit->useInFit = 0;
@@ -736,7 +743,7 @@ namespace Muon {
 	init(*newTrack);
       }
 
-      if( m_largePullMeasuements.empty() ) {
+      if( m_largePullMeasurements.empty() ) {
 	ATH_MSG_DEBUG("   cleaning ended successfullu after cycle " << n );
 	return newTrack;
       }
@@ -1173,7 +1180,7 @@ namespace Muon {
     m_hitsPerChamber.clear();
     m_outBoundsPerChamber.clear();
     m_measInfo.clear();
-    m_largePullMeasuements.clear();
+    m_largePullMeasurements.clear();
     m_chamberLayerStatistics.clear();
     m_stations.clear();
     m_phiLayers.clear();
@@ -1564,7 +1571,7 @@ namespace Muon {
 	
 	// pseudo measurements should be included in chamber hit removal so stop here
 	if( !isNoise && isOutlier ) {
-	  m_largePullPseudoMeasuements.insert( meas );
+	  m_largePullPseudoMeasurements.insert( meas );
 	}
 	continue;
 	
@@ -1584,7 +1591,7 @@ namespace Muon {
 	
 	// measurements with large pull
 	if( !(*tsit)->type(Trk::TrackStateOnSurface::Outlier) && isOutlier && !isMDT ) {
-	  m_largePullMeasuements.insert( meas );
+	  m_largePullMeasurements.insert( meas );
 	}
 	
 	// pulls per chamber
@@ -1610,7 +1617,7 @@ namespace Muon {
     }
     
     // if the was an MDT outlier add it to the list of hits to be removed
-    if (mdtmeas) m_largePullMeasuements.insert( mdtmeas );
+    if (mdtmeas) m_largePullMeasurements.insert( mdtmeas );
 
     // check whether we have sufficient layers to savely clean the RPC/TGC comp rots
     unsigned int nphiLayers = rpcLayers.size() + tgcLayers.size();
@@ -1758,8 +1765,8 @@ namespace Muon {
             << "  phi " << pull_phihits
             << "  measurements " << m_measInfo.size() << std::endl
             << "  precision chambers " << m_pullSumPerChamber.size() 
-            << "  hits with large pull " << m_largePullMeasuements.size() 
-            << "  pseudos with large pull " << m_largePullPseudoMeasuements.size() 
+            << "  hits with large pull " << m_largePullMeasurements.size() 
+            << "  pseudos with large pull " << m_largePullPseudoMeasurements.size() 
             << "  chambers to be removed " << m_chambersToBeRemoved.size()
             << "  phi " << m_chambersToBeRemovedPhi.size()
             << "  phi lay " << m_phiLayers.size()

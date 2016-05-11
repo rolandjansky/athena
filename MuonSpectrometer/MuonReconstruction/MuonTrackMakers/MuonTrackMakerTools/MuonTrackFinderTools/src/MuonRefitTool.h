@@ -68,6 +68,8 @@ namespace Muon {
     /** update errors on a muon track */
     Trk::Track* updateErrors( const Trk::Track& track, const Settings& settings ) const;
 
+    Trk::Track* updateAlignmentErrors( const Trk::Track& track, const Settings& settings ) const;
+
     const Trk::Track* removeOutliers( const Trk::Track& track,const Settings& settings ) const;
 
     bool removeMdtOutliers( const Trk::TrackParameters& pars, const std::vector<const MdtDriftCircleOnTrack*>& hits,   
@@ -127,6 +129,15 @@ namespace Muon {
     mutable unsigned int m_nupdates;
     mutable unsigned int m_ngoodUpdates;
     mutable unsigned int m_failedUpdates;
+
+    float m_alignmentDelta;
+    float m_alignmentAngle;
+    float m_alignmentDeltaError;
+    float m_alignmentAngleError;
+    bool  m_alignmentErrors;
+    bool  m_addTwo;
+    bool  m_addMiddle;
+    bool  m_addInner;
 
     double m_minMuonMomentum;
     double m_fixedError;
