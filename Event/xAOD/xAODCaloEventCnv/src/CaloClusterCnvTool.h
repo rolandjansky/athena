@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloClusterCnvTool.h 596350 2014-05-10 14:03:58Z krasznaa $
+// $Id: CaloClusterCnvTool.h 746201 2016-05-11 13:14:27Z okuprash $
 #ifndef XAODCALOEVENTCNV_CALOCLUSTERCNVTOOL_H
 #define XAODCALOEVENTCNV_CALOCLUSTERCNVTOOL_H
 
@@ -27,8 +27,8 @@ namespace xAODMaker {
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     * @author Walter Lampl <Walter.Lampl@cern.ch>
     *
-    * $Revision: 596350 $
-    * $Date: 2014-05-10 16:03:58 +0200 (Sat, 10 May 2014) $
+    * $Revision: 746201 $
+    * $Date: 2016-05-11 15:14:27 +0200 (Wed, 11 May 2016) $
     */
    class CaloClusterCnvTool : public AthAlgTool,
                               public virtual ICaloClusterCnvTool {
@@ -45,6 +45,11 @@ namespace xAODMaker {
       virtual StatusCode convert( const CaloCluster* aod,
                                   xAOD::CaloCluster* xaod,
                                   CaloClusterCellLinkContainer* ccclc = 0 );
+
+      /// Function usable by TrigBStoxAODTool
+      virtual StatusCode convert( const CaloClusterContainer* aod,
+                                  xAOD::CaloClusterContainer* xaod );
+
 
    }; // class CaloClusterCnvTool
 
