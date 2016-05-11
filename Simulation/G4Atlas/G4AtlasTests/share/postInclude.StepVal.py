@@ -2,17 +2,19 @@ from AthenaCommon.AppMgr import ServiceMgr
 if not hasattr(ServiceMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc
     ServiceMgr += THistSvc("THistSvc")
-    ServiceMgr.THistSvc.Output  = ["truth DATAFILE='stepping.root' OPT='NEW'"];
 
-#from AthenaCommon.AlgSequence import AlgSequence
-#job = AlgSequence()
-#if not hasattr(job, 'G4TestAlg'):
-#    from G4AtlasTests.G4AtlasTestsConf import G4TestAlg
-#    job += G4TestAlg()
-#from AthenaCommon import CfgGetter
-#job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("SteppingValidation", checkType=True)]
+ServiceMgr.THistSvc.Output  += ["truth DATAFILE='stepping.root' OPT='NEW'"];
 
-# no need to add it to G4TestAlg. adding to UAStore is enough to schedule execution
-from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-# add default configurable
-UAStore.addAction('SteppingValidation',['Step','BeginOfEvent','EndOfEvent'])
+from G4AtlasApps.SimFlags import simFlags
+if hasattr(simFlags, 'UseV2UserActions') and simFlags.UseV2UserActions():
+    # hive-friendly version
+    simFlags.OptionalUserActionList.addAction('G4UA::SteppingValidationTool',['BeginOfRun','EndOfEvent','BeginOfEvent','Step'])
+else:
+    # V1 userActions
+    try:
+        from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+    except ImportError:
+        from G4AtlasServices.UserActionStore import UAStore
+    # add default configurable
+    UAStore.addAction('SteppingValidation',['Step','BeginOfEvent','EndOfEvent'])
+
