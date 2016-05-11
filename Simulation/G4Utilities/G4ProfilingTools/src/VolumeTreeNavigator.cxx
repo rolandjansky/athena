@@ -136,28 +136,28 @@ VolTree VolumeTreeNavigator::Extract()
   return ret;
 }
 
-bool VolumeTreeNavigator::Ascend(unsigned int levels) {
+bool VolumeTreeNavigator::Ascend(int levels) {
   // Move up # of levels given in the navigable history, stop at Atlas::Atlas
   if ( !m_history.empty() )
   {
       if ( distance( m_history.begin(), m_h_nav ) == 0 || levels == 0 )  return 0;
-      else if ( levels > (unsigned)abs(distance( m_history.begin(), m_h_nav )) )
+      else if ( abs(levels) > abs(distance( m_history.begin(), m_h_nav )) )
           levels = abs(distance( m_history.begin(), m_h_nav ));
-      advance(m_h_nav, -levels);
+      advance(m_h_nav, -abs(levels));
       return 1;
   }
   else return 0;
 }
 
-bool VolumeTreeNavigator::Descend(unsigned int levels)
+bool VolumeTreeNavigator::Descend(int levels)
 {
   // Move down # of levels given in the navigable history
   if ( !m_history.empty() )
   {
       if ( distance(m_h_nav, m_h_end) == 1 || levels == 0 )  return 0;
-      else if ( levels > (unsigned)abs(distance( m_h_nav, m_h_end-1 )) )
+      else if ( abs(levels) > abs(distance( m_h_nav, m_h_end-1 )) )
           levels = abs(distance( m_h_nav, m_h_end-1 ));
-      advance(m_h_nav, levels);
+      advance(m_h_nav, abs(levels));
       return 1;
   } 
   else return 0;

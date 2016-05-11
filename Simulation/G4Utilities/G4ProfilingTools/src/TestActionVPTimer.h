@@ -45,8 +45,22 @@ class G4Step;
 class Algorithm;
 
 struct volData {			//!< Structure of data for given volume
+
  public:
-  volData operator+= (const volData&);	//!< Overloaded += operator
+  
+  volData operator+= (const volData& acc){
+    this->tTotal += acc.tTotal;
+    this->tElectron += acc.tElectron;
+    this->tPhoton += acc.tPhoton;
+    this->tNeutron += acc.tNeutron;
+    this->tPion += acc.tPion;
+    this->tBaryon += acc.tBaryon;
+    this->tLepton += acc.tLepton;
+    this->tMeson += acc.tMeson;
+    this->tOther += acc.tOther;
+    return *this;
+  };	//!< Overloaded += operator
+  
   double tTotal;			//!< Total time spent in volume
   double tElectron;			//!< Time spent on e objects in volume
   double tPhoton;			//!< Time spent on photons in volume
@@ -62,25 +76,13 @@ struct volData {			//!< Structure of data for given volume
 	     tLepton(0.), tMeson(0.), tOther(0.) { ; }
 };
 
-volData volData::operator+= (const volData& acc)
-{
-  this->tTotal += acc.tTotal;
-  this->tElectron += acc.tElectron;
-  this->tPhoton += acc.tPhoton;
-  this->tNeutron += acc.tNeutron;
-  this->tPion += acc.tPion;
-  this->tBaryon += acc.tBaryon;
-  this->tLepton += acc.tLepton;
-  this->tMeson += acc.tMeson;
-  this->tOther += acc.tOther;
-  return *this;
-}
-
-typedef std::map<VolTree, volData> VolMap;
-typedef VolMap::const_iterator VolIt;
 
 class TestActionVPTimer final: public UserActionBase
 {  
+
+  typedef std::map<VolTree, volData> VolMap;
+  typedef VolMap::const_iterator VolIt;
+  
  public:
 
   TestActionVPTimer(const std::string& type, const std::string& name, const IInterface* parent);
@@ -160,4 +162,144 @@ inline void TestActionVPTimer::TimerPrint(std::pair<VolTree, volData> vp, const 
   G4cout << vPrFmt(tOther, m_nev, m_runTime, depth-1, " - other particles") << G4endl;
   return;
 }
+
+
+#include "G4AtlasInterfaces/IBeginEventAction.h"
+#include "G4AtlasInterfaces/IEndEventAction.h"
+#include "G4AtlasInterfaces/IBeginRunAction.h"
+#include "G4AtlasInterfaces/IEndRunAction.h"
+#include "G4AtlasInterfaces/ISteppingAction.h"
+namespace G4UA{
+
+  
+  class TestActionVPTimer:
+  public IBeginEventAction,  public IEndEventAction,  public IBeginRunAction,  public IEndRunAction,  public ISteppingAction
+  {
+    
+  public:
+    
+    struct Config
+    {
+      int dCALO=2;
+      int dBeam=2;
+      int dIDET=2;
+      int dMUON=2;	//!< Used for setting depths in jobOptions file
+      std::string dDetail="";	//!< Path to set detailed depth in jobOptions file
+    };
+    
+    TestActionVPTimer(const Config& config);
+    
+    
+    struct volumeData {			//!< Structure of data for given volume
+    public:
+      volumeData operator+= (const volumeData& acc){
+	this->tTotal += acc.tTotal;
+	this->tElectron += acc.tElectron;
+	this->tPhoton += acc.tPhoton;
+	this->tNeutron += acc.tNeutron;
+	this->tPion += acc.tPion;
+	this->tBaryon += acc.tBaryon;
+	this->tLepton += acc.tLepton;
+	this->tMeson += acc.tMeson;
+	this->tOther += acc.tOther;
+	return *this;
+      };	//!< Overloaded += operator
+
+      double tTotal=0;			//!< Total time spent in volume
+      double tElectron=0;			//!< Time spent on e objects in volume
+      double tPhoton=0;			//!< Time spent on photons in volume
+      double tNeutron=0;			//!< Time spent on neutrons in volume
+      double tPion=0;				//!< Time spent on pions in volume
+      double tBaryon=0;			//!< Time spent on other baryons in volume
+      double tLepton=0;			//!< Time spent on other leptons in volume
+      double tMeson=0;			//!< Time spent on all mesons in volume
+      double tOther=0;			//!< Time spent on all other particles in volume (mostly nuclei)
+      
+    };
+
+    typedef std::map<VolTree, TestActionVPTimer::volumeData> VolMap;
+    typedef VolMap::const_iterator VolIt;
+    
+
+    struct Report
+    {
+      // time_index is map<VolTree, TestActionVPTimer::volumeData>
+      // VolTree is  vector< pair<physvol*,int> >
+
+      VolMap time_index;
+      int nev=0;	//!< number of processed events
+      double runTime=0;	//!< Double for storing this run time
+
+      void merge(const Report& rep){
+
+	nev+=rep.nev;
+	runTime+=rep.runTime;
+
+	// copy first map
+	if(time_index.empty()){
+	  time_index=rep.time_index;
+	  return;
+	}
+
+	// must merge timers per particle and per tree	
+	// loop on new report
+	for(auto& element:rep.time_index){
+
+	  // check if key exists
+	  auto existing=time_index.find(element.first);
+	  if(existing!=time_index.end()){
+	    // sum timings (using volData)
+	    existing->second+=element.second;
+
+	  }
+	  else
+	    // add new entry
+	    time_index.insert(element);
+	}
+
+      };
+    };
+    
+    const Report& getReport() const
+    { return m_report; }
+    
+    virtual void beginOfEvent(const G4Event*) override;
+    virtual void endOfEvent(const G4Event*) override;
+    virtual void beginOfRun(const G4Run*) override;
+    virtual void endOfRun(const G4Run*) override;
+    virtual void processStep(const G4Step*) override;
+
+  private:
+    Config m_config;
+    Report m_report;
+    
+    G4Timer* m_runTimer;			//!< Timer for the entire run
+    G4Timer* m_eventTimer;		//!< Timer for this event
+    G4Timer* v_timer;			//!< Timer activated for each volume
+    double m_eventTime;	//!< Double for storing this event time
+    
+    VolTree v_history;	//!< Vector of the current volume history, used to assign times to each element
+ 
+    
+    double TimerSum(G4Timer* timer) const;    		//!< Gets the time from the timer for summation
+
+  }; // class TestActionVPTimer
+  
+  
+// Stops a timer and return the elapsed time
+
+  inline double TestActionVPTimer::TimerSum(G4Timer* timer) const
+  {
+    if (timer == 0) return -999.;
+    timer->Stop();
+    return (timer->GetUserElapsed() + timer->GetSystemElapsed());
+  }
+  
+  
+  
+  
+} // namespace G4UA 
+
+
+
 #endif // #define TestActionVPTimer_H
