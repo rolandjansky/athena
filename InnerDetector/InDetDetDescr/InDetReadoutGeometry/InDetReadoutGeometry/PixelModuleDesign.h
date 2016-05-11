@@ -197,7 +197,11 @@ namespace InDetDD {
       virtual const Trk::SurfaceBounds & bounds() const; 
     
       virtual bool is3D() const;
-      
+     
+      enum ReadoutTechnology{FEI3,FEI4,RD53};
+      ReadoutTechnology getReadoutTechnology() const;
+
+
       ///////////////////////////////////////////////////////////////////
       // Non-const methods:
       ///////////////////////////////////////////////////////////////////
@@ -331,10 +335,16 @@ namespace InDetDD {
 
     
     inline bool PixelModuleDesign::is3D() const 
-      { 
-	return m_is3D; 
-      } 
+    { 
+      return m_is3D; 
+    } 
 
+    inline PixelModuleDesign::ReadoutTechnology PixelModuleDesign::getReadoutTechnology() const {
+      const int maxRow = m_readoutScheme.rowsPerCircuit();
+      const int maxCol = m_readoutScheme.columnsPerCircuit();
+      if (maxRow*maxCol>26000) { return FEI4; }
+      else                     { return FEI3; }
+    }
 
 } // namespace InDetDD
 

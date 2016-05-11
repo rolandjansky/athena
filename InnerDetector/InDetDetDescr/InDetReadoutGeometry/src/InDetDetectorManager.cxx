@@ -15,7 +15,7 @@ namespace InDetDD
 {
 
     InDetDetectorManager::InDetDetectorManager(StoreGateSvc * detStore, const std::string & name)
-        : m_detStore(detStore), 
+        : m_alignfoldertype{none},m_detStore(detStore), 
         m_msg(name+"DetectorManager"), 
         m_suppressWarnings(false)
     {
