@@ -18,7 +18,6 @@
 //#include <strstream>
 #include "TrigSteerMonitor/TrigNtSteerBlock.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/INTupleSvc.h"

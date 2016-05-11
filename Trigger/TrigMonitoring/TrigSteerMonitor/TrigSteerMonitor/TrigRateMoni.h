@@ -43,7 +43,6 @@ namespace HLT {
   class TrigSteer;
   class SteeringChain;
 }
-class StoreGateSvc;
 
 class TrigRateMoni : public TrigMonitorToolBase {
  public:
@@ -115,10 +114,7 @@ class TrigRateMoni : public TrigMonitorToolBase {
   TH2F* m_published; //!< histogram which is published
   TH2F* m_buffer;    //!< buffer to collect statistics
 
-  MsgStream* m_log; 
-  unsigned int m_logLvl;
   const HLT::TrigSteer* m_parentAlg;
-  ServiceHandle<StoreGateSvc> m_storeGate;
   std::vector<std::string> m_specialStreamSetProperties;// for undecoded specials
 
   enum ybins { input=0, prescale=1, raw=2, output=3, rerun=4, algoIn=5, passedrerun=6 };

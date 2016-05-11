@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ThreadGaudi.h"
 
@@ -22,7 +21,6 @@
 TrigSteerMoni::TrigSteerMoni(const std::string & type, const std::string & name,
 			     const IInterface* parent)
   :  MonitorToolBase(type, name, parent),
-     m_log(0),
      m_chainAcceptanceHist(0),
      m_chainAcceptancePSHist(0),
      m_chainAcceptancePTHist(0),
@@ -31,7 +29,6 @@ TrigSteerMoni::TrigSteerMoni(const std::string & type, const std::string & name,
 {
     declareInterface<IMonitorToolBase>(this);
     declareProperty("HistoPath", m_histoPath = "/EXPERT/TrigSteering");
-
 }
 
 
@@ -39,24 +36,15 @@ TrigSteerMoni::~TrigSteerMoni()
 {
 }
 
-StatusCode TrigSteerMoni::finalize()
-{
-  delete m_log; m_log = 0;
-  return StatusCode::SUCCESS;
-}
-
-
 StatusCode TrigSteerMoni::initialize()
 {
-    m_log = new MsgStream(msgSvc(), name());
-
     m_parentAlg = dynamic_cast<const HLT::TrigSteer*>(parent());
     if ( !m_parentAlg ) {
-      (*m_log) << MSG::ERROR << " Unable to cast the parent algorithm to HLT::TrigSteer !" << endreq;
+      msg() << MSG::ERROR << " Unable to cast the parent algorithm to HLT::TrigSteer !" << endreq;
       return StatusCode::FAILURE;
     }
 
-    (*m_log) << MSG::INFO << "Finished initialize() of TrigSteerMoni" << endreq;
+    msg() << MSG::INFO << "Finished initialize() of TrigSteerMoni" << endreq;
 
     m_trigLvl = m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 ? "L2" : m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::EF ? "EF" : "HLT" ;
 
@@ -72,7 +60,7 @@ StatusCode TrigSteerMoni::bookHists()
   // service where to register stuff
   ITHistSvc *histSvc;
   if (!service("THistSvc", histSvc).isSuccess()) {
-    (*m_log) << MSG::ERROR << "Unable to locate THistSvc" << endreq;
+    msg() << MSG::ERROR << "Unable to locate THistSvc" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -118,24 +106,24 @@ StatusCode TrigSteerMoni::bookHists()
   // 1D Histograms
   if ( histSvc->regHist(m_histoPath + m_chainAcceptanceHist->GetName(),
                         m_chainAcceptanceHist).isFailure())
-     (*m_log) << MSG::WARNING << "Can't book "
+     msg() << MSG::WARNING << "Can't book "
               << m_histoPath + m_chainAcceptanceHist->GetName() << endreq;
   
   
   if ( histSvc->regHist(m_histoPath + m_chainAcceptancePSHist->GetName(),
                         m_chainAcceptancePSHist).isFailure())
-     (*m_log) << MSG::WARNING << "Can't book "
+     msg() << MSG::WARNING << "Can't book "
               << m_histoPath + m_chainAcceptancePSHist->GetName() << endreq;
   
   if ( histSvc->regHist(m_histoPath + m_chainAcceptancePTHist->GetName(),
                         m_chainAcceptancePTHist).isFailure())
-     (*m_log) << MSG::WARNING << "Can't book "
+     msg() << MSG::WARNING << "Can't book "
               << m_histoPath + m_chainAcceptancePTHist->GetName() << endreq;
   
   // 2D Histograms
   if ( histSvc->regHist(m_histoPath + m_signatureAcceptanceHist->GetName(),
                         m_signatureAcceptanceHist).isFailure())
-     (*m_log) << MSG::WARNING << "Can't book "
+     msg() << MSG::WARNING << "Can't book "
               << m_histoPath + m_signatureAcceptanceHist->GetName() << endreq;
   
 
@@ -147,15 +135,13 @@ StatusCode TrigSteerMoni::fillHists()
 
   ++m_totalEvts;
 
-  (*m_log) << MSG::DEBUG << " In fillHist " << endreq;
-
   const std::vector<const HLT::SteeringChain*>& activeChains = m_parentAlg->getActiveChains();
 
-  //  (*m_log) << MSG::INFO << "Found " << activeChains.size() << " active Chains."
+  //  msg() << MSG::INFO << "Found " << activeChains.size() << " active Chains."
   //	    << endreq;
   for (std::vector<const HLT::SteeringChain*>::const_iterator chain = activeChains.begin();
        chain != activeChains.end(); ++chain) {
-    // (*m_log) << MSG::INFO << "Chain name=" << (*it)->getChainId() << endreq;
+    // msg() << MSG::INFO << "Chain name=" << (*it)->getChainId() << endreq;
     Int_t bin = (Int_t)(*chain)->getChainCounter();
     float newAccept = (m_totalEvts - 1) * m_chainAcceptanceHist->GetBinContent( bin );
     float newAcceptPS = (m_totalEvts - 1) * m_chainAcceptancePSHist->GetBinContent( bin );

@@ -46,14 +46,12 @@ class TrigTEMoni: public TrigMonitorToolBase {
   virtual ~TrigTEMoni() {};
 
   virtual StatusCode initialize();
-  virtual StatusCode finalize();
 
   virtual StatusCode bookHists();
   virtual StatusCode bookHistograms( bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun );
   virtual StatusCode fillHists();
 
  private:
-  StoreGateSvc* m_storeGate;
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_lvl1ConfigSvc; //!< handle for the LVL1 configuration service
   const HLT::TrigSteer* m_parentAlg; // should give us pointer to TrigSteer topAlgorithm!!!
   
@@ -83,8 +81,6 @@ class TrigTEMoni: public TrigMonitorToolBase {
   //  unsigned m_reserveLumiHistos;
   //  unsigned int m_bookedLumiHistos;
   //  std::string m_histoPathexpert;
-  MsgStream* m_log;
-  unsigned int m_logLvl; //!< MsgStram level
   std::vector< unsigned int > m_configuredTETypes;
   std::vector< unsigned int > m_configuredlvl1TETypes;
   //std::vector< unsigned int > m_configuredlvl1TETypes_from_lvl1config;

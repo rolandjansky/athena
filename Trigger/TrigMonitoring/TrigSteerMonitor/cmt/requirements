@@ -18,6 +18,7 @@ use  AtlasROOT                  AtlasROOT-*                     External
 use  DataCollection             DataCollection-*                External
 use  MagFieldInterfaces         MagFieldInterfaces-*            MagneticField
 use  StoreGate                  StoreGate-*                     Control
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 use  TrigConfHLTData            TrigConfHLTData-*               Trigger/TrigConfiguration
 use  TrigConfL1Data             TrigConfL1Data-*                Trigger/TrigConfiguration
 use  TrigInterfaces             TrigInterfaces-*                Trigger/TrigSteer
@@ -31,7 +32,5 @@ end_private
 library TrigSteerMonitor *.cxx -s=components *.cxx
 apply_pattern component_library 
 
-apply_pattern declare_joboptions files="jobOfragment_*.py"
+apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
-
-#macro_append cppflags "" \

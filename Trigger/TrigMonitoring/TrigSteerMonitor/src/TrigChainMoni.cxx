@@ -2,9 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "TrigSteerMonitor/TrigChainMoni.h"
 #include "TrigSteering/TrigSteer.h"
 #include "TrigSteering/SteeringChain.h"
@@ -15,7 +12,6 @@
 
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include <vector>
 #include <algorithm>
@@ -26,86 +22,43 @@
 TrigChainMoni::TrigChainMoni(const std::string & type, const std::string & name,
 			     const IInterface* parent)
   :  TrigMonitorToolBase(type, name, parent),
-     m_log(0),
-     m_logLvl(0),
      m_histoPathshift(""),
      m_parentAlg(0),
      m_chainAcceptanceHist(0),
      m_chainAcceptancePSHist(0),
      m_chainAcceptancePTHist(0),
      m_activeChainsHist(0),
+     m_runChainsHist(0),
+     m_rerunChainsHist(0),
      m_trigLvl(""),
      m_useLBHistos(true)
  {
-   //declareInterface<IMonitorToolBase>(this);
-
   declareProperty("HistoPathshift", m_histoPathshift = "/EXPERT/TrigSteering");
-  //  declareProperty("ReserveLumiHistos", m_reserveLumiHistos = 1 );
   declareProperty("useLBHistos",m_useLBHistos=true);
-
 }
 
 TrigChainMoni::~TrigChainMoni()
 {
 }
 
-StatusCode TrigChainMoni::finalize()
-{ 
-   if ( TrigMonitorToolBase::finalize().isFailure() ) {
-    if(m_logLvl <= MSG::ERROR ) (*m_log) << MSG::ERROR  << " Unable to finalize base class !"
-	     << endreq;
-    return StatusCode::FAILURE;
-  }
-  delete m_log; m_log = 0;
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigChainMoni::endRun()
-{ 
-  
-  return StatusCode::SUCCESS;
-}
-
 StatusCode TrigChainMoni::initialize()
 {
+  ATH_CHECK(TrigMonitorToolBase::initialize());
 
-  m_log = new MsgStream(msgSvc(), name());
-  m_logLvl = m_log->level();
-
-  if ( TrigMonitorToolBase::initialize().isFailure() ) {
-    if(m_logLvl <= MSG::ERROR ) (*m_log) << MSG::ERROR  << " Unable to initialize base class !"
-	     << endreq;
-    return StatusCode::FAILURE;
-  }
   m_parentAlg = dynamic_cast<const HLT::TrigSteer*>(parent());
-
   if ( !m_parentAlg ) {
-    if(m_logLvl <= MSG::ERROR ) (*m_log) << MSG::ERROR  << " Unable to cast the parent algorithm to HLT::TrigSteer !"
-	     << endreq;
+    ATH_MSG_ERROR("Unable to cast the parent algorithm to HLT::TrigSteer !");
     return StatusCode::FAILURE;
   }
-
-  if(m_logLvl <= MSG::INFO)(*m_log) << MSG::INFO << "Finished initialize() of TrigChainMoni"
-				    << endreq;
-  
 
   m_trigLvl = m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 ? "L2" : m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::EF ? "EF" : "HLT" ;
   
-  StatusCode sc = service("StoreGateSvc", m_storeGate); 
-  if(sc.isFailure()) {
-    if(m_logLvl <= MSG::FATAL ) (*m_log) << MSG::FATAL << "Unable to get pointer to StoreGate Service"  << endreq;
-    return sc;
-  }
-   
-   return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TrigChainMoni::bookHists()
 {
-  if ( bookHistograms( false, false, true ).isFailure() ) {
-    if(m_logLvl <= MSG::ERROR ) (*m_log) << MSG::ERROR << "Failure"  << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( bookHistograms( false, false, true ) );
   return StatusCode::SUCCESS;
 }
 
@@ -125,7 +78,7 @@ StatusCode TrigChainMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNe
   unsigned int totalNChains = cc.size();
   
   //run summary  histos
-  if(m_logLvl <= MSG::DEBUG) (*m_log)<<MSG::DEBUG<<" now book runsummary histos for: " << m_parentAlg->name() <<endreq;
+  ATH_MSG_DEBUG(" now book runsummary histos for: " << m_parentAlg->name());
 
   // Histo: chain Acceptance
   std::string tmpstring_title  = "Raw acceptance of chains in " + m_trigLvl;
@@ -133,8 +86,7 @@ StatusCode TrigChainMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNe
   m_chainAcceptanceHist=new TH1I(tmpstring_name.c_str(), tmpstring_title.c_str(), totalNChains,0.5,totalNChains+0.5);
   
   if ( expertHistograms.regHist(m_chainAcceptanceHist).isFailure()) {
-    if(m_logLvl <= MSG::WARNING ) (*m_log) << MSG::WARNING  << "Can't book "
-					   << m_histoPathshift+ m_chainAcceptanceHist->GetName() << endreq;
+    ATH_MSG_WARNING("Cannot register " << m_histoPathshift << m_chainAcceptanceHist->GetName());
   }
   
   // Histo: chain Acceptance after PS
@@ -143,8 +95,7 @@ StatusCode TrigChainMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNe
   m_chainAcceptancePSHist =new TH1I(tmpstring_name.c_str(),tmpstring_title.c_str(),totalNChains,0.5,totalNChains+0.5);
   
   if ( expertHistograms.regHist(m_chainAcceptancePSHist).isFailure()) {
-    if(m_logLvl <= MSG::WARNING ) (*m_log) << MSG::WARNING  << "Can't book "
-	     << m_histoPathshift+ m_chainAcceptancePSHist->GetName() << endreq;
+    ATH_MSG_WARNING("Cannot register " << m_histoPathshift << m_chainAcceptancePSHist->GetName());
   }
   
   // Histo: chain Acceptance after PT
@@ -153,8 +104,7 @@ StatusCode TrigChainMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNe
   m_chainAcceptancePTHist =new TH1I(tmpstring_name.c_str(),tmpstring_title.c_str(),totalNChains,0.5,totalNChains+0.5);
   
   if ( expertHistograms.regHist(m_chainAcceptancePTHist).isFailure()) {
-    if(m_logLvl <= MSG::WARNING ) (*m_log) << MSG::WARNING  << "Can't book "
-	     << m_histoPathshift+ m_chainAcceptancePSHist->GetName() << endreq;
+    ATH_MSG_WARNING("Cannot register " << m_histoPathshift << m_chainAcceptancePSHist->GetName());
   }
 
   // Histo: active chains
@@ -163,8 +113,7 @@ StatusCode TrigChainMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNe
   m_activeChainsHist = new TH1I(tmpstring_name.c_str(),tmpstring_title.c_str(),totalNChains,0.5,totalNChains+0.5);
   
   if ( expertHistograms.regHist(m_activeChainsHist).isFailure()) {
-    if(m_logLvl <= MSG::WARNING ) (*m_log) << MSG::WARNING  << "Can't book "
-	     << m_histoPathshift+ m_activeChainsHist->GetName() << endreq;
+    ATH_MSG_WARNING("Cannot register " << m_histoPathshift << m_activeChainsHist->GetName());
   }
 
 
@@ -174,11 +123,8 @@ StatusCode TrigChainMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNe
   m_runChainsHist = new TH1I(tmpstring_name.c_str(),tmpstring_title.c_str(),totalNChains,0.5,totalNChains+0.5);
   
   if ( expertHistograms.regHist(m_runChainsHist).isFailure()) {
-    if(m_logLvl <= MSG::WARNING ) (*m_log) << MSG::WARNING  << "Can't book "
-	     << m_histoPathshift+ m_runChainsHist->GetName() << endreq;
+    ATH_MSG_WARNING("Cannot register " << m_histoPathshift << m_runChainsHist->GetName());
   }
-
-
 
   // Histo: rerun chains
   tmpstring_title  = "Number of rerun chains " + m_trigLvl;
@@ -186,8 +132,7 @@ StatusCode TrigChainMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNe
   m_rerunChainsHist = new TH1I(tmpstring_name.c_str(),tmpstring_title.c_str(),totalNChains,0.5,totalNChains+0.5);
   
   if ( expertHistograms.regHist(m_rerunChainsHist).isFailure()) {
-    if(m_logLvl <= MSG::WARNING ) (*m_log) << MSG::WARNING  << "Can't book "
-	     << m_histoPathshift+ m_rerunChainsHist->GetName() << endreq;
+    ATH_MSG_WARNING("Cannot register " << m_histoPathshift << m_rerunChainsHist->GetName());
   }
   
 
@@ -226,25 +171,21 @@ StatusCode TrigChainMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNe
 
 StatusCode TrigChainMoni::fillHists()
 {
-  m_useLBHistos = true; // MM debug
+  m_useLBHistos = true;
 
   //get lumiBlockNumber
-
-
+  
   if( !m_chainAcceptanceHist|| 
       !m_chainAcceptancePSHist|| 
       !m_chainAcceptancePTHist|| 
       !m_activeChainsHist ||
       !m_rerunChainsHist ){
-    if(m_logLvl <= MSG::WARNING) (*m_log)<<MSG::WARNING<<" pointers to histograms not ok, dont Fill ! "<<endreq;
+    ATH_MSG_WARNING("Pointers to histograms not ok, dont Fill ! ");
     return StatusCode::FAILURE;  
   }
   
-
-
   // check if event passed:
   const std::vector<const HLT::SteeringChain*>& activeChains = m_parentAlg->getActiveChains();
-
 
   bool eventPassed = false;  
   bool isPhysicsAccept = false;
@@ -262,9 +203,6 @@ StatusCode TrigChainMoni::fillHists()
      }
      if (isPhysicsAccept) break;
    }
-
-
-
 
   //fill histos 
   for (std::vector<const HLT::SteeringChain*>::const_iterator chain = activeChains.begin();
@@ -305,30 +243,22 @@ StatusCode TrigChainMoni::finalHists()
       !m_chainAcceptancePTHist || 
       !m_activeChainsHist ||
       !m_rerunChainsHist ){
-    if(m_logLvl <= MSG::WARNING) (*m_log)<<MSG::WARNING<<" pointers to histograms not ok, dont Fill ! "<<endreq;
+    ATH_MSG_WARNING(" pointers to histograms not ok, dont Fill ! ");
     return StatusCode::FAILURE;  
   }
     
   std::string   tmpstring = "REGTEST Print Statistics:  Number of accepted events per chain :  raw and after prescale, pass through ";
-  if (m_logLvl <= MSG::INFO)(*m_log)<<MSG::INFO<<tmpstring<<endreq;
+  ATH_MSG_INFO(tmpstring);
   
   for(int i=1;i<=m_chainAcceptanceHist->GetNbinsX();i++){    
-    /*
-      (*m_log)<<MSG::INFO<<" REGTEST chain "<<m_chainAcceptanceHist_runsummary-> GetXaxis()->GetBinLabel(i)<<" accepted events= "<<
-      m_chainAcceptanceHist_runsummary->GetBinContent(i) <<" ( PS: "<<
-      m_chainAcceptancePSHist_runsummary->GetBinContent(i) <<" , PT: "<<
-      m_chainAcceptancePTHist_runsummary->GetBinContent(i) <<")"<<endreq;
-    */
-    
-    if (m_logLvl <= MSG::INFO)
-      (*m_log)<<MSG::INFO<<" REGTEST events accepted by chain: " 
-	      << std::setw(35) << std::left << m_chainAcceptanceHist->GetXaxis()->GetBinLabel(i) 
-	      <<"  active: " << std::setw(5) << std::fixed <<  int(m_activeChainsHist->GetBinContent(i))
-	      <<"  run :" << std::setw(5) << std::fixed << int(m_runChainsHist->GetBinContent(i)) 
-	      <<"  PS: "<< std::setw(5) << std::fixed << int(m_chainAcceptancePSHist->GetBinContent(i)) 
-	      <<"  raw: " << std::setw(5) << std::fixed <<  int(m_chainAcceptanceHist->GetBinContent(i))
-	      <<"  accepted after PS and PT: "<< std::setw(5) << std::fixed << int(m_chainAcceptancePTHist->GetBinContent(i)) 
-	      <<"  rerun: " << std::setw(5) << std::fixed <<  int(m_rerunChainsHist->GetBinContent(i))  <<endreq;        
+    ATH_MSG_INFO(" REGTEST events accepted by chain: " 
+                 << std::setw(35) << std::left << m_chainAcceptanceHist->GetXaxis()->GetBinLabel(i) 
+                 <<"  active: " << std::setw(5) << std::fixed <<  int(m_activeChainsHist->GetBinContent(i))
+                 <<"  run :" << std::setw(5) << std::fixed << int(m_runChainsHist->GetBinContent(i)) 
+                 <<"  PS: "<< std::setw(5) << std::fixed << int(m_chainAcceptancePSHist->GetBinContent(i)) 
+                 <<"  raw: " << std::setw(5) << std::fixed <<  int(m_chainAcceptanceHist->GetBinContent(i))
+                 <<"  accepted after PS and PT: "<< std::setw(5) << std::fixed << int(m_chainAcceptancePTHist->GetBinContent(i)) 
+                 <<"  rerun: " << std::setw(5) << std::fixed <<  int(m_rerunChainsHist->GetBinContent(i)));
   }
   return StatusCode::SUCCESS;
 }

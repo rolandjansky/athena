@@ -15,9 +15,6 @@
 #include "EventInfo/EventID.h"
 #include "EventInfo/TriggerInfo.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ThreadGaudi.h"
@@ -47,7 +44,6 @@ TrigRateMoni::TrigRateMoni(const std::string & type, const std::string & name,
     m_intervals(6),
     m_timeDivider(0),
     m_buffer(0),
-    m_storeGate("StoreGateSvc", name), 
     m_timer(0),
     m_in_running(false)
 {  
@@ -68,38 +64,30 @@ TrigRateMoni::~TrigRateMoni() {
 
 
 StatusCode TrigRateMoni::initialize() {
-  m_log = new MsgStream(msgSvc(), name());
-  m_logLvl = m_log->level();
 
   if (m_duration >= 60 ) {
     if ( (m_duration % 60) != 0 ){
-      (*m_log) << MSG::WARNING << "Time interval >= 60, but not multiple of it " << m_duration << endreq;
+      ATH_MSG_WARNING("Time interval >= 60, but not multiple of it " << m_duration);
       m_duration = m_duration - (m_duration % 60);
-      (*m_log) << MSG::WARNING << "Rounding it to : " << m_duration << endreq;
+      ATH_MSG_WARNING("Rounding it to : " << m_duration);
     }
     m_timeDivider = new TimeDivider(m_intervals, m_duration/60, TimeDivider::minutes);    
   } else {
     if ( (m_intervals*m_duration) % 60 != 0 ) {
-      (*m_log) << MSG::INFO << "Time interval * Number of Interval  does not round to minute"  << endreq;
+      ATH_MSG_INFO("Time interval * Number of Interval  does not round to minute");
     }
     m_timeDivider = new TimeDivider(m_intervals, m_duration, TimeDivider::seconds);
   }
 
   m_parentAlg = dynamic_cast<const HLT::TrigSteer*>(parent());
   if ( !m_parentAlg ) {
-    (*m_log) << MSG::ERROR << " Unable to cast the parent algorithm to HLT::TrigSteer !" << endreq;
+    ATH_MSG_ERROR(" Unable to cast the parent algorithm to HLT::TrigSteer !");
     return StatusCode::FAILURE;
   }
-  //(*m_log) << MSG::DEBUG << "Got pointer to Steering" << endreq;
 
   // decode stream sets and set up
   SetUpStreamSets();
 
-  if ( m_storeGate.retrieve().isFailure() ) {
-    (*m_log) << MSG::FATAL << "failed to get StoreGateSvc " << endreq;
-    return  StatusCode::FAILURE;
-  }
-  //(*m_log) << MSG::DEBUG << "Got pointer to StoreGateSvc" << endreq;
   return StatusCode::SUCCESS;
 
       
@@ -179,7 +167,7 @@ void TrigRateMoni::SetUpStreamSets() {
   }
 
   // Check
-  (*m_log) << MSG::INFO << "Adding rate monitoring stream sets from python properties" << endreq;
+  ATH_MSG_INFO("Adding rate monitoring stream sets from python properties");
 
   std::string otherName = "";
   for(std::map<std::string, std::vector<std::string > >::const_iterator iss = m_specialStreamSets.begin();
@@ -189,13 +177,13 @@ void TrigRateMoni::SetUpStreamSets() {
     for(std::vector<std::string>::const_iterator isn= iss->second.begin(); isn != iss->second.end(); isn++) {
       outString += *isn + " ";
     }
-    (*m_log) << MSG::INFO << outString << endreq;
+    ATH_MSG_INFO(outString);
   }
   if(m_specialStream_OtherName.size() != 0) {
-    (*m_log) << MSG::INFO << "The set containing all streams but those above is: " 
-	     << m_specialStream_OtherName << endreq;
+    ATH_MSG_INFO("The set containing all streams but those above is: " 
+                 << m_specialStream_OtherName);
   } else {
-    (*m_log) << MSG::INFO << "No catch-all set was defined " << endreq;
+    ATH_MSG_INFO("No catch-all set was defined ");
   }
 }
 
@@ -221,7 +209,7 @@ StatusCode TrigRateMoni::bookHists() {
     const std::set<std::string>& chainGroupList = chain->getConfigChain()->groups();
 
     if (chainGroupList.size() == 0 ) {
-      (*m_log) << MSG::WARNING << "Chain " << chain->getChainName() << " has not group configured, it's rate wil sneak out from groups rate monitoring " << endreq;
+      ATH_MSG_WARNING("Chain " << chain->getChainName() << " has not group configured, it's rate wil sneak out from groups rate monitoring ");
     }
 
     for (const std::string& gr : chainGroupList) {
@@ -244,10 +232,10 @@ StatusCode TrigRateMoni::bookHists() {
 
   bool isL2 = m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 ? true : false;
   if(sc.isFailure()) {
-    if(m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << "Could not find JobOptionsSvc" << endreq;
+    ATH_MSG_WARNING("Could not find JobOptionsSvc");
   } else {
     
-    if (getDebugStreams(jobOptionsSvc, m_log, m_logLvl, isL2, errStreamNames ) ) {
+    if (getDebugStreams(jobOptionsSvc, &msg(), msg().level(), isL2, errStreamNames ) ) {
 
       std::vector<std::string>::const_iterator esnit;
       for(esnit = errStreamNames.begin(); esnit != errStreamNames.end(); esnit++) {
@@ -402,7 +390,7 @@ StatusCode TrigRateMoni::bookHists() {
   TrigMonGroup expressHistograms( this, m_parentAlg->name(), shift);
    
   if ( expressHistograms.regHist(m_published).isFailure()){
-    (*m_log) << MSG::WARNING << "Can't book " << m_published->GetName() << endreq;
+    ATH_MSG_WARNING("Can't book " << m_published->GetName());
   }
   //  time_t t = time(0);
   //  fillAbsoluteTime(t);
@@ -482,14 +470,12 @@ StatusCode TrigRateMoni::finalHists() {
   delete m_buffer; m_buffer = 0;
   delete m_timer; m_timer = 0;  
 
-  (*m_log) << MSG::INFO << "Finalized  rate tool" << endreq;  
   return StatusCode::SUCCESS;
 }
 
 
 void TrigRateMoni::updatePublished(unsigned int /*oldinterval*/, unsigned duration, const time_t& t) {
   // scale down buffer
-  //(*m_log) << MSG::INFO << "updating published for interval" << oldinterval  << " durr " << duration << endreq;
   lock_histogram_operation<TH2F>(m_published)->Reset();
   if ( duration == 0 )
     lock_histogram_operation<TH2F>(m_published)->Add(m_buffer, 1./(double)m_duration);
@@ -497,9 +483,6 @@ void TrigRateMoni::updatePublished(unsigned int /*oldinterval*/, unsigned durati
     lock_histogram_operation<TH2F>(m_published)->Add(m_buffer, 1./duration);
   m_buffer->Reset();
   fillAbsoluteTime(t);
-  
-  //  if(m_logLvl <= MSG::INFO)
-  //    (*m_log) << MSG::INFO << "update performed" << endreq;
 }
 
 void TrigRateMoni::fillInterval(unsigned int iv) {
@@ -528,13 +511,11 @@ void TrigRateMoni::fillAbsoluteTime(const time_t& t) {
 
 void TrigRateMoni::fillTotalAndStreamTagBins() {
   const EventInfo* constEventInfo(0);
-  StatusCode sc =  m_storeGate->retrieve(constEventInfo);
   
-  if(sc.isFailure()){
-    if(m_logLvl <= MSG::FATAL)
-      (*m_log) << MSG::FATAL << "Can't get EventInfo to fill Stream tags information" << endreq;
+  if (evtStore()->retrieve(constEventInfo).isFailure()) {
+    ATH_MSG_FATAL("Can't get EventInfo to fill Stream tags information");
     return;
-  }  
+  }
 
   std::vector<TriggerInfo::StreamTag> streamTags= constEventInfo->trigger_info()->streamTags();
   std::vector<TriggerInfo::StreamTag>::const_iterator it;
@@ -660,9 +641,7 @@ void TrigRateMoni::fillChainAndGroupBins() {
 	    m_buffer->Fill(x, passedrerun );
 	}
       } else {
-	// this actually an error 
-	if(m_logLvl <= MSG::ERROR)
-	  (*m_log) << MSG::ERROR << "the chain " << ch->getChainName() << " is unknown " << endreq;
+        ATH_MSG_ERROR("the chain " << ch->getChainName() << " is unknown ");
       }
     }
     if ( m_doGroups ) {

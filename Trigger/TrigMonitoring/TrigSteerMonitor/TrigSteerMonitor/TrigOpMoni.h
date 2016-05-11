@@ -75,9 +75,6 @@ private:
   bool  m_IOVDbHistFilled;
   bool  m_SubDetHistFilled;
 
-  MsgStream m_log;
-
-  ServiceHandle<StoreGateSvc>         m_StoreGateSvc;
   ServiceHandle<IJobOptionsSvc>       m_JobOptionsSvc;
   MagField::IMagFieldSvc*             m_MagFieldSvc;  
   IIOVDbSvc*                          m_IOVDbSvc;
