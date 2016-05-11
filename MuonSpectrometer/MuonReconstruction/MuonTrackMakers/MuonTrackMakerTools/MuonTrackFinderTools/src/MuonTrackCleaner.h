@@ -246,11 +246,12 @@ namespace Muon {
     bool m_cleanCompROTs;
     bool m_onlyUseHitErrorInRecovery;
     double m_adcCut;
+    bool m_iterate;
 
     mutable InfoVec    m_measInfo; 
-    mutable MeasSet    m_largePullMeasuements;
+    mutable MeasSet    m_largePullMeasurements;
     mutable MeasSet    m_flippedMdts;
-    mutable MeasSet    m_largePullPseudoMeasuements;
+    mutable MeasSet    m_largePullPseudoMeasurements;
 
     mutable unsigned int m_numberOfFlippedMdts;
     mutable unsigned int m_numberOfCleanedCompROTs;
@@ -303,6 +304,7 @@ namespace Muon {
     typedef PullChamberMap::const_iterator        PullChamberCit;
     mutable PullChamberMap m_pullSumPerChamber;
     mutable PullChamberMap m_pullSumPerChamberPhi;
+    mutable PullChamberMap m_pullSumPerChamberEta;
 
     
     struct SortByAvePull {
