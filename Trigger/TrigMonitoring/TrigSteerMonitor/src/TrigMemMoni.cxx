@@ -74,8 +74,7 @@ StatusCode TrigMemMoni::initialize()
    IAuditorSvc*                  pAuditSvc      = 0;
    IAuditor*                     pAuditor       = 0;
    ITrigMemAuditor*              pTrigMemAudit  = 0;
-   
-   vector<Algorithm*>::iterator  AlgIter;
+
    list<string>::iterator        AlgNameIter;
    list<string>                  AlgNameList;
   
@@ -91,7 +90,7 @@ StatusCode TrigMemMoni::initialize()
    }
     
    // get list of running algorithms
-   for(AlgIter = m_pSteering->subAlgorithms()->begin();
+   for(auto AlgIter = m_pSteering->subAlgorithms()->begin();
       AlgIter != m_pSteering->subAlgorithms()->end(); ++AlgIter)
    {
       if(dynamic_cast<const HLT::TECreateAlgo*>(*AlgIter)) AlgNameList.push_back((*AlgIter)->name());
