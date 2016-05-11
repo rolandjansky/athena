@@ -4,6 +4,9 @@
 
 #include "G4AtlasControl/SimControl.h"
 
+// STL includes
+#include <iostream>
+
 // Geant4 includes
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
@@ -12,24 +15,20 @@
 #include "G4UItcsh.hh"
 #include "G4VisManager.hh"
 
-#include <iostream>
-
-#include "FadsPackageLoader/PackageLoader.h"
-#include "FadsXMLParser/XMLReader.h"
-#include "PathResolver/PathResolver.h"
-
+// Framework includes
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
+#include "PathResolver/PathResolver.h"
 
-#include "G4AtlasControl/DataCardSvc.h"
-
+// FADS includes
+#include "FadsPackageLoader/PackageLoader.h"
+#include "FadsXMLParser/XMLReader.h"
 
 SimControl::SimControl()
 {
   // std::cout<<" Creating the SimControl "<<std::endl;
-  dCard=DataCardSvc::GetDataCardSvc();
 }
 
 SimControl::~SimControl()
@@ -70,21 +69,9 @@ void SimControl::ReadXML(const std::string& fileName) const
 
 }
 
-const PhysicsMenu& SimControl::physMenu() const
-{
-  static const PhysicsMenu& temp=physicsMenu;
-  return temp;
-}
-
 const MCTruthMenu& SimControl::mcMenu() const
 {
   static const MCTruthMenu& temp=mctruthMenu;
-  return temp;
-}
-
-const FieldMenu& SimControl::fieldMenu() const
-{
-  static const FieldMenu& temp=fldMenu;
   return temp;
 }
 
@@ -106,41 +93,4 @@ void SimControl::initializeGraphics() const
 {
   // G4VisManager* visManager=new G4SvcVisManager();
   // visManager->Initialize();
-}
-
-void SimControl::DefineCard(const std::string name, const std::string type, int defValue)
-{
-  std::cout<<" calling the int version of DefineCard "<<std::endl;
-  dCard->DefineCard(name,type,defValue);
-}
-void SimControl::DefineCard(const std::string name, const std::string type, double defValue)
-{
-  std::cout<<" calling the double version of DefineCard "<<std::endl;
-  dCard->DefineCard(name,type,defValue);
-}
-void SimControl::DefineCard(const std::string name, const std::string type, const std::string defValue)
-{
-  std::cout<<" calling the string version of DefineCard "<<std::endl;
-  dCard->DefineCard(name,type,defValue);
-}
-void SimControl::SetCard(const std::string name, int Value)
-{
-  std::cout<<" calling the int version of SetCard "<<std::endl;
-  dCard->SetCard(name,Value);
-}
-void SimControl::SetCard(const std::string name, double Value)
-{
-  std::cout<<" calling the double version of SetCard "<<std::endl;
-  dCard->SetCard(name,Value);
-}
-void SimControl::SetCard(const std::string name, const std::string Value)
-{
-  std::cout<<" calling the string version of SetCard "<<std::endl;
-  dCard->SetCard(name,Value);
-}
-
-const FieldIntegrationMenu& SimControl::fieldIntegrationMenu() const
-{
-  static const FieldIntegrationMenu& temp=fldIntMenu;
-  return temp;
 }
