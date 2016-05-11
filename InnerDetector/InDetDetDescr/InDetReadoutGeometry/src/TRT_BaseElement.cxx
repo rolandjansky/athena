@@ -26,9 +26,11 @@ namespace InDetDD {
         m_id(id),
         m_idHelper(idHelper),
         m_conditions(conditions),
-        m_strawSurfaces(0),
-        m_strawSurfacesCache(0),
-        m_surfaceCache(0)
+        m_strawSurfaces(nullptr),
+        m_strawSurfacesCache(nullptr),
+        m_surfaceCache(nullptr),
+        m_surface(nullptr),
+        m_surfaces{}
     {
         m_idHash = m_idHelper->straw_layer_hash(id);  
         m_conditions->ref();
@@ -95,6 +97,18 @@ namespace InDetDD {
         }
         return *surfacePtr;
     }
+
+
+    const std::vector<const Trk::Surface*>& TRT_BaseElement::surfaces() const 
+    {
+        if (!m_surfaces.size()){
+            m_surfaces.reserve(nStraws());
+            for (unsigned is = 0; is<nStraws(); ++is)
+                m_surfaces.push_back(&strawSurface(is));
+        }
+        return m_surfaces;
+    }
+
 
     const Trk::SurfaceBounds& TRT_BaseElement::bounds(const Identifier&) const 
     {

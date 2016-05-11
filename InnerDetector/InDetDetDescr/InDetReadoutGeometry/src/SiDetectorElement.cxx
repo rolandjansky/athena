@@ -25,6 +25,9 @@
 
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "InDetReadoutGeometry/StripStereoAnnulusDesign.h"
+
 
 #include "InDetReadoutGeometry/SiCommonItems.h"
 
@@ -77,6 +80,10 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
   m_maxR=defaultMax;
   m_minPhi=defaultMin;
   m_maxPhi=defaultMax;
+
+  m_hitEta = m_design->etaAxis();
+  m_hitPhi = m_design->phiAxis();
+  m_hitDepth = m_design->depthAxis();
   ///
   
   commonConstructor();
@@ -150,8 +157,12 @@ SiDetectorElement::updateCache() const
   
   const HepGeom::Transform3D & geoTransform = transformHit();
 
-  m_centerCLHEP = geoTransform * HepGeom::Point3D<double>(0,0,0);
-  
+  double radialShift = 0.;
+  const InDetDD::StripStereoAnnulusDesign * testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
+  if(testDesign) radialShift = testDesign->localModuleCentreRadius(); 
+      
+  HepGeom::Point3D<double> centerGeoModel(radialShift, 0., 0.);
+  m_centerCLHEP = geoTransform * centerGeoModel;
   m_center = Amg::Vector3D(m_centerCLHEP[0],m_centerCLHEP[1],m_centerCLHEP[2]);
   
   //
@@ -169,9 +180,6 @@ SiDetectorElement::updateCache() const
     HepGeom::Vector3D<double>(0,0,1)
   };
 
-  static const HepGeom::Vector3D<double> & localHitPhiAxis = localAxes[hitPhi];     // Defined to be same as y axis
-  static const HepGeom::Vector3D<double> & localHitEtaAxis = localAxes[hitEta];     // Defined to be same as z axis
-  static const HepGeom::Vector3D<double> & localHitDepthAxis = localAxes[hitDepth]; // Defined to be same as x axis
   
   static const HepGeom::Vector3D<double> & localRecoPhiAxis = localAxes[distPhi];     // Defined to be same as x axis
   static const HepGeom::Vector3D<double> & localRecoEtaAxis = localAxes[distEta];     // Defined to be same as y axis
@@ -181,17 +189,24 @@ SiDetectorElement::updateCache() const
   //For it to change would require extreme unrealistic misalignment changes.
   if (firstTimeTmp) {
     // Determine the unit vectors in global frame
-    HepGeom::Vector3D<double> globalDepthAxis(geoTransform * localHitDepthAxis); 
-    HepGeom::Vector3D<double> globalPhiAxis  (geoTransform * localHitPhiAxis); 
-    HepGeom::Vector3D<double> globalEtaAxis  (geoTransform * localHitEtaAxis); 
-    
-    // Set the nominal eta,phi,normal and check the actual ones are close to these and determine the sign.
-  
-    // unit radial vector 
-    HepGeom::Vector3D<double> unitR(m_center.x(), m_center.y(), 0);
-    // TODO: Check if r = 0.
-    unitR.setMag(1);
-  
+   
+        
+    	const HepGeom::Vector3D<double> &geoModelPhiAxis = localAxes[m_hitPhi];
+    	const HepGeom::Vector3D<double> &geoModelEtaAxis = localAxes[m_hitEta];
+    	const HepGeom::Vector3D<double> &geoModelDepthAxis = localAxes[m_hitDepth];
+
+    	HepGeom::Vector3D<double> globalDepthAxis(geoTransform * geoModelDepthAxis);
+    	HepGeom::Vector3D<double> globalPhiAxis(geoTransform * geoModelPhiAxis);
+	HepGeom::Vector3D<double> globalEtaAxis(geoTransform * geoModelEtaAxis);
+
+
+
+        // unit radial vector
+        HepGeom::Vector3D<double> unitR(m_center.x(), m_center.y(), 0.);
+     
+        unitR.setMag(1.);
+
+
     HepGeom::Vector3D<double> nominalEta;
     HepGeom::Vector3D<double> nominalNormal;
     HepGeom::Vector3D<double> nominalPhi(-unitR.y(), unitR.x(), 0);
@@ -280,8 +295,10 @@ SiDetectorElement::updateCache() const
       // throw std::runtime_error("Orientation of local xEta axis does not follow correct convention.");
       m_etaDirection = true; // Don't swap
     }   
+
   } // end if (m_firstTime)
   
+
 
   m_transformCLHEP = geoTransform * recoToHitTransform();
   //m_transform = m_commonItems->solenoidFrame() * geoTransform * recoToHitTransform();
@@ -431,8 +448,10 @@ SiDetectorElement::recoToHitTransform() const
     HepGeom::Vector3D<double>(0,1,0),
     HepGeom::Vector3D<double>(0,0,1)
   };
-  static const HepGeom::Transform3D recoToHit(HepGeom::Point3D<double>(0,0,0),localAxes[distPhi],localAxes[distEta],
-					HepGeom::Point3D<double>(0,0,0),localAxes[hitPhi],localAxes[hitEta]);
+  //static 
+    
+  const HepGeom::Transform3D recoToHit(HepGeom::Point3D<double>(0,0,0),localAxes[distPhi],localAxes[distEta],
+					HepGeom::Point3D<double>(0,0,0),localAxes[m_hitPhi],localAxes[m_hitEta]);
   
   // Swap direction of axis as appropriate
   CLHEP::Hep3Vector scale(1,1,1);
@@ -550,9 +569,9 @@ SiDetectorElement::hitLocalToLocal3D(const HepGeom::Point3D<double> & hitPositio
 {
   // Equiv to transform().inverse * transformHit() * hitPosition
   if (!m_cacheValid) updateCache(); 
-  double xDepth = hitPosition[hitDepth];
-  double xPhi = hitPosition[hitPhi];
-  double xEta = hitPosition[hitEta];
+  double xDepth = hitPosition[m_hitDepth];
+  double xPhi = hitPosition[m_hitPhi];
+  double xEta = hitPosition[m_hitEta];
   if (!m_depthDirection) xDepth = -xDepth;
   if (!m_phiDirection) xPhi = -xPhi;
   if (!m_etaDirection) xEta = -xEta;
@@ -785,9 +804,25 @@ SiDetectorElement::sinStereoLocal(const HepGeom::Point3D<double> &globalPos) con
 const Trk::Surface & 
 SiDetectorElement::surface() const
 {
-  if (!m_surface) m_surface = new Trk::PlaneSurface(*this);
-  return *m_surface;
+  if (!m_surface){
+    m_surface = new Trk::PlaneSurface(*this);
+  }
+ return *m_surface;
 }
+  
+const std::vector<const Trk::Surface*>& SiDetectorElement::surfaces() const 
+{
+    if (!m_surfaces.size()){
+        // get this surface
+        m_surfaces.push_back(&surface());
+        // get the other side surface
+        if (otherSide()){
+            m_surfaces.push_back(&(otherSide()->surface()));
+        }
+    }
+    // return the surfaces
+    return m_surfaces;
+}  
   
 const Trk::SurfaceBounds & 
 SiDetectorElement::bounds() const
@@ -801,6 +836,8 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
 	       double &phiMin, double &phiMax) const
 {
 
+  const InDetDD::StripStereoAnnulusDesign * testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
+
   HepGeom::Point3D<double> corners[4];
   getCorners(corners);
 
@@ -808,7 +845,13 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
 
   double phiOffset = 0.;
 
+  double radialShift = 0.;
+  if(testDesign) radialShift = testDesign->localModuleCentreRadius();//additional radial shift for sensors centred on beamline
+  const HepGeom::Transform3D rShift = HepGeom::TranslateX3D(radialShift);//in local frame, radius is x
+
   for (int i = 0; i < 4; i++) {
+
+    if(testDesign) corners[i].transform(rShift);
 
     HepGeom::Point3D<double> globalPoint = globalPosition(corners[i]);
 
@@ -853,6 +896,7 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
   if (phiMin > M_PI)  phiMin -= 2. * M_PI; 
   if (phiMax < -M_PI) phiMax += 2. * M_PI; 
   if (phiMax > M_PI)  phiMax -= 2. * M_PI; 
+
 }
 
 

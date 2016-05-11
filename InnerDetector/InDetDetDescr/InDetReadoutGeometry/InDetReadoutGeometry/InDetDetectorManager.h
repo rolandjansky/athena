@@ -70,6 +70,8 @@ namespace InDetDD {
       void addChannel(const std::string & key, int level, FrameType frame);
       void addFolder(const std::string & key);
       void addSpecialFolder(const std::string & key);
+      void addGlobalFolder(const std::string & key); 
+      void addAlignFolderType(const AlignFolderType alignfolder);
       StatusCode align( IOVSVC_CALLBACK_ARGS ) const;
     
       /** Invalidate cache for all detector elements */
@@ -86,6 +88,8 @@ namespace InDetDD {
     	
       /** Declaring the Method providing Verbosity Level */
       bool msgLvl (MSG::Level lvl) const { return m_msg.get().level() <= lvl; }
+
+      AlignFolderType                           m_alignfoldertype;	    
     
     protected:
       StoreGateSvc * m_detStore;
@@ -111,10 +115,27 @@ namespace InDetDD {
           bool isValid() const {return (m_level >= 0);}
         
       };
+
+      class AlignInfo {
+
+        private:
+	  AlignFolderType m_aligntype;
+
+        public:
+          AlignInfo(): m_aligntype(InDetDD::none) {};
+          AlignInfo(AlignFolderType alignfolder): m_aligntype(alignfolder) {};
+	  AlignFolderType AlignFolder() const {return m_aligntype;}
+	  bool isValidAlign() const {return (m_aligntype != InDetDD::none);}
+
+      };
+
     
       /** Retrieve level information */
       const LevelInfo & getLevel(const std::string & key) const;
-      
+
+      /** return align folder string to use **/
+      //      InDetDD::AlignFolderType getAlignInfo();
+
       /** Process the alignment container, calls processKey */
       bool processAlignmentContainer(const std::string & key) const;
       
@@ -130,7 +151,11 @@ namespace InDetDD {
     					                      const Amg::Transform3D & delta,
     					                      FrameType frame) const = 0;
     
-      virtual bool processSpecialAlignment(const std::string & key) const;
+      virtual bool processSpecialAlignment(const std::string & key, InDetDD::AlignFolderType alignfolder) const;
+
+      bool processGlobalAlignmentContainer(const std::string & key) const;
+
+      virtual bool processGlobalAlignment(const std::string & key, int level, FrameType frame) const;
       
       virtual const AtlasDetectorID* getIdHelper() const = 0;
     
@@ -141,7 +166,7 @@ namespace InDetDD {
       std::map<std::string, LevelInfo>          m_keys;
       std::set<std::string>                     m_folders;
       std::set<std::string>                     m_specialFolders;
-    
+      std::set<std::string>                     m_globalFolders; // new time-dependent global folders
       mutable bool                              m_suppressWarnings;
     
     };

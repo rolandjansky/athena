@@ -101,7 +101,10 @@ namespace InDetDD {
     
     /** Straw Surface: access to the surface via identifier */
     virtual const Trk::Surface& surface (const Identifier& id) const;
-
+    
+    /** Returns the full list of all detection surfaces associated to this detector element */
+    virtual const std::vector<const Trk::Surface*>& surfaces() const;
+    
     /** Straw Surface: access to the bounds via Identifier */
     virtual const Trk::SurfaceBounds& bounds(const Identifier& id) const;
 
@@ -224,6 +227,9 @@ namespace InDetDD {
     
     //!< helper element surface for the cache   
     mutable SurfaceCache*                               m_surfaceCache;
+
+    mutable Trk::Surface * m_surface;
+    mutable std::vector<const Trk::Surface*> m_surfaces;
 
   };
     

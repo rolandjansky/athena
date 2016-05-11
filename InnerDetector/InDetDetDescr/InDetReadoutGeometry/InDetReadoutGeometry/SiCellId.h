@@ -84,15 +84,7 @@ private:
 
 };
 
-} // namespace InDetDD
-
-
-// Global 
-std::ostream & operator << (std::ostream & os, const InDetDD::SiCellId & cellId);
-
-
-
-namespace InDetDD {
+std::ostream & operator << (std::ostream & os, const SiCellId & cellId);
 
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
