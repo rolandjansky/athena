@@ -1,0 +1,6 @@
+<lcgdict>
+  <namespace name="DerivationFramework" />
+    <class name="DerivationFramework::IAugmentationTool" />
+    <class name="DerivationFramework::ISkimmingTool" />
+    <class name="DerivationFramework::IThinningTool" />
+</lcgdict>
