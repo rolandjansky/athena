@@ -16,14 +16,182 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "GaudiKernel/IJobOptionsSvc.h"
+#include "GaudiKernel/IToolSvc.h"
+
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
+
+#include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/Algorithm.h"
+
+#include "AthContainers/AuxElement.h"
+
 
 class AthAnalysisHelper { //thought about being a namespace but went for static methods instead, in case I want private data members in future
 
 public:
+    AthAnalysisHelper(); //need a constructor to link the dictionary library with the implementation library
+
+   ///helper method for adding a property to the JobOptionsSvc
+   ///to list all the properties in the catalogue, do: AthAnalysisHelper::dumpJobOptionProperties()
+   template<typename W> static StatusCode addPropertyToCatalogue( const std::string& name , const std::string& property, const W& value) {
+     ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AthAnalysisHelper");
+     if(joSvc.retrieve().isFailure()) return StatusCode::FAILURE;
+     StatusCode result = joSvc->addPropertyToCatalogue( name , StringProperty( property , Gaudi::Utils::toString ( value ) ) );
+     if(joSvc.release().isFailure()) return StatusCode::FAILURE;
+     return result;
+   }
+
+
+   ///helper method for setting a property on a tool before retrieving it
+   ///uses the toolhandle to work out what to register the joboptionsvc
+   ///Usage examples:
+   ///  ToolHandle<IMyTool> tool("MyTool/toolName");
+   ///  CHECK( AthAnalysisHelper::setProperty( tool, "IntegerProperty", 5) );
+   ///  CHECK( AthAnalysisHelper::setProperty( tool, "StringProperty", "hello") );
+   ///  CHECK( AthAnalysisHelper::setProperty( tool, "StringArrayProperty", std::vector<std::string>({"a","b","c"}) ) );
+   ///  CHECK( AthAnalysisHelper::setProperty( tool, "PublicToolHandleProperty", anotherToolHandle) );
+   ///  CHECK( AthAnalysisHelper::setProperty( tool, "PrivateToolHandleName.SubToolIntegerProperty", 4) );
+   ///The last example assumes the 'MyTool' class has declared a ToolHandle("SubTool/PrivateToolHandleName",this)
+   ///and 'SubTool' class has an integer property called 'SubToolIntegerProperty' declared
+
+   template<typename T, typename W> static StatusCode setProperty(const ToolHandle<T>& toolHandle, const std::string& property, const W& value) {
+      if(toolHandle.isSet()) {
+         std::cout << "ERROR: Cannot setProperty on a tool that is already initialized" << std::endl;
+         return StatusCode::FAILURE;
+      }
+      std::string fullName = toolHandle.parentName() + "." + toolHandle.name();
+      std::string thePropertyName(property);
+      //if the property contains any "." then strip the last bit as the property name
+      std::string::size_type dotLocation = thePropertyName.find_last_of('.');
+      if(dotLocation != std::string::npos) {
+         fullName += "." + thePropertyName.substr(0,dotLocation);
+         thePropertyName = thePropertyName.substr(dotLocation+1,thePropertyName.length()-dotLocation);
+      }
+      //check if the tool already exists, if so then we are too late!!
+      ServiceHandle<IToolSvc> toolSvc("ToolSvc","AthAnalysisHelper");
+      if(toolSvc.retrieve().isFailure()) return StatusCode::FAILURE;
+      auto existingTools = toolSvc->getInstances();
+      for(auto& toolName : existingTools) {
+         if(fullName==toolName) {
+            std::cout << "ERROR: Cannot setProperty on a tool that is already initialized" << std::endl;
+            return StatusCode::FAILURE;
+         }
+      }
+      if(toolSvc.release().isFailure()) return StatusCode::FAILURE;
+      //tool not existing, ok so add property to catalogue
+      ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AthAnalysisHelper");
+      if(joSvc.retrieve().isFailure()) return StatusCode::FAILURE;
+      StatusCode result = joSvc->addPropertyToCatalogue(fullName , StringProperty( thePropertyName, Gaudi::Utils::toString ( value ) ) );
+      if(joSvc.release().isFailure()) return StatusCode::FAILURE;
+      return result;
+   }
    
+   ///Partial template specialization for ToolHandles and ToolHandleArrays ... strips parent name from tool name, for setting private handles on
+   template<typename T, typename W> static StatusCode setProperty(const ToolHandle<T>& toolHandle, const std::string& property, const ToolHandle<W>& value) {
+      std::string subToolName(value.name());
+      size_t start_pos = subToolName.find(toolHandle.name()+".");
+      if(start_pos!=std::string::npos) { subToolName.replace( start_pos, toolHandle.name().length()+1, "" ); }
+      std::string typeAndName = value.type(); if(!subToolName.empty()) typeAndName += "/"+subToolName;
+      return setProperty( toolHandle, property, typeAndName );
+   }
+   template<typename T, typename W> static StatusCode setProperty(const ToolHandle<T>& toolHandle, const std::string& property, const ToolHandleArray<W>& value) {
+      return setProperty( toolHandle, property, value.typesAndNames() );
+   }
+
+   ///setProperty on any tool, even when initialized
+   template<typename W> static StatusCode setProperty(IAlgTool* tool, const std::string& property, const W& value) {
+      AlgTool* algtool = dynamic_cast<AlgTool*>(tool);
+      if(!algtool) {
+         std::cout << "ERROR: Tool is not an algtool. Cannot AthAnalysisHelper::setProperty on it" << std::endl;
+         return StatusCode::FAILURE;
+      }
+      return algtool->setProperty(property, value);
+   }
+
+   ///setProperty on an alg, even when initialized
+   template<typename W> static StatusCode setProperty(IAlgorithm* alg, const std::string& property, const W& value) {
+      Algorithm* theAlg = dynamic_cast<Algorithm*>(alg);
+      if(!theAlg) {
+         std::cout << "ERROR: alg is not an Algorithm. Cannot AthAnalysisHelper::setProperty on it" << std::endl;
+         return StatusCode::FAILURE;
+      }
+      return theAlg->setProperty(property, value);
+   }
+
+   ///setProperty for services ... will allow setProperty on already-existing services
+   template<typename T, typename W> static StatusCode setProperty(const ServiceHandle<T>& serviceHandle, const std::string& property, const W& value) {
+      if(serviceHandle.isSet()) {
+         return dynamic_cast<Service&>(*serviceHandle).setProperty(property,Gaudi::Utils::toString ( value ));
+      }
+      std::string fullName = serviceHandle.name();
+      std::string thePropertyName(property);
+      //if the property contains any "." then strip the last bit as the property name
+      std::string::size_type dotLocation = thePropertyName.find_last_of('.');
+      if(dotLocation != std::string::npos) {
+         fullName += "." + thePropertyName.substr(0,dotLocation);
+         thePropertyName = thePropertyName.substr(dotLocation+1,thePropertyName.length()-dotLocation);
+      }
+
+      //check if the service already exists
+      if(Gaudi::svcLocator()->existsService(serviceHandle.name())) {
+         //set property on the service directly
+         return dynamic_cast<Service&>(*serviceHandle).setProperty(property,Gaudi::Utils::toString ( value ));
+      } 
+
+      //service not existing, ok so add property to catalogue
+      ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AthAnalysisHelper");
+      if(joSvc.retrieve().isFailure()) return StatusCode::FAILURE;
+      StatusCode result = joSvc->addPropertyToCatalogue(fullName , StringProperty( thePropertyName, Gaudi::Utils::toString ( value ) ) );
+      if(joSvc.release().isFailure()) return StatusCode::FAILURE;
+      return result;
+   }
+
+   ///Create a tool using the gaudi factory methods. This creates tools that wont be known to the ToolSvc
+   ///User is responsible for deleting the tool
+   ///Parent is optional, allows your created tool to inherit OutputLevel properties from the parent
+   ///If not parent specified, the ToolSvc will be used as the parent
+   ///Please Note: The preferred method of creating tools is with a ToolHandle
+   ///Usage: 
+   /// IMyTool* tool = AthAnalysisHelper::createTool<IMyTool>("ToolType/ToolName");
+   /// CHECK( AthAnalysisHelper::setProperty( tool, "Property", value ) );
+   /// CHECK( tool->initialize() );
+   ///Preferred:
+   /// ToolHandle<IMyTool> tool("ToolType/ToolName");
+   /// CHECK( AthAnalysisHelper::setProperty( tool, "Property", value ) );
+   /// CHECK( tool.retrieve() );
+   template<typename W> static W* createTool(const std::string& typeAndName, INamedInterface* parent = 0) {
+      std::string type = typeAndName; std::string name = typeAndName;
+      if(type.find("/")!=std::string::npos) { type = type.substr(0,type.find("/")); name = name.substr(name.find("/")+1,name.length()); }
+      if(parent==0) {
+	//use ToolSvc as parent
+	parent = Gaudi::svcLocator()->service( "ToolSvc" );
+      }
+      IAlgTool* m_algtool = AlgTool::Factory::create(type,type,name,parent);
+      W* out = dynamic_cast<W*>(m_algtool);
+      if(!out && m_algtool) {
+         std::cout << "ERROR: Tool of type " << type << " does not implement the interface " << System::typeinfoName(typeid(W)) << std::endl;
+         delete m_algtool;
+         return 0; 
+      }
+      return out;
+   }
+   static IAlgTool* createTool(const std::string& typeAndName, INamedInterface* parent = 0) {
+     return createTool<IAlgTool>(typeAndName,parent);
+   }
+
+
+   //equivalent method for creating an algorithm ... always returns an IAlgorithm though, so not templated
+   static IAlgorithm* createAlgorithm(const std::string& typeAndName) {
+      std::string type = typeAndName; std::string name = typeAndName;
+      if(type.find("/")!=std::string::npos) { type = type.substr(0,type.find("/")); name = name.substr(name.find("/")+1,name.length()); }
+      return Algorithm::Factory::create(type,name,Gaudi::svcLocator());
+   }
+
+
    ///retrieve metadata from the input metadata storegate. Use checkMetaSG.py to see the 'folder' and 'key' values available
-   template<typename T> static StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out) {
+   ///always takes the first CondAttrListCollection (aka IOV) and the first channel number present in that IOV
+   template<typename T> static StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out) throw(std::exception) {
       ServiceHandle<StoreGateSvc> inputMetaStore("StoreGateSvc/InputMetaDataStore", "AthAnalysisHelper");
       if(inputMetaStore.retrieve().isFailure()) return StatusCode::FAILURE; //must remember to release
       StatusCode result = retrieveMetadata(folder,key,out,inputMetaStore);
@@ -34,14 +202,14 @@ public:
    
    
    ///implemenation where you pass it a particular store instead
-   template<typename T> static StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out, ServiceHandle<StoreGateSvc> inputMetaStore) {
+  template<typename T> static StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out, ServiceHandle<StoreGateSvc>& inputMetaStore) throw(std::exception) {
       const IOVMetaDataContainer* cont = 0;
       if( inputMetaStore->retrieve(cont,folder).isFailure()) return StatusCode::FAILURE;
    
       //payload is a collection of condattrlistcollections
       //only look a the first one, assuming it exists, and within that only look at the first channel;
       if(cont->payloadContainer()->size()>0 && cont->payloadContainer()->at(0)->size()>0) {
-         //just try to retrieve the requested key from the attributelist - we will let it throw the AttributeListException if it fails
+         //just try to retrieve the requested key from the attributelist - we will let it throw the coral::AttributeListException (inherits from std::exception) if it fails
          //if the typeName is std::string, we will try to use the gaudi parsers to parse it
          //otherwise we try to do a straight assignment 
          const coral::Attribute& attr = cont->payloadContainer()->at(0)->attributeList(cont->payloadContainer()->at(0)->chanNum(0))[key];
@@ -56,12 +224,65 @@ public:
       return StatusCode::FAILURE;
    }
 
+  ///retrieve metadata, for a specified IOVTime and a specific channel, unless the channel is -1, in which case we take the first available channel
+  ///channels have to be unsigned int, so can use -1 to signal 'take whatever first channel is (it isn't always 0)'
+  template<typename T> static StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out, ServiceHandle<StoreGateSvc>& inputMetaStore, const IOVTime& time, int channel=-1) throw(std::exception) {
+      const IOVMetaDataContainer* cont = 0;
+      if( inputMetaStore->retrieve(cont,folder).isFailure()) return StatusCode::FAILURE;
+   
+      //payload is a collection of condattrlistcollections
+      //have to find first one that the time lies in
+      auto cond = cont->payloadContainer()->find(time);
+      if(cond == cont->payloadContainer()->end()) { return StatusCode::FAILURE; }
+
+      //get the first channel number, if required 
+      if(channel<0) channel = (*cond)->chanNum(0);
+
+      //get the channel pair.. checks if it exists...
+      auto attrlist = (*cond)->chanAttrListPair(channel);
+      if(attrlist == (*cond)->end()) { return StatusCode::FAILURE; }
+      
+      
+      //just try to retrieve the requested key from the attributelist - we will let it throw the coral::AttributeListException (inherits from std::exception) if it fails
+      //if the typeName is std::string, we will try to use the gaudi parsers to parse it
+      //otherwise we try to do a straight assignment 
+      const coral::Attribute& attr = attrlist->second[key];
+      if(attr.specification().typeName()=="string") {
+	if(Gaudi::Parsers::parse(out,attr.data<std::string>()).isFailure()) return StatusCode::FAILURE;
+      } else { //do a straight conversion, and just hope its ok (FIXME: should probably do a check of typeid(T) vs typeName)
+        out = attr.data<T>();
+      }
+   
+      return StatusCode::SUCCESS;
+   }
+
+  template<typename T> static StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out, IOVTime time, int channel=-1) throw(std::exception) {
+      ServiceHandle<StoreGateSvc> inputMetaStore("StoreGateSvc/InputMetaDataStore", "AthAnalysisHelper");
+      if(inputMetaStore.retrieve().isFailure()) return StatusCode::FAILURE; //must remember to release
+      StatusCode result = retrieveMetadata(folder,key,out,inputMetaStore,time,channel);
+      if(inputMetaStore.release().isFailure()) return StatusCode::FAILURE;
+      return result;
+   }
 
 
+   ///Dump the properties from joboptionsvc of clients with names beginning with given string. If string is blank, will print all clients
+   ///Example usage:
+   ///athena -i myJobOptions.py
+   ///athena> theApp.setup()
+   ///athena> import ROOT
+   ///athena> ROOT.AthAnalysisHelper.dumpJobOptionProperties()
+   ///This will display all the joboption properties declared at the start of your job
+   static void dumpJobOptionProperties(const std::string& client="");
 
+
+   ///Print the aux variables of an xAOD object (aux element)
+   static void printAuxElement(const SG::AuxElement& ae);
 
 
 }; //AthAnalysisHelper class
+
+
+
 
 
 #endif
