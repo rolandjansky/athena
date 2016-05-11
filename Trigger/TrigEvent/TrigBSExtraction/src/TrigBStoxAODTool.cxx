@@ -97,8 +97,8 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "egammaEvent/egammaContainer.h"
 
-// #include "CaloEvent/CaloClusterContainer.h"
-// #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "CaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 // #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 
 template<typename element,typename list,int index> struct get_strictly_feat{
@@ -274,7 +274,7 @@ TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& n
     // not configurable algtool
     // m_ringerRingsTool( "xAODMaker::TrigRingerRingsCnvTool/TrigRingerRingsCnvTool",this),
     // m_trigRNNTool(     "xAODMaker::TrigRNNOutputCnvTool/TrigRNNOutputCnvTool",this),
-    m_caloClusterTool( "xAODMaker::TrigCaloClusterCnvTool/TrigCaloClusterCnvTool",this),
+    m_trigCaloClusterTool( "xAODMaker::TrigCaloClusterCnvTool/TrigCaloClusterCnvTool",this),
     m_emClusterTool(   "xAODMaker::TrigEMClusterCnvTool/TrigEMClusterCnvTool",this),
     // not in devval yet
     // m_bjetTool(        "xAODMaker::TrigBjetCnvTool/TrigBjetCnvTool",this),
@@ -291,7 +291,8 @@ TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& n
     m_trackCollectionTool(      "xAODMaker::TrackCollectionCnvTool/TrackCollectionCnvTool", this ),
     m_recTrackParticleContTool( "xAODMaker::RecTrackParticleContainerCnvTool/RecTrackParticleContainerCnvTool", this ),
     m_electronTool( "xAODMaker::ElectronCnvTool/ElectronCnvTool", this ),
-    m_photonTool( "xAODMaker::PhotonCnvTool/PhotonCnvTool", this )
+    m_photonTool( "xAODMaker::PhotonCnvTool/PhotonCnvTool", this ),
+    m_caloClusterTool( "xAODMaker::CaloClusterCnvTool/CaloClusterCnvTool", this)
 {
   declareInterface<ITrigBStoxAODTool>( this );
   declareProperty("L2ResultKey",     m_l2ResultKey = "HLTResult_L2");
@@ -309,7 +310,7 @@ TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& n
   // declareProperty("ringerRingsTool", m_ringerRingsTool);
   // declareProperty("trigRNNTool", m_trigRNNTool);
 
-  declareProperty("caloClusterTool", m_caloClusterTool);
+  declareProperty("trigCaloClusterTool", m_trigCaloClusterTool);
   declareProperty("emClusterTool", m_emClusterTool);
   // not in devval yet
   // declareProperty("bjetTool", m_bjetTool);
@@ -327,6 +328,7 @@ TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& n
   declareProperty("recTrackParticleContTool", m_recTrackParticleContTool);
   declareProperty("electronTool", m_electronTool);
   declareProperty("photonTool", m_photonTool);
+  declareProperty("caloClusterTool", m_caloClusterTool);
 }
 
 TrigBStoxAODTool::~TrigBStoxAODTool() {
@@ -349,7 +351,7 @@ StatusCode TrigBStoxAODTool::initialize(){
 
   m_helpers[ClassID_traits<TrigCaloClusterContainer>::ID()] = 
     new BStoXAODHelper::DefaultHelper<
-      TrigCaloClusterContainer,xAOD::TrigCaloClusterContainer,xAODMaker::ITrigCaloClusterCnvTool>(m_caloClusterTool);
+      TrigCaloClusterContainer,xAOD::TrigCaloClusterContainer,xAODMaker::ITrigCaloClusterCnvTool>(m_trigCaloClusterTool);
 
   m_helpers[ClassID_traits<TrigEMClusterContainer>::ID()] = 
     new BStoXAODHelper::DefaultHelper<
@@ -398,13 +400,17 @@ StatusCode TrigBStoxAODTool::initialize(){
     new BStoXAODHelper::DefaultHelper<
   Analysis::TauJetContainer,xAOD::TauJetContainer,xAODMaker::ITauJetCnvTool>(m_tauJetTool);
 
+  m_helpers[ClassID_traits<CaloClusterContainer>::ID()] =
+    new BStoXAODHelper::DefaultHelper<
+  CaloClusterContainer,xAOD::CaloClusterContainer,xAODMaker::ICaloClusterCnvTool>(m_caloClusterTool);
+
+  m_helpers[ClassID_traits<egammaContainer>::ID()] =
+    new BStoXAODHelper::DefaultHelper<
+    egammaContainer,xAOD::ElectronContainer,xAODMaker::IElectronCnvTool>(m_electronTool);
+
   m_helpers[ClassID_traits<egammaContainer>::ID()] =
     new BStoXAODHelper::DefaultHelper<
   egammaContainer,xAOD::PhotonContainer,xAODMaker::IPhotonCnvTool>(m_photonTool);
-  
-  m_helpers[ClassID_traits<egammaContainer>::ID()] =
-    new BStoXAODHelper::DefaultHelper<
-  egammaContainer,xAOD::ElectronContainer,xAODMaker::IElectronCnvTool>(m_electronTool);
   
   
   std::map<CLID,BStoXAODHelper::IHelper*>::iterator it;

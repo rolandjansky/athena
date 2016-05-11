@@ -53,6 +53,8 @@
 #include "xAODEgammaCnv/IElectronCnvTool.h"
 #include "xAODEgammaCnv/IPhotonCnvTool.h"
 
+//CaloCluster
+#include "xAODCaloEventCnv/ICaloClusterCnvTool.h"
 
 /**
  * @brief Tool used by TrigBSExtraction to convert to xAOD
@@ -98,7 +100,7 @@ public:
   // ToolHandle<xAODMaker::ITrigRNNOutputCnvTool> m_trigRNNTool;
 
   // xAODTrigCaloCnv
-  ToolHandle<xAODMaker::ITrigCaloClusterCnvTool> m_caloClusterTool;
+  ToolHandle<xAODMaker::ITrigCaloClusterCnvTool> m_trigCaloClusterTool;
   ToolHandle<xAODMaker::ITrigEMClusterCnvTool> m_emClusterTool;
 
   // xAODBTaggingCnv (not in devval yet)
@@ -128,6 +130,9 @@ public:
   // xAODEgammaCnv
   ToolHandle<xAODMaker::IElectronCnvTool> m_electronTool;
   ToolHandle<xAODMaker::IPhotonCnvTool> m_photonTool;
+
+  // xAODCaloEventCnv
+  ToolHandle<xAODMaker::ICaloClusterCnvTool> m_caloClusterTool;
 
   std::map<CLID,BStoXAODHelper::IHelper*> m_helpers; //collection clid -> helper
 };

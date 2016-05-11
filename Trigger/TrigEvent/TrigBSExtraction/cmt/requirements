@@ -24,6 +24,7 @@ use xAODTrigMissingETCnv	xAODTrigMissingETCnv-*	Event/xAOD
 use xAODTrigMinBiasCnv		xAODTrigMinBiasCnv-*	Event/xAOD
 use xAODTrackingCnv             xAODTrackingCnv-*       Event/xAOD
 use xAODEgammaCnv               xAODEgammaCnv-*         Event/xAOD
+use xAODCaloEventCnv		xAODCaloEventCnv-*      Event/xAOD
 
 private
 
@@ -42,7 +43,7 @@ use xAODTrigMuon	  xAODTrigMuon-*	  Event/xAOD
 use xAODTrigBphys	  xAODTrigBphys-*	  Event/xAOD
 use xAODTrigMinBias	  xAODTrigMinBias-*	  Event/xAOD
 use xAODTau               xAODTau-*               Event/xAOD
-#use xAODCaloEvent	  xAODCaloEvent-*	  Event/xAOD
+use xAODCaloEvent	  xAODCaloEvent-*	  Event/xAOD
 use xAODEgamma            xAODEgamma-*            Event/xAOD
 
 use TrigStorageDefinitions TrigStorageDefinitions-* Trigger/TrigEvent
@@ -54,7 +55,7 @@ use TrigInDetEvent	  TrigInDetEvent-*	  Trigger/TrigEvent
 use TrkTrack              TrkTrack-*              Tracking/TrkEvent
 use tauEvent              tauEvent-*              Reconstruction
 use egammaEvent           egammaEvent-*           Reconstruction/egamma
-#use CaloEvent		  CaloEvent-*		  Calorimeter
+use CaloEvent		  CaloEvent-*		  Calorimeter
 
 use TrigParticle	  TrigParticle-*	  Trigger/TrigEvent
 

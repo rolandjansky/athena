@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigMuonCnv
 			  Event/xAOD/xAODTauCnv
 			  Event/xAOD/xAODEgammaCnv
+			  Event/xAOD/xAODCaloEventCnv
                           GaudiKernel
                           Trigger/TrigDataAccess/TrigSerializeCnvSvc
                           Trigger/TrigEvent/TrigNavigation
@@ -34,6 +35,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigMuon
 			  Event/xAOD/xAODTau
 			  Event/xAOD/xAODEgamma
+			  Event/xAOD/xAODCaloEvent
                           Reconstruction/Jet/JetEvent
                           Reconstruction/Particle
 			  Reconstruction/tauEvent
@@ -50,7 +52,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TrigBSExtraction
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel TrigSerializeCnvSvcLib TrigNavigationLib TrigSteeringEvent xAODJet xAODMuon xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTau xAODEgamma JetEvent Particle tauEvent egammaEvent TrkTrack TrigCaloEvent TrigInDetEvent TrigMissingEtEvent TrigMuonEvent TrigParticle TrigStorageDefinitions )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel TrigSerializeCnvSvcLib TrigNavigationLib TrigSteeringEvent xAODJet xAODMuon xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTau xAODEgamma JetEvent Particle tauEvent egammaEvent CaloEvent TrkTrack TrigCaloEvent TrigInDetEvent TrigMissingEtEvent TrigMuonEvent TrigParticle TrigStorageDefinitions )
 
 # Install files from the package:
 atlas_install_headers( TrigBSExtraction )
