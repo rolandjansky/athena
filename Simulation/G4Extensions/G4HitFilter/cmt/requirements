@@ -5,10 +5,12 @@ author W. H. Bell <W.Bell@cern.ch>
 use GaudiInterface      GaudiInterface-*     External
 use AtlasPolicy           AtlasPolicy-*
 
-use G4AtlasTools	   G4AtlasTools-*	     Simulation/G4Atlas
 
 private
-
+use G4AtlasInterfaces	G4AtlasInterfaces-*  Simulation/G4Atlas
+use AthenaBaseComps AthenaBaseComps-* Control
+use StoreGate             StoreGate-*              Control
+use G4AtlasTools	   G4AtlasTools-*	     Simulation/G4Atlas
 use Geant4                Geant4-*                  External
 use CaloSimEvent          CaloSimEvent-*            Calorimeter
 use InDetSimEvent         InDetSimEvent-*           InnerDetector
@@ -16,6 +18,7 @@ use LArSimEvent           LArSimEvent-*             LArCalorimeter
 use LUCID_SimEvent        LUCID_SimEvent-*          ForwardDetectors/LUCID/LUCID_SimUtils 
 use MuonSimEvent          MuonSimEvent-*            MuonSpectrometer
 use TileSimEvent          TileSimEvent-*            TileCalorimeter
+use CxxUtils            CxxUtils-*              Control
 
 end_private
 
