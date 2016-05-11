@@ -9,27 +9,16 @@
 //
 // ********************************************************************
 
-#include "TrigDetCalib/TrigCheckForTracks.h"
-
-#include "GaudiKernel/MsgStream.h"
+#include "TrigCheckForTracks.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/IJobOptionsSvc.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
-//#include "CLHEP/Units/SystemOfUnits.h"
-
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/MsgStream.h"
-
 #include "TrkTrack/TrackCollection.h"
 
 #include "TrigSteeringEvent/PartialEventBuildingInfo.h"
 #include "IRegionSelector/IRegSelSvc.h"
-
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include <string>
 #include <vector>
@@ -90,8 +79,6 @@ TrigCheckForTracks::~TrigCheckForTracks()
 HLT::ErrorCode TrigCheckForTracks::hltInitialize()
 // ----------------------------------------------------------------------
 {
-  msg() << MSG::INFO << "in initialize()" << endreq;
-
   // Initialize timing service
   //------------------------------
   if( service( "TrigTimerSvc", m_timerSvc).isFailure() ) {
@@ -105,18 +92,6 @@ HLT::ErrorCode TrigCheckForTracks::hltInitialize()
   m_rejectedEvts = 0;
   m_errorEvts    = 0;
 
-  StatusCode sc = service( "StoreGateSvc", m_storeGate);
-  if( sc.isFailure() ){
-    msg() << MSG::ERROR
-	<< "Unable to retrieve pointer to StoreGateSvc"
-	<< endreq;
-    return HLT::BAD_ALGO_CONFIG;
-  }
-  else { msg() << MSG::DEBUG
-	<< "Retrieved pointer to StoreGateSvc"
-	       << endreq; }
-  
-
   if (m_addCTPResult) m_trigResults.push_back(eformat::TDAQ_CTP);
   if (m_addL2Result)  m_trigResults.push_back(eformat::TDAQ_LVL2);
   if (m_addEFResult)  m_trigResults.push_back(eformat::TDAQ_EVENT_FILTER);
@@ -128,7 +103,6 @@ HLT::ErrorCode TrigCheckForTracks::hltInitialize()
 
 HLT::ErrorCode TrigCheckForTracks::hltBeginRun()
 {
-  msg() << MSG::INFO << "in hltBeginRun() " << endreq;
   return m_robSelector->setupMonitoring();
 }
 
@@ -137,7 +111,6 @@ HLT::ErrorCode TrigCheckForTracks::hltBeginRun()
 HLT::ErrorCode TrigCheckForTracks::hltFinalize(){
 // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
   msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_acceptedEvts <<" / "<< m_rejectedEvts << " / "<< m_errorEvts << endreq;
   return HLT::OK;
 }
@@ -188,7 +161,7 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
 
   const TrackCollection* tracks = 0;
 
-  if (m_storeGate->transientContains<TrackCollection>(tracksName)) {
+  if (evtStore()->transientContains<TrackCollection>(tracksName)) {
     if (msgLvl() <= MSG::DEBUG ) {
       msg()  << MSG::DEBUG << "*** TrackCollection with name "<< tracksName <<" found in StoreGate (transientContains)" << endreq;
     }
@@ -200,7 +173,7 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
     return HLT::OK;
   }
   
-  StatusCode sc = m_storeGate->retrieve(tracks,tracksName);
+  StatusCode sc = evtStore()->retrieve(tracks,tracksName);
   
   msg()  << MSG::DEBUG << "***** Status code: "<< sc << " for key: " << tracksName << endreq;
 

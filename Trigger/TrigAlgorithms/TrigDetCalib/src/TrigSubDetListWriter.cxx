@@ -2,12 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/PartialEventBuildingInfo.h"
 #include "IRegionSelector/IRegSelSvc.h"
 
-#include "TrigDetCalib/TrigSubDetListWriter.h"
+#include "TrigSubDetListWriter.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 
 
@@ -39,35 +38,32 @@ TrigSubDetListWriter::TrigSubDetListWriter(const std::string& name, ISvcLocator*
 
 HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
 {
-  //std::cout << "print the name of TrigSubDetListWriter = " << name.c_str() << std::endl;
-  msg() << MSG::DEBUG << " In hltInitialize() " << endreq;
   ServiceHandle<IJobOptionsSvc> p_jobOptionsSvc("JobOptionsSvc", name());
   if ((p_jobOptionsSvc.retrieve()).isFailure()) {
-      msg() << MSG::WARNING << "Could not find JobOptionsSvc to set DataFlow properties" << endreq;
+    msg() << MSG::WARNING << "Could not find JobOptionsSvc to set DataFlow properties" << endreq;
   } else {
-      // get the list of enabled ROBs from OKS
-      const Property* pprob=Gaudi::Utils::getProperty( p_jobOptionsSvc->getProperties("DataFlowConfig"), "DF_Enabled_ROB_IDs");
+    // get the list of enabled ROBs from OKS
+    const Property* pprob=Gaudi::Utils::getProperty( p_jobOptionsSvc->getProperties("DataFlowConfig"), "DF_Enabled_ROB_IDs");
     if (pprob != 0) {
       if (m_enabledROBs.assign(*pprob)) {
-          //robOKSconfigFound = true;
-          msg() << MSG::DEBUG << " ---> Read from DataFlow configuration: " << m_enabledROBs.value().size()
-                      << " enabled ROB IDs." << endreq;
+        //robOKSconfigFound = true;
+        msg() << MSG::DEBUG << " ---> Read from DataFlow configuration: " << m_enabledROBs.value().size()
+              << " enabled ROB IDs." << endreq;
       } else {
-          msg() << MSG::WARNING << "Could not set Property '" << pprob->name() << "' from DataFlow." << endreq;
+        msg() << MSG::WARNING << "Could not set Property '" << pprob->name() << "' from DataFlow." << endreq;
       }
     }
-      // get the list of enabled Sub Detectors from OKS
+    // get the list of enabled Sub Detectors from OKS
     const Property* ppsd=Gaudi::Utils::getProperty( p_jobOptionsSvc->getProperties("DataFlowConfig"), "DF_Enabled_SubDet_IDs");
     if (ppsd != 0) {
       if (m_enabledSubDetectors.assign(*ppsd)) {
-          //subDetOKSconfigFound  = true;
-          msg() << MSG::DEBUG << " ---> Read from DataFlow configuration: " << m_enabledSubDetectors.value().size()
-                      << " enabled Sub Detector IDs." << endreq;
+        //subDetOKSconfigFound  = true;
+        msg() << MSG::DEBUG << " ---> Read from DataFlow configuration: " << m_enabledSubDetectors.value().size()
+              << " enabled Sub Detector IDs." << endreq;
       } else {
-          msg() << MSG::WARNING << "Could not set Property '" << ppsd->name() << "' from DataFlow." << endreq;
+        msg() << MSG::WARNING << "Could not set Property '" << ppsd->name() << "' from DataFlow." << endreq;
       }
-    }
-
+    } 
   }
 
   // The RegionSelector is being retrieved here
@@ -196,6 +192,9 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
      }
      if (*detit=="FORWARD_ALPHA") {     
          m_sourceid.push_back(eformat::FORWARD_ALPHA);
+     }
+     if (*detit=="FORWARD_AFP") {     
+         m_sourceid.push_back(eformat::FORWARD_AFP);
      }
   }
 
@@ -502,13 +501,15 @@ HLT::ErrorCode TrigSubDetListWriter::hltExecute(std::vector<std::vector<HLT::Tri
     }*/
 
 
-  msg() << MSG::DEBUG << "Executing this TrigSubDetListWriter " << name() << endreq;
-  if (m_maxRoIsPerEvent > -1) msg() << " RoI " << m_nRoIs << "/" << m_maxRoIsPerEvent;
-  msg() << endreq;
+  if (msgLvl(MSG::DEBUG)) {
+      msg() << MSG::DEBUG << "Executing this TrigSubDetListWriter " << name() << endreq;
+      if (m_maxRoIsPerEvent > -1) msg() << " RoI " << m_nRoIs << "/" << m_maxRoIsPerEvent;
+      msg() << endreq;
+  }
   
   if (m_maxRoIsPerEvent > -1 && m_nRoIs > m_maxRoIsPerEvent) {
-    msg() << MSG::DEBUG << "RoI limit ("  << m_maxRoIsPerEvent 
-          << ") reached for this event : will not process this RoI" << endreq;
+    ATH_MSG_DEBUG("RoI limit ("  << m_maxRoIsPerEvent 
+                  << ") reached for this event : will not process this RoI");
     return HLT::OK;
   }
   
@@ -638,7 +639,7 @@ HLT::ErrorCode TrigSubDetListWriter::fillPEBInfo(PartialEventBuildingInfo& pebIn
       case RPC:
       case TGC:
       case CSC:
-        msg() << MSG::DEBUG << "Muon detectors not yet implemented" << endreq;
+        ATH_MSG_DEBUG("Muon detectors not yet implemented");
         break;
       default:
         msg() << MSG::WARNING << "unknown detector type requested " << endreq;
@@ -673,11 +674,7 @@ HLT::ErrorCode TrigSubDetListWriter::hltEndEvent()
 
 TH1I* TrigSubDetListWriter::bookAndRegisterTH1I(const char* name, std::string outpath, int nBins, int minX, int maxX)
 {
-  /// Say hello
-  if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Now trying to register histogram: " << name << " (TH1I)" << endreq;
-
   TH1I* h = new TH1I(name,name,nBins,minX,maxX);
-
   if (m_thistSvc->regHist(outpath + h->GetName(), h).isFailure()) msg() << MSG::WARNING << "Can't book " << outpath + h->GetName() << endreq;
 
   return h;
@@ -702,8 +699,8 @@ bool TrigSubDetListWriter::isRobEnabled(const uint32_t robid) {
     std::vector<uint32_t>::const_iterator rob_enabled_it =
       std::find(m_enabledROBs.value().begin(), m_enabledROBs.value().end(), robid);
     if(rob_enabled_it == m_enabledROBs.value().end()) {
-      msg() << MSG::DEBUG << "---> ROB Id : 0x" << MSG::hex << robid << MSG::dec
-                    << " will not be retrieved, since it is not on the list of enabled ROBs."<< endreq;
+      ATH_MSG_DEBUG("---> ROB Id : 0x" << MSG::hex << robid << MSG::dec
+                    << " will not be retrieved, since it is not on the list of enabled ROBs.");
       b_enabled = false;
     }
   }

@@ -12,7 +12,7 @@
  * @author Nicolas Berger  <Nicolas.Berger@cern.ch>  - CERN
  *
  * File and Version Information:
- * $Id: TrigROBSelector.h,v 1.1 2008-10-14 12:03:47 nberger Exp $
+ * $Id: TrigROBSelector.h 707504 2015-11-12 16:33:46Z fwinkl $
  **********************************************************************************/
 
 #ifndef TrigEgammaHypo_TrigROBSelector_H

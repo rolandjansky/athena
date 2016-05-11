@@ -270,6 +270,35 @@ class CheckForTracks_Trk9_Fwd(CheckForTracks):
 
     setCalibMonTools(self)
 
+class CheckForTracks_Trk9_Central_Beamspot(CheckForTracks):
+  __slots__ = []
+  def __init__(self, name = 'CheckForTracks_Trk9_Central_Beamspot'):
+    super(CheckForTracks_Trk9_Central_Beamspot, self ).__init__( name )
+    self.pT_min = 3000.
+    self.etaLowEdge = 0.0
+    self.etaEdge = 1.4
+    self.tracksName = 'HLT_TrackCollection_TrigFastTrackFinder_BeamSpot'
+    self.AddCTPResult = True
+    self.AddL2Result = False
+    self.AddEFResult = False
+    self.lookForAnyTracks = True
+
+    setCalibMonTools(self)
+
+class CheckForTracks_Trk9_Fwd_Beamspot(CheckForTracks):
+  __slots__ = []
+  def __init__(self, name = 'CheckForTracks_Trk9_Fwd_Beamspot'):
+    super(CheckForTracks_Trk9_Fwd_Beamspot, self ).__init__( name )
+    self.pT_min = 3000.
+    self.etaLowEdge = 1.35
+    self.etaEdge = 5.0
+    self.tracksName = 'HLT_TrackCollection_TrigFastTrackFinder_BeamSpot'
+    self.AddCTPResult = True
+    self.AddL2Result = False
+    self.AddEFResult = False
+    self.lookForAnyTracks = True
+
+    setCalibMonTools(self)
 
 class CheckForTracks_Trk9_Central_SiTrack(CheckForTracks):
   __slots__ = []

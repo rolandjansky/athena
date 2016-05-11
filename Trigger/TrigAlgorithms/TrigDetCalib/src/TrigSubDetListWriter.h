@@ -15,7 +15,7 @@
  * July 22 2008: taken from TrigROBListWriter and modified to read out the whole detector
  *
  * File and Version Information:
- * $Id: TrigSubDetListWriter.h,v 1.6 2009-05-19 00:40:11 iaracena Exp $
+ * $Id: TrigSubDetListWriter.h 707504 2015-11-12 16:33:46Z fwinkl $
  **********************************************************************************/
 
 #ifndef TrigEgammaHypo_TrigSubDetListWriter_H
@@ -43,7 +43,6 @@
 #include "TH1I.h"
 
 class IRegSelSvc;
-class MsgStream;
 class PartialEventBuildingInfo;
 //class TH1I;
     
@@ -87,7 +86,6 @@ class TrigSubDetListWriter : public HLT::AllTEAlgo
 
   private:
     
-    MsgStream* m_log;
     ServiceHandle<IRegSelSvc> m_regionSelector;
     std::string m_pebLabel;
 

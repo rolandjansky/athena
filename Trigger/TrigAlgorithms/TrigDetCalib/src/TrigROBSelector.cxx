@@ -11,7 +11,7 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "GaudiKernel/Algorithm.h"
 
-#include "TrigDetCalib/TrigROBSelector.h"
+#include "TrigROBSelector.h"
 #include "TH1.h"
 
 TrigROBSelector::TrigROBSelector(const std::string& type, const std::string& name,
