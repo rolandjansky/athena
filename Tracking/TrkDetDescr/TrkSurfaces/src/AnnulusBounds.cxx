@@ -118,15 +118,19 @@
 
 // default constructor
 Trk::AnnulusBounds::AnnulusBounds() :
+//    Trk::SurfaceBounds()
     m_boundValues(AnnulusBounds::bv_length, 0.)
-
-{}
+//    m_forceCovEllipse(false) 
+{
+//    declareProperty("ForceCovEllipse",   m_forceCovEllipse);
+}
 
 // constructor from arguments I
 Trk::AnnulusBounds::AnnulusBounds(double minR, double maxR, double R, double phi, double phiS) :
     m_boundValues(AnnulusBounds::bv_length, 0.)
 
 {
+ 
     m_boundValues[AnnulusBounds::bv_minR] = fabs(minR);
     m_boundValues[AnnulusBounds::bv_maxR] = fabs(maxR);
     m_boundValues[AnnulusBounds::bv_R] = fabs(R);
@@ -183,9 +187,8 @@ Trk::AnnulusBounds::AnnulusBounds(double minR, double maxR, double R, double phi
 Trk::AnnulusBounds::AnnulusBounds(const AnnulusBounds& annbo) :
     Trk::SurfaceBounds(),
     m_boundValues(annbo.m_boundValues)
-//    m_alpha(annbo.m_alpha),
-//    m_beta(annbo.m_beta)
 {}
+
 
 // destructor
 Trk::AnnulusBounds::~AnnulusBounds()
@@ -195,8 +198,7 @@ Trk::AnnulusBounds& Trk::AnnulusBounds::operator=(const AnnulusBounds& annbo)
 {
     if (this!=&annbo){
         m_boundValues = annbo.m_boundValues;
-//        m_alpha       = annbo.m_alpha;
-//        m_beta        = annbo.m_beta;
+
     }
     return *this;
 }
@@ -234,7 +236,9 @@ bool Trk::AnnulusBounds::inside(const Amg::Vector2D& locpo, double tol1, double 
 	double localR2 = localX*localX + localY*localY;
 	double localR  = sqrt(localR2);
 	double localCos = localX/localR;
-	double deltaR = sqrt( tol2*tol2+(tol1*tol1-tol2*tol2)*localCos*localCos );
+	double localSin = localY/localR;
+	double deltaR = sqrt( tol2*tol2*localSin*localSin+tol1*tol1*localCos*localCos );
+
 
 	
 	double minR = m_boundValues[AnnulusBounds::bv_minR];
@@ -242,7 +246,7 @@ bool Trk::AnnulusBounds::inside(const Amg::Vector2D& locpo, double tol1, double 
 
 
 
-	bool condRad = (localR2 < (maxR+deltaR)*(maxR+deltaR)  &&  localR2 > (minR-deltaR)*(minR-deltaR));
+	bool condRad = (localR < maxR+deltaR  &&  localR > minR-deltaR);
 	bool condL = ( isRight(locpo,tol1, tol2, m_solution_L_max[0], m_solution_L_max[1], m_solution_L_min[0], m_solution_L_min[1]) ) ;
 	bool condR = (  isLeft(locpo,tol1, tol2, m_solution_R_max[0], m_solution_R_max[1], m_solution_R_min[0], m_solution_R_min[1]) ) ;
 

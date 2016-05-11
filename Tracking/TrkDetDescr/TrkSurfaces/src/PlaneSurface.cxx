@@ -65,16 +65,20 @@ Trk::PlaneSurface::PlaneSurface(const Amg::Vector3D& position, const Curvilinear
 }
 
 // construct form TrkDetElementBase
-Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement) :
+Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement,Amg::Transform3D* transf) :
   Trk::Surface(detelement),
   m_bounds()
-{}
+{
+  m_transform = transf;
+}
 
 // construct form SiDetectorElement
-Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement, const Identifier& id) :
+Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement, const Identifier& id,Amg::Transform3D* transf) :
   Trk::Surface(detelement, id),
   m_bounds()
-{}
+{
+  m_transform = transf;
+}
 
 // construct planar surface without bounds
 Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans) :

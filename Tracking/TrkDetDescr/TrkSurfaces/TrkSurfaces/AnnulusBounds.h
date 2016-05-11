@@ -9,6 +9,8 @@
 #ifndef TRKSURFACES_ANNULUSBOUNDS_H
 #define TRKSURFACES_ANNULUSBOUNDS_H
 
+
+
 #include "TrkSurfaces/SurfaceBounds.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include <math.h>
@@ -53,11 +55,10 @@ namespace Trk {
       /**Default Constructor, needed for persistency*/
       AnnulusBounds();
         
-      /**Constructor for symmetric Trapezoid*/
+      /**Constructor for AnnulusBounds*/
       AnnulusBounds(double minR, double maxR, double R, double phi, double phiS);
       
-      /**Constructor for arbitrary Trapezoid*/
-//      AnnulusBounds(double minhalex, double haley, double alpha, double beta);      
+     
       
       /**Copy constructor*/
       AnnulusBounds(const AnnulusBounds& annbo);
@@ -69,7 +70,7 @@ namespace Trk {
       virtual AnnulusBounds* clone() const override;
       
       /** Return the type of the bounds for persistency */
-      virtual BoundsType type() const override { return SurfaceBounds::Trapezoid; }
+      virtual BoundsType type() const override { return SurfaceBounds::Annulus; }
       
       /**Assignment operator*/
       AnnulusBounds& operator=(const AnnulusBounds& sbo); 
@@ -156,6 +157,8 @@ namespace Trk {
       
    private:
 
+//      bool m_forceCovEllipse;
+      
       
       /** isAbove() method for checking whether a point lies above or under a straight line */
 				   
@@ -199,9 +202,6 @@ namespace Trk {
       
 
       std::vector<TDD_real_t>   m_boundValues;   
-//      TDD_real_t                m_alpha;
-//      TDD_real_t                m_beta;
-
 
       TDD_real_t                m_maxYout;
       TDD_real_t                m_minYout;
@@ -212,11 +212,7 @@ namespace Trk {
       TDD_real_t                m_minYin;
       TDD_real_t                m_maxXin;
       TDD_real_t                m_minXin;
-/*      
-      TDD_real_t                m_maxYin;
-      TDD_real_t                m_minYin;
-      TDD_real_t                m_minXin;
-*/
+
       TDD_real_t                m_k_L;
       TDD_real_t                m_k_R;
       TDD_real_t                m_d_L;

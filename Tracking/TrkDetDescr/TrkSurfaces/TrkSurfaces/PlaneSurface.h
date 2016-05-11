@@ -69,10 +69,10 @@ namespace Trk {
       PlaneSurface(const Amg::Vector3D& position, const CurvilinearUVT& curvUVT);
       
       /** Constructor from TrkDetElementBase*/
-      PlaneSurface(const TrkDetElementBase& detelement);
+      PlaneSurface(const TrkDetElementBase& detelement,Amg::Transform3D* transf=nullptr);
       
       /** Constructor from TrkDetElementBase and Identifier in case one element holds more surfaces*/
-      PlaneSurface(const TrkDetElementBase& detelement, const Identifier& id); 
+      PlaneSurface(const TrkDetElementBase& detelement, const Identifier& id,Amg::Transform3D* transf=nullptr); 
       
       /** Constructor for planar Surface without Bounds */
       PlaneSurface(Amg::Transform3D* htrans);
