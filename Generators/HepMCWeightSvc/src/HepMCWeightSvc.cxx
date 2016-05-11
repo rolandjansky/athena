@@ -61,8 +61,8 @@ StatusCode HepMCWeightSvc::loadWeights() {
    ServiceHandle<StoreGateSvc> inputMetaStore("StoreGateSvc/InputMetaDataStore",name());
    CHECK( inputMetaStore.retrieve() );
    
-   const IOVMetaDataContainer* cont = 0;
-   if(inputMetaStore->retrieve(cont,"/Generation/Parameters").isFailure()) {
+   const IOVMetaDataContainer* cont = inputMetaStore->tryConstRetrieve<IOVMetaDataContainer>("/Generation/Parameters");
+   if(cont==NULL) {
      //exit quietly... 
      return StatusCode::SUCCESS;
    }
