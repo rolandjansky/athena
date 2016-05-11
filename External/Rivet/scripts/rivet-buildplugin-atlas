@@ -1,0 +1,12 @@
+#! /usr/bin/env bash
+
+cmd=$( (rivet-buildplugin --cmd $@ 2> /dev/null) | \
+    sed -e "s:/afs/cern.ch/sw/lcg/releases/\([^-]\+\)-.*/$CMTCONFIG:$SITEROOT/sw/lcg/releases/LCG_$LCGCMTVERS/\1/$CMTCONFIG:g")
+
+if [[ -n "$cmd" ]]; then
+    echo $cmd
+    exec $cmd
+else
+    echo "Problem getting/modifying build command from rivet-buildplugin" 1>&2
+    exit 1
+fi

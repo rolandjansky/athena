@@ -17,7 +17,7 @@ use YODA                       YODA-*                  External
 
 #macro Rivet_home "$(LCG_external)/MCGenerators_lcgcmt$(myLCG_config_version)/rivet"
 macro Rivet_home "$(LCG_external)/MCGenerators/rivet"
-macro Rivet_version "2.4.0"
+macro Rivet_version "2.4.2"
 macro Rivet_native_version "$(Rivet_version)_lcgcmt$(LCG_config_version)"
 macro Rivet_dir "$(Rivet_home)/$(Rivet_version)/$(LCG_ext_system)"
 macro Rivet_lib "$(Rivet_dir)/lib"
@@ -41,12 +41,16 @@ include_dirs $(Rivet_dir)/include
 
 ## Install scripts
 apply_pattern declare_scripts files=" -s=$(Rivet_bin) *"
+apply_pattern declare_scripts files=" -s=../scripts rivet-*"
 path_prepend PATH "$(Rivet_bin)"
 
 ## Install Python modules
 apply_pattern generic_declare_for_link kind=python_modules \
   files='-s=$(Rivet_python) * *.py *.so' prefix="$(CMTCONFIG)/lib/python$(Python_version)" name=rivet_pymodules
 path_prepend PYTHONPATH "$(Rivet_python)"
+
+## Set paths to find default plugins and data files
+path_append RIVET_ANALYSIS_PATH "$(Rivet_share)"
 
 ## Set TeX environment for Rivet plotting
 set colon ':'
@@ -61,5 +65,3 @@ path_append TEXINPUTS $colon
 path_append LATEXINPUTS $colon
 
 macro Rivet_pp_cppflags "-isystem $(Rivet_dir)/include "
-
-
