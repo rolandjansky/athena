@@ -85,9 +85,20 @@
 #include "xAODTrigMinBias/TrigVertexCountsContainer.h"
 #include "xAODTrigMinBias/TrigVertexCountsAuxContainer.h"
 
+#include "TrkTrack/TrackCollection.h"
+#include "Particle/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleAuxContainer.h"
 
-// #include "CaloEvent/CaloClusterContainer.h"
-// #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "tauEvent/TauJetContainer.h"
+#include "xAODTau/TauJetContainer.h"
+
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "egammaEvent/egammaContainer.h"
+
+#include "CaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 // #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 
 template<typename element,typename list,int index> struct get_strictly_feat{
@@ -187,6 +198,8 @@ namespace BStoXAODHelper{
 	return StatusCode::SUCCESS;
       }
       
+      ATH_MSG_DEBUG("attempting to convert " << fmtkey_AOD << " of size " << aod->size() << " to " << fmtkey_xAOD);
+
       xAOD* xaod = this->m_sg->template tryRetrieve<xAOD>(fmtkey_xAOD);
       if(!xaod){
 	ATH_MSG_WARNING("key: " <<  fmtkey_xAOD << " not found for xAOD conversion");
@@ -253,7 +266,7 @@ namespace BStoXAODHelper{
 TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type,name,parent),
     // needs newer pkg tag
-    // m_tauJetTool(      "xAODMaker::TauJetCnvTool/TauJetCnvTool",this),
+    m_tauJetTool(      "xAODMaker::TauJetCnvTool/TauJetCnvTool",this),
     m_combMuonTool(    "xAODMaker::CombinedMuonFeatureContainerCnvTool/CombinedMuonFeatureContainerCnvTool",this),
     m_isoMuonTool(     "xAODMaker::IsoMuonFeatureContainerCnvTool/IsoMuonFeatureContainerCnvTool",this),
     m_trigMuonTool(    "TrigMuonEFInfoToMuonCnvTool/TrigMuonEFInfoToMuonCnvTool",this),
@@ -261,7 +274,7 @@ TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& n
     // not configurable algtool
     // m_ringerRingsTool( "xAODMaker::TrigRingerRingsCnvTool/TrigRingerRingsCnvTool",this),
     // m_trigRNNTool(     "xAODMaker::TrigRNNOutputCnvTool/TrigRNNOutputCnvTool",this),
-    m_caloClusterTool( "xAODMaker::TrigCaloClusterCnvTool/TrigCaloClusterCnvTool",this),
+    m_trigCaloClusterTool( "xAODMaker::TrigCaloClusterCnvTool/TrigCaloClusterCnvTool",this),
     m_emClusterTool(   "xAODMaker::TrigEMClusterCnvTool/TrigEMClusterCnvTool",this),
     // not in devval yet
     // m_bjetTool(        "xAODMaker::TrigBjetCnvTool/TrigBjetCnvTool",this),
@@ -274,7 +287,12 @@ TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& n
     m_trigSpacePtsTool("xAODMaker::TrigSpacePointCountsCnvTool/TrigSpacePointCountsCnvTool",this),
     m_trigMbtsBitsTool("xAODMaker::TrigT2MbtsBitsCnvTool/TrigT2MbtsBitsCnvTool",this),
     m_trigTrackCtsTool("xAODMaker::TrigTrackCountsCnvTool/TrigTrackCountsCnvTool",this),
-    m_trigVtxCtsTool(  "xAODMaker::TrigVertexCountsCnvTool/TrigVertexCountsCnvTool",this)
+    m_trigVtxCtsTool(  "xAODMaker::TrigVertexCountsCnvTool/TrigVertexCountsCnvTool",this),
+    m_trackCollectionTool(      "xAODMaker::TrackCollectionCnvTool/TrackCollectionCnvTool", this ),
+    m_recTrackParticleContTool( "xAODMaker::RecTrackParticleContainerCnvTool/RecTrackParticleContainerCnvTool", this ),
+    m_electronTool( "xAODMaker::ElectronCnvTool/ElectronCnvTool", this ),
+    m_photonTool( "xAODMaker::PhotonCnvTool/PhotonCnvTool", this ),
+    m_caloClusterTool( "xAODMaker::CaloClusterCnvTool/CaloClusterCnvTool", this)
 {
   declareInterface<ITrigBStoxAODTool>( this );
   declareProperty("L2ResultKey",     m_l2ResultKey = "HLTResult_L2");
@@ -282,8 +300,7 @@ TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& n
   declareProperty("HLTResultKey",     m_hltResultKey = "HLTResult_HLT");
   declareProperty("ContainersToConvert",m_containersToConvert);
 
-  // needs newer pkg tag
-  // declareProperty("tauJetTool", m_tauJetTool);
+  declareProperty("tauJetTool", m_tauJetTool);
   declareProperty("combMuonTool", m_combMuonTool);
   declareProperty("isoMuonTool", m_isoMuonTool);
   declareProperty("trigMuonTool", m_trigMuonTool);
@@ -293,7 +310,7 @@ TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& n
   // declareProperty("ringerRingsTool", m_ringerRingsTool);
   // declareProperty("trigRNNTool", m_trigRNNTool);
 
-  declareProperty("caloClusterTool", m_caloClusterTool);
+  declareProperty("trigCaloClusterTool", m_trigCaloClusterTool);
   declareProperty("emClusterTool", m_emClusterTool);
   // not in devval yet
   // declareProperty("bjetTool", m_bjetTool);
@@ -307,6 +324,11 @@ TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& n
   declareProperty("trigMbtsBitsTool", m_trigMbtsBitsTool);
   declareProperty("trigTrackCtsTool", m_trigTrackCtsTool);
   declareProperty("trigVtxCtsTool", m_trigVtxCtsTool);
+  declareProperty("trackCollectionTool", m_trackCollectionTool);
+  declareProperty("recTrackParticleContTool", m_recTrackParticleContTool);
+  declareProperty("electronTool", m_electronTool);
+  declareProperty("photonTool", m_photonTool);
+  declareProperty("caloClusterTool", m_caloClusterTool);
 }
 
 TrigBStoxAODTool::~TrigBStoxAODTool() {
@@ -329,7 +351,7 @@ StatusCode TrigBStoxAODTool::initialize(){
 
   m_helpers[ClassID_traits<TrigCaloClusterContainer>::ID()] = 
     new BStoXAODHelper::DefaultHelper<
-      TrigCaloClusterContainer,xAOD::TrigCaloClusterContainer,xAODMaker::ITrigCaloClusterCnvTool>(m_caloClusterTool);
+      TrigCaloClusterContainer,xAOD::TrigCaloClusterContainer,xAODMaker::ITrigCaloClusterCnvTool>(m_trigCaloClusterTool);
 
   m_helpers[ClassID_traits<TrigEMClusterContainer>::ID()] = 
     new BStoXAODHelper::DefaultHelper<
@@ -366,6 +388,31 @@ StatusCode TrigBStoxAODTool::initialize(){
     new BStoXAODHelper::DefaultHelper<
       TrigVertexCountsCollection,xAOD::TrigVertexCountsContainer,xAODMaker::ITrigVertexCountsCnvTool>(m_trigVtxCtsTool);
 
+  m_helpers[ClassID_traits<TrackCollection>::ID()] =
+    new BStoXAODHelper::DefaultHelper<
+  TrackCollection,xAOD::TrackParticleContainer,xAODMaker::ITrackCollectionCnvTool>(m_trackCollectionTool);
+  
+  m_helpers[ClassID_traits<Rec::TrackParticleContainer>::ID()] =
+    new BStoXAODHelper::DefaultHelper<
+  Rec::TrackParticleContainer,xAOD::TrackParticleContainer,xAODMaker::IRecTrackParticleContainerCnvTool>(m_recTrackParticleContTool);
+  
+  m_helpers[ClassID_traits<Analysis::TauJetContainer>::ID()] =
+    new BStoXAODHelper::DefaultHelper<
+  Analysis::TauJetContainer,xAOD::TauJetContainer,xAODMaker::ITauJetCnvTool>(m_tauJetTool);
+
+  m_helpers[ClassID_traits<CaloClusterContainer>::ID()] =
+    new BStoXAODHelper::DefaultHelper<
+  CaloClusterContainer,xAOD::CaloClusterContainer,xAODMaker::ICaloClusterCnvTool>(m_caloClusterTool);
+
+  m_helpers[ClassID_traits<egammaContainer>::ID()] =
+    new BStoXAODHelper::DefaultHelper<
+    egammaContainer,xAOD::ElectronContainer,xAODMaker::IElectronCnvTool>(m_electronTool);
+
+  m_helpers[ClassID_traits<egammaContainer>::ID()] =
+    new BStoXAODHelper::DefaultHelper<
+  egammaContainer,xAOD::PhotonContainer,xAODMaker::IPhotonCnvTool>(m_photonTool);
+  
+  
   std::map<CLID,BStoXAODHelper::IHelper*>::iterator it;
   for(it = m_helpers.begin();it!=m_helpers.end();++it){
     CHECK(it->second->initialize(this->msg(),*(evtStore())));
@@ -437,7 +484,7 @@ StatusCode TrigBStoxAODTool::rewireNavigation(HLT::Navigation* nav) {
 	  ATH_MSG_WARNING("not clear what kind of feature we're dealing with. Skipping. Old holder is:" << *oldholder);
 	}
 	
-	CLID newTypeClid;
+	CLID newTypeClid = CLID_NULL;
 	if(iselement)   newTypeClid = it->second->xAODElementClid();
 	if(iscontainer) newTypeClid = it->second->xAODContainerClid();
 
