@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon import CfgMgr
+from AthenaCommon import CfgMgr,Logging
 from AthenaCommon.AppMgr import ToolSvc
 
 def PixelHitsTestTool(name="PixelHitsTestTool", **kwargs):
@@ -114,3 +114,13 @@ def LucidHitsTestTool(name="LucidHitsTestTool",**kwargs):
     return CfgMgr.LucidHitsTestTool(name, **kwargs)
 
 
+def getSteppingValidationTool(name="G4UA::SteppingValidationTool",**kwargs):
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    if concurrencyProps.ConcurrencyFlags.NumThreads() >1:
+        log=Logging.logging.getLogger(name)
+        log.fatal('Attempt to run '+name+' with more than one thread, which is not supported')
+        #from AthenaCommon.AppMgr import theApp
+        #theApp.exit(1)
+        return False
+    from G4AtlasTests.G4AtlasTestsConf import G4UA__SteppingValidationTool
+    return G4UA__SteppingValidationTool(name, **kwargs)

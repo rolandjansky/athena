@@ -25,6 +25,7 @@
 #include "LayerTestTool.h"
 #include "CaloCalibrationHitsTestTool.h"
 #include "SteppingValidation.h"
+#include "SteppingValidationTool.h"
 #include "LucidHitsTestTool.h"
 #include "CalibHitValidate.h"
 
@@ -50,6 +51,7 @@ DECLARE_FACTORY_ENTRIES(G4AtlasTests)
   DECLARE_ALGTOOL( CaloCalibrationHitsTestTool )
   DECLARE_ALGTOOL( LayerTestTool )
   DECLARE_ALGTOOL( SteppingValidation )
+  DECLARE_ALGTOOL( G4UA::SteppingValidationTool )
   DECLARE_ALGTOOL( LucidHitsTestTool )
   DECLARE_ALGORITHM( G4TestAlg )
   DECLARE_ALGORITHM( CalibHitValidate )
@@ -75,6 +77,7 @@ DECLARE_TOOL_FACTORY( ZDCHitsTestTool )
 DECLARE_TOOL_FACTORY( CaloCalibrationHitsTestTool )
 DECLARE_TOOL_FACTORY( LayerTestTool )
 DECLARE_TOOL_FACTORY( SteppingValidation )
+DECLARE_TOOL_FACTORY( G4UA::SteppingValidationTool )
 DECLARE_ALGORITHM_FACTORY( G4TestAlg )
 DECLARE_ALGORITHM_FACTORY( CalibHitValidate )
 DECLARE_TOOL_FACTORY( LucidHitsTestTool )
