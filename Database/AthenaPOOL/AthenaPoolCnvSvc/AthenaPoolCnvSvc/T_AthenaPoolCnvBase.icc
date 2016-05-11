@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/** @file T_AthenaPoolCnv.icc
- *  @brief This file contains the implementation for the templated T_AthenaPoolCnv class.
+/** @file T_AthenaPoolCnvBase.icc
+ *  @brief This file contains the implementation for the templated T_AthenaPoolCnvBase class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  **/
 
@@ -18,17 +18,17 @@
 #include "DataModelRoot/RootType.h"
 
 #include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/ClassName.h"
+#include "SGTools/ClassName.h"
 #include "SGTools/StorableConversions.h"
 
 //__________________________________________________________________________
 template <class T>
-T_AthenaPoolCnv<T>::T_AthenaPoolCnv(ISvcLocator* svcloc) : AthenaPoolConverter(classID(), svcloc) {
+T_AthenaPoolCnvBase<T>::T_AthenaPoolCnvBase(ISvcLocator* svcloc) : AthenaPoolConverter(classID(), svcloc) {
 }
 //______________________________________________________________________________
 template <class T>
-StatusCode T_AthenaPoolCnv<T>::initialize() {
-   ATH_MSG_DEBUG("initialize() in T_AthenaPoolCnv " << classID());
+StatusCode T_AthenaPoolCnvBase<T>::initialize() {
+   ATH_MSG_DEBUG("initialize() in T_AthenaPoolCnvBase " << classID());
    if (!AthenaPoolConverter::initialize().isSuccess()) {
       ATH_MSG_FATAL("Failed to initialize AthenaPoolConverter base class.");
       return(StatusCode::FAILURE);
@@ -37,27 +37,19 @@ StatusCode T_AthenaPoolCnv<T>::initialize() {
 }
 //__________________________________________________________________________
 template <class T>
-const CLID& T_AthenaPoolCnv<T>::classID() {
+const CLID& T_AthenaPoolCnvBase<T>::classID() {
    return(ClassID_traits<T>::ID());
 }
 //__________________________________________________________________________
 template <class T>
-StatusCode T_AthenaPoolCnv<T>::DataObjectToPool(DataObject* pObj, const std::string& key) {
+StatusCode T_AthenaPoolCnvBase<T>::DataObjectToPool(DataObject* pObj, const std::string& key) {
    const std::string className = ClassName<T>::name();
-   if (!m_dictionaryOkWrite) {
-      m_dictionaryOkWrite = m_athenaPoolCnvSvc->testDictionary(className);
-   }
-   if (!m_dictionaryOkWrite) {
-      ATH_MSG_ERROR("There is no correct dictionary for class (type/key) " << className << "/" << pObj->name());
-      return(StatusCode::FAILURE);
-   }
    if (!m_classDesc) {
       ATH_MSG_DEBUG("Retrieve class description for class (type/key) " << className << "/" << pObj->name());
       m_classDesc = RootType( typeid(T) );
    }
    if (pObj->clID() == 1 && pObj->registry()->address() != 0) {
       ATH_MSG_DEBUG("Failed to cast DataObject to transient type, doing pers to pers");
-      DataObject* pObj = 0;
       if (!PoolToDataObject(pObj, this->m_i_poolToken).isSuccess()) {
          ATH_MSG_ERROR("Failed to read persistent DataType");
          return(StatusCode::FAILURE);
@@ -75,15 +67,8 @@ StatusCode T_AthenaPoolCnv<T>::DataObjectToPool(DataObject* pObj, const std::str
 }
 //__________________________________________________________________________
 template <class T>
-StatusCode T_AthenaPoolCnv<T>::PoolToDataObject(DataObject*& pObj, const Token* token) {
+StatusCode T_AthenaPoolCnvBase<T>::PoolToDataObject(DataObject*& pObj, const Token* token) {
    const std::string className = ClassName<T>::name();
-   if (!m_dictionaryOkRead) {
-      m_dictionaryOkRead = m_athenaPoolCnvSvc->testDictionary(className);
-   }
-   if (!m_dictionaryOkRead) {
-      ATH_MSG_ERROR("There is no correct dictionary for class \"" << className << "\"");
-      return(StatusCode::FAILURE);
-   }
    void* voidPtr = 0;
    try {
       m_athenaPoolCnvSvc->setObjPtr(voidPtr, token);
@@ -98,7 +83,7 @@ StatusCode T_AthenaPoolCnv<T>::PoolToDataObject(DataObject*& pObj, const Token* 
 }
 //__________________________________________________________________________
 template <class T>
-void T_AthenaPoolCnv<T>::setPlacement(const std::string& key) {
+void T_AthenaPoolCnvBase<T>::setPlacement(const std::string& key) {
    const std::string typenm = ClassName<T>::name();
    setPlacementWithType(typenm, key);
 }

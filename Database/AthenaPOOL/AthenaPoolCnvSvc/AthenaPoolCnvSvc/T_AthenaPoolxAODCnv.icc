@@ -1,0 +1,90 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthenaPoolCnvSvc/T_AthenaPoolxAODCnv.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jan, 2016
+ * @brief Athena pool converter for xAOD classes.
+ */
+
+
+/**
+ * @brief Constructor.
+ * @param svcLoc Gaudi service locator.
+ */
+template <class XAOD, class ... TPCNVS>
+T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::T_AthenaPoolxAODCnv( ISvcLocator* svcLoc )
+  : Base( svcLoc )
+{
+  m_guid = AthenaPoolCnvSvc::guidFromTypeinfo (typeid (XAOD));
+}
+
+
+/**
+ * @brief Read an object from persistent storage.
+ * @param pAddr Address of the object to read.
+ * @param pObj[out] Pointer to the read object.
+ *
+ * This is overridden here in order to be able to pass the SG key
+ * from the address to @c createTransient.
+ */
+template <class XAOD, class ... TPCNVS>
+StatusCode
+T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createObj( IOpaqueAddress* pAddr,
+                                                 DataObject*& pObj )
+{
+   // Get the key of the container that we'll be creating:
+   m_key = pAddr->par()[1];
+   ATH_MSG_VERBOSE( "Key of " << ClassName<XAOD>::name() << ": " << m_key );
+
+   // Let the base class do its thing now:
+   return AthenaPoolConverter::createObj( pAddr, pObj );
+}
+
+
+/**
+ * @brief Convert a transient object to persistent form.
+ * @param trans The transient object to convert.
+ *
+ * Returns a newly-allocated persistent object.
+ */
+template <class XAOD, class ... TPCNVS>
+XAOD* T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createPersistent( XAOD* trans )
+{
+  return new XAOD (trans->begin(), trans->end(), SG::VIEW_ELEMENTS);
+}
+
+
+/**
+ * @brief Read the persistent object and convert it to transient.
+ *
+ * Returns a newly-allocated transient object.
+ * Errors are reported by raising exceptions.
+ */
+template <class XAOD, class ... TPCNVS>
+XAOD* T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createTransient()
+{
+  XAOD* c = nullptr;
+
+  if ( this->compareClassGuid( m_guid ) ) {
+    // It's the latest version, read it directly:
+    c = this->template poolReadObject< XAOD >();
+  }
+  else {
+    // Try a converter.
+    c = m_tpcnvs.createTransient (*this, this->msg());
+  }
+
+  if (c) {
+    c->setStore( DataLink< SG::IConstAuxStore > (m_key + "Aux." ) );
+    return c;
+  }
+
+  // Didn't recognize the GUID.
+  AthenaPoolCnvSvc::throwExcUnsupportedVersion (typeid(XAOD),
+                                                this->m_i_poolToken->classID());
+  return 0;
+}

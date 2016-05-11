@@ -12,11 +12,11 @@
 
 #include "SGTools/DataProxy.h"
 
-#include "PersistencySvc/Placement.h"
 #include "PersistentDataModel/Guid.h"
 namespace pool {
    typedef ::Guid Guid;
 }
+#include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/TokenAddress.h"
 #include "StorageSvc/DbType.h"
@@ -64,20 +64,22 @@ StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pO
    try {
       if (!PoolToDataObject(pObj, m_i_poolToken).isSuccess()) {
          ATH_MSG_ERROR("createObj PoolToDataObject() failed, Token = " << (m_i_poolToken ? m_i_poolToken->toString() : "NULL"));
-         return(StatusCode::FAILURE);
+         pObj = 0;
       }
    } catch (std::exception& e) {
       ATH_MSG_ERROR("createObj - caught exception: " << e.what());
-      return(StatusCode::FAILURE);
+      pObj = 0;
    }
    if (pObj == 0) {
       ATH_MSG_ERROR("createObj failed to get DataObject, Token = " << (m_i_poolToken ? m_i_poolToken->toString() : "NULL"));
-      return(StatusCode::FAILURE);
    }
    if (tokAddr == 0 || tokAddr->getToken() == 0) {
       delete m_i_poolToken; m_i_poolToken = 0;
    } else {
       m_i_poolToken = 0;
+   }
+   if (pObj == 0) {
+      return(StatusCode::FAILURE);
    }
    return(StatusCode::SUCCESS);
 }
@@ -121,8 +123,6 @@ AthenaPoolConverter::AthenaPoolConverter(const CLID& myCLID, ISvcLocator* pSvcLo
 		::AthMessaging((pSvcLocator != 0 ? msgSvc() : 0), "AthenaPoolConverter"),
 	m_athenaPoolCnvSvc("AthenaPoolCnvSvc", "AthenaPoolConverter"),
 	m_placement(0),
-	m_dictionaryOkRead(false),
-	m_dictionaryOkWrite(false),
 	m_placementHints(),
 	m_className(),
 	m_classDescs(),
@@ -134,7 +134,7 @@ AthenaPoolConverter::AthenaPoolConverter(const CLID& myCLID, ISvcLocator* pSvcLo
 void AthenaPoolConverter::setPlacementWithType(const std::string& tname, const std::string& key) {
    if (m_placement == 0) {
       // Create placement for this converter if needed
-      m_placement = new pool::Placement();
+      m_placement = new Placement();
    }
    // Use technology from AthenaPoolCnvSvc
    if (m_athenaPoolCnvSvc->technologyType().type() == 0) {
@@ -144,7 +144,7 @@ void AthenaPoolConverter::setPlacementWithType(const std::string& tname, const s
    m_placement->setTechnology(m_athenaPoolCnvSvc->technologyType().type());
    // Set DB and Container names
    const std::string fileName = m_athenaPoolCnvSvc->getOutputConnectionSpec();
-   m_placement->setDatabase(fileName, pool::DatabaseSpecification::PFN);
+   m_placement->setFileName(fileName);
    if (key.empty()) { // No key will result in a separate tree by type for the data object
       m_placement->setContainerName(m_athenaPoolCnvSvc->getOutputContainer(tname));
    } else if (m_placementHints.find(tname + key) != m_placementHints.end()) { // PlacementHint already generated?

@@ -1,0 +1,3 @@
+test1
+AthenaPoolCnvSvc::::ExcNoDictForClass: Can't find dictionary information for class: int
+AthenaPoolCnvSvc::::ExcUnsupported version: Unsupported persistent version of int found; guid: 336F636C-D414-4261-8286-37429F353F0A

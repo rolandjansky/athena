@@ -176,14 +176,6 @@ T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::objectToAttrListColl(COLL_T
 	ATH_MSG_DEBUG("Chan " << *itChan1);
     }
 
-    // We must check the class def for CondMultChanCollImpl at least
-    // once. To do so, we need to reset the dict check flag once since
-    // it was already after checking ELEM_T
-    static bool first = true;
-    if (first) {
-	this->m_dictionaryOkWrite = false;
-	first                     = false;
-    }
     StatusCode sc = this->objectToPool(impl, implToken);
     if (sc != StatusCode::SUCCESS || !implToken) {
 	ATH_MSG_ERROR("Unable to write out CondMultChanCollImpl");

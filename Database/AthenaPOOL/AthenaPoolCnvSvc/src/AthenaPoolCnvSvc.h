@@ -97,17 +97,13 @@ public:
    /// @param placement [IN] pointer to the placement hint
    /// @param obj [IN] pointer to the Data Object to be written to Pool
    /// @param classDesc [IN] pointer to the Seal class description for the Data Object.
-   const Token* registerForWrite(const pool::Placement* placement,
+   const Token* registerForWrite(const Placement* placement,
 	   const void* obj,
 	   const RootType& classDesc) const;
 
    /// @param obj [OUT] pointer to the Data Object.
    /// @param token [IN] string token of the Data Object for which a Pool Ref is filled.
    void setObjPtr(void*& obj, const Token* token) const;
-
-   /// Utility to test whether the dictionary knows about a given class.
-   /// @param className [IN] string containing the name of the class to be checked.
-   bool testDictionary(const std::string& className) const;
 
    /// @return a boolean for using detailed time and size statistics.
    bool useDetailChronoStat() const;
@@ -158,12 +154,6 @@ public:
    /// Read the next data object
    virtual StatusCode readData() const;
 
-   /// Owns the data object
-   virtual bool ownsData() const;
-
-   /// Release the data object
-   virtual StatusCode releaseData() const;
-
    /// Implementation of IIncidentListener: Handle for EndEvent incidence
    void handle(const Incident& incident);
 
@@ -202,8 +192,9 @@ private: // data
    ServiceHandle<IPoolSvc>       m_poolSvc;
    ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
    ServiceHandle<IClassIDSvc>    m_clidSvc;
-   ToolHandle<IAthenaIPCTool>    m_dataStreamingTool;
-   ServiceHandle<IAthenaSerializeSvc> m_dataSerializeSvc;
+   ServiceHandle<IAthenaSerializeSvc> m_serializeSvc;
+   ToolHandle<IAthenaIPCTool>    m_inputStreamingTool;
+   ToolHandle<IAthenaIPCTool>    m_outputStreamingTool;
 
 private: // properties
    /// UseDetailChronoStat, enable detailed output for time and size statistics for AthenaPOOL:

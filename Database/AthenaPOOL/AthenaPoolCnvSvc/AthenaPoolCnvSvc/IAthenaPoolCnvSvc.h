@@ -20,11 +20,10 @@
 // Forward declarations
 class IOpaqueAddress;
 class IPoolSvc;
+class Placement;
 class Token;
 
-
 namespace pool {
-   class Placement;
    class DbType;
 }
 
@@ -61,17 +60,13 @@ public:
    /// @param placement [IN] pointer to the placement hint
    /// @param obj [IN] pointer to the Data Object to be written to Pool
    /// @param classDesc [IN] pointer to the Seal class description for the Data Object.
-   virtual const Token* registerForWrite(const pool::Placement* placement,
+   virtual const Token* registerForWrite(const Placement* placement,
 	   const void* obj,
 	   const RootType& classDesc) const = 0;
 
    /// @param obj [OUT] pointer to the Data Object.
    /// @param token [IN] string token of the Data Object for which a Pool Ref is filled.
    virtual void setObjPtr(void*& obj, const Token* token) const = 0;
-
-   /// Utility to test whether the dictionary knows about a given class.
-   /// @param className [IN] string containing the name of the class to be checked.
-   virtual bool testDictionary(const std::string& className) const = 0;
 
    /// @return a boolean for using detailed time and size statistics.
    virtual bool useDetailChronoStat() const = 0;

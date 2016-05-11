@@ -1,0 +1,138 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file TestThinningSvc.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jul, 2014
+ * @brief Dummy thinning service, for regression tests.
+ */
+
+
+#include "SGTools/DataProxy.h"
+#include "SGTools/TestStore.h"
+#include "AthenaKernel/IThinningSvc.h"
+#include <map>
+
+
+class TestThinningSvc
+  : virtual public IThinningSvc, public SGTest::TestStore
+{
+public:
+  StatusCode sysInitialize() override
+  { std::cout << "sysInitialize\n"; std::abort(); }
+  StatusCode sysStart() override
+  { std::cout << "sysStart\n"; std::abort(); }
+  StatusCode sysStop() override
+  { std::cout << "sysStop\n"; std::abort(); }
+  StatusCode sysFinalize() override
+  { std::cout << "sysFinalize\n"; std::abort(); }
+  StatusCode sysReinitialize() override
+  { std::cout << "sysReinitialize\n"; std::abort(); }
+  StatusCode sysRestart() override
+  { std::cout << "sysRestart\n"; std::abort(); }
+  StatusCode configure() override
+  { std::cout << "configure\n"; std::abort(); }
+  StatusCode initialize() override
+  { std::cout << "initialize\n"; std::abort(); }
+  StatusCode start() override
+  { std::cout << "start\n"; std::abort(); }
+  StatusCode stop() override
+  { std::cout << "stop\n"; std::abort(); }
+  StatusCode finalize() override
+  { std::cout << "finalize\n"; std::abort(); }
+  StatusCode terminate() override
+  { std::cout << "terminate\n"; std::abort(); }
+  StatusCode reinitialize() override
+  { std::cout << "reinitialize\n"; std::abort(); }
+  StatusCode restart() override
+  { std::cout << "restart\n"; std::abort(); }
+  Gaudi::StateMachine::State FSMState() const override
+  { std::cout << "FSMState\n"; std::abort(); }
+  Gaudi::StateMachine::State targetFSMState() const override
+  { std::cout << "targetFSMState\n"; std::abort(); }
+  void setServiceManager (ISvcManager*) override
+  { std::cout << "setServiceManager\n"; std::abort(); }
+  StatusCode register_slimmer (Athena::ISlimmingHdlr */*handler*/) override
+  { std::cout << "register_slimmer\n"; std::abort(); }
+  virtual Athena::IThinningHdlr* handler( SG::DataProxy* /*proxy*/ ) override
+  { std::cout << "handler\n"; std::abort(); }
+  virtual StatusCode
+  filter_impl( Athena::IThinningHdlr* /*handler*/,
+               SG::DataProxy* /*proxy*/,
+               const Filter_t& /*filter*/,
+               const IThinningSvc::Operator::Type /*op*/ = Operator::And ) override
+  { std::cout << "filter_impl\n"; std::abort(); }
+  StatusCode commit() override
+  { std::cout << "commit\n"; std::abort(); }
+  StatusCode rollback() override
+  { std::cout << "rollback\n"; std::abort(); }
+  virtual
+  sgkey_t stringToKey (const std::string& /*str*/, CLID /*clid*/) override
+  { std::abort(); }
+  virtual
+  const std::string* keyToString (sgkey_t /*key*/) const override
+  { std::abort(); }
+  virtual
+  const std::string* keyToString (sgkey_t /*key*/,
+                                  CLID& /*clid*/) const override
+  { std::abort(); }
+  virtual
+  void registerKey (sgkey_t /*key*/,
+                    const std::string& /*str*/,
+                    CLID /*clid*/) override
+  { std::abort(); }
+
+  virtual
+  bool thinningOccurred() const override
+  {
+    return m_map.size() > 0;
+  }
+
+  virtual
+  bool is_thinned_impl(const SG::DataProxy* p) const override
+  {
+    proxymap_t::const_iterator i = m_map.find (p);
+    if (i != m_map.end())
+      return true;
+    return false;
+  }
+
+  using SGTest::TestStore::proxy;
+  virtual
+  SG::DataProxy* proxy(const void* const pTransient) const override
+  {
+    return SG::CurrentEventStore::store()->proxy (pTransient);
+  }
+
+  virtual
+  std::size_t index_impl( const SG::DataProxy* objProxy, 
+                          std::size_t idx ) const override
+  {
+    proxymap_t::const_iterator i = m_map.find (objProxy);
+    if (i != m_map.end()) {
+      map_t::const_iterator ii = i->second.find (idx);
+      if (ii != i->second.end())
+        return ii->second;
+    }
+    return idx;
+  }
+
+  void remap (const void* obj, size_t from, size_t to)
+  {
+    SG::DataProxy* proxy = SG::CurrentEventStore::store()->proxy (obj);
+    
+    if (!proxy) {
+      std::abort();
+    }
+
+    m_map[proxy][from] = to;
+  }
+
+  typedef std::map<size_t, size_t> map_t;
+
+  typedef std::map<const SG::DataProxy*, map_t> proxymap_t;
+  proxymap_t m_map;
+};

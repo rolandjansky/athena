@@ -1,0 +1,118 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthenaPoolCnvSvc/T_AthenaPoolViewVectorCnv.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jan, 2016
+ * @brief Athena pool converter for a ViewVector class.
+ */
+
+
+/**
+ * @brief Constructor.
+ * @param svcloc The Gaudi service locator.
+ */
+template <class DV>
+T_AthenaPoolViewVectorCnv<DV>::T_AthenaPoolViewVectorCnv (ISvcLocator* svcloc)
+  : Base (svcloc)
+{
+}
+
+
+/**
+ * @brief Standard Gaudi initialize method.
+ */
+template <class DV>
+StatusCode
+T_AthenaPoolViewVectorCnv<DV>::initialize()
+{
+  CHECK( Base::initialize() );
+
+  // Make a list of all the guids that this converter can read.
+  // First, add the entry for pers_t.
+  pool::TypeH typ = pool::DbReflex::forTypeInfo (typeid(pers_t));
+  if (!typ)
+    AthenaPoolCnvSvc::throwExcNoDictForClass (typeid(pers_t));
+  m_guids.push_back (pool::DbReflex::guid (typ));
+
+  // Now look for entries for previous versions.
+  // Look for a version tag in the type name and try replacing it with
+  // previous versions.  Eg, if the name for pers_t contains `_v3',
+  // then we also look for guids for the same name with `_v3' replaced
+  // by `_v2' and `_v1'.
+
+  std::string name = typ.Name();
+  std::string::size_type vpos = 0;
+  while ((vpos = name.find ("_v", vpos)) != std::string::npos) {
+    vpos += 2;
+    std::string::size_type vpos2 = vpos;
+    if (isdigit (name[vpos2])) {
+      ++vpos2;
+      while (vpos2 < name.size() && isdigit (name[vpos2]))
+        ++vpos2;
+      if (vpos2 < name.size() && name[vpos2] == '>') {
+        int vers = atoi (name.substr (vpos, vpos2-vpos).c_str());
+        while (--vers > 0) {
+          std::string name2 = name.substr(0,vpos) + CxxUtils::strformat("%d", vers) + name.substr(vpos2,std::string::npos);
+          pool::TypeH typ2 = pool::DbReflex::forTypeName (name2);
+          if (typ2)
+            m_guids.push_back (pool::DbReflex::guid (typ2));
+        }
+      }
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Convert a transient object to persistent form.
+ * @param trans The transient object to convert.
+ *
+ * Returns a newly-allocated persistent object.
+ */
+template <class DV>
+typename T_AthenaPoolViewVectorCnv<DV>::pers_t*
+T_AthenaPoolViewVectorCnv<DV>::createPersistent( trans_t* trans )
+{
+  // Convert to ElementLinks and apply thinning.
+  pers_t* pers =  new pers_t (SG::dataVectorAsELV (static_cast<const DV&>(*trans)));
+  for (ElementLink<DV>& el : *pers)
+    el.thin();
+  return pers;
+}
+
+
+/**
+ * @brief Read the persistent object and convert it to transient.
+ *
+ * Returns a newly-allocated transient object.
+ * Errors are reported by raising exceptions.
+ */
+template <class DV>
+typename T_AthenaPoolViewVectorCnv<DV>::trans_t*
+T_AthenaPoolViewVectorCnv<DV>::createTransient()
+{
+  // See if we're looking at one of the guids we can handle.
+  // FIXME: For old persistent versions, this works by essentially doing
+  // a reinterpret_cast from the version on the file to the current version.
+  // That works for current ElementLink classes, but it's not very nice.
+  for (const pool::Guid& guid : m_guids) {
+    if( this->compareClassGuid( guid ) ) {
+      std::unique_ptr<pers_t> v (this->template poolReadObject< pers_t >());
+      auto c = CxxUtils::make_unique<ConstDataVector<trans_t> > (*v);
+      // FIXME: To get rid of this @c const_cast, the converter interfaces
+      // need to be changed to allow returning a const pointer
+      // all the way back to StoreGate.
+      return const_cast<trans_t*>(c.release()->asDataVector());
+    }
+  }
+   
+  // Didn't recognize the ID.
+  AthenaPoolCnvSvc::throwExcUnsupportedVersion (typeid(pers_t),
+                                                this->m_i_poolToken->classID());
+  return 0;
+}

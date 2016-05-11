@@ -10,7 +10,7 @@
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  **/
 
-#include "AthenaPoolCnvSvc/T_AthenaPoolCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolCnvBase.h"
 
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/Guid.h"
@@ -31,7 +31,7 @@ template <class TYPE> class CnvFactory;
  *  @brief This templated class provides the converter to translate an object to/from its persistent POOL representation.
  **/
 template <class TRANS, class PERS>
-class T_AthenaPoolCustCnv : public T_AthenaPoolCnv<TRANS> {
+class T_AthenaPoolCustCnv : public T_AthenaPoolCnvBase<TRANS> {
    friend class CnvFactory<T_AthenaPoolCustCnv<TRANS, PERS> >;
 
 protected:
