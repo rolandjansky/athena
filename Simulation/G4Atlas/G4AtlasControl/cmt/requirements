@@ -3,18 +3,14 @@ package G4AtlasControl
 public
 use AtlasPolicy         AtlasPolicy-*
 
-use FadsField           FadsField-*             Simulation/G4Sim/FADS
 use GaudiInterface      GaudiInterface-*        External
 
 private
 use AtlasCLHEP          AtlasCLHEP-*            External
 use Geant4              Geant4-*                External
-use FadsKinematics      FadsKinematics-*        Simulation/G4Sim/FADS
 use FadsPackageLoader   FadsPackageLoader-*     Simulation/G4Sim/FADS
 use FadsUtilities       FadsUtilities-*         Simulation/G4Sim/FADS
 use FadsXMLParser       FadsXMLParser-*         Simulation/G4Sim/FADS
-use G4Field             G4Field-*               Simulation/G4Utilities
-
 use MCTruthBase         MCTruthBase-*           Simulation/G4Sim
 use PathResolver        PathResolver-*          Tools
 end_private

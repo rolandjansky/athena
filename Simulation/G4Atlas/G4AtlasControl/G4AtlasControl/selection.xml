@@ -1,8 +1,5 @@
 <lcgdict>
    <class name="SimControl"/>
-   <class name="FieldMenu"/>
-   <class name="FieldIntegrationMenu"/>
-   <class name="PhysicsMenu"/>
    <class name="MCTruthMenu"/>
    <class name="ParticleDataModifier"/>
    <class name="Control"/>
