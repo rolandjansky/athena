@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigSteering
                           PRIVATE
                           Control/StoreGate
+                          Event/xAOD/xAODEventInfo
                           MagneticField/MagFieldInterfaces
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigConfiguration/TrigConfL1Data
