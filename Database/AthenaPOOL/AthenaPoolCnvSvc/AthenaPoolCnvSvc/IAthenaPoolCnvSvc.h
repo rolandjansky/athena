@@ -12,6 +12,7 @@
 
 #include "AthenaPoolCnvSvc/IAthenaPoolCleanUpSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
+#include "AthenaKernel/IDataShare.h"
 #include "DataModelRoot/RootType.h"
 
 #include <string>
@@ -19,11 +20,10 @@
 // Forward declarations
 class IOpaqueAddress;
 class IPoolSvc;
+class Placement;
 class Token;
 
-
 namespace pool {
-   class Placement;
    class DbType;
 }
 
@@ -33,7 +33,7 @@ static const InterfaceID IID_IAthenaPoolCnvSvc ("IAthenaPoolCnvSvc", 1 , 0);
 /** @class IAthenaPoolCnvSvc
  *  @brief This class provides the interface between Athena and PoolSvc.
  **/
-class IAthenaPoolCnvSvc : virtual public IConversionSvc, public IAthenaPoolCleanUpSvc {
+class IAthenaPoolCnvSvc : virtual public IConversionSvc, public IDataShare, public IAthenaPoolCleanUpSvc {
 public:
    /// Retrieve interface ID
    static const InterfaceID& interfaceID() { return(IID_IAthenaPoolCnvSvc); }
@@ -60,17 +60,13 @@ public:
    /// @param placement [IN] pointer to the placement hint
    /// @param obj [IN] pointer to the Data Object to be written to Pool
    /// @param classDesc [IN] pointer to the Seal class description for the Data Object.
-   virtual const Token* registerForWrite(const pool::Placement* placement,
+   virtual const Token* registerForWrite(const Placement* placement,
 	   const void* obj,
 	   const RootType& classDesc) const = 0;
 
    /// @param obj [OUT] pointer to the Data Object.
    /// @param token [IN] string token of the Data Object for which a Pool Ref is filled.
    virtual void setObjPtr(void*& obj, const Token* token) const = 0;
-
-   /// Utility to test whether the dictionary knows about a given class.
-   /// @param className [IN] string containing the name of the class to be checked.
-   virtual bool testDictionary(const std::string& className) const = 0;
 
    /// @return a boolean for using detailed time and size statistics.
    virtual bool useDetailChronoStat() const = 0;
@@ -101,6 +97,12 @@ public:
    /// @param pAddress [IN] address to be converted.
    /// @param refAddress [OUT] converted string form.
    virtual StatusCode convertAddress(const IOpaqueAddress* pAddress, std::string& refAddress) = 0;
+
+   /// Make this a server.
+   virtual StatusCode makeServer(int num) = 0;
+
+   /// Make this a client.
+   virtual StatusCode makeClient(int num) = 0;
 
    /// Implement registerCleanUp to register a IAthenaPoolCleanUp to be called during cleanUp.
    virtual StatusCode registerCleanUp(IAthenaPoolCleanUp* cnv) = 0;

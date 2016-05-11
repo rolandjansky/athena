@@ -59,6 +59,21 @@ def _configureReadAthenaPool():
     theApp.EvtSel = _n
     del _n
 
+    # For Analysis release use DataHeader satellite and lower heartbeat
+    import os 
+    if "AthAnalysisBase" in os.environ.get('CMTEXTRATAGS',""): 
+        svcMgr.EventSelector.CollectionTree = "POOLContainer/basic"
+        # From Will Buttinger to suppress the event loop heartbeat as it is somewhat I/O hungry for 
+        # no real gain in analysis scenarii 
+        if not hasattr(svcMgr, theApp.EventLoop): 
+            svcMgr += getattr(CfgMgr, theApp.EventLoop)() 
+        evtloop = getattr(svcMgr, theApp.EventLoop) 
+        try: 
+            evtloop.EventPrintoutInterval = 10000 
+        except Exception, err: 
+            msg.info('failed suppressing event loop heartbeat. performances might be sub-par... sorry.') 
+            pass 
+
     # Add in AthenaPoolAddressProviderSvc
     if not hasattr (svcMgr, 'AthenaPoolAddressProviderSvc'):
         svcMgr += CfgMgr.AthenaPoolAddressProviderSvc ("AthenaPoolAddressProviderSvc")

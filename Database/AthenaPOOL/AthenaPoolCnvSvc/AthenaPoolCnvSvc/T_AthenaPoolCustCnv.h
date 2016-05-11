@@ -10,7 +10,7 @@
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  **/
 
-#include "AthenaPoolCnvSvc/T_AthenaPoolCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolCnvBase.h"
 
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/Guid.h"
@@ -31,7 +31,7 @@ template <class TYPE> class CnvFactory;
  *  @brief This templated class provides the converter to translate an object to/from its persistent POOL representation.
  **/
 template <class TRANS, class PERS>
-class T_AthenaPoolCustCnv : public T_AthenaPoolCnv<TRANS> {
+class T_AthenaPoolCustCnv : public T_AthenaPoolCnvBase<TRANS> {
    friend class CnvFactory<T_AthenaPoolCustCnv<TRANS, PERS> >;
 
 protected:
@@ -53,7 +53,7 @@ protected:
    /// Read an object from POOL.
    /// @param pObj [OUT] pointer to the transient object.
    /// @param token [IN] POOL token of the persistent representation.
-   virtual StatusCode PoolToDataObject(DataObject*& pObj, const std::string& token);
+   virtual StatusCode PoolToDataObject(DataObject*& pObj, const Token* token);
 
    /// Write an object into POOL returning its token.
    /// @param pObj  [IN]  pointer to the object to be written.
@@ -66,7 +66,7 @@ protected:
    /// @param token [IN]  POOL token of the persistent representation.
    /// @param pObj  [OUT] pointer to the object read.
    template <class P>
-   StatusCode poolToObject(const std::string& token, P*& pObj);
+   StatusCode poolToObject(const Token*& token, P*& pObj);
 
    virtual StatusCode transToPers(TRANS* obj, PERS*& persObj) = 0;
    virtual StatusCode persToTrans(TRANS*& transObj, PERS* obj) = 0;
@@ -83,8 +83,7 @@ protected:
    virtual void setToken(const std::string& token);
  
    // the POOL class ID (GUID) of the object being read.
-   // Set by PoolToDataObject() (together with m_token)
-   // available in createTransient()
+   // Set by PoolToDataObject() available in createTransient()
    Guid m_classID;
 
 public:

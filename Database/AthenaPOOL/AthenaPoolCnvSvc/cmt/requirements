@@ -4,12 +4,17 @@ author Peter Van Gemmeren <gemmeren@bnl.gov>
 
 use AtlasPolicy           AtlasPolicy-*
 use AtlasPOOL             AtlasPOOL-*           External
+use AtlasROOT             AtlasROOT-*           External 
 use GaudiInterface        GaudiInterface-*      External
+use AtlasBoost            AtlasBoost-*          External
+use CxxUtils              CxxUtils-*            Control
 use AthenaBaseComps       AthenaBaseComps-*     Control
+use AthenaKernel          AthenaKernel-*        Control
 use CLIDSvc               CLIDSvc-*             Control
-use DataModel             DataModel-*           Control
 use DataModelRoot         DataModelRoot-*       Control
 use SGTools               SGTools-*             Control
+use AthContainers         AthContainers-*       Control
+use AthLinks              AthLinks-*            Control
 use PersistentDataModel   PersistentDataModel-* Database
 use AthenaPoolUtilities   AthenaPoolUtilities-* Database/AthenaPOOL
 use PoolSvc               PoolSvc-*             Database/AthenaPOOL
@@ -27,9 +32,26 @@ apply_pattern declare_python_modules files="*.py"
 set POOL_AUTH_PATH "${AthenaPoolCnvSvc_root}/share"
 
 private
-use AthenaKernel          AthenaKernel-*        Control
 use StoreGate             StoreGate-*           Control
 
 private
 apply_tag ROOTSTLDictLibs
 
+
+private 
+
+# Dictionary entries used by the unit tests.
+# Use no_rootmap so that they're not visible to other packages.
+use AtlasReflex  AtlasReflex-*  External  -no_auto_imports
+apply_tag no_rootmap
+apply_pattern lcgdict dict=AthenaPoolCnvSvcTest selectionfile=selection_test.xml\
+  headerfiles="../test/AthenaPoolCnvSvcTestDict.h"
+
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=exceptions
+apply_pattern UnitTest_run unit_test=TPCnvElt
+apply_pattern UnitTest_run unit_test=TPCnvList
+apply_pattern UnitTest_run unit_test=T_AthenaPoolViewVectorCnv
+apply_pattern UnitTest_run unit_test=T_AthenaPoolxAODCnv
+apply_pattern UnitTest_run unit_test=T_AthenaPoolAuxContainerCnv
+apply_pattern UnitTest_run unit_test=T_AthenaPoolTPCnvCnv

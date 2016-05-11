@@ -91,7 +91,7 @@ protected:
    /// Read an object from POOL.
    /// @param pObj [OUT] pointer to the transient object.
    /// @param token [IN] POOL token of the persistent representation.
-   virtual StatusCode PoolToDataObject(DataObject*& pObj, const std::string& token);
+   virtual StatusCode PoolToDataObject(DataObject*& pObj, const Token* token);
 
    /// Callback from the CleanupSvc to delete persistent object in the local list
    virtual StatusCode cleanUp();

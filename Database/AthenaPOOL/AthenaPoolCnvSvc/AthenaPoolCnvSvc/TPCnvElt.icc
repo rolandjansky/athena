@@ -1,0 +1,142 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthenaPoolCnvSvc/TPCnvElt.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jan, 2016
+ * @brief Helper for calling a TP converter from an Athena converter.
+ */
+
+
+namespace AthenaPoolCnvSvc {
+
+
+/**
+ * @brief Constructor.
+ */
+template <class CNV, class TPCNV>
+TPCnvElt<CNV, TPCNV>::TPCnvElt()
+  // Remember the guid for our persistent type.
+  : m_guid (guidFromTypeinfo (typeid (Pers_t)))
+{
+}
+
+
+/**
+ * @brief Read the persistent object and convert it to transient.
+ * @param parent The top-level pool converter object.
+ * @param msg MsgStream for error reporting.
+ *
+ * Returns a newly-allocated object.
+ * If the type of the persistent object on the file does not match the
+ * type that this converter handles, return nullptr.
+ * Other errors are reported by raising exceptions.
+ */
+template <class CNV, class TPCNV>
+typename TPCnvElt<CNV, TPCNV>::Trans_t*
+TPCnvElt<CNV, TPCNV>::createTransient (CNV& parent, MsgStream& msg)
+{
+  if (!parent.compareClassGuid (m_guid))
+    return nullptr;
+
+  std::unique_ptr<Pers_t> old (parent.template poolReadObject<Pers_t>() );
+  return m_cnv.createTransient(old.get(), msg);
+}
+
+
+/**
+ * @brief Read the persistent object and convert it to transient.
+ * @param parent The top-level pool converter object.
+ * @param trans The transient object to modify.
+ * @param msg MsgStream for error reporting.
+ *
+ * Overwrites the provided transient object.
+ * If the type of the persistent object on the file does not match the
+ * type that this converter handles, returns false.
+ * Other errors are reported by raising exceptions.
+ */
+template <class CNV, class TPCNV>
+bool
+TPCnvElt<CNV, TPCNV>::persToTrans (CNV& parent, Trans_t* trans, MsgStream& msg)
+{
+  if (!parent.compareClassGuid (m_guid))
+    return false;
+
+  std::unique_ptr<Pers_t> old ( parent.template poolReadObject<Pers_t>() );
+  m_cnv.persToTrans (old.get(), trans, msg);
+  return true;
+}
+
+
+//*************************************************************************
+
+
+/**
+ * @brief Constructor.
+ *
+ * Specialization for the case of no conversion.
+ */
+template <class CNV, class TRANS>
+TPCnvElt<CNV, T_TPCnvNull<TRANS> >::TPCnvElt()
+  // Remember the guid for our persistent type.
+  : m_guid (guidFromTypeinfo (typeid (Pers_t)))
+{
+}
+
+
+/**
+ * @brief Read the persistent object and convert it to transient.
+ * @param parent The top-level pool converter object.
+ * @param msg MsgStream for error reporting.
+ *
+ * Specialization for the case of no conversion.
+ *
+ * Returns a newly-allocated object.
+ * If the type of the persistent object on the file does not match the
+ * type that this converter handles, return nullptr.
+ * Other errors are reported by raising exceptions.
+ */
+template <class CNV, class TRANS>
+typename TPCnvElt<CNV, T_TPCnvNull<TRANS> >::Trans_t*
+TPCnvElt<CNV, T_TPCnvNull<TRANS> >::createTransient (CNV& parent,
+                                                     MsgStream& /*msg*/)
+{
+  if (!parent.compareClassGuid (m_guid))
+    return nullptr;
+
+  return parent.template poolReadObject<Pers_t>();
+}
+
+
+/**
+ * @brief Read the persistent object and convert it to transient.
+ * @param parent The top-level pool converter object.
+ * @param trans The transient object to modify.
+ * @param msg MsgStream for error reporting.
+ *
+ * Specialization for the case of no conversion.
+ *
+ * Overwrites the provided transient object.
+ * If the type of the persistent object on the file does not match the
+ * type that this converter handles, returns false.
+ * Other errors are reported by raising exceptions.
+ */
+template <class CNV, class TRANS>
+bool
+TPCnvElt<CNV, T_TPCnvNull<TRANS> >::persToTrans (CNV& parent,
+                                                 Trans_t* trans,
+                                                 MsgStream& /*msg*/)
+{
+  if (!parent.compareClassGuid (m_guid))
+    return false;
+
+  std::unique_ptr<Pers_t> old ( parent.template poolReadObject<Pers_t>() );
+  *trans = *old;
+  return true;
+}
+
+
+} // namespace AthenaPoolCnvSvc

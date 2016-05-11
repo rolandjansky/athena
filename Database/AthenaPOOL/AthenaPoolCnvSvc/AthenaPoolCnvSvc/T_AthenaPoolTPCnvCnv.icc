@@ -1,0 +1,65 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthenaPoolCnvSvc/T_AthenaPoolTPCnvCnv.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jan, 2016
+ * @brief Athena pool converter for a class using TP separation.
+ */
+
+
+/**
+ * @brief Constructor.
+ * @param svcLoc Gaudi service locator.
+ */
+template <class TRANS, class TPCNV_CUR, class ... TPCNVS>
+T_AthenaPoolTPCnvCnv<TRANS, TPCNV_CUR, TPCNVS...>::T_AthenaPoolTPCnvCnv( ISvcLocator* svcLoc )
+  : Base( svcLoc )
+{
+  m_guid = AthenaPoolCnvSvc::guidFromTypeinfo (typeid (Pers_t));
+}
+
+
+/**
+ * @brief Convert a transient object to persistent form.
+ * @param trans The transient object to convert.
+ *
+ * Returns a newly-allocated persistent object.
+ */
+template <class TRANS, class TPCNV_CUR, class ... TPCNVS>
+typename T_AthenaPoolTPCnvCnv<TRANS, TPCNV_CUR, TPCNVS...>::Pers_t*
+T_AthenaPoolTPCnvCnv<TRANS, TPCNV_CUR, TPCNVS...>::createPersistent( TRANS* trans )
+{
+  return m_tpcnv_cur.createPersistent (trans, this->msg());
+}
+
+
+/**
+ * @brief Read the persistent object and convert it to transient.
+ *
+ * Returns a newly-allocated transient object.
+ * Errors are reported by raising exceptions.
+ */
+template <class TRANS, class TPCNV_CUR, class ... TPCNVS>
+TRANS*
+T_AthenaPoolTPCnvCnv<TRANS, TPCNV_CUR, TPCNVS...>::createTransient()
+{
+  if ( this->compareClassGuid( m_guid ) ) {
+    // It's the latest version.
+    std::unique_ptr<Pers_t> persObj( this->template poolReadObject<Pers_t>() );
+    return m_tpcnv_cur.createTransient( persObj.get(), this->msg() );
+  }
+
+  // Try a converter.
+  TRANS* c = m_tpcnvs.createTransient (*this, this->msg());
+  if (c)
+    return c;
+
+  // Didn't recognize the GUID.
+  AthenaPoolCnvSvc::throwExcUnsupportedVersion (typeid(TRANS),
+                                                this->m_i_poolToken->classID());
+  return 0;
+}

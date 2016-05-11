@@ -20,14 +20,12 @@
 #include <string>
 #include <map>
 
-namespace pool {
-   class Placement;
-}
 class IOpaqueAddress;
 class DataObject;
 class StatusCode;
 class IAthenaPoolCnvSvc;
 class Guid;
+class Placement;
 class Token;
 
 /// Abstract factory to create the converter
@@ -80,7 +78,8 @@ protected:
    /// Read an object from POOL.
    /// @param pObj [OUT] pointer to the transient object.
    /// @param token [IN] POOL token of the persistent representation.
-   virtual StatusCode PoolToDataObject(DataObject*& pObj, const std::string& token) = 0;
+   //virtual StatusCode PoolToDataObject(DataObject*& pObj, const std::string& token) = 0;
+   virtual StatusCode PoolToDataObject(DataObject*& pObj, const Token* token) = 0;
 
    /// Set POOL placement hint for a given type.
    /// @param tname [IN] type name.
@@ -90,32 +89,27 @@ protected:
    virtual void setPlacement(const std::string& key = "") = 0;
 
    /// @return data object from the converter.
-   virtual DataObject* getDataObject() const;
-   /// Set data object of the converter.
-   /// @param pObj [IN] data object pointer to be used by converter.
-   virtual void setDataObject(DataObject* pObj);
+   virtual const DataObject* getDataObject() const;
 
    bool compareClassGuid(const Guid &guid) const;
 
 protected: // data
    ServiceHandle<IAthenaPoolCnvSvc> m_athenaPoolCnvSvc;
-   pool::Placement*            m_placement;
-   RootType                    m_classDesc;
-   bool                        m_dictionaryOkRead;
-   bool                        m_dictionaryOkWrite;
+   Placement*            m_placement;
+   RootType              m_classDesc;
 
    typedef std::map<std::string, std::string>         StringMap;
    typedef StringMap::const_iterator                  StringMapIt;
-   StringMap                   m_placementHints;
+   StringMap             m_placementHints;
 
    typedef std::map<std::string, RootType>            ClassMap;
    typedef ClassMap::const_iterator                   ClassMapIt;
-   std::string                 m_className;
-   ClassMap                    m_classDescs;
+   std::string           m_className;
+   ClassMap              m_classDescs;
 
-   mutable std::string         m_token;
-   DataObject*                 m_dataObject;
-   mutable const Token*        m_poolToken;
+   DataObject*           m_dataObject;
+   const Token*          m_i_poolToken;
+   const Token*          m_o_poolToken;
 };
 
 #endif

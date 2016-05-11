@@ -1,0 +1,136 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthenaPoolCnvSvc/TPCnvList.h
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jan, 2016
+ * @brief Helper for calling TP converters from an Athena converter.
+ */
+
+
+namespace AthenaPoolCnvSvc {
+
+
+/**
+ * @brief Constructor.
+ * @param parent The parent Athena pool converter.
+ * @param msg MsgStream for error reporting.
+ */
+template <class CNV, class TRANS, class ... TPCNVS>
+inline
+TPCnvList<CNV, TRANS, TPCNVS...>::do_create_transient::do_create_transient (CNV& parent, MsgStream& msg)
+  : m_parent (parent),
+    m_msg (msg)
+{
+}
+
+
+/**
+ * @brief Worker for loop over TP converters calling @c createTransient.
+ * @param p Result of the iteration (pointer to transient object).
+ * @param elt The TPCnvElt instance to call.
+ *
+ * This function gets called once for each TP converter instance.
+ * It gets as arguments the wrapped TP converter and the result @c p
+ * from the previous TP converter call.  If a previous TP converter
+ * has succeeded, then @c p will be non-null, so we just return it
+ * without calling anything.  Otherwise, we call the TP converter
+ * and return the result.
+ */
+template <class CNV, class TRANS, class ... TPCNVS>
+template <class ELT>
+inline
+typename ELT::Trans_t*
+TPCnvList<CNV, TRANS, TPCNVS...>::do_create_transient::operator()
+  (typename ELT::Trans_t* p, ELT& elt)
+{
+  if (p) return p;
+  return elt.createTransient (m_parent, m_msg);
+}
+
+
+/**
+ * @brief Constructor.
+ * @param parent The parent Athena pool converter.
+ * @param msg MsgStream for error reporting.
+ */
+template <class CNV, class TRANS, class ... TPCNVS>
+inline
+TPCnvList<CNV, TRANS, TPCNVS...>::do_pers_to_trans::do_pers_to_trans
+ (CNV& parent, TRANS* trans, MsgStream& msg)
+  : m_parent (parent),
+    m_trans (trans),
+    m_msg (msg)
+{
+}
+
+
+/**
+ * @brief Worker for loop over TP converters calling @c persToTrans.
+ * @param found Result of the iteration (has a converter succeeded?).
+ * @param elt The TPCnvElt instance to call.
+ *
+ * This function gets called once for each TP converter instance.
+ * It gets as arguments the wrapped TP converter and a flag @c found
+ * telling whether any TP converer has succeeded so far.  If one has,
+ * then we just return the flag again without calling anything.
+ * Otherwise, we call the TP converter and return the result.
+ */
+template <class CNV, class TRANS, class ... TPCNVS>
+template <class ELT>
+inline
+bool TPCnvList<CNV, TRANS, TPCNVS...>::do_pers_to_trans::operator()
+  (bool found, ELT& elt)
+{
+  if (found) return true;
+  return elt.persToTrans (m_parent, m_trans, m_msg);
+}
+
+
+/**
+ * @brief Read the persistent object and convert it to transient.
+ * @param parent The top-level pool converter object.
+ * @param msg MsgStream for error reporting.
+ *
+ * Returns a newly-allocated object.
+ * If the type of the persistent object on the file does not match the
+ * the type of any of our TP converters, return nullptr.
+ * Other errors are reported by raising exceptions.
+ */
+template <class CNV, class TRANS, class ... TPCNVS>
+TRANS* TPCnvList<CNV, TRANS, TPCNVS...>::createTransient (CNV& parent,
+                                                          MsgStream& msg)
+{
+  // Try createTransient on each TPCnv; stop when one succeeds.
+  TRANS* p = nullptr;
+  return boost::fusion::accumulate
+    (m_list, p, do_create_transient(parent, msg));
+}
+
+
+/**
+ * @brief Read the persistent object and convert it to transient.
+ * @param parent The top-level pool converter object.
+ * @param trans The transient object to modify.
+ * @param msg MsgStream for error reporting.
+ *
+ * Overwrites the provided transient object.
+ * If the type of the persistent object on the file does not match the
+ * the type of any of our TP converters, return false.
+ * Other errors are reported by raising exceptions.
+ */
+template <class CNV, class TRANS, class ... TPCNVS>
+bool TPCnvList<CNV, TRANS, TPCNVS...>::persToTrans (CNV& parent,
+                                                    TRANS* trans,
+                                                    MsgStream& msg)
+{
+  // Try persToTrans on each TPCnv; stop when one succeeds.
+  return boost::fusion::accumulate
+    (m_list, false, do_pers_to_trans(parent, trans, msg));
+}
+
+
+} // namespace AthenaPoolCnvSvc

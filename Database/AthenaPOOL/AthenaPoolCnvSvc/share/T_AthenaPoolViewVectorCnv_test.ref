@@ -1,0 +1,20 @@
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/test.txt
+JobOptionsSvc        INFO Job options successfully read in from ../share/test.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v999r999)
+                                          running on karma on Wed Jan 20 12:20:45 2016
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+test1
+AthenaPoolConve...  ERROR Failed to convert persistent object to transient: AthenaPoolCnvSvc::::ExcUnsupported version: Unsupported persistent version of std::vector<ElementLink<DataVector<AthenaPoolCnvSvcTest::Y_v2,DataModel_detail::NoBase> >,std::allocator<ElementLink<DataVector<AthenaPoolCnvSvcTest::Y_v2,DataModel_detail::NoBase> > > > found; guid: 79E2478D-C17F-45E9-848D-278240C2FED3
+AthenaPoolConve...  ERROR createObj PoolToDataObject() failed, Token = [DB=00000000-0000-0000-0000-000000000000][CNT=][CLID=79E2478D-C17F-45E9-848D-278240C2FED3][TECH=00000000][OID=FFFFFFFFFFFFFFFF-FFFFFFFFFFFFFFFF]
+AthenaPoolConve...  ERROR createObj failed to get DataObject, Token = [DB=00000000-0000-0000-0000-000000000000][CNT=][CLID=79E2478D-C17F-45E9-848D-278240C2FED3][TECH=00000000][OID=FFFFFFFFFFFFFFFF-FFFFFFFFFFFFFFFF]
+test2

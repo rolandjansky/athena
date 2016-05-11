@@ -1,0 +1,29 @@
+<lcgdict>
+  <class name="AthenaPoolCnvSvcTest::X"
+         id="CAE53A87-64AD-4576-A203-1A4142E1E10F" />
+  <class name="AthenaPoolCnvSvcTest::X_p1"
+         id="6AD63B61-BE75-40FC-B0C6-DD3C7801D871" />
+  <class name="AthenaPoolCnvSvcTest::X_p2"
+         id="0AAC9C99-726D-4CF4-B9F9-00B6674C57DD" />
+  <class name="AthenaPoolCnvSvcTest::Y_v1"/>
+  <class name="AthenaPoolCnvSvcTest::Y_v2"/>
+  <class name="AthenaPoolCnvSvcTest::YCont_v1_pers"
+         id="7E1826B9-3666-42B3-A2E7-C916BD10A5B8" />
+  <class name="AthenaPoolCnvSvcTest::YCont_v2_pers"
+         id="80C19103-FE9B-4227-8E48-8C0DB468F892" />
+  <class name="DataVector<AthenaPoolCnvSvcTest::Y_v1>"
+         id="05309E49-5567-4790-BE56-2E541E0B4B24" />
+  <class name="DataVector<AthenaPoolCnvSvcTest::Y_v2>"
+         id="0CC6B32E-6C95-4B0E-B97A-9B9040A8A9BE" />
+  <class name="AthenaPoolCnvSvcTest::YAuxCont_v1"
+         id="BEE3C14E-149E-4366-9E24-8A32C419A3B4" />
+  <class name="AthenaPoolCnvSvcTest::YAuxCont_v2"
+         id="170BFEE4-F6B2-4AF4-919B-7EB3986656FA" />
+
+  <class name="AthenaPoolCnvSvcTest::XCont"
+         id="6AEA6831-8777-4571-8595-95FFF40B171F" />
+  <class name="AthenaPoolCnvSvcTest::XCont_p1"
+         id="421C967C-CB57-4234-A33F-EBE4928036C2" />
+  <class name="AthenaPoolCnvSvcTest::XCont_p2"
+         id="F151C81D-869A-4585-8086-5F8835AB12E1" />
+</lcgdict>

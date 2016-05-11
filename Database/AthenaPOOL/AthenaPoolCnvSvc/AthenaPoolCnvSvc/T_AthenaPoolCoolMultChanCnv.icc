@@ -176,14 +176,6 @@ T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::objectToAttrListColl(COLL_T
 	ATH_MSG_DEBUG("Chan " << *itChan1);
     }
 
-    // We must check the class def for CondMultChanCollImpl at least
-    // once. To do so, we need to reset the dict check flag once since
-    // it was already after checking ELEM_T
-    static bool first = true;
-    if (first) {
-	this->m_dictionaryOkWrite = false;
-	first                     = false;
-    }
     StatusCode sc = this->objectToPool(impl, implToken);
     if (sc != StatusCode::SUCCESS || !implToken) {
 	ATH_MSG_ERROR("Unable to write out CondMultChanCollImpl");
@@ -310,7 +302,7 @@ T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::condMultChanCollImplToObjec
     // Read in the CondMultChanCollImpl
     CondMultChanCollImpl* impl = 0;
     this->setToken(collImplToken);
-    StatusCode sc = this->poolToObject(collImplToken, impl);
+    StatusCode sc = this->poolToObject(this->m_i_poolToken, impl);
     if (sc != StatusCode::SUCCESS) {
 	ATH_MSG_ERROR("Unable to read in CondMultChanCollImpl");
 	return(StatusCode::FAILURE);
@@ -376,7 +368,7 @@ template <class P>
 inline
 P* T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::poolReadObject() {
    P* persObj = 0;
-   if( this->poolToObject( this->m_poolToken != 0 ? this->m_poolToken->toString() : "", persObj ).isFailure() ) {
+   if( this->poolToObject( this->m_i_poolToken , persObj ).isFailure() ) {
       throw std::runtime_error("POOL read failed");
    }
    return(persObj);
@@ -389,7 +381,7 @@ template <class COLL_T, class ELEM_T, class ELEM_P>
 inline
 ELEM_T* T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::poolReadObject() {
    ELEM_T* persObj = 0;
-   if( this->poolToObject( this->m_poolToken != 0 ? this->m_poolToken->toString() : "", persObj ).isFailure() ) {
+   if( this->poolToObject( this->m_i_poolToken , persObj ).isFailure() ) {
       throw std::runtime_error("POOL read failed");
    }
    return(persObj);

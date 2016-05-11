@@ -27,53 +27,14 @@ T_AthenaPoolCustomCnv<TRANS, PERS>::T_AthenaPoolCustomCnv(ISvcLocator* pSvcLocat
 }
 
 template <class TRANS, class PERS>
-StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::DataObjectToPool(DataObject* /*pObj*/, const std::string& key) {
-   ATH_MSG_VERBOSE("In DataObjectToPool() for key = " << this->getDataObject()->name());
-   bool skipDHE = false;
+StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::DataObjectToPool(DataObject* pObj, const std::string& key) {
+   ATH_MSG_VERBOSE("In DataObjectToPool() for key = " << pObj->name());
    TRANS* obj = 0;
    PERS* persObj = 0;
-   SG::fromStorable(this->getDataObject(), obj);
+   SG::fromStorable(pObj, obj);
    if (obj == 0) {
-      if (this->getDataObject()->clID() == 1) {
-         if (this->getDataObject()->registry() != 0 && this->getDataObject()->registry()->address() != 0) {
-            const std::string className = ClassName<PERS>::name();
-            if (this->m_className != className) {
-               this->m_className = className;
-               auto itClass = this->m_classDescs.find(className);
-               if (itClass == this->m_classDescs.end()) {
-                  this->m_classDesc = RootType( typeid(PERS) );
-                  this->m_classDescs[className] = this->m_classDesc;
-               } else {
-                  // Set to correct class description
-                  this->m_classDesc = (*itClass).second;
-               }
-            }
-            this->setToken(this->getDataObject()->registry()->address()->par()[0]);
-            ATH_MSG_DEBUG("Failed to cast DataObject to transient type, doing pers to pers");
-            if (!this->compareClassGuid(pool::DbReflex::guid(this->m_classDesc))) {
-               ATH_MSG_ERROR("Can not evolve schema in pers to pers copy");
-               return(StatusCode::FAILURE);
-            }
-            AthenaConverterTLPExtension *extCnv = dynamic_cast<AthenaConverterTLPExtension*>(this);
-            if (extCnv != 0) {
-               ATH_MSG_ERROR("Can not retrieve " << this->getDataObject()->name() << " in pers to pers copy");
-               return(StatusCode::FAILURE);
-            }
-            try {
-               persObj = this->poolReadObject<PERS>();
-            } catch (...) {
-               ATH_MSG_ERROR("Failed to read persistent DataType");
-               return(StatusCode::FAILURE);
-            }
-         } else {
-            ATH_MSG_DEBUG("Failed to cast DataObject to transient type, using empty default");
-            skipDHE = true;
-            persObj = new PERS();
-         }
-      } else {
-         ATH_MSG_ERROR("Failed to cast DataObject to transient type");
-         return(StatusCode::FAILURE);
-      }
+      ATH_MSG_ERROR("Failed to cast DataObject to transient type");
+      return(StatusCode::FAILURE);
    } else {
       try {
          persObj = createPersistent(obj);
@@ -93,21 +54,13 @@ StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::DataObjectToPool(DataObject* /*pO
       }
    }
    m_persObjList.push_back(persObj);
-   const Token* token = 0;
-   StatusCode status = this->objectToPool(persObj, token, key);
-   if (skipDHE) {
-      delete token; token = 0;
-      this->setToken("\n");
-   } else {
-      this->m_poolToken = token; token = 0;
-   }
-   return(status);
+   return(this->objectToPool(persObj, this->m_o_poolToken, key));
 }
 
 template <class TRANS, class PERS>
-StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::PoolToDataObject(DataObject*& pObj, const std::string& /*token_str*/) {
-   if (this->m_poolToken != 0) {
-      this->m_classID = this->m_poolToken->classID();
+StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::PoolToDataObject(DataObject*& pObj, const Token* token) {
+   if (token != 0) {
+      this->m_classID = token->classID();
    }
    TRANS* transObj = 0;
    AthenaConverterTLPExtension *extCnv = dynamic_cast<AthenaConverterTLPExtension*>(this);
@@ -128,8 +81,7 @@ StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::PoolToDataObject(DataObject*& pOb
    if (extCnv != 0) {
       extCnv->deletePersistentObjects();
    }
-   this->setDataObject(SG::asStorable(transObj));
-   pObj = this->getDataObject();
+   pObj = SG::asStorable(transObj);
    return(StatusCode::SUCCESS);
 }
 
@@ -139,9 +91,9 @@ template <class TRANS, class PERS>
 template <class P>
 inline P* T_AthenaPoolCustomCnv<TRANS, PERS>::poolReadObject() {
    P* persObj = 0;
-   if (this->poolToObject("", persObj).isFailure()) {
+   if (this->poolToObject(this->m_i_poolToken, persObj).isFailure()) {
       std::string error("POOL read failed. Token = ");
-      throw std::runtime_error(error + (this->m_poolToken != 0 ? this->m_poolToken->toString() : ""));
+      throw std::runtime_error(error + (this->m_i_poolToken != 0 ? this->m_i_poolToken->toString() : ""));
    }
    AthenaConverterTLPExtension *extCnv = dynamic_cast<AthenaConverterTLPExtension*>(this);
    if (extCnv != 0) {

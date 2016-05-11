@@ -10,12 +10,9 @@
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  **/
 
-#include "AthenaPoolCnvSvc/AthenaPoolConverter.h"
-
-#include <string>
-
-class DataObject;
-class StatusCode;
+#include "AthenaPoolCnvSvc/T_AthenaPoolCnvBase.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolViewVectorCnv.h"
+#include "AthContainers/ViewVector.h"
 
 /// Abstract factory to create the converter
 template <class TYPE> class CnvFactory;
@@ -24,33 +21,22 @@ template <class TYPE> class CnvFactory;
  *  @brief This templated class provides the converter to translate an object to/from its persistent POOL representation.
  **/
 template <class T>
-class T_AthenaPoolCnv : public AthenaPoolConverter {
+class T_AthenaPoolCnv : public T_AthenaPoolCnvBase<T> {
    friend class CnvFactory<T_AthenaPoolCnv<T> >;
 
 protected:
-   /// Constructor
-   T_AthenaPoolCnv(ISvcLocator* svcloc);
-
-   /// Gaudi Service Interface method implementations:
-   virtual StatusCode initialize();
-
-   /// Write an object into POOL.
-   /// @param pObj [IN] pointer to the transient object.
-   /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
-   virtual StatusCode DataObjectToPool(DataObject* pObj, const std::string& key);
-
-   /// Read an object from POOL.
-   /// @param pObj [OUT] pointer to the transient object.
-   /// @param token [IN] POOL token of the persistent representation.
-   virtual StatusCode PoolToDataObject(DataObject*& pObj, const std::string& token);
-
-   /// Set POOL placement.
-   virtual void setPlacement(const std::string& key = "");
-
-public:
-   /// @return class ID.
-   static const CLID& classID();
+   using T_AthenaPoolCnvBase<T>::T_AthenaPoolCnvBase;
 };
 
-#include "AthenaPoolCnvSvc/T_AthenaPoolCnv.icc"
+
+template <class DV>
+class T_AthenaPoolCnv<ViewVector<DV> > : public T_AthenaPoolViewVectorCnv<DV>
+{
+   friend class CnvFactory<T_AthenaPoolCnv<ViewVector<DV> > >;
+
+protected:
+   using T_AthenaPoolViewVectorCnv<DV>::T_AthenaPoolViewVectorCnv;
+};
+
+
 #endif

@@ -38,7 +38,9 @@ wasClonedFrom( AthenaConverterTLPExtension *converter )
       m_originalExtendingCnv = dynamic_cast< BaseType* >(converter);
    } else {
       // in case of cloning a clone, get the real original converter
-      m_originalExtendingCnv = dynamic_cast< T_AthenaPoolExtendingCnv< TRANS, PERS >* >(converter)->baseAthenaPoolCnv();
+      auto* extcnv = dynamic_cast< T_AthenaPoolExtendingCnv< TRANS, PERS >* >(converter);
+      if (!extcnv) std::abort();
+      m_originalExtendingCnv = extcnv->baseAthenaPoolCnv();
    }
 //   std::cout << " TPCNVINFO:  Registering clone source " << (void*)m_originalExtendingCnv << std::endl;
 }
