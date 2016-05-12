@@ -7,9 +7,6 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
-#ifndef HAVE_NEW_IOSTREAMS      /*gnu-specific*/
-#define BOOST_NO_STRINGSTREAM 1 /*FIXME should come from boost config */
-#endif
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -30,19 +27,6 @@ namespace {
   void massage (string& s) {
     boost::trim(s); 
     boost::replace_all(s, string(";"), string());
-  }
-  void remove_v1 (string& s) {
-    boost::replace_all(s, string("_v1"), string());
-    boost::replace_all(s, string("_v2"), string());
-    boost::replace_all(s, string("_v3"), string());
-    boost::replace_all(s, string("_v4"), string());
-  }
-  inline
-  bool has_v_ending (const string& s) {
-    return ( ( s.find ("_v1") == ( s.size() - 3 ) ) ||
-             ( s.find ("_v2") == ( s.size() - 3 ) ) ||
-             ( s.find ("_v3") == ( s.size() - 3 ) ) ||
-             ( s.find ("_v4") == ( s.size() - 3 ) ) );
   }
 
 // HACK LIFTED FROM AthenaBaseComps/AthMsgStreamMacros.h to remove dep loop
@@ -374,25 +358,16 @@ ClassIDSvc::uncheckedSetTypePackageForID(const CLID& id,
   //first the id->name map
   string knownName("_____++++");
   if (getTypeNameOfID(id, knownName).isSuccess() && procName != knownName) {
-    // Temporary hack: If the two names only differ in a _vX ending, accept the
-    // name without the version name.
-    if( has_v_ending( procName ) || has_v_ending( knownName ) ) {
-       // Remove the _vX ending from the name:
-       remove_v1( procName );
-       ATH_MSG_DEBUG( "Removing \"version ending\" from name \""
-                      << procName << "\"" );
-    } else {
-       msg() << MSG::FATAL << "uncheckedSetTypePackageForID: " << info <<
-          " can not set type name <" << procName << "> for CLID " <<
-          id << ": Known name for this ID <" << knownName << '>';
-       Athena::PackageInfo existInfo;
-       if (getPackageInfoForID(id, existInfo).isSuccess()) {
-          msg() << MSG::FATAL 
-                << " It was set by " << existInfo;
-       }
-       msg() << MSG::ERROR << endreq;
-       sc = StatusCode::FAILURE;
+    msg() << MSG::FATAL << "uncheckedSetTypePackageForID: " << info <<
+      " can not set type name <" << procName << "> for CLID " <<
+      id << ": Known name for this ID <" << knownName << '>';
+    Athena::PackageInfo existInfo;
+    if (getPackageInfoForID(id, existInfo).isSuccess()) {
+      msg() << MSG::FATAL 
+	    << " It was set by " << existInfo;
     }
+    msg() << MSG::ERROR << endreq;
+    sc = StatusCode::FAILURE;
   } else if (procName == knownName) {
 #ifndef NDEBUG		
     ATH_MSG_VERBOSE("uncheckedSetTypePackageForID: type name <" << procName <<
@@ -407,34 +382,17 @@ ClassIDSvc::uncheckedSetTypePackageForID(const CLID& id,
 
   //now the name->id map
   CLID knownID(0);
-  CLID correctedID( id );
   if (getIDOfTypeName(procName, knownID).isSuccess() && id != knownID) {
-     // Temporary hack: Allow this modification to be able to collect
-     // the xAODHIEvent fix into AtlasProduction:
-     if( procName.find( "xAOD::HIEvent" ) != 0 ) {
-        msg() << MSG::ERROR << "uncheckedSetTypePackageForID: " << info << 
-           " can not set CLID <" << id << "> for type name " <<
-           procName << ": Known CLID for this name <" << knownID << '>' ;
-        Athena::PackageInfo existInfo;
-        if (getPackageInfoForID(knownID, existInfo).isSuccess()) {
-           msg() << MSG::ERROR 
-                 << " It was set by " << existInfo; 
-        }
-        msg() << MSG::ERROR << endreq;
-        sc = StatusCode::FAILURE;
-     } else {
-        // Hard code the ID for the two types that we changed in 20.1.7.X:
-        if( procName == "xAOD::HIEventShapeContainer" ) {
-           correctedID = 1155025655;
-        } else if( procName == "xAOD::HIEventShapeAuxContainer" ) {
-           correctedID = 1170531618;
-        }
-        // Remove the previous declaration if necessary:
-        if( correctedID != knownID ) {
-           m_clidMap.erase( knownID );
-           m_packageMap.erase( knownID );
-        }
-     }
+    msg() << MSG::ERROR << "uncheckedSetTypePackageForID: " << info << 
+      " can not set CLID <" << id << "> for type name " <<
+      procName << ": Known CLID for this name <" << knownID << '>' ;
+    Athena::PackageInfo existInfo;
+    if (getPackageInfoForID(knownID, existInfo).isSuccess()) {
+      msg() << MSG::ERROR 
+	    << " It was set by " << existInfo; 
+    }
+    msg() << MSG::ERROR << endreq;
+    sc = StatusCode::FAILURE;
   } else if (id == knownID) {
 #ifndef NDEBUG		
     ATH_MSG_VERBOSE( "uncheckedSetTypePackageForID: CLID <" << id <<
@@ -463,14 +421,14 @@ ClassIDSvc::uncheckedSetTypePackageForID(const CLID& id,
     const std::string procTiName = typeInfoName.empty() 
       ? procName
       : typeInfoName;
-    m_clidMap[correctedID] = std::make_pair(procName, procTiName);
-    m_nameMap[procName] = correctedID;
+    m_clidMap[id] = std::make_pair(procName, procTiName);
+    m_nameMap[procName] = id;
     // FIXME: should we also check for ti-name<=>clid duplicates ?
-    m_tiNameMap[procTiName] = correctedID;
-    m_packageMap[correctedID] = info;
+    m_tiNameMap[procTiName] = id;
+    m_packageMap[id] = info;
 #ifndef NDEBUG		
     ATH_MSG_VERBOSE("uncheckedSetTypePackageForID: set type name <" <<
-		    procName << "> for CLID " << correctedID);
+		    procName << "> for CLID " << id);
 #endif					
     //  }
   return sc;
