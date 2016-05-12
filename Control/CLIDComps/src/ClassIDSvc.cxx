@@ -7,9 +7,6 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
-#ifndef HAVE_NEW_IOSTREAMS      /*gnu-specific*/
-#define BOOST_NO_STRINGSTREAM 1 /*FIXME should come from boost config */
-#endif
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/trim.hpp>
