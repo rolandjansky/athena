@@ -12,6 +12,7 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"         
 //#include "TrkParameters/MeasuredAtaPlane.h"
 //#include "TrkParameters/MeasuredPerigee.h"
+#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "TrkParameters/TrackParameters.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
@@ -55,6 +56,13 @@ StatusCode PixelMainMon::BookTrackMon(void)
    if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/TrackOnPixelTrack");
    MonGroup trackHistos( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
 
+   std::string modlabel[9];
+   modlabel[0]="ECA"; modlabel[1]="ECC";
+   modlabel[2]="B0";  modlabel[3]="B1";    modlabel[4]="B2"; 
+   modlabel[5]="IBL"; modlabel[6]="IBL2D"; modlabel[7]="IBL3D"; 
+   std::string hname;
+   std::string htitles;
+
    if (m_doOnPixelTrack) {
      sc=trackHistos.regHist(m_track_res_phi   = TH1F_LW::create("m_Pixel_track_res_phi", ("Pixel Residual LocX (pixel tracks)" + m_histTitleExt).c_str(),100,-0.1,0.1));
      sc=trackHistos.regHist(m_track_pull_phi  = TH1F_LW::create("m_Pixel_track_pull_phi", ("m_Pixel_track_pull_phi (pixel tracks)" + m_histTitleExt).c_str(),100,-1.2,1.2));      
@@ -92,13 +100,12 @@ StatusCode PixelMainMon::BookTrackMon(void)
      //sc=trackHistos.regHist(m_track_phi0      = TH1F_LW::create("m_Pixel_track_phi0", ("Reconstructed phi0 of track (pixel tracks)" + m_histTitleExt + "; #phi_{0};").c_str(), 40,-4.,4.));
      //sc=trackHistos.regHist(m_track_theta     = TH1F_LW::create("m_Pixel_track_theta", ("Reconstructed theta of track (pixel tracks)" + m_histTitleExt + "; #theta;").c_str(), 40,-0.,4.));
      //sc=trackHistos.regHist(m_track_eta       = TH1F_LW::create("m_Pixel_track_eta", ("Reconstructed eta of track (pixel tracks)" + m_histTitleExt + "; #eta;").c_str(), 40,-4.,4.));
-     sc=trackHistos.regHist(m_tracks_per_lumi = TH1I_LW::create("tracks_per_lumi", ("Number of tracks per LB (pixel tracks)" + m_histTitleExt + ";lumi block;# tracks").c_str(),2500,-0.5,2499.5));
-     sc=trackHistos.regHist(m_tracksPerEvt_per_lumi = TProfile_LW::create("tracksPerEvt_per_lumi", ("Number of tracks per event per LB (pixel tracks)" + m_histTitleExt + ";lumi block;tracks/event").c_str(),2500,-0.5,2499.5));
-     sc=trackHistos.regHist(m_trackRate_per_lumi    = TH1F_LW::create("trackRate_per_lumi", ("Track rate per LB (pixel tracks)" + m_histTitleExt + ";lumi block;#tracks/sec").c_str(),2500,-0.5,2499.5));
+     //sc=trackHistos.regHist(m_tracks_per_lumi = TH1I_LW::create("tracks_per_lumi", ("Number of tracks per LB (pixel tracks)" + m_histTitleExt + ";lumi block;# tracks").c_str(),2500,-0.5,2499.5));
+     //sc=trackHistos.regHist(m_tracksPerEvt_per_lumi = TProfile_LW::create("tracksPerEvt_per_lumi", ("Number of tracks per event per LB (pixel tracks)" + m_histTitleExt + ";lumi block;tracks/event").c_str(),2500,-0.5,2499.5));
+     //sc=trackHistos.regHist(m_trackRate_per_lumi    = TH1F_LW::create("trackRate_per_lumi", ("Track rate per LB (pixel tracks)" + m_histTitleExt + ";lumi block;#tracks/sec").c_str(),2500,-0.5,2499.5));
      //sc=trackHistos.regHist(m_track_dedx      = TH2F_LW::create("m_Pixel_track_dedx", ("Reconstructed dE/dx of track (pixel tracks)" + m_histTitleExt + "; momentum [MeV]; dE/dx [MeV g cm^{-2}]").c_str(),125,-2500,2500,100,0,10));
      //sc=trackHistos.regHist(m_track_mass_dedx = TH1F_LW::create("m_Pixel_track_mass_dedx", ("Reconstructed mass using dE/dx of track (pixel tracks)" + m_histTitleExt + "; mass [MeV]; ").c_str(),125,0,2500));
-   }
-   else {
+   } else {
      sc=trackHistos.regHist(m_track_res_phi   = TH1F_LW::create("m_Pixel_track_res_phi", ("Pixel Residual LocX" + m_histTitleExt).c_str(),100,-0.1,0.1));
      sc=trackHistos.regHist(m_track_pull_phi  = TH1F_LW::create("m_Pixel_track_pull_phi", ("m_Pixel_track_pull_phi" + m_histTitleExt).c_str(),100,-1.2,1.2));      
      sc=trackHistos.regHist(m_track_res_eta   = TH1F_LW::create("m_Pixel_track_res_eta", ("Pixel Residual LocY" + m_histTitleExt).c_str(),100,-0.3,0.3));
@@ -144,10 +151,10 @@ StatusCode PixelMainMon::BookTrackMon(void)
      //sc=trackHistos.regHist(m_track_phi0      = TH1F_LW::create("m_Pixel_track_phi0", ("Reconstructed phi0 of track" + m_histTitleExt + "; #phi_{0};").c_str(), 40,-4.,4.));
      //sc=trackHistos.regHist(m_track_theta     = TH1F_LW::create("m_Pixel_track_theta", ("Reconstructed theta of track" + m_histTitleExt + "; #theta;").c_str(), 40,-0.,4.));
      //sc=trackHistos.regHist(m_track_eta       = TH1F_LW::create("m_Pixel_track_eta", ("Reconstructed eta of track" + m_histTitleExt + "; #eta;").c_str(), 40,-4.,4.));
-     sc=trackHistos.regHist(m_tracks_per_lumi = TH1I_LW::create("tracks_per_lumi", ("Number of tracks per LB" + m_histTitleExt + ";lumi block;# tracks").c_str(),2500,-0.5,2499.5));
-     sc=trackHistos.regHist(m_tracksPerEvt_per_lumi = TProfile_LW::create("tracksPerEvt_per_lumi", ("Number of tracks per event per LB" + m_histTitleExt + ";lumi block;tracks/event").c_str(),2500,-0.5,2499.5));
-     sc=trackHistos.regHist(m_tracksPerEvtPerMu_per_lumi = TProfile_LW::create("tracksPerEvtPerMu_per_lumi", ("Number of tracks per event per mu per LB (pixel tracks)" + m_histTitleExt + ";lumi block;tracks/event").c_str(),2500,-0.5,2499.5));
-     sc=trackHistos.regHist(m_trackRate_per_lumi    = TH1F_LW::create("trackRate_per_lumi", ("Track rate per LB" + m_histTitleExt + ";lumi block;#tracks/sec").c_str(),2500,-0.5,2499.5));
+     //sc=trackHistos.regHist(m_tracks_per_lumi = TH1I_LW::create("tracks_per_lumi", ("Number of tracks per LB" + m_histTitleExt + ";lumi block;# tracks").c_str(),2500,-0.5,2499.5));
+     //sc=trackHistos.regHist(m_tracksPerEvt_per_lumi = TProfile_LW::create("tracksPerEvt_per_lumi", ("Number of tracks per event per LB" + m_histTitleExt + ";lumi block;tracks/event").c_str(),2500,-0.5,2499.5));
+     //sc=trackHistos.regHist(m_tracksPerEvtPerMu_per_lumi = TProfile_LW::create("tracksPerEvtPerMu_per_lumi", ("Number of tracks per event per mu per LB (pixel tracks)" + m_histTitleExt + ";lumi block;tracks/event").c_str(),2500,-0.5,2499.5));
+     //sc=trackHistos.regHist(m_trackRate_per_lumi    = TH1F_LW::create("trackRate_per_lumi", ("Track rate per LB" + m_histTitleExt + ";lumi block;#tracks/sec").c_str(),2500,-0.5,2499.5));
      //sc=trackHistos.regHist(m_track_dedx      = TH2F_LW::create("m_Pixel_track_dedx", ("Reconstructed dE/dx of track" + m_histTitleExt + "; momentum [MeV]; dE/dx [MeV g cm^{-2}]").c_str(),125,-2500,2500,100,0,10));
      //sc=trackHistos.regHist(m_track_mass_dedx = TH1F_LW::create("m_Pixel_track_mass_dedx", ("Reconstructed mass using dE/dx of track" + m_histTitleExt + "; mass [MeV]; ").c_str(),125,0,2500));
      
@@ -158,6 +165,14 @@ StatusCode PixelMainMon::BookTrackMon(void)
      m_degFactorMap_eta_per_lumi->SetOption("colz");
      //sc=trackHistos.regHist(m_degFactorMap_phi_per_lumi = TProfile2D_LW::create("degFactorMap_phi_per_lumi", ("degradation factor (phi) for IP resolution per lumi" + m_histTitleExt + ";lumi block;track #phi").c_str(),  2500, -0.5, 2499.5, 80, -4.0, 4.0 ));
      //m_degFactorMap_phi_per_lumi->SetOption("colz");
+      for(int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
+         hname = makeHistname(("HitEff_all_"+modlabel[i]), false);
+         htitles = makeHisttitle(("hit efficiency, "+modlabel[i]), ";lumi block;hit efficiency", false);
+         sc = trackHistos.regHist(m_hiteff_incl_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), 2500, -0.5, 2499.5));
+         hname = makeHistname(("HitEff_actv_"+modlabel[i]), false);
+         htitles = makeHisttitle(("hit efficiency for active modules, "+modlabel[i]), ";lumi block;hit efficiency", false);
+         sc = trackHistos.regHist(m_hiteff_actv_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), 2500, -0.5, 2499.5));
+      }
 
    }
 
@@ -181,7 +196,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
    }
 
    int nPixelHits=0;
-   int nTracks=0;
+   //int nTracks=0;
    if(m_doOnTrack || m_doOnPixelTrack)m_RDOIDs.clear();//reset these so you can fill them with the new id's
    if(m_doOnTrack || m_doOnPixelTrack)m_ClusterIDs.clear();
    for (int i=0; i<(int)m_tracks->size(); i++) 
@@ -228,137 +243,146 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	      track = m_holeSearchTool->getTrackWithHoles(*track0);
       }
 
+      bool passQualityCut = false;
+      if( measPerigee->pT()/1000.0 > 5.0 && fabs(measPerigee->eta()) < 2.5) passQualityCut = true;
+
       const DataVector< const Trk::TrackStateOnSurface>* trackStates=track->trackStateOnSurfaces();
       for (DataVector< const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurfaceIterator=trackStates->begin(); trackStateOnSurfaceIterator!=trackStates->end(); trackStateOnSurfaceIterator++)
-	   {
-	      //Change the track state on 1 surface into the cluster it represents
-	      const Trk::MeasurementBase* mesb=(*trackStateOnSurfaceIterator)->measurementOnTrack();
-	      
-	      const InDet::SiClusterOnTrack *clus=0;
-	      Identifier clusID;
-	      Identifier surfaceID;
-	  
-	      const Trk::RIO_OnTrack* hit = mesb ? dynamic_cast<const Trk::RIO_OnTrack*>(mesb) : 0;
-	      if (mesb && !hit) continue;  // skip pseudomeasurements etc.                                         
-	      if (mesb && mesb->associatedSurface().associatedDetectorElement()) {
-	        surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
-	        
-	      } else { // holes, perigee                                                                              
-	        if (not (*trackStateOnSurfaceIterator)->trackParameters() ) {
-	          msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endreq;
-	          continue;
-	        }
-	        surfaceID = (*trackStateOnSurfaceIterator)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();//check ptr
-	      }
-	      
-	      if((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){
-	        clus = dynamic_cast< const InDet::SiClusterOnTrack*>(mesb);
-	        if(clus){
-	          clusID = clus->identify();
-	        }
-	      }
-	      
-	      if((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)){
-	        clus = dynamic_cast< const InDet::SiClusterOnTrack*>((*trackStateOnSurfaceIterator)->measurementOnTrack());
-	        if(clus){
-	          clusID = clus->identify();
-	        }
-	      }
-	  
-	      if((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)){
-	        clus = dynamic_cast< const InDet::SiClusterOnTrack*>((*trackStateOnSurfaceIterator)->measurementOnTrack());
-	        if(clus){
-	          clusID = clus->identify();
-	        }
-	      }
-
-	      if(m_idHelper->is_pixel(surfaceID) && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){
-	        if(m_tsos_hitmap)m_tsos_hitmap->Fill(surfaceID,m_pixelid,m_doIBL,false);
-	        if(m_tsos_hiteff_vs_lumi){
-	          m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),1.,surfaceID,m_pixelid,m_doIBL);
-	        }
-	      }
-
-	      if(m_idHelper->is_pixel(surfaceID) && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)){
-	        if(m_tsos_holemap)m_tsos_holemap->Fill(surfaceID,m_pixelid,m_doIBL,false);
-	        if(m_tsos_hiteff_vs_lumi){
-	          m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid,m_doIBL);
-	        } 
-	      }
-	        
-	      if(m_idHelper->is_pixel(surfaceID) && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)){
-	        if(m_tsos_outliermap)m_tsos_outliermap->Fill(surfaceID,m_pixelid,m_doIBL,false);
-	        if(m_tsos_hiteff_vs_lumi){
-	          m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid,m_doIBL);
-	        }
-	      }
-	
-	      if(!(*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){continue;}
-	    
-	      if(!clus)continue;
-
-	      const InDet::SiCluster *RawDataClus = dynamic_cast< const InDet::SiCluster*>(clus->prepRawData());
-	      if(!RawDataClus)continue;
+      {
+         //Change the track state on 1 surface into the cluster it represents
+	 const Trk::MeasurementBase* mesb=(*trackStateOnSurfaceIterator)->measurementOnTrack();
+	 const InDet::SiClusterOnTrack *clus=0;
+	 Identifier clusID;
+	 Identifier surfaceID;
 	 
-	      //if the cluster is a pixel cluster (not SCT) get the pixel information
-	      if (RawDataClus->detectorElement()->isPixel())
-	      {
-            int pixlayer = GetPixLayerID(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
-            if( pixlayer == PixLayer::kECA || pixlayer == PixLayer::kECC ) isEndcaps = true;
+	 const Trk::RIO_OnTrack* hit = mesb ? dynamic_cast<const Trk::RIO_OnTrack*>(mesb) : 0;
+	 if (mesb && !hit) continue;  // skip pseudomeasurements etc.                                         
+	 if (mesb && mesb->associatedSurface().associatedDetectorElement()) {
+	    surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
+	 } else { // holes, perigee                                                                              
+	    if (not (*trackStateOnSurfaceIterator)->trackParameters() ) {
+	       msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endreq;
+	       continue;
+	    }
+	    surfaceID = (*trackStateOnSurfaceIterator)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();//check ptr
+	 }
 
-	         const InDet::PixelCluster* pixelCluster=dynamic_cast<const InDet::PixelCluster*>(RawDataClus);
-	         if(!pixelCluster){
-	           //	      std::cout<<"ERROR! Dynamic-cast to pixel cluster failed!"<<std::endl;
-	         } else {
+	 int pixlayer = GetPixLayerID(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
+	 if( pixlayer == 99) continue;
+         if( pixlayer == PixLayer::kECA || pixlayer == PixLayer::kECC ) isEndcaps = true;
+         IdentifierHash id_hash; 
+	 bool active = false;
+	 if( m_idHelper->is_pixel(surfaceID)){
+            id_hash = m_pixelid->wafer_hash(surfaceID); 
+            active = m_pixelCondSummarySvc->isActive(id_hash);
+	 }
+	 if((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){
+	    clus = dynamic_cast< const InDet::SiClusterOnTrack*>(mesb);
+	    if(clus){
+	       clusID = clus->identify();
+	    }
+	 }
+	 
+	 if((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)){
+	   clus = dynamic_cast< const InDet::SiClusterOnTrack*>((*trackStateOnSurfaceIterator)->measurementOnTrack());
+	   if(clus){
+	     clusID = clus->identify();
+	   }
+	 }
+	  
+	 if((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)){
+	   clus = dynamic_cast< const InDet::SiClusterOnTrack*>((*trackStateOnSurfaceIterator)->measurementOnTrack());
+	   if(clus){
+	     clusID = clus->identify();
+	   }
+	 }
+
+
+         /// Calculate the hit efficiency
+	 if(m_idHelper->is_pixel(surfaceID) && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){
+	   if( m_tsos_hitmap ) m_tsos_hitmap->Fill(surfaceID,m_pixelid,m_doIBL,false);
+	   if( m_tsos_hiteff_vs_lumi ) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),1.,surfaceID,m_pixelid,m_doIBL);
+	   if( m_hiteff_incl_mod[pixlayer] && passQualityCut ) m_hiteff_incl_mod[pixlayer]->Fill( m_manager->lumiBlockNumber(), 1.0 );
+	   if( m_hiteff_actv_mod[pixlayer] && passQualityCut && active) m_hiteff_actv_mod[pixlayer]->Fill( m_manager->lumiBlockNumber(), 1.0 );
+	 }
+
+	 if(m_idHelper->is_pixel(surfaceID) && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)){
+	   if( m_tsos_holemap ) m_tsos_holemap->Fill(surfaceID,m_pixelid,m_doIBL,false);
+	   if( m_tsos_hiteff_vs_lumi ) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid,m_doIBL);
+	   if( m_hiteff_incl_mod[pixlayer] && passQualityCut ) m_hiteff_incl_mod[pixlayer]->Fill( m_manager->lumiBlockNumber(), 0.0 );
+	   if( m_hiteff_actv_mod[pixlayer] && passQualityCut && active) m_hiteff_actv_mod[pixlayer]->Fill( m_manager->lumiBlockNumber(), 0.0 );
+	 }
+	   
+	 if(m_idHelper->is_pixel(surfaceID) && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)){
+            if(m_tsos_outliermap)m_tsos_outliermap->Fill(surfaceID,m_pixelid,m_doIBL,false);
+            if(m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid,m_doIBL);
+	    if( m_hiteff_incl_mod[pixlayer] && passQualityCut ) m_hiteff_incl_mod[pixlayer]->Fill( m_manager->lumiBlockNumber(), 0.0 );
+	    if( m_hiteff_actv_mod[pixlayer] && passQualityCut && active) m_hiteff_actv_mod[pixlayer]->Fill( m_manager->lumiBlockNumber(), 0.0 );
+	 }
+	
+         /// Require hits on layers
+	 if(!(*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){continue;}
+         if(!clus)continue;
+
+         const InDet::SiCluster *RawDataClus = dynamic_cast< const InDet::SiCluster*>(clus->prepRawData());
+         if(!RawDataClus)continue;
+	 
+         //if the cluster is a pixel cluster (not SCT) get the pixel information
+         if (RawDataClus->detectorElement()->isPixel()){
+
+            const InDet::PixelCluster* pixelCluster=dynamic_cast<const InDet::PixelCluster*>(RawDataClus);
+            if(!pixelCluster){
+               //std::cout<<"ERROR! Dynamic-cast to pixel cluster failed!"<<std::endl;
+            } else {
                float size = pixelCluster->rdoList().size();
-	            float tot = pixelCluster->totalToT();
-	            //m_track_clusToT->Fill(pixelCluster->totalToT());
-	            if(size==1 && tot<8) { nbadclus++; }
-	            else{ ngoodclus++; }
-	      	    
-	            if(m_doModules && !m_doOnline){
-		            if(measPerigee){
-		              float pt = measPerigee->pT()/1000.0;
-		              if(m_clustot_vs_pt) m_clustot_vs_pt->Fill(pt,tot);
-		              if(pt<10){
-		                if(m_clustot_lowpt) m_clustot_lowpt->Fill(tot);
-		                if(size==1){ if(m_1hitclustot_lowpt) m_1hitclustot_lowpt->Fill(tot);}
-		                if(size==2){ if(m_2hitclustot_lowpt) m_2hitclustot_lowpt->Fill(tot);}
-		              }else{
-		                if(m_clustot_highpt) m_clustot_highpt->Fill(tot);
-		                if(size==1){ if(m_1hitclustot_highpt) m_1hitclustot_highpt->Fill(tot);}
-		                if(size==2){ if(m_2hitclustot_highpt) m_2hitclustot_highpt->Fill(tot);}
-		              }
-		            }
-	            }
+               float tot = pixelCluster->totalToT();
+               //m_track_clusToT->Fill(pixelCluster->totalToT());
+               if(size==1 && tot<8) { nbadclus++; }
+               else{ ngoodclus++; }
+      	    
+               if(m_doModules && !m_doOnline){
+	          if(measPerigee){
+	             float pt = measPerigee->pT()/1000.0;
+	             if(m_clustot_vs_pt) m_clustot_vs_pt->Fill(pt,tot);
+	             if(pt<10){
+	                if(m_clustot_lowpt) m_clustot_lowpt->Fill(tot);
+	                if(size==1){ if(m_1hitclustot_lowpt) m_1hitclustot_lowpt->Fill(tot);}
+	                if(size==2){ if(m_2hitclustot_lowpt) m_2hitclustot_lowpt->Fill(tot);}
+	             }else{
+	                if(m_clustot_highpt) m_clustot_highpt->Fill(tot);
+	                if(size==1){ if(m_1hitclustot_highpt) m_1hitclustot_highpt->Fill(tot);}
+	                if(size==2){ if(m_2hitclustot_highpt) m_2hitclustot_highpt->Fill(tot);}
+	             }
+	          }
+               }
                // categorize tracks for IP resolution degradation
                if(pixlayer >= PixLayer::kECC){
                   unsigned int tmplayer = 0x1<<pixlayer;
                   if( hitslayer != tmplayer ) hitslayer += 0x1<<pixlayer;
                }
 
-	         }
+	    }
 
-	         nPixelHits++;//add another pixel hit 
-	         for(unsigned int loopSize=0;loopSize < RawDataClus->rdoList().size(); loopSize++) {
-		         if(m_doOnTrack || m_doOnPixelTrack)m_RDOIDs.push_back(RawDataClus->rdoList().at(loopSize));
-	         }
+	    nPixelHits++;//add another pixel hit 
+	    for(unsigned int loopSize=0;loopSize < RawDataClus->rdoList().size(); loopSize++) {
+	       if(m_doOnTrack || m_doOnPixelTrack)m_RDOIDs.push_back(RawDataClus->rdoList().at(loopSize));
+	    }
 	         
             if(m_doOnTrack || m_doOnPixelTrack)m_ClusterIDs.push_back( clus->identify());
 	    
-	         // Get track parameters for current surface (with AtaPlane)
+	    // Get track parameters for current surface (with AtaPlane)
             trkParameters = (*trackStateOnSurfaceIterator)->trackParameters();
             const Trk::AtaPlane *trackAtPlane = dynamic_cast<const Trk::AtaPlane*>(trkParameters);
             if (trackAtPlane)
             {
-	            const Amg::Vector2D localpos = trackAtPlane->localPosition();
+               const Amg::Vector2D localpos = trackAtPlane->localPosition();
 
                // Get local error matrix for hit and track and calc pull
-	            const AmgSymMatrix(5) trackErrMat = (*trackAtPlane->covariance());
-	            const Amg::MatrixX clusErrMat = clus->localCovariance();
+               const AmgSymMatrix(5) trackErrMat = (*trackAtPlane->covariance());
+               const Amg::MatrixX clusErrMat = clus->localCovariance();
 
                //pulls and residuals Phi
-	            double error_sum = sqrt(pow(Amg::error(trackErrMat,Trk::locX),2) + pow(Amg::error(clusErrMat,Trk::locX), 2));
+               double error_sum = sqrt(pow(Amg::error(trackErrMat,Trk::locX),2) + pow(Amg::error(clusErrMat,Trk::locX), 2));
                double res = clus->localParameters()[Trk::locX]-localpos[0];
                if(m_track_res_phi) m_track_res_phi->Fill(res);
                double pull = 0;
@@ -366,7 +390,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
                if(m_track_pull_phi) m_track_pull_phi->Fill(pull);
 
                //pulls and residuals Eta
-	            error_sum = sqrt(pow(Amg::error(trackErrMat,Trk::locY),2) + pow(Amg::error(clusErrMat,Trk::locY), 2));
+               error_sum = sqrt(pow(Amg::error(trackErrMat,Trk::locY),2) + pow(Amg::error(clusErrMat,Trk::locY), 2));
                res = clus->localParameters()[Trk::locY]-localpos[1];
                if(m_track_res_eta) m_track_res_eta->Fill(res);
                if(error_sum != 0) pull = (res)/error_sum;
@@ -431,9 +455,10 @@ StatusCode PixelMainMon::FillTrackMon(void)
       if( m_doDegFactorMap ){
          if (measPerigee){
 
-            float eta = measPerigee->eta();
-            //float phi = measPerigee->parameters()[Trk::phi0];
-            float phi = 1.0; ///TEMPORALLY !!!!
+            double eta = measPerigee->eta();
+            double phi = measPerigee->parameters()[Trk::phi0];
+            //float phi = 1.0; ///TEMPORALLY !!!!
+            double pt = measPerigee->pT();
 
             //
             if(isEndcaps){
@@ -467,20 +492,22 @@ StatusCode PixelMainMon::FillTrackMon(void)
                //std::cout << hitslayer << " " << tests << " " << degradationFactor << std::endl;
             }
 
-            if(m_degFactorMap) m_degFactorMap->Fill( eta, phi, degradationFactor);
-            if(m_degFactorMap_per_lumi) m_degFactorMap_per_lumi->Fill(m_manager->lumiBlockNumber(), degradationFactor);
-            if(m_degFactorMap_eta_per_lumi) m_degFactorMap_eta_per_lumi->Fill(m_manager->lumiBlockNumber(), eta, degradationFactor);
-            //if(m_degFactorMap_phi_per_lumi) m_degFactorMap_phi_per_lumi->Fill(m_manager->lumiBlockNumber(), measPerigee->parameters()[Trk::phi0], degradationFactor);
+            if( fabs(eta) < 2.5 && pt > 400.0 ){ // requirement of tracks
+               if(m_degFactorMap) m_degFactorMap->Fill( eta, phi, degradationFactor);
+               if(m_degFactorMap_per_lumi) m_degFactorMap_per_lumi->Fill(m_manager->lumiBlockNumber(), degradationFactor);
+               if(m_degFactorMap_eta_per_lumi) m_degFactorMap_eta_per_lumi->Fill(m_manager->lumiBlockNumber(), eta, degradationFactor);
+               //if(m_degFactorMap_phi_per_lumi) m_degFactorMap_phi_per_lumi->Fill(m_manager->lumiBlockNumber(), measPerigee->parameters()[Trk::phi0], degradationFactor);
+            }
          }
       }
 
       if(m_doHoleSearch && !m_doOnline && nholes>0){delete (track);}
    } // end of track loop
 
-   if(m_tracksPerEvt_per_lumi) m_tracksPerEvt_per_lumi->Fill(m_manager->lumiBlockNumber(), nTracks);
-   if(m_tracksPerEvtPerMu_per_lumi && m_lumiTool->lbAverageInteractionsPerCrossing() > 0 ){
-      m_tracksPerEvtPerMu_per_lumi->Fill(m_manager->lumiBlockNumber(),nTracks/m_lumiTool->lbAverageInteractionsPerCrossing());
-   }
+   //if(m_tracksPerEvt_per_lumi) m_tracksPerEvt_per_lumi->Fill(m_manager->lumiBlockNumber(), nTracks);
+   //if(m_tracksPerEvtPerMu_per_lumi && m_lumiTool->lbAverageInteractionsPerCrossing() > 0 ){
+   //   m_tracksPerEvtPerMu_per_lumi->Fill(m_manager->lumiBlockNumber(),nTracks/m_lumiTool->lbAverageInteractionsPerCrossing());
+   //}
    if(m_doOnTrack || m_doOnPixelTrack)sort (m_RDOIDs.begin(), m_RDOIDs.end());
    if(m_doOnTrack || m_doOnPixelTrack)sort (m_ClusterIDs.begin(), m_ClusterIDs.end());
 
@@ -496,11 +523,11 @@ StatusCode PixelMainMon::ProcTrackMon(void)
     return StatusCode::SUCCESS; //if LB length is zero, the rest is pointless and would divide by 0
   }
  
-  if(m_trackRate_per_lumi) {
-    double ntrkLB = m_tracks_per_lumi->GetBinContent(m_manager->lumiBlockNumber()+1); //value LB number corresponds to bin nbr (m_lumiBlockNum+1)
-    double trackRateLB = (double) ntrkLB/lengthLB;
-    m_trackRate_per_lumi->Fill(m_manager->lumiBlockNumber(),trackRateLB);
-  }
+  //if(m_trackRate_per_lumi) {
+  //  if(m_tracks_per_lumi) double ntrkLB = m_tracks_per_lumi->GetBinContent(m_manager->lumiBlockNumber()+1); //value LB number corresponds to bin nbr (m_lumiBlockNum+1)
+  //  double trackRateLB = (double) ntrkLB/lengthLB;
+  //  m_trackRate_per_lumi->Fill(m_manager->lumiBlockNumber(),trackRateLB);
+  //}
   return StatusCode::SUCCESS;
   
 }

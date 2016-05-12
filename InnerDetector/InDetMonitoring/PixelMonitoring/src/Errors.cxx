@@ -367,6 +367,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
       bool isIBL=false;
       //bool isError[16] = {false};
       bool hasError[ErrorCategory::COUNT] = {false};
+      bool hasErrorMODROD[ErrorCategoryMODROD::COUNT] = {false};
 
       if (m_ErrorSvc->isActive(id_hash) && m_pixelid->barrel_ec(WaferID)==0 && m_pixelid->layer_disk(WaferID)==0 && m_doIBL){isIBL=true;}
       
@@ -444,8 +445,11 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
 	            }
 	       
 	            /// Count the each error
-               nErrorTypes_mod[pixlayer][ErrorType-1]++;
-               if(pixlayeribl2d3d != 0) nErrorTypes_mod[pixlayeribl2d3d][ErrorType-1]++;
+               if( !hasErrorMODROD[ErrorType-1] ){
+                  nErrorTypes_mod[pixlayer][ErrorType-1]++;
+                  if(pixlayeribl2d3d != 0) nErrorTypes_mod[pixlayeribl2d3d][ErrorType-1]++;
+                  hasErrorMODROD[ErrorType-1] = true;
+               }
                if( !hasError[kErrorCategory] ){
                   if(m_ErrorCategoryMap[kErrorCategory] && !m_doOnline) m_ErrorCategoryMap[kErrorCategory]->Fill(WaferID,m_pixelid,m_doIBL, false);
                   nErrorsCategory_permod[pixlayer][kErrorCategory]++;
