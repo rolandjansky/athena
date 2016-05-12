@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataLink.h 670434 2015-05-28 03:53:40Z ssnyder $
+// $Id: DataLink.h 714258 2015-12-12 04:18:16Z ssnyder $
 /**
  * @file DataLink.h
  * @author scott snyder <snyder@bnl.gov>
@@ -20,7 +20,7 @@
 #include "AthLinks/DataLinkBase.h"
 #include "SGTools/ClassID_traits.h"
 #include "AthenaKernel/DefaultKey.h"
-class IProxyDictWithPool;
+class IProxyDict;
 
 
 /**
@@ -129,7 +129,7 @@ public:
    * @param data The object to which to link.
    * @param sg Associated store; if 0, use the global default.
    */
-  DataLink(const_reference data, IProxyDictWithPool* sg=0);
+  DataLink(const_reference data, IProxyDict* sg=0);
 
 
   /**
@@ -137,7 +137,7 @@ public:
    * @param data The object to which to link.
    * @param sg Associated store; if 0, use the global default.
    */
-  DataLink(const_pointer pdata, IProxyDictWithPool* sg=0);
+  DataLink(const_pointer pdata, IProxyDict* sg=0);
 
 
   /**
@@ -145,7 +145,7 @@ public:
    * @param dataID Key of the object.
    * @param sg Associated store; if 0, use the global default.
    */
-  DataLink(const ID_type& dataID, IProxyDictWithPool* sg=0);
+  DataLink(const ID_type& dataID, IProxyDict* sg=0);
 
 
   /**
@@ -155,7 +155,7 @@ public:
    *
    * May throw @c ExcCLIDMismatch.
    */
-  DataLink(sgkey_t key, IProxyDictWithPool* sg=0);
+  DataLink(sgkey_t key, IProxyDict* sg=0);
 
 
   /**
@@ -182,7 +182,7 @@ public:
    * set to.  If the link has no current store, then we take the global
    * default.
    */
-  void toStorableObject(const_reference data, IProxyDictWithPool* sg = 0);
+  void toStorableObject(const_reference data, IProxyDict* sg = 0);
 
 
   /**
@@ -194,7 +194,7 @@ public:
    * set to.  If the link has no current store, then we take the global
    * default.
    */
-  void toIdentifiedObject(const ID_type& dataID, IProxyDictWithPool* sg = 0);
+  void toIdentifiedObject(const ID_type& dataID, IProxyDict* sg = 0);
 
 
   /**
@@ -208,7 +208,7 @@ public:
    *
    * May throw @c ExcCLIDMismatch.
    */
-  void toIdentifiedObject(sgkey_t key, IProxyDictWithPool* sg = 0);
+  void toIdentifiedObject(sgkey_t key, IProxyDict* sg = 0);
 
 
   /**
@@ -225,7 +225,7 @@ public:
    * one of them.  (An attempt to dereference an ambiguous default link
    * will give an error.)
    */
-  void toDefaultObject (IProxyDictWithPool* sg = 0);
+  void toDefaultObject (IProxyDict* sg = 0);
 
 
   //@}
@@ -292,8 +292,8 @@ public:
   //   sgkey_t key() const;
   //   void clear();
   //   SG::DataProxy* proxy (bool nothrow = false) const;
-  //   IProxyDictWithPool* source() const;
-  //   bool toTransient (IProxyDictWithPool* sg = 0);
+  //   IProxyDict* source() const;
+  //   bool toTransient (IProxyDict* sg = 0);
   //   bool toPersistent();
   //   bool toPersistentNoRemap();
   //   bool operator== (const DataLinkBase& other) const;

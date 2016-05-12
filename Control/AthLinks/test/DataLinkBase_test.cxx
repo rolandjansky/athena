@@ -245,13 +245,6 @@ void test2()
 }
 
 
-IProxyDictWithPool* storePtr2 = &store;
-IProxyDictWithPool** getTestDataSourcePointer2 (const std::string&)
-{
-  return &storePtr2;
-}
-
-
 // alt store
 void test3()
 {

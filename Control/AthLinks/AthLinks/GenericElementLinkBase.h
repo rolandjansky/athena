@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: GenericElementLinkBase.h 692746 2015-09-02 14:01:39Z ssnyder $
+// $Id: GenericElementLinkBase.h 714258 2015-12-12 04:18:16Z ssnyder $
 /**
  * @file AthLinks/GenericElementLinkBase.h
  * @author scott snyder <snyder@bnl.gov>
@@ -139,7 +139,7 @@ public:
   /**
    * @brief Return the data source for this reference.
    */
-  IProxyDictWithPool* source() const;
+  IProxyDict* source() const;
 
 
   /**
@@ -170,7 +170,7 @@ public:
    *
    * If @c sg is 0, then we use the global default store.
    */
-  bool toTransient (IProxyDictWithPool* sg = 0);
+  bool toTransient (IProxyDict* sg = 0);
 
 
   /**
@@ -207,7 +207,7 @@ protected:
   GenericElementLinkBase (const ID_type& dataID,
                           CLID link_clid,
                           const index_type& elemID,
-                          IProxyDictWithPool* sg);
+                          IProxyDict* sg);
 
 
   /**
@@ -222,7 +222,7 @@ protected:
   GenericElementLinkBase (sgkey_t key,
                           CLID link_clid,
                           const index_type& elemID,
-                          IProxyDictWithPool* sg);
+                          IProxyDict* sg);
 
 
   /**
@@ -241,7 +241,7 @@ protected:
                           CLID link_clid,
                           const index_type& elemID,
                           const ElementType& elt,
-                          IProxyDictWithPool* sg);
+                          IProxyDict* sg);
 
 
   /**
@@ -260,7 +260,7 @@ protected:
                           CLID link_clid,
                           const index_type& elemID,
                           const ElementType& elt,
-                          IProxyDictWithPool* sg);
+                          IProxyDict* sg);
 
 
   /**
@@ -275,7 +275,7 @@ protected:
   GenericElementLinkBase (const_pointer_t obj,
                           CLID link_clid,
                           const index_type& elemID,
-                          IProxyDictWithPool* sg);
+                          IProxyDict* sg);
 
 
   /**
@@ -326,7 +326,7 @@ protected:
   bool setStorableObject (const_pointer_t data,
                           CLID link_clid,
                           bool replace,
-                          IProxyDictWithPool* sg);
+                          IProxyDict* sg);
 
 
   /**
@@ -347,7 +347,7 @@ protected:
   bool toIndexedElement (const_pointer_t obj,
                          CLID link_clid,
                          const index_type& elemID,
-                         IProxyDictWithPool* sg);
+                         IProxyDict* sg);
 
 
   /**
@@ -364,7 +364,7 @@ protected:
   void resetWithKeyAndIndex (const ID_type& dataID,
                              CLID link_clid,
                              const index_type& elemID, 
-                             IProxyDictWithPool* sg);
+                             IProxyDict* sg);
 
 
   /**
@@ -381,7 +381,7 @@ protected:
   void resetWithKeyAndIndex (sgkey_t key,
                              CLID link_clid,
                              const index_type& elemID, 
-                             IProxyDictWithPool* sg);
+                             IProxyDict* sg);
 
 
   /**
@@ -456,7 +456,7 @@ private:
 ENTER_ROOT_SELECTION_NS
 namespace SG {
 template <class INDEXING_POLICY>
-struct GenericElementLinkBase {
+struct GenericElementLinkBase : SelectNoInstance {
   typedef GenericElementLinkBase<INDEXING_POLICY> self;
   ROOT_SELECTION_NS::TRANSIENT m_proxy;
   ROOT_SELECTION_NS::TRANSIENT m_cacheValid;

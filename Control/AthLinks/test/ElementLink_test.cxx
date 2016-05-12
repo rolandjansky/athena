@@ -757,6 +757,22 @@ void test6()
   assert (!(el1 > el2));
   assert (el1 != el2);
   assert (el1 == el1);
+
+  ElementLink<FooCont> el3;
+  assert (!(el3 < el3));
+  assert (el3 < el1);
+  assert (!(el1 < el3));
+
+  Foo foo;
+  ElementLink<FooCont> el4;
+  el4.setElement(&foo);
+  assert (el3 < el4);
+  assert (!(el4 < el3));
+
+  bool res = false;
+  EXPECT_EXCEPTION (SG::ExcIncomparableEL, res = el4 < el1);
+  EXPECT_EXCEPTION (SG::ExcIncomparableEL, res = el1 < el4);
+  assert (res == false);
 }
 
 

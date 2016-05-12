@@ -11,36 +11,15 @@
  */
 
 
+#include "SGTools/TestStore.h"
 #include "AthenaKernel/IThinningSvc.h"
 #include <map>
 
 
 class TestThinningSvc
-  : public IThinningSvc
+  : virtual public IThinningSvc, public SGTest::TestStore
 {
 public:
-  unsigned long addRef()
-  { std::cout << "addRef\n"; std::abort(); }
-  unsigned long release()
-  { std::cout << "release\n"; std::abort(); }
-  StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/)
-  { std::cout << "queryInterface\n"; std::abort(); }
-  const std::string& name() const
-  { std::cout << "name\n"; std::abort(); }
-  SG::DataProxy* deep_proxy(const void* const /*pTransient*/) const
-  { std::cout << "deep_proxy\n"; std::abort(); }
-  SG::DataProxy* proxy(const void* const /*pTransient*/) const
-  { std::cout << "proxy\n"; std::abort(); }
-  SG::DataProxy* proxy(const CLID& /*id*/) const
-  { std::cout << "proxy2\n"; std::abort(); }
-  SG::DataProxy* proxy(const CLID& /*id*/, const std::string& /*key*/) const
-  { std::cout << "proxy3\n"; std::abort(); }
-  virtual SG::DataProxy* proxy_exact (SG::sgkey_t /*sgkey*/) const 
-  { std::cout << "proxy_exact\n"; std::abort(); }
-  StatusCode addToStore (CLID /*id*/, SG::DataProxy* /*proxy*/)
-  { std::cout << "addToStore\n"; std::abort(); }
-  std::vector<const SG::DataProxy*> proxies() const
-  { std::cout << "proxies\n"; std::abort(); }
   StatusCode sysInitialize()
   { std::cout << "sysInitialize\n"; std::abort(); }
   StatusCode sysStart()

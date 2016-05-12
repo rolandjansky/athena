@@ -140,7 +140,7 @@ public:
   /**
    * @brief Return the data source for this reference.
    */
-  IProxyDictWithPool* source() const;
+  IProxyDict* source() const;
 
 
   /**
@@ -171,7 +171,7 @@ public:
    *
    * If @c sg is 0, then we use the global default store.
    */
-  bool toTransient (IProxyDictWithPool* sg = 0);
+  bool toTransient (IProxyDict* sg = 0);
 
 
   /**
@@ -221,7 +221,7 @@ protected:
   ElementLinkBase (const ID_type& dataID,
                    CLID link_clid,
                    index_type elemID,
-                   IProxyDictWithPool* sg);
+                   IProxyDict* sg);
 
 
   /**
@@ -236,7 +236,7 @@ protected:
   ElementLinkBase (sgkey_t key,
                    CLID link_clid,
                    index_type elemID,
-                   IProxyDictWithPool* sg);
+                   IProxyDict* sg);
 
 
 
@@ -256,7 +256,7 @@ protected:
                    CLID link_clid,
                    index_type elemID,
                    const void* elt,
-                   IProxyDictWithPool* sg);
+                   IProxyDict* sg);
 
 
   /**
@@ -275,7 +275,7 @@ protected:
                    CLID link_clid,
                    index_type elemID,
                    const void* elt,
-                   IProxyDictWithPool* sg);
+                   IProxyDict* sg);
 
 
   /**
@@ -290,7 +290,7 @@ protected:
   ElementLinkBase (const_pointer_t obj,
                    CLID link_clid,
                    index_type elemID,
-                   IProxyDictWithPool* sg);
+                   IProxyDict* sg);
 
 
   /**
@@ -341,7 +341,7 @@ protected:
   bool setStorableObject (const_pointer_t data,
                           CLID link_clid,
                           bool replace,
-                          IProxyDictWithPool* sg);
+                          IProxyDict* sg);
 
 
   /**
@@ -362,7 +362,7 @@ protected:
   bool toIndexedElement (const_pointer_t obj,
                          CLID link_clid,
                          index_type elemID,
-                         IProxyDictWithPool* sg);
+                         IProxyDict* sg);
 
 
   /**
@@ -379,7 +379,7 @@ protected:
   void resetWithKeyAndIndex (const ID_type& dataID,
                              CLID link_clid,
                              index_type elemID, 
-                             IProxyDictWithPool* sg);
+                             IProxyDict* sg);
 
 
   /**
@@ -396,7 +396,7 @@ protected:
   void resetWithKeyAndIndex (sgkey_t key,
                              CLID link_clid,
                              index_type elemID, 
-                             IProxyDictWithPool* sg);
+                             IProxyDict* sg);
 
 
   /**

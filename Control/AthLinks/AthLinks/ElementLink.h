@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElementLink.h 697737 2015-10-01 03:27:32Z ssnyder $
+// $Id: ElementLink.h 714258 2015-12-12 04:18:16Z ssnyder $
 /**
  * @file AthLinks/ElementLink.h
  * @author scott snyder <snyder@bnl.gov>
@@ -19,7 +19,7 @@
 
 #include "AthLinks/tools/ElementLinkTraits.h"
 #include "AthLinks/DataLink.h"
-#include "SGTools/IProxyDictWithPool.h"
+#include "AthenaKernel/IProxyDict.h"
 #include <utility>
 
 
@@ -181,7 +181,7 @@ public:
    * If @c sg is 0, we take the global default.
    */
   ElementLink(const ID_type& dataID, index_type elemID,
-              IProxyDictWithPool* sg = 0);
+              IProxyDict* sg = 0);
 
 
   /**
@@ -192,7 +192,7 @@ public:
    *
    * If @c sg is 0, we take the global default.
    */
-  ElementLink(sgkey_t key, index_type elemID, IProxyDictWithPool* sg = 0);
+  ElementLink(sgkey_t key, index_type elemID, IProxyDict* sg = 0);
 
 
   /**
@@ -209,7 +209,7 @@ public:
   ElementLink(const ID_type& dataID,
               index_type elemID,
               ElementType pEl,
-              IProxyDictWithPool* sg = 0);
+              IProxyDict* sg = 0);
 
 
   /**
@@ -226,7 +226,7 @@ public:
   ElementLink (sgkey_t key,
                index_type elemID,
                ElementType pEl,
-               IProxyDictWithPool* sg = 0);
+               IProxyDict* sg = 0);
 
 
   /**
@@ -239,7 +239,7 @@ public:
    */
   ElementLink (BaseConstReference data,
                index_type elemID, 
-               IProxyDictWithPool* sg = 0);
+               IProxyDict* sg = 0);
 
 
   /**
@@ -260,7 +260,7 @@ public:
    */
   ElementLink (const ElementType& element, 
                BaseConstReference data,
-               IProxyDictWithPool* sg = 0);
+               IProxyDict* sg = 0);
 
 
   // Use default copy ctor.
@@ -388,7 +388,7 @@ public:
    * default.
    */
   bool toIndexedElement(BaseConstReference data, index_type elemID,
-                        IProxyDictWithPool* sg = 0);
+                        IProxyDict* sg = 0);
 
 
   /**
@@ -409,7 +409,7 @@ public:
    */
   bool toContainedElement(BaseConstReference data,
                           ElementType element,
-                          IProxyDictWithPool* sg = 0);
+                          IProxyDict* sg = 0);
 
 
   /**
@@ -444,7 +444,7 @@ public:
    */
   bool setStorableObject(BaseConstReference data,
                          bool replace=false,
-                         IProxyDictWithPool* sg = 0);
+                         IProxyDict* sg = 0);
 
 
   /**
@@ -458,7 +458,7 @@ public:
    * default.
    */
   void resetWithKeyAndIndex(const ID_type& dataID, index_type elemID, 
-                            IProxyDictWithPool* sg=0);
+                            IProxyDict* sg=0);
 
 
   /**
@@ -472,7 +472,7 @@ public:
    * default.
    */
   void resetWithKeyAndIndex(sgkey_t key, index_type elemID, 
-                            IProxyDictWithPool* sg=0);
+                            IProxyDict* sg=0);
 
 
   //@}
@@ -491,11 +491,11 @@ public:
   //   Return the SG key that we reference, as a string.
   //  sgkey_t key() const
   //   Return the SG key that we reference, as a hash.
-  //  IProxyDictWithPool* source() const
+  //  IProxyDict* source() const
   //   Return the data source for the reference.
   //  void reset()
   //   Reset the link to a null state.
-  //  bool toTransient (IProxyDictWithPool*)
+  //  bool toTransient (IProxyDict*)
   //   Finish initialization after link has been read.
   //  bool doPersistent()
   //   Prepare this link for writing.
@@ -577,7 +577,7 @@ namespace SG_detail {
  * (which doesn't allow remapping indices).
  */
 inline
-bool checkForRemap (IProxyDictWithPool* sg,
+bool checkForRemap (IProxyDict* sg,
                     SG::sgkey_t sgkey_in,
                     size_t index_in,
                     SG::sgkey_t& sgkey_out,
@@ -597,7 +597,7 @@ bool checkForRemap (IProxyDictWithPool* sg,
  */
 template <class T>
 inline
-bool checkForRemap (IProxyDictWithPool* sg,
+bool checkForRemap (IProxyDict* sg,
                     SG::sgkey_t sgkey_in,
                     const T& /*dum_in*/,
                     SG::sgkey_t& sgkey_out,
@@ -682,7 +682,7 @@ struct pair<ElementLink<CONT>, T2>
   // @c ElementLink initialization.
   pair (const CONT& child_container,
         const external_index_type& index,
-        IProxyDictWithPool* sg,
+        IProxyDict* sg,
         const T2& y)
     : first (child_container, index, sg), second (y)
   {}

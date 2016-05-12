@@ -17,7 +17,7 @@
 #ifndef ATHLINKS_TOOLS_DEFAULTINDEXINGPOLICY_H
 # define ATHLINKS_TOOLS_DEFAULTINDEXINGPOLICY_H
 
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
+
 template <class Foo> class ERROR_PLEASE_ADD_ONE_OF_THE_PREDEFINED_POLICY_INCLUDE_FILES_OR_DEFINE_A_DEFAULT_INDEXING_POLICY_FOR_THIS_TYPE;
 template <typename STORABLE>
 struct DefaultIndexingPolicy {

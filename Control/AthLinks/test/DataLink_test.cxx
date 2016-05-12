@@ -13,12 +13,12 @@
 #undef NDEBUG
 #include "AthLinks/DataLink.h"
 #include "SGTools/CurrentEventStore.h"
-#include "SGTools/IProxyDictWithPool.h"
 #include "SGTools/CLASS_DEF.h"
 #include "SGTools/StorableConversions.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/ClassID_traits.h"
 #include "SGTools/TransientAddress.h"
+#include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include <iostream>
 #include <cstdlib>

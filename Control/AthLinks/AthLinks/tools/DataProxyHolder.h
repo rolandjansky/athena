@@ -18,8 +18,9 @@
 
 
 #include "SGTools/CurrentEventStore.h"
-#include "SGTools/IStringPool.h"
+#include "AthenaKernel/IStringPool.h"
 #include "SGTools/DataProxy.h"
+#include "SGTools/IProxyDictWithPool.h"  // TEMPORARY
 #include <string>
 
 
@@ -118,7 +119,7 @@ public:
    */
   sgkey_t toStorableObject (const_pointer_t obj,
                             CLID link_clid,
-                            IProxyDictWithPool* sg);
+                            IProxyDict* sg);
 
 
   /**
@@ -139,7 +140,7 @@ public:
    */
   sgkey_t toIdentifiedObject (const ID_type& dataID,
                               CLID link_clid,
-                              IProxyDictWithPool* sg);
+                              IProxyDict* sg);
 
 
   /**
@@ -160,7 +161,7 @@ public:
    */
   void toIdentifiedObject (sgkey_t key,
                            CLID link_clid,
-                           IProxyDictWithPool* sg);
+                           IProxyDict* sg);
 
 
   /**
@@ -213,7 +214,7 @@ public:
    * If we're pointing at an object directly, then we return the default store
    * if the object is found in SG; otherwise, throw @c ExcPointerNotInSG.
    */
-  IProxyDictWithPool* source() const;
+  IProxyDict* source() const;
 
 
   /**
@@ -227,7 +228,7 @@ public:
    *
    * If @c sg is 0, then we use the global default store.
    */
-  void toTransient (sgkey_t sgkey, IProxyDictWithPool* sg = 0);
+  void toTransient (sgkey_t sgkey, IProxyDict* sg = 0);
 
 
   /**
@@ -390,7 +391,7 @@ private:
    * If we're holding a pointer directly, rather than a proxy,
    * then return 0 rather than raising an exception.
    */
-  IProxyDictWithPool* source1() const;
+  IProxyDict* source1() const;
 
 
   /**
@@ -409,11 +410,6 @@ private:
   /// The @c DataProxy referring to our object, if the LSB is clear;
   /// pointer to the object which we're referencing directly if the LSB is set.
   SG::DataProxy* m_proxy; //! Transient
-
-
-  /// Pointer from which to fetch the default data source.
-  /// Cached to avoid expensive lookups.
-  static IProxyDictWithPool** s_cached_source;
 };
 
 

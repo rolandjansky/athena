@@ -97,7 +97,7 @@ GenericElementLinkBase<INDEXING_POLICY>::key() const
  */
 template <class INDEXING_POLICY>
 inline
-IProxyDictWithPool*
+IProxyDict*
 GenericElementLinkBase<INDEXING_POLICY>::source() const
 {
   return m_proxy.source();
@@ -149,7 +149,7 @@ void GenericElementLinkBase<INDEXING_POLICY>::reset ()
 template <class INDEXING_POLICY>
 inline
 bool
-GenericElementLinkBase<INDEXING_POLICY>::toTransient (IProxyDictWithPool* sg /*= 0*/)
+GenericElementLinkBase<INDEXING_POLICY>::toTransient (IProxyDict* sg /*= 0*/)
 {
   m_proxy.toTransient (m_key, sg);
   m_cacheValid = 0;
@@ -211,7 +211,7 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
  (const ID_type& dataID,
   CLID link_clid,
   const index_type& elemID,
-  IProxyDictWithPool* sg)
+  IProxyDict* sg)
    : m_index (elemID),
      m_cacheValid(false),
      m_element()
@@ -235,7 +235,7 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
  (sgkey_t key,
   CLID link_clid,
   const index_type& elemID,
-  IProxyDictWithPool* sg)
+  IProxyDict* sg)
    : m_key (key),
     m_index (elemID),
     m_cacheValid (false),
@@ -264,7 +264,7 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
   CLID link_clid,
   const index_type& elemID,
   const ElementType& elt,
-  IProxyDictWithPool* sg)
+  IProxyDict* sg)
    : m_index (elemID),
      m_cacheValid (true),
      m_element (elt)
@@ -292,7 +292,7 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
   CLID link_clid,
   const index_type& elemID,
   const ElementType& elt,
-  IProxyDictWithPool* sg)
+  IProxyDict* sg)
    : m_key (key),
      m_index (elemID),
      m_cacheValid (true),
@@ -317,7 +317,7 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
  (const_pointer_t obj,
   CLID link_clid,
   const index_type& elemID,
-  IProxyDictWithPool* sg)
+  IProxyDict* sg)
    : m_index (elemID),
      m_cacheValid (false),
      m_element()
@@ -397,7 +397,7 @@ bool GenericElementLinkBase<INDEXING_POLICY>::setStorableObject
    (const_pointer_t data,
     CLID link_clid,
     bool replace,
-    IProxyDictWithPool* sg)
+    IProxyDict* sg)
 {
   if (!m_proxy.isDefault()) {
     if (!replace) return false;
@@ -430,7 +430,7 @@ bool GenericElementLinkBase<INDEXING_POLICY>::toIndexedElement
    (const_pointer_t obj,
     CLID link_clid,
     const index_type& elemID,
-    IProxyDictWithPool* sg)
+    IProxyDict* sg)
 {
   if (m_proxy.isDefault() && isDefaultIndex() && !hasCachedElement()) {
     m_key = m_proxy.toStorableObject (obj, link_clid, sg);
@@ -459,7 +459,7 @@ void GenericElementLinkBase<INDEXING_POLICY>::resetWithKeyAndIndex
    (const ID_type& dataID,
     CLID link_clid,
     const index_type& elemID, 
-    IProxyDictWithPool* sg)
+    IProxyDict* sg)
 {
   m_key = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
   m_index = elemID;
@@ -484,7 +484,7 @@ void GenericElementLinkBase<INDEXING_POLICY>::resetWithKeyAndIndex
    (sgkey_t key,
     CLID link_clid,
     const index_type& elemID, 
-    IProxyDictWithPool* sg)
+    IProxyDict* sg)
 {
   m_key = key;
   m_proxy.toIdentifiedObject (key, link_clid, sg);

@@ -108,23 +108,23 @@ public:
   ElementLinkBaseT_test() {}
   ElementLinkBaseT_test(const std::string& key, CLID clid,
                         const index_type& index,
-                        IProxyDictWithPool* sg)
+                        IProxyDict* sg)
     : Base (key, clid, index, sg) {}
   ElementLinkBaseT_test(SG::sgkey_t key, CLID clid,
                         const index_type& index,
-                        IProxyDictWithPool* sg)
+                        IProxyDict* sg)
     : Base (key, clid, index, sg) {}
   ElementLinkBaseT_test(const std::string& key, CLID clid,
                         const index_type& index,
-                        const std::string& elt, IProxyDictWithPool* sg)
+                        const std::string& elt, IProxyDict* sg)
     : Base (key, clid, index, elt, sg) {}
   ElementLinkBaseT_test(SG::sgkey_t key, CLID clid,
                         const index_type& index,
-                        const std::string& elt, IProxyDictWithPool* sg)
+                        const std::string& elt, IProxyDict* sg)
     : Base (key, clid, index, elt, sg) {}
   ElementLinkBaseT_test(const void* obj, CLID clid,
                         const index_type& index,
-                        IProxyDictWithPool* sg)
+                        IProxyDict* sg)
     : Base (obj, clid, index, sg) {}
   template <class OTHER_POLICY, class FROM_STORABLE, class TO_STORABLE>
   ElementLinkBaseT_test (const SG::GenericElementLinkBase<OTHER_POLICY>& other,

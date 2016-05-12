@@ -62,6 +62,9 @@
  * fn const object_type* getObject()
  * brief get pointer to object (same as \c first )
  *
+ * fn const object_link& getObjectLink()
+ * brief get link to object
+ *
  * fn asso_iterator getFirstAssociation()
  * brief get iterator to first association (same as \c second.begin() )
  *
@@ -263,6 +266,9 @@ AssociationObjectIterator find(const object_type* objectPointer) const
  * 
  */
 const object_type*  getObject()     const { return this->first(); }
+
+/*! \brief retrieve link to the object. */
+const object_link&  getObjectLink() const { return m_actual->first; }
 
 bool  isValid()     const { return this->m_actual->first.isValid(); }
 

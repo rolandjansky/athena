@@ -112,19 +112,19 @@ class ElementLinkBase_test
 public:
   ElementLinkBase_test() {}
   ElementLinkBase_test(const std::string& key, CLID clid, unsigned index,
-                       IProxyDictWithPool* sg)
+                       IProxyDict* sg)
     : ElementLinkBase (key, clid, index, sg) {}
   ElementLinkBase_test(SG::sgkey_t key, CLID clid, unsigned index,
-                       IProxyDictWithPool* sg)
+                       IProxyDict* sg)
     : ElementLinkBase (key, clid, index, sg) {}
   ElementLinkBase_test(const std::string& key, CLID clid, unsigned index,
-                       const void* elt, IProxyDictWithPool* sg)
+                       const void* elt, IProxyDict* sg)
     : ElementLinkBase (key, clid, index, elt, sg) {}
   ElementLinkBase_test(SG::sgkey_t key, CLID clid, unsigned index,
-                       const void* elt, IProxyDictWithPool* sg)
+                       const void* elt, IProxyDict* sg)
     : ElementLinkBase (key, clid, index, elt, sg) {}
   ElementLinkBase_test(const void* obj, CLID clid, index_type index,
-                       IProxyDictWithPool* sg)
+                       IProxyDict* sg)
     : ElementLinkBase (obj, clid, index, sg) {}
   template <class FROM_STORABLE, class TO_STORABLE>
   ElementLinkBase_test (const ElementLinkBase& other,

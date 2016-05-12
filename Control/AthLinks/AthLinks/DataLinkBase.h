@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataLinkBase.h 676751 2015-06-19 16:07:18Z ssnyder $
+// $Id: DataLinkBase.h 714258 2015-12-12 04:18:16Z ssnyder $
 /**
  * @file AthLinks/DataLinkBase.h
  * @author scott snyder <snyder@bnl.gov>
@@ -23,7 +23,7 @@
 namespace SG {
 class DataProxy;
 }
-class IProxyDictWithPool;
+class IProxyDict;
 
 
 /**
@@ -94,7 +94,7 @@ public:
   /**
    * @brief Return the data source for this reference.
    */
-  IProxyDictWithPool* source() const;
+  IProxyDict* source() const;
 
 
   
@@ -108,7 +108,7 @@ public:
    *
    * If @c sg is 0, then we use the global default store.
    */
-  bool toTransient (IProxyDictWithPool* sg = 0);
+  bool toTransient (IProxyDict* sg = 0);
 
 
   /**
@@ -180,7 +180,7 @@ protected:
    *
    * May throw @c ExcCLIDMismatch.
    */
-  DataLinkBase (const_pointer_t obj, CLID link_clid, IProxyDictWithPool* sg);
+  DataLinkBase (const_pointer_t obj, CLID link_clid, IProxyDict* sg);
 
 
   /**
@@ -191,7 +191,7 @@ protected:
    *
    * If @c sg is 0, we take the global default.
    */
-  DataLinkBase (const ID_type& dataID, CLID link_clid, IProxyDictWithPool* sg);
+  DataLinkBase (const ID_type& dataID, CLID link_clid, IProxyDict* sg);
 
 
   /**
@@ -204,7 +204,7 @@ protected:
    *
    * May throw @c ExcCLIDMismatch.
    */
-  DataLinkBase (sgkey_t key, CLID link_clid, IProxyDictWithPool* sg);
+  DataLinkBase (sgkey_t key, CLID link_clid, IProxyDict* sg);
 
 
   /**
@@ -231,7 +231,7 @@ protected:
    */
   void toStorableObject (const_pointer_t obj,
                          CLID clid_in,
-                         IProxyDictWithPool* sg);
+                         IProxyDict* sg);
 
 
   /**
@@ -247,7 +247,7 @@ protected:
    */
   void toIdentifiedObject (const ID_type& dataID,
                            CLID clid,
-                           IProxyDictWithPool* sg);
+                           IProxyDict* sg);
 
 
   /**
@@ -264,7 +264,7 @@ protected:
    */
   void toIdentifiedObject (sgkey_t key,
                            CLID clid,
-                           IProxyDictWithPool* sg);
+                           IProxyDict* sg);
 
 
   /**

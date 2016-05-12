@@ -69,6 +69,7 @@ void test1()
   store.record (foo1, "foo1");
   TestStore::sgkey_t sgkey1 = store.stringToKey ("foo1", fooclid);
   TestStore::sgkey_t sgkey3 = store.stringToKey ("foo3", fooclid);
+  TestStore::sgkey_t sgkey3x = store.stringToKey ("foo3x", fooclid);
 
   // An object not in SG
   Foo* foo2 = new Foo(2);
@@ -111,12 +112,14 @@ void test1()
 
   // toIdentifiedObject with hashed key
 
+  store.m_missedProxies.clear();
   h1.toIdentifiedObject (sgkey1, fooclid, 0);
   assert (!h1.isDefault());
   assert (h1.dataID() == "foo1");
   assert (h1.storableBase (foocast, fooclid) == foo1);
   assert (h1.proxy()->name() == "foo1");
   assert (h1.source() == &store);
+  assert (store.m_missedProxies.empty());
 
   EXPECT_EXCEPTION (SG::ExcCLIDMismatch,
                     h1.toIdentifiedObject (sgkey1, barclid, 0));
@@ -127,6 +130,16 @@ void test1()
   assert (h1.storableBase (foocast, fooclid) == 0);
   assert (h1.proxy()->name() == "foo3");
   assert (h1.source() == &store);
+
+  h1.toIdentifiedObject (sgkey3x, fooclid, 0);
+  assert (!h1.isDefault());
+  assert (h1.dataID() == "foo3x");
+  assert (h1.storableBase (foocast, fooclid) == 0);
+  assert (h1.proxy()->name() == "foo3x");
+  assert (h1.source() == &store);
+  assert (store.m_missedProxies.size() == 1);
+  assert (store.m_missedProxies[0].first == fooclid);
+  assert (store.m_missedProxies[0].second == "foo3x");
 
   h1.clear();
   assert (h1.isDefault());
