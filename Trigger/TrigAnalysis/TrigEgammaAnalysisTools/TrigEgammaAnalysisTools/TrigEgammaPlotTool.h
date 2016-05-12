@@ -123,6 +123,7 @@ class TrigEgammaPlotTool
           void bookElectronResolutionHistos(const std::string dir);
           void bookElectronIsoResolutionHistos(const std::string dir);
           void bookPhotonResolutionHistos(const std::string dir);
+          void bookPhotonIsoResolutionHistos(const std::string dir);
           void bookExpertResolutionHistos(const std::string dir);
           void bookExpertL2CaloResolutionHistos(const std::string dir);
           void bookAbsResolutionHistos(const std::string dir);

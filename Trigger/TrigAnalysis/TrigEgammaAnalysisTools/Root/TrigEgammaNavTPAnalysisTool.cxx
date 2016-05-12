@@ -144,6 +144,7 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
 
     for(unsigned int ilist = 0; ilist != m_trigList.size(); ilist++) {
         std::string probeTrigger = m_trigList.at(ilist);
+        if(isPrescaled(probeTrigger)) continue; //Account for L1 and HLT prescale, discard event
         const char * cprobeTrigger = m_trigList.at(ilist).c_str();
         ATH_MSG_DEBUG("Start Chain Analysis ============================= " << probeTrigger);
         cd(m_dir+"/Expert/Event");

@@ -48,7 +48,7 @@ TrigEgammaAnalysisBaseTool::
 TrigEgammaAnalysisBaseTool( const std::string& myname )
     : AsgTool(myname),
     m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
-    m_matchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool",this),
+    m_matchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool"),
     m_lumiTool("LuminosityTool"),
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {
@@ -458,6 +458,36 @@ bool TrigEgammaAnalysisBaseTool::isIsolated(const xAOD::Electron *eg, const std:
   return false;
 }
 
+// Check for Prescale at L1 and HLT
+// Check for Rerun decision
+bool TrigEgammaAnalysisBaseTool::isPrescaled(const std::string trigger){
+
+    bool efprescale=false;
+    bool l1prescale=false;
+    bool prescale=false;
+    bool rerun=true; //assume rerun for l1
+    std::string l1item="";
+
+    if(boost::starts_with(trigger, "L1" ))
+        l1item=trigger;
+    if(boost::starts_with(trigger,"HLT")){
+        l1item = getL1Item(trigger);
+        const unsigned int bit=tdt()->isPassedBits(trigger);
+        efprescale=bit & TrigDefs::EF_prescaled;
+        rerun=bit&TrigDefs::EF_resurrected; //Rerun, only check for HLT
+    }
+
+    const unsigned int l1bit=tdt()->isPassedBits(l1item);
+    bool l1_afterpre=l1bit&TrigDefs::L1_isPassedAfterPrescale;
+    bool l1_beforepre=l1bit&TrigDefs::L1_isPassedBeforePrescale;
+    l1prescale=l1_beforepre && !l1_afterpre;
+
+    prescale=efprescale || l1prescale;
+    if(rerun) return false; // Rerun use the event
+    if(prescale) return true; // Prescaled, reject event
+    return false; // Not prescaled, use event
+}
+
 float TrigEgammaAnalysisBaseTool::dR(const float eta1, const float phi1, const float eta2, const float phi2){
     float deta = fabs(eta1 - eta2);
     float dphi = fabs(phi1 - phi2) < TMath::Pi() ? fabs(phi1 - phi2) : 2*TMath:: \
@@ -640,18 +670,23 @@ GETTER(DeltaE)
 { float val{-99}; \
     eg->isolationValue(val,xAOD::Iso::_name_); \
     return val; } 
-    GETTER(etcone20)
-    GETTER(etcone30)
-    GETTER(etcone40)    
-    GETTER(topoetcone20)
-    GETTER(topoetcone30)
-    GETTER(topoetcone40)    
     GETTER(ptcone20)
     GETTER(ptcone30)
     GETTER(ptcone40)    
     GETTER(ptvarcone20)
     GETTER(ptvarcone30)
     GETTER(ptvarcone40)    
+#undef GETTER    
+#define GETTER(_name_) float TrigEgammaAnalysisBaseTool::getIsolation_##_name_(const xAOD::Egamma* eg) \
+{ float val{-99}; \
+    eg->isolationValue(val,xAOD::Iso::_name_); \
+    return val; } 
+    GETTER(etcone20)
+    GETTER(etcone30)
+    GETTER(etcone40)    
+    GETTER(topoetcone20)
+    GETTER(topoetcone30)
+    GETTER(topoetcone40)    
 #undef GETTER    
 
     // GETTERs for CaloCluster monitoring   
