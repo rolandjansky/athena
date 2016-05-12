@@ -3,6 +3,8 @@
 ##
 ## Author: Christopher Young (CERN)
 ## Email:  christopher.young@cern.ch
+## Modified: Quentin Buat (Adding tau part)
+## Email: quentin.buat@cern.ch
 ##
 ## Description: This defines the content of the CalJet DPD output stream.
 ##
@@ -10,6 +12,10 @@
 
 # Sequence
 from AthenaCommon.AlgSequence import AlgSequence 
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
 topSequence = AlgSequence() 
 DESDM_CALJET_Seq = CfgMgr.AthSequencer("DESDM_CALJET_Seq")
 
@@ -41,11 +47,8 @@ prescaleF = 10
 prescaleG = 5
 prescaleH = 1
 
+
 # Event selection tool
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
 
 DESDM_CALJET_SkimmingToolA = DerivationFramework__xAODStringSkimmingTool(name = "DESDM_CALJET_SkimmingToolA", expression = desd_jetA)
 ToolSvc += DESDM_CALJET_SkimmingToolA
@@ -99,8 +102,75 @@ ToolSvc += DESDM_CALJET_ANDToolG
 DESDM_CALJET_SkimmingToolH = DerivationFramework__xAODStringSkimmingTool(name = "DESDM_CALJET_SkimmingToolH", expression = desd_jetH)
 ToolSvc += DESDM_CALJET_SkimmingToolH
 
-DESDM_CALJET_ORTool = DerivationFramework__FilterCombinationOR(name="myLogicalCombination", FilterList=[DESDM_CALJET_ANDToolA,DESDM_CALJET_ANDToolB,DESDM_CALJET_ANDToolC,DESDM_CALJET_ANDToolD,DESDM_CALJET_ANDToolE,DESDM_CALJET_ANDToolF,DESDM_CALJET_ANDToolG,DESDM_CALJET_SkimmingToolH] )
+
+
+##============================================================================
+## Define the skimming for the DESDM_CALJET output stream for the taus
+##============================================================================
+
+# Object selection strings
+sel_tau = '(TauJets.pt > 20.0*GeV) && (abs(TauJets.eta) < 2.6) && (TauJets.nTracks == 1 || TauJets.nTracks == 3)'
+
+prescale_rules = {
+    'HLT_j15': 1,
+    'HLT_j25': 1,
+    'HLT_j35': 3,
+    'HLT_j45': 4,
+    'HLT_j55': 4,
+    'HLT_j85': 8,
+    'HLT_j110': 20,
+    'HLT_j175': 20,
+    'HLT_j260': 20,
+    'HLT_j360': 400,
+}
+
+
+# Define skimming and prescale tool for each trigger
+TauCombTools = []
+for trigger in prescale_rules.keys():
+    expression = '{0} && count({1}) >= 1'.format(
+        trigger, sel_tau)
+
+    # skimming tool
+    skimming_tool_name = "DESDM_CALJET_TauSkimmingTool_{0}".format(trigger)
+    TauSkimmingTool = DerivationFramework__xAODStringSkimmingTool(
+        name=skimming_tool_name, expression=expression)
+    ToolSvc += TauSkimmingTool
+
+    # prescale tool
+    prescale_tool_name = "DESDM_CALJET_TauPrescaleTool_{0}".format(trigger)
+    TauPrescaleTool = DerivationFramework__PrescaleTool(
+        name=prescale_tool_name, Prescale=prescale_rules[trigger])
+    ToolSvc += TauPrescaleTool
+
+    # Skimming AND Prescale
+    TauCombTool = DerivationFramework__FilterCombinationAND(
+        name="DESDM_CALJET_Tau_{0}".format(trigger),
+        FilterList=[TauSkimmingTool, TauPrescaleTool])
+    TauCombTools.append(TauCombTool)
+    ToolSvc += TauCombTool
+
+
+filter_list = [
+    DESDM_CALJET_ANDToolA,
+    DESDM_CALJET_ANDToolB,
+    DESDM_CALJET_ANDToolC,
+    DESDM_CALJET_ANDToolD,
+    DESDM_CALJET_ANDToolE,
+    DESDM_CALJET_ANDToolF,
+    DESDM_CALJET_ANDToolG,
+    DESDM_CALJET_SkimmingToolH
+]
+
+filter_list += TauCombTools
+DESDM_CALJET_ORTool = DerivationFramework__FilterCombinationOR(
+    name="TauCalTauTool", FilterList=filter_list)
 ToolSvc += DESDM_CALJET_ORTool
+print DESDM_CALJET_ORTool
+
+
+
+
 
 # Kernel algorithm
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
