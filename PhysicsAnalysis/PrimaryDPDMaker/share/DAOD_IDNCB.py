@@ -160,12 +160,12 @@ DFIDNCB = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackState
                                                           StorePixel = dumpPixInfo,
                                                           IsSimulation = isIdTrkDxAODSimulation,
                                                           OutputLevel = INFO)
-if dumpTrtInfo:
-    #Add tool to calculate TRT-based dEdx
-    DFIDNCB.TRT_ToT_dEdx = TRT_dEdx_Tool
 
+# this variable is redundant and remove from DerivationFrameworkInDet-00-00-56
+DFIDNCB.TRT_ToT_dEdx = TRT_dEdx_Tool
 ToolSvc += DFIDNCB
 augmentationTools+=[DFIDNCB]
+
 if (printIdTrkDxAODConf):
     print DFIDNCB
     print DFIDNCB.properties()
@@ -204,6 +204,7 @@ if dumpUnassociatedHits:
                                                                                 OutputLevel =INFO)
     ToolSvc += unassociatedHitsDecorator
     augmentationTools+=[unassociatedHitsDecorator]
+
     if (printIdTrkDxAODConf):
         print unassociatedHitsDecorator
         print unassociatedHitsDecorator.properties()
@@ -223,6 +224,7 @@ if dumpLArCollisionTime:
                                                                                     OutputLevel =INFO)
         ToolSvc += lArCollisionTimeDecorator
         augmentationTools+=[lArCollisionTimeDecorator]
+
         if (printIdTrkDxAODConf):
             print lArCollisionTimeDecorator
             print lArCollisionTimeDecorator.properties()
@@ -236,6 +238,7 @@ skimmingTools = []
 #====================================================================
 # Thinning Tools
 #====================================================================
+
 thinningTools = []
 
 # TrackParticles directly
@@ -248,12 +251,43 @@ IDNCBThinningTool = DerivationFramework__TrackParticleThinning(name = "IDNCBThin
 ToolSvc += IDNCBThinningTool
 thinningTools.append(IDNCBThinningTool)
 
+
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackMeasurementThinning
+
+thin_sct = "SCT_Clusters.bec != 0"
+IDNCBThinningTool_sct = DerivationFramework__TrackMeasurementThinning( name = "IDNCBSCTThinningTool",
+    ThinningService = "IDNCBThinningSvc",
+    SelectionString = thin_sct,
+    TrackMeasurementValidationKey = "SCT_Clusters",
+    ApplyAnd = False) 
+ToolSvc += IDNCBThinningTool_sct
+thinningTools.append(IDNCBThinningTool_sct)
+
+thin_pix = "PixelClusters.bec != 0"
+IDNCBThinningTool_pix = DerivationFramework__TrackMeasurementThinning( name = "IDNCBPIXThinningTool",
+    ThinningService = "IDNCBThinningSvc",
+    SelectionString = thin_pix,
+    TrackMeasurementValidationKey = "PixelClusters",
+    ApplyAnd = False) 
+ToolSvc += IDNCBThinningTool_pix
+thinningTools.append(IDNCBThinningTool_pix)
+
+thin_trt = "(TRT_DriftCircles.bec != -2) && (TRT_DriftCircles.layer > 5)"
+IDNCBThinningTool_trt = DerivationFramework__TrackMeasurementThinning( name = "IDNCBTRTThinningTool",
+    ThinningService = "IDNCBThinningSvc",
+    SelectionString = thin_trt,
+    TrackMeasurementValidationKey = "TRT_DriftCircles",
+    ApplyAnd = False) 
+ToolSvc += IDNCBThinningTool_trt
+thinningTools.append(IDNCBThinningTool_trt)
+
+
 #====================================================================
 # Create the derivation Kernel and setup output stream
 #====================================================================
 # Add the derivation job to the top AthAlgSeqeuence
 # DerivationJob is COMMON TO ALL DERIVATIONS
-DerivationFrameworkJob = CfgMgr.AthSequencer("MySeq2")
+DerivationFrameworkJob = CfgMgr.AthSequencer("IDNCBSeq")
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("DFIDNCB_KERN",
                                                                        AugmentationTools = augmentationTools,
@@ -289,7 +323,9 @@ evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="IDNCBThinningSvc", outStreams=[evtStream] )
 
 excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
-excludeTRT="-board.-chip.-T0.-driftTimeToTCorrection.-driftTimeHTCorrection.-highThreshold.-bitPattern.-truth_barcode.-strawnumber"
+excludedTRTData = "-T0.-TRTboard.-TRTchip.-bitPattern.-driftTimeToTCorrection.-driftTimeHTCorrection.-highThreshold.-strawnumber"
+excludedSCTData = "-detectorElementID.-hitsInThirdTimeBin.-rdo_groupsize"
+
 # Add generic event information
 IDNCBStream.AddItem("xAOD::EventInfo#*")
 IDNCBStream.AddItem("xAOD::EventAuxInfo#*")
@@ -333,6 +369,10 @@ if dumpTruthInfo:
 
 #SKC---always include BCM information!
 IDNCBStream.AddItem("BCM_RDO_Container#BCM_RDOs")
+
+#PJL - Slim the SCT and TRT data
+IDNCBStream.AddItem("xAOD::TrackMeasurementValidationAuxContainer#TRT_DriftCirclesAux."+excludedTRTData)
+IDNCBStream.AddItem("xAOD::TrackMeasurementValidationAuxContainer#SCT_ClustersAux."+excludedSCTData)
 
 if dumpTriggerInfo:
     IDNCBStream.AddMetaDataItem("xAOD::TriggerMenuContainer#TriggerMenu")
