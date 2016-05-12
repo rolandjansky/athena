@@ -21,7 +21,7 @@ public:
 
     // Accessors
     const std::string&  name() const; 
-private:
+    //private:
 	std::vector<unsigned int>   m_channelHash; 
 	std::vector<unsigned int>	m_energy; // 18 bits compressed
 	std::vector<unsigned short>	m_time;	  // store as unsigned short

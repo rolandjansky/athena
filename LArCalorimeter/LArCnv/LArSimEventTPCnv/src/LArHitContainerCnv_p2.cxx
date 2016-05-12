@@ -2,12 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "LArSimEvent/LArHit.h"
 #include "LArSimEvent/LArHitContainer.h"
-#undef private
-#undef protected
 #include "Identifier/Identifier.h"
 
 #include "Identifier/IdentifierHash.h"
@@ -40,9 +36,9 @@ void LArHitContainerCnv_p2::transToPers(const LArHitContainer* transCont, LArHit
 	std::multimap <unsigned int, unsigned int> map_hashPositions;// first hash ; second its position in container
 
 	for (unsigned int w=0;w<size;++w){
-		IdentifierHash hashId = cellIdHelper->calo_cell_hash((*it)->m_ID);
+                IdentifierHash hashId = cellIdHelper->calo_cell_hash((*it)->cellID());
 		map_hashPositions.insert(std::pair<unsigned int, int>((unsigned int)hashId, w));
-//		if (!ev) std::cout<<hashId<<"\t"<<((*it)->m_ID)<<std::endl;
+//		if (!ev) std::cout<<hashId<<"\t"<<((*it)->cellID())<<std::endl;
 		++it;
 		}
 
@@ -55,8 +51,8 @@ void LArHitContainerCnv_p2::transToPers(const LArHitContainer* transCont, LArHit
 		old=iter->first;
 		unsigned int pos=iter->second;
 		persCont->m_channelHash.push_back(pHash);
-		tempE.push_back( (float) (transCont->At(pos))->m_energy );
-		tempT.push_back( (float) (transCont->At(pos))->m_time   );
+		tempE.push_back( (float) (transCont->At(pos))->energy() );
+		tempT.push_back( (float) (transCont->At(pos))->time()   );
 //		if (!ev) std::cout<<"Writing Hash: "<<iter->first<<"\t E: "<< (float) (transCont->At(pos))->m_energy<<"\t T: "<< (float) (transCont->At(pos))->m_time<<std::endl;
 //		count++;
 		}			
@@ -94,11 +90,11 @@ void LArHitContainerCnv_p2::persToTrans(const LArHitContainer_p2* persCont, LArH
 	A.expandToFloat(persCont->m_energy,tempE);
 	unsigned int sum=0;
 	for (unsigned int i=0;i<cells;++i){
-		LArHit* trans=new LArHit();
 		sum+= persCont->m_channelHash[i];
-		trans->m_ID=cellIdHelper->cell_id(sum);
-		trans->m_energy =(double)tempE[i];
-		trans->m_time   =(double)(tempT[i]);
+		LArHit* trans=new LArHit
+                  (cellIdHelper->cell_id(sum),
+                   tempE[i],
+                   tempE[i] != 0 ? (double)(tempT[i])/tempE[i] : 0);
 //		if(!dog) std::cout<<"Reading hash: "<< sum <<"\t E: "<< (double)tempE[i]<<"\t T: "<<(tempT[i]) <<std::endl;
 		transCont->push_back(trans);
 		}

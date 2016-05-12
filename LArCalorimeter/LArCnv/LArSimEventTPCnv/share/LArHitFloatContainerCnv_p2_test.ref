@@ -1,0 +1,94 @@
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/DetStoreTest_jobOptions.txt
+JobOptionsSvc        INFO # =======> /home/sss/nobackup/atlas/build/../tests/../share/DetStoreTest_jobOptions.txt
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore"]
+JobOptionsSvc        INFO Job options successfully read in from ../share/DetStoreTest_jobOptions.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Wed May 11 11:45:18 2016
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-00-00-00
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 1238 CLIDRegistry entries for module ALL
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+decode index and bit fields for each level: 
+lar  decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+em   decode 1 vals -3,-2,-1,1,2,3,4,5 mask/zero mask/shift/bits/offset 7   e3ffffffffffffff 58 3  3  indexes 0 1 2 0 3 4 5 6 7   mode  enumerated  
+bec  decode 1 vals -3,-2,-1,1,2,3  mask/zero mask/shift/bits/offset 7   fc7fffffffffffff 55 3  6  indexes 0 1 2 0 3 4 5       mode  enumerated  
+samp decode 0 vals 0:3             mask/zero mask/shift/bits/offset 3   ff9fffffffffffff 53 2  9  indexes                     mode  both_bounded  
+reg  decode 0 vals 0:5             mask/zero mask/shift/bits/offset 7   ffe3ffffffffffff 50 3  11 indexes                     mode  both_bounded  
+eta  decode 0 vals 0:447           mask/zero mask/shift/bits/offset 1ff fffc01ffffffffff 41 9  14 indexes                     mode  both_bounded  
+phi  decode 0 vals 0:255           mask/zero mask/shift/bits/offset ff  fffffe01ffffffff 33 8  23 indexes                     mode  both_bounded  
+is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   fffffffeffffffff 32 1  31 indexes                     mode  both_bounded  
+ LArEM_Base_ID::initialize_from_dict : 
+ region range -> 4/1/-1,1/0/0 | 4/1/-1,1/1/0 | 4/1/-1,1/1/1 | 4/1/-1,1/2/0 | 4/1/-1,1/2/1 | 4/1/-1,1/3/0 | 4/1/-2,2/0/0 | 4/1/-2,2/1/0 | 4/1/-2,2/1/1 | 4/1/-2,2/1/2 | 4/1/-2,2/1/3 | 4/1/-2,2/1/4 | 4/1/-2,2/1/5 | 4/1/-2,2/2/0 | 4/1/-2,2/2/1 | 4/1/-2,2/3/0 | 4/1/-3,3/1/0 | 4/1/-3,3/2/0
+ channel range -> 4/1/-1,1/0/0/0:60/0:63/0 | 4/1/-1,1/1/0/1:447/0:63/0 | 4/1/-1,1/1/1/0:2/0:255/0 | 4/1/-1,1/2/0/0:55/0:255/0 | 4/1/-1,1/2/1/0/0:255/0 | 4/1/-1,1/3/0/0:26/0:255/0 | 4/1/-2,2/0/0/0:11/0:63/0 | 4/1/-2,2/1/0/0/0:63/0 | 4/1/-2,2/1/1/0:2/0:63/0 | 4/1/-2,2/1/2/0:95/0:63/0 | 4/1/-2,2/1/3/0:47/0:63/0 | 4/1/-2,2/1/4/0:63/0:63/0 | 4/1/-2,2/1/5/0:3/0:63/0 | 4/1/-2,2/2/0/0/0:255/0 | 4/1/-2,2/2/1/0:42/0:255/0 | 4/1/-2,2/3/0/0:19/0:255/0 | 4/1/-3,3/1/0/0:6/0:63/0 | 4/1/-3,3/2/0/0:6/0:63/0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+decode index and bit fields for each level: 
+lar  decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+hec  decode 1 vals -3,-2,-1,1,2,3,4,5 mask/zero mask/shift/bits/offset 7   e3ffffffffffffff 58 3  3  indexes 0 1 2 0 3 4 5 6 7   mode  enumerated  
+pn   decode 1 vals -2,2            mask/zero mask/shift/bits/offset 1   fdffffffffffffff 57 1  6  indexes 0 0 0 0 1           mode  enumerated  
+samp decode 0 vals 0:3             mask/zero mask/shift/bits/offset 3   fe7fffffffffffff 55 2  7  indexes                     mode  both_bounded  
+reg  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffbfffffffffffff 54 1  9  indexes                     mode  both_bounded  
+eta  decode 0 vals 0:9             mask/zero mask/shift/bits/offset f   ffc3ffffffffffff 50 4  10 indexes                     mode  both_bounded  
+phi  decode 0 vals 0:63            mask/zero mask/shift/bits/offset 3f  fffc0fffffffffff 44 6  14 indexes                     mode  both_bounded  
+is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   fffff7ffffffffff 43 1  20 indexes                     mode  both_bounded  
+initialize_from_dict : 
+ channel range -> 4/2/-2,2/0/0/0:9/0:63/0 | 4/2/-2,2/1/0/0:9/0:63/0 | 4/2/-2,2/2/0/1:9/0:63/0 | 4/2/-2,2/3/0/2:9/0:63/0 | 4/2/-2,2/0/1/0:3/0:31/0 | 4/2/-2,2/1/1/0:2/0:31/0 | 4/2/-2,2/2/1/0:2/0:31/0 | 4/2/-2,2/3/1/0:3/0:31/0
+ region range -> 4/2/-2,2/0/0 | 4/2/-2,2/1/0 | 4/2/-2,2/2/0 | 4/2/-2,2/3/0 | 4/2/-2,2/0/1 | 4/2/-2,2/1/1 | 4/2/-2,2/2/1 | 4/2/-2,2/3/1
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+decode index and bit fields for each level: 
+lar  decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+fcal decode 1 vals -3,-2,-1,1,2,3,4,5 mask/zero mask/shift/bits/offset 7   e3ffffffffffffff 58 3  3  indexes 0 1 2 0 3 4 5 6 7   mode  enumerated  
+pn   decode 1 vals -2,2            mask/zero mask/shift/bits/offset 1   fdffffffffffffff 57 1  6  indexes 0 0 0 0 1           mode  enumerated  
+mod  decode 1 vals 1:3             mask/zero mask/shift/bits/offset 3   fe7fffffffffffff 55 2  7  indexes                     mode  both_bounded  
+eta  decode 0 vals 0:63            mask/zero mask/shift/bits/offset 3f  ff81ffffffffffff 49 6  9  indexes                     mode  both_bounded  
+phi  decode 0 vals 0:15            mask/zero mask/shift/bits/offset f   fffe1fffffffffff 45 4  15 indexes                     mode  both_bounded  
+is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffffefffffffffff 44 1  19 indexes                     mode  both_bounded  
+ initialize_from_dict : 
+ channel range -> 4/3/-2,2/1/0:62/0:15/0 | 4/3/-2,2/2/0:29/0,7,8,15/0 | 4/3/-2,2/2/0:30/3,4,11,12/0 | 4/3/-2,2/2/0:31/1,2,5,6,9,10,13,14/0 | 4/3/-2,2/3/0:14/2,10/0 | 4/3/-2,2/3/0:14/0,1,3,4,5,6,7,8,9,11,12,13,14,15/0 | 4/3/-2,2/3/15/0,1,2,3,4,6,7,8,9,10,11,12,14,15/0
+ module range -> 4/3/-2,2/1 | 4/3/-2,2/2 | 4/3/-2,2/3
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+test1

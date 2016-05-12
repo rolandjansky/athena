@@ -8,12 +8,7 @@
 
 #include "LArSimEventTPCnv/LArHit_p1.h"
 
-#define private public
-#define protected public
 #include "LArSimEventTPCnv/LArHitContainer_p1.h"
-#undef private
-#undef protected
-
 #include "LArSimEventTPCnv/LArHitContainer_p2.h"
 
 #include "LArSimEvent/LArHit.h"

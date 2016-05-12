@@ -5,9 +5,7 @@
 #ifndef LARTPCNV_LARHITCONTAINERCNV_P1_H
 #define LARTPCNV_LARHITCONTAINERCNV_P1_H
 
-#define private public
 #include "LArSimEventTPCnv/LArHitContainer_p1.h"
-#undef private 
 #include "LArSimEvent/LArHitContainer.h"
 #include "LArHitCnv_p1.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
