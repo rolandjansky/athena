@@ -13,9 +13,7 @@
  **/
 
 
-#ifndef GAUDIKERNEL_DATAOBJECT_H
- #include "GaudiKernel/DataObject.h"
-#endif
+#include "GaudiKernel/DataObject.h"
 #include <typeinfo>
 
 namespace SG {
@@ -30,6 +28,11 @@ class DataBucketBase : public DataObject
   DataBucketBase() { };
   virtual ~DataBucketBase() { };
   virtual void* object() = 0;
+
+  /**
+   * @brief Return the @c type_info for the stored object.
+   */
+  virtual const std::type_info& tinfo() const = 0;
 
   /**
    * @brief Return the contents of the @c DataBucket,

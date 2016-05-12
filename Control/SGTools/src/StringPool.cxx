@@ -13,8 +13,11 @@
 
 #include "SGTools/StringPool.h"
 #include "SGTools/crc64.h"
-#include "CxxUtils/unordered_map.h"
+#include "CxxUtils/make_unique.h"
 #include <map>
+#include <unordered_map>
+#include <vector>
+#include <algorithm>
 #include <cstdlib>
 #include <iostream>
 #include <iomanip>
@@ -40,8 +43,15 @@ public:
   const std::string* keyToString (StringPool::sgkey_t key,
                                   StringPool::sgaux_t& aux) const;
 
+  /// Number of registered mappings.
+  size_t size() const;
+
+  /// Clear data.
+  void clear();
+
   /// Debugging dump.  Write to stdout.
   void dump() const;
+
 
 private:
   // Hash function for the key.
@@ -54,7 +64,7 @@ private:
 
   // The key hash table.
   typedef std::pair<StringPool::sgaux_t, std::string> pair_t;
-  typedef SG::unordered_map<StringPool::sgkey_t, pair_t, keyhash> keymap_t;
+  typedef std::unordered_map<StringPool::sgkey_t, pair_t, keyhash> keymap_t;
   keymap_t m_keymap;
 };
 
@@ -105,17 +115,38 @@ StringPoolImpl::keyToString (StringPool::sgkey_t key,
 
 
 /**
+ * @brief Number of registered mappings.
+ */
+size_t StringPoolImpl::size() const
+{
+  return m_keymap.size();
+}
+
+
+/**
+ * @brief Clear data.
+ */
+void StringPoolImpl::clear()
+{
+  m_keymap.clear();
+}
+
+
+/**
  * @brief Debugging dump.  Write to cout.
  */
 void StringPoolImpl::dump() const
 {
-  for (keymap_t::const_iterator i = m_keymap.begin();
-       i != m_keymap.end();
-       ++i)
-  {
-    std::cout << std::hex << std::setw(18) << i->first << " "
-              << std::dec << std::setw(9) << i->second.first << " "
-              << i->second.second << "\n";
+  std::vector<StringPool::sgkey_t> keys;
+  keys.reserve (m_keymap.size());
+  for (const keymap_t::value_type& p : m_keymap)
+    keys.push_back (p.first);
+  std::sort (keys.begin(), keys.end());
+  for (StringPool::sgkey_t k : keys) {
+    keymap_t::const_iterator it = m_keymap.find (k);
+    std::cout << std::hex << std::setw(18) << k << " "
+              << std::dec << std::setw(9) << it->second.first << " "
+              << it->second.second << "\n";
   }
 }
 
@@ -128,8 +159,56 @@ void StringPoolImpl::dump() const
  * @brief Constructor.
  */
 StringPool::StringPool()
-  : m_impl (nullptr)
+  : m_impl (CxxUtils::make_unique<StringPoolImpl>())
 {
+}
+
+
+/**
+ * @brief Copy constructor.
+ * @brief other Object from which to copy.
+ */
+StringPool::StringPool (const StringPool& other)
+  : m_impl (CxxUtils::make_unique<StringPoolImpl> (*other.m_impl))
+{
+}
+
+
+/**
+ * @brief Move constructor.
+ * @brief other Object from which to move.
+ */
+StringPool::StringPool (StringPool&& other)
+  : m_impl (std::move (other.m_impl))
+{
+  other.m_impl = CxxUtils::make_unique<StringPoolImpl>();
+}
+
+
+/**
+ * @brief Assignment operator.
+ * @brief other Object from which to copy.
+ */
+StringPool& StringPool::operator= (const StringPool& other)
+{
+  if (this != &other) {
+    *m_impl = *other.m_impl;
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Move operator.
+ * @brief other Object from which to move.
+ */
+StringPool& StringPool::operator= (StringPool&& other)
+{
+  if (this != &other) {
+    StringPoolImpl& other_impl = *other.m_impl;
+    *m_impl = std::move (other_impl);
+  }
+  return *this;
 }
 
 
@@ -156,7 +235,7 @@ StringPool::sgkey_t StringPool::stringToKey (const std::string& str,
   uint64_t crc = crc64 (str);
   if (aux) crc = crc64addint (crc, aux);
   sgkey_t key = (crc & sgkey_t_max);
-  if (!impl()->registerKey (key, str, aux))
+  if (!m_impl->registerKey (key, str, aux))
     std::abort();
   return key;
 }
@@ -172,7 +251,7 @@ StringPool::sgkey_t StringPool::stringToKey (const std::string& str,
 const std::string* StringPool::keyToString (sgkey_t key) const
 {
   sgaux_t aux;
-  return impl()->keyToString (key, aux);
+  return m_impl->keyToString (key, aux);
 }
 
 
@@ -187,7 +266,7 @@ const std::string* StringPool::keyToString (sgkey_t key) const
 const std::string* StringPool::keyToString (sgkey_t key,
                                             sgaux_t& aux) const
 {
-  return impl()->keyToString (key, aux);
+  return m_impl->keyToString (key, aux);
 }
 
 
@@ -208,7 +287,16 @@ bool StringPool::registerKey (sgkey_t key,
 {
   // Make sure the primary mapping is registered first.
   stringToKey (str, aux);
-  return impl()->registerKey (key, str, aux);
+  return m_impl->registerKey (key, str, aux);
+}
+
+
+/**
+ * @brief Number of registered mappings.
+ */
+size_t StringPool::size() const
+{
+  return m_impl->size();
 }
 
 
@@ -217,39 +305,16 @@ bool StringPool::registerKey (sgkey_t key,
  */
 void StringPool::dump () const
 {
-  impl()->dump();
+  m_impl->dump();
 }
 
 
 /**
- * @brief Empty the pool and release all allocated memory.
+ * @brief Empty the pool.
  */
 void StringPool::clear()
 {
-  delete m_impl;
-  m_impl = nullptr;
-}
-
-
-/**
- * @brief Helper to retrieve the impl object, creating it if needed.
- */
-StringPoolImpl* StringPool::impl()
-{
-  if (!m_impl)
-    m_impl = new StringPoolImpl;
-  return m_impl;
-}
-
-
-/**
- * @brief Helper to retrieve the impl object, creating it if needed.
- */
-const StringPoolImpl* StringPool::impl() const
-{
-  if (!m_impl)
-    m_impl = new StringPoolImpl;
-  return m_impl;
+  m_impl->clear();
 }
 
 

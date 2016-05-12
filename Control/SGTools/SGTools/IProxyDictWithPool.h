@@ -20,39 +20,10 @@
 #ifndef SGTOOLS_IPROXYDICTWITHPOOL_H
 #define SGTOOLS_IPROXYDICTWITHPOOL_H
 
+
+// Now everything's in IProxyDict.
 #include "AthenaKernel/IProxyDict.h"
-#include "SGTools/IStringPool.h"
-
-
-/// Interface definition.
-static const InterfaceID IID_IProxyDictWithPool ("IProxyDictWithPool", 1, 0);
-
-
-/**
- * @brief Combine IProxyDict and IStringPool.
- */
-class IProxyDictWithPool
-  : public IProxyDict,
-    public IStringPool
-{
-public:
-  /// Gaudi interface definition.
-  static const InterfaceID& interfaceID() { return IID_IProxyDictWithPool; }
-
-
-  /**
-   * @brief Test to see if the target of an ElementLink has moved.
-   * @param sgkey_in Original hashed key of the EL.
-   * @param index_in Original index of the EL.
-   * @param sgkey_out[out] New hashed key for the EL.
-   * @param index_out[out] New index for the EL.
-   * @return True if there is a remapping; false otherwise.
-   *
-   * The default implementation here always returns false.
-   */
-  virtual bool tryELRemap (sgkey_t sgkey_in, size_t index_in,
-                           sgkey_t& sgkey_out, size_t& index_out);
-};
+typedef IProxyDict IProxyDictWithPool;
 
 
 #endif // not SGTOOLS_IPROXYDICTWITHPOOL_H

@@ -71,8 +71,8 @@ struct ClassID_traits {
   ///the demangled type name of T
   static const std::string& typeName() {
     MY_STATIC_ASSERT(s_isDataObject);
-    static const std::string s_tname = System::typeinfoName(typeid(T));
-    return s_tname;
+    static const std::string tname = System::typeinfoName(typeid(T));
+    return tname;
   }
 
   ///the type id of T

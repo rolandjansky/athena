@@ -12,7 +12,7 @@
 
 #include "SGTools/ProxyMap.h"
 #include "SGTools/T2pMap.h"
-#include "SGTools/IProxyDictWithPool.h"
+#include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/DefaultKey.h"
 #include "AthenaKernel/IProxyRegistry.h"
 #include "CxxUtils/unordered_map.h"
@@ -78,7 +78,7 @@ namespace SG {
      * @brief Constructor.
      * @param pool The string pool associated with this store.
      */
-    DataStore (IProxyDictWithPool& pool);
+    DataStore (IProxyDict& pool);
     virtual ~DataStore();
 
     void setStoreID(StoreID::type id) { m_storeID = id;}
@@ -86,7 +86,10 @@ namespace SG {
  
     // If FORCE is true, then force deleting of all proxies,
     // even if they would normally only be reset.
-    void clearStore(bool force = false, MsgStream* pmlog=0);
+    /// If HARD is true, then the bound objects should also
+    /// clear any data that depends on the identity
+    /// of the current event store.  (See IResetable.h.)
+    void clearStore(bool force, bool hard, MsgStream* pmlog);
 
     //////////////////////////////////////////////////////////////////
     /// \name Implementation of IProxyRegistry.
@@ -110,7 +113,10 @@ namespace SG {
 
     /// remove proxy from store, unless proxy is reset only.   
     /// @param forceRemove remove the proxy no matter what
-    StatusCode removeProxy(DataProxy* proxy, bool forceRemove=false);
+    /// If HARD is true, then the bound objects should also
+    /// clear any data that depends on the identity
+    /// of the current event store.  (See IResetable.h.)
+    StatusCode removeProxy(DataProxy* proxy, bool forceRemove, bool hard);
 
     /// add symlink to store:
     StatusCode addSymLink(const CLID& linkid, DataProxy* proxy);
@@ -151,7 +157,7 @@ namespace SG {
   private:
 
     /// The string pool associated with this store.
-    IProxyDictWithPool& m_pool;
+    IProxyDict& m_pool;
 
     StoreMap m_storeMap;
 

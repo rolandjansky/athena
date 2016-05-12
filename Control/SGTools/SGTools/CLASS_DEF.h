@@ -15,6 +15,44 @@
 #include "CxxUtils/unused.h"
 #include <boost/preprocessor/stringize.hpp>
 
+#ifdef __CLING__
+# define CLIDREGISTRY_ADDENTRY(CID, NAME)                               \
+  namespace detail {							\
+    const bool UNUSED(clidEntry_ ## CID) =                              \
+      CLIDRegistry::addEntry(CID, typeid(NAME),                         \
+                                  ClassID_traits< NAME >::typeNameString(), \
+				  ClassID_traits< NAME >::packageInfo(), \
+				  ClassName< NAME >::name());		\
+  } 
+# define CLIDREGISTRY_ADDENTRY2(CID, ARG1, ARG2)                        \
+  namespace detail {							\
+    const bool UNUSED(clidEntry_ ## CID) =                              \
+      CLIDRegistry::addEntry                                            \
+      (CID, typeid(ARG1,ARG2),                                          \
+       ClassID_traits< ARG1,ARG2 >::typeNameString(),                   \
+       ClassID_traits< ARG1,ARG2 >::packageInfo(),			\
+       ClassName< ARG1,ARG2 >::name());					\
+  } 
+#else
+# define CLIDREGISTRY_ADDENTRY(CID, NAME)                               \
+  namespace detail {							\
+    const bool UNUSED(clidEntry_ ## CID) =                              \
+      CLIDRegistry::addEntry<CID>(typeid(NAME),                         \
+                                  ClassID_traits< NAME >::typeNameString(), \
+				  ClassID_traits< NAME >::packageInfo(), \
+				  ClassName< NAME >::name());		\
+  } 
+# define CLIDREGISTRY_ADDENTRY2(CID, ARG1, ARG2)                        \
+  namespace detail {							\
+    const bool UNUSED(clidEntry_ ## CID) =                              \
+      CLIDRegistry::addEntry<CID>                                       \
+      (typeid(ARG1,ARG2),                                               \
+       ClassID_traits< ARG1,ARG2 >::typeNameString(),                   \
+       ClassID_traits< ARG1,ARG2 >::packageInfo(),			\
+       ClassName< ARG1,ARG2 >::name());					\
+  } 
+#endif
+
 /** @def CLASS_DEF(NAME, CID , VERSION) 
  *  @brief associate a clid and a version to a type
  *  eg 
@@ -33,13 +71,16 @@
     typedef type_tools::Int2Type<s_isDataObject> is_DataObject_tag;	\
     typedef type_tools::true_tag has_classID_tag;			\
     static const CLID& ID() { static CLID c(CID); return  c; }		\
-    static const std::string& typeName() {				\
-      static const std::string s_name = #NAME;				\
-      return s_name;							\
+    static const char* typeNameString() {                               \
+      return #NAME;                                                     \
+    }									\
+    static const std::string& typeName() {                              \
+      static const std::string name = typeNameString();                 \
+      return name;		 					\
     }									\
     static  Athena::PackageInfo packageInfo() {				\
-      static Athena::PackageInfo __pi( BOOST_PP_STRINGIZE(PACKAGE_VERSION_UQ)  ); \
-      return __pi;							\
+      static Athena::PackageInfo pi( BOOST_PP_STRINGIZE(PACKAGE_VERSION_UQ)  ); \
+      return pi;							\
     }									\
     static const std::type_info& typeInfo() {				\
       return typeid (NAME);						\
@@ -48,13 +89,7 @@
     BOOST_STATIC_CONSTANT(int, s_version = VERSION);			\
     BOOST_STATIC_CONSTANT(bool, s_isConst = false);                     \
   };									\
-  namespace detail {							\
-    const bool UNUSED(clidEntry_ ## CID) =                              \
-      CLIDRegistry::addEntry<CID>(typeid(NAME),                         \
-                                  ClassID_traits< NAME >::typeName(),   \
-				  ClassID_traits< NAME >::packageInfo(), \
-				  ClassName< NAME >::name());		\
-  } 
+  CLIDREGISTRY_ADDENTRY(CID, NAME)
 
 
 /** @def CLASS_DEF2(ARG1, ARG2, CID , VERSION) 
@@ -78,9 +113,12 @@
     static const CLID& ID() {						\
       static CLID c(CID); return  c;					\
     }									\
+    static const char* typeNameString() {				\
+      return #ARG1 "," #ARG2;                                           \
+    }									\
     static const std::string& typeName() {				\
-      static const std::string s_name = #ARG1 "," #ARG2;		\
-      return s_name;							\
+      static const std::string name = typeNameString();                 \
+      return name;							\
     }									\
     static const std::type_info& typeInfo() {				\
       return typeid (ARG1,ARG2);					\
@@ -92,13 +130,6 @@
     BOOST_STATIC_CONSTANT(int, s_version = VERSION);			\
     BOOST_STATIC_CONSTANT(bool, s_isConst = false);                     \
   };									\
-  namespace detail {							\
-    const bool UNUSED(clidEntry_ ## CID) =                              \
-      CLIDRegistry::addEntry<CID>                                       \
-      (typeid(ARG1,ARG2),                                               \
-       ClassID_traits< ARG1,ARG2 >::typeName(),                         \
-       ClassID_traits< ARG1,ARG2 >::packageInfo(),			\
-       ClassName< ARG1,ARG2 >::name());					\
-  } 
+  CLIDREGISTRY_ADDENTRY2(CID, ARG1, ARG2)
 
 #endif // not SGTOOLS_CLASS_DEF_H

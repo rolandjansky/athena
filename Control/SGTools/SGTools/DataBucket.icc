@@ -4,10 +4,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SGTOOLS_DATABUCKET_H
-#include "SGTools/DataBucket.h"
-#endif
-
 #include <boost/type_traits/cv_traits.hpp>
 #include <boost/type_traits/transform_traits.hpp>
 #include <boost/type_traits/is_integral.hpp>
@@ -19,14 +15,7 @@
 #include "SGTools/IRegisterTransient.h"
 #include "AthenaKernel/ILockable.h"
 
-#if __cplusplus > 201100
-# include <type_traits>
-namespace SG_STD_OR_BOOST = std;
-#else
-# include "boost/type_traits/is_polymorphic.hpp"
-namespace SG_STD_OR_BOOST = boost;
-#endif
-
+#include <type_traits>
 
 
 // Some helper functions.
@@ -90,7 +79,6 @@ SG::DataBucket<T>::DataBucket(T* data)
     SG::db_maybe_ref (m_ptr, tag());
 }
 
-#if __cplusplus > 201100
 template <typename T> 
 SG::DataBucket<T>::DataBucket(std::unique_ptr<T> data)
   : m_ptr(data.release())
@@ -100,7 +88,12 @@ SG::DataBucket<T>::DataBucket(std::unique_ptr<T> data)
   if (m_ptr)
     SG::db_maybe_ref (m_ptr, tag());
 }
-#endif
+
+template <typename T> 
+SG::DataBucket<T>::DataBucket(SG::DataObjectSharedPtr<T> data)
+  : m_ptr(data.detach())
+{
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // DATAOBJECT
@@ -235,7 +228,7 @@ namespace {
 
 
 template <class T>
-void call_lock (T* p, SG_STD_OR_BOOST::true_type)
+void call_lock (T* p, std::true_type)
 {
   typedef typename std::remove_const<T>::type T_nc;
   ILockable* l = dynamic_cast<ILockable*> (const_cast<T_nc*>(p));
@@ -244,7 +237,7 @@ void call_lock (T* p, SG_STD_OR_BOOST::true_type)
 
 
 template <class T>
-void call_lock (T*, SG_STD_OR_BOOST::false_type)
+void call_lock (T*, std::false_type)
 {
 }
 
@@ -258,6 +251,6 @@ void call_lock (T*, SG_STD_OR_BOOST::false_type)
 template <class T>
 void SG::DataBucket<T>::lock()
 {
-  call_lock (m_ptr, typename SG_STD_OR_BOOST::is_polymorphic<T>::type());
+  call_lock (m_ptr, typename std::is_polymorphic<T>::type());
 }
 

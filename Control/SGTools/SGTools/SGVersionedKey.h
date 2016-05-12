@@ -14,6 +14,8 @@
 class StoreGateSvc; //our friend
 class SGImplSvc; //our friend
 namespace SG {
+  template <class T>  class ObjectWithVersion;
+
   /** @class SG::VersionedKey
    * @brief  a StoreGateSvc key with a version number.
    * Notice that StoreGate does not order multiple instances of an object with
@@ -37,39 +39,40 @@ namespace SG {
     ///quickly determine whether a string has the right format to be a VK
     static bool isVersionedKey(const std::string&);
 
-    /// version must be [0,99], 0 is the default version
+    ///quickly determine whether a string has the right format to be a VK
+    ///with auto-generated version #
+    static bool isAuto(const std::string&);
+
+    /// version must be [0,98], 0 is the default version
     VersionedKey(const char* key, unsigned char version);
-    /// version must be [0,99], 0 is the default version
+    /// version must be [0,98], 0 is the default version
     VersionedKey(const std::string& key, unsigned char version);
 
     /// make a VersionedKey from vkey string. If vkey has the
     /// VersionedKey format (;NN;key), it is simply copied, otherwise
-    /// it is taken to be the real key, and version=0 is assigned
+    /// it is taken to be the real key, and default version is assigned
     explicit VersionedKey(const char* vkey);
     /// make a VersionedKey from vkey string. If vkey has the
     /// VersionedKey format (;NN;key), it is simply copied, otherwise
-    /// it is taken to be the real key, and version=0 is assigned
+    /// it is taken to be the real key, and default version is assigned
     explicit VersionedKey(const std::string& vkey);
     
-    /// copy constructor transfers ownership a la auto_ptr (hence rhs
-    /// is not really const).
     VersionedKey(const VersionedKey& rhs);
 
-    /// default constructor (invalid state, do not use)
-    VersionedKey(): m_versionKey(0) {}
+    //no assignment
+    VersionedKey& operator= (const VersionedKey&) = delete;
 
     ~VersionedKey();
 
-    /// sets key to point to encoded key, and version to encoded version (0 is taken to mean default version). 
-    void decode(char*& key, unsigned char& version) const;
-    /// convert underlying encoded m_versionKey C string
-    operator std::string() const { return std::string(m_versionKey); }
+    /// sets outKey to point to base key, and version to encoded version (0 is taken to mean default version). 
+    void decode(std::string& outKey, unsigned char& version) const;
+    operator std::string() const { return m_versionKey; }
     /// @returns version number
     unsigned char version() const;
     /// @returns base key
-    const char* key() const;
+    const std::string& key() const;
     /// @returns access underlying encoded m_versionKey C string
-    const char* rawVersionKey() const {
+    const std::string& rawVersionKey() const {
       return m_versionKey;
     }
     /// compare base keys
@@ -78,17 +81,29 @@ namespace SG {
     bool sameKey(const std::string& baseKey) const;
     /// compare base keys
     bool sameKey(const char* baseKey) const;
+    bool isAuto() const { return version() == VersionedKey::autoV(); }
 
   private:
-    void encode(const char* key, unsigned char version);
-    void copyVK(const char* versionedKey);
+    template <class U> friend class ObjectWithVersion;
+    /// default constructor (invalid state, do not use)
+    VersionedKey(): m_versionKey() {}
+
+    void encode(const std::string& inKey, unsigned char version);
+    void copyVK(const std::string& inKey);
+
     static char separator() {return ';';}
+    static const char* versionFormatString() {return ";%02u;";}
     static const char* formatString() {return ";%02u;%s";}
+
+    static unsigned char autoV() { return 99;}
+    static unsigned char defaultV() { return 0;}
+    static const char* autoVS() { return "_99_"; }
+    static const char* defaultVS() { return "_00_"; }
+
     ///the encoded version/key. Mutable so that ownership can be transferred
     ///in the copy constructor
-    mutable char* m_versionKey; 
-
-    VersionedKey& operator= (const VersionedKey&);
+    std::string m_versionKey; 
+    mutable std::string m_baseKey;
   };
 } // ns SG
 

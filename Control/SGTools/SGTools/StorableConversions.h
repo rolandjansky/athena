@@ -17,6 +17,7 @@
 #include "SGTools/ClassID_traits.h"
 #include "SGTools/DataBucketTraitFwd.h"
 #include "AthenaKernel/tools/type_tools.h"
+#include "AthenaKernel/DataObjectSharedPtr.h"
 #include "GaudiKernel/DataObject.h"
 
 #ifndef NDEBUG
@@ -194,13 +195,17 @@ namespace SG {
     return new bucket_t (pObject);
   }  
 
-#if __cplusplus > 201100
   template <typename T>
   DataObject* asStorable(std::unique_ptr<T> pObject) {
     typedef typename DataBucketTrait<T>::type bucket_t;
     return new bucket_t (std::move(pObject));
   }  
-#endif
+
+  template <typename T>
+  DataObject* asStorable(SG::DataObjectSharedPtr<T> pObject) {
+    typedef typename DataBucketTrait<T>::type bucket_t;
+    return new bucket_t (std::move(pObject));
+  }  
 
   // get a dobj pointer from a bucket as appropriate
   //the DataObject must be a DataBucket<DATA>*.

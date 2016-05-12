@@ -11,11 +11,9 @@
 #include "SGTools/StorableConversions.h"
 #include "AthenaKernel/ILockable.h"
 #include <iostream>
-using namespace std;
-using namespace SG;
+#include <cassert>
 
 /*FIXME can get it from TestTools circ package dep */
-#include <cassert>
 #define SGASSERTERROR( FALSEEXPR )   \
     std::cerr << "Now we expect to see an error message:" << std::endl \
               << "----Error Message Starts--->>" << std::endl; \
@@ -24,6 +22,12 @@ using namespace SG;
 
 
 #include "GaudiKernel/DataObject.h"
+
+
+//using namespace std;
+//using namespace SG;
+
+
 class GaudiDataObj : public DataObject {
  
 public: 
@@ -34,8 +38,8 @@ public:
   virtual ~GaudiDataObj(){ --count; };
 
   static const CLID& classID() {
-    static const CLID _ID = 8010;
-    return _ID; }
+    static const CLID ID = 8010;
+    return ID; }
   virtual const CLID& clID() const { return classID(); }
 
   void val(int i) { m_val = i; }
@@ -57,8 +61,8 @@ public:
 class AbstractDataObj : public DataObject {
 public:
   static const CLID& classID() {
-    static const CLID _ID = 8011;
-    return _ID; }
+    static const CLID ID = 8011;
+    return ID; }
   virtual const CLID& clID() const { return classID(); }
   virtual void abstractMethod()=0;
 };
@@ -165,7 +169,7 @@ CLASS_DEF(XLock, 8114, 1)
 
 
 class TestRegisterTransient
-  : public IRegisterTransient
+  : public SG::IRegisterTransient
 {
 public:
   virtual void registerTransient (void* trans) { m_xtrans.push_back (trans); }
@@ -183,19 +187,19 @@ void test2()
 
   X1* x1 = new X1;
   x1->a = 10;
-  DataObject* xbucket = asStorable(x1);
+  DataObject* xbucket = SG::asStorable(x1);
 
-  const X3* x3 = Storable_cast<X3>(xbucket, false, &trt);
+  const X3* x3 = SG::Storable_cast<X3>(xbucket, false, &trt);
   assert ((char*)x3 != (char*)x1);
   assert (x3->a == 10);
 
   assert (trt.m_xtrans.size() == 1);
   assert (trt.m_xtrans[0] == x3);
 
-  const X4* x4 = Storable_cast<X4>(xbucket, true, &trt);
+  const X4* x4 = SG::Storable_cast<X4>(xbucket, true, &trt);
   assert (x4 == 0);
 
-  assert (Storable_cast<X3>(xbucket, false, &trt, false) == 0);
+  assert (SG::Storable_cast<X3>(xbucket, false, &trt, false) == 0);
 
   SG::DataBucket<X1>* xb = dynamic_cast<SG::DataBucket<X1>*> (xbucket);
   assert (xb->cast (ClassID_traits<X3>::ID(), &trt) == x3);
@@ -212,6 +216,7 @@ void test2()
 // Test lock()
 void test3()
 {
+  using namespace SG;
   std::cout << "test3\n";
 
   X1* x1 = new X1;
@@ -231,41 +236,44 @@ void test3()
 
 
 int main () {
+  using namespace std;
+  using namespace SG;
   ISvcLocator* pDum;
   Athena_test::initGaudi(pDum); //need the MessageSvc
   assert( pDum );
-  DataBucket<int> intBucket(0);
-  DataBucket<const int*> pintBucket(0);
-  DataBucket<vector<int> > vintBucket(0);
-  cerr << "int has_classID " <<  intBucket.clID() << " version "
-       << ClassID_traits<int>::s_version << " and " 
-       << (ClassID_traits<int>::s_isDataObject ? "does" : "does not")
-       << " inherit from DataObject" <<endl;
-  cerr << "const int* has_classID " <<  pintBucket.clID() <<endl;
+  SG::DataBucket<int> intBucket(0);
+  SG::DataBucket<const int*> pintBucket(0);
+  SG::DataBucket<vector<int> > vintBucket(0);
+  std::cerr << "int has_classID " <<  intBucket.clID() << " version "
+            << ClassID_traits<int>::s_version << " and " 
+            << (ClassID_traits<int>::s_isDataObject ? "does" : "does not")
+            << " inherit from DataObject" <<std::endl;
+  std::cerr << "const int* has_classID " <<  pintBucket.clID() <<std::endl;
   assert(intBucket.clID() == pintBucket.clID());
+  assert(intBucket.tinfo() == typeid(int));
 
-  cerr << "vector<int> has_classID " <<  vintBucket.clID() <<endl;
-  DataBucket<GaudiDataObj> gdobjBucket(0);
-  cerr << "GaudiDataObj has_classID " <<  gdobjBucket.clID() << " and " 
-       << (ClassID_traits<GaudiDataObj>::s_isDataObject ? "does" : "does not")
-       << " inherit from DataObject" <<endl;
+  std::cerr << "vector<int> has_classID " <<  vintBucket.clID() <<std::endl;
+  SG::DataBucket<GaudiDataObj> gdobjBucket(0);
+  std::cerr << "GaudiDataObj has_classID " <<  gdobjBucket.clID() << " and " 
+            << (ClassID_traits<GaudiDataObj>::s_isDataObject ? "does" : "does not")
+            << " inherit from DataObject" <<std::endl;
   assert(gdobjBucket.clID() == GaudiDataObj::classID());
   assert(ClassID_traits<GaudiDataObj>::s_isDataObject);
 
-  DataBucket<MyDataObj> dobjBucket(0);
-  cerr << "MyDataObj has_classID " <<  dobjBucket.clID() << " and " 
-       << (ClassID_traits<MyDataObj>::s_isDataObject ? "does" : "does not")
-       << " inherit from DataObject" <<endl;
+  SG::DataBucket<MyDataObj> dobjBucket(0);
+  std::cerr << "MyDataObj has_classID " <<  dobjBucket.clID() << " and " 
+            << (ClassID_traits<MyDataObj>::s_isDataObject ? "does" : "does not")
+            << " inherit from DataObject" <<std::endl;
   assert(dobjBucket.clID() == ClassID_traits<MyDataObj>::ID());
   assert(!ClassID_traits<MyDataObj>::s_isDataObject);
 
-  DataBucket<AbstractDataObj> absdobjBucket(0);
-  cerr << "AbstractDataObj has_classID " <<  absdobjBucket.clID() <<endl;
+  SG::DataBucket<AbstractDataObj> absdobjBucket(0);
+  std::cerr << "AbstractDataObj has_classID " <<  absdobjBucket.clID() <<std::endl;
   assert(absdobjBucket.clID() == AbstractDataObj::classID());
   assert(ClassID_traits<AbstractDataObj>::s_isDataObject);
 
-  DataBucket<AbstractType> absBucket(0);
-  cerr << "AbstractType has_classID " <<  absBucket.clID() <<endl;
+  SG::DataBucket<AbstractType> absBucket(0);
+  std::cerr << "AbstractType has_classID " <<  absBucket.clID() <<std::endl;
   assert(absBucket.clID() == ClassID_traits<AbstractType>::ID());
   assert(!ClassID_traits<AbstractType>::s_isDataObject);
 
@@ -273,7 +281,7 @@ int main () {
   assert("GaudiDataObj" == ClassID_traits<GaudiDataObj>::typeName());
   if("std::map<int,float>" != 
      ClassID_traits<map<int, float> >::typeName()) {
-    cerr << "error checking type name for map<int,float>: ClassID has it as " << ClassID_traits<map<int, float> >::typeName() <<endl;
+    std::cerr << "error checking type name for map<int,float>: ClassID has it as " << ClassID_traits<map<int, float> >::typeName() <<std::endl;
     assert(0);
   }
 
@@ -291,18 +299,18 @@ int main () {
   pRes = 0;
   //  static const bool QUIET(true);
   static const bool VERBOSE(false);
-  assert(0 != (pRes = Storable_cast<MyDataObj>(pBucket, VERBOSE)));
+  assert(0 != (pRes = SG::Storable_cast<MyDataObj>(pBucket, VERBOSE)));
   
-  cerr << "Now we expect to see an error message:" << endl 
-	    << "----Error Message Starts--->>" << endl; 
-  pWrong = Storable_cast<WrongType>(pBucket, VERBOSE);
+  std::cerr << "Now we expect to see an error message:" << std::endl 
+	    << "----Error Message Starts--->>" << std::endl; 
+  pWrong = SG::Storable_cast<WrongType>(pBucket, VERBOSE);
   assert(0 == pWrong);
-  cerr<< "<<---Error Message Ends-------" << endl;
-  cerr << "Now we expect to see an error message:" << endl 
-	    << "----Error Message Starts--->>" << endl; 
-  pWrong = Storable_cast<WrongType>((DataObject*)0);
+  std::cerr<< "<<---Error Message Ends-------" << std::endl;
+  std::cerr << "Now we expect to see an error message:" << std::endl 
+	    << "----Error Message Starts--->>" << std::endl; 
+  pWrong = SG::Storable_cast<WrongType>((DataObject*)0);
   assert(0 == pWrong);
-  cerr<< "<<---Error Message Ends-------" << endl;
+  std::cerr<< "<<---Error Message Ends-------" << std::endl;
   delete pBucket;
 	 
   GaudiDataObj* pGDO = new GaudiDataObj(2);
@@ -316,22 +324,22 @@ int main () {
   DataObject* pDO(0);
   assert (0 != (pDO = asStorable(new GaudiDataObj(3))));
   pGRes = 0;
-  assert(0 != (pGRes = Storable_cast<GaudiDataObj>(pDO, VERBOSE)));
+  assert(0 != (pGRes = SG::Storable_cast<GaudiDataObj>(pDO, VERBOSE)));
 
   const DataObject& rDO(*pDO);
-  const GaudiDataObj& rGRes(Storable_cast<GaudiDataObj>(rDO, VERBOSE));
+  const GaudiDataObj& rGRes(SG::Storable_cast<GaudiDataObj>(rDO, VERBOSE));
   
   try {
-    cerr << "Now we expect to see an error message:" << endl 
-              << "----Error Message Starts--->>" << endl; 
-    const WrongType& rWr = Storable_cast<WrongType>(rGRes, VERBOSE);
+    std::cerr << "Now we expect to see an error message:" << std::endl 
+              << "----Error Message Starts--->>" << std::endl; 
+    const WrongType& rWr = SG::Storable_cast<WrongType>(rGRes, VERBOSE);
     pWrong=const_cast<WrongType*>(&rWr); //remove warning
   } catch (bad_Storable_cast ) {
-    cerr << "<<---Error Message Ends-------" << endl;
+    std::cerr << "<<---Error Message Ends-------" << std::endl;
   }
 
   const DataObject* cpDO(pDO);
-  const GaudiDataObj* cpGRes(Storable_cast<GaudiDataObj>(cpDO, VERBOSE));
+  const GaudiDataObj* cpGRes(SG::Storable_cast<GaudiDataObj>(cpDO, VERBOSE));
   assert( 0 != cpGRes );
   delete pDO;
   delete DBGDO;
@@ -376,10 +384,9 @@ int main () {
   delete gdo;
   //----------------------------------------------------------
 
-#if __cplusplus > 201100
   {
     std::unique_ptr<X5> p (new X5(10));
-    DataBucketBase* b3 = new DataBucket<X5> (std::move(p));
+    DataBucketBase* b3 = new SG::DataBucket<X5> (std::move(p));
     assert (p.get() == 0);
     assert (X5::log.empty());
     delete b3;
@@ -395,12 +402,30 @@ int main () {
     delete b4;
     assert (X5::log == std::vector<int> {11});
   }
-#endif
+
+  {
+    SG::DataObjectSharedPtr<GaudiDataObj> ptr (new GaudiDataObj);
+    assert (ptr->refCount() == 1);
+    DataBucketBase* b5 = new SG::DataBucket<GaudiDataObj> (ptr);
+    assert (ptr->refCount() == 2);
+    assert (b5->object() == ptr.get());
+    delete b5;
+    assert (ptr->refCount() == 1);
+  }
+
+  {
+    SG::DataObjectSharedPtr<GaudiDataObj> ptr (new GaudiDataObj);
+    assert (ptr->refCount() == 1);
+    DataObject* b6 = asStorable (ptr);
+    assert (ptr->refCount() == 2);
+    delete b6;
+    assert (ptr->refCount() == 1);
+  }
 
   test2();
   test3();
 
-  cerr << "*** DataBucket_test OK ***" <<endl;
+  std::cerr << "*** DataBucket_test OK ***" <<std::endl;
   return 0;
 
 }

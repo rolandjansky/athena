@@ -14,8 +14,9 @@
 #include "SGTools/DataStore.h"
 #include "SGTools/StringPool.h"
 #include "SGTools/DataProxy.h"
+#include "SGTools/TestStore.h"
 #include "SGTools/TransientAddress.h"
-#include "SGTools/IProxyDictWithPool.h"
+#include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include <iostream>
@@ -33,43 +34,6 @@ public:
 };
 
 
-class TestPool
-  : public IProxyDictWithPool
-{
-public:
-  virtual
-  sgkey_t stringToKey (const std::string& str, CLID clid)
-  { return m_pool.stringToKey (str, clid); }
-  virtual
-  const std::string* keyToString (sgkey_t key) const 
-  { return m_pool.keyToString (key); }
-  virtual
-  const std::string* keyToString (sgkey_t key,
-                                  CLID& clid) const
-  { return m_pool.keyToString (key, clid); }
-  virtual
-  void registerKey (sgkey_t key,
-                    const std::string& str,
-                    CLID clid)
-  { m_pool.registerKey (key, str, clid); }
-
-
-  virtual unsigned long addRef() { std::abort(); }
-  virtual unsigned long release() { std::abort(); }
-  virtual const std::string& name() const { std::abort(); }
-  virtual StatusCode queryInterface(const InterfaceID &, void** )  { std::abort(); }
-  virtual SG::DataProxy* proxy(const CLID&) const { std::abort(); }
-  virtual StatusCode addToStore (CLID , SG::DataProxy*) { std::abort(); }
-  virtual SG::DataProxy* deep_proxy(const void* const) const { std::abort(); }
-  virtual SG::DataProxy* proxy(const void* const) const { std::abort(); }
-  virtual SG::DataProxy* proxy_exact (SG::sgkey_t) const { std::abort(); }
-  virtual std::vector<const SG::DataProxy*> proxies() const { std::abort(); }
-  virtual SG::DataProxy* proxy(const CLID&, const std::string&) const { std::abort(); }
-
-  SG::StringPool m_pool;
-};
-
-
 SG::DataProxy* make_proxy (CLID clid, const std::string& name)
 {
   SG::TransientAddress* tad = new SG::TransientAddress (clid, name);
@@ -80,7 +44,7 @@ SG::DataProxy* make_proxy (CLID clid, const std::string& name)
 void test_ctor()
 {
   std::cout << "test_ctor\n";
-  TestPool pool;
+  SGTest::TestStore pool;
   SG::DataStore store (pool);
   assert (store.storeID() == StoreID::UNKNOWN);
   store.setStoreID (StoreID::SPARE_STORE);
@@ -92,7 +56,7 @@ void test_addToStore()
 {
   std::cout << "test_addToStore\n";
 
-  TestPool pool;
+  SGTest::TestStore pool;
   SG::DataStore store (pool);
   SG::StringPool::sgkey_t sgkey = pool.stringToKey ("dp1", 123);
 
@@ -124,7 +88,7 @@ void test_addAlias()
 {
   std::cout << "test_addAlias\n";
 
-  TestPool pool;
+  SGTest::TestStore pool;
   SG::DataStore store (pool);
 
   SG::DataProxy* dp1 = make_proxy (123, "dp1");
@@ -160,7 +124,7 @@ void test_addSymLink()
 {
   std::cout << "test_addSymLink\n";
 
-  TestPool pool;
+  SGTest::TestStore pool;
   SG::DataStore store (pool);
 
   SG::DataProxy* dp1 = make_proxy (123, "dp1");
@@ -186,7 +150,7 @@ void test_proxy_exact()
 {
   std::cout << "test_proxy_exact\n";
 
-  TestPool pool;
+  SGTest::TestStore pool;
   SG::DataStore store (pool);
 
   SG::DataProxy* dp1 = make_proxy (123, "dp1");
@@ -205,7 +169,7 @@ void test_proxy()
 {
   std::cout << "test_proxy\n";
 
-  TestPool pool;
+  SGTest::TestStore pool;
   SG::DataStore store (pool);
 
   SG::DataProxy* dp1 = make_proxy (123, "dp1");
@@ -235,7 +199,7 @@ void test_typeCount()
 {
   std::cout << "test_typeCount\n";
 
-  TestPool pool;
+  SGTest::TestStore pool;
   SG::DataStore store (pool);
 
   SG::DataProxy* dp1 = make_proxy (123, "dp1");
@@ -255,7 +219,7 @@ void test_tRange()
 {
   std::cout << "test_tRange\n";
 
-  TestPool pool;
+  SGTest::TestStore pool;
   SG::DataStore store (pool);
 
   SG::DataProxy* dp1 = make_proxy (123, "dp1");
@@ -283,7 +247,7 @@ void test_pRange()
 {
   std::cout << "test_pRange\n";
 
-  TestPool pool;
+  SGTest::TestStore pool;
   SG::DataStore store (pool);
 
   SG::DataProxy* dp1 = make_proxy (123, "dp1");
@@ -320,7 +284,7 @@ void test_proxyList()
 {
   std::cout << "test_proxyList\n";
 
-  TestPool pool;
+  SGTest::TestStore pool;
   SG::DataStore store (pool);
 
   SG::DataProxy* dp1 = make_proxy (123, "dp1");
@@ -345,7 +309,7 @@ void test_keys()
 {
   std::cout << "test_keys\n";
 
-  TestPool pool;
+  SGTest::TestStore pool;
   SG::DataStore store (pool);
 
   SG::DataProxy* dp1 = make_proxy (123, "dp1");
@@ -399,10 +363,10 @@ void test_removeProxy()
 {
   std::cout << "test_removeProxy\n";
 
-  TestPool pool;
+  SGTest::TestStore pool;
   SG::DataStore store (pool);
 
-  assert (store.removeProxy (0, false).isFailure());
+  assert (store.removeProxy (0, false, false).isFailure());
 
   SG::DataProxy* dp1 = make_proxy (123, "dp1");
   dp1->addRef();
@@ -420,11 +384,11 @@ void test_removeProxy()
   assert (dp1->refCount() == 4);
 
   dp1->resetOnly (true);
-  assert (store.removeProxy (dp1, false).isSuccess());
+  assert (store.removeProxy (dp1, false, false).isSuccess());
   assert (dp1->refCount() == 4);
 
   dp1->resetOnly (false);
-  assert (store.removeProxy (dp1, false).isSuccess());
+  assert (store.removeProxy (dp1, false, false).isSuccess());
   assert (dp1->refCount() == 1);
   assert (store.proxy_exact (pool.stringToKey ("dp1", 123)) == 0);
   assert (store.proxy_exact (pool.stringToKey ("dp1", 124)) == 0);
@@ -440,7 +404,7 @@ void test_clearStore()
 {
   std::cout << "test_clearStore\n";
 
-  TestPool pool;
+  SGTest::TestStore pool;
   SG::DataStore store (pool);
 
   SG::DataProxy* dp1 = make_proxy (123, "dp1");
@@ -467,7 +431,7 @@ void test_clearStore()
   dp2->registerTransient (&trans2);
   assert (store.locatePersistent (&trans2) == dp2);
 
-  store.clearStore();
+  store.clearStore (false, false, nullptr);
 
   assert (store.locatePersistent (&trans1) == 0);
   assert (store.locatePersistent (&trans2) == 0);
@@ -484,7 +448,7 @@ void test_clearStore()
   assert (store.proxy (123, "dp2") == dp2);
   assert (store.proxy_exact (pool.stringToKey ("dp2", 123)) == dp2);
 
-  store.clearStore(true);
+  store.clearStore (true, false, nullptr);
   assert (dp2->refCount() == 1);
   assert (store.proxy (123, "dp2") == 0);
   assert (store.proxy_exact (pool.stringToKey ("dp2", 123)) == 0);
@@ -495,7 +459,7 @@ void test_t2p()
 {
   std::cout << "test_t2p\n";
 
-  TestPool pool;
+  SGTest::TestStore pool;
   SG::DataStore store (pool);
 
   SG::DataProxy* dp1 = make_proxy (123, "dp1");
@@ -516,7 +480,7 @@ void test_dummy()
 {
   std::cout << "test_dummy\n";
 
-  TestPool pool;
+  SGTest::TestStore pool;
   SG::DataStore store (pool);
 
   SG::StringPool::sgkey_t sgkey = pool.stringToKey ("dp1", 456);

@@ -12,12 +12,7 @@
 using namespace SG;
 using namespace std;
 
-VersionedKey::~VersionedKey() {
-  //  if (m_versionKey) std::cout << "about to free " << 
-  //  m_versionKey << "@" << (void*)m_versionKey << 
-  // "@this " << this << std::endl;
-  free(m_versionKey); 
-}
+VersionedKey::~VersionedKey() {}
 
 bool
 VersionedKey::isVersionedKey(const char * vkey) { 
@@ -29,84 +24,81 @@ VersionedKey::isVersionedKey(const std::string& vkey) {
   return isVersionedKey(vkey.c_str());
 }
 
+bool 
+VersionedKey::isAuto(const std::string& vkey) {
+  return (vkey.substr(0,4) == VersionedKey::autoVS());
+}
+
 VersionedKey::VersionedKey(const char* key, unsigned char version) {
-  encode(key, version);
+  encode(std::string(key), version);
 }
 VersionedKey::VersionedKey(const std::string& key, unsigned char version) {
-  encode(key.c_str(), version);
+  encode(key, version);
 }
 VersionedKey::VersionedKey(const std::string& versionedKey) {
-  copyVK(versionedKey.c_str());
-}
-VersionedKey::VersionedKey(const char* versionedKey) {
   copyVK(versionedKey);
 }
+VersionedKey::VersionedKey(const char* versionedKey) {
+  copyVK(std::string(versionedKey));
+}
 VersionedKey::VersionedKey(const VersionedKey& versionedKey) :
-  m_versionKey(versionedKey.m_versionKey) {
-  versionedKey.m_versionKey=0; //a la auto-ptr
-}
-void VersionedKey::decode(char*& key, unsigned char& version) const {
-  key = m_versionKey+4;
-  version = (unsigned char)strtol(m_versionKey+1, NULL, 10);
+  m_versionKey(versionedKey.m_versionKey) {}
+
+void VersionedKey::decode(std::string& outKey, unsigned char& version) const {
+  outKey = this->key();
+  version = (unsigned char)atoi(m_versionKey.substr(1,2).c_str());
   assert(version <= 99);
-  // possibly faster, disgusting, version decoding
-  // equivalent to version = atoi(m_versionKey[2:3]);
-  //   char *cptr(m_versionKey+1);
-  //   if (*cptr>='0' && *cptr<='9') {
-  //     version = 10 * (*cptr - '0');
-  //     ++cptr;
-  //     if (*cptr>='0' && *cptr<='9') version += *cptr - '0';
-  //     else version = 0;
-  //   } else version = 0;
 }
 
-void VersionedKey::encode(const char* key, unsigned char version) {
+void VersionedKey::encode(const std::string& inKey, unsigned char version) {
   assert(version <= 99);
-  m_versionKey = (char *)malloc(strlen(key)+5);
-  sprintf(m_versionKey, formatString(), version, key);
+  char vers[5];
+  snprintf(vers, 5, versionFormatString(), version);
+  m_versionKey = vers + inKey;
 }
 
-void VersionedKey::copyVK(const char* versionedKey) {
-  if (isVersionedKey(versionedKey)) {
-    m_versionKey = (char *)malloc(strlen(versionedKey)+1);
-    strcpy(m_versionKey, versionedKey);
-  }
-  else {
-    encode(versionedKey, 0);
+void VersionedKey::copyVK(const std::string& inKey) {
+  if (isVersionedKey(inKey)) {
+    m_versionKey = inKey;
+  } else {
+    encode(inKey, 0);  //FIXME should autoincrement
   }
 }
 unsigned char VersionedKey::version() const {
-  return (unsigned char)strtol(m_versionKey+1, NULL, 10);
+  return (unsigned char) std::stoul(m_versionKey.substr(1,2), nullptr, 0);
 }
 /// @returns base key
-const char* VersionedKey::key() const { 
-  return m_versionKey+4; 
+const std::string& VersionedKey::key() const { 
+  if (m_baseKey.empty()) {
+    m_baseKey = m_versionKey.substr(4);
+  } 
+  return m_baseKey;
 }
 
 bool 
 VersionedKey::sameKey(const VersionedKey& vkey) const {
-  return (0 == strcmp(this->key(),vkey.key())); 
+  return (this->key() == vkey.key()); 
 }
 
 bool 
 VersionedKey::sameKey(const std::string& baseKey) const {
-  return (0 == strcmp(this->key(),baseKey.c_str())); 
+  return (this->key() == baseKey); 
 }
 
 bool 
 VersionedKey::sameKey(const char* baseKey) const {
-  return (0 == strcmp(this->key(),baseKey)); 
+  return (this->key() == std::string(baseKey)); 
 }
 
 /// sort according to highest key version
 bool operator < (const SG::VersionedKey& lhs, const SG::VersionedKey& rhs) {
-  char *lhskey(0);
+  std::string lhskey;
   unsigned char lhsVersion(0);
   lhs.decode(lhskey, lhsVersion);
   unsigned char rhsVersion(0);
-  char *rhskey(0);
+  std::string rhskey;
   rhs.decode(rhskey, rhsVersion);
-  int keyCompare(strcmp(lhskey, rhskey));
+  int keyCompare(strcmp(lhskey.c_str(), rhskey.c_str()));
   return ( ( keyCompare < 0) ||
 	   ( (keyCompare == 0) && (lhsVersion < rhsVersion) ) ) ;
 	  

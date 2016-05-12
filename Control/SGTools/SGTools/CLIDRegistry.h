@@ -28,7 +28,7 @@
 # include "CxxUtils/unused.h"
 #endif
 
-namespace detail {
+namespace CLIDdetail {
   /// @name allowed class id range
   //@{	
   const unsigned long MINCLID = 256;
@@ -53,7 +53,7 @@ public:
   ///to be called by the CLASS_DEFS
   template <unsigned long CLID>
   static bool addEntry(const std::type_info& ti,
-                       const std::string& typeName, 
+                       const char* typeName, 
 		       const Athena::PackageInfo& pkgInfo,
 		       const std::string& typeInfoName); 
   //    static bool addEntry(unsigned long id, const std::string& typeName);
@@ -80,6 +80,13 @@ public:
   static unsigned long typeinfoToCLID (const std::type_info& ti);
 
 
+  /// Out-of-line part of addEntry().
+  static bool addEntry (unsigned long clid,
+                        const std::type_info& ti,
+                        const char* typeName, 
+                        const Athena::PackageInfo& pkgInfo,
+                        const std::string& typeInfoName);
+
 private:
   /// Add a CLID <> type_info mapping.
   static void addCLIDMapping (unsigned long clid, const std::type_info& ti);
@@ -98,26 +105,20 @@ template <>       struct ERROR_CLID_out_of_CLIDRegistry_range<true>{};
 //<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 template <unsigned long CLID>
 bool CLIDRegistry::addEntry(const std::type_info& ti,
-                            const std::string& typeName, 
+                            const char* typeName, 
 			    const Athena::PackageInfo& pkgInfo,
 			    const std::string& typeInfoName) {
   //more drudgery
 #ifdef BOOST_HAS_STATIC_ASSERT
-  static_assert (detail::MINCLID <= CLID && CLID <= detail::MAXCLID,
+  static_assert (CLIDdetail::MINCLID <= CLID && CLID <= CLIDdetail::MAXCLID,
                  "CLID out of CLIDRegistry range");
 #else
   UNUSED(typedef ::boost::static_assert_test<
-    sizeof(ERROR_CLID_out_of_CLIDRegistry_range< (bool)(detail::MINCLID <= CLID && CLID <= detail::MAXCLID) >)
+    sizeof(ERROR_CLID_out_of_CLIDRegistry_range< (bool)(CLIDdetail::MINCLID <= CLID && CLID <= CLIDdetail::MAXCLID) >)
          > BOOST_JOIN(boost_static_assert_typedef_, __LINE__));
 #endif
 
-  registry().push_back(tuple_t(CLID, typeName, pkgInfo, typeInfoName));
-#ifdef CLIDREG_DEBUG
-  std::cerr << "CLIDRegistry::addEntry: for CLID/type " 
-	    << CLID << '/' << typeName << " to registry " <<&registry() 
-	    <<std::endl;
-#endif		
-  addCLIDMapping (CLID, ti);
+  addEntry (CLID, ti, typeName, pkgInfo, typeInfoName);
   return true;
 }
 

@@ -133,7 +133,7 @@ DataHandleBase::setState(SG::ConstProxyIterator &itr,
   // we could have a void* m_ptr data member and have a
   // typeless_dataPointer method using the typeless machinery of
   // DataProxy+DataBucketBase...
-  const_cast<DataHandleBase*>(this)->reset();
+  const_cast<DataHandleBase*>(this)->reset (false);
 
   // scan from itr to itrEnd and set m_itr to the first valid iterator:
 
@@ -166,7 +166,7 @@ DataHandleBase::setState(SG::DataProxy* proxy) const
   }
 
   m_useItr = false;
-  const_cast<DataHandleBase*>(this)->reset();
+  const_cast<DataHandleBase*>(this)->reset (false);
 
   return StatusCode::SUCCESS;
 }
@@ -227,7 +227,7 @@ DataHandleBase::setState(SG::DataProxy* proxy)
   }
 
   m_useItr = false;
-  this->reset();
+  this->reset (false);
   return StatusCode::SUCCESS;
 }
 

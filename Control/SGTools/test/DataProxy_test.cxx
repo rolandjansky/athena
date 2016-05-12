@@ -12,10 +12,17 @@
 
 #undef NDEBUG
 #include "SGTools/DataProxy.h"
-#include "SGTools/IProxyDictWithPool.h"
 #include "SGTools/StorableConversions.h"
+#include "SGTools/TestStore.h"
+#include "SGTools/CurrentEventStore.h"
+#include "SGTools/T2pMap.h"
 #include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/ILockable.h"
+#include "AthenaKernel/IResetable.h"
+#include "CxxUtils/make_unique.h"
+#include "GaudiKernel/IConversionSvc.h"
+#include "GaudiKernel/IOpaqueAddress.h"
 #include <iostream>
 #include <cstdlib>
 #include <cassert>
@@ -36,50 +43,113 @@ public:
 };
 CLASS_DEF(XLock, 8114, 1)
 
-class TestStore
-  : public IProxyDictWithPool
+class TestConversionSvc
+  : public IConversionSvc
 {
 public:
-  unsigned long addRef()
-  { std::cout << "addRef\n"; std::abort(); }
-  unsigned long release()
-  { std::cout << "release\n"; std::abort(); }
-  StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/)
+  virtual StatusCode addConverter(IConverter* /*pConverter*/) 
+  { std::cout << "addConverter\n"; std::abort(); }
+  virtual StatusCode addConverter(const CLID& /*clid*/)
+  { std::cout << "addConverter clid\n"; std::abort(); }
+  virtual StatusCode removeConverter(const CLID& /*clid*/)
+  { std::cout << "removeConverter\n"; std::abort(); }
+  virtual IConverter* converter(const CLID& /*clid*/)
+  { std::cout << "converter\n"; std::abort(); }
+  virtual StatusCode connectOutput(const std::string& /*outputFile*/)
+  { std::cout << "connectOutput1\n"; std::abort(); }
+  virtual StatusCode connectOutput(const std::string& /*outputFile*/,
+                                   const std::string& /*openMode*/)
+  { std::cout << "connectOutput2\n"; std::abort(); }
+  virtual StatusCode commitOutput(const std::string& /*outputFile*/,
+                                  bool /*do_commit*/)
+  { std::cout << "commitOutput\n"; std::abort(); }
+
+  virtual StatusCode initialize()
+  { std::cout << "initialize\n"; std::abort(); }
+  virtual StatusCode finalize()
+  { std::cout << "finalize\n"; std::abort(); }
+  virtual const CLID& objType() const
+  { std::cout << "objType\n"; std::abort(); }
+  virtual long repSvcType() const
+  { std::cout << "repSvcType\n"; std::abort(); }
+  virtual StatusCode setDataProvider(IDataProviderSvc* /*pService*/)
+  { std::cout << "setDataProvider\n"; std::abort(); }
+  virtual SmartIF<IDataProviderSvc>& dataProvider() const
+  { std::cout << "dataProvider\n"; std::abort(); }
+  virtual StatusCode setConversionSvc(IConversionSvc* /*pService*/)
+  { std::cout << "setConversionSvc\n"; std::abort(); }
+  virtual SmartIF<IConversionSvc>& conversionSvc()    const
+  { std::cout << "conversionSvc\n"; std::abort(); }
+  virtual StatusCode setAddressCreator(IAddressCreator* /*creator*/)
+  { std::cout << "setAddressCreator\n"; std::abort(); }
+  virtual SmartIF<IAddressCreator>& addressCreator()    const
+  { std::cout << "addressCreator\n"; std::abort(); }
+  virtual StatusCode createObj(IOpaqueAddress* /*pAddress*/, DataObject*& /*refpObject*/)
+  { std::cout << "createObj\n"; std::abort(); }
+  virtual StatusCode fillObjRefs(IOpaqueAddress* /*pAddress*/, DataObject* /*pObject*/)
+  { std::cout << "fillObjRefs\n"; std::abort(); }
+  virtual StatusCode updateObj(IOpaqueAddress* /*pAddress*/, DataObject* /*refpObject*/)
+  { std::cout << "updateObj\n"; std::abort(); }
+  virtual StatusCode updateObjRefs(IOpaqueAddress* /*pAddress*/, DataObject* /*pObject*/)
+  { std::cout << "updateObjRefs\n"; std::abort(); }
+  virtual StatusCode fillRepRefs(IOpaqueAddress* /*pAddress*/, DataObject* /*pObject*/)
+  { std::cout << "fillRepRefs\n"; std::abort(); }
+  virtual StatusCode updateRep(IOpaqueAddress* /*pAddress*/, DataObject* /*pObject*/)
+  { std::cout << "updateRep\n"; std::abort(); }
+  virtual StatusCode updateRepRefs(IOpaqueAddress* /*pAddress*/, DataObject* /*pObject*/)
+  { std::cout << "updateRepRefs\n"; std::abort(); }
+
+  virtual unsigned long addRef() { return 1; }
+  virtual unsigned long release() { return 1; }
+  virtual StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/) 
   { std::cout << "queryInterface\n"; std::abort(); }
-  const std::string& name() const
-  { std::cout << "name\n"; std::abort(); }
+
+  virtual StatusCode createRep(DataObject* /*pObject*/, IOpaqueAddress*& /*refpAddress*/)
+  { std::cout << "createRep\n"; std::abort(); }
+};
 
 
-  SG::DataProxy* deep_proxy(const void* const /*pTransient*/) const
-  { std::cout << "deep_proxy\n"; std::abort(); }
-  SG::DataProxy* proxy(const void* const /*pTransient*/) const
-  { std::cout << "proxy1\n"; std::abort(); }
-  SG::DataProxy* proxy(const CLID& /*id*/) const
-  { std::cout << "proxy2\n"; std::abort(); }
-  SG::DataProxy* proxy(const CLID& /*id*/, const std::string& /*key*/) const
-  { std::cout << "proxy3\n"; std::abort(); }
-  SG::DataProxy* proxy_exact (SG::sgkey_t /*sgkey*/) const
-  { std::cout << "proxy_exact1\n"; std::abort(); }
-  std::vector<const SG::DataProxy*> proxies() const
-  { std::cout << "proxies\n"; std::abort(); }
-  StatusCode addToStore (CLID /*id*/, SG::DataProxy* /*proxy*/)
-  { std::cout << "addToStore\n";  std::abort(); }
+class TestOpaqueAddress
+  : public IOpaqueAddress
+{
+public:
+  virtual unsigned long        addRef     () { return 1; }
+  virtual unsigned long        release    () { return 1; }
+  virtual const CLID&          clID       () const
+  { std::cout << "clID\n"; std::abort(); }
+  virtual long                 svcType    () const
+  { std::cout << "svcType\n"; std::abort(); }
+  virtual IRegistry*           registry   () const
+  { std::cout << "registry\n"; std::abort(); }
+  virtual void                 setRegistry(IRegistry* /*r*/)
+  { std::cout << "setRegistry\n"; std::abort(); }
+  virtual const std::string*   par        () const
+  { std::cout << "par\n"; std::abort(); }
+  virtual const unsigned long* ipar       () const
+  { std::cout << "ipar\n"; std::abort(); }
+};
 
-  sgkey_t stringToKey (const std::string& /*str*/, CLID /*clid*/)
-  { std::cout << "stringToKey\n"; std::abort(); }
-  const std::string* keyToString (sgkey_t /*key*/) const
-  { std::cout << "keyToString1\n"; std::abort(); }
-  const std::string* keyToString (sgkey_t /*key*/, CLID& /*clid*/) const
-  { std::cout << "keyToString2\n"; std::abort(); }
-  void registerKey (sgkey_t /*key*/, const std::string& /*str*/, CLID /*clid*/)
-  { std::cout << "registerKey\n"; std::abort(); }
+
+class TestResetable : public IResetable
+{
+public:
+  using IResetable::reset;
+  TestResetable() : set_flag(false) {}
+  virtual void reset (bool hard) override { resets.push_back((int)hard); }
+  virtual void finalReset() override { resets.push_back(2); }
+  virtual bool isSet() const override { return set_flag; }
+  virtual const std::string& key() const override { return key_string; }
+
+  std::vector<int> resets;
+  bool set_flag;
+  std::string key_string;
 };
 
 
 void test1()
 {
   std::cout << "test1\n";
-  TestStore store;
+  SGTest::TestStore store;
 
   SG::DataProxy dp;
   assert (dp.store() == 0);
@@ -120,10 +190,82 @@ void test2()
 }
 
 
+class Test3Loader
+  : public TestConversionSvc
+{
+public:
+  Test3Loader();
+
+  virtual StatusCode createObj(IOpaqueAddress* /*pAddress*/, DataObject*& refpObject)
+  {
+    m_store = SG::CurrentEventStore::store();
+    refpObject = m_bucket;
+    return StatusCode::SUCCESS;
+  }
+
+  IProxyDict* m_store;
+  SG::DataBucket<X1>* m_bucket;
+};
+
+
+Test3Loader::Test3Loader()
+  : m_store(nullptr),
+    m_bucket (new SG::DataBucket<X1>(CxxUtils::make_unique<X1>()))
+{
+}
+
+
+// Test current event store setting in accessData.
+void test3()
+{
+  std::cout << "test3\n";
+
+  SGTest::TestStore store1;
+  SGTest::TestStore store2;
+  Test3Loader loader;
+  TestOpaqueAddress address;
+  auto tad = CxxUtils::make_unique<SG::TransientAddress>();
+  tad->setAddress (&address);
+  SG::DataProxy dp1 (tad.release(), &loader);
+  dp1.setStore (&store1);
+  SG::T2pMap t2pmap;
+  dp1.setT2p (&t2pmap);
+  SG::CurrentEventStore::setStore (&store2);
+  assert (SG::CurrentEventStore::store() == &store2);
+  assert (dp1.accessData() == loader.m_bucket);
+  assert (SG::CurrentEventStore::store() == &store2);
+  assert (loader.m_store == &store1);
+}
+
+
+// Test bind/reset.
+void test4()
+{
+  std::cout << "test4\n";
+
+  SGTest::TestStore store;
+  SG::DataProxy dp;
+  TestResetable r;
+  dp.setStore (&store);
+  assert (dp.bindHandle (&r));
+  assert (store.m_boundHandles == std::vector<IResetable*> {&r} );
+  dp.reset (false);
+  dp.reset (true);
+  dp.finalReset();
+  assert (r.resets == (std::vector<int> {0,1,2}) );
+  r.resets.clear();
+  dp.unbindHandle(&r);
+  assert (store.m_boundHandles.empty());
+  assert (r.resets.empty());
+}
+
+
 int main()
 {
   test1();
   test2();
+  test3();
+  test4();
 
   // FIXME: INCOMPLETE!
 

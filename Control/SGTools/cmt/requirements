@@ -39,6 +39,8 @@ apply_pattern UnitTest_run unit_test=ClassName
 apply_pattern UnitTest_run unit_test=DataProxy
 apply_pattern UnitTest_run unit_test=DataStore
 apply_pattern UnitTest_run unit_test=TransientAddress
+apply_pattern UnitTest_run unit_test=CurrentEventStore
+apply_pattern UnitTest_run unit_test=SGFolderItem
 
 macro_append DOXYGEN_INPUT " ../doc"
 end_private

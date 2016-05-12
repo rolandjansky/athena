@@ -9,9 +9,12 @@
 /* #include <algorithm> */
 using namespace std;
 
-const unsigned long CLIDRegistry::MINCLID = detail::MINCLID;
-const unsigned long CLIDRegistry::MAXCLID = detail::MAXCLID;
-unsigned int _alreadyDone (0);
+const unsigned long CLIDRegistry::MINCLID = CLIDdetail::MINCLID;
+const unsigned long CLIDRegistry::MAXCLID = CLIDdetail::MAXCLID;
+
+namespace {
+unsigned int alreadyDone (0);
+}
 
 
 //   bool 
@@ -44,22 +47,22 @@ CLIDRegistry::const_iterator CLIDRegistry::end() {
 
 bool
 CLIDRegistry::hasNewEntries() {
-  return (_alreadyDone < CLIDRegistry::registry().size());
+  return (alreadyDone < CLIDRegistry::registry().size());
 }
 
 std::pair<CLIDRegistry::const_iterator, CLIDRegistry::const_iterator> 
 CLIDRegistry::newEntries() {
   std::pair<CLIDRegistry::const_iterator, CLIDRegistry::const_iterator> ret =
-     std::make_pair(CLIDRegistry::begin()+_alreadyDone, 
+     std::make_pair(CLIDRegistry::begin()+alreadyDone, 
                     CLIDRegistry::end());
-  _alreadyDone = CLIDRegistry::registry().size();
+  alreadyDone = CLIDRegistry::registry().size();
   return ret;
 }
 
 
 CLIDRegistry::CLIDRegistryImpl& CLIDRegistry::registry() {
-  static CLIDRegistryImpl _reg;
-  return _reg;
+  static CLIDRegistryImpl reg;
+  return reg;
 }
 
 
@@ -120,5 +123,23 @@ unsigned long CLIDRegistry::typeinfoToCLID (const std::type_info& ti)
       return i->second;
   }
   return 0;
+}
+
+
+/// Out-of-line part of addEntry().
+bool CLIDRegistry::addEntry (unsigned long clid,
+                             const std::type_info& ti,
+                             const char* typeName, 
+                             const Athena::PackageInfo& pkgInfo,
+                             const std::string& typeInfoName)
+{
+  registry().push_back(tuple_t(clid, std::string(typeName), pkgInfo, typeInfoName));
+#ifdef CLIDREG_DEBUG
+  std::cerr << "CLIDRegistry::addEntry: for CLID/type " 
+	    << clid << '/' << typeName << " to registry " <<&registry() 
+	    <<std::endl;
+#endif		
+  addCLIDMapping (clid, ti);
+  return true;
 }
 

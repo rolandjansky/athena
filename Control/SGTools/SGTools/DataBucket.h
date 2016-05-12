@@ -8,7 +8,7 @@
 #define SGTOOLS_DATABUCKET_H
 
 #include "SGTools/DataBucketBase.h"
-#include "CxxUtils/override.h"
+#include "AthenaKernel/DataObjectSharedPtr.h"
 
 //FIXME CLID is a tdef and can't be forward declared 
 #include "GaudiKernel/ClassID.h"
@@ -35,23 +35,30 @@ namespace SG {
   
     DataBucket(): m_ptr(0) {}  //needed by the generic converters
     DataBucket(T* data);                 
-#if __cplusplus > 201100
     DataBucket(std::unique_ptr<T> data);
-#endif
+    DataBucket(SG::DataObjectSharedPtr<T> data);
   
     // DESTRUCTOR:
   
     virtual ~DataBucket();
   
     // DATAOBJECT METHODS
-    virtual const CLID& clID() const ATH_OVERRIDE;
+    virtual const CLID& clID() const override;
     static const CLID& classID();
 
     // return the pointer as a void*
-    virtual void* object() ATH_OVERRIDE
+    virtual void* object() override
     {
       typedef typename std::remove_const<T>::type T_nc;
       return const_cast<T_nc*>(m_ptr);
+    }
+
+    /**
+     * @brief Return the @c type_info for the stored object.
+     */
+    virtual const std::type_info& tinfo() const override
+    {
+      return typeid(T);
     }
 
     // Serialize the object for reading
@@ -75,7 +82,7 @@ namespace SG {
      */
     virtual void* cast (CLID clid,
                         IRegisterTransient* irt = 0,
-                        bool isConst = true) const ATH_OVERRIDE;
+                        bool isConst = true) const override;
     
 
     /**
@@ -88,24 +95,24 @@ namespace SG {
      */
     virtual void* cast (const std::type_info& tinfo,
                         IRegisterTransient* irt = 0,
-                        bool isConst = true) const ATH_OVERRIDE;
+                        bool isConst = true) const override;
 
     /**
      * @brief Return a new @c DataBucket whose payload has been cloned from the
      *        original one.
      */
-    virtual DataBucket* clone() const ATH_OVERRIDE;
+    virtual DataBucket* clone() const override;
 
     /**
      * @brief Give up ownership of the  @c DataBucket contents.
      *        This leaks the contents and it is useful mainly for error handling.
      */
-    virtual void relinquish() ATH_OVERRIDE{ m_ptr=0;} //LEAKS m_ptr
+    virtual void relinquish() override{ m_ptr=0;} //LEAKS m_ptr
 
     /**
      * If the held object derives from @c ILockable, call @lock() on it.
      */
-    virtual void lock() ATH_OVERRIDE;
+    virtual void lock() override;
 
 
   protected:

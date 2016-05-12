@@ -4,8 +4,8 @@
 
 #include "SGTools/DataStore.h"
 #include "SGTools/DataProxy.h"
-#include "SGTools/IStringPool.h"
 #include "SGTools/exceptions.h"
+#include "AthenaKernel/IStringPool.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -24,7 +24,7 @@ using SG::ConstProxyIterator;
  * @brief Constructor.
  * @param pool The string pool associated with this store.
  */
-DataStore::DataStore (IProxyDictWithPool& pool)
+DataStore::DataStore (IProxyDict& pool)
   : m_pool (pool),
     m_storeMap(), m_storeID(StoreID::UNKNOWN), m_t2p(), 
     m_pSGAudSvc(0), m_noAudSvc(0), m_pSvcLoc(0)
@@ -35,7 +35,7 @@ DataStore::DataStore (IProxyDictWithPool& pool)
 //Destructor
 DataStore::~DataStore()
 {
-  clearStore();
+  clearStore(false, true, nullptr);
 }
 
 StatusCode DataStore::setSvcLoc(){
@@ -59,16 +59,13 @@ void DataStore::setSGAudSvc() const { //m_noAudSvc and m_pSGAudSvc are mutable
 
 
 //////////////////////////////////////////////////////////////
-void DataStore::clearStore(bool force /*= false*/, MsgStream* pmlog/*=0*/)
+void DataStore::clearStore(bool force, bool hard, MsgStream* pmlog)
 {
 
-  StoreIterator s_iter = m_storeMap.begin();
-  StoreIterator s_end  = m_storeMap.end();
-
-  for (; s_iter != s_end; s_iter++) 
+  for (StoreMap::value_type& m : m_storeMap)
   {
 
-    ProxyMap& pmap = s_iter->second;
+    ProxyMap& pmap = m.second;
 
     ProxyIterator iter = pmap.begin();
     ProxyIterator end   = pmap.end();
@@ -85,9 +82,9 @@ void DataStore::clearStore(bool force /*= false*/, MsgStream* pmlog/*=0*/)
 	       << ", containing data object @" << iter->second->object();
 	pmlog->flush(); //make sure this is printed now
       }
-      if (iter->second->requestRelease(force)) { //request proxy deletion
+      if (iter->second->requestRelease(force, hard)) { //request proxy deletion
 	//proxy was released, remove map entry
-        sgkey_t sgkey = m_pool.stringToKey (iter->first, s_iter->first);
+        sgkey_t sgkey = m_pool.stringToKey (iter->first, m.first);
         m_keyMap.erase (sgkey);
         
 	pmap.erase(iter++);  //increment the pre-erase iterator (Effective STL Item 9)
@@ -177,13 +174,13 @@ DataStore::addToStore(const CLID& id, DataProxy* dp)
 // if Proxy is a resettable proxy only then reset it, otherwise
 // delete it and remove from proxy map.
 StatusCode
-DataStore::removeProxy(DataProxy* proxy, bool forceRemove)
+DataStore::removeProxy(DataProxy* proxy, bool forceRemove, bool hard)
 {
   StatusCode sc(StatusCode::FAILURE);
   if (0 == proxy) return sc;
 
   if (!forceRemove && proxy->isResetOnly()) {
-    proxy->reset();
+    proxy->reset (hard);
     sc =  StatusCode::SUCCESS;
   } else {
     
@@ -301,11 +298,11 @@ DataProxy* DataStore::proxy(const CLID& id, const std::string& key) const
   // then we return any existing proxy for this type as long as there
   // is exactly one, not counting aliases.  More than one would be ambiguous
 	  
-  ConstStoreIterator s_iter = m_storeMap.find(id);
+  ConstStoreIterator siter = m_storeMap.find(id);
   DataProxy *p(0);
-  if (s_iter != m_storeMap.end()) 
+  if (siter != m_storeMap.end()) 
   {
-    const ProxyMap& pmap = s_iter->second;
+    const ProxyMap& pmap = siter->second;
     ConstProxyIterator p_iter = pmap.find(key);
     if (p_iter != pmap.end()) {
       p=p_iter->second;
