@@ -1,0 +1,4 @@
+The only reason this package has a cmt/ subdirectory, and a requirements file
+in it, is to make it usable in TagCollector. Once the existence of a
+requirements file will no longer be necessary for our release management
+infrastructure, this subdirectory should be removed.
