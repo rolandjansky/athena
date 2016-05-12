@@ -6,7 +6,6 @@
 
 #include "SiSPSeededTrackFinder/SiSPSeededTrackFinder.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
@@ -21,6 +20,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_useMBTS(false)                                                     ,
   m_useNewStrategy(false)                                              ,
   m_useZBoundaryFinding(false)                                         ,
+  m_ITKGeometry(false)                                                 ,
   m_outputlevel(0)                                                     ,
   m_nprint(0)                                                          ,
   m_nseeds(0)                                                          ,
@@ -31,7 +31,6 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_nfreeCut(1)                                                        ,
   m_SpacePointsSCT("SCT_SpacePoints"),
   m_SpacePointsPixel("PixelSpacePoints"),
-  m_inputTracks(" "),
   m_outputTracks("SiSPSeededTracks"),
   m_seedsmaker("InDet::SiSpacePointsSeedMaker_ATLxk/InDetSpSeedsMaker"),
   m_zvertexmaker("InDet::SiZvertexMaker_xk/InDetSiZvertexMaker")       ,
@@ -63,7 +62,6 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   declareProperty("ZvertexTool"         ,m_zvertexmaker        );
   declareProperty("TrackTool"           ,m_trackmaker          );
   declareProperty("TracksLocation"      ,m_outputTracks        );
-  declareProperty("InputTracksLocation" ,m_inputTracks         );
   declareProperty("useZvertexTool"      ,m_useZvertexTool      );
   declareProperty("maxNumberSeeds"      ,m_maxNumberSeeds      );
   declareProperty("useMBTSTimeDiff"     ,m_useMBTS             );
@@ -80,6 +78,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   declareProperty("HistSize"            ,m_histsize            );
   declareProperty("Zcut"                ,m_zcut                );
   declareProperty("MagneticFieldMode"   ,m_fieldmode           );
+  declareProperty("ITKGeometry"         ,m_ITKGeometry         );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -121,7 +120,7 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 
   if(m_useNewStrategy && m_beamconditions=="") {m_useNewStrategy = false; m_useZBoundaryFinding = false;}
 
-  if(m_useNewStrategy || m_useZBoundaryFinding) {
+  if(m_useNewStrategy || m_useZBoundaryFinding || m_ITKGeometry) {
 
     // Get beam condition service 
     // 
@@ -174,8 +173,8 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 
 StatusCode InDet::SiSPSeededTrackFinder::execute() 
 { 
-  if(!m_useNewStrategy && !m_useZBoundaryFinding) return oldStrategy();
-  else                                            return newStrategy();
+  if(!m_useNewStrategy && !m_useZBoundaryFinding && !m_ITKGeometry) return oldStrategy();
+  else                                                              return newStrategy();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -251,24 +250,7 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
   if(ERR) { m_outputTracks->clear(); }
   else    {m_ntracksTotal+=m_ntracks;}
 
-  // Copy tracks found before from input to output collection
-  //
-  if(m_inputTracks.name() != " ") {
 
-
-    if(!m_inputTracks.isValid()){
-         if(m_outputlevel<=0) {m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;}
-    }
-    else {
-
-       TrackCollection::const_iterator t,te = m_inputTracks->end();
-
-       for (t=m_inputTracks->begin(); t!=te; ++t) {
-
-	 m_outputTracks->push_back( new Trk::Track(*(*t)) ); 
-       }
-    }
-  }
 
   // Save reconstructed tracks
   //
@@ -334,7 +316,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
     for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
       qualityTrack.insert(std::make_pair(-trackQuality((*t)),(*t)));
 
-      if(t==T.begin()) fillZHistogram(*t,per);
+      if(t==T.begin() && !m_ITKGeometry) fillZHistogram(*t,per);
 
     }
     if( m_nseeds >= m_maxNumberSeeds) {
@@ -344,7 +326,8 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
 
   m_seedsmaker->newEvent(1); 
 
-  findZvertex(VZ,ZB); m_seedsmaker->find3Sp(VZ,ZB);
+  if(!m_ITKGeometry) {findZvertex(VZ,ZB); m_seedsmaker->find3Sp(VZ,ZB);}
+  else               {                    m_seedsmaker->find3Sp(VZ   );}
 
   // Loop through all seed and reconsrtucted tracks collection preparation
   //
@@ -379,20 +362,6 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
   if(ERR) {m_outputTracks->clear();}
   else    {m_ntracksTotal+=m_ntracks;                            }
 
-  // Copy tracks found before from input to output collection
-  //
-  if(m_inputTracks.name() != " ") {
-
-    if(!m_inputTracks.isValid()){
-         if(m_outputlevel<=0) {m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;}
-    }
-    else {
-       TrackCollection::const_iterator t,te = m_inputTracks->end();
-       for (t=m_inputTracks->begin(); t!=te; ++t) {
-	 m_outputTracks->push_back( new Trk::Track(*(*t)) ); 
-       }
-    }
-  }
 
   // Save reconstructed tracks
   //
@@ -463,8 +432,6 @@ MsgStream& InDet::SiSPSeededTrackFinder::dumptools( MsgStream& out ) const
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
   n     = 65-m_outputTracks.name().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
-  n     = 65-m_inputTracks.name().size();
-  std::string s6; for(int i=0; i<n; ++i) s6.append(" "); s6.append("|");
 
   std::string s5; 
   if(m_useZvertexTool) s5= "Yes"; else s5 = "No";
@@ -485,8 +452,6 @@ MsgStream& InDet::SiSPSeededTrackFinder::dumptools( MsgStream& out ) const
      <<std::endl;
   out<<"| Location of output tracks                       | "<<m_outputTracks.name()<<s4
      <<std::endl;
-  out<<"| Location of input  tracks                       | "<<m_inputTracks.name()<<s6
-     <<std::endl;
   out<<"|----------------------------------------------------------------"
      <<"----------------------------------------------------|"
      <<std::endl;
@@ -504,16 +469,17 @@ MsgStream& InDet::SiSPSeededTrackFinder::dumpevent( MsgStream& out ) const
   if(m_nprint > 1) {ns = m_nseedsTotal; nt = m_ntracksTotal;}
 
   out<<"|-------------------------------------------------------------------";
-  out<<"-----------------------------|"
+  out<<"---------------------------------|"
      <<std::endl;
   out<<"|  Investigated "
-     <<std::setw(7)<<ns<<" space points seeds and found ";
-  if     (m_useNewStrategy     ) out<<std::setw(7)<<nt<<" tracks using new strategy ("<<std::setw(2)<<  m_nvertex <<")      |"<<std::endl;
-  else if(m_useZBoundaryFinding) out<<std::setw(7)<<nt<<" tracks using old strategy with Zb   |"<<std::endl;
-  else                           out<<std::setw(7)<<nt<<" tracks using old strategy           |"<<std::endl;
+     <<std::setw(9)<<ns<<" space points seeds and found ";
+  if     (m_ITKGeometry        ) out<<std::setw(9)<<nt<<" tracks using new strategy for ITK   |"<<std::endl; 
+  else if(m_useNewStrategy     ) out<<std::setw(9)<<nt<<" tracks using new strategy ("<<std::setw(2)<<  m_nvertex <<")      |"<<std::endl;
+  else if(m_useZBoundaryFinding) out<<std::setw(9)<<nt<<" tracks using old strategy with Zb   |"<<std::endl;
+  else                           out<<std::setw(9)<<nt<<" tracks using old strategy           |"<<std::endl;
 
   out<<"|-------------------------------------------------------------------";
-  out<<"-----------------------------|"
+  out<<"---------------------------------|"
      <<std::endl;
   if(m_problemsTotal || m_problemsTotalV ) {
     out<<"|  Events       "
