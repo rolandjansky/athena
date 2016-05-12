@@ -3,14 +3,14 @@
 */
 
 /**
- *   $Id: LArG4GenShowerLib.cxx 711210 2015-11-27 15:56:00Z jchapman $:
+ *   $Id: LArG4GenShowerLib.cxx 746605 2016-05-12 13:25:40Z disimone $:
  *
  *   @short Implementation of shower library generation algorithm
  *
  *
  *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
  *  @author Sasha Glazov, DESY Hamburg, Germany
- * @version $Revision: 711210 $
+ * @version $Revision: 746605 $
  *
  */
 
@@ -277,7 +277,7 @@ StatusCode LArG4GenShowerLib::execute()
 const HepMC::GenParticle* LArG4GenShowerLib::getParticleFromMC()
 {
   const DataHandle<McEventCollection> mcEvent;
-  if (evtStore()->retrieve(mcEvent,"TruthEvent").isFailure()) return 0;
+  if (evtStore()->retrieve(mcEvent,"BeamTruthEvent").isFailure()) return 0;
 
   // Return the first particle of the first event
   if (mcEvent)
