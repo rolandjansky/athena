@@ -226,6 +226,12 @@ StatusCode PixelMainMon::BookHitsMon(void)
       m_hiteff_mod = new PixelMonModulesProf("Hit_track_eff", ("Proportion of hits on track" + m_histTitleExt).c_str(), 2500,-0.5,2499.5,m_doIBL);
       sc = m_hiteff_mod->regHist(this,(path+"/Modules_HitEff").c_str(),run, m_doIBL);
    }
+   if(!m_doOnline && m_doOnTrack){
+      //m_hiteff_mod = new PixelMonModulesProf("HitEff_incl", ("Proportion of hits on track" + m_histTitleExt).c_str(), 2500,-0.5,2499.5,m_doIBL);
+      //sc = m_hiteff_mod->regHist(this,(path+"/Modules_HitEff").c_str(),run, m_doIBL);
+      //m_hiteff_goodmod = new PixelMonModulesProf("HitEff_active", ("Proportion of hits on track for active modules" + m_histTitleExt).c_str(), 2500,-0.5,2499.5,m_doIBL);
+      //sc = m_hiteff_mod->regHist(this,(path+"/Modules_HitEff").c_str(),run, m_doIBL);
+   }
    if(m_doModules || m_doFEChipSummary)
    {
       m_FE_chip_hit_summary = new PixelMonModules1D("FE_Chip_Summary", ("FE Chip Summary" + m_histTitleExt).c_str(), 16,-0.5,15.5,m_doIBL);
@@ -404,9 +410,9 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
          //Current bcid
          const unsigned int pix_bcid = (*ipix_bcid)->second;
 	 
-	      if ( ipix_bcid > Pixel_BCIDColl->begin() && m_diff_ROD_BCID){
-            m_diff_ROD_BCID->Fill(n_pix_bcid_nrobs-1,prev_pix_bcid-pix_bcid); 
-         }
+	      ///if ( ipix_bcid > Pixel_BCIDColl->begin() && m_diff_ROD_BCID){
+         ///   m_diff_ROD_BCID->Fill(n_pix_bcid_nrobs-1,prev_pix_bcid-pix_bcid); 
+         ///}
 	      prev_pix_bcid = pix_bcid;
          n_pix_bcid_nrobs++;
       } // End for loop
@@ -801,8 +807,8 @@ StatusCode PixelMainMon::ProcHitsMon(void)
          msg(MSG::WARNING)  << "Please be patient, it will take a while to fill these histograms" << endreq;   
       }
 
-      if(m_pixel_noise_map) m_pixel_noise_map->Reset();
-      if(m_pixel_occupancy_spectrum) m_pixel_occupancy_spectrum->Reset();
+      //if(m_pixel_noise_map) m_pixel_noise_map->Reset();
+      //if(m_pixel_occupancy_spectrum) m_pixel_occupancy_spectrum->Reset();
 
       PixelID::const_id_iterator idIt    = m_pixelid->wafer_begin();
       PixelID::const_id_iterator idItEnd = m_pixelid->wafer_end();
@@ -825,8 +831,8 @@ StatusCode PixelMainMon::ProcHitsMon(void)
                }  
                occ_spec = occ_spec/events;
 
-               if(m_pixel_noise_map) m_pixel_noise_map->Fill(etaIndex,phiIndex,WaferID, m_pixelid,occ_spec,m_doIBL);   //fill the right pixel, give it pointers to the right module, and a weight of 'occ_spec'
-               if(m_pixel_occupancy_spectrum) m_pixel_occupancy_spectrum->Fill(occ_spec, WaferID, m_pixelid, m_doIBL);   //fill the pixel occupancy and give a pointer to the right module.  Will fill 80M times total in this loop...
+               //if(m_pixel_noise_map) m_pixel_noise_map->Fill(etaIndex,phiIndex,WaferID, m_pixelid,occ_spec,m_doIBL);   //fill the right pixel, give it pointers to the right module, and a weight of 'occ_spec'
+               //if(m_pixel_occupancy_spectrum) m_pixel_occupancy_spectrum->Fill(occ_spec, WaferID, m_pixelid, m_doIBL);   //fill the pixel occupancy and give a pointer to the right module.  Will fill 80M times total in this loop...
             }
          }
       }
