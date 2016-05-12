@@ -28,7 +28,7 @@ def TrigEgammaMonitoringTool():
             MaM=monitoring_mam,
             Efficiency=["eff_et","eff_eta","eff_mu"],
             Distribution=["et","eta","Reta","Rphi","Rhad","f1","f3","eratio","deta2","eprobHT","npixhits","nscthits","ptvarcone20"],
-            Resolution=["res_et","res_Rhad","res_ptvarcone20","res_deta2"],
+            Resolution=["res_et","res_Rphi","res_Reta","res_Rhad","res_ptvarcone20","res_deta2"],
             OutputLevel=debugLevel)
 
     HLTEgammaEffTool = EfficiencyTool(name="HLTEgammaEffTool",PlotTool=HLTEgammaPlotTool,OutputLevel=debugLevel)
@@ -58,7 +58,9 @@ def TrigEgammaMonitoringTool():
             Analysis='Electrons',
             PlotTool=HLTEgammaPlotTool,
             Tools=[HLTEgammaEffTool,HLTEgammaResTool,HLTEgammaDistTool],
-            TriggerList=monitoring_L1Calo+monitoring_electron,
+            TriggerList=monitoring_electron,
+            ForceProbeIsolation=True,
+            DefaultProbePid="LHMedium",
             File="",
             OutputLevel=debugLevel,DetailedHistograms=False)
     PhotonAnalysis = TrigEgammaNavAnalysisTool(name='HLTEgammaPhotonAnalysis',
@@ -72,7 +74,8 @@ def TrigEgammaMonitoringTool():
             Analysis='Zee',
             PlotTool=HLTEgammaPlotTool,
             Tools=[HLTEgammaEffTool,HLTEgammaResTool,HLTEgammaDistTool],
-            TriggerList=monitoringTP_electron+monitoring_ele_idperf,
+            TriggerList=monitoringTP_electron+monitoring_ele_idperf+monitoring_L1Calo,
+            DefaultProbePid="LHMedium",
             File="",
             TagTriggerList=tagItems,
             RemoveCrack=False,

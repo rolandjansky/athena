@@ -25,12 +25,11 @@ monitoring_egamma = primary_single_ele + primary_double_ele + monitoring_ele_idp
 # L1 trigger items to monitor from inclusive offline electrons
 monitoring_L1Calo = ['L1_EM20VH','L1_EM20VHI','L1_EM22VHI']
 # Startup and high-pt electrons to monitor from inclusive electrons
-monitoring_electron = ['HLT_e60_lhmedium_nod0','HLT_e140_lhloose_nod0',
-    'HLT_e24_lhmedium_L1EM20VH','HLT_e24_lhmedium_L1EM20VHI','HLT_e24_lhmedium_iloose',
-    'HLT_e24_lhmedium_ivarloose','HLT_e24_lhmedium_nod0_ivarloose',
-    'HLT_e24_lhtight_nod0_ivarloose']
+monitoring_electron = ['HLT_e60_lhmedium_nod0','HLT_e140_lhloose_nod0']
 # 2016 single electrons triggers to monitor from Zee TP, includes rerun
 monitoringTP_electron = ['HLT_e17_lhvloose_nod0','HLT_e26_lhtight_nod0','HLT_e26_lhtight_nod0_ivarloose',
+    'HLT_e24_lhmedium_L1EM20VH','HLT_e24_lhmedium_L1EM20VHI','HLT_e24_lhmedium_iloose',
+    'HLT_e24_lhmedium_ivarloose','HLT_e24_lhmedium_nod0_ivarloose','HLT_e24_lhtight_nod0_ivarloose',
     'HLT_e26_lhtight_cutd0detadphi_ivarloose']
 monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]    
 monitoring_photon = ['HLT_g25_medium','HLT_g140_loose']
