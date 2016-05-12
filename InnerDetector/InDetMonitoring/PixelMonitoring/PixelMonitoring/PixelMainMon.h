@@ -279,49 +279,47 @@ class PixelMainMon:public ManagedMonitorToolBase
     //Reconstruction Error Monitoring (mostly storegate error monitoring)
     TH2S* m_storegate_errors;
 
-    //Hitmap  histograms  
+    ///
+    /// Hitmap  histograms  
+    ///
     TH1F_LW*              m_mu_vs_lumi;
-    PixelMonModulesProf*  m_hiteff_mod;
-
     TH1F_LW*              m_events_per_lumi;
     TProfile_LW*          m_hits_per_lumi;
     TProfile_LW*          m_avgocc_per_lumi;
     TProfile_LW*          m_avgocc_ratioIBLB0_per_lumi;
-
-    TProfile_LW*          m_hits_per_lumi_mod[PixLayer::COUNT];
-    TProfile_LW*          m_avgocc_per_lumi_mod[PixLayer::COUNT];
-
-    TH2F_LW*              m_maxocc_per_lumi_mod[PixLayer::COUNT];
-    TH1F_LW*              m_nlargeevt_per_lumi_mod[PixLayer::COUNT];
-
-    //TH1F_LW*              m_hit_ToT[PixLayerIBL2D3D::COUNT];
-    TH1F_LW*              m_hit_ToT[PixLayerIBL2D3DDBM::COUNT];
-
-    TH1F_LW*              m_hit_ToT_Mon_mod[PixLayer::COUNT];
-    TH1F_LW*              m_hit_ToT_tmp_mod[PixLayer::COUNT];
-
-    TProfile2D_LW*        m_ToT_etaphi_mod[PixLayer::COUNT];
-    TH2F_LW*              m_nlowToT_vs_clussize_mod[PixLayer::COUNT];
-
+    TH1F_LW*              m_Lvl1A;
     TH1I_LW*              m_Lvl1ID_PIX;
     TH1I_LW*              m_Lvl1ID_IBL;
-    TH1F_LW*              m_Lvl1A;
     TH1I_LW*              m_BCID;
     TH1F_LW*              m_Atlas_BCID;
     TH2F_LW*              m_Atlas_BCID_hits;
     TProfile_LW*          m_BCID_Profile;
     PixelMon2DLumiProfiles*    m_Lvl1ID_diff_mod_ATLAS_per_LB;
     PixelMon2DLumiProfiles*    m_Lvl1ID_absdiff_mod_ATLAS_per_LB;
-    TH1F_LW*              m_Lvl1A_mod[PixLayerDBM::COUNT];
-    TH1F_LW*              m_Lvl1A_10min_mod[PixLayer::COUNT];
-    TH1I_LW*              m_Lvl1ID_diff_mod_ATLAS_mod[PixLayer::COUNT];
-    TH1I_LW*              m_diff_ROD_vs_Module_BCID_mod[PixLayer::COUNT];
-    TH2I_LW*              m_diff_ROD_BCID;         
     PixelMon2DMaps*       m_occupancy;
     PixelMon2DMaps*       m_occupancy_10min;
     PixelMon2DMapsLW*     m_average_pixocc;
     PixelMon2DMaps*       m_hitmap_mon;
     PixelMon2DMaps*       m_hitmap_tmp;
+    PixelMonModulesProf*  m_hiteff_mod;
+    TProfile_LW*          m_hiteff_incl_mod[PixLayer::COUNT];
+    TProfile_LW*          m_hiteff_actv_mod[PixLayer::COUNT];
+
+    TProfile_LW*          m_hits_per_lumi_mod[PixLayer::COUNT];
+    TProfile_LW*          m_avgocc_per_lumi_mod[PixLayer::COUNT];
+    TH2F_LW*              m_maxocc_per_lumi_mod[PixLayer::COUNT];
+    TH1F_LW*              m_nlargeevt_per_lumi_mod[PixLayer::COUNT];
+
+    TH1F_LW*              m_hit_ToT[PixLayerIBL2D3DDBM::COUNT];
+    TH1F_LW*              m_hit_ToT_Mon_mod[PixLayer::COUNT];
+    TH1F_LW*              m_hit_ToT_tmp_mod[PixLayer::COUNT];
+    TProfile2D_LW*        m_ToT_etaphi_mod[PixLayer::COUNT];
+
+    TH1F_LW*              m_Lvl1A_mod[PixLayerDBM::COUNT];
+    TH1F_LW*              m_Lvl1A_10min_mod[PixLayer::COUNT];
+    TH1I_LW*              m_Lvl1ID_diff_mod_ATLAS_mod[PixLayer::COUNT];
+    TH1I_LW*              m_diff_ROD_vs_Module_BCID_mod[PixLayer::COUNT];
+    //TH2I_LW*              m_diff_ROD_BCID;         
     PixelMonModules1D*    m_FE_chip_hit_summary;
     TH1F_LW*              m_occupancy_summary_low_mod[PixLayer::COUNT];
     TH1F_LW*              m_occupancy_summary_mod[PixLayer::COUNT];
@@ -347,8 +345,8 @@ class PixelMainMon:public ManagedMonitorToolBase
     TH1F_LW*              m_Details_mod3_ToT;     
     TH1F_LW*              m_Details_mod4_ToT;  
     PixelMonModules2D*    m_pixel_occupancy;
-    PixelMonModules2D*    m_pixel_noise_map;
-    PixelMonModules1D*    m_pixel_occupancy_spectrum;
+    //PixelMonModules2D*    m_pixel_noise_map;
+    //PixelMonModules1D*    m_pixel_occupancy_spectrum;
     PixelMonModules1D*    m_hit_num_mod;
 
     //-----------------
@@ -375,10 +373,10 @@ class PixelMainMon:public ManagedMonitorToolBase
     //TH1F_LW*              m_track_phi0;    
     //TH1F_LW*              m_track_theta;   
     //TH1F_LW*              m_track_eta;    
-    TH1I_LW*              m_tracks_per_lumi;
-    TH1F_LW*              m_trackRate_per_lumi;
-    TProfile_LW*          m_tracksPerEvt_per_lumi;
-    TProfile_LW*          m_tracksPerEvtPerMu_per_lumi;
+    //TH1I_LW*              m_tracks_per_lumi;
+    //TH1F_LW*              m_trackRate_per_lumi;
+    //TProfile_LW*          m_tracksPerEvt_per_lumi;
+    //TProfile_LW*          m_tracksPerEvtPerMu_per_lumi;
     //TH2F_LW*              m_track_dedx;
     //TH1F_LW*              m_track_mass_dedx;
     TH2F_LW*              m_clustot_vs_pt;
@@ -399,7 +397,10 @@ class PixelMainMon:public ManagedMonitorToolBase
     TProfile2D_LW*        m_degFactorMap_eta_per_lumi;
     //TProfile2D_LW*        m_degFactorMap_phi_per_lumi;
 
-    //cluster histograms
+    ///
+    /// Cluster histograms
+    /// 
+    TH2F_LW*              m_nlowToT_vs_clussize_mod[PixLayer::COUNT];
     TProfile_LW*          m_clusters_per_lumi;
     TProfile_LW*          m_clusters_per_lumi_mod[PixLayer::COUNT];
     TProfile_LW*          m_largeclusters_per_lumi;
@@ -413,35 +414,34 @@ class PixelMainMon:public ManagedMonitorToolBase
     TH1F_LW*              m_3cluster_ToT_mod[PixLayer::COUNT];
     TH1F_LW*              m_bigcluster_ToT_mod[PixLayer::COUNT];
 
-    ///////////////                                    
     TH1F_LW*              m_cluster_Q_mod[PixLayerIBL2D3D::COUNT];
     TH1F_LW*              m_1cluster_Q_mod[PixLayer::COUNT];
     TH1F_LW*              m_2cluster_Q_mod[PixLayer::COUNT];
     TH1F_LW*              m_3cluster_Q_mod[PixLayer::COUNT];
     TH1F_LW*              m_bigcluster_Q_mod[PixLayer::COUNT];
 
-    PixelMonProfiles*       m_clussize_map;
-    PixelMonProfiles*       m_cluscharge_map;
-    PixelMonProfiles*       m_clusToT_map;
+    PixelMonProfiles*     m_clussize_map;
+    PixelMonProfiles*     m_cluscharge_map;
+    PixelMonProfiles*     m_clusToT_map;
     TH1F_LW*              m_cluster_groupsize;
     TH1F_LW*              m_cluster_col_width;
     TH1F_LW*              m_cluster_row_width;
-    TH1F_LW*              m_cluster_row_width_IBL;
+    //TH1F_LW*              m_cluster_row_width_IBL;
     TH1F_LW*              m_cluster_col_width_mod[PixLayer::COUNT];
     TH1F_LW*              m_cluster_row_width_mod[PixLayer::COUNT];
     TH1F_LW*              m_cluster_groupsize_mod[PixLayer::COUNT];
     TH1F_LW*              m_cluster_LVL1A;
-    TH1F_LW*              m_cluster_LVL1A_highToT;
+    //TH1F_LW*              m_cluster_LVL1A_highToT;
     TH1F_LW*              m_cluster_LVL1A1d_mod[PixLayer::COUNT];
     TProfile_LW*          m_clusterSize_eta;
     TH2F_LW*              m_clusToT_vs_eta_mod[PixLayer::COUNT];
-    TH2F_LW*              m_clusQ_vs_eta_mod[PixLayer::COUNT];
+    //TH2F_LW*              m_clusQ_vs_eta_mod[PixLayer::COUNT];
     TH2F_LW*              m_ToT_vs_clussize_mod[PixLayer::COUNT];
-    TH2F_LW*              m_Q_vs_clussize_mod[PixLayer::COUNT];
+    //TH2F_LW*              m_Q_vs_clussize_mod[PixLayer::COUNT];
 
-    TH2F_LW*              m_clussize_vs_eta_mod[PixLayer::COUNT];
+    //TH2F_LW*              m_clussize_vs_eta_mod[PixLayer::COUNT];
     PixelMon2DMaps*       m_cluster_occupancy;
-    DBMMon2DMaps  *       m_clusocc_DBM;
+    //DBMMon2DMaps  *       m_clusocc_DBM;
     PixelMon2DMaps*       m_clusocc_sizenot1; 
     PixelMonModulesProf*  m_cluseff_mod;
     PixelMonModules1D*    m_cluster_ToT_mod;
@@ -451,7 +451,7 @@ class PixelMainMon:public ManagedMonitorToolBase
     TProfile*             m_cluster_occupancy_time2;
     TProfile*             m_cluster_occupancy_time3;
     TH1I_LW*              m_num_clusters;
-    TH1I_LW*              m_num_clusters_PIX;
+    //TH1I_LW*              m_num_clusters_PIX;
     TH1I_LW*              m_num_clusters_low;
     TH1I_LW*              m_num_clusters_ECA;
     TH1I_LW*              m_num_clusters_ECC;
@@ -481,7 +481,9 @@ class PixelMainMon:public ManagedMonitorToolBase
     PixelMonProfiles*     m_clus_LVL1A_sizenot1;
     TProfile_LW*          m_clustersOnOffTrack_per_lumi;
 
-    //Status histograms
+    ///
+    ///Status histograms
+    ///
     PixelMonModules1D*    m_Status_modules;
     PixelMonProfiles*     m_status;
     PixelMon2DMaps*       m_dqStatus;
@@ -490,12 +492,12 @@ class PixelMainMon:public ManagedMonitorToolBase
     TProfile_LW*          m_baddisabledModules_per_lumi_mod[PixLayerIBL2D3D::COUNT];
 
     //ROD Error histograms
-    TH1F_LW*              m_error1;            
-    TH1F_LW*              m_errorTypes;        
+    //TH1F_LW*              m_error1;            
+    //TH1F_LW*              m_errorTypes;        
     TProfile_LW*          m_ErrorFraction_per_evt[ErrorCategory::COUNT][PixLayerIBL2D3D::COUNT];
     TProfile_LW*          m_errors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-    TProfile_LW*          m_otherROD_per_lumi_IBL; 
-    TProfile_LW*          m_chip_per_lumi_IBL; 
+    //TProfile_LW*          m_otherROD_per_lumi_IBL; 
+    //TProfile_LW*          m_chip_per_lumi_IBL; 
     TProfile_LW*          m_SyncErrors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
     TProfile_LW*          m_OpticalErrors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
     TProfile_LW*          m_SEU_Errors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
@@ -508,23 +510,23 @@ class PixelMainMon:public ManagedMonitorToolBase
     PixelMon2DMapsLW*       m_ErrorTypeMap[ErrorCategoryMODROD::COUNT];
     PixelMon2DMapsLW*       m_ErrorCategoryMap[ErrorCategory::COUNT];
     PixelMon2DMapsLW*       m_ErrorStateMap[16];
-    PixelMon2DLumiProfiles*       m_ErrorStateMap_per_LB[16];
-    PixelMon2DMapsLW*       m_OpticalErrors;
+    //PixelMon2DLumiProfiles*       m_ErrorStateMap_per_LB[16];
+    //PixelMon2DMapsLW*       m_OpticalErrors;
     //PixelMon2DMapsLW*       m_OpticalErrors_per_evt;
-    PixelMon2DMapsLW*       m_SEU_Errors;
+    //PixelMon2DMapsLW*       m_SEU_Errors;
     //PixelMon2DMapsLW*       m_SEU_Errors_per_evt;
-    PixelMon2DMapsLW*       m_TimeoutErrors;
+    //PixelMon2DMapsLW*       m_TimeoutErrors;
     //PixelMon2DMapsLW*       m_TimeoutErrors_per_evt;
-    TH2F_LW*                m_SyncErrorsIBL; 
+    //TH2F_LW*                m_SyncErrorsIBL; 
     //PixelMon2DMapsLW*       m_SyncErrors_per_evt;
-    PixelMon2DMapsLW*       m_SyncErrors;  //to be removed ?
-    PixelMon2DMapsLW*       m_SyncCategory;
-    PixelMon2DMapsLW*       m_TruncationCategory;
-    PixelMon2DMapsLW*       m_OpticalCategory;
-    PixelMon2DMapsLW*       m_SEUCategory;
-    PixelMon2DMapsLW*       m_TimeoutCategory;
+    //PixelMon2DMapsLW*       m_SyncErrors;  //to be removed ?
+    //PixelMon2DMapsLW*       m_SyncCategory;
+    //PixelMon2DMapsLW*       m_TruncationCategory;
+    //PixelMon2DMapsLW*       m_OpticalCategory;
+    //PixelMon2DMapsLW*       m_SEUCategory;
+    //PixelMon2DMapsLW*       m_TimeoutCategory;
     //PixelMon2DMapsLW*       m_TruncationErrors_per_evt;
-    PixelMon2DMapsLW*       m_TruncationErrors;  //to be removed ?
+    //PixelMon2DMapsLW*       m_TruncationErrors;  //to be removed ?
 
     TProfile_LW*          m_errorStates_per_lumi_mod[PixLayer::COUNT-1][16];
     TProfile2D_LW*        m_ErrorBit_per_lumi_mod[PixLayerIBL2D3D::COUNT];
@@ -534,40 +536,40 @@ class PixelMainMon:public ManagedMonitorToolBase
 
     PixelMon2DLumiMaps*        m_errors_int_LB[16];
 
-    PixelMon2DLumiProfiles*    m_sync_mod_BCID1_per_LB;
-    PixelMon2DLumiMaps*        m_sync_mod_BCID1_int_LB;
-    PixelMon2DLumiProfiles*    m_sync_mod_BCID2_per_LB;
-    PixelMon2DLumiMaps*        m_sync_mod_BCID2_int_LB;
-    PixelMon2DLumiProfiles*    m_sync_mod_LVL1ID_per_LB;
-    PixelMon2DLumiMaps*        m_sync_mod_LVL1ID_int_LB;
-    PixelMon2DLumiProfiles*    m_sync_rod_BCID_per_LB;
-    PixelMon2DLumiMaps*        m_sync_rod_BCID_int_LB;
-    PixelMon2DLumiProfiles*    m_sync_rod_LVL1ID_per_LB;
-    PixelMon2DLumiMaps*        m_sync_rod_LVL1ID_int_LB;
-    PixelMon2DLumiProfiles*    m_trunc_mod_EOC_per_LB;
-    PixelMon2DLumiMaps*        m_trunc_mod_EOC_int_LB;
-    PixelMon2DLumiProfiles*    m_trunc_mod_hitOF_per_LB;
-    PixelMon2DLumiMaps*        m_trunc_mod_hitOF_int_LB;
-    PixelMon2DLumiProfiles*    m_trunc_mod_EoEOF_per_LB;
-    PixelMon2DLumiMaps*        m_trunc_mod_EoEOF_int_LB;
-    PixelMon2DLumiProfiles*    m_trunc_rod_HTlim_per_LB;
-    PixelMon2DLumiMaps*        m_trunc_rod_HTlim_int_LB;
-    PixelMon2DLumiProfiles*    m_trunc_rod_FIFOOF_per_LB;
-    PixelMon2DLumiMaps*        m_trunc_rod_FIFOOF_int_LB;
-    PixelMon2DLumiProfiles*    m_optical_error_per_LB;
-    PixelMon2DLumiMaps*        m_optical_error_int_LB;
-    PixelMon2DLumiProfiles*    m_seu_hit_parity_per_LB;
-    PixelMon2DLumiMaps*        m_seu_hit_parity_int_LB;
-    PixelMon2DLumiProfiles*    m_seu_reg_parity_per_LB;
-    PixelMon2DLumiMaps*        m_seu_reg_parity_int_LB;
-    PixelMon2DLumiProfiles*    m_seu_hamming_per_LB;
-    PixelMon2DLumiMaps*        m_seu_hamming_int_LB;
-    PixelMon2DLumiProfiles*    m_timeout_per_LB;
-    PixelMon2DLumiMaps*        m_timeout_int_LB;
-    PixelMon2DLumiProfiles*    m_FEwarning_per_LB;
-    PixelMon2DLumiMaps*        m_FEwarning_int_LB;
-    PixelMon2DLumiProfiles*    m_sync_mod_corr_LVL1ID_BCID2_per_LB;
-    PixelMon2DLumiProfiles*    m_sync_rod_corr_LVL1ID_BCID_per_LB;
+    //PixelMon2DLumiProfiles*    m_sync_mod_BCID1_per_LB;
+    //PixelMon2DLumiMaps*        m_sync_mod_BCID1_int_LB;
+    //PixelMon2DLumiProfiles*    m_sync_mod_BCID2_per_LB;
+    //PixelMon2DLumiMaps*        m_sync_mod_BCID2_int_LB;
+    //PixelMon2DLumiProfiles*    m_sync_mod_LVL1ID_per_LB;
+    //PixelMon2DLumiMaps*        m_sync_mod_LVL1ID_int_LB;
+    //PixelMon2DLumiProfiles*    m_sync_rod_BCID_per_LB;
+    //PixelMon2DLumiMaps*        m_sync_rod_BCID_int_LB;
+    //PixelMon2DLumiProfiles*    m_sync_rod_LVL1ID_per_LB;
+    //PixelMon2DLumiMaps*        m_sync_rod_LVL1ID_int_LB;
+    //PixelMon2DLumiProfiles*    m_trunc_mod_EOC_per_LB;
+    //PixelMon2DLumiMaps*        m_trunc_mod_EOC_int_LB;
+    //PixelMon2DLumiProfiles*    m_trunc_mod_hitOF_per_LB;
+    //PixelMon2DLumiMaps*        m_trunc_mod_hitOF_int_LB;
+    //PixelMon2DLumiProfiles*    m_trunc_mod_EoEOF_per_LB;
+    //PixelMon2DLumiMaps*        m_trunc_mod_EoEOF_int_LB;
+    //PixelMon2DLumiProfiles*    m_trunc_rod_HTlim_per_LB;
+    //PixelMon2DLumiMaps*        m_trunc_rod_HTlim_int_LB;
+    //PixelMon2DLumiProfiles*    m_trunc_rod_FIFOOF_per_LB;
+    //PixelMon2DLumiMaps*        m_trunc_rod_FIFOOF_int_LB;
+    //PixelMon2DLumiProfiles*    m_optical_error_per_LB;
+    //PixelMon2DLumiMaps*        m_optical_error_int_LB;
+    //PixelMon2DLumiProfiles*    m_seu_hit_parity_per_LB;
+    //PixelMon2DLumiMaps*        m_seu_hit_parity_int_LB;
+    //PixelMon2DLumiProfiles*    m_seu_reg_parity_per_LB;
+    //PixelMon2DLumiMaps*        m_seu_reg_parity_int_LB;
+    //PixelMon2DLumiProfiles*    m_seu_hamming_per_LB;
+    //PixelMon2DLumiMaps*        m_seu_hamming_int_LB;
+    //PixelMon2DLumiProfiles*    m_timeout_per_LB;
+    //PixelMon2DLumiMaps*        m_timeout_int_LB;
+    //PixelMon2DLumiProfiles*    m_FEwarning_per_LB;
+    //PixelMon2DLumiMaps*        m_FEwarning_int_LB;
+    //PixelMon2DLumiProfiles*    m_sync_mod_corr_LVL1ID_BCID2_per_LB;
+    //PixelMon2DLumiProfiles*    m_sync_rod_corr_LVL1ID_BCID_per_LB;
 
     //SP Histograms
     TH1I_LW*  m_num_spacepoints;
@@ -582,7 +584,7 @@ class PixelMainMon:public ManagedMonitorToolBase
 
     //Histograms stored for certain number of LB at a time
     PixelMon2DMaps*    m_cluster_occupancy_LB;  //cluster occupancy (shows module status)
-    PixelMon2DMapsLW*    m_errors_LB;             //errors
+    PixelMon2DMapsLW*  m_errors_LB;             //errors
     PixelMonProfiles*  m_status_LB;             //status of modules (shows disabled modules)
     PixelMonModules1D* m_cluster_ToT_mod_LB;
     PixelMonModules1D* m_cluster_num_mod_LB;

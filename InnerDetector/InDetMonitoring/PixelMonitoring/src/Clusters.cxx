@@ -202,11 +202,11 @@ StatusCode PixelMainMon::BookClustersMon(void)
       if(m_doESD && !m_doOnline){
          hname = makeHistname(("ClusterQ_vs_eta_"+modlabel[i]), false);
          htitles = makeHisttitle(("Cluster charge vs eta, "+modlabel[i]), (atext_eta+atext_Q), false);
-         sc = clusterExpert.regHist(m_clusQ_vs_eta_mod[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_eta, min_eta, max_eta, nbins_Q, min_Q, max_Q));
+         //sc = clusterExpert.regHist(m_clusQ_vs_eta_mod[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_eta, min_eta, max_eta, nbins_Q, min_Q, max_Q));
 
          hname = makeHistname(("Cluster_groupsize_vs_eta_"+modlabel[i]), false);
          htitles = makeHisttitle(("Number of pixels per cluster vs eta, "+modlabel[i]), (atext_eta+atext_npix), false);
-         sc = clusterExpert.regHist(m_clussize_vs_eta_mod[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_eta, min_eta, max_eta, nbins_npix, min_npix, max_npix));
+         //sc = clusterExpert.regHist(m_clussize_vs_eta_mod[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_eta, min_eta, max_eta, nbins_npix, min_npix, max_npix));
 
          hname = makeHistname(("ClusterToT_vs_eta_"+modlabel[i]), false);
          htitles = makeHisttitle(("Cluster ToT vs eta, "+modlabel[i]), (atext_eta+atext_tot), false);
@@ -218,7 +218,7 @@ StatusCode PixelMainMon::BookClustersMon(void)
 
          hname = makeHistname(("ClusterQ_vs_groupsize_"+modlabel[i]), false);
          htitles = makeHisttitle(("Cluster Charge vs groupsize, "+modlabel[i]), (atext_tot+atext_npix), false);
-         sc= clusterExpert.regHist(m_Q_vs_clussize_mod[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_Q, min_Q, max_Q, nbins_npix, min_npix, max_npix));
+         //sc= clusterExpert.regHist(m_Q_vs_clussize_mod[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_Q, min_Q, max_Q, nbins_npix, min_npix, max_npix));
 
          hname = makeHistname(("nlowToT_vs_clussize_"+modlabel[i]), false);
          htitles = makeHisttitle(("# Low ToT Hits vs groupsize, "+modlabel[i]), (atext_npix+atext_nevt), false);
@@ -347,8 +347,8 @@ StatusCode PixelMainMon::BookClustersMon(void)
       sc = clusterExpert.regHist(m_bar_lay2_cluster_occupancy_summary_low = TH1F_LW::create((tmp + "_B2").c_str(),  (tmp2 + ", B2"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
    }
 
-   if(m_doPixelOccupancy){ }
-   if(m_doDetails){ }
+   //if(m_doPixelOccupancy){ }
+   //if(m_doDetails){ }
 
    if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;   
    return StatusCode::SUCCESS;
@@ -520,7 +520,7 @@ StatusCode PixelMainMon::FillClustersMon(void)
 
          /// Fill Occupancy
          if(m_cluster_occupancy) m_cluster_occupancy->Fill(clusID,m_pixelid,m_doIBL);
-         if(m_clusocc_DBM && m_doIBL) m_clusocc_DBM->Fill(clusID,m_pixelid);
+         //if(m_clusocc_DBM && m_doIBL) m_clusocc_DBM->Fill(clusID,m_pixelid);
          //if(m_average_cluster_occupancy) m_average_cluster_occupancy->Fill(clusID,m_pixelid,m_doIBL);
 	      if(cluster.rdoList().size()>1 && m_clusocc_sizenot1) m_clusocc_sizenot1->Fill(clusID,m_pixelid,m_doIBL); 
 
