@@ -76,6 +76,11 @@ public: // Non-static members
    void addHash(IStringPool* pool);
 
 private:
+   friend class DataHeaderElementCnv_p3;
+   friend class DataHeaderElementCnv_p4;
+   friend class DataHeaderElementCnv_p5;
+   friend class DataHeaderElementCnv_p6;
+
    /// primary ClassID.
    CLID m_pClid;
    /// set of unsigned long to store ClassID's for symlinked container.
@@ -161,6 +166,11 @@ public: // Non-static members
    const std::string& getEvtRefTokenStr();
 
 private:
+   friend class DataHeaderCnv_p3;
+   friend class DataHeaderCnv_p4;
+   friend class DataHeaderCnv_p5;
+   friend class DataHeaderCnv_p6;
+
    /// vector with DataHeaderElement to "DataObject".
    std::vector<DataHeaderElement> m_dataHeader;
    /// vector with DataHeaderElement to upstream DataHeader ("Provenance").

@@ -7,6 +7,7 @@
 
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/DataHeader.h"
+#include "PersistentDataModel/AthenaAttributeList.h"
 
 // Need to instantiate iterators
 namespace PersistentDataModelDict {

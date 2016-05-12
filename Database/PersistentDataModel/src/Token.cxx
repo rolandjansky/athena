@@ -12,7 +12,7 @@ static const char* fmt_clid = "[CLID=";
 static const char* fmt_tech = "[TECH=%08X]";
 static const char* fmt_oid  = "[OID=%016llX-%016llX]";
 static const char* fmt_oid_old  = "[OID=%08llX-%08llX]";
-static const int KEY_MASK = (~0x0) << CHAR_BIT;
+static const int KEY_MASK = (~0u) << CHAR_BIT;
 static int s_numCount = 0;
 
 int numTokenInstances() { return s_numCount; }

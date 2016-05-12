@@ -11,7 +11,7 @@
 #include "PersistentDataModel/TokenAddress.h"
 
 #include "SGTools/TransientAddress.h"
-#include "SGTools/IStringPool.h"
+#include "AthenaKernel/IStringPool.h"
 
 //______________________________________________________________________________
 DataHeaderElement::DataHeaderElement() : m_pClid(0), m_clids(), m_key(), m_alias(), m_token(0), m_ownToken(false), m_hashes() {
