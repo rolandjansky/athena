@@ -38,7 +38,7 @@ class G4AffineTransform;
    *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
    *  @author Sasha Glazov, DESY Hamburg, Germany
    *
-   * @version \$Id: TestActionShowerLib.h 664021 2015-04-30 10:17:27Z disimone $
+   * @version \$Id: TestActionShowerLib.h 746605 2016-05-12 13:25:40Z disimone $
    *
    */
 
@@ -80,5 +80,55 @@ class TestActionShowerLib final: public UserActionBase {
   ShowerLib::StepInfoCollection* m_eventSteps;    //!< collection of StepInfo
 
 };
+
+
+#include "G4AtlasInterfaces/IBeginEventAction.h"
+#include "G4AtlasInterfaces/IEndEventAction.h"
+#include "G4AtlasInterfaces/IBeginRunAction.h"
+#include "G4AtlasInterfaces/IEndRunAction.h"
+#include "G4AtlasInterfaces/ISteppingAction.h"
+
+#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+namespace G4UA{
+  
+  
+  class TestActionShowerLib:
+  public IBeginEventAction,  public IEndEventAction,  public IBeginRunAction,  public IEndRunAction,  public ISteppingAction
+  {
+    
+  public:
+    TestActionShowerLib();
+    virtual void beginOfEvent(const G4Event*) override;
+    virtual void endOfEvent(const G4Event*) override;
+    virtual void beginOfRun(const G4Run*) override;
+    virtual void endOfRun(const G4Run*) override;
+    virtual void processStep(const G4Step*) override;
+  private:
+    
+    typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
+    /// Pointer to StoreGate (event store by default)
+    mutable StoreGateSvc_t m_evtStore;
+    /// Pointer to StoreGate (detector store by default)
+    mutable StoreGateSvc_t m_detStore;
+    
+    /* data members */
+    
+    LArVCalculator* m_current_calculator;
+    G4VSolid* m_current_solid;
+    G4AffineTransform* m_current_transform;
+    
+    // calculators 
+    LArVCalculator* m_calculator_EMECIW;            //!< pointer to EMEC inner wheel calculator
+    LArVCalculator* m_calculator_EMECOW;            //!< pointer to EMEC outer wheel calculator
+    
+    
+    ShowerLib::StepInfoCollection* m_eventSteps;    //!< collection of StepInfo
+
+}; // class TestActionShowerLib
+
+
+} // namespace G4UA 
+
 
 #endif // TestActionShowerLib_H
