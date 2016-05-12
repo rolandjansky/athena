@@ -11,40 +11,40 @@
 
 namespace FADS {
 
-MaterialManager* MaterialManager::mpointer=0;
+MaterialManager* MaterialManager::s_mpointer=0;
 
 void MaterialManager::StoreElement(FadsElement *el)
 {
 	std::string symbol=el->GetSymbol();
 // 	std::cout<<" This is MaterialManager::StoreElement "<<symbol<<std::endl;
-	if (elist.find(symbol)!=elist.end())
+	if (m_elist.find(symbol)!=m_elist.end())
 	{
 		std::cout<<"attempt of redefining an existing element "<<symbol<<std::endl;
-              std::cout<<elist[symbol]<<std::endl;			
+              std::cout<<m_elist[symbol]<<std::endl;			
 	}
 	else
 	{
-		elist[symbol]=el;
+		m_elist[symbol]=el;
 	}
 }
 G4Element* MaterialManager::GetElement(std::string symbol)
 {
-	if (elist.find(symbol)==elist.end())
+	if (m_elist.find(symbol)==m_elist.end())
 	{
 		std::cout<<" element "<<symbol<<" not found!"<<std::endl;
 		return NULL;
 	}
 	else
-		return elist[symbol];
+		return m_elist[symbol];
 }
 void MaterialManager::StoreMaterial(FadsSimpleMaterial *el)
 {
 	std::string name=el->name();
-	mlist[name]=el;
+	m_mlist[name]=el;
 }
 G4Material* MaterialManager::GetMaterial(std::string name)
 {
-	if (mlist.find(name)==mlist.end())
+	if (m_mlist.find(name)==m_mlist.end())
 	{
 		std::cout<<" material "<<name<<" not found!"<<std::endl;
 		return NULL;
@@ -52,13 +52,13 @@ G4Material* MaterialManager::GetMaterial(std::string name)
 	else
 	{
 		// cout<<"returning material "<<name<<endl;
-		return mlist[name]->GetG4Material();
+		return m_mlist[name]->GetG4Material();
 	}
 }
 void MaterialManager::PrintMaterialTable()
 {
 	MaterialList::iterator it;
-	for (it=mlist.begin();it!=mlist.end();it++)
+	for (it=m_mlist.begin();it!=m_mlist.end();it++)
 	{
 		std::cout<<(*it).second->GetG4Material()<<std::endl;
 	}	
@@ -66,7 +66,7 @@ void MaterialManager::PrintMaterialTable()
 void MaterialManager::PrintElementTable()
 {
 	ElementList::iterator it;
-	for (it=elist.begin();it!=elist.end();it++) std::cout<<(*it).second<<std::endl;
+	for (it=m_elist.begin();it!=m_elist.end();it++) std::cout<<(*it).second<<std::endl;
 }
 void MaterialManager::initialize()
 {
@@ -122,11 +122,11 @@ void MaterialManager::initialize()
 }
 bool MaterialManager::FindElement(std::string name)
 {
-	return (elist.find(name)!=elist.end());
+	return (m_elist.find(name)!=m_elist.end());
 }
 bool MaterialManager::FindMaterial(std::string name)
 {
-	return (mlist.find(name)!=mlist.end());
+	return (m_mlist.find(name)!=m_mlist.end());
 }
 
 double MaterialManager::GetRadLen(std::string name)

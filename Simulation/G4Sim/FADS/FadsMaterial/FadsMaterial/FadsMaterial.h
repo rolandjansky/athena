@@ -12,8 +12,8 @@ namespace FADS {
 
 class FadsMaterial: public FadsSimpleMaterial {
 protected:
-	double z_;
-	double a_;
+	double m_z;
+	double m_a;
 public:
 	FadsMaterial(std::string n,double z,double a,double density,
 		    State sta=NotDefined,double temp=CLHEP::STP_Temperature,

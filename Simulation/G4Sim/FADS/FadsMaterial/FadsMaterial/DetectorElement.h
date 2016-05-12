@@ -9,11 +9,7 @@
 #include "G4LogicalVolume.hh"
 #include "FadsMaterial/MaterialManager.h"
 
-#ifdef HAVE_NEW_IOSTREAMS
-	#include <iostream>
-#else
-	#include <iostream.h>
-#endif
+#include <iostream>
 
 namespace FADS {
 

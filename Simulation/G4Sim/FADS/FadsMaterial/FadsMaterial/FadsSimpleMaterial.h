@@ -17,15 +17,15 @@ enum State {NotDefined=kStateUndefined,Gas=kStateGas,Liquid=kStateLiquid,
 
 class FadsSimpleMaterial {
 protected:
-	static FadsSimpleMaterial* currentMaterial;
-	std::string name_;
-	double density_;
-	G4Material * theMaterial;
-	State state;
-	double temperature_;
-	double pressure_;
+	static FadsSimpleMaterial* s_currentMaterial;
+	std::string m_name;
+	double m_density;
+	G4Material * m_theMaterial;
+	State m_state;
+	double m_temperature;
+	double m_pressure;
 	virtual void CreateG4Material() {}
-	MaterialManager* matManager;
+	MaterialManager* m_matManager;
 public:
 	FadsSimpleMaterial(std::string n,double d,State sta=NotDefined,
 				double temp=CLHEP::STP_Temperature,
