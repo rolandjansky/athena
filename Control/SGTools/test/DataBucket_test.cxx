@@ -384,7 +384,6 @@ int main () {
   delete gdo;
   //----------------------------------------------------------
 
-#if __cplusplus > 201100
   {
     std::unique_ptr<X5> p (new X5(10));
     DataBucketBase* b3 = new SG::DataBucket<X5> (std::move(p));
@@ -403,7 +402,25 @@ int main () {
     delete b4;
     assert (X5::log == std::vector<int> {11});
   }
-#endif
+
+  {
+    SG::DataObjectSharedPtr<GaudiDataObj> ptr (new GaudiDataObj);
+    assert (ptr->refCount() == 1);
+    DataBucketBase* b5 = new SG::DataBucket<GaudiDataObj> (ptr);
+    assert (ptr->refCount() == 2);
+    assert (b5->object() == ptr.get());
+    delete b5;
+    assert (ptr->refCount() == 1);
+  }
+
+  {
+    SG::DataObjectSharedPtr<GaudiDataObj> ptr (new GaudiDataObj);
+    assert (ptr->refCount() == 1);
+    DataObject* b6 = asStorable (ptr);
+    assert (ptr->refCount() == 2);
+    delete b6;
+    assert (ptr->refCount() == 1);
+  }
 
   test2();
   test3();

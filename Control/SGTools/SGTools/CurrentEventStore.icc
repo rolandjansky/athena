@@ -14,23 +14,21 @@
 namespace SG {
 
 
-#if 0
 /**
  * @brief Fetch the current store.
  */
 inline
-IProxyDictWithPool* CurrentEventStore::store()
+IProxyDict* CurrentEventStore::store()
 {
   return m_curStore;
 }
-#endif
 
 
 /**
  * @brief Temporarily change the current event store.
  */
 inline
-CurrentEventStore::Push::Push (IProxyDictWithPool* store)
+CurrentEventStore::Push::Push (IProxyDict* store)
   : m_oldStore (setStore (store))
 {
 }

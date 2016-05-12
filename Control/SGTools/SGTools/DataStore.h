@@ -12,7 +12,7 @@
 
 #include "SGTools/ProxyMap.h"
 #include "SGTools/T2pMap.h"
-#include "SGTools/IProxyDictWithPool.h"
+#include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/DefaultKey.h"
 #include "AthenaKernel/IProxyRegistry.h"
 #include "CxxUtils/unordered_map.h"
@@ -78,7 +78,7 @@ namespace SG {
      * @brief Constructor.
      * @param pool The string pool associated with this store.
      */
-    DataStore (IProxyDictWithPool& pool);
+    DataStore (IProxyDict& pool);
     virtual ~DataStore();
 
     void setStoreID(StoreID::type id) { m_storeID = id;}
@@ -157,7 +157,7 @@ namespace SG {
   private:
 
     /// The string pool associated with this store.
-    IProxyDictWithPool& m_pool;
+    IProxyDict& m_pool;
 
     StoreMap m_storeMap;
 

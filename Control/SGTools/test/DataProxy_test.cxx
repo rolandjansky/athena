@@ -203,7 +203,7 @@ public:
     return StatusCode::SUCCESS;
   }
 
-  IProxyDictWithPool* m_store;
+  IProxyDict* m_store;
   SG::DataBucket<X1>* m_bucket;
 };
 

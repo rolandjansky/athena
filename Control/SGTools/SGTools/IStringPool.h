@@ -17,7 +17,6 @@
 #define SGTOOLS_ISTRINGPOOL_H
 
 
-// TEMPORARY: this class moved.
 #include "AthenaKernel/IStringPool.h"
 
 

@@ -4,8 +4,8 @@
 
 #include "SGTools/DataStore.h"
 #include "SGTools/DataProxy.h"
-#include "SGTools/IStringPool.h"
 #include "SGTools/exceptions.h"
+#include "AthenaKernel/IStringPool.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -24,7 +24,7 @@ using SG::ConstProxyIterator;
  * @brief Constructor.
  * @param pool The string pool associated with this store.
  */
-DataStore::DataStore (IProxyDictWithPool& pool)
+DataStore::DataStore (IProxyDict& pool)
   : m_pool (pool),
     m_storeMap(), m_storeID(StoreID::UNKNOWN), m_t2p(), 
     m_pSGAudSvc(0), m_noAudSvc(0), m_pSvcLoc(0)

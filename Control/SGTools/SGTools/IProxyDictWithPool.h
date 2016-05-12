@@ -20,25 +20,10 @@
 #ifndef SGTOOLS_IPROXYDICTWITHPOOL_H
 #define SGTOOLS_IPROXYDICTWITHPOOL_H
 
+
+// Now everything's in IProxyDict.
 #include "AthenaKernel/IProxyDict.h"
-#include "SGTools/IStringPool.h"
-
-
-/// Interface definition.
-static const InterfaceID IID_IProxyDictWithPool ("IProxyDictWithPool", 1, 0);
-
-
-/**
- * @brief Combine IProxyDict and IStringPool.
- */
-/// TEMPORARY: Everying's moved to IProxyDict.  Get rid of this eventually.
-class IProxyDictWithPool
-  : public IProxyDict
-{
-public:
-  /// Gaudi interface definition.
-  static const InterfaceID& interfaceID() { return IID_IProxyDictWithPool; }
-};
+typedef IProxyDict IProxyDictWithPool;
 
 
 #endif // not SGTOOLS_IPROXYDICTWITHPOOL_H

@@ -9,8 +9,8 @@
 /* #include <algorithm> */
 using namespace std;
 
-const unsigned long CLIDRegistry::MINCLID = detail::MINCLID;
-const unsigned long CLIDRegistry::MAXCLID = detail::MAXCLID;
+const unsigned long CLIDRegistry::MINCLID = CLIDdetail::MINCLID;
+const unsigned long CLIDRegistry::MAXCLID = CLIDdetail::MAXCLID;
 
 namespace {
 unsigned int alreadyDone (0);

@@ -8,6 +8,7 @@
 #define SGTOOLS_DATABUCKET_H
 
 #include "SGTools/DataBucketBase.h"
+#include "AthenaKernel/DataObjectSharedPtr.h"
 
 //FIXME CLID is a tdef and can't be forward declared 
 #include "GaudiKernel/ClassID.h"
@@ -35,6 +36,7 @@ namespace SG {
     DataBucket(): m_ptr(0) {}  //needed by the generic converters
     DataBucket(T* data);                 
     DataBucket(std::unique_ptr<T> data);
+    DataBucket(SG::DataObjectSharedPtr<T> data);
   
     // DESTRUCTOR:
   

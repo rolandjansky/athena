@@ -28,7 +28,7 @@
 # include "CxxUtils/unused.h"
 #endif
 
-namespace detail {
+namespace CLIDdetail {
   /// @name allowed class id range
   //@{	
   const unsigned long MINCLID = 256;
@@ -110,11 +110,11 @@ bool CLIDRegistry::addEntry(const std::type_info& ti,
 			    const std::string& typeInfoName) {
   //more drudgery
 #ifdef BOOST_HAS_STATIC_ASSERT
-  static_assert (detail::MINCLID <= CLID && CLID <= detail::MAXCLID,
+  static_assert (CLIDdetail::MINCLID <= CLID && CLID <= CLIDdetail::MAXCLID,
                  "CLID out of CLIDRegistry range");
 #else
   UNUSED(typedef ::boost::static_assert_test<
-    sizeof(ERROR_CLID_out_of_CLIDRegistry_range< (bool)(detail::MINCLID <= CLID && CLID <= detail::MAXCLID) >)
+    sizeof(ERROR_CLID_out_of_CLIDRegistry_range< (bool)(CLIDdetail::MINCLID <= CLID && CLID <= CLIDdetail::MAXCLID) >)
          > BOOST_JOIN(boost_static_assert_typedef_, __LINE__));
 #endif
 

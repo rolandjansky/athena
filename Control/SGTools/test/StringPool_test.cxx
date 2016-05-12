@@ -42,14 +42,39 @@ std::string randstring()
 }
 
 
+void checkPool (const SG::StringPool& sp,
+                const std::vector<SG::StringPool::sgkey_t>& keys,
+                const std::vector<SG::StringPool::sgaux_t>& aux,
+                const std::vector<std::string>& strings,
+                bool test2)
+                
+{
+  for (size_t i = 0; i < keys.size(); i++) {
+    SG::StringPool::sgaux_t auxout = 0;
+    assert (*sp.keyToString (keys[i]) == strings[i]);
+    assert (*sp.keyToString (keys[i], auxout) == strings[i]);
+    assert (auxout == aux[i]);
+    auxout = 0;
+    if (test2) {
+      assert (*sp.keyToString (keys[i]+1, auxout) == strings[i]);
+      assert (auxout == aux[i]);
+    }
+    else
+      assert (!sp.keyToString (keys[i]+1));
+  }
+}
+
+
 void test1()
 {
+  std::cout << "test1\n";
+  
   SG::StringPool sp;
   std::vector<std::string> strings;
   std::vector<SG::StringPool::sgkey_t> keys;
   std::vector<SG::StringPool::sgaux_t> aux;
-  int ntest = sizeof (teststrings) / sizeof (teststrings[0]);
-  for (int i = 0; i < ntest; i++) {
+  size_t ntest = sizeof (teststrings) / sizeof (teststrings[0]);
+  for (size_t i = 0; i < ntest; i++) {
     SG::StringPool::sgkey_t key = sp.stringToKey (teststrings[i], i);
     assert (key <= SG::StringPool::sgkey_t_max);
     strings.push_back (teststrings[i]);
@@ -57,6 +82,8 @@ void test1()
     aux.push_back (i);
     std::cout << SG::crc64format (key) << " " << teststrings[i] << "\n";
   }
+  size_t nstore = ntest;
+  assert (sp.size() == nstore);
 
   std::cout << "pool dump\n";
   sp.dump();
@@ -71,34 +98,48 @@ void test1()
     aux.push_back (auxkey);
   }
 
-  for (size_t i = 0; i < keys.size(); i++) {
-    SG::StringPool::sgaux_t auxout;
-    assert (*sp.keyToString (keys[i]) == strings[i]);
-    assert (*sp.keyToString (keys[i], auxout) == strings[i]);
-    assert (auxout == aux[i]);
-    assert (!sp.keyToString (keys[i]+1));
-  }
+  nstore += 1000;
+  assert (sp.size() == nstore);
+  checkPool (sp, keys, aux, strings, false);
 
   for (size_t i = 0; i < keys.size(); i++) {
     assert (sp.registerKey (keys[i]+1, strings[i], aux[i]));
   }
 
-  for (size_t i = 0; i < keys.size(); i++) {
-    SG::StringPool::sgaux_t auxout = 0;
-    assert (*sp.keyToString (keys[i], auxout) == strings[i]);
-    assert (auxout == aux[i]);
-    auxout = 0;
-    assert (*sp.keyToString (keys[i]+1, auxout) == strings[i]);
-    assert (auxout == aux[i]);
-  }
+  nstore *= 2;
+  assert (sp.size() == nstore);
+  checkPool (sp, keys, aux, strings, true);
 
   assert (sp.registerKey (keys[10], strings[10], aux[10]));
   assert (!sp.registerKey (keys[10], strings[11], aux[10]));
   assert (!sp.registerKey (keys[10], strings[10], aux[11]));
+  nstore += 2;
+
+  SG::StringPool sp2 = sp;
 
   sp.clear();
+  assert (sp.size() == 0);
   std::cout << "pool dump2\n";
   sp.dump();
+
+  assert (sp2.size() == nstore);
+  checkPool (sp2, keys, aux, strings, true);
+
+  SG::StringPool sp3 (std::move (sp2));
+  assert (sp2.size() == 0);
+  assert (sp3.size() == nstore);
+  checkPool (sp3, keys, aux, strings, true);
+
+  sp2 = sp3;
+  assert (sp2.size() == nstore);
+  assert (sp3.size() == nstore);
+  checkPool (sp2, keys, aux, strings, true);
+  checkPool (sp3, keys, aux, strings, true);
+
+  sp = std::move (sp3);
+  assert (sp.size() == nstore);
+  assert (sp3.size() == 0);
+  checkPool (sp, keys, aux, strings, true);
 }
 
 

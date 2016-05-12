@@ -16,7 +16,7 @@
 #include "SGTools/DataProxy.h"
 #include "SGTools/TestStore.h"
 #include "SGTools/TransientAddress.h"
-#include "SGTools/IProxyDictWithPool.h"
+#include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include <iostream>

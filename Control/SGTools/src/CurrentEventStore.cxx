@@ -17,28 +17,16 @@
 namespace SG {
 
 
-#ifdef ATHENAHIVE
-thread_local IProxyDictWithPool* CurrentEventStore::m_curStore = nullptr;
-#else
-IProxyDictWithPool* CurrentEventStore::m_curStore = nullptr;
-#endif
-
-
-IProxyDictWithPool* CurrentEventStore::store()
-{
-  // XXX should really be inline.  Out-of-line temporarily for easier
-  // profiling.
-  return m_curStore;
-}
+thread_local IProxyDict* CurrentEventStore::m_curStore = nullptr;
 
 
 /**
  * @brief Set the current store.
  * Returns the previous store.
  */
-IProxyDictWithPool* CurrentEventStore::setStore (IProxyDictWithPool* store)
+IProxyDict* CurrentEventStore::setStore (IProxyDict* store)
 {
-  IProxyDictWithPool* oldstore = m_curStore;
+  IProxyDict* oldstore = m_curStore;
   m_curStore = store;
   return oldstore;
 }

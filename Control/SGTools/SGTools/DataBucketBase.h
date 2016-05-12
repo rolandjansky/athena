@@ -32,9 +32,7 @@ class DataBucketBase : public DataObject
   /**
    * @brief Return the @c type_info for the stored object.
    */
-  /// TEMPORARY: This method is being added.  Will eventually be made pure.
-  virtual const std::type_info& tinfo() const
-  { return typeid(void); }
+  virtual const std::type_info& tinfo() const = 0;
 
   /**
    * @brief Return the contents of the @c DataBucket,

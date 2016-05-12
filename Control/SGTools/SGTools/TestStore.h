@@ -17,7 +17,7 @@
 #define SGTOOLS_TESTSTORE_H
 
 
-#include "SGTools/IProxyDictWithPool.h"
+#include "AthenaKernel/IProxyDict.h"
 #include "SGTools/StringPool.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/CurrentEventStore.h"
@@ -49,12 +49,9 @@ struct TestStoreRemapHash
 
 
 class TestStore
-  : virtual public IProxyDictWithPool
+  : virtual public IProxyDict
 {
 public:
-  /// TEMPORARY: Avoid hidden method warning.  Can remove later.
-  using IProxyDict::proxy;
-
   // These are unimplemented and will abort.
   virtual unsigned long addRef() override;
   virtual unsigned long release() override;
@@ -64,9 +61,10 @@ public:
   virtual void registerKey (sgkey_t /*key*/,
                             const std::string& /*str*/,
                             CLID /*clid*/) override;
-  virtual SG::DataProxy* recordObject (std::unique_ptr<DataObject> obj,
+  virtual SG::DataProxy* recordObject (SG::DataObjectSharedPtr<DataObject> obj,
                                        const std::string& key,
-                                       bool allowMods) override;
+                                       bool allowMods,
+                                       bool returnExisting) override;
   virtual StatusCode updatedObject (CLID id, const std::string& key) override;
 
   
@@ -83,8 +81,8 @@ public:
   virtual void boundHandle (IResetable* handle) override;
   virtual void unboundHandle (IResetable* handle) override;
 
-  void record1 (const void* p, DataObject* obj,
-                CLID clid, const std::string& key);
+  SG::DataProxy* record1 (const void* p, DataObject* obj,
+                          CLID clid, const std::string& key);
 
 
   template <class T>
@@ -122,6 +120,12 @@ public:
   SG::StringPool m_stringPool;
 
   std::vector<IResetable*> m_boundHandles;
+
+  std::vector<std::string> m_updated;
+  bool m_failUpdatedObject = false;
+
+  // Log failed calls to proxy(CLID, std::string).
+  mutable std::vector<std::pair<CLID, std::string> > m_missedProxies;
 };
 
 

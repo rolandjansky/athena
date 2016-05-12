@@ -19,7 +19,7 @@
 #include "SGTools/T2pMap.h"
 #include "SGTools/DataBucketBase.h"
 #include "SGTools/CurrentEventStore.h"
-#include "SGTools/IProxyDictWithPool.h"
+#include "AthenaKernel/IProxyDict.h"
 
 #include "SGTools/DataProxy.h"
 using SG::DataProxy;
@@ -249,76 +249,109 @@ void DataProxy::setAddress(IOpaqueAddress* address)
 }
 //////////////////////////////////////////////////////////////
 
-/// Access DataObject on-demand using conversion service
-DataObject* DataProxy::accessData()
+
+/**
+ * @brief Read in a new copy of the object referenced by this proxy.
+ * @param errNo If non-null, set to the resulting error code.
+ *
+ * If this proxy has an associated loader and address, then load
+ * a new copy of the object and return it.  Any existing copy
+ * held by the proxy is unaffected.
+ *
+ * This will fail if the proxy does not refer to an object read from an
+ * input file.
+ */
+std::unique_ptr<DataObject> DataProxy::readData (ErrNo* errNo) const
 {
-  if (0 != m_dObject) return m_dObject;  // cached object
+  if (errNo) *errNo = ALLOK;
 
   if (0 == m_dataLoader) {
     //MsgStream gLog(m_ims, "DataProxy");
     //gLog << MSG::WARNING
     //	  << "accessData:  IConversionSvc ptr not set" <<endreq;
-    m_errno=NOCNVSVC;
-    setObject(0);
-    return 0;   
+    if (errNo) *errNo=NOCNVSVC;
+    return nullptr;
   }
   if (!isValidAddress()) {
-    MsgStream gLog(m_ims, "DataProxy");
-    gLog << MSG::WARNING
-	 << "accessData:  IOA pointer not set" <<endreq;
-    m_errno=NOIOA;
-    setObject(0);
-    return 0;
+    //MsgStream gLog(m_ims, "DataProxy");
+    //gLog << MSG::WARNING
+    //	 << "accessData:  IOA pointer not set" <<endreq;
+    if (errNo) *errNo=NOIOA;
+    return nullptr;
   }
 
   SG::CurrentEventStore::Push push (m_store);
 
-  DataObject* obj(0);
+  DataObject* obj = nullptr;
   StatusCode sc = m_dataLoader->createObj(m_tAddress->address(), obj);
+  if (sc.isSuccess())
+    return std::unique_ptr<DataObject>(obj);
+  if (errNo) *errNo = CNVFAILED;
+  return nullptr;
+}
 
-  if ( sc.isSuccess() )
-  {  
-    setObject(obj);
-    DataBucketBase* bucket = dynamic_cast<DataBucketBase*>(obj);
-    if (bucket) {
-      void* payload = bucket->object();
-      m_t2p->t2pRegister(payload, this);
-      m_errno=ALLOK;
 
-  
-      // Register bases as well.
-      const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (m_tAddress->clID());
-      if (bi) {
-        std::vector<CLID> base_clids = bi->get_bases();
-        for (unsigned i=0; i < base_clids.size(); ++i) {
-          void* bobj = SG::DataProxy_cast (this, base_clids[i]);
-          if (bobj && bobj != payload)
-            m_t2p->t2pRegister (bobj, this);
-        }
-      }
-    } else {
+/// Access DataObject on-demand using conversion service
+DataObject* DataProxy::accessData()
+{
+  if (0 != m_dObject) return m_dObject;  // cached object
+
+  if (isValidAddress()) {
+    // An address provider called by isValidAddress may have set the object
+    // pointer directly, rather than filling in the address.  So check
+    // the cached object pointer again.
+    if (0 != m_dObject) return m_dObject;  // cached object
+  }
+
+  std::unique_ptr<DataObject> obju = readData (&m_errno);
+  if (!obju) {
+    if (m_errno == NOIOA) {
       MsgStream gLog(m_ims, "DataProxy");
-      gLog << MSG::ERROR
-	   << "accessData: ERROR registering object in t2p map" 
-	   <<m_tAddress->clID() << '/' << m_tAddress->name() << '\n'
-	   <<" Returning NULL DataObject pointer  " << endreq;
-      obj=0; 
-      setObject(0);
-      m_errno=T2PREGFAILED;
+      gLog << MSG::WARNING
+           << "accessData:  IOA pointer not set" <<endreq;
+    }
+    else if (m_errno == CNVFAILED) {
+      MsgStream gLog(m_ims, "DataProxy");
+      gLog << MSG::WARNING 
+           << "accessData: conversion failed for data object " 
+           <<m_tAddress->clID() << '/' << m_tAddress->name() << '\n'
+           <<" Returning NULL DataObject pointer  " << endreq;
+    }
+    setObject(0);
+    return 0;   
+  }
+
+  DataObject* obj = obju.release();
+  setObject(obj);
+  DataBucketBase* bucket = dynamic_cast<DataBucketBase*>(obj);
+  if (bucket) {
+    void* payload = bucket->object();
+    m_t2p->t2pRegister(payload, this);
+    m_errno=ALLOK;
+
+    // Register bases as well.
+    const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (m_tAddress->clID());
+    if (bi) {
+      std::vector<CLID> base_clids = bi->get_bases();
+      for (unsigned i=0; i < base_clids.size(); ++i) {
+        void* bobj = SG::DataProxy_cast (this, base_clids[i]);
+        if (bobj && bobj != payload)
+          m_t2p->t2pRegister (bobj, this);
       }
-  } else {
+    }
+  }
+  else {
     MsgStream gLog(m_ims, "DataProxy");
-    gLog << MSG::WARNING 
-	 << "accessData: conversion failed for data object " 
-	 <<m_tAddress->clID() << '/' << m_tAddress->name() << '\n'
-	 <<" Returning NULL DataObject pointer  " << endreq;
+    gLog << MSG::ERROR
+         << "accessData: ERROR registering object in t2p map" 
+         <<m_tAddress->clID() << '/' << m_tAddress->name() << '\n'
+         <<" Returning NULL DataObject pointer  " << endreq;
     obj=0; 
     setObject(0);
-    m_errno=CNVFAILED;
+    m_errno=T2PREGFAILED;
   }
 
   return obj;
-
 }
 
 

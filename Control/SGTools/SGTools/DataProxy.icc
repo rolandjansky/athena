@@ -8,7 +8,7 @@
  implementation of DataProxy_cast operator
  -----------------------------------------
  ATLAS Collaboration
- ***************************************************************************/
+***************************************************************************/
 
 // $Id: DataProxy.icc,v 1.6 2008-07-14 22:16:25 calaf Exp $
 
@@ -35,60 +35,60 @@ DATA* SG::DataProxy_cast(SG::DataProxy* proxy) {
       const CLID& dataID(ClassID_traits<DATA>::ID());
       result = SG::Storable_cast<DATA>(pObject, true, proxy, proxy->isConst());
       if (0 == result) { 
-	//if result is 0, probably DATA is neither the type the object was
-	// stored with, nor it inherits from it. 
-	// Before giving up let's check its transient CLIDs
-	DataBucketBase* db(0);
-	if (proxy->transientAddress()->transientID(dataID) &&
-	    0 != (db = dynamic_cast<DataBucketBase*>(pObject)) )
-        {
-	  //it is a symlink after all. Let's hard cast and keep our fingers Xed
-          // But first: if this is a non-const proxy, then the cast
-          // may have failed because it needed to go via a copying conversion
-          // that's not allowed for non-const objects.  So try the conversion
-          // again as const; if that works, then don't do the hard cast.
-          if (!proxy->isConst() &&
-              SG::Storable_cast<DATA>(pObject, true, proxy, true) != 0)
+        //if result is 0, probably DATA is neither the type the object was
+        // stored with, nor it inherits from it. 
+        // Before giving up let's check its transient CLIDs
+        DataBucketBase* db(0);
+        if (proxy->transientAddress()->transientID(dataID) &&
+            0 != (db = dynamic_cast<DataBucketBase*>(pObject)) )
           {
+            //it is a symlink after all. Let's hard cast and keep our fingers Xed
+            // But first: if this is a non-const proxy, then the cast
+            // may have failed because it needed to go via a copying conversion
+            // that's not allowed for non-const objects.  So try the conversion
+            // again as const; if that works, then don't do the hard cast.
+            if (!proxy->isConst() &&
+                SG::Storable_cast<DATA>(pObject, true, proxy, true) != 0)
+              {
 #ifndef NDEBUG
-            MsgStream gLog(Athena::getMessageSvc(), "SG::DataProxy_cast");
-            gLog << MSG::WARNING 
-                 << "Request for a non-const object via copying conversion; "
-                 << "requested CLID = " << dataID 
-                 << ", proxy primary ID is " << proxy->clID() << endreq   ;
+                MsgStream gLog(Athena::getMessageSvc(), "SG::DataProxy_cast");
+                gLog << MSG::WARNING 
+                     << "Request for a non-const object via copying conversion; "
+                     << "requested CLID = " << dataID 
+                     << ", proxy primary ID is " << proxy->clID() << endreq   ;
 #endif
+              }
+            else {
+              // ok, hard cast.
+              result = static_cast<DATA*>(db->object());
+            }
           }
-          else {
-            // ok, hard cast.
-            result = static_cast<DATA*>(db->object());
-          }
-	}
         else { 
 #ifndef NDEBUG
-	  MsgStream gLog(Athena::getMessageSvc(), "SG::DataProxy_cast");
-	  gLog << MSG::WARNING 
-	       << "Request for an invalid object; requested CLID = " 
-	       << dataID 
-	       << ", proxy primary ID is " << proxy->clID() << endreq   ;
+          MsgStream gLog(Athena::getMessageSvc(), "SG::DataProxy_cast");
+          gLog << MSG::WARNING 
+               << "Request for an invalid object; requested CLID = " 
+               << dataID 
+               << ", proxy primary ID is " << proxy->clID() << endreq   ;
 #endif
-	} //try symlink
+        } //try symlink
       } //result 0
     } else { // invalid pObject
 #ifndef NDEBUG
       MsgStream gLog(Athena::getMessageSvc(), "SG::DataProxy_cast");
       gLog << MSG::WARNING 
-	   << "this proxy " << MSG::hex << proxy
-	   << MSG::dec << " has a NULL data object ptr" << endreq;
+           << "this proxy " << MSG::hex << proxy
+           << MSG::dec << " has a NULL data object ptr" << endreq;
 #endif
     }
   } else {//	invalid proxy
 #if 0
 #ifndef NDEBUG
     MsgStream gLog(Athena::getMessageSvc(), "SG::DataProxy_cast");
-      gLog << MSG::WARNING 
-	   << "this proxy " << MSG::hex << proxy
-	   << MSG::dec << " [" << proxy->clID() << "/" << proxy->name()
-           << "] is in an invalid state" << endreq;
+    gLog << MSG::WARNING 
+         << "this proxy " << MSG::hex << proxy
+         << MSG::dec << " [" << proxy->clID() << "/" << proxy->name()
+         << "] is in an invalid state" << endreq;
 #endif
 #endif
   }

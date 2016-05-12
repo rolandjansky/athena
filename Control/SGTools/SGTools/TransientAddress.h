@@ -11,9 +11,9 @@
 
 
 ///< Gaudi includes:
-#include "SGTools/IStringPool.h"
-#include "GaudiKernel/ClassID.h"
+#include "AthenaKernel/IStringPool.h"
 #include "AthenaKernel/StoreID.h"
+#include "GaudiKernel/ClassID.h"
 
 ///< forward declarations:
 class IOpaqueAddress;
@@ -91,6 +91,9 @@ namespace SG {
 
     ///< set the clearAddress flag: IOA will not be deleted in proxy
     void clearAddress(const bool& flag);
+
+    ///< Return the clearAddress flag.
+    bool clearAddress() const;
 
     ///< this sets the flag whether to consult the provider to update
     /// this transient address if the IOA is not valid.
@@ -236,6 +239,13 @@ namespace SG {
   void TransientAddress::clearAddress(const bool& flag) 
   {
     m_clearAddress = flag;
+  }
+
+  /// Return the clearAddress flag.
+  inline
+  bool TransientAddress::clearAddress() const
+  {
+    return m_clearAddress;
   }
 
   inline

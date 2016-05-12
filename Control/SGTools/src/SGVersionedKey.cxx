@@ -53,7 +53,7 @@ void VersionedKey::decode(std::string& outKey, unsigned char& version) const {
 void VersionedKey::encode(const std::string& inKey, unsigned char version) {
   assert(version <= 99);
   char vers[5];
-  sprintf(vers, versionFormatString(), version);
+  snprintf(vers, 5, versionFormatString(), version);
   m_versionKey = vers + inKey;
 }
 
