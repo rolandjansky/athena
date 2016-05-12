@@ -12,6 +12,7 @@
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
 #include "InDetRecToolInterfaces/ISiZvertexMaker.h" 
 #include "InDetRecToolInterfaces/ISiTrackMaker.h" 
+#include "TrkSpacePoint/SpacePointContainer.h" 
 
 // For new strategy reconstruction
 #include "TrkTrack/TrackCollection.h"
@@ -21,7 +22,7 @@
 #include "TrkSurfaces/PerigeeSurface.h" 
 #include "StoreGate/DataHandle.h"
 
-  class SpacePointContainer;
+//class SpacePointContainer;
 namespace InDet {
 
 // forward declare of these interfaces does not work in opt build
@@ -69,6 +70,7 @@ namespace InDet {
       bool                           m_useMBTS            ;
       bool                           m_useNewStrategy     ;
       bool                           m_useZBoundaryFinding;
+      bool                           m_ITKGeometry        ; // Is it ITK geometry
       int                            m_outputlevel        ; // Print level for debug
       int                            m_nprint             ; // Kind of  print    
       int                            m_nseeds             ; // Number seeds
@@ -86,7 +88,6 @@ namespace InDet {
 
       SG::ReadHandle<SpacePointContainer> m_SpacePointsSCT  ;
       SG::ReadHandle<SpacePointContainer> m_SpacePointsPixel;
-      SG::ReadHandle<TrackCollection>     m_inputTracks     ;
       SG::WriteHandle<TrackCollection>    m_outputTracks    ;
 
       ToolHandle< ISiSpacePointsSeedMaker > m_seedsmaker    ;  // Space poins seed     maker
