@@ -9,11 +9,7 @@
 // Implementation of TRT_Timer
 
 #include <TRT_Rec/TRT_Timer.h>
-#ifdef HAVE_NEW_IOSTREAMS
-  #include <iostream>
-#else
-  #include <iostream.h>
-#endif
+#include <iostream>
 #define timex   timex_
 extern "C" {void timex(float*);}
 
