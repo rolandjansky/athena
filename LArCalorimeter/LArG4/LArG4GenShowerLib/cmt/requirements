@@ -10,10 +10,13 @@ use AtlasCLHEP          AtlasCLHEP-*            External
 use CLIDSvc             CLIDSvc-*               Control
 use DataModel           DataModel-*             Control
 use GaudiInterface      GaudiInterface-*        External
+use G4AtlasInterfaces   G4AtlasInterfaces-*          Simulation/G4Atlas
 use G4AtlasTools        G4AtlasTools-*          Simulation/G4Atlas
+use StoreGate           StoreGate-*             Control
 
 private
 use AtlasROOT           AtlasROOT-*             External
+use CxxUtils            CxxUtils-*              Control
 use EventInfo           EventInfo-*             Event
 use Geant4              Geant4-*                External
 use GeneratorObjects    GeneratorObjects-*      Generators

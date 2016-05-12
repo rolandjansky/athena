@@ -9,3 +9,7 @@ def getLArG4GenShowerLib(name="LArG4GenShowerLib", **kwargs):
 
 def getTestActionShowerLib(name="TestActionShowerLib", **kwargs):
     return CfgMgr.TestActionShowerLib(name, **kwargs)
+
+def getTestActionShowerLibTool(name="G4UA::TestActionShowerLibTool", **kwargs):
+    from LArG4GenShowerLib.LArG4GenShowerLibConf import G4UA__TestActionShowerLibTool
+    return G4UA__TestActionShowerLibTool(name,**kwargs)
