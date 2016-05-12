@@ -56,7 +56,8 @@ atlas_add_test( LArHitContainerCnv_p2_test
                 SOURCES
                 test/LArHitContainerCnv_p2_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib LArSimEvent TestTools CaloIdentifier AthenaKernel StoreGateLib SGtests IdDictParser Identifier EventCommonTPCnv LArSimEventTPCnv )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib LArSimEvent TestTools CaloIdentifier AthenaKernel StoreGateLib SGtests IdDictParser Identifier EventCommonTPCnv LArSimEventTPCnv
+                ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( LArHitFloatCnv_p1_test
                 SOURCES
@@ -68,5 +69,6 @@ atlas_add_test( LArHitFloatContainerCnv_p2_test
                 SOURCES
                 test/LArHitFloatContainerCnv_p2_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib LArSimEvent TestTools CaloIdentifier AthenaKernel StoreGateLib SGtests IdDictParser Identifier EventCommonTPCnv LArSimEventTPCnv )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib LArSimEvent TestTools CaloIdentifier AthenaKernel StoreGateLib SGtests IdDictParser Identifier EventCommonTPCnv LArSimEventTPCnv 
+                ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
