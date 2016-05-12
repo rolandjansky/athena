@@ -111,7 +111,7 @@ ElementLinkBase::persKey() const
  * @brief Return the data source for this reference.
  */
 inline
-IProxyDictWithPool* ElementLinkBase::source() const
+IProxyDict* ElementLinkBase::source() const
 {
   return m_proxy.source();
 }
@@ -157,7 +157,7 @@ void ElementLinkBase::reset ()
  * If @c sg is 0, then we use the global default store.
  */
 inline
-bool ElementLinkBase::toTransient (IProxyDictWithPool* sg /*= 0*/)
+bool ElementLinkBase::toTransient (IProxyDict* sg /*= 0*/)
 {
   m_proxy.toTransient (m_persKey, sg);
   m_element = 0;
@@ -209,29 +209,6 @@ bool ElementLinkBase::thin()
 
 
 /**
- * @brief Fetch the current default data store.
- */
-inline
-IProxyDictWithPool* ElementLinkBase::defaultDataSource()
-{
-  return SG::DataProxyHolder::defaultDataSource();
-}
-
-
-/**
- * @brief Reset the cached source pointers.
- *
- * May need to call this after changing the default
- * data source fetch function.
- */
-inline
-void ElementLinkBase::resetCachedSource()
-{
-  return SG::DataProxyHolder::resetCachedSource();
-}
-
-
-/**
  * @brief Default constructor.  Makes a null link.
  */
 inline
@@ -256,7 +233,7 @@ inline
 ElementLinkBase::ElementLinkBase (const ID_type& dataID,
                                   CLID link_clid,
                                   index_type elemID,
-                                  IProxyDictWithPool* sg)
+                                  IProxyDict* sg)
   : m_persIndex (elemID),
     m_element (0)
 {
@@ -277,7 +254,7 @@ inline
 ElementLinkBase::ElementLinkBase (sgkey_t key,
                                   CLID link_clid,
                                   index_type elemID,
-                                  IProxyDictWithPool* sg)
+                                  IProxyDict* sg)
   : m_persKey (key),
     m_persIndex (elemID),
     m_element (0)
@@ -303,7 +280,7 @@ ElementLinkBase::ElementLinkBase (const ID_type& dataID,
                                   CLID link_clid,
                                   index_type elemID,
                                   const void* elt,
-                                  IProxyDictWithPool* sg)
+                                  IProxyDict* sg)
   : m_persIndex (elemID),
     m_element (elt)
 {
@@ -328,7 +305,7 @@ ElementLinkBase::ElementLinkBase (sgkey_t key,
                                   CLID link_clid,
                                   index_type elemID,
                                   const void* elt,
-                                  IProxyDictWithPool* sg)
+                                  IProxyDict* sg)
   : m_persKey (key),
     m_persIndex (elemID),
     m_element (elt)
@@ -350,11 +327,41 @@ inline
 ElementLinkBase::ElementLinkBase (const_pointer_t obj,
                                   CLID link_clid,
                                   index_type elemID,
-                                  IProxyDictWithPool* sg)
+                                  IProxyDict* sg)
   : m_persIndex (elemID),
     m_element (0)
 {
   m_persKey = m_proxy.toStorableObject (obj, link_clid, sg);
+}
+
+
+/**
+ * @brief Constructor from a link referencing a different type.
+ * @param other The object from which to copy.
+ *
+ * @c FROM_TRAITS is the @c ElementLinkTraits class for @c other;
+ * @c TO_TRAITS is the traits class for this object.
+ * The actual pointer values are not used, just the types are used.
+ * Default conversions for the storable pointer (i.e., derived->base)
+ * are allowed.
+ */
+template <class FROM_TRAITS, class TO_TRAITS>
+ElementLinkBase::ElementLinkBase (const ElementLinkBase& other,
+                                  FROM_TRAITS*,
+                                  TO_TRAITS*)
+  : m_persKey (other.m_persKey),
+    m_persIndex (other.m_persIndex),
+    m_proxy (other.m_proxy,
+             (typename FROM_TRAITS::Storable*)0,
+             (typename TO_TRAITS::Storable*)0)
+{
+  typedef typename FROM_TRAITS::IndexingPolicy     FromIndexingPolicy;
+  typedef typename TO_TRAITS::IndexingPolicy       ToIndexingPolicy;
+  typedef typename FromIndexingPolicy::ElementType FromElementType;
+  typedef typename ToIndexingPolicy::ElementType   ToElementType;
+  FromElementType from_elt = reinterpret_cast<FromElementType>(other.m_element);
+  ToElementType to_elt = from_elt;
+  m_element = to_elt;
 }
 
 
@@ -396,7 +403,7 @@ inline
 bool ElementLinkBase::setStorableObject (const_pointer_t data,
                                          CLID link_clid,
                                          bool replace,
-                                         IProxyDictWithPool* sg)
+                                         IProxyDict* sg)
 {
   if (!m_proxy.isDefault()) {
     if (!replace) return false;
@@ -427,7 +434,7 @@ inline
 bool ElementLinkBase::toIndexedElement (const_pointer_t obj,
                                         CLID link_clid,
                                         index_type elemID,
-                                        IProxyDictWithPool* sg)
+                                        IProxyDict* sg)
 {
   if (m_proxy.isDefault() && isDefaultIndex() && !hasCachedElement()) {
     m_persKey = m_proxy.toStorableObject (obj, link_clid, sg);
@@ -454,7 +461,7 @@ inline
 void ElementLinkBase::resetWithKeyAndIndex (const ID_type& dataID,
                                             CLID link_clid,
                                             index_type elemID, 
-                                            IProxyDictWithPool* sg)
+                                            IProxyDict* sg)
 {
   m_persKey = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
   m_persIndex = elemID;
@@ -477,7 +484,7 @@ inline
 void ElementLinkBase::resetWithKeyAndIndex (sgkey_t key,
                                             CLID link_clid,
                                             index_type elemID, 
-                                            IProxyDictWithPool* sg)
+                                            IProxyDict* sg)
 {
   m_persKey = key;
   m_proxy.toIdentifiedObject (key, link_clid, sg);
@@ -536,3 +543,14 @@ bool ElementLinkBase::getCachedElement (const T* & elt) const
   }
   return false;
 }
+
+
+/**
+ * @brief Return the internal proxy holder object.
+ */
+inline
+const SG::DataProxyHolder& ElementLinkBase::proxyHolder() const
+{
+  return m_proxy;
+}
+

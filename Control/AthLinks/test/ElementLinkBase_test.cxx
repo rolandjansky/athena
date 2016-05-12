@@ -14,7 +14,8 @@
 #undef NDEBUG
 #include "AthLinks/ElementLinkBase.h"
 #include "AthLinks/exceptions.h"
-#include "AthLinks/tools/SGgetDataSource.h"
+#include "AthLinks/tools/ForwardIndexingPolicy.h"
+#include "SGTools/CurrentEventStore.h"
 #include "SGTools/CLASS_DEF.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include <vector>
@@ -23,12 +24,12 @@
 #include <cassert>
 
 
-#include "TestStore.icc"
+#include "SGTools/TestStore.h"
+#include "TestTools/expect_exception.h"
 #include "TestThinningSvc.icc"
-#include "expect_exception.icc"
 
 
-IProxyDictWithPool* storePtr2 = &store;
+using namespace SGTest;
 
 
 struct Foo
@@ -49,6 +50,61 @@ const unsigned int fooclid = 23423556;
 CLASS_DEF (FooCont, fooclid, 1)
 CLASS_DEF (std::vector<Foo>, 23423558, 1)
 
+// Ensure an offset between Bar and Foo base.
+struct XXX { virtual ~XXX(){}  XXX():x(0){} int x; };
+
+struct Bar
+  : public XXX, public Foo
+{
+  Bar (int the_y = 0) : Foo(the_y+10), y (the_y) {}
+  int y;
+};
+
+struct BarCont
+  : public XXX, public FooCont
+{
+  typedef Bar* value_type;
+  struct const_iterator
+    : public FooCont::const_iterator
+  {
+    const_iterator (FooCont::const_iterator it)
+      : FooCont::const_iterator (it) {}
+    Bar* operator*() const {
+      const FooCont::const_iterator* baseit= static_cast<const FooCont::const_iterator*>(this);
+      return static_cast<Bar*> (**baseit);
+    }
+  };
+  const_iterator begin() const { return const_iterator(FooCont::begin()); }
+  const_iterator end() const { return const_iterator(FooCont::end()); }
+  Bar* operator[] (size_t i) const
+  {
+    const FooCont* base = static_cast<const FooCont*> (this);
+    return static_cast<Bar*> ((*base)[i]);
+  }
+};
+
+
+const unsigned int barclid = 23423566;
+CLASS_DEF (BarCont, barclid, 1)
+CLASS_DEF (std::vector<Bar>, 23423568, 1)
+
+SG_BASE(Bar, Foo);
+SG_BASE(BarCont, FooCont);
+
+
+struct FooTraits
+{
+  typedef FooCont Storable;
+  typedef SG::ForwardIndexingPolicy<FooCont> IndexingPolicy;
+};
+
+
+struct BarTraits
+{
+  typedef BarCont Storable;
+  typedef SG::ForwardIndexingPolicy<BarCont> IndexingPolicy;
+};
+
 
 class ElementLinkBase_test
   : public ElementLinkBase
@@ -56,20 +112,24 @@ class ElementLinkBase_test
 public:
   ElementLinkBase_test() {}
   ElementLinkBase_test(const std::string& key, CLID clid, unsigned index,
-                       IProxyDictWithPool* sg)
+                       IProxyDict* sg)
     : ElementLinkBase (key, clid, index, sg) {}
   ElementLinkBase_test(SG::sgkey_t key, CLID clid, unsigned index,
-                       IProxyDictWithPool* sg)
+                       IProxyDict* sg)
     : ElementLinkBase (key, clid, index, sg) {}
   ElementLinkBase_test(const std::string& key, CLID clid, unsigned index,
-                       const void* elt, IProxyDictWithPool* sg)
+                       const void* elt, IProxyDict* sg)
     : ElementLinkBase (key, clid, index, elt, sg) {}
   ElementLinkBase_test(SG::sgkey_t key, CLID clid, unsigned index,
-                       const void* elt, IProxyDictWithPool* sg)
+                       const void* elt, IProxyDict* sg)
     : ElementLinkBase (key, clid, index, elt, sg) {}
   ElementLinkBase_test(const void* obj, CLID clid, index_type index,
-                       IProxyDictWithPool* sg)
+                       IProxyDict* sg)
     : ElementLinkBase (obj, clid, index, sg) {}
+  template <class FROM_STORABLE, class TO_STORABLE>
+  ElementLinkBase_test (const ElementLinkBase& other,
+                        FROM_STORABLE* from, TO_STORABLE* to)
+    : ElementLinkBase (other, from, to) {}
   using ElementLinkBase::getCachedElement;
   using ElementLinkBase::storableBase;
   using ElementLinkBase::storedIndex;
@@ -78,6 +138,7 @@ public:
   using ElementLinkBase::setIndex;
   using ElementLinkBase::setStorableObject;
   using ElementLinkBase::resetWithKeyAndIndex;
+  using ElementLinkBase::proxyHolder;
 
   void setLink (SG::sgkey_t key,
                 unsigned int index)
@@ -150,6 +211,7 @@ void test1()
   assert (el2.persKey() == sgkey);
   assert (el2.source() == &store);
   assert (el2.proxy()->name() == key);
+  assert (el2.proxy() == el2.proxyHolder().proxy());
   assert (!el2.hasCachedElement());
   assert (el2.storedIndex() == index2);
   assert (el2.storableBase (0, fooclid) == foocont);
@@ -378,28 +440,14 @@ void test2()
 }
 
 
-IProxyDictWithPool** getTestDataSourcePointer2 (const std::string&)
-{
-  return &storePtr2;
-}
-
 // default store setting
 void test3()
 {
   std::cout << "test3\n";
   TestStore store2;
 
-  assert (ElementLinkBase::defaultDataSource() == &store);
-  SG::getDataSourcePointerFunc_t* old_fn = SG::getDataSourcePointerFunc;
-  SG::getDataSourcePointerFunc = getTestDataSourcePointer2;
-  assert (ElementLinkBase::defaultDataSource() == &store);
-  storePtr2 = &store2;
-  assert (ElementLinkBase::defaultDataSource() == &store);
-  ElementLinkBase::resetCachedSource();
-  assert (ElementLinkBase::defaultDataSource() == &store2);
-
-  SG::getDataSourcePointerFunc = old_fn;
-  ElementLinkBase::resetCachedSource();
+  assert (SG::CurrentEventStore::setStore(&store2) == &store);
+  assert (SG::CurrentEventStore::setStore(&store) == &store2);
 }
 
 
@@ -427,13 +475,73 @@ void test4()
 }
 
 
+// Converting constructor
+void test5()
+{
+  std::cout << "test5\n";
+
+  BarCont* bar = new BarCont;
+  bar->push_back (new Bar (1));
+  bar->push_back (new Bar (2));
+  bar->push_back (new Bar (3));
+
+  // Reference to raw element.
+  ElementLinkBase_test el1;
+  el1.setCachedElement ((*bar)[1]);
+  ElementLinkBase_test el2 (el1, (BarTraits*)0, (FooTraits*)0);
+
+  typedef const Foo* foo_element_t;
+  typedef const Bar* bar_element_t;
+  typedef const foo_element_t* foo_element_const_pointer;
+  typedef const bar_element_t* bar_element_const_pointer;
+
+  foo_element_const_pointer foop1 = 0;
+  bar_element_const_pointer barp1 = 0;
+  assert (el1.getCachedElement (barp1));
+  assert (el2.getCachedElement (foop1));
+  assert (*barp1 == (*bar)[1]);
+  assert (*barp1 == *foop1);
+  assert (static_cast<const void*>(*barp1) != static_cast<const void*>(*foop1));
+
+  // Storable not in SG.
+  ElementLinkBase_test el3 (bar, barclid, 1, nullptr);
+  ElementLinkBase_test el4 (el3, (BarTraits*)0, (FooTraits*)0);
+  BarCont* barcont1 = reinterpret_cast<BarCont*>(el3.storableBase (0, barclid));
+  FooCont* foocont1 = reinterpret_cast<FooCont*>(el4.storableBase (0, fooclid));
+  assert (barcont1 == bar);
+  assert (barcont1 == foocont1);
+  assert (static_cast<void*>(barcont1) != static_cast<void*>(foocont1));
+  assert (el3.index() == 1);
+  assert (el4.index() == 1);
+  assert (el3.key() == 0);
+  assert (el4.key() == 0);
+
+  // Storable in SG.
+  std::string key = "barcont";
+  store.record (bar, key);
+  ElementLinkBase_test el5 (key, barclid, 1, nullptr);
+  ElementLinkBase_test el6 (el5, (BarTraits*)0, (FooTraits*)0);
+  barcont1 = reinterpret_cast<BarCont*>(el5.storableBase (0, barclid));
+  foocont1 = reinterpret_cast<FooCont*>(el6.storableBase (0, fooclid));
+  assert (barcont1 == bar);
+  assert (barcont1 == foocont1);
+  assert (static_cast<void*>(barcont1) != static_cast<void*>(foocont1));
+  assert (el5.index() == 1);
+  assert (el6.index() == 1);
+  assert (el5.dataID() == key);
+  assert (el6.dataID() == key);
+}
+
+
 int main()
 {
   Athena::getMessageSvcQuiet = true;
-  SG::getDataSourcePointerFunc = getTestDataSourcePointer;
+  initTestStore();
+
   test1();
   test2();
   test3();
   test4();
+  test5();
   return 0;
 }

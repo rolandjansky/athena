@@ -17,9 +17,10 @@
 #define ATHLINKS_DATAPROXYHOLDER_H
 
 
-#include "AthLinks/tools/SGgetDataSource.h"
-#include "SGTools/IStringPool.h"
+#include "SGTools/CurrentEventStore.h"
+#include "AthenaKernel/IStringPool.h"
 #include "SGTools/DataProxy.h"
+#include "SGTools/IProxyDictWithPool.h"  // TEMPORARY
 #include <string>
 
 
@@ -46,9 +47,11 @@ namespace SG {
  * then an exception will be thrown.
  *
  * When we create a new link, the store by default is taken from the
- * global default from @c SG::getDataSourcePointer().  The resulting
- * pointer is cached; if you change the default source fetch function,
- * you should call the static method @c resetCachedSource.
+ * global default given by SG::CurrentEventStore::store().
+ * This is a thread-specific value, so fetching it can be expensive.
+ * If you are creating links inside a loop, it is best to fetch
+ * the default before the loop and then passing the result explicitly
+ * when you create the links.
  */
 class DataProxyHolder
 {
@@ -77,6 +80,20 @@ public:
 
 
   /**
+   * @brief Constructor from a holder referencing a different type.
+   * @param other The object from which to copy.
+   *
+   * @c FROM_STORABLE is the storable class to which @c other refers;
+   * @c TO_STORABLE is the storable class for this object.
+   * The actual pointer values are not used, just the types are used.
+   * Default conversions for the storable pointer (i.e., derived->base)
+   * are allowed.
+   */
+  template <class FROM_STORABLE, class TO_STORABLE>
+  DataProxyHolder (const DataProxyHolder& other, FROM_STORABLE*, TO_STORABLE*);
+
+
+  /**
    * @brief Reset the link to null.
    */
   void clear();
@@ -102,7 +119,7 @@ public:
    */
   sgkey_t toStorableObject (const_pointer_t obj,
                             CLID link_clid,
-                            IProxyDictWithPool* sg);
+                            IProxyDict* sg);
 
 
   /**
@@ -123,7 +140,7 @@ public:
    */
   sgkey_t toIdentifiedObject (const ID_type& dataID,
                               CLID link_clid,
-                              IProxyDictWithPool* sg);
+                              IProxyDict* sg);
 
 
   /**
@@ -144,7 +161,7 @@ public:
    */
   void toIdentifiedObject (sgkey_t key,
                            CLID link_clid,
-                           IProxyDictWithPool* sg);
+                           IProxyDict* sg);
 
 
   /**
@@ -197,7 +214,7 @@ public:
    * If we're pointing at an object directly, then we return the default store
    * if the object is found in SG; otherwise, throw @c ExcPointerNotInSG.
    */
-  IProxyDictWithPool* source() const;
+  IProxyDict* source() const;
 
 
   /**
@@ -211,7 +228,7 @@ public:
    *
    * If @c sg is 0, then we use the global default store.
    */
-  void toTransient (sgkey_t sgkey, IProxyDictWithPool* sg = 0);
+  void toTransient (sgkey_t sgkey, IProxyDict* sg = 0);
 
 
   /**
@@ -320,21 +337,6 @@ public:
 
 
   /**
-   * @brief Fetch the current default data store.
-   */
-  static IProxyDictWithPool* defaultDataSource();
-
-
-  /**
-   * @brief Reset the cached source pointers.
-   *
-   * May need to call this after changing the default
-   * data source fetch function.
-   */
-  static void resetCachedSource();
-
-
-  /**
    * @brief Throw a @c ExcInvalidLink exception for this link.
    * @param sgkey The hashed key for this link.
    *
@@ -389,7 +391,7 @@ private:
    * If we're holding a pointer directly, rather than a proxy,
    * then return 0 rather than raising an exception.
    */
-  IProxyDictWithPool* source1() const;
+  IProxyDict* source1() const;
 
 
   /**
@@ -408,11 +410,6 @@ private:
   /// The @c DataProxy referring to our object, if the LSB is clear;
   /// pointer to the object which we're referencing directly if the LSB is set.
   SG::DataProxy* m_proxy; //! Transient
-
-
-  /// Pointer from which to fetch the default data source.
-  /// Cached to avoid expensive lookups.
-  static IProxyDictWithPool** s_cached_source;
 };
 
 

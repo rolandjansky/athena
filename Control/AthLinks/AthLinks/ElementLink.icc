@@ -46,7 +46,7 @@ ElementLink<STORABLE>::ElementLink()
 template <class STORABLE>
 inline
 ElementLink<STORABLE>::ElementLink(const ID_type& dataID, index_type elemID, 
-                                   IProxyDictWithPool* sg /*= 0*/)
+                                   IProxyDict* sg /*= 0*/)
   : Base (dataID, classID(), elemID, sg)
 {
 }
@@ -63,7 +63,7 @@ ElementLink<STORABLE>::ElementLink(const ID_type& dataID, index_type elemID,
 template <class STORABLE>
 inline
 ElementLink<STORABLE>::ElementLink(sgkey_t key, index_type elemID, 
-                                   IProxyDictWithPool* sg /*= 0*/)
+                                   IProxyDict* sg /*= 0*/)
   : Base (key, classID(), elemID, sg)
 {
 }
@@ -85,7 +85,7 @@ inline
 ElementLink<STORABLE>::ElementLink(const ID_type& dataID,
                                    index_type elemID,
                                    ElementType pEl,
-                                   IProxyDictWithPool* sg /*= 0*/)
+                                   IProxyDict* sg /*= 0*/)
   : Base (dataID, classID(), elemID, pEl, sg)
 {
 }
@@ -107,7 +107,7 @@ inline
 ElementLink<STORABLE>::ElementLink (sgkey_t key,
                                     index_type elemID,
                                     ElementType pEl,
-                                    IProxyDictWithPool* sg /*= 0*/)
+                                    IProxyDict* sg /*= 0*/)
   : Base (key, classID(), elemID, pEl, sg)
 {
 }
@@ -125,7 +125,7 @@ template <class STORABLE>
 inline
 ElementLink<STORABLE>::ElementLink (BaseConstReference data,
                                     index_type elemID, 
-                                    IProxyDictWithPool* sg /* = 0*/)
+                                    IProxyDict* sg /* = 0*/)
   : Base (&data, classID(), elemID, sg)
 {
 }
@@ -151,9 +151,23 @@ template <class STORABLE>
 inline
 ElementLink<STORABLE>::ElementLink (const ElementType& element, 
                                     BaseConstReference data,
-                                    IProxyDictWithPool* sg /*= 0*/)
+                                    IProxyDict* sg /*= 0*/)
 {
   toContainedElement (data, element, sg);
+}
+
+
+/**
+ * @brief Constructor allowing a derived -> base conversion.
+ */
+template <class STORABLE>
+template <class U>
+inline
+ElementLink<STORABLE>::ElementLink (const ElementLink<U>& other)
+  : Base (other,
+          (SG::ElementLinkTraits<U>*)0,
+          (Traits*)0)
+{
 }
 
 
@@ -182,6 +196,28 @@ typename ElementLink<STORABLE>::pointer
 ElementLink<STORABLE>::getDataNonConstPtr()
 {
   return reinterpret_cast<pointer> (this->storableNonConst());
+}
+
+
+/**
+ * @brief Return a link to the currently-referenced container object.
+ */
+template <class STORABLE>
+inline
+DataLink<STORABLE> ElementLink<STORABLE>::getDataLink()
+{
+  return DataLink<STORABLE> (this->key(), this->proxyHolder());
+}
+
+
+/**
+ * @brief Return a link to the currently-referenced container object.
+ */
+template <class STORABLE>
+inline
+const DataLink<STORABLE> ElementLink<STORABLE>::getDataLink() const
+{
+  return DataLink<STORABLE> (this->key(), this->proxyHolder());
 }
 
 
@@ -329,7 +365,7 @@ inline
 bool
 ElementLink<STORABLE>::toIndexedElement(BaseConstReference data,
                                         index_type elemID,
-                                        IProxyDictWithPool* sg /*= 0*/)
+                                        IProxyDict* sg /*= 0*/)
 {
   return Base::toIndexedElement (&data, classID(), elemID, sg);
 }
@@ -355,7 +391,7 @@ template <class STORABLE>
 inline
 bool ElementLink<STORABLE>::toContainedElement(BaseConstReference data,
                                                ElementType element,
-                                               IProxyDictWithPool* sg /*= 0*/)
+                                               IProxyDict* sg /*= 0*/)
 {
   index_type index = this->index();
   IndexingPolicy::reverseLookup (data, element, index);
@@ -414,7 +450,7 @@ template <class STORABLE>
 inline
 bool ElementLink<STORABLE>::setStorableObject(BaseConstReference data,
                                               bool replace /*= false*/,
-                                              IProxyDictWithPool* sg /*= 0*/)
+                                              IProxyDict* sg /*= 0*/)
 {
   bool ret = Base::setStorableObject (&data, classID(), replace, sg);
   if (ret) {
@@ -444,7 +480,7 @@ template <class STORABLE>
 inline
 void ElementLink<STORABLE>::resetWithKeyAndIndex(const ID_type& dataID,
                                                  index_type elemID, 
-                                                 IProxyDictWithPool* sg /*= 0*/)
+                                                 IProxyDict* sg /*= 0*/)
 {
   Base::resetWithKeyAndIndex (dataID, classID(), elemID, sg);
 }
@@ -464,7 +500,7 @@ template <class STORABLE>
 inline
 void ElementLink<STORABLE>::resetWithKeyAndIndex(sgkey_t key,
                                                  index_type elemID, 
-                                                 IProxyDictWithPool* sg /*= 0*/)
+                                                 IProxyDict* sg /*= 0*/)
 {
   Base::resetWithKeyAndIndex (key, classID(), elemID, sg);
 }
@@ -511,7 +547,11 @@ template <typename STORABLE>
 bool operator < (const ElementLink<STORABLE>& lhs,
 		 const ElementLink<STORABLE>& rhs)
 {
-  if (lhs.isDefault() && rhs.isDefault()) return false;
+  bool lhsDefault = lhs.isDefault();
+  bool rhsDefault = rhs.isDefault();
+  if (lhsDefault && rhsDefault) return false;
+  if (lhsDefault) return true;
+  if (rhsDefault) return false;
   if (lhs.key() == 0 || rhs.key() == 0 || lhs.isDefaultIndex() || rhs.isDefaultIndex())
     SG::throwExcIncomparableEL();
   if (lhs.key() < rhs.key()) return true;
@@ -579,7 +619,7 @@ namespace SG_detail {
  * (which doesn't allow remapping indices).
  */
 inline
-bool checkForRemap (IProxyDictWithPool* sg,
+bool checkForRemap (IProxyDict* sg,
                     SG::sgkey_t sgkey_in,
                     size_t index_in,
                     SG::sgkey_t& sgkey_out,
@@ -602,7 +642,7 @@ bool checkForRemap (IProxyDictWithPool* sg,
  */
 template <class T>
 inline
-bool checkForRemap (IProxyDictWithPool* sg,
+bool checkForRemap (IProxyDict* sg,
                     SG::sgkey_t sgkey_in,
                     const T& /*dum_in*/,
                     SG::sgkey_t& sgkey_out,

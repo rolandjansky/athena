@@ -12,24 +12,24 @@
 
 #undef NDEBUG
 #include "AthLinks/DataLink.h"
-#include "AthLinks/tools/SGgetDataSource.h"
-#include "SGTools/IProxyDictWithPool.h"
+#include "SGTools/CurrentEventStore.h"
 #include "SGTools/CLASS_DEF.h"
 #include "SGTools/StorableConversions.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/ClassID_traits.h"
 #include "SGTools/TransientAddress.h"
+#include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include <iostream>
 #include <cstdlib>
 #include <cassert>
 
 
-#include "TestStore.icc"
-#include "expect_exception.icc"
+#include "SGTools/TestStore.h"
+#include "TestTools/expect_exception.h"
 
 
-IProxyDictWithPool* storePtr2 = &store;
+using namespace SGTest;
 
 
 struct Foo
@@ -206,6 +206,16 @@ void test1()
   store.record (foo30, "foo30");
   const Foo& rfoo30 = *dl30;
   assert (&rfoo30 == foo30);
+
+  SG::DataProxyHolder holder;
+  holder.toIdentifiedObject ("foo2", fooclid, 0);
+  DataLink<Foo> l50 (sgkey, holder);
+  assert (!l50.isDefault());
+  assert (l50.dataID() == "foo2");
+  assert (l50.key() == sgkey);
+  assert (l50.cptr() == foo2);
+  assert (l50.proxy()->name() == "foo2");
+  assert (l50.source() == &store);
 }
 
 
@@ -255,30 +265,15 @@ void test2()
 }
 
 
-IProxyDictWithPool** getTestDataSourcePointer2 (const std::string&)
-{
-  return &storePtr2;
-}
-
 // default store setting
 void test3()
 {
   std::cout << "test3\n";
 
-  assert (DataLinkBase::defaultDataSource() == &store);
-
-  SG::getDataSourcePointerFunc_t* old_fn = SG::getDataSourcePointerFunc;
-  SG::getDataSourcePointerFunc = getTestDataSourcePointer2;
-  assert (DataLinkBase::defaultDataSource() == &store);
-
   TestStore store2;
-  storePtr2 = &store2;
-  assert (DataLinkBase::defaultDataSource() == &store);
-  DataLinkBase::resetCachedSource();
-  assert (DataLinkBase::defaultDataSource() == &store2);
 
-  SG::getDataSourcePointerFunc = old_fn;
-  DataLinkBase::resetCachedSource();
+  assert (SG::CurrentEventStore::setStore(&store2) == &store);
+  assert (SG::CurrentEventStore::setStore(&store) == &store2);
 }
 
 
@@ -376,7 +371,8 @@ void test5()
 int main()
 {
   Athena::getMessageSvcQuiet = true;
-  SG::getDataSourcePointerFunc = getTestDataSourcePointer;
+  initTestStore();
+
   test1();
   test2();
   test3();

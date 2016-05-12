@@ -27,6 +27,30 @@ DataProxyHolder::DataProxyHolder()
 
 
 /**
+ * @brief Constructor from a holder referencing a different type.
+ * @param other The object from which to copy.
+ *
+ * @c FROM_STORABLE is the storable class to which @c other refers;
+ * @c TO_STORABLE is the storable class for this object.
+ * The actual pointer values are not used, just the types are used.
+ * Default conversions for the storable pointer (i.e., derived->base)
+ * are allowed.
+ */
+template <class FROM_STORABLE, class TO_STORABLE>
+DataProxyHolder::DataProxyHolder (const DataProxyHolder& other,
+                                  FROM_STORABLE*, TO_STORABLE*)
+{
+  if (other.isObjpointer()) {
+    FROM_STORABLE* from_ptr = reinterpret_cast<FROM_STORABLE*>(other.objpointer());
+    TO_STORABLE* to_ptr = from_ptr;
+    storeObjpointer (to_ptr);
+  }
+  else
+    m_proxy = other.m_proxy;
+}
+
+
+/**
  * @brief Reset the link to null.
  */
 inline
@@ -92,22 +116,6 @@ bool DataProxyHolder::toPersistent (sgkey_t& sgkey, const T& /*index*/)
 {
   toPersistentNoRemap (sgkey);
   return false;
-}
-
-
-/**
- * @brief Fetch the current default data store.
- */
-inline
-IProxyDictWithPool* DataProxyHolder::defaultDataSource()
-{
-  // Note: this gets called a lot.  Be careful to keep it fast.
-  // non-threaded version.
-  if (!s_cached_source) {
-    static std::string storename = "StoreGateSvc";
-    s_cached_source = SG::getDataSourcePointer(storename);
-  }
-  return *s_cached_source;
 }
 
 

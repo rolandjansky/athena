@@ -140,7 +140,7 @@ public:
   /**
    * @brief Return the data source for this reference.
    */
-  IProxyDictWithPool* source() const;
+  IProxyDict* source() const;
 
 
   /**
@@ -171,7 +171,7 @@ public:
    *
    * If @c sg is 0, then we use the global default store.
    */
-  bool toTransient (IProxyDictWithPool* sg = 0);
+  bool toTransient (IProxyDict* sg = 0);
 
 
   /**
@@ -201,21 +201,6 @@ public:
 
 
   /**
-   * @brief Fetch the current default data store.
-   */
-  static IProxyDictWithPool* defaultDataSource();
-
-
-  /**
-   * @brief Reset the cached source pointers.
-   *
-   * May need to call this after changing the default
-   * data source fetch function.
-   */
-  static void resetCachedSource();
-
-
-  /**
    * @brief Default constructor.  Makes a null link.
    *
    * (Must be public for root i/o.)
@@ -236,7 +221,7 @@ protected:
   ElementLinkBase (const ID_type& dataID,
                    CLID link_clid,
                    index_type elemID,
-                   IProxyDictWithPool* sg);
+                   IProxyDict* sg);
 
 
   /**
@@ -251,7 +236,7 @@ protected:
   ElementLinkBase (sgkey_t key,
                    CLID link_clid,
                    index_type elemID,
-                   IProxyDictWithPool* sg);
+                   IProxyDict* sg);
 
 
 
@@ -271,7 +256,7 @@ protected:
                    CLID link_clid,
                    index_type elemID,
                    const void* elt,
-                   IProxyDictWithPool* sg);
+                   IProxyDict* sg);
 
 
   /**
@@ -290,7 +275,7 @@ protected:
                    CLID link_clid,
                    index_type elemID,
                    const void* elt,
-                   IProxyDictWithPool* sg);
+                   IProxyDict* sg);
 
 
   /**
@@ -305,7 +290,22 @@ protected:
   ElementLinkBase (const_pointer_t obj,
                    CLID link_clid,
                    index_type elemID,
-                   IProxyDictWithPool* sg);
+                   IProxyDict* sg);
+
+
+  /**
+   * @brief Constructor from a link referencing a different type.
+   * @param other The object from which to copy.
+   *
+   * @c FROM_TRAITS is the @c ElementLinkTraits class for @c other;
+   * @c TO_TRAITS is the traits class for this object.
+   * The actual pointer values are not used, just the types are used.
+   * Default conversions for the storable pointer (i.e., derived->base)
+   * are allowed.
+   */
+  template <class FROM_TRAITS, class TO_TRAITS>
+  ElementLinkBase (const ElementLinkBase& other,
+                   FROM_TRAITS*, TO_TRAITS*);
 
 
   /**
@@ -341,7 +341,7 @@ protected:
   bool setStorableObject (const_pointer_t data,
                           CLID link_clid,
                           bool replace,
-                          IProxyDictWithPool* sg);
+                          IProxyDict* sg);
 
 
   /**
@@ -362,7 +362,7 @@ protected:
   bool toIndexedElement (const_pointer_t obj,
                          CLID link_clid,
                          index_type elemID,
-                         IProxyDictWithPool* sg);
+                         IProxyDict* sg);
 
 
   /**
@@ -379,7 +379,7 @@ protected:
   void resetWithKeyAndIndex (const ID_type& dataID,
                              CLID link_clid,
                              index_type elemID, 
-                             IProxyDictWithPool* sg);
+                             IProxyDict* sg);
 
 
   /**
@@ -396,7 +396,7 @@ protected:
   void resetWithKeyAndIndex (sgkey_t key,
                              CLID link_clid,
                              index_type elemID, 
-                             IProxyDictWithPool* sg);
+                             IProxyDict* sg);
 
 
   /**
@@ -428,6 +428,12 @@ protected:
    */
   template <class T>
   bool getCachedElement (const T* & elt) const;
+
+
+  /**
+   * @brief Return the internal proxy holder object.
+   */
+  const SG::DataProxyHolder& proxyHolder() const;
 
 
 private:

@@ -61,6 +61,18 @@ AssociationMap<OBJCONT,ASSCONT>::addAssociation(const object_container_type*
 		    asso_link  ( assoPointer,   *assoContainer   ) );
 }
 
+// add using links
+template<class OBJCONT,class ASSCONT>
+void
+AssociationMap<OBJCONT,ASSCONT>::addAssociation(const object_link&
+						objectLink,
+						const asso_link&
+                                                assoLink)
+{
+  // add to store
+  this->addToStore( objectLink, assoLink );
+}
+
 /////////////////////
 // Iterator Access //
 /////////////////////

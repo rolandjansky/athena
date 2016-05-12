@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DeclareIndexingPolicy.h 594002 2014-04-24 03:20:32Z ssnyder $
+// $Id: DeclareIndexingPolicy.h 723806 2016-02-13 16:18:51Z ssnyder $
 #ifndef ATHLINKS_DECLAREINDEXINGPOLICY_H
 # define ATHLINKS_DECLAREINDEXINGPOLICY_H
 
@@ -13,10 +13,9 @@
  * as its indexing policy is concerned
  
  * @author Paolo Calafiura - ATLAS Collaboration
- * $Id: DeclareIndexingPolicy.h 594002 2014-04-24 03:20:32Z ssnyder $
+ * $Id: DeclareIndexingPolicy.h 723806 2016-02-13 16:18:51Z ssnyder $
  */
 
-//<<<<<< INCLUDES                                                       >>>>>>
 #include "AthLinks/tools/DefaultIndexingPolicy.h"
 #include "AthLinks/tools/ForwardIndexingPolicy.h"
 #include "AthLinks/tools/MapIndexingPolicy.h"

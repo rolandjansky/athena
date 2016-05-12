@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataLink.icc 594002 2014-04-24 03:20:32Z ssnyder $
+// $Id: DataLink.icc 714258 2015-12-12 04:18:16Z ssnyder $
 /**
  * @file AthLinks/DataLink.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -44,7 +44,7 @@ DataLink<STORABLE>::DataLink()
  */
 template <typename STORABLE>
 inline
-DataLink<STORABLE>::DataLink(const_reference data, IProxyDictWithPool* sg/*=0*/)
+DataLink<STORABLE>::DataLink(const_reference data, IProxyDict* sg/*=0*/)
   : DataLinkBase (&data, classID(), sg)
 {
 }
@@ -57,7 +57,7 @@ DataLink<STORABLE>::DataLink(const_reference data, IProxyDictWithPool* sg/*=0*/)
  */
 template <typename STORABLE>
 inline
-DataLink<STORABLE>::DataLink(const_pointer pdata, IProxyDictWithPool* sg/*=0*/)
+DataLink<STORABLE>::DataLink(const_pointer pdata, IProxyDict* sg/*=0*/)
   : DataLinkBase (pdata, classID(), sg)
 {
 }
@@ -71,7 +71,7 @@ DataLink<STORABLE>::DataLink(const_pointer pdata, IProxyDictWithPool* sg/*=0*/)
 template <typename STORABLE>
 inline
 DataLink<STORABLE>::DataLink(const ID_type& dataID,
-                             IProxyDictWithPool* sg /*=0*/)
+                             IProxyDict* sg /*=0*/)
   : DataLinkBase (dataID, classID(), sg)
 {
 }
@@ -86,8 +86,22 @@ DataLink<STORABLE>::DataLink(const ID_type& dataID,
  */
 template <typename STORABLE>
 inline
-DataLink<STORABLE>::DataLink(sgkey_t key, IProxyDictWithPool* sg /*=0*/)
+DataLink<STORABLE>::DataLink(sgkey_t key, IProxyDict* sg /*=0*/)
   : DataLinkBase (key, classID(), sg)
+{
+}
+
+
+/**
+ * @brief Constructor from a hashed key and a proxy holder object.
+ *        Used internally for EL -> DL conversion.
+ * @param key Hashed key of the object.
+ * @param holder Internal holder object for the proxy.
+ */
+template <typename STORABLE>
+inline
+DataLink<STORABLE>::DataLink(sgkey_t key, const SG::DataProxyHolder& holder)
+  : DataLinkBase (key, holder)
 {
 }
 
@@ -104,7 +118,7 @@ DataLink<STORABLE>::DataLink(sgkey_t key, IProxyDictWithPool* sg /*=0*/)
 template <typename STORABLE>
 inline
 void DataLink<STORABLE>::toStorableObject(const_reference data,
-                                          IProxyDictWithPool* sg /*= 0*/)
+                                          IProxyDict* sg /*= 0*/)
 {
   DataLinkBase::toStorableObject (&data, classID(), sg);
 }
@@ -122,7 +136,7 @@ void DataLink<STORABLE>::toStorableObject(const_reference data,
 template <typename STORABLE>
 inline
 void DataLink<STORABLE>::toIdentifiedObject(const ID_type& dataID,
-                                            IProxyDictWithPool* sg /*= 0*/)
+                                            IProxyDict* sg /*= 0*/)
 {
   DataLinkBase::toIdentifiedObject (dataID, classID(), sg);
 }
@@ -142,7 +156,7 @@ void DataLink<STORABLE>::toIdentifiedObject(const ID_type& dataID,
 template <typename STORABLE>
 inline
 void DataLink<STORABLE>::toIdentifiedObject(sgkey_t key,
-                                            IProxyDictWithPool* sg /*= 0*/)
+                                            IProxyDict* sg /*= 0*/)
 {
   DataLinkBase::toIdentifiedObject (key, classID(), sg);
 }
@@ -164,7 +178,7 @@ void DataLink<STORABLE>::toIdentifiedObject(sgkey_t key,
  */
 template <typename STORABLE>
 inline
-void DataLink<STORABLE>::toDefaultObject (IProxyDictWithPool* sg /*= 0*/)
+void DataLink<STORABLE>::toDefaultObject (IProxyDict* sg /*= 0*/)
 {
   DataLinkBase::toIdentifiedObject (SG::DEFAULTKEY, classID(), sg);
 }

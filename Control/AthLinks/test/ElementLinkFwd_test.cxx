@@ -5,10 +5,14 @@
 #undef NDEBUG
 #include "ELFElt.h"
 #include "ELFCont.h"
+#include "SGTools/CurrentEventStore.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "TestStore.icc"
 #include <iostream>
 #include <cassert>
+
+
+#include "SGTools/TestStore.h"
+using namespace SGTest;
 
 
 void ELFElt::setLink (const std::string& key, int ndx)
@@ -44,7 +48,8 @@ void test1()
 int main()
 {
   Athena::getMessageSvcQuiet = true;
-  SG::getDataSourcePointerFunc = getTestDataSourcePointer;
+  initTestStore();
+
   test1();
   return 0;
 }

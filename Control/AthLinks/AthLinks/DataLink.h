@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataLink.h 594002 2014-04-24 03:20:32Z ssnyder $
+// $Id: DataLink.h 714258 2015-12-12 04:18:16Z ssnyder $
 /**
  * @file DataLink.h
  * @author scott snyder <snyder@bnl.gov>
@@ -20,7 +20,7 @@
 #include "AthLinks/DataLinkBase.h"
 #include "SGTools/ClassID_traits.h"
 #include "AthenaKernel/DefaultKey.h"
-class IProxyDictWithPool;
+class IProxyDict;
 
 
 /**
@@ -81,9 +81,8 @@ class IProxyDictWithPool;
  * This would normally be done via a ROOT read rule.
  *
  * A link references objects in a particular event store.
- * When a link is constructed, a global default store is used.
- * (This may change depending on context or thread; see the discussion
- * in AthLinks/tools/SGgetDataSource.h.)  If a link is subsequently modified,
+ * When a link is constructed, a global default store is used
+ * (see SGTools/CurrentEventStore.h).  If a link is subsequently modified,
  * it stays associated with the same store, unless the link was null
  * or was referencing an object directly by pointer, in which case
  * the global default is again used.  Alternatively, the event
@@ -130,7 +129,7 @@ public:
    * @param data The object to which to link.
    * @param sg Associated store; if 0, use the global default.
    */
-  DataLink(const_reference data, IProxyDictWithPool* sg=0);
+  DataLink(const_reference data, IProxyDict* sg=0);
 
 
   /**
@@ -138,7 +137,7 @@ public:
    * @param data The object to which to link.
    * @param sg Associated store; if 0, use the global default.
    */
-  DataLink(const_pointer pdata, IProxyDictWithPool* sg=0);
+  DataLink(const_pointer pdata, IProxyDict* sg=0);
 
 
   /**
@@ -146,7 +145,7 @@ public:
    * @param dataID Key of the object.
    * @param sg Associated store; if 0, use the global default.
    */
-  DataLink(const ID_type& dataID, IProxyDictWithPool* sg=0);
+  DataLink(const ID_type& dataID, IProxyDict* sg=0);
 
 
   /**
@@ -156,7 +155,16 @@ public:
    *
    * May throw @c ExcCLIDMismatch.
    */
-  DataLink(sgkey_t key, IProxyDictWithPool* sg=0);
+  DataLink(sgkey_t key, IProxyDict* sg=0);
+
+
+  /**
+   * @brief Constructor from a hashed key and a proxy holder object.
+   *        Used internally for EL -> DL conversion.
+   * @param key Hashed key of the object.
+   * @param holder Internal holder object for the proxy.
+   */
+  DataLink(sgkey_t key, const SG::DataProxyHolder& holder);
 
 
   //@}
@@ -174,7 +182,7 @@ public:
    * set to.  If the link has no current store, then we take the global
    * default.
    */
-  void toStorableObject(const_reference data, IProxyDictWithPool* sg = 0);
+  void toStorableObject(const_reference data, IProxyDict* sg = 0);
 
 
   /**
@@ -186,7 +194,7 @@ public:
    * set to.  If the link has no current store, then we take the global
    * default.
    */
-  void toIdentifiedObject(const ID_type& dataID, IProxyDictWithPool* sg = 0);
+  void toIdentifiedObject(const ID_type& dataID, IProxyDict* sg = 0);
 
 
   /**
@@ -200,7 +208,7 @@ public:
    *
    * May throw @c ExcCLIDMismatch.
    */
-  void toIdentifiedObject(sgkey_t key, IProxyDictWithPool* sg = 0);
+  void toIdentifiedObject(sgkey_t key, IProxyDict* sg = 0);
 
 
   /**
@@ -217,7 +225,7 @@ public:
    * one of them.  (An attempt to dereference an ambiguous default link
    * will give an error.)
    */
-  void toDefaultObject (IProxyDictWithPool* sg = 0);
+  void toDefaultObject (IProxyDict* sg = 0);
 
 
   //@}
@@ -284,14 +292,12 @@ public:
   //   sgkey_t key() const;
   //   void clear();
   //   SG::DataProxy* proxy (bool nothrow = false) const;
-  //   IProxyDictWithPool* source() const;
-  //   bool toTransient (IProxyDictWithPool* sg = 0);
+  //   IProxyDict* source() const;
+  //   bool toTransient (IProxyDict* sg = 0);
   //   bool toPersistent();
   //   bool toPersistentNoRemap();
   //   bool operator== (const DataLinkBase& other) const;
   //   bool operator!= (const DataLinkBase& other) const;
-  //   static IProxyDictWithPool* defaultDataSource();
-  //   static void resetCachedSource();
 
 
 private:

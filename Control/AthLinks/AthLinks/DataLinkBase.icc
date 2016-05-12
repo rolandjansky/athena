@@ -78,7 +78,7 @@ SG::DataProxy* DataLinkBase::proxy (bool nothrow /*= false*/) const
  * @brief Return the data source for this reference.
  */
 inline
-IProxyDictWithPool* DataLinkBase::source() const
+IProxyDict* DataLinkBase::source() const
 {
   return m_proxy.source();
 }
@@ -95,7 +95,7 @@ IProxyDictWithPool* DataLinkBase::source() const
  * If @c sg is 0, then we use the global default store.
  */
 inline
-bool DataLinkBase::toTransient (IProxyDictWithPool* sg /*= 0*/)
+bool DataLinkBase::toTransient (IProxyDict* sg /*= 0*/)
 {
   m_proxy.toTransient (m_persKey, sg);
   return true;
@@ -169,29 +169,6 @@ bool DataLinkBase::operator!= (const DataLinkBase& other) const
 }
 
 
-/**
- * @brief Fetch the current default data store.
- */
-inline
-IProxyDictWithPool* DataLinkBase::defaultDataSource()
-{
-  return SG::DataProxyHolder::defaultDataSource();
-}
-
-
-/**
- * @brief Reset the cached source pointers.
- *
- * May need to call this after changing the default
- * data source fetch function.
- */
-inline
-void DataLinkBase::resetCachedSource()
-{
-  return SG::DataProxyHolder::resetCachedSource();
-}
-
-
 //****************************************************************************
 
 
@@ -219,7 +196,7 @@ DataLinkBase::DataLinkBase()
 inline
 DataLinkBase::DataLinkBase (const_pointer_t obj,
                             CLID link_clid,
-                            IProxyDictWithPool* sg)
+                            IProxyDict* sg)
 {
   toStorableObject (obj, link_clid, sg);
 }
@@ -238,7 +215,7 @@ DataLinkBase::DataLinkBase (const_pointer_t obj,
 inline
 DataLinkBase::DataLinkBase (const ID_type& dataID,
                             CLID link_clid,
-                            IProxyDictWithPool* sg)
+                            IProxyDict* sg)
 {
   toIdentifiedObject (dataID, link_clid, sg);
 }
@@ -255,9 +232,23 @@ DataLinkBase::DataLinkBase (const ID_type& dataID,
  * May throw @c ExcCLIDMismatch.
  */
 inline
-DataLinkBase::DataLinkBase (sgkey_t key, CLID link_clid, IProxyDictWithPool* sg)
+DataLinkBase::DataLinkBase (sgkey_t key, CLID link_clid, IProxyDict* sg)
 {
   toIdentifiedObject (key, link_clid, sg);
+}
+
+
+/**
+ * @brief Constructor from a hashed key and a proxy holder object.
+ *        Used internally for EL -> DL conversion.
+ * @param key Hashed key of the object.
+ * @param holder Internal holder object for the proxy.
+ */
+inline
+DataLinkBase::DataLinkBase (sgkey_t key, const SG::DataProxyHolder& holder)
+  : m_persKey (key),
+    m_proxy (holder)
+{
 }
 
 
@@ -277,7 +268,7 @@ DataLinkBase::DataLinkBase (sgkey_t key, CLID link_clid, IProxyDictWithPool* sg)
 inline
 void DataLinkBase::toStorableObject (const_pointer_t obj,
                                      CLID link_clid,
-                                     IProxyDictWithPool* sg)
+                                     IProxyDict* sg)
 {
   m_persKey = m_proxy.toStorableObject (obj, link_clid, sg);
 }
@@ -297,7 +288,7 @@ void DataLinkBase::toStorableObject (const_pointer_t obj,
 inline
 void DataLinkBase::toIdentifiedObject (const ID_type& dataID,
                                        CLID link_clid,
-                                       IProxyDictWithPool* sg)
+                                       IProxyDict* sg)
 {
   m_persKey = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
 }
@@ -318,7 +309,7 @@ void DataLinkBase::toIdentifiedObject (const ID_type& dataID,
 inline
 void DataLinkBase::toIdentifiedObject (sgkey_t key,
                                        CLID link_clid,
-                                       IProxyDictWithPool* sg)
+                                       IProxyDict* sg)
 {
   m_persKey = key;
   m_proxy.toIdentifiedObject (key, link_clid, sg);

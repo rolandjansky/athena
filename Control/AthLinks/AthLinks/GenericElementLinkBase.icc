@@ -97,7 +97,7 @@ GenericElementLinkBase<INDEXING_POLICY>::key() const
  */
 template <class INDEXING_POLICY>
 inline
-IProxyDictWithPool*
+IProxyDict*
 GenericElementLinkBase<INDEXING_POLICY>::source() const
 {
   return m_proxy.source();
@@ -149,7 +149,7 @@ void GenericElementLinkBase<INDEXING_POLICY>::reset ()
 template <class INDEXING_POLICY>
 inline
 bool
-GenericElementLinkBase<INDEXING_POLICY>::toTransient (IProxyDictWithPool* sg /*= 0*/)
+GenericElementLinkBase<INDEXING_POLICY>::toTransient (IProxyDict* sg /*= 0*/)
 {
   m_proxy.toTransient (m_key, sg);
   m_cacheValid = 0;
@@ -183,33 +183,6 @@ GenericElementLinkBase<INDEXING_POLICY>::toPersistent()
 
 
 /**
- * @brief Fetch the current default data store.
- */
-template <class INDEXING_POLICY>
-inline
-IProxyDictWithPool*
-GenericElementLinkBase<INDEXING_POLICY>::defaultDataSource()
-{
-  return SG::DataProxyHolder::defaultDataSource();
-}
-
-
-/**
- * @brief Reset the cached source pointers.
- *
- * May need to call this after changing the default
- * data source fetch function.
- */
-template <class INDEXING_POLICY>
-inline
-void
-GenericElementLinkBase<INDEXING_POLICY>::resetCachedSource()
-{
-  return SG::DataProxyHolder::resetCachedSource();
-}
-
-
-/**
  * @brief Default constructor.  Makes a null link.
  */
 template <class INDEXING_POLICY>
@@ -238,7 +211,7 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
  (const ID_type& dataID,
   CLID link_clid,
   const index_type& elemID,
-  IProxyDictWithPool* sg)
+  IProxyDict* sg)
    : m_index (elemID),
      m_cacheValid(false),
      m_element()
@@ -262,7 +235,7 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
  (sgkey_t key,
   CLID link_clid,
   const index_type& elemID,
-  IProxyDictWithPool* sg)
+  IProxyDict* sg)
    : m_key (key),
     m_index (elemID),
     m_cacheValid (false),
@@ -291,7 +264,7 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
   CLID link_clid,
   const index_type& elemID,
   const ElementType& elt,
-  IProxyDictWithPool* sg)
+  IProxyDict* sg)
    : m_index (elemID),
      m_cacheValid (true),
      m_element (elt)
@@ -319,7 +292,7 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
   CLID link_clid,
   const index_type& elemID,
   const ElementType& elt,
-  IProxyDictWithPool* sg)
+  IProxyDict* sg)
    : m_key (key),
      m_index (elemID),
      m_cacheValid (true),
@@ -344,12 +317,41 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
  (const_pointer_t obj,
   CLID link_clid,
   const index_type& elemID,
-  IProxyDictWithPool* sg)
+  IProxyDict* sg)
    : m_index (elemID),
      m_cacheValid (false),
      m_element()
 {
   m_key = m_proxy.toStorableObject (obj, link_clid, sg);
+}
+
+
+/**
+ * @brief Constructor from a link referencing a different type.
+ * @param other The object from which to copy.
+ *
+ * @c FROM_TRAITS is the @c ElementLinkTraits class for @c other;
+ * @c TO_TRAITS is the traits class for this object.
+ * The actual pointer values are not used, just the types are used.
+ * Default conversions for the storable pointer (i.e., derived->base)
+ * are allowed.
+ */
+template <class INDEXING_POLICY>
+template <class OTHER_INDEXING_POLICY, class FROM_TRAITS, class TO_TRAITS>
+GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
+  (const GenericElementLinkBase<OTHER_INDEXING_POLICY>& other,
+   FROM_TRAITS*,
+   TO_TRAITS*)
+  : m_key (other.m_key),
+    m_index (other.m_index),
+    m_proxy (other.m_proxy,
+             (typename FROM_TRAITS::Storable*)0,
+             (typename TO_TRAITS::Storable*)0),
+    m_cacheValid (other.m_cacheValid),
+    m_element (other.m_element)
+{
+  // The TRAITS template args are redundant here with the indexing policy args,
+  // but we need this signature for the non-templated ElementLinkBase case.
 }
 
 
@@ -395,7 +397,7 @@ bool GenericElementLinkBase<INDEXING_POLICY>::setStorableObject
    (const_pointer_t data,
     CLID link_clid,
     bool replace,
-    IProxyDictWithPool* sg)
+    IProxyDict* sg)
 {
   if (!m_proxy.isDefault()) {
     if (!replace) return false;
@@ -428,7 +430,7 @@ bool GenericElementLinkBase<INDEXING_POLICY>::toIndexedElement
    (const_pointer_t obj,
     CLID link_clid,
     const index_type& elemID,
-    IProxyDictWithPool* sg)
+    IProxyDict* sg)
 {
   if (m_proxy.isDefault() && isDefaultIndex() && !hasCachedElement()) {
     m_key = m_proxy.toStorableObject (obj, link_clid, sg);
@@ -457,7 +459,7 @@ void GenericElementLinkBase<INDEXING_POLICY>::resetWithKeyAndIndex
    (const ID_type& dataID,
     CLID link_clid,
     const index_type& elemID, 
-    IProxyDictWithPool* sg)
+    IProxyDict* sg)
 {
   m_key = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
   m_index = elemID;
@@ -482,7 +484,7 @@ void GenericElementLinkBase<INDEXING_POLICY>::resetWithKeyAndIndex
    (sgkey_t key,
     CLID link_clid,
     const index_type& elemID, 
-    IProxyDictWithPool* sg)
+    IProxyDict* sg)
 {
   m_key = key;
   m_proxy.toIdentifiedObject (key, link_clid, sg);
@@ -547,6 +549,18 @@ GenericElementLinkBase<INDEXING_POLICY>::getCachedElement (ElementConstPointer& 
     return true;
   }
   return false;
+}
+
+
+/**
+ * @brief Return the internal proxy holder object.
+ */
+template <class INDEXING_POLICY>
+inline
+const SG::DataProxyHolder&
+GenericElementLinkBase<INDEXING_POLICY>::proxyHolder() const
+{
+  return m_proxy;
 }
 
 

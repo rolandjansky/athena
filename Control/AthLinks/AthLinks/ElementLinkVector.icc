@@ -22,7 +22,7 @@ typename ElementLinkVector<DOBJ>::DataLinkVector::const_iterator
 ElementLinkVector<DOBJ>::findHostDObj(const ElemLink& link) const
 {
   //DataLink<DOBJ> dl (link.storagePolicy());
-  DataLink<DOBJ> dl (link.key());
+  DataLink<DOBJ> dl = link.getDataLink();
   typename DataLinkVector::const_iterator iHost(beginHostDObjs()), eHost(endHostDObjs());
   while ((eHost != iHost) && (*iHost != dl)) ++iHost;
 #ifdef __ELVDEBUG

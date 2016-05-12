@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: GenericElementLinkBase.h 602766 2014-06-19 18:02:24Z ssnyder $
+// $Id: GenericElementLinkBase.h 714258 2015-12-12 04:18:16Z ssnyder $
 /**
  * @file AthLinks/GenericElementLinkBase.h
  * @author scott snyder <snyder@bnl.gov>
@@ -30,7 +30,8 @@ struct GenericElementLinkBase;
 EXIT_ROOT_SELECTION_NS
 
 
-class ElementLinkBase_test;
+template <class POLICY>
+class ElementLinkBaseT_test;
 
 
 namespace SG {
@@ -138,7 +139,7 @@ public:
   /**
    * @brief Return the data source for this reference.
    */
-  IProxyDictWithPool* source() const;
+  IProxyDict* source() const;
 
 
   /**
@@ -169,7 +170,7 @@ public:
    *
    * If @c sg is 0, then we use the global default store.
    */
-  bool toTransient (IProxyDictWithPool* sg = 0);
+  bool toTransient (IProxyDict* sg = 0);
 
 
   /**
@@ -185,21 +186,6 @@ public:
    * is not in SG.
    */
   bool toPersistent();
-
-
-  /**
-   * @brief Fetch the current default data store.
-   */
-  static IProxyDictWithPool* defaultDataSource();
-
-
-  /**
-   * @brief Reset the cached source pointers.
-   *
-   * May need to call this after changing the default
-   * data source fetch function.
-   */
-  static void resetCachedSource();
 
 
 protected:
@@ -221,7 +207,7 @@ protected:
   GenericElementLinkBase (const ID_type& dataID,
                           CLID link_clid,
                           const index_type& elemID,
-                          IProxyDictWithPool* sg);
+                          IProxyDict* sg);
 
 
   /**
@@ -236,7 +222,7 @@ protected:
   GenericElementLinkBase (sgkey_t key,
                           CLID link_clid,
                           const index_type& elemID,
-                          IProxyDictWithPool* sg);
+                          IProxyDict* sg);
 
 
   /**
@@ -255,7 +241,7 @@ protected:
                           CLID link_clid,
                           const index_type& elemID,
                           const ElementType& elt,
-                          IProxyDictWithPool* sg);
+                          IProxyDict* sg);
 
 
   /**
@@ -274,7 +260,7 @@ protected:
                           CLID link_clid,
                           const index_type& elemID,
                           const ElementType& elt,
-                          IProxyDictWithPool* sg);
+                          IProxyDict* sg);
 
 
   /**
@@ -289,7 +275,22 @@ protected:
   GenericElementLinkBase (const_pointer_t obj,
                           CLID link_clid,
                           const index_type& elemID,
-                          IProxyDictWithPool* sg);
+                          IProxyDict* sg);
+
+
+  /**
+   * @brief Constructor from a link referencing a different type.
+   * @param other The object from which to copy.
+   *
+   * @c FROM_TRAITS is the @c ElementLinkTraits class for @c other;
+   * @c TO_TRAITS is the traits class for this object.
+   * The actual pointer values are not used, just the types are used.
+   * Default conversions for the storable pointer (i.e., derived->base)
+   * are allowed.
+   */
+  template <class OTHER_INDEXING_POLICY, class FROM_TRAITS, class TO_TRAITS>
+  GenericElementLinkBase (const GenericElementLinkBase<OTHER_INDEXING_POLICY>& other,
+                          FROM_TRAITS*, TO_TRAITS*);
 
 
   /**
@@ -325,7 +326,7 @@ protected:
   bool setStorableObject (const_pointer_t data,
                           CLID link_clid,
                           bool replace,
-                          IProxyDictWithPool* sg);
+                          IProxyDict* sg);
 
 
   /**
@@ -346,7 +347,7 @@ protected:
   bool toIndexedElement (const_pointer_t obj,
                          CLID link_clid,
                          const index_type& elemID,
-                         IProxyDictWithPool* sg);
+                         IProxyDict* sg);
 
 
   /**
@@ -363,7 +364,7 @@ protected:
   void resetWithKeyAndIndex (const ID_type& dataID,
                              CLID link_clid,
                              const index_type& elemID, 
-                             IProxyDictWithPool* sg);
+                             IProxyDict* sg);
 
 
   /**
@@ -380,7 +381,7 @@ protected:
   void resetWithKeyAndIndex (sgkey_t key,
                              CLID link_clid,
                              const index_type& elemID, 
-                             IProxyDictWithPool* sg);
+                             IProxyDict* sg);
 
 
   /**
@@ -413,9 +414,19 @@ protected:
   bool getCachedElement (ElementConstPointer& elt) const;
 
 
+  /**
+   * @brief Return the internal proxy holder object.
+   */
+  const SG::DataProxyHolder& proxyHolder() const;
+
+
 private:
+  template <class OTHER_POLICY>
+  friend class GenericElementLinkBase;
+
   /// For regression testing.
-  friend class ::ElementLinkBase_test;
+  template <class POLICY>
+  friend class ::ElementLinkBaseT_test;
 
   /// The hashed key for this link.
   SG::sgkey_t m_key;
@@ -445,7 +456,7 @@ private:
 ENTER_ROOT_SELECTION_NS
 namespace SG {
 template <class INDEXING_POLICY>
-struct GenericElementLinkBase {
+struct GenericElementLinkBase : SelectNoInstance {
   typedef GenericElementLinkBase<INDEXING_POLICY> self;
   ROOT_SELECTION_NS::TRANSIENT m_proxy;
   ROOT_SELECTION_NS::TRANSIENT m_cacheValid;

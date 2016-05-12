@@ -12,7 +12,6 @@
 
 #undef NDEBUG
 #include "AthLinks/tools/DataProxyHolder.h"
-#include "AthLinks/tools/SGgetDataSource.h"
 #include "AthLinks/exceptions.h"
 #include "SGTools/CLASS_DEF.h"
 #include "AthenaKernel/getMessageSvc.h"
@@ -21,9 +20,12 @@
 #include <cassert>
 
 
-#include "TestStore.icc"
+#include "SGTools/TestStore.h"
+#include "TestTools/expect_exception.h"
 #include "TestThinningSvc.icc"
-#include "expect_exception.icc"
+
+
+using namespace SGTest;
 
 
 struct Foo
@@ -67,6 +69,7 @@ void test1()
   store.record (foo1, "foo1");
   TestStore::sgkey_t sgkey1 = store.stringToKey ("foo1", fooclid);
   TestStore::sgkey_t sgkey3 = store.stringToKey ("foo3", fooclid);
+  TestStore::sgkey_t sgkey3x = store.stringToKey ("foo3x", fooclid);
 
   // An object not in SG
   Foo* foo2 = new Foo(2);
@@ -109,12 +112,14 @@ void test1()
 
   // toIdentifiedObject with hashed key
 
+  store.m_missedProxies.clear();
   h1.toIdentifiedObject (sgkey1, fooclid, 0);
   assert (!h1.isDefault());
   assert (h1.dataID() == "foo1");
   assert (h1.storableBase (foocast, fooclid) == foo1);
   assert (h1.proxy()->name() == "foo1");
   assert (h1.source() == &store);
+  assert (store.m_missedProxies.empty());
 
   EXPECT_EXCEPTION (SG::ExcCLIDMismatch,
                     h1.toIdentifiedObject (sgkey1, barclid, 0));
@@ -125,6 +130,16 @@ void test1()
   assert (h1.storableBase (foocast, fooclid) == 0);
   assert (h1.proxy()->name() == "foo3");
   assert (h1.source() == &store);
+
+  h1.toIdentifiedObject (sgkey3x, fooclid, 0);
+  assert (!h1.isDefault());
+  assert (h1.dataID() == "foo3x");
+  assert (h1.storableBase (foocast, fooclid) == 0);
+  assert (h1.proxy()->name() == "foo3x");
+  assert (h1.source() == &store);
+  assert (store.m_missedProxies.size() == 1);
+  assert (store.m_missedProxies[0].first == fooclid);
+  assert (store.m_missedProxies[0].second == "foo3x");
 
   h1.clear();
   assert (h1.isDefault());
@@ -195,13 +210,6 @@ void test2()
 }
 
 
-IProxyDictWithPool* storePtr2 = &store;
-IProxyDictWithPool** getTestDataSourcePointer2 (const std::string&)
-{
-  return &storePtr2;
-}
-
-
 // alt store
 void test3()
 {
@@ -209,17 +217,8 @@ void test3()
 
   TestStore store2;
 
-  assert (SG::DataProxyHolder::defaultDataSource() == &store);
-  SG::getDataSourcePointerFunc_t* old_fn = SG::getDataSourcePointerFunc;
-  SG::getDataSourcePointerFunc = getTestDataSourcePointer2;
-  assert (SG::DataProxyHolder::defaultDataSource() == &store);
-  storePtr2 = &store2;
-  assert (SG::DataProxyHolder::defaultDataSource() == &store);
-  SG::DataProxyHolder::resetCachedSource();
-  assert (SG::DataProxyHolder::defaultDataSource() == &store2);
-
-  SG::getDataSourcePointerFunc = old_fn;
-  SG::DataProxyHolder::resetCachedSource();
+  assert (SG::CurrentEventStore::setStore(&store2) == &store);
+  assert (SG::CurrentEventStore::setStore(&store) == &store2);
 }
 
 
@@ -303,11 +302,47 @@ void test6()
 }
 
 
+// converting ctor
+void test7()
+{
+  std::cout << "test7\n";
+
+  SG::DataProxyHolder dp1;
+
+  // An object not in SG
+  Bar* bar2 = new Bar(2);
+  assert (dp1.toStorableObject (bar2, barclid, 0) == 0);
+
+  SG::DataProxyHolder dp2 (dp1, (Bar*)0, (Bar*)0);
+  assert (dp1.storableBase (foocast, barclid) == bar2);
+  assert (dp2.storableBase (foocast, barclid) == bar2);
+
+  SG::DataProxyHolder dp3 (dp1, (Bar*)0, (Foo*)0);
+  assert (dp3.storableBase (foocast, fooclid) == static_cast<Foo*>(bar2));
+
+  // An object in SG
+  TestStore::sgkey_t sgkey = store.stringToKey ("bar2", barclid);
+  store.record (bar2, "bar2");
+  SG::DataProxyHolder dp4;
+  assert (dp4.toIdentifiedObject ("bar2", barclid, 0) == sgkey);
+  assert (dp4.dataID() == "bar2");
+  assert (dp4.storableBase (foocast, barclid) == bar2);
+
+  SG::DataProxyHolder dp5 (dp4, (Bar*)0, (Bar*)0);
+  assert (dp5.dataID() == "bar2");
+  assert (dp5.storableBase (foocast, barclid) == bar2);
+
+  SG::DataProxyHolder dp6 (dp4, (Bar*)0, (Foo*)0);
+  assert (dp6.dataID() == "bar2");
+  assert (dp6.storableBase (foocast, barclid) == bar2);
+}
+
+
 int main()
 {
   errorcheck::ReportMessage::hideErrorLocus(true);
   Athena::getMessageSvcQuiet = true;
-  SG::getDataSourcePointerFunc = getTestDataSourcePointer;
+  SGTest::initTestStore();
 
   test1();
   test2();
@@ -315,5 +350,6 @@ int main()
   test4();
   test5();
   test6();
+  test7();
   return 0;
 }

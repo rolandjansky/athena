@@ -20,7 +20,7 @@
 #include <cassert>
 
 
-#include "expect_exception.icc"
+#include "TestTools/expect_exception.h"
 
 
 class Cont

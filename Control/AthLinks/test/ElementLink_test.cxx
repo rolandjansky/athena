@@ -5,12 +5,13 @@
 #undef NDEBUG
 #include "AthLinks/ElementLink.h"
 #include "AthLinks/ElementLinkVector.h"
+#include "AthLinks/DeclareIndexingPolicy.h"
 #include "AthLinks/exceptions.h"
-#include "AthLinks/tools/SGgetDataSource.h"
 #include "AthLinks/tools/SetIndexingPolicy.h"
 #include "AthLinks/tools/MapIndexingPolicy.h"
 #include "AthLinks/tools/IdentContIndexingPolicy.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "SGTools/CurrentEventStore.h"
 #include "SGTools/CLASS_DEF.h"
 #include <vector>
 #include <set>
@@ -19,11 +20,11 @@
 #include <cassert>
 
 
-#include "TestStore.icc"
-#include "expect_exception.icc"
+#include "SGTools/TestStore.h"
+#include "TestTools/expect_exception.h"
 
 
-IProxyDictWithPool* storePtr2 = &store;
+using namespace SGTest;
 
 
 struct Foo
@@ -56,6 +57,90 @@ CLASS_DEF (StrSet, strsetclid, 1)
 typedef std::map<std::string, int> StrMap;
 const unsigned int strmapclid = 23423559;
 CLASS_DEF (StrMap, strmapclid, 1)
+
+
+// Ensure an offset between Bar and Foo base.
+struct XXX { virtual ~XXX(){}  XXX():x(0){} int x; };
+
+struct Bar
+  : public XXX, public Foo
+{
+  Bar (int the_y = 0) : Foo(the_y+10), y (the_y) {}
+  int y;
+};
+
+struct BarCont
+  : public XXX, public FooCont
+{
+  typedef boost::true_type isSequence;
+  typedef Bar* value_type;
+  struct const_iterator
+    : public FooCont::const_iterator
+  {
+    const_iterator (FooCont::const_iterator it)
+      : FooCont::const_iterator (it) {}
+    Bar* operator*() const {
+      const FooCont::const_iterator* baseit= static_cast<const FooCont::const_iterator*>(this);
+      return static_cast<Bar*> (**baseit);
+    }
+  };
+  const_iterator begin() const { return const_iterator(FooCont::begin()); }
+  const_iterator end() const { return const_iterator(FooCont::end()); }
+  Bar* operator[] (size_t i) const
+  {
+    const FooCont* base = static_cast<const FooCont*> (this);
+    return static_cast<Bar*> ((*base)[i]);
+  }
+};
+
+
+const unsigned int barclid = 23423566;
+CLASS_DEF (BarCont, barclid, 1)
+CLASS_DEF (std::vector<Bar>, 23423568, 1)
+
+SG_BASE(Bar, Foo);
+SG_BASE(BarCont, FooCont);
+
+
+struct Baz
+  : public std::string
+{
+  Baz (std::string the_s = "") : std::string(the_s), s (the_s+"asd") {}
+  std::string s;
+};
+
+
+struct BazCont
+  : public XXX, public StrSet
+{
+  typedef Baz key_type;
+  typedef Baz value_type;
+  typedef const Baz* const_pointer;
+  typedef const Baz& const_reference;
+  
+  struct const_iterator
+    : public StrSet::const_iterator
+  {
+    const_iterator (StrSet::const_iterator it)
+      : StrSet::const_iterator (it) {}
+    Baz operator*() const {
+      const StrSet::const_iterator* baseit= static_cast<const StrSet::const_iterator*>(this);
+      return Baz (**baseit);
+    }
+  };
+  const_iterator begin() const { return const_iterator(StrSet::begin()); }
+  const_iterator end() const { return const_iterator(StrSet::end()); }
+};
+
+
+CONTAINER_IS_SET(BazCont)
+const unsigned int bazclid = 23423576;
+CLASS_DEF (BazCont, bazclid, 1)
+
+SG_BASE(Baz, std::string);
+SG_BASE(BazCont, StrSet);
+
+
 
 
 struct IdentTest
@@ -270,6 +355,25 @@ void testit (const std::string& key,
   assert (el4.dataID() == key);
   assert (el4.key() == sgkey);
   assert (el4.source() == &store);
+
+  {
+    DataLink<CONT> dl1 = el4.getDataLink();
+    assert (!dl1.isDefault());
+    assert (dl1.isValid());
+    assert (dl1.cptr() == cont);
+    assert (dl1.dataID() == key);
+    assert (dl1.key() == sgkey);
+    assert (dl1.source() == &store);
+
+    const Link& cel4 = el4;
+    const DataLink<CONT> dl2 = cel4.getDataLink();
+    assert (!dl2.isDefault());
+    assert (dl2.isValid());
+    assert (dl2.cptr() == cont);
+    assert (dl2.dataID() == key);
+    assert (dl2.key() == sgkey);
+    assert (dl2.source() == &store);
+  }
 
   Link el5 (sgkey, index2, doindex(cont, index2));
   assert (!el5.isDefault());
@@ -593,11 +697,6 @@ void test3()
 }
 
 
-IProxyDictWithPool** getTestDataSourcePointer2 (const std::string&)
-{
-  return &storePtr2;
-}
-
 // test alt store
 void test4()
 {
@@ -615,21 +714,12 @@ void test4()
   ElementLink<FooCont> el2 ("foocont4", 2);
   assert (el2.cptr() == 0);
 
-  assert (SG::DataProxyHolder::defaultDataSource() == &store);
-
-  SG::getDataSourcePointerFunc_t* old_fn = SG::getDataSourcePointerFunc;
-  SG::getDataSourcePointerFunc = getTestDataSourcePointer2;
-  assert (SG::DataProxyHolder::defaultDataSource() == &store);
-  storePtr2 = &store2;
-  assert (SG::DataProxyHolder::defaultDataSource() == &store);
-  SG::DataProxyHolder::resetCachedSource();
-  assert (SG::DataProxyHolder::defaultDataSource() == &store2);
+  assert (SG::CurrentEventStore::setStore(&store2) == &store);
 
   ElementLink<FooCont> el3 ("foocont4", 2);
   assert (*el3.cptr() == (*foocont4)[2]);
 
-  SG::getDataSourcePointerFunc = old_fn;
-  SG::DataProxyHolder::resetCachedSource();
+  assert (SG::CurrentEventStore::setStore(&store) == &store2);
 }
 
 
@@ -667,6 +757,22 @@ void test6()
   assert (!(el1 > el2));
   assert (el1 != el2);
   assert (el1 == el1);
+
+  ElementLink<FooCont> el3;
+  assert (!(el3 < el3));
+  assert (el3 < el1);
+  assert (!(el1 < el3));
+
+  Foo foo;
+  ElementLink<FooCont> el4;
+  el4.setElement(&foo);
+  assert (el3 < el4);
+  assert (!(el4 < el3));
+
+  bool res = false;
+  EXPECT_EXCEPTION (SG::ExcIncomparableEL, res = el4 < el1);
+  EXPECT_EXCEPTION (SG::ExcIncomparableEL, res = el1 < el4);
+  assert (res == false);
 }
 
 
@@ -942,29 +1048,130 @@ void test11()
 void test12()
 {
   std::cout << "test12\n";
-  typedef ElementLink<FooCont> EL;
-
-  assert (EL::defaultDataSource() == &store);
-
-  SG::getDataSourcePointerFunc_t* old_fn = SG::getDataSourcePointerFunc;
-  SG::getDataSourcePointerFunc = getTestDataSourcePointer2;
-  assert (EL::defaultDataSource() == &store);
-
   TestStore store2;
-  storePtr2 = &store2;
-  assert (EL::defaultDataSource() == &store);
-  EL::resetCachedSource();
-  assert (EL::defaultDataSource() == &store2);
 
-  SG::getDataSourcePointerFunc = old_fn;
-  EL::resetCachedSource();
+  assert (SG::CurrentEventStore::setStore(&store2) == &store);
+  assert (SG::CurrentEventStore::setStore(&store) == &store2);
+}
+
+
+// Converting ctor.
+void test13()
+{
+  std::cout << "test13\n";
+
+  // Pointer, raw element.
+  BarCont* bar = new BarCont;
+  bar->push_back (new Bar (1));
+  bar->push_back (new Bar (2));
+  bar->push_back (new Bar (3));
+
+  size_t null_index = -1;
+
+  ElementLink<BarCont> el1;
+  el1.setElement ((*bar)[1]);
+  ElementLink<FooCont> el2 (el1);
+  assert (*el1.cptr() == (*bar)[1]);
+  assert (*el2.cptr() == (*bar)[1]);
+  assert (static_cast<const void*>(*el1.cptr()) !=
+          static_cast<const void*>(*el2.cptr()));
+  assert (el1.getDataPtr() == nullptr);
+  assert (el2.getDataPtr() == nullptr);
+  assert (el1.key() == 0);
+  assert (el2.key() == 0);
+  assert (el1.index() == null_index);
+  assert (el2.index() == null_index);
+
+  // Pointer, storable not in SG.
+  ElementLink<BarCont> el3 (*bar, 1);
+  ElementLink<FooCont> el4 (el3);
+  assert (*el3.cptr() == (*bar)[1]);
+  assert (*el4.cptr() == (*bar)[1]);
+  assert (static_cast<const void*>(*el3.cptr()) !=
+          static_cast<const void*>(*el4.cptr()));
+  assert (el3.getDataPtr() == bar);
+  assert (el4.getDataPtr() == bar);
+  assert (static_cast<const void*>(el3.getDataPtr()) !=
+          static_cast<const void*>(el4.getDataPtr()));
+  assert (el3.key() == 0);
+  assert (el4.key() == 0);
+  assert (el3.index() == 1);
+  assert (el4.index() == 1);
+
+  // Pointer, storable in SG.
+  store.record (bar, "barcont");
+  ElementLink<BarCont> el5 ("barcont", 1);
+  ElementLink<FooCont> el6 (el5);
+  assert (*el5.cptr() == (*bar)[1]);
+  assert (*el6.cptr() == (*bar)[1]);
+  assert (static_cast<const void*>(*el5.cptr()) !=
+          static_cast<const void*>(*el6.cptr()));
+  assert (el5.getDataPtr() == bar);
+  assert (el6.getDataPtr() == bar);
+  assert (static_cast<const void*>(el5.getDataPtr()) !=
+          static_cast<const void*>(el6.getDataPtr()));
+  assert (el5.dataID() == "barcont");
+  assert (el6.dataID() == "barcont");
+  assert (el5.index() == 1);
+  assert (el6.index() == 1);
+
+  // Non-pointer, raw element.
+  BazCont* baz = new BazCont;
+  baz->insert ("1");
+  baz->insert ("2");
+  baz->insert ("3");
+  
+  ElementLink<BazCont> el11;
+  el11.setElement (Baz ("bar1"));
+  ElementLink<StrSet> el12 (el11);
+  assert (*el11.cptr() == "bar1");
+  assert (*el12.cptr() == "bar1");
+  assert (el11.cptr()->s == "bar1asd");
+  assert (el11.getDataPtr() == nullptr);
+  assert (el12.getDataPtr() == nullptr);
+  assert (el11.key() == 0);
+  assert (el12.key() == 0);
+  assert (el11.index() == "");
+  assert (el12.index() == "");
+
+  // Non-pointer, storable not in SG.
+  ElementLink<BazCont> el13 (*baz, Baz("2"));
+  ElementLink<StrSet> el14 (el13);
+  assert (*el13.cptr() == "2");
+  assert (*el14.cptr() == "2");
+  assert (el13.cptr()->s == "2asd");
+  assert (el13.getDataPtr() == baz);
+  assert (el14.getDataPtr() == baz);
+  assert (static_cast<const void*>(el13.getDataPtr()) !=
+          static_cast<const void*>(el14.getDataPtr()));
+  assert (el13.key() == 0);
+  assert (el14.key() == 0);
+  assert (el13.index() == Baz("2"));
+  assert (el14.index() == "2");
+
+  // Non-pointer, storable in SG.
+  store.record (baz, "bazcont");
+  ElementLink<BazCont> el15 ("bazcont", Baz("2"));
+  ElementLink<StrSet> el16 (el15);
+  assert (*el15.cptr() == "2");
+  assert (*el16.cptr() == "2");
+  assert (el15.cptr()->s == "2asd");
+  assert (el16.getDataPtr() == baz);
+  assert (el15.getDataPtr() == baz);
+  assert (static_cast<const void*>(el15.getDataPtr()) !=
+          static_cast<const void*>(el16.getDataPtr()));
+  assert (el15.dataID() == "bazcont");
+  assert (el16.dataID() == "bazcont");
+  assert (el15.index() == Baz("2"));
+  assert (el16.index() == "2");
 }
 
 
 int main()
 {
   Athena::getMessageSvcQuiet = true;
-  SG::getDataSourcePointerFunc = getTestDataSourcePointer;
+  initTestStore();
+
   test1();
   test2();
   test3();
@@ -977,5 +1184,6 @@ int main()
   test10();
   test11();
   test12();
+  test13();
   return 0;
 }

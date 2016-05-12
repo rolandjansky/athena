@@ -55,7 +55,7 @@ operator ==(const ElementLinkVector<DOBJ>& lhs,
  * (e.g. GenParticleIndexing in GeneratorObjects/McEventIndexingPolicy.h)
  *
  * @author ATLAS Collaboration
- * $Id: ElementLinkVector.h 619270 2014-09-30 21:17:00Z ssnyder $
+ * $Id: ElementLinkVector.h 702198 2015-10-21 20:58:43Z ssnyder $
  **/
 
 template <typename DOBJ>
@@ -98,13 +98,31 @@ public:
   typedef typename ElemLink::ID_type ID_type;
   typedef typename ElemLink::sgkey_t sgkey_t;
 
+
+  // We used to just use transform_iterator directly.
+  // However, postincrement for transform_iterator is implemented as a free
+  // function, which pyroot doesn't see.  This causes python iteration
+  // over ElementLinkVector to fail.
+  template <class Iterator>
+  class ELVIterator
+    : public boost::transform_iterator<Short2LongRef, Iterator>
+  {
+  public:
+    typedef boost::transform_iterator<Short2LongRef, Iterator> Base;
+    using Base::Base;
+    using Base::operator++;
+    using Base::operator--;
+    ELVIterator operator++(int) { ELVIterator tmp=*this; ++(*this); return tmp; }
+    ELVIterator operator--(int) { ELVIterator tmp=*this; --(*this); return tmp; }
+  };
+
   ///\name vector typedefs: it behaves like a vector<ElemLink>
   //@{
   typedef ElemLink& reference;
   //FIXME  typedef const ElemLink& const_reference;
   typedef ElemLink const_reference;
-  typedef typename boost::transform_iterator<Short2LongRef, typename RefVector::iterator> iterator;
-  typedef typename boost::transform_iterator<Short2LongRef, typename RefVector::const_iterator> const_iterator;
+  typedef ELVIterator<typename RefVector::iterator> iterator;
+  typedef ELVIterator<typename RefVector::const_iterator> const_iterator;
   //1.30  typedef typename boost::transform_iterator_generator<Short2LongRef, typename RefVector::iterator>::type iterator;
   //1.30  typedef typename boost::transform_iterator_generator<Short2LongRef, typename RefVector::const_iterator>::type const_iterator;
   typedef typename RefVector::size_type size_type;
@@ -113,8 +131,8 @@ public:
   typedef typename RefVector::allocator_type allocator_type;
   typedef ElemLink* pointer;
   typedef const ElemLink* const_pointer;
-  typedef typename boost::transform_iterator<Short2LongRef, typename RefVector::reverse_iterator> reverse_iterator;
-  typedef typename boost::transform_iterator<Short2LongRef, typename RefVector::const_reverse_iterator> const_reverse_iterator;
+  typedef ELVIterator<typename RefVector::reverse_iterator> reverse_iterator;
+  typedef ELVIterator<typename RefVector::const_reverse_iterator> const_reverse_iterator;
   //1.30  typedef typename boost::transform_iterator_generator<Short2LongRef, typename RefVector::reverse_iterator>::type reverse_iterator;
   //1.30  typedef typename boost::transform_iterator_generator<Short2LongRef, typename RefVector::const_reverse_iterator>::type const_reverse_iterator;
   //@}
@@ -198,6 +216,11 @@ public:
     ElementLinkVectorBase( vec ),
     m_shortRefs(vec.m_shortRefs), m_hostDObjs(vec.m_hostDObjs) { }
 
+  ElementLinkVector(ElemLinkVec&& vec) :
+    ElementLinkVectorBase( std::move(vec) ),
+    m_shortRefs(std::move(vec.m_shortRefs)),
+    m_hostDObjs(std::move(vec.m_hostDObjs)) { }
+
   ElementLinkVector& operator= (const ElemLinkVec& vec)
   {
     if (this != &vec) {
@@ -205,6 +228,17 @@ public:
       m_persIndices = vec.m_persIndices;
       m_shortRefs   = vec.m_shortRefs;
       m_hostDObjs   = vec.m_hostDObjs;
+    }
+    return *this;
+  }
+
+  ElementLinkVector& operator= (ElemLinkVec&& vec)
+  {
+    if (this != &vec) {
+      m_persKeys    = std::move(vec.m_persKeys);
+      m_persIndices = std::move(vec.m_persIndices);
+      m_shortRefs   = std::move(vec.m_shortRefs);
+      m_hostDObjs   = std::move(vec.m_hostDObjs);
     }
     return *this;
   }

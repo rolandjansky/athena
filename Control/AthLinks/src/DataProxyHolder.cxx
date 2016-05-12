@@ -14,17 +14,14 @@
 #include "AthLinks/tools/DataProxyHolder.h"
 #include "AthLinks/exceptions.h"
 #include "SGTools/DataProxy.h"
-#include "SGTools/IProxyDictWithPool.h"
 #include "SGTools/TransientAddress.h"
+#include "SGTools/CurrentEventStore.h"
+#include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IThinningSvc.h"
 #include "AthenaKernel/errorcheck.h"
 
 
 namespace SG {
-
-
-/// Pointer from which to fetch the default data source.
-IProxyDictWithPool** DataProxyHolder::s_cached_source = 0;
 
 
 /**
@@ -46,7 +43,7 @@ IProxyDictWithPool** DataProxyHolder::s_cached_source = 0;
 DataProxyHolder::sgkey_t
 DataProxyHolder::toStorableObject (const_pointer_t obj,
                                    CLID link_clid,
-                                   IProxyDictWithPool* sg)
+                                   IProxyDict* sg)
 {
   sgkey_t key = 0;
   if (obj == 0) {
@@ -58,7 +55,7 @@ DataProxyHolder::toStorableObject (const_pointer_t obj,
     if (sg == 0)
       sg = this->source1();
     if (sg == 0)
-      sg = defaultDataSource();
+      sg = SG::CurrentEventStore::store();
 
     m_proxy = sg->proxy (obj);
     if (m_proxy == 0) {
@@ -98,13 +95,16 @@ DataProxyHolder::toStorableObject (const_pointer_t obj,
 DataProxyHolder::sgkey_t
 DataProxyHolder::toIdentifiedObject (const ID_type& dataID,
                                      CLID link_clid,
-                                     IProxyDictWithPool* sg)
+                                     IProxyDict* sg)
 {
   // Find the store to use.
   if (sg == 0)
     sg = this->source1();
   if (sg == 0)
-    sg = defaultDataSource();
+    sg = SG::CurrentEventStore::store();
+
+  if (!sg)
+    return 0;
 
   // Look up the proxy.
   m_proxy = sg->proxy (link_clid, dataID);
@@ -141,7 +141,7 @@ DataProxyHolder::toIdentifiedObject (const ID_type& dataID,
 void
 DataProxyHolder::toIdentifiedObject (sgkey_t sgkey,
                                      CLID link_clid,
-                                     IProxyDictWithPool* sg)
+                                     IProxyDict* sg)
 {
   if (!sgkey) return;
 
@@ -149,22 +149,32 @@ DataProxyHolder::toIdentifiedObject (sgkey_t sgkey,
   if (sg == 0)
     sg = this->source1();
   if (sg == 0)
-    sg = defaultDataSource();
+    sg = SG::CurrentEventStore::store();
 
-  // Loop up the proxy.
+  if (!sg)
+    return;
+
+  // Look up the proxy.
   m_proxy = sg->proxy_exact (sgkey);
 
+  CLID clid = CLID_NULL;
+  const std::string* key = nullptr;
   if (m_proxy == 0) {
-    // Didn't find it --- make a dummy.
+    // Didn't find it --- have SG query proxy providers.
     // Try to turn the hashed key into a string key + clid.
-    CLID clid = CLID_NULL;
-    const std::string* key = sg->keyToString (sgkey, clid);
-    SG::TransientAddress* tad;
+    key = sg->keyToString (sgkey, clid);
     if (key) {
       if (link_clid != CLID_NULL && clid != link_clid)
         throw SG::ExcCLIDMismatch (clid, link_clid);
-      tad = new SG::TransientAddress (clid, *key);
+      m_proxy = sg->proxy (clid, *key);
     }
+  }
+  
+  if (m_proxy == 0) {
+    // Still didn't find it --- make a dummy.
+    SG::TransientAddress* tad;
+    if (key)
+      tad = new SG::TransientAddress (clid, *key);
     else
       tad = new SG::TransientAddress();
     tad->setSGKey (sgkey);
@@ -250,7 +260,7 @@ void* DataProxyHolder::storableBase (castfn_t* castfn, CLID clid) const
  * If we're pointing at an object directly, then we return the default store
  * if the object is found in SG; otherwise, throw @c ExcPointerNotInSG.
  */
-IProxyDictWithPool* DataProxyHolder::source() const
+IProxyDict* DataProxyHolder::source() const
 {
   SG::DataProxy* dp = proxy();
   if (!dp)
@@ -271,7 +281,7 @@ IProxyDictWithPool* DataProxyHolder::source() const
  * If @c sg is 0, then we use the global default store.
  */
 void
-DataProxyHolder::toTransient (sgkey_t sgkey, IProxyDictWithPool* sg /*= 0*/)
+DataProxyHolder::toTransient (sgkey_t sgkey, IProxyDict* sg /*= 0*/)
 {
   m_proxy = 0;
   if (sgkey)
@@ -444,18 +454,6 @@ bool DataProxyHolder::thin (sgkey_t& sgkey, size_t& index)
 
 
 /**
- * @brief Reset the cached source pointers.
- *
- * May need to call this after changing the default
- * data source fetch function.
- */
-void DataProxyHolder::resetCachedSource()
-{
-  s_cached_source = 0;
-}
-
-
-/**
  * @brief Throw a @c ExcInvalidLink exception for this link.
  * @param sgkey The hashed key for this link.
  *
@@ -489,7 +487,7 @@ SG::DataProxy* DataProxyHolder::proxy1(bool nothrow) const
 {
   const_pointer_t obj = reinterpret_cast<const_pointer_t>
     (reinterpret_cast<unsigned long> (m_proxy) & ~1UL);
-  SG::DataProxy* proxy = defaultDataSource()->proxy (obj);
+  SG::DataProxy* proxy = SG::CurrentEventStore::store()->proxy (obj);
   if (proxy == 0 && !nothrow)
     throw SG::ExcPointerNotInSG (obj);
   return proxy;
@@ -503,7 +501,7 @@ SG::DataProxy* DataProxyHolder::proxy1(bool nothrow) const
  * If we're holding a pointer directly, rather than a proxy,
  * then return 0 rather than raising an exception.
  */
-IProxyDictWithPool* DataProxyHolder::source1() const
+IProxyDict* DataProxyHolder::source1() const
 {
   if (!m_proxy || (reinterpret_cast<unsigned long>(m_proxy) & 1) == 1)
     return 0;

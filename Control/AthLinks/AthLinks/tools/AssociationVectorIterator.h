@@ -163,6 +163,11 @@
        : 0;
    }
 
+   asso_link getLink() const
+   {
+     return *m_actual;
+   }
+
    bool isValid() const
    {
      return m_actual != m_store->end() && m_actual->isValid();

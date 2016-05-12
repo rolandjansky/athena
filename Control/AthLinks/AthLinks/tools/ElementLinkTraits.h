@@ -80,43 +80,41 @@ namespace SG {
 //   Return the SG key that we reference, as a string.
 //  sgkey_t key() const
 //   Return the SG key that we reference, as a hash.
-//  IProxyDictWithPool* source() const
+//  IProxyDict* source() const
 //   Return the data source for the reference.
 //  void reset()
 //   Reset the link to a null state.
-//  bool toTransient (IProxyDictWithPool*)
+//  bool toTransient (IProxyDict*)
 //   Finish initialization after link has been read.
 //  bool doPersistent()
 //   Prepare this link for writing.
-//  static IProxyDictWithPool* defaultDataSource();
-//   Fetch the current default data store.
-//  static void resetCachedSource();
-//   Reset the cached source pointers.
 //
 // protected:
 //  Base()
 //   Makes a null link.
-//  Base(const ID_type&, CLID, index_type, IProxyDictWithPool*)
+//  Base(const ID_type&, CLID, index_type, IProxyDict*)
 //   Make link from string key and index.
-//  Base(sgkey_t, CLID, index_type, IProxyDictWithPool*)
+//  Base(sgkey_t, CLID, index_type, IProxyDict*)
 //   Make link from hashed key and index.
-//  Base(const ID_type&, CLID, index_type, const void*, IProxyDictWithPool*)
+//  Base(const ID_type&, CLID, index_type, const void*, IProxyDict*)
 //   Make link from string key, index, and element pointer.
-//  Base(sgkey_t, CLID, index_type, const void*, IProxyDictWithPool*)
+//  Base(sgkey_t, CLID, index_type, const void*, IProxyDict*)
 //   Make link from hashed key, index, and element pointer.
-//  Base(const_pointer_t, CLID, index_type, IProxyDictWithPool*)
+//  Base(const_pointer_t, CLID, index_type, IProxyDict*)
 //   Make link from an index and a pointer to the container.
+//  Base(const ElementLink<OTHER>&, FROM_TRAITS*, TO_TRAITS*)
+//   Derived->base link conversion.
 //  SG::DataProxy* proxy() const
 //   Return the SG proxy for the container holding the element.
 //  void* storableBase(castfn_t*, CLID)
 //   Return a pointer to the currently-referenced container object.
-//  bool setStorableObject (const_pointer_t, CLID, bool, IProxyDictWithPool*)
+//  bool setStorableObject (const_pointer_t, CLID, bool, IProxyDict*)
 //   Set the container referenced by the link to a pointer.
-//  bool toIndexedElement (const_pointer_t, CLID, index_type,IProxyDictWithPool*)
+//  bool toIndexedElement (const_pointer_t, CLID, index_type,IProxyDict*)
 //   Set the to an element given by index and pointer to container.
-//  resetWithKeyAndIndex (const ID_type&, CLID, index_type, IProxyDictWithPool*)
+//  resetWithKeyAndIndex (const ID_type&, CLID, index_type, IProxyDict*)
 //   Set the link to an element given by string key and index.
-//  resetWithKeyAndIndex (sgkey_t, CLID, index_type, IProxyDictWithPool*)
+//  resetWithKeyAndIndex (sgkey_t, CLID, index_type, IProxyDict*)
 //   Set the link to an element given by string key and index.
 //  void setIndex(index_type)
 //   Set the index part of the link.
@@ -126,6 +124,8 @@ namespace SG {
 //   Set the cached element stored in the link.
 //  bool getCachedElement (const T* &) const
 //   Retrieve the cached element from the link.
+//  const SG::DataProxyHolder& proxyHolder() const
+//   Return a reference to the internal proxy holder object.
 
 
 
@@ -168,6 +168,7 @@ template <class STORABLE,
 class ElementLinkTraits1
 {
 public:
+  typedef STORABLE Storable;
   typedef typename SG::GenerateIndexingPolicy<STORABLE>::type IndexingPolicy;
   typedef typename SG::GenericElementLinkBase<IndexingPolicy> Base;
 };
@@ -181,6 +182,7 @@ template <class STORABLE, class BASE_VALUE_TYPE>
 class ElementLinkTraits1<STORABLE, BASE_VALUE_TYPE*, true>
 {
 public:
+  typedef STORABLE Storable;
   typedef ElementLinkBase Base;
   typedef ForwardIndexingPolicy<STORABLE> IndexingPolicy;
 };
@@ -198,6 +200,7 @@ class ElementLinkTraits
   : public ElementLinkTraits1<STORABLE>
 {
 public:
+  typedef STORABLE Storable;
   typedef typename ElementLinkTraits1<STORABLE>::Base Base;
   typedef typename ElementLinkTraits1<STORABLE>::IndexingPolicy IndexingPolicy;
 };
@@ -223,6 +226,7 @@ template<>                                                              \
 class ElementLinkTraits<TYPE>                                           \
 {                                                                       \
 public:                                                                 \
+  typedef TYPE Storable;                                                \
   typedef ElementLinkBase Base;                                         \
   typedef ForwardIndexingPolicy<TYPE, VALUE_TYPE*> IndexingPolicy;      \
 };                                                                      \

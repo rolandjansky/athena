@@ -12,16 +12,19 @@
 
 #undef NDEBUG
 #include "AthLinks/DataLinkBase.h"
-#include "AthLinks/tools/SGgetDataSource.h"
 #include "AthLinks/exceptions.h"
+#include "SGTools/CurrentEventStore.h"
 #include "SGTools/CLASS_DEF.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include <iostream>
 #include <cassert>
 
 
-#include "TestStore.icc"
-#include "expect_exception.icc"
+#include "SGTools/TestStore.h"
+#include "TestTools/expect_exception.h"
+
+
+using namespace SGTest;
 
 
 class DataLinkBase_test
@@ -34,6 +37,8 @@ public:
     : DataLinkBase (key, clid, 0) {}
   DataLinkBase_test(DataLinkBase::const_pointer_t obj,
                     CLID clid) : DataLinkBase (obj, clid, 0) {}
+  DataLinkBase_test(sgkey_t key, const SG::DataProxyHolder& holder)
+    : DataLinkBase (key, holder) {}
 
   using DataLinkBase::storableBase;
   using DataLinkBase::toStorableObject;
@@ -181,6 +186,16 @@ void test1()
   assert (l4.storableBase (foocast, fooclid) == foo1);
   assert (l4.proxy()->name() == "foo1");
   assert (l4.source() == &store);
+
+  SG::DataProxyHolder holder;
+  holder.toIdentifiedObject ("foo1", fooclid, 0);
+  DataLinkBase_test l5 (sgkey1, holder);
+  assert (!l5.isDefault());
+  assert (l5.dataID() == "foo1");
+  assert (l5.key() == sgkey1);
+  assert (l5.storableBase (foocast, fooclid) == foo1);
+  assert (l5.proxy()->name() == "foo1");
+  assert (l5.source() == &store);
 }
 
 
@@ -230,13 +245,6 @@ void test2()
 }
 
 
-IProxyDictWithPool* storePtr2 = &store;
-IProxyDictWithPool** getTestDataSourcePointer2 (const std::string&)
-{
-  return &storePtr2;
-}
-
-
 // alt store
 void test3()
 {
@@ -244,17 +252,8 @@ void test3()
 
   TestStore store2;
 
-  assert (DataLinkBase::defaultDataSource() == &store);
-  SG::getDataSourcePointerFunc_t* old_fn = SG::getDataSourcePointerFunc;
-  SG::getDataSourcePointerFunc = getTestDataSourcePointer2;
-  assert (DataLinkBase::defaultDataSource() == &store);
-  storePtr2 = &store2;
-  assert (DataLinkBase::defaultDataSource() == &store);
-  DataLinkBase::resetCachedSource();
-  assert (DataLinkBase::defaultDataSource() == &store2);
-
-  SG::getDataSourcePointerFunc = old_fn;
-  DataLinkBase::resetCachedSource();
+  assert (SG::CurrentEventStore::setStore(&store2) == &store);
+  assert (SG::CurrentEventStore::setStore(&store) == &store2);
 }
 
 
@@ -300,7 +299,7 @@ void test5()
 int main()
 {
   Athena::getMessageSvcQuiet = true;
-  SG::getDataSourcePointerFunc = getTestDataSourcePointer;
+  SGTest::initTestStore();
 
   test1();
   test2();

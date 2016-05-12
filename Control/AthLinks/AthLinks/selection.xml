@@ -14,7 +14,7 @@
        // Tell the object that direct ROOT I/O is happening:
        m_isDirectIO = true;
        // Let the object prepare for being used:
-       newObj->toTransient();
+       if (newObj) newObj->toTransient();
     ]]>
   </read>
 
@@ -42,7 +42,7 @@
         >
     <![CDATA[
        // Let the object prepare for being used:
-       newObj->toTransient();
+       if (newObj) newObj->toTransient();
     ]]>
   </read>
 

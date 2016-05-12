@@ -99,6 +99,8 @@ class AssociationMap
 		      const object_type*           objectPointer,
 		      const asso_container_type*   assoContainer,
 		      const asso_type*             assoPointer);
+  void addAssociation(const object_link& objectLink,
+                      const asso_link& assoLink);
   /*@}*/
 
   /*! \name Object and Association Iterators

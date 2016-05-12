@@ -5,12 +5,15 @@
 #undef NDEBUG
 
 #include "AthLinks/AssociationMap.h"
+#include "SGTools/CurrentEventStore.h"
 #include "SGTools/CLASS_DEF.h"
 #include <iostream>
 #include <vector>
 
 
-#include "TestStore.icc"
+#include "SGTools/TestStore.h"
+using namespace SGTest;
+
 
 class Cluster
 {
@@ -81,7 +84,8 @@ CLASS_DEF( TTAss, 67890, 1 )
 
 int main() 
 {
-  SG::getDataSourcePointerFunc = getTestDataSourcePointer;
+  initTestStore();
+
   std::cout << " *** AssociationMap test in progress: " << std::endl;
 
   std::cout << "Build fake data and associations:" << std::endl;
@@ -129,7 +133,12 @@ int main()
       try {
 	if ( 0 == tCtr ) {
 	  aMap->addAssociation(cCont,(*cCont)[cCtr],tCont,(*tCont)[tCtr]);
-	} else {
+	}
+	else if ( 1 == tCtr ) {
+	  aMap->addAssociation(ElementLink<ClusterContainer> ("cCont", cCtr),
+                               ElementLink<TrackContainer> ("tCont", tCtr));
+	}
+        else {
 	  aMap->addAssociation(cCont,cCtr,tCont,tCtr);
 	}
       } catch(std::exception& error) {
@@ -156,6 +165,7 @@ int main()
 	  cIter != cEnd;
 	  ++cIter ) {
       const Cluster * const theCluster = (*cIter).getObject();
+      assert (*(cIter.getObjectLink()) == theCluster);
       std::cout << "\tCluster "
 		<< ": " /*<< theCluster->getE()*/ << std::endl;
       PTAss::asso_iterator tEnd = cstMap->endAssociation(theCluster);
@@ -163,6 +173,7 @@ int main()
 	    tIter != tEnd;
 	    ++tIter ) {
 	const Track * const theTrack = *tIter;
+        assert (*(tIter.getLink()) == theTrack);
 	std::cout << "\t\tTrack "
 		  << ": " << theTrack->getP() << std::endl;
 	const Track * const assoTrack = cstMap->getAssociation( tIter );
