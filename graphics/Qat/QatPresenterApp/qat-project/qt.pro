@@ -18,6 +18,8 @@ target.path=/usr/local/bin
 templates.path  = /usr/local/share/templates
 templates.files = TEMPLATES/*.cpp TEMPLATES/*.pro
 INSTALLS += templates
-
+mac {
+  CONFIG -= app_bundle
+}
 
 

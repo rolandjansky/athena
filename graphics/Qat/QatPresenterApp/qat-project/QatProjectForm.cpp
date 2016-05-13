@@ -67,8 +67,12 @@ void QatProjectForm::createProject() {
   }
   mkdir((directoryName+"/src").c_str(),0755);
   system ((std::string("cp /usr/local/share/templates/qt.pro ") + directoryName+"/src").c_str()); 
-  system (("sed -i  s/\\<app\\>/" + programName + "/g " + directoryName + "/src/qt.pro").c_str());
 
+#ifdef __APPLE__
+  system (("sed -i .orig s/\"<app>\"/" + programName + "/g " + directoryName + "/src/qt.pro").c_str());
+#else
+  system (("sed -i  s/\\<app\\>/" + programName + "/g " + directoryName + "/src/qt.pro").c_str());
+#endif
   // There are eight templates.  Choose one of them:
   if (plotView) {
     if (type==ZeroToZero) system (("cp /usr/local/share/templates/templateZeroToZeroView.cpp " + directoryName + "/src/" + programName + ".cpp").c_str()); 
@@ -93,13 +97,15 @@ void QatProjectForm::createProject() {
 }
 
 void QatProjectForm::editingFinished() {
+  char BUFF[1024];
   if (!ui.programNameLineEdit->text().isEmpty() && ui.directoryLabel->text().isEmpty()) 
-    ui.directoryLabel->setText(QString(get_current_dir_name())+QString("/")+ui.programNameLineEdit->text().toUpper()); 
+    ui.directoryLabel->setText(QString(getcwd(BUFF,1024))+QString("/")+ui.programNameLineEdit->text().toUpper()); 
 }
 
 void QatProjectForm::changeDir() {
+  char BUFF[1024];
   QString fileName = QFileDialog::getSaveFileName(this, tr("Set Project Directory"),
-						  get_current_dir_name(),
+						  getcwd(BUFF,1024),
 						  QString(""),
 						  NULL,
 						  QFileDialog::ShowDirsOnly);
