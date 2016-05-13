@@ -53,8 +53,8 @@ public:
 #else 
   AthenaHitsVector<T>(std::string collectionName="DefaultCollectionName")
     {
-      IMessageSvc* m_msgSvc(Athena::getMessageSvc());
-      MsgStream log(m_msgSvc, "AthenaHitsVector");
+      IMessageSvc* msgSvc(Athena::getMessageSvc());
+      MsgStream log(msgSvc, "AthenaHitsVector");
       log << MSG::DEBUG << " initialized." << endreq;
       
       m_name = collectionName;
