@@ -1,6 +1,7 @@
 package QatPresenter
 
 author Joe Boudreau
+manager Riccardo Maria Bianchi
 
 use AtlasPolicy         AtlasPolicy-*
 use VP1Qt               VP1Qt-*                  graphics/VP1
