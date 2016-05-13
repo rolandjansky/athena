@@ -48,6 +48,9 @@ class EFTauDiKaonHypo : public HLT::HypoAlgo {
   float m_massTrkSysMax;
   float m_massTrkSysKaonMin;
   float m_massTrkSysKaonMax;
+  float m_massTrkSysKaonPiMin;
+  float m_massTrkSysKaonPiMax;
+  float m_targetMassTrkSysKaonPi;
   float m_EtCalibMin;
   float m_leadTrkPtMin;
   int m_nTrackMax;
@@ -61,6 +64,7 @@ class EFTauDiKaonHypo : public HLT::HypoAlgo {
   /** variables used for cuts in hypo algorithm */   
   float m_massTrkSys;
   float m_massTrkSysKaon;
+  float m_massTrkSysKaonPi;
   float m_leadTrkPt;
   float m_EtCalib;
   int m_nTrack;
@@ -73,6 +77,7 @@ class EFTauDiKaonHypo : public HLT::HypoAlgo {
   int  m_cutCounter;
   float m_massTrkSysAccepted;
   float m_massTrkSysKaonAccepted;
+  float m_massTrkSysKaonPiAccepted;
   float m_leadTrkPtAccepted;
   float m_ptAccepted;
   float m_nTrackAccepted;
