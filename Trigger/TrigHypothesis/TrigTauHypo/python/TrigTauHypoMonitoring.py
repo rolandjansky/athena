@@ -44,8 +44,8 @@ class TrigTauHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         elif (myName.find("tracktwo") > -1 or myName.find("loose1") > -1 or myName.find("medium1") > -1 or myName.find("tight1") > -1 or myName.find("FTK") > -1):
             cuts=['Input','has tau details','E_{T} calib','tk. number','score cut', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
-        elif (myName.find("dikaon") > -1 or myName.find("singlepion") > -1):
-            cuts=['Input','E_{T} calib','tk. number','lead tr pt','massTrkSys','massTrkSysKaon','EMPOverTrkSysP', 'etOverPtLeadTrk', 'dRmax', ' ', ' ', ' ', ' ']
+        elif (myName.find("kaon") > -1 or myName.find("pion") > -1):
+            cuts=['Input', 'tau cand' ,'E_{T} calib','tk. number','lead tr pt','massTrkSys','massTrkSysKaon','massTrkSysKaonPi','EMPOverTrkSysP', 'etOverPtLeadTrk', 'dRmax', ' ', ' ', ' ', ' ']
 
         elif myName.find("ditau") > -1:
             cuts=['Input','good vtx/trk', 'match', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
@@ -327,6 +327,7 @@ class EFTauDiKaonHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
         self.Histograms += [defineHistogram('NWideTrack',type='TH1F',title='Tau nWideTrack Passed', xbins=10, xmin=-0.5,xmax=9.5)]
         self.Histograms += [defineHistogram('MassTrkSys',type='TH1F',title='Tau massTrkSys Passed', xbins=50, xmin=0.,xmax=2000.)]
         self.Histograms += [defineHistogram('MassTrkSysKaon',type='TH1F',title='Tau massTrkSysKaon Passed', xbins=50, xmin=0.,xmax=2000.)]
+        self.Histograms += [defineHistogram('MassTrkSysKaonPi',type='TH1F',title='Tau massTrkSysKaonPi Passed', xbins=50, xmin=0.,xmax=2000.)]
         self.Histograms += [defineHistogram('LeadTrkPt',type='TH1F',title='Tau leadTrkPt Passed', xbins=50, xmin=0.,xmax=50000.)]
         self.Histograms += [defineHistogram('DR',type='TH1F',title='Tau dRmax Passed', xbins=40, xmin=0.,xmax=0.4)]
         self.Histograms += [defineHistogram('EtOverPtLeadTrk',type='TH1F',title='Tau etOverPtLeadTrk Passed', xbins=50, xmin=0.,xmax=5.)]

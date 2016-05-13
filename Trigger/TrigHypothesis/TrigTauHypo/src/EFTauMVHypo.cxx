@@ -252,7 +252,7 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
     m_mon_ptAccepted = EFet;
 
     m_numTrack = (*tauIt)->nTracks();
-    m_numWideTrack = (*tauIt)->nWideTracks();
+    m_numWideTrack = (*tauIt)->nTracksIsolation();
     
     if( msgLvl() <= MSG::DEBUG ){
       msg() << MSG::DEBUG << " REGTEST: Track size "<<m_numTrack <<endreq;	
