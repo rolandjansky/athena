@@ -39,3 +39,6 @@ McEventCollection::find(int eventNumber) const {
 
 
 }
+
+
+template class ClassName<McEventCollection>;

@@ -141,7 +141,7 @@ int main() {
   pTruth->push_back(pEvent);
   pTruth->push_back(buildEvent());  //a copy
   const bool SETCONST(false);
-  pStore->record(pTruth, HepMcParticleLink::DEFAULTKEY, SETCONST); //non-modifiable
+  pStore->record(pTruth, HepMcParticleLink::s_DEFAULTKEY, SETCONST); //non-modifiable
   list<GenParticle*> theGammas;
   HepMC::copy_if( pEvent->particles_begin(), pEvent->particles_end(),
 		  back_inserter(theGammas), is_photon() );

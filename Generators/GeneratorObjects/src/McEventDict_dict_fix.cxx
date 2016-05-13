@@ -592,8 +592,8 @@ void HepMC__GenParticle_dict::method_6575( void* o, const std::vector<void*>& ar
 namespace {
     struct Dictionaries {
 	Dictionaries() {
-	    HepMC__GenParticle_dict();
-	    HepMC__GenVertex_dict();
+            HepMC__GenParticle_dict dict1;
+	    HepMC__GenVertex_dict dict2;
 	    Class::resolvePending();
 	}
     };

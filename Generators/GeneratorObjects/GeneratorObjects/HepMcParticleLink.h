@@ -32,8 +32,20 @@ public:
   /// \name structors
   //@{
   HepMcParticleLink() { init_dict(); }
+  HepMcParticleLink(IProxyDict* sg)
+    : m_have_particle(false)
+  {
+    m_ptrs.m_dict = sg;
+  }
   HepMcParticleLink(barcode_type barCode, uint32_t eventIndex = 0) :
     m_extBarcode(barCode, eventIndex) { init_dict(); }
+  HepMcParticleLink(barcode_type barCode, uint32_t eventIndex,
+                    IProxyDict* sg)
+    : m_extBarcode(barCode, eventIndex),
+      m_have_particle(false)
+  {
+    m_ptrs.m_dict = sg;
+  }
   HepMcParticleLink(const HepMC::GenParticle* p, uint32_t eventIndex = 0);
   HepMcParticleLink(const HepMcParticleLink& rhs) : 
     m_ptrs(rhs.m_ptrs),
@@ -82,9 +94,9 @@ public:
   };
   //@}
   
-  static const std::string DEFAULTKEY;
-  static const std::string DC2DEFAULTKEY;
-  static const std::string AODKEY;
+  static const std::string s_DEFAULTKEY;
+  static const std::string s_DC2DEFAULTKEY;
+  static const std::string s_AODKEY;
 
   bool isValid() const { return (0 != cptr()); }
   const HepMC::GenParticle* cptr() const;
@@ -131,15 +143,10 @@ public:
 ;
 
 
-  // Reset the static cached dictionary pointer.
-  // Sometimes we can get the wrong one if these objects get constructed
-  // too early during program initialization, such as when reading
-  // dictionaries.
-  static void resetCachedDictionary();
-
  private:
-  static std::string HOSTKEY;
-  static IProxyDict** s_defsource_ptr;
+  friend class HepMcParticleLinkCnv_p1;
+
+  static std::string s_HOSTKEY;
 
   // We need to remember the default data source when we're constructed.
   // But once we have the particle pointer, we don't need it any more.

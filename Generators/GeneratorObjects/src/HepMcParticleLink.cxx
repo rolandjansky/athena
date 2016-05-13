@@ -14,16 +14,15 @@
 #include "HepMC/GenEvent.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "AthLinks/tools/SGgetDataSource.h"
+#include "SGTools/CurrentEventStore.h"
 #include "SGTools/DataProxy.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
 
-const std::string HepMcParticleLink::DEFAULTKEY("TruthEvent");
-const std::string HepMcParticleLink::DC2DEFAULTKEY("G4Truth");
-const std::string HepMcParticleLink::AODKEY("GEN_AOD");
-std::string HepMcParticleLink::HOSTKEY;
-IProxyDict** HepMcParticleLink::s_defsource_ptr = 0;
+const std::string HepMcParticleLink::s_DEFAULTKEY("TruthEvent");
+const std::string HepMcParticleLink::s_DC2DEFAULTKEY("G4Truth");
+const std::string HepMcParticleLink::s_AODKEY("GEN_AOD");
+std::string HepMcParticleLink::s_HOSTKEY;
 
 namespace {
   MsgStream& mlog() {
@@ -54,13 +53,13 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const {
     }
     CLID clid = ClassID_traits<McEventCollection>::ID();
     const McEventCollection* pEvtColl(0);
-    if(HOSTKEY.empty() ) {
+    if(s_HOSTKEY.empty() ) {
       if (!find_hostkey()) return 0;
     }
-    SG::DataProxy* proxy = m_ptrs.m_dict->proxy (clid, HOSTKEY);
+    SG::DataProxy* proxy = m_ptrs.m_dict->proxy (clid, s_HOSTKEY);
     if (!proxy) {
       if (!find_hostkey()) return 0;
-      proxy = m_ptrs.m_dict->proxy (clid, HOSTKEY);
+      proxy = m_ptrs.m_dict->proxy (clid, s_HOSTKEY);
     }
     if (proxy && 
 	(0 != (pEvtColl = SG::DataProxy_cast<McEventCollection> (proxy)))) {
@@ -89,34 +88,10 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const {
 
 // This is a bit overly complicated at the moment in order to work
 // with both the old and new DataModel.
-#if 0
 void HepMcParticleLink::init_dict()
 {
   m_have_particle = false;
-  if (!s_defsource_ptr)
-    s_defsource_ptr = SG::getDataSourcePointer ("StoreGateSvc");
-  m_ptrs.m_dict = *s_defsource_ptr;
-}
-#endif
-namespace {
-template <typename T>
-IProxyDict** dict_compat_helper (T** p, int& offset)
-{
-  T* foo = *p;
-  IProxyDict* bar = foo;
-  offset = (char*)bar - (char*)foo;
-  return reinterpret_cast<IProxyDict**>(p);
-}
-}
-void HepMcParticleLink::init_dict()
-{
-  m_have_particle = false;
-  static int offset = 0;
-  if (!s_defsource_ptr) {
-    s_defsource_ptr = dict_compat_helper (SG::getDataSourcePointer ("StoreGateSvc"),
-                                          offset);
-  }
-  m_ptrs.m_dict = (IProxyDict*)((char*)*s_defsource_ptr + offset);
+  m_ptrs.m_dict = SG::CurrentEventStore::store();
 }
 
 
@@ -125,15 +100,15 @@ bool HepMcParticleLink::find_hostkey() const
   static unsigned short msgCount(0);
   assert (!m_have_particle);
   CLID clid = ClassID_traits<McEventCollection>::ID();
-  HOSTKEY.clear();
-  if (m_ptrs.m_dict->proxy (clid, DEFAULTKEY))
-    HOSTKEY=DEFAULTKEY;
-  else if (m_ptrs.m_dict->proxy (clid, DC2DEFAULTKEY))
-    HOSTKEY=DC2DEFAULTKEY;
-  else if (m_ptrs.m_dict->proxy (clid, AODKEY))
-    HOSTKEY=AODKEY;
-  if (!HOSTKEY.empty()) {
-    mlog() << MSG::INFO << "find_hostkey: Using " << HOSTKEY
+  s_HOSTKEY.clear();
+  if (m_ptrs.m_dict->proxy (clid, s_DEFAULTKEY))
+    s_HOSTKEY=s_DEFAULTKEY;
+  else if (m_ptrs.m_dict->proxy (clid, s_DC2DEFAULTKEY))
+    s_HOSTKEY=s_DC2DEFAULTKEY;
+  else if (m_ptrs.m_dict->proxy (clid, s_AODKEY))
+    s_HOSTKEY=s_AODKEY;
+  if (!s_HOSTKEY.empty()) {
+    mlog() << MSG::INFO << "find_hostkey: Using " << s_HOSTKEY
         <<" as McEventCollection key for this job " << endreq;
     return true;
   }
@@ -154,11 +129,3 @@ bool HepMcParticleLink::find_hostkey() const
 }
 
 
-// Reset the static cached dictionary pointer.
-// Sometimes we can get the wrong one if these objects get constructed
-// too early during program initialization, such as when reading
-// dictionaries.
-void HepMcParticleLink::resetCachedDictionary()
-{
-  s_defsource_ptr = 0;
-}
