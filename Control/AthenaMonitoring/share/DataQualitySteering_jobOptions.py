@@ -248,9 +248,11 @@ if DQMonFlags.doMonitoring():
    local_logger.debug('DQ Post-Setup Configuration')
    for tool in monToolSet_after-monToolSet_before:
       # stop lumi access if we're in MC or enableLumiAccess == False
-      if globalflags.DataSource.get_Value() == 'geant4' or not DQMonFlags.enableLumiAccess():
-         if 'EnableLumi' in dir(tool):
+      if 'EnableLumi' in dir(tool):
+         if globalflags.DataSource.get_Value() == 'geant4' or not DQMonFlags.enableLumiAccess():
             tool.EnableLumi = False
+         else:
+            tool.EnableLumi = True
       # if we have the FilterTools attribute, assume this is in fact a
       # monitoring tool
       if hasattr(tool, 'FilterTools'):
