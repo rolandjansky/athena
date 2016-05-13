@@ -16,3 +16,6 @@ target.path=/usr/local/bin
 
 INSTALLS += target
 
+mac {
+  CONFIG -= app_bundle
+}
