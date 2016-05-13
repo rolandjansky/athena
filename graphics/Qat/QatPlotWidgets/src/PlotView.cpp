@@ -864,7 +864,7 @@ void PlotView::resizeEvent (QResizeEvent *event) {
   // This is here to prevent funny sizes appearing during resize:
   create();
 
-  QSize size=event->size();
+  //QSize size=event->size(); // size not used anymore...
   //int h=size.height();
   //int w=size.width();
 

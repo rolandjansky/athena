@@ -11,7 +11,7 @@ DESTDIR=../../../lib
 FORMS=LabelEditorDialog.ui PVControl.ui PlotDirDialog.ui ParameterDialog.ui
 CONFIG += qt debug 
 QT     += svg 
-
+LIBS = -lQatPlotting -lQatDataModeling -lQatDataAnalysis -lCLHEP
 # Input
 HEADERS += ../QatPlotWidgets/CustomRangeDivider.h \
            ../QatPlotWidgets/RangeDivision.h   \
