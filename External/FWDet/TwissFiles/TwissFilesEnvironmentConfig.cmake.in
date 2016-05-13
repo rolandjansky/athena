@@ -1,0 +1,14 @@
+# This file takes care of setting up environment variables for accessing the
+# Twiss files.
+#
+
+# Set the environment variable(s):
+set( TWISSFILESENVIRONMENT_ENVIRONMENT
+   SET SITEROOT "@SITEROOT@"
+   SET ATLAS_TWISSFILES "@ATLAS_TWISSFILES@"
+   FORCESET TwissFilesPATH
+   "\${ATLAS_TWISSFILES}/@TwissFiles_native_version@"
+   APPEND DATAPATH
+   "\${ATLAS_TWISSFILES}/@TwissFiles_native_version@" )
+
+# Silently declare the module found:
