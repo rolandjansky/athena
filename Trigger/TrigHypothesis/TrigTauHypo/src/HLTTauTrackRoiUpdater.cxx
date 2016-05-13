@@ -13,13 +13,16 @@
 
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
-
+#include "TrkTrackSummary/TrackSummary.h"
 
 HLTTauTrackRoiUpdater::HLTTauTrackRoiUpdater(const std::string & name, ISvcLocator* pSvcLocator) 
   : HLT::FexAlgo(name, pSvcLocator)
 {
   declareProperty("InputTrackCollection", m_InputTrackColl = "TrigFastTrackFinder_TauCore");
   declareProperty("z0HalfWidth",          m_z0HalfWidth = 0.4);
+  declareProperty("nHitPix",              m_nHitPix = 2);
+  declareProperty("nSiHoles",             m_nSiHoles = 2);
+
 }
 
 HLTTauTrackRoiUpdater::~HLTTauTrackRoiUpdater()
@@ -84,12 +87,14 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
   // Retrieve last container to be appended
   foundTracks = vectorFoundTracks.back();
 
-  msg() << MSG::DEBUG << " Input track collection has size " << foundTracks->size() << endreq;
+  if(foundTracks) msg() << MSG::DEBUG << " Input track collection has size " << foundTracks->size() << endreq;
+  else msg() << MSG::DEBUG << " Input track collection not found " << endreq;  
 
   if(foundTracks){
 
     const Trk::Track *leadTrack = 0;
     const Trk::Perigee *trackPer = 0;
+    const Trk::TrackSummary* summary = 0;
     float trkPtMax = 0;
     
     TrackCollection::const_iterator it = foundTracks->begin();
@@ -97,34 +102,80 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
 
     // Find leading track
 
-    for (;it!=itEnd;it++){
  
-     const Trk::Track* track = *it;
-     trackPer = track->perigeeParameters();
 
-     if(trackPer){
+    for (;it!=itEnd;it++){
+
+      const Trk::Track* track = *it;
+
+      trackPer = track->perigeeParameters();
+      summary = track->trackSummary();
+
+ 
+      if(summary==0){
+        msg() << MSG::DEBUG << " track summary not available in RoI updater " << trkPtMax << endreq;
+      }
+
+ 
+
+      if(trackPer && summary){
+
+ 	float trackPt = trackPer->pT();
+
+
+	if ( trackPt > trkPtMax ) {
+
+
+	  int nPix  = summary->get(Trk::numberOfPixelHits);
+	  if(nPix<0) nPix=0;
+
+	  if(nPix < m_nHitPix) {
+
+	    msg() << MSG::DEBUG << "Track rejected because of nHitPix " << nPix << " < " << m_nHitPix << endreq;
+
+	    continue;
+
+	  }
+
+ 
+	  int nPixHole = summary->get(Trk::numberOfPixelHoles);
+	  if (nPixHole < 0) nPixHole = 0;
 	
-       float trackPt = trackPer->pT()*1e-3;
-       if ( trackPt > trkPtMax ) {
-	 leadTrack = (*it);
-	 trkPtMax = trackPt;
-       }
-
-     }
+	  int nSCTHole = summary->get(Trk::numberOfSCTHoles);
+	  if (nSCTHole < 0) nSCTHole = 0;
+	
+	  if((nPixHole + nSCTHole) > m_nSiHoles) {
+	    
+	    msg() << MSG::DEBUG << "Track rejected because of nSiHoles " << nPixHole + nSCTHole << " > " << m_nSiHoles << endreq;
+	    
+	    continue;
+	  
+	  }
+	
+		  
+	  leadTrack = (*it);
+	  trkPtMax = trackPt;
+	  
+	}
+	
+	
+	
+      }
 
     }
+
 
     if(leadTrack) {
       msg() << MSG::DEBUG << " leading track pT " << trkPtMax << endreq;
     }
     else msg() << MSG::DEBUG << " no leading track pT found " << endreq;
-        
+    
     if(leadTrack){
       leadTrkZ0 = leadTrack->perigeeParameters()->parameters()[Trk::z0];
     }
-
+    
   }
-
+  
   float z0Min = leadTrkZ0 - m_z0HalfWidth;
   float z0Max = leadTrkZ0 + m_z0HalfWidth;
 
@@ -141,13 +192,13 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
   
   if ( HLT::OK !=  attachFeature(outputTE, outRoi, roiName) ) {
     ATH_MSG_ERROR("Could not attach feature to the TE");
-       return HLT::NAV_ERROR;
+    return HLT::NAV_ERROR;
   }
   else {
     ATH_MSG_DEBUG("REGTEST: attached RoI " << roiName << *outRoi);
   }
   
-
+  
   return HLT::OK;
-
+  
 }

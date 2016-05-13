@@ -48,23 +48,34 @@ class EFTauMVHypo : public HLT::HypoAlgo {
   /** min numTrack cut **/
   int m_numTrackMin;
   int m_numTrackMax;
+  int m_numWideTrackMax;
 
   double m_EtCalibMin;
 
   int m_level;
   int m_method;
 
+  bool m_highpt;
+  double m_highpttrkthr;
+  double m_highptidthr;
+  double m_highptjetthr;
+
   /** min BDTScore cut **/
   //double m_BDTScoreMin;
 
   /** variables used for cuts in hypo algorithm */   
   int m_numTrack;
-
+  int m_numWideTrack;
+  
   double m_LLHScore;
   double m_BDTScore;
 
   /** for monitoring */
   int  m_cutCounter;
+  double m_mon_ptAccepted;
+  int m_mon_nTrackAccepted;
+  int m_mon_nWideTrackAccepted;
+
   std::string s_cut_level;
   std::map<std::string,TGraph> m_cuts;
   TGraph *OneProngGraph,*MultiProngGraph;

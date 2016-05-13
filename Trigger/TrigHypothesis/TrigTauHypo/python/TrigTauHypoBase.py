@@ -7,16 +7,11 @@
 ######################################################################
 
 from TrigTauHypo.TrigTauHypoConf import *
-from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
 
 # monitoring part, to disable set topOption TriggerFlags.enableMonitoring = []
 from TrigTauHypo.TrigTauHypoMonitoring \
-     import setTauMonTools, setTauT2IDMonTools, setTauT2TauMonTools, setTauEFMonTools, setHLTTrackPreselMonTools, setHLTCaloPreselMonTools
-
-from TriggerMenuPython.ChainTemplate import FreeStore
-
-hypos = FreeStore()
+     import setTauMonTools, setTauT2IDMonTools, setTauT2TauMonTools, setHLTTrackPreselMonTools, setHLTCaloPreselMonTools
 
 from TrigTauHypo.TrigTauHypoDefaults import *
 
@@ -48,6 +43,19 @@ class HLTTrackTauHypoBase(HLTTrackPreSelHypo):
     def __init__(self, name):
         super(HLTTrackTauHypoBase, self).__init__(name)
         setHLTTrackPreselMonTools(self)
+        #setTauMonTools(self)
+
+class HLTTrackTauHypo_rejectNoTracks(HLTTrackTauHypoBase):
+    __slots__ = []
+    def __init__(self, name="HLTTrackTauHypo_rejectNoTracks"):
+        super(HLTTrackTauHypo_rejectNoTracks, self).__init__(name)
+        self.rejectNoTracks = True
+        self.TracksInCoreCut = 999
+        self.TracksInIsoCut = 999
+        self.DeltaRLeadTrkRoI = 0.0
+        self.TrackVariableOuter = 0.0
+        self.TrackVariableCore = 0.0
+        #setHLTTrackPreselMonTools(self)
         #setTauMonTools(self)
 
 class HLTTrackTauHypo (HLTTrackTauHypoBase):
