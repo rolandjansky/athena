@@ -21,6 +21,7 @@ SOURCES += QatTabBar.cpp \
            PresenterTreeWidget.cpp \
            PresenterApplication.cpp 
 
+LIBS=-L/usr/local/lib -lQatSystemInterfaces -lQatPlotWidgets -lQatPlotting -lQatDataModeling -lQatDataAnalysis -lCLHEP
 target.path=/usr/local/lib
 headers.path=/usr/local/include/QatPresenter
 headers.files= ../QatPresenter/*.h ../QatPresenter/*.icc ui_PresenterApplication.h
