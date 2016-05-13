@@ -2,6 +2,7 @@ package QatSystemInterfaces
 
 author Joe Boudreau  <boudreau@pitt.edu>
 author Vakho Tsulaia <Vakhtang.Tsulaia@cern.ch>
+manager Riccardo Maria Bianchi <rbianchi@cern.ch>
 
 use AtlasPolicy     AtlasPolicy-*
 use VP1Qt           VP1Qt-*            graphics/VP1

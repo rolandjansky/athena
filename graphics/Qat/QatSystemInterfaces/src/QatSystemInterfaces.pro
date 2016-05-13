@@ -16,7 +16,7 @@ HEADERS += ../QatSystemInterfaces/HistoLocator.h \
 
 SOURCES += Serializer.cpp \
            SystemInterface.cpp 
-
+LIBS=-L/usr/local/lib -lQatPlotWidgets -lQatPlotting -lQatDataModeling -lQatDataAnalysis -lCLHEP
 target.path=/usr/local/lib
 headers.path=/usr/local/include/QatSystemInterfaces
 headers.files= ../QatSystemInterfaces/*.h ../QatSystemInterfaces/*.icc
