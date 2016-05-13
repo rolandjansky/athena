@@ -44,11 +44,14 @@ EFTauDiKaonHypo::EFTauDiKaonHypo(const std::string& name,
   declareProperty("massTrkSysMax", m_massTrkSysMax = 1000000000.);
   declareProperty("massTrkSysKaonMin", m_massTrkSysKaonMin = 0.);
   declareProperty("massTrkSysKaonMax", m_massTrkSysKaonMax = 1000000000.);
+  declareProperty("massTrkSysKaonPiMin", m_massTrkSysKaonPiMin = 0.);
+  declareProperty("massTrkSysKaonPiMax", m_massTrkSysKaonPiMax = 1000000000.);
+  declareProperty("targetMassTrkSysKaonPi", m_targetMassTrkSysKaonPi = 0.);
   declareProperty("leadTrkPtMin",  m_leadTrkPtMin  = 0.);
   declareProperty("EtCalibMin",    m_EtCalibMin  = 0.);
   declareProperty("nTrackMin",     m_nTrackMin  = 1);
   declareProperty("nTrackMax",     m_nTrackMax  = 2);
-  declareProperty("nWideTrackMax", m_nWideTrackMax  = 10);
+  declareProperty("nWideTrackMax", m_nWideTrackMax  = 1);
   declareProperty("dRmaxMax",      m_dRmaxMax  = 10.);
   declareProperty("etOverPtLeadTrkMin",    m_etOverPtLeadTrkMin  = 0.);
   declareProperty("etOverPtLeadTrkMax",    m_etOverPtLeadTrkMax  = 10.);
@@ -57,6 +60,7 @@ EFTauDiKaonHypo::EFTauDiKaonHypo(const std::string& name,
   declareMonitoredVariable("CutCounter",	m_cutCounter=0);
   declareMonitoredVariable("MassTrkSys",	m_massTrkSysAccepted =-10.);
   declareMonitoredVariable("MassTrkSysKaon",        m_massTrkSysKaonAccepted =-10.);
+  declareMonitoredVariable("MassTrkSysKaonPi",        m_massTrkSysKaonPiAccepted =-10.);
   declareMonitoredVariable("LeadTrkPt",		m_leadTrkPtAccepted =-10.);
   declareMonitoredVariable("EtCalib",		m_ptAccepted =-10.);
   declareMonitoredVariable("NTrack",		m_nTrackAccepted =-1);
@@ -67,6 +71,7 @@ EFTauDiKaonHypo::EFTauDiKaonHypo(const std::string& name,
 
   m_massTrkSys = 0.;
   m_massTrkSysKaon = 0.;
+  m_massTrkSysKaonPi = 0.;
   m_leadTrkPt = 0.;
   m_nTrack = 0;
   m_nWideTrack = 0;
@@ -102,6 +107,9 @@ HLT::ErrorCode EFTauDiKaonHypo::hltInitialize()
   msg() << MSG::INFO << " REGTEST: param massTrkSysMax " << m_massTrkSysMax <<endreq;
   msg() << MSG::INFO << " REGTEST: param massTrkSysKaonMin " << m_massTrkSysKaonMin <<endreq;
   msg() << MSG::INFO << " REGTEST: param massTrkSysKaonMax " << m_massTrkSysKaonMax <<endreq;
+  msg() << MSG::INFO << " REGTEST: param massTrkSysKaonPiMin " << m_massTrkSysKaonPiMin <<endreq;
+  msg() << MSG::INFO << " REGTEST: param massTrkSysKaonPiMax " << m_massTrkSysKaonPiMax <<endreq;
+  msg() << MSG::INFO << " REGTEST: param targetMassTrkSysKaonPi " << m_targetMassTrkSysKaonPi <<endreq;
   msg() << MSG::INFO << " REGTEST: param leadTrkPtMin " << m_leadTrkPtMin <<endreq;
   msg() << MSG::INFO << " REGTEST: param EtCalibMin " << m_EtCalibMin <<endreq;
   msg() << MSG::INFO << " REGTEST: param nTrackMin (included) " << m_nTrackMin <<endreq;
@@ -114,7 +122,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltInitialize()
 
   msg() << MSG::INFO << " REGTEST: ------ "<<endreq;
   
-  if( ( m_massTrkSysKaonMin >  m_massTrkSysKaonMax ) || ( m_massTrkSysMin >  m_massTrkSysMax ) || ( m_nTrackMin > m_nTrackMax )  || (m_etOverPtLeadTrkMin > m_etOverPtLeadTrkMax) )
+  if( ( m_massTrkSysKaonPiMin >  m_massTrkSysKaonPiMax ) ||  ( m_massTrkSysKaonMin >  m_massTrkSysKaonMax ) || ( m_massTrkSysMin >  m_massTrkSysMax ) || ( m_nTrackMin > m_nTrackMax )  || (m_etOverPtLeadTrkMin > m_etOverPtLeadTrkMax) )
     {
       msg() << MSG::ERROR << "EFTauDiKaonHypo is uninitialized! " << endreq;
       return HLT::BAD_JOB_SETUP;
@@ -150,6 +158,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   m_cutCounter = 0;
   m_massTrkSysAccepted = -10.;
   m_massTrkSysKaonAccepted = -10.;
+  m_massTrkSysKaonPiAccepted = -10.;
   m_leadTrkPtAccepted = -10.;
   m_ptAccepted = -10.;
   m_nTrackAccepted = -1;
@@ -160,6 +169,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
   m_massTrkSys = 0.;
   m_massTrkSysKaon = 0.;
+  m_massTrkSysKaonPi = 0.;
   m_leadTrkPt = 0.;
   m_nTrack = 0;
   m_nWideTrack = 0;
@@ -262,6 +272,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
     // for dikaon mass hypothesis, compute invariant mass with kaon mass
     TLorentzVector my_kaons(0.,0.,0.,0.);
+    std::vector<TLorentzVector> my_trks;
     // need to add checks for valid link
     for (unsigned int i=0;i<(*tauIt)->nTracks();++i) {
       const xAOD::TrackParticle* trk = 0;
@@ -276,11 +287,39 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
         msg() << MSG::WARNING << " REGTEST: EFTauDiKaonHypo, failed to get tau track link! " <<endreq;
       } 
 
-      if(trk) tmpKaon.SetPtEtaPhiM(trk->pt(), trk->eta(), trk->phi(), 493.677);
+      if(trk) {
+         tmpKaon.SetPtEtaPhiM(trk->pt(), trk->eta(), trk->phi(), 493.677);
+         my_trks.push_back(trk->p4());
+      }
       my_kaons = my_kaons + tmpKaon;
     }
     m_massTrkSysKaon = my_kaons.M();
     if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: massTrkSys with kaon mass hypo "<< m_massTrkSysKaon <<endreq;
+
+    // kaon+pi mass hypo
+    double finalKPiMass = 0;
+    if(my_trks.size()==2){
+
+          TLorentzVector tmpKaon;
+          tmpKaon.SetPtEtaPhiM(my_trks.at(0).Pt(), my_trks.at(0).Eta(), my_trks.at(0).Phi(), 493.677);
+          TLorentzVector tmpPion = my_trks.at(1);
+
+          double kPiMass1 = (tmpKaon+tmpPion).M();
+
+          tmpKaon.SetPtEtaPhiM(my_trks.at(1).Pt(), my_trks.at(1).Eta(), my_trks.at(1).Phi(), 493.677);
+          tmpPion = my_trks.at(0);
+
+          double kPiMass2 = (tmpKaon+tmpPion).M();
+
+          if(fabs(kPiMass1 - m_targetMassTrkSysKaonPi) < fabs(kPiMass2 - m_targetMassTrkSysKaonPi))
+          {
+            finalKPiMass = kPiMass1;
+          }else{
+            finalKPiMass = kPiMass2;
+          }
+    }
+    m_massTrkSysKaonPi = finalKPiMass;
+    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: massTrkSys with kaon+pi mass hypo "<< m_massTrkSysKaonPi <<endreq;
 
     if (!( (m_massTrkSys > m_massTrkSysMin) && (m_massTrkSys < m_massTrkSysMax) ) )  continue;
     m_cutCounter++;
@@ -289,6 +328,10 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     if (!( (m_massTrkSysKaon > m_massTrkSysKaonMin) && (m_massTrkSysKaon < m_massTrkSysKaonMax) ) )  continue;
     m_cutCounter++;   
     m_massTrkSysKaonAccepted = m_massTrkSysKaon;
+
+    if (!( (m_massTrkSysKaonPi >= m_massTrkSysKaonPiMin) && (m_massTrkSysKaonPi < m_massTrkSysKaonPiMax) ) )  continue; //use >= otherwise singlepion chain would fail here!
+    m_cutCounter++;
+    m_massTrkSysKaonPiAccepted = m_massTrkSysKaonPi;
 
     // cut on EMPOverTrkSysP:     
     (*tauIt)->detail(xAOD::TauJetParameters::EMPOverTrkSysP, m_EMPOverTrkSysP);
