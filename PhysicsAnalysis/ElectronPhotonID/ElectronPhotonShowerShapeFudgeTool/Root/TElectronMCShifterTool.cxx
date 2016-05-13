@@ -112,6 +112,12 @@ void TElectronMCShifterTool::shiftAll( float eT,
   if(Widths[ElePIDNames::Var::f1].size() != 0){
     f1 = f1 * Widths[ElePIDNames::Var::f1].at(ibin_combined);
   }
+  if(Widths[ElePIDNames::Var::f3].size() != 0){
+    f3 = f3 * Widths[ElePIDNames::Var::f3].at(ibin_combined);
+  }
+  if(Widths[ElePIDNames::Var::weta2].size() != 0){
+    weta2 = weta2 * Widths[ElePIDNames::Var::weta2].at(ibin_combined);
+  }
 
   if(Shifts[ElePIDNames::Var::f1].size() != 0){
     if ( f1 != 0){ f1 = f1 + Shifts[ElePIDNames::Var::f1].at(ibin_combined); }
