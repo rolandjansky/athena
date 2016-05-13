@@ -5,31 +5,6 @@ author Joe Boudreau <boudreau@pitt.edu>
 
 use AtlasPolicy AtlasPolicy-*
 
-use AtlasSimulationRunTime     AtlasSimulationRunTime-* -no_auto_imports
-
-use GeneratorModules    GeneratorModules-*              Generators -no_auto_imports
-
-use G4Field             G4Field-*                       Simulation/G4Utilities -no_auto_imports
-use G4PhysicsLists      G4PhysicsLists-*                Simulation/G4Utilities -no_auto_imports
-use G4UserActions       G4UserActions-*                 Simulation/G4Utilities -no_auto_imports
-
-#  use the all Atlas sub-detector packages 
-use LArDetMgrDetDescrCnv LArDetMgrDetDescrCnv-* LArCalorimeter/LArCnv -no_auto_imports
-
-# SD packages
-
-# AthenaPool stuff
-use AthenaPoolUtilities     AthenaPoolUtilities-*       Database/AthenaPOOL -no_auto_imports
-use AthenaPoolCnvSvc        AthenaPoolCnvSvc-*                Database/AthenaPOOL -no_auto_imports
-use EventSelectorAthenaPool EventSelectorAthenaPool-*   Database/AthenaPOOL -no_auto_imports
-use EventAthenaPool         EventAthenaPool-*           Event -no_auto_imports
-use G4SimAthenaPOOL         G4SimAthenaPOOL-*                Simulation/G4SimCnv -no_auto_imports
-
-# Calorimeter converters
-use CaloDetMgrDetDescrCnv   CaloDetMgrDetDescrCnv-*     Calorimeter/CaloCnv -no_auto_imports
-use CaloIdCnv               CaloIdCnv-*                 Calorimeter/CaloCnv -no_auto_imports
-
- 
 # Install run-time files
 
 apply_pattern declare_joboptions files="-s=../share *.txt *.py"
