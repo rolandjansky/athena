@@ -1,0 +1,65 @@
+utils
+-----
+
+contains makefile and src to build the hc executable, for 
+writing tamplate han config files from input root files ...
+
+% hc
+Usage: hanconfig [OPTIONS] input1.root ... inputN.root
+
+    -o           FILENAME	name of output (filename required)
+    -b,   --base DIR     	use directory DIR as the base for the han config
+    -d,   --dir  DIR     	only directories below DIR where DIR is a structure such as HLT/TRIDT etc
+    -x,          DIR     	exclude directory DIR
+    -r           SRC DST 	remap directory SRC to directory DST
+    -ds,  --desc DESCRIP 	use DESCRIP as the description
+    -t,   --tag  VALUE   	add the VALUE to the list of command per histogram
+    -wc,  --wildcard     	print use hist * rather than a separate entry for each histogram
+    -dr,  --deleteref    	delete unselected histograms
+    -rh,  --relocate     	relocate selected histograms
+    -v,   --verbose      	print verbose output
+    -h,   --help         	display this help
+
+
+
+for instance ...
+
+ hc hid_shifter.root -d HLT/TRIDT -x TestMon > hc.config
+
+will take the directory structure in file eg
+
+  hid_shifter.root
+
+and generate a config from the directory structure hanging from 
+
+  run_253124/HLT/TRIDT
+
+generating the config using HLT (ie the first directory in HLT/TRIDT ) 
+as the base directory, and excluding any directory with the name 
+"TestMon"
+
+To remap a name, eg suppose you have the directory SOME_STUFF in the file, 
+but want this to correspond to a menu side bar item of NICE, then including 
+options
+
+ -r SOME_STUFF NICE
+
+should do this. Any number of remappings of this sort should be possible...
+
+ -r SOME_STUFF NICE  -r ANOTHER EVEN_NICER
+
+The option 
+
+   --deleteref
+
+will delete the histograms that are not selected, so do check the 
+provided configuration before using this option. It does save the
+original file in FILEMAN.bak however for emergencies
+
+
+** NB: If a config output file in not given in the command line it writes **
+**     the config to stdout, and all other documentation and debugging    **
+**     information is written to stderr                          **
+
+12-05-2016
+
