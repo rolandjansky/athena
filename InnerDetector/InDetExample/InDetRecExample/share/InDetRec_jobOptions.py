@@ -882,7 +882,7 @@ else:
 #        InDetPRD_TruthTrajectoryBuilder.OutputLevel = VERBOSE
 
         # --- the (1st) trajectory selector
-        if not InDetFlags.doSLHC():
+        if not InDetFlags.doSLHC() and not InDetFlags.doSplitReco():
             from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectorySelectorID
             InDetTruthTrajectorySelector = InDet__PRD_TruthTrajectorySelectorID(name='InDetTruthTrajectorySelector')
             ToolSvc += InDetTruthTrajectorySelector
@@ -896,7 +896,7 @@ else:
                                                           AssoTool                   = InDetPrdAssociationTool,
                                                           TrackSummaryTool           = InDetTrackSummaryToolSharedHits,
                                                           PRD_TruthTrajectorySelectors  = [ ] )
-        if not InDetFlags.doSLHC():
+        if not InDetFlags.doSLHC() and not InDetFlags.doSplitReco():
             InDetTruthTrackCreation.PRD_TruthTrajectorySelectors  = [ InDetTruthTrajectorySelector ]
 #        InDetTruthTrackCreation.OutputLevel = VERBOSE
         topSequence += InDetTruthTrackCreation
@@ -905,7 +905,10 @@ else:
         include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
         InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PseudoTracks(),
                                                      InDetKeys.PseudoDetailedTracksTruth(),
-                                                     InDetKeys.PseudoTracksTruth())
+                                                     InDetKeys.PseudoTracksTruth(),
+                                                     PixelClusterTruth,
+                                                     SCT_ClusterTruth,
+                                                     TRT_DriftCircleTruth)
 
         from TrkTruthToTrack.TrkTruthToTrackConf import Trk__TruthToTrack
         InDetTruthToTrack  = Trk__TruthToTrack(name         = "InDetTruthToTrack",
@@ -1231,6 +1234,8 @@ else:
       InDetValidation = ConfiguredInDetValidation("",True,InDetFlags.doTruth(),cuts,TrackCollectionKeys,TrackCollectionTruthKeys)
       if InDetFlags.doDBM():
         InDetValidationDBM = ConfiguredInDetValidation("DBM",True,InDetFlags.doTruth(),InDetNewTrackingCutsDBM,TrackCollectionKeysDBM,TrackCollectionTruthKeysDBM)
+      if InDetFlags.doSplitReco():
+        InDetValidationPU = ConfiguredInDetValidation("PU",True,InDetFlags.doTruth(),cuts,[InDetKeys.PseudoTracks()],[InDetKeys.PseudoTracksTruth()],McEventCollectionKey="TruthEvent_PU")
 
     # ntuple creation for validation purposes    
     if (InDetFlags.doNtupleCreation() or InDetFlags.doStandardPlots()) or InDetFlags.doPhysValMon():

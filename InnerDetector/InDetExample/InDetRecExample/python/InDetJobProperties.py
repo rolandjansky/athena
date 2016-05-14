@@ -407,6 +407,12 @@ class doMonitoringAlignment(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class useDynamicAlignFolders(InDetFlagsJobProperty):
+    """ Use to turn on dynamic alignment constants folder scheme (new development for 2016) """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doPerfMon(InDetFlagsJobProperty):
     """ Use to turn on PerfMon """
     statusOn     = True
@@ -1043,6 +1049,12 @@ class pT_SSScut(InDetFlagsJobProperty):
   statusOn     = True
   allowedTypes = ['float']
   StoredValue  = -1
+  
+class doTIDE_AmbiTrackMonitoring(InDetFlagsJobProperty):
+  """ Switch for monitoring track canidates in TIDE Ambi process """
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = False
 
 class ForceCoraCool(InDetFlagsJobProperty):
   """ Use old (non CoolVectorPayload) SCT Conditions """
@@ -2424,6 +2436,8 @@ class InDetJobProperties(JobPropertyContainer):
           print '* use non-standard SCT DCS based on ~20V HV cut'          
     if self.useTrtDCS():
        print '* use TRT DCS'
+    if self.useDynamicAlignFolders():
+       print '* use of Dynamic alignment folder scheme enabled'
 
     if not self.doPRDFormation():
        print '* PRD Formation is off for all technologies'
@@ -2560,6 +2574,7 @@ _list_InDetJobProperties = [Enabled,
                             doMonitoringSCT,
                             doMonitoringTRT,
                             doMonitoringAlignment,
+                            useDynamicAlignFolders,
                             doPerfMon,
                             AODall,
                             useBeamConstraint,
@@ -2652,6 +2667,7 @@ _list_InDetJobProperties = [Enabled,
                             doMinBias,
                             doLowMuRunSetup,
                             doRobustReco,
+                            doTIDE_AmbiTrackMonitoring,
                             doSingleCollisionVertexReco,
                             useMBTSTimeDiff,
                             useNewSiSPSeededTF,

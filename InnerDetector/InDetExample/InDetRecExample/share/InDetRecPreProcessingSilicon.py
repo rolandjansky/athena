@@ -66,8 +66,11 @@ if InDetFlags.doPRDFormation():
             
             # --- new NN prob tool
             MultiplicityContent = [1 , 1 , 1]
-            from SiClusterizationTool.SiClusterizationToolConf import InDet__NnPixelClusterSplitProbTool
-            NnPixelClusterSplitProbTool=InDet__NnPixelClusterSplitProbTool(name                     = "NnPixelClusterSplitProbTool",
+            if InDetFlags.doSLHC():
+                from SiClusterizationTool.SiClusterizationToolConf import InDet__TruthPixelClusterSplitProbTool as PixelClusterSplitProbTool
+            else:
+                from SiClusterizationTool.SiClusterizationToolConf import InDet__NnPixelClusterSplitProbTool as PixelClusterSplitProbTool
+            NnPixelClusterSplitProbTool=PixelClusterSplitProbTool(name                     = "NnPixelClusterSplitProbTool",
                                                                            PriorMultiplicityContent = MultiplicityContent,
                                                                            NnClusterizationFactory  = NnClusterizationFactory,
                                                                            useBeamSpotInfo          = useBeamConstraint)
@@ -79,8 +82,11 @@ if InDetFlags.doPRDFormation():
             clusterSplitProbTool = NnPixelClusterSplitProbTool
             
             # --- new NN splitter
-            from SiClusterizationTool.SiClusterizationToolConf import InDet__NnPixelClusterSplitter
-            NnPixelClusterSplitter=InDet__NnPixelClusterSplitter(name                                = "NnPixelClusterSplitter",
+            if InDetFlags.doSLHC():
+                from SiClusterizationTool.SiClusterizationToolConf import InDet__TruthPixelClusterSplitter as PixelClusterSplitter
+            else:
+                from SiClusterizationTool.SiClusterizationToolConf import InDet__NnPixelClusterSplitter as PixelClusterSplitter
+            NnPixelClusterSplitter=PixelClusterSplitter(name                                = "NnPixelClusterSplitter",
                                                                  NnClusterizationFactory             = NnClusterizationFactory,
                                                                  ThresholdSplittingIntoTwoClusters   = 0.5, # temp.
                                                                  ThresholdSplittingIntoThreeClusters = 0.25, # temp.
@@ -154,7 +160,18 @@ if InDetFlags.doPRDFormation():
       topSequence += InDetPixelClusterization
       if (InDetFlags.doPrintConfigurables()):
          print InDetPixelClusterization
-   
+
+      if InDetFlags.doSplitReco() :
+        InDetPixelClusterizationPU = InDet__PixelClusterization(name                    = "InDetPixelClusterizationPU",
+                                                                clusteringTool          = InDetMergedPixelsTool,
+                                                                gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
+                                                                DetectorManagerName     = InDetKeys.PixelManager(),
+                                                                DataObjectName          = InDetKeys.PixelPURDOs(),
+                                                                ClustersName            = InDetKeys.PixelPUClusters())
+        topSequence += InDetPixelClusterizationPU
+        if (InDetFlags.doPrintConfigurables()):
+          print InDetPixelClusterizationPU
+
    #
    # --- SCT Clusterization
    #
@@ -177,6 +194,7 @@ if InDetFlags.doPRDFormation():
       if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ClusteringTool
             
+
       #
       # --- SCT_Clusterization algorithm
       #
@@ -196,7 +214,24 @@ if InDetFlags.doPRDFormation():
       topSequence += InDetSCT_Clusterization
       if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_Clusterization
-   
+
+      if InDetFlags.doSplitReco() :
+        InDetSCT_ClusterizationPU = InDet__SCT_Clusterization(name                    = "InDetSCT_ClusterizationPU",
+                                                              clusteringTool          = InDetSCT_ClusteringTool,
+                                                              # ChannelStatus         = InDetSCT_ChannelStatusAlg,
+                                                              DetectorManagerName     = InDetKeys.SCT_Manager(),
+                                                              DataObjectName          = InDetKeys.SCT_PU_RDOs(),
+                                                              ClustersName            = InDetKeys.SCT_PU_Clusters(),
+                                                              conditionsService       = InDetSCT_ConditionsSummarySvc,
+                                                              FlaggedConditionService = InDetSCT_FlaggedConditionSvc)
+        if InDetFlags.cutSCTOccupancy():
+          InDetSCT_ClusterizationPU.maxRDOs = 384 #77
+        else:
+          InDetSCT_ClusterizationPU.maxRDOs = 0
+        topSequence += InDetSCT_ClusterizationPU
+        if (InDetFlags.doPrintConfigurables()):
+          print InDetSCT_ClusterizationPU
+
 #
 # ----------- form SpacePoints from clusters in SCT and Pixels
 #
@@ -296,3 +331,30 @@ if InDetFlags.doPRDFormation() and InDetFlags.doSpacePointFormation():
       topSequence += InDetPRD_MultiTruthMakerSi
       if (InDetFlags.doPrintConfigurables()):
         print InDetPRD_MultiTruthMakerSi
+
+      if InDetFlags.doSplitReco() :
+        InDetPRD_MultiTruthMakerSiPU = InDet__PRD_MultiTruthMaker (name                        = 'InDetPRD_MultiTruthMakerSiPU',
+                                                               PixelClusterContainerName   = InDetKeys.PixelPUClusters(),
+                                                               SCTClusterContainerName     = InDetKeys.SCT_PU_Clusters(),
+                                                               TRTDriftCircleContainerName = "",
+                                                               SimDataMapNamePixel         = InDetKeys.PixelPUSDOs(),
+                                                               SimDataMapNameSCT           = InDetKeys.SCT_PU_SDOs(),
+                                                               SimDataMapNameTRT           = "",
+                                                               TruthNamePixel              = InDetKeys.PixelPUClustersTruth(),
+                                                               TruthNameSCT                = InDetKeys.SCT_PU_ClustersTruth(),
+                                                               TruthNameTRT                = "")
+        # a bit complicated, but this is how the truth maker gets to know which detector is on
+        if (not DetFlags.haveRIO.pixel_on() or not InDetFlags.doPixelPRDFormation()):
+           InDetPRD_MultiTruthMakerSiPU.PixelClusterContainerName = ""
+           InDetPRD_MultiTruthMakerSiPU.SimDataMapNamePixel       = ""
+           InDetPRD_MultiTruthMakerSiPU.TruthNamePixel            = ""
+        if (not DetFlags.haveRIO.SCT_on() or not InDetFlags.doSCT_PRDFormation()):
+           InDetPRD_MultiTruthMakerSiPU.SCTClusterContainerName   = ""
+           InDetPRD_MultiTruthMakerSiPU.SimDataMapNameSCT         = ""
+           InDetPRD_MultiTruthMakerSiPU.TruthNameSCT              = ""
+
+        print InDetPRD_MultiTruthMakerSiPU
+        InDetPRD_MultiTruthMakerSiPU.OutputLevel=VERBOSE
+        topSequence += InDetPRD_MultiTruthMakerSiPU
+        if (InDetFlags.doPrintConfigurables()):
+          print InDetPRD_MultiTruthMakerSiPU
