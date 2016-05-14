@@ -9,7 +9,7 @@
     <options_atn>CaloDigEx/CaloDigEx.py</options_atn>
     <author>Emmanuel Le Guirriec,J.Toth</author>
     <mailto>guirriec@cern.ch,toth@cppm.in2p3.fr</mailto>
-    <package_atn>Calorimeter/CaloExample/CaloSimEx</package_atn>
+    <package_atn>Calorimeter/CaloExample/CaloDigEx</package_atn>
     <expectations>
        <successMessage>Finalized successfully</successMessage>
     </expectations>
@@ -55,7 +55,7 @@
             <group>CaloDigEx</group>
             <queue>medium</queue>
             <dataset>
-                /afs/cern.ch/work/t/tothj/public/CaloDigEx_RTT_infiles/mc11/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1272_s1274_tid475222_00/HITS.475222._001501.pool.root.1
+                /eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11b/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1354_s1360/HITS.580376._000962.pool.root.1
             </dataset>
          </athena>
 
@@ -66,7 +66,18 @@
             <group>CaloDigEx</group>
             <queue>medium</queue>
             <dataset>
-               /afs/cern.ch/work/t/tothj/public/CaloDigEx_RTT_infiles/mc12/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.merge.HITS.e1513_s1499_s1504_tid01012667_00/HITS.01012667._014280.pool.root.1
+               /eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.simul.HITS.e1193_s1469/HITS.782686._012893.pool.root.1
+            </dataset>
+         </athena>
+
+<athena userJobId="CaloDigEx_RTT">
+<doc>digitisation job,mc15a,https://twiki.cern.ch/twiki/bin/view/Atlas/CaloIntegration</doc>
+            <options>CaloDigEx_RTT.py</options>
+            <package>Calorimeter/CaloExample/CaloDigEx</package>
+            <group>CaloDigEx</group>
+            <queue>medium</queue>
+            <dataset>
+              /eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000241.pool.root.1 
             </dataset>
          </athena>
 
