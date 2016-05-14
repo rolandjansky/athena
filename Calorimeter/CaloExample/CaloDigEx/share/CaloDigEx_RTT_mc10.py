@@ -4,12 +4,12 @@
 # AthenaCommon configuration
 #--------------------------------------------------------------
 from AthenaCommon.AthenaCommonFlags import jobproperties
-jobproperties.AthenaCommonFlags.EvtMax=10
+jobproperties.AthenaCommonFlags.EvtMax=20
 
 #jobproperties.AthenaCommonFlags.PoolHitsInput.set_Value_and_Lock(['Sim_mc10.pool.root'])
 
 jobproperties.AthenaCommonFlags.PoolHitsInput.set_Value_and_Lock(['root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc10/mc10_7TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e598_s933_tid168076_00/HITS.168076._008421.pool.root.1'])
-jobproperties.AthenaCommonFlags.PoolRDOOutput.set_Value_and_Lock('CaloDigEx.pool.root')
+jobproperties.AthenaCommonFlags.PoolRDOOutput.set_Value_and_Lock('CaloDigEx_mc10.pool.root')
 
 #--------------------------------------------------------------
 # Digitiziation and Pileup configuration
@@ -24,11 +24,11 @@ from Digitization.DigitizationFlags import jobproperties
 #--------------------------------------------------------------
 # Global flags. Like eg the DD version:
 #--------------------------------------------------------------
-#from AthenaCommon.GlobalFlags import jobproperties
-#jobproperties.Global.DetDescrVersion='ATLAS-CSC-01-02-00'
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DetDescrVersion='ATLAS-R1-2010-02-00-00'
 
-from G4AtlasApps.SimFlags import SimFlags 
-SimFlags.SimLayout='ATLAS-GEO-16-00-00'
+#from G4AtlasApps.SimFlags import SimFlags 
+#SimFlags.SimLayout='ATLAS-GEO-16-00-00'
 
 #--------------------------------------------------------------------
 # DetFlags. Use to turn on/off individual subdetector or LVL1 trigger
@@ -38,9 +38,11 @@ DetFlags.ID_setOff()
 DetFlags.Calo_setOn()
 DetFlags.Muon_setOff()
 DetFlags.Truth_setOn()
-DetFlags.LVL1_setOn()
+DetFlags.LVL1_setOff()
 
 
 MessageSvc.Format = "% F%40W%S%7W%R%T %0W%M"
 
 include("Digitization/Digitization.py")
+
+svcMgr.GeoModelSvc.IgnoreTagDifference = True
