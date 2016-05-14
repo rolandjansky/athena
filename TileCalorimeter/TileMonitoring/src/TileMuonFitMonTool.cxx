@@ -335,6 +335,7 @@ StatusCode TileMuonFitMonTool::fillHistograms() {
           }
         }
       }
+      const float inv_mu_fullPath = (mu_fullPath > 0 ? 1. / mu_fullPath : 1);
 
       for (unsigned int i = 0; i < m_eventTrigs.size(); i++) {
 
@@ -350,7 +351,7 @@ StatusCode TileMuonFitMonTool::fillHistograms() {
 
         if (mu_fullPath > 0) {
           //fillDensity(mu_X, mu_Z, mu_phi, mu_theta, mu_fullPath);
-          m_tileMuonFitEnergyDensity[vecIndx(i)]->Fill(mu_fullEnergy / mu_fullPath, 1.);
+          m_tileMuonFitEnergyDensity[vecIndx(i)]->Fill(mu_fullEnergy * inv_mu_fullPath, 1.);
         }
 
       }
@@ -369,7 +370,7 @@ StatusCode TileMuonFitMonTool::fillHistograms() {
 StatusCode TileMuonFitMonTool::procHistograms() {
 /*---------------------------------------------------------*/
 
-  if( endOfLumiBlock ||  endOfRun ) { 
+  if( endOfLumiBlockFlag() ||  endOfRunFlag() ) { 
     ATH_MSG_INFO( "in procHistograms()" );
   }
 

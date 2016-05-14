@@ -45,9 +45,9 @@ const int TileMBTSMonTool::m_isInner[32] =
 //=====================================================================
 TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & name,const IInterface* parent) 
 	: TileFatherMonTool(type, name, parent)
-  , m_h_sumPed(0)
-  , m_h_sumHFNoise(0)
-  , m_h_sumLFNoise(0)
+  //, m_h_sumPed(0)
+  //, m_h_sumHFNoise(0)
+  //, m_h_sumLFNoise(0)
   , m_h_occupancy(0)
   , m_h_sumEnergy(0)
   , m_h_sumEnergy_wTBP(0)
@@ -1030,11 +1030,11 @@ StatusCode TileMBTSMonTool::fillHistograms() {
 //=====================================================================
 StatusCode TileMBTSMonTool::procHistograms() {
 
-  if (endOfRun && m_isOnline) {
+  if (endOfRunFlag() && m_isOnline) {
     return StatusCode::SUCCESS;
   }
 
-  if (endOfRun) {
+  if (endOfRunFlag()) {
     ATH_MSG_INFO( "in procHistograms()" );
   }
 

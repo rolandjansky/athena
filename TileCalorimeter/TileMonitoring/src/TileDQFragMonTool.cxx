@@ -878,7 +878,7 @@ void TileDQFragMonTool::drawGlobalHist() {
 StatusCode TileDQFragMonTool::procHistograms() {
   /*---------------------------------------------------------*/
 
-  if (endOfRun && !m_doOnline) {
+  if (endOfRunFlag() && !m_doOnline) {
     ATH_MSG_INFO( "in procHistograms..." );
 
     updateHistograms();

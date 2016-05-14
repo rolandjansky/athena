@@ -62,7 +62,7 @@ TileCellNoiseMonTool::TileCellNoiseMonTool(const std::string & type,  const std:
   , m_tileBadChanTool("TileBadChanTool")
     //, m_TileCellTrig(0U)
     //, m_delta_lumiblock(0U)
-  , m_oldLumiblock(-1)
+    //, m_oldLumiblock(-1)
   , m_isFirstEvent(true)
   , m_hPartition1(0)
   , m_hPartition2(0)
@@ -681,7 +681,7 @@ StatusCode TileCellNoiseMonTool::fillHistograms() {
 StatusCode TileCellNoiseMonTool::procHistograms() {
 /*---------------------------------------------------------*/
 
-  if (endOfLumiBlock || endOfRun) {
+  if (endOfLumiBlockFlag() || endOfRunFlag()) {
     ATH_MSG_INFO( "in procHistograms()" );
   }
 

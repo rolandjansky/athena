@@ -90,7 +90,7 @@ class TileRawChannelMonTool: public TilePaterMonTool {
     // std::vector<bool> corrup[5][64][2]; //ros, drawer, gain (index of each vector is channel)
     bool m_corrup[5][64][2][16]; //ros, drawer, gain, DMU
 
-    /// Fuction to check that the DMU header format is correct
+    /// Function to check that the DMU header format is correct
     /// bit_31 of the DMU header must be 1 and
     /// bit_17 of the DMU header must be 0
     /// Return true in the case of error

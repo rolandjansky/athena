@@ -850,11 +850,11 @@ StatusCode TileRODMonTool::fillHistograms()
 StatusCode TileRODMonTool::procHistograms()
 /*---------------------------------------------------------*/
 {
-  if (!endOfRun || (m_isOnline && endOfRun)) {
+  if (!endOfRunFlag() || (m_isOnline && endOfRunFlag())) {
     return StatusCode::SUCCESS;
   }
 
-  if (endOfRun) {
+  if (endOfRunFlag()) {
     ATH_MSG_INFO( "in procHistograms()" );
   }
 

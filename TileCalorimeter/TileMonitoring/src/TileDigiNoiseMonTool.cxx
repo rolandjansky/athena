@@ -111,11 +111,14 @@ StatusCode TileDigiNoiseMonTool::bookNoiseHistograms() {
   ATH_MSG_DEBUG( "::bookHistograms() :  m_path =  " << m_path  );
   
   
-  const char *part[5] = { "AUX", "LBA", "LBC", "EBA", "EBC" };
-  const char *gain[4] = { "lo", "hi", " low gain", " high gain" };
-  const char *type[6] = { "lfn", "hfn", "ped", "Low Freq. Noise", "High Freq. Noise", "Pedestal[0]" };
-  char histName[50];
-  char histTitle[70];
+  const std::string part[5] = { "AUX", "LBA", "LBC", "EBA", "EBC" };
+  const std::string gain[4] = { "lo", "hi", " Low gain", " High gain" };
+  const std::string type[6] = { "lfn", "hfn", "ped", "Low Frequency Noise", "High Frequency Noise", "Pedestal[0]" };
+
+  std::string histName;
+  std::string histTitle;
+
+  std::string runNumStr = getRunNumStr();
 
   std::string module_name;
   std::string cell_name;
@@ -125,12 +128,14 @@ StatusCode TileDigiNoiseMonTool::bookNoiseHistograms() {
     for (unsigned int adc = 0; adc < TileCalibUtils::MAX_GAIN; ++adc) {
       for (int noisetype = 0; noisetype < 3; ++noisetype) {
 
-        sprintf(histName, "noisemap_%s_%s_%s", part[ros], gain[adc], type[noisetype]);
+        histName = "noisemap_" + part[ros] + "_" + gain[adc] + "_" + type[noisetype];
         if (noisetype == 2 && m_fillPedestalDifference) {
-          sprintf(histTitle, "Noise map %s %s %s %s (entries = events)", part[ros], gain[2 + adc], type[noisetype + 3], "- pedestal in DB");
+          histTitle = gain[2 + adc] + " " + type[noisetype + 3] + " - pedestal in DB Map (entries = events)";
         } else {
-          sprintf(histTitle, "Noise map %s %s %s (entries = events)", part[ros], gain[2 + adc], type[noisetype + 3]);
+          histTitle = gain[2 + adc] + " " + type[noisetype + 3] + " Map (entries = events)";
         }
+
+        histTitle = "Run " + runNumStr + " Partition " + part[ros] + ": " + histTitle;
 
         ATH_MSG_DEBUG( "in bookHists() :: booking noise_map histo : " << histName );
 
@@ -156,7 +161,6 @@ StatusCode TileDigiNoiseMonTool::bookNoiseHistograms() {
           //          if (m_fillPedestalDifference) m_finalNoiseMap[ros][adc][noisetype]->GetZaxis()->SetRangeUser(-5, 5);
           //          else m_finalNoiseMap[ros][adc][noisetype]->GetZaxis()->SetRangeUser(20, 80);
         }
-        m_finalNoiseMap[ros][adc][noisetype]->SetTitle(histTitle);
 
       } // end loop over noise type (hfn, lfn)
     } // end gain loop

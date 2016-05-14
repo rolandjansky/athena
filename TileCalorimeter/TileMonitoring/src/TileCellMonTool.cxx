@@ -31,14 +31,14 @@
 #include "TProfile2D.h"
 #include "TString.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 
 #include <sstream>
 #include <iomanip>
 #include <map>
 
-using CLHEP::GeV;
-using CLHEP::ns;
+using Athena::Units::GeV;
+using Athena::Units::ns;
 
 
 // Make a TileCell namespace so this doesn't cause problems else where.
@@ -734,8 +734,6 @@ StatusCode TileCellMonTool::fillHistograms() {
   //number of channels masked on the fly
   unsigned int badonfly[NPartHisto] = { 0 };
 
-  CaloCellContainer::const_iterator iCell = cell_container->begin();
-  CaloCellContainer::const_iterator lastCell  = cell_container->end();
   for (const CaloCell* cell : *cell_container) {
 
     Identifier id = cell->ID();
@@ -1365,7 +1363,7 @@ StatusCode TileCellMonTool::procHistograms() {
 /*---------------------------------------------------------*/
 
 
-  if (endOfRun) {
+  if (endOfRunFlag()) {
     ATH_MSG_INFO( "in procHistograms()" );
   }
 
@@ -1491,7 +1489,7 @@ void TileCellMonTool::FirstEvInit() {
   }        
 
   std::ostringstream sene; sene.str("");
-  sene << m_NegThreshold / 1000.0;
+  sene << m_NegThreshold / GeV;
 
   std::string runNumStr =  getRunNumStr() ;
 

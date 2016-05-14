@@ -975,8 +975,8 @@ StatusCode TileTBCellMonTool::fillHistograms() {
   //Retrieve Cell collection from SG
   CHECK(evtStore()->retrieve(cell_container, m_cellsContName));
 
-  CaloCellContainer::const_iterator iCell = cell_container->begin();
-  CaloCellContainer::const_iterator lastCell = cell_container->end();
+  //CaloCellContainer::const_iterator iCell = cell_container->begin();
+  //CaloCellContainer::const_iterator lastCell = cell_container->end();
 
   double totalEnergyEBA = 0.0;
   double totalEnergyEBC = 0.0;
@@ -1219,7 +1219,7 @@ void TileTBCellMonTool::fillHitMap(TH2F *hHitMap, int cellHitMap2[], double ener
 StatusCode TileTBCellMonTool::procHistograms() {
   /*---------------------------------------------------------*/
 
-  if (endOfRun) {
+  if (endOfRunFlag()) {
     ATH_MSG_INFO("in procHistograms()");
     ATH_MSG_INFO("Doing fits");
     Double_t fr[2];
