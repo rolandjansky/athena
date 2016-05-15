@@ -164,7 +164,7 @@ if DQMonFlags.useTrigger() :
     #cbg
     athenaMonTool_trig.FilterTools += [ monbadlb ]
     ToolSvc += athenaMonTool_trig
-    athenaMonTool_trig.TrigDecisionTool =  ToolSvc.monTrigDecTool
+    athenaMonTool_trig.TrigDecisionTool =  getattr(ToolSvc, DQMonFlags.nameTrigDecTool())
     athenaMonTool_trig.TriggerChain =  "CATEGORY_monitoring_jet"
     #athenaMonTool_trig.TriggerChain =  "HLT_j25,HLT_j60,HLT_j200_jes_PS" 
     #athenaMonTool_trig.OutputLevel = 2
