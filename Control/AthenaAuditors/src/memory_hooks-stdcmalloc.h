@@ -60,17 +60,20 @@ const unsigned int deltaHigh=32;
 class node
 {
  public:
- node() : m_next(0), m_prev(0), m_deltaPayload(deltaLow)
+  node() : m_next(0), m_prev(0), m_deltaPayload(deltaLow),
+    m_sizeHigh(0), m_sizeLow(0)
   {
     m_canary[0]='r'; m_canary[1]='e'; m_canary[2]='d'; m_canary[3]='z';
     m_canary[4]='o'; m_canary[5]='n'; m_canary[6]='e'; m_canary[7]=' ';
   };
- node(node* n, node* p, uint16_t d=deltaLow) : m_next(n), m_prev(p),  m_deltaPayload(d)
+  node(node* n, node* p, uint16_t d=deltaLow) : m_next(n), m_prev(p),  m_deltaPayload(d),
+    m_sizeHigh(0), m_sizeLow(0)
   {
     m_canary[0]='r'; m_canary[1]='e'; m_canary[2]='d'; m_canary[3]='z';
     m_canary[4]='o'; m_canary[5]='n'; m_canary[6]='e'; m_canary[7]=' ';
   };
   node(bool b)
+    : m_sizeHigh(0), m_sizeLow(0)
     {
       if(b)
 	{
@@ -272,9 +275,11 @@ my_free_hook (void *ptr, const void* /* caller */)
       
       nn->setPrev(np);
       np->setNext(nn);
-      
+
+
+      myBlocks_tc* ptr = &*i;
       allocset_tc.erase(i);
-      delete &(*i);
+      delete ptr;
     }
   else
     {
@@ -350,8 +355,9 @@ my_realloc_hook(void *ptr, size_t size, const void * /* caller */)
       np->setNext(nn);
       
       // remove from list
+      myBlocks_tc* ptr = &*i;
       allocset_tc.erase(i);
-      delete &(*i);
+      delete ptr;
     }
   
   // call real realloc
@@ -419,8 +425,9 @@ my_realloc_hook(void *ptr, size_t size, const void * /* caller */)
 		    }
 		  
 		  // remove old location from current list 
+                  myBlocks_tc* ptr = &*i;
 		  allocset_tc.erase(i);
-		  delete &(*i);
+		  delete ptr;
 		}
 	      else
 		// memory was not with redzones, but stayed at the same place in memory
@@ -471,8 +478,9 @@ my_realloc_hook(void *ptr, size_t size, const void * /* caller */)
       np->setNext(nn);
       
       // remove from list
+      myBlocks_tc* ptr = &*i;
       allocset_tc.erase(i);
-      delete &(*i);
+      delete ptr;
       
       char* start((char*)result);
       if ( size > deltaLow+deltaHigh )

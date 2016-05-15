@@ -48,7 +48,7 @@ AthMemoryAuditor::AthMemoryAuditor( const std::string& name,
 
 AthMemoryAuditor::~AthMemoryAuditor()
 {
-  ATH_MSG_INFO("In Destructor");
+  ATH_MSG_DEBUG("In Destructor");
 }
 
 StatusCode
@@ -546,7 +546,7 @@ void AthMemoryAuditor::report()
 				{
 				  if(it->allocatedFrom[j])
 				    {
-				      fprintf(stderr,"%7d ",j);
+				      fprintf(stderr,"%7u ",j);
 				      Dl_info       info;
 				      ptrdiff_t relative_address(0);
 				      const char *libname = "N/A";

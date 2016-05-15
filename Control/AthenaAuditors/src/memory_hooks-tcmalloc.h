@@ -88,8 +88,9 @@ void athena_DeleteHook(const void* ptr)
       allocSet_tc::iterator i = allocset_tc.find( *bg_tc );
       if ( i != allocset_tc.end() )
 	{
+          myBlocks_tc* ptr = &*i;
 	  allocset_tc.erase(i);
-	  delete &(*i);
+	  delete ptr;
 	}
     }
   else
