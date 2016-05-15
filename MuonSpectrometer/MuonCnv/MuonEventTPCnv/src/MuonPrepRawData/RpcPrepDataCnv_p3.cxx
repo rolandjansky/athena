@@ -8,48 +8,59 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "MuonPrepRawData/RpcPrepData.h"
-#undef private
-#undef protected
-
 #include "MuonEventTPCnv/MuonPrepRawData/RpcPrepDataCnv_p3.h"
+#include "CxxUtils/make_unique.h"
+
+Muon::RpcPrepData
+RpcPrepDataCnv_p3::
+createRpcPrepData( const Muon::RpcPrepData_p3 *persObj,
+                   const Identifier& id,
+                   const MuonGM::RpcReadoutElement* detEl,
+                   MsgStream & /**log*/ ) 
+{
+  Amg::Vector2D localPos;
+  localPos[Trk::locX] = persObj->m_locX; 
+  localPos[Trk::locY] = 0.0;
+
+  std::vector<Identifier> rdoList(1);
+  rdoList[0]=id;
+    
+  auto cmat = CxxUtils::make_unique<Amg::MatrixX>(1,1);
+  (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
+
+  Muon::RpcPrepData data (id,
+                          0, // collectionHash
+                          localPos,
+                          rdoList,
+                          cmat.release(),
+                          detEl,
+                          persObj->m_time,
+                          persObj->m_triggerInfo,
+                          persObj->m_ambiguityFlag);
+  return data;
+}
 
 void RpcPrepDataCnv_p3::
-persToTrans( const Muon::RpcPrepData_p3 *persObj, Muon::RpcPrepData *transObj,MsgStream & /**log*/ ) 
+persToTrans( const Muon::RpcPrepData_p3 *persObj, Muon::RpcPrepData *transObj,MsgStream & log ) 
 {
-    //log << MSG::DEBUG << "RpcPrepDataCnv_p3::persToTrans" << endreq;
-    // Fill localposition
-    transObj->m_localPos[Trk::locX] = persObj->m_locX; 
-    transObj->m_localPos[Trk::locY] = 0.0;
-    
-    // Update specifics
-    transObj->m_rdoList.resize(1);
-    transObj->m_rdoList[0]=transObj->m_clusId;
-    
-    // Error Matrix
-    Amg::MatrixX* cmat = new  Amg::MatrixX(1,1);
-    (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
-    transObj->m_localCovariance     = cmat;
-    
-    //RpcPrepData - specific
-    transObj->m_time           = persObj->m_time;
-    transObj->m_triggerInfo    = persObj->m_triggerInfo;
-    transObj->m_ambiguityFlag  = persObj->m_ambiguityFlag;
+  *transObj = createRpcPrepData (persObj,
+                                 transObj->identify(),
+                                 transObj->detectorElement(),
+                                 log);
 }
 
 void RpcPrepDataCnv_p3::
 transToPers( const Muon::RpcPrepData *transObj, Muon::RpcPrepData_p3 *persObj, MsgStream & /**log*/ )
 {
     //log << MSG::DEBUG << "RpcPrepDataCnv_p3::transToPers" << endreq;
-    persObj->m_locX           = transObj->m_localPos[Trk::locX];
-    persObj->m_errorMat       = (*transObj->m_localCovariance)(0,0);
+    persObj->m_locX           = transObj->localPosition()[Trk::locX];
+    persObj->m_errorMat       = transObj->localCovariance()(0,0);
     
     //RpcPrepData - specific
-    persObj->m_time           = transObj->m_time;
-    persObj->m_triggerInfo    = transObj->m_triggerInfo;
-    persObj->m_ambiguityFlag  = transObj->m_ambiguityFlag;
+    persObj->m_time           = transObj->time();
+    persObj->m_triggerInfo    = transObj->triggerInfo();
+    persObj->m_ambiguityFlag  = transObj->ambiguityFlag();
 }
 
 

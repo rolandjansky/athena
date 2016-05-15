@@ -2,13 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "MuonSimData/MuonSimData.h"
 #include "MuonSimData/MuonSimDataCollection.h"
-#undef private
-#undef protected
-
 #include "MuonEventTPCnv/MuonDigitContainer/MuonSimDataCollectionCnv_p1.h"
 #include "MuonEventTPCnv/MuonDigitContainer/MuonSimDataCollection_p1.h"
 #include "Identifier/Identifier.h"

@@ -2,15 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "MuonDigitContainer/MmDigit.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
 #include "MuonEventTPCnv/MuonDigitContainer/MM_Digit_p1.h"
 #include "MuonEventTPCnv/MuonDigitContainer/MuonDigitContainer_p1.h"
-#undef private
-#undef protected
-
 #include "MuonIdHelpers/MmIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonDigitContainer/MM_DigitContainerCnv_p1.h"
@@ -143,7 +138,7 @@ void Muon::MM_DigitContainerCnv_p1::transToPers(const MmDigitContainer* transCon
       const MmDigit* chan = collection[i]; // channel being converted
       MM_Digit_p1*   pchan = &(persCont->m_digits[pchanIndex]); // persistent version to fill
       chanCnv.transToPers(chan, pchan, log); // convert from MmDigit to MM_Digit_p1
-      unsigned int clusIdCompact = chan->m_muonId.get_identifier32().get_compact();
+      unsigned int clusIdCompact = chan->identify().get_identifier32().get_compact();
       unsigned int collIdCompact = collection.identify().get_identifier32().get_compact();
       unsigned int diff = clusIdCompact - collIdCompact;
       if (diff>std::numeric_limits<uint16_t>::max()) log << MSG::ERROR<<"Diff of "<<diff<<" is greater than max size of diff permitted!!! ("<<std::numeric_limits<uint16_t>::max()<<")"<<endreq;
@@ -195,12 +190,12 @@ void  Muon::MM_DigitContainerCnv_p1::persToTrans(const Muon::MM_DigitContainer_p
       MmDigit* chan = new MmDigit;
 
       chanCnv.persToTrans(pchan, chan, log);// FIXME! remove.
-      log << MSG::DEBUG<<"Trans id:"<<std::hex<<chan->m_muonId.get_identifier32().get_compact()<<"\t pers Id:"<<pchan->m_muonId<<std::dec<<endreq;
-      // std::cout <<"Trans id:"<<chan->m_muonId<<"\t pers Id:"<<pchan->m_id<<std::endl;
+      log << MSG::DEBUG<<"Trans id:"<<std::hex<<chan->identify().get_identifier32().get_compact()<<"\t pers Id:"<<pchan->m_muonId<<std::dec<<endreq;
+      // std::cout <<"Trans id:"<<chan->identify()<<"\t pers Id:"<<pchan->m_id<<std::endl;
       
-      if ( m_MMId->valid(chan->m_muonId)!=true ) {
+      if ( m_MMId->valid(chan->identify())!=true ) {
                 // have invalid PRD
-        log << MSG::WARNING  << "MM PRD has invalid Identifier of "<< m_MMId->show_to_string(chan->m_muonId)
+        log << MSG::WARNING  << "MM PRD has invalid Identifier of "<< m_MMId->show_to_string(chan->identify())
           <<" - are you sure you have the correct geometry loaded, and NSW enabled?" << endreq;
       } 
       log << MSG::DEBUG<<"chan identify(): "<<chan->identify()<<endreq;      

@@ -2,15 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
 #include "MuonEventTPCnv/MuonPrepRawData/RpcPrepData_p2.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MuonPRD_Container_p1.h"
-#undef private
-#undef protected
-
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonPrepRawData/RpcPrepDataCnv_p2.h"

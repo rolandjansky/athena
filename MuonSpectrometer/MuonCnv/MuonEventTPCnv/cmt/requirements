@@ -25,6 +25,7 @@ use  TrkRIO_OnTrack             TrkRIO_OnTrack-*                Tracking/TrkEven
 use  TrkSurfaces                TrkSurfaces-*                   Tracking/TrkDetDescr
 private
 use  AthenaKernel               AthenaKernel-*                  Control
+use  CxxUtils                   CxxUtils-*                      Control
 use  AtlasReflex                AtlasReflex-*                   External                        -no_auto_imports
 use  EventPrimitives            EventPrimitives-*               Event
 use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
@@ -61,3 +62,67 @@ apply_pattern lcgdict dict=OLD_MuonEventTPCnv  selectionfile=OLD_selection.xml h
 #private
 # macro cppdebugflags '$(cppdebugflags_s)'
 # macro_remove componentshr_linkopts "-Wl,-s"
+
+private
+use TestTools            TestTools-*            AtlasTest
+use IdDictDetDescr       IdDictDetDescr-*       DetectorDescription
+use AtlasDetDescr        AtlasDetDescr-*        DetectorDescription
+use IdDict               IdDict-*               DetectorDescription
+use IdDictParser         IdDictParser-*         DetectorDescription
+use GeoModelKernel       GeoModelKernel-*       DetectorDescription/GeoModel
+use AGDDKernel           AGDDKernel-*           DetectorDescription/AGDD
+use TPTools              TPTools-*              Database
+use TrkPseudoMeasurementOnTrack  TrkPseudoMeasurementOnTrack-* Tracking/TrkEvent
+use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use InDetIdentifier      InDetIdentifier-*      InnerDetector/InDetDetDescr
+use MuonAGDDDescription  MuonAGDDDescription-*  MuonSpectrometer/MuonDetDescr
+
+apply_pattern UnitTest_run unit_test=CscMcDataCnv_p1
+apply_pattern UnitTest_run unit_test=CscSimDataCnv_p1
+apply_pattern UnitTest_run unit_test=CscSimDataCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=MuonMCDataCnv_p1
+apply_pattern UnitTest_run unit_test=MuonSimDataCnv_p1
+apply_pattern UnitTest_run unit_test=MuonSimDataCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=CscClusterOnTrackCnv_p2
+apply_pattern UnitTest_run unit_test=RpcClusterOnTrackCnv_p3
+apply_pattern UnitTest_run unit_test=TgcClusterOnTrackCnv_p2
+apply_pattern UnitTest_run unit_test=MM_ClusterOnTrackCnv_p1
+apply_pattern UnitTest_run unit_test=STGC_ClusterOnTrackCnv_p1
+apply_pattern UnitTest_run unit_test=MdtDriftCircleOnTrackCnv_p2
+apply_pattern UnitTest_run unit_test=CompetingMuonClustersOnTrackCnv_p2
+apply_pattern UnitTest_run unit_test=MuonSegmentQualityCnv_p1
+apply_pattern UnitTest_run unit_test=MuonSegmentCnv_p2
+apply_pattern UnitTest_run unit_test=CscPrepDataCnv_p1
+apply_pattern UnitTest_run unit_test=CscPrepDataCnv_p2
+apply_pattern UnitTest_run unit_test=CscStripPrepDataCnv_p1
+apply_pattern UnitTest_run unit_test=MdtPrepDataCnv_p1
+apply_pattern UnitTest_run unit_test=MdtPrepDataCnv_p2
+apply_pattern UnitTest_run unit_test=RpcPrepDataCnv_p1
+apply_pattern UnitTest_run unit_test=RpcPrepDataCnv_p2
+apply_pattern UnitTest_run unit_test=RpcPrepDataCnv_p3
+apply_pattern UnitTest_run unit_test=TgcPrepDataCnv_p1
+apply_pattern UnitTest_run unit_test=TgcPrepDataCnv_p2
+apply_pattern UnitTest_run unit_test=TgcPrepDataCnv_p3
+apply_pattern UnitTest_run unit_test=MMPrepDataCnv_p1
+apply_pattern UnitTest_run unit_test=sTgcPrepDataCnv_p1
+apply_pattern UnitTest_run unit_test=CscPrepDataContainerCnv_p1
+apply_pattern UnitTest_run unit_test=CscPrepDataContainerCnv_p2
+apply_pattern UnitTest_run unit_test=CscStripPrepDataContainerCnv_p1
+apply_pattern UnitTest_run unit_test=MdtPrepDataContainerCnv_p1
+apply_pattern UnitTest_run unit_test=MdtPrepDataContainerCnv_p2
+apply_pattern UnitTest_run unit_test=RpcPrepDataContainerCnv_p1
+apply_pattern UnitTest_run unit_test=RpcPrepDataContainerCnv_p2
+apply_pattern UnitTest_run unit_test=RpcPrepDataContainerCnv_p3
+apply_pattern UnitTest_run unit_test=TgcPrepDataContainerCnv_p1
+apply_pattern UnitTest_run unit_test=TgcPrepDataContainerCnv_p2
+apply_pattern UnitTest_run unit_test=TgcPrepDataContainerCnv_p3
+apply_pattern UnitTest_run unit_test=sTgcPrepDataContainerCnv_p1
+apply_pattern UnitTest_run unit_test=MMPrepDataContainerCnv_p1
+apply_pattern UnitTest_run unit_test=RpcCoinDataCnv_p1
+apply_pattern UnitTest_run unit_test=TgcCoinDataCnv_p1
+apply_pattern UnitTest_run unit_test=TgcCoinDataCnv_p2
+apply_pattern UnitTest_run unit_test=TgcCoinDataCnv_p3
+apply_pattern UnitTest_run unit_test=RpcCoinDataContainerCnv_p1
+apply_pattern UnitTest_run unit_test=TgcCoinDataContainerCnv_p1
+apply_pattern UnitTest_run unit_test=TgcCoinDataContainerCnv_p2
+apply_pattern UnitTest_run unit_test=TgcCoinDataContainerCnv_p3

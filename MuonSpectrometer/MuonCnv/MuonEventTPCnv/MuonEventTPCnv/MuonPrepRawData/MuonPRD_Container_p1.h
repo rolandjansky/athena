@@ -15,7 +15,7 @@ class MuonPRD_Container_p1
  public:
 /// Default constructor
   MuonPRD_Container_p1 ();
- private:
+  //private:
   std::vector<Muon::MuonPRD_Collection_p1>  m_collections;
   std::vector<TPObjRef>                     m_PRD;
 };

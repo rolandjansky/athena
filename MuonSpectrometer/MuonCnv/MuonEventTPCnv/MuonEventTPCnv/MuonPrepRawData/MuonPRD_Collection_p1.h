@@ -25,7 +25,7 @@ public:
     friend class TgcPrepDataContainerCnv_p1;
     friend class MdtPrepDataContainerCnv_p1;
     
-private:
+    //private:
   
     /** Identifier of this collection. FIXME - do we need this? Is it not obvious from the context? EJWM. */
     unsigned int m_id;

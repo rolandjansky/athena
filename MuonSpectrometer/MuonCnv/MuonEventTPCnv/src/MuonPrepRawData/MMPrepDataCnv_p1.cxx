@@ -8,41 +8,52 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "MuonPrepRawData/MMPrepData.h"
-#undef private
-#undef protected
-
 #include "MuonEventTPCnv/MuonPrepRawData/MMPrepDataCnv_p1.h"
+#include "CxxUtils/make_unique.h"
+
+Muon::MMPrepData
+MMPrepDataCnv_p1::
+createMMPrepData ( const Muon::MMPrepData_p1 *persObj,
+                   const MuonGM::MMReadoutElement* detEl,
+                   MsgStream & /**log*/ ) 
+{
+  //log << MSG::DEBUG << "MMPrepDataCnv_p3::persToTrans" << endreq;
+  // Fill localposition
+  Amg::Vector2D localPos;
+  localPos[Trk::locX] = persObj->m_locX; 
+  localPos[Trk::locY] = 0.0; 
+    
+  std::vector<Identifier> rdoList(1);
+  rdoList[0]=Identifier(persObj->m_id);
+    
+  auto cmat = CxxUtils::make_unique<Amg::MatrixX>(1,1);
+  (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
+
+  Muon::MMPrepData data (Identifier (persObj->m_id), //FIXME - remove!
+                         0, //collectionHash
+                         localPos,
+                         std::move(rdoList),
+                         cmat.release(),
+                         detEl);
+  return data;
+}
 
 void MMPrepDataCnv_p1::
-persToTrans( const Muon::MMPrepData_p1 *persObj, Muon::MMPrepData *transObj,MsgStream & /**log*/ ) 
+persToTrans( const Muon::MMPrepData_p1 *persObj, Muon::MMPrepData *transObj,MsgStream & log ) 
 {
-    //log << MSG::DEBUG << "MMPrepDataCnv_p3::persToTrans" << endreq;
-    // Fill localposition
-    transObj->m_localPos[Trk::locX] = persObj->m_locX; 
-    transObj->m_localPos[Trk::locY] = 0.0; 
-    
-    // Update specifics
-    transObj->m_rdoList.resize(1);
-    transObj->m_rdoList[0]=transObj->m_clusId;
-    
-    // Error Matrix
-    Amg::MatrixX* cmat = new  Amg::MatrixX(1,1);
-    (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
-    transObj->m_localCovariance     = cmat;
-    
-    transObj->m_clusId          = persObj->m_id; //FIXME - remove!
+  *transObj = createMMPrepData (persObj,
+                                transObj->detectorElement(),
+                                log);
 }
 
 void MMPrepDataCnv_p1::
 transToPers( const Muon::MMPrepData *transObj, Muon::MMPrepData_p1 *persObj, MsgStream & /**log*/ )
 {
     //log << MSG::DEBUG << "MMPrepDataCnv_p3::transToPers" << endreq;
-    persObj->m_locX     = transObj->m_localPos[Trk::locX];
-    persObj->m_errorMat = (*transObj->m_localCovariance)(0,0);
-    persObj->m_id       = transObj->m_clusId.get_identifier32().get_compact(); // FIXME - remove when diff issue understood.
+    persObj->m_locX     = transObj->localPosition()[Trk::locX];
+    persObj->m_errorMat = (transObj->localCovariance())(0,0);
+    persObj->m_id       = transObj->identify().get_identifier32().get_compact(); // FIXME - remove when diff issue understood.
 }
 
 

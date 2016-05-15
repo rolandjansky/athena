@@ -2,19 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "MuonPrepRawData/MMPrepData.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MMPrepData_p1.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MuonPRD_Container_p1.h"
-#undef private
-#undef protected
-
 #include "MuonIdHelpers/MmIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MMPrepDataCnv_p1.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MMPrepDataContainerCnv_p1.h"
+#include "CxxUtils/make_unique.h"
 
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
@@ -72,7 +68,7 @@ StatusCode Muon::MMPrepDataContainerCnv_p1::initialize(MsgStream &log) {
 
 void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContainer* transCont,  Muon::MMPrepDataContainer_p1* persCont, MsgStream &log) 
 {
-  if(log.level() <= MSG::DEBUG && !m_isInitialized) {
+  if(/*log.level() <= MSG::DEBUG &&*/ !m_isInitialized) {
       if (this->initialize(log) != StatusCode::SUCCESS) {
           log << MSG::FATAL << "Could not initialize MMPrepDataContainerCnv_p1 " << endreq;
       } 
@@ -135,7 +131,7 @@ void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContaine
       const MMPrepData* chan = collection[i]; // channel being converted
       MMPrepData_p1*   pchan = &(persCont->m_prds[pchanIndex]); // persistent version to fill
       chanCnv.transToPers(chan, pchan, log); // convert from MMPrepData to MMPrepData_p1
-      unsigned int clusIdCompact = chan->m_clusId.get_identifier32().get_compact();
+      unsigned int clusIdCompact = chan->identify().get_identifier32().get_compact();
       unsigned int collIdCompact = collection.identify().get_identifier32().get_compact();
       unsigned int diff = clusIdCompact - collIdCompact;
       if (diff>sizeof(unsigned short)) log << MSG::WARNING<<"Diff is greater than max size of diff permitted!!!"<<endreq;
@@ -147,9 +143,9 @@ void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContaine
       //check! 
       log << MSG::DEBUG<<"chan identify(): "<<chan->identify()<<endreq;
       
-      if (chan->m_detEl != m_muonDetMgr->getMMReadoutElement(chan->identify()))
+      if (chan->detectorElement() != m_muonDetMgr->getMMReadoutElement(chan->identify()))
         log << MSG::WARNING<<"DE from det manager ("<<m_muonDetMgr->getMMReadoutElement(chan->identify())
-            <<") does not match that from PRD ("<<chan->m_detEl<<")"<<endreq; 
+            <<") does not match that from PRD ("<<chan->detectorElement()<<")"<<endreq; 
       
       // sanity checks - to be removed at some point
       // if(log.level() <= MSG::DEBUG){
@@ -222,16 +218,26 @@ void  Muon::MMPrepDataContainerCnv_p1::persToTrans(const Muon::MMPrepDataContain
         // Fill with channels
     for (; pchanIndex < pchanEnd; ++ pchanIndex, ++chanIndex) {
       const MMPrepData_p1* pchan = &(persCont->m_prds[pchanIndex]);
-      Muon::MMPrepData* chan = new MMPrepData;
+      
+      const MuonGM::MMReadoutElement* detEl =
+        m_muonDetMgr->getMMReadoutElement(Identifier(pchan->m_id));
+      if (!detEl) {
+        if (log.level() <= MSG::WARNING) 
+          log << MSG::WARNING<< "Muon::MMPrepDataContainerCnv_p1::persToTrans: could not get valid det element for PRD with id="<<pchan->m_id<<". Skipping."<<endreq;
+        continue;
+      }
 
       // chan->m_clusId=Identifier(pcoll.m_id + persCont->m_prdDeltaId[pchanIndex]); FIXME! Put this back once diff is sane.
-      chanCnv.persToTrans(pchan, chan, log);// FIXME! remove.
-      log << MSG::DEBUG<<"Trans id:"<<std::hex<<chan->m_clusId.get_identifier32().get_compact()<<"\t pers Id:"<<pchan->m_id<<std::dec<<endreq;
+      auto chan = CxxUtils::make_unique<MMPrepData>
+        (chanCnv.createMMPrepData (pchan, detEl, log));
+
+      log << MSG::DEBUG<<"Trans id:"<<std::hex<<chan->identify().get_identifier32().get_compact()<<"\t pers Id:"<<pchan->m_id<<std::dec<<endreq;
+
       // std::cout <<"Trans id:"<<chan->m_clusId<<"\t pers Id:"<<pchan->m_id<<std::endl;
       
-      if ( m_MMId->valid(chan->m_clusId)!=true ) {
+      if ( m_MMId->valid(chan->identify())!=true ) {
                 // have invalid PRD
-        log << MSG::WARNING  << "MM PRD has invalid Identifier of "<< m_MMId->show_to_string(chan->m_clusId)
+        log << MSG::WARNING  << "MM PRD has invalid Identifier of "<< m_MMId->show_to_string(chan->identify())
           <<" - are you sure you have the correct geometry loaded, and NSW enabled?" << endreq;
       } 
       // chanCnv.persToTrans(pchan, chan, log); // Fill chan with data from pchan FIXME! Put this back once diff is sane.
@@ -243,15 +249,9 @@ void  Muon::MMPrepDataContainerCnv_p1::persToTrans(const Muon::MMPrepDataContain
       //   log << MSG::WARNING<< " Muon::MMPrepDataContainerCnv_p1::persToTrans: problem converting Identifier to DE hash "<<endreq;
           // chan->m_detEl = m_muonDetMgr->getMMReadoutElement(deIDHash);;
       log << MSG::DEBUG<<"chan identify(): "<<chan->identify()<<endreq;
-      chan->m_detEl = m_muonDetMgr->getMMReadoutElement(chan->identify()); 
-      if (!chan->m_detEl) {
-        if (log.level() <= MSG::WARNING) 
-          log << MSG::WARNING<< "Muon::MMPrepDataContainerCnv_p1::persToTrans: could not get valid det element for PRD with id="<<chan->identify()<<". Skipping."<<endreq;
-        delete chan;
-        continue;
-      }
+
       chan->setHashAndIndex(collIDHash, chanIndex); 
-      coll->push_back(chan);
+      coll->push_back(std::move(chan));
       
     }
 

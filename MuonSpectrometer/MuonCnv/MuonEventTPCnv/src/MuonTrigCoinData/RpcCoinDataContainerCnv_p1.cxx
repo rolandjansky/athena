@@ -3,12 +3,8 @@
 */
 
 /* Takashi Kubota - June 30, 2008 */
-#define private public
-#define protected public
 #include "MuonTrigCoinData/RpcCoinData.h"
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
-#undef private
-#undef protected
 #include "MuonEventTPCnv/MuonTrigCoinData/RpcCoinData_p1.h"
 #include "MuonEventTPCnv/MuonTrigCoinData/MuonCoinDataContainer_p1.h"
 
@@ -17,6 +13,7 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonTrigCoinData/RpcCoinDataCnv_p1.h"
 #include "MuonEventTPCnv/MuonTrigCoinData/RpcCoinDataContainerCnv_p1.h"
+#include "CxxUtils/make_unique.h"
 
 // // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
@@ -125,7 +122,7 @@ void Muon::RpcCoinDataContainerCnv_p1::transToPers(const RpcCoinDataContainerCnv
                 const Muon::RpcCoinData* chan = collection[i];
                 Muon::RpcCoinData_p1* pchan = &(persCont->m_prds[pchanIndex]);
                 chanCnv.transToPers(chan, pchan, log);
-                persCont->m_prdDeltaId[pchanIndex]=chan->m_clusId.get_identifier32().get_compact() - collection.identify().get_identifier32().get_compact(); //store delta identifiers, rather than full identifiers
+                persCont->m_prdDeltaId[pchanIndex]=chan->identify().get_identifier32().get_compact() - collection.identify().get_identifier32().get_compact(); //store delta identifiers, rather than full identifiers
             }
         }
       log << MSG::DEBUG  << " ***  Writing Muon::RpcCoinDataContainer" << endreq;
@@ -168,18 +165,23 @@ void  Muon::RpcCoinDataContainerCnv_p1::persToTrans(const RpcCoinDataContainerCn
           // Fill with channels:
           for (; pchanIndex < pchanEnd; ++ pchanIndex, ++chanIndex) {
               const Muon::RpcCoinData_p1* pchan = &(persCont->m_prds[pchanIndex]);
-              Muon::RpcCoinData* chan = new Muon::RpcCoinData();
-              chan->m_clusId=Identifier(pcoll.m_id + persCont->m_prdDeltaId[pchanIndex]);
-              chanCnv.persToTrans(pchan, chan, log);
+              Identifier clusId(pcoll.m_id + persCont->m_prdDeltaId[pchanIndex]);
 
-            // The reason I need to do the following is that one collection can have several detector elements in, the collection hashes!=detector element hashes
-            IdentifierHash deIDHash;
-            int result = m_RpcId->get_detectorElement_hash(chan->identify(), deIDHash);
-            if (result) log << MSG::WARNING  << " Muon::MdtPrepDataContainerCnv_p2::persToTrans: problem converting Identifier to DE hash "<<endreq;
-            chan->m_detEl = m_muonDetMgr->getRpcReadoutElement(deIDHash);;
-            chan->setHashAndIndex(collIDHash, chanIndex);
-            
-              (*coll)[chanIndex] = chan;
+              // The reason I need to do the following is that one collection can have several detector elements in, the collection hashes!=detector element hashes
+              IdentifierHash deIDHash;
+              int result = m_RpcId->get_detectorElement_hash(clusId, deIDHash);
+              if (result) log << MSG::WARNING  << " Muon::MdtPrepDataContainerCnv_p2::persToTrans: problem converting Identifier to DE hash "<<endreq;
+              const MuonGM::RpcReadoutElement* detEl =
+                m_muonDetMgr->getRpcReadoutElement(deIDHash);;
+
+              auto chan = CxxUtils::make_unique<Muon::RpcCoinData>
+                (chanCnv.createRpcCoinData (pchan,
+                                            clusId,
+                                            detEl,
+                                            log));
+
+              chan->setHashAndIndex(collIDHash, chanIndex);
+              (*coll)[chanIndex] = std::move(chan);
           }
 
           // register the PRD collection in IDC with hash - faster addCollection

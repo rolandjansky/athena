@@ -36,7 +36,7 @@ public:
     virtual Muon::CscPrepDataContainer* createTransient(const Muon::CscPrepDataContainer_p2* persObj, MsgStream& log);
 
 
-private:
+    //private:
     const CscIdHelper *m_CscId;
     StoreGateSvc *m_storeGate;
     const MuonGM::MuonDetectorManager* m_muonDetMgr;

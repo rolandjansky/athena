@@ -8,12 +8,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "MuonPrepRawData/TgcPrepData.h"
-#undef private
-#undef protected
-
 #include "MuonEventTPCnv/MuonPrepRawData/TgcPrepDataCnv_p1.h"
 
 void TgcPrepDataCnv_p1::

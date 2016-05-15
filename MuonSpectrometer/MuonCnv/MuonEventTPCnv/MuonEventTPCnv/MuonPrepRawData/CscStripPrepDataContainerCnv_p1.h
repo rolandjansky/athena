@@ -34,7 +34,7 @@ namespace Muon{
         virtual void persToTrans(const PERS* persCont, TRANS* transCont, MsgStream &log); 
         virtual void transToPers(const TRANS* transCont, PERS* persCont, MsgStream &log);
         virtual Muon::CscStripPrepDataContainer* createTransient(const Muon::MuonPRD_Container_p1* persObj, MsgStream& log);
-    private:
+        //private:
         StatusCode initialize(MsgStream &log);
 
         const CscIdHelper *m_cscStripId;

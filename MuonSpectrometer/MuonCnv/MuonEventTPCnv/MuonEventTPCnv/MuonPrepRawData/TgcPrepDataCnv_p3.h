@@ -23,6 +23,12 @@ class TgcPrepDataCnv_p3
     public:
   TgcPrepDataCnv_p3() {}
 
+  Muon::TgcPrepData
+  createTgcPrepData( const Muon::TgcPrepData_p3 *persObj,
+                     const Identifier& id,
+                     const MuonGM::TgcReadoutElement* detEl,
+                     MsgStream & log );
+
   void persToTrans( const Muon::TgcPrepData_p3 *persObj,
                     Muon::TgcPrepData    *transObj,
                     MsgStream                &log );

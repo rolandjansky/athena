@@ -23,6 +23,12 @@ class CscPrepDataCnv_p2
     public:
   CscPrepDataCnv_p2() {}
 
+  Muon::CscPrepData
+  createCscPrepData( const Muon::CscPrepData_p2 *persObj,
+                     const Identifier& clusId,
+                     const MuonGM::CscReadoutElement* detEl,
+                     MsgStream & log );
+
   void persToTrans( const Muon::CscPrepData_p2 *persObj,
                     Muon::CscPrepData    *transObj,
                     MsgStream                &log );
