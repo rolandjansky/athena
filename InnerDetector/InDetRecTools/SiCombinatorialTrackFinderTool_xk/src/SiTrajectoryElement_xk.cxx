@@ -6,6 +6,7 @@
 #include <iomanip>
 
 #include "TrkSurfaces/PerigeeSurface.h" 
+#include "TrkSurfaces/AnnulusBounds.h" 
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
@@ -66,7 +67,7 @@ bool InDet::SiTrajectoryElement_xk::set
   }
 
   noiseInitiate()                          ;
-  (m_detelement->isSCT() && m_detelement->design().shape()==InDetDD::Trapezoid) ? 
+  (m_detelement->isSCT() && (m_detelement->design().shape()==InDetDD::Trapezoid || m_detelement->design().shape()==InDetDD::Annulus)   ) ? 
     m_stereo = true : m_stereo = false;
 
   if(m_detstatus && m_ndf == 1) m_halflenght = (*sb)->width().z()*.5;
