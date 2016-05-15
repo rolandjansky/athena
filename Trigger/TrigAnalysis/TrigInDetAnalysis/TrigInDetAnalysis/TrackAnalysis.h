@@ -20,6 +20,7 @@
 
 #include "TrigInDetAnalysis/TrackAssociator.h"
 #include "TrigInDetAnalysis/Track.h"
+#include "TrigInDetAnalysis/TIDAVertex.h"
 #include "TrigInDetAnalysis/TIDAFeatureStore.h"
 
 #include "TH1.h"
@@ -46,6 +47,10 @@ public:
   virtual void execute( const std::vector<TIDA::Track*>& tracks1,
 			const std::vector<TIDA::Track*>& tracks2,
 			TrackAssociator* matcher ) = 0;
+
+  virtual void execute_vtx( const std::vector<TIDA::Vertex*>& ,
+			    const std::vector<TIDA::Vertex*>& ) { }  
+			   
   
   virtual void finalise() = 0;
 
