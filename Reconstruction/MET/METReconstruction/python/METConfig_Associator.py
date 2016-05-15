@@ -41,8 +41,7 @@ metFlags.METAssocOutputList().append(cfg_akt4em.suffix)
 
 ############################################################################
 # PFlow
-from RecExConfig.RecFlags import rec
-if rec.doInDet() and metFlags.DoPFlow():
+if metFlags.DoPFlow() and metFlags.UseTracks():
     JetType = 'PFlowJet'
     
     associators = [AssocConfig(JetType),

@@ -31,7 +31,10 @@
 #include "METRecoInterface/IMETToolBase.h"
 
 // CaloNoiseTool
+#if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
+#else
 #include "CaloInterface/ICaloNoiseTool.h"
+#endif
 
 // Forward declarations
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -117,7 +120,10 @@ namespace met{
     METCaloRegionsTool();
 
     // Tool handle for CaloNoiseTool
+    #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
+    #else
     ToolHandle<ICaloNoiseTool> m_caloNoiseTool;
+    #endif
   }; 
 
 }

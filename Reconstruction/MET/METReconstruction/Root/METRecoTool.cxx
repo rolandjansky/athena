@@ -264,7 +264,7 @@ namespace met {
 	ATH_MSG_WARNING("Failed to execute tool: " << tool->name());
 	if ( m_timedetail > 0 ) m_clock.Stop();
 	if ( m_timedetail > 1 ) m_toolclocks[itool].Stop();
-	return StatusCode::SUCCESS;
+	// return StatusCode::SUCCESS;
       }
       if ( m_timedetail > 1 ) {
 	m_toolclocks[itool].Stop();
@@ -297,9 +297,9 @@ namespace met {
       if ( m_timedetail > 1 ) m_toolclocks[itool].Start(false);
       if( tool->execute(metTerm, metMap).isFailure() ) {
 	ATH_MSG_WARNING("Failed to execute tool: " << tool->name());
-	if ( m_timedetail > 0 ) m_clock.Stop();
-	if ( m_timedetail > 1 ) m_toolclocks[itool].Stop();
-	return StatusCode::SUCCESS;
+	// if ( m_timedetail > 0 ) m_clock.Stop();
+	// if ( m_timedetail > 1 ) m_toolclocks[itool].Stop();
+	// return StatusCode::SUCCESS;
       }
       if ( m_timedetail > 1 ) {
 	m_toolclocks[itool].Stop();

@@ -24,9 +24,10 @@
 
 #include "METReconstruction/METAssociator.h"
 #include "METReconstruction/METJetAssocTool.h"
+#include "METReconstruction/METEgammaAssociator.h"
 #include "METReconstruction/METElectronAssociator.h"
 #include "METReconstruction/METPhotonAssociator.h"
-#include "METReconstruction/METTauAssociator.h" 
+#include "METReconstruction/METTauAssociator.h"
 #include "METReconstruction/METMuonAssociator.h"
 #include "METReconstruction/METSoftAssociator.h"
 #include "METReconstruction/METAssociationTool.h"

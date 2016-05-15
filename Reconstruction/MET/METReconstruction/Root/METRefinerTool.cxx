@@ -36,6 +36,7 @@ namespace met {
     AsgTool(name)
   {
     declareProperty( "MissingETKey",    m_output_met_key  );
+    declareProperty( "UseRapidity",     m_useRapidity = false );
   }
 
   // Destructor
@@ -47,7 +48,7 @@ namespace met {
   ////////////////////////////
   StatusCode METRefinerTool::initialize()
   {
-    ATH_MSG_INFO ("Initializing " << name() << "...");
+    ATH_MSG_DEBUG ("Initializing " << name() << "...");
 
     return StatusCode::SUCCESS;
   }

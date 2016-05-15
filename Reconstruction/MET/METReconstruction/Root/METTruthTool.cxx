@@ -67,7 +67,8 @@ namespace met {
   ////////////////////////////
   StatusCode METTruthTool::initialize()
   {
-    ATH_MSG_INFO ("Initializing " << name() << "...");
+    ATH_CHECK( METBuilderTool::initialize() );
+    ATH_MSG_VERBOSE ("Initializing " << name() << "...");
 
     if(m_inputType=="NonInt") {
       m_truth_type = MissingETBase::Source::truthNonInt();

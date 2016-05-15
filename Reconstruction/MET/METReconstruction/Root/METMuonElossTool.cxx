@@ -62,6 +62,7 @@ namespace met {
   ////////////////////////////
   StatusCode METMuonElossTool::initialize()
   {
+    ATH_CHECK( METRefinerTool::initialize() );
     ATH_MSG_INFO ("Initializing " << name() << "...");
 
     return StatusCode::SUCCESS;
@@ -133,7 +134,7 @@ namespace met {
 	// to place a cap on the correction.
 	if(obj2->type()==xAOD::Type::CaloCluster) {
 	const CaloCluster* cl = static_cast<const CaloCluster*>(obj2);
-	  if(cl->p4().DeltaR(muon->p4())<0.1) {
+	  if(xAOD::P4Helpers::isInDeltaR(*cl,*muon,0.1,m_useRapidity)) {
 	    clusterSum += cl->e();
 	  }
         }

@@ -53,19 +53,21 @@ namespace met {
     AsgTool(name),
     METRefinerTool(name)
   {
-    declareProperty( "DoPVSel",           m_trk_doPVsel = true              );
+    declareProperty( "DoPVSel",            m_trk_doPVsel = true                 );
     // declareProperty( "TrackD0Max",      m_trk_d0Max = 1.5                    );
     // declareProperty( "TrackZ0Max",      m_trk_z0Max = 1.5                    );
-    declareProperty( "InputPVKey",        m_pv_inputkey = "PrimaryVertices" );
-    declareProperty( "DoEoverPSel",       m_trk_doEoverPsel = false             );
-    declareProperty( "InputClusterKey",   m_cl_inputkey = "CaloCalTopoClusters" );
-    declareProperty( "InputElectronKey",  m_el_inputkey = "Electrons"       );
-    declareProperty( "InputMuonKey",      m_mu_inputkey = "Muons"           );
-
-    declareProperty( "DoVxSep",           m_doVxSep = false                 );
-    declareProperty( "TrackSelectorTool", m_trkseltool                      );
-    declareProperty( "TrackVxAssocTool",  m_trkToVertexTool                 );
-    declareProperty( "DoLepRecovery",     m_doLepRecovery=false             );
+    declareProperty( "InputPVKey",         m_pv_inputkey = "PrimaryVertices"    );
+    declareProperty( "DoEoverPSel",        m_trk_doEoverPsel = false            );
+    declareProperty( "InputClusterKey",    m_cl_inputkey = "CaloCalTopoClusters");
+    declareProperty( "InputElectronKey",   m_el_inputkey = "Electrons"          );
+    declareProperty( "InputMuonKey",       m_mu_inputkey = "Muons"              );
+    declareProperty( "DoVxSep",            m_doVxSep = false                    );
+    declareProperty( "TrackSelectorTool",  m_trkseltool                         );
+    declareProperty( "TrackVxAssocTool",   m_trkToVertexTool                    );
+    declareProperty( "DoLepRecovery",      m_doLepRecovery=false                );
+    declareProperty( "UseIsolationTools",  m_useIsolationTools=false            );
+    declareProperty( "TrackIsolationTool", m_trkIsolationTool                   );
+    declareProperty( "CaloIsolationTool",  m_caloIsolationTool                  );
   }
 
   // Destructor
@@ -77,9 +79,12 @@ namespace met {
   ////////////////////////////
   StatusCode METTrackFilterTool::initialize()
   {
+    ATH_CHECK( METRefinerTool::initialize() );
     ATH_MSG_INFO ("Initializing " << name() << "...");
     ATH_CHECK(m_trkseltool.retrieve());
     ATH_CHECK(m_trkToVertexTool.retrieve());
+    ATH_CHECK(m_trkIsolationTool.retrieve());
+    ATH_CHECK(m_caloIsolationTool.retrieve());
 
     if(m_doVxSep) ATH_MSG_INFO("Building TrackMET for each vertex");
 
@@ -127,37 +132,69 @@ namespace met {
       ATH_MSG_VERBOSE( "Track momentum error (%): " << Rerr*100 );
 
       // first compute track and calo isolation variables
-      float ptcone20 = 0;
-      for(const auto& obj : trkList) {
-        if(obj->type() == xAOD::Type::TrackParticle) {
-	  const TrackParticle* testtrk = static_cast<const TrackParticle*>(obj);
-	  if(testtrk==trk) continue;
-	  if(testtrk->p4().DeltaR(trk->p4()) < 0.2) {
-	    ptcone20 += testtrk->pt();
-	  } 
+      float ptcone20 = 0., isolfrac = 0., etcone10 = 0., EoverP = 0.;
+      if(!m_useIsolationTools) {
+        ATH_MSG_VERBOSE( "Using OLD track isolation setup");
+        // ptcone
+        for(const auto& obj : trkList) {
+          if(obj->type() == xAOD::Type::TrackParticle) {
+            const TrackParticle* testtrk = static_cast<const TrackParticle*>(obj);
+            if(testtrk==trk) continue;
+            if (xAOD::P4Helpers::isInDeltaR(*testtrk,*trk,0.2,m_useRapidity)) {
+	          ptcone20 += testtrk->pt();
+            } 
+          }
+          else {ATH_MSG_WARNING("METTrackFilterTool::isGoodEoveP given an object of type " << obj->type());}
         }
-        else {ATH_MSG_WARNING("METTrackFilterTool::isGoodEoveP given an object of type " << obj->type());}
+        isolfrac = ptcone20 / trk->pt();
+        // etcone
+        for(const auto& clus : *clusters) {
+          if (xAOD::P4Helpers::isInDeltaR(*clus,*trk,0.1,m_useRapidity)) {
+            etcone10 += clus->pt();
+          }
+        }
+        EoverP = etcone10/trk->pt();
+      } 
+      else {
+        ATH_MSG_VERBOSE( "Using NEW track isolation setup");
+        // ptcone
+        TrackIsolation trkIsoResult;
+        std::vector<Iso::IsolationType> trkIsoCones; 
+        trkIsoCones.push_back(xAOD::Iso::IsolationType::ptcone20);
+        xAOD::TrackCorrection trkIsoCorr;
+        trkIsoCorr.trackbitset.set(xAOD::Iso::IsolationTrackCorrection::coreTrackPtr); 
+        m_trkIsolationTool->trackIsolation(trkIsoResult,
+                                           *trk,
+                                           trkIsoCones,
+                                           trkIsoCorr);
+        ptcone20 = trkIsoResult.ptcones.size() > 0 ? trkIsoResult.ptcones[0] : 0;
+        isolfrac = ptcone20/trk->pt();
+        // etcone
+        CaloIsolation caloIsoResult_coreCone;
+        std::vector<Iso::IsolationType> caloIsoCones_coreCone; 
+        caloIsoCones_coreCone.push_back(xAOD::Iso::IsolationType::etcone20); 
+        xAOD::CaloCorrection caloIsoCorr_coreCone;
+        caloIsoCorr_coreCone.calobitset.set(xAOD::Iso::IsolationCaloCorrection::coreCone); 
+        m_caloIsolationTool->caloTopoClusterIsolation(caloIsoResult_coreCone,
+                                                      *trk,
+                                                      caloIsoCones_coreCone,
+                                                      caloIsoCorr_coreCone);
+        etcone10 =  caloIsoResult_coreCone.etcones.size() > 0 ? 
+                    caloIsoResult_coreCone.coreCorrections[xAOD::Iso::IsolationCaloCorrection::coreCone][xAOD::Iso::IsolationCorrectionParameter::coreEnergy] : 0.;
+        EoverP   =  etcone10/trk->pt(); 
+        /////////////////////////////////////////////////////////////////////////
       }
-      float isolfrac = ptcone20 / trk->pt();
       ATH_MSG_VERBOSE( "Track isolation fraction: " << isolfrac );
-
-      float etcone10 = 0.;
-      for(const auto& clus : *clusters) {
-	if(clus->p4().DeltaR(trk->p4()) < 0.1) {
-	  etcone10 += clus->pt();
-	}
-      }
-      float EoverP = etcone10/trk->pt();
-      ATH_MSG_VERBOSE( "Track E/P: " << EoverP );
+      ATH_MSG_VERBOSE( "Track E/P = " << EoverP );
 
       if(isolfrac<0.1) {
-	// isolated track cuts
-	if(Rerr>0.4) return false;
-	else if (EoverP<0.65 && (EoverP>0.1 || Rerr>0.1)) return false;
-      } else {
-	// non-isolated track cuts
-	float trkptsum = ptcone20+trk->pt();
-	if(etcone10/trkptsum<0.6 && trk->pt()/trkptsum>0.6) return false;
+		// isolated track cuts
+		if(Rerr>0.4) return false;
+		else if (EoverP<0.65 && (EoverP>0.1 || Rerr>0.1)) return false;
+          } else {
+		// non-isolated track cuts
+		float trkptsum = ptcone20+trk->pt();
+		if(etcone10/trkptsum<0.6 && trk->pt()/trkptsum>0.6) return false;
       }
     }
 
@@ -232,9 +269,8 @@ namespace met {
 	ATH_MSG_WARNING("Event has no primary vertices");
 	return StatusCode::FAILURE;
       }
-      if(pv) {
-	ATH_MSG_DEBUG("Main primary vertex has z = " << pv->z());
-      } else {
+      if(pv) { ATH_MSG_DEBUG("Main primary vertex has z = " << pv->z()); }
+      else {
 	ATH_MSG_WARNING("Did not find a primary vertex in the container.");
 	return StatusCode::FAILURE;
       }

@@ -1,25 +1,28 @@
 <lcgdict>
-   <class name="met::METBuilderTool" />
-   <class name="met::METElectronTool" />
-   <class name="met::METPhotonTool" />
-   <class name="met::METTauTool" />
-   <class name="met::METJetTool" />
-   <class name="met::METMuonTool" />
-   <class name="met::METSoftTermsTool" />
-   <class name="met::METTruthTool" />
-   <class name="met::METCaloRegionsTool" />
-   <class name="met::METRegionsTool" />
-   <class name="met::METTrackFilterTool" />
-   <class name="met::METRecoTool" />
+  <namespace name="met"/>
+  <enum name="met::SWClusterMatchMethod"/>
 
-   <class name="met::METAssociator" />
-   <class name="met::METJetAssocTool" />
-   <class name="met::METElectronAssociator" />
-   <class name="met::METPhotonAssociator" />
-   <class name="met::METTauAssociator" /> 
-   <class name="met::METMuonAssociator" />
-   <class name="met::METSoftAssociator" />
-   <class name="met::METAssociationTool" />
+  <class name="met::METBuilderTool" />
+  <class name="met::METElectronTool" />
+  <class name="met::METPhotonTool" />
+  <class name="met::METTauTool" />
+  <class name="met::METJetTool" />
+  <class name="met::METMuonTool" />
+  <class name="met::METSoftTermsTool" />
+  <class name="met::METTruthTool" />
+  <class name="met::METCaloRegionsTool" />
+  <class name="met::METRegionsTool" />
+  <class name="met::METTrackFilterTool" />
+  <class name="met::METRecoTool" />
+
+  <class name="met::METAssociator" />
+  <class name="met::METJetAssocTool" />
+  <class name="met::METElectronAssociator" />
+  <class name="met::METPhotonAssociator" />
+  <class name="met::METTauAssociator" /> 
+  <class name="met::METMuonAssociator" />
+  <class name="met::METSoftAssociator" />
+  <class name="met::METAssociationTool" />
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

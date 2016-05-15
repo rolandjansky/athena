@@ -17,6 +17,10 @@
 // METReconstruction includes
 #include "METReconstruction/METAssociator.h"
 
+#include "AsgTools/ToolHandle.h"
+
+class ICaloClusterMatchingTool;
+
 namespace met{
   class METMuonAssociator final
     : public METAssociator
@@ -54,7 +58,7 @@ namespace met{
     StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap);
     StatusCode extractTopoClusters(const xAOD::IParticle* obj,
 				   std::vector<const xAOD::IParticle*>& tclist,
-				   const xAOD::CaloClusterContainer* tcCont) const;
+				   const xAOD::IParticleContainer* tcCont) const;
     StatusCode extractPFO(const xAOD::IParticle* obj,
 			  std::vector<const xAOD::IParticle*>& pfolist,
 			  const xAOD::PFOContainer* pfoCont,
@@ -62,13 +66,13 @@ namespace met{
 			  const xAOD::Vertex* pv) const final;
     StatusCode extractTracks(const xAOD::IParticle* obj,
 			     std::vector<const xAOD::IParticle*>& constlist,
-			     const xAOD::CaloClusterContainer* tcCont,
+			     const xAOD::IParticleContainer* tcCont,
 			     const xAOD::Vertex* pv) const final;
 
     private:
- 
+
     /// Default constructor: 
-    METMuonAssociator();
+    METMuonAssociator();    
 
   }; 
 

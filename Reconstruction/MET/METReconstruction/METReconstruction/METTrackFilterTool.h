@@ -37,6 +37,9 @@
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 
+#include "RecoToolInterfaces/ITrackIsolationTool.h"
+#include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
+
 namespace met{
 
   class METTrackFilterTool
@@ -95,6 +98,8 @@ namespace met{
 
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
     ToolHandle<CP::ITrackVertexAssociationTool> m_trkToVertexTool;
+    ToolHandle<xAOD::ITrackIsolationTool> m_trkIsolationTool;
+    ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_caloIsolationTool;
 
     void selectElectrons(const xAOD::ElectronContainer &elCont, std::vector<const xAOD::Electron*>& electrons) const;
     void selectMuons(const xAOD::MuonContainer &muCont, std::vector<const xAOD::Muon*>& muons) const;
@@ -108,6 +113,7 @@ namespace met{
 
     bool m_doVxSep;
     bool m_doLepRecovery;
+    bool m_useIsolationTools;
 
     bool m_trk_doEoverPsel;
     std::string m_cl_inputkey;

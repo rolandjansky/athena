@@ -35,9 +35,10 @@ namespace met {
   METBuilderTool::METBuilderTool(const std::string& name) : 
     AsgTool(name)
   {
-    declareProperty( "InputCollection", m_input_data_key  );
-    declareProperty( "MissingETKey",    m_output_met_key  );
-    declareProperty( "SignalState",     m_signalstate = 0 );
+    declareProperty( "InputCollection", m_input_data_key      );
+    declareProperty( "MissingETKey",    m_output_met_key      );
+    declareProperty( "SignalState",     m_signalstate = 0     );
+    declareProperty( "UseRapidity",     m_useRapidity = false );
   }
 
   // Destructor
@@ -49,7 +50,7 @@ namespace met {
   ////////////////////////////
   StatusCode METBuilderTool::initialize()
   {
-    ATH_MSG_INFO ("Initializing " << name() << "...");
+    ATH_MSG_DEBUG ("Initializing " << name() << "...");
 
     return StatusCode::SUCCESS;
   }

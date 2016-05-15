@@ -4,13 +4,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// METPhotonAssociator.cxx 
+// METPhotonAssociator.cxx
 // Implementation file for class METPhotonAssociator
 //
 //  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 //
 // Author: P Loch, S Resconi, TJ Khoo, AS Mete
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
 
 // METReconstruction includes
 #include "METReconstruction/METPhotonAssociator.h"
@@ -25,7 +25,7 @@ namespace met {
 
   // Constructors
   ////////////////
-  METPhotonAssociator::METPhotonAssociator(const std::string& name) : 
+  METPhotonAssociator::METPhotonAssociator(const std::string& name) :
     AsgTool(name),
     METAssociator(name),
     METEgammaAssociator(name)
@@ -40,6 +40,7 @@ namespace met {
   ////////////////////////////
   StatusCode METPhotonAssociator::initialize()
   {
+    ATH_CHECK( METEgammaAssociator::initialize() );
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
     return StatusCode::SUCCESS;
   }
@@ -50,21 +51,21 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
+  ///////////////////////////////////////////////////////////////////
+  // Const methods:
   ///////////////////////////////////////////////////////////////////
 
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
+  ///////////////////////////////////////////////////////////////////
+  // Non-const methods:
+  ///////////////////////////////////////////////////////////////////
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
+  ///////////////////////////////////////////////////////////////////
+  // Protected methods:
+  ///////////////////////////////////////////////////////////////////
 
   // executeTool
   ////////////////
-  StatusCode METPhotonAssociator::executeTool(xAOD::MissingETContainer* /*metCont*/, xAOD::MissingETAssociationMap* metMap) 
+  StatusCode METPhotonAssociator::executeTool(xAOD::MissingETContainer* /*metCont*/, xAOD::MissingETAssociationMap* metMap)
   {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
 
@@ -85,7 +86,7 @@ namespace met {
 
   StatusCode METPhotonAssociator::extractTracks(const xAOD::IParticle* obj,
 						std::vector<const xAOD::IParticle*>& constlist,
-						const xAOD::CaloClusterContainer* tcCont,
+						const xAOD::IParticleContainer* tcCont,
 					        const xAOD::Vertex* pv) const
   {
     const xAOD::Photon *ph = static_cast<const xAOD::Photon*>(obj);
@@ -129,7 +130,7 @@ namespace met {
     const xAOD::Photon *ph = static_cast<const xAOD::Photon*>(obj);
     // safe to assume a single SW cluster?
     // will do so for now...
-    const xAOD::CaloCluster* swclus = ph->caloCluster();
+    const xAOD::IParticle* swclus = ph->caloCluster();
     double eg_cl_e = swclus->e();
 
     // the matching strategy depends on how the cluster container is sorted
@@ -175,7 +176,7 @@ namespace met {
 	pfolist.push_back(pfo);
 	sumE_pfo += pfo_e;
 
-        TLorentzVector momentum = pfo->GetVertexCorrectedEMFourVec(*pv);
+        TLorentzVector momentum = pv ? pfo->GetVertexCorrectedEMFourVec(*pv) : pfo->p4EM();
 	momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
 						   momentum.E(),momentum.Pt());
       } // if we will retain the topocluster

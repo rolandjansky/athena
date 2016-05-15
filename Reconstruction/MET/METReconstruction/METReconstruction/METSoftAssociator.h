@@ -60,16 +60,18 @@ namespace met{
 
     StatusCode extractTracks(const xAOD::IParticle*,
 			     std::vector<const xAOD::IParticle*>&,
-			     const xAOD::CaloClusterContainer*,
+			     const xAOD::IParticleContainer*,
 			     const xAOD::Vertex*) const {return StatusCode::FAILURE;} // should not be called
     StatusCode extractTopoClusters(const xAOD::IParticle*,
 				   std::vector<const xAOD::IParticle*>&,
-				   const xAOD::CaloClusterContainer*) const {return StatusCode::FAILURE;} // should not be called
+				   const xAOD::IParticleContainer*) const {return StatusCode::FAILURE;} // should not be called
 
     private:
  
     /// Default constructor: 
     METSoftAssociator();
+
+    bool m_decorateSoftTermConst;
 
   }; 
 

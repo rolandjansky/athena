@@ -3,17 +3,13 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon import CfgMgr
 
-#import METReconstruction.METConfig_Calo
-
 from RecExConfig.RecFlags import rec
-#if rec.doTruth:
-#    import METReconstruction.METConfig_Truth
 
 filelist = [#"valid2.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s2578_r7226/AOD.06803710._000047.pool.root.1",
             #"valid2.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s2578_r7226/AOD.06803710._000254.pool.root.1",
-    "myESD.pool.root"
+    #"myESD.pool.root"
 #    "/atlas/data1/userdata/khoo/Data15/mc15_ESD/mc15_13TeV.422008.ParticleGun_single_ele_Pt100.recon.ESD.e4459_s2726_r7143_tid06642056_00/ESD.06642056._000021.pool.root.1"
-#    "/atlas/data1/userdata/khoo/Data15/mc15_ESD/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.ESD.e3698_s2608_s2183_r7509_tid07497143_00/ESD.07497143._000004.pool.root.1"
+    "/atlas/data1/userdata/khoo/Data15/mc15_ESD/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.ESD.e3698_s2608_s2183_r7509_tid07497143_00/ESD.07497143._000004.pool.root.1"
     ]
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = filelist
@@ -44,16 +40,16 @@ topSequence = AlgSequence()
 
 ############################################################################
 # Set up muon and egamma topocluster links
+muonTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("MuonTCLinks",
+                                               ClustersToDecorate="MuonClusterCollection",
+                                               UseLeadCellEtaPhi=True)
 egammaTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("EgammaTCLinks",
                                                  ClustersToDecorate="egammaClusters")
 egammatopoTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("TopoEgammaTCLinks",
                                                      ClustersToDecorate="egammaTopoSeededClusters")
-muonTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("MuonTCLinks",
-                                               ClustersToDecorate="MuonClusterCollection",
-                                               UseLeadCellEtaPhi=True)
+topSequence += muonTCLinkAlg
 topSequence += egammaTCLinkAlg
 topSequence += egammatopoTCLinkAlg
-topSequence += muonTCLinkAlg
 
 # Set up default configurations
 #import METReconstruction.METConfig_Associator
@@ -80,9 +76,30 @@ cfg_akt4em = METAssocConfig('NewAntiKt4EMTopo',
                             associators,
                             doPFlow=False
                             )
+for assoc in cfg_akt4em.assoclist:
+    assoc.IgnoreJetConst = True
+    assoc.ForwardColl = "CellTowers"
+
+associators2 = [AssocConfig(JetType),
+               AssocConfig('Muon'),
+               AssocConfig('Ele'),
+               AssocConfig('Gamma'),
+               AssocConfig('Tau'),
+               AssocConfig('Soft')]
+cfg_akt4em2 = METAssocConfig('NewAntiKt4EMTopo2',
+                            associators2,
+                            doPFlow=False
+                            )
+for assoc in cfg_akt4em2.assoclist:
+    assoc.IgnoreJetConst = True
+    assoc.ClusColl = "CellTowers"
+
 
 metFlags.METAssocConfigs()[cfg_akt4em.suffix] = cfg_akt4em
 metFlags.METAssocOutputList().append(cfg_akt4em.suffix)
+
+metFlags.METAssocConfigs()[cfg_akt4em2.suffix] = cfg_akt4em2
+metFlags.METAssocOutputList().append(cfg_akt4em2.suffix)
 
 #from METReconstruction.METRecoFlags import metFlags
 from METReconstruction.METAssocConfig import getMETAssocAlg

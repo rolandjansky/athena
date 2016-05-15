@@ -52,13 +52,19 @@ namespace met {
   // Constructors
   ////////////////
   METCaloRegionsTool::METCaloRegionsTool(const std::string& name) : 
-    AsgTool(name),
-    m_caloNoiseTool("CaloNoiseToolDefault")
+    AsgTool(name)
+    #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
+    #else
+    ,m_caloNoiseTool("CaloNoiseToolDefault")
+    #endif
   {
     declareProperty( "InputCollection", m_input_data_key            );
     declareProperty( "UseCells"       , m_calo_useCells      = true );
     declareProperty( "DoTriggerMET"   , m_calo_doTriggerMet  = true );
+    #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
+    #else
     declareProperty( "CaloNoiseTool"  , m_caloNoiseTool             );
+    #endif
   }
 
   // Destructor
@@ -70,7 +76,7 @@ namespace met {
   ////////////////////////////
   StatusCode METCaloRegionsTool::initialize()
   {
-    ATH_MSG_INFO ("Initializing " << name() << "...");
+    ATH_MSG_DEBUG("Initializing " << name() << "...");
 
     StatusCode sc = StatusCode::SUCCESS;
     #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
@@ -265,7 +271,11 @@ namespace met {
 
       // Trigger MET
       if(m_calo_doTriggerMet) {
+        #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
+        double noise_cell = 0;
+        #else
         double noise_cell = m_caloNoiseTool->totalNoiseRMS((*iCell));
+        #endif
         // All cells
         metContainer->at(REGIONS_TOTAL)->add(et_cell*cos(phi_cell),
                                              et_cell*sin(phi_cell),

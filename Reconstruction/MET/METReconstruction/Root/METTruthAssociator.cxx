@@ -61,6 +61,7 @@ namespace met {
   ////////////////////////////
   StatusCode METTruthAssociator::initialize()
   {
+    ATH_CHECK( METAssociator::initialize() );
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
     return StatusCode::SUCCESS;
   }
@@ -422,8 +423,7 @@ namespace met {
     for(const auto& truth : jetconst) {
       // TEMP: use jet seed axis
       //       taus will provide an accessor
-      double dR = seedjet->p4().DeltaR((*truth)->p4());
-      if(dR>0.2) continue;
+      if(!xAOD::P4Helpers::isInDeltaR(*seedjet,**truth,0.2,m_useRapidity)) continue;
       truthlist.push_back(*truth);
     }
     return StatusCode::SUCCESS;
@@ -460,7 +460,7 @@ namespace met {
 			<< " status " << truth->status()
 			<< " pdgId " << truth->pdgId()
 			<< " charge " << truth->charge());
-	ATH_MSG_VERBOSE("DeltaR to hard object: " << truth->p4().DeltaR(obj->p4()));
+	ATH_MSG_VERBOSE("DeltaR to hard object: " << xAOD::P4Helpers::deltaR(*truth,*obj,m_useRapidity));
 
 	// if(fabs(truth->charge())>1e-9)
 	//   chrgvec += MissingETBase::Types::constvec_t(*truth);

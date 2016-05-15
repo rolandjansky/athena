@@ -79,7 +79,8 @@ namespace met {
   ////////////////////////////
   StatusCode METTauTool::initialize()
   {
-    ATH_MSG_INFO ("Initializing " << name() << "...");
+    ATH_CHECK( METBuilderTool::initialize() );
+    ATH_MSG_VERBOSE ("Initializing " << name() << "...");
 
     // Provide parser of input data string here? 
     // Or take a list of inputs?
@@ -159,8 +160,7 @@ namespace met {
     	iClus!=constit.end(); ++iClus) {
       // TEMP: use jet seed axis
       //       taus will provide an accessor
-      double dR = jet->p4().DeltaR((*iClus)->rawConstituent()->p4());
-      if(dR>0.2) continue;
+      if(!xAOD::P4Helpers::isInDeltaR(*jet,*(*iClus)->rawConstituent(),0.2,m_useRapidity)) continue;
       // skip cluster if dR>0.2
       sumE_allclus += (*iClus)->e();
       if((*iClus)->rawConstituent()->type() != xAOD::Type::CaloCluster) {
@@ -208,8 +208,7 @@ namespace met {
       }
       for(size_t iTrk=0; iTrk<tau->nOtherTracks(); ++iTrk) {
 	const xAOD::TrackParticle* trk = tau->otherTrack(iTrk);
-	double dR = jet->p4().DeltaR(trk->p4());
-	if(dR<0.2) tautracks.push_back(trk);
+        if(xAOD::P4Helpers::isInDeltaR(*jet,*trk,0.2,m_useRapidity)) tautracks.push_back(trk);
       }
       // test for used tracks, and retrieve unused ones
       metMap->checkUsage(tautracks,MissingETBase::UsageHandler::OnlyTrack);

@@ -16,14 +16,17 @@
 
 // METReconstruction includes
 #include "METReconstruction/METAssociator.h"
+#include "METReconstruction/METRecoCommon.h"
+
+#include "AsgTools/ToolHandle.h"
 
 namespace met{
+
   class METEgammaAssociator
     : virtual public METAssociator
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METEgammaAssociator, IMETAssocToolBase)
-
 
     /////////////////////////////////////////////////////////////////// 
     // Public methods: 
@@ -53,10 +56,14 @@ namespace met{
 
     StatusCode extractTopoClusters(const xAOD::IParticle* obj,
 				   std::vector<const xAOD::IParticle*>& tclist,
-				   const xAOD::CaloClusterContainer* tcCont) const;
+				   const xAOD::IParticleContainer* tcCont) const;
+
+    StatusCode selectEgammaClusters(const xAOD::CaloCluster *swclus,
+				    const std::vector<const xAOD::IParticle*>& inputTC,
+				    std::vector<const xAOD::IParticle*>& tclist) const;
+
     double m_tcMatch_dR;
     double m_tcMatch_maxRat;
-    double m_tcMatch_tolerance;
     unsigned short m_tcMatch_method;
 
     private:
