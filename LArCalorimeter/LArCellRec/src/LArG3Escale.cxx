@@ -44,23 +44,23 @@ Updated : Jul 2003 (DR)
 
 // Constants needed for computation of the Energy Scale:
     
-    const int LArG3Escale::nbinbar = 62;
-    const int LArG3Escale::nbinend = 46;
-    const double LArG3Escale::etaminbar = 0.;	
-    const double LArG3Escale::etamaxbar = 1.55;
-    const double LArG3Escale::etaminend = 1.35;	
-    const double LArG3Escale::etamaxend = 2.5;	
-    const double LArG3Escale::etamin = 0.;	
-    const double LArG3Escale::etamax = 2.5;
+    const int LArG3Escale::s_nbinbar = 62;
+    const int LArG3Escale::s_nbinend = 46;
+    const double LArG3Escale::s_etaminbar = 0.;	
+    const double LArG3Escale::s_etamaxbar = 1.55;
+    const double LArG3Escale::s_etaminend = 1.35;	
+    const double LArG3Escale::s_etamaxend = 2.5;	
+    const double LArG3Escale::s_etamin = 0.;	
+    const double LArG3Escale::s_etamax = 2.5;
 
-    const double LArG3Escale::gap0 = 0.13;
-    const double LArG3Escale::ecdg_scale = 1.055;
-    const double LArG3Escale::sfgin[4] = 
+    const double LArG3Escale::s_gap0 = 0.13;
+    const double LArG3Escale::s_ecdg_scale = 1.055;
+    const double LArG3Escale::s_sfgin[4] = 
                  {1.1753, -0.44802, 0.16489, -0.00994};
 
 // em barrel scale factors
 
-    const double LArG3Escale::m_emscale_bar[62] =
+    const double LArG3Escale::s_emscale_bar[62] =
         { 
            5.3383856, 5.3434567, 5.3485279, 5.3535995, 5.3726468,
            5.3807988, 5.3841310, 5.3859582, 5.3718100, 5.3745236,
@@ -79,7 +79,7 @@ Updated : Jul 2003 (DR)
 
 // em endcap scale factors
 
-   const double LArG3Escale::m_emscale_end[46] =
+   const double LArG3Escale::s_emscale_end[46] =
         {  
           11.9396935,
           11.8774414,11.8151903,11.7529392,11.6906872,11.6284361, 
@@ -95,7 +95,7 @@ Updated : Jul 2003 (DR)
 
 // weights for the presampler,strips,middle and back
 	
-   const double LArG3Escale::m_table_p[4][numEtaBins] = {
+   const double LArG3Escale::m_table_p[4][s_numEtaBins] = {
      {
        2.159336, 2.159365, 2.159426, 2.159524, 2.185450, 1.784150,
        1.468300, 1.577280, 2.357230, 2.143870, 2.429050, 2.128170,
@@ -319,20 +319,20 @@ double LArG3Escale::LArScale(int bar_ec, double abseta)
 
  if (bar_ec == 0)               // scale factors for barrel cells
     {
-       if (abseta < etamaxbar) 
+       if (abseta < s_etamaxbar) 
        {    
-        double granularity = (etamaxbar - etaminbar)/nbinbar;  
-        int m_ind = (int)((abseta - etaminbar)/granularity);
-        scale = m_emscale_bar[m_ind];
+         const double granularity = (s_etamaxbar - s_etaminbar)/s_nbinbar;
+         int ind = (int)((abseta - s_etaminbar)/granularity);
+         scale = s_emscale_bar[ind];
        }
     }    
     else if (bar_ec == 1)          // scale factors for endcap cells        
     {
-       if (abseta < etamaxend)
+       if (abseta < s_etamaxend)
        {
-           double granularity = (etamaxend - etaminend)/nbinend;  
-           int m_ind = (int)((abseta - etaminend)/granularity);
-           scale = m_emscale_end[m_ind]; 
+         const double granularity = (s_etamaxend - s_etaminend)/s_nbinend;
+         int ind = (int)((abseta - s_etaminend)/granularity);
+         scale = s_emscale_end[ind]; 
        }
        else 
        {
@@ -350,11 +350,11 @@ double LArG3Escale::scalee(double abseta)
   double scale; 
   double corr; 
   
-  double sfg13 = sfgin[0] + sfgin[1]*abseta +
-      sfgin[2]*abseta*abseta + sfgin[3]*abseta*abseta*abseta;
+  double sfg13 = s_sfgin[0] + s_sfgin[1]*abseta +
+      s_sfgin[2]*abseta*abseta + s_sfgin[3]*abseta*abseta*abseta;
   corr = 0.8589 + 0.06758*abseta ; 
 
-  scale = (1.-(abseta-1.8)*0.04)/sfg13/ecdg_scale/pow(gap0,1.3)*corr;
+  scale = (1.-(abseta-1.8)*0.04)/(sfg13*s_ecdg_scale*pow(s_gap0,1.3))*corr;
 
   return scale; 
 }
@@ -393,31 +393,31 @@ energy is added at the cluster level in LArGapCorrection.
 
 double LArG3Escale::GetWgt(int layer,double aeta)
 {
-  if (aeta > etamax || aeta < etamin)
+  if (aeta > s_etamax || aeta < s_etamin)
     return 1.;
   else
   {  
-     double granularity = (etamax - etamin)/numEtaBins;  
-     int m_ind = (int)((aeta - etamin)/granularity);
+     const double granularity = (s_etamax - s_etamin)/s_numEtaBins;
+     int ind = (int)((aeta - s_etamin)/granularity);
      if ( aeta < 1.35 || aeta > 1.6 ) 
      {
-        return m_table_p[layer%4][m_ind] ;
+        return m_table_p[layer%4][ind] ;
      }
      else 
      {
         if ( layer%4 ==0 ) 
         {
-           return m_table_p[0][m_ind];  // presampler EC + Barrrel
+           return m_table_p[0][ind];  // presampler EC + Barrrel
         }
         else 
         {
            if ( layer>0 && layer < 4) 
            {
-              return m_table_p[1][m_ind]; // Weights strips+mid+back barrel
+              return m_table_p[1][ind]; // Weights strips+mid+back barrel
            }
            else
            {
-              return m_table_p[3][m_ind]; // Weights endcap strips + back +barr$
+              return m_table_p[3][ind]; // Weights endcap strips + back +barr$
            }
         }        
      }

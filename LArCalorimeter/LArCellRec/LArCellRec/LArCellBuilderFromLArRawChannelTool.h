@@ -29,6 +29,7 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
+#include "AthAllocators/DataPool.h"
 
 
 class CaloCellContainer ;
@@ -125,10 +126,13 @@ private:
    * @brief Converts one LArRawChannel into a LArCell
    * @param theRawChannel Pointer to a LArRawChannel
    * @param hash (output) Refernce to the hash index of the cell
+   * @param pool Memory pool for cell allocation.
    * @return LArCell object (owned by a DataPool). NULL if no DDE is found.
    *
    */
-  LArCell* getCell(const LArRawChannel& theRawChannel, IdentifierHash& hash);
+  LArCell* getCell(const LArRawChannel& theRawChannel,
+                   IdentifierHash& hash,
+                   DataPool<LArCell>& pool);
 
   /**
    * @brief Gets a CaloDetectorDescriptionElement

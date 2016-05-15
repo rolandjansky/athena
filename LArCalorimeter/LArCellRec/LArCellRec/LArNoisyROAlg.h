@@ -36,7 +36,7 @@ class LArNoisyROAlg : public AthAlgorithm
 
  
  private: 
-  unsigned m_event_counter;
+  //unsigned m_event_counter;
 
   ToolHandle<ILArNoisyROTool> m_noisyROTool;
 

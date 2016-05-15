@@ -26,7 +26,7 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
 				const IInterface* parent ) : 
   ::AthAlgTool  ( type, name, parent   ),
   m_calo_id(0), m_onlineID(0) , m_invocation_counter(0),m_SaturatedCellTightCutEvents(0),
-  m_partitionMask({LArNoisyROSummary::EMECAMask,LArNoisyROSummary::EMBAMask,LArNoisyROSummary::EMBCMask,LArNoisyROSummary::EMECCMask}) //beware: The order matters! 
+  m_partitionMask({{LArNoisyROSummary::EMECAMask,LArNoisyROSummary::EMBAMask,LArNoisyROSummary::EMBCMask,LArNoisyROSummary::EMECCMask}}) //beware: The order matters! 
 {
   declareInterface<ILArNoisyROTool >(this);
   declareProperty( "BadChanPerFEB", m_BadChanPerFEB=30 );
@@ -183,14 +183,13 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
   }
 
   // exclude FCAL for now
-  // And also HEC (since 08/2015 - B.Trocme)
   uint8_t SatTightPartitions = 0;
   if ( NsaturatedTightCutBarrelA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMBAMask;
   if ( NsaturatedTightCutBarrelC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMBCMask;
   if ( NsaturatedTightCutEMECA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMECAMask;
   if ( NsaturatedTightCutEMECC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMECCMask;
-//  if ( NsaturatedTightCutHECA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECAMask;
-//  if ( NsaturatedTightCutHECC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECCMask;
+  if ( NsaturatedTightCutHECA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECAMask;
+  if ( NsaturatedTightCutHECC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECCMask;
   bool badSaturatedTightCut = (SatTightPartitions != 0);
   if ( badSaturatedTightCut ) noisyRO-> SetSatTightFlaggedPartitions(SatTightPartitions);
 
@@ -294,8 +293,8 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
   uint8_t MNBTightPartition=0;
   uint8_t MNBLoosePartition=0;
   
-  std::array<unsigned,5> nTightMNBFEBSperPartition({0,0,0,0,0});
-  std::array<unsigned,5> nLooseMNBFEBSperPartition({0,0,0,0,0});
+  std::array<unsigned,5> nTightMNBFEBSperPartition({{0,0,0,0,0}});
+  std::array<unsigned,5> nLooseMNBFEBSperPartition({{0,0,0,0,0}});
   for (HWIdentifier febid: m_knownMNBFEBs) { //Loop over known MNB FEBs
     FEBEvtStatMapCstIt statIt=FEBStats.find(febid.get_identifier32().get_compact());
     if (statIt!=FEBStats.end()) {

@@ -216,11 +216,11 @@ void LArCellEmMiscalib::smearingPerRegion()
 int LArCellEmMiscalib::region(int barrelec, double eta, double phi)
 {
  int iregion=-1;
- if (phi<0.) phi=phi+6.283185;
- int iphi=(int)(phi/6.283185*16.);
+ if (phi<0.) phi=phi+2*M_PI;
+ int iphi=(int)(phi*(16./(2*M_PI)));
  if (iphi>15) iphi=15;
  if (abs(barrelec)==1) {
-    int ieta=(int)(eta/0.2);
+    int ieta=(int)(eta*(1./0.2));
     if (ieta>7) ieta=7;
     iregion=16*ieta+iphi;
     if (barrelec==1) iregion=iregion+128;

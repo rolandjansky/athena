@@ -55,22 +55,22 @@ class LArG3Escale : public CaloCellCorrection
     double GetWgt(int table, double eta);
     double LArScale(int bar_ec, double abseta);
 
-    static const double gap0;
-    static const double ecdg_scale;
-    static const double sfgin[4];
-    static const double m_emscale_bar[62]; 
-    static const double m_emscale_end[46]; 
-    static const int nbinbar;
-    static const int nbinend;
-    static const double etamaxbar;
-    static const double etaminbar;
-    static const double etamaxend;
-    static const double etaminend;
-    static const double etamax;
-    static const double etamin;
-    static const int numEtaBins = 100;
-    static const double m_table_eta[numEtaBins+1];
-    static const double m_table_p[4][numEtaBins];  
+    static const double s_gap0;
+    static const double s_ecdg_scale;
+    static const double s_sfgin[4];
+    static const double s_emscale_bar[62]; 
+    static const double s_emscale_end[46]; 
+    static const int s_nbinbar;
+    static const int s_nbinend;
+    static const double s_etamaxbar;
+    static const double s_etaminbar;
+    static const double s_etamaxend;
+    static const double s_etaminend;
+    static const double s_etamax;
+    static const double s_etamin;
+    static const int s_numEtaBins = 100;
+    static const double m_table_eta[s_numEtaBins+1];
+    static const double m_table_p[4][s_numEtaBins];  
 
     bool  m_Weights;    
     float m_OverallScale;    

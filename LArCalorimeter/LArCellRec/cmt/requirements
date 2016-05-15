@@ -9,6 +9,7 @@ use AthenaKernel     AthenaKernel-*         Control
 use StoreGate        StoreGate-*            Control
 use AthenaBaseComps  AthenaBaseComps-*      Control
 use CxxUtils         CxxUtils-*             Control
+use AthAllocators    AthAllocators-*        Control
 
 use AtlasDetDescr    AtlasDetDescr-*        DetectorDescription
 use Identifier       Identifier-*           DetectorDescription
@@ -36,7 +37,6 @@ use LArRecConditions LArRecConditions-*     LArCalorimeter
 private
 use AtlasHepMC       AtlasHepMC-*           External
 use AtlasROOT        AtlasROOT-*            External
-use DataModel 	     DataModel-*            Control
 use AthenaPoolUtilities     AthenaPoolUtilities-*     Database/AthenaPOOL
 use xAODEventInfo      xAODEventInfo-*      Event/xAOD
 #use EventInfo        EventInfo-*      	    Event

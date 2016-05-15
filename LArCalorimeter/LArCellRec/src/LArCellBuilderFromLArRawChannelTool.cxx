@@ -11,12 +11,7 @@
 // Major overhaul, Feb 2008, W.Lampl
 
 
-#define private public
-#define protected public
 #include "LArRecEvent/LArCell.h"
-#undef private
-#undef protected
-
 #include "LArCellRec/LArCellBuilderFromLArRawChannelTool.h"
 #include "LArTools/LArCablingService.h"
 #include "LArRecEvent/LArCell.h"
@@ -26,7 +21,6 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
 
-#include "DataModel/DataPool.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include "LArRecConditions/ILArBadChanTool.h"
@@ -210,13 +204,15 @@ StatusCode LArCellBuilderFromLArRawChannelTool::fillCompleteCellCont(const LArRa
     msg(MSG::ERROR) << "filleCellCont: container should be empty! Clear now."  << endreq;
     theCellContainer->clear();
   }
+
+  DataPool<LArCell> pool;
   
   theCellContainer->resize(m_nTotalCells);
   LArRawChannelContainer::const_iterator itrRawChannel=rawColl->begin();
   LArRawChannelContainer::const_iterator lastRawChannel=rawColl->end();
   for ( ; itrRawChannel!=lastRawChannel; ++itrRawChannel) {
     IdentifierHash hashid;
-    LArCell* larcell=getCell(*itrRawChannel,hashid);
+    LArCell* larcell=getCell(*itrRawChannel,hashid,pool);
     if (larcell) {
       if ((*theCellContainer)[hashid]) {
 	msg(MSG::ERROR) << "Channel added twice! Data corruption? hash=" << hashid  
@@ -236,7 +232,7 @@ StatusCode LArCellBuilderFromLArRawChannelTool::fillCompleteCellCont(const LArRa
   lastRawChannel=m_deadFEBChannels.end();
   for ( ; itrRawChannel!=lastRawChannel; ++itrRawChannel) {
     IdentifierHash hashid;
-    LArCell* larcell=getCell(*itrRawChannel,hashid);
+    LArCell* larcell=getCell(*itrRawChannel,hashid,pool);
     if (larcell) {
       if ((*theCellContainer)[hashid]) {
 	++nMissingButPresent;
@@ -290,32 +286,33 @@ StatusCode LArCellBuilderFromLArRawChannelTool::fillCompleteCellCont(const LArRa
 
 
 // ========================================================================================== //
-LArCell* LArCellBuilderFromLArRawChannelTool::getCell(const LArRawChannel& theRawChannel, IdentifierHash& newHash) {
+LArCell*
+LArCellBuilderFromLArRawChannelTool::getCell(const LArRawChannel& theRawChannel,
+                                             IdentifierHash& newHash,
+                                             DataPool<LArCell>& pool)
+{
   const HWIdentifier hWId=theRawChannel.channelID();
   const CaloDetDescrElement * theDDE=this->caloDDE(hWId);		  
   if (theDDE) {
     newHash=theDDE->calo_hash() ;
     const double energy = theRawChannel.energy();
-    const double time = theRawChannel.time()/1000.0;
+    const double time = theRawChannel.time()*1e-3;
     const uint16_t quality = theRawChannel.quality();
     const uint16_t provenance = (theRawChannel.provenance() & 0x3FFF);   // to be sure not to set by error "dead" bit
     const CaloGain::CaloGain gain = theRawChannel.gain();
 
 #ifndef ATHENAHIVE
-    static DataPool<LArCell> larCellsP(m_initialDataPoolSize);
-      
-    //LArCell * theCell = new LArCell(theDDE,energy,time,quality,gain);
-    LArCell *pCell   = larCellsP.nextElementPtr();
+    LArCell *pCell   = pool.nextElementPtr();
 #else
     LArCell *pCell   = new LArCell();
 #endif
-    pCell->m_energy  = energy;
-    pCell->m_time    = time;    
-    pCell->m_qualProv[0] = quality;
-    pCell->m_qualProv[1] = provenance;
-    pCell->m_gain    = gain;
-    pCell->m_caloDDE = theDDE;
-    pCell->m_ID = theDDE->identify();
+    *pCell = LArCell (theDDE,
+                      theDDE->identify(),
+                      energy,
+                      time,
+                      quality,
+                      provenance,
+                      gain);
     return pCell;
   } //end if got DDE
   return NULL;
