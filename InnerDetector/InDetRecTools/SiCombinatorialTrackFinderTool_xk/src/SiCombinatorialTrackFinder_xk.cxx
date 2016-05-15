@@ -678,7 +678,7 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
       if(!m_trajectory.backwardSmoother (false)) return false;
     }
   } 
-  
+
   if(m_trajectory.qualityOptimization()     <           (m_qualityCut*m_nclusmin)    ) return false;
   if(m_trajectory.pTfirst  () < m_pTmin     && m_trajectory.nclusters() < m_nclusmin ) return false;
   if(m_trajectory.nclusters() < m_nclusminb || m_trajectory.ndf      () < m_nwclusmin) return false;
