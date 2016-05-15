@@ -18,11 +18,7 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 // GeneratorObjects includes
-#define private public
-#define protected public
 #include "GeneratorObjects/HepMcParticleLink.h"
-#undef private
-#undef protected
 
 // GeneratorObjectsAthenaPool includes
 #include "GeneratorObjectsTPCnv/HepMcParticleLink_p1.h"
