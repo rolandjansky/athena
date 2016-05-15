@@ -61,13 +61,13 @@ protected:
   std::string m_attname;
   std::string m_htitle;
 
-  int m_nbinsx;
-  float m_xlow;
-  float m_xup;
+  int m_nbinsx = 10;
+  float m_xlow = 0.0;
+  float m_xup = 1.0;
 
-  int m_nbinsy;
-  float m_ylow;
-  float m_yup;
+  int m_nbinsy = 10;
+  float m_ylow = 0.0;
+  float m_yup = 1.0;
   
 };
 

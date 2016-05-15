@@ -117,7 +117,7 @@ compactSpecification = {
     "BchCorrDotx"      : (("BchCorrDotx:BchCorrDotx;",50,0,1), ("BchCorrDotx", "float") ),
     "BchCorrCell"      : (("BchCorrCell:BchCorrCell;",50,0,1), ("BchCorrCell", "float") ),
     ## Jet Cleaning variables ##
-    "AverageLArQF"     : (("Average LAr QF;AverageLArQF;",50,-0.1, 3.), ("AverageLArQF", "float") ),
+    "AverageLArQF"     : (("Average LAr QF;AverageLArQF;",100,0, 65535), ("AverageLArQF", "float") ),
     "HECQuality"       : (("HEC Quality;HEC Quality;",50,-0.1, 1.4), ("HECQuality", "float") ),
     "FracSamplingMax"  : (("FracSamplingMax; FracSamplingMax;",50,-0.1, 1.2), ("FracSamplingMax", "float") ),
     # binning optimisation from Emma Tolley 
@@ -131,11 +131,11 @@ compactSpecification = {
     "OotFracClusters10": (("OotFracClusters10; OotFracClusters10;",50,-0.1,1.2), ("OotFracClusters10", "float") ),
     #CBG
     "ptN"               : (("Jet Pt;Pt [GeV];", 250, 0., 5000.) ,     ("pt","float","gev" ) ), 
-    "LeadingClusterCenterLambda": (("LeadingClusterCenterLambda; LeadingClusterCenterLambda;",100,0.,1000.), ("LeadingClusterCenterLambda", "float") ),
-    "LeadingClusterSecondLambda": (("LeadingClusterSecondLambda; LeadingClusterSecondLambda;",100,0.,1000.), ("LeadingClusterSecondLambda", "float") ),
+    "LeadingClusterCenterLambda": (("LeadingClusterCenterLambda; LeadingClusterCenterLambda;",100,0.,10000.), ("LeadingClusterCenterLambda", "float") ),
+    "LeadingClusterSecondLambda": (("LeadingClusterSecondLambda; LeadingClusterSecondLambda;",100,0.,10000.), ("LeadingClusterSecondLambda", "float") ),
     # binning optimisation from Emma Tolley 
     #"LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,1000.), ("LeadingClusterSecondR", "float") ), 
-    "LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,10000.), ("LeadingClusterSecondR", "float") ), 
+    "LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,100000.), ("LeadingClusterSecondR", "float") ), 
     "CHF": (("SumPtTrkPt1000/pT; SumPtTrkPt1000/pT;",50,-1.,1.2), ("chf", "vector<float>", "gev") ), 
     #CBG 
     # 
@@ -151,7 +151,7 @@ compactSpecification = {
 # then fill the pers calo sampling attributes one by one :
 caloSamples =["PreSamplerB", "EMB1", "EMB2", "EMB3", "PreSamplerE", "EME1", "EME2", "EME3", "HEC0", "HEC1", "HEC2", "HEC3", "TileBar0", "TileBar1", "TileBar2", "TileGap1", "TileGap2", "TileGap3", "TileExt0", "TileExt1", "TileExt2", "FCAL0", "FCAL1", "FCAL2",         ]
 for i,c in enumerate(caloSamples):
-    compactSpecification[ c ] = ( ("Energy in "+c+";Energy(GeV);",50,-10,100), ("EnergyPerSampling[%d]"%(i,), "vector<float>", "gev"))
+    compactSpecification[ c ] = ( ("Energy in "+c+";Energy(GeV);",100,-10,1000), ("EnergyPerSampling[%d]"%(i,), "vector<float>", "gev"))
 
 
 # Translate the above specifications into proper histo tools
@@ -207,7 +207,8 @@ jhm.addTool( HistosForJetSelection("subleadingjet", SelectionType=2) )
 # a helper function to combine selection with histo tools.
 def selectionAndHistos( selectType, histos, selectionName="", histoNameSuffix="",**otherArgs):
 
-    if isinstance(selectType, str): 
+    if isinstance(selectType, str):
+        # interpret selectType as a string. For ex "20000<pt<500000" or "subleadingjet"
         tool = jhm.tool(selectType)
         if issubclass( tool.__class__ , HistosForJetSelection):
             # we're done.

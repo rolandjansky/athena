@@ -2,7 +2,7 @@
 
 from JetMonitoring.JetMonitoringConf import HistoDefinitionTool
 
-def createHistoDefTool( name, title=None,nbinsx=10, xlow=10.0, xup=1.0, nbinsy=10, ylow=0, yup=1.0, hname=None):
+def createHistoDefTool( name, title=None,nbinsx=10, xlow=10.0, xup=1.0, nbinsy=10, ylow=0.0, yup=1.0, hname=None):
     """Short cut to return a HistoDefinitionTool from a compact list of arguments"""    
     if title is  None : title = name
     if hname is None :  hname = name

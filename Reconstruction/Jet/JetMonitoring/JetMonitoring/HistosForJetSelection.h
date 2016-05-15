@@ -45,6 +45,7 @@ public:
   /// redefine to forward to sub histos
   virtual void setInterval(Interval_t ityp, bool force = false);
 
+  bool m_inverseToolSelection = false;
 
   /// Describes the selection type : built-in or use of an external type.
   enum SelectionType {

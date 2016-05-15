@@ -10,7 +10,8 @@ JetMonitoringTool::JetMonitoringTool( const std::string& type,
                                       const IInterface* parent ):
   ManagedMonitorToolBase( type, name, parent )
   ,  m_htools(this)
-  , m_interval(HistoGroupBase::all)
+  //  , m_interval(HistoGroupBase::all)
+  , m_interval(HistoGroupBase::lumiBlock)
 {
    
   declareProperty( "HistoTools", m_htools );
@@ -67,7 +68,6 @@ StatusCode JetMonitoringTool::bookHistograms()
 StatusCode JetMonitoringTool::fillHistograms()
 {
   //ATH_MSG_INFO ("Filling hists " << name() << "..." );
-
 
   /// simply call fillHistosFromContainer() for each tool...
   int count = 0;
