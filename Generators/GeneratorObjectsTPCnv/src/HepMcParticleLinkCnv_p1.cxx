@@ -32,6 +32,8 @@ void HepMcParticleLinkCnv_p1::persToTrans( const HepMcParticleLink_p1* persObj,
 {
 //   msg << MSG::DEBUG << "Loading HepMcParticleLink from persistent state..."
 //       << endreq;
+  if (transObj->m_ptrs.m_dict == nullptr)
+    transObj->init_dict();
   transObj->m_extBarcode = 
     HepMcParticleLink::ExtendedBarCode( persObj->m_barcode,
 					persObj->m_mcEvtIndex );
