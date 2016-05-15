@@ -8,87 +8,87 @@
 //* Takashi Kubota - June 30, 2008 */
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "MuonTrigCoinData/RpcCoinData.h"
-#undef private
-#undef protected
-
 #include "MuonEventTPCnv/MuonTrigCoinData/RpcCoinDataCnv_p1.h"
+#include "CxxUtils/make_unique.h"
+
+Muon::RpcCoinData
+RpcCoinDataCnv_p1::
+createRpcCoinData( const Muon::RpcCoinData_p1 *persObj,
+                   const Identifier& id,
+                   const MuonGM::RpcReadoutElement* detEl,
+                   MsgStream &/*log*/ ) 
+{
+  Amg::Vector2D localPos;
+  localPos[Trk::locX] = persObj->m_localPos; 
+  localPos[Trk::locY] = 0.0;
+
+  std::vector<Identifier> rdoList;
+  rdoList.reserve(persObj->m_rdoList.size());
+  unsigned int id32 = id.get_identifier32().get_compact(); // identify is filled in RpcCoinContainerCnv
+  for (short x : persObj->m_rdoList)
+    rdoList.emplace_back ((unsigned int) x+id32);
+
+  auto cmat = CxxUtils::make_unique<Amg::MatrixX>(1,1);
+  (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
+
+  Muon::RpcCoinData data (id,
+                          0, // collectionHash
+                          localPos,
+                          std::move(rdoList),
+                          cmat.release(),
+                          detEl,
+                          persObj->m_time,
+                          persObj->m_ambiguityFlag,
+                          persObj->m_ijk,
+                          persObj->m_threshold,
+                          persObj->m_overlap,
+                          persObj->m_parentCmId,
+                          persObj->m_parentPadId,
+                          persObj->m_parentSectorId,
+                          persObj->m_lowPtCm
+                          );
+  return data;
+}
 
 void RpcCoinDataCnv_p1::
-persToTrans( const Muon::RpcCoinData_p1 *persObj, Muon::RpcCoinData *transObj,MsgStream &/*log*/ ) 
+persToTrans( const Muon::RpcCoinData_p1 *persObj, Muon::RpcCoinData *transObj,MsgStream &log ) 
 {
-   //log << MSG::DEBUG << "RpcCoinDataCnv_p1::persToTrans" << endreq;
-
-  // Trk::PrepRawData
-
-  // Fill localposition
-  transObj->m_localPos[Trk::locX] = persObj->m_localPos; 
-  transObj->m_localPos[Trk::locY] = 0.0;
-  
-  // Error Matrix
-  Amg::MatrixX* cmat = new  Amg::MatrixX(1,1);
-  (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
-  transObj->m_localCovariance     = cmat;
-  
-    //RDO list
-  // List of Id of the cluster
-  transObj->m_rdoList.resize( persObj->m_rdoList.size() );
-
-  unsigned int id32 = transObj->identify().get_identifier32().get_compact(); // identify is filled in RpcCoinContainerCnv
-  std::vector<Identifier>::iterator tit = transObj->m_rdoList.begin();
-  for (std::vector<short>::const_iterator it=persObj->m_rdoList.begin(); it != persObj->m_rdoList.end(); it++) {
-    *tit = Identifier((unsigned int) *it+id32);
-    tit++;
-  }    
-
-
-  // Data from Muon::RpcPrepData 
-  transObj->m_time            = persObj->m_time; 
-  transObj->m_ambiguityFlag   = persObj->m_ambiguityFlag;      
-
-  // Data from RpcCoinData
-  transObj->m_ijk             = persObj->m_ijk;      
-  transObj->m_threshold       = persObj->m_threshold;      
-  transObj->m_overlap         = persObj->m_overlap;      
-  transObj->m_parentCmId      = persObj->m_parentCmId;      
-  transObj->m_parentPadId     = persObj->m_parentPadId;      
-  transObj->m_parentSectorId  = persObj->m_parentSectorId;      
-  transObj->m_lowPtCm         = persObj->m_lowPtCm;      
+  *transObj = createRpcCoinData (persObj,
+                                 transObj->identify(),
+                                 transObj->detectorElement(),
+                                 log);
 }
 
 void RpcCoinDataCnv_p1::
 transToPers( const Muon::RpcCoinData *transObj, Muon::RpcCoinData_p1 *persObj, MsgStream & log)
 {
-   //log << MSG::DEBUG << "RpcCoinDataCnv_p1::transToPers" << endreq;
-  persObj->m_localPos         = transObj->m_localPos[Trk::locX];
-  persObj->m_errorMat         = (*transObj->m_localCovariance)(0,0);
+  //log << MSG::DEBUG << "RpcCoinDataCnv_p1::transToPers" << endreq;
+  persObj->m_localPos         = transObj->localPosition()[Trk::locX];
+  persObj->m_errorMat         = transObj->localCovariance()(0,0);
   
   // List of Id of the cluster
-  persObj->m_rdoList.resize( transObj->m_rdoList.size() );
+  persObj->m_rdoList.resize( transObj->rdoList().size() );
   if (!transObj->identify().get_identifier32().is_valid()) log << MSG::ERROR << "RpcCoinDataCnv_p1::transToPers - invalid trans id!!" << endreq;
   unsigned int id32 = transObj->identify().get_identifier32().get_compact();
   // convert the list of ID saved for the cluster
-  persObj->m_rdoList.resize(transObj->m_rdoList.size() );
-  std::vector<short>::iterator pit = persObj->m_rdoList.begin();
-  for (std::vector<Identifier>::const_iterator it=transObj->m_rdoList.begin(); it != transObj->m_rdoList.end(); it++) {
-      *pit = (short) ((*it).get_identifier32().get_compact() - id32);
-    pit++;
-  }
+  persObj->m_rdoList.clear();
+  persObj->m_rdoList.reserve(transObj->rdoList().size() );
+  for (const Identifier& id : transObj->rdoList())
+    persObj->m_rdoList.push_back (id.get_identifier32().get_compact() - id32);
   
   // Data from Muon::RpcPrepData 
-  persObj->m_time            = transObj->m_time; 
-  persObj->m_ambiguityFlag   = transObj->m_ambiguityFlag;      
+  persObj->m_time            = transObj->time();
+  persObj->m_ambiguityFlag   = transObj->ambiguityFlag();
 
   // Data from RpcCoinData
-  persObj->m_ijk             = transObj->m_ijk;      
-  persObj->m_threshold       = transObj->m_threshold;      
-  persObj->m_overlap         = transObj->m_overlap;      
-  persObj->m_parentCmId      = transObj->m_parentCmId;      
-  persObj->m_parentPadId     = transObj->m_parentPadId;      
-  persObj->m_parentSectorId  = transObj->m_parentSectorId;      
-  persObj->m_lowPtCm         = transObj->m_lowPtCm;      
+  persObj->m_ijk             = transObj->ijk();
+  persObj->m_threshold       = transObj->threshold();
+  persObj->m_overlap         = transObj->overlap();
+  persObj->m_parentCmId      = transObj->parentCmId();
+  persObj->m_parentPadId     = transObj->parentPadId();      
+  persObj->m_parentSectorId  = transObj->parentSectorId();      
+  persObj->m_lowPtCm         = transObj->lowPtCm();
 }
 
 

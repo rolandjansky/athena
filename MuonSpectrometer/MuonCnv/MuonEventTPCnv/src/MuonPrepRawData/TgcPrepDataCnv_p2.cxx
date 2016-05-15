@@ -8,39 +8,51 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "MuonPrepRawData/TgcPrepData.h"
-#undef private
-#undef protected
-
 #include "MuonEventTPCnv/MuonPrepRawData/TgcPrepDataCnv_p2.h"
+#include "CxxUtils/make_unique.h"
+
+Muon::TgcPrepData
+TgcPrepDataCnv_p2::
+createTgcPrepData( const Muon::TgcPrepData_p2 *persObj,
+                   const Identifier& id,
+                   const MuonGM::TgcReadoutElement* detEl,
+                   MsgStream & /**log*/ ) 
+{
+  Amg::Vector2D localPos;
+  localPos[Trk::locX] = persObj->m_locX; 
+  localPos[Trk::locY] = 0.0; 
+        
+  std::vector<Identifier> rdoList(1);
+  rdoList[0]=id;
+    
+  auto cmat = CxxUtils::make_unique<Amg::MatrixX>(1,1);
+  (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
+
+  Muon::TgcPrepData data (id,
+                          0,
+                          localPos,
+                          std::move(rdoList),
+                          cmat.release(),
+                          detEl);
+  return data;
+}
 
 void TgcPrepDataCnv_p2::
-persToTrans( const Muon::TgcPrepData_p2 *persObj, Muon::TgcPrepData *transObj,MsgStream & /**log*/ ) 
+persToTrans( const Muon::TgcPrepData_p2 *persObj, Muon::TgcPrepData *transObj,MsgStream & log ) 
 {
-    //log << MSG::DEBUG << "TgcPrepDataCnv_p2::persToTrans" << endreq;
-    // Fill localposition
-    transObj->m_localPos[Trk::locX] = persObj->m_locX; 
-    transObj->m_localPos[Trk::locY] = 0.0; 
-        
-    // Update specifics
-    transObj->m_rdoList.resize(1);
-    transObj->m_rdoList[0]=transObj->m_clusId;
-    
-    // Error Matrix
-    Amg::MatrixX* cmat = new  Amg::MatrixX(1,1);
-    (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
-    transObj->m_localCovariance     = cmat;
-    
+  *transObj = createTgcPrepData (persObj,
+                                 transObj->identify(),
+                                 transObj->detectorElement(),
+                                 log);
 }
 
 void TgcPrepDataCnv_p2::
 transToPers( const Muon::TgcPrepData *transObj, Muon::TgcPrepData_p2 *persObj, MsgStream & /**log*/ )
 {
-    //log << MSG::DEBUG << "TgcPrepDataCnv_p2::transToPers" << endreq;
-    persObj->m_locX      = transObj->m_localPos.x();
-    persObj->m_errorMat  = (*transObj->m_localCovariance)(0,0);
+  //log << MSG::DEBUG << "TgcPrepDataCnv_p2::transToPers" << endreq;
+  persObj->m_locX      = transObj->localPosition().x();
+  persObj->m_errorMat  = transObj->localCovariance()(0,0);
 }
 
 

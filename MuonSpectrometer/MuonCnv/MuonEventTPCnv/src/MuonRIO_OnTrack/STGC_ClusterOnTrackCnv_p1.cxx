@@ -8,12 +8,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "MuonRIO_OnTrack/sTgcClusterOnTrack.h"
-#undef private
-#undef protected
-
 #include "MuonEventTPCnv/MuonRIO_OnTrack/STGC_ClusterOnTrackCnv_p1.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 
@@ -52,12 +47,12 @@ transToPers( const Muon::sTgcClusterOnTrack *transObj,
   // Prepare ELs
    m_eventCnvTool->prepareRIO_OnTrack(const_cast<Muon::sTgcClusterOnTrack *>(transObj));  
   
-   m_elCnv.transToPers(&transObj->m_rio,&persObj->m_prdLink,log);
-   persObj->m_positionAlongStrip = transObj->m_positionAlongStrip;
-   persObj->m_id = transObj->m_identifier.get_identifier32().get_compact();
-   persObj->m_localParams = toPersistent( &m_localParCnv, &transObj->m_localParams, log );
+   m_elCnv.transToPers(&transObj->prepRawDataLink(),&persObj->m_prdLink,log);
+   persObj->m_positionAlongStrip = transObj->positionAlongStrip();
+   persObj->m_id = transObj->identify().get_identifier32().get_compact();
+   persObj->m_localParams = toPersistent( &m_localParCnv, &transObj->localParameters(), log );
    Trk::ErrorMatrix pMat;
-   EigenHelpers::eigenMatrixToVector(pMat.values, transObj->m_localCovariance, "STGC_ClusterOnTrackCnv_p1");
+   EigenHelpers::eigenMatrixToVector(pMat.values, transObj->localCovariance(), "STGC_ClusterOnTrackCnv_p1");
    persObj->m_localErrMat = toPersistent( &m_errorMxCnv, &pMat, log );
   
    // Extra check.

@@ -2,15 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "MuonTrigCoinData/TgcCoinData.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
 #include "MuonEventTPCnv/MuonTrigCoinData/TgcCoinData_p3.h"
 #include "MuonEventTPCnv/MuonTrigCoinData/MuonCoinDataContainer_p1.h"
-#undef private
-#undef protected
-
 #include "MuonIdHelpers/TgcIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonTrigCoinData/TgcCoinDataCnv_p3.h"
@@ -171,13 +166,13 @@ void  Muon::TgcCoinDataContainerCnv_p3::persToTrans(const Muon::MuonCoinDataCont
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_CoinData[ichan + pcoll.m_begin];
             Muon::TgcCoinData* chan = dynamic_cast<Muon::TgcCoinData*>(createTransFromPStore((CONV**)0, pchan, log ) );
-            if(chan->m_type!=Muon::TgcCoinData::TYPE_TRACKLET_EIFI && !chan->m_isInner) {
-              const MuonGM::TgcReadoutElement * deOut = m_muonDetMgr->getTgcReadoutElement(Identifier(chan->m_channelIdOut));
+            if(chan->type()!=Muon::TgcCoinData::TYPE_TRACKLET_EIFI && !chan->isInner()) {
+              const MuonGM::TgcReadoutElement * deOut = m_muonDetMgr->getTgcReadoutElement(Identifier(chan->channelIdOut()));
               chan->m_detElOut = deOut;
             }
-            if((chan->m_type==Muon::TgcCoinData::TYPE_TRACKLET || chan->m_type==Muon::TgcCoinData::TYPE_HIPT || 
-                chan->m_type==Muon::TgcCoinData::TYPE_TRACKLET_EIFI)&& !chan->m_isInner ) {
-              const MuonGM::TgcReadoutElement * deIn = m_muonDetMgr->getTgcReadoutElement(Identifier(chan->m_channelIdIn));
+            if((chan->type()==Muon::TgcCoinData::TYPE_TRACKLET || chan->type()==Muon::TgcCoinData::TYPE_HIPT || 
+                chan->type()==Muon::TgcCoinData::TYPE_TRACKLET_EIFI)&& !chan->isInner() ) {
+              const MuonGM::TgcReadoutElement * deIn = m_muonDetMgr->getTgcReadoutElement(Identifier(chan->channelIdIn()));
               chan->m_detElIn = deIn;
             }
             else {

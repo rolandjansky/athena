@@ -2,15 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
 #include "MuonEventTPCnv/MuonPrepRawData/RpcPrepData_p1.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MuonPRD_Container_p1.h"
-#undef private
-#undef protected
-
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonPrepRawData/RpcPrepDataCnv_p1.h"
@@ -191,8 +186,9 @@ void  Muon::RpcPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
                 const Amg::Vector2D* pos = surf.Trk::Surface::globalToLocal(globalposHIT,tolerance); 
                 if (!pos){
                   log << MSG::WARNING << "RpcPrepDataContainerCnv_p1::persToTrans - globalToLocal failed!"<<endreq;
+                  chan->m_localPos = Amg::Vector2D(0,0);
                 }
-                chan->m_localPos = *pos;
+                else chan->m_localPos = *pos;
             }
         }
 

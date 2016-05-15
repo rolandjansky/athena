@@ -8,12 +8,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
-#include "MuonRIO_OnTrack/CscClusterOnTrack.h"
-#undef private
-#undef protected
 
+#include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "MuonEventTPCnv/MuonRIO_OnTrack/CscClusterOnTrackCnv_p1.h"
 
 
@@ -21,11 +17,19 @@ void CscClusterOnTrackCnv_p1::
 persToTrans( const Muon::CscClusterOnTrack_p1 *persObj,
 	     Muon::CscClusterOnTrack *transObj, MsgStream &log )
 {
+  ElementLinkToIDC_CSC_Container rio;
+  m_elCnv.persToTrans(&persObj->m_prdLink,&rio,log);  
+
+  Amg::MatrixX locerr;
+  locerr.setZero();
+  *transObj = Muon::CscClusterOnTrack (rio,
+                                       Trk::LocalParameters(), // locpos,
+                                       locerr,
+                                       Identifier(),
+                                       nullptr, // detEL
+                                       persObj->m_positionAlongStrip,
+                                       static_cast<Muon::CscClusterStatus>(persObj->m_status));
    fillTransFromPStore( &m_RIOCnv, persObj->m_RIO,  transObj, log );
-   m_elCnv.persToTrans(&persObj->m_prdLink,&transObj->m_rio,log);  
-   transObj->m_status=static_cast<Muon::CscClusterStatus>(persObj->m_status);
-   transObj->m_positionAlongStrip = persObj->m_positionAlongStrip;
-   
 }
 
 

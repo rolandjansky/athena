@@ -24,6 +24,12 @@ class RpcCoinDataCnv_p1
 public:
     RpcCoinDataCnv_p1() {}
 
+    Muon::RpcCoinData
+    createRpcCoinData( const Muon::RpcCoinData_p1 *persObj,
+                       const Identifier& id,
+                       const MuonGM::RpcReadoutElement* detEl,
+                       MsgStream &log );
+
     void persToTrans( const Muon::RpcCoinData_p1 *persObj,
         Muon::RpcCoinData    *transObj,
         MsgStream                &log );

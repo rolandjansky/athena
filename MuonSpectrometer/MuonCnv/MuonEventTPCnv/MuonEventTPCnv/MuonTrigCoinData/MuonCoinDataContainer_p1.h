@@ -17,7 +17,7 @@ class MuonCoinDataContainer_p1
  public:
 /// Default constructor
   MuonCoinDataContainer_p1 ();
- private:
+  //private:
   std::vector<Muon::MuonCoinDataCollection_p1>  m_collections;
   std::vector<TPObjRef>                         m_CoinData;
 };

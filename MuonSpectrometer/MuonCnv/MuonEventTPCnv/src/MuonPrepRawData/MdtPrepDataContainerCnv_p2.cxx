@@ -2,19 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MdtPrepData_p2.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MuonPRD_Container_p2.h"
-#undef private
-#undef protected
-
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MdtPrepDataCnv_p2.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MdtPrepDataContainerCnv_p2.h"
+#include "CxxUtils/make_unique.h"
 
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
@@ -132,7 +128,7 @@ void Muon::MdtPrepDataContainerCnv_p2::transToPers(const Muon::MdtPrepDataContai
             MdtPrepData_p2*   pchan = &(persCont->m_prds[pchanIndex]); // persistent version to fill
             chanCnv.transToPers(chan, pchan, log); // convert from MdtPrepData to MdtPrepData_p2
             
-            persCont->m_prdDeltaId[pchanIndex]=chan->m_clusId.get_identifier32().get_compact() - collection.identify().get_identifier32().get_compact(); //store delta identifiers, rather than full identifiers
+            persCont->m_prdDeltaId[pchanIndex]=chan->identify().get_identifier32().get_compact() - collection.identify().get_identifier32().get_compact(); //store delta identifiers, rather than full identifiers
             // sanity checks - to be removed at some point
 //            if (chan->m_tdc!=pchan->m_tdc) log << MSG::WARNING << "PRDs TDC counts differ! chan:"<<chan->m_tdc<<", pchan:"<<pchan->m_tdc<<endreq;
 //            Identifier temp(pcollection.m_id + persCont->m_prdDeltaId[pchanIndex]);
@@ -191,29 +187,25 @@ void  Muon::MdtPrepDataContainerCnv_p2::persToTrans(const Muon::MdtPrepDataConta
         // Fill with channels
         for (; pchanIndex < pchanEnd; ++ pchanIndex, ++chanIndex) {
             const MdtPrepData_p2* pchan = &(persCont->m_prds[pchanIndex]);
-            Muon::MdtPrepData* chan = new MdtPrepData;
-            
-            chan->m_clusId=Identifier(pcoll.m_id + persCont->m_prdDeltaId[pchanIndex]);
-            // if ( m_MdtId->valid(chan->m_clusId)!=true ) {
-            //     // have invalid PRD
-            //     log << MSG::WARNING  << "MDT PRD has invalid Identifier of "<< m_MdtId->show_to_string(chan->m_clusId)
-            //         <<" and will be skipped!" << endreq;
-            //     delete chan;
-            //     continue;
-            // } else {
-                chanCnv.persToTrans(pchan, chan, log); // Fill chan with data from pchan
 
-                // The reason I need to do the following is that one collection can have several detector elements in, the collection hashes!=detector element hashes
-                IdentifierHash deIDHash;
-                int result = m_MdtId->get_detectorElement_hash(chan->identify(), deIDHash);
-                if (result&&log.level() <= MSG::WARNING) 
-                    log << MSG::WARNING<< " Muon::MdtPrepDataContainerCnv_p2::persToTrans: problem converting Identifier to DE hash "<<endreq;
-            // chan->m_detEl = m_muonDetMgr->getMdtReadoutElement(deIDHash);;
-                chan->m_detEl = m_muonDetMgr->getMdtReadoutElement(chan->identify());
-                chan->setHashAndIndex(collIDHash, chanIndex); 
-            
-                coll->push_back(chan);
+            Identifier clusId (pcoll.m_id + persCont->m_prdDeltaId[pchanIndex]);
 
+            // The reason I need to do the following is that one collection can have several detector elements in, the collection hashes!=detector element hashes
+            IdentifierHash deIDHash;
+            int result = m_MdtId->get_detectorElement_hash(clusId, deIDHash);
+            if (result&&log.level() <= MSG::WARNING) 
+              log << MSG::WARNING<< " Muon::MdtPrepDataContainerCnv_p2::persToTrans: problem converting Identifier to DE hash "<<endreq;
+            const MuonGM::MdtReadoutElement* detEl =
+              m_muonDetMgr->getMdtReadoutElement(clusId);
+
+            auto chan = CxxUtils::make_unique<MdtPrepData>
+              (chanCnv.createMdtPrepData (pchan,
+                                          clusId,
+                                          detEl,
+                                          log));
+            
+            chan->setHashAndIndex(collIDHash, chanIndex); 
+            coll->push_back(std::move(chan));
         }
 
         // register the rdo collection in IDC with hash - faster addCollection

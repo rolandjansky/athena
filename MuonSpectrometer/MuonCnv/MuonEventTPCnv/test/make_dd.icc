@@ -1,0 +1,338 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file MuonEventTPCnv/test/make_dd.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Dec, 2015
+ * @brief Helper for regression tests.
+ */
+
+
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonReadoutGeometry/CscReadoutElement.h"
+#include "MuonReadoutGeometry/RpcReadoutElement.h"
+#include "MuonReadoutGeometry/MdtReadoutElement.h"
+#include "MuonReadoutGeometry/sTgcReadoutElement.h"
+#include "MuonReadoutGeometry/MMReadoutElement.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "IdDictDetDescr/IdDictManager.h"
+#include "GeoModelKernel/GeoBox.h"
+#include "GeoModelKernel/GeoTrd.h"
+#include "GeoModelKernel/GeoMaterial.h"
+#include "GeoModelKernel/GeoLogVol.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetIdentifier/TRT_ID.h"
+#include "MuonIdHelpers/CscIdHelper.h"
+#include "MuonIdHelpers/RpcIdHelper.h"
+#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/sTgcIdHelper.h"
+#include "MuonIdHelpers/MmIdHelper.h"
+#include "MuonAGDDDescription/sTGCDetectorDescription.h"
+#include "MuonAGDDDescription/MMDetectorDescription.h"
+#include "AGDDKernel/AGDDDetector.h"
+#include "AGDDKernel/AGDDDetectorPositioner.h"
+#include "IdDict/IdDictDefs.h"
+#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "IdDictParser/IdDictParser.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/make_unique.h"
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+
+
+
+namespace MuonGM {
+
+class MuonChamber
+{
+public:
+  MuonChamber (MuonGM::MuonDetectorManager& muo_dd,
+               GeoFullPhysVol& pvol);
+  void makeCsc (const Identifier& id);
+  void makeRpc (const Identifier& id);
+  void makeTgc (const Identifier& id);
+  void makeMdt (const Identifier& id);
+  void makesTgc(const Identifier& id);
+  void makeMm  (const Identifier& id);
+
+  MuonGM::MuonDetectorManager& m_muo_dd;
+  GeoFullPhysVol& m_pvol;
+};
+
+MuonChamber::MuonChamber (MuonGM::MuonDetectorManager& muo_dd,
+                          GeoFullPhysVol& pvol)
+  : m_muo_dd (muo_dd),
+    m_pvol (pvol)
+{
+}
+
+void MuonChamber::makeCsc (const Identifier& id)
+{
+  auto elt = CxxUtils::make_unique<MuonGM::CscReadoutElement>
+    (&m_pvol, "CSS", 1, 2, false, &m_muo_dd);
+  elt->setIdentifier (id);
+  elt->m_ngasgaps = 2;
+  elt->fillCache();
+  m_muo_dd.addCscReadoutElement (elt.release(), id);
+}
+
+
+void MuonChamber::makeRpc (const Identifier& id)
+{
+  auto elt = CxxUtils::make_unique<MuonGM::RpcReadoutElement>
+    (&m_pvol, "BIL", 1, 2, false, &m_muo_dd);
+  elt->setIdentifier (id);
+  elt->m_nphistrippanels = 1;
+  elt->m_netastrippanels = 1;
+  elt->fillCache();
+  m_muo_dd.addRpcReadoutElement (elt.release(), id);
+}
+
+
+void MuonChamber::makeTgc (const Identifier& id)
+{
+  auto elt = CxxUtils::make_unique<MuonGM::TgcReadoutElement>
+    (&m_pvol, "T2F", 1, 2, false, &m_muo_dd);
+  elt->setIdentifier (id);
+  elt->m_ngasgaps = 2;
+  elt->fillCache();
+  m_muo_dd.addTgcReadoutElement (elt.release(), id);
+}
+
+
+void MuonChamber::makeMdt (const Identifier& id)
+{
+  auto elt = CxxUtils::make_unique<MuonGM::MdtReadoutElement>
+    (&m_pvol, "BIL", 1, 2, false, &m_muo_dd);
+  elt->setIdentifier (id);
+  //elt->m_ngasgaps = 2;
+  elt->fillCache();
+  m_muo_dd.addMdtReadoutElement (elt.release(), id);
+}
+
+
+void MuonChamber::makesTgc (const Identifier& id)
+{
+  auto elt = CxxUtils::make_unique<MuonGM::sTgcReadoutElement>
+    (&m_pvol, "STS", 1, 2, 1, false, &m_muo_dd);
+  elt->setIdentifier (id);
+  elt->initDesign (0, 0, 0, 0, 0, 0, 0, 1);
+  //elt->m_ngasgaps = 2;
+  elt->fillCache();
+  //m_muo_dd.addsTgcReadoutElement (elt.release(), id);
+  int isSmall = m_muo_dd.stgcIdHelper()->isSmall(id);
+  int iStEta = m_muo_dd.stgcIdHelper()->stationEta(id);
+  int iStPhi = m_muo_dd.stgcIdHelper()->stationPhi(id);
+  int iML = m_muo_dd.stgcIdHelper()->multilayer(id);
+  m_muo_dd.addsTgcReadoutElement_withIdFields (elt.release(), isSmall, iStEta, iStPhi, iML);
+}
+
+
+void MuonChamber::makeMm (const Identifier& id)
+{
+  auto elt = CxxUtils::make_unique<MuonGM::MMReadoutElement>
+    (&m_pvol, "MMS", 1, 2, 1, false, &m_muo_dd);
+  elt->setIdentifier (id);
+  elt->initDesign (0, 0, 0, 0, 0);
+  //elt->m_ngasgaps = 2;
+  elt->fillCache();
+  int isSmall = m_muo_dd.mmIdHelper()->isSmall(id);
+  int iStEta = m_muo_dd.mmIdHelper()->stationEta(id);
+  int iStPhi = m_muo_dd.mmIdHelper()->stationPhi(id);
+  int iML = m_muo_dd.mmIdHelper()->multilayer(id);
+  m_muo_dd.addMMReadoutElement_withIdFields (elt.release(), isSmall, iStEta, iStPhi, iML);
+}
+
+
+} // namespace MuonGM
+
+
+class Deleter
+{
+public:
+  ~Deleter();
+  void add (RCBase* b);
+  void add (AGDDPositioner* b);
+  std::vector<RCBase*> m_rcpointers;
+  std::vector<AGDDPositioner*> m_pospointers;
+};
+Deleter::~Deleter()
+{
+  for (RCBase* b : m_rcpointers)
+    b->unref();
+  for (AGDDPositioner* b : m_pospointers)
+    delete b;
+}
+void Deleter::add (RCBase* b)
+{
+  b->ref();
+  m_rcpointers.push_back (b);
+}
+void Deleter::add (AGDDPositioner* b)
+{
+  m_pospointers.push_back (b);
+}
+Deleter deleter;
+sTGCDetectorDescription ddsdet ("sTG1-dummy");
+MMDetectorDescription ddmdet ("MM1-dummy");
+
+
+
+const MuonGM::MuonDetectorManager& make_dd()
+{
+  ISvcLocator* svcLoc = Gaudi::svcLocator();
+  StoreGateSvc* sg = 0;
+  assert ( svcLoc->service("DetectorStore", sg).isSuccess() );
+
+  GeoBox* box = new GeoBox (20, 10, 5);
+  GeoMaterial* mat = new GeoMaterial ("dummy", 1);
+  GeoLogVol* lvol = new GeoLogVol ("dummy", box, mat);
+  GeoFullPhysVol* pvol = new GeoFullPhysVol (lvol);
+  deleter.add (pvol);
+
+  GeoTrd* trd = new GeoTrd (5, 10, 7, 8, 6);
+  GeoLogVol* lvol2 = new GeoLogVol ("SensitiveDummy2", trd, mat);
+  GeoFullPhysVol* pvol2 = new GeoFullPhysVol (lvol2);
+  pvol->add (pvol2);
+  deleter.add (pvol2);
+
+  ddsdet.Register();
+  ddsdet.roParameters.nWires.push_back(0);
+  ddsdet.roParameters.nPadX.push_back(0);
+  ddsdet.roParameters.firstPadPhi.push_back(0);
+  ddsdet.roParameters.PadPhiShift.push_back(0);
+  ddsdet.roParameters.firstPadRow.push_back(0);
+  ddsdet.roParameters.nPadH.push_back(0);
+  ddsdet.roParameters.firstPadH.push_back(0);
+  ddsdet.roParameters.padH.push_back(0);
+
+  HepGeom::Transform3D xform;
+  AGDDDetectorPositioner* spos2 = new AGDDDetectorPositioner ("psdum2", xform);
+  deleter.add (spos2);
+  spos2->theDetector = &ddsdet;
+  spos2->ID.detectorType = "sTGC";
+  spos2->ID.detectorAddress = "dum3.1.1....2A";
+  AGDDDetectorPositioner* spos3 = new AGDDDetectorPositioner ("psdum3", xform);
+  deleter.add (spos3);
+  spos3->theDetector = &ddsdet;
+  spos3->ID.detectorType = "sTGC";
+  spos3->ID.detectorAddress = "dum3.1.1....3A";
+
+  ddmdet.Register();
+  ddmdet.roParameters.stereoAngel.push_back(0);
+
+  AGDDDetectorPositioner* mpos2 = new AGDDDetectorPositioner ("pmdum2", xform);
+  deleter.add (mpos2);
+  mpos2->theDetector = &ddmdet;
+  mpos2->ID.detectorType = "Micromegas";
+  mpos2->ID.detectorAddress = "dum3.1.1....2A";
+  AGDDDetectorPositioner* mpos3 = new AGDDDetectorPositioner ("pmdum3", xform);
+  deleter.add (mpos3);
+  mpos3->theDetector = &ddmdet;
+  mpos3->ID.detectorType = "Micromegas";
+  mpos3->ID.detectorAddress = "dum3.1.1....3A";
+
+  static IdDictParser parser;
+  parser.register_external_entity ("InnerDetector",
+                                   "IdDictInnerDetector.xml");
+  parser.register_external_entity ("MuonSpectrometer",
+                                   "IdDictMuonSpectrometer_S.02.xml");
+  parser.register_external_entity ("Calorimeter",
+                                   "IdDictCalorimeter_L1Onl.xml");
+  parser.register_external_entity ("LArCalorimeter",
+                                   "IdDictLArCalorimeter.xml");
+  IdDictMgr& idd = parser.parse ("IdDictParser/ATLAS_IDS.xml");
+
+  auto pix_id = CxxUtils::make_unique<PixelID>();
+  pix_id->initialize_from_dictionary (idd);
+  assert ( sg->record (std::move (pix_id), "PixelID") );
+
+  auto sct_id = CxxUtils::make_unique<SCT_ID>();
+  sct_id->initialize_from_dictionary (idd);
+  assert ( sg->record (std::move (sct_id), "SCT_ID") );
+
+  auto trt_id = CxxUtils::make_unique<TRT_ID>();
+  trt_id->initialize_from_dictionary (idd);
+  assert ( sg->record (std::move (trt_id), "TRT_ID") );
+
+  auto muo_dd = CxxUtils::make_unique<MuonGM::MuonDetectorManager>();
+  MuonGM::MuonChamber chamber (*muo_dd, *pvol);
+
+  auto csc_id = CxxUtils::make_unique<CscIdHelper>();
+  csc_id->initialize_from_dictionary (idd);
+  muo_dd->set_cscIdHelper (csc_id.get());
+  for (int hash=2; hash <= 3; hash++) {
+    chamber.makeCsc (csc_id->channelID (50, 1, hash, 1, 1, 0, 1, true));
+  }
+  assert ( sg->record (std::move (csc_id), "CscIdHelper") );
+
+  auto rpc_id = CxxUtils::make_unique<RpcIdHelper>();
+  rpc_id->initialize_from_dictionary (idd);
+  muo_dd->set_rpcIdHelper (rpc_id.get());
+  for (int hash=2; hash <= 3; hash++) {
+    chamber.makeRpc (rpc_id->channelID (4, 1, hash, 1, 1, 2, 1, 0, 1, true));
+  }
+  assert ( sg->record (std::move (rpc_id), "RpcIdHelper") );
+
+  auto tgc_id = CxxUtils::make_unique<TgcIdHelper>();
+  tgc_id->initialize_from_dictionary (idd);
+  muo_dd->set_tgcIdHelper (tgc_id.get());
+  for (int hash=2; hash <= 3; hash++) {
+    chamber.makeTgc (tgc_id->channelID (43, 1, hash, 1, 1, 2, true));
+  }
+  assert ( sg->record (std::move (tgc_id), "TgcIdHelper") );
+
+  auto mdt_id = CxxUtils::make_unique<MdtIdHelper>();
+  mdt_id->initialize_from_dictionary (idd);
+  muo_dd->set_mdtIdHelper (mdt_id.get());
+  for (int hash=2; hash <= 3; hash++) {
+    chamber.makeMdt (mdt_id->channelID (0, 1, hash, 1, 1, 1, true));
+  }
+  assert ( sg->record (std::move (mdt_id), "MdtIdHelper") );
+
+  auto stgc_id = CxxUtils::make_unique<sTgcIdHelper>();
+  stgc_id->initialize_from_dictionary (idd);
+  muo_dd->set_stgcIdHelper (stgc_id.get());
+  for (int hash=2; hash <= 3; hash++) {
+    chamber.makesTgc (stgc_id->channelID (57, 2, hash, 1, 1, 0, 1, true)); // STS
+  }
+  assert ( sg->record (std::move (stgc_id), "sTgcIdHelper") );
+
+  auto mm_id = CxxUtils::make_unique<MmIdHelper>();
+  mm_id->initialize_from_dictionary (idd);
+  muo_dd->set_mmIdHelper (mm_id.get());
+  for (int hash=2; hash <= 3; hash++) {
+    chamber.makeMm (mm_id->channelID (55, 1, hash, 1, 1, 1, true)); // MMS
+  }
+  assert ( sg->record (std::move (mm_id), "MmIdHelper") );
+
+  auto atl_id = CxxUtils::make_unique<AtlasDetectorID>();
+  atl_id->initialize_from_dictionary (idd);
+  assert ( sg->record (std::move (atl_id), "AtlasID") );
+
+  auto pix_dd = CxxUtils::make_unique<InDetDD::PixelDetectorManager>(sg);
+  assert ( sg->record (std::move (pix_dd), "Pixel") );
+
+  auto sct_dd = CxxUtils::make_unique<InDetDD::SCT_DetectorManager>(sg);
+  assert ( sg->record (std::move (sct_dd), "SCT") );
+
+  auto trt_dd = CxxUtils::make_unique<InDetDD::TRT_DetectorManager>(sg);
+  assert ( sg->record (std::move (trt_dd), "TRT") );
+
+  auto id_mgr = CxxUtils::make_unique<IdDictManager>(idd);
+  assert ( sg->record (std::move (id_mgr), "IdDict") );
+
+  const MuonGM::MuonDetectorManager& ret = *muo_dd;
+  assert ( sg->record (std::move (muo_dd), "MuonDetectorManager") );
+
+  return ret;
+}
+
+
