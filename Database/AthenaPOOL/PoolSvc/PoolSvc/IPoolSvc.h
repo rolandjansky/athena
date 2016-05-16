@@ -21,11 +21,11 @@
 // Forward declarations
 namespace pool {
    class IFileCatalog;
-   class Placement;
 }
 namespace coral {
    class Context;
 }
+class Placement;
 class StatusCode;
 class Token;
 
@@ -48,7 +48,7 @@ public: // Non-static members
    /// @param placement [IN] pointer to the placement hint.
    /// @param obj [IN] pointer to the Data Object to be written to Pool.
    /// @param classDesc [IN] pointer to the Seal class description for the Data Object.
-   virtual const Token* registerForWrite(const pool::Placement* placement,
+   virtual const Token* registerForWrite(const Placement* placement,
                                          const void* obj,
                                          const RootType& classDesc) const = 0;
 
@@ -80,6 +80,11 @@ public: // Non-static members
    /// @param pfn [OUT] string PFN of database
    /// @param type [OUT] string filetype of database
    virtual void lookupBestPfn(const std::string& token, std::string& pfn, std::string& type) const = 0;
+
+   /// @return void
+   /// @param pf [IN] filename to be renamed
+   /// @param newpf [IN] new filename
+   virtual void renamePfn(const std::string& pf, const std::string& newpf) const = 0;
 
    /// @return a pointer to a Pool Collection.
    /// @param collectionType [IN] string containing the collection type.

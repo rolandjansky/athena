@@ -14,6 +14,9 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIoComponent.h"
 #include "AthenaBaseComps/AthService.h"
+#ifdef ATHENAHIVE
+#include "tbb/recursive_mutex.h"
+#endif
 
 #include <string>
 #include <vector>
@@ -25,10 +28,10 @@ namespace pool {
    class IDatabase;
    class IPersistencySvc;
    class ISession;
-   class Placement;
 }
 class IAthenaSealSvc;
 class Guid;
+class Placement;
 
 template <class TYPE> class SvcFactory;
 
@@ -56,7 +59,7 @@ public: // Non-static members
    /// @param placement [IN] pointer to the placement hint.
    /// @param obj [IN] pointer to the Data Object to be written to Pool.
    /// @param classDesc [IN] pointer to the Seal class description for the Data Object.
-   const Token* registerForWrite(const pool::Placement* placement,
+   const Token* registerForWrite(const Placement* placement,
                                  const void* obj,
                                  const RootType& classDesc) const;
 
@@ -88,6 +91,11 @@ public: // Non-static members
    /// @param pfn [OUT] string PFN of database
    /// @param type [OUT] string filetype of database
    void lookupBestPfn(const std::string& token, std::string& pfn, std::string& type) const;
+
+   /// @return void
+   /// @param pf [IN] filename to be renamed
+   /// @param newpf [IN] new filename
+   void renamePfn(const std::string& pf, const std::string& newpf) const;
 
    /// @return a pointer to a Pool Collection.
    /// @param collectionType [IN] string containing the collection type.
@@ -237,19 +245,10 @@ private: // internal helper functions
    /// Resolve a file using ATLAS_POOLCOND_PATH
    std::string poolCondPath(const std::string& leaf);
 
-   /// Templated method to print a specific POOL domain attribute
-   template<class T> T getDomAttribute(const std::string& optName,
-	   pool::ISession* const sesH,
-	   long tech) const;
-   /// Templated method to print a specific POOL database attribute
-   template<class T> T getDbAttribute(const std::string& optName,
-	   pool::IDatabase* const dbH) const;
-   /// Templated method to print a specific POOL container attribute
-   template<class T> T getContAttribute(const std::string& optName,
-	   const std::string& contName,
-	   pool::IContainer* const contH,
-	   const std::string& brName = "") const;
-};
+#ifdef ATHENAHIVE
+  typedef tbb::recursive_mutex CallMutex;
+  mutable CallMutex m_callLock;
+#endif
 
-#include "PoolSvc.icc"
+};
 #endif

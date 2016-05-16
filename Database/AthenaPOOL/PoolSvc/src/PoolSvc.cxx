@@ -17,6 +17,7 @@
 
 #include "CoralKernel/Context.h"
 
+#include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 
 #include "CollectionBase/CollectionFactory.h"
@@ -27,10 +28,12 @@
 
 #include "PersistencySvc/IPersistencySvcFactory.h"
 #include "PersistencySvc/IPersistencySvc.h"
+#include "PersistencySvc/ISession.h"
+#include "PersistencySvc/IDatabase.h"
+#include "PersistencySvc/IContainer.h"
 #include "PersistencySvc/ITechnologySpecificAttributes.h"
 #include "PersistencySvc/ITokenIterator.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
-#include "PersistencySvc/Placement.h"
 #include "StorageSvc/DbType.h"
 
 #include "RelationalAccess/ConnectionService.h"
@@ -48,6 +51,13 @@
 #include <cstring> 	// for strcmp()
 #include <sys/stat.h> 	// for struct stat
 #include <algorithm> 	// for STL find()
+
+#ifdef ATHENAHIVE
+  #define HIVE_CALLMUTEX CallMutex::scoped_lock l(m_callLock)
+#else
+  #define HIVE_CALLMUTEX
+#endif
+  
 
 //__________________________________________________________________________
 StatusCode PoolSvc::initialize() {
@@ -252,6 +262,16 @@ StatusCode PoolSvc::stop() {
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::finalize() {
+   unsigned int streamId = 0;
+   for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
+		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
+      delete *iter;
+   }
+   m_persistencySvcVec.clear();
+   if (m_catalog != 0) {
+      m_catalog->commit();
+      delete m_catalog; m_catalog = 0;
+   }
    if (!this->io_finalize().isSuccess()) {
       ATH_MSG_WARNING("Cannot io_finalize.");
    }
@@ -268,6 +288,7 @@ StatusCode PoolSvc::finalize() {
 //__________________________________________________________________________
 StatusCode PoolSvc::io_finalize() {
    ATH_MSG_INFO("I/O finalization...");
+/*
    unsigned int streamId = 0;
    for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
 		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
@@ -278,6 +299,7 @@ StatusCode PoolSvc::io_finalize() {
       m_catalog->commit();
       delete m_catalog; m_catalog = 0;
    }
+*/
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
@@ -292,7 +314,7 @@ StatusCode PoolSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-const Token* PoolSvc::registerForWrite(const pool::Placement* placement,
+const Token* PoolSvc::registerForWrite(const Placement* placement,
                                        const void* obj,
                                        const RootType& classDesc) const {
    Token* token = m_persistencySvcVec[IPoolSvc::kOutputStream]->registerForWrite(*placement, obj, classDesc);
@@ -303,10 +325,12 @@ const Token* PoolSvc::registerForWrite(const pool::Placement* placement,
 }
 //__________________________________________________________________________
 void PoolSvc::setObjPtr(void*& obj, const Token* token, unsigned long contextId) const {
+  HIVE_CALLMUTEX;
+
    if (contextId >= m_persistencySvcVec.size()) {
       contextId = IPoolSvc::kInputStream;
    }
-   obj = m_persistencySvcVec[contextId]->readObject(*token);
+   obj = m_persistencySvcVec[contextId]->readObject(*token, obj);
    std::map<unsigned long, unsigned int>::const_iterator maxFileIter = m_contextMaxFile.find(contextId);
    if (maxFileIter != m_contextMaxFile.end() && maxFileIter->second > 0) {
       m_guidLists[contextId].remove(token->dbID());
@@ -318,6 +342,7 @@ void PoolSvc::setObjPtr(void*& obj, const Token* token, unsigned long contextId)
 }
 //__________________________________________________________________________
 unsigned long PoolSvc::getInputContext(const std::string& label, unsigned int maxFile) {
+   HIVE_CALLMUTEX;
    if (!label.empty()) {
       std::map<std::string, unsigned long>::const_iterator contextIter = m_contextLabel.find(label);
       if (contextIter != m_contextLabel.end()) {
@@ -381,11 +406,30 @@ void PoolSvc::lookupBestPfn(const std::string& token, std::string& pfn, std::str
    action.lookupBestPFN(dbID, pool::FileCatalog::READ, pool::FileCatalog::SEQUENTIAL, pfn, type); // FID -> best PFN
 }
 //__________________________________________________________________________
+void PoolSvc::renamePfn(const std::string& pf, const std::string& newpf) const {
+   std::string dbID, type;
+   pool::FCregister action;
+   m_catalog->setAction(action);
+   action.lookupFileByPFN(pf, dbID, type);
+   if (dbID.empty()) {
+      ATH_MSG_WARNING("Failed to lookup: " << pf << " in FileCatalog");
+      return;
+   }
+   action.lookupFileByPFN(newpf, dbID, type);
+   if (!dbID.empty()) {
+      ATH_MSG_INFO("Found: " << newpf << " in FileCatalog");
+      return;
+   }
+   action.renamePFN(pf, newpf);
+}
+//__________________________________________________________________________
 pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
 		const std::string& connection,
 		const std::string& collectionName,
 		const pool::ICollection::OpenMode& openMode,
 		unsigned long contextId) const {
+   HIVE_CALLMUTEX;
+
    std::string collection(collectionName);
    if (collectionType == "RootCollection") {
       if (collectionName.find("PFN:") == std::string::npos
@@ -501,6 +545,8 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
 }
 //__________________________________________________________________________
 void PoolSvc::registerExistingCollection(pool::ICollection* coll, bool overwrite, bool sharedCat) {
+   HIVE_CALLMUTEX;
+
    pool::CollectionFactory* collFac = pool::CollectionFactory::get();
    m_catalog->commit();
    if (sharedCat) {
@@ -514,6 +560,7 @@ void PoolSvc::registerExistingCollection(pool::ICollection* coll, bool overwrite
 Token* PoolSvc::getToken(const std::string& connection,
 	const std::string& collection,
 	const unsigned long ientry) const {
+   HIVE_CALLMUTEX;
    pool::ISession* sesH = 0;
    pool::IDatabase* dbH = 0;
    if (!getSessionDbHandles(sesH, dbH, IPoolSvc::kInputStream, connection).isSuccess()) {
@@ -558,6 +605,8 @@ bool PoolSvc::testDictionary(const std::string& className) const {
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned long stream) const {
+   HIVE_CALLMUTEX;
+
    if (type != pool::ITransaction::READ) {
       stream = IPoolSvc::kOutputStream;
    }
@@ -577,6 +626,8 @@ StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned long stream)
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::commit(unsigned long stream) const {
+   HIVE_CALLMUTEX;
+
    pool::IPersistencySvc* persSvc = m_persistencySvcVec[stream];
    if (persSvc != 0 && persSvc->session().transaction().isActive()) {
       unsigned int type = persSvc->session().transaction().type();
@@ -593,6 +644,8 @@ StatusCode PoolSvc::commit(unsigned long stream) const {
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::commitAndHold(unsigned long stream) const {
+   HIVE_CALLMUTEX;
+
    pool::IPersistencySvc* persSvc = m_persistencySvcVec[stream];
    if (persSvc->session().transaction().isActive()) {
       if (!persSvc->session().transaction().commitAndHold()) {
@@ -604,6 +657,8 @@ StatusCode PoolSvc::commitAndHold(unsigned long stream) const {
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::disconnect(unsigned long stream) const {
+   HIVE_CALLMUTEX;
+
    if (stream >= m_persistencySvcVec.size()) {
       return(StatusCode::SUCCESS);
    }
@@ -619,6 +674,7 @@ StatusCode PoolSvc::disconnect(unsigned long stream) const {
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::disconnectDb(const std::string& connection, unsigned long contextId) const {
+   HIVE_CALLMUTEX;
    pool::ISession* sesH = 0;
    pool::IDatabase* dbH = 0;
    if (contextId >= m_persistencySvcVec.size()) {
@@ -678,16 +734,17 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
    }
    std::ostringstream oss;
    if (data == "DbLonglong") {
-      long long int value = getDomAttribute<long long int>(optName, sesH, tech);
+      long long int value = sesH->technologySpecificAttributes(tech).attribute<long long int>(optName);
       oss << std::dec << value;
    } else if (data == "double") {
-      double value = getDomAttribute<double>(optName, sesH, tech);
+      double value = sesH->technologySpecificAttributes(tech).attribute<double>(optName);
       oss << std::dec << value;
    } else {
-      int value = getDomAttribute<int>(optName, sesH, tech);
+      int value = sesH->technologySpecificAttributes(tech).attribute<int>(optName);
       oss << std::dec << value;
    }
    data = oss.str();
+   ATH_MSG_INFO("Domain attribute [" << optName << "]" << ": " << data);
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
@@ -715,18 +772,19 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
    std::ostringstream oss;
    if (contName.empty()) {
       if (data == "DbLonglong") {
-         long long int value = getDbAttribute<long long int>(optName, dbH);
+         long long int value = dbH->technologySpecificAttributes().attribute<long long int>(optName);
          oss << std::dec << value;
       } else if (data == "double") {
-         double value = getDbAttribute<double>(optName, dbH);
+         double value = dbH->technologySpecificAttributes().attribute<double>(optName);
          oss << std::dec << value;
       } else if (data == "string") {
-         char* value = getDbAttribute<char*>(optName, dbH);
+         char* value = dbH->technologySpecificAttributes().attribute<char*>(optName);
          oss << value;
       } else {
-         int value = getDbAttribute<int>(optName, dbH);
+         int value = dbH->technologySpecificAttributes().attribute<int>(optName);
          oss << std::dec << value;
       }
+      ATH_MSG_INFO("Database (" << dbH->pfn() << ") attribute [" << optName << "]" << ": " << oss.str());
    } else {
       pool::IContainer* contH = 0;
       std::string objName;
@@ -737,16 +795,17 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
          return(StatusCode::FAILURE);
       }
       if (data == "DbLonglong") {
-         long long int value = getContAttribute<long long int>(optName, contName, contH);
+         long long int value = contH->technologySpecificAttributes().attribute<long long int>(optName);
          oss << std::dec << value;
       } else if (data == "double") {
-         double value = getContAttribute<double>(optName, contName, contH);
+         double value = contH->technologySpecificAttributes().attribute<double>(optName);
          oss << std::dec << value;
       } else {
-         int value = getContAttribute<int>(optName, contName, contH);
+         int value = contH->technologySpecificAttributes().attribute<int>(optName);
          oss << std::dec << value;
       }
       delete contH; contH = 0;
+      ATH_MSG_INFO("Container attribute [" << contName << "." << optName << "]: " << oss.str());
    }
    data = oss.str();
    delete dbH; dbH = 0;
@@ -757,6 +816,8 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
 		const std::string& data,
 		long tech,
 		unsigned long contextId) const {
+   HIVE_CALLMUTEX;
+
    if (contextId >= m_persistencySvcVec.size()) {
       contextId = IPoolSvc::kOutputStream;
    }
@@ -787,6 +848,8 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
 		const std::string& dbName,
 		const std::string& contName,
 		unsigned long contextId) const {
+   HIVE_CALLMUTEX;
+
    pool::ISession* sesH = 0;
    pool::IDatabase* dbH = 0;
    if (!getSessionDbHandles(sesH, dbH, contextId, dbName).isSuccess()) {
@@ -854,6 +917,8 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::setFrontierCache(const std::string& conn) const {
+   HIVE_CALLMUTEX;
+
    ATH_MSG_VERBOSE("setFrontierCache called for connection:" << conn);
    // setup the Frontier cache information for the given logical or physical connection string
    // first determine if the connection is logical (no ':')
@@ -917,6 +982,8 @@ StatusCode PoolSvc::setFrontierCache(const std::string& conn) const {
 }
 //__________________________________________________________________________
 pool::IFileCatalog* PoolSvc::createCatalog() {
+   HIVE_CALLMUTEX;
+
    pool::IFileCatalog* ctlg = new pool::IFileCatalog;
    for (std::vector<std::string>::const_iterator iter = m_readCatalog.value().begin(),
 	   last = m_readCatalog.value().end(); iter != last; ++iter) {
