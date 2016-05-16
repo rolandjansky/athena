@@ -3,11 +3,11 @@
 */
 
 /*
- * Author: Piotr Sarna
- */
+* Author: Piotr Sarna
+*/
 
-#ifndef L1Decoder_FakeRoI_h
-#define L1Decoder_FakeRoI_h
+#ifndef L1Decoder_RoIGraph_h
+#define L1Decoder_RoIGraph_h
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -22,7 +22,9 @@
 #include "TrigT1Result/RoIBResult.h"
 //#include "AthViews/View.h"
 
-class FakeRoI : public AthAlgorithm {
+#include "./Monitored.h"
+
+class RoIGraph : public AthAlgorithm {
 private:
 	struct SingleFakeRoI {
 		double eta;
@@ -31,11 +33,12 @@ private:
 		std::vector<std::string> passedThresholdIDs;
 	};
 public:
-	FakeRoI(const std::string& name, ISvcLocator* pSvcLocator);
+	RoIGraph(const std::string& name, ISvcLocator* pSvcLocator);
 	StatusCode initialize();
 	StatusCode beginRun();
 	StatusCode execute();
 	StatusCode finalize();
+
 private:
 	std::vector<std::vector<SingleFakeRoI>> parseInputFile();
 	std::vector<SingleFakeRoI> parseInputFileLine(const std::string& line, unsigned lineNumber);
@@ -47,13 +50,15 @@ private:
 	SG::WriteHandle< DataVector<LVL1::RecEmTauRoI> > m_recEMTauRoIs;
 	SG::WriteHandle< xAOD::TrigCompositeContainer > m_decisions;
 	SG::WriteHandle< xAOD::TrigCompositeAuxContainer > m_decisionsAux;
-	//	SG::WriteHandle< std::vector<SG::View*> > m_view;
+	//SG::WriteHandle< std::vector<SG::View*> > m_view;
 	ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc; //!< access to trigger menu
 
 	// can demand objects 
 
 	std::string m_inputFilename;
-	std::vector<std::vector<FakeRoI::SingleFakeRoI>> m_inputData;
+	ToolHandle<MonitoredTool> m_monitoredTool;
+
+	std::vector<std::vector<RoIGraph::SingleFakeRoI>> m_inputData;
 	unsigned m_currentRowNumber;
 };
 

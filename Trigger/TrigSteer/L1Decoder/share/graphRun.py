@@ -17,12 +17,15 @@
 ## basic job configuration
 import AthenaCommon.AtlasUnixStandardJob
 
+
+
 ## get a handle on the ServiceManager
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 ## get a handle on the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 svcMgr += THistSvc()
@@ -44,26 +47,20 @@ svcMgr += l1svc
 
 #Run Fake RoI
 from AthenaCommon.AppMgr import ToolSvc
-from AthenaMonitoring.AthenaMonitoringConf import MonitoringTool
-tool = MonitoringTool('monitoringTool')
-tool.ThreadSafe = True
+from L1Decoder.L1DecoderConf import MonitoredTool
+tool = MonitoredTool('monitoredTool')
 tool.MonitoredVariables = [
     'phi, StorageDisabled',
-    'theta, StorageHistogram, /monitored, theta histogram, 100, 0, 1',
-    'delta, StorageHistogram, /monitored, delta histogram, 100, 0, 1',
-    'alpha, StorageHistogram, /monitored, alpha histogram, 100, 0, 1',
+    'theta, StorageHistogram, /monitored, theta histogram, 100, -5, 5',
+    'delta, StorageHistogram, /monitored, delta histogram, 100, -5, 5'
     ]
 ToolSvc += tool
-
-from AthenaMonitoring.AthenaMonitoringConf import NoOpMonitoringTool
-nooptool = NoOpMonitoringTool('noOpMonitoringTool')
-ToolSvc += nooptool
 
 from L1Decoder.L1DecoderConf import RoIGraph
 roiGraphObj = RoIGraph()
 roiGraphObj.OutputLevel=VERBOSE
 roiGraphObj.InputFilename="testData.dat"
-roiGraphObj.MonitoringTool=tool
+roiGraphObj.MonitoredTool=tool
 topSequence += roiGraphObj
 
 
@@ -85,14 +82,6 @@ svcMgr.StoreGateSvc.Dump=True
 print svcMgr
 
 theApp.EvtMax = 1
-
-
-from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-svcMgr += ForwardSchedulerSvc()
-svcMgr.ForwardSchedulerSvc.MaxEventsInFlight = 1
-svcMgr.ForwardSchedulerSvc.MaxAlgosInFlight = 1
-svcMgr.ForwardSchedulerSvc.ThreadPoolSize = 1
-svcMgr.ForwardSchedulerSvc.CheckDependencies = True
 
 
 print "topSequence dump:", topSequence
