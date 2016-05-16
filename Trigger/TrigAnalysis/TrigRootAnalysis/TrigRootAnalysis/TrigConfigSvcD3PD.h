@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfigSvcD3PD.h 699559 2015-10-09 01:30:51Z tamartin $
+// $Id: TrigConfigSvcD3PD.h 726663 2016-02-28 01:22:15Z ssnyder $
 #ifndef TRIGROOTANALYSIS_TRIGCONFIGSVCD3PD_H
 #define TRIGROOTANALYSIS_TRIGCONFIGSVCD3PD_H
 
@@ -39,8 +39,8 @@ namespace D3PD {
     *
     * @author Attila Krasznahrokay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 699559 $
-    * $Date: 2015-10-09 03:30:51 +0200 (Fri, 09 Oct 2015) $
+    * $Revision: 726663 $
+    * $Date: 2016-02-28 02:22:15 +0100 (Sun, 28 Feb 2016) $
     */
    class TrigConfigSvcD3PD : public ::TNamed,
                              public IITrigConfigSvcD3PD {
@@ -96,60 +96,60 @@ namespace D3PD {
 
       // Begin [TrigMonConf]
       // Get the D3PD index for a given chain counter
-      UInt_t GetChainIndexFromCounter(UInt_t _counter) const;
+      UInt_t GetChainIndexFromCounter(UInt_t counter) const;
       /// Map an OutputTE from a Signature to its Sequence
       UInt_t GetSequenceIndex( UInt_t outputTE ) const;
       /// Get a sequences name from its index
-      const std::string& GetSequenceNameFromIndex( unsigned int _index ) const;
+      const std::string& GetSequenceNameFromIndex( unsigned int index ) const;
       /// Get an algorithms name from its parent sequence and its position in said sequence
-      const std::string& GetAlgNameFromSeqIDAndAlgPos( int _sequenceID, int _algorithmPosition ) const;
+      const std::string& GetAlgNameFromSeqIDAndAlgPos( int sequenceID, int algorithmPosition ) const;
       /// Get an algorithms name hash from its parent sequence and its position in said sequence
-      UInt_t GetAlgNameIDFromSeqIDAndAlgPos( int _sequenceID, int _algorithmPosition ) const;
+      UInt_t GetAlgNameIDFromSeqIDAndAlgPos( int sequenceID, int algorithmPosition ) const;
       /// Get an algorithms class name from its parent sequence and its poisition in said sequence
-      const std::string& GetAlgClassNameFromSeqIDAndAlgPos( int _sequenceID, int _algorithmPosition ) const;
+      const std::string& GetAlgClassNameFromSeqIDAndAlgPos( int sequenceID, int algorithmPosition ) const;
       /// Get an algorithms class name hash from its parent sequence and its poisition in said sequence
-      UInt_t GetAlgClassNameIDFromSeqIDAndAlgPos( int _sequenceID, int _algorithmPosition ) const;
+      UInt_t GetAlgClassNameIDFromSeqIDAndAlgPos( int sequenceID, int algorithmPosition ) const;
       /// Use full flat config information to populate helper maps
       void GenerateSignatureSequenceMap();
 
       // Chain
       UInt_t      GetChainN() const;
-      UInt_t      GetChainLevel(UInt_t _c) const;
-      UInt_t      GetChainCounter(UInt_t _c) const;
-      std::string GetChainName(UInt_t _c) const;
-      UInt_t      GetChainEBHypoNameSize(UInt_t _c) const;
-      std::string GetChainEBHypoName(UInt_t _c, UInt_t _h) const;
-      UInt_t      GetChainGroupNameSize(UInt_t _c) const;
-      std::string GetChainGroupName(UInt_t _c, UInt_t _g) const;
+      UInt_t      GetChainLevel(UInt_t c) const;
+      UInt_t      GetChainCounter(UInt_t c) const;
+      std::string GetChainName(UInt_t c) const;
+      UInt_t      GetChainEBHypoNameSize(UInt_t c) const;
+      std::string GetChainEBHypoName(UInt_t c, UInt_t h) const;
+      UInt_t      GetChainGroupNameSize(UInt_t c) const;
+      std::string GetChainGroupName(UInt_t c, UInt_t g) const;
       UInt_t      GetChainStreamNameSize(UInt_t _c) const;
       std::string GetChainStreamName(UInt_t _c, UInt_t _g) const;
       // Chain->Sig
-      UInt_t      GetSigN(UInt_t _c) const;
-      UInt_t      GetSigCounter(UInt_t _c, UInt_t _s) const;
-      UInt_t      GetSigLogic(UInt_t _c, UInt_t _s) const;
-      std::string GetSigLabel(UInt_t _c, UInt_t _s) const;
-      UInt_t      GetSigNOutputTE(UInt_t _c, UInt_t _s) const;
-      UInt_t      GetSigOutputTE(UInt_t _c, UInt_t _s, UInt_t _t) const;
+      UInt_t      GetSigN(UInt_t c) const;
+      UInt_t      GetSigCounter(UInt_t c, UInt_t s) const;
+      UInt_t      GetSigLogic(UInt_t c, UInt_t s) const;
+      std::string GetSigLabel(UInt_t c, UInt_t s) const;
+      UInt_t      GetSigNOutputTE(UInt_t c, UInt_t s) const;
+      UInt_t      GetSigOutputTE(UInt_t c, UInt_t s, UInt_t t) const;
 
       // Seq
       UInt_t       GetSeqN() const;
-      UInt_t       GetSeqID(UInt_t _s) const;
-      UInt_t       GetSeqIndex(UInt_t _s) const;
-      std::string  GetSeqName(UInt_t _s) const;
-      UInt_t       GetSeqNInputTEs(UInt_t _s) const;
-      UInt_t       GetSeqInputTE(UInt_t _s, UInt_t _t) const;
+      UInt_t       GetSeqID(UInt_t s) const;
+      UInt_t       GetSeqIndex(UInt_t s) const;
+      std::string  GetSeqName(UInt_t s) const;
+      UInt_t       GetSeqNInputTEs(UInt_t s) const;
+      UInt_t       GetSeqInputTE(UInt_t s, UInt_t t) const;
       // Seq->Alg
-      UInt_t      GetAlgN(UInt_t _s) const;
-      UInt_t      GetAlgIndex(UInt_t _s, UInt_t _a) const;
-      UInt_t      GetAlgPosition(UInt_t _s, UInt_t _a) const;
-      UInt_t      GetAlgNameID(UInt_t _s, UInt_t _a) const;
-      std::string GetAlgName(UInt_t _s, UInt_t _a) const;
-      UInt_t      GetAlgTypeID(UInt_t _s, UInt_t _a) const;
-      std::string GetAlgTypeName(UInt_t _s, UInt_t _a) const;
+      UInt_t      GetAlgN(UInt_t s) const;
+      UInt_t      GetAlgIndex(UInt_t s, UInt_t a) const;
+      UInt_t      GetAlgPosition(UInt_t s, UInt_t a) const;
+      UInt_t      GetAlgNameID(UInt_t s, UInt_t a) const;
+      std::string GetAlgName(UInt_t s, UInt_t a) const;
+      UInt_t      GetAlgTypeID(UInt_t s, UInt_t a) const;
+      std::string GetAlgTypeName(UInt_t s, UInt_t a) const;
 
       UInt_t      GetMetaStringN() const;
-      std::string GetMetaStringKey(UInt_t _m) const;
-      std::string GetMetaStringVal(UInt_t _m) const;
+      std::string GetMetaStringKey(UInt_t m) const;
+      std::string GetMetaStringVal(UInt_t m) const;
       // End [TrigMonConf]
 
    private:

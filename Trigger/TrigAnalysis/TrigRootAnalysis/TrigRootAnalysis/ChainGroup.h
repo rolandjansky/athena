@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ChainGroup.h 502443 2012-05-25 10:43:25Z krasznaa $
+// $Id: ChainGroup.h 726661 2016-02-28 01:18:32Z ssnyder $
 #ifndef TRIGROOTANALYSIS_CHAINGROUP_H
 #define TRIGROOTANALYSIS_CHAINGROUP_H
 
@@ -36,8 +36,8 @@ namespace D3PD {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 502443 $
-    * $Date: 2012-05-25 12:43:25 +0200 (Fri, 25 May 2012) $
+    * $Revision: 726661 $
+    * $Date: 2016-02-28 02:18:32 +0100 (Sun, 28 Feb 2016) $
     */
    class ChainGroup : public ::TNamed {
 
@@ -47,7 +47,7 @@ namespace D3PD {
    protected:
       /// Constructor receiving all the needed information
       ChainGroup( const std::vector< std::string >& triggerNames,
-                  const D3PD::Trig::IDataAccess& parent,
+                  D3PD::Trig::IDataAccess& parent,
                   D3PD::Trig::IConfigAccess& svc );
 
    public:
@@ -82,7 +82,7 @@ namespace D3PD {
       /// Function splitting a comma separated list into a vector
       static std::vector< std::string > ToVector( const std::string& names );
 
-      const D3PD::Trig::IDataAccess& m_parent; ///< Interface for accessing the trigger data
+      D3PD::Trig::IDataAccess& m_parent; ///< Interface for accessing the trigger data
       D3PD::Trig::IConfigAccess& m_configSvc; ///< Accessor to the configuration service
 
       const std::vector< std::string > m_triggerNames; ///< The names given by the user

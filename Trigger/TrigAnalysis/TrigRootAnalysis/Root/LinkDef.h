@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LinkDef.h 652737 2015-03-09 17:06:18Z mnowak $
+// $Id: LinkDef.h 747438 2016-05-16 09:56:25Z tamartin $
 #ifndef TRIGROOTANALYSIS_LINKDEF_H
 #define TRIGROOTANALYSIS_LINKDEF_H
 
@@ -52,7 +52,10 @@
 // Additional dictionaries for reading the D3PDs. ROOT says that it doesn't
 // need some of these, but I beg to differ. I've seen some weird crashes without
 // these in some test jobs...
+#ifdef XAOD_STANDALONE
+// In AtlasSTLAddReflex
 #pragma link C++ class map<string,string>+;
+#endif
 
 // MN: in ROOT6 this comes from RELAX so we don't need it
 #if ROOT_VERSION_CODE < 393216  // ROOT 6.0.0 version as int
@@ -65,8 +68,14 @@
 //#pragma link C++ class vector<short>+;
 // [TrigMonConfig] addind some more dictionaries for additional structures used saving the full trig conf.
 // Will not run without these.
+#ifdef XAOD_STANDALONE
+// In AtlasSTLAddReflex
 #pragma link C++ class vector<vector<float> >+;
 #pragma link C++ class vector<vector<string> >+;
+#elif defined ROOTCORE
+#pragma link C++ class vector<vector<float> >+;
+#pragma link C++ class vector<vector<string> >+;
+#endif
 
 #endif // __CINT__
 #endif // TRIGROOTANALYSIS_LINKDEF_H
