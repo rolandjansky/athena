@@ -28,12 +28,22 @@ namespace AtlasCLHEP_RandomGenerators {
   AtlasCLHEP_RandomGenerators_test::AtlasCLHEP_RandomGenerators_test(const std::string& name, ISvcLocator* pSvcLocator):
             AthAlgorithm(name,pSvcLocator),
             m_chrono(0),
+            m_ranlux64(nullptr),
+            m_ranecu(nullptr),
+            m_mtwist(nullptr),
+            m_histSvc(nullptr),
             m_rndmSvc1("AtRanluxGenSvc", name),
             m_randomEngine1(0),
             m_randomEngineName1("rnd_AtRanluxGenSvc"),
             m_rndmSvc2("AtDSFMTGenSvc", name),
             m_randomEngine2(0),
-            m_randomEngineName2("rnd_AtDSFMTGenSvc")
+            m_randomEngineName2("rnd_AtDSFMTGenSvc"),
+            m_hflat(nullptr),
+            m_hgauss1(nullptr),
+            m_hgauss2(nullptr),
+            m_hgauss3(nullptr),
+            m_hexp1(nullptr),
+            m_hexp2(nullptr)
   {
   }
   
