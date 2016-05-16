@@ -34,8 +34,7 @@ PoolCollectionConverter::PoolCollectionConverter(IMessageSvc* msgSvc,
 	const std::string& connection,
 	const std::string& inputCollection,
 	const std::string& query,
-	const IPoolSvc* svc,
-	unsigned long contextId) :
+	const IPoolSvc* svc) :
 	m_msgSvc(msgSvc),
 	m_collectionType(),
 	m_connection(connection),
@@ -44,11 +43,9 @@ PoolCollectionConverter::PoolCollectionConverter(IMessageSvc* msgSvc,
 	m_poolSvc(svc),
 	m_poolCollection(0),
 	m_collectionQuery(0),
-	m_inputContainer(),
-	m_contextId(contextId) {
+	m_inputContainer() {
    // Find out if the user specified a container
    std::string::size_type p_colon = collectionType.rfind(':');
-
    if (p_colon != std::string::npos) {
       m_inputContainer = collectionType.substr(p_colon + 1);
       m_collectionType = collectionType.substr(0, p_colon);
@@ -57,9 +54,9 @@ PoolCollectionConverter::PoolCollectionConverter(IMessageSvc* msgSvc,
       m_inputContainer = "POOLContainer";
       m_collectionType = collectionType;
    }
-   // if the collection is of type POOL_RDBMS the technology must be appeneded.
-   if (inputCollection.find("oracle") == 0 || inputCollection.find("mysql") == 0) {
-      m_inputCollection += " POOL_RDBMS";
+   std::string::size_type p_slash = m_inputContainer.find('/');
+   if (p_slash != std::string::npos) {
+      m_inputContainer = m_inputContainer.substr(0, p_slash);
    }
 }
 //______________________________________________________________________________
@@ -79,24 +76,6 @@ StatusCode PoolCollectionConverter::initialize() {
       collectionTypeString = "RootCollection";
    } else if (m_collectionType == "ImplicitROOT" || m_collectionType == "SeekableROOT") {
       collectionTypeString = "ImplicitCollection";
-   } else if (m_collectionType == "ExplicitMySQL" ||
-	   m_collectionType == "ExplicitMySQLlt" ||
-	   m_collectionType == "ExplicitRAL") {
-      collectionTypeString = "RelationalCollection";
-      // If connectionString is empty, use default of TAGDB
-      // Can override by new entry in local dblookup.xml if needed
-      if (m_connection.size() == 0) {
-         log << MSG::WARNING << "No connection string provided for relational collection access, "
-	         << "will try using default alias TAGDB" << endreq;
-         m_connection = "TAGDB";
-      }
-      // Check that the connectionString is ok
-      if (m_connection.find("mysql:") != 0 && m_connection.find("oracle:") != 0) {
-         log << MSG::WARNING
-	         << "Database connectionString did not begin with \"mysql:\" or \"oracle:\""
-	         << ", ASSUMING alias and passing" << endreq;
-         //return(StatusCode::FAILURE);
-      }
    } else {
       log << MSG::ERROR << "Undefined collection type " << m_collectionType << endreq;
       return(StatusCode::FAILURE);
@@ -121,13 +100,8 @@ StatusCode PoolCollectionConverter::initialize() {
          // Prefix with PFN:
          m_connection = "PFN:" + m_inputCollection;
       }
-      m_poolCollection = 0;
       try {
-         m_poolCollection = m_poolSvc->createCollection("RootCollection",
-	         m_connection,
-	         m_inputCollection,
-	         pool::ICollection::READ,
-	         m_contextId);
+         m_poolCollection = m_poolSvc->createCollection("RootCollection", m_connection, m_inputCollection);
       } catch (std::exception &e) {
          m_poolCollection = 0;
       }
@@ -138,19 +112,11 @@ StatusCode PoolCollectionConverter::initialize() {
    }
    try {
       if (m_poolCollection == 0) {
-         m_poolCollection = m_poolSvc->createCollection(collectionTypeString,
-	         m_connection,
-	         m_inputCollection,
-	         pool::ICollection::READ,
-	         m_contextId);
+         m_poolCollection = m_poolSvc->createCollection(collectionTypeString, m_connection, m_inputCollection);
       }
       if (m_poolCollection == 0 && collectionTypeString == "ImplicitCollection") {
          m_inputCollection = m_inputContainer + "_DataHeader";
-         m_poolCollection = m_poolSvc->createCollection(collectionTypeString,
-	         m_connection,
-	         m_inputCollection,
-	         pool::ICollection::READ,
-	         m_contextId);
+         m_poolCollection = m_poolSvc->createCollection(collectionTypeString, m_connection, m_inputCollection);
       }
    } catch (std::exception &e) {
       log << MSG::WARNING << "Unable to create Collection: " << m_connection << endreq;
@@ -170,7 +136,7 @@ StatusCode PoolCollectionConverter::disconnectDb() {
    }
    if (m_poolCollection->description().type() == "SeekableCollection" ||
 	   m_poolCollection->description().type() == "ImplicitCollection") {
-      return(m_poolSvc->disconnectDb(m_connection, m_contextId));
+      return(m_poolSvc->disconnectDb(m_connection));
    }
    return(StatusCode::SUCCESS);
 }
@@ -195,29 +161,6 @@ pool::ICollectionCursor& PoolCollectionConverter::executeQuery() const {
    m_collectionQuery->setCondition(m_query);
    m_collectionQuery->setRowCacheSize(100);   //MN: FIXME - just an arbitrary number
    return(m_collectionQuery->execute());
-}
-//______________________________________________________________________________
-StatusCode PoolCollectionConverter::checkRefName(const std::string& refName) const {
-   // Must have valid collection
-   if (m_poolCollection == 0) {
-      MsgStream log(m_msgSvc, "PoolCollectionConverter");
-      log << MSG::ERROR << "checkRefName: no collection" << endreq;
-      return(StatusCode::FAILURE);
-   }
-   // Must have non-empty header name
-   if (refName.size() == 0) {
-      MsgStream log(m_msgSvc, "PoolCollectionConverter");
-      log << MSG::ERROR << "checkRefName: empty ref name" << endreq;
-      return(StatusCode::FAILURE);
-   }
-   try {
-      m_poolCollection->description().column(refName + "_ref");
-   } catch(std::exception& e) {
-      MsgStream log(m_msgSvc, "PoolCollectionConverter");
-      log << MSG::ERROR << "checkRefName: " << e.what() << endreq;
-      return(StatusCode::FAILURE);
-   }
-   return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________
 std::string PoolCollectionConverter::retrieveToken(const pool::ICollectionCursor* cursor,
@@ -255,25 +198,3 @@ pool::ICollectionMetadata* PoolCollectionConverter::retrieveMetadata() const {
    }
    return(&m_poolCollection->metadata());
 }
-//______________________________________________________________________________
-// Copy Constructor and Assignment Operator are private. Implementation for rulechecker.
-PoolCollectionConverter::PoolCollectionConverter(const PoolCollectionConverter& /*rhs*/) :
-	m_msgSvc(0),
-	m_collectionType(),
-	m_connection(),
-	m_inputCollection(),
-	m_query(),
-	m_poolSvc(0),
-	m_poolCollection(0),
-	m_collectionQuery(0),
-	m_inputContainer(),
-	m_contextId(IPoolSvc::kInputStream) {
-}
-//__________________________________________________________________________
-PoolCollectionConverter& PoolCollectionConverter::operator=(const PoolCollectionConverter& rhs) {
-   if (&rhs == this) {
-      return(*this);
-   }
-   return(*this);
-}
-//__________________________________________________________________________

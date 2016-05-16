@@ -55,6 +55,7 @@ EventSelectorAthenaPool::EventSelectorAthenaPool(const std::string& name, ISvcLo
 	m_poolCollectionConverter(0),
 	m_headerIterator(0),
 	m_guid(),
+	m_satelliteOid1(0LL),
 	m_athenaPoolCnvSvc("AthenaPoolCnvSvc", name),
 	m_chronoStatSvc("ChronoStatSvc", name),
 	m_clidSvc("ClassIDSvc", name),
@@ -72,7 +73,6 @@ EventSelectorAthenaPool::EventSelectorAthenaPool(const std::string& name, ISvcLo
    declareProperty("CollectionTree",      m_collectionTree = "POOLContainer");
    declareProperty("Connection",          m_connection);
    declareProperty("RefName",             m_refName);
-   declareProperty("DerivedRefName",      m_derRefName);
    declareProperty("AttributeListKey",    m_attrListKey = "Input");
    declareProperty("InputCollections",    m_inputCollectionsProp);
    declareProperty("Query",               m_query = "");
@@ -149,13 +149,9 @@ StatusCode EventSelectorAthenaPool::initialize() {
    // CollectionType must be one of:
    //   ExplicitROOT, ExplicitMySQL, ExplicitMySQLlt, ExplicitRAL, SeekableROOT, ImplicitROOT
    if (m_collectionType.value() != "ExplicitROOT" &&
-	   m_collectionType.value() != "ExplicitMySQL" &&
-	   m_collectionType.value() != "ExplicitMySQLlt" &&
-	   m_collectionType.value() != "ExplicitRAL" &&
 	   m_collectionType.value() != "SeekableROOT" &&
 	   m_collectionType.value() != "ImplicitROOT") {
-      ATH_MSG_FATAL("EventSelector.CollectionType must be one of: "
-		<< "ExplicitROOT, ExplicitMySQL, ExplicitMySQLlt, ExplicitRAL, SeekableROOT, ImplicitROOT (default)");
+      ATH_MSG_FATAL("EventSelector.CollectionType must be one of: ExplicitROOT, SeekableROOT, ImplicitROOT (default)");
       return(StatusCode::FAILURE);
    }
 
@@ -290,26 +286,12 @@ StatusCode EventSelectorAthenaPool::reinit() {
    }
    // Check for valid header name
    if (!m_refName.value().empty()) {
-      if (m_derRefName.value().empty()) {
-         m_derRefName = m_refName.value();
-      }
-      if (m_collectionType.value() == "ExplicitROOT"
-		      || m_collectionType.value() == "ExplicitMySQL"
-		      || m_collectionType.value() == "ExplicitMySQLlt"
-		      || m_collectionType.value() == "ExplicitRAL") {
-         if (!m_poolCollectionConverter->checkRefName(m_refName.value()).isSuccess()) {
-            ATH_MSG_FATAL("Ref name: " << m_refName.value() << " is not valid ");
-            return(StatusCode::FAILURE);
-         } else {
+      if (m_collectionType.value() == "ExplicitROOT") {
             ATH_MSG_INFO("Using collection ref name: " << m_refName.value());
-         }
       } else {
          ATH_MSG_INFO("Using implicit collection, ignore ref name: " << m_refName.value());
       }
-   } else if (m_collectionType.value() == "ExplicitROOT"
-		   || m_collectionType.value() == "ExplicitMySQL"
-		   || m_collectionType.value() == "ExplicitMySQLlt"
-		   || m_collectionType.value() == "ExplicitRAL") {
+   } else if (m_collectionType.value() == "ExplicitROOT") {
       ATH_MSG_INFO("Using standard collection ref ");
    }
    // Get DataHeader iterator
@@ -429,32 +411,44 @@ StatusCode EventSelectorAthenaPool::stop() {
    if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isClient()) {
       return(StatusCode::SUCCESS);
    }
+   IEvtSelector::Context* ctxt(0);
+   if (!releaseContext(ctxt).isSuccess()) {
+      ATH_MSG_WARNING("Cannot release context");
+   }
+   return(StatusCode::SUCCESS);
+}
+
+
+void EventSelectorAthenaPool::fireEndFileIncidents(bool isLastFile, bool fireEndTagIncident) const {
    if (m_processMetadata.value()) {
       if (m_evtCount >= 0) {
-         if (m_headerIterator == 0 || m_headerIterator->next() == 0) {
             // Assume that the end of collection file indicates the end of payload file.
             if (m_guid != Guid::null()) {
                // Fire EndInputFile incident
                FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString());
                m_incidentSvc->fireIncident(endInputFileIncident);
             }
-            // Fire EndTagFile incident
-            FileIncident endTagFileIncident(name(), "EndTagFile", *m_inputCollectionsIterator);
-            m_incidentSvc->fireIncident(endTagFileIncident);
-            if (!m_tagDataStore->clearStore().isSuccess()) {
-               ATH_MSG_WARNING("Unable to clear tag MetaData Proxies");
+            // Fire EndTagFile incident if not out of files (maybe we should make it fire then as well?)
+            if(fireEndTagIncident) {
+               if(m_inputCollectionsIterator!=m_inputCollectionsProp.value().end()) {
+                  FileIncident endTagFileIncident(name(), "EndTagFile", *m_inputCollectionsIterator);
+                  m_incidentSvc->fireIncident(endTagFileIncident);
+                  if (!m_tagDataStore->clearStore().isSuccess()) {
+                     ATH_MSG_WARNING("Unable to clear tag MetaData Proxies");
+                  }
+               }
             }
-         }
       }
       // Fire LastInputFile incident
-      if (m_firedIncident) {
+      if (isLastFile && m_firedIncident) {
          FileIncident lastInputFileIncident(name(), "LastInputFile", "end");
          m_incidentSvc->fireIncident(lastInputFileIncident);
          m_firedIncident = false;
       }
    }
-   return(StatusCode::SUCCESS);
 }
+
+
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::finalize() {
    if (m_eventStreamingTool.empty() || !m_eventStreamingTool->isClient()) {
@@ -571,15 +565,10 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
       Token token;
       token.fromString(std::string((char*)tokenStr));
       delete (char*)tokenStr; tokenStr = 0;
-      if (!m_eventStreamingTool->unlockEvent().isSuccess()) {
-         ATH_MSG_ERROR("Cannot unlock event from Event StreamingService.");
-         return(StatusCode::FAILURE);
-      }
       Guid guid = token.dbID();
       if (guid != m_guid && m_processMetadata.value()) {
          if (m_guid != Guid::null()) {
-            FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString());
-            m_incidentSvc->fireIncident(endInputFileIncident);
+	   fireEndFileIncidents(false,true/*NOTE: Unclear if we should fire EndTagFile in this code (will buttinger - 26/02/2015)*/);
          }
          m_guid = guid;
          FileIncident beginInputFileIncident(name(), "BeginInputFile", "FID:" + m_guid.toString());
@@ -603,52 +592,20 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
          }
          delete m_poolCollectionConverter; m_poolCollectionConverter = 0;
          // Assume that the end of collection file indicates the end of payload file.
+	 fireEndFileIncidents(false,true);
          if (m_guid != Guid::null()) {
-            if (m_processMetadata.value()) {
-               // Fire EndInputFile incident
-               FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString());
-               m_incidentSvc->fireIncident(endInputFileIncident);
-            }
             // Explicitly disconnect file corresponding to old m_guid to avoid holding on to large blocks of memory
             if (!m_keepInputFilesOpen.value()) {
                m_athenaPoolCnvSvc->getPoolSvc()->disconnectDb("FID:" + m_guid.toString(), IPoolSvc::kInputStream).ignore();
             }
             m_guid = Guid::null();
          }
-         if (m_processMetadata.value()) {
-            // Fire EndTagFile incident
-            FileIncident endTagFileIncident(name(), "EndTagFile", *m_inputCollectionsIterator);
-            m_incidentSvc->fireIncident(endTagFileIncident);
-            if (!m_tagDataStore->clearStore().isSuccess()) {
-               ATH_MSG_WARNING("Unable to clear tag MetaData Proxies");
-            }
-         }
          // Open next file from inputCollections list.
          m_inputCollectionsIterator++;
          // Create PoolCollectionConverter for input file
          m_poolCollectionConverter = getCollectionCnv(true);
          if (m_poolCollectionConverter == 0) {
-            if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isServer()) {
-               // End of file, wait for last event to be taken
-               StatusCode sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
-               while (sc.isRecoverable()) {
-                  while (m_athenaPoolCnvSvc->readData().isSuccess()) {
-                     ATH_MSG_VERBOSE("Called last readData, while marking last event in next()");
-                  }
-                  usleep(100000);
-                  sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
-               }
-               if (!sc.isSuccess()) {
-                  ATH_MSG_ERROR("Cannot put last Event marker to AthenaSharedMemoryTool");
-               } else {
-                  for (int i = 0; i < 100; i++) { // FIXME: PvG find when to end reading
-                     while (m_athenaPoolCnvSvc->readData().isSuccess()) {
-                        ATH_MSG_VERBOSE("Called last readData, after marking last event in next()");
-                     }
-                     usleep(100000);
-                  }
-               }
-            }
+	   fireEndFileIncidents(true,false/*doesnt fire the EndTagFile incident, already fired in call above*/); //fires LastInputFile incident
             // Return end iterator
             *rIt = *m_endIter;
             m_evtCount = -1;
@@ -685,12 +642,9 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
          tech = token.technology();
       }
       if (guid != m_guid) {
+         //NOTE: to self (wb): we should only get here if we are processing a collection file (files containing dataheaders which reference other files!)
          if (m_guid != Guid::null()) {
-            if (m_processMetadata.value()) {
-               // Fire EndInputFile incident
-               FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString());
-               m_incidentSvc->fireIncident(endInputFileIncident);
-            }
+	   fireEndFileIncidents(false,false/*does not fire EndTagFile when switching files within a collection file*/);
             // Explicitly disconnect file corresponding to old m_guid to avoid holding on to large blocks of memory
             if (!m_keepInputFilesOpen.value()) {
                m_athenaPoolCnvSvc->getPoolSvc()->disconnectDb("FID:" + m_guid.toString(), IPoolSvc::kInputStream).ignore();
@@ -717,6 +671,21 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
                m_incidentSvc->fireIncident(beginInputFileIncident);
             }
          }
+         // Using Satellite DataHeader?
+         std::string::size_type p_slash = m_collectionTree.value().find('/');
+         if (p_slash != std::string::npos) {
+            const std::string tree = m_collectionTree.value().substr(0, p_slash);
+            const std::string satellite = m_collectionTree.value().substr(p_slash + 1);
+            const Token* satelliteToken = m_athenaPoolCnvSvc->getPoolSvc()->getToken("FID:" + m_headerIterator->eventRef().dbID().toString(), tree + "(" + satellite + "/DataHeader)", 0);
+            if (satelliteToken != 0) {
+               m_satelliteOid1 = satelliteToken->oid().first;
+            } else {
+               m_satelliteOid1 = 0;
+            }
+            delete satelliteToken; satelliteToken = 0;
+         } else {
+            m_satelliteOid1 = 0;
+         }
       }  // end if (guid != m_guid)
       ++m_evtCount;
       if (!m_counterTool.empty() && !m_counterTool->preNext().isSuccess()) {
@@ -730,7 +699,7 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
                while (m_athenaPoolCnvSvc->readData().isSuccess()) {
                   ATH_MSG_VERBOSE("Called last readData, while putting next event in next()");
                }
-               usleep(100000);
+               usleep(100);
                sc = m_eventStreamingTool->putEvent(m_evtCount - 1, token.c_str(), token.length() + 1, 0);
             }
             if (!sc.isSuccess()) {
@@ -831,12 +800,12 @@ StatusCode EventSelectorAthenaPool::createAddress(const IEvtSelector::Context& /
          return(StatusCode::FAILURE);
       }
       try {
-         if (m_derRefName.value().empty()) {
+         if (m_refName.value().empty()) {
             tokenStr = (*attrList)["eventRef"].data<std::string>();
             ATH_MSG_DEBUG("found AthenaAttribute, name = eventRef = " << tokenStr);
          } else {
-            tokenStr = (*attrList)[m_derRefName.value() + "_ref"].data<std::string>();
-            ATH_MSG_DEBUG("found AthenaAttribute, name = " << m_derRefName.value() << "_ref = " << tokenStr);
+            tokenStr = (*attrList)[m_refName.value() + "_ref"].data<std::string>();
+            ATH_MSG_DEBUG("found AthenaAttribute, name = " << m_refName.value() << "_ref = " << tokenStr);
          }
       } catch (std::exception &e) {
          ATH_MSG_ERROR(e.what());
@@ -851,6 +820,9 @@ StatusCode EventSelectorAthenaPool::createAddress(const IEvtSelector::Context& /
 }
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::releaseContext(IEvtSelector::Context*& /*ctxt*/) const {
+   if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isClient()) {
+      return(StatusCode::SUCCESS);
+   }
    return(StatusCode::SUCCESS);
 }
 //________________________________________________________________________________
@@ -867,6 +839,7 @@ StatusCode EventSelectorAthenaPool::seek(int evtNum) {
    if (newColl == -1) {
       m_headerIterator = 0;
       ATH_MSG_INFO("seek: Reached end of Input.");
+      fireEndFileIncidents(true,true);
       return(StatusCode::RECOVERABLE);
    }
    if (newColl != m_curCollection) {
@@ -887,8 +860,7 @@ StatusCode EventSelectorAthenaPool::seek(int evtNum) {
 	         m_connection.value(),
 	         m_inputCollectionsProp.value()[m_curCollection],
 	         m_query.value(),
-	         m_athenaPoolCnvSvc->getPoolSvc(),
-	         IPoolSvc::kInputStream);
+	         m_athenaPoolCnvSvc->getPoolSvc());
          if (!m_poolCollectionConverter->initialize().isSuccess()) {
             m_headerIterator = 0;
             ATH_MSG_ERROR("seek: Unable to initialize PoolCollectionConverter.");
@@ -971,10 +943,11 @@ StatusCode EventSelectorAthenaPool::makeServer(int num) {
    if (m_eventStreamingTool.empty()) {
       return(StatusCode::FAILURE);
    }
-   if (m_athenaPoolCnvSvc->makeServer(num).isFailure()) {
+   if (m_athenaPoolCnvSvc->makeServer(num + 1).isFailure()) {
       ATH_MSG_DEBUG("Failed to switch AthenaPoolCnvSvc to DataStreaming server");
       //return(StatusCode::FAILURE);
    }
+   ATH_MSG_DEBUG("makeServer: " << m_eventStreamingTool << " = " << num);
    return(m_eventStreamingTool->makeServer(1));
 }
 
@@ -983,10 +956,11 @@ StatusCode EventSelectorAthenaPool::makeClient(int num) {
    if (m_eventStreamingTool.empty()) {
       return(StatusCode::FAILURE);
    }
-   if (m_athenaPoolCnvSvc->makeClient(num).isFailure()) {
+   if (m_athenaPoolCnvSvc->makeClient(num + 1).isFailure()) {
       ATH_MSG_DEBUG("Failed to switch AthenaPoolCnvSvc to DataStreaming client");
       //return(StatusCode::FAILURE);
    }
+   ATH_MSG_DEBUG("makeClient: " << m_eventStreamingTool << " = " << num);
    return(m_eventStreamingTool->makeClient(0));
 }
 
@@ -995,8 +969,23 @@ StatusCode EventSelectorAthenaPool::share(int evtnum) {
    if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isClient()) {
       StatusCode sc = m_eventStreamingTool->lockEvent(evtnum);
       while (sc.isRecoverable()) {
-         usleep(100000);
+         usleep(1000);
          sc = m_eventStreamingTool->lockEvent(evtnum);
+      }
+// Send stop client and wait for restart
+      if (sc.isFailure()) {
+         if (m_athenaPoolCnvSvc->makeClient(0).isFailure()) {
+            return(StatusCode::FAILURE);
+         }
+         sc = m_eventStreamingTool->lockEvent(evtnum);
+         while (sc.isRecoverable() || sc.isFailure()) {
+            usleep(1000);
+            sc = m_eventStreamingTool->lockEvent(evtnum);
+         }
+//FIXME
+         if (m_athenaPoolCnvSvc->makeClient(1).isFailure()) {
+            return(StatusCode::FAILURE);
+         }
       }
       return(sc);
    }
@@ -1005,12 +994,19 @@ StatusCode EventSelectorAthenaPool::share(int evtnum) {
 
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::readEvent(int maxevt) {
+   ATH_MSG_VERBOSE("Called read Event " << maxevt);
    IEvtSelector::Context* ctxt = new EventContextAthenaPool(this);
-   for (int i = 0; i < maxevt; ++i) {
+   for (int i = 0; i < maxevt || maxevt == -1; ++i) {
       if (!next(*ctxt).isSuccess()) {
+         if (m_evtCount == -1) {
+            ATH_MSG_VERBOSE("Called read Event and read last event from input: " << i);
+            break;
+         }
          ATH_MSG_ERROR("Cannot read Event " << m_evtCount - 1 << " into AthenaSharedMemoryTool");
          delete ctxt; ctxt = 0;
          return(StatusCode::FAILURE);
+      } else {
+         ATH_MSG_VERBOSE("Called next, read Event " << m_evtCount - 1);
       }
    }
    delete ctxt; ctxt = 0;
@@ -1020,18 +1016,18 @@ StatusCode EventSelectorAthenaPool::readEvent(int maxevt) {
       while (m_athenaPoolCnvSvc->readData().isSuccess()) {
          ATH_MSG_VERBOSE("Called last readData, while marking last event in readEvent()");
       }
-      usleep(100000);
+      usleep(100);
       sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
    }
    if (!sc.isSuccess()) {
       ATH_MSG_ERROR("Cannot put last Event marker to AthenaSharedMemoryTool");
    } else {
-      for (int i = 0; i < 100; i++) { // FIXME: PvG find when to end reading
-         while (m_athenaPoolCnvSvc->readData().isSuccess()) {
-            ATH_MSG_VERBOSE("Called last readData, after marking last event in readEvent()");
-         }
-         usleep(100000);
+      sc = m_athenaPoolCnvSvc->readData();
+      while (sc.isSuccess() || sc.isRecoverable()) {
+         sc = m_athenaPoolCnvSvc->readData();
+         usleep(100);
       }
+      ATH_MSG_DEBUG("Failed last readData -> Clients are stopped, after marking last event in readEvent()");
    }
    return(StatusCode::SUCCESS);
 }
@@ -1060,8 +1056,7 @@ PoolCollectionConverter* EventSelectorAthenaPool::getCollectionCnv(bool throwInc
 	      m_connection.value(),
 	      *m_inputCollectionsIterator,
 	      m_query.value(),
-	      m_athenaPoolCnvSvc->getPoolSvc(),
-	      IPoolSvc::kInputStream);
+	      m_athenaPoolCnvSvc->getPoolSvc());
       StatusCode status = pCollCnv->initialize();
       if (!status.isSuccess()) {
          // Close previous collection.
@@ -1127,7 +1122,15 @@ StatusCode EventSelectorAthenaPool::recordAttributeList() const {
       ATH_MSG_DEBUG("record AthenaAttribute, name = " << iter.tokenName() << " = " << iter->toString() << ".");
    }
    athAttrList->extend("eventRef", "string");
-   (*athAttrList)["eventRef"].data<std::string>() = m_headerIterator->eventRef().toString();
+   // Using Satellite DataHeader?
+   if (m_satelliteOid1 > 0) {
+      Token satelliteToken;
+      m_headerIterator->eventRef().set(&satelliteToken);
+      satelliteToken.setOid(Token::OID_t(m_satelliteOid1, m_headerIterator->eventRef().oid().second));
+      (*athAttrList)["eventRef"].data<std::string>() = satelliteToken.toString();
+   } else {
+      (*athAttrList)["eventRef"].data<std::string>() = m_headerIterator->eventRef().toString();
+   }
    ATH_MSG_DEBUG("record AthenaAttribute, name = eventRef = " << m_headerIterator->eventRef().toString() << ".");
    return(StatusCode::SUCCESS);
 }

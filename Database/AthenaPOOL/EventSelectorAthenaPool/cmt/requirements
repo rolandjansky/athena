@@ -20,7 +20,6 @@ library EventSelectorAthenaPool AthenaPoolAddressProviderSvc.cxx \
 				EventSelectorAthenaPool.cxx \
 				PoolCollectionConverter.cxx \
 				registerKeys.cxx \
-				TagRemappingTool.cxx \
 				components/*.cxx 
 apply_pattern declare_joboptions files="-s=../share *.py"
 apply_pattern declare_python_modules files="*.py"
