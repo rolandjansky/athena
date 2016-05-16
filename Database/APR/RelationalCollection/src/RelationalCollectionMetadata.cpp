@@ -292,8 +292,10 @@ namespace pool {
 	 if( !m_valid ) return 0;
 	 const coral::Attribute &attr = m_cursor->currentRow()["value"];
 	 const string& value = attr.data<std::string>();
-	 if( !m_metadata->m_isOracle || value.length() != 4000 )
+	 if( !m_metadata->m_isOracle || value.length() != 4000 ) {
+            // cppcheck-suppress stlcstr
 	    return value.c_str();
+         }
 
 	 // most likely a truncated CLOB entry - read the full value
 	 const char * val = m_metadata->getValueForKey( key() );
