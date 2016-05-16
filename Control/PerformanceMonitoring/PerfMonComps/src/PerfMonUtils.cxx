@@ -77,7 +77,7 @@ makeAuditor( const std::string& audName, IAuditorSvc* audSvc,
         << endreq;
     return StatusCode::FAILURE;
   }
-  aud->release();
+  //  aud->release();
   
   return StatusCode::SUCCESS;
 }
