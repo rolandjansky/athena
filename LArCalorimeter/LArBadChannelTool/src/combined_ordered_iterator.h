@@ -24,14 +24,12 @@ namespace LArBadChanImpl {
 			       const Iter& b2, const Iter& e2, const CMP& cmp) :
       b1_(b1), e1_(e1), b2_(b2), e2_(e2), cmp_(cmp)
     {
-      // protect against iterators over empty containers
-      // caveat: this protection depends on the implementation of the container
-      // and may not work for all container types.
-      first_ = (&(*b1_) == 0) ? false : ((&(*b2_) == 0) ? false : cmp_( *b1_, *b2_));
+      first_ = cmp_( *b1_, *b2_);
     }
 
     combined_ordered_iterator() : b1_(Iter()), e1_(Iter()), 
-				  b2_(Iter()), e2_(Iter()), cmp_(CMP()) {}
+                                  b2_(Iter()), e2_(Iter()), cmp_(CMP()),
+                                  first_(false){}
 
     combined_ordered_iterator& operator++() {
       advance();

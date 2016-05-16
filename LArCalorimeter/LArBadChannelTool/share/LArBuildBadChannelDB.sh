@@ -5,7 +5,7 @@ then
     echo "Syntax: $0 [-append] [-openiov] <tag> <Run1> <LB1>  <File> [Run2] [LB2]"
     echo "optional -append is adding the content of File to a DB"
     echo "optional -openiov is updating UPD4 with open end IOV, if Run2/LB2 is not given" 
-    echo "<tag> can be 'UPD1', 'UPD4', 'UPD3' or 'BOTH' or 'Bulk'.  'BOTH' means UPD1 and UPD4, UPD4 update is automatically updating also Bulk.  Bulk is updating only Bulk"
+    echo "<tag> can be 'UPD1', 'UPD4', 'UPD3' or 'BOTH' or 'All' or 'Bulk'.  'BOTH' means UPD1 and UPD4, UPD4 update is automatically updating also Bulk. All means UPD1,UPD3 and UPD4 with Bulk. Bulk is updating only Bulk"
     echo "<Run1> <LB1> are start IOV (for UPD4/Bulk)"
     echo "<File> is text file with changed channels, each line should have: B/E pos_neg FT Slot Channel CalibLine BadBitDescription"
     echo "optional Run2 LB2 are end IOV (for UPD4/Bulk) - first LB after the end of problem, if not given open end update..."
@@ -66,9 +66,13 @@ elif [ $tag == "Bulk" ]
 elif [ $tag == "BOTH" ]
     then
     echo "Working on UPD1 and UPD4 lists"
-        tags="${upd1TagName} ${upd4TagName}"
+    tags="${upd1TagName} ${upd4TagName}"
+elif [ $tag == "All" ]
+    then
+    echo "Working on UPD1, UPD3 and UPD4 lists"
+    tags="${upd1TagName} ${upd3TagName} ${upd4TagName}"
 else
-    echo "ERROR, expected 'UPD1', 'UPD4' or 'BOTH' or 'Bulk' or 'UPD3' as type, got $type"
+    echo "ERROR, expected 'UPD1', 'UPD4' or 'BOTH' or 'All' or 'Bulk' or 'UPD3' as type, got: $tag"
     exit
 fi
 

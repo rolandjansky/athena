@@ -16,12 +16,12 @@
 #include "LArBadChannelTool/LArBadChannelMasker.h"
 #include "LArBadChannelTool/LArBadChanTool.h"
 
-std::pair<bool,LArBadChannelEnum::ProblemType> m_dummy1;
-std::pair<HWIdentifier,LArBadFeb> m_dummy2;
-std::pair<HWIdentifier32,LArBadFeb> m_dummy22;
-std::pair<HWIdentifier32,LArBadChannel> m_dummy4;
-std::vector<std::pair<HWIdentifier,LArBadFeb> > m_dummy3;
-std::vector<std::pair<HWIdentifier32,LArBadFeb> > m_dummy33;
-std::vector<std::pair<HWIdentifier32,LArBadChannel>> m_dummy44;
+std::pair<bool,LArBadChannelEnum::ProblemType> dummy1;
+std::pair<HWIdentifier,LArBadFeb> dummy2;
+std::pair<HWIdentifier32,LArBadFeb> dummy22;
+std::pair<HWIdentifier32,LArBadChannel> dummy4;
+std::vector<std::pair<HWIdentifier,LArBadFeb> > dummy3;
+std::vector<std::pair<HWIdentifier32,LArBadFeb> > dummy33;
+std::vector<std::pair<HWIdentifier32,LArBadChannel>> dummy44;
 
 #endif
