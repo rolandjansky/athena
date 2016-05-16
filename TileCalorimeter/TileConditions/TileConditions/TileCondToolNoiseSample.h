@@ -53,6 +53,10 @@ class TileCondToolNoiseSample: public AthAlgTool
     //  void  getAutoCorr(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
     //		    std::vector<float>& vec) const;
 
+    float getOnlinePedestalDifference(unsigned int drawerIdx, unsigned int channel, unsigned int adc, 
+                                      TileRawChannelUnit::UNIT onlineUnit = TileRawChannelUnit::OnlineADCcounts) const;
+
+
     float getNoise(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
         TileRawChannelUnit::UNIT unit = TileRawChannelUnit::ADCcounts) const {
       return getHfn(drawerIdx, channel, adc, unit);
@@ -65,7 +69,9 @@ class TileCondToolNoiseSample: public AthAlgTool
 
     //=== TileCondProxies
     ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryNoiseSample;
+    ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryOnlineNoiseSample;
     //  ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryNoiseAutoCr;
+    bool m_useOnlineNoise;
 };
 
 #endif

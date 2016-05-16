@@ -18,6 +18,7 @@
 //*****************************************************************************
 
 // Gaudi includes
+#include <sstream>  // TEMP workaround for gcc5 build.  Need to remove this hack.
 #define private public
 #include "StoreGate/StoreGateSvc.h" // to be able to remove TileInfo from DetectorStore
 #undef private
@@ -206,13 +207,13 @@ TileInfoLoader::TileInfoLoader(const std::string& name,
   //==========================================================
   declareProperty("LoadOptFilterWeights"       ,m_loadOptFilterWeights          = false);
   declareProperty("OFPhysicsNSamples"          ,m_OFWeights->m_NSamples_Phys    = 7);
-  declareProperty("filenameNoiseCISSuffix"     ,m_OFWeights->NoiseCISSuffix     = "510082_CIS");
-  declareProperty("filenameNoisePhysicsSuffix" ,m_OFWeights->NoisePhysicsSuffix = "520020_Phys");
-  declareProperty("filenameDeltaCISSuffix"     ,m_OFWeights->DeltaCISSuffix     = "of2_Delta_CIS_7Samples");
-  declareProperty("filenameDeltaPhysicsSuffix" ,m_OFWeights->DeltaPhysicsSuffix = "of2_Delta_Phys_7Samples");
+  declareProperty("filenameNoiseCISSuffix"     ,m_OFWeights->m_noiseCISSuffix     = "510082_CIS");
+  declareProperty("filenameNoisePhysicsSuffix" ,m_OFWeights->m_noisePhysicsSuffix = "520020_Phys");
+  declareProperty("filenameDeltaCISSuffix"     ,m_OFWeights->m_deltaCISSuffix     = "of2_Delta_CIS_7Samples");
+  declareProperty("filenameDeltaPhysicsSuffix" ,m_OFWeights->m_deltaPhysicsSuffix = "of2_Delta_Phys_7Samples");
   declareProperty("LoadOptFilterCorrelation"   ,m_loadOptFilterCorrelation      = false);
-  declareProperty("filenameNoiseCorrSuffix"    ,m_OFWeights->NoiseCorrSuffix    = "520020_Phys");
-  declareProperty("filenameDeltaCorrSuffix"    ,m_OFWeights->DeltaCorrSuffix    = "Delta_Phys_9Samples");
+  declareProperty("filenameNoiseCorrSuffix"    ,m_OFWeights->m_noiseCorrSuffix    = "520020_Phys");
+  declareProperty("filenameDeltaCorrSuffix"    ,m_OFWeights->m_deltaCorrSuffix    = "Delta_Phys_9Samples");
   declareProperty("DeltaConf"                  ,m_OFWeights->m_DeltaConf        = true);
 }
 
@@ -394,8 +395,8 @@ StatusCode TileInfoLoader::geoInit(IOVSVC_CALLBACK_ARGS) {
 
   // This retrieval of TileBadChanTool is needed to avoid crash in trigger-related jobs,
   // when TileByteStream wants to use bad channel tool at start of run
-  ToolHandle<ITileBadChanTool> m_tileBadChanTool("TileBadChanTool");
-  CHECK( m_tileBadChanTool.retrieve() );
+  ToolHandle<ITileBadChanTool> tileBadChanTool("TileBadChanTool");
+  CHECK( tileBadChanTool.retrieve() );
 
   // Listen for end of run
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
@@ -491,17 +492,17 @@ StatusCode TileInfoLoader::buildDigitsShapesHiLo() {
   }
 
   if (std::getline(shape_file_hi, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsNBinsHi) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsNBinsHi) == 1)
       ATH_MSG_DEBUG(  std::setw(3) << m_info->m_digitsNBinsHi << " number of bins in shaping function" );
   }
 
   if (std::getline(shape_file_hi, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsTime0BinHi) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsTime0BinHi) == 1)
       ATH_MSG_DEBUG( std::setw(3) << m_info->m_digitsTime0BinHi << " index of in-time bin" );
   }
 
   if (std::getline(shape_file_hi, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsBinsPerXHi) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsBinsPerXHi) == 1)
       ATH_MSG_DEBUG( std::setw(3) << m_info->m_digitsBinsPerXHi << " bins per beam crossing" );
   }
 
@@ -509,7 +510,7 @@ StatusCode TileInfoLoader::buildDigitsShapesHiLo() {
   m_info->m_digitsFullShapeHi.resize(m_info->m_digitsNBinsHi, 0.);
   size_t jt = 0;
   while (std::getline(shape_file_hi, line) && jt < m_info->m_digitsFullShapeHi.size()) {
-    int nread = sscanf(line.c_str(), "%lf %lf", &It0, &dbuff);
+    int nread = sscanf(line.c_str(), "%80lf %80lf", &It0, &dbuff);
     if (nread > 1) m_info->m_digitsFullShapeHi[jt++] = dbuff;
     ATH_MSG_VERBOSE( "t= " << It0 << " a= " << dbuff );
   }
@@ -540,17 +541,17 @@ StatusCode TileInfoLoader::buildDigitsShapesHiLo() {
   }
 
   if (std::getline(shape_file_lo, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsNBinsLo) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsNBinsLo) == 1)
       ATH_MSG_DEBUG( std::setw(3) << m_info->m_digitsNBinsLo << " number of bins in shaping function" );
   }
 
   if (std::getline(shape_file_lo, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsTime0BinLo) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsTime0BinLo) == 1)
       ATH_MSG_DEBUG( std::setw(3) << m_info->m_digitsTime0BinLo << " index of in-time bin" );
   }
 
   if (std::getline(shape_file_lo, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsBinsPerXLo) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsBinsPerXLo) == 1)
       ATH_MSG_DEBUG( std::setw(3) << m_info->m_digitsBinsPerXLo << " bins per beam crossing" );
   }
 
@@ -558,7 +559,7 @@ StatusCode TileInfoLoader::buildDigitsShapesHiLo() {
   m_info->m_digitsFullShapeLo.resize(m_info->m_digitsNBinsLo, 0.);
   jt = 0;
   while (std::getline(shape_file_lo, line) && jt < m_info->m_digitsFullShapeLo.size()) {
-    int nread = sscanf(line.c_str(), "%lf %lf", &It0, &dbuff);
+    int nread = sscanf(line.c_str(), "%80lf %80lf", &It0, &dbuff);
     if (nread > 1) m_info->m_digitsFullShapeLo[jt++] = dbuff;
     ATH_MSG_VERBOSE( "t= " << It0 << " a= " << dbuff );
   }
@@ -682,17 +683,17 @@ StatusCode TileInfoLoader::buildTTL1Shapes(std::string ShapeFile, int &NBins, in
   }
 
   if (std::getline(shape_file, line)) {
-    if (sscanf(line.c_str(), "%d", &NBins) == 1)
+    if (sscanf(line.c_str(), "%80d", &NBins) == 1)
       ATH_MSG_DEBUG( std::setw(3) << NBins << " number of bins in shaping function" );
   }
 
   if (std::getline(shape_file, line)) {
-    if (sscanf(line.c_str(), "%d", &Time0Bin) == 1)
+    if (sscanf(line.c_str(), "%80d", &Time0Bin) == 1)
       ATH_MSG_DEBUG( std::setw(3) << Time0Bin << " index of in-time bin" );
   }
 
   if (std::getline(shape_file, line)) {
-    if (sscanf(line.c_str(), "%d", &BinsPerX) == 1)
+    if (sscanf(line.c_str(), "%80d", &BinsPerX) == 1)
       ATH_MSG_DEBUG( BinsPerX << " bins per beam crossing" );
   }
 
@@ -700,7 +701,7 @@ StatusCode TileInfoLoader::buildTTL1Shapes(std::string ShapeFile, int &NBins, in
   FullShape.resize(NBins, 0.);
   size_t jt = 0;
   while (std::getline(shape_file, line) && jt < FullShape.size()) {
-    int nread = sscanf(line.c_str(), "%lf %lf", &It0, &dbuff);
+    int nread = sscanf(line.c_str(), "%80lf %80lf", &It0, &dbuff);
     if (nread > 1) FullShape[jt++] = dbuff;
     ATH_MSG_VERBOSE( "t= " << It0 << " a= " << dbuff );
   }
@@ -785,12 +786,12 @@ void TileInfoLoader::buildCovMatrix() {
   for (int part = 0; part < 4; ++part) {
     // Create DecoCovaria[part]
 //    ATH_MSG_INFO( "begin DecoCovaria.push_back" );
-    m_info->DecoCovaria.push_back(std::vector<std::vector<TMatrixD*> >());
+    m_info->m_decoCovaria.push_back(std::vector<std::vector<TMatrixD*> >());
 //    ATH_MSG_INFO( "DecoCovaria.push_back done" );
     for (int modu = 0; modu < 64; ++modu) {
       // Create DecoCovaria[part][modu]
 //      ATH_MSG_INFO( "  begin DecoCovaria[part].push_back" );
-      m_info->DecoCovaria[part].push_back(std::vector<TMatrixD*>());
+      m_info->m_decoCovaria[part].push_back(std::vector<TMatrixD*>());
 //      ATH_MSG_INFO( "  DecoCovaria[part].push_back done" );
 
       for (int gain = 0; gain < 2; ++gain) {
@@ -832,7 +833,7 @@ void TileInfoLoader::buildCovMatrix() {
             //define Matrix dimension
             int dima = 0;
             if (std::getline(cov_file, line)) {
-              if (sscanf(line.c_str(), "%d", &dima) == 1)
+              if (sscanf(line.c_str(), "%80d", &dima) == 1)
                 ATH_MSG_DEBUG( "The Dimension of the matrix is " << dima );
             }
 
@@ -868,7 +869,7 @@ void TileInfoLoader::buildCovMatrix() {
 
             cov_file.close();
             // Fill DecoCovaria[part][modu][gain]
-            m_info->DecoCovaria[part][modu].push_back(pDecoCova);
+            m_info->m_decoCovaria[part][modu].push_back(pDecoCova);
 
           }
         }

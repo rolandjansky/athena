@@ -108,7 +108,7 @@ StatusCode TileDCSSvc::initialize() {
     std::string name;
     if (m_readHV) {
       name = m_folderPrefix + std::string("/HV");
-      if (m_detStore->regFcn(&TileDCSSvc::fillData, this, DCSData_HV, name).isSuccess()) {
+      if (m_detStore->regFcn(&TileDCSSvc::fillData, this, m_DCSData_HV, name).isSuccess()) {
         ATH_MSG_INFO( "DCS_TILE Registered callback for key: " << name);
         ++cnt;
       } else {
@@ -117,7 +117,7 @@ StatusCode TileDCSSvc::initialize() {
     }
     if (m_readHVSET) {
       name = m_folderPrefix + std::string("/HVSET");
-      if (m_detStore->regFcn(&TileDCSSvc::fillData, this, DCSData_HVSET, name).isSuccess()) {
+      if (m_detStore->regFcn(&TileDCSSvc::fillData, this, m_DCSData_HVSET, name).isSuccess()) {
         ATH_MSG_INFO( "DCS_TILE Registered callback for key: " << name);
         ++cnt;
       } else {
@@ -126,7 +126,7 @@ StatusCode TileDCSSvc::initialize() {
     }
     if (m_readSTATES) {
       name = m_folderPrefix + std::string("/STATES");
-      if (m_detStore->regFcn(&TileDCSSvc::fillData, this, DCSData_STATES, name).isSuccess()) {
+      if (m_detStore->regFcn(&TileDCSSvc::fillData, this, m_DCSData_STATES, name).isSuccess()) {
         ATH_MSG_INFO( "DCS_TILE Registered callback for key: " << name);
         ++cnt;
       } else {
@@ -155,26 +155,26 @@ StatusCode TileDCSSvc::initialize() {
     int chan = 0;
     for (; chan < 48; ++chan) {
       int pmt = m_cabling->channel2hole(ros, chan);
-      channel_used[i][chan] = (pmt > 0); // positive pmt - means channel is connected
-      if (i) channel_used[3][chan] = channel_used[2][chan] = channel_used[1][chan];
+      m_channel_used[i][chan] = (pmt > 0); // positive pmt - means channel is connected
+      if (i) m_channel_used[3][chan] = m_channel_used[2][chan] = m_channel_used[1][chan];
       pmt = abs(pmt);
-      channel2pmt[i][chan] = pmt - 1;
-      pmt2channel[i][pmt - 1] = chan; // note - pmt-1 is used as index
+      m_channel2pmt[i][chan] = pmt - 1;
+      m_pmt2channel[i][pmt - 1] = chan; // note - pmt-1 is used as index
     }
     for (; chan < 68; ++chan) {
-      channel2pmt[i][chan] = chan;
-      pmt2channel[i][chan] = chan;
+      m_channel2pmt[i][chan] = chan;
+      m_pmt2channel[i][chan] = chan;
     }
   }
   // description of EBA15 and EBC18 channel 0-3 do not exist, channel 18,19 used
-  channel_used[2][0] = false;
-  channel_used[2][1] = false;
-  channel_used[2][2] = false;
-  channel_used[2][3] = false;
-  channel_used[2][18] = true;
-  channel_used[2][19] = true;
+  m_channel_used[2][0] = false;
+  m_channel_used[2][1] = false;
+  m_channel_used[2][2] = false;
+  m_channel_used[2][3] = false;
+  m_channel_used[2][18] = true;
+  m_channel_used[2][19] = true;
   // description of EB with special C10 - channel 4 (pmt 5) is not used
-  channel_used[3][4] = false;
+  m_channel_used[3][4] = false;
 
   // initialize all arrays with HV and drawer status
   for (int ros = 1; ros < 5; ++ros) {
@@ -220,7 +220,7 @@ StatusCode TileDCSSvc::finalize() {
 TileDCSSvc::TileDCSStatus TileDCSSvc::getDCSHVSTATUS(int ros, int drawer, int channel) const {
   int Drawer = RosDrawer(ros,drawer);
   int lb_eb = (ros > 2) ? 1 : 0;
-  int pmt0 = channel2pmt[lb_eb][channel]; // this is pmt-1 value
+  int pmt0 = m_channel2pmt[lb_eb][channel]; // this is pmt-1 value
   if (lb_eb) {
     if ((ros == 3 && drawer == 14) || (ros == 4 && drawer == 17))
       lb_eb = 2; // EBA15 EBC18
@@ -229,7 +229,7 @@ TileDCSSvc::TileDCSStatus TileDCSSvc::getDCSHVSTATUS(int ros, int drawer, int ch
 
   TileDCSStatus status(NON_EXISTING);
 
-  if (channel_used[lb_eb][channel]) { // including only existing (and actually used) pmts
+  if (m_channel_used[lb_eb][channel]) { // including only existing (and actually used) pmts
     if (m_HVSET[Drawer][pmt0] < 1.0 || m_HV[Drawer][pmt0] < 0.0    // HV can't be negative
         || m_HVSET[Drawer][pmt0] > 999.9 || m_HV[Drawer][pmt0] > 999.9) { // HV can't be greater 930V
       status = UNKNOWN; // ignore zero "set" and negative "measured" HV, set status to unknown
@@ -355,7 +355,7 @@ StatusCode TileDCSSvc::fillData(int& /* i */, std::list<std::string>& keys) {
 
         std::string ignored = ((drawerStatus > OK && !m_readHVSET) ? " ignored" : "");
         for (int channel = 0; channel < 48; ++channel) {
-          int pmt0 = channel2pmt[lb_eb][channel];
+          int pmt0 = m_channel2pmt[lb_eb][channel];
           TileDCSStatus status = getDCSHVSTATUS(ros, drawer, channel);
           msg(MSG::VERBOSE) << "Module=" << m_partName[ros] << std::setw(2) << std::setfill('0') << drawer + 1
                             << " channel=" << channel
@@ -383,7 +383,7 @@ StatusCode TileDCSSvc::fillData(int& /* i */, std::list<std::string>& keys) {
 
 //_____________________________________________________________________________
 int TileDCSSvc::read_config(std::string filename, std::string substr,
-    std::vector<int> & m_pModules) {
+    std::vector<int> & pModules) {
   std::string file_name = PathResolver::find_file(filename, "DATAPATH");
   std::ifstream file(file_name.c_str());
   if (!file.is_open()) {
@@ -393,7 +393,7 @@ int TileDCSSvc::read_config(std::string filename, std::string substr,
     ATH_MSG_DEBUG( "Reading file " << file_name);
   }
 
-  m_pModules.resize(257, 0xFFFF);
+  pModules.resize(257, 0xFFFF);
 
   std::string compName[5] = { "XXX", "ATLTILLV01", "ATLTILLV02", "ATLTILLV00", "ATLTILLV03" };
 
@@ -428,8 +428,8 @@ int TileDCSSvc::read_config(std::string filename, std::string substr,
 
     ATH_MSG_VERBOSE(
         "Module="<<m_partName[ros]<<std::setw(2)<<std::setfill('0')<<module<<" ind="<<ind);
-    if (m_pModules.size() <= ind) m_pModules.resize(ind + 1, 0xFFFF);
-    m_pModules[ind] = RosDrawer(ros,(module-1));
+    if (pModules.size() <= ind) pModules.resize(ind + 1, 0xFFFF);
+    pModules[ind] = RosDrawer(ros,(module-1));
   }
   file.close();
 
@@ -533,7 +533,7 @@ void TileDCSSvc::fillHVref() {
       int Drawer = RosDrawer(ros,drawer);
       unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
       for (int channel = 0; channel < 48; ++channel) {
-        int pmt0 = channel2pmt[lb_eb][channel];
+        int pmt0 = m_channel2pmt[lb_eb][channel];
         HV_ces = m_tileToolEmscale->getCesRefHv(drawerIdx, channel);
         HV_las = m_tileToolEmscale->getLasRefHv(drawerIdx, channel);
         if (HV_las >= 0.)

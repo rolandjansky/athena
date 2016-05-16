@@ -54,12 +54,12 @@ class  TileOptFilterWeights {
   //variables
   bool m_DeltaConf;
   int  m_NSamples_Phys;
-  std::string NoiseCISSuffix;
-  std::string NoisePhysicsSuffix;
-  std::string DeltaCISSuffix;
-  std::string DeltaPhysicsSuffix;
-  std::string NoiseCorrSuffix;
-  std::string DeltaCorrSuffix;
+  std::string m_noiseCISSuffix;
+  std::string m_noisePhysicsSuffix;
+  std::string m_deltaCISSuffix;
+  std::string m_deltaPhysicsSuffix;
+  std::string m_noiseCorrSuffix;
+  std::string m_deltaCorrSuffix;
  
   bool m_loaded;
   TileOptFilterWeightsStruct * m_weights;

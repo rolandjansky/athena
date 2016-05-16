@@ -509,13 +509,13 @@ float TileCondToolEmscale::doCalibCisOnl(unsigned int drawerIdx, unsigned int ch
 
 //
 //____________________________________________________________________
-float TileCondToolEmscale::getCesRefLas(unsigned int drawerIdx, unsigned int channel) const {
+float TileCondToolEmscale::getCesRefLas(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
 
   if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
     throw TileCalib::IndexOutOfRange("TileCondToolEmscale::getCesRefLas", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
   }
 
-  return m_pryOflCes->getCalibDrawer(drawerIdx)->getData(channel, 0, 1);
+  return m_pryOflCes->getCalibDrawer(drawerIdx)->getData(channel, adc, 1);
 }
 
 //
