@@ -51,6 +51,7 @@ class IDataManagerSvc;
 class IIncidentSvc;
 class ITimeKeeper;
 class StoreGateSvc;
+class EventContext;
 ////class ActiveStoreSvc;
 
 class ISvcLocator;
@@ -219,6 +220,8 @@ private:
   unsigned int m_proc;
   bool m_useTools;
   StoreGateSvc* eventStore() const;
+
+  EventContext* m_eventContext;
 };
 
 #endif // STOREGATE_ATHENAEVENTLOOPMGR_H

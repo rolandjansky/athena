@@ -15,7 +15,7 @@
 #include <iostream>
 #include <vector>
 #include "TestTools/initGaudi.h"
-#include "ToyConversion/FooBar.h"
+#include "FooBar.h"
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -69,6 +69,11 @@ int main() {
   assert( (pStore->record(new Foo(), "due")).isSuccess());
   assert( (pStore->record(new Bar(), "uno")).isSuccess());
   assert( (pStore->record(new Bar(), "due")).isSuccess());
+
+  assert( (pStore->record(new Bar(), "quattro")).isSuccess() );
+  assert( (pStore->record(new Bar(), "cinque")).isSuccess() );
+  assert( (pStore->symLink(8107, "quattro", 8108)).isSuccess() );
+  assert( (pStore->symLink(8107, "cinque", 8108)).isSuccess() );
   
   AthenaOutputStream* pStream(dynamic_cast<AthenaOutputStream*>(pAlg));
   assert( pStream );
@@ -80,8 +85,14 @@ int main() {
   //    pStream->selectedObjects()->begin() <<endl;
   // verify that we got the right objects in the list
   //  this of course depends on AthenaOutputStream_test.txt
-  assert( 4 == (pStream->selectedObjects()->end() - 
-		pStream->selectedObjects()->begin()) );
+  assert( 6 == (pStream->selectedObjects()->end() - 
+  		pStream->selectedObjects()->begin()) );
+
+  for (DataObject* obj : *pStream->selectedObjects()) {
+    DataBucketBase* dbb = dynamic_cast<DataBucketBase*> (obj);
+    const SG::DataProxy* proxy = pStore->proxy (dbb->object());
+    std::cout << dbb->clID() << " " << proxy->name() << "\n";
+  }
   
   pStream->clearSelection();
   assert( 0 == (pStream->selectedObjects()->end() - 

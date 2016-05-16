@@ -80,7 +80,7 @@ StatusCode AthenaYamplTool::finalize() {
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::makeServer() {
+StatusCode AthenaYamplTool::makeServer(int /*num*/) {
    ATH_MSG_DEBUG("Creating Yampl channel on the Shared Reader side");
    if (m_isServer || m_isClient) {
       ATH_MSG_ERROR("Cannot make AthenaYamplTool a Server.");
@@ -98,7 +98,7 @@ bool AthenaYamplTool::isServer() const {
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::makeClient() {
+StatusCode AthenaYamplTool::makeClient(int /*num*/) {
    ATH_MSG_DEBUG("Creating Yampl channel on the Event Processor side");
    if (m_isServer || m_isClient) {
       ATH_MSG_ERROR("Cannot make AthenaYamplTool a Client.");
@@ -131,35 +131,43 @@ bool AthenaYamplTool::isClient() const {
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::putEvent(long eventNumber, const void* source, std::size_t num, unsigned int status) {
+StatusCode AthenaYamplTool::putEvent(long eventNumber, const void* source, std::size_t nbytes, unsigned int status) {
    if(!m_serverSocket) {
      ATH_MSG_ERROR("putEvent called when Tool is not a Server!");
      return StatusCode::FAILURE;
+   }
+   if (source == 0 && nbytes == 0) {
+      ATH_MSG_DEBUG("putEvent got last Event marker");
+      return(StatusCode::SUCCESS);
+   }
+   if (source == 0) {
+      ATH_MSG_ERROR("putEvent got null source");
+      return(StatusCode::FAILURE);
    }
 
    ShareEventHeader evtH;
    evtH.evtSeqNumber = eventNumber;
    evtH.fileSeqNumber = m_fileSeqNumber;
-   evtH.evtSize = num;
+   evtH.evtSize = nbytes;
    evtH.evtOffset = 0;
    evtH.evtCoreStatusFlag = status;
-   evtH.evtTerm1 = *(static_cast<const uint32_t*>(source) + num / sizeof(uint32_t) - 1);
-   evtH.evtTerm2 = *(static_cast<const uint32_t*>(source) + num / sizeof(uint32_t) - 2);
+   evtH.evtTerm1 = *(static_cast<const uint32_t*>(source) + nbytes / sizeof(uint32_t) - 1);
+   evtH.evtTerm2 = *(static_cast<const uint32_t*>(source) + nbytes / sizeof(uint32_t) - 2);
 
    // Prepare message for client
-   void* message = malloc(num+sizeof(evtH));
+   void* message = malloc(nbytes+sizeof(evtH));
    memcpy(message,(void*)&evtH,sizeof(evtH));
-   memcpy((char*)message+sizeof(evtH),source,num);
+   memcpy((char*)message+sizeof(evtH),source,nbytes);
 
    // Wait for incoming request
    char *ping = 0; // can be something else
    m_serverSocket->recv(ping);
-   m_serverSocket->send(message,num+sizeof(evtH));
+   m_serverSocket->send(message,nbytes+sizeof(evtH));
    return(StatusCode::SUCCESS);
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::getLockedEvent(void** source, unsigned int& status) {
+StatusCode AthenaYamplTool::getLockedEvent(void** target, unsigned int& status) {
 
   void* receive_message;
 
@@ -190,10 +198,10 @@ StatusCode AthenaYamplTool::getLockedEvent(void** source, unsigned int& status) 
     m_incidentSvc->fireIncident(beginFileIncident);
   }
 
-  std::size_t num = evtH.evtSize;
-  char* buf = new char[num];
-  memcpy(buf, static_cast<char*>((char*)receive_message+sizeof(evtH))+evtH.evtOffset,num);
-  *source = buf;
+  std::size_t nbytes = evtH.evtSize;
+  char* buf = new char[nbytes];
+  memcpy(buf, static_cast<char*>((char*)receive_message+sizeof(evtH))+evtH.evtOffset,nbytes);
+  *target = buf;
 
   if(!m_many2one) {
     std::string pong("Done");
@@ -202,8 +210,8 @@ StatusCode AthenaYamplTool::getLockedEvent(void** source, unsigned int& status) 
     m_clientSocket->send(send_message,pong.size());
   }
 
-  if (evtH.evtTerm1 != *(static_cast<const uint32_t*>(*source) + num / sizeof(uint32_t) - 1) ||
-      evtH.evtTerm2 != *(static_cast<const uint32_t*>(*source) + num / sizeof(uint32_t) - 2)) {
+  if (evtH.evtTerm1 != *(static_cast<const uint32_t*>(*target) + nbytes / sizeof(uint32_t) - 1) ||
+      evtH.evtTerm2 != *(static_cast<const uint32_t*>(*target) + nbytes / sizeof(uint32_t) - 2)) {
     ATH_MSG_ERROR("Event corrupted by AthenaYamplTool");
     return(StatusCode::FAILURE);
   }
@@ -217,6 +225,21 @@ StatusCode AthenaYamplTool::lockEvent(long) {
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::unlockEvent() {
-   return StatusCode::SUCCESS;
+StatusCode AthenaYamplTool::putObject(const void*, size_t, int) {
+  return(StatusCode::FAILURE);
+}
+
+//___________________________________________________________________________
+StatusCode AthenaYamplTool::getObject(void**, size_t&, int) {
+  return(StatusCode::FAILURE);
+}
+
+//___________________________________________________________________________
+StatusCode AthenaYamplTool::clearObject(char**, int&) {
+  return(StatusCode::FAILURE);
+}
+
+//___________________________________________________________________________
+StatusCode AthenaYamplTool::lockObject(const char*, int) {
+   return(StatusCode::SUCCESS);
 }

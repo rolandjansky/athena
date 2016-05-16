@@ -31,47 +31,11 @@
 #include "../OutputStreamSequencerSvc.h"
 #include "../AthenaSharedMemoryTool.h"
 #include "../AthenaYamplTool.h"
+#include "../AthenaStopperAlg.h"
 #ifdef ATHENAHIVE
 #include "../AthenaHiveEventLoopMgr.h"
 #endif
-DECLARE_FACTORY_ENTRIES(AthenaServices) {
-    DECLARE_ALGORITHM( AthenaOutputStream )
-    DECLARE_ALGORITHM( AthenaConditionStream )
-    DECLARE_ALGORITHM( TestRandomSeqAlg )
-    DECLARE_SERVICE( MultipleEventLoopMgr )
-    DECLARE_SERVICE( AthenaEventLoopMgr )
-#ifdef ATHENAHIVE
-    DECLARE_SERVICE( AthenaHiveEventLoopMgr )
-#endif
-    DECLARE_SERVICE( PyAthenaEventLoopMgr )
-    DECLARE_SERVICE( SimplePOSIXTimeKeeperSvc )
-    DECLARE_SERVICE( MixingEventSelector )
-    DECLARE_SERVICE( ThinningSvc )
-//       DECLARE_SERVICE( EventDumperSvc )
-    DECLARE_SERVICE( MemoryRescueSvc )
-    DECLARE_SERVICE( FPEControlSvc )
-    DECLARE_SERVICE( JobIDSvc )
-    DECLARE_SERVICE( UserDataSvc )
-    DECLARE_SERVICE( CoreDumpSvc )
-    DECLARE_SERVICE( PageAccessControlSvc )
-    DECLARE_SERVICE( AthDictLoaderSvc )
-    DECLARE_SERVICE( AthenaSealSvc )
-    DECLARE_SERVICE( DecisionSvc )
-    DECLARE_SERVICE( ItemListSvc )
-    DECLARE_SERVICE( AthenaSummarySvc )
-    DECLARE_SERVICE( LoggedMessageSvc )
-    DECLARE_NAMESPACE_SERVICE(Athena, JobOptionsSvc)
-    DECLARE_SERVICE( AthTPCnvSvc )
-    DECLARE_SERVICE( EvtIdModifierSvc )
-    DECLARE_SERVICE( MetaDataSvc )
-    DECLARE_SERVICE( OutputStreamSequencerSvc )
 
-    DECLARE_TOOL( AthenaOutputStreamTool )
-    DECLARE_TOOL( ThinningOutputTool )
-    DECLARE_TOOL( AthenaSharedMemoryTool )
-    DECLARE_TOOL( AthenaYamplTool )
-
-}
 DECLARE_ALGORITHM_FACTORY( AthenaOutputStream )
 DECLARE_ALGORITHM_FACTORY( AthenaConditionStream )
 DECLARE_ALGORITHM_FACTORY( TestRandomSeqAlg )
@@ -106,5 +70,4 @@ DECLARE_TOOL_FACTORY( AthenaOutputStreamTool )
 DECLARE_TOOL_FACTORY( ThinningOutputTool )
 DECLARE_TOOL_FACTORY( AthenaSharedMemoryTool )
 DECLARE_TOOL_FACTORY( AthenaYamplTool )
-
-
+DECLARE_ALGORITHM_FACTORY( AthenaStopperAlg )

@@ -43,11 +43,11 @@
 namespace item {
   class value_equals {
     private:
-      std::string value;
+      std::string m_value;
     public:
-      value_equals(const std::string v) : value(v) {}
+      value_equals(const std::string v) : m_value(v) {}
     bool operator() (std::pair<const std::string, std::string> elem) {
-      return elem.second == value;
+      return elem.second == m_value;
     }
   };
 }

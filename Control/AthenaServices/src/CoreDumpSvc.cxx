@@ -75,7 +75,7 @@ namespace CoreDumpSvcHandler
     else return;
     
     // setup timeout
-    int timeoutMilliseconds = int(coreDumpSvc->m_timeout / 1000000.0);
+    int timeoutMilliseconds = int(coreDumpSvc->m_timeout * 1e-6);
     
     coreDumpSvc->m_abortTimer.start(timeoutMilliseconds);
     

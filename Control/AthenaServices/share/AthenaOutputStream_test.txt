@@ -8,5 +8,8 @@ StoreGateSvc.OutputLevel = 2;
 AthenaOutputStream.OutputLevel = 1;
 
 AthenaOutputStream.ItemList={"Bar#uno", "Bar#due", "Bar#tre" ,
-			     "8101#*", "13#*"};       
+			     "8101#*",
+                             "Fee#quattro",
+                             "Fee!#cinque",
+                             "13#*"};       
 AthenaOutputStream.AcceptAlgs={"AthenaOutputStream", "aSFQS"};

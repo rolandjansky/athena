@@ -126,7 +126,7 @@ StatusCode LoggedMessageSvc::initialize() {
   if( sc.isFailure() ) return sc;
 #ifdef ATLAS_GAUDI_V21
   // Release pointer to myself done in Service base class
-  m_msgsvc.reset();
+  msgSvc().reset();
 #else
   // Release pointer to myself done in Service base class
   if( m_messageSvc ) {

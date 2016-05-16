@@ -37,7 +37,8 @@
 #include "AthenaKernel/IThinningSvc.h"
 
 // DataModel includes
-#include "CxxUtils/unordered_map.h" // move to STL implementation when available
+#include <unordered_map>
+#include <unordered_set>
 
 // Forward declaration
 class DataBucketBase;
@@ -57,7 +58,6 @@ class ThinningSvc : virtual public IThinningSvc,
 { 
 
 protected:
-    
   friend class SvcFactory<ThinningSvc>;
 
   /////////////////////////////////////////////////////////////////// 
@@ -66,7 +66,7 @@ protected:
  public: 
   /// the type of the map holding the index-to-index conversion
   /// (that is the index before and after the thinning took place)
-  typedef SG::unordered_map<std::size_t, std::size_t> IndexMap_t;
+  typedef std::unordered_map<std::size_t, std::size_t> IndexMap_t;
 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
@@ -79,42 +79,125 @@ protected:
   ThinningSvc( const std::string& name, ISvcLocator* pSvcLocator );
 
   /// Destructor: 
-  virtual ~ThinningSvc(); 
+  virtual ~ThinningSvc() override; 
 
   /// Gaudi Service Implementation
   //@{
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
   virtual StatusCode queryInterface( const InterfaceID& riid, 
-                                     void** ppvInterface );
+                                     void** ppvInterface ) override;
   //@}
 
-  ///@{ @c IProxyDict interface
-  /// get proxy for a given data object address in memory,
-  /// but performs a deep search among all possible 'symlinked' containers
-  virtual SG::DataProxy* deep_proxy(const void* const pTransient) const;
-
   /// get proxy for a given data object address in memory
-  virtual SG::DataProxy* proxy( const void* const pTransient ) const;
-
-  /// get default proxy with given id. Returns 0 to flag failure
-  virtual SG::DataProxy* proxy( const CLID& id ) const;
+  virtual SG::DataProxy* proxy( const void* const pTransient ) const override final;
 
   /// get proxy with given id and key. Returns 0 to flag failure
-  virtual SG::DataProxy* proxy( const CLID& id, const std::string& key ) const;
+  virtual SG::DataProxy* proxy( const CLID& id, const std::string& key ) const override final;
 
   /// Get proxy given a hashed key+clid.
   /// Find an exact match; no handling of aliases, etc.
   /// Returns 0 to flag failure.
-  virtual SG::DataProxy* proxy_exact (SG::sgkey_t sgkey) const;
+  virtual SG::DataProxy* proxy_exact (SG::sgkey_t sgkey) const override final;
 
   /// return the list of all current proxies in store
-  std::vector<const SG::DataProxy*> proxies() const;
+  virtual std::vector<const SG::DataProxy*> proxies() const override final;
 
   /// Add a new proxy to the store.
-  virtual StatusCode addToStore (CLID id, SG::DataProxy* proxy);
+  virtual StatusCode addToStore (CLID id, SG::DataProxy* proxy) override final;
+
+  /**
+   * @brief Record an object in the store.
+   * @param obj The data object to store.
+   * @param key The key as which it should be stored.
+   * @param allowMods If false, the object will be recorded as const.
+   * @param returnExisting If true, return proxy if this key already exists.
+   *
+   * Full-blown record.  @c obj should usually be something
+   * deriving from @c SG::DataBucket.
+   *
+   * Returns the proxy for the recorded object; nullptr on failure.
+   * If the requested CLID/key combination already exists in the store,
+   * the behavior is controlled by @c returnExisting.  If true, then
+   * the existing proxy is returned; otherwise, nullptr is returned.
+   * In either case, @c obj is destroyed.
+   */
+  virtual
+  SG::DataProxy* recordObject (SG::DataObjectSharedPtr<DataObject> obj,
+                               const std::string& key,
+                               bool allowMods,
+                               bool returnExisting) override final;
+
+  /**
+   * @brief Inform HIVE that an object has been updated.
+   * @param id The CLID of the object.
+   * @param key The key of the object.
+   */
+  virtual
+  StatusCode updatedObject (CLID id, const std::string& key) override final;
+
 
   ///@}
+
+  /// IStringPool implementation.
+  //@{
+
+
+  /**
+   * @brief Find the key for a string/CLID pair.
+   * @param str The string to look up.
+   * @param clid The CLID associated with the string.
+   * @return A key identifying the string.
+   *         A given string will always return the same key.
+   *         Will abort in case of a hash collision!
+   */
+  virtual
+  sgkey_t stringToKey (const std::string& str, CLID clid) override final;
+
+
+  /**
+   * @brief Find the string corresponding to a given key.
+   * @param key The key to look up.
+   * @return Pointer to the string found, or null.
+   *         We can find keys as long as the corresponding string
+   *         was given to either @c stringToKey() or @c registerKey().
+   */
+  virtual
+  const std::string* keyToString (sgkey_t key) const override final;
+
+
+  /**
+   * @brief Find the string and CLID corresponding to a given key.
+   * @param key The key to look up.
+   * @param clid[out] The found CLID.
+   * @return Pointer to the string found, or null.
+   *         We can find keys as long as the corresponding string
+   *         was given to either @c stringToKey() or @c registerKey().
+   */
+  virtual
+  const std::string* keyToString (sgkey_t key,
+                                  CLID& clid) const override final;
+
+
+  /**
+   * @brief Remember an additional mapping from key to string/CLID.
+   * @param key The key to enter.
+   * @param str The string to enter.
+   * @param clid The CLID associated with the string.
+   * @return True if successful; false if the @c key already
+   *         corresponds to a different string.
+   *
+   * This registers an additional mapping from a key to a string;
+   * it can be found later through @c lookup() on the string.
+   * Logs an error if @c key already corresponds to a different string.
+   */
+  virtual
+  void registerKey (sgkey_t key,
+                    const std::string& str,
+                    CLID clid) override final;
+
+  ///@}
+
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
@@ -123,7 +206,8 @@ protected:
   /** @brief Tell clients if any thinning occurred during the event processing
    */
   virtual
-  bool thinningOccurred() const { return m_thinningOccurred; }
+  bool thinningOccurred() const  override
+  { return m_thinningOccurred; }
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -147,12 +231,12 @@ protected:
 		       Athena::IThinningHdlr*,
 		        ThinningSvc::IndexMap_t> ThinningStoreValue_t;
 
-  typedef SG::unordered_map< SG::DataProxy*, 
-			     ThinningStoreValue_t > ThinningStore_t;
+  typedef std::unordered_map< SG::DataProxy*, 
+		 	     ThinningStoreValue_t > ThinningStore_t;
 
   typedef void* SlimmedObj_t;
-  typedef SG::unordered_map< SlimmedObj_t,
-			     Athena::ISlimmingHdlr* > SlimmingStore_t;
+  typedef std::unordered_map< SlimmedObj_t,
+                              Athena::ISlimmingHdlr* > SlimmingStore_t;
 
   /////////////////////////////////////////////////////////////////// 
   // Protected methods: 
@@ -161,12 +245,12 @@ protected:
 
   /** incident service handle for {Begin,End}Event
    */
-  void handle( const Incident& incident );
+  virtual void handle( const Incident& incident ) override;
 
   /** Register the map of index-before-thinning/index-after-thinning
    *  for all containers
    */
-  StatusCode commit();
+  virtual StatusCode commit() override;
 
   /** Register the map of index-before-thinning/index-after-thinning
    *  for a given container.
@@ -178,23 +262,26 @@ protected:
   /** Rollback the thinning actions:
    *   - restore the requested to-be-thinned elements
    */
-  StatusCode rollback();
+  virtual StatusCode rollback() override;
 
   /** Get the index after thinning of a given container, providing
    *  the old index.
    *  Returns IThinningSvc::RemovedIdx if the element asked-for has been
    *  removed during thinning.
    */
-  std::size_t index_impl(const SG::DataProxy* proxy, std::size_t idx ) const;
+  virtual
+  std::size_t index_impl(const SG::DataProxy* proxy, std::size_t idx ) const
+    override;
 
   /** @brief test if a container is thinned
    */
-  bool is_thinned_impl(const SG::DataProxy* p) const;
+  virtual
+  bool is_thinned_impl(const SG::DataProxy* p) const override;
 
   /** @brief Retrieve the handler (if any) to thin a @c DataProxy
    */
   virtual 
-  Athena::IThinningHdlr* handler( SG::DataProxy* proxy );
+  Athena::IThinningHdlr* handler( SG::DataProxy* proxy ) override;
 
   /** Build the 'db' of elements to be kept for each container
    */
@@ -202,7 +289,7 @@ protected:
   StatusCode filter_impl( Athena::IThinningHdlr* handler,
 			  SG::DataProxy* proxy,
 			  const Filter_t& filter,
-			  const IThinningSvc::Operator::Type op );
+			  const IThinningSvc::Operator::Type op ) override;
 
   /** Helper method to clean-up thinning handlers and store
    */
@@ -216,7 +303,7 @@ protected:
    *  Note: @c IThinningSvc will take ownership of the handler.
    */
   virtual
-  StatusCode register_slimmer (Athena::ISlimmingHdlr *handler);
+  StatusCode register_slimmer (Athena::ISlimmingHdlr *handler) override;
 
   /// Default constructor: 
   ThinningSvc();
@@ -245,6 +332,10 @@ protected:
   /** The names of output stream(s) we want to apply thinning on
    */
   StringArrayProperty m_thinnedOutStreamNames;
+
+  /// Set of owned handlers.
+  typedef std::unordered_set<Athena::IThinningHdlr*> HandlerSet_t;
+  HandlerSet_t m_ownedHandlers;
 }; 
 
 /// I/O operators

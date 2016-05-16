@@ -61,9 +61,9 @@ StoreGateSvc         INFO Reinitializing StoreGateSvc - package version StoreGat
 HistogramPersis...WARNING Histograms saving not required.
 StoreGateSvc         INFO Start StoreGateSvc
 ApplicationMgr       INFO Application Manager Started successfully
-AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 0 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
 StoreGateSvc         INFO Stop StoreGateSvc
 StoreGateSvc         INFO stop: setting service priority to 101 so that event stores get finalized and cleared before other stores
 ApplicationMgr       INFO Application Manager Stopped successfully

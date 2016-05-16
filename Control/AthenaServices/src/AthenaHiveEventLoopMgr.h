@@ -9,7 +9,7 @@
 /** @file AthenaHiveEventLoopMgr.h
     @brief The default ATLAS batch event loop manager.
 
-  * $Id: AthenaHiveEventLoopMgr.h 638636 2015-01-10 01:07:07Z calaf $
+  * $Id: AthenaHiveEventLoopMgr.h 727784 2016-03-04 16:29:25Z leggett $
 */
 
 #include <string>
@@ -203,13 +203,13 @@ protected:
   /// A shortcut for the scheduler
   SmartIF<IScheduler> m_schedulerSvc;
   /// Clear a slot in the WB 
-  StatusCode m_clearWBSlot(int evtSlot);
+  StatusCode clearWBSlot(int evtSlot);
   /// Declare the root address of the event
-  StatusCode m_declareEventRootAddress(const EventContext*);
+  int declareEventRootAddress(const EventContext*);
   /// Create event context
-  StatusCode m_createEventContext(EventContext*& eventContext, int createdEvents);
+  StatusCode createEventContext(EventContext*& eventContext, int createdEvents);
   /// Drain the scheduler from all actions that may be queued
-  StatusCode m_drainScheduler(int& finishedEvents);
+  int drainScheduler(int& finishedEvents);
   /// Instance of the incident listener waiting for AbortEvent. 
   SmartIF< IIncidentListener >  m_abortEventListener;
   /// Name of the scheduler to be used
@@ -278,6 +278,8 @@ private:
   unsigned int m_proc;
   bool m_useTools;
   bool m_doEvtHeartbeat;
+
+  unsigned int m_flmbi;
 
   // from MinimalEventLoopMgr
 public:

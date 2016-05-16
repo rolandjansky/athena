@@ -24,6 +24,10 @@
 #include "GaudiKernel/IDataManagerSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/GaudiException.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/EventIDBase.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/Algorithm.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
@@ -36,6 +40,9 @@
 #include "ClearStorePolicy.h"
 
 #include "AthenaEventLoopMgr.h"
+#include "PersistentDataModel/AthenaAttributeList.h"
+
+#include "CxxUtils/make_unique.h"
 
 //=========================================================================
 // Standard Constructor
@@ -52,9 +59,10 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
     m_pITK(0), 
     m_currentRun(0), m_firstRun(true), m_tools(this), m_nevt(0), m_writeHists(false),
     m_msg( msgSvc(), nam ),
-    m_nev(0), m_proc(0), m_useTools(false)
-
+    m_nev(0), m_proc(0), m_useTools(false),
+    m_eventContext(nullptr)
 {
+  declareProperty("EvtStore", m_eventStore, "The StoreGateSvc instance to interact with for event payload" );
   declareProperty("EvtSel", m_evtsel, 
 		  "Name of Event Selector to use. If empty string (default) "
 		  "take value from ApplicationMgr");
@@ -300,6 +308,10 @@ StatusCode AthenaEventLoopMgr::initialize()
     return sc;
   }
 
+  // create the EventContext object
+  m_eventContext = new EventContext();
+
+
   // Listen to the BeforeFork incident
   m_incidentSvc->addListener(this,"BeforeFork",0);
 
@@ -406,6 +418,8 @@ StatusCode AthenaEventLoopMgr::finalize()
   m_incidentSvc.release().ignore();
 
   delete m_evtContext; m_evtContext = 0;
+
+  delete m_eventContext; m_eventContext = 0;
 
   if(m_useTools) {
     tool_iterator firstTool = m_tools.begin();
@@ -582,6 +596,17 @@ StatusCode AthenaEventLoopMgr::initializeAlgorithms() {
 		<< endreq;
 	  return sc;
 	}
+
+      Algorithm* alg = dynamic_cast<Algorithm*>( (IAlgorithm*)(*ita) );
+      if (alg != 0) {
+        alg->setContext( m_eventContext );
+      } else {
+        m_msg << MSG::ERROR
+              << "Unable to dcast IAlgorithm " << (*ita)->name() 
+              << " to Algorithm"
+              << endreq;
+        return StatusCode::FAILURE;
+      }
     }
 
   // Initialize the list of Output Streams. Note that existing Output Streams
@@ -628,11 +653,78 @@ StatusCode AthenaEventLoopMgr::executeAlgorithms() {
 //=========================================================================
 // executeEvent(void* par)
 //=========================================================================
-StatusCode AthenaEventLoopMgr::executeEvent(void* par)    
+StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)    
 {
-
-  const EventInfo* pEvent(reinterpret_cast<EventInfo*>(par)); //AUIII!
+  const EventInfo* pEvent(0);
+  std::unique_ptr<EventInfo> pEventPtr;
+  if ( m_evtContext )
+  { // Deal with the case when an EventSelector is provided
+    // Retrieve the Event object
+    const AthenaAttributeList* pAttrList = eventStore()->tryConstRetrieve<AthenaAttributeList>();
+    if ( pAttrList != 0) { // Try making EventID-only EventInfo object from in-file TAG
+      try {
+        unsigned int runNumber = (*pAttrList)["RunNumber"].data<unsigned int>();
+        unsigned long long eventNumber = (*pAttrList)["EventNumber"].data<unsigned long long>();
+        unsigned int eventTime = (*pAttrList)["EventTime"].data<unsigned int>();
+        unsigned int eventTimeNS = (*pAttrList)["EventTimeNanoSec"].data<unsigned int>();
+        unsigned int lumiBlock = (*pAttrList)["LumiBlockN"].data<unsigned int>();
+        unsigned int bunchId = (*pAttrList)["BunchId"].data<unsigned int>();
+        pEventPtr = CxxUtils::make_unique<EventInfo>
+          (new EventID(runNumber, eventNumber, eventTime, eventTimeNS, lumiBlock, bunchId), (EventType*)0);
+        pEvent = pEventPtr.get();
+        
+      } catch (...) {
+      }
+/* FIXME: PvG, not currently written
+      if ( pEvent != 0 ) { // Try adding EventType information
+        try {
+          float eventWeight = (*pAttrList)["EventWeight"].data<float>();
+          const EventType* pType = new EventType();
+          pEvent->setEventType(pType);
+          pEvent->event_type()->set_mc_event_weight(eventWeight);
+        } catch (...) {
+          pEvent->setEventType(0);
+        }
+      }
+*/
+    }
+    if ( pEvent == 0 ) {
+      StatusCode sc = eventStore()->retrieve(pEvent);
+      if( !sc.isSuccess() ) {
+        m_msg << MSG::ERROR 
+	      << "Unable to retrieve Event root object" << endreq;
+        return (StatusCode::FAILURE);
+      }
+    }
+  }
+  else 
+  {
+    // With no iterator it's up to us to create an EventInfo
+    pEventPtr = CxxUtils::make_unique<EventInfo>
+      (new EventID(1,m_nevt), new EventType());
+    pEvent = pEventPtr.get();
+    pEventPtr->event_ID()->set_lumi_block( m_nevt );
+    StatusCode sc = eventStore()->record(std::move(pEventPtr),"");
+    if( !sc.isSuccess() )  {
+      m_msg << MSG::ERROR 
+	    << "Error declaring event data object" << endreq;
+      return (StatusCode::FAILURE);
+    } 
+  }
   assert(pEvent);
+
+  // m_eventContext->setEventID( EventIDBase(pEvent->event_ID()->run_number(), 
+  //                                         pEvent->event_ID()->event_number(),
+  //                                         pEvent->event_ID()->time_stamp(),
+  //                                         pEvent->event_ID()->time_stamp_ns_offset(),
+  //                                         pEvent->event_ID()->lumi_block(),
+  //                                         pEvent->event_ID()->bunch_crossing_id()) );
+
+  m_eventContext->setEventID( *((EventIDBase*) pEvent->event_ID()) );
+
+  m_eventContext->setProxy( eventStore()->hiveProxyDict() );
+  Gaudi::Hive::setCurrentContext( m_eventContext );
+
 
   /// Fire begin-Run incident if new run:
   if (m_firstRun || (m_currentRun != pEvent->event_ID()->run_number()) ) {
@@ -846,7 +938,6 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
     //-----------------------------------------------------------------------
     // we need an EventInfo Object to fire the incidents. 
     //-----------------------------------------------------------------------
-    const EventInfo* pEvent(0);
     if ( m_evtContext )
     {   // Deal with the case when an EventSelector is provided
 
@@ -885,30 +976,10 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
 	      << "Error loading Event proxies" << endreq;
 	continue;
       } 
-  
-      // Retrieve the Event object
-      sc = eventStore()->retrieve(pEvent);
-      if( !sc.isSuccess() ) {
-	m_msg << MSG::ERROR 
-	      << "Unable to retrieve Event root object" << endreq;
-	break;
-      }
-    }
-    else 
-    {
-      //with no iterator it's up to us to create an EventInfo
-      pEvent = new EventInfo(new EventID(0,m_nevt), new EventType());
-      pEvent->event_ID()->set_lumi_block( m_nevt );
-      sc = eventStore()->record(pEvent,"");
-      if( !sc.isSuccess() )  {
-        m_msg << MSG::ERROR 
-	      << "Error declaring event data object" << endreq;
-	break;
-      } 
     }
 
     // Execute event for all required algorithms
-    sc = executeEvent(reinterpret_cast<void*>(const_cast<EventInfo*>(pEvent))); //AHI!
+    sc = executeEvent(0);
     if( !sc.isSuccess() )
     {
       m_msg << MSG::ERROR 

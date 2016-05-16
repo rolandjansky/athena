@@ -49,13 +49,14 @@ StatusCode ItemListSvc::finalize()
       ++iprint;
     }
     std::map<std::string, std::set<std::string> >::const_iterator it2 = m_streamItems.begin();
+    float inv_size = 1. / static_cast<float> (it->second.size());
     while (it2 != m_streamItems.end()) {
       if (it2->first != it->first) {
         std::set<std::string> olist;
         std::set_intersection(it->second.begin(),it->second.end(),it2->second.begin(),it2->second.end(),std::inserter(olist,olist.begin()));
         if (olist.size()>0) { 
           ATH_MSG_DEBUG(" --> Overlap with " << it2->first << " (" << olist.size() << ") items"); 
-          if (float(olist.size())/float(it->second.size()) > m_verboseThresh) {
+          if (float(olist.size()) * inv_size > m_verboseThresh) {
             for (std::set<std::string>::iterator olit = olist.begin(); olit != olist.end(); olit++) {
               ATH_MSG_DEBUG(" ----> item: " << *olit);
             }

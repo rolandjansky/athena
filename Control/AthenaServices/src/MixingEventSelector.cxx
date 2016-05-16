@@ -2,70 +2,42 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <algorithm>
-using std::advance;
-using std::distance;
-using std::find;
-using std::for_each;
-
-#include <cassert>
-
-#include <functional>
-using std::bind1st;
-using std::mem_fun;
-
-#include <iostream>
-using std::cout; 
-using std::cerr; 
-using std::endl; 
-
-#include <fstream>
-using std::ofstream;
-
-#ifdef DEBUG_OUTPUT_STATUS
-ofstream outfile2("status.txt");
-#endif
-
-
-#include <stdexcept>
-using std::runtime_error;
-
-#include <sstream>
-using std::ostringstream;
-
-#include <string>
-using std::string;
-
-#include <boost/lexical_cast.hpp>
-using boost::lexical_cast;
-
-#include <boost/tokenizer.hpp>
-using boost::tokenizer;
-using boost::char_separator;
-
+#include "MixingEventSelector.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandFlat.h"
-
 #include "EventInfo/MergedEventInfo.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/TriggerInfo.h"
+#include "SGTools/ClassID_traits.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "SGTools/DataProxy.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/MsgStream.h"
+#include "CLHEP/Random/RandFlat.h"
+#include <boost/lexical_cast.hpp>
+#include <boost/tokenizer.hpp>
+#include <algorithm>
+#include <cassert>
+#include <functional>
+#include <iostream>
+#include <fstream>
+#include <stdexcept>
+#include <sstream>
+#include <string>
 
-#include "SGTools/ClassID_traits.h"
-
-#include "StoreGate/StoreGateSvc.h"
-#include "SGTools/DataProxy.h"
+using namespace std;
+using boost::lexical_cast;
+using boost::tokenizer;
+using boost::char_separator;
 using SG::DataProxy;
 
-
-#include "AthenaKernel/getMessageSvc.h"
-
-#include "MixingEventSelector.h"
+#ifdef DEBUG_OUTPUT_STATUS
+ofstream outfile2("status.txt");
+#endif
 
 MixingEventSelector::MixingEventSelector(const string& name, ISvcLocator* svc) :
   AthService(name,svc),

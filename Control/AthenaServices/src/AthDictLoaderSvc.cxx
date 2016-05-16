@@ -156,7 +156,7 @@ AthDictLoaderSvc::load_type (const std::string& type_name)
   // MN: short-cutting all the dance with type names done in DSODB...
   // may need verification
   return RootType::ByName(type_name);
-#endif  
+#else
   
   if (!m_dsodb) {
     // dummy
@@ -165,6 +165,7 @@ AthDictLoaderSvc::load_type (const std::string& type_name)
 
   // load library
   return RootType::ByName (m_dsodb->load_type(type_name));
+#endif
 }
 
 /** @brief retrieve a @c Reflex::Type by @c std::type_info (auto)loading the

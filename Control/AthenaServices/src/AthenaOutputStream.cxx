@@ -2,19 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <cassert>
-#include <string>
-using std::string;
-#include <vector>
-using std::vector;
-
-#include <boost/tokenizer.hpp>
-using boost::tokenizer;
-using boost::char_separator;
+#include "AthenaOutputStream.h"
 
 // Framework include files
 #include "GaudiKernel/GaudiException.h"
-#include "GaudiKernel/Tokenizer.h"
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/IIoComponentMgr.h"
@@ -29,18 +20,92 @@ using boost::char_separator;
 #include "AthenaKernel/IAthenaOutputTool.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "AthenaKernel/IItemListSvc.h"
+#include "CxxUtils/make_unique.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/ProxyMap.h"
 #include "SGTools/SGIFolder.h"
+#include "SGTools/CLIDRegistry.h"
 
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
-
-
-#include "AthenaOutputStream.h"
 #include "OutputStreamSequencerSvc.h"
+
+#include <boost/tokenizer.hpp>
+#include <cassert>
+#include <string>
+#include <vector>
+
+using std::string;
+using std::vector;
+using boost::tokenizer;
+using boost::char_separator;
+
+
+//****************************************************************************
+
+
+namespace {
+  /**
+   * @brief Concrete DataBucket class for writing out an object
+   *        as a base class.
+   *
+   * Normally, when an object is selected for writing via ItemList,
+   * the object is written as its dynamic type (the type by which it was
+   * originally recorded in Storegate) rather than as the type written
+   * in the ItemList.  This is because the selection works by forming
+   * a list of @DataObject instances; once this list is formed, the
+   * types used to select the list are no longer used.
+   *
+   * However, in some cases, it is useful to be able to write an object
+   * as one of its base classes; for example, to write an auxiliary store
+   * object as xAOD::AuxContainerBase, in order to get all variables saved
+   * as dynamic variables.  This can be requested by adding a ! after
+   * the type name in the ItemList, which sets the `exact' flag
+   * in the SG::FolderItem.  To make this work, then, when we get
+   * an item with the exact flag set, we need to construct a new DataObject
+   * instance that holds the object as the requested type.  That is the
+   * purpose of this class.
+   */
+  class AltDataBucket
+    : public DataBucketBase
+  {
+  public:
+    AltDataBucket (void* ptr, CLID clid, const std::type_info& tinfo)
+      : m_ptr (ptr), m_clid (clid), m_tinfo (tinfo)
+    {
+    }
+
+    virtual const CLID& clID() const override { return m_clid; }
+    virtual void* object() override { return m_ptr; }
+    virtual const std::type_info& tinfo() const override { return m_tinfo; }
+    virtual void* cast (CLID /*clid*/,
+                        SG::IRegisterTransient* /*irt*/ = 0,
+                        bool /*isConst*/ = true) const override
+    { std::abort(); }
+    virtual void* cast (const std::type_info& tinfo,
+                        SG::IRegisterTransient* /*irt*/ = 0,
+                        bool /*isConst*/ = true) const override
+    { if (tinfo == m_tinfo)
+        return m_ptr;
+      return nullptr;
+    }
+    virtual DataBucketBase* clone() const override { std::abort(); }
+    virtual void relinquish() override {}
+    virtual void lock() override {}
+
+    
+  private:
+    void* m_ptr;
+    CLID  m_clid;
+    const std::type_info& m_tinfo;
+  };
+}
+
+
+//****************************************************************************
+
 
 // Standard Constructor
 AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLocator)
@@ -295,6 +360,8 @@ StatusCode AthenaOutputStream::finalize() {
    }
    m_objects.clear();
    m_objects.shrink_to_fit();
+   m_ownedObjects.clear();
+   m_altObjects.clear();
    return(StatusCode::SUCCESS);
 }
 
@@ -395,6 +462,8 @@ StatusCode AthenaOutputStream::write() {
 // Clear collected object list
 void AthenaOutputStream::clearSelection()     {
    m_objects.erase(m_objects.begin(), m_objects.end());
+   m_ownedObjects.clear();
+   m_altObjects.clear();
 }
 
 void AthenaOutputStream::collectAllObjects() {
@@ -504,9 +573,30 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                }
             }
             if (0 != itemProxy->object()) {
-               if( std::find(m_objects.begin(), m_objects.end(), itemProxy->object()) == m_objects.end() ) {
-                  m_objects.push_back(itemProxy->object());
-                  ATH_MSG_DEBUG(" Added object " << item.id() << ",\"" << itemProxy->name() << "\"");
+               if( std::find(m_objects.begin(), m_objects.end(), itemProxy->object()) == m_objects.end() &&
+                   std::find(m_altObjects.begin(), m_altObjects.end(), itemProxy->object()) == m_altObjects.end() )
+               {
+                 if (item.exact()) {
+                   // If the exact flag is set, make a new DataObject
+                   // holding the object as the requested type.
+                   DataBucketBase* dbb = dynamic_cast<DataBucketBase*> (itemProxy->object());
+                   void* ptr = dbb->cast (item.id());
+                   if (!ptr) {
+                     // Hard cast
+                     ptr = dbb->object();
+                   }
+                   auto altbucket =
+                     CxxUtils::make_unique<AltDataBucket>
+                       (ptr, item.id(),
+                        *CLIDRegistry::CLIDToTypeinfo (item.id()));
+                   altbucket->setRegistry (itemProxy);
+                   m_objects.push_back(altbucket.get());
+                   m_ownedObjects.push_back (std::move(altbucket));
+                   m_altObjects.push_back (itemProxy->object());
+                 }
+                 else
+                   m_objects.push_back(itemProxy->object());
+                 ATH_MSG_DEBUG(" Added object " << item.id() << ",\"" << itemProxy->name() << "\"");
                }
 
                // Build ItemListSvc string

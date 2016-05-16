@@ -32,15 +32,19 @@ public:
    StatusCode initialize();
    StatusCode finalize();
 
-   StatusCode makeServer();
+   StatusCode makeServer(int num);
    bool isServer() const;
-   StatusCode makeClient();
+   StatusCode makeClient(int num);
    bool isClient() const;
 
-   StatusCode putEvent(long eventNumber, const void* source, size_t num, unsigned int status);
-   StatusCode getLockedEvent(void** source, unsigned int& status);
+   StatusCode putEvent(long eventNumber, const void* source, size_t nbytes, unsigned int status);
+   StatusCode getLockedEvent(void** target, unsigned int& status);
    StatusCode lockEvent(long eventNumber);
-   StatusCode unlockEvent();
+
+   StatusCode putObject(const void* source, size_t nbytes, int num = 0);
+   StatusCode getObject(void** target, size_t& nbytes, int num = 0);
+   StatusCode clearObject(char** tokenString, int& num);
+   StatusCode lockObject(const char* tokenString, int num = 0);
 
 private:
    StringProperty m_channel;

@@ -123,8 +123,10 @@ StatusCode ThinningSvc::initialize()
 StatusCode ThinningSvc::finalize()
 {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
+  cleanupStore();
   SlimmingStore_t().swap (m_slimmingStore);
   ThinningStore_t().swap (m_thinningStore);
+  HandlerSet_t().swap (m_ownedHandlers);
   return StatusCode::SUCCESS;
 }
 
@@ -151,19 +153,8 @@ ThinningSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 }
 
 SG::DataProxy* 
-ThinningSvc::deep_proxy( const void* const pTransient ) const
-{ 
-  // note that we just use ::proxy and not deep_proxy (saves a few calls)
-  return m_storeGate->proxy( pTransient ); 
-}
-
-SG::DataProxy* 
 ThinningSvc::proxy( const void* const pTransient ) const
 { return m_storeGate->proxy( pTransient ); }
-
-SG::DataProxy*  
-ThinningSvc::proxy( const CLID& id ) const
-{ return m_storeGate->proxy( id ); }
 
 SG::DataProxy*  
 ThinningSvc::proxy( const CLID& id, const std::string& key ) const
@@ -181,6 +172,44 @@ StatusCode ThinningSvc::addToStore (CLID id, SG::DataProxy* proxy)
 {
   return m_storeGate->addToStore (id, proxy);
 }
+
+
+/**
+ * @brief Record an object in the store.
+ * @param obj The data object to store.
+ * @param key The key as which it should be stored.
+ * @param allowMods If false, the object will be recorded as const.
+ * @param returnExisting If true, return proxy if this key already exists.
+ *
+ * Full-blown record.  @c obj should usually be something
+ * deriving from @c SG::DataBucket.
+ *
+ * Returns the proxy for the recorded object; nullptr on failure.
+ * If the requested CLID/key combination already exists in the store,
+ * the behavior is controlled by @c returnExisting.  If true, then
+ * the existing proxy is returned; otherwise, nullptr is returned.
+ * In either case, @c obj is destroyed.
+ */
+SG::DataProxy*
+ThinningSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
+                           const std::string& key,
+                           bool allowMods,
+                           bool returnExisting)
+{
+  return m_storeGate->recordObject (obj, key, allowMods, returnExisting);
+}
+
+
+/**
+ * @brief Inform HIVE that an object has been updated.
+ * @param id The CLID of the object.
+ * @param key The key of the object.
+ */
+StatusCode ThinningSvc::updatedObject (CLID id, const std::string& key)
+{
+  return m_storeGate->updatedObject (id, key);
+}
+
 
 /////////////////////////////////////////////////////////////////// 
 // Const methods: 
@@ -439,6 +468,8 @@ ThinningSvc::filter_impl( IThinningHdlr* handler, SG::DataProxy* proxy,
       << "Received a null DataProxy ! "
       << "No thinning will occur for that 'object' !"
       << endreq;
+    if (m_ownedHandlers.find(handler) == m_ownedHandlers.end())
+      delete handler;
     return StatusCode::RECOVERABLE;
   }
 
@@ -447,8 +478,12 @@ ThinningSvc::filter_impl( IThinningHdlr* handler, SG::DataProxy* proxy,
     m_thinningStore[proxy] = boost::make_tuple( filter, 
                                                 handler,
                                                 ThinningSvc::IndexMap_t() );
+    m_ownedHandlers.insert (handler);
     i = m_thinningStore.find( proxy );
   } else {
+    if (m_ownedHandlers.find(handler) == m_ownedHandlers.end())
+      delete handler;
+
     typedef Filter_t::const_iterator Iter_t;
     Filter_t& m = i->second.get<0>();
     if ( op == IThinningSvc::Operator::And ) {
@@ -516,6 +551,7 @@ ThinningSvc::cleanupStore()
     delete hdlr; hdlr = 0;
   }
   m_thinningStore.clear();
+  m_ownedHandlers.clear();
   m_thinningOccurred = false;
 }
 
@@ -565,15 +601,65 @@ ThinningSvc::register_slimmer (ISlimmingHdlr *handler)
   return StatusCode::SUCCESS;
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
 
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
+/**
+ * @brief Find the key for a string/CLID pair.
+ * @param str The string to look up.
+ * @param clid The CLID associated with the string.
+ * @return A key identifying the string.
+ *         A given string will always return the same key.
+ *         Will abort in case of a hash collision!
+ */
+SG::sgkey_t ThinningSvc::stringToKey (const std::string& str, CLID clid)
+{
+  return m_storeGate->stringToKey (str, clid);
+}
 
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
+
+/**
+ * @brief Find the string corresponding to a given key.
+ * @param key The key to look up.
+ * @return Pointer to the string found, or null.
+ *         We can find keys as long as the corresponding string
+ *         was given to either @c stringToKey() or @c registerKey().
+ */
+const std::string* ThinningSvc::keyToString (sgkey_t key) const
+{
+  return m_storeGate->keyToString (key);
+}
+
+
+/**
+ * @brief Find the string and CLID corresponding to a given key.
+ * @param key The key to look up.
+ * @param clid[out] The found CLID.
+ * @return Pointer to the string found, or null.
+ *         We can find keys as long as the corresponding string
+ *         was given to either @c stringToKey() or @c registerKey().
+ */
+const std::string* ThinningSvc::keyToString (sgkey_t key,
+                                             CLID& clid) const
+{
+  return m_storeGate->keyToString (key, clid);
+}
+
+
+/**
+ * @brief Remember an additional mapping from key to string/CLID.
+ * @param key The key to enter.
+ * @param str The string to enter.
+ * @param clid The CLID associated with the string.
+ * @return True if successful; false if the @c key already
+ *         corresponds to a different string.
+ *
+ * This registers an additional mapping from a key to a string;
+ * it can be found later through @c lookup() on the string.
+ * Logs an error if @c key already corresponds to a different string.
+ */
+void ThinningSvc::registerKey (sgkey_t key,
+                               const std::string& str,
+                               CLID clid)
+{
+  m_storeGate->registerKey (key, str, clid);
+}
 

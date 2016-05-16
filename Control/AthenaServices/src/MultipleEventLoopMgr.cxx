@@ -3,9 +3,7 @@
 */
 
 #include <string>
-using std::string;
 #include <vector>
-using std::vector;
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/IAlgorithm.h"
@@ -16,6 +14,10 @@ using std::vector;
 #include "GaudiKernel/SmartIF.h"
 #include "AthenaKernel/INextPassFilter.h"
 #include "MultipleEventLoopMgr.h"
+
+using std::string;
+using std::vector;
+
 MultipleEventLoopMgr::MultipleEventLoopMgr(const std::string& nam, 
 					   ISvcLocator* svcLoc) :
   AthenaEventLoopMgr(nam, svcLoc),
