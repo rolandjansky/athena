@@ -38,6 +38,7 @@ typedef std::list<int> IntList;
  ***************************************************************************/
 
 #include "SGTools/CLASS_DEF.h"
+#include "SGTools/StorableConversions.h"
 CLASS_DEF(IntList, 8001, 3)
 CLASS_DEF(MyDataObj, 8000, 1)
 
@@ -54,7 +55,7 @@ namespace Athena_test {
     SGASSERTERROR(emptyProxy.isValid());
     //delete emProxy;
     //init with a valid proxy
-    DataProxy* pMyProxy(new DataProxy(StoreGateSvc::asStorable(new MyDataObj),
+    DataProxy* pMyProxy(new DataProxy(SG::asStorable(new MyDataObj),
 				      new TransientAddress(CLID(8000), "foo")));
     DataHandle<MyDataObj> hMy(pMyProxy);
     assert(hMy.isValid());
@@ -75,7 +76,7 @@ namespace Athena_test {
     assert(hMy==hMyCopy2);
 
     //init with another copy of the same object and compare
-    DataProxy* pMyProxy2(new DataProxy(StoreGateSvc::asStorable(new MyDataObj),
+    DataProxy* pMyProxy2(new DataProxy(SG::asStorable(new MyDataObj),
 				       new TransientAddress(CLID(8000), "foo2")));
     DataHandle<MyDataObj> hMy2(pMyProxy2);
     assert(hMy2.isValid());
@@ -108,7 +109,7 @@ namespace Athena_test {
   std::vector<DataProxy*> vp;
   SG::ProxyMap mp;
   for (int i=0; i < 4; i++) {
-    DataProxy* dp = new DataProxy(StoreGateSvc::asStorable(new MyDataObj),
+    DataProxy* dp = new DataProxy(SG::asStorable(new MyDataObj),
                                   new TransientAddress(CLID(8000), "foo"));
     vp.push_back (dp);
     mp[std::string (1, 'A' + i)] = dp;

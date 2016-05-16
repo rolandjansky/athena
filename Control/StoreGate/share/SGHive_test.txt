@@ -1,0 +1,3 @@
+StoreGateSvc.OutputLevel=1;
+HiveMgrSvc.OutputLevel=1;
+HiveMgrSvc.NSlots=4;

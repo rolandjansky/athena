@@ -11,183 +11,74 @@
 #ifndef STOREGATE_VARHANDLEPROPERTY_H
 #define STOREGATE_VARHANDLEPROPERTY_H 1
 
-// stl
-#include <iostream>
-
-// framework includes
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/Parsers.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/ToStream.h"
-
+#include "StoreGate/VarHandleKeyProperty.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/UpdateHandle.h"
 
-namespace Gaudi { 
-namespace Parsers {
-
-GAUDI_API
-StatusCode
-parse(SG::VarHandleBase&, const std::string&);
-
-} //> ns Parsers
-
-namespace Utils {
-
-GAUDI_API
-std::ostream& 
-toStream(const SG::VarHandleBase& v, std::ostream& o);
-
-} //> ns Utils
-} //> ns Gaudi
+#include "StoreGate/ReadCondHandle.h"
+#include "StoreGate/WriteCondHandle.h"
 
 
+// ** Specializations of SimplePropertyRef for the VarHandle classes.
 
-/** @brief VarHandleProperty is the class which wraps a @c SG::VarHandleBase
- *
- *  VarHandleProperty allows any SG::VarHandleBase instance (ie SG::RVar<T>,
- *  SG::WVar<T> and SG::RWVar<T>) to be modified at the job option level.
- */
-class GAUDI_API VarHandleProperty : 
-    public ::Property 
+template<>
+class SimplePropertyRef< SG::VarHandleBase > :
+  public SG::VarHandleKeyProperty
 {
- public:
-
-  /// Constructor with parameters: 
-  VarHandleProperty( const std::string& name, SG::VarHandleBase& ref );
-
-  /// Assignment operator: 
-  VarHandleProperty& operator=( const SG::VarHandleBase& value );
-
-  /// Destructor: 
-  virtual ~VarHandleProperty();
-
-  virtual VarHandleProperty* clone() const;
-    
-  virtual bool load( Property& destination ) const;
-
-  virtual bool assign( const Property& source );
-
-  virtual std::string toString() const;
-
-  virtual void toStream(std::ostream& out) const;
-
-  virtual StatusCode fromString(const std::string& s);
-
-  const SG::VarHandleBase& value() const;
-
-  bool setValue( const SG::VarHandleBase& value );
-
- private:
-  /** Pointer to the real property. Reference would be better, 
-   *  but Reflex does not support references yet
-   */
-  SG::VarHandleBase* m_pValue;
+public:
+  SimplePropertyRef(const std::string& name, SG::VarHandleBase& value) :
+    SG::VarHandleKeyProperty(name, value) {}
 };
 
-/** @brief Specialization for SG::ReadHandle<T>
- *
- *  Needed drudgery for the @c PropertyMgr and @c Property classes so
- *  @c ::VarHandleBase (and derived) classes are known to the property handling
- *  infrastructure of Gaudi
- */
+
 template<typename T>
 class SimplePropertyRef< SG::ReadHandle<T> > :
-  public ::VarHandleProperty
+  public SG::VarHandleKeyProperty
 {
 public:
-
-  /// Constructor from the name and the handle
   SimplePropertyRef(const std::string& name, SG::ReadHandle<T>& value) :
-    ::VarHandleProperty(name, value)
-  {}
-
-  /// virtual Destructor
-  virtual ~SimplePropertyRef() {}
+    SG::VarHandleKeyProperty(name, value) {}
 };
 
 
-/** @brief Specialization for SG::UpdateHandle<T>
- *
- *  Needed drudgery for the @c PropertyMgr and @c Property classes so
- *  @c ::VarHandleBase (and derived) classes are known to the property handling
- *  infrastructure of Gaudi
- */
 template<typename T>
 class SimplePropertyRef< SG::UpdateHandle<T> > :
-  public ::VarHandleProperty
+  public SG::VarHandleKeyProperty
 {
 public:
-
-  /// Constructor from the name and the handle
   SimplePropertyRef( const std::string& name, SG::UpdateHandle<T>& value ) :
-    ::VarHandleProperty(name, value)
-  {}
-
-  /// virtual Destructor
-  virtual ~SimplePropertyRef() {}
+    SG::VarHandleKeyProperty(name, value) {}
 };
 
-/** @brief Specialization for SG::WriteHandle<T>
- *
- *  Needed drudgery for the @c PropertyMgr and @c Property classes so
- *  @c ::VarHandleBase (and derived) classes are known to the property handling
- *  infrastructure of Gaudi
- */
+
 template<typename T>
 class SimplePropertyRef< SG::WriteHandle<T> > :
-  public ::VarHandleProperty
+  public SG::VarHandleKeyProperty
 {
 public:
-
-  /// Constructor from the name and the handle
   SimplePropertyRef( const std::string& name, SG::WriteHandle<T>& value ) :
-    ::VarHandleProperty(name, value)
-  {}
-
-  /// virtual Destructor
-  virtual ~SimplePropertyRef() {}
+    SG::VarHandleKeyProperty(name, value) {}
 };
 
-
-inline
-VarHandleProperty& 
-VarHandleProperty::operator=( const SG::VarHandleBase& value ) 
+template<typename T>
+class SimplePropertyRef< SG::ReadCondHandle<T> > :
+  public SG::VarHandleKeyProperty
 {
-  setValue( value );
-  return *this;
-}
+public:
+  SimplePropertyRef(const std::string& name, SG::ReadCondHandle<T>& value) :
+    SG::VarHandleKeyProperty(name, value) {}
+};
 
-inline
-VarHandleProperty* 
-VarHandleProperty::clone() const 
+template<typename T>
+class SimplePropertyRef< SG::WriteCondHandle<T> > :
+  public SG::VarHandleKeyProperty
 {
-  return new VarHandleProperty( *this );
-}
+public:
+  SimplePropertyRef(const std::string& name, SG::WriteCondHandle<T>& value) :
+    SG::VarHandleKeyProperty(name, value) {}
+};
 
-inline
-bool
-VarHandleProperty::load( Property& destination ) const 
-{
-  return destination.assign( *this );
-}
-
-inline
-bool
-VarHandleProperty::assign( const Property& source ) 
-{
-  return fromString( source.toString() ).isSuccess();
-}
-
-inline
-const SG::VarHandleBase& 
-VarHandleProperty::value() const 
-{
-  useReadHandler();
-  return *m_pValue;
-}
 
 #endif /* !STOREGATE_VARHANDLEPROPERTY_H */
 

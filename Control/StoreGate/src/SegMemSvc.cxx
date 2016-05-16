@@ -35,7 +35,7 @@ SegMemSvc::~SegMemSvc() {
 
 
 StatusCode SegMemSvc::queryInterface( const InterfaceID& riid, 
-				void** ppvInterface ) {
+                                      void** ppvInterface ) {
   StatusCode sc = StatusCode::FAILURE;
   if ( ppvInterface ) {
     *ppvInterface = 0;
@@ -60,7 +60,7 @@ SegMemSvc::initialize() {
   SG::Arena::Push push2(m_arena_evt);
   SG::Arena::Push push3(m_arena_inc);
 
-//   m_ahead.addArena(&m_arena);
+  //   m_ahead.addArena(&m_arena);
 
   
   p_incSvc->addListener( this, "EndEvent" );
@@ -96,16 +96,16 @@ SegMemSvc::handle(const Incident& inc) {
   if (inc.type() == "EndEvent") {
     if (m_log.level() <= MSG::DEBUG) {
       m_log << MSG::DEBUG << "Running report for " << m_arena_evt.name() 
-	    << std::endl;
+            << std::endl;
       std::ostringstream ost;
       m_ahead_evt.report(ost);
       m_log << MSG::DEBUG << ost.str() << endreq;
-//       m_log << MSG::DEBUG << "header: " << m_ahead.reportStr() << endreq;
+      //       m_log << MSG::DEBUG << "header: " << m_ahead.reportStr() << endreq;
       
     }
 
     m_log << MSG::DEBUG << "freeing all memory allocated for Event"
-	  << endreq;
+          << endreq;
     m_arena_evt.reset();
     m_ahead_evt.reset();
 
@@ -113,11 +113,11 @@ SegMemSvc::handle(const Incident& inc) {
 
     if (m_log.level() <= MSG::DEBUG) {
       m_log << MSG::DEBUG << "defragmenting memory"
-	    << endreq;
+            << endreq;
     }
     m_log << MSG::DEBUG << "freeing all memory allocated associated with "
-	  << "DefragMemory incident"
-	  << endreq;
+          << "DefragMemory incident"
+          << endreq;
     m_arena_inc.reset();
     m_ahead_inc.reset();
   }

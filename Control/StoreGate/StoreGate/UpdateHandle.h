@@ -1,175 +1,261 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
+// This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// UpdateHandle.h 
-// Header file for class SG::UpdateHandle<T>
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+// $Id: UpdateHandle.h 733875 2016-04-04 23:33:03Z leggett $
+/**
+ * @file StoreGate/UpdateHandle.h
+ * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
+ * @date Updated: Feb, 2016
+ * @brief Handle class for modifying an existing object in StoreGate.
+ */
+
 #ifndef STOREGATE_SG_UPDATEHANDLE_H
 #define STOREGATE_SG_UPDATEHANDLE_H 1
 
-// STL includes
+
+#include "StoreGate/VarHandleBase.h"
+#include "StoreGate/UpdateHandleKey.h"
+#include "StoreGate/StoreGateSvc.h" /* needed by clients */
+#include "GaudiKernel/EventContext.h"
 #include <string>
 
-// fwk includes
-#include "GaudiKernel/IInterface.h"
-#include "AthenaKernel/IProxyDict.h"
-#include "AthenaKernel/IResetable.h"
-
-// SGTools includes
-#include "SGTools/ClassID_traits.h"
-
-// StoreGate includes
-#include "StoreGate/VarHandleBase.h"
-
-// Forward declaration
 
 
 namespace SG {
-/**
- * @class SG::UpdateHandle<T>
- * @brief a smart pointer to an object of a given type in an @c IProxyDict (such
- * as StoreGateSvc). It d-casts and caches locally the pointed-at object, to 
- * speed-up subsequent accesses.
- * It can be reset by the store for asynchronous updates (IOVSvc)
- *
- * @c SG::UpdateHandle<T> can only access non-const proxies in StoreGate, a valid
- * proxy must already exist in StoreGate.
- *
- * Usage example:
- * @code
- *   class MyAlg : public AthAlgorithm
- *   {
- *     SG::UpdateHandle<int> m_int;
- *   };
- *
- *   MyAlg::MyAlg(...) : ..., m_int("MyIntSgKey") {
- *      declareProperty("IntHandle",
- *                      m_int = SG::UpdateHandle<int>("MyIntSgKey"),
- *                      "a handle to an int in StoreGate");
- *   }
- *
- *   StatusCode MyAlg::execute()
- *   {
- *     ATH_MSG_INFO("int value @[" << m_int.name() << "]="
- *                  << *m_int);
- *     m_int = 10;
- *     ATH_MSG_INFO("int value @[" << m_int.name() << "]="
- *                  << *m_int);
- *     return StatusCode::SUCCESS;
- *   }
- * @endcode
- *
- * For more informations have a look under the package
- *     Control/AthenaExamples/AthExHelloWorld
- *
- */
-template <class T>
-class UpdateHandle : public SG::VarHandleBase
-{ 
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public typedefs: 
-  /////////////////////////////////////////////////////////////////// 
-public: 
-  typedef T*               pointer_type; // FIXME: better handling of
-  typedef const T*   const_pointer_type; //        qualified T type ?
-  typedef T&             reference_type;
-  typedef const T& const_reference_type;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
-public: 
-
-  /// Default constructor: 
-  UpdateHandle();
-
-  /// Copy constructor: 
-  UpdateHandle( const UpdateHandle& rhs );
-  UpdateHandle( UpdateHandle&& rhs );
-
-  /// Assignment operator: 
-  UpdateHandle& operator=( const UpdateHandle& rhs ); 
-  UpdateHandle& operator=( UpdateHandle&& rhs ); 
-  UpdateHandle& operator=( const T& data );
-  //UpdateHandle& operator=(       T* data );
-
-  /// Constructor with parameters: 
-
-  //explicit UpdateHandle(SG::DataProxy* proxy); ///< 
-
-  /// retrieve a proxy of name `name` from evtStore
-  UpdateHandle(const IInterface* component,
-	       const std::string& name);
-  
-  /// retrieve a proxy of name `name` from store `store`
-  UpdateHandle(const IInterface* component,
-	       const std::string& name, 
-	       const std::string& store);
-
-  /// retrieve a proxy of name `name` from evtStore
-  explicit UpdateHandle(const std::string& name);
-
-  /// retrieve a proxy of name `name` from store `store`
-  UpdateHandle(const std::string& name, 
-	       const std::string& store);
-
-  /// retrieve a proxy of name `name` from store `store`
-  //UpdateHandle(const std::string& name, IProxyDict* store);
-
-  /// Destructor: 
-  virtual ~UpdateHandle(); 
-
-  /// \name access to the underlying ptr
-  //@{
-  const_pointer_type operator->() const   { return cptr(); }
-  pointer_type operator->()               { return ptr();  }
-
-  const_reference_type operator*() const    { return *cptr(); }   
-  reference_type operator*()                { return *ptr();  }
-
-   ///< safer explicit ptr accessor 
-  const_pointer_type cptr() const
-  { return reinterpret_cast<const_pointer_type>(this->typeless_cptr()); }
-
-  ///< safer explicit ptr accessor 
-  pointer_type ptr()
-  { return reinterpret_cast<pointer_type>(this->typeless_ptr()); }
-
-  //@}
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /// the CLID of the object we are bound to
-  virtual CLID clid() const { return ClassID_traits<T>::ID(); }
-
-  /// the mode of the underlying handle (reader|writer|updater)
-  virtual Mode mode() const { return SG::VarHandleBase::Updater; }
-  /// is the proxy state valid for this handle?
-  virtual bool isValid() const 
+  /**
+   * @class SG::UpdateHandle<T>
+   * @brief a smart pointer to an object of a given type in an @c IProxyDict (such
+   * as StoreGateSvc). It d-casts and caches locally the pointed-at object, to 
+   * speed-up subsequent accesses.
+   * It can be reset by the store for asynchronous updates (IOVSvc)
+   *
+   * @c SG::UpdateHandle<T> can only access non-const proxies in StoreGate.
+   * A valid proxy must already exist in StoreGate.
+   *
+   * Usage example:
+   * @code
+   *   class MyAlg : public AthAlgorithm
+   *   {
+   *     SG::UpdateHandle<int> m_int;
+   *   };
+   *
+   *   MyAlg::MyAlg(...) : ..., m_int("MyIntSgKey") {
+   *      declareProperty("IntHandle",
+   *                      m_int = SG::UpdateHandle<int>("MyIntSgKey"),
+   *                      "a handle to an int in StoreGate");
+   *   }
+   *
+   *   StatusCode MyAlg::execute()
+   *   {
+   *     ATH_MSG_INFO("int value @[" << m_int.name() << "]="
+   *                  << *m_int);
+   *     *m_int = 10;
+   *     ATH_MSG_INFO("int value @[" << m_int.name() << "]="
+   *                  << *m_int);
+   *     return StatusCode::SUCCESS;
+   *   }
+   * @endcode
+   *
+   * For more information have a look under the package
+   *     Control/AthenaExamples/AthExHelloWorld
+   *
+   */
+  template <class T>
+  class UpdateHandle
+    : public SG::VarHandleBase
   { 
-    const bool QUIET=true;
-    return 0 != const_cast<UpdateHandle<T>*>(this)->typeless_ptr(QUIET); //non-const access
-  }
-}; 
+  public: 
+    typedef T*               pointer_type; // FIXME: better handling of
+    typedef const T*   const_pointer_type; //        qualified T type ?
+    typedef T&             reference_type;
+    typedef const T& const_reference_type;
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-//std::ostream& operator<<( std::ostream& out, const UpdateHandle& o );
+
+    //************************************************************************
+    // Constructors, etc.
+    //
+
+
+    /**
+     * @brief Default constructor.
+     *
+     * The handle will not be usable until a non-blank key is assigned.
+     */
+    UpdateHandle();
+
+
+    /**
+     * @brief Constructor with full arguments.
+     * @param sgkey StoreGate key of the referenced object.
+     * @param storename Name of the referenced event store.
+     */
+    UpdateHandle(const std::string& sgkey,
+                 const std::string& storename = "StoreGateSvc");
+
+
+    /**
+     * @brief Constructor from an UpdateHandleKey.
+     * @param key The key object holding the clid/key/store.
+     *
+     * This will raise an exception if the StoreGate key is blank,
+     * or if the event store cannot be found.
+     */
+    explicit UpdateHandle (const UpdateHandleKey<T>& key);
+
+
+    /**
+     * @brief Constructor from an UpdateHandleKey and an explicit event context.
+     * @param key The key object holding the clid/key.
+     * @param ctx The event context.
+     *
+     * This will raise an exception if the StoreGate key is blank,
+     * or if the event store cannot be found.
+     *
+     * If the default event store has been requested, then the thread-specific
+     * store from the event context will be used.
+     */
+    explicit UpdateHandle (const UpdateHandleKey<T>& key,const EventContext& ctx);
+
+
+    /**
+     * @brief Copy constructor.
+     */
+    UpdateHandle( const UpdateHandle& rhs );
+
+
+    /**
+     * @brief Move constructor.
+     */
+    UpdateHandle( UpdateHandle&& rhs );
+
+
+    /**
+     * @brief Assignment operator.
+     */
+    UpdateHandle& operator=( const UpdateHandle& rhs ); 
+
+
+    /**
+     * @brief Move operator.
+     */
+    UpdateHandle& operator=( UpdateHandle&& rhs ); 
+
+
+    //************************************************************************
+    // Dereference.
+    //
+
+
+    /**
+     * @brief Derefence the pointer.
+     * Throws ExcNullReadHandle on failure.
+     *
+     * This will inform Hive that the object has been modified.
+     */
+    pointer_type operator->();
+
+
+    /**
+     * @brief Derefence the pointer.
+     * Throws ExcNullReadHandle on failure.
+     *
+     * This will inform Hive that the object has been modified.
+     */
+    reference_type operator*();
+
+
+    /**
+     * @brief Derefence the pointer.
+     * Returns nullptr on failure.
+     *
+     * This will _not_ inform Hive that the object has been modified.
+     */
+    const_pointer_type cptr();
+
+
+    /**
+     * @brief Derefence the pointer.
+     * Returns nullptr on failure.
+     *
+     * This will inform Hive that the object has been modified.
+     */
+    pointer_type ptr();
+
+  
+    /**
+     * @brief Return the cached pointer directly; no lookup.
+     */
+    pointer_type cachedPtr() const;
+
+
+    /**
+     * @brief Can the handle be successfully dereferenced?
+     */
+    virtual bool isValid() override final;
+
+
+    // FIXME: Remove this once IResetable is cleaned up.
+    using IResetable::reset;
+
+
+    /**
+     * @brief Reset this handle.
+     * @param hard If true, anything depending on the event store is cleared.
+     *
+     * Clear the updated flag, then call reset() from the base class.
+     */
+    virtual void reset (bool hard) override;
+
+  
+  private:
+    /**
+     * @brief Helper: dereference the pointer.
+     * Throws ExcNullUpdateHandle on failure.
+     */
+    pointer_type checkedPtr();
+
+    /// Flag to prevent multiple calls to IProxyDict::udpatedObject.
+    bool m_updated;
+  }; 
+
+
+  /**
+   * @brief Return an @c UpdateHandle referencing @c key.
+   * @param key The key object holding the clid/key/store.
+   *
+   * This will raise an exception if the StoreGate key is blank,
+   * or if the event store cannot be found.
+   */
+  template <class T>
+  UpdateHandle<T> makeHandle (const UpdateHandleKey<T>& key);
+
+
+  /**
+   * @brief Return an @c UpdateHandle referencing @c key for an explicit context.
+   * @param key The key object holding the clid/key/store.
+   * @param ctx The event context.
+   *
+   * This will raise an exception if the StoreGate key is blank,
+   * or if the event store cannot be found.
+   *
+   * If the default event store has been requested, then the thread-specific
+   * store from the event context will be used.
+   */
+  template <class T>
+  UpdateHandle<T> makeHandle (const UpdateHandleKey<T>& key,
+                              const EventContext& ctx);
 
 
 } /* namespace SG */
 
-#ifndef STOREGATE_SG_UPDATEHANDLE_ICC
- #include "StoreGate/UpdateHandle.icc"
-#endif
+
+#include "StoreGate/UpdateHandle.icc"
+
 
 #ifndef NO_LEGACY_HANDLES
 namespace SG {

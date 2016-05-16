@@ -12,22 +12,31 @@
 //include below in your header file!
 #include "SGTools/CLASS_DEF.h"
 
+#ifndef ATHENAHIVE
+#define SGImplSvc StoreGateSvc
+#include "StoreGate/tools/SGImplSvc.h"
+#else
+//HIVE wrapper implementation
 //base classes
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/Service.h"
-#include "SGTools/IProxyDictWithPool.h"
-#include "CxxUtils/final.h"
+#include "AthenaKernel/IProxyDict.h"
+
+#include "AthenaKernel/IHiveStore.h"
+#include "AthenaKernel/IHiveStoreMgr.h"
+#include "StoreGate/tools/SGImplSvc.h"
+#include "StoreGate/SGHiveEventSlot.h"
 
 #include <GaudiKernel/ClassID.h>        // for CLID
 #include <GaudiKernel/IInterface.h>     // for InterfaceID
 #include <GaudiKernel/IMessageSvc.h>    // for Level
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"   /*StringArrayProperty*/
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/StatusCode.h"
 
 #include <cstddef>                     // for size_t
 #include <list>
 #include <memory>                       /* auto_ptr */
+#include <mutex>                       
 #include <string>
 #include <sys/types.h>                  // for off_t
 #include <vector>                       
@@ -45,6 +54,7 @@
 #include "AthenaKernel/IResetable.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
+#include "StoreGate/SGHiveEventSlot.h"
 #include "StoreGate/SGIterator.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/SGWPtr.h"
@@ -52,19 +62,19 @@
 #include "StoreGate/SGObjectWithVersion.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IPageAccessControlSvc.h"
 
 //forward declarations
 namespace SG {
   class DataProxy;
   class TransientAddress;
   struct RemapImpl;
+  class TestHiveStoreSvc;
+  class HiveMgrSvc; 
 }
 
 class DataObject;
 class IConversionSvc;
 class IIncidentSvc;
-class Incident;
 class IProxyProviderSvc;
 class IHistorySvc;
 
@@ -72,12 +82,13 @@ class IHistorySvc;
 struct _object; typedef _object PyObject;
 class StoreGateSvc;
 namespace AthenaInternal {
-PyObject* recordObjectToStore(PyObject*,PyObject*,PyObject*,bool,bool,bool);
+  PyObject* recordObjectToStore(PyObject*,PyObject*,PyObject*,bool,bool,bool);
   void py_sg_clearProxyPayload(StoreGateSvc* self, SG::DataProxy*);
 }
 namespace SG {
-class NoAuxStore;
+  class NoAuxStore;
 }
+
 //friends...
 class AthenaOutputStream;
 class IOVDbSvc;
@@ -89,7 +100,10 @@ class MemoryMonitorSvc;
 class SGDeleteAlg;
 class ThinningSvc;
 class ActiveStoreSvc;
-namespace SG { class VarHandleBase; }
+class CondSvc;
+namespace SG { 
+  class VarHandleBase; 
+}
 namespace PerfMon { class StorePayloadMon; }
 
 /** @class StoreGateSvc 
@@ -98,13 +112,21 @@ namespace PerfMon { class StorePayloadMon; }
  * @param "Dump" property (default false): set to call dump() at EndEvent
  * @param "FolderNameList" property (default ""): data folders to be created 
  *                                                in this store
- * @author ATLAS Collaboration
- * $Id: StoreGateSvc.h,v 1.135 2009-03-05 00:23:07 calaf Exp $
+ *  Caches a pointer to the currently hive store. 
+ *  In most jobs the hive store is simply the default event store 
+ *  (named "StoreGateSvc"). When doing pile-up (and perhaps later on in 
+ *  multi-threaded jobs, the hive store changes during the event loop
+ *  execution. It is important, for example, that converters always refer
+ *  to the hive store rather than to the default one.
+ *
+ *  @author ATLAS Collaboration
+ *  $Id: SGStoreGateSvc.h 549999 2013-06-06 00:26:39Z calaf $
  **/
 class StoreGateSvc :
   public Service, 
-  public IProxyDictWithPool, 
-  public IIncidentListener
+  public IProxyDict, 
+  public IHiveStore,
+  public IHiveStoreMgr
 {
 
 public:
@@ -158,7 +180,7 @@ public:
   /// const-access. 
   template <typename T, typename TKEY> 
   StatusCode record(T* p2BRegistered, const TKEY& key, 
-		    bool allowMods, bool resetOnly=true, bool noHist=false);
+                    bool allowMods, bool resetOnly=true, bool noHist=false);
 
 #if __cplusplus > 201100
   /// Record an object with a key, take ownership of the unique_ptr obj
@@ -173,7 +195,7 @@ public:
   /// const-access. 
   template <typename T, typename TKEY> 
   StatusCode record(std::unique_ptr<T> pUnique, const TKEY& key, 
-		    bool allowMods, bool resetOnly=true, bool noHist=false);
+                    bool allowMods, bool resetOnly=true, bool noHist=false);
 #endif
 
   //@}
@@ -249,7 +271,7 @@ public:
   /// Retrieve all objects of type T: returns an SG::ConstIterator range
   template <typename T> 
   StatusCode retrieve(SG::ConstIterator<T>& begin, 
-		      SG::ConstIterator<T>& end);
+                      SG::ConstIterator<T>& end);
 
   /** Look up a keyed object in TDS (compare also tryRetrieve)
    *  returns false if object not available in TDS or persistent stores 
@@ -287,7 +309,7 @@ public:
   /// Record an object with a key, overwriting any existing object with same key
   template <typename T, typename TKEY> 
   StatusCode overwrite(T* p2BRegistered, const TKEY& key, 
-		       bool allowMods, bool resetOnly=true, bool noHist=false);
+                       bool allowMods, bool noHist=false);
 
   /// Record an object with a key, overwriting any existing object with same key, take ownership of the auto_pointed obj
   template <typename T, typename TKEY> 
@@ -297,7 +319,7 @@ public:
   /// Record an object with a key, overwriting any existing object with same key
   template <typename T, typename TKEY> 
   StatusCode overwrite(std::unique_ptr<T> pUnique, const TKEY& key, 
-		       bool allowMods, bool resetOnly=true, bool noHist=false);
+                       bool allowMods, bool noHist=false);
 
   /// Record an object with a key, overwriting any existing object with same key, take ownership of the unique_ptr obj
   template <typename T, typename TKEY> 
@@ -306,7 +328,7 @@ public:
 
   /// Create a proxy object using an IOpaqueAddress and a transient key
   StatusCode recordAddress(const std::string& skey,
-			   IOpaqueAddress* pAddress, bool clearAddressFlag=true);
+                           IOpaqueAddress* pAddress, bool clearAddressFlag=true);
   /// Create a proxy object using an IOpaqueAddress
   StatusCode recordAddress(IOpaqueAddress* pAddress, bool clearAddressFlag=true);
 
@@ -337,8 +359,8 @@ public:
   template <typename T>
   StatusCode remove(const T* pObject);
 
-  /// Remove pObject and its proxy no matter what. 	 
-  template <typename T> 	 
+  /// Remove pObject and its proxy no matter what.       
+  template <typename T>          
   StatusCode removeDataAndProxy(const T* pObject);
 
   /// @brief swap the content of 2 keys
@@ -347,7 +369,7 @@ public:
   ///  somebody clear the store.
   /// @return false if swap failed
   bool transientSwap( const CLID& id,
-		      const std::string& keyA, const std::string& keyB );
+                      const std::string& keyA, const std::string& keyB );
 
   //@}
 
@@ -365,7 +387,7 @@ public:
   /// @returns StatusCode::FAILURE if no dataObject found
   template <typename T, class TKEY>
   StatusCode retrieveHighestVersion(SG::ObjectWithVersion<T>& dobjWithVersion, 
-				    const TKEY& requestedKey);
+                                    const TKEY& requestedKey);
 
   /// Retrieve all versions of a given T,KEY combination
   /// sets allVersions, a ref to a vector of ObjectWithVersion<T>
@@ -380,7 +402,7 @@ public:
   template <typename T, class TKEY>
   StatusCode
   retrieveAllVersions(std::list< SG::ObjectWithVersion<T> >& allVersions,
-		      const TKEY& requestedKey);
+                      const TKEY& requestedKey);
 
   
 
@@ -515,6 +537,54 @@ public:
 
   //@}
 
+
+  /// implements IHiveStore interface
+  // FIXME pointer to unsafe impl exposed 
+  virtual ::IProxyDict* hiveProxyDict() override final {
+    return StoreGateSvc::currentStore();
+  }
+
+
+  ///////////////////////////////////////////////////////////////////////
+  /// \name IHiveStoreMgr implementation
+  //@{
+  /// clear DataStore contents: called by the event loop mgrs
+  /// @param forceRemove: if true remove proxies ignoring their resetOnly flag
+  virtual StatusCode clearStore(bool forceRemove=false) override final;
+
+  /** Get data objects registred in store since last getNewDataObjects call (or since init for 1st call)
+   *
+   * @param  products     [IN]     Slot number (event slot)   *
+   * @return Status code indicating failure or success.
+   */
+  virtual StatusCode getNewDataObjects(DataObjIDColl& products) override final;
+
+  /** Check if something has been added to the store since last getNewDataObjects call
+   *
+   * @param  products     [IN]     Slot number (event slot)   *
+   * @return Boolean indicating the presence of new products
+   */
+  virtual bool newDataObjectsPresent() override final; 
+
+  /** make newly recorded DataObjects know to the WhiteBoard, by copying
+   *    from thread local storage to m_newDataObjects
+   */
+  virtual void commitNewDataObjects() override final;
+  //@}
+
+  ///a new transient object has been recorded
+  void addedNewTransObject(CLID clid, const std::string& key);
+
+  void addedNewPersObject(CLID clid, SG::DataProxy* dp);
+
+  ///set the hive event slot pointer: used by the event loop mgrs
+  static void setSlot(SG::HiveEventSlot* pSlot);
+
+
+  ///set pointer to default event store: used by ActiveStoreSvc
+  void setDefaultStore(SGImplSvc* pStore);                    
+
+
   /////////////////////////////////////////////////////////////////////////
   /// \name IOVSvc interface
   //@{
@@ -529,59 +599,82 @@ public:
   /// register a callback function, with handle + key
   template <typename T, typename H, typename TKEY>
   StatusCode regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
-		    const T* obj, const DataHandle<H>& handle, 
-		    const TKEY& key, bool trigger=false);
+                    const T* obj, const DataHandle<H>& handle, 
+                    const TKEY& key, bool trigger=false);
 
   /// register a callback function, with handle + key. Non const. Error
   template <typename T, typename H, typename TKEY>
   StatusCode regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
-		    const T* obj, DataHandle<H>& handle, 
-		    const TKEY& key, bool trigger=false);
+                    const T* obj, DataHandle<H>& handle, 
+                    const TKEY& key, bool trigger=false);
 
   /// register a callback function(2) with an already registered function(1)
   template <typename T1, typename T2>
   StatusCode regFcn(StatusCode (T1::*fcn1)(IOVSVC_CALLBACK_ARGS), 
-		    const T1* obj1,
+                    const T1* obj1,
                     StatusCode (T2::*fcn2)(IOVSVC_CALLBACK_ARGS), 
-		    const T2* obj2, bool trigger=false);
+                    const T2* obj2, bool trigger=false);
 
   /// register a callback function(2) with an already registered AlgTool
   template <typename T2>
   StatusCode regFcn(const std::string& toolName,
                     StatusCode (T2::*fcn2)(IOVSVC_CALLBACK_ARGS), 
-		    const T2* obj2, bool trigger=false);
+                    const T2* obj2, bool trigger=false);
 
   //@}
   /////////////////////////////////////////////////////////////////////////
 
-  /// \name IProxyDict implementation (forwarded to DataStore)
-  //@{
   /// get proxy for a given data object address in memory
-  /// but performs a deep search among all possible 'symlinked' containers
-  /// Note that it is now just forwarding to @c proxy
-  virtual SG::DataProxy* deep_proxy(const void* const pTransient) const;
-
-  /// get proxy for a given data object address in memory
-  virtual SG::DataProxy* proxy(const void* const pTransient) const;
+  virtual SG::DataProxy* proxy(const void* const pTransient) const override final;
 
   /// get default proxy with given id. Returns 0 to flag failure
-  virtual SG::DataProxy* proxy(const CLID& id) const;
+  virtual SG::DataProxy* proxy(const CLID& id) const final;
 
   /// get proxy with given id and key. Returns 0 to flag failure
-  virtual SG::DataProxy* proxy(const CLID& id, const std::string& key) const;
+  virtual SG::DataProxy* proxy(const CLID& id, const std::string& key) const override final;
   /// get proxy with given id and key. Returns 0 to flag failure
   /// (overload to prevent a char* to be interpreted as a bool.)
-  virtual SG::DataProxy* proxy(const CLID& id, const char* key) const ATH_FINAL
-  { return this->proxy(id, std::string(key)); }
+  SG::DataProxy* proxy(const CLID& id, const char* key) const;
 
   /// Raw addition of a proxy to the store.
-  StatusCode addToStore (CLID id, SG::DataProxy* proxy);
+  virtual StatusCode addToStore (CLID id, SG::DataProxy* proxy) override final;
+
+  /**
+   * @brief Record an object in the store.
+   * @param obj The data object to store.
+   * @param key The key as which it should be stored.
+   * @param allowMods If false, the object will be recorded as const.
+   * @param returnExisting If true, return proxy if this key already exists.
+   *
+   * Full-blown record.  @c obj should usually be something
+   * deriving from @c SG::DataBucket.
+   *
+   * Returns the proxy for the recorded object; nullptr on failure.
+   * If the requested CLID/key combination already exists in the store,
+   * the behavior is controlled by @c returnExisting.  If true, then
+   * the existing proxy is returned; otherwise, nullptr is returned.
+   * In either case, @c obj is destroyed.
+   */
+  virtual
+  SG::DataProxy* recordObject (SG::DataObjectSharedPtr<DataObject> obj,
+                               const std::string& key,
+                               bool allowMods,
+                               bool returnExisting) override final;
+
+
+  /**
+   * @brief Inform HIVE that an object has been updated.
+   * @param id The CLID of the object.
+   * @param key The key of the object.
+   */
+  virtual
+  StatusCode updatedObject (CLID id, const std::string& key) override final;
+
 
   /// Get proxy given a hashed key+clid.
   /// Find an exact match; no handling of aliases, etc.
   /// Returns 0 to flag failure.
-  virtual SG::DataProxy* proxy_exact (SG::sgkey_t sgkey) const ATH_FINAL
-  { return m_pStore->proxy_exact (sgkey); }
+  virtual SG::DataProxy* proxy_exact (SG::sgkey_t sgkey) const override final;
     
 
   //@}
@@ -590,18 +683,18 @@ public:
   //@{
   /// get default proxy with given id, optionally checking validity.
   ///  @returns 0 to flag failure
-  virtual SG::DataProxy* proxy(const CLID& id, bool checkValid) const;
+  virtual SG::DataProxy* proxy(const CLID& id, bool checkValid) const final;
   /// get proxy with given id and key, optionally checking validity.
   ///  @returns 0 to flag failure
-  virtual SG::DataProxy* proxy(const CLID& id, const std::string& key, bool checkValid) const;
+  virtual SG::DataProxy* proxy(const CLID& id, const std::string& key, bool checkValid) const final;
   /// get proxy with given id and key, optionally checking validity.
   ///  @returns 0 to flag failure
   /// (overload to prevent a char* to be interpreted as a bool.)
-  virtual SG::DataProxy* proxy(const CLID& id, const char* key, bool checkValid) const
+  virtual SG::DataProxy* proxy(const CLID& id, const char* key, bool checkValid) const final
   { return this->proxy(id, std::string(key), checkValid); }
 
   /// return the list of all current proxies in store
-  std::vector<const SG::DataProxy*> proxies() const;
+  virtual std::vector<const SG::DataProxy*> proxies() const override final;
 
   /// get proxy with given id and key. Does not query ProxyProviderSvc.
   ///  @returns 0 to flag failure
@@ -631,7 +724,7 @@ public:
    *         Will abort in case of a hash collision!
    */
   virtual
-  sgkey_t stringToKey (const std::string& str, CLID clid);
+  sgkey_t stringToKey (const std::string& str, CLID clid) override final;
 
   /**
    * @brief Find the string corresponding to a given key.
@@ -641,7 +734,7 @@ public:
    *         was given to either @c stringToKey() or @c registerKey().
    */
   virtual
-  const std::string* keyToString (sgkey_t key) const;
+  const std::string* keyToString (sgkey_t key) const override final;
 
   /**
    * @brief Find the string and CLID corresponding to a given key.
@@ -652,7 +745,7 @@ public:
    *         was given to either @c stringToKey() or @c registerKey().
    */
   virtual
-  const std::string* keyToString (sgkey_t key, CLID& clid) const;
+  const std::string* keyToString (sgkey_t key, CLID& clid) const override final;
 
   /**
    * @brief Remember an additional mapping from key to string/CLID.
@@ -669,7 +762,7 @@ public:
   virtual
   void registerKey (sgkey_t key,
                     const std::string& str,
-                    CLID clidid);
+                    CLID clidid) override final;
 
   //@}
 
@@ -699,7 +792,7 @@ public:
    *   m_sg->remap (ClassID_traits<T>::ID(), "A", "C", 0);
    *   m_sg->remap (ClassID_traits<T>::ID(), "B", "C", a.size());;
    @endcode
-   */
+  */
   template <class TKEY>
   void remap (CLID clid,
               const TKEY& source,
@@ -728,7 +821,7 @@ public:
    * @return True if there is a remapping; false otherwise.
    */
   virtual bool tryELRemap (sgkey_t sgkey_in, size_t index_in,
-                           sgkey_t& sgkey_out, size_t& index_out);
+                           sgkey_t& sgkey_out, size_t& index_out) override final;
 
   //@}
 
@@ -736,18 +829,16 @@ public:
   /// \name Gaudi Standard Service structors
   //@{
   StoreGateSvc(const std::string& name, ISvcLocator* svc);
-  virtual ~StoreGateSvc();
+  virtual ~StoreGateSvc() override;
   //@}
 
   ///////////////////////////////////////////////////////////////////////
   /// \name Gaudi IService implementation
   //@{
-  virtual StatusCode initialize();
-  virtual StatusCode reinitialize();
-  virtual StatusCode start();
-  virtual StatusCode stop();
-  virtual StatusCode finalize();
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode initialize() override;
+  virtual StatusCode stop() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
   //@}
   /// Should rather be in IStoreGateSvc.h if we had one
   static const InterfaceID& interfaceID();
@@ -756,112 +847,42 @@ public:
   //////////////////////////////////////////////////////////////////
   /// \name Gaudi IIncidentListener implementation
   //@{
-  /// triggered by Incident service
-  virtual void handle(const Incident&);
   /// load proxies at begin event
   StatusCode loadEventProxies();
   //@}
 
-
-  ///////////////////////////////////////////////////////////////////////
-  /// \name EventLoop Internals: not to be called by any other client
-  //@{
-  /// clear DataStore contents: called by the event loop mgrs
-  /// @param forceRemove: if true remove proxies ignoring their resetOnly flag
-  StatusCode clearStore(bool forceRemove=false);
-  //@}
-
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /** @brief Test the output level
-   *  @param lvl The message level to test against
-   *  @return boolean Indicting if messages at given level will be printed
-   *  @retval true Messages at level "lvl" will be printed
-   */
-  bool 
-  msgLvl (const MSG::Level lvl) const;
-
-  /** The standard message stream.
-   *  Returns a reference to the default message stream
-   *  May not be invoked before sysInitialize() has been invoked.
-   */
-  MsgStream& msg() const;
-
-  /** The standard message stream.
-   *  Returns a reference to the default message stream
-   *  May not be invoked before sysInitialize() has been invoked.
-   */
-  MsgStream& 
-  msg (const MSG::Level lvl) const;
-		     
-  ///////////////////////////////////////////////////////////////////////
 private:
 
-  // Helper for record.
-  template <typename T, typename TKEY> 
-  StatusCode record1(DataObject* obj, T* pObject, const TKEY& key, 
-		     bool allowMods, bool resetOnly=true, bool noHist=false);
+  SGImplSvc* m_defaultStore;
+  std::string m_defaultStoreName; ///< property
+  ServiceHandle<IProxyProviderSvc> m_pPPSHandle; ///< property
+  ServiceHandle<IIncidentSvc> m_incSvc; ///< property
+  mutable std::recursive_mutex m_recMutex; ///< to lock det store accesses
 
-  // Helper for overwrite.
-  template <typename T, typename TKEY> 
-  StatusCode overwrite1(DataObject* obj, T* pObject, const TKEY& key, 
-                        bool allowMods, bool resetOnly=true, bool noHist=false);
+  friend class SG::TestHiveStoreSvc;
+  static SG::HiveEventSlot* currentSlot();
 
-  StatusCode record_HistObj(const CLID& id, const std::string& key,
-			    const std::string& store, bool allowMods, 
-			    bool resetOnly=true);
+  friend class SG::HiveMgrSvc;
+  ///returns pointer to the current SGImplSvc
+  SGImplSvc* currentStore() const;
+  ///is the current store an event store being managed by an IHiveWhiteboard?
+  bool isHiveStore() const;
 
-
-  /// type-less recording of an object with a key, allow possibility of
-  /// specifying const-access and history record
-  StatusCode typeless_record( DataObject* obj, const std::string& key,
-			      const void* const raw_ptr,
-			      bool allowMods, bool resetOnly=true,
-			      bool noHist=false );
-  /// same as typeless_record, allows to ovewrite an object in memory or on disk
-  StatusCode typeless_overwrite( const CLID& id,
-				 DataObject* obj, const std::string& key,
-				 const void* const raw_ptr,
-				 bool allowMods, bool resetOnly=true,
-				 bool noHist=false,
-                                 const std::type_info* tinfo=0);
-
-  StatusCode typeless_record( DataObject* obj, const std::string& key,
-			      const void* const raw_ptr,
-			      bool allowMods, bool resetOnly,
-			      bool noHist,
-                              const std::type_info* tinfo);
-
-  /// real recording of an object with a key, allow possibility of
-  /// specifying const-access
-  StatusCode record_impl( DataObject* obj, const std::string& key,
-			  const void* const raw_ptr,
-			  bool allowMods, bool resetOnly, bool allowOverwrite,
-                          const std::type_info* tinfo);
-
-			  
-  /// release object held by proxy, if any. Gives up ownership 
-  /// (somebody else must take charge)
-  void releaseObject(const CLID& id, const std::string& key);
-
-  /// use to reset a proxy (clearing the data object it contains)
-  /// Unlike DataProxy::reset this method correctly updates SGSvc internals
-  void clearProxyPayload(SG::DataProxy*);
-
-  ///////////////////////////////////////////////////////////////////////
-  SG::DataProxy* locatePersistent(const SG::TransientAddress* tAddr,
-				  bool checkValid = false) const;
 
   ///access proxyRange()
   friend class AthenaOutputStream;
   ///return a range to all proxies of a given CLID
   StatusCode proxyRange(const CLID& id,
-			SG::ConstProxyIterator& beg,
-			SG::ConstProxyIterator& end) const; 
-  
+                        SG::ConstProxyIterator& beg,
+                        SG::ConstProxyIterator& end) const; 
+
+  ///access releaseObject
+  friend class TileInfoLoader;
+  /// release object held by proxy, if any. Gives up ownership 
+  /// (somebody else must take charge)
+  void releaseObject(const CLID& id, const std::string& key);
+
+
   ///access  clearProxyPayload
   friend class IOVDbSvc;
   friend class IOVSvcTool;
@@ -871,7 +892,12 @@ private:
   AthenaInternal::py_sg_clearProxyPayload(StoreGateSvc*, SG::DataProxy*);
   friend class PerfMon::StorePayloadMon;
 
+  /// use to reset a proxy (clearing the data object it contains)
+  /// Unlike DataProxy::reset this method correctly updates SGSvc internals
+  void clearProxyPayload(SG::DataProxy*);
+
   ///access store()
+  friend class CondSvc;
   friend class IOVSvc;              // FIXME
   friend class PileUpMergeSvc;      // FIXME needs to call tRange
   friend class EventDumperSvc;
@@ -883,12 +909,24 @@ private:
   friend 
   PyObject* 
   AthenaInternal::recordObjectToStore(PyObject*,PyObject*,PyObject*,bool,bool,bool);
-						       
+  /// type-less recording of an object with a key, allow possibility of
+  /// specifying const-access and history record
+  StatusCode typeless_record( DataObject* obj, const std::string& key,
+                              const void* const raw_ptr,
+                              bool allowMods, bool resetOnly=true,
+                              bool noHist=false );
+  /// same as typeless_record, allows to ovewrite an object in memory or on disk
+  StatusCode typeless_overwrite( const CLID& id,
+                                 DataObject* obj, const std::string& key,
+                                 const void* const raw_ptr,
+                                 bool allowMods,
+                                 bool noHist=false,
+                                 const std::type_info* tinfo=0);
 
-  ///DEPRECATED: Return a _pointer_ to the DataStore
-  SG::DataStore* store();
-  const SG::DataStore* store() const;
-
+  //FIXME need to add wrapper like this class, to make relevant DataStore methods thread-safe
+  ///thread UNSAFE access to underlying DataStore. Use at your own risk
+  const SG::DataStore* store() const { return currentStore()->store(); }
+  SG::DataStore* store() { return currentStore()->store(); } ///< DEPRECATED                                                   
   bool isSymLinked(const CLID& linkID, SG::DataProxy* dp);
 
   StatusCode addSymLink(const CLID& linkid, SG::DataProxy* dp);
@@ -900,10 +938,10 @@ private:
 
   /// try to locate a proxy or create it if needed
   SG::DataProxy* setupProxy(const CLID& dataID, 
-			const std::string& gK, 
-			DataObject* pDObj,
-			bool allowMods,
-			bool resetOnly);
+                            const std::string& gK, 
+                            DataObject* pDObj,
+                            bool allowMods,
+                            bool resetOnly);
 
   ///put a bad (unrecordable) dobj away
   void recycle(DataObject* pBadDObj);  
@@ -912,13 +950,13 @@ private:
   
   ///name says it all
   bool bindHandleToProxy(const CLID& id, const std::string& key,
-			 IResetable* ir, SG::DataProxy*& dp);
+                         IResetable* ir, SG::DataProxy*& dp);
 
-   /// remove proxy from store, unless it is reset only. 	 
-   /// provide pTrans!=0 (must match proxy...) to save time
-   /// @param forceRemove remove the proxy no matter what 	 
+  /// remove proxy from store, unless it is reset only.         
+  /// provide pTrans!=0 (must match proxy...) to save time
+  /// @param forceRemove remove the proxy no matter what        
   StatusCode removeProxy(SG::DataProxy* proxy, const void* pTrans, 
-			 bool forceRemove=false);
+                         bool forceRemove=false);
   ///forwarded to DataStore
   StatusCode t2pRegister(const void* const pTrans, SG::DataProxy* const pPers);
   ///forwarded to DataStore
@@ -947,42 +985,12 @@ private:
   /// Only intended to be called by ActiveStoreSvc.
   void makeCurrent();
 
-  IIncidentSvc* m_pIncSvc;         
-  IClassIDSvc* m_pCLIDSvc;  
-  IConversionSvc* m_pDataLoader;   
-  IProxyProviderSvc* m_pPPS;
-  IHistorySvc* m_pHistorySvc;
-
-  SG::DataStore* m_pStore;             
-  std::list<DataObject*> m_trash;    ///< The Recycle Bin
-
-  bool m_DumpStore; ///< Dump Property flag: triggers dump() at EndEvent 
-  bool m_ActivateHistory; ///< Activate the history service
-
-  //  typedef std::list<std::string> StrList; 
-  StringArrayProperty m_folderNameList; ///< FolderNameList Property
+  bool m_DumpStore; ///<  property Dump: triggers dump() at EndEvent 
+  bool m_ActivateHistory; ///< property: activate the history service
 
   ///get the IOVSvc "just in time" (breaks recursion at initialize)
   IIOVSvc* getIIOVSvc();
   IIOVSvc* m_pIOVSvc;
-
-  bool m_storeLoaded;  ///< FIXME hack needed by loadEventProxies
-
-  SG::StringPool m_stringpool;
-
-  SG::RemapImpl* m_remap_impl;
-
-  ServiceHandle<IPageAccessControlSvc> m_pacSvc;
-  BooleanProperty m_monitorPageAccess; 
-
-  /// Allocation arena to associate with this store.
-  SG::Arena m_arena;
-  
-  /// a std::cout like stream with levels to log messages
-  mutable MsgStream m_msg;
-
-  /// EXPERTS ONLY: Property, allow record to overwrite existing data objects
-  bool m_allowOverwrite;
 
 public:
   ///////////////////////////////////////////////////////////////////////
@@ -990,55 +998,49 @@ public:
   //@{
   /// DEPRECATED: Retrieve the default object into a const DataHandle
   template <typename T> 
-  StatusCode retrieve(const DataHandle<T>& handle);
+  StatusCode __attribute__((deprecated)) retrieve(const DataHandle<T>& handle);
 
   /// DEPRECATED: Retrieve the default object into a DataHandle
   template <typename T> 
-  StatusCode retrieve(DataHandle<T>& handle);
+  StatusCode __attribute__((deprecated)) retrieve(DataHandle<T>& handle);
 
   /// DEPRECATED: Retrieve an object with "key", into a const DataHandle
   template <typename T, typename TKEY> 
-  StatusCode retrieve(const DataHandle<T>& handle, const TKEY& key);
+  StatusCode __attribute__((deprecated)) retrieve(const DataHandle<T>& handle, const TKEY& key);
   /// DEPRECATED: Retrieve an object with "key", into a DataHandle
   template <typename T, typename TKEY> 
-  StatusCode retrieve(DataHandle<T>& handle, const TKEY& key);
+  StatusCode __attribute__((deprecated)) retrieve(DataHandle<T>& handle, const TKEY& key);
 
   /// DEPRECATED Retrieve all objects of type T: use iterators version instead
   template <typename T> 
-  StatusCode retrieve(const DataHandle<T>& begin, 
-		      const DataHandle<T>& end);
+  StatusCode __attribute__((deprecated)) retrieve(const DataHandle<T>& begin, 
+                                                  const DataHandle<T>& end);
   /// DEPRECATED, use version taking ref to vector
   template <typename T>
   std::vector<std::string> //FIXME inefficient. Should take ref to vector
-  keys(bool allKeys = false); 
+  __attribute__((deprecated)) keys(bool allKeys = false); 
  
   /// DEPRECATED, use version taking ref to vector
   std::vector<std::string> //FIXME inefficient. Should take ref to vector 
-  keys(const CLID& id, bool allKeys = false);
+  __attribute__((deprecated)) keys(const CLID& id, bool allKeys = false);
 
   /// DEPRECATED:  use recordAddress instead
-  inline 
-  StatusCode createProxy(IOpaqueAddress* pAddress, bool clearAddressFlag=true);
+  StatusCode __attribute__((deprecated)) createProxy(IOpaqueAddress* pAddress, bool clearAddressFlag=true) {
+    return recordAddress(pAddress, clearAddressFlag);
+  }  
 
-  /// OBSOLETE try to locate a proxy or create it if needed
-  /// use new signature with two bool flags
-  SG::DataProxy* setupProxy(const CLID& dataID, 
-			const std::string& gK, 
-			DataObject* pDObj);
-  //@}
-
-  /// \name Obsolete and Deprecated methods 
-  //@{
   /// DEPRECATED put a dobj pointer in a bucket as appropriate
   /// see tools/StorableConversion.h for replacement
   template <typename T>
   static 
-  DataObject* asStorable(T* pDObj);
+  DataObject* __attribute__((deprecated)) asStorable(T* pDObj);
+
   /// DEPRECATED gets a dobj pointer from a bucket as appropriate
   /// see tools/StorableConversion.h for replacement
   template <typename T>
   static 
-  bool fromStorable(DataObject* pObject, T*& pData);
+  bool __attribute__((deprecated)) fromStorable(DataObject* pObject, T*& pData);
+
   //@}
 
 
@@ -1058,37 +1060,22 @@ void SG_dump (StoreGateSvc* sg);
 //- PyGate: StoreGate access from python -------------------------------------
 template< class T >
 struct PyGate {
-// default object retrieval
-   static const T* retrieve( StoreGateSvc* psg ) {
-      const T* obj = 0;
-      if ( StatusCode::SUCCESS == psg->retrieve( obj ) )
-         return obj;
-      return 0;
-   }
+  // default object retrieval
+  static const T* retrieve( StoreGateSvc* psg ) {
+    const T* obj = 0;
+    if ( StatusCode::SUCCESS == psg->retrieve( obj ) )
+      return obj;
+    return 0;
+  }
 
-// object retrieval with string key
-   static const T* retrieve( StoreGateSvc* psg, const std::string& key ) {
-      const T* obj = 0;
-      if ( StatusCode::SUCCESS == psg->retrieve( obj, key ) )
-         return obj;
-      return 0;
-   }
+  // object retrieval with string key
+  static const T* retrieve( StoreGateSvc* psg, const std::string& key ) {
+    const T* obj = 0;
+    if ( StatusCode::SUCCESS == psg->retrieve( obj, key ) )
+      return obj;
+    return 0;
+  }
 };
 
-// inline methods
-inline
-bool 
-StoreGateSvc::msgLvl (const MSG::Level lvl) const 
-{ return m_msg.level() <= lvl; }
-
-inline
-MsgStream&
-StoreGateSvc::msg() const 
-{ return m_msg; }
-
-inline
-MsgStream&
-StoreGateSvc::msg (const MSG::Level lvl) const 
-{ return m_msg << lvl; }
-
+#endif //ATHENAHIVE
 #endif // STOREGATE_STOREGATESVC_H

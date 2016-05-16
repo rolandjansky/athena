@@ -1,114 +1,268 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// ReadHandle.icc
-// Implementation file for class SG::ReadHandle<T>
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+// $Id: ReadHandle.icc 726621 2016-02-27 20:03:45Z ssnyder $
+/**
+ * @file StoreGate/ReadHandle.icc
+ * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
+ * @date Updated: Feb, 2016
+ * @brief Handle class for reading from StoreGate.
+ */
+
 #ifndef STOREGATE_SG_READHANDLE_ICC
 #define STOREGATE_SG_READHANDLE_ICC 1
 
-// stl includes
+
+#include "StoreGate/exceptions.h"
+#include "SGTools/ClassID_traits.h"
 #include <stdexcept>
 
-// fwk includes
-#include "AthenaKernel/IProxyDict.h"
-#include "AthenaKernel/IResetable.h"
-
-// SGTools includes
-#include "SGTools/ClassID_traits.h"
-#include "SGTools/DataBucketBase.h"
-
-// StoreGate includes
-#include "StoreGate/VarHandleBase.h"
 
 namespace SG {
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
 
-// Constructors
-////////////////
+//************************************************************************
+// Constructors, etc.
+//
 
-/// Default constructor: 
-template <class T> 
-ReadHandle<T>::ReadHandle() : 
-  VarHandleBase()
-{ }
 
-/// Copy constructor: 
-template <class T> 
-ReadHandle<T>::ReadHandle(const ReadHandle& h):
-  VarHandleBase(h)
-{}
+/**
+ * @brief Default constructor.
+ *
+ * The handle will not be usable until a non-blank key is assigned.
+ */
+template <class T>
+inline
+ReadHandle<T>::ReadHandle()
+  : VarHandleBase(ClassID_traits<T>::ID(), Gaudi::DataHandle::Reader)
+{
+}
 
-/// Assignment operator: 
+
+/**
+ * @brief Constructor with full arguments.
+ * @param sgkey StoreGate key of the referenced object.
+ * @param storename Name of the referenced event store.
+ */
+template <class T>
+inline
+ReadHandle<T>::ReadHandle(const std::string& sgkey, 
+                          const std::string& storename /*= "StoreGateSvc"*/)
+  : VarHandleBase( ClassID_traits<T>::ID(),
+                   sgkey, Gaudi::DataHandle::Reader, storename )
+{
+}
+
+
+/**
+ * @brief Constructor from a ReadHandleKey.
+ * @param key The key object holding the clid/key/store.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ */
+template <class T>
+inline
+ReadHandle<T>::ReadHandle (const ReadHandleKey<T>& key)
+  : VarHandleBase (key)
+{
+}
+
+
+/**
+ * @brief Constructor from a ReadHandleKey and an explicit event context.
+ * @param key The key object holding the clid/key.
+ * @param ctx The event context.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ *
+ * If the default event store has been requested, then the thread-specific
+ * store from the event context will be used.
+ */
+template <class T>
+inline
+ReadHandle<T>::ReadHandle (const ReadHandleKey<T>& key,
+                           const EventContext& ctx)
+  : VarHandleBase (key, ctx)
+{
+}
+
+
+/**
+ * @brief Copy constructor.
+ */
+template <class T>
+inline
+ReadHandle<T>::ReadHandle(const ReadHandle& h)
+  : VarHandleBase(h)
+{
+}
+
+
+/**
+ * @brief Move constructor.
+ */
+template <class T>
+inline
+ReadHandle<T>::ReadHandle(ReadHandle&& h)
+  : VarHandleBase(std::move(h))
+{
+}
+
+
+/**
+ * @brief Assignment operator.
+ */
 template <class T>
 ReadHandle<T>& 
 ReadHandle<T>::ReadHandle::operator= (const ReadHandle& h)
 {
-  if (this != &h) {
+  if (this != &h)
     this->VarHandleBase::operator=(h);
-  }
   return *this;
 }
 
-/// Copy constructor: 
-template <class T> 
-ReadHandle<T>::ReadHandle(ReadHandle&& h):
-  VarHandleBase(std::move(h))
-{}
-
-/// Assignment operator: 
+/**
+ * @brief Move operator.
+ */
 template <class T>
+inline
 ReadHandle<T>& 
 ReadHandle<T>::ReadHandle::operator= (ReadHandle&& h)
 {
-  if (this != &h) {
+  if (this != &h)
     this->VarHandleBase::operator=(std::move(h));
-  }
   return *this;
 }
 
-/// retrieve a proxy of name `name` from evtStore
+
+/**
+ * @brief Derefence the pointer.
+ * Throws ExcNullReadHandle on failure.
+ */
 template <class T>
-ReadHandle<T>::ReadHandle(const IInterface* /*iface*/,
-              const std::string& name) :
-  VarHandleBase( name )
-{}
+inline
+typename ReadHandle<T>::const_pointer_type
+ReadHandle<T>::operator->()
+{
+  return checkedCPtr();
+}
 
-/// retrieve a proxy of name `name` from evtStore
+
+/**
+ * @brief Derefence the pointer.
+ * Throws ExcNullReadHandle on failure.
+ */
 template <class T>
-ReadHandle<T>::ReadHandle(const IInterface* /*iface*/,
-              const std::string& name,
-              const std::string& store) :
-  VarHandleBase( name, store )
-{}
+inline
+typename ReadHandle<T>::const_reference_type
+ReadHandle<T>::operator*()
+{
+  return *checkedCPtr();
+}
 
 
-/// retrieve a proxy of name `name` from evtStore
+/**
+ * @brief Dereference the pointer.
+ * Returns nullptr on failure.
+ */
 template <class T>
-ReadHandle<T>::ReadHandle(const std::string& name) :
-  VarHandleBase( name )
-{}
+inline
+typename ReadHandle<T>::const_pointer_type
+ReadHandle<T>::cptr()
+{
+  return reinterpret_cast<const_pointer_type>(this->typeless_cptr());
+}
 
-/// retrieve a proxy of name `name` from store `store`
+
+/**
+ * @brief Dereference the pointer.
+ * Returns nullptr on failure.
+ */
 template <class T>
-ReadHandle<T>::ReadHandle(const std::string& name,
-              const std::string& store) :
-  VarHandleBase( name, store )
-{}
+inline
+typename ReadHandle<T>::const_pointer_type
+ReadHandle<T>::ptr() 
+{
+  return cptr();
+}
 
-/// Destructor: 
-template <class T> 
-ReadHandle<T>::~ReadHandle()
-{ 
-} 
+
+/**
+ * @brief Return the cached pointer directly; no lookup.
+ */
+template <class T>
+inline
+typename ReadHandle<T>::const_pointer_type
+ReadHandle<T>::cachedPtr() const
+{
+  return reinterpret_cast<const_pointer_type>(this->m_ptr);
+}
+
+
+/**
+ * @brief Can the handle be successfully dereferenced?
+ */
+template <class T>
+inline
+bool ReadHandle<T>::isValid()
+{
+  return 0 != this->typeless_cptr(); 
+}
+
+
+/**
+ * @brief Helper: dereference the pointer.
+ * Throws ExcNullReadHandle on failure.
+ */
+template <class T>
+inline
+typename ReadHandle<T>::const_pointer_type
+ReadHandle<T>::checkedCPtr()
+{
+  const_pointer_type p = this->cptr();
+  if (!p)
+    throwExcNullReadHandle (clid(), key(), store());
+  return p;
+}
+
+
+/**
+ * @brief Return a @c ReadHandle referencing @c key.
+ * @param key The key object holding the clid/key/store.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ */
+template <class T>
+ReadHandle<T> makeHandle (const ReadHandleKey<T>& key)
+{
+  return ReadHandle<T> (key);
+}
+
+
+/**
+ * @brief Return a @c ReadHandle referencing @c key for an explicit context.
+ * @param key The key object holding the clid/key/store.
+ * @param ctx The event context.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ *
+ * If the default event store has been requested, then the thread-specific
+ * store from the event context will be used.
+ */
+template <class T>
+ReadHandle<T> makeHandle (const ReadHandleKey<T>& key,
+                          const EventContext& ctx)
+{
+  return ReadHandle<T> (key, ctx);
+}
+
 
 } /* namespace SG */
+
 
 #endif //> !STOREGATE_SG_READHANDLE_ICC

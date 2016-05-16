@@ -10,6 +10,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TransientAddress.h"
 #include "SGTools/DataProxy.h"
+#include "SGTools/StorableConversions.h"
 
 #include <algorithm>
 #include <cassert>
@@ -56,7 +57,7 @@ namespace Athena_test {
     SGASSERTERROR(emptyProxy.isValid());
     //delete emProxy;
     //init with a valid proxy
-    DataProxy* pMyProxy(new DataProxy(StoreGateSvc::asStorable(new MyDataObj),
+    DataProxy* pMyProxy(new DataProxy(SG::asStorable(new MyDataObj),
 				      new TransientAddress(CLID(8000), "foo")));
     DataHandle<MyDataObj> hMy(pMyProxy);
     assert(hMy.isValid());
@@ -94,7 +95,7 @@ namespace Athena_test {
     SGASSERTERROR(emptyProxy.isValid());
     //delete emProxy;
     //init with a valid proxy
-    DataProxy* pMyProxy(new DataProxy(StoreGateSvc::asStorable(new MyDataObj),
+    DataProxy* pMyProxy(new DataProxy(SG::asStorable(new MyDataObj),
 				      new TransientAddress(CLID(8000), "foo")));
     DataHandle<MyDataObj> hMy(pMyProxy);
     assert(hMy.isValid());

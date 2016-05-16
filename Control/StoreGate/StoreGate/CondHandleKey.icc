@@ -1,0 +1,86 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+namespace SG {
+  
+  template <class T>
+  CondHandleKey<T>::CondHandleKey(const std::string& key, 
+                                  const std::string& dbKey,
+                                  Gaudi::DataHandle::Mode mode ) :
+    VarHandleKey(ClassID_traits<T>::ID(), key, mode,
+                 "StoreGateSvc/ConditionStore"),
+    m_cs("StoreGateSvc/ConditionStore","CondHandleKey"),
+    m_dbKey(dbKey)
+  {}
+
+  //---------------------------------------------------------------------------  
+  
+  template <class T>
+  StatusCode
+  CondHandleKey<T>::initialize() {
+    if (m_isInit) return StatusCode::SUCCESS;
+    
+
+    if (VarHandleKey::initialize() != StatusCode::SUCCESS) {
+      return StatusCode::FAILURE;
+    }
+
+    if (!m_cs.isValid()) {
+      MsgStream msg(Athena::getMessageSvc(), "CondHandleKey");
+      msg << MSG::ERROR 
+          << "CondHandleKey::initialize() :Unable to locate ConditionStore " 
+          << m_cs.name()
+          << endmsg;
+      return StatusCode::FAILURE;
+    }
+
+    
+    if (m_cs->contains< CondCont<T> > (Gaudi::DataHandle::objKey())) {      
+      if (m_cs->retrieve(m_cc, Gaudi::DataHandle::objKey()).isFailure()) {
+        MsgStream msg(Athena::getMessageSvc(), "CondHandleKey");
+        msg << MSG::ERROR 
+            << "CondHandleKey::init(): unable to retrieve CondCont of "
+            << Gaudi::DataHandle::fullKey() << " from ConditionStore" 
+            << endmsg;
+        return StatusCode::FAILURE;
+      }
+    } else {
+      m_cc = new CondCont<T>(Gaudi::DataHandle::fullKey());
+      if (m_cs->record(m_cc, Gaudi::DataHandle::objKey()).isFailure()) {
+        MsgStream msg(Athena::getMessageSvc(), "CondHandleKey");
+        msg << MSG::ERROR 
+            << "CondHandleKey::init(): unable to record empty CondCont of " 
+            << Gaudi::DataHandle::fullKey() << " in ConditionStore" << endmsg;
+        delete m_cc;
+        m_cc = 0;
+        return StatusCode::FAILURE;
+      }
+    }
+
+
+    m_isInit = true;
+
+    return StatusCode::SUCCESS;
+
+  }
+
+  //---------------------------------------------------------------------------
+
+  template <class T>
+  StoreGateSvc* 
+  CondHandleKey<T>::getCS() const {
+    if (!m_cs.isValid()) {
+      MsgStream msg(Athena::getMessageSvc(), "CondHandleKey");
+      msg << MSG::ERROR 
+          << "CondHandleKey::getCS() : Unable to locate ConditionStore" 
+          << endmsg;
+      return 0;
+    }
+
+    return m_cs.get();
+  }
+
+
+}

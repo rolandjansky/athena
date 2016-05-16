@@ -29,6 +29,7 @@
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/SGWPtr.h"
 #include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadHandle.h"
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataStore.h"
@@ -54,8 +55,8 @@ public:
   int i() const { return m_i; }
   ~Foo() {
 #ifdef MAKEITBOMB
-    int* ifg(0);
-    std::cout << *ifg << std::endl; 
+    //int* ifg(0);
+    //std::cout << *ifg << std::endl; 
 #endif
     //    std::cout << "~Foo @" << this << " i() " << i() << std::endl;
   }
@@ -226,7 +227,6 @@ namespace Athena_test
     /// Test overwriting.
     assert (rSG.record(new Foo(101), "ow").isSuccess());
     assert (rSG.overwrite(new Foo(102), "ow").isSuccess());
-    //    assert (rSG.record(new Foo(1002), "ow").isSuccess());
 #if __cplusplus > 201100
     assert (rSG.overwrite(make_unique<Foo>(103), "ow").isSuccess());
 #else
@@ -312,9 +312,8 @@ namespace Athena_test
     assert (1 == count(unids.begin(), unids.end(), ClassID_traits<Base>::ID()));
     assert (2 == rSG.clids("UnLocked").size());
 
-    const DataHandle<Base> hB;
-    assert(rSG.retrieve(hB, "UnLocked").isSuccess());
-    assert(!hB.isConst());
+    Base* pB;
+    assert(rSG.retrieve(pB, "UnLocked").isSuccess());
 
     //FIXME this will work when we'll have the inher tree from reflection
     //FIXME    SGASSERTERROR(rSG.symLink(ClassID_traits<Foo>::ID(), 
@@ -333,6 +332,7 @@ namespace Athena_test
     assert(rSG.retrieve(base, "UnLocked").isSuccess());
     SGASSERTERROR(rSG.retrieve(base, "modSully").isSuccess());
 
+#ifdef TEST_DEPRECATED
     const DataHandle<Base> chBase;
     assert(rSG.retrieve(chBase).isSuccess());
     assert(rSG.retrieve(chBase, "UnLocked").isSuccess());
@@ -344,6 +344,7 @@ namespace Athena_test
     const DataHandle<Base> chBaseBeg, chBaseEnd;
     assert(rSG.retrieve(chBaseBeg, chBaseEnd).isSuccess());
     assert(chBaseBeg != chBaseEnd);
+#endif
 #ifdef DHR_COMPILEERROR
     DataHandle<Base> hBaseBeg, hBaseEnd;
     assert(rSG.retrieve(hBaseBeg, hBaseEnd).isSuccess());
@@ -375,7 +376,9 @@ namespace Athena_test
     SG::DataProxy* dp = sg.proxy (ClassID_traits<D1>::ID(), std::string("d1"));
     assert (dp != 0);
     assert (dp->refCount() == 2); // since auto-symLink made
-    assert (dp->store() == &sg);
+    std::cout << dp->store() << std::endl;
+    std::cout << &sg << sg.name()  << std::endl;
+    //    assert (dp->store() == &sg);
 
     // create alias with type, key
     assert (sg.setAlias(d1, "d1Alias").isSuccess());
@@ -430,7 +433,8 @@ namespace Athena_test
     assert (0 == sg.proxy (b1a));
 
     // print all keys 
-    std::vector<std::string> keyList = sg.keys<D1>(true);
+    std::vector<std::string> keyList;
+    sg.keys<D1>(keyList, true);
     std::vector<std::string>::const_iterator iter = keyList.begin();
     for (; iter != keyList.end(); iter++) {
       std::cout << "Found key = " << *iter << " for object D1 in StoreGate " 
@@ -627,6 +631,7 @@ namespace Athena_test {
     assert (rSG.retrieve<const Foo> ("UnLocked") == cFoo);
     SGASSERTERROR(rSG.retrieve<const Foo> ("UnLockedxxx") != 0);
 
+#ifdef TEST_DEPRECATED
     const DataHandle<Foo> chFoo;
     const DataHandle<NotThere> chNotThere;
     SGASSERTERROR(rSG.retrieve(chFoo).isSuccess());
@@ -641,13 +646,14 @@ namespace Athena_test {
     assert(rSG.retrieve(hFoo, "silly").isSuccess());
     assert(rSG.setConst(hFoo.cptr()).isSuccess());
     SGASSERTERROR(rSG.retrieve(hFoo, "silly").isSuccess());
+#endif
 
-    const DataHandle<Foo> chFooBeg, chFooEnd;
-    assert(rSG.retrieve(chFooBeg, chFooEnd).isSuccess());
-    assert(chFooBeg != chFooEnd);
-    const DataHandle<NotThere> chNotThereBeg, chNotThereEnd;
-    assert(rSG.retrieve(chNotThereBeg, chNotThereEnd).isFailure());
-    assert(chNotThereBeg == chNotThereEnd);
+    SG::ConstIterator<Foo> ciFooBeg, ciFooEnd;
+    assert(rSG.retrieve(ciFooBeg, ciFooEnd).isSuccess());
+    assert(ciFooBeg != ciFooEnd);
+    SG::ConstIterator<NotThere> ciNotThereBeg, ciNotThereEnd;
+    assert(rSG.retrieve(ciNotThereBeg, ciNotThereEnd).isFailure());
+    assert(ciNotThereBeg == ciNotThereEnd);
 
     cout << "*** StoreGateSvcClient_test retrieve OK ***\n\n" <<endl;
   }
@@ -774,15 +780,27 @@ namespace Athena_test {
   void testVersionedKey(::StoreGateSvc& rSG) 
   {  
     cout << "\n*** StoreGateSvcClient_test VersionedKey BEGINS ***" << endl;
+    //start by creating an unversioned object to test handling of legacy keys
+    assert(rSG.record(new Foo(11), "aVersObj").isSuccess());
+    const Foo* pFoo(0);
+    assert(0 != (pFoo = rSG.retrieve<Foo>("aVersObj")));
+    assert(pFoo->i() == 11);
+    
+    //try to put a VersionedKey on top
     VersionedKey myKey("aVersObj", 77);
     assert(rSG.record(new Foo(77), (std::string)myKey).isSuccess());
     const Foo* pFoo77(0);
     assert(0 != (pFoo77 = rSG.retrieve<Foo>(myKey)));
     assert(pFoo77->i() == 77);
     //test that we can retrieve the same object with an unversioned key
-    const Foo* pFoo(0);
     assert(0 != (pFoo = rSG.retrieve<Foo>("aVersObj")));
     assert(pFoo->i() == 77);
+    
+    //check we can retrieve the old object with a default unversioned key
+    VersionedKey defVK("aVersObj");
+    assert(0 != (pFoo = rSG.retrieve<Foo>((std::string)defVK)));
+    assert(pFoo->i() == 11);
+
 
     const std::string baseKey("aVersObj");
     VersionedKey my2Key(baseKey, 88);
@@ -795,12 +813,13 @@ namespace Athena_test {
     VersionedKey my3Key(baseKey, 66);
     assert(rSG.record(new Foo(66), (std::string)my3Key).isSuccess());
 
-    //test that we can still retrieve the first object with an unversioned key.
-    //Notice how a generic retrieve will always return the first recorded
+    //test that a generic retrieve now returns the third recorded object
+    //Notice how a generic retrieve will always return the last recorded
     //object with that key, independent from the numeric value of its version
-    //This is ill-defined and should not be relied upon
     assert(0 != (pFoo = rSG.retrieve<Foo>(baseKey)));
-    assert(pFoo->i() == 77);
+    assert(pFoo->i() == 66);
+
+    
 
     std::list<SG::ObjectWithVersion<Foo> > allVersions;
     assert(rSG.retrieveAllVersions(allVersions, baseKey));
@@ -828,8 +847,7 @@ namespace Athena_test {
     //    copy(keys.begin(), keys.end(),ostream_iterator<string>(cout," - "));
     //    cout << endl;
     assert(4==keys.size());
-    //DEPRECATED version
-    keys = rSG.keys<Foo>(/*allKeys=*/true);
+    rSG.keys<Foo>(keys, /*allKeys=*/true);
     //    copy(keys.begin(), keys.end(),ostream_iterator<string>(cout," - "));
     //    cout << endl;
     assert(5==keys.size());
@@ -912,9 +930,11 @@ namespace Athena_test {
     SGASSERTERROR( (cpVec=rSG.constRetrieveAux<TestVector<BX> >("ErrorVec")) ); 
     
     //deprecated but we need to test it nonetheless...
+#ifdef TEST_DEPRECATED
     DataHandle<TestVector<BBX> > hBBX;
     assert(rSG.retrieve(hBBX, "BBVec").isSuccess());    
-
+#endif
+    
     // Test standalone object.
     BX* pb = new BX;
     assert(rSG.record(pb, "BStand").isSuccess());
@@ -955,5 +975,36 @@ namespace Athena_test {
 #endif
 
 
+  void testBoundReset(StoreGateSvc& rSG)
+  {
+    cout << "\n*** StoreGateSvcClient_test testBoundReset BEGINS ***" << endl;
+    rSG.commitNewDataObjects();
+
+    {
+      SG::WriteHandle<int> h ("testBoundReset", rSG.name());
+      h = CxxUtils::make_unique<int> (10);
+      assert (h.isValid());
+      assert (*h.cachedPtr() == 10);
+      rSG.commitNewDataObjects();
+      assert (h.cachedPtr() == nullptr);
+    }
+
+    {
+      SG::ReadHandle<int> h ("testBoundReset", rSG.name());
+      assert (h.isValid());
+      assert (*h.cachedPtr() == 10);
+    }
+
+    // Force the existing proxy to be deleted.
+    assert (rSG.overwrite (CxxUtils::make_unique<int> (20),
+                           "testBoundReset",
+                           true));
+    rSG.commitNewDataObjects();
+
+    cout << "\n*** StoreGateSvcClient_test testBoundReset OK ***\n\n" << endl;
+  }
+
+
 } //end namespace
 #endif /*NOGAUDI*/
+ 

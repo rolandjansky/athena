@@ -1,33 +1,32 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
+// This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// ReadHandle.h 
-// Header file for class SG::ReadHandle<T>
-/////////////////////////////////////////////////////////////////// 
+// $Id: ReadHandle.h 726621 2016-02-27 20:03:45Z ssnyder $
+/**
+ * @file StoreGate/ReadHandle.h
+ * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
+ * @date Updated: Feb, 2016
+ * @brief Handle class for reading from StoreGate.
+ */
+
 #ifndef STOREGATE_SG_READHANDLE_H
 #define STOREGATE_SG_READHANDLE_H 1
 
-// STL includes
+
+#include "StoreGate/VarHandleBase.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "SGTools/ClassID_traits.h"
+#include "GaudiKernel/EventContext.h"
 #include <string>
 
-// fwk includes
-#include "GaudiKernel/IInterface.h"
-#include "AthenaKernel/IProxyDict.h"
-#include "AthenaKernel/IResetable.h"
-
-// SGTools includes
-#include "SGTools/ClassID_traits.h"
-
-// StoreGate includes
-#include "StoreGate/VarHandleBase.h"
-
-// Forward declaration
 
 
 namespace SG {
+
+
 /**
  * @class SG::ReadHandle<T>
  * @brief a smart pointer to an object of a given type in an @c IProxyDict (such
@@ -60,110 +59,178 @@ namespace SG {
  *   }
  * @endcode
  *
- * For more informations have a look under the package
+ * For more information have a look under the package
  *     Control/AthenaExamples/AthExHelloWorld
  *
  */
 template <class T>
-class ReadHandle : public SG::VarHandleBase
+class ReadHandle
+  : public SG::VarHandleBase
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public typedefs: 
-  /////////////////////////////////////////////////////////////////// 
 public: 
   typedef T*               pointer_type; // FIXME: better handling of
   typedef const T*   const_pointer_type; //        qualified T type ?
   typedef T&             reference_type;
   typedef const T& const_reference_type;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
-public: 
 
-  /// Default constructor: 
+  //************************************************************************
+  // Constructors, etc.
+  //
+
+
+  /**
+   * @brief Default constructor.
+   *
+   * The handle will not be usable until a non-blank key is assigned.
+   */
   ReadHandle();
 
-  /// Copy constructors: 
+
+  /**
+   * @brief Constructor with full arguments.
+   * @param sgkey StoreGate key of the referenced object.
+   * @param storename Name of the referenced event store.
+   */
+  explicit ReadHandle(const std::string& sgkey, 
+                      const std::string& storename = "StoreGateSvc");
+
+
+  /**
+   * @brief Constructor from a ReadHandleKey.
+   * @param key The key object holding the clid/key/store.
+   *
+   * This will raise an exception if the StoreGate key is blank,
+   * or if the event store cannot be found.
+   */
+  explicit ReadHandle (const ReadHandleKey<T>& key);
+
+
+  /**
+   * @brief Constructor from a ReadHandleKey and an explicit event context.
+   * @param key The key object holding the clid/key.
+   * @param ctx The event context.
+   *
+   * This will raise an exception if the StoreGate key is blank,
+   * or if the event store cannot be found.
+   *
+   * If the default event store has been requested, then the thread-specific
+   * store from the event context will be used.
+   */
+  explicit ReadHandle (const ReadHandleKey<T>& key, const EventContext& ctx);
+
+
+  /**
+   * @brief Copy constructor.
+   */
   ReadHandle( const ReadHandle& rhs );
+
+
+  /**
+   * @brief Move constructor.
+   */
   ReadHandle( ReadHandle&& rhs );
 
-  /// Assignment operators: 
+
+  /**
+   * @brief Assignment operator.
+   */
   ReadHandle& operator=( const ReadHandle& rhs ); 
+
+
+  /**
+   * @brief Move operator.
+   */
   ReadHandle& operator=( ReadHandle&& rhs ); 
 
-  /// Constructor with parameters: 
 
-  //explicit ReadHandle(SG::DataProxy* proxy); ///< 
+  //************************************************************************
+  // Dereference.
+  //
 
-  /// retrieve a proxy of name `name` from evtStore (via component `component`)
-  ReadHandle(const IInterface* component,
-	     const std::string& name);
-
-  /// retrieve a proxy of name `name` from store `store`
-  ReadHandle(const IInterface* component,
-	     const std::string& name, 
-	     const std::string& store);
-
-  /// retrieve a proxy of name `name` from evtStore
-  explicit ReadHandle(const std::string& name);
-
-  /// retrieve a proxy of name `name` from store `store`
-  ReadHandle(const std::string& name, 
-	     const std::string& store);
-
-  /// retrieve a proxy of name `name` from store `store`
-  //ReadHandle(const std::string& name, IProxyDict* store);
-
-  /// Destructor: 
-  virtual ~ReadHandle(); 
-
-  /// \name access to the underlying ptr
-  //@{
-  const_pointer_type  operator->() const   { return  cptr(); }
-  const_reference_type operator*() const   { return *cptr(); }   
-
-   ///< safer explicit ptr accessor 
-  const_pointer_type cptr() const
-  { return reinterpret_cast<const_pointer_type>(this->typeless_cptr()); }
-
-  ///< safer explicit ptr accessor 
-  const_pointer_type ptr() 
-  { return cptr(); }
-
-  //@}
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /// the CLID of the object we are bound to
-  virtual CLID clid() const { return ClassID_traits<T>::ID(); }
-
-  /// the mode of the underlying handle (reader|writer|updater)
-  virtual Mode mode() const { return SG::VarHandleBase::Reader; }
-
-  /// is the proxy state valid for this handle?
-  virtual bool isValid() const
-  { 
-    return 0 != this->typeless_cptr(); 
-  }
+  
+  /**
+   * @brief Derefence the pointer.
+   * Throws ExcNullReadHandle on failure.
+   */
+  const_pointer_type  operator->();
 
 
+  /**
+   * @brief Derefence the pointer.
+   * Throws ExcNullReadHandle on failure.
+   */
+  const_reference_type operator*();
+
+
+  /**
+   * @brief Dereference the pointer.
+   * Returns nullptr on failure.
+   */
+  const_pointer_type cptr();
+
+
+  /**
+   * @brief Dereference the pointer.
+   * Returns nullptr on failure.
+   */
+  const_pointer_type ptr();
+
+
+  /**
+   * @brief Return the cached pointer directly; no lookup.
+   */
+  const_pointer_type cachedPtr() const;
+
+
+  /**
+   * @brief Can the handle be successfully dereferenced?
+   */
+  virtual bool isValid() override final;
+
+  
+private:
+  /**
+   * @brief Helper: dereference the pointer.
+   * Throws ExcNullReadHandle on failure.
+   */
+  const_pointer_type checkedCPtr();
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-//std::ostream& operator<<( std::ostream& out, const ReadHandle& o );
+
+/**
+ * @brief Return a @c ReadHandle referencing @c key.
+ * @param key The key object holding the clid/key/store.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ */
+template <class T>
+ReadHandle<T> makeHandle (const ReadHandleKey<T>& key);
+
+
+/**
+ * @brief Return a @c ReadHandle referencing @c key for an explicit context.
+ * @param key The key object holding the clid/key/store.
+ * @param ctx The event context.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ *
+ * If the default event store has been requested, then the thread-specific
+ * store from the event context will be used.
+ */
+template <class T>
+ReadHandle<T> makeHandle (const ReadHandleKey<T>& key,
+                          const EventContext& ctx);
 
 
 } /* namespace SG */
 
-#ifndef STOREGATE_SG_READHANDLE_ICC
- #include "StoreGate/ReadHandle.icc"
-#endif
+
+
+#include "StoreGate/ReadHandle.icc"
+
 
 #ifndef NO_LEGACY_HANDLES
 namespace SG {

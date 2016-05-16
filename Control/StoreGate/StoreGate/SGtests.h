@@ -51,5 +51,7 @@ namespace Athena_test
 
   void testRetrieveAux(StoreGateSvc& rSG);
 
+  void testBoundReset(StoreGateSvc& rSG);
+
 } //end namespace
 #endif // TEST_SGTESTS_H

@@ -29,7 +29,7 @@ template <class TYPE> class SvcFactory;
  **/
 
 class SegMemSvc: public Service,
-	   public IIncidentListener {
+                 public IIncidentListener {
 
 public:
 
@@ -50,8 +50,8 @@ public:
   
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
   static const InterfaceID& interfaceID() { 
-    static const InterfaceID _IID("SegMemSvc", 1, 0);
-    return _IID; 
+    static const InterfaceID IID("SegMemSvc", 1, 0);
+    return IID; 
   }
 
   virtual void handle(const Incident&);

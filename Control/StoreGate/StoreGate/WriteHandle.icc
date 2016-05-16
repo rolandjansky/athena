@@ -1,139 +1,481 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// WriteHandle.icc
-// Implementation file for class SG::WriteHandle<T>
-/////////////////////////////////////////////////////////////////// 
+// $Id: WriteHandle.icc 726840 2016-02-29 16:43:53Z ssnyder $
+/**
+ * @file StoreGate/WriteHandle.icc
+ * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
+ * @date Updated: Feb, 2016
+ * @brief Handle class for recording to StoreGate.
+ */
+
 #ifndef STOREGATE_SG_WRITEHANDLE_ICC
 #define STOREGATE_SG_WRITEHANDLE_ICC 1
 
-// stl includes
+
+#include "StoreGate/exceptions.h"
+#include "SGTools/ClassID_traits.h"
+#include "AthenaKernel/errorcheck.h"
 #include <stdexcept>
 
-// fwk includes
-#include "AthenaKernel/IProxyDict.h"
-#include "AthenaKernel/IResetable.h"
-
-// SGTools includes
-#include "SGTools/ClassID_traits.h"
-#include "SGTools/DataBucketBase.h"
-
-// StoreGate includes
-#include "StoreGate/VarHandleBase.h"
-#include "StoreGate/StoreGateSvc.h"
 
 namespace SG {
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
 
-// Constructors
-////////////////
+//************************************************************************
+// Constructors, etc.
+//
 
-/// Default constructor: 
-template <class T> 
-WriteHandle<T>::WriteHandle() : 
-  VarHandleBase()
-{ }
 
-/// Copy constructor: 
-template <class T> 
-WriteHandle<T>::WriteHandle(const WriteHandle& h):
-  VarHandleBase(h)
-{}
-
-/// Assignment operator: 
+/**
+ * @brief Default constructor.
+ *
+ * The handle will not be usable until a non-blank key is assigned.
+ */
 template <class T>
-WriteHandle<T>& 
-WriteHandle<T>::WriteHandle::operator= (const WriteHandle& h)
+inline
+WriteHandle<T>::WriteHandle()
+  : VarHandleBase(ClassID_traits<T>::ID(), Gaudi::DataHandle::Writer)
 {
-  if (this != &h) {
+}
+
+
+/**
+ * @brief Constructor with full arguments.
+ * @param sgkey StoreGate key of the referenced object.
+ * @param storename Name of the referenced event store.
+ */
+template <class T>
+inline
+WriteHandle<T>::WriteHandle (const std::string& sgkey,
+                             const std::string& storename /* ="StoreGateSvc"*/)
+  : VarHandleBase (ClassID_traits<T>::ID(), sgkey,
+                   Gaudi::DataHandle::Writer, storename)
+{
+}
+
+
+/**
+ * @brief Constructor from a WriteHandleKey.
+ * @param key The key object holding the clid/key/store.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ */
+template <class T>
+inline
+WriteHandle<T>::WriteHandle (const WriteHandleKey<T>& key)
+  : VarHandleBase (key)
+{
+}
+
+
+/**
+ * @brief Constructor from a WriteHandleKey and an explicit event context.
+ * @param key The key object holding the clid/key.
+ * @param ctx The event context.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ *
+ * If the default event store has been requested, then the thread-specific
+ * store from the event context will be used.
+ */
+template <class T>
+inline
+WriteHandle<T>::WriteHandle (const WriteHandleKey<T>& key,
+                             const EventContext& ctx)
+  : VarHandleBase (key, ctx)
+{
+}
+
+
+/**
+ * @brief Copy constructor.
+ */
+template <class T>
+inline
+WriteHandle<T>::WriteHandle(const WriteHandle& h)
+  : VarHandleBase(h)
+{
+}
+
+
+/**
+ * @brief Move constructor.
+ */
+template <class T> 
+WriteHandle<T>::WriteHandle(WriteHandle&& h)
+  : VarHandleBase(std::move(h))
+{
+}
+
+
+/**
+ * @brief Assignment operator.
+ */
+template <class T>
+inline
+WriteHandle<T>& 
+WriteHandle<T>::operator= (const WriteHandle& h)
+{
+  if (this != &h)
     this->VarHandleBase::operator=(h);
-  }
   return *this;
 }
 
-/// Move constructor: 
-template <class T> 
-WriteHandle<T>::WriteHandle(WriteHandle&& h):
-  VarHandleBase(std::move(h))
-{}
 
-/// Assignment move operator: 
+/**
+ * @brief Move operator.
+ */
 template <class T>
+inline
 WriteHandle<T>& 
-WriteHandle<T>::WriteHandle::operator= (WriteHandle&& h)
+WriteHandle<T>::operator= (WriteHandle&& h)
 {
-  if (this != &h) {
+  if (this != &h)
     this->VarHandleBase::operator=(std::move(h));
+  return *this;
+}
+
+
+//************************************************************************
+// Deference.  These all return only the cached pointer.
+//
+
+
+/**
+ * @brief Derefence the pointer.
+ * Returns the cached pointer.  Throws ExcNullWriteHandle if null.
+ */
+template <class T>
+inline
+typename WriteHandle<T>::pointer_type
+WriteHandle<T>::operator->() const
+{
+  return WriteHandle<T>::checkedCachedPtr();
+}
+
+
+/**
+ * @brief Derefence the pointer.
+ * Returns the cached pointer.  Throws ExcNullWriteHandle if null.
+ */
+template <class T>
+inline
+typename WriteHandle<T>::reference_type
+WriteHandle<T>::operator*() const
+{
+  return *WriteHandle<T>::checkedCachedPtr();
+}
+
+
+/**
+ * @brief Dereference the pointer.
+ * Returns the cached pointer.
+ */
+template <class T>
+inline
+typename WriteHandle<T>::const_pointer_type
+WriteHandle<T>::cptr() const
+{
+  return cachedPtr();
+}
+
+
+/**
+ * @brief Dereference the pointer.
+ * Returns the cached pointer.
+ */
+template <class T>
+inline
+typename WriteHandle<T>::pointer_type
+WriteHandle<T>::ptr() const
+{
+  return cachedPtr();
+}
+
+
+/**
+ * @brief Return the cached pointer directly; no lookup.
+ */
+template <class T>
+inline
+typename WriteHandle<T>::pointer_type
+WriteHandle<T>::cachedPtr() const
+{
+  return reinterpret_cast<pointer_type>(this->m_ptr);
+}
+
+
+/**
+ * @brief Can the handle be successfully dereferenced?
+ */
+template <class T>
+inline
+bool WriteHandle<T>::isValid()
+{
+  return this->m_ptr != nullptr;
+}
+
+
+//************************************************************************
+// Record.
+
+
+/**
+ * @brief Record a const object to the store.
+ * @param data The object to record.
+ */
+template <class T>
+inline
+StatusCode
+WriteHandle<T>::WriteHandle::record (std::unique_ptr<T> data)
+{
+  return this->doRecord (std::move(data), true, false);
+}
+
+
+/**
+ * @brief Record a non-const object to the store.
+ * @param data The object to record.
+ * @param isConst If true, record the object as const.
+ */
+template <class T>
+inline
+StatusCode
+WriteHandle<T>::WriteHandle::recordNonConst (std::unique_ptr<T> data)
+{
+  return this->doRecord (std::move(data), false, false);
+}
+
+
+/**
+ * @brief Record a const object and its auxiliary store to the store.
+ * @param data The object to record.
+ * @param auxstore Auxiliary store object.
+ */
+template <class T>
+template <class AUXSTORE>
+inline
+StatusCode
+WriteHandle<T>::WriteHandle::record (std::unique_ptr<T> data,
+                                     std::unique_ptr<AUXSTORE> auxstore)
+{
+  return record (std::move(data), std::move(auxstore), true);
+}
+
+
+/**
+ * @brief Record a non-const object and its auxiliary store to the store.
+ * @param data The object to record.
+ * @param auxstore Auxiliary store object.
+ */
+template <class T>
+template <class AUXSTORE>
+inline
+StatusCode
+WriteHandle<T>::WriteHandle::recordNonConst (std::unique_ptr<T> data,
+                                             std::unique_ptr<AUXSTORE> auxstore)
+{
+  return record (std::move(data), std::move(auxstore), false);
+}
+
+
+/**
+ * @brief Record a const shared DataObject to the store.
+ * @param data The object to record.
+ *
+ * The event store takes shared ownership of the object.
+ */
+template <class T>
+inline
+StatusCode
+WriteHandle<T>::record (SG::DataObjectSharedPtr<T> data)
+{
+  return this->doRecord (std::move(data), true, false);
+}
+
+
+/**
+ * @brief Record a non-const shared DataObject to the store.
+ * @param data The object to record.
+ *
+ * The event store takes shared ownership of the object.
+ */
+template <class T>
+inline
+StatusCode
+WriteHandle<T>::recordNonConst (SG::DataObjectSharedPtr<T> data)
+{
+  return this->doRecord (std::move(data), false, false);
+}
+
+
+#if 0
+/**
+ * @brief Record a new non-const object, or retrieve an old one.
+ * @param data The object to record.
+ * @param isConst If true, record the objects as const.
+ *
+ * If no object for this handle's key exists already in StoreGate,
+ * then record @c data.
+ * Otherwise, if one exists and is non-const, then initialize
+ * the handle to refer to that object (and destroy @c data).
+ * Otherwise return an error.
+ *
+ * No const version of this method, since it then doesn't make sense
+ * to do that in multiple threads.
+ */
+template <class T>
+inline
+StatusCode
+WriteHandle<T>::recordOrRetrieve (std::unique_ptr<T> data)
+{
+  return this->doRecord (std::move(data), false, true);
+}
+#endif
+
+
+/**
+ * @brief Alternate notation for record.  Records a non-const object.
+ * @param data Object to record.
+ *
+ * Throws an execption on failure.
+ */
+template <class T>
+WriteHandle<T>& 
+WriteHandle<T>::operator= (std::unique_ptr<T> data)
+{
+  if (recordNonConst (std::move(data)).isFailure()) {
+    throw std::runtime_error ("WriteHandle<T>::operator=(unique_ptr) Record failed.");
   }
   return *this;
 }
 
+
+/**
+ * @brief Return the cached pointer directly.
+ *
+ * If it is null, throw ExcNullWriteHandle.
+ */
 template <class T>
-WriteHandle<T>& 
-WriteHandle<T>::WriteHandle::operator= (const T& data)
+typename WriteHandle<T>::pointer_type
+WriteHandle<T>::checkedCachedPtr() const
 {
-  if (!isInitialized()) {
-    throw std::logic_error
-      ("WriteHandle<T>::operator=(const T& data) called while un-initialized");
-  }
-  T* val = this->ptr();
-  if (!val) {
-    throw std::logic_error
-      ("WriteHandle<T>::operator=(const T& data) called while invalid");
-  }
+  if (!m_ptr)
+    throwExcNullWriteHandle (clid(), key(), store());
+  return cachedPtr();
+}
+
+
+/**
+ * @brief Helper for record.
+ * @param data The object to record.
+ * @param isConst If true, record the object as const.
+ * @param returnExisting Allow an existing object.
+ */
+template <class T>
+template <class U>
+StatusCode WriteHandle<T>::doRecord (U data,
+                                     bool isConst,
+                                     bool returnExisting)
+{
+  typedef typename U::element_type elt_t;
   
-  *val = data;
-  return *this;
+  // make sure the BaseInfo(Base) structure is initialized
+  SG::BaseInfo<elt_t>::baseinfo();
+
+  // If s_isConst is set for this type, then we want to automatically
+  // make it const when recorded.
+  bool allowMods = !isConst;
+  if (ClassID_traits<elt_t>::s_isConst)
+    allowMods = false;
+
+  void* dataPtr(data.get());
+  std::unique_ptr<DataObject> dobj (SG::asStorable (std::move (data)));
+  return this->record_impl (std::move(dobj), dataPtr, allowMods, returnExisting);
 }
 
+
+/**
+ * @brief Record an object and its auxiliary store to the store.
+ * @param data The object to record.
+ * @param auxstore Auxiliary store object.
+ * @param isConst If true, record the objects as const.
+ */
 template <class T>
-WriteHandle<T>& 
-WriteHandle<T>::WriteHandle::operator= (std::unique_ptr<T> data)
+template <class AUXSTORE>
+StatusCode
+WriteHandle<T>::record (std::unique_ptr<T> data,
+                        std::unique_ptr<AUXSTORE> auxstore,
+                        bool isConst)
 {
-  if (!isInitialized()) {
-    // record into storegate
-    StoreGateSvc& svc(dynamic_cast<StoreGateSvc&>(*m_store));
-    T* dataPtr(data.release());
-    m_ptr=(void*)dataPtr;
-    StatusCode sc = svc.record<T>(dataPtr, this->name());
-    if (sc.isSuccess()) sc = setState();
-    if (!(sc.isSuccess())) throw
-      std::runtime_error("WriteHandle<T>::operator=(unique_ptr) error initializing");
-  } else {
-    reset();
-    T* dataPtr(data.release());
-    m_ptr=(void*)dataPtr;
-    this->m_proxy->setObject(SG::asStorable<T>(dataPtr));
-    this->m_proxy->registerTransient(m_ptr);
+  T& dref = *data;
+
+  if (isConst)
+    CHECK (this->record(std::move(data)));
+  else
+    CHECK (this->recordNonConst(std::move(data)));
+
+  // Store and proxy must be valid if we get to this point.
+  
+  SG::DataObjectSharedPtr<DataObject> dobj
+    (SG::asStorable (std::move (auxstore)));
+  SG::DataProxy* proxy = m_store->recordObject (std::move(dobj),
+                                                this->name() + "Aux.",
+                                                !m_proxy->isConst(),
+                                                false);
+  if (!proxy) {
+    REPORT_ERROR (StatusCode::FAILURE)
+      << "recordObject of aux store failed";
+
+    // If we've failed here, then the aux store object has been deleted,
+    // but not the primary object.  Null out the store pointer to prevent
+    // having a dangling pointer to a deleted object.
+    dref.setStore (static_cast<SG::IConstAuxStore*>(nullptr));
+    return StatusCode::FAILURE;
   }
-  return *this;
+
+  return StatusCode::SUCCESS;
 }
 
-/// retrieve a proxy of name `name` from evtStore
-template <class T>
-WriteHandle<T>::WriteHandle(const std::string& name) :
-  VarHandleBase( name )
-{}
 
-/// retrieve a proxy of name `name` from store `store`
+/**
+ * @brief Return a @c WriteHandle referencing @c key.
+ * @param key The key object holding the clid/key/store.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ */
 template <class T>
-WriteHandle<T>::WriteHandle(const std::string& name,
-	      const std::string& store) :
-  VarHandleBase( name, store )
-{}
+WriteHandle<T> makeHandle (const WriteHandleKey<T>& key)
+{
+  return WriteHandle<T> (key);
+}
 
-/// Destructor: 
-template <class T> 
-WriteHandle<T>::~WriteHandle()
-{ 
-} 
+
+/**
+ * @brief Return a @c WriteHandle referencing @c key for an explicit context.
+ * @param key The key object holding the clid/key/store.
+ * @param ctx The event context.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ *
+ * If the default event store has been requested, then the thread-specific
+ * store from the event context will be used.
+ */
+template <class T>
+WriteHandle<T> makeHandle (const WriteHandleKey<T>& key,
+                           const EventContext& ctx)
+{
+  return WriteHandle<T> (key, ctx);
+}
+
 
 } /* namespace SG */
+
 
 #endif //> !STOREGATE_SG_WRITEHANDLE_ICC

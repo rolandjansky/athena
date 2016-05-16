@@ -7,19 +7,7 @@
 #ifndef STOREGATE_DATAHANDLE_ICC
 #define STOREGATE_DATAHANDLE_ICC
 
-#ifndef STOREGATE_DATAHANDLE_H
-# include "StoreGate/DataHandle.h"
-#endif
-
-#ifndef SGTOOLS_DATABUCKETBASE_H
-# include "SGTools/DataBucketBase.h"
-#endif
-
-#ifndef STOREGATE_ACTIVESTORESVC_H
-# include "StoreGate/ActiveStoreSvc.h"
-#endif
-
-#include <algorithm>          // for std::swap
+#include "SGTools/DataBucketBase.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTORS
@@ -85,23 +73,23 @@ DataHandle<DATA>::~DataHandle()
 template <class DATA> 
 const DataHandle<DATA>& 
 DataHandle<DATA>::operator++() const //prefix
-{	
+{       
   if (m_proxy) m_proxy->release();
   m_proxy = 0;
   m_ptr = 0;       // reset pointer to perform retrieveObject
 
-// set the iterator to the next valid proxy (or end)
+  // set the iterator to the next valid proxy (or end)
   if (m_useItr && m_itr != m_itrEnd)
-  {
-    while (m_itr != m_itrEnd) {
-      ++m_itr;
-      if (m_itr != m_itrEnd && m_itr->second->isValid() )
-      {
-         m_proxy = (*m_itr).second;
-	 break;
+    {
+      while (m_itr != m_itrEnd) {
+        ++m_itr;
+        if (m_itr != m_itrEnd && m_itr->second->isValid() )
+          {
+            m_proxy = (*m_itr).second;
+            break;
+          }
       }
     }
-  }
 
   if (m_proxy) m_proxy->addRef();
   return *this;
@@ -111,24 +99,24 @@ DataHandle<DATA>::operator++() const //prefix
 template <class DATA> 
 DataHandle<DATA> 
 DataHandle<DATA>::operator++ (int) const //postfix
-{	
+{       
   DataHandle<DATA> ret(*this);
   if (m_proxy) m_proxy->release();
   m_proxy = 0;
   m_ptr = 0;       // reset pointer to perform retrieveObject
 
-// set the iterator to the next valid proxy (or end)
+  // set the iterator to the next valid proxy (or end)
   if (m_useItr && m_itr != m_itrEnd)
-  {
-    while (m_itr != m_itrEnd) {
-      ++m_itr;
-      if (m_itr != m_itrEnd && m_itr->second->isValid() )
-      {
-         m_proxy = m_itr->second;
-	 break;
+    {
+      while (m_itr != m_itrEnd) {
+        ++m_itr;
+        if (m_itr != m_itrEnd && m_itr->second->isValid() )
+          {
+            m_proxy = m_itr->second;
+            break;
+          }
       }
     }
-  }
 
   if (m_proxy) m_proxy->addRef();
   return ret;

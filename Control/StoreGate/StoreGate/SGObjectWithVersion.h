@@ -17,7 +17,8 @@ namespace SG {
   /// The object is held by a DataHandle to delay its retrieval
   /// in case the user is interested only in the versionedKey
   template <typename T>
-  struct ObjectWithVersion {
+  class ObjectWithVersion {
+  public:
     ObjectWithVersion(): versionedKey(), dataObject() {}
     ObjectWithVersion(const ObjectWithVersion& rhs):
       versionedKey(rhs.versionedKey), dataObject(rhs.dataObject) {}
@@ -38,7 +39,7 @@ namespace SG {
 /// sort according to highest key version
 template <typename T>
 bool operator < (const SG::ObjectWithVersion<T>& lhs,
-		 const SG::ObjectWithVersion<T>& rhs) {
+                 const SG::ObjectWithVersion<T>& rhs) {
   return (lhs.versionedKey < rhs.versionedKey);
 }
 

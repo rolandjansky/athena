@@ -10,40 +10,13 @@
 #ifndef STOREGATE_DATAHANDLE_H
 #define STOREGATE_DATAHANDLE_H
 
-#ifndef SGTOOLS_DATABUCKET_H
-# include "SGTools/DataBucket.h"
-#endif
-
-#ifndef SGTOOLS_PROXYMAP_H
-# include "SGTools/ProxyMap.h"
-#endif
-
-#ifndef ATHENAKERNEL_IRESETABLE_H
-# include "AthenaKernel/IResetable.h"
-#endif
-
-#ifndef ATHENAKERNEL_IPROXYDICT_H
-# include "AthenaKernel/IProxyDict.h"
-#endif
-
-#ifndef SGTOOLS_DATAPROXY_H
-# include "SGTools/DataProxy.h"
-#endif
-
-#ifndef SGTOOLS_DATAHANDLEBASE_H
-# include "SGTools/DataHandleBase.h"
-#endif
-
-#ifndef _CPP_CSTDDEF
- #include <cstddef>  /*ptrdiff_t*/
-#endif
-#ifndef _CPP_ITERATOR
- #include <iterator>
-#endif
-
-// forward declaration
-class ActiveStoreSvc;
-class StoreGateSvc;
+#include "SGTools/DataBucket.h"
+#include "SGTools/ProxyMap.h"
+#include "AthenaKernel/IResetable.h"
+#include "AthenaKernel/IProxyDict.h"
+#include "SGTools/DataProxy.h"
+#include "SGTools/DataHandleBase.h"
+#include <iterator>
 
 template <typename DATA>
 class DataHandle;
@@ -109,7 +82,7 @@ public:
   }
 
   virtual ~DataHandle();  ///< unbind from the proxy before we go
-   //@}
+  //@}
 
   /// \name validity checks
   //@{
@@ -147,7 +120,11 @@ public:
   const_pointer_type cptr() const;   ///< safer explicit ptr accessor 
   pointer_type ptr();                ///< safer explicit ptr accessor 
 
-  void reset() { m_ptr = 0; }        ///< reset pointer
+  // Should be like this.
+  //virtual void reset (bool /*hard*/) override { m_ptr = 0; }        ///< reset pointer
+  // Temp workaround for TrigDecisionTool back-compat.
+  virtual void reset (bool /*hard*/) override { m_ptr = 0; reset(); }
+  virtual void reset () override { m_ptr = 0; }
   //@}
 
   /// \name other constructors and methods for SG internal use
@@ -159,7 +136,7 @@ public:
   //@}
 
   /// the CLID of the object we are bound to
-  virtual CLID clid() const { return ClassID_traits<DATA>::ID(); }
+  virtual CLID clid() const override { return ClassID_traits<DATA>::ID(); }
 
   friend
   bool operator==<>(const DataHandle<DATA>& h1,
@@ -179,21 +156,26 @@ private:
 //@{
 template <class DATA>
 bool operator==(const DataHandle<DATA>& h1,
-		const DataHandle<DATA>& h2)
+                const DataHandle<DATA>& h2)
 {
   return (h1.m_proxy == h2.m_proxy); 
 }
 template <class DATA>
 bool operator!=(const DataHandle<DATA>& h1,
-		const DataHandle<DATA>& h2)
+                const DataHandle<DATA>& h2)
 {
   return (h1.m_proxy != h2.m_proxy); 
 }
 //@}
 
 #ifndef STOREGATE_DATAHANDLE_ICC
- #include "StoreGate/DataHandle.icc"
+#include "StoreGate/DataHandle.icc"
 #endif
+
+/* FIXME LEGACY - No dependency on ActiveStoreSvc here, but a number of Muon AtlasEvent packages are 
+   getting the include through this one!!!! */
+
+#include "StoreGate/ActiveStoreSvc.h"
 
 #endif // STOREGATE_DATAHANDLE_H
 

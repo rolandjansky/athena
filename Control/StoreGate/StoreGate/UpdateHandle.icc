@@ -1,134 +1,306 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// UpdateHandle.icc
-// Implementation file for class SG::UpdateHandle<T>
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+// $Id: UpdateHandle.icc 726621 2016-02-27 20:03:45Z ssnyder $
+/**
+ * @file StoreGate/UpdateHandle.icc
+ * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
+ * @date Updated: Feb, 2016
+ * @brief Handle class for modifying an existing object in StoreGate.
+ */
+
 #ifndef STOREGATE_SG_UPDATEHANDLE_ICC
 #define STOREGATE_SG_UPDATEHANDLE_ICC 1
 
-// stl includes
+
+#include "StoreGate/exceptions.h"
+#include "SGTools/ClassID_traits.h"
 #include <stdexcept>
 
-// fwk includes
-#include "AthenaKernel/IProxyDict.h"
-#include "AthenaKernel/IResetable.h"
-
-// SGTools includes
-#include "SGTools/ClassID_traits.h"
-#include "SGTools/DataBucketBase.h"
-
-// StoreGate includes
-#include "StoreGate/VarHandleBase.h"
 
 namespace SG {
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
 
-// Constructors
-////////////////
-
-/// Default constructor: 
-template <class T> 
-UpdateHandle<T>::UpdateHandle() : 
-  VarHandleBase()
-{ }
-
-/// Copy constructor: 
-template <class T> 
-UpdateHandle<T>::UpdateHandle(const UpdateHandle& h):
-  VarHandleBase(h)
-{}
-
-/// Assignment operator: 
+/**
+ * @brief Default constructor.
+ *
+ * The handle will not be usable until a non-blank key is assigned.
+ */
 template <class T>
+inline
+UpdateHandle<T>::UpdateHandle() 
+  : VarHandleBase(ClassID_traits<T>::ID(), Gaudi::DataHandle::Updater),
+    m_updated(false)
+{
+}
+
+
+/**
+ * @brief Constructor with full arguments.
+ * @param sgkey StoreGate key of the referenced object.
+ * @param storename Name of the referenced event store.
+ */
+template <class T>
+inline
+UpdateHandle<T>::UpdateHandle(const std::string& sgkey,
+                              const std::string& storename /*= "StoreGateSvc"*/)
+  : VarHandleBase( ClassID_traits<T>::ID(),
+                   sgkey, Gaudi::DataHandle::Updater, storename ),
+    m_updated(false)
+{
+}
+
+
+/**
+ * @brief Constructor from an UpdateHandleKey.
+ * @param key The key object holding the clid/key/store.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ */
+template <class T>
+inline
+UpdateHandle<T>::UpdateHandle (const UpdateHandleKey<T>& key)
+  : VarHandleBase (key),
+    m_updated(false)
+{
+}
+
+
+/**
+ * @brief Constructor from an UpdateHandleKey and an explicit event context.
+ * @param key The key object holding the clid/key.
+ * @param ctx The event context.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ *
+ * If the default event store has been requested, then the thread-specific
+ * store from the event context will be used.
+ */
+template <class T>
+UpdateHandle<T>::UpdateHandle (const UpdateHandleKey<T>& key,
+                               const EventContext& ctx)
+  : VarHandleBase (key, ctx),
+    m_updated(false)
+{
+}
+
+
+/**
+ * @brief Copy constructor.
+ */
+template <class T>
+inline
+UpdateHandle<T>::UpdateHandle(const UpdateHandle& h)
+  : VarHandleBase(h),
+    m_updated(h.m_updated)
+{
+}
+
+/**
+ * @brief Move constructor.
+ */
+template <class T>
+inline
+UpdateHandle<T>::UpdateHandle(UpdateHandle&& h)
+  : VarHandleBase(std::move(h)),
+    m_updated(h.m_updated)
+{
+}
+
+
+/**
+ * @brief Assignment operator.
+ */
+template <class T>
+inline
 UpdateHandle<T>& 
 UpdateHandle<T>::UpdateHandle::operator= (const UpdateHandle& h)
 {
   if (this != &h) {
     this->VarHandleBase::operator=(h);
+    this->m_updated = h.m_updated;
   }
   return *this;
 }
 
-/// Move constructor: 
-template <class T> 
-UpdateHandle<T>::UpdateHandle(UpdateHandle&& h):
-  VarHandleBase(h)
-{}
 
-/// Assignment move operator: 
+/**
+ * @brief Move operator.
+ */
 template <class T>
+inline
 UpdateHandle<T>& 
 UpdateHandle<T>::UpdateHandle::operator= (UpdateHandle&& h)
 {
   if (this != &h) {
-    this->VarHandleBase::operator=(h);
+    this->VarHandleBase::operator=(std::move(h));
+    this->m_updated = h.m_updated;
   }
   return *this;
 }
 
+
+//************************************************************************
+// Dereference.
+//
+
+
+/**
+ * @brief Derefence the pointer.
+ * Throws ExcNullReadHandle on failure.
+ *
+ * This will inform Hive that the object has been modified.
+ */
 template <class T>
-UpdateHandle<T>& 
-UpdateHandle<T>::UpdateHandle::operator= (const T& data)
+inline
+typename UpdateHandle<T>::pointer_type
+UpdateHandle<T>::operator->()
 {
-  if (!isInitialized()) {
-    throw std::logic_error
-      ("UpdateHandle<T>::operator=(const T& data) called while un-initialized");
-  }
-  if (!isConst()) {
-    this->reset();
-  }
-  T*val = this->ptr();
-  if (!val) {
-    throw std::logic_error
-      ("UpdateHandle<T>::operator=(const T& data) called while invalid");
-  }
-  *val = data;
-
-  return *this;
+  return checkedPtr();
 }
 
-/// retrieve a proxy of name `name` from evtStore
+
+/**
+ * @brief Derefence the pointer.
+ * Throws ExcNullReadHandle on failure.
+ *
+ * This will inform Hive that the object has been modified.
+ */
 template <class T>
-UpdateHandle<T>::UpdateHandle(const IInterface* /*iface*/,
-                const std::string& name) :
-  VarHandleBase( name )
-{}
+inline
+typename UpdateHandle<T>::reference_type UpdateHandle<T>::operator*()
+{
+  return *checkedPtr();
+}
 
-/// retrieve a proxy of name `name` from evtStore
+
+/**
+ * @brief Derefence the pointer.
+ * Returns nullptr on failure.
+ *
+ * This will _not_ inform Hive that the object has been modified.
+ */
 template <class T>
-UpdateHandle<T>::UpdateHandle(const IInterface* /*iface*/,
-                const std::string& name,
-                const std::string& store) :
-  VarHandleBase( name, store )
-{}
+inline
+typename UpdateHandle<T>::const_pointer_type UpdateHandle<T>::cptr()
+{
+  return reinterpret_cast<const_pointer_type>(this->typeless_cptr());
+}
 
 
-/// retrieve a proxy of name `name` from evtStore
+/**
+ * @brief Derefence the pointer.
+ * Returns nullptr on failure.
+ *
+ * This will inform Hive that the object has been modified.
+ */
 template <class T>
-UpdateHandle<T>::UpdateHandle(const std::string& name) :
-  VarHandleBase( name )
-{}
+typename UpdateHandle<T>::pointer_type
+UpdateHandle<T>::ptr()
+{
+  pointer_type ptr = reinterpret_cast<pointer_type>(this->typeless_ptr());
+  if (ptr && !m_updated && m_store) {
+    if (m_store->updatedObject (this->clid(), this->name()).isFailure())
+      SG::throwExcUpdatedObjectFailure (clid(), name(), store());
+    m_updated = true;
+  }
+  return ptr;
+}
 
-/// retrieve a proxy of name `name` from store `store`
+
+/**
+ * @brief Return the cached pointer directly; no lookup.
+ */
 template <class T>
-UpdateHandle<T>::UpdateHandle(const std::string& name,
-                const std::string& store) :
-  VarHandleBase( name, store )
-{}
+inline
+typename UpdateHandle<T>::pointer_type
+UpdateHandle<T>::cachedPtr() const
+{
+  return reinterpret_cast<pointer_type>(this->m_ptr);
+}
 
-/// Destructor: 
-template <class T> 
-UpdateHandle<T>::~UpdateHandle()
+
+/**
+ * @brief Can the handle be successfully dereferenced?
+ */
+template <class T>
+inline
+bool UpdateHandle<T>::isValid()
 { 
-} 
+  const bool QUIET=true;
+  if (0 != this->typeless_dataPointer(QUIET))
+    return !isConst();
+  return false;
+}
+
+
+/**
+ * @brief Reset this handle.
+ * @param hard If true, anything depending on the event store is cleared.
+ *
+ * Clear the updated flag, then call reset() from the base class.
+ */
+template <class T>
+void UpdateHandle<T>::reset (bool hard)
+{
+  m_updated = false;
+  VarHandleBase::reset (hard);
+}
+
+
+/**
+ * @brief Helper: dereference the pointer.
+ * Throws ExcNullUpdateHandle on failure.
+ */
+template <class T>
+inline
+typename UpdateHandle<T>::pointer_type
+UpdateHandle<T>::checkedPtr()
+{
+  pointer_type p = this->ptr();
+  if (!p)
+    throwExcNullUpdateHandle (clid(), key(), store());
+  return p;
+}
+
+
+/**
+ * @brief Return an @c UpdateHandle referencing @c key.
+ * @param key The key object holding the clid/key/store.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ */
+template <class T>
+UpdateHandle<T> makeHandle (const UpdateHandleKey<T>& key)
+{
+  return UpdateHandle<T> (key);
+}
+
+
+/**
+ * @brief Return an @c UpdateHandle referencing @c key for an explicit context.
+ * @param key The key object holding the clid/key/store.
+ * @param ctx The event context.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ *
+ * If the default event store has been requested, then the thread-specific
+ * store from the event context will be used.
+ */
+template <class T>
+UpdateHandle<T> makeHandle (const UpdateHandleKey<T>& key,
+                            const EventContext& ctx)
+{
+  return UpdateHandle<T> (key, ctx);
+}
+
+
 } /* namespace SG */
+
 
 #endif //> !STOREGATE_SG_UPDATEHANDLE_ICC

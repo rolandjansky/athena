@@ -1,8 +1,7 @@
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Root.ErrorIgnoreLevel=Print> for level 1; ignored
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r1)
-                                          running on lxplus0234.cern.ch on Sun Feb  8 22:20:54 2015
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v999r999)
+                                          running on karma on Sun Apr 24 21:38:57 2016
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
@@ -11,14 +10,23 @@ HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 *** VarHandles_test starts ***
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 156 CLIDRegistry entries for module ALL
 Now we expect to see an error message:
 ----Error Message Starts--->>
-SG::VarHandleBa...WARNING could not get proxy for key 
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-00-00-00
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
+VarHandle(Store...WARNING ../src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key foo
 <<---Error Message Ends-------
+ClassIDSvc           INFO  getRegistryEntries: read 835 CLIDRegistry entries for module ALL
 *** VarHandles_test static handle test OK ***
 Now we expect to see an error message:
 ----Error Message Starts--->>
-SG::VarHandleBa...WARNING could not get proxy for key 
+VarHandle(Store...WARNING ../src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key noReset
+<<---Error Message Ends-------
+Now we expect to see an error message:
+----Error Message Starts--->>
+VarHandle(Store...WARNING ../src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key noReset
 <<---Error Message Ends-------
 *** VarHandles_test resetable test OK ***
 *** VarHandles_test ref count test OK ***

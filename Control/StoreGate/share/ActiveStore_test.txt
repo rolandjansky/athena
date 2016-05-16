@@ -1,0 +1,7 @@
+ApplicationMgr.ExtSvc={"StoreGateSvc/E1", "StoreGateSvc/E2"};
+StoreGateSvc.OutputLevel=1;
+E1.ProxyProviderSvc="";
+E2.ProxyProviderSvc="";
+ActiveStoreSvc.StoreName="E1";
+HiveMgrSvc.OutputLevel=1;
+HiveMgrSvc.NSlots=4;

@@ -1,0 +1,52 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file StoreGate/ReadHandleKey.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Feb, 2016
+ * @brief Property holding a SG store/key/clid from which a ReadHandle is made.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Constructor.
+ * @param key The StoreGate key for the object.
+ * @param storeName Name to use for the store, if it's not encoded in sgkey.
+ *
+ * The provided key may actually start with the name of the store,
+ * separated by a slash:  "MyStore/Obj".  If no slash is present
+ * the store named by @c storeName is used.
+ */
+template <class T>
+ReadHandleKey<T>::ReadHandleKey (const std::string& key /*= ""*/,
+                                 const std::string& storeName /*= "StoreGateSvc"*/)
+  : VarHandleKey (ClassID_traits<T>::ID(), key,
+                  Gaudi::DataHandle::Reader,
+                  storeName)
+{
+}
+
+
+/**
+ * @brief Change the key of the object to which we're referring.
+ * @param sgkey The StoreGate key for the object.
+ * 
+ * The provided key may actually start with the name of the store,
+ * separated by a slash:  "MyStore/Obj".  If no slash is present,
+ * the store is not changed.
+ */
+template <class T>
+ReadHandleKey<T>& ReadHandleKey<T>::operator= (const std::string& sgkey)
+{
+  VarHandleKey::operator= (sgkey);
+  return *this;
+}
+
+
+} // namespace SG
