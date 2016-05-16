@@ -9,6 +9,7 @@
 
 
 #include "GaudiKernel/INamedInterface.h"
+#include "GaudiKernel/DataObjID.h"
 
 
 namespace SG {
@@ -32,7 +33,7 @@ public:
    * @param  products     [IN]     Slot number (event slot)   *
    * @return Status code indicating failure or success.
    */
-  virtual StatusCode getNewDataObjects(std::vector<std::string>& products)=0;
+  virtual StatusCode getNewDataObjects(DataObjIDColl& products)=0;
 
   /** Check if something has been added to the store since last getNewDataObjects call
    *

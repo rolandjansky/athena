@@ -3,14 +3,14 @@
 */
 
 #include <iostream>
-using std::cerr;
-using std::endl;
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "AthenaKernel/getMessageSvc.h"
 
 using namespace Athena;
+using std::cerr;
+using std::endl;
 
 /// Set this to force off the warning messages from getMessageSvc
 /// (in unit tests, for example).

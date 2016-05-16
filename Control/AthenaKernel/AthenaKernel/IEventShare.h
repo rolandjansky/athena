@@ -9,7 +9,6 @@
  * @file  IEventShare.h
  * @author peter van gemmeren <gemmeren@anl.gov>
  * @date August, 2011
- * @brief Abstract interface for sharing within an event stream.
  */
 
 #ifndef ATHENAKERNEL_IEVENTSHARE_H
@@ -57,8 +56,7 @@ public:
    * @brief Read the next maxevt events.
    * @param maxevt  The number of events to read.
    */
-  virtual StatusCode readEvent (int maxevt) = 0;
+  virtual StatusCode readEvent(int maxevt) = 0;
 };
-
 
 #endif // not ATHENAKERNEL_IEVENTSHARE_H

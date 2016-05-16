@@ -11,7 +11,7 @@
  * @date Nov, 2013
  * @brief Define the type used for hashed StoreGate key+CLID pairs.
  *
- * These are managed by @c IStringPool.  This definition was broken
+ * These are managed by @c IProxyDict.  This definition was broken
  * out from there due to dependency issues.
  */
 

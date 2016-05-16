@@ -1,0 +1,3 @@
+test1
+should call dtor now
+MyObj dtor

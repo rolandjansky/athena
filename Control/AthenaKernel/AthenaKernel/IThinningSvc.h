@@ -102,7 +102,7 @@ class IThinningSvc : virtual public IService,
   std::size_t index( const Container* container,
 		     std::size_t idx ) const {
     const void* obj = static_cast<const void*>(container);
-    return this->index_impl( this->deep_proxy(obj), idx );
+    return this->index_impl( this->proxy(obj), idx );
   }
 
   /** @brief Tell clients if any thinning occurred during the event processing
@@ -117,7 +117,7 @@ class IThinningSvc : virtual public IService,
   thinningOccurred(const Container* container) const
   {
     const void* obj = static_cast<const void*>(container);
-    const SG::DataProxy* p = this->deep_proxy(obj);
+    const SG::DataProxy* p = this->proxy(obj);
     return this->is_thinned_impl(p);
   }
 
@@ -394,7 +394,7 @@ IThinningSvc::filter( const Container& in,
 		      const IThinningSvc::Operator::Type op )
 {
   const void* obj = static_cast<const void*>(&in);
-  SG::DataProxy* proxy = this->deep_proxy(obj);
+  SG::DataProxy* proxy = this->proxy(obj);
   Athena::IThinningHdlr* handler = this->handler(proxy);
   if ( 0 == handler ) {
     typedef typename 
@@ -415,7 +415,7 @@ IThinningSvc::filter( const Container& in,
 		      const IThinningSvc::Operator::Type op )
 {
   const void* obj = static_cast<const void*>(&in);
-  SG::DataProxy* proxy = this->deep_proxy(obj);
+  SG::DataProxy* proxy = this->proxy(obj);
   Athena::IThinningHdlr* handler = this->handler(proxy);
   if ( 0 == handler ) {
     typedef typename 

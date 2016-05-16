@@ -33,6 +33,10 @@ class IOVRange;
 class IOVTime;
 class IIOVSvcTool;
 class CallBackID;
+class IOpaqueAddress;
+class CondContBase;
+class DataObjID;
+class EventIDBase;
 
 namespace SG {
   class DataProxy;
@@ -105,6 +109,11 @@ public:
 			       const std::string& storeName="StoreGateSvc" ) = 0;
   //@}
 
+  virtual StatusCode deregProxy( const SG::DataProxy *proxy ) = 0;
+  virtual StatusCode deregProxy( const CLID& clid, const std::string& key ) = 0;
+
+
+
   /// @name IOVRange accessors
   //@{ 
   virtual StatusCode setRange(const CLID& clid, const std::string& key, 
@@ -118,12 +127,14 @@ public:
 
   /// Get IOVRange from db for current event
   virtual StatusCode getRangeFromDB(const CLID& clid, const std::string& key, 
-				    IOVRange& range, std::string &tag) const =0;
+				    IOVRange& range, std::string &tag,
+                                    IOpaqueAddress*& ioa) const =0;
 
   /// Get IOVRange from db for a particular event
   virtual StatusCode getRangeFromDB(const CLID& clid, const std::string& key, 
 				    const IOVTime& time,
-				    IOVRange& range, std::string &tag) const=0;
+				    IOVRange& range, std::string &tag,
+                                    IOpaqueAddress*& ioa) const=0;
 
   /// Set a particular IOVRange in db (and memory)
   virtual StatusCode setRangeInDB(const CLID& clid, const std::string& key, 
@@ -147,6 +158,12 @@ public:
 
   /// reset all proxies known to IOVSvc
   virtual void resetAllProxies() = 0;
+
+  virtual void ignoreProxy(const CLID& clid, const std::string& key,
+                           const std::string& storeName="StoreGateSvc") = 0;
+
+  virtual StatusCode createCondObj(CondContBase*, const DataObjID&, 
+                                   const EventIDBase&) = 0;
 
 };
 

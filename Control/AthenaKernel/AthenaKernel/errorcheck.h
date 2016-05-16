@@ -257,6 +257,17 @@ public:
   static void hideErrorLocus (bool flag = true);
 
 
+  /**
+   * @brief If set to true, hide function names in the output.
+   *        in the output.
+   *
+   *        This is intended for use in regression tests, where
+   *        function names may be formatted differently on different
+   *        platforms.
+   */
+  static void hideFunctionNames (bool flag = true);
+
+
 private:
   /**
    * @brief Generate the common header for messages.
@@ -275,6 +286,9 @@ private:
 
   /// If true, hide the source file and line number in output messages.
   static bool s_hide_error_locus;
+
+  /// If true, hide the function names in output messages.
+  static bool s_hide_function_names;
 };
 
 

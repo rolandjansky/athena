@@ -2,6 +2,7 @@
 
    <class name="MsgStream" />
    <class name="IProxyDict" />
+   <class name="IStringPool" />
    <class name="IEventSeek"/>
    <class name="IEventShare"/>
    <class name="ICollectionSize"/>

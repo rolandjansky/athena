@@ -9,70 +9,159 @@
 
 // INCLUDES
 #include "AthenaKernel/sgkey_t.h"
+#include "AthenaKernel/IStringPool.h"
+#include "AthenaKernel/DataObjectSharedPtr.h"
 #include "GaudiKernel/INamedInterface.h"
 #include "GaudiKernel/ClassID.h"
 #include <string>
 #include <vector>
+#include <memory>
 
 // DECLARATIONS
 namespace SG {
   class DataProxy;
 }
+class DataObject;
+class IResetable;
 
-/** @class IProxyDict   
- * @brief a proxy dictionary. 
- * it inherits from INamedInterface because clients need its name (e.g. data links)
+
+/**
+ * @brief A proxy dictionary. 
  *
+ * This is the internal interface used by StoreGateSvc and similar.
+ * It provides interfaces for taking a set of @c DataProxy objects
+ * and looking them up by either CLID+key or by a pointer to the
+ * transient objects.
+ *
+ * Objects can be identified by either a CLID+key pair or by a hash of this
+ * data.  This interface also provides methods for converting between
+ * the two representations.
+ *
+ * 
  * @author Paolo Calafiura - ATLAS
  *  $Id: IProxyDict.h,v 1.5 2007-12-11 02:56:22 binet Exp $
  */
-
-class IProxyDict : virtual public INamedInterface {
+class IProxyDict : virtual public INamedInterface,
+                   virtual public IStringPool
+{
 public:
-  /// get proxy for a given data object address in memory,
-  /// but performs a deep search among all possible 'symlinked' containers
-  virtual SG::DataProxy* deep_proxy(const void* const pTransient) const=0;
+  DeclareInterfaceID (IProxyDict, 2, 0);
+  virtual ~IProxyDict() override {}
 
-  /// get proxy for a given data object address in memory
-  virtual SG::DataProxy* proxy(const void* const pTransient) const=0;
-
-  /// get default proxy with given id. Returns 0 to flag failure
-  virtual SG::DataProxy* proxy(const CLID& id) const=0;
-
-  /// get proxy with given id and key. Returns 0 to flag failure
-  virtual SG::DataProxy* proxy(const CLID& id, const std::string& key) const=0;
-
-  /// Get proxy given a hashed key+clid.
-  /// Find an exact match; no handling of aliases, etc.
-  /// Returns 0 to flag failure.
+  /**
+   * @brief Get proxy given a hashed key+clid.
+   * @param sgkey Hashed key to look up.
+   *
+   * Find an exact match; no handling of aliases, etc.
+   * Returns 0 to flag failure.
+   */
   virtual SG::DataProxy* proxy_exact (SG::sgkey_t sgkey) const = 0;
 
-  /// Add a new proxy to the store.
-  virtual StatusCode addToStore (CLID id, SG::DataProxy* proxy) = 0;
 
-  /// return the list of all current proxies in store
+  /**
+   * @brief Get proxy with given id and key.
+   * @param id The @c CLID of the desired object.
+   * @param key The key of the desired object.
+   *
+   * If the key is a null string, then it is a @em default key.
+   * Finding a proxy via the default key should succeed only if there
+   * is exactly one object with the given @c CLID in the store.
+   * Finding a proxy via a default key is considered deprecated
+   * for the case of the event store.
+   * 
+   * Returns 0 to flag failure
+   */
+  virtual SG::DataProxy* proxy(const CLID& id,
+                               const std::string& key) const = 0;
+
+
+  /**
+   * @brief Get a proxy referencing a given transient object.
+   * @param pTransient The object to find.
+   * 
+   * Returns 0 to flag failure
+   */
+  virtual SG::DataProxy* proxy(const void* const pTransient) const=0;
+
+
+  /**
+   * @brief Return the list of all current proxies in store.
+   */
   virtual std::vector<const SG::DataProxy*> proxies() const = 0;
 
-  virtual ~IProxyDict() {}
 
-  /// Gaudi boilerplate
-  static const InterfaceID& interfaceID();
+  /**
+   * @brief Add a new proxy to the store.
+   * @param id CLID as which the proxy should be added.
+   * @param proxy The proxy to add.
+   *
+   * Simple addition of a proxy to the store.  The key is taken as the
+   * primary key of the proxy.  Does not handle things
+   * like overwrite, history, symlinks, etc.  Should return failure
+   * if there is already an entry for this clid/key.
+   */
+  virtual StatusCode addToStore (CLID id, SG::DataProxy* proxy) = 0;
+
+
+  /**
+   * @brief Record an object in the store.
+   * @param obj The data object to store.
+   * @param key The key as which it should be stored.
+   * @param allowMods If false, the object will be recorded as const.
+   * @param returnExisting If true, return proxy if this key already exists.
+   *
+   * Full-blown record.  @c obj should usually be something
+   * deriving from @c SG::DataBucket.
+   *
+   * Returns the proxy for the recorded object; nullptr on failure.
+   * If the requested CLID/key combination already exists in the store,
+   * the behavior is controlled by @c returnExisting.  If true, then
+   * the existing proxy is returned; otherwise, nullptr is returned.
+   * In either case, @c obj is destroyed.
+   */
+  virtual SG::DataProxy* recordObject (SG::DataObjectSharedPtr<DataObject> obj,
+                                       const std::string& key,
+                                       bool allowMods,
+                                       bool returnExisting) = 0;
+
+
+  /**
+   * @brief Inform HIVE that an object has been updated.
+   * @param id The CLID of the object.
+   * @param key The key of the object.
+   */
+  virtual StatusCode updatedObject (CLID id, const std::string& key) = 0;
+
+
+  /**
+   * @brief Tell the store that a handle has been bound to a proxy.
+   * @param handle The handle that was bound.
+   * The default implementation does nothing.
+   */
+  virtual void boundHandle (IResetable* handle);
+
+
+  /**
+   * @brief Tell the store that a handle has been unbound from a proxy.
+   * @param handle The handle that was unbound.
+   * The default implementation does nothing.
+   */
+  virtual void unboundHandle (IResetable* handle);
+
+
+  /**
+   * @brief Test to see if the target of an ElementLink has moved.
+   * @param sgkey_in Original hashed key of the EL.
+   * @param index_in Original index of the EL.
+   * @param sgkey_out[out] New hashed key for the EL.
+   * @param index_out[out] New index for the EL.
+   * @return True if there is a remapping; false otherwise.
+   *
+   * The default implementation here always returns false.
+   */
+  virtual bool tryELRemap (sgkey_t sgkey_in, size_t index_in,
+                           sgkey_t& sgkey_out, size_t& index_out);
 };
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
-inline
-const InterfaceID& 
-IProxyDict::interfaceID() {
-  static const InterfaceID _IID("IProxyDict", 1, 0);
-  return _IID;
-}
+
+
 #endif // ATHENAKERNEL_IPROXYDICT_H
-
-
-
-
-
-
-
-
-
-

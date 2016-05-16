@@ -7,9 +7,7 @@
 #include <exception>
 #include <iostream>
 #include <string>
-using namespace std;
 #include "TestTools/initGaudi.h"
-using namespace Athena_test;
 #include "GaudiKernel/IClassManager.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -21,6 +19,9 @@ using namespace Athena_test;
 
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
+
+using namespace std;
+using namespace Athena_test;
 
 int inputError(std::string errDescr, const po::options_description& optDescr ) {
   cerr << errDescr << "\n" << optDescr << endl;

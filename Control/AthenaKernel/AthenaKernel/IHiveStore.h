@@ -11,20 +11,20 @@
 #include "GaudiKernel/INamedInterface.h"
 
 
-class IProxyDictWithPool;
+class IProxyDict;
 
 /** @class IHiveStore   
  * @brief the interface that provides access to the current hive store
  *
  * @author Paolo Calafiura - ATLAS
- *  $Id: IHiveStore.h 702200 2015-10-21 21:00:55Z ssnyder $
+ *  $Id: IHiveStore.h 714254 2015-12-12 03:38:51Z ssnyder $
  */
 
 class IHiveStore : virtual public INamedInterface {
 public:
   virtual ~IHiveStore() {}
 
-  virtual IProxyDictWithPool* hiveProxyDict() = 0;
+  virtual IProxyDict* hiveProxyDict() = 0;
 
 
   /// Gaudi boilerplate

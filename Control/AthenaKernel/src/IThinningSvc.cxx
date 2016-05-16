@@ -124,7 +124,7 @@ IThinningSvc::typelessFilter( const void* in,
    ::DummyThinningHdlr* dummyHandler = new ::DummyThinningHdlr();
 
    // Get the DataProxy of the object:
-   SG::DataProxy* proxy = this->deep_proxy( in );
+   SG::DataProxy* proxy = this->proxy( in );
 
    // Leave it to the service implementation to do the rest:
    return this->filter_impl( dummyHandler, proxy, filter, op );

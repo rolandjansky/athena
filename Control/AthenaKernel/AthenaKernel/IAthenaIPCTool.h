@@ -13,15 +13,19 @@ class IAthenaIPCTool : virtual public ::IAlgTool {
 public:
    static const InterfaceID& interfaceID() { return IID_IAthenaIPCTool; }
  
-   virtual StatusCode makeServer() = 0;
+   virtual StatusCode makeServer(int num) = 0;
    virtual bool isServer() const = 0;
-   virtual StatusCode makeClient() = 0;
+   virtual StatusCode makeClient(int num) = 0;
    virtual bool isClient() const = 0;
 
-   virtual StatusCode putEvent(long eventNumber, const void* source, size_t num, unsigned int status) = 0;
-   virtual StatusCode getLockedEvent(void** source, unsigned int& status) = 0;
+   virtual StatusCode putEvent(long eventNumber, const void* source, size_t nbytes, unsigned int status) = 0;
+   virtual StatusCode getLockedEvent(void** target, unsigned int& status) = 0;
    virtual StatusCode lockEvent(long eventNumber) = 0;
-   virtual StatusCode unlockEvent() = 0;
+
+   virtual StatusCode putObject(const void* source, size_t nbytes, int num = 0) = 0;
+   virtual StatusCode getObject(void** target, size_t& nbytes, int num = 0) = 0;
+   virtual StatusCode clearObject(char** tokenString, int& num) = 0;
+   virtual StatusCode lockObject(const char* tokenString, int num = 0) = 0;
 };
 
 #endif

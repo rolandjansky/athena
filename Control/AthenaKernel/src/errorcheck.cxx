@@ -24,6 +24,10 @@ namespace errorcheck {
 bool ReportMessage::s_hide_error_locus = false;
 
 
+/// If true, hide the function names in output messages.
+bool ReportMessage::s_hide_function_names = false;
+
+
 /**
  * @brief Clean `allocator' template arguments from the function f.
  * @param f Name of the function to clean.
@@ -117,7 +121,7 @@ std::string munge_names (const std::string& str_in)
   s = do_replace (s, "DPSD::pointer", "void*");
   s = do_replace (s, "SG::auxid_t", "unsigned long");
   s = do_replace (s, "auxid_t", "unsigned long");
-  s = do_replace (s, " void* ", " void*");
+  s = do_replace (s, "void* ", "void*");
   s = do_replace (s, "CLID", "unsigned int");
 
   if (s.find ("virtual ") == 0)
@@ -202,9 +206,13 @@ void ReportMessage::format_common (MSG::Level level,
     *this << file << ":" << line;
 
   // Include the function name if available.
-  if (func && func[0] != '\0') {
-    std::string cfunc = munge_names (munge_punct (munge_string_name (clean_allocator (func))));
-    *this << " (" << cfunc << ")";
+  if (s_hide_function_names)
+    *this << " (FUNC)";
+  else {
+    if (func && func[0] != '\0') {
+      std::string cfunc = munge_names (munge_punct (munge_string_name (clean_allocator (func))));
+      *this << " (" << cfunc << ")";
+    }
   }
 }
 
@@ -259,6 +267,20 @@ MsgStream& ReportMessage::doOutput()
 void ReportMessage::hideErrorLocus (bool flag /*= true*/)
 {
   s_hide_error_locus = flag;
+}
+
+
+/**
+ * @brief If set to true, hide function names in the output.
+ *        in the output.
+ *
+ *        This is intended for use in regression tests, where
+ *        function names may be formatted differently on different
+ *        platforms.
+ */
+void ReportMessage::hideFunctionNames (bool flag /*= true*/)
+{
+  s_hide_function_names = flag;
 }
 
 
