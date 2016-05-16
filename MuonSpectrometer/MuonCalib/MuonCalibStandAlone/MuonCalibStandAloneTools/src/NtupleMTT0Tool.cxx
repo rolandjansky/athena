@@ -123,7 +123,7 @@ void NtupleMTT0Tool::setRegion()
 	T0CalibrationOutput input(NULL);
 	for(std::vector<MuonCalib :: NtupleStationId> :: const_iterator it=m_reg_sel_svc->GetStationsInRegions().begin(); it!=m_reg_sel_svc->GetStationsInRegions().end(); it++)
 		{
-		input.GetMap()[*it]=new MdtTubeFitContainer(it->regionId(), 2, 4, 72);
+		input.GetMap()[*it]=new MdtTubeFitContainer(it->regionId(), 2, 4, 78);
 		}
 	p_alg->setInput(&input);
 	}
