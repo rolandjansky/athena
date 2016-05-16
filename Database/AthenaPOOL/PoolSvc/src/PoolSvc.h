@@ -28,10 +28,10 @@ namespace pool {
    class IDatabase;
    class IPersistencySvc;
    class ISession;
-   class Placement;
 }
 class IAthenaSealSvc;
 class Guid;
+class Placement;
 
 template <class TYPE> class SvcFactory;
 
@@ -59,7 +59,7 @@ public: // Non-static members
    /// @param placement [IN] pointer to the placement hint.
    /// @param obj [IN] pointer to the Data Object to be written to Pool.
    /// @param classDesc [IN] pointer to the Seal class description for the Data Object.
-   const Token* registerForWrite(const pool::Placement* placement,
+   const Token* registerForWrite(const Placement* placement,
                                  const void* obj,
                                  const RootType& classDesc) const;
 
@@ -151,9 +151,6 @@ public: // Non-static members
 
    /// Get POOL FileSize attribute for database without logging a message
    long long int getFileSize(const std::string& dbName, long tech, unsigned long contextId) const;
-
-   /// Get POOL IOSize attribute for database without logging a message
-   long long int getIOSize(const std::string& dbName, unsigned long contextId = IPoolSvc::kInputStream) const;
 
    /// Get POOL attributes - domain
    StatusCode getAttribute(const std::string& optName,
@@ -248,25 +245,10 @@ private: // internal helper functions
    /// Resolve a file using ATLAS_POOLCOND_PATH
    std::string poolCondPath(const std::string& leaf);
 
-   /// Templated method to print a specific POOL domain attribute
-   template<class T> T getDomAttribute(const std::string& optName,
-	   pool::ISession* const sesH,
-	   long tech) const;
-   /// Templated method to print a specific POOL database attribute
-   template<class T> T getDbAttribute(const std::string& optName,
-	   pool::IDatabase* const dbH) const;
-   /// Templated method to print a specific POOL container attribute
-   template<class T> T getContAttribute(const std::string& optName,
-	   const std::string& contName,
-	   pool::IContainer* const contH,
-	   const std::string& brName = "") const;
-
 #ifdef ATHENAHIVE
   typedef tbb::recursive_mutex CallMutex;
   mutable CallMutex m_callLock;
 #endif
 
 };
-
-#include "PoolSvc.icc"
 #endif

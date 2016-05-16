@@ -17,6 +17,7 @@
 
 #include "CoralKernel/Context.h"
 
+#include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 
 #include "CollectionBase/CollectionFactory.h"
@@ -27,10 +28,12 @@
 
 #include "PersistencySvc/IPersistencySvcFactory.h"
 #include "PersistencySvc/IPersistencySvc.h"
+#include "PersistencySvc/ISession.h"
+#include "PersistencySvc/IDatabase.h"
+#include "PersistencySvc/IContainer.h"
 #include "PersistencySvc/ITechnologySpecificAttributes.h"
 #include "PersistencySvc/ITokenIterator.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
-#include "PersistencySvc/Placement.h"
 #include "StorageSvc/DbType.h"
 
 #include "RelationalAccess/ConnectionService.h"
@@ -259,6 +262,16 @@ StatusCode PoolSvc::stop() {
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::finalize() {
+   unsigned int streamId = 0;
+   for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
+		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
+      delete *iter;
+   }
+   m_persistencySvcVec.clear();
+   if (m_catalog != 0) {
+      m_catalog->commit();
+      delete m_catalog; m_catalog = 0;
+   }
    if (!this->io_finalize().isSuccess()) {
       ATH_MSG_WARNING("Cannot io_finalize.");
    }
@@ -275,6 +288,7 @@ StatusCode PoolSvc::finalize() {
 //__________________________________________________________________________
 StatusCode PoolSvc::io_finalize() {
    ATH_MSG_INFO("I/O finalization...");
+/*
    unsigned int streamId = 0;
    for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
 		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
@@ -285,6 +299,7 @@ StatusCode PoolSvc::io_finalize() {
       m_catalog->commit();
       delete m_catalog; m_catalog = 0;
    }
+*/
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
@@ -299,7 +314,7 @@ StatusCode PoolSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-const Token* PoolSvc::registerForWrite(const pool::Placement* placement,
+const Token* PoolSvc::registerForWrite(const Placement* placement,
                                        const void* obj,
                                        const RootType& classDesc) const {
    Token* token = m_persistencySvcVec[IPoolSvc::kOutputStream]->registerForWrite(*placement, obj, classDesc);
@@ -705,24 +720,6 @@ long long int PoolSvc::getFileSize(const std::string& dbName, long tech, unsigne
    return(value);
 }
 //_______________________________________________________________________
-long long int PoolSvc::getIOSize(const std::string& dbName, unsigned long contextId) const {
-   pool::ISession* sesH = 0;
-   pool::IDatabase* dbH = 0;
-   if (!getSessionDbHandles(sesH, dbH, contextId, dbName).isSuccess()) {
-      ATH_MSG_DEBUG("getFileSize: Failed to get Session/DatabaseHandle to get POOL FileSize property.");
-      delete dbH; dbH = 0;
-      return(StatusCode::FAILURE);
-   }
-   long long int value = -1;
-   if (contextId == IPoolSvc::kOutputStream) {
-      value = dbH->technologySpecificAttributes().attribute<long long int>("IOBYTES_WRITE");
-   } else {
-      value = dbH->technologySpecificAttributes().attribute<long long int>("IOBYTES_READ");
-   }
-   delete dbH; dbH = 0;
-   return(value);
-}
-//_______________________________________________________________________
 StatusCode PoolSvc::getAttribute(const std::string& optName,
 		std::string& data,
 		long tech,
@@ -737,16 +734,17 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
    }
    std::ostringstream oss;
    if (data == "DbLonglong") {
-      long long int value = getDomAttribute<long long int>(optName, sesH, tech);
+      long long int value = sesH->technologySpecificAttributes(tech).attribute<long long int>(optName);
       oss << std::dec << value;
    } else if (data == "double") {
-      double value = getDomAttribute<double>(optName, sesH, tech);
+      double value = sesH->technologySpecificAttributes(tech).attribute<double>(optName);
       oss << std::dec << value;
    } else {
-      int value = getDomAttribute<int>(optName, sesH, tech);
+      int value = sesH->technologySpecificAttributes(tech).attribute<int>(optName);
       oss << std::dec << value;
    }
    data = oss.str();
+   ATH_MSG_INFO("Domain attribute [" << optName << "]" << ": " << data);
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
@@ -774,18 +772,19 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
    std::ostringstream oss;
    if (contName.empty()) {
       if (data == "DbLonglong") {
-         long long int value = getDbAttribute<long long int>(optName, dbH);
+         long long int value = dbH->technologySpecificAttributes().attribute<long long int>(optName);
          oss << std::dec << value;
       } else if (data == "double") {
-         double value = getDbAttribute<double>(optName, dbH);
+         double value = dbH->technologySpecificAttributes().attribute<double>(optName);
          oss << std::dec << value;
       } else if (data == "string") {
-         char* value = getDbAttribute<char*>(optName, dbH);
+         char* value = dbH->technologySpecificAttributes().attribute<char*>(optName);
          oss << value;
       } else {
-         int value = getDbAttribute<int>(optName, dbH);
+         int value = dbH->technologySpecificAttributes().attribute<int>(optName);
          oss << std::dec << value;
       }
+      ATH_MSG_INFO("Database (" << dbH->pfn() << ") attribute [" << optName << "]" << ": " << oss.str());
    } else {
       pool::IContainer* contH = 0;
       std::string objName;
@@ -796,16 +795,17 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
          return(StatusCode::FAILURE);
       }
       if (data == "DbLonglong") {
-         long long int value = getContAttribute<long long int>(optName, contName, contH);
+         long long int value = contH->technologySpecificAttributes().attribute<long long int>(optName);
          oss << std::dec << value;
       } else if (data == "double") {
-         double value = getContAttribute<double>(optName, contName, contH);
+         double value = contH->technologySpecificAttributes().attribute<double>(optName);
          oss << std::dec << value;
       } else {
-         int value = getContAttribute<int>(optName, contName, contH);
+         int value = contH->technologySpecificAttributes().attribute<int>(optName);
          oss << std::dec << value;
       }
       delete contH; contH = 0;
+      ATH_MSG_INFO("Container attribute [" << contName << "." << optName << "]: " << oss.str());
    }
    data = oss.str();
    delete dbH; dbH = 0;

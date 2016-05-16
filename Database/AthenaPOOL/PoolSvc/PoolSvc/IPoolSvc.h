@@ -21,11 +21,11 @@
 // Forward declarations
 namespace pool {
    class IFileCatalog;
-   class Placement;
 }
 namespace coral {
    class Context;
 }
+class Placement;
 class StatusCode;
 class Token;
 
@@ -48,7 +48,7 @@ public: // Non-static members
    /// @param placement [IN] pointer to the placement hint.
    /// @param obj [IN] pointer to the Data Object to be written to Pool.
    /// @param classDesc [IN] pointer to the Seal class description for the Data Object.
-   virtual const Token* registerForWrite(const pool::Placement* placement,
+   virtual const Token* registerForWrite(const Placement* placement,
                                          const void* obj,
                                          const RootType& classDesc) const = 0;
 
@@ -140,10 +140,6 @@ public: // Non-static members
 
    /// Get POOL FileSize attribute for database without logging a message
    virtual long long int getFileSize(const std::string& dbName, long tech, unsigned long contextId) const = 0;
-
-   /// Get POOL IOSize attribute for database without logging a message
-   virtual long long int getIOSize(const std::string& dbName,
-	   unsigned long contextId = IPoolSvc::kInputStream) const = 0;
 
    /// Get POOL attributes - domain
    virtual StatusCode getAttribute(const std::string& optName,
