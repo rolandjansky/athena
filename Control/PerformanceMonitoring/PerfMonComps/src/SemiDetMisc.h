@@ -386,7 +386,7 @@ namespace PMonSD {
     while (fgets(line, 32, file) != NULL){
       if (strncmp(line, "btime ", 6) == 0) {
 	unsigned long l;
-	sscanf(&(line[6]),"%lu",&l);
+	sscanf(&(line[6]),"%80lu",&l);
 	fclose(file);
 	return l;
       }
