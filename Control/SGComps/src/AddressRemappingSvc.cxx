@@ -15,8 +15,8 @@
 
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IProxyDict.h"
+#include "AthenaKernel/IStringPool.h"
 
-#include "SGTools/IStringPool.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/TransientAddress.h"
 

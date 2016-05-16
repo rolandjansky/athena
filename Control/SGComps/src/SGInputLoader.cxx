@@ -112,6 +112,7 @@ SGInputLoader::loader(Property& p ) {
 
   ATH_MSG_DEBUG("setting prop ExtraOutputs to " <<  p.toString());
 
-  setProperty("ExtraOutputs", p);
-
+  if (!setProperty("ExtraOutputs", p).isSuccess()) {
+    ATH_MSG_WARNING("failed setting property ExtraOutputs");
+  }
 }
