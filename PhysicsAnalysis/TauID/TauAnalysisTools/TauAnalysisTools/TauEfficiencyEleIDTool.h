@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUEFFICIENCYELEIDTOOL_H
-#define TAUEFFICIENCYELEIDTOOL_H
+#ifndef TAUANALYSISTOOLS_TAUEFFICIENCYELEIDTOOL_H
+#define TAUANALYSISTOOLS_TAUEFFICIENCYELEIDTOOL_H
 
 /*
   author: Dirk Duschinger
@@ -15,7 +15,6 @@
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
 		    or
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
-  report any issues on JIRA: https://its.cern.ch/jira/browse/TAUAT/?selectedTab=com.atlassian.jira.jira-projects-plugin:issues-panel
 */
 
 // Local include(s):
@@ -26,7 +25,6 @@ namespace TauAnalysisTools
 
 class TauEfficiencyEleIDTool : public CommonEfficiencyTool
 {
-  ASG_TOOL_CLASS( TauEfficiencyEleIDTool, TauAnalysisTools::ITauEfficiencyCorrectionsTool )
 
 public:
 
@@ -34,40 +32,19 @@ public:
 
   virtual ~TauEfficiencyEleIDTool();
 
-  virtual StatusCode initialize();
-
   CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
       double& dEfficiencyScaleFactor);
-  CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::TauJet& xTau);
-
-  bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
-  CP::SystematicSet affectingSystematics() const;
-  CP::SystematicSet recommendedSystematics() const;
-  CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
 
 private:
-
-  CP::CorrectionCode GetEVetoSF(double& dVal,
-                                float fTrackEta,
-                                int iNTrack);
-
-  CP::CorrectionCode GetEVetoSFUnc(double& dVal,
-                                   float fTrackEta,
-                                   int iNTrack);
-  CP::CorrectionCode GetIDValue(double& dVal,
-                                const std::string& sWorkingPoint,
-                                const float& fPt);
-
   void setupWorkingPointSubstrings();
-  std::string ConvertIDToString(int iLevel);
-  std::string ConvertEVetoToString(int iLevel);
-  std::string ConvertOLRToString(int iLevel);
+  std::string convertIDToString(int iLevel) const;
+  std::string convertEVetoToString(int iLevel) const;
+  std::string convertOLRToString(int iLevel) const;
 
-  float checkTrackEtaValidity(float& fTrackEta);
-  double getLeadTrackEta(const xAOD::TauJet* xTau);
-
-  float GetIDValue(const std::string& sWorkingPoint, const float& fPt);
-
+  // cache configs;
+  int m_iIDLevelCache;
+  int m_iEVLevelCache;
+  int m_iOLRLevelCache;
 
   // string configs
   std::string m_sIDLevel;
@@ -80,7 +57,8 @@ private:
   std::string m_sOLRLevel_eveto3p;
 
   // declaration of the working point
-  std::string m_sWorkingPoint;
+  std::string m_sWorkingPoint_1p;
+  std::string m_sWorkingPoint_3p;
 
   // up/down direction
   int m_iSysDirection;
@@ -88,4 +66,4 @@ private:
 };
 } // namespace TauAnalysisTools
 
-#endif // TAUEFFICIENCYELEIDTOOL_H
+#endif // TAUANALYSISTOOLS_TAUEFFICIENCYELEIDTOOL_H

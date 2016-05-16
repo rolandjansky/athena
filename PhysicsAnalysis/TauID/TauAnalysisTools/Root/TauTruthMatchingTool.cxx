@@ -15,7 +15,7 @@ using namespace TauAnalysisTools;
 //=================================PUBLIC-PART==================================
 //______________________________________________________________________________
 TauTruthMatchingTool::TauTruthMatchingTool( const std::string& name )
-  : AsgTool(name)
+  : AsgMetadataTool(name)
   , m_xTruthParticleContainer(0)
   , m_xTruthTauContainerConst(0)
   , m_xTruthMuonContainerConst(0)
@@ -35,9 +35,22 @@ TauTruthMatchingTool::TauTruthMatchingTool( const std::string& name )
   , m_bTruthMuonAvailable(true)
   , m_bTruthElectronAvailable(true)
   , m_bTruthJetAvailable(true)
+  , m_bWriteInvisibleFourMomentum(false)
   , m_bWriteVisibleChargedFourMomentum(false)
   , m_bWriteVisibleNeutralFourMomentum(false)
   , m_bWriteDecayModeVector(true)
+  , m_iNChargedPions(0)
+  , m_iNNeutralPions(0)
+  , m_iNChargedOthers(0)
+  , m_iNNeutralOthers(0)
+  , m_iNChargedDaughters(0)
+  , m_bIsHadronicTau(false)
+  , m_bIsTruthMatchedAvailable(false)
+  , m_bIsTruthMatchedAvailableChecked(false)
+  , m_accPtVis("pt_vis")
+  , m_accEtaVis("eta_vis")
+  , m_accPhiVis("phi_vis")
+  , m_accMVis("m_vis")
 {
   declareProperty( "MaxDeltaR", m_dMaxDeltaR = .2);
   declareProperty( "WriteTruthTaus", m_bWriteTruthTaus = false);
@@ -49,6 +62,7 @@ TauTruthMatchingTool::TauTruthMatchingTool( const std::string& name )
   declareProperty( "TruthElectronContainerName", m_sTruthElectronContainerName = "TruthElectrons");
   declareProperty( "TruthJetContainerName", m_sTruthJetContainerName = "AntiKt4TruthJets");
   declareProperty( "TruthParticlesContainerName", m_sTruthParticlesContainerName = "TruthParticles");
+  declareProperty( "WriteInvisibleFourMomentum", m_bWriteInvisibleFourMomentum = false);
   declareProperty( "WriteVisibleChargedFourMomentum", m_bWriteVisibleChargedFourMomentum = false);
   declareProperty( "WriteVisibleNeutralFourMomentum", m_bWriteVisibleNeutralFourMomentum = false);
   declareProperty( "WriteDecayModeVector", m_bWriteDecayModeVector = true);
@@ -67,7 +81,7 @@ TauTruthMatchingTool::~TauTruthMatchingTool( )
 //______________________________________________________________________________
 StatusCode TauTruthMatchingTool::initialize()
 {
-  ATH_MSG_INFO( "Initialising TauTruthMatchingTool" );
+  ATH_MSG_INFO( "Initializing TauTruthMatchingTool" );
   m_sNewTruthTauContainerNameAux = m_sNewTruthTauContainerName + "Aux.";
 
   if (m_bOptimizeForReco)
@@ -75,13 +89,6 @@ StatusCode TauTruthMatchingTool::initialize()
   if (m_iSampleType != -1)
     ATH_MSG_WARNING("The property SampleType is deprecated and will be removed");
 
-  return StatusCode::SUCCESS;
-}
-
-//______________________________________________________________________________
-StatusCode TauTruthMatchingTool::createTruthTauContainer()
-{
-  ATH_MSG_FATAL("This function is deprecated. The TruthTau Container will be created automatically passing truth particle container via setTruthParticleContainer or passing Event via initializeEvent. \nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauTruthMatchingTool.rst\nReturn null pointer");
   return StatusCode::SUCCESS;
 }
 
@@ -131,35 +138,53 @@ StatusCode TauTruthMatchingTool::setTruthParticleContainer(const xAOD::TruthPart
   m_xTruthParticleContainer = xTruthParticleContainer;
   // should be false by default, but better to be sure
   m_bTruthTauAvailable = false;
-  buildTruthTausFromTruthParticles();
+  return buildTruthTausFromTruthParticles();
+}
+
+//______________________________________________________________________________
+StatusCode TauTruthMatchingTool::beginEvent()
+{
+  if (retrieveTruthTaus().isFailure())
+    return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
 StatusCode TauTruthMatchingTool::initializeEvent()
 {
-  return retrieveTruthTaus();
+  return beginEvent();
 }
 
 //______________________________________________________________________________
-const xAOD::TruthParticle* TauTruthMatchingTool::getTruth(const xAOD::TauJet& xTau) const
+const xAOD::TruthParticle* TauTruthMatchingTool::getTruth(const xAOD::TauJet& xTau)
 {
   if (findTruthTau(xTau).isFailure())
     ATH_MSG_WARNING("There was a failure in finding the matched truth tau");
 
   // if matched to a truth tau return its pointer, else return a null pointer
-  if ((bool)xTau.auxdata<char>("IsTruthMatched"))
+  static SG::AuxElement::ConstAccessor<char> accIsTruthMatched("IsTruthMatched");
+  if ((bool)accIsTruthMatched(xTau))
   {
     if (m_bWriteTruthTaus or m_bTruthTauAvailable)
-      return *(xTau.auxdata < ElementLink< xAOD::TruthParticleContainer > > ("truthParticleLink"));
+    {
+      static SG::AuxElement::ConstAccessor< ElementLink< xAOD::TruthParticleContainer >  > accTruthTau("truthParticleLink");
+      return *accTruthTau(xTau);
+    }
     else
-      return xTau.auxdata < const xAOD::TruthParticle* > ("TruthTau");
+    {
+      static SG::AuxElement::ConstAccessor< const xAOD::TruthParticle* > accTruthTau("TruthTau");
+      return accTruthTau(xTau);
+    }
   }
   return nullptr;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//                              Wrapper functions                             //
+////////////////////////////////////////////////////////////////////////////////
+
 //______________________________________________________________________________
-TLorentzVector TauTruthMatchingTool::getTruthTauP4Vis(const xAOD::TauJet& xTau) const
+TLorentzVector TauTruthMatchingTool::getTruthTauP4Vis(const xAOD::TauJet& xTau)
 {
   const xAOD::TruthParticle* xTruthTau = getTruth(xTau);
   TLorentzVector vTLV;
@@ -170,29 +195,29 @@ TLorentzVector TauTruthMatchingTool::getTruthTauP4Vis(const xAOD::TauJet& xTau) 
   }
 
   vTLV.SetPtEtaPhiM(
-    xTruthTau->auxdata<double>("pt_vis"),
-    xTruthTau->auxdata<double>("eta_vis"),
-    xTruthTau->auxdata<double>("phi_vis"),
-    xTruthTau->auxdata<double>("m_vis"));
+    m_accPtVis(*xTruthTau),
+    m_accEtaVis(*xTruthTau),
+    m_accPhiVis(*xTruthTau),
+    m_accMVis(*xTruthTau));
   return vTLV;
 }
 
 //______________________________________________________________________________
-TLorentzVector TauTruthMatchingTool::getTruthTauP4Vis(const xAOD::TruthParticle& xTruthTau) const
+TLorentzVector TauTruthMatchingTool::getTruthTauP4Vis(const xAOD::TruthParticle& xTruthTau)
 {
   TLorentzVector vTLV;
-  if (!xTruthTau.isAvailable<std::vector<int>>("pt_vis"))
+  if (!xTruthTau.isAvailable<double>("pt_vis"))
     return vTLV;
   vTLV.SetPtEtaPhiM(
-    xTruthTau.auxdata<double>("pt_vis"),
-    xTruthTau.auxdata<double>("eta_vis"),
-    xTruthTau.auxdata<double>("phi_vis"),
-    xTruthTau.auxdata<double>("m_vis"));
+    m_accPtVis(xTruthTau),
+    m_accEtaVis(xTruthTau),
+    m_accPhiVis(xTruthTau),
+    m_accMVis(xTruthTau));
   return vTLV;
 }
 
 //______________________________________________________________________________
-TLorentzVector TauTruthMatchingTool::getTruthTauP4Prompt(const xAOD::TauJet& xTau) const
+TLorentzVector TauTruthMatchingTool::getTruthTauP4Prompt(const xAOD::TauJet& xTau)
 {
   const xAOD::TruthParticle* xTruthTau = getTruth(xTau);
   TLorentzVector vTLV;
@@ -202,30 +227,109 @@ TLorentzVector TauTruthMatchingTool::getTruthTauP4Prompt(const xAOD::TauJet& xTa
     return vTLV;
   }
 
+  static SG::AuxElement::ConstAccessor<double> accPtPrompt("pt_prompt");
+  static SG::AuxElement::ConstAccessor<double> accEtaPrompt("eta_prompt");
+  static SG::AuxElement::ConstAccessor<double> accPhiPrompt("phi_prompt");
+  static SG::AuxElement::ConstAccessor<double> accMPrompt("m_prompt");
   vTLV.SetPtEtaPhiM(
-    xTruthTau->auxdata<double>("pt_prompt"),
-    xTruthTau->auxdata<double>("eta_prompt"),
-    xTruthTau->auxdata<double>("phi_prompt"),
-    xTruthTau->auxdata<double>("m_prompt"));
+    accPtPrompt(*xTruthTau),
+    accEtaPrompt(*xTruthTau),
+    accPhiPrompt(*xTruthTau),
+    accMPrompt(*xTruthTau));
   return vTLV;
 }
 
 //______________________________________________________________________________
-TLorentzVector TauTruthMatchingTool::getTruthTauP4Prompt(const xAOD::TruthParticle& xTruthTau) const
+TLorentzVector TauTruthMatchingTool::getTruthTauP4Prompt(const xAOD::TruthParticle& xTruthTau)
 {
   TLorentzVector vTLV;
-  if (!xTruthTau.isAvailable<std::vector<int>>("pt_vis"))
+  if (!xTruthTau.isAvailable<double>("pt_prompt"))
     return vTLV;
+
+  static SG::AuxElement::ConstAccessor<double> accPtPrompt("pt_prompt");
+  static SG::AuxElement::ConstAccessor<double> accEtaPrompt("eta_prompt");
+  static SG::AuxElement::ConstAccessor<double> accPhiPrompt("phi_prompt");
+  static SG::AuxElement::ConstAccessor<double> accMPrompt("m_prompt");
   vTLV.SetPtEtaPhiM(
-    xTruthTau.auxdata<double>("pt_prompt"),
-    xTruthTau.auxdata<double>("eta_prompt"),
-    xTruthTau.auxdata<double>("phi_prompt"),
-    xTruthTau.auxdata<double>("m_prompt"));
+    accPtPrompt(xTruthTau),
+    accEtaPrompt(xTruthTau),
+    accPhiPrompt(xTruthTau),
+    accMPrompt(xTruthTau));
   return vTLV;
 }
 
 //______________________________________________________________________________
-int TauTruthMatchingTool::getNTauDecayParticles(const xAOD::TauJet& xTau, int iPdgId, bool bCompareAbsoluteValues) const
+TLorentzVector TauTruthMatchingTool::getTruthTauP4Invis(const xAOD::TauJet& xTau)
+{
+  const xAOD::TruthParticle* xTruthTau = getTruth(xTau);
+  TLorentzVector vTLV;
+  if (xTruthTau == nullptr)
+  {
+    ATH_MSG_INFO("no truth particle was found, returning TLorentzVector with all values equal to 0");
+    return vTLV;
+  }
+
+  static SG::AuxElement::ConstAccessor<double> accPtInvis("pt_invis");
+  static SG::AuxElement::ConstAccessor<double> accEtaInvis("eta_invis");
+  static SG::AuxElement::ConstAccessor<double> accPhiInvis("phi_invis");
+  static SG::AuxElement::ConstAccessor<double> accMInvis("m_invis");
+  vTLV.SetPtEtaPhiM(
+    accPtInvis(*xTruthTau),
+    accEtaInvis(*xTruthTau),
+    accPhiInvis(*xTruthTau),
+    accMInvis(*xTruthTau));
+  return vTLV;
+}
+
+//______________________________________________________________________________
+TLorentzVector TauTruthMatchingTool::getTruthTauP4Invis(const xAOD::TruthParticle& xTruthTau)
+{
+  TLorentzVector vTLV;
+  if (!xTruthTau.isAvailable<double>("pt_invis"))
+    return vTLV;
+
+  static SG::AuxElement::ConstAccessor<double> accPtInvis("pt_invis");
+  static SG::AuxElement::ConstAccessor<double> accEtaInvis("eta_invis");
+  static SG::AuxElement::ConstAccessor<double> accPhiInvis("phi_invis");
+  static SG::AuxElement::ConstAccessor<double> accMInvis("m_invis");
+  vTLV.SetPtEtaPhiM(
+    accPtInvis(xTruthTau),
+    accEtaInvis(xTruthTau),
+    accPhiInvis(xTruthTau),
+    accMInvis(xTruthTau));
+  return vTLV;
+}
+
+TauAnalysisTools::TruthMatchedParticleType TauTruthMatchingTool::getTruthParticleType(const xAOD::TauJet& xTau)
+{
+  const xAOD::TruthParticle* xTruthParticle = xAOD::TauHelpers::getTruthParticle(&xTau);
+  if (xTruthParticle)
+  {
+    if (xTruthParticle->isTau())
+    {
+      static SG::AuxElement::ConstAccessor<char> accIsHadronicTau("IsHadronicTau");
+      if ((bool)accIsHadronicTau(*xTruthParticle))
+        return TruthHadronicTau;
+      else
+        return TruthLeptonicTau;
+    }
+    if (xTruthParticle->isMuon())
+      return TruthMuon;
+    if (xTruthParticle->isElectron())
+      return TruthElectron;
+  }
+  // TODO: use const xAOD::Jet* xTruthJet = xAOD::TauHelpers::getLink<xAOD::Jet>(&xTau, "truthJetLink");
+  // currently it is unavailable as templated class is not in icc file
+  static SG::AuxElement::ConstAccessor< ElementLink< xAOD::JetContainer > > accTruthJetLink("truthJetLink");
+  const ElementLink< xAOD::JetContainer > lTruthParticleLink = accTruthJetLink(xTau);
+  if (lTruthParticleLink.isValid())
+    return TruthJet;
+
+  return Unknown;
+}
+
+//______________________________________________________________________________
+int TauTruthMatchingTool::getNTauDecayParticles(const xAOD::TauJet& xTau, int iPdgId, bool bCompareAbsoluteValues)
 {
   const xAOD::TruthParticle* xTruthTau = getTruth(xTau);
   if (xTruthTau == nullptr)
@@ -242,7 +346,7 @@ int TauTruthMatchingTool::getNTauDecayParticles(const xAOD::TauJet& xTau, int iP
 }
 
 //______________________________________________________________________________
-int TauTruthMatchingTool::getNTauDecayParticles(const xAOD::TruthParticle& xTruthTau, int iPdgId, bool bCompareAbsoluteValues) const
+int TauTruthMatchingTool::getNTauDecayParticles(const xAOD::TruthParticle& xTruthTau, int iPdgId, bool bCompareAbsoluteValues)
 {
   int iNum = 0;
   if (!xTruthTau.isAvailable<std::vector<int>>("DecayModeVector"))
@@ -251,7 +355,8 @@ int TauTruthMatchingTool::getNTauDecayParticles(const xAOD::TruthParticle& xTrut
     return 0;
   }
 
-  for(auto _iPdgId : xTruthTau.auxdata<std::vector<int>>("DecayModeVector"))
+  static SG::AuxElement::ConstAccessor<std::vector<int> > accDecayModeVector("DecayModeVector");
+  for(auto _iPdgId : accDecayModeVector(xTruthTau))
     if (!bCompareAbsoluteValues)
     {
       if (_iPdgId == iPdgId) iNum++;
@@ -263,9 +368,8 @@ int TauTruthMatchingTool::getNTauDecayParticles(const xAOD::TruthParticle& xTrut
   return iNum;
 }
 
-#ifdef XAODTAU_VERSIONS_TAUJET_V2_H
 //______________________________________________________________________________
-xAOD::TauJetParameters::DecayMode TauTruthMatchingTool::getDecayMode(const xAOD::TauJet& xTau) const
+xAOD::TauJetParameters::DecayMode TauTruthMatchingTool::getDecayMode(const xAOD::TauJet& xTau)
 {
   const xAOD::TruthParticle* xTruthTau = getTruth(xTau);
   if (xTruthTau == nullptr)
@@ -282,7 +386,7 @@ xAOD::TauJetParameters::DecayMode TauTruthMatchingTool::getDecayMode(const xAOD:
 }
 
 //______________________________________________________________________________
-xAOD::TauJetParameters::DecayMode TauTruthMatchingTool::getDecayMode(const xAOD::TruthParticle& xTruthTau) const
+xAOD::TauJetParameters::DecayMode TauTruthMatchingTool::getDecayMode(const xAOD::TruthParticle& xTruthTau)
 {
   if (!(xTruthTau.isAvailable<size_t>("numCharged")))
   {
@@ -312,24 +416,40 @@ xAOD::TauJetParameters::DecayMode TauTruthMatchingTool::getDecayMode(const xAOD:
   // if you got here, something should have gone wrong
   return xAOD::TauJetParameters::DecayMode::Mode_Error;
 }
-#endif // XAODTAU_VERSIONS_TAUJET_V2_H
 
 //=================================PRIVATE-PART=================================
 //______________________________________________________________________________
 StatusCode TauTruthMatchingTool::findTruthTau(const xAOD::TauJet& xTau) const
 {
+  // check if decorations were already added to the first passed tau
+  if (!m_bIsTruthMatchedAvailableChecked)
+  {
+    m_bIsTruthMatchedAvailable = xTau.isAvailable<char>("IsTruthMatched");
+    m_bIsTruthMatchedAvailableChecked = true;
+    if (m_bIsTruthMatchedAvailable)
+    {
+      ATH_MSG_DEBUG("IsTruthMatched decoration is available on first tau processed, switched of rerun for further taus.");
+      ATH_MSG_DEBUG("If a truth matching needs to be redone, please pass a shallow copy of the original tau.");
+    }
+  }
+  if (m_bIsTruthMatchedAvailable)
+    return StatusCode::SUCCESS;
+
   // only search for truth taus once
+
+  // need to be reviewed, commenting out for now
+
   // if (!xTau.isAvailable<char>("IsTruthMatched"))
   // temporary fix for SUSY derivations
-  if (!xTau.isAvailable<char>("IsTruthMatched")
-      || !xTau.isAvailable< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink")
-      || (xTau.auxdata<char>("IsTruthMatched") && xTau.auxdata< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink") == NULL ))
-  {
-    if (m_bTruthTauAvailable)
-      return checkTruthMatch(xTau, *m_xTruthTauContainerConst);
-    else
-      return checkTruthMatch(xTau, *m_xTruthTauContainer);
-  }
+  // if (!xTau.isAvailable<char>("IsTruthMatched"))
+  // || !xTau.isAvailable< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink")
+  // || (xTau.auxdata<char>("IsTruthMatched") && xTau.auxdata< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink") == NULL ))
+  // {
+  if (m_bTruthTauAvailable)
+    return checkTruthMatch(xTau, *m_xTruthTauContainerConst);
+  else
+    return checkTruthMatch(xTau, *m_xTruthTauContainer);
+  // }
 
   return StatusCode::SUCCESS;
 }
@@ -339,44 +459,56 @@ StatusCode TauTruthMatchingTool::retrieveTruthTaus()
 {
   if ( m_bTruthTauAvailable )
   {
-    if ( evtStore()->retrieve(m_xTruthTauContainerConst,m_sTruthTauContainerName).isSuccess() )
-      ATH_MSG_VERBOSE("TruthTaus container found");
+    if (evtStore()->contains<xAOD::TruthParticleContainer>(m_sTruthTauContainerName))
+    {
+      if ( evtStore()->retrieve(m_xTruthTauContainerConst,m_sTruthTauContainerName).isFailure() )
+        return StatusCode::FAILURE;
+    }
     else
     {
-      ATH_MSG_INFO("TruthTaus container is not available, will generate the container for each event from TruthParticles container");
+      ATH_MSG_INFO("TruthTaus container with name " << m_sTruthTauContainerName << " is not available, will generate the container for each event from TruthParticles container");
       m_bTruthTauAvailable = false;
     }
   }
 
   if ( m_bTruthMuonAvailable )
   {
-    if ( evtStore()->retrieve(m_xTruthMuonContainerConst,m_sTruthMuonContainerName).isSuccess() )
-      ATH_MSG_VERBOSE("TruthMuons container found");
+    if (evtStore()->contains<xAOD::TruthParticleContainer>(m_sTruthMuonContainerName))
+    {
+      if ( evtStore()->retrieve(m_xTruthMuonContainerConst,m_sTruthMuonContainerName).isFailure() )
+        return StatusCode::FAILURE;
+    }
     else
     {
-      ATH_MSG_INFO("TruthMuons container is not available, won't perform matching to truth muons");
+      ATH_MSG_INFO("TruthMuons container with name " << m_sTruthMuonContainerName << " is not available, won't perform matching to truth muons");
       m_bTruthMuonAvailable = false;
     }
   }
 
   if ( m_bTruthElectronAvailable )
   {
-    if ( evtStore()->retrieve(m_xTruthElectronContainerConst,m_sTruthElectronContainerName).isSuccess() )
-      ATH_MSG_VERBOSE("TruthElectrons container found");
+    if (evtStore()->contains<xAOD::TruthParticleContainer>(m_sTruthElectronContainerName))
+    {
+      if ( evtStore()->retrieve(m_xTruthElectronContainerConst,m_sTruthElectronContainerName).isFailure() )
+        return StatusCode::FAILURE;
+    }
     else
     {
-      ATH_MSG_INFO("TruthElectrons container is not available, won't perform matching to truth electrons");
+      ATH_MSG_INFO("TruthElectrons container with name " << m_sTruthElectronContainerName << " is not available, won't perform matching to truth electrons");
       m_bTruthElectronAvailable = false;
     }
   }
 
   if ( m_bTruthJetAvailable )
   {
-    if ( evtStore()->retrieve(m_xTruthJetContainerConst,m_sTruthJetContainerName).isSuccess() )
-      ATH_MSG_VERBOSE("TruthJets container found");
+    if (evtStore()->contains<xAOD::JetContainer>(m_sTruthJetContainerName))
+    {
+      if ( evtStore()->retrieve(m_xTruthJetContainerConst,m_sTruthJetContainerName).isFailure() )
+        return StatusCode::FAILURE;
+    }
     else
     {
-      ATH_MSG_INFO("TruthJets container is not available, won't perform matching to truth jets");
+      ATH_MSG_INFO("TruthJets container with name " << m_sTruthJetContainerName << " is not available, won't perform matching to truth jets");
       m_bTruthJetAvailable = false;
     }
   }
@@ -384,8 +516,13 @@ StatusCode TauTruthMatchingTool::retrieveTruthTaus()
   // go here if TruthTaus was not found in m_bTruthTauAvailable if-block
   if ( !m_bTruthTauAvailable )
   {
-    if ( evtStore()->retrieve(m_xTruthParticleContainer,m_sTruthParticlesContainerName).isSuccess() )
-      return buildTruthTausFromTruthParticles();
+    if (evtStore()->contains<xAOD::TruthParticleContainer>(m_sTruthParticlesContainerName))
+    {
+      if ( evtStore()->retrieve(m_xTruthParticleContainer,m_sTruthParticlesContainerName).isSuccess() )
+        return buildTruthTausFromTruthParticles();
+      else
+        return StatusCode::FAILURE;
+    }
     else
     {
       ATH_MSG_FATAL("TruthParticles container is not available but needed for building truth taus");
@@ -413,9 +550,15 @@ StatusCode TauTruthMatchingTool::buildTruthTausFromTruthParticles()
   if (m_bWriteTruthTaus)
   {
     if ( evtStore()->record( m_xTruthTauContainer, m_sNewTruthTauContainerName ).isFailure() )
+    {
       ATH_MSG_FATAL("Couldn't create truth tau container with key " << m_sNewTruthTauContainerName);
+      return StatusCode::FAILURE;
+    }
     if ( evtStore()->record( m_xTruthTauAuxContainer, m_sNewTruthTauContainerNameAux ).isFailure() )
+    {
       ATH_MSG_FATAL("Couldn't create truth tau container with key " << m_sNewTruthTauContainerNameAux);
+      return StatusCode::FAILURE;
+    }
     ATH_MSG_DEBUG( "Recorded new TruthParticleContainer with key: " <<  m_sNewTruthTauContainerName);
   }
 
@@ -434,7 +577,8 @@ StatusCode TauTruthMatchingTool::buildTruthTausFromTruthParticles()
 
       // create link to the original TruthParticle
       ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthParticle, *m_xTruthParticleContainer);
-      xTruthTau->auxdata< ElementLink< xAOD::TruthParticleContainer > >("originalTruthParticle" ) = lTruthParticleLink;
+      static SG::AuxElement::Accessor<ElementLink< xAOD::TruthParticleContainer > > accOriginalTruthParticle("originalTruthParticle");
+      accOriginalTruthParticle(*xTruthTau) = lTruthParticleLink;
 
       m_xTruthTauContainer->push_back(xTruthTau);
     }
@@ -449,20 +593,23 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
   const xAOD::Jet* xTruthJetMatch = 0;
   TruthMatchedParticleType eTruthMatchedParticleType = Unknown;
 
+  static SG::AuxElement::Decorator<char> decIsTruthMatched("IsTruthMatched");
+  static SG::AuxElement::Decorator< ElementLink< xAOD::JetContainer > > decTruthJetLink("truthJetLink");
 
   double dPtMax = 0;
   for (auto xTruthTauIt : xTruthTauContainer)
   {
     TLorentzVector vTruthVisTLV;
-    vTruthVisTLV.SetPtEtaPhiM(xTruthTauIt->auxdata<double>("pt_vis"),
-                              xTruthTauIt->auxdata<double>("eta_vis"),
-                              xTruthTauIt->auxdata<double>("phi_vis"),
-                              xTruthTauIt->auxdata<double>("m_vis"));
+    vTruthVisTLV.SetPtEtaPhiM(m_accPtVis(*xTruthTauIt),
+                              m_accEtaVis(*xTruthTauIt),
+                              m_accPhiVis(*xTruthTauIt),
+                              m_accMVis(*xTruthTauIt));
     if (xTau.p4().DeltaR(vTruthVisTLV) <= m_dMaxDeltaR)
     {
       if (vTruthVisTLV.Pt()<dPtMax)
         continue;
-      if ((bool)xTruthTauIt->auxdata<char>("IsHadronicTau"))
+      static SG::AuxElement::ConstAccessor<char> accIsHadronicTau("IsHadronicTau");
+      if ((bool)accIsHadronicTau(*xTruthTauIt))
         eTruthMatchedParticleType = TruthHadronicTau;
       else
         eTruthMatchedParticleType = TruthLeptonicTau;
@@ -522,55 +669,58 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
   }
 
   if (xTruthMatch)
-    xTau.auxdecor<char>("IsTruthMatched") = (char)true;
+    decIsTruthMatched(xTau) = (char)true;
   else
-    xTau.auxdecor<char>("IsTruthMatched") = (char)false;
+    decIsTruthMatched(xTau) = (char)false;
 
   if (xTruthJetMatch)
   {
     ElementLink < xAOD::JetContainer > lTruthParticleLink(xTruthJetMatch, *m_xTruthJetContainerConst);
-    xTau.auxdecor< ElementLink< xAOD::JetContainer > >("truthJetLink" ) = lTruthParticleLink;
+    decTruthJetLink(xTau) = lTruthParticleLink;
   }
   else
   {
     ElementLink < xAOD::JetContainer > lTruthParticleLink;
-    xTau.auxdecor< ElementLink< xAOD::JetContainer > >("truthJetLink" ) = lTruthParticleLink;
+    decTruthJetLink(xTau) = lTruthParticleLink;
   }
 
 
   if (!m_bWriteTruthTaus and !m_bTruthTauAvailable)
   {
-    xTau.auxdecor< const xAOD::TruthParticle* > ("TruthTau" ) = xTruthMatch;
+    static SG::AuxElement::Decorator< const xAOD::TruthParticle* > decTruthTau("TruthTau");
+    decTruthTau(xTau) = xTruthMatch;
     return StatusCode::SUCCESS;
   }
+  static SG::AuxElement::Decorator< ElementLink< xAOD::TruthParticleContainer > > decTruthTau("TruthTau");
+  static SG::AuxElement::Decorator<ElementLink< xAOD::TruthParticleContainer >> decTruthParticleLink("truthParticleLink");
 
   // create link to the original TruthParticle
   if (xTruthMatch)
   {
-    xTau.auxdecor<char>("IsTruthMatched") = (char)true;
+    decIsTruthMatched(xTau) = (char)true;
     if (eTruthMatchedParticleType == TruthHadronicTau or eTruthMatchedParticleType == TruthLeptonicTau)
     {
       ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthMatch, xTruthTauContainer);
-      xTau.auxdecor< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink" ) = lTruthParticleLink;
+      decTruthParticleLink(xTau) = lTruthParticleLink;
       if (!m_bTruthTauAvailable)
-        xTau.auxdecor< ElementLink< xAOD::TruthParticleContainer > >("TruthTau" ) = lTruthParticleLink;
+        decTruthTau(xTau) = lTruthParticleLink;
     }
     else if (eTruthMatchedParticleType == TruthMuon)
     {
       ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthMatch, *m_xTruthMuonContainerConst);
-      xTau.auxdecor< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink" ) = lTruthParticleLink;
+      decTruthParticleLink(xTau) = lTruthParticleLink;
     }
     else if (eTruthMatchedParticleType == TruthElectron)
     {
       ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthMatch, *m_xTruthElectronContainerConst);
-      xTau.auxdecor< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink" ) = lTruthParticleLink;
+      decTruthParticleLink(xTau) = lTruthParticleLink;
     }
   }
   else
   {
-    xTau.auxdecor<char>("IsTruthMatched") = (char)false;
+    decIsTruthMatched(xTau) = (char)false;
     ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink;
-    xTau.auxdecor< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink" ) = lTruthParticleLink;
+    decTruthParticleLink(xTau) = lTruthParticleLink;
   }
 
   return StatusCode::SUCCESS;
@@ -627,36 +777,71 @@ StatusCode TauTruthMatchingTool::examineTruthTau(const xAOD::TruthParticle& xTru
     printDecay(xTruthParticle);
   }
 
-  xTruthParticle.auxdecor<double>("pt_vis")  = m_vTruthVisTLV.Pt();
-  xTruthParticle.auxdecor<double>("eta_vis") = m_vTruthVisTLV.Eta();
-  xTruthParticle.auxdecor<double>("phi_vis") = m_vTruthVisTLV.Phi();
-  xTruthParticle.auxdecor<double>("m_vis")   = m_vTruthVisTLV.M();
+  static SG::AuxElement::Decorator<double> decPtVis("pt_vis");
+  static SG::AuxElement::Decorator<double> decEtaVis("eta_vis");
+  static SG::AuxElement::Decorator<double> decPhiVis("phi_vis");
+  static SG::AuxElement::Decorator<double> accMVis("m_vis");
 
-  xTruthParticle.auxdecor<size_t>("numCharged") = m_iNChargedDaughters;
-  xTruthParticle.auxdecor<size_t>("numChargedPion") = m_iNChargedPions;
-  xTruthParticle.auxdecor<size_t>("numNeutral") = m_iNNeutralPions+m_iNNeutralOthers;
-  xTruthParticle.auxdecor<size_t>("numNeutralPion") = m_iNNeutralPions;
+  static SG::AuxElement::Decorator<size_t> decNumCharged("numCharged");
+  static SG::AuxElement::Decorator<size_t> decNumChargedPion("numChargedPion");
+  static SG::AuxElement::Decorator<size_t> decNumNeutral("numNeutral");
+  static SG::AuxElement::Decorator<size_t> accNumNeutralPion("numNeutralPion");
 
-  xTruthParticle.auxdecor<char>("IsHadronicTau") = (char)m_bIsHadronicTau;
+  decPtVis(xTruthParticle) = m_vTruthVisTLV.Pt();
+  decEtaVis(xTruthParticle) = m_vTruthVisTLV.Eta();
+  decPhiVis(xTruthParticle) = m_vTruthVisTLV.Phi();
+  accMVis(xTruthParticle) = m_vTruthVisTLV.M();
+
+  decNumCharged(xTruthParticle) = m_iNChargedDaughters;
+  decNumChargedPion(xTruthParticle) = m_iNChargedPions;
+  decNumNeutral(xTruthParticle) = m_iNNeutralPions+m_iNNeutralOthers;
+  accNumNeutralPion(xTruthParticle) = m_iNNeutralPions;
+
+  static SG::AuxElement::Decorator<char> decIsHadronicTau("IsHadronicTau");
+  decIsHadronicTau(xTruthParticle) = (char)m_bIsHadronicTau;
+
+  if ( m_bWriteInvisibleFourMomentum )
+  {
+    TLorentzVector vTruthInvisTLV = xTruthParticle.p4() - m_vTruthVisTLV;
+    static SG::AuxElement::Decorator<double> decPtInvis("pt_invis");
+    static SG::AuxElement::Decorator<double> decEtaInvis("eta_invis");
+    static SG::AuxElement::Decorator<double> decPhiInvis("phi_invis");
+    static SG::AuxElement::Decorator<double> accMInvis("m_invis");
+    decPtInvis(xTruthParticle)  = vTruthInvisTLV.Pt();
+    decEtaInvis(xTruthParticle) = vTruthInvisTLV.Eta();
+    decPhiInvis(xTruthParticle) = vTruthInvisTLV.Phi();
+    accMInvis(xTruthParticle)   = vTruthInvisTLV.M();
+  }
 
   if ( m_bWriteVisibleChargedFourMomentum )
   {
-    xTruthParticle.auxdecor<double>("pt_vis_charged")  = m_vTruthVisTLVCharged.Pt();
-    xTruthParticle.auxdecor<double>("eta_vis_charged") = m_vTruthVisTLVCharged.Eta();
-    xTruthParticle.auxdecor<double>("phi_vis_charged") = m_vTruthVisTLVCharged.Phi();
-    xTruthParticle.auxdecor<double>("m_vis_charged")   = m_vTruthVisTLVCharged.M();
+    static SG::AuxElement::Decorator<double> decPtVisCharged("pt_vis_charged");
+    static SG::AuxElement::Decorator<double> decEtaVisCharged("eta_vis_charged");
+    static SG::AuxElement::Decorator<double> decPhiVisCharged("phi_vis_charged");
+    static SG::AuxElement::Decorator<double> accMVisCharged("m_vis_charged");
+    decPtVisCharged(xTruthParticle)  = m_vTruthVisTLVCharged.Pt();
+    decEtaVisCharged(xTruthParticle) = m_vTruthVisTLVCharged.Eta();
+    decPhiVisCharged(xTruthParticle) = m_vTruthVisTLVCharged.Phi();
+    accMVisCharged(xTruthParticle)   = m_vTruthVisTLVCharged.M();
   }
 
   if ( m_bWriteVisibleNeutralFourMomentum )
   {
-    xTruthParticle.auxdecor<double>("pt_vis_neutral")  = m_vTruthVisTLVNeutral.Pt();
-    xTruthParticle.auxdecor<double>("eta_vis_neutral") = m_vTruthVisTLVNeutral.Eta();
-    xTruthParticle.auxdecor<double>("phi_vis_neutral") = m_vTruthVisTLVNeutral.Phi();
-    xTruthParticle.auxdecor<double>("m_vis_neutral")   = m_vTruthVisTLVNeutral.M();
+    static SG::AuxElement::Decorator<double> decPtVisNeutral("pt_vis_neutral");
+    static SG::AuxElement::Decorator<double> decEtaVisNeutral("eta_vis_neutral");
+    static SG::AuxElement::Decorator<double> decPhiVisNeutral("phi_vis_neutral");
+    static SG::AuxElement::Decorator<double> accMVisNeutral("m_vis_neutral");
+    decPtVisNeutral(xTruthParticle)  = m_vTruthVisTLVNeutral.Pt();
+    decEtaVisNeutral(xTruthParticle) = m_vTruthVisTLVNeutral.Eta();
+    decPhiVisNeutral(xTruthParticle) = m_vTruthVisTLVNeutral.Phi();
+    accMVisNeutral(xTruthParticle)   = m_vTruthVisTLVNeutral.M();
   }
 
   if ( m_bWriteDecayModeVector )
-    xTruthParticle.auxdecor<std::vector<int>>("DecayModeVector") = m_vDecayMode;
+  {
+    static SG::AuxElement::Decorator<std::vector<int> > decDecayModeVector("DecayModeVector");
+    decDecayModeVector(xTruthParticle) = m_vDecayMode;
+  }
 
   return StatusCode::SUCCESS;
 }

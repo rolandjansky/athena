@@ -22,6 +22,7 @@
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauJetAuxContainer.h"
 #include "xAODTruth/TruthParticle.h"
 
 // Local include(s):
@@ -30,6 +31,11 @@
 #include "TauAnalysisTools/TauSmearingTool.h"
 #include "TauAnalysisTools/TauTruthMatchingTool.h"
 #include "TauAnalysisTools/TauTruthTrackMatchingTool.h"
+#include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
+
+// Smart Slimming include(s):
+#include "xAODCore/tools/IOStats.h"
+#include "xAODCore/tools/ReadStats.h"
 
 using namespace TauAnalysisTools;
 
@@ -43,8 +49,18 @@ using namespace TauAnalysisTools;
     }							\
   } while( false )
 
+#define RETRIEVE( TYPE, CONTAINER , NAME )				\
+  do {									\
+  if (xEvent.contains<TYPE>(NAME))					\
+    CHECK( xEvent.retrieve( CONTAINER, NAME ) );			\
+  else									\
+    Warning("TauAnalysisToolsExample","%s container is not available", NAME);		\
+  } while(false)							\
+ 
 int main( int argc, char* argv[] )
 {
+  CP::SystematicCode::enableFailure();
+
   // Check if we received a file name:
   if( argc < 2 )
   {
@@ -63,7 +79,10 @@ int main( int argc, char* argv[] )
   CHECK( fInputFile.get() );
 
   // Create the output file:
-  const TString sOutputFileName = "output.root";
+  TString sOutputFileName = "output.root";
+  if (argc>3)
+    sOutputFileName = TString(argv[3]);
+
   Info( "TauAnalysisToolsExample", "Opening output file: %s", sOutputFileName.Data() );
   std::unique_ptr< TFile > fOutputFile( TFile::Open( sOutputFileName, "RECREATE" ) );
   CHECK( fOutputFile.get() );
@@ -94,22 +113,20 @@ int main( int argc, char* argv[] )
   const xAOD::TauJetContainer* xTauJetContainer = 0;
   const xAOD::TruthParticleContainer* xTruthParticleContainer = 0;
   const xAOD::TrackParticleContainer* xTrackParticleContainer = 0;
-  const xAOD::VertexContainer* xVertexContainer = 0;
 
-  // define selection tool
+  // ===========================================================================
+  // TauSelectionTool
+  // ===========================================================================
   TauAnalysisTools::TauSelectionTool* TauSelTool = new TauAnalysisTools::TauSelectionTool( "TauSelectionTool" );
-  TauSelTool->msg().setLevel( MSG::DEBUG );
-  // loosening number of cuts
-  CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt | CutAbsEta | CutNTrack | CutEleOLR)));
-  // also accepting 2 track taus
-  std::vector<size_t> vTracks = {1,2,3};
-  CHECK(TauSelTool->setProperty("NTracks", vTracks ));
+  TauSelTool->msg().setLevel( MSG::INFO );
   // preparation for control hisograms
   TauSelTool->setOutFile( fOutputFile.get() );
   CHECK(TauSelTool->setProperty("CreateControlPlots", true ));
   CHECK(TauSelTool->initialize());
 
-  // define smearing tools
+  // ===========================================================================
+  // TauSmearingTool
+  // ===========================================================================
   TauAnalysisTools::TauSmearingTool TauSmeTool( "TauSmearingTool" );
   TauSmeTool.msg().setLevel( MSG::INFO );
   CHECK(TauSmeTool.initialize());
@@ -122,50 +139,99 @@ int main( int argc, char* argv[] )
     vSmearingSystematicSet.back().insert(SystematicsVariation);
   }
 
-  // define efficiency tools
-  TauAnalysisTools::TauEfficiencyCorrectionsTool TauEffJetTool( "TauEfficiencyJetTool" );
-  TauEffJetTool.msg().setLevel( MSG::INFO );
-  CHECK(TauEffJetTool.setProperty("EfficiencyCorrectionType", (int)SFJetID));
-  CHECK(TauEffJetTool.initialize());
-  TauAnalysisTools::TauEfficiencyCorrectionsTool TauEffEleTool( "TauEfficiencyEleTool" );
-  TauEffEleTool.msg().setLevel( MSG::INFO );
-  CHECK(TauEffEleTool.setProperty("EfficiencyCorrectionType", (int)SFEleID));
-  CHECK(TauEffEleTool.initialize());
-  TauAnalysisTools::TauEfficiencyCorrectionsTool TauEffContJetTool( "TauEfficiencyContJetTool" );
-  TauEffContJetTool.msg().setLevel( MSG::INFO );
-  CHECK(TauEffContJetTool.setProperty("EfficiencyCorrectionType", (int)SFContJetID));
-  CHECK(TauEffContJetTool.initialize());
+  // ===========================================================================
+  // TauEfficiencyCorrectionsTool
+  // ===========================================================================
+  TauAnalysisTools::TauEfficiencyCorrectionsTool TauEffCorrTool( "TauEfficiencyCorrectionsTool" );
+  TauEffCorrTool.msg().setLevel( MSG::DEBUG );
+  CHECK(TauEffCorrTool.initialize());
 
   // restructure all recommended systematic variations for efficiency tools
-  std::vector<CP::SystematicSet> vEfficiencyCorrectionsSystematicSetJet;
-  vEfficiencyCorrectionsSystematicSetJet.push_back(CP::SystematicSet());
-  for (auto SystematicsVariation : TauEffJetTool.recommendedSystematics())
+  std::vector<CP::SystematicSet> vEfficiencyCorrectionsSystematicSet;
+  vEfficiencyCorrectionsSystematicSet.push_back(CP::SystematicSet());
+  for (auto SystematicsVariation : TauEffCorrTool.recommendedSystematics())
   {
-    vEfficiencyCorrectionsSystematicSetJet.push_back(CP::SystematicSet());
-    vEfficiencyCorrectionsSystematicSetJet.back().insert(SystematicsVariation);
+    std::cout<< "SystematicsVariation " << SystematicsVariation.basename()<<"\n";
+    vEfficiencyCorrectionsSystematicSet.push_back(CP::SystematicSet());
+    vEfficiencyCorrectionsSystematicSet.back().insert(SystematicsVariation);
   }
-  std::vector<CP::SystematicSet> vEfficiencyCorrectionsSystematicSetEle;
-  vEfficiencyCorrectionsSystematicSetEle.push_back(CP::SystematicSet());
-  for (auto SystematicsVariation : TauEffEleTool.recommendedSystematics())
+  CP::SystematicSet sHighRecoPtDown;
+  sHighRecoPtDown.insert(CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_RECO_TOTAL",-1));
+  sHighRecoPtDown.insert(CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_RECO_HIGHPT",-1));
+  vEfficiencyCorrectionsSystematicSet.push_back(sHighRecoPtDown);
+  CP::SystematicSet sHighRecoPtUp;
+  sHighRecoPtUp.insert(CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_RECO_TOTAL",1));
+  sHighRecoPtUp.insert(CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_RECO_HIGHPT",1));
+  vEfficiencyCorrectionsSystematicSet.push_back(sHighRecoPtUp);
+
+  CP::SystematicSet sHighJetIDPtDown;
+  sHighJetIDPtDown.insert(CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_JETID_TOTAL",-1));
+  sHighJetIDPtDown.insert(CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_JETID_HIGHPT",-1));
+  vEfficiencyCorrectionsSystematicSet.push_back(sHighJetIDPtDown);
+  CP::SystematicSet sHighJetIDPtUp;
+  sHighJetIDPtUp.insert(CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_JETID_TOTAL",1));
+  sHighJetIDPtUp.insert(CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_JETID_HIGHPT",1));
+  vEfficiencyCorrectionsSystematicSet.push_back(sHighJetIDPtUp);
+
+  // ===========================================================================
+  // TauEfficiencyCorrectionsTriggerTool
+  // ===========================================================================
+  TauAnalysisTools::TauEfficiencyCorrectionsTool TauEffTrigTool( "TauEfficiencyCorrectionsTriggerTool" );
+  TauEffTrigTool.msg().setLevel( MSG::DEBUG );
+  CHECK(TauEffTrigTool.setProperty("EfficiencyCorrectionTypes", std::vector<int>({SFTriggerHadTau}) ));
+  CHECK(TauEffTrigTool.setProperty("TriggerName", "HLT_tau125_medium1_tracktwo" ));
+  CHECK(TauEffTrigTool.setProperty("IDLevel", (int)JETIDBDTTIGHT ));
+  CHECK(TauEffTrigTool.initialize());
+
+  // restructure all recommended systematic variations for efficiency tools
+  std::vector<CP::SystematicSet> vEfficiencyCorrectionsTriggerSystematicSet;
+  vEfficiencyCorrectionsTriggerSystematicSet.push_back(CP::SystematicSet());
+  for (auto SystematicsVariation : TauEffTrigTool.recommendedSystematics())
   {
-    vEfficiencyCorrectionsSystematicSetEle.push_back(CP::SystematicSet());
-    vEfficiencyCorrectionsSystematicSetEle.back().insert(SystematicsVariation);
-  }
-  std::vector<CP::SystematicSet> vEfficiencyCorrectionsSystematicSetContJet;
-  vEfficiencyCorrectionsSystematicSetContJet.push_back(CP::SystematicSet());
-  for (auto SystematicsVariation : TauEffContJetTool.recommendedSystematics())
-  {
-    vEfficiencyCorrectionsSystematicSetContJet.push_back(CP::SystematicSet());
-    vEfficiencyCorrectionsSystematicSetContJet.back().insert(SystematicsVariation);
+    std::cout<< "SystematicsVariation " << SystematicsVariation.basename()<<"\n";
+    vEfficiencyCorrectionsTriggerSystematicSet.push_back(CP::SystematicSet());
+    vEfficiencyCorrectionsTriggerSystematicSet.back().insert(SystematicsVariation);
   }
 
+  CP::SystematicSet sTOTALDOWN;
+  sTOTALDOWN.insert(CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_TRIGGER_TOTAL",-1));
+  vEfficiencyCorrectionsTriggerSystematicSet.push_back(sTOTALDOWN);
+  CP::SystematicSet sTOTALUP;
+  sTOTALUP.insert(CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_TRIGGER_TOTAL",1));
+  vEfficiencyCorrectionsTriggerSystematicSet.push_back(sTOTALUP);
+
+  CP::SystematicSet sTOTALDOWN_COMB;
+  sTOTALDOWN_COMB.insert(CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_TRIGGER_STATDATA",-1));
+  sTOTALDOWN_COMB.insert(CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_TRIGGER_STATMC",1));
+  sTOTALDOWN_COMB.insert(CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_TRIGGER_SYST",-1));
+  vEfficiencyCorrectionsTriggerSystematicSet.push_back(sTOTALDOWN_COMB);
+  CP::SystematicSet sTOTALUP_COMB;
+  sTOTALUP_COMB.insert(CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_TRIGGER_STATDATA",1));
+  sTOTALUP_COMB.insert(CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_TRIGGER_STATMC",-1));
+  sTOTALUP_COMB.insert(CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_TRIGGER_SYST",1));
+  vEfficiencyCorrectionsTriggerSystematicSet.push_back(sTOTALUP_COMB);
+
+  // ===========================================================================
+  // TauTruthMatchingTool
+  // ===========================================================================
   TauAnalysisTools::TauTruthMatchingTool T2MT( "TauTruthMatchingTool");
   T2MT.msg().setLevel( MSG::INFO );
+  CHECK(T2MT.setProperty("WriteTruthTaus", true));
   CHECK(T2MT.initialize());
 
+  // ===========================================================================
+  // TauTruthTrackMatchingTool
+  // ===========================================================================
   TauAnalysisTools::TauTruthTrackMatchingTool T3MT( "TauTruthTrackMatchingTool");
   T3MT.msg().setLevel( MSG::INFO );
   CHECK(T3MT.initialize());
+
+  // ===========================================================================
+  // TauOverlappingElectronLLHDecorator
+  // ===========================================================================
+  TauAnalysisTools::TauOverlappingElectronLLHDecorator TOELLHDecorator( "TauOverlappingElectronLLHDecorator");
+  TOELLHDecorator.msg().setLevel( MSG::INFO );
+  CHECK(TOELLHDecorator.initialize());
 
   // Loop over the events:
   for( Long64_t iEntry = 0; iEntry < iEntries; ++iEntry )
@@ -175,35 +241,36 @@ int main( int argc, char* argv[] )
     xEvent.getEntry( iEntry );
 
     // Print some event information for fun:
-    CHECK( xEvent.retrieve( xEventInfo, "EventInfo" ) );
-    Info( "TauAnalysisToolsExample",
-          "===>>>  start processing event #%i, "
-          "run #%i %i events processed so far  <<<===",
-          static_cast< int >( xEventInfo->eventNumber() ),
-          static_cast< int >( xEventInfo->runNumber() ),
-          static_cast< int >( iEntry ) );
+    RETRIEVE(xAOD::EventInfo, xEventInfo, "EventInfo");
+    if (xEventInfo)
+      Info( "TauAnalysisToolsExample",
+            "===>>>  start processing event #%i, "
+            "run #%i %i events processed so far  <<<===",
+            static_cast< int >( xEventInfo->eventNumber() ),
+            static_cast< int >( xEventInfo->runNumber() ),
+            static_cast< int >( iEntry ) );
 
-    // Get container from the event:
-    CHECK( xEvent.retrieve( xTauJetContainer, "TauJets" ) );
-    CHECK( xEvent.retrieve( xTrackParticleContainer , "InDetTrackParticles" ) );
-    CHECK( xEvent.retrieve( xVertexContainer , "PrimaryVertices" ) );
-    CHECK( xEvent.retrieve( xTruthParticleContainer , "TruthParticles" ) );
+    RETRIEVE(xAOD::TauJetContainer, xTauJetContainer, "TauJets");
+    RETRIEVE(xAOD::TrackParticleContainer, xTrackParticleContainer , "InDetTrackParticles" );
+    RETRIEVE(xAOD::TruthParticleContainer, xTruthParticleContainer , "TruthParticles" );
 
     // copy truth particles to get truthparticle link for truth taus to work
     CHECK( xEvent.copy("TruthParticles") );
 
-    Info( "TauAnalysisToolsExample", "Number of taus: %i",
-          static_cast< int >( xTauJetContainer->size() ) );
+    // copy taus
+    CHECK( xEvent.copy("TauJets") );
 
-    // create TruthTau Container in output file
-    CHECK(T2MT.initializeEvent());
+    // copy tracks
+    CHECK( xEvent.copy("InDetTrackParticles") );
 
-    // intialize for electron OLR
-    CHECK(TauSelTool->initializeEvent());
-
-    // // Print their properties, using the tools:
+    // Print tau properties, using the tools:
     for ( auto xTau : *xTauJetContainer )
     {
+      // decorate tau with electron llh score
+      CHECK(TOELLHDecorator.decorate(*xTau));
+
+      // perform truth matching
+      auto xTruthTau = T2MT.getTruth(*xTau);
 
       // Select "good" taus:
       if( ! TauSelTool->accept( *xTau ) ) continue;
@@ -212,41 +279,65 @@ int main( int argc, char* argv[] )
       Info( "TauAnalysisToolsExample", "Selected tau: pt = %g, eta = %g, phi = %g, prong = %i, charge = %i",
             xTau->pt(), xTau->eta(), xTau->phi(), int(xTau->nTracks()), int(xTau->charge()));
 
-      auto xTruthTau = T2MT.getTruth(*xTau);
-      if (xTau->auxdata<char>("IsTruthMatched"))
-        Info( "TauAnalysisToolsExample",
-              "Tau was matched to a truth tau, which has %i prongs and a charge of %i",
-              int(xTruthTau->auxdata<size_t>("numCharged")),
-              int(xTruthTau->charge()));
+      if ((bool)xTau->auxdata<char>("IsTruthMatched"))
+      {
+        if (xTruthTau->isTau())
+        {
+          if ((bool)xTruthTau->auxdata<char>("IsHadronicTau"))
+            Info( "TauAnalysisToolsExample",
+                  "Tau was matched to a truth hadronic tau, which has %i prongs and a charge of %i",
+                  int(xTruthTau->auxdata<size_t>("numCharged")),
+                  int(xTruthTau->charge()));
+          else
+            Info( "TauAnalysisToolsExample",
+                  "Tau was matched to a truth leptonic tau, which has a charge of %i",
+                  int(xTruthTau->charge()));
+        }
+        else if (xTruthTau->isElectron())
+          Info( "TauAnalysisToolsExample",
+                "Tau was matched to a truth electron");
+        else if (xTruthTau->isMuon())
+          Info( "TauAnalysisToolsExample",
+                "Tau was matched to a truth muon");
+      }
       else
         Info( "TauAnalysisToolsExample", "Tau was not matched to truth" );
 
-      for (auto sSystematicSet: vEfficiencyCorrectionsSystematicSetJet)
+      auto xTruthJetLink = xTau->auxdata< ElementLink< xAOD::JetContainer > >("truthJetLink");
+      if (xTruthJetLink.isValid())
       {
-        CHECK( TauEffJetTool.applySystematicVariation(sSystematicSet));
-        CHECK( TauEffJetTool.applyEfficiencyScaleFactor(*xTau) );
+        const xAOD::Jet* xTruthJet = *xTruthJetLink;
         Info( "TauAnalysisToolsExample",
-              "JetIDEff: %g for type %s ",
-              xTau->auxdata< double >( "TauScaleFactorJetID" ),
-              sSystematicSet.name().c_str());
+              "Tau was matched to a truth jet, which has pt=%g, eta=%g, phi=%g, m=%g",
+              xTruthJet->p4().Pt(),
+              xTruthJet->p4().Eta(),
+              xTruthJet->p4().Phi(),
+              xTruthJet->p4().M());
       }
-      for (auto sSystematicSet: vEfficiencyCorrectionsSystematicSetEle)
+      else
+        Info( "TauAnalysisToolsExample", "Tau was not matched to truth jet" );
+
+      for (auto sSystematicSet: vEfficiencyCorrectionsSystematicSet)
       {
-        CHECK( TauEffEleTool.applySystematicVariation(sSystematicSet));
-        CHECK( TauEffEleTool.applyEfficiencyScaleFactor(*xTau) );
+        CHECK( TauEffCorrTool.applySystematicVariation(sSystematicSet));
+        CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
         Info( "TauAnalysisToolsExample",
-              "EleIDEff: %g for type %s ",
-              xTau->auxdata< double >( "TauScaleFactorEleID" ),
-              sSystematicSet.name().c_str());
+              "SystType %s: RecoSF: %g JetIDSF: %g EleOLRSFHadTau: %g EleOLRSFElectron: %g",
+              sSystematicSet.name().c_str(),
+              xTau->auxdata< double >( "TauScaleFactorReconstructionHadTau" ),
+              xTau->auxdata< double >( "TauScaleFactorJetIDHadTau" ),
+              xTau->auxdata< double >( "TauScaleFactorEleOLRHadTau" ),
+              xTau->auxdata< double >( "TauScaleFactorEleOLRElectron" ));
       }
-      for (auto sSystematicSet: vEfficiencyCorrectionsSystematicSetContJet)
+
+      for (auto sSystematicSet: vEfficiencyCorrectionsTriggerSystematicSet)
       {
-        CHECK( TauEffContJetTool.applySystematicVariation(sSystematicSet));
-        CHECK( TauEffContJetTool.applyEfficiencyScaleFactor(*xTau) );
+        CHECK( TauEffTrigTool.applySystematicVariation(sSystematicSet));
+        CHECK( TauEffTrigTool.applyEfficiencyScaleFactor(*xTau) );
         Info( "TauAnalysisToolsExample",
-              "ContJetIDEff: %g for type %s ",
-              xTau->auxdata< double >( "TauScaleFactorContJetID" ),
-              sSystematicSet.name().c_str());
+              "SystType %s: Trigger: %g",
+              sSystematicSet.name().c_str(),
+              xTau->auxdata< double >( "TauScaleFactorTriggerHadTau" ));
       }
 
       for (auto sSystematicSet: vSmearingSystematicSet)
@@ -262,14 +353,15 @@ int main( int argc, char* argv[] )
 
       for (size_t iTrack = 0; iTrack < xTau->nTracks(); iTrack++)
       {
-        const xAOD::TrackParticle* xTrack = xTau->track(iTrack);
+        const TAUTRACKPARTICLE* xTrack = xTau->track(iTrack);
+
         CHECK(T3MT.classifyTrack(*xTrack));
-        if (xTrack->auxdecor<char>("IsHadronicTrack"))
-          Info( "TauAnalysisToolsExample", "Track is matched to a hadronic tau decay, with decay depth %i",xTrack->auxdecor<int>("IsHadronicTrackDecayDepth"));
+        if (xTrack->auxdata<char>("IsHadronicTrack"))
+          Info( "TauAnalysisToolsExample", "Track is matched to a hadronic tau decay, with decay depth %i",xTrack->auxdata<int>("IsHadronicTrackDecayDepth"));
         else
           Info( "TauAnalysisToolsExample", "Track is not matched to a hadronic tau decay");
-        Info ("TauAnalysisToolsExample", "The track decay history is: %s", (xTrack->auxdecor<std::string>("DecayHistory")).c_str());
-        Info ("TauAnalysisToolsExample", "The spurious type is: %i", xTrack->auxdecor<int>("SpuriousType") );
+        Info ("TauAnalysisToolsExample", "The track decay history is: %s", (xTrack->auxdata<std::string>("DecayHistory")).c_str());
+        Info ("TauAnalysisToolsExample", "The spurious type is: %i", xTrack->auxdata<int>("SpuriousType") );
       }
     }
     xEvent.fill();
@@ -280,5 +372,9 @@ int main( int argc, char* argv[] )
   CHECK( xEvent.finishWritingTo(fOutputFile.get()));
   fOutputFile.get()->Close();
   Info( "TauAnalysisToolsExample", "Finished writing to file: %s", sOutputFileName.Data() );
+
+  // smart slimming
+  xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
+
   return 0;
 }

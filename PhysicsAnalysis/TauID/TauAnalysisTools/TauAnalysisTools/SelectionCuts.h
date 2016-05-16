@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SELECTIONCUTS_H
-#define SELECTIONCUTS_H
+#ifndef TAUANALYSISTOOLS_SELECTIONCUTS_H
+#define TAUANALYSISTOOLS_SELECTIONCUTS_H
 
 /*
   author: Dirk Duschinger
@@ -15,22 +15,17 @@
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
 		    or
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
-  report any issues on JIRA: https://its.cern.ch/jira/browse/TAUAT/?selectedTab=com.atlassian.jira.jira-projects-plugin:issues-panel
 */
 
 // Framework include(s):
-#ifndef __MAKECINT__
 #include "xAODTau/TauJet.h"
-#endif // __MAKECINT__
 #include "PATCore/TAccept.h"
 
 // Local include(s):
-#include "TauAnalysisTools/TauSelectionTool.h"
 #include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
 
 // ROOT include(s):
 #include "TH1F.h"
-#include "TH2D.h"
 
 namespace TauAnalysisTools
 {
@@ -47,7 +42,7 @@ public:
   void writeControlHistograms();
   void fillHistogramCutPre(const xAOD::TauJet& xTau);
   void fillHistogramCut(const xAOD::TauJet& xTau);
-  virtual StatusCode initializeEvent()
+  virtual StatusCode beginEvent()
   {
     return StatusCode::SUCCESS;
   };
@@ -156,18 +151,16 @@ class SelectionCutEleOLR
 {
 public:
   SelectionCutEleOLR(TauSelectionTool* tTST);
-  StatusCode initializeEvent();
+  StatusCode beginEvent();
   bool accept(const xAOD::TauJet& xTau);
   ~SelectionCutEleOLR();
 
-  float getEvetoScore(const xAOD::TauJet& xTau);
+  bool getEvetoPass(const xAOD::TauJet& xTau);
 private:
-  TH2D* m_hCutValues;
   TauOverlappingElectronLLHDecorator* m_tTOELLHDecorator;
-  bool m_bCheckEleMatchLHScoreAvailable;
-  bool m_bEleMatchLHScoreAvailable;
+  bool m_bCheckEleMatchPassAvailable;
+  bool m_bEleMatchPassAvailable;
 
-  float getCutVal(float fEta, float fPt);
   StatusCode createTOELLHDecorator();
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
 };
@@ -184,4 +177,4 @@ private:
 
 }
 
-#endif // SELECTIONCUTS_H
+#endif // TAUANALYSISTOOLS_SELECTIONCUTS_H

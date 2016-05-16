@@ -6,62 +6,60 @@
 #include "PathResolver/PathResolver.h"
 
 // local include(s)
-#include "TauAnalysisTools/CommonEfficiencyTool.h"
-#include "TauAnalysisTools/TauEfficiencyCorrectionsTool.h"
+#include "TauAnalysisTools/CommonSmearingTool.h"
+#include "TauAnalysisTools/TauSmearingTool.h"
 #include "xAODTruth/TruthParticleContainer.h"
+
+// ROOT include(s)
+#include "TF1.h"
 
 using namespace TauAnalysisTools;
 
 //______________________________________________________________________________
-CommonEfficiencyTool::CommonEfficiencyTool(std::string sName)
+CommonSmearingTool::CommonSmearingTool(std::string sName)
   : asg::AsgTool( sName )
   , m_mSF(0)
-  , m_tTECT(0)
+  , m_tTST(0)
   , m_sSystematicSet(0)
   , m_fX(&tauPt)
   , m_fY(&tauEta)
   , m_sInputFilePath("")
-  , m_sWP("")
-  , m_sVarName("")
   , m_bSkipTruthMatchCheck(false)
-  , m_sSFHistName("sf")
+  , m_bApplyFading(true)
   , m_eCheckTruth(TauAnalysisTools::Unknown)
   , m_bNoMultiprong(false)
-  , m_bSFIsAvailable(false)
-  , m_bSFIsAvailableChecked(false)
 {
   m_mSystematics = {};
 
-  declareProperty( "InputFilePath", m_sInputFilePath );
-  declareProperty( "VarName", m_sVarName );
-  declareProperty( "SkipTruthMatchCheck", m_bSkipTruthMatchCheck );
-  declareProperty( "WP", m_sWP );
+  declareProperty("InputFilePath", m_sInputFilePath);
+  declareProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck);
+  declareProperty("ApplyFading", m_bApplyFading);
 }
 
-CommonEfficiencyTool::~CommonEfficiencyTool()
+CommonSmearingTool::~CommonSmearingTool()
 {
   if (m_mSF)
     for (auto mEntry : *m_mSF)
-      delete std::get<0>(mEntry.second);
+      delete mEntry.second;
   delete m_mSF;
 }
 
-StatusCode CommonEfficiencyTool::initialize()
+StatusCode CommonSmearingTool::initialize()
 {
-  ATH_MSG_INFO( "Initializing CommonEfficiencyTool" );
+  ATH_MSG_INFO( "Initializing CommonSmearingTool" );
   // only read in histograms once
   if (m_mSF==nullptr)
   {
     std::string sInputFilePath = PathResolverFindCalibFile(m_sInputFilePath);
 
-    m_mSF = new tSFMAP();
+    m_mSF = new SFMAP();
     TFile* fSF = TFile::Open(sInputFilePath.c_str(), "READ");
     if(!fSF)
     {
       ATH_MSG_FATAL("Could not open file " << sInputFilePath.c_str());
       return StatusCode::FAILURE;
     }
-    ReadInputs(fSF);
+    ReadInputs(fSF, m_mSF);
     fSF->Close();
     delete fSF;
   }
@@ -71,9 +69,6 @@ StatusCode CommonEfficiencyTool::initialize()
   m_sInputFileName = vInputFilePath.back();
   generateSystematicSets();
 
-  if (m_sWP.length()>0)
-    m_sSFHistName = "sf_"+m_sWP;
-
   // load empty systematic variation by default
   if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok )
     return StatusCode::FAILURE;
@@ -82,138 +77,118 @@ StatusCode CommonEfficiencyTool::initialize()
 }
 
 //______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
-    double& dEfficiencyScaleFactor)
+CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
 {
   // check which true state is requestet
   if (!m_bSkipTruthMatchCheck and checkTruthMatch(xTau) != m_eCheckTruth)
   {
-    dEfficiencyScaleFactor = 1.;
-    return CP::CorrectionCode::Ok;
-  }
-
-  // check if 1 prong
-  if (m_bNoMultiprong && xTau.nTracks() != 1)
-  {
-    dEfficiencyScaleFactor = 1.;
     return CP::CorrectionCode::Ok;
   }
 
   // get prong extension for histogram name
   std::string sProng = ConvertProngToString(xTau.nTracks());
 
+  double dCorrection = 1.;
   // get standard scale factor
   CP::CorrectionCode tmpCorrectionCode;
-  tmpCorrectionCode = getValue(m_sSFHistName+sProng,
+  tmpCorrectionCode = getValue("sf"+sProng,
                                xTau,
-                               dEfficiencyScaleFactor);
+                               dCorrection);
   // return correction code if histogram is not available
   if (tmpCorrectionCode != CP::CorrectionCode::Ok)
     return tmpCorrectionCode;
 
   // skip further process if systematic set is empty
-  if (m_sSystematicSet->size() == 0)
-    return CP::CorrectionCode::Ok;
-
-  // get uncertainties summed in quadrature
-  double dTotalSystematic2 = 0;
-  double dDirection = 0;
-  for (auto syst : *m_sSystematicSet)
+  if (m_sSystematicSet->size() > 0)
   {
-    // check if systematic is available
-    auto it = m_mSystematicsHistNames.find(syst.basename());
+    // get uncertainties summed in quadrature
+    double dTotalSystematic2 = 0;
+    double dDirection = 0;
+    for (auto syst : *m_sSystematicSet)
+    {
+      // check if systematic is available
+      auto it = m_mSystematicsHistNames.find(syst.basename());
 
-    // get uncertainty value
-    double dUncertaintySyst = 0;
+      // get uncertainty value
+      double dUncertaintySyst = 0;
+      tmpCorrectionCode = getValue(it->second+sProng,
+                                   xTau,
+                                   dUncertaintySyst);
 
-    // needed for up/down decision
-    dDirection = syst.parameter();
+      // return correction code if histogram is not available
+      if (tmpCorrectionCode != CP::CorrectionCode::Ok)
+        return tmpCorrectionCode;
 
-    // build up histogram name
-    std::string sHistName = it->second;
-    if (dDirection>0)   sHistName+="_up";
-    else                sHistName+="_down";
-    if (!m_sWP.empty()) sHistName+="_"+m_sWP;
-    sHistName += sProng;
+      // needed for up/down decision
+      dDirection = syst.parameter();
 
-    // get the uncertainty from the histogram
-    tmpCorrectionCode = getValue(sHistName,
-                                 xTau,
-                                 dUncertaintySyst);
+      // scale uncertainty with direction, i.e. +/- n*sigma
+      dUncertaintySyst *= dDirection;
 
-    // return correction code if histogram is not available
-    if (tmpCorrectionCode != CP::CorrectionCode::Ok)
-      return tmpCorrectionCode;
+      // square uncertainty and add to total uncertainty
+      dTotalSystematic2 += dUncertaintySyst * dUncertaintySyst;
+    }
 
-    // scale uncertainty with direction, i.e. +/- n*sigma
-    dUncertaintySyst *= dDirection;
+    // now use dDirection to use up/down uncertainty
+    dDirection = (dDirection > 0) ? +1 : -1;
 
-    // square uncertainty and add to total uncertainty
-    dTotalSystematic2 += dUncertaintySyst * dUncertaintySyst;
+    // finally apply uncertainty (eff * ( 1 +/- \sum  )
+    dCorrection *= 1 + dDirection * sqrt(dTotalSystematic2);
   }
 
-  // now use dDirection to use up/down uncertainty
-  dDirection = (dDirection > 0) ? +1 : -1;
-
-  // finally apply uncertainty (eff * ( 1 +/- \sum  )
-  dEfficiencyScaleFactor *= 1 + dDirection * sqrt(dTotalSystematic2);
-
+  // finally apply correction
+  xTau.setP4( xTau.pt() * dCorrection,
+              xTau.eta(), xTau.phi(), xTau.m());
   return CP::CorrectionCode::Ok;
 }
 
 //______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::TauJet& xTau)
+CP::CorrectionCode CommonSmearingTool::correctedCopy( const xAOD::TauJet& xTau,
+    xAOD::TauJet*& xTauCopy )
 {
-  double dSf = 0.;
 
-  if (!m_bSFIsAvailableChecked)
+  // A sanity check:
+  if( xTauCopy )
   {
-    m_bSFIsAvailable = xTau.isAvailable< double >(m_sVarName);
-    m_bSFIsAvailableChecked = true;
-    if (m_bSFIsAvailable)
-    {
-      ATH_MSG_DEBUG(m_sVarName << " decoration is available on first tau processed, switched of applyEfficiencyScaleFactor for further taus.");
-      ATH_MSG_DEBUG("If an application of efficiency scale factors needs to be redone, please pass a shallow copy of the original tau.");
-    }
+    ATH_MSG_WARNING( "Non-null pointer received. "
+                     "There's a possible memory leak!" );
   }
-  if (m_bSFIsAvailable)
-    return CP::CorrectionCode::Ok;
 
-  // retreive scale factor
-  CP::CorrectionCode tmpCorrectionCode = getEfficiencyScaleFactor(xTau, dSf);
-  // adding scale factor to tau as decoration
-  xTau.auxdecor<double>(m_sVarName) = dSf;
+  // Create a new object:
+  xTauCopy = new xAOD::TauJet();
+  xTauCopy->makePrivateStore( xTau );
 
-  return tmpCorrectionCode;
+  // Use the other function to modify this object:
+  return applyCorrection( *xTauCopy );
 }
 
 //______________________________________________________________________________
-bool CommonEfficiencyTool::isAffectedBySystematic( const CP::SystematicVariation& systematic ) const
+bool CommonSmearingTool::isAffectedBySystematic( const CP::SystematicVariation& systematic ) const
 {
   CP::SystematicSet sys = affectingSystematics();
   return sys.find (systematic) != sys.end ();
 }
 
 //______________________________________________________________________________
-CP::SystematicSet CommonEfficiencyTool::affectingSystematics() const
+CP::SystematicSet CommonSmearingTool::affectingSystematics() const
 {
   return m_sAffectingSystematics;
 }
 
 //______________________________________________________________________________
-CP::SystematicSet CommonEfficiencyTool::recommendedSystematics() const
+CP::SystematicSet CommonSmearingTool::recommendedSystematics() const
 {
   return m_sRecommendedSystematics;
 }
 
 //______________________________________________________________________________
-void CommonEfficiencyTool::setParent(TauEfficiencyCorrectionsTool* tTECT)
+void CommonSmearingTool::setParent(TauSmearingTool* tTST)
 {
-  m_tTECT = tTECT;
+  m_tTST = tTST;
 }
 
 //______________________________________________________________________________
-CP::SystematicCode CommonEfficiencyTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
+CP::SystematicCode CommonSmearingTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
 {
   // first check if we already know this systematic configuration
   auto itSystematicSet = m_mSystematicSets.find(sSystematicSet);
@@ -247,7 +222,7 @@ CP::SystematicCode CommonEfficiencyTool::applySystematicVariation ( const CP::Sy
 
     if ((m_sRecommendedSystematics.find(sSyst.basename()) != m_sRecommendedSystematics.end()) and sSystematicSet.size() > 1)
     {
-      ATH_MSG_ERROR("unsupported set of systematic variations, you should not combine \"TAUS_{TRUE|FAKE}_EFF_*_TOTAL\" with other systematic variations!");
+      ATH_MSG_ERROR("unsupported set of systematic variations, you should not combine \"TAUS_{TRUE|FAKE}_SME_TOTAL\" with other systematic variations!");
       ATH_MSG_ERROR("systematic set will not be applied");
       return CP::SystematicCode::Unsupported;
     }
@@ -264,7 +239,7 @@ CP::SystematicCode CommonEfficiencyTool::applySystematicVariation ( const CP::Sy
 
 //=================================PRIVATE-PART=================================
 //______________________________________________________________________________
-std::string CommonEfficiencyTool::ConvertProngToString(const int& fProngness)
+std::string CommonSmearingTool::ConvertProngToString(const int& fProngness)
 {
   std::string prong = "";
   if (fProngness == 0)
@@ -274,10 +249,9 @@ std::string CommonEfficiencyTool::ConvertProngToString(const int& fProngness)
 }
 
 //______________________________________________________________________________
-void CommonEfficiencyTool::ReadInputs(TFile* fFile)
+template<class T>
+void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>* mMap)
 {
-  m_mSF->clear();
-
   // initialize function pointer
   m_fX = &tauPt;
   m_fY = &tauEta;
@@ -286,12 +260,14 @@ void CommonEfficiencyTool::ReadInputs(TFile* fFile)
   TIter itNext(fFile->GetListOfKeys());
   while ((kKey = (TKey*)itNext()))
   {
+    TClass *cClass = gROOT->GetClass(kKey->GetClassName());
+
     // parse file content for objects of type TNamed, check their title for
     // known strings and reset funtion pointer
     std::string sKeyName = kKey->GetName();
     if (sKeyName == "Xaxis")
     {
-      TNamed* tObj = (TNamed*)kKey->ReadObj();
+      TNamed* tObj = (T)kKey->ReadObj();
       std::string sTitle = tObj->GetTitle();
       delete tObj;
       if (sTitle == "P")
@@ -299,11 +275,10 @@ void CommonEfficiencyTool::ReadInputs(TFile* fFile)
         m_fX = &tauP;
         ATH_MSG_DEBUG("using full momentum for x-axis");
       }
-      continue;
     }
-    else if (sKeyName == "Yaxis")
+    if (sKeyName == "Yaxis")
     {
-      TNamed* tObj = (TNamed*)kKey->ReadObj();
+      TNamed* tObj = (T)kKey->ReadObj();
       std::string sTitle = tObj->GetTitle();
       delete tObj;
       if (sTitle == "track-eta")
@@ -316,69 +291,27 @@ void CommonEfficiencyTool::ReadInputs(TFile* fFile)
         m_fY = &tauAbsEta;
         ATH_MSG_DEBUG("using absolute tau eta for y-axis");
       }
+    }
+    if (!cClass->InheritsFrom("TH1"))
       continue;
-    }
-
-    std::vector<std::string> m_vSplitName = {};
-    split(sKeyName,'_',m_vSplitName);
-    if (m_vSplitName[0] == "sf")
-    {
-      addHistogramToSFMap(kKey, sKeyName);
-    }
-    else
-    {
-      // std::string sDirection = m_vSplitName[1];
-      if (sKeyName.find("_up_") != std::string::npos or sKeyName.find("_down_") != std::string::npos)
-        addHistogramToSFMap(kKey, sKeyName);
-      else
-      {
-        size_t iPos = sKeyName.find('_');
-        addHistogramToSFMap(kKey, sKeyName.substr(0,iPos)+"_up"+sKeyName.substr(iPos));
-        addHistogramToSFMap(kKey, sKeyName.substr(0,iPos)+"_down"+sKeyName.substr(iPos));
-      }
-    }
+    T tObj = (T)kKey->ReadObj();
+    tObj->SetDirectory(0);
+    (*mMap)[sKeyName] = tObj;
   }
   ATH_MSG_INFO("data loaded from " << fFile->GetName());
 }
 
-void CommonEfficiencyTool::addHistogramToSFMap(TKey* kKey, const std::string& sKeyName)
-{
-  // handling for the 3 different input types TH1F/TH1D/TF1, function pointer
-  // handle the access methods for the final scale factor retrieval
-  TClass *cClass = gROOT->GetClass(kKey->GetClassName());
-  if (cClass->InheritsFrom("TH2"))
-  {
-    TH1F* oObject = (TH1F*)kKey->ReadObj();
-    oObject->SetDirectory(0);
-    if (cClass->InheritsFrom("TH2D"))
-      (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH2D);
-    else
-      (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH2F);
-    ATH_MSG_DEBUG("added histogram with name "<<sKeyName);
-  }
-  else if (cClass->InheritsFrom("TF1"))
-  {
-    TObject* oObject = kKey->ReadObj();
-    (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTF1);
-    ATH_MSG_DEBUG("added function with name "<<sKeyName);
-  }
-  else
-  {
-    ATH_MSG_DEBUG("ignored object with name "<<sKeyName);
-  }
-}
-
 //______________________________________________________________________________
-void CommonEfficiencyTool::generateSystematicSets()
+void CommonSmearingTool::generateSystematicSets()
 {
-  // creation of basic string for all NPs, e.g. "TAUS_TRUEHADTAU_EFF_RECO_"
+  // creation of basic string for all NPs, e.g. "TAUS_TRUEHADTAU_SME_TES_"
   std::vector<std::string> m_vSplitInputFilePath = {};
   split(m_sInputFileName,'_',m_vSplitInputFilePath);
   std::string sEfficiencyType = m_vSplitInputFilePath.at(0);
   std::string sTruthType = m_vSplitInputFilePath.at(1);
   std::transform(sEfficiencyType.begin(), sEfficiencyType.end(), sEfficiencyType.begin(), toupper);
   std::transform(sTruthType.begin(), sTruthType.end(), sTruthType.begin(), toupper);
-  std::string sSystematicBaseString = "TAUS_"+sTruthType+"_EFF_"+sEfficiencyType+"_";
+  std::string sSystematicBaseString = "TAUS_"+sTruthType+"_SME_"+sEfficiencyType+"_";
 
   // set truth type to check for in truth matching
   if (sTruthType=="TRUEHADTAU") m_eCheckTruth = TauAnalysisTools::TruthHadronicTau;
@@ -419,51 +352,26 @@ void CommonEfficiencyTool::generateSystematicSets()
       m_sRecommendedSystematics.insert(CP::SystematicVariation (sSystematicString, -1));
     }
 
-    ATH_MSG_DEBUG("connected base name " << sNP << " with systematic " <<sSystematicString);
+    ATH_MSG_DEBUG("connected histogram base name " << sNP << " with systematic " <<sSystematicString);
     m_mSystematicsHistNames.insert({sSystematicString,sNP});
   }
 }
 
 //______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::getValue(const std::string& sHistName,
+CP::CorrectionCode CommonSmearingTool::getValue(const std::string& sHistName,
     const xAOD::TauJet& xTau,
     double& dEfficiencyScaleFactor) const
 {
-  if (m_mSF->find(sHistName) == m_mSF->end())
+  TH1F* hHist = (*m_mSF)[sHistName];
+  if (!hHist)
   {
-    ATH_MSG_ERROR("Object with name "<<sHistName<<" was not found in input file.");
-    ATH_MSG_DEBUG("Content of input file");
-    for (auto eEntry : *m_mSF)
-      ATH_MSG_DEBUG("  Entry: "<<eEntry.first);
+    ATH_MSG_ERROR("Histogram with name "<<sHistName<<" was not found in input file.");
     return CP::CorrectionCode::Error;
   }
 
-  // get a tuple (TObject*,functionPointer) from the scale factor map
-  tTupleObjectFunc tTuple = (*m_mSF)[sHistName];
-
-  // get pt and eta (for x and y axis respectively)
   double dPt = m_fX(xTau);
   double dEta = m_fY(xTau);
 
-  // finally obtain efficiency scale factor from TH1F/TH1D/TF1, by calling the
-  // function pointer stored in the tuple from the scale factor map
-  return  (std::get<1>(tTuple))(std::get<0>(tTuple), dEfficiencyScaleFactor, dPt, dEta);
-}
-
-//______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::getValueTH2F(const TObject* oObject,
-    double& dEfficiencyScaleFactor,
-    double dPt,
-    double dEta)
-{
-  const TH2F* hHist = dynamic_cast<const TH2F*>(oObject);
-
-  if (!hHist)
-  {
-    // ATH_MSG_ERROR("Problem with casting TObject of type "<<oObject->ClassName()<<" to TH2F");
-    return CP::CorrectionCode::Error;
-  }
-
   // protect values from underflow bins
   dPt = std::max(dPt,hHist->GetXaxis()->GetXmin());
   dEta = std::max(dEta,hHist->GetYaxis()->GetXmin());
@@ -471,65 +379,31 @@ CP::CorrectionCode CommonEfficiencyTool::getValueTH2F(const TObject* oObject,
   dPt = std::min(dPt,hHist->GetXaxis()->GetXmax() * .999);
   dEta = std::min(dEta,hHist->GetYaxis()->GetXmax() * .999);
 
-  // get bin from TH2 depending in x and y values; finally set the scale factor
   int iBin = hHist->FindFixBin(dPt,dEta);
   dEfficiencyScaleFactor = hHist->GetBinContent(iBin);
-  return CP::CorrectionCode::Ok;
-}
 
-//______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::getValueTH2D(const TObject* oObject,
-    double& dEfficiencyScaleFactor,
-    double dPt,
-    double dEta)
-{
-  const TH2D* hHist = dynamic_cast<const TH2D*>(oObject);
-
-  if (!hHist)
+  if (m_bApplyFading)
   {
-    // ATH_MSG_ERROR("Problem with casting TObject of type "<<oObject->ClassName()<<" to TH2D");
-    return CP::CorrectionCode::Error;
+    std::string sTitle = hHist->GetTitle();
+    if (sTitle.size()>0)
+    {
+      TF1 f("",sTitle.c_str(), 0, 1000);
+      if (sHistName.find("sf_") != std::string::npos)
+        dEfficiencyScaleFactor = (dEfficiencyScaleFactor -1) *f.Eval(dPt) + 1;
+      else
+        dEfficiencyScaleFactor *= f.Eval(dPt);
+    }
   }
-
-  // protect values from underflow bins
-  dPt = std::max(dPt,hHist->GetXaxis()->GetXmin());
-  dEta = std::max(dEta,hHist->GetYaxis()->GetXmin());
-  // protect values from overflow bins (times .999 to keep it inside last bin)
-  dPt = std::min(dPt,hHist->GetXaxis()->GetXmax() * .999);
-  dEta = std::min(dEta,hHist->GetYaxis()->GetXmax() * .999);
-
-  // get bin from TH2 depending in x and y values; finally set the scale factor
-  int iBin = hHist->FindFixBin(dPt,dEta);
-  dEfficiencyScaleFactor = hHist->GetBinContent(iBin);
   return CP::CorrectionCode::Ok;
 }
 
 //______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::getValueTF1(const TObject* oObject,
-    double& dEfficiencyScaleFactor,
-    double dPt,
-    double dEta)
-{
-  const TF1* fFunc = static_cast<const TF1*>(oObject);
-
-  if (!fFunc)
-  {
-    // ATH_MSG_ERROR("Problem with casting TObject of type "<<oObject->ClassName()<<" to TF1");
-    return CP::CorrectionCode::Error;
-  }
-
-  // evaluate TFunction and set scale factor
-  dEfficiencyScaleFactor = fFunc->Eval(dPt, dEta);
-  return CP::CorrectionCode::Ok;
-}
-
-//______________________________________________________________________________
-e_TruthMatchedParticleType CommonEfficiencyTool::checkTruthMatch(const xAOD::TauJet& xTau) const
+e_TruthMatchedParticleType CommonSmearingTool::checkTruthMatch(const xAOD::TauJet& xTau) const
 {
   // check if reco tau is a truth hadronic tau
   typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
   if (!xTau.isAvailable< Link_t >("truthParticleLink"))
-    ATH_MSG_ERROR("No truth match information available. Please run TauTruthMatchingTool first");
+    ATH_MSG_ERROR("No truth match information available. Please run TauTruthMatchingTool first.");
 
   static SG::AuxElement::Accessor<Link_t> accTruthParticleLink("truthParticleLink");
   const Link_t xTruthParticleLink = accTruthParticleLink(xTau);

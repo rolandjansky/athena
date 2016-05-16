@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUEFFICIENCYTOOL_H
-#define TAUEFFICIENCYTOOL_H
+#ifndef TAUANALYSISTOOLS_TAUEFFICIENCYTOOL_H
+#define TAUANALYSISTOOLS_TAUEFFICIENCYTOOL_H
 
 /*
   author: Dirk Duschinger
@@ -15,7 +15,6 @@
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
 		    or
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
-  report any issues on JIRA: https://its.cern.ch/jira/browse/TAUAT/?selectedTab=com.atlassian.jira.jira-projects-plugin:issues-panel
 */
 
 // Framework include(s):
@@ -28,6 +27,7 @@
 #include "TauAnalysisTools/TauEfficiencyJetIDTool.h"
 #include "TauAnalysisTools/TauEfficiencyContJetIDTool.h"
 #include "TauAnalysisTools/TauEfficiencyEleIDTool.h"
+#include "TauAnalysisTools/TauEfficiencyTriggerTool.h"
 #include "TauAnalysisTools/TauSelectionTool.h"
 
 namespace TauAnalysisTools
@@ -35,7 +35,6 @@ namespace TauAnalysisTools
 
 class TauEfficiencyCorrectionsTool
   : public virtual ITauEfficiencyCorrectionsTool
-  , public virtual CP::ISystematicsTool
   , public asg::AsgTool
 {
   /// Create a proper constructor for Athena
@@ -44,8 +43,10 @@ class TauEfficiencyCorrectionsTool
   // declaration of classes as friends to access private member variables
   friend class CommonEfficiencyTool;
   friend class TauEfficiencyJetIDTool;
+  friend class TauEfficiencyJetIDRun2Tool;
   friend class TauEfficiencyContJetIDTool;
   friend class TauEfficiencyEleIDTool;
+  friend class TauEfficiencyTriggerTool;
 
 public:
   /// Create a constructor for standalone usage
@@ -61,7 +62,7 @@ public:
   virtual StatusCode initialize();
 
   /// Print tool configuration
-  virtual void printConfig();
+  virtual void printConfig(bool bAlways = true);
 
   /// Get the "tau efficiency" as a return value
   virtual CP::CorrectionCode getEfficiencyScaleFactor( const xAOD::TauJet& xTau,
@@ -80,25 +81,55 @@ public:
 
   virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig );
 
+  virtual StatusCode setRunNumber(int iRunNumber);
+
+private:
+  std::string ConvertJetIDToString(const int& iLevel);
+  std::string ConvertEleOLRToString(const int& iLevel);
+  std::string ConvertTriggerIDToString(const int& iLevel);
+
+  StatusCode initializeWithTauSelectionTool();
+
 private:
   /// Some dummy property
   int m_iEfficiencyCorrectionType;
-  std::map<std::string,CommonEfficiencyTool*> m_mCommonEfficiencyTool;
-  CommonEfficiencyTool* m_tCommonEfficiencyTool;
+  std::vector<int> m_vEfficiencyCorrectionTypes;
+  std::vector< CommonEfficiencyTool* > m_vCommonEfficiencyTools;
   std::string m_sInputFilePath;
+  std::string m_sInputFilePathRecoHadTau;
+  std::string m_sInputFilePathEleOLRHadTau;
+  std::string m_sInputFilePathEleOLRElectron;
+  std::string m_sInputFilePathJetIDHadTau;
+  std::string m_sInputFilePathContJetIDHadTau;
+  std::string m_sInputFilePathEleIDHadTau;
+  std::string m_sInputFilePathTriggerHadTau;
   std::string m_sVarNameBase;
+  std::string m_sVarNameRecoHadTau;
+  std::string m_sVarNameEleOLRHadTau;
+  std::string m_sVarNameEleOLRElectron;
+  std::string m_sVarNameJetIDHadTau;
+  std::string m_sVarNameContJetIDHadTau;
+  std::string m_sVarNameEleIDHadTau;
+  std::string m_sVarNameTriggerHadTau;
+  std::string m_sRecommendationTag;
+  std::string m_sTriggerName;
+  bool m_bSkipTruthMatchCheck;
+  bool m_bNoMultiprong;
   bool m_bUseIDExclusiveSF;
   bool m_bUseInclusiveEta;
+  bool m_bUseTriggerInclusiveEta;
   bool m_bUsePtBinnedSF;
   bool m_bUseHighPtUncert;
-  int m_iSysDirection;
   int m_iIDLevel;
   int m_iEVLevel;
   int m_iOLRLevel;
   int m_iContSysType;
+  int m_iTriggerPeriodBinning;
+
+  TauSelectionTool* m_tTauSelectionTool;
 
 }; // class TauEfficiencyCorrectionsTool
 
 } // namespace TauAnalysisTools
 
-#endif // CPTOOLTESTS_TAUEFFICIENCYTOOL_H
+#endif // TAUANALYSISTOOLS_TAUEFFICIENCYTOOL_H

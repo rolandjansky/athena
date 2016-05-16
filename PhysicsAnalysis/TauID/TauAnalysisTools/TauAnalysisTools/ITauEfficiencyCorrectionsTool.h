@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ITAUEFFICIENCYTOOL_H
-#define ITAUEFFICIENCYTOOL_H
+#ifndef TAUANALYSISTOOLS_ITAUEFFICIENCYTOOL_H
+#define TAUANALYSISTOOLS_ITAUEFFICIENCYTOOL_H
 
 /*
   author: Dirk Duschinger
@@ -15,7 +15,6 @@
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
 		    or
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
-  report any issues on JIRA: https://its.cern.ch/jira/browse/TAUAT/?selectedTab=com.atlassian.jira.jira-projects-plugin:issues-panel
 */
 
 // Framework include(s):
@@ -31,16 +30,15 @@
 namespace TauAnalysisTools
 {
 
-class ITauEfficiencyCorrectionsTool : public virtual asg::IAsgTool
+class ITauEfficiencyCorrectionsTool
+  : public virtual asg::IAsgTool
+  , public virtual CP::ISystematicsTool
 {
 
   /// Declare the interface that the class provides
   ASG_TOOL_INTERFACE( TauAnalysisTools::ITauEfficiencyCorrectionsTool )
 
 public:
-  /// Function initialising the tool
-  virtual StatusCode initialize() = 0;
-
   /// Get the "tau efficiency" as a return value
   virtual CP::CorrectionCode getEfficiencyScaleFactor( const xAOD::TauJet& xTau,
       double& eff ) = 0;
@@ -48,20 +46,8 @@ public:
   /// Decorate the tau with its efficiency
   virtual CP::CorrectionCode applyEfficiencyScaleFactor( const xAOD::TauJet& xTau ) = 0;
 
-  /// returns: whether this tool is affected by the given systematis
-  virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const = 0;
-
-  /// returns: the list of all systematics this tool can be affected by
-  virtual CP::SystematicSet affectingSystematics() const = 0;
-
-  /// returns: the list of all systematics this tool recommends to use
-  virtual CP::SystematicSet recommendedSystematics() const = 0;
-
-  virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig ) = 0;
-
-
 }; // class ITauEfficiencyCorrectionsTool
 
 } // namespace TauAnalysisTools
 
-#endif // ITAUEFFICIENCYTOOL_H
+#endif // TAUANALYSISTOOLS_ITAUEFFICIENCYTOOL_H

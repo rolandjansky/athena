@@ -4,14 +4,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ITAUOVERLAPPINGELECTRONLLHDECORATOR_H
-#define ITAUOVERLAPPINGELECTRONLLHDECORATOR_H
+#ifndef TAUANALYSISTOOLS_ITAUOVERLAPPINGELECTRONLLHDECORATOR_H
+#define TAUANALYSISTOOLS_ITAUOVERLAPPINGELECTRONLLHDECORATOR_H
 
 /*
   author: Dirk Duschinger
   mail: dirk.duschinger@cern.ch
-  report any issues on JIRA: https://its.cern.ch/jira/browse/TAUAT/?selectedTab=com.atlassian.jira.jira-projects-plugin:issues-panel
+  documentation in: ../README.rst
+                    or
+                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
+                    or
+                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
 */
+
 
 // Framework include(s):
 #include "AsgTools/IAsgTool.h"
@@ -31,10 +36,7 @@ class ITauOverlappingElectronLLHDecorator : public virtual asg::IAsgTool
 
 public:
 
-  /// Function initialising the tool
-  virtual StatusCode initialize() = 0;
-
-  virtual StatusCode initializeEvent() = 0;
+  virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauOverlappingElectronLLHDecorator.rst"))) = 0;
 
   virtual StatusCode decorate(const xAOD::TauJet& xTau) = 0;
 
@@ -42,4 +44,4 @@ public:
 
 } // namespace TauAnalysisTools
 
-#endif // ITAUOVERLAPPINGELECTRONLLHDECORATOR_H
+#endif // TAUANALYSISTOOLS_ITAUOVERLAPPINGELECTRONLLHDECORATOR_H

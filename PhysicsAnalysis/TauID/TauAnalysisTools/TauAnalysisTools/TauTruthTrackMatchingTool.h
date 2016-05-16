@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef  TAUTRUTHTRACKMATCHINGTOOL_H
-#define  TAUTRUTHTRACKMATCHINGTOOL_H
+#ifndef  TAUANALYSISTOOLS_TAUTRUTHTRACKMATCHINGTOOL_H
+#define  TAUANALYSISTOOLS_TAUTRUTHTRACKMATCHINGTOOL_H
 
 /*
   author: Dirk Duschinger
@@ -15,7 +15,6 @@
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
 		    or
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
-  report any issues on JIRA: https://its.cern.ch/jira/browse/TAUAT/?selectedTab=com.atlassian.jira.jira-projects-plugin:issues-panel
 */
 
 // Framework include(s):
@@ -53,25 +52,25 @@ public:
 
   virtual StatusCode initialize();
 
-#ifndef __MAKECINT__
   // classify vector of tracks
-  virtual StatusCode classifyTracks(std::vector<const xAOD::TrackParticle*>& vTracks);
+  virtual StatusCode classifyTracks(std::vector<const TAUTRACKPARTICLE*>& vTracks);
 
   // classify a single track
-  virtual StatusCode classifyTrack(const xAOD::TrackParticle& xTrackParticle);
-#endif // not __MAKECINT__
+  virtual StatusCode classifyTrack(const TAUTRACKPARTICLE& xTrackParticle);
 
 private:
 
-#ifndef __MAKECINT__
-  void checkTrackSpuriousType(const xAOD::TrackParticle& xTrackParticle);
-  void checkTrackIsTauInheritant(const xAOD::TrackParticle& xTrackParticle);
+  void checkTrackSpuriousType(const TAUTRACKPARTICLE& xTrackParticle);
+  void checkTrackIsTauInheritant(const TAUTRACKPARTICLE& xTrackParticle);
   bool checkTruthParent(const xAOD::TruthParticle& xTruthParticle, int& iDepth, std::string& sHistory);
-  const xAOD::TruthParticle* getTruthParticle(const xAOD::TrackParticle& xTrackParticle);
-#endif // not __MAKECINT__
+  const xAOD::TruthParticle* getTruthParticle(const TAUTRACKPARTICLE& xTrackParticle);
+
+private:
+  bool m_bIsHadronicTrackAvailable;
+  bool m_bIsHadronicTrackAvailableChecked;
 
 }; // class TauTruthTrackMatchingTool
 
 }
-#endif // TAUTRUTHTRACKMATCHINGTOOL_H
+#endif // TAUANALYSISTOOLS_TAUTRUTHTRACKMATCHINGTOOL_H
 

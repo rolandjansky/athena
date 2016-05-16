@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ENUMS_H
-#define ENUMS_H
+#ifndef TAUANALYSISTOOLS_ENUMS_H
+#define TAUANALYSISTOOLS_ENUMS_H
 
 /*
   author: Dirk Duschinger
@@ -13,7 +13,6 @@
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
 		    or
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
-  report any issues on JIRA: https://its.cern.ch/jira/browse/TAUAT/?selectedTab=com.atlassian.jira.jira-projects-plugin:issues-panel
 */
 
 namespace TauAnalysisTools
@@ -49,11 +48,17 @@ typedef enum e_ELEID
 
 typedef enum
 {
+  OLRNONEUNCONFIGURED = 0,
   OLRNONE     = 1,
   OLRLOOSEPP  = 2,
   OLRMEDIUMPP = 3,
   OLRTIGHTPP  = 4,
-  OLROTHER    = 5
+  OLROTHER    = 5,
+
+  TAUELEOLR       = 6,
+  ELELOOSELLHOLR  = 7,
+  ELEMEDIUMLLHOLR = 8,
+  ELETIGHTLLHOLR  = 9
 } OLR;
 
 typedef enum
@@ -67,9 +72,36 @@ typedef enum
 
 enum EfficiencyCorrectionType
 {
-  SFJetID     = 1,
-  SFContJetID = 2,
-  SFEleID     = 3
+  // run 1 enums
+  SFJetID          = 1,
+  SFContJetID      = 2,
+  SFEleID          = 3,
+
+  // run 2 enums
+  SFRecoHadTau     = 4,
+  // SFRecoJet        = 5,
+  // SFRecoElectron   = 6,
+  // SFRecoMuon       = 7,
+
+  SFJetIDHadTau    = 8,
+  // SFJetIDJet       = 9,
+  // SFJetIDElectron  = 10,
+  // SFJetIDMuon      = 11,
+
+  SFEleOLRHadTau   = 12,
+  // SFEleOLRJet      = 13,
+  SFEleOLRElectron = 14,
+  // SFEleOLRMuon     = 15,
+
+  SFEleIDHadTau    = 16,
+  // SFEleIDJet       = 17,
+  // SFEleIDElectron  = 18,
+  // SFEleIDMuon      = 19,
+
+  SFTriggerHadTau  = 20,
+  // SFEleIDJet       = 21,
+  // SFEleIDElectron  = 22,
+  // SFEleIDMuon      = 23,
 };
 
 enum EfficiencyCorrectionSystematicType
@@ -88,6 +120,27 @@ typedef enum e_TruthMatchedParticleType
   TruthJet         = 5
 } TruthMatchedParticleType;
 
+typedef enum e_DataPeriod
+{
+  PeriodUnknown  = 0,
+  PeriodD  = 1,
+  PeriodE  = 2,
+  PeriodF  = 3,
+  PeriodG  = 4,
+  PeriodH2 = 5,
+  PeriodH3 = 6,
+  PeriodI  = 7,
+  PeriodJ  = 8
+} DataPeriod;
+
+typedef enum e_DataPeriodBinning
+{
+  PeriodBinningUnknown  = 0,
+  PeriodBinningAll        = 1,
+  PeriodBinningD_EFGH23J  = 2,
+  PeriodBinningD_EFH23J_G = 3
+} DataPeriodBinning;
+
 }
 
-#endif // ENUMS_H
+#endif // TAUANALYSISTOOLS_ENUMS_H

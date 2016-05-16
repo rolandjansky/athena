@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ITAUTRUTHTRACKMATCHINGTOOL_H
-#define ITAUTRUTHTRACKMATCHINGTOOL_H
+#ifndef TAUANALYSISTOOLS_ITAUTRUTHTRACKMATCHINGTOOL_H
+#define TAUANALYSISTOOLS_ITAUTRUTHTRACKMATCHINGTOOL_H
 
 /*
   author: Dirk Duschinger
@@ -15,7 +15,6 @@
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
 		    or
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
-  report any issues on JIRA: https://its.cern.ch/jira/browse/TAUAT/?selectedTab=com.atlassian.jira.jira-projects-plugin:issues-panel
 */
 
 // Framework include(s):
@@ -24,13 +23,12 @@
 // Core include(s):
 #include "AthLinks/ElementLink.h"
 
-#ifndef __MAKECINT__
 // xAOD include(s):
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertex.h"
-#endif // not __MAKECINT__
+#include "xAODTau/TauJet.h"
 
 // EDM include(s):
 #include "PATInterfaces/CorrectionCode.h"
@@ -39,6 +37,12 @@
 
 namespace TauAnalysisTools
 {
+
+#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
+typedef xAOD::TauTrack TAUTRACKPARTICLE;
+#else
+typedef xAOD::TrackParticle TAUTRACKPARTICLE;
+#endif  // XAODTAU_VERSIONS_TAUJET_V3_H
 
 class ITauTruthTrackMatchingTool : public virtual asg::IAsgTool
 {
@@ -50,16 +54,14 @@ public:
   /// Function initialising the tool
   virtual StatusCode initialize() = 0;
 
-#ifndef __MAKECINT__
   // classify vector of tracks
-  virtual StatusCode classifyTracks(std::vector<const xAOD::TrackParticle*>& vTracks) = 0;
+  virtual StatusCode classifyTracks(std::vector<const TAUTRACKPARTICLE*>& vTracks) = 0;
 
   // classify a single track
-  virtual StatusCode classifyTrack(const xAOD::TrackParticle& xTrackParticle) = 0;
-#endif // not __MAKECINT__
+  virtual StatusCode classifyTrack(const TAUTRACKPARTICLE& xTrackParticle) = 0;
 
 }; // class ITauTruthTrackMatchingTool
 
 } // namespace TauAnalysisTools
 
-#endif // ITAUTRUTHTRACKMATCHINGTOOL_H
+#endif // TAUANALYSISTOOLS_ITAUTRUTHTRACKMATCHINGTOOL_H

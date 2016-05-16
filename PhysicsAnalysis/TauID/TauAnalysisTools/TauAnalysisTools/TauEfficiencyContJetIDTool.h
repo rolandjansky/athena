@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUEFFICIENCYCONTJETIDTOOL_H
-#define TAUEFFICIENCYCONTJETIDTOOL_H
+#ifndef TAUANALYSISTOOLS_TAUEFFICIENCYCONTJETIDTOOL_H
+#define TAUANALYSISTOOLS_TAUEFFICIENCYCONTJETIDTOOL_H
 
 /*
   author: Dirk Duschinger
@@ -15,18 +15,16 @@
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
 		    or
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
-  report any issues on JIRA: https://its.cern.ch/jira/browse/TAUAT/?selectedTab=com.atlassian.jira.jira-projects-plugin:issues-panel
 */
 
 // Local include(s):
-#include "CommonEfficiencyTool.h"
+#include "TauAnalysisTools/CommonEfficiencyTool.h"
 
 namespace TauAnalysisTools
 {
 
 class TauEfficiencyContJetIDTool : public CommonEfficiencyTool
 {
-  ASG_TOOL_CLASS( TauEfficiencyContJetIDTool, TauAnalysisTools::ITauEfficiencyCorrectionsTool )
 
 public:
 
@@ -88,6 +86,6 @@ private:
   int m_iSysDirection;
 
 };
-} // namespace TauCorrUncert
+} // namespace TauAnalysisTools
 
-#endif // TAUEFFICIENCYCONTJETIDTOOL_H
+#endif // TAUANALYSISTOOLS_TAUEFFICIENCYCONTJETIDTOOL_H

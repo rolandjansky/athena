@@ -4,11 +4,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SELECTIONCUTS_CXX
-#define SELECTIONCUTS_CXX
 
 // local include(s)
 #include "TauAnalysisTools/SelectionCuts.h"
+#include "TauAnalysisTools/TauSelectionTool.h"
 
 // ROOT include(s)
 #include "TFile.h"
@@ -104,7 +103,7 @@ bool SelectionCutPt::accept(const xAOD::TauJet& xTau)
       return true;
     }
   }
-  // ATH_MSG_VERBOSE( "Tau failed pt region requirement, tau pt: " << pt );
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed pt requirement, tau pt [GeV]: " << pt << endmsg;
   return false;
 }
 
@@ -138,7 +137,7 @@ bool SelectionCutAbsEta::accept(const xAOD::TauJet& xTau)
       return true;
     }
   }
-  // ATH_MSG_VERBOSE( "Tau failed eta region requirement, tau eta: " << xTau.eta() );
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed eta requirement, tau eta: " << xTau.eta() << endmsg;
   return false;
 }
 
@@ -171,7 +170,7 @@ bool SelectionCutAbsCharge::accept(const xAOD::TauJet& xTau)
       return true;
     }
   }
-  // ATH_MSG_VERBOSE( "Tau failed charge requirement, tau charge: " << xTau.charge() );
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed charge requirement, tau charge: " << xTau.charge() << endmsg;
   return false;
 }
 
@@ -204,7 +203,7 @@ bool SelectionCutNTracks::accept(const xAOD::TauJet& xTau)
       return true;
     }
   }
-  // ATH_MSG_VERBOSE( "Tau failed nTracks requirement, tau number of tracks: " << xTau.nTracks() );
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed nTracks requirement, tau number of tracks: " << xTau.nTracks() << endmsg;
   return false;
 }
 
@@ -239,7 +238,7 @@ bool SelectionCutBDTJetScore::accept(const xAOD::TauJet& xTau)
       return true;
     }
   }
-  // ATH_MSG_VERBOSE( "Tau failed JetBDTScore requirement, tau JetBDTScore: " << dJetBDTScore );
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed JetBDTScore requirement, tau JetBDTScore: " << dJetBDTScore << endmsg;
   return false;
 }
 
@@ -281,36 +280,46 @@ bool SelectionCutJetIDWP::accept(const xAOD::TauJet& xTau)
   // check Jet ID working point, if tau passes JetID working point then return true; false otherwise
   m_tTST->m_aAccept.addCut( "JetIDWP",
                             "Selection of taus according to their JetIDScore" );
-  bool pass = false;
-  if (m_tTST->m_iJetIDWP == JETIDNONE or m_tTST->m_iJetIDWP == JETIDNONEUNCONFIGURED)
-    pass = true;
-  if (m_tTST->m_iJetIDWP == JETIDBDTLOOSE)
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose))
-      pass = true;
-  if (m_tTST->m_iJetIDWP == JETIDBDTMEDIUM)
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigMedium))
-      pass = true;
-  if (m_tTST->m_iJetIDWP == JETIDBDTTIGHT)
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigTight))
-      pass = true;
-  if (m_tTST->m_iJetIDWP == JETIDBDTLOOSENOTMEDIUM)
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose) and !xTau.isTau(xAOD::TauJetParameters::JetBDTSigMedium))
-      pass = true;
-  if (m_tTST->m_iJetIDWP == JETIDBDTLOOSENOTTIGHT)
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose) and !xTau.isTau(xAOD::TauJetParameters::JetBDTSigTight))
-      pass = true;
-  if (m_tTST->m_iJetIDWP == JETIDBDTMEDIUMNOTTIGHT)
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigMedium) and !xTau.isTau(xAOD::TauJetParameters::JetBDTSigTight))
-      pass = true;
-  if (m_tTST->m_iJetIDWP == JETIDBDTNOTLOOSE)
-    if (!xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose))
-      pass = true;
-  if (pass)
+  bool bPass = false;
+  switch (m_tTST->m_iJetIDWP)
+  {
+  case JETIDNONE:
+    bPass = true;
+    break;
+  case JETIDNONEUNCONFIGURED:
+    bPass = true;
+    break;
+  case JETIDBDTLOOSE:
+    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose)) bPass = true;
+    break;
+  case JETIDBDTMEDIUM:
+    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigMedium)) bPass = true;
+    break;
+  case JETIDBDTTIGHT:
+    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigTight)) bPass = true;
+    break;
+  case JETIDBDTLOOSENOTMEDIUM:
+    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose) and !xTau.isTau(xAOD::TauJetParameters::JetBDTSigMedium)) bPass = true;
+    break;
+  case JETIDBDTLOOSENOTTIGHT:
+    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose) and !xTau.isTau(xAOD::TauJetParameters::JetBDTSigTight)) bPass = true;
+    break;
+  case JETIDBDTMEDIUMNOTTIGHT:
+    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigMedium) and !xTau.isTau(xAOD::TauJetParameters::JetBDTSigTight)) bPass = true;
+    break;
+  case JETIDBDTNOTLOOSE:
+    if (!xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose)) bPass = true;
+    break;
+  default:
+    m_tTST->msg() << MSG::WARNING << "The jet ID working point with the enum "<<m_tTST->m_iJetIDWP<<" is not available" << endmsg;
+    break;
+  }
+  if (bPass)
   {
     m_tTST->m_aAccept.setCutResult( "JetIDWP", true );
     return true;
   }
-  // ATH_MSG_VERBOSE( "Tau failed JetID working point requirement" );
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed JetBDTWP requirement, tau JetBDTScore: " << xTau.discriminant(xAOD::TauJetParameters::BDTJetScore) << endmsg;
   return false;
 }
 
@@ -345,7 +354,7 @@ bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau)
       return true;
     }
   }
-  // ATH_MSG_VERBOSE( "Tau failed EleBDTScore requirement, tau EleBDTScore: " << dEleBDTScore );
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed EleBDTScore requirement, tau EleBDTScore: " << dEleBDTScore << endmsg;
   return false;
 }
 
@@ -376,9 +385,14 @@ SelectionCutEleBDTWP::SelectionCutEleBDTWP(TauSelectionTool* tTST)
 //______________________________________________________________________________
 void SelectionCutEleBDTWP::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 {
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
   hHist.Fill(!xTau.isTau(xAOD::TauJetParameters::ElectronVetoLoose));
   hHist.Fill(!xTau.isTau(xAOD::TauJetParameters::ElectronVetoMedium)+2);
   hHist.Fill(!xTau.isTau(xAOD::TauJetParameters::ElectronVetoTight)+4);
+#else
+  (void)xTau;
+  (void)hHist;
+#endif
 }
 
 //______________________________________________________________________________
@@ -387,24 +401,34 @@ bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau)
   // check EleBDTscore, if tau passes EleBDT working point then return true; false otherwise
   m_tTST->m_aAccept.addCut( "EleBDTWP",
                             "Selection of taus according to their EleBDTScore" );
-  bool pass = false;
-  if (m_tTST->m_iEleBDTWP == ELEIDNONE or m_tTST->m_iEleBDTWP == ELEIDNONEUNCONFIGURED)
-    pass = true;
-  if (m_tTST->m_iEleBDTWP == ELEIDBDTLOOSE)
-    if (!xTau.isTau(xAOD::TauJetParameters::EleBDTLoose ))
-      pass = true;
-  if (m_tTST->m_iEleBDTWP == ELEIDBDTMEDIUM)
-    if (!xTau.isTau(xAOD::TauJetParameters::EleBDTMedium ))
-      pass = true;
-  if (m_tTST->m_iEleBDTWP == ELEIDBDTTIGHT)
-    if (!xTau.isTau(xAOD::TauJetParameters::EleBDTTight ))
-      pass = true;
-  if (pass)
+  bool bPass = false;
+  switch (m_tTST->m_iEleBDTWP)
+  {
+  case ELEIDNONE:
+    bPass = true;
+    break;
+  case ELEIDNONEUNCONFIGURED:
+    bPass = true;
+    break;
+  case ELEIDBDTLOOSE:
+    if (!xTau.isTau(xAOD::TauJetParameters::EleBDTLoose )) bPass = true;
+    break;
+  case ELEIDBDTMEDIUM:
+    if (!xTau.isTau(xAOD::TauJetParameters::EleBDTMedium )) bPass = true;
+    break;
+  case ELEIDBDTTIGHT:
+    if (!xTau.isTau(xAOD::TauJetParameters::EleBDTTight )) bPass = true;
+    break;
+  default:
+    m_tTST->msg() << MSG::WARNING << "The electron ID working point with the enum "<<m_tTST->m_iJetIDWP<<" is not available" << endmsg;
+    break;
+  }
+  if (bPass)
   {
     m_tTST->m_aAccept.setCutResult( "EleBDTWP", true );
     return true;
   }
-  // ATH_MSG_VERBOSE( "Tau failed EleBDT working point requirement" );
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed EleBDT requirement, tau EleBDTScore: " << xTau.discriminant(xAOD::TauJetParameters::BDTEleScore) << endmsg;
   return false;
 }
 
@@ -413,28 +437,29 @@ bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau)
 SelectionCutEleOLR::SelectionCutEleOLR(TauSelectionTool* tTST)
   : SelectionCut("CutEleOLR", tTST)
   , m_tTOELLHDecorator(0)
-  , m_bCheckEleMatchLHScoreAvailable(true)
-  , m_bEleMatchLHScoreAvailable(true)
+  , m_bCheckEleMatchPassAvailable(true)
+  , m_bEleMatchPassAvailable(true)
 {
   m_hHistCutPre = CreateControlPlot("hEleOLR_pre","EleOLR_pre;Electron Likelihood Score; events",100,-4,4);
   m_hHistCut = CreateControlPlot("hEleOLR_cut","EleOLR_cut;Electron Likelihood Score; events",100,-4,4);
-
-  TFile tmpFile(PathResolverFindCalibFile(tTST->m_sEleOLRFilePath).c_str());
-  m_hCutValues = (TH2D*) tmpFile.Get("eveto_cutvals");
-  m_hCutValues->SetDirectory(0);
-  tmpFile.Close();
 }
 
 SelectionCutEleOLR::~SelectionCutEleOLR()
 {
-  delete m_hCutValues;
+#ifdef ROOTCORE
+  if (m_tTOELLHDecorator and asg::ToolStore::remove(m_tTOELLHDecorator).isFailure())
+    m_tTST->msg() << MSG::ERROR << "An error occured while trying to remove "<<m_tTOELLHDecorator->name()<<" from tool store";
+#endif  // ROOTCORE
   delete m_tTOELLHDecorator;
 }
 
 //______________________________________________________________________________
 void SelectionCutEleOLR::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 {
-  hHist.Fill(getEvetoScore(xTau));
+  // run this to get ele_match_lhscore decoration
+  getEvetoPass(xTau);
+  static SG::AuxElement::ConstAccessor<float> accEleMatchLhscore("ele_match_lhscore");
+  hHist.Fill(accEleMatchLhscore(xTau));
 }
 
 //______________________________________________________________________________
@@ -443,21 +468,20 @@ bool SelectionCutEleOLR::accept(const xAOD::TauJet& xTau)
   m_tTST->m_aAccept.addCut( "EleOLR",
                             "Selection of taus according to the LH score of a matched electron" );
 
-  if (xTau.nTracks() != 1)
+  if (!m_tTST->m_bEleOLR)
   {
     m_tTST->m_aAccept.setCutResult( "EleOLR", true );
     return true;
   }
 
-  float fLHScore = getEvetoScore(xTau);
-  float fEtaTrk = xTau.track(0)->eta();
-
-  if (fLHScore <= getCutVal(fEtaTrk, xTau.pt()/1000.))
+  if (getEvetoPass(xTau))
   {
     m_tTST->m_aAccept.setCutResult( "EleOLR", true );
     return true;
   }
 
+  static SG::AuxElement::ConstAccessor<float> accEleMatchLhscore("ele_match_lhscore");
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed EleOLR requirement, tau overlapping electron llh score: " << accEleMatchLhscore(xTau) << endmsg;
   return false;
 }
 
@@ -468,48 +492,42 @@ StatusCode SelectionCutEleOLR::createTOELLHDecorator()
   {
     m_tTOELLHDecorator = new TauOverlappingElectronLLHDecorator(m_tTST->name()+"_TOELLHDecorator");
     m_tTOELLHDecorator->msg().setLevel( m_tTST->msg().level() );
+    if (m_tTOELLHDecorator->setProperty( "EleOLRFilePath", m_tTST->m_sEleOLRFilePath ).isFailure())
+      return StatusCode::FAILURE;
     return m_tTOELLHDecorator->initialize();
   }
   return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
-float SelectionCutEleOLR::getEvetoScore(const xAOD::TauJet& xTau)
+bool SelectionCutEleOLR::getEvetoPass(const xAOD::TauJet& xTau)
 {
 
-  if (m_bCheckEleMatchLHScoreAvailable)
+  if (m_bCheckEleMatchPassAvailable)
   {
-    m_bCheckEleMatchLHScoreAvailable = false;
-    if (!xTau.isAvailable<float>("ele_match_lhscore"))
+    m_bCheckEleMatchPassAvailable = false;
+    if (!xTau.isAvailable<char>("ele_olr_pass"))
     {
-      m_bEleMatchLHScoreAvailable = false;
+      m_bEleMatchPassAvailable = false;
       if (createTOELLHDecorator().isFailure())
         throw std::runtime_error ("TOELLHDecorator constructor failed\n");
     }
   }
-  if (!m_bEleMatchLHScoreAvailable)
+  if (!m_bEleMatchPassAvailable)
     if (m_tTOELLHDecorator->decorate(xTau).isFailure())
       throw std::runtime_error ("TOELLHDecorator decoration failed\n");
-
-  return xTau.auxdata<float>("ele_match_lhscore");
+  static SG::AuxElement::ConstAccessor<char> accEleOlrPass("ele_olr_pass");
+  return (bool)accEleOlrPass(xTau);
 }
 
 //______________________________________________________________________________
-StatusCode SelectionCutEleOLR::initializeEvent()
+StatusCode SelectionCutEleOLR::beginEvent()
 {
   if (createTOELLHDecorator().isFailure())
     return StatusCode::FAILURE;
-  return m_tTOELLHDecorator->initializeEvent();
-}
-
-//______________________________________________________________________________
-float SelectionCutEleOLR::getCutVal(float fEta, float fPt)
-{
-  if(fPt>250) fPt=250;
-  if(fabs(fEta)>2.465) fEta=2.465;
-
-  int iBin= m_hCutValues->FindBin(fPt, fabs(fEta));
-  return m_hCutValues->GetBinContent(iBin);
+  if (m_tTOELLHDecorator->beginEvent().isFailure())
+    return StatusCode::FAILURE;
+  return StatusCode::SUCCESS;
 }
 
 //____________________________SelectionCutMuonVeto______________________________
@@ -540,13 +558,17 @@ bool SelectionCutMuonVeto::accept(const xAOD::TauJet& xTau)
   // check EleBDTscore, if tau passes EleBDT working point then return true; false otherwise
   m_tTST->m_aAccept.addCut( "MuonVeto",
                             "Selection of taus according to their MuonVeto" );
+  if (!m_tTST->m_bMuonVeto)
+  {
+    m_tTST->m_aAccept.setCutResult( "MuonVeto", true );
+    return true;
+  }
+
   if (!xTau.isTau(xAOD::TauJetParameters::MuonVeto ))
   {
     m_tTST->m_aAccept.setCutResult( "MuonVeto", true );
     return true;
   }
-  // ATH_MSG_VERBOSE( "Tau failed EleBDT working point requirement" );
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed MuonVeto requirement" << endmsg;
   return false;
 }
-
-#endif // SELECTIONCUTS_CXX

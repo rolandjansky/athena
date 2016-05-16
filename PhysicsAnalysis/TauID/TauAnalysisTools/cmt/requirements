@@ -16,8 +16,6 @@ use xAODTracking    xAODTracking-*    Event/xAOD
 use AtlasROOT       AtlasROOT-*       External
 use AtlasBoost      AtlasBoost-*      External 
 use AthLinks        AthLinks-*        Control
-use PathResolver    PathResolver-*    Tools
-# use AtlasReflex AtlasReflex-* External -no-auto-imports
 use TruthUtils      TruthUtils-*      Generators
 use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-*  PhysicsAnalysis/ElectronPhotonID
 
@@ -27,13 +25,13 @@ use GaudiInterface  GaudiInterface-*  External
 use AthenaBaseComps AthenaBaseComps-* Control
 use xAODEventInfo   xAODEventInfo-*   Event/xAOD
 use xAODCore        xAODCore-*        Event/xAOD
-use Asg_Test        Asg_Test-*        AsgExternal
+use PathResolver    PathResolver-*    Tools
 
 end_private
 
+
 # Declare the library:
-library TauAnalysisTools *.cxx ../Root/*.cxx components/*.cxx
-apply_pattern component_library
+apply_pattern dual_use_library files="*.cxx *.c ../Root/*.cxx"
 
 # Install the jobOptions:
 apply_pattern declare_joboptions files=*.py

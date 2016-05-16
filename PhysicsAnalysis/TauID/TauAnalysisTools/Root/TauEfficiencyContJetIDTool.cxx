@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUEFFICIENCYCONTJETIDTOOL_CXX
-#define TAUEFFICIENCYCONTJETIDTOOL_CXX
 #include "TauAnalysisTools/TauEfficiencyContJetIDTool.h"
 #include "TauAnalysisTools/TauEfficiencyCorrectionsTool.h"
 
@@ -54,8 +52,8 @@ CP::CorrectionCode TauEfficiencyContJetIDTool::applyEfficiencyScaleFactor(const 
   double sf = 0.;
   // retreive scale factor
   CP::CorrectionCode tmpCorrectionCode = getEfficiencyScaleFactor(xTau, sf);
-  // adding scale factor to auxdecor
-  xTau.auxdecor< double >( m_tTECT->m_sVarNameBase ) = sf;
+  // adding scale factor
+  xTau.auxdecor<double>(m_sVarName) = sf;
   ATH_MSG_VERBOSE("Stored value " << sf << " as " << m_tTECT->m_sVarNameBase << " in auxdecor");
 
   return tmpCorrectionCode;
@@ -253,7 +251,7 @@ CP::CorrectionCode TauEfficiencyContJetIDTool::GetIDValue(double& val,
     val = 1.0;
     return CP::CorrectionCode::OutOfValidityRange;
   }
-  TH1F* tmp = (*m_mSF)[sWorkingPoint];
+  TH1F* tmp = dynamic_cast<TH1F*>(std::get<0>((*m_mSF)[sWorkingPoint]));
   if (!tmp)
   {
     ATH_MSG_FATAL("could not find histogram " << sWorkingPoint << ", breaking up");
@@ -329,5 +327,3 @@ std::string TauEfficiencyContJetIDTool::ConvertSystematicToString(int iContSysTy
   }
   return "";
 }
-
-#endif // TAUEFFICIENCYCONTJETIDTOOL_CXX

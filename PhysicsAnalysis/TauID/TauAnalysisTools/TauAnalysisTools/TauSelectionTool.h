@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUSELECTIONTOOL_H
-#define TAUSELECTIONTOOL_H
+#ifndef TAUANALYSISTOOLS_TAUSELECTIONTOOL_H
+#define TAUANALYSISTOOLS_TAUSELECTIONTOOL_H
 
 /*
   author: Dirk Duschinger
@@ -15,29 +15,23 @@
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
 		    or
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
-  report any issues on JIRA: https://its.cern.ch/jira/browse/TAUAT/?selectedTab=com.atlassian.jira.jira-projects-plugin:issues-panel
 */
 
 // Framework include(s):
-#include "AsgTools/AsgTool.h"
+#include "AsgTools/AsgMetadataTool.h"
 #include "PATCore/IAsgSelectionTool.h"
-#include "PathResolver/PathResolver.h"
 
 // Local include(s):
 #include "TauAnalysisTools/ITauSelectionTool.h"
 #include "TauAnalysisTools/SelectionCuts.h"
 #include "TauAnalysisTools/Enums.h"
-#include "TauAnalysisTools/ConfigHelper.h"
+#include "TauAnalysisTools/HelperFunctions.h"
 
 // EDM include(s):
-#ifndef __MAKECINT__
 #include "xAODEgamma/ElectronContainer.h"
-#endif // __MAKECINT__
 
 // ROOT include(s):
 #include "TH1F.h"
-#include "TEnv.h"
-#include "THashList.h"
 
 namespace TauAnalysisTools
 {
@@ -73,7 +67,7 @@ enum SelectionCuts
 
 class TauSelectionTool : public virtual IAsgSelectionTool,
   public virtual ITauSelectionTool,
-  public asg::AsgTool
+  public asg::AsgMetadataTool
 {
   /// need to define cut classes to be friends to access protected variables,
   /// needed for access of cut thresholds
@@ -107,7 +101,7 @@ public:
   virtual StatusCode initialize();
 
   /// Function initialising the tool
-  virtual StatusCode initializeEvent();
+  virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst")));
 
   /// Get an object describing the "selection steps" of the tool
   virtual const Root::TAccept& getTAccept() const;
@@ -118,9 +112,6 @@ public:
   /// Get the decision for a specific TauJet object
   virtual const Root::TAccept& accept( const xAOD::TauJet& tau ) const;
 
-  // Set default recommended properties
-  virtual void setRecommendedProperties() __attribute__ ((deprecated("This function is deprecated. Recommended properties are set now by default.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst")));
-
   /// Set output file for control histograms
   void setOutFile( TFile* fOutFile );
 
@@ -128,6 +119,10 @@ public:
   void writeControlHistograms();
 
 private:
+
+  // Execute at each event
+  virtual StatusCode beginEvent();
+
   template<typename T, typename U>
   void FillRegionVector(std::vector<T>& vRegion, U tMin, U tMax);
   template<typename T, typename U>
@@ -142,20 +137,20 @@ private:
   // bitmask of tau selection cuts
   int m_iSelectionCuts;
   // vector of transverse momentum cut regions
-  std::vector<double> m_vPtRegion;
+  std::vector<float> m_vPtRegion;
   // vector of absolute eta cut regions
-  std::vector<double> m_vAbsEtaRegion;
+  std::vector<float> m_vAbsEtaRegion;
   // vector of absolute charge requirements
   std::vector<int> m_vAbsCharges;
   // vector of number of track requirements
   std::vector<size_t> m_vNTracks;
   // vector of JetBDT cut regions
-  std::vector<double> m_vJetBDTRegion;
+  std::vector<float> m_vJetBDTRegion;
   // JetID working point
   std::string m_sJetIDWP;
   int m_iJetIDWP;
   // vector of EleBDT cut regions
-  std::vector<double> m_vEleBDTRegion;
+  std::vector<float> m_vEleBDTRegion;
   // EleBDT working point
   std::string m_sEleBDTWP;
   int m_iEleBDTWP;
@@ -164,16 +159,16 @@ private:
   // do muon veto
   bool m_bMuonVeto;
 
-  double m_dPtMin;
-  double m_dPtMax;
-  double m_dAbsEtaMin;
-  double m_dAbsEtaMax;
-  double m_iAbsCharge;
-  double m_iNTrack;
-  double m_dJetBDTMin;
-  double m_dJetBDTMax;
-  double m_dEleBDTMin;
-  double m_dEleBDTMax;
+  float m_dPtMin;
+  float m_dPtMax;
+  float m_dAbsEtaMin;
+  float m_dAbsEtaMax;
+  float m_iAbsCharge;
+  float m_iNTrack;
+  float m_dJetBDTMin;
+  float m_dJetBDTMax;
+  float m_dEleBDTMin;
+  float m_dEleBDTMax;
 
 protected:
   TFile* m_fOutFile;//!
@@ -192,6 +187,8 @@ private:
   void setupCutFlowHistogram();
   int convertStrToJetIDWP(std::string sJetIDWP);
   int convertStrToEleBDTWP(std::string sEleBDTWP);
+  std::string convertJetIDWPToStr(int iJetIDWP);
+  std::string convertEleBDTWPToStr(int iEleBDTWP);
 
 protected:
   bool m_bCreateControlPlots;
@@ -205,4 +202,4 @@ protected:
 
 } // namespace TauAnalysisTools
 
-#endif // TAUSELECTIONTOOL_H
+#endif // TAUANALYSISTOOLS_TAUSELECTIONTOOL_H

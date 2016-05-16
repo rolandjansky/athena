@@ -6,6 +6,7 @@
   <class name="TauAnalysisTools::TauTruthTrackMatchingTool" />
   <class name="TauAnalysisTools::TauOverlappingElectronLLHDecorator" />
   <function pattern="TauAnalysisTools::split*"/>
+  <function pattern="TauAnalysisTools::testFileForEOFContainsCharacters*"/>
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

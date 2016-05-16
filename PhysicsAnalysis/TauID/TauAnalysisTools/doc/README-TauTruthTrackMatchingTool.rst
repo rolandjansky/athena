@@ -109,7 +109,7 @@ matching probability as follows:
 
    * - TauAnalysisTools::FakeTrack
      - < 0.5
-     - < 20000
+     - < 200000
      
    * - TauAnalysisTools::UnderlyingEventTrack
      - > 0.5
@@ -132,5 +132,11 @@ Navigation
   * `TauSelectionTool <README-TauSelectionTool.rst>`_
   * `TauSmearingTool <README-TauSmearingTool.rst>`_
   * `TauEfficiencyCorrectionsTool <README-TauEfficiencyCorrectionsTool.rst>`_
+
+    * `mc12 recommendations <README-TauEfficiencyCorrectionsTool-mc12.rst>`_
+    * `mc15 pre-recommendations <README-TauEfficiencyCorrectionsTool-mc15_pre-recommendations.rst>`_
+    * `TauEfficiencyCorrectionsTool Trigger <README-TauEfficiencyCorrectionsTool_Trigger.rst>`_
+
   * `TauTruthMatchingTool <README-TauTruthMatchingTool.rst>`_
   * `TauTruthTrackMatchingTool <README-TauTruthTrackMatchingTool.rst>`_
+  * `TauOverlappingElectronLLHDecorator <README-TauOverlappingElectronLLHDecorator.rst>`_

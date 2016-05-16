@@ -27,20 +27,16 @@ analysis. Currently following tools are available:
     4-momentum
 * **TauTruthTrackMatchingTool:** performs matching of tracks to truth taus and
     tracks to truth charged particles
+* **TauOverlappingElectronLLHDecorator:** decorating reconstructed taus with a
+    likelihood score of matched reconstructed electrons
     
-All relevant information about the actual measurement of these uncertainties can
-be found here: `TauRecommendationsWinterConf2013
+All relevant information about the actual measurement of uncertainties for run 1
+can be found here: `TauRecommendationsWinterConf2013
 <https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauRecommendationsWinterConf2013>`_.
 These numbers are mostly valid for 2012 data analysis using reprocessed data,
 i.e. p1443 (p1344/p1345).
-
-Most of the functionality of TauEfficiencyCorrectionsTool and TauSmearingTool
-was copied from former `TauCorrUncert Tool
-<https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauCorrUncert>`_.
-
-Although this package is intended to be dual-use, it is mostly designed for
-AnalysisBase. Thus, information on how to use the tool within ATHENA might not
-be up to date.
+Information on 2015 tau recommendations can be found here:
+`TauPreRecommendations2015 <https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauPreRecommendations2015>`_.
 
 In case of any problems, issues or suggestions don't hesitate to contact the
 authors.
@@ -49,26 +45,24 @@ authors.
 Setup
 -----
 
-Athena
-------
+AthAnalysisBase
+---------------
 
 First start with a clean shell and setup ATHENA, for example via::
 
-  export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-  alias setupATLAS='source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh'
   setupATLAS
 
-  #use 19.1.2.1 or higher
-  asetup AtlasProduction,19.1.2.1,here
+  #use 2.3.20 or higher
+  asetup AthAnalysisBase,2.3.20,here
 
-get the package and setup environment::
+Where X stands for a release number. Get the package and setup environment::
   
   cmt co PhysicsAnalysis/TauID/TauAnalysisTools
   
   cd PhysicsAnalysis/TauID/TauAnalysisTools/cmt/
   source setup.sh
 
-finally compile::
+Finally compile::
   
   cmt make
 
@@ -77,12 +71,10 @@ AnalysisBase
 
 First start with a clean shell and setup RootCore via::
 
-  export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-  alias setupATLAS='source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh'
   setupATLAS
 
-  #use 2.0.11 or higher
-  rcSetup Base,2.0.11
+  #use 2.3.20 or higher
+  rcSetup Base,2.3.20
   rc find_packages
 
 and compile with::
@@ -118,12 +110,11 @@ found after compilation in
 
 The example can be executed via::
 
-  RootCoreBin/bin/x86_64-slc6-gcc47-opt/TauAnalysisToolsExample FILENAME [NUMEVENTS]
+  TauAnalysisToolsExample FILENAME [NUMEVENTS]
 
 FILENAME has to point to a root file and NUMEVENTS is an integer of events to
 process. If NUMEVENTS is not set all events are processed. The same is true if
 the actual number of events in the root file is less than the given number. 
-
   
 -----------------------------------
 Particular information on the tools
@@ -136,5 +127,4 @@ More detailed information on how to use the tools can be found here:
 * `TauEfficiencyCorrectionsTool <doc/README-TauEfficiencyCorrectionsTool.rst>`_
 * `TauTruthMatchingTool <doc/README-TauTruthMatchingTool.rst>`_
 * `TauTruthTrackMatchingTool <doc/README-TauTruthTrackMatchingTool.rst>`_
-
-
+* `TauOverlappingElectronLLHDecorator <doc/README-TauOverlappingElectronLLHDecorator.rst>`_
