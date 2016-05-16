@@ -71,7 +71,7 @@ class TrackTools: public AthAlgTool, virtual public ITrackTools{
         };
 */
     private:
-        StoreGateSvc* m_storeGate;
+
         ToolHandle <Trk::IParticleCaloExtensionTool>       m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
         ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool; //!< Tool to make the step-wise extrapolation
         //ToolHandle <Trk::ITrackSelectorTool>               m_trackSelector; //!< Tool to select tracks
