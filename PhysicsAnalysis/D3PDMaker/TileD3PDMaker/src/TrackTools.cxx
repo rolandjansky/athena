@@ -44,7 +44,6 @@ StatusCode TrackTools::initialize(){
     ATH_CHECK(m_caloExtensionTool.retrieve());
     ATH_CHECK(m_caloCellAssociationTool.retrieve()); //At the moment this tool is not needed
     ATH_CHECK(m_trackIsolationTool.retrieve());
-    ATH_CHECK( service("StoreGateSvc", m_storeGate) );
         
     return StatusCode::SUCCESS;
 } // TrackTools::initialize
