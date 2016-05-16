@@ -194,14 +194,14 @@ void LArBadChannel2Ascii::writeSum(std::ofstream& exeFile, std::vector<unsigned>
   for(size_t i=0;i<probs.size();++i) 
     nTotProb+=probs[i];
 
-  exeFile << "    EMB: " <<  std::setw(5) << probs[EMB] << " of "  << nEMB << " (" << std::setprecision(3) <<  (100.0*probs[EMB])/nEMB << "%)" << std::endl;
-  exeFile << "   EMEC: " <<  std::setw(5) <<probs[EMEC] << " of "  << nEMEC << " (" << std::setprecision(3) << (100.0*probs[EMEC])/nEMEC << "%)" << std::endl;
+  exeFile << "    EMB: " <<  std::setw(5) << probs[EMB] << " of "  << nEMB << " (" << std::setprecision(3) <<  probs[EMB]*(100./nEMB) << "%)" << std::endl;
+  exeFile << "   EMEC: " <<  std::setw(5) <<probs[EMEC] << " of "  << nEMEC << " (" << std::setprecision(3) << probs[EMEC]*(100./nEMEC) << "%)" << std::endl;
   exeFile << " EM tot: " <<  std::setw(5) << probs[EMEC]+probs[EMB]  << " of "  << nEMB+nEMEC 
-	   << " (" << std::setprecision(3) << (100.0*(probs[EMEC]+probs[EMB]))/(nEMEC+nEMB) << "%)" << std::endl;
+          << " (" << std::setprecision(3) << (probs[EMEC]+probs[EMB])*(100./(nEMEC+nEMB)) << "%)" << std::endl;
 
-  exeFile << "    HEC: " <<  std::setw(5) <<probs[HEC] << " of "  << nHEC << " (" << std::setprecision(3) << (100.0*probs[HEC])/nHEC << "%)" << std::endl;
-  exeFile << "   FCAL: " <<  std::setw(5) <<probs[FCAL] << " of "  << nFCAL << " (" << std::setprecision(3) << (100.0*probs[FCAL])/nFCAL << "%)" << std::endl;    
-  exeFile << "  Total: " <<  std::setw(5) << nTotProb << " of "  << nTot << " (" << std::setprecision(3) << (100.0*nTotProb)/nTot << "%)" << std::endl;
+  exeFile << "    HEC: " <<  std::setw(5) <<probs[HEC] << " of "  << nHEC << " (" << std::setprecision(3) << probs[HEC]*(100./nHEC) << "%)" << std::endl;
+  exeFile << "   FCAL: " <<  std::setw(5) <<probs[FCAL] << " of "  << nFCAL << " (" << std::setprecision(3) << probs[FCAL]*(100./nFCAL) << "%)" << std::endl;    
+  exeFile << "  Total: " <<  std::setw(5) << nTotProb << " of "  << nTot << " (" << std::setprecision(3) << nTotProb*(100./nTot) << "%)" << std::endl;
   exeFile << std::endl;
 
   return;

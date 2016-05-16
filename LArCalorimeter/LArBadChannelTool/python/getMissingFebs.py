@@ -1,10 +1,13 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from PyCool import cool
-import PyCintex
+import ROOT
+import cppyy
 import sys
 
-PyCintex.loadDictionary("libBadChanDict")
+# Make sure the dictionary is loaded.
+ROOT.LArBadChannel
+
 
 def getMissingFebs(run, tag=None):
 
@@ -45,8 +48,8 @@ def getMissingFebs(run, tag=None):
         t=tag
 
 
-    cl_LArBadChannelDBTools=PyCintex.makeNamespace('LArBadChannelDBTools')
-    cl_AthenaAttributeList=PyCintex.makeClass('AthenaAttributeList')
+    cl_LArBadChannelDBTools=ROOT.LArBadChannelDBTools
+    cl_AthenaAttributeList=ROOT.AthenaAttributeList    
     ms=cl_LArBadChannelDBTools.getDefaultMsgStream()
 
 
