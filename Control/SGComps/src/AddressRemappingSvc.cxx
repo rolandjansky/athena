@@ -15,12 +15,14 @@
 
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IProxyDict.h"
+#include "AthenaKernel/IStringPool.h"
 
-#include "SGTools/IStringPool.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/TransientAddress.h"
 
 #include <algorithm>
+
+#include "boost/foreach.hpp"
 
 //________________________________________________________________________________
 AddressRemappingSvc::AddressRemappingSvc(const std::string& name, ISvcLocator* pSvcLocator)
@@ -32,6 +34,7 @@ AddressRemappingSvc::AddressRemappingSvc(const std::string& name, ISvcLocator* p
    declareProperty("ProxyDict", m_proxyDict,
      "the IProxyDict we want to apply the remapping to (by default the event store)");
    declareProperty("TypeKeyOverwriteMaps", m_overwriteMaps);
+   declareProperty("SkipBadRemappings", m_skipBadRemappings=false,"If true, will delay the remapping setup until the first load, and will check against the given file");
 }
 //__________________________________________________________________________
 AddressRemappingSvc::~AddressRemappingSvc() {
@@ -130,6 +133,7 @@ StatusCode AddressRemappingSvc::queryInterface(const InterfaceID& riid, void** p
 //________________________________________________________________________________
 StatusCode AddressRemappingSvc::preLoadAddresses(StoreID::type /*storeID*/,
 	IAddressProvider::tadList& tads) {
+if(m_skipBadRemappings) return StatusCode::SUCCESS;
    StatusCode status = m_proxyDict.retrieve();
    if (!status.isSuccess()) {
       ATH_MSG_ERROR("Unable to get the IProxyDict");
@@ -150,8 +154,67 @@ StatusCode AddressRemappingSvc::preLoadAddresses(StoreID::type /*storeID*/,
 }
 //________________________________________________________________________________
 StatusCode AddressRemappingSvc::loadAddresses(StoreID::type /*storeID*/,
-	IAddressProvider::tadList& /*tads*/) {
-   return(StatusCode::SUCCESS);
+	IAddressProvider::tadList& tads) {
+if(!m_skipBadRemappings) return(StatusCode::SUCCESS);
+
+   //do same as in preLoadAddresses, except check each tad will have a valid proxy to remap to 
+   StatusCode status = m_proxyDict.retrieve();
+   if (!status.isSuccess()) {
+      ATH_MSG_ERROR("Unable to get the IProxyDict");
+      return(status);
+   }
+   IStringPool* strPool = dynamic_cast<IStringPool*>(&*m_proxyDict);
+   for (std::vector<SG::TransientAddress>::iterator oldIter = m_oldTads.begin(),
+		   newIter = m_newTads.begin(), oldIterEnd = m_oldTads.end();
+		   oldIter != oldIterEnd; oldIter++, newIter++) {
+      CLID goodCLID = newIter->clID(); //newIter are the things we are remapping to 
+      SG::TransientAddress::TransientClidSet clidToKeep(oldIter->transientID());
+      //try dataproxy, if it fails, try data proxy of next type 
+      SG::DataProxy* dataProxy(m_proxyDict->proxy(goodCLID,newIter->name()/*the name of the address in the input file*/));
+      if(dataProxy==0) {
+         //remove goodCLID from the clidToKeep 
+         clidToKeep.erase(goodCLID);
+         //try base types 
+         const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (newIter->clID());
+         if (bi) {
+            BOOST_FOREACH(goodCLID, bi->get_bases()) {
+               dataProxy = m_proxyDict->proxy(goodCLID, newIter->name());
+               if(dataProxy) break;
+               clidToKeep.erase(goodCLID); //was a bad CLID, so get rid of it
+            }
+         }
+         if(dataProxy) {
+            ATH_MSG_DEBUG("Remapping " << oldIter->clID() << "#" << oldIter->name() << " to base-class CLID: " << goodCLID << "#" << newIter->name());
+            //modify newIter to have these restricted clid instead 
+            *newIter = SG::TransientAddress(goodCLID, newIter->name());
+         }
+      }
+      if(dataProxy==0) {
+         ATH_MSG_INFO("Skipping remapping of " << oldIter->clID() << "#" << oldIter->name() << " because no suitable remapping found");
+         continue;
+      }
+      SG::TransientAddress* tadd = new SG::TransientAddress(goodCLID,oldIter->name(),oldIter->address());
+      tadd->setAlias(oldIter->alias());//match the aliases  
+      //also match the transientIDs, but only for the ok CLID 
+      for(auto tIter = clidToKeep.begin(); tIter != clidToKeep.end(); ++tIter) {
+         if(goodCLID == *tIter) continue; //already added in constructor 
+         tadd->setTransientID(goodCLID);
+      }
+      //replace oldIter tad with this new tadd if we have changed the primary CLID
+      if(oldIter->clID()!=tadd->clID()) {
+         *oldIter = *tadd; //relies on assignment operator
+      }
+      tads.push_back(tadd);
+      if (strPool != 0) {
+         strPool->stringToKey(oldIter->name(), oldIter->clID());
+         strPool->stringToKey(newIter->name(), newIter->clID());
+      }
+   }
+
+
+   m_skipBadRemappings=false; //only do this once, not every event .. FIXME: Should I be rechecking every new file? For now, we assume will not chain together different sample types
+   return StatusCode::SUCCESS;
+
 }
 //________________________________________________________________________________
 StatusCode AddressRemappingSvc::updateAddress(StoreID::type /*storeID*/,

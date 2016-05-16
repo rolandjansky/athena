@@ -35,7 +35,7 @@ Folder::Folder( const std::string& type,
   m_checkItems(false)
 {
   declareProperty("ItemList", m_itemList,
-		  " list of data objects identified by a class name (or clid)#key pairs. One can use '*' as key value to add all objects of a given type to the Folder ");
+		  " list of data objects identified by a class name (or clid)#key pairs. One can use '*' as key value to add all objects of a given type to the Folder.  If the type name ends with !, then write the object as exactly that type (and not as any derived class). ");
   m_itemList.declareUpdateHandler(&Folder::decodeItemList, this);
   declareProperty("CheckItems", m_checkItems, 
 		  "check if item types are known to ClassIDSvc");
@@ -85,16 +85,23 @@ void Folder::decodeItem(const std::string& item, bool checkValid) {
   if ( 0 == clid) {
     //notice that if the typename is not yet in the ClassIDSvc registry the entry will be ignored
     add(typeName, skey).ignore();
-  } else add(clid, skey, checkValid).ignore();
+  } else add(clid, skey, checkValid, false).ignore();
 }
 
 StatusCode 
 Folder::add(const std::string& typeName, const std::string& skey) {
+  bool exact = false;
+  std::string tn = typeName;
+  if (tn.size() > 0 && tn[tn.size()-1] == '!') {
+    exact = true;
+    tn.erase (tn.end()-1);
+  }
+  
   CLID clid;
   //let's see if the typename is known to ClassIDSvc
-  StatusCode sc(m_pCLIDSvc->getIDOfTypeName(typeName, clid));
+  StatusCode sc(m_pCLIDSvc->getIDOfTypeName(tn, clid));
   //if so, add the corresponding clid (no point in checking it again)
-  if (sc.isSuccess()) sc=add(clid, skey, false);
+  if (sc.isSuccess()) sc=add(clid, skey, false, exact);
   else {
     MsgStream log(msgSvc(), name());
     log << MSG::WARNING << "add: can not find type ["
@@ -104,10 +111,12 @@ Folder::add(const std::string& typeName, const std::string& skey) {
 }
 
 StatusCode
-Folder::add(const CLID& clid, const std::string& skey, bool checkValid) {
+Folder::add(const CLID& clid, const std::string& skey,
+            bool checkValid, bool exact)
+{
   StatusCode sc(StatusCode::FAILURE);
   if ( !checkValid || m_pCLIDSvc->isIDInUse(clid) ) {
-    m_list.insert(FolderItem(clid, skey));
+    m_list.insert(FolderItem(clid, skey, exact));
     sc = StatusCode::SUCCESS;
   } else if (0 != clid) {
     MsgStream log(msgSvc(), name());

@@ -76,5 +76,7 @@ private: // Data
    StringArrayProperty m_overwriteMaps;
    std::vector<SG::TransientAddress> m_oldTads;
    std::vector<SG::TransientAddress> m_newTads;
+
+   bool m_skipBadRemappings;
 };
 #endif // !SGCOMPS_ADDRESSREMAPPINGSVC_H
