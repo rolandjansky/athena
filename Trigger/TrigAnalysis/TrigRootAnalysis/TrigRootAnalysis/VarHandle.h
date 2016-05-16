@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: VarHandle.h 511047 2012-07-24 08:21:45Z krasznaa $
+// $Id: VarHandle.h 726663 2016-02-28 01:22:15Z ssnyder $
 #ifndef TRIGROOTANALYSIS_VARHANDLE_H
 #define TRIGROOTANALYSIS_VARHANDLE_H
 
@@ -25,8 +25,8 @@ namespace D3PDReaderPriv {
     *         This class is used to keep a list of all the VarHandle members of
     *         a D3PDObject class. It makes some operations much easier.
     *
-    * $Revision: 511047 $
-    * $Date: 2012-07-24 10:21:45 +0200 (Tue, 24 Jul 2012) $
+    * $Revision: 726663 $
+    * $Date: 2016-02-28 02:22:15 +0100 (Sun, 28 Feb 2016) $
     */
    class VarHandleBase {
 
@@ -97,21 +97,21 @@ namespace D3PDReaderPriv {
       /// Translate the typeid() type name to a huma-readable ROOT type name
       const char* RootCppType( const char* typeid_type ) const;
 
-      const ::Long64_t* fMaster; ///< Pointer to the current entry number
-      ::TObject* fParent; ///< Pointer to the parent D3PDObject
-      ::Bool_t fFromInput; ///< Flag showing if the variable is read from an input TTree
-      ::TTree* fInTree; ///< The input TTree
-      mutable ::TBranch* fInBranch; /// The input branch belonging to this variable
-      mutable BranchAvailability fAvailable; ///< Availability of the branch
+      const ::Long64_t* m_master; ///< Pointer to the current entry number
+      ::TObject* m_parent; ///< Pointer to the parent D3PDObject
+      ::Bool_t m_fromInput; ///< Flag showing if the variable is read from an input TTree
+      ::TTree* m_inTree; ///< The input TTree
+      mutable ::TBranch* m_inBranch; /// The input branch belonging to this variable
+      mutable BranchAvailability m_available; ///< Availability of the branch
 
    private:
-      ::TString fName; ///< Name of the branch to handle
-      ::Bool_t fActive; ///< Flag telling if the variable can be written to the output
+      ::TString m_name; ///< Name of the branch to handle
+      ::Bool_t m_active; ///< Flag telling if the variable can be written to the output
 
-      ::TString fType; ///< Variable type
-      mutable std::vector< ::Long64_t > fEntriesRead; ///< Number of read entries for each tree
-      mutable std::vector< ::Float_t > fBranchSize; ///< Unzipped entry size for each tree
-      mutable std::vector< ::Float_t > fZippedSize; ///< Zipped entry size for each tree
+      ::TString m_type; ///< Variable type
+      mutable std::vector< ::Long64_t > m_entriesRead; ///< Number of read entries for each tree
+      mutable std::vector< ::Float_t > m_branchSize; ///< Unzipped entry size for each tree
+      mutable std::vector< ::Float_t > m_zippedSize; ///< Zipped entry size for each tree
 
    }; // class VarHandleBase
 
@@ -123,8 +123,8 @@ namespace D3PDReaderPriv {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 511047 $
-    * $Date: 2012-07-24 10:21:45 +0200 (Tue, 24 Jul 2012) $
+    * $Revision: 726663 $
+    * $Date: 2016-02-28 02:22:15 +0100 (Sun, 28 Feb 2016) $
     */
    template< typename Type >
    class VarHandle : public VarHandleBase {
@@ -158,7 +158,7 @@ namespace D3PDReaderPriv {
       virtual void Clear();
 
    private:
-      mutable Type fVariable; ///< The variable in memory
+      mutable Type m_variable; ///< The variable in memory
 
    }; // class VarHandle
 
@@ -171,8 +171,8 @@ namespace D3PDReaderPriv {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 511047 $
-    * $Date: 2012-07-24 10:21:45 +0200 (Tue, 24 Jul 2012) $
+    * $Revision: 726663 $
+    * $Date: 2016-02-28 02:22:15 +0100 (Sun, 28 Feb 2016) $
     */
    template< typename Type >
    class VarHandle< Type* > : public VarHandleBase {
@@ -206,7 +206,7 @@ namespace D3PDReaderPriv {
       virtual void Clear();
 
    private:
-      mutable Type* fVariable; ///< The variable in memory
+      mutable Type* m_variable; ///< The variable in memory
    }; // class VarHandle
 
 } // namespace D3PDReaderPriv

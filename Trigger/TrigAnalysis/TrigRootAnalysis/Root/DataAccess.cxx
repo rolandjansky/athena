@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataAccess.cxx 684392 2015-07-20 16:18:20Z tamartin $
+// $Id: DataAccess.cxx 726661 2016-02-28 01:18:32Z ssnyder $
 
 // STL include(s):
 #include <stdio.h> // std::strcmp
@@ -234,28 +234,28 @@ namespace D3PD {
          return 1;
       }
 
-      Int_t DataAccess::GetDetailLevel() const {
+      Int_t DataAccess::GetDetailLevel() {
 
          return m_detailLevel;
       }
 
-      Int_t DataAccess::GetSMK() const {
+      Int_t DataAccess::GetSMK() {
 
          return m_smk();
       }
 
-      Int_t DataAccess::GetL1PSK() const {
+      Int_t DataAccess::GetL1PSK() {
 
          return m_l1psk();
       }
 
-      Int_t DataAccess::GetHLTPSK() const {
+      Int_t DataAccess::GetHLTPSK() {
 
          return m_hltpsk();
       }
 
       const std::vector< unsigned int >*
-      DataAccess::GetL1Result( L1ResultType type ) const {
+      DataAccess::GetL1Result( L1ResultType type ) {
 
          switch( type ) {
 
@@ -276,7 +276,7 @@ namespace D3PD {
       }
 
       const std::vector< short >*
-      DataAccess::GetL2Result( HLTResultType type ) const {
+      DataAccess::GetL2Result( HLTResultType type ) {
 
          switch( type ) {
 
@@ -300,7 +300,7 @@ namespace D3PD {
       }
 
       const std::vector< short >*
-      DataAccess::GetEFResult( HLTResultType type ) const {
+      DataAccess::GetEFResult( HLTResultType type ) {
 
          switch( type ) {
 

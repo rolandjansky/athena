@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AthDataAccess.cxx 502443 2012-05-25 10:43:25Z krasznaa $
+// $Id: AthDataAccess.cxx 726661 2016-02-28 01:18:32Z ssnyder $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -17,7 +17,7 @@ namespace D3PD {
       setPrefix( "trig_" );
    }
 
-   ::Int_t AthDataAccess::GetDetailLevel() const {
+   ::Int_t AthDataAccess::GetDetailLevel() {
 
       // Check for the detail level 0 branches:
       if( ( ! m_l1_tav.cptr() ) ||
@@ -50,23 +50,23 @@ namespace D3PD {
       return 2;
    }
 
-   ::Int_t AthDataAccess::GetSMK() const {
+   ::Int_t AthDataAccess::GetSMK() {
 
       return static_cast< ::Int_t >( *m_smk );
    }
 
-   ::Int_t AthDataAccess::GetL1PSK() const {
+   ::Int_t AthDataAccess::GetL1PSK() {
 
       return static_cast< ::Int_t >( *m_l1psk );
    }
 
-   ::Int_t AthDataAccess::GetHLTPSK() const {
+   ::Int_t AthDataAccess::GetHLTPSK() {
 
       return static_cast< ::Int_t >( *m_hltpsk );
    }
 
    const std::vector< unsigned int >*
-   AthDataAccess::GetL1Result( L1ResultType type ) const {
+   AthDataAccess::GetL1Result( L1ResultType type ) {
 
       switch( type ) {
 
@@ -88,7 +88,7 @@ namespace D3PD {
    }
 
    const std::vector< short >*
-   AthDataAccess::GetL2Result( HLTResultType type ) const {
+   AthDataAccess::GetL2Result( HLTResultType type ) {
 
       switch( type ) {
 
@@ -113,7 +113,7 @@ namespace D3PD {
    }
 
    const std::vector< short >*
-   AthDataAccess::GetEFResult( HLTResultType type ) const {
+   AthDataAccess::GetEFResult( HLTResultType type ) {
 
       switch( type ) {
 

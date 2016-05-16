@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ChainGroup.cxx 502443 2012-05-25 10:43:25Z krasznaa $
+// $Id: ChainGroup.cxx 726661 2016-02-28 01:18:32Z ssnyder $
 
 // STL include(s):
 #include <algorithm>
@@ -30,7 +30,7 @@ namespace D3PD {
     * @param svc The trigger configuration service
     */
    ChainGroup::ChainGroup( const std::vector< std::string >& triggerNames,
-                           const Trig::IDataAccess& parent,
+                           Trig::IDataAccess& parent,
                            Trig::IConfigAccess& svc )
       : TNamed( "ChainGroup", "A particular chain group" ),
         m_parent( parent ), m_configSvc( svc ), m_triggerNames( triggerNames ),

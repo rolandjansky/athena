@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IDataAccess.h 502443 2012-05-25 10:43:25Z krasznaa $
+// $Id: IDataAccess.h 726661 2016-02-28 01:18:32Z ssnyder $
 #ifndef TRIGROOTANALYSIS_IDATAACCESS_H
 #define TRIGROOTANALYSIS_IDATAACCESS_H
 
@@ -31,8 +31,8 @@ namespace D3PD {
        *
        * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
        *
-       * $Revision: 502443 $
-       * $Date: 2012-05-25 12:43:25 +0200 (Fri, 25 May 2012) $
+       * $Revision: 726661 $
+       * $Date: 2016-02-28 02:18:32 +0100 (Sun, 28 Feb 2016) $
        */
       class IDataAccess {
 
@@ -44,7 +44,7 @@ namespace D3PD {
          virtual ~IDataAccess() {}
 
          /// Get the detail level that the D3PD was produced with
-         virtual ::Int_t GetDetailLevel() const = 0;
+         virtual ::Int_t GetDetailLevel() = 0;
 
          /// Types of LVL1 result bits
          enum L1ResultType {
@@ -61,21 +61,21 @@ namespace D3PD {
          };
 
          /// Get the Super Master Key of the current event
-         virtual ::Int_t GetSMK() const = 0;
+         virtual ::Int_t GetSMK() = 0;
          /// Get the LVL1 prescale key of the current event
-         virtual ::Int_t GetL1PSK() const = 0;
+         virtual ::Int_t GetL1PSK() = 0;
          /// Get the HLT prescale key of the current event
-         virtual ::Int_t GetHLTPSK() const = 0;
+         virtual ::Int_t GetHLTPSK() = 0;
 
          /// Function for retrieving the encoded LVL1 result
          virtual const std::vector< unsigned int >*
-         GetL1Result( L1ResultType type ) const = 0;
+         GetL1Result( L1ResultType type ) = 0;
          /// Function for retrieving the encoded LVL2 result
          virtual const std::vector< short >*
-         GetL2Result( HLTResultType type ) const = 0;
+         GetL2Result( HLTResultType type ) = 0;
          /// Function for retrieving the encoded EF result
          virtual const std::vector< short >*
-         GetEFResult( HLTResultType type ) const = 0;
+         GetEFResult( HLTResultType type ) = 0;
 
       }; // class IDataAccess
 

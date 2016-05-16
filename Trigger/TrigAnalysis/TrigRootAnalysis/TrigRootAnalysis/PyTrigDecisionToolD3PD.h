@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PyTrigDecisionToolD3PD.h 502898 2012-05-29 11:15:13Z krasznaa $
+// $Id: PyTrigDecisionToolD3PD.h 726661 2016-02-28 01:18:32Z ssnyder $
 #ifndef TRIGROOTANALYSIS_PYTRIGDECISIONTOOLD3PD_H
 #define TRIGROOTANALYSIS_PYTRIGDECISIONTOOLD3PD_H
 
@@ -44,8 +44,8 @@ namespace D3PD {
     * @author Doug Schouten <doug.schouten@triumf.ca>
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 502898 $
-    * $Date: 2012-05-29 13:15:13 +0200 (Tue, 29 May 2012) $
+    * $Revision: 726661 $
+    * $Date: 2016-02-28 02:18:32 +0100 (Sun, 28 Feb 2016) $
     */
    class PyTrigDecisionToolD3PD : public ::TNamed,
                                   public IITrigDecisionToolD3PD {
@@ -91,7 +91,7 @@ namespace D3PD {
       ::Int_t GetEntry( ::Long64_t entry, ::Int_t getall = 0 );
 
       /// Get the detail level that the D3PD was produced with
-      ::Int_t GetDetailLevel() const;
+      ::Int_t GetDetailLevel();
 
       /// Create a chain group from a list of patterns
       virtual D3PD::ChainGroup

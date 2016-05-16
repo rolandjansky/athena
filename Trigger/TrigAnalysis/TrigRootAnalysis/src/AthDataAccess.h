@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AthDataAccess.h 637174 2014-12-20 00:26:47Z ssnyder $
+// $Id: AthDataAccess.h 726661 2016-02-28 01:18:32Z ssnyder $
 #ifndef TRIGROOTANALYSIS_ATHDATAACCESS_H
 #define TRIGROOTANALYSIS_ATHDATAACCESS_H
 
@@ -27,8 +27,8 @@ namespace D3PD {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 637174 $
-    * $Date: 2014-12-20 01:26:47 +0100 (Sat, 20 Dec 2014) $
+    * $Revision: 726661 $
+    * $Date: 2016-02-28 02:18:32 +0100 (Sun, 28 Feb 2016) $
     */
    class AthDataAccess : public virtual D3PD::Trig::IDataAccess {
 
@@ -37,24 +37,24 @@ namespace D3PD {
       AthDataAccess();
 
       /// Get the detail level that the D3PD was produced with
-      virtual ::Int_t GetDetailLevel() const;
+      virtual ::Int_t GetDetailLevel();
 
       /// Get the Super Master Key of the current event
-      virtual ::Int_t GetSMK() const;
+      virtual ::Int_t GetSMK();
       /// Get the LVL1 prescale key of the current event
-      virtual ::Int_t GetL1PSK() const;
+      virtual ::Int_t GetL1PSK();
       /// Get the HLT prescale key of the current event
-      virtual ::Int_t GetHLTPSK() const;
+      virtual ::Int_t GetHLTPSK();
 
       /// Function for retrieving the encoded LVL1 result
       virtual const std::vector< unsigned int >*
-      GetL1Result( L1ResultType type ) const;
+      GetL1Result( L1ResultType type );
       /// Function for retrieving the encoded LVL2 result
       virtual const std::vector< short >*
-      GetL2Result( HLTResultType type ) const;
+      GetL2Result( HLTResultType type );
       /// Function for retrieving the encoded EF result
       virtual const std::vector< short >*
-      GetEFResult( HLTResultType type ) const;
+      GetEFResult( HLTResultType type );
 
    private:
       /// Set the prefix of the variable names
