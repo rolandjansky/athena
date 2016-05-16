@@ -492,17 +492,17 @@ StatusCode TileInfoLoader::buildDigitsShapesHiLo() {
   }
 
   if (std::getline(shape_file_hi, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsNBinsHi) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsNBinsHi) == 1)
       ATH_MSG_DEBUG(  std::setw(3) << m_info->m_digitsNBinsHi << " number of bins in shaping function" );
   }
 
   if (std::getline(shape_file_hi, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsTime0BinHi) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsTime0BinHi) == 1)
       ATH_MSG_DEBUG( std::setw(3) << m_info->m_digitsTime0BinHi << " index of in-time bin" );
   }
 
   if (std::getline(shape_file_hi, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsBinsPerXHi) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsBinsPerXHi) == 1)
       ATH_MSG_DEBUG( std::setw(3) << m_info->m_digitsBinsPerXHi << " bins per beam crossing" );
   }
 
@@ -510,7 +510,7 @@ StatusCode TileInfoLoader::buildDigitsShapesHiLo() {
   m_info->m_digitsFullShapeHi.resize(m_info->m_digitsNBinsHi, 0.);
   size_t jt = 0;
   while (std::getline(shape_file_hi, line) && jt < m_info->m_digitsFullShapeHi.size()) {
-    int nread = sscanf(line.c_str(), "%lf %lf", &It0, &dbuff);
+    int nread = sscanf(line.c_str(), "%80lf %80lf", &It0, &dbuff);
     if (nread > 1) m_info->m_digitsFullShapeHi[jt++] = dbuff;
     ATH_MSG_VERBOSE( "t= " << It0 << " a= " << dbuff );
   }
@@ -541,17 +541,17 @@ StatusCode TileInfoLoader::buildDigitsShapesHiLo() {
   }
 
   if (std::getline(shape_file_lo, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsNBinsLo) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsNBinsLo) == 1)
       ATH_MSG_DEBUG( std::setw(3) << m_info->m_digitsNBinsLo << " number of bins in shaping function" );
   }
 
   if (std::getline(shape_file_lo, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsTime0BinLo) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsTime0BinLo) == 1)
       ATH_MSG_DEBUG( std::setw(3) << m_info->m_digitsTime0BinLo << " index of in-time bin" );
   }
 
   if (std::getline(shape_file_lo, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsBinsPerXLo) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsBinsPerXLo) == 1)
       ATH_MSG_DEBUG( std::setw(3) << m_info->m_digitsBinsPerXLo << " bins per beam crossing" );
   }
 
@@ -559,7 +559,7 @@ StatusCode TileInfoLoader::buildDigitsShapesHiLo() {
   m_info->m_digitsFullShapeLo.resize(m_info->m_digitsNBinsLo, 0.);
   jt = 0;
   while (std::getline(shape_file_lo, line) && jt < m_info->m_digitsFullShapeLo.size()) {
-    int nread = sscanf(line.c_str(), "%lf %lf", &It0, &dbuff);
+    int nread = sscanf(line.c_str(), "%80lf %80lf", &It0, &dbuff);
     if (nread > 1) m_info->m_digitsFullShapeLo[jt++] = dbuff;
     ATH_MSG_VERBOSE( "t= " << It0 << " a= " << dbuff );
   }
@@ -683,17 +683,17 @@ StatusCode TileInfoLoader::buildTTL1Shapes(std::string ShapeFile, int &NBins, in
   }
 
   if (std::getline(shape_file, line)) {
-    if (sscanf(line.c_str(), "%d", &NBins) == 1)
+    if (sscanf(line.c_str(), "%80d", &NBins) == 1)
       ATH_MSG_DEBUG( std::setw(3) << NBins << " number of bins in shaping function" );
   }
 
   if (std::getline(shape_file, line)) {
-    if (sscanf(line.c_str(), "%d", &Time0Bin) == 1)
+    if (sscanf(line.c_str(), "%80d", &Time0Bin) == 1)
       ATH_MSG_DEBUG( std::setw(3) << Time0Bin << " index of in-time bin" );
   }
 
   if (std::getline(shape_file, line)) {
-    if (sscanf(line.c_str(), "%d", &BinsPerX) == 1)
+    if (sscanf(line.c_str(), "%80d", &BinsPerX) == 1)
       ATH_MSG_DEBUG( BinsPerX << " bins per beam crossing" );
   }
 
@@ -701,7 +701,7 @@ StatusCode TileInfoLoader::buildTTL1Shapes(std::string ShapeFile, int &NBins, in
   FullShape.resize(NBins, 0.);
   size_t jt = 0;
   while (std::getline(shape_file, line) && jt < FullShape.size()) {
-    int nread = sscanf(line.c_str(), "%lf %lf", &It0, &dbuff);
+    int nread = sscanf(line.c_str(), "%80lf %80lf", &It0, &dbuff);
     if (nread > 1) FullShape[jt++] = dbuff;
     ATH_MSG_VERBOSE( "t= " << It0 << " a= " << dbuff );
   }
@@ -833,7 +833,7 @@ void TileInfoLoader::buildCovMatrix() {
             //define Matrix dimension
             int dima = 0;
             if (std::getline(cov_file, line)) {
-              if (sscanf(line.c_str(), "%d", &dima) == 1)
+              if (sscanf(line.c_str(), "%80d", &dima) == 1)
                 ATH_MSG_DEBUG( "The Dimension of the matrix is " << dima );
             }
 

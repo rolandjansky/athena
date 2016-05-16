@@ -20,6 +20,7 @@ const InterfaceID& TileCondToolOfc::interfaceID() {
 TileCondToolOfc::TileCondToolOfc(const std::string& type, const std::string& name,
     const IInterface* parent)
     : AthAlgTool(type, name, parent)
+    , m_ofc_phase_cache{}
     , m_tileToolPulseShape("TileCondToolPulseShape")
     , m_tileToolAutoCr("TileCondToolAutoCr")
 //  , m_tileToolNoiseSample("TileCondToolNoiseSample")
@@ -281,7 +282,7 @@ void TileCondToolOfc::CalcWeights(unsigned int drawerIdx
 const TileOfcWeightsStruct* TileCondToolOfc::getOfcWeights(unsigned int drawerIdx
                                                            , unsigned int channel
                                                            , unsigned int adc
-                                                           , float phase
+                                                           , float& phase
                                                            , bool of2) {
 
   ATH_MSG_DEBUG( "TileCondToolOfc weights, drawerIdx:" << drawerIdx
@@ -303,7 +304,8 @@ const TileOfcWeightsStruct* TileCondToolOfc::getOfcWeights(unsigned int drawerId
       *((*m_ofc_phase_cache[chanIdx])[iphase]) = *m_weights;
 
     }
-
+    
+    phase = float(iphase);
     return (*m_ofc_phase_cache[chanIdx])[iphase];
   } else {
     CalcWeights(drawerIdx, channel, adc, phase, of2);

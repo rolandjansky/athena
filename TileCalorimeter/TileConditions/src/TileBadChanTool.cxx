@@ -2,18 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Gaudi includes
-#include "GaudiKernel/ServiceHandle.h"
-
-// Athena incldues
-#include "Identifier/IdContext.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "AthenaKernel/errorcheck.h"
-
-// Calo includes
-#include "CaloDetDescr/CaloDetDescrManager.h"
-#include "CaloDetDescr/CaloDetDescrElement.h"
-
 // Tile includes
 #include "TileConditions/TileBadChanTool.h"
 #include "TileConditions/TileCondProxyWrapper.h"
@@ -21,7 +9,18 @@
 #include "TileCalibBlobObjs/TileBchDecoder.h"
 #include "TileCalibBlobObjs/TileBchPrbs.h"
 #include "TileIdentifier/TileHWID.h"
+#include "TileDetDescr/TileDetDescrManager.h"
 
+// Calo includes
+#include "CaloDetDescr/CaloDetDescrElement.h"
+
+// Athena incldues
+#include "Identifier/IdContext.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/errorcheck.h"
+
+// Gaudi includes
+#include "GaudiKernel/ServiceHandle.h"
 
 #include <string>
 
@@ -36,7 +35,7 @@ TileBadChanTool::interfaceID() {
 //____________________________________________________________________
 TileBadChanTool::TileBadChanTool(const std::string& type, const std::string& name, const IInterface* parent)
     : AthAlgTool(type, name, parent)
-    , m_caloMgr(0)
+    , m_tileMgr(0)
     , m_channel_context(0)
     , m_tileIdTrans("TileCondIdTransforms")
     , m_pryOnlBch("TileCondProxyFile_TileCalibDrawerBch_/TileCondProxyDefault_onlBch", this)
@@ -67,8 +66,8 @@ TileBadChanTool::~TileBadChanTool() {
 StatusCode TileBadChanTool::initialize() {
   ATH_MSG_DEBUG( "in initialize()" );
   
-  //=== CaloDetDescrManager
-  CHECK( detStore()->retrieve(m_caloMgr) );
+  //=== TileDetDescrManager
+  CHECK( detStore()->retrieve(m_tileMgr) );
 
   //=== initialize bit pattern decoders for all possible versions
   m_tileBchDecoder.resize(TileBchDecoder::MaxVersion);
@@ -316,7 +315,8 @@ CaloBadChannel TileBadChanTool::caloStatus(Identifier id) const {
   CaloBadChannel::BitWord res = 0;
 
   //=== get the TileHWIDs of the two channels connected to the caloCell id
-  const CaloDetDescrElement* elem = m_caloMgr->get_element(id);
+  const CaloDetDescrElement* elem = m_tileMgr->get_cell_element(id);
+
   if (!elem) {
     //=== this should never happen
     ATH_MSG_ERROR( "CaloMgr returns NULL CaloDetDescrElement" );

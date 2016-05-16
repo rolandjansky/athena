@@ -56,7 +56,7 @@ class TileCondToolOfc: public AthAlgTool, public ITileCondToolOfc {
     //=== ITileCondTollOfc methods
     //===============================================================
 
-    const TileOfcWeightsStruct* getOfcWeights(unsigned int drawerIdx, unsigned int channel, unsigned int adc, float phase, bool of2);
+    const TileOfcWeightsStruct* getOfcWeights(unsigned int drawerIdx, unsigned int channel, unsigned int adc, float& phase, bool of2);
 
     int getNSamples(void);
 
