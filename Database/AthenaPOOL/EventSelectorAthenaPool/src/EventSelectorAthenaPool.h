@@ -12,10 +12,8 @@
 
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIoComponent.h"
-#include "GaudiKernel/Service.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"  // no forward decl: typedef
 #include "PersistentDataModel/Guid.h"
 
 #include "AthenaKernel/IAthenaSelectorTool.h"
@@ -23,6 +21,9 @@
 #include "AthenaKernel/IEventShare.h"
 #include "AthenaKernel/ICollectionSize.h"
 #include "AthenaBaseComps/AthService.h"
+#ifdef ATHENAHIVE
+ #include "tbb/recursive_mutex.h"
+#endif
 
 #include <map>
 
@@ -141,7 +142,7 @@ private: // internal member functions
    int findEvent(int evtNum);
 
    /// Fires the EndInputFile incident (if there is an open file), EndTagFile incident, and LastInputFile incidents at end of selector
-   void fireEndFileIncidents(bool isLastFile) const;
+   void fireEndFileIncidents(bool isLastFile, bool fireEndTagIncident) const;
 
 private: // data
    EventContextAthenaPool*      m_beginIter;
@@ -153,6 +154,7 @@ private: // data
    mutable PoolCollectionConverter* m_poolCollectionConverter;
    mutable pool::ICollectionCursor* m_headerIterator;
    mutable Guid m_guid;
+   mutable long long int m_satelliteOid1;
 
    ServiceHandle<IAthenaPoolCnvSvc> m_athenaPoolCnvSvc;
    ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
@@ -194,7 +196,7 @@ private: // properties
    /// HelperTools, vector of names of AlgTools that are executed by the EventSelector
    ToolHandleArray<IAthenaSelectorTool> m_helperTools;
    ToolHandle<IAthenaSelectorTool> m_counterTool;
-   ToolHandle<IAthenaIPCTool> m_sharedMemoryTool;
+   ToolHandle<IAthenaIPCTool> m_eventStreamingTool;
 
    /// The following are included for compatibility with McEventSelector and are not really used.
    /// However runNo, oldRunNo and overrideRunNumberFromInput are used to reset run number for
@@ -226,6 +228,12 @@ private: // properties
 
    mutable int m_evtCount; // internal count of events
    mutable bool m_firedIncident;
+
+#ifdef ATHENAHIVE
+   typedef tbb::recursive_mutex CallMutex;
+   mutable CallMutex m_callLock;
+#endif
+
 };
 
 #endif
