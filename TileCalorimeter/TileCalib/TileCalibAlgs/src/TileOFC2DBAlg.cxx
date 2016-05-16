@@ -121,7 +121,8 @@ StatusCode TileOFC2DBAlg::execute() {
   //=== create the collection of attribute lists
   CondAttrListCollection* attrListColl = new CondAttrListCollection(true);
 
-  const TileOfcWeightsStruct* weights = m_tileCondToolOfc->getOfcWeights(0, 0, 0, 0, true);
+  float zeroPhase(0.0);
+  const TileOfcWeightsStruct* weights = m_tileCondToolOfc->getOfcWeights(0, 0, 0, zeroPhase, true);
   int ndig = weights->n_samples;
 
   // ---------- create fixed phases

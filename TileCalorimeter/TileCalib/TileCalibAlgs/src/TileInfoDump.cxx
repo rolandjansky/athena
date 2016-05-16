@@ -320,7 +320,7 @@ void TileInfoDump::printLaser() {
                          << channel << "/"
                          << adc << " : "
                          << std::fixed << std::right << std::setw(9) << std::setprecision(5)
-                         << m_tileToolEmscale->getCesRefLas(drawerIdx, channel) << " (absolute) | "
+                         << m_tileToolEmscale->getCesRefLas(drawerIdx, channel, adc) << " (absolute) | "
                          << std::fixed << std::right << std::setw(9) << std::setprecision(5)
                          << m_tileToolEmscale->doCalibLas(drawerIdx, channel, 1.) << " (channel) | "
                          << std::fixed << std::right << std::setw(9) << std::setprecision(5)
