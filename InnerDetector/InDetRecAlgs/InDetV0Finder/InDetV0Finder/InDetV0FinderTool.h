@@ -180,7 +180,7 @@ namespace InDet
 
     bool doMassFit(xAOD::Vertex* vxCandidate, int pdgID);
 
-    xAOD::Vertex* massFit(int pdgID, std::vector<const xAOD::TrackParticle*> pairV0, Trk::Vertex vertex, Trk::TrkV0VertexFitter* concreteVertexFitter);
+    xAOD::Vertex* massFit(int pdgID, std::vector<const xAOD::TrackParticle*> pairV0, Amg::Vector3D vertex, Trk::TrkV0VertexFitter* concreteVertexFitter);
 
   };
 

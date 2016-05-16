@@ -468,7 +468,6 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
 // pair pre-selection cuts
           if ( doFit(TP1,TP2,startingPoint) )
           {
-            Trk::Vertex vertex(startingPoint);
             std::vector<const xAOD::TrackParticle*> pairV0;
             pairV0.clear();
             pairV0.push_back(TP1);
@@ -479,9 +478,9 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
 
             xAOD::Vertex* myVxCandidate(0);
             if (m_useV0Fitter) {
-              myVxCandidate = concreteVertexFitter->fit(pairV0, vertex);
+              myVxCandidate = concreteVertexFitter->fit(pairV0, startingPoint);
             } else {
-              myVxCandidate = m_iVKVertexFitter->fit(pairV0, vertex);
+              myVxCandidate = m_iVKVertexFitter->fit(pairV0, startingPoint);
             }
       
               if (myVxCandidate != 0)
@@ -507,7 +506,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                     if (m_doSimpleV0) pointAtVert = true;
                     if (pointAtVert)
                     {
-                      Trk::Vertex vertex0(m_V0Tools->vtx(myVxCandidate));
+                      Amg::Vector3D vertex = m_V0Tools->vtx(myVxCandidate);
 
                       xAOD::Vertex* myKshort(0);
                       xAOD::Vertex* myLambda(0);
@@ -518,7 +517,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                       bool foundLambdabar = false;
 
                       if (doKshortFit && !m_doSimpleV0) {
-                        myKshort = massFit(310, pairV0, vertex0, concreteVertexFitter);
+                        myKshort = massFit(310, pairV0, vertex, concreteVertexFitter);
                         if (myKshort != 0) {
                           if (m_V0Tools->vertexProbability(myKshort) >= m_minConstrVertProb) {
                             myKshort->setVertexType(xAOD::VxType::V0Vtx);
@@ -529,7 +528,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                       }
 
                       if (doLambdaFit && !m_doSimpleV0) {
-                        myLambda = massFit(3122, pairV0, vertex0, concreteVertexFitter);
+                        myLambda = massFit(3122, pairV0, vertex, concreteVertexFitter);
                         if (myLambda != 0) {
                           if (m_V0Tools->vertexProbability(myLambda) >= m_minConstrVertProb) {
                             myLambda->setVertexType(xAOD::VxType::V0Vtx);
@@ -539,7 +538,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                       }
 
                       if (doLambdabarFit && !m_doSimpleV0) {
-                        myLambdabar = massFit(-3122, pairV0, vertex0, concreteVertexFitter);
+                        myLambdabar = massFit(-3122, pairV0, vertex, concreteVertexFitter);
                         if (myLambdabar != 0) {
                           if (m_V0Tools->vertexProbability(myLambdabar) >= m_minConstrVertProb) {
                             myLambdabar->setVertexType(xAOD::VxType::V0Vtx);
@@ -568,11 +567,9 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                         ElementLink<xAOD::TrackParticleContainer> newLink1;
                         newLink1.setElement(*tpIt1);
                         newLink1.setStorableObject(*TPC);
-                        newLink1.index();
                         ElementLink<xAOD::TrackParticleContainer> newLink2;
                         newLink2.setElement(*tpIt2);
                         newLink2.setStorableObject(*TPC);
-                        newLink2.index();
                         myVxCandidate->addTrackAtVertex(newLink1);
                         myVxCandidate->addTrackAtVertex(newLink2);
                         v0Container->push_back(myVxCandidate);
@@ -583,11 +580,9 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                           ElementLink<xAOD::TrackParticleContainer> ksLink1;
                           ksLink1.setElement(*tpIt1);
                           ksLink1.setStorableObject(*TPC);
-                          ksLink1.index();
                           ElementLink<xAOD::TrackParticleContainer> ksLink2;
                           ksLink2.setElement(*tpIt2);
                           ksLink2.setStorableObject(*TPC);
-                          ksLink2.index();
                           myKshort->addTrackAtVertex(ksLink1);
                           myKshort->addTrackAtVertex(ksLink2);
                           ksContainer->push_back(myKshort);
@@ -608,11 +603,9 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                           ElementLink<xAOD::TrackParticleContainer> laLink1;
                           laLink1.setElement(*tpIt1);
                           laLink1.setStorableObject(*TPC);
-                          laLink1.index();
                           ElementLink<xAOD::TrackParticleContainer> laLink2;
                           laLink2.setElement(*tpIt2);
                           laLink2.setStorableObject(*TPC);
-                          laLink2.index();
                           myLambda->addTrackAtVertex(laLink1);
                           myLambda->addTrackAtVertex(laLink2);
                           laContainer->push_back(myLambda);
@@ -633,11 +626,9 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                           ElementLink<xAOD::TrackParticleContainer> lbLink1;
                           lbLink1.setElement(*tpIt1);
                           lbLink1.setStorableObject(*TPC);
-                          lbLink1.index();
                           ElementLink<xAOD::TrackParticleContainer> lbLink2;
                           lbLink2.setElement(*tpIt2);
                           lbLink2.setStorableObject(*TPC);
-                          lbLink2.index();
                           myLambdabar->addTrackAtVertex(lbLink1);
                           myLambdabar->addTrackAtVertex(lbLink2);
                           lbContainer->push_back(myLambdabar);
@@ -653,7 +644,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                           v0_lbLinksDecor(*myVxCandidate) = lbLink;
                         }
                         if (doGamma && !m_doSimpleV0) {
-                          myGamma = massFit(22, pairV0, vertex0, concreteVertexFitter);
+                          myGamma = massFit(22, pairV0, vertex, concreteVertexFitter);
                           if (myGamma != 0 && m_V0Tools->vertexProbability(myGamma) >= m_minConstrVertProb) {
                             gamma_fit = 1;
                             gamma_prob = m_V0Tools->vertexProbability(myGamma);
@@ -737,8 +728,12 @@ bool InDetV0FinderTool::doFit(const xAOD::TrackParticle* track1, const xAOD::Tra
     double massKshort_i=2000001., massLambda_i=2000001., massLambdabar_i=2000001.;
     Amg::Vector3D globalPosition = startingPoint;
     Trk::PerigeeSurface perigeeSurface(globalPosition);
-    const Trk::TrackParameters* extrapolatedPerigee1 = m_extrapolator->extrapolate(*track1, perigeeSurface);
-    const Trk::TrackParameters* extrapolatedPerigee2 = m_extrapolator->extrapolate(*track2, perigeeSurface);
+    const Trk::TrackParameters* extrapolatedPerigee1(0);
+    const Trk::TrackParameters* extrapolatedPerigee2(0);
+    extrapolatedPerigee1 = m_extrapolator->extrapolate(track1->perigeeParameters(), perigeeSurface);
+    if (extrapolatedPerigee1 == 0) extrapolatedPerigee1 = &track1->perigeeParameters();
+    extrapolatedPerigee2 = m_extrapolator->extrapolate(track2->perigeeParameters(), perigeeSurface);
+    if (extrapolatedPerigee2 == 0) extrapolatedPerigee2 = &track2->perigeeParameters();
 
     if (extrapolatedPerigee1 != 0 && extrapolatedPerigee2 != 0) {
       massKshort_i = invariantMass(extrapolatedPerigee1,extrapolatedPerigee2,m_masspi,m_masspi);
@@ -890,7 +885,7 @@ bool InDetV0FinderTool::doMassFit(xAOD::Vertex* vxCandidate, int pdgID)
   return pass;
 }
 
-xAOD::Vertex* InDetV0FinderTool::massFit(int pdgID, std::vector<const xAOD::TrackParticle*> pairV0, Trk::Vertex vertex, Trk::TrkV0VertexFitter* concreteVertexFitter)
+xAOD::Vertex* InDetV0FinderTool::massFit(int pdgID, std::vector<const xAOD::TrackParticle*> pairV0, Amg::Vector3D vertex, Trk::TrkV0VertexFitter* concreteVertexFitter)
 {
   xAOD::Vertex* vxCandidate(0);
   std::vector<double> masses;
