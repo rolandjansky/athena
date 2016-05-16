@@ -24,6 +24,3 @@ use AtlasDSFMT           AtlasDSFMT-*           External
 use AthenaBaseComps      AthenaBaseComps-*      Control
 use AtlasROOT            AtlasROOT-*            External
 use AtlasBoost           AtlasBoost-*           External
-
-
-
