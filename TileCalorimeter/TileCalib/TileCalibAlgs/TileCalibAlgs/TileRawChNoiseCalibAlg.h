@@ -131,8 +131,8 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     std::string m_OF1RawChannelContainer;
     std::string m_MFRawChannelContainer;
 
-    TH1F* histAmp[RCnum][5][64][48][2];
-    TH1F* histCellAmp[2][64][4][17][6];
+    TH1F* m_histAmp[RCnum][5][64][48][2];
+    TH1F* m_histCellAmp[2][64][4][17][6];
 
     // event number
     int m_evtNr;
@@ -154,27 +154,27 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     //int m_nsamples;
 
     // RawCh items
-    float rc_mean[RCnum][5][64][48][2];
-    float rc_sigma[RCnum][5][64][48][2];
-    float rc_av[RCnum][5][64][48][2];
-    float rc_rms[RCnum][5][64][48][2];
-    float rc_skewness[RCnum][5][64][48][2];
-    float rc_kurtosis[RCnum][5][64][48][2];
-    float rc_mean_err[RCnum][5][64][48][2];
-    float rc_sigma_err[RCnum][5][64][48][2];
-    float rc_chi2[RCnum][5][64][48][2];
-    float rc_ndf[RCnum][5][64][48][2];
-    float rc_probC2[RCnum][5][64][48][2];
+    float m_rc_mean[RCnum][5][64][48][2];
+    float m_rc_sigma[RCnum][5][64][48][2];
+    float m_rc_av[RCnum][5][64][48][2];
+    float m_rc_rms[RCnum][5][64][48][2];
+    float m_rc_skewness[RCnum][5][64][48][2];
+    float m_rc_kurtosis[RCnum][5][64][48][2];
+    float m_rc_mean_err[RCnum][5][64][48][2];
+    float m_rc_sigma_err[RCnum][5][64][48][2];
+    float m_rc_chi2[RCnum][5][64][48][2];
+    float m_rc_ndf[RCnum][5][64][48][2];
+    float m_rc_probC2[RCnum][5][64][48][2];
 
-    float rc_ggpar[RCnum][5][64][48][2][8]; // sigma gauss1, rel normalization of the gaussians, sigma gauss2, chi2/ndf, error in sigma1, sigma2 and normalization, correlation between sigma1 and sigma2
-    float rc_gsigma1[RCnum][5][64][48][2];
-    float rc_gsigma2[RCnum][5][64][48][2];
-    float rc_gnorm[RCnum][5][64][48][2];
-    float rc_gchi2[RCnum][5][64][48][2];
-    float rc_gerrsigma1[RCnum][5][64][48][2];
-    float rc_gerrsigma2[RCnum][5][64][48][2];
-    float rc_gerrnorm[RCnum][5][64][48][2];
-    float rc_gcorrsigma1sigma2[RCnum][5][64][48][2];
+    float m_rc_ggpar[RCnum][5][64][48][2][8]; // sigma gauss1, rel normalization of the gaussians, sigma gauss2, chi2/ndf, error in sigma1, sigma2 and normalization, correlation between sigma1 and sigma2
+    float m_rc_gsigma1[RCnum][5][64][48][2];
+    float m_rc_gsigma2[RCnum][5][64][48][2];
+    float m_rc_gnorm[RCnum][5][64][48][2];
+    float m_rc_gchi2[RCnum][5][64][48][2];
+    float m_rc_gerrsigma1[RCnum][5][64][48][2];
+    float m_rc_gerrsigma2[RCnum][5][64][48][2];
+    float m_rc_gerrnorm[RCnum][5][64][48][2];
+    float m_rc_gcorrsigma1sigma2[RCnum][5][64][48][2];
 
     //Cell items
     //structure is side:             A=0 C=1,
@@ -188,23 +188,23 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     uint8_t m_tower[2][64][4][17][6];
     uint8_t m_gg[2][64][4][17][6];
 
-    float ecell_av[2][64][4][17][6];
-    float ecell_rms[2][64][4][17][6];
-    uint32_t ecell_hash[2][64][4][17];
+    float m_ecell_av[2][64][4][17][6];
+    float m_ecell_rms[2][64][4][17][6];
+    uint32_t m_ecell_hash[2][64][4][17];
 
-    int cell_nch[2][64][4][17][2]; // number of good channels in given cell in given event - 0 or 1 or 2
-    float ecell_ene[2][64][4][17][2];
-    float ggpar[2][64][4][17][6][8]; // sigma gauss1, rel normalization of the gaussians, sigma gauss2, chi2/ndf, error in sigma1, sigma2 and normalization, correlation between sigma1 and sigma2
-    float gsigma1[2][64][4][17][6];
-    float gsigma2[2][64][4][17][6];
-    float gnorm[2][64][4][17][6];
-    float gchi2[2][64][4][17][6];
-    float gerrsigma1[2][64][4][17][6];
-    float gerrsigma2[2][64][4][17][6];
-    float gerrnorm[2][64][4][17][6];
-    float gcorrsigma1sigma2[2][64][4][17][6];
+    int m_cell_nch[2][64][4][17][2]; // number of good channels in given cell in given event - 0 or 1 or 2
+    float m_ecell_ene[2][64][4][17][2];
+    float m_ggpar[2][64][4][17][6][8]; // sigma gauss1, rel normalization of the gaussians, sigma gauss2, chi2/ndf, error in sigma1, sigma2 and normalization, correlation between sigma1 and sigma2
+    float m_gsigma1[2][64][4][17][6];
+    float m_gsigma2[2][64][4][17][6];
+    float m_gnorm[2][64][4][17][6];
+    float m_gchi2[2][64][4][17][6];
+    float m_gerrsigma1[2][64][4][17][6];
+    float m_gerrsigma2[2][64][4][17][6];
+    float m_gerrnorm[2][64][4][17][6];
+    float m_gcorrsigma1sigma2[2][64][4][17][6];
 
-    enum CELL_CHANNEL {E1_CHANNEL = 12};
+    enum CELL_CHANNEL {OUTER_MBTS_CHANNEL = 4, SPECIAL_C10_CHANNEL = 5, E1_CHANNEL = 12};
 };
 
 #endif // TILENOISECALIBALG_H

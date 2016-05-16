@@ -20,6 +20,8 @@
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileDCSSvc.h"
 
+#include "TileMonitoring/ITileStuckBitsProbsTool.h"
+
 #include "TFile.h"
 #include "TTree.h"
 #include <cmath>
@@ -41,6 +43,7 @@ TileLaserDefaultCalibTool::TileLaserDefaultCalibTool(const std::string& type, co
   m_cabling(nullptr),
   m_tileBadChanTool("TileBadChanTool"),
   m_beamInfo(nullptr),
+  m_stuckBitsProbs(""),
   m_tileDCSSvc("TileDCSSvc",name),
   m_toolRunNo(0),
   m_ADC_problem(0),
@@ -114,6 +117,7 @@ TileLaserDefaultCalibTool::TileLaserDefaultCalibTool(const std::string& type, co
   declareProperty("laserObjContainer", m_laserContainerName="");
   declareProperty("pisaMethod2", m_pisaMethod2=true);
   declareProperty("TileDCSSvc",m_tileDCSSvc);
+  declareProperty("StuckBitsProbsTool", m_stuckBitsProbs);
 } // TileLaserDefaultCalibTool::TileLaserDefaultCalibTool
 
 TileLaserDefaultCalibTool::~TileLaserDefaultCalibTool()
@@ -476,7 +480,7 @@ StatusCode TileLaserDefaultCalibTool::execute(){
       HWIdentifier hwid=(*it)->adc_HWID();  
       int gain   = m_tileHWID->adc(hwid);      // low=0 high=1    
       float ofctime = (*it)->time();
-      if(ofctime!=0.0 and abs(ofctime-15.0)<30.)
+      if(ofctime!=0.0 and std::abs(ofctime-15.0)<30.)
         avg_time[ros][gain]->Push(ofctime);
     } 
   } // Now we have the average time per partition for this event
@@ -783,9 +787,16 @@ StatusCode TileLaserDefaultCalibTool::writeNtuple(int runNumber, int runType, TF
     t->Branch("VarianceSlice",*m_variance_slice,"VarianceSlice[4][64][48][100][2]/F");
   } // IF
   
+  if (!m_stuckBitsProbs.empty()) {
+    if (m_stuckBitsProbs.retrieve().isFailure()) {
+      ATH_MSG_WARNING("Impossible to get ITileStuckBitsProbsTool and stuck bits probabilities!");
+    } else {
+      m_stuckBitsProbs->saveStuckBitsProbabilities(t);
+    }
+  }
+
   // FILL VALUES FOR THIS RUN
   t->Fill();
-  t->Write();
   
   return StatusCode::SUCCESS;
 } // WRITENTUPLE

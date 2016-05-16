@@ -95,20 +95,20 @@ TileDigiNoiseCalibAlg::~TileDigiNoiseCalibAlg() {
 /// All the helpers initialization is done at the first event
 StatusCode TileDigiNoiseCalibAlg::initialize() {
 
-  memset(SumPed2, 0, sizeof(SumPed2));
-  memset(SumRms2, 0, sizeof(SumRms2));
-  memset(MeanAmp, 0, sizeof(MeanAmp));
-  memset(MeanAmp_ij, 0, sizeof(MeanAmp_ij));
+  memset(m_SumPed2, 0, sizeof(m_SumPed2));
+  memset(m_SumRms2, 0, sizeof(m_SumRms2));
+  memset(m_MeanAmp, 0, sizeof(m_MeanAmp));
+  memset(m_MeanAmp_ij, 0, sizeof(m_MeanAmp_ij));
   memset(m_evt, 0, sizeof(m_evt));
   memset(m_ros, 0, sizeof(m_ros));
   memset(m_drawer, 0, sizeof(m_drawer));
   memset(m_channel, 0, sizeof(m_channel));
   memset(m_gain, 0, sizeof(m_gain));
-  memset(ped, 0, sizeof(ped));
-  memset(lfn, 0, sizeof(lfn));
-  memset(hfn, 0, sizeof(hfn));
-  memset(noise_cov, 0, sizeof(noise_cov));
-  memset(auto_corr, 0, sizeof(auto_corr));
+  memset(m_ped, 0, sizeof(m_ped));
+  memset(m_lfn, 0, sizeof(m_lfn));
+  memset(m_hfn, 0, sizeof(m_hfn));
+  memset(m_noise_cov, 0, sizeof(m_noise_cov));
+  memset(m_auto_corr, 0, sizeof(m_auto_corr));
 
   return StatusCode::SUCCESS;
 }
@@ -257,12 +257,12 @@ StatusCode TileDigiNoiseCalibAlg::finalize() {
   t->Branch("channel", *m_channel, "channel[5][64][48][2]/b");
   t->Branch("gain", *m_gain, "gain[5][64][48][2]/O");
   t->Branch("EvtGood", *m_evt, "Evt[5][64][48][2]/I"); // events used in the noise calculation for every channel
-  t->Branch("ped", *ped, "ped[5][64][48][2]/F");
-  t->Branch("lfn", *lfn, "lfn[5][64][48][2]/F");
-  t->Branch("hfn", *hfn, "hfn[5][64][48][2]/F");
-  t->Branch("noise_cov", *noise_cov, "noise_cov[5][64][2]/F");
+  t->Branch("ped", *m_ped, "ped[5][64][48][2]/F");
+  t->Branch("lfn", *m_lfn, "lfn[5][64][48][2]/F");
+  t->Branch("hfn", *m_hfn, "hfn[5][64][48][2]/F");
+  t->Branch("noise_cov", *m_noise_cov, "noise_cov[5][64][2]/F");
   // AutoCorrelation Matrix: Store only non-diagonal half of symmetric matrix
-  t->Branch("auto_corr", *auto_corr, "auto_corr[5][64][48][2][36]/F");
+  t->Branch("auto_corr", *m_auto_corr, "auto_corr[5][64][48][2][36]/F");
 
   // Fill with current values (i.e. tree will have only one entry for this whole run)
 
@@ -429,16 +429,16 @@ StatusCode TileDigiNoiseCalibAlg::fillDigits() {
           mean_tmp[chan][i][gain] = dig;
         }
         if (dsize > 0) {
-          ped[ros][drawer][chan][gain] += vdigits[0];
-          SumPed2[ros][drawer][chan][gain] += vdigits[0] * vdigits[0];
+          m_ped[ros][drawer][chan][gain] += vdigits[0];
+          m_SumPed2[ros][drawer][chan][gain] += vdigits[0] * vdigits[0];
 
           if (dsize > 1) {
             m_evt[ros][drawer][chan][gain]++;
             meansamp /= dsize;
             rmssamp = rmssamp / dsize - meansamp * meansamp;
             rmssamp = (rmssamp > 0.0) ? sqrt(rmssamp * dsize / (dsize - 1)) : 0.0;
-            hfn[ros][drawer][chan][gain] += rmssamp;
-            SumRms2[ros][drawer][chan][gain] += rmssamp * rmssamp;
+            m_hfn[ros][drawer][chan][gain] += rmssamp;
+            m_SumRms2[ros][drawer][chan][gain] += rmssamp * rmssamp;
           }
         }
 
@@ -454,9 +454,9 @@ StatusCode TileDigiNoiseCalibAlg::fillDigits() {
       for (int sample = 0; sample < m_nSamples; ++sample) {
         for (unsigned int gain = 0; gain < TileCalibUtils::MAX_GAIN; ++gain) {
           for (unsigned int chan_i = 0; chan_i < TileCalibUtils::MAX_CHAN; ++chan_i) {
-            MeanAmp[ros][drawer][chan_i][gain] += mean_tmp[chan_i][sample][gain];
+            m_MeanAmp[ros][drawer][chan_i][gain] += mean_tmp[chan_i][sample][gain];
             for (unsigned int chan_j = 0; chan_j < TileCalibUtils::MAX_CHAN; ++chan_j)
-              MeanAmp_ij[ros][drawer][chan_i][chan_j][gain] += mean_tmp[chan_i][sample][gain] * mean_tmp[chan_j][sample][gain];
+              m_MeanAmp_ij[ros][drawer][chan_i][chan_j][gain] += mean_tmp[chan_i][sample][gain] * mean_tmp[chan_j][sample][gain];
           }
         }
       }
@@ -467,7 +467,7 @@ StatusCode TileDigiNoiseCalibAlg::fillDigits() {
 }
 
 /// finalDigits is called during finalize
-/// Here the average Ped, lfn, hfn and covariance are calculated.
+/// Here the average Ped, m_lfn, m_hfn and covariance are calculated.
 /*---------------------------------------------------------*/
 void TileDigiNoiseCalibAlg::finalDigits() {
 /*---------------------------------------------------------*/
@@ -497,15 +497,15 @@ void TileDigiNoiseCalibAlg::finalDigits() {
 
           if (m_evt[ros][drawer][chan][gain] > 0) {
             int nev = m_evt[ros][drawer][chan][gain];
-            ped[ros][drawer][chan][gain] /= nev;
-            double Ped = ped[ros][drawer][chan][gain];
-            hfn[ros][drawer][chan][gain] /= nev;
+            m_ped[ros][drawer][chan][gain] /= nev;
+            double Ped = m_ped[ros][drawer][chan][gain];
+            m_hfn[ros][drawer][chan][gain] /= nev;
 
             if (nev > 1) {
-              double PedRMS = SumPed2[ros][drawer][chan][gain] / nev - Ped * Ped;
-              PedRMS = SumPed2[ros][drawer][chan][gain] / nev - Ped * Ped;
+              double PedRMS = m_SumPed2[ros][drawer][chan][gain] / nev - Ped * Ped;
+              PedRMS = m_SumPed2[ros][drawer][chan][gain] / nev - Ped * Ped;
               PedRMS = (PedRMS > 0.0) ? sqrt(PedRMS * nev / (nev - 1)) : 0.0;
-              lfn[ros][drawer][chan][gain] = PedRMS;
+              m_lfn[ros][drawer][chan][gain] = PedRMS;
             }
           }
 
@@ -519,7 +519,7 @@ void TileDigiNoiseCalibAlg::finalDigits() {
               for (int j = i; j < m_nSamples; j++) {
                 //std::cout << "Auto Corr [" << i << "][" << j << "]:" << tmpCorr[i][j] << std::endl;
                 //std::cout << "Auto CorrSym [" << j << "][" << i << "]:" << tmpCorr[j][i] << std::endl;
-                auto_corr[ros][drawer][chan][gain][nVals] = tmpCorr[i][j];
+                m_auto_corr[ros][drawer][chan][gain][nVals] = tmpCorr[i][j];
                 nVals++;
               }
             }
@@ -528,7 +528,7 @@ void TileDigiNoiseCalibAlg::finalDigits() {
               for (int j = i+1; j < m_nSamples; j++) {
                 //std::cout << "Auto Corr [" << i << "][" << j << "]:" << tmpCorr[i][j] << std::endl;
                 //std::cout << "Auto CorrSym [" << j << "][" << i << "]:" << tmpCorr[j][i] << std::endl;
-                auto_corr[ros][drawer][chan][gain][nVals] = tmpCorr[i][j];
+                m_auto_corr[ros][drawer][chan][gain][nVals] = tmpCorr[i][j];
                 nVals++;
               }
             }
@@ -541,9 +541,9 @@ void TileDigiNoiseCalibAlg::finalDigits() {
           //replace m_evtNr with sqrt(m_evt[ch_i]*m_evt[ch_j])
 
           for (unsigned int chan_i = 0; chan_i < TileCalibUtils::MAX_CHAN; ++chan_i) {
-            MeanAmp[ros][drawer][chan_i][gain] /= m_evtNr * m_nSamples;
+            m_MeanAmp[ros][drawer][chan_i][gain] /= m_evtNr * m_nSamples;
             for (unsigned int chan_j = 0; chan_j < TileCalibUtils::MAX_CHAN; ++chan_j)
-              MeanAmp_ij[ros][drawer][chan_i][chan_j][gain] /= m_evtNr * m_nSamples;
+              m_MeanAmp_ij[ros][drawer][chan_i][chan_j][gain] /= m_evtNr * m_nSamples;
           }
 
           double covar[48][48];
@@ -552,7 +552,7 @@ void TileDigiNoiseCalibAlg::finalDigits() {
 
           for (unsigned int chan_i = 0; chan_i < TileCalibUtils::MAX_CHAN; ++chan_i) {
             for (unsigned int chan_j = 0; chan_j < TileCalibUtils::MAX_CHAN; ++chan_j) {
-              covar[chan_i][chan_j] = MeanAmp_ij[ros][drawer][chan_i][chan_j][gain] - MeanAmp[ros][drawer][chan_i][gain] * MeanAmp[ros][drawer][chan_j][gain];
+              covar[chan_i][chan_j] = m_MeanAmp_ij[ros][drawer][chan_i][chan_j][gain] - m_MeanAmp[ros][drawer][chan_i][gain] * m_MeanAmp[ros][drawer][chan_j][gain];
 
               if (chan_j < chan_i) {
                 mean_cov_ij += covar[chan_i][chan_j]; //LF: we take C_ij with its sign
@@ -562,10 +562,10 @@ void TileDigiNoiseCalibAlg::finalDigits() {
           }
 
           if (mean_cov_ii != 0.) {
-            noise_cov[ros][drawer][gain] = (2. * mean_cov_ij) / (mean_cov_ii * 47.); //(2*cov_ij/(48*47))/(cov_ii/48)
+            m_noise_cov[ros][drawer][gain] = (2. * mean_cov_ij) / (mean_cov_ii * 47.); //(2*cov_ij/(48*47))/(cov_ii/48)
 
           } else {
-            noise_cov[ros][drawer][gain] = 0.;
+            m_noise_cov[ros][drawer][gain] = 0.;
           }
 
         }

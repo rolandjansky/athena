@@ -64,8 +64,8 @@ StatusCode TileMuId2DBAlg::initialize()
 StatusCode TileMuId2DBAlg::execute()
 {
   // Open ASCII file
-  string m_TileMuIdFile = "TileMuId_thresholds.dat";
-  fstream *fl = new fstream(m_TileMuIdFile.c_str(), fstream::app| fstream::out);
+  string TileMuIdFile = "TileMuId_thresholds.dat";
+  fstream *fl = new fstream(TileMuIdFile.c_str(), fstream::app| fstream::out);
   if (fl->is_open())
     ATH_MSG_INFO ( " TileMuId file open" );
   else

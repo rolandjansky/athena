@@ -126,16 +126,16 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
     struct DigitizerData {
         DigitizerData();
         void Add(float time);
-        int GetTotActive() const { return N_active; }
-        float GetDigiTime() const { return mean_time; }
-        float GetDigiTimeRMS() const { return mean_rms; }
+        int GetTotActive() const { return m_N_active; }
+        float GetDigiTime() const { return m_mean_time; }
+        float GetDigiTimeRMS() const { return m_mean_rms; }
         void Freeze();
 
       private:
-        float ch_time[6];
-        int N_active;
-        float mean_time;
-        float mean_rms;
+        float m_ch_time[6];
+        int m_N_active;
+        float m_mean_time;
+        float m_mean_rms;
     };
 
     struct DrawerData {
@@ -159,67 +159,67 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
 
     DrawerData* m_drawerData[4][64];
 
-    static const int NRos = 5;
+    static const int NROS = 5;
 
     // ---- Ntuple data ----
 
     // mean of Gaussian fit to DrawerData.Digi0TimeDiffHisto
-    float m_DrawerOffset[NRos][64];
-    float m_DrawerOffsetError[NRos][64];
+    float m_DrawerOffset[NROS][64];
+    float m_DrawerOffsetError[NROS][64];
 
     // time diff wrt Digi0
-    float m_ChannelOffset[NRos][64][48];
-    float m_ChannelOffsetError[NRos][64][48];
+    float m_ChannelOffset[NROS][64][48];
+    float m_ChannelOffsetError[NROS][64][48];
     // Maximum ADC amplitude
-    float m_ADCAmplitude[NRos][64][48];
+    float m_ADCAmplitude[NROS][64][48];
 
-    float m_PedestalMean[NRos][64][48];
-    float m_PedestalSigma[NRos][64][48];
+    float m_PedestalMean[NROS][64][48];
+    float m_PedestalSigma[NROS][64][48];
 
     // time diff wrt PMT0
-    float m_TimeDiffMean[NRos][64][48];
-    float m_TimeDiffMeanError[NRos][64][48];
-    float m_TimeDiffSigma[NRos][64][48];
+    float m_TimeDiffMean[NROS][64][48];
+    float m_TimeDiffMeanError[NROS][64][48];
+    float m_TimeDiffSigma[NROS][64][48];
 
     // mon-->
-    float m_MeanOddPmtTdiffPMT0[NRos][64];
-    int m_OddPmtCounterPMT0[NRos][64];
-    float m_MeanEvenPmtTdiffPMT0[NRos][64];
-    int m_EvenPmtCounterPMT0[NRos][64];
-    float m_EvenOddTimeDiffPMT0[NRos][64];
+    float m_MeanOddPmtTdiffPMT0[NROS][64];
+    int m_OddPmtCounterPMT0[NROS][64];
+    float m_MeanEvenPmtTdiffPMT0[NROS][64];
+    int m_EvenPmtCounterPMT0[NROS][64];
+    float m_EvenOddTimeDiffPMT0[NROS][64];
     // <-- mon
 
 #ifdef TileLaserTimingPMT0Mon
-    float m_TimeDiffHighMean[NRos][64][48];
-    float m_TimeDiffHighMeanError[NRos][64][48];
-    float m_TimeDiffHighSigma[NRos][64][48];
+    float m_TimeDiffHighMean[NROS][64][48];
+    float m_TimeDiffHighMeanError[NROS][64][48];
+    float m_TimeDiffHighSigma[NROS][64][48];
 
-    float m_TimeDiffLowMean[NRos][64][48];
-    float m_TimeDiffLowMeanError[NRos][64][48];
-    float m_TimeDiffLowSigma[NRos][64][48];
+    float m_TimeDiffLowMean[NROS][64][48];
+    float m_TimeDiffLowMeanError[NROS][64][48];
+    float m_TimeDiffLowSigma[NROS][64][48];
 
-    float m_TimeDiffNoCFCorrMean[NRos][64][48];
-    float m_TimeDiffNoCFCorrMeanError[NRos][64][48];
-    float m_TimeDiffNoCFCorrSigma[NRos][64][48];
+    float m_TimeDiffNoCFCorrMean[NROS][64][48];
+    float m_TimeDiffNoCFCorrMeanError[NROS][64][48];
+    float m_TimeDiffNoCFCorrSigma[NROS][64][48];
 #endif
 
-    float m_FiberLength[NRos][64][48]; // Not needed
+    float m_FiberLength[NROS][64][48]; // Not needed
 
 #ifdef TileLaserTimingMon
-    float m_TimeDiffPMTDigi0[NRos][64][48]; // Not needed
-    float m_FiberCorrection[NRos][64][48]; // Not needed
-    int m_IsConnected[NRos][64][48]; // Not needed
+    float m_TimeDiffPMTDigi0[NROS][64][48]; // Not needed
+    float m_FiberCorrection[NROS][64][48]; // Not needed
+    int m_IsConnected[NROS][64][48]; // Not needed
 
-    float m_MeanOddPmtTdiff[NRos][64];
-    int m_OddPmtCounter[NRos][64];
-    float m_MeanEvenPmtTdiff[NRos][64];
-    int m_EvenPmtCounter[NRos][64];
+    float m_MeanOddPmtTdiff[NROS][64];
+    int m_OddPmtCounter[NROS][64];
+    float m_MeanEvenPmtTdiff[NROS][64];
+    int m_EvenPmtCounter[NROS][64];
 
-    float m_EvenOddTimeDiff[NRos][64];
+    float m_EvenOddTimeDiff[NROS][64];
 #endif
 
-    float m_DSkewSet[NRos][64][8];
-    float m_DigiMean[NRos][64][8];
+    float m_DSkewSet[NROS][64][8];
+    float m_DigiMean[NROS][64][8];
 
     /** @return drawer data */
     inline DrawerData* drawerData(int ros, int drawer) {

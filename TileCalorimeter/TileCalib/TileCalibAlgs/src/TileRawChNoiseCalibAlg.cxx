@@ -124,54 +124,54 @@ TileRawChNoiseCalibAlg::~TileRawChNoiseCalibAlg()
 /// All the helpers initialization is done at the first event
 StatusCode TileRawChNoiseCalibAlg::initialize() {
 
-  memset(rc_mean      ,0,          sizeof(rc_mean      ));
-  memset(rc_av        ,0,          sizeof(rc_av        ));
-  memset(rc_rms       ,0,          sizeof(rc_rms       ));
-  memset(rc_kurtosis  ,0,          sizeof(rc_kurtosis  ));
-  memset(rc_skewness  ,0,          sizeof(rc_skewness  ));
-  memset(rc_sigma     ,0,          sizeof(rc_sigma     ));
-  memset(rc_mean_err  ,0,          sizeof(rc_mean_err  ));
-  memset(rc_sigma_err ,0,          sizeof(rc_sigma_err ));
-  memset(rc_chi2      ,0,          sizeof(rc_chi2      ));
-  memset(rc_ndf       ,0,          sizeof(rc_ndf       ));
-  memset(rc_probC2    ,0,          sizeof(rc_probC2    ));
+  memset(m_rc_mean      ,0,          sizeof(m_rc_mean      ));
+  memset(m_rc_av        ,0,          sizeof(m_rc_av        ));
+  memset(m_rc_rms       ,0,          sizeof(m_rc_rms       ));
+  memset(m_rc_kurtosis  ,0,          sizeof(m_rc_kurtosis  ));
+  memset(m_rc_skewness  ,0,          sizeof(m_rc_skewness  ));
+  memset(m_rc_sigma     ,0,          sizeof(m_rc_sigma     ));
+  memset(m_rc_mean_err  ,0,          sizeof(m_rc_mean_err  ));
+  memset(m_rc_sigma_err ,0,          sizeof(m_rc_sigma_err ));
+  memset(m_rc_chi2      ,0,          sizeof(m_rc_chi2      ));
+  memset(m_rc_ndf       ,0,          sizeof(m_rc_ndf       ));
+  memset(m_rc_probC2    ,0,          sizeof(m_rc_probC2    ));
   memset(m_ros        ,0,          sizeof(m_ros        ));
   memset(m_drawer     ,0,          sizeof(m_drawer     ));
   memset(m_channel    ,0,          sizeof(m_channel    ));
   memset(m_gain       ,0,          sizeof(m_gain       ));
 
-  memset(rc_ggpar     ,0,          sizeof(rc_ggpar     ));
-  memset(rc_gsigma1   ,0,          sizeof(rc_gsigma1   ));
-  memset(rc_gsigma2   ,0,          sizeof(rc_gsigma2   ));
-  memset(rc_gnorm     ,0,          sizeof(rc_gnorm     ));
-  memset(rc_gchi2     ,0,          sizeof(rc_gchi2     ));
-  memset(rc_gerrsigma1,0,          sizeof(rc_gerrsigma1));
-  memset(rc_gerrnorm  ,0,          sizeof(rc_gerrnorm  ));
-  memset(rc_gerrsigma2,0,          sizeof(rc_gerrsigma2));
-  memset(rc_gcorrsigma1sigma2 ,0,  sizeof(rc_gcorrsigma1sigma2 ));
+  memset(m_rc_ggpar     ,0,          sizeof(m_rc_ggpar     ));
+  memset(m_rc_gsigma1   ,0,          sizeof(m_rc_gsigma1   ));
+  memset(m_rc_gsigma2   ,0,          sizeof(m_rc_gsigma2   ));
+  memset(m_rc_gnorm     ,0,          sizeof(m_rc_gnorm     ));
+  memset(m_rc_gchi2     ,0,          sizeof(m_rc_gchi2     ));
+  memset(m_rc_gerrsigma1,0,          sizeof(m_rc_gerrsigma1));
+  memset(m_rc_gerrnorm  ,0,          sizeof(m_rc_gerrnorm  ));
+  memset(m_rc_gerrsigma2,0,          sizeof(m_rc_gerrsigma2));
+  memset(m_rc_gcorrsigma1sigma2 ,0,  sizeof(m_rc_gcorrsigma1sigma2 ));
 
 
-  memset(ecell_av     ,0,          sizeof(ecell_av     ));
-  memset(ecell_rms    ,0,          sizeof(ecell_rms    ));
-  memset(ecell_hash   ,0xFFFFFFFF, sizeof(ecell_hash   ));
+  memset(m_ecell_av     ,0,          sizeof(m_ecell_av     ));
+  memset(m_ecell_rms    ,0,          sizeof(m_ecell_rms    ));
+  memset(m_ecell_hash   ,0xFF,       sizeof(m_ecell_hash   ));
   memset(m_side       ,0,          sizeof(m_side       ));
   memset(m_phi        ,0,          sizeof(m_phi        ));
   memset(m_sample     ,0,          sizeof(m_sample     ));
   memset(m_tower      ,0,          sizeof(m_tower      ));
   memset(m_gg         ,0,          sizeof(m_gg         ));
-  memset(ggpar        ,0,          sizeof(ggpar        ));
-  memset(gsigma1      ,0,          sizeof(gsigma1      ));
-  memset(gsigma2      ,0,          sizeof(gsigma2      ));
-  memset(gnorm        ,0,          sizeof(gnorm        ));
-  memset(gchi2        ,0,          sizeof(gchi2        ));
-  memset(gerrsigma1   ,0,          sizeof(gerrsigma1   ));
-  memset(gerrnorm     ,0,          sizeof(gerrnorm     ));
-  memset(gerrsigma2   ,0,          sizeof(gerrsigma2   ));
-  memset(gcorrsigma1sigma2 ,0,     sizeof(gcorrsigma1sigma2 ));
+  memset(m_ggpar        ,0,          sizeof(m_ggpar        ));
+  memset(m_gsigma1      ,0,          sizeof(m_gsigma1      ));
+  memset(m_gsigma2      ,0,          sizeof(m_gsigma2      ));
+  memset(m_gnorm        ,0,          sizeof(m_gnorm        ));
+  memset(m_gchi2        ,0,          sizeof(m_gchi2        ));
+  memset(m_gerrsigma1   ,0,          sizeof(m_gerrsigma1   ));
+  memset(m_gerrnorm     ,0,          sizeof(m_gerrnorm     ));
+  memset(m_gerrsigma2   ,0,          sizeof(m_gerrsigma2   ));
+  memset(m_gcorrsigma1sigma2 ,0,     sizeof(m_gcorrsigma1sigma2 ));
 //  memset(gcorrsigma1norm ,0,       sizeof(gcorrsigma1norm));
 //  memset(gcorrsigma2norm ,0,       sizeof(gcorrsigma2norm));
 
-  memset(histAmp       ,0,  sizeof(histAmp        ));
+  memset(m_histAmp       ,0,  sizeof(m_histAmp        ));
 
   int nbin = 151;
   float binwidth[2] = { 0.125, 0.25 }; // in ADC
@@ -188,19 +188,19 @@ StatusCode TileRawChNoiseCalibAlg::initialize() {
             sStr.str("");
             sStr << "Amplitudes_RC_" << rc << "_Part_" << ros << "_Drawer_" << drawer << "_Ch_" << ch << "_Gain_" << g;
             nam = sStr.str();
-            histAmp[rc][ros][drawer][ch][g] = new TH1F(nam.c_str(), nam.c_str(), 101, -xmax[g], xmax[g]);
-            CAN_REBIN(histAmp[rc][ros][drawer][ch][g]); //in case some entries are outside the initial limits
-            histAmp[rc][ros][drawer][ch][g]->SetDirectory(0);
+            m_histAmp[rc][ros][drawer][ch][g] = new TH1F(nam.c_str(), nam.c_str(), nbin, -xmax[g], xmax[g]);
+            CAN_REBIN(m_histAmp[rc][ros][drawer][ch][g]); //in case some entries are outside the initial limits
+            m_histAmp[rc][ros][drawer][ch][g]->SetDirectory(0);
           }
         }
       }
     }
   }
 
-  nbin = 151;
-  float cellbin[2] = { 80., 5. }; //in MeV
+  nbin = 301;
+  float cellbin[2] = { 80., 2.5 }; //in MeV
   float xcellmax[2] = { (float) nbin * cellbin[0] / 2.F, (float) nbin * cellbin[1] / 2.F }; //in MeV
-  memset(histCellAmp   ,0,  sizeof(histCellAmp    ));
+  memset(m_histCellAmp   ,0,  sizeof(m_histCellAmp    ));
 
   for (int side = 0; side < 2; side++) {
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
@@ -210,9 +210,9 @@ StatusCode TileRawChNoiseCalibAlg::initialize() {
             sStr.str("");
             sStr << "CellAmplitude_Side_" << side << "_Drawer_" << drawer << "_Sample_" << sample << "_Tower_" << tower << "_Gains_" << gg;
             nam = sStr.str();
-            histCellAmp[side][drawer][sample][tower][gg] = new TH1F(nam.c_str(), nam.c_str(), nbin, -xcellmax[gg / 3], xcellmax[gg / 3]); // cell limits should be at least sqrt(2)*channel limits
-            CAN_REBIN(histCellAmp[side][drawer][sample][tower][gg]); //in case some entries are outside the initial limits
-            histCellAmp[side][drawer][sample][tower][gg]->SetDirectory(0);
+            m_histCellAmp[side][drawer][sample][tower][gg] = new TH1F(nam.c_str(), nam.c_str(), nbin, -xcellmax[gg / 3], xcellmax[gg / 3]); // cell limits should be at least sqrt(2)*channel limits
+            CAN_REBIN(m_histCellAmp[side][drawer][sample][tower][gg]); //in case some entries are outside the initial limits
+            m_histCellAmp[side][drawer][sample][tower][gg]->SetDirectory(0);
           }
         }
       }
@@ -300,8 +300,8 @@ StatusCode TileRawChNoiseCalibAlg::execute() {
     StoreRunInfo(); // done only once
   }
 
-  memset(ecell_ene     ,0,          sizeof(ecell_ene     ));
-  memset(cell_nch      ,0,          sizeof(cell_nch      ));
+  memset(m_ecell_ene     ,0,          sizeof(m_ecell_ene     ));
+  memset(m_cell_nch      ,0,          sizeof(m_cell_nch      ));
 
   m_cispar = m_beamInfo->cispar();
   if (m_evtNr % 1000 == 0) ATH_MSG_INFO( " events processed so far " << m_evtNr );
@@ -391,149 +391,149 @@ StatusCode TileRawChNoiseCalibAlg::finalize() {
   t->Branch("channel", *m_channel, "channel[5][64][48][2]/b");
   t->Branch("gain", *m_gain, "gain[5][64][48][2]/O");
 
-  t->Branch("efit_mean",*(rc_mean[Fit]),"efit_mean[5][64][48][2]/F");
-  t->Branch("efit_av",*(rc_av[Fit]),"efit_av[5][64][48][2]/F");
-  t->Branch("efit_rms",*(rc_rms[Fit]),"efit_rms[5][64][48][2]/F");
-  t->Branch("efit_sigma",*(rc_sigma[Fit]),"efit_sigma[5][64][48][2]/F");
-  t->Branch("efit_mean_err",*(rc_mean_err[Fit]),"efit_mean_err[5][64][48][2]/F");
-  t->Branch("efit_sigma_err",*(rc_sigma_err[Fit]),"efit_sigma_err[5][64][48][2]/F");
-  t->Branch("efit_kurtosis",*(rc_kurtosis[Fit]),"efit_kurtosis[5][64][48][2]/F");
-  t->Branch("efit_skewness",*(rc_skewness[Fit]),"efit_skewness[5][64][48][2]/F");
-  t->Branch("efit_chi2",*(rc_chi2[Fit]),"efit_chi2[5][64][48][2]/F");
-  t->Branch("efit_ndf",*(rc_ndf[Fit]),"efit_ndf[5][64][48][2]/F");
-  t->Branch("efit_probC2",*(rc_probC2[Fit]),"efit_probC2[5][64][48][2]/F");
+  t->Branch("efit_mean",*(m_rc_mean[Fit]),"efit_mean[5][64][48][2]/F");
+  t->Branch("efit_av",*(m_rc_av[Fit]),"efit_av[5][64][48][2]/F");
+  t->Branch("efit_rms",*(m_rc_rms[Fit]),"efit_rms[5][64][48][2]/F");
+  t->Branch("efit_sigma",*(m_rc_sigma[Fit]),"efit_sigma[5][64][48][2]/F");
+  t->Branch("efit_mean_err",*(m_rc_mean_err[Fit]),"efit_mean_err[5][64][48][2]/F");
+  t->Branch("efit_sigma_err",*(m_rc_sigma_err[Fit]),"efit_sigma_err[5][64][48][2]/F");
+  t->Branch("efit_kurtosis",*(m_rc_kurtosis[Fit]),"efit_kurtosis[5][64][48][2]/F");
+  t->Branch("efit_skewness",*(m_rc_skewness[Fit]),"efit_skewness[5][64][48][2]/F");
+  t->Branch("efit_chi2",*(m_rc_chi2[Fit]),"efit_chi2[5][64][48][2]/F");
+  t->Branch("efit_ndf",*(m_rc_ndf[Fit]),"efit_ndf[5][64][48][2]/F");
+  t->Branch("efit_probC2",*(m_rc_probC2[Fit]),"efit_probC2[5][64][48][2]/F");
 
-  t->Branch("efit_gsigma1",*(rc_gsigma1[Fit]),"efit_gsigma1[5][64][48][2]/F");
-  t->Branch("efit_gsigma2",*(rc_gsigma2[Fit]),"efit_gsigma2[5][64][48][2]/F");
-  t->Branch("efit_gnorm",*(rc_gnorm[Fit]),"efit_gnorm[5][64][48][2]/F");
-  t->Branch("efit_gchi2",*(rc_gchi2[Fit]),"efit_gchi2[5][64][48][2]/F");
-  t->Branch("efit_gerrsigma1",*(rc_gerrsigma1[Fit]),"efit_gerrsigma1[5][64][48][2]/F");
-  t->Branch("efit_gerrnorm",*(rc_gerrnorm[Fit]),"efit_gerrnorm[5][64][48][2]/F");
-  t->Branch("efit_gerrsigma2",*(rc_gerrsigma2[Fit]),"efit_gerrsigma2[5][64][48][2]/F");  
-  t->Branch("efit_gcorrsigma1sigma2",*(rc_gcorrsigma1sigma2[Fit]),"efit_gcorrsigma1sigma2[5][64][48][2]/F");
-
-
-  t->Branch("efixed_mean",*(rc_mean[Fixed]),"efixed_mean[5][64][48][2]/F");
-  t->Branch("efixed_av",*(rc_av[Fixed]),"efixed_av[5][64][48][2]/F");
-  t->Branch("efixed_rms",*(rc_rms[Fixed]),"efixed_rms[5][64][48][2]/F");
-  t->Branch("efixed_sigma",*(rc_sigma[Fixed]),"efixed_sigma[5][64][48][2]/F");
-  t->Branch("efixed_mean_err",*(rc_mean_err[Fixed]),"efixed_mean_err[5][64][48][2]/F");
-  t->Branch("efixed_sigma_err",*(rc_sigma_err[Fixed]),"efixed_sigma_err[5][64][48][2]/F");
-  t->Branch("efixed_kurtosis",*(rc_kurtosis[Fixed]),"efixed_kurtosis[5][64][48][2]/F");
-  t->Branch("efixed_skewness",*(rc_skewness[Fixed]),"efixed_skewness[5][64][48][2]/F");
-  t->Branch("efixed_chi2",*(rc_chi2[Fixed]),"efixed_chi2[5][64][48][2]/F");
-  t->Branch("efixed_ndf",*(rc_ndf[Fixed]),"efixed_ndf[5][64][48][2]/F");
-  t->Branch("efixed_probC2",*(rc_probC2[Fixed]),"efixed_probC2[5][64][48][2]/F");
-
-  t->Branch("efixed_gsigma1",*(rc_gsigma1[Fixed]),"efixed_gsigma1[5][64][48][2]/F");
-  t->Branch("efixed_gsigma2",*(rc_gsigma2[Fixed]),"efixed_gsigma2[5][64][48][2]/F");
-  t->Branch("efixed_gnorm",*(rc_gnorm[Fixed]),"efixed_gnorm[5][64][48][2]/F");
-  t->Branch("efixed_gchi2",*(rc_gchi2[Fixed]),"efixed_gchi2[5][64][48][2]/F");
-  t->Branch("efixed_gerrsigma1",*(rc_gerrsigma1[Fixed]),"efixed_gerrsigma1[5][64][48][2]/F");
-  t->Branch("efixed_gerrnorm",*(rc_gerrnorm[Fixed]),"efixed_gerrnorm[5][64][48][2]/F");
-  t->Branch("efixed_gerrsigma2",*(rc_gerrsigma2[Fixed]),"efixed_gerrsigma2[5][64][48][2]/F");  
-  t->Branch("efixed_gcorrsigma1sigma2",*(rc_gcorrsigma1sigma2[Fixed]),"efixed_gcorrsigma1sigma2[5][64][48][2]/F");
+  t->Branch("efit_gsigma1",*(m_rc_gsigma1[Fit]),"efit_gsigma1[5][64][48][2]/F");
+  t->Branch("efit_gsigma2",*(m_rc_gsigma2[Fit]),"efit_gsigma2[5][64][48][2]/F");
+  t->Branch("efit_gnorm",*(m_rc_gnorm[Fit]),"efit_gnorm[5][64][48][2]/F");
+  t->Branch("efit_gchi2",*(m_rc_gchi2[Fit]),"efit_gchi2[5][64][48][2]/F");
+  t->Branch("efit_gerrsigma1",*(m_rc_gerrsigma1[Fit]),"efit_gerrsigma1[5][64][48][2]/F");
+  t->Branch("efit_gerrnorm",*(m_rc_gerrnorm[Fit]),"efit_gerrnorm[5][64][48][2]/F");
+  t->Branch("efit_gerrsigma2",*(m_rc_gerrsigma2[Fit]),"efit_gerrsigma2[5][64][48][2]/F");  
+  t->Branch("efit_gcorrsigma1sigma2",*(m_rc_gcorrsigma1sigma2[Fit]),"efit_gcorrsigma1sigma2[5][64][48][2]/F");
 
 
-  t->Branch("eopt_mean",*(rc_mean[Opt]),"eopt_mean[5][64][48][2]/F");
-  t->Branch("eopt_av",*(rc_av[Opt]),"eopt_av[5][64][48][2]/F");
-  t->Branch("eopt_rms",*(rc_rms[Opt]),"eopt_rms[5][64][48][2]/F");
-  t->Branch("eopt_sigma",*(rc_sigma[Opt]),"eopt_sigma[5][64][48][2]/F");
-  t->Branch("eopt_mean_err",*(rc_mean_err[Opt]),"eopt_mean_err[5][64][48][2]/F");
-  t->Branch("eopt_sigma_err",*(rc_sigma_err[Opt]),"eopt_sigma_err[5][64][48][2]/F");
-  t->Branch("eopt_kurtosis",*(rc_kurtosis[Opt]),"eopt_kurtosis[5][64][48][2]/F");
-  t->Branch("eopt_skewness",*(rc_skewness[Opt]),"eopt_skewness[5][64][48][2]/F");
-  t->Branch("eopt_chi2",*(rc_chi2[Opt]),"eopt_chi2[5][64][48][2]/F");
-  t->Branch("eopt_ndf",*(rc_ndf[Opt]),"eopt_ndf[5][64][48][2]/F");
-  t->Branch("eopt_probC2",*(rc_probC2[Opt]),"eopt_probC2[5][64][48][2]/F");
+  t->Branch("efixed_mean",*(m_rc_mean[Fixed]),"efixed_mean[5][64][48][2]/F");
+  t->Branch("efixed_av",*(m_rc_av[Fixed]),"efixed_av[5][64][48][2]/F");
+  t->Branch("efixed_rms",*(m_rc_rms[Fixed]),"efixed_rms[5][64][48][2]/F");
+  t->Branch("efixed_sigma",*(m_rc_sigma[Fixed]),"efixed_sigma[5][64][48][2]/F");
+  t->Branch("efixed_mean_err",*(m_rc_mean_err[Fixed]),"efixed_mean_err[5][64][48][2]/F");
+  t->Branch("efixed_sigma_err",*(m_rc_sigma_err[Fixed]),"efixed_sigma_err[5][64][48][2]/F");
+  t->Branch("efixed_kurtosis",*(m_rc_kurtosis[Fixed]),"efixed_kurtosis[5][64][48][2]/F");
+  t->Branch("efixed_skewness",*(m_rc_skewness[Fixed]),"efixed_skewness[5][64][48][2]/F");
+  t->Branch("efixed_chi2",*(m_rc_chi2[Fixed]),"efixed_chi2[5][64][48][2]/F");
+  t->Branch("efixed_ndf",*(m_rc_ndf[Fixed]),"efixed_ndf[5][64][48][2]/F");
+  t->Branch("efixed_probC2",*(m_rc_probC2[Fixed]),"efixed_probC2[5][64][48][2]/F");
 
-  t->Branch("eopt_gsigma1",*(rc_gsigma1[Opt]),"eopt_gsigma1[5][64][48][2]/F");
-  t->Branch("eopt_gsigma2",*(rc_gsigma2[Opt]),"eopt_gsigma2[5][64][48][2]/F");
-  t->Branch("eopt_gnorm",*(rc_gnorm[Opt]),"eopt_gnorm[5][64][48][2]/F");
-  t->Branch("eopt_gchi2",*(rc_gchi2[Opt]),"eopt_gchi2[5][64][48][2]/F");
-  t->Branch("eopt_gerrsigma1",*(rc_gerrsigma1[Opt]),"eopt_gerrsigma1[5][64][48][2]/F");
-  t->Branch("eopt_gerrnorm",*(rc_gerrnorm[Opt]),"eopt_gerrnorm[5][64][48][2]/F");
-  t->Branch("eopt_gerrsigma2",*(rc_gerrsigma2[Opt]),"eopt_gerrsigma2[5][64][48][2]/F");  
-  t->Branch("eopt_gcorrsigma1sigma2",*(rc_gcorrsigma1sigma2[Opt]),"eopt_gcorrsigma1sigma2[5][64][48][2]/F");
-
-
-  t->Branch("edsp_mean",*(rc_mean[Dsp]),"edsp_mean[5][64][48][2]/F");
-  t->Branch("edsp_av",*(rc_av[Dsp]),"edsp_av[5][64][48][2]/F");
-  t->Branch("edsp_rms",*(rc_rms[Dsp]),"edsp_rms[5][64][48][2]/F");
-  t->Branch("edsp_sigma",*(rc_sigma[Dsp]),"edsp_sigma[5][64][48][2]/F");
-  t->Branch("edsp_mean_err",*(rc_mean_err[Dsp]),"edsp_mean_err[5][64][48][2]/F");
-  t->Branch("edsp_sigma_err",*(rc_sigma_err[Dsp]),"edsp_sigma_err[5][64][48][2]/F");
-  t->Branch("edsp_kurtosis",*(rc_kurtosis[Dsp]),"edsp_kurtosis[5][64][48][2]/F");
-  t->Branch("edsp_skewness",*(rc_skewness[Dsp]),"edsp_skewness[5][64][48][2]/F");
-  t->Branch("edsp_chi2",*(rc_chi2[Dsp]),"edsp_chi2[5][64][48][2]/F");
-  t->Branch("edsp_ndf",*(rc_ndf[Dsp]),"edsp_ndf[5][64][48][2]/F");
-  t->Branch("edsp_probC2",*(rc_probC2[Dsp]),"edsp_probC2[5][64][48][2]/F");
-
-  t->Branch("edsp_gsigma1",*(rc_gsigma1[Dsp]),"edsp_gsigma1[5][64][48][2]/F");
-  t->Branch("edsp_gsigma2",*(rc_gsigma2[Dsp]),"edsp_gsigma2[5][64][48][2]/F");
-  t->Branch("edsp_gnorm",*(rc_gnorm[Dsp]),"edsp_gnorm[5][64][48][2]/F");
-  t->Branch("edsp_gchi2",*(rc_gchi2[Dsp]),"edsp_gchi2[5][64][48][2]/F");
-  t->Branch("edsp_gerrsigma1",*(rc_gerrsigma1[Dsp]),"edsp_gerrsigma1[5][64][48][2]/F");
-  t->Branch("edsp_gerrnorm",*(rc_gerrnorm[Dsp]),"edsp_gerrnorm[5][64][48][2]/F");
-  t->Branch("edsp_gerrsigma2",*(rc_gerrsigma2[Dsp]),"edsp_gerrsigma2[5][64][48][2]/F");  
-  t->Branch("edsp_gcorrsigma1sigma2",*(rc_gcorrsigma1sigma2[Dsp]),"edsp_gcorrsigma1sigma2[5][64][48][2]/F");
+  t->Branch("efixed_gsigma1",*(m_rc_gsigma1[Fixed]),"efixed_gsigma1[5][64][48][2]/F");
+  t->Branch("efixed_gsigma2",*(m_rc_gsigma2[Fixed]),"efixed_gsigma2[5][64][48][2]/F");
+  t->Branch("efixed_gnorm",*(m_rc_gnorm[Fixed]),"efixed_gnorm[5][64][48][2]/F");
+  t->Branch("efixed_gchi2",*(m_rc_gchi2[Fixed]),"efixed_gchi2[5][64][48][2]/F");
+  t->Branch("efixed_gerrsigma1",*(m_rc_gerrsigma1[Fixed]),"efixed_gerrsigma1[5][64][48][2]/F");
+  t->Branch("efixed_gerrnorm",*(m_rc_gerrnorm[Fixed]),"efixed_gerrnorm[5][64][48][2]/F");
+  t->Branch("efixed_gerrsigma2",*(m_rc_gerrsigma2[Fixed]),"efixed_gerrsigma2[5][64][48][2]/F");  
+  t->Branch("efixed_gcorrsigma1sigma2",*(m_rc_gcorrsigma1sigma2[Fixed]),"efixed_gcorrsigma1sigma2[5][64][48][2]/F");
 
 
-  t->Branch("eOF1_mean",*(rc_mean[OF1]),"eOF1_mean[5][64][48][2]/F");
-  t->Branch("eOF1_av",*(rc_av[OF1]),"eOF1_av[5][64][48][2]/F");
-  t->Branch("eOF1_rms",*(rc_rms[OF1]),"eOF1_rms[5][64][48][2]/F");
-  t->Branch("eOF1_sigma",*(rc_sigma[OF1]),"eOF1_sigma[5][64][48][2]/F");
-  t->Branch("eOF1_mean_err",*(rc_mean_err[OF1]),"eOF1_mean_err[5][64][48][2]/F");
-  t->Branch("eOF1_sigma_err",*(rc_sigma_err[OF1]),"eOF1_sigma_err[5][64][48][2]/F");
-  t->Branch("eOF1_kurtosis",*(rc_kurtosis[OF1]),"eOF1_kurtosis[5][64][48][2]/F");
-  t->Branch("eOF1_skewness",*(rc_skewness[OF1]),"eOF1_skewness[5][64][48][2]/F");
-  t->Branch("eOF1_chi2",*(rc_chi2[OF1]),"eOF1_chi2[5][64][48][2]/F");
-  t->Branch("eOF1_ndf",*(rc_ndf[OF1]),"eOF1_ndf[5][64][48][2]/F");
-  t->Branch("eOF1_probC2",*(rc_probC2[OF1]),"eOF1_probC2[5][64][48][2]/F");
+  t->Branch("eopt_mean",*(m_rc_mean[Opt]),"eopt_mean[5][64][48][2]/F");
+  t->Branch("eopt_av",*(m_rc_av[Opt]),"eopt_av[5][64][48][2]/F");
+  t->Branch("eopt_rms",*(m_rc_rms[Opt]),"eopt_rms[5][64][48][2]/F");
+  t->Branch("eopt_sigma",*(m_rc_sigma[Opt]),"eopt_sigma[5][64][48][2]/F");
+  t->Branch("eopt_mean_err",*(m_rc_mean_err[Opt]),"eopt_mean_err[5][64][48][2]/F");
+  t->Branch("eopt_sigma_err",*(m_rc_sigma_err[Opt]),"eopt_sigma_err[5][64][48][2]/F");
+  t->Branch("eopt_kurtosis",*(m_rc_kurtosis[Opt]),"eopt_kurtosis[5][64][48][2]/F");
+  t->Branch("eopt_skewness",*(m_rc_skewness[Opt]),"eopt_skewness[5][64][48][2]/F");
+  t->Branch("eopt_chi2",*(m_rc_chi2[Opt]),"eopt_chi2[5][64][48][2]/F");
+  t->Branch("eopt_ndf",*(m_rc_ndf[Opt]),"eopt_ndf[5][64][48][2]/F");
+  t->Branch("eopt_probC2",*(m_rc_probC2[Opt]),"eopt_probC2[5][64][48][2]/F");
 
-  t->Branch("eOF1_gsigma1",*(rc_gsigma1[OF1]),"eOF1_gsigma1[5][64][48][2]/F");
-  t->Branch("eOF1_gsigma2",*(rc_gsigma2[OF1]),"eOF1_gsigma2[5][64][48][2]/F");
-  t->Branch("eOF1_gnorm",*(rc_gnorm[OF1]),"eOF1_gnorm[5][64][48][2]/F");
-  t->Branch("eOF1_gchi2",*(rc_gchi2[OF1]),"eOF1_gchi2[5][64][48][2]/F");
-  t->Branch("eOF1_gerrsigma1",*(rc_gerrsigma1[OF1]),"eOF1_gerrsigma1[5][64][48][2]/F");
-  t->Branch("eOF1_gerrnorm",*(rc_gerrnorm[OF1]),"eOF1_gerrnorm[5][64][48][2]/F");
-  t->Branch("eOF1_gerrsigma2",*(rc_gerrsigma2[OF1]),"eOF1_gerrsigma2[5][64][48][2]/F");  
-  t->Branch("eOF1_gcorrsigma1sigma2",*(rc_gcorrsigma1sigma2[OF1]),"eOF1_gcorrsigma1sigma2[5][64][48][2]/F");
-
-
-  t->Branch("eMF_mean",*(rc_mean[MF]),"eMF_mean[5][64][48][2]/F");
-  t->Branch("eMF_av",*(rc_av[MF]),"eMF_av[5][64][48][2]/F");
-  t->Branch("eMF_rms",*(rc_rms[MF]),"eMF_rms[5][64][48][2]/F");
-  t->Branch("eMF_sigma",*(rc_sigma[MF]),"eMF_sigma[5][64][48][2]/F");
-  t->Branch("eMF_mean_err",*(rc_mean_err[MF]),"eMF_mean_err[5][64][48][2]/F");
-  t->Branch("eMF_sigma_err",*(rc_sigma_err[MF]),"eMF_sigma_err[5][64][48][2]/F");
-  t->Branch("eMF_kurtosis",*(rc_kurtosis[MF]),"eMF_kurtosis[5][64][48][2]/F");
-  t->Branch("eMF_skewness",*(rc_skewness[MF]),"eMF_skewness[5][64][48][2]/F");
-  t->Branch("eMF_chi2",*(rc_chi2[MF]),"eMF_chi2[5][64][48][2]/F");
-  t->Branch("eMF_ndf",*(rc_ndf[MF]),"eMF_ndf[5][64][48][2]/F");
-  t->Branch("eMF_probC2",*(rc_probC2[MF]),"eMF_probC2[5][64][48][2]/F");
-
-  t->Branch("eMF_gsigma1",*(rc_gsigma1[MF]),"eMF_gsigma1[5][64][48][2]/F");
-  t->Branch("eMF_gsigma2",*(rc_gsigma2[MF]),"eMF_gsigma2[5][64][48][2]/F");
-  t->Branch("eMF_gnorm",*(rc_gnorm[MF]),"eMF_gnorm[5][64][48][2]/F");
-  t->Branch("eMF_gchi2",*(rc_gchi2[MF]),"eMF_gchi2[5][64][48][2]/F");
-  t->Branch("eMF_gerrsigma1",*(rc_gerrsigma1[MF]),"eMF_gerrsigma1[5][64][48][2]/F");
-  t->Branch("eMF_gerrnorm",*(rc_gerrnorm[MF]),"eMF_gerrnorm[5][64][48][2]/F");
-  t->Branch("eMF_gerrsigma2",*(rc_gerrsigma2[MF]),"eMF_gerrsigma2[5][64][48][2]/F");  
-  t->Branch("eMF_gcorrsigma1sigma2",*(rc_gcorrsigma1sigma2[MF]),"eMF_gcorrsigma1sigma2[5][64][48][2]/F");
+  t->Branch("eopt_gsigma1",*(m_rc_gsigma1[Opt]),"eopt_gsigma1[5][64][48][2]/F");
+  t->Branch("eopt_gsigma2",*(m_rc_gsigma2[Opt]),"eopt_gsigma2[5][64][48][2]/F");
+  t->Branch("eopt_gnorm",*(m_rc_gnorm[Opt]),"eopt_gnorm[5][64][48][2]/F");
+  t->Branch("eopt_gchi2",*(m_rc_gchi2[Opt]),"eopt_gchi2[5][64][48][2]/F");
+  t->Branch("eopt_gerrsigma1",*(m_rc_gerrsigma1[Opt]),"eopt_gerrsigma1[5][64][48][2]/F");
+  t->Branch("eopt_gerrnorm",*(m_rc_gerrnorm[Opt]),"eopt_gerrnorm[5][64][48][2]/F");
+  t->Branch("eopt_gerrsigma2",*(m_rc_gerrsigma2[Opt]),"eopt_gerrsigma2[5][64][48][2]/F");  
+  t->Branch("eopt_gcorrsigma1sigma2",*(m_rc_gcorrsigma1sigma2[Opt]),"eopt_gcorrsigma1sigma2[5][64][48][2]/F");
 
 
-  t->Branch("ecell_av",*(ecell_av),"ecell_av[2][64][4][17][6]/F");
-  t->Branch("ecell_rms",*(ecell_rms),"ecell_rms[2][64][4][17][6]/F");
-  t->Branch("ecell_hash",*(ecell_hash),"ecell_hash[2][64][4][17]/i");
-  t->Branch("ecell_gsigma1",*(gsigma1),"ecell_gsigma1[2][64][4][17][6]/F");
-  t->Branch("ecell_gsigma2",*(gsigma2),"ecell_gsigma2[2][64][4][17][6]/F");
-  t->Branch("ecell_gnorm",*(gnorm),"ecell_gnorm[2][64][4][17][6]/F");
-  t->Branch("ecell_gchi2",*(gchi2),"ecell_gchi2[2][64][4][17][6]/F");
-  t->Branch("ecell_gerrsigma1",*(gerrsigma1),"ecell_gerrsigma1[2][64][4][17][6]/F");
-  t->Branch("ecell_gerrnorm",*(gerrnorm),"ecell_gerrnorm[2][64][4][17][6]/F");
-  t->Branch("ecell_gerrsigma2",*(gerrsigma2),"ecell_gerrsigma2[2][64][4][17][6]/F");  
-  t->Branch("ecell_gcorrsigma1sigma2",*(gcorrsigma1sigma2),"ecell_gcorrsigma1sigma2[2][64][4][17][6]/F");
+  t->Branch("edsp_mean",*(m_rc_mean[Dsp]),"edsp_mean[5][64][48][2]/F");
+  t->Branch("edsp_av",*(m_rc_av[Dsp]),"edsp_av[5][64][48][2]/F");
+  t->Branch("edsp_rms",*(m_rc_rms[Dsp]),"edsp_rms[5][64][48][2]/F");
+  t->Branch("edsp_sigma",*(m_rc_sigma[Dsp]),"edsp_sigma[5][64][48][2]/F");
+  t->Branch("edsp_mean_err",*(m_rc_mean_err[Dsp]),"edsp_mean_err[5][64][48][2]/F");
+  t->Branch("edsp_sigma_err",*(m_rc_sigma_err[Dsp]),"edsp_sigma_err[5][64][48][2]/F");
+  t->Branch("edsp_kurtosis",*(m_rc_kurtosis[Dsp]),"edsp_kurtosis[5][64][48][2]/F");
+  t->Branch("edsp_skewness",*(m_rc_skewness[Dsp]),"edsp_skewness[5][64][48][2]/F");
+  t->Branch("edsp_chi2",*(m_rc_chi2[Dsp]),"edsp_chi2[5][64][48][2]/F");
+  t->Branch("edsp_ndf",*(m_rc_ndf[Dsp]),"edsp_ndf[5][64][48][2]/F");
+  t->Branch("edsp_probC2",*(m_rc_probC2[Dsp]),"edsp_probC2[5][64][48][2]/F");
+
+  t->Branch("edsp_gsigma1",*(m_rc_gsigma1[Dsp]),"edsp_gsigma1[5][64][48][2]/F");
+  t->Branch("edsp_gsigma2",*(m_rc_gsigma2[Dsp]),"edsp_gsigma2[5][64][48][2]/F");
+  t->Branch("edsp_gnorm",*(m_rc_gnorm[Dsp]),"edsp_gnorm[5][64][48][2]/F");
+  t->Branch("edsp_gchi2",*(m_rc_gchi2[Dsp]),"edsp_gchi2[5][64][48][2]/F");
+  t->Branch("edsp_gerrsigma1",*(m_rc_gerrsigma1[Dsp]),"edsp_gerrsigma1[5][64][48][2]/F");
+  t->Branch("edsp_gerrnorm",*(m_rc_gerrnorm[Dsp]),"edsp_gerrnorm[5][64][48][2]/F");
+  t->Branch("edsp_gerrsigma2",*(m_rc_gerrsigma2[Dsp]),"edsp_gerrsigma2[5][64][48][2]/F");  
+  t->Branch("edsp_gcorrsigma1sigma2",*(m_rc_gcorrsigma1sigma2[Dsp]),"edsp_gcorrsigma1sigma2[5][64][48][2]/F");
+
+
+  t->Branch("eOF1_mean",*(m_rc_mean[OF1]),"eOF1_mean[5][64][48][2]/F");
+  t->Branch("eOF1_av",*(m_rc_av[OF1]),"eOF1_av[5][64][48][2]/F");
+  t->Branch("eOF1_rms",*(m_rc_rms[OF1]),"eOF1_rms[5][64][48][2]/F");
+  t->Branch("eOF1_sigma",*(m_rc_sigma[OF1]),"eOF1_sigma[5][64][48][2]/F");
+  t->Branch("eOF1_mean_err",*(m_rc_mean_err[OF1]),"eOF1_mean_err[5][64][48][2]/F");
+  t->Branch("eOF1_sigma_err",*(m_rc_sigma_err[OF1]),"eOF1_sigma_err[5][64][48][2]/F");
+  t->Branch("eOF1_kurtosis",*(m_rc_kurtosis[OF1]),"eOF1_kurtosis[5][64][48][2]/F");
+  t->Branch("eOF1_skewness",*(m_rc_skewness[OF1]),"eOF1_skewness[5][64][48][2]/F");
+  t->Branch("eOF1_chi2",*(m_rc_chi2[OF1]),"eOF1_chi2[5][64][48][2]/F");
+  t->Branch("eOF1_ndf",*(m_rc_ndf[OF1]),"eOF1_ndf[5][64][48][2]/F");
+  t->Branch("eOF1_probC2",*(m_rc_probC2[OF1]),"eOF1_probC2[5][64][48][2]/F");
+
+  t->Branch("eOF1_gsigma1",*(m_rc_gsigma1[OF1]),"eOF1_gsigma1[5][64][48][2]/F");
+  t->Branch("eOF1_gsigma2",*(m_rc_gsigma2[OF1]),"eOF1_gsigma2[5][64][48][2]/F");
+  t->Branch("eOF1_gnorm",*(m_rc_gnorm[OF1]),"eOF1_gnorm[5][64][48][2]/F");
+  t->Branch("eOF1_gchi2",*(m_rc_gchi2[OF1]),"eOF1_gchi2[5][64][48][2]/F");
+  t->Branch("eOF1_gerrsigma1",*(m_rc_gerrsigma1[OF1]),"eOF1_gerrsigma1[5][64][48][2]/F");
+  t->Branch("eOF1_gerrnorm",*(m_rc_gerrnorm[OF1]),"eOF1_gerrnorm[5][64][48][2]/F");
+  t->Branch("eOF1_gerrsigma2",*(m_rc_gerrsigma2[OF1]),"eOF1_gerrsigma2[5][64][48][2]/F");  
+  t->Branch("eOF1_gcorrsigma1sigma2",*(m_rc_gcorrsigma1sigma2[OF1]),"eOF1_gcorrsigma1sigma2[5][64][48][2]/F");
+
+
+  t->Branch("eMF_mean",*(m_rc_mean[MF]),"eMF_mean[5][64][48][2]/F");
+  t->Branch("eMF_av",*(m_rc_av[MF]),"eMF_av[5][64][48][2]/F");
+  t->Branch("eMF_rms",*(m_rc_rms[MF]),"eMF_rms[5][64][48][2]/F");
+  t->Branch("eMF_sigma",*(m_rc_sigma[MF]),"eMF_sigma[5][64][48][2]/F");
+  t->Branch("eMF_mean_err",*(m_rc_mean_err[MF]),"eMF_mean_err[5][64][48][2]/F");
+  t->Branch("eMF_sigma_err",*(m_rc_sigma_err[MF]),"eMF_sigma_err[5][64][48][2]/F");
+  t->Branch("eMF_kurtosis",*(m_rc_kurtosis[MF]),"eMF_kurtosis[5][64][48][2]/F");
+  t->Branch("eMF_skewness",*(m_rc_skewness[MF]),"eMF_skewness[5][64][48][2]/F");
+  t->Branch("eMF_chi2",*(m_rc_chi2[MF]),"eMF_chi2[5][64][48][2]/F");
+  t->Branch("eMF_ndf",*(m_rc_ndf[MF]),"eMF_ndf[5][64][48][2]/F");
+  t->Branch("eMF_probC2",*(m_rc_probC2[MF]),"eMF_probC2[5][64][48][2]/F");
+
+  t->Branch("eMF_gsigma1",*(m_rc_gsigma1[MF]),"eMF_gsigma1[5][64][48][2]/F");
+  t->Branch("eMF_gsigma2",*(m_rc_gsigma2[MF]),"eMF_gsigma2[5][64][48][2]/F");
+  t->Branch("eMF_gnorm",*(m_rc_gnorm[MF]),"eMF_gnorm[5][64][48][2]/F");
+  t->Branch("eMF_gchi2",*(m_rc_gchi2[MF]),"eMF_gchi2[5][64][48][2]/F");
+  t->Branch("eMF_gerrsigma1",*(m_rc_gerrsigma1[MF]),"eMF_gerrsigma1[5][64][48][2]/F");
+  t->Branch("eMF_gerrnorm",*(m_rc_gerrnorm[MF]),"eMF_gerrnorm[5][64][48][2]/F");
+  t->Branch("eMF_gerrsigma2",*(m_rc_gerrsigma2[MF]),"eMF_gerrsigma2[5][64][48][2]/F");  
+  t->Branch("eMF_gcorrsigma1sigma2",*(m_rc_gcorrsigma1sigma2[MF]),"eMF_gcorrsigma1sigma2[5][64][48][2]/F");
+
+
+  t->Branch("ecell_av",*(m_ecell_av),"ecell_av[2][64][4][17][6]/F");
+  t->Branch("ecell_rms",*(m_ecell_rms),"ecell_rms[2][64][4][17][6]/F");
+  t->Branch("ecell_hash",*(m_ecell_hash),"ecell_hash[2][64][4][17]/i");
+  t->Branch("ecell_gsigma1",*(m_gsigma1),"ecell_gsigma1[2][64][4][17][6]/F");
+  t->Branch("ecell_gsigma2",*(m_gsigma2),"ecell_gsigma2[2][64][4][17][6]/F");
+  t->Branch("ecell_gnorm",*(m_gnorm),"ecell_gnorm[2][64][4][17][6]/F");
+  t->Branch("ecell_gchi2",*(m_gchi2),"ecell_gchi2[2][64][4][17][6]/F");
+  t->Branch("ecell_gerrsigma1",*(m_gerrsigma1),"ecell_gerrsigma1[2][64][4][17][6]/F");
+  t->Branch("ecell_gerrnorm",*(m_gerrnorm),"ecell_gerrnorm[2][64][4][17][6]/F");
+  t->Branch("ecell_gerrsigma2",*(m_gerrsigma2),"ecell_gerrsigma2[2][64][4][17][6]/F");  
+  t->Branch("ecell_gcorrsigma1sigma2",*(m_gcorrsigma1sigma2),"ecell_gcorrsigma1sigma2[2][64][4][17][6]/F");
 //  t->Branch("ecell_gcorrsigma1norm",*(gcorrsigma1norm),"ecell_gcorrsigma1norm[2][64][4][17][6]/F");
 //  t->Branch("ecell_gcorrsigma2norm",*(gcorrsigma2norm),"ecell_gcorrsigma2norm[2][64][4][17][6]/F");
   t->Branch("side", *m_side, "side[2][64][4][17][6]/O");
@@ -562,7 +562,7 @@ StatusCode TileRawChNoiseCalibAlg::finalize() {
           for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
             for (unsigned int ch = 0; ch < TileCalibUtils::MAX_CHAN; ++ch) {
               for (unsigned int g = 0; g < TileCalibUtils::MAX_GAIN; ++g) {
-                histAmp[rc][ros][drawer][ch][g]->Write();
+                m_histAmp[rc][ros][drawer][ch][g]->Write();
               }
             }
           }
@@ -575,7 +575,7 @@ StatusCode TileRawChNoiseCalibAlg::finalize() {
         for (int sample = 0; sample < 4; ++sample) {
           for (int tower = 0; tower < 17; ++tower) {
             for (int gg = 0; gg < 6; ++gg) {
-              histCellAmp[side][drawer][sample][tower][gg]->Write();
+              m_histCellAmp[side][drawer][sample][tower][gg]->Write();
             }
           }
         }
@@ -739,7 +739,7 @@ StatusCode TileRawChNoiseCalibAlg::fillRawChannels(std::string rcCnt, RCtype rct
       unsigned int chan = (m_usePMT) ? digiChannel2PMT(ros, channel) : channel;
 
       m_evt[ros][drawer][chan][gain]++;
-      histAmp[rctype][ros][drawer][chan][gain]->Fill(amp);
+      m_histAmp[rctype][ros][drawer][chan][gain]->Fill(amp);
     }
   }
 
@@ -787,34 +787,34 @@ void TileRawChNoiseCalibAlg::finalRawCh(int rctype) {
 
           if (m_evt[ros][drawer][chan][gain] > 0) {
 
-            histAmp[rctype][ros][drawer][chan][gain]->Fit("g", "NQ");
+            m_histAmp[rctype][ros][drawer][chan][gain]->Fit("g", "NQ");
 
-            rc_av[rctype][ros][drawer][chan][gain] = histAmp[rctype][ros][drawer][chan][gain]->GetMean();
-            rc_rms[rctype][ros][drawer][chan][gain] = histAmp[rctype][ros][drawer][chan][gain]->GetRMS();
+            m_rc_av[rctype][ros][drawer][chan][gain] = m_histAmp[rctype][ros][drawer][chan][gain]->GetMean();
+            m_rc_rms[rctype][ros][drawer][chan][gain] = m_histAmp[rctype][ros][drawer][chan][gain]->GetRMS();
 
-            if (TMath::Abs(histAmp[rctype][ros][drawer][chan][gain]->GetSkewness()) < 1000.)
-              rc_skewness[rctype][ros][drawer][chan][gain] = histAmp[rctype][ros][drawer][chan][gain]->GetSkewness();
-            if (TMath::Abs(histAmp[rctype][ros][drawer][chan][gain]->GetKurtosis()) < 1000.)
-              rc_kurtosis[rctype][ros][drawer][chan][gain] = histAmp[rctype][ros][drawer][chan][gain]->GetKurtosis();
+            if (TMath::Abs(m_histAmp[rctype][ros][drawer][chan][gain]->GetSkewness()) < 1000.)
+              m_rc_skewness[rctype][ros][drawer][chan][gain] = m_histAmp[rctype][ros][drawer][chan][gain]->GetSkewness();
+            if (TMath::Abs(m_histAmp[rctype][ros][drawer][chan][gain]->GetKurtosis()) < 1000.)
+              m_rc_kurtosis[rctype][ros][drawer][chan][gain] = m_histAmp[rctype][ros][drawer][chan][gain]->GetKurtosis();
 
-            rc_mean[rctype][ros][drawer][chan][gain] = fit_gaus->GetParameter(1);
-            rc_mean_err[rctype][ros][drawer][chan][gain] = fit_gaus->GetParError(1);
-            rc_sigma[rctype][ros][drawer][chan][gain] = fit_gaus->GetParameter(2);
-            rc_sigma_err[rctype][ros][drawer][chan][gain] = fit_gaus->GetParError(2);
-            rc_chi2[rctype][ros][drawer][chan][gain] = fit_gaus->GetChisquare();
-            rc_ndf[rctype][ros][drawer][chan][gain] = fit_gaus->GetNDF();
-            rc_probC2[rctype][ros][drawer][chan][gain] = fit_gaus->GetProb();
+            m_rc_mean[rctype][ros][drawer][chan][gain] = fit_gaus->GetParameter(1);
+            m_rc_mean_err[rctype][ros][drawer][chan][gain] = fit_gaus->GetParError(1);
+            m_rc_sigma[rctype][ros][drawer][chan][gain] = fit_gaus->GetParameter(2);
+            m_rc_sigma_err[rctype][ros][drawer][chan][gain] = fit_gaus->GetParError(2);
+            m_rc_chi2[rctype][ros][drawer][chan][gain] = fit_gaus->GetChisquare();
+            m_rc_ndf[rctype][ros][drawer][chan][gain] = fit_gaus->GetNDF();
+            m_rc_probC2[rctype][ros][drawer][chan][gain] = fit_gaus->GetProb();
 
-            doFit(histAmp[rctype][ros][drawer][chan][gain], rc_ggpar[rctype][ros][drawer][chan][gain], m_invertChanRatio);
+            doFit(m_histAmp[rctype][ros][drawer][chan][gain], m_rc_ggpar[rctype][ros][drawer][chan][gain], m_invertChanRatio);
 
-            rc_gsigma1[rctype][ros][drawer][chan][gain] = rc_ggpar[rctype][ros][drawer][chan][gain][0];
-            rc_gsigma2[rctype][ros][drawer][chan][gain] = rc_ggpar[rctype][ros][drawer][chan][gain][2];
-            rc_gnorm[rctype][ros][drawer][chan][gain] =   rc_ggpar[rctype][ros][drawer][chan][gain][1];
-            rc_gchi2[rctype][ros][drawer][chan][gain] =   rc_ggpar[rctype][ros][drawer][chan][gain][3];
-            rc_gerrsigma1[rctype][ros][drawer][chan][gain] = rc_ggpar[rctype][ros][drawer][chan][gain][4];
-            rc_gerrnorm[rctype][ros][drawer][chan][gain] =   rc_ggpar[rctype][ros][drawer][chan][gain][5];
-            rc_gerrsigma2[rctype][ros][drawer][chan][gain] = rc_ggpar[rctype][ros][drawer][chan][gain][6];
-            rc_gcorrsigma1sigma2[rctype][ros][drawer][chan][gain] = rc_ggpar[rctype][ros][drawer][chan][gain][7];
+            m_rc_gsigma1[rctype][ros][drawer][chan][gain] = m_rc_ggpar[rctype][ros][drawer][chan][gain][0];
+            m_rc_gsigma2[rctype][ros][drawer][chan][gain] = m_rc_ggpar[rctype][ros][drawer][chan][gain][2];
+            m_rc_gnorm[rctype][ros][drawer][chan][gain] =   m_rc_ggpar[rctype][ros][drawer][chan][gain][1];
+            m_rc_gchi2[rctype][ros][drawer][chan][gain] =   m_rc_ggpar[rctype][ros][drawer][chan][gain][3];
+            m_rc_gerrsigma1[rctype][ros][drawer][chan][gain] = m_rc_ggpar[rctype][ros][drawer][chan][gain][4];
+            m_rc_gerrnorm[rctype][ros][drawer][chan][gain] =   m_rc_ggpar[rctype][ros][drawer][chan][gain][5];
+            m_rc_gerrsigma2[rctype][ros][drawer][chan][gain] = m_rc_ggpar[rctype][ros][drawer][chan][gain][6];
+            m_rc_gcorrsigma1sigma2[rctype][ros][drawer][chan][gain] = m_rc_ggpar[rctype][ros][drawer][chan][gain][7];
 
           } // end if evt>0 
 
@@ -858,7 +858,7 @@ void TileRawChNoiseCalibAlg::fillCell(TileRawChannelUnit::UNIT RChUnit, const Ti
     else side = 0; //D0 cell? we put it in LBA
 
     if (m_evtNr < 1) { //first event
-      ecell_hash[side][drawer][sample][tower] = m_tileID->cell_hash(cell_id);
+      m_ecell_hash[side][drawer][sample][tower] = m_tileID->cell_hash(cell_id);
     }
 
     int g, gg;
@@ -876,29 +876,38 @@ void TileRawChNoiseCalibAlg::fillCell(TileRawChannelUnit::UNIT RChUnit, const Ti
 
     double amp = rch->amplitude();
     amp = m_tileToolEmscale->channelCalib(drawerIdx, channel, gain, amp, RChUnit, TileRawChannelUnit::MegaElectronVolts);
-
+    int nch = 1;
+    
     if ((m_cabling->getCablingType() == TileCablingService::RUN2Cabling)
-        && (channel == E1_CHANNEL)
-        && (ros > 2)) { // Raw channel -> E1 cell.
-         
-      int drawer2 = m_cabling->E1_merged_with_run2(ros, drawer);
-      if (drawer2 != 0) { // Raw channel splitted into two E1 cells for Run 2.
-        amp /= 2.0F;
-        ecell_ene[side][drawer2][sample][tower][gg / 3] += amp;
-        ++cell_nch[side][drawer2][sample][tower][gg / 3];
+        && (ros > 2)) { // Ext.barrel modules
         
-        if (TMath::Abs(amp) > 1.e-5) {
-          histCellAmp[side][drawer2][sample][tower][g]->Fill(amp);
+      if (channel == E1_CHANNEL) { // Raw channel -> E1 cell.
+        int drawer2 = m_cabling->E1_merged_with_run2(ros, drawer);
+        if (drawer2 != 0) { // Raw channel splitted into two E1 cells for Run 2.
+          amp /= 2.0F;
+          m_ecell_ene[side][drawer2][sample][tower][gg / 3] += amp;
+          ++m_cell_nch[side][drawer2][sample][tower][gg / 3];
+        
+          if (TMath::Abs(amp) > 1.e-5) {
+            m_histCellAmp[side][drawer2][sample][tower][g]->Fill(amp);
+          }
         }
 
+      } else if (!m_cabling->C10_connected(drawer)) { // modules with special C10
+        if (channel == OUTER_MBTS_CHANNEL) {
+          amp = 0.0; // ignore MBTS completely
+          nch = 0;
+        } else if (channel == SPECIAL_C10_CHANNEL) {
+          nch = 2; // count this channel twice - needed for correct bad-channel masking
+        }
       }
     }
 
-    ecell_ene[side][drawer][sample][tower][gg / 3] += amp;
-    ++cell_nch[side][drawer][sample][tower][gg / 3];
+    m_ecell_ene[side][drawer][sample][tower][gg / 3] += amp;
+    m_cell_nch[side][drawer][sample][tower][gg / 3] += nch;
 
     if (TMath::Abs(amp) > 1.e-5) {
-      histCellAmp[side][drawer][sample][tower][g]->Fill(amp);
+      m_histCellAmp[side][drawer][sample][tower][g]->Fill(amp);
     }
 
   } // is a connected channel
@@ -924,21 +933,21 @@ void TileRawChNoiseCalibAlg::finalCell() {
             m_tower[side][drawer][sample][tower][gg] = tower;
             m_gg[side][drawer][sample][tower][gg] = gg;
 
-            if (histCellAmp[side][drawer][sample][tower][gg]->GetEntries() > 0) {
+            if (m_histCellAmp[side][drawer][sample][tower][gg]->GetEntries() > 0) {
 
-              ecell_av[side][drawer][sample][tower][gg] = histCellAmp[side][drawer][sample][tower][gg]->GetMean();
-              ecell_rms[side][drawer][sample][tower][gg] = histCellAmp[side][drawer][sample][tower][gg]->GetRMS();
-              doFit(histCellAmp[side][drawer][sample][tower][gg], ggpar[side][drawer][sample][tower][gg]);
-              gsigma1[side][drawer][sample][tower][gg] = ggpar[side][drawer][sample][tower][gg][0];
-              gsigma2[side][drawer][sample][tower][gg] = ggpar[side][drawer][sample][tower][gg][2];
-              gnorm[side][drawer][sample][tower][gg] = ggpar[side][drawer][sample][tower][gg][1];
-              gchi2[side][drawer][sample][tower][gg] = ggpar[side][drawer][sample][tower][gg][3];
-              gerrsigma1[side][drawer][sample][tower][gg] = ggpar[side][drawer][sample][tower][gg][4];
-              gerrnorm[side][drawer][sample][tower][gg] = ggpar[side][drawer][sample][tower][gg][5];
-              gerrsigma2[side][drawer][sample][tower][gg] = ggpar[side][drawer][sample][tower][gg][6];
-              gcorrsigma1sigma2[side][drawer][sample][tower][gg] = ggpar[side][drawer][sample][tower][gg][7];
-//              gcorrsigma1norm[side][drawer][sample][tower][gg]=ggpar[side][drawer][sample][tower][gg][8];
-//              gcorrsigma2norm[side][drawer][sample][tower][gg]=ggpar[side][drawer][sample][tower][gg][9];
+              m_ecell_av[side][drawer][sample][tower][gg] = m_histCellAmp[side][drawer][sample][tower][gg]->GetMean();
+              m_ecell_rms[side][drawer][sample][tower][gg] = m_histCellAmp[side][drawer][sample][tower][gg]->GetRMS();
+              doFit(m_histCellAmp[side][drawer][sample][tower][gg], m_ggpar[side][drawer][sample][tower][gg]);
+              m_gsigma1[side][drawer][sample][tower][gg] = m_ggpar[side][drawer][sample][tower][gg][0];
+              m_gsigma2[side][drawer][sample][tower][gg] = m_ggpar[side][drawer][sample][tower][gg][2];
+              m_gnorm[side][drawer][sample][tower][gg] = m_ggpar[side][drawer][sample][tower][gg][1];
+              m_gchi2[side][drawer][sample][tower][gg] = m_ggpar[side][drawer][sample][tower][gg][3];
+              m_gerrsigma1[side][drawer][sample][tower][gg] = m_ggpar[side][drawer][sample][tower][gg][4];
+              m_gerrnorm[side][drawer][sample][tower][gg] = m_ggpar[side][drawer][sample][tower][gg][5];
+              m_gerrsigma2[side][drawer][sample][tower][gg] = m_ggpar[side][drawer][sample][tower][gg][6];
+              m_gcorrsigma1sigma2[side][drawer][sample][tower][gg] = m_ggpar[side][drawer][sample][tower][gg][7];
+//              gcorrsigma1norm[side][drawer][sample][tower][gg]=m_ggpar[side][drawer][sample][tower][gg][8];
+//              gcorrsigma2norm[side][drawer][sample][tower][gg]=m_ggpar[side][drawer][sample][tower][gg][9];
 
             }
 
@@ -1056,11 +1065,11 @@ void TileRawChNoiseCalibAlg::fillCellHist() {
         for (int tower = 0; tower < 17; ++tower) {
           for (unsigned int gg = 0; gg < TileCalibUtils::MAX_GAIN; ++gg) {
 
-            float ene = ecell_ene[side][drawer][sample][tower][gg];
-            if (cell_nch[side][drawer][sample][tower][gg] == 1 && sample != 3) ene *= 2; // one good channel in normal cell - multiply energy by 2
+            float ene = m_ecell_ene[side][drawer][sample][tower][gg];
+            if (m_cell_nch[side][drawer][sample][tower][gg] == 1 && sample != 3) ene *= 2; // one good channel in normal cell - multiply energy by 2
 
             if (TMath::Abs(ene) > 1.e-5) {
-              histCellAmp[side][drawer][sample][tower][gg * 3]->Fill(ene);
+              m_histCellAmp[side][drawer][sample][tower][gg * 3]->Fill(ene);
             }
 
           }
@@ -1086,7 +1095,7 @@ void TileRawChNoiseCalibAlg::deleteHist() {
 
         for (unsigned int ch = 0; ch < TileCalibUtils::MAX_CHAN; ++ch) {
           for (unsigned int g = 0; g < TileCalibUtils::MAX_GAIN; ++g) {
-            delete histAmp[rc][ros][drawer][ch][g];
+            delete m_histAmp[rc][ros][drawer][ch][g];
           }
         }
       }
@@ -1098,7 +1107,7 @@ void TileRawChNoiseCalibAlg::deleteHist() {
       for (int sample = 0; sample < 4; ++sample) {
         for (int tower = 0; tower < 17; ++tower) {
           for (int gg = 0; gg < 6; gg++) {
-            delete histCellAmp[side][drawer][sample][tower][gg];
+            delete m_histCellAmp[side][drawer][sample][tower][gg];
           }
         }
       }
