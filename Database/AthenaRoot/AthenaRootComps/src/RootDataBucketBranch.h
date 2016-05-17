@@ -48,29 +48,34 @@ public:
     m_ptr(ptr)
   {}
 
-  virtual ~DataBucketBranch();
+  virtual ~DataBucketBranch() override;
 
   virtual
-  void* object();
+  void* object() override;
 
   virtual
   void* cast(CLID clid, SG::IRegisterTransient* itr,
-             bool isConst = true) const;
+             bool isConst = true) const override;
 
   virtual
   void* cast(const std::type_info& tinfo,
              SG::IRegisterTransient* itr,
-             bool isConst = true) const;
+             bool isConst = true) const override;
 
   virtual
-  DataBucketBranch* clone() const;
+  DataBucketBranch* clone() const override;
 
   virtual
-  void relinquish();
+  void relinquish() override;
 
-  virtual void lock();
+  virtual void lock() override;
 
-  const CLID& clID() const { return m_clid; }
+  virtual const CLID& clID() const override { return m_clid; }
+
+  virtual const std::type_info& tinfo() const override
+  {
+    return m_type.TypeInfo();
+  }
 
   //private:
   CLID m_clid;

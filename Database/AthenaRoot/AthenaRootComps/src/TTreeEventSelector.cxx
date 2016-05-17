@@ -16,7 +16,7 @@
 #include "TChain.h"
 #include "TClass.h"
 #include "TClassEdit.h"
-#include "TBranchElement.h"
+#include "RootUtils/TBranchElementClang.h"
 #include "TLeaf.h"
 #include "TFile.h"
 

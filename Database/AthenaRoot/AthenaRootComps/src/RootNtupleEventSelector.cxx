@@ -17,7 +17,7 @@
 
 // ROOT includes
 #include "TROOT.h"
-#include "TBranchElement.h"
+#include "RootUtils/TBranchElementClang.h"
 #include "TClass.h"
 #include "TClassEdit.h"
 #include "TFile.h"

@@ -11,8 +11,6 @@
 
 // AthenaRootComps includes
 #include "RootNtupleOutputMetadataTool.h"
-#include "RootSvc.h"
-#include "RootConnection.h"
 #include "RootBranchAddress.h"
 
 // stl
@@ -35,6 +33,11 @@
 
 #include "TString.h"
 #include "AthenaRootComps/TransferTree.h"
+
+// ROOT includes
+#include "TROOT.h"
+#include "TFile.h"
+#include "TTree.h"
 
 namespace Athena {
 
@@ -194,33 +197,6 @@ RootNtupleOutputMetadataTool::writeMetadata()
     ATH_MSG_ERROR("could not open-recreate file [" << m_outputName << "]");
     return StatusCode::FAILURE;
   }
-  ServiceHandle<IRootSvc> rootsvc("Athena::RootSvc/AthenaRootSvc", name());
-  if (!rootsvc.retrieve().isSuccess()) {
-    ATH_MSG_ERROR("could not retrieve the AthenaRootSvc");
-    return StatusCode::FAILURE;
-  }
-  // create a RootConnection
-  Athena::RootSvc* rsvc = dynamic_cast<Athena::RootSvc*>(&*rootsvc);
-  if (!rsvc) {
-    ATH_MSG_ERROR("could not dyn-cast to Athena::RootSvc");
-    return StatusCode::FAILURE;
-  }
-  // connection should already be part of rootsvc from output stream
-  Athena::RootConnection* conn = rsvc->connection(fd);
-  if (conn == NULL) {
-    // Try to make the connection
-    if (rsvc->connect(fd).isSuccess()) conn = rsvc->connection(fd);
-    if (conn == NULL) {
-      // OK, can't get to the file
-      ATH_MSG_ERROR("connection for fd=" << fd 
-                     << " fname=[" << m_outputName << "] not available from RootSvc");
-      return StatusCode::FAILURE;
-    }
-    conn->setTreeName(m_tupleName);
-  }
-  else {
-    ATH_MSG_INFO("connection established for " << m_outputName);
-  }
   if (!m_metaWritten) {
     // Write the strings
     const DataHandle<std::string> iter;
@@ -230,7 +206,7 @@ RootNtupleOutputMetadataTool::writeMetadata()
     if (pc.isSuccess()) {
       for (; iter != end; iter++) {
         std::string key = iter.key();
-        if (conn->addMetadata(key,&(*iter),typeid(std::string)).isFailure()) failure=true;
+        if (this->addMetadata(key,&(*iter),typeid(std::string)).isFailure()) failure=true;
       }
     }
     if (failure) {
@@ -250,7 +226,7 @@ RootNtupleOutputMetadataTool::writeMetadata()
         if (titer.cptr()!=0) {
           const TTree* x = (TTree*)titer.cptr()->tree(); 
           try { 
-            if (conn->addMetadata(key,x,typeid(TTree)).isFailure()) failure=true; 
+            if (this->addMetadata(key,x,typeid(TTree)).isFailure()) failure=true; 
           } 
           catch (...) { 
             ATH_MSG_INFO("Error adding metadata for TTree " << key); 
@@ -310,6 +286,142 @@ RootNtupleOutputMetadataTool::copyMetadata()
   }
 
   return(StatusCode::SUCCESS);
+}
+
+StatusCode
+RootNtupleOutputMetadataTool::addMetadata(const std::string& /*key*/, const void* obj, const std::type_info& /*ti*/) {
+  // HACK for compilation, set m_file and m_tree = 0
+  //TFile* m_file = 0;
+  //TTree* m_tree = 0;
+  // Reject null pointers
+  if (obj==0) {
+    REPORT_MESSAGE (MSG::ERROR) << "Attempt to write null pointer metadata";
+    return StatusCode::FAILURE;
+  }
+  // Will crash past here anyway if m_file and m_tree are both null.
+  std::abort();
+#if 0
+  // Determine directory to write into
+  std::string metaname;
+  TDirectory* dir = 0;
+  if (m_tree != 0) {
+    dir = m_tree->GetDirectory();
+  }
+  else {
+    REPORT_MESSAGE (MSG::WARNING) << "No TTree to navigate from";
+    dir = m_file->CurrentDirectory();
+    if (dir == 0) {
+      REPORT_MESSAGE (MSG::ERROR) << "No file directory to navigate from";
+      return StatusCode::FAILURE;
+    }
+  }
+  std::string thekey = key;
+  std::string::size_type sep = key.find('/');
+  if (sep != std::string::npos) {
+    metaname = key.substr (0, sep);
+
+    if (m_tree != 0) {
+      // Go to the root directory of the file.
+      while (dynamic_cast<TDirectoryFile*> (dir) != 0 &&
+             dir->GetMotherDir())
+        dir = dir->GetMotherDir();
+      thekey = m_tree->GetName();
+    }
+  }
+  else {
+    if (m_tree != 0) {
+      metaname = m_tree->GetName();
+    }
+    else {
+      metaname = "eventless";
+    }
+    metaname += "Meta";
+  }
+
+  TDirectory::TContext ctx (dir);
+  TDirectory* metadir = dir->GetDirectory (metaname.c_str());
+  if (!metadir) {
+    metadir = dir->mkdir (metaname.c_str());
+    if (!metadir) {
+      REPORT_MESSAGE (MSG::ERROR)
+        << "Can't create metadata dir " << metaname
+        << "in dir " << dir->GetName();
+      return StatusCode::RECOVERABLE;
+    }
+  }
+
+  // Set info and casts for appropriate type
+  TClass* cls = gROOT->GetClass(ti);
+  if (!cls)
+    return StatusCode::RECOVERABLE;
+
+  // If we're writing strings in a common directory, make sure name is unique.
+  if (ti == typeid(TString) || ti == typeid(std::string)) {
+    TObjString ostmp;
+    if (ti == typeid(TString)) {
+      ostmp.String() = *reinterpret_cast<const TString*> (obj);
+      obj = &ostmp;
+      cls = gROOT->GetClass ("TObjString");
+    }
+    else if (ti == typeid(std::string)) {
+      ostmp.String() = *reinterpret_cast<const std::string*> (obj);
+      obj = &ostmp;
+      cls = gROOT->GetClass ("TObjString");
+    }
+    if (key.size() > 0 && key[key.size()-1] == '/') {
+      int i = 1;
+      while (metadir->FindObject (thekey.c_str())) {
+        ++i;
+        std::ostringstream ss;
+        if (m_tree)
+          ss << m_tree->GetName();
+        else
+          ss << dir->GetName();
+        ss << "-" << i;
+        thekey = ss.str();
+      }
+    }
+
+    // Treat like hadd and create new version each time
+    if (metadir->WriteObjectAny (obj, cls, thekey.c_str(), "new") == 0) {
+      REPORT_MESSAGE (MSG::ERROR)
+        << "Can't write metadata object " << thekey
+        << " for file " << metadir->GetFile()->GetName();
+      return StatusCode::RECOVERABLE;
+    }
+  }
+  else if (ti == typeid(TTree)) {
+    TTree* readTree = ((const TTree*)obj)->GetTree();
+    metadir->cd();
+
+    // If we're writing in a common directory, make sure name is unique.
+    if (key.size() > 0) {
+      TTree* outTree = (TTree*)metadir->FindObject (thekey.c_str());
+      if (outTree == 0) {
+        outTree = readTree->CloneTree();
+      }
+      else {
+        TList tc;
+        tc.Add((TObject*)readTree);
+        Long64_t temp = outTree->Merge((TCollection*)&tc);
+        if (temp==0) {
+          REPORT_MESSAGE (MSG::ERROR) << "Unable to merge with existing tree in file";
+          return StatusCode::RECOVERABLE;
+        }
+      }
+      outTree->Write();
+    }
+    else {
+      REPORT_MESSAGE (MSG::ERROR) << "Did not use proper key for metadata tree ";
+      return StatusCode::RECOVERABLE;
+    }
+  }
+  else {
+    REPORT_MESSAGE (MSG::ERROR) << "addMetadata typeid not supported";
+    return StatusCode::FAILURE;
+  }
+  return(StatusCode::SUCCESS);
+#endif
 }
 
 }//> namespace Athena

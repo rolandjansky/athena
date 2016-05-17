@@ -69,6 +69,8 @@ private:
   RootNtupleOutputMetadataTool(const RootNtupleOutputMetadataTool&); //< not implemented
   RootNtupleOutputMetadataTool& operator=(const RootNtupleOutputMetadataTool&); //< not implemented
 
+  StatusCode addMetadata(const std::string& key, const void* obj, const std::type_info& ti);
+
 private:
   /// ServiceHandle to the data store service
   ServiceHandle<StoreGateSvc>   m_imetaStore;
