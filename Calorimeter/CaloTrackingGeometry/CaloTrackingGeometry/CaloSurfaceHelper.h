@@ -44,8 +44,8 @@ public:
 		  const std::string& name, 
 		  const IInterface* parent); 
 
-  ~CaloSurfaceHelper();
-
+  ~CaloSurfaceHelper(); 
+  
   StatusCode initialize();
   StatusCode finalize();
 
@@ -58,6 +58,10 @@ public:
   /** Layer exit */
   const Trk::Surface& GetExitSurface (const CaloCell_ID::CaloSample sample, int side);
 
+  /** MBTS surfaces */
+  const Trk::Surface& GetMBTSSurface(int side);
+  void LoadMBTSSurfaces(std::pair<const Trk::Surface*,const Trk::Surface*> sfs);
+
 private:
   /** private method to fill in flat surfaces */
   void get_flat_surfaces();
@@ -66,8 +70,13 @@ private:
 
   std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> >   m_entrySurfs;            // owned by CaloSurfaceBuilder
   std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> >   m_flatEntrySurfs;        // owned by this class
-  std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> >   m_exitSurfs;             // owend by CaloSurfaceBuider
+  std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> >   m_exitSurfs;             // owned by CaloSurfaceBuider
+  std::pair<const Trk::Surface*,const Trk::Surface*>                 m_mbtsSurfs;             // owned by this
 };
+
+inline void CaloSurfaceHelper::LoadMBTSSurfaces(std::pair<const Trk::Surface*,const Trk::Surface*> sfs) {
+   m_mbtsSurfs= sfs;
+}
 
  
 #endif // CALOTRACKINGGEOMETRY_CALOSURFACEHELPER_H
