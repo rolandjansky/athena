@@ -10,6 +10,8 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
+#include "TrigDecisionEvent/TrigDecision.h"
+
 TrigProblemFinder::TrigProblemFinder(const std::string &name, ISvcLocator *pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator),
     m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
