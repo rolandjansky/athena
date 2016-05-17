@@ -56,7 +56,7 @@ namespace TrigCostRootAnalysis {
     const std::string& getLevelStr();
     void setName( const std::string& _name );
     void setLevel( UInt_t _l );
-    CounterMap_t* getCounterCollection(const std::string& _identifier);
+    CounterMap_t* getCounterCollection(const std::string& _identifier, const ConfKey_t _type);
     UInt_t getNCounters();
     void setPass(UInt_t _pass);
     UInt_t getPass();
@@ -103,7 +103,7 @@ namespace TrigCostRootAnalysis {
     CounterBase* getCounter( CounterMap_t* _counterMap, const std::string &_name, Int_t _ID );
     CounterBase* addCounter( CounterMap_t* _counterMap, const std::string &_name, Int_t _ID );
     void collateCounterCollectionsForEvent();
-    void addToCollectionsToProcess(const std::string &_name, UInt_t _lumiBlockNumber, Float_t _lumiLength);
+    void addToCollectionsToProcess(const std::string &_name, UInt_t _lumiBlockNumber, Float_t _lumiLength, const ConfKey_t _type);
     void recordLumi(const std::string &_name, UInt_t _lumiBlockNumber, Float_t _lumiLength);
     void sharedHistogramOutputRoutine(VariableOptionVector_t& _toSave);
     void sharedTableOutputRoutine( const std::vector<TableColumnFormatter> &_toSave );
@@ -116,7 +116,7 @@ namespace TrigCostRootAnalysis {
     void endEvent(Float_t _weight = 1.);
     void enableROOTMsg();
     void disableROOTMsg();
-    void checkForIllegalCharacters(std::string &_toClean, Bool_t _checkComma = kTRUE, Bool_t _checkApostrophe = kTRUE, Bool_t _checkColon = kFALSE);
+    void checkForIllegalCharacters(std::string &_toClean, Bool_t _checkComma = kTRUE, Bool_t _checkApostrophe = kTRUE, Bool_t _checkColon = kTRUE);
 
     std::string m_name; //<! Name of this monitor, for use in output.
     UInt_t m_level; //<! Level of monitor (2 or 3)
@@ -135,6 +135,7 @@ namespace TrigCostRootAnalysis {
     CounterMapSet_t       m_collectionsToProcess; //!< Pointers to the counter maps to be included in a given event.
     std::set<std::string> m_collectionsToProcessNames; //!< Names of the counter maps being processed
     std::map< std::string, LumiCollector* > m_collectionLumiCollector; //!< Map of string referenced collections to the lumi counter for that collection
+    CounterMapType_t m_counterMapType; //!< Map of a CounterMap pointer (i.e. the business end of a CounterCollection) to it's CounterCollection type
 
     std::set< CounterBase* > m_countersInEvent; //!< Set of counters processed in an event. We need to run endEvent on these.
 

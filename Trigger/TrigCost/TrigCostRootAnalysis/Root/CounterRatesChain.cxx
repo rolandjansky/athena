@@ -60,7 +60,7 @@ namespace TrigCostRootAnalysis {
 
         if ( _L1->getPassRaw() == kFALSE ) continue;
         if ( _usePrescale == kTRUE && _L1->getPassPS() == kFALSE) continue;
-        return 1.; // This chain and lower chain have both passed raw and passed PS
+        return 1; // This chain and lower chain have both passed raw and passed PS
 
       }
       return 0.;
@@ -71,7 +71,7 @@ namespace TrigCostRootAnalysis {
       // L1 must pass raw and pass PS
       if (_L1->getPassRaw() == kFALSE) return 0.;
       if (_usePrescale == kTRUE && _L1->getPassPS() == kFALSE) return 0.;
-      return 1.;
+      return 1;
 
     }
   }
@@ -80,13 +80,14 @@ namespace TrigCostRootAnalysis {
    * If this chain passes-raw at both the HLT and L1 levels, then calculate the effective weight from all prescale factors.
    * @return Event prescale weight for this chain 0 < PS weight < 1
    */
-  Float_t CounterRatesChain::runWeight() {
+  Double_t CounterRatesChain::runWeight(Bool_t _includeExpress) {
     // This is a sub-case of the ChainOR, however here we know we only have one chain at L2.
     // However, this chain may have been seeded by many L1's.
 
     // See Eq 33 from http://arxiv.org/abs/0901.4118
 
     assert( m_L2s.size() == 1 || m_L1s.size() == 1); // We should only be one chain
+    m_cachedWeight = 0.;
 
     if (m_L2s.size() == 1) { // A HLT Chain
 
@@ -95,21 +96,24 @@ namespace TrigCostRootAnalysis {
       // First we check that the one L2 passed
       if (_L2->getPassRaw() == kFALSE) return 0.;
 
-      // Calculate the additional weight from L1 items which passed the event
       Double_t _L1Weight = 1.;
       for (ChainItemSetIt_t _lowerIt = _L2->getLowerStart(); _lowerIt != _L2->getLowerEnd(); ++_lowerIt) {
         RatesChainItem* _L1 = (*_lowerIt);
         _L1Weight *= ( 1. - _L1->getPassRawOverPS() );
       }
 
-      return _L2->getPSWeight() * ( 1. - _L1Weight );
+      m_eventLumiExtrapolation = _L2->getLumiExtrapolationFactor();
+      //if (getName() == "HLT_cscmon_L1All") Info("DEBUG", "WL1:%f, NL1:%s, 1-L1: %f, HLT:%f, total: %f, lumi%f", m_lowerRates->getLastWeight(), m_lowerRates->getName().c_str(),  1. - _L1Weight, _L2->getPSWeight(_includeExpress), _L2->getPSWeight(_includeExpress) * ( 1. - _L1Weight ),  _L2->getLumiExtrapolationFactor()  );
+      m_cachedWeight = _L2->getPSWeight(_includeExpress) * ( 1. - _L1Weight );
 
     } else { // A L1Chain
 
       RatesChainItem* _L1 = (*m_L1s.begin());
-      return _L1->getPassRawOverPS();
+      m_eventLumiExtrapolation = _L1->getLumiExtrapolationFactor();
+      m_cachedWeight = _L1->getPassRawOverPS();
 
     }
+    return m_cachedWeight;
   }
 
   /**

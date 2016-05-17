@@ -108,6 +108,24 @@ namespace TrigCostRootAnalysis {
     return _algTimeErr / _walltime;  
   }
 
+    Float_t tableFnGlobalGetHLTNodePredictionSteering(CounterMap_t* _map, CounterBase* _TCCB) {
+    UNUSED( _map );
+
+    Float_t _lbTime = _TCCB->getDecoration(kDecLbLength); //Time in s of this counter's LB - taking into account how much of the run we've seen
+    Float_t _algTime = _TCCB->getValue(kVarSteeringTime, kSavePerEvent) / 1000.; // Total alg wall time, convert to seconds  
+    if (isZero(_lbTime) == kTRUE) return 0.;
+    // We enough HLT XPUs to process algTime amount of info in lbTime. 
+    return _algTime / _lbTime;
+  }
+
+  Float_t tableFnGlobalGetHLTNodePredictionErrSteering(CounterMap_t* _map, CounterBase* _TCCB) {
+    // err = sqrt(events in time T)/T = sqrt(rate*T/T^2) = sqrt(rate/T)
+    UNUSED( _map );
+    Float_t _algTimeErr = _TCCB->getValueError(kVarSteeringTime, kSavePerEvent); // Get sqrt(sumW2)
+    Float_t _walltime = _TCCB->getDecoration(kDecLbLength);
+    return _algTimeErr / _walltime;  
+  }
+
   /////////////////////////////////////
   /// BEGIN RATES MONITOR FUNCTIONS ///
   /////////////////////////////////////

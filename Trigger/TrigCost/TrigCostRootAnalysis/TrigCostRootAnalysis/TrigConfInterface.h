@@ -139,7 +139,7 @@ namespace TrigCostRootAnalysis {
     static std::string getChainEBHypoName(UInt_t _c, UInt_t _h);
     static UInt_t      getChainGroupsNameSize(UInt_t _c);
     static std::string getChainGroupName(UInt_t _c, UInt_t _g);
-    static std::vector<std::string> getChainRatesGroupNames(UInt_t _c);
+    static const std::vector<std::string>& getChainRatesGroupNames(UInt_t _c);
     static std::string getChainCPSGroup(UInt_t _c);
     static UInt_t      getChainStreamNameSize(UInt_t _c);
     static std::string getChainStreamName(UInt_t _c, UInt_t _g);

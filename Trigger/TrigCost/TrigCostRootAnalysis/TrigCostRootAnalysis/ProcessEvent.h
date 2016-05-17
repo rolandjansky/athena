@@ -64,7 +64,6 @@ namespace TrigCostRootAnalysis {
     Bool_t m_ratesOnly; //<! Don't do buffering if this is true
     UInt_t m_nThread; //!< Number of concurrent threads to spawn in multi thread mode
     Bool_t m_isCPUPrediction; //!< If we're predicting CPU useage then we want to skip events which _only_ pass the cost chain (after bookkeeping)
-    Bool_t m_doNotLumiWeightUnbiased; //!< Gives better total unprescales, but underpredicts low thresholds
     UInt_t m_pass; //!< Holds which pass through the input files
     Timer m_threadTimer; //!< Record how long it takes to spawn the event processing threads
     Timer m_takeEventTimer; //!< Record how long it takes to classify if the event is to be processed

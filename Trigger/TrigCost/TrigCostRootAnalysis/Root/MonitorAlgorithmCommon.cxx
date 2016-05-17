@@ -35,6 +35,7 @@ namespace TrigCostRootAnalysis {
         const std::string& _algClassName,
         const std::string& _seqName,
         const std::string& _chainName,
+        const std::string& _chainGroup,
         Int_t _algNameID,
         Int_t _seqD3PDIndex,
         Int_t _algD3PDIndex) :
@@ -42,6 +43,7 @@ namespace TrigCostRootAnalysis {
     m_algClassName(_algClassName),
     m_seqName(_seqName),
     m_chainName(_chainName),
+    m_chainGroup(_chainGroup),
     m_algNameID(_algNameID),
     m_seqD3PDIndex(_seqD3PDIndex),
     m_algD3PDIndex(_algD3PDIndex) {/*Nothing here*/}
@@ -87,7 +89,10 @@ namespace TrigCostRootAnalysis {
         const std::string _algType = TrigConfInterface::getHLTAlgClassNameFromSeqIDAndAlgPos( _seqIndex, _seqAlgPos );
         Int_t _seqAlgNameHash = TrigConfInterface::getHLTAlgClassNameIDFromSeqIDAndAlgPos( _seqIndex, _seqAlgPos );
 
-        m_algsInEvent.push_back( AlgsInEvent(_algName, _algType, _seqName, _chainName, _seqAlgNameHash, _s, _a) );
+        // Not currently used, save some CPU
+        const std::string _chainGroup = ""; // ( TrigConfInterface::getNHLTGroupNamesFromChainID( _chainID ) > 0 ? TrigConfInterface::getHLTGroupNameFromChainID(_chainID, 0) : "");
+
+        m_algsInEvent.push_back( AlgsInEvent(_algName, _algType, _seqName, _chainName, _chainGroup, _seqAlgNameHash, _s, _a) );
 
         //TrigCostRootAnalysis::MonitorAlgorithmCommon::AlgsInEvent::AlgsInEvent(const std::string&, const std::string&, const std::string&, const std::string&, Int_t&, UInt_t&, UInt_t&)
         //TrigCostRootAnalysis::MonitorAlgorithmCommon::AlgsInEvent::AlgsInEvent(std::string&, std::string&, std::string&, std::string&, Int_t, Int_t, Int_t)

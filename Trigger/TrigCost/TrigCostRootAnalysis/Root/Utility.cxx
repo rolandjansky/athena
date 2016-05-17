@@ -45,6 +45,35 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
+   * Check to see if a chain is on the list of chains to NEVER lumi weight
+   * @param _counterName Const reference to counter name to test.
+   * @result If the counter is on the list
+   */
+  Bool_t checkPatternNoLumiWeight( const std::string& _counterName) {
+    return Config::config().getVecMatches(kPatternsNoLumiWeight, _counterName);
+  }
+
+  /**
+   * Check to see if a chain is on the list of chains to not get the *mu* part of the lumi weight
+   * Will still get the bunch part
+   * @param _counterName Const reference to counter name to test.
+   * @result If the counter is on the list
+   */
+  Bool_t checkPatternNoMuLumiWeight( const std::string& _counterName) {
+    return Config::config().getVecMatches(kPatternsNoMuLumiWeight, _counterName);
+  }
+
+  /**
+   * Check to see if a chain is on the list of chains to not get the *bunch* part of the lumi weight
+   * Will still get the mu part
+   * @param _counterName Const reference to counter name to test.
+   * @result If the counter is on the list
+   */
+  Bool_t checkPatternNoBunchLumiWeight( const std::string& _counterName) {
+    return Config::config().getVecMatches(kPatternsNoBunchLumiWeight, _counterName);
+  }
+
+  /**
    * Check to see if a counter name has been specified by the user as one we're interested in saving.
    * Match it to the vector of chains to save.
    * @param _counterName Const reference to counter name to test.
@@ -132,7 +161,19 @@ namespace TrigCostRootAnalysis {
    * @returns String of integer.
    */
   std::string intToString(UInt_t _i, UInt_t _pad) {
-    return intToString((Int_t) _i, _pad);
+    return intToString((Long64_t) _i, _pad);
+  }
+
+  /**
+   * Helper function, converts long integer to string.
+   * @param _i Long64_t to convert.
+   * @returns String of integer.
+   */
+  std::string intToString(Long64_t _i, UInt_t _pad) {
+    std::ostringstream _ss;
+    if (_pad) _ss << std::setfill('0') << std::setw(_pad); 
+    _ss << std::fixed << _i;
+    return _ss.str();
   }
   
   /**
@@ -141,10 +182,7 @@ namespace TrigCostRootAnalysis {
    * @returns String of integer.
    */
   std::string intToString(Int_t _i, UInt_t _pad) {
-    std::ostringstream _ss;
-    if (_pad) _ss << std::setfill('0') << std::setw(_pad); 
-    _ss << std::fixed << _i;
-    return _ss.str();
+    return intToString((Long64_t) _i, _pad);
   }
   
   /**

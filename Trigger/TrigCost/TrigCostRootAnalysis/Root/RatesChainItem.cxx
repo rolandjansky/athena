@@ -27,24 +27,29 @@ namespace TrigCostRootAnalysis {
   /**
    * Construct new RatesChainItem with a given prescale.
    */
-  RatesChainItem::RatesChainItem(std::string _name, Int_t _level, Double_t _PS) :
+  RatesChainItem::RatesChainItem(std::string _name, Int_t _level, Double_t _PS, Double_t _PSExpress) :
     m_name(_name),
     m_level(_level),
     m_PS(_PS), // Integer prescale
     m_PSWeight(1./m_PS), // Reciprocal of the prescale - this is the basic weight quantity for this ChainItem
     m_PSReduced(1.), 
     m_PSReducedWeight(1.),
+    m_PSExpress(_PSExpress),
+    m_PSExpressWeight(1./_PSExpress),
     m_extraEfficiency(1.),
     m_R( ++s_chainCount ),
     m_ID( s_chainCount ),
     m_bunchGroupType(kBG_UNSET),
+    m_lumiExtrapolationFactor(0.),
     m_passRaw(kFALSE),
     m_passPS(kFALSE),
     m_inEvent(kFALSE),
     m_doDirectPS(kFALSE),
     m_matchRandomToOnline(kFALSE),
+    m_advancedLumiScaling(kFALSE),
     m_iAmRandom(kFALSE),
-    m_triggerLogic(nullptr)
+    m_triggerLogic(nullptr),
+    m_proxy(nullptr)
   {
     if (Config::config().debug()) {
       Info("RatesChainItem::RatesChainItem","New ChainItem:%s, Level:%i PS:%f", m_name.c_str(), m_level, m_PS);
@@ -52,13 +57,13 @@ namespace TrigCostRootAnalysis {
 
     m_doEBWeighting = Config::config().getInt(kDoEBWeighting); // Cache for speed
     m_doDirectPS = Config::config().getInt(kDirectlyApplyPrescales); // Cache for speed
+    m_advancedLumiScaling = Config::config().getInt(kDoAdvancedLumiScaling);
 
     // If L1: then classify my bunchgroup
     if (m_level == 1) {
       classifyBunchGroup();
     }
-    // Classify if I am random, or seed from random
-    classifyRandom();
+    // Classify random happens later now, called by MonitorRates once the seeding relationship is set
 
     if (m_PS <= 0.) m_PSWeight = 0.;
     m_forcePassRaw = (Bool_t) Config::config().getInt(kRatesForcePass);
@@ -92,24 +97,81 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * Look at myself and classify if I am a random seeded L1
+   * Look at myself and classify if I am a random seeded L1 or HLT
+   * If RANDOM and L1, then the rate is independent of lumi. This item gets a lumi extrap. factor of 1
+   * If RANDOM and HLT, then the L1 rate is fixed, and the only lumi extrapolation comes from the increase in <mu>
+   * If NOT RANDOM, then simple linear extrapolation holds.
    */
-  void RatesChainItem::classifyRandom() {
+  void RatesChainItem::classifyLumiAndRandom() {
 
-    if ( getName().find("_RD0") != std::string::npos ||
-         getName().find("_RD1") != std::string::npos ||
-         getName().find("_RD2") != std::string::npos ||
-         getName().find("_RD3") != std::string::npos ||
-         getName().find("_L1RD0") != std::string::npos ||
-         getName().find("_L1RD1") != std::string::npos ||
-         getName().find("_L1RD2") != std::string::npos ||
-         getName().find("_L1RD3") != std::string::npos ) {
+    RatesChainItem* _toCheck = this;
+    if (m_level > 1 && m_lower.size() == 1) _toCheck = *(m_lower.begin());
+
+    if ( _toCheck->getName().find("_RD0") != std::string::npos ||
+         _toCheck->getName().find("_RD1") != std::string::npos ||
+         _toCheck->getName().find("_RD2") != std::string::npos ||
+         _toCheck->getName().find("_RD3") != std::string::npos ||
+         _toCheck->getName().find("_L1RD0") != std::string::npos ||
+         _toCheck->getName().find("_L1RD1") != std::string::npos ||
+         _toCheck->getName().find("_L1RD2") != std::string::npos ||
+         _toCheck->getName().find("_L1RD3") != std::string::npos ) {
       m_iAmRandom = kTRUE;
-      if (Config::config().debug()) Info("RatesChainItem::classifyRandom","Item %s classified as random", getName().c_str());
+      if (Config::config().debug()) Info("RatesChainItem::classifyLumiAndRandom","Item %s classified as random", getName().c_str());
     } else {
       m_iAmRandom = kFALSE;
     }
 
+    if (m_advancedLumiScaling == kFALSE) { // Just do linear extrapolation
+
+      m_lumiExtrapolationFactor = Config::config().getFloat(kLumiExtrapWeight); // Linear
+      
+    } else { // m_advancedLumiScaling == kTRUE. Chains can have different extrapolation  
+
+      if (checkPatternNoLumiWeight(getName())) { // SPECIAL CASE #1
+
+        m_lumiExtrapolationFactor = Config::config().getFloat(kDeadtimeScalingFinal);
+        Config::config().addVecEntry(kListOfNoLumiWeightChains, getName());
+
+      } else if (checkPatternNoMuLumiWeight(getName())) { // SPECIAL CASE #2
+
+        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalBunchComponent);
+        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+        Config::config().addVecEntry(kListOfNoMuLumiWeightChains, getName());
+
+      } else if (checkPatternNoBunchLumiWeight(getName())) { // SPECIAL CASE #3
+
+        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalMuComponent);
+        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+        Config::config().addVecEntry(kListOfNoBunchLumiWeightChains, getName());
+
+      } else if (m_iAmRandom == kTRUE && m_level == 1) {
+
+        // No extrapolation... except for the deadtime fraction. Still want this.
+        // Same as special case #1
+        m_lumiExtrapolationFactor = Config::config().getFloat(kDeadtimeScalingFinal);
+
+      } else if (m_iAmRandom == kTRUE && m_level > 1) {
+
+        // Only <mu> based extrapolation. Putting in the deadtime fraction too
+        // Same as special case #3
+        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalMuComponent);
+        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+
+      } else {
+
+        // The vast majority of chains will get this. This already includes the deadtime weight
+        m_lumiExtrapolationFactor = Config::config().getFloat(kLumiExtrapWeight);
+
+      }
+    }
+  }
+
+  /**
+   * @return What this item needs to be scaled by to extrapolate its lumi to the target
+   * @see RatesChainItem::classifyRandom
+   */
+  Double_t RatesChainItem::getLumiExtrapolationFactor() {
+    return m_lumiExtrapolationFactor;
   }
 
   /**
@@ -308,12 +370,12 @@ namespace TrigCostRootAnalysis {
     for (const TriggerCondition& _condition : getTriggerLogic()->conditions()) {
 
       if (_condition.m_type == kMissingEnergyString) {
-        if (_eventTOBs->MET() < _condition.m_thresh) {
+        if (_eventTOBs->METOverflow() == kFALSE && _eventTOBs->MET() <= _condition.m_thresh) {
           m_passRaw = kFALSE;
           break;
         } 
       } else if (_condition.m_type == kEnergyString) {
-        if (_eventTOBs->HT() < _condition.m_thresh) {
+        if (_eventTOBs->HTOverflow() == kFALSE && _eventTOBs->HT() <= _condition.m_thresh) {
           m_passRaw = kFALSE;
           break; 
         }
@@ -353,7 +415,6 @@ namespace TrigCostRootAnalysis {
     }
 
     //Info("RatesChainItem::beginEvent","%s applying logic to %i TOBs (passed - %i) MET is %f HT is %f", getName().c_str(), _eventTOBs->TOBs().size(), (Int_t)m_passRaw, _eventTOBs->MET(), _eventTOBs->HT());
-
 
     // For random seeded triggers where the HLT was re-run, we need to check that we only run over unbiased events in the sample
     if (m_matchRandomToOnline == kTRUE && m_iAmRandom == kTRUE) {
@@ -419,7 +480,9 @@ namespace TrigCostRootAnalysis {
   /**
    * @return 1/Prescale weighting factor for this event. This is scaled by an optional user supplied extra efficiency factor which can modulate the rate
    */
-  Double_t RatesChainItem::getPSWeight() {
+  Double_t RatesChainItem::getPSWeight(Bool_t _includeExpress) {
+    if (m_proxy != nullptr) return m_proxy->getLastWeight();
+    if (_includeExpress == kTRUE) return m_PSWeight * m_PSExpressWeight * m_extraEfficiency;
     return m_PSWeight * m_extraEfficiency;
   }
 
@@ -428,16 +491,17 @@ namespace TrigCostRootAnalysis {
    * the same coherent prescale group.
    * @return 1/PrescaleReduced weighting factor for this event. This is scaled by an optional user supplied extra efficiency factor which can modulate the rate
    */
-  Double_t RatesChainItem::getPSReducedWeight() {
+  Double_t RatesChainItem::getPSReducedWeight(Bool_t _includeExpress) {
+    if (_includeExpress == kTRUE) return m_PSReducedWeight * m_PSExpressWeight * m_extraEfficiency;
     return m_PSReducedWeight * m_extraEfficiency;
   }
 
   /**
    * @return Zero if this chain did not pass raw, else returns 1/Prescale
    */
-  Double_t RatesChainItem::getPassRawOverPS() {
+  Double_t RatesChainItem::getPassRawOverPS(Bool_t _includeExpress) {
     if (getPassRaw() == kFALSE) return 0.;
-    return getPSWeight();
+    return getPSWeight(_includeExpress);
   }
 
   /**
@@ -445,9 +509,9 @@ namespace TrigCostRootAnalysis {
    * the same coherent prescale group.
    * @return Zero if this chain did not pass raw, else returns 1/PrescaleReduced
    */
-  Double_t RatesChainItem::getPassRawOverPSReduced() {
+  Double_t RatesChainItem::getPassRawOverPSReduced(Bool_t _includeExpress) {
     if (getPassRaw() == kFALSE) return 0.;
-    return getPSReducedWeight();
+    return getPSReducedWeight(_includeExpress);
   }
 
   /**

@@ -120,7 +120,7 @@ namespace TrigCostRootAnalysis {
     // For this monitor - we have a CounterCollection per event.
     // The event number is used as the key. Pad with 6 0's
     const std::string _eventNumberStr = std::string("Event_") + intToString( m_costData->getEventNumber(), 6);
-    CounterMap_t* _eventMap = getCounterCollection( _eventNumberStr );
+    CounterMap_t* _eventMap = getCounterCollection( _eventNumberStr, kDoAllSummary ); // We don't care what this counter collection is classified as so second parameter is not important
 
     // Reset this var
     Config::config().setFloat(kEventStartTime, 0, "EventStart", kUnlocked);

@@ -125,7 +125,7 @@ namespace TrigCostRootAnalysis {
     DBKey _key = TrigConfInterface::getCurrentDBKey();
 
     if (m_currentCollectionLBNumber == _lumiBlockNumber && m_currentDBKey == _key) {
-      // We do not need to recalculate the list of counter collections, but do still need to account for the lumi
+      // We do not need to recalculate the list of counter collections, but do still need to account for the lumi bookkeeping
       for (std::set<std::string>::const_iterator _it = m_collectionsToProcessNames.begin(); _it != m_collectionsToProcessNames.end(); ++_it) {
         recordLumi( *_it, _lumiBlockNumber, _lumiLength);
       }
@@ -141,7 +141,7 @@ namespace TrigCostRootAnalysis {
 
     // Add the "All" collection. Simplist, just runs over all the events. There may be a lot of events
     if ( Config::config().getInt(kDoAllSummary) && getIfActive(kDoAllSummary)) {
-      addToCollectionsToProcess( Config::config().getStr(kAllString), _lumiBlockNumber, _lumiLength );
+      addToCollectionsToProcess( Config::config().getStr(kAllString), _lumiBlockNumber, _lumiLength, kDoAllSummary );
     }
 
     //Active for this monitor?
@@ -176,7 +176,7 @@ namespace TrigCostRootAnalysis {
           std::ostringstream _ss;
           _ss << std::setfill('0') << std::setw(5)  << _lumiBlockNumber;
           _LBIdentifier = Config::config().getStr(kLumiBlockString) + std::string("_") + _ss.str();
-          addToCollectionsToProcess( _LBIdentifier, _lumiBlockNumber, _lumiLength );
+          addToCollectionsToProcess( _LBIdentifier, _lumiBlockNumber, _lumiLength, kDoLumiBlockSummary );
         }
       }
     }
@@ -199,13 +199,14 @@ namespace TrigCostRootAnalysis {
       } else { // seen this one before
 
         // Check LB range
-        if (Int_t(_lumiBlockNumber - m_perKeySummaryLBStart[ _key ]) >= Config::config().getInt(kNLbPerHLTConfig)) {
+        Int_t _diff = _lumiBlockNumber - m_perKeySummaryLBStart[ _key ];
+        if (_diff < 0 || _diff >= Config::config().getInt(kNLbPerHLTConfig)) {
           _doKeySummaryDesicion = kFALSE;
         }
 
       }
 
-      if (_doKeySummaryDesicion == kTRUE) addToCollectionsToProcess( _key.name(), _lumiBlockNumber, _lumiLength );
+      if (_doKeySummaryDesicion == kTRUE) addToCollectionsToProcess( _key.name(), _lumiBlockNumber, _lumiLength, kDoKeySummary );
     }
 
     // m_collectionsToProcess has been populated, return
@@ -235,9 +236,13 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Adds the counters for this monitor to be processed in this event
+   * @param _name reference to the name of counter collection to add (will be created if does not exist)
+   * @param _lumiBlockNumber Current LB, used for bookkeeping for this CounterCollection
+   * @param _lumiLength Length of current LB, used for bookkeeping for this CounterCollection
+   * @param _type Conf key specifying the type of this CounterCollection which may be queried later.
    */
-  void MonitorBase::addToCollectionsToProcess( const std::string &_name, UInt_t _lumiBlockNumber, Float_t _lumiLength ) {
-    m_collectionsToProcess.insert( getCounterCollection( _name ) );
+  void MonitorBase::addToCollectionsToProcess( const std::string &_name, UInt_t _lumiBlockNumber, Float_t _lumiLength, const ConfKey_t _type ) {
+    m_collectionsToProcess.insert( getCounterCollection( _name, _type ) );
     m_collectionsToProcessNames.insert( _name );
     recordLumi(_name, _lumiBlockNumber, _lumiLength);
   }
@@ -505,7 +510,7 @@ namespace TrigCostRootAnalysis {
       // Do the title line. First column is always the counter's name.
       _fout << "Name,";
       for (UInt_t _i = 0; _i < _toSave.size(); ++_i) {
-        checkForIllegalCharacters(_toSave[_i].m_columnName);
+        checkForIllegalCharacters(_toSave[_i].m_columnName, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kFALSE);
         _fout << _toSave[_i].m_columnName;
         if (_i != _toSave.size() - 1) _fout << ",";
         else _fout << std::endl;
@@ -514,7 +519,7 @@ namespace TrigCostRootAnalysis {
       // Do the second line, this contains the tooltip descriptions
       _fout << ",";
       for (UInt_t _i = 0; _i < _toSave.size(); ++_i) {
-        checkForIllegalCharacters(_toSave[_i].m_tooltip);
+        checkForIllegalCharacters(_toSave[_i].m_tooltip, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kFALSE);
         _fout << _toSave[_i].m_tooltip;
         if (_i != _toSave.size() - 1) _fout << ",";
         else _fout << std::endl;
@@ -593,7 +598,7 @@ namespace TrigCostRootAnalysis {
 
     // Output name
     std::string _rowName = _TCCB->getName();
-    checkForIllegalCharacters(_rowName);
+    checkForIllegalCharacters(_rowName, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kTRUE);
     _fout << _rowName << ",";
     // Output data
     for (UInt_t _i = 0; _i < _toSave.size(); ++_i) {
@@ -710,7 +715,7 @@ namespace TrigCostRootAnalysis {
 
       // Do the output
       if (_stringValue != "") {
-        checkForIllegalCharacters(_stringValue);
+        checkForIllegalCharacters(_stringValue, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kFALSE);
         _fout << _stringValue;
       } else {
         _fout << std::setprecision( _toSave[_i].m_precision ) << _value;
@@ -729,11 +734,13 @@ namespace TrigCostRootAnalysis {
    * @param _identifier The name of the collection, "All" is used for the collection which runs on each event,
    *                    "LB:xxx" is used for individual lumi blocks, "SM:xxx_L1:xxx_HLT:xxx" for individual keysets.
    *                    Others can be added as and when needed.
+   * @param _type A key to specify what sort of counter collection this is rather than having to decude from the string
    * @return A pointer to the requested counter map.
    */
-  CounterMap_t* MonitorBase::getCounterCollection(const std::string& _identifier) {
+  CounterMap_t* MonitorBase::getCounterCollection(const std::string& _identifier, const ConfKey_t _type) {
     if ( m_counterCollections.count(_identifier) == 0) {
       m_counterCollections[_identifier] = CounterMap_t();
+      m_counterMapType[ &m_counterCollections[_identifier] ] = _type;
     }
     return &m_counterCollections[_identifier];
   }
