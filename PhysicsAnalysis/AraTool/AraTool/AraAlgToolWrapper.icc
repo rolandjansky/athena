@@ -34,7 +34,7 @@ template< class T>
 StatusCode AraAlgToolWrapper< T >::initialize()
 {
 
-   m_log.setLevel( outputLevel() );
+   m_log.setLevel( msgLevel() );
    StatusCode sc=m_ptool->initialize();
 
    return sc;
