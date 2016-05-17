@@ -38,7 +38,7 @@ def splitInterSignatureChainDict(chainDict):
         if not len(orderedListOfSplitChainDicts) == len(listOfSplitChainDicts):
             #for chainPartName in chainDict["mergingOrder"]:
             #    for splitChainDict in listOfSplitChainDicts:
-            #        print "BETTA", splitChainDict['chainParts'][0]['chainPartName'], chainPartName                    
+            #      print "BETTA", splitChainDict['chainParts'][0]['chainPartName'], chainPartName
             log.error("Ordering of split chain dicts failed. Please check that orderedListOfSplitChainDicts and listOfSplitChainDicts contain the same elements!!")
             print chainDict
             

@@ -366,7 +366,7 @@ class AlgFactory(object):
                                     matchingAlg
                                 )])
         
-        name = '"TrigHLTJetHypo_%s"' % name_extension
+        name = '"TrigHLTJetHypoMon_%s"' % name_extension
         hypo = self.menu_data.hypo_params
 
         eta_mins = [ja.eta_min for ja in hypo.jet_attributes]
@@ -382,11 +382,11 @@ class AlgFactory(object):
             'matchingAlg': '"%s"' % matchingAlg,
         }
 
-        return [Alg('TrigHLTJetHypo',(), kargs)]
+        return [Alg('TrigHLTJetHypoMon',(), kargs)]
 
     def hlt_hypo_tla(self):
 
-        name = '"TrigHLTJetHypo_%s"' % self.hypo_params.tla_string
+        name = '"TrigHLTJetHypoMon_%s"' % self.hypo_params.tla_string
         hypo = self.menu_data.hypo_params
 
         eta_min = -2.8
@@ -412,7 +412,7 @@ class AlgFactory(object):
             'jetvec_indices': indices,
         }
 
-        return [Alg('TrigHLTJetHypo',(), kargs)]
+        return [Alg('TrigHLTJetHypoMon',(), kargs)]
 
 
     def hlt_hypo_test1(self):
