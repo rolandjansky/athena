@@ -64,6 +64,8 @@ private:
   TH1D *hist_Psi_n_ebe     [6][n_b_bins];
   TH1D *hist_Psi_n_ebe_pt  [6][n_b_bins];
   TH1D *hist_vn_ebe        [6][n_b_bins];
+  TH1D *hist_vn_ebe_ID1    [6][n_b_bins];
+  TH1D *hist_vn_ebe_ID2    [6][n_b_bins];
 
   TProfile *profile_pt_dep      [6][n_b_bins][n_etabin]; 
   TProfile *profile_eta_dep     [6][n_b_bins][n_ptbin ]; 
