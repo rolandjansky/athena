@@ -222,6 +222,15 @@ TriggerHLTList = [
     ('xAOD::TauJetContainer#HLT_TrigTauRecCaloOnly', 				   '', 'Tau'),
     ('xAOD::TauJetAuxContainer#HLT_TrigTauRecCaloOnlyAux'+RemoveTauVariables, 	   '', 'Tau'),
 
+    ('xAOD::TauTrackContainer#HLT_TrigTauRecMergedTracks',                                 'BS ESD AODFULL AODSLIM', 'Tau'), 
+    ('xAOD::TauTrackAuxContainer#HLT_TrigTauRecMergedTracksAux.',        'BS ESD AODFULL AODSLIM', 'Tau'), 
+    ('xAOD::TauTrackContainer#HLT_TrigTauRecPreselectionTracks',                           'BS ESD AODFULL AODSLIM', 'Tau'),
+    ('xAOD::TauTrackAuxContainer#HLT_TrigTauRecPreselectionTracksAux.',  'BS ESD AODFULL AODSLIM', 'Tau'),
+
+    ('xAOD::TauTrackContainer#HLT_TrigTauRecCaloOnlyTracks',    '', 'Tau'),
+    ('xAOD::TauTrackAuxContainer#HLT_TrigTauRecCaloOnlyTracksAux.',    '', 'Tau'),
+
+
     ('xAOD::JetContainer#HLT_TrigTauJet',                                          'BS ESD AODFULL AODSLIM', 'Tau'), 
     ('xAOD::JetTrigAuxContainer#HLT_TrigTauJetAux.',                               'BS ESD AODFULL AODSLIM', 'Tau'), 
 
@@ -1057,6 +1066,9 @@ EDMDetails["xAOD::TrackParticleAuxContainer" ] = {'persistent':"",              
 
 EDMDetails["xAOD::TauJetContainer" ]           = {'persistent':"",              'typealias':'' }
 EDMDetails["xAOD::TauJetAuxContainer" ]        = {'persistent':"",              'typealias':'', 'parent': 'xAOD::TauJetContainer'}
+
+EDMDetails["xAOD::TauTrackContainer" ]           = {'persistent':"",              'typealias':'' }
+EDMDetails["xAOD::TauTrackAuxContainer" ]        = {'persistent':"",              'typealias':'', 'parent': 'xAOD::TauTrackContainer'}
 
 #EDMDetails["xAOD::TrackParticleContainer" ]    = {'persistent':"",              'typealias':'' }
 #EDMDetails["xAOD::TrackParticleAuxContainer" ] = {'persistent':"",              'typealias':'', 'parent': 'xAOD::TrackParticleContainer'}
