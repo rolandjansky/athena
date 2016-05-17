@@ -32,7 +32,7 @@
 
 #include "LArHV/LArHVManager.h"
 
-#include "LArTools/LArHVCablingTool.h"
+#include "LArCabling/LArHVCablingTool.h"
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArHVLineID.h"
 
@@ -52,8 +52,14 @@ LArHVToolDB::LArHVToolDB(const std::string& type,
 			 const std::string& name,
 			 const IInterface* parent)
   : AthAlgTool(type,name,parent),
+    m_larem_id(nullptr),
+    m_larhec_id(nullptr),
+    m_larfcal_id(nullptr),
+    m_electrodeID(nullptr),
+    m_hvLineID(nullptr),
     m_pathologyTool("LArHVPathologyDbTool"),
-    m_hvCablingTool("LArHVCablingTool")
+    m_hvCablingTool("LArHVCablingTool"),
+    m_pathologyContainer(nullptr)
  {
  
   declareInterface< ILArHVTool >( this );

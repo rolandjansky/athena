@@ -28,7 +28,9 @@ LArHVToolMC::LArHVToolMC(const std::string& type,
                                          const std::string& name,
                                          const IInterface* parent)
   : AthAlgTool(type,name,parent),
-    m_readASCII(false) 
+    m_readASCII(false),
+    m_first(false),
+    m_larem_id(nullptr)
 {
  declareInterface< ILArHVTool >( this );
  declareProperty("readASCII",m_readASCII);
@@ -274,7 +276,7 @@ void LArHVToolMC::InitHV()
     while (fgets(line,80,fp)) {
         int nZSide,nEtaReg,nGapSide,nFirstElec,nLastElec;
         float hvVal;
-        sscanf(&line[0],"%d%d%d%d%d%f",&nZSide,&nEtaReg,&nGapSide,&nFirstElec,&nLastElec,&hvVal);
+        sscanf(&line[0],"%80d%80d%80d%80d%80d%80f",&nZSide,&nEtaReg,&nGapSide,&nFirstElec,&nLastElec,&hvVal);
 
         std::cout << " found pathological region " << nZSide << " " << nEtaReg << " " << nGapSide
           << " " << nFirstElec << " " << nLastElec << " " << hvVal << std::endl;

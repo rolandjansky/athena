@@ -13,7 +13,7 @@
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "CaloDetDescr/CaloDetectorElements.h"
@@ -39,6 +39,7 @@
 #include "EventInfo/EventID.h"
 
 #include <fstream>
+#include <cstdlib>
 
 LArHVPathologyDbAlg::LArHVPathologyDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator)
@@ -123,8 +124,6 @@ StatusCode LArHVPathologyDbAlg::initialize()
           << endreq;
      return StatusCode::FAILURE;
   }
-
-
 
   return sc;
 }
@@ -302,9 +301,22 @@ StatusCode LArHVPathologyDbAlg::printCondObjects()
 
     for(unsigned i=0; i<pathologyContainer->m_v.size(); ++i) {
       LArHVPathologiesDb::LArHVElectPathologyDb electPath = pathologyContainer->m_v[i];
-      msg(MSG::INFO) << "Got pathology for cell ID: " << electPath.cellID
-		     << "(" << electPath.electInd 
-		     << "," << electPath.pathologyType << ") " << endreq;
+      if(m_mode==0) {
+         msg(MSG::INFO) << "Got pathology for cell ID: " << electPath.cellID
+      	     << "(" << electPath.electInd 
+      	     << "," << electPath.pathologyType << ") " << endreq;
+      } else {
+         msg(MSG::INFO) << "Got pathology for cell ID: " << electPath.cellID << endreq;
+         HWIdentifier hwid = m_cablingService->createSignalChannelID(Identifier32(electPath.cellID));
+         int HVLine=getHVline(Identifier(electPath.cellID),electPath.electInd);
+         if(HVLine<0) {
+            msg(MSG::ERROR) << "No HVline for cell "<<electPath.cellID<< endreq;
+         } else {
+            int hvmodule=HVLine/1000;
+            int hvline=HVLine%1000;
+         msg(MSG::INFO) << m_laronline_id->barrel_ec(hwid) << " " << m_laronline_id->pos_neg(hwid) << " " << m_laronline_id->feedthrough(hwid) << " " << m_laronline_id->slot(hwid) << " " << m_laronline_id->channel(hwid) << " " << hvmodule << " " << hvline << " " << electPath.pathologyType << endreq;
+         }
+      }
     }
     delete pathologyContainer;
   }
@@ -419,5 +431,106 @@ std::vector<unsigned int> LArHVPathologyDbAlg::getElectInd(const Identifier & id
   }
 
   return list;
+
+}
+
+int LArHVPathologyDbAlg::getHVline(const Identifier & id, short unsigned int ElectInd)
+{
+
+  unsigned int igap, ielec;
+// EM calo
+  if (m_larem_id->is_lar_em(id)) {
+// LAr EMB
+     if (abs(m_larem_id->barrel_ec(id))==1 &&  m_larem_id->sampling(id) > 0)  {
+       if (const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id))) {
+         const EMBCellConstLink cell = embElement->getEMBCell();
+         unsigned int nelec = cell->getNumElectrodes();
+         igap = ElectInd % 2;
+         ielec = std::div(ElectInd - igap, 2).quot;
+         if (ielec > nelec) {
+            msg(MSG::ERROR) << "Wrong electrode number " << ielec << " for cell "<< id.get_identifier32().get_compact() <<endreq;
+            return -1;
+         } else { 
+            return cell->getElectrode(ielec)->hvLineNo(igap);
+         }
+       }
+     }
+// LAr EMEC
+     if (abs(m_larem_id->barrel_ec(id))>1 && m_larem_id->sampling(id) > 0) {
+       if (const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id))) {
+         const EMECCellConstLink cell = emecElement->getEMECCell();
+         unsigned int nelec = cell->getNumElectrodes();
+         igap = ElectInd % 2;
+         ielec = std::div(ElectInd - igap, 2).quot;
+         if (ielec > nelec) {
+            msg(MSG::ERROR) << "Wrong electrode number " << ielec << " for cell "<< id.get_identifier32().get_compact() <<endreq;
+            return -1;
+         } else { 
+            return cell->getElectrode(ielec)->hvLineNo(igap);
+         }
+       }
+     }
+// EMBPS
+     if (abs(m_larem_id->barrel_ec(id))==1 &&  m_larem_id->sampling(id)==0) {
+       if (const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id))) {
+        const EMBCellConstLink cell = embElement->getEMBCell();
+        const EMBPresamplerHVModuleConstLink hvmodule =  cell->getPresamplerHVModule ();
+        if(ElectInd >= 2) {
+            msg(MSG::ERROR) << "Wrong igap "<<ElectInd<<" for EMBPS cell "<<id.get_identifier32().get_compact() <<endreq;
+            return -1;
+        } else {
+            return hvmodule->hvLineNo(ElectInd);
+        }
+       }
+     }
+// EMECPS
+    if (abs(m_larem_id->barrel_ec(id))>1 && m_larem_id->sampling(id)==0) {
+      if (const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id))) {
+       const EMECCellConstLink cell = emecElement->getEMECCell();
+       const EMECPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule ();
+        if(ElectInd >= 2) {
+            msg(MSG::ERROR) << "Wrong igap "<<ElectInd<<" for EMECPS cell "<<id.get_identifier32().get_compact() <<endreq;
+            return -1;
+        } else {
+            return hvmodule->hvLineNo(ElectInd);
+        }
+      }
+    }
+  }
+//HEC
+  if (m_larhec_id->is_lar_hec(id)) {
+    if (const HECDetectorElement* hecElement = dynamic_cast<const HECDetectorElement*>(m_calodetdescrmgr->get_element(id))) {
+      const HECCellConstLink cell = hecElement->getHECCell();
+      unsigned int nsubgaps = cell->getNumSubgaps();
+      if( ElectInd >= nsubgaps) {
+         msg(MSG::ERROR) << "Wrong igap "<<ElectInd<<" for HEC cell "<<id.get_identifier32().get_compact() <<endreq;
+         return -1;
+      } else {
+         return cell->getSubgap(ElectInd)->hvLineNo();
+      }
+    }
+  }
+//FCAL
+  if (m_larfcal_id->is_lar_fcal(id)) {
+    if (const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(m_calodetdescrmgr->get_element(id))) {
+       const FCALTile* tile = fcalElement->getFCALTile();
+       unsigned int nlines = tile->getNumHVLines();
+      if( ElectInd >= nlines) {
+         msg(MSG::ERROR) << "Wrong line "<<ElectInd<<" for FCAL cell "<<id.get_identifier32().get_compact() <<endreq;
+         return -1;
+      } else {
+         const FCALHVLineConstLink line2 = tile->getHVLine(ElectInd);
+         if(line2) {
+            return line2->hvLineNo();
+         } else {
+            msg(MSG::ERROR) << "Do not have HVLine for "<<ElectInd<<" for FCAL cell "<<id.get_identifier32().get_compact() <<endreq;
+            return -1;
+         }
+      }
+    }
+  }
+
+  // should not get up to this point....
+  return -1;
 
 }

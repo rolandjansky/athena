@@ -34,7 +34,9 @@
 LArFecLvTempDcsTool::LArFecLvTempDcsTool(const std::string& type,
                                          const std::string& name,
                                          const IInterface* parent)
-  : AthAlgTool(type,name,parent), m_foldername("/LAR/DCS/CLVTEMP")
+  : AthAlgTool(type,name,parent),
+    m_larOnlineId(nullptr),
+    m_foldername("/LAR/DCS/CLVTEMP")
 {
  declareInterface< ILArFecLvTempDcsTool >( this );
  declareProperty("FolderName",m_foldername);

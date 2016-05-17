@@ -36,6 +36,7 @@ class LArHVPathologyDbAlg : public AthAlgorithm
   StatusCode printCondObjects();
   StatusCode registerCondObjects();
   std::vector<unsigned int> getElectInd(const Identifier& id, unsigned int module, unsigned int line);
+  int getHVline(const Identifier& id, short unsigned int ElectInd);
  
   BooleanProperty           m_writeCondObjs;
   StringProperty            m_inpFile;
