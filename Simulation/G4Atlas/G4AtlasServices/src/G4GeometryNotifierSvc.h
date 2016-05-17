@@ -20,7 +20,7 @@ public:
   // Gaudi methods
   StatusCode initialize() override final;
   StatusCode finalize() override final;
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
   static const InterfaceID& interfaceID() { return IG4GeometryNotifierSvc::interfaceID(); }
 
   //FIXME This is a bit nasty as it is not thread-safe, but we assume
