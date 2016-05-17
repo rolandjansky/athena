@@ -274,54 +274,6 @@ AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.ro
       </chain>
 
       <chain>
-        <chainName>GMSB_Stable_Stau</chainName>
-        <sequential>
-           <chainElement>
-             <jobTransform userJobId="GMSB_Stable_Stau_Evgen">
-               <doc>Evgen GMSB stable stau</doc>
-               <jobTransformJobName>GMSB_Stable_Stau_Evgen</jobTransformJobName>
-               <jobTransformCmd>
-export DATAPATH=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests:$DATAPATH; Generate_tf.py --ecmEnergy=8000 --runNumber=142646 --firstEvent=1 --randomSeed=1 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.142646.Herwigpp_UEEE3_CTEQ6L1_GMSB_StableStau_lambda_100_tanb_10.py --outputEVNTFile=evgen.pool.root
-               </jobTransformCmd>
-               <group>ExoticGenJobTransforms</group>
-               <queue>short</queue>
-             </jobTransform>
-             <chainfileout>evgen.pool.root</chainfileout>
-           </chainElement>
-           <chainElement>
-             <jobTransform userJobId="GMSB_Stable_Stau_Sim">
-               <doc>Simulation GMSB stable stau</doc>
-               <jobTransformJobName>GMSB_Stable_Stau_Sim</jobTransformJobName>
-               <jobTransformCmd>
-AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.root --conditionsTag OFLCOND-MC12-SIM-00 --physicsList QGSP_BERT --maxEvents 100 --geometryVersion ATLAS-GEO-20-00-01 --randomSeed 10
-               </jobTransformCmd>
-               <group>ExoticGenJobTransforms</group>
-               <chaindataset_info>
-                 <jobTransformData />
-                 <chaindatasetName>evgen.pool.root</chaindatasetName>
-                 <dataset_info>
-                   <jobTransformData />
-                   <datasetName>/eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/GMSB_Stable_Stau.EVNT.pool.root</datasetName>
-                 </dataset_info>
-               </chaindataset_info>
-               <queue>long</queue>
-               <batchWallTime>300</batchWallTime>
-             </jobTransform>
-             <chainfileout>test.HITS.pool.root</chainfileout>
-           </chainElement>
-           <chainElement>
-             <jobTransform userJobId="GMSB_Stable_Stau_Sim_Reg">
-               <doc>Regression test between releases</doc>
-               <jobTransformJobName>GMSB_Stable_Stau_Sim_Reg</jobTransformJobName>
-               <jobTransformCmd>sim_reg_test.py GMSB_Stable_Stau_Sim test.HITS.pool.root HITS.pool</jobTransformCmd>
-               <group>SimCoreTests:SimCoreRegressionTests</group>
-               <queue>short</queue>
-             </jobTransform>
-           </chainElement>
-        </sequential>
-      </chain>
-
-      <chain>
         <chainName>Monopole</chainName>
         <sequential>
            <chainElement>
