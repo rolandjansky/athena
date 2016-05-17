@@ -4,12 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJetAuxContainer.h 653631 2015-03-12 13:40:02Z janus $
+// $Id: TauJetAuxContainer.h 740338 2016-04-14 16:03:58Z griffith $
 #ifndef XAODTAU_TAUJETAUXCONTAINER_H
 #define XAODTAU_TAUJETAUXCONTAINER_H
 
 // Local include(s):
-#include "xAODTau/versions/TauJetAuxContainer_v2.h"
+#include "xAODTau/versions/TauJetAuxContainer_v3.h"
 
 namespace xAOD {
    /// Definition of the current taujet auxiliary container
@@ -19,7 +19,7 @@ namespace xAOD {
    /// the container type as we get new I/O technologies for these
    /// objects.
    ///
-   typedef TauJetAuxContainer_v2 TauJetAuxContainer;
+   typedef TauJetAuxContainer_v3 TauJetAuxContainer;
 }
 
 // Set up a CLID and StoreGate inheritance for the class:

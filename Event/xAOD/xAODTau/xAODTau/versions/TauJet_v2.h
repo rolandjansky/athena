@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJet_v2.h 699667 2015-10-09 12:39:03Z bburghgr $
+// $Id: TauJet_v2.h 747258 2016-05-15 02:57:19Z griffith $
 #ifndef XAODTAU_VERSIONS_TAUJET_V2_H
 #define XAODTAU_VERSIONS_TAUJET_V2_H
 
@@ -90,15 +90,15 @@ namespace xAOD {
     double phiTauEtaCalib() const;
     double mTauEtaCalib() const;
 
-    double ptPanTauEFlowRecProto() const;
-    double etaPanTauEFlowRecProto() const;
-    double phiPanTauEFlowRecProto() const;
-    double mPanTauEFlowRecProto() const;
+    // double ptPanTauEFlowRecProto() const;
+    // double etaPanTauEFlowRecProto() const;
+    // double phiPanTauEFlowRecProto() const;
+    // double mPanTauEFlowRecProto() const;
 
-    double ptPanTauEFlowRec() const;
-    double etaPanTauEFlowRec() const;
-    double phiPanTauEFlowRec() const;
-    double mPanTauEFlowRec() const;
+    // double ptPanTauEFlowRec() const;
+    // double etaPanTauEFlowRec() const;
+    // double phiPanTauEFlowRec() const;
+    // double mPanTauEFlowRec() const;
 
     double ptPanTauCellBasedProto() const;
     double etaPanTauCellBasedProto() const;
@@ -229,7 +229,6 @@ namespace xAOD {
     const Vertex* secondaryVertex() const;
   
 
-
     //tracks
     typedef std::vector< ElementLink< xAOD::TrackParticleContainer > >  TrackParticleLinks_t;
    
@@ -238,7 +237,7 @@ namespace xAOD {
     void setTrackLinks( const TrackParticleLinks_t& trackParticles );
     /// Get the pointer to a given track associated with this tau
     const TrackParticle* track( size_t i ) const;
-    /// Get the number of track particles associated with this tau
+    // /// Get the number of track particles associated with this tau
     size_t nTracks() const;
     /// add a track to the tau
     void addTrackLink( const ElementLink< TrackParticleContainer >& tr);
