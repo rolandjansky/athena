@@ -11,7 +11,7 @@
 #include <map>
 
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -75,7 +75,7 @@ namespace JiveXML{
 
       std::string m_sgKey; 
       std::string m_sgKeyLArDigit[2]; 
-      LArCablingService* m_larCablingSvc;
+      ToolHandle<LArCablingService> m_larCablingSvc;
     
       const CaloIdManager* m_calo_id_man;
       const CaloCell_ID*   m_calocell_id;
@@ -95,8 +95,6 @@ namespace JiveXML{
     
       std::vector<Identifier::value_type> m_LArChannelsToIgnoreM5;
       bool m_doMaskLArChannelsM5;
-
-      IToolSvc* m_toolSvc;
 
       DataVect m_sub; 
   };

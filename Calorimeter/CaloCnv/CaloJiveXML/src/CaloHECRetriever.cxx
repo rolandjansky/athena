@@ -18,7 +18,7 @@
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "Identifier/HWIdentifier.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 using Athena::Units::GeV;
 
@@ -32,7 +32,9 @@ namespace JiveXML {
    **/
   CaloHECRetriever::CaloHECRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("HEC"){
+    m_typeName("HEC"),
+    m_larCablingSvc("LArCablingService")
+  {
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -63,9 +65,6 @@ namespace JiveXML {
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
 
-    if ( !service("ToolSvc", m_toolSvc) )
-      return StatusCode::FAILURE;
-    
     return StatusCode::SUCCESS;	
   }
    
@@ -126,10 +125,8 @@ namespace JiveXML {
     CaloCellContainer::const_iterator it2 = cellContainer->endConstCalo(CaloCell_ID::LARHEC);
 
     
-   StatusCode scTool=m_toolSvc->retrieveTool("LArCablingService", m_larCablingSvc);
-   if(scTool.isFailure()){
-	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endreq;
-      }
+    if(m_larCablingSvc.retrieve().isFailure())
+      ATH_MSG_ERROR ("Could not retrieve LArCablingService");
 
     const ILArPedestal* larPedestal = nullptr;
     if(m_doHECCellDetails){
@@ -146,7 +143,7 @@ namespace JiveXML {
       IAlgTool* algtool;
       ILArADC2MeVTool* adc2mevTool=0;
       if(m_doHECCellDetails){
-	if( m_toolSvc->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
+	if( toolSvc()->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
 	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getHECData(), Could not retrieve LAr ADC2MeV Tool" <<endreq;
 	} else {
 	  adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);

@@ -19,7 +19,7 @@
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "Identifier/HWIdentifier.h"
 #include "CaloIdentifier/TileID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 using CLHEP::GeV;
 
@@ -33,7 +33,9 @@ namespace JiveXML {
    **/
   LArDigitRetriever::LArDigitRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("LArDigit"){
+    m_typeName("LArDigit"),
+    m_larCablingSvc("LArCablingService")
+  {
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -72,9 +74,6 @@ namespace JiveXML {
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
 
-    if ( !service("ToolSvc", m_toolSvc) )
-      return StatusCode::FAILURE;
-    
     return StatusCode::SUCCESS;        
   }
    
@@ -187,9 +186,8 @@ namespace JiveXML {
 //--- initialize the LArCablingService tool, which can be 
 //--- used to convert between online and hardware ID--
 
-    if (m_toolSvc->retrieveTool("LArCablingService", m_larCablingSvc).isFailure()){
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endreq;
-    }
+    if(m_larCablingSvc.retrieve().isFailure())
+      ATH_MSG_ERROR ("Could not retrieve LArCablingService");
 
     const ILArPedestal* larPedestal;
     if ( detStore()->retrieve(larPedestal).isFailure()){
@@ -204,7 +202,7 @@ namespace JiveXML {
     IAlgTool* algtool;
     ILArADC2MeVTool* adc2mevTool=0;
 
-    if ( m_toolSvc->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
+    if ( toolSvc()->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
       if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(), Could not retrieve LAr ADC2MeV Tool" <<endreq;
     } else {
       adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);

@@ -11,7 +11,7 @@
 #include <map>
 
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -72,8 +72,6 @@ namespace JiveXML{
       int m_cellEnergyPrec;
       bool m_tile;
       bool m_doBadTile;
-
-      IToolSvc* m_toolSvc;
 
       DataVect m_sub;
   };

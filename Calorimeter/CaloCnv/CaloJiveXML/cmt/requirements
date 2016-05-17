@@ -27,7 +27,7 @@ use TileCalibBlobObjs     TileCalibBlobObjs-*        TileCalorimeter/TileCalib
 public
 
 use CaloIdentifier        CaloIdentifier-*           Calorimeter
-use LArTools              LArTools-*                 LArCalorimeter
+use LArCabling            LArCabling-*               LArCalorimeter
 use TileEvent             TileEvent-*                TileCalorimeter
 use TileConditions        TileConditions-*           TileCalorimeter
 use GaudiInterface        GaudiInterface-*           External

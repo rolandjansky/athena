@@ -35,7 +35,9 @@ namespace JiveXML {
    **/
   CaloMBTSRetriever::CaloMBTSRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("MBTS") {
+    m_typeName("MBTS"),
+    m_tileTBID(nullptr)
+  {
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -55,9 +57,6 @@ namespace JiveXML {
   StatusCode CaloMBTSRetriever::initialize() {
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
-
-    if ( !service("ToolSvc", m_toolSvc) )
-      return StatusCode::FAILURE;
 
     return StatusCode::SUCCESS;
   }

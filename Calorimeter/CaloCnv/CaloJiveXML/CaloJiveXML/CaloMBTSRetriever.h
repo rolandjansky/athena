@@ -68,9 +68,6 @@ namespace JiveXML{
       double m_mbtsThreshold;
       bool m_mbts;
       bool m_mbtsdigit;
-
-      IToolSvc* m_toolSvc;
-      //StoreGateSvc* m_detStore;
   };
 }
 #endif

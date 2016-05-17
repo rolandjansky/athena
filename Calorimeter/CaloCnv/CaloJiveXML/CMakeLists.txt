@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Control/AthenaBaseComps
                           GaudiKernel
-                          LArCalorimeter/LArTools
+                          LArCalorimeter/LArCabling
                           TileCalorimeter/TileConditions
                           TileCalorimeter/TileEvent
                           graphics/JiveXML
