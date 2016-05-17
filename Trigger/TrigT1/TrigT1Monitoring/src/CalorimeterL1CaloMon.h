@@ -227,7 +227,8 @@ private:
   TProfile_LW* m_h_em_profile_Match_CP;             ///< Relative difference between L1Calo (CP) - Calo em Et
   TProfile_LW* m_h_had_profile_Match_CP;            ///< Relative difference between L1Calo (CP) - Calo had Et
  
-  TH2F_LW* m_h_em_Mismatch_etaphi_alt;              ///< eta-phi map of em mismatches with L1Calo (JEP) Et > 5 and zero Calo Et
+  // KW commenting out for now... will never be filled with new ET cut
+  /*TH2F_LW* m_h_em_Mismatch_etaphi_alt;              ///< eta-phi map of em mismatches with L1Calo (JEP) Et > 5 and zero Calo Et
   TH2F_LW* m_h_em_Mismatch_etaphi;                  ///< eta-phi map of em mismatches with zero L1Calo (JEP) Et and Calo Et > 5
   TH2F_LW* m_h_had_Mismatch_etaphi_alt;             ///< eta-phi map of had mismatches with L1Calo (JEP) Et > 5 and zero Calo Et
   TH2F_LW* m_h_had_Mismatch_etaphi;                 ///< eta-phi map of had mismatches with zero L1Calo (JEP) Et and Calo Et > 5
@@ -236,7 +237,7 @@ private:
   TH2F_LW* m_h_em_Mismatch_etaphi_CP;               ///< eta-phi map of em mismatches with zero L1Calo (CP) Et and Calo Et > 5
   TH2F_LW* m_h_had_Mismatch_etaphi_alt_CP;          ///< eta-phi map of had mismatches with L1Calo (CP) Et > 5 and zero Calo Et
   TH2F_LW* m_h_had_Mismatch_etaphi_CP;              ///< eta-phi map of had mismatches with zero L1Calo (CP) Et and Calo Et > 5
-
+  */
   TH1F_LW* m_h_em_1D_Match_LArEMB;                  ///< LArEMB Relative difference between L1Calo (JEP) and Calo em Et
   TH1F_LW* m_h_em_1D_Match_LArOverlap;              ///< LArOverlap Relative difference between L1Calo (JEP) and Calo em Et
   TH1F_LW* m_h_em_1D_Match_LArEMEC;                 ///< LArEMEC Relative difference between L1Calo (JEP)and Calo em Et
