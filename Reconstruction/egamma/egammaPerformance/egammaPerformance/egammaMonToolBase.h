@@ -12,6 +12,7 @@
 #define egammaMonToolBase_H
 
 #include <vector>
+#include "TProfile.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TString.h"
@@ -58,6 +59,8 @@ class egammaMonToolBase : public ManagedMonitorToolBase
   std::vector<std::string> m_Trigger; // generic Trigger Name
   ToolHandle<Trig::TrigDecisionTool> m_trigdec; // Trigger Decision Tool Handle
   bool m_UseTrigger; // Use Trigger ?
+
+  std::string m_GroupExtension;
 
   unsigned int  m_currentLB;
 
