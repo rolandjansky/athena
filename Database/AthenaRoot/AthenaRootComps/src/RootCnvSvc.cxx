@@ -18,10 +18,10 @@
 // fwk includes
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/GenericAddress.h"
-#include "GaudiKernel/System.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
 #include "AthenaKernel/ITPCnvBase.h"
 #include "AthenaKernel/ITPCnvSvc.h"
+#include "PersistentDataModel/Placement.h"
 
 // AthenaRootKernel includes
 #include "AthenaRootKernel/IRootSvc.h"
@@ -30,48 +30,34 @@ namespace Athena {
 
 RootCnvSvc::RootCnvSvc(const std::string& name, ISvcLocator* pSvcLocator) :
 	::AthCnvSvc(name, pSvcLocator, ROOT_StorageType),
-	m_dictsvc("AthDictLoaderSvc", name),
-	m_tpcnvsvc("AthTPCnvSvc", name),
-	m_rootsvc("Athena::RootSvc/AthenaRootSvc", name),
-	m_iosvc  ("AthIoSvc", name)
-{}
+	m_dictSvc("AthDictLoaderSvc", name),
+	m_tpCnvSvc("AthTPCnvSvc", name),
+	m_rootSvc("Athena::RootSvc/AthenaRootSvc", name),
+	m_treeName("CollectionTree") {
+}
 
-RootCnvSvc::~RootCnvSvc()
-{}
+RootCnvSvc::~RootCnvSvc() {}
 
-StatusCode
-RootCnvSvc::initialize()
-{
+StatusCode RootCnvSvc::initialize() {
   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
   if (!::AthCnvSvc::initialize().isSuccess()) {
     ATH_MSG_FATAL("Cannot initialize ConversionSvc base class.");
     return StatusCode::FAILURE;
   }
   // Get the Dictionary service
-  ATH_CHECK(m_dictsvc.retrieve());
+  ATH_CHECK(m_dictSvc.retrieve());
   // Get the T/P conversion service
-  ATH_CHECK(m_tpcnvsvc.retrieve());
+  ATH_CHECK(m_tpCnvSvc.retrieve());
   // Get the Root service
-  ATH_CHECK(m_rootsvc.retrieve());
-  // Get the I/O service
-  ATH_CHECK(m_iosvc.retrieve());
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-  // Initialize AthenaRootStreamerSvc
-  ServiceHandle<IService> arssvc("AthenaRootStreamerSvc", this->name());
-  ATH_CHECK(arssvc.retrieve());
-#endif
+  ATH_CHECK(m_rootSvc.retrieve());
   return StatusCode::SUCCESS;
 }
 
-StatusCode
-RootCnvSvc::finalize()
-{
+StatusCode RootCnvSvc::finalize() {
   return ::AthCnvSvc::finalize();
 }
 
-StatusCode
-RootCnvSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
+StatusCode RootCnvSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
   if (IAthenaRootCnvSvc::interfaceID().versionMatch(riid)) {
     *ppvInterface = dynamic_cast<IAthenaRootCnvSvc*>(this);
   } else {
@@ -83,196 +69,109 @@ RootCnvSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 }
 
 /// Connect the output file to the service with open mode.
-StatusCode
-RootCnvSvc::connectOutput(const std::string& file,
-                          const std::string& mode)
-{
-  IIoSvc::Fd fd = m_iosvc->fd(file);
-  if (fd==-1) {
-    ATH_MSG_ERROR("no file [" << file << "] known to the i/o svc");
+StatusCode RootCnvSvc::connectOutput(const std::string& file, const std::string& mode) {
+  std::string fileName = file;
+  std::string::size_type inx1 = file.find('(');
+  if (inx1 != std::string::npos) {
+    std::string::size_type inx2 = file.find(')');
+    if (inx2 == std::string::npos || inx2 != file.size() - 1) {
+      return StatusCode::FAILURE;
+    }
+    m_treeName = fileName.substr(inx1 + 1, inx2 - inx1 - 1);
+    fileName = fileName.substr(0, inx1);
+  }
+  if (!m_rootSvc->open(fileName, mode).isSuccess()) {
+    ATH_MSG_ERROR("Could not open-recreate file [" << file << "]");
     return StatusCode::FAILURE;
   }
-  return connectOutput(fd, IIoSvc::IoTypeFromName(mode));
+  return this->connectOutput(fileName);
 }
 
 /// Connect the output file to the service.
-StatusCode
-RootCnvSvc::connectOutput(const std::string& file)
-{
-  IIoSvc::Fd fd = m_iosvc->fd(file);
-  if (fd==-1) {
-    ATH_MSG_ERROR("no file [" << file << "] known to the i/o svc");
-    return StatusCode::FAILURE;
-  }
-  return connectOutput(fd, IIoSvc::UPDATE);
+StatusCode RootCnvSvc::connectOutput(const std::string& file) {
+  return m_rootSvc->connect(file);
 }
 
 /// Commit pending output.
-StatusCode
-RootCnvSvc::commitOutput(const std::string& file, bool do_commit)
-{
-  IIoSvc::Fd fd = m_iosvc->fd(file);
-  if (fd==-1) {
-    ATH_MSG_ERROR("no file [" << file << "] known to the i/o svc");
-    return StatusCode::FAILURE;
-  }
-  return commitOutput(fd, do_commit);
+StatusCode RootCnvSvc::commitOutput(const std::string& /*file*/, bool /*do_commit*/) {
+  return m_rootSvc->commitOutput();
 }
 
-StatusCode
-RootCnvSvc::connectOutput(IIoSvc::Fd out, IIoSvc::IoType mode)
-{
-  ATH_MSG_VERBOSE("RootCnvSvc::connectOutput outputFile = "
-                  << out << ", openMode = " << IIoSvc::IoTypeName(mode));
-  return this->connectOutput(out);
-}
-
-StatusCode
-RootCnvSvc::connectOutput(IIoSvc::Fd out)
-{
-  ATH_MSG_VERBOSE("RootCnvSvc::connectOutput output = " << out);
-  if (!m_rootsvc->connect(out)) {
-    ATH_MSG_ERROR("Unable to open an UPDATE transaction.");
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-RootCnvSvc::commitOutput(IIoSvc::Fd out, bool do_commit)
-{
-  ATH_MSG_VERBOSE("RootCnvSvc::commitOutput output = " << out
-                  << " do-commit=" << do_commit);
-  return m_rootsvc->commitOutput();
-}
-
-StatusCode
-RootCnvSvc::createAddress(long svc_type,
-                          const CLID& clid,
-                          const std::string* par,
-                          const unsigned long* ip,
-                          IOpaqueAddress*& refpAddress)
-{
+StatusCode RootCnvSvc::createAddress(long svc_type,
+		const CLID& clid,
+		const std::string* par,
+		const unsigned long* ip,
+		IOpaqueAddress*& refpAddress) {
   ATH_MSG_VERBOSE("RootCnvSvc::createAddress("
                   << "svc_type=" << svc_type << ", "
                   << "clid=" << clid << ", "
                   << "par=" << par[0] << ", " << par[1] << " "
                   << "ip=" << ip[0] << ", " << ip[1] << " "
-                  << "refpaddr=" << refpAddress << ")...");
-  refpAddress = new GenericAddress(ROOT_StorageType, clid,
-                                   par[0], par[1], ip[0], ip[1]);
+                  << "refpaddr=" << refpAddress << ")");
+  refpAddress = new GenericAddress(ROOT_StorageType, clid, par[0], par[1], ip[0], ip[1]);
   return StatusCode::SUCCESS;
 }
 
-StatusCode
-RootCnvSvc::convertAddress(const IOpaqueAddress* pAddress,
-                           std::string& refAddress)
-{
-  ATH_MSG_VERBOSE("::convertAddress(paddr=" << pAddress
-                  << ", refpaddr=" << refAddress << ")...");
+StatusCode RootCnvSvc::convertAddress(const IOpaqueAddress* pAddress, std::string& refAddress) {
+  ATH_MSG_VERBOSE("::convertAddress(pAddr = " << pAddress << ", refPaddr = " << refAddress << ")");
   return StatusCode::FAILURE;
 }
 
-StatusCode
-RootCnvSvc::createAddress(long svc_type,
-                          const CLID& clid,
-                          const std::string& refAddress,
-                          IOpaqueAddress*& refpAddress)
-{
+StatusCode RootCnvSvc::createAddress(long svc_type,
+		const CLID& clid,
+		const std::string& refAddress,
+		IOpaqueAddress*& refpAddress) {
   ATH_MSG_VERBOSE("RootCnvSvc::createAddress("
                   << "svc_type=" << svc_type << ", "
                   << "clid=" << clid << ", "
                   << "refaddr=" << refAddress << ", "
-                  << "refpaddr=" << refpAddress << ")...");
+                  << "refpaddr=" << refpAddress << ")");
 
   return StatusCode::FAILURE;
 }
 
-StatusCode
-RootCnvSvc::updateServiceState(IOpaqueAddress* pAddress)
-{
-  ATH_MSG_VERBOSE("RootCnvSvc::updateServiceState(paddr=" << pAddress
-                  << ")...");
+StatusCode RootCnvSvc::updateServiceState(IOpaqueAddress* pAddress) {
+  ATH_MSG_VERBOSE("RootCnvSvc::updateServiceState(paddr = " << pAddress << ")");
   return StatusCode::FAILURE;
-}
-
-TClass*
-RootCnvSvc::getClass(const CLID& clid) const
-{
-  return m_rootsvc->getClass(m_dictsvc->load_type(clid).TypeInfo());
-}
-
-TClass*
-RootCnvSvc::getClass(const std::type_info& type) const
-{
-  return m_rootsvc->getClass(m_dictsvc->load_type(type).TypeInfo());
-}
-
-ITPCnvBase*
-RootCnvSvc::getTPConverter(const CLID& clid) const
-{
-  ATH_MSG_VERBOSE("RootCnvSvc::getTPConverter clid = " << clid);
-  return m_tpcnvsvc->t2p_cnv(clid);
-}
-
-unsigned long
-RootCnvSvc::writeObject(const std::string& placement,
-                        TClass* classDesc,
-                        const void* pObj,
-                        ITPCnvBase* tpConverter)
-{
-  unsigned long len = 0;
-  if (tpConverter == 0) {
-    len = m_rootsvc->writeObject(placement, classDesc, pObj);
-  } else {
-    void* pers = m_rootsvc->createObject(classDesc);
-    tpConverter->transToPersUntyped(pObj, pers, this->msg());
-    len = m_rootsvc->writeObject(placement, classDesc, pers);
-    m_rootsvc->destructObject(classDesc, pers); pers = 0;
-  }
-  return len;
 }
 
 ///@{ RootType-based API
 /// Load the class (dictionary) from Root.
-RootType
-RootCnvSvc::getType(const CLID& clid) const
-{
-  return m_dictsvc->load_type(clid);
+RootType RootCnvSvc::getType(const CLID& clid) const {
+  return m_dictSvc->load_type(clid);
 }
 
-RootType
-RootCnvSvc::getType(const std::type_info& type) const
-{
-  return m_dictsvc->load_type(type);
+RootType RootCnvSvc::getType(const std::type_info& type) const {
+  return m_dictSvc->load_type(type);
 }
 
 /// Write object of a given class to Root, using optional T/P converter.
-unsigned long
-RootCnvSvc::writeObject(const std::string& placement,
-                        RootType typeDesc,
-                        const void* pObj,
-                        ITPCnvBase* tpConverter)
-{
-  unsigned long len = 0;
+const Token* RootCnvSvc::writeObject(const std::string& key,
+		const RootType& typeDesc,
+		const void* pObj,
+		ITPCnvBase* tpConverter) {
+  const Token* token = 0;
+  Placement placement;
+  placement.setContainerName(m_treeName + "(" + key + ")");
+  placement.setTechnology(ROOT_StorageType);
   if (tpConverter == 0) {
-    len = m_rootsvc->writeObject(placement, typeDesc, pObj);
+    token = m_rootSvc->writeObject(placement, typeDesc, pObj);
   } else {
-    void* pers = m_rootsvc->createObject(typeDesc);
+    void* pers = m_rootSvc->createObject(typeDesc);
     tpConverter->transToPersUntyped(pObj, pers, this->msg());
-    len = m_rootsvc->writeObject(placement, typeDesc, pers);
-    m_rootsvc->destructObject(typeDesc, pers);
-    pers = 0;
+    token = m_rootSvc->writeObject(placement, typeDesc, pers);
+    m_rootSvc->destructObject(typeDesc, pers); pers = 0;
   }
-  return len;
+  return token;
+}
+
+ITPCnvBase* RootCnvSvc::getTPConverter(const CLID& clid) const {
+  ATH_MSG_VERBOSE("RootCnvSvc::getTPConverter clid = " << clid);
+  return m_tpCnvSvc->t2p_cnv(clid);
 }
 ///@}
 
-IConverter*
-RootCnvSvc::createConverter(long typ,
-                            const CLID& clid,
-                            const ICnvFactory* fac)
-{
+IConverter* RootCnvSvc::createConverter(long typ, const CLID& clid, const ICnvFactory* fac) {
   ATH_MSG_VERBOSE("createConverter typ = " << typ << ", clid = " << clid);
   if (typ == ROOT_StorageType) {
     return new Athena::RootCnv(clid, serviceLocator().get());

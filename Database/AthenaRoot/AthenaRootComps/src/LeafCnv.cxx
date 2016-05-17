@@ -31,7 +31,7 @@
 
 // ROOT 
 #include "TBranch.h"
-#include "TBranchElement.h"
+#include "RootUtils/TBranchElementClang.h"
 #include "TLeaf.h"
 #include "TTree.h"
 

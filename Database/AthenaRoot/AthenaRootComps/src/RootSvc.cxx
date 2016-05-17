@@ -7,78 +7,72 @@
 // RootSvc.cxx
 // Implementation file for class Athena::RootSvc
 // Author: Peter van Gemmeren <gemmeren@anl.gov>
-// Author: S.Binet<binet@cern.ch>
 ///////////////////////////////////////////////////////////////////
 
 // AthenaRootComps includes
 #include "RootSvc.h"
 #include "RootConnection.h"
 
+// POOL/APR includes for Catalog
+#include "FileCatalog/IFileCatalog.h"
+#include "FileCatalog/IFCAction.h"
+
 // fwk includes
 #include "AthenaKernel/IDictLoaderSvc.h"
 
-// ROOT includes
-#include "TROOT.h"
-#include "TClass.h"
-#include "RVersion.h"
+#include "PersistentDataModel/Token.h"
+#include "PersistentDataModel/Placement.h"
 
 namespace Athena {
 
 RootSvc::RootSvc(const std::string& name, ISvcLocator* pSvcLocator) :
-  ::AthService(name, pSvcLocator),
-  m_conns(),
-  m_wconn(NULL),
-  m_dictsvc("AthDictLoaderSvc", name),
-  m_iosvc  ("IoSvc/AthIoSvc", name)
-{}
+	::AthService(name, pSvcLocator),
+	m_catalog(0),
+	m_conns(),
+	m_wconn(0),
+	m_dictSvc("AthDictLoaderSvc", name) {
+}
 
-RootSvc::~RootSvc()
-{
-  for (ConnMap_t::iterator
-         itr  = m_conns.begin(),
-         iend = m_conns.end();
-       itr != iend;
-       ++itr) {
+RootSvc::~RootSvc() {
+  for (ConnMap_t::iterator itr = m_conns.begin(), iend = m_conns.end(); itr != iend; ++itr) {
     delete itr->second; itr->second = 0;
   }
   m_conns.clear();
 }
 
-StatusCode
-RootSvc::initialize()
-{
+StatusCode RootSvc::initialize() {
   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
   if (!::AthService::initialize().isSuccess()) {
     ATH_MSG_FATAL("Cannot initialize ConversionSvc base class.");
     return StatusCode::FAILURE;
   }
-  ATH_CHECK(m_dictsvc.retrieve());
-  ATH_CHECK(m_iosvc.retrieve());
-
+  m_catalog = new pool::IFileCatalog;
+  try {
+    m_catalog->setWriteCatalog("xmlcatalog_file:RootFileCatalog.xml"); // FIXME: Make config
+    m_catalog->connect();
+    m_catalog->start();
+  } catch (std::exception& e) {
+    ATH_MSG_FATAL ("Set up Catalog - caught exception: " << e.what());
+    return StatusCode::FAILURE;
+  }
+  ATH_CHECK(m_dictSvc.retrieve());
   return StatusCode::SUCCESS;
 }
 
-StatusCode
-RootSvc::finalize()
-{
-  for (ConnMap_t::const_iterator
-         itr = m_conns.begin(),
-         iend= m_conns.end();
-       itr != iend;
-       ++itr) {
-    IIoSvc::Fd fd = itr->first;
+StatusCode RootSvc::finalize() {
+  for (ConnMap_t::const_iterator itr = m_conns.begin(), iend = m_conns.end(); itr != iend; ++itr) {
     if (!itr->second->disconnect().isSuccess()) {
-      ATH_MSG_WARNING("Cannot disconnect file = " << fd);
-    } else if (!m_iosvc->close(fd).isSuccess()) {
-      ATH_MSG_WARNING("cannot close file = " << fd);
+      ATH_MSG_WARNING("Cannot disconnect file = " << itr->first.toString());
     }
+  }
+  if (m_catalog != 0) {
+    m_catalog->commit();
+    delete m_catalog; m_catalog = 0;
   }
   return ::AthService::finalize();
 }
 
-StatusCode
-RootSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
+StatusCode RootSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
   if (IRootSvc::interfaceID().versionMatch(riid)) {
     *ppvInterface = dynamic_cast<IRootSvc*>(this);
   } else {
@@ -90,183 +84,93 @@ RootSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 }
 
 /// Load the type (dictionary) from Root.
-RootType
-RootSvc::getType(const std::type_info& type) const
-{
-  return m_dictsvc->load_type(type);
+RootType RootSvc::getType(const std::type_info& type) const {
+  return m_dictSvc->load_type(type);
 }
 
-/// Create an object of a given `RootType`.
-void*
-RootSvc::createObject(const RootType type) const
-{
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-  void *pObj = type.Allocate();
-#else
-  void *pObj = type.Construct();
-#endif
-  return pObj;
+/// Read object from Root.
+void* RootSvc::readObject(const Token& /*token*/, void*& /*pObj*/) {
+  return 0;
 }
 
 /// Write object of a given class to Root.
-unsigned long
-RootSvc::writeObject(const std::string& placement,
-                     const RootType type,
-                     const void* pObj)
-{
-  ATH_MSG_VERBOSE("RootSvc::writeObject placement = "
-                  << placement << ", pObj = " << pObj);
+const Token* RootSvc::writeObject(const Placement& placement, const RootType& type, const void* pObj) {
+  ATH_MSG_VERBOSE("RootSvc::writeObject pObj = " << pObj);
   if (m_wconn == 0) {
-    ATH_MSG_ERROR("Cannot write without RootConnection for placement "
-                  << placement);
+    ATH_MSG_ERROR("Cannot write without RootConnection for placement " << placement.containerName());
     return 0;
   }
-  if (!m_wconn->setContainer(placement,
-			     type.Name(),
-			     pObj).isSuccess()) {
-    ATH_MSG_ERROR("Cannot set container [" << placement << "]");
+  if (!m_wconn->setContainer(placement.containerName(), type.Name()).isSuccess()) {
+    ATH_MSG_ERROR("Cannot set container [" << placement.containerName() << "]");
     return 0;
   }
   unsigned long ientry = 0;
   if (!m_wconn->write(pObj, ientry).isSuccess()) {
-    ATH_MSG_ERROR("Cannot write Object to placement [" << placement << "]");
+    ATH_MSG_ERROR("Cannot write Object to placement [" << placement.containerName() << "]");
     return 0;
   }
-  return ientry;
+  return new Token();
+}
+
+/// Create an object of a given `RootType`.
+void* RootSvc::createObject(const RootType& type) const {
+  void* pObj = type.Construct();
+  return pObj;
 }
 
 /// Destruct a given object of type `RootType`.
-void
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-RootSvc::destructObject(RootType type, void* pObj) const
-#else
-RootSvc::destructObject(RootType /*type*/, void* /*pObj*/) const
-#endif
-{
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-  type.Destruct(pObj);
-#endif
+void RootSvc::destructObject(const RootType& /*type*/, void* /*pObj*/) const {
 }
 
-TClass*
-RootSvc::getClass(const std::type_info& type) const
-{
-  ATH_MSG_VERBOSE("RootSvc::getClass type = " << System::typeinfoName(type));
-  return gROOT->GetClass(type);
-}
-
-void*
-RootSvc::createObject(const TClass* classDesc) const
-{
-  ATH_MSG_VERBOSE("RootSvc::createObject type = " << classDesc->GetName());
-  return classDesc->New();
-}
-
-unsigned long
-RootSvc::writeObject(const std::string& placement,
-                     const TClass* classDesc,
-                     const void* pObj)
-{
-  ATH_MSG_VERBOSE("RootSvc::writeObject placement = " << placement << ", pObj = " << pObj);
-  if (m_wconn == 0) {
-    ATH_MSG_ERROR("Cannot write without RootConnection for placement [" 
-                  << placement << "]");
-    return 0;
+/// Open the file `fname` with open mode `mode`
+StatusCode RootSvc::open(const std::string& fname, const std::string& /*mode*/) {
+// Catalog to get fid...
+  Guid fid = Guid::null();
+  if (m_catalog != 0) {
+    std::string fidString, ftype;
+    pool::IFCAction action;
+    m_catalog->setAction(action);
+    action.lookupFileByPFN(fname, fidString, ftype);
+    if (!fidString.empty()) {
+      fid.fromString(fidString);
+    } else {
+      Guid::create(fid);
+      fidString = fid.toString();
+      action.registerPFN(fname, "ROOT_All", fidString);
+    }
   }
-  if (!m_wconn->setContainer(placement,
-                             classDesc->GetName(),
-                             pObj).isSuccess()) {
-    ATH_MSG_ERROR("Cannot set container [" << placement << "]");
-    return 0;
-  }
-  unsigned long ientry = 0;
-  if (!m_wconn->write(pObj, ientry).isSuccess()) {
-    ATH_MSG_ERROR("Cannot write Object to placement [" << placement << "]");
-    return 0;
-  }
-  return ientry;
-}
-
-void
-RootSvc::destructObject(TClass* classDesc, void* pObj) const
-{
-  return classDesc->Destructor(pObj);
-}
-
-/// open the file `fname` with open mode `mode`
-/// @returns the file descriptor or -1 if failure
-IIoSvc::Fd
-RootSvc::open(const std::string& fname, IIoSvc::IoType mode)
-{
-  IIoSvc::Fd fd = m_iosvc->open(fname, mode);
-  if (fd == -1) {
-    ATH_MSG_ERROR("Unable to open " << fname);
-    return fd;
-  }
-  ConnMap_t::iterator ifd = m_conns.find(fd);
-  if (ifd != m_conns.end()) {
-    m_iosvc->close(fd);
-    return -1;
-  }
-  return fd;
-}
-
-/// Connect the file descriptor `fd` to the service.
-StatusCode
-RootSvc::connect(IIoSvc::Fd fd)
-{
-  ATH_MSG_VERBOSE("::connect(" << fd << ")...");
-  Athena::RootConnection *conn = NULL;
-  ConnMap_t::const_iterator fitr = m_conns.find(fd);
+  Athena::RootConnection* conn = 0;
+  ConnMap_t::const_iterator fitr = m_conns.find(fid);
   if (fitr == m_conns.end()) {
-    conn = new Athena::RootConnection(this, fd);
-    m_conns.insert(std::make_pair(fd, conn));
+    conn = new Athena::RootConnection(this, fname);
+    m_conns.insert(std::make_pair(fid, conn));
   } else {
     conn = fitr->second;
   }
-  if (0 == conn) {
-    ATH_MSG_ERROR("cannot get RootConnection for file ["
-                  << m_iosvc->fname(fd) << "]"
-                  << " (fd=" << fd << ")");
+  if (conn == 0) {
+    ATH_MSG_ERROR("Cannot get RootConnection for file " << fid.toString());
     return StatusCode::FAILURE;
   }
-  if (!conn->connectWrite(m_iosvc->mode(fd)).isSuccess()) {
-    ATH_MSG_ERROR("cannot connect to file ["
-                  << m_iosvc->fname(fd) << "] mode=["
-                  << m_iosvc->mode(fd) << "]");
+  return StatusCode::SUCCESS;
+}
+
+/// Connect the file `fname` to the service.
+StatusCode RootSvc::connect(const std::string& fname) {
+  ATH_MSG_VERBOSE("connect(" << fname << ")...");
+  Athena::RootConnection* conn = this->connection(fname);
+  if (conn == 0) {
+    ATH_MSG_ERROR("No open RootConnection for file " << fname);
+    return StatusCode::FAILURE;
+  }
+  if (!conn->connectWrite("recreate").isSuccess()) {
+    ATH_MSG_ERROR("Cannot connect to file " << fname);
     return StatusCode::FAILURE;
   }
   m_wconn = conn;
   return StatusCode::SUCCESS;
 }
 
-/// get the RootConnection associated with file descriptor `fd`
-/// @returns NULL if no such file is known to this service
-Athena::RootConnection*
-RootSvc::connection(IIoSvc::Fd fd)
-{
-  Athena::RootConnection *conn = NULL;
-  ConnMap_t::const_iterator fitr = m_conns.find(fd);
-  if (fitr != m_conns.end()) {
-    conn = fitr->second;
-  }
-  return conn;
-}
-
-/// get the connection (or create it) for file descriptor `fd`
-Athena::RootConnection*
-RootSvc::new_connection(IIoSvc::Fd fd)
-{
-  Athena::RootConnection *conn = connection(fd);
-  if (NULL == conn) {
-    conn = new Athena::RootConnection(this, fd);
-    m_conns.insert(std::make_pair(fd, conn));
-  }
-  return conn;
-}
-
-StatusCode
-RootSvc::commitOutput() {
+StatusCode RootSvc::commitOutput() {
   ATH_MSG_VERBOSE("RootSvc::commitOutput");
   if (m_wconn == 0) {
     ATH_MSG_ERROR("Cannot commit without RootConnection.");
@@ -279,22 +183,48 @@ RootSvc::commitOutput() {
   return StatusCode::SUCCESS;
 }
 
-/// Disconnect the file from the service.
-StatusCode
-RootSvc::disconnect(IIoSvc::Fd fd)
-{
-  const std::string& file = m_iosvc->fname(fd);
-  ATH_MSG_VERBOSE("RootSvc::disconnect file = " << file);
-  ConnMap_t::const_iterator entry = m_conns.find(fd);
-  if (entry == m_conns.end()) {
-    ATH_MSG_ERROR("Cannot get RootConnection for file " << file);
+/// Disconnect the file `fname` from the service.
+StatusCode RootSvc::disconnect(const std::string& fname) {
+  ATH_MSG_VERBOSE("disconnect(" << fname << ")...");
+  Athena::RootConnection* conn = this->connection(fname);
+  if (conn == 0) {
+    ATH_MSG_ERROR("No open RootConnection for file " << fname);
     return StatusCode::FAILURE;
   }
-  if (!entry->second->disconnect().isSuccess()) {
-    ATH_MSG_ERROR("Cannot disconnect to file " << file);
+  if (!conn->disconnect().isSuccess()) {
+    ATH_MSG_ERROR("Cannot disconnect to file " << fname);
     return StatusCode::FAILURE;
+  }
+  if (m_wconn == conn) {
+    m_wconn = 0;
   }
   return StatusCode::SUCCESS;
+}
+
+/// Get the RootConnection associated with file `fname`
+/// @returns NULL if no such file is known to this service
+Athena::RootConnection* RootSvc::connection(const std::string& fname) {
+// Catalog to get fid...
+  Guid fid = Guid::null();
+  if (m_catalog != 0) {
+    std::string fidString, ftype;
+    pool::IFCAction action;
+    m_catalog->setAction(action);
+    action.lookupFileByPFN(fname, fidString, ftype);
+    if (!fidString.empty()) {
+      fid.fromString(fidString);
+    } else {
+      Guid::create(fid);
+      fidString = fid.toString();
+      action.registerPFN(fname, "ROOT_All", fidString);
+    }
+  }
+  Athena::RootConnection* conn = 0;
+  ConnMap_t::const_iterator fitr = m_conns.find(fid);
+  if (fitr != m_conns.end()) {
+    conn = fitr->second;
+  }
+  return conn;
 }
 
 } //> namespace Athena

@@ -7,7 +7,6 @@
 // RootConnection.h
 // Header file for class Athena::RootConnection
 // Author: Peter van Gemmeren <gemmeren@anl.gov>
-// Author: S.Binet<binet@cern.ch>
 ///////////////////////////////////////////////////////////////////
 #ifndef ATHENAROOTCOMPS_ROOTCONNECTION_H
 #define ATHENAROOTCOMPS_ROOTCONNECTION_H 1
@@ -19,11 +18,9 @@
 
 // STL includes
 #include <string>
-#include "CxxUtils/unordered_map.h"
 
 // fwk includes
 #include "GaudiKernel/StatusCode.h"
-#include "AthenaRootKernel/IIoSvc.h"
 
 // fwd declares
 class IInterface;
@@ -39,7 +36,7 @@ class RootConnection
 {
 public:
   /// Standard constructor
-  RootConnection(const IInterface* own, IIoSvc::Fd fd);
+  RootConnection(const IInterface* own, const std::string& pfn);
   /// Standard destructor
   virtual ~RootConnection();
 
@@ -50,8 +47,8 @@ public:
   /// Open data stream in read mode
   StatusCode connectRead();
   /// Open data stream in write mode
-  StatusCode connectWrite(IIoSvc::IoType mode);
-  StatusCode addMetadata(const std::string& key, const void* obj, const std::type_info& ti);
+  StatusCode connectWrite(const std::string& mode);
+  /// Commit data stream to ROOT
   StatusCode commit();
   /// Release data stream and release implementation dependent resources
   StatusCode disconnect();
@@ -61,18 +58,13 @@ public:
   StatusCode read(void* const data, size_t len);
   /// Write root byte buffer to output stream
   StatusCode write(const void* data, unsigned long& len);
-  StatusCode setContainer(const std::string& container,
-                          const std::string& type,
-                          const void* data);
-
-  void setTreeName(const std::string& name);
+  /// Set the container name and type, creating TTree and TBranch as needed
+  StatusCode setContainer(const std::string& container, const std::string& type);
 
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////
 private:
-  /// file descriptor
-  //IIoSvc::Fd m_fd;
   /// File ID of the connection
   std::string m_fid;
   /// Physical file name of the connection
@@ -88,20 +80,12 @@ private:
   TTree* m_tree;
   /// Pointer to the current data branch
   TBranch* m_branch;
+  /// Branch typecode for branch we are asked to write out
+  char m_branchTypeCode;
 
   //FIXME: use a RootConnectionSetup class to
   //       gather this kind of configuration
   // -> autoflush, split, buffersize,...
-  /// name of the tree
-  std::string m_treeName;
-
-  struct BranchDescr {
-    void* buffer;
-    char typecode;
-  };
-  typedef SG::unordered_map<TBranch*, BranchDescr*> BranchDescriptors_t;
-  /// a map of branch descriptors for each branch we are asked to write out
-  BranchDescriptors_t m_descr;
 };
 
 } //> namespace Athena

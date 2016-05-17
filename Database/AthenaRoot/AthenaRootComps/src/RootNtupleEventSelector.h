@@ -31,12 +31,9 @@
 // Forward declaration
 class ISvcLocator;
 class StoreGateSvc;
-//class ITHistSvc;
 class TTree;
 class IClassIDSvc;
 class IDictLoaderSvc;
-//class IAthenaRootCnvSvc;
-//namespace Athena { class RootCnvSvc; }
 namespace Athena { class RootNtupleEventContext; }
 
 namespace Athena {
@@ -201,10 +198,6 @@ class RootNtupleEventSelector :
   typedef ServiceHandle<IIncidentSvc> IIncSvc_t;
   /// Handle to the incident service
   IIncSvc_t m_incsvc;
-
-  //typedef ServiceHandle<Athena::RootCnvSvc> IAthenaRootCnvSvc_t;
-  /// handle to the athena RootCnvSvc
-  //IAthenaRootCnvSvc_t m_cnvsvc;
 
   /// List of input files containing @c TTree 
   StringArrayProperty m_inputCollectionsName;

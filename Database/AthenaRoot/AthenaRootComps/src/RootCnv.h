@@ -7,7 +7,6 @@
 // RootCnv.h
 // Header file for class Athena::RootCnv
 // Author Peter van Gemmeren <gemmeren@anl.gov>
-// Author: S.Binet<binet@cern.ch>
 ///////////////////////////////////////////////////////////////////
 #ifndef ATHENAROOTCOMPS_ROOTCNV_H
 #define ATHENAROOTCOMPS_ROOTCNV_H 1
@@ -24,10 +23,7 @@
 #include "DataModelRoot/RootType.h"
 
 // fwd declares
-class IOpaqueAddress;
-class DataObject;
 class IAthenaRootCnvSvc;
-class TClass;
 class ITPCnvBase;
 
 /// Abstract factory to create the converter
@@ -38,10 +34,7 @@ namespace Athena {
  *  @brief This class provides the abstract converter to translate an object to/from its
  *  persistent ROOT representation.
  **/
-class RootCnv :
-    public ::Converter,
-    public ::AthMessaging
-{
+class RootCnv : public ::Converter, public ::AthMessaging {
   friend class CnvFactory<Athena::RootCnv>;
 
 public:
@@ -92,7 +85,8 @@ private:
   RootCnv& operator=(const ::Athena::RootCnv&); //< not implemented
 
 protected:
-   ServiceHandle<IAthenaRootCnvSvc> m_cnvsvc;
+  /// ServiceHandle to the conversion service
+  ServiceHandle< ::IAthenaRootCnvSvc> m_cnvSvc;
 
 private:
   /// transient type
@@ -100,9 +94,6 @@ private:
 
   /// persistent type
   RootType m_ptype;
-
-  /// writing class
-  TClass* m_wclass;
 
   ITPCnvBase* m_tpcnv;
 };

@@ -9,7 +9,6 @@
 
 // Framework include files
 #include "GaudiKernel/GaudiException.h"
-#include "GaudiKernel/Tokenizer.h"
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/ISvcLocator.h"

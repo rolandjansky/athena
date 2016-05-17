@@ -12,13 +12,17 @@ private
 
 use TestPolicy      TestPolicy-*
 use GaudiInterface  GaudiInterface-* 	External
+use AtlasPOOL       AtlasPOOL-*         External
 
 use CxxUtils        CxxUtils-*          Control
 use AthenaKernel    AthenaKernel-*	Control
 use DataModelRoot   DataModelRoot-*     Control
+use RootUtils       RootUtils-*         Control
 use StoreGate		StoreGate-*		Control
 use AthenaBaseComps	AthenaBaseComps-*	Control
 use AthenaPython	AthenaPython-*		Control -no_auto_imports
+
+use PersistentDataModel PersistentDataModel-*   Database
 
 use EventInfo		EventInfo-*		Event
 

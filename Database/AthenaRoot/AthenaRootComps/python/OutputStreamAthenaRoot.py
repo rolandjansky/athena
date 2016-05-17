@@ -3,7 +3,7 @@
 ## @file OutputStreamAthenaRoot.py
 ## @brief Helper methods to create output streams
 ## @author Sebastien Binet <binet@cern.ch>, Peter van Gemmeren <gemmeren@bnl.gov>
-## $Id: OutputStreamAthenaRoot.py 487759 2012-03-10 22:27:00Z binet $
+## $Id: OutputStreamAthenaRoot.py 723505 2016-02-11 22:29:40Z gemmeren $
 ###############################################################
 
 import AthenaCommon.CfgMgr as CfgMgr
@@ -23,7 +23,7 @@ def createNtupleOutputStream(streamName, fileName, tupleName="physics", asAlg = 
     
     # Now do standard output stream
     writingTool1 = AthenaRootOutputStreamTool( streamName + "Tool" )
-    writingTool1.TupleName = tupleName
+    writingTool1.TreeName = tupleName
     #writingTool1.DataHeaderSatellites = [ "basic/:EventInfo#*" ]
     writingTool1.OutputFile = fileName
     #writingTool1.
@@ -53,29 +53,10 @@ def createOutputStream( streamName, fileName = "", asAlg = False ):
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
 
-    # Assure that the file meta data output stream runs before the normal output stream
-    if fileName != "":
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        """
-        writingTool2 = AthenaRootOutputStreamTool( streamName + "_FHTool" )
-        metaStream = AthenaOutputStream(
-            streamName + "_FH",
-            WritingTool = writingTool2,
-            ItemList    = [ "EventStreamInfo#" + streamName, "IOVMetaDataContainer#*" ]
-            )
-        metaStream.WriteOnExecute = False
-        metaStream.WriteOnFinalize = True
-        metaStream.OutputFile = fileName
-        if asAlg:
-            topSequence += metaStream
-        else:
-            theApp.addOutputStream( metaStream )
-        """
-
     # Now do standard output stream
     writingTool1 = AthenaRootOutputStreamTool( streamName + "Tool" )
-    writingTool1.TupleName = "CollectionTree"
-    outputStream = AthenaRootOutputStreamProtect(
+    writingTool1.TreeName = "CollectionTree"
+    outputStream = AthenaOutputStream(
        streamName,
        WritingTool = writingTool1,
        ItemList    = [ "EventInfo#*" ]
@@ -104,6 +85,7 @@ def createOutputConditionStream( streamName, fileName = "" ):
 #AthenaRootOutputStream          = createOutputStream
 #AthenaRootOutputConditionStream = createOutputConditionStream
 
+"""
 from AthenaCommon import CfgMgr
 class AthenaRootOutputStreamProtect(CfgMgr.AthenaOutputStream):
     def __init__(self, name='Stream1', **kw):
@@ -122,6 +104,7 @@ class AthenaRootOutputStreamProtect(CfgMgr.AthenaOutputStream):
 
     OutputFile = property(_get_output_file, _set_output_file, "fwd doc...")
     pass
+"""
 
 from AthenaCommon import CfgMgr
 class AthenaRootNtupleOutputStreamProtect(CfgMgr.Athena__RootNtupleOutputStream):
@@ -140,5 +123,3 @@ class AthenaRootNtupleOutputStreamProtect(CfgMgr.Athena__RootNtupleOutputStream)
 
     OutputFile = property(_get_output_file, _set_output_file, "fwd doc...")
     pass
-
-                                                    

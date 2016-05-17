@@ -17,7 +17,7 @@
 
 // ROOT includes
 #include "TROOT.h"
-#include "TBranchElement.h"
+#include "RootUtils/TBranchElementClang.h"
 #include "TClass.h"
 #include "TClassEdit.h"
 #include "TFile.h"
@@ -60,14 +60,9 @@ CLASS_DEF( TObject,    74939790 , 1 )
 
 #include "CxxUtils/unordered_map.h"
 
-// AthenaRootKernel includes
-#include "AthenaRootKernel/IAthenaRootCnvSvc.h"
-
 // Package includes
 #include "RootNtupleEventSelector.h"
 #include "RootBranchAddress.h"
-#include "RootConnection.h"
-#include "RootCnvSvc.h"
 #include "RootGlobalsRestore.h"
 
 namespace {
@@ -444,7 +439,6 @@ RootNtupleEventSelector::next( IEvtSelector::Context& ctx ) const
   if ( 0 == rctx ) {
     ATH_MSG_ERROR ("Could not dyn-cast to RootNtupleEventContext !!");
     throw "RootNtupleEventSelector: Unable to get RootNtupleEventContext";
-    return StatusCode::FAILURE;
   }
   
   TTree *tree = rctx->tree();
@@ -459,7 +453,6 @@ RootNtupleEventSelector::next( IEvtSelector::Context& ctx ) const
       tree = fetchNtuple(fname);
       if (!tree) {
 	throw "RootNtupleEventSelector: Unable to get tree";
-        return StatusCode::FAILURE;
       }
       rctx->setTree(tree);
 
