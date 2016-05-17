@@ -184,67 +184,8 @@ HLT::ErrorCode TrigFTK_VxPrimary::hltExecute(const HLT::TriggerElement*, HLT::Tr
     }
     
   } else {
-    
-    VxContainer* theVxContainer = m_DataProviderSvc->getVxContainer(m_trackType);
-    //
-    //  Attach resolved tracks to the trigger element.
-    
-    if ( HLT::OK !=  attachFeature(outputTE, theVxContainer, m_vxContainerName) ) {
-	msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
-	
-	return HLT::NAV_ERROR;
-    }
-    
-    m_nVertices = theVxContainer->size();
-    if(outputLevel <= MSG::DEBUG){
-      msg() << MSG::DEBUG << "Container recorded in StoreGate." << endreq;
-      msg() << MSG::DEBUG << "REGTEST: Container size :" << m_nVertices << endreq;
-    }    
-    
-    size_t privtxcount(0), pileupvtxcount(0);
-    for (int iv=0; iv<m_nVertices; iv++){
-      Trk::VxCandidate *mvtx = theVxContainer->at(iv);
-      if ( mvtx ){
-	Vector3D vtx;
-	vtx = mvtx->recVertex().position();
-	const Amg::MatrixX& verr = mvtx->recVertex().covariancePosition();
+	msg() << MSG::WARNING << "FTK dataProviderSvc no longer returns VxContainer, please use xAOD::VertexContainer" << endreq;    
 
-	m_VertexType.push_back(int (mvtx->vertexType()));
-
-	if (mvtx->vertexType()==Trk::PriVtx){
-	  ++privtxcount;
-	  if(outputLevel <= MSG::DEBUG){
-	    msg() << MSG::DEBUG << "REGTEST " << privtxcount
-		  << std::setw(10)
-		  << " x=" << vtx.x() << "+/-" << Amg::error(verr, Trk::x)
-		  << " y=" << vtx.y() << "+/-" << Amg::error(verr, Trk::y)
-		  << " z=" << vtx.z() << "+/-" << Amg::error(verr, Trk::z)
-		  << endreq; 
-	  }
-	  m_zOfPriVtx.push_back(vtx.z());
-	  m_nTracksPriVtx.push_back(int (mvtx->vxTrackAtVertex()->size()));
-	}
-	else if (mvtx->vertexType()==Trk::PileUp){
-	  ++pileupvtxcount;
-	  if(outputLevel <= MSG::DEBUG){
-	    msg() << MSG::DEBUG << "REGTEST " << pileupvtxcount
-		  << std::setw(10)
-		  << " x=" << vtx.x()
-		  << " y=" << vtx.y()
-		  << " z=" << vtx.z()
-		  << endreq; 
-	  }
-	  m_zOfPileUp.push_back(vtx.z());
-	  m_nTracksPileUp.push_back(int (mvtx->vxTrackAtVertex()->size()));
-
-	}
-	else if (mvtx->vertexType()==Trk::NoVtx){
-	  m_zOfNoVtx.push_back(vtx.z());
-	}
-      } else {
-	msg() << MSG::DEBUG << "Bad VxCandidate=" << iv << endreq;
-      }
-    }
   } 
   return HLT::OK;
 }
