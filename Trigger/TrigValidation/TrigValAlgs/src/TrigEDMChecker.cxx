@@ -3682,7 +3682,7 @@ StatusCode TrigEDMChecker::dumpxAODTauJetContainer() {
     ATH_MSG_INFO( "REGTEST (*tauIt)->phi() returns  " << (*tauIt)->phi() );
     ATH_MSG_INFO( "REGTEST (*tauIt)->pt() returns   " << (*tauIt)->pt() );
     ATH_MSG_INFO( "REGTEST (*tauIt)->nTracks() returns " << (*tauIt)->nTracks() );
-    ATH_MSG_INFO( "REGTEST (*tauIt)->nWideTracks() returns " << (*tauIt)->nWideTracks() );
+    ATH_MSG_INFO( "REGTEST (*tauIt)->nWideTracks() returns " << (*tauIt)->nTracksIsolation() );
     //bool test = false;
     float trkAvgDist=0;
     float etOvPtLead=0;
@@ -3770,7 +3770,7 @@ StatusCode TrigEDMChecker::dumpxAODTauJetContainer() {
 
     for (unsigned int trackNum = 0;  trackNum < (*tauIt)->nTracks(); ++trackNum) {
 
-      const xAOD::TrackParticle *linkTrack = (*tauIt)->track(trackNum);
+      const xAOD::TrackParticle *linkTrack = (*tauIt)->track(trackNum)->track();
       if (!linkTrack) {
      	ATH_MSG_WARNING("can't get tau linked track");
      	return StatusCode::SUCCESS;

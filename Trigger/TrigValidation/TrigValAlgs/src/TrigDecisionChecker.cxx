@@ -906,7 +906,7 @@ StatusCode TrigDecisionChecker::checkTauEDM(std::string trigItem){
             }  
             for (unsigned int trackNum = 0;  trackNum < tauItr->nTracks(); ++trackNum) {
                 
-                const xAOD::TrackParticle *linkTrack = tauItr->track(trackNum);
+	        const xAOD::TrackParticle *linkTrack = tauItr->track(trackNum)->track();
                 if (!linkTrack) {
                     ATH_MSG_WARNING("can't get tau linked track");
                     return StatusCode::SUCCESS;
