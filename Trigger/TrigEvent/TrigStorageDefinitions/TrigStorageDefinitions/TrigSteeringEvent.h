@@ -27,6 +27,10 @@ namespace LVL1 {
 #include "xAODTrigger/JetRoIContainer.h"
 #include "xAODTrigger/JetRoIAuxContainer.h"
 
+#include "xAODTrigger/TrigPassBits.h"
+#include "xAODTrigger/TrigPassBitsContainer.h"
+#include "xAODTrigger/TrigPassBitsAuxContainer.h"
+
 
 HLT_BEGIN_TYPE_REGISTRATION
   HLT_REGISTER_TYPE(class TrigRoiDescriptor,class TrigRoiDescriptor,class TrigRoiDescriptorCollection)
@@ -46,6 +50,7 @@ HLT_BEGIN_TYPE_REGISTRATION
   HLT_REGISTER_TYPE(xAOD::MuonRoI, xAOD::MuonRoI, xAOD::MuonRoIContainer, xAOD::MuonRoIAuxContainer)
   HLT_REGISTER_TYPE(xAOD::JetRoI, xAOD::JetRoIContainer, xAOD::JetRoIContainer, xAOD::JetRoIAuxContainer)
   HLT_REGISTER_TYPE(xAOD::JetRoI, xAOD::JetRoI, xAOD::JetRoIContainer, xAOD::JetRoIAuxContainer)
+  HLT_REGISTER_TYPE(xAOD::TrigPassBits, xAOD::TrigPassBits, xAOD::TrigPassBitsContainer, xAOD::TrigPassBitsAuxContainer)
 HLT_END_TYPE_REGISTRATION(TrigSteeringEvent)
 
 #endif

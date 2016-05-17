@@ -15,6 +15,8 @@
 #include "xAODTrigCalo/TrigCaloClusterContainer.h"
 #include "xAODTrigCalo/TrigCaloClusterAuxContainer.h"
 
+#include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
+
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
@@ -68,7 +70,7 @@ HLT_BEGIN_TYPE_REGISTRATION
   HLT_REGISTER_TYPE(class cannot_implement_this, class CaloCell2ClusterMap, class CaloCell2ClusterMap )
 
   // xAOD
-  HLT_REGISTER_TYPE(xAOD::CaloCluster, xAOD::CaloClusterContainer, xAOD::CaloClusterContainer, xAOD::CaloClusterAuxContainer)
+  HLT_REGISTER_TYPE(xAOD::CaloCluster, xAOD::CaloClusterContainer, xAOD::CaloClusterContainer, xAOD::CaloClusterTrigAuxContainer)
   HLT_REGISTER_TYPE(xAOD::TrigCaloCluster, xAOD::TrigCaloCluster, xAOD::TrigCaloClusterContainer, xAOD::TrigCaloClusterAuxContainer)
   HLT_REGISTER_TYPE(xAOD::TrigEMCluster, xAOD::TrigEMCluster, xAOD::TrigEMClusterContainer, xAOD::TrigEMClusterAuxContainer)
   HLT_REGISTER_TYPE(xAOD::TrigEMCluster, xAOD::TrigEMClusterContainer, xAOD::TrigEMClusterContainer, xAOD::TrigEMClusterAuxContainer) 

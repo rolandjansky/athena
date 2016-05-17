@@ -21,6 +21,8 @@ namespace Analysis{
 
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
+#include "xAODTau/TauTrackContainer.h"
+#include "xAODTau/TauTrackAuxContainer.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetTrigAuxContainer.h"
@@ -33,12 +35,13 @@ namespace Analysis{
 #include "xAODTrigEgamma/TrigPhoton.h"
 #include "xAODTrigEgamma/TrigPhotonContainer.h"
 #include "xAODTrigEgamma/TrigPhotonAuxContainer.h"
-
+#include "xAODTrigEgamma/ElectronTrigAuxContainer.h"
+#include "xAODTrigEgamma/PhotonTrigAuxContainer.h"
 
 
 #include "xAODBTagging/BTagging.h"
 #include "xAODBTagging/BTaggingContainer.h"
-#include "xAODBTagging/BTaggingAuxContainer.h"
+#include "xAODBTagging/BTaggingTrigAuxContainer.h"
 
 #include "xAODBTagging/BTagVertex.h"
 #include "xAODBTagging/BTagVertexContainer.h"
@@ -65,14 +68,15 @@ HLT_BEGIN_TYPE_REGISTRATION
 
   // xAOD
   //  HLT_REGISTER_TYPE(xAOD::Egamma, xAOD::EgammaContainer, xAOD::EgammaContainer, xAOD::EgammaAuxContainer)  
-  HLT_REGISTER_TYPE(xAOD::Electron, xAOD::ElectronContainer, xAOD::ElectronContainer, xAOD::ElectronAuxContainer)  
-  HLT_REGISTER_TYPE(xAOD::Photon, xAOD::PhotonContainer, xAOD::PhotonContainer, xAOD::PhotonAuxContainer)  
+  HLT_REGISTER_TYPE(xAOD::Electron, xAOD::ElectronContainer, xAOD::ElectronContainer, xAOD::ElectronTrigAuxContainer)
+  HLT_REGISTER_TYPE(xAOD::Photon, xAOD::PhotonContainer, xAOD::PhotonContainer, xAOD::PhotonTrigAuxContainer)
   HLT_REGISTER_TYPE(xAOD::TauJet, xAOD::TauJetContainer, xAOD::TauJetContainer, xAOD::TauJetAuxContainer)  
+  HLT_REGISTER_TYPE(xAOD::TauTrack, xAOD::TauTrackContainer, xAOD::TauTrackContainer, xAOD::TauTrackAuxContainer)
   HLT_REGISTER_TYPE(xAOD::Jet, xAOD::JetContainer, xAOD::JetContainer, xAOD::JetTrigAuxContainer)
 
   HLT_REGISTER_TYPE(xAOD::TrigElectron, xAOD::TrigElectronContainer, xAOD::TrigElectronContainer, xAOD::TrigElectronAuxContainer)
   HLT_REGISTER_TYPE(xAOD::TrigPhoton, xAOD::TrigPhotonContainer, xAOD::TrigPhotonContainer, xAOD::TrigPhotonAuxContainer)
-  HLT_REGISTER_TYPE(xAOD::BTagging, xAOD::BTaggingContainer, xAOD::BTaggingContainer, xAOD::BTaggingAuxContainer)
+  HLT_REGISTER_TYPE(xAOD::BTagging, xAOD::BTaggingContainer, xAOD::BTaggingContainer, xAOD::BTaggingTrigAuxContainer)
   HLT_REGISTER_TYPE(xAOD::BTagVertex, xAOD::BTagVertexContainer, xAOD::BTagVertexContainer, xAOD::BTagVertexAuxContainer)
   
 HLT_END_TYPE_REGISTRATION(TrigParticle)
