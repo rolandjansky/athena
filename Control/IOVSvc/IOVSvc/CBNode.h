@@ -21,11 +21,11 @@
 #include <string>
 
 #ifndef ATHENAKERNEL_IOVSVCDEFS_H
- #include "AthenaKernel/IOVSvcDefs.h"
+#include "AthenaKernel/IOVSvcDefs.h"
 #endif
 
 #ifndef SGTOOLS_CALLBACKID_H
- #include "SGTools/CallBackID.h"
+#include "SGTools/CallBackID.h"
 #endif
 
 namespace SG {
@@ -41,17 +41,17 @@ public:
   public:
     bool operator() ( const CBNode &n1, const CBNode &n2 ) const {
       if ( n1.level() != n2.level() ) {
-	return ( n1.level() < n2.level() );
+        return ( n1.level() < n2.level() );
       } else {
-	return ( n1.serial() < n2.serial() );
+        return ( n1.serial() < n2.serial() );
       }
     }
 
     bool operator() ( const CBNode *n1, const CBNode *n2 ) const {
       if ( n1->level() != n2->level() ) {
-	return ( n1->level() < n2->level() );
+        return ( n1->level() < n2->level() );
       } else {
-	return ( n1->serial() < n2->serial() );
+        return ( n1->serial() < n2->serial() );
       }
     }
   };
@@ -63,6 +63,9 @@ public:
   
   void addParent(CBNode* parent);
   void addChild(CBNode* child);
+
+  bool delParent(CBNode* parent);
+  bool delChild(CBNode* child);
 
   const std::set<CBNode*>& children() const { return m_children; }
   const std::set<CBNode*>& parents() const { return m_parents; }
