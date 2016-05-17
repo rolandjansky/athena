@@ -9,6 +9,7 @@
 #include "StoreGate/StoreGateSvc.h"
 // Calo
 #include "CaloTrackingGeometry/CaloTrackingGeometryBuilder.h"
+#include "CaloTrackingGeometry/ICaloSurfaceHelper.h"
 // Trk
 #include "TrkDetDescrInterfaces/ITrackingVolumeBuilder.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeCreator.h"
@@ -65,10 +66,13 @@ Calo::CaloTrackingGeometryBuilder::CaloTrackingGeometryBuilder(const std::string
   m_indexStaticLayers(true),
   m_recordLayerIndexCaloSampleMap(false),
   m_layerIndexCaloSampleMapName("LayerIndexCaloSampleMap"),
-  m_buildMBTS(false),
-  m_mbstSurfaceShape(2),
+  m_buildMBTS(true),
+  //m_mbstSurfaceShape(2),
   m_entryVolume("Calo::Container::EntryVolume"),
-  m_exitVolume("Calo::Container")
+  m_exitVolume("Calo::Container"),
+  m_mbtsNegLayers(0),
+  m_mbtsPosLayers(0),
+  m_caloSurfaceHelper("CaloSurfaceHelper/CaloSurfaceHelper")
 {
   declareInterface<Trk::IGeometryBuilder>(this);
   // declare the properties via Python
@@ -90,13 +94,13 @@ Calo::CaloTrackingGeometryBuilder::CaloTrackingGeometryBuilder(const std::string
   declareProperty("LayerIndexCaloSampleMapName",      m_layerIndexCaloSampleMapName);
   // MBTS like detectors 
   declareProperty("BuildMBTS",                        m_buildMBTS);
-  declareProperty("MBTS_SurfaceShape",                m_mbstSurfaceShape);
-  declareProperty("MBTS_Radii",                       m_mbtsRadii);
-  declareProperty("MBTS_RadiusGap",                   m_mbtsRadiusGap);
-  declareProperty("MBTS_PhiSegments",                 m_mbtsPhiSegments);
-  declareProperty("MBTS_PhiGap",                      m_mbtsPhiGap);
-  declareProperty("MBTS_PositionZ",                   m_mbtsPositionZ);
-  declareProperty("MBTS_StaggeringZ",                 m_mbtsStaggeringZ);
+  //declareProperty("MBTS_SurfaceShape",                m_mbstSurfaceShape);
+  //declareProperty("MBTS_Radii",                       m_mbtsRadii);
+  //declareProperty("MBTS_RadiusGap",                   m_mbtsRadiusGap);
+  //declareProperty("MBTS_PhiSegments",                 m_mbtsPhiSegments);
+  //declareProperty("MBTS_PhiGap",                      m_mbtsPhiGap);
+  //declareProperty("MBTS_PositionZ",                   m_mbtsPositionZ);
+  //declareProperty("MBTS_StaggeringZ",                 m_mbtsStaggeringZ);
   // calo entry volume & exit volume
   declareProperty("EntryVolumeName",                  m_entryVolume);
   declareProperty("ExitVolumeName",                   m_exitVolume);
@@ -160,6 +164,14 @@ StatusCode Calo::CaloTrackingGeometryBuilder::initialize()
       return StatusCode::FAILURE;
     } else
       ATH_MSG_INFO( "Retrieved tool " << m_tileVolumeBuilder );
+
+    // Retrieve the calo surface helper (to load MBTS) -------------------------------------------------    
+    if (m_caloSurfaceHelper.retrieve().isFailure())
+    {
+      ATH_MSG_FATAL( "Failed to retrieve tool " << m_caloSurfaceHelper );
+      return StatusCode::FAILURE;
+    } else
+      ATH_MSG_INFO( "Retrieved tool " << m_caloSurfaceHelper );
 
     // Dummy MaterialProerties
     m_caloMaterial = new Trk::Material;
@@ -354,13 +366,13 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
   const Trk::TrackingVolume* lArBarrel                  = (*lArVolumes)[3];
 
   // LAr Positive Endcap part
-  //const Trk::TrackingVolume* lArPositiveEndcapInnerGap  = (*lArVolumes)[4];
+  const Trk::TrackingVolume* lArPositiveMBTS            = (*lArVolumes)[4];
   const Trk::TrackingVolume* lArPositiveEndcap          = (*lArVolumes)[5];
   const Trk::TrackingVolume* lArPositiveHec             = (*lArVolumes)[6];
   const Trk::TrackingVolume* lArPositiveFcal            = (*lArVolumes)[7];
   const Trk::TrackingVolume* lArPositiveHecFcalCover    = (*lArVolumes)[8];
   // LAr Negative Endcap part
-  //const Trk::TrackingVolume* lArNegativeEndcapInnerGap  = (*lArVolumes)[9];
+  const Trk::TrackingVolume* lArNegativeMBTS            = (*lArVolumes)[9];
   const Trk::TrackingVolume* lArNegativeEndcap          = (*lArVolumes)[10];
   const Trk::TrackingVolume* lArNegativeHec             = (*lArVolumes)[11];
   const Trk::TrackingVolume* lArNegativeFcal            = (*lArVolumes)[12];
@@ -484,192 +496,65 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
 												       "InnerGap", rInnerGapBP);
 
    double z = 0.5*(keyDim.back().second+keyDim[0].second);
+
+   if (lArPositiveMBTS && lArNegativeMBTS) {
+     // Disc
+     const Trk::CylinderVolumeBounds* mbtsBounds 
+       = dynamic_cast<const Trk::CylinderVolumeBounds*>(&(lArPositiveMBTS->volumeBounds()));
+     if (mbtsBounds && m_caloSurfaceHelper) {     // pass ownership
+       Amg::Transform3D* mbtsNeg = new Amg::Transform3D(Amg::Translation3D(lArNegativeMBTS->center()));
+       Amg::Transform3D* mbtsPos = new Amg::Transform3D(Amg::Translation3D(lArPositiveMBTS->center()));
+       m_caloSurfaceHelper->LoadMBTSSurfaces(std::pair<const Trk::Surface*,const Trk::Surface*>
+					     (new Trk::DiscSurface(mbtsNeg,mbtsBounds->innerRadius(),mbtsBounds->outerRadius()),
+					      new Trk::DiscSurface(mbtsPos,mbtsBounds->innerRadius(),mbtsBounds->outerRadius())));
+     }
+     if (mbtsBounds && m_buildMBTS) {
+       float rmin = mbtsBounds->innerRadius(); 
+       float rmax = mbtsBounds->outerRadius(); 
+       //float d = mbtsBounds->halflengthZ();
+       Trk::DiscBounds* dibo = new Trk::DiscBounds(rmin,rmax);
+       // MBTS positions
+       Amg::Transform3D* mbtsNegZpos = new Amg::Transform3D(Amg::Translation3D(lArNegativeMBTS->center()));
+       Amg::Transform3D* mbtsPosZpos = new Amg::Transform3D(Amg::Translation3D(lArPositiveMBTS->center()));
+       // create the two Layers ( TODO: add trd surface subarray )
+       Trk::DiscLayer* mbtsNegLayer = new Trk::DiscLayer(mbtsNegZpos,dibo,
+                                                         //mbtsNegLayerSurfArray,
+                                                         Trk::HomogeneousLayerMaterial(Trk::MaterialProperties(*m_caloMaterial,1.),1.),
+                                                         1.);
+       Trk::DiscLayer* mbtsPosLayer = new Trk::DiscLayer(mbtsPosZpos,dibo->clone(),
+                                                         //mbtsPosLayerSurfArray,
+                                                         Trk::HomogeneousLayerMaterial(Trk::MaterialProperties(*m_caloMaterial,1.),1.),
+                                                         1.*mm);
+
+       m_mbtsNegLayers=new std::vector<const Trk::Layer*>;
+       m_mbtsPosLayers=new std::vector<const Trk::Layer*>;
+       m_mbtsNegLayers->push_back(mbtsNegLayer);
+       m_mbtsPosLayers->push_back(mbtsPosLayer);       
+     }
+   }
+      
+   // building inner gap
+   Trk::CylinderVolumeBounds* lArG1Bounds =
+     new Trk::CylinderVolumeBounds( rInnerGapBP,
+				    //lArPositiveEndcapBounds->outerRadius(),
+				    keyDim[0].first,
+				    0.5*(keyDim.back().second-keyDim[0].second));
    
+   Amg::Transform3D* lArG1P =
+     new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,z)));
+   lArPositiveSectorInnerGap  = new Trk::TrackingVolume(lArG1P,
+							lArG1Bounds,
+							lArSectorInnerGapMaterial, 
+							m_mbtsPosLayers, 
+							"Calo::GapVolumes::LAr::PositiveSectorInnerGap");
 
-   if (!m_buildMBTS) {
-     Trk::CylinderVolumeBounds* lArG1Bounds =
-       new Trk::CylinderVolumeBounds( rInnerGapBP,
-                                      //lArPositiveEndcapBounds->outerRadius(),
-                                      keyDim[0].first,
-                                      0.5*(keyDim.back().second-keyDim[0].second));
-
-     Amg::Transform3D* lArG1P =
-       new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,z)));
-     lArPositiveSectorInnerGap  = new Trk::TrackingVolume(lArG1P,
-                                                          lArG1Bounds,
-                                                          lArSectorInnerGapMaterial, 
-                                                          dummyLayers,
-                                                          dummyVolumes, 
-                                                          "Calo::GapVolumes::LAr::PositiveSectorInnerGap");
-
-     Amg::Transform3D* lArG1N =
-       new  Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,-z)));
-     lArNegativeSectorInnerGap  = new Trk::TrackingVolume(lArG1N,
-                                                          lArG1Bounds->clone(),
-                                                          lArSectorInnerGapMaterial, 
-                                                          dummyLayers,
-                                                          dummyVolumes, 
-                                                          "Calo::GapVolumes::LAr::NegativeSectorInnerGap");
-   }
-   else {
-     // m_buildMBTS true
-     // build the MBTS surfaces in the LAr::InnerSector gaps
-     
-     // sort the radii
-     std::sort(m_mbtsRadii.begin(),m_mbtsRadii.end());
-     // create the sub-surfaces (only disks allowed for the moment)
-     std::vector< std::pair< Trk::SharedObject<const Trk::Surface>, Amg::Vector3D > > mbtsNegSurf;
-     std::vector< std::pair< Trk::SharedObject<const Trk::Surface>, Amg::Vector3D > > mbtsPosSurf;
-     // step for subsurfaces
-     std::vector<float> rSteps;
-     std::vector<Trk::BinUtility*>* mbtsPhiBinUtilsPos = new std::vector<Trk::BinUtility*>();     
-     std::vector<Trk::BinUtility*>* mbtsPhiBinUtilsNeg = new std::vector<Trk::BinUtility*>();     
-     // build the average z position             
-     double averageZ = 0.;   
-     // loop over the rings          
-       for (size_t ir = 1; ir < m_mbtsRadii.size(); ++ir){
-	 // phiMin / phiMax
-	 double phiMin = 10.;
-	 double phiMax = 0.;
-	 // get the phiStep
-	 int phiBins = m_mbtsPhiSegments[ir-1];
-	 // put the binutility into place
-	 double phiStep = 2.*M_PI/phiBins; 
-           // the new subsurfaces
-	 double rInnerGap = ( ir == 1 )  ? 0. : 0.5*m_mbtsRadiusGap[ir-1]; 
-	 double rOuterGap = ( ir+1 == m_mbtsRadii.size() ) ? 0. : 0.5*m_mbtsRadiusGap[ir-1]; 
-	 
-	 ATH_MSG_INFO( "Building MBTS ring r = (" <<  m_mbtsRadii[ir-1]+rInnerGap 
-		       << ", " << m_mbtsRadii[ir]-rOuterGap <<") and " << phiBins << " phi bins" );
-	 
-	 // the rSteps for the BinUtility
-	 rSteps.push_back(m_mbtsRadii[ir]-m_mbtsRadii[ir-1]);
-	 
-	 averageZ += m_mbtsPositionZ[ir-1];
-	 // create the surfaces
-	 for (int iphi = 0; iphi < phiBins; ++iphi){
-	   // implement z staggering
-	   double zStagger = 0.5*m_mbtsStaggeringZ[ir-1];
-	   zStagger *= (iphi%2) ? 1 : -1;
-	   // the current phi value
-	   double curPhi = -M_PI+(iphi+0.5)*phiStep;
-	   std::cout << " ---> currentPhi = " << curPhi << " and : " << ( (curPhi >= M_PI) ? "PANIK" : "GOOD" ) << std::endl;
-	   // min-max phi
-	   phiMin = curPhi < phiMin ? curPhi : phiMin;
-	   phiMax = curPhi > phiMax ? curPhi : phiMax;                
-	   // sorting
-	   double rs    = 0.5*(m_mbtsRadii[ir]+m_mbtsRadii[ir-1]);
-	   double xspos = rs*cos(curPhi);
-	   double yspos = rs*sin(curPhi);
-	   double zspos = m_mbtsPositionZ[ir-1];
-	   // Surfaces
-	   Trk::Surface* negSensSurface = 0;
-	   Trk::Surface* posSensSurface = 0;
-	   if (m_mbstSurfaceShape == 1){
-	     // positions
-	     Amg::Transform3D* mbtsNegZpos = new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,-m_mbtsPositionZ[ir-1]+zStagger))
-								  *Amg::AngleAxis3D(curPhi*radian,Amg::Vector3D(0.,0.,1.)));
-	     Amg::Transform3D* mbtsPosZpos = new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,m_mbtsPositionZ[ir-1]-zStagger))
-								  *Amg::AngleAxis3D(curPhi*radian,Amg::Vector3D(0.,0.,1.)));
-	     // Disc
-	     Trk::DiscBounds* dibo = new Trk::DiscBounds(m_mbtsRadii[ir-1]+rInnerGap,m_mbtsRadii[ir]-rOuterGap, 0.5*(phiStep-m_mbtsPhiGap[ir-1]));
-	     negSensSurface = new Trk::DiscSurface(mbtsNegZpos,dibo);
-	     posSensSurface = new Trk::DiscSurface(mbtsPosZpos,dibo->clone());                    
-	     std::cout <<"mbts surface z position:"<<+m_mbtsPositionZ[ir-1]-zStagger<<std::endl; 
-	   } else {
-	     
-	     //Amg::Vector3D planeZ( 0, 0, 1.);
-	     //Amg::Vector3D planeY( cos(curPhi), sin(curPhi), 0);
-	     //Amg::Vector3D planeX = planeY.cross(planeZ);
-             
-	     // construct global position of plane surface
-	     Amg::Vector3D planeCenterZpos(rs * cos(curPhi), rs * sin(curPhi), m_mbtsPositionZ[ir-1]-zStagger);
-	     Amg::Vector3D planeCenterZneg(rs * cos(curPhi), rs * sin(curPhi), -m_mbtsPositionZ[ir-1]+zStagger);
-	     
-	     std::cout <<"mbts surface z position:"<<+m_mbtsPositionZ[ir-1]-zStagger<<std::endl; 
-             
-	     // HepRotation rotateToPlane( planeX.unit(),
-	     //				planeY.unit(),
-	     //                         planeZ.unit());                    
-	     // transforms
-	     Amg::Transform3D* mbtsNegZpos = new Amg::Transform3D(Amg::Translation3D(planeCenterZneg)*
-								  Amg::AngleAxis3D(curPhi,Amg::Vector3D(0.,0.,-1.)));
-	     Amg::Transform3D* mbtsPosZpos = new Amg::Transform3D(Amg::Translation3D(planeCenterZpos)*
-								  Amg::AngleAxis3D(curPhi,Amg::Vector3D(0.,0.,1.)));
-	     // Trapezoid
-	     double minhalex  = (m_mbtsRadii[ir-1]+rInnerGap)*tan(0.5*phiStep);
-	     double maxhalex  = (m_mbtsRadii[ir]-rOuterGap)*tan(0.5*phiStep);
-	     double haley = 0.5*(m_mbtsRadii[ir]-rOuterGap) - (m_mbtsRadii[ir-1]+rInnerGap);
-	     Trk::TrapezoidBounds* trabo = new Trk::TrapezoidBounds(minhalex,maxhalex,haley);
-	     negSensSurface = new Trk::PlaneSurface(mbtsNegZpos,trabo);
-	     posSensSurface = new Trk::PlaneSurface(mbtsPosZpos,trabo->clone());                  
-	   }
-           
-	   // and the surfaces
-	   mbtsNegSurf.push_back(std::make_pair<Trk::SharedObject<const Trk::Surface>, Amg::Vector3D> 
-				 (negSensSurface, Amg::Vector3D(xspos,yspos,-zspos) ) );
-	   mbtsPosSurf.push_back(std::make_pair<Trk::SharedObject<const Trk::Surface>, Amg::Vector3D> 
-				 (posSensSurface, Amg::Vector3D(xspos,yspos,+zspos) ) );
-	 }       
-	 ATH_MSG_INFO("     -> phiMin / phiMax = " << phiMin << " / " << phiMax );  
-	 mbtsPhiBinUtilsPos->push_back(new Trk::BinUtility(phiBins,phiMin,phiMax,Trk::closed, Trk::binPhi));    
-	 mbtsPhiBinUtilsNeg->push_back(new Trk::BinUtility(phiBins,phiMin,phiMax,Trk::closed, Trk::binPhi));
-       }
-    
-       // the average z position
-       averageZ /= rSteps.size();
-       
-       // The BinUtility -- steering bin
-       Trk::BinUtility* mbtsNegLayerBinUtil = new Trk::BinUtility(rSteps,Trk::open, Trk::binR);
-       Trk::BinUtility* mbtsPosLayerBinUtil = mbtsNegLayerBinUtil->clone();
-       // -> and binned arrays - make an 1D1D
-       Trk::BinnedArray<Trk::Surface>* mbtsNegLayerSurfArray = new Trk::BinnedArray1D1D<Trk::Surface>(mbtsNegSurf,
-                                                                                                      mbtsNegLayerBinUtil,
-                                                                                                      mbtsPhiBinUtilsNeg);
-       Trk::BinnedArray<Trk::Surface>* mbtsPosLayerSurfArray = new Trk::BinnedArray1D1D<Trk::Surface>(mbtsPosSurf,
-                                                                                                      mbtsPosLayerBinUtil,
-                                                                                                      mbtsPhiBinUtilsPos);
-       // create the two Layers
-       std::vector<const Trk::Layer*> mbtsNegLayerArray;
-       std::vector<const Trk::Layer*> mbtsPosLayerArray;  
-       Trk::DiscLayer* mbtsNegLayer = new Trk::DiscLayer(new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,-averageZ))),
-                                                         new Trk::DiscBounds(lArPositiveFcalBounds->innerRadius()+m_caloEnvelope,
-                                                                             lArPositiveEndcapBounds->outerRadius()-m_caloEnvelope),
-                                                         mbtsNegLayerSurfArray,
-                                                         Trk::HomogeneousLayerMaterial(Trk::MaterialProperties(*m_caloMaterial,1.),1.),
-                                                         1.*mm);
-       Trk::DiscLayer* mbtsPosLayer = new Trk::DiscLayer(new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,averageZ))),
-                                                         new Trk::DiscBounds(lArNegativeFcalBounds->innerRadius()+m_caloEnvelope,
-                                                                             lArNegativeEndcapBounds->outerRadius()-m_caloEnvelope),
-                                                         mbtsPosLayerSurfArray,
-                                                         Trk::HomogeneousLayerMaterial(Trk::MaterialProperties(*m_caloMaterial,1.),1.),
-                                                         1.*mm);
-       std::cout <<"MBTS:average Z:"<< averageZ << std::endl;
-       
-       // negative and positive layer
-       mbtsNegLayerArray.push_back(mbtsNegLayer);
-       mbtsPosLayerArray.push_back(mbtsPosLayer);
-       // MBTS volumes
-       lArPositiveSectorInnerGap = m_trackingVolumeCreator->createTrackingVolume(
-                                                                mbtsPosLayerArray,
-                                                                *m_caloMaterial,
-								rInnerGapBP,       //  lArPositiveFcalBounds->innerRadius(),  ( matched to beam pipe )
-                                                                keyDim[0].first,
-                                                                keyDim[0].second,
-                                                                keyDim.back().second,
-                                                                "Calo::GapVolumes::LAr::PositiveMBTSVolume",
-                                                                Trk::arbitrary);
-                                                                
-        lArNegativeSectorInnerGap = m_trackingVolumeCreator->createTrackingVolume(
-                                                                 mbtsNegLayerArray,
-                                                                 *m_caloMaterial,
-								 rInnerGapBP,      //  lArNegativeFcalBounds->innerRadius(), ( matched to beam pipe )
-                                                                 keyDim[0].first,
-                                                                 -keyDim.back().second,
-                                                                 -keyDim[0].second,
-                                                                 "Calo::GapVolumes::LAr::NegativeMBTSVolume",
-                                                                 Trk::arbitrary);                                                                
-   }
+   Amg::Transform3D* lArG1N =
+     new  Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,-z)));
+   lArNegativeSectorInnerGap  = new Trk::TrackingVolume(lArG1N,
+							lArG1Bounds->clone(),
+							lArSectorInnerGapMaterial, 
+							m_mbtsNegLayers,
+							"Calo::GapVolumes::LAr::NegativeSectorInnerGap");
 
    // glue InnerGap with beam pipe volumes
    const Trk::TrackingVolume* positiveInnerGap = 0;

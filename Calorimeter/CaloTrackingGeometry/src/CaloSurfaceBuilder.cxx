@@ -57,19 +57,16 @@
 
 #include <cmath>
 
-#ifdef HAVE_NEW_IOSTREAMS
 #include <iostream>
 #include <iomanip>
-#else
-#include <iostream.h>
-#include <iomanip.h>
-#endif
 
 CaloSurfaceBuilder::CaloSurfaceBuilder(const std::string& type,
 				       const std::string& name,
 				       const IInterface* parent) :
   AthAlgTool(type, name, parent),
   //m_calo_tb_coord("TBCaloCoordinate"),
+  m_calo_dd(nullptr),
+  m_tile_dd(nullptr),
   m_lar_mat("LArRecoMaterialTool"),
   m_lar_simplegeom("LArRecoSimpleGeomTool"),
   m_calodepth("CaloDepthTool"),
@@ -718,7 +715,7 @@ CaloSurfaceBuilder::get_cylinder_surface (CaloCell_ID::CaloSample sample, int si
       CaloDetDescriptor* reg = *first;
       if (reg) {
         if ( reg->getSampling(0) == sample && reg->calo_sign()*side > 0){
-	  result = reg->get_cylinder_surface(htrans,radius,hphi,hl,depth);
+	  /*result =*/(void) reg->get_cylinder_surface(htrans,radius,hphi,hl,depth);
 	  if (hl > hlength) hlength = hl;
 	  hphi    = .5*reg->dphi()*reg->n_phi();
 	}
@@ -1069,7 +1066,7 @@ void CaloSurfaceBuilder::fill_tg_surfaces()
 
   // entry surfaces ( id<24 to avoid error messages )
   for (CaloCell_ID::CaloSample sample = CaloCell_ID::PreSamplerB; sample< 24; sample = CaloCell_ID::CaloSample(sample+1) ){
-    float etaRef = ( sample<4 || fabs(sample-13)<2 ) ? 1. : 2. ;
+    float etaRef = ( sample<4 || std::abs(sample-13)<2 ) ? 1. : 2. ;
     const Trk::Surface* spos = CreateUserSurface(sample,0.,etaRef);
     const Trk::Surface* sneg = CreateUserSurface(sample,0.,-etaRef);
     if (spos) spos->setOwner(Trk::TGOwn);

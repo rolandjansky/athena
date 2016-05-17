@@ -28,6 +28,7 @@ class StoreGateSvc;
 
 namespace Trk {
   class Material;
+  class Layer;
   class MagneticFieldProperties;
   class TrackingGeometry;
   class ITrackingVolumeBuilder;
@@ -38,6 +39,7 @@ namespace Trk {
 }
 
 class IEnvelopeDefSvc;
+class ICaloSurfaceHelper;
 
 namespace Calo {
 
@@ -101,7 +103,7 @@ namespace Calo {
       std::string                                   m_layerIndexCaloSampleMapName;    //!< name to record it
       
       bool                                          m_buildMBTS;                      //!< MBTS like detectors
-      int				                            m_mbstSurfaceShape;		          //!< MBTS like detectors
+      //int				                            m_mbstSurfaceShape;		          //!< MBTS like detectors
       mutable std::vector<double>                   m_mbtsRadii;                      //!< MBTS like detectors
       std::vector<double>                           m_mbtsRadiusGap;                  //!< MBTS like detectors
       std::vector<int>                              m_mbtsPhiSegments;                //!< MBTS like detectors
@@ -113,6 +115,11 @@ namespace Calo {
       std::string                                   m_exitVolume;                     //!< name of the Calo container
 
       mutable RZPairVector                          m_bpCutouts;
+
+      // MBTS layers
+      mutable std::vector<const Trk::Layer*>*       m_mbtsNegLayers;
+      mutable std::vector<const Trk::Layer*>*       m_mbtsPosLayers;  
+      ToolHandle<ICaloSurfaceHelper>                m_caloSurfaceHelper;
            
       /** method to establish a link between the LayerIndex and the CaloCell_ID in an associative container */
       void registerInLayerIndexCaloSampleMap(Trk::LayerIndexSampleMap& licsMAp,

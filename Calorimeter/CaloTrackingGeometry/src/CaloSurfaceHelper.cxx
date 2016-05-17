@@ -33,16 +33,21 @@ CaloSurfaceHelper::CaloSurfaceHelper(const std::string& type,
 				       const std::string& name,
 				       const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_surfBuilder("CaloSurfaceBuilder")
+  m_surfBuilder("CaloSurfaceBuilder"),
+  m_mbtsSurfs()
 {
   declareInterface<ICaloSurfaceHelper>( this );
 
   declareProperty ("CaloSurfaceBuilder",         m_surfBuilder);
 
+  m_mbtsSurfs=std::pair<const Trk::Surface*,const Trk::Surface*> (0,0); 
 }
 
 CaloSurfaceHelper::~CaloSurfaceHelper()
-{}
+{
+  delete m_mbtsSurfs.first; 
+  delete m_mbtsSurfs.second; 
+}
 
 StatusCode
 CaloSurfaceHelper::initialize()
@@ -95,6 +100,15 @@ const Trk::Surface& CaloSurfaceHelper::GetExitSurface (const CaloCell_ID::CaloSa
 
   if (!surf) ATH_MSG_FATAL(" failed to retrieve exit layer for sample:"<<sample<<" on side:"<<side<<" crashing....");
   return *surf;
+}
+
+const Trk::Surface& CaloSurfaceHelper::GetMBTSSurface(int side) {
+
+  const Trk::Surface* surf = side>0 ? m_mbtsSurfs.first : m_mbtsSurfs.second;
+
+  if (!surf) ATH_MSG_FATAL(" failed to retrieve MBTS surface on side:"<<side<<" crashing....");
+  return *surf;
+
 }
 
 void CaloSurfaceHelper::get_flat_surfaces() {
