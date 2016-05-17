@@ -57,7 +57,7 @@ AddFlowByShifting.McFlowKey     = "GEN_EVENT"
 #"jjia_minbias_new", "jjia_minbias_new_v2only", "fixed_vn", "fixed_v2", "jjia_minbias_old", "ao_test", "custom"
 AddFlowByShifting.FlowFunctionName="jjia_minbias_new"
 AddFlowByShifting.FlowImplementation="exact" # "approximate" , "exact"
-AddFlowByShifting.FlowFluctuations  =False # True, False
+AddFlowByShifting.FlowFluctuations  =True # True, False
 
 AddFlowByShifting.RandomizePhi  = 0
 
@@ -87,7 +87,7 @@ svcMgr.MessageSvc.defaultLimit              = 10000
 # Event related parameters
 #--------------------------------------------------------------
 # Number of events to be processed (default is 10)
-theApp.EvtMax = 1000
+theApp.EvtMax = 10
 
 # Set run number (default 0 causes problems)
 svcMgr.EventSelector.RunNumber = 1001
@@ -104,7 +104,7 @@ Stream1 = AthenaPoolOutputStream( "Stream1" )
 Stream1.ItemList += [ "2101#*" ]
 Stream1.ItemList += [ "133273#*" ]
 Stream1.ItemList += [ "54790518#*" ]
-Stream1.OutputFile = "hijing.flow.10-15.pool.root"
+Stream1.OutputFile = "hijing.flow.10-15.EbE.pool.root"
 
 #==============================================================
 #
