@@ -23,7 +23,6 @@ use AthLinks      		  AthLinks-*      	   Control
 use xAODTruth         		  xAODTruth-*              Event/xAOD
 
 library xAODTau ../Root/*.cxx
-library xAODDiTau ../Root/*.cxx
 apply_pattern installed_library
 
 private

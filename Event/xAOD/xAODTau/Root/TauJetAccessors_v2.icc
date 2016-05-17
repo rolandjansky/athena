@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJetAccessors_v2.icc 638520 2015-01-09 13:21:05Z janus $
+// $Id: TauJetAccessors_v2.icc 743783 2016-04-28 21:45:08Z griffith $
 
 #ifndef XAODTAU_TAUACCESSORS_V2_ICC
 #define XAODTAU_TAUACCESSORS_V2_ICC
@@ -31,7 +31,7 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, BDTEleScore );	
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTauScore );   
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, BDTJetScoreSigTrans );   
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, BDTJetScoreBkgTrans );   
+      //DEFINE_TAUJETPARAMETER_ACCESSOR( float, BDTJetScoreBkgTrans );   
 
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown tau discriminant value ("
@@ -51,36 +51,36 @@ break;
       //panTau details
       //!PanTau variables when using CellBased pfos
       //BDT output distributions
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTValue_1p0n_vs_1p1n );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTValue_1p0n_vs_1p1n );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTValue_1p1n_vs_1pXn );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTValue_3p0n_vs_3pXn );
       //Variables used in BDTs	       
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTVar_Charged_StdDev_Et_WrtEtAllConsts );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_1 );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2 );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTVar_Neutral_Shots_NPhotonsInSeed );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTVar_Charged_HLV_SumM );
+      //DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Charged_JetMoment_EtDRxTotalEt );//r21 cleanup
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Charged_StdDev_Et_WrtEtAllConsts );
+      //DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Neutral_HLV_SumM );//r21 cleanup
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_1 );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_2 );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Neutral_Ratio_EtOverEtAllConsts );
+      //DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Neutral_Shots_NPhotonsInSeed );//r21 cleanup
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Combined_DeltaR1stNeutralTo1stCharged );
+      //DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Charged_HLV_SumM );//r21 cleanup
     
-      //!PanTau variables when using eflowRec pfos
-      //BDT output distributions
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_eflowRecInput_BDTValue_1p0n_vs_1p1n );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_eflowRecInput_BDTValue_1p1n_vs_1pXn );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_eflowRecInput_BDTValue_3p0n_vs_3pXn );
-      //Variables used in BDTs
-      //NOTE: They are different from the CellBased ones in general!
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_eflowRecInput_BDTVar_Charged_HLV_SumPt );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_eflowRecInput_BDTVar_Charged_Ratio_EtOverEtAllConsts );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_eflowRecInput_BDTVar_Neutral_HLV_SumM );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_EtSort_1 );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2 );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_eflowRecInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_eflowRecInput_BDTVar_Neutral_Mean_DRToLeading_WrtEtAllConsts );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_eflowRecInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged );
+      // //!PanTau variables when using eflowRec pfos//r21 cleanup
+      // //BDT output distributions
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTValue_1p0n_vs_1p1n );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTValue_1p1n_vs_1pXn );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTValue_3p0n_vs_3pXn );
+      // //Variables used in BDTs
+      // //NOTE: They are different from the CellBased ones in general!
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTVar_Charged_HLV_SumPt );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTVar_Charged_Ratio_EtOverEtAllConsts );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTVar_Neutral_HLV_SumM );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_EtSort_1 );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2 );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTVar_Neutral_Mean_DRToLeading_WrtEtAllConsts );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged );
       
 
 
@@ -99,24 +99,24 @@ break;
       //panTau details
       //!integer PanTau variables when using CellBased pfos
       //Flag whether this seed has pantau info
-      DEFINE_TAUJETPARAMETER_ACCESSOR( int, pantau_CellBasedInput_isPanTauCandidate );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_isPanTauCandidate );
       //decay modes (input mode [proto] and output mode [final])
-      DEFINE_TAUJETPARAMETER_ACCESSOR( int, pantau_CellBasedInput_DecayModeProto );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( int, pantau_CellBasedInput_DecayMode );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_DecayModeProto );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_DecayMode );
       //Variables used in BDTs
-      DEFINE_TAUJETPARAMETER_ACCESSOR( int, pantau_CellBasedInput_BDTVar_Basic_NNeutralConsts );
+      //DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_CellBasedInput_BDTVar_Basic_NNeutralConsts );//r21 cleanup
 
     
-      //!integer PanTau variables when using eflowRec pfos
-      //Flag whether this seed has pantau info
-      DEFINE_TAUJETPARAMETER_ACCESSOR( int, pantau_eflowRecInput_isPanTauCandidate );
-      //decay modes (input mode [proto] and output mode [final])
-      DEFINE_TAUJETPARAMETER_ACCESSOR( int, pantau_eflowRecInput_DecayModeProto );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( int, pantau_eflowRecInput_DecayMode );
-      //Variables used in BDTs
-      //NOTE: They are different from the CellBased ones in general!
-      DEFINE_TAUJETPARAMETER_ACCESSOR( int, pantau_eflowRecInput_BDTVar_Basic_NPi0NeutConsts );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( int, pantau_eflowRecInput_BDTVar_Basic_NNeutralConsts );
+      // //!integer PanTau variables when using eflowRec pfos
+      // //Flag whether this seed has pantau info
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_eflowRecInput_isPanTauCandidate );
+      // //decay modes (input mode [proto] and output mode [final])
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_eflowRecInput_DecayModeProto );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_eflowRecInput_DecayMode );
+      // //Variables used in BDTs
+      // //NOTE: They are different from the CellBased ones in general!
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_eflowRecInput_BDTVar_Basic_NPi0NeutConsts );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_eflowRecInput_BDTVar_Basic_NNeutralConsts );
 
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown integer panTau Detail ("
@@ -142,9 +142,9 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, massTrkSys );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, trkWidth2 );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, trFlightPathSig );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ele_E237E277 );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ele_PresamplerFraction );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ele_ECALFirstFraction );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, ele_E237E277 );//r21 cleanup
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, ele_PresamplerFraction );//r21 cleanup
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, ele_ECALFirstFraction );//r21 cleanup
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, numEffTopoClusters );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, topoInvMass );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, effTopoInvMass );
@@ -157,10 +157,10 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, isolFrac );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, centFrac );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, stripWidth2 );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, etEMCalib );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, etHadCalib );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, seedCalo_eta );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, seedCalo_phi );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, etEMCalib );//r21 cleanup
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, etHadCalib );//r21 cleanup
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, seedCalo_eta );//r21 cleanup
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, seedCalo_phi );//r21 cleanup
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, trkAvgDist );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, trkRmsDist );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, lead2ClusterEOverAllClusterE );
@@ -171,8 +171,8 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, secMaxStripEt );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, sumEMCellEtOverLeadTrkPt );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, hadLeakEt );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, EM_TES_scale );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, LC_TES_precalib );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, EM_TES_scale );//r21 cleanup
+      //DEFINE_TAUJETPARAMETER_ACCESSOR( float, LC_TES_precalib );//r21 cleanup
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, cellBasedEnergyRing1 );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, cellBasedEnergyRing2 );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, cellBasedEnergyRing3 );
@@ -190,13 +190,13 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, TESOffset );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, TESCalibConstant );
 
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, etEflow );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, mEflow );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ptRatioEflow );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, etEflow );//r21 cleanup
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, mEflow );//r21 cleanup
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, ptRatioEflow );//r21 cleanup
 
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, etEflowTopo );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, mEflowTopo );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ptRatioEflowTopo );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, etEflowTopo );//r21 cleanup
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, mEflowTopo );//r21 cleanup
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, ptRatioEflowTopo );//r21 cleanup
 
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, innerTrkAvgDist );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, SumPtTrkFrac );
@@ -232,10 +232,10 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, numCells );
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, numTopoClusters );
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, nStrip );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( int, nPi0 );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( int, nPi0 );//r21 cleanup
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, nCharged );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( int, nPi0Topo );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( int, nChargedTopo );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( int, nPi0Topo );//r21 cleanup
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( int, nChargedTopo );//r21 cleanup
 
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown integer detail ("

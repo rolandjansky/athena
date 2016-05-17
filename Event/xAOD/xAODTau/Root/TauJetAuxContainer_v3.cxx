@@ -2,15 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJetAuxContainer_v2.cxx 747258 2016-05-15 02:57:19Z griffith $
+// $Id: TauJetAuxContainer_v3.cxx 725228 2016-02-19 22:59:42Z griffith $
 
 
 // Local include(s):
-#include "xAODTau/versions/TauJetAuxContainer_v2.h"
+#include "xAODTau/versions/TauJetAuxContainer_v3.h"
 
 namespace xAOD {
   
-  TauJetAuxContainer_v2::TauJetAuxContainer_v2()
+  TauJetAuxContainer_v3::TauJetAuxContainer_v3()
     : AuxContainerBase() {
     
     AUX_VARIABLE( pt );
@@ -43,17 +43,6 @@ namespace xAOD {
     AUX_VARIABLE( phiTauEtaCalib );
     AUX_VARIABLE( mTauEtaCalib );
 
-
-    // AUX_VARIABLE( ptPanTauEFlowRecProto );
-    // AUX_VARIABLE( etaPanTauEFlowRecProto );
-    // AUX_VARIABLE( phiPanTauEFlowRecProto );
-    // AUX_VARIABLE( mPanTauEFlowRecProto );
-   
-    // AUX_VARIABLE( ptPanTauEFlowRec );
-    // AUX_VARIABLE( etaPanTauEFlowRec );
-    // AUX_VARIABLE( phiPanTauEFlowRec );
-    // AUX_VARIABLE( mPanTauEFlowRec );
-   
     AUX_VARIABLE( ptPanTauCellBasedProto );
     AUX_VARIABLE( etaPanTauCellBasedProto );
     AUX_VARIABLE( phiPanTauCellBasedProto );
@@ -69,6 +58,10 @@ namespace xAOD {
     AUX_VARIABLE( phiTrigCaloOnly );
     AUX_VARIABLE( mTrigCaloOnly );
    
+    AUX_VARIABLE( ptFinalCalib );
+    AUX_VARIABLE( etaFinalCalib );
+    AUX_VARIABLE( phiFinalCalib );
+    AUX_VARIABLE( mFinalCalib );
 
     
     AUX_VARIABLE( ROIWord );
@@ -76,32 +69,28 @@ namespace xAOD {
     AUX_VARIABLE( charge );
 
 
-    AUX_VARIABLE( Likelihood );
-    AUX_VARIABLE( SafeLikelihood );
+    // AUX_VARIABLE( Likelihood );
+    // AUX_VARIABLE( SafeLikelihood );
     AUX_VARIABLE( BDTJetScore );
     AUX_VARIABLE( BDTEleScore );
+    AUX_VARIABLE( EleMatchLikelihoodScore );
 
     //additional discriminant outputs
     AUX_VARIABLE( BDTJetScoreSigTrans );
-    AUX_VARIABLE( BDTJetScoreBkgTrans );
+    // AUX_VARIABLE( BDTJetScoreBkgTrans );
 
 
 
-    AUX_VARIABLE( vetoFlags );
+    //    AUX_VARIABLE( vetoFlags );//r21 cleanup
     AUX_VARIABLE( isTauFlags );
 
-    AUX_VARIABLE( trackLinks );
-    AUX_VARIABLE( wideTrackLinks );
-    AUX_VARIABLE( otherTrackLinks );
+    AUX_VARIABLE( tauTrackLinks );
+    AUX_VARIABLE( clusterLinks );
+    AUX_VARIABLE( pi0Links );
 
-    AUX_VARIABLE( trackFlags );
     AUX_VARIABLE( trackFilterProngs );
     AUX_VARIABLE( trackFilterQuality );
     AUX_VARIABLE( pi0ConeDR );
-
-    AUX_VARIABLE( trackEtaStrip );
-    AUX_VARIABLE( trackPhiStrip );
-
 
     AUX_VARIABLE( jetLink );
 
@@ -127,9 +116,9 @@ namespace xAOD {
     AUX_VARIABLE( massTrkSys );
     AUX_VARIABLE( trkWidth2 );
     AUX_VARIABLE( trFlightPathSig );
-    AUX_VARIABLE( ele_E237E277 );
-    AUX_VARIABLE( ele_PresamplerFraction );
-    AUX_VARIABLE( ele_ECALFirstFraction );
+    // AUX_VARIABLE( ele_E237E277 ); //r21 cleanup
+    // AUX_VARIABLE( ele_PresamplerFraction ); //r21 cleanup
+    // AUX_VARIABLE( ele_ECALFirstFraction ); //r21 cleanup
     AUX_VARIABLE( numCells );
     AUX_VARIABLE( numTopoClusters );
     AUX_VARIABLE( numEffTopoClusters );
@@ -147,10 +136,10 @@ namespace xAOD {
     AUX_VARIABLE( nStrip );
     
     //need to discuss whether these can be dropped
-    AUX_VARIABLE( etEMCalib );
-    AUX_VARIABLE( etHadCalib );
-    AUX_VARIABLE( seedCalo_eta );
-    AUX_VARIABLE( seedCalo_phi );
+    //    AUX_VARIABLE( etEMCalib );//r21 cleanup
+    //    AUX_VARIABLE( etHadCalib );//r21 cleanup
+    // AUX_VARIABLE( seedCalo_eta );//r21 cleanup same as DetectorAxis eta
+    // AUX_VARIABLE( seedCalo_phi );//r21 cleanup same as DetectorAxis phi
     
 
     AUX_VARIABLE( trkAvgDist );
@@ -165,8 +154,8 @@ namespace xAOD {
     AUX_VARIABLE( sumEMCellEtOverLeadTrkPt );
     AUX_VARIABLE( hadLeakEt );
 
-    AUX_VARIABLE( EM_TES_scale );
-    AUX_VARIABLE( LC_TES_precalib );
+    //AUX_VARIABLE( EM_TES_scale );//r21 cleanup
+    //AUX_VARIABLE( LC_TES_precalib );//r21 cleanup
 
     AUX_VARIABLE( TESOffset );
     AUX_VARIABLE( TESCalibConstant );
@@ -182,17 +171,17 @@ namespace xAOD {
     AUX_VARIABLE( TauJetVtxFraction );
     
     //generic substructure details
-    AUX_VARIABLE( nPi0 );
-    AUX_VARIABLE( nCharged );
-    AUX_VARIABLE( etEflow );
-    AUX_VARIABLE( mEflow );
-    AUX_VARIABLE( ptRatioEflow );
+    //    AUX_VARIABLE( nPi0 );//r21 cleanup
+    AUX_VARIABLE( nCharged ); //used in PanTau/PanTauAlgs/src/Tool_DetailsArranger.cxx
+    //    AUX_VARIABLE( etEflow );//r21 cleanup
+    //    AUX_VARIABLE( mEflow );//r21 cleanup
+    //    AUX_VARIABLE( ptRatioEflow );//r21 cleanup
 
-    AUX_VARIABLE( nPi0Topo );
-    AUX_VARIABLE( nChargedTopo );
-    AUX_VARIABLE( etEflowTopo );
-    AUX_VARIABLE( mEflowTopo );
-    AUX_VARIABLE( ptRatioEflowTopo );
+    // AUX_VARIABLE( nPi0Topo );//r21 cleanup
+    //    AUX_VARIABLE( nChargedTopo );//r21 cleanup
+    //    AUX_VARIABLE( etEflowTopo );//r21 cleanup
+    //    AUX_VARIABLE( mEflowTopo );//r21 cleanup
+    //    AUX_VARIABLE( ptRatioEflowTopo );//r21 cleanup
 
     AUX_VARIABLE( mEflowApprox );
     AUX_VARIABLE( ptRatioEflowApprox );
@@ -227,26 +216,27 @@ namespace xAOD {
     //panTau details
     //!PanTau variables when using CellBased pfos
     //Flag whether this seed has pantau info
-    AUX_VARIABLE( pantau_CellBasedInput_isPanTauCandidate );
+    AUX_VARIABLE( PanTau_isPanTauCandidate );
     //decay modes (input mode [proto] and output mode )
-    AUX_VARIABLE( pantau_CellBasedInput_DecayModeProto );
-    AUX_VARIABLE( pantau_CellBasedInput_DecayMode );
+    AUX_VARIABLE( PanTau_DecayModeProto );
+    AUX_VARIABLE( PanTau_DecayMode );
     //BDT output distributions
-    AUX_VARIABLE( pantau_CellBasedInput_BDTValue_1p0n_vs_1p1n );
-    AUX_VARIABLE( pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn );
-    AUX_VARIABLE( pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn );
+    AUX_VARIABLE( PanTau_BDTValue_1p0n_vs_1p1n );
+    AUX_VARIABLE( PanTau_BDTValue_1p1n_vs_1pXn );
+    AUX_VARIABLE( PanTau_BDTValue_3p0n_vs_3pXn );
+
     //Variables used in BDTs
-    AUX_VARIABLE( pantau_CellBasedInput_BDTVar_Basic_NNeutralConsts );
-    AUX_VARIABLE( pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt );
-    AUX_VARIABLE( pantau_CellBasedInput_BDTVar_Charged_StdDev_Et_WrtEtAllConsts );
-    AUX_VARIABLE( pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM );
-    AUX_VARIABLE( pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_1 );
-    AUX_VARIABLE( pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2 );
-    AUX_VARIABLE( pantau_CellBasedInput_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts );
-    AUX_VARIABLE( pantau_CellBasedInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts );
-    AUX_VARIABLE( pantau_CellBasedInput_BDTVar_Neutral_Shots_NPhotonsInSeed );
-    AUX_VARIABLE( pantau_CellBasedInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged );
-    AUX_VARIABLE( pantau_CellBasedInput_BDTVar_Charged_HLV_SumM );
+    AUX_VARIABLE( PanTau_BDTVar_Basic_NNeutralConsts );
+    AUX_VARIABLE( PanTau_BDTVar_Charged_JetMoment_EtDRxTotalEt );
+    AUX_VARIABLE( PanTau_BDTVar_Charged_StdDev_Et_WrtEtAllConsts );
+    AUX_VARIABLE( PanTau_BDTVar_Neutral_HLV_SumM );
+    AUX_VARIABLE( PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_1 );
+    AUX_VARIABLE( PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_2 );
+    AUX_VARIABLE( PanTau_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts );
+    AUX_VARIABLE( PanTau_BDTVar_Neutral_Ratio_EtOverEtAllConsts );
+    AUX_VARIABLE( PanTau_BDTVar_Neutral_Shots_NPhotonsInSeed );
+    AUX_VARIABLE( PanTau_BDTVar_Combined_DeltaR1stNeutralTo1stCharged );
+    AUX_VARIABLE( PanTau_BDTVar_Charged_HLV_SumM );
     
     ////!PanTau variables when using eflowRec pfos
     ////Flag whether this seed has pantau info

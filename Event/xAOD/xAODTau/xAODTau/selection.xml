@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 694851 2015-09-15 08:35:27Z dkirchme $ -->
+<!-- $Id: selection.xml 747258 2016-05-15 02:57:19Z griffith $ -->
 <lcgdict>
 
   <!-- TauJet_v1 dictionaries: -->
@@ -49,14 +49,52 @@
   <class name="std::vector<ElementLink<xAOD::TauJetContainer_v2> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::TauJetContainer_v2> > >" />
 
+
+  <!-- TauJet_v3 dictionaries: -->
+  <class name="xAOD::TauJet_v3" >
+    <field name="m_p4" transient="true" />
+    <field name="m_p4Cached" transient="true" />
+  </class>
+  <read sourceClass="xAOD::TauJet_v3" version="[1-]"
+        targetClass="xAOD::TauJet_v3" source="" target="m_p4Cached" >
+    <![CDATA[
+       m_p4Cached = false;
+    ]]>
+  </read>
+
+  <class name="xAOD::TauJetContainer_v3"
+         id="9A1207C5-E25F-4974-A9D6-A51DB37F09F9" />
+  <class name="xAOD::TauJetAuxContainer_v3"
+         id="77AA6800-DDAD-44E8-AD90-003D48082A94" />
+
+  <class name="DataLink<xAOD::TauJetContainer_v3>" />
+  <class name="std::vector<DataLink<xAOD::TauJetContainer_v3> >" />
+
+  <class name="ElementLink<xAOD::TauJetContainer_v3>" />
+  <class name="std::vector<ElementLink<xAOD::TauJetContainer_v3> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::TauJetContainer_v3> > >" />
+
+
   <!-- Tell ROOT that it should automatically convert the v1 smart pointer -->
   <!-- types into v2 types. Making it possible to read back other objects -->
   <!-- from older files that are pointing at TauJets. -->
   <read sourceClass="DataLink<xAOD::TauJetContainer_v1>" version="[1-]"
         targetClass="DataLink<xAOD::TauJetContainer_v2>"
         source="" target="" />
+  <read sourceClass="DataLink<xAOD::TauJetContainer_v1>" version="[1-]"
+        targetClass="DataLink<xAOD::TauJetContainer_v3>"
+        source="" target="" />
+  <read sourceClass="DataLink<xAOD::TauJetContainer_v2>" version="[2-]"
+        targetClass="DataLink<xAOD::TauJetContainer_v3>"
+        source="" target="" />
   <read sourceClass="ElementLink<xAOD::TauJetContainer_v1>" version="[1-]"
         targetClass="ElementLink<xAOD::TauJetContainer_v2>"
+        source="" target="" />
+  <read sourceClass="ElementLink<xAOD::TauJetContainer_v1>" version="[1-]"
+        targetClass="ElementLink<xAOD::TauJetContainer_v3>"
+        source="" target="" />
+  <read sourceClass="ElementLink<xAOD::TauJetContainer_v2>" version="[2-]"
+        targetClass="ElementLink<xAOD::TauJetContainer_v3>"
         source="" target="" />
 
 
@@ -88,6 +126,30 @@
   <!--Add the DiTauJetParameter enums -->
   <enum pattern="xAOD::DiTauJetParameters::*"/>
   <variable pattern="xAOD::DiTauJetParameters::*"/>
+
+  <!-- TauTrack_v1 dictionaries: -->
+  <class name="xAOD::TauTrack_v1" >
+   <field name="m_p4" transient="true" />
+   <field name="m_p4Cached" transient="true" />
+  </class>
+  <read sourceClass="xAOD::TauTrack_v1" version="[1-]"
+       targetClass="xAOD::TauTrack_v1" source="" target="m_p4Cached" >
+   <![CDATA[
+      m_p4Cached = false;
+   ]]>
+  </read>
+
+  <class name="xAOD::TauTrackContainer_v1"
+        id="A45C1CC2-E6BE-4D99-BB49-3CE80AACEDDA" />
+  <class name="xAOD::TauTrackAuxContainer_v1"
+        id="E36C4BCF-0180-461F-8767-46768A7F3573" />
+
+  <class name="DataLink<xAOD::TauTrackContainer_v1>" />
+  <class name="std::vector<DataLink<xAOD::TauTrackContainer_v1> >" />
+
+  <class name="ElementLink<xAOD::TauTrackContainer_v1>" />
+  <class name="std::vector<ElementLink<xAOD::TauTrackContainer_v1> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::TauTrackContainer_v1> > >" />
 
   <!--Add Helper Functions -->
   <function pattern="xAOD::TauHelpers::*" />

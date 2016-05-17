@@ -70,6 +70,8 @@ namespace xAOD {
 
     void setSubjetPtEtaPhiE(unsigned int numSubjet, 
                             float pt, float eta, float phi, float e);
+
+    float nSubjets() const;
   
   
     // f_core

@@ -128,6 +128,13 @@ namespace xAOD {
     else
       return vE[numSubjet];
   }
+
+  float DiTauJet_v1::nSubjets() const
+  {
+    static Accessor < std::vector <float> > subjetPtAcc("subjet_pt");
+    const std::vector<float>& vPt = subjetPtAcc(*this);
+    return vPt.size();
+  }
   
   void DiTauJet_v1::setSubjetPtEtaPhiE(unsigned int numSubjet, 
                                        float pt, float eta, float phi, float e)

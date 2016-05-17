@@ -4,10 +4,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJetAccessors_v1.icc 743783 2016-04-28 21:45:08Z griffith $
+// $Id: TauJetAccessors_v2.icc 638520 2015-01-09 13:21:05Z janus $
 
-#ifndef XAODTAU_TAUACCESSORS_V1_ICC
-#define XAODTAU_TAUACCESSORS_V1_ICC
+#ifndef XAODTAU_TAUACCESSORS_V3_ICC
+#define XAODTAU_TAUACCESSORS_V3_ICC
 
 // System include(s):
 #include <iostream>
@@ -21,17 +21,20 @@
 break;
 
 
-  SG::AuxElement::Accessor< float >* discriminantAccessorV1( xAOD::TauJetParameters::TauID discriminant ) {
+#ifndef TAUTRACK_V1_ACCESSORS
+
+  SG::AuxElement::Accessor< float >* discriminantAccessorV3( xAOD::TauJetParameters::TauID discriminant ) {
 
     switch( discriminant ) {
 	
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, Likelihood );	
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, SafeLikelihood );
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, Likelihood );	
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, SafeLikelihood );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, EleMatchLikelihoodScore );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, BDTJetScore );	
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, BDTEleScore );	
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTauScore );   
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, BDTJetScoreSigTrans );   
-      //      DEFINE_TAUJETPARAMETER_ACCESSOR( float, BDTJetScoreBkgTrans );   
+      //DEFINE_TAUJETPARAMETER_ACCESSOR( float, BDTJetScoreBkgTrans );   
 
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown tau discriminant value ("
@@ -41,10 +44,10 @@ break;
   }
 
   template <class T>  SG::AuxElement::Accessor< T >*
-  panTauDetailsAccessorV1( xAOD::TauJetParameters::PanTauDetails /*detail*/ ) {
+  panTauDetailsAccessorV3( xAOD::TauJetParameters::PanTauDetails /*detail*/ ) {
   }
 
-  template <> SG::AuxElement::Accessor< float >* panTauDetailsAccessorV1<float>( xAOD::TauJetParameters::PanTauDetails detail ) {
+  template <> SG::AuxElement::Accessor< float >* panTauDetailsAccessorV3<float>( xAOD::TauJetParameters::PanTauDetails detail ) {
     
     switch( detail ) {
 	
@@ -55,37 +58,17 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTValue_1p1n_vs_1pXn );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTValue_3p0n_vs_3pXn );
       //Variables used in BDTs	       
-      //DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Charged_JetMoment_EtDRxTotalEt );//r21 cleanup
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Charged_JetMoment_EtDRxTotalEt );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Charged_StdDev_Et_WrtEtAllConsts );
-      //DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Neutral_HLV_SumM );//r21 cleanup
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Neutral_HLV_SumM );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_1 );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_2 );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Neutral_Ratio_EtOverEtAllConsts );
-      //DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Neutral_Shots_NPhotonsInSeed );//r21 cleanup
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Neutral_Shots_NPhotonsInSeed );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Combined_DeltaR1stNeutralTo1stCharged );
-
-      //DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_CellBasedInput_BDTVar_Charged_HLV_SumM );//r21 cleanup
-
-
-
-      // //!PanTau variables when using eflowRec pfos//r21 cleanup
-      // //BDT output distributions
-      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTValue_1p0n_vs_1p1n );
-      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTValue_1p1n_vs_1pXn );
-      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTValue_3p0n_vs_3pXn );
-      // //Variables used in BDTs
-      // //NOTE: They are different from the CellBased ones in general!
-      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTVar_Charged_HLV_SumPt );
-      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTVar_Charged_Ratio_EtOverEtAllConsts );
-      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTVar_Neutral_HLV_SumM );
-      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_EtSort_1 );
-      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2 );
-      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts );
-      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTVar_Neutral_Mean_DRToLeading_WrtEtAllConsts );
-      // DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_eflowRecInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged );
-
-
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTau_BDTVar_Charged_HLV_SumM );
+    
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown float panTau Detail ("
 		<< detail << ") requested" << std::endl;
@@ -93,33 +76,21 @@ break;
     }
   }
 
-  template <> SG::AuxElement::Accessor< int >* panTauDetailsAccessorV1<int>( xAOD::TauJetParameters::PanTauDetails detail ) {
+  template <> SG::AuxElement::Accessor< int >* panTauDetailsAccessorV3<int>( xAOD::TauJetParameters::PanTauDetails detail ) {
 
     switch( detail ) {
 	
 
       //panTau details
-      //!integer PanTau variables when using CellBased pfos
+      //!integer PanTau variables when using pfos
       //Flag whether this seed has pantau info
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_isPanTauCandidate );
       //decay modes (input mode [proto] and output mode [final])
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_DecayModeProto );
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_DecayMode );
       //Variables used in BDTs
-      //DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_BDTVar_Basic_NNeutralConsts );//r21 cleanup
-
-    
-      // //!integer PanTau variables when using eflowRec pfos
-      // //Flag whether this seed has pantau info
-      // DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_eflowRecInput_isPanTauCandidate );
-      // //decay modes (input mode [proto] and output mode [final])
-      // DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_eflowRecInput_DecayModeProto );
-      // DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_eflowRecInput_DecayMode );
-      // //Variables used in BDTs
-      // //NOTE: They are different from the CellBased ones in general!
-      // DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_eflowRecInput_BDTVar_Basic_NPi0NeutConsts );
-      // DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_eflowRecInput_BDTVar_Basic_NNeutralConsts );
-
+      DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_BDTVar_Basic_NNeutralConsts );
+      
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown integer panTau Detail ("
 		<< detail << ") requested" << std::endl;
@@ -130,10 +101,10 @@ break;
 
 
 
-  template <class T>  SG::AuxElement::Accessor< T >* detailsAccessorV1( xAOD::TauJetParameters::Detail /*detail*/ ) {
+  template <class T>  SG::AuxElement::Accessor< T >* detailsAccessorV3( xAOD::TauJetParameters::Detail /*detail*/ ) {
   }
 
-  template <> SG::AuxElement::Accessor< float >* detailsAccessorV1<float>( xAOD::TauJetParameters::Detail detail ) {
+  template <> SG::AuxElement::Accessor< float >* detailsAccessorV3<float>( xAOD::TauJetParameters::Detail detail ) {
     
     switch( detail ) {
 
@@ -200,12 +171,34 @@ break;
       // DEFINE_TAUJETPARAMETER_ACCESSOR( float, mEflowTopo );//r21 cleanup
       // DEFINE_TAUJETPARAMETER_ACCESSOR( float, ptRatioEflowTopo );//r21 cleanup
 
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, innerTrkAvgDist );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, SumPtTrkFrac );
+
+
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, centFracCorrected );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, etOverPtLeadTrkCorrected );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, innerTrkAvgDist );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, innerTrkAvgDistCorrected );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, SumPtTrkFrac );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, SumPtTrkFracCorrected );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ipSigLeadTrkCorrected );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, trFlightPathSigCorrected );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, massTrkSysCorrected );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, dRmaxCorrected );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ChPiEMEOverCaloEMECorrected );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, EMPOverTrkSysPCorrected );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ptRatioEflowApproxCorrected );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, mEflowApproxCorrected );
+
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, mEflowApprox );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ptRatioEflowApprox );
+
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ClustersMeanCenterLambda );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ClustersMeanEMProbability );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ClustersMeanFirstEngDens );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ClustersMeanSecondLambda );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ClustersMeanPresamplerFrac );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, PFOEngRelDiff );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, LC_pantau_interpolPt );
+
 
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown float detail ("
@@ -214,17 +207,18 @@ break;
     }
   }
 
-  template <> SG::AuxElement::Accessor< int >* detailsAccessorV1<int>( xAOD::TauJetParameters::Detail detail ) {
+  template <> SG::AuxElement::Accessor< int >* detailsAccessorV3<int>( xAOD::TauJetParameters::Detail detail ) {
 
     switch( detail ) {
 
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, numCells );
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, numTopoClusters );
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, nStrip );
-      //DEFINE_TAUJETPARAMETER_ACCESSOR( int, nPi0 );//r21 cleanup
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( int, nPi0 );//r21 cleanup
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, nCharged );
-      //DEFINE_TAUJETPARAMETER_ACCESSOR( int, nPi0Topo );//r21 cleanup
-      //DEFINE_TAUJETPARAMETER_ACCESSOR( int, nChargedTopo );//r21 cleanup
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( int, nPi0Topo );//r21 cleanup
+      // DEFINE_TAUJETPARAMETER_ACCESSOR( int, nChargedTopo );//r21 cleanup
+      DEFINE_TAUJETPARAMETER_ACCESSOR( int, GhostMuonSegmentCount );
 
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown integer detail ("
@@ -233,5 +227,38 @@ break;
     }
   }
 
+  template <> SG::AuxElement::Accessor< ElementLink<IParticleContainer> >* detailsAccessorV3<ElementLink<IParticleContainer > >( xAOD::TauJetParameters::Detail detail ) {
 
-#endif // XAODTAU_TAUJETACCESSORS_V1_ICC
+    switch( detail ) {
+      
+      DEFINE_TAUJETPARAMETER_ACCESSOR( ElementLink<IParticleContainer>, electronLink );
+
+    default:
+      std::cerr << "xAOD::TauJetParameters ERROR Unknown IParticle detail ("
+		<< detail << ") requested" << std::endl;
+      return 0;
+    }
+  }
+
+#else
+  template <class T>  SG::AuxElement::Accessor< T >* trackDetailsAccessorV3( xAOD::TauJetParameters::TrackDetail /*detail*/ ) {
+  }
+
+  template <> SG::AuxElement::Accessor< float >* trackDetailsAccessorV3<float>( xAOD::TauJetParameters::TrackDetail detail ) {
+    
+    switch( detail ) {
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, CaloSamplingEtaEM );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, CaloSamplingEtaHad );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, CaloSamplingPhiEM );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, CaloSamplingPhiHad );
+    default:
+      std::cerr << "xAOD::TauJetParameters ERROR Unknown integer detail ("
+		<< detail << ") requested" << std::endl;
+      return 0;
+    }
+  }
+#endif //TAUTRACK_V1_ACCESSORS  to aid with link issues
+
+#endif // XAODTAU_TAUJETACCESSORS_V3_ICC
+
+//  LocalWords:  EMPOverTrkSysPCorrected

@@ -4,17 +4,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJetContainer.h 665021 2015-05-05 15:52:38Z janus $
+// $Id: TauJetContainer.h 740338 2016-04-14 16:03:58Z griffith $
 #ifndef XAODTAU_TAUJETCONTAINER_H
 #define XAODTAU_TAUJETCONTAINER_H
 
 // Local include(s):
 #include "xAODTau/TauJet.h"
-#include "xAODTau/versions/TauJetContainer_v2.h"
+#include "xAODTau/versions/TauJetContainer_v3.h"
 
 namespace xAOD {
    /// Definition of the current "taujet container version"
-   typedef TauJetContainer_v2 TauJetContainer;
+   typedef TauJetContainer_v3 TauJetContainer;
 }
 
 // Set up a CLID for the container:

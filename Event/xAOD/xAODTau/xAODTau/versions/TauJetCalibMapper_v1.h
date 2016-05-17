@@ -30,18 +30,24 @@ struct TauJetCalibTypeMapper_v1 {
      case TauJetParameters::TauEtaCalib:
        stringName = "TauEtaCalib";
        return true;
-     case TauJetParameters::PanTauEFlowRecProto:
-       stringName = "PanTauEFlowRecProto";
-       return true;
-     case TauJetParameters::PanTauEFlowRec:
-       stringName = "PanTauEFlowRec";
-       return true;
+     // case TauJetParameters::PanTauEFlowRecProto:
+     //   stringName = "PanTauEFlowRecProto";
+     //   return true;
+     // case TauJetParameters::PanTauEFlowRec:
+     //   stringName = "PanTauEFlowRec";
+     //   return true;
      case TauJetParameters::PanTauCellBasedProto:
        stringName = "PanTauCellBasedProto";
        return true;
      case TauJetParameters::PanTauCellBased:
        stringName = "PanTauCellBased";
        return true;              
+     case TauJetParameters::TrigCaloOnly:
+       stringName = "TrigCaloOnly";
+       return true;
+     case TauJetParameters::FinalCalib:
+       stringName = "FinalCalib";
+       return true;
      }//switch
      return false;
    }//getValue
