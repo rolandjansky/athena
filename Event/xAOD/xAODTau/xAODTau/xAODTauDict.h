@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTauDict.h 694851 2015-09-15 08:35:27Z dkirchme $
+// $Id: xAODTauDict.h 740338 2016-04-14 16:03:58Z griffith $
 #ifndef XAODTAU_XAODTAUDICT_H
 #define XAODTAU_XAODTAUDICT_H
 
@@ -26,12 +26,18 @@
 #include "xAODTau/versions/TauJetAuxContainer_v1.h"
 #include "xAODTau/versions/TauJetContainer_v2.h"
 #include "xAODTau/versions/TauJetAuxContainer_v2.h"
+#include "xAODTau/versions/TauJetContainer_v3.h"
+#include "xAODTau/versions/TauJetAuxContainer_v3.h"
 #include "xAODTau/versions/DiTauJetContainer_v1.h"
 #include "xAODTau/versions/DiTauJetAuxContainer_v1.h"
+#include "xAODTau/versions/TauTrackContainer_v1.h"
+#include "xAODTau/versions/TauTrackAuxContainer_v1.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
 #include "xAODTau/DiTauJetContainer.h"
 #include "xAODTau/DiTauJetAuxContainer.h"
+#include "xAODTau/TauTrackContainer.h"
+#include "xAODTau/TauTrackAuxContainer.h"
 
 
 /// Declare a dummy CLID for xAOD::TauJetContainer_v1. This is only necessary
@@ -40,6 +46,7 @@
 /// is not needed in the "real" code, since users are never exposed to the _v1
 /// classes in Athena anymore.
 CLASS_DEF( xAOD::TauJetContainer_v1, 12345678, 10 )
+CLASS_DEF( xAOD::TauJetContainer_v2, 123456789, 10 )
 
 namespace {
   struct GCCXML_DUMMY_INSTANTIATION_XAODTAU {
@@ -70,6 +77,25 @@ namespace {
     std::vector< std::vector< ElementLink< xAOD::DiTauJetContainer_v1 > > > l20;
     std::vector< ElementLinkVector< xAOD::DiTauJetContainer_v1 > > l21;
 
+    xAOD::TauTrackContainer_v1 c4;
+    DataLink< xAOD::TauTrackContainer_v1 > l22;
+    ElementLink< xAOD::TauTrackContainer_v1 > l23;
+    ElementLinkVector< xAOD::TauTrackContainer_v1 > l24;
+    std::vector< DataLink< xAOD::TauTrackContainer_v1 > > l25;
+    std::vector< ElementLink< xAOD::TauTrackContainer_v1 > > l26;
+    std::vector< std::vector< ElementLink< xAOD::TauTrackContainer_v1 > > > l27;
+    std::vector< ElementLinkVector< xAOD::TauTrackContainer_v1 > > l28;
+
+    xAOD::TauJetContainer_v2 c5;
+    DataLink< xAOD::TauJetContainer_v2 > l29;
+    ElementLink< xAOD::TauJetContainer_v2 > l30;
+    ElementLinkVector< xAOD::TauJetContainer_v2 > l31;
+    std::vector< DataLink< xAOD::TauJetContainer_v2 > > l32;
+    std::vector< ElementLink< xAOD::TauJetContainer_v2 > > l33;
+    std::vector< std::vector< ElementLink< xAOD::TauJetContainer_v2 > > > l34;
+    std::vector< ElementLinkVector< xAOD::TauJetContainer_v2 > > l35;
+
+
     // Instantiate the classes used by xAOD::TauJetAuxContainer, so that
     // Reflex would see them with their "correct type". Note that the
     // dictionary for these types comes from other places. This instantiation
@@ -82,6 +108,8 @@ namespace {
     std::vector< ElementLink< xAOD::PFOContainer > > auxlink6;
     ElementLink< xAOD::VertexContainer > auxlink7;
     std::vector< ElementLink< xAOD::VertexContainer > > auxlink8;
+    ElementLink< xAOD::TauTrackContainer > auxlink9;
+    std::vector< ElementLink< xAOD::TauTrackContainer > > auxlink10;
    };
 }
 

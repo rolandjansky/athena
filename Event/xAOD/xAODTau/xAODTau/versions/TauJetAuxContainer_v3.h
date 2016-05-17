@@ -4,9 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJetAuxContainer_v2.h 747258 2016-05-15 02:57:19Z griffith $
-#ifndef XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V2_H
-#define XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V2_H
+#ifndef XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V3_H
+#define XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V3_H
 
 // System include(s):
 #include <vector>
@@ -20,6 +19,7 @@ extern "C" {
 
 // EDM include(s):
 #include "xAODCore/AuxContainerBase.h"
+#include "xAODTau/TauTrackContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODJet/JetContainer.h"
@@ -37,11 +37,11 @@ namespace xAOD {
   /// @author Michel Janus <janus@cern.ch>
   ///
   ///
-  class TauJetAuxContainer_v2 : public AuxContainerBase {
+  class TauJetAuxContainer_v3 : public AuxContainerBase {
 
   public:
     /// Default constructor
-    TauJetAuxContainer_v2();
+    TauJetAuxContainer_v3();
 
   private:
     std::vector< float > pt;
@@ -65,25 +65,14 @@ namespace xAOD {
     std::vector< float > mIntermediateAxis;
 
     std::vector< float > ptTauEnergyScale;
-    std::vector< float > etaTauEnergyScale;
-    std::vector< float > phiTauEnergyScale;
-    std::vector< float > mTauEnergyScale;
+    std::vector< float > etaTauEnergyScale; // same as IntermediateAxis
+    std::vector< float > phiTauEnergyScale; // as IntermediateAxis
+    std::vector< float > mTauEnergyScale; // is 0
 
     std::vector< float > ptTauEtaCalib;
     std::vector< float > etaTauEtaCalib;
-    std::vector< float > phiTauEtaCalib;
-    std::vector< float > mTauEtaCalib;
-   
-
-    // std::vector< float > ptPanTauEFlowRecProto;
-    // std::vector< float > etaPanTauEFlowRecProto;
-    // std::vector< float > phiPanTauEFlowRecProto;
-    // std::vector< float > mPanTauEFlowRecProto;
-   
-    // std::vector< float > ptPanTauEFlowRec;
-    // std::vector< float > etaPanTauEFlowRec;
-    // std::vector< float > phiPanTauEFlowRec;
-    // std::vector< float > mPanTauEFlowRec;
+    std::vector< float > phiTauEtaCalib; // same as IntermediateAxis
+    std::vector< float > mTauEtaCalib; // is 0
    
     std::vector< float > ptPanTauCellBasedProto;
     std::vector< float > etaPanTauCellBasedProto;
@@ -99,40 +88,40 @@ namespace xAOD {
     std::vector< float > etaTrigCaloOnly;
     std::vector< float > phiTrigCaloOnly;
     std::vector< float > mTrigCaloOnly;
-   
-        
-             
+
+    std::vector< float > ptFinalCalib;
+    std::vector< float > etaFinalCalib;
+    std::vector< float > phiFinalCalib;
+    std::vector< float > mFinalCalib;
 
 
     std::vector< unsigned int > ROIWord;
     std::vector< float > charge;
 
-    std::vector< uint32_t > vetoFlags;
+    //    std::vector< uint32_t > vetoFlags;//r21 cleanup
     std::vector< uint32_t > isTauFlags;
     
-    std::vector< float > Likelihood;
-    std::vector< float > SafeLikelihood;
+    // std::vector< float > Likelihood;
+    // std::vector< float > SafeLikelihood;
     std::vector< float > BDTJetScore;
     std::vector< float > BDTEleScore;
+    std::vector< float > EleMatchLikelihoodScore;//from TauEleOLRDecorator
 
     //additional discriminant output
     std::vector< float > BDTJetScoreSigTrans;
-    std::vector< float > BDTJetScoreBkgTrans;
+    // std::vector< float > BDTJetScoreBkgTrans;
 
-    typedef std::vector< ElementLink< TrackParticleContainer > > TrackLink_t;
-    std::vector< TrackLink_t > trackLinks;
-    std::vector< TrackLink_t > wideTrackLinks;
-    std::vector< TrackLink_t > otherTrackLinks;
+    typedef std::vector< ElementLink< TauTrackContainer > > TauTrackLink_t;
+    std::vector< TauTrackLink_t > tauTrackLinks;
+
+    typedef std::vector< ElementLink< IParticleContainer > > IParticleLink_t;
+    std::vector< IParticleLink_t > clusterLinks;//actually xAOD::CaloClusters
+    std::vector< IParticleLink_t > pi0Links;//acutally xAOD::Particles
 
 
-    std::vector< std::vector < uint8_t > > trackFlags;
     std::vector< int > trackFilterProngs;
     std::vector< int > trackFilterQuality;             
     std::vector< float > pi0ConeDR;             
-
-    std::vector< std::vector < float > > trackEtaStrip;
-    std::vector< std::vector < float > > trackPhiStrip;
-
 
     typedef ElementLink< xAOD::JetContainer > JetLink_t;
     std::vector< JetLink_t > jetLink;
@@ -153,8 +142,7 @@ namespace xAOD {
     std::vector< PFOLink_t > protoPi0PFOLinks;// (Links to cell-based pi0 neutral PFOs)
     std::vector< PFOLink_t > shotPFOLinks;// (Links to shots)
     std::vector< PFOLink_t > hadronicPFOLinks;// (Links to hadronic pfos)
-
-
+    
     //set of details variables
     std::vector< float > ipZ0SinThetaSigLeadTrk;
     std::vector< float > etOverPtLeadTrk;
@@ -164,9 +152,9 @@ namespace xAOD {
     std::vector< float > trkWidth2;
     std::vector< float > trFlightPathSig;
     ///electron LLH variables
-    std::vector< float > ele_E237E277;
-    std::vector< float > ele_PresamplerFraction;
-    std::vector< float > ele_ECALFirstFraction;
+    // std::vector< float > ele_E237E277; //r21 cleanup
+    // std::vector< float > ele_PresamplerFraction; //r21 cleanup
+    // std::vector< float > ele_ECALFirstFraction; //r21 cleanup
     //for topocluster ID variables
     std::vector< int > numCells;
     ///number of topocluster constituents of jet associated to tau candidate
@@ -198,13 +186,13 @@ namespace xAOD {
     /// number of strips
     std::vector< int > nStrip;
     /// calibrated EM transverse energy
-    std::vector< float > etEMCalib;
+    //    std::vector< float > etEMCalib;//r21 cleanup
     /// calibrated hadronic transverse energy
-    std::vector< float > etHadCalib;
+    //    std::vector< float > etHadCalib;//r21 cleanup
     /// eta of TauJet calculated from calorimeter
-    std::vector< float > seedCalo_eta;
+    //std::vector< float > seedCalo_eta; //r21 cleanup DetectorAxis eta
     /// phi of TauJet calculated from calorimeter
-    std::vector< float > seedCalo_phi;
+    //    std::vector< float > seedCalo_phi;//r21 cleanup DetectorAxis phi
     /// the average track distance to calorimeter seed
     std::vector< float > trkAvgDist;
     /// the RMS of track distance to calorimeter seed
@@ -226,9 +214,9 @@ namespace xAOD {
     std::vector< float > hadLeakEt;
 
     /// EM+TES final scale
-    std::vector< float > EM_TES_scale;
+    //std::vector< float > EM_TES_scale;//r21 cleanup
     /// LC+TES precalibration
-    std::vector< float > LC_TES_precalib;
+    //std::vector< float > LC_TES_precalib; //r21 cleanup
  
     std::vector< float > TESOffset;
     std::vector< float > TESCalibConstant;
@@ -259,17 +247,17 @@ namespace xAOD {
 
 
     //generic substructure details
-    std::vector< float > etEflow;
-    std::vector< float > mEflow;
-    std::vector< float > ptRatioEflow;
-    std::vector< int > nPi0;
-    std::vector< int > nCharged;
+    //    std::vector< float > etEflow;//r21 cleanup
+    //    std::vector< float > mEflow;//r21 cleanup
+    //    std::vector< float > ptRatioEflow;//r21 cleanup
+    //    std::vector< int > nPi0;//r21 cleanup
+    std::vector< int > nCharged; //used in PanTau/PanTauAlgs/src/Tool_DetailsArranger.cxx
 
-    std::vector< float > etEflowTopo;
-    std::vector< float > mEflowTopo;
-    std::vector< float > ptRatioEflowTopo;
-    std::vector< int > nPi0Topo;
-    std::vector< int > nChargedTopo;
+    //    std::vector< float > etEflowTopo;//r21 cleanup
+    //    std::vector< float > mEflowTopo;//r21 cleanup
+    //    std::vector< float > ptRatioEflowTopo;//r21 cleanup
+    //    std::vector< int > nPi0Topo;//r21 cleanup
+    //    std::vector< int > nChargedTopo;//r21 cleanup
 
     std::vector< float > mEflowApprox;
     std::vector< float > ptRatioEflowApprox;
@@ -302,38 +290,38 @@ namespace xAOD {
     //panTau details
     //!PanTau variables when using CellBased pfos
     //Flag whether this seed has pantau info
-    std::vector< int > pantau_CellBasedInput_isPanTauCandidate;
+    std::vector< int > PanTau_isPanTauCandidate;
     //decay modes (input mode [proto] and output mode )
-    std::vector< int > pantau_CellBasedInput_DecayModeProto;
-    std::vector< int > pantau_CellBasedInput_DecayMode;
+    std::vector< int > PanTau_DecayModeProto;
+    std::vector< int > PanTau_DecayMode;
     //BDT output distributions
-    std::vector< float > pantau_CellBasedInput_BDTValue_1p0n_vs_1p1n;
-    std::vector< float > pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn;
-    std::vector< float > pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn;
+    std::vector< float > PanTau_BDTValue_1p0n_vs_1p1n;
+    std::vector< float > PanTau_BDTValue_1p1n_vs_1pXn;
+    std::vector< float > PanTau_BDTValue_3p0n_vs_3pXn;
     //Variables used in BDTs
-    std::vector< int > pantau_CellBasedInput_BDTVar_Basic_NNeutralConsts;
-    std::vector< float > pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt;
-    std::vector< float > pantau_CellBasedInput_BDTVar_Charged_StdDev_Et_WrtEtAllConsts;
-    std::vector< float > pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM;
-    std::vector< float > pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_1;
-    std::vector< float > pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2;
-    std::vector< float > pantau_CellBasedInput_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts;
-    std::vector< float > pantau_CellBasedInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts;
-    std::vector< float > pantau_CellBasedInput_BDTVar_Neutral_Shots_NPhotonsInSeed;
-    std::vector< float > pantau_CellBasedInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged;
-    std::vector< float > pantau_CellBasedInput_BDTVar_Charged_HLV_SumM;
+    std::vector< int > PanTau_BDTVar_Basic_NNeutralConsts;
+    std::vector< float > PanTau_BDTVar_Charged_JetMoment_EtDRxTotalEt;
+    std::vector< float > PanTau_BDTVar_Charged_StdDev_Et_WrtEtAllConsts;
+    std::vector< float > PanTau_BDTVar_Neutral_HLV_SumM;
+    std::vector< float > PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_1;
+    std::vector< float > PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_2;
+    std::vector< float > PanTau_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts;
+    std::vector< float > PanTau_BDTVar_Neutral_Ratio_EtOverEtAllConsts;
+    std::vector< float > PanTau_BDTVar_Neutral_Shots_NPhotonsInSeed;
+    std::vector< float > PanTau_BDTVar_Combined_DeltaR1stNeutralTo1stCharged;
+    std::vector< float > PanTau_BDTVar_Charged_HLV_SumM;
 
     
     
     
-  }; // class TauJetAuxContainer_v2
+  }; // class TauJetAuxContainer_v3
 
 } // namespace xAOD
 
 // Set up a CLID and StoreGate inheritance for the class:
 #ifndef XAOD_STANDALONE
 #include "SGTools/BaseInfo.h"
-SG_BASE( xAOD::TauJetAuxContainer_v2, xAOD::AuxContainerBase );
+SG_BASE( xAOD::TauJetAuxContainer_v3, xAOD::AuxContainerBase );
 #endif // not XAOD_STANDALONE
 
-#endif // XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V2_H
+#endif // XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V3_H
