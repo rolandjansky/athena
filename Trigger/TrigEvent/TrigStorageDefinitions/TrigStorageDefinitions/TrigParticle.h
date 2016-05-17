@@ -21,6 +21,8 @@ namespace Analysis{
 
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
+#include "xAODTau/TauTrackContainer.h"
+#include "xAODTau/TauTrackAuxContainer.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetTrigAuxContainer.h"
@@ -69,6 +71,7 @@ HLT_BEGIN_TYPE_REGISTRATION
   HLT_REGISTER_TYPE(xAOD::Electron, xAOD::ElectronContainer, xAOD::ElectronContainer, xAOD::ElectronTrigAuxContainer)
   HLT_REGISTER_TYPE(xAOD::Photon, xAOD::PhotonContainer, xAOD::PhotonContainer, xAOD::PhotonTrigAuxContainer)
   HLT_REGISTER_TYPE(xAOD::TauJet, xAOD::TauJetContainer, xAOD::TauJetContainer, xAOD::TauJetAuxContainer)  
+  HLT_REGISTER_TYPE(xAOD::TauTrack, xAOD::TauTrackContainer, xAOD::TauTrackContainer, xAOD::TauTrackAuxContainer)
   HLT_REGISTER_TYPE(xAOD::Jet, xAOD::JetContainer, xAOD::JetContainer, xAOD::JetTrigAuxContainer)
 
   HLT_REGISTER_TYPE(xAOD::TrigElectron, xAOD::TrigElectronContainer, xAOD::TrigElectronContainer, xAOD::TrigElectronAuxContainer)
