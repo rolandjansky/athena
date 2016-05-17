@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 // ********************************************************************
 //
 // NAME:     CalorimeterL1CaloMon.h
@@ -38,7 +37,7 @@ namespace LVL1 {
 class IL1TriggerTowerTool;
 class IL1CaloMonitoringCaloTool;
 class ITrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramToolV1;
+class TrigT1CaloLWHistogramTool;
 // ============================================================================
 
 /** Monitoring of the Calo/L1Calo interface.
@@ -146,16 +145,16 @@ private:
   /// Tool for identifiers and disabled channels
   ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool;
   /// Event veto tool
-  ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;
+  ToolHandle<ITrigT1CaloMonErrorTool> m_errorTool;
   /// Histogram helper
-  ToolHandle<TrigT1CaloLWHistogramToolV1> m_histTool;
+  ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
   /// Tool for CaloTT energies
   ToolHandle<LVL1::IL1CaloMonitoringCaloTool> m_caloTool;
 
   /// CaloCellContainer StoreGate key
   std::string m_caloCellContainerName;
   /// TriggerTower collection StoreGate key
-  std::string m_TriggerTowerContainerName;
+  std::string m_xAODTriggerTowerContainerName;
 
   /// Hitmaps per threshold first value
   int m_CaloTT_HitMap_Thresh0;
@@ -204,45 +203,102 @@ private:
   TH1F_LW* m_h_CaloTT_hadLUT_phi;                   ///< Calo HAD phi Distribution
 
   //comparison between CaloTT and TT
-  TH2F_LW* m_h_emEnergy_Match_CaloTT_TT_LArEMB;     ///< LArEMB Match between Calo and L1Calo em Et
-  TH2F_LW* m_h_emEnergy_Match_CaloTT_TT_LArOverlap; ///< LArOverlap Match between Calo and L1Calo em Et
-  TH2F_LW* m_h_emEnergy_Match_CaloTT_TT_LArEMEC;    ///< LArEMEC Match between Calo and L1Calo em Et
-  TH2F_LW* m_h_emEnergy_Match_CaloTT_TT_LArFCAL1;   ///< LArFCAL1 Match between Calo and L1Calo em Et
-  TH2F_LW* m_h_hadEnergy_Match_CaloTT_TT_TileLB;    ///< TileLB Match between Calo and L1Calo had Et
-  TH2F_LW* m_h_hadEnergy_Match_CaloTT_TT_TileEB;    ///< TileEB Match between Calo and L1Calo had Et
-  TH2F_LW* m_h_hadEnergy_Match_CaloTT_TT_LArHEC;    ///< LArHEC Match between Calo and L1Calo had Et
-  TH2F_LW* m_h_hadEnergy_Match_CaloTT_TT_LArFCAL23; ///< LArFCAL23 Match between Calo and L1Calo had Et
+  TH2F_LW* m_h_emEnergy_Match_CaloTT_TT_LArEMB;     ///< LArEMB Match between Calo and L1Calo (JEP) em Et          
+  TH2F_LW* m_h_emEnergy_Match_CaloTT_TT_LArOverlap; ///< LArOverlap Match between Calo and L1Calo (JEP) em Et
+  TH2F_LW* m_h_emEnergy_Match_CaloTT_TT_LArEMEC;    ///< LArEMEC Match between Calo and L1Calo (JEP) em Et
+  TH2F_LW* m_h_emEnergy_Match_CaloTT_TT_LArFCAL1;   ///< LArFCAL1 Match between Calo and L1Calo (JEP) em Et
+  TH2F_LW* m_h_hadEnergy_Match_CaloTT_TT_TileLB;    ///< TileLB Match between Calo and L1Calo (JEP) had Et
+  TH2F_LW* m_h_hadEnergy_Match_CaloTT_TT_TileEB;    ///< TileEB Match between Calo and L1Calo (JEP) had Et
+  TH2F_LW* m_h_hadEnergy_Match_CaloTT_TT_LArHEC;    ///< LArHEC Match between Calo and L1Calo (JEP) had Et
+  TH2F_LW* m_h_hadEnergy_Match_CaloTT_TT_LArFCAL23; ///< LArFCAL23 Match between Calo and L1Calo (JEP) had Et
 
-  TProfile_LW* m_h_em_profile_Match;                ///< Difference between L1Calo - Calo em Et
-  TProfile_LW* m_h_had_profile_Match;               ///< Difference between L1Calo - Calo had Et
+  TH2F_LW* m_h_emEnergy_Match_CaloTT_TT_LArEMB_CP;     ///< LArEMB Match between Calo and L1Calo (CP) em Et
+  TH2F_LW* m_h_emEnergy_Match_CaloTT_TT_LArOverlap_CP; ///< LArOverlap Match between Calo and L1Calo (CP) em Et
+  TH2F_LW* m_h_emEnergy_Match_CaloTT_TT_LArEMEC_CP;    ///< LArEMEC Match between Calo and L1Calo (CP) em Et
+  TH2F_LW* m_h_emEnergy_Match_CaloTT_TT_LArFCAL1_CP;   ///< LArFCAL1 Match between Calo and L1Calo (CP) em Et
+  TH2F_LW* m_h_hadEnergy_Match_CaloTT_TT_TileLB_CP;    ///< TileLB Match between Calo and L1Calo (CP) had Et
+  TH2F_LW* m_h_hadEnergy_Match_CaloTT_TT_TileEB_CP;    ///< TileEB Match between Calo and L1Calo (CP) had Et
+  TH2F_LW* m_h_hadEnergy_Match_CaloTT_TT_LArHEC_CP;    ///< LArHEC Match between Calo and L1Calo (CP) had Et
+  TH2F_LW* m_h_hadEnergy_Match_CaloTT_TT_LArFCAL23_CP; ///< LArFCAL23 Match between Calo and L1Calo (CP) had Et
+
+  TProfile_LW* m_h_em_profile_Match;                ///< Relative difference between L1Calo (JEP) - Calo em Et
+  TProfile_LW* m_h_had_profile_Match;               ///< Relative difference between L1Calo (JEP) - Calo had Et
+
+  TProfile_LW* m_h_em_profile_Match_CP;             ///< Relative difference between L1Calo (CP) - Calo em Et
+  TProfile_LW* m_h_had_profile_Match_CP;            ///< Relative difference between L1Calo (CP) - Calo had Et
  
-  TH2F_LW* m_h_em_Mismatch_etaphi_alt;              ///< eta-phi map of em mismatches with L1Calo Et > 5 and zero Calo Et
-  TH2F_LW* m_h_em_Mismatch_etaphi;                  ///< eta-phi map of em mismatches with zero L1Calo Et and Calo Et > 5
-  TH2F_LW* m_h_had_Mismatch_etaphi_alt;             ///< eta-phi map of had mismatches with L1Calo Et > 5 and zero Calo Et
-  TH2F_LW* m_h_had_Mismatch_etaphi;                 ///< eta-phi map of had mismatches with zero L1Calo Et and Calo Et > 5
-  
-  TH1F_LW* m_h_em_1D_Match_LArEMB;                  ///< LArEMB Difference between L1Calo and Calo em Et
-  TH1F_LW* m_h_em_1D_Match_LArOverlap;              ///< LArOverlap Difference between L1Calo and Calo em Et
-  TH1F_LW* m_h_em_1D_Match_LArEMEC;                 ///< LArEMEC Difference between L1Calo and Calo em Et
-  TH1F_LW* m_h_em_1D_Match_LArFCAL1;                ///< LArFCAL1 Difference between L1Calo and Calo em Et
-  TH1F_LW* m_h_had_1D_Match_TileLB;                 ///< TileLB Difference between L1Calo and Calo had Et
-  TH1F_LW* m_h_had_1D_Match_TileEB;                 ///< TileEB Difference between L1Calo and Calo had Et
-  TH1F_LW* m_h_had_1D_Match_LArHEC;                 ///< LArHEC Difference between L1Calo and Calo had Et
-  TH1F_LW* m_h_had_1D_Match_LArFCAL23;              ///< LArFCAL23 Difference between L1Calo and Calo had Et
+  // KW commenting out for now... will never be filled with new ET cut
+  /*TH2F_LW* m_h_em_Mismatch_etaphi_alt;              ///< eta-phi map of em mismatches with L1Calo (JEP) Et > 5 and zero Calo Et
+  TH2F_LW* m_h_em_Mismatch_etaphi;                  ///< eta-phi map of em mismatches with zero L1Calo (JEP) Et and Calo Et > 5
+  TH2F_LW* m_h_had_Mismatch_etaphi_alt;             ///< eta-phi map of had mismatches with L1Calo (JEP) Et > 5 and zero Calo Et
+  TH2F_LW* m_h_had_Mismatch_etaphi;                 ///< eta-phi map of had mismatches with zero L1Calo (JEP) Et and Calo Et > 5
+ 
+  TH2F_LW* m_h_em_Mismatch_etaphi_alt_CP;           ///< eta-phi map of em mismatches with L1Calo (CP) Et > 5 and zero Calo Et
+  TH2F_LW* m_h_em_Mismatch_etaphi_CP;               ///< eta-phi map of em mismatches with zero L1Calo (CP) Et and Calo Et > 5
+  TH2F_LW* m_h_had_Mismatch_etaphi_alt_CP;          ///< eta-phi map of had mismatches with L1Calo (CP) Et > 5 and zero Calo Et
+  TH2F_LW* m_h_had_Mismatch_etaphi_CP;              ///< eta-phi map of had mismatches with zero L1Calo (CP) Et and Calo Et > 5
+  */
+  TH1F_LW* m_h_em_1D_Match_LArEMB;                  ///< LArEMB Relative difference between L1Calo (JEP) and Calo em Et
+  TH1F_LW* m_h_em_1D_Match_LArOverlap;              ///< LArOverlap Relative difference between L1Calo (JEP) and Calo em Et
+  TH1F_LW* m_h_em_1D_Match_LArEMEC;                 ///< LArEMEC Relative difference between L1Calo (JEP)and Calo em Et
+  TH1F_LW* m_h_em_1D_Match_LArFCAL1;                ///< LArFCAL1 Relative difference between LCalo (JEP) and Calo em Et
+  TH1F_LW* m_h_had_1D_Match_TileLB;                 ///< TileLB Relative difference between L1Calo (JEP) and Calo had Et
+  TH1F_LW* m_h_had_1D_Match_TileEB;                 ///< TileEB Relative difference between L1Calo (JEP) and Calo had Et
+  TH1F_LW* m_h_had_1D_Match_LArHEC;                 ///< LArHEC Relative difference between L1Calo (JEP) and Calo had Et
+  TH1F_LW* m_h_had_1D_Match_LArFCAL23;              ///< LArFCAL23 Relative difference between L1Calo (JEP) and Calo had Et
 
-  TProfile_LW* m_h_em_profile_etaRegion;            ///< Difference in eta: L1Calo - Calo em Et
-  TProfile_LW* m_h_had_profile_etaRegion;           ///< Difference in eta: L1Calo - Calo had Et
-  
-  TProfile_LW* m_h_had_profile_phiRegion;           ///< Difference in phi: L1Calo - Calo had Et
-  TProfile_LW* m_h_em_profile_phiRegion;            ///< Difference in phi: L1Calo - Calo em Et
-  
-  TProfile2D_LW* m_h_average_emDE_map;              ///< eta-phi map of average L1Calo - Calo em Et difference
-  TProfile2D_LW* m_h_average_hadDE_map;             ///< eta-phi map of average L1Calo - Calo had Et difference
-   
+  TH1F_LW* m_h_em_1D_Match_LArEMB_CP;               ///< LArEMB Relative difference between L1Calo (CP) and Calo em Et
+  TH1F_LW* m_h_em_1D_Match_LArOverlap_CP;           ///< LArOverlap Relative difference between L1Calo (CP) and Calo em Et
+  TH1F_LW* m_h_em_1D_Match_LArEMEC_CP;              ///< LArEMEC Relative difference between L1Calo (CP) and Calo em Et
+  TH1F_LW* m_h_em_1D_Match_LArFCAL1_CP;             ///< LArFCAL1 Relative difference between L1Calo (CP) and Calo em Et
+  TH1F_LW* m_h_had_1D_Match_TileLB_CP;              ///< TileLB Relative difference between L1Calo (CP) and Calo had Et
+  TH1F_LW* m_h_had_1D_Match_TileEB_CP;              ///< TileEB Relative difference between L1Calo (CP) and Calo had Et
+  TH1F_LW* m_h_had_1D_Match_LArHEC_CP;              ///< LArHEC Relative difference between L1Calo (CP) and Calo had Et
+  TH1F_LW* m_h_had_1D_Match_LArFCAL23_CP;           ///< LArFCAL23 Relative difference between L1Calo (CP) and Calo had Et
+
+  TH1F_LW* m_h_emEnergy_Calo_L1CaloSat_LArEMB;      ///< LAr EMB Et for Calo TT with L1Calo TT JEP ET = 255 
+  TH1F_LW* m_h_emEnergy_Calo_L1CaloSat_LArOverlap;  ///< LAr Overlap Et for Calo TT with L1Calo TT JEP ET = 255 
+  TH1F_LW* m_h_emEnergy_Calo_L1CaloSat_LArEMEC;     ///< LAr EMEC Et for Calo TT with L1Calo TT JEP ET = 255 
+  TH1F_LW* m_h_emEnergy_Calo_L1CaloSat_LArFCAL1;    ///< LArFCAL1 Et for Calo TT with L1Calo TT JEP ET = 255 
+  TH1F_LW* m_h_hadEnergy_Calo_L1CaloSat_TileLB;     ///< TileLB Et for Calo TT with L1Calo TT JEP ET = 255 
+  TH1F_LW* m_h_hadEnergy_Calo_L1CaloSat_TileEB;     ///< TileEB Et for Calo TT with L1Calo TT JEP ET = 255 
+  TH1F_LW* m_h_hadEnergy_Calo_L1CaloSat_LArHEC;     ///< LArHEC Et for Calo TT with L1Calo TT JEP ET = 255 
+  TH1F_LW* m_h_hadEnergy_Calo_L1CaloSat_LArFCAL23;  ///< LArFCAL23 Et for Calo TT with L1Calo TT JEP ET = 255 
+
+  TH1F_LW* m_h_emEnergy_Calo_L1CaloSat_LArEMB_CP;      ///< LAr EMB Et for Calo TT with L1Calo TT CP ET = 255 
+  TH1F_LW* m_h_emEnergy_Calo_L1CaloSat_LArOverlap_CP;  ///< LAr Overlap Et for Calo TT with L1Calo TT CP ET = 255 
+  TH1F_LW* m_h_emEnergy_Calo_L1CaloSat_LArEMEC_CP;     ///< LAr EMEC Et for Calo TT with L1Calo TT CP ET = 255 
+  TH1F_LW* m_h_emEnergy_Calo_L1CaloSat_LArFCAL1_CP;    ///< LArFCAL1 Et for Calo TT with L1Calo TT CP ET = 255 
+  TH1F_LW* m_h_hadEnergy_Calo_L1CaloSat_TileLB_CP;     ///< TileLB Et for Calo TT with L1Calo TT CP ET = 255 
+  TH1F_LW* m_h_hadEnergy_Calo_L1CaloSat_TileEB_CP;     ///< TileEB Et for Calo TT with L1Calo TT CP ET = 255 
+  TH1F_LW* m_h_hadEnergy_Calo_L1CaloSat_LArHEC_CP;     ///< LArHEC Et for Calo TT with L1Calo TT CP ET = 255 
+  TH1F_LW* m_h_hadEnergy_Calo_L1CaloSat_LArFCAL23_CP;  ///< LArFCAL23 Et for Calo TT with L1Calo TT CP ET = 255 
+
+  TProfile_LW* m_h_em_profile_etaRegion;            ///< Relative difference in eta between L1Calo (JEP) and Calo em Et
+  TProfile_LW* m_h_had_profile_etaRegion;           ///< Relative difference in eta between L1Calo (JEP) and Calo had Et
+ 
+  TProfile_LW* m_h_em_profile_phiRegion;            ///< Relative difference in phi between L1Calo (JEP) and Calo em Et
+  TProfile_LW* m_h_had_profile_phiRegion;           ///< Relative difference in phi between L1Calo (JEP) and Calo had Et
+ 
+  TProfile_LW* m_h_em_profile_etaRegion_CP;         ///< Relative difference in eta between L1Calo (CP) and Calo em Et
+  TProfile_LW* m_h_had_profile_etaRegion_CP;        ///< Relative difference in eta between L1Calo (CP) and Calo had Et
+ 
+  TProfile_LW* m_h_em_profile_phiRegion_CP;         ///< Relative difference in phi between L1Calo (CP) and Calo em Et
+  TProfile_LW* m_h_had_profile_phiRegion_CP;        ///< Relative difference in phi between L1Calo (CP) and Calo had Et
+
+  TProfile2D_LW* m_h_average_emDE_map;              ///< eta-phi map of average L1Calo (JEP) - Calo em Et relative difference
+  TProfile2D_LW* m_h_average_hadDE_map;             ///< eta-phi map of average L1Calo (JEP) - Calo had Et relative difference
+
+  TProfile2D_LW* m_h_average_emDE_map_CP;           ///< eta-phi map of average L1Calo (CP) - Calo em Et relative difference
+  TProfile2D_LW* m_h_average_hadDE_map_CP;          ///< eta-phi map of average L1Calo (CP) - Calo had Et relative difference
+
   //Most Energetic towers
   TH2F_LW* m_h_emTTME_etaphi;                       ///< eta-phi map of em most energetic TT
   TH2F_LW* m_h_hadTTME_etaphi;                      ///< eta-phi map of had most energetic TT
   
+  TH2F_LW* m_h_emTTME_etaphi_CP;                    ///< eta-phi map of em most energetic TT (CP)
+  TH2F_LW* m_h_hadTTME_etaphi_CP;                   ///< eta-phi map of had most energetic TT (CP)
+ 
   TH2F_LW* m_h_emcaloME_etaphi;                     ///< eta-phi map of em most energetic caloTT
   TH2F_LW* m_h_hadcaloME_etaphi;                    ///< eta-phi map of had most energetic caloTT
 
