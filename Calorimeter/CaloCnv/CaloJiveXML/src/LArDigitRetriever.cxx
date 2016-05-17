@@ -19,7 +19,7 @@
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "Identifier/HWIdentifier.h"
 #include "CaloIdentifier/TileID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 using CLHEP::GeV;
 
@@ -33,7 +33,9 @@ namespace JiveXML {
    **/
   LArDigitRetriever::LArDigitRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("LArDigit"){
+    m_typeName("LArDigit"),
+    m_larCablingSvc("LArCablingService")
+  {
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -72,9 +74,6 @@ namespace JiveXML {
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
 
-    if ( !service("ToolSvc", m_toolSvc) )
-      return StatusCode::FAILURE;
-    
     return StatusCode::SUCCESS;        
   }
    
@@ -145,7 +144,7 @@ namespace JiveXML {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getLArDigitData()" << endreq;
     
     char rndStr[30];
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect phi; phi.reserve(cellContainer->size());
     DataVect eta; eta.reserve(cellContainer->size());
@@ -165,8 +164,8 @@ namespace JiveXML {
     DataVect cellPedestal; cellPedestal.reserve(cellContainer->size());
     DataVect adc2Mev; adc2Mev.reserve(cellContainer->size());
      
-//    sub; sub.reserve(cellContainer->size());
-    sub.clear(); // need to clear before each event, otherwise appended
+//    m_sub; m_sub.reserve(cellContainer->size());
+    m_sub.clear(); // need to clear before each event, otherwise appended
 
     DataVect LArSampleIndexVec; LArSampleIndexVec.reserve(cellContainer->size());
 
@@ -187,9 +186,8 @@ namespace JiveXML {
 //--- initialize the LArCablingService tool, which can be 
 //--- used to convert between online and hardware ID--
 
-    if (m_toolSvc->retrieveTool("LArCablingService", m_larCablingSvc).isFailure()){
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endreq;
-    }
+    if(m_larCablingSvc.retrieve().isFailure())
+      ATH_MSG_ERROR ("Could not retrieve LArCablingService");
 
     const ILArPedestal* larPedestal;
     if ( detStore()->retrieve(larPedestal).isFailure()){
@@ -204,7 +202,7 @@ namespace JiveXML {
     IAlgTool* algtool;
     ILArADC2MeVTool* adc2mevTool=0;
 
-    if ( m_toolSvc->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
+    if ( toolSvc()->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
       if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(), Could not retrieve LAr ADC2MeV Tool" <<endreq;
     } else {
       adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
@@ -343,8 +341,8 @@ namespace JiveXML {
               dx.push_back(DataType(elt->dx()*0.1));
               dy.push_back(DataType(elt->dy()*0.1));
               
-              if (m_calocell_id->pos_neg(LArId)==2) sub.push_back(DataType(1));
-                else  sub.push_back(DataType(0));
+              if (m_calocell_id->pos_neg(LArId)==2) m_sub.push_back(DataType(1));
+                else  m_sub.push_back(DataType(0));
 
 
               cellTime = (*cellContainer)[Index]->time();
@@ -461,8 +459,8 @@ namespace JiveXML {
             dx.push_back(DataType( elt->dx()*0.1 ));
             dy.push_back(DataType( elt->dy()*0.1 ));
               
-            if (m_calocell_id->pos_neg(cellid)==2) sub.push_back(DataType(1));
-              else sub.push_back(DataType(0));
+            if (m_calocell_id->pos_neg(cellid)==2) m_sub.push_back(DataType(1));
+              else m_sub.push_back(DataType(0));
             if (m_doFCalDigit){
               LArSampleIndexStr="adcCounts multiple=\""+DataType(nLArSamples).toString()+"\"";
               for(int i=0; i<nLArSamples; i++) LArSampleIndexVec.push_back(DataType(0));
@@ -478,28 +476,28 @@ namespace JiveXML {
     // write values into DataMap
 
     if(!(datatype=="FCAL")){
-      m_DataMap["phi"] = phi;
-      m_DataMap["eta"] = eta;
+      DataMap["phi"] = phi;
+      DataMap["eta"] = eta;
     } else {
-      m_DataMap["x"] = x;
-      m_DataMap["y"] = y;
-      m_DataMap["dx"] = dx;
-      m_DataMap["dy"] = dy;
+      DataMap["x"] = x;
+      DataMap["y"] = y;
+      DataMap["dx"] = dx;
+      DataMap["dy"] = dy;
     }
 
-    m_DataMap["energy"] = energy;
-    m_DataMap["id"] = idVec;
-    m_DataMap["channel"] = channel;
-    m_DataMap["feedThrough"] = feedThrough;
-    m_DataMap["slot"] = slotVec;
+    DataMap["energy"] = energy;
+    DataMap["id"] = idVec;
+    DataMap["channel"] = channel;
+    DataMap["feedThrough"] = feedThrough;
+    DataMap["slot"] = slotVec;
     
     // adc counts
-    m_DataMap["cellTime"] = cellTimeVec;
-    m_DataMap["cellGain"] = cellGain;
-    m_DataMap["cellPedestal"] = cellPedestal;
-    m_DataMap["adc2Mev"] = adc2Mev;
+    DataMap["cellTime"] = cellTimeVec;
+    DataMap["cellGain"] = cellGain;
+    DataMap["cellPedestal"] = cellPedestal;
+    DataMap["adc2Mev"] = adc2Mev;
 
-    m_DataMap[LArSampleIndexStr] = LArSampleIndexVec; // adcCounts
+    DataMap[LArSampleIndexStr] = LArSampleIndexVec; // adcCounts
 
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
@@ -507,7 +505,7 @@ namespace JiveXML {
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // getTileData
 
@@ -517,11 +515,11 @@ namespace JiveXML {
   void LArDigitRetriever::calcEMLayerSub(Identifier& cellid)
   {
     if(abs(m_calocell_id->pos_neg(cellid))==1)
-      sub.push_back(DataType(1));
+      m_sub.push_back(DataType(1));
     if(abs(m_calocell_id->pos_neg(cellid))==2)
-      sub.push_back(DataType(2));
+      m_sub.push_back(DataType(2));
     if(abs(m_calocell_id->pos_neg(cellid))==3)
-      sub.push_back(DataType(0));
+      m_sub.push_back(DataType(0));
     
   }
 
@@ -530,9 +528,9 @@ namespace JiveXML {
   void LArDigitRetriever::calcHECLayerSub(Identifier& cellid)
   {
     if(m_calocell_id->pos_neg(cellid)==2)
-      sub.push_back(DataType(1));
+      m_sub.push_back(DataType(1));
     else
-      sub.push_back(DataType(0));
+      m_sub.push_back(DataType(0));
   }
   
 

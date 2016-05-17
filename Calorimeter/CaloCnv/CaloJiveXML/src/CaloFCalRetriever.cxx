@@ -4,7 +4,7 @@
 
 #include "CaloJiveXML/CaloFCalRetriever.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 
 #include "EventContainers/SelectAllObject.h"
 
@@ -18,9 +18,9 @@
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "Identifier/HWIdentifier.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
-using CLHEP::GeV;
+using Athena::Units::GeV;
 
 namespace JiveXML {
 
@@ -32,7 +32,9 @@ namespace JiveXML {
    **/
   CaloFCalRetriever::CaloFCalRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("FCAL"){
+    m_typeName("FCAL"),
+    m_larCablingSvc("LArCablingService")
+  {
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -63,9 +65,6 @@ namespace JiveXML {
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
 
-    if ( !service("ToolSvc", m_toolSvc) )
-      return StatusCode::FAILURE;
-    
     return StatusCode::SUCCESS;	
   }
    
@@ -104,7 +103,7 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getFCalData()" << endreq;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect x; x.reserve(cellContainer->size());
     DataVect y; y.reserve(cellContainer->size());
@@ -130,10 +129,8 @@ namespace JiveXML {
     CaloCellContainer::const_iterator it2 = cellContainer->endConstCalo(CaloCell_ID::LARFCAL);
 
     
-   StatusCode scTool=m_toolSvc->retrieveTool("LArCablingService", m_larCablingSvc);
-   if(scTool.isFailure()){
-	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endreq;
-      }
+    if(m_larCablingSvc.retrieve().isFailure())
+      ATH_MSG_ERROR ("Could not retrieve LArCablingService");
 
     const ILArPedestal* larPedestal = nullptr;
     if(m_doFCalCellDetails){
@@ -148,12 +145,12 @@ namespace JiveXML {
      }
     
       IAlgTool* algtool;
-      ILArADC2MeVTool* m_adc2mevTool=0;
+      ILArADC2MeVTool* adc2mevTool=0;
       if(m_doFCalCellDetails){
-	if( m_toolSvc->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
+	if( toolSvc()->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
 	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getFCalData(), Could not retrieve LAr ADC2MeV Tool" <<endreq;
 	} else {
-	  m_adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
+	  adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
 	}
       }
 
@@ -209,8 +206,8 @@ namespace JiveXML {
 	    else pedvalue = 0;
 	    cellPedestal.push_back(DataType(pedvalue));
 	         
-            if ( m_adc2mevTool ){
-	       const std::vector<float>* polynom_adc2mev = &(m_adc2mevTool->ADC2MEV(cellid,fcalgain));
+            if ( adc2mevTool ){
+	       const std::vector<float>* polynom_adc2mev = &(adc2mevTool->ADC2MEV(cellid,fcalgain));
 	       if (polynom_adc2mev->size()==0){ adc2Mev.push_back(DataType(-1)); }
  	       else{ adc2Mev.push_back(DataType((*polynom_adc2mev)[1])); }
             }else{
@@ -236,26 +233,26 @@ namespace JiveXML {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Total energy in FCAL (LAr) in GeV : " <<  energyAllLArFcal << endreq;
 
     // write values into DataMap
-    m_DataMap["x"] = x;
-    m_DataMap["y"] = y;
-    m_DataMap["dx"] = dx;
-    m_DataMap["dy"] = dy;
-    m_DataMap["energy"] = energy;
-    m_DataMap["id"] = idVec;
-    m_DataMap["channel"] = channel;
-    m_DataMap["feedThrough"] = feedThrough;
-    m_DataMap["slot"] = slot;
+    DataMap["x"] = x;
+    DataMap["y"] = y;
+    DataMap["dx"] = dx;
+    DataMap["dy"] = dy;
+    DataMap["energy"] = energy;
+    DataMap["id"] = idVec;
+    DataMap["channel"] = channel;
+    DataMap["feedThrough"] = feedThrough;
+    DataMap["slot"] = slot;
     //Bad Cells
     if (m_doBadFCal==true) {
-      m_DataMap["BadCell"] = BadCell;
-    }    m_DataMap["sub"] = sub;
+      DataMap["BadCell"] = BadCell;
+    }    DataMap["sub"] = sub;
 
     // adc counts
     if ( m_doFCalCellDetails){
-       m_DataMap["cellTime"] = cellTimeVec;
-       m_DataMap["cellGain"] = cellGain;
-       m_DataMap["cellPedestal"] = cellPedestal;
-       m_DataMap["adc2Mev"] = adc2Mev;
+       DataMap["cellTime"] = cellTimeVec;
+       DataMap["cellGain"] = cellGain;
+       DataMap["cellPedestal"] = cellPedestal;
+       DataMap["adc2Mev"] = adc2Mev;
     }
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
@@ -263,7 +260,7 @@ namespace JiveXML {
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // getFCalData
 

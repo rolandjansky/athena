@@ -4,7 +4,7 @@
 
 #include "CaloJiveXML/CaloLArRetriever.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 
 #include "EventContainers/SelectAllObject.h"
 
@@ -18,9 +18,9 @@
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "Identifier/HWIdentifier.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
-using CLHEP::GeV;
+using Athena::Units::GeV;
 
 namespace JiveXML {
 
@@ -32,7 +32,9 @@ namespace JiveXML {
    **/
   CaloLArRetriever::CaloLArRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("LAr"){
+    m_typeName("LAr"),
+    m_larCablingSvc("LArCablingService")
+  {
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -63,9 +65,6 @@ namespace JiveXML {
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
 
-    if ( !service("ToolSvc", m_toolSvc) )
-      return StatusCode::FAILURE;
-    
     return StatusCode::SUCCESS;	
   }
    
@@ -104,7 +103,7 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getLArData()" << endreq;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect phi; phi.reserve(cellContainer->size());
     DataVect eta; eta.reserve(cellContainer->size());
@@ -126,10 +125,8 @@ namespace JiveXML {
     CaloCellContainer::const_iterator it2 = cellContainer->endConstCalo(CaloCell_ID::LAREM);
 
     
-   StatusCode scTool=m_toolSvc->retrieveTool("LArCablingService", m_larCablingSvc);
-   if(scTool.isFailure()){
-	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endreq;
-      }
+    if(m_larCablingSvc.retrieve().isFailure())
+      ATH_MSG_ERROR ("Could not retrieve LArCablingService");
 
     const ILArPedestal* larPedestal = nullptr;
     if(m_doLArCellDetails){
@@ -146,7 +143,7 @@ namespace JiveXML {
       IAlgTool* algtool;
       ILArADC2MeVTool* adc2mevTool=0;
       if(m_doLArCellDetails){
-	if( m_toolSvc->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
+	if( toolSvc()->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
 	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArData(), Could not retrieve LAr ADC2MeV Tool" <<endreq;
 	} else {
 	  adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
@@ -222,25 +219,25 @@ namespace JiveXML {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Total energy in LAr barrel in GeV : " <<  energyAllLArBarrel << endreq;
 
     // write values into DataMap
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["energy"] = energy;
-    m_DataMap["id"] = idVec;
-    m_DataMap["channel"] = channel;
-    m_DataMap["feedThrough"] = feedThrough;
-    m_DataMap["slot"] = slot;
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["energy"] = energy;
+    DataMap["id"] = idVec;
+    DataMap["channel"] = channel;
+    DataMap["feedThrough"] = feedThrough;
+    DataMap["slot"] = slot;
 
     //Bad Cells
     if (m_doBadLAr==true) {
-      m_DataMap["BadCell"] = BadCell;
+      DataMap["BadCell"] = BadCell;
     }
 
    // adc counts
     if ( m_doLArCellDetails){
-       m_DataMap["cellTime"] = cellTimeVec;
-       m_DataMap["cellGain"] = cellGain;
-       m_DataMap["cellPedestal"] = cellPedestal;
-       m_DataMap["adc2Mev"] = adc2Mev;
+       DataMap["cellTime"] = cellTimeVec;
+       DataMap["cellGain"] = cellGain;
+       DataMap["cellPedestal"] = cellPedestal;
+       DataMap["adc2Mev"] = adc2Mev;
     }
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
@@ -249,7 +246,7 @@ namespace JiveXML {
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // getLArData
 
