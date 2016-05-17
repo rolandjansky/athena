@@ -22,9 +22,9 @@ class G4AtlasSvc : public AthService , public virtual IG4AtlasSvc {
   virtual ~G4AtlasSvc();
 
   // Gaudi methods
-  StatusCode initialize();
-  StatusCode finalize();
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  StatusCode initialize() override final;
+  StatusCode finalize() override final;
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
   static const InterfaceID& interfaceID() { return IG4AtlasSvc::interfaceID(); }
 
  private:

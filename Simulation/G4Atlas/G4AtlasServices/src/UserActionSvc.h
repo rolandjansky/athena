@@ -42,37 +42,37 @@ class UserActionSvc: virtual public IUserActionSvc, public AthService, public G4
   UserActionSvc( const std::string& name, ISvcLocator* svc );//!< Service constructor
   virtual ~UserActionSvc();
 
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
   static const InterfaceID& interfaceID() { return IUserActionSvc::interfaceID(); }
 
-  virtual StatusCode initialize();          //!< Service init
-  virtual StatusCode finalize();            //!< Service finalize
+  virtual StatusCode initialize() override final;          //!< Service init
+  virtual StatusCode finalize() override final;            //!< Service finalize
 
-  virtual void PreUserTrackingAction(const G4Track*); //!< hook for the g4 run manager
-  virtual void PostUserTrackingAction(const G4Track*); //!< hook for the g4 run manager
-  virtual void BeginOfEventAction(const G4Event* ); //!< hook for the g4 run manager
-  virtual void EndOfEventAction(const G4Event* ); //!< hook for the g4 run manager
-  virtual void BeginOfRunAction(const G4Run* ); //!< hook for the g4 run manager
-  virtual void EndOfRunAction(const G4Run* ); //!< hook for the g4 run manager
-  virtual void UserSteppingAction(const G4Step*); //!< hook for g4 the run manager
+  virtual void PreUserTrackingAction(const G4Track*) override final; //!< hook for the g4 run manager
+  virtual void PostUserTrackingAction(const G4Track*) override final; //!< hook for the g4 run manager
+  virtual void BeginOfEventAction(const G4Event* ) override final; //!< hook for the g4 run manager
+  virtual void EndOfEventAction(const G4Event* ) override final; //!< hook for the g4 run manager
+  virtual void BeginOfRunAction(const G4Run* ) override final; //!< hook for the g4 run manager
+  virtual void EndOfRunAction(const G4Run* ) override final; //!< hook for the g4 run manager
+  virtual void UserSteppingAction(const G4Step*) override final; //!< hook for g4 the run manager
 
-  virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track* aTrack); //!< hook for g4 the run manager
-  virtual void PrepareNewEvent();
-  virtual void NewStage();
+  virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track* aTrack) override final; //!< hook for g4 the run manager
+  virtual void PrepareNewEvent() override final;
+  virtual void NewStage() override final;
 
   // some hooks to manage legacy actions from FADS
-  void SetLegacyRA(G4UserRunAction* anAction);
-  void SetLegacyEA(G4UserEventAction* anAction);
-  void SetLegacySA(G4UserSteppingAction* anAction);
-  void SetLegacyTA(G4UserTrackingAction* anAction);
-  void SetLegacyStaA(G4UserStackingAction* anAction);
+  void SetLegacyRA(G4UserRunAction* anAction) override final;
+  void SetLegacyEA(G4UserEventAction* anAction) override final;
+  void SetLegacySA(G4UserSteppingAction* anAction) override final;
+  void SetLegacyTA(G4UserTrackingAction* anAction) override final;
+  void SetLegacyStaA(G4UserStackingAction* anAction) override final;
   
 
 
   // needeed to replicate functionality provided by the old FADS singletons
   virtual void SetTrajectory(G4VTrajectory * aTraj) override {fpTrackingManager->SetStoreTrajectory(true);  fpTrackingManager->SetTrajectory(aTraj);};
   virtual G4TrackingManager* TrackingManager() const override {return fpTrackingManager;}; 
-  virtual G4StackManager* StackManager() const {return stackManager;};
+  virtual G4StackManager* StackManager() const override final {return stackManager;};
   virtual void ResetTrajectory() override {fpTrackingManager->SetStoreTrajectory(false);};
   
   // now the new actions
@@ -136,5 +136,108 @@ class UserActionSvc: virtual public IUserActionSvc, public AthService, public G4
 };
 
 
+
+#endif
+
+
+#ifndef G4ATLASSERVICES__G4UA_USERACTIONSVC_H
+#define G4ATLASSERVICES__G4UA_USERACTIONSVC_H
+
+
+// System includes
+#include <thread>
+
+// Framework includes
+#include "AthenaBaseComps/AthService.h"
+#include "GaudiKernel/ToolHandle.h"
+
+// Local includes
+#include "G4AtlasRunAction.h"
+#include "G4AtlasEventAction.h"
+#include "G4AtlasStackingAction.h"
+#include "G4AtlasTrackingAction.h"
+#include "G4AtlasSteppingAction.h"
+#include "G4AtlasInterfaces/IBeginRunActionTool.h"
+#include "G4AtlasInterfaces/IEndRunActionTool.h"
+#include "G4AtlasInterfaces/IBeginEventActionTool.h"
+#include "G4AtlasInterfaces/IEndEventActionTool.h"
+#include "G4AtlasInterfaces/IStackingActionTool.h"
+#include "G4AtlasInterfaces/IPreTrackingActionTool.h"
+#include "G4AtlasInterfaces/IPostTrackingActionTool.h"
+#include "G4AtlasInterfaces/ISteppingActionTool.h"
+
+#include "G4AtlasInterfaces/IUserActionSvc.h"
+#include "G4AtlasTools/ThreadActionHolder.h"
+
+
+namespace G4UA
+{
+
+  /// @class UserActionSvc
+  /// @brief A service which manages the user actions for G4 simulation
+  /// @author Steve Farrell <Steven.Farrell@cern.ch>
+  ///
+  class UserActionSvc : public AthService,
+                        public virtual IUserActionSvc
+  {
+
+    public:
+
+      /// Standard constructor
+      UserActionSvc(const std::string& name, ISvcLocator* pSvcLocator);
+
+      /// Initialize the service
+      StatusCode initialize() override;
+
+      /// Initialize the user actions for the current thread
+      StatusCode initializeActions() override final;
+
+      /// Gaudi interface query
+      virtual StatusCode queryInterface(const InterfaceID& riid,
+                                        void** ppvInterface);
+
+    private:
+
+      /// @name Handles to ATLAS action tools
+      /// @{
+
+      /// Begin-run action tools
+      ToolHandleArray<IBeginRunActionTool> m_beginRunActionTools;
+      /// End-run action tools
+      ToolHandleArray<IEndRunActionTool> m_endRunActionTools;
+      /// Begin-event action tools
+      ToolHandleArray<IBeginEventActionTool> m_beginEventActionTools;
+      /// End-event action tools
+      ToolHandleArray<IEndEventActionTool> m_endEventActionTools;
+      /// Stacking action tools
+      ToolHandleArray<IStackingActionTool> m_stackingActionTools;
+      /// Pre-tracking action tools
+      ToolHandleArray<IPreTrackingActionTool> m_preTrackingActionTools;
+      /// Post-tracking action tools
+      ToolHandleArray<IPostTrackingActionTool> m_postTrackingActionTools;
+      /// Stepping action tools
+      ToolHandleArray<ISteppingActionTool> m_steppingActionTools;
+
+      /// @}
+
+      /// @name ATLAS Geant4 user actions
+      /// @{
+
+      /// Thread-local run action
+      ThreadActionHolder<G4AtlasRunAction> m_runActions;
+      /// Thread-local event action
+      ThreadActionHolder<G4AtlasEventAction> m_eventActions;
+      /// Thread-local stacking action
+      ThreadActionHolder<G4AtlasStackingAction> m_stackingActions;
+      /// Thread-local tracking action
+      ThreadActionHolder<G4AtlasTrackingAction> m_trackingActions;
+      /// Thread-local stepping action
+      ThreadActionHolder<G4AtlasSteppingAction> m_steppingActions;
+
+      /// @}
+
+  }; // class UserActionSvc
+
+}
 
 #endif
