@@ -1,225 +1,420 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from G4AtlasApps.SimFlags import simFlags
-from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon import CfgGetter,CfgMgr,Logging
 
+# Common methods to return default UserAction(Tool)s
+
+# provide V1 or V2 action names
+def userActionName(aName):
+    from G4AtlasApps.SimFlags import simFlags
+    if (hasattr(simFlags, 'UseV2UserActions') and simFlags.UseV2UserActions()):
+        if aName == 'CalibrationDefaultProcessing': ## This one uses a different naming convention...
+            return 'G4UA::CaloG4::CalibrationDefaultProcessingTool'
+        return 'G4UA::'+aName+'Tool'
+    return aName
+
 # actions to be run at begin of run
-def defaultBoRActions():
-
+def getDefaultBoRActions():
+    from G4AtlasApps.SimFlags import simFlags
     defaultUA=[]
-
-    if not simFlags.ISFRun:
-        defaultUA+=['G4SimTimer']
-
-    if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, 'CavernBG') and not simFlags.CavernBG.statusOn:
-        defaultUA+=['CosmicPerigeeAction']
-        if simFlags.ISFRun: #FIXME obsolete?
-            CfgGetter.getPublicTool('CosmicPerigeeAction').AllowMods=True #FIXME obsolete?
-
+    if not ((hasattr(simFlags, 'UseV2UserActions') and simFlags.UseV2UserActions()) or simFlags.ISFRun): #FIXME temp workaround
+        defaultUA+=[userActionName('G4SimTimer')]
     if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
-        defaultUA+=['StoppedParticleAction']
-
+        defaultUA+=[userActionName('StoppedParticleAction')]
     return defaultUA
 
 # actions to be run at end of run
-def defaultEoRActions():
-
+def getDefaultEoRActions():
+    from G4AtlasApps.SimFlags import simFlags
+    from AthenaCommon.BeamFlags import jobproperties
     defaultUA=[]
-
-    if not simFlags.ISFRun:
-        defaultUA+=['G4SimTimer']
-
-    defaultUA+=['G4TrackCounter']
-
+    #FIXME temp workaround
+    if not ((hasattr(simFlags, 'UseV2UserActions') and simFlags.UseV2UserActions()) or simFlags.ISFRun):
+        defaultUA+=[userActionName('G4SimTimer')]
+        defaultUA+=[userActionName('G4TrackCounter')]
     if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
-        defaultUA+=['StoppedParticleAction']
-        defaultUA+=['G4CosmicFilter']
-
-    if jobproperties.Beam.beamType() == 'cosmics':
-        defaultUA+=['G4CosmicFilter']
-
+        defaultUA+=[userActionName('StoppedParticleAction')]
+        if not (hasattr(simFlags, 'UseV2UserActions') and simFlags.UseV2UserActions()): #FIXME temp workaround
+            defaultUA+=[userActionName('G4CosmicFilter')]
+    if jobproperties.Beam.beamType() == 'cosmics' and not ((hasattr(simFlags, 'UseV2UserActions') and simFlags.UseV2UserActions()) or simFlags.ISFRun): #FIXME temp workaround
+        defaultUA+=[userActionName('G4CosmicFilter')]
     return defaultUA
 
 # begin of event
-def defaultBoEActions():
-
+def getDefaultBoEActions():
+    from G4AtlasApps.SimFlags import simFlags
+    from AthenaCommon.BeamFlags import jobproperties
     defaultUA=[]
-
     if not simFlags.ISFRun:
-        defaultUA+=['G4SimTimer']
-
-    defaultUA+=['G4TrackCounter']
-
+        defaultUA+=[userActionName('G4SimTimer')]
+        defaultUA+=[userActionName('MCTruthSteppingAction')]
+    defaultUA+=[userActionName('G4TrackCounter')]
     if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, 'CavernBG') and not simFlags.CavernBG.statusOn:
-        defaultUA+=['CosmicPerigeeAction']
-        if simFlags.ISFRun: #FIXME obsolete?
-            CfgGetter.getPublicTool('CosmicPerigeeAction').AllowMods=True #FIXME obsolete?
-
+        defaultUA+=[userActionName('CosmicPerigeeAction')]
     if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
-        defaultUA+=['StoppedParticleAction']
-
-
+        defaultUA+=[userActionName('StoppedParticleAction')]
+    if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
+        defaultUA+=[userActionName('CalibrationDefaultProcessing')]
     return defaultUA
 
 # end of event
-def defaultEoEActions():
-
+def getDefaultEoEActions():
+    from G4AtlasApps.SimFlags import simFlags
+    from AthenaCommon.BeamFlags import jobproperties
     defaultUA=[]
-
     if not simFlags.ISFRun:
-        defaultUA+=['G4SimTimer']
-
-    if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, 'CavernBG') and not simFlags.CavernBG.statusOn:
-        defaultUA+=['CosmicPerigeeAction']
-        if simFlags.ISFRun: #FIXME obsolete?
-            CfgGetter.getPublicTool('CosmicPerigeeAction').AllowMods=True #FIXME obsolete?
-
+        defaultUA+=[userActionName('G4SimTimer')]
     if hasattr(simFlags, 'CavernBG') and simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() == 'Read':
-
-        defaultUA+=['HitWrapper']
-
+        defaultUA+=[userActionName('HitWrapper')]
     if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
-        defaultUA+=['StoppedParticleAction']
-        defaultUA+=['G4CosmicFilter']
-        if simFlags.ISFRun:
-             CfgGetter.getPublicTool('G4CosmicFilter').VolumeName='StoppingPositions'
-
-    if jobproperties.Beam.beamType() == 'cosmics':
-        defaultUA+=['G4CosmicFilter']
-
+        defaultUA+=[userActionName('StoppedParticleAction')]
+        defaultUA+=[userActionName('G4CosmicFilter')]
+    if jobproperties.Beam.beamType() == 'cosmics' and not simFlags.ISFRun:
+        defaultUA+=[userActionName('G4CosmicFilter')]
     return defaultUA
 
 # stepping
-def defaultSteActions():
-
+def getDefaultSteppingActions():
+    from G4AtlasApps.SimFlags import simFlags
+    from AthenaCommon.BeamFlags import jobproperties
     defaultUA=[]
-
+    if not simFlags.ISFRun:
+        defaultUA+=[userActionName('MCTruthSteppingAction')]
     if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, 'CavernBG') and not simFlags.CavernBG.statusOn:
-        defaultUA+=['CosmicPerigeeAction']
-        if simFlags.ISFRun: #FIXME obsolete?
-            CfgGetter.getPublicTool('CosmicPerigeeAction').AllowMods=True #FIXME obsolete?
-
+        defaultUA+=[userActionName('CosmicPerigeeAction')]
+    if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
+        defaultUA+=[userActionName('CalibrationDefaultProcessing')]
     if simFlags.PhysicsList == 'QGSP_BERT_HP':
-        defaultUA+=['PhotonKiller']
-
+        defaultUA+=[userActionName('PhotonKiller')]
     return defaultUA
 
 # PreUserTracking
-def defaultBoTActions():
-
+def getDefaultBoTActions():
+    from G4AtlasApps.SimFlags import simFlags
     defaultUA=[]
-
-    defaultUA+=['G4TrackCounter']
-
+    if not simFlags.ISFRun:
+        defaultUA+=[userActionName('AthenaTrackingAction')]
+    defaultUA+=[userActionName('G4TrackCounter')]
     return defaultUA
 
 # PostUserTracking
-def defaultEoTActions():
-
+def getDefaultEoTActions():
+    from G4AtlasApps.SimFlags import simFlags
     defaultUA=[]
-    
+    if not simFlags.ISFRun:
+        defaultUA+=[userActionName('AthenaTrackingAction')]
     return defaultUA
 
-def defaultStaClaActions():
-    return ['AthenaStackingAction']
+# Stacking Classification
+def getDefaultStackingActions():
+    defaultUA=[]
+    defaultUA+=[userActionName('AthenaStackingAction')]
+    return defaultUA
 
-def defaultStaPrepareActions():
+# Stacking PrepareNewEvent
+def getDefaultStaPrepareActions():
     return []
 
-def defaultStaNewStageActions():
+# Stacking NewStage
+def getDefaultStaNewStageActions():
     return []
-# this creates the USerActionSvc with the default actions
+
+#
+# Methods used to retrieve V1 UserActionSvc
+#
+
+# this creates the V1 USerActionSvc with the default actions
 # additional actions must be added to the service by the
 # client packages, through G4AtlasUserActionConfig.UAStore
-def getUserActionSvc(name="UserActionSvc", **kwargs):
-    kwargs.setdefault('BeginOfRunActions',              defaultBoRActions())
-    kwargs.setdefault('EndOfRunActions',                defaultEoRActions())
-    kwargs.setdefault('BeginOfEventActions',            defaultBoEActions())
-    kwargs.setdefault('EndOfEventActions',              defaultEoEActions())
-    kwargs.setdefault('SteppingActions',                defaultSteActions())
-    kwargs.setdefault('PreTrackingActions',             defaultBoTActions())
-    kwargs.setdefault('PostTrackingActions',            defaultEoTActions())
-    kwargs.setdefault('StackingActionsClassification',  defaultStaClaActions())
-    kwargs.setdefault('StackingActionsPrepareNewEvent', defaultStaPrepareActions())
-    kwargs.setdefault('StackingActionsNewStage',        defaultStaNewStageActions())
+def getV1UserActionSvc(name="UserActionSvc", **kwargs):
+    kwargs.setdefault('BeginOfRunActions',              getDefaultBoRActions())
+    kwargs.setdefault('EndOfRunActions',                getDefaultEoRActions())
+    kwargs.setdefault('BeginOfEventActions',            getDefaultBoEActions())
+    kwargs.setdefault('EndOfEventActions',              getDefaultEoEActions())
+    kwargs.setdefault('SteppingActions',                getDefaultSteppingActions())
+    kwargs.setdefault('PreTrackingActions',             getDefaultBoTActions())
+    kwargs.setdefault('PostTrackingActions',            getDefaultEoTActions())
+    kwargs.setdefault('StackingActionsClassification',  getDefaultStackingActions())
+    kwargs.setdefault('StackingActionsPrepareNewEvent', getDefaultStaPrepareActions())
+    kwargs.setdefault('StackingActionsNewStage',        getDefaultStaNewStageActions())
+    # placeholder for more advanced config, if needed
+    return CfgMgr.UserActionSvc(name, **kwargs)
+
+def getV1CTBUserActionSvc(name="CTBUserActionSvc", **kwargs):
+    from G4AtlasApps.SimFlags import simFlags
+    bor = getDefaultBoRActions()
+    eor = getDefaultEoRActions()
+    boe = getDefaultBoEActions()
+    eoe = getDefaultEoEActions()
+    bot = getDefaultBoTActions()
+    eot = getDefaultEoTActions()
+    stepping = getDefaultSteppingActions()
+    stacking = getDefaultStackingActions()
+
+    if simFlags.SimLayout.get_Value()=='tb_LArH6_2004':
+        eoe=['LArHitsH6EventAction']+eoe
+        eoe+=['LArGeoH62004EventAction']
+        if simFlags.LArTB_H6Step.statusOn:
+            if simFlags.LArTB_H6Step.get_Value():
+                stepping+=['LArGeoH62004SteppingAction']
+                boe+=['RadLenNtuple']
+                eoe+=['RadLenNtuple']
+                stepping+=['RadLenNtuple']
+    kwargs.setdefault('BeginOfRunActions', bor)
+    kwargs.setdefault('EndOfRunActions', eor)
+    kwargs.setdefault('BeginOfEventActions', boe)
+    kwargs.setdefault('EndOfEventActions', eoe)
+    kwargs.setdefault('SteppingActions', stepping)
+    kwargs.setdefault('PreTrackingActions', bot)
+    kwargs.setdefault('PostTrackingActions', eot)
+    kwargs.setdefault('StackingActionsClassification', stacking)
+
     # placeholder for more advanced config, if needed
     return CfgMgr.UserActionSvc(name, **kwargs)
 
 
-class G4AtlasUAStore:
+def getV1ISFUserActionSvc(name="ISFUserActionSvc", **kwargs):
+    TrackProcessorUserAction = kwargs.pop('TrackProcessorUserAction',[])
+    PhysicsValidationUserAction = kwargs.pop('PhysicsValidationUserAction',[])
+    MCTruthUserAction = kwargs.pop('MCTruthUserAction',['ISFMCTruthUserAction'])
 
-    def __init__(self):
-        from AthenaCommon.CfgGetter import getService
-        self.systemActions=[]
-        self.log=Logging.logging.getLogger('G4UAStore')
-        self.theSvc = getService('UserActionSvc')
-        # map roles to attributes
-        self.roleMap={'BeginOfRun': 'BeginOfRunActions',
-                      'EndOfRun': 'EndOfRunActions',
-                      'BeginOfEvent': 'BeginOfEventActions',
-                      'EndOfEvent': 'EndOfEventActions',
-                      'BeginOfTracking': 'PreTrackingActions',
-                      'EndOfTracking': 'PostTrackingActions',
-                      'Step': 'SteppingActions',
-                      'Classification': 'StackingActionsClassification',
-                      'PrepareNewEvent': 'StackingActionsPrepareNewEvent',
-                      'NewStage':  'StackingActionsNewStage'}
+    from G4AtlasApps.SimFlags import simFlags
+    bor = getDefaultBoRActions() + PhysicsValidationUserAction
+    eor = getDefaultEoRActions()
+    boe = getDefaultBoEActions() + TrackProcessorUserAction + PhysicsValidationUserAction
+    eoe = getDefaultEoEActions() + TrackProcessorUserAction + PhysicsValidationUserAction
+    bot = TrackProcessorUserAction + MCTruthUserAction + getDefaultBoTActions() + PhysicsValidationUserAction
+    eot = TrackProcessorUserAction + MCTruthUserAction + getDefaultEoTActions()
+    stepping = getDefaultSteppingActions() + TrackProcessorUserAction + PhysicsValidationUserAction
+    stacking = getDefaultStackingActions()
 
-        # set default actions. separate method, in case we want to move it somewhere else
-        self.setDefaults()
+    kwargs.setdefault('BeginOfRunActions', bor)
+    kwargs.setdefault('EndOfRunActions', eor)
+    kwargs.setdefault('BeginOfEventActions', boe)
+    kwargs.setdefault('EndOfEventActions', eoe)
+    kwargs.setdefault('SteppingActions', stepping)
+    kwargs.setdefault('PreTrackingActions', bot)
+    kwargs.setdefault('PostTrackingActions', eot)
+    kwargs.setdefault('StackingActionsClassification', stacking)
 
-    def checkAppState(self):
-        from AthenaCommon.AppMgr import theApp, AthAppMgr
-        if theApp.state() > AthAppMgr.State.CONFIGURED:
-            self.log.fatal('Attempt to add a User Action when athena is already initialized. Check you configuration')
-            return False
-        return True
+    return CfgMgr.UserActionSvc(name, **kwargs)
 
-    # method to add a system action, i.e. an action that is prepended to the list
-    # forceoverride bypasses the check on pre-existing system actions
-    def addSystemAction(self,actionTool,roles,forceoverride=False):
-        if self.checkAppState():
-            if isinstance(actionTool, str):
-                self.log.info('addSystemAction(): adding system action %s (just the name) with roles %s.'%(actionTool, str(roles)))
-            else:
-                self.log.info('addSystemAction(): adding system action %s with roles %s.'%(actionTool.name(), str(roles)))
-            for role in roles:
-                if not role in self.roleMap.keys():
-                    self.log.fatal('addSystemAction(): Unknown role '+role+' requested for action ')
+def getV1ISFFullUserActionSvc(name="ISFFullUserActionSvc", **kwargs):
+    # this configuration needs ISFMCTruthUserAction,
+    # G4OnlyPhysicsValidationUserAction, and FullG4TrackProcessorUserAction
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if ISF_Flags.ValidationMode.get_Value():
+        kwargs.setdefault('PhysicsValidationUserAction',['G4OnlyPhysicsValidationUserAction'])
+    kwargs.setdefault('TrackProcessorUserAction', ['FullG4TrackProcessorUserAction'])
+    return getV1ISFUserActionSvc(name, **kwargs)
+
+def getV1ISFPassBackUserActionSvc(name="ISFPassBackUserActionSvc", **kwargs):
+    # this configuration needs ISFMCTruthUserAction,
+    # G4OnlyPhysicsValidationUserAction, and PassBackG4TrackProcessorUserAction
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if ISF_Flags.ValidationMode.get_Value():
+        kwargs.setdefault('PhysicsValidationUserAction', ['G4OnlyPhysicsValidationUserAction'])
+    kwargs.setdefault('TrackProcessorUserAction', ['PassBackG4TrackProcessorUserAction'])
+    return getV1ISFUserActionSvc(name, **kwargs)
+
+def getV1ISF_AFIIUserActionSvc(name="ISF_AFIIUserActionSvc", **kwargs):
+    # this configuration needs ISFMCTruthUserAction,
+    # AFII_G4PhysicsValidationUserAction, and AFII_G4TrackProcessorUserAction
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if ISF_Flags.ValidationMode.get_Value():
+        kwargs.setdefault('PhysicsValidationUserAction', ['AFII_G4PhysicsValidationUserAction'])
+    kwargs.setdefault('TrackProcessorUserAction', ['AFII_G4TrackProcessorUserAction'])
+    return getV1ISFUserActionSvc(name, **kwargs)
+
+def getV1ISFQuasiStableUserActionSvc(name="ISFQuasiStableUserActionSvc", **kwargs):
+    # this configuration needs ISFMCTruthUserAction,
+    # QuasiStableG4PhysicsValidationUserAction, and FullG4TrackProcessorUserAction
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if ISF_Flags.ValidationMode.get_Value():
+        kwargs.setdefault('PhysicsValidationUserAction', ['QuasiStableG4PhysicsValidationUserAction'])
+    return getV1ISFFullUserActionSvc(name, **kwargs)
+
+
+#
+# Methods used to retrieve V2 user actions
+#
+
+def getV2UserActionSvc(name="G4UA::UserActionSvc", **kwargs):
+    """
+    Get the standard UA svc configurable with all default actions added.
+    This function is normally called by the configured factory, not users.
+    """
+
+    from G4AtlasApps.SimFlags import simFlags
+
+    kwargs.setdefault('BeginRunActionTools', getDefaultBoRActions()+simFlags.OptionalUserActionList.get_Value()['BeginOfRun'])
+    kwargs.setdefault('EndRunActionTools', getDefaultEoRActions()+simFlags.OptionalUserActionList.get_Value()['EndOfRun'])
+    kwargs.setdefault('BeginEventActionTools', getDefaultBoEActions()+simFlags.OptionalUserActionList.get_Value()['BeginOfEvent'])
+    kwargs.setdefault('EndEventActionTools', getDefaultEoEActions()+simFlags.OptionalUserActionList.get_Value()['EndOfEvent'])
+    kwargs.setdefault('SteppingActionTools', getDefaultSteppingActions()+simFlags.OptionalUserActionList.get_Value()['Step'])
+    kwargs.setdefault('PreTrackingActionTools', getDefaultBoTActions()+simFlags.OptionalUserActionList.get_Value()['PreTracking'])
+    kwargs.setdefault('PostTrackingActionTools', getDefaultEoTActions()+simFlags.OptionalUserActionList.get_Value()['PostTracking'])
+    # no optional actions for stacking
+    kwargs.setdefault('StackingActionTools', getDefaultStackingActions())
+
+    # placeholder for more advanced config, if needed
+    return CfgMgr.G4UA__UserActionSvc(name, **kwargs)
+
+def getV2CTBUserActionSvc(name="G4UA::CTBUserActionSvc", **kwargs):
+    from G4AtlasApps.SimFlags import simFlags
+    bor = getDefaultBoRActions()+simFlags.OptionalUserActionList.get_Value()['BeginOfRun']
+    eor = getDefaultEoRActions()+simFlags.OptionalUserActionList.get_Value()['EndOfRun']
+    boe = getDefaultBoEActions()+simFlags.OptionalUserActionList.get_Value()['BeginOfEvent']
+    eoe = getDefaultEoEActions()+simFlags.OptionalUserActionList.get_Value()['EndOfEvent']
+    bot = getDefaultBoTActions()+simFlags.OptionalUserActionList.get_Value()['PreTracking']
+    eot = getDefaultEoTActions()+simFlags.OptionalUserActionList.get_Value()['PostTracking']
+    stepping = getDefaultSteppingActions()+simFlags.OptionalUserActionList.get_Value()['Step']
+    stacking = getDefaultStackingActions()
+
+    # FIXME: ADS these actions are not yet migrated to Hive
+    #if simFlags.SimLayout.get_Value()=='tb_LArH6_2004':
+    #    eoe=['LArHitsH6EventAction']+eoe
+    #    eoe+=['LArGeoH62004EventAction']
+    #    if simFlags.LArTB_H6Step.statusOn:
+    #        if simFlags.LArTB_H6Step.get_Value():
+    #            stepping+=['LArGeoH62004SteppingAction']
+    #            boe+=['RadLenNtuple']
+    #            eoe+=['RadLenNtuple']
+    #            stepping+=['RadLenNtuple']
+
+    kwargs.setdefault('BeginRunActionTools', bor)
+    kwargs.setdefault('EndRunActionTools', eor)
+    kwargs.setdefault('BeginEventActionTools', boe)
+    kwargs.setdefault('EndEventActionTools', eoe)
+    kwargs.setdefault('SteppingActionTools', stepping)
+    kwargs.setdefault('PreTrackingActionTools', bot)
+    kwargs.setdefault('PostTrackingActionTools', eot)
+    kwargs.setdefault('StackingActionTools', stacking)
+
+    # placeholder for more advanced config, if needed
+    return CfgMgr.G4UA__UserActionSvc(name, **kwargs)
+
+
+def getV2ISFUserActionSvc(name="G4UA::ISFUserActionSvc", **kwargs):
+    TrackProcessorUserAction = kwargs.pop('TrackProcessorUserAction',[])
+    PhysicsValidationUserAction = kwargs.pop('PhysicsValidationUserAction',[])
+    MCTruthUserAction = kwargs.pop('MCTruthUserAction',['ISFMCTruthUserActionTool'])
+
+    from G4AtlasApps.SimFlags import simFlags
+    bor = getDefaultBoRActions()+simFlags.OptionalUserActionList.get_Value()['BeginOfRun'] + PhysicsValidationUserAction
+    eor = getDefaultEoRActions()+simFlags.OptionalUserActionList.get_Value()['EndOfRun']
+    boe = getDefaultBoEActions()+simFlags.OptionalUserActionList.get_Value()['BeginOfEvent'] + TrackProcessorUserAction + PhysicsValidationUserAction
+    eoe = getDefaultEoEActions()+simFlags.OptionalUserActionList.get_Value()['EndOfEvent'] + TrackProcessorUserAction + PhysicsValidationUserAction
+    bot = TrackProcessorUserAction + MCTruthUserAction + getDefaultBoTActions()+simFlags.OptionalUserActionList.get_Value()['PreTracking'] + PhysicsValidationUserAction
+    eot = TrackProcessorUserAction + MCTruthUserAction + getDefaultEoTActions()+simFlags.OptionalUserActionList.get_Value()['PostTracking']
+    stepping = getDefaultSteppingActions()+simFlags.OptionalUserActionList.get_Value()['Step'] + TrackProcessorUserAction + PhysicsValidationUserAction
+    stacking = getDefaultStackingActions()
+
+    kwargs.setdefault('BeginRunActionTools', bor)
+    kwargs.setdefault('EndRunActionTools', eor)
+    kwargs.setdefault('BeginEventActionTools', boe)
+    kwargs.setdefault('EndEventActionTools', eoe)
+    kwargs.setdefault('SteppingActionTools', stepping)
+    kwargs.setdefault('PreTrackingActionTools', bot)
+    kwargs.setdefault('PostTrackingActionTools', eot)
+    kwargs.setdefault('StackingActionTools', stacking)
+
+    return CfgMgr.G4UA__UserActionSvc(name, **kwargs)
+
+def getV2ISFFullUserActionSvc(name="G4UA::ISFFullUserActionSvc", **kwargs):
+    # this configuration needs ISFMCTruthUserAction,
+    # G4OnlyPhysicsValidationUserAction, and FullG4TrackProcessorUserAction
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if ISF_Flags.ValidationMode.get_Value():
+        kwargs.setdefault('PhysicsValidationUserAction',[])
+        # FIXME: this action has not been migrated yet
+        #kwargs.setdefault('PhysicsValidationUserAction',['G4OnlyPhysicsValidationUserActionTool'])
+    kwargs.setdefault('TrackProcessorUserAction', ['FullG4TrackProcessorUserActionTool'])
+    return getV2ISFUserActionSvc(name, **kwargs)
+
+def getV2ISFPassBackUserActionSvc(name="G4UA::ISFPassBackUserActionSvc", **kwargs):
+    # this configuration needs ISFMCTruthUserAction,
+    # G4OnlyPhysicsValidationUserAction, and PassBackG4TrackProcessorUserAction
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if ISF_Flags.ValidationMode.get_Value():
+        kwargs.setdefault('PhysicsValidationUserAction',[])
+        # FIXME: this action has not been migrated yet
+        #kwargs.setdefault('PhysicsValidationUserAction', ['G4OnlyPhysicsValidationUserActionTool'])
+    kwargs.setdefault('TrackProcessorUserAction', ['PassBackG4TrackProcessorUserActionTool'])
+    return getV2ISFUserActionSvc(name, **kwargs)
+
+def getV2ISF_AFIIUserActionSvc(name="G4UA::ISF_AFIIUserActionSvc", **kwargs):
+    # this configuration needs ISFMCTruthUserAction,
+    # AFII_G4PhysicsValidationUserAction, and AFII_G4TrackProcessorUserAction
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if ISF_Flags.ValidationMode.get_Value():
+        kwargs.setdefault('PhysicsValidationUserAction',[])
+        # FIXME: this action has not been migrated yet
+        #kwargs.setdefault('PhysicsValidationUserAction', ['AFII_G4PhysicsValidationUserActionTool'])
+    kwargs.setdefault('TrackProcessorUserAction', ['AFII_G4TrackProcessorUserActionTool'])
+    return getV2ISFUserActionSvc(name, **kwargs)
+
+def getV2ISFQuasiStableUserActionSvc(name="G4UA::ISFQuasiStableUserActionSvc", **kwargs):
+    # this configuration needs ISFMCTruthUserAction,
+    # QuasiStableG4PhysicsValidationUserAction, and FullG4TrackProcessorUserAction
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if ISF_Flags.ValidationMode.get_Value():
+        kwargs.setdefault('PhysicsValidationUserAction',[])
+        # FIXME: this action has not been migrated yet
+        #kwargs.setdefault('PhysicsValidationUserAction', ['QuasiStableG4PhysicsValidationUserActionTool'])
+    return getV2ISFFullUserActionSvc(name, **kwargs)
+
+
+def addAction(actionTool, roles, systemAction=False):
+    """
+    Add an action tool to the list for a requested role.
+
+    This should only be used in very special cases, by experts. Normally, you
+    should use the getter for one of the specialized UASvc versions listed
+    above to add an action. If systemAction=True, the action is prepended to
+    the list. Otherwise, it is appended.
+    """
+
+    from AthenaCommon.AppMgr import theApp, AthAppMgr, ServiceMgr
+
+    roleMap={'BeginOfRun': 'BeginRunActionTools',
+             'EndOfRun': 'EndRunActionTools',
+             'BeginOfEvent': 'BeginEventActionTools',
+             'EndOfEvent': 'EndEventActionTools',
+             'BeginOfTracking': 'PreTrackingActionTools',
+             'EndOfTracking': 'PostTrackingActionTools',
+             'Step': 'SteppingActionTools',
+             'Stack': 'StackingActionTools'}
+
+    ##hack to allow for different named Configurations of the UserActionSvc
+    basename='UserActionSvc'
+    serviceName=''
+    for s in ServiceMgr.getAllChildren():
+        if basename in s.getName():
+            serviceName = s.getName()
+            break
+    if ''==serviceName:
+        Logging.logging.getLogger('G4UASvc').error('addAction: Could not find ' + basename + ' instance in ServiceMgr!')
+        raise AttributeError('addAction: Could not find ' + basename + ' instance in ServiceMgr!')
+    else:
+        Logging.logging.getLogger('G4UASvc').info('addAction: Found a ' + basename + ' instance called ' + serviceName)
+    from AthenaCommon.CfgGetter import getService
+    theSvc=getService(serviceName)
+
+    if theApp.state() > AthAppMgr.State.CONFIGURED:
+        Logging.logging.getLogger('G4UASvc').fatal('Attempt to add a User Action when athena is ' +
+                                                   'already initialized. Check your configuration')
+        return
+
+    for role in roles:
+        roleAttr = roleMap[role]
+        if not role in roleMap.keys():
+            Logging.logging.getLogger('G4UASvc').fatal('Unkown role '+role+' requested for action ')
+        else:
+            currentActionList = getattr(theSvc, roleAttr)
+            if not actionTool in currentActionList:
+                # Add to beginning of list if system, otherwise the end
+                if systemAction:
+                    setattr(theSvc, roleAttr, [actionTool] + currentActionList)
                 else:
-                    if not actionTool in getattr(self.theSvc, self.roleMap[role]):
-                        # allowing only one system action per role
-                        if (not role in self.systemActions) or forceoverride :
-                            setattr(self.theSvc,self.roleMap[role],[actionTool]+getattr(self.theSvc,self.roleMap[role]))
-                            self.systemActions+=[role]
-                        else:
-                            self.log.fatal('addSystemAction(): Requesting a system action for '+role+', which already has one. Check your configuration.')
-
-
-    def addAction(self,actionTool,roles):
-        if self.checkAppState():
-            if isinstance(actionTool, str):
-                self.log.info('addAction(): adding action %s (just the name) with roles %s.'%(actionTool, str(roles)))
-            else:
-                self.log.info('addAction(): adding action %s with roles %s.'%(actionTool.name(), str(roles)))
-            for role in roles:
-                if not role in self.roleMap.keys():
-                    self.log.fatal('Unkown role '+role+' requested for action ')
-                else:
-                    if not actionTool in getattr(self.theSvc, self.roleMap[role]):
-                        setattr(self.theSvc,self.roleMap[role],getattr(self.theSvc,self.roleMap[role])+[actionTool])
-
-
-
-    def setDefaults(self):
-        # ADS FIXME: is this LAr action needed also for ISF?
-        #self.addSystemAction('LArHitsEventAction',['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent'])
-        #self.addSystemAction('AthenaStackingAction',['Classification'])
-
-        # add them using internal functions so we keep track of the existence of these system actions
-        if not simFlags.ISFRun:
-            self.addSystemAction('AthenaTrackingAction',['BeginOfTracking','EndOfTracking'])
-            self.addSystemAction('MCTruthSteppingAction',['Step'])
-
-UAStore=G4AtlasUAStore()
+                    setattr(theSvc, roleAttr, currentActionList + [actionTool])

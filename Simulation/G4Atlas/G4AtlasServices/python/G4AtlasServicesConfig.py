@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon import CfgMgr
+from AthenaCommon import CfgMgr, CfgGetter
+from G4AtlasServices.G4AtlasUserActionConfig import userActionName
 #from G4AtlasApps.SimFlags import simFlags
 #from AthenaCommon.BeamFlags import jobproperties
 
@@ -101,15 +102,74 @@ def getTB_RegionCreatorList():
             regionCreatorList += ['FCALPhysicsRegionTool']
     return regionCreatorList
 
+#########################################################################
+def getStandardFieldSvc(name="StandardField", **kwargs):
+    import MagFieldServices.SetupField
+    kwargs.setdefault("MagneticFieldSvc", "AtlasFieldSvc") # TODO This should probably be based on simFlags.MagneticField?
+    #kwargs.setdefault("FieldOn", True)
+    return CfgMgr.StandardFieldSvc(name, **kwargs)
+
+def getForwardFieldSvc(name="ForwardField", **kwargs):
+    #FIXME Once it exists this version should use the new MagField Service defined in ForwardRegionMgField
+    kwargs.setdefault("MagneticFieldSvc", "AtlasFieldSvc")
+    #kwargs.setdefault("FieldOn", True)
+    return CfgMgr.StandardFieldSvc(name, **kwargs)
+
+def getATLAS_FieldMgrList():
+    fieldMgrList = []
+    fieldMgrList += ['ATLASFieldManager']
+    from AthenaCommon.DetFlags import DetFlags
+    if DetFlags.bpipe_on():
+        fieldMgrList += ['BeamPipeFieldManager']
+    if DetFlags.ID_on():
+        fieldMgrList += ['InDetFieldManager']
+    if DetFlags.Muon_on():
+        fieldMgrList += ['MuonFieldManager']
+    from G4AtlasApps.SimFlags import simFlags
+    if simFlags.ForwardDetectors.statusOn:
+        if DetFlags.geometry.FwdRegion_on():
+            fieldMgrList += ['Q1FwdFieldManager',
+                             'Q2FwdFieldManager',
+                             'Q3FwdFieldManager',
+                             'D1FwdFieldManager',
+                             'D2FwdFieldManager',
+                             'Q4FwdFieldManager',
+                             'Q5FwdFieldManager',
+                             'Q6FwdFieldManager',
+                             'Q7FwdFieldManager',
+                             'Q1HKickFwdFieldManager',
+                             'Q1VKickFwdFieldManager',
+                             'Q2HKickFwdFieldManager',
+                             'Q2VKickFwdFieldManager',
+                             'Q3HKickFwdFieldManager',
+                             'Q3VKickFwdFieldManager',
+                             'Q4VKickAFwdFieldManager',
+                             'Q4HKickFwdFieldManager',
+                             'Q4VKickBFwdFieldManager',
+                             'Q5HKickFwdFieldManager',
+                             'Q6VKickFwdFieldManager',
+                             'FwdRegionFieldManager']
+    return fieldMgrList
+
+def getCTB_FieldMgrList():
+    fieldMgrList = []
+    return fieldMgrList
+
+def getTB_FieldMgrList():
+    fieldMgrList = []
+    return fieldMgrList
+
 def getDetectorGeometrySvc(name="DetectorGeometrySvc", **kwargs):
     kwargs.setdefault("DetectorConstruction", 'G4AtlasDetectorConstructionTool')
     from G4AtlasApps.SimFlags import simFlags
     if hasattr(simFlags,"Eta"): #FIXME ugly hack
         kwargs.setdefault("World", 'TileTB_World')
         kwargs.setdefault("RegionCreators", getTB_RegionCreatorList())
+        kwargs.setdefault("FieldManagers", getTB_FieldMgrList())
     elif hasattr(simFlags,"LArTB_H1TableYPos"): #FIXME ugly hack
         kwargs.setdefault("World", 'LArTB_World')
         kwargs.setdefault("RegionCreators", getTB_RegionCreatorList())
+        kwargs.setdefault("FieldManagers", getTB_FieldMgrList())
     else:
         from AthenaCommon.BeamFlags import jobproperties
         if jobproperties.Beam.beamType() == 'cosmics' or \
@@ -118,6 +178,8 @@ def getDetectorGeometrySvc(name="DetectorGeometrySvc", **kwargs):
         else:
             kwargs.setdefault("World", 'Atlas')
         kwargs.setdefault("RegionCreators", getATLAS_RegionCreatorList())
+        if hasattr(simFlags, 'MagneticField') and simFlags.MagneticField.statusOn:
+            kwargs.setdefault("FieldManagers", getATLAS_FieldMgrList())
     return CfgMgr.DetectorGeometrySvc(name, **kwargs)
 
 def getG4AtlasSvc(name="G4AtlasSvc", **kwargs):
@@ -128,3 +190,6 @@ def getG4GeometryNotifierSvc(name="G4GeometryNotifierSvc", **kwargs):
     kwargs.setdefault("ActivateLVNotifier", True)
     kwargs.setdefault("ActivatePVNotifier", False)
     return CfgMgr.G4GeometryNotifierSvc(name, **kwargs)
+
+#back-compatibility hack
+from G4AtlasServices.G4AtlasUserActionConfig import addAction
