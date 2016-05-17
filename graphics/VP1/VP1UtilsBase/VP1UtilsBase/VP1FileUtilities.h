@@ -10,6 +10,9 @@
 //                                                         //
 //  Initial version: October 2007                          //
 //                                                         //
+//  Updates:                                               //
+//      Riccardo Maria BIANCHI <rbianchi@cern.ch>          //
+//                                                         //
 /////////////////////////////////////////////////////////////
 
 #ifndef VP1FILEUTILITIES_H
@@ -32,7 +35,7 @@ public:
   //    * Writing: maximum number of files to keep in 'inputDirectory'
   //    * Reading: maximum number of files to keep in 'copyDirectory' (see below)
   VP1FileUtilities(const std::string& inputDirectory,
-		   unsigned int fileLimit);
+		   unsigned int fileLimit, const std::string& outputDir = "", bool forceMakeOutputDir = false, bool removeInputFile = true);
   virtual ~VP1FileUtilities();
 
   //
@@ -62,7 +65,10 @@ private:
   void cleanUp();
 
   std::string m_inputDirectory;
-  unsigned int m_fileLimit;
+  int m_fileLimit;
+  std::string m_outputDirectory;
+  bool m_forceMakeOutputDir;
+  bool m_removeInputFile;
 };
 
 #endif
