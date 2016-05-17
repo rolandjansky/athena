@@ -234,7 +234,7 @@ bool checkParameters(TH1*h1,TH1*h2)
     REPORT("Incompatible fXaxis");
     return false;
   }
-  if (!axisCompatible(h1->GetXaxis(), h2->GetYaxis())) {
+  if (!axisCompatible(h1->GetXaxis(), h2->GetXaxis())) {
     REPORT("Incompatible fXaxis");
     return false;
   }
