@@ -82,7 +82,7 @@ if not rec.doHeavyIon():
     
     
     
-    if not hasattr(ToolSvc, 'monTrigDecTool'):
+    if not DQMonFlags.useTrigger():
         print "DiMuMon_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring"
     else:
         if doJpsi:
