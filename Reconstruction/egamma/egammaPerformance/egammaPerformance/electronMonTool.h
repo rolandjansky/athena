@@ -50,8 +50,8 @@ class electronHist
   TH1 *m_hEta;              // Histogram for electron eta
   TH1 *m_hPhi;              // Histogram for electron phi
   TH2 *m_hEtaPhi;           // Histogram for electron eta,phi
-  TH2 *m_hEtaPhi4GeV;       // Histogram for electron eta,phi (only candidates with an energy greater than 4 GeV)
-  TH2 *m_hEtaPhi20GeV;      // Histogram for electron eta,phi (only candidates with an energy greater than 20 GeV)
+  TH2 *m_hEtaPhi4GeV;       // Histogram for electron eta,phi (only candidates with a pt greater than 4 GeV)
+  TH2 *m_hEtaPhi20GeV;      // Histogram for electron eta,phi (only candidates with a pt greater than 20 GeV)
   TH1 *m_hTopoEtCone40;     // Histogram for electron isolation energy TopoEtcone40 
   TH1 *m_hPtCone20;         // Histogram for electron isolation energy PtCone20 
   TH1 *m_hTime;             // Histogram for electron cluster time

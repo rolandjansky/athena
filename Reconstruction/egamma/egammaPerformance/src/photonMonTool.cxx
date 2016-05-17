@@ -136,17 +136,17 @@ StatusCode photonMonTool::bookHistogramsForOnePhotonType(photonHist& myHist)
   bookTH1F(myHist.m_hEt, *m_photonGroup, hname, hlongname, 100, -1000.0, 250000.0);
 
   // EtaPhi
-  hname = std::string("photonEtaPhi") + myHist.m_nameOfPhotonType;
+  hname = std::string("photonEtaPhiPt2.5GeV") + myHist.m_nameOfPhotonType;
   hlongname =  std::string("Photon #eta,#phi map") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
   bookTH2F(myHist.m_hEtaPhi, *m_photonGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
 
   // EtaPhi4GeV
-  hname = std::string("photonEtaPhiEgt4GeV") + myHist.m_nameOfPhotonType;
+  hname = std::string("photonEtaPhiPtgt4GeV") + myHist.m_nameOfPhotonType;
   hlongname =  std::string("Photon #eta,#phi map (candidates with E>4 GeV)") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
   bookTH2F(myHist.m_hEtaPhi4GeV, *m_photonGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
 
   // EtaPhi20GeV
-  hname = std::string("photonEtaPhiEgt20GeV") + myHist.m_nameOfPhotonType;
+  hname = std::string("photonEtaPhiPtgt20GeV") + myHist.m_nameOfPhotonType;
   hlongname =  std::string("Photon #eta,#phi map (candidates with E>20 GeV)") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
   bookTH2F(myHist.m_hEtaPhi20GeV, *m_photonGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
 
@@ -412,7 +412,6 @@ StatusCode photonMonTool::fillHistogramsForOnePhoton(xAOD::PhotonContainer::cons
 
   ATH_MSG_DEBUG("photonMonTool::fillHistogramsforOnePhoton()");
 
-  float energy = (*g_iter)->e();
   float et=(*g_iter)->pt();
   float eta = (*g_iter)->eta();
   float phi = (*g_iter)->phi();      
@@ -447,8 +446,8 @@ StatusCode photonMonTool::fillHistogramsForOnePhoton(xAOD::PhotonContainer::cons
 
   if(myHist.m_hEt)     myHist.m_hEt->Fill(et);
   if(myHist.m_hEtaPhi) myHist.m_hEtaPhi->Fill(eta,phi);
-  if(myHist.m_hEtaPhi4GeV&&energy>4000) myHist.m_hEtaPhi4GeV->Fill(eta,phi);  
-  if(myHist.m_hEtaPhi20GeV&&energy>20000) myHist.m_hEtaPhi20GeV->Fill(eta,phi);
+  if(myHist.m_hEtaPhi4GeV&&et>4000) myHist.m_hEtaPhi4GeV->Fill(eta,phi);  
+  if(myHist.m_hEtaPhi20GeV&&et>20000) myHist.m_hEtaPhi20GeV->Fill(eta,phi);
   if(myHist.m_hEta)    myHist.m_hEta->Fill(eta);
   if(myHist.m_hPhi)    myHist.m_hPhi->Fill(phi);
   

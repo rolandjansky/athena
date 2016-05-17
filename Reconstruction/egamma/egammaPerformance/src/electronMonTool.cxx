@@ -153,16 +153,16 @@ StatusCode electronMonTool::bookHistogramsForOneElectronType(electronHist& myHis
   hlongname =  std::string("Electron transverse energy [MeV]") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
   bookTH1F(myHist.m_hEt, *m_electronGroup, hname, hlongname, 100, -1000.0, 250000.0);
 
-  hname = std::string("electronEtaPhi") + myHist.m_nameOfElectronType;
-  hlongname =  std::string("Electron #eta,#phi map  (candidates with E>2.5GeV)") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  hname = std::string("electronEtaPhiPtgt2.5GeV") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron #eta,#phi map  (candidates with Pt>2.5GeV)") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
   bookTH2F(myHist.m_hEtaPhi, *m_electronGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
 
-  hname = std::string("electronEtaPhiEgt4GeV") + myHist.m_nameOfElectronType;
-  hlongname =  std::string("Electron #eta,#phi map (candidates with E>4GeV)") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  hname = std::string("electronEtaPhiPtgt4GeV") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron #eta,#phi map (candidates with Pt>4GeV)") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
   bookTH2F(myHist.m_hEtaPhi4GeV, *m_electronGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
 
-  hname = std::string("electronEtaPhiEgt20GeV") + myHist.m_nameOfElectronType;
-  hlongname =  std::string("Electron #eta,#phi map (candidates with E>20GeV)") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  hname = std::string("electronEtaPhiPtgt20GeV") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron #eta,#phi map (candidates with Pt>20GeV)") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
   bookTH2F(myHist.m_hEtaPhi20GeV, *m_electronGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
 
   hname = std::string("electronEta") + myHist.m_nameOfElectronType;
@@ -361,7 +361,6 @@ StatusCode electronMonTool::fillHistogramsForOneElectron(xAOD::ElectronContainer
 
     // Basic kinematics
     
-    float energy = (*e_iter)->e();
     float et  = (*e_iter)->pt();
     float eta = (*e_iter)->eta();
     float phi = (*e_iter)->phi();      
@@ -376,8 +375,8 @@ StatusCode electronMonTool::fillHistogramsForOneElectron(xAOD::ElectronContainer
 
     if(myHist.m_hEt)     myHist.m_hEt->Fill(et);
     if(myHist.m_hEtaPhi) myHist.m_hEtaPhi->Fill(eta,phi);
-    if(myHist.m_hEtaPhi4GeV&&energy>4000) myHist.m_hEtaPhi4GeV->Fill(eta,phi);
-    if(myHist.m_hEtaPhi20GeV&&energy>20000) myHist.m_hEtaPhi20GeV->Fill(eta,phi);
+    if(myHist.m_hEtaPhi4GeV&&et>4000) myHist.m_hEtaPhi4GeV->Fill(eta,phi);
+    if(myHist.m_hEtaPhi20GeV&&et>20000) myHist.m_hEtaPhi20GeV->Fill(eta,phi);
     if(myHist.m_hEta)    myHist.m_hEta->Fill(eta);
     if(myHist.m_hPhi)    myHist.m_hPhi->Fill(phi);
 
