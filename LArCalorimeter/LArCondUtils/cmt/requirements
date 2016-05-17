@@ -19,7 +19,7 @@ apply_pattern component_library
 
 apply_pattern declare_joboptions files=" *.py"
 apply_pattern declare_runtime  extras="LArEmLvl1.data LArHecLvl1.data LArFcalLvl1.data"
-apply_pattern declare_scripts files="LArBuildHVPathologies.sh"
+apply_pattern declare_scripts files="LArBuildHVPathologies.sh fillPileUpNoiseLumi.py"
 
 private
 use AthenaKernel	 AthenaKernel-*		Control
@@ -33,7 +33,7 @@ use LArRawConditions 	 LArRawConditions-*     LArCalorimeter
 use LArRecConditions 	 LArRecConditions-*     LArCalorimeter
 use LArHV                LArHV-*                LArCalorimeter/LArGeoModel
 use LArReadoutGeometry   LArReadoutGeometry-*   LArCalorimeter/LArGeoModel
-use LArTools             LArTools-*             LArCalorimeter
+use LArCabling           LArCabling-*           LArCalorimeter
 
 #private
 #macro cppdebugflags '$(cppdebugflags_s) -O2 '

@@ -25,7 +25,7 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 // forward declaration
-using namespace coral;
+//using namespace coral;
 class AttributeList;
 class HWIdentifier;
 class LArOnlineID;

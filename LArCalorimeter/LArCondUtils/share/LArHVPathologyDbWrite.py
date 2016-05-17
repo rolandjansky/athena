@@ -9,16 +9,16 @@ if "InputFile" not in dir():
     InputFile="HVPathologies.txt"
 
 if "tagName" not in dir():
-    tagName="LARHVPathologiesOflPathologies-UPD1-00"
+    tagName="LARHVPathologiesOflPathologies-RUN2-UPD1-00"
 
 if "RunNumber" not in dir():
     RunNumber = 999999
 
 if "GloablTag" not in dir():
-    GlobalTag = 'COMCOND-BLKPA-006-01'
+    GlobalTag = 'CONDBR2-BLKPA-2015-05'
 
 if "date" not in dir():
-    date="2010-09-02:12:00:00"
+    date="2015-09-29:12:00:00"
 
 
 if "TimeStamp" not in dir():
@@ -90,7 +90,7 @@ LArHVPathologyDbAlg = LArHVPathologyDbAlg()
 topSequence += LArHVPathologyDbAlg
 
 # Here mytest.db is the name of SQLite file created by this job
-svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=larhvpathology.db;dbname=COMP200"
+svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=larhvpathology.db;dbname=CONDBR2"
 
 svcMgr.MessageSvc.OutputLevel = 4
 svcMgr.MessageSvc.debugLimit  = 100000

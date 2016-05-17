@@ -29,7 +29,7 @@
 
 
 // forward declaration
-using namespace coral;
+//using namespace coral;
 class StoreGateSvc; 
 class LArFecLvTempDcs;
 class AttributeList;
