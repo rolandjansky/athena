@@ -48,17 +48,43 @@ using CLHEP::ns;
 /*---------------------------------------------------------*/
 TileTBCellMonTool::TileTBCellMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
+  , m_tileChannelTimeLBC01{}
+  , m_tileChannelTimeEBC02{}
+  , m_tileChannelEnergyLBC01{}
+  , m_tileChannelEnergyEBC02{}
+  , m_tileChannelEnergyVsTimeLBC01{}
+  , m_tileChannelEnergyVsTimeEBC02{}
   , m_tileTBTotalEnergyEBA(0)
   , m_tileTBHitMapEBA(0)
+  , m_tileTBCellEneSumEBA{}
+  , m_tileTBCellEneDiffEBA{}
+  , m_tileTBCellTimeSumEBA{}
+  , m_tileTBCellTimeDiffEBA{}
   , m_tileTBTotalEnergyEBC(0)
   , m_tileTBHitMapEBC(0)
+  , m_tileTBCellEneSumEBC{}
+  , m_tileTBCellEneDiffEBC{}
+  , m_tileTBCellTimeSumEBC{}
+  , m_tileTBCellTimeDiffEBC{}
   , m_tileTBTotalEnergyLBA(0)
   , m_tileTBHitMapLBA(0)
+  , m_tileTBCellEneSumLBAD0(0)
+  , m_tileTBCellEneSumLBA{}
+  , m_tileTBCellEneDiffLBA{}
   , m_tileTBCellTimeSumLBAD0(0)
+  , m_tileTBCellTimeSumLBA{}
+  , m_tileTBCellTimeDiffLBA{}
   , m_tileTBTotalEnergyLBC(0)
   , m_tileTBHitMapLBC(0)
   , m_tileTBCellEneSumLBCD0(0)
+  , m_tileTBCellEneSumLBC{}
+  , m_tileTBCellEneDiffLBC{}
   , m_tileTBCellTimeSumLBCD0(0)
+  , m_tileTBCellTimeSumLBC{}
+  , m_tileTBCellTimeDiffLBC{}
+  , m_cellHitMapEB{}
+  , m_cellHitMapLB{}
+  , m_cellHitMapLB_C{}
 
 /*---------------------------------------------------------*/
 {
@@ -975,8 +1001,8 @@ StatusCode TileTBCellMonTool::fillHistograms() {
   //Retrieve Cell collection from SG
   CHECK(evtStore()->retrieve(cell_container, m_cellsContName));
 
-  CaloCellContainer::const_iterator iCell = cell_container->begin();
-  CaloCellContainer::const_iterator lastCell = cell_container->end();
+  //CaloCellContainer::const_iterator iCell = cell_container->begin();
+  //CaloCellContainer::const_iterator lastCell = cell_container->end();
 
   double totalEnergyEBA = 0.0;
   double totalEnergyEBC = 0.0;
@@ -1219,7 +1245,7 @@ void TileTBCellMonTool::fillHitMap(TH2F *hHitMap, int cellHitMap2[], double ener
 StatusCode TileTBCellMonTool::procHistograms() {
   /*---------------------------------------------------------*/
 
-  if (endOfRun) {
+  if (endOfRunFlag()) {
     ATH_MSG_INFO("in procHistograms()");
     ATH_MSG_INFO("Doing fits");
     Double_t fr[2];

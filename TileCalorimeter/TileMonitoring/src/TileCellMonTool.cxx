@@ -31,25 +31,16 @@
 #include "TProfile2D.h"
 #include "TString.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 
 #include <sstream>
 #include <iomanip>
 #include <map>
 
-using CLHEP::GeV;
-using CLHEP::ns;
+using Athena::Units::GeV;
+using Athena::Units::ns;
 
 
-// Make a TileCell namespace so this doesn't cause problems else where.
-namespace TC{
-template<class T>
-std::string to_string(T in){
-  std::ostringstream strm;
-  strm << in;
-  return strm.str();
-}
-}
 
 /*---------------------------------------------------------*/
 TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & name, const IInterface* parent)
@@ -57,7 +48,15 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
   , m_tileBadChanTool("TileBadChanTool")
   , m_TileCellTrig(0U)
   , m_delta_lumiblock(0U)
+  , m_TileCellEneBal{}
+  , m_TileCellTimBal{}
+  , m_TileCellStatFromDB{{}}
+  , m_TileCellStatOnFly{}
+  , m_TileCellDetailNegOccMap{}
   , m_TileBadCell(0)
+  , m_TileMaskCellonFlyLumi{}
+  , m_TileMaskChannonFlyLumi{}
+  , m_TileMaskChannfromDBLumi{}
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -266,7 +265,7 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
                                                                 "tileChannelTime" + m_SampStrNames[sample] + m_PartNames[part] + m_TrigNames[trig],
                                                                 "Run "+ runNumStr + " Trigger " + m_TrigNames[trig] + ": Partition " + m_PartNames[part] + 
                                                                 ": TileCell " + m_SampStrNames[sample] + " Channel time (ns) Collision Events, E_{ch} > " + 
-                                                                TC::to_string(m_ThresholdForTime) + " MeV", 121, -60.5, 60.5) );
+                                                                std::to_string(m_ThresholdForTime) + " MeV", 121, -60.5, 60.5) );
         m_TileChannelTimeSamp[part][ sample ][ element ]->GetXaxis()->SetTitle("time (ns)");
       }
     }
@@ -379,7 +378,7 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
     histName = "tileChanPartTime_"+m_PartNames[part] + m_TrigNames[trig];
     histTitle = "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition "+
                 m_PartNames[part]+": TileCal Average Channel Time (ns). "+
-                "Collision Events, E_{ch} > "+TC::to_string(m_ThresholdForTime)+
+                "Collision Events, E_{ch} > " + std::to_string(m_ThresholdForTime)+
                 " MeV";
     obj = bookProfile2D(histDir,histName,histTitle, 64,0.5,64.5,48,-0.5,47.5,-80,80);
     m_TileChanPartTime[part].push_back(static_cast<TProfile2D*>(obj));
@@ -392,7 +391,7 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
     histName = "tileDigiPartTime_"+m_PartNames[part] + m_TrigNames[trig];
     histTitle = "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition "+
                 m_PartNames[part]+": TileCal Average Digitizer Time (ns). "+
-               "Collision Events, E_{ch} > "+TC::to_string(m_ThresholdForTime)+
+               "Collision Events, E_{ch} > " + std::to_string(m_ThresholdForTime)+
                " MeV";
     obj = bookProfile2D(histDir,histName,histTitle, 64,0.5,64.5,8,0.5,8.5,-80,80);
     m_TileDigiPartTime[part].push_back(static_cast<TProfile2D*>(obj));
@@ -477,7 +476,7 @@ StatusCode TileCellMonTool::bookHistTrig( int trig ) {
 
   ss.str("");
   ss << m_TimBalThreshold;
-  m_TileCellTimBalModPart.push_back( book2S(m_TrigNames[trig],"tileCellTimBalModPart" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition ALL: Tile Cell Timing Difference above "+ss.str()+" ns. Collision Events, either E_{ch} > "+TC::to_string(m_ThresholdForTime)+" MeV",64,0.5,64.5, 4,-0.5,3.5) );
+  m_TileCellTimBalModPart.push_back( book2S(m_TrigNames[trig],"tileCellTimBalModPart" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition ALL: Tile Cell Timing Difference above "+ss.str()+" ns. Collision Events, either E_{ch} > " + std::to_string(m_ThresholdForTime)+" MeV",64,0.5,64.5, 4,-0.5,3.5) );
   m_TileCellTimBalModPart[ element ]->GetXaxis()->SetTitle("Module Number");
   m_TileCellTimBalModPart[ element ]->GetYaxis()->SetTitle("Partition Number");
 
@@ -734,8 +733,6 @@ StatusCode TileCellMonTool::fillHistograms() {
   //number of channels masked on the fly
   unsigned int badonfly[NPartHisto] = { 0 };
 
-  CaloCellContainer::const_iterator iCell = cell_container->begin();
-  CaloCellContainer::const_iterator lastCell  = cell_container->end();
   for (const CaloCell* cell : *cell_container) {
 
     Identifier id = cell->ID();
@@ -1365,7 +1362,7 @@ StatusCode TileCellMonTool::procHistograms() {
 /*---------------------------------------------------------*/
 
 
-  if (endOfRun) {
+  if (endOfRunFlag()) {
     ATH_MSG_INFO( "in procHistograms()" );
   }
 
@@ -1491,7 +1488,7 @@ void TileCellMonTool::FirstEvInit() {
   }        
 
   std::ostringstream sene; sene.str("");
-  sene << m_NegThreshold / 1000.0;
+  sene << m_NegThreshold / GeV;
 
   std::string runNumStr =  getRunNumStr() ;
 
@@ -1506,7 +1503,7 @@ void TileCellMonTool::FirstEvInit() {
     m_TileCellEneBal[p]->SetXTitle("Module");
 
     m_TileCellTimBal[p] = bookProfile("", "tileCellTimBal" + m_PartNames[p]
-                                       , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Cell's PMTs Time Difference. Collision Events, either E_{ch} > " + TC::to_string(m_ThresholdForTime) + " MeV"
+                                       , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Cell's PMTs Time Difference. Collision Events, either E_{ch} > " + std::to_string(m_ThresholdForTime) + " MeV"
                                        , 64, 0.5, 64.5, -200., 200.);
     m_TileCellTimBal[p]->SetYTitle("Time balance between cells PMTs (ns)");
     m_TileCellTimBal[p]->SetXTitle("Module");

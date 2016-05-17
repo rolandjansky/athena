@@ -32,17 +32,18 @@
 
 /*---------------------------------------------------------*/
 TileRawChannelTimeMonTool::TileRawChannelTimeMonTool(const std::string & type, const std::string & name, const IInterface* parent)
- : TileFatherMonTool(type, name, parent)
- , m_beamInfo("TileBeamInfoProvider")
- , m_tileBadChanTool("TileBadChanTool")
- , m_dqStatus(0)
- , m_doOnline(false)
- , m_oldLumiblock(-1)
- , m_deltaLumiblock(0)
- , m_nEvents(0)
- , m_bookProfHistOnce(5, false)
-
-
+  : TileFatherMonTool(type, name, parent)
+  , m_beamInfo("TileBeamInfoProvider")
+  , m_tileBadChanTool("TileBadChanTool")
+  , m_dqStatus(0)
+  , m_doOnline(false)
+  , m_oldLumiblock(-1)
+  , m_deltaLumiblock(0)
+  , m_nEvents(0)
+  , m_bookProfHistOnce(5, false)
+  , m_profile2dHist{}
+  , m_profileHist{}
+  , m_thresholds{10.0, 40.0}
 	 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
