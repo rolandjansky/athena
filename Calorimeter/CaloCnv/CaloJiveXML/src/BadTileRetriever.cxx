@@ -63,9 +63,6 @@ namespace JiveXML {
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
 
-    if ( !service("ToolSvc", m_toolSvc) )
-      return StatusCode::FAILURE;
-    
     return StatusCode::SUCCESS;	
   }
   
