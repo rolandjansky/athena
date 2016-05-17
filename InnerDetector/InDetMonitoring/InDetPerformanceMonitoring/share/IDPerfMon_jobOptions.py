@@ -15,8 +15,8 @@ ToolSvc += IDPerfMonWenu_noTrig
 if (InDetFlags.doPrintConfigurables()):
     print IDPerfMonWenu_noTrig
 
-## only do trigger-aware monitoring if monTrigDecTool known by ToolSvc
-if not hasattr(ToolSvc, 'monTrigDecTool'):
+## only do trigger-aware monitoring if DQMonFlags.useTrigger is true
+if not DQMonFlags.useTrigger():
     print "IDPerfMon_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring"
 else:
     print 'IDPerfMon_jobOptions.py : following express stream trigger menu (pp_v5_menu) -> https://twiki.cern.ch/twiki/bin/view/Atlas/ExpressStream#Run_2_Physics_Physics_pp_v5_menu'
@@ -134,7 +134,7 @@ IDPerfMonManager = AthenaMonManager( name = "IDPerfMonManager",
 IDPerfMonManager.AthenaMonTools += [ IDPerfMonZee_noTrig ]
 IDPerfMonManager.AthenaMonTools += [ IDPerfMonWenu_noTrig ]
 
-if not hasattr(ToolSvc, 'monTrigDecTool'):
+if not DQMonFlags.useTrigger():
     print "IDPerfMon_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring"
 else:
     if not rec.doHeavyIon():
