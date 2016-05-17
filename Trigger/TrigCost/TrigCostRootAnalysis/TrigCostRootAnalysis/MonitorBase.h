@@ -116,7 +116,7 @@ namespace TrigCostRootAnalysis {
     void endEvent(Float_t _weight = 1.);
     void enableROOTMsg();
     void disableROOTMsg();
-    void checkForIllegalCharacters(std::string &_toClean, Bool_t _checkComma = kTRUE, Bool_t _checkApostrophe = kTRUE, Bool_t _checkColon = kFALSE);
+    void checkForIllegalCharacters(std::string &_toClean, Bool_t _checkComma = kTRUE, Bool_t _checkApostrophe = kTRUE, Bool_t _checkColon = kTRUE);
 
     std::string m_name; //<! Name of this monitor, for use in output.
     UInt_t m_level; //<! Level of monitor (2 or 3)

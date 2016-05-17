@@ -678,7 +678,7 @@ namespace TrigCostRootAnalysis {
    * @return  the comment on the chain, if any
    */
   std::string TrigXMLService::getChainComment(const std::string& _name) {
-    if (m_chainComment.count(_name) == 0) return "";
+    if (m_chainComment.count(_name) == 0) return "-";
     return m_chainComment[_name];
   }
 

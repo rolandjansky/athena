@@ -371,7 +371,8 @@ namespace TrigCostRootAnalysis {
         //Info("MonitorRatesUpgrade::getEventTOBs", "   Is of type ENERGY");
         if (_tobs->HT() > 0 && m_costData->getRoIEt(_r) <= _tobs->HT()) continue; // Get the largest (full width)
         _hasE = kTRUE;
-        _tobs->set(m_costData->getRoIVectorEX(_r), m_costData->getRoIVectorEY(_r), m_costData->getRoIEt(_r));
+        _tobs->set(m_costData->getRoIVectorEX(_r), m_costData->getRoIVectorEY(_r), m_costData->getRoIEt(_r),
+                   m_costData->getRoIOverflowEX(_r), m_costData->getRoIOverflowEY(_r), m_costData->getRoIOverflowET(_r));
         continue;
       }
       //Info("MonitorRatesUpgrade::getEventTOBs", "   Is of type %s", Config::config().getName(_t).c_str());
@@ -400,6 +401,17 @@ namespace TrigCostRootAnalysis {
     return _tobs;
   }
 
+  void MonitorRatesUpgrade::printEnergyTOBs() {
+    for (UInt_t _r = 0; _r < m_costData->getNRoIs(); ++_r) {
+      if (m_costData->getIsRoIEnergy(_r) == kTRUE) {
+        Float_t _met = TMath::Sqrt((m_costData->getRoIVectorEX(_r) * m_costData->getRoIVectorEX(_r)) + (m_costData->getRoIVectorEY(_r) * m_costData->getRoIVectorEY(_r)));
+        Info("MonitorRatesUpgrade::printEnergyTOBs", "Energy TOB x:%i y:%i (MET:%.2f) HT:%i | OverflowFlags: x:%i y:%i HT:%i",
+          (Int_t)m_costData->getRoIVectorEX(_r), (Int_t)m_costData->getRoIVectorEY(_r), _met, (Int_t)m_costData->getRoIEt(_r),
+          m_costData->getRoIOverflowEX(_r), m_costData->getRoIOverflowEY(_r), m_costData->getRoIOverflowET(_r));
+      }
+    }
+  }
+
   void MonitorRatesUpgrade::validateTriggerEmulation(CounterMap_t* _counterMap, TOBAccumulator* _this, Bool_t _print) {
     static std::set<std::string> _types;
     if (_types.size() == 0) {
@@ -414,7 +426,8 @@ namespace TrigCostRootAnalysis {
       _validationItems.push_back("L1_EM15");
       _validationItems.push_back("L1_TAU20");
       _validationItems.push_back("L1_TE30");
-      _validationItems.push_back("L1_2EM10VH");
+      _validationItems.push_back("L1_XE300");
+      //_validationItems.push_back("L1_2EM10VH"); // Known broken
     }
     Int_t _checkTrigEmulation[10] = {0};
     Int_t _checkTrigOnline[10] = {0};
@@ -445,6 +458,7 @@ namespace TrigCostRootAnalysis {
       }
       if (_print && _ssOnline.str().size()) Info("MonitorRatesUpgrade::validateTriggerEmulation", " &&& ONLINE PASS: %s", _ssOnline.str().c_str() );
     }
+    if (_print) printEnergyTOBs();
     if (_print == kFALSE ) {
       for (UInt_t _v = 0; _v < _validationItems.size(); ++_v) {
         if (_checkTrigEmulation[_v] != _checkTrigOnline[_v]) {
@@ -522,7 +536,7 @@ namespace TrigCostRootAnalysis {
       for (; _it != _counterMap->end(); ++_it) {
         _it->second->processEventCounter(0, 1, _weightUpgrade);
       }
-      if (m_upgradePileupScaling == kFALSE && 0) validateTriggerEmulation(_counterMap, _thisEvent, kFALSE /*print*/);
+      if (m_upgradePileupScaling == kFALSE) validateTriggerEmulation(_counterMap, _thisEvent, kFALSE /*print*/);
     }
 
     for (const auto _chainItem : m_chainItemsL1) _chainItem.second->endEvent();

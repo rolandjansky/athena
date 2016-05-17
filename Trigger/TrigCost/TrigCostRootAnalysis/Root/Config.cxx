@@ -130,6 +130,7 @@ namespace TrigCostRootAnalysis {
     static Int_t _patternsExactMatch = kFALSE;
     static Int_t _ignoreNonPhysBunchGroups = kFALSE;
     static Int_t _noLBRescaling = kFALSE;
+    static Int_t _useDefaultLumiScalingExceptions = kFALSE;
 
     // User options
     std::vector< std::string > _inputFiles;
@@ -138,6 +139,9 @@ namespace TrigCostRootAnalysis {
     std::vector< std::string > _patternsUnique;
     std::vector< std::string > _patternsExclude;
     std::vector< std::string > _patternsOverlap;
+    std::vector< std::string > _patternsNoLumiWeight;
+    std::vector< std::string > _patternsNoMuLumiWeight;
+    std::vector< std::string > _patternsNoBunchLumiWeight;
     std::vector< Int_t > _eventPicker;
     std::string _fileList = "";
     std::string _fullEventFileList = "";
@@ -160,7 +164,7 @@ namespace TrigCostRootAnalysis {
     std::string _prescaleXML1 = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
     std::string _prescaleXML2 = "";
     std::string _ROSXML = "rob-ros-robin-2015.xml";
-    std::string _version = "TrigCostRootAnalysis-00-09-05";
+    std::string _version = "TrigCostRootAnalysis-00-09-13";
     std::string _upgradeScenario = "";
     std::string _jira = "";
     Int_t _lbBegin = INT_MIN;
@@ -265,6 +269,7 @@ namespace TrigCostRootAnalysis {
         {"patternsExactMatch",     no_argument,       &_patternsExactMatch,     1},
         {"ignoreNonPhyBunchGroups",no_argument,       &_ignoreNonPhysBunchGroups,1},
         {"noLBRescaling",          no_argument,       &_noLBRescaling,          1},
+        {"useDefaultLumiScalingExceptions", no_argument, &_useDefaultLumiScalingExceptions,1},
         {"treeName",               required_argument, 0,                      't'},
         {"prescaleXML",            required_argument, 0,                      'M'},
         {"prescaleXML1",           required_argument, 0,                      'g'},
@@ -319,6 +324,9 @@ namespace TrigCostRootAnalysis {
         {"jira",                   required_argument, 0,                      'Z'},
         {"targetMu",               required_argument, 0,                      '0'}, // allow either
         {"predictionMu",           required_argument, 0,                      '0'}, // allow either
+        {"patternsNoLumiWeight",   required_argument, 0,                      '1'},
+        {"patternsNoMuLumiWeight", required_argument, 0,                      '2'},
+        {"patternsNoBunchLumiWeight", required_argument, 0,                   '3'},
         {0, 0, 0, 0}
       };
 
@@ -341,7 +349,7 @@ namespace TrigCostRootAnalysis {
           std::cout << "\t~~~~~~~~~~~~~~~ OPERATING MODE ALIASES ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--costMode\t\t\t\t\tAlias for: --cleanAll --doHLT --summaryAll --monitorAllChainSeqAlgs --monitorAllROS --monitorROI --monitorGlobals --monitorFullEvent --monitorEventProfile --monitorSliceCPU --ignoreNonPhyBunchGroups --outputModeStandard" << std::endl;
           std::cout << "--onlineMode\t\t\t\t\tAlias for: --cleanAll --summaryPerHLTConfig --summaryPerLumiBlock --monitorAllChainSeqAlg --monitorROS --monitorROBIN --monitorROI --monitorGlobals --monitorFullEvent --monitorEventProfile --monitorSliceCPU --outputModeStandard" << std::endl;
-          std::cout << "--ratesMode\t\t\t\t\tAlias for: --cleanAll --doHLT --summaryPerHLTConfig --monitorRates --useEBWeight --matchL1RandomToOnline --doCPS --nLbPerHLTConfig=INT_MAX --outputModeStandard" << std::endl;
+          std::cout << "--ratesMode\t\t\t\t\tAlias for: --cleanAll --doHLT --summaryPerHLTConfig --monitorRates --useEBWeight --matchL1RandomToOnline --doCPS --useDefaultLumiScalingExceptions --nLbPerHLTConfig=INT_MAX --outputModeStandard" << std::endl;
           std::cout << "--outputModeStandard\t\t\t\tAlias for: --doOutputHist --doOutputCSV --doOutputRatesGraph --doOutputRatesXML --doOutputMenus" << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ HLT LEVELS TO PROCESS ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--doL2\t\t\t\t\t\tProcess just Level 2 cost data if present in ntuple." << std::endl;
@@ -416,6 +424,7 @@ namespace TrigCostRootAnalysis {
           std::cout << "--debug\t\t\t\t\t\tEnable debug output." << std::endl;
           std::cout << "--noMsgSuppression\t\t\t\tDo not suppress any output." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ TRIGGER RATES CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
+          std::cout << "--predictionMu\t\t\tSpecify a target pileup for prescaled rates prediction. This enables advanced weighting and affects the rates of explicit L1 random seeded triggers and must be supplied to get accurate predictions here." << std::endl;
           std::cout << "--prescaleXML1 \"" << _prescaleXML1 << "\"\t\t\t\tPrescale/Menu/L1 XML file from which to read custom prescales for rates calculation (place in /data or current dir for Athena use)." << std::endl;
           std::cout << "--prescaleXML2 \"" << _prescaleXML2 << "\"\t\t\t\tSecond Prescale/Menu/L1 XML file. For if you have L1 and HLT values split over two files. (place in /data or current dir for Athena use)." << std::endl;
           std::cout << "--writeDummyPSXML\t\t\t\tGenerate a file Prescales.xml which contains all chains and can be edited to manually prescale the menu. Use the generated file with --prescaleXML1." << std::endl;
@@ -427,15 +436,18 @@ namespace TrigCostRootAnalysis {
           std::cout << "--patternsUnique patt1 patt2 ...\t\tPatterns to match in names doing unique rates, recommended to use this rather than doing unique for all." << std::endl;
           std::cout << "--patternsExclude patt1 patt2 ...\t\tWhen doing unique rates, you may need to explicitly exclude some chains (PS:-1). Force this here." << std::endl;
           std::cout << "--patternsOverlap patt1 patt2 ...\t\tPatterns to match in chain names when doing chain-overlap rates, recommended to use this rather than doing unique for all." << std::endl;
+          std::cout << "--patternsNoLumiWeight patt1 patt2 ... \tPatterns to match in special-case chains which get no lumi weighting. Auto applied to random L1. (req. advanced weighting mode w. --predictionMu)" << std::endl;
+          std::cout << "--patternsNoMuLumiWeight patt1 patt2 ... \tPatterns to match in special-case chains which get no <mu> component of lumi weight (req. advanced weighting mode w. --predictionMu)" << std::endl;
+          std::cout << "--patternsNoBunchLumiWeight patt1 patt2 ... \tPatterns to match in special-case chains which get no bunch compoment of lumi weighting. Auto applied to random seeded HLT. (req. advanced weighting mode w. --predictionMu)" << std::endl;
           std::cout << "--doGroupOverlap\t\t\t\tCalculate overlaps between all chains within each rate group. Warning, this is slow." << std::endl;
           std::cout << "--doAllOverlap\t\t\t\t\tCalculate overlaps between all chains. Warning, this is very slow.." << std::endl;
           std::cout << "--ratesOverlapWarning "<<_ratesOverlapWarning<<"%\t\t\tValue in percent (0-100) above which to warn about chain overlaps within rates groups." << std::endl;
           std::cout << "--rateFallbackPrescaleL1\t\t\tIf prescales are not supplied for some or any items, what value to apply to L1 items." << std::endl;
           std::cout << "--rateFallbackPrescaleHLT\t\t\tIf prescales are not supplied for some or any items, what value to apply to HLT items." << std::endl;
+          std::cout << "--useDefaultLumiScalingExceptions\t Use hard coded list of common special case chains for advanced lumi extrapolation (requires --predictionMu)." << std::endl;
           std::cout << "--scaleRatesByPS\t\t\t\tScale up chains by their L1 prescale to get their rate for L1 PS=1. Only for basic L1 and HLT chains, not combinations and global rates."<<std::endl;
           std::cout << "--maxMultiSeed "<< _maxMultiSeed <<"\t\t\t\tMaximum number of L1 seeds a chain can have before it is dropped from Union rate groups due to exploding (2^nL1) computational complexity." << std::endl;
           std::cout << "--noOnlineDTCorrection\t\t\t\tFlag to prevent automated scaling to correct for L1 deadtime of EB data." << std::endl;
-          std::cout << "--targetMu\t\t\tSpecify a target pileup for prescaled rates prediction. This affects the rates of explicit L1 random seeded triggers and must be supplied to get accurate predictions here." << std::endl;
           std::cout << "--upgradeScenario\t\t\t\tSpecify the name of the scenario to load when doing upgrade rate estimations." << std::endl;
           std::cout << "--doUpgradeRatesScan\t\t\t\tAdd a standard set of spaced out L1 triggers at different energies to get pT dependence." << std::endl;
           std::cout << "--noUpgradePileupScaling\t\t\tWhen doing upgrade rates, use this flag to avoid scaling rates for increased <mu>." << std::endl;
@@ -544,6 +556,36 @@ namespace TrigCostRootAnalysis {
             break;
           }
           _userDetails += std::string(" ") + std::string( argv[optind++] );
+        }
+        break;
+      case '1':
+        // I'm setting the _patternsNoLumiWeight strings
+        _patternsNoLumiWeight.push_back( std::string( optarg ) );
+        while (optind < argc) {
+          if ( std::string( argv[optind] ).substr(0, 1) == "-") { //We're back to arguments
+            break;
+          }
+          _patternsNoLumiWeight.push_back( std::string(" ") + std::string( argv[optind++] ) );
+        }
+        break;
+      case '2':
+        // I'm setting the _patternsNoMuLumiWeight strings
+        _patternsNoMuLumiWeight.push_back( std::string( optarg ) );
+        while (optind < argc) {
+          if ( std::string( argv[optind] ).substr(0, 1) == "-") { //We're back to arguments
+            break;
+          }
+          _patternsNoMuLumiWeight.push_back( std::string(" ") + std::string( argv[optind++] ) );
+        }
+        break;
+      case '3':
+        // I'm setting the _patternsNoBunchLumiWeight strings
+        _patternsNoBunchLumiWeight.push_back( std::string( optarg ) );
+        while (optind < argc) {
+          if ( std::string( argv[optind] ).substr(0, 1) == "-") { //We're back to arguments
+            break;
+          }
+          _patternsNoBunchLumiWeight.push_back( std::string(" ") + std::string( argv[optind++] ) );
         }
         break;
       case 'n':
@@ -786,6 +828,7 @@ namespace TrigCostRootAnalysis {
       _nLbPerHLTConfig = INT_MAX;
       _outputModeStandard = 1;
       _doCPS = 1;
+      _useDefaultLumiScalingExceptions = 1;
     }
 
     if (_costMode == kTRUE) {
@@ -929,7 +972,7 @@ namespace TrigCostRootAnalysis {
       _monitorROSAlgs = 1;
       _monitorROSChains = 1;
     }
- 
+
     int _nMon = _monitorAll
       + _monitorChains
       + _monitorChainAlgs
@@ -987,9 +1030,33 @@ namespace TrigCostRootAnalysis {
 
     // Number of passes, UpgradeMonitor needs 2 if we are doing upgrade pileup scaling
     if (_monitorRatesUpgrade == kTRUE && _noUpgradePileupScaling == kFALSE) {
-        set(kNPasses, 2, "NPasses");
+      set(kNPasses, 2, "NPasses");
     } else {
-        set(kNPasses, 1, "NPasses");
+      set(kNPasses, 1, "NPasses");
+    }
+
+    if (isZero(_targetMu) && (_patternsNoLumiWeight.size() || _patternsNoMuLumiWeight.size() || _patternsNoBunchLumiWeight.size()) ) {
+      Error("Config::parseCLI", "If using --patternsNoLumiWeight, --patternsNoMuLumiWeight or --patternsNoBunchLumiWeight then --predictionMu must be specified too.");
+      return kFALSE;
+    }
+
+    // Hard code some special cases
+    if (_useDefaultLumiScalingExceptions) {
+      _patternsNoLumiWeight.push_back("HLT_lumipeb_L1RD");
+      _patternsNoLumiWeight.push_back("HLT_lumipeb_vdm_L1RD");
+      _patternsNoLumiWeight.push_back("HLT_j0_perf_L1RD");
+      _patternsNoLumiWeight.push_back("HLT_ibllumi_L1RD");
+      _patternsNoLumiWeight.push_back("HLT_l1calocalib");
+      _patternsNoLumiWeight.push_back("HLT_sct_noise");
+      _patternsNoLumiWeight.push_back("HLT_noalg_L1RD");
+
+      //_patternsNoMuLumiWeight.push_back("HLT_lumipeb_L1ALFA");
+      //_patternsNoMuLumiWeight.push_back("HLT_cscmon");
+      //_patternsNoMuLumiWeight.push_back("HLT_costmonitor");
+      //_patternsNoMuLumiWeight.push_back("HLT_larcalib");
+      //_patternsNoMuLumiWeight.push_back("HLT_xe0noL1_l2fsperf");
+      //_patternsNoMuLumiWeight.push_back("muoncalib");
+      //_patternsNoMuLumiWeight.push_back("hmtperf");
     }
 
     // String patterns to match when doing monitoring
@@ -998,6 +1065,9 @@ namespace TrigCostRootAnalysis {
     set(kPatternsUnique, _patternsUnique, "PatternsUnique");
     set(kPatternsExclude, _patternsExclude, "PatternsExclude");
     set(kPatternsOverlap, _patternsOverlap, "PatternsOverlap");
+    set(kPatternsNoLumiWeight, _patternsNoLumiWeight, "PatternsNoLumiWeight");
+    set(kPatternsNoMuLumiWeight, _patternsNoMuLumiWeight, "PatternsNoMuLumiWeight");
+    set(kPatternsNoBunchLumiWeight, _patternsNoBunchLumiWeight, "PatternsNoBunchLumiWeight");
 
     // If there are patterns here, make sure we switch on unique rates
     if ( _patternsUnique.size() > 0 && _doUniqueRates == kFALSE) {
@@ -1103,9 +1173,9 @@ namespace TrigCostRootAnalysis {
       setFloat(kRunLumi, _runLumi, "RunLumi"); // The lumi of the EB run online
     }
 #ifdef MTHREAD
-    set(kNThread, _nThread, "NumberThreads"); 
+    set(kNThread, _nThread, "NumberThreads");
 #else
-    set(kNThread, 1, "NumberThreads"); 
+    set(kNThread, 1, "NumberThreads");
 #endif
     set(kSlowThreshold, _slowThreshold, "SlowThreshold");
     set(kSlowEvThreshold, _slowEventThreshold, "SlowEventThreshold");
@@ -1139,7 +1209,7 @@ namespace TrigCostRootAnalysis {
     setFloat(kEventStartTime,  0., "EventStart", kUnlocked);
     set(kPatternsInvert, _patternsInvert, "PatternsInvert");
     set(kIsCPUPrediction, _isCPUPrediction, "IsCPUPrediction");
-    set(kIgnoreRerun, 0, "IgnoreRerun", kUnlocked); 
+    set(kIgnoreRerun, 0, "IgnoreRerun", kUnlocked);
     set(kJIRA, _jira, "JIRA");
     set(kPatternsExactMatch, _patternsExactMatch, "PatternsExactMatch");
     set(kIgnoreNonPhysBunchGroups, _ignoreNonPhysBunchGroups, "IgnoreNonPhyBunchgroups");
@@ -1391,6 +1461,10 @@ namespace TrigCostRootAnalysis {
     set(kDecUniqueRate, "UniqueRate");
     set(kDecUniqueFraction, "UniqueFraction");
 
+    set(kListOfNoBunchLumiWeightChains, std::vector<std::string>(), "NoBunchLumiWeightChains", kUnlocked ); // Populated during execution
+    set(kListOfNoMuLumiWeightChains, std::vector<std::string>(), "NoMuLumiWeightChains", kUnlocked ); // Populated during execution
+    set(kListOfNoLumiWeightChains, std::vector<std::string>(), "NoLumiWeightChains", kUnlocked ); // Populated during execution
+
     // End of option parsing
 
     return kTRUE;
@@ -1509,14 +1583,22 @@ namespace TrigCostRootAnalysis {
    * @returns Requested configuration string or blank string if key not found.
    */
   const std::string& Config::getStr( ConfKey_t _key ) {
-    if ( m_settingsStr.count( _key ) == 0 ) {
+    if ( m_settingsStr.count( _key ) == 1) {
+      return m_settingsStr[_key];// Return the requested string
+    } else if ( m_settingsVecStr.count( _key ) == 1) {
+        static std::string _scratch; // singleton so this is OK
+        std::stringstream _ss;
+        for (auto _entry : m_settingsVecStr[_key]) {
+          _ss << _entry << ", ";
+        }
+        _scratch = _ss.str();
+        return _scratch;
+    } else {
       std::string _name;
       if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
       Error("Config::getStr", "Unknown string-key %i. (name, if any:%s)", _key, _name.c_str() );
-      return m_blankString;
     }
-    // Return the requested string
-    return m_settingsStr[_key];
+    return m_blankString;
   }
 
   /**
@@ -1657,7 +1739,7 @@ namespace TrigCostRootAnalysis {
     if ( m_settingsVecStr.count( _key ) == 0 ) {
       std::string _name;
       if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
-      Error("Config::getVecEntry", "Unknown key %i %s", _key, _name.c_str() );
+      Error("Config::addVecEntry", "Unknown key %i %s", _key, _name.c_str() );
       return kFALSE;
     }
     if ( getIsLocked( _key, kTRUE ) == kTRUE ) return kFALSE;
@@ -1677,7 +1759,7 @@ namespace TrigCostRootAnalysis {
     if ( m_settingsVecStr.count( _key ) == 0 ) {
       std::string _name;
       if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
-      Error("Config::getVecEntry", "Unknown key %i %s", _key, _name.c_str() );
+      Error("Config::removeVecEntry", "Unknown key %i %s", _key, _name.c_str() );
       return kFALSE;
     }
     if ( getIsLocked( _key, kTRUE ) == kTRUE ) return kFALSE;
@@ -1703,7 +1785,7 @@ namespace TrigCostRootAnalysis {
     if ( m_settingsVecStr.count( _key ) == 0 && m_settingsVecInt.count( _key ) == 0 ) {
       std::string _name;
       if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
-      Error("Config::getVecEntry", "Unknown key %i %s", _key, _name.c_str() );
+      Error("Config::clearVec", "Unknown key %i %s", _key, _name.c_str() );
       return kFALSE;
     }
     if ( getIsLocked( _key, kTRUE ) == kTRUE ) return kFALSE;
@@ -1727,7 +1809,7 @@ namespace TrigCostRootAnalysis {
     if ( m_settingsVecStr.count( _key ) == 0 ) {
       std::string _name;
       if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
-      Error("Config::getVecEntry", "Unknown key %i %s", _key, _name.c_str() );
+      Error("Config::getVecMatches", "Unknown key %i %s", _key, _name.c_str() );
       return kFALSE;
     }
 

@@ -45,6 +45,35 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
+   * Check to see if a chain is on the list of chains to NEVER lumi weight
+   * @param _counterName Const reference to counter name to test.
+   * @result If the counter is on the list
+   */
+  Bool_t checkPatternNoLumiWeight( const std::string& _counterName) {
+    return Config::config().getVecMatches(kPatternsNoLumiWeight, _counterName);
+  }
+
+  /**
+   * Check to see if a chain is on the list of chains to not get the *mu* part of the lumi weight
+   * Will still get the bunch part
+   * @param _counterName Const reference to counter name to test.
+   * @result If the counter is on the list
+   */
+  Bool_t checkPatternNoMuLumiWeight( const std::string& _counterName) {
+    return Config::config().getVecMatches(kPatternsNoMuLumiWeight, _counterName);
+  }
+
+  /**
+   * Check to see if a chain is on the list of chains to not get the *bunch* part of the lumi weight
+   * Will still get the mu part
+   * @param _counterName Const reference to counter name to test.
+   * @result If the counter is on the list
+   */
+  Bool_t checkPatternNoBunchLumiWeight( const std::string& _counterName) {
+    return Config::config().getVecMatches(kPatternsNoBunchLumiWeight, _counterName);
+  }
+
+  /**
    * Check to see if a counter name has been specified by the user as one we're interested in saving.
    * Match it to the vector of chains to save.
    * @param _counterName Const reference to counter name to test.

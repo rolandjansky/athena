@@ -128,7 +128,15 @@ namespace TrigCostRootAnalysis {
    * @return Event prescale weight for this chain 0 < PS weight < 1
    */
   Double_t CounterRatesUnion::runWeight(Bool_t _includeExpress) {
-    if (m_combinationClassification == kUnset) classify();
+    if (m_combinationClassification == kUnset) {
+      classify();
+      // TODO add this properly to all the classifiers!
+      if (m_cpsGroups.size() > 0 && m_combinationClassification != kAllOneToMany && m_cannotCompute == kFALSE) {
+        Warning("CounterRatesUnion::runWeight", "Group %s contains CPS and cannot be classified AllOneToMany topology. More work needed here to get group rate correct.", getName().c_str());
+        m_combinationClassification = kAllOneToMany;
+      }
+    }
+
     if (m_cannotCompute == kTRUE) return 0.;
     m_eventLumiExtrapolation = 0;
 
@@ -146,14 +154,10 @@ namespace TrigCostRootAnalysis {
    */
   void CounterRatesUnion::classify() {
 
-    // TODO add this properly to all the classifiers!
-    if (m_cpsGroups.size() > 0) {
-      m_combinationClassification = kAllOneToMany;
-      return;
-    }
+
 
     // See if L1 only, no HLT chains
-    if (m_L2s.size() == 0) {
+    if (m_L2s.size() == 0 && m_cpsGroups.size() == 0) {
       if (Config::config().debug()) {
         Info("CounterRatesUnion::classify","Chain %s topology classified as OnlyL1.",
           getName().c_str());
@@ -177,6 +181,8 @@ namespace TrigCostRootAnalysis {
       }
       if (_allToAll == kFALSE) break;
     }
+    // If CPS, we don't use this one (could in theory)
+    if (m_cpsGroups.size() > 0) _allToAll = kFALSE;
     if (_allToAll == kTRUE) {
       if (Config::config().debug()) {
         Info("CounterRatesUnion::classify","Chain %s topology classified as All-To-All.",
@@ -193,7 +199,6 @@ namespace TrigCostRootAnalysis {
       // Check that I have exactly one seed
       if (_L2Test->getLower().size() != 1) {
         _allOneToOne = kFALSE;
-        if (getName() == "RATE_Calibration") Info("","Not 1-1 due to size of %s", _L2Test->getName().c_str());  // TEMP!!!
         break;
       }
       // Check that no one else has the same L1 seed
@@ -203,13 +208,14 @@ namespace TrigCostRootAnalysis {
 
         if (_L2->getLowerContains( (*_L2Test->getLowerStart()) ) == kTRUE) { // Remember that we know L2Test only has one lower
           _allOneToOne = kFALSE;
-          if (getName() == "RATE_Calibration") Info("","Not 1-1 due to shared seed %s %s ", _L2->getName().c_str(), _L2Test->getName().c_str()); // TEMP!!!
           break;
         }
 
       }
       if (_allOneToOne == kFALSE) break;
     }
+    // If CPS, then cannot be all one to one, CPS share L1 seed by definition
+    if (m_cpsGroups.size() > 0) _allOneToOne = kFALSE;
     if (_allOneToOne == kTRUE) {
       if (Config::config().debug()) {
         Info("CounterRatesUnion::classify","Chain %s topology classified as All-One-To-One.",
@@ -229,6 +235,18 @@ namespace TrigCostRootAnalysis {
         break;
       }
     }
+    // Also check CPS
+    for (CPSGroupSetIt_t _CPSIt = m_cpsGroups.begin(); _CPSIt != m_cpsGroups.end(); ++_CPSIt) {
+      RatesCPSGroup* _cpsGroup = (*_CPSIt);
+      for (ChainItemSetIt_t _L2It = _cpsGroup->getChainStart(); _L2It != _cpsGroup->getChainEnd(); ++_L2It) {
+        if (m_myCPSChains.count( (*_L2It)->getName() ) == 0) continue; // This CPS group member is not in this rates group
+        if ((*_L2It)->getLower().size() != 1) {
+          _allOneToMany = kFALSE;
+          break;
+        }
+      }
+      if (_allOneToMany == kFALSE) break;
+    }
     if (_allOneToMany == kTRUE) {
       if (Config::config().debug()) {
         Info("CounterRatesUnion::classify","Chain %s topology classified as All-One-To-Many.",
@@ -239,13 +257,16 @@ namespace TrigCostRootAnalysis {
     }
 
     // Otherwise we have to use the general form
-    Info("CounterRatesUnion::classify","Chain %s topology classified as Many-To-Many. NL1:%i. Computational complexity (2^NL1-1)=%i.",
-      getName().c_str(), (Int_t)m_L1s.size(), (UInt_t)(TMath::Power(2., (Double_t)m_L1s.size())-1) );
     if (m_L1s.size() > 20) { // 32 is the technical maximim - but the this is already impractical
-      Error("CounterRatesUnion::classify","Cannot calculate rates union for this complexity, %s. Use fewer L1 seeds!!! Disabling this combination.", getName().c_str());
+      Warning("CounterRatesUnion::classify","Union %s topology is Many-To-Many with NL1:%i (Complexity (2^NL1-1)=%e). Disabling (max L1 seeds is 20 for Many-To-Many).", 
+        getName().c_str(), (Int_t)m_L1s.size(), TMath::Power(2., (Double_t)m_L1s.size()) - 1. );
       m_cannotCompute = kTRUE;
     } else if (m_L1s.size() > 10) {
-      Warning("CounterRatesUnion::classify","Many L1s in this combination, %s. Calculatuon will be *SLOW.*", getName().c_str());
+      Warning("CounterRatesUnion::classify","Union %s topology is Many-To-Many with NL1:%i (Complexity (2^NL1-1)=%e). This will be *SLOW*.",
+        getName().c_str(), (Int_t)m_L1s.size(), TMath::Power(2., (Double_t)m_L1s.size()) - 1. );
+    } else {
+      Info("CounterRatesUnion::classify","Union %s topology is Many-To-Many with NL1:%i (Complexity (2^NL1-1)=%e).",
+        getName().c_str(), (Int_t)m_L1s.size(), TMath::Power(2., (Double_t)m_L1s.size()) - 1. );
     }
     m_combinationClassification = kManyToMany;
   }
@@ -268,6 +289,7 @@ namespace TrigCostRootAnalysis {
     }
 
     if (_lumiExtrapDenominator) m_eventLumiExtrapolation = _lumiExtrapNumerator / _lumiExtrapDenominator;
+    //if (getName() == "RATE_GLOBAL_L1") Info("DEBUG", "WL1:%f , lumi%f", 1. - _w , m_eventLumiExtrapolation );
     return (1. - _w);
   }
 
@@ -336,10 +358,8 @@ namespace TrigCostRootAnalysis {
    */
   Double_t CounterRatesUnion::runWeight_AllOneToMany(Bool_t _includeExpress) {
 
-//  typedef std::set<RatesChainItem*>      ChainItemSet_t;
-
     Double_t _weightAllChains = 1.;
-    Double_t _lumiExtrapNumerator = 0., _lumiExtrapDenominator = 0., _thisSetOfL2sLumi = 0.; 
+    Double_t _lumiExtrapNumerator = 0., _lumiExtrapDenominator = 0.; 
 
     // This can be cached on first call
     if (m_l1ToProcess.size() == 0) {
@@ -359,14 +379,11 @@ namespace TrigCostRootAnalysis {
 
       Double_t _weightL2 = 1.;
       for (ChainItemSetIt_t _L2It = _L1->getUpperStart(); _L2It != _L1->getUpperEnd(); ++_L2It) {
-        if ( m_L2s.count( (*_L2It) ) == 0 ) {
-          //Error("DBG", "Got a L2 which is not in the set of L2 to process?");
-          continue; //TODO - is this needed? (yes apparently) Should be implicitly true
-        }
-        _thisSetOfL2sLumi = (*_L2It)->getLumiExtrapolationFactor(); // All share the same value here (same L1 seed)
-        _weightL2 *= (1. - (*_L2It)->getPassRawOverPS(_includeExpress));
-        if (isZero(_weightL2)) break; // If a PS=1 passes
-        // Info("CounterRatesUnion::runWeight_AllOneToMany","L2 item  %s has weight %f", (*_L2It)->getName().c_str(),  (*_L2It)->getPassRawOverPS());
+        if ( m_L2s.count( (*_L2It) ) == 0 ) continue;
+        Double_t _w = (*_L2It)->getPassRawOverPS(_includeExpress);
+        _lumiExtrapNumerator += _w * _weightL1 * (*_L2It)->getLumiExtrapolationFactor();
+        _lumiExtrapDenominator += _w * _weightL1;
+        _weightL2 *= (1. - _w);
       }
 
       // What about any CPS group with this seed?
@@ -378,33 +395,25 @@ namespace TrigCostRootAnalysis {
         //if it is the same L1 seed, do the CPS for these chains
         Double_t _weightL2cps = 1.;
         for (ChainItemSetIt_t _L2It = _cpsGroup->getChainStart(); _L2It != _cpsGroup->getChainEnd(); ++_L2It) {
-          // TODO - If this is a group, then we only take CPS members which are also in this group
           // Need to check if THIS ITEM IN THE CPS GROUP is also A MEMBER OF THE CURRENT GROUP
           if (m_myCPSChains.count( (*_L2It)->getName() ) == 0) continue; // This CPS group member is not in this rates group
-          _thisSetOfL2sLumi = (*_L2It)->getLumiExtrapolationFactor(); // All share the same value here (same L1 seed)
-          _weightL2cps *= (1. - (*_L2It)->getPassRawOverPSReduced(_includeExpress)); 
-          if (isZero(_weightL2cps)) break; // If a PS=1 passes
+          Double_t _w = (*_L2It)->getPassRawOverPS(_includeExpress);
+          _lumiExtrapNumerator += _w * _weightL1 * _cpsGroup->getCommonWeight() * (*_L2It)->getLumiExtrapolationFactor(); //TODO is it OK to include the common weight in the lumi extrapolation like this?
+          _lumiExtrapDenominator += _w * _weightL1 * _cpsGroup->getCommonWeight();
+          _weightL2cps *= (1. - _w); 
         }
         _weightL2cps = (1. - _weightL2cps);
         _weightL2cps *= _cpsGroup->getCommonWeight();
-
         _weightL2 *= (1. - _weightL2cps);
       }
 
       _weightL2 = (1. - _weightL2);
-
       Double_t _weightL1HLT = _weightL1 * _weightL2;
-
-      // These are HLT chains, and they are all from the same seed - so we can ask any of them for their L extrap 
-      // and know it will be common to all of them. This helps a lot here.
-      // WEIGHTED AVERAGE
-      _lumiExtrapNumerator += _weightL1HLT * _thisSetOfL2sLumi;
-      _lumiExtrapDenominator += _weightL1HLT;
 
       _weightAllChains *= (1. - _weightL1HLT);
     }
 
-    if (_lumiExtrapDenominator) m_eventLumiExtrapolation = _lumiExtrapNumerator / _lumiExtrapDenominator;
+    if (!isZero(_lumiExtrapDenominator)) m_eventLumiExtrapolation = _lumiExtrapNumerator / _lumiExtrapDenominator;
     return (1. - _weightAllChains);
   }
 

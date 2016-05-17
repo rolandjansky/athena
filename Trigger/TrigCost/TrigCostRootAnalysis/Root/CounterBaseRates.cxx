@@ -39,19 +39,21 @@ namespace TrigCostRootAnalysis {
     m_L2s(),
     m_L1s(),
     m_cannotCompute(kFALSE),
-    m_myUniqueCounter(0),
-    m_globalRates(0),
-    m_lowerGlobalRates(0),
+    m_myUniqueCounter(nullptr),
+    m_globalRates(nullptr),
+    m_lowerRates(nullptr),
     m_doSacleByPS(0),
     m_doDirectPS(0),
     m_cachedWeight(0),
     m_alwaysDoExpressPS(kFALSE),
-    m_advancedLumiScaling(kTRUE)
+    m_advancedLumiScaling(kTRUE),
+    m_eventLumiExtrapolation(0.)
   {
 
       if (m_detailLevel == 0) m_dataStore.setHistogramming(kFALSE);
       m_doSacleByPS = Config::config().getInt(kRatesScaleByPS);
       m_doDirectPS = Config::config().getInt(kDirectlyApplyPrescales);
+      m_advancedLumiScaling = Config::config().getInt(kDoAdvancedLumiScaling);
       decorate(kDecDoExpressChain, 0); // this will be overwritten as needed
 
       if (m_doDirectPS == kTRUE) m_dataStore.newVariable(kVarEventsPassedDP).setSavePerCall();
@@ -104,7 +106,7 @@ namespace TrigCostRootAnalysis {
 
     // WEIGHTED Prescale
     Double_t _weightPS = runWeight(m_alwaysDoExpressPS); // alwaysDoExpressPS is *only* for the express group
-    Double_t _weightLumi = m_advancedLumiScaling == kTRUE ? getLumiExtrapolationFactor() : 1.; // This is calculated by runWeight()
+    Double_t _weightLumi = m_advancedLumiScaling == kTRUE ? m_eventLumiExtrapolation : 1.; // This is calculated by runWeight()
     if (!isZero( _weightPS )) {
       m_dataStore.store(kVarEventsPassed, 1., _weightPS * _weight * _weightLumi * _scaleByPS); // Chain passes with weight from PS as a float 0-1. All other weights inc.
       //m_dataStore.store(kVarEventsPerLumiblock, m_costData->getLumi(), (_weightPS * _weight * _scaleByPS)/((Float_t)m_costData->getLumiLength()) );
@@ -127,14 +129,6 @@ namespace TrigCostRootAnalysis {
     m_dataStore.store(kVarEventsPassRawStat, 1., _passBeforePS); // Times chain passes, zero other weights (underlying statistics of input file)
     m_dataStore.store(kVarEventsRunRawStat, 1.); // Times chain is processed, regardless of decision, zero other weights (underlying statistics of input file).
 
-  }
-
-  /**
-   * @return What this combination of items weighted average lumi extrapolation weight is
-   * This should be applied on top of the EB weight. It is 
-   */
-  Double_t CounterBaseRates::getLumiExtrapolationFactor() {
-    return m_eventLumiExtrapolation;
   }
 
   /**
@@ -236,20 +230,43 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * @param _toAdd Add a HLT TriggerItem which is to be used by this rates counter.
+   * We risk poisoning the GLOBAL rate counters if we add chains which are multi-seeded from > 1 L1 item
+   * This is because they will no doubt loose the "AllOneToMany" topology and become too slow to run
+   * By excluding these here, we loose their contributions from the global rate.
+   * @return If the L2 item should be excluded at this early stage.
    */
-  void CounterBaseRates::addL2Item( RatesChainItem* _toAdd ) {
+  Bool_t CounterBaseRates::checkMultiSeed(RatesChainItem* _toAdd) {
     // Perform Union check on number of L1 seeds
     if ( dynamic_cast<CounterRatesUnion*>(this) != NULL) { //If I am actually a CounterRatesUnion
       if (_toAdd->getLower().size() > (UInt_t) Config::config().getInt(kMaxMultiSeed)) {
-        if (!(getStrDecoration(kDecType) != "UniqueHLT" || getStrDecoration(kDecType) != "UniqueL1")) {
-          Warning("CounterBaseRates::addHLTItem","Not including %s in %s due to %u L1 seeds (see: --maxMultiSeed)",
-            _toAdd->getName().c_str(), getName().c_str(), (UInt_t) _toAdd->getLower().size());
+        // We are much stricter if this is a GLOBAL counter - don't want to have to disable it
+        Bool_t _isGlobal = kFALSE;
+        if (getName() == Config::config().getStr(kRateGlobalL1String)) _isGlobal = kTRUE;
+        else if (getName() == Config::config().getStr(kRateGlobalHLTString)) _isGlobal = kTRUE;
+        else if (getName() == Config::config().getStr(kRateGlobalPhysicsMainString)) _isGlobal = kTRUE;
+        else if (getName() == Config::config().getStr(kRateExpressString)) _isGlobal = kTRUE;
+        else if (getStrDecoration(kDecType) == "UniqueHLT") _isGlobal = kTRUE;
+        if (_isGlobal) {
+          // We only warn once per chain
+          static std::set<std::string> _toWarnAbout;
+          if (_toWarnAbout.count(_toAdd->getName()) == 0) {
+            _toWarnAbout.insert(_toAdd->getName());
+            Warning("CounterBaseRates::checkMultiSeed","Not including %s in RATE_GLOBAL/ESPRESS/UNIQUE calculations due to %u L1 seeds.",
+              _toAdd->getName().c_str(), (UInt_t) _toAdd->getLower().size());
+          }
+          return kFALSE;
         }
-        return;
       }
     }
+    return kTRUE;
+  }
+
+  /**
+   * @param _toAdd Add a HLT TriggerItem which is to be used by this rates counter.
+   */
+  void CounterBaseRates::addL2Item( RatesChainItem* _toAdd ) {
     assert(_toAdd != nullptr);
+    if (checkMultiSeed(_toAdd) == kFALSE) return;
     m_L2s.insert( _toAdd );
     _toAdd->addCounter( this ); // Add back-link
     for (ChainItemSetIt_t _lower = _toAdd->getLowerStart(); _lower != _toAdd->getLowerEnd(); ++_lower) {
@@ -267,15 +284,7 @@ namespace TrigCostRootAnalysis {
     for (ChainItemSetIt_t _it = _toAdd.begin(); _it != _toAdd.end(); ++_it) {
       RatesChainItem* _L2 = (*_it);
       // Perform Union check on number of L1 seeds
-      if ( dynamic_cast<CounterRatesUnion*>(this) != NULL) { //If I am actually a CounterRatesUnion
-        if (_L2->getLower().size() > (UInt_t) Config::config().getInt(kMaxMultiSeed)) {
-          if (!(getStrDecoration(kDecType) == "UniqueHLT" || getStrDecoration(kDecType) == "UniqueL1")) { // This msg gets spammy otherwise
-            Warning("CounterBaseRates::addHLTItem","Not including %s in %s due to %u L1 seeds (see: --maxMultiSeed)",
-              _L2->getName().c_str(), getName().c_str(), (UInt_t) _L2->getLower().size());
-          }
-          continue;
-        }
-      }
+      if (checkMultiSeed(_L2) == kFALSE) continue;
       m_L2s.insert( _L2 );
       _L2->addCounter( this ); // Add back-link
       for (ChainItemSetIt_t _lower = _L2->getLowerStart(); _lower != _L2->getLowerEnd(); ++_lower) {
@@ -380,6 +389,18 @@ namespace TrigCostRootAnalysis {
 
     // This has just been set
     Float_t _walltime = getDecoration(kDecLbLength);
+
+    // Do lower chain rate
+    Float_t _inputRate = 0.;
+    if ( getStrDecoration(kDecType) == "L1" ) {      // For L1, just eventsRun
+      _inputRate = m_dataStore.getValue(kVarEventsRun, kSavePerCall) / _walltime;
+      decorate(kDecInputRate, floatToString(_inputRate, 4)); // Save as string
+    } else if ( getStrDecoration(kDecType) == "Chain" && m_lowerRates != nullptr ) { // For HLT, ask the L1 item
+      _inputRate = m_lowerRates->m_dataStore.getValue(kVarEventsPassed, kSavePerCall) / _walltime;
+      decorate(kDecInputRate, floatToString(_inputRate, 4)); // Save as string
+    } else {
+      decorate(kDecInputRate, std::string("-")); 
+    }
 
     // Check express
     if (getIntDecoration(kDecDoExpressChain) == 1 || m_alwaysDoExpressPS) {

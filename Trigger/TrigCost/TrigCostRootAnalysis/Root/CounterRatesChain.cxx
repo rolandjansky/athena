@@ -87,6 +87,7 @@ namespace TrigCostRootAnalysis {
     // See Eq 33 from http://arxiv.org/abs/0901.4118
 
     assert( m_L2s.size() == 1 || m_L1s.size() == 1); // We should only be one chain
+    m_cachedWeight = 0.;
 
     if (m_L2s.size() == 1) { // A HLT Chain
 
@@ -96,29 +97,23 @@ namespace TrigCostRootAnalysis {
       if (_L2->getPassRaw() == kFALSE) return 0.;
 
       Double_t _L1Weight = 1.;
-      if (_L2->getLower().size() == 0) { //if we are seeded off of everything, we ask the global rates pointer for this event's L1 weight
-
-        _L1Weight = (1. - m_lowerGlobalRates->getLastWeight() );
-
-      } else {  // Calculate the additional weight from L1 items which passed the event
-
-        for (ChainItemSetIt_t _lowerIt = _L2->getLowerStart(); _lowerIt != _L2->getLowerEnd(); ++_lowerIt) {
-          RatesChainItem* _L1 = (*_lowerIt);
-          _L1Weight *= ( 1. - _L1->getPassRawOverPS() );
-        }
-
+      for (ChainItemSetIt_t _lowerIt = _L2->getLowerStart(); _lowerIt != _L2->getLowerEnd(); ++_lowerIt) {
+        RatesChainItem* _L1 = (*_lowerIt);
+        _L1Weight *= ( 1. - _L1->getPassRawOverPS() );
       }
 
       m_eventLumiExtrapolation = _L2->getLumiExtrapolationFactor();
-      return _L2->getPSWeight(_includeExpress) * ( 1. - _L1Weight );
+      //if (getName() == "HLT_cscmon_L1All") Info("DEBUG", "WL1:%f, NL1:%s, 1-L1: %f, HLT:%f, total: %f, lumi%f", m_lowerRates->getLastWeight(), m_lowerRates->getName().c_str(),  1. - _L1Weight, _L2->getPSWeight(_includeExpress), _L2->getPSWeight(_includeExpress) * ( 1. - _L1Weight ),  _L2->getLumiExtrapolationFactor()  );
+      m_cachedWeight = _L2->getPSWeight(_includeExpress) * ( 1. - _L1Weight );
 
     } else { // A L1Chain
 
       RatesChainItem* _L1 = (*m_L1s.begin());
       m_eventLumiExtrapolation = _L1->getLumiExtrapolationFactor();
-      return _L1->getPassRawOverPS();
+      m_cachedWeight = _L1->getPassRawOverPS();
 
     }
+    return m_cachedWeight;
   }
 
   /**

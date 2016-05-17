@@ -195,6 +195,12 @@ namespace TrigCostRootAnalysis {
     kPatternsUnique,
     kPatternsExclude,
     kPatternsOverlap,
+    kPatternsNoLumiWeight,
+    kPatternsNoMuLumiWeight,
+    kPatternsNoBunchLumiWeight,
+    kListOfNoLumiWeightChains,
+    kListOfNoMuLumiWeightChains,
+    kListOfNoBunchLumiWeightChains,
     kOutputPng,
     kOutputPdf,
     kOutputImage,
@@ -409,6 +415,7 @@ namespace TrigCostRootAnalysis {
     kDecUniqueFraction,
     kDecExpressRate,
     kDecMyROS,
+    kDecInputRate,
     kMsgNonPhysics,     // Error message suppression ENUM
     kMsgDivZero,
     kMsgRoISize,
@@ -528,6 +535,9 @@ namespace TrigCostRootAnalysis {
   Bool_t checkPatternUnique( const std::string& _patternName, Bool_t _invert );
   Bool_t checkPatternOverlap( const std::string& _patternName, Bool_t _invert );
   Bool_t checkPatternInternal( const std::string& _counterName, ConfKey_t _list, Bool_t _invert );
+  Bool_t checkPatternNoLumiWeight( const std::string& _counterName);
+  Bool_t checkPatternNoMuLumiWeight( const std::string& _counterName);
+  Bool_t checkPatternNoBunchLumiWeight( const std::string& _counterName);
 
   Int_t stringToInt(const std::string &_i);
   Float_t stringToFloat(const std::string &_i);

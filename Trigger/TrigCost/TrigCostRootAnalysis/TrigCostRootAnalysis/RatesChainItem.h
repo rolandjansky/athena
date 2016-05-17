@@ -54,6 +54,7 @@ namespace TrigCostRootAnalysis {
     void setExtraEfficiency(Double_t _extraEfficiency);
     void setRateReductionFactor(Double_t _reductionFactor);
     void setTriggerLogic(TriggerLogic* _tl);
+    void setProxy(CounterBaseRates* _c) { m_proxy = _c; }
 
     void beginEvent(Bool_t _passRaw, CounterBaseRatesSet_t& _counterSet);
     void beginEvent(TOBAccumulator* _eventTOBs);
@@ -113,6 +114,8 @@ namespace TrigCostRootAnalysis {
     ChainItemSet_t m_upper; //!< Pointers to seeding chains from lower levels
 
     TriggerLogic* m_triggerLogic; //!< If set, this logic is to be used to determine if the event passed or not.
+
+    CounterBaseRates* m_proxy; //!< Only currently used by the "UNSEEDED" item, this exceptionally gets its weight from the L1 rates counter. m_proxy should point to this counter.
 
     CounterBaseRatesSet_t m_clients; //!< Set of pointers to client rates counters which use this chain item.
 

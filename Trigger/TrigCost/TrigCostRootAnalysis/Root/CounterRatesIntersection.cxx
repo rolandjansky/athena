@@ -77,6 +77,7 @@ namespace TrigCostRootAnalysis {
    */
   Double_t CounterRatesIntersection::runWeight(Bool_t _includeExpress) {
     m_eventLumiExtrapolation = 0;
+    m_cachedWeight = 0.;
     Double_t _lumiExtrapNumerator = 0., _lumiExtrapDenominator = 0.; 
 
     if (m_redundanciesRemoved == kFALSE) removeRedundancies();
@@ -98,7 +99,8 @@ namespace TrigCostRootAnalysis {
     }
 
     if (_lumiExtrapDenominator) m_eventLumiExtrapolation = _lumiExtrapNumerator / _lumiExtrapDenominator;
-    return _w;
+    m_cachedWeight = _w;
+    return m_cachedWeight;
   }
 
   /**

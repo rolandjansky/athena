@@ -52,7 +52,7 @@ namespace TrigCostRootAnalysis {
     void   addOverlap ( CounterBase* _overlap );
     void   setMyUniqueCounter( CounterBaseRates* _c ) { m_myUniqueCounter = _c; }
     void   setGlobalRateCounter(CounterBaseRates* _c) { m_globalRates = _c; }
-    void   setLowerGlobalRateCounter(CounterBaseRates* _c) { m_lowerGlobalRates = _c; }
+    void   setLowerRateCounter(CounterBaseRates* _c) { m_lowerRates = _c; }
     void   setAdvancedLumiScaling(Bool_t _set) { m_advancedLumiScaling = _set; }
 
     Bool_t getInEvent();
@@ -65,7 +65,6 @@ namespace TrigCostRootAnalysis {
     CounterBaseRates* getMyUniqueCounter() { return m_myUniqueCounter; }
     CounterBaseRates* getGlobalRateCounter() { return m_globalRates; }
     Double_t getLastWeight();
-    Double_t getLumiExtrapolationFactor();
 
     virtual void    finalise();
     virtual Float_t runDirect(Bool_t _usePrescale = kTRUE) = 0; // Pure virtual calls! Please override-me with appropriate trigger logic
@@ -75,6 +74,7 @@ namespace TrigCostRootAnalysis {
 
     void startRun();
     Double_t getPrescaleFactor(UInt_t _e = INT_MAX); // Unused here
+    Bool_t checkMultiSeed(RatesChainItem* _toAdd);
 
     CounterSet_t       m_ovelapCounters; //!< List of all counters to be queried at end of run to get my overlap with them
     CPSGroupSet_t      m_cpsGroups;      //!< List of groups of L2 chains in this combination which are to be treated coherently
@@ -84,7 +84,7 @@ namespace TrigCostRootAnalysis {
     Bool_t             m_cannotCompute;  //!< Chain rate cannot be computed for whatever reason. Will always return weight 0;
     CounterBaseRates*  m_myUniqueCounter;//!< For L1 and HLT chains, this pointer is set to the counter responsible for getting the unique rate for the chain.
     CounterBaseRates*  m_globalRates;    //!< Pointer to the global rates counter. Used currently by Unique CounterRatesUnion derived counters.
-    CounterBaseRates*  m_lowerGlobalRates;//!< Pointer to the global rates counter at lower level.
+    CounterBaseRates*  m_lowerRates;     //!< Pointer to the rates counter at lower level, for getting "Input Rate"
     Bool_t             m_doSacleByPS;    //!< If we are configured to scale all rates by their PS
     Bool_t             m_doDirectPS;     //!< If we are applying prescales directly (not with weights)
     Double_t           m_cachedWeight;   //!< Holds the most recently calculated weight. Used so other chains can get the global monitor's weight for the current event.

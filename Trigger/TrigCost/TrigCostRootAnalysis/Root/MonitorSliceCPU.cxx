@@ -66,7 +66,7 @@ namespace TrigCostRootAnalysis {
           _chainGroup = TrigConfInterface::getHLTGroupNameFromChainID(_chainID, 0);
         } else {
           _chainGroup = Config::config().getStr(kUnknownString);
-          if (Config::config().getDisplayMsg(kMsgNoGroup) == kTRUE) Warning("MonitorSliceCPU::newEvent", "Chain %s has no group", _chainName.c_str());
+          if (Config::config().getDisplayMsg(kMsgNoGroup) == kTRUE) Warning("MonitorSliceCPU::newEvent", "Chain %s (%i) has no group", _chainName.c_str(), _chainID);
         }
 
         CounterBase* _counter = getCounter( _counterMap, _chainGroup, 0 );

@@ -63,13 +63,21 @@ namespace TrigCostRootAnalysis {
     Float_t m_vX; //!< Vector energy in x axis
     Float_t m_vY; //!< Vector energy in y axis
     Float_t m_HT; //!< Scalar total energy in GeV
+    Bool_t m_overflowMET;
+    Bool_t m_overflowHT;
    public:
     TOBAccumulator() : m_vX(0), m_vY(0), m_HT(0) {}
     Float_t HT() { return m_HT; }
     Float_t vX() { return m_vX; }
     Float_t vY() { return m_vY; }
+    Bool_t METOverflow() { return m_overflowMET; }
+    Bool_t HTOverflow() { return m_overflowHT; }
     Float_t MET() { return TMath::Sqrt((m_vX * m_vX) + (m_vY * m_vY)); }
-    void set(Float_t _vX, Float_t _vY, Float_t _HT) { m_vX = _vX; m_vY = _vY; m_HT = _HT; }
+    void set(Float_t _vX, Float_t _vY, Float_t _HT, Bool_t _ofX, Bool_t _ofY, Bool_t _ofHT) { 
+      m_vX = _vX; m_vY = _vY; m_HT = _HT; 
+      m_overflowMET = (_ofX | _ofY);
+      m_overflowHT = _ofHT;
+    }
     std::set<TOB>& TOBs() { return m_TOBs; } 
     void add(TOB _tob) { m_TOBs.insert( _tob ); }
     std::string print() {
@@ -91,6 +99,8 @@ namespace TrigCostRootAnalysis {
       m_vX += _b->m_vX;
       m_vY += _b->m_vY;
       m_HT += _b->m_HT;
+      m_overflowHT |= _b->m_overflowHT;
+      m_overflowMET |= _b->m_overflowMET;
     }
   };
 
@@ -221,6 +231,8 @@ namespace TrigCostRootAnalysis {
 
     TOBAccumulator* getEventTOBs();
     void validateTriggerEmulation(CounterMap_t* _counterMap, TOBAccumulator* _this, Bool_t _print);
+    void printEnergyTOBs();
+
 
     std::string m_scenario; //<! What scenario XML to load
     Bool_t m_upgradePileupScaling; //<! If we are doing two passes to do pileup scaling

@@ -48,7 +48,8 @@ namespace TrigCostRootAnalysis {
     m_matchRandomToOnline(kFALSE),
     m_advancedLumiScaling(kFALSE),
     m_iAmRandom(kFALSE),
-    m_triggerLogic(nullptr)
+    m_triggerLogic(nullptr),
+    m_proxy(nullptr)
   {
     if (Config::config().debug()) {
       Info("RatesChainItem::RatesChainItem","New ChainItem:%s, Level:%i PS:%f", m_name.c_str(), m_level, m_PS);
@@ -115,21 +116,53 @@ namespace TrigCostRootAnalysis {
          _toCheck->getName().find("_L1RD2") != std::string::npos ||
          _toCheck->getName().find("_L1RD3") != std::string::npos ) {
       m_iAmRandom = kTRUE;
-      if (Config::config().debug()) Info("RatesChainItem::classifyRandom","Item %s classified as random", getName().c_str());
+      if (Config::config().debug()) Info("RatesChainItem::classifyLumiAndRandom","Item %s classified as random", getName().c_str());
     } else {
       m_iAmRandom = kFALSE;
     }
 
-    if (m_iAmRandom == kTRUE && m_advancedLumiScaling == kTRUE && m_level == 1) {
-      // No extrapolation... except for the deadtime fraction. Still want this.
-      m_lumiExtrapolationFactor = Config::config().getFloat(kDeadtimeScalingFinal);
-    } else if (m_iAmRandom == kTRUE && m_advancedLumiScaling == kTRUE && m_level > 1) {
-      // Only <mu> based extrapolation. Putting in the deadtime fraction too
-      m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalMuComponent);
-      m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
-    } else {
-      // The vast majority of chains will get this. This already includes the deadtime weight
-      m_lumiExtrapolationFactor = Config::config().getFloat(kLumiExtrapWeight);
+    if (m_advancedLumiScaling == kFALSE) { // Just do linear extrapolation
+
+      m_lumiExtrapolationFactor = Config::config().getFloat(kLumiExtrapWeight); // Linear
+      
+    } else { // m_advancedLumiScaling == kTRUE. Chains can have different extrapolation  
+
+      if (checkPatternNoLumiWeight(getName())) { // SPECIAL CASE #1
+
+        m_lumiExtrapolationFactor = Config::config().getFloat(kDeadtimeScalingFinal);
+        Config::config().addVecEntry(kListOfNoLumiWeightChains, getName());
+
+      } else if (checkPatternNoMuLumiWeight(getName())) { // SPECIAL CASE #2
+
+        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalBunchComponent);
+        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+        Config::config().addVecEntry(kListOfNoMuLumiWeightChains, getName());
+
+      } else if (checkPatternNoBunchLumiWeight(getName())) { // SPECIAL CASE #3
+
+        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalMuComponent);
+        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+        Config::config().addVecEntry(kListOfNoBunchLumiWeightChains, getName());
+
+      } else if (m_iAmRandom == kTRUE && m_level == 1) {
+
+        // No extrapolation... except for the deadtime fraction. Still want this.
+        // Same as special case #1
+        m_lumiExtrapolationFactor = Config::config().getFloat(kDeadtimeScalingFinal);
+
+      } else if (m_iAmRandom == kTRUE && m_level > 1) {
+
+        // Only <mu> based extrapolation. Putting in the deadtime fraction too
+        // Same as special case #3
+        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalMuComponent);
+        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+
+      } else {
+
+        // The vast majority of chains will get this. This already includes the deadtime weight
+        m_lumiExtrapolationFactor = Config::config().getFloat(kLumiExtrapWeight);
+
+      }
     }
   }
 
@@ -337,12 +370,12 @@ namespace TrigCostRootAnalysis {
     for (const TriggerCondition& _condition : getTriggerLogic()->conditions()) {
 
       if (_condition.m_type == kMissingEnergyString) {
-        if (_eventTOBs->MET() <= _condition.m_thresh) {
+        if (_eventTOBs->METOverflow() == kFALSE && _eventTOBs->MET() <= _condition.m_thresh) {
           m_passRaw = kFALSE;
           break;
         } 
       } else if (_condition.m_type == kEnergyString) {
-        if (_eventTOBs->HT() <= _condition.m_thresh) {
+        if (_eventTOBs->HTOverflow() == kFALSE && _eventTOBs->HT() <= _condition.m_thresh) {
           m_passRaw = kFALSE;
           break; 
         }
@@ -448,6 +481,7 @@ namespace TrigCostRootAnalysis {
    * @return 1/Prescale weighting factor for this event. This is scaled by an optional user supplied extra efficiency factor which can modulate the rate
    */
   Double_t RatesChainItem::getPSWeight(Bool_t _includeExpress) {
+    if (m_proxy != nullptr) return m_proxy->getLastWeight();
     if (_includeExpress == kTRUE) return m_PSWeight * m_PSExpressWeight * m_extraEfficiency;
     return m_PSWeight * m_extraEfficiency;
   }

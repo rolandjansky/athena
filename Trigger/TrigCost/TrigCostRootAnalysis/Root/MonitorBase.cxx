@@ -510,7 +510,7 @@ namespace TrigCostRootAnalysis {
       // Do the title line. First column is always the counter's name.
       _fout << "Name,";
       for (UInt_t _i = 0; _i < _toSave.size(); ++_i) {
-        checkForIllegalCharacters(_toSave[_i].m_columnName);
+        checkForIllegalCharacters(_toSave[_i].m_columnName, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kFALSE);
         _fout << _toSave[_i].m_columnName;
         if (_i != _toSave.size() - 1) _fout << ",";
         else _fout << std::endl;
@@ -519,7 +519,7 @@ namespace TrigCostRootAnalysis {
       // Do the second line, this contains the tooltip descriptions
       _fout << ",";
       for (UInt_t _i = 0; _i < _toSave.size(); ++_i) {
-        checkForIllegalCharacters(_toSave[_i].m_tooltip);
+        checkForIllegalCharacters(_toSave[_i].m_tooltip, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kFALSE);
         _fout << _toSave[_i].m_tooltip;
         if (_i != _toSave.size() - 1) _fout << ",";
         else _fout << std::endl;
@@ -598,7 +598,7 @@ namespace TrigCostRootAnalysis {
 
     // Output name
     std::string _rowName = _TCCB->getName();
-    checkForIllegalCharacters(_rowName);
+    checkForIllegalCharacters(_rowName, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kTRUE);
     _fout << _rowName << ",";
     // Output data
     for (UInt_t _i = 0; _i < _toSave.size(); ++_i) {
@@ -715,7 +715,7 @@ namespace TrigCostRootAnalysis {
 
       // Do the output
       if (_stringValue != "") {
-        checkForIllegalCharacters(_stringValue);
+        checkForIllegalCharacters(_stringValue, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kFALSE);
         _fout << _stringValue;
       } else {
         _fout << std::setprecision( _toSave[_i].m_precision ) << _value;
