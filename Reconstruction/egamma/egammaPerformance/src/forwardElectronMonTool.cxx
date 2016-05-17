@@ -107,7 +107,7 @@ StatusCode forwardElectronMonTool::bookHistograms()
   // MAIN PANEL
   bookTH1F(m_hN,            electronGroup, "forwardElectronN",           "Number of LOOSE electrons",40, 0.0, 40.0);
   bookTH1F(m_hEt,           electronGroup, "forwardElectronEt",          "LOOSE electron transverse energy [MeV]",100, -1000.0, 250000.0);
-  bookTH2F(m_hEtaPhi,       electronGroup, "forwardElectronEtaPhi",      "LOOSE electron #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
+  bookTH2F(m_hEtaPhi,       electronGroup, "forwardElectronEtaPhi",      "LOOSE electron #eta,#phi map (candidates with E>10GeV)", 64, -3.2, 3.2, 64, -3.2, 3.2);
   bookTH1F(m_hEta,          electronGroup, "forwardElectronEta",         "LOOSE electron #eta", 64, -5., 5.);
   bookTH1F(m_hPhi,          electronGroup, "forwardElectronPhi",         "LOOSE electron #phi", 64, -3.2, 3.2);
   bookTH1F(m_hTopoEtCone40, electronGroup, "forwardElectronTopoEtCone40","LOOSE forward electron Isolation Energy TopoEtCone40", 64, -10000., 40000.);
@@ -115,7 +115,7 @@ StatusCode forwardElectronMonTool::bookHistograms()
 
   bookTH1F(m_hTightN,            electronGroup, "forwardElectronTightN",           "Number of TIGHT electrons",40, 0.0, 40.0);
   bookTH1F(m_hTightEt,           electronGroup, "forwardElectronTightEt",          "TIGHT electron transverse energy [MeV]",100, -1000.0, 250000.0);
-  bookTH2F(m_hTightEtaPhi,       electronGroup, "forwardElectronTightEtaPhi",      "TIGHT electron #eta,#phi map", 64, -5., 5., 64, -3.2, 3.2);
+  bookTH2F(m_hTightEtaPhi,       electronGroup, "forwardElectronTightEtaPhi",      "TIGHT electron #eta,#phi map (candidates with E>10GeV)", 64, -5., 5., 64, -3.2, 3.2);
   bookTH1F(m_hTightEta,          electronGroup, "forwardElectronTightEta",         "TIGHT electron #eta", 100, -5., 5.);
   bookTH1F(m_hTightPhi,          electronGroup, "forwardElectronTightPhi",         "TIGHT electron #phi", 64, -3.2, 3.2);
   bookTH1F(m_hTightTopoEtCone40, electronGroup, "forwardElectronTightTopoEtCone40","TIGHT forward electron Isolation Energy TopoEtCone40", 64, -10000., 40000.);
@@ -202,6 +202,7 @@ StatusCode forwardElectronMonTool::fillHistograms()
     if((*e_iter)->author(xAOD::EgammaParameters::AuthorFwdElectron)==0) continue;
 
     // Basic kinematics
+    float energy = (*e_iter)->e();
     float et  = (*e_iter)->pt();
     float eta = (*e_iter)->eta();
     float phi = (*e_iter)->phi();      
@@ -231,7 +232,7 @@ StatusCode forwardElectronMonTool::fillHistograms()
     ++n_tot;
     ++(n_el[ir]);
     if(m_hEt)     m_hEt->Fill(et);
-    if(m_hEtaPhi) m_hEtaPhi->Fill(eta,phi);
+    if(m_hEtaPhi&&energy>10000.) m_hEtaPhi->Fill(eta,phi);
     if(m_hEta)    m_hEta->Fill(eta);
     if(m_hPhi)    m_hPhi->Fill(phi);
     
@@ -277,7 +278,7 @@ StatusCode forwardElectronMonTool::fillHistograms()
 	n_tot_tight++;
 	++(n_el_tight[ir]);
 	if(m_hTightEt)     m_hTightEt->Fill(et);
-	if(m_hTightEtaPhi) m_hTightEtaPhi->Fill(eta,phi);
+	if(m_hTightEtaPhi&&energy>10000) m_hTightEtaPhi->Fill(eta,phi);
 	if(m_hTightEta)    m_hTightEta->Fill(eta);
 	if(m_hTightPhi)    m_hTightPhi->Fill(phi);
 	if (m_hTightTime)  m_hTightTime->Fill(time);

@@ -54,7 +54,9 @@ class photonHist
   TH1 * m_hPhi;      // Histogram for photon phi
   TH1 * m_hPhiUnconv;// Histogram for Unconverted photon phi
   TH1 * m_hPhiConv;  // Histogram for Converted photon phi
-  TH2 * m_hEtaPhi;      // Histogram for photon eta,phi
+  TH2 * m_hEtaPhi;          // Histogram for photon eta,phi
+  TH2 * m_hEtaPhi4GeV;      // Histogram for photon eta,phi (candidates with at least 4 GeV energy)
+  TH2 * m_hEtaPhi20GeV;     // Histogram for photon eta,phi (candidates with at least 20 GeV energy)
   TH2 * m_hEtaPhiUnconv;// Histogram for Unconverted photon eta,phi
   TH2 * m_hEtaPhiConv;  // Histogram for Converted photon eta,phi
   TH1 * m_hTopoEtCone40;      // Histogram for calo based isolation energy
