@@ -130,33 +130,7 @@ HLT::ErrorCode TrigFTK_VxPrimaryAllTE::hltExecute(std::vector<std::vector<HLT::T
     
   } else {
     
-    VxContainer* theVxContainer = m_DataProviderSvc->getVxContainer(m_trackType);
-    
-    
-    //
-    //  Attach resolved tracks to the trigger element.
-    // create output TE:         
-    // Create an output TE seeded by the inputs                                                                                                                
-    HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, output);
-    outputTE->setActiveState(true);
-    
-    
-    HLT::ErrorCode stat = attachFeature(outputTE, theVxContainer, m_vxContainerName);
-    if (stat != HLT::OK) {
-      if (msgLvl() <= MSG::WARNING)
-	msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
-      
-      return HLT::NAV_ERROR;
-    }
-    
-    
-    
-    m_nVertices = theVxContainer->size();
-    if(outputLevel <= MSG::DEBUG){
-      msg() << MSG::DEBUG << "Container recorded in StoreGate." << endreq;
-      msg() << MSG::DEBUG << "REGTEST: Container size :" << m_nVertices << endreq;
-    }    
-    
+    msg() << MSG::WARNING << "FTK DataProviderSvc no longer returns VxConatiner, please use xAOD::VertexContainer" << endreq;
   } 
   
   // since this is an AllTEAlgo, we have to call the monitoring ourselves:
