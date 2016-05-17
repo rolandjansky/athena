@@ -316,7 +316,8 @@ Double_t get_vn_b(Double_t *x, Double_t *par)
   }
   float gb= 1.096 +1.36 *exp(-0.5*b*b/3.0/3.0);
   gb=gb*sqrt(v2);
-  return pow(gb*sqrt(v2),ihar);
+  //return pow(gb*sqrt(v2),ihar);
+  return pow(gb,ihar);
 
 
 }
