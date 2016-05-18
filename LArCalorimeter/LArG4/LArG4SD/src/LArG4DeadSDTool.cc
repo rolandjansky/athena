@@ -28,9 +28,22 @@
 #include "CaloG4Sim/CalibrationDefaultProcessing.h"
 #include "LArG4Code/EscapedEnergyProcessing.h"
 
-LArG4DeadSDTool::LArG4DeadSDTool(const std::string& type, const std::string& name, const IInterface *parent)
+LArG4DeadSDTool::LArG4DeadSDTool(const std::string& type, const std::string& name,
+                                 const IInterface *parent)
   : LArG4SDTool(type,name,parent)
   , m_HitColl("LArCalibrationHitDeadMaterial")
+  , m_barCrySD(nullptr)
+  , m_barCryLArSD(nullptr)
+  , m_barCryMixSD(nullptr)
+  , m_DMSD(nullptr)
+  , m_barPresSD(nullptr)
+  , m_barSD(nullptr)
+  , m_ECCrySD(nullptr)
+  , m_ECCryLArSD(nullptr)
+  , m_ECCryMixSD(nullptr)
+  , m_ECSupportSD(nullptr)
+  , m_HECWheelSD(nullptr)
+  , m_uninstSD(nullptr)
 {
   declareProperty("BarrelCryVolumes",m_barCryVolumes);
   declareProperty("BarrelCryLArVolumes",m_barCryLArVolumes);
@@ -43,11 +56,11 @@ LArG4DeadSDTool::LArG4DeadSDTool(const std::string& type, const std::string& nam
   declareProperty("ECCryMixVolumes",m_ECCryMixVolumes);
   declareProperty("ECSupportVolumes",m_ECSupportVolumes);
   declareProperty("HECWheelVolumes",m_HECWheelVolumes);
-//  declareProperty("HECVolumes",m_HECVolumes={"LArDead::HEC::Dead"});
-//  declareProperty("HECLocalVolumes",m_HECLocVolumes={"LArDead::HEC::Local::Dead"});
-//  declareProperty("MiniMomVolumes",m_miniMomVolumes={"MiniFCALMother::Dead"});
-//  declareProperty("MiniVolumes",m_miniVolumes={"MiniFCAL::Dead"});
-//  declareProperty("MiniLayVolumes",m_miniLayVolumes={"MiniFCAL::Layer::Dead"});
+  //declareProperty("HECVolumes",m_HECVolumes={"LArDead::HEC::Dead"});
+  //declareProperty("HECLocalVolumes",m_HECLocVolumes={"LArDead::HEC::Local::Dead"});
+  //declareProperty("MiniMomVolumes",m_miniMomVolumes={"MiniFCALMother::Dead"});
+  //declareProperty("MiniVolumes",m_miniVolumes={"MiniFCAL::Dead"});
+  //declareProperty("MiniLayVolumes",m_miniLayVolumes={"MiniFCAL::Layer::Dead"});
   declareProperty("doEscapedEnergy",m_do_eep=false);
   declareInterface<ISensitiveDetector>(this);
 }
@@ -66,11 +79,11 @@ StatusCode LArG4DeadSDTool::initializeSD()
   m_ECCryMixSD  = new LArG4CalibSD( "LArDead::EndcapCryostat::Mixed::Dead" , new LArG4::EndcapCryostat::CalibrationMixedCalculator() , m_doPID);
   m_ECSupportSD = new LArG4CalibSD( "LArDead::EMECSupport::Dead" , new LArG4::EMECSupportCalibrationCalculator() , m_doPID);
   m_HECWheelSD  = new LArG4CalibSD( "LArDead::HEC::Wheel::Inactive" , new LArG4::HEC::LArHECCalibrationWheelCalculator(LArG4::HEC::kWheelDead) , m_doPID);
-//  m_HECSD       = new LArG4CalibSD( "LArDead::HEC::Inactive" , new LArG4::HEC::CalibrationCalculator(LArG4::HEC::kDead) , m_doPID);
-//  m_HECLocSD    = new LArG4CalibSD( "LArDead::HEC::Local::Inactive" , new LArG4::HEC::LocalCalibrationCalculator(LArG4::HEC::kLocDead) , m_doPID);
-//  m_miniMomSD   = new LArG4CalibSD( "MiniFCALMother::Dead" , new LArG4::MiniFCAL::MiniFCALCalibrationCalculator(LArG4::MiniFCAL::kDead) , m_doPID);
-//  m_miniSD      = new LArG4CalibSD( "MiniFCAL::Dead" , new LArG4::MiniFCAL::MiniFCALCalibrationCalculator(LArG4::MiniFCAL::kDead) , m_doPID);
-//  m_miniLaySD   = new LArG4CalibSD( "MiniFCAL::Layer::Dead" , new LArG4::MiniFCAL::MiniFCALCalibrationCalculator(LArG4::MiniFCAL::kDead) , m_doPID);
+  //m_HECSD       = new LArG4CalibSD( "LArDead::HEC::Inactive" , new LArG4::HEC::CalibrationCalculator(LArG4::HEC::kDead) , m_doPID);
+  //m_HECLocSD    = new LArG4CalibSD( "LArDead::HEC::Local::Inactive" , new LArG4::HEC::LocalCalibrationCalculator(LArG4::HEC::kLocDead) , m_doPID);
+  //m_miniMomSD   = new LArG4CalibSD( "MiniFCALMother::Dead" , new LArG4::MiniFCAL::MiniFCALCalibrationCalculator(LArG4::MiniFCAL::kDead) , m_doPID);
+  //m_miniSD      = new LArG4CalibSD( "MiniFCAL::Dead" , new LArG4::MiniFCAL::MiniFCALCalibrationCalculator(LArG4::MiniFCAL::kDead) , m_doPID);
+  //m_miniLaySD   = new LArG4CalibSD( "MiniFCAL::Layer::Dead" , new LArG4::MiniFCAL::MiniFCALCalibrationCalculator(LArG4::MiniFCAL::kDead) , m_doPID);
   // Take care of the default material
   if (m_do_eep) m_uninstSD    = new LArG4CalibSD( "Default::Dead::Uninstrumented::Calibration::Region" , new LArG4::CalibrationDefaultCalculator() , m_doPID );
     
@@ -86,11 +99,11 @@ StatusCode LArG4DeadSDTool::initializeSD()
   configuration[m_ECCryMixSD]  = &m_ECCryMixVolumes;
   configuration[m_ECSupportSD] = &m_ECSupportVolumes;
   configuration[m_HECWheelSD]  = &m_HECWheelVolumes;
-//  configuration[m_HECSD]       = &m_HECVolumes;
-//  configuration[m_HECLocSD]    = &m_HECLocVolumes;
-//  configuration[m_miniMomSD]   = &m_miniMomVolumes;
-//  configuration[m_miniSD]      = &m_miniVolumes;
-//  configuration[m_miniLaySD]   = &m_miniLayVolumes;
+  //configuration[m_HECSD]       = &m_HECVolumes;
+  //configuration[m_HECLocSD]    = &m_HECLocVolumes;
+  //configuration[m_miniMomSD]   = &m_miniMomVolumes;
+  //configuration[m_miniSD]      = &m_miniVolumes;
+  //configuration[m_miniLaySD]   = &m_miniLayVolumes;
   if (m_do_eep) configuration[m_uninstSD]    = new std::vector<std::string>; // No volumes for this guy
   setupAllSDs(configuration);
 
@@ -106,11 +119,11 @@ StatusCode LArG4DeadSDTool::initializeSD()
   setupHelpers(m_ECCryMixSD);
   setupHelpers(m_ECSupportSD);
   setupHelpers(m_HECWheelSD);
-//setupHelpers(m_HECSD);
-//setupHelpers(m_HECLocSD);
-//setupHelpers(m_miniMomSD);
-//setupHelpers(m_miniSD);
-//setupHelpers(m_miniLaySD);
+  //setupHelpers(m_HECSD);
+  //setupHelpers(m_HECLocSD);
+  //setupHelpers(m_miniMomSD);
+  //setupHelpers(m_miniSD);
+  //setupHelpers(m_miniLaySD);
   if (m_do_eep) setupHelpers(m_uninstSD);
 
   // This is from initialize processing in the former LArG4CalibSD
@@ -132,12 +145,7 @@ StatusCode LArG4DeadSDTool::initializeSD()
 StatusCode LArG4DeadSDTool::Gather()
 {
   // In this case, *unlike* other SDs, the *tool* owns the collection
-#ifdef ATHENAHIVE
-  // Temporary fix for Hive until isValid is fixed
-  m_HitColl = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_HitColl.name());
-#else
   if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_HitColl.name());
-#endif
   m_barCrySD   ->EndOfAthenaEvent( &*m_HitColl );
   m_barCryLArSD->EndOfAthenaEvent( &*m_HitColl );
   m_barCryMixSD->EndOfAthenaEvent( &*m_HitColl );
@@ -149,11 +157,11 @@ StatusCode LArG4DeadSDTool::Gather()
   m_ECCryMixSD ->EndOfAthenaEvent( &*m_HitColl );
   m_ECSupportSD->EndOfAthenaEvent( &*m_HitColl );
   m_HECWheelSD ->EndOfAthenaEvent( &*m_HitColl );
-//  m_HECSD      ->EndOfAthenaEvent( &*m_HitColl );
-//  m_HECLocSD   ->EndOfAthenaEvent( &*m_HitColl );
-//  m_miniMomSD  ->EndOfAthenaEvent( &*m_HitColl );
-//  m_miniSD     ->EndOfAthenaEvent( &*m_HitColl );
-//  m_miniLaySD  ->EndOfAthenaEvent( &*m_HitColl );
+  //m_HECSD      ->EndOfAthenaEvent( &*m_HitColl );
+  //m_HECLocSD   ->EndOfAthenaEvent( &*m_HitColl );
+  //m_miniMomSD  ->EndOfAthenaEvent( &*m_HitColl );
+  //m_miniSD     ->EndOfAthenaEvent( &*m_HitColl );
+  //m_miniLaySD  ->EndOfAthenaEvent( &*m_HitColl );
   if (m_do_eep) m_uninstSD     ->EndOfAthenaEvent( &*m_HitColl );
   return StatusCode::SUCCESS;
 }

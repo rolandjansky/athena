@@ -28,17 +28,84 @@ def getLArActiveSensitiveDetector(name="LArActiveSensitiveDetector", **kwargs):
 
 def getLArDeadSensitiveDetector(name="LArDeadSensitiveDetector", **kwargs):
     ## Main configuration
-    kwargs.setdefault("BarrelCryVolumes",   ["LArMgr::LAr::Barrel::Cryostat::InnerWall::Vis","LArMgr::LAr::Barrel::Cryostat::Sector::*","LArMgr::LAr::Barrel::Cryostat::InnerWall","LArMgr::LAr::Barrel::Cryostat::Cylinder::*"])
-    kwargs.setdefault("BarrelCryLArVolumes",["LArMgr::LAr::Barrel::Cryostat::ExtraMat*","LArMgr::LAr::Barrel::Cryostat::HalfLAr*","LArMgr::LAr::Barrel::Cryostat::TotalLAr","LArMgr::LAr::Barrel::Cryostat::MotherVolume"])
-    kwargs.setdefault("BarrelCryMixVolumes",["LArMgr::LAr::Barrel::Cryostat::InnerEndWall","LArMgr::LAr::Barrel::Cryostat::OuterWall","LArMgr::LAr::Barrel::Cryostat::Mixed::Cylinder::*"])
+    kwargs.setdefault("BarrelCryVolumes",   ["LArMgr::LAr::Barrel::Cryostat::InnerWall::Vis",
+                                             "LArMgr::LAr::Barrel::Cryostat::Sector::*",
+                                             "LArMgr::LAr::Barrel::Cryostat::InnerWall",
+                                             "LArMgr::LAr::Barrel::Cryostat::Cylinder::*"])
+    kwargs.setdefault("BarrelCryLArVolumes",["LArMgr::LAr::Barrel::Cryostat::ExtraMat*",
+                                             "LArMgr::LAr::Barrel::Cryostat::HalfLAr*",
+                                             "LArMgr::LAr::Barrel::Cryostat::TotalLAr",
+                                             "LArMgr::LAr::Barrel::Cryostat::MotherVolume"])
+    kwargs.setdefault("BarrelCryMixVolumes",["LArMgr::LAr::Barrel::Cryostat::InnerEndWall",
+                                             "LArMgr::LAr::Barrel::Cryostat::OuterWall",
+                                             "LArMgr::LAr::Barrel::Cryostat::Mixed::Cylinder::*"])
     kwargs.setdefault("DeadMaterialVolumes",["LArMgr::LAr::DM::*"])
-    kwargs.setdefault("BarrelPresVolumes",  ["LArMgr::LAr::Barrel::Presampler","LArMgr::LAr::Barrel::Presampler::Sector","LArMgr::LAr::Barrel::Presampler::ProtectionShell","LArMgr::LAr::Barrel::Presampler::MotherBoard","LArMgr::LAr::Barrel::Presampler::Connectics","LArMgr::LAr::Barrel::Presampler::Rail","LArMgr::LAr::Barrel::Presampler::ProtectionPlate"]) 
-    kwargs.setdefault("BarrelVolumes",      ["LArMgr::LAr::EMB::ExtraMat*","LArMgr::LAr::EMB::FrontBack::Absorber","LArMgr::LAr::EMB::FrontBack::Absorber2","LArMgr::LAr::EMB::FrontBack::Steel","LArMgr::LAr::EMB::FrontBack::G10","LArMgr::LAr::EMB::FrontBack::Electrode","LArMgr::LAr::EMB::GTENB","LArMgr::LAr::EMB::GTENF","LArMgr::LAr::EMB::SUMB","LArMgr::LAr::EMB::CAAC","LArMgr::LAr::EMB::MOAC","LArMgr::LAr::EMB::TELB","LArMgr::LAr::EMB::TELF","LArMgr::LAr::EMB::ECAM"])
-    kwargs.setdefault("ECCryVolumes",       ["LArMgr::LAr::Endcap::Cryostat::FcalLAr::Cylinder","LArMgr::LAr::Endcap::Cryostat::EmecHecLAr::Sector","LArMgr::LAr::Endcap::Cryostat::EmecHecLAr::Cylinder","LArMgr::LAr::Endcap::Cryostat::Sector","LArMgr::LAr::Endcap::Cryostat::Cone","LArMgr::LAr::Endcap::Cryostat::Cylinder"])
-    kwargs.setdefault("ECCryLArVolumes",    ["LArMgr::Moderator*","LArMgr::LAr::Endcap::Cryostat::FcalLAr","LArMgr::LAr::Endcap::Cryostat::EmecHecLAr","LArMgr::LAr::Endcap::Cryostat::MotherVolume"]) 
-    kwargs.setdefault("ECCryMixVolumes",    ["LArMgr::LAr::FCAL::LiquidArgonC","LArMgr::LAr::Endcap::Cryostat::EmecHecLAr::Sector::Mixed","LArMgr::LAr::Endcap::Cryostat::Sector::Mixed","LArMgr::LAr::Endcap::Cryostat::Cone::Mixed","LArMgr::LAr::Endcap::Cryostat::ExtraCyl_beforePS","LArMgr::LAr::Endcap::Cryostat::Cylinder::Mixed"])
-    kwargs.setdefault("ECSupportVolumes",   ["LArMgr::LAr::EMEC::ExtraCyl_afterPS","LArMgr::LAr::EMEC::InnerTransversalBars","LArMgr::LAr::EMEC::InnerAluCone::*","LArMgr::LAr::EMEC::OuterTransversalBars","LArMgr::LAr::EMEC::OuterSupportMother","LArMgr::LAr::EMEC::*Stretchers","LArMgr::LAr::EMEC::Top*","LArMgr::LAr::EMEC::Back*GTen","LArMgr::LAr::EMEC::Back*Hole","LArMgr::LAr::EMEC::Back*Bar","LArMgr::LAr::EMEC::Back*Ring","LArMgr::LAr::EMEC::Back*Ele","LArMgr::LAr::EMEC::Back*Abs","LArMgr::LAr::EMEC::BackInnerBarrette::Module::Phidiv","LArMgr::LAr::EMEC::Back*Barrette::Module","LArMgr::LAr::EMEC::Back*Barrettes","LArMgr::LAr::EMEC::BackSupport*","LArMgr::LAr::EMEC::Front*","LArMgr::LAr::EMEC::Mother*"])
-    kwargs.setdefault("HECWheelVolumes",    ["LArMgr::LAr::HEC::Mother","LArMgr::LAr::HEC::LiquidArgon","LArMgr::LAr::HEC::Clamp","LArMgr::LAr::HEC::Clamp::LiquidArgon","LArMgr::LAr::HEC::Module","LArMgr::LAr::HEC::FrontModule","LArMgr::LAr::HEC::RearModule","LArMgr::LAr::HEC::Module::Depth","LArMgr::LAr::HEC::Module::Depth::FirstAbsorber","LArMgr::LAr::HEC::Module::Depth::FirstAbsorber::TieRod"])
+    kwargs.setdefault("BarrelPresVolumes",  ["LArMgr::LAr::Barrel::Presampler",
+                                             "LArMgr::LAr::Barrel::Presampler::Sector",
+                                             "LArMgr::LAr::Barrel::Presampler::ProtectionShell",
+                                             "LArMgr::LAr::Barrel::Presampler::MotherBoard",
+                                             "LArMgr::LAr::Barrel::Presampler::Connectics",
+                                             "LArMgr::LAr::Barrel::Presampler::Rail",
+                                             "LArMgr::LAr::Barrel::Presampler::ProtectionPlate"])
+    kwargs.setdefault("BarrelVolumes",      ["LArMgr::LAr::EMB::ExtraMat*",
+                                             "LArMgr::LAr::EMB::FrontBack::Absorber",
+                                             "LArMgr::LAr::EMB::FrontBack::Absorber2",
+                                             "LArMgr::LAr::EMB::FrontBack::Steel",
+                                             "LArMgr::LAr::EMB::FrontBack::G10",
+                                             "LArMgr::LAr::EMB::FrontBack::Electrode",
+                                             "LArMgr::LAr::EMB::GTENB",
+                                             "LArMgr::LAr::EMB::GTENF",
+                                             "LArMgr::LAr::EMB::SUMB",
+                                             "LArMgr::LAr::EMB::CAAC",
+                                             "LArMgr::LAr::EMB::MOAC",
+                                             "LArMgr::LAr::EMB::TELB",
+                                             "LArMgr::LAr::EMB::TELF",
+                                             "LArMgr::LAr::EMB::ECAM"])
+    kwargs.setdefault("ECCryVolumes",       ["LArMgr::LAr::Endcap::Cryostat::FcalLAr::Cylinder",
+                                             "LArMgr::LAr::Endcap::Cryostat::EmecHecLAr::Sector",
+                                             "LArMgr::LAr::Endcap::Cryostat::EmecHecLAr::Cylinder",
+                                             "LArMgr::LAr::Endcap::Cryostat::Sector",
+                                             "LArMgr::LAr::Endcap::Cryostat::Cone",
+                                             "LArMgr::LAr::Endcap::Cryostat::Cylinder"])
+    kwargs.setdefault("ECCryLArVolumes",    ["LArMgr::Moderator*",
+                                             "LArMgr::LAr::Endcap::Cryostat::FcalLAr",
+                                             "LArMgr::LAr::Endcap::Cryostat::EmecHecLAr",
+                                             "LArMgr::LAr::Endcap::Cryostat::MotherVolume"])
+    kwargs.setdefault("ECCryMixVolumes",    ["LArMgr::LAr::FCAL::LiquidArgonC",
+                                             "LArMgr::LAr::Endcap::Cryostat::EmecHecLAr::Sector::Mixed",
+                                             "LArMgr::LAr::Endcap::Cryostat::Sector::Mixed",
+                                             "LArMgr::LAr::Endcap::Cryostat::Cone::Mixed",
+                                             "LArMgr::LAr::Endcap::Cryostat::ExtraCyl_beforePS",
+                                             "LArMgr::LAr::Endcap::Cryostat::Cylinder::Mixed"])
+    kwargs.setdefault("ECSupportVolumes",   ["LArMgr::LAr::EMEC::ExtraCyl_afterPS",
+                                             "LArMgr::LAr::EMEC::InnerTransversalBars",
+                                             "LArMgr::LAr::EMEC::InnerAluCone::*",
+                                             "LArMgr::LAr::EMEC::OuterTransversalBars",
+                                             "LArMgr::LAr::EMEC::OuterSupportMother",
+                                             "LArMgr::LAr::EMEC::*Stretchers",
+                                             "LArMgr::LAr::EMEC::Top*",
+                                             "LArMgr::LAr::EMEC::Back*GTen",
+                                             "LArMgr::LAr::EMEC::Back*Hole",
+                                             "LArMgr::LAr::EMEC::Back*Bar",
+                                             "LArMgr::LAr::EMEC::Back*Ring",
+                                             "LArMgr::LAr::EMEC::Back*Ele",
+                                             "LArMgr::LAr::EMEC::Back*Abs",
+                                             "LArMgr::LAr::EMEC::BackInnerBarrette::Module::Phidiv",
+                                             "LArMgr::LAr::EMEC::Back*Barrette::Module",
+                                             "LArMgr::LAr::EMEC::Back*Barrettes",
+                                             "LArMgr::LAr::EMEC::BackSupport*",
+                                             "LArMgr::LAr::EMEC::Front*",
+                                             "LArMgr::LAr::EMEC::Mother*"])
+    kwargs.setdefault("HECWheelVolumes",    ["LArMgr::LAr::HEC::Mother",
+                                             "LArMgr::LAr::HEC::LiquidArgon",
+                                             "LArMgr::LAr::HEC::Clamp",
+                                             "LArMgr::LAr::HEC::Clamp::LiquidArgon",
+                                             "LArMgr::LAr::HEC::Module",
+                                             "LArMgr::LAr::HEC::FrontModule",
+                                             "LArMgr::LAr::HEC::RearModule",
+                                             "LArMgr::LAr::HEC::Module::Depth",
+                                             "LArMgr::LAr::HEC::Module::Depth::FirstAbsorber",
+                                             "LArMgr::LAr::HEC::Module::Depth::FirstAbsorber::TieRod"])
     # Running PID calibration hits?
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("ParticleID",simFlags.ParticleID())
@@ -98,26 +165,56 @@ def getLArInactiveSensitiveDetector(name="LArInactiveSensitiveDetector", **kwarg
     ## Main configuration
     from G4AtlasApps.SimFlags import simFlags
     if simFlags.SimLayout.get_Value() not in ["tb_LArH6_2003","tb_LArH6_2002"]:
-        kwargs.setdefault("BarrelPreVolumes",["LArMgr::LAr::Barrel::Presampler::Cathode*","LArMgr::LAr::Barrel::Presampler::Anode*","LArMgr::LAr::Barrel::Presampler::Prep*"])
-        kwargs.setdefault("BarrelVolumes",["LArMgr::LAr::EMB::*::Straight","LArMgr::LAr::EMB::*::*Fold"])
-        kwargs.setdefault("ECPosInVolumes", ["LArMgr::LAr::EMEC::Pos::InnerWheel::Absorber","LArMgr::LAr::EMEC::Pos::InnerWheel::Electrode","LArMgr::LAr::EMEC::Pos::InnerWheel::Glue","LArMgr::LAr::EMEC::Pos::InnerWheel::Lead"])
-        kwargs.setdefault("ECPosOutVolumes",["LArMgr::LAr::EMEC::Pos::OuterWheel::Lead","LArMgr::LAr::EMEC::Pos::OuterWheel::Glue","LArMgr::LAr::EMEC::Pos::OuterWheel::Electrode","LArMgr::LAr::EMEC::Pos::OuterWheel::Absorber"])
-        kwargs.setdefault("ECNegInVolumes", ["LArMgr::LAr::EMEC::Neg::InnerWheel::Absorber","LArMgr::LAr::EMEC::Neg::InnerWheel::Electrode","LArMgr::LAr::EMEC::Neg::InnerWheel::Glue","LArMgr::LAr::EMEC::Neg::InnerWheel::Lead"])
-        kwargs.setdefault("ECNegOutVolumes",["LArMgr::LAr::EMEC::Neg::OuterWheel::Lead","LArMgr::LAr::EMEC::Neg::OuterWheel::Glue","LArMgr::LAr::EMEC::Neg::OuterWheel::Electrode","LArMgr::LAr::EMEC::Neg::OuterWheel::Absorber"])
+        kwargs.setdefault("BarrelPreVolumes",["LArMgr::LAr::Barrel::Presampler::Cathode*",
+                                              "LArMgr::LAr::Barrel::Presampler::Anode*",
+                                              "LArMgr::LAr::Barrel::Presampler::Prep*"])
+        kwargs.setdefault("BarrelVolumes",["LArMgr::LAr::EMB::*::Straight",
+                                           "LArMgr::LAr::EMB::*::*Fold"])
+        kwargs.setdefault("ECPosInVolumes", ["LArMgr::LAr::EMEC::Pos::InnerWheel::Absorber",
+                                             "LArMgr::LAr::EMEC::Pos::InnerWheel::Electrode",
+                                             "LArMgr::LAr::EMEC::Pos::InnerWheel::Glue",
+                                             "LArMgr::LAr::EMEC::Pos::InnerWheel::Lead"])
+        kwargs.setdefault("ECPosOutVolumes",["LArMgr::LAr::EMEC::Pos::OuterWheel::Lead",
+                                             "LArMgr::LAr::EMEC::Pos::OuterWheel::Glue",
+                                             "LArMgr::LAr::EMEC::Pos::OuterWheel::Electrode",
+                                             "LArMgr::LAr::EMEC::Pos::OuterWheel::Absorber"])
+        kwargs.setdefault("ECNegInVolumes", ["LArMgr::LAr::EMEC::Neg::InnerWheel::Absorber",
+                                             "LArMgr::LAr::EMEC::Neg::InnerWheel::Electrode",
+                                             "LArMgr::LAr::EMEC::Neg::InnerWheel::Glue",
+                                             "LArMgr::LAr::EMEC::Neg::InnerWheel::Lead"])
+        kwargs.setdefault("ECNegOutVolumes",["LArMgr::LAr::EMEC::Neg::OuterWheel::Lead",
+                                             "LArMgr::LAr::EMEC::Neg::OuterWheel::Glue",
+                                             "LArMgr::LAr::EMEC::Neg::OuterWheel::Electrode",
+                                             "LArMgr::LAr::EMEC::Neg::OuterWheel::Absorber"])
         #kwargs.setdefault("HECVolumes",["LAr::HEC::Inactive"])
         #kwargs.setdefault("HECLocalVolumes",["LAr::HEC::Local::Inactive"])
-        kwargs.setdefault("HECWheelVolumes",["LArMgr::LAr::HEC::Module::Depth::Absorber::TieRod","LArMgr::LAr::HEC::Module::Depth::Slice::TieRodDead","LArMgr::LAr::HEC::Module::Depth::Absorber","LArMgr::LAr::HEC::Module::Depth::Slice::TieRod","LArMgr::LAr::HEC::Module::Depth::Slice::Electrode::Copper","LArMgr::LAr::HEC::Module::Depth::Slice::Electrode"])
+        kwargs.setdefault("HECWheelVolumes",["LArMgr::LAr::HEC::Module::Depth::Absorber::TieRod",
+                                             "LArMgr::LAr::HEC::Module::Depth::Slice::TieRodDead",
+                                             "LArMgr::LAr::HEC::Module::Depth::Absorber",
+                                             "LArMgr::LAr::HEC::Module::Depth::Slice::TieRod",
+                                             "LArMgr::LAr::HEC::Module::Depth::Slice::Electrode::Copper",
+                                             "LArMgr::LAr::HEC::Module::Depth::Slice::Electrode"])
         kwargs.setdefault("MiniMomVolumes",["LArMgr::MiniFCALMother"])
         kwargs.setdefault("MiniVolumes",["LArMgr::MiniFCAL"])
         kwargs.setdefault("MiniLayVolumes",["LArMgr::MiniFCAL::Layer"])
     if simFlags.SimLayout.get_Value()=="tb_LArH6_2002":
-        kwargs.setdefault("ECPosInVolumes", ["LArMgr::LAr::EMEC::Pos::InnerWheel::Absorber","LArMgr::LAr::EMEC::Pos::InnerWheel::Electrode"])
-        kwargs.setdefault("ECPosOutVolumes",["LArMgr::LAr::EMEC::Pos::OuterWheel::Electrode","LArMgr::LAr::EMEC::Pos::OuterWheel::Absorber"])
-        kwargs.setdefault("HECWheelVolumes",["LArMgr::LAr::HEC::Module::Depth::Absorber","LArMgr::LAr::HEC::Module::Depth::Slice::Electrode","LArMgr::LAr::HEC::Module::Depth::Slice::Electrode::Copper","LArMgr::LAr::HEC::Module::Depth::Slice::TieRod"])
+        kwargs.setdefault("ECPosInVolumes", ["LArMgr::LAr::EMEC::Pos::InnerWheel::Absorber",
+                                             "LArMgr::LAr::EMEC::Pos::InnerWheel::Electrode"])
+        kwargs.setdefault("ECPosOutVolumes",["LArMgr::LAr::EMEC::Pos::OuterWheel::Electrode",
+                                             "LArMgr::LAr::EMEC::Pos::OuterWheel::Absorber"])
+        kwargs.setdefault("HECWheelVolumes",["LArMgr::LAr::HEC::Module::Depth::Absorber",
+                                             "LArMgr::LAr::HEC::Module::Depth::Slice::Electrode",
+                                             "LArMgr::LAr::HEC::Module::Depth::Slice::Electrode::Copper",
+                                             "LArMgr::LAr::HEC::Module::Depth::Slice::TieRod"])
     if simFlags.SimLayout.get_Value()!="tb_LArH6_2002":
-        kwargs.setdefault("FCAL1Volumes",["LArMgr::LAr::FCAL::Module1::CableTrough","LArMgr::LAr::FCAL::Module1::Absorber"])
-        kwargs.setdefault("FCAL2Volumes",["LArMgr::LAr::FCAL::Module2::CableTrough","LArMgr::LAr::FCAL::Module2::Absorber","LArMgr::LAr::FCAL::Module2::Rod"])
-        kwargs.setdefault("FCAL3Volumes",["LArMgr::LAr::FCAL::Module3::CableTrough","LArMgr::LAr::FCAL::Module3::Absorber","LArMgr::LAr::FCAL::Module3::Rod"])
+        kwargs.setdefault("FCAL1Volumes",["LArMgr::LAr::FCAL::Module1::CableTrough",
+                                          "LArMgr::LAr::FCAL::Module1::Absorber"])
+        kwargs.setdefault("FCAL2Volumes",["LArMgr::LAr::FCAL::Module2::CableTrough",
+                                          "LArMgr::LAr::FCAL::Module2::Absorber",
+                                          "LArMgr::LAr::FCAL::Module2::Rod"])
+        kwargs.setdefault("FCAL3Volumes",["LArMgr::LAr::FCAL::Module3::CableTrough",
+                                          "LArMgr::LAr::FCAL::Module3::Absorber",
+                                          "LArMgr::LAr::FCAL::Module3::Rod"])
     # Running PID calibration hits?
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("ParticleID",simFlags.ParticleID())

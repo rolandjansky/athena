@@ -20,9 +20,23 @@
 #include "LArG4MiniFCAL/MiniFCALCalibrationCalculator.h"
 
 
-LArG4InactiveSDTool::LArG4InactiveSDTool(const std::string& type, const std::string& name, const IInterface *parent)
+LArG4InactiveSDTool::LArG4InactiveSDTool(const std::string& type, const std::string& name,
+                                         const IInterface *parent)
   : LArG4SDTool(type,name,parent)
   , m_HitColl("LArCalibrationHitInactive")
+  , m_barPreSD(nullptr)
+  , m_barSD(nullptr)
+  , m_ECPosInSD(nullptr)
+  , m_ECPosOutSD(nullptr)
+  , m_ECNegInSD(nullptr)
+  , m_ECNegOutSD(nullptr)
+  , m_HECWheelSD(nullptr)
+  , m_fcal1SD(nullptr)
+  , m_fcal2SD(nullptr)
+  , m_fcal3SD(nullptr)
+  , m_miniMomSD(nullptr)
+  , m_miniSD(nullptr)
+  , m_miniLaySD(nullptr)
 {
   declareProperty("BarrelPreVolumes",m_barPreVolumes);
   declareProperty("BarrelVolumes",m_barVolumes);
@@ -30,8 +44,8 @@ LArG4InactiveSDTool::LArG4InactiveSDTool(const std::string& type, const std::str
   declareProperty("ECPosOutVolumes",m_ECPosOutVolumes);
   declareProperty("ECNegInVolumes",m_ECNegInVolumes);
   declareProperty("ECNegOutVolumes",m_ECNegOutVolumes);
-//  declareProperty("HECVolumes",m_HECVolumes={"LAr::HEC::Inactive"});
-//  declareProperty("HECLocalVolumes",m_HECLocVolumes={"LAr::HEC::Local::Inactive"});
+  //declareProperty("HECVolumes",m_HECVolumes={"LAr::HEC::Inactive"});
+  //declareProperty("HECLocalVolumes",m_HECLocVolumes={"LAr::HEC::Local::Inactive"});
   declareProperty("HECWheelVolumes",m_HECWheelVolumes);
   declareProperty("FCAL1Volumes",m_fcal1Volumes);
   declareProperty("FCAL2Volumes",m_fcal2Volumes);
@@ -51,8 +65,8 @@ StatusCode LArG4InactiveSDTool::initializeSD()
   m_ECPosOutSD = new LArG4CalibSD( "LAr::EMEC::Pos::OuterWheel::Inactive" , new LArG4::EC::CalibrationCalculator(LArWheelCalculator::OuterAbsorberWheel, 1) , m_doPID );
   m_ECNegInSD  = new LArG4CalibSD( "LAr::EMEC::Neg::InnerWheel::Inactive" , new LArG4::EC::CalibrationCalculator(LArWheelCalculator::InnerAbsorberWheel, -1) , m_doPID );
   m_ECNegOutSD = new LArG4CalibSD( "LAr::EMEC::Neg::OuterWheel::Inactive" , new LArG4::EC::CalibrationCalculator(LArWheelCalculator::OuterAbsorberWheel, -1) , m_doPID );
-//  m_HECSD      = new LArG4CalibSD( "LAr::HEC::Inactive" , new LArG4::HEC::CalibrationCalculator(LArG4::HEC::kInactive) , m_doPID );
-//  m_HECLocSD   = new LArG4CalibSD( "LAr::HEC::Local::Inactive" , new LArG4::HEC::LocalCalibrationCalculator(LArG4::HEC::kLocInactive) , m_doPID );
+  //m_HECSD      = new LArG4CalibSD( "LAr::HEC::Inactive" , new LArG4::HEC::CalibrationCalculator(LArG4::HEC::kInactive) , m_doPID );
+  //m_HECLocSD   = new LArG4CalibSD( "LAr::HEC::Local::Inactive" , new LArG4::HEC::LocalCalibrationCalculator(LArG4::HEC::kLocInactive) , m_doPID );
   m_HECWheelSD = new LArG4CalibSD( "LAr::HEC::Wheel::Inactive" , new LArG4::HEC::LArHECCalibrationWheelCalculator(LArG4::HEC::kWheelInactive) , m_doPID );
   m_fcal1SD    = new LArG4CalibSD( "LAr::FCAL::Inactive1" , LArG4::FCAL::LArFCAL1CalibCalculator::GetCalculator() , m_doPID );
   m_fcal2SD    = new LArG4CalibSD( "LAr::FCAL::Inactive2" , LArG4::FCAL::LArFCAL2CalibCalculator::GetCalculator() , m_doPID );
@@ -68,8 +82,8 @@ StatusCode LArG4InactiveSDTool::initializeSD()
   configuration[m_ECPosOutSD] = &m_ECPosOutVolumes;
   configuration[m_ECNegInSD]  = &m_ECNegInVolumes;
   configuration[m_ECNegOutSD] = &m_ECNegOutVolumes;
-//  configuration[m_HECSD]      = &m_HECVolumes;
-//  configuration[m_HECLocSD]   = &m_HECLocVolumes;
+  //configuration[m_HECSD]      = &m_HECVolumes;
+  //configuration[m_HECLocSD]   = &m_HECLocVolumes;
   configuration[m_HECWheelSD] = &m_HECWheelVolumes;
   configuration[m_fcal1SD]    = &m_fcal1Volumes;
   configuration[m_fcal2SD]    = &m_fcal2Volumes;
@@ -86,8 +100,8 @@ StatusCode LArG4InactiveSDTool::initializeSD()
   setupHelpers(m_ECPosOutSD);
   setupHelpers(m_ECNegInSD);
   setupHelpers(m_ECNegOutSD);
-//setupHelpers(m_HECSD);
-//setupHelpers(m_HECLocSD);
+  //setupHelpers(m_HECSD);
+  //setupHelpers(m_HECLocSD);
   setupHelpers(m_HECWheelSD);
   setupHelpers(m_fcal1SD);
   setupHelpers(m_fcal2SD);
@@ -102,20 +116,15 @@ StatusCode LArG4InactiveSDTool::initializeSD()
 StatusCode LArG4InactiveSDTool::Gather()
 {
   // In this case, *unlike* other SDs, the *tool* owns the collection
-#ifdef ATHENAHIVE
-  // Temporary fix for Hive until isValid is fixed
-  m_HitColl = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_HitColl.name());
-#else
   if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_HitColl.name());
-#endif
   m_barPreSD->EndOfAthenaEvent( &*m_HitColl );
   m_barSD      ->EndOfAthenaEvent( &*m_HitColl );
   m_ECPosInSD  ->EndOfAthenaEvent( &*m_HitColl );
   m_ECPosOutSD ->EndOfAthenaEvent( &*m_HitColl );
   m_ECNegInSD  ->EndOfAthenaEvent( &*m_HitColl );
   m_ECNegOutSD ->EndOfAthenaEvent( &*m_HitColl );
-//  m_HECSD      ->EndOfAthenaEvent( &*m_HitColl );
-//  m_HECLocSD   ->EndOfAthenaEvent( &*m_HitColl );
+  //m_HECSD      ->EndOfAthenaEvent( &*m_HitColl );
+  //m_HECLocSD   ->EndOfAthenaEvent( &*m_HitColl );
   m_HECWheelSD ->EndOfAthenaEvent( &*m_HitColl );
   m_fcal1SD    ->EndOfAthenaEvent( &*m_HitColl );
   m_fcal2SD    ->EndOfAthenaEvent( &*m_HitColl );

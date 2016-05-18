@@ -21,9 +21,23 @@
 #include "LArG4MiniFCAL/MiniFCALCalibrationCalculator.h"
 #include "LArG4HEC/LArHECCalibrationWheelCalculator.h"
 
-LArG4ActiveSDTool::LArG4ActiveSDTool(const std::string& type, const std::string& name, const IInterface *parent)
+LArG4ActiveSDTool::LArG4ActiveSDTool(const std::string& type, const std::string& name,
+                                     const IInterface *parent)
   : LArG4SDTool(type,name,parent)
   , m_HitColl("LArCalibrationHitActive")
+  , m_stacSD(nullptr)
+  , m_presBarSD(nullptr)
+  , m_posIWSD(nullptr)
+  , m_negIWSD(nullptr)
+  , m_posOWSD(nullptr)
+  , m_negOWSD(nullptr)
+  , m_presECSD(nullptr)
+  , m_bobSD(nullptr)
+  , m_fcal1SD(nullptr)
+  , m_fcal2SD(nullptr)
+  , m_fcal3SD(nullptr)
+  , m_sliceSD(nullptr)
+  , m_miniSD(nullptr)
 {
   declareProperty("StacVolumes",m_stacVolumes);
   declareProperty("PresamplerVolumes",m_presBarVolumes);
@@ -96,12 +110,7 @@ StatusCode LArG4ActiveSDTool::initializeSD()
 StatusCode LArG4ActiveSDTool::Gather()
 {
   // In this case, *unlike* other SDs, the *tool* owns the collection
-#ifdef ATHENAHIVE
-  // Temporary fix for Hive until isValid is fixed
-  m_HitColl = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_HitColl.name());
-#else
   if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_HitColl.name());
-#endif
   m_presBarSD->EndOfAthenaEvent( &*m_HitColl );
   m_stacSD   ->EndOfAthenaEvent( &*m_HitColl );
   m_posIWSD  ->EndOfAthenaEvent( &*m_HitColl );
