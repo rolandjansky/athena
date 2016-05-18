@@ -26,6 +26,8 @@ SimpleNoiseToolFromTextFile::SimpleNoiseToolFromTextFile(const std::string& type
 							 const std::string& name,
 							 const IInterface* parent)
   : AthAlgTool(type,name,parent)
+    , m_caloDDM(nullptr)
+    , m_caloIDH(nullptr)
     , m_cellNoiseFileName("")
     , m_cellNoiseUnits(MeV)
     , m_cellNoiseDefault(100.*MeV)

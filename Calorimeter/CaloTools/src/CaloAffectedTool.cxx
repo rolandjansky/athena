@@ -16,6 +16,7 @@ CaloAffectedTool::CaloAffectedTool (const std::string& type,
 				  const std::string& name, 
 				  const IInterface* parent) :
     AthAlgTool(type, name, parent),
+    m_read(false),
     m_readRaw(true)
 { 
   m_affectedRegions=0;
