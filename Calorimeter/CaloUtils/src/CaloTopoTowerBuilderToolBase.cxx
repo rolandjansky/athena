@@ -27,25 +27,7 @@ CaloTopoTowerBuilderToolBase::~CaloTopoTowerBuilderToolBase()
 
 StatusCode CaloTopoTowerBuilderToolBase::initialize()
 {
-  ///////////////////////
-  // Allocate Services //
-  ///////////////////////
-
-  // StoreGate
-  StatusCode checkOut = service("StoreGateSvc",m_storeGate);
-  if ( checkOut.isFailure() )
-    {
-      msg(MSG::ERROR)
-	  << "cannot allocate StoreGate service"
-	  << endreq;
-    }
-  // invoke internal initialization
-  else 
-    {
-      checkOut = this->initializeTool();
-    }
- 
-  return checkOut;
+  return this->initializeTool();
 }
 
 void CaloTopoTowerBuilderToolBase::setTowerSeg(const CaloTowerSeg& theTowerSeg)

@@ -44,6 +44,8 @@ CaloLCWeightTool::CaloLCWeightTool(const std::string& type,
     m_signalOverNoiseCut(2),
     m_useHadProbability(false),
     m_interpolate(false),
+    m_calo_id(nullptr),
+    m_calo_dd_man(nullptr),
     m_noiseTool("CaloNoiseTool/CaloNoiseToolDefault")
 {
 

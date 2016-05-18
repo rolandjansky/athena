@@ -43,7 +43,11 @@ LocalNoiseSuppressionTool::LocalNoiseSuppressionTool(const std::string& type,
     m_caloCellContainerName(""), 
     m_testStatistic("max"), m_neighborOption("super3D"),
     m_s0(1.05), m_s1(0.017), m_o0(1.1), m_o1(0.035),
-    m_noiseTool("CaloNoiseTool/CaloNoiseToolDefault")
+    m_nNeighbors(0),
+    m_noiseTool("CaloNoiseTool/CaloNoiseToolDefault"),
+    m_calo_dd_man(nullptr),
+    m_calo_id(nullptr),
+    m_caloCellContainer(nullptr)
 {
 
   declareInterface<ICellWeightTool>(this);
@@ -293,21 +297,21 @@ double LocalNoiseSuppressionTool::getTestStatistic( const CaloCell* theCell)
   }
 
 
-  LArNeighbours::neighbourOption m_nOption;
+  LArNeighbours::neighbourOption nOption;
   
   if (m_neighborOption == "all2D") 
-    m_nOption = LArNeighbours::all2D;
+    nOption = LArNeighbours::all2D;
   else if (m_neighborOption == "all3D") 
-    m_nOption = LArNeighbours::all3D;
+    nOption = LArNeighbours::all3D;
   else// (m_neighborOption == "super3D") 
-    m_nOption = LArNeighbours::super3D;
+    nOption = LArNeighbours::super3D;
 
   std::vector<IdentifierHash> theNNeighbors;
   Identifier myId = theCell->ID();
   IdentifierHash myHashId;
   int otherSubDet;
   myHashId = m_calo_id->subcalo_cell_hash(myId,otherSubDet);
-  m_calo_id->get_neighbours(myHashId,m_nOption,theNNeighbors);
+  m_calo_id->get_neighbours(myHashId,nOption,theNNeighbors);
 
   double ret = 0;
   

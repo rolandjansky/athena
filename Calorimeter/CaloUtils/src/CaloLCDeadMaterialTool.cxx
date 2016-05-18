@@ -44,7 +44,9 @@ CaloLCDeadMaterialTool::CaloLCDeadMaterialTool(const std::string& type,
     m_MaxChangeInCellWeight(30.0),
     m_useHadProbability(false),
     m_interpolate(false),
-    m_absOpt(false)
+    m_absOpt(false),
+    m_cls_unweighted_energy(0),
+    m_dm_total(0)
 {
   declareInterface<IClusterCellWeightTool>(this);
   declareProperty("HadDMCoeffKey",m_key);
