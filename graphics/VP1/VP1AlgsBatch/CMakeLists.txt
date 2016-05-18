@@ -34,4 +34,5 @@ atlas_add_component( VP1AlgsBatch
 
 # Install files from the package:
 atlas_install_headers( VP1AlgsBatch )
+atlas_install_runtime( share/*.vp1 )
 

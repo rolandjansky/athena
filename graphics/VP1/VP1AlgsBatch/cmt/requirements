@@ -18,6 +18,10 @@ apply_pattern component_library
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
 
+# install to InstallArea the *.vp1 configuration files stored in share/
+apply_pattern declare_runtime_extras extras="*.vp1" ; 
+
+
 #For genconfs sake we get the LD_LIBRARY_PATH to include external libs:
 #private
 #use VP1Qt VP1Qt-* graphics/VP1
