@@ -18,8 +18,8 @@
 //! PanTau includes
 #include "PanTauAlgs/Tool_ModeDiscriminator.h"
 #include "PanTauAlgs/Tool_InformationStore.h"
-#include "PanTauEvent/TauFeature.h"
-#include "PanTauEvent/PanTauSeed.h"
+#include "PanTauAlgs/TauFeature.h"
+#include "PanTauAlgs/PanTauSeed.h"
 
 //! Root
 #include "TString.h"
@@ -30,26 +30,18 @@
 //!Other
 #include "PathResolver/PathResolver.h"
 
-#include "tauEvent/TauJet.h"
-
 
 PanTau::Tool_ModeDiscriminator::Tool_ModeDiscriminator(
-    const std::string& ty,
-    const std::string& na,
-    const IInterface* pa ) :
-        AthAlgTool(ty,na,pa),
+    const std::string& name ) :
+        asg::AsgTool(name),
         m_Name_InputAlg("InvalidInputAlg"),
         m_Name_ModeCase("InvalidModeCase"),
         m_Tool_InformationStore("PanTau::Tool_InformationStore/Tool_InformationStore"),
-        m_Tool_HelperFunctions("PanTau::Tool_HelperFunctions/Tool_HelperFunctions"),
         m_TMVA_ReaderList()
 {
-    declareInterface<ITool_ModeDiscriminator>(this);
-
     declareProperty("Name_InputAlg",            m_Name_InputAlg,            "Name of the input algorithm for this instance");
     declareProperty("Name_ModeCase",            m_Name_ModeCase,            "Name of the two modes to be distinguished for this instance");
     declareProperty("Tool_InformationStore",    m_Tool_InformationStore,    "Handle to the information store tool");
-    declareProperty("Tool_HelperFunctions",     m_Tool_HelperFunctions,     "Handle to the helper functions tool");
 }
 
 
@@ -62,28 +54,26 @@ PanTau::Tool_ModeDiscriminator::~Tool_ModeDiscriminator() {
 StatusCode PanTau::Tool_ModeDiscriminator::initialize() {
 
     ATH_MSG_DEBUG( name() << " initialize()" );
-    CHECK( AthAlgTool::initialize() );
     
     ATH_MSG_DEBUG("InputAlg   : "  << m_Name_InputAlg);
     ATH_MSG_DEBUG("Mode Case  : "  << m_Name_ModeCase);
     
-    CHECK(m_Tool_InformationStore.retrieve());
-    CHECK(m_Tool_HelperFunctions.retrieve());
+    ATH_CHECK(m_Tool_InformationStore.retrieve());
     
     //get the required information from the informationstore tool
     ATH_MSG_DEBUG("Get infos from information store & configure...");
-    CHECK( m_Tool_InformationStore->getInfo_VecDouble("ModeDiscriminator_BinEdges_Pt", m_BinEdges_Pt));
-    CHECK( m_Tool_InformationStore->getInfo_String("ModeDiscriminator_ReaderOption", m_ReaderOption) );
-    CHECK( m_Tool_InformationStore->getInfo_String("ModeDiscriminator_TMVAMethod", m_MethodName) );
+    ATH_CHECK( m_Tool_InformationStore->getInfo_VecDouble("ModeDiscriminator_BinEdges_Pt", m_BinEdges_Pt));
+    ATH_CHECK( m_Tool_InformationStore->getInfo_String("ModeDiscriminator_ReaderOption", m_ReaderOption) );
+    ATH_CHECK( m_Tool_InformationStore->getInfo_String("ModeDiscriminator_TMVAMethod", m_MethodName) );
     
     //build the name of the variable that contains the variable list for this discri tool
     std::string varNameList_Prefix  = "ModeDiscriminator_BDTVariableNames_";
     std::string varNameList_Full    = varNameList_Prefix + m_Name_InputAlg + "_" + m_Name_ModeCase;
-    CHECK( m_Tool_InformationStore->getInfo_VecString(varNameList_Full, m_List_BDTVariableNames) );
+    ATH_CHECK( m_Tool_InformationStore->getInfo_VecString(varNameList_Full, m_List_BDTVariableNames) );
     
     std::string varDefaultValueList_Prefix  = "ModeDiscriminator_BDTVariableDefaults_";
     std::string varDefaultValueList_Full    = varDefaultValueList_Prefix + m_Name_InputAlg + "_" + m_Name_ModeCase;
-    CHECK( m_Tool_InformationStore->getInfo_VecDouble(varDefaultValueList_Full, m_List_BDTVariableDefaultValues) );
+    ATH_CHECK( m_Tool_InformationStore->getInfo_VecDouble(varDefaultValueList_Full, m_List_BDTVariableDefaultValues) );
     
     
     //consistency check:
@@ -112,8 +102,8 @@ StatusCode PanTau::Tool_ModeDiscriminator::initialize() {
         double bin_lowerVal         = m_BinEdges_Pt[iPtBin];
         double bin_upperVal         = m_BinEdges_Pt[iPtBin+1];
         
-        std::string bin_lowerStr    = m_Tool_HelperFunctions->convertNumberToString(bin_lowerVal/1000.);
-        std::string bin_upperStr    = m_Tool_HelperFunctions->convertNumberToString(bin_upperVal/1000.);
+        std::string bin_lowerStr    = m_HelperFunctions.convertNumberToString(bin_lowerVal/1000.);
+        std::string bin_upperStr    = m_HelperFunctions.convertNumberToString(bin_upperVal/1000.);
         
         std::string curPtBin        = "ET_" + bin_lowerStr + "_" + bin_upperStr;
         std::string curModeCase     = m_Name_ModeCase;
@@ -163,7 +153,6 @@ StatusCode PanTau::Tool_ModeDiscriminator::initialize() {
 
 
 StatusCode PanTau::Tool_ModeDiscriminator::finalize() {
-    CHECK(AlgTool::finalize());
     
     //delete the readers
     for(unsigned int iReader=0; iReader<m_TMVA_ReaderList.size(); iReader++) {
@@ -176,13 +165,13 @@ StatusCode PanTau::Tool_ModeDiscriminator::finalize() {
 
 
 
-void    PanTau::Tool_ModeDiscriminator::updateReaderVariables(PanTau::PanTauSeed* inSeed) {
+void    PanTau::Tool_ModeDiscriminator::updateReaderVariables(PanTau::PanTauSeed2* inSeed) {
     
     //update features used in MVA with values from current seed
     // use default value for feature if it is not present in current seed
     //NOTE! This has to be done (even if the seed pt is bad) otherwise problems with details storage
     //      [If this for loop is skipped, it is not guaranteed that all details are set to their proper default value]
-    PanTau::TauFeature* seedFeatures = inSeed->getFeatures();
+    PanTau::TauFeature2* seedFeatures = inSeed->getFeatures();
     ATH_MSG_DEBUG( "Update the variables that are used in the readers...");
     for(unsigned int iVar=0; iVar<m_List_BDTVariableNames.size(); iVar++) {
         std::string curVar = m_Name_InputAlg + "_" + m_List_BDTVariableNames[iVar];
@@ -205,13 +194,13 @@ void    PanTau::Tool_ModeDiscriminator::updateReaderVariables(PanTau::PanTauSeed
 
 
 
-double PanTau::Tool_ModeDiscriminator::getResponse(PanTau::PanTauSeed* inSeed, bool& isOK) {
+double PanTau::Tool_ModeDiscriminator::getResponse(PanTau::PanTauSeed2* inSeed, bool& isOK) {
     
     ATH_MSG_DEBUG("get bdt response now");
     
     updateReaderVariables(inSeed);
     
-    if(inSeed->isOfTechnicalQuality(PanTau::PanTauSeed::t_BadPtValue) == true) {
+    if(inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_BadPtValue) == true) {
         ATH_MSG_DEBUG("WARNING Seed has bad pt value! " << inSeed->getTauJet()->pt() << " MeV");
         isOK = false;
         return -2;
@@ -219,7 +208,7 @@ double PanTau::Tool_ModeDiscriminator::getResponse(PanTau::PanTauSeed* inSeed, b
     
     //get the pt bin of input Seed
     //NOTE: could be moved to decay mode determinator tool...
-    double          seedPt  = inSeed->hlv().perp();
+    double          seedPt  = inSeed->p4().Pt();
     int             ptBin   = -1;
     for(unsigned int iPtBin=0; iPtBin<m_BinEdges_Pt.size()-1; iPtBin++) {
         if(seedPt > m_BinEdges_Pt[iPtBin] && seedPt < m_BinEdges_Pt[iPtBin+1]) {
@@ -251,82 +240,6 @@ double PanTau::Tool_ModeDiscriminator::getResponse(PanTau::PanTauSeed* inSeed, b
     isOK = true;
     return mvaResponse;
 }
-
-
-
-
-double PanTau::Tool_ModeDiscriminator::getModeLikeliness(PanTau::PanTauSeed* inSeed, bool& wasSuccessful) {
-    wasSuccessful = true;
-    ATH_MSG_DEBUG( "getModeLikeliness called for input seed at: " << inSeed);
-    ATH_MSG_DEBUG( "my input alg  : " << m_Name_InputAlg);
-    ATH_MSG_DEBUG( "my signal mode: " << m_Name_ModeCase);
-    
-    
-//     //update features used in MVA with values from current seed
-//     // use default value for feature if it is not present in current seed
-//     //NOTE! This has to be done (even if the seed pt is bad) otherwise problems with details storage
-//     //      [If this for loop is skipped, it is not guaranteed that all details are set to their proper default value]
-//     PanTau::TauFeature* seedFeatures = inSeed->getFeatures();
-//     ATH_MSG_DEBUG( "Update the variables that are used in the readers...");
-//     for(unsigned int iVar=0; iVar<m_List_BDTVariableNames.size(); iVar++) {
-//         std::string curVar = m_Name_InputAlg + "_" + m_List_BDTVariableNames[iVar];
-//         
-//         bool    isValid;
-//         double  newValue = seedFeatures->value(curVar, isValid);
-//         if(isValid == false) {
-//             ATH_MSG_DEBUG("\tUse default value as the feature (the one below this line) was not calculated");
-//             newValue = m_List_BDTVariableDefaultValues[iVar];
-//             //add this feature with its default value for the details later
-//             seedFeatures->addFeature(curVar, newValue);
-//         }
-//         
-//         ATH_MSG_DEBUG("\tUpdate variable " << curVar << " from " << m_List_BDTVariableValues[iVar] << " to " << newValue);
-//         m_List_BDTVariableValues[iVar] = (float)newValue;
-//     }//end loop over BDT vars for update
-//     
-//     if(inSeed->isOfTechnicalQuality(PanTau::PanTauSeed::t_BadPtValue) == true) {
-//         ATH_MSG_DEBUG("Leaving getModeLikeliness after variable update because seed pt is bad");
-//         return -1;
-//     }
-//     
-//     
-//     //get the pt bin of input Seed
-//     //NOTE: could be moved to decay mode determinator tool...
-//     double          seedPt  = inSeed->hlv().perp();
-//     int             ptBin   = -1;
-//     for(unsigned int iPtBin=0; iPtBin<m_BinEdges_Pt.size()-1; iPtBin++) {
-//         if(seedPt > m_BinEdges_Pt[iPtBin] && seedPt < m_BinEdges_Pt[iPtBin+1]) {
-//             ptBin = iPtBin;
-//             break;
-//         }
-//     }
-//     if(ptBin == -1) {
-//         ATH_MSG_ERROR("Could not find ptBin for tau seed with pt " << seedPt);
-//         wasSuccessful = false;
-//         return -1.;
-//     }
-//     
-//     
-//     
-//     //get mva response & transform into reference value
-//     TMVA::Reader*   curReader   = m_TMVA_ReaderList[ptBin];
-//     TH1F*           curRefHist  = m_TMVA_ReferenceHists[ptBin];
-//     if(curReader == 0 || curRefHist == 0) {
-//         ATH_MSG_ERROR("TMVA::Reader object for current tau seed and/or reference hist points to 0");
-//         wasSuccessful = false;
-//         return -1.;
-//     }
-//     
-//     double  mvaResponse     = -9999;
-//     mvaResponse = curReader->EvaluateMVA((TString)m_MethodName);
-//     int     targetBin       = curRefHist->FindFixBin(mvaResponse);
-//     double  modeLikeliness  = curRefHist->GetBinContent(targetBin);
-//     
-//     ATH_MSG_DEBUG("MVA response from " << m_MethodName << " in " << m_Name_SignalMode << " of " << mvaResponse << " translates into likeliness of " << modeLikeliness);
-//     
-    return 0;
-}
-
 
 
 
