@@ -23,8 +23,9 @@
 #include "PoolSvc/IPoolSvc.h"
 #include <string>
 
+// fwd declarations
 class StoreGateSvc;
-class VP1FileUtilities;
+
 
 class VP1EventProd: public AthAlgorithm,
 		    public IIncidentListener
@@ -40,19 +41,21 @@ class VP1EventProd: public AthAlgorithm,
   void handle(const Incident& inc);
 
  private:
-  VP1FileUtilities* m_fileUtil;
- 
   // run/event number to be used in the vp1 event file name
-  int m_runNumber;
-  int m_eventNumber;
+  unsigned long m_runNumber;
+  unsigned long long m_eventNumber;
   unsigned int m_timeStamp;
   std::string m_humanTimestamp;
+  std::string m_outputFileType;
+  bool m_removeTempInputFiles;
 
   // properties
   std::string m_inputPoolFile;
   std::string m_destinationDir;
+  bool m_createDestinationDir;
   int m_maxProducedFiles;
   int m_nEvent; // Internal counter for the number of processed events
+
   // service handle
   ServiceHandle<IPoolSvc> m_poolSvc;
 };
