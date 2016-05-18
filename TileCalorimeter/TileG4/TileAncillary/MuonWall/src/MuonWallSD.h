@@ -9,8 +9,8 @@
 //
 //************************************************************
 
-#ifndef MuonWall_MuonWallSD_H
-#define MuonWall_MuonWallSD_H
+#ifndef MUONWALL_MUONWALLSD_H
+#define MUONWALL_MUONWALLSD_H
 
 // Base class
 #include "G4VSensitiveDetector.hh"
@@ -44,13 +44,13 @@ public:
 private:
   const TileTBID* m_tileTBID;
 
-  static const int nCell = 14;
+  static const int N_CELLS = 14;
 
-  int m_nhits[nCell];
-  TileSimHit* m_hit[nCell];
-  Identifier m_id[nCell];
+  int m_nhits[N_CELLS];
+  TileSimHit* m_hit[N_CELLS];
+  Identifier m_id[N_CELLS];
   // The hits collections
   SG::WriteHandle<TileHitVector> m_HitColl;
 };
 
-#endif
+#endif // MUONWALL_MUONWALLSD_H
