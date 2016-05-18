@@ -35,18 +35,16 @@
 
 // class header
 #include "G4mplEqMagElectricField.hh"
-// Athena headers
-#include "FadsField/EqOfMotionFactoryBase.h"
-#include "FadsField/EqOfMotionFactory.h"
-// Geant4 headers
-#include "globals.hh"
-#include "G4Version.hh"
-// CLHEP headers
-#include "CLHEP/Units/PhysicalConstants.h"
+
 // STL headers
 #include <iomanip>
 
-static FADS::EqOfMotionFactory<G4mplEqMagElectricField> eom("MonopoleEquationOfMotion");
+// CLHEP headers
+#include "CLHEP/Units/PhysicalConstants.h"
+
+// Geant4 headers
+#include "globals.hh"
+#include "G4Version.hh"
 
 G4mplEqMagElectricField::G4mplEqMagElectricField(G4MagneticField *emField )
   : G4Mag_EqRhs( emField )
