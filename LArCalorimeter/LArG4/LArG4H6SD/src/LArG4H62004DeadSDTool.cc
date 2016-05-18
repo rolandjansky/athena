@@ -19,6 +19,8 @@
 LArG4H62004DeadSDTool::LArG4H62004DeadSDTool(const std::string& type, const std::string& name, const IInterface *parent)
   : LArG4SDTool(type,name,parent)
   , m_HitColl("LArCalibrationHitDeadMaterial")
+  , m_deadSD(nullptr)
+  , m_uninstSD(nullptr)
 {
   declareProperty("doEscapedEnergy",m_do_eep=false);
   declareInterface<ISensitiveDetector>(this);
@@ -62,12 +64,7 @@ StatusCode LArG4H62004DeadSDTool::initializeSD()
 StatusCode LArG4H62004DeadSDTool::Gather()
 {
   // In this case, *unlike* other SDs, the *tool* owns the collection
-#ifdef ATHENAHIVE
-  // Temporary fix for Hive until isValid is fixed
-  m_HitColl = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_HitColl.name());
-#else
   if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_HitColl.name());
-#endif
   m_deadSD ->EndOfAthenaEvent( &*m_HitColl );
   if (m_do_eep) m_uninstSD     ->EndOfAthenaEvent( &*m_HitColl );
   return StatusCode::SUCCESS;

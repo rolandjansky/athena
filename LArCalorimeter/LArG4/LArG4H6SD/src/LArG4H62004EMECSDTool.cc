@@ -14,6 +14,7 @@
 LArG4H62004EMECSDTool::LArG4H62004EMECSDTool(const std::string& type, const std::string& name, const IInterface *parent)
   : LArG4SDTool(type,name,parent)
   , m_HitColl("LArHitEMEC")
+  , m_emecSD(nullptr)
 {
   declareInterface<ISensitiveDetector>(this);
 }
@@ -35,12 +36,7 @@ StatusCode LArG4H62004EMECSDTool::initializeSD()
 StatusCode LArG4H62004EMECSDTool::Gather()
 {
   // In this case, *unlike* other SDs, the *tool* owns the collection
-#ifdef ATHENAHIVE
-  // Temporary fix for Hive until isValid is fixed
-  m_HitColl = CxxUtils::make_unique<LArHitContainer>(m_HitColl.name());
-#else
   if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<LArHitContainer>(m_HitColl.name());
-#endif
   // Hand this collection name off to the SDs.  They will be writing to the
   // collection, but only one at a time!
   m_emecSD->EndOfAthenaEvent( &*m_HitColl );

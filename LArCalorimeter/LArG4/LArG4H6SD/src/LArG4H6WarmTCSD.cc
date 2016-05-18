@@ -66,12 +66,7 @@ void LArG4H6WarmTCSD::Initialize(G4HCofThisEvent*)
 #ifdef DEBUG_ME
   std::cout<<"LArG4H6WarmTCSD::LArG4H6WarmTCSD: "<<SensitiveDetectorName<<" initializing coll.: "<<collectionName[0]<<std::endl;
 #endif
-#ifdef ATHENAHIVE
-    // Temporary fix for Hive until isValid is fixed
-    m_Collection = CxxUtils::make_unique<LArG4H6WarmTCHitCollection>();
-#else
-    if (!m_Collection.isValid()) m_Collection = CxxUtils::make_unique<LArG4H6WarmTCHitCollection>();
-#endif
+  if (!m_Collection.isValid()) m_Collection = CxxUtils::make_unique<LArG4H6WarmTCHitCollection>();
 #ifdef DEBUG_ME
   std::cout<<"LArG4H6WarmTCSD::LArG4H6WarmTCSD: initialized "<<collectionName[0]<<" with HCID: "<<G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0])<<std::endl;
 #endif
