@@ -10,8 +10,8 @@
 //
 //**************************************************************
 
-#ifndef MuonWall_MuonWallSDTool_H
-#define MuonWall_MuonWallSDTool_H
+#ifndef MUONWALL_MUONWALLSDTOOL_H
+#define MUONWALL_MUONWALLSDTOOL_H
 
 // Base class header
 #include "G4AtlasTools/SensitiveDetectorBase.h"
@@ -21,20 +21,19 @@
 
 class G4VSensitiveDetector;
 
-class MuonWallSDTool : public SensitiveDetectorBase
-{
-public:
-  MuonWallSDTool(const std::string& type, const std::string& name, const IInterface *parent);
+class MuonWallSDTool: public SensitiveDetectorBase {
+  public:
+    MuonWallSDTool(const std::string& type, const std::string& name, const IInterface *parent);
 
-  ~MuonWallSDTool();
+    ~MuonWallSDTool();
 
-  virtual StatusCode SetupEvent() override final;
+    virtual StatusCode SetupEvent() override final;
 
-  virtual StatusCode Gather() override final;
+    virtual StatusCode Gather() override final;
 
-protected:
-  // Make me an SD!
-  G4VSensitiveDetector* makeSD() override final;
+  protected:
+    // Make me an SD!
+    G4VSensitiveDetector* makeSD() override final;
 };
 
-#endif // MuonWall_MuonWallSDTool_H
+#endif // MUONWALL_MUONWALLSDTOOL_H
