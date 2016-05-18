@@ -43,7 +43,10 @@ LArCellFakeProbElectronics::LArCellFakeProbElectronics(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  : AthAlgTool(type, name, parent)
+  : AthAlgTool(type, name, parent),
+    m_idHelper(nullptr),
+    m_cablingService(nullptr),
+    m_onlineHelper(nullptr)
 {
   declareInterface<ICellWeightTool>(this);
   declareProperty("Dead_FEC_FEB_CHAN",   m_inputStringIDs);
