@@ -60,7 +60,7 @@ class ThinTrackParticlesTool
 public:
   /// Standard constructor
   ThinTrackParticlesTool( const std::string& type,
-                  	      const std::string& name,
+                          const std::string& name,
                           const IInterface* parent );
 
   /// Standard destructor
@@ -171,6 +171,9 @@ private:
   /// Flag to steer if one should also keep 'other' track particles from taus
   BooleanProperty m_tauOther;
 
+  /// Set the maximum number of TrackParticles from each electron to keep (default: -1 means all are kept)
+  IntegerProperty m_nElectronPTMax;
+
 
   /// The number of given TrackParticles in the current event
   mutable std::size_t m_nTotalTrackParts;
@@ -178,6 +181,13 @@ private:
   // Declare some counters and initialize them to zero
   /// Event counter
   mutable unsigned long m_nEventsProcessed;
+
+  /// The number of total TrackParticles kept
+  mutable unsigned long m_nTrackPartsKept;
+
+  /// The number of total TrackParticles processed
+  mutable unsigned long m_nTrackPartsProcessed;
+
 
 };
 

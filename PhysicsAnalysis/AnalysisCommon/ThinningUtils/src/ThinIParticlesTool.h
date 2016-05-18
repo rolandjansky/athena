@@ -105,6 +105,8 @@ private:
   /// an xAOD::IParticleContainer
   StringProperty m_selection;
 
+  /// Can take the mask from storegate, by specifying this key
+  StringProperty m_maskStoregate;
 
   /// The number of given xAOD::IParticles in the current event
   mutable std::size_t m_nTotalIParticles;
