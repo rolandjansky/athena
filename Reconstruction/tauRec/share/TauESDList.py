@@ -52,12 +52,19 @@ TauESDList += [ "xAOD::TauJetContainer#TauJets" ]
 TauESDList += [ "xAOD::TauJetAuxContainer#TauJetsAux." ]
 
 #------------------------------------------------------------------------------
+# TauRec tauTrack xAOD containers
+#------------------------------------------------------------------------------
+TauESDList += [ "xAOD::TauTrackContainer#TauTracks" ]
+TauESDList += [ "xAOD::TauTrackAuxContainer#TauTracksAux." ]
+
+#------------------------------------------------------------------------------
 # Secondary Vertex for Tau Decay
 #------------------------------------------------------------------------------
 TauESDList += [ "xAOD::VertexContainer#TauSecondaryVertices" ]
 TauESDList += [ "xAOD::VertexAuxContainer#TauSecondaryVerticesAux.-vxTrackAtVertex" ]
 
-
+TauESDList += [ "xAOD::ParticleContainer#finalTauPi0s" ]
+TauESDList += [ "xAOD::ParticleAuxContainer#finalTauPi0sAux." ]
 ##------------------------------------------------------------------------------
 ## Tau shot clusters
 ##------------------------------------------------------------------------------

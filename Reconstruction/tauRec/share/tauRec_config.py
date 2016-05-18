@@ -49,12 +49,12 @@ if jobproperties.tauRecFlags.doTauRec() and ( rec.readESD() or  ( DetFlags.haveR
         
         #jobproperties.tauRecFlags.doPanTau=False
         # call PanTau now
-        if jobproperties.tauRecFlags.doPanTau():
-            try:
-                include("PanTauAnalysis/JobOptions_Main_PanTau.py")
-            except Exception:
-                treatException("Could not setup PanTau")
-                jobproperties.tauRecFlags.doPanTau = False
+        # if jobproperties.tauRecFlags.doPanTau():
+        #     try:
+        #         include("PanTauAnalysis/JobOptions_Main_PanTau.py")
+        #     except Exception:
+        #         treatException("Could not setup PanTau")
+        #         jobproperties.tauRecFlags.doPanTau = False
         
         # call TauDiscriminant
         # if jobproperties.tauRecFlags.doRunTauDiscriminant():

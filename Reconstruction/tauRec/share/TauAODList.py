@@ -35,13 +35,26 @@ TauAODList += [ "xAOD::CaloClusterAuxContainer#TauPi0ClustersAux." ]
 # TauRec main xAOD containers
 #------------------------------------------------------------------------------
 TauAODList += [ "xAOD::TauJetContainer#TauJets" ]
-TauAODList += [ "xAOD::TauJetAuxContainer#TauJetsAux.-ABS_ETA_LEAD_TRACK.-CORRCENTFRAC.-CORRFTRK.-EMFRACTIONATEMSCALE_MOVEE3.-HADLEAKET.-NUMTRACK.-TAU_ABSDELTAETA.-TAU_ABSDELTAPHI.-TAU_SEEDTRK_SECMAXSTRIPETOVERPT.-TAU_TRT_NHT_OVER_NLT.-NUMVERTICES" ]
+#TauAODList += [ "xAOD::TauJetAuxContainer#TauJetsAux.-ABS_ETA_LEAD_TRACK.-CORRCENTFRAC.-CORRFTRK.-EMFRACTIONATEMSCALE_MOVEE3.-HADLEAKET.-NUMTRACK.-TAU_ABSDELTAETA.-TAU_ABSDELTAPHI.-TAU_SEEDTRK_SECMAXSTRIPETOVERPT.-TAU_TRT_NHT_OVER_NLT.-NUMVERTICES" ]
+TauAODList += [ "xAOD::TauJetAuxContainer#TauJetsAux." ]
+
+#------------------------------------------------------------------------------
+# TauRec tauTrack xAOD containers
+#------------------------------------------------------------------------------
+TauAODList += [ "xAOD::TauTrackContainer#TauTracks" ]
+TauAODList += [ "xAOD::TauTrackAuxContainer#TauTracksAux." ]
 
 #------------------------------------------------------------------------------
 # Secondary Vertex for Tau Decay
 #------------------------------------------------------------------------------
 TauAODList += [ "xAOD::VertexContainer#TauSecondaryVertices" ]
 TauAODList += [ "xAOD::VertexAuxContainer#TauSecondaryVerticesAux.-vxTrackAtVertex" ]
+
+#------------------------------------------------------------------------------
+# Final reconstructed 4-vectors of Pi0s
+#------------------------------------------------------------------------------
+TauAODList += [ "xAOD::ParticleContainer#finalTauPi0s" ]
+TauAODList += [ "xAOD::ParticleAuxContainer#finalTauPi0sAux." ]
 
 #------------------------------------------------------------------------------
 # Shot ParticleFlowObjects
