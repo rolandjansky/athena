@@ -12,6 +12,9 @@
 #include "TauAnalysisTools/TauEfficiencyTriggerTool.h"
 #include "TauAnalysisTools/TauEfficiencyCorrectionsTool.h"
 
+// ROOT include(s)
+#include "TH2F.h"
+
 using namespace TauAnalysisTools;
 
 //______________________________________________________________________________

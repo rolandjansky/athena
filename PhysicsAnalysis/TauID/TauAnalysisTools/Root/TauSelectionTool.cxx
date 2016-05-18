@@ -5,6 +5,7 @@
 // Local include(s):
 #include "TauAnalysisTools/TauSelectionTool.h"
 #include "TauAnalysisTools/SharedFilesVersion.h"
+#include "TauAnalysisTools/SelectionCuts.h"
 
 // Framework include(s):
 #include "PathResolver/PathResolver.h"

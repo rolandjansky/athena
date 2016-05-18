@@ -163,6 +163,7 @@ private:
 
   StatusCode createTOELLHDecorator();
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
+  const std::string m_sEleOlrLhScoreDecorationName;
 };
 
 class SelectionCutMuonVeto

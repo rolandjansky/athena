@@ -8,6 +8,7 @@
 // Local include(s):
 #include "TauAnalysisTools/TauSmearingTool.h"
 #include "TauAnalysisTools/SharedFilesVersion.h"
+#include "TauAnalysisTools/TauSmearingRun1Tool.h"
 
 namespace TauAnalysisTools
 {

@@ -24,10 +24,12 @@
 #include "TauAnalysisTools/Enums.h"
 #include "TauAnalysisTools/ITauSmearingTool.h"
 #include "TauAnalysisTools/CommonSmearingTool.h"
-#include "TauAnalysisTools/TauSmearingRun1Tool.h"
 
 namespace TauAnalysisTools
 {
+
+// forward includes
+class TauSmearingRun1Tool;
 
 class TauSmearingTool
   : public asg::AsgTool
