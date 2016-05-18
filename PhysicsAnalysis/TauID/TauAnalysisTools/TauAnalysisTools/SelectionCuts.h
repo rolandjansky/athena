@@ -22,7 +22,6 @@
 #include "PATCore/TAccept.h"
 
 // Local include(s):
-#include "TauAnalysisTools/TauSelectionTool.h"
 #include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
 
 // ROOT include(s):
@@ -43,7 +42,7 @@ public:
   void writeControlHistograms();
   void fillHistogramCutPre(const xAOD::TauJet& xTau);
   void fillHistogramCut(const xAOD::TauJet& xTau);
-  virtual StatusCode initializeEvent()
+  virtual StatusCode beginEvent()
   {
     return StatusCode::SUCCESS;
   };
@@ -152,7 +151,7 @@ class SelectionCutEleOLR
 {
 public:
   SelectionCutEleOLR(TauSelectionTool* tTST);
-  StatusCode initializeEvent();
+  StatusCode beginEvent();
   bool accept(const xAOD::TauJet& xTau);
   ~SelectionCutEleOLR();
 
@@ -164,6 +163,7 @@ private:
 
   StatusCode createTOELLHDecorator();
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
+  const std::string m_sEleOlrLhScoreDecorationName;
 };
 
 class SelectionCutMuonVeto

@@ -48,11 +48,17 @@ typedef enum e_ELEID
 
 typedef enum
 {
+  OLRNONEUNCONFIGURED = 0,
   OLRNONE     = 1,
   OLRLOOSEPP  = 2,
   OLRMEDIUMPP = 3,
   OLRTIGHTPP  = 4,
-  OLROTHER    = 5
+  OLROTHER    = 5,
+
+  TAUELEOLR       = 6,
+  ELELOOSELLHOLR  = 7,
+  ELEMEDIUMLLHOLR = 8,
+  ELETIGHTLLHOLR  = 9
 } OLR;
 
 typedef enum
@@ -91,6 +97,11 @@ enum EfficiencyCorrectionType
   // SFEleIDJet       = 17,
   // SFEleIDElectron  = 18,
   // SFEleIDMuon      = 19,
+
+  SFTriggerHadTau  = 20,
+  // SFEleIDJet       = 21,
+  // SFEleIDElectron  = 22,
+  // SFEleIDMuon      = 23,
 };
 
 enum EfficiencyCorrectionSystematicType
@@ -108,6 +119,27 @@ typedef enum e_TruthMatchedParticleType
   TruthElectron    = 4,
   TruthJet         = 5
 } TruthMatchedParticleType;
+
+typedef enum e_DataPeriod
+{
+  PeriodUnknown  = 0,
+  PeriodD  = 1,
+  PeriodE  = 2,
+  PeriodF  = 3,
+  PeriodG  = 4,
+  PeriodH2 = 5,
+  PeriodH3 = 6,
+  PeriodI  = 7,
+  PeriodJ  = 8
+} DataPeriod;
+
+typedef enum e_DataPeriodBinning
+{
+  PeriodBinningUnknown  = 0,
+  PeriodBinningAll        = 1,
+  PeriodBinningD_EFGH23J  = 2,
+  PeriodBinningD_EFH23J_G = 3
+} DataPeriodBinning;
 
 }
 

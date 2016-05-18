@@ -7,6 +7,7 @@
 
 // local include(s)
 #include "TauAnalysisTools/SelectionCuts.h"
+#include "TauAnalysisTools/TauSelectionTool.h"
 
 // ROOT include(s)
 #include "TFile.h"
@@ -384,9 +385,14 @@ SelectionCutEleBDTWP::SelectionCutEleBDTWP(TauSelectionTool* tTST)
 //______________________________________________________________________________
 void SelectionCutEleBDTWP::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 {
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
   hHist.Fill(!xTau.isTau(xAOD::TauJetParameters::ElectronVetoLoose));
   hHist.Fill(!xTau.isTau(xAOD::TauJetParameters::ElectronVetoMedium)+2);
   hHist.Fill(!xTau.isTau(xAOD::TauJetParameters::ElectronVetoTight)+4);
+#else
+  (void)xTau;
+  (void)hHist;
+#endif
 }
 
 //______________________________________________________________________________
@@ -433,6 +439,12 @@ SelectionCutEleOLR::SelectionCutEleOLR(TauSelectionTool* tTST)
   , m_tTOELLHDecorator(0)
   , m_bCheckEleMatchPassAvailable(true)
   , m_bEleMatchPassAvailable(true)
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+  , m_sEleOlrLhScoreDecorationName("ele_match_lhscore")
+#else
+  , m_sEleOlrLhScoreDecorationName("EleMatchLikelihoodScore")
+#endif
+
 {
   m_hHistCutPre = CreateControlPlot("hEleOLR_pre","EleOLR_pre;Electron Likelihood Score; events",100,-4,4);
   m_hHistCut = CreateControlPlot("hEleOLR_cut","EleOLR_cut;Electron Likelihood Score; events",100,-4,4);
@@ -440,13 +452,20 @@ SelectionCutEleOLR::SelectionCutEleOLR(TauSelectionTool* tTST)
 
 SelectionCutEleOLR::~SelectionCutEleOLR()
 {
+#ifdef ROOTCORE
+  if (m_tTOELLHDecorator and asg::ToolStore::remove(m_tTOELLHDecorator).isFailure())
+    m_tTST->msg() << MSG::ERROR << "An error occured while trying to remove "<<m_tTOELLHDecorator->name()<<" from tool store";
+#endif  // ROOTCORE
   delete m_tTOELLHDecorator;
 }
 
 //______________________________________________________________________________
 void SelectionCutEleOLR::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 {
-  hHist.Fill(xTau.auxdata< float >( "ele_match_lhscore" ));
+  // run this to get ele_match_lhscore decoration
+  getEvetoPass(xTau);
+  static SG::AuxElement::ConstAccessor<float> accEleMatchLhscore(m_sEleOlrLhScoreDecorationName.c_str());
+  hHist.Fill(accEleMatchLhscore(xTau));
 }
 
 //______________________________________________________________________________
@@ -467,7 +486,8 @@ bool SelectionCutEleOLR::accept(const xAOD::TauJet& xTau)
     return true;
   }
 
-  m_tTST->msg() << MSG::VERBOSE << "Tau failed EleOLR requirement, tau overlapping electron llh score: " << xTau.auxdata< float >( "ele_match_lhscore" ) << endmsg;
+  static SG::AuxElement::ConstAccessor<float> accEleMatchLhscore(m_sEleOlrLhScoreDecorationName.c_str());
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed EleOLR requirement, tau overlapping electron llh score: " << accEleMatchLhscore(xTau) << endmsg;
   return false;
 }
 
@@ -489,6 +509,7 @@ StatusCode SelectionCutEleOLR::createTOELLHDecorator()
 bool SelectionCutEleOLR::getEvetoPass(const xAOD::TauJet& xTau)
 {
 
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
   if (m_bCheckEleMatchPassAvailable)
   {
     m_bCheckEleMatchPassAvailable = false;
@@ -502,15 +523,22 @@ bool SelectionCutEleOLR::getEvetoPass(const xAOD::TauJet& xTau)
   if (!m_bEleMatchPassAvailable)
     if (m_tTOELLHDecorator->decorate(xTau).isFailure())
       throw std::runtime_error ("TOELLHDecorator decoration failed\n");
-  return (bool)xTau.auxdata<char>("ele_olr_pass");
+  static SG::AuxElement::ConstAccessor<char> accEleOlrPass("ele_olr_pass");
+  return (bool)accEleOlrPass(xTau);
+#else
+  return xTau.isTau(xAOD::TauJetParameters::PassEleOLR);
+#endif
+
 }
 
 //______________________________________________________________________________
-StatusCode SelectionCutEleOLR::initializeEvent()
+StatusCode SelectionCutEleOLR::beginEvent()
 {
   if (createTOELLHDecorator().isFailure())
     return StatusCode::FAILURE;
-  return m_tTOELLHDecorator->initializeEvent();
+  if (m_tTOELLHDecorator->beginEvent().isFailure())
+    return StatusCode::FAILURE;
+  return StatusCode::SUCCESS;
 }
 
 //____________________________SelectionCutMuonVeto______________________________

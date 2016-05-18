@@ -28,7 +28,7 @@ class TauEfficiencyEleIDTool : public CommonEfficiencyTool
 
 public:
 
-  TauEfficiencyEleIDTool(std::string sName, std::string sInputFilePath, std::string sVarName);
+  TauEfficiencyEleIDTool(std::string sName);
 
   virtual ~TauEfficiencyEleIDTool();
 

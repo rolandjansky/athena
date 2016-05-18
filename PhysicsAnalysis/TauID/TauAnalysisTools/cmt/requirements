@@ -29,9 +29,9 @@ use PathResolver    PathResolver-*    Tools
 
 end_private
 
+
 # Declare the library:
-library TauAnalysisTools *.cxx ../Root/*.cxx components/*.cxx
-apply_pattern component_library
+apply_pattern dual_use_library files="*.cxx *.c ../Root/*.cxx"
 
 # Install the jobOptions:
 apply_pattern declare_joboptions files=*.py

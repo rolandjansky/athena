@@ -22,7 +22,6 @@
 
 // Local include(s):
 #include "TauAnalysisTools/CommonSmearingTool.h"
-#include "TauAnalysisTools/TauSmearingTool.h"
 
 // ROOT include(s):
 #include "TH1D.h"
@@ -37,9 +36,6 @@ namespace TauAnalysisTools
 class TauSmearingRun1Tool
   : public CommonSmearingTool
 {
-
-  /// Create a proper constructor for Athena
-  ASG_TOOL_CLASS( TauSmearingRun1Tool, TauAnalysisTools::ITauSmearingTool )
 
 public:
   /// Create a constructor for standalone usage

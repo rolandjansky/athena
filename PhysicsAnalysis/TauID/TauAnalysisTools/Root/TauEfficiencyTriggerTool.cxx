@@ -5,10 +5,12 @@
 // Framework include(s):
 #include "PathResolver/PathResolver.h"
 
-// local include(s)
-#include "TauAnalysisTools/CommonEfficiencyTool.h"
-#include "TauAnalysisTools/TauEfficiencyCorrectionsTool.h"
+// xAOD include(s)
 #include "xAODTruth/TruthParticleContainer.h"
+
+// local include(s)
+#include "TauAnalysisTools/TauEfficiencyTriggerTool.h"
+#include "TauAnalysisTools/TauEfficiencyCorrectionsTool.h"
 
 // ROOT include(s)
 #include "TH2F.h"
@@ -16,32 +18,16 @@
 using namespace TauAnalysisTools;
 
 //______________________________________________________________________________
-CommonEfficiencyTool::CommonEfficiencyTool(std::string sName)
-  : asg::AsgTool( sName )
-  , m_mSF(0)
-  , m_tTECT(0)
-  , m_sSystematicSet(0)
-  , m_fX(&tauPt)
-  , m_fY(&tauEta)
-  , m_sInputFilePath("")
-  , m_sWP("")
-  , m_sVarName("")
-  , m_bSkipTruthMatchCheck(false)
-  , m_sSFHistName("sf")
-  , m_eCheckTruth(TauAnalysisTools::Unknown)
-  , m_bNoMultiprong(false)
-  , m_bSFIsAvailable(false)
-  , m_bSFIsAvailableChecked(false)
+TauEfficiencyTriggerTool::TauEfficiencyTriggerTool(std::string sName)
+  : CommonEfficiencyTool ( sName )
+  , m_ePeriod(PeriodUnknown)
+  , m_ePeriodBinning(PeriodBinningUnknown)
 {
   m_mSystematics = {};
-
-  declareProperty( "InputFilePath", m_sInputFilePath );
-  declareProperty( "VarName", m_sVarName );
-  declareProperty( "SkipTruthMatchCheck", m_bSkipTruthMatchCheck );
-  declareProperty( "WP", m_sWP );
+  declareProperty( "PeriodBinning", m_ePeriodBinning );
 }
 
-CommonEfficiencyTool::~CommonEfficiencyTool()
+TauEfficiencyTriggerTool::~TauEfficiencyTriggerTool()
 {
   if (m_mSF)
     for (auto mEntry : *m_mSF)
@@ -49,9 +35,9 @@ CommonEfficiencyTool::~CommonEfficiencyTool()
   delete m_mSF;
 }
 
-StatusCode CommonEfficiencyTool::initialize()
+StatusCode TauEfficiencyTriggerTool::initialize()
 {
-  ATH_MSG_INFO( "Initializing CommonEfficiencyTool" );
+  ATH_MSG_INFO( "Initializing TauEfficiencyTriggerTool" );
   // only read in histograms once
   if (m_mSF==nullptr)
   {
@@ -74,8 +60,8 @@ StatusCode CommonEfficiencyTool::initialize()
   m_sInputFileName = vInputFilePath.back();
   generateSystematicSets();
 
-  if (m_sWP.length()>0)
-    m_sSFHistName = "sf_"+m_sWP;
+  // if (m_sWP.length()>0)
+  //   m_sSFHistName = "sf_"+m_sWP;
 
   // load empty systematic variation by default
   if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok )
@@ -85,7 +71,7 @@ StatusCode CommonEfficiencyTool::initialize()
 }
 
 //______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
+CP::CorrectionCode TauEfficiencyTriggerTool::getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
     double& dEfficiencyScaleFactor)
 {
   // check which true state is requestet
@@ -107,7 +93,7 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
 
   // get standard scale factor
   CP::CorrectionCode tmpCorrectionCode;
-  tmpCorrectionCode = getValue(m_sSFHistName+sProng,
+  tmpCorrectionCode = getValue(m_sSFHistName+"_"+convertPeriodToStr()+"_"+m_sWP+sProng,
                                xTau,
                                dEfficiencyScaleFactor);
   // return correction code if histogram is not available
@@ -126,27 +112,23 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
     // check if systematic is available
     auto it = m_mSystematicsHistNames.find(syst.basename());
 
+    // dirty hack, replace urgently
+    std::string sDirection = "";
+    if (syst.basename().back() != 'T')
+      sDirection = (syst.parameter() > 0) ? "_up" : "_down";
+
     // get uncertainty value
     double dUncertaintySyst = 0;
-
-    // needed for up/down decision
-    dDirection = syst.parameter();
-
-    // build up histogram name
-    std::string sHistName = it->second;
-    if (dDirection>0)   sHistName+="_up";
-    else                sHistName+="_down";
-    if (!m_sWP.empty()) sHistName+="_"+m_sWP;
-    sHistName += sProng;
-
-    // get the uncertainty from the histogram
-    tmpCorrectionCode = getValue(sHistName,
+    tmpCorrectionCode = getValue(it->second+sDirection+"_"+convertPeriodToStr()+"_"+m_sWP+sProng,
                                  xTau,
                                  dUncertaintySyst);
 
     // return correction code if histogram is not available
     if (tmpCorrectionCode != CP::CorrectionCode::Ok)
       return tmpCorrectionCode;
+
+    // needed for up/down decision
+    dDirection = syst.parameter();
 
     // scale uncertainty with direction, i.e. +/- n*sigma
     dUncertaintySyst *= dDirection;
@@ -165,7 +147,7 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
 }
 
 //______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::TauJet& xTau)
+CP::CorrectionCode TauEfficiencyTriggerTool::applyEfficiencyScaleFactor(const xAOD::TauJet& xTau)
 {
   double dSf = 0.;
 
@@ -191,32 +173,32 @@ CP::CorrectionCode CommonEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::
 }
 
 //______________________________________________________________________________
-bool CommonEfficiencyTool::isAffectedBySystematic( const CP::SystematicVariation& systematic ) const
+bool TauEfficiencyTriggerTool::isAffectedBySystematic( const CP::SystematicVariation& systematic ) const
 {
   CP::SystematicSet sys = affectingSystematics();
   return sys.find (systematic) != sys.end ();
 }
 
 //______________________________________________________________________________
-CP::SystematicSet CommonEfficiencyTool::affectingSystematics() const
+CP::SystematicSet TauEfficiencyTriggerTool::affectingSystematics() const
 {
   return m_sAffectingSystematics;
 }
 
 //______________________________________________________________________________
-CP::SystematicSet CommonEfficiencyTool::recommendedSystematics() const
+CP::SystematicSet TauEfficiencyTriggerTool::recommendedSystematics() const
 {
   return m_sRecommendedSystematics;
 }
 
 //______________________________________________________________________________
-void CommonEfficiencyTool::setParent(TauEfficiencyCorrectionsTool* tTECT)
+void TauEfficiencyTriggerTool::setParent(TauEfficiencyCorrectionsTool* tTECT)
 {
   m_tTECT = tTECT;
 }
 
 //______________________________________________________________________________
-CP::SystematicCode CommonEfficiencyTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
+CP::SystematicCode TauEfficiencyTriggerTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
 {
   // first check if we already know this systematic configuration
   auto itSystematicSet = m_mSystematicSets.find(sSystematicSet);
@@ -227,7 +209,7 @@ CP::SystematicCode CommonEfficiencyTool::applySystematicVariation ( const CP::Sy
   }
 
   // sanity checks if systematic set is supported
-  double dDirection = 0;
+  // double dDirection = 0;
   CP::SystematicSet sSystematicSetAvailable;
   for (auto sSyst : sSystematicSet)
   {
@@ -239,14 +221,13 @@ CP::SystematicCode CommonEfficiencyTool::applySystematicVariation ( const CP::Sy
       continue;
     }
 
-
-    if (sSyst.parameter() * dDirection < 0)
-    {
-      ATH_MSG_ERROR("unsupported set of systematic variations, you should either use only \"UP\" or only \"DOWN\" systematics in one set!");
-      ATH_MSG_ERROR("systematic set will not be applied");
-      return CP::SystematicCode::Unsupported;
-    }
-    dDirection = sSyst.parameter();
+    // if (sSyst.parameter() * dDirection < 0)
+    // {
+    //   ATH_MSG_ERROR("unsupported set of systematic variations, you should either use only \"UP\" or only \"DOWN\" systematics in one set!");
+    //   ATH_MSG_ERROR("systematic set will not be applied");
+    //   return CP::SystematicCode::Unsupported;
+    // }
+    // dDirection = sSyst.parameter();
 
     if ((m_sRecommendedSystematics.find(sSyst.basename()) != m_sRecommendedSystematics.end()) and sSystematicSet.size() > 1)
     {
@@ -267,7 +248,7 @@ CP::SystematicCode CommonEfficiencyTool::applySystematicVariation ( const CP::Sy
 
 //=================================PRIVATE-PART=================================
 //______________________________________________________________________________
-std::string CommonEfficiencyTool::ConvertProngToString(const int& fProngness)
+std::string TauEfficiencyTriggerTool::ConvertProngToString(const int& fProngness)
 {
   std::string prong = "";
   if (fProngness == 0)
@@ -277,7 +258,7 @@ std::string CommonEfficiencyTool::ConvertProngToString(const int& fProngness)
 }
 
 //______________________________________________________________________________
-void CommonEfficiencyTool::ReadInputs(TFile* fFile)
+void TauEfficiencyTriggerTool::ReadInputs(TFile* fFile)
 {
   m_mSF->clear();
 
@@ -304,7 +285,7 @@ void CommonEfficiencyTool::ReadInputs(TFile* fFile)
       }
       continue;
     }
-    else if (sKeyName == "Yaxis")
+    if (sKeyName == "Yaxis")
     {
       TNamed* tObj = (TNamed*)kKey->ReadObj();
       std::string sTitle = tObj->GetTitle();
@@ -322,57 +303,35 @@ void CommonEfficiencyTool::ReadInputs(TFile* fFile)
       continue;
     }
 
-    std::vector<std::string> m_vSplitName = {};
-    split(sKeyName,'_',m_vSplitName);
-    if (m_vSplitName[0] == "sf")
+    // handling for the 3 different input types TH1F/TH1D/TF1, function pointer
+    // handle the access methods for the final scale factor retrieval
+    TClass *cClass = gROOT->GetClass(kKey->GetClassName());
+    if (cClass->InheritsFrom("TH2"))
     {
-      addHistogramToSFMap(kKey, sKeyName);
-    }
-    else
-    {
-      // std::string sDirection = m_vSplitName[1];
-      if (sKeyName.find("_up_") != std::string::npos or sKeyName.find("_down_") != std::string::npos)
-        addHistogramToSFMap(kKey, sKeyName);
+      std::vector<std::string> m_vSplitKeyName = {};
+      split(sKeyName,'_',m_vSplitKeyName);
+      TH1F* oObject = (TH1F*)kKey->ReadObj();
+      oObject->SetDirectory(0);
+      if (cClass->InheritsFrom("TH2D"))
+        (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH2D);
       else
-      {
-        size_t iPos = sKeyName.find('_');
-        addHistogramToSFMap(kKey, sKeyName.substr(0,iPos)+"_up"+sKeyName.substr(iPos));
-        addHistogramToSFMap(kKey, sKeyName.substr(0,iPos)+"_down"+sKeyName.substr(iPos));
-      }
+        (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH2F);
+      ATH_MSG_DEBUG("added histogram with name "<<sKeyName);
+    }
+    else if (cClass->InheritsFrom("TF1"))
+    {
+      std::vector<std::string> m_vSplitKeyName = {};
+      split(sKeyName,'_',m_vSplitKeyName);
+      TObject* oObject = kKey->ReadObj();
+      (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTF1);
+      ATH_MSG_DEBUG("added function with name "<<sKeyName);
     }
   }
   ATH_MSG_INFO("data loaded from " << fFile->GetName());
 }
 
-void CommonEfficiencyTool::addHistogramToSFMap(TKey* kKey, const std::string& sKeyName)
-{
-  // handling for the 3 different input types TH1F/TH1D/TF1, function pointer
-  // handle the access methods for the final scale factor retrieval
-  TClass *cClass = gROOT->GetClass(kKey->GetClassName());
-  if (cClass->InheritsFrom("TH2"))
-  {
-    TH1F* oObject = (TH1F*)kKey->ReadObj();
-    oObject->SetDirectory(0);
-    if (cClass->InheritsFrom("TH2D"))
-      (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH2D);
-    else
-      (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH2F);
-    ATH_MSG_DEBUG("added histogram with name "<<sKeyName);
-  }
-  else if (cClass->InheritsFrom("TF1"))
-  {
-    TObject* oObject = kKey->ReadObj();
-    (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTF1);
-    ATH_MSG_DEBUG("added function with name "<<sKeyName);
-  }
-  else
-  {
-    ATH_MSG_DEBUG("ignored object with name "<<sKeyName);
-  }
-}
-
 //______________________________________________________________________________
-void CommonEfficiencyTool::generateSystematicSets()
+void TauEfficiencyTriggerTool::generateSystematicSets()
 {
   // creation of basic string for all NPs, e.g. "TAUS_TRUEHADTAU_EFF_RECO_"
   std::vector<std::string> m_vSplitInputFilePath = {};
@@ -418,9 +377,14 @@ void CommonEfficiencyTool::generateSystematicSets()
     // only add found uppercase systematics to the RecommendedSystematics
     if (bIsRecommended)
     {
+      ATH_MSG_VERBOSE("added "<<sSystematicString<<" to recommended systematics");
       m_sRecommendedSystematics.insert(CP::SystematicVariation (sSystematicString, 1));
       m_sRecommendedSystematics.insert(CP::SystematicVariation (sSystematicString, -1));
     }
+
+    // // if a working point is provided, add it to the NP name
+    // if (m_sWP.length() > 0)
+    //   sNP += "_"+m_sWP;
 
     ATH_MSG_DEBUG("connected base name " << sNP << " with systematic " <<sSystematicString);
     m_mSystematicsHistNames.insert({sSystematicString,sNP});
@@ -428,16 +392,13 @@ void CommonEfficiencyTool::generateSystematicSets()
 }
 
 //______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::getValue(const std::string& sHistName,
+CP::CorrectionCode TauEfficiencyTriggerTool::getValue(const std::string& sHistName,
     const xAOD::TauJet& xTau,
     double& dEfficiencyScaleFactor) const
 {
   if (m_mSF->find(sHistName) == m_mSF->end())
   {
     ATH_MSG_ERROR("Object with name "<<sHistName<<" was not found in input file.");
-    ATH_MSG_DEBUG("Content of input file");
-    for (auto eEntry : *m_mSF)
-      ATH_MSG_DEBUG("  Entry: "<<eEntry.first);
     return CP::CorrectionCode::Error;
   }
 
@@ -454,7 +415,7 @@ CP::CorrectionCode CommonEfficiencyTool::getValue(const std::string& sHistName,
 }
 
 //______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::getValueTH2F(const TObject* oObject,
+CP::CorrectionCode TauEfficiencyTriggerTool::getValueTH2F(const TObject* oObject,
     double& dEfficiencyScaleFactor,
     double dPt,
     double dEta)
@@ -481,7 +442,7 @@ CP::CorrectionCode CommonEfficiencyTool::getValueTH2F(const TObject* oObject,
 }
 
 //______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::getValueTH2D(const TObject* oObject,
+CP::CorrectionCode TauEfficiencyTriggerTool::getValueTH2D(const TObject* oObject,
     double& dEfficiencyScaleFactor,
     double dPt,
     double dEta)
@@ -508,7 +469,7 @@ CP::CorrectionCode CommonEfficiencyTool::getValueTH2D(const TObject* oObject,
 }
 
 //______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::getValueTF1(const TObject* oObject,
+CP::CorrectionCode TauEfficiencyTriggerTool::getValueTF1(const TObject* oObject,
     double& dEfficiencyScaleFactor,
     double dPt,
     double dEta)
@@ -527,7 +488,7 @@ CP::CorrectionCode CommonEfficiencyTool::getValueTF1(const TObject* oObject,
 }
 
 //______________________________________________________________________________
-e_TruthMatchedParticleType CommonEfficiencyTool::checkTruthMatch(const xAOD::TauJet& xTau) const
+e_TruthMatchedParticleType TauEfficiencyTriggerTool::checkTruthMatch(const xAOD::TauJet& xTau) const
 {
   // check if reco tau is a truth hadronic tau
   typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
@@ -561,3 +522,61 @@ e_TruthMatchedParticleType CommonEfficiencyTool::checkTruthMatch(const xAOD::Tau
 
   return eTruthMatchedParticleType;
 }
+
+//______________________________________________________________________________
+StatusCode TauEfficiencyTriggerTool::setRunNumber(int iRunNumber)
+{
+  if(iRunNumber>=276073 and iRunNumber<=276954)
+    m_ePeriod = PeriodD;
+  else if(iRunNumber>=278727 and iRunNumber<=279928)
+    m_ePeriod = PeriodE;
+  else if(iRunNumber>=279932 and iRunNumber<=280422)
+    m_ePeriod = PeriodF;
+  else if(iRunNumber>=280423 and iRunNumber<=281075)
+    m_ePeriod = PeriodG;
+  else if(iRunNumber>=281317 and iRunNumber<=281385)
+    m_ePeriod = PeriodH2;
+  else if(iRunNumber==281411)
+    m_ePeriod = PeriodH3;
+  else if(iRunNumber>=282625 and iRunNumber<=284484)
+    m_ePeriod = PeriodJ;
+  else
+  {
+    ATH_MSG_ERROR("Run number "<<iRunNumber<<" is currently not supported");
+    m_ePeriod = PeriodUnknown;
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+}
+
+//=================================PRIVATE-PART=================================
+//______________________________________________________________________________
+std::string TauEfficiencyTriggerTool::convertPeriodToStr()
+{
+  if (m_ePeriodBinning == PeriodBinningAll)
+    return "all";
+  else if (m_ePeriodBinning == PeriodBinningD_EFGH23J)
+  {
+    if (m_ePeriod == PeriodD)
+      return "D";
+    else if (m_ePeriod == PeriodE or m_ePeriod == PeriodF or m_ePeriod == PeriodG or m_ePeriod == PeriodH2 or m_ePeriod == PeriodH3 or m_ePeriod == PeriodJ)
+      return "EFGH23J";
+    else
+      ATH_MSG_ERROR("Could not find a set of data periods, for the passed run number. Did you actually set it?");
+  }
+  else if (m_ePeriodBinning == PeriodBinningD_EFH23J_G)
+  {
+    if (m_ePeriod == PeriodD)
+      return "D";
+    else if (m_ePeriod == PeriodE or m_ePeriod == PeriodF or m_ePeriod == PeriodG or m_ePeriod == PeriodH2 or m_ePeriod == PeriodH3 or m_ePeriod == PeriodJ)
+      return "EFH23J";
+    else if (m_ePeriod == PeriodG)
+      return "G";
+    else
+      ATH_MSG_ERROR("Could not find a set of data periods, for the passed run number. Did you actually set it?");
+  }
+  else
+    ATH_MSG_ERROR("Period binning unknown");
+  return "";
+}
+

@@ -256,6 +256,10 @@ configuration file via::
 
   TauSelTool.setProperty( "ConfigPath", "/PATH/TO/CONFIG/FILE"); 
 
+**IMPORTANT:** the last line of the file needs to be an empty line or should
+only contain a comment (starting with the number sign #). Otherwise the tool
+might be not properly configured (the last line is ignored by the file parser).
+
 2. Overwrite particular cut setups or the list of cuts to be executed
 =====================================================================
 
@@ -440,6 +444,11 @@ Navigation
   * `TauSelectionTool <README-TauSelectionTool.rst>`_
   * `TauSmearingTool <README-TauSmearingTool.rst>`_
   * `TauEfficiencyCorrectionsTool <README-TauEfficiencyCorrectionsTool.rst>`_
+
+    * `mc12 recommendations <README-TauEfficiencyCorrectionsTool-mc12.rst>`_
+    * `mc15 pre-recommendations <README-TauEfficiencyCorrectionsTool-mc15_pre-recommendations.rst>`_
+    * `TauEfficiencyCorrectionsTool Trigger <README-TauEfficiencyCorrectionsTool_Trigger.rst>`_
+
   * `TauTruthMatchingTool <README-TauTruthMatchingTool.rst>`_
   * `TauTruthTrackMatchingTool <README-TauTruthTrackMatchingTool.rst>`_
   * `TauOverlappingElectronLLHDecorator <README-TauOverlappingElectronLLHDecorator.rst>`_

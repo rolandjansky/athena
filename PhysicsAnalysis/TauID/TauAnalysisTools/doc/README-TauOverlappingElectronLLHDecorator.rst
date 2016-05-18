@@ -35,12 +35,6 @@ and calling::
 
   TOELLHDecorator.decorate(*tau);
 
-Before calling decorate, it is recommended to call intializeEvent() in each new
-event, otherwise the electron container will be retrieved for each tau, which
-is overhead and much slower::
-
-  TOELLHDecorator.initializeEvent();
-
 Tool configuration
 ------------------
 
@@ -111,5 +105,11 @@ Navigation
   * `TauSelectionTool <README-TauSelectionTool.rst>`_
   * `TauSmearingTool <README-TauSmearingTool.rst>`_
   * `TauEfficiencyCorrectionsTool <README-TauEfficiencyCorrectionsTool.rst>`_
+
+    * `mc12 recommendations <README-TauEfficiencyCorrectionsTool-mc12.rst>`_
+    * `mc15 pre-recommendations <README-TauEfficiencyCorrectionsTool-mc15_pre-recommendations.rst>`_
+    * `TauEfficiencyCorrectionsTool Trigger <README-TauEfficiencyCorrectionsTool_Trigger.rst>`_
+
   * `TauTruthMatchingTool <README-TauTruthMatchingTool.rst>`_
   * `TauTruthTrackMatchingTool <README-TauTruthTrackMatchingTool.rst>`_
+  * `TauOverlappingElectronLLHDecorator <README-TauOverlappingElectronLLHDecorator.rst>`_

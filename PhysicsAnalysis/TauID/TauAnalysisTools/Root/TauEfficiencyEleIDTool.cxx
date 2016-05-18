@@ -9,8 +9,11 @@ using namespace TauAnalysisTools;
 
 //=================================PUBLIC-PART==================================
 //______________________________________________________________________________
-TauEfficiencyEleIDTool::TauEfficiencyEleIDTool(std::string sName, std::string sInputFilePath, std::string sVarName) :
-  CommonEfficiencyTool(sName, sInputFilePath, sVarName)
+TauEfficiencyEleIDTool::TauEfficiencyEleIDTool(std::string sName) :
+  CommonEfficiencyTool(sName)
+  , m_iIDLevelCache(JETIDNONEUNCONFIGURED)
+  , m_iEVLevelCache(ELEIDNONEUNCONFIGURED)
+  , m_iOLRLevelCache(ELEIDNONEUNCONFIGURED)
 {
   m_sSystematicSet = new CP::SystematicSet();
   m_iSysDirection = 0;

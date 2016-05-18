@@ -9,8 +9,8 @@ using namespace TauAnalysisTools;
 
 //=================================PUBLIC-PART==================================
 //______________________________________________________________________________
-TauEfficiencyJetIDTool::TauEfficiencyJetIDTool(std::string sName, std::string sInputFilePath, std::string sVarName)
-  : CommonEfficiencyTool(sName, sInputFilePath, sVarName)
+TauEfficiencyJetIDTool::TauEfficiencyJetIDTool(std::string sName)
+  : CommonEfficiencyTool(sName)
   , m_sIDLevel("")
   , m_iIDLevelCache(-1)
 {

@@ -24,15 +24,16 @@
 #include "TauAnalysisTools/Enums.h"
 #include "TauAnalysisTools/ITauSmearingTool.h"
 #include "TauAnalysisTools/CommonSmearingTool.h"
-#include "TauAnalysisTools/TauSmearingRun1Tool.h"
 
 namespace TauAnalysisTools
 {
 
+// forward includes
+class TauSmearingRun1Tool;
+
 class TauSmearingTool
-  : public virtual ITauSmearingTool
-  , public virtual CP::ISystematicsTool
-  , public asg::AsgTool
+  : public asg::AsgTool
+  , public virtual ITauSmearingTool
 {
   /// Create a proper constructor for Athena
   ASG_TOOL_CLASS( TauSmearingTool, TauAnalysisTools::ITauSmearingTool )
@@ -72,6 +73,7 @@ private:
   std::string m_sInputFilePath;
   std::string m_sRecommendationTag;
   bool m_bSkipTruthMatchCheck;
+  bool m_bApplyFading;
   bool m_bIsData;
 
 }; // class TauSmearingTool

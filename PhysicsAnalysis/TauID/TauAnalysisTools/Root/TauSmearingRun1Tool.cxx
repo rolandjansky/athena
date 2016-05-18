@@ -45,7 +45,7 @@ TauSmearingRun1Tool::~TauSmearingRun1Tool()
 //______________________________________________________________________________
 StatusCode TauSmearingRun1Tool::initialize()
 {
-  ATH_MSG_INFO( "Initialising TauSmearingRun1Tool" );
+  ATH_MSG_INFO( "Initializing TauSmearingRun1Tool" );
   if (loadInputHistograms() == StatusCode::FAILURE)
     return StatusCode::FAILURE;
 

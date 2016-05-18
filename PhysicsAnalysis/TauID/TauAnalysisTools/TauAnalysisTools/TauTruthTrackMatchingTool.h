@@ -53,17 +53,21 @@ public:
   virtual StatusCode initialize();
 
   // classify vector of tracks
-  virtual StatusCode classifyTracks(std::vector<const xAOD::TrackParticle*>& vTracks);
+  virtual StatusCode classifyTracks(std::vector<const TAUTRACKPARTICLE*>& vTracks);
 
   // classify a single track
-  virtual StatusCode classifyTrack(const xAOD::TrackParticle& xTrackParticle);
+  virtual StatusCode classifyTrack(const TAUTRACKPARTICLE& xTrackParticle);
 
 private:
 
-  void checkTrackSpuriousType(const xAOD::TrackParticle& xTrackParticle);
-  void checkTrackIsTauInheritant(const xAOD::TrackParticle& xTrackParticle);
+  void checkTrackSpuriousType(const TAUTRACKPARTICLE& xTrackParticle);
+  void checkTrackIsTauInheritant(const TAUTRACKPARTICLE& xTrackParticle);
   bool checkTruthParent(const xAOD::TruthParticle& xTruthParticle, int& iDepth, std::string& sHistory);
-  const xAOD::TruthParticle* getTruthParticle(const xAOD::TrackParticle& xTrackParticle);
+  const xAOD::TruthParticle* getTruthParticle(const TAUTRACKPARTICLE& xTrackParticle);
+
+private:
+  bool m_bIsHadronicTrackAvailable;
+  bool m_bIsHadronicTrackAvailableChecked;
 
 }; // class TauTruthTrackMatchingTool
 

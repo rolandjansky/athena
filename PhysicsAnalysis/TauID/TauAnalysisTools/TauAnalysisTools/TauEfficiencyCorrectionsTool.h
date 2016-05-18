@@ -27,6 +27,7 @@
 #include "TauAnalysisTools/TauEfficiencyJetIDTool.h"
 #include "TauAnalysisTools/TauEfficiencyContJetIDTool.h"
 #include "TauAnalysisTools/TauEfficiencyEleIDTool.h"
+#include "TauAnalysisTools/TauEfficiencyTriggerTool.h"
 #include "TauAnalysisTools/TauSelectionTool.h"
 
 namespace TauAnalysisTools
@@ -34,7 +35,6 @@ namespace TauAnalysisTools
 
 class TauEfficiencyCorrectionsTool
   : public virtual ITauEfficiencyCorrectionsTool
-  , public virtual CP::ISystematicsTool
   , public asg::AsgTool
 {
   /// Create a proper constructor for Athena
@@ -46,6 +46,7 @@ class TauEfficiencyCorrectionsTool
   friend class TauEfficiencyJetIDRun2Tool;
   friend class TauEfficiencyContJetIDTool;
   friend class TauEfficiencyEleIDTool;
+  friend class TauEfficiencyTriggerTool;
 
 public:
   /// Create a constructor for standalone usage
@@ -80,8 +81,12 @@ public:
 
   virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig );
 
+  virtual StatusCode setRunNumber(int iRunNumber);
+
 private:
   std::string ConvertJetIDToString(const int& iLevel);
+  std::string ConvertEleOLRToString(const int& iLevel);
+  std::string ConvertTriggerIDToString(const int& iLevel);
 
   StatusCode initializeWithTauSelectionTool();
 
@@ -93,26 +98,33 @@ private:
   std::string m_sInputFilePath;
   std::string m_sInputFilePathRecoHadTau;
   std::string m_sInputFilePathEleOLRHadTau;
+  std::string m_sInputFilePathEleOLRElectron;
   std::string m_sInputFilePathJetIDHadTau;
   std::string m_sInputFilePathContJetIDHadTau;
   std::string m_sInputFilePathEleIDHadTau;
+  std::string m_sInputFilePathTriggerHadTau;
   std::string m_sVarNameBase;
   std::string m_sVarNameRecoHadTau;
   std::string m_sVarNameEleOLRHadTau;
+  std::string m_sVarNameEleOLRElectron;
   std::string m_sVarNameJetIDHadTau;
   std::string m_sVarNameContJetIDHadTau;
   std::string m_sVarNameEleIDHadTau;
+  std::string m_sVarNameTriggerHadTau;
   std::string m_sRecommendationTag;
+  std::string m_sTriggerName;
   bool m_bSkipTruthMatchCheck;
   bool m_bNoMultiprong;
   bool m_bUseIDExclusiveSF;
   bool m_bUseInclusiveEta;
+  bool m_bUseTriggerInclusiveEta;
   bool m_bUsePtBinnedSF;
   bool m_bUseHighPtUncert;
   int m_iIDLevel;
   int m_iEVLevel;
   int m_iOLRLevel;
   int m_iContSysType;
+  int m_iTriggerPeriodBinning;
 
   TauSelectionTool* m_tTauSelectionTool;
 

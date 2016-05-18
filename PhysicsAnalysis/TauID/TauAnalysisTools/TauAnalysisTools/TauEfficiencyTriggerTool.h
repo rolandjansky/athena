@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUANALYSISTOOLS_COMMONSMEARINGTOOL_H
-#define TAUANALYSISTOOLS_COMMONSMEARINGTOOL_H
+#ifndef TAUANALYSISTOOLS_TAUEFFICIENCYTRIGGERTOOL_H
+#define TAUANALYSISTOOLS_TAUEFFICIENCYTRIGGERTOOL_H
 
 /*
   author: Dirk Duschinger
@@ -25,14 +25,16 @@
 
 // Local include(s):
 #include "TauAnalysisTools/Enums.h"
-#include "TauAnalysisTools/ITauSmearingTool.h"
+#include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/HelperFunctions.h"
+#include "TauAnalysisTools/CommonEfficiencyTool.h"
 
 // ROOT include(s):
 #include "TROOT.h"
 #include "TClass.h"
 #include "TFile.h"
 #include "TH1F.h"
+#include "TF1.h"
 #include "TKey.h"
 
 // BOOST include(s):
@@ -42,33 +44,27 @@ namespace TauAnalysisTools
 {
 
 // forward declaration
-class TauSmearingTool;
+class TauEfficiencyCorrectionsTool;
 
-class CommonSmearingTool
-  : public virtual ITauSmearingTool
-  , public asg::AsgTool
+class TauEfficiencyTriggerTool
+  : public CommonEfficiencyTool
 {
-  /// Create a proper constructor for Athena
-  ASG_TOOL_CLASS( CommonSmearingTool, TauAnalysisTools::ITauSmearingTool )
 
 public:
 
-  CommonSmearingTool(std::string sName);
+  TauEfficiencyTriggerTool(std::string sName);
 
-  ~CommonSmearingTool();
+  ~TauEfficiencyTriggerTool();
 
   virtual StatusCode initialize();
 
-  // CommonSmearingTool pure virtual public functionality
+  // TauEfficiencyTriggerTool pure virtual public functionality
   //__________________________________________________________________________
 
-  /// Apply the correction on a modifyable object
-  virtual CP::CorrectionCode applyCorrection( xAOD::TauJet& xTau );
-  /// Create a corrected copy from a constant tau
-  virtual CP::CorrectionCode correctedCopy( const xAOD::TauJet& xTau,
-      xAOD::TauJet*& xTauCopy);
+  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& tau, double& dEfficiencyScaleFactor);
+  virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::TauJet& xTau);
 
-  virtual void setParent(TauSmearingTool* tTST);
+  virtual void setParent(TauEfficiencyCorrectionsTool* tTECT);
 
   /// returns: whether this tool is affected by the given systematis
   virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
@@ -84,40 +80,48 @@ public:
   /// ignored (unless they
   virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
 
+  virtual StatusCode setRunNumber(int iRunNumber);
 
 protected:
 
   std::string ConvertProngToString(const int& iProngness);
+  std::string convertPeriodToStr();
 
-  typedef std::map<std::string, TH1F*> SFMAP;
-  SFMAP* m_mSF;
-  TauSmearingTool* m_tTST;
-  boost::unordered_map < CP::SystematicSet, std::string > m_mSystematicSets;
-  const CP::SystematicSet* m_sSystematicSet;
-  std::map<std::string, int> m_mSystematics;
-  std::map<std::string, std::string> m_mSystematicsHistNames;
+  typedef std::tuple<TObject*,
+          CP::CorrectionCode (*)(const TObject* oObject,
+                                 double& dEfficiencyScaleFactor,
+                                 double dPt,
+                                 double dEta) > tTupleObjectFunc;
+  typedef std::map<std::string, tTupleObjectFunc > tSFMAP;
 
-  // std::function<double> m_fX;
-  double (*m_fX)(const xAOD::TauJet& xTau);
-  double (*m_fY)(const xAOD::TauJet& xTau);
-
-  template<class T>
-  void ReadInputs(TFile* fFile, std::map<std::string, T>* mMap);
+  void ReadInputs(TFile* fFile);
   virtual CP::CorrectionCode getValue(const std::string& sHistName,
                                       const xAOD::TauJet& xTau,
                                       double& dEfficiencyScaleFactor) const;
+
+  static CP::CorrectionCode getValueTH2F(const TObject* oObject,
+                                         double& dEfficiencyScaleFactor,
+                                         double dPt,
+                                         double dEta
+                                        );
+  static CP::CorrectionCode getValueTH2D(const TObject* oObject,
+                                         double& dEfficiencyScaleFactor,
+                                         double dPt,
+                                         double dEta
+                                        );
+  static CP::CorrectionCode getValueTF1(const TObject* oObject,
+                                        double& dEfficiencyScaleFactor,
+                                        double dPt,
+                                        double dEta
+                                       );
+
   e_TruthMatchedParticleType checkTruthMatch(const xAOD::TauJet& xTau) const;
   void generateSystematicSets();
 
-  std::string m_sInputFilePath;
-  std::string m_sInputFileName;
-  bool m_bSkipTruthMatchCheck;
-  bool m_bApplyFading;
-  e_TruthMatchedParticleType m_eCheckTruth;
-  bool m_bNoMultiprong;
-  CP::SystematicSet m_sAffectingSystematics;
-  CP::SystematicSet m_sRecommendedSystematics;
+  e_DataPeriod m_ePeriod;
+  int m_ePeriodBinning;
+
 };
 } // namespace TauAnalysisTools
 
-#endif // TAUANALYSISTOOLS_COMMONEFFICIENCYTOOL_H
+#endif // TAUANALYSISTOOLS_TAUEFFICIENCYTRIGGERTOOL_H

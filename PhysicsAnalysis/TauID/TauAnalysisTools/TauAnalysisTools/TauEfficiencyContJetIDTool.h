@@ -28,7 +28,7 @@ class TauEfficiencyContJetIDTool : public CommonEfficiencyTool
 
 public:
 
-  TauEfficiencyContJetIDTool(std::string sName, std::string sInputFilePath, std::string sVarName);
+  TauEfficiencyContJetIDTool(std::string sName);
 
   ~TauEfficiencyContJetIDTool();
 

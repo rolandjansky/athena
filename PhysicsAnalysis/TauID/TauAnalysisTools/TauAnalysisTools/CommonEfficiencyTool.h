@@ -22,7 +22,6 @@
 #include "xAODTau/TauJet.h"
 #include "xAODTruth/TruthParticle.h"
 #include "PATInterfaces/CorrectionCode.h"
-#include "PATInterfaces/ISystematicsTool.h"
 
 // Local include(s):
 #include "TauAnalysisTools/Enums.h"
@@ -34,6 +33,7 @@
 #include "TClass.h"
 #include "TFile.h"
 #include "TH1F.h"
+#include "TF1.h"
 #include "TKey.h"
 
 // BOOST include(s):
@@ -47,14 +47,14 @@ class TauEfficiencyCorrectionsTool;
 
 class CommonEfficiencyTool
   : public virtual ITauEfficiencyCorrectionsTool
-  , public TObject
-  , public virtual CP::ISystematicsTool
   , public asg::AsgTool
 {
+  /// Create a proper constructor for Athena
+  ASG_TOOL_CLASS( CommonEfficiencyTool, TauAnalysisTools::ITauEfficiencyCorrectionsTool )
 
 public:
 
-  CommonEfficiencyTool(std::string sName, std::string sInputFilePath = "", std::string sVarName = "", bool bSkipTruthMatchCheck = false, std::string sWP = "");
+  CommonEfficiencyTool(std::string sName);
 
   ~CommonEfficiencyTool();
 
@@ -86,8 +86,14 @@ protected:
 
   std::string ConvertProngToString(const int& iProngness);
 
-  typedef std::map<std::string, TH1F*> SFMAP;
-  SFMAP* m_mSF;
+  typedef std::tuple<TObject*,
+          CP::CorrectionCode (*)(const TObject* oObject,
+                                 double& dEfficiencyScaleFactor,
+                                 double dPt,
+                                 double dEta) > tTupleObjectFunc;
+  typedef std::map<std::string, tTupleObjectFunc > tSFMAP;
+  tSFMAP* m_mSF;
+
   TauEfficiencyCorrectionsTool* m_tTECT;
   boost::unordered_map < CP::SystematicSet, std::string > m_mSystematicSets;
   const CP::SystematicSet* m_sSystematicSet;
@@ -98,11 +104,29 @@ protected:
   double (*m_fX)(const xAOD::TauJet& xTau);
   double (*m_fY)(const xAOD::TauJet& xTau);
 
-  template<class T>
-  void ReadInputs(TFile* fFile, std::map<std::string, T>* mMap);
+  void ReadInputs(TFile* fFile);
+  void addHistogramToSFMap(TKey* kKey, const std::string& sKeyName);
+
   virtual CP::CorrectionCode getValue(const std::string& sHistName,
                                       const xAOD::TauJet& xTau,
                                       double& dEfficiencyScaleFactor) const;
+
+  static CP::CorrectionCode getValueTH2F(const TObject* oObject,
+                                         double& dEfficiencyScaleFactor,
+                                         double dPt,
+                                         double dEta
+                                        );
+  static CP::CorrectionCode getValueTH2D(const TObject* oObject,
+                                         double& dEfficiencyScaleFactor,
+                                         double dPt,
+                                         double dEta
+                                        );
+  static CP::CorrectionCode getValueTF1(const TObject* oObject,
+                                        double& dEfficiencyScaleFactor,
+                                        double dPt,
+                                        double dEta
+                                       );
+
   e_TruthMatchedParticleType checkTruthMatch(const xAOD::TauJet& xTau) const;
   void generateSystematicSets();
 
@@ -116,6 +140,9 @@ protected:
   bool m_bNoMultiprong;
   CP::SystematicSet m_sAffectingSystematics;
   CP::SystematicSet m_sRecommendedSystematics;
+
+  bool m_bSFIsAvailable;
+  bool m_bSFIsAvailableChecked;
 };
 } // namespace TauAnalysisTools
 

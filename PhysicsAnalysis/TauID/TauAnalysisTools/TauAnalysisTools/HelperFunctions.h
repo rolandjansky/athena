@@ -28,7 +28,6 @@
 
 namespace TauAnalysisTools
 {
-void createPi0Vectors(const xAOD::TauJet* xTau, std::vector<TLorentzVector>& vPi0s);
 void split(const std::string& sInput, const char cDelim, std::vector<std::string>& vOut);
 void split(TEnv& rEnv, const std::string& sIn, const char cDelim, std::vector<std::string>& vOut);
 void split(TEnv& rEnv, const std::string& sIn, const char cDelim, std::vector<size_t>& vOut);
@@ -40,6 +39,9 @@ double tauP(const xAOD::TauJet& xTau);
 double tauEta(const xAOD::TauJet& xTau);
 double tauAbsEta(const xAOD::TauJet& xTau);
 double tauLeadTrackEta(const xAOD::TauJet& xTau);
+
+bool testFileForEOFContainsCharacters(std::string sFileName);
+void createPi0Vectors(const xAOD::TauJet* xTau, std::vector<TLorentzVector>& vPi0s);
 }
 
 #endif // not TAUANALYSISTOOLS_HELPERFUNCTIONS_H

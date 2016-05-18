@@ -21,49 +21,63 @@ TauEfficiencyCorrectionsTool::TauEfficiencyCorrectionsTool( const std::string& s
     m_sInputFilePath(""),
     m_sInputFilePathRecoHadTau(""),
     m_sInputFilePathEleOLRHadTau(""),
+    m_sInputFilePathEleOLRElectron(""),
     m_sInputFilePathJetIDHadTau(""),
     m_sInputFilePathContJetIDHadTau(""),
     m_sInputFilePathEleIDHadTau(""),
+    m_sInputFilePathTriggerHadTau(""),
     m_sVarNameBase(""),
     m_sVarNameRecoHadTau(""),
     m_sVarNameEleOLRHadTau(""),
+    m_sVarNameEleOLRElectron(""),
     m_sVarNameJetIDHadTau(""),
     m_sVarNameContJetIDHadTau(""),
     m_sVarNameEleIDHadTau(""),
-    m_sRecommendationTag("mc15-pre-recommendations"),
+    m_sVarNameTriggerHadTau(""),
+    m_sRecommendationTag("mc15-moriond"),
+    m_sTriggerName(""),
     m_bSkipTruthMatchCheck(false),
     m_bNoMultiprong(false),
     m_bUseIDExclusiveSF(false),
     m_bUseInclusiveEta(false),
+    m_bUseTriggerInclusiveEta(true),
     m_bUsePtBinnedSF(false),
     m_bUseHighPtUncert(false),
     m_iIDLevel(JETIDBDTTIGHT),
     m_iEVLevel(ELEIDBDTLOOSE),
-    m_iOLRLevel(OLRLOOSEPP),
+    m_iOLRLevel(TAUELEOLR),
     m_iContSysType(TOTAL),
+    m_iTriggerPeriodBinning(PeriodBinningAll),
     m_tTauSelectionTool(0)
 {
   declareProperty( "EfficiencyCorrectionTypes", m_vEfficiencyCorrectionTypes );
   declareProperty( "InputFilePathRecoHadTau", m_sInputFilePathRecoHadTau );
   declareProperty( "InputFilePathEleOLRHadTau", m_sInputFilePathEleOLRHadTau );
+  declareProperty( "InputFilePathEleOLRElectron", m_sInputFilePathEleOLRElectron );
   declareProperty( "InputFilePathJetIDHadTau", m_sInputFilePathJetIDHadTau );
   declareProperty( "InputFilePathContJetIDHadTau", m_sInputFilePathContJetIDHadTau );
   declareProperty( "InputFilePathEleIDHadTau", m_sInputFilePathEleIDHadTau );
+  declareProperty( "InputFilePathTriggerHadTau", m_sInputFilePathTriggerHadTau );
   declareProperty( "VarNameRecoHadTau", m_sVarNameRecoHadTau );
   declareProperty( "VarNameEleOLRHadTau", m_sVarNameEleOLRHadTau );
+  declareProperty( "VarNameEleOLRElectron", m_sVarNameEleOLRElectron );
   declareProperty( "VarNameJetIDHadTau", m_sVarNameJetIDHadTau );
   declareProperty( "VarNameContJetIDHadTau", m_sVarNameContJetIDHadTau );
   declareProperty( "VarNameEleIDHadTau", m_sVarNameEleIDHadTau );
+  declareProperty( "VarNameTriggerHadTau", m_sVarNameTriggerHadTau );
   declareProperty( "RecommendationTag", m_sRecommendationTag );
+  declareProperty( "TriggerName", m_sTriggerName );
 
   declareProperty( "UseIDExclusiveSF", m_bUseIDExclusiveSF );
   declareProperty( "UseInclusiveEta", m_bUseInclusiveEta );
+  declareProperty( "UseTriggerInclusiveEta", m_bUseTriggerInclusiveEta );
   declareProperty( "UsePtBinnedSF", m_bUsePtBinnedSF );
   declareProperty( "UseHighPtUncert", m_bUseHighPtUncert );
   declareProperty( "IDLevel", m_iIDLevel );
   declareProperty( "EVLevel", m_iEVLevel );
   declareProperty( "OLRLevel", m_iOLRLevel );
   declareProperty( "ContSysType", m_iContSysType );
+  declareProperty( "TriggerPeriodBinning", m_iTriggerPeriodBinning );
 
   declareProperty( "SkipTruthMatchCheck", m_bSkipTruthMatchCheck );
 
@@ -89,11 +103,11 @@ TauEfficiencyCorrectionsTool::~TauEfficiencyCorrectionsTool()
 StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
 {
   // Greet the user:
-  ATH_MSG_DEBUG( "Initialising TauEfficiencyCorrectionsTool using TauSelectionTool" );
+  ATH_MSG_DEBUG( "Initializing TauEfficiencyCorrectionsTool using TauSelectionTool" );
 
   // configure the tool depending on cuts used in the TauSelectionTool if
   // EfficiencyCorrectionTypes have not been set
-  if (m_sRecommendationTag == "mc15-pre-recommendations" and m_vEfficiencyCorrectionTypes.size() == 0)
+  if ((m_sRecommendationTag == "mc15-pre-recommendations" or m_sRecommendationTag == "mc15-moriond") and m_vEfficiencyCorrectionTypes.size() == 0)
   {
     // add reco systematics in any case
     m_vEfficiencyCorrectionTypes.push_back(SFRecoHadTau);
@@ -143,7 +157,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
 StatusCode TauEfficiencyCorrectionsTool::initialize()
 {
   // Greet the user:
-  ATH_MSG_INFO( "Initialising TauEfficiencyCorrectionsTool" );
+  ATH_MSG_INFO( "Initializing TauEfficiencyCorrectionsTool" );
 
   if (m_bSkipTruthMatchCheck)
     ATH_MSG_WARNING("Truth match check will be skipped. This is ONLY FOR TESTING PURPOSE!");
@@ -156,7 +170,13 @@ StatusCode TauEfficiencyCorrectionsTool::initialize()
     }
 
   // configure default set of variations if not set by the constructor using TauSelectionTool or the user
-  if (m_sRecommendationTag == "mc15-pre-recommendations" and m_vEfficiencyCorrectionTypes.size() == 0)
+  if (m_sRecommendationTag == "mc15-moriond" and m_vEfficiencyCorrectionTypes.size() == 0)
+    m_vEfficiencyCorrectionTypes = {SFRecoHadTau,
+                                    SFJetIDHadTau,
+                                    SFEleOLRHadTau,
+                                    SFEleOLRElectron
+                                   };
+  else if (m_sRecommendationTag == "mc15-pre-recommendations" and m_vEfficiencyCorrectionTypes.size() == 0)
     m_vEfficiencyCorrectionTypes = {SFRecoHadTau,
                                     SFJetIDHadTau,
                                     SFEleOLRHadTau
@@ -168,7 +188,80 @@ StatusCode TauEfficiencyCorrectionsTool::initialize()
 
   std::string sDirectory = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/EfficiencyCorrections/";
 
-  if (m_sRecommendationTag == "mc15-pre-recommendations")
+  if (m_sRecommendationTag == "mc15-moriond")
+  {
+    for (auto iEfficiencyCorrectionType : m_vEfficiencyCorrectionTypes)
+    {
+      if (iEfficiencyCorrectionType == SFJetIDHadTau)
+      {
+        // only set vars if they differ from "", which means they have been configured by the user
+        if (m_sInputFilePathJetIDHadTau.empty()) m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_mc15-moriond.root";
+        if (m_sVarNameJetIDHadTau.length() == 0) m_sVarNameJetIDHadTau = "TauScaleFactorJetIDHadTau";
+        CommonEfficiencyTool* tTool = new CommonEfficiencyTool(name()+"_JetIDHadTauTool");
+        if (tTool->setProperty("InputFilePath", m_sInputFilePathJetIDHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("VarName", m_sVarNameJetIDHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("WP", ConvertJetIDToString(m_iIDLevel)).isFailure()) return StatusCode::FAILURE;
+        m_vCommonEfficiencyTools.push_back(tTool);
+      }
+      else if (iEfficiencyCorrectionType == SFEleOLRHadTau)
+      {
+        // only set vars if they differ from "", which means they have been configured by the user
+        if (m_sInputFilePathEleOLRHadTau.empty()) m_sInputFilePathEleOLRHadTau = sDirectory+"EleOLR_TrueHadTau_mc15-moriond.root";
+        if (m_sVarNameEleOLRHadTau.length() == 0) m_sVarNameEleOLRHadTau = "TauScaleFactorEleOLRHadTau";
+
+        CommonEfficiencyTool* tTool = new CommonEfficiencyTool(name()+"_EleOLRHadTauTool");
+        if (tTool->setProperty("InputFilePath", m_sInputFilePathEleOLRHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("VarName", m_sVarNameEleOLRHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck).isFailure()) return StatusCode::FAILURE;
+        m_vCommonEfficiencyTools.push_back(tTool);
+      }
+      else if (iEfficiencyCorrectionType == SFEleOLRElectron)
+      {
+        // only set vars if they differ from "", which means they have been configured by the user
+        if (m_sInputFilePathEleOLRElectron.empty()) m_sInputFilePathEleOLRElectron = sDirectory+"EleOLR_TrueElectron_mc15-moriond.root";
+        if (m_sVarNameEleOLRElectron.length() == 0) m_sVarNameEleOLRElectron = "TauScaleFactorEleOLRElectron";
+
+        CommonEfficiencyTool* tTool = new CommonEfficiencyTool(name()+"_EleOLRElectronTool");
+        if (tTool->setProperty("InputFilePath", m_sInputFilePathEleOLRElectron).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("VarName", m_sVarNameEleOLRElectron).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("WP", ConvertEleOLRToString(m_iOLRLevel)).isFailure()) return StatusCode::FAILURE;
+        m_vCommonEfficiencyTools.push_back(tTool);
+      }
+      else if (iEfficiencyCorrectionType == SFRecoHadTau)
+      {
+        // only set vars if they differ from "", which means they have been configured by the user
+        if (m_sInputFilePathRecoHadTau.empty()) m_sInputFilePathRecoHadTau = sDirectory+"Reco_TrueHadTau_mc15-prerec.root";
+        if (m_sVarNameRecoHadTau.length() == 0) m_sVarNameRecoHadTau = "TauScaleFactorReconstructionHadTau";
+
+        CommonEfficiencyTool* tTool = new CommonEfficiencyTool(name()+"_ReconstructionHadTauTool");
+        if (tTool->setProperty("InputFilePath", m_sInputFilePathRecoHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("VarName", m_sVarNameRecoHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck).isFailure()) return StatusCode::FAILURE;
+        m_vCommonEfficiencyTools.push_back(tTool);
+      }
+      else if (iEfficiencyCorrectionType == SFTriggerHadTau)
+      {
+        // only set vars if they differ from "", which means they have been configured by the user
+        if (m_sInputFilePathTriggerHadTau.empty())
+        {
+          if (m_sTriggerName.empty()) ATH_MSG_FATAL("Property \"Trigger\" was not set, please provide a trigger name.");
+          if (m_bUseTriggerInclusiveEta) m_sInputFilePathTriggerHadTau = sDirectory+"Trigger/Trigger_TrueHadTau_mc15-prerec_"+m_sTriggerName+"_etainc.root";
+          else m_sInputFilePathTriggerHadTau                           = sDirectory+"Trigger/Trigger_TrueHadTau_mc15-prerec_"+m_sTriggerName+"_etaexcl.root";
+        }
+        if (m_sVarNameTriggerHadTau.length() == 0) m_sVarNameTriggerHadTau = "TauScaleFactorTriggerHadTau";
+        CommonEfficiencyTool* tTool = new TauEfficiencyTriggerTool(name()+"_TriggerHadTauTool");
+        if (tTool->setProperty("InputFilePath", m_sInputFilePathTriggerHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("VarName", m_sVarNameTriggerHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("WP", ConvertTriggerIDToString(m_iIDLevel)).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("PeriodBinning", (int)m_iTriggerPeriodBinning).isFailure()) return StatusCode::FAILURE;
+        m_vCommonEfficiencyTools.push_back(tTool);
+      }
+    }
+  }
+  else if (m_sRecommendationTag == "mc15-pre-recommendations")
   {
     for (auto iEfficiencyCorrectionType : m_vEfficiencyCorrectionTypes)
     {
@@ -177,35 +270,53 @@ StatusCode TauEfficiencyCorrectionsTool::initialize()
         // only set vars if they differ from "", which means they have been configured by the user
         if (m_sInputFilePathJetIDHadTau.empty()) m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_mc15-prerec.root";
         if (m_sVarNameJetIDHadTau.length() == 0) m_sVarNameJetIDHadTau = "TauScaleFactorJetIDHadTau";
-        CommonEfficiencyTool* tTool = new CommonEfficiencyTool(name()+"_JetIDHadTauTool", m_sInputFilePathJetIDHadTau, m_sVarNameJetIDHadTau, m_bSkipTruthMatchCheck, ConvertJetIDToString(m_iIDLevel));
+        CommonEfficiencyTool* tTool = new CommonEfficiencyTool(name()+"_JetIDHadTauTool");
+        if (tTool->setProperty("InputFilePath", m_sInputFilePathJetIDHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("VarName", m_sVarNameJetIDHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("WP", ConvertJetIDToString(m_iIDLevel)).isFailure()) return StatusCode::FAILURE;
         m_vCommonEfficiencyTools.push_back(tTool);
       }
-      if (iEfficiencyCorrectionType == SFEleOLRHadTau)
+      else if (iEfficiencyCorrectionType == SFEleOLRHadTau)
       {
         // only set vars if they differ from "", which means they have been configured by the user
         if (m_sInputFilePathEleOLRHadTau.empty()) m_sInputFilePathEleOLRHadTau = sDirectory+"EleOLR_TrueHadTau_mc15-prerec.root";
         if (m_sVarNameEleOLRHadTau.length() == 0) m_sVarNameEleOLRHadTau = "TauScaleFactorEleOLRHadTau";
 
-        CommonEfficiencyTool* tTool = new CommonEfficiencyTool(name()+"_EleOLRHadTauTool", m_sInputFilePathEleOLRHadTau, m_sVarNameEleOLRHadTau, m_bSkipTruthMatchCheck);
+        CommonEfficiencyTool* tTool = new CommonEfficiencyTool(name()+"_EleOLRHadTauTool");
+        if (tTool->setProperty("InputFilePath", m_sInputFilePathEleOLRHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("VarName", m_sVarNameEleOLRHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck).isFailure()) return StatusCode::FAILURE;
         m_vCommonEfficiencyTools.push_back(tTool);
       }
-      // else if (iEfficiencyCorrectionType == SFEleOLRElectron)
-      // {
-      // 	// only set vars if they differ from "", which means they have been configured by the user
-      // 	if (m_sInputFilePath.empty()) m_sInputFilePath = sDirectory+"EleOLR.root";
-      // 	if (m_sVarNameBase.length() == 0) m_sVarNameBase = "TauScaleFactorEleOLRElectron";
-      // 	m_bNoMultiprong = true;
-      // 	m_bCheckTruth = false;
-      // 	m_tCommonEfficiencyTool.reset(new TauEfficiencyEleOLRTool(name()+"TauEfficiencyEleOLRElectronTool"));
-      // }
-      //else
       else if (iEfficiencyCorrectionType == SFRecoHadTau)
       {
         // only set vars if they differ from "", which means they have been configured by the user
         if (m_sInputFilePathRecoHadTau.empty()) m_sInputFilePathRecoHadTau = sDirectory+"Reco_TrueHadTau_mc15-prerec.root";
         if (m_sVarNameRecoHadTau.length() == 0) m_sVarNameRecoHadTau = "TauScaleFactorReconstructionHadTau";
 
-        CommonEfficiencyTool* tTool = new CommonEfficiencyTool(name()+"_ReconstructionHadTauTool", m_sInputFilePathRecoHadTau, m_sVarNameRecoHadTau, m_bSkipTruthMatchCheck);
+        CommonEfficiencyTool* tTool = new CommonEfficiencyTool(name()+"_ReconstructionHadTauTool");
+        if (tTool->setProperty("InputFilePath", m_sInputFilePathRecoHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("VarName", m_sVarNameRecoHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck).isFailure()) return StatusCode::FAILURE;
+        m_vCommonEfficiencyTools.push_back(tTool);
+      }
+      else if (iEfficiencyCorrectionType == SFTriggerHadTau)
+      {
+        // only set vars if they differ from "", which means they have been configured by the user
+        if (m_sInputFilePathTriggerHadTau.empty())
+        {
+          if (m_sTriggerName.empty()) ATH_MSG_FATAL("Property \"Trigger\" was not set, please provide a trigger name.");
+          if (m_bUseTriggerInclusiveEta) m_sInputFilePathTriggerHadTau = sDirectory+"Trigger/Trigger_TrueHadTau_mc15-prerec_"+m_sTriggerName+"_etainc.root";
+          else m_sInputFilePathTriggerHadTau                           = sDirectory+"Trigger/Trigger_TrueHadTau_mc15-prerec_"+m_sTriggerName+"_etaexcl.root";
+        }
+        if (m_sVarNameTriggerHadTau.length() == 0) m_sVarNameTriggerHadTau = "TauScaleFactorTriggerHadTau";
+        CommonEfficiencyTool* tTool = new TauEfficiencyTriggerTool(name()+"_TriggerHadTauTool");
+        if (tTool->setProperty("InputFilePath", m_sInputFilePathTriggerHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("VarName", m_sVarNameTriggerHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("WP", ConvertTriggerIDToString(m_iIDLevel)).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("PeriodBinning", (int)m_iTriggerPeriodBinning).isFailure()) return StatusCode::FAILURE;
         m_vCommonEfficiencyTools.push_back(tTool);
       }
     }
@@ -231,7 +342,9 @@ StatusCode TauEfficiencyCorrectionsTool::initialize()
           }
         }
         if (m_sVarNameJetIDHadTau.length() == 0) m_sVarNameJetIDHadTau = "TauScaleFactorJetIDHadTau";
-        CommonEfficiencyTool* tTool = new TauEfficiencyJetIDTool(name()+"_JetIDHadTauTool", m_sInputFilePathJetIDHadTau, m_sVarNameJetIDHadTau);
+        CommonEfficiencyTool* tTool = new TauEfficiencyJetIDTool(name()+"_JetIDHadTauTool");
+        if (tTool->setProperty("InputFilePath", m_sInputFilePathJetIDHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("VarName", m_sVarNameJetIDHadTau).isFailure()) return StatusCode::FAILURE;
         tTool->setParent(this);
         m_vCommonEfficiencyTools.push_back(tTool);
 
@@ -241,7 +354,9 @@ StatusCode TauEfficiencyCorrectionsTool::initialize()
         // only set vars if they differ from "", which means they have been configured by the user
         if (m_sInputFilePathContJetIDHadTau.empty()) m_sInputFilePathContJetIDHadTau = sDirectory+"ContJetIDSF.root";
         if (m_sVarNameContJetIDHadTau.length() == 0) m_sVarNameContJetIDHadTau = "TauScaleFactorContJetIDHadTau";
-        CommonEfficiencyTool* tTool = new TauEfficiencyContJetIDTool(name()+"TauEfficiencyContJetIDHadTauTool", m_sInputFilePathContJetIDHadTau, m_sVarNameContJetIDHadTau);
+        CommonEfficiencyTool* tTool = new TauEfficiencyContJetIDTool(name()+"TauEfficiencyContJetIDHadTauTool");
+        if (tTool->setProperty("InputFilePath", m_sInputFilePathContJetIDHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("VarName", m_sVarNameContJetIDHadTau).isFailure()) return StatusCode::FAILURE;
         tTool->setParent(this);
         m_vCommonEfficiencyTools.push_back(tTool);
       }
@@ -250,7 +365,9 @@ StatusCode TauEfficiencyCorrectionsTool::initialize()
         // only set vars if they differ from "", which means they have been configured by the user
         if (m_sInputFilePathEleIDHadTau.empty()) m_sInputFilePathEleIDHadTau = sDirectory+"EleID_TrueHadTau_mc12-final.root";
         if (m_sVarNameEleIDHadTau.length() == 0) m_sVarNameEleIDHadTau = "TauScaleFactorEleIDHadTau";
-        CommonEfficiencyTool* tTool = new TauEfficiencyEleIDTool(name()+"TauEfficiencyEleIDHadTauTool", m_sInputFilePathEleIDHadTau, m_sVarNameEleIDHadTau);
+        CommonEfficiencyTool* tTool = new TauEfficiencyEleIDTool(name()+"TauEfficiencyEleIDHadTauToolg");
+        if (tTool->setProperty("InputFilePath", m_sInputFilePathEleIDHadTau).isFailure()) return StatusCode::FAILURE;
+        if (tTool->setProperty("VarName", m_sVarNameEleIDHadTau).isFailure()) return StatusCode::FAILURE;
         tTool->setParent(this);
         m_vCommonEfficiencyTools.push_back(tTool);
       }
@@ -287,54 +404,65 @@ void TauEfficiencyCorrectionsTool::printConfig(bool bAlways)
 {
   if (bAlways)
   {
+    ATH_MSG_DEBUG( "TauEfficiencyCorrectionsTool with name " << name() << " is configured as follows:" );
     for (auto iEfficiencyCorrectionType : m_vEfficiencyCorrectionTypes)
-      ATH_MSG_ALWAYS( "EfficiencyCorrectionTypes " << iEfficiencyCorrectionType );
-    ATH_MSG_ALWAYS( "InputFilePathRecoHadTau " << m_sInputFilePathRecoHadTau );
-    ATH_MSG_ALWAYS( "InputFilePathEleOLRHadTau " << m_sInputFilePathEleOLRHadTau );
-    ATH_MSG_ALWAYS( "InputFilePathJetIDHadTau " << m_sInputFilePathJetIDHadTau );
-    ATH_MSG_ALWAYS( "InputFilePathContJetIDHadTau " << m_sInputFilePathContJetIDHadTau );
-    ATH_MSG_ALWAYS( "InputFilePathEleIDHadTau " << m_sInputFilePathEleIDHadTau );
-    ATH_MSG_ALWAYS( "VarNameRecoHadTau " << m_sVarNameRecoHadTau );
-    ATH_MSG_ALWAYS( "VarNameEleOLRHadTau " << m_sVarNameEleOLRHadTau );
-    ATH_MSG_ALWAYS( "VarNameJetIDHadTau " << m_sVarNameJetIDHadTau );
-    ATH_MSG_ALWAYS( "VarNameContJetIDHadTau " << m_sVarNameContJetIDHadTau );
-    ATH_MSG_ALWAYS( "VarNameEleIDHadTau " << m_sVarNameEleIDHadTau );
-    ATH_MSG_ALWAYS( "RecommendationTag " << m_sRecommendationTag );
+      ATH_MSG_ALWAYS( "  EfficiencyCorrectionTypes " << iEfficiencyCorrectionType );
+    ATH_MSG_ALWAYS( "  InputFilePathRecoHadTau " << m_sInputFilePathRecoHadTau );
+    ATH_MSG_ALWAYS( "  InputFilePathEleOLRHadTau " << m_sInputFilePathEleOLRHadTau );
+    ATH_MSG_ALWAYS( "  InputFilePathJetIDHadTau " << m_sInputFilePathJetIDHadTau );
+    ATH_MSG_ALWAYS( "  InputFilePathContJetIDHadTau " << m_sInputFilePathContJetIDHadTau );
+    ATH_MSG_ALWAYS( "  InputFilePathEleIDHadTau " << m_sInputFilePathEleIDHadTau );
+    ATH_MSG_ALWAYS( "  InputFilePathTriggerHadTau " << m_sInputFilePathTriggerHadTau );
+    ATH_MSG_ALWAYS( "  VarNameRecoHadTau " << m_sVarNameRecoHadTau );
+    ATH_MSG_ALWAYS( "  VarNameEleOLRHadTau " << m_sVarNameEleOLRHadTau );
+    ATH_MSG_ALWAYS( "  VarNameJetIDHadTau " << m_sVarNameJetIDHadTau );
+    ATH_MSG_ALWAYS( "  VarNameContJetIDHadTau " << m_sVarNameContJetIDHadTau );
+    ATH_MSG_ALWAYS( "  VarNameEleIDHadTau " << m_sVarNameEleIDHadTau );
+    ATH_MSG_ALWAYS( "  VarNameTriggerHadTau " << m_sVarNameTriggerHadTau );
+    ATH_MSG_ALWAYS( "  RecommendationTag " << m_sRecommendationTag );
+    ATH_MSG_ALWAYS( "  TriggerName " << m_sTriggerName );
 
-    ATH_MSG_ALWAYS( "UseIDExclusiveSF " << m_bUseIDExclusiveSF );
-    ATH_MSG_ALWAYS( "UseInclusiveEta " << m_bUseInclusiveEta );
-    ATH_MSG_ALWAYS( "UsePtBinnedSF " << m_bUsePtBinnedSF );
-    ATH_MSG_ALWAYS( "UseHighPtUncert " << m_bUseHighPtUncert );
-    ATH_MSG_ALWAYS( "IDLevel " << m_iIDLevel );
-    ATH_MSG_ALWAYS( "EVLevel " << m_iEVLevel );
-    ATH_MSG_ALWAYS( "OLRLevel " << m_iOLRLevel );
-    ATH_MSG_ALWAYS( "ContSysType " << m_iContSysType );
+    ATH_MSG_ALWAYS( "  UseIDExclusiveSF " << m_bUseIDExclusiveSF );
+    ATH_MSG_ALWAYS( "  UseInclusiveEta " << m_bUseInclusiveEta );
+    ATH_MSG_ALWAYS( "  UseTriggerInclusiveEta " << m_bUseTriggerInclusiveEta );
+    ATH_MSG_ALWAYS( "  UsePtBinnedSF " << m_bUsePtBinnedSF );
+    ATH_MSG_ALWAYS( "  UseHighPtUncert " << m_bUseHighPtUncert );
+    ATH_MSG_ALWAYS( "  IDLevel " << m_iIDLevel );
+    ATH_MSG_ALWAYS( "  EVLevel " << m_iEVLevel );
+    ATH_MSG_ALWAYS( "  OLRLevel " << m_iOLRLevel );
+    ATH_MSG_ALWAYS( "  ContSysType " << m_iContSysType );
+    ATH_MSG_ALWAYS( "  TriggerPeriodBinning " << m_iTriggerPeriodBinning );
   }
   else
   {
     ATH_MSG_DEBUG( "TauEfficiencyCorrectionsTool with name " << name() << " is configured as follows:" );
     for (auto iEfficiencyCorrectionType : m_vEfficiencyCorrectionTypes)
-      ATH_MSG_DEBUG( "EfficiencyCorrectionTypes " << iEfficiencyCorrectionType );
-    ATH_MSG_DEBUG( "InputFilePathRecoHadTau " << m_sInputFilePathRecoHadTau );
-    ATH_MSG_DEBUG( "InputFilePathEleOLRHadTau " << m_sInputFilePathEleOLRHadTau );
-    ATH_MSG_DEBUG( "InputFilePathJetIDHadTau " << m_sInputFilePathJetIDHadTau );
-    ATH_MSG_DEBUG( "InputFilePathContJetIDHadTau " << m_sInputFilePathContJetIDHadTau );
-    ATH_MSG_DEBUG( "InputFilePathEleIDHadTau " << m_sInputFilePathEleIDHadTau );
-    ATH_MSG_DEBUG( "VarNameRecoHadTau " << m_sVarNameRecoHadTau );
-    ATH_MSG_DEBUG( "VarNameEleOLRHadTau " << m_sVarNameEleOLRHadTau );
-    ATH_MSG_DEBUG( "VarNameJetIDHadTau " << m_sVarNameJetIDHadTau );
-    ATH_MSG_DEBUG( "VarNameContJetIDHadTau " << m_sVarNameContJetIDHadTau );
-    ATH_MSG_DEBUG( "VarNameEleIDHadTau " << m_sVarNameEleIDHadTau );
-    ATH_MSG_DEBUG( "RecommendationTag " << m_sRecommendationTag );
+      ATH_MSG_DEBUG( "  EfficiencyCorrectionTypes " << iEfficiencyCorrectionType );
+    ATH_MSG_DEBUG( "  InputFilePathRecoHadTau " << m_sInputFilePathRecoHadTau );
+    ATH_MSG_DEBUG( "  InputFilePathEleOLRHadTau " << m_sInputFilePathEleOLRHadTau );
+    ATH_MSG_DEBUG( "  InputFilePathJetIDHadTau " << m_sInputFilePathJetIDHadTau );
+    ATH_MSG_DEBUG( "  InputFilePathContJetIDHadTau " << m_sInputFilePathContJetIDHadTau );
+    ATH_MSG_DEBUG( "  InputFilePathEleIDHadTau " << m_sInputFilePathEleIDHadTau );
+    ATH_MSG_DEBUG( "  InputFilePathTriggerHadTau " << m_sInputFilePathTriggerHadTau );
+    ATH_MSG_DEBUG( "  VarNameRecoHadTau " << m_sVarNameRecoHadTau );
+    ATH_MSG_DEBUG( "  VarNameEleOLRHadTau " << m_sVarNameEleOLRHadTau );
+    ATH_MSG_DEBUG( "  VarNameJetIDHadTau " << m_sVarNameJetIDHadTau );
+    ATH_MSG_DEBUG( "  VarNameContJetIDHadTau " << m_sVarNameContJetIDHadTau );
+    ATH_MSG_DEBUG( "  VarNameEleIDHadTau " << m_sVarNameEleIDHadTau );
+    ATH_MSG_DEBUG( "  VarNameTriggerHadTau " << m_sVarNameTriggerHadTau );
+    ATH_MSG_DEBUG( "  RecommendationTag " << m_sRecommendationTag );
+    ATH_MSG_DEBUG( "  TriggerName " << m_sTriggerName );
 
-    ATH_MSG_DEBUG( "UseIDExclusiveSF " << m_bUseIDExclusiveSF );
-    ATH_MSG_DEBUG( "UseInclusiveEta " << m_bUseInclusiveEta );
-    ATH_MSG_DEBUG( "UsePtBinnedSF " << m_bUsePtBinnedSF );
-    ATH_MSG_DEBUG( "UseHighPtUncert " << m_bUseHighPtUncert );
-    ATH_MSG_DEBUG( "IDLevel " << m_iIDLevel );
-    ATH_MSG_DEBUG( "EVLevel " << m_iEVLevel );
-    ATH_MSG_DEBUG( "OLRLevel " << m_iOLRLevel );
-    ATH_MSG_DEBUG( "ContSysType " << m_iContSysType );
+    ATH_MSG_DEBUG( "  UseIDExclusiveSF " << m_bUseIDExclusiveSF );
+    ATH_MSG_DEBUG( "  UseInclusiveEta " << m_bUseInclusiveEta );
+    ATH_MSG_DEBUG( "  UseTriggerInclusiveEta " << m_bUseTriggerInclusiveEta );
+    ATH_MSG_DEBUG( "  UsePtBinnedSF " << m_bUsePtBinnedSF );
+    ATH_MSG_DEBUG( "  UseHighPtUncert " << m_bUseHighPtUncert );
+    ATH_MSG_DEBUG( "  IDLevel " << m_iIDLevel );
+    ATH_MSG_DEBUG( "  EVLevel " << m_iEVLevel );
+    ATH_MSG_DEBUG( "  OLRLevel " << m_iOLRLevel );
+    ATH_MSG_DEBUG( "  ContSysType " << m_iContSysType );
+    ATH_MSG_DEBUG( "  TriggerPeriodBinning " << m_iTriggerPeriodBinning );
   }
 }
 
@@ -405,6 +533,16 @@ CP::SystematicCode TauEfficiencyCorrectionsTool::applySystematicVariation ( cons
   return CP::SystematicCode::Ok;
 }
 
+//______________________________________________________________________________
+StatusCode TauEfficiencyCorrectionsTool::setRunNumber(int iRunNumber)
+{
+  // avoid compiler warning
+  (void)iRunNumber;
+  ATH_MSG_FATAL("Functionality not fully implemented, sorry.");
+  return StatusCode::FAILURE;
+}
+
+
 //=================================PRIVATE-PART=================================
 //______________________________________________________________________________
 std::string TauEfficiencyCorrectionsTool::ConvertJetIDToString(const int& iLevel)
@@ -443,6 +581,50 @@ std::string TauEfficiencyCorrectionsTool::ConvertJetIDToString(const int& iLevel
     break;
   default:
     assert(false && "No valid ID level passed. Breaking up ...");
+    break;
+  }
+  return "";
+}
+
+std::string TauEfficiencyCorrectionsTool::ConvertEleOLRToString(const int& iLevel)
+{
+  switch(iLevel)
+  {
+  case TAUELEOLR:
+    return "TauEleOLR";
+    break;
+  case ELELOOSELLHOLR:
+    return "EleLooseLLHOLR";
+    break;
+  case ELEMEDIUMLLHOLR:
+    return "EleMediumLLHOLR";
+    break;
+  case ELETIGHTLLHOLR:
+    return "EleTightLLHOLR";
+    break;
+  default:
+    assert(false && "No valid electron OLR passed. Breaking up ...");
+    break;
+  }
+  return "";
+}
+
+//______________________________________________________________________________
+std::string TauEfficiencyCorrectionsTool::ConvertTriggerIDToString(const int& iLevel)
+{
+  switch(iLevel)
+  {
+  case JETIDBDTLOOSE:
+    return "loose";
+    break;
+  case JETIDBDTMEDIUM:
+    return "medium";
+    break;
+  case JETIDBDTTIGHT:
+    return "tight";
+    break;
+  default:
+    assert(false && "No valid Trigger ID level passed. Breaking up ...");
     break;
   }
   return "";

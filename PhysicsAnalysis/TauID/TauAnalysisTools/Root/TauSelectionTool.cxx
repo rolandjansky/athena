@@ -5,16 +5,21 @@
 // Local include(s):
 #include "TauAnalysisTools/TauSelectionTool.h"
 #include "TauAnalysisTools/SharedFilesVersion.h"
+#include "TauAnalysisTools/SelectionCuts.h"
 
 // Framework include(s):
 #include "PathResolver/PathResolver.h"
+
+// ROOT include(s)
+#include "TEnv.h"
+#include "THashList.h"
 
 using namespace TauAnalysisTools;
 
 //=================================PUBLIC-PART==================================
 //______________________________________________________________________________
 TauSelectionTool::TauSelectionTool( const std::string& name )
-  : asg::AsgTool( name )
+  : asg::AsgMetadataTool( name )
   , m_iSelectionCuts(NoCut) // initialize with 'no' cuts
   , m_vPtRegion( {})
 , m_vAbsEtaRegion( {})
@@ -93,10 +98,15 @@ TauSelectionTool::~TauSelectionTool()
 //______________________________________________________________________________
 StatusCode TauSelectionTool::initialize()
 {
-  if (m_sConfigPath!="")
+  if (!m_sConfigPath.empty())
   {
     TEnv rEnv;
-    rEnv.ReadFile(PathResolverFindCalibFile(m_sConfigPath).c_str(),
+    std::string sInputFilePath = PathResolverFindCalibFile(m_sConfigPath);
+
+    if (!testFileForEOFContainsCharacters(sInputFilePath))
+      ATH_MSG_WARNING("Config file for TauSelectionTool with path "<<sInputFilePath<<" does not contain an empty last line. The tool might be not properly configured!");
+
+    rEnv.ReadFile(sInputFilePath.c_str(),
                   kEnvAll);
 
     std::vector<std::string> m_vCuts;
@@ -259,7 +269,7 @@ StatusCode TauSelectionTool::initialize()
     {CutMuonVeto, new TauAnalysisTools::SelectionCutMuonVeto(this)}
   };
 
-  ATH_MSG_INFO( "Initialising TauSelectionTool" );
+  ATH_MSG_INFO( "Initializing TauSelectionTool" );
   FillRegionVector(m_vPtRegion, m_dPtMin, m_dPtMax);
   FillRegionVector(m_vAbsEtaRegion, m_dAbsEtaMin, m_dAbsEtaMax);
   FillRegionVector(m_vJetBDTRegion, m_dJetBDTMin, m_dJetBDTMax );
@@ -306,8 +316,16 @@ StatusCode TauSelectionTool::initialize()
 //______________________________________________________________________________
 StatusCode TauSelectionTool::initializeEvent()
 {
-  if (m_bEleOLR)
-    return (m_cMap[CutEleOLR])->initializeEvent();
+  return beginEvent();
+}
+
+//______________________________________________________________________________
+StatusCode TauSelectionTool::beginEvent()
+{
+  SelectionCutEleOLR* tSelectionCutEleOLR = dynamic_cast<SelectionCutEleOLR*>(m_cMap.at(CutEleOLR));
+  if (tSelectionCutEleOLR!=nullptr)
+    if (tSelectionCutEleOLR->beginEvent().isFailure())
+      return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
 }
 
@@ -350,7 +368,10 @@ const Root::TAccept& TauSelectionTool::accept( const xAOD::TauJet& xTau ) const
   m_aAccept.clear();
   int iNBin = 0;
   if (m_iSelectionCuts & CutEleOLR)
-    dynamic_cast<SelectionCutEleOLR*>(m_cMap.at(CutEleOLR))->getEvetoPass(xTau);
+  {
+    SelectionCutEleOLR* tSelectionCutEleOLR = dynamic_cast<SelectionCutEleOLR*>(m_cMap.at(CutEleOLR));
+    if (tSelectionCutEleOLR!=nullptr) tSelectionCutEleOLR->getEvetoPass(xTau);
+  }
 
   if (m_bCreateControlPlots)
   {
@@ -394,11 +415,6 @@ const Root::TAccept& TauSelectionTool::accept( const xAOD::TauJet& xTau ) const
 
   // // Return the result:
   return m_aAccept;
-}
-
-void TauSelectionTool::setRecommendedProperties()
-{
-  ATH_MSG_FATAL("This function is deprecated. Recommended properties are set now by default. For further information please refer to the README: https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst");
 }
 
 //______________________________________________________________________________

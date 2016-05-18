@@ -10,19 +10,30 @@
 #include "TauAnalysisTools/TauSmearingTool.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
+// ROOT include(s)
+#include "TF1.h"
+
 using namespace TauAnalysisTools;
 
 //______________________________________________________________________________
-CommonSmearingTool::CommonSmearingTool(std::string sName, std::string sInputFilePath, bool bSkipTruthMatchCheck)
+CommonSmearingTool::CommonSmearingTool(std::string sName)
   : asg::AsgTool( sName )
   , m_mSF(0)
   , m_tTST(0)
   , m_sSystematicSet(0)
-  , m_sInputFilePath(sInputFilePath)
-  , m_bSkipTruthMatchCheck(bSkipTruthMatchCheck)
+  , m_fX(&tauPt)
+  , m_fY(&tauEta)
+  , m_sInputFilePath("")
+  , m_bSkipTruthMatchCheck(false)
+  , m_bApplyFading(true)
   , m_eCheckTruth(TauAnalysisTools::Unknown)
+  , m_bNoMultiprong(false)
 {
   m_mSystematics = {};
+
+  declareProperty("InputFilePath", m_sInputFilePath);
+  declareProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck);
+  declareProperty("ApplyFading", m_bApplyFading);
 }
 
 CommonSmearingTool::~CommonSmearingTool()
@@ -232,7 +243,7 @@ std::string CommonSmearingTool::ConvertProngToString(const int& fProngness)
 {
   std::string prong = "";
   if (fProngness == 0)
-    ATH_MSG_WARNING("passed tau with 0 tracks, which is not supported, taking multiprong SF for now");
+    ATH_MSG_DEBUG("passed tau with 0 tracks, which is not supported, taking multiprong SF for now");
   fProngness == 1 ? prong = "_1p" : prong = "_3p";
   return prong;
 }
@@ -370,6 +381,19 @@ CP::CorrectionCode CommonSmearingTool::getValue(const std::string& sHistName,
 
   int iBin = hHist->FindFixBin(dPt,dEta);
   dEfficiencyScaleFactor = hHist->GetBinContent(iBin);
+
+  if (m_bApplyFading)
+  {
+    std::string sTitle = hHist->GetTitle();
+    if (sTitle.size()>0)
+    {
+      TF1 f("",sTitle.c_str(), 0, 1000);
+      if (sHistName.find("sf_") != std::string::npos)
+        dEfficiencyScaleFactor = (dEfficiencyScaleFactor -1) *f.Eval(dPt) + 1;
+      else
+        dEfficiencyScaleFactor *= f.Eval(dPt);
+    }
+  }
   return CP::CorrectionCode::Ok;
 }
 
@@ -381,7 +405,8 @@ e_TruthMatchedParticleType CommonSmearingTool::checkTruthMatch(const xAOD::TauJe
   if (!xTau.isAvailable< Link_t >("truthParticleLink"))
     ATH_MSG_ERROR("No truth match information available. Please run TauTruthMatchingTool first.");
 
-  const Link_t xTruthParticleLink = xTau.auxdata< Link_t > ("truthParticleLink");
+  static SG::AuxElement::Accessor<Link_t> accTruthParticleLink("truthParticleLink");
+  const Link_t xTruthParticleLink = accTruthParticleLink(xTau);
 
   // if there is no link, then it is a truth jet
   e_TruthMatchedParticleType eTruthMatchedParticleType = TauAnalysisTools::TruthJet;
@@ -391,7 +416,8 @@ e_TruthMatchedParticleType CommonSmearingTool::checkTruthMatch(const xAOD::TauJe
     const xAOD::TruthParticle* xTruthParticle = *xTruthParticleLink;
     if (xTruthParticle->isTau())
     {
-      if ((bool)xTruthParticle->auxdata<char>("IsHadronicTau"))
+      static SG::AuxElement::ConstAccessor<char> accIsHadronicTau("IsHadronicTau");
+      if ((bool)accIsHadronicTau(*xTruthParticle))
       {
         eTruthMatchedParticleType = TruthHadronicTau;
       }

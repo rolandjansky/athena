@@ -18,7 +18,7 @@
 */
 
 // Framework include(s):
-#include "AsgTools/AsgTool.h"
+#include "AsgTools/AsgMetadataTool.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
 // EDM include(s):
@@ -33,14 +33,18 @@
 namespace TauAnalysisTools
 {
 
+class SelectionCutEleOLR;
+
 class TauOverlappingElectronLLHDecorator
   : public virtual ITauOverlappingElectronLLHDecorator
-  , public asg::AsgTool
+  , public asg::AsgMetadataTool
 {
 
   /// Create a proper constructor for Athena
   ASG_TOOL_CLASS( TauOverlappingElectronLLHDecorator,
                   TauAnalysisTools::ITauOverlappingElectronLLHDecorator )
+
+  friend class SelectionCutEleOLR;
 
 public:
   /// Create a constructor for standalone usage
@@ -51,7 +55,7 @@ public:
   /// Function initialising the tool
   virtual StatusCode initialize();
 
-  virtual StatusCode initializeEvent();
+  virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauOverlappingElectronLLHDecorator.rst")));
 
   virtual StatusCode decorate(const xAOD::TauJet& xTau);
 
@@ -65,6 +69,15 @@ private:
 
 private:
   float getCutVal(float fEta, float fPt);
+  StatusCode retrieveElectrons();
+  virtual StatusCode beginEvent();
+
+private:
+  bool m_bEleOLRMatchAvailable;
+  bool m_bEleOLRMatchAvailableChecked;
+  bool m_bNewEvent;
+
+  std::string m_sElectronPhotonSelectorToolsConfigFile;
 
 }; // class TauOverlappingElectronLLHDecorator
 

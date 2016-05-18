@@ -28,6 +28,7 @@
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertex.h"
+#include "xAODTau/TauJet.h"
 
 // EDM include(s):
 #include "PATInterfaces/CorrectionCode.h"
@@ -36,6 +37,12 @@
 
 namespace TauAnalysisTools
 {
+
+#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
+typedef xAOD::TauTrack TAUTRACKPARTICLE;
+#else
+typedef xAOD::TrackParticle TAUTRACKPARTICLE;
+#endif  // XAODTAU_VERSIONS_TAUJET_V3_H
 
 class ITauTruthTrackMatchingTool : public virtual asg::IAsgTool
 {
@@ -48,10 +55,10 @@ public:
   virtual StatusCode initialize() = 0;
 
   // classify vector of tracks
-  virtual StatusCode classifyTracks(std::vector<const xAOD::TrackParticle*>& vTracks) = 0;
+  virtual StatusCode classifyTracks(std::vector<const TAUTRACKPARTICLE*>& vTracks) = 0;
 
   // classify a single track
-  virtual StatusCode classifyTrack(const xAOD::TrackParticle& xTrackParticle) = 0;
+  virtual StatusCode classifyTrack(const TAUTRACKPARTICLE& xTrackParticle) = 0;
 
 }; // class ITauTruthTrackMatchingTool
 

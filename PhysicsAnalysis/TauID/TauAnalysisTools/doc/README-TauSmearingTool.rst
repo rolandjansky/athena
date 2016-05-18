@@ -75,13 +75,22 @@ Overview
 The tool can be used to apply tau pt smearing for a specific
 ``RecommendationTag``:
 
-+-------------------------------+------------------+----------------------------+----------------------------+
-| property name                 | type             | default value              | other sensible values      |
-+===============================+==================+============================+============================+
-| RecommendationTag             | std::string      | "mc15-pre-recommendations" | "mc12-final", "mc11-final" |
-+-------------------------------+------------------+----------------------------+----------------------------+
++-------------------------------+------------------+----------------+--------------------------------------------------------+
+| property name                 | type             | default value  | other sensible values                                  |
++===============================+==================+================+========================================================+
+| RecommendationTag             | std::string      | "mc15-moriond" | "mc15-pre-recommendations", "mc12-final", "mc11-final" |
++-------------------------------+------------------+----------------+--------------------------------------------------------+
 
-For the default ``RecommendationTag`` "mc15-pre-recommendations" the following
+For the default ``RecommendationTag`` "mc15-moriond" the following properties
+are available for tool steering:
+
++-------------------------------+------------------+------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------+
+| property name                 | type             | default value                                                                            | other sensible values                                                         |
++===============================+==================+==========================================================================================+===============================================================================+
+| InputFilePath                 | std::string      | "TauAnalysisTools/"+ ``SharedFilesVersion`` +"Smearing/TES_TrueHadTau_mc15_moriond.root" |                                                                               |
++-------------------------------+------------------+------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------+
+
+For the ``RecommendationTag`` "mc15-pre-recommendations" the following
 properties are available for tool steering:
 
 +-------------------------------+------------------+-----------------------------------------------------------------------------------------+-------------------------------------------------------------------------------+
@@ -219,6 +228,11 @@ Navigation
   * `TauSelectionTool <README-TauSelectionTool.rst>`_
   * `TauSmearingTool <README-TauSmearingTool.rst>`_
   * `TauEfficiencyCorrectionsTool <README-TauEfficiencyCorrectionsTool.rst>`_
+
+    * `mc12 recommendations <README-TauEfficiencyCorrectionsTool-mc12.rst>`_
+    * `mc15 pre-recommendations <README-TauEfficiencyCorrectionsTool-mc15_pre-recommendations.rst>`_
+    * `TauEfficiencyCorrectionsTool Trigger <README-TauEfficiencyCorrectionsTool_Trigger.rst>`_
+
   * `TauTruthMatchingTool <README-TauTruthMatchingTool.rst>`_
   * `TauTruthTrackMatchingTool <README-TauTruthTrackMatchingTool.rst>`_
   * `TauOverlappingElectronLLHDecorator <README-TauOverlappingElectronLLHDecorator.rst>`_

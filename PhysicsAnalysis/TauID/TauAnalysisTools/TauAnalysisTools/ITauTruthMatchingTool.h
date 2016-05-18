@@ -25,6 +25,9 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
 
+// local include(s)
+#include "Enums.h"
+
 namespace TauAnalysisTools
 {
 
@@ -39,9 +42,6 @@ public:
   // initialize the tool
   virtual StatusCode initialize() = 0;
 
-  // create TruthTauContainer
-  virtual StatusCode createTruthTauContainer() __attribute__ ((deprecated("This function is deprecated. The TruthTau Container will be created automatically passing truth particle container via setTruthParticleContainer or passing Event via initializeEvent\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauTruthMatchingTool.rst"))) = 0;
-
   // get TruthTauContainer
   virtual xAOD::TruthParticleContainer* getTruthTauContainer() = 0;
 
@@ -55,29 +55,36 @@ public:
   virtual std::vector<const xAOD::TruthParticle*> applyTruthMatch(const std::vector<const xAOD::TauJet*>& vTaus) = 0;
 
   // set pointer to truth particle container
-  virtual StatusCode setTruthParticleContainer(const xAOD::TruthParticleContainer* xTruthParticleContainer) = 0;
+  virtual StatusCode setTruthParticleContainer(const xAOD::TruthParticleContainer* xTruthParticleContainer) __attribute__ ((deprecated("This function is deprecated. Please remove it from your code and use the configurable property \"TruthParticlesContainerName\" instead.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauTruthMatchingTool.rst"))) = 0;
 
   // set pointer to event
-  virtual StatusCode initializeEvent() = 0;
+  virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauTruthMatchingTool.rst"))) = 0;
 
   // get pointer to truth tau, if no truth tau was found a null pointer is returned
-  virtual const xAOD::TruthParticle* getTruth(const xAOD::TauJet& xTau) const = 0;
+  virtual const xAOD::TruthParticle* getTruth(const xAOD::TauJet& xTau) = 0;
 
   // wrapper function to get truth tau visible TLorentzvector
-  virtual TLorentzVector getTruthTauP4Vis(const xAOD::TauJet& xTau) const = 0;
-  virtual TLorentzVector getTruthTauP4Vis(const xAOD::TruthParticle& xTruthTau) const = 0;
+  virtual TLorentzVector getTruthTauP4Vis(const xAOD::TauJet& xTau) = 0;
+  virtual TLorentzVector getTruthTauP4Vis(const xAOD::TruthParticle& xTruthTau) = 0;
 
   // wrapper function to get truth tau prompt TLorentzvector
-  virtual TLorentzVector getTruthTauP4Prompt(const xAOD::TauJet& xTau) const = 0;
-  virtual TLorentzVector getTruthTauP4Prompt(const xAOD::TruthParticle& xTruthTau) const = 0;
+  virtual TLorentzVector getTruthTauP4Prompt(const xAOD::TauJet& xTau) = 0;
+  virtual TLorentzVector getTruthTauP4Prompt(const xAOD::TruthParticle& xTruthTau) = 0;
+
+  // wrapper function to get truth tau invisible TLorentzvector
+  virtual TLorentzVector getTruthTauP4Invis(const xAOD::TauJet& xTau) = 0;
+  virtual TLorentzVector getTruthTauP4Invis(const xAOD::TruthParticle& xTruthTau) = 0;
+
+  // get type of truth match particle (hadronic tau, leptonic tau, electron, muon, jet)
+  virtual TauAnalysisTools::TruthMatchedParticleType getTruthParticleType(const xAOD::TauJet& xTau) = 0;
 
   // wrapper function to count number of decay particles of given pdg id
-  virtual int getNTauDecayParticles(const xAOD::TauJet& xTau, int iPdgId, bool bCompareAbsoluteValues = false) const = 0;
-  virtual int getNTauDecayParticles(const xAOD::TruthParticle& xTruthTau, int iPdgId, bool bCompareAbsoluteValues = false) const = 0;
+  virtual int getNTauDecayParticles(const xAOD::TauJet& xTau, int iPdgId, bool bCompareAbsoluteValues = false) = 0;
+  virtual int getNTauDecayParticles(const xAOD::TruthParticle& xTruthTau, int iPdgId, bool bCompareAbsoluteValues = false) = 0;
 
   // wrapper function to obtain truth verion of xAOD::TauJetParameters::DecayMode
-  virtual xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TauJet& xTau) const = 0;
-  virtual xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TruthParticle& xTruthTau) const = 0;
+  virtual xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TauJet& xTau) = 0;
+  virtual xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TruthParticle& xTruthTau) = 0;
 
 }; // class ITauTruthMatchingTool
 

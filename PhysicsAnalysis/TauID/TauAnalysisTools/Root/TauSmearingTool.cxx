@@ -8,6 +8,7 @@
 // Local include(s):
 #include "TauAnalysisTools/TauSmearingTool.h"
 #include "TauAnalysisTools/SharedFilesVersion.h"
+#include "TauAnalysisTools/TauSmearingRun1Tool.h"
 
 namespace TauAnalysisTools
 {
@@ -16,14 +17,16 @@ TauSmearingTool::TauSmearingTool( const std::string& sName )
   : asg::AsgTool( sName )
   , m_tCommonSmearingTool(0)
   , m_sInputFilePath("")
-  , m_sRecommendationTag("mc15-pre-recommendations")
+  , m_sRecommendationTag("mc15-moriond")
   , m_bSkipTruthMatchCheck(false)
+  , m_bApplyFading(true)
   , m_bIsData(false)
 {
   declareProperty( "IsData", m_bIsData = false );
   declareProperty( "InputFilePath", m_sInputFilePath = "" );
-  declareProperty( "RecommendationTag", m_sRecommendationTag = "mc15-pre-recommendations" );
-  declareProperty( "SkipTruthMatchCheck", m_bSkipTruthMatchCheck );
+  declareProperty( "RecommendationTag", m_sRecommendationTag = "mc15-moriond" );
+  declareProperty( "SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
+  declareProperty( "ApplyFading", m_bApplyFading = true);
 }
 
 TauSmearingTool::~TauSmearingTool()
@@ -33,18 +36,31 @@ TauSmearingTool::~TauSmearingTool()
 StatusCode TauSmearingTool::initialize()
 {
   // Greet the user:
-  ATH_MSG_INFO( "Initialising TauSmearingTool" );
+  ATH_MSG_INFO( "Initializing TauSmearingTool" );
 
   if (m_bSkipTruthMatchCheck)
     ATH_MSG_WARNING("Truth match check will be skipped. This is ONLY FOR TESTING PURPOSE!");
 
   std::string sDirectory = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/Smearing/";
 
-  if (m_sRecommendationTag == "mc15-pre-recommendations")
+  if (m_sRecommendationTag == "mc15-moriond")
+  {
+    if (m_sInputFilePath.empty())
+      m_sInputFilePath = sDirectory+"TES_TrueHadTau_mc15_moriond.root";
+    m_tCommonSmearingTool.reset(new CommonSmearingTool(name()+"_"+m_sRecommendationTag));
+    if (m_tCommonSmearingTool->setProperty("InputFilePath", m_sInputFilePath).isFailure()) return StatusCode::FAILURE;
+    if (m_tCommonSmearingTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck).isFailure()) return StatusCode::FAILURE;
+    if (m_tCommonSmearingTool->setProperty("ApplyFading", m_bApplyFading).isFailure()) return StatusCode::FAILURE;
+
+  }
+  else if (m_sRecommendationTag == "mc15-pre-recommendations")
   {
     if (m_sInputFilePath.empty())
       m_sInputFilePath = sDirectory+"TES_TrueHadTau_mc15_prerec.root";
-    m_tCommonSmearingTool.reset(new CommonSmearingTool(name()+"_"+m_sRecommendationTag, m_sInputFilePath, m_bSkipTruthMatchCheck));
+    m_tCommonSmearingTool.reset(new CommonSmearingTool(name()+"_"+m_sRecommendationTag));
+    if (m_tCommonSmearingTool->setProperty("InputFilePath", m_sInputFilePath).isFailure()) return StatusCode::FAILURE;
+    if (m_tCommonSmearingTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck).isFailure()) return StatusCode::FAILURE;
+    if (m_tCommonSmearingTool->setProperty("ApplyFading", false).isFailure()) return StatusCode::FAILURE; // apply fading off by default
   }
   else if (m_sRecommendationTag == "mc12-final")
   {

@@ -30,34 +30,21 @@
 namespace TauAnalysisTools
 {
 
-class ITauEfficiencyCorrectionsTool : public virtual asg::IAsgTool
+class ITauEfficiencyCorrectionsTool
+  : public virtual asg::IAsgTool
+  , public virtual CP::ISystematicsTool
 {
 
   /// Declare the interface that the class provides
   ASG_TOOL_INTERFACE( TauAnalysisTools::ITauEfficiencyCorrectionsTool )
 
 public:
-  /// Function initialising the tool
-  virtual StatusCode initialize() = 0;
-
   /// Get the "tau efficiency" as a return value
   virtual CP::CorrectionCode getEfficiencyScaleFactor( const xAOD::TauJet& xTau,
       double& eff ) = 0;
 
   /// Decorate the tau with its efficiency
   virtual CP::CorrectionCode applyEfficiencyScaleFactor( const xAOD::TauJet& xTau ) = 0;
-
-  /// returns: whether this tool is affected by the given systematis
-  virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const = 0;
-
-  /// returns: the list of all systematics this tool can be affected by
-  virtual CP::SystematicSet affectingSystematics() const = 0;
-
-  /// returns: the list of all systematics this tool recommends to use
-  virtual CP::SystematicSet recommendedSystematics() const = 0;
-
-  virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig ) = 0;
-
 
 }; // class ITauEfficiencyCorrectionsTool
 
