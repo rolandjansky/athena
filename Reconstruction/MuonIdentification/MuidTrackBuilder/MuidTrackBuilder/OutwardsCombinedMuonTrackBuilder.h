@@ -76,12 +76,14 @@ namespace Rec
 	/**ICombinedMuonTrackBuilder interface:
 	   propagate to perigee adding calo energy-loss and material to MS track */
 	Trk::Track*		standaloneFit	(const Trk::Track&	spectrometerTrack,
-						 const Trk::Vertex*	vertex) const;
+						 const Trk::Vertex*	vertex, 
+                                                 float bs_x, float bs_y, float bs_z ) const;
 
 	/**ICombinedMuonTrackBuilder interface:
 	   refit a track removing any indet measurements with optional addition of pseudoMeasurements
 	   according to original extrapolation */
-	Trk::Track*		standaloneRefit	(const Trk::Track&	combinedTrack) const;
+	Trk::Track*		standaloneRefit	(const Trk::Track&	combinedTrack,
+                                                 float bs_x, float bs_y, float bs_z ) const;
 
 	/**ITrackFitter interface:
 	   refit a track */
