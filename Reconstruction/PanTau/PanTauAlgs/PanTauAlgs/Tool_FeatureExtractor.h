@@ -19,19 +19,19 @@
 #include <map>
 #include <vector>
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
+//! ASG
+#include "AsgTools/AsgTool.h"
+#include "AsgTools/ToolHandle.h"
 
 // PanTau
-#include "PanTauInterfaces/ITool_FeatureExtractor.h"
-#include "PanTauInterfaces/ITool_HelperFunctions.h"
-#include "PanTauInterfaces/ITool_InformationStore.h"
-#include "PanTauEvent/TauConstituent.h"
-#include "PanTauEvent/TauFeature.h"
+#include "PanTauAlgs/HelperFunctions.h"
+#include "PanTauAlgs/ITool_PanTauTools.h"
+#include "PanTauAlgs/ITool_InformationStore.h"
+#include "PanTauAlgs/TauConstituent.h"
+#include "PanTauAlgs/TauFeature.h"
 
-namespace Trk{
-    class ITrackToVertexIPEstimator;
-}
+//#include "ITrackToVertex/ITrackToVertex.h"
+
 
 namespace PanTau {
     
@@ -40,56 +40,57 @@ namespace PanTau {
     @author Christian Limbach
     @author Sebastian Fleischmann
 */
-class Tool_FeatureExtractor : public AthAlgTool, virtual public PanTau::ITool_FeatureExtractor {
-    
+  class Tool_FeatureExtractor : public asg::AsgTool, virtual public PanTau::ITool_PanTauTools {
+
+    ASG_TOOL_CLASS1(Tool_FeatureExtractor, PanTau::ITool_PanTauTools)
     
     public:
 
-        Tool_FeatureExtractor(const std::string&,const std::string&,const IInterface*);
+        Tool_FeatureExtractor(const std::string &name);
 //         virtual ~Tool_FeatureExtractor ();
         virtual StatusCode initialize();
 //         virtual StatusCode finalize  ();
         
         
         //get the features for an input seed
-        virtual StatusCode calculateFeatures(PanTau::PanTauSeed* inSeed);
+        virtual StatusCode execute(PanTau::PanTauSeed2* inSeed);
         void Log10();
         
     protected:
         
         //handle to the helper function
-        ToolHandle<PanTau::ITool_HelperFunctions>   m_Tool_HelperFunctions;
+        PanTau::HelperFunctions   m_HelperFunctions;
         ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
-        ToolHandle<Trk::ITrackToVertexIPEstimator>  m_Tool_TrackToVertexIPEstimator;
+	//ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
         
         //map containing different methods to calc seed et
         std::map<std::string, double>   m_Variants_SeedEt;
         
         //Function to calculate basic features
-        StatusCode calculateBasicFeatures(PanTau::PanTauSeed* inSeed);
+        StatusCode calculateBasicFeatures(PanTau::PanTauSeed2* inSeed);
         
         //Function to calculate features for one set of constituents
-        StatusCode calculateFeatures(PanTau::PanTauSeed*    inSeed,
+        StatusCode calculateFeatures(PanTau::PanTauSeed2*    inSeed,
                                      int                    tauConstituentType);
         
         //Function to add the 4 momenta of the tau constituents to the features
-        StatusCode addConstituentMomenta(PanTau::PanTauSeed* inSeed);
+        StatusCode addConstituentMomenta(PanTau::PanTauSeed2* inSeed);
         
         //Function to calculate features based on two sets of constituents
-        StatusCode addCombinedFeatures(PanTau::PanTauSeed* inSeed);
+        StatusCode addCombinedFeatures(PanTau::PanTauSeed2* inSeed);
         
         //Function to calculate generic jet features
-        StatusCode addGenericJetFeatures(PanTau::PanTauSeed* inSeed) const;
+        StatusCode addGenericJetFeatures(PanTau::PanTauSeed2* inSeed) const;
         
         //Function to add impact parameter features
-        StatusCode addImpactParameterFeatures(PanTau::PanTauSeed* inSeed) const;
+        StatusCode addImpactParameterFeatures(PanTau::PanTauSeed2* inSeed) const;
         
         //Function to fill the m_Variants_SeedEt member
-        void fillVariantsSeedEt(std::vector<PanTau::TauConstituent*> tauConstituents);
+        void fillVariantsSeedEt(std::vector<PanTau::TauConstituent2*> tauConstituents);
         
         
         //helper function to fill the m_Variants_SeedEt map
-        void    addFeatureWrtSeedEnergy(PanTau::TauFeature* targetMap,
+        void    addFeatureWrtSeedEnergy(PanTau::TauFeature2* targetMap,
                                         std::string featName,
                                         double numerator,
                                         std::map<std::string, double>* denominatorMap) const;

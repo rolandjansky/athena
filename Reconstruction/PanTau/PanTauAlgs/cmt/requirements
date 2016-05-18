@@ -9,35 +9,28 @@ author Robindra Prabhu <robindra.prabhakar.prabhu@cern.ch>
 public
 
 use AtlasPolicy                 AtlasPolicy-* 
-use AthenaBaseComps             AthenaBaseComps-*               Control
-use GaudiInterface              GaudiInterface-*                External
 use AtlasROOT                   AtlasROOT-*                     External
-use NavFourMom                  NavFourMom-*                    Event
-use PanTauEvent                 PanTauEvent-*                   Reconstruction/PanTau
-use PanTauInterfaces            PanTauInterfaces-*              Reconstruction/PanTau
+#use NavFourMom                 NavFourMom-*                    Event
+use xAODBase                    xAODBase-*                Event/xAOD
 use xAODTau                     xAODTau-*                       Event/xAOD
 use xAODPFlow                   xAODPFlow-*                     Event/xAOD
+use tauRecTools                 tauRecTools-*                   Reconstruction
+use AsgTools                    AsgTools-*                      Control/AthToolSupport
+
+use AtlasReflex           AtlasReflex-*             External -no_auto_imports
+use CxxUtils              CxxUtils-*                Control
+
 
 private
 
-use StoreGate                   StoreGate-*                     Control
-use FourMom                     FourMom-*                       Event
-use Particle                    Particle-*                      Reconstruction
-use eflowEvent                  eflowEvent-*                    Reconstruction
-use tauEvent                    tauEvent-*                      Reconstruction
+use GaudiInterface              GaudiInterface-*                External
 use PathResolver                PathResolver-*                  Tools
-use AtlasCLHEP                  AtlasCLHEP-*                    External
-use CaloEvent                   CaloEvent-*                     Calorimeter
-use FourMomUtils                FourMomUtils-*                  Event
-use VxVertex                    VxVertex-*                      Tracking/TrkEvent
-use TrkVertexFitterInterfaces   TrkVertexFitterInterfaces-*     Tracking/TrkVertexFitter
 use xAODTracking                xAODTracking-*                  Event/xAOD
-use DataModel                   DataModel-*                     Control
+use xAODParticleEvent           xAODParticleEvent-*             Event/xAOD
 
-
-use AthenaKernel                AthenaKernel-*                  Control
 # use TrkEventPrimitives        TrkEventPrimitives-*            Tracking/TrkEvent
-use GeoPrimitives               GeoPrimitives-*                 DetectorDescription
+#use TrkVertexFitterInterfaces   TrkVertexFitterInterfaces-*     Tracking/TrkVertexFitter
+# use VxVertex                    VxVertex-*                      Tracking/TrkEvent
 
 
 public
@@ -45,11 +38,19 @@ public
 # Specify required ROOT components to cmake (transparent to CMT)
 apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS MathCore MathMore Matrix TMVA)"
 
+# dual use changes:
+apply_pattern dual_use_library files="../Root/*.cxx ../src/*.cxx"
+#apply_pattern component_library
+
 apply_pattern declare_runtime files="../data/*.root ../data/weights/*.txt ../data/weights/*.xml"
 
 apply_pattern declare_joboptions files="*.py"
-apply_pattern component_library
-library PanTauAlgs *.cxx components/*.cxx
+apply_pattern declare_python_modules files="*.py"
+
+
+#library PanTauAlgs Root/*.cxx components/*.cxx
+
+#apply_pattern installed_library
 
 private
 apply_tag ROOTBasicLibs

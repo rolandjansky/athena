@@ -18,28 +18,28 @@
 #include <string>
 #include <vector>
 
-//! Gaudi
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
+//! ASG
+#include "AsgTools/AsgTool.h"
+#include "AsgTools/ToolHandle.h"
 
 //! xAOD EDM
 #include "xAODTau/TauJet.h"
 // #include "xAODTau/TauDefs.h"
 
 //! PanTau
-#include "PanTauInterfaces/ITool_DetailsArranger.h"
-#include "PanTauInterfaces/ITool_InformationStore.h"
+#include "PanTauAlgs/ITool_PanTauTools.h"
+#include "PanTauAlgs/ITool_InformationStore.h"
 
-#include "PanTauEvent/TauConstituent.h"
+#include "PanTauAlgs/TauConstituent.h"
 
 namespace PanTau {
-    class PanTauSeed;
+    class PanTauSeed2;
     class PanTauDetails;
 }
 
-namespace Analysis {
-    class TauDetailsContainer;
-}
+//namespace Analysis {
+//    class TauDetailsContainer;
+//}
 
 class StoreGateSvc;
 
@@ -51,8 +51,9 @@ namespace PanTau {
         @author Sebastian Fleischmann
         @author Christian Limbach <limbach@physik.uni-bonn.de>
     */
-    class Tool_DetailsArranger : public AthAlgTool, virtual public PanTau::ITool_DetailsArranger {
+  class Tool_DetailsArranger : public asg::AsgTool, virtual public PanTau::ITool_PanTauTools {
     
+    ASG_TOOL_CLASS1(Tool_DetailsArranger, PanTau::ITool_PanTauTools)
     
     public:
         
@@ -62,13 +63,13 @@ namespace PanTau {
             t_NTypes
         };
         
-        Tool_DetailsArranger(const std::string&,const std::string&,const IInterface*);
+        Tool_DetailsArranger(const std::string &name);
         virtual ~Tool_DetailsArranger ();
         
         virtual StatusCode initialize();
 //         virtual StatusCode finalize();
         
-        virtual StatusCode arrangeDetails(PanTau::PanTauSeed* inSeed);//, Analysis::TauDetailsContainer* detailsCont);
+        virtual StatusCode execute(PanTau::PanTauSeed2* inSeed);//, Analysis::TauDetailsContainer* detailsCont);
         
     protected:
         
@@ -76,13 +77,14 @@ namespace PanTau {
         
         ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
         
-        void                        addPanTauDetailToTauJet(PanTauSeed*                            inSeed,
+        void                        addPanTauDetailToTauJet(PanTauSeed2*                            inSeed,
                                                             std::string                            featName,
                                                             xAOD::TauJetParameters::PanTauDetails  detailEnum,
                                                             PanTauDetailsType                      detailType) const;
-        void                        arrangeScalarDetail(PanTau::PanTauDetails* targetDetails, std::string featName, int featEnumFromPanTauDetails) const;
-        void                        arrangeVectorDetail(PanTau::PanTauDetails* targetDetails, std::string featName, int featEnumFromPanTauDetails) const;
-        void                        arrangePFOLinks(PanTau::PanTauSeed* inSeed, xAOD::TauJet* tauJet);
+
+        StatusCode                        arrangePFOLinks(PanTau::PanTauSeed2* inSeed, xAOD::TauJet* tauJet);
+
+        void                        SetHLVTau(PanTau::PanTauSeed2* inSeed, xAOD::TauJet* tauJet, std::string inputAlg, std::string m_varTypeName_Basic);
 
 	std::vector< ElementLink< xAOD::PFOContainer > > PreselectNeutralLinks(std::vector< ElementLink<xAOD::PFOContainer> > neutralPFOLinks, xAOD::TauJet* tauJet);
 
@@ -94,7 +96,10 @@ namespace PanTau {
 
 	void SetNeutralConstituentVectorMasses(std::vector< ElementLink<xAOD::PFOContainer> > neutralPFOLinks, double mass);
 
-	std::vector< ElementLink< xAOD::PFOContainer > > CollectConstituentsAsPFOLinks( PanTau::PanTauSeed* inSeed, std::vector< ElementLink< xAOD::PFOContainer > > cellbased_neutralPFOLinks, PanTau::TauConstituent::Type type );
+	std::vector< ElementLink< xAOD::PFOContainer > > CollectConstituentsAsPFOLinks( PanTau::PanTauSeed2* inSeed, std::vector< ElementLink< xAOD::PFOContainer > > cellbased_neutralPFOLinks, PanTau::TauConstituent2::Type type );
+
+    void createPi0Vectors(xAOD::TauJet* tauJet, std::vector<TLorentzVector>& vPi0s, std::vector< std::vector< ElementLink<xAOD::PFOContainer> > > &vec_pi0pfos);
+    
 
         /* std::vector<unsigned int>   helper_IndicesOfNeutralsToBePi0(xAOD::TauJet* tauJet,  */
         /*                                                             std::vector< ElementLink<xAOD::PFOContainer> > neutralPFOLinks,  */

@@ -21,18 +21,18 @@
 #include <string>
 
 //! Gaudi
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "AsgTools/AsgTool.h"
+#include "AsgTools/ToolHandle.h"
 
 //! PanTau
-#include "PanTauInterfaces/ITool_DecayModeDeterminator.h"
-#include "PanTauInterfaces/ITool_ModeDiscriminator.h"
-#include "PanTauInterfaces/ITool_InformationStore.h"
+#include "PanTauAlgs/ITool_PanTauTools.h"
+#include "PanTauAlgs/ITool_ModeDiscriminator.h"
+#include "PanTauAlgs/ITool_InformationStore.h"
 
 class StoreGateSvc;
 
 namespace PanTau {
-    class PanTauSeed;
+    class PanTauSeed2;
 }
 
 
@@ -42,9 +42,9 @@ namespace PanTau {
     Tool to store information needed in PanTau Algorithms
     @author Christian Limbach (limbach@physik.uni-bonn.de)
 */
-class Tool_DecayModeDeterminator : public AthAlgTool, virtual public PanTau::ITool_DecayModeDeterminator {
-    
-    
+  class Tool_DecayModeDeterminator : public asg::AsgTool, virtual public PanTau::ITool_PanTauTools {
+
+    ASG_TOOL_CLASS1(Tool_DecayModeDeterminator, PanTau::ITool_PanTauTools)
     
     public:
         
@@ -56,13 +56,13 @@ class Tool_DecayModeDeterminator : public AthAlgTool, virtual public PanTau::ITo
             t_nTests
         };
         
-        Tool_DecayModeDeterminator(const std::string&,const std::string&,const IInterface*);
+        Tool_DecayModeDeterminator(const std::string &name);
         virtual ~Tool_DecayModeDeterminator ();
         
         virtual StatusCode initialize();
 //         virtual StatusCode finalize  ();
         
-        virtual StatusCode determineDecayMode(PanTau::PanTauSeed* inSeed) const;
+        virtual StatusCode execute(PanTau::PanTauSeed2* inSeed);
         
     private:
         
@@ -87,14 +87,6 @@ class Tool_DecayModeDeterminator : public AthAlgTool, virtual public PanTau::ITo
         double           m_BDTCutValue_R1XX_CellBased;
         double           m_BDTCutValue_R30X_CellBased;
         double           m_BDTCutValue_R3XX_CellBased;
-        
-        //cut values for eflowRec
-        double           m_BDTCutValue_R10X_eflowRec;
-        double           m_BDTCutValue_R11X_eflowRec;
-        double           m_BDTCutValue_R110_eflowRec;
-        double           m_BDTCutValue_R1XX_eflowRec;
-        double           m_BDTCutValue_R30X_eflowRec;
-        double           m_BDTCutValue_R3XX_eflowRec;
         
 };
 

@@ -9,42 +9,46 @@
 #include <vector>
 #include <string>
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "PanTauInterfaces/ITool_InformationStore.h"
-#include "PanTauInterfaces/ITool_TauConstituentSelector.h"
+//! ASG
+#include "AsgTools/AsgTool.h"
+#include "AsgTools/ToolHandle.h"
 
-#include "PanTauEvent/TauConstituent.h"
+#include "PanTauAlgs/ITool_InformationStore.h"
+#include "PanTauAlgs/ITool_TauConstituentSelector.h"
+
+#include "PanTauAlgs/TauConstituent.h"
 
 
 
 namespace PanTau {
 
-class Tool_TauConstituentSelector : public AthAlgTool, virtual public PanTau::ITool_TauConstituentSelector  {
-        
+class Tool_TauConstituentSelector : public asg::AsgTool, virtual public PanTau::ITool_TauConstituentSelector  {
+
+    ASG_TOOL_CLASS1(Tool_TauConstituentSelector, PanTau::ITool_TauConstituentSelector)
+
     public:
         
-        Tool_TauConstituentSelector(const std::string&,const std::string&,const IInterface*);
+        Tool_TauConstituentSelector(const std::string &name);
         virtual ~Tool_TauConstituentSelector ();
         
         virtual StatusCode initialize();
 //         virtual StatusCode finalize();
         
-        virtual StatusCode SelectTauConstituents(   std::vector<TauConstituent*> inputList,
-                                                    std::vector<TauConstituent*>& outputList) const;
+        virtual StatusCode SelectTauConstituents(   std::vector<TauConstituent2*> inputList,
+                                                    std::vector<TauConstituent2*>& outputList) const;
         
         
     protected:
         
-        virtual bool    passesSelection_NeutralConstituent(TauConstituent* tauConstituent) const;
-        virtual bool    passesSelection_Pi0NeutConstituent(TauConstituent* tauConstituent) const;
-        virtual bool    passesSelection_ChargedConstituent(TauConstituent* tauConstituent) const;
-        virtual bool    passesSelection_OutNeutConstituent(TauConstituent* TauConstituent) const;
-        virtual bool    passesSelection_OutChrgConstituent(TauConstituent* TauConstituent) const;
-        virtual bool    passesSelection_NeutLowAConstituent(TauConstituent* TauConstituent) const;
-        virtual bool    passesSelection_NeutLowBConstituent(TauConstituent* TauConstituent) const;
+        virtual bool    passesSelection_NeutralConstituent(TauConstituent2* tauConstituent) const;
+        virtual bool    passesSelection_Pi0NeutConstituent(TauConstituent2* tauConstituent) const;
+        virtual bool    passesSelection_ChargedConstituent(TauConstituent2* tauConstituent) const;
+        virtual bool    passesSelection_OutNeutConstituent(TauConstituent2* TauConstituent) const;
+        virtual bool    passesSelection_OutChrgConstituent(TauConstituent2* TauConstituent) const;
+        virtual bool    passesSelection_NeutLowAConstituent(TauConstituent2* TauConstituent) const;
+        virtual bool    passesSelection_NeutLowBConstituent(TauConstituent2* TauConstituent) const;
         
-        virtual double  getEtCut(double eta, PanTau::TauConstituent::Type constituentType) const;
+        virtual double  getEtCut(double eta, PanTau::TauConstituent2::Type constituentType) const;
         
         
         //member variables 

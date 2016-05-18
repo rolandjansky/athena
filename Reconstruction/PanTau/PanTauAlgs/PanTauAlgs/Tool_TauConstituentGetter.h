@@ -9,22 +9,24 @@
 #include <vector>
 #include <string>
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "PanTauInterfaces/ITool_InformationStore.h"
-#include "PanTauInterfaces/ITool_HelperFunctions.h"
-#include "PanTauInterfaces/ITool_TauConstituentGetter.h"
-#include "PanTauInterfaces/ITool_InputConverter.h"
+//! ASG
+#include "AsgTools/AsgTool.h"
+#include "AsgTools/ToolHandle.h"
+
+#include "PanTauAlgs/HelperFunctions.h"
+#include "PanTauAlgs/ITool_InformationStore.h"
+#include "PanTauAlgs/ITool_TauConstituentGetter.h"
+#include "PanTauAlgs/ITool_InputConverter.h"
 
 //! xAOD EDM
 #include "xAODTau/TauJet.h"
 
-namespace Analysis {
-    class TauJet;
-}
+//namespace Analysis {
+//    class TauJet;
+//}
 
 namespace PanTau {
-    class TauConstituent;
+    class TauConstituent2;
 }
 
 
@@ -33,11 +35,13 @@ namespace PanTau {
 
 namespace PanTau {
 
-class Tool_TauConstituentGetter : public AthAlgTool, virtual public PanTau::ITool_TauConstituentGetter  {
+class Tool_TauConstituentGetter : public asg::AsgTool, virtual public PanTau::ITool_TauConstituentGetter  {
         
+    ASG_TOOL_CLASS1(Tool_TauConstituentGetter, PanTau::ITool_TauConstituentGetter)
+
     public:
         
-        Tool_TauConstituentGetter(const std::string&,const std::string&,const IInterface*);
+        Tool_TauConstituentGetter(const std::string &name);
         virtual ~Tool_TauConstituentGetter ();
         
         virtual StatusCode initialize();
@@ -45,20 +49,16 @@ class Tool_TauConstituentGetter : public AthAlgTool, virtual public PanTau::IToo
         
         virtual StatusCode GetTauConstituents(//const Analysis::TauJet*,
                                               const xAOD::TauJet* tauJet,
-                                              std::vector<TauConstituent*>& outputList,
+                                              std::vector<TauConstituent2*>& outputList,
                                               std::string algName) const;
         
         
     protected:
         
         //member variables 
+        PanTau::HelperFunctions   m_HelperFunctions;
         ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
-        ToolHandle<PanTau::ITool_HelperFunctions>   m_Tool_HelperFunctions;
         ToolHandle<PanTau::ITool_InputConverter>    m_Tool_InputConverter;
-        
-        double                                      m_eflowRec_Assoc_DeltaR;
-
-        
         
         
     }; //end class ConstituentGetter
