@@ -6,7 +6,7 @@ use AtlasPolicy    AtlasPolicy-*
 
 #macro MuonAlignExample_TestConfiguration "../test/MuonAlignExample_TestConfiguration.xml"
 
-apply_pattern declare_runtime extras="../test/MuonAlignExample_TestConfiguration.xml"
+#apply_pattern declare_runtime extras="../test/MuonAlignExample_TestConfiguration.xml"
 
 apply_pattern declare_joboptions files="-s=../share *.py"
 apply_pattern declare_python_modules files="*.py"
