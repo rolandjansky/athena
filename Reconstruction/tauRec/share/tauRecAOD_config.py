@@ -38,6 +38,34 @@ if rec.readAOD() :
         print traceback.format_exc()        
         treatException("Could not set up merged tauRec. Switched off !")
          
+    if not _tauFail:  
+        # commenting out for now, so we can reactivate possibly later
+        # call eflowRec in tau mode now
+        #if recAlgs.doEFlow():        
+        #    try:
+        #        include("eflowRec/eflowRec_config_DC14_Tau.py")
+        #    except Exception:
+        #        treatException("could not setup eflowRec")
+        
+        #jobproperties.tauRecFlags.doPanTau=False
+        # call PanTau now
+    #     if jobproperties.tauRecFlags.doPanTau():
+    #         try:
+    #             include("PanTauAnalysis/JobOptions_Main_PanTau.py")
+    #         except Exception:
+    #             treatException("Could not setup PanTau")
+    #             jobproperties.tauRecFlags.doPanTau = False
+        
+        # call TauDiscriminant
+        if jobproperties.tauRecFlags.doRunTauDiscriminant():
+            try:
+                include("TauDiscriminant/TauDiscri_jobOptions.py" )      
+            except Exception:
+                treatException("Could not set up TauDiscriminant. Switched off !")
+
+    # if _tauFail and jobproperties.tauRecFlags.doTauRec():
+    #     jobproperties.tauRecFlags.doTauRec=False
+    #     del _tauFail
 else:
     if jobproperties.tauRecFlags.doTauRec():
         jobproperties.tauRecFlags.doTauRec=False

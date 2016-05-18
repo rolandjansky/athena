@@ -83,27 +83,49 @@ class TauRecAODProcessor ( TauRecConfigured ) :
             ## ATTENTION ##################################################################################
             # running these tau tools on AODs will lead to inconsistency with standard tau reconstruction
             ###############################################################################################
-            tools.append(taualgs.getMvaTESVariableDecorator())
-            tools.append(taualgs.getMvaTESEvaluator())
-            tools.append(taualgs.getCombinedP4FromRecoTaus())
+            try :
+                if InDetFlags.doVertexFinding():
+                    tools.append(taualgs.getTauVertexFinder(doUseTJVA=True)) 
+                    pass                
+            except : pass
+            tools.append(taualgs.getTauAxis()) ##needed to set correct variables for energy calibration
+            #tools.append(taualgs.getTauTrackFinder())
+            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
+            
+            tools.append(taualgs.getTauTrackFilter())     #TauTrackFilter
+            tools.append(taualgs.getTauGenericPi0Cone())  #TauGenericPi0Cone
+
+            # Run the conversion tagger if flagged to do so
+            import tauRec.TauConversionAlgorithms
+            from tauRec.tauRecFlags import jobproperties
+            if jobproperties.tauRecFlags.useNewPIDBasedConvFinder():
+                tools.append(tauRec.TauConversionAlgorithms.getTauConversionTaggerTool())
+            else:
+                #Need to run together, they will select either PID or vertex based on another flag
+                tools.append(tauRec.TauConversionAlgorithms.getPhotonConversionTool())
+                tools.append(tauRec.TauConversionAlgorithms.getTauConversionFinderTool())
+                pass
+
+
+            #this tool cannot recreate a 2nd vertex w/o ESD style tracks
+            #tools.append(taualgs.getTauVertexVariables())
+            tools.append(taualgs.getTauCommonCalcVars())
+            tools.append(taualgs.getTauSubstructure())
+
+            tools.append(taualgs.getPi0ClusterScaler())   #TauPi0ClusterScaler
+            tools.append(taualgs.getPi0ScoreCalculator()) #TauPi0ScoreCalculator
+            tools.append(taualgs.getPi0Selector())        #TauPi0Selector
+
+            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))                    
+
             tools.append(taualgs.getIDPileUpCorrection())
 
-            # TauDiscriminant:
-            from tauRec.tauRecFlags import tauFlags
-            if tauFlags.doRunTauDiscriminant() :
-                import TauDiscriminant.TauDiscriGetter as tauDisc
-                tauDiscTools=tauDisc.getTauDiscriminantTools(mlog)
-                if len(tauDiscTools)==0:
-                    try: import DOESNOTEXIST
-                    except Exception:
-                        mlog.error("No TauDiscriminantTools appended")
-                        print traceback.format_exc()
-                        return False
-                    pass                
-                tools+=tauDiscTools
-                pass
-            
-            
+            tools.append(taualgs.getMvaTESVariableDecorator())
+            tools.append(taualgs.getMvaTESEvaluator())
+                
+            # for testing purpose
+            #tools.append(taualgs.getTauTestDump())
+                        
             TauRecConfigured.AddToolsToToolSvc(self, tools)
             self.TauProcessorHandle().Tools = tools
         

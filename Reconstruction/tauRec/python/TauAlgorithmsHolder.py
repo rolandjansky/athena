@@ -591,11 +591,59 @@ def getInDetTrackSelectorTool():
     return InDetTrackSelectorTool
 
 
+#########################################################################
+def getInDetTrackSelectionToolForTJVA():
+    _name = sPrefix + 'InDetTrackSelectionToolForTJVA'  
+    
+    if _name in cached_instances:
+        return cached_instances[_name]
+    
+    #Configures tau track selector tool (should eventually check whether an existing one is available)
+    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+    InDetTrackSelectionToolForTJVA = InDet__InDetTrackSelectionTool(name = _name,
+                                                                    minPt                = 1000.,
+                                                                    maxD0                = 9999.*mm,
+                                                                    maxZ0                = 9999.*mm,                                                                 
+                                                                    minNPixelHits        = 2,  # PixelHits + PixelDeadSensors
+                                                                    minNSctHits          = 0,  # SCTHits + SCTDeadSensors
+                                                                    minNSiHits           = 7,  # PixelHits + SCTHits + PixelDeadSensors + SCTDeadSensors
+                                                                    minNTrtHits          = 0)
+                                                                    #fitChi2OnNdfMax      = 99999,
+                                                                    #TrackSummaryTool     = None,
+                                                                    #Extrapolator         = getAtlasExtrapolator())
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += InDetTrackSelectionToolForTJVA
+    
+    cached_instances[_name] = InDetTrackSelectionToolForTJVA
+    return InDetTrackSelectionToolForTJVA
+
+
+############################################################################
+def getInDetTrackSelectorToolxAOD():
+    _name = sPrefix + 'IInDetTrackSelectionTool'  
+    
+    if _name in cached_instances:
+        return cached_instances[_name]
+    
+    #Configures tau track selection tool (should eventually check whether an existing one is available)
+    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+    myInDetTrackSelectionTool = InDet__InDetTrackSelectionTool(name = _name,
+                                                               CutLevel="TightPrimary",
+                                                               )
+                                                                
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += myInDetTrackSelectionTool
+    
+    cached_instances[_name] = myInDetTrackSelectionTool
+    return myInDetTrackSelectionTool
+
+
 ############################################################################
 # setup up JVA tools
 def setupTauJVFTool():
     from AthenaCommon.AppMgr import ToolSvc
 
+    #Configures tau track selection tool for TJVA
     """
     #Configures tau track selector tool for TJVA
     from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
@@ -630,7 +678,8 @@ def setupTauJVFTool():
                                           TrackVertexAssociation="JetTrackVtxAssoc_forTaus", 
                                           VertexContainer= _DefaultVertexContainer,
                                           MaxTransverseDistance = 2.5 *mm,
-                                          MaxLongitudinalDistance = 2 *mm, 
+                                          #MaxLongitudinalDistance = 2 *mm, 
+                                          MaxZ0SinTheta = 3.0 *mm,
                                           #OutputLevel=2
                                           )
     #jetTrackAlg.Tools = [ToolSvc.JetTrackSelectionTool , ToolSvc.TrackVertexAssociationTool ]                                          
@@ -656,7 +705,8 @@ def getTauVertexFinder(doUseTJVA=False):
                                       UseTJVA                 = doUseTJVA,
                                       PrimaryVertexContainer  = _DefaultVertexContainer,
                                       AssociatedTracks="GhostTrack", # OK??
-                                      TrackVertexAssociation="JetTrackVtxAssoc_forTaus"
+                                      TrackVertexAssociation="JetTrackVtxAssoc_forTaus",
+                                      InDetTrackSelectionToolForTJVA = getInDetTrackSelectionToolForTJVA()
                                       )
     
     cached_instances[_name] = TauVertexFinder         
@@ -681,7 +731,7 @@ def getTrackToVertexTool():
 
 ########################################################################
 # Tau-Track Association
-def getTauTrackFinder():
+def getTauTrackFinder(removeDuplicateTracks=True):
     _name = sPrefix + 'TauTrackFinder'
     
     if _name in cached_instances:
@@ -692,9 +742,11 @@ def getTauTrackFinder():
                                     MaxJetDrTau = 0.2,
                                     MaxJetDrWide          = 0.4,
                                     TrackSelectorToolTau  = getInDetTrackSelectorTool(),
+                                    #TrackSelectorToolTauxAOD  = getInDetTrackSelectorToolxAOD(),
                                     TrackParticleContainer    = _DefaultTrackContainer,
                                     TrackToVertexTool         = getTrackToVertexTool(),
-                                    ParticleCaloExtensionTool = getParticleCaloExtensionTool()                                    
+                                    ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
+                                    removeDuplicateCoreTracks = removeDuplicateTracks,
                                     #maxDeltaZ0wrtLeadTrk = 2, #in mm
                                     #removeTracksOutsideZ0wrtLeadTrk = True
                                     )
@@ -721,7 +773,6 @@ def getTauGenericPi0Cone():
     return TauGenericPi0Cone
 
 #end
-
 
 ########################################################################
 # MvaTESVariableDecorator
@@ -751,12 +802,80 @@ def getCombinedP4FromRecoTaus():
                                                     WeightFileName = 'CombinedP4CalibWeightsFile.root')
     cached_instances[_name] = CombinedP4FromRecoTaus
     return CombinedP4FromRecoTaus
+    
+#########################################################################
+def getTauTrackClassifier():
+    _name = sPrefix + 'TauTrackClassifier'
+    
+    if _name in cached_instances:
+        return cached_instances[_name]
+    
+    from AthenaCommon.AppMgr import ToolSvc
+    from tauRecTools.tauRecToolsConf import tauRecTools__TauTrackClassifier as TauTrackClassifier
+    from tauRecTools.tauRecToolsConf import tauRecTools__TrackMVABDT as TrackMVABDT
+
+    import PyUtils.RootUtils as ru
+    ROOT = ru.import_root()
+    import cppyy
+    cppyy.loadDictionary('xAODTauDict')
+
+    ROOT.xAOD.TauJet_v3 #needed to see TauJetParameters
+
+    # =========================================================================
+    _BDT_TTCT_ITFT_0 = TrackMVABDT(name = _name + "_0",
+                                                #InputWeightsPath = "/home/duschi/workspace/TauRec/InstallArea/share/tauRecTools/00-00-00/TMVAClassification_BDT.weights.xml",
+                                                InputWeightsPath = "tauRecTools/00-00-00/TMVAClassification_BDT.weights.xml",
+                                                Threshold      = -0.005,
+                                                # ExpectedFlag   = 9, # unclassified
+                                                # SignalType     = 5, # charged
+                                                # BackgroundType = 7  # isolation
+                                                ExpectedFlag   = ROOT.xAOD.TauJetParameters.unclassified, # unclassified
+                                                SignalType     = ROOT.xAOD.TauJetParameters.classifiedCharged, # charged
+                                                BackgroundType = ROOT.xAOD.TauJetParameters.classifiedIsolation  # isolation
+                                                )
+    ToolSvc += _BDT_TTCT_ITFT_0
+    cached_instances[_BDT_TTCT_ITFT_0.name] = _BDT_TTCT_ITFT_0
+    
+    _BDT_TTCT_ITFT_0_0 = TrackMVABDT(name = _name + "_0_0",
+                                                  #InputWeightsPath = "/home/duschi/workspace/TauRec/InstallArea/share/tauRecTools/00-00-00/TMVAClassification_BDT_0.weights.xml",
+                                                  InputWeightsPath = "tauRecTools/00-00-00/TMVAClassification_BDT_0.weights.xml",
+                                                  Threshold      = -0.0074,
+                                                  # ExpectedFlag   = 5, # charged
+                                                  # SignalType     = 5, # charged
+                                                  # BackgroundType = 6  # conversion
+                                                  ExpectedFlag   = ROOT.xAOD.TauJetParameters.classifiedCharged, # charged
+                                                  SignalType     = ROOT.xAOD.TauJetParameters.classifiedCharged, # charged
+                                                  BackgroundType = ROOT.xAOD.TauJetParameters.classifiedConversion  # conversion
+                                                  )
+    ToolSvc += _BDT_TTCT_ITFT_0_0
+    cached_instances[_BDT_TTCT_ITFT_0_0.name] = _BDT_TTCT_ITFT_0_0
+    
+    _BDT_TTCT_ITFT_0_1 = TrackMVABDT(name = _name + "_0_1",
+                                                  #InputWeightsPath = "/home/duschi/workspace/TauRec/InstallArea/share/tauRecTools/00-00-00/TMVAClassification_BDT_1.weights.xml",
+                                                  InputWeightsPath = "tauRecTools/00-00-00/TMVAClassification_BDT_1.weights.xml",
+                                                  Threshold      = 0.0005,
+                                                  # ExpectedFlag   = 7, # isolation
+                                                  # SignalType     = 7, # isolation
+                                                  # BackgroundType = 8 # fake
+                                                  ExpectedFlag   = ROOT.xAOD.TauJetParameters.classifiedIsolation, # isolation
+                                                  SignalType     = ROOT.xAOD.TauJetParameters.classifiedIsolation, # isolation
+                                                  BackgroundType = ROOT.xAOD.TauJetParameters.classifiedFake # fake
+                                                  )
+    ToolSvc += _BDT_TTCT_ITFT_0_1
+    cached_instances[_BDT_TTCT_ITFT_0_1.name] = _BDT_TTCT_ITFT_0_1
+
+    # create tool alg
+    myTauTrackClassifier = TauTrackClassifier( name = _name,
+                                               Classifiers = [_BDT_TTCT_ITFT_0, _BDT_TTCT_ITFT_0_0, _BDT_TTCT_ITFT_0_1] )
+    #ToolSvc += TauTrackClassifier #only add to tool service sub tools to your tool, the main tool will be added via TauRecConfigured
+    cached_instances[_name] = myTauTrackClassifier 
+
+    return myTauTrackClassifier
+
+#end
 
 
-   
 """ obsolete methods
-
-
 
 ########################################################################
 # Tau Origin Cell Correction Tool

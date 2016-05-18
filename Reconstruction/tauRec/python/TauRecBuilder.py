@@ -99,10 +99,14 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
 
             # run vertex finder only in case vertexing is available. This check can also be done in TauAlgorithmsHolder instead doing it here. 
             from InDetRecExample.InDetJobProperties import InDetFlags
+            from tauRec.tauRecFlags import jobproperties
+            doMVATrackClassification = jobproperties.tauRecFlags.tauRecMVATrackClassification()
+
             if InDetFlags.doVertexFinding():
                 tools.append(taualgs.getTauVertexFinder(doUseTJVA=self.do_TJVA)) 
             tools.append(taualgs.getTauAxis())
-            tools.append(taualgs.getTauTrackFinder())
+            tools.append(taualgs.getTauTrackFinder(removeDuplicateTracks=(not doMVATrackClassification) ))
+            if doMVATrackClassification : tools.append(taualgs.getTauTrackClassifier())
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
             tools.append(taualgs.getCellVariables())
             tools.append(taualgs.getElectronVetoVars())
@@ -273,16 +277,26 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
                 # SWITCHED OFF SELECTOR< SINCE NO CHARGED PFOS AVAILABLE ATM
                 tools.append(taualgs.getPi0Selector())
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-            tools.append(taualgs.getMvaTESVariableDecorator())
-            tools.append(taualgs.getMvaTESEvaluator())
             tools.append(taualgs.getIDPileUpCorrection())
             #
             ## for testing purpose
             #tools.append(taualgs.getTauTestDump())
             #
 
-            # TauDiscriminant:
             from tauRec.tauRecFlags import tauFlags
+
+            # PanTau:
+            if tauFlags.doPanTau() :
+                import PanTauAlgs.JobOptions_Main_PanTau as pantau
+                tools.append(pantau.getPanTau())
+                pass
+
+
+            #these tools need pantau info
+            tools.append(taualgs.getMvaTESVariableDecorator())
+            tools.append(taualgs.getMvaTESEvaluator())
+
+            # TauDiscriminant:
             if tauFlags.doRunTauDiscriminant() :
                 import TauDiscriminant.TauDiscriGetter as tauDisc
                 tauDiscTools=tauDisc.getTauDiscriminantTools(mlog)
@@ -295,8 +309,8 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
                     pass                
                 tools+=tauDiscTools
                 pass
-            
 
+            
             tools+=tauFlags.tauRecToolsDevToolListProcessor()
             ## lock tau containers -> must be the last tau tool!!
             #tools.append(taualgs.getContainerLock())
