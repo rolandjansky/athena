@@ -3,7 +3,7 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-//  Header file for class TauImpactParameterExtractionTool
+//  Header file for class Tool_InformationStore
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
@@ -20,25 +20,12 @@
 #include <map>
 #include <string>
 
-//! Gaudi
-#include "AthenaBaseComps/AthAlgTool.h"
+//! ASG
+#include "AsgTools/AsgTool.h"
 
 //! PanTau
-#include "PanTauInterfaces/ITool_InformationStore.h"
+#include "PanTauAlgs/ITool_InformationStore.h"
 
-namespace Rec {
-    class TrackParticleContainer;
-}
-
-
-class eflowObjectContainer;
-class StoreGateSvc;
-
-// namespace Analysis {
-//     class TauJetContainer;
-// }
-
-#include "xAODTau/TauJetContainer.h"
 
 namespace PanTau {
 
@@ -46,8 +33,9 @@ namespace PanTau {
     Tool to store information needed in PanTau Algorithms
     @author Christian Limbach (limbach@physik.uni-bonn.de)
 */
-class Tool_InformationStore : public AthAlgTool, virtual public PanTau::ITool_InformationStore {
+  class Tool_InformationStore : public asg::AsgTool, virtual public PanTau::ITool_InformationStore {
     
+    ASG_TOOL_CLASS1(Tool_InformationStore, PanTau::ITool_InformationStore)
     
     typedef std::map<std::string, std::string>                  MapString;
     typedef std::map<std::string, std::vector<std::string> >    MapVecString;
@@ -59,13 +47,12 @@ class Tool_InformationStore : public AthAlgTool, virtual public PanTau::ITool_In
     
     public:
         
-        Tool_InformationStore(const std::string&,const std::string&,const IInterface*);
+        Tool_InformationStore(const std::string &name);
         virtual ~Tool_InformationStore ();
         
         virtual StatusCode initialize();
 //         virtual StatusCode finalize  ();
         
-        virtual StatusCode updateInformation(std::string inputAlg);
         virtual StatusCode getInfo_Int(std::string varName,     int& value);
         virtual StatusCode getInfo_Double(std::string varName,  double& value);
         virtual StatusCode getInfo_VecDouble(std::string varName,  std::vector<double>& value);
@@ -74,13 +61,7 @@ class Tool_InformationStore : public AthAlgTool, virtual public PanTau::ITool_In
         
         StatusCode  dumpMaps() const;
         
-        void checkEFOContainer(const eflowObjectContainer* inputContainer, eflowObjectContainer* outputContainer);
-        
-        virtual const eflowObjectContainer*             getContainer_eflowRec() const;
-//         virtual const Analysis::TauJetContainer*        getContainer_TauRec() const;
-        virtual const xAOD::TauJetContainer*            getContainer_TauRec() const;
-        virtual const Rec::TrackParticleContainer*      getContainer_TrackParticle() const;
-        
+       
     private:
         
         //! named strings, ints etc... for configuration
@@ -90,20 +71,13 @@ class Tool_InformationStore : public AthAlgTool, virtual public PanTau::ITool_In
         MapDouble       m_Infos_Double;
         MapVecDouble    m_Infos_VecDouble;
         
-        StoreGateSvc*   m_sgSvc;
-        
         //!other information
         // input containers
         std::string                       m_Name_Container_eflowRec;
         std::string                       m_Name_Container_TauRec;
         std::string                       m_Name_Container_Tracks;
         
-        eflowObjectContainer*                   m_Container_eflowRec;
-        //const eflowObjectContainer*             m_Container_eflowRecFromSG;
-//         const Analysis::TauJetContainer*        m_Container_TauRec;
-        const xAOD::TauJetContainer*            m_Container_TauRec;
-        const Rec::TrackParticleContainer*      m_Container_TrackParticle;
-        
+       
 };
 
 
