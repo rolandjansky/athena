@@ -21,6 +21,9 @@ CaloLumiBCIDTool::CaloLumiBCIDTool (const std::string& type,
     m_OFCTool("LArOFCTool"),
     m_lumiTool("LuminosityTool"),
     m_bunchCrossingTool("BunchCrossingTool"),
+    m_lar_on_id(nullptr),
+    m_caloIdMgr(nullptr),
+    m_calocell_id(nullptr),
     m_isMC(false),
     m_keyShape("LArShape"), m_keyMinBiasAverage("LArPileupAverage"),m_keyOFC("LArOFC"),
     m_bcidMax(3564),
@@ -29,7 +32,8 @@ CaloLumiBCIDTool::CaloLumiBCIDTool (const std::string& type,
     m_firstSampleEMB(0),
     m_firstSampleEMEC(0),
     m_firstSampleHEC(1),
-    m_firstSampleFCAL(0)
+    m_firstSampleFCAL(0),
+    m_cacheValid(false)
 { 
   declareInterface<ICaloLumiBCIDTool>(this);
   declareProperty("LArOFCTool",m_OFCTool,"Tool handle for OFC");

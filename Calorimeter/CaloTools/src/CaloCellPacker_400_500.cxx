@@ -868,6 +868,7 @@ void CaloCellPacker_400_500::unpack
   // Convert the header.
   pars500 pars;
   pars.m_status = 0;
+  pars.m_seq_tile = 0;
 
   {
     const int* headerbeg = &*vheader.begin();
