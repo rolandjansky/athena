@@ -231,6 +231,63 @@ TrigElectron::TrigElectron(unsigned int roi,                                    
 }
 
 
+/** Initialize without accessing cluster/track objects. */
+TrigElectron::TrigElectron(float pt,
+                           float eta,
+                           float phi,
+
+                           // roi word
+                           unsigned int roi,
+                           bool valid,
+
+                           // track-cluster match variables
+			   float trkEtaAtCalo,
+                           float trkPhiAtCalo,
+                           float EToverPT,
+
+                           // Cluster
+                           const ElementLink< TrigEMClusterContainer >& cluster,
+                           float caloEta,
+                           float caloPhi,
+                           float Rcore,
+                           float Eratio,
+                           float EThad,
+                           float F0,
+                           float F1,
+                           float F2,
+                           float F3,
+
+                           // Track
+                           const ElementLink< TrigInDetTrackCollection >& track,
+                           TrigInDetTrack::AlgoId trackAlgo,
+                           float Zvtx,
+                           int nTRTHits,
+                           int nTRTHiThresholdHits) 
+  :   P4PtEtaPhiM(pt,eta,phi,0.511*CLHEP::MeV),
+      m_roiWord(roi),
+      m_valid(valid),
+      m_tr_Algo(trackAlgo),
+      m_tr_Zvtx(Zvtx),
+      m_tr_nr_trt_hits(nTRTHits),
+      m_tr_nr_trt_hithresh_hits(nTRTHiThresholdHits),
+      m_tr_eta_at_calo(trkEtaAtCalo),
+      m_tr_phi_at_calo(trkPhiAtCalo),
+      m_etoverpt(EToverPT),
+      m_cl_eta(caloEta),
+      m_cl_phi(caloPhi),
+      m_cl_Rcore(Rcore),
+      m_cl_Eratio(Eratio),
+      m_cl_EThad(EThad),
+      m_cl_e_frac_S0(F0),
+      m_cl_e_frac_S1(F1),
+      m_cl_e_frac_S2(F2),
+      m_cl_e_frac_S3(F3),
+      m_cluster(cluster),
+      m_track(track)
+{
+}
+
+
 /** Copy constructor: Copy ElementLinks only if valid. Otherwise
     should leave as invalid in this object.
  */
@@ -243,44 +300,42 @@ TrigElectron::TrigElectron(const TrigElectron& te) :
   P4PtEtaPhiM(te),
   NavigableTerminalNode()
 {
-  if (this!=&te) {
-    m_roiWord  = te.m_roiWord;
-    m_valid    = te.m_valid;
-    // track variables
-    m_tr_Algo  = te.m_tr_Algo; 
-    m_tr_Zvtx  = te.m_tr_Zvtx;
-    m_tr_nr_trt_hits = te.m_tr_nr_trt_hits;
-    m_tr_nr_trt_hithresh_hits = te.m_tr_nr_trt_hithresh_hits;
-    m_tr_eta_at_calo = te.m_tr_eta_at_calo;
-    m_tr_phi_at_calo = te.m_tr_phi_at_calo;
-    // track-cluster match
-    m_etoverpt = te.m_etoverpt;
-    // calorimeter variables
-    m_cl_eta   = te.m_cl_eta;  
-    m_cl_phi   = te.m_cl_phi;
-    m_cl_Rcore = te.m_cl_Rcore; 
-    m_cl_Eratio= te.m_cl_Eratio;
-    m_cl_EThad = te.m_cl_EThad;
-    //    m_cl_energy= te.m_cl_energy;
-    m_cl_e_frac_S0 = te.m_cl_e_frac_S0;
-    m_cl_e_frac_S1 = te.m_cl_e_frac_S1;
-    m_cl_e_frac_S2 = te.m_cl_e_frac_S2;
-    m_cl_e_frac_S3 = te.m_cl_e_frac_S3;
+  m_roiWord  = te.m_roiWord;
+  m_valid    = te.m_valid;
+  // track variables
+  m_tr_Algo  = te.m_tr_Algo; 
+  m_tr_Zvtx  = te.m_tr_Zvtx;
+  m_tr_nr_trt_hits = te.m_tr_nr_trt_hits;
+  m_tr_nr_trt_hithresh_hits = te.m_tr_nr_trt_hithresh_hits;
+  m_tr_eta_at_calo = te.m_tr_eta_at_calo;
+  m_tr_phi_at_calo = te.m_tr_phi_at_calo;
+  // track-cluster match
+  m_etoverpt = te.m_etoverpt;
+  // calorimeter variables
+  m_cl_eta   = te.m_cl_eta;  
+  m_cl_phi   = te.m_cl_phi;
+  m_cl_Rcore = te.m_cl_Rcore; 
+  m_cl_Eratio= te.m_cl_Eratio;
+  m_cl_EThad = te.m_cl_EThad;
+  //    m_cl_energy= te.m_cl_energy;
+  m_cl_e_frac_S0 = te.m_cl_e_frac_S0;
+  m_cl_e_frac_S1 = te.m_cl_e_frac_S1;
+  m_cl_e_frac_S2 = te.m_cl_e_frac_S2;
+  m_cl_e_frac_S3 = te.m_cl_e_frac_S3;
 
 
-    // set ElementLink to cluster
-    if (m_cluster.isValid()) {
-      m_cluster.toIndexedElement( te.m_cluster.getStorableObjectRef(), te.m_cluster.index() );
-    } else {
-      m_cluster.reset();
-    }
+  // set ElementLink to cluster
+  if (m_cluster.isValid()) {
+    m_cluster.toIndexedElement( te.m_cluster.getStorableObjectRef(), te.m_cluster.index() );
+  } else {
+    m_cluster.reset();
+  }
 
-    // set ElementLink to track
-    if (m_track.isValid()) {
-      m_track.toIndexedElement( te.m_track.getStorableObjectRef(), te.m_track.index() );
-    } else {
-      m_track.reset();
-    }
+  // set ElementLink to track
+  if (m_track.isValid()) {
+    m_track.toIndexedElement( te.m_track.getStorableObjectRef(), te.m_track.index() );
+  } else {
+    m_track.reset();
   }
 }
 
@@ -327,7 +382,7 @@ bool operator==( const TrigElectron& te1,  const TrigElectron& te2 ) {
 void diff( const TrigElectron& te1, const TrigElectron& te2, std::map< std::string, double >& v_diff ) {
 
   v_diff["RoI"]            = te1.roiId() - te2.roiId();
-  v_diff["Charge"]         = fabs( te1.charge() - te2.charge() );
+  v_diff["Charge"]         = std::abs( te1.charge() - te2.charge() );
   v_diff["Eta"]            = fabs( te1.eta() - te2.eta() );
   double d_phi             = fabs( te1.phi() - te2.phi() );
   v_diff["Phi"]            = (d_phi < M_PI ? d_phi : 2*M_PI - d_phi);

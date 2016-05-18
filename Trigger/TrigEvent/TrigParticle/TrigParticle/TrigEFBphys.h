@@ -56,10 +56,6 @@ class TrigEFBphys  {
   TrigEFBphys(int roi, float eta, float phi, pType particleType, 
 	    float mass, const ElementLink<TrigEFBphysContainer>& sDecay);
 
-
-  /** copy constructor */
-  TrigEFBphys(const TrigEFBphys& te);
-
   /** destructor */
   ~TrigEFBphys();
   
@@ -87,9 +83,10 @@ class TrigEFBphys  {
   float fitz()  const { return m_fitz;    }
   /** accessor method: secondary decay particle */
   const TrigEFBphys* pSecondDecay() const;
+  const ElementLink< TrigEFBphysContainer>& secondaryDecayLink() const;
 
   /** accessor method:vector of tracks used to make particle */
-  const ElementLinkVector<Rec::TrackParticleContainer> trackVector() const {return m_trackVector;}
+  const ElementLinkVector<Rec::TrackParticleContainer>& trackVector() const {return m_trackVector;}
 
   /** set method: mass from vertex fit **/
   void fitmass(float FitMass);

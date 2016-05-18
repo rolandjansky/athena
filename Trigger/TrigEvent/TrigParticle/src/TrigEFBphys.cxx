@@ -26,7 +26,7 @@ Authour: J.Kirk - Wed May 10
 
 // default constructor
 TrigEFBphys::TrigEFBphys() :
-  m_roiID(-1),  m_eta(0),  m_phi(0) ,
+  m_roiID(-1),  m_particleType(PHIKK), m_eta(0),  m_phi(0) ,
   m_mass(0), m_fitmass(-99.), m_fitchi2(-99.), m_fitndof(-99),
   m_fitx(-99.), m_fity(-99.), m_fitz(-99),
   m_secondaryDecay(), m_trackVector(0)
@@ -52,31 +52,6 @@ TrigEFBphys::TrigEFBphys(int roi, float eta, float phi, pType particleType,
   m_secondaryDecay(sDecay), m_trackVector(0)
 {}
 
-
-
-// copy constructor
-TrigEFBphys::TrigEFBphys(const TrigEFBphys& te) 
-{
-  if (this!=&te) {
-    m_roiID      = te.m_roiID;
-    m_particleType = te.m_particleType;
-    m_eta        = te.m_eta;
-    m_phi        = te.m_phi;
-    m_mass      = te.m_mass;
-    m_fitmass      = te.m_fitmass;
-    m_fitchi2      = te.m_fitchi2;
-    m_fitndof      = te.m_fitndof;
-    m_fitx      = te.m_fitx;
-    m_fity      = te.m_fity;
-    m_fitz      = te.m_fitz;
-
-    for (unsigned int i=0; i<(te.m_trackVector).size(); ++i){
-      m_trackVector.push_back( (te.m_trackVector).at(i));
-    }
-    m_secondaryDecay     = te.m_secondaryDecay;
-
-  }
-}
 
 // destructor
 TrigEFBphys::~TrigEFBphys() 
@@ -200,3 +175,10 @@ const TrigEFBphys* TrigEFBphys::pSecondDecay() const {
     return NULL;
   }
 }
+
+
+const ElementLink< TrigEFBphysContainer>& TrigEFBphys::secondaryDecayLink() const
+{
+  return m_secondaryDecay;
+}
+

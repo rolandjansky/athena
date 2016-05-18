@@ -54,8 +54,6 @@ class TrigTau: public P4PtEtaPhiM,  public NavigableTerminalNode ,
 	  const TrigTauCluster* cluster=NULL, const TrigInDetTrackCollection* tracks=NULL,
 	  const TrigTauTracksInfo* tracksInfo=NULL);
   
-  TrigTau(const TrigTau& te);
-
   ~TrigTau();
   
   /** accessor methods */
