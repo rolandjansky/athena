@@ -1,5 +1,5 @@
 #
-# $Id: LArG4FastSimulation_setupTimer_jobOptions.py 708108 2015-11-16 12:34:05Z jchapman $
+# $Id: LArG4FastSimulation_setupTimer_jobOptions.py 747974 2016-05-18 12:25:25Z jchapman $
 #
 # job options for calculating timing information
 #
@@ -9,10 +9,18 @@
 #
 
 try:
-    # Post UserAction Migration (ATLASSIM-1752)
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-    from AthenaCommon.CfgGetter import getPublicTool
-    UAStore.addAction(getPublicTool('TestActionTimer'),['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
+    if (hasattr(simFlags, 'UseV2UserActions') and simFlags.UseV2UserActions()):
+        # this configures the MT
+        from G4AtlasServices import G4AtlasServicesConfig
+        G4AtlasServicesConfig.addAction('G4UA::TestActionTimerTool',['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'],False)
+    else:
+        # Post UserAction Migration (ATLASSIM-1752)
+        try:
+            from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+        except ImportError:
+            from G4AtlasServices.UserActionStore import UAStore
+            from AthenaCommon.CfgGetter import getPublicTool
+            UAStore.addAction(getPublicTool('TestActionTimer'),['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
 except:
     # Pre UserAction Migration
     def LArG4Timer_preG4Init():
