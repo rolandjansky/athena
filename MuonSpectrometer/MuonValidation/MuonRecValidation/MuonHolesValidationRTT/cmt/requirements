@@ -17,7 +17,7 @@ use AtlasPolicy                AtlasPolicy-*
 apply_pattern declare_joboptions files="*.py"
 
 #for RTT purposes -- now switched off 
-apply_pattern declare_runtime extras="../test/MuonHolesValidationRTT_TestConfiguration.xml ../share/*.C"
+#apply_pattern declare_runtime extras="../test/MuonHolesValidationRTT_TestConfiguration.xml ../share/*.C"
 
 private
 
