@@ -28,13 +28,12 @@ class IDetectorGeometrySvc : virtual public IService {
     static const InterfaceID IID_IDetectorGeometrySvc( "IDetectorGeometrySvc" , 1 , 0 ) ;
     return IID_IDetectorGeometrySvc ; 
   }
+
+  /// Setup the magnetic field managers for detector volumes
+  virtual StatusCode initializeFields() = 0;
   
   virtual G4VUserDetectorConstruction* GetDetectorConstruction() = 0;
   
-  virtual void SetCurrentDetectorName(std::string) = 0;
-  
-  virtual const std::string GetCurrentDetectorName() const = 0;
-
   virtual void ActivateParallelWorlds() = 0;
 
   virtual std::vector<std::string>& GetParallelWorldNames() = 0;
