@@ -9,10 +9,10 @@ use AthenaKernel        AthenaKernel-*          Control
 use StoreGate 		StoreGate-* 		Control
 use PileUpTools         PileUpTools-*           Control
 use Identifier          Identifier-*            DetectorDescription
-
+use xAODEventInfo       xAODEventInfo-*         Event/xAOD
 use LArRawEvent 	LArRawEvent-* 	        LArCalorimeter
 use LArIdentifier       LArIdentifier-*         LArCalorimeter
-use LArTools            LArTools-*              LArCalorimeter
+use LArCabling          LArCabling-*            LArCalorimeter
 use LArElecCalib	LArElecCalib-* 	        LArCalorimeter
 use LArRecConditions    LArRecConditions-*      LArCalorimeter
 use CaloIdentifier      CaloIdentifier-*        Calorimeter
@@ -30,10 +30,9 @@ apply_pattern declare_python_modules files="*.py"
 private
 use AtlasCLHEP 		AtlasCLHEP-* 	     External
 use AtlasHepMC          AtlasHepMC-*         External
-use EventInfo           EventInfo-*          Event
 use GeneratorObjects	GeneratorObjects-*   Generators
 use LArSimEvent	 	LArSimEvent-* 	     LArCalorimeter
 use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-* Simulation/Tools
 
-
-macro_append use_cppflags -ftemplate-depth-99
+macro_append use_cppflags -ftemplate-depth-99 # still required?
+end_private

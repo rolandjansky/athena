@@ -12,15 +12,15 @@
 class ILArPileUpTool : virtual public IAlgTool, virtual public IPileUpTool
 {
 //
-// >>>>>>>> public method 
+// >>>>>>>> public method
 //
  public:
 
-  static const InterfaceID& interfaceID() { 
-    static const InterfaceID IID_ILArPileUpTool("ILArPileUpTool", 1 , 0); 
-    return IID_ILArPileUpTool; 
+  static const InterfaceID& interfaceID() {
+    static const InterfaceID IID_ILArPileUpTool("ILArPileUpTool", 1 , 0);
+    return IID_ILArPileUpTool;
   }
-   
+
   virtual StatusCode fillMapFromHit(StoreGateSvc* seStore,float tbunch,bool isSignal)=0;
 
 };

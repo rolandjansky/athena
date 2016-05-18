@@ -10,7 +10,7 @@
 #include "CaloIdentifier/LArID.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
@@ -86,7 +86,7 @@ bool LArHitEMap::Initialize(std::vector<bool>& flags, bool windows, bool digit)
     }
   }
 
-  if (cablingService.retrieve().isFailure()) {
+  if (m_cablingService.retrieve().isFailure()) {
    MsgStream log(Athena::getMessageSvc(), "LArHitEMap");
    log << MSG::WARNING << "Unable to retrieve LArCablingService in tools " << endreq;
    return false;
@@ -128,7 +128,7 @@ bool LArHitEMap::Initialize(std::vector<bool>& flags, bool windows, bool digit)
 // skip if cell in endcap and endcap not requested
     if ( (!flags[EMENDCAP_INDEX]) && !em_barrel) continue;
     if (windows) calodde = m_calodetdescrmgr->get_element(id);
-    LArHitList* theLArHitList = new LArHitList(id,calodde,cablingService);
+    LArHitList* theLArHitList = new LArHitList(id,calodde,m_cablingService);
     m_emap[idHash] = theLArHitList;
    }
   }
@@ -138,7 +138,7 @@ bool LArHitEMap::Initialize(std::vector<bool>& flags, bool windows, bool digit)
     IdentifierHash idHash = i;
     Identifier id = m_larhec_id->channel_id(idHash);
     if (windows) calodde = m_calodetdescrmgr->get_element(id);
-    LArHitList* theLArHitList = new LArHitList(id,calodde,cablingService);
+    LArHitList* theLArHitList = new LArHitList(id,calodde,m_cablingService);
     m_emap[idHash+m_ncellem] = theLArHitList;
    }
   }
@@ -148,7 +148,7 @@ bool LArHitEMap::Initialize(std::vector<bool>& flags, bool windows, bool digit)
     IdentifierHash idHash = i;
     Identifier id = m_larfcal_id->channel_id(idHash);
     if (windows) calodde = m_calodetdescrmgr->get_element(id);
-    LArHitList* theLArHitList = new LArHitList(id,calodde,cablingService);
+    LArHitList* theLArHitList = new LArHitList(id,calodde,m_cablingService);
     m_emap[idHash+m_ncellem+m_ncellhec] = theLArHitList;
    }
   }
@@ -221,8 +221,8 @@ bool LArHitEMap::AddEnergy(const Identifier & cellid, float energy, float time)
 bool LArHitEMap::AddDigit(LArDigit* digit)
 {
  HWIdentifier ch_id = digit->channelID();
- if (cablingService->isOnlineConnected(ch_id)) {
-   Identifier cellid = cablingService->cnvToIdentifier(ch_id);
+ if (m_cablingService->isOnlineConnected(ch_id)) {
+   Identifier cellid = m_cablingService->cnvToIdentifier(ch_id);
    IdentifierHash idHash; 
    int offset=-1;
    if(m_larem_id->is_lar_em(cellid) && m_ncellem>0 ) 
