@@ -57,7 +57,6 @@ TopoSplitterForTaus.RestrictHECIWandFCalNeighbors  = False
 
 TopoMomentsForTaus = CaloClusterMomentsMaker ("TopoMomentsForTaus")
 TopoMomentsForTaus.MaxAxisAngle = 30*deg
-TopoMomentsForTaus.OutputLevel = INFO
 TopoMomentsForTaus.MomentsNames = [
    "FIRST_PHI" 
   ,"FIRST_ETA"

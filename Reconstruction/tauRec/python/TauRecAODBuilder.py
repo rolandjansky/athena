@@ -83,8 +83,11 @@ class TauRecAODProcessor ( TauRecConfigured ) :
             ## ATTENTION ##################################################################################
             # running these tau tools on AODs will lead to inconsistency with standard tau reconstruction
             ###############################################################################################
-            if InDetFlags.doVertexFinding():
-                tools.append(taualgs.getTauVertexFinder(doUseTJVA=True)) 
+            try :
+                if InDetFlags.doVertexFinding():
+                    tools.append(taualgs.getTauVertexFinder(doUseTJVA=True)) 
+                    pass                
+            except : pass
             tools.append(taualgs.getTauAxis()) ##needed to set correct variables for energy calibration
             #tools.append(taualgs.getTauTrackFinder())
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
@@ -109,14 +112,16 @@ class TauRecAODProcessor ( TauRecConfigured ) :
             tools.append(taualgs.getTauCommonCalcVars())
             tools.append(taualgs.getTauSubstructure())
 
-            #tools.append(taualgs.getPi0ClusterScaler())   #TauPi0ClusterScaler
+            tools.append(taualgs.getPi0ClusterScaler())   #TauPi0ClusterScaler
             tools.append(taualgs.getPi0ScoreCalculator()) #TauPi0ScoreCalculator
-            #tools.append(taualgs.getPi0Selector())        #TauPi0Selector
+            tools.append(taualgs.getPi0Selector())        #TauPi0Selector
 
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))                    
 
             tools.append(taualgs.getIDPileUpCorrection())
 
+            tools.append(taualgs.getMvaTESVariableDecorator())
+            tools.append(taualgs.getMvaTESEvaluator())
                 
             # for testing purpose
             #tools.append(taualgs.getTauTestDump())

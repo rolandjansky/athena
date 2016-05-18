@@ -285,9 +285,7 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
         OOCCalib.getFullName(),
         OOCPi0Calib.getFullName(),
         DMCalib.getFullName()]
-    CaloTopoForTausMaker.KeepCorrectionToolAndContainerNames += [
-        LocalCalib.getFullName(),"CaloTopoForTausMaker"]
-    #    CaloTopoForTausMaker.KeepEachCorrection=True
+
     CaloTopoForTausMaker += LocalCalib
     CaloTopoForTausMaker += OOCCalib
     CaloTopoForTausMaker += OOCPi0Calib
