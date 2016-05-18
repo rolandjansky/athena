@@ -8,3 +8,9 @@
 > Domain\[ROOT_All\] Info                           SimplePoolFile5.root
 > PoolXMLFileCatalog Info File Catalog2.xml does not exist, a new one is created
 < PoolXMLFileCatalog Info File Catalog2.xml does not exist, a new one is created
+< .* Debug No objects passing selection criteria... Container has
+> SimplePoolFile5.root Debug --
+< SimplePoolFile5.root Debug --
+> ##Params Debug
+> ##Shapes Debug
+> ##Links Debug

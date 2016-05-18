@@ -52,15 +52,15 @@ apply_pattern athenarun_test name="AthenaPoolExample_Read" pre_script="../test/p
 
 # Read via TAG collections:
 # AthenaPoolExample_ReadTag
-apply_pattern athenarun_test name="AthenaPoolExample_ReadTag" pre_script="../test/pre_check.sh AthenaPoolExample_ReadTag " options="./AthenaPoolExample_ReadTag.py" post_script="../test/post_check.sh AthenaPoolExample_ReadTag "
+apply_pattern athenarun_test name="AthenaPoolExample_ReadTag" pre_script="../test/pre_check.sh AthenaPoolExample_ReadTag " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadTagJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_ReadTag "
 
 # Read with scoped BackNavigation (finding parent hits in SPF3.root from SPF1.root):
 # AthenaPoolExample_ReadBN
-apply_pattern athenarun_test name="AthenaPoolExample_ReadBN" pre_script="../test/pre_check.sh AthenaPoolExample_ReadBN " options="./AthenaPoolExample_ReadBN.py" post_script="../test/post_check.sh AthenaPoolExample_ReadBN AthenaPoolExample_Read "
+apply_pattern athenarun_test name="AthenaPoolExample_ReadBN" pre_script="../test/pre_check.sh AthenaPoolExample_ReadBN " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBNJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_ReadBN AthenaPoolExample_Read "
 
 # Read without BackNavigation (not finding parent hits in SPF3.root from SPF1.root):
 # AthenaPoolExample_ReadNoBN
-apply_pattern athenarun_test name="AthenaPoolExample_ReadNoBN" pre_script="../test/pre_check.sh AthenaPoolExample_ReadNoBN " options="./AthenaPoolExample_ReadNoBN.py" post_script="../test/post_check.sh AthenaPoolExample_ReadNoBN "
+apply_pattern athenarun_test name="AthenaPoolExample_ReadNoBN" pre_script="../test/pre_check.sh AthenaPoolExample_ReadNoBN " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadNoBNJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_ReadNoBN "
 
 
 # Create a direct pers -> pers copy of SPF1.root:
@@ -69,11 +69,11 @@ apply_pattern athenarun_test name="AthenaPoolExample_Copy" pre_script="../test/p
 
 # Write/read out some simple data objects (replicated hits -> tracks), extending provenance:
 # AthenaPoolExample_ReWriteAgain
-apply_pattern athenarun_test name="AthenaPoolExample_ReWriteAgain" pre_script="../test/pre_check.sh AthenaPoolExample_ReWriteAgain " options="AthenaPoolExample_ReWriteAgain.py" post_script="../test/post_check.sh AthenaPoolExample_ReWriteAgain AthenaPoolExample_ReWrite "
+apply_pattern athenarun_test name="AthenaPoolExample_ReWriteAgain" pre_script="../test/pre_check.sh AthenaPoolExample_ReWriteAgain " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_ReWriteAgainJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_ReWriteAgain AthenaPoolExample_ReWrite "
 
 # Write/read out some simple data objects (tracks -> tracks), extending provenance:
 # AthenaPoolExample_ReWriteNext
-apply_pattern athenarun_test name="AthenaPoolExample_ReWriteNext" pre_script="../test/pre_check.sh AthenaPoolExample_ReWriteNext " options="AthenaPoolExample_ReWriteNext.py" post_script="../test/post_check.sh AthenaPoolExample_ReWriteNext "
+apply_pattern athenarun_test name="AthenaPoolExample_ReWriteNext" pre_script="../test/pre_check.sh AthenaPoolExample_ReWriteNext " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_ReWriteNextJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_ReWriteNext "
 
 # Filter out some simple data objects (tracks -> tracks):
 # AthenaPoolExample_Filter
@@ -82,11 +82,9 @@ apply_pattern athenarun_test name="AthenaPoolExample_Filter" pre_script="../test
 # Read Filter out some simple data objects (tracks -> tracks):
 # AthenaPoolExample_RFilter
 apply_pattern athenarun_test name="AthenaPoolExample_RFilter" pre_script="../test/pre_check.sh AthenaPoolExample_RFilter " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_RFilterJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_RFilter "
-# AthenaPoolExample_RFilter
-apply_pattern athenarun_test name="AthenaPoolExample_RFilterPL" pre_script="../test/pre_check.sh AthenaPoolExample_RFilterPL " options="AthenaPoolExample_RFilterPL.py" post_script="../test/post_check.sh AthenaPoolExample_RFilterPL AthenaPoolExample_RFilter "
 
 # AthenaPoolExample_ReadAgain
-apply_pattern athenarun_test name="AthenaPoolExample_ReadAgain" pre_script="../test/pre_check.sh AthenaPoolExample_ReadAgain " options="AthenaPoolExample_ReadAgain.py" post_script="../test/post_check.sh AthenaPoolExample_ReadAgain "
+apply_pattern athenarun_test name="AthenaPoolExample_ReadAgain" pre_script="../test/pre_check.sh AthenaPoolExample_ReadAgain " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadAgainJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_ReadAgain "
 
 # Write/read out some simple data objects (hits -> tracks), without extending provenance:
 # AthenaPoolExample_ReWriteSkip
@@ -149,19 +147,19 @@ apply_pattern athenarun_test name="AthenaPoolExample_RMeta" pre_script="../test/
 
 # Test fast POOL merge
 # AthenaPoolExample_WriteFirst
-apply_pattern athenarun_test name="AthenaPoolExample_WriteFast" pre_script="../test/pre_check.sh AthenaPoolExample_WriteFast " options="./AthenaPoolExample_WriteFast.py" post_script="../test/post_check.sh AthenaPoolExample_WriteFast AthenaPoolExample_Write "
+apply_pattern athenarun_test name="AthenaPoolExample_WriteFast" pre_script="../test/pre_check.sh AthenaPoolExample_WriteFast " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_WriteFastJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_WriteFast AthenaPoolExample_Write "
 
 # AthenaPoolExample_WriteSecond
-apply_pattern athenarun_test name="AthenaPoolExample_AppendFast" pre_script="../test/pre_check.sh AthenaPoolExample_AppendFast " options="./AthenaPoolExample_AppendFast.py" post_script="../test/post_check.sh AthenaPoolExample_AppendFast "
+apply_pattern athenarun_test name="AthenaPoolExample_AppendFast" pre_script="../test/pre_check.sh AthenaPoolExample_AppendFast " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_AppendFastJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_AppendFast "
 
 # AthenaPoolExample_ReWrite
 apply_pattern athenarun_test name="AthenaPoolExample_ReWriteFast" pre_script="../test/pre_check.sh AthenaPoolExample_ReWrite " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_RWJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_ReWriteFast AthenaPoolExample_ReWrite "
 
-# AthenaPoolExample_ReWriteTag
-#apply_pattern athenarun_test name="AthenaPoolExample_ReWriteTagFast" pre_script="../test/pre_check.sh AthenaPoolExample_ReWriteTagFast " options="./AthenaPoolExample_ReWriteTagFast.py" post_script="../test/post_check.sh AthenaPoolExample_ReWriteTagFast "
-
 # AthenaPoolExample_Read
 apply_pattern athenarun_test name="AthenaPoolExample_ReadFast" pre_script="../test/pre_check.sh AthenaPoolExample_Read " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_ReadFast AthenaPoolExample_Read "
+
+# AthenaPoolExample_ReWriteTag
+#apply_pattern athenarun_test name="AthenaPoolExample_ReWriteTagFast" pre_script="../test/pre_check.sh AthenaPoolExample_ReWriteTagFast " options="./AthenaPoolExample_ReWriteTagFast.py" post_script="../test/post_check.sh AthenaPoolExample_ReWriteTagFast "
 
 # AthenaPoolExample_ReadTag
 #apply_pattern athenarun_test name="AthenaPoolExample_ReadTagFast" pre_script="../test/pre_check.sh AthenaPoolExample_ReadTagFast " options="./AthenaPoolExample_ReadTagFast.py" post_script="../test/post_check.sh AthenaPoolExample_ReadTagFast "
@@ -180,13 +178,10 @@ macro_append AthenaPoolExample_ReWriteAgain_test_dependencies " AthenaPoolExampl
 macro_append AthenaPoolExample_ReWriteNext_test_dependencies " AthenaPoolExample_ReWriteAgain_test "
 macro_append AthenaPoolExample_Filter_test_dependencies " AthenaPoolExample_ReWriteNext_test "
 macro_append AthenaPoolExample_RFilter_test_dependencies " AthenaPoolExample_Filter_test "
-macro_append AthenaPoolExample_RFilterPL_test_dependencies " AthenaPoolExample_Filter_test "
 macro_append AthenaPoolExample_ReadAgain_test_dependencies " AthenaPoolExample_RFilter_test "
-macro_append AthenaPoolExample_ReadAgain_test_dependencies " AthenaPoolExample_RFilterPL_test "
 
 macro_append AthenaPoolExample_ReWriteSkip_test_dependencies " AthenaPoolExample_ReadAgain_test "
 macro_append AthenaPoolExample_ReWriteSkip_test_dependencies " AthenaPoolExample_RFilter_test "
-macro_append AthenaPoolExample_ReWriteSkip_test_dependencies " AthenaPoolExample_RFilterPL_test "
 
 macro_append AthenaPoolExample_ReadSkip_test_dependencies " AthenaPoolExample_ReWriteSkip_test "
 

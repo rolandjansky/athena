@@ -1,8 +1,9 @@
-Wed Feb  4 10:46:08 CET 2015
+Mon Mar 21 22:39:55 CET 2016
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
 Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsTagJobOptions.py"
 Athena               INFO including file "AthenaCommon/runbatch.py"
@@ -18,17 +19,15 @@ AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-59-04
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-03
 AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
 AthAlgSeq            INFO Member list: AthPoolEx::ReadBs/ReadBs, AthPoolEx::ReadData/ReadData
 ReadBs               INFO in initialize()
-InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-02-45-01-04
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-59-04
-MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-02-45-01-04
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-26-18
-AthenaRootStrea...   INFO POOL/ROOT class loader initialized
-AthenaRootStrea...   INFO 9 ROOT streamers declared
-PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-24-06
+InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-03-06-31
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-60-03
+MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-03-06-31
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-28-12
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-25-00
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
@@ -38,46 +37,51 @@ PoolSvc              INFO Re-initializing PoolSvc
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
-ToolSvc.ByteStr...   INFO Initializing ToolSvc.ByteStreamMetadataTool - package version ByteStreamCnvSvc-01-34-22
-EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-18-35
-TagMetaDataStore     INFO Initializing TagMetaDataStore - package version StoreGate-02-45-01-04
+ToolSvc.ByteStr...   INFO Initializing ToolSvc.ByteStreamMetadataTool - package version ByteStreamCnvSvc-01-34-33
+EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-19-07
+TagMetaDataStore     INFO Initializing TagMetaDataStore - package version StoreGate-03-06-31
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query EventNumber==14356
 EventSelector       DEBUG Try item: "SimpleRawCollection.root" from the collection list.
 RootCollection Info Opening Collection File SimpleRawCollection.root in mode: READ
 RootCollection Debug File SimpleRawCollection.root exists.
 RootCollection Info File SimpleRawCollection.root opened
+RootCollection Debug Retrieved Collection TTree  "POOLCollectionTree" from file SimpleRawCollection.root
 RootCollection Info Root collection opened, size = 3
 EventSelector        INFO Using collection ref name: StreamRAW
-AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-18-35
-ByteStreamNavig...   INFO Initializing ByteStreamNavigationProviderSvc - package version ByteStreamCnvSvc-01-34-22
-ROBDataProviderSvc   INFO Initializing ROBDataProviderSvc - package version ByteStreamCnvSvcBase-00-08-10
+AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-19-07
+ByteStreamNavig...   INFO Initializing ByteStreamNavigationProviderSvc - package version ByteStreamCnvSvc-01-34-33
+ROBDataProviderSvc   INFO Initializing ROBDataProviderSvc - package version ByteStreamCnvSvcBase-00-08-12
 ROBDataProviderSvc   INFO  ---> Filter out empty ROB fragments                               =  'filterEmptyROB':False
 ROBDataProviderSvc   INFO  ---> Filter out specific ROBs by Status Code: # ROBs = 0
 ROBDataProviderSvc   INFO  ---> Filter out Sub Detector ROBs by Status Code: # Sub Detectors = 0
-ByteStreamAddre...   INFO Initializing ByteStreamAddressProviderSvc - package version ByteStreamCnvSvcBase-00-08-10
+ByteStreamAddre...   INFO Initializing ByteStreamAddressProviderSvc - package version ByteStreamCnvSvcBase-00-08-12
 ByteStreamAddre...   INFO initialized 
 ByteStreamAddre...   INFO -- Module IDs for: 
 ByteStreamAddre...   INFO    CTP                                  = 0x1
 ByteStreamAddre...   INFO    muCTPi                               = 0x1
 ByteStreamAddre...   INFO    Calorimeter Cluster Processor RoI    = 0xa8, 0xa9, 0xaa, 0xab
 ByteStreamAddre...   INFO    Calorimeter Jet/Energy Processor RoI = 0xac, 0xad
-ByteStreamAddre...   INFO    Topo Processor RoI = 0x910080, 0x910090
+ByteStreamAddre...   INFO    Topo Processor RoI = 0x81, 0x91
 ByteStreamAddre...   INFO -- Will fill Store with id =  0
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-10
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-07
 ReadData             INFO in initialize()
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-45-01-04
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-06-31
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
-ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-02-45-01-04
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-06-31
 ApplicationMgr       INFO Application Manager Initialized successfully
 MetaDataStore        INFO Start MetaDataStore
 TagMetaDataStore     INFO Start TagMetaDataStore
 RootCollection Info Closing open collection 'SimpleRawCollection.root'
 EventSelector       DEBUG Try item: "SimpleRawCollection.root" from the collection list.
 RootCollection Info Opening Collection File SimpleRawCollection.root in mode: READ
+RootCollection Debug File SimpleRawCollection.root exists.
 RootCollection Info File SimpleRawCollection.root opened
+RootCollection Debug Retrieved Collection TTree  "POOLCollectionTree" from file SimpleRawCollection.root
 RootCollection Info Root collection opened, size = 3
+RootCollection::Metadata Debug  Using char buffer of size: 4100
+RootCollection::Metadata Debug  readKeys: found 3 metadata keys
 MetaDataSvc         DEBUG handle() BeginTagFile for SimpleRawCollection.root
 InputMetaDataStore   INFO Start InputMetaDataStore
 StoreGateSvc         INFO Start StoreGateSvc
@@ -109,10 +113,12 @@ ReadBs               INFO ByteStreamMetadataContainer, size =  1
 ReadData            DEBUG in execute()
 ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimpleRawCollection.root
 ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
-ReadData             INFO CollectionMetadata, key = UnixTimestamp, value = 1423043152
+ReadData             INFO CollectionMetadata, key = UnixTimestamp, value = 1458596366
 ReadData          WARNING Could not find EventStreamInfo
 ReadData             INFO EventInfo event: 14356 run: 20720
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
+ReadData             INFO Could not find ExampleHitContainer/MyHits
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14356, run #20720 1 events processed so far  <<<===
 RootCollection Info Closing open collection 'SimpleRawCollection.root'
 ToolSvc.ByteStr...   INFO handle() EndInputFile, filename = FID:????
@@ -135,21 +141,22 @@ ReadData            DEBUG Calling destructor
 AthOutSeq            INFO Finalizing AthOutSeq...
 AthRegSeq            INFO Finalizing AthRegSeq...
 AthMasterSeq         INFO Finalizing AthMasterSeq...
-StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-02-45-01-04
+StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-03-06-31
 EventInfoByteSt...   INFO finalize 
-InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-02-45-01-04
-TagMetaDataStore     INFO Finalizing TagMetaDataStore - package version StoreGate-02-45-01-04
+InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-03-06-31
+TagMetaDataStore     INFO Finalizing TagMetaDataStore - package version StoreGate-03-06-31
 PoolSvc              INFO I/O finalization...
+XMLFileCatalog Debug There were no updates in the catalog
 PoolXMLFileCatalog Info XercesC termination number 0
-MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-02-45-01-04
+MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-03-06-31
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 ToolSvc.ByteStr...   INFO in finalize()
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-AthenaSealSvc::...   INFO Time User   : Tot=  125 [ms]                                             #=  1
-ChronoStatSvc        INFO Time User   : Tot= 5.04  [s]                                             #=  1
+AthenaSealSvc::...   INFO Time User   : Tot=   13 [ms]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot=0.93  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

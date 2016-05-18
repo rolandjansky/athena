@@ -1,8 +1,9 @@
-Wed Feb  4 10:52:40 CET 2015
+Mon Mar 21 22:37:11 CET 2016
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
 Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_CopyJobOptions.py"
 Athena               INFO including file "AthenaCommon/runbatch.py"
@@ -18,7 +19,7 @@ AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-59-04
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-03
 AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
 AthAlgSeq            INFO Member list: AthenaOutputStream/Stream1
 Stream1             DEBUG In initialize 
@@ -26,14 +27,12 @@ Stream1             DEBUG Found IDecisionSvc.
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
 Stream1             DEBUG End initialize 
 Stream1             DEBUG In initialize
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-45-01-04
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-59-04
-InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-02-45-01-04
-MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-02-45-01-04
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-26-18
-AthenaRootStrea...   INFO POOL/ROOT class loader initialized
-AthenaRootStrea...   INFO 9 ROOT streamers declared
-PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-24-06
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-06-31
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-60-03
+InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-03-06-31
+MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-03-06-31
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-28-12
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-25-00
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:Catalog1.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
@@ -43,8 +42,8 @@ PoolSvc              INFO Re-initializing PoolSvc
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:Catalog1.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
-EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-18-35
-TagMetaDataStore     INFO Initializing TagMetaDataStore - package version StoreGate-02-45-01-04
+EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-19-07
+TagMetaDataStore     INFO Initializing TagMetaDataStore - package version StoreGate-03-06-31
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
@@ -66,7 +65,6 @@ DbSession Info     Open     DbSession
 Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All] Info                           SimplePoolFile1.root
-RootDatabase.open Success SimplePoolFile1.root File version:53424
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ???? Debug Opened container ##Shapes of type ROOT_Tree
 SimplePoolFile1.root Debug --->Reading Shape[0 , ????]: [1 Column(s)]
@@ -120,32 +118,30 @@ SimplePoolFile1.root Debug --->Reading Param:PFN=[SimplePoolFile1.root]
 SimplePoolFile1.root Debug --->Reading Param:POOL_VSN=[1.1]
 SimplePoolFile1.root Debug --->Reading Param:FORMAT_VSN=[1.1]
 ##Params Debug No objects passing selection criteria... Container has 4 Entries in total.
-RootDatabase.onOpen Debug ???? File version:53424
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_Tree] MetaDataHdr(DataHeader)
 ???? Debug Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
 PoolSvc              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 ???? Debug Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
-AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-18-35
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-10
+AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-19-07
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-07
 Stream1             DEBUG Found StoreGateSvc store.
 Stream1             DEBUG Found MetaDataStore store.
-ItemListSvc          INFO ItemListSvc initialize
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-01-59-04
-Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-02-75
+OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-01-60-03
+Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-02-84
 Stream1.Stream1...   INFO streamProperty ProcessingTag = Stream1
 Stream1.Stream1...  DEBUG In connectServices
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-45-01-04
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-06-31
 AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
-Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-02-75
+Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-02-84
 Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo'])
 Stream1              INFO Data output: SimplePoolReplica1.root
 Stream1              INFO I/O reinitialization...
 Stream1             DEBUG End initialize
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
-ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-02-45-01-04
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-06-31
 ApplicationMgr       INFO Application Manager Initialized successfully
 InputMetaDataStore   INFO Start InputMetaDataStore
 MetaDataStore        INFO Start MetaDataStore
@@ -197,7 +193,6 @@ PoolXMLFileCatalog Debug filename SimplePoolReplica1.root does not exist
 XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
 Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] ????
 Domain[ROOT_All] Info                           SimplePoolReplica1.root
-RootDatabase.open Success SimplePoolReplica1.root File version:53424
 SimplePoolReplica1.root Debug --> Access   DbContainer  CREATE    [ROOT_All] ##Shapes
 ???? Debug Opened container ##Shapes of type ROOT_Tree
 ##Shapes Debug No objects passing selection criteria... Container has 0 Entries in total.
@@ -213,6 +208,7 @@ RootDatabase.setOption Debug Request TREE_AUTO_FLUSH
 RootDatabase.setOption Debug File name SimplePoolReplica1.root
 RootDatabase.setOption Debug Demand to set AUTO_FLUSH for TTree: POOLContainer with value: 0
 AthenaPoolCnvSvc    DEBUG setAttribute TREE_AUTO_FLUSH to 0 for db: SimplePoolReplica1.root and cont: TTree=POOLContainer
+AthenaPoolCnvSvc    DEBUG setAttribute CONTAINER_SPLITLEVEL to 99 for db: SimplePoolReplica1.root and cont: TTree=POOLContainerForm(DataHeaderForm)
 Stream1.Stream1...  DEBUG Connected to SimplePoolReplica1.root
 Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
 Stream1             DEBUG addItemObjects(2101,"*") called
@@ -220,9 +216,12 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_Tree] CollectionTree(ExampleHitContainer_p1/MyHits)
+???? Debug Opened container CollectionTree(ExampleHitContainer_p1/MyHits) of type ROOT_Tree
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 1
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 1
 SimplePoolReplica1.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(EventInfo_p4/McEventInfo)
 ???? Debug Opened container CollectionTree(EventInfo_p4/McEventInfo) of type ROOT_Tree
 SimplePoolReplica1.root Debug --->Adding Assoc :????/CollectionTree(EventInfo_p4/McEventInfo) [202]  (3 , ffffffff)
@@ -230,8 +229,6 @@ SimplePoolReplica1.root Debug ---->ClassID:????
 SimplePoolReplica1.root Debug --->Adding Shape[0 , ????]:  [1 Column(s)] 
 SimplePoolReplica1.root Debug ---->Class:EventInfo_p4
 SimplePoolReplica1.root Debug ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_Tree] CollectionTree(ExampleHitContainer_p1/MyHits)
-???? Debug Opened container CollectionTree(ExampleHitContainer_p1/MyHits) of type ROOT_Tree
 SimplePoolReplica1.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(ExampleHitContainer_p1/MyHits)
 ???? Debug Opened container CollectionTree(ExampleHitContainer_p1/MyHits) of type ROOT_Tree
 SimplePoolReplica1.root Debug --->Adding Assoc :????/CollectionTree(ExampleHitContainer_p1/MyHits) [202]  (4 , ffffffff)
@@ -239,7 +236,6 @@ SimplePoolReplica1.root Debug ---->ClassID:????
 SimplePoolReplica1.root Debug --->Adding Shape[1 , ????]:  [1 Column(s)] 
 SimplePoolReplica1.root Debug ---->Class:ExampleHitContainer_p1
 SimplePoolReplica1.root Debug ---->[0]:ExampleHitContainer_p1 Typ:ExampleHitContainer_p1 [21] Size:0 Offset:0 #Elements:1
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 SimplePoolReplica1.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainerForm(DataHeaderForm)
 ???? Debug Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
 SimplePoolReplica1.root Debug --->Adding Assoc :????/POOLContainerForm(DataHeaderForm) [202]  (5 , ffffffff)
@@ -279,10 +275,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 2
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 2
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 2 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -302,10 +298,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 3
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 3
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 3 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -325,10 +321,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 4
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 4
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 4 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -348,10 +344,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 5
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 5
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #1 5 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -371,10 +367,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 6
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 6
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #1 6 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -394,10 +390,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 7
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 7
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #1 7 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -417,10 +413,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 8
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 8
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #1 8 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -440,10 +436,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 9
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 9
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #1 9 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -463,10 +459,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 10
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 10
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #1 10 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -486,10 +482,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 11
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 11
 Stream1.Stream1...  DEBUG In commitOutput
 CollectionTree(EventInfo_p4/McEventInfo) Debug endTransaction: go to finish
 CollectionTree(ExampleHitContainer_p1/MyHits) Debug endTransaction: go to finish
@@ -517,10 +513,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 12
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 12
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #1 12 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -540,10 +536,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 13
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 13
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #1 13 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -563,10 +559,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 14
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 14
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #1 14 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -586,10 +582,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 15
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 15
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #1 15 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -609,10 +605,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 16
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 16
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #1 16 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -632,10 +628,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 17
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 17
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #1 17 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -655,10 +651,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 18
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 18
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #1 18 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -678,10 +674,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 19
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 19
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #1 19 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -701,10 +697,10 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
-Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
+Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 20
-Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 20
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events processed so far  <<<===
 RootCollection Info Closing open collection 'SimplePoolFile1.root'
@@ -796,19 +792,15 @@ AthAlgSeq            INFO Finalizing AthAlgSeq...
 AthOutSeq            INFO Finalizing AthOutSeq...
 AthRegSeq            INFO Finalizing AthRegSeq...
 AthMasterSeq         INFO Finalizing AthMasterSeq...
-StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-02-45-01-04
-DetectorStore        INFO Finalizing DetectorStore - package version StoreGate-02-45-01-04
-ItemListSvc          INFO -- OUTPUT STREAM ITEM OVERLAP SUMMARY --
-ItemListSvc          INFO STREAM Stream1 has (2) items
-ItemListSvc          INFO    - EventInfo_McEventInfo
-ItemListSvc          INFO    - EventStreamInfo_Stream1
-TagMetaDataStore     INFO Finalizing TagMetaDataStore - package version StoreGate-02-45-01-04
+StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-03-06-31
+DetectorStore        INFO Finalizing DetectorStore - package version StoreGate-03-06-31
+TagMetaDataStore     INFO Finalizing TagMetaDataStore - package version StoreGate-03-06-31
 AthenaPoolCnvSvc    DEBUG releasing all workers
 PoolSvc              INFO I/O finalization...
 XMLFileCatalog Info Updating the catalog
 PoolXMLFileCatalog Info XercesC termination number 0
-MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-02-45-01-04
-InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-02-45-01-04
+MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-03-06-31
+InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-03-06-31
 DecisionSvc          INFO -- OUTPUT STREAM EVENT OVERLAP SUMMARY --
 DecisionSvc          INFO List of registered 1 Streams: Stream1 
 DecisionSvc          INFO Finalized successfully.
@@ -821,9 +813,8 @@ Stream1.Stream1...  DEBUG Calling destructor
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-AthenaSealSvc::...   INFO Time User   : Tot=    3 [ms] Ave/Min/Max=  333(+-  471)/    0/1e+03 [us] #=  9
-AthenaSealSvc::...   INFO Time User   : Tot=  199 [ms]                                             #=  1
-ChronoStatSvc        INFO Time User   : Tot= 6.29  [s]                                             #=  1
+AthenaSealSvc::...   INFO Time User   : Tot=   11 [ms]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot=0.86  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

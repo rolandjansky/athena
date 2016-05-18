@@ -36,9 +36,8 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 svcMgr.EventSelector.InputCollections = [ "EmptyPoolFile.root", "SimplePoolFile1.root", "EmptyPoolFile.root", "SimplePoolFile2.root", "SimplePoolFile3.root" ]
-#svcMgr.EventSelector.CollectionTree = "POOLContainer/basic"
 #svcMgr.EventSelector.InputCollections = [ "EmptyPoolCollection.root", "SimplePoolCollection1.root", "EmptyPoolCollection.root", "SimplePoolCollection2.root", "SimplePoolCollection3.root" ]
-svcMgr.AthenaPoolAddressProviderSvc.BackNavigation = TRUE; # // switch on BackNavigation of AddressProvider
+svcMgr.AthenaPoolAddressProviderSvc.BackNavigation = FALSE; # // switch on BackNavigation of AddressProvider
 # // use scope based BackNavigation
 #svcMgr.AthenaPoolAddressProviderSvc.BackNavigationScope += [ "Stream1::ExampleHitContainer#MyHits" ]
 svcMgr.EventSelector.SkipEvents = 8; # // skip the first 8 events
@@ -76,7 +75,7 @@ QueryTag = AthPoolEx__QueryTag("QueryTag")
 
 #PoolSvc.ReadCatalog = [ "mysqlcatalog_mysql://CollTester:CtAl_204@atlasdbdev.cern.ch:3306/CollectionTest" ]
 svcMgr.PoolSvc.WriteCatalog = "file:Catalog1.xml"
-#svcMgr.PoolSvc.AttemptCatalogPatch = True;
+svcMgr.PoolSvc.AttemptCatalogPatch = True;
 
 #--------------------------------------------------------------
 # Private Application Configuration options

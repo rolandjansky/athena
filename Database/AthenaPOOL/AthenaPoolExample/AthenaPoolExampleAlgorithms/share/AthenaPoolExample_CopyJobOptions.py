@@ -76,7 +76,8 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolReplica1.root" , True )
 Stream1.ItemList += [ "ExampleHitContainer#MyHits" ]
 Stream1.ExtendProvenanceRecord = FALSE;
-Stream1.PersToPers = True
+Stream1.ForceRead = True
+#Stream1.PersToPers = True
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)

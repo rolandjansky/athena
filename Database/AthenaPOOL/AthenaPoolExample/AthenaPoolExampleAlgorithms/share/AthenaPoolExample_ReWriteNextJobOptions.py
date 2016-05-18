@@ -6,18 +6,18 @@
 #
 # This Job option:
 # ----------------
-# 1. Reads the data (EventInfo, ExampleHits) from the SimplePoolFile1.root file
+# 1. Reads the data (EventInfo, ExampleHits) from the SimplePoolFile3.root file
 #    that has been written with the AthneaPoolExample_WriteJobOptions.py
-# 2. Writes SimplePoolFile3.root file with ExampleTracks using ReWriteData algorithm
+# 2. Writes SimplePoolFile4.root file with ExampleTracks using ReWriteData algorithm
 # ------------------------------------------------------------
 # Expected output file (20 events):
-# -rw-r--r--  1 gemmeren zp 11395 Aug  5 17:34 SimplePoolCollection3.root
-# -rw-r--r--  1 gemmeren zp 27536 Aug  5 17:34 SimplePoolFile3.root
+# -rw-r--r--  1 gemmeren zp 11395 Aug  5 17:34 SimplePoolCollection4.root
+# -rw-r--r--  1 gemmeren zp 27536 Aug  5 17:34 SimplePoolFile4.root
 # ------------------------------------------------------------
-# File:SimplePoolFile3.root
+# File:SimplePoolFile4.root
 # Size:       26.891 kb
 # Nbr Events: 20
-#
+# 
 # ================================================================================
 #      Mem Size       Disk Size        Size/Evt      MissZip/Mem  items  (X) Container Name (X=Tree|Branch)
 # ================================================================================
@@ -56,25 +56,13 @@ theApp.EvtMax = 200000
 #--------------------------------------------------------------
 import AthenaPoolCnvSvc.ReadAthenaPool
 
-svcMgr.EventSelector.InputCollections = [ "SimplePoolCollection5.root" ]; # ** mandatory parameter ** // The input file name
-svcMgr.EventSelector.CollectionType = "ExplicitROOT"
-#svcMgr.EventSelector.DerivedRefName = "Stream1_derived"
-
-svcMgr.EventSelector.Query = "EventNumber > 9"
-svcMgr.EventSelector.ProcessMetadata = False
+svcMgr.EventSelector.InputCollections = [ "SimplePoolFile3.root" ]; # ** mandatory parameter ** // The input file name
 
 #Explicitly specify the output file catalog
 svcMgr.PoolSvc.ReadCatalog = [ "file:Catalog.xml" ]
-svcMgr.PoolSvc.ReadCatalog += [ "file:Catalog1.xml" ]
-svcMgr.PoolSvc.WriteCatalog = "file:Catalog2.xml"
+svcMgr.PoolSvc.WriteCatalog = "file:Catalog1.xml"
 
 svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
-
-#from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import TagRemappingTool
-#TagRemappingTool = TagRemappingTool("TagRemappingTool")
-#TagRemappingTool.JoinListKey = "Stream1_ref"
-#TagRemappingTool.TargetTagFile = "SimplePoolCollection5.root"
-#svcMgr.EventSelector.HelperTools = [ TagRemappingTool ]
 
 #--------------------------------------------------------------
 # Private Application Configuration options
@@ -82,6 +70,46 @@ svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
 # Load "user algorithm" top algorithms to be run, and the libraries that house them
 from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__ReadData,AthPoolEx__ReWriteData
 topSequence += AthPoolEx__ReadData("ReadData")
+topSequence += AthPoolEx__ReWriteData("ReWriteData")
+
+from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__WriteTag
+topSequence += AthPoolEx__WriteTag("WriteTag")
+MagicWriteTag = AthPoolEx__WriteTag( "MagicWriteTag" )
+MagicWriteTag.Key = "MagicTag"
+MagicWriteTag.Magic = 24
+topSequence += MagicWriteTag
+
+#--------------------------------------------------------------
+#---   Secondary Write portion  ----- Don't change it !!!
+#--------------------------------------------------------------
+from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
+Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFile4.root" , True )
+Stream1.ItemList += [ "ExampleTrackContainer#MyTracks" ]
+#Stream1.ExtendProvenanceRecord = FALSE;
+#Stream1.WritingTool.ProvenanceTags = []
+Stream1.WritingTool.AttributeListKey = MagicWriteTag.Key
+
+#--------------------------------------------------------------
+# ROOT streaming service
+#--------------------------------------------------------------
+from AthenaPoolServices.AthenaRootStreamerSvcConf import AthenaRootStreamerSvc
+StreamerSvc = AthenaRootStreamerSvc()
+StreamerSvc.Streamers  += [ "ExampleHitStreamer_p0" ]
+svcMgr += StreamerSvc
+
+#--------------------------------------------------------------
+# Event Collection Registration
+#--------------------------------------------------------------
+from RegistrationServices.RegistrationServicesConf import RegistrationStreamTagTool
+TagTool = RegistrationStreamTagTool("TagTool")
+
+from RegistrationServices.RegistrationServicesConf import RegistrationStream
+RegStream1 = RegistrationStream( "RegStream1" , CollectionType="ExplicitROOT" , Tool=TagTool )
+RegStream1.WriteInputDataHeader = False
+RegStream1.OutputCollection = "SimplePoolCollection4.root"
+RegStream1.ItemList += [ "DataHeader#Stream1" ]
+RegStream1.ItemList += [ "TagAthenaAttributeList#" + MagicWriteTag.Key ]
+topSequence += RegStream1
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
@@ -89,11 +117,15 @@ topSequence += AthPoolEx__ReadData("ReadData")
 svcMgr.MessageSvc.OutputLevel = 3
 svcMgr.MessageSvc.defaultLimit = 100000
 
-svcMgr.MetaDataSvc.OutputLevel = 2
 svcMgr.EventSelector.OutputLevel = 2
 svcMgr.AthenaPoolAddressProviderSvc.OutputLevel = 2
+svcMgr.MetaDataSvc.OutputLevel = 2
 svcMgr.PoolSvc.OutputLevel = 2
+svcMgr.AthenaPoolCnvSvc.OutputLevel = 2
 topSequence.ReadData.OutputLevel = 2
+topSequence.ReWriteData.OutputLevel = 2
+Stream1.OutputLevel = 2
+RegStream1.OutputLevel = 2
 
 #
 # End of job options file

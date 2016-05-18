@@ -49,20 +49,6 @@ Stream1.ItemList += [ "ExampleHitContainer#MyHits" ]
 Stream1.MetadataItemList += [ "ExampleHitContainer#PedestalWriteData" ]
 Stream1.ProvideDef = True
 
-#from AthenaServices.AthenaServicesConf import AthenaOutputStream
-#Stream1_FH = AthenaOutputStream( "Stream1_FH" )
-"""
-Stream1.MetadataItemList += [ "EventBookkeeperCollection#EventBookkeepers" ]
-
-from EventBookkeeperTools.BookkeepingInfoWriter import EventBookkeepersWriter
-EBWriter1 = EventBookkeepersWriter()
-EBWriter1.setDoMC( False )
-EBWriter1.setCycle( 0 )
-
-EBWriter1.OutputCollectionName = "EventBookkeepers"
-topSequence += EBWriter1
-"""
-
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------

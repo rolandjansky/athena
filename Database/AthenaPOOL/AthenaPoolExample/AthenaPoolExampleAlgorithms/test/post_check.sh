@@ -28,7 +28,7 @@ else
 	grep -v "running on " |\
 	grep -v "Skipping" |\
 	# Py:Athena will be Athena
-	sed -e 's/^Py:Athena/Athena   /g' |\
+	sed -e 's/^.*Py:Athena /Athena    /g' |\
 	# Pointer addresses (mark 0)
 	sed -e 's/0x0\{8\}/0x!!!!/g' |\
 	sed -e 's/0x[0-9a-f]\{8\}/0x????/g' |\
@@ -132,11 +132,6 @@ else
 	sed 's/AthenaPoolExample_ReadJobOptions/AthenaPoolExample_ReadConcatJobOptions/g' |\
 	sed '/SimplePoolFile3.root/,/[)0]/ s/Stream2/Stream1/g' > ${joblog}.tmp
         mv ${joblog}.tmp ${joblog}
-    elif [ "${test}" = "AthenaPoolExample_RFilterPL" ]
-    then
-        cat ${joblog} | \
-        sed -e 's/SimplePoolFile3/SimplePoolCollection5/g' > ${joblog}.tmp
-        mv ${joblog}.tmp ${joblog}
     fi
 
     if [ -e ../test/${test}.pattern ]
@@ -214,7 +209,7 @@ else
 	    if [ ${diffStatus} != 0 ]
 		then
 		echo "[97;101;1m post.sh> ERROR: ${joblog} and ${reflog} differ [m"
-#		exit 1
+		exit 1
 	    else
 		echo "[92;1m post.sh> OK: ${joblog} and ${reflog} identical [m"
 	    fi

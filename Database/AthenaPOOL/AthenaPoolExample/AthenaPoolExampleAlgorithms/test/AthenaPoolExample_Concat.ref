@@ -1,0 +1,1563 @@
+Mon Mar 21 22:38:59 CET 2016
+Preloading tcmalloc_minimal.so
+Athena               INFO including file "AthenaCommon/Preparation.py"
+Athena               INFO including file "AthenaCommon/Bootstrap.py"
+Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Athena               INFO executing ROOT6Setup
+Athena               INFO including file "AthenaCommon/Execution.py"
+Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_ConcatJobOptions.py"
+Athena               INFO including file "AthenaCommon/runbatch.py"
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
+ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+StatusCodeSvc        INFO initialize
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
+ChronoStatSvc        INFO  Number of skipped events for MemStat-1
+CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-03
+AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
+AthAlgSeq            INFO Member list: AthPoolEx::WriteData/WriteData, AthenaOutputStream/Stream1, MakeInputDataHeader, AthPoolEx::ReWriteData/ReWriteData, AthenaOutputStream/Stream2
+WriteData            INFO in initialize()
+Stream1             DEBUG In initialize 
+Stream1             DEBUG Found IDecisionSvc.
+DecisionSvc          INFO Inserting stream: Stream1 with no Algs
+Stream1             DEBUG End initialize 
+Stream1             DEBUG In initialize
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-06-31
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-60-03
+InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-03-06-31
+MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-03-06-31
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-28-12
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-25-00
+PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:Catalog1.xml) [ok]
+PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc              INFO Frontier compression level set to 5
+PoolSvc              INFO Successfully setup replica sorting algorithm
+PoolSvc             DEBUG OutputLevel is 2
+PoolSvc              INFO Re-initializing PoolSvc
+PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:Catalog1.xml
+XMLFileCatalog Info Connecting to the catalog
+PoolXMLFileCatalog Info Xerces-c initialization Number 0
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-07
+Stream1             DEBUG Found StoreGateSvc store.
+Stream1             DEBUG Found MetaDataStore store.
+OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-01-60-03
+Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-02-84
+Stream1.Stream1...   INFO streamProperty ProcessingTag = Stream1
+Stream1.Stream1...  DEBUG In connectServices
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-06-31
+Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-02-84
+Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo'])
+Stream1              INFO Data output: SimplePoolFile1.root
+Stream1              INFO I/O reinitialization...
+Stream1             DEBUG End initialize
+MakeInputDataHe...   INFO Initializing MakeInputDataHeader - package version OutputStreamAthenaPool-00-02-84
+MakeInputDataHe...   INFO Name of Stream to be made Input: Stream1
+ReWriteData          INFO in initialize()
+Stream2             DEBUG In initialize 
+Stream2             DEBUG Found IDecisionSvc.
+DecisionSvc          INFO Inserting stream: Stream2 with no Algs
+Stream2             DEBUG End initialize 
+Stream2             DEBUG In initialize
+Stream2             DEBUG Found StoreGateSvc store.
+Stream2             DEBUG Found MetaDataStore store.
+Stream2.Stream2...   INFO Initializing Stream2.Stream2Tool - package version OutputStreamAthenaPool-00-02-84
+Stream2.Stream2...   INFO streamProperty ProcessingTag = Stream2
+Stream2.Stream2...  DEBUG In connectServices
+Stream2.Stream2...   INFO Initializing Stream2.Stream2_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-02-84
+Stream2              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream2_MakeEventStreamInfo'])
+Stream2              INFO Data output: SimplePoolFile3.root
+Stream2              INFO I/O reinitialization...
+Stream2             DEBUG End initialize
+HistogramPersis...WARNING Histograms saving not required.
+EventSelector        INFO  Enter McEventSelector Initialization 
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-06-31
+ApplicationMgr       INFO Application Manager Initialized successfully
+InputMetaDataStore   INFO Start InputMetaDataStore
+MetaDataStore        INFO Start MetaDataStore
+StoreGateSvc         INFO Start StoreGateSvc
+DetectorStore        INFO Start DetectorStore
+ApplicationMgr       INFO Application Manager Started successfully
+EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
+AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #1 0 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 0  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     UPDATE    [ROOT_All] 
+AthenaPoolCnvSvc    DEBUG setAttribute TREE_MAX_SIZE to 1099511627776L
+AthenaPoolCnvSvc    DEBUG setAttribute DEFAULT_SPLITLEVEL to 0
+AthenaPoolCnvSvc    DEBUG setAttribute STREAM_MEMBER_WISE to 1
+AthenaPoolCnvSvc    DEBUG setAttribute DEFAULT_BUFFERSIZE to 32000
+Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] ????
+Domain[ROOT_All] Info                           SimplePoolFile1.root
+SimplePoolFile1.root Debug --> Access   DbContainer  CREATE    [ROOT_All] ##Shapes
+???? Debug Opened container ##Shapes of type ROOT_Tree
+##Shapes Debug No objects passing selection criteria... Container has 0 Entries in total.
+SimplePoolFile1.root Debug --> Access   DbContainer  CREATE    [ROOT_All] ##Links
+???? Debug Opened container ##Links of type ROOT_Tree
+##Links Debug No objects passing selection criteria... Container has 0 Entries in total.
+SimplePoolFile1.root Debug --> Access   DbContainer  CREATE    [ROOT_All] ##Params
+???? Debug Opened container ##Params of type ROOT_Tree
+SimplePoolFile1.root Debug --->Adding Assoc :????/##Params [200]  (2 , ffffffff)
+SimplePoolFile1.root Debug ---->ClassID:????
+##Params Debug No objects passing selection criteria... Container has 0 Entries in total.
+RootDatabase.setOption Debug Request TREE_AUTO_FLUSH 
+RootDatabase.setOption Debug File name SimplePoolFile1.root
+RootDatabase.setOption Debug Demand to set AUTO_FLUSH for TTree: POOLContainer with value: 0
+AthenaPoolCnvSvc    DEBUG setAttribute TREE_AUTO_FLUSH to 0 for db: SimplePoolFile1.root and cont: TTree=POOLContainer
+AthenaPoolCnvSvc    DEBUG setAttribute CONTAINER_SPLITLEVEL to 99 for db: SimplePoolFile1.root and cont: TTree=POOLContainerForm(DataHeaderForm)
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 1
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 1
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info EventInfo_p4 [????]
+SimplePoolFile1.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(EventInfo_p4/McEventInfo)
+???? Debug Opened container CollectionTree(EventInfo_p4/McEventInfo) of type ROOT_Tree
+SimplePoolFile1.root Debug --->Adding Assoc :????/CollectionTree(EventInfo_p4/McEventInfo) [202]  (3 , ffffffff)
+SimplePoolFile1.root Debug ---->ClassID:????
+SimplePoolFile1.root Debug --->Adding Shape[0 , ????]:  [1 Column(s)] 
+SimplePoolFile1.root Debug ---->Class:EventInfo_p4
+SimplePoolFile1.root Debug ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Offset:0 #Elements:1
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info ExampleHitContainer_p1 [????]
+SimplePoolFile1.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(ExampleHitContainer_p1/MyHits)
+???? Debug Opened container CollectionTree(ExampleHitContainer_p1/MyHits) of type ROOT_Tree
+SimplePoolFile1.root Debug --->Adding Assoc :????/CollectionTree(ExampleHitContainer_p1/MyHits) [202]  (4 , ffffffff)
+SimplePoolFile1.root Debug ---->ClassID:????
+SimplePoolFile1.root Debug --->Adding Shape[1 , ????]:  [1 Column(s)] 
+SimplePoolFile1.root Debug ---->Class:ExampleHitContainer_p1
+SimplePoolFile1.root Debug ---->[0]:ExampleHitContainer_p1 Typ:ExampleHitContainer_p1 [21] Size:0 Offset:0 #Elements:1
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info DataHeaderForm_p5 [????]
+SimplePoolFile1.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainerForm(DataHeaderForm)
+???? Debug Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
+SimplePoolFile1.root Debug --->Adding Assoc :????/POOLContainerForm(DataHeaderForm) [202]  (5 , ffffffff)
+SimplePoolFile1.root Debug ---->ClassID:????
+SimplePoolFile1.root Debug --->Adding Shape[2 , ????]:  [1 Column(s)] 
+SimplePoolFile1.root Debug ---->Class:DataHeaderForm_p5
+SimplePoolFile1.root Debug ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] Size:0 Offset:0 #Elements:1
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info DataHeader_p5 [????]
+SimplePoolFile1.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(DataHeader)
+???? Debug Opened container POOLContainer(DataHeader) of type ROOT_Tree
+POOLContainer(DataHeader) Debug Setting AUTO_FLUSH for TTree: POOLContainer to value: 0
+SimplePoolFile1.root Debug --->Adding Assoc :????/POOLContainer(DataHeader) [202]  (6 , ffffffff)
+SimplePoolFile1.root Debug ---->ClassID:????
+SimplePoolFile1.root Debug --->Adding Shape[3 , ????]:  [1 Column(s)] 
+SimplePoolFile1.root Debug ---->Class:DataHeader_p5
+SimplePoolFile1.root Debug ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile1.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(basic/DataHeader)
+???? Debug Opened container POOLContainer(basic/DataHeader) of type ROOT_Tree
+SimplePoolFile1.root Debug --->Adding Assoc :????/POOLContainer(basic/DataHeader) [202]  (7 , ffffffff)
+SimplePoolFile1.root Debug ---->ClassID:????
+Stream1.Stream1...  DEBUG In commitOutput
+AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 256000 for db: SimplePoolFile1.root and cont: POOLContainerForm(DataHeaderForm)
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 1.23 y = 97.65 z = 226.67 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 4.44 y = 91.97 z = 94.73 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 7.65 y = 86.29 z = 70.23 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 10.86 y = 80.61 z = 59.91 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 14.07 y = 74.93 z = 54.22 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 17.28 y = 69.26 z = 50.62 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 20.49 y = 63.58 z = 48.13 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 23.70 y = 57.90 z = 46.31 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 26.91 y = 52.22 z = 44.92 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 30.12 y = 46.54 z = 43.83 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 1.23
+ReWriteData          INFO ElementLink2 = 30.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 1.23
+ReWriteData          INFO Element = 0x???? : 4.44
+ReWriteData          INFO Element = 0x???? : 10.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 1.23
+ReWriteData          INFO Element = 0x???? : 17.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 1.23
+ReWriteData          INFO Element = 0x???? : 17.28
+ReWriteData          INFO Element = 0x???? : 10.86
+ReWriteData          INFO Track pt = 74.89 eta = 3.16 phi = 2.61 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] ????
+Domain[ROOT_All] Info                           SimplePoolFile3.root
+SimplePoolFile3.root Debug --> Access   DbContainer  CREATE    [ROOT_All] ##Shapes
+???? Debug Opened container ##Shapes of type ROOT_Tree
+##Shapes Debug No objects passing selection criteria... Container has 0 Entries in total.
+SimplePoolFile3.root Debug --> Access   DbContainer  CREATE    [ROOT_All] ##Links
+???? Debug Opened container ##Links of type ROOT_Tree
+##Links Debug No objects passing selection criteria... Container has 0 Entries in total.
+SimplePoolFile3.root Debug --> Access   DbContainer  CREATE    [ROOT_All] ##Params
+???? Debug Opened container ##Params of type ROOT_Tree
+SimplePoolFile3.root Debug --->Adding Assoc :????/##Params [200]  (2 , ffffffff)
+SimplePoolFile3.root Debug ---->ClassID:????
+##Params Debug No objects passing selection criteria... Container has 0 Entries in total.
+RootDatabase.setOption Debug Request TREE_AUTO_FLUSH 
+RootDatabase.setOption Debug File name SimplePoolFile3.root
+RootDatabase.setOption Debug Demand to set AUTO_FLUSH for TTree: POOLContainer with value: 0
+AthenaPoolCnvSvc    DEBUG setAttribute TREE_AUTO_FLUSH to 0 for db: SimplePoolFile3.root and cont: TTree=POOLContainer
+AthenaPoolCnvSvc    DEBUG setAttribute CONTAINER_SPLITLEVEL to 99 for db: SimplePoolFile3.root and cont: TTree=POOLContainerForm(DataHeaderForm)
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 1
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 1
+SimplePoolFile3.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(EventInfo_p4/McEventInfo)
+???? Debug Opened container CollectionTree(EventInfo_p4/McEventInfo) of type ROOT_Tree
+SimplePoolFile3.root Debug --->Adding Assoc :????/CollectionTree(EventInfo_p4/McEventInfo) [202]  (3 , ffffffff)
+SimplePoolFile3.root Debug ---->ClassID:????
+SimplePoolFile3.root Debug --->Adding Shape[0 , ????]:  [1 Column(s)] 
+SimplePoolFile3.root Debug ---->Class:EventInfo_p4
+SimplePoolFile3.root Debug ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Offset:0 #Elements:1
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info ExampleTrackContainer_p1 [????]
+SimplePoolFile3.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(ExampleTrackContainer_p1/MyTracks)
+???? Debug Opened container CollectionTree(ExampleTrackContainer_p1/MyTracks) of type ROOT_Tree
+SimplePoolFile3.root Debug --->Adding Assoc :????/CollectionTree(ExampleTrackContainer_p1/MyTracks) [202]  (4 , ffffffff)
+SimplePoolFile3.root Debug ---->ClassID:????
+SimplePoolFile3.root Debug --->Adding Shape[1 , ????]:  [1 Column(s)] 
+SimplePoolFile3.root Debug ---->Class:ExampleTrackContainer_p1
+SimplePoolFile3.root Debug ---->[0]:ExampleTrackContainer_p1 Typ:ExampleTrackContainer_p1 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile3.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainerForm(DataHeaderForm)
+???? Debug Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
+SimplePoolFile3.root Debug --->Adding Assoc :????/POOLContainerForm(DataHeaderForm) [202]  (5 , ffffffff)
+SimplePoolFile3.root Debug ---->ClassID:????
+SimplePoolFile3.root Debug --->Adding Shape[2 , ????]:  [1 Column(s)] 
+SimplePoolFile3.root Debug ---->Class:DataHeaderForm_p5
+SimplePoolFile3.root Debug ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile3.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(DataHeader)
+???? Debug Opened container POOLContainer(DataHeader) of type ROOT_Tree
+POOLContainer(DataHeader) Debug Setting AUTO_FLUSH for TTree: POOLContainer to value: 0
+SimplePoolFile3.root Debug --->Adding Assoc :????/POOLContainer(DataHeader) [202]  (6 , ffffffff)
+SimplePoolFile3.root Debug ---->ClassID:????
+SimplePoolFile3.root Debug --->Adding Shape[3 , ????]:  [1 Column(s)] 
+SimplePoolFile3.root Debug ---->Class:DataHeader_p5
+SimplePoolFile3.root Debug ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile3.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(basic/DataHeader)
+???? Debug Opened container POOLContainer(basic/DataHeader) of type ROOT_Tree
+SimplePoolFile3.root Debug --->Adding Assoc :????/POOLContainer(basic/DataHeader) [202]  (7 , ffffffff)
+SimplePoolFile3.root Debug ---->ClassID:????
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 256000 for db: SimplePoolFile3.root and cont: POOLContainerForm(DataHeaderForm)
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #1 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 1 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 1  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 2
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 2
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 101.23 y = 97.65 z = 126.67 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 104.44 y = 91.97 z = -5.26 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 107.65 y = 86.29 z = -29.76 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 110.86 y = 80.61 z = -40.08 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 114.07 y = 74.93 z = -45.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 117.28 y = 69.26 z = -49.37 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 120.49 y = 63.58 z = -51.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 123.70 y = 57.90 z = -53.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 126.91 y = 52.22 z = -55.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 130.12 y = 46.54 z = -56.16 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 101.23
+ReWriteData          INFO ElementLink2 = 130.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 101.23
+ReWriteData          INFO Element = 0x???? : 104.44
+ReWriteData          INFO Element = 0x???? : 110.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 101.23
+ReWriteData          INFO Element = 0x???? : 117.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 101.23
+ReWriteData          INFO Element = 0x???? : 117.28
+ReWriteData          INFO Element = 0x???? : 110.86
+ReWriteData          INFO Track pt = 137.58 eta = -39.52 phi = 17.26 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 2
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 2
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 2 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 2  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 3
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 3
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 201.23 y = 97.65 z = 26.67 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 204.44 y = 91.97 z = -105.26 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 207.65 y = 86.29 z = -129.76 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 210.86 y = 80.61 z = -140.08 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 214.07 y = 74.93 z = -145.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 217.28 y = 69.26 z = -149.37 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 220.49 y = 63.58 z = -151.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 223.70 y = 57.90 z = -153.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 226.91 y = 52.22 z = -155.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 230.12 y = 46.54 z = -156.16 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 201.23
+ReWriteData          INFO ElementLink2 = 230.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 201.23
+ReWriteData          INFO Element = 0x???? : 204.44
+ReWriteData          INFO Element = 0x???? : 210.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 201.23
+ReWriteData          INFO Element = 0x???? : 217.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 201.23
+ReWriteData          INFO Element = 0x???? : 217.28
+ReWriteData          INFO Element = 0x???? : 210.86
+ReWriteData          INFO Track pt = 228.15 eta = -6.27 phi = 31.91 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 3
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 3
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #1 3 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 3  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 4
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 4
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 301.23 y = 97.65 z = -73.32 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 304.44 y = 91.97 z = -205.26 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 307.65 y = 86.29 z = -229.76 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 310.86 y = 80.61 z = -240.08 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 314.07 y = 74.93 z = -245.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 317.28 y = 69.26 z = -249.37 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 320.49 y = 63.58 z = -251.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 323.70 y = 57.90 z = -253.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 326.91 y = 52.22 z = -255.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 330.12 y = 46.54 z = -256.16 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 301.23
+ReWriteData          INFO ElementLink2 = 330.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 301.23
+ReWriteData          INFO Element = 0x???? : 304.44
+ReWriteData          INFO Element = 0x???? : 310.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 301.23
+ReWriteData          INFO Element = 0x???? : 317.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 301.23
+ReWriteData          INFO Element = 0x???? : 317.28
+ReWriteData          INFO Element = 0x???? : 310.86
+ReWriteData          INFO Track pt = 324.30 eta = -15.89 phi = 46.57 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 4
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 4
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #1 4 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 4  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 5
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 5
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 401.23 y = 97.65 z = -173.32 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 404.44 y = 91.97 z = -305.26 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 407.65 y = 86.29 z = -329.76 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 410.86 y = 80.61 z = -340.08 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 414.07 y = 74.93 z = -345.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 417.28 y = 69.26 z = -349.37 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 420.49 y = 63.58 z = -351.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 423.70 y = 57.90 z = -353.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 426.91 y = 52.22 z = -355.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 430.12 y = 46.54 z = -356.16 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 401.23
+ReWriteData          INFO ElementLink2 = 430.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 401.23
+ReWriteData          INFO Element = 0x???? : 404.44
+ReWriteData          INFO Element = 0x???? : 410.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 401.23
+ReWriteData          INFO Element = 0x???? : 417.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 401.23
+ReWriteData          INFO Element = 0x???? : 417.28
+ReWriteData          INFO Element = 0x???? : 410.86
+ReWriteData          INFO Track pt = 422.25 eta = -13.27 phi = 61.22 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 5
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 5
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #1 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #1 5 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 5  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 6
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 6
+Stream1.Stream1...  DEBUG In commitOutput
+CollectionTree(EventInfo_p4/McEventInfo) Debug endTransaction: go to finish
+CollectionTree(ExampleHitContainer_p1/MyHits) Debug endTransaction: go to finish
+POOLContainer(DataHeader) Debug endTransaction: go to finish
+POOLContainer(basic/DataHeader) Debug endTransaction: go to finish
+POOLContainerForm(DataHeaderForm) Debug endTransaction: go to finish
+##Params Debug endTransaction:  tree AutoSave
+##Shapes Debug endTransaction:  tree AutoSave
+##Links Debug endTransaction:  tree AutoSave
+CollectionTree(EventInfo_p4/McEventInfo) Debug endTransaction: go to finish
+CollectionTree(ExampleTrackContainer_p1/MyTracks) Debug endTransaction: go to finish
+POOLContainer(DataHeader) Debug endTransaction: go to finish
+POOLContainer(basic/DataHeader) Debug endTransaction: go to finish
+POOLContainerForm(DataHeaderForm) Debug endTransaction: go to finish
+##Params Debug endTransaction:  tree AutoSave
+##Shapes Debug endTransaction:  tree AutoSave
+##Links Debug endTransaction:  tree AutoSave
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 501.23 y = 97.65 z = -273.32 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 504.44 y = 91.97 z = -405.26 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 507.65 y = 86.29 z = -429.76 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 510.86 y = 80.61 z = -440.08 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 514.07 y = 74.93 z = -445.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 517.28 y = 69.26 z = -449.37 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 520.49 y = 63.58 z = -451.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 523.70 y = 57.90 z = -453.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 526.91 y = 52.22 z = -455.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 530.12 y = 46.54 z = -456.16 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 501.23
+ReWriteData          INFO ElementLink2 = 530.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 501.23
+ReWriteData          INFO Element = 0x???? : 504.44
+ReWriteData          INFO Element = 0x???? : 510.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 501.23
+ReWriteData          INFO Element = 0x???? : 517.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 501.23
+ReWriteData          INFO Element = 0x???? : 517.28
+ReWriteData          INFO Element = 0x???? : 510.86
+ReWriteData          INFO Track pt = 520.98 eta = -12.35 phi = 75.87 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 6
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 6
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #1 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #1 6 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 6  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 7
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 7
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 601.23 y = 97.65 z = -373.32 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 604.44 y = 91.97 z = -505.26 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 607.65 y = 86.29 z = -529.76 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 610.86 y = 80.61 z = -540.08 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 614.07 y = 74.93 z = -545.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 617.28 y = 69.26 z = -549.37 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 620.49 y = 63.58 z = -551.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 623.70 y = 57.90 z = -553.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 626.91 y = 52.22 z = -555.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 630.12 y = 46.54 z = -556.16 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 601.23
+ReWriteData          INFO ElementLink2 = 630.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 601.23
+ReWriteData          INFO Element = 0x???? : 604.44
+ReWriteData          INFO Element = 0x???? : 610.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 601.23
+ReWriteData          INFO Element = 0x???? : 617.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 601.23
+ReWriteData          INFO Element = 0x???? : 617.28
+ReWriteData          INFO Element = 0x???? : 610.86
+ReWriteData          INFO Track pt = 620.12 eta = -11.84 phi = 90.52 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 7
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 7
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #1 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #1 7 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 7  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 8
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 8
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 701.23 y = 97.65 z = -473.32 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 704.44 y = 91.97 z = -605.26 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 707.65 y = 86.29 z = -629.76 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 710.86 y = 80.61 z = -640.08 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 714.07 y = 74.93 z = -645.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 717.28 y = 69.26 z = -649.37 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 720.49 y = 63.58 z = -651.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 723.70 y = 57.90 z = -653.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 726.91 y = 52.22 z = -655.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 730.12 y = 46.54 z = -656.16 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 701.23
+ReWriteData          INFO ElementLink2 = 730.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 701.23
+ReWriteData          INFO Element = 0x???? : 704.44
+ReWriteData          INFO Element = 0x???? : 710.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 701.23
+ReWriteData          INFO Element = 0x???? : 717.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 701.23
+ReWriteData          INFO Element = 0x???? : 717.28
+ReWriteData          INFO Element = 0x???? : 710.86
+ReWriteData          INFO Track pt = 719.50 eta = -11.52 phi = 105.17 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 8
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 8
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #1 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #1 8 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 8  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 9
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 9
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 801.23 y = 97.65 z = -573.32 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 804.44 y = 91.97 z = -705.26 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 807.65 y = 86.29 z = -729.76 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 810.86 y = 80.61 z = -740.08 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 814.07 y = 74.93 z = -745.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 817.28 y = 69.26 z = -749.37 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 820.49 y = 63.58 z = -751.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 823.70 y = 57.90 z = -753.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 826.91 y = 52.22 z = -755.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 830.12 y = 46.54 z = -756.16 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 801.23
+ReWriteData          INFO ElementLink2 = 830.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 801.23
+ReWriteData          INFO Element = 0x???? : 804.44
+ReWriteData          INFO Element = 0x???? : 810.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 801.23
+ReWriteData          INFO Element = 0x???? : 817.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 801.23
+ReWriteData          INFO Element = 0x???? : 817.28
+ReWriteData          INFO Element = 0x???? : 810.86
+ReWriteData          INFO Track pt = 819.03 eta = -11.29 phi = 119.83 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 9
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 9
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #1 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #1 9 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 9  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 10
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 10
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 901.23 y = 97.65 z = -673.32 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 904.44 y = 91.97 z = -805.26 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 907.65 y = 86.29 z = -829.76 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 910.86 y = 80.61 z = -840.08 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 914.07 y = 74.93 z = -845.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 917.28 y = 69.26 z = -849.37 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 920.49 y = 63.58 z = -851.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 923.70 y = 57.90 z = -853.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 926.91 y = 52.22 z = -855.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 930.12 y = 46.54 z = -856.16 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 901.23
+ReWriteData          INFO ElementLink2 = 930.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 901.23
+ReWriteData          INFO Element = 0x???? : 904.44
+ReWriteData          INFO Element = 0x???? : 910.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 901.23
+ReWriteData          INFO Element = 0x???? : 917.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 901.23
+ReWriteData          INFO Element = 0x???? : 917.28
+ReWriteData          INFO Element = 0x???? : 910.86
+ReWriteData          INFO Track pt = 918.67 eta = -11.13 phi = 134.48 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 10
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 10
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #1 10 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #1 10 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 10  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 11
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 11
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 1001.23 y = 97.65 z = -773.32 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1004.44 y = 91.97 z = -905.26 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1007.65 y = 86.29 z = -929.76 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1010.86 y = 80.61 z = -940.08 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1014.07 y = 74.93 z = -945.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1017.28 y = 69.26 z = -949.37 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1020.49 y = 63.58 z = -951.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1023.7 y = 57.90 z = -953.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1026.91 y = 52.22 z = -955.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1030.12 y = 46.54 z = -956.16 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 1001.23
+ReWriteData          INFO ElementLink2 = 1030.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 1001.23
+ReWriteData          INFO Element = 0x???? : 1004.44
+ReWriteData          INFO Element = 0x???? : 1010.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 1001.23
+ReWriteData          INFO Element = 0x???? : 1017.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 1001.23
+ReWriteData          INFO Element = 0x???? : 1017.28
+ReWriteData          INFO Element = 0x???? : 1010.86
+ReWriteData          INFO Track pt = 1018.38 eta = -11.00 phi = 149.13 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 11
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 11
+Stream2.Stream2...  DEBUG In commitOutput
+CollectionTree(EventInfo_p4/McEventInfo) Debug endTransaction: go to finish
+CollectionTree(ExampleHitContainer_p1/MyHits) Debug endTransaction: go to finish
+POOLContainer(DataHeader) Debug endTransaction: go to finish
+POOLContainer(basic/DataHeader) Debug endTransaction: go to finish
+POOLContainerForm(DataHeaderForm) Debug endTransaction: go to finish
+##Params Debug endTransaction:  tree AutoSave
+##Shapes Debug endTransaction:  tree AutoSave
+##Links Debug endTransaction:  tree AutoSave
+CollectionTree(EventInfo_p4/McEventInfo) Debug endTransaction: go to finish
+CollectionTree(ExampleTrackContainer_p1/MyTracks) Debug endTransaction: go to finish
+POOLContainer(DataHeader) Debug endTransaction: go to finish
+POOLContainer(basic/DataHeader) Debug endTransaction: go to finish
+POOLContainerForm(DataHeaderForm) Debug endTransaction: go to finish
+##Params Debug endTransaction:  tree AutoSave
+##Shapes Debug endTransaction:  tree AutoSave
+##Links Debug endTransaction:  tree AutoSave
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #1 11 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #1 11 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 11  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 12
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 12
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 1101.23 y = 97.65 z = -873.32 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1104.44 y = 91.97 z = -1005.27 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1107.65 y = 86.29 z = -1029.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1110.86 y = 80.61 z = -1040.09 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1114.07 y = 74.93 z = -1045.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1117.28 y = 69.26 z = -1049.38 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1120.49 y = 63.58 z = -1051.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1123.7 y = 57.90 z = -1053.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1126.91 y = 52.22 z = -1055.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1130.12 y = 46.54 z = -1056.17 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 1101.23
+ReWriteData          INFO ElementLink2 = 1130.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 1101.23
+ReWriteData          INFO Element = 0x???? : 1104.44
+ReWriteData          INFO Element = 0x???? : 1110.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 1101.23
+ReWriteData          INFO Element = 0x???? : 1117.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 1101.23
+ReWriteData          INFO Element = 0x???? : 1117.28
+ReWriteData          INFO Element = 0x???? : 1110.86
+ReWriteData          INFO Track pt = 1118.13 eta = -10.90 phi = 163.78 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 12
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 12
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #1 12 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #1 12 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 12  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 13
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 13
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 1201.23 y = 97.65 z = -973.32 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1204.44 y = 91.97 z = -1105.27 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1207.65 y = 86.29 z = -1129.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1210.86 y = 80.61 z = -1140.09 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1214.07 y = 74.93 z = -1145.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1217.28 y = 69.26 z = -1149.38 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1220.49 y = 63.58 z = -1151.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1223.7 y = 57.90 z = -1153.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1226.91 y = 52.22 z = -1155.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1230.12 y = 46.54 z = -1156.17 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 1201.23
+ReWriteData          INFO ElementLink2 = 1230.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 1201.23
+ReWriteData          INFO Element = 0x???? : 1204.44
+ReWriteData          INFO Element = 0x???? : 1210.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 1201.23
+ReWriteData          INFO Element = 0x???? : 1217.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 1201.23
+ReWriteData          INFO Element = 0x???? : 1217.28
+ReWriteData          INFO Element = 0x???? : 1210.86
+ReWriteData          INFO Track pt = 1217.93 eta = -10.82 phi = 178.43 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 13
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 13
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #1 13 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #1 13 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 13  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 14
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 14
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 1301.23 y = 97.65 z = -1073.33 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1304.44 y = 91.97 z = -1205.27 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1307.65 y = 86.29 z = -1229.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1310.86 y = 80.61 z = -1240.09 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1314.07 y = 74.93 z = -1245.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1317.28 y = 69.26 z = -1249.38 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1320.49 y = 63.58 z = -1251.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1323.7 y = 57.90 z = -1253.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1326.91 y = 52.22 z = -1255.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1330.12 y = 46.54 z = -1256.17 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 1301.23
+ReWriteData          INFO ElementLink2 = 1330.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 1301.23
+ReWriteData          INFO Element = 0x???? : 1304.44
+ReWriteData          INFO Element = 0x???? : 1310.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 1301.23
+ReWriteData          INFO Element = 0x???? : 1317.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 1301.23
+ReWriteData          INFO Element = 0x???? : 1317.28
+ReWriteData          INFO Element = 0x???? : 1310.86
+ReWriteData          INFO Track pt = 1317.76 eta = -10.75 phi = 193.09 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 14
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 14
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #1 14 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #1 14 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 14  run: 1
+WriteData            INFO Now creating ExampleHit alias for event: 14
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 15
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 15
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 1401.23 y = 97.65 z = -1173.33 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1404.44 y = 91.97 z = -1305.27 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1407.65 y = 86.29 z = -1329.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1410.86 y = 80.61 z = -1340.09 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1414.07 y = 74.93 z = -1345.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1417.28 y = 69.26 z = -1349.38 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1420.49 y = 63.58 z = -1351.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1423.7 y = 57.90 z = -1353.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1426.91 y = 52.22 z = -1355.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1430.12 y = 46.54 z = -1356.17 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 1401.23
+ReWriteData          INFO ElementLink2 = 1430.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 1401.23
+ReWriteData          INFO Element = 0x???? : 1404.44
+ReWriteData          INFO Element = 0x???? : 1410.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 1401.23
+ReWriteData          INFO Element = 0x???? : 1417.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 1401.23
+ReWriteData          INFO Element = 0x???? : 1417.28
+ReWriteData          INFO Element = 0x???? : 1410.86
+ReWriteData          INFO Track pt = 1417.61 eta = -10.69 phi = 207.74 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 15
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 15
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #1 15 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #1 15 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 15  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 16
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 16
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 1501.23 y = 97.65 z = -1273.33 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1504.44 y = 91.97 z = -1405.27 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1507.65 y = 86.29 z = -1429.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1510.86 y = 80.61 z = -1440.09 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1514.07 y = 74.93 z = -1445.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1517.28 y = 69.26 z = -1449.38 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1520.49 y = 63.58 z = -1451.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1523.7 y = 57.90 z = -1453.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1526.91 y = 52.22 z = -1455.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1530.12 y = 46.54 z = -1456.17 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 1501.23
+ReWriteData          INFO ElementLink2 = 1530.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 1501.23
+ReWriteData          INFO Element = 0x???? : 1504.44
+ReWriteData          INFO Element = 0x???? : 1510.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 1501.23
+ReWriteData          INFO Element = 0x???? : 1517.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 1501.23
+ReWriteData          INFO Element = 0x???? : 1517.28
+ReWriteData          INFO Element = 0x???? : 1510.86
+ReWriteData          INFO Track pt = 1517.49 eta = -10.64 phi = 222.39 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 16
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 16
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #1 16 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #1 16 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 16  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 17
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 17
+Stream1.Stream1...  DEBUG In commitOutput
+CollectionTree(EventInfo_p4/McEventInfo) Debug endTransaction: go to finish
+CollectionTree(ExampleHitContainer_p1/MyHits) Debug endTransaction: go to finish
+POOLContainer(DataHeader) Debug endTransaction: go to finish
+POOLContainer(basic/DataHeader) Debug endTransaction: go to finish
+POOLContainerForm(DataHeaderForm) Debug endTransaction: go to finish
+##Params Debug endTransaction:  tree AutoSave
+##Shapes Debug endTransaction:  tree AutoSave
+##Links Debug endTransaction:  tree AutoSave
+CollectionTree(EventInfo_p4/McEventInfo) Debug endTransaction: go to finish
+CollectionTree(ExampleTrackContainer_p1/MyTracks) Debug endTransaction: go to finish
+POOLContainer(DataHeader) Debug endTransaction: go to finish
+POOLContainer(basic/DataHeader) Debug endTransaction: go to finish
+POOLContainerForm(DataHeaderForm) Debug endTransaction: go to finish
+##Params Debug endTransaction:  tree AutoSave
+##Shapes Debug endTransaction:  tree AutoSave
+##Links Debug endTransaction:  tree AutoSave
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 1601.23 y = 97.65 z = -1373.33 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1604.44 y = 91.97 z = -1505.27 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1607.65 y = 86.29 z = -1529.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1610.86 y = 80.61 z = -1540.09 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1614.07 y = 74.93 z = -1545.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1617.28 y = 69.26 z = -1549.38 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1620.49 y = 63.58 z = -1551.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1623.7 y = 57.90 z = -1553.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1626.91 y = 52.22 z = -1555.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1630.12 y = 46.54 z = -1556.17 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 1601.23
+ReWriteData          INFO ElementLink2 = 1630.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 1601.23
+ReWriteData          INFO Element = 0x???? : 1604.44
+ReWriteData          INFO Element = 0x???? : 1610.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 1601.23
+ReWriteData          INFO Element = 0x???? : 1617.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 1601.23
+ReWriteData          INFO Element = 0x???? : 1617.28
+ReWriteData          INFO Element = 0x???? : 1610.86
+ReWriteData          INFO Track pt = 1617.37 eta = -10.59 phi = 237.04 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 17
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 17
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #1 17 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #1 17 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 17  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 18
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 18
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 1701.23 y = 97.65 z = -1473.33 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1704.44 y = 91.97 z = -1605.27 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1707.65 y = 86.29 z = -1629.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1710.86 y = 80.61 z = -1640.09 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1714.07 y = 74.93 z = -1645.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1717.28 y = 69.26 z = -1649.38 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1720.49 y = 63.58 z = -1651.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1723.7 y = 57.90 z = -1653.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1726.91 y = 52.22 z = -1655.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1730.12 y = 46.54 z = -1656.17 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 1701.23
+ReWriteData          INFO ElementLink2 = 1730.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 1701.23
+ReWriteData          INFO Element = 0x???? : 1704.44
+ReWriteData          INFO Element = 0x???? : 1710.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 1701.23
+ReWriteData          INFO Element = 0x???? : 1717.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 1701.23
+ReWriteData          INFO Element = 0x???? : 1717.28
+ReWriteData          INFO Element = 0x???? : 1710.86
+ReWriteData          INFO Track pt = 1717.27 eta = -10.56 phi = 251.69 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 18
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 18
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #1 18 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #1 18 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 18  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 19
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 19
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 1801.23 y = 97.65 z = -1573.33 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1804.44 y = 91.97 z = -1705.27 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1807.65 y = 86.29 z = -1729.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1810.86 y = 80.61 z = -1740.09 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1814.07 y = 74.93 z = -1745.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1817.28 y = 69.26 z = -1749.38 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1820.49 y = 63.58 z = -1751.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1823.7 y = 57.90 z = -1753.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1826.91 y = 52.22 z = -1755.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1830.12 y = 46.54 z = -1756.17 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 1801.23
+ReWriteData          INFO ElementLink2 = 1830.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 1801.23
+ReWriteData          INFO Element = 0x???? : 1804.44
+ReWriteData          INFO Element = 0x???? : 1810.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 1801.23
+ReWriteData          INFO Element = 0x???? : 1817.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 1801.23
+ReWriteData          INFO Element = 0x???? : 1817.28
+ReWriteData          INFO Element = 0x???? : 1810.86
+ReWriteData          INFO Track pt = 1817.19 eta = -10.52 phi = 266.34 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 19
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 19
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #1 19 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #1 19 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 19  run: 1
+WriteData            INFO registered all data
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 20
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 20
+Stream1.Stream1...  DEBUG In commitOutput
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 1901.23 y = 97.65 z = -1673.33 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1904.44 y = 91.97 z = -1805.27 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1907.65 y = 86.29 z = -1829.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1910.86 y = 80.61 z = -1840.09 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1914.07 y = 74.93 z = -1845.77 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1917.28 y = 69.26 z = -1849.38 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1920.49 y = 63.58 z = -1851.86 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1923.7 y = 57.90 z = -1853.68 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1926.91 y = 52.22 z = -1855.07 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 1930.12 y = 46.54 z = -1856.17 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 1901.23
+ReWriteData          INFO ElementLink2 = 1930.12
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 1901.23
+ReWriteData          INFO Element = 0x???? : 1904.44
+ReWriteData          INFO Element = 0x???? : 1910.86
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 1901.23
+ReWriteData          INFO Element = 0x???? : 1917.28
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 1901.23
+ReWriteData          INFO Element = 0x???? : 1917.28
+ReWriteData          INFO Element = 0x???? : 1910.86
+ReWriteData          INFO Track pt = 1917.11 eta = -10.49 phi = 281 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG addItemObjects(9103,"*Tracks") called
+Stream2             DEBUG            Key:*Tracks
+Stream2             DEBUG  Added object 9103,"MyTracks"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 20
+Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 20
+Stream2.Stream2...  DEBUG In commitOutput
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events processed so far  <<<===
+DetectorStore        INFO Stop DetectorStore
+StoreGateSvc         INFO Stop StoreGateSvc
+StoreGateSvc         INFO stop: setting service priority to 101 so that event stores get finalized and cleared before other stores
+Stream1             DEBUG handle() incident type: MetaDataStop
+Stream1.Stream1...  DEBUG In connectServices
+Stream1.Stream1...  DEBUG In connectOutput
+Stream1.Stream1...  DEBUG Connected to SimplePoolFile1.root
+Stream1.Stream1...  DEBUG Recorded DataHeader with key Stream1
+Stream1             DEBUG addItemObjects(167728019,"Stream1") called
+Stream1             DEBUG            Key:Stream1
+Stream1             DEBUG  Added object 167728019,"Stream1"
+Stream1             DEBUG addItemObjects(1316383046,"*") called
+Stream1             DEBUG            Key:*
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info EventStreamInfo_p3 [????]
+SimplePoolFile1.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(EventStreamInfo_p3/Stream1)
+???? Debug Opened container MetaData(EventStreamInfo_p3/Stream1) of type ROOT_Tree
+SimplePoolFile1.root Debug --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream1) [202]  (8 , ffffffff)
+SimplePoolFile1.root Debug ---->ClassID:????
+SimplePoolFile1.root Debug --->Adding Shape[4 , ????]:  [1 Column(s)] 
+SimplePoolFile1.root Debug ---->Class:EventStreamInfo_p3
+SimplePoolFile1.root Debug ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile1.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
+???? Debug Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
+SimplePoolFile1.root Debug --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [202]  (9 , ffffffff)
+SimplePoolFile1.root Debug ---->ClassID:????
+SimplePoolFile1.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
+???? Debug Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
+SimplePoolFile1.root Debug --->Adding Assoc :????/MetaDataHdr(DataHeader) [202]  (a , ffffffff)
+SimplePoolFile1.root Debug ---->ClassID:????
+Stream1.Stream1...  DEBUG In commitOutput
+Stream1.Stream1...  DEBUG In connectServices
+Stream1              INFO Records written: 21
+Stream1             DEBUG Leaving handle
+Stream2             DEBUG handle() incident type: MetaDataStop
+Stream2.Stream2...  DEBUG In connectServices
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFile3.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(167728019,"Stream2") called
+Stream2             DEBUG            Key:Stream2
+Stream2             DEBUG  Added object 167728019,"Stream2"
+Stream2             DEBUG addItemObjects(1316383046,"*") called
+Stream2             DEBUG            Key:*
+SimplePoolFile3.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(EventStreamInfo_p3/Stream2)
+???? Debug Opened container MetaData(EventStreamInfo_p3/Stream2) of type ROOT_Tree
+SimplePoolFile3.root Debug --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream2) [202]  (8 , ffffffff)
+SimplePoolFile3.root Debug ---->ClassID:????
+SimplePoolFile3.root Debug --->Adding Shape[4 , ????]:  [1 Column(s)] 
+SimplePoolFile3.root Debug ---->Class:EventStreamInfo_p3
+SimplePoolFile3.root Debug ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile3.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
+???? Debug Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
+SimplePoolFile3.root Debug --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [202]  (9 , ffffffff)
+SimplePoolFile3.root Debug ---->ClassID:????
+SimplePoolFile3.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
+???? Debug Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
+SimplePoolFile3.root Debug --->Adding Assoc :????/MetaDataHdr(DataHeader) [202]  (a , ffffffff)
+SimplePoolFile3.root Debug ---->ClassID:????
+Stream2.Stream2...  DEBUG In commitOutput
+Stream2.Stream2...  DEBUG In connectServices
+Stream2              INFO Records written: 21
+Stream2             DEBUG Leaving handle
+CollectionTree(EventInfo_p4/McEventInfo) Debug endTransaction: go to finish
+CollectionTree(ExampleHitContainer_p1/MyHits) Debug endTransaction: go to finish
+MetaData(EventStreamInfo_p3/Stream1) Debug endTransaction: go to finish
+MetaDataHdr(DataHeader) Debug endTransaction: go to finish
+MetaDataHdrForm(DataHeaderForm) Debug endTransaction: go to finish
+POOLContainer(DataHeader) Debug endTransaction: go to finish
+POOLContainer(basic/DataHeader) Debug endTransaction: go to finish
+POOLContainerForm(DataHeaderForm) Debug endTransaction: go to finish
+##Params Debug endTransaction:  tree AutoSave
+##Shapes Debug endTransaction:  tree AutoSave
+##Links Debug endTransaction:  tree AutoSave
+CollectionTree(EventInfo_p4/McEventInfo) Debug endTransaction: go to finish
+CollectionTree(ExampleTrackContainer_p1/MyTracks) Debug endTransaction: go to finish
+MetaData(EventStreamInfo_p3/Stream2) Debug endTransaction: go to finish
+MetaDataHdr(DataHeader) Debug endTransaction: go to finish
+MetaDataHdrForm(DataHeaderForm) Debug endTransaction: go to finish
+POOLContainer(DataHeader) Debug endTransaction: go to finish
+POOLContainer(basic/DataHeader) Debug endTransaction: go to finish
+POOLContainerForm(DataHeaderForm) Debug endTransaction: go to finish
+##Params Debug endTransaction:  tree AutoSave
+##Shapes Debug endTransaction:  tree AutoSave
+##Links Debug endTransaction:  tree AutoSave
+SimplePoolFile1.root Info Database being retired...
+SimplePoolFile1.root Debug --> Deaccess DbContainer  CREATE    [ROOT_All] ##Links
+SimplePoolFile1.root Debug --> Deaccess DbContainer  CREATE    [ROOT_All] ##Shapes
+SimplePoolFile1.root Debug --> Deaccess DbContainer  CREATE    [ROOT_All] ##Params
+RootDatabase.close Debug I/O READ  Bytes: 0
+RootDatabase.close Debug I/O WRITE Bytes: ????
+RootDatabase.close Debug I/O OTHER Bytes: 0
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
+SimplePoolFile1.root Debug --> Deaccess DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(EventInfo_p4/McEventInfo)
+SimplePoolFile1.root Debug --> Deaccess DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(ExampleHitContainer_p1/MyHits)
+SimplePoolFile1.root Debug --> Deaccess DbContainer  CREA/UPDA [ROOT_Tree] MetaData(EventStreamInfo_p3/Stream1)
+SimplePoolFile1.root Debug --> Deaccess DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
+SimplePoolFile1.root Debug --> Deaccess DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
+SimplePoolFile1.root Debug --> Deaccess DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(DataHeader)
+SimplePoolFile1.root Debug --> Deaccess DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(basic/DataHeader)
+SimplePoolFile1.root Debug --> Deaccess DbContainer  CREA/UPDA [ROOT_Tree] POOLContainerForm(DataHeaderForm)
+SimplePoolFile3.root Info Database being retired...
+SimplePoolFile3.root Debug --> Deaccess DbContainer  CREATE    [ROOT_All] ##Links
+SimplePoolFile3.root Debug --> Deaccess DbContainer  CREATE    [ROOT_All] ##Shapes
+SimplePoolFile3.root Debug --> Deaccess DbContainer  CREATE    [ROOT_All] ##Params
+RootDatabase.close Debug I/O READ  Bytes: 0
+RootDatabase.close Debug I/O WRITE Bytes: ????
+RootDatabase.close Debug I/O OTHER Bytes: 0
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
+SimplePoolFile3.root Debug --> Deaccess DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(EventInfo_p4/McEventInfo)
+SimplePoolFile3.root Debug --> Deaccess DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(ExampleTrackContainer_p1/MyTracks)
+SimplePoolFile3.root Debug --> Deaccess DbContainer  CREA/UPDA [ROOT_Tree] MetaData(EventStreamInfo_p3/Stream2)
+SimplePoolFile3.root Debug --> Deaccess DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
+SimplePoolFile3.root Debug --> Deaccess DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
+SimplePoolFile3.root Debug --> Deaccess DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(DataHeader)
+SimplePoolFile3.root Debug --> Deaccess DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(basic/DataHeader)
+SimplePoolFile3.root Debug --> Deaccess DbContainer  CREA/UPDA [ROOT_Tree] POOLContainerForm(DataHeaderForm)
+Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
+MetaDataStore        INFO Stop MetaDataStore
+InputMetaDataStore   INFO Stop InputMetaDataStore
+ApplicationMgr       INFO Application Manager Stopped successfully
+WriteData            INFO in finalize()
+Stream1             DEBUG finalize: Optimize output
+Stream1             DEBUG finalize: end optimize output
+ReWriteData          INFO in finalize()
+Stream2             DEBUG finalize: Optimize output
+Stream2             DEBUG finalize: end optimize output
+AthAlgSeq            INFO Finalizing AthAlgSeq...
+WriteData           DEBUG Calling destructor
+ReWriteData         DEBUG Calling destructor
+AthOutSeq            INFO Finalizing AthOutSeq...
+AthRegSeq            INFO Finalizing AthRegSeq...
+AthMasterSeq         INFO Finalizing AthMasterSeq...
+StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-03-06-31
+EventSelector        INFO finalize
+DetectorStore        INFO Finalizing DetectorStore - package version StoreGate-03-06-31
+AthenaPoolCnvSvc    DEBUG releasing all workers
+PoolSvc              INFO I/O finalization...
+XMLFileCatalog Debug There were no updates in the catalog
+PoolXMLFileCatalog Info XercesC termination number 0
+MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-03-06-31
+InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-03-06-31
+DecisionSvc          INFO -- OUTPUT STREAM EVENT OVERLAP SUMMARY --
+DecisionSvc          INFO List of registered 2 Streams: Stream1 Stream2 
+DecisionSvc          INFO Finalized successfully.
+AthDictLoaderSvc     INFO in finalize...
+ToolSvc              INFO Removing all tools created by ToolSvc
+Stream2.Stream2...  DEBUG in finalize()
+Stream1.Stream1...  DEBUG in finalize()
+Stream2.Stream2...  DEBUG Calling destructor
+Stream2.Stream2...  DEBUG Calling destructor
+Stream1.Stream1...  DEBUG Calling destructor
+Stream1.Stream1...  DEBUG Calling destructor
+Stream2.Stream2...  DEBUG Calling destructor
+Stream1.Stream1...  DEBUG Calling destructor
+*****Chrono*****     INFO ****************************************************************************************************
+*****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
+*****Chrono*****     INFO ****************************************************************************************************
+AthenaSealSvc::...   INFO Time User   : Tot=   11 [ms]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot=0.90  [s]                                             #=  1
+*****Chrono*****     INFO ****************************************************************************************************
+ChronoStatSvc.f...   INFO  Service finalized successfully 
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully
+Athena               INFO leaving with code 0: "successful run"
+CORAL/Services/ConnectionService Info Deleting the ConnectionPool
