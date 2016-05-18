@@ -11,5 +11,5 @@ atlas_depends_on_subdirs( PRIVATE
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( test/MuGirlPerformance_TestConfiguration.xml share/*.C share/*.h )
+#atlas_install_runtime( test/MuGirlPerformance_TestConfiguration.xml share/*.C share/*.h )
 
