@@ -21,7 +21,8 @@ LArADC2MeVTool::LArADC2MeVTool(const std::string& type,
 			       const IInterface* parent) 
   : 
     AthAlgTool(type, name, parent) ,
-    m_cablingService(NULL),
+    m_lar_on_id(nullptr),
+    m_cablingService(nullptr),
     m_larmcsym("LArMCSymTool"),
     m_IOVDbSvc("IOVDbSvc",name),
     m_keyADC2DAC("LArRamp"),	
