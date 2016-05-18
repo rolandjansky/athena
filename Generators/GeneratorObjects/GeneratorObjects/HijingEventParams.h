@@ -44,18 +44,18 @@ class HijingEventParams
 
 
 private:
-  int m_np;
-  int m_nt;
-  int m_n0;
-  int m_n01;
-  int m_n10;
-  int m_n11;
-  int m_natt;
-  int m_jatt;
-  float m_b;
-  float m_bphi; 
+  int m_np = 0;
+  int m_nt = 0;
+  int m_n0 = 0;
+  int m_n01 = 0;
+  int m_n10 = 0;
+  int m_n11 = 0;
+  int m_natt = 0;
+  int m_jatt = 0;
+  float m_b = 0;
+  float m_bphi = 0; 
 
-  mutable float m_psi_1,m_psi_2,m_psi_3,m_psi_4,m_psi_5,m_psi_6;
+  mutable float m_psi_1 = 0,m_psi_2 = 0,m_psi_3 = 0,m_psi_4 = 0,m_psi_5 = 0,m_psi_6 = 0;
 };
 
 inline
