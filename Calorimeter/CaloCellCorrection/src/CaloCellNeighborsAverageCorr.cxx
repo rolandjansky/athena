@@ -34,7 +34,10 @@ CaloCellNeighborsAverageCorr::CaloCellNeighborsAverageCorr(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AthAlgTool(type, name, parent)
+  :AthAlgTool(type, name, parent),
+   m_calo_dd_man(nullptr),
+   m_calo_id(nullptr),
+   m_tile_id(nullptr)
 {
   declareInterface<ICaloCellMakerTool>(this);
   declareProperty("testMode",m_testMode=false,"test mode");
