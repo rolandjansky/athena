@@ -439,6 +439,12 @@ SelectionCutEleOLR::SelectionCutEleOLR(TauSelectionTool* tTST)
   , m_tTOELLHDecorator(0)
   , m_bCheckEleMatchPassAvailable(true)
   , m_bEleMatchPassAvailable(true)
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+  , m_sEleOlrLhScoreDecorationName("ele_match_lhscore")
+#else
+  , m_sEleOlrLhScoreDecorationName("EleMatchLikelihoodScore")
+#endif
+
 {
   m_hHistCutPre = CreateControlPlot("hEleOLR_pre","EleOLR_pre;Electron Likelihood Score; events",100,-4,4);
   m_hHistCut = CreateControlPlot("hEleOLR_cut","EleOLR_cut;Electron Likelihood Score; events",100,-4,4);
@@ -458,7 +464,7 @@ void SelectionCutEleOLR::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 {
   // run this to get ele_match_lhscore decoration
   getEvetoPass(xTau);
-  static SG::AuxElement::ConstAccessor<float> accEleMatchLhscore("ele_match_lhscore");
+  static SG::AuxElement::ConstAccessor<float> accEleMatchLhscore(m_sEleOlrLhScoreDecorationName.c_str());
   hHist.Fill(accEleMatchLhscore(xTau));
 }
 
@@ -480,7 +486,7 @@ bool SelectionCutEleOLR::accept(const xAOD::TauJet& xTau)
     return true;
   }
 
-  static SG::AuxElement::ConstAccessor<float> accEleMatchLhscore("ele_match_lhscore");
+  static SG::AuxElement::ConstAccessor<float> accEleMatchLhscore(m_sEleOlrLhScoreDecorationName.c_str());
   m_tTST->msg() << MSG::VERBOSE << "Tau failed EleOLR requirement, tau overlapping electron llh score: " << accEleMatchLhscore(xTau) << endmsg;
   return false;
 }
@@ -503,6 +509,7 @@ StatusCode SelectionCutEleOLR::createTOELLHDecorator()
 bool SelectionCutEleOLR::getEvetoPass(const xAOD::TauJet& xTau)
 {
 
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
   if (m_bCheckEleMatchPassAvailable)
   {
     m_bCheckEleMatchPassAvailable = false;
@@ -518,6 +525,10 @@ bool SelectionCutEleOLR::getEvetoPass(const xAOD::TauJet& xTau)
       throw std::runtime_error ("TOELLHDecorator decoration failed\n");
   static SG::AuxElement::ConstAccessor<char> accEleOlrPass("ele_olr_pass");
   return (bool)accEleOlrPass(xTau);
+#else
+  return xTau.isTau(xAOD::TauJetParameters::PassEleOLR);
+#endif
+
 }
 
 //______________________________________________________________________________

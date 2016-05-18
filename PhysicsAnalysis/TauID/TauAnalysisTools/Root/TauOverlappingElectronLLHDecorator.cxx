@@ -88,7 +88,7 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
 
   if (!m_bEleOLRMatchAvailableChecked)
   {
-    m_bEleOLRMatchAvailable = xTau.isAvailable<char>("ele_olr_pass");
+    m_bEleOLRMatchAvailable = (xTau.isAvailable<char>("ele_olr_pass") || xTau.isAvailable<float>("EleMatchLikelihoodScore"));
     m_bEleOLRMatchAvailableChecked = true;
     if (m_bEleOLRMatchAvailable)
     {

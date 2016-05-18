@@ -23,7 +23,6 @@
 
 // Local include(s):
 #include "TauAnalysisTools/ITauSelectionTool.h"
-#include "TauAnalysisTools/SelectionCuts.h"
 #include "TauAnalysisTools/Enums.h"
 #include "TauAnalysisTools/HelperFunctions.h"
 

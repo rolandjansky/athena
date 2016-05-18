@@ -451,7 +451,7 @@ StatusCode TauTruthMatchingTool::findTruthTau(const xAOD::TauJet& xTau) const
     return checkTruthMatch(xTau, *m_xTruthTauContainer);
   // }
 
-  return StatusCode::SUCCESS;
+  // return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________

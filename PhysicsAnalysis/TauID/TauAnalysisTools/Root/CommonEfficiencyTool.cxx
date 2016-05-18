@@ -10,6 +10,9 @@
 #include "TauAnalysisTools/TauEfficiencyCorrectionsTool.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
+// ROOT include(s)
+#include "TH2F.h"
+
 using namespace TauAnalysisTools;
 
 //______________________________________________________________________________
