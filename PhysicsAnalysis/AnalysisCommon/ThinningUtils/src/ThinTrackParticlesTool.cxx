@@ -44,6 +44,7 @@ Created:     July 2013
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTau/TauJet.h"
+#include "xAODTau/TauxAODHelpers.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
@@ -68,8 +69,11 @@ ThinTrackParticlesTool::ThinTrackParticlesTool( const std::string& type,
   m_tauConversion(false),
   m_tauWide(false),
   m_tauOther(false),
+  m_nElectronPTMax(-1),
   m_nTotalTrackParts(0),
-  m_nEventsProcessed(0)
+  m_nEventsProcessed(0),
+  m_nTrackPartsKept(0),
+  m_nTrackPartsProcessed(0)
 {
   declareInterface< DerivationFramework::IThinningTool >(this);
 
@@ -90,9 +94,10 @@ ThinTrackParticlesTool::ThinTrackParticlesTool( const std::string& type,
                   "Flag to steer if one should also keep 'wide track particles' from taus" );
   declareProperty("KeepTauOther",         m_tauOther=false,
                   "Flag to steer if one should also keep 'other' track particles from taus" );
+
+  declareProperty("NMaxElectronTrackParticles", m_nElectronPTMax,
+                  "Set the maximum number of TrackParticles from each electron to keep (default: -1 means all are kept");
 }
-
-
 
 
 
@@ -119,6 +124,7 @@ StatusCode ThinTrackParticlesTool::initialize()
   ATH_MSG_DEBUG ( " using " << m_tauConversion );
   ATH_MSG_DEBUG ( " using " << m_tauWide );
   ATH_MSG_DEBUG ( " using " << m_tauOther );
+  ATH_MSG_DEBUG ( " using " << m_nElectronPTMax );
 
   // Get pointer to ThinningSvc and cache it :
   // m_thinningSvc is of type IThinningSvc
@@ -140,6 +146,8 @@ StatusCode ThinTrackParticlesTool::initialize()
   // Initialize the counters
   m_nTotalTrackParts = 0;
   m_nEventsProcessed = 0;
+  m_nTrackPartsKept = 0;
+  m_nTrackPartsProcessed = 0;
 
   return StatusCode::SUCCESS;
 }
@@ -154,7 +162,9 @@ StatusCode ThinTrackParticlesTool::finalize()
 {
   // Print messages
   ATH_MSG_DEBUG ( "==> finalize " << name() << "..." );
-  ATH_MSG_DEBUG ( " Number of processed events:  " << m_nEventsProcessed );
+  ATH_MSG_DEBUG ( " Number of processed events:          " << m_nEventsProcessed );
+  ATH_MSG_DEBUG ( " Number of processed TrackParticles:  " << m_nTrackPartsProcessed );
+  ATH_MSG_DEBUG ( " Number of TrackParticles kept:       " << m_nTrackPartsKept );
 
   if (m_parser) {
     delete m_parser;
@@ -316,6 +326,17 @@ StatusCode ThinTrackParticlesTool::doThinning() const
     ATH_CHECK( this->selectFromString( mask, trackParticleContainer ) );
   }
 
+  // Some final debug printout
+  if ( msgLvl(MSG::DEBUG) || msgLvl(MSG::VERBOSE) ) {
+    std::size_t nKept = 0;
+    for ( bool isKept : mask ){
+      if (isKept) nKept += 1;
+    }
+    m_nTrackPartsKept += static_cast<unsigned long>(nKept);
+    m_nTrackPartsProcessed += static_cast<unsigned long>(mask.size());
+    ATH_MSG_DEBUG("Got " << mask.size() << " TrackParticles. Retained " << nKept << " TrackParticles" );
+  }
+
   // Perform the actual thinning
   ATH_CHECK ( m_thinningSvc->filter(*trackParticleContainer, mask, IThinningSvc::Operator::Or) );
 
@@ -448,8 +469,11 @@ ThinTrackParticlesTool::selectFromElectron( std::vector<bool>& mask,
   }
 
   // Now, get the TrackParticle and check that it points to the given track particle container
-  const std::size_t nTP = part->nTrackParticles();
+  std::size_t nTP = part->nTrackParticles();
+  ATH_MSG_DEBUG("Got " << nTP << " TrackParticle for the current electron");
+  if (m_nElectronPTMax.value() >= 0){ nTP = std::min(nTP,static_cast<std::size_t>(m_nElectronPTMax.value())); }
   for ( std::size_t i=0; i<nTP; ++i ) {
+    ATH_MSG_VERBOSE("Now looking at TrackParticle number " << i);
     const ElementLink<xAOD::TrackParticleContainer>& partLink = part->trackParticleLink(i);
     if ( !(partLink.isValid()) ) {
       ATH_MSG_WARNING("Got an invalid element link. Continuing...");
@@ -657,7 +681,11 @@ ThinTrackParticlesTool::selectFromTauJet( std::vector<bool>& mask,
   }
 
   // Now, get the TrackParticle and check that it points to the given track particle container
+#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
+  const auto& tpLinks = xAOD::TauHelpers::trackParticleLinks(part, xAOD::TauJetParameters::classifiedCharged) ;
+#else
   const auto& tpLinks = part->trackLinks();
+#endif
   for ( const auto& partLink : tpLinks ) {
     if ( !(partLink.isValid()) ) {
       ATH_MSG_WARNING("Got an invalid element link. Continuing...");
@@ -711,7 +739,12 @@ ThinTrackParticlesTool::selectFromTauJet( std::vector<bool>& mask,
 
   // If requested, also get other types of TrackParticles from the Tau
   if ( m_tauWide ) {
+    
+#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
+    const auto& tpLinks = xAOD::TauHelpers::trackParticleLinks(part,xAOD::TauJetParameters::classifiedIsolation);
+#else
     const auto& tpLinks = part->wideTrackLinks();
+#endif
     for ( const auto& partLink : tpLinks ) {
       if ( !(partLink.isValid()) ) {
         ATH_MSG_WARNING("Got an invalid element link. Continuing...");
@@ -738,7 +771,11 @@ ThinTrackParticlesTool::selectFromTauJet( std::vector<bool>& mask,
 
   // If requested, also get other types of TrackParticles from the Tau
   if ( m_tauOther ) {
+#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
+    const auto& tpLinks = xAOD::TauHelpers::allTrackParticleLinks(part);
+#else
     const auto& tpLinks = part->otherTrackLinks();
+#endif
     for ( const auto& partLink : tpLinks ) {
       if ( !(partLink.isValid()) ) {
         ATH_MSG_WARNING("Got an invalid element link. Continuing...");

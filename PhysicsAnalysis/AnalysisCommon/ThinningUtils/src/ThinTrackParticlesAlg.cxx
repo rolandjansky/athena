@@ -28,18 +28,20 @@
 // Constructors
 ////////////////
 ThinTrackParticlesAlg::ThinTrackParticlesAlg( const std::string& name,
-																						  ISvcLocator* pSvcLocator ) :
+                                              ISvcLocator* pSvcLocator ) :
   ::AthAlgorithm( name, pSvcLocator ),
   m_jos("JobOptionsSvc", name),
-	m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
+  m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
   m_thinTool("ThinTrackParticlesTool/ThinTrackParticlesTool", this),
-	m_setTrackPartKey(false),
-	m_setInCollKey(false),
-	m_setSelection(false),
-	m_setTauConv(false),
-	m_setTauWide(false),
-	m_setTauOther(false),
-	m_nEventsProcessed(0)
+  m_setTrackPartKey(false),
+  m_setInCollKey(false),
+  m_setSelection(false),
+  m_setTauConv(false),
+  m_setTauWide(false),
+  m_setTauOther(false),
+  m_nElectronPTMax(-1),
+  m_setNEleTPMax(false),
+  m_nEventsProcessed(0)
 {
   declareProperty("JobOptionsSvc",        m_jos, "The JobOptionService instance.");
 
@@ -50,27 +52,31 @@ ThinTrackParticlesAlg::ThinTrackParticlesAlg( const std::string& name,
 
   declareProperty("TrackParticlesToThin", m_trackParticleKey = "InDetTrackParticles",
                   "The xAOD::TrackParticleContainer to be thinned" );
-	m_trackParticleKey.declareUpdateHandler( &ThinTrackParticlesAlg::setupTrackPartsToThin, this );
+  m_trackParticleKey.declareUpdateHandler( &ThinTrackParticlesAlg::setupTrackPartsToThin, this );
 
   declareProperty("InputContainerList",   m_inCollKeyList,
                   "Containers from which to extract the information which xAOD::TrackParticles should be kept" );
-	m_inCollKeyList.declareUpdateHandler( &ThinTrackParticlesAlg::setupInputContainerList, this );
+  m_inCollKeyList.declareUpdateHandler( &ThinTrackParticlesAlg::setupInputContainerList, this );
 
   declareProperty("Selection",            m_selection="",
-								  "The selection string that defines which xAOD::TrackParticles to select from the container" );
-	m_selection.declareUpdateHandler( &ThinTrackParticlesAlg::setupSelection, this );
+                  "The selection string that defines which xAOD::TrackParticles to select from the container" );
+  m_selection.declareUpdateHandler( &ThinTrackParticlesAlg::setupSelection, this );
 
   declareProperty("KeepTauConversions",   m_tauConversion=false,
                   "Flag to steer if one should also keep conversion track particles from taus" );
-	m_tauConversion.declareUpdateHandler( &ThinTrackParticlesAlg::setupTauConv, this );
+  m_tauConversion.declareUpdateHandler( &ThinTrackParticlesAlg::setupTauConv, this );
 
   declareProperty("KeepTauWide",          m_tauWide=false,
                   "Flag to steer if one should also keep 'wide track particles' from taus" );
-	m_tauWide.declareUpdateHandler( &ThinTrackParticlesAlg::setupTauWide, this );
+  m_tauWide.declareUpdateHandler( &ThinTrackParticlesAlg::setupTauWide, this );
 
   declareProperty("KeepTauOther",         m_tauOther=false,
                   "Flag to steer if one should also keep 'other' track particles from taus" );
-	m_tauOther.declareUpdateHandler( &ThinTrackParticlesAlg::setupTauOther, this );
+  m_tauOther.declareUpdateHandler( &ThinTrackParticlesAlg::setupTauOther, this );
+
+  declareProperty("NMaxElectronTrackParticles", m_nElectronPTMax,
+                  "Set the maximum number of TrackParticles from each electron to keep (default: -1 means all are kept");
+  m_nElectronPTMax.declareUpdateHandler( &ThinTrackParticlesAlg::setupNEleTPMax, this );
 }
 
 
@@ -98,6 +104,7 @@ StatusCode ThinTrackParticlesAlg::initialize()
   ATH_MSG_DEBUG ( " using = " << m_tauConversion );
   ATH_MSG_DEBUG ( " using = " << m_tauWide );
   ATH_MSG_DEBUG ( " using = " << m_tauOther );
+  ATH_MSG_DEBUG ( " using = " << m_nElectronPTMax );
 
   // Initialize the counters to zero
   m_nEventsProcessed = 0 ;
@@ -114,10 +121,10 @@ StatusCode ThinTrackParticlesAlg::initialize()
   ATH_MSG_DEBUG( "Got the full name of the tool: " << fullToolName );
 
   // Now, set all properties of the private skimTool that were acutally configured
-	ATH_MSG_DEBUG( "Setting property" << m_thinningSvc
+  ATH_MSG_DEBUG( "Setting property" << m_thinningSvc
                  << " of private tool with name: '" << fullToolName << "'" );
   ATH_CHECK( m_jos->addPropertyToCatalogue ( fullToolName,
-																						 StringProperty("ThinningSvc",m_thinningSvc.typeAndName()) ) );
+                                             StringProperty("ThinningSvc",m_thinningSvc.typeAndName()) ) );
 
   if (m_setTrackPartKey) {
     ATH_MSG_DEBUG( "Setting property" << m_trackParticleKey
@@ -148,6 +155,11 @@ StatusCode ThinTrackParticlesAlg::initialize()
     ATH_MSG_DEBUG( "Setting property" << m_tauOther
                    << " of private tool with name: '" << fullToolName << "'" );
     ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_tauOther) );
+  }
+  if (m_setNEleTPMax) {
+    ATH_MSG_DEBUG( "Setting property" << m_nElectronPTMax
+                   << " of private tool with name: '" << fullToolName << "'" );
+    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_nElectronPTMax) );
   }
   ATH_MSG_DEBUG( "Done setting properties of the tool");
 
@@ -183,7 +195,7 @@ StatusCode ThinTrackParticlesAlg::execute()
   ATH_MSG_DEBUG ( "==> execute " << name() << " on " << m_nEventsProcessed << ". event..." );
 
   // Call the thinning tool
-	ATH_CHECK( m_thinTool->doThinning() );
+  ATH_CHECK( m_thinTool->doThinning() );
 
   return StatusCode::SUCCESS;
 }

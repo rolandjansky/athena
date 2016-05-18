@@ -63,6 +63,8 @@ ThinIParticlesTool::ThinIParticlesTool( const std::string& type,
                   "Containers from which to extract the information which xAOD::IParticles should be kept" );
   declareProperty("Selection",            m_selection="",
 								  "The selection string that defines which xAOD::IParticles to select from the container" );
+
+  declareProperty("MaskKey", m_maskStoregate="","If specified, will take the vector of bools from storegate with the given key, and use that as the mask!");
 }
 
 
@@ -100,6 +102,8 @@ StatusCode ThinIParticlesTool::initialize()
   // m_thinningSvc is of type IThinningSvc
   ATH_CHECK ( m_thinningSvc.retrieve() );
 
+  if(!m_selection.value().empty()) {
+
   // initialize proxy loaders for expression parsing
 	ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
 // AthAnalysisBase doesn't currently include the Trigger Service
@@ -112,6 +116,8 @@ StatusCode ThinIParticlesTool::initialize()
 	// load the expressions
 	m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
 	m_parser->loadExpression( m_selection.value() );
+
+  }
 
   // Initialize the counters
   m_nTotalIParticles = 0;
@@ -191,10 +197,21 @@ StatusCode ThinIParticlesTool::doThinning() const
     } // End: if/elif/else is link container
   } // End: loop over input container names
 
+
+  //see if taking the mask from the storegate
+  if( !(m_maskStoregate.value().empty()) ) {
+    //obtain the mask from the storegate and use that instead 
+    const std::vector<bool>* sgMask = 0;
+    ATH_CHECK( evtStore()->retrieve(sgMask,m_maskStoregate) );
+    ATH_CHECK ( m_thinningSvc->filter(*iparticleContainer, *sgMask, IThinningSvc::Operator::Or) );
+    return StatusCode::SUCCESS;
+  }
+
   // Try to fill the thinning mask based on the selection string, if given
   if ( !(m_selection.value().empty()) ) {
     ATH_CHECK( this->selectFromString( mask, iparticleContainer ) );
   }
+
 
   // Perform the actual thinning
   ATH_CHECK ( m_thinningSvc->filter(*iparticleContainer, mask, IThinningSvc::Operator::Or) );

@@ -81,6 +81,9 @@ private:
   /// This internal method will realize if a user sets the 'KeepTauOther' property
   void setupTauOther( Property& /*prop*/ );
 
+  /// This internal method will realize if a user sets the 'NMaxElectronTrackParticles' property
+  void setupNEleTPMax( Property& /*prop*/ );
+
 
   ///////////////////////////////////////////////////////////////////
   // Private data:
@@ -140,6 +143,13 @@ private:
   bool m_setTauOther;
 
 
+  /// Set the maximum number of TrackParticles from each electron to keep (default: -1 means all are kept)
+  IntegerProperty m_nElectronPTMax;
+
+  /// This boolean is true if the user sets the 'NMaxElectronTrackParticles' property
+  bool m_setNEleTPMax;
+
+
   /// Internal event counter
   unsigned long m_nEventsProcessed;
 
@@ -183,6 +193,12 @@ inline void ThinTrackParticlesAlg::setupTauWide( Property& /*prop*/ ) {
 /// This internal method will realize if a user sets the 'KeepTauOther' property
 inline void ThinTrackParticlesAlg::setupTauOther( Property& /*prop*/ ) {
   m_setTauOther = true;
+  return;
+}
+
+/// This internal method will realize if a user sets the 'NMaxElectronTrackParticles' property
+inline void ThinTrackParticlesAlg::setupNEleTPMax( Property& /*prop*/ ){
+  m_setNEleTPMax = true;
   return;
 }
 
