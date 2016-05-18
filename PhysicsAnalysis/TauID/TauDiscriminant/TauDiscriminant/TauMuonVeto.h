@@ -13,7 +13,7 @@ class TauMuonVeto: virtual public TauDiscriToolBase
   ASG_TOOL_CLASS2(TauMuonVeto, TauDiscriToolBase, ITauToolBase)
     public:
 
-        TauMuonVeto(const std::string& name):
+        TauMuonVeto(const std::string& name = "TauMuonVeto"):
             TauDiscriToolBase(name)
         {
 	}

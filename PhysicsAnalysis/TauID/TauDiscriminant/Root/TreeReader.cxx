@@ -134,7 +134,7 @@ Node* TreeReader::readTree(
         {
             node = new PointerLeafNode<TreeVector>();
         }
-        else if(variable == GRAPH || variable == FUNC || variable == TRANS) // Now reading a UnivariateSlidingCut1D/Tranformation node
+        else if(variable == GRAPH || variable == FUNC || variable == TRANS || variable == GRAPH2D) // Now reading a SlidingCut/Tranformation node
         {
             int numPoints = 0;
             string expression;
@@ -145,7 +145,7 @@ Node* TreeReader::readTree(
             {
                 if (!read<int>(treeFile,numPoints,format))
                 {
-                    ATH_MSG_VERBOSE("Failed extracting number of points for a UnivariateSlidingCut1D node");
+                    ATH_MSG_VERBOSE("Failed extracting number of points for a UnivariateSlidingCut1D or MultivariateSlidingCut2D node");
                     return 0;
                 }
                 if (numPoints < 2)
@@ -153,6 +153,10 @@ Node* TreeReader::readTree(
                     ATH_MSG_VERBOSE("Invalid number of points in UnivariateSlidingCut1D node");
                     return 0;
                 }
+		if(numPoints > 50000){
+		  ATH_MSG_ERROR("You have over 50k points, are you sure you want to do this? If so, raise the limit.");
+		  return nullptr;
+		}
             }
             else if (variable == FUNC)
             {
@@ -174,7 +178,7 @@ Node* TreeReader::readTree(
                 treeFile >> graphName;
                 getline(treeFile,line); // Discard \n
             }
-            int varX, varY;
+            int varX, varY, varZ;
             if (!read<int>(treeFile,varX,format))
             {
                 ATH_MSG_VERBOSE("Failed extracting X for a UnivariateSlidingCut1D node");
@@ -201,6 +205,17 @@ Node* TreeReader::readTree(
                     return 0;
                 }
             }
+	    if(variable == GRAPH2D){
+	      if(!read<int>(treeFile,varZ,format)){
+		ATH_MSG_VERBOSE("Failed to extract Z for the MultivariateSlidingCut2D");
+		return 0;
+	      }
+	      if(varZ < 0){
+		ATH_MSG_VERBOSE("Invalid Z for MultivariateSlidingCut2D");
+		return 0;
+	      }
+	    }
+	    
             if (varX < 0 || varY < 0)
             {
                 ATH_MSG_VERBOSE("Invalid X or Y for UnivariateSlidingCut1D node");
@@ -226,7 +241,131 @@ Node* TreeReader::readTree(
                 //tempgraph = dynamic_cast<TGraph2D*>(tempgraph->Clone());
                 graph = tempgraph;
             }
-            if (variableTypeList[varX] == 'F' && variableTypeList[varY] == 'I')
+
+	    if(variable == GRAPH2D){ //deal with MultivariateSlidingCut2D separately here
+	      //this is going to be messy...
+	      if(variableTypeList[varX] == 'F'){
+		map<string,const float*>::const_iterator it1(floatVariables->find(variableList[varX]));
+		if(it1 == floatVariables->end()){
+		  ATH_MSG_VERBOSE("Did not find variable "+variableList[varX]+" in float variables");
+		  return 0;
+		}
+		if(variableTypeList[varY] == 'F'){
+		  map<string,const float*>::const_iterator it2(floatVariables->find(variableList[varY]));
+		  if(it2 == floatVariables->end()){
+		    ATH_MSG_VERBOSE("Did not find variable "+variableList[varY]+" in float variables");
+		    return 0;
+		  }
+		  if(variableTypeList[varZ] == 'F'){
+		    map<string,const float*>::const_iterator it3(floatVariables->find(variableList[varZ]));
+		    if(it3 == floatVariables->end()){
+		      ATH_MSG_VERBOSE("Did not find variable "+variableList[varZ]+" in float variables");
+		      return 0;
+		    }
+		    node = new MultivariateSlidingCut2D<float, TGraph2D, float, float>(it3->second, static_cast<TGraph2D*>(graph), it1->second, it2->second);
+		  }else if(variableTypeList[varZ] == 'I'){
+		    map<string,const int*>::const_iterator it3(intVariables->find(variableList[varZ]));
+		    if(it3 == intVariables->end()){
+		      ATH_MSG_VERBOSE("Did not find variable "+variableList[varZ]+" in int variables");
+		      return 0;
+		    }
+		    node = new MultivariateSlidingCut2D<int, TGraph2D, float, float>(it3->second, static_cast<TGraph2D*>(graph), it1->second, it2->second);
+		  }else{
+		    ATH_MSG_VERBOSE("Unknown type");
+		    return 0;
+		  }
+		}else if(variableTypeList[varY] == 'I'){
+		  map<string,const int*>::const_iterator it2(intVariables->find(variableList[varY]));
+		  if(it2 == intVariables->end()){
+		    ATH_MSG_VERBOSE("Did not find variable "+variableList[varY]+" in int variables");
+		    return 0;
+		  }
+		  if(variableTypeList[varZ] == 'F'){
+		    map<string,const float*>::const_iterator it3(floatVariables->find(variableList[varZ]));
+		    if(it3 == floatVariables->end()){
+		      ATH_MSG_VERBOSE("Did not find variable "+variableList[varZ]+" in float variables");
+		      return 0;
+		    }
+		    node = new MultivariateSlidingCut2D<float, TGraph2D, float, int>(it3->second, static_cast<TGraph2D*>(graph), it1->second, it2->second);
+		  }else if(variableTypeList[varZ] == 'I'){
+		    map<string,const int*>::const_iterator it3(intVariables->find(variableList[varZ]));
+		    if(it3 == intVariables->end()){
+		      ATH_MSG_VERBOSE("Did not find variable "+variableList[varZ]+" in int variables");
+		      return 0;
+		    }
+		    node = new MultivariateSlidingCut2D<int, TGraph2D, float, int>(it3->second, static_cast<TGraph2D*>(graph), it1->second, it2->second);
+		  }else{
+		    ATH_MSG_VERBOSE("Unknown type");
+		    return 0;
+		  }
+		}else{
+		  ATH_MSG_VERBOSE("Unknown type");
+		  return 0;
+		}
+	      }else if(variableTypeList[varX] == 'I'){
+		map<string,const int*>::const_iterator it1(intVariables->find(variableList[varX]));
+		if(it1 == intVariables->end()){
+		  ATH_MSG_VERBOSE("Did not find variable "+variableList[varX]+" in int variables");
+		  return 0;
+		}
+		if(variableTypeList[varY] == 'F'){
+		  map<string,const float*>::const_iterator it2(floatVariables->find(variableList[varY]));
+		  if(it2 == floatVariables->end()){
+		    ATH_MSG_VERBOSE("Did not find variable "+variableList[varY]+" in float variables");
+		    return 0;
+		  }
+		  if(variableTypeList[varZ] == 'F'){
+		    map<string,const float*>::const_iterator it3(floatVariables->find(variableList[varZ]));
+		    if(it3 == floatVariables->end()){
+		      ATH_MSG_VERBOSE("Did not find variable "+variableList[varZ]+" in float variables");
+		      return 0;
+		    }
+		    node = new MultivariateSlidingCut2D<float, TGraph2D, int, float>(it3->second, static_cast<TGraph2D*>(graph), it1->second, it2->second);
+		  }else if(variableTypeList[varZ] == 'I'){
+		    map<string,const int*>::const_iterator it3(intVariables->find(variableList[varZ]));
+		    if(it3 == intVariables->end()){
+		      ATH_MSG_VERBOSE("Did not find variable "+variableList[varZ]+" in int variables");
+		      return 0;
+		    }
+		    node = new MultivariateSlidingCut2D<int, TGraph2D, int, float>(it3->second, static_cast<TGraph2D*>(graph), it1->second, it2->second);
+		  }else{
+		      ATH_MSG_VERBOSE("Unknown type");
+		      return 0;
+		    }
+		  }else if(variableTypeList[varY] == 'I'){
+		    map<string,const int*>::const_iterator it2(intVariables->find(variableList[varY]));
+		    if(it2 == intVariables->end()){
+		      ATH_MSG_VERBOSE("Did not find variable "+variableList[varY]+" in int variables");
+		      return 0;
+		    }
+		    if(variableTypeList[varZ] == 'F'){
+		      map<string,const float*>::const_iterator it3(floatVariables->find(variableList[varZ]));
+		      if(it3 == floatVariables->end()){
+			ATH_MSG_VERBOSE("Did not find variable "+variableList[varZ]+" in float variables");
+			return 0;
+		      }
+		      node = new MultivariateSlidingCut2D<float, TGraph2D, int, int>(it3->second, static_cast<TGraph2D*>(graph), it1->second, it2->second);
+		    }else if(variableTypeList[varZ] == 'I'){
+		      map<string,const int*>::const_iterator it3(intVariables->find(variableList[varZ]));
+		      if(it3 == intVariables->end()){
+			ATH_MSG_VERBOSE("Did not find variable "+variableList[varZ]+" in int variables");
+			return 0;
+		      }
+		      node = new MultivariateSlidingCut2D<int, TGraph2D, int, int>(it3->second, static_cast<TGraph2D*>(graph), it1->second, it2->second);
+		    }else{
+		      ATH_MSG_VERBOSE("Unknown type");
+		      return 0;
+		    }
+		}else{
+		  ATH_MSG_VERBOSE("Unknown type");
+		  return 0;
+		}
+	      }else{
+		ATH_MSG_VERBOSE("Unknown type");
+		return 0;
+	      }
+	    }
+            else if (variableTypeList[varX] == 'F' && variableTypeList[varY] == 'I')
             {
                 map<string,const float*>::const_iterator it1(floatVariables->find(variableList[varX]));
                 if (it1 == floatVariables->end())
@@ -457,8 +596,11 @@ Node* TreeReader::readTree(
 TreeReader::TreeReader(const string& filename):
   AsgMessaging("TauDiscriminant:TreeReader"),
   m_fileName(filename),
-  floatVariables(0),
-  intVariables(0)
+  floatVariables(nullptr),
+  intVariables(nullptr),
+  m_treeInfo(nullptr),
+  m_treeFile(),
+  m_treeString()
 {
     if (hasEnding(m_fileName, ".bin"))
     {
@@ -482,7 +624,7 @@ TreeReader::TreeReader(const string& filename):
 	return;
     }
 
-    unsigned int numVariables;
+    unsigned int numVariables = 0;
     unsigned int numBinningVariables = 0;
     char type;
     string line;
@@ -523,6 +665,12 @@ TreeReader::TreeReader(const string& filename):
     {
         ATH_MSG_ERROR("Failed extracting the number of binning variables in the discriminant file!");
         return;
+    }
+
+    //input validation to make Coverity happy
+    if(numBinningVariables > 10000){
+      ATH_MSG_ERROR("You have over 10k binning variables, are you sure you want to do this? If so, raise the limit.");
+      return;
     }
     
     m_binningVariableList = vector<string>(numBinningVariables,"");
@@ -569,8 +717,15 @@ TreeReader::TreeReader(const string& filename):
         return;
     }
 
+    //input validation
+    if(numVariables > 10000){
+      ATH_MSG_ERROR("You have over 10k variables, are you sure you want to do this? If so, raise the limit.");
+      return;
+    }
+
     m_variableList = vector<string>(numVariables,"");
     m_variableTypeList = vector<char>(numVariables,'F');
+
 
     for (unsigned int j(0); j < numVariables; ++j)
     {
@@ -643,6 +798,10 @@ Node* TreeReader::build(bool checkTree)
         treeVector = new TreeVector();
         static_cast<PointerLeafNode<TreeVector>* >(*category_it)->setValue(treeVector);
         if (!read<unsigned int>(*m_treeInfo, numTrees, m_format)) ATH_MSG_VERBOSE("Failed extracting number of trees from the discriminant file!");
+	if(numTrees > 50000){
+	  ATH_MSG_ERROR("You have over 50k trees, are you sure you want to do this? If so, raise the limit.");
+	  return nullptr;
+	}
         for (unsigned int j(0); j < numTrees; ++j)
         {
             rootNode = 0;

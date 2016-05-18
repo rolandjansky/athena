@@ -39,7 +39,8 @@ enum {
     POINTERLEAF = -3,
     GRAPH = -4,
     FUNC = -5,
-    TRANS = -6
+    TRANS = -6,
+    GRAPH2D = -7
 };
 
 class TreeReader : public asg::AsgMessaging {

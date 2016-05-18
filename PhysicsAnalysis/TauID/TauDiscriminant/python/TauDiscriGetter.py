@@ -25,6 +25,90 @@ def singleton(cls):
         return obj
     return getinstance
 
+
+def getTauDiscriminantTools(mlog, only_fakebits=False):
+
+    tools = []
+
+    from AthenaCommon.AppMgr import ToolSvc
+    print 'Fetching TauDiscriminantTools'
+
+    if not only_fakebits:
+        """
+        ID variable calculator
+        """
+        try:
+            from TauDiscriminant.TauDiscriminantConf import TauIDVarCalculator            
+            #TauIDVarCalculator.OutputLevel = self.msglevel
+            tauIDVarCalc = TauIDVarCalculator()
+            tools.append(tauIDVarCalc)
+        except :
+            mlog.error("could not find TauIDVarCalculator in TauDiscriminant")
+            return []
+        """
+        BDT tau-jet identification
+        """
+        try:
+            from TauDiscriminant.TauDiscriminantConf import TauJetBDT
+            #TauJetBDT.OutputLevel = self.msglevel
+            taujetBDT = TauJetBDT(jetBDT="TauJetBDT2016Correct.bin",
+                                  jetSigTrans="",
+                                  jetSigBits="TauJetBDT2016FinalCuts_v1.txt")
+            tools.append(taujetBDT)
+        except :
+            mlog.error("could not find TauJetBDT in TauDiscriminant")
+            return []
+        """
+        BDT tau-jet flattener
+        """
+        try:
+            from TauDiscriminant.TauDiscriminantConf import TauScoreFlatteningTool
+            #TauScoreFlatteningTool.OutputLevel = self.msglevel
+            tauscoreflatteningTool = TauScoreFlatteningTool(FlatteningFile="TauJetBDT2016FinalFlat_v1.root",
+                                                            DefineWPs=False,
+                                                            
+                                                            SigEffWPVeryLoose1P=0.95,
+                                                            SigEffWPLoose1P=0.85,
+                                                            SigEffWPMedium1P=0.75,
+                                                            SigEffWPTight1P=0.60,
+                                                            
+                                                            SigEffWPVeryLoose3P=0.95,
+                                                            SigEffWPLoose3P=0.75,
+                                                            SigEffWPMedium3P=0.60,
+                                                            SigEffWPTight3P=0.45)
+
+            tools.append(tauscoreflatteningTool)
+            
+        except :
+            mlog.error("could not find TauScoreFlatteningTool in TauDiscriminant")
+            return []
+        """
+        BDT electron veto
+        """
+        try:
+            from TauDiscriminant.TauDiscriminantConf import TauEleBDT
+            #TauEleBDT.OutputLevel = self.msglevel
+            taueleBDT = TauEleBDT(eleBDT="ele.BDT.bin",
+                                  eleBits="", eleBitsRoot="cuts.eBDT.root")
+            tools.append(taueleBDT)
+        except :
+            mlog.error("could not find TauEleBDT in TauDiscriminant")
+            return []
+        """
+        EleOLR decorator
+        """
+        try:
+            from TauDiscriminant.TauDiscriminantConf import TauEleOLRDecorator
+            #TauEleOLRDecorator.OutputLevel = self.msglevel
+            taueleOLRdecorator = TauEleOLRDecorator(ElectronContainerName="Electrons",
+                                                    EleOLRFile="2016EVeto.root")
+            tools.append(taueleOLRdecorator)
+        except :
+            mlog.error("could not find TauEleOLRDecorator in TauDiscriminant")
+            return []
+
+        return tools
+
 # to disable singleton behaviour comment out the following line:
 @singleton
 class TauDiscriGetter(Configured):
@@ -63,64 +147,8 @@ class TauDiscriGetter(Configured):
             print traceback.format_exc()
             return False
 
-        tools = []
-
-        if not self.only_fakebits:
-            """
-            ID variable calculator
-            """
-            try:
-                from TauDiscriminant.TauDiscriminantConf import TauIDVarCalculator
-                TauIDVarCalculator.OutputLevel = self.msglevel
-                tauIDVarCalc = TauIDVarCalculator()
-                tools.append(tauIDVarCalc)
-            except Exception:
-                mlog.error("could not find TauIDVarCalculator in TauDiscriminant")
-                print traceback.format_exc()
-                return False
-            """
-            Muon veto
-            """
-            try:
-                from TauDiscriminant.TauDiscriminantConf import TauMuonVeto
-                TauMuonVeto.OutputLevel = self.msglevel
-                tauMuonVeto = TauMuonVeto()
-                tools.append(tauMuonVeto)
-            except Exception:
-                mlog.error("could not find TauMuonVeto in TauDiscriminant")
-                print traceback.format_exc()
-                return False
-            """
-            BDT tau-jet identification
-            """
-            try:
-                from TauDiscriminant.TauDiscriminantConf import TauJetBDT
-                TauJetBDT.OutputLevel = self.msglevel
-                taujetBDT = TauJetBDT(jetBDT="jet.BDT.bin",
-                                      jetSigTrans="sig.trans.jet.BDT.root",
-                                      jetBkgTrans="",
-                                      jetSigBits="sig.bits.jet.BDT.txt",
-                                      jetBkgBits="bkg.bits.jet.BDT.txt")
-                tools.append(taujetBDT)
-            except Exception:
-                mlog.error("could not find TauJetBDT in TauDiscriminant")
-                print traceback.format_exc()
-                return False
-            """
-            BDT electron veto
-            """
-            try:
-                from TauDiscriminant.TauDiscriminantConf import TauEleBDT
-                TauEleBDT.OutputLevel = self.msglevel
-                taueleBDT = TauEleBDT(eleBDT="ele.BDT.bin",
-                                      eleBits="", eleBitsRoot="cuts.eBDT.root")
-                tools.append(taueleBDT)
-            except Exception:
-                mlog.error("could not find TauEleBDT in TauDiscriminant")
-                print traceback.format_exc()
-                return False
-
-
+        tools = getTauDiscriminantTools(mlog, only_fakebits=do_only_fakebits)
+            
         tauDiscriBuilder.tools = tools
 
         self.sequence += tauDiscriBuilder

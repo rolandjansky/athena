@@ -58,14 +58,14 @@ StatusCode TauDiscriminantProcessor::initialize()
 
 StatusCode TauDiscriminantProcessor::eventInitialize(){
   for(auto tool : m_tools){
-    if( tool.retrieve().isFailure() ){
-      ATH_MSG_WARNING("Cannot find tool named <" << tool->name() << ">");
-    }else{
+    // if( tool.retrieve().isFailure() ){
+    //   ATH_MSG_WARNING("Cannot find tool named <" << tool->name() << ">");
+    // }else{
       if( tool->eventInitialize().isFailure() ){
 	ATH_MSG_FATAL("Event Initialization failed in tool " << tool->name());
 	return StatusCode::FAILURE;
       }
-    }
+      //}
   }
   return StatusCode::SUCCESS;
 }

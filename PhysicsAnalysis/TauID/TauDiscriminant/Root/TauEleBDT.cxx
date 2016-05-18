@@ -11,8 +11,6 @@
 #include "TauDiscriminant/TauEleBDT.h"
 #include "TH2F.h"
 
-using namespace xAOD;
-
 StatusCode TauEleBDT::initialize()
 {
     if (this->eleBDTFile != "")
@@ -20,16 +18,16 @@ StatusCode TauEleBDT::initialize()
         string eleBDTPath = find_calibFile(this->eleBDTFile);
         if(eleBDTPath == "")
         {
-            msg(MSG::FATAL) << "File: " << this->eleBDTFile << " not found! " << endreq;
-            return StatusCode::FAILURE;
+	  ATH_MSG_FATAL("File: " << this->eleBDTFile << " not found! ");
+	  return StatusCode::FAILURE;
         }
          
         this->eleBDT = new MethodBDT("TauBDT:EleBDT");
         
         if (!this->eleBDT->build(eleBDTPath))
         {
-            msg(MSG::FATAL) << "Loading electron BDT file " << eleBDTPath << " failed!" << endreq;
-            return StatusCode::FAILURE;
+	  ATH_MSG_FATAL("Loading electron BDT file " << eleBDTPath << " failed!");
+	  return StatusCode::FAILURE;
         }
         
         if (this->eleBitsFile != "")
@@ -37,25 +35,24 @@ StatusCode TauEleBDT::initialize()
             string eleBitsPath = find_calibFile(this->eleBitsFile);
             if(eleBitsPath == "")
             {
-                msg(MSG::FATAL) << "File: " << this->eleBitsFile << " not found! " << endreq;
-                return StatusCode::FAILURE;
+	      ATH_MSG_FATAL("File: " << this->eleBitsFile << " not found! ");
+	      return StatusCode::FAILURE;
             }
 
             this->eleBits = new MethodCuts("TauBDT:EleBits");
-            //this->eleBits->addVariable("BDT",&(this->eleScore),'F');
 
             if (!this->eleBits->build(eleBitsPath))
             {
-                msg(MSG::FATAL) << "Loading ele bits file " << eleBitsPath << " failed!" << endreq;
-                return StatusCode::FAILURE;
+	      ATH_MSG_FATAL("Loading ele bits file " << eleBitsPath << " failed!");
+	      return StatusCode::FAILURE;
             }
         }
 	if(this->eleBitsRootFile != ""){
 		string eleBitsRootPath = find_calibFile(this->eleBitsRootFile);
         	if(eleBitsRootPath == "")
 	        {
-        	    msg(MSG::FATAL) << "File: " << this->eleBitsRootFile << " not found! " << endreq;
-	            return StatusCode::FAILURE;
+		  ATH_MSG_FATAL("File: " << this->eleBitsRootFile << " not found! ");
+		  return StatusCode::FAILURE;
         	}
 
 
@@ -69,16 +66,16 @@ StatusCode TauEleBDT::initialize()
 	}
 	else
 	{
-        	msg(MSG::FATAL) << "No BDT bits file was specified!" << endreq;
-	     	return StatusCode::FAILURE;
+	  ATH_MSG_FATAL("No BDT bits file was specified!");
+	  return StatusCode::FAILURE;
         }
 
 	
     }
     else
     {
-        msg(MSG::FATAL) << "No BDTs were initialized!" << endreq;
-        return StatusCode::FAILURE;
+      ATH_MSG_FATAL("No BDTs were initialized!");
+      return StatusCode::FAILURE;
     }
 
     return StatusCode::SUCCESS;
@@ -90,12 +87,12 @@ StatusCode TauEleBDT::execute(xAOD::TauJet& tauJet)
 //     Analysis::TauPID* tauJetID = tauJet.tauID();
 
     // Initialize scores
-    tauJet.setDiscriminant(TauJetParameters::BDTEleScore, 0.);
+  tauJet.setDiscriminant(xAOD::TauJetParameters::BDTEleScore, 0.);
     
     // Initialize bits
-    tauJet.setIsTau(TauJetParameters::EleBDTLoose, 0);
-    tauJet.setIsTau(TauJetParameters::EleBDTMedium, 0);
-    tauJet.setIsTau(TauJetParameters::EleBDTTight, 0);
+  tauJet.setIsTau(xAOD::TauJetParameters::EleBDTLoose, 0);
+  tauJet.setIsTau(xAOD::TauJetParameters::EleBDTMedium, 0);
+  tauJet.setIsTau(xAOD::TauJetParameters::EleBDTTight, 0);
 
     // do not assign a meaningful score for tau1P3P-only candidates. return.
     
@@ -104,15 +101,12 @@ StatusCode TauEleBDT::execute(xAOD::TauJet& tauJet)
     if (this->eleBDT)
     {
         this->eleScore = this->eleBDT->response(tauJet);
-        if (msgLvl(MSG::VERBOSE))
-        {
-            msg(MSG::VERBOSE) << "BDTEleScore: " << this->eleScore << endreq;
-        }
+	ATH_MSG_VERBOSE("BDTEleScore: " << this->eleScore);
         if (this->eleScore < 0. || this->eleScore > 1.)
         {
-            msg(MSG::ERROR) << "Error in computing BDTElecScore!" << endreq;
+	  ATH_MSG_ERROR("Error in computing BDTElecScore!");
         }
-        tauJet.setDiscriminant(TauJetParameters::BDTEleScore, this->eleScore);
+        tauJet.setDiscriminant(xAOD::TauJetParameters::BDTEleScore, this->eleScore);
     }
 
     // if (this->eleBDT && this->eleBits) SL: comment out, set bits by hand
@@ -129,23 +123,22 @@ StatusCode TauEleBDT::execute(xAOD::TauJet& tauJet)
 	double pt = tauJet.pt();
 
 	if(!this->cutsFile) {
-		msg(MSG::ERROR)<<"Cannot open EleBDT cut file"<<endreq;
-		tauJet.setIsTau(TauJetParameters::EleBDTLoose,  0 );
-	        tauJet.setIsTau(TauJetParameters::EleBDTMedium, 0 );
-        	tauJet.setIsTau(TauJetParameters::EleBDTTight,  0 );
+	  ATH_MSG_ERROR("Cannot open EleBDT cut file");
+	  tauJet.setIsTau(xAOD::TauJetParameters::EleBDTLoose,  0 );
+	  tauJet.setIsTau(xAOD::TauJetParameters::EleBDTMedium, 0 );
+	  tauJet.setIsTau(xAOD::TauJetParameters::EleBDTTight,  0 );
 
-		return StatusCode::SUCCESS;
+	  return StatusCode::SUCCESS;
 	}
 
 	if(!hloose || !hmedium || !htight){
-		msg(MSG::ERROR)<<"Cannot get EleBDT cut histograms"<<endreq;
-                tauJet.setIsTau(TauJetParameters::EleBDTLoose,  0 );
-                tauJet.setIsTau(TauJetParameters::EleBDTMedium, 0 );
-                tauJet.setIsTau(TauJetParameters::EleBDTTight,  0 );
+	  ATH_MSG_ERROR("Cannot get EleBDT cut histograms");
+	  tauJet.setIsTau(xAOD::TauJetParameters::EleBDTLoose,  0 );
+	  tauJet.setIsTau(xAOD::TauJetParameters::EleBDTMedium, 0 );
+	  tauJet.setIsTau(xAOD::TauJetParameters::EleBDTTight,  0 );
 
 		
-                return StatusCode::SUCCESS;
-
+	  return StatusCode::SUCCESS;
 	}
 
 	if(pt/1000. > 799) pt = 799*1000.0;
@@ -160,9 +153,9 @@ StatusCode TauEleBDT::execute(xAOD::TauJet& tauJet)
 	float score_tight = htight->GetBinContent(htight->FindBin(pt/1000.,eta));
 	bool failed_tight =  this->eleScore < score_tight;
 
-	tauJet.setIsTau(TauJetParameters::EleBDTLoose,  failed_loose );
-        tauJet.setIsTau(TauJetParameters::EleBDTMedium, failed_medium );
-        tauJet.setIsTau(TauJetParameters::EleBDTTight,  failed_tight );
+	tauJet.setIsTau(xAOD::TauJetParameters::EleBDTLoose,  failed_loose );
+        tauJet.setIsTau(xAOD::TauJetParameters::EleBDTMedium, failed_medium );
+        tauJet.setIsTau(xAOD::TauJetParameters::EleBDTTight,  failed_tight );
 
 
 
@@ -171,20 +164,17 @@ StatusCode TauEleBDT::execute(xAOD::TauJet& tauJet)
 
       }
       else if(tauJet.nTracks() > 1){
-	  tauJet.setIsTau(TauJetParameters::EleBDTLoose,  0 );
-          tauJet.setIsTau(TauJetParameters::EleBDTMedium, 0 );
-          tauJet.setIsTau(TauJetParameters::EleBDTTight,  0 );
+	tauJet.setIsTau(xAOD::TauJetParameters::EleBDTLoose,  0 );
+	tauJet.setIsTau(xAOD::TauJetParameters::EleBDTMedium, 0 );
+	tauJet.setIsTau(xAOD::TauJetParameters::EleBDTTight,  0 );
 	  
 		
 
       }
       
-      if (msgLvl(MSG::VERBOSE))
-        {
-	  msg(MSG::VERBOSE) << "Passes ele loose: " << tauJet.isTau(TauJetParameters::EleBDTLoose) << endreq;
-	  msg(MSG::VERBOSE) << "Passes ele medium: " << tauJet.isTau(TauJetParameters::EleBDTMedium) << endreq;
-	  msg(MSG::VERBOSE) << "Passes ele tight: " << tauJet.isTau(TauJetParameters::EleBDTTight) << endreq;
-        }
+      ATH_MSG_VERBOSE("Passes ele loose: " << tauJet.isTau(xAOD::TauJetParameters::EleBDTLoose));
+      ATH_MSG_VERBOSE("Passes ele medium: " << tauJet.isTau(xAOD::TauJetParameters::EleBDTMedium));
+      ATH_MSG_VERBOSE("Passes ele tight: " << tauJet.isTau(xAOD::TauJetParameters::EleBDTTight));
     }
 
     return StatusCode::SUCCESS;

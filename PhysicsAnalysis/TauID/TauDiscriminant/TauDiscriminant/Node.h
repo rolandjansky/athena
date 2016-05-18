@@ -8,6 +8,7 @@
  */
 
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 #ifndef NODE_H
@@ -107,9 +108,10 @@ class UnivariateCut: public DecisionNode
             this->rightChild = other.rightChild ? other.rightChild->clone() : 0;
         }
 
-	UnivariateCut<T>& operator=(UnivariateCut<T> other)
+	UnivariateCut<T>& operator=(const UnivariateCut<T>& other)
 	{
-	    swap(*this, other);
+	    UnivariateCut<T> temp(other);
+	    swap(*this, temp);
 	    return *this;
 	}
 
@@ -167,9 +169,10 @@ class UnivariateSlidingCut1D: public DecisionNode
             this->rightChild = other.rightChild ? other.rightChild->clone() : 0;
         }
 
-	UnivariateSlidingCut1D<T,U,V>& operator=(UnivariateSlidingCut1D<T,U,V> other)
+	UnivariateSlidingCut1D<T,U,V>& operator=(const UnivariateSlidingCut1D<T,U,V>& other)
 	{
-	    swap(*this, other);
+	    UnivariateSlidingCut1D<T,U,V> temp(other);
+	    swap(*this, temp);
 	    return *this;
 	}
 
@@ -273,9 +276,10 @@ class LeafNode: public Node
 
         LeafNode(const LeafNode<T>& other) { this->value = other.value; }
 
-	LeafNode<T>& operator=(LeafNode<T> other)
+	LeafNode<T>& operator=(const LeafNode<T>& other)
 	{
-	    swap(*this, other);
+	    LeafNode<T> temp(other);
+	    swap(*this, temp);
 	    return *this;
 	}
 	
@@ -326,9 +330,10 @@ class TransformationNode: public LeafNode<float>
             this->transform = other.transform->Clone();
         }
 
-	TransformationNode<X,Y,G>& operator=(TransformationNode<X,Y,G> other)
+	TransformationNode<X,Y,G>& operator=(const TransformationNode<X,Y,G>& other)
 	{
-	    swap(*this, other);
+	    TransformationNode<X,Y,G> temp(other);
+	    swap(*this, temp);
 	    return *this;
 	}
 
@@ -378,9 +383,10 @@ class PointerLeafNode: public Node
 
         PointerLeafNode(const PointerLeafNode<T>& other) { this->value = other.value; }
 
-	PointerLeafNode<T>& operator=(PointerLeafNode<T> other)
+	PointerLeafNode<T>& operator=(const PointerLeafNode<T>& other)
 	{
-	    swap(*this, other);
+	    PointerLeafNode<T> temp(other);
+	    swap(*this, temp);
 	    return *this;
 	}
 	
@@ -404,5 +410,73 @@ class PointerLeafNode: public Node
 
         T* value;
 };
+
+template <class T, class U, class V, class W>
+  class MultivariateSlidingCut2D: public DecisionNode
+{
+ public:
+
+  //!< Constructor
+ MultivariateSlidingCut2D(const T* _feature, U* _graph2d, const V* _x, const W* _y):
+  feature(_feature),
+    graph2d(_graph2d),
+    x(_x),
+    y(_y)
+    {
+      this->leftChild = 0;
+      this->rightChild = 0;
+    }
+
+  //!< Copy Constructor
+  MultivariateSlidingCut2D(const MultivariateSlidingCut2D<T,U,V,W>& other)
+    {
+      this->feature = other.feature;
+      this->graph2d = other.graph2d->Clone();
+      this->x = other.x;
+      this->y = other.y;
+      this->leftChild = other.leftChild ? other.leftChild->clone() : 0;
+      this->rightChild = other.rightChild ? other.rightChild->clone() : 0;
+    }
+
+  MultivariateSlidingCut2D<T,U,V,W>& operator=(const MultivariateSlidingCut2D<T,U,V,W>& other)
+    {
+      MultivariateSlidingCut2D<T,U,V,W> temp(other);
+      swap(*this, temp);
+      return *this;
+    }
+
+  //!< Destructor
+  ~MultivariateSlidingCut2D()
+    {
+      delete this->graph2d;
+      delete this->rightChild;
+      delete this->leftChild;
+    }
+
+  Node* clone() const
+  {
+    MultivariateSlidingCut2D<T,U,V,W>* node = new MultivariateSlidingCut2D<T,U,V,W>(this->feature, (U*)this->graph2d->Clone(), this->x, this->y);
+    if (this->leftChild) node->setLeftChild(this->leftChild->clone());
+    if (this->rightChild) node->setRightChild(this->rightChild->clone());
+    return node;
+  }
+  
+  bool goRight() const
+  {
+    if(! this->feature || ! this->x || ! this->y || ! this->graph2d) return false;
+    double _x = std::min(std::max(static_cast<double>(*this->x), this->graph2d->GetXmin()), this->graph2d->GetXmax());
+    double _y = std::min(std::max(static_cast<double>(*this->y), this->graph2d->GetYmin()), this->graph2d->GetYmax());
+    return *this->feature > this->graph2d->Interpolate(_x, _y);
+  }
+
+ private:
+
+  const T* feature;
+  U* graph2d;
+  const V* x;
+  const W* y;
+};
+
+
 
 #endif
