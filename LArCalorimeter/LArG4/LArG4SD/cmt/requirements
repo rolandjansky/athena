@@ -3,25 +3,37 @@ package LArG4SD
 author Vakho Tsulaia
 
 use AtlasPolicy                 AtlasPolicy-*
-use CaloG4Sim                   CaloG4Sim-*             Calorimeter
-use FadsSensitiveDetector       FadsSensitiveDetector-* Simulation/G4Sim/FADS
-use Geant4                      Geant4-*                External
-use LArG4Code                   LArG4Code-*             LArCalorimeter/LArG4
 
 private
 use GaudiInterface              GaudiInterface-*        External
+
 use LArG4Barrel                 LArG4Barrel-*           LArCalorimeter/LArG4
 use LArG4EC                     LArG4EC-*               LArCalorimeter/LArG4
 use LArG4FCAL                   LArG4FCAL-*             LArCalorimeter/LArG4
 use LArG4HEC                    LArG4HEC-*              LArCalorimeter/LArG4
 use LArG4MiniFCAL               LArG4MiniFCAL-*         LArCalorimeter/LArG4
-use LArG4RunControl             LArG4RunControl-*       LArCalorimeter/LArG4
-use MCTruth                     MCTruth-*               Simulation/G4Sim
-use StoreGate                   StoreGate-*             Control
+#use LArG4RunControl             LArG4RunControl-*       LArCalorimeter/LArG4
+#use MCTruth                     MCTruth-*               Simulation/G4Sim
+#use CaloIdentifier              CaloIdentifier-*        Calorimeter
+use CaloG4Sim                   CaloG4Sim-*             Calorimeter
+#use G4AtlasTools                G4AtlasTools-*          Simulation/G4Atlas
+#use Geant4                      Geant4-*                External
+use LArG4Code                   LArG4Code-*             LArCalorimeter/LArG4
+#use AtlasCLHEP                  AtlasCLHEP-*            External
 
+# Needed to create hit collections.
+use LArSimEvent                 LArSimEvent-*           LArCalorimeter
+use CaloSimEvent                CaloSimEvent-*          Calorimeter
+use StoreGate                   StoreGate-*             Control
+use CxxUtils                    CxxUtils-*              Control
+use Geant4                      Geant4-*                External
 public
 
-library LArG4SD *.cc
+apply_pattern declare_python_modules files="*.py"
 
-apply_pattern installed_library
+library LArG4SD *.cc components/*.cxx
+apply_pattern component_library
+
+#library LArG4SD *.cc
+#apply_pattern installed_library
 
