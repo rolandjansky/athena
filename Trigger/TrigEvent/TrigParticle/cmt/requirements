@@ -79,6 +79,7 @@ files="-s=${TrigParticle_root}/TrigParticle TrigElectron.h TrigElectronContainer
 apply_pattern sercnv \
 libtag="xAOD" \
 typesWithNamespace="xAOD::TauJetContainer xAOD::TauJetAuxContainer \
+                    xAOD::TauTrackContainer xAOD::TauTrackAuxContainer \
                     xAOD::JetContainer xAOD::JetTrigAuxContainer \
                     xAOD::TrigPhotonContainer xAOD::TrigPhotonAuxContainer \
                     xAOD::TrigElectronContainer xAOD::TrigElectronAuxContainer \
@@ -87,7 +88,7 @@ typesWithNamespace="xAOD::TauJetContainer xAOD::TauJetAuxContainer \
 		    xAOD::ElectronTrigAuxContainer xAOD::PhotonTrigAuxContainer \
 		    xAOD::BTaggingContainer xAOD::BTaggingTrigAuxContainer \
                     xAOD::BTagVertexContainer xAOD::BTagVertexAuxContainer" \
-    files="-s=${xAODTau_root}/xAODTau TauJetContainer.h TauJetAuxContainer.h \
+    files="-s=${xAODTau_root}/xAODTau TauJetContainer.h TauJetAuxContainer.h TauTrackContainer.h TauTrackAuxContainer.h \
            -s=${xAODJet_root}/xAODJet JetContainer.h JetTrigAuxContainer.h \
            -s=${xAODTrigEgamma_root}/xAODTrigEgamma TrigPhotonContainer.h TrigPhotonAuxContainer.h \
 	   					    TrigElectronContainer.h TrigElectronAuxContainer.h \
