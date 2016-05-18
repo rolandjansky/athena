@@ -12,7 +12,7 @@
 #include "G4Allocator.hh"
 #include "G4ios.hh"
 #include "globals.hh"
-#include "CLHEP/Units/PhysicalConstants.h" 
+#include "AthenaKernel/Units.h" 
 
 namespace LArG4 {
 
@@ -25,10 +25,10 @@ namespace LArG4 {
     G4cout << "CalibrationHit: ";
     m_identifier.show();
     G4cout << ", energy(0,1,2,3)=("
-	   << m_energy0/CLHEP::MeV << ","
-	   << m_energy1/CLHEP::MeV << ","
-	   << m_energy2/CLHEP::MeV << ","
-	   << m_energy3/CLHEP::MeV << ")" << G4endl;
+	   << m_energy0/Athena::Units::MeV << ","
+	   << m_energy1/Athena::Units::MeV << ","
+	   << m_energy2/Athena::Units::MeV << ","
+	   << m_energy3/Athena::Units::MeV << ")" << G4endl;
   }
 
 } // namespace LArG4

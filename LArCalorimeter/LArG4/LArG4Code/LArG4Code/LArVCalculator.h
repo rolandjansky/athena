@@ -29,9 +29,13 @@
 
 #include "globals.hh"
 
+#include "LArG4Code/LArG4Identifier.h"
+
 // Forward declaractions:
-class LArG4Identifier;
 class G4Step;
+
+// struct to pass the hit info
+struct LArHitData { LArG4Identifier id; G4double time; G4double energy; };
 
 class LArVCalculator {
 public:
@@ -46,6 +50,9 @@ public:
   // If it's true, the hit can be used by Geant4; if it's false,
   // there's something wrong with the hit and it should be ignored.
   virtual G4bool Process (const G4Step*) = 0;
+
+  //New interface, to pass the hit info directly
+  virtual G4bool Process (const G4Step*, std::vector<LArHitData>&) = 0;
 
   // Override if your calculator will return multiple hits:
   virtual int getNumHits() const {return 1;}

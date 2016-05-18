@@ -8,8 +8,8 @@
 
 // Convert an EnergySpot into a LArG4-type hit.
 
-#ifndef __LArHitMaker_h__
-#define __LArHitMaker_h__
+#ifndef LARG4CODE_LARHITMAKER_h
+#define LARG4CODE_LARHITMAKER_h
 
 #include "G4TouchableHandle.hh"
 #include "globals.hh"
@@ -28,14 +28,14 @@ public:
   virtual void make(const EnergySpot& spot);
 
 private:  
-  G4Step*           fFakeStep;
-  G4StepPoint*      fFakePreStepPoint;
-  G4StepPoint*      fFakePostStepPoint;
-  G4TouchableHandle fTouchableHandle;
-  G4Navigator*      fpNavigator;
-  G4bool            fNaviSetup;
+  G4Step*           m_fakeStep;
+  G4StepPoint*      m_fakePreStepPoint;
+  G4StepPoint*      m_fakePostStepPoint;
+  G4TouchableHandle m_touchableHandle;
+  G4Navigator*      m_pNavigator;
+  G4bool            m_naviSetup;
 
-  G4String          fBaseName;
+  G4String          m_baseName;
 };
 
 #endif
