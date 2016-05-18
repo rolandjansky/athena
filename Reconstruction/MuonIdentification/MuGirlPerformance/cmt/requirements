@@ -14,5 +14,5 @@ use AtlasPolicy             *
 
 
 #macro MuGirlPerformance_TestConfiguration "../test/MuGirlPerformance_TestConfiguration.xml"
-apply_pattern declare_runtime extras="../test/MuGirlPerformance_TestConfiguration.xml ../share/*.C  ../share/*.h"
+#apply_pattern declare_runtime extras="../test/MuGirlPerformance_TestConfiguration.xml ../share/*.C  ../share/*.h"
 apply_pattern declare_joboptions files="*.py"
