@@ -218,6 +218,7 @@ OutwardsCombinedMuonTrackBuilder::indetExtension (const Trk::Track&	      indetT
     for (int i=0;i<(int)spectrometerMeas.size();i++) {
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typeM;
       typeM.set(Trk::TrackStateOnSurface::Measurement);
+//  Only measurements so not needed     if(spectrometerMeas[i]->alignmentEffectsOnTrack()) continue;
       Trk::TrackStateOnSurface *tsos=new Trk::TrackStateOnSurface(spectrometerMeas[i]->clone(),0,0,0,typeM);
       trajectory->push_back(tsos);
     }
@@ -231,7 +232,8 @@ OutwardsCombinedMuonTrackBuilder::indetExtension (const Trk::Track&	      indetT
    propagate to perigee adding calo energy-loss and material to MS track */
 Trk::Track*
 OutwardsCombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	/*spectrometerTrack*/,
-						 const Trk::Vertex*	/*vertex*/) const
+						 const Trk::Vertex*	/*vertex*/,
+                                                 float bs_x, float bs_y, float bs_z ) const
 {
   return 0;
 }
@@ -240,18 +242,22 @@ OutwardsCombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	/*spectromete
    refit a track removing any indet measurements with optional addition of pseudoMeasurements
        according to original extrapolation */
 Trk::Track*
-OutwardsCombinedMuonTrackBuilder::standaloneRefit (const Trk::Track& combinedTrack) const
+OutwardsCombinedMuonTrackBuilder::standaloneRefit (const Trk::Track& combinedTrack,
+                                                   float bs_x, float bs_y, float bs_z ) const
 {
 
     ATH_MSG_DEBUG( " start OutwardsCombinedMuonTrackBuilder standaloneRefit" );
+
+    ATH_MSG_DEBUG(" beam position bs_x " << bs_x << " bs_y " << bs_y << " bs_z " << bs_z );
+
     double vertex3DSigmaRPhi = 6.0;
     double vertex3DSigmaZ    = 60.0;
     
     DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces =
 	new DataVector<const Trk::TrackStateOnSurface>;
  
-   bool addVertexRegion = true;  
-    Amg::Vector3D		origin(0.,0.,0.);
+    bool addVertexRegion = true;  
+    Amg::Vector3D origin(bs_x,bs_y,bs_z);
     AmgSymMatrix(3)  vertexRegionCovariance;
     vertexRegionCovariance.setZero();
     vertexRegionCovariance(0,0)		= vertex3DSigmaRPhi*vertex3DSigmaRPhi;
@@ -265,6 +271,7 @@ OutwardsCombinedMuonTrackBuilder::standaloneRefit (const Trk::Track& combinedTra
     // create perigee TSOS
     for ( ; t != combinedTrack.trackStateOnSurfaces()->end(); ++t) {
       itsos++;
+      if((**t).alignmentEffectsOnTrack()) continue;
       if((**t).type(Trk::TrackStateOnSurface::Perigee)) {
         const Trk::TrackParameters* pars = (**t).trackParameters();
         if(pars) {
@@ -295,6 +302,7 @@ OutwardsCombinedMuonTrackBuilder::standaloneRefit (const Trk::Track& combinedTra
       double Eloss = 0.;
       for ( ; t != combinedTrack.trackStateOnSurfaces()->end(); ++t) {
         itsos++;
+        if((**t).alignmentEffectsOnTrack()) continue;
         if(!(**t).trackParameters()) continue;
         if((**t).materialEffectsOnTrack()) {
           if(!m_indetVolume->inside((**t).trackParameters()->position())) break;
@@ -332,6 +340,7 @@ OutwardsCombinedMuonTrackBuilder::standaloneRefit (const Trk::Track& combinedTra
 
       for ( ; t != combinedTrack.trackStateOnSurfaces()->end(); ++t) {
         itsos++;
+        if((**t).alignmentEffectsOnTrack()) continue;
         const Trk::TrackStateOnSurface* TSOS = const_cast<const Trk::TrackStateOnSurface*>((**t).clone());
         trackStateOnSurfaces->push_back(TSOS);
        }   
@@ -659,6 +668,7 @@ Trk::Track*  OutwardsCombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) 
     itsos = 0;
     for ( ; t != track->trackStateOnSurfaces()->end(); ++t) {
       itsos++;
+      if((**t).alignmentEffectsOnTrack()) continue;
       if(itsos==itsosCaloFirst||itsos==itsosCaloLast){
         if((**t).materialEffectsOnTrack()) {
           double X0 = (**t).materialEffectsOnTrack()->thicknessInX0();

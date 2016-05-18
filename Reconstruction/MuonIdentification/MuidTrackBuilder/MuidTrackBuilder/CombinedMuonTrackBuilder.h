@@ -98,11 +98,13 @@ namespace Rec
 	/**ICombinedMuonTrackBuilder interface:
 	   propagate to perigee adding calo energy-loss and material to MS track */
 	Trk::Track*		standaloneFit	(const Trk::Track&	spectrometerTrack,
-						 const Trk::Vertex*	vertex) const;
+						 const Trk::Vertex*	vertex,
+                                                 float bs_x, float bs_y, float bs_z ) const;
 
 	/**ICombinedMuonTrackBuilder interface:
 	   refit a track removing any indet measurements with optional addition of pseudoMeasurements */
-	Trk::Track*		standaloneRefit	(const Trk::Track&	combinedTrack) const;
+	Trk::Track*		standaloneRefit	(const Trk::Track&	combinedTrack,
+                                                 float bs_x, float bs_y, float bs_z ) const;
 	
 	/**ITrackFitter interface:
 	   refit a track */
@@ -220,7 +222,7 @@ namespace Rec
 	    const Trk::RecVertex*					vertex) const;
 
         void dumpCaloEloss(const Trk::Track* track, std::string txt ) const;
-
+        void countAEOTs(const Trk::Track* track, std::string txt ) const;
 	
 	// helpers, managers, tools
 	ToolHandle<Rec::IMuidCaloEnergy>		m_caloEnergyParam;
@@ -236,7 +238,8 @@ namespace Rec
 	ServiceHandle<MagField::IMagFieldSvc>		m_magFieldSvc;
 	ToolHandle<Trk::IMaterialAllocator>		m_materialAllocator;
 	ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>	m_mdtRotCreator;
-	ToolHandle<Muon::IMuonErrorOptimisationTool>	m_muonErrorOptimizer;
+	ToolHandle<Muon::IMuonErrorOptimisationTool>	m_muonScaledErrorOptimizer;
+	ToolHandle<Muon::IMuonErrorOptimisationTool>	m_muonAlignmentErrorOptimizer;
 	ToolHandle<Muon::IMuonHoleRecoveryTool>		m_muonHoleRecovery;
 	ToolHandle<Trk::IPropagator>        		m_propagator;
 	ToolHandle<Trk::IPropagator>        		m_propagatorSL;
@@ -283,10 +286,10 @@ namespace Rec
 	mutable const Trk::TrackingVolume*		m_spectrometerEntrance;
 	
 	// vertex region and phi modularity for pseudo-measurement constraints
-	Trk::RecVertex*					m_beamAxis;
-	Trk::PerigeeSurface*				m_perigeeSurface;
+	mutable Trk::RecVertex*					m_beamAxis;
+	mutable Trk::PerigeeSurface*				m_perigeeSurface;
 	double						m_sigmaPhiSector;
-	Trk::RecVertex*					m_vertex;
+	mutable Trk::RecVertex*					m_vertex;
 
 	// counters
 	mutable unsigned				m_countAcceptedStandaloneFit;
