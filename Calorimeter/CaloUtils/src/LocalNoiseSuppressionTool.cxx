@@ -43,7 +43,11 @@ LocalNoiseSuppressionTool::LocalNoiseSuppressionTool(const std::string& type,
     m_caloCellContainerName(""), 
     m_testStatistic("max"), m_neighborOption("super3D"),
     m_s0(1.05), m_s1(0.017), m_o0(1.1), m_o1(0.035),
-    m_noiseTool("CaloNoiseTool/CaloNoiseToolDefault")
+    m_nNeighbors(0),
+    m_noiseTool("CaloNoiseTool/CaloNoiseToolDefault"),
+    m_calo_dd_man(nullptr),
+    m_calo_id(nullptr),
+    m_caloCellContainer(nullptr)
 {
 
   declareInterface<ICellWeightTool>(this);

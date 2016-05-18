@@ -41,7 +41,16 @@ CaloTopoTowerBuilderTool::CaloTopoTowerBuilderTool(const std::string& name,
 					   const std::string& type,
 					   const IInterface* parent)
   : CaloTopoTowerBuilderToolBase(name,type,parent),
-    m_useNoiseTool(false)
+    m_minimumCellEnergy(0),
+    m_minimumClusterEnergy(0),
+    m_useCellWeights(false),
+    m_useNoiseTool(false),
+    m_usePileUpNoise(false),
+    m_noiseSigma(0),
+    m_cellESignificanceThreshold(0),
+    m_caloSelection(false),
+    m_calo_dd_man(nullptr),
+    m_calo_id(nullptr)
 {
   declareInterface<ICaloTopoTowerBuilderToolBase>(this);    
 }
