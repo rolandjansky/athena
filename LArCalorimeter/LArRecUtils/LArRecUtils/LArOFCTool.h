@@ -39,7 +39,7 @@
 #include "LArElecCalib/ILArAutoCorrTotalTool.h"
 
 #include "StoreGate/DataHandle.h"
-#include "LArTools/LArCablingBase.h"
+#include "LArCabling/LArCablingBase.h"
 #include "LArElecCalib/ILArMCSymTool.h"
 #include "LArIdentifier/LArOnlineID_Base.h"
 #include "CaloIdentifier/CaloIdManager.h"

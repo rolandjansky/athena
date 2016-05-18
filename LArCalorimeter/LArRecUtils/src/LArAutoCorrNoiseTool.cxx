@@ -18,6 +18,8 @@ LArAutoCorrNoiseTool::LArAutoCorrNoiseTool(const std::string& type,
 					   const IInterface* parent) 
   : AthAlgTool(type, name, parent),
     m_Nsampl(5),m_MCSym(true), 
+    m_lar_on_id(nullptr),
+    m_lar_scon_id(nullptr),
     m_cablingService("LArCablingService"),
     m_larmcsym("LArMCSymTool"),
     m_keyAutoCorr("LArAutoCorr"),

@@ -9,8 +9,8 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
-#include "LArTools/LArCablingService.h"
-#include "LArTools/LArSuperCellCablingTool.h"
+#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArSuperCellCablingTool.h"
 
 #include "LArElecCalib/LArConditionsException.h"
 
@@ -21,7 +21,8 @@ LArADC2MeVTool::LArADC2MeVTool(const std::string& type,
 			       const IInterface* parent) 
   : 
     AthAlgTool(type, name, parent) ,
-    m_cablingService(NULL),
+    m_lar_on_id(nullptr),
+    m_cablingService(nullptr),
     m_larmcsym("LArMCSymTool"),
     m_IOVDbSvc("IOVDbSvc",name),
     m_keyADC2DAC("LArRamp"),	

@@ -18,8 +18,8 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
-#include "LArTools/LArCablingService.h"
-#include "LArTools/LArSuperCellCablingTool.h"
+#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArSuperCellCablingTool.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 
@@ -32,7 +32,14 @@ LArOFCTool::LArOFCTool(const std::string& type,
 		       const std::string& name, 
 		       const IInterface* parent) 
   : AthAlgTool(type, name, parent), 
+    m_lar_on_id(nullptr),
+    m_cablingService(nullptr),
     m_larmcsym("LArMCSymTool"),
+    m_calo_id_man(nullptr),
+    m_lar_em_id(nullptr),
+    m_lar_hec_id(nullptr),
+    m_lar_fcal_id(nullptr),
+    m_calo_dd_man(nullptr),
     m_keyShape("LArShape"), m_keyOFC("LArOFC"), 
     m_keyNoise("LArNoise"), m_keyPedestal("LArPedestal"),
     m_autocorrTool("LArAutoCorrTotalTool"),

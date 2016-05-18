@@ -104,7 +104,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
 
   //StoreGate keys for conditions objects for SuperCells
   declareProperty("AutoCorrSCOutput",   m_objInfo[8].m_outputKey="LArAutoCorrSC");
-  declareProperty("uA2MeVOutput",       m_objInfo[9].m_outputKey="LAruA2MeVSC");
+  declareProperty("uA2MeVSCOutput",       m_objInfo[9].m_outputKey="LAruA2MeVSC");
   declareProperty("DAC2uAVSCOutput",    m_objInfo[10].m_outputKey="LArDAC2uASC");
   declareProperty("fSamplSCOutput",     m_objInfo[11].m_outputKey="LARfSamplSC");
   declareProperty("NoiseSCOutput",      m_objInfo[12].m_outputKey="LArNoiseSC");
@@ -126,7 +126,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
 
   //Folder names for flat conditions data for SuperCells
   declareProperty("AutoCorrSCInput",    m_objInfo[8].m_inputKey="/LAR/ElecCalibMCSC/AutoCorr");
-  declareProperty("uA2MeVInput",        m_objInfo[9].m_inputKey="/LAR/ElecCalibMCSC/uA2MeV");    
+  declareProperty("uA2MeVSCInput",      m_objInfo[9].m_inputKey="/LAR/ElecCalibMCSC/uA2MeV");    
   declareProperty("DAC2uAVSCInput",     m_objInfo[10].m_inputKey="/LAR/ElecCalibMCSC/DAC2uA");    
   declareProperty("fSamplSCInput",      m_objInfo[11].m_inputKey="/LAR/ElecCalibMCSC/fSampl");    
   declareProperty("NoiseSCInput",       m_objInfo[12].m_inputKey="/LAR/ElecCalibMCSC/Noise");     
