@@ -37,7 +37,10 @@ CaloCellPedestalCorr::CaloCellPedestalCorr(
 			     const std::string& name, 
 			     const IInterface* parent)
   : CaloCellCorrection(type, name, parent),
-   m_caloCoolIdTool("CaloCoolIdTool"),m_caloLumiBCIDTool(""),m_isMC(false)
+    m_caloCoolIdTool("CaloCoolIdTool"),
+    m_cellId(nullptr),
+    m_caloLumiBCIDTool(""),
+    m_isMC(false)
 {
  declareInterface<CaloCellCorrection>(this);
  declareProperty("Luminosity",m_lumi0=0,"Luminosity in 10**33 units");

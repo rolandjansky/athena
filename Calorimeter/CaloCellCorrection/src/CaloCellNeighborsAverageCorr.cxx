@@ -34,7 +34,10 @@ CaloCellNeighborsAverageCorr::CaloCellNeighborsAverageCorr(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AthAlgTool(type, name, parent)
+  :AthAlgTool(type, name, parent),
+   m_calo_dd_man(nullptr),
+   m_calo_id(nullptr),
+   m_tile_id(nullptr)
 {
   declareInterface<ICaloCellMakerTool>(this);
   declareProperty("testMode",m_testMode=false,"test mode");
@@ -221,8 +224,16 @@ StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
 
       const Identifier theCellRegion=m_calo_id->region_id(theCellID);
       //loop through neighbors, and calculate average energy density of guys who have a legitimate volume (namely >0).
-      float totalEnergyDensity=0;
-      float legitimateNeighbors=0;
+      //float totalEnergyDensity=0;
+      //float legitimateNeighbors=0;
+
+      float goodNeighborEnergyDensitySum=0;
+      unsigned goodNeighbors=0;
+
+      float betterNeighborEnergyDensitySum=0;
+      unsigned betterNeighbors=0;
+
+      ATH_MSG_VERBOSE("Cell " << theCellID.get_identifier32().get_compact() << " has " << theNeighbors.size() << " neighbors");
       for (unsigned int iN=0;iN<theNeighbors.size();iN++) {
 	const CaloCell* thisNeighbor = theCont->findCell(theNeighbors[iN]);
 	//if there is a hardware problem in real data, then the above pointer may be NULL.  In that case the geometric neighbor is absent from the container, so we should move on to the next geometric neighbor.
@@ -233,43 +244,64 @@ StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
 	  thisEnergy = cannedUncorrectedEnergies[thisNeighbor];
 	  //	  std::cout << "GEORGIOS DEBUGGING Retrieving cannedUncorrectedEnergies[" << thisNeighbor << "] = " << cannedUncorrectedEnergies[thisNeighbor] << std::endl;
 	}
-	if (thisNeighbor->badcell()) continue;
+	if (thisNeighbor->badcell()) {
+	  ATH_MSG_VERBOSE("Ignoring neighbor " << thisNeighbor->ID().get_identifier32().get_compact() << " because of it's bad cell status");
+	  continue;
+	}
 	//int thisNeighborSubCalo = thisNeighborDDE->getSubCalo();
 	//int thisNeighborSampling = thisNeighborDDE->getSampling();
 	//if (thisNeighborSubCalo != theCellSubCalo) continue;
 	//if (thisNeighborSampling != theCellSampling) continue; //if the quality of the cell is very different, it's a wrong idea that dE/dV would be similar.
-	const Identifier thisNeighborRegion=m_calo_id->region_id(thisNeighbor->ID());
 
-	//Use only neighbors of the same region
-	if (thisNeighborRegion!=theCellRegion) {
-	  ATH_MSG_VERBOSE("Ignoring neighbor in different region " << thisNeighborRegion.get_identifier32().get_compact() << "/" << theCellRegion.get_identifier32().get_compact());
-	  continue;
-	}
+
 	float thisVolume = thisNeighborDDE->volume();
 	if (thisVolume <= 0) continue;
 
-	//A suitable neightbor if we arrive at this point
-	legitimateNeighbors++;
+	//A good neightbor if we arrive at this point
+	goodNeighbors++;
 	float thisEnergyDensity= thisEnergy / thisVolume;
-	totalEnergyDensity += thisEnergyDensity;
+	goodNeighborEnergyDensitySum += thisEnergyDensity;
 
+
+	const Identifier thisNeighborRegion=m_calo_id->region_id(thisNeighbor->ID());
+	//Better neighbors are in the same region
+	if (thisNeighborRegion==theCellRegion) {
+	  ATH_MSG_VERBOSE("Neighbor is in different region " << thisNeighborRegion.get_identifier32().get_compact() << "/" << theCellRegion.get_identifier32().get_compact());
+	  betterNeighbors++;
+	  betterNeighborEnergyDensitySum+=thisEnergyDensity;
+	}
+       
 	//	if (theCellSubCalo == CaloCell_ID::TILE && theCellSampling == CaloCell_ID::TileBar0)
 	//	std::cout << "Neighbor " << iN << " : " << thisNeighborSubCalo << " , " << thisNeighborSampling << " : " << thisNeighbor->eta() << " , " << thisNeighbor->phi() << " E=" << thisNeighbor->energy() << " V=" << thisVolume*1e-6 << " D=" << thisEnergyDensity*1e6 << std::endl;
 
       } //end loop over neighbors
-      float averageEnergyDensity=0;
-      if(legitimateNeighbors <= 0) {
-	ATH_MSG_INFO("Did not get any suitable neighbor for cell " << theCellID.get_identifier32().get_compact());
+
+
+      unsigned nNeighbors=0;
+      float neighborEnergyDensitySum=0;
+
+      if (betterNeighbors>=2) {//Have at least 2 good neighbors in the same region
+	nNeighbors=betterNeighbors;
+	neighborEnergyDensitySum=betterNeighborEnergyDensitySum;
+      }
+      else {//No good neighbors in the same region
+	ATH_MSG_DEBUG("Cell " <<  theCellID.get_identifier32().get_compact() << ": Did not find enough good neighbors in the same region. Will use neighbors from different regions");
+	nNeighbors=goodNeighbors;
+	neighborEnergyDensitySum=goodNeighborEnergyDensitySum;
+      }
+
+      if(nNeighbors <= 0) {
+	ATH_MSG_DEBUG("Did not get any suitable neighbor for cell " << theCellID.get_identifier32().get_compact() << ". Not corrected.");
 	continue;
       }
 
-      averageEnergyDensity = totalEnergyDensity / legitimateNeighbors;
+      const float averageEnergyDensity = neighborEnergyDensitySum/nNeighbors;
       
       //now use the average energy density to make a prediction for the energy of theCell
-      float predictedEnergy = averageEnergyDensity * volumeOfTheCell;
+      const float predictedEnergy = averageEnergyDensity * volumeOfTheCell;
       aCell->setEnergy(predictedEnergy);
       ATH_MSG_VERBOSE ( " correcting " << ((isTile)?"Tile":"LAr") <<  " id " << theCellID.get_identifier32().get_compact() << " Eold=" 
-			<<oldE << "Enew=" << predictedEnergy << ", used " << legitimateNeighbors <<  "neighbors" );
+			<<oldE << "Enew=" << predictedEnergy << ", used " << nNeighbors <<  " neighbors" );
     }  // end of if(badcell)
   }  // end loop over cells
   return StatusCode::SUCCESS;
