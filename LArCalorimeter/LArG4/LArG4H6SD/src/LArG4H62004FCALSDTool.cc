@@ -14,6 +14,9 @@
 LArG4H62004FCALSDTool::LArG4H62004FCALSDTool(const std::string& type, const std::string& name, const IInterface *parent)
   : LArG4SDTool(type,name,parent)
   , m_HitColl("LArHitFCAL")
+  , m_fcal1SD(nullptr)
+  , m_fcal2SD(nullptr)
+  , m_fcalColdSD(nullptr)
 {
   declareProperty( "FCAL1Volumes" , m_fcal1Volumes );
   declareProperty( "FCAL2Volumes" , m_fcal2Volumes );

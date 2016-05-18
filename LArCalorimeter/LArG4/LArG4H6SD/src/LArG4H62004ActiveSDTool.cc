@@ -18,6 +18,11 @@
 LArG4H62004ActiveSDTool::LArG4H62004ActiveSDTool(const std::string& type, const std::string& name, const IInterface *parent)
   : LArG4SDTool(type,name,parent)
   , m_HitColl("LArCalibrationHitActive")
+  , m_emecSD(nullptr)
+  , m_hecSD(nullptr)
+  , m_fcal1SD(nullptr)
+  , m_fcal2SD(nullptr)
+  , m_fcalColdSD(nullptr)
 {
   declareProperty("EMECVolumes",m_emecVolumes);
   declareProperty("HECVolumes",m_hecVolumes);

@@ -18,6 +18,13 @@ TBECBackOuterBarretteTool::TBECBackOuterBarretteTool(const std::string& type, co
   , m_HitColl_gap_se("LArHitEMEC_gap_se")
   , m_HitColl_chcoll("LArHitEMEC_chcoll")
   , m_HitColl_ropt("LArHitEMEC_ropt")
+  , m_gapadjSD(nullptr)
+  , m_gapoldSD(nullptr)
+  , m_gap_eSD(nullptr)
+  , m_gap_sSD(nullptr)
+  , m_gap_seSD(nullptr)
+  , m_chcollSD(nullptr)
+  , m_roptSD(nullptr)
 {
   declareInterface<ISensitiveDetector>(this);
 }
