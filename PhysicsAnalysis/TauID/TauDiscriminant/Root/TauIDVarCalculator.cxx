@@ -103,7 +103,7 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
 #endif
     acc_absEtaLead(tau) = fabs( track->eta() );
     acc_absDeltaEta(tau) = fabs( track->eta() - tau.eta() );
-    acc_absDeltaPhi(tau) = fabs( track->phi() - tau.phi() );
+    acc_absDeltaPhi(tau) = fabs( track->p4().DeltaPhi(tau.p4()) );
     //EMFRACTIONATEMSCALE_MOVEE3:
     float etEMScale1 = acc_etEMAtEMScale(tau);
     float etEMScale2 = acc_etHadAtEMScale(tau);

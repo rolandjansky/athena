@@ -72,19 +72,21 @@ StatusCode TauEleOLRDecorator::initialize()
 
 StatusCode TauEleOLRDecorator::execute(xAOD::TauJet& tau)
 {
+  //part of EDM, this check is not necessary
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
   if (!m_bEleOLRMatchAvailableChecked)
     {
       m_bEleOLRMatchAvailable = tau.isAvailable<char>("ele_olr_pass");
       m_bEleOLRMatchAvailableChecked = true;
       if (m_bEleOLRMatchAvailable)
-	{
-	  ATH_MSG_DEBUG("ele_olr_pass decoration is available on first tau processed, switched of processing for further taus.");
-	  ATH_MSG_DEBUG("If a reprocessing of the electron overlap removal is needed, please pass a shallow copy of the original tau.");
-	}
+  	{
+  	  ATH_MSG_DEBUG("ele_olr_pass decoration is available on first tau processed, switched of processing for further taus.");
+  	  ATH_MSG_DEBUG("If a reprocessing of the electron overlap removal is needed, please pass a shallow copy of the original tau.");
+  	}
     }
   if (m_bEleOLRMatchAvailable)
     return StatusCode::SUCCESS;
-
+#endif
 
   const xAOD::Electron * xEleMatch = 0;
   float fLHScore = -4.; // default if no match was found
@@ -115,17 +117,31 @@ StatusCode TauEleOLRDecorator::execute(xAOD::TauJet& tau)
   // create link to the matched electron
   if (xEleMatch)
     {
+      
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
       ElementLink < xAOD::ElectronContainer > lElectronMatchLink(xEleMatch, *(m_xElectronContainer));
       tau.auxdecor< ElementLink< xAOD::ElectronContainer > >("electronLink" ) = lElectronMatchLink;
+#else
+      tau.setDetail( xAOD::TauJetParameters::electronLink, xEleMatch, (m_xElectronContainer) );
+#endif
     }
   else
     {
+
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
       ElementLink < xAOD::ElectronContainer > lElectronMatchLink;
       tau.auxdecor< ElementLink< xAOD::ElectronContainer > >("electronLink" ) = lElectronMatchLink;
+#else
+      tau.setDetail( xAOD::TauJetParameters::electronLink, (const xAOD::IParticle* ) 0 );
+#endif
     }
 
   // decorate tau with score
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
   tau.auxdecor< float >( "ele_match_lhscore" ) = fLHScore;
+#else
+  tau.setDiscriminant( xAOD::TauJetParameters::EleMatchLikelihoodScore, fLHScore );
+#endif
 
   bool bPass = false;
   if (tau.nTracks() == 1)
@@ -133,7 +149,12 @@ StatusCode TauEleOLRDecorator::execute(xAOD::TauJet& tau)
 				   tau.pt()/1000.));
   else
     bPass = true;
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
   tau.auxdecor< char >( "ele_olr_pass" ) = static_cast<char>(bPass);
+#else
+  tau.setIsTau(xAOD::TauJetParameters::PassEleOLR, bPass);
+#endif
+
   
   return StatusCode::SUCCESS;
 }
