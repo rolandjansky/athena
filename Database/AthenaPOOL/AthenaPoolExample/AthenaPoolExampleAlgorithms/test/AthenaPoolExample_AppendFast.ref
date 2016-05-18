@@ -1,4 +1,4 @@
-Thu Jul 16 20:40:54 CEST 2015
+Mon Mar 21 22:41:20 CET 2016
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -6,7 +6,6 @@ Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_AppendFastJobOptions.py"
-Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
 ApplicationMgr    SUCCESS 
@@ -20,7 +19,7 @@ AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-59-22
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-03
 AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
 AthAlgSeq            INFO Member list: AthPoolEx::WriteData/WriteData, AthPoolEx::WriteTag/WriteTag, AthenaOutputStream/Stream2, RegistrationStream/RegStream2
 WriteData            INFO in initialize()
@@ -30,12 +29,12 @@ Stream2             DEBUG Found IDecisionSvc.
 DecisionSvc          INFO Inserting stream: Stream2 with no Algs
 Stream2             DEBUG End initialize 
 Stream2             DEBUG In initialize
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-03-06
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-59-22
-InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-03-03-06
-MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-03-03-06
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-26-29
-PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-24-13
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-06-31
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-60-03
+InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-03-06-31
+MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-03-06-31
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-28-12
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-25-00
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:Catalog1.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
@@ -45,15 +44,15 @@ PoolSvc              INFO Re-initializing PoolSvc
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:Catalog1.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-00
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-07
 Stream2             DEBUG Found StoreGateSvc store.
 Stream2             DEBUG Found MetaDataStore store.
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-01-59-22
-Stream2.Stream2...   INFO Initializing Stream2.Stream2Tool - package version OutputStreamAthenaPool-00-02-80
+OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-01-60-03
+Stream2.Stream2...   INFO Initializing Stream2.Stream2Tool - package version OutputStreamAthenaPool-00-02-84
 Stream2.Stream2...   INFO streamProperty ProcessingTag = Stream2
 Stream2.Stream2...  DEBUG In connectServices
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-03-06
-Stream2.Stream2...   INFO Initializing Stream2.Stream2_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-02-80
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-06-31
+Stream2.Stream2...   INFO Initializing Stream2.Stream2_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-02-84
 Stream2              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream2_MakeEventStreamInfo'])
 Stream2              INFO Data output: SimplePoolFileB.root
 Stream2              INFO I/O reinitialization...
@@ -83,7 +82,7 @@ RegStream2          DEBUG End initialize
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO  Enter McEventSelector Initialization 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
-ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-03-06
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-06-31
 ApplicationMgr       INFO Application Manager Initialized successfully
 InputMetaDataStore   INFO Start InputMetaDataStore
 MetaDataStore        INFO Start MetaDataStore
@@ -1061,15 +1060,15 @@ WriteData           DEBUG Calling destructor
 AthOutSeq            INFO Finalizing AthOutSeq...
 AthRegSeq            INFO Finalizing AthRegSeq...
 AthMasterSeq         INFO Finalizing AthMasterSeq...
-StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-03-03-06
+StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-03-06-31
 EventSelector        INFO finalize
-DetectorStore        INFO Finalizing DetectorStore - package version StoreGate-03-03-06
+DetectorStore        INFO Finalizing DetectorStore - package version StoreGate-03-06-31
 AthenaPoolCnvSvc    DEBUG releasing all workers
 PoolSvc              INFO I/O finalization...
 XMLFileCatalog Info Updating the catalog
 PoolXMLFileCatalog Info XercesC termination number 0
-MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-03-03-06
-InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-03-03-06
+MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-03-06-31
+InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-03-06-31
 DecisionSvc          INFO -- OUTPUT STREAM EVENT OVERLAP SUMMARY --
 DecisionSvc          INFO List of registered 2 Streams: RegStream2 Stream2 
 DecisionSvc          INFO Finalized successfully.
@@ -1083,8 +1082,8 @@ Stream2.Stream2...  DEBUG Calling destructor
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-AthenaSealSvc::...   INFO Time User   : Tot=   23 [ms]                                             #=  1
-ChronoStatSvc        INFO Time User   : Tot= 1.36  [s]                                             #=  1
+AthenaSealSvc::...   INFO Time User   : Tot=   10 [ms]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot=0.91  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

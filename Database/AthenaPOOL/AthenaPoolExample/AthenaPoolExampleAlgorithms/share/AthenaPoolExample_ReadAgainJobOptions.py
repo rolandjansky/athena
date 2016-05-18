@@ -35,8 +35,8 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 ## get a handle on the ServiceManager
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
-svcMgr.EventSelector.InputCollections = [ "EmptyPoolFile.root", "SimplePoolFile1.root", "EmptyPoolFile.root", "SimplePoolFile2.root", "SimplePoolFile3.root" ]
-#svcMgr.EventSelector.CollectionTree = "POOLContainer/basic"
+#svcMgr.EventSelector.InputCollections = [ "EmptyPoolFile.root", "SimplePoolReplica1.root", "EmptyPoolFile.root", "SimplePoolFile2.root", "NotTherePoolFile.root", "NotFoundPoolFile.root", "TruncatedPoolFile.root", "SimplePoolFile4.root" ]
+svcMgr.EventSelector.InputCollections = [ "EmptyPoolFile.root", "SimplePoolReplica1.root", "EmptyPoolFile.root", "SimplePoolFile2.root", "SimplePoolFile4.root" ]
 #svcMgr.EventSelector.InputCollections = [ "EmptyPoolCollection.root", "SimplePoolCollection1.root", "EmptyPoolCollection.root", "SimplePoolCollection2.root", "SimplePoolCollection3.root" ]
 svcMgr.AthenaPoolAddressProviderSvc.BackNavigation = TRUE; # // switch on BackNavigation of AddressProvider
 # // use scope based BackNavigation

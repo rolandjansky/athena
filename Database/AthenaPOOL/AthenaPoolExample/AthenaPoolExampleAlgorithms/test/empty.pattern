@@ -1,8 +1,8 @@
+Segmentation fault
 < Athena               INFO using release 
 < Preloading tcmalloc.so
 > Preloading tcmalloc_minimal.so
 < Py:ConfigurableDb WARNING 
-> Py:ConfigurableDb WARNING 
 > Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 < Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 < PoolSvc              INFO Database \([a-zA-Z0-9]*.root\) attribute \[FILE_SIZE\]:
@@ -27,8 +27,6 @@
 > ReadData             INFO CollectionMetadata, key = UnixTimestamp, value = [0-9]*
 < TEnvRec::ChangeValue:0: RuntimeWarning: duplicate entry
 < Note: \(file \"\(tmpfile\)\", line 2\) File
-< Stream[1-5]_FH           INFO
-< Stream[1-5]_FH.Defa...   INFO
 < RootDbase: all good: 
 < evt no, per run
 < WARNING: TCMALLOCDIR not defined, will use libc malloc
@@ -37,6 +35,7 @@
 < [a-zA-Z0-9_\(\)\/]* Debug endTransaction: go to finish
 > [a-zA-Z0-9_\(\)\/]* Debug endTransaction: go to finish
 < Warning in <TInterpreter::ReadRootmapFile>: class 
+> Warning in <TInterpreter::ReadRootmapFile>: class 
 < GUID: Class 
 < Athena               INFO executing ROOT6Setup
 > AthenaRootStrea...   INFO 

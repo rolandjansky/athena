@@ -47,7 +47,7 @@ StatusCode WriteData::execute() {
       ExampleHit* hitObj = new ExampleHit();
       hitObj->setX(1.2345 + eventNumber * 100 + 3.21 * i);
       hitObj->setY(-2.345 + runNumber * 100 - 5.6789 * i);
-      hitObj->setZ(34.567 - eventNumber * 100 + 87.6 / i);
+      hitObj->setZ(34.567 - eventNumber * 100 + 87.6 / (i + 0.456));
       hitObj->setDetector("DummyHitDetector");
       hitCont->push_back(hitObj);
    }

@@ -132,12 +132,6 @@ else
 	sed 's/AthenaPoolExample_ReadJobOptions/AthenaPoolExample_ReadConcatJobOptions/g' |\
 	sed '/SimplePoolFile3.root/,/[)0]/ s/Stream2/Stream1/g' > ${joblog}.tmp
         mv ${joblog}.tmp ${joblog}
-    elif [ "${test}" = "AthenaPoolExample_RFilterPL" ]
-    then
-        cat ${joblog} | \
-        sed -e 's/^SimplePoolFile3/SimplePoolFile5/g' |
-        sed -e 's/SimplePoolFile3/SimplePoolCollection5/g' > ${joblog}.tmp
-        mv ${joblog}.tmp ${joblog}
     fi
 
     if [ -e ../test/${test}.pattern ]
@@ -215,7 +209,7 @@ else
 	    if [ ${diffStatus} != 0 ]
 		then
 		echo "[97;101;1m post.sh> ERROR: ${joblog} and ${reflog} differ [m"
-#		exit 1
+		exit 1
 	    else
 		echo "[92;1m post.sh> OK: ${joblog} and ${reflog} identical [m"
 	    fi
