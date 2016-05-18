@@ -65,19 +65,19 @@ StatusCode LArDigitThinner::initialize() {
   }
     
   //Fix up jobOptions if needed:
-  int m_defaultCuts_barrel[] = { 1000, 1000, 1000, 1000 };
-  int m_defaultCuts_endcap[] = { 2000, 2000, 2000, 2000 };
+  int defaultCuts_barrel[] = { 1000, 1000, 1000, 1000 };
+  int defaultCuts_endcap[] = { 2000, 2000, 2000, 2000 };
 
   if (m_energyCuts_barrel.size() != 4) {
     msg(MSG::WARNING) << "Only " << m_energyCuts_barrel.size() 
 		      << " energy cut values provided for the endcap : reverting to default" << endreq;
-    for (size_t i=0;i<4;++i) m_energyCuts_barrel.push_back(m_defaultCuts_barrel[i]);
+    for (size_t i=0;i<4;++i) m_energyCuts_barrel.push_back(defaultCuts_barrel[i]);
   }
 
   if (m_energyCuts_endcap.size() != 4) {
     msg(MSG::WARNING) << "Only " << m_energyCuts_endcap.size() 
 		      << " energy cut values provided for the endcap : reverting to default" << endreq;
-    for (size_t i=0;i<4;++i) m_energyCuts_endcap.push_back(m_defaultCuts_endcap[i]);
+    for (size_t i=0;i<4;++i) m_energyCuts_endcap.push_back(defaultCuts_endcap[i]);
   }
   
   msg(MSG::INFO) << "Energy cuts (Barrel) : ";
@@ -109,11 +109,13 @@ void LArDigitThinner::initCutValues() {
     const Identifier id=(*it);
     HWIdentifier chid=m_larCablingSvc->createSignalChannelID(id);
     IdentifierHash onlHash=m_onlineID->channel_Hash(chid);
+    int sampling = m_caloCellId->sampling(id);
+    if (sampling < 0) continue;
     if (m_caloCellId->is_em_barrel(id)) {
-      m_energyCuts[onlHash]=m_energyCuts_barrel[m_caloCellId->sampling(id)];
+      m_energyCuts[onlHash]=m_energyCuts_barrel[sampling];
     }
     else { //endcap
-      m_energyCuts[onlHash]=m_energyCuts_endcap[m_caloCellId->sampling(id)];
+      m_energyCuts[onlHash]=m_energyCuts_endcap[sampling];
       continue;
     }
   }//end loop over EM cells;

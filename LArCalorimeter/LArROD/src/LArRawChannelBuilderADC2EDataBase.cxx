@@ -20,12 +20,12 @@ LArRawChannelBuilderADC2EDataBase::LArRawChannelBuilderADC2EDataBase(const std::
   m_adc2mevTool("LArADC2MeVTool"),
   m_onlineHelper(0)
 {
-  helper = new LArRawChannelBuilderStatistics( 3,      // number of possible errors
+  m_helper = new LArRawChannelBuilderStatistics( 3,      // number of possible errors
 					       0x20);  // bit pattern special for this tool,
                                                        // to be stored in  "uint16_t provenance"
-  helper->setErrorString(0, "no errors");
-  helper->setErrorString(1, "no DataBase");
-  helper->setErrorString(2, "bad Ramps");
+  m_helper->setErrorString(0, "no errors");
+  m_helper->setErrorString(1, "no DataBase");
+  m_helper->setErrorString(2, "bad Ramps");
   
   declareProperty("TestBadRamps",              m_testRamps  = true);
   
@@ -66,38 +66,38 @@ bool
 LArRawChannelBuilderADC2EDataBase::ADC2E(std::vector<float>& Ramps, MsgStream* /*pLog*/)
 {
   //ADC2MeV (a.k.a. Ramp)   
-  Ramps=m_adc2mevTool->ADC2MEV(pParent->curr_chid,pParent->curr_gain);
+  Ramps=m_adc2mevTool->ADC2MEV(m_parent->curr_chid,m_parent->curr_gain);
   
   //Check ramp coefficents
   if (Ramps.size()==0) {
     ATH_MSG_DEBUG("No ADC2MeV data found for channel 0x" << MSG::hex
-		  << pParent->curr_chid.get_compact() << MSG::dec
-		  << " Gain "<< pParent->curr_gain << " Skipping channel.");
-    helper->incrementErrorCount(1);
+		  << m_parent->curr_chid.get_compact() << MSG::dec
+		  << " Gain "<< m_parent->curr_gain << " Skipping channel.");
+    m_helper->incrementErrorCount(1);
     return false;
   }
   
   // temporary fix for bad ramps... should be done in the DB
   if( m_testRamps &&
-      ((( pParent->curr_gain == CaloGain::LARHIGHGAIN )   && Ramps[1]>m_ramp_max_high) ||
-       (( pParent->curr_gain == CaloGain::LARMEDIUMGAIN ) && Ramps[1]>m_ramp_max_medium) ||
-       (( pParent->curr_gain == CaloGain::LARLOWGAIN )    && Ramps[1]>m_ramp_max_low) ||
+      ((( m_parent->curr_gain == CaloGain::LARHIGHGAIN )   && Ramps[1]>m_ramp_max_high) ||
+       (( m_parent->curr_gain == CaloGain::LARMEDIUMGAIN ) && Ramps[1]>m_ramp_max_medium) ||
+       (( m_parent->curr_gain == CaloGain::LARLOWGAIN )    && Ramps[1]>m_ramp_max_low) ||
        Ramps[1]<0 ) )
     {
-      ATH_MSG_DEBUG("Bad ramp for channel " << pParent->curr_chid
+      ATH_MSG_DEBUG("Bad ramp for channel " << m_parent->curr_chid
 		    << " (Ramps[1] = " << Ramps[1] << "): skip this channel");
-      helper->incrementErrorCount(2);
+      m_helper->incrementErrorCount(2);
       return false;
     }
   
   //use intercept ?
   // for HEC treat medium gain as high gains in the others subsystems
   bool useIntercept_medium = m_useIntercept_medium;
-  if (m_onlineHelper->isHECchannel(pParent->curr_chid)) useIntercept_medium = m_useIntercept_high;
+  if (m_onlineHelper->isHECchannel(m_parent->curr_chid)) useIntercept_medium = m_useIntercept_high;
 
-  if( !((( pParent->curr_gain == CaloGain::LARHIGHGAIN )   && m_useIntercept_high ) ||
-	(( pParent->curr_gain == CaloGain::LARMEDIUMGAIN ) && useIntercept_medium ) ||
-	(( pParent->curr_gain == CaloGain::LARLOWGAIN )    && m_useIntercept_low )) )
+  if( !((( m_parent->curr_gain == CaloGain::LARHIGHGAIN )   && m_useIntercept_high ) ||
+	(( m_parent->curr_gain == CaloGain::LARMEDIUMGAIN ) && useIntercept_medium ) ||
+	(( m_parent->curr_gain == CaloGain::LARLOWGAIN )    && m_useIntercept_low )) )
     Ramps[0]=0;
   
   /*  //otherwise ignore intercept, E=0;
@@ -110,13 +110,13 @@ LArRawChannelBuilderADC2EDataBase::ADC2E(std::vector<float>& Ramps, MsgStream* /
   */
   /*
     energy=Peak;
-    helper->incrementErrorCount(1);
+    m_helper->incrementErrorCount(1);
     
     return false;
   */
   //  (*pLog) << MSG::VERBOSE << "ADC2EDataBase tool - energy : " << energy << endreq;
-  helper->incrementErrorCount(0);
-  pParent->qualityBitPattern |= helper->returnBitPattern();
+  m_helper->incrementErrorCount(0);
+  m_parent->qualityBitPattern |= m_helper->returnBitPattern();
   
   return true;
 }

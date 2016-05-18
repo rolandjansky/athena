@@ -16,7 +16,7 @@
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "LArTools/LArSuperCellCablingTool.h"
+#include "LArCabling/LArSuperCellCablingTool.h"
 #include "LArRawEvent/LArDigitContainer.h"
 
 #include "EventInfo/EventInfo.h"
@@ -170,8 +170,8 @@ StatusCode SuperCellVsCaloCellTestAlg::execute() {
             const EventInfo* evt = 0; CHECK( evtStore()->retrieve(evt) );
             m_eventNumber = evt->event_ID()->event_number();
 
-            ToolHandle<LArSuperCellCablingTool> m_larCablingTool;
-            HWIdentifier hwid = m_larCablingTool->createSignalChannelID(scell->ID());
+            ToolHandle<LArSuperCellCablingTool> larCablingTool;
+            HWIdentifier hwid = larCablingTool->createSignalChannelID(scell->ID());
             m_treeChannel = hwid.get_identifier32().get_compact();
             m_treeSampling = samplingEnum;
             m_treeEta = scell->caloDDE()->eta();

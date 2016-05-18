@@ -17,7 +17,7 @@ use LArRawEvent      LArRawEvent-*         LArCalorimeter
 #use LArRawUtils     LArRawUtils-*         LArCalorimeter
 use LArRawConditions LArRawConditions-*    LArCalorimeter
 use LArRecUtils      LArRecUtils-*         LArCalorimeter
-use LArTools         LArTools-*            LArCalorimeter
+use LArCabling       LArCabling-*          LArCalorimeter
 
 use LArRecConditions LArRecConditions-*    LArCalorimeter
 

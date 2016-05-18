@@ -14,11 +14,11 @@ LArRawChannelBuilderToolBadChannelTool::LArRawChannelBuilderToolBadChannelTool(c
   LArRawChannelBuilderToolBase(type,name,parent),
   m_badChannelMask("BadLArRawChannelMask",this)
 {
-  helper = new LArRawChannelBuilderStatistics( 2,      // number of possible errors
+  m_helper = new LArRawChannelBuilderStatistics( 2,      // number of possible errors
 					       0x01);  // bit pattern special for this tool,
                                                        // to be stored in "int quality"
-  helper->setErrorString(0, "no errors");
-  helper->setErrorString(1, "known bad channel");
+  m_helper->setErrorString(0, "no errors");
+  m_helper->setErrorString(1, "known bad channel");
   declareProperty("BadChannelMask",m_badChannelMask);
 
 }
@@ -42,15 +42,15 @@ bool LArRawChannelBuilderToolBadChannelTool::buildRawChannel(const LArDigit* /*d
 							     MsgStream* /* pLog */ )
 {
   // zero means channel ok
-  const HWIdentifier chid=pParent->curr_chid;
-  const CaloGain::CaloGain gain=pParent->curr_gain;
+  const HWIdentifier chid=m_parent->curr_chid;
+  const CaloGain::CaloGain gain=m_parent->curr_gain;
   if (m_badChannelMask->cellShouldBeMasked(chid,gain)) {
     // inverse logic, true means building went ok.
-    helper->incrementErrorCount(1);
+    m_helper->incrementErrorCount(1);
     return true;
   }
   
-  helper->incrementErrorCount(0);
+  m_helper->incrementErrorCount(0);
   return false;
 }
 

@@ -10,17 +10,17 @@ LArRawChannelBuilderPedestalSampleZero::LArRawChannelBuilderPedestalSampleZero(c
 									       const IInterface* parent):
   LArRawChannelBuilderPedestalToolBase(type,name,parent)
 {
-  helper = new LArRawChannelBuilderStatistics( 1,      // number of possible errors
+  m_helper = new LArRawChannelBuilderStatistics( 1,      // number of possible errors
 					       0x40);  // bit pattern special for this tool,
                                                        // to be stored in  "uint16_t provenance"
-  helper->setErrorString(0, "no errors");
+  m_helper->setErrorString(0, "no errors");
 }
 
 bool LArRawChannelBuilderPedestalSampleZero::pedestal(float& pedestal, MsgStream* /* pLog */ )
 {
-  pedestal = pParent->curr_sample0;
-  helper->incrementErrorCount(0);
-  pParent->qualityBitPattern |= helper->returnBitPattern();
+  pedestal = m_parent->curr_sample0;
+  m_helper->incrementErrorCount(0);
+  m_parent->qualityBitPattern |= m_helper->returnBitPattern();
   
   return true;
 }
