@@ -33,4 +33,3 @@ atlas_add_library( LArG4Code
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} CaloSimEvent LArGeoCode LArSimEvent CaloG4SimLib G4AtlasToolsLib StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES CaloIdentifier AthenaKernel MCTruth )
-

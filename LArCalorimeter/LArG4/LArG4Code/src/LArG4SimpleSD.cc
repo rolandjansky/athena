@@ -26,6 +26,10 @@ LArG4SimpleSD::LArG4SimpleSD(G4String a_name, LArVCalculator* calc, const std::s
   , m_numberInvalidHits(0)
   , m_timeBinType(LArG4SimpleSD::HitTimeBinDefault)
   , m_timeBinWidth(width)
+  , m_larEmID(nullptr)
+  , m_larFcalID(nullptr)
+  , m_larHecID(nullptr)
+  , m_larMiniFcalID(nullptr)
 {
   // Only one string causes a change in action
   if(type == "Uniform")
