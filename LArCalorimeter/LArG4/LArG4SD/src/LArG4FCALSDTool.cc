@@ -14,9 +14,13 @@
 #include "CxxUtils/make_unique.h"
 #include "G4SDManager.hh"
 
-LArG4FCALSDTool::LArG4FCALSDTool(const std::string& type, const std::string& name, const IInterface *parent)
+LArG4FCALSDTool::LArG4FCALSDTool(const std::string& type, const std::string& name,
+                                 const IInterface *parent)
   : LArG4SDTool(type,name,parent)
   , m_HitColl("LArHitFCAL")
+  , m_fcal1SD(nullptr)
+  , m_fcal2SD(nullptr)
+  , m_fcal3SD(nullptr)
 {
   declareProperty("FCAL1Volumes",m_fcal1Volumes);
   declareProperty("FCAL2Volumes",m_fcal2Volumes);
@@ -47,12 +51,7 @@ StatusCode LArG4FCALSDTool::initializeSD()
 StatusCode LArG4FCALSDTool::Gather()
 {
   // In this case, *unlike* other SDs, the *tool* owns the collection
-#ifdef ATHENAHIVE
-  // Temporary fix for Hive until isValid is fixed
-  m_HitColl = CxxUtils::make_unique<LArHitContainer>(m_HitColl.name());
-#else
   if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<LArHitContainer>(m_HitColl.name());
-#endif
   // Hand this collection name off to the SDs.  They will be writing to the
   // collection, but only one at a time!
   m_fcal1SD->EndOfAthenaEvent( &*m_HitColl );
@@ -61,6 +60,7 @@ StatusCode LArG4FCALSDTool::Gather()
 
   // Additions for optional fast simulation
   if (m_useFrozenShowers){
+    // FIXME: this is very expensive, especially for a fastsim!
     LArG4SimpleSD * fastSD = dynamic_cast<LArG4SimpleSD*>( G4SDManager::GetSDMpointer()->FindSensitiveDetector("FCALFastSimDedicatedSD") );
     if (fastSD){
       fastSD->EndOfAthenaEvent( &*m_HitColl );

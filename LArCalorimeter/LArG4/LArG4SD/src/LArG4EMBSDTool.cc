@@ -13,9 +13,12 @@
 #include "CxxUtils/make_unique.h"
 #include "G4SDManager.hh"
 
-LArG4EMBSDTool::LArG4EMBSDTool(const std::string& type, const std::string& name, const IInterface *parent)
+LArG4EMBSDTool::LArG4EMBSDTool(const std::string& type, const std::string& name,
+                               const IInterface *parent)
   : LArG4SDTool(type,name,parent)
   , m_HitColl("LArHitEMB")
+  , m_presSD(nullptr)
+  , m_stacSD(nullptr)
 {
   declareProperty("StacVolumes",m_stacVolumes);
   declareProperty("PresamplerVolumes",m_presVolumes);
@@ -42,18 +45,15 @@ StatusCode LArG4EMBSDTool::initializeSD()
 StatusCode LArG4EMBSDTool::Gather()
 {
   // In this case, *unlike* other SDs, the *tool* owns the collection
-#ifdef ATHENAHIVE
-  // Temporary fix for Hive until isValid is fixed
-  m_HitColl = CxxUtils::make_unique<LArHitContainer>(m_HitColl.name());
-#else
   if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<LArHitContainer>(m_HitColl.name());
-#endif
   m_presSD->EndOfAthenaEvent( &*m_HitColl );
   m_stacSD->EndOfAthenaEvent( &*m_HitColl );
 
   // Additions for optional fast simulation
   if (m_useFrozenShowers){
-    LArG4SimpleSD * fastSD = dynamic_cast<LArG4SimpleSD*>( G4SDManager::GetSDMpointer()->FindSensitiveDetector("BarrelFastSimDedicatedSD") );
+    // FIXME: this is very expensive, especially for a fastsim!
+    LArG4SimpleSD* fastSD = dynamic_cast<LArG4SimpleSD*>
+      ( G4SDManager::GetSDMpointer()->FindSensitiveDetector("BarrelFastSimDedicatedSD") );
     if (fastSD){
       fastSD->EndOfAthenaEvent( &*m_HitColl );
     } else {
