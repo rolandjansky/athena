@@ -44,11 +44,23 @@ using CLHEP::RandGaussZiggurat;
 LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, const IInterface* parent) :
   PileUpToolBase(type, name, parent),
   m_mergeSvc(0),
+  m_hitmap(nullptr),
+  m_DigitContainer(nullptr),
   m_adc2mevTool("LArADC2MeVTool"),
   m_autoCorrNoiseTool("LArAutoCorrNoiseTool"),
   m_maskingTool("LArBadChannelMaskingTool"),
   m_badChannelTool("LArBadChanTool"),
-  m_triggerTimeTool("CosmicTriggerTimeTool")
+  m_triggerTimeTool("CosmicTriggerTimeTool"),
+  m_larem_id(nullptr),
+  m_larhec_id(nullptr),
+  m_larfcal_id(nullptr),
+  m_laronline_id(nullptr),
+  m_AtRndmGenSvc(nullptr),
+  m_engine(nullptr),
+  m_nhit_tot(0),
+  m_trigtime(0),
+  m_n_cells(0),
+  m_larOFC(nullptr)
 {
 
    declareInterface<IPileUpTool>(this);
