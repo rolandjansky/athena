@@ -35,3 +35,4 @@ atlas_add_component( VP1AlgsEventProd
 # Install files from the package:
 atlas_install_headers( VP1AlgsEventProd )
 
+
