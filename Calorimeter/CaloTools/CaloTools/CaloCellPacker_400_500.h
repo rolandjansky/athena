@@ -24,7 +24,7 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArRecEvent/LArCell.h"
 #include "TileEvent/TileCell.h"
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 #include "CaloEvent/CaloCompactCellContainer.h"
 #include "CaloInterface/ICaloCompactCellTool.h"
 class CaloCellContainer;

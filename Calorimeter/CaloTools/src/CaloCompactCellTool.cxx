@@ -15,14 +15,10 @@
 // old versions in CVS
 //-----------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "LArRecEvent/LArCell.h"
 #include "TileEvent/TileCell.h"
-#undef private
-#undef protected
 
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 #include "CaloTools/CaloCompactCellTool.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"

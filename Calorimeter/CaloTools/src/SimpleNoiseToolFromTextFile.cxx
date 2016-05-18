@@ -6,7 +6,7 @@
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGauss.h"
 #include "CaloTools/SimpleNoiseToolFromTextFile.h"
@@ -19,13 +19,15 @@
 #include <fstream>
 #include <string>
 
-using CLHEP::MeV;
+using Athena::Units::MeV;
 using CLHEP::RandGauss;
 
 SimpleNoiseToolFromTextFile::SimpleNoiseToolFromTextFile(const std::string& type,
 							 const std::string& name,
 							 const IInterface* parent)
   : AthAlgTool(type,name,parent)
+    , m_caloDDM(nullptr)
+    , m_caloIDH(nullptr)
     , m_cellNoiseFileName("")
     , m_cellNoiseUnits(MeV)
     , m_cellNoiseDefault(100.*MeV)

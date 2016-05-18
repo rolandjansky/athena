@@ -16,7 +16,9 @@ CaloMBAverageTool::CaloMBAverageTool (const std::string& type,
 				  const IInterface* parent) :
     AthAlgTool(type, name, parent),
     m_OFCTool("LArOFCTool"),
-    m_Nminbias(-1),m_deltaBunch(1),m_keyShape("LArShape"), m_keyfSampl("LArfSampl"), m_keyMinBiasAverage("LArMinBiasAverage")
+    m_calo_id(nullptr),
+    m_Nminbias(-1),m_deltaBunch(1),m_keyShape("LArShape"), m_keyfSampl("LArfSampl"), m_keyMinBiasAverage("LArMinBiasAverage"),
+    m_ncell(0)
 { 
   declareInterface<ICaloMBAverageTool>(this);
   declareProperty("NMinBias",m_Nminbias);

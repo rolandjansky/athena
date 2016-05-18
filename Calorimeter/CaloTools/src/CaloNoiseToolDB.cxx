@@ -36,7 +36,14 @@ CaloNoiseToolDB::CaloNoiseToolDB(const std::string& type,
 			     const std::string& name, 
 			     const IInterface* parent) 
   : AthAlgTool(type, name, parent),
+    m_cached(),
+    m_CachedGetNoiseCDDE(nullptr),
+    m_CachedGetNoiseCELL(nullptr),
+    m_ncell(0),
+    m_highestGain(),
+    m_Nminbias(0),
     m_cacheValid(false),
+    m_calo_id(nullptr),
     m_cacheUpdateCounter(0)
 {
   declareInterface<ICaloNoiseTool>(this);
