@@ -93,7 +93,12 @@ namespace {
 /** ============================================================================ */
 CaloParticleIDTool::CaloParticleIDTool(const std::string& t,
 				       const std::string& n,
-				       const IInterface* i) : AthAlgTool(t, n, i)
+				       const IInterface* i)
+  : AthAlgTool(t, n, i),
+    m_isConfigValid(false),
+    m_caloDetDescrMgr(nullptr),
+    m_detectorIDHelper(nullptr),
+    m_truthParticles(nullptr)
 {
   declareInterface<ICaloParticleIDTool>( this );
   
@@ -111,44 +116,13 @@ CaloParticleIDTool::CaloParticleIDTool(const std::string& t,
 /** ============================================================================ */
 StatusCode CaloParticleIDTool::initialize( ) 
 {
-  
-  StatusCode sc = service("StoreGateSvc",m_evtStore);
-  if ( sc.isFailure() )
-  {
-    msg( MSG::ERROR) << "Unable to retrieve pointer to StoreGate service."
-		     << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  sc = service("DetectorStore", m_detStore);
-  if ( sc.isFailure() ) {
-    msg( MSG::ERROR ) << "Unable to get pointer to DetectorStore service" 
-		      << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  sc = m_detStore->retrieve( m_detectorIDHelper );
-  if (sc.isFailure()) {
-    msg( MSG::ERROR ) << "Unable to retrieve AtlasDetectorID helper from DetectorStore" 
-		      << endreq;
-    return StatusCode::FAILURE;
-  }
-  
+  ATH_CHECK( detStore()->retrieve( m_detectorIDHelper ) );
   m_caloDetDescrMgr = CaloDetDescrManager::instance(); 
   
-  //
   // register this tool with the IncidentSvc for setupEvent()
-  //
-  
   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
-  sc = incidentSvc.retrieve();
-  if( sc.isFailure() ) 
-  {
-    msg( MSG::ERROR ) << "IncidentSvc not found, could not register handle" << endreq;
-    return StatusCode::FAILURE;
-  }  
-  else
-    incidentSvc->addListener( this, IncidentType::BeginEvent );    
+  ATH_CHECK( incidentSvc.retrieve() );
+  incidentSvc->addListener( this, IncidentType::BeginEvent );    
   
   m_isConfigValid = false;
   
@@ -164,12 +138,7 @@ StatusCode CaloParticleIDTool::finalize( )
 /** ============================================================================ */
 StatusCode CaloParticleIDTool::setupEvent( )
 {
-  StatusCode sc = m_evtStore->retrieve( m_truthParticles, m_truthParticleCollectionName );
-  if( sc.isFailure() )
-  {
-    ATH_MSG_ERROR( "Couldn't retrieve MC particle collection [" << m_truthParticleCollectionName << "]" );
-    return sc;
-  }
+  ATH_CHECK(  evtStore()->retrieve( m_truthParticles, m_truthParticleCollectionName ) );
   
   //
   // load information for particles that have hits in the calorimeter,
@@ -190,16 +159,8 @@ StatusCode CaloParticleIDTool::setupEvent( )
   std::vector<std::string>::iterator names_itr_end = m_calibrationCaloHitContainerNames.end();
   for ( ; names_itr != names_itr_end; ++names_itr )
   {
-    sc = m_evtStore->retrieve( handle, (*names_itr) );
-    if (sc.isFailure() ) 
-    {
-      ATH_MSG_ERROR( "Can't get calibration hit container [" << (*names_itr) << "]" );
-      return sc;
-    } 
-    else 
-    {
-      hitContainers.push_back( handle );
-    }
+    ATH_CHECK( evtStore()->retrieve( handle, (*names_itr) ) );
+    hitContainers.push_back( handle );
   }
   
   std::vector<const CaloCalibrationHitContainer*>::const_iterator hitcoll_itr = hitContainers.begin();
@@ -250,16 +211,8 @@ StatusCode CaloParticleIDTool::setupEvent( )
   names_itr_end = m_calibrationDMHitContainerNames.end();
   for( ; names_itr != names_itr_end; ++names_itr )
   {
-    sc = m_evtStore->retrieve( handle, (*names_itr) );
-    if (sc.isFailure() ) 
-    {
-      ATH_MSG_ERROR( "Can't get calibration hit container [" << (*names_itr) << "]" );
-      return sc;
-    } 
-    else 
-    {
-      hitContainers.push_back( handle );
-    }
+    ATH_CHECK( evtStore()->retrieve( handle, (*names_itr) ) );
+    hitContainers.push_back( handle );
   }
   hitcoll_itr = hitContainers.begin();
   hitcoll_itr_end = hitContainers.end();
@@ -284,7 +237,7 @@ StatusCode CaloParticleIDTool::setupEvent( )
 		   << "] particles with hits in dead material." );
     
   } // end loop over dead material hit collections
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /** ============================================================================ */
@@ -985,11 +938,11 @@ void CaloParticleIDTool::doSignalStateCheck( const INavigable* calObject ) const
   if( dummy_ptr != NULL )
   {
     if( ( dummy_ptr->signalState() != P4SignalState::UNCALIBRATED &&
-	  dummy_ptr->signalState() != P4SignalState::UNKNOWN ) && numWarningsIssued < 10 )
+	  dummy_ptr->signalState() != P4SignalState::UNKNOWN ) && s_numWarningsIssued < 10 )
     {
       ATH_MSG_WARNING( "Particle ID information for clusters with signal state '" 
 		       << dummy_ptr->signalState() << "' is not well defined" );
-      ++numWarningsIssued;
+      ++s_numWarningsIssued;
     }
   }
 }

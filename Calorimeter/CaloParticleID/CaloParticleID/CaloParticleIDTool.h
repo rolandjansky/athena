@@ -254,11 +254,11 @@ protected:
   
   class CellInfo : public CalibrationHitInfo {
   public:        
-    CellInfo( Identifier m_id, 
+    CellInfo( Identifier id, 
 	      double eta = std::numeric_limits<double>::max(), 
 	      double phi = std::numeric_limits<double>::max() ) : CalibrationHitInfo( )
     { 
-      m_cellid = m_id;
+      m_cellid = id;
       m_eta = eta;
       m_phi = phi;
     }
@@ -312,12 +312,7 @@ protected:
 private:
   /* @brief flag to indicate whether calibration hit info is up to date */
   bool m_isConfigValid;
-
-  /* @brief event store service */
-  StoreGateSvc* m_evtStore;      
   
-  /* @brief the calorimeter detector description */
-  StoreGateSvc* m_detStore;
   const CaloDetDescrManager* m_caloDetDescrMgr;
   const AtlasDetectorID*     m_detectorIDHelper;
   
@@ -334,7 +329,7 @@ private:
   particleinfolist_t            m_calorimeterParticleInfo;     //! ditto for all particles that hit the calorimeter
   particleinfolist_t            m_deadMaterialParticleInfo;    //! and for particles that leave hits in dead material
   
-  static unsigned int numWarningsIssued;
+  static unsigned int s_numWarningsIssued;
   
   typedef CaloCalibrationHit* (*transform)( void*, const CaloCalibrationHit* );
   std::vector< std::pair<void*,
@@ -403,7 +398,7 @@ inline const HepMC::GenParticle* CaloParticleIDTool::getParticle( unsigned int b
 }
 
 #ifdef CALOPARTICLEIDTOOL_CXX
-unsigned int CaloParticleIDTool::numWarningsIssued = 0;
+unsigned int CaloParticleIDTool::s_numWarningsIssued = 0;
 #endif // CALOPARTICLEIDTOOL_CXX
 
 #endif // CALOPARTICLEIDTOOL_H
