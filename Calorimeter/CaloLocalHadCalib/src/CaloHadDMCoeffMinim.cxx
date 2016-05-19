@@ -23,6 +23,7 @@
 #include "CaloLocalHadCalib/GetLCSinglePionsPerf.h"
 #include "CaloConditions/CaloLocalHadCoeff.h"
 #include "CaloConditions/CaloLocalHadDefs.h"
+#include "AthenaKernel/Units.h"
 #include <math.h>
 #include <iostream>
 #include <sstream>
@@ -31,7 +32,6 @@
 #include "boost/io/ios_state.hpp"
 
 #include <CLHEP/Vector/LorentzVector.h>
-#include <CLHEP/Units/SystemOfUnits.h>
 
 #include "TROOT.h"
 #include "TStyle.h"
@@ -53,8 +53,8 @@
 
 
 using CLHEP::HepLorentzVector;
-using CLHEP::MeV;
-using CLHEP::GeV;
+using Athena::Units::MeV;
+using Athena::Units::GeV;
 
 
 CaloHadDMCoeffMinim *CaloHadDMCoeffMinim::s_instance = 0;
@@ -216,10 +216,10 @@ CaloLocalHadCoeff * CaloHadDMCoeffMinim::process(CaloHadDMCoeffData *myData, Cal
 
     double EnergyResolution; // in GeV
     if( abs(m_data->m_mc_pdg) == 211) {
-      EnergyResolution = sqrt(0.5*0.5*m_data->m_mc_ener/GeV+0.03*0.03*pow((m_data->m_mc_ener/GeV),2));// in GeV
+      EnergyResolution = sqrt((0.5*0.5/GeV)*m_data->m_mc_ener+(0.03*0.03/GeV)*pow((m_data->m_mc_ener),2));// in GeV
     } else {
       //EnergyResolution = sqrt(0.1*0.1*m_data->m_mc_ener/GeV+0.003*0.003+0.007*0.007*pow((m_data->m_mc_ener/GeV),2)); // in GeV
-      EnergyResolution = sqrt(0.5*0.5*m_data->m_mc_ener/GeV+0.03*0.03*pow((m_data->m_mc_ener/GeV),2));// in GeV
+      EnergyResolution = sqrt((0.5*0.5/GeV)*m_data->m_mc_ener+(0.03*0.03/GeV)*pow((m_data->m_mc_ener),2));// in GeV
     }
 
     // checking event quality
@@ -290,7 +290,7 @@ CaloLocalHadCoeff * CaloHadDMCoeffMinim::process(CaloHadDMCoeffData *myData, Cal
   /* ********************************************
   run minimization
   ********************************************* */
-  std::cout << "CaloHadDMCoeffMinim::process() -> Info. Starting minimization, m_minimSample.size(): " << m_minimSample.size() << "( " << float(m_minimSample.size())*26.0/1e+06 << " Mb)"<< std::endl;
+  std::cout << "CaloHadDMCoeffMinim::process() -> Info. Starting minimization, m_minimSample.size(): " << m_minimSample.size() << "( " << float(m_minimSample.size())*(26.0/1e+06) << " Mb)"<< std::endl;
   for(int i_data=0; i_data<dmArea->getLength(); i_data++) {
     TBenchmark mb;
     mb.Start("minuitperf");
@@ -304,24 +304,24 @@ CaloLocalHadCoeff * CaloHadDMCoeffMinim::process(CaloHadDMCoeffData *myData, Cal
       }
     }
 
-    std::vector<int > m_indexes;
-    m_HadDMCoeff->bin2indexes(m_iBinGlob, m_indexes);
+    std::vector<int > indexes;
+    m_HadDMCoeff->bin2indexes(m_iBinGlob, indexes);
     std::cout << "==============================================================================" << std::endl;
     std::cout << "run " << i_data 
         << " out of " << dmArea->getLength()
         << " m_iBinGlob:" << m_iBinGlob
-        << " frac:" << m_indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]
-        << " side:" << m_indexes[CaloLocalHadCoeffHelper::DIM_SIDE]
-        << " eta:" << m_indexes[CaloLocalHadCoeffHelper::DIM_ETA]
-        << " phi:" << m_indexes[CaloLocalHadCoeffHelper::DIM_PHI]
-        << " ener:" << m_indexes[CaloLocalHadCoeffHelper::DIM_ENER]
-        << " lambda:" << m_indexes[CaloLocalHadCoeffHelper::DIM_LAMBDA]
+        << " frac:" << indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]
+        << " side:" << indexes[CaloLocalHadCoeffHelper::DIM_SIDE]
+        << " eta:" << indexes[CaloLocalHadCoeffHelper::DIM_ETA]
+        << " phi:" << indexes[CaloLocalHadCoeffHelper::DIM_PHI]
+        << " ener:" << indexes[CaloLocalHadCoeffHelper::DIM_ENER]
+        << " lambda:" << indexes[CaloLocalHadCoeffHelper::DIM_LAMBDA]
         << " size_of_subset:" << m_sample_size[i_data]
         << std::endl;
 
     // name of parameters to be minimized
     m_validNames.clear();
-    if(m_indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC] == 0) {
+    if(indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC] == 0) {
       // list of samplings to minimise for charged pions
       m_validNames.push_back("EME2");
       m_validNames.push_back("EME3");
@@ -415,11 +415,11 @@ CaloLocalHadCoeff * CaloHadDMCoeffMinim::process(CaloHadDMCoeffData *myData, Cal
     std::cout << std::endl;
 
     if(m_isTestbeam) {
-      std::vector<int > m_indexes;
-      m_HadDMCoeff->bin2indexes(iBin, m_indexes);
-      if(m_indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]==1) {
-        const CaloLocalHadCoeff::LocalHadDimension *m_dimEta = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ETA);
-        float eta = m_dimEta->getXmin() + m_dimEta->getDx()*(m_indexes[CaloLocalHadCoeffHelper::DIM_ETA]+0.5);
+      std::vector<int > indexes;
+      m_HadDMCoeff->bin2indexes(iBin, indexes);
+      if(indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]==1) {
+        const CaloLocalHadCoeff::LocalHadDimension *dimEta = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ETA);
+        float eta = dimEta->getXmin() + dimEta->getDx()*(indexes[CaloLocalHadCoeffHelper::DIM_ETA]+0.5);
         if( (fabs(eta)>2.9 && fabs(eta)<3.15)) {
           //pars[CaloSampling::EME2] *= 0.96;
           //pars[CaloSampling::EME2] *= 0.97;
@@ -465,22 +465,22 @@ void CaloHadDMCoeffMinim::make_report(std::string &sreport)
   ctmp->Print(sfname.c_str());
   sfname = sreport;
   // ---------------------
-  int m_area_indx;
-  const CaloLocalHadCoeff::LocalHadArea *dmArea = m_HadDMHelper->getAreaFromName(m_HadDMCoeff, "ENG_CALIB_DEAD_FCAL", m_area_indx);
+  int area_indx;
+  const CaloLocalHadCoeff::LocalHadArea *dmArea = m_HadDMHelper->getAreaFromName(m_HadDMCoeff, "ENG_CALIB_DEAD_FCAL", area_indx);
   TLatex *tex = new TLatex(); tex->SetNDC();
 
-  const CaloLocalHadCoeff::LocalHadDimension *m_dimFrac = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_EMFRAC);
-  const CaloLocalHadCoeff::LocalHadDimension *m_dimSide = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_SIDE);
-  const CaloLocalHadCoeff::LocalHadDimension *m_dimEner = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ENER);
-  const CaloLocalHadCoeff::LocalHadDimension *m_dimLambda = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_LAMBDA);
-  const CaloLocalHadCoeff::LocalHadDimension *m_dimEta = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ETA);
-  const CaloLocalHadCoeff::LocalHadDimension *m_dimPhi = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_PHI);
+  const CaloLocalHadCoeff::LocalHadDimension *dimFrac = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_EMFRAC);
+  const CaloLocalHadCoeff::LocalHadDimension *dimSide = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_SIDE);
+  const CaloLocalHadCoeff::LocalHadDimension *dimEner = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ENER);
+  const CaloLocalHadCoeff::LocalHadDimension *dimLambda = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_LAMBDA);
+  const CaloLocalHadCoeff::LocalHadDimension *dimEta = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ETA);
+  const CaloLocalHadCoeff::LocalHadDimension *dimPhi = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_PHI);
 
-  for(int i_frac=0; i_frac<m_dimFrac->getNbins(); i_frac++){
-    for(int i_ener=0; i_ener<m_dimEner->getNbins(); i_ener++){
-      for(int i_lambda=0; i_lambda<m_dimLambda->getNbins(); i_lambda++){
-        for(int i_side=0; i_side<m_dimSide->getNbins(); i_side++){
-          for(int i_phi=0; i_phi<m_dimPhi->getNbins(); i_phi++){
+  for(int i_frac=0; i_frac<dimFrac->getNbins(); i_frac++){
+    for(int i_ener=0; i_ener<dimEner->getNbins(); i_ener++){
+      for(int i_lambda=0; i_lambda<dimLambda->getNbins(); i_lambda++){
+        for(int i_side=0; i_side<dimSide->getNbins(); i_side++){
+          for(int i_phi=0; i_phi<dimPhi->getNbins(); i_phi++){
             sprintf(cname,"c1_dmfcal_minuit_weights_frac%d_ener%d_lambda%d_phi%d_side%d",i_frac, i_ener, i_lambda, i_phi, i_side);
             TCanvas *c1_weights = new TCanvas(cname, cname, cc_xx, cc_yy);
             c1_weights->cd();
@@ -496,9 +496,9 @@ void CaloHadDMCoeffMinim::make_report(std::string &sreport)
             int i_canvas = 0;
             // lets draw sample size
             pad2->cd(i_canvas+1);
-            TGraph *gr = new TGraph(m_dimEta->getNbins());
+            TGraph *gr = new TGraph(dimEta->getNbins());
             float smpsize=0.0;
-            for(int i_eta=0; i_eta<m_dimEta->getNbins(); i_eta++){
+            for(int i_eta=0; i_eta<dimEta->getNbins(); i_eta++){
               std::vector<int > v_indx;
               v_indx.resize(CaloLocalHadCoeffHelper::DIM_UNKNOWN, 0);
               v_indx[CaloLocalHadCoeffHelper::DIM_EMFRAC] = i_frac;
@@ -507,8 +507,8 @@ void CaloHadDMCoeffMinim::make_report(std::string &sreport)
               v_indx[CaloLocalHadCoeffHelper::DIM_PHI] = i_phi;
               v_indx[CaloLocalHadCoeffHelper::DIM_ENER] = i_ener;
               v_indx[CaloLocalHadCoeffHelper::DIM_LAMBDA] = i_lambda;
-              int iBin = m_HadDMCoeff->getBin(m_area_indx, v_indx);
-              float xx = m_dimEta->getXmin() + m_dimEta->getDx()*i_eta;
+              int iBin = m_HadDMCoeff->getBin(area_indx, v_indx);
+              float xx = dimEta->getXmin() + dimEta->getDx()*i_eta;
               float w = (float)m_sample_size[iBin-dmArea->getOffset()];
               smpsize += w;
               gr->SetPoint(i_eta, xx, w);
@@ -522,7 +522,7 @@ void CaloHadDMCoeffMinim::make_report(std::string &sreport)
               std::vector<float> vx;
               std::vector<float> vy;
               std::vector<float> vye;
-              for(int i_eta=0; i_eta<m_dimEta->getNbins(); i_eta++){
+              for(int i_eta=0; i_eta<dimEta->getNbins(); i_eta++){
                 std::vector<int > v_indx;
                 v_indx.resize(CaloLocalHadCoeffHelper::DIM_UNKNOWN, 0);
                 v_indx[CaloLocalHadCoeffHelper::DIM_EMFRAC] = i_frac;
@@ -531,15 +531,15 @@ void CaloHadDMCoeffMinim::make_report(std::string &sreport)
                 v_indx[CaloLocalHadCoeffHelper::DIM_PHI] = i_phi;
                 v_indx[CaloLocalHadCoeffHelper::DIM_ENER] = i_ener;
                 v_indx[CaloLocalHadCoeffHelper::DIM_LAMBDA] = i_lambda;
-                int iBin = m_HadDMCoeff->getBin(m_area_indx, v_indx);
+                int iBin = m_HadDMCoeff->getBin(area_indx, v_indx);
                 if(!m_minimResults[iBin][i_par].fixIt){
-                  vx.push_back(m_dimEta->getXmin() + m_dimEta->getDx()*i_eta);
+                  vx.push_back(dimEta->getXmin() + dimEta->getDx()*i_eta);
                   vy.push_back(m_minimResults[iBin][i_par].value);
                   vye.push_back(m_minimResults[iBin][i_par].error);
                 }
               } // i_eta
               if(vx.size()) {
-                TGraphErrors *gr = new TGraphErrors(m_dimEta->getNbins());
+                TGraphErrors *gr = new TGraphErrors(dimEta->getNbins());
                 for(unsigned int i_p=0; i_p<vx.size(); i_p++){
                   gr->SetPoint(i_p, vx[i_p], vy[i_p]);
                   gr->SetPointError(i_p, 0.0, vye[i_p]);

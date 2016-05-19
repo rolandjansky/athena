@@ -164,13 +164,13 @@ StatusCode GetLCOutOfCluster::initialize() {
     else if ( m_dimensions[idim].title() == "weight" )
       iweight = idim;
   }
-  if ( ilogE < 0 || ieta < 0 || iloglambda < 0 || iweight < 0 ) {
+  if ( ilogE < 0 || ieta < 0 || iloglambda < 0 || iweight < 0 || iside < 0 ) {
     msg(MSG::FATAL)
 	<< " Mandatory dimension log10E, |eta|, log10lambda or weight missing ..."
 	<< endreq;
     return StatusCode::FAILURE;
   }
-  int nside = (iside>=0?m_dimensions[iside].bins():1);
+  int nside = m_dimensions[iside].bins();
   int nphi = (iphi>=0?m_dimensions[iphi].bins():1);
   int nlogE = m_dimensions[ilogE].bins();
   m_ooc.resize(nside*nphi*nlogE,0);
@@ -181,9 +181,9 @@ StatusCode GetLCOutOfCluster::initialize() {
 	  oname += "_iside_";
 	  oname += jside;
 	  oname += "_[";
-	  oname += (iside>=0?m_dimensions[iside].lowEdge():-1);
+	  oname += m_dimensions[iside].lowEdge();
 	  oname += ",";
-	  oname += (iside>=0?m_dimensions[iside].highEdge():-1);
+	  oname += m_dimensions[iside].highEdge();
 	  oname += ",";
 	  oname += nside;
 	  oname += "]";
@@ -318,6 +318,8 @@ StatusCode GetLCOutOfCluster::execute()
   }
 
   if ( eCalibTot > 0 ) {
+    const double inv_eCalibTot = 1. / eCalibTot;
+    const double inv_nClusECalibGt0 = 1. / nClusECalibGt0;
     clusIter = cc->begin();
     for( ;clusIter!=clusIterEnd;clusIter++) {
       const xAOD::CaloCluster * pClus = (*clusIter);
@@ -396,17 +398,17 @@ StatusCode GetLCOutOfCluster::execute()
 	    if (m_ooc[iO]) {
 	      double norm = 0.0;
 	      if ( m_NormalizationTypeNumber == GetLCDefs::LIN ) {
-		norm = etot/eCalibTot;
+		norm = etot*inv_eCalibTot;
 	      }
 	      else if ( m_NormalizationTypeNumber == GetLCDefs::LOG ) {
 		if ( etot > 0 ) {
 		  // cluster has to have at least 1% of the calib hit E
-		  norm = log10(etot/eCalibTot)+2.0;
+		  norm = log10(etot*inv_eCalibTot)+2.0;
 		}
 	      }
 	      else if ( m_NormalizationTypeNumber == GetLCDefs::NCLUS ) {
 		if ( etot > 0 ) {
-		  norm = 1./nClusECalibGt0;
+		  norm = inv_nClusECalibGt0;
 		}
 	      }
 	      else {

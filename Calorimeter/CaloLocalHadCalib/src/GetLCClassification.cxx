@@ -296,6 +296,8 @@ StatusCode GetLCClassification::execute()
   }
 
   if ( eCalibTot > 0 ) {
+    const double inv_eCalibTot = 1. / eCalibTot;
+    const double inv_nClusECalibGt0 = 1. / nClusECalibGt0;
     clusIter = cc->begin();
     for( ;clusIter!=clusIterEnd;clusIter++) {
       const xAOD::CaloCluster * pClus = (*clusIter);
@@ -384,17 +386,17 @@ StatusCode GetLCClassification::execute()
 	    if ( m_hclus[iH]) {
 	      double norm = 0.0;
 	      if ( m_NormalizationTypeNumber == GetLCDefs::LIN ) {
-		norm = ecal/eCalibTot;
+		norm = ecal*inv_eCalibTot;
 	      }
 	      else if ( m_NormalizationTypeNumber == GetLCDefs::LOG ) {
 		if ( ecal > 0 ) {
 		  // cluster has to have at least 1% of the calib hit E
-		  norm = log10(ecal/eCalibTot)+2.0;
+		  norm = log10(ecal*inv_eCalibTot)+2.0;
 		}
 	      }
 	      else if ( m_NormalizationTypeNumber == GetLCDefs::NCLUS ) {
 		if ( ecal > 0 ) {
-		  norm = 1./nClusECalibGt0;
+		  norm = inv_nClusECalibGt0;
 		}
 	      }
 	      else {

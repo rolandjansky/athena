@@ -36,7 +36,7 @@ StatusCode CaloReadLCWeightsFile::initDataFromFile(std::string theLCWeightFileNa
   std::string file = PathResolver::find_file (theLCWeightFileName, "DATAPATH");
   log << MSG::INFO << "Reading file  " << file << endreq;
 
-  std::vector<int> m_isampmap(CaloSampling::Unknown,-1);
+  std::vector<int> isampmap(CaloSampling::Unknown,-1);
   unsigned int nAreas(0);
   std::vector<CaloLocalHadCoeff::LocalHadArea> theAreas;
   for (unsigned int iArea=0;iArea<CaloSampling::Unknown;iArea++) {
@@ -122,8 +122,8 @@ StatusCode CaloReadLCWeightsFile::initDataFromFile(std::string theLCWeightFileNa
 	    rmin[names.size()-1] = prof->GetYaxis()->GetXmin();
 	    rmax[names.size()-1] = prof->GetYaxis()->GetXmax();
 	    // book new area from the first histo found for current sampling
-	    if ( m_isampmap[isamp] < 0 ) {
-	      m_isampmap[isamp] = nAreas;
+	    if ( isampmap[isamp] < 0 ) {
+	      isampmap[isamp] = nAreas;
 	      nAreas++;
 	      for (idim = 0;idim<names.size();idim++) {
 		CaloLocalHadCoeff::LocalHadDimension theDim(names[idim].c_str(),types[idim],nbin[idim],rmin[idim],rmax[idim]);
@@ -150,7 +150,7 @@ StatusCode CaloReadLCWeightsFile::initDataFromFile(std::string theLCWeightFileNa
 		  for(unsigned int ii=0;ii<ibin.size();ii++)
 		    log << ibin[ii] << " ";
 		  log << endreq;
-		  m_data->setCoeff(m_data->getBin(m_isampmap[isamp],ibin),theData);
+		  m_data->setCoeff(m_data->getBin(isampmap[isamp],ibin),theData);
 		}
 	      }
 	    }

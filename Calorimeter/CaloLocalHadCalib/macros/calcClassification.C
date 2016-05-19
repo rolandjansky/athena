@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// #include <TFile.h>
-// #include <TList.h>
-// #include <TKey.h>
-// #include <TH2F.h>
-// #include <TProfile2D.h>
-// #include <iostream>
-// #include <fstream>
+#include <TFile.h>
+#include <TList.h>
+#include <TKey.h>
+#include <TH2F.h>
+#include <TProfile2D.h>
+#include <iostream>
+#include <fstream>
 void calcClassification(char * fnpi="classification_had.root", char *fnpi0="classification_em.root", char *fnew="classification_out.root") {
   const double epsilon = 1e-3;
   TFile * fn   = new TFile(fnew,"RECREATE");

@@ -36,24 +36,24 @@ CaloHadDMCoeffHelper::~CaloHadDMCoeffHelper()
 
 
 // get HadDMArea from bin number
-const CaloHadDMCoeff2::HadDMArea * CaloHadDMCoeffHelper::getHadDMAreaFromBin(CaloHadDMCoeff2 * m_coeff, int iBin) const 
+const CaloHadDMCoeff2::HadDMArea * CaloHadDMCoeffHelper::getHadDMAreaFromBin(CaloHadDMCoeff2 * coeff, int iBin) const 
 {
   int i_area = 0;
-  int narea = m_coeff->getSizeDMAreaSet();
+  int narea = coeff->getSizeDMAreaSet();
   for(i_area=0; i_area<narea; i_area++) {
-    if( iBin < m_coeff->getHadDMArea(i_area)->m_offset ) break;
-    if( iBin >= m_coeff->getHadDMArea(i_area)->m_offset 
-        && (i_area == narea-1 || iBin < m_coeff->getHadDMArea(i_area+1)->m_offset) ) break;
+    if( iBin < coeff->getHadDMArea(i_area)->m_offset ) break;
+    if( iBin >= coeff->getHadDMArea(i_area)->m_offset 
+        && (i_area == narea-1 || iBin < coeff->getHadDMArea(i_area+1)->m_offset) ) break;
   }
-  return m_coeff->getHadDMArea(i_area);
+  return coeff->getHadDMArea(i_area);
 }
 
 // get HadDMArea from area name
-const CaloHadDMCoeff2::HadDMArea * CaloHadDMCoeffHelper::getHadDMAreaFromName(CaloHadDMCoeff2 * m_coeff, std::string sname) const 
+const CaloHadDMCoeff2::HadDMArea * CaloHadDMCoeffHelper::getHadDMAreaFromName(CaloHadDMCoeff2 * coeff, std::string sname) const 
 {
-  for(int i_area=0; i_area<m_coeff->getSizeDMAreaSet(); i_area++) {
-    if(sname == m_coeff->getHadDMArea(i_area)->m_title) {
-      return m_coeff->getHadDMArea(i_area);
+  for(int i_area=0; i_area<coeff->getSizeDMAreaSet(); i_area++) {
+    if(sname == coeff->getHadDMArea(i_area)->m_title) {
+      return coeff->getHadDMArea(i_area);
     }
   }
   std::cout << "CaloHadDMCoeffHelper::getHadDMAreaFromName() -> Error! No such dmArea '" << sname << "'" << std::endl;
@@ -61,9 +61,9 @@ const CaloHadDMCoeff2::HadDMArea * CaloHadDMCoeffHelper::getHadDMAreaFromName(Ca
 }
 
 
-int CaloHadDMCoeffHelper::getBin(CaloHadDMCoeff2 * m_coeff, const int n_area, int ifrac, int iener, int ilambda, int ieta) const
+int CaloHadDMCoeffHelper::getBin(CaloHadDMCoeff2 * coeff, const int n_area, int ifrac, int iener, int ilambda, int ieta) const
 {
-  const CaloHadDMCoeff2::HadDMArea *dmArea = m_coeff->getHadDMArea(n_area);
+  const CaloHadDMCoeff2::HadDMArea *dmArea = coeff->getHadDMArea(n_area);
   int iBin = ieta + ilambda*dmArea->m_dimEta.m_nbins 
       + iener*dmArea->m_dimEta.m_nbins*dmArea->m_dimLambda.m_nbins 
       + ifrac*dmArea->m_dimEta.m_nbins*dmArea->m_dimLambda.m_nbins*dmArea->m_dimEner.m_nbins 
@@ -77,7 +77,7 @@ int CaloHadDMCoeffHelper::getBin(CaloHadDMCoeff2 * m_coeff, const int n_area, in
 **************************************************************************** */
 CaloHadDMCoeff2 *CaloHadDMCoeffHelper::InitDataFromFile(std::string &filename)
 {
-  CaloHadDMCoeff2 *m_data = new CaloHadDMCoeff2();
+  CaloHadDMCoeff2 *data = new CaloHadDMCoeff2();
 
   char cLine[MAX_BUFFER_LEN];
 
@@ -87,11 +87,11 @@ CaloHadDMCoeff2 *CaloHadDMCoeffHelper::InitDataFromFile(std::string &filename)
   std::ifstream fin(filename.c_str());
   if ( !fin ) {
     std::cout << "CaloHadDMCoeffHelper::InitDataFromFile() - Can't open file '" << filename << "'." << std::endl;
-    delete m_data; return 0;
+    delete data; return 0;
   }
 
-  int m_offset = 0;
-  int m_indx = 0;
+  int offset = 0;
+  int indx = 0;
 
   std::string sLine;
   std::string sdummy;
@@ -106,7 +106,7 @@ CaloHadDMCoeff2 *CaloHadDMCoeffHelper::InitDataFromFile(std::string &filename)
     ist.clear(); ist.str(sLine);
     if( !(ist >> sdummy >> dmArea.m_indx >> dmArea.m_is_on >> dmArea.m_title) && sdummy.find("zone")==std::string::npos ) {
       std::cout << "CaloHadDMCoeffHelper::initDataFromFile() -> Error! Could not parse line '" << cLine << "' at p1." << std::endl;
-      delete m_data; return 0;
+      delete data; return 0;
     }
 
     dmArea.m_type = kAREA_PROF;
@@ -131,7 +131,7 @@ CaloHadDMCoeff2 *CaloHadDMCoeffHelper::InitDataFromFile(std::string &filename)
             dmArea.m_nPars > 1000)
         {
           std::cout << "CaloHadDMCoeffHelper::initDataFromFile() ->Error! Could not parse line '" << cLine << "' at p2." << std::endl;
-          delete m_data; return 0;
+          delete data; return 0;
         }
         // this is the end of zone
         break;
@@ -139,7 +139,7 @@ CaloHadDMCoeff2 *CaloHadDMCoeffHelper::InitDataFromFile(std::string &filename)
       CaloHadDMCoeff2::HadDMDimension dim;
       if( !parse_dim(sLine, dim) ) {
         std::cout << "CaloHadDMCoeffHelper::initDataFromFile() ->Error! Could not parse line '" << sLine << "' at p2a." << std::endl;
-        delete m_data; return 0;
+        delete data; return 0;
       }
       v_dims.push_back(dim);
     }
@@ -149,7 +149,7 @@ CaloHadDMCoeff2 *CaloHadDMCoeffHelper::InitDataFromFile(std::string &filename)
     for(int i=0; i<ndim; i++){
       length = length*v_dims[i].m_vBins.size();
     }
-    dmArea.m_offset = m_offset;
+    dmArea.m_offset = offset;
     dmArea.m_length = length;
     // calculation of dimension locator coefficient
     for(int i_dim=0; i_dim<ndim; i_dim++){
@@ -161,25 +161,25 @@ CaloHadDMCoeff2 *CaloHadDMCoeffHelper::InitDataFromFile(std::string &filename)
     }
     if( v_dims.size() != 4 ){
       std::cout << "CaloHadDMCoeffHelper::initDataFromFile() ->Error! Wrong number of dimensions for area'" << dmArea.m_title << "' at p3." << std::endl;
-      delete m_data; return 0;
+      delete data; return 0;
     }
     dmArea.m_dimFrac = v_dims[0];
     dmArea.m_dimEner = v_dims[1];
     dmArea.m_dimLambda = v_dims[2];
     dmArea.m_dimEta = v_dims[3];
 
-    m_data->addHadDMArea(dmArea);
-    m_offset += length; // ofset for next DM area
-    m_indx++;
+    data->addHadDMArea(dmArea);
+    offset += length; // ofset for next DM area
+    indx++;
     // putting zero parameters
     CaloHadDMCoeff2::HadDMCoeff pars;
     pars.resize(dmArea.m_nPars, 0.0);
-    for(int i_len=0; i_len<dmArea.m_length; i_len++) m_data->addHadDMCoeff(pars);
+    for(int i_len=0; i_len<dmArea.m_length; i_len++) data->addHadDMCoeff(pars);
     // now reading parameters
     for(int i_len=0; i_len<dmArea.m_length; i_len++){
       if(!fin.getline(cLine,sizeof(cLine)-1)) {
         std::cout << "panic " << std::endl;
-        delete m_data; return 0;
+        delete data; return 0;
       }
       sLine = cLine;
       ist.clear(); ist.str(sLine);
@@ -190,12 +190,12 @@ CaloHadDMCoeff2 *CaloHadDMCoeffHelper::InitDataFromFile(std::string &filename)
       }
       if(idummy != dmArea.m_offset+i_len){
         std::cout << "CaloHadDMCoeffHelper::initDataFromFile() ->Error! Could not parse line '" << cLine << "' at p3." << std::endl;
-        delete m_data; return 0;
+        delete data; return 0;
       }
       for(int j=0; j<(int)v_dims.size(); j++) {
         if(!(ist >> idummy)) {
           std::cout << "CaloHadDMCoeffHelper::initDataFromFile() -> panic!" << std::endl;
-          delete m_data; return 0;
+          delete data; return 0;
         }
       }
       CaloHadDMCoeff2::HadDMCoeff pars;
@@ -204,15 +204,15 @@ CaloHadDMCoeff2 *CaloHadDMCoeffHelper::InitDataFromFile(std::string &filename)
         if( !(ist >> pars[j]) ) {
           std::cout << "CaloHadDMCoeffHelper::initDataFromFile() ->Error! Could not parse line '" << cLine << "' at p4." << std::endl;
           std::cout << " dmArea.m_title" << dmArea.m_title << std::endl;
-          delete m_data; return 0;
+          delete data; return 0;
         }
       }
-      m_data->setHadDMCoeff(dmArea.m_offset+i_len,pars);
+      data->setHadDMCoeff(dmArea.m_offset+i_len,pars);
     }
   }
   fin.close();
 
-  return m_data;
+  return data;
 }
 
 

@@ -25,8 +25,8 @@ topSequence = AlgSequence()
 #DetDescrVersion = 'ATLAS-CSC-05-00-00'
 #DetDescrVersion = 'ATLAS-GEO-08-00-01'
 #DetDescrVersion = 'ATLAS-GEO-16-00-00'
-DetDescrVersion = 'ATLAS-GEO-18-01-00'
-
+#DetDescrVersion = 'ATLAS-GEO-18-01-00'
+DetDescrVersion = 'ATLAS-R2-2015-03-01-00'
 include("RecExCond/AllDet_detDescr.py")
 
 #from AthenaCommon.BeamFlags import jobproperties
@@ -41,16 +41,18 @@ oks.addStreamESD('CaloCellContainer', ['AllCalo'] )
 from CaloRec.CaloTopoClusterFlags import jobproperties
 jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib = True
 jobproperties.CaloTopoClusterFlags.doCellWeightCalib = False
-from CaloRec.CaloClusterTopoGetter import CaloClusterTopoGetter
+from CaloRec.CaloClusterTopoGetter import CaloClusterTopoGetter, addSnapshot
 CaloClusterTopoGetter()
+
+from CaloRec.CaloRecConf import CaloClusterSnapshot 
 
 TopoCalibMoments=topSequence.CaloTopoCluster.TopoCalibMoments
 TopoCalibMoments.MomentsNames += ["ENG_CALIB_OUT_L"]
 topSequence.CaloTopoCluster.TopoCalibMoments.MatchDmType = 1 # 1=loose, 2=medium (default), 3=tight
 
-topSequence.CaloTopoCluster.KeepCorrectionToolAndContainerNames += [
-    "CaloClusterLocalCalib/OOCCalib","CaloWTopoCluster",
-    "CaloClusterLocalCalib/DMCalib", "CaloOOCTopoCluster"]
+addSnapshot("OOCPi0Calib","CaloOOCTopoCluster")
+addSnapshot("LocalCalib","CaloWTopoCluster")
+
 
 theApp.EvtMax = -1
 
@@ -78,3 +80,4 @@ AthenaPoolCnvSvc.UseDetailChronoStat = True
 
 #include("RecExCommon/RecoUtils.py")
 
+svcMgr.StoreGateSvc.Dump=True

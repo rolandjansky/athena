@@ -232,8 +232,9 @@ StatusCode GetLCSinglePionsPerf::initialize()
   }
   const int n_logener_bins = m_nlogenerbin*2;
   double *xbins = new double[n_logener_bins+1];
+  const double inv_n_logener_bins = 1. / static_cast<double> (n_logener_bins);
   for(int i_bin=0; i_bin<=n_logener_bins; i_bin++) {
-    xbins[i_bin] = pow(10,m_logenermin+i_bin*(m_logenermax-m_logenermin)/float(n_logener_bins));
+    xbins[i_bin] = pow(10,m_logenermin+i_bin*(m_logenermax-m_logenermin)*inv_n_logener_bins);
   }
   m_ncluscoll = m_clusterCollNames.size();
 
@@ -742,12 +743,12 @@ StatusCode GetLCSinglePionsPerf::execute()
 
   if(m_mc_etabin <0 || m_mc_etabin >= m_netabin || m_mc_enerbin <0 || m_mc_enerbin >= m_nlogenerbin || m_mc_phibin !=0) return StatusCode::SUCCESS;
 
-  sc = evtStore()->retrieve(pClusColl, m_clusterBasicCollName );
+  sc = evtStore()->retrieve(m_clusColl, m_clusterBasicCollName );
   if(sc != StatusCode::SUCCESS) {
     log << MSG::ERROR << "Could not retrieve ClusterContainer "  <<  m_clusterBasicCollName << " from StoreGate" << endreq;
     return sc;
   }
-  if(pClusColl->size() == 0)  {
+  if(m_clusColl->size() == 0)  {
     log << MSG::WARNING << "Empty ClusterContainer "  <<  m_clusterBasicCollName << endreq;
     return StatusCode::SUCCESS;
   }
@@ -758,8 +759,8 @@ StatusCode GetLCSinglePionsPerf::execute()
     float engClusCalibThs = 1.0*MeV;
     HepLorentzVector hlv_pion(1,0,0,1);
     hlv_pion.setREtaPhi(1./cosh(m_mc_eta),m_mc_eta,m_mc_phi);
-    xAOD::CaloClusterContainer::const_iterator clusIter = pClusColl->begin();
-    xAOD::CaloClusterContainer::const_iterator clusIterEnd = pClusColl->end();
+    xAOD::CaloClusterContainer::const_iterator clusIter = m_clusColl->begin();
+    xAOD::CaloClusterContainer::const_iterator clusIterEnd = m_clusColl->end();
     for( ;clusIter!=clusIterEnd;clusIter++) {
       const xAOD::CaloCluster * theCluster = (*clusIter); // this collection has cluster moments
 // 
@@ -854,8 +855,8 @@ int GetLCSinglePionsPerf::fill_reco()
   engClusSumCalibTagged.resize(m_ntagcases, 0.0);
 
   int nGoodClus = 0;
-  xAOD::CaloClusterContainer::const_iterator clusIter = pClusColl->begin();
-  xAOD::CaloClusterContainer::const_iterator clusIterEnd = pClusColl->end();
+  xAOD::CaloClusterContainer::const_iterator clusIter = m_clusColl->begin();
+  xAOD::CaloClusterContainer::const_iterator clusIterEnd = m_clusColl->end();
   unsigned int iClus = 0;
   for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
     const xAOD::CaloCluster * theCluster = (*clusIter); // this collection has cluster moments
@@ -988,10 +989,11 @@ int GetLCSinglePionsPerf::fill_reco()
   filling histograms with classification results
   ******************************************** */
   if(m_doEngTag) {
-    for(int i_tag=0; i_tag<m_ntagcases; i_tag++) {
-      if(engClusSumCalib!=0.0) {
-        m_engTag_vs_eta[i_tag][m_mc_enerbin]->Fill(m_mc_eta, engClusSumCalibTagged[i_tag]/engClusSumCalib);
-        m_engTag_vs_ebeam[i_tag][m_mc_etabin]->Fill(m_mc_ener, engClusSumCalibTagged[i_tag]/engClusSumCalib);
+    if(engClusSumCalib!=0.0) {
+      const double inv_engClusSumCalib = 1. / engClusSumCalib;
+      for(int i_tag=0; i_tag<m_ntagcases; i_tag++) {
+        m_engTag_vs_eta[i_tag][m_mc_enerbin]->Fill(m_mc_eta, engClusSumCalibTagged[i_tag]*inv_engClusSumCalib);
+        m_engTag_vs_ebeam[i_tag][m_mc_etabin]->Fill(m_mc_ener, engClusSumCalibTagged[i_tag]*inv_engClusSumCalib);
       }
     }
   } // m_doEngTag
@@ -1120,13 +1122,13 @@ int GetLCSinglePionsPerf::fill_moments()
   double  engClusSumCalib(0);
   double  engClusSumCalibPresOnly(0);
   std::vector<std::vector<double > > clsMoments; // [iClus][m_nmoments]
-  clsMoments.resize(pClusColl->size());
+  clsMoments.resize(m_clusColl->size());
   std::vector<double > clsMomentsSum; // [m_nmoments]
   clsMomentsSum.resize(m_nmoments,0.0);
 
   // retrieving cluster moments
-  xAOD::CaloClusterContainer::const_iterator clusIter = pClusColl->begin();
-  xAOD::CaloClusterContainer::const_iterator clusIterEnd = pClusColl->end();
+  xAOD::CaloClusterContainer::const_iterator clusIter = m_clusColl->begin();
+  xAOD::CaloClusterContainer::const_iterator clusIterEnd = m_clusColl->end();
   unsigned int iClus = 0;
   for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
     const xAOD::CaloCluster * theCluster = (*clusIter);
@@ -1234,9 +1236,10 @@ int GetLCSinglePionsPerf::fill_moments()
     }
     if(m_doClusMoments && xnorm > m_mc_ener*0.0001) {
       // moments assigned to first 3 maximum clusters
-      for(unsigned int i_cls=0; i_cls<pClusColl->size(); i_cls++){
-        m_clusMoment_vs_eta[iMoment][i_cls][m_mc_enerbin]->Fill(m_mc_eta, clsMoments[i_cls][iMoment]/xnorm);
-        m_clusMoment_vs_ebeam[iMoment][i_cls][m_mc_etabin]->Fill(m_mc_ener, clsMoments[i_cls][iMoment]/xnorm);
+      const double inv_xnorm = 1. / xnorm;
+      for(unsigned int i_cls=0; i_cls<m_clusColl->size(); i_cls++){
+        m_clusMoment_vs_eta[iMoment][i_cls][m_mc_enerbin]->Fill(m_mc_eta, clsMoments[i_cls][iMoment]*inv_xnorm);
+        m_clusMoment_vs_ebeam[iMoment][i_cls][m_mc_etabin]->Fill(m_mc_ener, clsMoments[i_cls][iMoment]*inv_xnorm);
       if(i_cls>=2) break;
       }
       // sum of moments assigned to clusters wrt total sum of moment
@@ -1348,8 +1351,8 @@ int GetLCSinglePionsPerf::fill_calibhits()
 
   // calibration energy assigned to one or another cluster
   // retrieving cluster moments
-  xAOD::CaloClusterContainer::const_iterator clusIter = pClusColl->begin();
-  xAOD::CaloClusterContainer::const_iterator clusIterEnd = pClusColl->end();
+  xAOD::CaloClusterContainer::const_iterator clusIter = m_clusColl->begin();
+  xAOD::CaloClusterContainer::const_iterator clusIterEnd = m_clusColl->end();
   double engCalibAssigned = 0.0;
   double engClusSumCalibPresOnly = 0.0;
   unsigned int iClus = 0;
@@ -1415,7 +1418,7 @@ double GetLCSinglePionsPerf::angle_mollier_factor(double x)
   }else{
     ff = atan(5.0*0.95/(505./tanh(eta)));
   }
-  return ff/atan(5.0*1.7/200.0);
+  return ff*(1./atan(5.0*1.7/200.0));
 }
 
 

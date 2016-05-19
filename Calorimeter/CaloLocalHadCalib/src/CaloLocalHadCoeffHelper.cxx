@@ -39,12 +39,12 @@ CaloLocalHadCoeffHelper::~CaloLocalHadCoeffHelper()
 
 
 // get HadDMArea from area name
-const CaloLocalHadCoeff::LocalHadArea * CaloLocalHadCoeffHelper::getAreaFromName(const CaloLocalHadCoeff * m_coeff, std::string sname, int &m_indx) const
+const CaloLocalHadCoeff::LocalHadArea * CaloLocalHadCoeffHelper::getAreaFromName(const CaloLocalHadCoeff * coeff, std::string sname, int &indx) const
 {
-  for(int i_area=0; i_area<m_coeff->getSizeAreaSet(); i_area++) {
-    if(sname == m_coeff->getArea(i_area)->getTitle()) {
-      m_indx = i_area;
-      return m_coeff->getArea(i_area);
+  for(int i_area=0; i_area<coeff->getSizeAreaSet(); i_area++) {
+    if(sname == coeff->getArea(i_area)->getTitle()) {
+      indx = i_area;
+      return coeff->getArea(i_area);
     }
   }
   std::cout << "CaloLocalHadCoeffHelper::getAreaFromName() -> Error! No such area '" << sname << "'" << std::endl;
@@ -58,7 +58,7 @@ To read set of local hadronic coefficients from text file
 **************************************************************************** */
 CaloLocalHadCoeff *CaloLocalHadCoeffHelper::InitDataFromFile(const char *filename)
 {
-  CaloLocalHadCoeff *m_data = new CaloLocalHadCoeff();
+  CaloLocalHadCoeff *data = new CaloLocalHadCoeff();
 
   char cLine[MAX_BUFFER_LEN];
 
@@ -68,7 +68,7 @@ CaloLocalHadCoeff *CaloLocalHadCoeffHelper::InitDataFromFile(const char *filenam
   std::ifstream fin(filename);
   if ( !fin ) {
     std::cout << "CaloLocalHadCoeffHelper::InitDataFromFile - Can't open file '" << filename << "'." << std::endl;
-    delete m_data; return 0;
+    delete data; return 0;
   }
 
   std::string sLine;
@@ -83,7 +83,7 @@ CaloLocalHadCoeff *CaloLocalHadCoeffHelper::InitDataFromFile(const char *filenam
     int area_indx(0), area_type(0), area_npars(0);
     if( !(ist >> sdummy >> area_indx >> area_title >> area_type >> area_npars) ) {
       std::cout << "CaloLocalHadCoeffHelper::initDataFromFile() -> Error! Could not parse line '" << cLine << "' at p1." << std::endl;
-      delete m_data; return 0;
+      delete data; return 0;
     }
 
     CaloLocalHadCoeff::LocalHadArea theArea(area_title.c_str(), area_type, area_npars);
@@ -98,19 +98,19 @@ CaloLocalHadCoeff *CaloLocalHadCoeffHelper::InitDataFromFile(const char *filenam
       CaloLocalHadCoeff::LocalHadDimension *dim = parse_dim(sLine);
       if( !dim ) {
         std::cout << "CaloLocalHadCoeffHelper::initDataFromFile() ->Error! Could not parse line '" << sLine << "' at p2a." << std::endl;
-        delete m_data; return 0;
+        delete data; return 0;
       }
       theArea.addDimension(*dim);
       delete dim;
     }
 
-    m_data->addArea(theArea);
+    data->addArea(theArea);
 
     // now reading parameters
     for(int i_len=0; i_len<theArea.getLength(); i_len++){
       if(!fin.getline(cLine,sizeof(cLine)-1)) {
         std::cout << "panic " << std::endl;
-        delete m_data; return 0;
+        delete data; return 0;
       }
       sLine = cLine;
       ist.clear(); ist.str(sLine);
@@ -121,12 +121,12 @@ CaloLocalHadCoeff *CaloLocalHadCoeffHelper::InitDataFromFile(const char *filenam
       }
       if(idummy != theArea.getOffset()+i_len){
         std::cout << "CaloLocalHadCoeffHelper::initDataFromFile() ->Error! Could not parse line '" << cLine << "' at p3." << std::endl;
-        delete m_data; return 0;
+        delete data; return 0;
       }
       for(int j=0; j<theArea.getNdim(); j++) {
         if(!(ist >> idummy)) {
           std::cout << "CaloLocalHadCoeffHelper::initDataFromFile() -> panic!" << std::endl;
-          delete m_data; return 0;
+          delete data; return 0;
         }
       }
       CaloLocalHadCoeff::LocalHadCoeff pars;
@@ -135,15 +135,15 @@ CaloLocalHadCoeff *CaloLocalHadCoeffHelper::InitDataFromFile(const char *filenam
         if( !(ist >> pars[j]) ) {
           std::cout << "CaloLocalHadCoeffHelper::initDataFromFile() ->Error! Could not parse line '" << cLine << "' at p4." << std::endl;
           std::cout << " dmArea.m_title" << theArea.getTitle() << std::endl;
-          delete m_data; return 0;
+          delete data; return 0;
         }
       }
-      m_data->setCoeff(theArea.getOffset()+i_len, pars);
+      data->setCoeff(theArea.getOffset()+i_len, pars);
     }
   }
   fin.close();
 
-  return m_data;
+  return data;
 }
 
 
@@ -151,11 +151,11 @@ CaloLocalHadCoeff *CaloLocalHadCoeffHelper::InitDataFromFile(const char *filenam
 /* ****************************************************************************
 
 **************************************************************************** */
-void CaloLocalHadCoeffHelper::PrintData(const CaloLocalHadCoeff *m_data, const char *fname)
+void CaloLocalHadCoeffHelper::PrintData(const CaloLocalHadCoeff *data, const char *fname)
 {
   std::ofstream fout;
   fout.open(fname);
-  PrintData(m_data, fout);
+  PrintData(data, fout);
   fout.close();
 }
 
@@ -164,7 +164,7 @@ void CaloLocalHadCoeffHelper::PrintData(const CaloLocalHadCoeff *m_data, const c
 /* ****************************************************************************
 
 **************************************************************************** */
-void CaloLocalHadCoeffHelper::PrintData(const CaloLocalHadCoeff *m_data, std::ostream &fout)
+void CaloLocalHadCoeffHelper::PrintData(const CaloLocalHadCoeff *data, std::ostream &fout)
 {
   const char *comments = 
   {
@@ -174,8 +174,8 @@ void CaloLocalHadCoeffHelper::PrintData(const CaloLocalHadCoeff *m_data, std::os
   char line[1024];
 
   // loop over areas
-  for(int i_area=0; i_area < m_data->getSizeAreaSet(); i_area++){
-    const CaloLocalHadCoeff::LocalHadArea *area = m_data->getArea(i_area);
+  for(int i_area=0; i_area < data->getSizeAreaSet(); i_area++){
+    const CaloLocalHadCoeff::LocalHadArea *area = data->getArea(i_area);
     fout << "area  " << i_area << "  " << area->getTitle() << "  " << area->getType() << " " << area->getNpars() << std::endl;
     for(int i_dim=0; i_dim<area->getNdim(); i_dim++){
       const CaloLocalHadCoeff::LocalHadDimension *dim = area->getDimension(i_dim);
@@ -200,7 +200,7 @@ void CaloLocalHadCoeffHelper::PrintData(const CaloLocalHadCoeff *m_data, std::os
     // now printing the data
     for(int i_data=0; i_data<area->getLength(); i_data++) {
       int indx = area->getOffset() + i_data;
-      const CaloLocalHadCoeff::LocalHadCoeff *pars = m_data->getCoeff(indx);
+      const CaloLocalHadCoeff::LocalHadCoeff *pars = data->getCoeff(indx);
       if( !pars ) {
         std::cout << "CaloLocalHadCoeffHelper::PrintData() -> Error! Wrong bin number" << std::endl;
         return;
@@ -208,7 +208,7 @@ void CaloLocalHadCoeffHelper::PrintData(const CaloLocalHadCoeff *m_data, std::os
       boost::io::ios_base_all_saver foutsave (fout);
       fout << std::setw(5) << indx << "   ";
       std::vector<int > v_dim_indexes;
-      m_data->bin2indexes(indx, v_dim_indexes);
+      data->bin2indexes(indx, v_dim_indexes);
       for(unsigned int i_dim=0; i_dim<v_dim_indexes.size(); i_dim++){
         fout << std::setw(4) << v_dim_indexes[i_dim]  << " ";
       }

@@ -489,6 +489,8 @@ StatusCode GetLCWeights::execute()
   // sum of the cluster over the total calib hit energy
 
   if ( eCalibTot > 0 ) {
+    const double inv_eCalibTot = 1. / eCalibTot;
+    const double inv_nClusECalibGt0 = 1. / nClusECalibGt0;
     for (unsigned int j=0;j<cc->size();j++) {
       const xAOD::CaloCluster * pClus = cc->at(j);
       double eng = pClus->e();
@@ -582,17 +584,17 @@ StatusCode GetLCWeights::execute()
 		  if (m_weight[caloSample][iW] && theList && eCalibTot > 0) {
 		    double norm = 0.0;
 		    if ( m_NormalizationTypeNumber == GetLCDefs::LIN ) {
-		      norm = eCalib/eCalibTot;
+		      norm = eCalib * inv_eCalibTot;
 		    }
 		    else if ( m_NormalizationTypeNumber == GetLCDefs::LOG ) {
 		      if ( eCalib > 0 ) {
 			// cluster has to have at least 1% of the calib hit E
-			norm = log10(eCalib/eCalibTot)+2.0;
+			norm = log10(eCalib * inv_eCalibTot)+2.0;
 		      }
 		    }
 		    else if ( m_NormalizationTypeNumber == GetLCDefs::NCLUS ) {
 		      if ( eCalib > 0 ) {
-			norm = 1./nClusECalibGt0;
+			norm = inv_nClusECalibGt0;
 		      }
 		    }
 		    else {
