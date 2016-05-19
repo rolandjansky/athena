@@ -4,19 +4,20 @@ Initializing Gaudi ApplicationMgr using job opts ./CaloCellFastCopyTool_test_gen
 JobOptionsSvc        INFO Job options successfully read in from ./CaloCellFastCopyTool_test_generated.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r4)
-                                          running on lxplus047.cern.ch on Tue Apr 12 18:32:17 2016
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
+                                          running on lxplus024.cern.ch on Thu May 19 17:01:55 2016
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-19
-ClassIDSvc           INFO  getRegistryEntries: read 6143 CLIDRegistry entries for module ALL
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-06-36
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-20
+ClassIDSvc           INFO  getRegistryEntries: read 5947 CLIDRegistry entries for module ALL
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-06-42
+StoreGateSvc        DEBUG Property update for OutputLevel : new value = 2
 StoreGateSvc        DEBUG Service base class initialized successfully
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-07
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-06-36
-HistoryStore         INFO Initializing HistoryStore - package version StoreGate-03-06-36
-ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-06-36
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-08
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-06-42
+HistoryStore         INFO Initializing HistoryStore - package version StoreGate-03-06-42
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-06-42
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
@@ -96,8 +97,8 @@ AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionar
 AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
-StoreGateSvc        DEBUG Recorded object @0x1e31c70 with key AllCalo of type CaloCellContainer(CLID 2802)
- in DataObject @0x1e688d0
+StoreGateSvc        DEBUG Recorded object @0x1afe9d0 with key AllCalo of type CaloCellContainer(CLID 2802)
+ in DataObject @0x1b33530
  object not modifiable when retrieved
 StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[1]      INFO In initialize 
@@ -142,8 +143,8 @@ CopyToolTest[13]    DEBUG Accepted sub calos: 3;
 CopyToolTest[13]    DEBUG CaloCell hash max: 187652
 CopyToolTest[13]    DEBUG Number of accepted hashes: 0
 StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
-CopyToolTest[13]    ERROR ../src/CaloCellFastCopyTool.cxx:332 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*)): code 0: Can't copy to a non-const view container.
-CopyToolTest[13]    FATAL ../src/CaloCellFastCopyTool.cxx:118 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*)): code 0: (this->*m_copyCells)(srcCont, theCont)
+CopyToolTest[13]    ERROR /afs/cern.ch/user/s/ssnyder/atlas-work3e/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:333 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*)): code 0: Can't copy to a non-const view container.
+CopyToolTest[13]    FATAL /afs/cern.ch/user/s/ssnyder/atlas-work3e/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:119 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*)): code 0: (this->*m_copyCells)(srcCont, theCont)
 CopyToolTest[13]    DEBUG Calling destructor
 StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[14]     INFO In initialize 
@@ -152,8 +153,8 @@ CopyToolTest[14]    DEBUG Accepted sub calos: 3;
 CopyToolTest[14]    DEBUG CaloCell hash max: 187652
 CopyToolTest[14]    DEBUG Number of accepted hashes: 512
 StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
-CopyToolTest[14]    ERROR ../src/CaloCellFastCopyTool.cxx:321 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*)): code 0: Can't copy to a non-const view container.
-CopyToolTest[14]    FATAL ../src/CaloCellFastCopyTool.cxx:118 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*)): code 0: (this->*m_copyCells)(srcCont, theCont)
+CopyToolTest[14]    ERROR /afs/cern.ch/user/s/ssnyder/atlas-work3e/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:322 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*)): code 0: Can't copy to a non-const view container.
+CopyToolTest[14]    FATAL /afs/cern.ch/user/s/ssnyder/atlas-work3e/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:119 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*)): code 0: (this->*m_copyCells)(srcCont, theCont)
 CopyToolTest[14]    DEBUG Calling destructor
 StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[15]     INFO In initialize 
@@ -162,8 +163,8 @@ CopyToolTest[15]    DEBUG Accepted sub calos: 3;
 CopyToolTest[15]    DEBUG CaloCell hash max: 187652
 CopyToolTest[15]    DEBUG Number of accepted hashes: 0
 StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
-CopyToolTest[15]    ERROR ../src/CaloCellFastCopyTool.cxx:332 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*)): code 0: Can't copy to a non-const view container.
-CopyToolTest[15]    FATAL ../src/CaloCellFastCopyTool.cxx:118 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*)): code 0: (this->*m_copyCells)(srcCont, theCont)
+CopyToolTest[15]    ERROR /afs/cern.ch/user/s/ssnyder/atlas-work3e/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:333 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*)): code 0: Can't copy to a non-const view container.
+CopyToolTest[15]    FATAL /afs/cern.ch/user/s/ssnyder/atlas-work3e/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:119 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*)): code 0: (this->*m_copyCells)(srcCont, theCont)
 CopyToolTest[15]    DEBUG Calling destructor
 StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[16]     INFO In initialize 
@@ -172,8 +173,8 @@ CopyToolTest[16]    DEBUG Accepted sub calos: 3;
 CopyToolTest[16]    DEBUG CaloCell hash max: 187652
 CopyToolTest[16]    DEBUG Number of accepted hashes: 512
 StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
-CopyToolTest[16]    ERROR ../src/CaloCellFastCopyTool.cxx:321 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*)): code 0: Can't copy to a non-const view container.
-CopyToolTest[16]    FATAL ../src/CaloCellFastCopyTool.cxx:118 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*)): code 0: (this->*m_copyCells)(srcCont, theCont)
+CopyToolTest[16]    ERROR /afs/cern.ch/user/s/ssnyder/atlas-work3e/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:322 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*)): code 0: Can't copy to a non-const view container.
+CopyToolTest[16]    FATAL /afs/cern.ch/user/s/ssnyder/atlas-work3e/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:119 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*)): code 0: (this->*m_copyCells)(srcCont, theCont)
 CopyToolTest[16]    DEBUG Calling destructor
 StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[5]      INFO In initialize 
@@ -247,8 +248,8 @@ CopyToolTest[12]    DEBUG Number of accepted hashes: 512
 StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
 StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[12]    DEBUG Calling destructor
-StoreGateSvc        DEBUG Recorded object @0x1e698a0 with key AllCalloFull of type CaloCellContainer(CLID 2802)
- in DataObject @0x4565b50
+StoreGateSvc        DEBUG Recorded object @0x1b17bb0 with key AllCalloFull of type CaloCellContainer(CLID 2802)
+ in DataObject @0x4241970
  object not modifiable when retrieved
 CopyToolTest[9]      INFO In initialize 
 CopyToolTest[9]     DEBUG Accepted calo samplings: 17; 
@@ -267,10 +268,10 @@ StoreGateSvc        DEBUG Retrieved const handle to object AllCalloFull  of type
 StoreGateSvc        DEBUG Retrieved const handle to object AllCalloFull  of type CaloCellContainer(CLID 2802)
 CopyToolTest[9]     DEBUG Calling destructor
 StoreGateSvc      WARNING  setupProxy:: error setting up proxy for key AllCalloFull and clid 2802
- Pre-existing valid DataProxy @0x4565c70 found in Store for key AllCalloFull with clid 2802
+ Pre-existing valid DataProxy @0x4241a90 found in Store for key AllCalloFull with clid 2802
 ClassIDSvc           INFO  getRegistryEntries: read 343 CLIDRegistry entries for module ALL
-StoreGateSvc      WARNING record_impl: Problem setting up the proxy for object @0x45672f0
- recorded with key AllCalloFull of type CaloCellContainer (CLID 2802) in DataObject @0x6a9f860
+StoreGateSvc      WARNING record_impl: Problem setting up the proxy for object @0x4242050
+ recorded with key AllCalloFull of type CaloCellContainer (CLID 2802) in DataObject @0x677d520
 CopyToolTest[10]     INFO In initialize 
 CopyToolTest[10]    DEBUG Accepted calo samplings: 17; 
 CopyToolTest[10]    DEBUG Accepted sub calos: 3; 

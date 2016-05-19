@@ -102,7 +102,8 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
     m_maxSampling                      (0),
     m_doALotOfPrintoutInFirstEvent     (false),
     m_hashMin                          (999999),
-    m_hashMax                          (0)
+    m_hashMax                          (0),
+    m_clusterSize                      ()
 {
   declareInterface<CaloClusterCollectionProcessor> (this);
   // Name(s) of Cell Containers
