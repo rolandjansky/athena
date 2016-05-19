@@ -30,7 +30,8 @@
 CaloCellFastCopyTool::CaloCellFastCopyTool(const std::string& type,
     const std::string& name, const IInterface* parent)
     : AthAlgTool(type, name, parent)
-  , m_copyCells(NULL)
+  , m_copyCells(nullptr)
+  , m_copyConstCells(nullptr)
   , m_avoidDuplicates(false)
   , m_isFindCellFast(false)
   , m_caloID(0)
