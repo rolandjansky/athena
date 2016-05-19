@@ -16,7 +16,9 @@ import sys, os, argparse, subprocess, fnmatch
 
 # This is a bit ugly, but seems to be the only way for now
 # See more info here: https://cern.service-now.com/service-portal/view-request.do?n=RQF0492611
-eospath = "/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select"
+#eospath = "/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select"
+# Update: https://cern.service-now.com/service-portal/view-incident.do?n=INC1004372
+eospath = "/afs/cern.ch/project/eos/installation/atlas/bin/eos.select"
 
 def validEventList(eventList):
     eventStrings = eventList.split(',')
@@ -87,7 +89,7 @@ def main():
     parser.add_argument('-p', '--projecttag', type=str, nargs='?', help='Project tag, defaults to "data15_13TeV"', default='data15_13TeV')
     parser.add_argument('-s', '--stream', type=str, nargs='?', help='Stream name, defaults to "physics_Main"', default='physics_Main')
     parser.add_argument('-f', '--fileformat', type=validFileFormat, help='File format: (D)RAW(_XYZ), (D)ESD(_XYZ), (D)AOD(_XYZ)', default='AOD')
-    parser.add_argument('-m', '--matchingstring', type=str, nargs='?', default='', help='String for matching the dataset to look in, useful when there are several processings available, or both merged and unmerged datasets, e.g. "merge.AOD*f620" will do what you think')
+    parser.add_argument('-m', '--matchingstring', type=str, nargs='?', default='', help='String for matching the dataset to look in, useful when there are several processings available, or both merged and unmerged datasets, e.g. "*merge.AOD*f620*" will do what you think')
     parser.add_argument('-o', '--outputfile', type=str, nargs='?', help='Name for the output file (appropriate suffix based on input format will be appended automatically)')
     parser.add_argument('-v', '--verbose', action='store_true', default=False, help='Verbose mode, prints out eos paths and commands, file names, etc')
     parser.add_argument('-i', '--inputfile', nargs='+', type=str, default='', help='Local input file(s), to bypass search in EOS disk buffer')
@@ -103,7 +105,6 @@ def main():
         extractEvents(args.run, eventList, args.inputfile, args.fileformat)
         sys.exit(0)
         
-
     if args.fileformat == False:
         print "Unknown argument for -f/--fileformat - please provide a valid string describing the file format, i.e. one containing 'RAW', 'ESD' or 'AOD'"
         sys.exit(1)
@@ -132,13 +133,12 @@ def main():
             datasetNames.append(line.rstrip())
 
     # now get rid of all datasets that don't match the matching pattern
-    for ds in datasetNames:
-        if args.matchingstring != '':
-            if not fnmatch.fnmatch(ds, "*"+args.matchingstring+"*"):
-                datasetNames.remove(ds)
-                if args.verbose:
-                    print "Removing %s from list of datasets since it does not match %s" % (ds, args.matchingstring)
-
+    datasetNames = [ds for ds in datasetNames if not ".LOGARC" in ds]
+    if args.matchingstring != '':
+        if args.verbose:
+            print "Removing datasets that don't match %s" % (args.matchingstring)
+        datasetNames = [ds for ds in datasetNames if fnmatch.fnmatch(ds, "*"+args.matchingstring+"*")]
+    
     if len(datasetNames) > 1:
         print "More than one dataset matching the provided info"
         for ds in datasetNames:
@@ -160,6 +160,7 @@ def main():
     fileListing = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     fileNames = []
     for line in fileListing.stdout.readlines():
+        print line
         substrings = line.split('lb')
         lbs = []
         if line.count('lb') == 2:
@@ -173,7 +174,12 @@ def main():
         for file in fileNames:
             print "   %s" % file
 
-    # Actually extract the events!
+    # if no files are found, tell the user and stop
+    if len(fileNames) == 0:
+	print "No files available in %s - will exit" % (filePath+datasetNames[0]+'/')
+	sys.exit(1)
+
+    # actually extract the events
     extractEvents(args.run, eventList, fileNames, args.fileformat)
 
 if __name__ == '__main__':

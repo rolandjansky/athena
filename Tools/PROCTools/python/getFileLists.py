@@ -5,11 +5,12 @@ from xml.dom.minidom import parse
 from time import time
 import re
 from string import *
+import json
 
 def tctPath(build,rel):
     if not rel.startswith("rel_"):
         rel="rel_"+rel
-    arch = "x86_64-slc6-gcc48-opt"
+    arch = os.environ['CMTCONFIG']
     if build.startswith("17.") or build.startswith("18."):
         arch = "i686-slc5-gcc43-opt"
     return "/afs/cern.ch/atlas/project/RTT/prod/Results/tct/"+rel+"/"+build+"/build/"+arch+"/offline/Tier0ChainTests/"
@@ -136,7 +137,7 @@ class findTCTFiles:
         
         names = self._commonDirs.keys()
         for tctname in names:
-            if (tctname.startswith("LatestRun") or tctname.endswith("_MP") or tctname.endswith("IDCosmic0")):
+            if (tctname.startswith("LatestRun") or tctname.endswith("_MP") or tctname.endswith("IDCosmic0") or tctname.endswith("_PHYSVAL")):
                 print "skipping "+tctname
                 self._commonDirs.pop(tctname)
                 continue
@@ -248,11 +249,17 @@ class findTCTFiles:
         archfiles=dom.getElementsByTagName("archivefile")
         for af in archfiles:
             cpEle=af.getElementsByTagName("destination")
-            castorpath=cpEle[0].childNodes[0].data.strip()
+            ## temporary fix until RTT API is ready
+            if not cpEle:
+                s = af.firstChild.nodeValue
+                json_acceptable_string = s.replace("'", "\"")
+                d = json.loads(json_acceptable_string)
+                castorpath=d['src']
+            else:
+                castorpath=cpEle[0].childNodes[0].data.strip()
             #print castorpath
             if len(pattern.findall(castorpath)):
                 res+=[castorpath,]
-            
         del dom
         return res
 

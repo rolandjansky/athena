@@ -154,7 +154,7 @@ if __name__ == "__main__":
             sys.exit(-1)
 
     if len(filePattern)==0:
-        filePattern+=(".*myESD.*pool.root$",".*myAOD.*pool.root$","myTAG.*.root$","jobReport(_RecoTrf)?.gpickle$")
+        filePattern+=(".*myESD.*pool.root$",".*myRDO.*pool.root$",".*myAOD.*pool.root$","myTAG.*.root$","jobReport(_RecoTrf)?.gpickle$")
     else:
         for i in range(len(filePattern)):
         #for fP in filePattern:
@@ -164,6 +164,8 @@ if __name__ == "__main__":
                 filePattern[i]="*.pool.root$"
             elif filePattern[i].upper()=="ESD":
                 filePattern[i]=".*myESD.*pool.root$"
+            elif filePattern[i].upper()=="RDO":
+                filePattern[i]=".*myRDO.*pool.root$"
             elif filePattern[i].upper()=="AOD":
                 filePattern[i]=".*myAOD.*pool.root$"
             elif filePattern[i].upper()=="TAGCOMM":
