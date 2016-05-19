@@ -536,7 +536,7 @@
             <jobTransform userJobId="G4_WriteCalHitsTest_1sim">
               <doc>Reading gen events, single particle</doc>
               <jobTransformJobName>G4_WriteCalHitsTest_1sim</jobTransformJobName>
-              <jobTransformCmd>Sim_tf.py --simulator MC12G4 --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/pi_E50_eta0-60.evgen.pool.root' --outputHITSFile 'Hits.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --preInclude 'SimulationJobOptions/preInclude.CalHits.py,SimulationJobOptions/preInclude.ParticleID.py' --postInclude 'G4AtlasTests/postInclude.DCubeTest_CaloCalibHits.py' --preExec 'simFlags.ReleaseGeoModel=False;'
+              <jobTransformCmd>Sim_tf.py --simulator MC12G4 --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/pi_E50_eta0-60.evgen.pool.root' --outputHITSFile 'Hits.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --preInclude 'SimulationJobOptions/preInclude.CalHits.py,SimulationJobOptions/preInclude.ParticleID.py' --postInclude 'G4AtlasTests/postInclude.DCubeTest_CaloCalibHits.py' --preExec 'simFlags.ReleaseGeoModel=False;'
               </jobTransformCmd>
               <group>ISF_Validation_sim</group>
               <queue>short</queue>
