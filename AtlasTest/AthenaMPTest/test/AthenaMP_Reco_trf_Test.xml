@@ -4,7 +4,7 @@
     <atn>
         <TEST name="RECOSHIFT_rdo2esd2aod" type="script" suite="athenamp">
             <package_atn>AtlasTest/AthenaMPTest</package_atn>
-            <options_atn>TRF_ECHO=1 Reco_tf.py '--athenaopts=--nprocs=2' '--inputRDOFile' '/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1256_s1258_d566_tid464353_00/RDO.464353._000001.pool.root.1' '--outputESDFile' 'ESD.pool.root' '--outputAODFile' 'AOD.pool.root' '--autoConfiguration' 'everything' '--maxEvents=4' '--preExec' 'from AthenaMP.AthenaMPFlags import jobproperties as jps' 'jps.AthenaMPFlags.CollectSubprocessLogs=True' </options_atn>
+            <options_atn>TRF_ECHO=1 Reco_tf.py '--athenaopts=--nprocs=2' '--inputRDOFile' '/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.e3099_s2578/RDO.04919495._000958.pool.root.1' '--outputESDFile' 'ESD.pool.root' '--outputAODFile' 'AOD.pool.root' '--autoConfiguration' 'everything' '--maxEvents=4' </options_atn>
             <timelimit>90</timelimit>
             <author> Vakho Tsulaia </author>
             <mailto> tsulaia@cern.ch  </mailto>
@@ -17,7 +17,7 @@
         
         <TEST name="SharedPoolReader" type="script" suite="athenamp">
             <package_atn>AtlasTest/AthenaMPTest</package_atn>
-	    <options_atn>TRF_ECHO=1 Reco_tf.py '--athenaopts=--nprocs=2' '--inputRDOFile' '/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1256_s1258_d566_tid464353_00/RDO.464353._000001.pool.root.1' '--outputESDFile' 'ESD.pool.root' '--autoConfiguration' 'everything' '--maxEvents=4' '--preExec' 'from AthenaMP.AthenaMPFlags import jobproperties as jps' 'jps.AthenaMPFlags.CollectSubprocessLogs=True' 'jps.AthenaMPFlags.Strategy="SharedReader"' 'rec.doTrigger=False'</options_atn>
+	    <options_atn>TRF_ECHO=1 Reco_tf.py '--athenaopts=--nprocs=2' '--inputRDOFile' '/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1256_s1258_d566_tid464353_00/RDO.464353._000001.pool.root.1' '--outputESDFile' 'ESD.pool.root' '--autoConfiguration' 'everything' '--maxEvents=4' '--preExec' 'from AthenaMP.AthenaMPFlags import jobproperties as jps' 'jps.AthenaMPFlags.Strategy="SharedReader"' 'rec.doTrigger=False'</options_atn>
             <timelimit>90</timelimit>
             <author> Vakho Tsulaia </author>
             <mailto> tsulaia@cern.ch  </mailto>
@@ -31,7 +31,7 @@
 
         <TEST name="RECOSHIFT_RAWtoESD" type="script" suite="athenamp">
             <package_atn>AtlasTest/AthenaMPTest</package_atn>
-            <options_atn>TRF_ECHO=1 Reco_tf.py '--inputBSFile' '/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_10Events/data10_7TeV.00167607.physics_JetTauEtmiss.merge.RAW._lb0087._SFO-4._0001.1_10events' '--maxEvents' '4' '--outputESDFile' 'myESD.pool.root' '--athenaopts=--nprocs=2' '--geometryVersion=ATLAS-GEO-18-01-00' '--preExec' 'rec.doTrigger=False' 'from AthenaMP.AthenaMPFlags import jobproperties as jps' 'jps.AthenaMPFlags.CollectSubprocessLogs=True' </options_atn>
+            <options_atn>TRF_ECHO=1 Reco_tf.py '--inputBSFile' '/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_10Events/data10_7TeV.00167607.physics_JetTauEtmiss.merge.RAW._lb0087._SFO-4._0001.1_10events' '--maxEvents' '4' '--outputESDFile' 'myESD.pool.root' '--athenaopts=--nprocs=2' '--geometryVersion=ATLAS-R2-2015-03-01-00' '--preExec' 'rec.doTrigger=False' </options_atn>
             <timelimit>90</timelimit>
             <author> Vakho Tsulaia </author>
             <mailto> tsulaia@cern.ch  </mailto>
