@@ -7,9 +7,10 @@ if MuonDQAFlags.MuonTrkMonDoTrigger or MuonDQAFlags.doMDTTGC:
    from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMaker
    trigDecMaker = TrigDecisionMaker()
    topSequence += trigDecMaker
-   from TrigDecision.TrigDecisionConf import TrigDec__TrigDecisionTool
-   tdt = TrigDec__TrigDecisionTool()
-   ToolSvc += tdt  
+   #from TrigDecision.TrigDecisionConf import TrigDec__TrigDecisionTool
+   #tdt = TrigDec__TrigDecisionTool()
+   #ToolSvc += tdt  
+   tdt = monTrigDecTool
 ###############################################################
 #----------------------#
 # Trk Level Monitoring #
@@ -32,7 +33,6 @@ if MuonDQAFlags.doMuonTrackMon:
                                                  MuonTrackCollections = ["ExtrapolatedMuonSpectrometerTracks" ,"ConvertedMBoyTracks", "MuidExtrapolatedTracks" ],
                                                  NPhiBins = 360,
                                                  UseTriggerVector = False,
-                                                 EnableLumi = DQMonFlags.enableLumiAccess(),
                                                  MuonTriggerChainName = "NoMuonTriggerSelection" )
    #############MuonGenericTracksMon#############
    MuonGenericTracksMon = MuonGenericTracksMon(name = "MuonGenericTracksMon",
@@ -40,12 +40,10 @@ if MuonDQAFlags.doMuonTrackMon:
                                                MuonTrackCollections = ["ExtrapolatedMuonSpectrometerTracks" ,"ConvertedMBoyTracks", "MuidExtrapolatedTracks" ],
                                                NPhiBins = 360,
                                                UseTriggerVector = False,
-                                               EnableLumi = DQMonFlags.enableLumiAccess(),
                                                MuonTriggerChainName = "NoMuonTriggerSelection" )
    #############TGCStandaloneTracksMon_Trig############
    TGCStandaloneTracksMon_NoTrig = TGCStandaloneTracksMon(name = "TGCStandaloneTracksMon",
                                                           TriggerAware = False,
-                                                          EnableLumi = DQMonFlags.enableLumiAccess(),
                                                           MuonTriggerChainName = "TriggersInChain")
    ToolSvc += MuonSelectedTracksMon
    ToolSvc += MuonGenericTracksMon
@@ -60,8 +58,8 @@ if MuonDQAFlags.doMuonTrackMon:
  
 #############TriggerAware Trk Monitoring#######################
 ## set to true in case you would like to use trigger-aware monitoring
-## only do trigger-aware monitoring if monTrigDecTool known by ToolSvc
-if not hasattr(ToolSvc, 'monTrigDecTool'):
+## only do trigger-aware monitoring if DQMonFlags.useTrigger is true
+if not DQMonFlags.useTrigger():
    print "IDPerfMon_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring"
 else:
    if MuonDQAFlags.MuonTrkMonDoTrigger and MuonDQAFlags.doMuonTrackMon:
@@ -72,7 +70,6 @@ else:
                                                          NPhiBins = 360,
                                                          UseTriggerVector = True,
                                                          MuonTriggerDecisionTool = "TrigDec::TrigDecisionTool",
-                                                         EnableLumi = DQMonFlags.enableLumiAccess(),
                                                          Muon_Trigger_Items = ["EF_2mu10", "EF_2mu4", "EF_2mu6", "EF_mu10", "EF_mu20", "EF_mu40"],
                                                          MuonTriggerChainName = "TriggersInChain") 
       #############MuonGenericTracksMon_Trig############
@@ -82,13 +79,11 @@ else:
                                                        NPhiBins = 360,
                                                        UseTriggerVector = True,
                                                        MuonTriggerDecisionTool = "TrigDec::TrigDecisionTool",
-                                                       EnableLumi = DQMonFlags.enableLumiAccess(),
                                                        Muon_Trigger_Items = ["EF_2mu10", "EF_2mu4", "EF_2mu6", "EF_mu10", "EF_mu20", "EF_mu40"],						    
                                                        MuonTriggerChainName = "TriggersInChain")
       #############TGCStandaloneTracksMon_Trig############
       TGCStandaloneTracksMon_Trig = TGCStandaloneTracksMon(name = "TGCStandaloneTracksMon_Trig",
                                                            TriggerAware = False,
-                                                           EnableLumi = DQMonFlags.enableLumiAccess(),
                                                            MuonTriggerDecisionTool = "TrigDec::TrigDecisionTool",
                                                            Muon_Trigger_Items = ["MU0", "MU4", "MU6", "MU10", "MU11", "MU15", "MU20", "MU40", "MU0_TGC", "MU6_TGC", "MU0_TGC_HALO" ],
                                                            MuonTriggerChainName = "TriggersInChain")
