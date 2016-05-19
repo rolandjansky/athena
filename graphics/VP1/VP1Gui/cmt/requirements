@@ -1,7 +1,9 @@
 package VP1Gui
 
 author Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
+author Riccardo Maria BIANCHI <rbianchi@cern.ch>
 manager Riccardo Maria BIANCHI <rbianchi@cern.ch>
+
 
 public
 use AtlasPolicy         AtlasPolicy-*
@@ -24,6 +26,7 @@ macro_remove cppflags "-pedantic" # pedantic makes GCC complain about a non C89 
 public
 apply_pattern qt4based_library
 
-
+# install to InstallArea the ATLAS logo image stored in share/
+apply_pattern declare_runtime_extras extras="ATLAS-Logo-New_300pixels.png" ; 
 
 

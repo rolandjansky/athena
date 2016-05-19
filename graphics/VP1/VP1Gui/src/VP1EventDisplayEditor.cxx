@@ -15,7 +15,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "VP1Gui/VP1EventDisplayEditor.h"
-#include "ui_vp1eventdisplaywidget.h"
+#include "ui_vp1eventdisplayeditor.h"
 
 #include "VP1Base/VP1ExaminerViewer.h"
 #include "VP1Base/VP1QtInventorUtils.h"
