@@ -170,7 +170,7 @@ StatusCode GetLCOutOfCluster::initialize() {
 	<< endreq;
     return StatusCode::FAILURE;
   }
-  int nside = (iside>=0?m_dimensions[iside].bins():1);
+  int nside = m_dimensions[iside].bins();
   int nphi = (iphi>=0?m_dimensions[iphi].bins():1);
   int nlogE = m_dimensions[ilogE].bins();
   m_ooc.resize(nside*nphi*nlogE,0);
@@ -181,9 +181,9 @@ StatusCode GetLCOutOfCluster::initialize() {
 	  oname += "_iside_";
 	  oname += jside;
 	  oname += "_[";
-	  oname += (iside>=0?m_dimensions[iside].lowEdge():-1);
+	  oname += m_dimensions[iside].lowEdge();
 	  oname += ",";
-	  oname += (iside>=0?m_dimensions[iside].highEdge():-1);
+	  oname += m_dimensions[iside].highEdge();
 	  oname += ",";
 	  oname += nside;
 	  oname += "]";
