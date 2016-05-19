@@ -29,20 +29,19 @@ class TrigEgammaEFPhotonSelectorTool:
     StatusCode initialize();
     StatusCode finalize(); 
 
-    bool emulation( const xAOD::IParticleContainer*, bool&, const Trig::Info &);
+    bool emulation( const xAOD::IParticleContainer*, bool&, const TrigInfo &);
 
   private:
 
     bool ApplyPhotonPid(const xAOD::Photon *eg, const std::string pidname);
 
     // ToolHandles
-    /* In python order will matter. Should always be tight, medium, loose
-       Order no longer important since using a map */
-    std::map< std::string, unsigned int > m_PidToolMap; /*! Pass a string to pick up correct selector */
-    /* Photon selectors */
+    // In python order will matter. Should always be tight, medium, loose
+    // Order no longer important since using a map
+    /* */
     ToolHandleArray<IAsgPhotonIsEMSelector>   m_photonOnlIsEMTool;
   
-
+    std::map< std::string, unsigned int > m_PidToolMap; /*! Pass a string to pick up correct selector */
 
 };
 

@@ -13,7 +13,6 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
 #include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
-#include "xAODEgamma/ElectronContainer.h"
 
 #include <string>
 #include <map>
@@ -52,8 +51,6 @@ namespace Trig{
 
             std::vector<std::string>   m_triggerList;
             StoreGateSvc              *m_storeGate;
-
-            const xAOD::ElectronContainer   *m_offElectrons;
 
             //counters
             std::map<std::string, int> m_counter;

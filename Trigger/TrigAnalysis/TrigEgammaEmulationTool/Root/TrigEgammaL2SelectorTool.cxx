@@ -24,98 +24,91 @@ TrigEgammaL2SelectorTool::
 TrigEgammaL2SelectorTool( const std::string& myname )
     : TrigEgammaSelectorBaseTool(myname)
 {
-  declareProperty("CaloCutIDSelectors"  , m_caloCutIDSelectors   );
-  declareProperty("CaloRingerSelectors" , m_caloRingerSelectors  );
-  declareProperty("ElectronSelector"    , m_electronSelector     );
-  declareProperty("PhotonSelector"      , m_photonSelector       );
+  declareProperty("CaloSelectors"         , m_caloSelectors        );
+  declareProperty("CaloRingerSelectors"   , m_caloRingerSelectors  );
+  declareProperty("ElectronSelectors"     , m_electronSelectors    );
 }
 //**********************************************************************
 StatusCode TrigEgammaL2SelectorTool::initialize() {
 
-  StatusCode sc = TrigEgammaSelectorBaseTool::initialize();
-  
-  if(sc.isFailure()){
-    ATH_MSG_WARNING("TrigEgammaSelectorBaseTool::initialize() failed");
-    return StatusCode::FAILURE;
+  //StatusCode sc;
+  for(unsigned i=0; i<m_caloSelectors.size(); ++i){
+    m_caloSelectors[i]->setParents(m_trigdec, m_storeGate);
+    /*
+    //sc = m_caloSelectors[i]->initialize();
+    if(sc.isFailure()){
+      ATH_MSG_ERROR( "Unable to initialize L2 selector tool." );
+      return sc;
+    }*/
   }
-  
-  for(auto& tool : m_caloCutIDSelectors){
-    tool->setParents(m_trigdec, m_storeGate);
-    sc = tool->initialize();
-    if(sc.isFailure()){
-      ATH_MSG_WARNING("TrigEgammaL2CaloSelectorTool::initialize() failed");
-      return StatusCode::FAILURE;
-    }
-  }// loop over pids: Tight, Medium, Loose and VeryLoose
-  
-  for(auto& tool : m_caloRingerSelectors){
-    tool->setParents(m_trigdec, m_storeGate);
-    sc = tool->initialize();
-    if(sc.isFailure()){
-      ATH_MSG_WARNING("TrigEgammaL2CaloRingerSelectorTool::initialize() failed");
-      return StatusCode::FAILURE;
-    }
-  }// loop over pids: Tight, Medium, Loose and VeryLoose
- 
 
-  ATH_MSG_INFO("Initialising L2(Track) Electron Selector tool...");
-  m_electronSelector->setParents(m_trigdec, m_storeGate);
-  sc = m_electronSelector->initialize();
-  if(sc.isFailure()){
-    ATH_MSG_WARNING("TrigEgammaL2ElectronSelectorTool::initialize() failed");
-    return StatusCode::FAILURE;
+  ATH_MSG_INFO("Initialising L2CaloRingerSelector tool...");
+  for(unsigned i=0; i<m_caloRingerSelectors.size(); ++i){
+    m_caloRingerSelectors[i]->setParents(m_trigdec, m_storeGate);
+    /*
+    //sc = m_caloRingerSelectors[i]->initialize();
+    if(sc.isFailure()){
+      ATH_MSG_ERROR( "Unable to initialize L2 CaloRings selector tool." );
+      return sc;
+    }*/
   }
- 
+
+  ATH_MSG_INFO("Initialising L2ElectronSelector tool...");
+  for(unsigned i=0; i<m_electronSelectors.size(); ++i){
+    m_electronSelectors[i]->setParents(m_trigdec, m_storeGate);
+    /*
+    //sc = m_caloRingerSelectors[i]->initialize();
+    if(sc.isFailure()){
+      ATH_MSG_ERROR( "Unable to initialize L2 CaloRings selector tool." );
+      return sc;
+    }*/
+  }
+
 
   return StatusCode::SUCCESS;
 }
 
 //!==========================================================================
 StatusCode TrigEgammaL2SelectorTool::finalize() {
+  /*
+  StatusCode sc;
+  ATH_MSG_INFO("Finalising L2Selector tool...");
+  for(unsigned i=0; i<m_caloSelectors.size(); ++i){
+    //sc = m_caloSelectors[i]->finalize();
+    if(sc.isFailure()){
+      ATH_MSG_ERROR( "Unable to finalize L2 selector tool." );
+      return sc;
+    }
+  }
+   
+  ATH_MSG_INFO("Finalising L2CaloRingerSelector tool...");
+  for(unsigned i=0; i<m_caloRingerSelectors.size(); ++i){
+    //sc = m_caloRingerSelectors[i]->finalize();
+    if(sc.isFailure()){
+      ATH_MSG_ERROR( "Unable to finalize L2 CaloRings selector tool." );
+      return sc;
+    }
+  }*/
   return StatusCode::SUCCESS;
 }
 
 //!==========================================================================
-bool TrigEgammaL2SelectorTool::emulation(const xAOD::TrigEMCluster *emCluster,  bool &pass, const Trig::Info &info)
+bool TrigEgammaL2SelectorTool::emulation(const xAOD::TrigEMCluster *emCluster,  bool &pass, const TrigInfo &info)
 {
-  pass=false;
+
   if (boost::contains(info.pidname,"1")) return false; // Not emulating Run1
-  std::string pidname = (boost::contains(info.pidname,"LH")) ? info.pidname.substr(2, info.pidname.size()) : info.pidname;
-  
-  ATH_MSG_DEBUG("L2 Selector pidname : " << pidname );
-  if(info.hltcalo || info.perf){
+  if(info.etcut || info.hltcalo || info.perf){
     pass=true;//bypass this level
-    return true;
-  }else if(info.etcut){
-    if(emCluster->et()*1e-3 >= info.thrHLT-5) pass=true;
     return true;
   }else if(info.ringer){
     ATH_MSG_DEBUG("Ringer chain...");
-    if(boost::contains(pidname,"Tight") )
-      m_caloRingerSelectors[0]->emulation(emCluster, pass, info);
-    else if(boost::contains(pidname,"Medium") )
-      m_caloRingerSelectors[1]->emulation(emCluster, pass, info);
-    else if(boost::contains(pidname,"Loose") )
-      m_caloRingerSelectors[2]->emulation(emCluster, pass, info);
-    else if(boost::contains(pidname,"VLoose") )
-      m_caloRingerSelectors[3]->emulation(emCluster, pass, info);
-    else{
-      ATH_MSG_WARNING("No pidname found");
-      return false;
-    }
+    for(unsigned itool=0; itool<m_caloRingerSelectors.size(); ++itool){
+      if(!m_caloRingerSelectors[itool]->emulation(emCluster, pass, info))  continue;
+    }//loop over sub selectors  
   }else{//pid tools
-    if(boost::contains(pidname,"Tight") )
-      m_caloCutIDSelectors[0]->emulation(emCluster, pass, info);
-    else if(boost::contains(pidname,"Medium") )
-      m_caloCutIDSelectors[1]->emulation(emCluster, pass, info);
-    else if(boost::contains(pidname,"Loose") )
-      m_caloCutIDSelectors[2]->emulation(emCluster, pass, info);
-    else if(boost::contains(pidname,"VLoose") )
-      m_caloCutIDSelectors[3]->emulation(emCluster, pass, info);
-    else{
-      ATH_MSG_WARNING("No pidname found");
-      return false;
-    }
+    for(unsigned itool=0; itool<m_caloSelectors.size(); ++itool){
+      if(!m_caloSelectors[itool]->emulation(emCluster, pass, info))  continue;
+    }//loop over sub selectors
   }
 
   dressDecision(emCluster, info.trigName, pass);
@@ -123,17 +116,22 @@ bool TrigEgammaL2SelectorTool::emulation(const xAOD::TrigEMCluster *emCluster,  
   return true;
 }
 //!==========================================================================
-bool TrigEgammaL2SelectorTool::emulation( const xAOD::IParticleContainer *container, bool &pass, const Trig::Info &info)
+bool TrigEgammaL2SelectorTool::emulation( const xAOD::IParticleContainer *container, bool &pass, const TrigInfo &info)
 {
   pass=false;
-  if(info.idperf || info.etcut || info.hltcalo || info.perf || info.ringer){
+  
+  if(info.idperf || info.etcut || info.hltcalo || info.perf){
     pass=true;
     return true;
-  }else if(info.type == "electron"){
-    m_electronSelector->emulation(container, pass, info);
+  }
+
+  if(info.type == "electron"){
+    for(unsigned itool=0; itool<m_electronSelectors.size(); ++itool){
+      if(!m_electronSelectors[itool]->emulation(container, pass, info))  continue;
+    }//loop over sub selectors  
   }else if (info.type == "photon"){
-    //m_photonSelector->emulation(container, pass, info);
     pass=true;
+    return true;
   }else{
     ATH_MSG_DEBUG("Type (e/g) not found from " << info.trigName);
     return false;
