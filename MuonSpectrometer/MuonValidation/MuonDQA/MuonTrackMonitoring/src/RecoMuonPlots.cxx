@@ -81,12 +81,31 @@ void RecoMuonPlots::initializePlots(){
     m_eff_nPrec    = Book2D("_eff_nPrec",   "average number of Precision Layers;#eta;#phi",   xbins, xmin, xmax, ybins, ymin, ymax);
     m_eff_nPhi     = Book2D("_eff_nPhi",    "average number of Phi Layers;#eta;#phi",         xbins, xmin, xmax, ybins, ymin, ymax);
     m_eff_nTrigEta = Book2D("_eff_nTrigEta","average number of Trigger Eta Layers;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
-    m_eff_ndof     = Book2D("_eff_ndof",    "average number of hits;#eta;#phi",xbins, xmin, xmax, ybins, ymin, ymax);
-    m_eff_chi2     = Book2D("_eff_chi2",    "average #chi^{2} per DOF;#eta;#phi",xbins, xmin, xmax, ybins, ymin, ymax);
-    m_ID_eff_ndof  = Book2D("_ID_eff_ndof", "ID track average number of hits;#eta;#phi",xbins, xmin, xmax, ybins, ymin, ymax);
-    m_ID_eff_chi2  = Book2D("_ID_eff_chi2", "ID track average #chi^{2} per DOF;#eta;#phi",xbins, xmin, xmax, ybins, ymin, ymax);
-    m_MS_eff_ndof  = Book2D("_MS_eff_ndof", "MS track average number of hits;#eta;#phi",xbins, xmin, xmax, ybins, ymin, ymax);
-    m_MS_eff_chi2  = Book2D("_MS_eff_chi2", "MS track average #chi^{2} per DOF;#eta;#phi",xbins, xmin, xmax, ybins, ymin, ymax);
+    m_eff_ndof     = Book2D("_eff_ndof",    "average number of hits;#eta;#phi",               xbins, xmin, xmax, ybins, ymin, ymax);
+    m_eff_chi2     = Book2D("_eff_chi2",    "average #chi^{2} per DOF;#eta;#phi",             xbins, xmin, xmax, ybins, ymin, ymax);
+    m_ID_eff_ndof  = Book2D("_ID_eff_ndof", "ID track average number of hits;#eta;#phi",      xbins, xmin, xmax, ybins, ymin, ymax);
+    m_ID_eff_chi2  = Book2D("_ID_eff_chi2", "ID track average #chi^{2} per DOF;#eta;#phi",    xbins, xmin, xmax, ybins, ymin, ymax);
+    m_MS_eff_ndof  = Book2D("_MS_eff_ndof", "MS track average number of hits;#eta;#phi",      xbins, xmin, xmax, ybins, ymin, ymax);
+    m_MS_eff_chi2  = Book2D("_MS_eff_chi2", "MS track average #chi^{2} per DOF;#eta;#phi",    xbins, xmin, xmax, ybins, ymin, ymax);
+
+    m_avg_hits_precision_inner    = Book2D("_avg_hits_precision_inner",    "avg. precision hits, inner;#eta;#phi",    xbins, xmin, xmax, ybins, ymin, ymax);
+    m_avg_hits_precision_middle   = Book2D("_avg_hits_precision_middle",   "avg. precision hits, middle;#eta;#phi",   xbins, xmin, xmax, ybins, ymin, ymax);
+    m_avg_hits_precision_outer    = Book2D("_avg_hits_precision_outer",    "avg. precision hits, outer;#eta;#phi",    xbins, xmin, xmax, ybins, ymin, ymax);
+    m_avg_hits_precision_extended = Book2D("_avg_hits_precision_extended", "avg. precision hits, extended;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+
+    m_avg_hits_trigger_layer1 = Book2D("_avg_hits_trigger_layer1", "avg. trigger hits, layer 1;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+    m_avg_hits_trigger_layer2 = Book2D("_avg_hits_trigger_layer2", "avg. trigger hits, layer 2;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+    m_avg_hits_trigger_layer3 = Book2D("_avg_hits_trigger_layer3", "avg. trigger hits, layer 3;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+    m_avg_hits_trigger_layer4 = Book2D("_avg_hits_trigger_layer4", "avg. trigger hits, layer 4;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+
+    m_avg_hits_ibl = Book2D("_avg_hits_ibl", "avg. IBL hits;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+    m_avg_hits_pix = Book2D("_avg_hits_pix", "avg. Pix hits;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+    m_avg_hits_sct = Book2D("_avg_hits_sct", "avg. SCT hits;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+    m_avg_hits_trt = Book2D("_avg_hits_trt", "avg. TRT hits;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+
+    m_avg_ddpt_idme = Book2D("_avg_ddpt_idme", "avg. |pt_{ID} - pt_{ME}| / pt_{CB};#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+    m_avg_dptsignif = Book2D("_avg_dptsignif", "avg. momentum diff. signif.;#eta;#phi",      xbins, xmin, xmax, ybins, ymin, ymax);
+
   }
 }
 
@@ -144,14 +163,56 @@ void RecoMuonPlots::fill(const xAOD::Muon& mu, xAOD::Muon::Quality my_quality){
     m_MS_eff_chi2->Fill(msExtrapTrk->eta(), msExtrapTrk->phi(), msExtrapTrk->chiSquared()/(msExtrapTrk->numberDoF() * 1.0));
   }
 
-  uint8_t hitval_numberOfPrecisionLayers = 0;
-  if (!primaryTrk->summaryValue(hitval_numberOfPrecisionLayers, xAOD::numberOfPrecisionLayers)) return; 
-  m_eff_nPrec->Fill(mu.eta(), mu.phi(), hitval_numberOfPrecisionLayers);
-  uint8_t hitval_numberOfPhiLayers = 0;
-  if (!primaryTrk->summaryValue(hitval_numberOfPhiLayers, xAOD::numberOfPhiLayers)) return; 
-  m_eff_nPhi->Fill(mu.eta(), mu.phi(),  hitval_numberOfPhiLayers);
-  uint8_t hitval_numberOfTriggerEtaLayers = 0;
+  if (!primaryTrk->summaryValue(hitval_numberOfPrecisionLayers,  xAOD::numberOfPrecisionLayers))  return; 
+  if (!primaryTrk->summaryValue(hitval_numberOfPhiLayers,        xAOD::numberOfPhiLayers))        return; 
   if (!primaryTrk->summaryValue(hitval_numberOfTriggerEtaLayers, xAOD::numberOfTriggerEtaLayers)) return; 
-  m_eff_nTrigEta->Fill(mu.eta(), mu.phi(), hitval_numberOfTriggerEtaLayers);
+
+  if (!mu.summaryValue(hitval_innerSmallHits,     xAOD::MuonSummaryType::innerSmallHits))    return; 
+  if (!mu.summaryValue(hitval_innerLargeHits,     xAOD::MuonSummaryType::innerLargeHits))    return; 
+  if (!mu.summaryValue(hitval_middleSmallHits,    xAOD::MuonSummaryType::middleSmallHits))   return; 
+  if (!mu.summaryValue(hitval_middleLargeHits,    xAOD::MuonSummaryType::middleLargeHits))   return; 
+  if (!mu.summaryValue(hitval_outerSmallHits,     xAOD::MuonSummaryType::outerSmallHits))    return; 
+  if (!mu.summaryValue(hitval_outerLargeHits,     xAOD::MuonSummaryType::outerLargeHits))    return; 
+  if (!mu.summaryValue(hitval_extendedSmallHits,  xAOD::MuonSummaryType::extendedSmallHits)) return; 
+  if (!mu.summaryValue(hitval_extendedLargeHits,  xAOD::MuonSummaryType::extendedLargeHits)) return; 
+
+  if (!mu.summaryValue(hitval_etaLayer1Hits,      xAOD::MuonSummaryType::etaLayer1Hits)) return; 
+  if (!mu.summaryValue(hitval_etaLayer2Hits,      xAOD::MuonSummaryType::etaLayer2Hits)) return; 
+  if (!mu.summaryValue(hitval_etaLayer3Hits,      xAOD::MuonSummaryType::etaLayer3Hits)) return; 
+  if (!mu.summaryValue(hitval_etaLayer4Hits,      xAOD::MuonSummaryType::etaLayer4Hits)) return; 
+
+  if (!mu.summaryValue(hitval_numberOfBLayerHits, xAOD::SummaryType::numberOfBLayerHits)) return;
+  if (!mu.summaryValue(hitval_numberOfPixelHits,  xAOD::SummaryType::numberOfPixelHits))  return;
+  if (!mu.summaryValue(hitval_numberOfSCTHits,    xAOD::SummaryType::numberOfSCTHits))    return;
+  if (!mu.summaryValue(hitval_numberOfTRTHits,    xAOD::SummaryType::numberOfTRTHits))    return;
+
+  m_eff_nPrec    -> Fill(mu.eta(), mu.phi(), hitval_numberOfPrecisionLayers);
+  m_eff_nPhi     -> Fill(mu.eta(), mu.phi(), hitval_numberOfPhiLayers);
+  m_eff_nTrigEta -> Fill(mu.eta(), mu.phi(), hitval_numberOfTriggerEtaLayers);
+
+  m_avg_hits_precision_inner    -> Fill(mu.eta(), mu.phi(), hitval_innerSmallHits    + hitval_innerLargeHits);
+  m_avg_hits_precision_middle   -> Fill(mu.eta(), mu.phi(), hitval_middleSmallHits   + hitval_middleLargeHits);
+  m_avg_hits_precision_outer    -> Fill(mu.eta(), mu.phi(), hitval_outerSmallHits    + hitval_outerLargeHits);
+  m_avg_hits_precision_extended -> Fill(mu.eta(), mu.phi(), hitval_extendedSmallHits + hitval_extendedLargeHits);
+
+  m_avg_hits_trigger_layer1 -> Fill(mu.eta(), mu.phi(), hitval_etaLayer1Hits);
+  m_avg_hits_trigger_layer2 -> Fill(mu.eta(), mu.phi(), hitval_etaLayer2Hits);
+  m_avg_hits_trigger_layer3 -> Fill(mu.eta(), mu.phi(), hitval_etaLayer3Hits);
+  m_avg_hits_trigger_layer4 -> Fill(mu.eta(), mu.phi(), hitval_etaLayer4Hits);
+
+  m_avg_hits_ibl -> Fill(mu.eta(), mu.phi(), hitval_numberOfBLayerHits);
+  m_avg_hits_pix -> Fill(mu.eta(), mu.phi(), hitval_numberOfPixelHits);
+  m_avg_hits_sct -> Fill(mu.eta(), mu.phi(), hitval_numberOfSCTHits);
+  m_avg_hits_trt -> Fill(mu.eta(), mu.phi(), hitval_numberOfTRTHits);
+
+  if (primaryTrk && inDetTrk && msExtrapTrk) {
+      qoverp_diff   = fabs(inDetTrk->qOverP() - msExtrapTrk->qOverP());
+      qoverp_sigma  = sqrt(inDetTrk->definingParametersCovMatrix()(4,4) + msExtrapTrk->definingParametersCovMatrix()(4,4));
+      qoverp_signif = (qoverp_sigma     > 0) ? (qoverp_diff / qoverp_sigma) : -999;
+      ddpt_idme     = (primaryTrk->pt() > 0) ? fabs(inDetTrk->pt() - msExtrapTrk->pt()) / primaryTrk->pt() : -999;
+      
+      m_avg_ddpt_idme -> Fill(mu.eta(), mu.phi(), ddpt_idme);
+      m_avg_dptsignif -> Fill(mu.eta(), mu.phi(), qoverp_signif);
+  }
 
 }
