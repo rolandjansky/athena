@@ -33,7 +33,7 @@ class CaloClusterTopoEMFixedSizeGetter (CaloClusterGetterBase):
             corrargs['cells_name'] = cells.outputKey()
         return make_CaloSwCorrections (key = 'gam35',
                                        suffix = 'topo35',
-                                       version = 'pi0_v1_lwc',
+                                       version = 'pi0_v2_noc',
                                        **corrargs)
 
     @classmethod

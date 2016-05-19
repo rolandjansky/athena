@@ -53,6 +53,7 @@ class CaloClusterMomentsMaker: public AthAlgTool, virtual public CaloClusterColl
 
   StatusCode execute(xAOD::CaloClusterContainer* theClusColl);
   StatusCode initialize();
+  StatusCode finalize();
   
   /** Callback added to handle Data-driven GeoModel initialisation
    */

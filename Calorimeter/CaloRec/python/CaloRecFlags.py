@@ -73,6 +73,21 @@ class doCaloCluster(CaloRecFlagsJobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+class doCaloTowerFromCells(CaloRecFlagsJobProperty):
+    """ switch for combined calo cluster
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+class doCaloTowerFromCluster(CaloRecFlagsJobProperty):
+    """ switch for combined calo cluster
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+
 class doCaloTopoTower(CaloRecFlagsJobProperty):
     """ switch noise suppressed towers based on standard tower + topo clusters
     """
@@ -155,7 +170,7 @@ jobproperties.add_Container(CaloRecFlags)
 
 
 # I want always the following flags in the Rec container  
-_list_Calo=[Enabled,doCaloTopoCluster,doEmCluster,doCaloEMTopoCluster,emTopoClusterThreshold,doCaloCluster,doCaloTopoTower,doTileMuId,doTileCellCorrection,doLArAffectedRegion,doLArAutoConfiguration,doLArNoisyRO,doEMDigits,doFillMBTSBackgroundBit,doLArNoiseBurstVeto,clusterCellGetterName]
+_list_Calo=[Enabled,doCaloTopoCluster,doEmCluster,doCaloEMTopoCluster,emTopoClusterThreshold,doCaloCluster,doCaloTopoTower,doTileMuId,doTileCellCorrection,doLArAffectedRegion,doLArAutoConfiguration,doLArNoisyRO,doEMDigits,doFillMBTSBackgroundBit,doLArNoiseBurstVeto,clusterCellGetterName,doCaloTowerFromCells,doCaloTowerFromCluster]
 for j in _list_Calo: 
     jobproperties.CaloRecFlags.add_JobProperty(j)
 del _list_Calo

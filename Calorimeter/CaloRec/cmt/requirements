@@ -33,7 +33,6 @@ use AtlasROOT      AtlasROOT-*         External
 use AtlasAIDA	   AtlasAIDA-*         External
 use AtlasCORAL     AtlasCORAL-*        External
 use AthAllocators  AthAllocators-*     Control
-use DataModel      DataModel-*         Control
 use SGTools        SGTools-*           Control
 use GeoModelInterfaces    GeoModelInterfaces-*       DetectorDescription/GeoModel
 use FourMom        FourMom-*           Event

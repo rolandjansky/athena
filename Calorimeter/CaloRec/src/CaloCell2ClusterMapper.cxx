@@ -36,7 +36,7 @@
 #include "CaloEvent/CaloCell2ClusterMap.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 #include "AthenaKernel/errorcheck.h"
 
 
@@ -190,7 +190,7 @@ StatusCode CaloCell2ClusterMapper::execute() {
             << "CaloCluster and weighted sum of cell members have E = "
             << (*clusIter)->e() << " MeV, good!" << endreq;
       }
-      if (abs(numberOfCells[iClus] - (*clusIter)->getNumberOfCells()) > 0) {
+      if (numberOfCells[iClus] != static_cast<int>((*clusIter)->getNumberOfCells())) {
         msg(MSG::WARNING) << "CaloCluster has N = "
             << (*clusIter)->getNumberOfCells() << " cells, while N = "
             << numberOfCells[iClus]
