@@ -219,7 +219,7 @@ StatusCode LArCellBuilderFromLArRawChannelTool::fillCompleteCellCont(const LArRa
     LArCell* larcell=getCell(*itrRawChannel,hashid);
     if (larcell) {
       if ((*theCellContainer)[hashid]) {
-	msg(MSG::ERROR) << "Channel added twice! Data corruption? hash=" << hashid  
+	msg(MSG::WARNING) << "Channel added twice! Data corruption? hash=" << hashid  
 			<< " online ID=0x" << std::hex << itrRawChannel->channelID().get_compact() 
 			<< "  " << m_onlineID->channel_name(itrRawChannel->channelID()) << endreq;
       }
