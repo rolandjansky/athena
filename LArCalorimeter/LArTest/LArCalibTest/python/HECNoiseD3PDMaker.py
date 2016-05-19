@@ -59,7 +59,7 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
         self.ntfile =  TFile(self.NtupleFileName,"RECREATE")
         self.hectree = TTree("HECNoise","HECNoise");
         self.iRun = array('i',[0])
-        self.iEvent = array('i',[0])            
+        self.iEvent = array('L',[0])            
         self.iEventCount = array('i',[0])            
         self.fPrescale = {}
         self.iTrigger = {}

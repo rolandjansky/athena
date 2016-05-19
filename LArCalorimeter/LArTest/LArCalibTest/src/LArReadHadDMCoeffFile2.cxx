@@ -70,8 +70,8 @@ StatusCode LArReadHadDMCoeffFile2::initDataFromFile(std::string hadDMCoeffFileNa
     return StatusCode::FAILURE;
   }
 
-  int m_offset = 0;
-  int m_indx = 0;
+  int offset = 0;
+  int indx = 0;
 
   std::string sLine;
   std::string sdummy;
@@ -118,7 +118,7 @@ StatusCode LArReadHadDMCoeffFile2::initDataFromFile(std::string hadDMCoeffFileNa
     for(int i=0; i<ndim; i++){
       length = length*v_dims[i].m_vBins.size();
     }
-    dmArea.m_offset = m_offset;
+    dmArea.m_offset = offset;
     dmArea.m_length = length;
     // calculation of dimension locator coefficient
     for(int i_dim=0; i_dim<ndim; i_dim++){
@@ -138,8 +138,8 @@ StatusCode LArReadHadDMCoeffFile2::initDataFromFile(std::string hadDMCoeffFileNa
     dmArea.m_dimEta = v_dims[3];
 
     m_data->addHadDMArea(dmArea);
-    m_offset += length; // ofset for next DM area
-    m_indx++;
+    offset += length; // ofset for next DM area
+    indx++;
     // putting zero parameters
     CaloHadDMCoeff2::HadDMCoeff pars;
     pars.resize(dmArea.m_nPars, 0.0);
