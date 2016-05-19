@@ -130,3 +130,69 @@ namespace CaloG4 {
 
 
 } // namespace CaloG4
+
+
+namespace G4UA {
+  
+  namespace CaloG4 {
+    
+    CalibrationDefaultProcessing::CalibrationDefaultProcessing(const Config& config):AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"CalibrationDefaultProcessing"),m_config(config), m_defaultSD(0){;
+    }
+    
+    void CalibrationDefaultProcessing::beginOfEvent(const G4Event*){
+      
+      // retrieve the SD from G4SDManager
+      // done here instead of in initialize to leave more flexibility to the rest of the G4 init
+      
+      G4SDManager* SDman = G4SDManager::GetSDMpointer();
+      
+      m_defaultSD = G4SDManager::GetSDMpointer()-> FindSensitiveDetector(m_config.SDName);
+      
+      if(!m_defaultSD) ATH_MSG_ERROR("No valid SD name specified. The job will continue, but you should check your configuration");
+    }
+
+    void CalibrationDefaultProcessing::processStep(const G4Step* a_step){
+      
+      
+      // Do we have a sensitive detector?
+      if ( m_defaultSD != 0 )
+	{
+	  // We only want to perform the default processing if no other
+	  // calibration processing has occurred for this step.
+	  
+	  if ( ! ::CaloG4::SimulationEnergies::StepWasProcessed() )
+	    {
+	      // We haven't performed any calibration processing for this
+	      // step (probably there is no sensitive detector for the
+	      // volume).  Use the default sensitive detector to process
+	      // this step.  Note that we have to "cast away" const-ness for
+	      // the G4Step*, due to how G4VSensitiveDetector::Hit() is
+	      // defined.
+	      m_defaultSD->Hit( const_cast<G4Step*>(a_step) );
+	    }
+	  
+	  // In any case, clear the flag for the next step.
+	  ::CaloG4::SimulationEnergies::ResetStepProcessed();
+	}
+      
+      else
+	{
+	  static G4bool warningPrinted = false;
+	  if ( ! warningPrinted )
+	    {
+	      warningPrinted = true;
+	      G4cout << "CaloG4::CalibrationDefaultProcessing::SteppingAction - "
+		     << G4endl
+		     << "   A default calibration sensitive detector was not defined."
+		     << G4endl
+		     << "   Not all calibration energies will be recorded."
+		     << G4endl;
+	    }
+	}
+    }
+    
+  
+  } // namespace CaloG4
+  
+  
+} // namespace G4UA
