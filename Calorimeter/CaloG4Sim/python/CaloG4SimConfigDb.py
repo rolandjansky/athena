@@ -2,4 +2,5 @@
 
 from AthenaCommon.CfgGetter import addTool
 
-addTool("CaloG4Sim.CaloG4SimConf.CaloG4__CalibrationDefaultProcessing", "CalibrationDefaultProcessing")
+addTool("CaloG4Sim.CaloG4SimConfig.getCalibrationDefaultProcessing", "CalibrationDefaultProcessing")
+addTool("CaloG4Sim.CaloG4SimConfig.getCalibrationDefaultProcessingTool", "G4UA::CaloG4::CalibrationDefaultProcessingTool")

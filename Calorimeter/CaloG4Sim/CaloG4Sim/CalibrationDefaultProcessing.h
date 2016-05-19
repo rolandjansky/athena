@@ -65,4 +65,49 @@ namespace CaloG4 {
 
 } // namespace CaloG4
 
+// new implementation for Hive
+
+#include "G4AtlasInterfaces/IBeginEventAction.h"
+#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "AthenaBaseComps/AthMessaging.h"
+
+
+namespace G4UA {
+  
+  namespace CaloG4 {
+  
+
+    class CalibrationDefaultProcessing:
+    public AthMessaging, public IBeginEventAction,  public ISteppingAction
+    {
+      
+    public:
+      
+      struct Config
+      {
+	std::string SDName="Default::Dead::Uninstrumented::Calibration::Region";
+      };
+      
+      CalibrationDefaultProcessing(const Config& config);
+      /// the BoE actions
+      virtual void beginOfEvent(const G4Event*) override;
+      /// the stepping action
+      virtual void processStep(const G4Step*) override;
+
+      /// Make the default sensitive detector available to other routines.
+      G4VSensitiveDetector* GetDefaultSD() { return m_defaultSD; }
+
+    private:
+      Config m_config;
+      /// The default sensitive detector to be applied to all G4Steps
+      /// in volumes without a CalibrationSensitiveDetector.
+      G4VSensitiveDetector* m_defaultSD;
+    }; // class CalibrationDefaultProcessing
+    
+  } // namespace CaloG4
+    
+} // namespace G4UA
+
+
+
 #endif // CaloG4_CalibrationDefaultProcessing_h
