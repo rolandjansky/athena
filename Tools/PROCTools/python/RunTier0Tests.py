@@ -83,21 +83,31 @@ def GetReleaseSetup():
 ###############################
 ########### List patch packages
 def list_patch_packages():
-    if 'TestArea' in os.environ and os.access(os.environ['TestArea'], os.R_OK):
-        print "Patch packages in your InstallArea that will be tested are:\n"
-        cmd = ['cmt', 'show', 'packages', os.environ['TestArea']]
-        cmtProc = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
-        cmtOut = cmtProc.communicate()[0] 
-        for line in cmtOut.split('\n'):
-            try:
-                if line.strip() == '':
-                    continue
-                (package, packageVersion, packagePath) = line.split()
-                print '\t%s\n' % (packageVersion)
-            except ValueError:
-                print "Warning, unusual output from cmt: %s\n" % line 
+    if 'CMTPATH' in os.environ:
+        if 'TestArea' in os.environ and os.access(os.environ['TestArea'], os.R_OK):
+            print "Patch packages in your InstallArea that will be tested are:\n"
+            cmd = ['cmt', 'show', 'packages', os.environ['TestArea']]
+            cmtProc = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
+            cmtOut = cmtProc.communicate()[0]
+            for line in cmtOut.split('\n'):
+                try:
+                    if line.strip() == '':
+                        continue
+                    (package, packageVersion, packagePath) = line.split()
+                    print '\t%s\n' % (packageVersion)
+                except ValueError:
+                    print "Warning, unusual output from cmt: %s\n" % line 
+    elif 'CMAKE_PREFIX_PATH' in os.environ :                 
+        print "Patch packages in your build to be tested:\n"
+        myfilepath = os.environ['CMAKE_PREFIX_PATH'].split(":")[0]                                                                                  
+        fname = str(myfilepath) + '/packages.txt'                                                                                                   
+        with open(fname) as fp:
+            for line in fp:
+                if '#' not in line:
+                    print line
+    else: 
+        print "A release has not been setup"
     pass
-
 
 ###############################
 ########### Was the q test successful? To check simply count the number of lines containing the string "successful run"
@@ -212,6 +222,35 @@ def RunTest(q,qTestsToRun,TestName,SearchString,MeasurementUnit,FieldNumber,Thre
   
     pass    
 
+
+##########################################################################
+def RunHistTest(q,CleanRunHeadDir,UniqID):
+    print "-----------------------------------------------------" 
+    print "Running "+q+" HIST Comparison Test" 
+
+    ref_file   = CleanRunHeadDir+"/clean_run_"+q+"_"+UniqID+"/myHIST.root"
+    test_file = "./run_"+q+"/myHIST.root"
+
+    ref_outfile   = CleanRunHeadDir+"/clean_run_"+q+"_"+UniqID+"/ref."+q+".HIST.chk.log"
+    test_outfile = "./run_"+q+"/test."+q+".HIST.chk.log"
+
+    ref_cmd  = "root_lsr_rank.py "+  ref_file +" --hash >& "+ref_outfile
+    test_cmd = "root_lsr_rank.py "+ test_file +" --hash >& "+test_outfile
+
+    ref_out  = subprocess.Popen(['/bin/bash', '-c',ref_cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
+    test_out = subprocess.Popen(['/bin/bash', '-c',test_cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
+    
+
+    comparison_command = "diff "+ref_outfile+" "+test_outfile+" >& run_"+q+"/diff."+q+".HIST.log"                                                    
+    output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()                                                   
+
+    f = open("run_"+q+"/diff."+q+".HIST.log", 'r')
+    print "The following are changes you've made to the HIST file: "
+    for line in f.readlines():                                                                                                                                                               
+        print line
+    f.close() 
+    print "-----------------------------------------------------" 
+    pass
 
 ##########################################################################
 def main():
@@ -357,6 +396,9 @@ def main():
             print "----------- Post-processing of "+q+" Test -----------"    
 
             QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqName)
+
+            if 'q221' in q: 
+                RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName)
             
             RunFrozenTier0PolicyTest(q,"ESD",10,CleanRunHeadDir,UniqName)
 
@@ -370,6 +412,7 @@ def main():
 
             RunTest(q,qTestsToRun,"Memory Leak"    ,"leakperevt_evt11","kBytes/event",7,0.05,CleanRunHeadDir,UniqName)
 
+#            RunHistTest(q,CleanRunHeadDir,UniqName)
 
 if __name__ == '__main__':
         main()
