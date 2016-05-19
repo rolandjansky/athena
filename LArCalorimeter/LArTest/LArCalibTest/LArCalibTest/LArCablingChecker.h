@@ -6,7 +6,7 @@
 #define LARCABLINGCHECKER
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArRawEvent/LArDigitContainer.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 //#include "CaloIdentifier/LArEM_ID.h"
 #include "LArRecConditions/ILArBadChanTool.h"
 #include "LArIdentifier/LArOnlineID.h"

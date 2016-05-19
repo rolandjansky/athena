@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArRecConditions
-                          LArCalorimeter/LArTools
+                          LArCalorimeter/LArCabling
                           PRIVATE
                           Calorimeter/CaloDetDescr
                           Control/StoreGate
@@ -26,7 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( LArCalibTest
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloConditions CaloIdentifier AthenaBaseComps GaudiKernel LArIdentifier LArRawEvent LArRecConditions LArToolsLib CaloDetDescrLib StoreGateLib SGtests xAODEventInfo LArRawConditions PathResolver )
+                     LINK_LIBRARIES CaloConditions CaloIdentifier AthenaBaseComps GaudiKernel LArIdentifier LArRawEvent LArRecConditions LArCablingLib CaloDetDescrLib StoreGateLib SGtests xAODEventInfo LArRawConditions PathResolver )
 
 # Install files from the package:
 atlas_install_headers( LArCalibTest )

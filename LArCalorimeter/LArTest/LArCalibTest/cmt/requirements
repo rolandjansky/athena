@@ -6,7 +6,7 @@ use AtlasPolicy      AtlasPolicy-*
 use GaudiInterface   GaudiInterface-*    External
 use AthenaBaseComps  AthenaBaseComps-*   Control
 use LArRawEvent	     LArRawEvent-*       LArCalorimeter
-use LArTools	     LArTools-* 	 LArCalorimeter
+use LArCabling	     LArCabling-* 	 LArCalorimeter
 use LArRecConditions LArRecConditions-*  LArCalorimeter
 use CaloConditions   CaloConditions-*    Calorimeter
 use CaloIdentifier   CaloIdentifier-*    Calorimeter
