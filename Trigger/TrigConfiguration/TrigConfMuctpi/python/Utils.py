@@ -3,12 +3,12 @@
 import logging
 
 from PyUtils.Decorators import memoize
-from os.path import exists
+from os.path import exists, join, abspath
 
 
 @memoize
-def getLogger():
-    logger = logging.getLogger(__name__)
+def getLogger(name):
+    logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
 
     # create console handler and set level to debug
@@ -37,12 +37,12 @@ def findFileInXMLPATH(filename):
 
     filename = str(filename)
 
-    mlog = getLogger()
-    mlog.debug("Searching XML file %s" % filename)
+    mlog = getLogger(__name__)
+    mlog.debug("Searching for XML file %s" % filename)
     if filename.find('./') is 0: ## this expected to be local file, name starts from ./
         return filename
     else:
-        mlog.debug("Nonlocal XML config file")
+        mlog.debug("XML file is not in local directory")
         from os import environ
         ## even if ./ not as file name prefix look first in PWD
         if exists(filename):
@@ -55,7 +55,7 @@ def findFileInXMLPATH(filename):
             return filename
 
         xmlpath = environ['XMLPATH']
-        paths = split(xmlpath, ":")
+        paths = str.split(xmlpath, ":")
         for path in paths:
 
             test = join(path, filename)
