@@ -100,7 +100,7 @@ SimFlags.RandomSeedList.addSeed( "SINGLE", myRandomSeed1, myRandomSeed2 )
 from RngComps.RngCompsConf import AtRndmGenSvc 
 myAtRndmGenSvc = AtRndmGenSvc()
 myAtRndmGenSvc.Seeds = ["SINGLE "+str(myRandomSeed1)+" "+str(myRandomSeed2) ] 
-myAtRndmGenSvc.OutputLevel 	= VERBOSE
+myAtRndmGenSvc.OutputLevel 	= INFO
 myAtRndmGenSvc.EventReseeding   = False
 ServiceMgr += myAtRndmGenSvc
 

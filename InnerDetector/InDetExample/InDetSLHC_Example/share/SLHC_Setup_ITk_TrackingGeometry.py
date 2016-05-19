@@ -1,5 +1,6 @@
 """ SLHC_Setup_ITk_TrackingGeometry
     Python module to configure the TrackingGeometry for FastGeoModel implementation
+    
 """
 
 from AthenaCommon.AppMgr import ToolSvc
