@@ -110,7 +110,7 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   //std::vector<RecoMuonPlots*>         m_oRecoMuonForwPlots;
   //std::vector<RecoMuonPlots*>         m_oRecoMuonCaloPlots;
   std::vector<RecoPhysPlots*>         m_oRecoPhysPlots;
-  std::vector<RecoVertexPlots*>         m_oRecoVertexPlots;
+  std::vector<RecoVertexPlots*>       m_oRecoVertexPlots;
 
   
  protected:
@@ -146,9 +146,9 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   // Handle for the trig decision tool
   ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool;
   // ToolHandle idHelper
-  ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;     //<! tool to calculate residuals and pulls
-  ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
-  ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
+  //ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;     //<! tool to calculate residuals and pulls
+  //ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
+  //ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
   ToolHandle<Muon::IMuonHitSummaryTool> m_muonHitSummaryTool;
   // MCP muon quality tool
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;

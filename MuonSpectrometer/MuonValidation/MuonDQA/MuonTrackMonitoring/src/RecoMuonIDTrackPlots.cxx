@@ -15,8 +15,8 @@ m_eta_phi_broad(NULL)
 
 void RecoMuonIDTrackPlots::initializePlots(){
   //booking histograms
-  m_pt_broad = Book1D("_pt_broad", "High p_{T} Distribution", 140, 100, 1500);
-  m_eta_phi_broad = Book2D("_eta_phi_broad", "High p_{T} Muon #eta #phi Distribution;;#eta;#phi", 128, -3.2, 3.2, 128, -3.2, 3.2);
+  m_pt_broad = Book1D("_pt_broad", "High p_{T} Distribution", 70, 100, 1500);
+  m_eta_phi_broad = Book2D("_eta_phi_broad", "High p_{T} Muon #eta #phi Distribution;;#eta;#phi", 52, -2.6, 2.6, 64, -3.2, 3.2);
 }
 
 //when the plot function called with a Muon Container

@@ -9,12 +9,12 @@ RecoPhysPlots::RecoPhysPlots(PlotBase *pParent, std::string sDir, std::string re
     m_Mass(0),
     m_occupancy(0),
     m_2occupancy(0),
-    m_Efficiency(0),
-    m_EffNumerator(0),
-    m_EffDenominator(0),
-    m_Efficiency_eta(0),
-    m_EffNumerator_eta(0),
-    m_EffDenominator_eta(0),
+    // m_Efficiency(0),
+    // m_EffNumerator(0),
+    // m_EffDenominator(0),
+    // m_Efficiency_eta(0),
+    // m_EffNumerator_eta(0),
+    // m_EffDenominator_eta(0),
     m_M_Mean(0),
     m_M_Sigma(0),
     m_M_EA_EA(0),
@@ -68,14 +68,14 @@ void RecoPhysPlots::initializePlots(){
     //resonance two muon distribution
     m_occupancy = Book1D("m_"+type+"_occupancy", "m_occupancy: M_{"+name+"} Track Occupancy;;N_{#mu}",   8,  0.0,   8.0);
     m_2occupancy = Book1D("m_"+type+"_2occupancy", "m_2occupancy: M_{"+name+"} Two Track Occupancy;;N_{#mu}",   16,  0.5,   16.5);
-    //for resonance efficiency calculations
-    m_Efficiency     = Book2D("m_"+type+"_Efficiency",     "m_Efficiency: M_{"+name+"} Efficiency",      8, 0.0, 8.0, 16, 1.0, 17.0);    
-    m_EffNumerator   = Book2D("m_"+type+"_EffNumerator",   "m_EffNumerator: M_Efficiency Numerator",     8, 0.0, 8.0, 16, 1.0, 17.0);    
-    m_EffDenominator = Book2D("m_"+type+"_EffDenominator", "m_EffDenominator: M_Efficiency Denominator", 8, 0.0, 8.0, 16, 1.0, 17.0);
-    //for resonance efficiency calculations in eta bins, 1D plots
-    m_Efficiency_eta     = Book1D("m_"+type+"_Efficiency_eta",     "m_Efficiency_eta: M_{"+name+"} Efficiency;#eta",      20, -2.5, 2.5);
-    m_EffNumerator_eta   = Book1D("m_"+type+"_EffNumerator_eta",   "m_EffNumerator_eta: M_Efficiency Numerator;#eta",     20, -2.5, 2.5);
-    m_EffDenominator_eta = Book1D("m_"+type+"_EffDenominator_eta", "m_EffDenominator_eta: M_Efficiency Denominator;#eta", 20, -2.5, 2.5);
+    // //for resonance efficiency calculations
+    // m_Efficiency     = Book2D("m_"+type+"_Efficiency",     "m_Efficiency: M_{"+name+"} Efficiency",      8, 0.0, 8.0, 16, 1.0, 17.0);    
+    // m_EffNumerator   = Book2D("m_"+type+"_EffNumerator",   "m_EffNumerator: M_Efficiency Numerator",     8, 0.0, 8.0, 16, 1.0, 17.0);    
+    // m_EffDenominator = Book2D("m_"+type+"_EffDenominator", "m_EffDenominator: M_Efficiency Denominator", 8, 0.0, 8.0, 16, 1.0, 17.0);
+    // //for resonance efficiency calculations in eta bins, 1D plots
+    // m_Efficiency_eta     = Book1D("m_"+type+"_Efficiency_eta",     "m_Efficiency_eta: M_{"+name+"} Efficiency;#eta",      20, -2.5, 2.5);
+    // m_EffNumerator_eta   = Book1D("m_"+type+"_EffNumerator_eta",   "m_EffNumerator_eta: M_Efficiency Numerator;#eta",     20, -2.5, 2.5);
+    // m_EffDenominator_eta = Book1D("m_"+type+"_EffDenominator_eta", "m_EffDenominator_eta: M_Efficiency Denominator;#eta", 20, -2.5, 2.5);
     //resonance mass distribution in each mass range
     m_M_EA_EA = Book1D("m_"+type+"_M_EA_EA", "m_M_EA_EAM_{"+name+"} EA_{+} - EA_{-}; M_{"+name+"}[GeV];", nBins, minBin, maxBin);
     m_M_EA_BA = Book1D("m_"+type+"_M_EA_BA", "m_M_EA_BAM_{"+name+"} EA_{+} - BA_{-}; M_{"+name+"}[GeV];", nBins, minBin, maxBin);
@@ -103,12 +103,12 @@ void RecoPhysPlots::initializePlots(){
     LabelCombinedEtaRegions(m_2occupancy->GetXaxis());
     LabelLargeEtaRegions(m_occupancy->GetXaxis());
 
-    LabelLargeEtaRegions(m_EffNumerator->GetXaxis());
-    LabelSectorAxis(m_EffDenominator->GetYaxis());
-    LabelLargeEtaRegions(m_EffNumerator->GetXaxis());
-    LabelSectorAxis(m_EffDenominator->GetYaxis());
-    LabelLargeEtaRegions(m_Efficiency->GetXaxis());
-    LabelSectorAxis(m_Efficiency->GetYaxis());
+    // LabelLargeEtaRegions(m_EffNumerator->GetXaxis());
+    // LabelSectorAxis(m_EffDenominator->GetYaxis());
+    // LabelLargeEtaRegions(m_EffNumerator->GetXaxis());
+    // LabelSectorAxis(m_EffDenominator->GetYaxis());
+    // LabelLargeEtaRegions(m_Efficiency->GetXaxis());
+    // LabelSectorAxis(m_Efficiency->GetYaxis());
 }
 
 void RecoPhysPlots::fill(std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > mumucandidates){
@@ -153,17 +153,17 @@ void RecoPhysPlots::fill(const float eta_mu_plus, const float eta_mu_minus, cons
 
 void RecoPhysPlots::finalizeRecoPlots(){
     
-    for(int bin = 1; bin < m_Efficiency->GetXaxis()->GetNbins(); bin++){
-        if(m_EffDenominator->GetBinContent(bin) > 0){
-            m_Efficiency->SetBinContent(bin, (m_EffNumerator->GetBinContent(bin)) / (m_EffDenominator->GetBinContent(bin)));
-        }
-    }
+    // for(int bin = 1; bin < m_Efficiency->GetXaxis()->GetNbins(); bin++){
+    //     if(m_EffDenominator->GetBinContent(bin) > 0){
+    //         m_Efficiency->SetBinContent(bin, (m_EffNumerator->GetBinContent(bin)) / (m_EffDenominator->GetBinContent(bin)));
+    //     }
+    // }
     
-    for(int bin = 1; bin < m_Efficiency_eta->GetXaxis()->GetNbins(); bin++){
-        if(m_EffDenominator_eta->GetBinContent(bin) > 0){
-            m_Efficiency_eta->SetBinContent(bin, (m_EffNumerator_eta->GetBinContent(bin)) / (m_EffDenominator_eta->GetBinContent(bin)));
-        }
-    }
+    // for(int bin = 1; bin < m_Efficiency_eta->GetXaxis()->GetNbins(); bin++){
+    //     if(m_EffDenominator_eta->GetBinContent(bin) > 0){
+    //         m_Efficiency_eta->SetBinContent(bin, (m_EffNumerator_eta->GetBinContent(bin)) / (m_EffDenominator_eta->GetBinContent(bin)));
+    //     }
+    // }
 
     SetResultsBin( 1, m_M_EC_EC);
     SetResultsBin( 2, m_M_EC_BC);

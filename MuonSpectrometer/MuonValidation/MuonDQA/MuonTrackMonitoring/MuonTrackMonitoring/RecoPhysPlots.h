@@ -26,13 +26,13 @@ class RecoPhysPlots:public PlotBase {
     TH1* m_occupancy;
     TH1* m_2occupancy;
 
-    TH2* m_Efficiency;
-    TH2* m_EffNumerator;
-    TH2* m_EffDenominator;
+    // TH2* m_Efficiency;
+    // TH2* m_EffNumerator;
+    // TH2* m_EffDenominator;
     
-    TH1* m_Efficiency_eta;
-    TH1* m_EffNumerator_eta;
-    TH1* m_EffDenominator_eta;
+    // TH1* m_Efficiency_eta;
+    // TH1* m_EffNumerator_eta;
+    // TH1* m_EffDenominator_eta;
     
     TH1* m_M_Mean;
     TH1* m_M_Sigma;
