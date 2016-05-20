@@ -137,20 +137,20 @@ StatusCode IDPerfMonZee::bookHistograms()
 {
   MonGroup al_Zee_mon ( this, "IDPerfMon/Zee/" + m_triggerChainName, run);
 
-  if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
-    // book histograms that are only made in the online environment...
-  }
+  //if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
+  //  // book histograms that are only made in the online environment...
+  //}
 
-  if ( AthenaMonManager::dataType() == AthenaMonManager::cosmics ) {
-    // book histograms that are only relevant for cosmics data...
-  }
-
-
-  if ( newLowStat || newLumiBlock ) {
-  }
+  //if ( AthenaMonManager::dataType() == AthenaMonManager::cosmics ) {
+  //  // book histograms that are only relevant for cosmics data...
+  //}
 
 
-  if( newRun ) {
+  //if ( newLowStatFlag() || newLumiBlockFlag() ) {
+  //}
+
+
+  if( newRunFlag() ) {
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job
     if(m_histosBooked!=0 && AthenaMonManager::environment()==AthenaMonManager::user) return StatusCode::SUCCESS;
@@ -513,8 +513,9 @@ StatusCode IDPerfMonZee::fillHistograms()
   }
 
   //  // get met container from storegate
-  const xAOD::MissingETContainer* final_met = 0;
-  if (!evtStore()->contains<xAOD::MissingETContainer>(m_metName)) {
+  if (msgLvl(MSG::DEBUG)) {
+     const xAOD::MissingETContainer* final_met = 0;
+     if (!evtStore()->contains<xAOD::MissingETContainer>(m_metName)) {
        if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_metName << " found in StoreGate" << endreq;
        else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_metName << " found in StoreGate" << endreq;
        return StatusCode::SUCCESS;
@@ -527,15 +528,17 @@ StatusCode IDPerfMonZee::fillHistograms()
          return StatusCode::SUCCESS;
        }
      }
+     // ******************
+     // Get the missing ET
+     // ******************
+     const xAOD::MissingET *met;
+     met = (*final_met)[m_metRefFinalName];
+     if (met) {
+         msg(MSG::DEBUG) << "MET = " << met->met() << endreq;   
+     }
+  }
 
   m_Nevents->Fill(0.);
-
-  // ******************
-  // Get the missing ET
-  // ******************
-  const xAOD::MissingET *met;
-  met = (*final_met)[m_metRefFinalName];
-  msg(MSG::DEBUG) << "MET = " << met->met() << endreq;
 
   // *******************
   // Look at EM clusters
@@ -654,11 +657,11 @@ void IDPerfMonZee::makeEffHisto(TH1F* h_num, TH1F* h_denom, TH1F* h_eff) {
 StatusCode IDPerfMonZee::procHistograms()
 {
 
-  if( endOfLowStat || endOfLumiBlock ) {
+  //if( endOfLowStatFlag() || endOfLumiBlockFlag() ) {
+  //
+  //}
 
-  }
-
-  if( endOfRun ) {
+  if( endOfRunFlag() ) {
 
     // PostProcess Zee histograms
 
