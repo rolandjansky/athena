@@ -43,11 +43,11 @@ namespace ISF {
 namespace iGeant4 {
 
   class PhysicsValidationUserAction final:  public UserActionBase {
-    
+
   public:
     PhysicsValidationUserAction(const std::string& type,
-				 const std::string& name,
-				 const IInterface* parent);
+                                 const std::string& name,
+                                 const IInterface* parent);
     virtual ~PhysicsValidationUserAction() {}
 
     StatusCode initialize();
@@ -67,7 +67,7 @@ namespace iGeant4 {
     ServiceHandle<IUserActionSvc>  m_UASvc;
 
     SecondaryTracksHelper m_sHelper;
-    
+
     ServiceHandle<ISF::IParticleBroker>  m_particleBroker;
     ToolHandle<ISF::IParticleHelper>     m_particleHelper;
 
@@ -83,18 +83,18 @@ namespace iGeant4 {
 
     TTree                                                        *m_particles;    //!< ROOT tree containing track info
     int                                                           m_pdg;
-    int                                                           m_scIn;  
+    int                                                           m_scIn;
     int                                                           m_scEnd;
     int                                                           m_gen;
-    int                                                           m_geoID;  
+    int                                                           m_geoID;
     float                                                         m_theta;
     float                                                         m_pth;
     float                                                         m_pph;
     float                                                         m_p;
     float                                                         m_eloss;
-    float                                                         m_radloss; 
-    float                                                         m_ionloss; 
-    float                                                         m_wzOaTr; 
+    float                                                         m_radloss;
+    float                                                         m_ionloss;
+    float                                                         m_wzOaTr;
     float                                                         m_thIn;
     float                                                         m_phIn;
     float                                                         m_dIn;
@@ -121,9 +121,9 @@ namespace iGeant4 {
     mutable float                                                 m_p_mother;
     mutable float                                                 m_radLength;
     mutable int                                                   m_pdg_child[MAXCHILDREN];     // decay product pdg code
-    mutable float                                                 m_fp_child[MAXCHILDREN];      // fraction of incoming momentum 
+    mutable float                                                 m_fp_child[MAXCHILDREN];      // fraction of incoming momentum
     mutable float                                                 m_oa_child[MAXCHILDREN];      // opening angle wrt the mother
-        
+
 
     /** GeoIDSvc needs these? */
     double m_idR, m_idZ;
@@ -137,7 +137,39 @@ namespace iGeant4 {
     std::map<int, int> m_trackGenMap;
 
   };
-   
+
 }
+
+#include "G4AtlasInterfaces/IBeginEventAction.h"
+#include "G4AtlasInterfaces/IEndEventAction.h"
+#include "G4AtlasInterfaces/IBeginRunAction.h"
+#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4AtlasInterfaces/IPreTrackingAction.h"
+
+namespace G4UA{
+  namespace iGeant4 {
+    class PhysicsValidationUserAction: public IBeginEventAction,  public IEndEventAction,  public IBeginRunAction,  public ISteppingAction,  public IPreTrackingAction
+    {
+
+    public:
+
+      struct Config
+      {
+        unsigned int verboseLevel=0;
+      };
+
+      PhysicsValidationUserAction(const Config& config);
+      virtual void beginOfEvent(const G4Event*) override final;
+      virtual void endOfEvent(const G4Event*) override final;
+      virtual void beginOfRun(const G4Run*) override final;
+      virtual void processStep(const G4Step*) override final;
+      virtual void preTracking(const G4Track*) override final;
+    private:
+      Config m_config;
+    }; // class PhysicsValidationUserAction
+
+  } // namespace iGeant4
+
+} // namespace G4UA
 
 #endif // ISF_GEANT4TOOLS_PHYSICSVALIDATIONUSERACTION_H

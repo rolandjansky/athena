@@ -30,6 +30,7 @@ iGeant4::G4AtlasRunManager::G4AtlasRunManager()
   , m_senDetTool("SensitiveDetectorMasterTool")
   , m_fastSimTool("FastSimulationMasterTool")
   , m_physListTool("PhysicsListToolBase")
+  , m_userActionSvc("", "G4AtlasRunManager")
 {
 }
 
@@ -39,6 +40,32 @@ iGeant4::G4AtlasRunManager* iGeant4::G4AtlasRunManager::GetG4AtlasRunManager()
   static G4AtlasRunManager* thisManager=0;
   if (!thisManager) thisManager=new G4AtlasRunManager;
   return thisManager;
+}
+
+//________________________________________________________________________
+void iGeant4::G4AtlasRunManager::SetUserActionSvc(const std::string& typeAndName)
+{
+  m_userActionSvc.setTypeAndName(typeAndName);
+}
+
+//________________________________________________________________________
+void iGeant4::G4AtlasRunManager::Initialize()
+{
+  // Call the base class Initialize method. This will call
+  // InitializeGeometry and InitializePhysics.
+  G4RunManager::Initialize();
+  // Now that the G4 geometry is available, setup the user actions.
+  if( !m_userActionSvc.name().empty() ) {
+    ATH_MSG_INFO("Creating user actions now");
+    if(m_userActionSvc.retrieve().isFailure()) {
+      throw GaudiException("Could not retrieve UserActionSvc",
+                           "CouldNotRetrieveUASvc", StatusCode::FAILURE);
+    }
+    if(m_userActionSvc->initializeActions().isFailure()) {
+      throw GaudiException("Failed to initialize actions",
+                           "UserActionInitError", StatusCode::FAILURE);
+    }
+  }
 }
 
 //________________________________________________________________________

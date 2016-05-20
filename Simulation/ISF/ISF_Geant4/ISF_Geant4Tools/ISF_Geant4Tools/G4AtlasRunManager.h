@@ -12,21 +12,16 @@
 // Base class header
 #include "G4RunManager.hh"
 
+// Gaudi headers
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 // Athena headers
 #include "AthenaKernel/MsgStreamMember.h"
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 #include "G4AtlasInterfaces/IPhysicsListTool.h"
-
-// Gaudi headers
-#include "GaudiKernel/ToolHandle.h"
-
-// G4 headers
-#include "G4UserSteppingAction.hh"
-
-namespace ISF {
-  class IParticleBroker;
-}
+#include "G4AtlasInterfaces/IUserActionSvc.h"
 
 namespace iGeant4
 {
@@ -34,29 +29,31 @@ namespace iGeant4
 
       @author Robert Harrington
   */
+  /// @TODO Add Documentation
 
-  class TrackProcessor;
+  class TrackProcessor; // FIXME - pretty sure that this is obsolete.
 
   class G4AtlasRunManager : public G4RunManager {
 
-    friend class G4TransportTool;
+    friend class G4TransportTool; // Does this class really need friends?
 
   public:
     virtual ~G4AtlasRunManager() {}
 
     static G4AtlasRunManager* GetG4AtlasRunManager();
 
-    void SetUserSteppingAction(G4UserSteppingAction* p) { m_steppingActions.push_back(p); }
+    /// Configure the user action service handle
+    void SetUserActionSvc(const std::string& typeAndName);
 
     bool ProcessEvent(G4Event* event);
 
-    void RunTermination();
+    void RunTermination() override final;
     void SetCurrentG4Event(int);
 
   protected:
-
-    void InitializeGeometry();
-    void InitializePhysics();
+    void Initialize() override final;
+    void InitializeGeometry() override final;
+    void InitializePhysics() override final;
 
   private:
     G4AtlasRunManager();
@@ -73,12 +70,13 @@ namespace iGeant4
     /// Private message stream member
     mutable Athena::MsgStreamMember m_msg;
 
-    std::vector<G4UserSteppingAction*> m_steppingActions;
     bool m_releaseGeo;
     bool m_recordFlux;
     ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
     ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
     ToolHandle<IPhysicsListTool> m_physListTool;
+    /// Handle to the user action service
+    ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
   };
 
 }
