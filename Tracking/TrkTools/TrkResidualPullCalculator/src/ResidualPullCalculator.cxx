@@ -20,16 +20,18 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include "TrkTrack/AlignmentEffectsOnTrack.h"
+#include <Eigen/Geometry> 
 
 //////////////////////////////
 /// constructor
 //////////////////////////////
 Trk::ResidualPullCalculator::ResidualPullCalculator(const std::string& type, const std::string& name, const IInterface* parent)
-        : AthAlgTool(type,name,parent),
-        m_SCTresidualTool("InDet::SCT_ResidualPullCalculator/SCT_ResidualPullCalculator"),
-        m_RPCresidualTool("Muon::RPC_ResidualPullCalculator/RPC_ResidualPullCalculator"),
-        m_TGCresidualTool("Muon::TGC_ResidualPullCalculator/TGC_ResidualPullCalculator"),
-        m_idHelper(0) {
+    : AthAlgTool(type,name,parent),
+m_SCTresidualTool("InDet::SCT_ResidualPullCalculator/SCT_ResidualPullCalculator"),
+m_RPCresidualTool("Muon::RPC_ResidualPullCalculator/RPC_ResidualPullCalculator"),
+m_TGCresidualTool("Muon::TGC_ResidualPullCalculator/TGC_ResidualPullCalculator"),
+m_idHelper(0) {
     declareInterface<IResidualPullCalculator>(this);
     declareProperty("ResidualPullCalculatorForSCT", m_SCTresidualTool,  "Tool to calculate residuals and pulls in the SCT (including module rotation)");
     declareProperty("ResidualPullCalculatorForRPC", m_RPCresidualTool,  "Tool to calculate residuals and pulls in the RPC (including phi/eta detection)");
@@ -41,57 +43,57 @@ Trk::ResidualPullCalculator::ResidualPullCalculator(const std::string& type, con
 /// initialize
 ///////////////////////////////
 StatusCode Trk::ResidualPullCalculator::initialize() {
-  StatusCode sc = AthAlgTool::initialize();
-  if (sc.isFailure()) return sc;
+    StatusCode sc = AthAlgTool::initialize();
+    if (sc.isFailure()) return sc;
 
-  // ---------------------------------------
-  //Set up ATLAS ID helper to be able to identify the RIO's det-subsystem.
-  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    ATH_MSG_ERROR ("Could not get AtlasDetectorID helper" );
-    return StatusCode::FAILURE;
-  }
-  // ----------------------------------
-  // get the SCT residual/pull calculator
-  if ( ! m_SCTresidualTool.empty() ) {
-    sc = m_SCTresidualTool.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR ("Could not get res. calculator for SCT measurements: "<< m_SCTresidualTool);
-      return sc;
+    // ---------------------------------------
+    //Set up ATLAS ID helper to be able to identify the RIO's det-subsystem.
+    if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
+        ATH_MSG_ERROR ("Could not get AtlasDetectorID helper" );
+        return StatusCode::FAILURE;
     }
-  } else {
-    ATH_MSG_DEBUG ("No residual calculator for SCT given, will ignore SCT measurements!");
-  }
+    // ----------------------------------
+    // get the SCT residual/pull calculator
+    if ( ! m_SCTresidualTool.empty() ) {
+        sc = m_SCTresidualTool.retrieve();
+        if (sc.isFailure()) {
+            ATH_MSG_ERROR ("Could not get res. calculator for SCT measurements: "<< m_SCTresidualTool);
+            return sc;
+        }
+    } else {
+        ATH_MSG_DEBUG ("No residual calculator for SCT given, will ignore SCT measurements!");
+    }
 
-  // ----------------------------------
-  // get the RPC residual/pull calculator
-  if ( ! m_RPCresidualTool.empty() ) {
-    sc = m_RPCresidualTool.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR ("Could not get res. calculator for RPC measurements: "<< m_RPCresidualTool);
-      return sc;
+    // ----------------------------------
+    // get the RPC residual/pull calculator
+    if ( ! m_RPCresidualTool.empty() ) {
+        sc = m_RPCresidualTool.retrieve();
+        if (sc.isFailure()) {
+            ATH_MSG_ERROR ("Could not get res. calculator for RPC measurements: "<< m_RPCresidualTool);
+            return sc;
+        }
+    } else {
+        ATH_MSG_DEBUG ("No residual calculator for RPC given, will ignore RPC measurements!");
     }
-  } else {
-    ATH_MSG_DEBUG ("No residual calculator for RPC given, will ignore RPC measurements!");
-  }
 
-  // ----------------------------------
-  // get the TGC residual/pull calculator
-  if ( ! m_TGCresidualTool.empty() ) {
-    sc = m_TGCresidualTool.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR ("Could not get res. calculator for TGC measurements: "<< m_TGCresidualTool);
-      return sc;
+    // ----------------------------------
+    // get the TGC residual/pull calculator
+    if ( ! m_TGCresidualTool.empty() ) {
+        sc = m_TGCresidualTool.retrieve();
+        if (sc.isFailure()) {
+            ATH_MSG_ERROR ("Could not get res. calculator for TGC measurements: "<< m_TGCresidualTool);
+            return sc;
+        }
+    } else {
+        ATH_MSG_DEBUG ("No residual calculator for TGC given, will ignore TGC measurements!");
     }
-  } else {
-    ATH_MSG_DEBUG ("No residual calculator for TGC given, will ignore TGC measurements!");
-  }
   
-  return StatusCode::SUCCESS;
+    return StatusCode::SUCCESS;
 }
 
 StatusCode Trk::ResidualPullCalculator::finalize() {
-  ATH_MSG_INFO ("starting finalize() in " << name());
-  return StatusCode::SUCCESS;
+    ATH_MSG_INFO ("starting finalize() in " << name());
+    return StatusCode::SUCCESS;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -104,86 +106,86 @@ void Trk::ResidualPullCalculator::residuals(
     const Trk::ResidualPull::ResidualType resType,
     const Trk::TrackState::MeasurementType detType) const {
 
-  if (residuals.size()<5) residuals.resize(5);
-  residuals[0]=residuals[1]=residuals[2]=residuals[3]=residuals[4]=-999;
-  Trk::TrackState::MeasurementType measType = detType;
-  if (detType == Trk::TrackState::unidentified) {
-    Trk::MeasurementTypeID helper = MeasurementTypeID(m_idHelper);
-    measType = helper.defineType(measurement);
-  }
-  switch(measType) {
-  case Trk::TrackState::Pixel:
-    ATH_MSG_VERBOSE ("Pixel dim calculation ");
-    // calc residual and pull for the second coordinate, first coord postponed to 1-dim case
-    residuals[Trk::loc1] = measurement->localParameters()[Trk::loc1] - trkPar->parameters()[Trk::loc1];
-    residuals[Trk::loc2] = measurement->localParameters()[Trk::loc2] - trkPar->parameters()[Trk::loc2];
-    break;
-  case Trk::TrackState::TRT:
-  case Trk::TrackState::MDT:
-  case Trk::TrackState::CSC:
-  case Trk::TrackState::MM:
-    ATH_MSG_VERBOSE ("One dim calculation ");
-    // 1-dim measurement
-    // calc residual and pull for the first coordinate
-    residuals[Trk::loc1] = measurement->localParameters()[Trk::loc1] - trkPar->parameters()[Trk::loc1];
-    break;
-  case Trk::TrackState::STGC:
-    ATH_MSG_VERBOSE ("One dim calculation ");
-    // 1-dim measurement
-    // calc residual and pull for the first coordinate
-    if( measurement->localParameters().contains(Trk::loc1) )
-      residuals[Trk::loc1] = measurement->localParameters()[Trk::loc1] - trkPar->parameters()[Trk::loc1];
-    else 
-      residuals[Trk::loc2] = measurement->localParameters()[Trk::loc2] - trkPar->parameters()[Trk::loc2];
-    break;
-  case Trk::TrackState::SCT:
-    // special case, has to be handed down to the SCT tool
-    if ( ! m_SCTresidualTool.empty() ) {
-      ATH_MSG_VERBOSE ("Calling SCT tool ");
-      m_SCTresidualTool->residuals(residuals,measurement, trkPar, resType, Trk::TrackState::SCT);
-    } else {
-      ATH_MSG_WARNING ("No SCT ResidualPullCalculator given, cannot calculate residual and pull for SCT measurement!");
-      return;
+    if (residuals.size()<5) residuals.resize(5);
+    residuals[0]=residuals[1]=residuals[2]=residuals[3]=residuals[4]=-999;
+    Trk::TrackState::MeasurementType measType = detType;
+    if (detType == Trk::TrackState::unidentified) {
+        Trk::MeasurementTypeID helper = MeasurementTypeID(m_idHelper);
+        measType = helper.defineType(measurement);
     }
-    break;
-  case Trk::TrackState::RPC:
-    // special case, has to be handed down to the RPC tool
-    if ( ! m_RPCresidualTool.empty() ) {
-      ATH_MSG_VERBOSE ("Calling RPC tool ");
-      m_RPCresidualTool->residuals(residuals,measurement, trkPar, resType, Trk::TrackState::RPC);
-    } else {
-      ATH_MSG_WARNING ("No RPC ResidualPullCalculator given, cannot calculate residual and pull for RPC measurement!");
-      return;
-    }
-    break;
-  case Trk::TrackState::TGC:
-    // special case, has to be handed down to the TGC tool
-    if ( ! m_TGCresidualTool.empty() ) {
-      ATH_MSG_VERBOSE ("Calling TGC tool ");  
-      m_TGCresidualTool->residuals(residuals,measurement, trkPar, resType, Trk::TrackState::TGC);
-    } else {
-      ATH_MSG_WARNING ("No TGC ResidualPullCalculator given, cannot calculate residual and pull for TGC measurement!");
-      return;
-    }
-    break;
-  case Trk::TrackState::Segment:
-  case Trk::TrackState::Pseudo:
-  case Trk::TrackState::Vertex:
-  case Trk::TrackState::SpacePoint:
-  default:
-    ATH_MSG_VERBOSE ("Bit-key calculation ");
-    ParamDefsAccessor PDA;
+    switch(measType) {
+        case Trk::TrackState::Pixel:
+            ATH_MSG_VERBOSE ("Pixel dim calculation ");
+            // calc residual and pull for the second coordinate, first coord postponed to 1-dim case
+            residuals[Trk::loc1] = measurement->localParameters()[Trk::loc1] - trkPar->parameters()[Trk::loc1];
+            residuals[Trk::loc2] = measurement->localParameters()[Trk::loc2] - trkPar->parameters()[Trk::loc2];
+        break;
+        case Trk::TrackState::TRT:
+        case Trk::TrackState::MDT:
+        case Trk::TrackState::CSC:
+        case Trk::TrackState::MM:
+            ATH_MSG_VERBOSE ("One dim calculation ");
+            // 1-dim measurement
+            // calc residual and pull for the first coordinate
+            residuals[Trk::loc1] = measurement->localParameters()[Trk::loc1] - trkPar->parameters()[Trk::loc1];
+            break;
+        case Trk::TrackState::STGC:
+            ATH_MSG_VERBOSE ("One dim calculation ");
+            // 1-dim measurement
+            // calc residual and pull for the first coordinate
+            if( measurement->localParameters().contains(Trk::loc1) )
+                residuals[Trk::loc1] = measurement->localParameters()[Trk::loc1] - trkPar->parameters()[Trk::loc1];
+            else 
+                residuals[Trk::loc2] = measurement->localParameters()[Trk::loc2] - trkPar->parameters()[Trk::loc2];
+            break;
+        case Trk::TrackState::SCT:
+            // special case, has to be handed down to the SCT tool
+            if ( ! m_SCTresidualTool.empty() ) {
+                ATH_MSG_VERBOSE ("Calling SCT tool ");
+                m_SCTresidualTool->residuals(residuals,measurement, trkPar, resType, Trk::TrackState::SCT);
+            } else {
+                ATH_MSG_WARNING ("No SCT ResidualPullCalculator given, cannot calculate residual and pull for SCT measurement!");
+                return;
+            }
+            break;
+        case Trk::TrackState::RPC:
+            // special case, has to be handed down to the RPC tool
+            if ( ! m_RPCresidualTool.empty() ) {
+                ATH_MSG_VERBOSE ("Calling RPC tool ");
+                m_RPCresidualTool->residuals(residuals,measurement, trkPar, resType, Trk::TrackState::RPC);
+            } else {
+                ATH_MSG_WARNING ("No RPC ResidualPullCalculator given, cannot calculate residual and pull for RPC measurement!");
+                return;
+            }
+            break;
+        case Trk::TrackState::TGC:
+            // special case, has to be handed down to the TGC tool
+            if ( ! m_TGCresidualTool.empty() ) {
+                ATH_MSG_VERBOSE ("Calling TGC tool ");  
+                m_TGCresidualTool->residuals(residuals,measurement, trkPar, resType, Trk::TrackState::TGC);
+            } else {
+                ATH_MSG_WARNING ("No TGC ResidualPullCalculator given, cannot calculate residual and pull for TGC measurement!");
+                return;
+            }
+            break;
+        case Trk::TrackState::Segment:
+        case Trk::TrackState::Pseudo:
+        case Trk::TrackState::Vertex:
+        case Trk::TrackState::SpacePoint:
+        default:
+            ATH_MSG_VERBOSE ("Bit-key calculation ");
+            ParamDefsAccessor PDA;
  
-    // PMs, Segments etc: use LocalParameters bit-key scheme
-    for (unsigned int i=0; i<5; ++i) {
-      Trk::ParamDefs iPar = PDA.pardef[i];
-      if (measurement->localParameters().contains(iPar)) {
-        residuals[i] = measurement->localParameters()[iPar]
-          - trkPar->parameters()[iPar];
-      }
+            // PMs, Segments etc: use LocalParameters bit-key scheme
+            for (unsigned int i=0; i<5; ++i) {
+                Trk::ParamDefs iPar = PDA.pardef[i];
+                if (measurement->localParameters().contains(iPar)) {
+                    residuals[i] = measurement->localParameters()[iPar]
+                        - trkPar->parameters()[iPar];
+                }
+            }
+            break;
     }
-    break;
-  }
 
 }
 
@@ -196,152 +198,210 @@ const Trk::ResidualPull* Trk::ResidualPullCalculator::residualPull(
     const Trk::ResidualPull::ResidualType resType,
     const Trk::TrackState::MeasurementType detType) const {
 
-  if (!measurement || !trkPar) return 0;
+    if (!measurement || !trkPar) return 0;
 
-  // if no covariance for the track parameters is given the pull calculation is not valid
-  bool pullIsValid = trkPar->covariance();
+    // if no covariance for the track parameters is given the pull calculation is not valid
+    bool pullIsValid = trkPar->covariance();
 
-  Trk::TrackState::MeasurementType measType = detType;
-  if (detType == Trk::TrackState::unidentified) {
-    Trk::MeasurementTypeID helper = MeasurementTypeID(m_idHelper);
-    measType = helper.defineType(measurement);
-  }
-  unsigned int dimOfLocPars = (unsigned int)measurement->localParameters().dimension();
-  std::vector<double> residual(dimOfLocPars);
-  std::vector<double> pull(dimOfLocPars);
+    Trk::TrackState::MeasurementType measType = detType;
+    if (detType == Trk::TrackState::unidentified) {
+        Trk::MeasurementTypeID helper = MeasurementTypeID(m_idHelper);
+        measType = helper.defineType(measurement);
+    }
+    unsigned int dimOfLocPars = (unsigned int)measurement->localParameters().dimension();
+    std::vector<double> residual(dimOfLocPars);
+    std::vector<double> pull(dimOfLocPars);
 
-  // has to live here as it does not compile if code is switch statement
-  ParamDefsAccessor PDA;
-  unsigned int iColRow=0;
+    // has to live here as it does not compile if code is switch statement
+    ParamDefsAccessor PDA;
+    unsigned int iColRow=0;
 
-  ATH_MSG_VERBOSE ("Calculating residual for type " << measType << " dimension " << dimOfLocPars);
+    ATH_MSG_VERBOSE ("Calculating residual for type " << measType << " dimension " << dimOfLocPars);
 
-  // do the calculations for the different detector types
-  switch(measType) {
-  case Trk::TrackState::Pixel:
-    ATH_MSG_VERBOSE ("Pixel dim calculation ");
-    // calc residual and pull for the second coordinate, first coord postponed to 1-dim case
-    residual[Trk::loc2] = measurement->localParameters()[Trk::loc2] - trkPar->parameters()[Trk::loc2];
-    if (pullIsValid) {
-      pull[Trk::loc2] = calcPull(residual[Trk::loc2],
-				 measurement->localCovariance()(Trk::loc2,Trk::loc2),
-				 (*trkPar->covariance())(Trk::loc2,Trk::loc2),
-				 resType);
-    } else {
-      pull[Trk::loc2] = calcPull(residual[Trk::loc2],
-				 measurement->localCovariance()(Trk::loc2,Trk::loc2),
-				 0,
-				 resType);
-    }
-    // do not break here, but also fill the first coordinate...
-  case Trk::TrackState::TRT:
-  case Trk::TrackState::MDT:
-  case Trk::TrackState::CSC:
-  case Trk::TrackState::STGC:
-  case Trk::TrackState::MM:
-    ATH_MSG_VERBOSE ("One dim calculation ");
-    // 1-dim measurement
-    // calc residual and pull for the first coordinate
-    residual[Trk::loc1] = measurement->localParameters()[Trk::loc1] - trkPar->parameters()[Trk::loc1];
-    if (pullIsValid) {
-      pull[Trk::loc1] = calcPull(residual[Trk::loc1],
-				 measurement->localCovariance()(Trk::loc1,Trk::loc1),
-				 (*trkPar->covariance())(Trk::loc1,Trk::loc1),
-				 resType);
-    } else {
-      pull[Trk::loc1] = calcPull(residual[Trk::loc1],
-				 measurement->localCovariance()(Trk::loc1,Trk::loc1),
-				 0,
-				 resType);
-    }
-    break;
-  case Trk::TrackState::SCT:
-    // special case, has to be handed down to the SCT tool
-    if ( ! m_SCTresidualTool.empty() ) {
-      ATH_MSG_VERBOSE ("Calling SCT tool ");
-      return m_SCTresidualTool->residualPull(measurement, trkPar, resType, Trk::TrackState::SCT);
-    } else {
-      ATH_MSG_WARNING ("No SCT ResidualPullCalculator given, cannot calculate residual and pull for SCT measurement!");
-      return 0;
-    }
-    break;
-  case Trk::TrackState::RPC:
-    // special case, has to be handed down to the RPC tool
-    if ( ! m_RPCresidualTool.empty() ) {
-      ATH_MSG_VERBOSE ("Calling RPC tool ");
-      return m_RPCresidualTool->residualPull(measurement, trkPar, resType, Trk::TrackState::RPC);
-    } else {
-      ATH_MSG_WARNING ("No RPC ResidualPullCalculator given, cannot calculate residual and pull for RPC measurement!");
-      return 0;
-    }
-    break;
-  case Trk::TrackState::TGC:
-    // special case, has to be handed down to the TGC tool
-    if ( ! m_TGCresidualTool.empty() ) {
-      ATH_MSG_VERBOSE ("Calling TGC tool ");
-      return m_TGCresidualTool->residualPull(measurement, trkPar, resType, Trk::TrackState::TGC);
-    } else {
-      ATH_MSG_WARNING ("No TGC ResidualPullCalculator given, cannot calculate residual and pull for TGC measurement!");
-      return 0;
-    }
-    break;
-  case Trk::TrackState::Segment:
-  case Trk::TrackState::Pseudo:
-  case Trk::TrackState::Vertex:
-  case Trk::TrackState::SpacePoint:
-    ATH_MSG_VERBOSE ("Bit-key calculation ");
+    // do the calculations for the different detector types
+    switch(measType) {
+        case Trk::TrackState::Pixel:
+        ATH_MSG_VERBOSE ("Pixel dim calculation ");
+        // calc residual and pull for the second coordinate, first coord postponed to 1-dim case
+        residual[Trk::loc2] = measurement->localParameters()[Trk::loc2] - trkPar->parameters()[Trk::loc2];
+        if (pullIsValid) {
+            pull[Trk::loc2] = calcPull(residual[Trk::loc2],
+            measurement->localCovariance()(Trk::loc2,Trk::loc2),
+            (*trkPar->covariance())(Trk::loc2,Trk::loc2),
+            resType);
+        } else {
+            pull[Trk::loc2] = calcPull(residual[Trk::loc2],
+            measurement->localCovariance()(Trk::loc2,Trk::loc2),
+            0,
+            resType);
+        }
+        // do not break here, but also fill the first coordinate...
+        case Trk::TrackState::TRT:
+        case Trk::TrackState::MDT:
+        case Trk::TrackState::CSC:
+        case Trk::TrackState::STGC:
+        case Trk::TrackState::MM:
+        ATH_MSG_VERBOSE ("One dim calculation ");
+        // 1-dim measurement
+        // calc residual and pull for the first coordinate
+        residual[Trk::loc1] = measurement->localParameters()[Trk::loc1] - trkPar->parameters()[Trk::loc1];
+        if (pullIsValid) {
+            pull[Trk::loc1] = calcPull(residual[Trk::loc1],
+            measurement->localCovariance()(Trk::loc1,Trk::loc1),
+            (*trkPar->covariance())(Trk::loc1,Trk::loc1),
+            resType);
+        } else {
+            pull[Trk::loc1] = calcPull(residual[Trk::loc1],
+            measurement->localCovariance()(Trk::loc1,Trk::loc1),
+            0,
+            resType);
+        }
+        break;
+        case Trk::TrackState::SCT:
+        // special case, has to be handed down to the SCT tool
+        if ( ! m_SCTresidualTool.empty() ) {
+            ATH_MSG_VERBOSE ("Calling SCT tool ");
+            return m_SCTresidualTool->residualPull(measurement, trkPar, resType, Trk::TrackState::SCT);
+        } else {
+            ATH_MSG_WARNING ("No SCT ResidualPullCalculator given, cannot calculate residual and pull for SCT measurement!");
+            return 0;
+        }
+        break;
+        case Trk::TrackState::RPC:
+        // special case, has to be handed down to the RPC tool
+        if ( ! m_RPCresidualTool.empty() ) {
+            ATH_MSG_VERBOSE ("Calling RPC tool ");
+            return m_RPCresidualTool->residualPull(measurement, trkPar, resType, Trk::TrackState::RPC);
+        } else {
+            ATH_MSG_WARNING ("No RPC ResidualPullCalculator given, cannot calculate residual and pull for RPC measurement!");
+            return 0;
+        }
+        break;
+        case Trk::TrackState::TGC:
+        // special case, has to be handed down to the TGC tool
+        if ( ! m_TGCresidualTool.empty() ) {
+            ATH_MSG_VERBOSE ("Calling TGC tool ");
+            return m_TGCresidualTool->residualPull(measurement, trkPar, resType, Trk::TrackState::TGC);
+        } else {
+            ATH_MSG_WARNING ("No TGC ResidualPullCalculator given, cannot calculate residual and pull for TGC measurement!");
+            return 0;
+        }
+        break;
+        case Trk::TrackState::Segment:
+        case Trk::TrackState::Pseudo:
+        case Trk::TrackState::Vertex:
+        case Trk::TrackState::SpacePoint:
+        ATH_MSG_VERBOSE ("Bit-key calculation ");
 
-    // PMs, Segments etc: use LocalParameters bit-key scheme
-    for (unsigned int i=0; i<5; ++i) {
-      Trk::ParamDefs iPar = PDA.pardef[i];
-      if (measurement->localParameters().contains(iPar)) {
-        residual[iColRow] = measurement->localParameters()[iPar]
-          - trkPar->parameters()[iPar];
-        if (pullIsValid)
-          pull[iColRow]     = calcPull(residual[iColRow],
-                                       measurement->localCovariance()(PDA.pardef[iColRow],PDA.pardef[iColRow]),
-                                       (*trkPar->covariance())(PDA.pardef[iColRow],PDA.pardef[iColRow]),
-                                       resType);
-        ++iColRow;
-      }
+        // PMs, Segments etc: use LocalParameters bit-key scheme
+        for (unsigned int i=0; i<5; ++i) {
+            Trk::ParamDefs iPar = PDA.pardef[i];
+            if (measurement->localParameters().contains(iPar)) {
+                residual[iColRow] = measurement->localParameters()[iPar]
+                    - trkPar->parameters()[iPar];
+                if (pullIsValid)
+                    pull[iColRow]     = calcPull(residual[iColRow],
+                measurement->localCovariance()(PDA.pardef[iColRow],PDA.pardef[iColRow]),
+                (*trkPar->covariance())(PDA.pardef[iColRow],PDA.pardef[iColRow]),
+                resType);
+                ++iColRow;
+            }
+        }
+        break;
+        default:
+        ATH_MSG_VERBOSE ("Default calculation ");
+        // use HEPvector to calculate the residual
+        // r = m - H.p
+        Amg::VectorX HEPresidual = measurement->localParameters() - (measurement->localParameters().expansionMatrix() * trkPar->parameters());
+        residual.resize(HEPresidual.rows());
+        pull.resize(HEPresidual.rows());
+        for (int i = 0; i < HEPresidual.rows(); i++) {
+            residual[i] = HEPresidual[i];
+        }
+    
     }
-    break;
-  default:
-    ATH_MSG_VERBOSE ("Default calculation ");
-    // use HEPvector to calculate the residual
-    // r = m - H.p
-    Amg::VectorX HEPresidual = measurement->localParameters() - (measurement->localParameters().expansionMatrix() * trkPar->parameters());
-    residual.resize(HEPresidual.rows());
-    pull.resize(HEPresidual.rows());
-    for (int i = 0; i < HEPresidual.rows(); i++) {
-      residual[i] = HEPresidual[i];
+    return new Trk::ResidualPull(residual, pull, pullIsValid, resType,
+    measurement->localParameters().parameterKey());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//  calc residual and pull with determination of detector/MBase type
+////////////////////////////////////////////////////////////////////////////////
+const Trk::ResidualPull* Trk::ResidualPullCalculator::residualPull(
+    const Trk::MeasurementBase* measurement,
+    const Trk::TrackParameters* originalTrkPar,
+    const Trk::ResidualPull::ResidualType resType,
+    const Trk::TrackState::MeasurementType detType,
+    const std::vector<Trk::AlignmentEffectsOnTrack*>& aeots) const {
+
+    // time to shift the parameter - do this rather than the measurement so we can call the original method.
+    Amg::Vector3D loc3Dframe;
+    Amg::Vector2D localPos;
+    Amg::Vector3D globalPos;
+    AmgVector(5) parameters;
+    
+    Trk::TrackParameters*  trkPar = originalTrkPar->clone();
+    parameters =  trkPar->parameters();
+    
+    for ( auto aeot : aeots ){
+        // double distanceFromSurface = aeot->associatedSurface().straightLineDistanceEstimate(originalTrkPar->position(),originalTrkPar->position());
+        
+        // Get global position from local
+        localPos[0] = parameters[0];
+        localPos[1] = parameters[1];
+        originalTrkPar->associatedSurface().localToGlobal(localPos, trkPar->momentum(), globalPos);
+        
+        // Translate into local 3D frame
+        loc3Dframe = (aeot->associatedSurface().transform().inverse())*trkPar->position();
+        
+        // Update local position, using AEOT
+        localPos = Amg::Vector2D(loc3Dframe.x(), loc3Dframe.z()); 
+        localPos[0] -= aeot->deltaTranslation(); // Shift in precision direction.
+        Eigen::Rotation2D<double> rot2(-aeot->sigmaDeltaAngle());
+        localPos = rot2 * localPos; // Rotate
+        
+        // Back to global
+        globalPos = aeot->associatedSurface().transform()*loc3Dframe; 
+        
+        // Now onto straight line surface
+        const Amg::Vector2D* newlocalPos = measurement->associatedSurface().globalToLocal(globalPos); 
+        
+        // Update parameters
+        parameters[0]= (*newlocalPos)[0];
+        delete newlocalPos;
     }
     
-  }
-  return new Trk::ResidualPull(residual, pull, pullIsValid, resType,
-			       measurement->localParameters().parameterKey());
+    // Set parameters to the new values;
+    const AmgSymMatrix(5)* originalCov = trkPar->covariance();
+    trkPar->updateParameters(parameters, new AmgSymMatrix(5)( *originalCov ) ); 
+    
+    // Now call original method.
+    const Trk::ResidualPull* resPull = residualPull(measurement, trkPar, resType, detType );
+    delete trkPar;
+    return resPull;
 }
+
 
 /////////////////////////////////////////////////////////////////////////////
 /// calc pull in 1 dimension
 /////////////////////////////////////////////////////////////////////////////
 double Trk::ResidualPullCalculator::calcPull(
-					     const double residual,
-					     const double locMesCov,
-					     const double locTrkCov,
-					     const Trk::ResidualPull::ResidualType& resType ) const {
+    const double residual,
+    const double locMesCov,
+    const double locTrkCov,
+    const Trk::ResidualPull::ResidualType& resType ) const {
 
-  double CovarianceSum = 0.0;
-  if (resType == Trk::ResidualPull::Unbiased) {
-    CovarianceSum = locMesCov + locTrkCov;
-  } else if (resType == Trk::ResidualPull::Biased) {
-    CovarianceSum = locMesCov - locTrkCov;
-  } else CovarianceSum = locMesCov;
+    double CovarianceSum = 0.0;
+    if (resType == Trk::ResidualPull::Unbiased) {
+        CovarianceSum = locMesCov + locTrkCov;
+    } else if (resType == Trk::ResidualPull::Biased) {
+        CovarianceSum = locMesCov - locTrkCov;
+    } else CovarianceSum = locMesCov;
 
-  if (CovarianceSum <= 0.0) {
-    ATH_MSG_DEBUG("instable calculation: total covariance is non-positive, MeasCov = "<<
-                  locMesCov<<", TrkCov = "<<locTrkCov<<", resType = "<<resType);
-    return 0.0;
-  }
-  return residual/sqrt(CovarianceSum);
+    if (CovarianceSum <= 0.0) {
+        ATH_MSG_DEBUG("instable calculation: total covariance is non-positive, MeasCov = "<<
+            locMesCov<<", TrkCov = "<<locTrkCov<<", resType = "<<resType);
+        return 0.0;
+    }
+    return residual/sqrt(CovarianceSum);
 }

@@ -26,6 +26,7 @@ class AtlasDetectorID;
 namespace Trk {
 
   class MeasurementBase;
+  class AlignmentEffectsOnTrack;
 
 /** @brief AlgTool to calculate the residual and pull of a measurement and the
     related track state independently of the detector type.
@@ -64,6 +65,22 @@ public:
                         const Trk::TrackParameters* trkPar,
                         const Trk::ResidualPull::ResidualType resType,
                         const Trk::TrackState::MeasurementType) const;
+
+    /**This function returns (creates!) a Trk::ResidualPull object, which contains the values
+    * of residual and pull for the given measurement and track state, and the Alignment effects.
+    * The track state can be an unbiased one (which can be retrieved by the Trk::IUpdator),
+    * a biased one (which contains the measurement),
+    * or a truth state.
+    * The enum residualTyp must be set according to this, otherwise the pulls will be wrong.
+    * Residuals differ in all three cases; please be aware of this.
+    *
+    * This function determines the sub-detector type itself by using the ID helper*/
+    virtual const Trk::ResidualPull* residualPull(
+                          const Trk::MeasurementBase* measurement,
+                          const Trk::TrackParameters* trkPar,
+                          const Trk::ResidualPull::ResidualType resType,
+                          const Trk::TrackState::MeasurementType, 
+                          const std::vector<Trk::AlignmentEffectsOnTrack*>& ) const;
 
     /** This function is a light-weight version of the function above, designed for track fitters
      * where speed is critical. The user has to provide a std::vector of size 5, which gets
