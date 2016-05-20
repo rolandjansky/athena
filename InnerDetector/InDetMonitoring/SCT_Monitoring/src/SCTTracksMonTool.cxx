@@ -553,6 +553,8 @@ StatusCode  SCTTracksMonTool::checkHists(bool /*fromFinalize*/){
   } //27.11.2014
   // Now checking RMS and Means of Pulls 1D Histos
   TF1 pullgaus("pullgaus","gaus");
+  pullgaus.SetParameter(1, 0.); 
+  pullgaus.SetParameter(2, 1.); 
   if(not m_psctpulls_summaryHistoVector.empty()){ 
     VecH1_t::const_iterator endit(m_psctpulls_summaryHistoVector.end());
     for (VecH1_t::const_iterator it(m_psctpulls_summaryHistoVector.begin()); it != endit; ++it){

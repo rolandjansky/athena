@@ -33,6 +33,11 @@ class TH1I;
 class TH2I;
 class TProfile;
 class TProfile2D;
+class TH1F_LW;
+class TH2F_LW;
+class TH2I_LW;
+class TProfile_LW;
+class TProfile2D_LW;
 class StatusCode;
 class SCT_ID;
 class SCT_ModuleStatistics;
@@ -58,7 +63,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 
   private:
 	  static const int NREGIONS_INC_GENERAL=SCT_Monitoring::N_REGIONS+1;
-	  typedef TProfile2D * Prof2_t;
+	  typedef TProfile2D_LW * Prof2_t;
 	  typedef std::vector<Prof2_t> VecProf2_t;
     StatusCode checkRateHists();
     StatusCode fillByteStreamErrors();
@@ -71,29 +76,29 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   //@name Histograms related members
   //@{
   // Pointers to hit error histograms
-  TH1F * m_firstHit;
-  TH1F * m_firstHit_ECp;
-  TH1F * m_firstHit_ECm;
-  TH1F * m_secondHit;
-  TH1F * m_secondHit_ECp;
-  TH1F * m_secondHit_ECm;
+  TH1F_LW * m_firstHit;
+  TH1F_LW * m_firstHit_ECp;
+  TH1F_LW * m_firstHit_ECm;
+  TH1F_LW * m_secondHit;
+  TH1F_LW * m_secondHit_ECp;
+  TH1F_LW * m_secondHit_ECm;
   //@}
   
-  enum ErrorTypes {ABCD, RAW,TIMEOUT, LVL1ID,BCID, PREAMBLE, FORMATTER, MASKEDLINKS, RODCLOCK, TRUNCATEDROD, ROBFRAG, BSPARSE, MISSINGLINK, SUMMARY, N_ERRTYPES};
+  enum ErrorTypes {ABCD, RAW,TIMEOUT, LVL1ID,BCID, PREAMBLE, FORMATTER, MASKEDLINKS, RODCLOCK, TRUNCATEDROD, ROBFRAG, BSPARSE, MISSINGLINK, SUMMARY, BADERR, N_ERRTYPES};
   
   ///rate of errors
-  TProfile2D* m_allErrs[N_ERRTYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  TProfile2D_LW* m_allErrs[N_ERRTYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
   ///rate of errors per lumi-block
-  TProfile2D* m_allErrsPerLumi[N_ERRTYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  TProfile2D_LW* m_allErrsPerLumi[N_ERRTYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
   ///total number of errors
-  TH2F* m_pallErrs[N_ERRTYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  TH2F_LW* m_pallErrs[N_ERRTYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
   ///total number of errors
-  TH2F* m_pallErrsPerLumi[N_ERRTYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  TH2F_LW* m_pallErrsPerLumi[N_ERRTYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
   /// Recent error rate histograms
-  TProfile2D* m_summaryErrsRecent[NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  TProfile2D_LW* m_summaryErrsRecent[NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
   /// Default histos to print per lumi block
-  TH2F* m_numErrorsPerLumi[NREGIONS_INC_GENERAL];
-  TProfile2D* m_rateErrorsPerLumi[NREGIONS_INC_GENERAL];
+  TH2F_LW* m_numErrorsPerLumi[NREGIONS_INC_GENERAL];
+  TProfile2D_LW* m_rateErrorsPerLumi[NREGIONS_INC_GENERAL];
 
   TH1I *m_nErrors;
   TH1I *m_nLinksWithErrors;
@@ -110,6 +115,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   bool m_initialize;
   //max number of errors in lbs                                                                          
   unsigned int m_previous_lb;
+  /*
   int m_maskedLinkErrsMax[4];
   int m_robFragmentErrsMax[4];
   int m_abcdErrsMax[4];
@@ -125,6 +131,9 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   int m_misslinkErrsMax[4];
   int m_totErrsMax[4];
   int m_totModErrsMax[4];
+  int m_totBadErrsMax[4];
+  int m_totModBadErrsMax[4];
+  */
   // Book noise map histograms
   StatusCode bookConfMaps();
   StatusCode bookPositiveEndCapConfMaps();
@@ -161,13 +170,13 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   float ratioside0;
   float ratioside1;
 
-  int fillByteStreamErrorsHelper(const std::set<IdentifierHash>* errors, TH2F *histo[NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2], bool lumiHist, int err_type, bool b_maskedlinks);
+  int fillByteStreamErrorsHelper(const std::set<IdentifierHash>* errors, TH2F_LW *histo[NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2], bool lumiHist, int err_type, bool b_maskedlinks, bool b_BadErrors);
   void numByteStreamErrors(const std::set<IdentifierHash>* errors, int& ntot, int& nbar, int& neca, int& necc);
-  StatusCode bookErrHistosHelper(MonGroup & mg, TString name, TString title, TString titlehitmap, TProfile2D* &tprof, TH2F* &th, const int layer, const bool barrel=true);
+  StatusCode bookErrHistosHelper(MonGroup & mg, TString name, TString title, TString titlehitmap, TProfile2D_LW* &tprof, TH2F_LW* &th, const int layer, const bool barrel=true);
 
-  StatusCode bookErrHistosHelper(MonGroup & mg, TString name, TString title, TProfile2D* &tprof, const int layer, const bool barrel=true);
+  StatusCode bookErrHistosHelper(MonGroup & mg, TString name, TString title, TProfile2D_LW* &tprof, const int layer, const bool barrel=true);
 
-  std::vector<TH2F *> m_p2DmapHistoVectorAll[NREGIONS_INC_GENERAL];
+  std::vector<TH2F_LW *> m_p2DmapHistoVectorAll[NREGIONS_INC_GENERAL];
 
   /// "Magic numbers" for an SCT module
   //unsigned int m_nplanes; //to be determined from SCT Helper
@@ -222,67 +231,78 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   StatusCode resetConfigurationDetails();
 
   /// Pointer to 1D histogram of Number of SCT Clusters per Even
-  TProfile * m_Conf[4];
-  TProfile * m_ConfRN[4];
-  // TProfile * m_ConfOnline[4];
-  TH1F     * m_ConfOnline[4];
-  TProfile * m_MaskedLinksVsLB[4];
-  TProfile * m_ROBFragmentVsLB[4];
-  TProfile * m_ABCDVsLB[4];
-  TProfile * m_RawErrsVsLB[4];
-  TProfile * m_TimeOutVsLB[4];
-  TProfile * m_LVL1IDVsLB[4];
-  TProfile * m_BCIDVsLB[4];
-  TProfile * m_PreambleVsLB[4];
-  TProfile * m_FormatterVsLB[4];
-  TProfile * m_RODClockVsLB[4];
-  TProfile * m_TruncRODVsLB[4];
-  TProfile * m_BSParseVsLB[4];
-  TProfile * m_MissingLinkHeaderVsLB[4];
+  TProfile_LW * m_Conf[4];
+  TProfile_LW * m_ConfRN[4];
+  TProfile_LW * m_ConfOnline[4];
+  //TH1F_LW     * m_ConfOnline[4];
+  TProfile_LW * m_MaskedLinksVsLB[4];
+  TProfile_LW * m_ROBFragmentVsLB[4];
+  TProfile_LW * m_ABCDVsLB[4];
+  TProfile_LW * m_RawErrsVsLB[4];
+  TProfile_LW * m_TimeOutVsLB[4];
+  TProfile_LW * m_LVL1IDVsLB[4];
+  TProfile_LW * m_BCIDVsLB[4];
+  TProfile_LW * m_PreambleVsLB[4];
+  TProfile_LW * m_FormatterVsLB[4];
+  TProfile_LW * m_RODClockVsLB[4];
+  TProfile_LW * m_TruncRODVsLB[4];
+  TProfile_LW * m_BSParseVsLB[4];
+  TProfile_LW * m_MissingLinkHeaderVsLB[4];
+  /*
+  TH1F_LW * m_MaxMaskedLinksVsLB[4];
+  TH1F_LW * m_MaxROBFragmentVsLB[4];
+  TH1F_LW * m_MaxABCDVsLB[4];
+  TH1F_LW * m_MaxRawErrsVsLB[4];
+  TH1F_LW * m_MaxTimeOutVsLB[4];
+  TH1F_LW * m_MaxLVL1IDVsLB[4];
+  TH1F_LW * m_MaxBCIDVsLB[4];
+  TH1F_LW * m_MaxPreambleVsLB[4];
+  TH1F_LW * m_MaxFormatterVsLB[4];
+  TH1F_LW * m_MaxRODClockVsLB[4];
+  TH1F_LW * m_MaxTruncRODVsLB[4];
+  TH1F_LW * m_MaxBSParseVsLB[4];
+  TH1F_LW * m_MaxMissingLinkHeaderVsLB[4];
 
-  TH1F * m_MaxMaskedLinksVsLB[4];
-  TH1F * m_MaxROBFragmentVsLB[4];
-  TH1F * m_MaxABCDVsLB[4];
-  TH1F * m_MaxRawErrsVsLB[4];
-  TH1F * m_MaxTimeOutVsLB[4];
-  TH1F * m_MaxLVL1IDVsLB[4];
-  TH1F * m_MaxBCIDVsLB[4];
-  TH1F * m_MaxPreambleVsLB[4];
-  TH1F * m_MaxFormatterVsLB[4];
-  TH1F * m_MaxRODClockVsLB[4];
-  TH1F * m_MaxTruncRODVsLB[4];
-  TH1F * m_MaxBSParseVsLB[4];
-  TH1F * m_MaxMissingLinkHeaderVsLB[4];
-
-  // TH2I * m_2d_MaxMaskedLinksVsLB[4];
-  // TH2I * m_2d_MaxROBFragmentVsLB[4];
+  TH2I_LW * m_2d_MaxMaskedLinksVsLB[4];
+  TH2I_LW * m_2d_MaxROBFragmentVsLB[4];
   // TH2I * m_2d_MaxABCDVsLB[4];
   // TH2I * m_2d_MaxRawErrsVsLB[4];
-  // TH2I * m_2d_MaxTimeOutVsLB[4];
-  // TH2I * m_2d_MaxLVL1IDVsLB[4];
-  // TH2I * m_2d_MaxBCIDVsLB[4];
+  TH2I_LW * m_2d_MaxTimeOutVsLB[4];
+  TH2I_LW * m_2d_MaxLVL1IDVsLB[4];
+  TH2I_LW * m_2d_MaxBCIDVsLB[4];
   // TH2I * m_2d_MaxPreambleVsLB[4];
   // TH2I * m_2d_MaxFormatterVsLB[4];
   // TH2I * m_2d_MaxRODClockVsLB[4];
   // TH2I * m_2d_MaxTruncRODVsLB[4];
   // TH2I * m_2d_MaxBSParseVsLB[4];
-  // TH2I * m_2d_MaxMissingLinkHeaderVsLB[4];
+  TH2I_LW * m_2d_MaxMissingLinkHeaderVsLB[4];
+  */
+  TProfile_LW * m_NumberOfErrorsVsLB[4];
+  TProfile_LW * m_NumberOfBadErrorsVsLB[4]; 
+  TProfile_LW * m_ModulesWithErrorsVsLB[4];
+  TProfile_LW * m_ModulesWithBadErrorsVsLB[4];
+  TProfile_LW * m_LinksWithErrorsVsLBBarrel[4];
+  TProfile_LW * m_LinksWithErrorsVsLBEndcapA[9];
+  TProfile_LW * m_LinksWithErrorsVsLBEndcapC[9]; 
+  TProfile_LW * m_LinksWithBadErrorsVsLBBarrel[4];
+  TProfile_LW * m_LinksWithBadErrorsVsLBEndcapA[9];
+  TProfile_LW * m_LinksWithBadErrorsVsLBEndcapC[9]; 
 
-  TProfile * m_NumberOfErrorsVsLB[4];
-  TProfile * m_ModulesWithErrorsVsLB[4];
-  TProfile * m_LinksWithErrorsVsLBBarrel[4];
-  TProfile * m_LinksWithErrorsVsLBEndcapA[9];
-  TProfile * m_LinksWithErrorsVsLBEndcapC[9]; 
-
-  TH1F * m_MaxNumberOfErrorsVsLB[4];
-  TH1F * m_MaxModulesWithErrorsVsLB[4];
-  // TH2I * m_2d_MaxNumberOfErrorsVsLB[4];
-  // TH2I * m_2d_MaxModulesWithErrorsVsLB[4];
-
+  //TH1F_LW * m_MaxNumberOfErrorsVsLB[4];
+  //TH1F_LW * m_MaxNumberOfBadErrorsVsLB[4];
+  //TH1F_LW * m_MaxModulesWithErrorsVsLB[4];
+  //TH1F_LW * m_MaxModulesWithBadErrorsVsLB[4];
+  //TH2I * m_2d_MaxNumberOfErrorsVsLB[4];
+  //TH2I * m_2d_MaxNumberOfBadErrorsVsLB[4];
+  //TH2I_LW * m_2d_MaxModulesWithErrorsVsLB[4];
+  //TH2I_LW * m_2d_MaxModulesWithBadErrorsVsLB[4];
+  
   TProfile * m_ConfEffOnline;
-  TProfile * m_ConfNoiseOnline;
-  TProfile * m_ConfNoiseOnlineRecent;
-  TProfile * m_DetailedConfiguration;
+  TProfile_LW * m_ConfNoiseOnline;
+  TProfile_LW * m_ConfNoiseOnlineRecent;
+  TProfile_LW * m_DetailedConfiguration;
+
+  TH1F_LW * m_NumberOfSCTFlagErrorsVsLB;
 
   /** a handle on the Hist/TTree registration service */
   ServiceHandle<ITHistSvc> m_thistSvc;
