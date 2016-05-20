@@ -119,7 +119,7 @@ StatusCode SharedEvtQueueConsumer::finalize()
   if(getpid()==m_masterPid) {
     ATH_MSG_INFO("finalize() in the master process");
     // Merge saved event orders into one in the master run directory
-    
+
     // 1. Check if master run directory already contains a file with saved orders
     // If so, then rename it with random suffix
     boost::filesystem::path ordersFile(m_eventOrdersFile);
@@ -130,11 +130,11 @@ StatusCode SharedEvtQueueConsumer::finalize()
       std::string ordersFileBak = m_eventOrdersFile+std::string("-bak-")+randname.str();
       ATH_MSG_WARNING("File " << m_eventOrdersFile << " already exists in the master run directory!");
       ATH_MSG_WARNING("Saving a backup with new name " << ordersFileBak);
-      
+
       boost::filesystem::path ordersFileBakpath(ordersFileBak);
       boost::filesystem::rename(ordersFile,ordersFileBakpath);
     }
-    
+
     // 2. Merge workers event orders into the master file
     std::fstream fs(m_eventOrdersFile.c_str(),std::fstream::out);
     for(int i=0; i<m_nprocs; ++i) {
@@ -154,7 +154,7 @@ StatusCode SharedEvtQueueConsumer::finalize()
     }
     fs.close();
   } // if(getpid()==m_masterPid)
-  
+
   delete m_sharedRankQueue;
   return StatusCode::SUCCESS;
 }
@@ -248,14 +248,16 @@ void SharedEvtQueueConsumer::reportSubprocessStatuses()
   const std::vector<AthenaInterprocess::ProcessStatus>& statuses = m_processGroup->getStatuses();
   for(size_t i=0; i<statuses.size(); ++i) {
     // Get the number of events processed by this worker
-    std::map<pid_t,int>::const_iterator it = m_nProcessedEvents.find(statuses[i].pid);
+    auto it = m_eventStat.find(statuses[i].pid);
     msg(MSG::INFO) << "*** Process PID=" << statuses[i].pid 
 		   << ". Status " << ((statuses[i].exitcode)?"FAILURE":"SUCCESS") 
 		   << ". Number of events processed: ";
-    if(it==m_nProcessedEvents.end())
+    if(it==m_eventStat.end())
       msg(MSG::INFO) << "N/A" << endreq;
     else
-      msg(MSG::INFO) << it->second << endreq;
+      msg(MSG::INFO) << it->second.first
+		     << ", Event Loop Time: " << it->second.second << "sec."
+		     << endreq;
   }
 }
 
@@ -404,20 +406,20 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
 	std::string line;
 	std::getline(fs,line);
 	if(line.empty())continue;
-	
+
 	// Parse the string
 	size_t idx(0);
 	int rank = std::stoi(line,&idx);
 	if(rank==m_rankId) {
-          msg(MSG::INFO) << "This worker will proces the following events #";
-          while(idx<line.size()-1) {
+	  msg(MSG::INFO) << "This worker will proces the following events #";
+	  while(idx<line.size()-1) {
 	    line = line.substr(idx+1);
 	    int evtnum = std::stoi(line,&idx);
 	    m_eventOrders.push_back(evtnum);
 	    msg(MSG::INFO) << " " << evtnum;
 	  }
-          msg(MSG::INFO) << endreq;
-        }
+	  msg(MSG::INFO) << endreq;
+	}
       }
       if(m_eventOrders.empty()) {
 	ATH_MSG_ERROR("Could not read event orders for the rank " << m_rankId);
@@ -516,7 +518,8 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
     ATH_MSG_ERROR(m_eventOrdersFile << " already exists in the worker's run directory!");
     all_ok = false;
   }
-
+  
+  System::ProcessTime time_start = System::getProcessTime();
   if(all_ok) {
     std::fstream fs(m_eventOrdersFile.c_str(),std::fstream::out);
     fs << m_rankId;
@@ -548,7 +551,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
 	else {
 	  if(!m_sharedEventQueue->try_receive_basic<long>(evtnumAndChunk)) {
 	    // The event queue is empty, but we should check whether there are more events to come or not
-	    msg(MSG::DEBUG) << "Event queue is empty";
+	    msg(MSG::DEBUG) << "Event queue is empty"; 
 	    if(*shmemCountFinal) {
 	      msg(MSG::DEBUG) << " and no more events are expected" << endreq;
 	      break;
@@ -563,7 +566,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
 	  chunkSize = evtnumAndChunk >> (sizeof(int)*8);
 	  evtnum = evtnumAndChunk & intmask;
 	  msg(MSG::INFO) << "Received from the queue: event num=" << evtnum << " chunk size=" << chunkSize << endreq;
-	  
+
 	  // Save event order
 	  for(int i(0);i<chunkSize;++i) {
 	    fs << (firstOrder?":":",") << evtnum+i;
@@ -613,6 +616,8 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
     }
     fs.close();
   }
+  System::ProcessTime time_delta = System::getProcessTime() - time_start;
+  TimeValType elapsedTime = time_delta.elapsedTime<System::Sec>();
 
   if(all_ok) {
     if(m_evtProcessor->executeRun(0).isFailure()) {
@@ -622,7 +627,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
     else if(!m_useSharedReader) {
       // We need this while loop only when we read predefined event orders
       while(!(*shmemCountFinal)) {
-	usleep(1000);
+        usleep(1000);
       }
       msg(MSG::DEBUG) << *shmemCountedEvts << " is the max event counted and SkipEvents=" << skipEvents << endreq; 
       if(m_evtSeek->seek(*shmemCountedEvts+skipEvents).isFailure()) 
@@ -632,14 +637,14 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
 
   std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
 
-  // Return value: "ERRCODE|Func_Flag|NEvt"
-  int outsize = 2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag);
+  // Return value: "ERRCODE|Func_Flag|NEvt|EvtLoopTime"
+  int outsize = 2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag)+sizeof(elapsedTime);
   void* outdata = malloc(outsize);
   *(int*)(outdata) = (all_ok?0:1); // Error code: for now use 0 success, 1 failure
   AthenaMPToolBase::Func_Flag func = AthenaMPToolBase::FUNC_EXEC;
   memcpy((char*)outdata+sizeof(int),&func,sizeof(func));
   memcpy((char*)outdata+sizeof(int)+sizeof(func),&nEventsProcessed,sizeof(int));
-
+  memcpy((char*)outdata+2*sizeof(int)+sizeof(func),&elapsedTime,sizeof(elapsedTime));
   outwork->data = outdata;
   outwork->size = outsize;
   // ...
@@ -668,14 +673,16 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::fin_f
 
   std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
 
-  // Return value: "ERRCODE|Func_Flag|NEvt"  (Here NEvt=-1)
-  int outsize = 2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag);
+  // Return value: "ERRCODE|Func_Flag|NEvt|EvtLoopTime"  (Here NEvt=-1 and EvtLoopTime=-1)
+  int outsize = 2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag)+sizeof(TimeValType);
   void* outdata = malloc(outsize);
   *(int*)(outdata) = (all_ok?0:1); // Error code: for now use 0 success, 1 failure
   AthenaMPToolBase::Func_Flag func = AthenaMPToolBase::FUNC_FIN;
   memcpy((char*)outdata+sizeof(int),&func,sizeof(func));
   int nEvt = -1;
   memcpy((char*)outdata+sizeof(int)+sizeof(func),&nEvt,sizeof(int));
+  TimeValType elapsed = -1;
+  memcpy((char*)outdata+2*sizeof(int)+sizeof(func),&elapsed,sizeof(elapsed));
 
   outwork->data = outdata;
   outwork->size = outsize;
@@ -688,16 +695,18 @@ int SharedEvtQueueConsumer::decodeProcessResult(const AthenaInterprocess::Proces
   if(!presult) return 0;
   const AthenaInterprocess::ScheduledWork& output = presult->output;
   msg(MSG::DEBUG) << "Decoding the output of PID=" << presult->pid << " with the size=" << output.size << endreq;
-  if(output.size!=2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag)) return 0;
+  if(output.size!=2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag)+sizeof(TimeValType)) return 0;
   
   AthenaMPToolBase::Func_Flag func;
   memcpy(&func,(char*)output.data+sizeof(int),sizeof(func));
   if(func==AthenaMPToolBase::FUNC_EXEC) {
     // Store the number of processed events
     int nevt(0);
+    TimeValType elapsed(0);
     memcpy(&nevt,(char*)output.data+sizeof(int)+sizeof(func),sizeof(int));
-    m_nProcessedEvents[presult->pid]=nevt;
-    msg(MSG::DEBUG) << "PID=" << presult->pid << " processed " << nevt << " events" << endreq;
+    memcpy(&elapsed,(char*)output.data+2*+sizeof(int)+sizeof(func),sizeof(TimeValType));
+    m_eventStat[presult->pid]=std::pair<int,TimeValType>(nevt,elapsed);
+    msg(MSG::DEBUG) << "PID=" << presult->pid << " processed " << nevt << " events in " << elapsed << "sec." <<endreq;
 
     if(doFinalize) {
       // Add PID to the finalization queue

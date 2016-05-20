@@ -22,6 +22,7 @@ SharedReaderTool::SharedReaderTool(const std::string& type
 				   , const std::string& name
 				   , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
+  , m_nEvtRequested(-1)
   , m_shmemSegment()
   , m_evtShare(0)
 {
@@ -69,6 +70,7 @@ int SharedReaderTool::makePool(int maxevt, int nprocs, const std::string& topdir
   }
 
   m_nprocs = (nprocs==-1?sysconf(_SC_NPROCESSORS_ONLN):nprocs);
+  m_nEvtRequested = maxevt;
   m_subprocTopDir = topdir;
 
   // Create the process group with only one process and map_async bootstrap
@@ -209,6 +211,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::exec_func()
 {
   ATH_MSG_INFO("Exec function in the AthenaMP Shared Reader PID=" << getpid());
 
+/*
   int eventsRead(0);
   int* shmemCountedEvts = (int*)m_shmemSegment->get_address();
   int* shmemCountFinal = shmemCountedEvts+1;
@@ -220,21 +223,21 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::exec_func()
     evtCounted = *shmemCountedEvts;
   }
   ATH_MSG_DEBUG("SharedReaderTool::exec_func evtCounted=" << evtCounted << ", CountFinal=" << (ctFinal?"YES":"NO"));
+*/
 
   bool all_ok=true;
   ATH_MSG_DEBUG("SharedReaderTool::exec_func entering loop ");
-  while(eventsRead<evtCounted) {
+//  while(eventsRead<evtCounted) {
     ATH_MSG_DEBUG("SharedReaderTool::exec_func loop ");
-    if(m_evtShare->readEvent(evtCounted-eventsRead).isFailure()) {
-      ATH_MSG_ERROR("Failed to read " << evtCounted-eventsRead << " events");
+    if(m_evtShare->readEvent(m_nEvtRequested).isFailure()) {
+      ATH_MSG_ERROR("Failed to read " << m_nEvtRequested << " events");
       all_ok=false;
     }
     else {
-
       ATH_MSG_DEBUG("readEvent succeeded");
+/*
       if(ctFinal)
 	break;
-
       eventsRead=evtCounted;
       ctFinal = *shmemCountFinal;
       evtCounted = *shmemCountedEvts;
@@ -247,8 +250,9 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::exec_func()
 	evtCounted = *shmemCountedEvts;
       }
       ATH_MSG_DEBUG("SharedReaderTool::exec_func evtCounted=" << evtCounted << ", CountFinal=" << (ctFinal?"YES":"NO"));
+*/
     }
-  }
+//  }
 
   if(m_appMgr->stop().isFailure()) {
     ATH_MSG_ERROR("Unable to stop AppMgr"); 

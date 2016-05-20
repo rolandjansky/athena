@@ -267,6 +267,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::exec_
 
     if(all_ok) {
       m_nChunkStart = m_skipEvents+m_nEventsBeforeFork;
+      m_nEvtCounted = m_nEventsBeforeFork;
       m_nPositionInChunk = m_nChunkStart;      
       ATH_MSG_VERBOSE("Starting to go through events. Chunk start = " << m_nChunkStart);
 

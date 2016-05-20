@@ -701,7 +701,7 @@ SharedHiveEvtQueueConsumer::initHive() {
       ATH_MSG_INFO("could not release old EventProcessor ");
     }
 
-    ISvcManager* pISM(dynamic_cast<ISvcManager*>(serviceLocator()));
+    ISvcManager* pISM(dynamic_cast<ISvcManager*>(serviceLocator().get()));
     if (pISM == 0) {
       ATH_MSG_ERROR("initHive: Could not get SvcManager");
     } else {

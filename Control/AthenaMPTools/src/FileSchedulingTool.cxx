@@ -9,6 +9,7 @@
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IFileMgr.h"
+#include "GaudiKernel/IIncidentSvc.h"
 
 #include <sys/stat.h>
 #include <sstream>
@@ -87,7 +88,7 @@ int FileSchedulingTool::makePool(int maxevt, int nprocs, const std::string& topd
 
   // Create rank queue and fill it
   std::ostringstream rankQueueName;
-  rankQueueName << "FileSchedulingTool_RankQueue_" << getpid();
+  rankQueueName << "FileSchedulingTool_RankQueue_" << getpid() << "_" << m_randStr;
   m_sharedRankQueue = new AthenaInterprocess::SharedQueue(rankQueueName.str(),m_nprocs,sizeof(int));
   for(int i=0; i<m_nprocs; ++i)
     if(!m_sharedRankQueue->send_basic<int>(i)) {
@@ -97,7 +98,7 @@ int FileSchedulingTool::makePool(int maxevt, int nprocs, const std::string& topd
 
   // Create finalization scheduling queue
   std::ostringstream finQueueName;
-  finQueueName << "FileSchedulingTool_FinQueue_" << getpid();
+  finQueueName << "FileSchedulingTool_FinQueue_" << getpid() << "_" << m_randStr;
   m_sharedFinQueue = new AthenaInterprocess::SharedQueue(finQueueName.str(),m_nprocs,sizeof(int));
   for(int i=0; i<m_nprocs; ++i)
     if(!m_sharedFinQueue->send_basic<int>(i*10)) {  // TO DO: this '3' could be made configurable
@@ -156,6 +157,14 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
   // (possible) TODO: extend outwork with some error message, which will be eventually
   // reported in the master proces
   // ...
+
+  // ________________________ Get IncidentSvc and fire PostFork ________________________
+  IIncidentSvc* p_incidentSvc(0);
+  if(!serviceLocator()->service("IncidentSvc", p_incidentSvc).isSuccess()) {
+    msg(MSG::ERROR) << "Unable to retrieve IncidentSvc" << endreq;
+    return outwork;
+  }
+  p_incidentSvc->fireIncident(Incident(name(),"PostFork"));
 
   // ________________________ Get RankID ________________________
   //

@@ -8,6 +8,7 @@
 #include "AthenaMPToolBase.h"
 
 #include "AthenaInterprocess/SharedQueue.h"
+#include "GaudiKernel/Timing.h"
 #include <queue>
 
 class IEventSeek;
@@ -65,8 +66,9 @@ class SharedEvtQueueConsumer : public AthenaMPToolBase
   AthenaInterprocess::SharedQueue*  m_sharedEventQueue;          
   AthenaInterprocess::SharedQueue*  m_sharedRankQueue;          
 
-  std::map<pid_t,int>               m_nProcessedEvents; // Number of processed events by PID
-  std::queue<pid_t>                 m_finQueue;         // PIDs of processes queued for finalization
+  typedef System::ProcessTime::TimeValueType TimeValType;
+  std::map<pid_t,std::pair<int,TimeValType>> m_eventStat; // Number of processed events by PID
+  std::queue<pid_t>                          m_finQueue;         // PIDs of processes queued for finalization
 
   // "Persistent" event orders for reproducibility
   bool                           m_readEventOrders;
