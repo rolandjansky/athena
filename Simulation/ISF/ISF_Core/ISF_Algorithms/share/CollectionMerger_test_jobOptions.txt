@@ -1,0 +1,4 @@
+CollectionMergerIntegrationTestWithData.InputPixelHits = ["inputPixelCollectionIntegrationTestA",
+                                                          "inputPixelCollectionIntegrationTestC",
+                                                          "inputPixelCollectionIntegrationTestB"];
+CollectionMergerIntegrationTestWithData.OutputPixelHits = "outputPixelCollectionIntegrationTest";

@@ -20,10 +20,24 @@ use AtlasROOT            AtlasROOT-*             External
 use ISF_Event            ISF_Event-*             Simulation/ISF/ISF_Core
 use ISF_Interfaces       ISF_Interfaces-*        Simulation/ISF/ISF_Core
 use PmbCxxUtils          PmbCxxUtils-*           Tools
+use InDetSimEvent        InDetSimEvent-*         InnerDetector
+use LArSimEvent          LArSimEvent-*           LArCalorimeter
+use TileSimEvent         TileSimEvent-*          TileCalorimeter
+use MuonSimEvent         MuonSimEvent-*          MuonSpectrometer
+use CxxUtils             CxxUtils-*              Control
+use StoreGate            StoreGate-*             Control
 
 public
 library ISF_Algorithms *.cxx components/*.cxx
 apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+private
+use TestTools            TestTools-*             AtlasTest 
+apply_pattern UnitTest_run unit_test=CollectionMerger extra_sources=../src/CollectionMerger.cxx
+
 
 # activate the following lines to compile this package with debug symbols
 #private
