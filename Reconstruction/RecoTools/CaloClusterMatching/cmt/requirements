@@ -16,6 +16,7 @@ use AsgTools		AsgTools-*		Control/AthToolSupport
 private
 use xAODCore		xAODCore-*		Event/xAOD
 use AthenaBaseComps	AthenaBaseComps-*	Control
+use CxxUtils            CxxUtils-*              Control
 
 end_private
 

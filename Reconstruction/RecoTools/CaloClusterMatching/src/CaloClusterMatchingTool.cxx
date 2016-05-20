@@ -17,6 +17,7 @@
 // FrameWork includes
 #include "GaudiKernel/IToolSvc.h"
 #include "TopoClusterMap.h"
+#include "CxxUtils/make_unique.h"
 #include <algorithm>
 #include <utility>
 
@@ -81,10 +82,10 @@ namespace ClusterMatching {
 
     const CaloClusterContainer* topoclusters(nullptr);
     ATH_CHECK( evtStore()->retrieve(topoclusters,m_clustersIn) );
-    TopoClusterMap* tcmap = new TopoClusterMap;
+    auto tcmap = CxxUtils::make_unique<TopoClusterMap>();
     ATH_CHECK( tcmap->SetTopoClusters(topoclusters) );
 
-    ATH_CHECK( evtStore()->record(tcmap,m_mapName) );
+    ATH_CHECK( evtStore()->record(std::move(tcmap),m_mapName) );
     return StatusCode::SUCCESS;
   }
 

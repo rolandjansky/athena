@@ -23,12 +23,12 @@ bool CompareClusterET (const xAOD::CaloCluster* c1, const xAOD::CaloCluster* c2)
 TopoClusterMap::TopoClusterMap(float minEta, float minPhi, float maxEta, float maxPhi,
 			       float dEta, float dPhi)
 {
-  _minEta = minEta;
-  _minPhi = minPhi;
-  _maxEta = maxEta;
-  _maxPhi = maxPhi;
-  _dEta = dEta;
-  _dPhi = dPhi;
+  m_minEta = minEta;
+  m_minPhi = minPhi;
+  m_maxEta = maxEta;
+  m_maxPhi = maxPhi;
+  m_dEta = dEta;
+  m_dPhi = dPhi;
 }
 
 //Destructor.
@@ -53,7 +53,7 @@ StatusCode TopoClusterMap::SetTopoClusters(const xAOD::CaloClusterContainer *inp
     phi = cc->phi();
 
     //Put it in appropriate vector.
-    _map[GetEtaPhiKeys(eta,phi).first][GetEtaPhiKeys(eta,phi).second].push_back(cc);
+    m_map[GetEtaPhiKeys(eta,phi).first][GetEtaPhiKeys(eta,phi).second].push_back(cc);
   }
 
   SortGridVectors();
@@ -67,7 +67,7 @@ void TopoClusterMap::InsertTopoCluster(xAOD::CaloCluster* topo) {
   double eta(topo->phi()), phi(topo->phi());
 
   //Put it in appropriate vector.
-  _map.at(GetEtaPhiKeys(eta,phi).first).at(GetEtaPhiKeys(eta,phi).second).push_back(topo);
+  m_map.at(GetEtaPhiKeys(eta,phi).first).at(GetEtaPhiKeys(eta,phi).second).push_back(topo);
 
   //Re-sort the vector according to Et.
   SortGridVector(GetEtaPhiKeys(eta,phi).first, GetEtaPhiKeys(eta,phi).second);
@@ -77,38 +77,38 @@ void TopoClusterMap::InsertTopoCluster(xAOD::CaloCluster* topo) {
 //Boolean comparison somewhere here that sorts vectors in grid by Et.
 void TopoClusterMap::SortGridVectors() {
   
-  for (int i = 0; i <= (GetEtaPhiKeys(_maxEta, _maxPhi).first); i++)
-    for (int j = 0; j <= (GetEtaPhiKeys(_maxEta, _maxPhi).second); j++)
+  for (int i = 0; i <= (GetEtaPhiKeys(m_maxEta, m_maxPhi).first); i++)
+    for (int j = 0; j <= (GetEtaPhiKeys(m_maxEta, m_maxPhi).second); j++)
       SortGridVector(i,j);
 
 }
 
 void TopoClusterMap::SortGridVector(int eta_key, int phi_key) {
 
-  if (_map[eta_key][phi_key].size()>0) 
-    sort( _map[eta_key][phi_key].begin(), _map[eta_key][phi_key].end(), CompareClusterET );
+  if (m_map[eta_key][phi_key].size()>0) 
+    sort( m_map[eta_key][phi_key].begin(), m_map[eta_key][phi_key].end(), CompareClusterET );
 }
 
 void TopoClusterMap::ClearMap() {
 
-  for (int i = 0; i <= (GetEtaPhiKeys(_maxEta, _maxPhi).first); i++)
-    for (int j = 0; j <= (GetEtaPhiKeys(_maxEta, _maxPhi).second); j++)
-      _map[i][j].clear();
+  for (int i = 0; i <= (GetEtaPhiKeys(m_maxEta, m_maxPhi).first); i++)
+    for (int j = 0; j <= (GetEtaPhiKeys(m_maxEta, m_maxPhi).second); j++)
+      m_map[i][j].clear();
 }
 
 // void TopoClusterMap::DumpMapContents() {
 
-//   for (int i = 0; i <= (GetEtaPhiKeys(_maxEta, _maxPhi).first); i++)
-//     for (int j = 0; j <= (GetEtaPhiKeys(_maxEta, _maxPhi).second); j++) {
-//       ATH_MSG_DEBUG("Size of topocluster vector at (" << i << "," << j << "): " << _map[i][j].size());
-//       if (_map[i][j].size()) {
+//   for (int i = 0; i <= (GetEtaPhiKeys(m_maxEta, m_maxPhi).first); i++)
+//     for (int j = 0; j <= (GetEtaPhiKeys(m_maxEta, m_maxPhi).second); j++) {
+//       ATH_MSG_DEBUG("Size of topocluster vector at (" << i << "," << j << "): " << m_map[i][j].size());
+//       if (m_map[i][j].size()) {
 // 	ATH_MSG_DEBUG("Contents of vector:");
-// 	for (unsigned int k = 0; k < _map[i][j].size(); k++) {
-// 	  //ATH_MSG_DEBUG("E: %f, eta: %f, phi: %f, Pt: %f \n",(_map[i][j])[k]->e(), (_map[i][j])[k]->eta(), (_map[i][j])[k]->phi(), (_map[i][j])[k]->pt());
-// 	  ATH_MSG_DEBUG("E: " << (_map[i][j])[k]->e()
-// 			<< ", eta: "     << (_map[i][j])[k]->eta()
-// 			<< ", phi: "     << (_map[i][j])[k]->phi()
-// 			<< ", Pt:  "     << (_map[i][j])[k]->pt());
+// 	for (unsigned int k = 0; k < m_map[i][j].size(); k++) {
+// 	  //ATH_MSG_DEBUG("E: %f, eta: %f, phi: %f, Pt: %f \n",(m_map[i][j])[k]->e(), (m_map[i][j])[k]->eta(), (m_map[i][j])[k]->phi(), (m_map[i][j])[k]->pt());
+// 	  ATH_MSG_DEBUG("E: " << (m_map[i][j])[k]->e()
+// 			<< ", eta: "     << (m_map[i][j])[k]->eta()
+// 			<< ", phi: "     << (m_map[i][j])[k]->phi()
+// 			<< ", Pt:  "     << (m_map[i][j])[k]->pt());
 // 	}
 //       }
 //     }
@@ -152,14 +152,14 @@ std::vector<const xAOD::CaloCluster*> TopoClusterMap::RetrieveTopoClusters(doubl
 
     for (int ieta = lower_keys.first; ieta <= upper_keys.first; ieta++)
       for (int iphi = lower_keys.second; iphi <= upper_keys.second; iphi++)
-	clusters.insert(clusters.end(), _map.at(ieta).at(iphi).begin(), _map.at(ieta).at(iphi).end());
+	clusters.insert(clusters.end(), m_map.at(ieta).at(iphi).begin(), m_map.at(ieta).at(iphi).end());
 
 
     //Re-sort vector according to Et and return it.
     sort( clusters.begin(), clusters.end(), CompareClusterET );
 
   } else {
-    clusters = _map.at(GetEtaPhiKeys(eta,phi).first).at(GetEtaPhiKeys(eta,phi).second);
+    clusters = m_map.at(GetEtaPhiKeys(eta,phi).first).at(GetEtaPhiKeys(eta,phi).second);
   }
 
   return clusters;

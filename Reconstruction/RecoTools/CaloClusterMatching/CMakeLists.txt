@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps
+                          Control/CxxUtils
                           Event/xAOD/xAODCore )
 
 # Component(s) in the package:

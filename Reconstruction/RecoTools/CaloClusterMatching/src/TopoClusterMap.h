@@ -36,7 +36,7 @@ class TopoClusterMap {
   //Function to set TopoClusters.
   StatusCode SetTopoClusters(const xAOD::CaloClusterContainer*);
 
-  TopoCluster2DMap& RetrieveMap() {return _map;}
+  TopoCluster2DMap& RetrieveMap() {return m_map;}
 
   //Routine to retrieve vector of TopoClusters for a given Pt region.
   std::vector<const xAOD::CaloCluster*> RetrieveTopoClusters(double eta, double phi,
@@ -50,23 +50,23 @@ class TopoClusterMap {
   //Routine to retrieve vector of TopoClusters for a given (eta, phi) region.
   inline std::vector<const xAOD::CaloCluster*> RetrieveTopoClusters(int eta_key, int phi_key) const
   {
-    return _map.at(eta_key).at(phi_key);
+    return m_map.at(eta_key).at(phi_key);
   }
 
   //Private routine to translate an input eta, phi into integer keys for map.
   inline std::pair<int,int> GetEtaPhiKeys(double eta, double phi) const {
 
     //Some checks on eta, phi values.
-    if (eta > _maxEta) eta = _maxEta;
-    if (eta < _minEta) eta = _minEta;
-    if (phi > _maxPhi) phi = _maxPhi;
-    if (phi < _minPhi) phi = _minPhi;
+    if (eta > m_maxEta) eta = m_maxEta;
+    if (eta < m_minEta) eta = m_minEta;
+    if (phi > m_maxPhi) phi = m_maxPhi;
+    if (phi < m_minPhi) phi = m_minPhi;
 
     //Need some warnings against max/min eta, phi here, I think.
-    int eta_key = (int)((eta-_minEta)/_dEta);
+    int eta_key = (int)((eta-m_minEta)/m_dEta);
 
     //NOTE: May have to account for phi wraparound here.
-    int phi_key = (int)((phi-_minPhi)/_dPhi);
+    int phi_key = (int)((phi-m_minPhi)/m_dPhi);
 
     return std::pair<int,int>(eta_key,phi_key);
 
@@ -76,11 +76,11 @@ class TopoClusterMap {
 
  private:
 
-  TopoCluster2DMap _map;
+  TopoCluster2DMap m_map;
 
   //Map granularity and range.
-  double _minEta, _minPhi, _maxEta, _maxPhi;
-  double _dEta, _dPhi;
+  double m_minEta, m_minPhi, m_maxEta, m_maxPhi;
+  double m_dEta, m_dPhi;
 
   //Routine to sort topocluster grid elements by Pt.
   void SortGridVectors();
