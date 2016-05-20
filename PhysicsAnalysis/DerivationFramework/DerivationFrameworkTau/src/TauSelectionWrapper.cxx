@@ -82,6 +82,7 @@ StatusCode DerivationFramework::TauSelectionWrapper::addBranches() const
      // Write decision to SG for access by downstream algs 
      if (evtStore()->contains<std::vector<int> >(m_sgKey)) {
      	ATH_MSG_ERROR("Tool is attempting to write a StoreGate key " << m_sgKey << " which already exists. Please use a different key");
+	delete isTauSelectionResult;
      	return StatusCode::FAILURE;
      }
      CHECK(evtStore()->record(isTauSelectionResult,m_sgKey));       
