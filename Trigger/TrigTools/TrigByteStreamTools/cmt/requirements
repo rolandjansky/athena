@@ -11,7 +11,6 @@ apply_pattern declare_scripts files="../bin/*.py \
                                      ../python/replaceMUCTPI.py \
                                      ../python/trigbs_replaceLB.py \
                                      ../python/trigbs_prescaleL1.py \
-                                     ../python/trigbs_streamFilter.py \
                                      ../python/slimHLTBSFile.py"
 
 #
