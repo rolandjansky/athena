@@ -12,18 +12,18 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include "GaudiKernel/IToolSvc.h"
+//#include "GaudiKernel/IToolSvc.h"
 
-#include "CaloEvent/CaloCellContainer.h"
+//#include "CaloEvent/CaloCellContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
-#include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/LArNeighbours.h"
+//#include "CaloIdentifier/CaloCell_ID.h"
+//#include "CaloIdentifier/LArNeighbours.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloUtils/CaloCellList.h"
-#include "CaloUtils/CaloCellESort.h"
-#include "CaloInterface/IHadronicCalibrationTool.h"
-#include "FourMomUtils/P4Helpers.h"
+//#include "CaloUtils/CaloCellESort.h"
+//#include "CaloInterface/IHadronicCalibrationTool.h"
+//#include "FourMomUtils/P4Helpers.h"
 #include "TauShotFinder.h"
 #include "TauShotVariableHelpers.h"
 //#include "TMVA/Reader.h"

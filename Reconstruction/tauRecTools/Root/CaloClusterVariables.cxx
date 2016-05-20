@@ -2,9 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloClusterVariables.h"
-#include "tauEvent/TauJet.h"
-#include "boost/foreach.hpp"
+#include "tauRecTools/CaloClusterVariables.h"
+//#include "tauEvent/TauJet.h"
+//#include "boost/foreach.hpp"
 #include "math.h"
 
 const double CaloClusterVariables::DEFAULT = -1111.;
@@ -42,13 +42,17 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau, bool inAODmode) {
    
     unsigned int sumCells = 0;
 
-    std::vector<xAOD::CaloVertexedCluster> constituents;
+    std::vector<CaloVertexedClusterType> constituents;
     for (; nav_it != nav_itE; ++nav_it) {
       pCluster = dynamic_cast<const xAOD::CaloCluster*> ( (*nav_it)->rawConstituent() );
       if (!pCluster) continue;
 
       // XXX moved the calculation of num cells up because later on we don't have access to the actual clusters anymore
-      if(!inAODmode) sumCells += pCluster->size();
+      if(!inAODmode) {
+#ifndef XAOD_ANALYSIS
+	sumCells += pCluster->size();
+#endif
+      }
 
       // correct cluster
       if (pTau.vertexLink() && m_doVertexCorrection)
@@ -72,9 +76,9 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau, bool inAODmode) {
     double sum_e = 0;
     double sum_of_E2 = 0;
     double sum_radii = 0;
-    CLHEP::HepLorentzVector centroid = calculateTauCentroid(this->m_numConstit, constituents);
+    TLorentzVector centroid = calculateTauCentroid(this->m_numConstit, constituents);
 
-    for (const xAOD::CaloVertexedCluster& c : constituents) {
+    for (const CaloVertexedClusterType& c : constituents) {
         double energy = c.e();
         sum_of_E2 += energy*energy;
 
@@ -89,7 +93,7 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau, bool inAODmode) {
         // so using cluster eta/phi directly instead of creating a HLV.
         //CLHEP::HepLorentzVector constituentHLV(px, py, pz, 1);
         //sum_radii += centroid.deltaR(constituentHLV);
-        double dr = std::sqrt( std::pow(c.eta() - centroid.eta(),2) + std::pow(c.phi() - centroid.phi(),2));
+        double dr = std::sqrt( std::pow(c.eta() - centroid.Eta(),2) + std::pow(c.phi() - centroid.Phi(),2));
         sum_radii += dr;
         sum_e += energy;
         sum_px += px;
@@ -137,7 +141,7 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau, bool inAODmode) {
     centroid = calculateTauCentroid(this->m_effNumConstit_int, constituents);
 
     int icount = this->m_effNumConstit_int;
-    for (const xAOD::CaloVertexedCluster& c : constituents) {
+    for (const CaloVertexedClusterType& c : constituents) {
       if (icount <= 0) break;
       --icount;
 
@@ -149,7 +153,7 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau, bool inAODmode) {
         // FF: see comment above
         //CLHEP::HepLorentzVector constituentHLV(px, py, pz, 1);
         //sum_radii += centroid.deltaR(constituentHLV);
-        double dr = std::sqrt( std::pow(c.eta() - centroid.eta(),2) + std::pow(c.phi() - centroid.phi(),2));
+        double dr = std::sqrt( std::pow(c.eta() - centroid.Eta(),2) + std::pow(c.phi() - centroid.Phi(),2));
         sum_radii += dr;
 
         sum_e += energy;
@@ -179,14 +183,14 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau, bool inAODmode) {
 // Calculate the geometrical center of the
 // tau constituents
 //*****************************************
-CLHEP::HepLorentzVector CaloClusterVariables::calculateTauCentroid(int nConst, const std::vector<xAOD::CaloVertexedCluster>& constituents) {
+TLorentzVector CaloClusterVariables::calculateTauCentroid(int nConst, const std::vector<CaloVertexedClusterType>& constituents) {
 
     double px = 0;
     double py = 0;
     double pz = 0;
     double current_px, current_py, current_pz, modulus;
 
-    for (const xAOD::CaloVertexedCluster& c : constituents) {
+    for (const CaloVertexedClusterType& c : constituents) {
       if (nConst <= 0) break;
       --nConst;
         current_px = c.p4().Px();
@@ -197,6 +201,6 @@ CLHEP::HepLorentzVector CaloClusterVariables::calculateTauCentroid(int nConst, c
         py += current_py / modulus;
         pz += current_pz / modulus;
     }
-    CLHEP::HepLorentzVector centroid(px, py, pz, 1);
+    TLorentzVector centroid(px, py, pz, 1);
     return centroid;
 }

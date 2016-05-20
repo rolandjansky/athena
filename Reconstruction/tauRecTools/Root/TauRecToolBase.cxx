@@ -13,7 +13,7 @@ TauEventData defaultTauEventData;
 
 //________________________________________
 std::string TauRecToolBase::find_file(const std::string& fname) const {
-  static const std::string m_tauRecToolsTag="tauRecTools/00-00-00/";
+  //static const std::string m_tauRecToolsTag="tauRecTools/00-00-00/";
   std::string full_path;
   //offline calib files are in GroupData
   //online calib files are in release
@@ -60,7 +60,7 @@ StatusCode TauRecToolBase::readConfig() {
   env.ReadFile(PathResolverFindCalibFile(config_file_path).c_str(),kEnvAll);
 
   THashList* lList = env.GetTable();
-  for( Int_t i = 0; i < lList->GetEntries(); ++i )
+  for( Int_t i = 0; lList && i < lList->GetEntries(); ++i )
   {
     StatusCode sc;
     std::string name = lList->At( i )->GetName();
@@ -135,6 +135,7 @@ void TauRecToolBase::setTauEventData(TauEventData* data){
 TauRecToolBase::TauRecToolBase(const std::string& name) :
   asg::AsgTool(name) {
   declareProperty("inTrigger", m_in_trigger=false);
+  declareProperty("calibFolder", m_tauRecToolsTag="tauRecTools/00-00-10/");
 }
 
 //________________________________________

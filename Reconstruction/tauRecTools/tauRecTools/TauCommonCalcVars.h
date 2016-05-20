@@ -22,7 +22,7 @@ public:
     //-----------------------------------------------------------------
     // Constructor and destructor
     //-----------------------------------------------------------------
-    TauCommonCalcVars(const std::string& name);
+    TauCommonCalcVars(const std::string& name="TauCommonCalcVars");
     ASG_TOOL_CLASS2(TauCommonCalcVars, TauRecToolBase, ITauToolBase)
     ~TauCommonCalcVars();
     
@@ -34,6 +34,9 @@ public:
     virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
 
     virtual void print() const { }
+
+private:
+    std::string m_configPath;
 
 };
 

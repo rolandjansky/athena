@@ -28,9 +28,14 @@ class TauProcessorTool : public asg::AsgTool, virtual public ITauToolExecBase {
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
+  inline void setIsConfigured(bool v=true){ m_configured=v; }
+
  private:
+  std::string find_file(const std::string& fname) const;
+  std :: string                 m_ConfigPath;
   std :: string                 m_tauContainerName;
   std :: string                 m_tauAuxContainerName; 
+  bool                          m_configured;
   bool                          m_AODmode;
   bool                          m_deep_copy_chargedPFOContainer;
   bool                          m_deep_copy_hadronicPFOContainer;
@@ -40,6 +45,9 @@ class TauProcessorTool : public asg::AsgTool, virtual public ITauToolExecBase {
   ToolHandleArray<ITauToolBase>  m_tools;
 
  public:
+
+  StatusCode readConfig();
+
   //-------------------------------------------------------------------------
   // make a deep copy of conatiner a
   // xAOD::TauJetContainer *cont(0);

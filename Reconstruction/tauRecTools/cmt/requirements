@@ -11,6 +11,10 @@ use  AtlasBoost                 AtlasBoost-*                    External
 use  AtlasROOT                  AtlasROOT-*                     External
 use  xAODTracking               xAODTracking-*                  Event/xAOD
 use  AthLinks                   AthLinks-*                      Control
+#use  AnalysisUtils              AnalysisUtils-*                 PhysicsAnalysis/AnalysisCommon
+use  CaloUtils                  CaloUtils-*                     Calorimeter
+use  CxxUtils                   CxxUtils-*                      Control
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 
 private
 use  xAODJet                    xAODJet-*                       Event/xAOD
@@ -18,28 +22,25 @@ use  AthContainers              AthContainers-*                 Control
 use  PathResolver               PathResolver-*                  Tools
 use  GaudiInterface             GaudiInterface-*                External
 use  FourMomUtils               FourMomUtils-*                  Event
-use  FourMom                    FourMom-*                       Event
-use  AnalysisUtils              AnalysisUtils-*                 PhysicsAnalysis/AnalysisCommon
-use  AtlasAIDA                  AtlasAIDA-*                     External
-use  AtlasCLHEP                 AtlasCLHEP-*                    External
-use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
-use  CaloEvent                  CaloEvent-*                     Calorimeter
-use  CaloGeoHelpers             CaloGeoHelpers-*                Calorimeter
-use  CaloIdentifier             CaloIdentifier-*                Calorimeter
-use  CaloUtils                  CaloUtils-*                     Calorimeter
-use  CxxUtils                   CxxUtils-*                      Control
-use  EventKernel                EventKernel-*                   Event
+#use  FourMom                    FourMom-*                       Event
+#use  AtlasAIDA                  AtlasAIDA-*                     External
+#use  AtlasCLHEP                 AtlasCLHEP-*                    External
+#use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
+#use  CaloEvent                  CaloEvent-*                     Calorimeter
+#use  CaloGeoHelpers             CaloGeoHelpers-*                Calorimeter
+#use  CaloIdentifier             CaloIdentifier-*                Calorimeter
+#use  EventKernel                EventKernel-*                   Event
 use  ITrackToVertex             ITrackToVertex-*                Reconstruction/RecoTools
 use  CaloInterface              CaloInterface-*                 Calorimeter
 use  InDetRecToolInterfaces     InDetRecToolInterfaces-*        InnerDetector/InDetRecTools
 use  JetEDM                     JetEDM-*                        Reconstruction/Jet
-use  JetEvent                   JetEvent-*                      Reconstruction/Jet
+#use  JetEvent                   JetEvent-*                      Reconstruction/Jet
 use  NavFourMom                 NavFourMom-*                    Event
 use  Particle                   Particle-*                      Reconstruction
 use  RecoToolInterfaces         RecoToolInterfaces-*            Reconstruction/RecoTools
 use TrkLinks                    TrkLinks-*              Tracking/TrkEvent
-use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
-use  TrkParticleBase            TrkParticleBase-*               Tracking/TrkEvent
+#use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
+#use  TrkParticleBase            TrkParticleBase-*               Tracking/TrkEvent
 use TrkParametersIdentificationHelpers TrkParametersIdentificationHelpers-* Tracking/TrkEvent
 use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
 use  TrkTrackSummary            TrkTrackSummary-*               Tracking/TrkEvent
@@ -47,10 +48,10 @@ use  TrkVertexFitterInterfaces  TrkVertexFitterInterfaces-*     Tracking/TrkVert
 use  TrkVertexFitters           TrkVertexFitters-*              Tracking/TrkVertexFitter
 use TrkVxEdmCnv                 TrkVxEdmCnv-*           Tracking/TrkVertexFitter
 use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
-use  tauEvent                   tauEvent-*                      Reconstruction
+#use  tauEvent                   tauEvent-*                      Reconstruction
 use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
 use  xAODPFlow                  xAODPFlow-*                     Event/xAOD
-use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
+use TauAnalysisTools            TauAnalysisTools-*              PhysicsAnalysis/TauID
 
 
 
@@ -71,6 +72,8 @@ apply_pattern declare_joboptions files="*.txt *.py"
 apply_pattern declare_runtime files="*.root *.dat *.xml" 
 
 apply_pattern declare_python_modules files="*.py"
+
+apply_pattern declare_calib files="../share/00-00-00/* ../share/*"
 
 apply_tag ROOTTMVALibs 
 

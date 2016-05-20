@@ -13,22 +13,26 @@
 #include <math.h>
 #include <sstream>
 
-#include "GaudiKernel/Property.h"
-#include "FourMomUtils/P4Helpers.h"
+//#include "GaudiKernel/Property.h"
+//#include "FourMomUtils/P4Helpers.h"
 
-#include "AnalysisUtils/AnalysisMisc.h"
+//#include "AnalysisUtils/AnalysisMisc.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODTau/TauJet.h"
 
-#include "CaloClusterVariables.h"
-#include "TauSubstructureVariables.h"
+#include "tauRecTools/CaloClusterVariables.h"
+#include "tauRecTools/TauSubstructureVariables.h"
 
 #include "tauRecTools/KineUtils.h"
-#include "CaloUtils/CaloVertexedCluster.h"
+//#include "CaloUtils/CaloVertexedCluster.h"
 //#include "CaloEvent/CaloVertexedCluster.h"
 
+#ifndef XAOD_ANALYSIS
 using CLHEP::GeV;
+#else
+#define GeV 1000
+#endif
 
 const double TauSubstructureVariables::DEFAULT = -1111.;
 
@@ -46,6 +50,7 @@ TauSubstructureVariables::TauSubstructureVariables( const std::string& name ) :
 	declareProperty("pileUpAlpha", m_pileUpAlpha);
 	declareProperty("VertexCorrection", m_doVertexCorrection);
 	declareProperty("inAODmode", m_inAODmode);
+	declareProperty("ConfigPath", m_configPath);
 }
 
 
@@ -197,13 +202,13 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 
 		// calc total energy
 		totalEnergy += incluster->e();
-
+		
 		//apply Vertex correction on a temporary
 		TLorentzVector tempclusvec;
 		if (m_doVertexCorrection && pTau.vertexLink())
-			tempclusvec = xAOD::CaloVertexedCluster(*incluster, (*pTau.vertexLink())->position()).p4();
+			tempclusvec = CaloVertexedClusterType(*incluster, (*pTau.vertexLink())->position()).p4();
 		else
-			tempclusvec = xAOD::CaloVertexedCluster(*incluster).p4();
+			tempclusvec = CaloVertexedClusterType(*incluster).p4();
 
 		dr = Tau1P3PKineUtils::deltaR(pTau.eta(),pTau.phi(), tempclusvec.Eta(), tempclusvec.Phi());
 		if (0.2 <= dr && dr < 0.4) 
@@ -243,7 +248,9 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	  }
 	
 	// now sort cluster by energy
-	AnalysisUtils::Sort::e(&vClusters);
+	// AnalysisUtils::Sort::e(&vClusters);
+	std::sort(vClusters.begin(), vClusters.end(), DefCaloClusterCompare());
+	
 
 	// determine energy sum of leading 2 and leading 3 clusters
 	float sum2LeadClusterE(0.);

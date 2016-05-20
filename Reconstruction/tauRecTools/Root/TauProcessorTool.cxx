@@ -10,6 +10,20 @@
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFOAuxContainer.h"
 
+// Used for configuration
+#include "PathResolver/PathResolver.h"
+#include "TEnv.h"
+#include "THashList.h"
+#include "TClass.h"
+#include "TROOT.h"
+
+// // Tools we can configure
+// #include "tauRecTools/TauRecToolBase.h"
+// #include "tauRecTools/TauCalibrateLC.h"
+// #include "tauRecTools/TauCommonCalcVars.h"
+// #include "tauRecTools/TauTrackFilter.h"
+// #include "tauRecTools/TauGenericPi0Cone.h"
+// #include "tauRecTools/TauIDPileupCorrection.h"
 
 //________________________________________
 TauProcessorTool::TauProcessorTool(const std::string& type) :
@@ -18,6 +32,7 @@ TauProcessorTool::TauProcessorTool(const std::string& type) :
   m_tauAuxContainerName("TauJetsAux."),
   m_AODmode(false)
 {
+  declareProperty("ConfigPath", m_ConfigPath="tauRecTools/TauProcessorTool.conf");
   declareProperty("TauContainer", m_tauContainerName);
   declareProperty("TauAuxContainer", m_tauAuxContainerName);
   declareProperty("Tools", m_tools, "List of ITauToolBase tools");
@@ -25,7 +40,7 @@ TauProcessorTool::TauProcessorTool(const std::string& type) :
   declareProperty("deepCopyChargedPFOContainer", m_deep_copy_chargedPFOContainer=true);
   declareProperty("deepCopyHadronicPFOContainer", m_deep_copy_hadronicPFOContainer=true);
   declareProperty("deepCopyNeutralPFOContainer", m_deep_copy_neutralPFOContainer=true);
-  declareProperty("deepCopySecVtxContainer", m_deep_copy_SecVtxContainer=true);  
+  declareProperty("deepCopySecVtxContainer", m_deep_copy_SecVtxContainer=false);  
 }
 
 //________________________________________
@@ -36,6 +51,32 @@ StatusCode TauProcessorTool::initialize(){
 
 
   //ATH_MSG_INFO("FF::TauProcessor :: initialize()");
+
+#ifdef XAOD_ANALYSIS
+
+  if (!m_configured) {
+    if (!readConfig()) {
+      // TODO output some kind of error message before returning
+      return StatusCode::FAILURE;
+    }
+    for (unsigned i = 0 ; i < m_tools.size() ; ++i) {
+      ITauToolBase* tool = dynamic_cast<ITauToolBase*>(&*m_tools.at(i));
+      if (!tool->readConfig().isSuccess()) {
+        // TODO output some kind of error message before returning
+        return StatusCode::FAILURE;
+      }
+    }
+  }
+
+  for (unsigned i = 0 ; i < m_tools.size() ; ++i) {
+    // Tools are (normally) not already initialized when running in analysis mode
+    if (!m_tools.at(i)->initialize()) {
+      // TODO output some kind of error message before returning
+      return StatusCode::FAILURE;
+    }
+  }
+
+#endif //XAOD_ANALYSIS
 
   //-------------------------------------------------------------------------
   // No tools allocated!
@@ -266,3 +307,193 @@ StatusCode TauProcessorTool::finalize(){
   return StatusCode::SUCCESS;
 }
 
+//________________________________________
+//TODO: Inherit this, don't reimplement it
+std::string TauProcessorTool::find_file(const std::string& fname) const {
+  static const std::string m_tauRecToolsTag="tauRecTools/00-00-00/";
+  std::string full_path = PathResolverFindCalibFile(m_tauRecToolsTag+fname);
+  if(full_path=="") full_path = PathResolverFindCalibFile(fname);
+  return full_path;
+}
+
+//________________________________________
+StatusCode TauProcessorTool::readConfig() {
+  // Sanity check to see if property ConfigPath is declared for a tool. Might be
+  // removed once all tools are updated to have a config path declared.
+  // in athena getProperties returns std::vector<Property*>
+  // in rc     getProperties returns std::map<std::string,Property*>
+#ifdef ASGTOOL_ATHENA
+  bool configPathDeclared = false;
+  for (Property* property : getProperties())
+  {
+    if (property->name() == "ConfigPath")
+    {
+      configPathDeclared = true;
+      break;
+    }
+  }
+  if (!configPathDeclared)
+#elif defined(ASGTOOL_STANDALONE)
+  PropertyMgr::PropMap_t property_map = getPropertyMgr()->getProperties();
+  if (property_map.find("ConfigPath") == property_map.end())
+#else
+#   error "What environment are we in?!?"
+#endif // ASGTOOL_ATHENA
+  {
+    ATH_MSG_INFO("No config file path property declared yet, this is not recommended");
+    return StatusCode::SUCCESS;
+  }
+  
+  // get configured config path and load file via TEnv
+  const std::string* config_file_path_property;
+  // if (getProperty("ConfigPath", config_file_path).isFailure())
+  //   return StatusCode::FAILURE;
+  config_file_path_property = getProperty<std::string>("ConfigPath");
+  std::string config_file_path = find_file(*config_file_path_property);
+  TEnv env;
+  env.ReadFile(PathResolverFindCalibFile(config_file_path).c_str(),kEnvAll);
+
+  THashList* lList = env.GetTable();
+  std::vector<std::pair<std::string, std::string>> toolList;
+  for( Int_t i = 0; lList && i < lList->GetEntries(); ++i )
+  {
+    std::string name = lList->At( i )->GetName();
+    if (std::string::npos != name.rfind('.')) // FIXME this condition is a hack
+    {
+      std::pair<std::string, std::string> toolInfo;
+      toolInfo.first  = lList->At( i )->GetName();
+      toolInfo.second = env.GetValue(lList->At( i )->GetName(),"");
+      toolList.push_back(toolInfo);
+    }
+    else {
+      StatusCode sc;
+#ifdef ASGTOOL_ATHENA
+      // get type of variable with the entry name
+      const std::type_info* type = getProperty(lList->At( i )->GetName()).type_info();
+
+      // search for type is needed by env.GetValue function (needs a variable of the correct type as 2nd argument)
+      if (*type == typeid(bool))
+        sc = this->setProperty(lList->At( i )->GetName(),
+          bool(env.GetValue(lList->At( i )->GetName(),bool(true))));
+      else if (*type == typeid(int))
+        sc = this->setProperty(lList->At( i )->GetName(),
+          env.GetValue(lList->At( i )->GetName(),int(0)));
+      else if (*type == typeid(float))
+        sc = this->setProperty(lList->At( i )->GetName(),
+          env.GetValue(lList->At( i )->GetName(),float(0)));
+      else if (*type == typeid(double))
+        sc = this->setProperty(lList->At( i )->GetName(),
+          env.GetValue(lList->At( i )->GetName(),double(0)));
+      else if (*type == typeid(std::string))
+        sc = this->setProperty(lList->At( i )->GetName(),
+          env.GetValue(lList->At( i )->GetName(),""));
+#else
+    // get type of variable with the entry name
+      Property::Type type = getPropertyMgr()->getProperty(lList->At( i )->GetName())->type();
+
+      if (type == Property::BOOL)
+        sc = this->setProperty(lList->At( i )->GetName(),
+          bool(env.GetValue(lList->At( i )->GetName(),bool(true))));
+      else if (type == Property::INT)
+        sc = this->setProperty(lList->At( i )->GetName(),
+          env.GetValue(lList->At( i )->GetName(),int(0)));
+      else if (type == Property::FLOAT)
+        sc = this->setProperty(lList->At( i )->GetName(),
+          env.GetValue(lList->At( i )->GetName(),float(0)));
+      else if (type == Property::DOUBLE)
+        sc = this->setProperty(lList->At( i )->GetName(),
+          env.GetValue(lList->At( i )->GetName(),double(0)));
+      else if (type == Property::STRING)
+        sc = this->setProperty(lList->At( i )->GetName(),
+          env.GetValue(lList->At( i )->GetName(),""));
+#endif // ASGTOOL_ATHENA
+      else {
+        sc = StatusCode::FAILURE;
+      }
+      if (!sc.isSuccess()) {
+#ifdef ASGTOOL_ATHENA
+        ATH_MSG_FATAL("there was a problem to find the correct type enum: "<<type->name());
+#else
+        ATH_MSG_FATAL("there was a problem to find the correct type enum: "<<type);
+#endif // ASGTOOL_ATHENA
+        return StatusCode::FAILURE;
+      }
+    }
+  }
+
+  // At this point, the config file is read. Now we need to instantiate the tools.
+
+  //ToolHandleArray<ITauToolBase> tools;
+
+  for (unsigned i = 0 ; i < toolList.size() ; ++i)
+  {
+    std::pair<std::string, std::string> toolInfo = toolList.at(i);
+    std::string toolType = toolInfo.second;
+    std::string toolConfigPath = toolInfo.first;
+
+    // Going to get name from the basename of the config file
+    std::string toolName = toolConfigPath; 
+
+    // Remove directory if present.
+    // Do this before extension removal incase directory has a period character.
+    const size_t last_slash_idx = toolName.find_last_of("\\/");
+    if (std::string::npos != last_slash_idx) { toolName.erase(0, last_slash_idx + 1); }
+
+    // Remove extension if present.
+    const size_t period_idx = toolName.rfind('.');
+    if (std::string::npos != period_idx) { toolName.erase(period_idx); }
+
+    // Instantiate the tool
+    // TauRecToolBase* tool;
+    // if      (toolType == "TauCalibrateLC")        { tool = new TauCalibrateLC(toolName); }
+    // else if (toolType == "TauCommonCalcVars")     { tool = new TauCommonCalcVars(toolName); }
+    // else if (toolType == "TauTrackFilter")        { tool = new TauTrackFilter(toolName); }
+    // else if (toolType == "TauGenericPi0Cone")     { tool = new TauGenericPi0Cone(toolName); }
+    // else if (toolType == "TauIDPileupCorrection") { tool = new TauIDPileupCorrection(toolName); }
+    // else {
+    //   // TODO output some kind of error message before returning
+    //   return StatusCode::FAILURE;
+    // }
+
+    ITauToolBase* tool(0);
+    TClass* cl = gROOT->GetClass(toolType.c_str());
+    if(!cl) {
+      ATH_MSG_FATAL("No class " << toolType << " Found (is there a dictionary?)");
+      return StatusCode::FAILURE;
+    }
+    if( !cl->InheritsFrom("ITauToolBase") ){
+      ATH_MSG_FATAL("Class " << toolType << " Does not inherit from ITauToolBase");
+      return StatusCode::FAILURE;
+    }
+    tool = static_cast<ITauToolBase*> (cl->New());
+    if(tool==0){
+      ATH_MSG_FATAL("Couldn't allocate " << toolType << " Is there a default constructor?");
+      return StatusCode::FAILURE;      
+    }
+#ifdef XAOD_ANALYSIS
+    asg::ToolStore::remove(toolType);// name of tool is name of class, in case we want multiple instances in store, 
+    //remove instance, rename tool, and put tool back in store
+    tool->setName(toolName);
+    asg::ToolStore::put(tool);
+#endif
+
+
+    // Set the configuration path for the tool
+    asg::AsgTool* asg_tool = dynamic_cast<asg::AsgTool*> (tool);
+    if (!asg_tool->setProperty("ConfigPath", toolConfigPath).isSuccess()) {
+      // TODO output some kind of error message before returning
+      ATH_MSG_FATAL("Tool should have ConfigPath defined");
+      return StatusCode::FAILURE;
+    }
+
+    // Schedule the tool
+    ToolHandle<ITauToolBase> handle(tool);
+    m_tools.push_back(handle);
+
+  }
+
+  // Configure the TauProcessorTool
+  m_configured = true;
+
+  return StatusCode::SUCCESS;
+}

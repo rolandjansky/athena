@@ -11,14 +11,14 @@
 
 #include <TString.h>
 
-#include "GaudiKernel/IToolSvc.h"
+//#include "GaudiKernel/IToolSvc.h"
 
-#include "CaloEvent/CaloCellContainer.h"
-#include "CaloIdentifier/CaloCell_ID.h"
+//#include "CaloEvent/CaloCellContainer.h"
+//#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloUtils/CaloCellList.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 
-#include "AthContainers/OwnershipPolicy.h"
+//#include "AthContainers/OwnershipPolicy.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 
 #include "TauPi0CreateROI.h"

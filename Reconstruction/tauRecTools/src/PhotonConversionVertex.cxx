@@ -16,7 +16,7 @@ parameters.
 
 #include "PhotonConversionVertex.h"
 
-#include "tauEvent/TauJetContainer.h"
+//#include "tauEvent/TauJetContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "InDetRecToolInterfaces/IVertexFinder.h"

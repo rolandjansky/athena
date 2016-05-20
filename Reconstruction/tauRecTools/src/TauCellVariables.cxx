@@ -41,20 +41,20 @@ Jan 2012   - (FF) add cellEnergyRing variables
 #include <vector>
 #include <sstream>
 
-#include "GaudiKernel/Property.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+//#include "GaudiKernel/Property.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
-#include "AtlasDetDescr/AtlasDetectorID.h"
-#include "CaloUtils/CaloCellList.h"
-#include "CaloEvent/CaloCluster.h"
-#include "CaloEvent/CaloCell.h"
-#include "CaloEvent/CaloSamplingHelper.h"
+//#include "AtlasDetDescr/AtlasDetectorID.h"
+//#include "CaloUtils/CaloCellList.h"
+//#include "CaloEvent/CaloCluster.h"
+//#include "CaloEvent/CaloCell.h"
+//#include "CaloEvent/CaloSamplingHelper.h"
 #include "CaloUtils/CaloVertexedCell.h"
-#include "CaloIdentifier/CaloID.h"
-#include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloGeoHelpers/CaloSampling.h"
-#include "Particle/TrackParticle.h"
-#include "FourMom/P4EEtaPhiM.h"
+//#include "CaloIdentifier/CaloID.h"
+//#include "CaloIdentifier/CaloCell_ID.h"
+//#include "CaloGeoHelpers/CaloSampling.h"
+//#include "Particle/TrackParticle.h"
+//#include "FourMom/P4EEtaPhiM.h"
 
 #include "xAODTau/TauJet.h"
 #include "xAODJet/Jet.h"

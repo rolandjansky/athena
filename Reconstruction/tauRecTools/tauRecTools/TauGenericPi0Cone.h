@@ -21,7 +21,7 @@ public:
     //-------------------------------------------------------------
     //! Constructor
     //-------------------------------------------------------------
-    TauGenericPi0Cone(const std::string& name);
+    TauGenericPi0Cone(const std::string& name="TauGenericPi0Cone");
     ASG_TOOL_CLASS2(TauGenericPi0Cone, TauRecToolBase, ITauToolBase)
 
     //-------------------------------------------------------------
@@ -36,6 +36,10 @@ public:
     virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
 
     virtual void print() const { }
+
+private:
+    std::string m_configPath;
+
 };
 
 #endif

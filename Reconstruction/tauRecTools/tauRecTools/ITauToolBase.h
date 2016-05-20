@@ -51,6 +51,9 @@ class ITauToolBase : virtual public asg::IAsgTool
 
   virtual void setTauEventData(TauEventData* data) = 0;
 
+  //make virtual
+  virtual StatusCode readConfig() {return StatusCode::SUCCESS; }
+
 };
 
 #endif // TOOLBASE_TAU_H

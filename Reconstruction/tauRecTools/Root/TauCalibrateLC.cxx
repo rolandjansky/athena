@@ -33,7 +33,7 @@ m_printMissingContainerINFO(true),
 m_isCaloOnly(false),
 m_clusterCone(0.2)  //not used
 {
-    declareProperty("ConfigPath", m_configPath = "tauRecTools/TauCalibrateLC.conf");
+    declareProperty("ConfigPath", m_configPath);
     declareProperty("tauContainerKey", tauContainerKey = "TauJets");
     declareProperty("calibrationFile", calibrationFile = "EnergyCalibrationLC2012.root");
     declareProperty("vertexContainerKey", vertexContainerKey = "PrimaryVertices");
@@ -42,6 +42,12 @@ m_clusterCone(0.2)  //not used
     declareProperty("ClusterCone", m_clusterCone); //not used
     declareProperty("isCaloOnly",    m_isCaloOnly);
 }
+
+TauCalibrateLC::TauCalibrateLC() :
+  TauCalibrateLC("TauCalibrateLC")//c++11
+{
+}
+
 
 /********************************************************************/
 TauCalibrateLC::~TauCalibrateLC() {

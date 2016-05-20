@@ -14,7 +14,7 @@
 #include "TCollection.h"
 #include "TF1.h"
 #include "TH1D.h"
-#include "TFormula.h"
+//#include "TFormula.h"
 #include "TKey.h"
 
 //tau
@@ -31,7 +31,7 @@ TauIDPileupCorrection::TauIDPileupCorrection(const std::string& name) :
   TauRecToolBase(name),
   m_printMissingContainerINFO(true)
 {
-    declareProperty("ConfigPath", m_configPath = "tauRecTools/TauIDPileupCorrection.conf");
+    declareProperty("ConfigPath", m_configPath);
     declareProperty("averageEstimator", m_averageEstimator=20.);
     declareProperty("minNTrack", m_minNTrackAtVertex=2);
 
@@ -47,7 +47,7 @@ TauIDPileupCorrection::~TauIDPileupCorrection() {
 }
 
 /********************************************************************/
-StatusCode TauIDPileupCorrection::fillCalibMap( const std::string& fullPath, std::map<std::string, TFormula*> &calib_map) {
+StatusCode TauIDPileupCorrection::fillCalibMap( const std::string& fullPath, std::map<std::string, TF1*> &calib_map) {
   TFile * file = TFile::Open(fullPath.c_str(), "READ");
   
   TString filename(fullPath.c_str());
@@ -77,19 +77,20 @@ StatusCode TauIDPileupCorrection::fillCalibMap( const std::string& fullPath, std
 
       ATH_MSG_DEBUG("Found a key of type: " << myKey->GetClassName());
       
-      TFormula* form = dynamic_cast<TFormula*> (obj);//TF1, TF2 public TFormula Root<6.04.02, else
-      if(form==0){
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,4,2)	
-	TF1* f1 = dynamic_cast<TF1*> (obj); // TF2 public TF1 in any case
-	if(f1){
-	  form = dynamic_cast<TFormula*> (f1->GetFormula()->Clone());
-	  delete f1;
-	}
-#endif
-      }
-      if(form==0) delete obj;
+      //      TFormula* form = dynamic_cast<TFormula*> (obj);//TF1, TF2 public TFormula Root<6.04.02, else
+      TF1* fnc = dynamic_cast<TF1*> (obj);//TF1, TF2 public TFormula Root<6.04.02, else
+//       if(fnc2==0){
+// #if ROOT_VERSION_CODE >= ROOT_VERSION(6,4,2)	
+// 	TF1* f1 = dynamic_cast<TF1*> (obj); // TF2 public TF1 in any case
+// 	if(f1){
+// 	  form = dynamic_cast<TFormula*> (f1->GetFormula()->Clone());
+// 	  delete f1;
+// 	}
+// #endif
+//       }
+      if(fnc==0) delete obj;
       //TF1/TFormula not owned by file, used TKey::ReadObj() which means not owned by file
-      calib_map[myKey->GetName()] = form;
+      calib_map[myKey->GetName()] = fnc;
     }
   
   file->Close();
@@ -211,7 +212,7 @@ StatusCode TauIDPileupCorrection::execute(xAOD::TauJet& pTau)
 	
 	ATH_MSG_DEBUG("Attempting to correct variable " << m_conversion[i].detailName);
 	float correction = 0;
-	float tau_pt = pTau.pt();
+	float tau_pt = pTau.ptDetectorAxis();
 
 	if(pTau.nTracks() <= 1)
 	  {
@@ -266,8 +267,8 @@ StatusCode TauIDPileupCorrection::execute(xAOD::TauJet& pTau)
 //-----------------------------------------------------------------------------
 
 StatusCode TauIDPileupCorrection::finalize() {
-  for( std::pair<std::string,TFormula*> form : m_calibFunctions1P ) delete form.second;
-  for( std::pair<std::string,TFormula*> form : m_calibFunctions3P ) delete form.second;
+  for( std::pair<std::string,TF1*> form : m_calibFunctions1P ) delete form.second;
+  for( std::pair<std::string,TF1*> form : m_calibFunctions3P ) delete form.second;
   m_calibFunctions1P.clear();
   m_calibFunctions3P.clear();
 

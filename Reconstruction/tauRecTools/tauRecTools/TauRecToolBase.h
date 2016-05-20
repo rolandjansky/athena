@@ -66,6 +66,7 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
  protected:
   TauEventData* m_data = 0;
   bool m_in_trigger = false;
+  std::string m_tauRecToolsTag;
 
   bool inTrigger() const;
 

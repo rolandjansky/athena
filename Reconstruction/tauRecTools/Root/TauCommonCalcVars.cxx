@@ -30,6 +30,7 @@
 
 TauCommonCalcVars::TauCommonCalcVars(const std::string &name) :
 TauRecToolBase(name) {
+    declareProperty("ConfigPath", m_configPath);
 }
 
 //-----------------------------------------------------------------------------

@@ -12,19 +12,19 @@
 //-----------------------------------------------------------------------------
 //TODO:
 
-#include <GaudiKernel/IToolSvc.h>
-#include <GaudiKernel/ListItem.h>
+//#include <GaudiKernel/IToolSvc.h>
+//#include <GaudiKernel/ListItem.h>
 
-#include "FourMomUtils/P4Helpers.h"
-#include "FourMom/P4EEtaPhiM.h"
-#include "CLHEP/Vector/LorentzVector.h"
-#include "Particle/TrackParticle.h"
+//#include "FourMomUtils/P4Helpers.h"
+//#include "FourMom/P4EEtaPhiM.h"
+//#include "CLHEP/Vector/LorentzVector.h"
+//#include "Particle/TrackParticle.h"
 
-#include "TrkParameters/TrackParameters.h"
+//#include "TrkParameters/TrackParameters.h"
 
 #include "tauRecTools/TauEventData.h"
-#include "tauEvent/TauCommonDetails.h"
-#include "tauEvent/TauJetParameters.h"
+//#include "tauEvent/TauCommonDetails.h"
+//#include "tauEvent/TauJetParameters.h"
 
 #include "TauConversionTagger.h"
 

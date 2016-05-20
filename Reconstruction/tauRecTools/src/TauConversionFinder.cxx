@@ -15,8 +15,8 @@ conversion track too.
 #include "TauConversionFinder.h"
 
 #include "xAODTracking/VertexContainer.h" 
-#include "GaudiKernel/IToolSvc.h"
-#include "TrkParticleBase/LinkToTrackParticleBase.h"
+//#include "GaudiKernel/IToolSvc.h"
+//#include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
 /********************************************************************/

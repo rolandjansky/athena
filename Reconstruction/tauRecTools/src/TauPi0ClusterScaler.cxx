@@ -15,7 +15,7 @@
 #include "TauPi0ClusterScaler.h"
 #include "xAODPFlow/PFO.h"
 
-#include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
+//#include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "xAODTau/TauJet.h"
 #include "tauRecTools/ITauToolBase.h"

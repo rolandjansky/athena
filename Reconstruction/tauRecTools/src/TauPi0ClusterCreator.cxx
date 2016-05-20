@@ -11,7 +11,7 @@
 //-----------------------------------------------------------------------------
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
-#include "CaloGeoHelpers/CaloSampling.h"
+//#include "CaloGeoHelpers/CaloSampling.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "xAODJet/Jet.h"
 

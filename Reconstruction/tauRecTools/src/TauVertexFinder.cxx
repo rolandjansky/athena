@@ -4,8 +4,8 @@
 
 #include "TauVertexFinder.h"
 
-#include "VxVertex/RecVertex.h"
-#include "VxVertex/VxCandidate.h"
+//#include "VxVertex/RecVertex.h"
+//#include "VxVertex/VxCandidate.h"
 
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/Vertex.h"

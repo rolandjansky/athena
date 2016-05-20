@@ -21,7 +21,7 @@ public:
     //-------------------------------------------------------------
     //! Constructor
     //-------------------------------------------------------------
-    TauTrackFilter(const std::string& name);
+    TauTrackFilter(const std::string& name="TauTrackFilter");
     ASG_TOOL_CLASS2(TauTrackFilter, TauRecToolBase, ITauToolBase)
 
     //-------------------------------------------------------------

@@ -34,6 +34,7 @@
 
 TauGenericPi0Cone::TauGenericPi0Cone(const std::string &name) :
 TauRecToolBase(name) {
+    declareProperty("ConfigPath", m_configPath);
 }
 
 

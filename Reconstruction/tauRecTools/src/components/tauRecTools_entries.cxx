@@ -15,18 +15,21 @@
 #include "../TauPi0ClusterScaler.h"
 #include "../TauPi0ScoreCalculator.h"
 #include "../TauPi0Selector.h"
-#include "../TauSubstructureVariables.h"
+#include "tauRecTools/TauSubstructureVariables.h"
 #include "../TauConversionFinder.h"
 #include "../PhotonConversionPID.h"
 #include "../PhotonConversionVertex.h"
 #include "../TauConversionTagger.h"
 #include "../TauVertexVariables.h"
-#include "../tauCalibrateWeightTool.h"  //for trigger
+//#include "../tauCalibrateWeightTool.h"  //for trigger
 #include "tauRecTools/TauTrackFilter.h"
 #include "tauRecTools/TauGenericPi0Cone.h"
 #include "../TauTestDump.h"
 #include "tauRecTools/TauProcessorTool.h"
 #include "tauRecTools/TauBuilderTool.h"
+#include "tauRecTools/MvaTESEvaluator.h"
+#include "tauRecTools/MvaTESVariableDecorator.h"
+#include "tauRecTools/CombinedP4FromRecoTaus.h"
 
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -54,9 +57,12 @@ DECLARE_TOOL_FACTORY( PhotonConversionVertex )
 DECLARE_TOOL_FACTORY( TauConversionFinder )
 DECLARE_TOOL_FACTORY( TauConversionTagger )
 DECLARE_TOOL_FACTORY( TauVertexVariables )
-DECLARE_TOOL_FACTORY( tauCalibrateWeightTool )
+//DECLARE_TOOL_FACTORY( tauCalibrateWeightTool )
 DECLARE_TOOL_FACTORY( TauTrackFilter )
 DECLARE_TOOL_FACTORY( TauGenericPi0Cone )
 DECLARE_TOOL_FACTORY( TauTestDump )
 DECLARE_TOOL_FACTORY( TauProcessorTool             )
 DECLARE_TOOL_FACTORY( TauBuilderTool             )
+DECLARE_TOOL_FACTORY( MvaTESVariableDecorator )
+DECLARE_TOOL_FACTORY( MvaTESEvaluator )
+DECLARE_TOOL_FACTORY( CombinedP4FromRecoTaus )

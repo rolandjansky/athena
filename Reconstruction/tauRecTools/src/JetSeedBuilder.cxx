@@ -13,8 +13,8 @@ CREATED:  Nov 27 2007
   Dec 2011: FF: changes for tauRec4
  ********************************************************************/
 
-#include "EventKernel/SignalStateHelper.h"
-#include "FourMomUtils/P4Helpers.h"
+//#include "EventKernel/SignalStateHelper.h"
+//#include "FourMomUtils/P4Helpers.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"

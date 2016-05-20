@@ -30,18 +30,18 @@
 #include <math.h>
 #include <sstream>
 
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/Property.h"
+//#include "GaudiKernel/ListItem.h"
+//#include "GaudiKernel/IToolSvc.h"
+//#include "GaudiKernel/Property.h"
 
-#include "CaloUtils/CaloCellList.h"
-#include "CaloEvent/CaloCluster.h"
-#include "CaloEvent/CaloCell.h"
+//#include "CaloUtils/CaloCellList.h"
+//#include "CaloEvent/CaloCluster.h"
+//#include "CaloEvent/CaloCell.h"
 #include "CaloUtils/CaloVertexedCell.h"
-#include "AtlasDetDescr/AtlasDetectorID.h"
-#include "CaloIdentifier/CaloID.h"
-#include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloGeoHelpers/CaloSampling.h"
+//#include "AtlasDetDescr/AtlasDetectorID.h"
+//#include "CaloIdentifier/CaloID.h"
+//#include "CaloIdentifier/CaloCell_ID.h"
+//#include "CaloGeoHelpers/CaloSampling.h"
 
 #include "xAODTau/TauJet.h"
 #include "xAODJet/Jet.h"
