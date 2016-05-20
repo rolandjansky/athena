@@ -62,7 +62,7 @@ StatusCode MemoryAlg::execute()
   unsigned long a2(-1);
   FILE *proc = fopen("/proc/self/statm","r");
   if (proc) {
-    (void)fscanf(proc, "%lu %lu %lu", &a0, &a1, &a2);
+    (void)fscanf(proc, "%80lu %80lu %80lu", &a0, &a1, &a2);
     fclose(proc);
   }
   float f=float(a0*m_pagesize) - f0;
