@@ -210,51 +210,56 @@ DataHeaderCnv_p5::DataHeaderCnv_p5() {}
 DataHeaderCnv_p5::~DataHeaderCnv_p5() {}
 //______________________________________________________________________________
 void DataHeaderCnv_p5::persToTrans(const DataHeader_p5* pers, DataHeader* trans) {
-   pers->m_dhForm.start();
-   const unsigned int provSize = pers->m_dhForm.params()[0];
-   trans->m_inputDataHeader.resize(provSize);
-   std::vector<DataHeaderElement>::iterator it = trans->m_inputDataHeader.begin();
-   std::vector<DataHeaderElement_p5>::const_iterator pit = pers->m_dataHeader.begin();
-   for (unsigned int i = 0U; i < provSize; i++, it++, pit++) {
-      pers->m_dhForm.next();
-      m_elemCnv.persToTrans(&(*pit), &(*it), pers->m_dhForm);
-   }
-   trans->m_dataHeader.resize(pers->m_dataHeader.size() - provSize);
-   it = trans->m_dataHeader.begin();
-   for (std::vector<DataHeaderElement_p5>::const_iterator last = pers->m_dataHeader.end();
-		   pit != last; it++, pit++) {
-      pers->m_dhForm.next();
-      m_elemCnv.persToTrans(&(*pit), &(*it), pers->m_dhForm);
+   if (pers->m_dhForm) {
+      pers->m_dhForm->start();
+      const unsigned int provSize = pers->m_dhForm->params()[0];
+      trans->m_inputDataHeader.resize(provSize);
+      std::vector<DataHeaderElement>::iterator it = trans->m_inputDataHeader.begin();
+      std::vector<DataHeaderElement_p5>::const_iterator pit = pers->m_dataHeader.begin();
+      for (unsigned int i = 0U; i < provSize; i++, it++, pit++) {
+         pers->m_dhForm->next();
+         m_elemCnv.persToTrans(&(*pit), &(*it), *pers->m_dhForm);
+      }
+      trans->m_dataHeader.resize(pers->m_dataHeader.size() - provSize);
+      it = trans->m_dataHeader.begin();
+      for (std::vector<DataHeaderElement_p5>::const_iterator last = pers->m_dataHeader.end();
+		      pit != last; it++, pit++) {
+         pers->m_dhForm->next();
+         m_elemCnv.persToTrans(&(*pit), &(*it), *pers->m_dhForm);
+      }
    }
 }
 //______________________________________________________________________________
 void DataHeaderCnv_p5::transToPers(const DataHeader* trans, DataHeader_p5* pers) {
+   delete pers->m_dhForm; pers->m_dhForm = new DataHeaderForm_p5;
    const unsigned int provSize = trans->m_inputDataHeader.size();
    pers->m_dataHeader.resize(provSize + trans->m_dataHeader.size());
-   pers->m_dhForm.resize(provSize + trans->m_dataHeader.size() + 2);
-   pers->m_dhForm.start();
-   pers->m_dhForm.insertParam(provSize);
+   pers->m_dhForm->resize(provSize + trans->m_dataHeader.size() + 2);
+   pers->m_dhForm->start();
+   pers->m_dhForm->insertParam(provSize);
    std::vector<DataHeaderElement_p5>::iterator pit = pers->m_dataHeader.begin();
    for (std::vector<DataHeaderElement>::const_iterator it = trans->m_inputDataHeader.begin(),
 		   last = trans->m_inputDataHeader.end(); it != last; it++, pit++) {
-      pers->m_dhForm.next();
-      m_elemCnv.transToPers(&(*it), &(*pit), pers->m_dhForm);
+      pers->m_dhForm->next();
+      m_elemCnv.transToPers(&(*it), &(*pit), *pers->m_dhForm);
    }
    for (std::vector<DataHeaderElement>::const_iterator it = trans->m_dataHeader.begin(),
 		   last = trans->m_dataHeader.end(); it != last; it++, pit++) {
-      pers->m_dhForm.next();
-      m_elemCnv.transToPers(&(*it), &(*pit), pers->m_dhForm);
+      pers->m_dhForm->next();
+      m_elemCnv.transToPers(&(*it), &(*pit), *pers->m_dhForm);
    }
 }
 //______________________________________________________________________________
 void DataHeaderCnv_p5::insertDHRef(DataHeader_p5* pers,
 	const std::string& key,
 	const std::string& strToken) {
-   Token* token = new Token;
-   token->fromString(strToken);
-   DataHeaderElement tEle(ClassID_traits<DataHeader>::ID(), key, token);
-   DataHeaderElement_p5 pEle;
-   pers->m_dhForm.next();
-   m_elemCnv.transToPers(&tEle, &pEle, pers->m_dhForm);
-   pers->m_dataHeader.push_back(pEle);
+   if (pers->m_dhForm) {
+      Token* token = new Token;
+      token->fromString(strToken);
+      DataHeaderElement tEle(ClassID_traits<DataHeader>::ID(), key, token);
+      DataHeaderElement_p5 pEle;
+      pers->m_dhForm->next();
+      m_elemCnv.transToPers(&tEle, &pEle, *pers->m_dhForm);
+      pers->m_dataHeader.push_back(pEle);
+   }
 }
