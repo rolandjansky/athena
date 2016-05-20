@@ -23,6 +23,7 @@ namespace Trk {
 static const InterfaceID IID_IResidualPullCalculator("IResidualPullCalculator",1,0);
 
 class MeasurementBase;
+class AlignmentEffectsOnTrack;
 
 /** @class IResidualPullCalculator
     @brief provides the interface for tools which calculate residuals and pulls.
@@ -48,6 +49,22 @@ public:
        const Trk::TrackParameters*,
        const Trk::ResidualPull::ResidualType residualType,
        const TrackState::MeasurementType = TrackState::unidentified) const = 0;
+     
+   /**This function returns (creates!) a Trk::ResidualPull object, which contains the values
+   * of residual and pull for the given measurement and track state, and the Alignment effects.
+   * The track state can be an unbiased one (which can be retrieved by the Trk::IUpdator),
+   * a biased one (which contains the measurement),
+   * or a truth state.
+   * The enum residualTyp must be set according to this, otherwise the pulls will be wrong.
+   * Residuals differ in all three cases; please be aware of this.
+   *
+   * This function determines the sub-detector type itself by using the ID helper*/
+    virtual const Trk::ResidualPull* residualPull(
+             const Trk::MeasurementBase* ,
+             const Trk::TrackParameters* ,
+             const Trk::ResidualPull::ResidualType ,
+             const Trk::TrackState::MeasurementType, 
+             const std::vector<Trk::AlignmentEffectsOnTrack*>& ) const { return (Trk::ResidualPull*) 0; }
 
      /** This function is a light-weight version of the function above, designed for track fitters
       * where speed is critical. The user has to provide a std::vector of size 5, which gets 
