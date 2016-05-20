@@ -33,11 +33,13 @@ FitParameters::FitParameters (const Perigee& perigee)
       m_differences			(0),
       m_extremeMomentum			(false),
       m_finalCovariance	       		(0),
+      m_firstAlignmentParameter		(0),
       m_firstScatteringParameter	(0),
       m_fitEnergyDeposit		(false),
       m_fitMomentum			(true),
       m_fullCovariance	       		(0),
       m_minEnergyDeposit		(0.),
+      m_numberAlignments		(0),
       m_numberOscillations		(0),
       m_numberParameters       		(0),
       m_numberScatterers		(0),
@@ -79,11 +81,13 @@ FitParameters::FitParameters (double			d0,
       m_differences			(0),
       m_extremeMomentum			(false),
       m_finalCovariance	       		(0),
+      m_firstAlignmentParameter		(0),
       m_firstScatteringParameter	(0),
       m_fitEnergyDeposit		(false),
       m_fitMomentum			(true),
       m_fullCovariance	       		(0),
       m_minEnergyDeposit		(0.),
+      m_numberAlignments		(0),
       m_numberOscillations		(0),
       m_numberParameters       		(0),
       m_numberScatterers		(0),
@@ -108,7 +112,9 @@ FitParameters::FitParameters (double			d0,
 }
 
 FitParameters::FitParameters (const FitParameters&	parameters)
-    :  m_cosPhi         	       	(parameters.m_cosPhi),
+    :  m_alignmentAngle			(parameters.m_alignmentAngle),
+       m_alignmentOffset		(parameters.m_alignmentOffset),
+       m_cosPhi         	       	(parameters.m_cosPhi),
        m_cosPhi1			(parameters.m_cosPhi1),
        m_cosTheta			(parameters.m_cosTheta),
        m_cosTheta1			(parameters.m_cosTheta1),
@@ -117,11 +123,13 @@ FitParameters::FitParameters (const FitParameters&	parameters)
        m_differences			(0),
        m_extremeMomentum		(parameters.m_extremeMomentum),
        m_finalCovariance	       	(parameters.m_finalCovariance),
+       m_firstAlignmentParameter	(parameters.m_firstAlignmentParameter),
        m_firstScatteringParameter	(parameters.m_firstScatteringParameter),
        m_fitEnergyDeposit		(parameters.m_fitEnergyDeposit),
        m_fitMomentum			(parameters.m_fitMomentum),
        m_fullCovariance	       		(parameters.m_fullCovariance),
        m_minEnergyDeposit		(parameters.m_minEnergyDeposit),
+       m_numberAlignments		(parameters.m_numberAlignments),
        m_numberOscillations		(parameters.m_numberOscillations),
        m_numberParameters       	(parameters.m_numberParameters),
        m_numberScatterers		(parameters.m_numberScatterers),
@@ -152,10 +160,18 @@ FitParameters::~FitParameters (void)
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 void
+FitParameters::addAlignment (double angle, double offset)
+{
+    m_alignmentAngle[m_numberAlignments]	= angle;
+    m_alignmentOffset[m_numberAlignments]	= offset;
+    ++m_numberAlignments;
+}
+
+void
 FitParameters::addScatterer (double phi, double theta)
 {
-    m_scattererPhi[m_numberScatterers]	= phi;
-    m_scattererTheta[m_numberScatterers]= theta;
+    m_scattererPhi[m_numberScatterers]		= phi;
+    m_scattererTheta[m_numberScatterers]	= theta;
     ++m_numberScatterers;
 }
 
@@ -212,10 +228,20 @@ FitParameters::intersection (void) const
 }
 
 void
+FitParameters::numberAlignments (int numberAlignments)
+{
+    m_numberAlignments		= 0;
+    if (! numberAlignments) return;
+    m_alignmentAngle		= std::vector<double>(numberAlignments,0.);
+    m_alignmentOffset		= std::vector<double>(numberAlignments,0.);
+}
+
+void
 FitParameters::numberParameters (int numberParameters)
 {
     m_numberParameters		= numberParameters;
-    m_firstScatteringParameter	= numberParameters - 2*m_numberScatterers - 1;
+    m_firstAlignmentParameter	= numberParameters - 2*m_numberAlignments - 1;
+    m_firstScatteringParameter	=  m_firstAlignmentParameter - 2*m_numberScatterers;
 }
 
 void
@@ -305,7 +331,7 @@ void
 FitParameters::print (MsgStream& log) const
 {
     log << std::setiosflags(std::ios::fixed|std::ios::right)
-	<< std::setw(10) << std::setprecision(1) << m_position.perp()
+	<< std::setw(16) << std::setprecision(1) << m_position.perp()
 	<< " perigee radius"
 	<< std::setw(10) << std::setprecision(3) << m_d0
 	<< " d0"
@@ -376,6 +402,26 @@ FitParameters::printVerbose (MsgStream& log) const
 		<< differences[5]*Gaudi::Units::GeV/Gaudi::Units::TeV	<< " [5] ";
 	log << std::endl;
 	    
+	if (m_numberAlignments)
+	{
+	    log << "       dAlign ==== ";
+	    unsigned param = m_firstAlignmentParameter;
+	    for (int scat = 0; scat < m_numberAlignments; ++scat)
+	    {
+		++param;
+		if (scat%5 == 0 && scat > 0) log << std::endl << "                   ";
+		log << std::setiosflags(std::ios::fixed)
+		    << std::setw(10) << std::setprecision(6)
+		    << differences[param];
+		++param;
+		log << std::setiosflags(std::ios::fixed)
+		    << std::setw(10) << std::setprecision(6)
+		    << differences[param]
+		    << " ["<< std::setw(2) << scat << "A]     ";
+	    }
+	    log << std::endl;
+	}
+
 	if (m_numberScatterers)
 	{
 	    log << "        dScat ==== ";
@@ -416,6 +462,23 @@ FitParameters::printVerbose (MsgStream& log) const
 	    << "    E before/after energy deposit"
 	    << std::setw(12) << std::setprecision(3) << 1./std::abs(m_qOverP*Gaudi::Units::GeV)
 	    << std::setw(12) << std::setprecision(3) << 1./std::abs(m_qOverP1*Gaudi::Units::GeV);
+    }
+    if (m_numberAlignments)
+    {
+	log << std::endl
+	    << "   alignment number, angle, offset:  ";
+	for (int align = 0; align < m_numberAlignments; ++align)
+	{
+	    log << std::setiosflags(std::ios::fixed)
+		<< std::setw(6) << align
+		<< std::setw(10) << std::setprecision(6)
+		<< m_alignmentAngle[align]
+		<< std::setw(10) << std::setprecision(6)
+		<< m_alignmentOffset[align];
+	    if ((align+1)%5 == 0)
+		log << std::endl
+		    << "                                                ";
+	}
     }
     if (m_numberScatterers)
     {
@@ -460,10 +523,12 @@ FitParameters::reset (const FitParameters& parameters)
     m_extremeMomentum		= parameters.m_extremeMomentum;
     m_finalCovariance	       	= parameters.m_finalCovariance;
     m_firstScatteringParameter	= parameters.m_firstScatteringParameter;
+    m_firstScatteringParameter	= parameters.m_firstScatteringParameter;
     m_fitEnergyDeposit		= parameters.m_fitEnergyDeposit;
     m_fitMomentum		= parameters.m_fitMomentum;
     m_fullCovariance	       	= parameters.m_fullCovariance;
     m_minEnergyDeposit		= parameters.m_minEnergyDeposit;
+    m_numberAlignments		= parameters.m_numberAlignments;
     m_numberOscillations	= parameters.m_numberOscillations;
     m_numberParameters       	= parameters.m_numberParameters;
     m_numberScatterers		= parameters.m_numberScatterers;
@@ -479,6 +544,11 @@ FitParameters::reset (const FitParameters& parameters)
     m_sinTheta1			= parameters.m_sinTheta1;
     m_vertex		       	= parameters.vertex();
     m_z0			= parameters.m_z0;
+    for (int s = 0; s != m_numberAlignments; ++s)
+    {
+	m_alignmentAngle[s]	= parameters.m_alignmentAngle[s];
+	m_alignmentOffset[s]	= parameters.m_alignmentOffset[s];
+    }
     for (int s = 0; s != m_numberScatterers; ++s)
     {
 	m_scattererPhi[s]	= parameters.m_scattererPhi[s];
@@ -748,6 +818,16 @@ FitParameters::update (const AlVec& differences)
     m_differences 	= new AlVec(differences);
     m_oldDifference	= differences[4];
 
+    // misalignment parameters
+    std::vector<double>::iterator a = m_alignmentAngle.begin();
+    std::vector<double>::iterator o = m_alignmentOffset.begin();
+    int align = m_firstAlignmentParameter;
+    for (int i = 0; i != m_numberAlignments; ++i)
+    {
+	(*a++) += differences[++align];
+	(*o++) += differences[++align];
+    }
+    
     // scattering angles
     std::vector<double>::iterator p = m_scattererPhi.begin();
     std::vector<double>::iterator t = m_scattererTheta.begin();

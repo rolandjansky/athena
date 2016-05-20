@@ -15,7 +15,8 @@
 //
 //  NOTE:
 //  covariances, derivatives etc, use d0, z0, phi, theta, qOverP as parameters
-//  distinguish: full covariance with all parameters (incl scattering and energy loss)
+//  distinguish: full covariance with all parameters
+//               (incl scattering, energy loss and misalignment uncertainties)
 //               5*5 final covariance with external contribution representing
 //               leading material and field gradient effects
 //
@@ -44,6 +45,7 @@ FitMatrices::FitMatrices(void)
 	m_finalCovariance		(0),
 	m_largePhiWeight		(10000.),	// arbitrary - equiv to 10um
 	m_matrixFromCLHEP		(false),
+	m_measurements			(0),
 	m_numberDoF			(0),
 	m_numberDriftCircles		(0),
 	m_numberPerigee			(5),
@@ -205,14 +207,142 @@ FitMatrices::perigeeChiSquared (void)
     return (m_perigeeDifference * (*m_perigeeWeight) * m_perigeeDifference.transpose())(0,0);
 } 
 
+void
+FitMatrices::printDerivativeMatrix (void)
+{
+    std::cout << "DerivativeMatrix:  rows * columns " << m_rows << " * "
+	      << m_columns << "  numberDoF " << m_numberDoF << std::endl;
+
+    int firstCol	= 0;
+    int lastCol		= 0;
+    if (! m_measurements)		return;
+    std::list<FitMeasurement*>::iterator m = m_measurements->begin();
+    std::vector<FitMeasurement*> alignmentfm;
+    FitMeasurement* fm	= *m;
+    bool singleRow	= true;
+    
+    for (int row = 0; row < m_rows; ++row)
+    {
+	// get corresponding FitMeasurement
+	if (singleRow)
+	{
+	    while (m !=  m_measurements->end() && (! (**m).numberDoF() || (**m).isAlignment()))
+	    {
+		if ((**m).isAlignment())  alignmentfm.push_back(*m);
+		++m;
+	    }
+	    if (m !=  m_measurements->end())
+	    {
+		fm	= *m;
+	    }
+	    else
+	    {
+		fm	= alignmentfm.back();
+		alignmentfm.pop_back();
+	    }
+
+	    firstCol	= fm->firstParameter();
+	    lastCol	= fm->lastParameter() - 1;
+	    std::cout << std::endl << std::setiosflags(std::ios::fixed);
+	    if (fm->isPositionMeasurement())
+	    {
+		std::cout << "measurement";
+	    }
+	    else if (fm->isScatterer())
+	    {
+		std::cout << "scatterer  ";
+	    }
+	    else if (fm->isEnergyDeposit())
+	    {
+		std::cout << "energyDepos";
+	    }
+	    else if (fm->isAlignment())
+	    {
+		std::cout << "alignment  ";
+	    }
+	    else
+	    {
+		std::cout << "   ??      ";
+	    }
+	    if (fm->is2Dimensional())
+	    {
+		singleRow = false;
+	    }
+	    else
+	    {
+		if (m !=  m_measurements->end()) ++m;
+	    }
+	    std::cout << " row " << std::setw(3) << row << " col  0     ";
+	}
+	else
+	{
+	    if (m !=  m_measurements->end()) ++m;
+	    singleRow = true;
+	    std::cout << std::endl  << std::setiosflags(std::ios::fixed)
+		      << "            row " << std::setw(3) << row << " col  0     ";
+	}
+	for (int col = 0; col < m_columns; ++col)
+	{
+	    if (col < firstCol || col > lastCol)	// m_firstRowForParameter[row])
+	    {
+	    	if (fitMatrix.derivative[row][col] == 0.)
+	    	{
+	    	    std::cout << "            ";
+	    	}
+	    	else
+	    	{
+	    	    // flag out-of-order
+	    	    std::cout << std::setiosflags(std::ios::scientific) << std::setbase(10)
+	    		      << "<" <<std::setw(10) << fitMatrix.derivative[row][col] << ">";
+	    	}
+	    }
+	    else
+	    {
+		std::cout << std::setiosflags(std::ios::scientific) << std::setbase(10)
+			  << std::setw(10) << fitMatrix.derivative[row][col] << "  ";
+	    }
+	    
+	    if ((col+1)%12 == 0 && col+1 < m_columns)
+		std::cout << std::endl << std::setiosflags(std::ios::fixed)
+			  << "                    col " << std::setw(3) << col+1 << "    ";
+	}
+    }
+    std::cout << std::endl;
+}
+
+void
+FitMatrices::printWeightMatrix (void)
+{
+    std::cout << std::endl << "WeightMatrix:  symmetric with rank " << m_columns;
+
+    for (int row = 0; row < m_columns; ++row)
+    {
+	std::cout << std::endl << std::setiosflags(std::ios::fixed)
+		  << " row " << std::setw(3) << row << " col  0     ";
+	for (int col = 0; col <= row; ++col)
+	{
+	    std::cout << std::setiosflags(std::ios::scientific) << std::setbase(10)
+		      << std::setw(10) << (*m_weight)[row][col] << "  ";
+	    
+	    if ((col+1)%13 == 0 && col < row)
+		std::cout << std::endl << std::setiosflags(std::ios::fixed)
+			  << "         col " << std::setw(3) << col+1 << "    ";
+	}
+    }
+    std::cout << std::endl;	
+}
+    
 int
 FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
 			    FitParameters*		parameters)
 {
+    // keep pointer for debug purposes
+    m_measurements		= &measurements;
+    
     // only use perigee on request (from special fit types)
     m_usePerigee		= false;
 
-    // count rows and scatterers from loop over FitMeasurements
+    // count rows, misalignments and scatterers from loop over FitMeasurements
     m_firstRowForParameter.clear();
     m_firstRowForParameter.reserve(40);
     m_parameters		= parameters;
@@ -220,6 +350,7 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
     m_residuals			= new std::vector<double>(2*measurements.size(), 0.);
     m_numberDriftCircles	= 0;
     bool haveMeasurement	= false;
+    int numberAlignments	= 0;
     int numberParameters	= 5;
     int numberScatterers	= 0;
     int row			= 0;
@@ -227,6 +358,9 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
          m != measurements.end();
 	 ++m)
     {
+	// alignment rows come after scattering
+	if ((**m).isAlignment())	continue;
+	
 	// identify leading material
 	if (! haveMeasurement)
 	{
@@ -271,6 +405,25 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
 	}
     }
 
+    // second loop puts alignment rows at bottom of matrix
+    for (std::list<FitMeasurement*>::iterator m = measurements.begin();
+         m != measurements.end();
+	 ++m)
+    {
+	if (! (**m).isAlignment())	continue;
+	++numberAlignments;
+	
+	// set pointers into big matrix
+	(**m).derivative(&fitMatrix.derivative[row][0]);
+	(**m).residual(row+m_residuals->begin());
+	++row;
+	if ((**m).is2Dimensional())
+	{
+	    (**m).derivative2(&fitMatrix.derivative[row][0]);
+	    ++row;
+	}
+    }
+
     // keep first row with measurements up to each number of parameters
     if (measurements.front()->isVertex())
     {
@@ -282,6 +435,7 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
 	m_firstRowForParameter = std::vector<int>(numberParameters,0);
     }
 
+    parameters->numberAlignments(numberAlignments);
     parameters->numberScatterers(numberScatterers);
     bool afterCalo	= false;
     m_rows		= 0;
@@ -301,12 +455,36 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
 		m_firstRowForParameter.push_back(m_rows);
 		parameters->addScatterer((**m).scattererPhi(),(**m).scattererTheta());
 	    }
+	    else if ((**m).isAlignment())
+	    {
+		// defer alignment
+		continue;
+	    }
 	    m_rows += (**m).numberDoF();
 	}
 	(**m).lastParameter(m_firstRowForParameter.size(), afterCalo);
     }
 
-    // initialize number of parameters (including scatterers)
+    // second loop puts any alignment info into the final rows
+    numberParameters		= m_firstRowForParameter.size();
+    for (std::list<FitMeasurement*>::iterator m = measurements.begin();
+         m != measurements.end();
+	 ++m)
+    {
+	if ((**m).isEnergyDeposit())	afterCalo = true;
+	if (! (**m).isAlignment() || ! (**m).numberDoF())	continue;
+	parameters->addAlignment((**m).alignmentAngle(),(**m).alignmentOffset());
+	m_firstRowForParameter.push_back(m_rows);
+	m_firstRowForParameter.push_back(m_rows);
+	(**m).firstParameter(numberParameters);
+	numberParameters	+= 2;
+	int alignmentParameter	=  parameters->numberAlignments();
+	(**m).alignmentParameter(alignmentParameter);
+	(**m).lastParameter(numberParameters,afterCalo);
+	m_rows			+=  (**m).numberDoF();
+    }
+
+    // initialize number of parameters (including alignments and scatterers)
     numberParameters		= m_firstRowForParameter.size();
     parameters->numberParameters(numberParameters);
 
@@ -465,7 +643,9 @@ FitMatrices::solveEquationsAlMat(void)
 	for (int col = 0; col <= row; ++col)
 	{
 	    double element = 0.;
-	    for (int i = m_firstRowForParameter[row]; i < m_rows; ++i)
+	    // FIXME:  disable smart pointers during alignment development
+	    // for (int i = m_firstRowForParameter[row]; i < m_rows; ++i)
+	    for (int i = 0; i < m_rows; ++i)	
 		element += fitMatrix.derivative[i][row] * fitMatrix.derivative[i][col];
 	    weight[row][col] = element;
 	}
@@ -474,7 +654,9 @@ FitMatrices::solveEquationsAlMat(void)
     for (int row = 0; row < m_columns; ++row)
     {
 	double element = 0.;
-	for (int i = m_firstRowForParameter[row]; i < m_rows; ++i)
+	// FIXME:  disable smart pointers during alignment development
+	// for (int i = m_firstRowForParameter[row]; i < m_rows; ++i)
+	for (int i = 0; i < m_rows; ++i)
 	    element += (*m_residuals)[i] * fitMatrix.derivative[i][row];
 	weightedDifference[row] = element;
     }

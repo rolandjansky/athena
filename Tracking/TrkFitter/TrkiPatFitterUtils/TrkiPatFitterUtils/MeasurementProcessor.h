@@ -52,6 +52,7 @@ private:
     void		driftDerivatives(int derivativeFlag, const FitMeasurement& measurement);
     bool		extrapolateToMeasurements(ExtrapolationType type);
 
+    std::vector<FitMeasurement*>	m_alignments;
     bool				m_asymmetricCaloEnergy;
     FitMeasurement*			m_caloEnergyMeasurement;
     double				m_cosPhi0;
@@ -74,7 +75,7 @@ private:
     double				m_qOverP[ExtrapolationTypes];
     double				m_qOverPbeforeCalo;
     double				m_qOverPafterCalo;
-     const ToolHandle<IIntersector>&	m_rungeKuttaIntersector;
+    const ToolHandle<IIntersector>&	m_rungeKuttaIntersector;
     std::vector<FitMeasurement*>	m_scatterers;
     double				m_sinPhi0;
     double				m_sinTheta0;

@@ -22,6 +22,7 @@
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
+#include "Identifier/Identifier.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkExInterfaces/IIntersector.h"
 #include "TrkGeometry/TrackingVolume.h"
@@ -29,7 +30,10 @@
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
+#include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkiPatFitterUtils/FitMatrices.h"
@@ -110,21 +114,36 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
     // NB trackParameters outwards from TSOS i.e. always last FitMeas on surface
     
     // create vector of TSOS - reserve upper limit for size (+1 as starts with perigee)
+    // and pointers to TSOS effected by misalignments (and with alignment parameters)
     DataVector<const TrackStateOnSurface>* trackStateOnSurfaces =
-	new DataVector<const TrackStateOnSurface>;
+    	new DataVector<const TrackStateOnSurface>;
     unsigned size = measurements.size() + 1;
     if (leadingTSOS) size += leadingTSOS->size();
     trackStateOnSurfaces->reserve(size);
-    const FitMeasurement*	fitMeasurement	= measurements.front();
-    const FitQualityOnSurface*	fitQoS		= 0;
-    const MaterialEffectsBase*	materialEffects	= 0;
-    const MeasurementBase*	measurementBase	= 0;
-    const Surface*		surface		= 0;
-    const TrackParameters*	trackParameters	= 0;
+    std::vector<FitMeasurement*>		alignmentEffectsFitM;
+    std::vector<unsigned>			alignmentEffectsIndex;
+    std::vector<const TrackStateOnSurface*>	alignmentEffectsTSOS;
+//    std::vector<std::vector<const TrackStateOnSurface*>*> indicesOfAffectedTSOS;
+    
+    std::vector<FitMeasurement*>		misAlignedFM;
+//    std::vector<const TrackStateOnSurface*>	misAlignedTSOS;
+    std::vector<Identifier>			misAlignedTSOS;
+    alignmentEffectsTSOS.reserve(6);
+    misAlignedFM.reserve(40);
+    misAlignedTSOS.reserve(40);
+    
+    const AlignmentEffectsOnTrack*	alignmentEffects	= 0;
+    const FitMeasurement*		fitMeasurement		= measurements.front();
+    const FitQualityOnSurface*		fitQoS			= 0;
+    const MaterialEffectsBase*		materialEffects		= 0;
+    const MeasurementBase*		measurementBase		= 0;
+    const Surface*			surface			= 0;
+    const TrackParameters*		trackParameters		= 0;
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> defaultPattern;
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern = defaultPattern;
 
     // start with (measured) perigee
+    bool isMisaligned		= false;
     unsigned scatter		= 0;
     unsigned tsos		= 0;
     const Perigee* perigee	= parameters.perigee();
@@ -133,7 +152,8 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 							    perigee,
 							    fitQoS,
 							    materialEffects,
-							    typePattern));
+							    typePattern,
+							    alignmentEffects));
     ++tsos;
 
     // append leading TSOS to perigee
@@ -193,16 +213,70 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 									    trackParameters,
 									    fitQoS,
 									    materialEffects,
-									    typePattern));
+									    typePattern,
+									    alignmentEffects));
 		    ++tsos;
+
+		    // keep pointers for later alignment effect loop
+		    if (alignmentEffects)
+		    {
+			alignmentEffectsTSOS.push_back(trackStateOnSurfaces->back());
+			
+			std::cout << "  tsos " << tsos
+				  << "  measurementBase " << measurementBase
+				  << "  materialEffects " << materialEffects
+				  << "  alignmentEffects " << alignmentEffects
+				  << "  at z " << alignmentEffects->associatedSurface().center().z()
+				  << std::endl;
+		    }
+		    else if (isMisaligned)
+		    {
+                        const Trk::MeasurementBase* meas = (trackStateOnSurfaces->back())->measurementOnTrack();
+                        Identifier id = Identifier();
+                        if(meas) {
+                          const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(meas);
+                          if(rot) {
+                            id = rot->identify();
+                          } else {
+                             const Muon::CompetingMuonClustersOnTrack* crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
+                             if(crot&&!crot->containedROTs().empty()&&crot->containedROTs().front()) {
+                               id = crot->containedROTs().front()->identify();
+                             }
+                          }
+                        }
+			misAlignedTSOS.push_back(id);
+		    }
 		}
 	    }
 	    fitMeasurement	= *m;
 	    surface 		= (**m).surface();
+	    isMisaligned	= false;
 	    measurementBase	= 0;
 	    fitQoS		= 0;
 	    materialEffects	= 0;
 	    typePattern		= defaultPattern;
+	    alignmentEffects	= 0;
+
+	    // add placeholder TSOS for alignment effects (as AEOT is not created until later loop)
+	    if ((**m).alignmentEffects())
+	    {
+		trackStateOnSurfaces->push_back(new TrackStateOnSurface(0,0,0,0,typePattern,0));
+		alignmentEffectsIndex.push_back(tsos);
+		alignmentEffectsTSOS.push_back(trackStateOnSurfaces->back());
+		alignmentEffectsFitM.push_back(*m);
+		std::cout << "  trackStateOnSurfaces->back() "
+			  << trackStateOnSurfaces->back()
+			  << "  alignmentEffectsIndex.back() "
+			  << alignmentEffectsIndex.back()
+			  << "   tsos "
+			  << tsos
+			  << "  "
+			  << (*trackStateOnSurfaces)[tsos]
+			  << std::endl;
+		
+//		indicesOfAffectedTSOS.push_back(new std::vector<const TrackStateOnSurface*>);
+		++tsos;
+	    }
 	}
 	else
 	{
@@ -213,6 +287,13 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	// it's a measurement
 	if ((**m).measurementBase())
 	{
+	    // keep pointer to any FitMeasurement with misaligned measurements
+	    if ((**m).alignmentParameter())
+	    {
+		isMisaligned = true;
+		misAlignedFM.push_back(*m);
+	    }
+	    
 	    // create an extra TSOS if there is already a measurement on this surface
 	    // (dirty fix for pseudoMeasurements)
 	    if (measurementBase)
@@ -235,15 +316,19 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 									trackParameters,
 									fitQoS,
 									materialEffects,
-									typePattern));
+									typePattern,
+									alignmentEffects));
 		++tsos;
-		fitMeasurement	= *m;
-		fitQoS		= 0;
-		materialEffects	= 0;
-		typePattern	= defaultPattern;
+		fitMeasurement		= *m;
+		// ?? which is pseudo, store the other!
+		//		isMisaligned		= false;
+		fitQoS			= 0;
+		materialEffects		= 0;
+		typePattern		= defaultPattern;
+		alignmentEffects	= 0;
 	    }
 	    
-	    measurementBase	= (**m).measurementBase()->clone();
+	    measurementBase		= (**m).measurementBase()->clone();
 	    typePattern.set(TrackStateOnSurface::Measurement);
 	    if ((**m).isOutlier()) typePattern.set(TrackStateOnSurface::Outlier);
 	}
@@ -350,8 +435,107 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 							    trackParameters,
 							    fitQoS,
 							    materialEffects,
-							    typePattern));
+							    typePattern,
+                                                            alignmentEffects));
     ++tsos;
+
+    // set the vectorOfAffectedTSOS for any AlignmentEffectsOnTrack
+    // std::cout << "  alignmentEffectsTSOS.size() " << alignmentEffectsTSOS.size()
+    // 	      << "   misAlignedTSOS.size() " << misAlignedTSOS.size()
+    // 	      << "   misAlignedFM.size() " << misAlignedFM.size() << std::endl;
+
+    for (unsigned e = 0; e < alignmentEffectsTSOS.size(); ++e)
+    {
+	if (! alignmentEffectsTSOS[e]->alignmentEffectsOnTrack())
+	{
+	    FitMeasurement& fm	= *alignmentEffectsFitM[e];
+	    
+	    std::cout << "  placeholder (empty) TSOS found " << alignmentEffectsTSOS[e]
+		      << "  create AlignmentEffectsOnTrack for surface "
+		      << fm.surface() << std::endl;
+
+	    // set the vectorOfAffectedTSOS 
+	    unsigned align  = fm.alignmentParameter() - 1;
+//	    std::vector<const TrackStateOnSurface*> indices;
+	    std::vector<Identifier> indices;
+	    for (unsigned f = 0; f < misAlignedFM.size(); ++f)
+	    {
+		if (misAlignedFM[f]->alignmentParameter() != fm.alignmentParameter()
+		    && misAlignedFM[f]->alignmentParameter2() != fm.alignmentParameter()) continue;
+		indices.push_back(misAlignedTSOS[f]);
+	    }
+	    alignmentEffects = new Trk::AlignmentEffectsOnTrack(parameters.alignmentOffset(align),
+								fm.sigma2(),
+	    							parameters.alignmentAngle(align),
+								fm.sigma(),
+	    							indices,
+	    							fm.surface()->clone());
+	    // std::cout << "  angle " << alignmentEffects->deltaAngle() 
+	    // 	      << "  offset " << alignmentEffects->deltaTranslation()
+	    // 	      << "  indices.size() " << indices.size() << std::endl;
+
+	    trackParameters	= parameters.trackParameters(*m_log, fm, withCovariance);
+	    // if (trackParameters)
+	    // {
+	    // 	std::cout << "   parameters at z " << trackParameters->position().z()
+	    // 		  << "   aeot surface at z " << alignmentEffects->associatedSurface().center().z() << std::endl;
+	    // }
+	    // else
+	    // {
+	    // 	std::cout << " problem: no track parameters " << std::endl;
+	    // }
+	    
+	    typePattern		= defaultPattern;
+	    typePattern.set(TrackStateOnSurface::Alignment);
+	    typePattern.set(TrackStateOnSurface::Parameter);
+	    TrackStateOnSurface* alignmentTSOS = new TrackStateOnSurface(0,
+									 trackParameters,
+									 0,
+									 0,
+									 typePattern,
+									 alignmentEffects);
+	    std::cout << "  alignmentTSOS  " << alignmentTSOS
+		      << "  should replace " << alignmentEffectsTSOS[e]
+		      << "  TSOS in DataVector " << (*trackStateOnSurfaces)[alignmentEffectsIndex[e]]
+		      << std::endl;
+
+	    
+	    (*trackStateOnSurfaces)[alignmentEffectsIndex[e]]	= alignmentTSOS;
+	    std::cout << " replaced TSOS " << std::endl;
+
+	    // TODO: probably need some memory management
+	    // delete alignmentEffectsTSOS[e];
+	    // std::cout << " deleted empty TSOS " << std::endl;
+
+	    continue;
+	}
+    }
+
+    // // check
+    // for (DataVector<const TrackStateOnSurface>::const_iterator a =  trackStateOnSurfaces->begin();
+    // 	 a != trackStateOnSurfaces->end();++a)
+    // {
+    // 	if (! (**a).alignmentEffectsOnTrack())	continue;
+    // 	const AlignmentEffectsOnTrack& aeot = *(**a).alignmentEffectsOnTrack();
+    // 	std::cout << "  alignmentEffect TSOS " << *a
+    // 		  << "  z of surface "
+    // 		  << (**a).surface().center().z()
+    // 	    // << (**a).trackParameters()->position().z()
+    // 		  << "  AEOT " << (**a).alignmentEffectsOnTrack()
+    // 		  << std::endl;
+    // 	for (std::vector<const TrackStateOnSurface*>::const_iterator v = aeot.vectorOfAffectedTSOS().begin();
+    // 	     v != aeot.vectorOfAffectedTSOS().end();
+    // 	     ++v)
+    // 	{
+    // 	    std::cout << "  alignmentEffect TSOS " << *a
+    // 		// << "  z of surface "
+    // 		// << (**a).trackParameters()->position().z()
+    // 		      << "  z of affected surface "
+    // 		      << (**v).surface().center().z()
+    // 		      << "  misaligned TSOS " << *v
+    // 		      << std::endl;
+    // 	}
+    // }
 
     // construct track
     double chiSquared	= m_chiSq * static_cast<double>(m_numberDoF);
@@ -443,9 +627,10 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	    if (m_verbose)
 		*m_log << MSG::VERBOSE << " convergence problem: accept after max iter " << endreq;
 	}
-	else if (! m_cutStep) 
+	else if (! m_cutStep)
 	{
 	    //  solve equations and update parameters
+	    if (m_verbose && ! m_iteration) m_fitMatrices->printDerivativeMatrix();
 	    if (! m_fitMatrices->solveEquations())
 	    {
 		fitCode			= 11;	// fails matrix inversion
@@ -467,6 +652,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		m_driftSumLast		= 0.;
 		m_numberParameters	= parameters->numberParameters();
 	    }
+	    if (m_verbose && ! m_iteration) m_fitMatrices->printWeightMatrix();
 	}
 	++m_iteration;
 	
@@ -512,8 +698,9 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	}
 	else if (! fitCode)
 	{
-	    //  extrapolate to each measurement. If OK calculate residual
-	    if (! measurementProcessor.calculateFittedTrajectory(m_iteration))
+	    //  extrapolate to each measurement and calculate derivatives
+	    if (! measurementProcessor.calculateFittedTrajectory(m_iteration)
+		|| ! measurementProcessor.calculateDerivatives())
 	    {
 		fitCode = 5; //  fail as trapped
 		delete bestParameters;
@@ -523,6 +710,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 						       m_fitProbability,
 						       fitCode,
 						       m_iteration,
+						       parameters->numberAlignments(),
 						       m_fitMatrices->numberDoF(),
 						       parameters->numberScatterers(),
 						       m_worstMeasurement);
@@ -534,6 +722,8 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		}
 		return *m_fitQuality;
 	    }
+
+	    //  have extrapolation and derivatives, calculate residual
 	    measurementProcessor.calculateResiduals();
 	    
 	    // check for remaining error conditions. If OK then compute chisquared.
@@ -585,6 +775,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 			if (m_verbose) parameters->printVerbose(*m_log);
 			if (measurementProcessor.calculateFittedTrajectory(m_iteration))
 			{
+			    // note: derivatives should not be recalculated for cutstep
 			    measurementProcessor.calculateResiduals();
 			    calculateChiSq(measurements);
 			    if (m_verbose) *m_log << "   after cutStep: "
@@ -616,21 +807,14 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		    }
 		    if (measurementProcessor.calculateFittedTrajectory(m_iteration))
 		    {
+		        measurementProcessor.calculateDerivatives();
 			measurementProcessor.calculateResiduals();
 			calculateChiSq(measurements);
 			m_convergence = true;
 		    }
 		}
 
-		//  finish the basic iteration loop with a calculation of the
-		//  derivatives for each measurement
 		if (forceIteration) m_convergence = false;
-		if (! m_convergence
-		    && ! m_cutStep
-		    && ! measurementProcessor.calculateDerivatives())
-		{
-		    fitCode = 5; //  fail as trapped
-		}
 	    }
 	}	// if (std::abs(ptInv0) > ptInvCut)
 	if (m_verbose) *m_log << endreq;
@@ -713,6 +897,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 					   m_fitProbability,
 					   fitCode,
 					   m_iteration,
+					   parameters->numberAlignments(),
 					   m_numberDoF,
 					   parameters->numberScatterers(),
 					   m_worstMeasurement);
