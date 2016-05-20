@@ -3,5 +3,3 @@
 """
 ISF_Geant4Tools
 """
-
-print 'loading ISF_Geant4Tools'
