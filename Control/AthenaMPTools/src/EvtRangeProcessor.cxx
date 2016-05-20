@@ -536,7 +536,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
             strOutpFile = fdIt->path().string();
           }
           else {
-            strOutpFile += (std::string("*")+fdIt->path().string());
+            strOutpFile += (std::string(",")+fdIt->path().string());
           }
 	}
       }
@@ -554,7 +554,8 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
       // 2. CPU time
       // 3. Wall time
       std::ostringstream outputReportStream;
-      outputReportStream << strOutpFile << "," << rangeID 
+      outputReportStream << strOutpFile 
+			 << ",ID:" << rangeID 
 			 << ",CPU:" << time_delta.cpuTime<System::Sec>()
 			 << ",WALL:" << time_delta.elapsedTime<System::Sec>();
       m_outputFileReport = outputReportStream.str();

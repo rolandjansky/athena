@@ -9,6 +9,7 @@
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IFileMgr.h"
+#include "GaudiKernel/IIncidentSvc.h"
 
 #include <sys/stat.h>
 #include <sstream>
@@ -156,6 +157,14 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
   // (possible) TODO: extend outwork with some error message, which will be eventually
   // reported in the master proces
   // ...
+
+  // ________________________ Get IncidentSvc and fire PostFork ________________________
+  IIncidentSvc* p_incidentSvc(0);
+  if(!serviceLocator()->service("IncidentSvc", p_incidentSvc).isSuccess()) {
+    msg(MSG::ERROR) << "Unable to retrieve IncidentSvc" << endreq;
+    return outwork;
+  }
+  p_incidentSvc->fireIncident(Incident(name(),"PostFork"));
 
   // ________________________ Get RankID ________________________
   //
