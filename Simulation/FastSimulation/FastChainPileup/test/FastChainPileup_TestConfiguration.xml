@@ -22,6 +22,8 @@
       <!-- Pile up CHAIN -->
       <chain>
        <chainName>ChainJobwthPileUp</chainName>
+       <!-- run main job sequence and independent tests in parallel -->
+       <parallel>
 	<!-- main job sequence -->
 	<sequential>
 	  <!-- independent chains of sim jobs + reco jobs + tests in parallel  -->
@@ -96,7 +98,7 @@
 		  <doc>FastChain reco</doc>
 		  <jobTransformJobName>ttbarFastChain_reco_noSplit_noPseudoTracking_stdFullSimDigi</jobTransformJobName>
 		  <jobTransformCmd> 
-		      FastChain_tf.py --maxEvents 50 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19  --inputRDOFile RDO.pool.root --outputAODFile AOD_Split_stdFullSimDigi.pool.root --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doStandardPlots.set_Value_and_Lock(True);"
+		      FastChain_tf.py --maxEvents 50 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31  --inputRDOFile RDO.pool.root --outputAODFile AOD_Split_stdFullSimDigi.pool.root --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doStandardPlots.set_Value_and_Lock(True);"
 		  </jobTransformCmd>
 		  <group>FastChainPileup</group>
 		  <chaindataset_info>
@@ -114,6 +116,40 @@
 		  AOD_Split_stdFullSimDigi.pool.root
 		</chainfileout>
 	      </chainElement>
+<!--	      <chainElement>
+		<jobTransform userJobId="reg_20.20.X_vs_mig13_ttbarFastChain_reco_noSplit_noPseudoTracking_stdFullSimDigi">
+		  <doc>Regression test of FastChainPileup job ttbarFastChain_reco_noSplit_noPseudoTracking_stdFullSimDigi in releases 20.20.X vs mig13</doc>
+		  <jobTransformJobName>reg_20.20.X_vs_mig13_ttbarFastChain_reco_noSplit_noPseudoTracking_stdFullSimDigi</jobTransformJobName>
+		  <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup 20.20.X ttbarFastChain_reco_noSplit_noPseudoTracking_stdFullSimDigi InDetStandardPlots.root FastChainPileup mig13 ttbarFastChain_reco_noSplit_noPseudoTracking_stdFullSimDigi InDetStandardPlots.root</jobTransformCmd>
+		  <group>FastChainPileup</group>
+		  <queue>medium</queue>
+		    <test position="1">
+		      <modulename>RttLibraryTools</modulename>
+		      <testname>DCubeRunner</testname>
+		      <arg>
+			<argname>DCubeCfg</argname>
+			<argvalue>dcube_ttbarFastChain_reco_noSplit_noPseudoTracking_stdFullSimDigi.xml</argvalue>
+		      </arg>
+		      <arg>
+			<argname>DCubeRef</argname>
+			<argvalue>yesterday.InDetStandardPlots.root</argvalue>
+		      </arg>
+		      <arg>
+			<argname>localRefFile</argname>
+			<argvalue>True</argvalue>
+		      </arg>
+		      <arg>
+			<argname>DCubeMon</argname>
+			<argvalue>today.InDetStandardPlots.root</argvalue>
+		      </arg>
+		      <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+		    </test>
+		    <testToRemove>
+			<jobGroupName>RTT:Top</jobGroupName>
+			<testidentifier>CheckFileRunner0</testidentifier>
+		    </testToRemove>		
+		</jobTransform>
+	      </chainElement>-->
 	    </sequential>
 	    <!-- Run FastChain fast sim + full digi, then different reco jobs on its output and tests in parallel -->
 	    <sequential>
@@ -123,7 +159,7 @@
 		  <doc>FastChain simdigi</doc>
 		  <jobTransformJobName>ttbarFastChain_fastSim_fullDigi</jobTransformJobName>
 		  <jobTransformCmd> 
-		      FastChain_tf.py --simulator ATLFASTIIF_PileUp --digiSteeringConf "SplitNoMerge" --useISF True --randomSeed 123 --enableLooperKiller True --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputRDOFile RDO_pileup_fastsim_fulldigi.pool.root --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19 --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' --preSimInclude FastChainPileup/FastPileup.py --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest_FCpileup.py,DigitizationTests/postInclude.RDO_Plots.py' --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' --DataRunNumber '222525' --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' --ignorePatterns='G4TestAlg.Lucid.{5}FATAL.{8}LucidHitsTestTool.cxx:66\ \(StatusCode\ LucidHitsTestTool::processEvent\(\)\):\ code\ 0:\ evtStore\(\)->retrieve\(iter\)','FATAL\ message\ limit\ \(500\)\ reached\ for\ G4TestAlg.LucidHitsTestTool.'
+		      FastChain_tf.py --simulator ATLFASTIIF_PileUp --digiSteeringConf "SplitNoMerge" --useISF True --randomSeed 123 --enableLooperKiller True --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputRDOFile RDO_pileup_fastsim_fulldigi.pool.root --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31 --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' --preSimInclude FastChainPileup/FastPileup.py --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest_FCpileup.py,DigitizationTests/postInclude.RDO_Plots.py' --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' --DataRunNumber '222525' --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' --ignorePatterns='G4TestAlg.Lucid.{5}FATAL.{8}LucidHitsTestTool.cxx:66\ \(StatusCode\ LucidHitsTestTool::processEvent\(\)\):\ code\ 0:\ evtStore\(\)->retrieve\(iter\)','FATAL\ message\ limit\ \(500\)\ reached\ for\ G4TestAlg.LucidHitsTestTool.'
 		  </jobTransformCmd>
 		  <group>FastChainPileup</group>
 		  <queue>medium</queue>
@@ -155,25 +191,12 @@
 		    </arg>
 		    <keepFilePattern>today.RDO_pileup_fastsim_fulldigi.pool.root_yesterday.RDO_pileup_fastsim_fulldigi.pool.root.diffPool</keepFilePattern>
 		  </test>
-		  <test position="2">
-		      <modulename>RttLibraryTools</modulename>
-		      <testname>ExeRunner</testname>
-		      <arg>
-			<argname>exeName</argname>
-			<argvalue>acmd.py</argvalue>
-		      </arg>
-		      <arg>
-			<argname>exeParamString</argname>
-			<argvalue>diff-root yesterday.RDO_pileup_fastsim_fulldigi.pool.root today.RDO_pileup_fastsim_fulldigi.pool.root --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_timings ESDtoAOD_timings ESDtoAOD_mems RAWtoESD_mems RAWtoESD_timings RecoTimingObj_p1_RAWtoESD_mems</argvalue>
-		      </arg>
-		      <keepFilePattern>RttLibraryTools_ExeRunner.postprocessing.log</keepFilePattern>
-		    </test>
-		    <test position="3">
+		    <test position="2">
 		      <modulename>RttLibraryTools</modulename>
 		      <testname>DCubeRunner</testname>
 		      <arg>
 			<argname>DCubeCfg</argname>
-			<argvalue>dcube_RDO_truth.xml</argvalue>
+			<argvalue>dcube_RDO_truth_pileup.xml</argvalue>
 		      </arg>
 		      <arg>
 			<argname>DCubeRef</argname>
@@ -191,12 +214,46 @@
 		    </test>
 		  </jobTransform>
 		</chainElement>
+		<!--<chainElement>
+		  <jobTransform userJobId="reg_20.20.X_vs_mig13_ttbarFastChain_fastSim_fullDigi">
+		    <doc>Regression test of FastChain sim + digi in releases 20.20.X vs mig13</doc>
+		    <jobTransformJobName>reg_20.20.X_vs_mig13_ttbarFastChain_fastSim_fullDigi</jobTransformJobName>
+		    <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup 20.20.X ttbarFastChain_fastSim_fullDigi RDO_truth.root FastChainPileup mig13 ttbarFastChain_fastSim_fullDigi RDO_truth.root</jobTransformCmd>
+		    <group>FastChainPileup</group>
+		    <queue>medium</queue>
+		      <test position="1">
+			<modulename>RttLibraryTools</modulename>
+			<testname>DCubeRunner</testname>
+			<arg>
+			  <argname>DCubeCfg</argname>
+			  <argvalue>dcube_RDO_truth.xml</argvalue>
+			</arg>
+			<arg>
+			  <argname>DCubeRef</argname>
+			  <argvalue>yesterday.RDO_truth.root</argvalue>
+			</arg>
+			<arg>
+			  <argname>localRefFile</argname>
+			  <argvalue>True</argvalue>
+			</arg>
+			<arg>
+			  <argname>DCubeMon</argname>
+			  <argvalue>today.RDO_truth.root</argvalue>
+			</arg>
+			<keepFilePattern>DCube-yesterday.RDO_truth.root/today.RDO_truth.root.dcube.xml.php</keepFilePattern>
+		      </test>
+		      <testToRemove>
+			  <jobGroupName>RTT:Top</jobGroupName>
+			  <testidentifier>CheckFileRunner0</testidentifier>
+		      </testToRemove>		
+		  </jobTransform>
+		</chainElement>-->
 		<chainElement>
 		  <jobTransform userJobId="ttbarFastChain_reco_noSplit_pseudoTracking_fastSim_fullDigi">
 		    <doc>FastChain reco</doc>
 		    <jobTransformJobName>ttbarFastChain_reco_noSplit_pseudoTracking_fastSim_fullDigi</jobTransformJobName>
 		    <jobTransformCmd> 
-			FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19  --inputRDOFile RDO_pileup_fastsim_fulldigi.pool.root --outputAODFile AOD_noSplit_pseudoTracking_fastSim_fullDigi.pool.root --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
+			FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31  --inputRDOFile RDO_pileup_fastsim_fulldigi.pool.root --outputAODFile AOD_noSplit_pseudoTracking_fastSim_fullDigi.pool.root --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
 		    </jobTransformCmd>
 		    <group>FastChainPileup</group>
 		    <chaindataset_info>
@@ -219,7 +276,7 @@
 		    <doc>FastChain reco</doc>
 		    <jobTransformJobName>ttbarFastChain_reco_noSplit_noPseudoTracking_fastSim_fullDigi</jobTransformJobName>
 		    <jobTransformCmd> 
-			FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19  --inputRDOFile RDO_pileup_fastsim_fulldigi.pool.root --outputAODFile AOD_noSplit_noPseudoTracking_fastSim_fullDigi.pool.root --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
+			FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31  --inputRDOFile RDO_pileup_fastsim_fulldigi.pool.root --outputAODFile AOD_noSplit_noPseudoTracking_fastSim_fullDigi.pool.root --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
 		    </jobTransformCmd>
 		    <group>FastChainPileup</group>
 		    <chaindataset_info>
@@ -243,7 +300,7 @@
 		      <doc>FastChain reco</doc>
 		      <jobTransformJobName>ttbarFastChain_reco_Split_fastSim_fullDigi</jobTransformJobName>
 		      <jobTransformCmd> 
-			  FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19  --inputRDOFile RDO_pileup_fastsim_fulldigi.pool.root --outputAODFile AOD_Split_fastSim_fullDigi.pool.root --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doSplitReco.set_Value_and_Lock(True);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
+			  FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31  --inputRDOFile RDO_pileup_fastsim_fulldigi.pool.root --outputAODFile AOD_Split_fastSim_fullDigi.pool.root --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doSplitReco.set_Value_and_Lock(True);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);InDetFlags.doStandardPlots.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" --ignorePatterns='GenParticle\ points\ to\ null\ end\ vertex','message\ limit\ \(500\)\ reached\ for\ McEventCollectionConverter'
 		      </jobTransformCmd>
 		      <group>FastChainPileup</group>
 		      <chaindataset_info>
@@ -261,6 +318,74 @@
 		      AOD_Split_fastSim_fullDigi.pool.root
 		    </chainfileout>
 		  </chainElement>
+		  <chainElement>
+		    <jobTransform userJobId="ttbarFastChain_reco_Split_fastSim_fullDigi_Reg">
+		      <doc>Regression test between releases</doc>
+		      <jobTransformJobName>ttbarFastChain_reco_Split_fastSim_fullDigi_Reg</jobTransformJobName>
+		      <jobTransformCmd>sim_reg_test.py ttbarFastChain_reco_Split_fastSim_fullDigi InDetStandardPlots.root</jobTransformCmd>
+		      <group>FastChainPileup</group>
+		      <queue>long</queue>
+			<test position="1">
+			  <modulename>RttLibraryTools</modulename>
+			  <testname>DCubeRunner</testname>
+			  <arg>
+			    <argname>DCubeCfg</argname>
+			    <argvalue>dcube_ttbarFastChain_reco_Split_fastSim_fullDigi_Reg.xml</argvalue>
+			  </arg>
+			  <arg>
+			    <argname>DCubeRef</argname>
+			    <argvalue>yesterday.InDetStandardPlots.root</argvalue>
+			  </arg>
+			  <arg>
+			    <argname>localRefFile</argname>
+			    <argvalue>True</argvalue>
+			  </arg>
+			  <arg>
+			    <argname>DCubeMon</argname>
+			    <argvalue>today.InDetStandardPlots.root</argvalue>
+			  </arg>
+			  <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+			</test>
+		      <testToRemove>
+			<jobGroupName>RTT:Top</jobGroupName>
+			<testidentifier>CheckFileRunner0</testidentifier>
+		      </testToRemove> 
+		      </jobTransform>
+		  </chainElement>
+<!--		  <chainElement>
+		    <jobTransform userJobId="reg_20.20.X_vs_mig13_ttbarFastChain_reco_Split_fastSim_fullDigi">
+		      <doc>Regression test of FastChainPileup job ttbarFastChain_reco_Split_fastSim_fullDigi in releases 20.20.X vs mig13</doc>
+		      <jobTransformJobName>reg_20.20.X_vs_mig13_ttbarFastChain_reco_Split_fastSim_fullDigi</jobTransformJobName>
+		      <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup 20.20.X ttbarFastChain_reco_Split_fastSim_fullDigi InDetStandardPlots.root FastChainPileup mig13 ttbarFastChain_reco_Split_fastSim_fullDigi InDetStandardPlots.root</jobTransformCmd>
+		      <group>FastChainPileup</group>
+		      <queue>medium</queue>
+			<test position="1">
+			  <modulename>RttLibraryTools</modulename>
+			  <testname>DCubeRunner</testname>
+			  <arg>
+			    <argname>DCubeCfg</argname>
+			    <argvalue>dcube_ttbarFastChain_reco_Split_fastSim_fullDigi.xml</argvalue>
+			  </arg>
+			  <arg>
+			    <argname>DCubeRef</argname>
+			    <argvalue>yesterday.InDetStandardPlots.root</argvalue>
+			  </arg>
+			  <arg>
+			    <argname>localRefFile</argname>
+			    <argvalue>True</argvalue>
+			  </arg>
+			  <arg>
+			    <argname>DCubeMon</argname>
+			    <argvalue>today.InDetStandardPlots.root</argvalue>
+			  </arg>
+			  <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+			</test>
+			<testToRemove>
+			    <jobGroupName>RTT:Top</jobGroupName>
+			    <testidentifier>CheckFileRunner0</testidentifier>
+			</testToRemove>		
+		    </jobTransform>
+		  </chainElement>-->
 		</sequential>
 		<sequential>
 		  <chainElement>
@@ -268,7 +393,7 @@
 		      <doc>standard reco</doc>
 		      <jobTransformJobName>standard_Reco_tf_fastSim_fullDigi</jobTransformJobName>
 		      <jobTransformCmd> 
-			  Reco_tf.py --inputRDOFile=RDO_pileup_fastsim_fulldigi.pool.root --outputAODFile=AOD_fastSim_fullDigi.pool.root --autoConfiguration=everything --maxEvents=500 --preExec "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
+			  Reco_tf.py --inputRDOFile=RDO_pileup_fastsim_fulldigi.pool.root --outputAODFile=AOD_fastSim_fullDigi.pool.root --autoConfiguration=everything --maxEvents=500 --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
 		      </jobTransformCmd>
 		      <group>FastChainPileup</group>
 		      <chaindataset_info>
@@ -286,6 +411,40 @@
 		      AOD_fastSim_fullDigi.pool.root
 		    </chainfileout>
 		  </chainElement>
+<!--		  <chainElement>
+		    <jobTransform userJobId="reg_20.20.X_vs_mig13_standard_Reco_tf_fastSim_fullDigi">
+		      <doc>Regression test of FastChainPileup job standard_Reco_tf_fastSim_fullDigi in releases 20.20.X vs mig13</doc>
+		      <jobTransformJobName>reg_20.20.X_vs_mig13_standard_Reco_tf_fastSim_fullDigi</jobTransformJobName>
+		      <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup 20.20.X standard_Reco_tf_fastSim_fullDigi InDetStandardPlots.root FastChainPileup mig13 standard_Reco_tf_fastSim_fullDigi InDetStandardPlots.root</jobTransformCmd>
+		      <group>FastChainPileup</group>
+		      <queue>medium</queue>
+			<test position="1">
+			  <modulename>RttLibraryTools</modulename>
+			  <testname>DCubeRunner</testname>
+			  <arg>
+			    <argname>DCubeCfg</argname>
+			    <argvalue>dcube_standard_Reco_tf_fastSim_fullDigi.xml</argvalue>
+			  </arg>
+			  <arg>
+			    <argname>DCubeRef</argname>
+			    <argvalue>yesterday.InDetStandardPlots.root</argvalue>
+			  </arg>
+			  <arg>
+			    <argname>localRefFile</argname>
+			    <argvalue>True</argvalue>
+			  </arg>
+			  <arg>
+			    <argname>DCubeMon</argname>
+			    <argvalue>today.InDetStandardPlots.root</argvalue>
+			  </arg>
+			  <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+			</test>
+			<testToRemove>
+			    <jobGroupName>RTT:Top</jobGroupName>
+			    <testidentifier>CheckFileRunner0</testidentifier>
+			</testToRemove>		
+		    </jobTransform>
+		  </chainElement>-->
 		</sequential>
 		<!-- END run reco jobs & tests in parallel -->
 	      </parallel>
@@ -298,7 +457,7 @@
 		  <doc>FastChain simdigi</doc>
 		  <jobTransformJobName>ttbarFastChain_fullSim_fullDigi</jobTransformJobName>
 		  <jobTransformCmd> 
-		      FastChain_tf.py --simulator ATLFASTII --digiSteeringConf "SplitNoMerge" --useISF True --randomSeed 123 --enableLooperKiller True --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputRDOFile RDO_pileup_fullsim_fulldigi.pool.root --maxEvents 50 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19 --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py,DigitizationTests/postInclude.RDO_Plots.py' --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' --DataRunNumber '222525' --ignorePatterns='G4TestAlg.Lucid.{5}FATAL.{8}LucidHitsTestTool.cxx:66\ \(StatusCode\ LucidHitsTestTool::processEvent\(\)\):\ code\ 0:\ evtStore\(\)->retrieve\(iter\)','FATAL\ message\ limit\ \(500\)\ reached\ for\ G4TestAlg.LucidHitsTestTool.'
+		      FastChain_tf.py --simulator ATLFASTII --digiSteeringConf "SplitNoMerge" --useISF True --randomSeed 123 --enableLooperKiller True --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputRDOFile RDO_pileup_fullsim_fulldigi.pool.root --maxEvents 50 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31 --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py,DigitizationTests/postInclude.RDO_Plots.py' --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' --DataRunNumber '222525' --ignorePatterns='G4TestAlg.Lucid.{5}FATAL.{8}LucidHitsTestTool.cxx:66\ \(StatusCode\ LucidHitsTestTool::processEvent\(\)\):\ code\ 0:\ evtStore\(\)->retrieve\(iter\)','FATAL\ message\ limit\ \(500\)\ reached\ for\ G4TestAlg.LucidHitsTestTool.'
 		  </jobTransformCmd>
 		  <group>FastChainPileup</group>
 		  <queue>medium</queue>
@@ -314,7 +473,7 @@
 		      <doc>FastChain reco</doc>
 		      <jobTransformJobName>ttbarFastChain_reco_noSplit_pseudoTracking_fullSim_fullDigi</jobTransformJobName>
 		      <jobTransformCmd> 
-			  FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19  --inputRDOFile RDO_pileup_fullsim_fulldigi.pool.root --outputAODFile AOD_noSplit_pseudoTracking_fullSim_fullDigi.pool.root --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
+			  FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31  --inputRDOFile RDO_pileup_fullsim_fulldigi.pool.root --outputAODFile AOD_noSplit_pseudoTracking_fullSim_fullDigi.pool.root --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
 		      </jobTransformCmd>
 		      <group>FastChainPileup</group>
 		      <chaindataset_info>
@@ -331,8 +490,67 @@
 		    <chainfileout>
 		      AOD_noSplit_pseudoTracking_fullSim_fullDigi.pool.root
 		    </chainfileout>
-		   </chainElement>
+		  </chainElement>
+<!--		    <chainElement>
+		      <jobTransform userJobId="reg_20.20.X_vs_mig13_ttbarFastChain_reco_noSplit_pseudoTracking_fullSim_fullDigi">
+			<doc>Regression test of FastChainPileup job ttbarFastChain_reco_noSplit_pseudoTracking_fullSim_fullDigi in releases 20.20.X vs mig13</doc>
+			<jobTransformJobName>reg_20.20.X_vs_mig13_ttbarFastChain_reco_noSplit_pseudoTracking_fullSim_fullDigi</jobTransformJobName>
+			<jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup 20.20.X ttbarFastChain_reco_noSplit_pseudoTracking_fullSim_fullDigi InDetStandardPlots.root FastChainPileup mig13 ttbarFastChain_reco_noSplit_pseudoTracking_fullSim_fullDigi InDetStandardPlots.root</jobTransformCmd>
+			<group>FastChainPileup</group>
+			<queue>medium</queue>
+			  <test position="1">
+			    <modulename>RttLibraryTools</modulename>
+			    <testname>DCubeRunner</testname>
+			    <arg>
+			      <argname>DCubeCfg</argname>
+			      <argvalue>dcube_ttbarFastChain_reco_noSplit_pseudoTracking_fullSim_fullDigi.xml</argvalue>
+			    </arg>
+			    <arg>
+			      <argname>DCubeRef</argname>
+			      <argvalue>yesterday.InDetStandardPlots.root</argvalue>
+			    </arg>
+			    <arg>
+			      <argname>localRefFile</argname>
+			      <argvalue>True</argvalue>
+			    </arg>
+			    <arg>
+			      <argname>DCubeMon</argname>
+			      <argvalue>today.InDetStandardPlots.root</argvalue>
+			    </arg>
+			    <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+			  </test>
+			  <testToRemove>
+			      <jobGroupName>RTT:Top</jobGroupName>
+			      <testidentifier>CheckFileRunner0</testidentifier>
+			  </testToRemove>		
+		      </jobTransform>
+		    </chainElement>-->
 		  </sequential>
+		  <sequential>
+		    <chainElement>
+		    <jobTransform userJobId="ttbarFastChain_reco_noSplit_noPseudoTracking_fullSim_fullDigi">
+		      <doc>FastChain reco</doc>
+		      <jobTransformJobName>ttbarFastChain_reco_noSplit_noPseudoTracking_fullSim_fullDigi</jobTransformJobName>
+		      <jobTransformCmd> 
+			  FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31  --inputRDOFile RDO_pileup_fullsim_fulldigi.pool.root --outputAODFile AOD_noSplit_noPseudoTracking_fullSim_fullDigi.pool.root --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
+		      </jobTransformCmd>
+		      <group>FastChainPileup</group>
+		      <chaindataset_info>
+			  <jobTransformData />    
+			  <chaindatasetName>RDO_pileup_fullsim_fulldigi.pool.root</chaindatasetName>
+			  <!-- If the file on the previous line is not in the chain store, then use the following fallback file. -->
+			  <dataset_info>
+			      <jobTransformData />
+			      <datasetName>/afs/cern.ch/work/a/abasalae/public/FastChainRTT/fallbackRTT/RDO_pileup_fullsim_fulldigi.pool.root</datasetName>
+			  </dataset_info>
+		      </chaindataset_info>
+		      <queue>medium</queue>
+		    </jobTransform>
+		    <chainfileout>
+		      AOD_noSplit_noPseudoTracking_fullSim_fullDigi.pool.root
+		    </chainfileout>
+		  </chainElement>
+		</sequential>
 		<chainElement>
 		  <jobTransform userJobId="standard_Reco_tf_fullSim_fullDigi">
 		    <doc>standard reco</doc>
@@ -395,7 +613,7 @@
 			<testname>DCubeRunner</testname>
 			<arg>
 			  <argname>DCubeCfg</argname>
-			  <argvalue>dcube_RDO_truth.xml</argvalue>
+			  <argvalue>dcube_RDO_truth_nopileup.xml</argvalue>
 			</arg>
 			<arg>
 			  <argname>DCubeRef</argname>
@@ -423,7 +641,7 @@
 		  <doc>FastChain simdigi</doc>
 		  <jobTransformJobName>ttbarFastChain_fastSim_fastDigi</jobTransformJobName>
 		  <jobTransformCmd> 
-		      FastChain_tf.py --simulator ATLFASTIIF_PileUp --digiSteeringConf "SplitNoMerge" --useISF True --randomSeed 123 --enableLooperKiller True --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputRDOFile RDO_pileup_fastsim_fastdigi.pool.root --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19 --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' --preSimInclude FastChainPileup/FastPileup.py --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest_FCpileup.py,DigitizationTests/postInclude.RDO_Plots.py' --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' --DataRunNumber '222525' --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' --preDigiInclude="SimulationJobOptions/preInclude.FastSCT_Digi.py,SimulationJobOptions/preInclude.FastPixelDigi.py,SimulationJobOptions/preInclude.FastTRT_Digi.py" --ignorePatterns='G4TestAlg.Lucid.{5}FATAL.{8}LucidHitsTestTool.cxx:66\ \(StatusCode\ LucidHitsTestTool::processEvent\(\)\):\ code\ 0:\ evtStore\(\)->retrieve\(iter\)','FATAL\ message\ limit\ \(500\)\ reached\ for\ G4TestAlg.LucidHitsTestTool.'
+		      FastChain_tf.py --simulator ATLFASTIIF_PileUp --digiSteeringConf "SplitNoMergeFF" --useISF True --randomSeed 123 --enableLooperKiller True --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputRDOFile RDO_pileup_fastsim_fastdigi.pool.root --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31 --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' --preSimInclude FastChainPileup/FastPileup.py --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest_FCpileup.py,DigitizationTests/postInclude.RDO_Plots.py' --postExec 'RAWtoESD:import AthenaCommon.AlgSequence as acas;job = acas.AlgSequence();del job.InDetSCT_Clusterization;from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' --DataRunNumber '222525' --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' --ignorePatterns='G4TestAlg.Lucid.{5}FATAL.{8}LucidHitsTestTool.cxx:66\ \(StatusCode\ LucidHitsTestTool::processEvent\(\)\):\ code\ 0:\ evtStore\(\)->retrieve\(iter\)','FATAL\ message\ limit\ \(500\)\ reached\ for\ G4TestAlg.LucidHitsTestTool.' --preDigiInclude="FastTRT_Digitization/preInclude.FastTRT_Digi.Validation.py"
 		  </jobTransformCmd>
 		  <group>FastChainPileup</group>
 		  <queue>medium</queue>
@@ -438,7 +656,7 @@
 		    <doc>FastChain reco</doc>
 		    <jobTransformJobName>ttbarFastChain_reco_noSplit_noPseudoTracking_fastSim_fastDigi</jobTransformJobName>
 		    <jobTransformCmd> 
-			FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19  --inputRDOFile RDO_pileup_fastsim_fastdigi.pool.root --outputAODFile AOD_noSplit_noPseudoTracking_fastSim_fastDigi.pool.root --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.pixelClusterSplittingType.set_Value_and_Lock(\"AnalogClus\");InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
+			FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31  --inputRDOFile RDO_pileup_fastsim_fastdigi.pool.root --outputAODFile AOD_noSplit_noPseudoTracking_fastSim_fastDigi.pool.root --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.pixelClusterSplittingType.set_Value_and_Lock(\"AnalogClus\");InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
 		    </jobTransformCmd>
 		    <group>FastChainPileup</group>
 		    <chaindataset_info>
@@ -495,7 +713,7 @@
 			<testname>DCubeRunner</testname>
 			<arg>
 			  <argname>DCubeCfg</argname>
-			  <argvalue>dcube_RDO_truth.xml</argvalue>
+			  <argvalue>dcube_RDO_truth_fastdigi.xml</argvalue>
 			</arg>
 			<arg>
 			  <argname>DCubeRef</argname>
@@ -520,9 +738,9 @@
 	  </parallel>
 	  <!-- Run tests dependent on different reco jobs -->
 	  <chainElement>
-	    <jobTransform userJobId="reg_standard_Reco_tf_fastSim_fullDigi_vs_ttbarFastChain_reco_Split_fastSim_fullDigi">
+	    <jobTransform userJobId="0reg_standard_Reco_tf_fastSim_fullDigi_vs_ttbarFastChain_reco_Split_fastSim_fullDigi">
 	      <doc>Regression test of FastChainPileup job standard_Reco_tf_fastSim_fullDigi vs ttbarFastChain_reco_Split_fastSim_fullDigi</doc>
-	      <jobTransformJobName>reg_standard_Reco_tf_fastSim_fullDigi_vs_ttbarFastChain_reco_Split_fastSim_fullDigi</jobTransformJobName>
+	      <jobTransformJobName>0reg_standard_Reco_tf_fastSim_fullDigi_vs_ttbarFastChain_reco_Split_fastSim_fullDigi</jobTransformJobName>
 	      <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup current standard_Reco_tf_fastSim_fullDigi InDetStandardPlots.root FastChainPileup current ttbarFastChain_reco_Split_fastSim_fullDigi InDetStandardPlots.root</jobTransformCmd>
 	      <group>FastChainPileup</group>
 	      <queue>medium</queue>
@@ -554,9 +772,9 @@
 	    </jobTransform>
 	  </chainElement> 
 	  <chainElement>
-	    <jobTransform userJobId="reg_standard_Reco_tf_fullSim_fullDigi_vs_ttbarFastChain_reco_noSplit_pseudoTracking_fullSim_fullDigi">
+	    <jobTransform userJobId="0reg_standard_Reco_tf_fullSim_fullDigi_vs_ttbarFastChain_reco_noSplit_pseudoTracking_fullSim_fullDigi">
 	      <doc>Regression test of FastChainPileup job standard_Reco_tf_fullSim_fullDigi vs ttbarFastChain_reco_noSplit_pseudoTracking_fullSim_fullDigi</doc>
-	      <jobTransformJobName>reg_standard_Reco_tf_fullSim_fullDigi_vs_ttbarFastChain_reco_noSplit_pseudoTracking_fullSim_fullDigi</jobTransformJobName>
+	      <jobTransformJobName>0reg_standard_Reco_tf_fullSim_fullDigi_vs_ttbarFastChain_reco_noSplit_pseudoTracking_fullSim_fullDigi</jobTransformJobName>
 	      <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup current standard_Reco_tf_fullSim_fullDigi InDetStandardPlots.root FastChainPileup current ttbarFastChain_reco_noSplit_pseudoTracking_fullSim_fullDigi InDetStandardPlots.root</jobTransformCmd>
 	      <group>FastChainPileup</group>
 	      <queue>medium</queue>
@@ -588,9 +806,9 @@
 	    </jobTransform>
 	  </chainElement>   
 	  <chainElement>
-	    <jobTransform userJobId="reg_standard_Reco_tf_fastSim_fullDigi_vs_ttbarFastChain_reco_noSplit_noPseudoTracking_fastSim_fullDigi">
+	    <jobTransform userJobId="0reg_standard_Reco_tf_fastSim_fullDigi_vs_ttbarFastChain_reco_noSplit_noPseudoTracking_fastSim_fullDigi">
 	      <doc>Regression test of FastChainPileup job standard_Reco_tf_fastSim_fullDigi vs ttbarFastChain_reco_noSplit_noPseudoTracking_fastSim_fullDigi</doc>
-	      <jobTransformJobName>reg_standard_Reco_tf_fastSim_fullDigi_vs_ttbarFastChain_reco_noSplit_noPseudoTracking_fastSim_fullDigi</jobTransformJobName>
+	      <jobTransformJobName>0reg_standard_Reco_tf_fastSim_fullDigi_vs_ttbarFastChain_reco_noSplit_noPseudoTracking_fastSim_fullDigi</jobTransformJobName>
 	      <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup current standard_Reco_tf_fastSim_fullDigi InDetStandardPlots.root FastChainPileup current ttbarFastChain_reco_noSplit_noPseudoTracking_fastSim_fullDigi InDetStandardPlots.root</jobTransformCmd>
 	      <group>FastChainPileup</group>
 	      <queue>medium</queue>
@@ -621,10 +839,10 @@
 		</testToRemove>		
 	    </jobTransform>
 	  </chainElement> 
-	  <chainElement>
-	    <jobTransform userJobId="reg_ttbarFastChain_reco_noSplit_noPseudoTracking_fullSim_fullDigi_vs_ttbarFastChain_reco_noSplit_noPseudoTracking_fastSim_fullDigi">
+	  <!--<chainElement>
+	    <jobTransform userJobId="0reg_ttbarFastChain_reco_noSplit_noPseudoTracking_fullSim_fullDigi_vs_ttbarFastChain_reco_noSplit_noPseudoTracking_fastSim_fullDigi">
 	      <doc>Regression test of FastChainPileup job ttbarFastChain_reco_noSplit_noPseudoTracking_fullSim_fullDigi vs ttbarFastChain_reco_noSplit_noPseudoTracking_fastSim_fullDigi</doc>
-	      <jobTransformJobName>reg_ttbarFastChain_reco_noSplit_noPseudoTracking_fullSim_fullDigi_vs_ttbarFastChain_reco_noSplit_noPseudoTracking_fastSim_fullDigi</jobTransformJobName>
+	      <jobTransformJobName>0reg_ttbarFastChain_reco_noSplit_noPseudoTracking_fullSim_fullDigi_vs_ttbarFastChain_reco_noSplit_noPseudoTracking_fastSim_fullDigi</jobTransformJobName>
 	      <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup current ttbarFastChain_reco_noSplit_noPseudoTracking_fullSim_fullDigi InDetStandardPlots.root FastChainPileup current ttbarFastChain_reco_noSplit_noPseudoTracking_fastSim_fullDigi InDetStandardPlots.root</jobTransformCmd>
 	      <group>FastChainPileup</group>
 	      <queue>medium</queue>
@@ -654,11 +872,11 @@
 		    <testidentifier>CheckFileRunner0</testidentifier>
 		</testToRemove>		
 	    </jobTransform>
-	  </chainElement>
+	  </chainElement>-->
 	  <chainElement>
-	    <jobTransform userJobId="reg_standard_Reco_tf_fastSim_fullDigi_vs_ttbarFastChain_reco_noSplit_pseudoTracking_fastSim_fullDigi">
+	    <jobTransform userJobId="0reg_standard_Reco_tf_fastSim_fullDigi_vs_ttbarFastChain_reco_noSplit_pseudoTracking_fastSim_fullDigi">
 	      <doc>Regression test of FastChainPileup job standard_Reco_tf_fastSim_fullDigi vs ttbarFastChain_reco_noSplit_pseudoTracking_fastSim_fullDigi</doc>
-	      <jobTransformJobName>reg_standard_Reco_tf_fastSim_fullDigi_vs_ttbarFastChain_reco_noSplit_pseudoTracking_fastSim_fullDigi</jobTransformJobName>
+	      <jobTransformJobName>0reg_standard_Reco_tf_fastSim_fullDigi_vs_ttbarFastChain_reco_noSplit_pseudoTracking_fastSim_fullDigi</jobTransformJobName>
 	      <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup current standard_Reco_tf_fastSim_fullDigi InDetStandardPlots.root FastChainPileup current ttbarFastChain_reco_noSplit_pseudoTracking_fastSim_fullDigi InDetStandardPlots.root</jobTransformCmd>
 	      <group>FastChainPileup</group>
 	      <queue>medium</queue>
@@ -691,6 +909,328 @@
 	  </chainElement>
 	<!-- END main job sequence -->
 	</sequential>
+	<!-- run standardReco_pseudoTracking_oldHits job and test -->
+	<sequential>
+	  <chainElement>
+	    <jobTransform userJobId="standardReco_pseudoTracking_oldHits">
+	      <doc>FastChain reco</doc>
+	      <jobTransformJobName>standardReco_pseudoTracking_oldHits</jobTransformJobName>
+	      <jobTransformCmd> 
+		  Reco_tf.py --inputHITSFile=/afs/cern.ch/user/a/abasalae/work/FastChainRTT/20.20.3_ReferenceProduction/standardReco_pseudoTracking_oldHits/valid1/HITS.06695914._000339.pool.root.1 --outputESDFile=ESD.pool.root --autoConfiguration=everything --maxEvents=500 --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doTrigger.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);InDetFlags.doStandardPlots.set_Value_and_Lock(True);" --outputRDOFile=RDO.oldhits.pool.root --postInclude='HITtoRDO:G4AtlasTests/postInclude.DCubeTest.py,DigitizationTests/postInclude.RDO_Plots.py'
+	      </jobTransformCmd>
+	      <group>FastChainPileup</group>
+	      <chaindataset_info>
+		  <jobTransformData />    
+		  <chaindatasetName>None</chaindatasetName>
+		  <!-- If the file on the previous line is not in the chain store, then use the following fallback file. -->
+		  <dataset_info>
+		      <jobTransformData />
+		      <datasetName>/afs/cern.ch/user/a/abasalae/work/FastChainRTT/20.20.3_ReferenceProduction/standardReco_pseudoTracking_oldHits/valid1/HITS.06695914._000339.pool.root.1</datasetName>
+		  </dataset_info>
+	      </chaindataset_info>
+	      <queue>medium</queue>
+	    </jobTransform>
+	    <chainfileout>
+	      ESD.pool.root
+	    </chainfileout>
+	    <chainfileout>
+	      RDO.oldhits.pool.root 
+	    </chainfileout>
+	  </chainElement>
+	  <!-- run tests in parallel-->
+	  <parallel>
+	    <chainElement>
+	    <jobTransform userJobId="standardReco_pseudoTracking_oldHits_digi_Reg">
+	      <doc>Regression test between releases</doc>
+	      <jobTransformJobName>standardReco_pseudoTracking_oldHits_digi_Reg</jobTransformJobName>
+	      <jobTransformCmd>sim_reg_test.py standardReco_pseudoTracking_oldHits RDO_truth.root RDO.pool.root</jobTransformCmd>
+	      <group>FastChainPileup</group>
+	      <queue>long</queue>
+	      <test position="1">
+		<modulename>FlexibleDiffPoolFilesRunner</modulename>
+		<testname>FlexibleDiffPoolFilesRunner</testname>
+		<arg>
+		  <argname>fileName</argname>
+		  <argvalue>today.RDO.pool.root</argvalue>
+		</arg>
+		<arg>
+		  <argname>refFileName</argname>
+		  <argvalue>yesterday.RDO.pool.root</argvalue>
+		</arg>
+		<arg>
+		  <argname>localRefFile</argname>
+		  <argvalue>True</argvalue>
+		</arg>
+		<keepFilePattern>today.RDO.pool.root_yesterday.RDO.pool.root.diffPool</keepFilePattern>
+	      </test>
+		<test position="2">
+		  <modulename>RttLibraryTools</modulename>
+		  <testname>DCubeRunner</testname>
+		  <arg>
+		    <argname>DCubeCfg</argname>
+		    <argvalue>dcube_RDO_truth.xml</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeRef</argname>
+		    <argvalue>yesterday.RDO_truth.root</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>localRefFile</argname>
+		    <argvalue>True</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeMon</argname>
+		    <argvalue>today.RDO_truth.root</argvalue>
+		  </arg>
+		  <keepFilePattern>DCube-yesterday.RDO_truth.root/today.RDO_truth.root.dcube.xml.php</keepFilePattern>
+		</test>
+	      </jobTransform>
+	    </chainElement>
+	    <chainElement>
+	      <jobTransform userJobId="standardReco_pseudoTracking_oldHits_Reg">
+		<doc>Regression test between releases</doc>
+		<jobTransformJobName>standardReco_pseudoTracking_oldHits_Reg</jobTransformJobName>
+		<jobTransformCmd>sim_reg_test.py standardReco_pseudoTracking_oldHits InDetStandardPlots.root</jobTransformCmd>
+		<group>FastChainPileup</group>
+		<queue>long</queue>
+		  <test position="1">
+		    <modulename>RttLibraryTools</modulename>
+		    <testname>DCubeRunner</testname>
+		    <arg>
+		      <argname>DCubeCfg</argname>
+		      <argvalue>dcube_standardReco_pseudoTracking_oldHits_Reg.xml</argvalue>
+		    </arg>
+		    <arg>
+		      <argname>DCubeRef</argname>
+		      <argvalue>yesterday.InDetStandardPlots.root</argvalue>
+		    </arg>
+		    <arg>
+		      <argname>localRefFile</argname>
+		      <argvalue>True</argvalue>
+		    </arg>
+		    <arg>
+		      <argname>DCubeMon</argname>
+		      <argvalue>today.InDetStandardPlots.root</argvalue>
+		    </arg>
+		    <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+		  </test>
+		<testToRemove>
+		  <jobGroupName>RTT:Top</jobGroupName>
+		  <testidentifier>CheckFileRunner0</testidentifier>
+		</testToRemove> 
+		</jobTransform>
+	    </chainElement>
+	  </parallel>
+	</sequential>
+	<!-- run independent tests in parallel -->
+	<!--<parallel>
+	  <chainElement>
+	    <jobTransform userJobId="reg_20.20.X-VAL_vs_mig13_ATLFASTIIF_ttbar_1sim">
+	      <doc>Regression test of ISF_Validation job ATLFASTIIF_ttbar_1sim in releases 20.20.X-VAL vs mig13</doc>
+	      <jobTransformJobName>reg_20.20.X-VAL_vs_mig13_ATLFASTIIF_ttbar_1sim</jobTransformJobName>
+	      <jobTransformCmd>sim_reg_test_fastchain.py ISF_Validation 20.20.X-VAL ATLFASTIIF_ttbar_1sim truth.root ISF_Validation mig13 ATLFASTIIF_ttbar_1sim truth.root</jobTransformCmd>
+	      <group>FastChainPileup</group>
+	      <queue>medium</queue>
+		<test position="1">
+		  <modulename>RttLibraryTools</modulename>
+		  <testname>DCubeRunner</testname>
+		  <arg>
+		    <argname>DCubeCfg</argname>
+		    <argvalue>dcube_truth_ATLFASTII.xml</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeRef</argname>
+		    <argvalue>yesterday.truth.root</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>localRefFile</argname>
+		    <argvalue>True</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeMon</argname>
+		    <argvalue>today.truth.root</argvalue>
+		  </arg>
+		  <keepFilePattern>DCube-yesterday.truth.root/today.truth.root.dcube.xml.php</keepFilePattern>
+		</test>
+		<testToRemove>
+		    <jobGroupName>RTT:Top</jobGroupName>
+		    <testidentifier>CheckFileRunner0</testidentifier>
+		</testToRemove>		
+	    </jobTransform>
+	  </chainElement>
+	  <chainElement>
+	    <jobTransform userJobId="reg_20.20.X_vs_mig13_ATLFASTIIF_ttbar_1sim">
+	      <doc>Regression test of ISF_Validation job ATLFASTIIF_ttbar_1sim in releases 20.20.X vs mig13</doc>
+	      <jobTransformJobName>reg_20.20.X_vs_mig13_ATLFASTIIF_ttbar_1sim</jobTransformJobName>
+	      <jobTransformCmd>sim_reg_test_fastchain.py ISF_Validation 20.20.X ATLFASTIIF_ttbar_1sim truth.root ISF_Validation mig13 ATLFASTIIF_ttbar_1sim truth.root</jobTransformCmd>
+	      <group>FastChainPileup</group>
+	      <queue>medium</queue>
+		<test position="1">
+		  <modulename>RttLibraryTools</modulename>
+		  <testname>DCubeRunner</testname>
+		  <arg>
+		    <argname>DCubeCfg</argname>
+		    <argvalue>dcube_truth_ATLFASTII.xml</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeRef</argname>
+		    <argvalue>yesterday.truth.root</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>localRefFile</argname>
+		    <argvalue>True</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeMon</argname>
+		    <argvalue>today.truth.root</argvalue>
+		  </arg>
+		  <keepFilePattern>DCube-yesterday.truth.root/today.truth.root.dcube.xml.php</keepFilePattern>
+		</test>
+		<testToRemove>
+		    <jobGroupName>RTT:Top</jobGroupName>
+		    <testidentifier>CheckFileRunner0</testidentifier>
+		</testToRemove>		
+	    </jobTransform>
+	  </chainElement>
+	  <chainElement>
+	    <jobTransform userJobId="reg_20.20.X-VAL_vs_mig13_ATLFASTII_ttbar_1sim">
+	      <doc>Regression test of ISF_Validation job ATLFASTII_ttbar_1sim in releases 20.20.X-VAL vs mig13</doc>
+	      <jobTransformJobName>reg_20.20.X-VAL_vs_mig13_ATLFASTII_ttbar_1sim</jobTransformJobName>
+	      <jobTransformCmd>sim_reg_test_fastchain.py ISF_Validation 20.20.X-VAL ATLFASTII_ttbar_1sim truth.root ISF_Validation mig13 ATLFASTII_ttbar_1sim truth.root</jobTransformCmd>
+	      <group>FastChainPileup</group>
+	      <queue>medium</queue>
+		<test position="1">
+		  <modulename>RttLibraryTools</modulename>
+		  <testname>DCubeRunner</testname>
+		  <arg>
+		    <argname>DCubeCfg</argname>
+		    <argvalue>dcube_truth_ATLFASTII.xml</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeRef</argname>
+		    <argvalue>yesterday.truth.root</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>localRefFile</argname>
+		    <argvalue>True</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeMon</argname>
+		    <argvalue>today.truth.root</argvalue>
+		  </arg>
+		  <keepFilePattern>DCube-yesterday.truth.root/today.truth.root.dcube.xml.php</keepFilePattern>
+		</test>
+		<testToRemove>
+		    <jobGroupName>RTT:Top</jobGroupName>
+		    <testidentifier>CheckFileRunner0</testidentifier>
+		</testToRemove>		
+	    </jobTransform>
+	  </chainElement>
+	  <chainElement>
+	    <jobTransform userJobId="reg_20.20.X_vs_mig13_ATLFASTII_ttbar_1sim">
+	      <doc>Regression test of ISF_Validation job ATLFASTII_ttbar_1sim in releases 20.20.X vs mig13</doc>
+	      <jobTransformJobName>reg_20.20.X_vs_mig13_ATLFASTII_ttbar_1sim</jobTransformJobName>
+	      <jobTransformCmd>sim_reg_test_fastchain.py ISF_Validation 20.20.X ATLFASTII_ttbar_1sim truth.root ISF_Validation mig13 ATLFASTII_ttbar_1sim truth.root</jobTransformCmd>
+	      <group>FastChainPileup</group>
+	      <queue>medium</queue>
+		<test position="1">
+		  <modulename>RttLibraryTools</modulename>
+		  <testname>DCubeRunner</testname>
+		  <arg>
+		    <argname>DCubeCfg</argname>
+		    <argvalue>dcube_truth_ATLFASTII.xml</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeRef</argname>
+		    <argvalue>yesterday.truth.root</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>localRefFile</argname>
+		    <argvalue>True</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeMon</argname>
+		    <argvalue>today.truth.root</argvalue>
+		  </arg>
+		  <keepFilePattern>DCube-yesterday.truth.root/today.truth.root.dcube.xml.php</keepFilePattern>
+		</test>
+		<testToRemove>
+		    <jobGroupName>RTT:Top</jobGroupName>
+		    <testidentifier>CheckFileRunner0</testidentifier>
+		</testToRemove>		
+	    </jobTransform>
+	  </chainElement>
+	  <chainElement>
+	    <jobTransform userJobId="reg_20.20.X-VAL_vs_mig13_FullG4_ttbar_1sim">
+	      <doc>Regression test of ISF_Validation job FullG4_ttbar_1sim in releases 20.20.X-VAL vs mig13</doc>
+	      <jobTransformJobName>reg_20.20.X-VAL_vs_mig13_FullG4_ttbar_1sim</jobTransformJobName>
+	      <jobTransformCmd>sim_reg_test_fastchain.py ISF_Validation 20.20.X-VAL FullG4_ttbar_1sim truth.root ISF_Validation mig13 FullG4_ttbar_1sim truth.root</jobTransformCmd>
+	      <group>FastChainPileup</group>
+	      <queue>medium</queue>
+		<test position="1">
+		  <modulename>RttLibraryTools</modulename>
+		  <testname>DCubeRunner</testname>
+		  <arg>
+		    <argname>DCubeCfg</argname>
+		    <argvalue>dcube-G4_ttbar_1sim.xml</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeRef</argname>
+		    <argvalue>yesterday.truth.root</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>localRefFile</argname>
+		    <argvalue>True</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeMon</argname>
+		    <argvalue>today.truth.root</argvalue>
+		  </arg>
+		  <keepFilePattern>DCube-yesterday.truth.root/today.truth.root.dcube.xml.php</keepFilePattern>
+		</test>
+		<testToRemove>
+		    <jobGroupName>RTT:Top</jobGroupName>
+		    <testidentifier>CheckFileRunner0</testidentifier>
+		</testToRemove>		
+	    </jobTransform>
+	  </chainElement>
+	  <chainElement>
+	    <jobTransform userJobId="reg_20.20.X_vs_mig13_FullG4_ttbar_1sim">
+	      <doc>Regression test of ISF_Validation job FullG4_ttbar_1sim in releases 20.20.X vs mig13</doc>
+	      <jobTransformJobName>reg_20.20.X_vs_mig13_FullG4_ttbar_1sim</jobTransformJobName>
+	      <jobTransformCmd>sim_reg_test_fastchain.py ISF_Validation 20.20.X FullG4_ttbar_1sim truth.root ISF_Validation mig13 FullG4_ttbar_1sim truth.root</jobTransformCmd>
+	      <group>FastChainPileup</group>
+	      <queue>medium</queue>
+		<test position="1">
+		  <modulename>RttLibraryTools</modulename>
+		  <testname>DCubeRunner</testname>
+		  <arg>
+		    <argname>DCubeCfg</argname>
+		    <argvalue>dcube-G4_ttbar_1sim.xml</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeRef</argname>
+		    <argvalue>yesterday.truth.root</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>localRefFile</argname>
+		    <argvalue>True</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeMon</argname>
+		    <argvalue>today.truth.root</argvalue>
+		  </arg>
+		  <keepFilePattern>DCube-yesterday.truth.root/today.truth.root.dcube.xml.php</keepFilePattern>
+		</test>
+		<testToRemove>
+		    <jobGroupName>RTT:Top</jobGroupName>
+		    <testidentifier>CheckFileRunner0</testidentifier>
+		</testToRemove>		
+	    </jobTransform>
+	  </chainElement>
+	</parallel>-->
+       <!-- END -->
+       </parallel>
       </chain>
     </jobList>
     <jobGroups>
