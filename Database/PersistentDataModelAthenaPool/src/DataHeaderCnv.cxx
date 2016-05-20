@@ -61,10 +61,10 @@ StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& 
    }
    m_persObjList.push_back(persObj);
    this->setPlacementWithType("DataHeaderForm", tname);
-   const Token* dhf_token = m_athenaPoolCnvSvc->registerForWrite(m_placement, &persObj->dhForm(), m_mapClassDesc);
+   const Token* dhf_token = m_athenaPoolCnvSvc->registerForWrite(m_placement, persObj->dhForm(), m_mapClassDesc);
    if (dhf_token == 0) {
       MsgStream log(messageService(), "DataHeaderCnv");
-      log << MSG::FATAL << "Failed to write DataHeaderForm" << endreq;
+      log << MSG::FATAL << "Failed to write DataHeaderForm = " << persObj->dhForm() << endreq;
       return(StatusCode::FAILURE);
    }
    this->setPlacementWithType("DataHeader", tname);
@@ -139,7 +139,7 @@ DataHeader_p5* DataHeaderCnv::poolReadObject_p5() {
             throw std::runtime_error("Failed to cast object for token = " + mapToken.toString());
          }
       }
-      pObj->setDhForm(*m_dhForm);
+      pObj->setDhForm(m_dhForm);
    }
    return(pObj);
 }
