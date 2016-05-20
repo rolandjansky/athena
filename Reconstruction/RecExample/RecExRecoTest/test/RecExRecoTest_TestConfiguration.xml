@@ -8,7 +8,7 @@
     <TEST name="aaaempty" type="athena" suite="aaaempty">
       <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5 ; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py  RecExRecoTest/RecExRecoTest_RTT_empty.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
       <prescript>RecExCommon_links.sh</prescript>
     </TEST>
@@ -16,7 +16,7 @@
     <TEST name="forward" type="athena" suite="forward">
       <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5 ; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_forwarddet.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
       <prescript>RecExCommon_links.sh</prescript>
     </TEST>
@@ -24,7 +24,7 @@
     <TEST name="calo" type="athena" suite="calo">
       <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5 ; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_calo.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
       <prescript>RecExCommon_links.sh</prescript>
     </TEST>
@@ -32,7 +32,7 @@
     <TEST name="id" type="athena" suite="id">
       <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5 ; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_id.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
       <prescript>RecExCommon_links.sh</prescript>
     </TEST>
@@ -40,7 +40,7 @@
     <TEST name="muon" type="athena" suite="muon">
       <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_muon.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
       <prescript>RecExCommon_links.sh</prescript>
     </TEST>
@@ -48,7 +48,7 @@
     <TEST name="idmuon" type="athena" suite="idmuon">
       <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_idmuon.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
       <prescript>RecExCommon_links.sh</prescript>
     </TEST>
@@ -56,7 +56,7 @@
     <TEST name="idcalo" type="athena" suite="idcalo">
       <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_idcalo.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
       <prescript>RecExCommon_links.sh</prescript>
     </TEST>
@@ -64,7 +64,7 @@
     <TEST name="idmuoncalo" type="athena" suite="idmuoncalo">
       <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_idmuoncalo.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
       <prescript>RecExCommon_links.sh</prescript>
     </TEST>
@@ -72,7 +72,7 @@
     <TEST name="idcaloegamma" type="athena" suite="idcaloegamma">
       <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_idcaloegamma.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
       <prescript>RecExCommon_links.sh</prescript>
     </TEST>
@@ -80,7 +80,7 @@
     <TEST name="idmuoncalomuoncomb" type="athena" suite="idmuoncalomuoncomb">
       <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_idmuoncalomuoncomb.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
       <prescript>RecExCommon_links.sh</prescript>
     </TEST>
@@ -88,7 +88,7 @@
     <TEST name="calomax" type="athena" suite="calomax">
       <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5 ; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_calomax.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlsa.rig@cern.ch </mailto>
       <prescript>RecExCommon_links.sh</prescript>
     </TEST>
@@ -96,7 +96,7 @@
     <TEST name="idmuonmax" type="athena" suite="idmuonmax">
       <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_idmuonmax.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
       <prescript>RecExCommon_links.sh</prescript>
     </TEST>
@@ -104,7 +104,7 @@
     <TEST name="idcalomax" type="athena" suite="idcalomax">
       <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_idcalomax.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
       <prescript>RecExCommon_links.sh</prescript>
     </TEST>
@@ -112,31 +112,29 @@
     <TEST name="RECOSHIFT_esd" type="athena" suite="esd">
       <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_esd.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
       <prescript>RecExCommon_links.sh</prescript>
     </TEST>
     
-
     <TEST name="esdtoesd" type="athena" suite="esd">
       <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True ; rec.noESDTrigger=True " AthenaCommon/MemTraceInclude.py RecExCommon/esdtoesd.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
     </TEST>
     
     <TEST name="esdtoesdwithreco" type="athena" suite="esd">
       <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True ; rec.noESDTrigger=True ; rec.doESD.set_Value_and_Lock(True) ; jp.AthenaCommonFlags.PoolESDOutput='reco_ESD.pool.root' " AthenaCommon/MemTraceInclude.py RecExCommon/esdtoesd.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
     </TEST>
     
-    
     <TEST name="RECOSHIFT_esdzpileup" type="athena" suite="esdpileup">
-      <options_atn>-c "jp.AthenaCommonFlags.EvtMax=2; jp.AthenaCommonFlags.SkipEvents=3 ; rec.AutoConfiguration=['everything']; rec.doDetailedAuditor=True ; rec.doNameAuditor=True ; jp.AthenaCommonFlags.PoolRDOInput=['root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/LS1Samples/valid1.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.recon.RDO.e1565_s1499_s1504_r4242_tid01185596_00/RDO.01185596._000001.pool.root.1']" AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_esdlowlumi.py</options_atn>
+      <options_atn>-c "jp.AthenaCommonFlags.EvtMax=2; jp.AthenaCommonFlags.SkipEvents=3 ; rec.AutoConfiguration=['everything']; rec.doDetailedAuditor=True ; rec.doNameAuditor=True ; jp.AthenaCommonFlags.PoolRDOInput=['root://eosatlas//eos/atlas/user/a/atlaspmb/mc/mc15_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e4032_s2608_s2183_r7011/RDO.06336725._000001.pool.root.1']" AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_esdlowlumi.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
       <prescript>RecExCommon_links.sh</prescript>
       <prescript>source ${ATN_PACKAGE}/test/atlascerngroupdisk_enviro.sh</prescript>
@@ -145,7 +143,7 @@
     <TEST name="rawtoesd_data_notrig" type="athena" suite="RecRecoData">
       <options_atn>-c 'jp.AthenaCommonFlags.FilesInput=["/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1"];rec.doTrigger.set_Value_and_Lock(False);rec.doDPD.set_Value_and_Lock(True);rec.doNameAuditor=True;jp.AthenaCommonFlags.PoolESDOutput="data_ESD.pool.root"' RecExCommon/rdotoesdnotrigger.py</options_atn>
       <timelimit>30</timelimit>
-      <author> Rolf Seuster </author>
+      <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
       <prescript>rm -f $ATN_WORK_AREA/*.pool.root; env > env.txt</prescript>
     </TEST>
@@ -153,9 +151,9 @@
   </atn>
   
   <kv/>
-
+  
   <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
-    <rttContactPerson>Rolf Seuster (seuster@cern.ch)</rttContactPerson>
+    <rttContactPerson>Xiaohu Sun (Xiaohu.Sun@cern.ch)</rttContactPerson>
     <mailto>atlas.rig@cern.ch</mailto>
     <refRelease>10.0.0</refRelease>
     
@@ -166,26 +164,7 @@
 	<displayComponent>Det-Combined</displayComponent>
       </classification>
       
-      <athena userJobId="mc10_esdReco">
-	<doc>Test reco up to ESD on default MC10 misaligned file</doc>
-	<commandLineFlags>
-          jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/mc10_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e598_s933_s946_d366_tid197091_00/RDO.197091._000001.pool.root.1"]
-        </commandLineFlags>
-	<options>RecExRecoTest_RTT_esd</options>
-	<group>RecExCommon</group>
-	<queue>long</queue>
-      </athena>
-      
-      <athena userJobId="mc11_esdReco">
-	<doc>Test reco up to ESD on default MC11 misaligned file</doc>
-	<commandLineFlags>
-          jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d638_tid682866_00/RDO.682866._000001.pool.root.1"]
-        </commandLineFlags>
-	<options>RecExRecoTest_RTT_esd</options>
-	<group>RecExCommon</group>
-	<queue>long</queue>
-      </athena>
-      
+      <!-- XS: please update to mc15 -->
       <athena userJobId="mc12_emptyReco">
 	<doc>Test almost empty event loop on default MC12 </doc>
 	<commandLineFlags>
@@ -227,7 +206,7 @@
       </athena>
       
       <athena userJobId="mc12_outputlevel_debugReco">
-	<doc>Test reco with outputlevel debug</doc>
+	<doc>Test reco with outputlevel debug to check length of logfile and number of messages</doc>
 	<commandLineFlags>
           jp.AthenaCommonFlags.EvtMax=50;rec.doWriteESD=False;rec.OutputLevel=DEBUG;rec.doFloatingPointException=True;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
         </commandLineFlags>
@@ -262,7 +241,7 @@
       </athena>
       
       <athena userJobId="mc12_outputlevel_verboseReco">
-	<doc>Test reco with outputlevel verbose</doc>
+	<doc>Test reco with outputlevel verbose to check length of logfile and number of messages</doc>
 	<commandLineFlags>
           jp.AthenaCommonFlags.EvtMax=50;rec.doWriteESD=False;rec.OutputLevel=VERBOSE;rec.doFloatingPointException=True;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
         </commandLineFlags>
@@ -296,7 +275,6 @@
 	<alwaysRunPostProc />
       </athena>
       
-      
       <jobTransform userJobId="data11_7TeV_esdReco">
 	<doc>Test reco up to ESD on high_mu data11</doc>
 	<jobTransformJobName>RecExRecoTest_RTT_data11_7TeV_high_mu</jobTransformJobName>
@@ -306,11 +284,10 @@
 	<group>RecExReco</group>
 	<queue>long</queue>
       </jobTransform>
-
-
+      
       <jobTransform userJobId="data12_8TeV_esdReco">
-	<doc>Test reco up to ESD on high_mu data11</doc>
-	<jobTransformJobName>RecExRecoTest_RTT_data11_7TeV_high_mu</jobTransformJobName>
+	<doc>Test reco up to ESD on high_mu data12</doc>
+	<jobTransformJobName>RecExRecoTest_RTT_data12_7TeV_high_mu</jobTransformJobName>
 	<jobTransformCmd>
 	  athena.py -c 'jp.AthenaCommonFlags.EvtMax=-1;jp.AthenaCommonFlags.FilesInput=["/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1"];rec.doNameAuditor=True' RecExCommon/rdotoesdnotrigger.py
 	</jobTransformCmd>
