@@ -20,8 +20,6 @@
 #include "ISF_Event/ISFParticleVector.h"
 
 // Athena classes
-#include "G4AtlasAlg/PreEventActionManager.h"
-
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "MCTruth/PrimaryParticleInformation.h"
@@ -48,22 +46,17 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
                                           const std::string& n,
                                           const IInterface*  p )
   : AthAlgTool(t,n,p),
-    m_UASvc("UserActionSvc",n),
+    m_useMT(false),
+    m_UASvc("",n),
+    m_userActionSvc("",n),
     m_rndmGenSvc("AtDSFMTGenSvc",n),
     m_barcodeSvc("",n),
     m_barcodeGenerationIncrement(Barcode::fUndefinedBarcode),
     m_g4RunManagerHelper("iGeant4::G4RunManagerHelper/G4RunManagerHelper"),
     m_physListTool("PhysicsListToolBase"),
-    m_physicsValidationUserAction("iGeant4::PhysicsValidationUserAction/PhysicsValidationUserAction"),
-    m_trackProcessorUserAction(""),
-    m_mcTruthUserAction("iGeant4::MCTruthUserAction/ISF_MCTruthUserAction"),
-    m_storeGate(0),
     m_mcEventCollectionName("TruthEvent"),
     m_quasiStableParticlesIncluded(false),
     m_worldSolid(0)
-    //, m_particleBroker("ISF_ParticleParticleBroker",n)
-    //, m_particleHelper("ISF::ParticleHelper/ParticleHelper")
-    //, m_configTool("PyAthena::Tool/G4ConfigTool")
 {
 
   declareInterface<ITransportTool>(this);
@@ -86,12 +79,12 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   declareProperty( "RecordFlux",                m_recordFlux=false);
 
   declareProperty( "PhysicsListTool", m_physListTool);
-  declareProperty( "PhysicsValidationUserAction",  m_physicsValidationUserAction);
-  declareProperty( "TrackProcessorUserAction",  m_trackProcessorUserAction);
-  declareProperty( "MCTruthUserAction",         m_mcTruthUserAction);
-  declareProperty( "G4RunManagerHelper",        m_g4RunManagerHelper);
+  declareProperty( "G4RunManagerHelper", m_g4RunManagerHelper);
   declareProperty( "QuasiStableParticlesIncluded", m_quasiStableParticlesIncluded);
-  declareProperty( "UserActionService",m_UASvc);
+  declareProperty( "UserActionSvc", m_UASvc);
+  declareProperty( "UserActionSvcV2", m_userActionSvc);
+  // Multi-threading specific settings
+  declareProperty("MultiThreading", m_useMT=false);
 
   // get G4AtlasRunManager
   ATH_MSG_DEBUG("initialize G4AtlasRunManager");
@@ -132,36 +125,38 @@ StatusCode iGeant4::G4TransportTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  if (m_physicsValidationUserAction.retrieve().isSuccess())
-    ATH_MSG_DEBUG("retrieved "<<m_physicsValidationUserAction);
-  else {
-    ATH_MSG_DEBUG("Could not get "<<m_physicsValidationUserAction);
-    return StatusCode::FAILURE;
-  }
-  if (m_trackProcessorUserAction.retrieve().isSuccess())
-    ATH_MSG_DEBUG("retrieved "<<m_trackProcessorUserAction);
-  else {
-    ATH_MSG_FATAL("Could not get "<<m_trackProcessorUserAction);
-    return StatusCode::FAILURE;
-   }
-  if (m_mcTruthUserAction.retrieve().isSuccess())
-    ATH_MSG_DEBUG("retrieved "<<m_mcTruthUserAction);
-  else {
-    ATH_MSG_FATAL("Could not get "<<m_mcTruthUserAction);
-    return StatusCode::FAILURE;
-   }
+  // For now, we decide which user action service to setup based on which
+  // handle has a non-empty name configured. Then we can steer it from the
+  // configuration layer. This will go away when we drop V1 actions.
 
+  // V1 user action service
+  if( !m_UASvc.name().empty() ) {
+    ATH_CHECK( m_UASvc.retrieve() );
 
-  if (m_UASvc.retrieve().isFailure()){
-    ATH_MSG_FATAL( "Could not retrieve UserActionSvc" << m_UASvc );
-    return StatusCode::FAILURE;
+    // Make sure only one user action version is used at a time.
+    if( !m_userActionSvc.name().empty() ) {
+      ATH_MSG_ERROR("Configured to use both V1 and V2 user actions, " <<
+                    "which isn't supported!");
+      return StatusCode::FAILURE;
+    }
+    if(m_useMT) {
+      ATH_MSG_ERROR("Using V1 user action design, which won't work in MT");
+      return StatusCode::FAILURE;
+    }
   }
 
+  // V2 user action service
+  if( !m_userActionSvc.name().empty() ) {
+    ATH_CHECK( m_userActionSvc.retrieve() );
+    p_runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
+  }
 
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  if ( svcLocator->service("StoreGateSvc", m_storeGate).isFailure()) {
-    ATH_MSG_WARNING("AthenaHitsCollectionHelper: could not accessStoreGateSvc!");
-    return StatusCode::FAILURE;
+  if(m_useMT) {
+    // Retrieve the python service to trigger its initialization. This is done
+    // here just to make sure things are initialized in the proper order.
+    // Hopefully we can drop this at some point.
+    ServiceHandle<IService> pyG4Svc("PyAthena::Svc/PyG4AtlasSvc", name());
+    ATH_CHECK( pyG4Svc.retrieve() );
   }
 
   if (m_recordFlux) G4ScoringManager::GetScoringManager();
@@ -261,12 +256,7 @@ StatusCode iGeant4::G4TransportTool::finalize()
 //________________________________________________________________________
 StatusCode iGeant4::G4TransportTool::process(const ISF::ISFParticle& isp)
 {
-
-  static PreEventActionManager *preEvent=PreEventActionManager::
-    GetPreEventActionManager();
   ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool execute  ++++++++++++");
-
-  preEvent->Execute();
 
   ATH_MSG_DEBUG("Calling ISF_Geant4 ProcessEvent");
 
@@ -290,7 +280,7 @@ StatusCode iGeant4::G4TransportTool::process(const ISF::ISFParticle& isp)
 
   // const DataHandle <TrackRecordCollection> tracks;
 
-  // StatusCode sc = m_storeGate->retrieve(tracks,m_trackCollName);
+  // StatusCode sc = evtStore()->retrieve(tracks,m_trackCollName);
 
   // if (sc.isFailure()) {
   //   ATH_MSG_WARNING(" Cannot retrieve TrackRecordCollection " << m_trackCollName);
@@ -305,10 +295,7 @@ StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVe
 {
   ATH_MSG_DEBUG("processing vector of "<<ispVector.size()<<" particles");
 
-  static PreEventActionManager *preEvent=PreEventActionManager::GetPreEventActionManager();
   ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool execute  ++++++++++++");
-
-  preEvent->Execute();
 
   ATH_MSG_DEBUG("Calling ISF_Geant4 ProcessEvent");
 
@@ -331,7 +318,7 @@ StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVe
 
   // const DataHandle <TrackRecordCollection> tracks;
 
-  // StatusCode sc = m_storeGate->retrieve(tracks,m_trackCollName);
+  // StatusCode sc = evtStore()->retrieve(tracks,m_trackCollName);
 
   // if (sc.isFailure()) {
   //   ATH_MSG_WARNING(" Cannot retrieve TrackRecordCollection " << m_trackCollName);
@@ -608,8 +595,8 @@ HepMC::GenEvent* iGeant4::G4TransportTool::genEvent() const
   McEventCollection* mcEventCollection;
 
   // retrieve McEventCollection from storegate
-  if (m_storeGate->contains<McEventCollection>(m_mcEventCollectionName)) {
-    StatusCode status = m_storeGate->retrieve( mcEventCollection, m_mcEventCollectionName);
+  if (evtStore()->contains<McEventCollection>(m_mcEventCollectionName)) {
+    StatusCode status = evtStore()->retrieve( mcEventCollection, m_mcEventCollectionName);
     if (status.isFailure())
       ATH_MSG_WARNING( "Unable to retrieve McEventCollection with name=" << m_mcEventCollectionName
                        << ". Will create new collection.");

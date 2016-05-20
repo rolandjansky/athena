@@ -568,3 +568,61 @@ StatusCode iGeant4::PhysicsValidationUserAction::queryInterface(const InterfaceI
   }
   return StatusCode::SUCCESS;
 }
+
+
+namespace G4UA{
+
+  namespace iGeant4 {
+
+    PhysicsValidationUserAction::PhysicsValidationUserAction(const Config& config):
+      m_config(config)
+    {
+      if(4<m_config.verboseLevel)
+        {
+          G4cout << "create PhysicsValidationUserAction" << G4endl;
+        }
+    }
+
+    void PhysicsValidationUserAction::beginOfEvent(const G4Event*)
+    {
+      G4ExceptionDescription description;
+      description << G4String("beginOfEvent: ") + " - this action has not been implemented yet.";
+      G4Exception("G4UA::iGeant4::PhysicsValidationUserAction", "ActionNotImplemented", JustWarning, description);
+      return;
+    }
+
+    void PhysicsValidationUserAction::endOfEvent(const G4Event*)
+    {
+      G4ExceptionDescription description;
+      description << G4String("endOfEvent: ") + " - this action has not been implemented yet.";
+      G4Exception("G4UA::iGeant4::PhysicsValidationUserAction", "ActionNotImplemented", JustWarning, description);
+      return;
+    }
+
+    void PhysicsValidationUserAction::beginOfRun(const G4Run*)
+    {
+      G4ExceptionDescription description;
+      description << G4String("beginOfRun: ") + " - this action has not been implemented yet.";
+      G4Exception("G4UA::iGeant4::PhysicsValidationUserAction", "ActionNotImplemented", JustWarning, description);
+      return;
+    }
+
+    void PhysicsValidationUserAction::processStep(const G4Step*)
+    {
+      G4ExceptionDescription description;
+      description << G4String("processStep: ") + " - this action has not been implemented yet.";
+      G4Exception("G4UA::iGeant4::PhysicsValidationUserAction", "ActionNotImplemented", JustWarning, description);
+      return;
+    }
+
+    void PhysicsValidationUserAction::preTracking(const G4Track*)
+    {
+      G4ExceptionDescription description;
+      description << G4String("preTracking: ") + " - this action has not been implemented yet.";
+      G4Exception("G4UA::iGeant4::PhysicsValidationUserAction", "ActionNotImplemented", JustWarning, description);
+      return;
+    }
+
+  } // namespace iGeant4
+
+} // namespace G4UA

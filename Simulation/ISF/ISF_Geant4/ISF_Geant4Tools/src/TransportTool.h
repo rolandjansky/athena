@@ -20,13 +20,12 @@
 #include "ISF_Geant4Interfaces/ITransportTool.h"
 #include "ISF_Geant4Tools/IG4RunManagerHelper.h"
 #include "G4AtlasInterfaces/IPhysicsListTool.h"
-#include "G4AtlasInterfaces/IUserAction.h"
+//#include "G4AtlasInterfaces/IUserAction.h"
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 
 #include <string>
 
 class G4Event;
-class StoreGateSvc;
 class G4PrimaryParticle;
 
 namespace Barcode {
@@ -97,7 +96,12 @@ namespace iGeant4
 
     G4AtlasRunManager    * p_runMgr;
 
-    ServiceHandle<IUserActionSvc>    m_UASvc;
+    /// Activate multi-threading configuration
+    bool m_useMT;
+    /// First user action service implementation
+    ServiceHandle<IUserActionSvc> m_UASvc;
+    /// New user action service implementation
+    ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
 
     // Random number service
     ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
@@ -106,11 +110,9 @@ namespace iGeant4
 
     ToolHandle<ISF::IG4RunManagerHelper>  m_g4RunManagerHelper;
     ToolHandle<IPhysicsListTool> m_physListTool;
-    ToolHandle<IUserAction> m_physicsValidationUserAction;
-    ToolHandle<IUserAction> m_trackProcessorUserAction;
-    ToolHandle<IUserAction> m_mcTruthUserAction;
-
-    StoreGateSvc* m_storeGate;
+    //  ToolHandle<IUserAction> m_physicsValidationUserAction;
+    //  ToolHandle<IUserAction> m_trackProcessorUserAction;
+    //  ToolHandle<IUserAction> m_mcTruthUserAction;
 
     std::string m_libList;
     std::string m_physList;
