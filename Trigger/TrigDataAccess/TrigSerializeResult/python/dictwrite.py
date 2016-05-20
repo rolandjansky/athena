@@ -50,6 +50,10 @@ objects = [
 'xAOD::TrackParticleAuxContainer_v2',
 'xAOD::TauJetContainer_v2',
 'xAOD::TauJetAuxContainer_v2',
+'xAOD::TauJetAuxContainer_v3',
+'xAOD::TauJetContainer_v3',
+'xAOD::TauTrackAuxContainer_v1',
+'xAOD::TauTrackContainer_v1',
 'xAOD::TrackParticleContainer_v1',
 'xAOD::TrackParticleAuxContainer_v1',
 'xAOD::VertexContainer_v1',
@@ -102,7 +106,15 @@ objects = [
 'xAOD::HIEventShapeAuxContainer_v2',
 'xAOD::HIEventShapeContainer_v2',
 'xAOD::TrigT2ZdcSignalsAuxContainer_v1',
-'xAOD::TrigT2ZdcSignalsContainer_v1'
+'xAOD::TrigT2ZdcSignalsContainer_v1',
+'xAOD::TrigPassBitsContainer_v1',
+'xAOD::TrigPassBitsAuxContainer_v1',
+'xAOD::CaloClusterTrigAuxContainer_v1',
+'xAOD::ElectronTrigAuxContainer_v1',
+'xAOD::PhotonTrigAuxContainer_v1',
+'xAOD::TrigEMClusterAuxContainer_v2',
+'xAOD::TrigRingerRingsAuxContainer_v2',
+'xAOD::TrigRNNOutputAuxContainer_v2',
 ]
 
 from collections import defaultdict
