@@ -107,7 +107,7 @@ class ZmumuEvent : public EventAnalysis
   unsigned int m_uTrackMatch;
   bool m_bLooseMatch;
   double m_etaCut;
-
+  bool m_doDebug;
   // Member variables : Mostly to store relevant muon data for quick access.
   unsigned int     m_numberOfFullPassMuons;
   bool             m_passedSelectionCuts;

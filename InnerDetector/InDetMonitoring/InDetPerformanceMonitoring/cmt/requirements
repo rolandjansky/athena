@@ -82,7 +82,6 @@ use xAODMuon		  	xAODMuon-*       	 Event/xAOD
 use xAODJet		  	xAODJet-*       	 Event/xAOD
 
 
-use xAODPrimitives     		xAODPrimitives-*         Event/xAOD
 use xAODTracking		xAODTracking-*		 Event/xAOD
 use xAODTruth		  	xAODTruth-*		 Event/xAOD
 use xAODCaloEvent 	  	xAODCaloEvent-*		 Event/xAOD

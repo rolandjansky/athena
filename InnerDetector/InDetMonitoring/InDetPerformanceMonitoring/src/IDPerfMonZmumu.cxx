@@ -398,18 +398,24 @@ StatusCode IDPerfMonZmumu::execute()
 
   //Fill Staco muon parameters only
   m_xZmm.setContainer(PerfMonServices::MUON_COLLECTION);
-  m_xZmm.Reco();
-  if ( m_xZmm.EventPassed() ) {
-    //fill Combined Staco parameters
+  //  m_xZmm.Reco();
+  if(!m_xZmm.Reco()){
+    //failed reconstruction
+    return StatusCode::SUCCESS;
+  }
     const xAOD::Muon* muon_pos = m_xZmm.getCombMuon(m_xZmm.getPosMuon(ZmumuEvent::CB));
     const xAOD::Muon* muon_neg = m_xZmm.getCombMuon(m_xZmm.getNegMuon(ZmumuEvent::CB));
+    const xAOD::TrackParticle* p1_comb = muon_pos->trackParticle(xAOD::Muon::CombinedTrackParticle);
+    const xAOD::TrackParticle* p2_comb = muon_neg->trackParticle(xAOD::Muon::CombinedTrackParticle);
+  if ( m_xZmm.EventPassed() ) {
+    //fill Combined Staco parameters
     if (!muon_pos || !muon_neg) {
       ATH_MSG_WARNING("CB Staco Muons missing!");
     } else {
       //       FillRecParameters(muon_pos->combinedMuonTrackParticle()->originalTrack(), muon_pos->combinedMuonTrackParticle()->charge());
       //       FillRecParameters(muon_neg->combinedMuonTrackParticle()->originalTrack(), muon_neg->combinedMuonTrackParticle()->charge());
-      FillRecParameters(muon_pos->trackParticle(xAOD::Muon::CombinedTrackParticle)->track(), muon_pos->trackParticle(xAOD::Muon::CombinedTrackParticle)->charge());
-      FillRecParameters(muon_neg->trackParticle(xAOD::Muon::CombinedTrackParticle)->track(), muon_neg->trackParticle(xAOD::Muon::CombinedTrackParticle)->charge());
+      FillRecParameters(p1_comb->track(), p1_comb->charge());
+      FillRecParameters(p2_comb->track(), p2_comb->charge());
       m_combStacoTree->Fill();
     }
 
@@ -425,24 +431,18 @@ StatusCode IDPerfMonZmumu::execute()
     return StatusCode::SUCCESS;
   }
   //const std::string region = m_xZmm.getRegion();
-  const xAOD::TrackParticle* p1 = m_xZmm.getIDTrack(m_xZmm.getPosMuon(ZmumuEvent::ID));
-  const xAOD::TrackParticle* p2 = m_xZmm.getIDTrack(m_xZmm.getNegMuon(ZmumuEvent::ID));
+  //  const xAOD::TrackParticle* p1 = m_xZmm.getIDTrack(m_xZmm.getPosMuon(ZmumuEvent::ID));
+  //  const xAOD::TrackParticle* p2 = m_xZmm.getIDTrack(m_xZmm.getNegMuon(ZmumuEvent::ID));
   TrackCollection* muonTrks  = new TrackCollection(SG::OWN_ELEMENTS);
   TrackCollection* muonTrksRefit1  = new TrackCollection(SG::OWN_ELEMENTS);
   TrackCollection* muonTrksRefit2  = new TrackCollection(SG::OWN_ELEMENTS);
 
-
-  if (!p1->track() || !p2->track()) {
+  // changed refitting to combinedparticles since run II DESDM_ZMUMU did not store InDetTrackParticles
+  if (!p1_comb->track() || !p2_comb->track()) {
      ATH_MSG_WARNING("Track missing!  Skipping Event");
      return StatusCode::SUCCESS;
   }
 
-  //swap muons for consistent charge definition
-  //if (p1->charge() == -1 && p2->charge() == 1) {
-  //  const Rec::TrackParticle* tmp = p1;
-  //  p1 = p2;
-  //  p2 = tmp;
-  //}
 
   Trk::Track* defaultMuonTrk1 = 0;
   Trk::Track* defaultMuonTrk2 = 0;
@@ -455,10 +455,10 @@ StatusCode IDPerfMonZmumu::execute()
 
   StatusCode fitStatus;
   //save default and refit track parameters
-  if( p1->track() ) {
-    defaultMuonTrk1 = new Trk::Track(*p1->track());
+  if( p1_comb->track() ) {
+    defaultMuonTrk1 = new Trk::Track(*p1_comb->track());
 
-    fitStatus = m_TrackRefitter1->refitTrack( p1->track(),egam );
+    fitStatus = m_TrackRefitter1->refitTrack( p1_comb->track(),egam );
     if (fitStatus.isFailure()) {
        ATH_MSG_DEBUG("Track Refit1 Failed. Skipping Event");
        return StatusCode::SUCCESS;
@@ -469,7 +469,7 @@ StatusCode IDPerfMonZmumu::execute()
     }
 
 
-    fitStatus = m_TrackRefitter2->refitTrack( p1->track(),egam );
+    fitStatus = m_TrackRefitter2->refitTrack( p1_comb->track(),egam );
     if (fitStatus.isFailure()) {
       ATH_MSG_DEBUG("Track Refit2 Failed. Skipping Event");
       return StatusCode::SUCCESS;
@@ -481,10 +481,10 @@ StatusCode IDPerfMonZmumu::execute()
 
   }
 
-  if( p2->track() ) {
-    defaultMuonTrk2 = new Trk::Track(*p2->track());
+  if( p2_comb->track() ) {
+    defaultMuonTrk2 = new Trk::Track(*p2_comb->track());
 
-    fitStatus = m_TrackRefitter1->refitTrack( p2->track(),egam );
+    fitStatus = m_TrackRefitter1->refitTrack( p2_comb->track(),egam );
     if (fitStatus.isFailure()) {
       ATH_MSG_DEBUG("Track Refit1 Failed. Skipping Event");
       return StatusCode::SUCCESS;
@@ -495,7 +495,7 @@ StatusCode IDPerfMonZmumu::execute()
     }
 
 
-    fitStatus = m_TrackRefitter2->refitTrack( p2->track(),egam );
+    fitStatus = m_TrackRefitter2->refitTrack( p2_comb->track(),egam );
     if (fitStatus.isFailure()) {
       ATH_MSG_DEBUG("Track Refit2 Failed. Skipping Event");
       return StatusCode::SUCCESS;
@@ -535,11 +535,11 @@ StatusCode IDPerfMonZmumu::execute()
   //fill truth first in case no truth match found
   if (m_isMC) {
 
-     if (FillTruthParameters(p1).isFailure()){
+     if (FillTruthParameters(p1_comb).isFailure()){
 	ATH_MSG_WARNING("Failed to fill truth parameters - skipping event");
   	return StatusCode::SUCCESS;
      }
-     if (FillTruthParameters(p2).isFailure()){
+     if (FillTruthParameters(p2_comb).isFailure()){
 	ATH_MSG_WARNING("Failed to fill truth parameters - skipping event");
   	return StatusCode::SUCCESS;
      }
@@ -566,17 +566,16 @@ StatusCode IDPerfMonZmumu::execute()
   if (muonTrks->size()<2){
     ATH_MSG_WARNING("Default muon tracks are missing!");
   }else{
-    FillRecParameters(defaultMuonTrk1, p1->charge());
-    FillRecParameters(defaultMuonTrk2, p2->charge());
+    FillRecParameters(defaultMuonTrk1, p1_comb->charge());
+    FillRecParameters(defaultMuonTrk2, p2_comb->charge());
     m_defaultTree->Fill();
   }
   //fill refit1 ID parameters
   if (muonTrksRefit1->size()<2) {
     ATH_MSG_WARNING("Refit1 muon tracks are missing!");
   }else{
-  FillRecParameters(refit1MuonTrk1, p1->charge());
-  FillRecParameters(refit1MuonTrk2, p2->charge());
-
+    FillRecParameters(refit1MuonTrk1, p1_comb->charge());
+    FillRecParameters(refit1MuonTrk2, p2_comb->charge());
 
   ATH_MSG_DEBUG("fill refit1Tree with parameters : ");
   ATH_MSG_DEBUG("######   (negative)   ########## ");
@@ -603,20 +602,16 @@ StatusCode IDPerfMonZmumu::execute()
   if (muonTrksRefit2->size()<2) {
     ATH_MSG_WARNING("Refit2 muon tracks are missing!");
   }else{
-    FillRecParameters(refit2MuonTrk1, p1->charge());
-    FillRecParameters(refit2MuonTrk2, p2->charge());
+    FillRecParameters(refit2MuonTrk1, p1_comb->charge());
+    FillRecParameters(refit2MuonTrk2, p2_comb->charge());
     m_refit2Tree->Fill();
   }
-
-  //fill Combined parameters
-  const xAOD::Muon* muon_pos = m_xZmm.getCombMuon(m_xZmm.getPosMuon(ZmumuEvent::CB));
-  const xAOD::Muon* muon_neg = m_xZmm.getCombMuon(m_xZmm.getNegMuon(ZmumuEvent::CB));
 
   if (!muon_pos || !muon_neg) {
     ATH_MSG_WARNING("CB Muons missing!");
   } else {
-    FillRecParameters(muon_pos->trackParticle(xAOD::Muon::CombinedTrackParticle)->track(), muon_pos->trackParticle(xAOD::Muon::CombinedTrackParticle)->charge());
-    FillRecParameters(muon_neg->trackParticle(xAOD::Muon::CombinedTrackParticle)->track(), muon_neg->trackParticle(xAOD::Muon::CombinedTrackParticle)->charge());
+    FillRecParameters(p1_comb->track(), p1_comb->charge());
+    FillRecParameters(p2_comb->track(), p2_comb->charge());
     m_combMuidTree->Fill();
   }
 

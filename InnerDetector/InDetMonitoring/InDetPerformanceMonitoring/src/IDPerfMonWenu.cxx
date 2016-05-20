@@ -102,7 +102,7 @@ StatusCode IDPerfMonWenu::initialize()
 
   //Set up electron LH level
   m_doIDCuts = true;
-  std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20150429/";
+  std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20150712/";
   if(m_electronIDLevel == ""){
     ATH_MSG_WARNING("electronIDLevel is set to empty!  No electron ID cuts will be applied.");
     m_doIDCuts = false;

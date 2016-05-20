@@ -35,6 +35,8 @@ ZmumuEvent::ZmumuEvent()
 
   m_container = PerfMonServices::MUID_COLLECTION;
 
+  m_doDebug = false;
+
   // Setup the muon tags
   m_uMuonTags   = 2;
   m_uTrackMatch = 0;
@@ -83,7 +85,7 @@ bool ZmumuEvent::Reco()
     return false;
   }
   else{
-     std::cout << pxMuonContainer->size() << " combined muon "<<std::endl;
+    if(m_doDebug){     std::cout << pxMuonContainer->size() << " combined muon "<<std::endl; }
     xAOD::MuonContainer::const_iterator xMuonItr  = pxMuonContainer->begin();
     xAOD::MuonContainer::const_iterator xMuonItrE  = pxMuonContainer->end();
       while ( xMuonItr != xMuonItrE )
@@ -120,7 +122,7 @@ void ZmumuEvent::BookHistograms()
 bool ZmumuEvent::EventSelection()
 {
 
-   std::cout << " m_uNumberOfFullPassMuons: " << m_numberOfFullPassMuons << std::endl;
+  if(m_doDebug){  std::cout <<" m_uNumberOfFullPassMuons: " << m_numberOfFullPassMuons << std::endl;}
   // First require two muon-id's with cuts pre-applied.
   if ( m_numberOfFullPassMuons != 2 )    return false;
 
@@ -128,7 +130,7 @@ bool ZmumuEvent::EventSelection()
          (m_pxRecMuon[MUON1]->pt() > 15.0*CLHEP::GeV &&  m_pxRecMuon[MUON2]->pt() > 20.0*CLHEP::GeV )) )
     return false;
 
-   std::cout <<" m_fInvariantMass[ID]:  "<< m_fInvariantMass[ID] << std::endl;
+  if(m_doDebug){   std::cout <<" m_fInvariantMass[ID]:  "<< m_fInvariantMass[ID] << std::endl;}
 
   if ( -1 != (m_pxRecMuon[MUON1]->charge() * m_pxRecMuon[MUON2]->charge()) ){
         std::cout << "same sign event!!!" << std::endl;

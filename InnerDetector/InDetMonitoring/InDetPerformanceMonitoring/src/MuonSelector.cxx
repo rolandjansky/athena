@@ -54,6 +54,8 @@ MuonSelector::MuonSelector()
   m_pxMuon = NULL;
   m_bLock  = false;
 
+
+
   m_coneSize        = 0.4;
   m_ucJMuon_Cut     = 0; //not used
   m_IsoCut          = 0.2;
@@ -273,8 +275,10 @@ bool MuonSelector::passIPCuts()
     const xAOD::TrackParticle* IDTrk = m_pxMuon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
     extd0 = IDTrk->d0();
     extz0 = IDTrk->z0()+IDTrk->vz();
-    std::cout << " the IDTrack muon (InDetTrackParticle) d0:  " << extd0 << std::endl;
-    std::cout << " the IDTrack muon (InDetTrackParticle) z0:  " << extz0 << std::endl;
+    if(m_doDebug){
+      std::cout << " the IDTrack muon d0:  " << extd0 << std::endl;
+      std::cout << " the IDTrack muon z0:  " << extz0 << std::endl;
+    }
     //if( IDTrk->track() ) {
     //      const Trk::Track* IDTrkTrack = IDTrk->track();
     //      if(IDTrkTrack) {
