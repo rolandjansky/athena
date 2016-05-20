@@ -22,8 +22,15 @@
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TH2I.h"
+#include "TProfile.h"
 #include "TProfile2D.h"
+#include "LWHists/TH1F_LW.h"
+#include "LWHists/TH2F_LW.h"
+#include "LWHists/TH2I_LW.h"
+#include "LWHists/TProfile_LW.h"
+#include "LWHists/TProfile2D_LW.h"
 #include "InDetRawData/SCT3_RawData.h"
 #include "InDetRawData/InDetRawDataContainer.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
@@ -83,7 +90,7 @@ namespace{ //anon. namespace for file-scoped functions
     return ((histogramBinContent0 > threshold) or (histogramBinContent1 > threshold));
   }
 
-  bool checkOverThreshold( TProfile2D* pHistogram,const int xbin, const int ybin, const float threshold){
+  bool checkOverThreshold( TProfile2D_LW* pHistogram,const int xbin, const int ybin, const float threshold){
     float histogramBinContent=pHistogram->GetBinContent(xbin, ybin);
     return (histogramBinContent > threshold);
   }
@@ -94,7 +101,7 @@ namespace{ //anon. namespace for file-scoped functions
     return ((histogramEntries0 > threshold) and (histogramEntries1 > threshold));
   }
   
-  void fillRateHistogram(const TH2F* sourceHisto, TProfile2D* targetHisto, const int xbin, const int ybin, const float centreX, const float centreY, const int nEvent){
+  void fillRateHistogram(const TH2F_LW* sourceHisto, TProfile2D_LW* targetHisto, const int xbin, const int ybin, const float centreX, const float centreY, const int nEvent){
      const float content = sourceHisto->GetBinContent(xbin,ybin); 
       targetHisto->Fill(centreX,centreY,1,content); 
       targetHisto->Fill(centreX,centreY,0,nEvent - content);
@@ -113,7 +120,7 @@ namespace{ //anon. namespace for file-scoped functions
       }
   }
 
-  void countNoisyModulesRN(const int regionIndex, const int generalIndex, TProfile2D* pHistogram, const float threshold, int countArray[]){
+  void countNoisyModulesRN(const int regionIndex, const int generalIndex, TProfile2D_LW* pHistogram, const float threshold, int countArray[]){
     const int xbins(pHistogram->GetNbinsX()+1);
     const int ybins(pHistogram->GetNbinsY()+1);
     for(int xb(1); xb!=xbins; ++xb){
@@ -141,152 +148,166 @@ namespace{ //anon. namespace for file-scoped functions
 //====================================================================================================
 SCTErrMonTool::SCTErrMonTool(const std::string & type,const std::string & name,const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent),
-  	m_firstHit{},
-  	m_firstHit_ECp{},
-  	m_firstHit_ECm{},
-  	m_secondHit{},
-  	m_secondHit_ECp{},
-  	m_secondHit_ECm{},
-  	m_allErrs{},
-  	m_allErrsPerLumi{},
-  	m_pallErrs{},
-  	m_pallErrsPerLumi{},
-  	m_summaryErrsRecent{},
-  	m_numErrorsPerLumi{},
-  	m_rateErrorsPerLumi{},
-  	m_nErrors{},
-  	m_nLinksWithErrors{},
-  	nErrors_buf{},
-  	nLinksWithErrors_buf{},
-  	nErrors_pos{},
-  	m_MaskedLinks{},
-  	m_numberOfEventsLumi{},
-  	m_numberOfEvents{},
-  	m_initialize{},
-  	m_previous_lb{},
-  	m_maskedLinkErrsMax{},
-  	m_robFragmentErrsMax{},
-  	m_abcdErrsMax{},
-  	m_rawErrsMax{},
-  	m_timeoutErrsMax{},
-  	m_lvl1idErrsMax{},
-  	m_bcidErrsMax{},
-  	m_preambleErrsMax{},
-  	m_formatterErrsMax{},
-  	m_rodClockErrsMax{},
-  	m_truncRodErrsMax{},
-  	m_bsParseErrsMax{},
+    m_firstHit{},
+  m_firstHit_ECp{},
+  m_firstHit_ECm{},
+  m_secondHit{},
+  m_secondHit_ECp{},
+  m_secondHit_ECm{},
+  m_allErrs{},
+  m_allErrsPerLumi{},
+  m_pallErrs{},
+  m_pallErrsPerLumi{},
+  m_summaryErrsRecent{},
+  m_numErrorsPerLumi{},
+  m_rateErrorsPerLumi{},
+  m_nErrors{},
+  m_nLinksWithErrors{},
+  nErrors_buf{},
+  nLinksWithErrors_buf{},
+  nErrors_pos{},
+  m_MaskedLinks{},
+  m_numberOfEventsLumi{},
+  m_numberOfEvents{},
+  m_initialize{},
+  m_previous_lb{},
+  /*
+  m_maskedLinkErrsMax{},
+  m_robFragmentErrsMax{},
+  m_abcdErrsMax{},
+  m_rawErrsMax{},
+  m_timeoutErrsMax{},
+  m_lvl1idErrsMax{},
+  m_bcidErrsMax{},
+  m_preambleErrsMax{},
+  m_formatterErrsMax{},
+  m_rodClockErrsMax{},
+  m_truncRodErrsMax{},
+  m_bsParseErrsMax{},
   m_misslinkErrsMax{},
-  	m_totErrsMax{},
-  	m_totModErrsMax{},
-    m_nLink0{},
-    m_nLink1{},
-    m_goodModules{},
-    m_pnoiseoccupancymapHistoVectorECC{},
-    m_pnoiseoccupancymapHistoVectorECCSide0{},
-    m_pnoiseoccupancymapHistoVectorECCSide1{},
-    m_pnoiseoccupancymapHistoVectorBar{},
-    m_pnoiseoccupancymapHistoVectorBarSide0{},
-    m_pnoiseoccupancymapHistoVectorBarSide1{},
-    m_pnoiseoccupancymapHistoVectorECA{},
-    m_pnoiseoccupancymapHistoVectorECASide0{},
-    m_pnoiseoccupancymapHistoVectorECASide1{},
-    m_noSidesHit{},
-    m_oneSideHit{},
-    nZero{},
-    nOne{},
-    nOneSide0{},
-    nOneSide1{},
-    nLayer{},
-    nEta{},
-    nPhi{},
-    nNonGoodModule{},  
-    tbin(-1),
-    modNum(0),
-    ratio(-1.0),
-    ratioside0(-1.0),
-    ratioside1(-1.0),
-    m_p2DmapHistoVectorAll{},
-    //m_stream{}, declared property
-    m_path{},
-    //m_checkrate{}, declared property
-    //m_checkrecent{}, declared property
-    m_current_lb{},
-    m_last_reset_lb{},
-    //m_runOnline{}, declared property
-    //m_evtsbins{}, declared property
-    //m_doPositiveEndcap{}, declared property
-    //m_doNegativeEndcap{}, declared property
-    //m_makeConfHisto{}, property
-    //m_doPerLumiErrors{}, property
-    //m_doErr2DPerLumiHists{}, property
-    //m_min_stat_ineff_mod{}, property
-    m_dataObjectName{},
-    m_pSCTHelper{},
-    m_ConfigurationSvc("InDetSCT_ConfigurationConditionsSvc", name),
-    m_flaggedSvc("InDetSCT_FlaggedConditionSvc", name),
-    m_Conf{},
-    m_ConfRN{},
-    m_ConfOnline{},
-    m_MaskedLinksVsLB{},
-    m_ROBFragmentVsLB{},
-    m_ABCDVsLB{},
-    m_RawErrsVsLB{},
-    m_TimeOutVsLB{},
-    m_LVL1IDVsLB{},
-    m_BCIDVsLB{},
-    m_PreambleVsLB{},
-    m_FormatterVsLB{},
-    m_RODClockVsLB{},
-    m_TruncRODVsLB{},
-    m_BSParseVsLB{},
-    m_MissingLinkHeaderVsLB{},
-    m_MaxMaskedLinksVsLB{},
-    m_MaxROBFragmentVsLB{},
-    m_MaxABCDVsLB{},
-    m_MaxRawErrsVsLB{},
-    m_MaxTimeOutVsLB{},
-    m_MaxLVL1IDVsLB{},
-    m_MaxBCIDVsLB{},
-    m_MaxPreambleVsLB{},
-    m_MaxFormatterVsLB{},
-    m_MaxRODClockVsLB{},
-    m_MaxTruncRODVsLB{},
-    m_MaxBSParseVsLB{},
-    m_MaxMissingLinkHeaderVsLB{},
-    // m_2d_MaxMaskedLinksVsLB{},
-    // m_2d_MaxROBFragmentVsLB{},
-    // m_2d_MaxABCDVsLB{},
-    // m_2d_MaxRawErrsVsLB{},
-    // m_2d_MaxTimeOutVsLB{},
-    // m_2d_MaxLVL1IDVsLB{},
-    // m_2d_MaxBCIDVsLB{},
-    // m_2d_MaxPreambleVsLB{},
-    // m_2d_MaxFormatterVsLB{},
-    // m_2d_MaxRODClockVsLB{},
-    // m_2d_MaxTruncRODVsLB{},
-    // m_2d_MaxBSParseVsLB{},
-    // m_2d_MaxMissingLinkHeaderVsLB{},
-    m_NumberOfErrorsVsLB{},
-    m_ModulesWithErrorsVsLB{},
-    m_LinksWithErrorsVsLBBarrel{},
-    m_LinksWithErrorsVsLBEndcapA{},
-    m_LinksWithErrorsVsLBEndcapC{},
-    m_MaxNumberOfErrorsVsLB{},
-    m_MaxModulesWithErrorsVsLB{},
-    // m_2d_MaxNumberOfErrorsVsLB{},
-    // m_2d_MaxModulesWithErrorsVsLB{},
-    m_ConfEffOnline{},
-    m_ConfNoiseOnline{},
-    m_ConfNoiseOnlineRecent{},
-    m_DetailedConfiguration{},
-    m_thistSvc("THistSvc",name),
-    m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
-    m_checkBadModules(true),
-    m_ignore_RDO_cut_online(true)
-    //m_errThreshold{}, property
-    //m_effThreshold{}, property
-    //m_noiseThreshold{}, property
+  m_totErrsMax{},
+  m_totModErrsMax{},
+  m_totBadErrsMax{},
+  m_totModBadErrsMax{},
+  */
+  m_nLink0{},
+  m_nLink1{},
+  m_goodModules{},
+  m_pnoiseoccupancymapHistoVectorECC{},
+  m_pnoiseoccupancymapHistoVectorECCSide0{},
+  m_pnoiseoccupancymapHistoVectorECCSide1{},
+  m_pnoiseoccupancymapHistoVectorBar{},
+  m_pnoiseoccupancymapHistoVectorBarSide0{},
+  m_pnoiseoccupancymapHistoVectorBarSide1{},
+  m_pnoiseoccupancymapHistoVectorECA{},
+  m_pnoiseoccupancymapHistoVectorECASide0{},
+  m_pnoiseoccupancymapHistoVectorECASide1{},
+  m_noSidesHit{},
+  m_oneSideHit{},
+  nZero{},
+  nOne{},
+  nOneSide0{},
+  nOneSide1{},
+  nLayer{},
+  nEta{},
+  nPhi{},
+  nNonGoodModule{},  
+  tbin(-1),
+  modNum(0),
+  ratio(-1.0),
+  ratioside0(-1.0),
+  ratioside1(-1.0),
+  m_p2DmapHistoVectorAll{},
+  //m_stream{}, declared property
+  m_path{},
+  //m_checkrate{}, declared property
+  //m_checkrecent{}, declared property
+  m_current_lb{},
+  m_last_reset_lb{},
+  //m_runOnline{}, declared property
+  //m_evtsbins{}, declared property
+  //m_doPositiveEndcap{}, declared property
+  //m_doNegativeEndcap{}, declared property
+  //m_makeConfHisto{}, property
+  //m_doPerLumiErrors{}, property
+  //m_doErr2DPerLumiHists{}, property
+  //m_min_stat_ineff_mod{}, property
+  m_dataObjectName{},
+  m_pSCTHelper{},
+  m_ConfigurationSvc("InDetSCT_ConfigurationConditionsSvc", name),
+  m_flaggedSvc("InDetSCT_FlaggedConditionSvc", name),
+  m_Conf{},
+  m_ConfRN{},
+  m_ConfOnline{},
+  m_MaskedLinksVsLB{},
+  m_ROBFragmentVsLB{},
+  m_ABCDVsLB{},
+  m_RawErrsVsLB{},
+  m_TimeOutVsLB{},
+  m_LVL1IDVsLB{},
+  m_BCIDVsLB{},
+  m_PreambleVsLB{},
+  m_FormatterVsLB{},
+  m_RODClockVsLB{},
+  m_TruncRODVsLB{},
+  m_BSParseVsLB{},
+  m_MissingLinkHeaderVsLB{},
+  /*
+  m_MaxMaskedLinksVsLB{},
+  m_MaxROBFragmentVsLB{},
+  m_MaxABCDVsLB{},
+  m_MaxRawErrsVsLB{},
+  m_MaxTimeOutVsLB{},
+  m_MaxLVL1IDVsLB{},
+  m_MaxBCIDVsLB{},
+  m_MaxPreambleVsLB{},
+  m_MaxFormatterVsLB{},
+  m_MaxRODClockVsLB{},
+  m_MaxTruncRODVsLB{},
+  m_MaxBSParseVsLB{},
+  m_MaxMissingLinkHeaderVsLB{},
+  m_2d_MaxMaskedLinksVsLB{},
+  m_2d_MaxROBFragmentVsLB{},
+  // m_2d_MaxABCDVsLB{},
+  // m_2d_MaxRawErrsVsLB{},
+  m_2d_MaxTimeOutVsLB{},
+  m_2d_MaxLVL1IDVsLB{},
+  m_2d_MaxBCIDVsLB{},
+  // m_2d_MaxPreambleVsLB{},
+  // m_2d_MaxFormatterVsLB{},
+  // m_2d_MaxRODClockVsLB{},
+  // m_2d_MaxTruncRODVsLB{},
+  // m_2d_MaxBSParseVsLB{},
+  m_2d_MaxMissingLinkHeaderVsLB{},
+  */
+  m_NumberOfErrorsVsLB{},
+  m_NumberOfBadErrorsVsLB{},
+  m_ModulesWithErrorsVsLB{},
+  m_ModulesWithBadErrorsVsLB{},
+  m_LinksWithErrorsVsLBBarrel{},
+  m_LinksWithErrorsVsLBEndcapA{},
+  m_LinksWithErrorsVsLBEndcapC{},
+  m_LinksWithBadErrorsVsLBBarrel{},
+  m_LinksWithBadErrorsVsLBEndcapA{},
+  m_LinksWithBadErrorsVsLBEndcapC{},
+  //m_MaxNumberOfErrorsVsLB{},
+  //m_MaxNumberOfBadErrorsVsLB{},
+  //m_MaxModulesWithErrorsVsLB{},
+  //m_MaxModulesWithBadErrorsVsLB{},
+  // m_2d_MaxNumberOfErrorsVsLB{},
+  //m_2d_MaxModulesWithErrorsVsLB{},
+  //m_2d_MaxModulesWithBadErrorsVsLB{},
+  m_ConfEffOnline{},
+  m_ConfNoiseOnline{},
+  m_ConfNoiseOnlineRecent{},
+  m_DetailedConfiguration{},
+  m_thistSvc("THistSvc",name),
+  m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
+  m_checkBadModules(true),
+  m_ignore_RDO_cut_online(true)
+  //m_errThreshold{}, property
+  //m_effThreshold{}, property
+  //m_noiseThreshold{}, property
 {
 /** sroe 3 Sept 2015:
   histoPathBase is declared as a property in the base class, assigned to m_path
@@ -389,7 +410,13 @@ StatusCode SCTErrMonTool::fillHistograms(){
   if (fillByteStreamErrors().isFailure() ) {
     ATH_MSG_ERROR("Could not fill ByteStreamErrors ");
     return StatusCode::FAILURE;
-  }  
+  }
+  if(pEvent->errorState(EventInfo::SCT)==EventInfo::Error){
+    //ATH_MSG_WARNING("SCT_Flag==FALSE:: LVL1ID Errors >500 ");
+    m_NumberOfSCTFlagErrorsVsLB->Fill(m_current_lb);
+    return StatusCode::SUCCESS;
+  }
+  
   const SCT_RDO_Container* p_rdocontainer;
   ATH_CHECK(evtStore()->retrieve(p_rdocontainer,m_dataObjectName));
   Identifier SCT_Identifier;
@@ -543,7 +570,7 @@ StatusCode  SCTErrMonTool::checkRateHists(){
           const int xbins=m_numErrorsPerLumi[reg]->GetNbinsX()+1;
           const int ybins=m_numErrorsPerLumi[reg]->GetNbinsY()+1;
           for (int xb(1); xb != xbins; ++xb) {
-						cxb = m_numErrorsPerLumi[reg]->GetXaxis()->GetBinCenter(xb);
+	    cxb = m_numErrorsPerLumi[reg]->GetXaxis()->GetBinCenter(xb);
             for (int yb(1); yb !=ybins ; ++yb) {
               cyb = m_numErrorsPerLumi[reg]->GetYaxis()->GetBinCenter(yb);
               int num_modules = getNumModules(reg,yb-1);
@@ -557,30 +584,30 @@ StatusCode  SCTErrMonTool::checkRateHists(){
         }
         int nlyr=(reg==barrelRegion)?(N_BARRELSx2):(N_ENDCAPSx2);
         for (int lyr = 0 ; lyr < nlyr; ++lyr) {
-		  		const int xbins = m_pallErrs[SUMMARY][reg][lyr]->GetNbinsX()+1;
-		  		const int ybins = m_pallErrs[SUMMARY][reg][lyr]->GetNbinsY()+1;
+	  const int xbins = m_pallErrs[SUMMARY][reg][lyr]->GetNbinsX()+1;
+	  const int ybins = m_pallErrs[SUMMARY][reg][lyr]->GetNbinsY()+1;
           for (int xb = 1; xb !=xbins ; ++xb) {
-						cxb = m_pallErrs[SUMMARY][reg][lyr]->GetXaxis()->GetBinCenter(xb);
+	    cxb = m_pallErrs[SUMMARY][reg][lyr]->GetXaxis()->GetBinCenter(xb);
             for (int yb = 1; yb !=ybins ; ++yb) {
               cyb = m_pallErrs[SUMMARY][reg][lyr]->GetYaxis()->GetBinCenter(yb);
               if(isEndOfEventsBlock) {
-								for (int errType(0);errType!=SUMMARY;++errType){
-								  fillRateHistogram(m_pallErrs[errType][reg][lyr], m_allErrs[errType][reg][lyr], xb, yb, cxb, cyb, evt);
-								}
+		for (int errType(0);errType!=SUMMARY;++errType){
+		  fillRateHistogram(m_pallErrs[errType][reg][lyr], m_allErrs[errType][reg][lyr], xb, yb, cxb, cyb, evt);
+		}
               }
-        
-        // per lumi hists
+	      
+	      // per lumi hists
               if( m_doPerLumiErrors and endOfLumiBlock and m_doErr2DPerLumiHists) {
-								for (int errType(0);errType!=SUMMARY;++errType){
-								  fillRateHistogram(m_pallErrsPerLumi[errType][reg][lyr], m_allErrsPerLumi[errType][reg][lyr], xb, yb, cxb, cyb, evt);
-								}
+		for (int errType(0);errType!=SUMMARY;++errType){
+		  fillRateHistogram(m_pallErrsPerLumi[errType][reg][lyr], m_allErrsPerLumi[errType][reg][lyr], xb, yb, cxb, cyb, evt);
+		}
                 
               }
             }
           }
         }
       }
-
+      
       if(isEndOfEventsBlock) {
         if ( resetCondDBMaps().isFailure() )  msg(MSG::WARNING) << "Error in resetCondDBMaps()" << endreq;
         if ( fillCondDBMaps().isFailure() )  msg(MSG::WARNING) << "Error in fillCondDBMaps()" << endreq;
@@ -614,7 +641,7 @@ bool endOfEventsBlock(endOfLumiBlock);
 //====================================================================================================
 //          SCTErrMonTool :: fillByteStreamErrorsHelper, Martin Flechl 10/09/2009                                                     
 //====================================================================================================
-int SCTErrMonTool::fillByteStreamErrorsHelper(const std::set<IdentifierHash>* errors, TH2F* histo[NREGIONS_INC_GENERAL][N_DISKSx2], bool lumi2DHist, int err_type, bool b_MaskedLinks=false){
+int SCTErrMonTool::fillByteStreamErrorsHelper(const std::set<IdentifierHash>* errors, TH2F_LW* histo[NREGIONS_INC_GENERAL][N_DISKSx2], bool lumi2DHist, int err_type, bool b_MaskedLinks=false, bool b_BadErrors=false){
   int nerrors = 0;
   std::set<IdentifierHash>::iterator fit = errors->begin();
   std::set<IdentifierHash>::iterator fitEnd = errors->end();
@@ -647,9 +674,11 @@ int SCTErrMonTool::fillByteStreamErrorsHelper(const std::set<IdentifierHash>* er
       histo[regionIndex][layer]->Fill(ieta,iphi);
       if(lumi2DHist) {
         if(m_doPerLumiErrors && m_doErr2DPerLumiHists) m_pallErrsPerLumi[SUMMARY][regionIndex][layer]->Fill(ieta,iphi);
+        if(m_doPerLumiErrors && m_doErr2DPerLumiHists && b_BadErrors) m_pallErrsPerLumi[BADERR][regionIndex][layer]->Fill(ieta,iphi);
       }else {
         if(m_doPerLumiErrors) m_numErrorsPerLumi[regionIndex]->Fill(err_type,layer);
         m_pallErrs[SUMMARY][regionIndex][layer]->Fill(ieta,iphi);
+        if(b_BadErrors) m_pallErrs[BADERR][regionIndex][layer]->Fill(ieta,iphi);
       }
     }
     
@@ -707,11 +736,16 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
   int bsparse_errs[4]={0,0,0,0};
   int misslink_errs[4]={0,0,0,0};
   int tot_err[4]={0,0,0,0};
+  int tot_baderr[4]={0,0,0,0};
   int tot_mod_err[4]={0,0,0,0};
+  int tot_mod_baderr[4]={0,0,0,0};
   int tot_mod_err_bar[4]={0,0,0,0};
   int tot_mod_err_eca[9]={0,0,0,0,0,0,0,0,0};
   int tot_mod_err_ecc[9]={0,0,0,0,0,0,0,0,0};
-
+  int tot_mod_baderr_bar[4]={0,0,0,0};
+  int tot_mod_baderr_eca[9]={0,0,0,0,0,0,0,0,0};
+  int tot_mod_baderr_ecc[9]={0,0,0,0,0,0,0,0,0};
+  /*
   if(current_lb!=m_previous_lb){
     for (int reg=0; reg<4;++reg){
       m_maskedLinkErrsMax[reg]=0;
@@ -729,9 +763,11 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
       m_misslinkErrsMax[reg]=0;
       m_totErrsMax[reg]=0;
       m_totModErrsMax[reg]=0;
+      m_totBadErrsMax[reg]=0;
+      m_totModBadErrsMax[reg]=0;
     }
   }
-
+  */
   numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::MaskedLink), maskedlink_errs[3],maskedlink_errs[0],maskedlink_errs[1],maskedlink_errs[2]);
   numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::ROBFragmentError), robfragment_errs[3],robfragment_errs[0],robfragment_errs[1],robfragment_errs[2]);
   
@@ -760,16 +796,16 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
     m_TruncRODVsLB[reg]->Fill(current_lb,double (truncrod_errs[reg]));
     m_BSParseVsLB[reg]->Fill(current_lb,double (bsparse_errs[reg]));
     m_MissingLinkHeaderVsLB[reg]->Fill(current_lb,double (misslink_errs[reg]));
-    
+    /*
     if(m_maskedLinkErrsMax[reg]<maskedlink_errs[reg]){
       m_maskedLinkErrsMax[reg]=maskedlink_errs[reg];
       m_MaxMaskedLinksVsLB[reg]->SetBinContent((int)current_lb,maskedlink_errs[reg]);
-      // m_2d_MaxMaskedLinksVsLB[reg]->SetBinContent((int)current_lb,m_maskedLinkErrsMax[reg]+1,1);
+      if(reg==3) m_2d_MaxMaskedLinksVsLB[reg]->SetBinContent((int)current_lb,m_maskedLinkErrsMax[reg]+1,1);
     }
     if(m_robFragmentErrsMax[reg]<robfragment_errs[reg]){
       m_robFragmentErrsMax[reg]=robfragment_errs[reg];
       m_MaxROBFragmentVsLB[reg]->SetBinContent((int)current_lb,robfragment_errs[reg]);
-      // m_2d_MaxROBFragmentVsLB[reg]->SetBinContent((int)current_lb,m_robFragmentErrsMax[reg]+1,1); 
+      if(reg==3) m_2d_MaxROBFragmentVsLB[reg]->SetBinContent((int)current_lb,m_robFragmentErrsMax[reg]+1,1); 
     }
     if(m_abcdErrsMax[reg]<abcd_errs[reg]){
       m_abcdErrsMax[reg]=abcd_errs[reg];
@@ -784,17 +820,17 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
     if(m_timeoutErrsMax[reg]<timeout_errs[reg]){
       m_timeoutErrsMax[reg]=timeout_errs[reg];
       m_MaxTimeOutVsLB[reg]->SetBinContent((int)current_lb,m_timeoutErrsMax[reg]);
-      // m_2d_MaxTimeOutVsLB[reg]->SetBinContent((int)current_lb,m_timeoutErrsMax[reg]+1,1); 
+      if(reg==3) m_2d_MaxTimeOutVsLB[reg]->SetBinContent((int)current_lb,m_timeoutErrsMax[reg]+1,1); 
     }
     if(m_lvl1idErrsMax[reg]<lvl1id_errs[reg]){
       m_lvl1idErrsMax[reg]=lvl1id_errs[reg];
       m_MaxLVL1IDVsLB[reg]->SetBinContent((int)current_lb,m_lvl1idErrsMax[reg]);
-      // m_2d_MaxLVL1IDVsLB[reg]->SetBinContent((int)current_lb,m_lvl1idErrsMax[reg]+1,1); 
+      if(reg==3) m_2d_MaxLVL1IDVsLB[reg]->SetBinContent((int)current_lb,m_lvl1idErrsMax[reg]+1,1); 
     }
     if(m_bcidErrsMax[reg]<bcid_errs[reg]){
       m_bcidErrsMax[reg]=bcid_errs[reg];
       m_MaxBCIDVsLB[reg]->SetBinContent((int)current_lb,m_bcidErrsMax[reg]);
-      // m_2d_MaxBCIDVsLB[reg]->SetBinContent((int)current_lb,m_bcidErrsMax[reg]+1,1); 
+      if(reg==3) m_2d_MaxBCIDVsLB[reg]->SetBinContent((int)current_lb,m_bcidErrsMax[reg]+1,1); 
     }
     if(m_preambleErrsMax[reg]<preamble_errs[reg]){
       m_preambleErrsMax[reg]=preamble_errs[reg];
@@ -824,10 +860,10 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
     if(m_misslinkErrsMax[reg]<misslink_errs[reg]){
       m_misslinkErrsMax[reg]=misslink_errs[reg];
       m_MaxMissingLinkHeaderVsLB[reg]->SetBinContent((int)current_lb,m_misslinkErrsMax[reg]);
-      // m_2d_MaxMissingLinkHeaderVsLB[reg]->SetBinContent((int)current_lb,m_misslinkErrsMax[reg]+1,1); 
+      if(reg==3) m_2d_MaxMissingLinkHeaderVsLB[reg]->SetBinContent((int)current_lb,m_misslinkErrsMax[reg]+1,1); 
     }
+    */
   }
-
   m_MaskedLinks->Reset();
   int total_errors = 0; float cxb = 0; float cyb = 0; 
     
@@ -841,24 +877,40 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
   }
   //reset histos
   for (int reg=0; reg!=NREGIONS_INC_GENERAL;++reg) for (int i=0; i!=N_DISKSx2;++i) if (m_pallErrs[SUMMARY][reg][i]) m_pallErrs[SUMMARY][reg][i]->Reset();
+  for (int reg=0; reg!=NREGIONS_INC_GENERAL;++reg) for (int i=0; i!=N_DISKSx2;++i) if (m_pallErrs[BADERR][reg][i]) m_pallErrs[BADERR][reg][i]->Reset();
   //set up which errors we get; the SCT_ByteStreamErrors indexing does not correspond to the numbering in this class, so we translate
   const int errorsToGet[N_ERRTYPES]={SCT_ByteStreamErrors::ABCDError, SCT_ByteStreamErrors::RawError, SCT_ByteStreamErrors::TimeOutError,
-    SCT_ByteStreamErrors::LVL1IDError, SCT_ByteStreamErrors::BCIDError, SCT_ByteStreamErrors::FormatterError,
-    SCT_ByteStreamErrors::PreambleError, SCT_ByteStreamErrors::MaskedLink,SCT_ByteStreamErrors::RODClockError,
-				     SCT_ByteStreamErrors::TruncatedROD,SCT_ByteStreamErrors::ROBFragmentError,SCT_ByteStreamErrors::ByteStreamParseError,
+				     SCT_ByteStreamErrors::LVL1IDError, SCT_ByteStreamErrors::BCIDError, SCT_ByteStreamErrors::PreambleError, 
+				     SCT_ByteStreamErrors::FormatterError, SCT_ByteStreamErrors::MaskedLink, SCT_ByteStreamErrors::RODClockError,
+				     SCT_ByteStreamErrors::TruncatedROD, SCT_ByteStreamErrors::ROBFragmentError, SCT_ByteStreamErrors::ByteStreamParseError,
 				     SCT_ByteStreamErrors::MissingLinkHeaderError
   };
   for (int errType(0);errType!=SUMMARY;++errType){
     const bool mask=(errorsToGet[errType]==SCT_ByteStreamErrors::MaskedLink);
-    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrSvc->getErrorSet(errorsToGet[errType]), m_pallErrs[errType], false,errType,mask);
+    bool baderror = false;
+    baderror|=(errorsToGet[errType]==SCT_ByteStreamErrors::MaskedLink);
+    baderror|=(errorsToGet[errType]==SCT_ByteStreamErrors::ROBFragmentError);
+    baderror|=(errorsToGet[errType]==SCT_ByteStreamErrors::TimeOutError);
+    baderror|=(errorsToGet[errType]==SCT_ByteStreamErrors::BCIDError);
+    baderror|=(errorsToGet[errType]==SCT_ByteStreamErrors::LVL1IDError);
+    baderror|=(errorsToGet[errType]==SCT_ByteStreamErrors::MissingLinkHeaderError);
+    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrSvc->getErrorSet(errorsToGet[errType]), m_pallErrs[errType], false,errType,mask,baderror);
   }
  
    
   if(m_doPerLumiErrors && m_doErr2DPerLumiHists) {
     for (int reg=0; reg!=NREGIONS_INC_GENERAL;++reg) for (int i=0; i!=N_DISKSx2;++i) if (m_pallErrsPerLumi[SUMMARY][reg][i]) m_pallErrsPerLumi[SUMMARY][reg][i]->Reset();
+    for (int reg=0; reg!=NREGIONS_INC_GENERAL;++reg) for (int i=0; i!=N_DISKSx2;++i) if (m_pallErrsPerLumi[BADERR][reg][i]) m_pallErrsPerLumi[BADERR][reg][i]->Reset();
     for (int errType(0);errType!=SUMMARY;++errType){
       const bool mask=(errorsToGet[errType]==SCT_ByteStreamErrors::MaskedLink);
-      total_errors += fillByteStreamErrorsHelper(m_byteStreamErrSvc->getErrorSet(errorsToGet[errType]), m_pallErrsPerLumi[errType], false,errType,mask);
+      bool baderror = false;
+      baderror|=(errorsToGet[errType]==SCT_ByteStreamErrors::MaskedLink);
+      baderror|=(errorsToGet[errType]==SCT_ByteStreamErrors::ROBFragmentError);
+      baderror|=(errorsToGet[errType]==SCT_ByteStreamErrors::TimeOutError);
+      baderror|=(errorsToGet[errType]==SCT_ByteStreamErrors::BCIDError);
+      baderror|=(errorsToGet[errType]==SCT_ByteStreamErrors::LVL1IDError);
+      baderror|=(errorsToGet[errType]==SCT_ByteStreamErrors::MissingLinkHeaderError);
+      total_errors += fillByteStreamErrorsHelper(m_byteStreamErrSvc->getErrorSet(errorsToGet[errType]), m_pallErrsPerLumi[errType], false,errType,mask,baderror);
     }
   }
 
@@ -878,7 +930,8 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
 	cxb = m_pallErrs[SUMMARY][reg][lyr]->GetXaxis()->GetBinCenter(xb);
         for (int yb = 1; yb !=nBinsY; ++yb) {
           cyb = m_pallErrs[SUMMARY][reg][lyr]->GetYaxis()->GetBinCenter(yb);
-          // Fill values for vs. lb plots
+	  
+          // Fill values for vs. lb plots for all-errors
           tot_err[reg]+=m_pallErrs[SUMMARY][reg][lyr]->GetBinContent(xb,yb);
           if (m_pallErrs[SUMMARY][reg][lyr]->GetBinContent(xb,yb) > 0) {
             m_allErrs[SUMMARY][reg][lyr]->Fill(cxb,cyb,1);
@@ -895,9 +948,25 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
             if (m_pallErrsPerLumi[SUMMARY][reg][lyr]->GetBinContent(xb,yb) > 0) m_allErrsPerLumi[SUMMARY][reg][lyr]->Fill(cxb,cyb,1);
             else m_allErrsPerLumi[SUMMARY][reg][lyr]->Fill(cxb,cyb,0);
           }
+
+          // Fill values for vs. lb plots for bad-errors (plots used only online are not considered yet)
+          tot_baderr[reg]+=m_pallErrs[BADERR][reg][lyr]->GetBinContent(xb,yb);
+          if (m_pallErrs[BADERR][reg][lyr]->GetBinContent(xb,yb) > 0) {
+            m_allErrs[BADERR][reg][lyr]->Fill(cxb,cyb,1);
+            tot_mod_baderr[reg]++;
+            if(reg==0) tot_mod_baderr_bar[lyr]++;
+            if(reg==1) tot_mod_baderr_eca[lyr]++;
+            if(reg==2) tot_mod_baderr_ecc[lyr]++;
+          }else {
+            m_allErrs[BADERR][reg][lyr]->Fill(cxb,cyb,0);
+          }
+          if(m_doPerLumiErrors && m_doErr2DPerLumiHists) {
+            if (m_pallErrsPerLumi[BADERR][reg][lyr]->GetBinContent(xb,yb) > 0) m_allErrsPerLumi[BADERR][reg][lyr]->Fill(cxb,cyb,1);
+            else m_allErrsPerLumi[BADERR][reg][lyr]->Fill(cxb,cyb,0);
+          }
 	  
           if(m_environment==AthenaMonManager::online){
-        //mf cast to (int) below to avoid compiler warnings... we do want int, right? Some code duplication below...
+	    //mf cast to (int) below to avoid compiler warnings... we do want int, right? Some code duplication below...
             if (m_numberOfEvents%m_checkrate == 0 && m_runOnline == true) {
               for (int errType(0);errType!=SUMMARY;++errType){
                 content = (int)m_pallErrs[errType][reg][lyr]->GetBinContent(xb,yb);
@@ -912,24 +981,65 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
   }
   tot_err[3] = tot_err[0]+tot_err[1]+tot_err[2];
   tot_mod_err[3] = tot_mod_err[0]+tot_mod_err[1]+tot_mod_err[2];
+  tot_baderr[3] = tot_baderr[0]+tot_baderr[1]+tot_baderr[2];
+  tot_mod_baderr[3] = tot_mod_baderr[0]+tot_mod_baderr[1]+tot_mod_baderr[2];
+  if(tot_err[3]<tot_baderr[3]){
+    std::cout<<"====== SCT:: total bad errors is larger than all errors, ALL    : tot_err = "<<tot_err[3]<<" and tot_baderr = "<<tot_baderr[3]<<std::endl;
+    std::cout<<"====== SCT:: total bad errors is larger than all errors, BARREL : tot_err = "<<tot_err[0]<<" and tot_baderr = "<<tot_baderr[0]<<std::endl;
+    std::cout<<"====== SCT:: total bad errors is larger than all errors, ECA    : tot_err = "<<tot_err[1]<<" and tot_baderr = "<<tot_baderr[1]<<std::endl;
+    std::cout<<"====== SCT:: total bad errors is larger than all errors, ECC    : tot_err = "<<tot_err[2]<<" and tot_baderr = "<<tot_baderr[2]<<std::endl;
+  }
+  if(tot_mod_err[3]<tot_mod_baderr[3]){
+    std::cout<<"====== SCT:: total modules with bad errors is larger than modules with any errors, ALL    : tot_mod_err = "<<tot_mod_err[3]<<" and tot_mod_baderr = "<<tot_mod_baderr[3]<<std::endl;
+    std::cout<<"====== SCT:: total modules with bad errors is larger than modules with any errors, BARREL : tot_mod_err = "<<tot_mod_err[0]<<" and tot_mod_baderr = "<<tot_mod_baderr[0]<<std::endl;
+    std::cout<<"====== SCT:: total modules with bad errors is larger than modules with any errors, ECA    : tot_mod_err = "<<tot_mod_err[1]<<" and tot_mod_baderr = "<<tot_mod_baderr[1]<<std::endl;
+    std::cout<<"====== SCT:: total modules with bad errors is larger than modules with any errors, ECC    : tot_mod_err = "<<tot_mod_err[2]<<" and tot_mod_baderr = "<<tot_mod_baderr[2]<<std::endl;
+  }
   for (int reg=0; reg<4;++reg) {
+    // totErrsMax
+    /*
     if(m_totErrsMax[reg]<tot_err[reg]){
       m_totErrsMax[reg]=tot_err[reg];
       m_MaxNumberOfErrorsVsLB[reg]->SetBinContent((int)current_lb,(tot_err[reg]));
-      // m_2d_MaxNumberOfErrorsVsLB[reg]->SetBinContent((int)current_lb,m_totErrsMax[reg]+1,1); 
+      //m_2d_MaxNumberOfErrorsVsLB[reg]->SetBinContent((int)current_lb,m_totErrsMax[reg]+1,1); 
     }
+    */
     m_NumberOfErrorsVsLB[reg]->Fill((int)current_lb,(tot_err[reg]));
+    // totModErrsMax
+    /*
     if(m_totModErrsMax[reg]<tot_mod_err[reg]){
       m_totModErrsMax[reg]=tot_mod_err[reg];
       m_MaxModulesWithErrorsVsLB[reg]->SetBinContent((int)current_lb,(tot_mod_err[reg]));
-      // m_2d_MaxModulesWithErrorsVsLB[reg]->SetBinContent((int)current_lb,m_totModErrsMax[reg]+1,1); 
+      if(reg==3)m_2d_MaxModulesWithErrorsVsLB[reg]->SetBinContent((int)current_lb,m_totModErrsMax[reg]+1,1); // filled in all regions 
     }
-    m_ModulesWithErrorsVsLB[reg]->Fill((int)current_lb,(tot_mod_err[reg]));
+    */
+    m_ModulesWithErrorsVsLB[reg]->Fill((int)current_lb,(tot_mod_err[reg])); 
+    // totBadErrsMax   
+    /*
+    if(m_totBadErrsMax[reg]<tot_baderr[reg]){
+      m_totBadErrsMax[reg]=tot_baderr[reg];
+      m_MaxNumberOfBadErrorsVsLB[reg]->SetBinContent((int)current_lb,(tot_baderr[reg]));
+      //m_2d_MaxNumberOfBadErrorsVsLB[reg]->SetBinContent((int)current_lb,m_totBadErrsMax[reg]+1,1); 
+    }
+    */
+    m_NumberOfBadErrorsVsLB[reg]->Fill((int)current_lb,(tot_baderr[reg]));
+    // totModBadErrsMax
+    /*
+    if(m_totModBadErrsMax[reg]<tot_mod_baderr[reg]){
+      m_totModBadErrsMax[reg]=tot_mod_baderr[reg];
+      m_MaxModulesWithBadErrorsVsLB[reg]->SetBinContent((int)current_lb,(tot_mod_baderr[reg]));
+      if(reg==3)m_2d_MaxModulesWithBadErrorsVsLB[reg]->SetBinContent((int)current_lb,m_totModBadErrsMax[reg]+1,1); // filled in all regions 
+    }
+    */
+    m_ModulesWithBadErrorsVsLB[reg]->Fill((int)current_lb,(tot_mod_baderr[reg]));
     int nlyr = (reg==0)? 4:9;
     for (int lyr=0; lyr<nlyr; lyr++) {
       if(reg==0) m_LinksWithErrorsVsLBBarrel[lyr]->Fill((int)current_lb,(tot_mod_err_bar[lyr]));
       if(reg==1) m_LinksWithErrorsVsLBEndcapA[lyr]->Fill((int)current_lb,(tot_mod_err_eca[lyr]));
       if(reg==2) m_LinksWithErrorsVsLBEndcapC[lyr]->Fill((int)current_lb,(tot_mod_err_ecc[lyr]));
+      if(reg==0) m_LinksWithBadErrorsVsLBBarrel[lyr]->Fill((int)current_lb,(tot_mod_baderr_bar[lyr]));
+      if(reg==1) m_LinksWithBadErrorsVsLBEndcapA[lyr]->Fill((int)current_lb,(tot_mod_baderr_eca[lyr]));
+      if(reg==2) m_LinksWithBadErrorsVsLBEndcapC[lyr]->Fill((int)current_lb,(tot_mod_baderr_ecc[lyr]));
     }
   }
 
@@ -973,7 +1083,7 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
 //                       SCTErrMonTool :: bookErrHistosHelper                                               
 // Avoids duplicate code in the bookErrHistosXXXX functions; added 8/9/09, Martin Flechl                                                                
 //====================================================================================================
-StatusCode SCTErrMonTool::bookErrHistosHelper(MonGroup & mg, TString name, TString title, TString titlehitmap, TProfile2D* &tprof, TH2F* &th, const int layer, const bool barrel){
+StatusCode SCTErrMonTool::bookErrHistosHelper(MonGroup & mg, TString name, TString title, TString titlehitmap, TProfile2D_LW* &tprof, TH2F_LW* &th, const int layer, const bool barrel){
   ostringstream streamhitmap; streamhitmap << layer/2 << "_" << layer%2;
   name+=streamhitmap.str();  title+=streamhitmap.str();  titlehitmap+=streamhitmap.str();
 
@@ -982,15 +1092,15 @@ StatusCode SCTErrMonTool::bookErrHistosHelper(MonGroup & mg, TString name, TStri
     const float xhi=LAST_ETA_BIN+0.5;
     const float ylo=FIRST_PHI_BIN-0.5;
     const float yhi=LAST_PHI_BIN+0.5;
-    tprof = new TProfile2D(name, title,N_ETA_BINS, xlo, xhi, N_PHI_BINS, ylo, yhi);
-    th = new TH2F(titlehitmap, title, N_ETA_BINS, xlo, xhi,N_PHI_BINS, ylo, yhi);
+    tprof = TProfile2D_LW::create(name, title,N_ETA_BINS, xlo, xhi, N_PHI_BINS, ylo, yhi);
+    th = TH2F_LW::create(titlehitmap, title, N_ETA_BINS, xlo, xhi,N_PHI_BINS, ylo, yhi);
   } else{
     const float xlo=FIRST_ETA_BIN_EC-0.5;
     const float xhi=LAST_ETA_BIN_EC+0.5;
     const float ylo=FIRST_PHI_BIN_EC-0.5;
     const float yhi=LAST_PHI_BIN_EC+0.5;
-    tprof = new TProfile2D(name, title,N_ETA_BINS_EC, xlo, xhi, N_PHI_BINS_EC, ylo, yhi);
-    th = new TH2F(titlehitmap, title,N_ETA_BINS_EC, xlo, xhi,N_PHI_BINS_EC, ylo, yhi);
+    tprof = TProfile2D_LW::create(name, title,N_ETA_BINS_EC, xlo, xhi, N_PHI_BINS_EC, ylo, yhi);
+    th = TH2F_LW::create(titlehitmap, title,N_ETA_BINS_EC, xlo, xhi,N_PHI_BINS_EC, ylo, yhi);
   }
   StatusCode sc0 = mg.regHist(th);
   StatusCode sc1 = mg.regHist(tprof);
@@ -1002,13 +1112,13 @@ StatusCode SCTErrMonTool::bookErrHistosHelper(MonGroup & mg, TString name, TStri
 //                       SCTErrMonTool :: bookErrHistosHelper                                               
 // Avoids duplicate code in the bookErrHistosXXXX functions; added 08/08/11, Daniel Damiani                                                                
 //====================================================================================================
-StatusCode SCTErrMonTool::bookErrHistosHelper(MonGroup & mg, TString name, TString title, TProfile2D* &tprof, const int layer, const bool barrel){
+StatusCode SCTErrMonTool::bookErrHistosHelper(MonGroup & mg, TString name, TString title, TProfile2D_LW* &tprof, const int layer, const bool barrel){
   ostringstream streamhitmap; streamhitmap << layer/2 << "_" << layer%2;
   name+=streamhitmap.str();  title+=streamhitmap.str();
   if (barrel){
-    tprof = new TProfile2D(name, title,N_ETA_BINS, FIRST_ETA_BIN-0.5, LAST_ETA_BIN+0.5,N_PHI_BINS, FIRST_PHI_BIN-0.5, LAST_PHI_BIN+0.5);
+    tprof = TProfile2D_LW::create(name, title,N_ETA_BINS, FIRST_ETA_BIN-0.5, LAST_ETA_BIN+0.5,N_PHI_BINS, FIRST_PHI_BIN-0.5, LAST_PHI_BIN+0.5);
   } else{
-    tprof = new TProfile2D(name, title,N_ETA_BINS_EC, FIRST_ETA_BIN_EC-0.5, LAST_ETA_BIN_EC+0.5,N_PHI_BINS_EC, FIRST_PHI_BIN_EC-0.5, LAST_PHI_BIN_EC+0.5);
+    tprof = TProfile2D_LW::create(name, title,N_ETA_BINS_EC, FIRST_ETA_BIN_EC-0.5, LAST_ETA_BIN_EC+0.5,N_PHI_BINS_EC, FIRST_PHI_BIN_EC-0.5, LAST_PHI_BIN_EC+0.5);
   }
   
   StatusCode sc = mg.regHist(tprof);
@@ -1023,15 +1133,15 @@ StatusCode SCTErrMonTool::bookErrHistosHelper(MonGroup & mg, TString name, TStri
 //====================================================================================================
 //StatusCode SCTErrMonTool::bookErrHistos(bool newRun, bool newLumiBlock){
 StatusCode SCTErrMonTool::bookErrHistos(){
-  const std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse","MissingLink","summary"};
-  std::string m_errorsNamesMG[] = {"SCT/SCTB/errors","SCT/SCTB/errors","SCT/SCTB/errors","SCT/SCTB/errors/LVL1ID","SCT/SCTB/errors/BCID","SCT/SCTB/errors/Preamble","SCT/SCTB/errors/Formatter","SCT/SCTB/errors/MaskedLink","SCT/SCTB/errors/RODClock","SCT/SCTB/errors/TruncROD","SCT/SCTB/errors/ROBFrag","SCT/SCTB/errors","SCT/SCTB/errors","SCT/SCTB/errors"};
+  const std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse","MissingLink","summary", "badError"};
+  std::string m_errorsNamesMG[] = {"SCT/SCTB/errors","SCT/SCTB/errors","SCT/SCTB/errors","SCT/SCTB/errors/LVL1ID","SCT/SCTB/errors/BCID","SCT/SCTB/errors/Preamble","SCT/SCTB/errors/Formatter","SCT/SCTB/errors/MaskedLink","SCT/SCTB/errors/RODClock","SCT/SCTB/errors/TruncROD","SCT/SCTB/errors/ROBFrag","SCT/SCTB/errors","SCT/SCTB/errors","SCT/SCTB/errors","SCT/SCTB/errors"};
   if(m_doPerLumiErrors) {
     MonGroup lumiErr(this,"SCT/SCTB/errors",lumiBlock,ATTRIB_UNMANAGED );
     if(ManagedMonitorToolBase::newLumiBlock) {
       std::string m_layerNames[] = {"0_0","0_1","1_0","1_1","2_0","2_1","3_0","3_1"};
-      m_numErrorsPerLumi[iBARREL] = new TH2F("NumErrsPerLumi","Total Number of Error Types for Layer per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_BARRELSx2,-0.5,N_BARRELSx2-0.5);
+      m_numErrorsPerLumi[iBARREL] = TH2F_LW::create("NumErrsPerLumi","Total Number of Error Types for Layer per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_BARRELSx2,-0.5,N_BARRELSx2-0.5);
       if(lumiErr.regHist(m_numErrorsPerLumi[iBARREL]).isFailure()) msg(MSG::WARNING) << "Couldn't book NumErrsPerLumi" << endreq;
-      m_rateErrorsPerLumi[iBARREL] = new TProfile2D("RateErrorsPerLumi","Rate of Error Types for Layers per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_BARRELSx2,-0.5,N_BARRELSx2-0.5);
+      m_rateErrorsPerLumi[iBARREL] = TProfile2D_LW::create("RateErrorsPerLumi","Rate of Error Types for Layers per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_BARRELSx2,-0.5,N_BARRELSx2-0.5);
       if(lumiErr.regHist(m_rateErrorsPerLumi[iBARREL]).isFailure()) msg(MSG::WARNING) << "Couldn't book RateErrorsPerLumi" << endreq;
       for (unsigned int bin(0); bin<n_lumiErrBins; bin++) {
         m_numErrorsPerLumi[iBARREL]->GetXaxis()->SetBinLabel(bin+1,m_errorsNames[bin].c_str());
@@ -1084,9 +1194,9 @@ StatusCode SCTErrMonTool::bookErrHistos(){
       if(Errors.regHist(m_nErrors).isFailure())    msg(MSG::WARNING) << "Couldn't book nErrors vs event number hist" << endreq;
       if(Errors.regHist(m_nLinksWithErrors).isFailure())    msg(MSG::WARNING) << "Couldn't book nLinksWithErrors vs event number hist" << endreq;
       //Book percentage error histograms      
-      m_firstHit = new TH1F("FirstHit","Percentage of FirstHit errors", nbins,0.,100.);
+      m_firstHit = TH1F_LW::create("FirstHit","Percentage of FirstHit errors", nbins,0.,100.);
       m_firstHit->GetXaxis()->SetTitle("Percentage of FirstHit errors"); 
-      m_secondHit = new TH1F("SecondHit","Percentage of SecondHit errors", nbins,0.,100.);
+      m_secondHit = TH1F_LW::create("SecondHit","Percentage of SecondHit errors", nbins,0.,100.);
       m_secondHit->GetXaxis()->SetTitle("Percentage of SecondHit errors");
       if( err.regHist(m_firstHit).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:" << "FirstHit" << endreq;
       if( err.regHist(m_secondHit).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:" << "SecondHit" << endreq;
@@ -1113,15 +1223,15 @@ StatusCode SCTErrMonTool::bookErrHistos(){
 // Book 1D and 2D Histograms of errors for positive endcap
 //====================================================================================================
 StatusCode SCTErrMonTool::bookPositiveEndCapErrHistos(){
-  std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse","MissingLink", "summary"};
-  std::string m_errorsNamesMG[] = {"SCT/SCTEA/errors","SCT/SCTEA/errors","SCT/SCTEA/errors","SCT/SCTEA/errors/LVL1ID","SCT/SCTEA/errors/BCID","SCT/SCTEA/errors/Preamble","SCT/SCTEA/errors/Formatter","SCT/SCTEA/errors/MaskedLink","SCT/SCTEA/errors/RODClock","SCT/SCTEA/errors/TruncROD","SCT/SCTEA/errors/ROBFrag","SCT/SCTEA/errors","SCT/SCTEA/errors","SCT/SCTEA/errors"};//07.01.2015
+  std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse","MissingLink", "summary", "badError"};
+  std::string m_errorsNamesMG[] = {"SCT/SCTEA/errors","SCT/SCTEA/errors","SCT/SCTEA/errors","SCT/SCTEA/errors/LVL1ID","SCT/SCTEA/errors/BCID","SCT/SCTEA/errors/Preamble","SCT/SCTEA/errors/Formatter","SCT/SCTEA/errors/MaskedLink","SCT/SCTEA/errors/RODClock","SCT/SCTEA/errors/TruncROD","SCT/SCTEA/errors/ROBFrag","SCT/SCTEA/errors","SCT/SCTEA/errors","SCT/SCTEA/errors","SCT/SCTEA/errors"};//07.01.2015
   if(m_doPerLumiErrors) {
     MonGroup lumiErr(this,"SCT/SCTEA/errors",lumiBlock,ATTRIB_UNMANAGED );
     if(ManagedMonitorToolBase::newLumiBlock) {
       std::string m_layerNames[N_DISKSx2] = {"0_0","0_1","1_0","1_1","2_0","2_1","3_0","3_1","4_0","4_1","5_0","5_1","6_0","6_1","7_0","7_1","8_0","8_1"};
-      m_numErrorsPerLumi[iECp] = new TH2F("NumErrsPerLumi","Total Number of Error Types for Disk per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
+      m_numErrorsPerLumi[iECp] = TH2F_LW::create("NumErrsPerLumi","Total Number of Error Types for Disk per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
       if(lumiErr.regHist(m_numErrorsPerLumi[iECp]).isFailure()) msg(MSG::WARNING) << "Couldn't book NumErrsPerLumi" << endreq;
-      m_rateErrorsPerLumi[iECp] = new TProfile2D("RateErrorsPerLumi","Rate of Error Types for Disks per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
+      m_rateErrorsPerLumi[iECp] = TProfile2D_LW::create("RateErrorsPerLumi","Rate of Error Types for Disks per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
       if(lumiErr.regHist(m_rateErrorsPerLumi[iECp]).isFailure())  msg(MSG::WARNING) << "Couldn't book RateErrorsPerLumi" << endreq;
       for (unsigned int bin(0); bin<n_lumiErrBins; bin++) {
         m_numErrorsPerLumi[iECp]->GetXaxis()->SetBinLabel(bin+1,m_errorsNames[bin].c_str());
@@ -1150,9 +1260,9 @@ StatusCode SCTErrMonTool::bookPositiveEndCapErrHistos(){
     MonGroup err(this,"SCT/SCTEA/errors",run,ATTRIB_UNMANAGED );
     std::string stem=m_stream+"/SCT/SCTEA/errors/" ;
     int nbins=50;
-    m_firstHit_ECp = new TH1F("FirstHit_ECp","Percentage of FirstHit errors in positive endcap", nbins,0.,100.);
+    m_firstHit_ECp = TH1F_LW::create("FirstHit_ECp","Percentage of FirstHit errors in positive endcap", nbins,0.,100.);
     m_firstHit_ECp->GetXaxis()->SetTitle("Percentage of FirstHit errors"); 
-    m_secondHit_ECp = new TH1F("SecondHit_ECp","Percentage of SecondHit errors in positive endcap", nbins,0.,100.);
+    m_secondHit_ECp = TH1F_LW::create("SecondHit_ECp","Percentage of SecondHit errors in positive endcap", nbins,0.,100.);
     m_secondHit_ECp->GetXaxis()->SetTitle("Percentage of SecondHit errors"); 
     if ( err.regHist(m_firstHit_ECp).isFailure() )
       msg(MSG::WARNING) << "Cannot book Histogram:" << "FirstHit" << endreq;
@@ -1184,16 +1294,16 @@ StatusCode SCTErrMonTool::bookPositiveEndCapErrHistos(){
 //====================================================================================================
 //StatusCode SCTErrMonTool::bookNegativeEndCapErrHistos(bool isNewRun, bool isNewLumiBlock){
 StatusCode SCTErrMonTool::bookNegativeEndCapErrHistos(){
-  std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse","MissingLink", "summary"};
-  std::string m_errorsNamesMG[] = {"SCT/SCTEC/errors","SCT/SCTEC/errors","SCT/SCTEC/errors","SCT/SCTEC/errors/LVL1ID","SCT/SCTEC/errors/BCID","SCT/SCTEC/errors/Preamble","SCT/SCTEC/errors/Formatter","SCT/SCTEC/errors/MaskedLink","SCT/SCTEC/errors/RODClock","SCT/SCTEC/errors/TruncROD","SCT/SCTEC/errors/ROBFrag","SCT/SCTEC/errors","SCT/SCTEC/errors","SCT/SCTEC/errors"};//07.01.2015
+  std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse","MissingLink", "summary", "badError"};
+  std::string m_errorsNamesMG[] = {"SCT/SCTEC/errors","SCT/SCTEC/errors","SCT/SCTEC/errors","SCT/SCTEC/errors/LVL1ID","SCT/SCTEC/errors/BCID","SCT/SCTEC/errors/Preamble","SCT/SCTEC/errors/Formatter","SCT/SCTEC/errors/MaskedLink","SCT/SCTEC/errors/RODClock","SCT/SCTEC/errors/TruncROD","SCT/SCTEC/errors/ROBFrag","SCT/SCTEC/errors","SCT/SCTEC/errors","SCT/SCTEC/errors","SCT/SCTEC/errors"};//07.01.2015
   if(m_doPerLumiErrors) {
     MonGroup lumiErr(this,"SCT/SCTEC/errors",lumiBlock,ATTRIB_UNMANAGED );
     if(ManagedMonitorToolBase::newLumiBlock) {
       //std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse"};
       std::string m_layerNames[N_DISKSx2] = {"0_0","0_1","1_0","1_1","2_0","2_1","3_0","3_1","4_0","4_1","5_0","5_1","6_0","6_1","7_0","7_1","8_0","8_1"};
-      m_numErrorsPerLumi[iECm] = new TH2F("NumErrsPerLumi","Total Number of Error Types for Disk per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
+      m_numErrorsPerLumi[iECm] = TH2F_LW::create("NumErrsPerLumi","Total Number of Error Types for Disk per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
       if(lumiErr.regHist(m_numErrorsPerLumi[iECm]).isFailure()) msg(MSG::WARNING) << "Couldn't book NumErrsPerLumi" << endreq;
-      m_rateErrorsPerLumi[iECm] = new TProfile2D("RateErrorsPerLumi","Rate of Error Types for Disks per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
+      m_rateErrorsPerLumi[iECm] = TProfile2D_LW::create("RateErrorsPerLumi","Rate of Error Types for Disks per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
       if(lumiErr.regHist(m_rateErrorsPerLumi[iECm]).isFailure()) msg(MSG::WARNING) << "Couldn't book RateErrorsPerLumi" << endreq;
       for (unsigned int bin(0); bin<n_lumiErrBins; bin++) {
         m_numErrorsPerLumi[iECm]->GetXaxis()->SetBinLabel(bin+1,m_errorsNames[bin].c_str());
@@ -1222,9 +1332,9 @@ StatusCode SCTErrMonTool::bookNegativeEndCapErrHistos(){
     MonGroup err(this,"SCT/SCTEC/errors",run,ATTRIB_UNMANAGED );
     std::string stem=m_stream+"/SCT/SCTEC/errors/" ;
     int nbins=50;
-    m_firstHit_ECm = new TH1F("FirstHit_ECm","Percentage of FirstHit errors in negative endcap", nbins,0.,100.);
+    m_firstHit_ECm = TH1F_LW::create("FirstHit_ECm","Percentage of FirstHit errors in negative endcap", nbins,0.,100.);
     m_firstHit_ECm->GetXaxis()->SetTitle("Percentage of FirstHit errors"); 
-    m_secondHit_ECm = new TH1F("SecondHit_ECm","Percentage of SecondHit errors in negative endcap", nbins,0.,100.);
+    m_secondHit_ECm = TH1F_LW::create("SecondHit_ECm","Percentage of SecondHit errors in negative endcap", nbins,0.,100.);
     m_secondHit_ECm->GetXaxis()->SetTitle("Percentage of SecondHit errors");
     if ( err.regHist(m_firstHit_ECm).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:" << "FirstHit" << endreq;
     if ( err.regHist(m_secondHit_ECm).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:" << "SecondHit" << endreq;
@@ -1281,11 +1391,11 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
     const int bec[] = {-2,0,2};
     const unsigned int limits[]={N_DISKS, N_BARRELS, N_DISKS};
     for(int systemIndex=0; systemIndex<3; systemIndex++){
-      for(auto prof2: *storageVectors[systemIndex]) delete prof2;
+      for(auto prof2: *storageVectors[systemIndex]) LWHist::safeDelete(prof2);
       (storageVectors[systemIndex])->clear();
-      for(auto prof2: *storageVectorsSide0[systemIndex]) delete prof2;
+      for(auto prof2: *storageVectorsSide0[systemIndex]) LWHist::safeDelete(prof2);
       (storageVectorsSide0[systemIndex])->clear();
-      for(auto prof2: *storageVectorsSide1[systemIndex]) delete prof2;
+      for(auto prof2: *storageVectorsSide1[systemIndex]) LWHist::safeDelete(prof2);
       (storageVectorsSide1[systemIndex])->clear();
       
       for (unsigned int i=0; i!=limits[systemIndex];++i) {
@@ -1304,7 +1414,7 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
     for (int i=0; i<N_BARRELSx2;++i) {
       ostringstream stream2dmap;
       stream2dmap <<"modulemap_"<< i/2 << "_" << i%2 ;
-      TH2F* hitsHisto_tmp = new TH2F(TString(stream2dmap.str()),          // path
+      TH2F_LW* hitsHisto_tmp = TH2F_LW::create(TString(stream2dmap.str()),          // path
 				     Form("Module Out of Configuration : Layer %d Side %d",i/2,i%2),   // title
 				     N_ETA_BINS, FIRST_ETA_BIN-0.5, LAST_ETA_BIN+0.5,                
 				     N_PHI_BINS, FIRST_PHI_BIN-0.5, LAST_PHI_BIN+0.5);               
@@ -1315,7 +1425,7 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
       m_p2DmapHistoVectorAll[iBARREL].push_back(hitsHisto_tmp); 
     }
     if (m_makeConfHisto or testOffline) {
-      m_DetailedConfiguration = new TProfile("SCTConfDetails","Exclusion from the Configuration",ConfbinsDetailed,-0.5,ConfbinsDetailed - 0.5);
+      m_DetailedConfiguration = TProfile_LW::create("SCTConfDetails","Exclusion from the Configuration",ConfbinsDetailed,-0.5,ConfbinsDetailed - 0.5);
       if ( ConfHist.regHist(m_DetailedConfiguration).isFailure() )
         msg(MSG::WARNING) << "Cannot book Histogram:SCTConfDetails" << endreq; 
 
@@ -1343,7 +1453,7 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
         TString truncrodtitle[4]={"SCTTruncatedRODVsLbsBarrel","SCTTruncatedRODVsLbsEndcapA","SCTTruncatedRODVsLbsEndcapC","SCTTruncatedRODVsLbs"};
 	TString bsparsetitle[4]={"SCTBSParseerrsVsLbsBarrel","SCTBSParseerrsVsLbsEndcapA","SCTBSParseerrsVsLbsEndcapC","SCTBSParseerrsVsLbs"};
 	TString misslinktitle[4]={"SCTMissingLinkVsLbsBarrel","SCTMissingLinkVsLbsEndcapA","SCTMissingLinkVsLbsEndcapC","SCTMissingLinkVsLbs"};
-
+	/*
         TString maximummaskedlinktitle[4]={"SCTMaskedLinkmaxVsLbsBarrel","SCTMaskedLinkmaxVsLbsEndcapA","SCTMaskedLinkmaxVsLbsEndcapC","SCTMaskedLinkmaxVsLbs"};
         TString maximumrobfragtitle[4]={"SCTROBFragmentmaxVsLbsBarrel","SCTROBFragmentmaxVsLbsEndcapA","SCTROBFragmentmaxVsLbsEndcapC","SCTROBFragmentmaxVsLbs"};
         TString maximumabcdtitle[4]={"SCTABCDerrsmaxVsLbsBarrel","SCTABCDerrsmaxVsLbsEndcapA","SCTABCDerrsmaxVsLbsEndcapC","SCTABCDerrsmaxVsLbs"};
@@ -1357,339 +1467,405 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
         TString maximumtruncrodtitle[4]={"SCTTruncatedRODmaxVsLbsBarrel","SCTTruncatedRODmaxVsLbsEndcapA","SCTTruncatedRODmaxVsLbsEndcapC","SCTTruncatedRODmaxVsLbs"};
 	TString maximumbsparsetitle[4]={"SCTBSParseerrsmaxVsLbsBarrel","SCTBSParseerrsmaxVsLbsEndcapA","SCTBSParseerrsmaxVsLbsEndcapC","SCTBSParseerrsmaxVsLbs"};
 	TString maximummissinglinktitle[4]={"SCTMissingLinkmaxVsLbsBarrel","SCTMissingLinkmaxVsLbsEndcapA","SCTMissingLinkmaxVsLbsEndcapC","SCTMissingLinkmaxVsLbs"};
-
+	*/
         TString numerrors[4]={"SCTNumberOfErrorsBarrel","SCTNumberOfErrorsEndcapA","SCTNumberOfErrorsEndcapC","SCTNumberOfErrors"};
+        TString numbaderrors[4]={"SCTNumberOfBadErrorsBarrel","SCTNumberOfBadErrorsEndcapA","SCTNumberOfBadErrorsEndcapC","SCTNumberOfBadErrors"};
         TString moderrors[4]={"SCTModulesWithErrorsBarrel","SCTModulesWithErrorsEndcapA","SCTModulesWithErrorsEndcapC","SCTModulesWithErrors"};
+        TString modbaderrors[4]={"SCTModulesWithBadErrorsBarrel","SCTModulesWithBadErrorsEndcapA","SCTModulesWithBadErrorsEndcapC","SCTModulesWithBadErrors"};
 	TString lyrerrors[9]={"lyr0","lyr1","lyr2","lyr3","lyr4","lyr5","lyr6","lyr7","lyr8"};
-        TString maxnumerrors[4]={"SCTmaxNumberOfErrorsBarrel","SCTmaxNumberOfErrorsEndcapA","SCTmaxNumberOfErrorsEndcapC","SCTmaxNumberOfErrors"};
-        TString maxmoderrors[4]={"SCTmaxModulesWithErrorsBarrel","SCTmaxModulesWithErrorsEndcapA","SCTmaxModulesWithErrorsEndcapC","SCTmaxModulesWithErrors"};
+        //TString maxnumerrors[4]={"SCTmaxNumberOfErrorsBarrel","SCTmaxNumberOfErrorsEndcapA","SCTmaxNumberOfErrorsEndcapC","SCTmaxNumberOfErrors"};
+        //TString maxnumbaderrors[4]={"SCTmaxNumberOfBadErrorsBarrel","SCTmaxNumberOfBadErrorsEndcapA","SCTmaxNumberOfBadErrorsEndcapC","SCTmaxNumberOfBadErrors"};
+        //TString maxmoderrors[4]={"SCTmaxModulesWithErrorsBarrel","SCTmaxModulesWithErrorsEndcapA","SCTmaxModulesWithErrorsEndcapC","SCTmaxModulesWithErrors"};
+        //TString maxmodbaderrors[4]={"SCTmaxModulesWithBadErrorsBarrel","SCTmaxModulesWithBadErrorsEndcapA","SCTmaxModulesWithBadErrorsEndcapC","SCTmaxModulesWithBadErrors"};
+        TString maxmodbaderrors[4]={"SCTmaxModulesWithBadErrorsBarrel","SCTmaxModulesWithBadErrorsEndcapA","SCTmaxModulesWithBadErrorsEndcapC","SCTmaxModulesWithBadErrors"};
 
         for(int reg=0; reg<4; reg++){
-          m_Conf[reg] = new TProfile(conftitle[reg],conflabel[reg],Confbins,-0.5,Confbins-0.5);//30.11.2014
+          m_Conf[reg] = TProfile_LW::create(conftitle[reg],conflabel[reg],Confbins,-0.5,Confbins-0.5);//30.11.2014
 	  for (int bin = 0; bin<Confbins; bin++) m_Conf[reg]->GetXaxis()->SetBinLabel(bin+1,m_SummaryBinNames[bin].c_str());
-          m_ConfRN[reg] = new TProfile(conftitleRN[reg],conflabel[reg],Confbins,-0.5,Confbins-0.5);//30.11.2014
+          m_ConfRN[reg] = TProfile_LW::create(conftitleRN[reg],conflabel[reg],Confbins,-0.5,Confbins-0.5);//30.11.2014
 	  for (int bin = 0; bin<Confbins; bin++) m_ConfRN[reg]->GetXaxis()->SetBinLabel(bin+1,m_SummaryBinNames[bin].c_str());
           const int conf_online_bins = 4;
           if(m_environment==AthenaMonManager::online or testOffline){
-            m_ConfOnline[reg]=new TH1F(confonlinetitle[reg],conflabel[reg]+" Online",conf_online_bins,-0.5,conf_online_bins-0.5);//30.11.2014 
+            m_ConfOnline[reg]=TProfile_LW::create(confonlinetitle[reg],conflabel[reg]+" Online",conf_online_bins,-0.5,conf_online_bins-0.5);//30.11.2014 
             for (int bin = 0; bin<conf_online_bins; bin++) m_ConfOnline[reg]->GetXaxis()->SetBinLabel(bin+1,m_ConfigurationOnlineBinNames[bin].c_str());
           }
-          m_MaskedLinksVsLB[reg] = new TProfile(maskedlinktitle[reg],"Ave. masked link errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_MaskedLinksVsLB[reg] = TProfile_LW::create(maskedlinktitle[reg],"Ave. masked link errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaskedLinksVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
           m_MaskedLinksVsLB[reg]->GetYaxis()->SetTitle("Num of masked link errors"); 
-          m_ROBFragmentVsLB[reg] = new TProfile(robfragtitle[reg],"Ave. ROB fragment errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_ROBFragmentVsLB[reg] = TProfile_LW::create(robfragtitle[reg],"Ave. ROB fragment errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_ROBFragmentVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_ROBFragmentVsLB[reg]->GetYaxis()->SetTitle("Num of ROB fragment errors");
-	  m_ABCDVsLB[reg] = new TProfile(abcdtitle[reg],"Ave. ABCD errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+	  m_ABCDVsLB[reg] = TProfile_LW::create(abcdtitle[reg],"Ave. ABCD errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_ABCDVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_ABCDVsLB[reg]->GetYaxis()->SetTitle("Num of ABCD errors");
-          m_RawErrsVsLB[reg] = new TProfile(rawerrstitle[reg],"Ave. Raw errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_RawErrsVsLB[reg] = TProfile_LW::create(rawerrstitle[reg],"Ave. Raw errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_RawErrsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_RawErrsVsLB[reg]->GetYaxis()->SetTitle("Num of raw errors");
-          m_TimeOutVsLB[reg] = new TProfile(timeouttitle[reg],"Ave. Time Out errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_TimeOutVsLB[reg] = TProfile_LW::create(timeouttitle[reg],"Ave. Time Out errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_TimeOutVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_TimeOutVsLB[reg]->GetYaxis()->SetTitle("Num of time out errors");
-          m_LVL1IDVsLB[reg] = new TProfile(lvl1idtitle[reg],"Ave. LVL1ID errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_LVL1IDVsLB[reg] = TProfile_LW::create(lvl1idtitle[reg],"Ave. LVL1ID errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_LVL1IDVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_LVL1IDVsLB[reg]->GetYaxis()->SetTitle("Num of LVL1ID errors");
-          m_BCIDVsLB[reg] = new TProfile(bcidtitle[reg],"Ave. BCID errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_BCIDVsLB[reg] = TProfile_LW::create(bcidtitle[reg],"Ave. BCID errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_BCIDVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_BCIDVsLB[reg]->GetYaxis()->SetTitle("Num of BCID errors");
-          m_PreambleVsLB[reg] = new TProfile(preambletitle[reg],"Ave. Preamble errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_PreambleVsLB[reg] = TProfile_LW::create(preambletitle[reg],"Ave. Preamble errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_PreambleVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_PreambleVsLB[reg]->GetYaxis()->SetTitle("Num of preamble errors");
-          m_FormatterVsLB[reg] = new TProfile(formattertitle[reg],"Ave. Formatter errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_FormatterVsLB[reg] = TProfile_LW::create(formattertitle[reg],"Ave. Formatter errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_FormatterVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_FormatterVsLB[reg]->GetYaxis()->SetTitle("Num of formatter errors");
-          m_RODClockVsLB[reg] = new TProfile(rodclocktitle[reg],"Ave. ROD Clock errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_RODClockVsLB[reg] = TProfile_LW::create(rodclocktitle[reg],"Ave. ROD Clock errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_RODClockVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_RODClockVsLB[reg]->GetYaxis()->SetTitle("Num of ROD clock errors");
-          m_TruncRODVsLB[reg] = new TProfile(truncrodtitle[reg],"Ave. Truncated RODs per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_TruncRODVsLB[reg] = TProfile_LW::create(truncrodtitle[reg],"Ave. Truncated RODs per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_TruncRODVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_TruncRODVsLB[reg]->GetYaxis()->SetTitle("Num of truncated RODs");
-          m_BSParseVsLB[reg] = new TProfile(bsparsetitle[reg],"Ave. BS Parse errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_BSParseVsLB[reg] = TProfile_LW::create(bsparsetitle[reg],"Ave. BS Parse errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_BSParseVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_BSParseVsLB[reg]->GetYaxis()->SetTitle("Num of BS parse errors");
-          m_MissingLinkHeaderVsLB[reg] = new TProfile(misslinktitle[reg],"Ave. Missing Link Header errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_MissingLinkHeaderVsLB[reg] = TProfile_LW::create(misslinktitle[reg],"Ave. Missing Link Header errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_BSParseVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_BSParseVsLB[reg]->GetYaxis()->SetTitle("Num of Missing Link Header errors");
-
-          m_MaxMaskedLinksVsLB[reg] = new TH1F(maximummaskedlinktitle[reg],"Max num of masked link errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+	  /*
+          m_MaxMaskedLinksVsLB[reg] = TH1F_LW::create(maximummaskedlinktitle[reg],"Max num of masked link errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxMaskedLinksVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
           m_MaxMaskedLinksVsLB[reg]->GetYaxis()->SetTitle("Num of masked link errors"); 
-          // m_2d_MaxMaskedLinksVsLB[reg] = new TH2I(maximummaskedlinktitle[reg]+"_2d","Max num of masked link errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
-          m_MaxROBFragmentVsLB[reg] = new TH1F(maximumrobfragtitle[reg],"Max num of ROB fragment errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          if(reg==3)m_2d_MaxMaskedLinksVsLB[reg] = TH2I_LW::create(maximummaskedlinktitle[reg]+"_2d","Max num of masked link errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
+          m_MaxROBFragmentVsLB[reg] = TH1F_LW::create(maximumrobfragtitle[reg],"Max num of ROB fragment errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxROBFragmentVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_MaxROBFragmentVsLB[reg]->GetYaxis()->SetTitle("Num of ROB fragment errors");
-          // m_2d_MaxROBFragmentVsLB[reg] = new TH2I(maximumrobfragtitle[reg]+"_2d","Max num of ROB fragment errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
+	  if(reg==3)m_2d_MaxROBFragmentVsLB[reg] = TH2I_LW::create(maximumrobfragtitle[reg]+"_2d","Max num of ROB fragment errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
 
-          m_MaxABCDVsLB[reg] = new TH1F(maximumabcdtitle[reg],"Max num of ABCD errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_MaxABCDVsLB[reg] = TH1F_LW::create(maximumabcdtitle[reg],"Max num of ABCD errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxABCDVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_MaxABCDVsLB[reg]->GetYaxis()->SetTitle("Num of ABCD errors");
           // m_2d_MaxABCDVsLB[reg] = new TH2I(maximumabcdtitle[reg]+"_2d","Max num of ABCD errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
-          m_MaxRawErrsVsLB[reg] = new TH1F(maximumrawerrstitle[reg],"Max num of Raw errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_MaxRawErrsVsLB[reg] = TH1F_LW::create(maximumrawerrstitle[reg],"Max num of Raw errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxRawErrsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_MaxRawErrsVsLB[reg]->GetYaxis()->SetTitle("Num of raw errors");
           // m_2d_MaxRawErrsVsLB[reg] = new TH2I(maximumrawerrstitle[reg]+"_2d","Max num of Raw errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
-          m_MaxTimeOutVsLB[reg] = new TH1F(maximumtimeouttitle[reg],"Max num of Time Out errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_MaxTimeOutVsLB[reg] = TH1F_LW::create(maximumtimeouttitle[reg],"Max num of Time Out errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxTimeOutVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_MaxTimeOutVsLB[reg]->GetYaxis()->SetTitle("Num of time out errors");
-          // m_2d_MaxTimeOutVsLB[reg] = new TH2I(maximumtimeouttitle[reg]+"_2d","Max num of Time Out errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
-          m_MaxLVL1IDVsLB[reg] = new TH1F(maximumlvl1idtitle[reg],"Max num of LVL1ID errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          if(reg==3)m_2d_MaxTimeOutVsLB[reg] = TH2I_LW::create(maximumtimeouttitle[reg]+"_2d","Max num of Time Out errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
+          m_MaxLVL1IDVsLB[reg] = TH1F_LW::create(maximumlvl1idtitle[reg],"Max num of LVL1ID errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxLVL1IDVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_MaxLVL1IDVsLB[reg]->GetYaxis()->SetTitle("Num of LVL1ID errors");
-          // m_2d_MaxLVL1IDVsLB[reg] = new TH2I(maximumlvl1idtitle[reg]+"_2d","Max num of LVL1ID errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
-          m_MaxBCIDVsLB[reg] = new TH1F(maximumbcidtitle[reg],"Max num of BCID errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          if(reg==3)m_2d_MaxLVL1IDVsLB[reg] = TH2I_LW::create(maximumlvl1idtitle[reg]+"_2d","Max num of LVL1ID errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
+          m_MaxBCIDVsLB[reg] = TH1F_LW::create(maximumbcidtitle[reg],"Max num of BCID errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxBCIDVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_MaxBCIDVsLB[reg]->GetYaxis()->SetTitle("Num of BCID errors");
-          // m_2d_MaxBCIDVsLB[reg] = new TH2I(maximumbcidtitle[reg]+"_2d","Max num of BCID errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
-          m_MaxPreambleVsLB[reg] = new TH1F(maximumpreambletitle[reg],"Max num of Preamble errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          if(reg==3)m_2d_MaxBCIDVsLB[reg] = TH2I_LW::create(maximumbcidtitle[reg]+"_2d","Max num of BCID errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
+          m_MaxPreambleVsLB[reg] = TH1F_LW::create(maximumpreambletitle[reg],"Max num of Preamble errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxPreambleVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_MaxPreambleVsLB[reg]->GetYaxis()->SetTitle("Num of preamble errors");
           // m_2d_MaxPreambleVsLB[reg] = new TH2I(maximumpreambletitle[reg]+"_2d","Max num of Preamble errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
-          m_MaxFormatterVsLB[reg] = new TH1F(maximumformattertitle[reg],"Max num of Formatter errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_MaxFormatterVsLB[reg] = TH1F_LW::create(maximumformattertitle[reg],"Max num of Formatter errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxFormatterVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_MaxFormatterVsLB[reg]->GetYaxis()->SetTitle("Num of formatter errors");
           // m_2d_MaxFormatterVsLB[reg] = new TH2I(maximumformattertitle[reg]+"_2d","Max num of Formatter errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
-          m_MaxRODClockVsLB[reg] = new TH1F(maximumrodclocktitle[reg],"Max num of ROD Clock errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_MaxRODClockVsLB[reg] = TH1F_LW::create(maximumrodclocktitle[reg],"Max num of ROD Clock errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxRODClockVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_MaxRODClockVsLB[reg]->GetYaxis()->SetTitle("Num of ROD clock errors");
           // m_2d_MaxRODClockVsLB[reg] = new TH2I(maximumrodclocktitle[reg]+"_2d","Max num of ROD Clock errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
-          m_MaxTruncRODVsLB[reg] = new TH1F(maximumtruncrodtitle[reg],"Max num of Truncated RODs per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_MaxTruncRODVsLB[reg] = TH1F_LW::create(maximumtruncrodtitle[reg],"Max num of Truncated RODs per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxTruncRODVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_MaxTruncRODVsLB[reg]->GetYaxis()->SetTitle("Num of truncated RODs");
           // m_2d_MaxTruncRODVsLB[reg] = new TH2I(maximumtruncrodtitle[reg]+"_2d","Max num of Truncated RODs per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
-          m_MaxBSParseVsLB[reg] = new TH1F(maximumbsparsetitle[reg],"Max num of BS Parse errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_MaxBSParseVsLB[reg] = TH1F_LW::create(maximumbsparsetitle[reg],"Max num of BS Parse errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxBSParseVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_MaxBSParseVsLB[reg]->GetYaxis()->SetTitle("Num of BS parse errors");
           // m_2d_MaxBSParseVsLB[reg] = new TH2I(maximumbsparsetitle[reg]+"_2d","Max num of BS Parse errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
-          m_MaxMissingLinkHeaderVsLB[reg] = new TH1F(maximummissinglinktitle[reg],"Max num of Missing Link Header errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_MaxMissingLinkHeaderVsLB[reg] = TH1F_LW::create(maximummissinglinktitle[reg],"Max num of Missing Link Header errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxMissingLinkHeaderVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_MaxMissingLinkHeaderVsLB[reg]->GetYaxis()->SetTitle("Num of Missing Link Header errors");
-          // m_2d_MaxMissingLinkHeaderVsLB[reg] = new TH2I(maximummissinglinktitle[reg]+"_2d","Max num of Missing Link Header errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
-
-          m_NumberOfErrorsVsLB[reg] = new TProfile(numerrors[reg],"Ave. errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          if(reg==3)m_2d_MaxMissingLinkHeaderVsLB[reg] = TH2I_LW::create(maximummissinglinktitle[reg]+"_2d","Max num of Missing Link Header errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
+	  */
+          m_NumberOfErrorsVsLB[reg] = TProfile_LW::create(numerrors[reg],"Ave. errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_NumberOfErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
-          m_ModulesWithErrorsVsLB[reg] = new TProfile(moderrors[reg],"Ave. num of links with errors per event in "+region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_NumberOfBadErrorsVsLB[reg] = TProfile_LW::create(numbaderrors[reg],"Ave. bad errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_NumberOfBadErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
+          m_ModulesWithErrorsVsLB[reg] = TProfile_LW::create(moderrors[reg],"Ave. num of links with errors per event in "+region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_ModulesWithErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
-
-          m_MaxNumberOfErrorsVsLB[reg] = new TH1F(maxnumerrors[reg],"Max num of errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
-          m_MaxNumberOfErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
+	  m_ModulesWithBadErrorsVsLB[reg] = TProfile_LW::create(modbaderrors[reg],"Ave. num of links with bad errors per event in "+region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_ModulesWithBadErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
+	  
+          //m_MaxNumberOfErrorsVsLB[reg] = TH1F_LW::create(maxnumerrors[reg],"Max num of errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          //m_MaxNumberOfErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
           // m_2d_MaxNumberOfErrorsVsLB[reg] = new TH2I(maxnumerrors[reg]+"_2d","Max num of errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176*5,0,8176*5);
-          m_MaxModulesWithErrorsVsLB[reg] = new TH1F(maxmoderrors[reg],"Max num of links with errors per event in "+region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
-          m_MaxModulesWithErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
-          // m_2d_MaxModulesWithErrorsVsLB[reg] = new TH2I(maxmoderrors[reg]+"_2d","Max num of links with errors per event in "+region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176);
- 
+	  //m_MaxNumberOfBadErrorsVsLB[reg] = TH1F_LW::create(maxnumbaderrors[reg],"Max num of bad errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          //m_MaxNumberOfBadErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
+          
+	  //m_MaxModulesWithErrorsVsLB[reg] = TH1F_LW::create(maxmoderrors[reg],"Max num of links with errors per event in "+region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          //m_MaxModulesWithErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
+	  //if(reg==3)m_2d_MaxModulesWithErrorsVsLB[reg] =  TH2I_LW::create(maxmoderrors[reg]+"_2d","Max num of links with errors per event in "+region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176); // filled in all regions 
+	  //m_MaxModulesWithBadErrorsVsLB[reg] = TH1F_LW::create(maxmodbaderrors[reg],"Max num of links with bad errors per event in "+region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          //m_MaxModulesWithBadErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
+	  //if(reg==3)m_2d_MaxModulesWithBadErrorsVsLB[reg] = TH2I_LW::create(maxmodbaderrors[reg]+"_2d","Max num of links with bad errors per event in "+region[reg],n_lumiBins,0.5,n_lumiBins+0.5,8176,0,8176); // filled in all regions 
+	  
         }
 	for(int lyr=0; lyr<4; lyr++){
-	  m_LinksWithErrorsVsLBBarrel[lyr] = new TProfile("SCTLinksWithErrorsBarrel"+lyrerrors[lyr],"Ave. num of links with errors per event in Barrel "+layer[lyr],n_lumiBins,0.5,n_lumiBins+0.5);
+	  m_LinksWithErrorsVsLBBarrel[lyr] = TProfile_LW::create("SCTLinksWithErrorsBarrel"+lyrerrors[lyr],"Ave. num of links with errors per event in Barrel "+layer[lyr],n_lumiBins,0.5,n_lumiBins+0.5);
 	  m_LinksWithErrorsVsLBBarrel[lyr]->GetXaxis()->SetTitle("LumiBlock"); 
+	  m_LinksWithBadErrorsVsLBBarrel[lyr] = TProfile_LW::create("SCTLinksWithBadErrorsBarrel"+lyrerrors[lyr],"Ave. num of links with bad errors per event in Barrel "+layer[lyr],n_lumiBins,0.5,n_lumiBins+0.5);
+	  m_LinksWithBadErrorsVsLBBarrel[lyr]->GetXaxis()->SetTitle("LumiBlock"); 
 	}
 	for(int lyr=0; lyr<9; lyr++){
-	  m_LinksWithErrorsVsLBEndcapA[lyr] = new TProfile("SCTLinksWithErrorsEndcapA"+lyrerrors[lyr],"Ave. num of links with errors per event in EndcapA"+layer[lyr],n_lumiBins,0.5,n_lumiBins+0.5);
+	  m_LinksWithErrorsVsLBEndcapA[lyr] = TProfile_LW::create("SCTLinksWithErrorsEndcapA"+lyrerrors[lyr],"Ave. num of links with errors per event in EndcapA"+layer[lyr],n_lumiBins,0.5,n_lumiBins+0.5);
 	  m_LinksWithErrorsVsLBEndcapA[lyr]->GetXaxis()->SetTitle("LumiBlock"); 
+	  m_LinksWithBadErrorsVsLBEndcapA[lyr] = TProfile_LW::create("SCTLinksWithBadErrorsEndcapA"+lyrerrors[lyr],"Ave. num of links with bad errors per event in EndcapA"+layer[lyr],n_lumiBins,0.5,n_lumiBins+0.5);
+	  m_LinksWithBadErrorsVsLBEndcapA[lyr]->GetXaxis()->SetTitle("LumiBlock"); 
 	}
 	for(int lyr=0; lyr<9; lyr++){
-	  m_LinksWithErrorsVsLBEndcapC[lyr] = new TProfile("SCTLinksWithErrorsEndcapC"+lyrerrors[lyr],"Ave. num of links with errors per event in EndcapC "+layer[lyr],n_lumiBins,0.5,n_lumiBins+0.5);
+	  m_LinksWithErrorsVsLBEndcapC[lyr] = TProfile_LW::create("SCTLinksWithErrorsEndcapC"+lyrerrors[lyr],"Ave. num of links with errors per event in EndcapC "+layer[lyr],n_lumiBins,0.5,n_lumiBins+0.5);
 	  m_LinksWithErrorsVsLBEndcapC[lyr]->GetXaxis()->SetTitle("LumiBlock"); 
+	  m_LinksWithBadErrorsVsLBEndcapC[lyr] = TProfile_LW::create("SCTLinksWithBadErrorsEndcapC"+lyrerrors[lyr],"Ave. num of links with bad errors per event in EndcapC "+layer[lyr],n_lumiBins,0.5,n_lumiBins+0.5);
+	  m_LinksWithBadErrorsVsLBEndcapC[lyr]->GetXaxis()->SetTitle("LumiBlock"); 
 	}
 
+	m_NumberOfSCTFlagErrorsVsLB = TH1F_LW::create("NumberOfSCTFlagErrorsVsLB","Num of SCT Flag errors per event ",n_lumiBins,0.5,n_lumiBins+0.5);
+	m_NumberOfSCTFlagErrorsVsLB->GetXaxis()->SetTitle("LumiBlock"); 
+	
         const int conf_noise_bins = 4;
         const int conf_eff_bins = 4;
 
         if(m_environment==AthenaMonManager::online or testOffline){
           m_ConfEffOnline = new TProfile(confefftitle,"Number of Inefficient Modules Online",conf_eff_bins,-0.5,conf_eff_bins-0.5);
           for (int bin = 0; bin<conf_eff_bins; bin++) m_ConfEffOnline->GetXaxis()->SetBinLabel(bin+1,m_ConfigurationEffBinNames[bin].c_str());
-          m_ConfNoiseOnline = new TProfile(confnoisetitle,"Number of Noisy Modules Online",conf_noise_bins,-0.5,conf_noise_bins-0.5);
+          m_ConfNoiseOnline = TProfile_LW::create(confnoisetitle,"Number of Noisy Modules Online",conf_noise_bins,-0.5,conf_noise_bins-0.5);
           for (int bin = 0; bin<conf_noise_bins; bin++) m_ConfNoiseOnline->GetXaxis()->SetBinLabel(bin+1,m_ConfigurationNoiseBinNames[bin].c_str());
-          m_ConfNoiseOnlineRecent = new TProfile(confnoisetitle_recent,"Number of Noisy Modules Online Recent",conf_noise_bins,-0.5,conf_noise_bins-0.5); 
+          m_ConfNoiseOnlineRecent = TProfile_LW::create(confnoisetitle_recent,"Number of Noisy Modules Online Recent",conf_noise_bins,-0.5,conf_noise_bins-0.5); 
 
           for (int bin = 0; bin<conf_noise_bins; bin++) m_ConfNoiseOnlineRecent->GetXaxis()->SetBinLabel(bin+1,m_ConfigurationNoiseBinNames[bin].c_str());
         }
         for (int bin = 0; bin<ConfbinsDetailed; bin++) m_DetailedConfiguration->GetXaxis()->SetBinLabel(bin+1,m_ConfigurationBinNames[bin].c_str());
-      if ( ConfHist.regHist(m_Conf[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
-      if ( ConfMaps.regHist(m_Conf[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
-      if ( ConfHistECA.regHist(m_Conf[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
-      if ( ConfHistECC.regHist(m_Conf[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
-      if ( ConfHist.regHist(m_ConfRN[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
-      if ( ConfMaps.regHist(m_ConfRN[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
-      if ( ConfHistECA.regHist(m_ConfRN[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
-      if ( ConfHistECC.regHist(m_ConfRN[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
-      if(m_environment==AthenaMonManager::online or testOffline){
-        if ( ConfHist.regHist(m_ConfOnline[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConfOnline" << endreq;
-        if ( ConfMaps.regHist(m_ConfOnline[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConfOnline" << endreq;
-        if ( ConfHistECA.regHist(m_ConfOnline[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConfOnline" << endreq;
-        if ( ConfHistECC.regHist(m_ConfOnline[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConfOnline" << endreq;
-      }
-      if ( ConfHist.regHist(m_MaskedLinksVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
-      if ( ConfMaps.regHist(m_MaskedLinksVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
-      if ( ConfHistECA.regHist(m_MaskedLinksVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
-      if ( ConfHistECC.regHist(m_MaskedLinksVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
-      if ( ConfHist.regHist(m_ROBFragmentVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
-      if ( ConfMaps.regHist(m_ROBFragmentVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
-      if ( ConfHistECA.regHist(m_ROBFragmentVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
-      if ( ConfHistECC.regHist(m_ROBFragmentVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
-      if ( ConfHist.regHist(m_ABCDVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
-      if ( ConfMaps.regHist(m_ABCDVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
-      if ( ConfHistECA.regHist(m_ABCDVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
-      if ( ConfHistECC.regHist(m_ABCDVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
-      if ( ConfHist.regHist(m_RawErrsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
-      if ( ConfMaps.regHist(m_RawErrsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
-      if ( ConfHistECA.regHist(m_RawErrsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
-      if ( ConfHistECC.regHist(m_RawErrsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
-      if ( ConfHist.regHist(m_TimeOutVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
-      if ( ConfMaps.regHist(m_TimeOutVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
-      if ( ConfHistECA.regHist(m_TimeOutVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
-      if ( ConfHistECC.regHist(m_TimeOutVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
-      if ( ConfHist.regHist(m_LVL1IDVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
-      if ( ConfMaps.regHist(m_LVL1IDVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
-      if ( ConfHistECA.regHist(m_LVL1IDVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
-      if ( ConfHistECC.regHist(m_LVL1IDVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
-      if ( ConfHist.regHist(m_BCIDVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
-      if ( ConfMaps.regHist(m_BCIDVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
-      if ( ConfHistECA.regHist(m_BCIDVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
-      if ( ConfHistECC.regHist(m_BCIDVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
-      if ( ConfHist.regHist(m_PreambleVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
-      if ( ConfMaps.regHist(m_PreambleVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
-      if ( ConfHistECA.regHist(m_PreambleVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
-      if ( ConfHistECC.regHist(m_PreambleVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
-      if ( ConfHist.regHist(m_FormatterVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
-      if ( ConfMaps.regHist(m_FormatterVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
-      if ( ConfHistECA.regHist(m_FormatterVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
-      if ( ConfHistECC.regHist(m_FormatterVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
-      if ( ConfHist.regHist(m_RODClockVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
-      if ( ConfMaps.regHist(m_RODClockVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
-      if ( ConfHistECA.regHist(m_RODClockVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
-      if ( ConfHistECC.regHist(m_RODClockVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
-      if ( ConfHist.regHist(m_TruncRODVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
-      if ( ConfMaps.regHist(m_TruncRODVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
-      if ( ConfHistECA.regHist(m_TruncRODVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
-      if ( ConfHistECC.regHist(m_TruncRODVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
-      if ( ConfHist.regHist(m_BSParseVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
-      if ( ConfMaps.regHist(m_BSParseVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
-      if ( ConfHistECA.regHist(m_BSParseVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
-      if ( ConfHistECC.regHist(m_BSParseVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
-      if ( ConfHist.regHist(m_MissingLinkHeaderVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
-      if ( ConfMaps.regHist(m_MissingLinkHeaderVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
-      if ( ConfHistECA.regHist(m_MissingLinkHeaderVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
-      if ( ConfHistECC.regHist(m_MissingLinkHeaderVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
-
-      if ( ConfHist.regHist(m_MaxMaskedLinksVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
-      if ( ConfMaps.regHist(m_MaxMaskedLinksVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
-      if ( ConfHistECA.regHist(m_MaxMaskedLinksVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
-      if ( ConfHistECC.regHist(m_MaxMaskedLinksVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
-      if ( ConfHist.regHist(m_MaxROBFragmentVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
-      if ( ConfMaps.regHist(m_MaxROBFragmentVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
-      if ( ConfHistECA.regHist(m_MaxROBFragmentVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
-      if ( ConfHistECC.regHist(m_MaxROBFragmentVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
-      if ( ConfHist.regHist(m_MaxABCDVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
-      if ( ConfMaps.regHist(m_MaxABCDVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
-      if ( ConfHistECA.regHist(m_MaxABCDVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
-      if ( ConfHistECC.regHist(m_MaxABCDVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
-      if ( ConfHist.regHist(m_MaxRawErrsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
-      if ( ConfMaps.regHist(m_MaxRawErrsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
-      if ( ConfHistECA.regHist(m_MaxRawErrsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
-      if ( ConfHistECC.regHist(m_MaxRawErrsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
-      if ( ConfHist.regHist(m_MaxTimeOutVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
-      if ( ConfMaps.regHist(m_MaxTimeOutVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
-      if ( ConfHistECA.regHist(m_MaxTimeOutVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
-      if ( ConfHistECC.regHist(m_MaxTimeOutVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
-      if ( ConfHist.regHist(m_MaxLVL1IDVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
-      if ( ConfMaps.regHist(m_MaxLVL1IDVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
-      if ( ConfHistECA.regHist(m_MaxLVL1IDVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
-      if ( ConfHistECC.regHist(m_MaxLVL1IDVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
-      if ( ConfHist.regHist(m_MaxBCIDVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
-      if ( ConfMaps.regHist(m_MaxBCIDVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
-      if ( ConfHistECA.regHist(m_MaxBCIDVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
-      if ( ConfHistECC.regHist(m_MaxBCIDVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
-      if ( ConfHist.regHist(m_MaxPreambleVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
-      if ( ConfMaps.regHist(m_MaxPreambleVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
-      if ( ConfHistECA.regHist(m_MaxPreambleVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
-      if ( ConfHistECC.regHist(m_MaxPreambleVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
-      if ( ConfHist.regHist(m_MaxFormatterVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
-      if ( ConfMaps.regHist(m_MaxFormatterVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
-      if ( ConfHistECA.regHist(m_MaxFormatterVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
-      if ( ConfHistECC.regHist(m_MaxFormatterVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
-      if ( ConfHist.regHist(m_MaxRODClockVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
-      if ( ConfMaps.regHist(m_MaxRODClockVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
-      if ( ConfHistECA.regHist(m_MaxRODClockVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
-      if ( ConfHistECC.regHist(m_MaxRODClockVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
-      if ( ConfHist.regHist(m_MaxTruncRODVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
-      if ( ConfMaps.regHist(m_MaxTruncRODVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
-      if ( ConfHistECA.regHist(m_MaxTruncRODVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
-      if ( ConfHistECC.regHist(m_MaxTruncRODVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
-      if ( ConfHist.regHist(m_MaxBSParseVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
-      if ( ConfMaps.regHist(m_MaxBSParseVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
-      if ( ConfHistECA.regHist(m_MaxBSParseVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
-      if ( ConfHistECC.regHist(m_MaxBSParseVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
-      if ( ConfHist.regHist(m_MaxMissingLinkHeaderVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
-      if ( ConfMaps.regHist(m_MaxMissingLinkHeaderVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
-      if ( ConfHistECA.regHist(m_MaxMissingLinkHeaderVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
-      if ( ConfHistECC.regHist(m_MaxMissingLinkHeaderVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHEaderConf" << endreq;
-
-      for(int reg=0;reg<4;reg++){
-	// if ( ConfHist2D.regHist(m_2d_MaxMaskedLinksVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
-	// if ( ConfHist2D.regHist(m_2d_MaxROBFragmentVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
-	// if ( ConfHist2D.regHist(m_2d_MaxABCDVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
-	// if ( ConfHist2D.regHist(m_2d_MaxRawErrsVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
-	// if ( ConfHist2D.regHist(m_2d_MaxTimeOutVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
-	// if ( ConfHist2D.regHist(m_2d_MaxLVL1IDVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
-	// if ( ConfHist2D.regHist(m_2d_MaxBCIDVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
-	// if ( ConfHist2D.regHist(m_2d_MaxPreambleVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
-	// if ( ConfHist2D.regHist(m_2d_MaxFormatterVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
-	// if ( ConfHist2D.regHist(m_2d_MaxRODClockVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
-	// if ( ConfHist2D.regHist(m_2d_MaxTruncRODVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
-	// if ( ConfHist2D.regHist(m_2d_MaxBSParseVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
-	// if ( ConfHist2D.regHist(m_2d_MaxMissingLinkHeaderVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
-	// if ( ConfHist2D.regHist(m_2d_MaxNumberOfErrorsVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
-	// if ( ConfHist2D.regHist(m_2d_MaxModulesWithErrorsVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      }
-      if ( ConfHist.regHist(m_NumberOfErrorsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
-      if ( ConfMaps.regHist(m_NumberOfErrorsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
-      if ( ConfHistECA.regHist(m_NumberOfErrorsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
-      if ( ConfHistECC.regHist(m_NumberOfErrorsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
-      if ( ConfHist.regHist(m_ModulesWithErrorsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfMaps.regHist(m_ModulesWithErrorsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECA.regHist(m_ModulesWithErrorsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECC.regHist(m_ModulesWithErrorsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfMaps.regHist(m_LinksWithErrorsVsLBBarrel[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfMaps.regHist(m_LinksWithErrorsVsLBBarrel[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfMaps.regHist(m_LinksWithErrorsVsLBBarrel[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfMaps.regHist(m_LinksWithErrorsVsLBBarrel[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[4]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[5]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[6]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[7]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[8]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[4]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[5]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[6]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[7]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[8]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-
-      if ( ConfHist.regHist(m_MaxNumberOfErrorsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
-      if ( ConfMaps.regHist(m_MaxNumberOfErrorsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
-      if ( ConfHistECA.regHist(m_MaxNumberOfErrorsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
-      if ( ConfHistECC.regHist(m_MaxNumberOfErrorsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
-      if ( ConfHist.regHist(m_MaxModulesWithErrorsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfMaps.regHist(m_MaxModulesWithErrorsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECA.regHist(m_MaxModulesWithErrorsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-      if ( ConfHistECC.regHist(m_MaxModulesWithErrorsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
-
-      if(m_environment==AthenaMonManager::online or testOffline){
-        if ( ConfHist.regHist(m_ConfEffOnline).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConfEffOnline" << endreq;
-        if ( ConfHist.regHist(m_ConfNoiseOnline).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConfNoiseOnline" << endreq;
-        if ( ConfHist.regHist(m_ConfNoiseOnlineRecent).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConfNoiseOnlineRecent" << endreq;
-      }
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Finished registering Conf Histograms :" << m_path << endreq;
+	if ( ConfHist.regHist(m_Conf[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
+	if ( ConfMaps.regHist(m_Conf[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
+	if ( ConfHistECA.regHist(m_Conf[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
+	if ( ConfHistECC.regHist(m_Conf[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
+	if ( ConfHist.regHist(m_ConfRN[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
+	if ( ConfMaps.regHist(m_ConfRN[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
+	if ( ConfHistECA.regHist(m_ConfRN[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
+	if ( ConfHistECC.regHist(m_ConfRN[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
+	if(m_environment==AthenaMonManager::online or testOffline){
+	  if ( ConfHist.regHist(m_ConfOnline[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConfOnline" << endreq;
+	  if ( ConfMaps.regHist(m_ConfOnline[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConfOnline" << endreq;
+	  if ( ConfHistECA.regHist(m_ConfOnline[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConfOnline" << endreq;
+	  if ( ConfHistECC.regHist(m_ConfOnline[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConfOnline" << endreq;
+	}
+	if ( ConfHist.regHist(m_MaskedLinksVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
+	if ( ConfMaps.regHist(m_MaskedLinksVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
+	if ( ConfHistECA.regHist(m_MaskedLinksVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
+	if ( ConfHistECC.regHist(m_MaskedLinksVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
+	if ( ConfHist.regHist(m_ROBFragmentVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
+	if ( ConfMaps.regHist(m_ROBFragmentVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
+	if ( ConfHistECA.regHist(m_ROBFragmentVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
+	if ( ConfHistECC.regHist(m_ROBFragmentVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
+	if ( ConfHist.regHist(m_ABCDVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
+	if ( ConfMaps.regHist(m_ABCDVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
+	if ( ConfHistECA.regHist(m_ABCDVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
+	if ( ConfHistECC.regHist(m_ABCDVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
+	if ( ConfHist.regHist(m_RawErrsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
+	if ( ConfMaps.regHist(m_RawErrsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
+	if ( ConfHistECA.regHist(m_RawErrsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
+	if ( ConfHistECC.regHist(m_RawErrsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
+	if ( ConfHist.regHist(m_TimeOutVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
+	if ( ConfMaps.regHist(m_TimeOutVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
+	if ( ConfHistECA.regHist(m_TimeOutVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
+	if ( ConfHistECC.regHist(m_TimeOutVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
+	if ( ConfHist.regHist(m_LVL1IDVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
+	if ( ConfMaps.regHist(m_LVL1IDVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
+	if ( ConfHistECA.regHist(m_LVL1IDVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
+	if ( ConfHistECC.regHist(m_LVL1IDVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
+	if ( ConfHist.regHist(m_BCIDVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
+	if ( ConfMaps.regHist(m_BCIDVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
+	if ( ConfHistECA.regHist(m_BCIDVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
+	if ( ConfHistECC.regHist(m_BCIDVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
+	if ( ConfHist.regHist(m_PreambleVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
+	if ( ConfMaps.regHist(m_PreambleVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
+	if ( ConfHistECA.regHist(m_PreambleVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
+	if ( ConfHistECC.regHist(m_PreambleVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
+	if ( ConfHist.regHist(m_FormatterVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
+	if ( ConfMaps.regHist(m_FormatterVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
+	if ( ConfHistECA.regHist(m_FormatterVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
+	if ( ConfHistECC.regHist(m_FormatterVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
+	if ( ConfHist.regHist(m_RODClockVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
+	if ( ConfMaps.regHist(m_RODClockVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
+	if ( ConfHistECA.regHist(m_RODClockVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
+	if ( ConfHistECC.regHist(m_RODClockVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
+	if ( ConfHist.regHist(m_TruncRODVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
+	if ( ConfMaps.regHist(m_TruncRODVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
+	if ( ConfHistECA.regHist(m_TruncRODVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
+	if ( ConfHistECC.regHist(m_TruncRODVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
+	if ( ConfHist.regHist(m_BSParseVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
+	if ( ConfMaps.regHist(m_BSParseVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
+	if ( ConfHistECA.regHist(m_BSParseVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
+	if ( ConfHistECC.regHist(m_BSParseVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
+	if ( ConfHist.regHist(m_MissingLinkHeaderVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
+	if ( ConfMaps.regHist(m_MissingLinkHeaderVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
+	if ( ConfHistECA.regHist(m_MissingLinkHeaderVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
+	if ( ConfHistECC.regHist(m_MissingLinkHeaderVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
+	/*
+	if ( ConfHist.regHist(m_MaxMaskedLinksVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
+	if ( ConfMaps.regHist(m_MaxMaskedLinksVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
+	if ( ConfHistECA.regHist(m_MaxMaskedLinksVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
+	if ( ConfHistECC.regHist(m_MaxMaskedLinksVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
+	if ( ConfHist.regHist(m_MaxROBFragmentVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
+	if ( ConfMaps.regHist(m_MaxROBFragmentVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
+	if ( ConfHistECA.regHist(m_MaxROBFragmentVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
+	if ( ConfHistECC.regHist(m_MaxROBFragmentVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
+	if ( ConfHist.regHist(m_MaxABCDVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
+	if ( ConfMaps.regHist(m_MaxABCDVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
+	if ( ConfHistECA.regHist(m_MaxABCDVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
+	if ( ConfHistECC.regHist(m_MaxABCDVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
+	if ( ConfHist.regHist(m_MaxRawErrsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
+	if ( ConfMaps.regHist(m_MaxRawErrsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
+	if ( ConfHistECA.regHist(m_MaxRawErrsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
+	if ( ConfHistECC.regHist(m_MaxRawErrsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
+	if ( ConfHist.regHist(m_MaxTimeOutVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
+	if ( ConfMaps.regHist(m_MaxTimeOutVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
+	if ( ConfHistECA.regHist(m_MaxTimeOutVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
+	if ( ConfHistECC.regHist(m_MaxTimeOutVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
+	if ( ConfHist.regHist(m_MaxLVL1IDVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
+	if ( ConfMaps.regHist(m_MaxLVL1IDVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
+	if ( ConfHistECA.regHist(m_MaxLVL1IDVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
+	if ( ConfHistECC.regHist(m_MaxLVL1IDVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
+	if ( ConfHist.regHist(m_MaxBCIDVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
+	if ( ConfMaps.regHist(m_MaxBCIDVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
+	if ( ConfHistECA.regHist(m_MaxBCIDVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
+	if ( ConfHistECC.regHist(m_MaxBCIDVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
+	if ( ConfHist.regHist(m_MaxPreambleVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
+	if ( ConfMaps.regHist(m_MaxPreambleVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
+	if ( ConfHistECA.regHist(m_MaxPreambleVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
+	if ( ConfHistECC.regHist(m_MaxPreambleVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
+	if ( ConfHist.regHist(m_MaxFormatterVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
+	if ( ConfMaps.regHist(m_MaxFormatterVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
+	if ( ConfHistECA.regHist(m_MaxFormatterVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
+	if ( ConfHistECC.regHist(m_MaxFormatterVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
+	if ( ConfHist.regHist(m_MaxRODClockVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
+	if ( ConfMaps.regHist(m_MaxRODClockVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
+	if ( ConfHistECA.regHist(m_MaxRODClockVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
+	if ( ConfHistECC.regHist(m_MaxRODClockVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
+	if ( ConfHist.regHist(m_MaxTruncRODVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
+	if ( ConfMaps.regHist(m_MaxTruncRODVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
+	if ( ConfHistECA.regHist(m_MaxTruncRODVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
+	if ( ConfHistECC.regHist(m_MaxTruncRODVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
+	if ( ConfHist.regHist(m_MaxBSParseVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
+	if ( ConfMaps.regHist(m_MaxBSParseVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
+	if ( ConfHistECA.regHist(m_MaxBSParseVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
+	if ( ConfHistECC.regHist(m_MaxBSParseVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
+	if ( ConfHist.regHist(m_MaxMissingLinkHeaderVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
+	if ( ConfMaps.regHist(m_MaxMissingLinkHeaderVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
+	if ( ConfHistECA.regHist(m_MaxMissingLinkHeaderVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
+	if ( ConfHistECC.regHist(m_MaxMissingLinkHeaderVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHEaderConf" << endreq;
+	
+	for(int reg=0;reg<4;reg++){
+	  if(reg==3) if ( ConfHist2D.regHist(m_2d_MaxMaskedLinksVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
+	  if(reg==3) if ( ConfHist2D.regHist(m_2d_MaxROBFragmentVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
+	  // if ( ConfHist2D.regHist(m_2d_MaxABCDVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
+	  // if ( ConfHist2D.regHist(m_2d_MaxRawErrsVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
+	  if(reg==3) if ( ConfHist2D.regHist(m_2d_MaxTimeOutVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
+	  if(reg==3) if ( ConfHist2D.regHist(m_2d_MaxLVL1IDVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
+	  if(reg==3) if ( ConfHist2D.regHist(m_2d_MaxBCIDVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
+	  // if ( ConfHist2D.regHist(m_2d_MaxPreambleVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
+	  // if ( ConfHist2D.regHist(m_2d_MaxFormatterVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
+	  // if ( ConfHist2D.regHist(m_2d_MaxRODClockVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
+	  // if ( ConfHist2D.regHist(m_2d_MaxTruncRODVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
+	  // if ( ConfHist2D.regHist(m_2d_MaxBSParseVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
+	  // if ( ConfHist2D.regHist(m_2d_MaxMissingLinkHeaderVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
+	  // if ( ConfHist2D.regHist(m_2d_MaxNumberOfErrorsVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
+	  if(reg==3) if ( ConfHist2D.regHist(m_2d_MaxModulesWithErrorsVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	  if(reg==3) if ( ConfHist2D.regHist(m_2d_MaxModulesWithBadErrorsVsLB[reg]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	}
+	*/
+	if ( ConfHist.regHist(m_NumberOfErrorsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
+	if ( ConfMaps.regHist(m_NumberOfErrorsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
+	if ( ConfHistECA.regHist(m_NumberOfErrorsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
+	if ( ConfHistECC.regHist(m_NumberOfErrorsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
+	if ( ConfHist.regHist(m_NumberOfBadErrorsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfBadErrors" << endreq;
+	if ( ConfMaps.regHist(m_NumberOfBadErrorsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfBadErrors" << endreq;
+	if ( ConfHistECA.regHist(m_NumberOfBadErrorsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfBadErrors" << endreq;
+	if ( ConfHistECC.regHist(m_NumberOfBadErrorsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfBadErrors" << endreq;
+	if ( ConfHist.regHist(m_ModulesWithErrorsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfMaps.regHist(m_ModulesWithErrorsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECA.regHist(m_ModulesWithErrorsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECC.regHist(m_ModulesWithErrorsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHist.regHist(m_ModulesWithBadErrorsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfMaps.regHist(m_ModulesWithBadErrorsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECA.regHist(m_ModulesWithBadErrorsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECC.regHist(m_ModulesWithBadErrorsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfMaps.regHist(m_LinksWithErrorsVsLBBarrel[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfMaps.regHist(m_LinksWithErrorsVsLBBarrel[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfMaps.regHist(m_LinksWithErrorsVsLBBarrel[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfMaps.regHist(m_LinksWithErrorsVsLBBarrel[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[4]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[5]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[6]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[7]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithErrorsVsLBEndcapA[8]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[4]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[5]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[6]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[7]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithErrorsVsLBEndcapC[8]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfMaps.regHist(m_LinksWithBadErrorsVsLBBarrel[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfMaps.regHist(m_LinksWithBadErrorsVsLBBarrel[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfMaps.regHist(m_LinksWithBadErrorsVsLBBarrel[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfMaps.regHist(m_LinksWithBadErrorsVsLBBarrel[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithBadErrorsVsLBEndcapA[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithBadErrorsVsLBEndcapA[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithBadErrorsVsLBEndcapA[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithBadErrorsVsLBEndcapA[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithBadErrorsVsLBEndcapA[4]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithBadErrorsVsLBEndcapA[5]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithBadErrorsVsLBEndcapA[6]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithBadErrorsVsLBEndcapA[7]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECA.regHist(m_LinksWithBadErrorsVsLBEndcapA[8]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithBadErrorsVsLBEndcapC[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithBadErrorsVsLBEndcapC[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithBadErrorsVsLBEndcapC[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithBadErrorsVsLBEndcapC[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithBadErrorsVsLBEndcapC[4]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithBadErrorsVsLBEndcapC[5]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithBadErrorsVsLBEndcapC[6]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithBadErrorsVsLBEndcapC[7]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECC.regHist(m_LinksWithBadErrorsVsLBEndcapC[8]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	/*
+	if ( ConfHist.regHist(m_MaxNumberOfErrorsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
+	if ( ConfMaps.regHist(m_MaxNumberOfErrorsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
+	if ( ConfHistECA.regHist(m_MaxNumberOfErrorsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
+	if ( ConfHistECC.regHist(m_MaxNumberOfErrorsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
+	if ( ConfHist.regHist(m_MaxNumberOfBadErrorsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfBadErrors" << endreq;
+	if ( ConfMaps.regHist(m_MaxNumberOfBadErrorsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfBadErrors" << endreq;
+	if ( ConfHistECA.regHist(m_MaxNumberOfBadErrorsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfBadErrors" << endreq;
+	if ( ConfHistECC.regHist(m_MaxNumberOfBadErrorsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfBadErrors" << endreq; 
+	if ( ConfHist.regHist(m_MaxModulesWithErrorsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfMaps.regHist(m_MaxModulesWithErrorsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECA.regHist(m_MaxModulesWithErrorsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHistECC.regHist(m_MaxModulesWithErrorsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithErrors" << endreq;
+	if ( ConfHist.regHist(m_MaxModulesWithBadErrorsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfMaps.regHist(m_MaxModulesWithBadErrorsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECA.regHist(m_MaxModulesWithBadErrorsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	if ( ConfHistECC.regHist(m_MaxModulesWithBadErrorsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTModulesWithBadErrors" << endreq;
+	*/
+	if ( ConfHist.regHist(m_NumberOfSCTFlagErrorsVsLB).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:NumberOfSCTFlagErrors" << endreq;
+	
+	if(m_environment==AthenaMonManager::online or testOffline){
+	  if ( ConfHist.regHist(m_ConfEffOnline).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConfEffOnline" << endreq;
+	  if ( ConfHist.regHist(m_ConfNoiseOnline).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConfNoiseOnline" << endreq;
+	  if ( ConfHist.regHist(m_ConfNoiseOnlineRecent).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConfNoiseOnlineRecent" << endreq;
+	}
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Finished registering Conf Histograms :" << m_path << endreq;
     }//end if
   }//end if isNewRun
   return StatusCode::SUCCESS;
@@ -1707,7 +1883,7 @@ SCTErrMonTool::bookPositiveEndCapConfMaps() {
     for (int i(0); i!=N_ENDCAPSx2;++i) {
       ostringstream stream2dmap;
       stream2dmap <<"modulemapECp_"<< i/2 << "_" << i%2 ;
-      TH2F* hitsHisto_tmp = new TH2F(TString(stream2dmap.str()),         // path
+      TH2F_LW* hitsHisto_tmp = TH2F_LW::create(TString(stream2dmap.str()),         // path
              Form("Module Out of Configuration : Disk %d Side %d",i/2,i%2),  // title
              N_ETA_BINS_EC, FIRST_ETA_BIN_EC-0.5, LAST_ETA_BIN_EC+0.5,              // X num bins, X_lo, X_hi
              N_PHI_BINS_EC, FIRST_PHI_BIN_EC-0.5, LAST_PHI_BIN_EC+0.5);             // Y num bins, Y_lo, Y_hi  
@@ -1732,7 +1908,7 @@ SCTErrMonTool::bookNegativeEndCapConfMaps(){
     for (int i=0; i!=N_ENDCAPSx2;++i) {
       ostringstream stream2dmap;
       stream2dmap <<"modulemapEcm_"<< i/2 << "_" << i%2 ;                
-      TH2F* hitsHisto_tmp = new TH2F(TString(stream2dmap.str()),         // path
+      TH2F_LW* hitsHisto_tmp = TH2F_LW::create(TString(stream2dmap.str()),         // path
              Form("Module Out of Configuration : Disk %d Side %d",i/2,i%2),  // title
              N_ETA_BINS_EC, FIRST_ETA_BIN_EC-0.5, LAST_ETA_BIN_EC+0.5,               
              N_PHI_BINS_EC, FIRST_PHI_BIN_EC-0.5, LAST_PHI_BIN_EC+0.5);  
@@ -2132,7 +2308,7 @@ SCTErrMonTool::prof2Factory(const std::string & name, const std::string & title,
     nEta=N_ETA_BINS_EC;
     nPhi=N_PHI_BINS_EC;
   }
-  Prof2_t tmp = new TProfile2D(TString(name), TString(title), nEta, firstEta-0.5, lastEta+0.5, nPhi, firstPhi-0.5, lastPhi+0.5);
+  Prof2_t tmp = TProfile2D_LW::create(TString(name), TString(title), nEta, firstEta-0.5, lastEta+0.5, nPhi, firstPhi-0.5, lastPhi+0.5);
   tmp->SetXTitle("Index in the direction of #eta");
   tmp->SetYTitle("Index in the direction of #phi");
   storageVector.push_back(tmp);
