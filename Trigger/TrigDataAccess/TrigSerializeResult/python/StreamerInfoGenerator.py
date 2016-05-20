@@ -6,13 +6,18 @@ import cppyy
 class StreamerInfoGenerator:
   def __init__(self):
     self.debug = True
+    print "StreamerInfoGenerator   v1.0.0"
     self.classlist = []
-    self.blacklist = ['std::']
-    cppyy.Cintex.Enable()
+    self.problemclasses = []
+    #MN: ROOT6 strips std:: from types, so we need to check the names
+    self.blacklist = ['std::', 'vector<', 'map<', 'queue<', 'list<']
+    self.type = cppyy.gbl.RootType
+    self.type.EnableCintex()
     cppyy.loadDict('libSTLRflx')
     cppyy.loadDict('libSTLAddRflx')
     cppyy.loadDict('libAtlasSTLAddReflexDict')
-    self.type = cppyy.makeClass("Reflex::Type")
+    #MN: switch off auto dict generation - god knows what that can mess up
+    cppyy.gbl.gROOT.ProcessLine(".autodict")
 
     
   def inspect(self, typename):
@@ -21,16 +26,14 @@ class StreamerInfoGenerator:
     dontAdd = False
     
     for b in self.blacklist:
-      if typename.find(b)>-1:
+      if typename.find(b) == 0:
         if self.debug: print 'blacklisted ', typename
         dontAdd = True
         
-    print self.classlist
-    for o in self.classlist:
-      if o==typename:
-        if self.debug: print 'seen before ', typename
-        dontAdd = True
-
+    # print self.classlist
+    if typename in self.classlist:
+      if self.debug: print 'seen before ', typename
+      dontAdd = True
     
     try:
       t = self.type.ByName(typename)
@@ -38,6 +41,8 @@ class StreamerInfoGenerator:
       if t.IsFundamental():
         if self.debug: print typename, ' is fundamental'
         return
+      if t.IsAbstract(): 
+        dontAdd = True 
     except:
       pass
 
@@ -60,7 +65,7 @@ class StreamerInfoGenerator:
       if self.debug: print typename, ' is typedef'
       underlying = t.ToType()
       if (underlying):
-        inspect(underlying)
+        self.inspect(underlying.Name(7))
     elif t.IsArray():
       print typename,' is an array'
     elif t.IsTemplateInstance():
@@ -75,26 +80,25 @@ class StreamerInfoGenerator:
         tt = t.TemplateArgumentAt(i)
         ttname = tt.Name(7)
         if tt.IsPointer() or tt.IsArray() or tt.IsTypedef():
-          ttt = tt.ToType()
-          ttname = ttt.Name(7)
+           ttname = tt.ToType().Name(7)
         self.inspect(ttname)
     elif t.IsClass():
       if self.debug: print typename, ' is a class'
-
       cname = t.Name(7)
       if self.debug: print cname
-      
-      
+            
       for i in range(t.DataMemberSize()):
         d = t.DataMemberAt(i)
         dname = d.Name()
         dtype = d.TypeOf().Name(7)
         if self.debug:
-          print 'DataMember: ', dname, ' ', dtype
-        self.inspect(dtype)
+          print 'DataMember: ', dname, ' ', dtype, '  transient=',  d.IsTransient()
+        if not d.IsTransient():
+          self.inspect(dtype)
 
     else:
       print 'what to do about ', typename,'?'
+      self.problemclasses.append( typename )
       return
 
         
@@ -105,7 +109,6 @@ class StreamerInfoGenerator:
 
 if __name__ == '__main__':
   from ROOT import TClass, TFile
-  cppyy.Cintex.Enable()
   a = StreamerInfoGenerator()
   a.inspect('TrigTauClusterContainer_tlp1')
 
