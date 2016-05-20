@@ -34,19 +34,6 @@ DataHeaderCnv::~DataHeaderCnv() {
 StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& tname) {
    const std::string className = "DataHeader_p5";
    const std::string classMapName = "DataHeaderForm_p5";
-   if (!m_dictionaryOkWrite) {
-      if (!m_athenaPoolCnvSvc->testDictionary(className)) {
-         MsgStream log(messageService(), "DataHeaderCnv");
-         log << MSG::ERROR << "There is no correct dictionary for class \"" << className << "\"" << endreq;
-         return(StatusCode::FAILURE);
-      }
-      if (!m_athenaPoolCnvSvc->testDictionary(classMapName)) {
-         MsgStream log(messageService(), "DataHeaderCnv");
-         log << MSG::ERROR << "There is no correct dictionary for class \"" << classMapName << "\"" << endreq;
-         return(StatusCode::FAILURE);
-      }
-      m_dictionaryOkWrite = true;
-   }
    if (!m_classDesc) {
       MsgStream log(messageService(), "DataHeaderCnv");
       log << MSG::DEBUG << "Retrieve class description for class \"" << className << "\"" << endreq;
@@ -74,10 +61,10 @@ StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& 
    }
    m_persObjList.push_back(persObj);
    this->setPlacementWithType("DataHeaderForm", tname);
-   const Token* dhf_token = m_athenaPoolCnvSvc->registerForWrite(m_placement, &persObj->dhForm(), m_mapClassDesc);
+   const Token* dhf_token = m_athenaPoolCnvSvc->registerForWrite(m_placement, persObj->dhForm(), m_mapClassDesc);
    if (dhf_token == 0) {
       MsgStream log(messageService(), "DataHeaderCnv");
-      log << MSG::FATAL << "Failed to write DataHeaderForm" << endreq;
+      log << MSG::FATAL << "Failed to write DataHeaderForm = " << persObj->dhForm() << endreq;
       return(StatusCode::FAILURE);
    }
    this->setPlacementWithType("DataHeader", tname);
@@ -118,12 +105,6 @@ DataHeader_p5* DataHeaderCnv::poolReadObject_p5() {
    if (token == 0) {
       throw std::runtime_error("There is no valid token for class " + className);
    }
-   if (!m_dictionaryOkRead) {
-      m_dictionaryOkRead = m_athenaPoolCnvSvc->testDictionary(className);
-      if (!m_dictionaryOkRead) {
-         throw std::runtime_error("There is no correct dictionary for class " + className);
-      }
-   }
    void* voidPtr1 = 0;
    try {
       m_athenaPoolCnvSvc->setObjPtr(voidPtr1, token);
@@ -158,7 +139,7 @@ DataHeader_p5* DataHeaderCnv::poolReadObject_p5() {
             throw std::runtime_error("Failed to cast object for token = " + mapToken.toString());
          }
       }
-      pObj->setDhForm(*m_dhForm);
+      pObj->setDhForm(m_dhForm);
    }
    return(pObj);
 }
