@@ -71,7 +71,7 @@ public:
     
   virtual StatusCode genInitialize();
   virtual StatusCode callGenerator();
-  virtual StatusCode fillEvt(GenEvent *evt);
+  virtual StatusCode fillEvt(HepMC::GenEvent *evt);
   virtual StatusCode genFinalize();
 
   double pythiaVersion()const;
@@ -111,8 +111,10 @@ private:
   std::string m_lheFile;
   
   bool m_doCKKWLAcceptance;
+  bool m_doFxFxXS;
   double m_nAccepted;
   double m_nMerged;
+  double m_sigmaTotal;
   
   unsigned int m_maxFailures;
   unsigned int m_failureCount;
@@ -132,14 +134,14 @@ private:
   
   std::string m_userResonances;
   
-  vector<Pythia8::ResonanceWidths*> m_userResonancePtrs;
+  std::vector<Pythia8::ResonanceWidths*> m_userResonancePtrs;
   
   bool m_useLHAPDF;
 
   std::string m_particleDataFile;
   std::string m_outputParticleDataFile;
   
-  vector<string> m_weightIDs;
+  std::vector<string> m_weightIDs;
   bool m_doLHE3Weights;
   
   static int s_allowedTunes(double version);

@@ -36,9 +36,9 @@ namespace Pythia8 {
   public:
     //Constructor.
     Sigma2qqbar2emu()
-    : lambdaCoup(0.), sigmaTemp(0.), m_stop(0.),
-    lambdaSqddbar(0.), lambdaSqdsbar(0.), lambdaSqsdbar(0.), lambdaSqssbar(0.),
-    Nc(0), myRand(0) 
+    : m_lambdaCoup(0.), m_sigmaTemp(0.), m_stop(0.),
+    m_lambdaSqddbar(0.), m_lambdaSqdsbar(0.), m_lambdaSqsdbar(0.), m_lambdaSqssbar(0.),
+    m_Nc(0), m_myRand(0) 
     {}
     
     
@@ -46,14 +46,14 @@ namespace Pythia8 {
     void initProc() {
       
       // Store parameters.
-      lambdaCoup = 0.2;
-      Nc = 3;
+      m_lambdaCoup = 0.2;
+      m_Nc = 3;
       m_stop = particleDataPtr->m0(1000006);   //95.5;
-      lambdaSqddbar = 0.065;
-      lambdaSqdsbar = 3.8e-5;
-      lambdaSqsdbar = 3.8e-5;
-      lambdaSqssbar = 0.065;
-      myRand = new Rndm(1234567);
+      m_lambdaSqddbar = 0.065;
+      m_lambdaSqdsbar = 3.8e-5;
+      m_lambdaSqsdbar = 3.8e-5;
+      m_lambdaSqssbar = 0.065;
+      m_myRand = new Rndm(1234567);
       
       return;
     } 
@@ -64,7 +64,7 @@ namespace Pythia8 {
     void sigmaKin() {
       
       // The 2 out front is for e- mu+ plus e+ mu -
-      sigmaTemp = 2./((float)Nc * 64. * M_PI);
+      m_sigmaTemp = 2./((float)m_Nc * 64. * M_PI);
       
       return;
     }
@@ -75,11 +75,11 @@ namespace Pythia8 {
     double sigmaHat() {
       
       double lambdaSq = 0.;
-      if((id1 == 1 && id2 == -1) || (id1 == -1 && id2 == 1)) lambdaSq = lambdaSqddbar;
-      else if((id1 == 1 && id2 == -3) || (id1 == -3 && id2 == 1)) lambdaSq = lambdaSqdsbar;
-      else if((id1 == 3 && id2 == -1) || (id1 == -1 && id2 == 3)) lambdaSq = lambdaSqsdbar;
-      else if((id1 == 3 && id2 == -3) || (id1 == -3 && id2 == 3)) lambdaSq = lambdaSqssbar;
-      double sigma = pow2(lambdaSq)*sigmaTemp*tH2/(sH2*pow2(tH-pow2(m_stop)));
+      if((id1 == 1 && id2 == -1) || (id1 == -1 && id2 == 1)) lambdaSq = m_lambdaSqddbar;
+      else if((id1 == 1 && id2 == -3) || (id1 == -3 && id2 == 1)) lambdaSq = m_lambdaSqdsbar;
+      else if((id1 == 3 && id2 == -1) || (id1 == -1 && id2 == 3)) lambdaSq = m_lambdaSqsdbar;
+      else if((id1 == 3 && id2 == -3) || (id1 == -3 && id2 == 3)) lambdaSq = m_lambdaSqssbar;
+      double sigma = pow2(lambdaSq)*m_sigmaTemp*tH2/(sH2*pow2(tH-pow2(m_stop)));
       return sigma;
     }
     
@@ -90,7 +90,7 @@ namespace Pythia8 {
     void setIdColAcol() {
       
       // Flavours.
-      double x = myRand->flat();
+      double x = m_myRand->flat();
       if(x < 0.5) setId( id1, id2, 11, -13);
       else setId( id1, id2, -11, 13);
       
@@ -118,10 +118,10 @@ namespace Pythia8 {
   private:
     
     // Parameters set at initialization or for current kinematics.
-    double lambdaCoup, sigmaTemp, m_stop;
-    double lambdaSqddbar, lambdaSqdsbar, lambdaSqsdbar, lambdaSqssbar;
-    int Nc;
-    Rndm* myRand;
+    double m_lambdaCoup, m_sigmaTemp, m_stop;
+    double m_lambdaSqddbar, m_lambdaSqdsbar, m_lambdaSqsdbar, m_lambdaSqssbar;
+    int m_Nc;
+    Rndm* m_myRand;
   
   };
 }
