@@ -372,7 +372,8 @@ StatusCode EventSelectorAthenaPool::start() {
    m_poolCollectionConverter = getCollectionCnv(true);
    if (m_poolCollectionConverter == 0) {
       ATH_MSG_INFO("No Events found in any Input Collections");
-      m_inputCollectionsIterator = m_inputCollectionsProp.value().begin();
+      m_inputCollectionsIterator = m_inputCollectionsProp.value().end();
+      if(m_inputCollectionsProp.value().size()>0) m_inputCollectionsIterator--; //leave iterator in state of last input file 
       if (m_processMetadata.value()) {
          // Fire first BeginTagFile incident
          FileIncident beginTagFileIncident(name(), "BeginTagFile", *m_inputCollectionsIterator);
