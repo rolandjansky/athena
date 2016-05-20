@@ -50,8 +50,12 @@ elif ( DetFlags.detdescr.ID_on() ):
     if ( DetFlags.detdescr.SCT_on() ):
         if GeometryFlags.isSLHC():
             #SLHC specific code
-            from SCT_SLHC_GeoModel.SCT_SLHC_GeoModelConf import SCT_SLHC_DetectorTool
-            sctSLHCTool = SCT_SLHC_DetectorTool()
+            if "GMX" == GeometryFlags.StripGeoType():
+                from SCT_GeoModelXml.SCT_GeoModelXmlConf import SCT_GMX_DetectorTool
+                sctSLHCTool = SCT_GMX_DetectorTool()
+            else:
+                from SCT_SLHC_GeoModel.SCT_SLHC_GeoModelConf import SCT_SLHC_DetectorTool
+                sctSLHCTool = SCT_SLHC_DetectorTool()
             GeoModelSvc.DetectorTools += [ sctSLHCTool ]
             sctSLHCTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
             if not hasattr(svcMgr,'SCTLorentzAngleSvc'):
