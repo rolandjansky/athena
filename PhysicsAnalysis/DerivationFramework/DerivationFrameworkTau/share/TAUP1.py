@@ -50,6 +50,14 @@ TAUP1JetTPThinningTool                           = DerivationFramework__JetTrack
                                                      ApplyAnd                  = True)
 ToolSvc                                         += TAUP1JetTPThinningTool
 
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+TAUP1CaloClusterThinning                         = DerivationFramework__CaloClusterThinning(
+                                                     name                      = "TAUP1ClusterThinning",
+                                                     ThinningService           = TAUP1ThinningHelper.ThinningSvc(),
+                                                     SGKey                     = "TauJets",
+                                                     TopoClCollectionSGKey     = "CaloCalTopoClusters")
+ToolSvc                                         += TAUP1CaloClusterThinning
+
 # Tracks associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 TAUP1ElectronTPThinningTool                      = DerivationFramework__EgammaTrackParticleThinning(
@@ -108,6 +116,7 @@ DerivationFrameworkJob                          += CfgMgr.DerivationFramework__D
                                                      SkimmingTools             = [TAUP1SkimmingTool],
                                                      ThinningTools             = [TAUP1MetTPThinningTool,
                                                                                   TAUP1JetTPThinningTool,
+                                                                                  TAUP1CaloClusterThinning,
                                                                                   TAUP1ElectronTPThinningTool,
                                                                                   TAUP1MuonTPThinningTool,
                                                                                   TAUP1TauTPThinningTool],

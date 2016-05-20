@@ -37,6 +37,14 @@ TAUP3JetTPThinningTool                           = DerivationFramework__JetTrack
                                                      ApplyAnd                  = True)
 ToolSvc                                         += TAUP3JetTPThinningTool
 
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+TAUP3CaloClusterThinning                         = DerivationFramework__CaloClusterThinning(
+                                                     name                      = "TAUP3ClusterThinning",
+                                                     ThinningService           = "TAUP3ThinningSvc",
+                                                     SGKey                     = "TauJets",
+                                                     TopoClCollectionSGKey     = "CaloCalTopoClusters")
+ToolSvc                                         += TAUP3CaloClusterThinning
+
 # Tracks associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 TAUP3ElectronTPThinningTool                      = DerivationFramework__EgammaTrackParticleThinning(
@@ -94,6 +102,7 @@ DerivationFrameworkJob                          += CfgMgr.DerivationFramework__D
                                                      SkimmingTools             = [TAUP3SkimmingTool],
                                                      ThinningTools             = [TAUP3MetTPThinningTool,
                                                                                   TAUP3JetTPThinningTool,
+                                                                                  TAUP3CaloClusterThinning,
                                                                                   TAUP3ElectronTPThinningTool,
                                                                                   TAUP3MuonTPThinningTool,
                                                                                   TAUP3TauTPThinningTool],

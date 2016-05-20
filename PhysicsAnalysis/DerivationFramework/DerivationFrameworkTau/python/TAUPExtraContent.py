@@ -122,7 +122,7 @@ ExtraContentTruthTAUP3                           =   ExtraContentPhotonsTruth   
 
 ExtraContainersElectrons                         = ["ForwardElectrons"]
 
-ExtraContainersJets                              = []
+ExtraContainersJets                              = ["CaloCalTopoClusters"]
 
 ExtraContainersTrigger                           = ["LVL1EmTauRoIs",
 #
@@ -161,7 +161,23 @@ ExtraContainersTAUP2                             =   ExtraContainersTrigger     
 ExtraContainersTAUP3                             =   ExtraContainersElectrons                                               \
                                                    + ExtraContainersJets                                                    \
                                                    + ExtraContainersTrigger                                                 \
-                                                   + ["HLT_xAOD__TauJetContainer_TrigTauRecMerged"]
+                                                   + ["HLT_xAOD__TauJetContainer_TrigTauRecMerged",
+#
+                                                      "HLT_xAOD__MuonRoIContainer_L1TopoMuon",
+#
+                                                      "HLT_xAOD__JetRoIContainer_L1TopoJet",
+#
+                                                      "HLT_xAOD__TrigCompositeContainer_L1TopoMET",
+                                                      "HLT_xAOD__TrigCompositeContainer_L1TopoComposite",
+#
+                                                      "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTK",
+                                                      "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTK_IDTrig",
+                                                      "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTKRefit",
+                                                      "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig",
+#
+                                                      "HLT_xAOD__VertexContainer_PrimVertexFTK",
+                                                      "HLT_xAOD__VertexContainer_PrimVertexFTKRaw",
+                                                      "HLT_xAOD__VertexContainer_PrimVertexFTKRefit"]
 
 ExtraContainersTruthTAUP1                        = ["TruthEvents",
                                                     "TruthParticles",

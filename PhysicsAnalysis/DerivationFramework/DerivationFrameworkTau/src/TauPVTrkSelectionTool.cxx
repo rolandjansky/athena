@@ -84,16 +84,22 @@ namespace DerivationFramework {
       bool pass_selection = false;
       if (tau_pt > m_minPt && (fabs(tau_eta) < 1.37 || (fabs(tau_eta) > 1.52 && fabs(tau_eta) < 2.5))) pass_selection = true;
       for (int i = 0; i < tauNtracks; i++) {
+#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
+        const xAOD::TauTrack* tauTrk = pTau->track(i);
+	const xAOD::TrackParticle* tauTrk_trk = tauTrk->track();
+#else
         const xAOD::TrackParticle* tauTrk = pTau->track(i);
+	const xAOD::TrackParticle* tauTrk_trk = tauTrk;
+#endif	
         if (m_useTruth) {
           // identify tracks matched to tau decay products (hadrons only)
           if (!m_T3MT->classifyTrack(*tauTrk)) continue;
-          if (tauTrk->auxdecor<char>("IsHadronicTrack")) tauPVTracks->push_back(const_cast<xAOD::TrackParticle*>(tauTrk));
+          if (tauTrk->auxdecor<char>("IsHadronicTrack")) tauPVTracks->push_back(const_cast<xAOD::TrackParticle*>(tauTrk_trk));
         } else {
           // use all tau tracks
           //TauTracks.push_back(const_cast<xAOD::TrackParticle*>(tauTrk));
           float dR = pTau->p4().DeltaR(tauTrk->p4());
-          if (good_tau && pass_selection && dR < m_maxDeltaR) tauPVTracks->push_back(const_cast<xAOD::TrackParticle*>(tauTrk));
+          if (good_tau && pass_selection && dR < m_maxDeltaR) tauPVTracks->push_back(const_cast<xAOD::TrackParticle*>(tauTrk_trk));
         }
       }
     }
