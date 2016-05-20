@@ -665,6 +665,7 @@ rec.doLArg = False
 # in order to set up right database instance  in condb
 projectName = FileNameVec[0].split('/').pop().split('.')[0]
 rec.projectName = projectName
+rec.RunNumber = int(RunNumber)
 
 if not 'RUN2' in dir(): 
     RUN2 = False
@@ -696,9 +697,9 @@ if ReadPool:
     # Set Geometry version
     if not 'DetDescrVersion' in dir():
         if RUN2:
-            DetDescrVersion = 'ATLAS-R2-2015-03-01-00'
+            DetDescrVersion = 'ATLAS-R2-2015-04-00-00'
         else:
-            DetDescrVersion = 'ATLAS-GEO-20-00-02'
+            DetDescrVersion = 'ATLAS-R1-2012-02-00-00'
 else:
     # - ByteStream input 
     svcMgr.EventSelector.Input = FileNameVec
@@ -716,9 +717,9 @@ else:
     # Set Geometry version
     if not 'DetDescrVersion' in dir():
         if RUN2:
-            DetDescrVersion = 'ATLAS-R2-2015-03-01-00'
+            DetDescrVersion = 'ATLAS-R2-2015-04-00-00'
         else:
-            DetDescrVersion = 'ATLAS-GEO-20-00-02'
+            DetDescrVersion = 'ATLAS-R1-2012-02-00-00'
 jobproperties.Global.DetDescrVersion = DetDescrVersion 
 log.info( "DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion()) )
 
@@ -887,9 +888,8 @@ if doTileFitCool:
 
 if doTileOpt2:
     if OfcFromCOOL:
-        ToolSvc.TileRawChannelBuilderOpt2Filter.TileCondToolOfcCool = tileCondToolOfcCool
+        ToolSvc.TileRawChannelBuilderOpt2Filter.TileCondToolOfc = tileCondToolOfcCool
 
-    ToolSvc.TileRawChannelBuilderOpt2Filter.OfcfromCool = OfcFromCOOL; # OFC from COOL or calculated on the fly
     if TileMonoRun or TileRampRun:
         ToolSvc.TileRawChannelBuilderOpt2Filter.MaxIterations = 3 # 3 iterations to match DSP reco
         if TileCompareMode or TileEmulateDSP:
@@ -902,13 +902,12 @@ if doTileOptATLAS:
         ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer = "TileRawChannelFixed"
 
     if OfcFromCOOL:
-        ToolSvc.TileRawChannelBuilderOptATLAS.TileCondToolOfcCool = tileCondToolOfcCool
+        ToolSvc.TileRawChannelBuilderOptATLAS.TileCondToolOfc = tileCondToolOfcCool
 
     if PhaseFromCOOL:
         ToolSvc.TileRawChannelBuilderOptATLAS.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
         ToolSvc.TileRawChannelBuilderOptATLAS.correctTime = False; # do not need to correct time with best phase
 
-    ToolSvc.TileRawChannelBuilderOptATLAS.OfcfromCool = OfcFromCOOL;   # OFC from COOL or calculated on the fly
     ToolSvc.TileRawChannelBuilderOptATLAS.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
     if TileCompareMode or TileEmulateDSP:
         ToolSvc.TileRawChannelBuilderOptATLAS.EmulateDSP = True # use dsp emulation
@@ -917,13 +916,12 @@ if doTileOptATLAS:
     
 if doTileMF:
     if OfcFromCOOL:
-        ToolSvc.TileRawChannelBuilderMF.TileCondToolOfcCool = tileCondToolOfcCool
+        ToolSvc.TileRawChannelBuilderMF.TileCondToolOfc = tileCondToolOfcCool
 
     if PhaseFromCOOL:
         ToolSvc.TileRawChannelBuilderMF.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
         ToolSvc.TileRawChannelBuilderMF.correctTime = False; # do not need to correct time with best phase
 
-    ToolSvc.TileRawChannelBuilderMF.OfcfromCool = OfcFromCOOL;   # OFC from COOL or calculated on the fly
     ToolSvc.TileRawChannelBuilderMF.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
 
     print ToolSvc.TileRawChannelBuilderMF 
@@ -932,13 +930,12 @@ if doTileOF1:
     ToolSvc.TileRawChannelBuilderOF1.PedestalMode = TileOF1Ped  
     
     if OfcFromCoolOF1:
-        ToolSvc.TileRawChannelBuilderOF1.TileCondToolOfcCool = tileCondToolOfcCoolOF1
+        ToolSvc.TileRawChannelBuilderOF1.TileCondToolOfc = tileCondToolOfcCoolOF1
 
     if PhaseFromCOOL:
         ToolSvc.TileRawChannelBuilderOF1.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
         ToolSvc.TileRawChannelBuilderOF1.correctTime = False # do not need to correct time with best phase
 
-    ToolSvc.TileRawChannelBuilderOF1.OfcfromCool = OfcFromCoolOF1 # OFC from COOL or calculated on the fly
     ToolSvc.TileRawChannelBuilderOF1.BestPhase   = PhaseFromCOOL # Phase from COOL or assume phase=0
     if TileCompareMode or TileEmulateDSP:
         ToolSvc.TileRawChannelBuilderOF1.EmulateDSP = True # use dsp emulation
@@ -1573,7 +1570,8 @@ if doTileCalib:
 
         topSequence += TileCalibAlg
     elif TileL1CaloRun:
-        include( "TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py" )
+        if RUN2: include("TrigT1CaloByteStream/ReadLVL1CaloBSRun2_jobOptions.py")
+        else: include( "TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py" )
 
         # Trigger calibration using top calib alg
         from TileCalibAlgs.TileCalibAlgsConf import TileTopCalibAlg
