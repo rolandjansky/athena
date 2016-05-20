@@ -1,0 +1,10 @@
+// Dear emacs, this is -*- c++ -*-
+// $Id: SerCnv_entries.h.in 725581 2016-02-22 18:42:06Z krasznaa $
+//
+// Skeleton file for the entries header file for serialiser converters.
+//
+
+// Gaudi include(s):
+#include "GaudiKernel/DeclareFactoryEntries.h"
+
+// Declaration of the components:

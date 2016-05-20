@@ -1,0 +1,44 @@
+# $Id: ClientCMakeLists.txt.in 748556 2016-05-20 07:50:41Z krasznaa $
+#
+# This is a template for a CMakeLists.txt file that can be used in a client
+# project (work area) to set up building ATLAS packages against the configured
+# release.
+#
+
+# Set the minimum required CMake version:
+cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
+
+# If there's a directory called AtlasCMake in the project,
+# and the user didn't specify AtlasCMake_DIR yet, then let's
+# give it a default value.
+if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Build/AtlasCMake AND
+      NOT AtlasCMake_DIR AND NOT ENV{AtlasCMake_DIR} )
+   set( AtlasCMake_DIR ${CMAKE_SOURCE_DIR}/Build/AtlasCMake )
+endif()
+
+# If there's a directory called AtlasLCG in the project,
+# and the user didn't specify LCG_DIR yet, then let's
+# give it a default value.
+if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Build/AtlasLCG AND
+      NOT LCG_DIR AND NOT ENV{LCG_DIR} )
+   set( LCG_DIR ${CMAKE_SOURCE_DIR}/Build/AtlasLCG )
+endif()
+
+# Pick up a local version of the AtlasCMake code if it exists:
+find_package( AtlasCMake QUIET )
+
+# Find the project that we depend on:
+find_package( @CMAKE_PROJECT_NAME@ @CMAKE_PROJECT_VERSION@ )
+
+# Set up CTest:
+atlas_ctest_setup()
+
+# Set up a work directory project:
+atlas_project( WorkDir @CMAKE_PROJECT_VERSION@
+   USE @CMAKE_PROJECT_NAME@ @CMAKE_PROJECT_VERSION@
+   @FORTRAN_ARGUMENT@ )
+
+@ENVFILE_GEN@
+
+# Set up CPack:
+atlas_cpack_setup()

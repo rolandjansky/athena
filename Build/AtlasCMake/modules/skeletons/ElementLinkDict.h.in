@@ -1,0 +1,23 @@
+// Dear emacs, this is -*- c++ -*-
+// $Id: ElementLinkDict.h.in 711151 2015-11-27 12:00:55Z krasznaa $
+#ifndef ELEMENTLINKDICT_@pkgName@_@typeSanitised@
+#define ELEMENTLINKDICT_@pkgName@_@typeSanitised@
+
+// Include the necessary headers:
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
+#include "AthContainers/tools/AuxTypeVectorFactory.h"
+
+namespace {
+
+   // Instantiate the type:
+   struct ElementLinkDict@pkgName@@typeSanitised@ {
+
+      ElementLink< @type@ > m_link;
+      SG::AuxTypeVectorFactory< ElementLink< @type@ > > m_factory;
+
+   }; // struct ElementLinkDict@pkgName@@typeSanitised@
+
+} // private namespace
+
+#endif // ELEMENTLINKDICT_@pkgName@_@typeSanitised@

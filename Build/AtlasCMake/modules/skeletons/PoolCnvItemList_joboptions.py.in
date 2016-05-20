@@ -1,0 +1,7 @@
+
+try:
+    fullItemList += [ "@fullTypeName@#*" ]
+except:
+    fullItemList = []
+    fullItemList += [ "@fullTypeName@#*" ]
+    pass

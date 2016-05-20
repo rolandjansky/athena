@@ -1,0 +1,39 @@
+#!/bin/bash
+#
+# $Id: unit_test_executor.sh.in 746533 2016-05-12 11:04:42Z krasznaa $
+#
+# This script is used by CTest to run the test @testName@ with the correct
+# environment setup, and post processing.
+
+# Transmit errors:
+set -e
+
+# Set up the runtime environment:
+source @CMAKE_BINARY_DIR@/@ATLAS_PLATFORM@/setup.sh
+
+# Turn off xAOD monitoring for the test:
+export XAOD_ACCESSTRACER_FRACTION=0
+
+# Set the package name, which may be used by post.sh later on:
+export ATLAS_CTEST_PACKAGE=@pkgName@
+
+# Run a possible pre-exec script:
+@PRE_EXEC_SCRIPT@
+
+# Run the test:
+@CMAKE_CURRENT_BINARY_DIR@/test-bin/@testName@.exe 2>&1 | tee @testName@.log; \
+    test ${PIPESTATUS[0]} -eq 0
+
+# Set the test's return code in the variable expected by post.sh:
+export testStatus=${PIPESTATUS[0]}
+
+# Put the reference file in place if it exists:
+if [ -f @CMAKE_CURRENT_SOURCE_DIR@/share/@testName@.ref ] &&
+    [ "@CMAKE_CURRENT_SOURCE_DIR@" != "@CMAKE_CURRENT_BINARY_DIR@" ]; then
+    @CMAKE_COMMAND@ -E make_directory ../share
+    @CMAKE_COMMAND@ -E create_symlink \
+     @CMAKE_CURRENT_SOURCE_DIR@/share/@testName@.ref ../share/@testName@.ref
+fi
+
+# Run a post-exec script:
+@POST_EXEC_SCRIPT@

@@ -1,0 +1,20 @@
+// Dear emacs, this is -*- c++ -*-
+// $Id: DataLinkDict.h.in 711151 2015-11-27 12:00:55Z krasznaa $
+#ifndef DATALINKDICT_@pkgName@_@typeSanitised@
+#define DATALINKDICT_@pkgName@_@typeSanitised@
+
+// Include the DataLink header:
+#include "AthLinks/DataLink.h"
+
+namespace {
+
+   // Instantiate the type:
+   struct DataLinkDict@pkgName@@typeSanitised@ {
+
+      DataLink< @type@ > dlinkInst;
+
+   }; // struct DataLinkDict@pkgName@@typeSanitised@
+
+} // private namespace
+
+#endif // DATALINKDICT_@pkgName@_@typeSanitised@

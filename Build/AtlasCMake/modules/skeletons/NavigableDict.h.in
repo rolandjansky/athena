@@ -1,0 +1,28 @@
+// Dear emacs, this is -*- c++ -*-
+// $Id: NavigableDict.h.in 711151 2015-11-27 12:00:55Z krasznaa $
+#ifndef NAVIGABLEDICT_@pkgName@_@typeSanitised@
+#define NAVIGABLEDICT_@pkgName@_@typeSanitised@
+
+// Syste include(s):
+#include <map>
+#include <vector>
+
+// Include the necessary header:
+#include "AthLinks/ElementLink.h"
+#include "Navigation/Navigable.h"
+
+namespace {
+
+   // Instantiate the types:
+   struct NavigableDict@pkgName@@typeSanitised@ {
+
+      std::pair< ElementLink< @type@ >, double > m_pair;
+      std::vector< std::pair< ElementLink< @type@ >, double > > m_vector;
+      Navigable< @type@ > m_navDouble;
+      Navigable< @type@, double > m_nav;
+
+   }; // NavigableDict@pkgName@@typeSanitised@
+
+} // private namespace
+
+#endif // NAVIGABLEDICT_@pkgName@_@typeSanitised@

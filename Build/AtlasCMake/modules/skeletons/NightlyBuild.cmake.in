@@ -1,0 +1,160 @@
+# $Id: NightlyBuild.cmake.in 711151 2015-11-27 12:00:55Z krasznaa $
+#
+# This file describes to CTest how to build an entire release, and upload
+# the build results to a CDash server.
+#
+
+# Set some basic properties for the build:
+set( CTEST_SOURCE_DIRECTORY @CMAKE_SOURCE_DIR@ )
+set( CTEST_BINARY_DIRECTORY @CMAKE_BINARY_DIR@ )
+
+set( CTEST_CUSTOM_MAXIMUM_NUMBER_OF_ERRORS   1000000 )
+set( CTEST_CUSTOM_MAXIMUM_NUMBER_OF_WARNINGS 1000000 )
+
+set( CTEST_COMMAND "@CMAKE_CTEST_COMMAND@ -D Nightly" )
+set( CTEST_CMAKE_COMMAND @CMAKE_COMMAND@ )
+
+# The nightly build always uses launchers to capture the full build logs
+# of the packages.
+set( CTEST_USE_LAUNCHERS 1 )
+
+# Set how the build should be done exactly:
+set( CTEST_CMAKE_GENERATOR "@CMAKE_GENERATOR@" )
+set( CTEST_BUILD_CONFIGURATION @CMAKE_BUILD_TYPE@ )
+if( ${CTEST_CMAKE_GENERATOR} STREQUAL "Unix Makefiles" )
+   set( CTEST_BUILD_FLAGS -j@PROCESSOR_COUNT@ )
+endif()
+
+# Identify the build:
+set( CTEST_BUILD_NAME @BUILDNAME@ )
+set( CTEST_SITE @SITE_NAME@ )
+
+# Start a nightly build:
+message( "Starting nightly build for project @PROJECT_NAME@..." )
+ctest_start( Nightly )
+
+# Find out the tag used for the current build:
+file( READ ${CTEST_BINARY_DIRECTORY}/Testing/TAG _tagFile )
+set( _tag )
+if( _tagFile MATCHES "([0-9]*-[0-9]*).*" )
+   set( _tag ${CMAKE_MATCH_1} )
+endif()
+message( "Using nightly tag: ${_tag}" )
+
+# Find the log extractor scripts:
+find_file( _buildExtractor NAMES extractCTestBuild.py
+   PATH_SUFFIXES scripts PATHS @CMAKE_MODULE_PATH@ )
+if( _buildExtractor MATCHES "NOTFOUND" )
+   message( FATAL_ERROR "Couldn't find the extractCTestBuild.py script" )
+endif()
+message( "Using: ${_buildExtractor}" )
+find_file( _testExtractor NAMES extractCTestTest.py
+   PATH_SUFFIXES scripts PATHS @CMAKE_MODULE_PATH@ )
+if( _testExtractor MATCHES "NOTFOUND" )
+   message( FATAL_ERROR "Couldn't find the extractCTestTest.py script" )
+endif()
+message( "Using: ${_testExtractor}" )
+
+# Upload the project description file to CDash:
+if( EXISTS ${CTEST_BINARY_DIRECTORY}/Project.xml )
+   message( "Uploading the sub-project description file" )
+   ctest_submit( FILES ${CTEST_BINARY_DIRECTORY}/Project.xml )
+endif()
+
+# Execute the project configuration just once:
+message( "Configuring the build..." )
+ctest_configure( BUILD ${CTEST_BINARY_DIRECTORY}
+   SOURCE ${CTEST_SOURCE_DIRECTORY}
+   OPTIONS "-DCTEST_USE_LAUNCHERS=${CTEST_USE_LAUNCHERS}" )
+message( "Submitting the configuration results" )
+ctest_submit( PARTS Configure )
+
+# The subprojects to build/test:
+set( _subprojects @CTEST_PROJECT_SUBPROJECTS@ )
+list( LENGTH _subprojects _nSubprojects )
+
+# Run the full build in one go:
+message( "Building the entire project (${_nSubprojects} packages)..." )
+ctest_build( BUILD ${CTEST_BINARY_DIRECTORY} APPEND )
+
+# Make a copy of the build file produced:
+message( "Making a copy of the full build log..." )
+execute_process( COMMAND ${CTEST_CMAKE_COMMAND} -E copy
+   ${CTEST_BINARY_DIRECTORY}/Testing/${_tag}/Build.xml
+   ${CTEST_BINARY_DIRECTORY}/Testing/${_tag}/FullBuild.xml )
+
+# If there are no subprojects, upload the build results now, with the
+# full build log(s):
+if( NOT _subprojects )
+   set( _toSubmit Build )
+   file( GLOB _buildLogs ${CTEST_BINARY_DIRECTORY}/BuildLogs/*.log )
+   if( _buildLogs )
+      set( CTEST_NOTES_FILES ${_buildLogs} )
+      list( APPEND _toSubmit Notes )
+   endif()
+   ctest_submit( PARTS ${_toSubmit} )
+endif()
+
+# Run all the tests in one go:
+message( "Running the tests of all the packages..." )
+ctest_test( BUILD ${CTEST_BINARY_DIRECTORY}
+   PARALLEL_LEVEL @PROCESSOR_COUNT@ )
+
+# Make a copy of the test file produced:
+message( "Making a copy of the full test log..." )
+execute_process( COMMAND ${CTEST_CMAKE_COMMAND} -E copy
+   ${CTEST_BINARY_DIRECTORY}/Testing/${_tag}/Test.xml
+   ${CTEST_BINARY_DIRECTORY}/Testing/${_tag}/FullTest.xml )
+
+# If there are no subprojects, upload the test results now:
+if( NOT _subprojects )
+   ctest_submit( PARTS Test )
+endif()
+
+# Loop over all defined subprojects, and upload their build and test results:
+foreach( _subproject ${_subprojects} )
+
+   # Let the user know what's happening:
+   message( "Uploading results for package: ${_subproject}" )
+
+   # Define which subproject we're looking at:
+   set_property( GLOBAL PROPERTY SubProject ${_subproject} )
+   set_property( GLOBAL PROPERTY Label ${_subproject} )
+
+   # The list of components to submit:
+   set( _toSubmit Build )
+
+   # The log file that was created for the build, if it exists:
+   if( EXISTS ${CTEST_BINARY_DIRECTORY}/BuildLogs/${_subproject}.log )
+      set( CTEST_NOTES_FILES
+         ${CTEST_BINARY_DIRECTORY}/BuildLogs/${_subproject}.log )
+      list( APPEND _toSubmit Notes )
+   endif()
+
+   # Extract the build results:
+   execute_process( COMMAND ${_buildExtractor}
+      -i ${CTEST_BINARY_DIRECTORY}/Testing/${_tag}/FullBuild.xml
+      -o ${CTEST_BINARY_DIRECTORY}/Testing/${_tag}/Build.xml
+      -l ${_subproject} )
+   # And also save them for debugging:
+   execute_process( COMMAND ${CTEST_CMAKE_COMMAND} -E copy
+      ${CTEST_BINARY_DIRECTORY}/Testing/${_tag}/Build.xml
+      ${CTEST_BINARY_DIRECTORY}/Testing/${_tag}/${_subproject}Build.xml )
+
+   # Submit the build results:
+   ctest_submit( PARTS ${_toSubmit} )
+
+   # Extract the test results:
+   execute_process( COMMAND ${_testExtractor}
+      -i ${CTEST_BINARY_DIRECTORY}/Testing/${_tag}/FullTest.xml
+      -o ${CTEST_BINARY_DIRECTORY}/Testing/${_tag}/Test.xml
+      -l ${_subproject} )
+   # And also save them for debugging:
+   execute_process( COMMAND ${CTEST_CMAKE_COMMAND} -E copy
+      ${CTEST_BINARY_DIRECTORY}/Testing/${_tag}/Test.xml
+      ${CTEST_BINARY_DIRECTORY}/Testing/${_tag}/${_subproject}Test.xml )
+
+   # Submit the build results:
+   ctest_submit( PARTS Test )
+
+endforeach()

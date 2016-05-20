@@ -1,0 +1,60 @@
+#!/bin/bash
+#
+# $Id: atlas_ctest.sh.in 725483 2016-02-22 12:38:45Z krasznaa $
+#
+# This is a custom wrapper around the ctest command, to enable us to
+# capure the full build log of the individual packages.
+
+# Propagate errors:
+set -e
+
+# Save the original command line arguments:
+CMD_LINE_ARGS=$*
+
+# Extract all the necessary properties from the command line for writing
+# a log file correctly.
+LOG_DIR=./
+BINARY_DIR=./
+BUILD_DIR=./
+while [[ $# > 1 ]]
+do
+    case $1 in
+        --log-dir)
+            LOG_DIR=$2
+            shift
+            ;;
+        --binary-dir)
+            BINARY_DIR=$2
+            shift
+            ;;
+        --build-dir)
+            BUILD_DIR=$2
+            shift
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            ;;
+    esac
+    shift
+done
+
+# Figure out the package's name based on the binary and the build dirs:
+if [ ${BINARY_DIR} = ${BUILD_DIR} ];
+then
+    LOG_FILE=Project.log
+else
+    PKG_DIR=${BUILD_DIR:$((${#BINARY_DIR}+1))}
+    LOG_FILE=$(basename ${PKG_DIR}).log
+fi
+
+# Write the command line to the log file:
+echo "# CMake ---> $*" >> ${LOG_DIR}/${LOG_FILE}
+# Now call ctest with the same command line options, redirecting its output
+# to the specified log file. Note that the exit status of the actual command
+# is not in $? in the end. As that's populated by the exit status of the tee
+# command...
+@CMAKE_CTEST_COMMAND@ ${CMD_LINE_ARGS} 2>&1 | tee -a ${LOG_DIR}/${LOG_FILE}; \
+    test ${PIPESTATUS[0]} -eq 0

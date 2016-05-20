@@ -1,0 +1,17 @@
+// Dear emacs, this is -*- c++ -*-
+// $Id: PoolCnvMultiChan.h.in 711151 2015-11-27 12:00:55Z krasznaa $
+#ifndef @pkgName@_@ARG_CNV_PFX@@type@Cnv_H
+#define @pkgName@_@ARG_CNV_PFX@@type@Cnv_H
+
+// Athena include(s):
+#include "AthenaPoolCnvSvc/T_AthenaPoolCoolMultChanCnv.h"
+
+// EDM include(s):
+#include "@header@"
+
+// Declare the converter as a simple typedef:
+typedef T_AthenaPoolCoolMultChanCnv< @namespace@::@type@,
+                                     @namespace@::@type@::base_value_type >
+   @ARG_CNV_PFX@@type@Cnv;
+
+#endif // @pkgName@_@ARG_CNV_PFX@@type@Cnv_H

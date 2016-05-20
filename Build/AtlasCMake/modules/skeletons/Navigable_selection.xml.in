@@ -1,0 +1,4 @@
+<!-- Create the Navigable<@type@> dictionaries: -->
+<class name="Navigable<@type@,double,std::vector<std::pair<ElementLink<@type@>,double> > >" />
+<class name="std::pair<ElementLink<@type@>,double>" />
+<class name="std::vector<std::pair<ElementLink<@type@>,double> >" />

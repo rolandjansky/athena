@@ -1,0 +1,10 @@
+// $Id: PoolCnv_load.cxx.in 725581 2016-02-22 18:42:06Z krasznaa $
+//
+// Skeleton file used when building POOL converter packages.
+//
+
+// Gaudi include(s):
+#include "GaudiKernel/LoadFactoryEntries.h"
+
+// Declare the library to the framework:
+LOAD_FACTORY_ENTRIES( @libName@ )

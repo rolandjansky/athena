@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+# $Id: cpack_install.sh.in 734111 2016-04-05 15:24:32Z krasznaa $
+#
+# Script used for installing a project for CPack. Hiding any build errors
+# from the package generator.
+#
+
+# Turn off error reporting:
+set +e
+
+# Make sure that the project is built. The DESTDIR setting is just to make sure
+# that some strange build steps don't interfere with the installation.
+#DESTDIR=/ make -k
+
+# Install the project:
+DESTDIR=${DESTDIR}/usr/@CMAKE_PROJECT_NAME@/@CPACK_PACKAGE_VERSION@ \
+    make -k install/fast
+
+# Remove the .dbg files from being packaged, in case we are in RelWithDebInfo
+# build mode:
+rm -f ${DESTDIR}/usr/@CMAKE_PROJECT_NAME@/@CPACK_PACKAGE_VERSION@/InstallArea/@ATLAS_PLATFORM@/bin/*.dbg
+rm -f ${DESTDIR}/usr/@CMAKE_PROJECT_NAME@/@CPACK_PACKAGE_VERSION@/InstallArea/@ATLAS_PLATFORM@/lib/*.dbg
+
+# Exit gracefully:
+exit 0

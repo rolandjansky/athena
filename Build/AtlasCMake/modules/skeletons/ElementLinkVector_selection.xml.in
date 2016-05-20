@@ -1,0 +1,14 @@
+<!-- Create the ElementLinkVector<@type@> dictionaries: -->
+<class name="ElementLinkVector<@type@>" />
+<exclusion>
+  <class name="ElementLinkVector<@type@>" >
+    <!-- The signatures for these are too big for the dictionary generator: -->
+    <method name="insert" />
+    <method name="erase" />
+  </class>
+</exclusion>
+<class name="std::vector<SG::ELVRef<@type@> >" />
+<class name="SG::ELVRef<@type@>" >
+  <field name="m_link" transient="true" />
+</class>
+<class name="std::vector<DataLink<@type@> >" />

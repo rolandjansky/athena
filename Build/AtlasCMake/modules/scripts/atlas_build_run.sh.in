@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# $Id: atlas_build_run.sh.in 725450 2016-02-22 09:40:30Z krasznaa $
+#
+# This script is used during the build to set up a functional runtime
+# environment for running scripts/executables.
+#
+
+# Transmit errors:
+set -e
+
+# Set up the environment:
+source @CMAKE_BINARY_DIR@/@ATLAS_PLATFORM@/setup.sh || exit 1
+
+# Run the command:
+exec $* || exit 1

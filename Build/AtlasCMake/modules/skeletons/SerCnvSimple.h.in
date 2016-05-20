@@ -1,0 +1,15 @@
+// Dear emacs, this is -*- c++ -*-
+// $Id: SerCnvSimple.h.in 725581 2016-02-22 18:42:06Z krasznaa $
+#ifndef @pkgName@_@ARG_CNV_PFX@@type@SerCnv_H
+#define @pkgName@_@ARG_CNV_PFX@@type@SerCnv_H
+
+// Athena include(s):
+#include "TrigSerializeCnvSvc/TrigSerializeConverter.h"
+
+// EDM include(s):
+#include "@header@"
+
+// Declare the converter as a simple typedef:
+typedef TrigSerializeConverter< @namespace@::@type@ > @ARG_CNV_PFX@@type@SerCnv;
+
+#endif // @pkgName@_@ARG_CNV_PFX@@type@SerCnv_H

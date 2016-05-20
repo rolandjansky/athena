@@ -1,0 +1,6 @@
+## $Id: PoolCnvItemList_joboptionsHdr.py.in 720608 2016-01-29 12:01:58Z krasznaa $
+##
+## @file @pkgName@ItemList_joboptions.py
+## @brief File adding all possible items provided by the POOL converters
+##        of this package.
+##

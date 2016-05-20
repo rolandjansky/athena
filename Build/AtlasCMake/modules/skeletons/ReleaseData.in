@@ -1,0 +1,9 @@
+[release_metadata]
+release:${CMAKE_PROJECT_VERSION}
+validation:None
+base release:None
+nightly name:$ENV{NICOS_NIGHTLY_NAME}
+project name:${CMAKE_PROJECT_NAME}
+nightly release:$ENV{NICOS_PROJECT_RELNAME_COPY}
+nightly jobid:0000
+date:${CMAKE_BUILD_DATE}

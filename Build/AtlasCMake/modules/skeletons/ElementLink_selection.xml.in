@@ -1,0 +1,3 @@
+<!-- Create the ElementLink<@type@> dictionaries: -->
+<class name="ElementLink<@type@>" />
+<class name="SG::AuxTypeVectorFactory<ElementLink<@type@> >" />
