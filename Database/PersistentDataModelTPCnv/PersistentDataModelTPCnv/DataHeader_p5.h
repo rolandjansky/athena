@@ -83,15 +83,15 @@ public: // Constructor and Destructor
 friend class DataHeaderCnv_p5;
 
    const std::vector<DataHeaderElement_p5>& elements() const;
-   const DataHeaderForm_p5& dhForm() const;
-   void setDhForm(const DataHeaderForm_p5& form);
+   const DataHeaderForm_p5* dhForm() const;
+   void setDhForm(DataHeaderForm_p5* form);
    const std::string& dhFormToken() const;
    void setDhFormToken(const std::string& formToken);
    const std::string& dhFormMdx() const;
 
 private:
    std::vector<DataHeaderElement_p5> m_dataHeader;
-   DataHeaderForm_p5 m_dhForm;
+   DataHeaderForm_p5* m_dhForm;
    std::string m_dhFormToken;
    std::string m_dhFormMdx;
 };
