@@ -1,5 +1,5 @@
 package xAODCoreCnv
-# $Id: requirements 654409 2015-03-16 15:48:18Z krasznaa $
+# $Id: requirements 748595 2016-05-20 10:57:20Z krasznaa $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -16,6 +16,7 @@ use AthenaBaseComps         AthenaBaseComps-*         Control
 use AthenaKernel            AthenaKernel-*            Control
 use AthContainers           AthContainers-*           Control
 use AthContainersInterfaces AthContainersInterfaces-* Control
+use AthLinks                AthLinks-*                Control
 use SGTools                 SGTools-*                 Control
 
 # EDM package(s):
