@@ -19,7 +19,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // CLHEP includes
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 
 // FourMom includes
 #include "FourMomUtils/P4Helpers.h"
@@ -34,7 +34,7 @@
 // AssociationComps includes
 #include "AssocBuilder.h"
 
-using namespace CLHEP;
+using Athena::Units::GeV;
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
