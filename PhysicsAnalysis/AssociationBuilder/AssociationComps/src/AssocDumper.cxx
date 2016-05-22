@@ -23,7 +23,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // CLHEP includes
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 
 // NavFourMom includes
 #include "NavFourMom/INav4MomAssocs.h"
@@ -34,7 +34,7 @@
 // AssociationComps includes
 #include "AssocDumper.h"
 
-using namespace CLHEP;
+using Athena::Units::GeV;
 
 namespace {
   struct ToLower
