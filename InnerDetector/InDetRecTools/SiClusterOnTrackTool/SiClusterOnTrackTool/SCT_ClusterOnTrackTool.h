@@ -100,6 +100,12 @@ public:
    bool                               m_doDistortions ;//!< Flag to set Distortions
    int                                m_option_errorStrategy;
    int                                m_option_correctionStrategy;
+
+   // Correction for AnnulusBounds  
+   //
+   const InDet::SCT_ClusterOnTrack* correctAnnulus
+    (const InDet::SCT_Cluster*, const Trk::TrackParameters&) const; 
+
 };
 
 } // end of namespace InDet

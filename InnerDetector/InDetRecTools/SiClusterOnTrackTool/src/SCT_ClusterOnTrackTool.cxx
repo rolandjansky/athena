@@ -16,6 +16,7 @@
 
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
+#include "TrkSurfaces/AnnulusBounds.h"
 
 using CLHEP::micrometer;
 using CLHEP::deg;
@@ -116,6 +117,14 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correct
   const InDet::SCT_Cluster* SC = 0;
   if(!(SC = dynamic_cast<const InDet::SCT_Cluster*> (&rio))) return 0;
 
+  const Trk::TrapezoidBounds *tbounds=dynamic_cast<const Trk::TrapezoidBounds *>(&trackPar.associatedSurface().bounds());
+  const Trk::RectangleBounds *rbounds=dynamic_cast<const Trk::RectangleBounds *>(&trackPar.associatedSurface().bounds());
+
+  if(!tbounds && !rbounds) {
+    const Trk::AnnulusBounds *abounds=dynamic_cast<const Trk::AnnulusBounds *> (&trackPar.associatedSurface().bounds());
+    if(abounds) return correctAnnulus(SC,trackPar); return 0;
+  }
+
   const InDet::SiWidth width = SC->width();
   const Amg::Vector2D& colRow = width.colRow();
 
@@ -143,11 +152,7 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correct
   Amg::Vector3D localstripdir(-sinAlpha,cosAlpha,0.);
   Amg::Vector3D globalstripdir=trackPar.associatedSurface().transform().linear()*localstripdir;
   double distance=(trackPar.position()-SC->globalPosition()).mag();
-  const Trk::TrapezoidBounds *tbounds=dynamic_cast<const Trk::TrapezoidBounds *>(&trackPar.associatedSurface().bounds());
-  const Trk::RectangleBounds *rbounds=dynamic_cast<const Trk::RectangleBounds *>(&trackPar.associatedSurface().bounds());
-
-  if(!tbounds && !rbounds) return 0;
-
+  
   double boundsy=rbounds ? rbounds->halflengthY(): tbounds->halflengthY();
   if (distance*cosAlpha> boundsy  ){
     distance=boundsy/cosAlpha-1;
@@ -341,3 +346,22 @@ double InDet::SCT_ClusterOnTrackTool::getError(double phi, int nstrip) const {
 
   return sigma * micrometer;
 }
+
+///////////////////////////////////////////////////////////////////
+// Trk::SCT_ClusterOnTrack  production for AnnulusBounds 
+///////////////////////////////////////////////////////////////////
+
+const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correctAnnulus
+    (const InDet::SCT_Cluster* SC, const Trk::TrackParameters&) const
+{
+  if(!SC) return 0;
+  const InDetDD::SiDetectorElement* EL = SC->detectorElement(); if(!EL) return 0;
+  IdentifierHash                    iH = EL->identifyHash();
+
+  Trk::LocalParameters              locpar(SC->localPosition  ());
+  Amg::MatrixX                      cov   (SC->localCovariance());
+  Amg::Vector3D                     glob  (SC->globalPosition ());
+  bool isbroad=(m_option_errorStrategy==0) ? true : false;
+
+  return new InDet::SCT_ClusterOnTrack (SC,locpar,cov,iH,glob,isbroad);
+} 
