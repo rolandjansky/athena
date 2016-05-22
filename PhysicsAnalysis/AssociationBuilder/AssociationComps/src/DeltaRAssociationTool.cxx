@@ -46,8 +46,8 @@
 #include "Navigation/IAthenaBarCode.h"
 
 // The needed ElementLink stuff
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLink.h" 
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLink.h" 
 
 
 using namespace CLHEP;

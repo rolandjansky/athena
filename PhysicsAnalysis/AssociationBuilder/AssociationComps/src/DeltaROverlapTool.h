@@ -16,7 +16,7 @@
 // HepMC / CLHEP includes
 
 // AssociationUtils includes
-#include "AssociationUtils/DeltaROverlapFilter.h"
+#include "DeltaROverlapFilter.h"
 
 // AssociationComps includes
 #include "OverlapBaseTool.h"
@@ -85,7 +85,7 @@ class DeltaROverlapTool : public OverlapBaseTool
 
   /** DeltaR-Overlap predicate
    */
-  DeltaROverlapFilter m_filter;
+  AssociationComps::DeltaROverlapFilter m_filter;
 
   /** Minimum delta-R for the overlap filter
    */
@@ -106,7 +106,7 @@ class DeltaROverlapTool : public OverlapBaseTool
 
 inline void DeltaROverlapTool::setupDeltaR( Property& /*maxDeltaR*/ )
 {
-  m_filter = DeltaROverlapFilter( m_minDeltaR.value(), m_maxDeltaR.value() );
+  m_filter = AssociationComps::DeltaROverlapFilter( m_minDeltaR.value(), m_maxDeltaR.value() );
   return;
 }
 
