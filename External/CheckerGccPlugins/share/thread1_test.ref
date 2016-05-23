@@ -18,88 +18,88 @@
    return x;
           ^
 ../test/thread1_test.cxx: In function 'int g1()':
-../test/thread1_test.cxx:54:10: warning: Use of static expression 'y1' within thread-safe function 'int g1()' may not be thread-safe.
+../test/thread1_test.cxx:56:10: warning: Use of static expression 'y1' within thread-safe function 'int g1()' may not be thread-safe.
    a = y1 + y2 + y3 + y4 + yy1.y1 + y5[5];
           ^
-../test/thread1_test.cxx:44:12: note: Declared here:
+../test/thread1_test.cxx:46:12: note: Declared here:
  static int y1;
             ^
-../test/thread1_test.cxx:54:10: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+../test/thread1_test.cxx:56:10: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
    a = y1 + y2 + y3 + y4 + yy1.y1 + y5[5];
           ^
-../test/thread1_test.cxx:54:25: warning: Use of static expression 'yy1.Y::y1' within thread-safe function 'int g1()' may not be thread-safe.
+../test/thread1_test.cxx:56:25: warning: Use of static expression 'yy1.Y::y1' within thread-safe function 'int g1()' may not be thread-safe.
    a = y1 + y2 + y3 + y4 + yy1.y1 + y5[5];
                          ^
-../test/thread1_test.cxx:42:10: note: Declared here:
+../test/thread1_test.cxx:44:10: note: Declared here:
  static Y yy1;
           ^
-../test/thread1_test.cxx:54:25: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+../test/thread1_test.cxx:56:25: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
    a = y1 + y2 + y3 + y4 + yy1.y1 + y5[5];
                          ^
-../test/thread1_test.cxx:54:40: warning: Use of static expression 'y5[5]' within thread-safe function 'int g1()' may not be thread-safe.
+../test/thread1_test.cxx:56:40: warning: Use of static expression 'y5[5]' within thread-safe function 'int g1()' may not be thread-safe.
    a = y1 + y2 + y3 + y4 + yy1.y1 + y5[5];
                                         ^
-../test/thread1_test.cxx:48:12: note: Declared here:
+../test/thread1_test.cxx:50:12: note: Declared here:
  static int y5[10];
             ^
-../test/thread1_test.cxx:54:40: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+../test/thread1_test.cxx:56:40: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
    a = y1 + y2 + y3 + y4 + yy1.y1 + y5[5];
                                         ^
 ../test/thread1_test.cxx: In function 'void g2(int)':
-../test/thread1_test.cxx:61:9: warning: Use of static expression 'y1' within thread-safe function 'void g2(int)' may not be thread-safe.
+../test/thread1_test.cxx:63:9: warning: Use of static expression 'y1' within thread-safe function 'void g2(int)' may not be thread-safe.
    y1 = x;
          ^
-../test/thread1_test.cxx:44:12: note: Declared here:
+../test/thread1_test.cxx:46:12: note: Declared here:
  static int y1;
             ^
-../test/thread1_test.cxx:61:9: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+../test/thread1_test.cxx:63:9: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
    y1 = x;
          ^
-../test/thread1_test.cxx:64:13: warning: Use of static expression 'yy1.Y::y2' within thread-safe function 'void g2(int)' may not be thread-safe.
+../test/thread1_test.cxx:67:13: warning: Use of static expression 'yy1.Y::y2' within thread-safe function 'void g2(int)' may not be thread-safe.
    yy1.y2 = x;
              ^
-../test/thread1_test.cxx:42:10: note: Declared here:
+../test/thread1_test.cxx:44:10: note: Declared here:
  static Y yy1;
           ^
-../test/thread1_test.cxx:64:13: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+../test/thread1_test.cxx:67:13: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
    yy1.y2 = x;
              ^
-../test/thread1_test.cxx:65:12: warning: Use of static expression 'y5[4]' within thread-safe function 'void g2(int)' may not be thread-safe.
+../test/thread1_test.cxx:68:12: warning: Use of static expression 'y5[4]' within thread-safe function 'void g2(int)' may not be thread-safe.
    y5[4] = x;
             ^
-../test/thread1_test.cxx:48:12: note: Declared here:
+../test/thread1_test.cxx:50:12: note: Declared here:
  static int y5[10];
             ^
-../test/thread1_test.cxx:65:12: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+../test/thread1_test.cxx:68:12: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
    y5[4] = x;
             ^
 ../test/thread1_test.cxx: In function 'int g3(int)':
-../test/thread1_test.cxx:71:23: warning: Use of static expression 'y1' within thread-safe function 'int g3(int)' may not be thread-safe.
+../test/thread1_test.cxx:74:23: warning: Use of static expression 'y1' within thread-safe function 'int g3(int)' may not be thread-safe.
    return (x>0) ? y1 : y2;
                        ^
-../test/thread1_test.cxx:44:12: note: Declared here:
+../test/thread1_test.cxx:46:12: note: Declared here:
  static int y1;
             ^
-../test/thread1_test.cxx:71:23: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+../test/thread1_test.cxx:74:23: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
    return (x>0) ? y1 : y2;
                        ^
 ../test/thread1_test.cxx: In member function 'int H::hee1()':
-../test/thread1_test.cxx:90:10: warning: Use of static expression 'H::h1' within thread-safe function 'int H::hee1()' may not be thread-safe.
+../test/thread1_test.cxx:93:10: warning: Use of static expression 'H::h1' within thread-safe function 'int H::hee1()' may not be thread-safe.
    a = h1 + h2 + h3 + h4;
           ^
-../test/thread1_test.cxx:77:14: note: Declared here:
+../test/thread1_test.cxx:80:14: note: Declared here:
    static int h1;
               ^
-../test/thread1_test.cxx:90:10: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+../test/thread1_test.cxx:93:10: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
    a = h1 + h2 + h3 + h4;
           ^
 ../test/thread1_test.cxx: In member function 'void H::hee2(int)':
-../test/thread1_test.cxx:97:9: warning: Use of static expression 'H::h1' within thread-safe function 'void H::hee2(int)' may not be thread-safe.
+../test/thread1_test.cxx:100:9: warning: Use of static expression 'H::h1' within thread-safe function 'void H::hee2(int)' may not be thread-safe.
    h1 = x;
          ^
-../test/thread1_test.cxx:77:14: note: Declared here:
+../test/thread1_test.cxx:80:14: note: Declared here:
    static int h1;
               ^
-../test/thread1_test.cxx:97:9: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+../test/thread1_test.cxx:100:9: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
    h1 = x;
          ^

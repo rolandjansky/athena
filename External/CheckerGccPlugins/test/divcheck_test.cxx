@@ -118,5 +118,5 @@ float SetDriftSpace() {
 constexpr float bar10(float a, float b) { return a+b; }
 void bar11() {
   a1 = a2 / bar10(a4, 3.0);  // shouldn't get a warning here
-  a6 = a2 / bar10 (1, 3);    // should get a warning here
+  a6 = a2 / bar10 (1, 4);    // should get a warning here
 }

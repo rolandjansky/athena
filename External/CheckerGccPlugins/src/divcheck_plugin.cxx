@@ -50,6 +50,9 @@
 #endif
 
 
+using CheckerGccPlugins::gimplePtr;
+
+
 namespace {
 
 
@@ -149,7 +152,7 @@ bool all_outside (tree var, const struct loop* loop)
   //fprintf (stderr, "all_outside0\n");
   //debug_tree(var);
   if (TREE_CODE (var) != SSA_NAME) return false;
-  gimple  def_stmt = SSA_NAME_DEF_STMT (var);
+  gimplePtr  def_stmt = SSA_NAME_DEF_STMT (var);
 #if 0
   fprintf (stderr, "all_outside %d %d %s %s %d\n",
            loop->num,
@@ -199,7 +202,7 @@ bool is_const (tree val)
   if (TREE_CODE (val) != SSA_NAME)
     return false;
 
-  gimple  def_stmt = SSA_NAME_DEF_STMT (val);
+  gimplePtr  def_stmt = SSA_NAME_DEF_STMT (val);
   if (gimple_code (def_stmt) == GIMPLE_ASSIGN) {
     if (gimple_expr_code (def_stmt) == REAL_CST)
       return true;
@@ -245,7 +248,7 @@ bool is_const (tree val)
 }
 
 
-bool is_unused (gimple stmt)
+bool is_unused (gimplePtr stmt)
 {
   if (gimple_code (stmt) == GIMPLE_ASSIGN &&
       TREE_CODE (gimple_op (stmt, 0)) == SSA_NAME)
@@ -332,7 +335,7 @@ unsigned int divcheck_pass::divcheck_execute (function* fun)
          !gsi_end_p (si);
          gsi_next (&si))
     {
-      gimple stmt = gsi_stmt (si);
+      gimplePtr stmt = gsi_stmt (si);
       if (gimple_code (stmt) == GIMPLE_ASSIGN &&
           gimple_expr_code (stmt) == RDIV_EXPR &&
           gimple_num_ops (stmt) >= 3)
@@ -350,7 +353,7 @@ unsigned int divcheck_pass::divcheck_execute (function* fun)
             !has_exact_inverse (val))
         {
           bool ignored = false;
-          gimple use_stmt;
+          gimplePtr use_stmt;
           imm_use_iterator iter;
           FOR_EACH_IMM_USE_STMT (use_stmt, iter, gimple_op (stmt, 0))
           {
@@ -381,11 +384,17 @@ unsigned int divcheck_pass::divcheck_execute (function* fun)
           if (all_outside (val, bb->loop_father)) {
 
             basic_block header = bb->loop_father->header;
-            gimple gheader = nullptr;
+            gimplePtr gheader = nullptr;
             if (header) {
-              gimple_stmt_iterator sih = gsi_start_bb (header); 
-              if (!gsi_end_p (sih)) {
-                gheader = gsi_stmt (sih);
+              for (gimple_stmt_iterator sih = gsi_start_bb (header);
+                   !gsi_end_p (sih);
+                   gsi_next (&sih))
+              {
+                gimplePtr s = gsi_stmt (sih);
+                if (gimple_code (s) != GIMPLE_DEBUG) {
+                  gheader = s;
+                  break;
+                }
               }
             }
 
@@ -418,7 +427,7 @@ unsigned int divcheck_pass::divcheck_execute (function* fun)
         else {
           // Not in a loop.
           // Search for another division by this value that dominates this.
-          gimple use_stmt;
+          gimplePtr use_stmt;
           imm_use_iterator iter;
           FOR_EACH_IMM_USE_STMT (use_stmt, iter, val)
           {
@@ -440,7 +449,7 @@ unsigned int divcheck_pass::divcheck_execute (function* fun)
                      !gsi_end_p (si2);
                      gsi_next (&si2))
                 {
-                  gimple stmt2 = gsi_stmt (si2);
+                  gimplePtr stmt2 = gsi_stmt (si2);
                   if (stmt == stmt2) break;
                   if (use_stmt == stmt2) {
                     dominated = true;

@@ -5,7 +5,7 @@
 
 struct S
 {
-  S() {}
+  S() : a(), b(), c() {}
   mutable int a;
   mutable int b [[gnu::thread_safe]];
   mutable int *c[10];

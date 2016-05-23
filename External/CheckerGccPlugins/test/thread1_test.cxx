@@ -21,7 +21,9 @@ int f2(int xx)
 int f3(int xx)
 {
   static int x [[gnu::thread_safe]];
+  // cppcheck-suppress AssignmentIntegerToAddress
   x = xx;
+  // cppcheck-suppress CastAddressToIntegerAtReturn
   return x;
 }
 
@@ -60,6 +62,7 @@ void g2(int x)
 {
   y1 = x;
   y2 = x;
+  // cppcheck-suppress AssignmentIntegerToAddress
   y3 = x;
   yy1.y2 = x;
   y5[4] = x;
@@ -96,6 +99,7 @@ void H::hee2(int x)
 {
   h1 = x;
   h2 = x;
+  // cppcheck-suppress AssignmentIntegerToAddress
   h3 = x;
 }
 

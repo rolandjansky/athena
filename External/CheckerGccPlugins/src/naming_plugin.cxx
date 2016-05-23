@@ -150,7 +150,11 @@ bool ignore_decl_p1 (tree decl)
       if (strcmp (name, "std") == 0) return true;
 
       // Ignore ROOT types.
-      if (name && name[0] == 'T' && cap_p (name[1]))
+      if (name[0] == 'T' && cap_p (name[1]))
+        return true;
+
+      // Ignore GEANT types.
+      if (name[0] == 'G' && name[1] == '4')
         return true;
 
       // Ignore some other libraries.
@@ -168,6 +172,7 @@ bool ignore_decl_p1 (tree decl)
       if (strcmp (name, "EventStorage") == 0) return true;
       if (strcmp (name, "hltinterface") == 0) return true;
       if (strcmp (name, "tbb") == 0) return true;
+      if (strcmp (name, "testing") == 0) return true;
 
       // Don't warn about _pN classes since we can't really change them.
       size_t len = IDENTIFIER_LENGTH (name_node);
@@ -223,6 +228,11 @@ bool in_atlas_source1 (const char* file)
 
   // Otherwise always check files given by relative path.
   if (file[0] != '/') return true;
+
+  // Ignore geant.
+  if (strstr (file, "share/geant") != 0) return false;
+
+  if (strstr (file, "/gtest/") != 0) return false;
 
   // Check files that appear to be part of ATLAS offline.
   if (strstr (file, "/AtlasAnalysis/") != 0) return true;
@@ -349,6 +359,12 @@ void naming_finishdecl_callback (void* gcc_data, void* /*user_data*/)
         // in bfd header
         if (strcmp (name, "_bfd_std_section") == 0) return;
 
+        // valgrind
+        if (startswith (name, "_zzq_")) return;
+
+        // ers
+        if (strcmp (name, "__issue__") == 0) return;
+
         tree type = TREE_TYPE (decl);
         tree type_decl = TYPE_NAME (type);
         if (type_decl) {
@@ -406,6 +422,9 @@ void naming_finishtype_callback (void* gcc_data, void* /*user_data*/)
               }
               else if (strcmp (name, "fgIsA") == 0) {
                 // ok -- root exceptions.
+              }
+              else if (strcmp (name, "test_info_") == 0) {
+                // ok -- gtest exception.
               }
               else if ((TREE_READONLY (f) || TREE_CONSTANT (f)) &&
                        (allcaps_p (name) ||

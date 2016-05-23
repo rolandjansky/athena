@@ -10,6 +10,7 @@
 # **/
 test=$1
 extrapatterns="$2"
+reflog="$3"
 #verbose="1"
 if [ "$POST_SH_NOCOLOR" = "" ]; then
  GREEN="[92;1m"
@@ -38,6 +39,11 @@ PP='^---|^[[:digit:]]+[acd,][[:digit:]]+'
 # ignore hex addresses
 PP="$PP"'|0x\w{4,}'
 
+# ignore location pointer lines.
+# the format of these changed with gcc6.
+# can remove this once we no longer support gcc5 or older.
+PP="$PP"'|^ *[~^]+$'
+
 
 
 if [ "$extrapatterns" != "" ]; then
@@ -55,21 +61,24 @@ else
        if [ "$verbose" != "" ]; then
          echo "$GREEN post.sh> OK: ${test} exited normally. Output is in $joblog $RESET"
        fi
-       reflog=../share/${test}.ref
+       if [ "$reflog" == "" ]; then
+         reflog=../share/${test}.ref
+       fi
        if [ -r $reflog ]
            then
 	   jobrep=${joblog}-rep
 	   sed "$II" $joblog > $jobrep
-	   refrep=`basename ${reflog}`-rep
+	   refrep=${test}-rep
 	   sed "$II" $reflog > $refrep
            jobdiff=${joblog}-todiff
-           refdiff=`basename ${reflog}`-todiff
+           refdiff=${test}-todiff
            egrep -a -v "$PP" < $jobrep > $jobdiff
            egrep -a -v "$PP" < $refrep > $refdiff
            diff -a -b -E -B -u $jobdiff $refdiff
            diffStatus=$?
            if [ $diffStatus != 0 ] ; then
                echo "$RED post.sh> ERROR: $joblog and $reflog differ $RESET"
+               exit 1
            else
                if [ "$verbose" != "" ]; then
                  echo "$GREEN post.sh> OK: $joblog and $reflog identical $RESET"

@@ -15,7 +15,7 @@
 #ifdef PACKAGE_VERSION
 # undef PACKAGE_VERSION
 #endif
-#include "plugin/include/config.h"
+#include "config.h"
 #ifdef HAVE_DECL_GETOPT
 # undef HAVE_DECL_GETOPT
 #endif
@@ -46,6 +46,15 @@ bool startswith (const char* s, const char* prefix)
 {
   return strncmp (s, prefix, strlen(prefix)) == 0;
 }
+
+
+// In gcc6, the type of `gimple' changed: it used to be a pointer to a struct,
+// now it's a struct itself.
+#if GCC_VERSION < 6000
+typedef gimple gimplePtr;
+#else
+typedef gimple* gimplePtr;
+#endif
 
 
 } // namespace CheckerGccPlugins

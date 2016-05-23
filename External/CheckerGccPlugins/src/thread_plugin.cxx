@@ -231,10 +231,16 @@ tree get_inner (tree expr)
     tree poffset;
     machine_mode pmode;
     int punsignedp, pvolatilep;
+#if GCC_VERSION >= 6000
+    int preversep;
+#endif
     expr = get_inner_reference (expr,
                                 &pbitsize,
                                 &pbitpos, &poffset,
                                 &pmode, &punsignedp,
+#if GCC_VERSION >= 6000
+                                &preversep,
+#endif
                                 &pvolatilep, false);
   }
   return expr;
@@ -264,12 +270,12 @@ bool static_p (tree expr)
 }
 
 
-void check_mutable (tree expr, gimple stmt, function* fun, const char* what)
+void check_mutable (tree expr, gimplePtr stmt, function* fun, const char* what)
 {
   while (true) {
     switch (TREE_CODE (expr)) {
     case COMPONENT_REF:
-      if (TREE_READONLY(TREE_TYPE(TREE_OPERAND(expr, 0))) &&
+      if (TYPE_READONLY(TREE_TYPE(TREE_OPERAND(expr, 0))) &&
           DECL_MUTABLE_P (TREE_OPERAND (expr, 1)))
       {
         if (has_thread_safe_attrib (TREE_OPERAND (expr, 1))) return;
@@ -299,7 +305,7 @@ void check_mutable (tree expr, gimple stmt, function* fun, const char* what)
 
 
 // Check for direct use of a static value.
-void check_direct_static_use (gimple stmt, function* fun)
+void check_direct_static_use (gimplePtr stmt, function* fun)
 {
   size_t nop = gimple_num_ops (stmt);
   for (size_t i = 0; i < nop; i++) {
@@ -323,7 +329,7 @@ void check_direct_static_use (gimple stmt, function* fun)
 
 // Check for assigning from an address of a static object
 // into a pointer/reference, or for discarding const.
-void check_assign_address_of_static (gimple stmt, function* fun)
+void check_assign_address_of_static (gimplePtr stmt, function* fun)
 {
   if (gimple_code (stmt) != GIMPLE_ASSIGN) return;
   size_t nop = gimple_num_ops (stmt);
@@ -337,7 +343,7 @@ void check_assign_address_of_static (gimple stmt, function* fun)
   // Is the LHS a pointer/ref?
   tree lhs_type = TREE_TYPE (lhs);
   if (!POINTER_TYPE_P (lhs_type)) return;
-  bool lhs_const = TREE_READONLY (TREE_TYPE (lhs_type));
+  bool lhs_const = TYPE_READONLY (TREE_TYPE (lhs_type));
 
   // Does RHS point to something static, or is it const or mutable?
   for (size_t i = 1; i < nop; i++) {
@@ -348,7 +354,7 @@ void check_assign_address_of_static (gimple stmt, function* fun)
     {
       tree optest = get_inner (op);
       tree optype = TREE_TYPE (optest);
-      if (POINTER_TYPE_P(optype) && TREE_READONLY (TREE_TYPE (optype))) {
+      if (POINTER_TYPE_P(optype) && TYPE_READONLY (TREE_TYPE (optype))) {
         if (TREE_CODE (lhs) == SSA_NAME &&
             SSA_NAME_VAR (lhs) &&
             has_thread_safe_attrib (SSA_NAME_VAR (lhs)))
@@ -389,7 +395,7 @@ void check_assign_address_of_static (gimple stmt, function* fun)
 }
 
 
-void check_thread_safe_call (tree fndecl, gimple stmt, function* fun)
+void check_thread_safe_call (tree fndecl, gimplePtr stmt, function* fun)
 {
   if (is_thread_safe (fndecl)) return;
   std::string fnname = decl_as_string (fndecl, TFF_SCOPE + TFF_NO_FUNCTION_ARGUMENTS);
@@ -414,7 +420,7 @@ void check_thread_safe_call (tree fndecl, gimple stmt, function* fun)
 
 // Check passing an address of a static object to a called function
 // by non-const pointer/ref.
-void check_pass_static_by_call (gimple stmt, function* fun)
+void check_pass_static_by_call (gimplePtr stmt, function* fun)
 {
   if (gimple_code (stmt) != GIMPLE_CALL) return;
 
@@ -434,7 +440,7 @@ void check_pass_static_by_call (gimple stmt, function* fun)
     tree arg = gimple_call_arg (stmt, i);
 
     if (!POINTER_TYPE_P (arg_type)) continue;
-    bool lhs_const = TREE_READONLY (TREE_TYPE (arg_type));
+    bool lhs_const = TYPE_READONLY (TREE_TYPE (arg_type));
 
     if (arg && TREE_CODE (arg) == ADDR_EXPR) {
       while (arg && TREE_CODE (arg) == ADDR_EXPR)
@@ -447,7 +453,7 @@ void check_pass_static_by_call (gimple stmt, function* fun)
     if (POINTER_TYPE_P (ctest))
       ctest = TREE_TYPE (ctest);
 
-    if (!lhs_const && ctest && TREE_READONLY (ctest))
+    if (!lhs_const && ctest && TYPE_READONLY (ctest))
     {
       warning_at (gimple_location (stmt), 0,
                   "Const discarded from expression %<%E%> in call from thread-safe function %<%D%>; may not be thread-safe.",
@@ -480,7 +486,7 @@ unsigned int thread_pass::thread_execute (function* fun)
          !gsi_end_p (si);
          gsi_next (&si))
     {
-      gimple stmt = gsi_stmt (si);
+      gimplePtr stmt = gsi_stmt (si);
       //debug_gimple_stmt (stmt);
 
       check_direct_static_use (stmt, fun);

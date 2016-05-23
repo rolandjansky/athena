@@ -1,11 +1,11 @@
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx: In function 'void foo(float, float)':
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx:14:10: warning: Floating-point constant used in division; consider multiplication by inverse.
    a2 = x / 3.2;
-          ^
+        ~~^~~~~
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx:14:10: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx:15:11: warning: Floating-point constant used in division; consider multiplication by inverse.
    a4 += x / den;
-           ^
+         ~~^~~~~
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx:15:11: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx:21:16: warning: Multiple divisions by the same value; consider calculating the inverse once and multiplying.
    a7 = 2.0 / a5;
@@ -18,13 +18,13 @@
                 ^
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx:25:15: warning: Division by loop-invariant value; consider calculating inverse outside of the loop and multiplying within the loop.
      a4 += foo / a3;
-               ^
+           ~~~~^~~~
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx:23:19: note: Loop starts here.
    for (int i=0; i < 10; i++) {
-                   ^
+                 ~~^~~~
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx:25:15: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
      a4 += foo / a3;
-               ^
+           ~~~~^~~~
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx:30:16: warning: Multiple divisions by the same value; consider calculating the inverse once and multiplying.
    a8 = 3.0 / a5;
                 ^
@@ -40,7 +40,7 @@
                          ^
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx:74:19: note: Loop starts here.
    for (int i=0; i < 10; i++) {
-                   ^
+                 ~~^~~~
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx:75:25: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
      float y1 = float(i)/x;
                          ^
@@ -50,21 +50,21 @@
                         ^
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx:86:31: note: Previous division is here.
    const double rmin2 = C - B*B/A;
-                               ^
+                            ~~~^~
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx:87:24: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
    const double b_a = B/A;
                         ^
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx: In function 'float SetDriftSpace()':
-/home/sss/atlas/rootaccess/../test/divcheck_test.cxx:110:29: warning: Floating-point constant used in division; consider multiplication by inverse.
+/home/sss/atlas/rootaccess/../test/divcheck_test.cxx:110:19: warning: Floating-point constant used in division; consider multiplication by inverse.
    if(a2 != 0) prt = - a1/10.;
-                             ^
-/home/sss/atlas/rootaccess/../test/divcheck_test.cxx:110:29: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
-/home/sss/atlas/rootaccess/../test/divcheck_test.cxx:111:22: warning: Floating-point constant used in division; consider multiplication by inverse.
+               ~~~~^~~~~~~~~~
+/home/sss/atlas/rootaccess/../test/divcheck_test.cxx:110:19: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
+/home/sss/atlas/rootaccess/../test/divcheck_test.cxx:111:12: warning: Floating-point constant used in division; consider multiplication by inverse.
    else prt = + a1/10.;
-                      ^
-/home/sss/atlas/rootaccess/../test/divcheck_test.cxx:111:22: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
+        ~~~~^~~~~~~~~~
+/home/sss/atlas/rootaccess/../test/divcheck_test.cxx:111:12: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx: In function 'void bar11()':
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx:121:11: warning: Floating-point constant used in division; consider multiplication by inverse.
-   a6 = a2 / bar10 (1, 3);    // should get a warning here
-           ^
+   a6 = a2 / bar10 (1, 4);    // should get a warning here
+        ~~~^~~~~~~~~~~~~~
 /home/sss/atlas/rootaccess/../test/divcheck_test.cxx:121:11: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.

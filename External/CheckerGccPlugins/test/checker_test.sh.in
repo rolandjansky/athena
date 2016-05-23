@@ -1,0 +1,4 @@
+#!/bin/sh
+
+@CMAKE_CXX_COMPILER@ -c -o /dev/null --std=c++14 @_checkerTestFlags@ -fplugin=@CMAKE_LIBRARY_OUTPUT_DIRECTORY@/libchecker_gccplugins.so -fplugin-arg-libchecker_gccplugins-checkers=all @CMAKE_CURRENT_SOURCE_DIR@/test/@testName@_test.cxx
+
