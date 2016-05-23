@@ -225,37 +225,21 @@ StatusCode AthenaYamplTool::lockEvent(long) {
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::unlockEvent() {
-   return StatusCode::SUCCESS;
-}
-
-//___________________________________________________________________________
 StatusCode AthenaYamplTool::putObject(const void*, size_t, int) {
   return(StatusCode::FAILURE);
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::getObject(const char*, void**, size_t&) {
+StatusCode AthenaYamplTool::getObject(void**, size_t&, int) {
   return(StatusCode::FAILURE);
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::lockObject(char**, int&) {
+StatusCode AthenaYamplTool::clearObject(char**, int&) {
   return(StatusCode::FAILURE);
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::unlockObject() {
-  return(StatusCode::FAILURE);
-}
-
-//___________________________________________________________________________
-
-StatusCode AthenaYamplTool::putMetadata(const char*) {
-  return(StatusCode::FAILURE);
-}
-
-//___________________________________________________________________________
-StatusCode AthenaYamplTool::getMetadata(char**) {
-  return(StatusCode::FAILURE);
+StatusCode AthenaYamplTool::lockObject(const char*, int) {
+   return(StatusCode::SUCCESS);
 }

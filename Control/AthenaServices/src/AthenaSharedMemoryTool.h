@@ -14,6 +14,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/IAthenaIPCTool.h"
 
+#include <set>
 #include <string>
 
 // Forward declarations.
@@ -38,6 +39,7 @@ public:
 
    /// Gaudi Service Interface method implementations:
    StatusCode initialize();
+   StatusCode stop();
    StatusCode finalize();
 
    StatusCode makeServer(int num);
@@ -48,23 +50,19 @@ public:
    StatusCode putEvent(long eventNumber, const void* source, size_t nbytes, unsigned int status);
    StatusCode getLockedEvent(void** target, unsigned int& status);
    StatusCode lockEvent(long eventNumber);
-   StatusCode unlockEvent();
 
-   StatusCode putObject(const void* source, size_t nbytes, int num);
-   StatusCode getObject(const char* tokenString, void** target, size_t& nbytes);
-   StatusCode lockObject(char** tokenString, int& num);
-   StatusCode unlockObject();
-
-   StatusCode putMetadata(const char* metadataString);
-   StatusCode getMetadata(char** metadataString);
+   StatusCode putObject(const void* source, size_t nbytes, int num = 0);
+   StatusCode getObject(void** target, size_t& nbytes, int num = 0);
+   StatusCode clearObject(char** tokenString, int& num);
+   StatusCode lockObject(const char* tokenString, int num = 0);
 
 private:
    StringProperty m_sharedMemory;
-   const size_t m_maxEventSize;
-   const size_t m_maxMetadataSize;
+   const size_t m_maxSize;
    const int m_maxDataClients;
+   int m_num;
+   std::set<int> m_dataClients;
    boost::interprocess::mapped_region* m_payload;
-   boost::interprocess::mapped_region* m_metadata;
    boost::interprocess::mapped_region* m_status;
    long m_fileSeqNumber;
    bool m_isServer;

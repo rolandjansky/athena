@@ -29,4 +29,9 @@ struct Bar{
 };
 CLASS_DEF( Bar, 8107, 0) 
 
+struct Fee{
+  void doNothing() const {};
+};
+CLASS_DEF( Fee, 8108, 0) 
+
 #endif // TEST_FOOBAR_H

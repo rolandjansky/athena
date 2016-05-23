@@ -179,17 +179,24 @@ StatusCode ThinningSvc::addToStore (CLID id, SG::DataProxy* proxy)
  * @param obj The data object to store.
  * @param key The key as which it should be stored.
  * @param allowMods If false, the object will be recorded as const.
+ * @param returnExisting If true, return proxy if this key already exists.
  *
  * Full-blown record.  @c obj should usually be something
  * deriving from @c SG::DataBucket.
  *
  * Returns the proxy for the recorded object; nullptr on failure.
+ * If the requested CLID/key combination already exists in the store,
+ * the behavior is controlled by @c returnExisting.  If true, then
+ * the existing proxy is returned; otherwise, nullptr is returned.
+ * In either case, @c obj is destroyed.
  */
-SG::DataProxy* ThinningSvc::recordObject (std::unique_ptr<DataObject> obj,
-                                          const std::string& key,
-                                          bool allowMods)
+SG::DataProxy*
+ThinningSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
+                           const std::string& key,
+                           bool allowMods,
+                           bool returnExisting)
 {
-  return m_storeGate->recordObject (std::move(obj), key, allowMods);
+  return m_storeGate->recordObject (obj, key, allowMods, returnExisting);
 }
 
 

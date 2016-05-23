@@ -40,15 +40,11 @@ public:
    StatusCode putEvent(long eventNumber, const void* source, size_t nbytes, unsigned int status);
    StatusCode getLockedEvent(void** target, unsigned int& status);
    StatusCode lockEvent(long eventNumber);
-   StatusCode unlockEvent();
 
-   StatusCode putObject(const void* source, size_t nbytes, int num);
-   StatusCode getObject(const char* tokenString, void** target, size_t& nbytes);
-   StatusCode lockObject(char** tokenString, int& num);
-   StatusCode unlockObject();
-
-   StatusCode putMetadata(const char* metadataString);
-   StatusCode getMetadata(char** metadataString);
+   StatusCode putObject(const void* source, size_t nbytes, int num = 0);
+   StatusCode getObject(void** target, size_t& nbytes, int num = 0);
+   StatusCode clearObject(char** tokenString, int& num);
+   StatusCode lockObject(const char* tokenString, int num = 0);
 
 private:
    StringProperty m_channel;

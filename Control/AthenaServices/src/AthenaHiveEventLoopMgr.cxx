@@ -30,6 +30,7 @@
 #include "GaudiKernel/AppReturnCode.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
+#include "GaudiKernel/EventIDBase.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
@@ -103,6 +104,11 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
 
   declareProperty("EventStore", m_eventStore);
 
+  declareProperty("FakeLumiBlockInterval", m_flmbi = 0,
+                  "Event interval at which to increment lumiBlock# when "
+                  "creating events without an EventSelector. Zero means " 
+                  "don't increment it");
+
   m_scheduledStop = false;
 
 }
@@ -163,6 +169,14 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
     fatal() << "Error retrieving AlgResourcePool" << endmsg;
     return StatusCode::FAILURE;
   }
+
+#ifdef REENTRANT_GAUDI
+  m_algExecMgr = serviceLocator()->service("AlgExecMgr");
+  if( !m_algExecMgr.isValid() ) {
+    fatal() << "Error retrieving AlgExecMgr" << endmsg;
+    return StatusCode::FAILURE;
+  }
+#endif
 
   sc = m_eventStore.retrieve();
   if( !sc.isSuccess() )  
@@ -518,7 +532,7 @@ StatusCode AthenaHiveEventLoopMgr::writeHistograms(bool force) {
     IDataSelector* objects = agent.selectedObjects();
     // skip /stat entry!
     if ( objects->size() > 0 ) {
-      int writeInterval(m_writeInterval.value());
+      unsigned int writeInterval(m_writeInterval.value());
       IDataSelector::iterator i;
       for ( i = objects->begin(); i != objects->end(); i++ ) {
 	StatusCode iret(StatusCode::SUCCESS);
@@ -687,6 +701,12 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
 
 
   EventID::number_type evtNumber = pEvent->event_ID()->event_number();
+  // evtContext->setEventID(EventIDBase(pEvent->event_ID()->run_number(),
+  //       			     pEvent->event_ID()->event_number(),
+  //       			     pEvent->event_ID()->time_stamp(),
+  //       			     pEvent->event_ID()->time_stamp_ns_offset()));
+  evtContext->setEventID( *((EventIDBase*) pEvent->event_ID()) );
+
   m_doEvtHeartbeat = (m_eventPrintoutInterval.value() > 0 && 
 		 0 == (m_nev % m_eventPrintoutInterval.value()));
   if (m_doEvtHeartbeat)  {
@@ -1106,8 +1126,17 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(const EventContext* ctx){
   }  else  {
 
     //with no iterator it's up to us to create an EventInfo
-    pEvent = new EventInfo(new EventID(0,m_nevt), new EventType());
-    pEvent->event_ID()->set_lumi_block( m_nevt );
+    unsigned int runNmb{1}, evtNmb{m_nevt};
+
+    // increment the run/lumiBlock number if desired
+    if (m_flmbi != 0) {
+      runNmb = m_nevt / m_flmbi + 1;
+      evtNmb = m_nevt % m_flmbi;
+    }
+    pEvent = new EventInfo(new EventID(runNmb,evtNmb), new EventType());
+
+    // Change lumiBlock# to match runNumber
+    pEvent->event_ID()->set_lumi_block( runNmb );
 
     m_pEvent = pEvent;
 
@@ -1138,6 +1167,10 @@ StatusCode  AthenaHiveEventLoopMgr::createEventContext(EventContext*& evtContext
 
   m_nevt = createdEvts;
   
+#ifdef REENTRANT_GAUDI
+  m_algExecMgr->reset(*evtContext);
+#endif
+
   StatusCode sc = m_whiteboard->selectStore(evtContext->slot());
   if (sc.isFailure()){
     warning() << "Slot " << evtContext->slot()
@@ -1190,8 +1223,15 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
       continue;
     }
 
+#ifdef REENTRANT_GAUDI
+    if (m_algExecMgr->eventStatus(*thisFinishedEvtContext) != EventStatus::Success) {
+      fatal() << "Failed event detected on " << thisFinishedEvtContext 
+              << " w/ fail mode: "
+              << m_algExecMgr->eventStatus(*thisFinishedEvtContext) << endmsg;
+#else
     if (thisFinishedEvtContext->evtFail()){
-      fatal() << "Failed event detected"<< endmsg;
+      fatal() << "Failed event detected on " << thisFinishedEvtContext << endmsg;
+#endif
       delete thisFinishedEvtContext;
       fail = true;
       continue;
@@ -1219,6 +1259,10 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
       fail = true;
       continue;
     }
+
+    m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
+					 *thisFinishedEvtContext ));
+
 
     info() << "Clearing slot " << thisFinishedEvtContext->slot() 
 	   << " (event " << thisFinishedEvtContext->evt()
@@ -1267,8 +1311,6 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
     
     m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndProcessing, 
 					 *thisFinishedEvtContext ));    
-    m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
-					 *thisFinishedEvtContext ));
 
     delete thisFinishedEvtContext;
 

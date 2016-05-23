@@ -143,6 +143,25 @@ StatusCode MetaDataSvc::finalize() {
 }
 //__________________________________________________________________________
 StatusCode MetaDataSvc::stop() {
+   ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc", name());
+   if (!joSvc.retrieve().isSuccess()) {
+      ATH_MSG_WARNING("Cannot get JobOptionsSvc.");
+   } else {
+      const std::vector<const Property*>* evtselProps = joSvc->getProperties("EventSelector");
+      if (evtselProps != 0) {
+         for (std::vector<const Property*>::const_iterator iter = evtselProps->begin(),
+                         last = evtselProps->end(); iter != last; iter++) {
+            if ((*iter)->name() == "InputCollections") {
+               // Get EventSelector to fire End...File incidents.
+               ServiceHandle<IEvtSelector> evtsel("EventSelector", this->name());
+               IEvtSelector::Context* ctxt(0);
+               if (!evtsel->releaseContext(ctxt).isSuccess()) {
+                  ATH_MSG_WARNING("Cannot release context on EventSelector.");
+               }
+            }
+         }
+      }
+   }
    ATH_MSG_DEBUG("Releasing MetaDataTools");
    if (!m_metaDataTools.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
