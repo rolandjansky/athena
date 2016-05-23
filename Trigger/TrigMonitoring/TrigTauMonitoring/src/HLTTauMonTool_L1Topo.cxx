@@ -28,12 +28,12 @@
 
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/Feature.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
+//#include "TrigSteeringEvent/TrigOperationalInfo.h"
+//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
+//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 
 #include "TrigConfL1Data/PrescaleSet.h"
 
@@ -83,7 +83,6 @@
 #include <fstream>
 //#define _USE_MATH_DEFINES
 #include <math.h>
-
 
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 

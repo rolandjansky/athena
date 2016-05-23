@@ -29,12 +29,12 @@
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/Feature.h"
 #include "TrigDecisionTool/ChainGroup.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
+//#include "TrigSteeringEvent/TrigOperationalInfo.h"
+//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
+//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 
 #include "xAODTau/TauJet.h"
 #include "xAODTau/TauJetContainer.h"
@@ -88,6 +88,18 @@ using namespace std;
 StatusCode HLTTauMonTool::RealZTauTauEfficiency()
 {
   ATH_MSG_DEBUG("Real ZTauTau Efficiency");  
+
+  // compute eff only for events passing single muon triggers
+  if(! ( getTDT()->isPassed("HLT_mu20_iloose_L1MU15") 
+	|| getTDT()->isPassed("HLT_mu20_ivarloose_L1MU15") 
+	|| getTDT()->isPassed("HLT_mu24_ivarloose") 
+	|| getTDT()->isPassed("HLT_mu24_iloose") 
+	|| getTDT()->isPassed("HLT_mu24_imedium") 
+	|| getTDT()->isPassed("HLT_mu24_ivarmedium") 
+	|| getTDT()->isPassed("HLT_mu26_imedium") 
+	|| getTDT()->isPassed("HLT_mu26_ivarmedium") 
+	|| getTDT()->isPassed("HLT_mu50")
+	) ) return StatusCode::SUCCESS;
  
   const xAOD::TauJetContainer    * reco_cont      = 0;
   const xAOD::MuonContainer      * muon_cont      = 0;
@@ -145,7 +157,7 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
 	  ptcone40Rel = ptcone/pt_mu;
 	}
       
-      if(pt_mu<27000. || pt_mu>1450000.)             continue;
+      if(pt_mu<27000.)			             continue;
       if(fabs(eta_mu)>2.5)                           continue;
       if((*muonItr)->author() != xAOD::Muon::MuidCo) continue;
       if(! muon.passesIDCuts() )                     continue;
@@ -176,7 +188,7 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
     double pt_Tau     = TauTLV.Pt();
     double eta_Tau    = TauTLV.Eta();
     int    ntrack_Tau = (*recoItr)->nTracks();
-    bool   good_Tau   = (*recoItr)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
+    bool   good_Tau   = (*recoItr)->isTau(xAOD::TauJetParameters::JetBDTSigLoose);
     float  charge_Tau = (*recoItr)->charge();
         
     if(pt_Tau<20000.)                  continue;
@@ -229,7 +241,7 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
   double cos_dphi     = -99.0;
   double mt           = -99.0;
   double ltau_deta    =  99.0;
-  double ltau_dR      =  99.0;
+  //double ltau_dR      =  99.0;
   
   //Events variables with Lead Tau and Single Muon
   if(lead_tau && single_mu)
@@ -239,29 +251,29 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
       cos_dphi     = cos(Muon_TLV.DeltaPhi(MET_TLV)) + cos(Tau_TLV.DeltaPhi(MET_TLV)) ;
       mt           = sqrt(2 * Muon_TLV.Pt() * off_met * (1 - cos(Muon_TLV.DeltaPhi(MET_TLV)) ) );
       ltau_deta    = deltaEta(Tau_TLV.Eta(), Muon_TLV.Eta());
-      ltau_dR      = Tau_TLV.DeltaR(Muon_TLV);
+      //ltau_dR      = Tau_TLV.DeltaR(Muon_TLV);
     }
   
   //Event Selection
   if(ltau_charge == 0.     &&  
-     mt < 50000.           && 
+     mt < 60000.           && 
      cos_dphi > -0.5       && 
      fabs(ltau_deta) < 1.5 && 
-     ltau_dR > 2.9         &&
+     //ltau_dR > 2.9         &&
      ltau_vismass > 45000. && ltau_vismass < 85000.)
     {
-      for(unsigned int i=0;i<m_trigItems.size();++i)
+      for(unsigned int i=0;i<m_trigItemsZtt.size();++i)
 	{
-	  std::string l1_chain(LowerChain("HLT_"+m_trigItems[i]));
-	  std::string hlt_chain = "HLT_"+m_trigItems[i];
+	  std::string l1_chain(LowerChain("HLT_"+m_trigItemsZtt[i]));
+	  std::string hlt_chain = "HLT_"+m_trigItemsZtt[i];
 
-	  setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+m_trigItems[i]);
-	  hist("hRealZttPtDenom")->Fill(Tau_TLV.Pt()/1000.);
+	  setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+m_trigItemsZtt[i]);
+	  //hist("hRealZttPtDenom")->Fill(Tau_TLV.Pt()/1000.);
 
 	  //L1
 	  if(getTDT()->isPassed(l1_chain , TrigDefs::Physics | TrigDefs::allowResurrectedDecision))
 	    {
-	      hist("hRealZttL1PtNum")->Fill(Tau_TLV.Pt()/1000.);
+	      //hist("hRealZttL1PtNum")->Fill(Tau_TLV.Pt()/1000.);
 	      profile("TProfRealZttL1PtEfficiency")->Fill(Tau_TLV.Pt()/1000.,1);
 	    }
 	  else profile("TProfRealZttL1PtEfficiency")->Fill(Tau_TLV.Pt()/1000.,0);
@@ -269,7 +281,7 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
 	  //HLT
 	  if(getTDT()->isPassed(hlt_chain, TrigDefs::Physics | TrigDefs::allowResurrectedDecision))
 	    {
-	      hist("hRealZttHLTPtNum")->Fill(Tau_TLV.Pt()/1000.);
+	      //hist("hRealZttHLTPtNum")->Fill(Tau_TLV.Pt()/1000.);
 	      profile("TProfRealZttHLTPtEfficiency")->Fill(Tau_TLV.Pt()/1000.,1);
 	    }
 	  else profile("TProfRealZttHLTPtEfficiency")->Fill(Tau_TLV.Pt()/1000.,0);

@@ -2,220 +2,169 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/IJobOptionsSvc.h"
-#include "AthenaMonitoring/AthenaMonManager.h"
-#include "AthenaMonitoring/ManagedMonitorToolTest.h"
-
-#include "AnalysisUtils/AnalysisMisc.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/TriggerInfo.h"
-#include "TrigSteeringEvent/HLTResult.h"
-#include "EventInfo/EventInfo.h"
-#include <EventInfo/EventID.h>
-#include "xAODEventInfo/EventInfo.h"
-
-#include "TrigDecisionTool/FeatureContainer.h"
-#include "TrigDecisionTool/Feature.h"
-#include "TrigDecisionTool/ChainGroup.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
-
-#include "xAODTau/TauJet.h"
-#include "xAODTau/TauJetContainer.h"
-#include "xAODTau/TauJetAuxContainer.h"
-#include "xAODTau/TauDefs.h"
-
-#include "xAODTrigger/EmTauRoI.h"
-#include "xAODTrigger/EmTauRoIContainer.h"
-#include "xAODTrigger/JetRoIContainer.h"
-#include "xAODTrigger/MuonRoIContainer.h"
-#include "xAODTrigger/EnergySumRoI.h"
-
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthVertex.h"
-#include "xAODTruth/TruthVertexContainer.h"
-
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/TrackParticleContainer.h"
-
-#include "xAODMuon/Muon.h"
-#include "xAODMuon/MuonContainer.h"
-
-#include "xAODMissingET/MissingET.h"
-#include "xAODMissingET/MissingETContainer.h"
-
-#include "xAODJet/JetContainer.h"
-#include "xAODJet/JetConstituentVector.h"
-
-#include "VxVertex/VxContainer.h"
-
-#include "TROOT.h"
-#include "TH1I.h"
-#include "TH1F.h"
-#include "TH2I.h"
-#include "TH2F.h"
-#include "TEfficiency.h"
-
-#include <vector>
-#include <iostream>
-#include <fstream>
-//#define _USE_MATH_DEFINES
-#include <math.h>
-
-
-#include "TrigHLTMonitoring/IHLTMonTool.h"
-#include "TrigConfHLTData/HLTChain.h"
 #include "HLTTauMonTool.h"
+#include "TProfile.h"
 
-using namespace std;
+/*
+STRATEGY:
+Measure high pT tau trigger fake rate using dijet events.
+1. select events that pass jet trigger (e.g. j400).
+2. select leading and subleading offline jets.
+3. check if it is a dijet event: 
+   leading and subleading jets are back to back in phi, pt is balanced.
+4. check if an offline tau matches the subleading jet.
+5. check if HLT tau matches the offline tau.
+6. efficiency (fake rate) is (HLT taus matched to offline tau)/(offline taus)
+*/
 
 //--------------------------------------------------------------------------------------
 StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
 {
-  ATH_MSG_DEBUG("dijet Fake Taus Efficiency");  
-  setCurrentMonGroup("HLT/TauMon/Expert/dijetFakeTausEff");
+  ATH_MSG_DEBUG("dijet Fake Taus Efficiency"); 
+
+  /* CONFIGURATION */
+  const float 		leadingJetPtCut = 450000.; //MeV
+  const float 		leadingJetEtaCut = 3.2;
+  const std::string 	singleJetTrigger = "j400";
+  const std::string     offlineJetContainer = "AntiKt4LCTopoJets";
+  const float 		dRCut = 0.2;
+  const float 		dRL1Cut = 0.3;
+  const float 		dPhiCut = 2.5;
+  const float 		dPtBalancingCut = 0.3;
+  const float 		offlineTauPtCut = 150000.;
+  const float 		offlineTauEtaCut = 2.5;
+  const std::string	offlineTauIDCut = "";//"loose" "medium" "tight"
+  const std::vector<unsigned int>	offlineTauTrackCut = {1,2,3};
 
   
   const xAOD::JetContainer* jet_cont = 0;
-  if(evtStore()->retrieve(jet_cont, "AntiKt4EMTopoJets" ).isFailure())
+  if(evtStore()->retrieve(jet_cont, offlineJetContainer.c_str() ).isFailure())
     {
       ATH_MSG_WARNING("Failed to retrieve offline Jet container. Exiting.");
       return StatusCode::FAILURE;
     }
-  
-  const xAOD::JetContainer* HLTjet_cont = 0;
-  if(evtStore()->retrieve(HLTjet_cont, "HLT_xAOD__JetContainer_a4tcemsubjesFS" ).isFailure())
-    {
-      ATH_MSG_WARNING("Failed to retrieve HLT Jet container. Exiting.");
-      return StatusCode::FAILURE;
-    }
 
-  const xAOD::TauJetContainer * reco_cont = 0;
-  if( evtStore()->retrieve(reco_cont, "TauJets").isFailure() )
+  const xAOD::TauJetContainer* tau_reco_cont = 0;
+  if( evtStore()->retrieve(tau_reco_cont, "TauJets").isFailure() )
     {
       ATH_MSG_WARNING("Failed to retrieve  TauJets container. Exiting.");
       return StatusCode::FAILURE;
     }
 
-  
-  double pt_lead = -1;
-  double pt_sub = -1;
-  double pt_cut = 380000.;
-  bool off_match = false;
-  //  bool tau_matching = false;
-  TLorentzVector LeadJetTLV(0.,0.,0.,0.);
-  TLorentzVector SubLeadJetTLV(0.,0.,0.,0.);
-  const std::string theChain = "j360";
-  const std::string theContainer = "a4tcemsubjesFS";
-  bool leadjet = false;
-  bool subleadjet = false;
 
-  if(!getTDT()->isPassed(Form("HLT_%s",theChain.c_str())))
+  /* select events that pass the required trigger */
+  if(!getTDT()->isPassed(Form("HLT_%s",singleJetTrigger.c_str())))
     {
-      ATH_MSG_WARNING("Failed to pass single jet trigger. Exiting.");
-      return StatusCode::FAILURE;
+      ATH_MSG_DEBUG("Event does not pass single jet trigger. Exiting");
+      return StatusCode::SUCCESS;
     }
 
-  if(getTDT()->isPassed(Form("HLT_%s",theChain.c_str()))){ //events fired by single jet trigger
-    auto cg = getTDT()->getChainGroup(Form("HLT_%s",theChain.c_str())); 
-    auto fc = cg->features();
-    
-    auto JetFeatureContainers = fc.get<xAOD::JetContainer>(theContainer.c_str()); //get features container
-    
-    for(auto jcont : JetFeatureContainers) {
-      for (auto j : *jcont.cptr()) {
-	// selection of leading and sub leading jet                                                                                                
-	double pt_jet = j->pt();
-	double eta_jet = j->eta();
-	double phi_jet = j->phi();
-	
-	if(pt_jet < pt_cut) continue;
-	if(fabs(eta_jet) > 2.5) continue;
-	
-        if (pt_jet > pt_lead)
-          {
-	    pt_sub = pt_lead;
-	    SubLeadJetTLV = LeadJetTLV;
-            pt_lead = pt_jet;
-            LeadJetTLV.SetPtEtaPhiE(pt_lead,eta_jet,phi_jet,j->e());
-	    leadjet = true;
-	    
-          }
-        if(pt_jet < pt_lead && pt_jet > pt_sub)
-          {
-            pt_sub = pt_jet;
-            SubLeadJetTLV.SetPtEtaPhiE(pt_sub,eta_jet,phi_jet,j->e());
-	    subleadjet = true;
-          }
+
+  TLorentzVector leadingJetTLV(0.,0.,0.,0.);
+  TLorentzVector subleadingJetTLV(0.,0.,0.,0.);
+  const xAOD::TauJet* theOfflineTau = 0;
+
+  /* require offline leading jet and subleading jet */
+  for(auto aJet : *jet_cont)                                                                                               
+    {
+    if( aJet->pt() > leadingJetTLV.Pt() )
+      {
+        subleadingJetTLV = leadingJetTLV;
+        leadingJetTLV = aJet->p4();
       }
-    }//jet features
-    
-    // check if leading and sub leading jets exist + are back to back + pt balanced
-    if(leadjet && subleadjet && deltaPhi(LeadJetTLV.Phi(),SubLeadJetTLV.Phi()) >= 2.5 && (LeadJetTLV.Pt()-SubLeadJetTLV.Pt())/(LeadJetTLV.Pt()+SubLeadJetTLV.Pt()) < 0.3) {
-      
-      xAOD::JetContainer::const_iterator jetItr, jet_cont_end = jet_cont->end();
-      
-      double dr_lim = 0.2;
-      
-      // to check if leading jet matches offline jet                                
-      for(jetItr=jet_cont->begin(); jetItr!=jet_cont_end; ++jetItr)
-	{
-	  if ((*jetItr)->pt() < 20000 || TMath::Abs((*jetItr)->eta()) > 2.5) continue;
-	  double dr_hlt = deltaR((*jetItr)->eta(),LeadJetTLV.Eta(),(*jetItr)->phi(),LeadJetTLV.Phi());
-	  if(dr_hlt>dr_lim) continue;
-	  off_match = true;
-	}
-      
-      if(off_match)
-	{
-	  
-	  /*	  xAOD::TauJetContainer::const_iterator recoItr, reco_cont_end = reco_cont->end();
-	  //to check if leading jets matches an  offline tau
-	  for(recoItr=reco_cont->begin(); recoItr!=reco_cont_end; ++recoItr)
-	    {
-	      TLorentzVector TauTLV = (*recoItr)->p4();
-	      double pt_Tau = TauTLV.Pt();
-	      double eta_Tau = TauTLV.Eta();
-	      double phi_Tau = TauTLV.Phi();
-	      int ntrack_Tau = (*recoItr)->nTracks();
-	      bool good_Tau = (*recoItr)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
-	      float charge_Tau = (*recoItr)->charge();
-	      if(pt_Tau<20000.) continue;
-	      if(fabs(eta_Tau) > 2.5) continue;
-	      if(fabs(charge_Tau) != 1.0) continue;
-	      if(ntrack_Tau!=1 && ntrack_Tau!=3) continue;
-	      if(!good_Tau) continue;
-	      double dR = deltaR(LeadJetTLV.Eta(),eta_Tau,LeadJetTLV.Phi(),phi_Tau);                                                                
-	      if(dR > dr_lim) continue;                                                                                                             
-	      tau_matching = true;
-	    }
-	  
-	  if(tau_matching){
-	  */
-	    for(unsigned int i=0;i<m_trigItemsHighPt.size();++i)
-	      {
-		std::string l1_chain(LowerChain("HLT_"+m_trigItemsHighPt[i]));
-		setCurrentMonGroup("HLT/TauMon/Expert/dijetFakeTausEff/"+m_trigItemsHighPt[i]);
-		hist("hdijetFakeTausPtDenom")->Fill(SubLeadJetTLV.Pt()/1000.);
-		if(L1TauMatching(l1_chain, SubLeadJetTLV, 0.3))  hist("hdijetFakeTausL1PtNum")->Fill(SubLeadJetTLV.Pt()/1000.);
-		if(HLTTauMatching(m_trigItemsHighPt[i], SubLeadJetTLV, 0.2)) hist("hdijetFakeTausHLTPtNum")->Fill(SubLeadJetTLV.Pt()/1000.);
-	      }
-	  }
-      //}
+    else if( aJet->pt() > subleadingJetTLV.Pt() && aJet->pt() < leadingJetTLV.Pt())
+      {
+        subleadingJetTLV = aJet->p4(); 
+      }
     }
-    
-  }
+
+  /* check if leading jet passes pt and eta cut and subleading jet exists */
+  if( leadingJetTLV.Pt() < leadingJetPtCut || 
+      TMath::Abs(leadingJetTLV.Eta()) > leadingJetEtaCut || 
+      subleadingJetTLV.Pt()==0. || 
+      TMath::Abs(subleadingJetTLV.Eta()) > offlineTauEtaCut) 
+    {
+      ATH_MSG_DEBUG("No leading or subleading jet found. Exiting");
+      return StatusCode::SUCCESS;
+    }
+
+  /* check if leading and subleading jets are back to back + pt balanced */
+  if( leadingJetTLV.DeltaPhi(subleadingJetTLV) < dPhiCut || 
+      (leadingJetTLV.Pt()-subleadingJetTLV.Pt())/(leadingJetTLV.Pt()+subleadingJetTLV.Pt()) > dPtBalancingCut ) 
+    {
+      ATH_MSG_DEBUG("No good dijet found. Exiting");
+      return StatusCode::SUCCESS;
+    }
+
+  /* match offline tau to subleading jet */
+  float dR = 666;
+  for(auto aTau : *tau_reco_cont)
+    {
+      /* check offline tau quality */
+      if( aTau->pt() < offlineTauPtCut ) continue;
+      if( TMath::Abs(aTau->eta()) > offlineTauEtaCut ) continue;
+      //if( TMath::Abs(aTau->charge()) != 1.0 ) continue;
+  
+      bool trackMatch = false;
+      for(auto i : offlineTauTrackCut) if( aTau->nTracks()==i) {trackMatch=true; break;}
+      if(!trackMatch) continue;
+
+      if( offlineTauIDCut=="") ;
+      else if( offlineTauIDCut=="loose")  {if( !aTau->isTau(xAOD::TauJetParameters::JetBDTSigLoose) ) continue;}
+      else if( offlineTauIDCut=="medium") {if( !aTau->isTau(xAOD::TauJetParameters::JetBDTSigMedium) ) continue;}
+      else if( offlineTauIDCut=="tight")  {if( !aTau->isTau(xAOD::TauJetParameters::JetBDTSigTight) ) continue;}
+
+      /* match to subleading jet*/
+      float temp_dR=subleadingJetTLV.DeltaR(aTau->p4());
+      if( temp_dR < dR ) 
+        {
+          theOfflineTau = aTau;
+          dR=temp_dR;
+        }
+    }
+  if( dR > dRCut ) 
+    {
+      ATH_MSG_DEBUG("No matching tau found. Exiting");
+      return StatusCode::SUCCESS;
+    }
+
+ /* check HLT tau */
+  for(auto aHighPtChain : m_trigItemsHighPt)
+    {
+      setCurrentMonGroup("HLT/TauMon/Expert/dijetFakeTausEff/" + aHighPtChain);
+
+      std::string l1_chain(LowerChain("HLT_" + aHighPtChain));
+     /* match offline tau with HLT taus and fill nominators */
+      if(L1TauMatching(l1_chain, theOfflineTau->p4(), dRL1Cut))  	
+        {
+	  profile("TProfDijetFakeTausL1MuEfficiency")->Fill(mu_offline,1);
+          profile("TProfDijetFakeTausL1PtEfficiency")->Fill(theOfflineTau->pt()/1000.,1);
+          profile("TProfDijetFakeTausL1EtaEfficiency")->Fill(theOfflineTau->eta(),1);
+          profile("TProfDijetFakeTausL1NTracksEfficiency")->Fill(theOfflineTau->nTracks(),1);
+        }
+       else
+        {
+          profile("TProfDijetFakeTausL1PtEfficiency")->Fill(theOfflineTau->pt()/1000.,0);
+          profile("TProfDijetFakeTausL1EtaEfficiency")->Fill(theOfflineTau->eta(),0);
+	  profile("TProfDijetFakeTausL1MuEfficiency")->Fill(mu_offline,0);
+          profile("TProfDijetFakeTausL1NTracksEfficiency")->Fill(theOfflineTau->nTracks(),0);
+        }
+
+      if(HLTTauMatching(aHighPtChain, theOfflineTau->p4(), dRCut)) 	
+        {
+          profile("TProfDijetFakeTausHLTPtEfficiency")->Fill(theOfflineTau->pt()/1000.,1);
+          profile("TProfDijetFakeTausHLTEtaEfficiency")->Fill(theOfflineTau->eta(),1);
+          profile("TProfDijetFakeTausHLTMuEfficiency")->Fill(mu_offline,1);
+          profile("TProfDijetFakeTausHLTNTracksEfficiency")->Fill(theOfflineTau->nTracks(),1);
+        }
+      else
+        {
+          profile("TProfDijetFakeTausHLTPtEfficiency")->Fill(theOfflineTau->pt()/1000.,0);
+          profile("TProfDijetFakeTausHLTEtaEfficiency")->Fill(theOfflineTau->eta(),0);
+          profile("TProfDijetFakeTausHLTMuEfficiency")->Fill(mu_offline,0);
+          profile("TProfDijetFakeTausHLTNTracksEfficiency")->Fill(theOfflineTau->nTracks(),0);
+        }
+    }
   
   return StatusCode::SUCCESS;
   

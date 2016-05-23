@@ -30,12 +30,12 @@
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/Feature.h"
 #include "TrigDecisionTool/ChainGroup.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
+//#include "TrigSteeringEvent/TrigOperationalInfo.h"
+//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
+//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 
 #include "TrigTauEmulation/Level1EmulationTool.h"
 #include "TrigTauEmulation/HltEmulationTool.h"
@@ -73,6 +73,7 @@
 #include "TH2I.h"
 #include "TH2F.h"
 #include "TEfficiency.h"
+#include "TProfile.h"
 
 #include <vector>
 #include <iostream>
@@ -164,24 +165,25 @@ StatusCode HLTTauMonTool::Emulation(){
   //if(m_bootstrap && !getTDT()->isPassed("L1_TAU12")) continue;
   bool emulation_decision = m_l1emulationTool->decision(it);
   ATH_MSG_DEBUG(it << " emulation : " << emulation_decision);
-  setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
-  if(emulation_decision) hist("hL1EmulationPassEmul")->Fill(it.c_str(),1.);
+  //setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
+  //if(emulation_decision) hist("hL1EmulationPassEmul")->Fill(it.c_str(),1.);
   auto chain_group = getTDT()->getChainGroup(it);  
   bool cg_passes_event = chain_group->isPassed();
   //if(getTDT()->isPassedBits(it) & TrigDefs::L1_isPassedBeforePrescale) cg_passes_event = true; 
   ATH_MSG_DEBUG(it << " TDT : " <<  cg_passes_event);
-  setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
-  if(cg_passes_event) hist("hL1EmulationPassTDT")->Fill(it.c_str(),1.);
+  //setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
+  //if(cg_passes_event) hist("hL1EmulationPassTDT")->Fill(it.c_str(),1.);
   //int L1_PSCut = (int) getTDT()->getPrescale(it);
   //float L1_PS = TrigConf::PrescaleSet::getPrescaleFromCut(L1_PSCut);
+  setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
   if (emulation_decision != cg_passes_event){
     ATH_MSG_DEBUG("TDT and emulation decision different, TDT gives : " 
 		 << cg_passes_event 
 		 << " emulation gives : " 
 		 << emulation_decision);
-    setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
-    hist("hL1Emulation")->Fill(it.c_str(),1.);
+    profile("hL1Emulation")->Fill(it.c_str(),1.);
   }
+  if (emulation_decision == cg_passes_event) profile("hL1Emulation")->Fill(it.c_str(),0.);
  }
  // std::string l1_chain(LowerChain("HLT_"+trigItem));
 
