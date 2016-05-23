@@ -280,13 +280,15 @@ class SlimmingHelper:
 			from DerivationFrameworkCore.PhotonsCPContent import PhotonsCPContent
 			items.extend(PhotonsCPContent)
 		elif collectionName=="Muons":
-			#from DerivationFrameworkMuons.MuonsCPContent import MuonsCPContent
-			from DerivationFrameworkCore.MuonsCPContent import MuonsCPContent
+			from DerivationFrameworkMuons.MuonsCPContent import MuonsCPContent
+#			from DerivationFrameworkCore.MuonsCPContent import MuonsCPContent
 			items.extend(MuonsCPContent)
 		elif collectionName=="TauJets":
-			#from DerivationFrameworkTau.TauJetsCPContent import TauJetsCPContent
-			from DerivationFrameworkCore.TauJetsCPContent import TauJetsCPContent
+			from DerivationFrameworkTau.TauJetsCPContent import TauJetsCPContent
 			items.extend(TauJetsCPContent)
+		elif collectionName=="TauMVATESJets":
+			from DerivationFrameworkTau.TauMVATESContent import TauMVATESContent
+			items.extend(TauMVATESContent)
 		elif collectionName=="MET_Reference_AntiKt4LCTopo":
 			#from DerivationFrameworkJetEtMiss.MET_Reference_AntiKt4LCTopoCPContent import MET_Reference_AntiKt4LCTopoCPContent
 			from DerivationFrameworkCore.MET_Reference_AntiKt4LCTopoCPContent import MET_Reference_AntiKt4LCTopoCPContent
