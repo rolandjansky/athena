@@ -15,9 +15,11 @@
 
 // Local include(s):
 #include "L1TopoSrcIdMap.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 // Forward declaration(s):
 class L1TopoRDO;
+class L1TopoRDOCollection;
 
 /**
  *   @short Tool doing the L1TopoRDO <-> ByteStream conversion
@@ -32,14 +34,13 @@ class L1TopoRDO;
  *    @date $Date: 2014-11-12 00:00:00 $
  */
 class L1TopoByteStreamTool : public AthAlgTool {
-
-private:
+ private:
   typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment ROBF;
 
-public:
+ public:
   /// Default constructor
-  L1TopoByteStreamTool( const std::string& type, const std::string& name,
-                     const IInterface* parent );
+  L1TopoByteStreamTool(const std::string& type, const std::string& name,
+                       const IInterface* parent);
   /// Default destructor
   virtual ~L1TopoByteStreamTool();
 
@@ -53,22 +54,28 @@ public:
 
   /// return list of L1Topo ROD source IDs to use, defaults to DAQ ROD IDs
   const std::vector<uint32_t>& sourceIDs();
-
   /// Convert ROBFragment to L1TopoRDO
-  StatusCode convert( const ROBF* rob, L1TopoRDO*& result );
+  StatusCode convert(const std::string& sgKey, L1TopoRDOCollection* result);
+  /// Convert ROBFragment to L1TopoRDO
+  StatusCode convert(const ROBF* rob, L1TopoRDO*& result);
   /// convert L1TopoRDO to ByteStream
-  StatusCode convert( const L1TopoRDO* result, RawEventWrite* re );
+  StatusCode convert(const L1TopoRDO* result, RawEventWrite* re);
 
-private:
-  /// Object to generate and convert between the various IDs of the L1Topo fragment
+ private:
+  /// Object to generate and convert between the various IDs of the L1Topo
+  /// fragment
   L1TopoSrcIdMap* m_srcIdMap;
   /// Source IDs of L1Topo RODs
   std::vector<uint32_t> m_sourceIDs;
   /// Object used in creating the L1Topo ROB fragment
-  FullEventAssembler< L1TopoSrcIdMap > m_fea;
+  FullEventAssembler<L1TopoSrcIdMap> m_fea;
 
   BooleanProperty m_doDAQROBs;
   BooleanProperty m_doROIROBs;
-}; // class L1TopoByteStreamTool
 
-#endif // L1TOPOBYTESTREAM_L1TOPOBYTESTREAMTOOL_H
+ private:
+  /// Service for reading bytestream
+  ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
+};  // class L1TopoByteStreamTool
+
+#endif  // L1TOPOBYTESTREAM_L1TOPOBYTESTREAMTOOL_H
