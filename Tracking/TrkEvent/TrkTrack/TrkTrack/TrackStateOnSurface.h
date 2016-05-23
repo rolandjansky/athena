@@ -19,6 +19,7 @@ email                : edward.moyse@cern.ch
 class MsgStream;
 
 class TrackCollectionCnv;
+class TrackStateOnSurfaceCnv_p3;
 
 namespace Trk
 {
@@ -65,6 +66,8 @@ namespace Trk
     class TrackStateOnSurface
     {
         friend class ::TrackCollectionCnv;
+        friend class ::TrackStateOnSurfaceCnv_p3;
+
         public:
         
             /**

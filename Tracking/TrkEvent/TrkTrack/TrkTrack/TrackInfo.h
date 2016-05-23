@@ -238,6 +238,7 @@ the track and determine this for yourself (especially as not all Track builders 
      strategyB                                  = 44,
      strategyC                                  = 45,
 
+
 /**   for tracks from FTK */
      FTK                                        = 46,
 
@@ -250,8 +251,11 @@ the track and determine this for yourself (especially as not all Track builders 
 /**  Large d0 for displaced vertex searches */
      SiSpacePointsSeedMaker_LargeD0             = 49,
 
+/** SLHCConversion Track flag */
+     SiSpacePointsSeedMaker_SLHCConversionTracks = 50,
+
 /**  Maximum number of enums */   
-     NumberOfTrackRecoInfo                      = 50
+     NumberOfTrackRecoInfo                      = 51
     };
     
     TrackInfo (); //!<needed by POOL. DO NOT USE YOURSELF! 

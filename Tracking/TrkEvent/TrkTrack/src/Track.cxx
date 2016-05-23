@@ -3,6 +3,7 @@
 */
 
 #include "TrkTrack/Track.h"
+#include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkTrack/TrackStateOnSurface.h"
@@ -112,11 +113,11 @@ Trk::Track& Trk::Track::operator= (const Track& rhs)
         m_perigeeParameters=0;
 
         //set the author to be that of the Track being copied.
- //       if( m_trackInfo!=0) delete m_trackInfo;
-//	m_trackInfo = 0;
-//        if (rhs.info()!=0)m_trackInfo = new TrackInfo(*(rhs.m_trackInfo));
-	m_trackInfo = rhs.m_trackInfo;
-	
+        //       if( m_trackInfo!=0) delete m_trackInfo;
+        //	m_trackInfo = 0;
+        //        if (rhs.info()!=0)m_trackInfo = new TrackInfo(*(rhs.m_trackInfo));
+        m_trackInfo = rhs.m_trackInfo;
+
         // create & copy other variables
         if (rhs.fitQuality()!=0)
             m_fitQuality = new FitQuality( *(rhs.m_fitQuality) );
@@ -193,6 +194,7 @@ void Trk :: Track :: findPerigee() const
     // code slower which (in my opinion) makes it not worth doing. EJWM
     // there can be other objects, like VertexOnTrack measurements, with
     // params at a Perigee surface, thus an additional TSoS type check. AS/WL
+    if (not m_trackStateVector) return; //coverity 106171 Explicit null dereferenced
     DataVector<const TrackStateOnSurface>::const_iterator it = 
             m_trackStateVector->begin();
     DataVector<const TrackStateOnSurface>::const_iterator itEnd = 

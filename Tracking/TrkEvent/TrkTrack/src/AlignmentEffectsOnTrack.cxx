@@ -10,7 +10,7 @@ Trk::AlignmentEffectsOnTrack::AlignmentEffectsOnTrack(float deltaTranslation,
                                                       float sigmaDeltaTranslation, 
                                                       float deltaAngle,  
                                                       float sigmaDeltaAngle, 
-                                                      const std::vector<const TrackStateOnSurface*>& affectedTSOS,
+                                                      const std::vector< Identifier>& affectedTSOS,
                                                       const Trk::Surface* surface) :
   m_deltaTranslation(deltaTranslation), 
   m_sigmaDeltaTranslation(sigmaDeltaTranslation), 
@@ -41,7 +41,7 @@ Trk::AlignmentEffectsOnTrack& Trk::AlignmentEffectsOnTrack::operator=(const Trk:
     m_sigmaDeltaTranslation = rhs.m_sigmaDeltaTranslation; 
     m_deltaAngle = rhs.m_deltaAngle; 
     m_sigmaDeltaAngle = rhs.m_sigmaDeltaAngle;
-    if ( m_surface->isFree() ) delete m_surface; m_surface = 0;
+    if ( m_surface->isFree() ) delete m_surface;
     m_surface = ( rhs.m_surface->isFree() ? rhs.m_surface->clone() : rhs.m_surface );
     m_affectedTSOS = rhs.m_affectedTSOS ;
   }
@@ -49,7 +49,9 @@ Trk::AlignmentEffectsOnTrack& Trk::AlignmentEffectsOnTrack::operator=(const Trk:
 }  
 
 Trk::AlignmentEffectsOnTrack::~AlignmentEffectsOnTrack(){
-  if ( m_surface->isFree() ) delete m_surface; m_surface = 0;
+  if ( m_surface && m_surface->isFree() ) { 
+    delete m_surface; m_surface = 0;
+  }
 }
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
