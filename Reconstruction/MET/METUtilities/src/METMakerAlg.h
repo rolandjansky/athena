@@ -18,6 +18,14 @@
 #include "xAODTau/TauJet.h"
 
 class IMETMaker;
+class IAsgElectronLikelihoodTool;
+class IAsgPhotonIsEMSelector;
+namespace CP {
+  class IMuonSelectionTool;
+}
+namespace TauAnalysisTools {
+  class ITauSelectionTool;
+}
 
 namespace met {
   class METMakerAlg : public AthAlgorithm {
@@ -49,14 +57,24 @@ namespace met {
     std::string m_corename;
     std::string m_outname;
 
+    std::string m_softclname;
+    std::string m_softtrkname;
+
     std::string m_jetColl;
     std::string m_eleColl;
     std::string m_gammaColl;
     std::string m_tauColl;
     std::string m_muonColl;
+
+    bool m_doTruthLep;
     
     /// Athena configured tools
     ToolHandle<IMETMaker> m_metmaker;
+
+    ToolHandle<CP::IMuonSelectionTool> m_muonSelTool;
+    ToolHandle<IAsgElectronLikelihoodTool> m_elecSelLHTool;
+    ToolHandle<IAsgPhotonIsEMSelector>     m_photonSelIsEMTool;
+    ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelTool;
 
   }; 
 

@@ -41,11 +41,37 @@
 
 #include "PATInterfaces/SystematicRegistry.h"
 
-static std::string jetType = "AntiKt4EMTopoJets";
+#include "xAODCore/tools/IOStats.h"
+#include "xAODCore/tools/ReadStats.h"
 
-int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
+JetCalibrationTool jetCalibrationTool("JetCalibTool");
+
+//jets which are given to METMaker should be calibrated
+StatusCode calibrateJetCollection(xAOD::JetContainer* & jets ){
+  for ( xAOD::JetContainer::iterator ijet = jets->begin();
+	ijet < jets->end();
+	++ijet
+	){
+    //Shallow copy is needed (see links below)
+    if(!jetCalibrationTool.applyCalibration(**ijet))//apply the calibration
+      return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+}
+
+int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl;
    // Initialize the application
   xAOD::Init() ;
+
+  TString fileName = gSystem->Getenv("ASG_TEST_FILE_MC");
+  std::string jetType = "AntiKt4EMTopoJets";
+  for (int i=0; i<argc; ++i) {
+    if (std::string(argv[i]) == "-filen" && i+1<argc) {
+      fileName = argv[i+1];
+    } else if (std::string(argv[i]) == "-jetcoll" && i+1<argc) {
+      jetType = argv[i+1];
+    }
+  }
 
   //enable status code failures
   CP::CorrectionCode::enableFailure();
@@ -54,7 +80,6 @@ int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
   xAOD::TReturnCode::enableFailure();
 
   //this test file should work.  Feel free to contact me if there is a problem with the file.
-  TString const fileName = "/afs/cern.ch/work/r/rsmith/public/METUtilities_testfiles/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s1982_s1964_r6006_tid04628718_00/AOD.04628718._000158.pool.root.1";
   std::auto_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
   assert( ifile.get() );
 
@@ -75,12 +100,9 @@ int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
   met::METMaker metMaker("METMaker");
   // metMaker.msg().setLevel(MSG::VERBOSE);//If you want more messages, you can turn this up
 
-  // std::string const  jetCalibName = ;
-  JetCalibrationTool jetCalibTool("JetCalibTool" );
-
   if( (!metSystTool.initialize()) &&
       (!metMaker.initialize())    &&
-      (!jetCalibTool.initialize())
+      (!jetCalibrationTool.initialize())
       ){
     std::cout << "initialization of the met tools failed.  Exiting" << std::endl;
     return 0;
@@ -95,6 +117,8 @@ int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
     assert(    event->getEntry(ievent) >= 0 );
 
     //retrieve the original containers
+
+    //this contains all constituents not associated to a jet/misc term
     const xAOD::MissingETContainer* coreMet  = nullptr;
     std::string coreMetKey = "MET_Core_" + jetType;
     coreMetKey.erase(coreMetKey.length() - 4);//this removes the Jets from the end of the jetType
@@ -113,8 +137,18 @@ int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
     assert( event->retrieve(taus, "TauJets"));
 
     //this should probably be a calibrated jet container.  See the METUtilities twiki for more info
-    const xAOD::JetContainer* calibJets = nullptr;
-    assert( event->retrieve(calibJets, jetType));//this retrieves and applies the correction
+    const xAOD::JetContainer* uncalibJets = nullptr;
+    assert( event->retrieve(uncalibJets, jetType));//this retrieves and applies the correction
+    std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > calibJetsPair = xAOD::shallowCopyContainer( *uncalibJets );//make a shallow copy to calibrate
+    xAOD::JetContainer *& calibJets = calibJetsPair.first;//create a reference to the first element of the pair (i.e. the JetContainer)
+    if( !calibrateJetCollection(calibJets)){//we calibrate the JetContainer
+      std::cout << "initialization of the met tools failed.  Exiting" << std::endl;
+      return 0;
+    }
+    if(!xAOD::setOriginalObjectLink(*uncalibJets, *calibJets)){//tell calib container what old container it matches
+      std::cout << "Failed to set the original object links" << std::endl;
+      return 0;
+    }
 
     //retrieve the MET association map
     const xAOD::MissingETAssociationMap* metMap = nullptr;
@@ -263,6 +297,8 @@ int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
 
   delete outfile;
   delete event;
+
+  xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
 
   return 0;
  }

@@ -27,12 +27,12 @@ namespace met {
 
   METSystematicsTool::METSystematicsTool(const std::string& name) : asg::AsgTool::AsgTool(name),
   m_appliedSystEnum(NONE),
-  shiftpara_pthard_njet_mu(nullptr),
-  resopara_pthard_njet_mu(nullptr),
-  resoperp_pthard_njet_mu(nullptr),
-  jet_systRpt_pt_eta(nullptr),
-  h_calosyst_scale(nullptr),
-  h_calosyst_reso (nullptr),
+  m_shiftpara_pthard_njet_mu(nullptr),
+  m_resopara_pthard_njet_mu(nullptr),
+  m_resoperp_pthard_njet_mu(nullptr),
+  m_jet_systRpt_pt_eta(nullptr),
+  m_h_calosyst_scale(nullptr),
+  m_h_calosyst_reso (nullptr),
   m_rand(0),
   m_objLinkAcc("originalObjectLink"),
   m_units(-1)
@@ -40,12 +40,12 @@ namespace met {
     ATH_MSG_DEBUG (__PRETTY_FUNCTION__ );
 
     declareProperty( "JetColl",           m_jetColl           = "AntiKt4LCTopoJets"                         );
-    declareProperty( "ConfigPrefix",      m_configPrefix      = "METUtilities/data15_13TeV/prerec_June15v1");
+    declareProperty( "ConfigPrefix",      m_configPrefix      = "METUtilities/data15_13TeV/Dec15v2");
     declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms.config"                     );
     //    declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms_afii.config"            );//for ATLFAST
     declareProperty( "ConfigJetTrkFile",  m_configJetTrkFile  = ""                                          );
-    //declareProperty( "ConfigSoftCaloFile",m_configSoftCaloFile= ""                                          );
-    declareProperty( "ConfigSoftCaloFile",m_configSoftCaloFile= "METRefFinal_Obsolete2012_V2.config"        );
+    declareProperty( "ConfigSoftCaloFile",m_configSoftCaloFile= ""                                          );
+    // declareProperty( "ConfigSoftCaloFile",m_configSoftCaloFile= "METRefFinal_Obsolete2012_V2.config"        );
     declareProperty( "TruthContainer",    m_truthCont         = "MET_Truth"                                 );
     declareProperty( "TruthObj",          m_truthObj          = "NonInt"                                    );
     declareProperty( "VertexContainer",   m_vertexCont        = "PrimaryVertices"                           );
@@ -120,12 +120,12 @@ namespace met {
   {
     ATH_MSG_DEBUG (__PRETTY_FUNCTION__);
 
-    delete shiftpara_pthard_njet_mu;
-    delete resopara_pthard_njet_mu;
-    delete resoperp_pthard_njet_mu;
-    delete jet_systRpt_pt_eta;
-    delete h_calosyst_scale;
-    delete h_calosyst_reso;
+    delete m_shiftpara_pthard_njet_mu;
+    delete m_resopara_pthard_njet_mu;
+    delete m_resoperp_pthard_njet_mu;
+    delete m_jet_systRpt_pt_eta;
+    delete m_h_calosyst_scale;
+    delete m_h_calosyst_reso;
 
     return StatusCode::SUCCESS;
   }
@@ -146,11 +146,11 @@ namespace met {
     TFile infile(histpath.c_str());
 
     ATH_MSG_INFO( "METSystematics: Read calo uncertainties" );
-    h_calosyst_scale = dynamic_cast<TH1D*>( infile.Get((gsystpath+"/globsyst_scale").c_str()));
-    h_calosyst_reso  = dynamic_cast<TH1D*>( infile.Get((gsystpath+"/globsyst_reso").c_str()));
+    m_h_calosyst_scale = dynamic_cast<TH1D*>( infile.Get((gsystpath+"/globsyst_scale").c_str()));
+    m_h_calosyst_reso  = dynamic_cast<TH1D*>( infile.Get((gsystpath+"/globsyst_reso").c_str()));
 
-    if( !(h_calosyst_scale &&
-          h_calosyst_reso
+    if( !(m_h_calosyst_scale &&
+          m_h_calosyst_reso
           )
 	)
       {
@@ -158,8 +158,8 @@ namespace met {
 	return StatusCode::FAILURE;
       }
 
-    h_calosyst_scale->SetDirectory(0);
-    h_calosyst_reso ->SetDirectory(0);
+    m_h_calosyst_scale->SetDirectory(0);
+    m_h_calosyst_reso ->SetDirectory(0);
 
     ATH_MSG_VERBOSE( __PRETTY_FUNCTION__ << "  DONE!!" );
     return StatusCode::SUCCESS;
@@ -179,16 +179,16 @@ namespace met {
 
     TFile infile((configdir).c_str());
 
-    jet_systRpt_pt_eta = dynamic_cast<TH2D*>( infile.Get("jet_systRpt_pt_eta") ) ;
-//    jet_systRpt_pt_eta = dynamic_cast<TH2D*>( infile.Get("uncertaintyMap") ) ;
+    m_jet_systRpt_pt_eta = dynamic_cast<TH2D*>( infile.Get("jet_systRpt_pt_eta") ) ;
+//    m_jet_systRpt_pt_eta = dynamic_cast<TH2D*>( infile.Get("uncertaintyMap") ) ;
 
-    if( !jet_systRpt_pt_eta)
+    if( !m_jet_systRpt_pt_eta)
       {
 	ATH_MSG_ERROR("Could not get jet track histo from the config file:" << histfile);
 	return StatusCode::FAILURE;
       }
 
-    jet_systRpt_pt_eta->SetDirectory(0);
+    m_jet_systRpt_pt_eta->SetDirectory(0);
 
     ATH_MSG_VERBOSE( __PRETTY_FUNCTION__ << "  DONE!!");
     return StatusCode::SUCCESS;
@@ -208,13 +208,13 @@ namespace met {
 
     TFile infile(histpath.c_str());
 
-    resoperp_pthard_njet_mu  = dynamic_cast<TH3D*>( infile.Get((psystpath+"/resoperp_"+suffix).c_str()) );
-    resopara_pthard_njet_mu  = dynamic_cast<TH3D*>( infile.Get((psystpath+"/resopara_"+suffix).c_str()) );
-    shiftpara_pthard_njet_mu = dynamic_cast<TH3D*>( infile.Get((psystpath+"/shiftpara_"+suffix).c_str()));
+    m_resoperp_pthard_njet_mu  = dynamic_cast<TH3D*>( infile.Get((psystpath+"/resoperp_"+suffix).c_str()) );
+    m_resopara_pthard_njet_mu  = dynamic_cast<TH3D*>( infile.Get((psystpath+"/resopara_"+suffix).c_str()) );
+    m_shiftpara_pthard_njet_mu = dynamic_cast<TH3D*>( infile.Get((psystpath+"/shiftpara_"+suffix).c_str()));
 
-    if( !(resoperp_pthard_njet_mu  &&
-          resopara_pthard_njet_mu  &&
-          shiftpara_pthard_njet_mu
+    if( !(m_resoperp_pthard_njet_mu  &&
+          m_resopara_pthard_njet_mu  &&
+          m_shiftpara_pthard_njet_mu
           )
 	)
       {
@@ -222,9 +222,9 @@ namespace met {
 	return StatusCode::FAILURE;
       }
 
-    resoperp_pthard_njet_mu ->SetDirectory(0);
-    resopara_pthard_njet_mu ->SetDirectory(0);
-    shiftpara_pthard_njet_mu->SetDirectory(0);
+    m_resoperp_pthard_njet_mu ->SetDirectory(0);
+    m_resopara_pthard_njet_mu ->SetDirectory(0);
+    m_shiftpara_pthard_njet_mu->SetDirectory(0);
 
     ATH_MSG_VERBOSE( __PRETTY_FUNCTION__ <<"  DONE!!");
     return StatusCode::SUCCESS;
@@ -447,11 +447,11 @@ namespace met {
 					    ptHard.mpy * ptHard.mpy )  ;
 
 
-      int          phbin                                     = shiftpara_pthard_njet_mu->GetXaxis()->FindBin( ptHardMet  ) ;
-      if(phbin>shiftpara_pthard_njet_mu->GetNbinsX())  phbin = shiftpara_pthard_njet_mu->GetNbinsX();
-      int    const jetbin                                    = shiftpara_pthard_njet_mu->GetYaxis()->FindBin(jetCont->size());
-      int    const mubin                                     = shiftpara_pthard_njet_mu->GetZaxis()->FindBin(eInfo.actualInteractionsPerCrossing() );
-      double const ptHardShift                               = shiftpara_pthard_njet_mu->GetBinContent(phbin,jetbin,mubin);
+      int          phbin                                     = m_shiftpara_pthard_njet_mu->GetXaxis()->FindBin( ptHardMet  ) ;
+      if(phbin>m_shiftpara_pthard_njet_mu->GetNbinsX())  phbin = m_shiftpara_pthard_njet_mu->GetNbinsX();
+      int    const jetbin                                    = m_shiftpara_pthard_njet_mu->GetYaxis()->FindBin(jetCont->size());
+      int    const mubin                                     = m_shiftpara_pthard_njet_mu->GetZaxis()->FindBin(eInfo.actualInteractionsPerCrossing() );
+      double const ptHardShift                               = m_shiftpara_pthard_njet_mu->GetBinContent(phbin,jetbin,mubin);
 
       double const randGaus = m_rand.Gaus(0.,1.);
 
@@ -470,28 +470,28 @@ namespace met {
           break;
         }
         case MET_SOFTTRK_RESOPARA : {
-          double const smearpara = resopara_pthard_njet_mu->GetBinContent(phbin,jetbin,mubin)*randGaus;
+          double const smearpara = m_resopara_pthard_njet_mu->GetBinContent(phbin,jetbin,mubin)*randGaus;
           softMetStruct                = softTrkSyst_reso(softMetStruct, ptHard, ptHardShift, smearpara, 0.);
           break;
         }
         case MET_SOFTTRK_RESOPERP : {
-          double const smearperp = resoperp_pthard_njet_mu->GetBinContent(phbin,jetbin,mubin)*randGaus;
+          double const smearperp = m_resoperp_pthard_njet_mu->GetBinContent(phbin,jetbin,mubin)*randGaus;
           softMetStruct                = softTrkSyst_reso(softMetStruct, ptHard, ptHardShift, 0., smearperp );
           break;
         }
         case MET_SOFTTRK_RESOCORR : {
-          double const smearpara = resopara_pthard_njet_mu->GetBinContent(phbin,jetbin,mubin)*randGaus;
-          double const smearperp = resoperp_pthard_njet_mu->GetBinContent(phbin,jetbin,mubin)*randGaus;
+          double const smearpara = m_resopara_pthard_njet_mu->GetBinContent(phbin,jetbin,mubin)*randGaus;
+          double const smearperp = m_resoperp_pthard_njet_mu->GetBinContent(phbin,jetbin,mubin)*randGaus;
           softMetStruct                = softTrkSyst_reso(softMetStruct, ptHard, ptHardShift, smearpara   , smearperp);
           break;
         }
         case MET_SOFTCALO_SCALEUP : {
-          double const caloscale = 1. +  h_calosyst_scale->GetBinContent(1);
+          double const caloscale = 1. +  m_h_calosyst_scale->GetBinContent(1);
           softMetStruct                = caloSyst_scale(softMetStruct,caloscale);
           break;
         }
         case MET_SOFTCALO_SCALEDOWN : {
-          double const caloscale = 1. - h_calosyst_scale->GetBinContent(1);
+          double const caloscale = 1. - m_h_calosyst_scale->GetBinContent(1);
           softMetStruct                = caloSyst_scale(softMetStruct,caloscale);
           break;
         }
@@ -527,7 +527,7 @@ namespace met {
   {
     ATH_MSG_VERBOSE(__PRETTY_FUNCTION__);
 
-    if( jet_systRpt_pt_eta == nullptr ) {
+    if( m_jet_systRpt_pt_eta == nullptr ) {
       ATH_MSG_ERROR("jet track systematics histogram not initialized properly.") ;
       return CP::CorrectionCode::Error;
     }
@@ -535,21 +535,21 @@ namespace met {
     MissingETBase::Types::constvec_t trkvec = assoc->overlapTrkVec();
     //    MissingETBase::Types::constvec_t trkvec = assoc->jetTrkVec();
 
-    int         phbin  = jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
-    if(phbin>jet_systRpt_pt_eta->GetNbinsX())  phbin  = jet_systRpt_pt_eta->GetNbinsX();
+    int         phbin  = m_jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
+    if(phbin>m_jet_systRpt_pt_eta->GetNbinsX())  phbin  = m_jet_systRpt_pt_eta->GetNbinsX();
 
-    int         etabin  = jet_systRpt_pt_eta->GetYaxis()->FindBin(fabs( jet->eta()  ));
-    if(etabin>jet_systRpt_pt_eta->GetNbinsY()) etabin = jet_systRpt_pt_eta->GetNbinsY();
+    int         etabin  = m_jet_systRpt_pt_eta->GetYaxis()->FindBin(fabs( jet->eta()  ));
+    if(etabin>m_jet_systRpt_pt_eta->GetNbinsY()) etabin = m_jet_systRpt_pt_eta->GetNbinsY();
 
     double uncert = 0.;
     switch( m_appliedSystEnum ){
 
     case MET_JETTRK_SCALEUP : {
-      uncert  = jet_systRpt_pt_eta->GetBinContent(phbin,etabin);
+      uncert  = m_jet_systRpt_pt_eta->GetBinContent(phbin,etabin);
       break;
     }
     case MET_JETTRK_SCALEDOWN : {
-      uncert  = -1.*jet_systRpt_pt_eta->GetBinContent(phbin,etabin);
+      uncert  = -1.*m_jet_systRpt_pt_eta->GetBinContent(phbin,etabin);
       break;
     }
     default:{
@@ -571,7 +571,7 @@ namespace met {
   {
     ATH_MSG_VERBOSE(__PRETTY_FUNCTION__);
 
-    if( jet_systRpt_pt_eta == nullptr ) {
+    if( m_jet_systRpt_pt_eta == nullptr ) {
       ATH_MSG_ERROR("jet track systematics histogram not initialized properly.") ;
       return CP::CorrectionCode::Error;
     }
@@ -598,15 +598,15 @@ namespace met {
         if(fabs(jet->eta())<=2.5)
         {
           jetCount++;
-          int         phbin  = jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
-          if(phbin>jet_systRpt_pt_eta->GetNbinsX())  phbin  = jet_systRpt_pt_eta->GetNbinsX();
+          int         phbin  = m_jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
+          if(phbin>m_jet_systRpt_pt_eta->GetNbinsX())  phbin  = m_jet_systRpt_pt_eta->GetNbinsX();
 
-          int         etabin  = jet_systRpt_pt_eta->GetYaxis()->FindBin(fabs( jet->eta()  ));
-          if(etabin>jet_systRpt_pt_eta->GetNbinsY()) etabin = jet_systRpt_pt_eta->GetNbinsY();
-          float uncert_frac=(trkvec.sumpt())*(jet_systRpt_pt_eta->GetBinContent(phbin, etabin));
+          int         etabin  = m_jet_systRpt_pt_eta->GetYaxis()->FindBin(fabs( jet->eta()  ));
+          if(etabin>m_jet_systRpt_pt_eta->GetNbinsY()) etabin = m_jet_systRpt_pt_eta->GetNbinsY();
+          float uncert_frac=(trkvec.sumpt())*(m_jet_systRpt_pt_eta->GetBinContent(phbin, etabin));
 
           ATH_MSG_VERBOSE("Sumpt: "<< trkvec.sumpt());
-          ATH_MSG_VERBOSE("jet uncert: "<< jet_systRpt_pt_eta->GetBinContent(phbin, etabin));
+          ATH_MSG_VERBOSE("jet uncert: "<< m_jet_systRpt_pt_eta->GetBinContent(phbin, etabin));
 
           uncert=sqrt(uncert*uncert+uncert_frac*uncert_frac);
         }
@@ -683,7 +683,7 @@ namespace met {
     //    ATH_MSG_VERBOSE("caloSyst_reso: input MET: " << softTerms.met);
 
     double const metSigma     = .7 * sqrt(softTerms.sumet);
-    double const resUnc       =  h_calosyst_reso->GetBinContent(1);
+    double const resUnc       =  m_h_calosyst_reso->GetBinContent(1);
     double const smearedSigma = sqrt( (metSigma* (1. + resUnc))*(metSigma* (1. + resUnc)) -
 				      metSigma * metSigma );
 
