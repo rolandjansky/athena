@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef SIMULATIONBASE
 #ifndef XAOD_ANALYSIS
 
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
@@ -302,4 +303,6 @@ void CaloClusterKineHelper::calculateKine(xAOD::CaloCluster* clu, const bool use
   return; 
 }
 
-#endif //XAOD_ANALYSIS
+#endif //not XAOD_ANALYSIS
+#endif //not SIMULATIONBASE
+

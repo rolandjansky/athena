@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster_v1.h 693459 2015-09-07 12:37:02Z wlampl $
+// $Id: CaloCluster_v1.h 729691 2016-03-14 17:12:15Z jchapman $
 #ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 #define XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 
@@ -23,16 +23,18 @@ extern "C" {
 #include "xAODCaloEvent/CaloClusterBadChannelData.h"
 
 #ifndef XAOD_ANALYSIS
+#ifndef SIMULATIONBASE
 #include "AthLinks/ElementLink.h"
 #include "CaloEvent/CaloClusterCellLinkContainer.h"
 #include "CaloEvent/CaloRecoStatus.h"
+#endif // not SIMULATIONBASE
 #endif // not XAOD_ANALYSIS
 
 // Declare a dummy CaloClusterCellLink definition for standalone compilation:
-#ifdef XAOD_ANALYSIS
+#if defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 class CaloClusterCellLink {};
 typedef unsigned CaloRecoStatus;
-#endif // XAOD_ANALYSIS
+#endif // defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 
 class CaloClusterChangeSignalState;
 
@@ -42,8 +44,8 @@ namespace xAOD {
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    /// @author Walter Lampl <Walter.Lampl@cern.ch>
    ///
-   /// $Revision: 693459 $
-   /// $Date: 2015-09-07 14:37:02 +0200 (Mon, 07 Sep 2015) $
+   /// $Revision: 729691 $
+   /// $Date: 2016-03-14 18:12:15 +0100 (Mon, 14 Mar 2016) $
    ///
    class CaloCluster_v1 : public IParticle {
      friend class ::CaloClusterChangeSignalState;
@@ -480,9 +482,9 @@ namespace xAOD {
      flt_t calM() const;
      /// Set mass for singal state CALIBRATED
      void  setCalM(flt_t);
-#ifndef XAOD_ANALYSIS
+#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
    private:
-#endif
+#endif //not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
      /// Switch signal state (mutable)
      bool setSignalState(const State s) const;
    public:
@@ -548,7 +550,7 @@ namespace xAOD {
      bool setSamplVarFromAcc(Accessor<std::vector<float> >& acc, 
 			     const CaloSample sampling, const float value);
    public:
-#ifndef XAOD_ANALYSIS
+#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
 
      /// @name Athena-only methods, used during building stage
      /// @{
@@ -662,7 +664,7 @@ namespace xAOD {
      const CaloRecoStatus& recoStatus() const {return m_recoStatus;}
      ///  @}
 
-#endif
+#endif // not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 
       /// Function preparing the object to be persistified
       void toPersistent();
