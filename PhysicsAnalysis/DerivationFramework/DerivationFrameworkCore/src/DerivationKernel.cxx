@@ -152,7 +152,6 @@ StatusCode DerivationFramework::DerivationKernel::execute() {
 
     // Return if event didn't pass
     if (!acceptEvent) return StatusCode::SUCCESS;
-    
 
     //=============================================================================
     // THINNING ===================================================================
