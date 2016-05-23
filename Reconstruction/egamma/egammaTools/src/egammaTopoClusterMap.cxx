@@ -6,21 +6,22 @@
 
 #include "egammaTopoClusterMap.h"
 #include "egammaRecEvent/egammaRecContainer.h"
-
 #include "CaloUtils/CaloClusterStoreHelper.h"
-#include "xAODCaloEvent/CaloCluster.h"
-#include "xAODCaloEvent/CaloClusterKineHelper.h"
 
 bool CompareClusterET (const xAOD::CaloCluster* c1, const xAOD::CaloCluster* c2) 
 {
-
-  double Et1(c1->e()/cosh(c1->eta())), Et2(c2->e()/cosh(c2->eta()));
+  double Et1(c1->rawE()/cosh(c1->rawEta())), Et2(c2->rawE()/cosh(c2->rawEta()));
   return Et1 > Et2;
+}
 
+bool CompareClusterLinkET (ElementLink< xAOD::CaloClusterContainer > c1, ElementLink< xAOD::CaloClusterContainer > c2)
+{
+  double Et1((*c1)->rawE()/cosh((*c1)->rawEta())), Et2((*c2)->rawE()/cosh((*c2)->rawEta()));
+  return Et1 > Et2;
 }
 
 //////////////////////////////////////////////////
-//Athena interfaces.
+// Athena interfaces.
 //////////////////////////////////////////////////
 
 //Constructor.
@@ -35,24 +36,26 @@ egammaTopoClusterMap::egammaTopoClusterMap(const std::string& type,
   declareInterface<IegammaTopoClusterMap>(this);
 
   //Declare granularity of map.
-  declareProperty("minEta",_minEta = -6.,
+  declareProperty("minEta",m_minEta = -6.,
 		  "Minimum eta");
 
-  declareProperty("minPhi",_minPhi = -3.2,
+  declareProperty("minPhi",m_minPhi = -3.2,
 		  "Minimum phi");
 
-  declareProperty("maxEta",_maxEta = 6.,
+  declareProperty("maxEta",m_maxEta = 6.,
 		  "Maximum eta");
 
-  declareProperty("maxPhi",_maxPhi = 3.2,
+  declareProperty("maxPhi",m_maxPhi = 3.2,
 		  "Maximum phi");
 
-  declareProperty("dEta",_dEta = 0.3,
+  declareProperty("dEta",m_dEta = 0.3,
 		  "Delta eta");
 
-  declareProperty("dPhi",_dPhi = 0.1,
+  declareProperty("dPhi",m_dPhi = 0.1,
 		  "Delta phi");
 
+  declareProperty("PUThresholdCut", m_puThresholdCut = 400.);
+  declareProperty("TopoClusterMapName",          m_topoClusterMapName          = "EgammaTopoCluster2DMap");
 
 }
 
@@ -62,29 +65,23 @@ egammaTopoClusterMap::~egammaTopoClusterMap() {}
 StatusCode egammaTopoClusterMap::initialize() {
 
   ATH_MSG_INFO("egammaTopoClusterMap: Initializing egammaTopoClusterMap");
-  ClearMap();
+  CHECK(ClearMap());
   return StatusCode::SUCCESS;
-
 }
 
 StatusCode egammaTopoClusterMap::finalize() {
-
-  ClearMap();
+  CHECK(ClearMap());  
   return StatusCode::SUCCESS;
-  
 }
 
 //////////////////////////////////////////////////
 //Functional routines.
 //////////////////////////////////////////////////
 
-StatusCode egammaTopoClusterMap::execute(const xAOD::CaloClusterContainer *inputTopoClusterContainer) 
+StatusCode egammaTopoClusterMap::execute(const xAOD::CaloClusterContainer *inputTopoClusterContainer) {
 
-{
-
-  ATH_MSG_DEBUG("egammaTopoClusterMap::Setting map with granularity dEta x dPhi = " << _dEta << " x " << _dPhi);
-
-  ClearMap();
+  ATH_MSG_DEBUG("egammaTopoClusterMap::Setting map with granularity dEta x dPhi = " << m_dEta << " x " << m_dPhi);
+  CHECK (ClearMap());
 
   CHECK(SetTopoClusters(inputTopoClusterContainer));
   ATH_MSG_DEBUG("Topoclusters set ");
@@ -93,138 +90,78 @@ StatusCode egammaTopoClusterMap::execute(const xAOD::CaloClusterContainer *input
   SortGridVectors();
   ATH_MSG_DEBUG("Vectors sorted according to Et ");
 
+  //Record the map to storegate for later retrieval.
+  TopoCluster2DMap *new_map = new TopoCluster2DMap(m_map); 
+  if (evtStore()->record(new_map, m_topoClusterMapName).isFailure()) {
+    ATH_MSG_ERROR("Could not record topocluster map!");
+    return StatusCode::FAILURE;
+  }  
+
   return StatusCode::SUCCESS;
 
 }
 
-StatusCode egammaTopoClusterMap::SetTopoClusters(const xAOD::CaloClusterContainer *inputTopoClusterContainer) 
-
-{
-
-  StoreGateSvc *m_storeGate(0);
-
-  if (service("StoreGateSvc", m_storeGate).isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve pointer to StoreGateSvc");
-    return StatusCode::FAILURE;
-  }
+StatusCode egammaTopoClusterMap::SetTopoClusters(const xAOD::CaloClusterContainer *inputTopoClusterContainer) {
 
   typedef xAOD::CaloClusterContainer::const_iterator clus_iterator;
 
-  EgammaRecContainer* egammaSeedRecs = new EgammaRecContainer();
-  if (evtStore()->record(egammaSeedRecs, "TopoTrackClusterMatches").isFailure()) {
-    ATH_MSG_ERROR("Could not record TopoTrackClusterMatches");
-    return StatusCode::FAILURE;
-  }
-
-  //WANT TO MAKE AN OUTPUT CLUSTER CONTAINER HERE, TOO.
-  xAOD::CaloClusterContainer *outputClusterContainer = CaloClusterStoreHelper::makeContainer(m_storeGate, 
-  											     "skimmed430EMClusters", 
-  											     msg());
-  if (!outputClusterContainer) {
-    ATH_MSG_ERROR("Could not make skimmed cluster container! StoreGate failure ...");
-    return StatusCode::FAILURE;
-  }
-
   double eta, phi;
-  int i(-1);
-
+  int i(0);
+ 
   for(clus_iterator cciter = inputTopoClusterContainer->begin();
-                    cciter != inputTopoClusterContainer->end(); 
-                    ++cciter) 
-  {
-
-    i++;
-
-    if (GetLArThirdLayerRatio((*cciter)) > 0.1) continue;
-
+      cciter != inputTopoClusterContainer->end(); 
+      ++cciter,++i) {
+    
+    //Some basic cuts on energy.
+    if ((*cciter)->rawE() < m_puThresholdCut) 
+      continue;
     const ElementLink< xAOD::CaloClusterContainer > clusterLink( *inputTopoClusterContainer, i );
     const std::vector< ElementLink<xAOD::CaloClusterContainer> > elClusters {clusterLink};    
-    egammaRec *egRec = new egammaRec();
-    egRec->setCaloClusters( elClusters );
-
-    egammaSeedRecs->push_back( egRec );
-
-    //Push back cluster into skimmed container (for GSF).
-    xAOD::CaloCluster *newClus = new xAOD::CaloCluster(*(*cciter));
-    outputClusterContainer->push_back(newClus);
-
     //Retrieve eta, phi from ith topocluster.
-    eta = (*cciter)->eta();
-    phi = (*cciter)->phi();
-
+    eta = (*cciter)->rawEta();
+    phi = (*cciter)->rawPhi();
     //Put it in appropriate vector.
-    _map[GetEtaPhiKeys(eta,phi).first][GetEtaPhiKeys(eta,phi).second].push_back((*cciter));
-    
-
+    m_map[GetEtaPhiKeys(eta,phi).first][GetEtaPhiKeys(eta,phi).second].push_back(clusterLink);
   }
-
-  ATH_MSG_INFO("Skimmed container has: " << outputClusterContainer->size() << " clusters in it");
-
   return StatusCode::SUCCESS;
-
-}
-
-void egammaTopoClusterMap::InsertTopoCluster(xAOD::CaloCluster* topo) {
-
-  //Retrieve eta, phi from ith topocluster.
-  double eta(topo->phi()), phi(topo->phi());
-
-  //Put it in appropriate vector.
-  _map[GetEtaPhiKeys(eta,phi).first][GetEtaPhiKeys(eta,phi).second].push_back(topo);
-
-  //Re-sort the vector according to Et.
-  SortGridVector(GetEtaPhiKeys(eta,phi).first, GetEtaPhiKeys(eta,phi).second);
-  
 }
 
 //Boolean comparison somewhere here that sorts vectors in grid by Et.
 void egammaTopoClusterMap::SortGridVectors() {
-  
-  for (int i = 0; i <= (GetEtaPhiKeys(_maxEta, _maxPhi).first); i++)
-    for (int j = 0; j <= (GetEtaPhiKeys(_maxEta, _maxPhi).second); j++)
+  for (int i = 0; i <= (GetEtaPhiKeys(m_maxEta, m_maxPhi).first); i++){
+    for (int j = 0; j <= (GetEtaPhiKeys(m_maxEta, m_maxPhi).second); j++){
       SortGridVector(i,j);
-
+    }
+  }
 }
 
 void egammaTopoClusterMap::SortGridVector(int eta_key, int phi_key) {
-
-  if (_map[eta_key][phi_key].size()>0) 
-    sort( _map[eta_key][phi_key].begin(), _map[eta_key][phi_key].end(), CompareClusterET );
+  if (m_map[eta_key][phi_key].size()>0){ 
+    sort( m_map[eta_key][phi_key].begin(), m_map[eta_key][phi_key].end(), CompareClusterLinkET );
+  }
 }
 
-void egammaTopoClusterMap::ClearMap() {
+StatusCode egammaTopoClusterMap::ClearMap() {
 
-  for (int i = 0; i <= (GetEtaPhiKeys(_maxEta, _maxPhi).first); i++)
-    for (int j = 0; j <= (GetEtaPhiKeys(_maxEta, _maxPhi).second); j++)
-      _map[i][j].clear();
-}
+  TopoCluster2DMap::iterator mapIter = m_map.begin();
+  TopoCluster2DMap::iterator mapEnd  = m_map.end();
+  
+  for (; mapIter != mapEnd; mapIter++) {
 
-void egammaTopoClusterMap::DumpMapContents() {
+    TopoClusterMap::iterator subMapIter = (*mapIter).second.begin();
+    TopoClusterMap::iterator subMapEnd  = (*mapIter).second.end();
 
-  for (int i = 0; i <= (GetEtaPhiKeys(_maxEta, _maxPhi).first); i++)
-    for (int j = 0; j <= (GetEtaPhiKeys(_maxEta, _maxPhi).second); j++) {
-      ATH_MSG_DEBUG("Size of topocluster vector at (" << i << "," << j << "): " << _map[i][j].size());
-      if (_map[i][j].size()) {
-	ATH_MSG_DEBUG("Contents of vector:");
-	for (unsigned int k = 0; k < _map[i][j].size(); k++) {
-	  //ATH_MSG_DEBUG("E: %f, eta: %f, phi: %f, Pt: %f \n",(_map[i][j])[k]->e(), (_map[i][j])[k]->eta(), (_map[i][j])[k]->phi(), (_map[i][j])[k]->pt());
-	  ATH_MSG_DEBUG("E: " << (_map[i][j])[k]->e()
-			<< ", eta: "     << (_map[i][j])[k]->eta()
-			<< ", phi: "     << (_map[i][j])[k]->phi()
-			<< ", Pt:  "     << (_map[i][j])[k]->pt());
-	}
-      }
+    for (; subMapIter != subMapEnd; subMapIter++){
+      (*subMapIter).second.clear();
     }
-	
-
+  }
+  return StatusCode::SUCCESS;
 }
 
 //Routine to retrieve vector of TopoClusters for a given cluster Pt.
-std::vector<const xAOD::CaloCluster*> egammaTopoClusterMap::RetrieveTopoClusters(double eta, 
-									   double phi,
-									   double Pt)
-{
-
+std::vector<const xAOD::CaloCluster*> egammaTopoClusterMap::RetrieveTopoClusters(const double eta, 
+										 const double phi,
+										 const double Pt) const{
   if ((Pt * 1e-3) < 15) {
     return RetrieveTopoClusters(eta, phi, 0.2, 0.2);
   } 
@@ -234,66 +171,56 @@ std::vector<const xAOD::CaloCluster*> egammaTopoClusterMap::RetrieveTopoClusters
   else {
     return RetrieveTopoClusters(eta, phi, 0.2, 0.6);
   }
-
 }
-
 
 //Routine to retrieve vector of TopoClusters for a given (eta, phi) region.
-std::vector<const xAOD::CaloCluster*> egammaTopoClusterMap::RetrieveTopoClusters(double eta, double phi,
-									   double dEta,
-									   double dPhi)
-{
-  
+std::vector<const xAOD::CaloCluster*> egammaTopoClusterMap::RetrieveTopoClusters(const double eta, const double phi,
+										 const double dEta,
+										 const double dPhi) const {  
   std::vector<const xAOD::CaloCluster*> clusters;
-
   //Need to be able to search within a broad window, then merge all vectors
   //within that window together.
-  if (dEta > 0. && dPhi > 0.) {
-    
-    std::pair<double,double> lower_keys = GetEtaPhiKeys(eta-(dEta/2.), phi-(dPhi/2.));
-    std::pair<double,double> upper_keys = GetEtaPhiKeys(eta+(dEta/2.), phi+(dPhi/2.));
+  if (dEta > 0. && dPhi > 0.) {    
+    std::pair<int,int> lower_keys = GetEtaPhiKeys(eta-(dEta/2.), phi-(dPhi/2.));
+    std::pair<int,int> upper_keys = GetEtaPhiKeys(eta+(dEta/2.), phi+(dPhi/2.));
+    for (int ieta = lower_keys.first; ieta <= upper_keys.first; ieta++){
+      for (int iphi = lower_keys.second; iphi <= upper_keys.second; iphi++){
+	//clusters.insert(clusters.end(), m_map.at(ieta).at(iphi).begin(), m_map.at(ieta).at(iphi).end());
 
-    for (int ieta = lower_keys.first; ieta <= upper_keys.first; ieta++)
-      for (int iphi = lower_keys.second; iphi <= upper_keys.second; iphi++)
-	clusters.insert(clusters.end(), _map[ieta][iphi].begin(), _map[ieta][iphi].end());
-
-
+	std::vector< ElementLink< xAOD::CaloClusterContainer > >                 mapVec   = m_map.at(ieta).at(iphi);
+	std::vector< ElementLink< xAOD::CaloClusterContainer > >::const_iterator linkIter = mapVec.begin();
+	std::vector< ElementLink< xAOD::CaloClusterContainer > >::const_iterator linkEnd  = mapVec.end();
+	
+	for (; linkIter != linkEnd; linkIter++){
+	  clusters.insert(clusters.end(), *(*linkIter));
+	}	
+      }
+    }
     //Re-sort vector according to Et and return it.
     sort( clusters.begin(), clusters.end(), CompareClusterET );
-
   } else {
-    clusters = _map[GetEtaPhiKeys(eta,phi).first][GetEtaPhiKeys(eta,phi).second];
+    // FIX ME: Pick out the specific vector at (eta, phi) and iterate over that instead. Functionally the same 
+    // as below, but more obvious to reader.
+    int eta_key(GetEtaPhiKeys(eta,phi).first), phi_key(GetEtaPhiKeys(eta,phi).second);
+    std::vector< ElementLink< xAOD::CaloClusterContainer > >                 mapVec   = m_map.at(eta_key).at(phi_key);
+    std::vector< ElementLink< xAOD::CaloClusterContainer > >::const_iterator linkIter = mapVec.begin();
+    std::vector< ElementLink< xAOD::CaloClusterContainer > >::const_iterator linkEnd  = mapVec.end();
+
+    for (; linkIter != linkEnd; linkIter++){
+      clusters.insert(clusters.end(), *(*linkIter));
+    }
+    
   }
-
   return clusters;
-
 }
 
-double egammaTopoClusterMap::GetLArThirdLayerRatio (const xAOD::CaloCluster *clus)
-{
-
-  double totalEnergy(0.), thirdLayerEnergy(0.);
-
-  if (clus->inBarrel()) {
-    totalEnergy += clus->eSample(CaloSampling::PreSamplerB);
-    totalEnergy += clus->eSample(CaloSampling::EMB1);
-    totalEnergy += clus->eSample(CaloSampling::EMB2);
-    totalEnergy += clus->eSample(CaloSampling::EMB3);
-
-    thirdLayerEnergy += clus->eSample(CaloSampling::EMB3);
+//Routine to retrieve vector of TopoClusters for a given (eta, phi) region.
+std::vector<const xAOD::CaloCluster*> egammaTopoClusterMap::RetrieveTopoClusters(const int eta_key, const int phi_key) const {
+  std::vector<const xAOD::CaloCluster*> clusters;
+  std::vector< ElementLink< xAOD::CaloClusterContainer > >::const_iterator linkIter = m_map.at(eta_key).at(phi_key).begin();
+  std::vector< ElementLink< xAOD::CaloClusterContainer > >::const_iterator linkEnd  = m_map.at(eta_key).at(phi_key).end();
+  for (; linkIter != linkEnd; linkIter++){
+    clusters.insert(clusters.end(), *(*linkIter));
   }
-
-  if (clus->inEndcap()) {
-    totalEnergy += clus->eSample(CaloSampling::PreSamplerE);
-    totalEnergy += clus->eSample(CaloSampling::EME1);
-    totalEnergy += clus->eSample(CaloSampling::EME2);
-    totalEnergy += clus->eSample(CaloSampling::EME3);
-
-    thirdLayerEnergy += clus->eSample(CaloSampling::EME3);
-
-  }
-
-  return (thirdLayerEnergy / totalEnergy);
-  
-
+  return clusters;
 }

@@ -124,7 +124,6 @@ class FourMomCombiner : public AthAlgTool, virtual public IFourMomCombiner {
   double getClusterEnergyError (const xAOD::Egamma*) const;
   double getClusterEtaError    (const xAOD::Egamma*) const;
   double getClusterPhiError    (const xAOD::Egamma*) const;
-  double getClusterEtaPosError (const xAOD::Egamma*) const;
 
   //Assorted routines.
   bool   isElectron (const xAOD::Egamma*)  const;

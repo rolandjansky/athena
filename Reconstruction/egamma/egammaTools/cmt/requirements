@@ -5,6 +5,7 @@ use AtlasPolicy                AtlasPolicy-*
 private
 use AthenaBaseComps            AthenaBaseComps-*       Control
 use AthenaKernel               AthenaKernel-*          Control
+use SGTools                    SGTools-*               Control
 use AtlasROOT                  AtlasROOT-*             External
 use GaudiInterface	       GaudiInterface-*	       External
 use AtlasCLHEP                 AtlasCLHEP-*            External
@@ -16,7 +17,7 @@ use FourMom                    FourMom-*               Event
 use NavFourMom                 NavFourMom-*            Event
 use FourMomUtils               FourMomUtils-*          Event
 use EventPrimitives            EventPrimitives-*       Event
-
+use AthContainers              AthContainers-*         Control
 use LArRecConditions           LArRecConditions-*      LArCalorimeter 
 use LArTools                   LArTools-*              LArCalorimeter 
 
@@ -26,13 +27,14 @@ use InDetConversionFinderTools InDetConversionFinderTools-*  InnerDetector/InDet
 use InDetRecToolInterfaces     InDetRecToolInterfaces-*      InnerDetector/InDetRecTools
 use InDetBeamSpotService       InDetBeamSpotService-*        InnerDetector/InDetConditions
 
-use CaloGeoHelpers             CaloGeoHelpers-*        Calorimeter	
 use CaloEvent		       CaloEvent-*             Calorimeter
 use CaloUtils		       CaloUtils-*	       Calorimeter
 use CaloRec		       CaloRec-*	       Calorimeter
 use CaloIdentifier	       CaloIdentifier-*        Calorimeter
 use CaloInterface	       CaloInterface-*         Calorimeter
 use CaloConditions	       CaloConditions-*        Calorimeter
+
+use TrkMaterialOnTrack         TrkMaterialOnTrack-*    Tracking/TrkEvent
 
 use Particle                   Particle-*              Reconstruction
 use TrkParticleBase    	       TrkParticleBase-*       Tracking/TrkEvent

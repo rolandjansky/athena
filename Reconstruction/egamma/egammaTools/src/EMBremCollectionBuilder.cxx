@@ -3,7 +3,6 @@
 */
 
 /********************************************************************
-
 NAME:     EMBremCollectionBuilder
 PACKAGE:  offline/Reconstruction/egamma/egammaTrackTools/EMBremCollectionBuilder
 
@@ -36,6 +35,7 @@ UPDATE :
 #include "NavFourMom/INavigable4MomentumCollection.h"
 //
 #include "CandidateMatchHelpers.h"
+#include "FourMomUtils/P4Helpers.h"
 #include "AthenaKernel/errorcheck.h"
 //
 #include "xAODTracking/Vertex.h"
@@ -52,6 +52,8 @@ UPDATE :
 #include <algorithm>
 #include <cmath>
 
+#include "TrkMaterialOnTrack/EstimatedBremOnTrack.h"
+
 //////////////////////////////////////////////////////////////////////////////////////
 /// Constructor
 EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -60,7 +62,10 @@ EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& type, const 
   m_particleCreatorTool("Trk::TrackParticleCreatorTool"),
   m_slimTool("Trk::TrkTrackSlimmingTool/TrkTrackSlimmingTool"),
   m_summaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool"),
-  m_extrapolationTool("EMExtrapolationTools")
+  m_extrapolationTool("EMExtrapolationTools"),
+  m_trackTES(0),
+  m_finalTracks(0),
+  m_finalTrkPartContainer(0)
 {
   //options
   declareProperty("DoTruth",                                m_doTruth=false);
@@ -68,9 +73,7 @@ EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& type, const 
   declareProperty("ClusterContainerName"  ,                 m_clusterContainerName   = "LArClusterEM");
   declareProperty("TrackParticleContainerName"  ,           m_trackParticleContainerName   = "InDetTrackParticles");
   declareProperty("OutputTrkPartContainerName",             m_OutputTrkPartContainerName = "GSFTrackParticles");
-  declareProperty("TrackParticleTruthCollectionName",       m_trackParticleTruthCollectionName = "TrackParticleTruthCollection");
   declareProperty("OutputTrackContainerName",               m_OutputTrackContainerName = "GSFTracks");
-
   //=================================================================================
   // Tools
   declareProperty("TrackRefitTool",                         m_trkRefitTool);
@@ -100,6 +103,22 @@ EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& type, const 
 		  "Value of the narrow cut for delta phi Rescale");
   declareProperty("narrowDeltaPhiRescaleBrem",               m_narrowRescaleBrem =0.1,
 		  "Value of the narrow cut for delta phi Rescale Brem");
+
+  //Switch to turn on-off saving of brem points found by GSF.
+  declareProperty("UseBremFinder", m_useBremFinder = false);
+
+  m_AllClusters=0;
+  m_AllTracks=0;
+  m_AllTRTTracks=0;
+  m_AllSiTracks=0;
+  m_SelectedTracks=0;
+  m_SelectedTRTTracks=0;
+  m_SelectedSiTracks=0;
+  m_FailedFitTracks=0;
+  m_FailedSiliconRequirFit=0;
+  m_RefittedTracks=0;
+
+  
   declareInterface<IEMBremCollectionBuilder>(this);
 }
 // ===================================================================
@@ -276,11 +295,12 @@ StatusCode EMBremCollectionBuilder::contExecute()
 	  // Set Element link to original Track Particle	  
           ElementLink<xAOD::TrackParticleContainer> linkToOriginal(*m_trackTES,trackNumber);
 	  xAOD::TrackParticle* gsfTrack = m_finalTrkPartContainer->back();	  
-	  gsfTrack->auxdata< ElementLink< xAOD::TrackParticleContainer > >( "originalTrackParticle" ) = linkToOriginal;
+	  static const SG::AuxElement::Accessor<ElementLink<xAOD::TrackParticleContainer> >  tP ("originalTrackParticle");
+	  tP(*gsfTrack)= linkToOriginal;
 		  
 	  if(m_doTruth){
 	    //Add Truth decorations. Copy from the original.
-	    static SG::AuxElement::Accessor<ElementLink<xAOD::TruthParticleContainer> >  tPL ("truthParticleLink");
+	    static const SG::AuxElement::Accessor<ElementLink<xAOD::TruthParticleContainer> >  tPL ("truthParticleLink");
 	    if(tPL.isAvailable(*(*track_iter))){
 	      ElementLink<xAOD::TruthParticleContainer> linkToTruth= tPL(*(*track_iter));
 	      tPL(*gsfTrack) = linkToTruth;	      
@@ -290,18 +310,18 @@ StatusCode EMBremCollectionBuilder::contExecute()
 	      }
 	    }
 	 
-	    static SG::AuxElement::Accessor<float >  tMP ("truthMatchProbability");
+	    static const SG::AuxElement::Accessor<float >  tMP ("truthMatchProbability");
 	    if(tMP.isAvailable(*(*track_iter))){
 	      float originalProbability = tMP(*(*track_iter));
 	      tMP(*gsfTrack)= originalProbability ;
 	    }
 	    
-	    static SG::AuxElement::Accessor<int> tT("truthType") ;
+	    static const SG::AuxElement::Accessor<int> tT("truthType") ;
 	    if(tT.isAvailable(*(*track_iter))){
 	      int truthType = tT(*(*track_iter));
 	      tT(*gsfTrack) = truthType ;
 	    }
-	    static SG::AuxElement::Accessor<int> tO("truthOrigin") ;
+	    static const SG::AuxElement::Accessor<int> tO("truthOrigin") ;
 	    if(tO.isAvailable(*(*track_iter))){
 	      int truthOrigin = tO(*(*track_iter));
 	      tO(*gsfTrack) = truthOrigin ;
@@ -349,20 +369,17 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     nSiliconHits_trk += dummy;
   if( tmpTrkPart->summaryValue(dummy,xAOD::numberOfPixelOutliers) )
     nSiliconHits_trk += dummy;
-
   ATH_MSG_DEBUG("Number of Silicon hits "<<nSiliconHits_trk);
     
   //Get the original track that the track particle points to. Clone it in order to assume ownership
-  
   const Trk::Track* tmpTrk(0);
   if ( tmpTrkPart->trackLink().isValid() ){
     tmpTrk =  tmpTrkPart->track();
   }
-  else
-    {
-      ATH_MSG_ERROR ("TrackParticle has not Track --  are you running on AOD?");
+  else{
+    ATH_MSG_ERROR ("TrackParticle has not Track --  are you running on AOD?");
       return StatusCode::FAILURE;
-    }
+  }
   
   Trk::Track* trk_refit = 0;
   //
@@ -387,6 +404,29 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     m_FailedSiliconRequirFit++;
     trk_refit = new Trk::Track(*tmpTrk);
   }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  //Try looking for hard brem points after using BremFinder tool.
+  std::vector<const Trk::TrackStateOnSurface*> bremTSOS;
+  if (m_useBremFinder) {
+    if (trk_refit) {
+      auto tsos = trk_refit->trackStateOnSurfaces()->begin();
+      for (;tsos != trk_refit->trackStateOnSurfaces()->end(); ++tsos) {
+	if ((*tsos)->type(Trk::TrackStateOnSurface::BremPoint) && (*tsos)->trackParameters()!=0) {
+	  Trk::EstimatedBremOnTrack *estimatedBremOnTrack(0);
+	  if ((*tsos)->materialEffectsOnTrack()) {
+	    estimatedBremOnTrack = (Trk::EstimatedBremOnTrack*)((*tsos)->materialEffectsOnTrack());
+	  } 
+	
+	  if (estimatedBremOnTrack) {
+	    bremTSOS.push_back((**tsos).clone());
+	  }
+	}
+      }
+    }
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   //Slim the tracks   
   Trk::Track* slimmed = m_slimTool->slim(*trk_refit);
   if(!slimmed){
@@ -396,7 +436,7 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
   }
   m_finalTracks->push_back(slimmed);
 
-  //Get the vertex (may be pileup) and the vertex type that this track particle points to
+  //Get the vertex (may be pileup) that this track particle points to
   const xAOD::Vertex* trkVtx(0);
   if (tmpTrkPart->vertexLink().isValid()){ 
     trkVtx = tmpTrkPart->vertex();
@@ -407,16 +447,27 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
   delete trk_refit; 
   if(aParticle!=0) { //store in container
 
+    //Set up the links
     ElementLink<TrackCollection> trackLink( slimmed, *m_finalTracks);
     aParticle->setTrackLink( trackLink );     
-    aParticle->setVertexLink(tmpTrkPart->vertexLink()); 
+    aParticle->setVertexLink(tmpTrkPart->vertexLink());     
 
-    static SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
+    //If requested, save list of brem points.
+    if (m_useBremFinder) {
+      static const SG::AuxElement::Accessor< std::vector<const Trk::TrackStateOnSurface*> > bremPoints("bremPoints");
+      bremPoints(*aParticle) = bremTSOS;
+    }
+    
+    //Add qoverP for the last measurement
+    static const SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
     auto tsos = slimmed->trackStateOnSurfaces()->rbegin();
     for (;tsos != slimmed->trackStateOnSurfaces()->rend(); ++tsos){
 
-      if ((*tsos)->type(Trk::TrackStateOnSurface::Measurement) && (*tsos)->trackParameters()!=0 &&
-	  (*tsos)->measurementOnTrack()!=0 && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*tsos)->measurementOnTrack())) {
+      if ((*tsos)->type(Trk::TrackStateOnSurface::Measurement) 
+	  && (*tsos)->trackParameters()!=0 
+	  &&(*tsos)->measurementOnTrack()!=0 
+	  && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*tsos)->measurementOnTrack())) {
+
 	QoverPLM(*aParticle) = (*tsos)->trackParameters()->parameters()[Trk::qOverP];
 	break;
       }
@@ -425,8 +476,6 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
   } else {
     return StatusCode::FAILURE;
   }
-
-
 }
 // =================================================================
 bool EMBremCollectionBuilder::Select(const xAOD::CaloCluster*   cluster,
@@ -458,20 +507,18 @@ bool EMBremCollectionBuilder::Select(const xAOD::CaloCluster*   cluster,
 		  << ", Cluster Eta " << clusterEta );
     return false;
   }
-
   //===========================================================//     
   //Calculate corrrected eta and Phi
-  CandidateMatchHelpers m_matchHelper;
-  double etaclus_corrected = m_matchHelper.CorrectedEta(clusterEta,z_first,isEndCap);
-  double phiRot = m_matchHelper.PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
-  double phiRotTrack = m_matchHelper.PhiROT(track->pt(),trkEta, track->charge(),r_first ,isEndCap);
+  double etaclus_corrected = CandidateMatchHelpers::CorrectedEta(clusterEta,z_first,isEndCap);
+  double phiRot = CandidateMatchHelpers::PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
+  double phiRotTrack = CandidateMatchHelpers::PhiROT(track->pt(),trkEta, track->charge(),r_first ,isEndCap)  ;
   //===========================================================//     
   //Calcualate deltaPhis 
-  double deltaPhiStd = m_phiHelper.diff(cluster->phiBE(2), trkPhi);
-  double trkPhiCorr = m_phiHelper.diff(trkPhi, phiRot);
-  double deltaPhi2 = m_phiHelper.diff(cluster->phiBE(2), trkPhiCorr);
-  double trkPhiCorrTrack = m_phiHelper.diff(trkPhi, phiRotTrack);
-  double deltaPhi2Track = m_phiHelper.diff(cluster->phiBE(2), trkPhiCorrTrack);
+  double deltaPhiStd = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhi);
+  double trkPhiCorr = P4Helpers::deltaPhi(trkPhi, phiRot);
+  double deltaPhi2 = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorr);
+  double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
+  double deltaPhi2Track = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorrTrack);
   //===========================================================//     
  
   if ((!trkTRT)&& fabs(cluster->etaBE(2) - trkEta) > 2*m_broadDeltaEta && 
@@ -540,8 +587,7 @@ bool EMBremCollectionBuilder::Select(const xAOD::CaloCluster*   cluster,
 		    << deltaPhi1[2] <<" / "<< deltaEta1[2] );
       return false;
     }
-  }
- 
+  } 
   ATH_MSG_DEBUG("Matched Failed deltaPhi/deltaEta " << deltaPhi[2] <<" / "<< deltaEta[2]<<",isTRT, "<< trkTRT);
   return false;
 }

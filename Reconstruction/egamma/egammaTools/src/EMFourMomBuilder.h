@@ -37,7 +37,7 @@
 
 class FourMomCombiner;
 class IFourMomCombiner;
-
+class eg_resolution;
 class EMFourMomBuilder : public egammaBaseTool, virtual public IEMFourMomBuilder
 {
 
@@ -56,33 +56,25 @@ class EMFourMomBuilder : public egammaBaseTool, virtual public IEMFourMomBuilder
   /** @brief execute method*/
   virtual StatusCode execute(xAOD::Egamma* eg);
   /** @brief execute method*/
-  virtual StatusCode execute(xAOD::Egamma* eg, unsigned int index);
-  /** @brief execute method for the HLT*/
   virtual StatusCode hltExecute(xAOD::Egamma* eg, unsigned int index);
 
 private:
  
   /** @brief Method to set the 4-mom in case of electron */
-  StatusCode setFromTrkCluster(xAOD::Electron*,
-			       unsigned int);
-
+  StatusCode setFromTrkCluster(xAOD::Electron*);
   StatusCode setFromTrkCluster(xAOD::Photon*);
-  
   /** @brief Method to set the 4-mom in case of unconverted photon */
   StatusCode setFromCluster(xAOD::Egamma*);
-
   //Method to save parameters in egamma object.
   void saveParameters    (xAOD::Egamma*);
-
   //Adding in separate combination tool - this should act as the shell that makes the decision.
   ToolHandle<IFourMomCombiner> m_FourMomCombiner;
-
   /** @brief Use E-p combination*/
   bool   m_useCombination;
 
   /** @brief Resolution configuration*/
   std::string m_ResolutionConfiguration; 
-
+  std::unique_ptr<eg_resolution> eg_resol;
 };
 
 #endif

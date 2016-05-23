@@ -55,12 +55,15 @@ FourMomCombiner::FourMomCombiner(const std::string& type,
   m_clusMatrix(5,5),
   m_combVector(5),
   m_combMatrix(5,5),
+  m_par1(0), 
+  m_par2(0), 
+  m_par3(0),
+  m_combFlag(TRACK),
   m_combType(COVMAT),
-  DEFAULT_QOVERP_ERROR(1)
-  //m_EMExtrapolCaloConversion("EMExtrapolCaloConversion")
-  
+  m_NumberofSiHits(4),
+  DEFAULT_QOVERP_ERROR(1), 
+  DEFAULT_MOMENTUM(0)
 {
-
   m_trkVector.setZero();
   m_trkMatrix.setZero();
   m_clusVector.setZero();
@@ -563,21 +566,17 @@ bool FourMomCombiner::fillClusterParameters(const xAOD::Egamma* eg,
 
 //============================================
 //Routines to calculate cluster errors.
-double FourMomCombiner::getClusterPhiError(const xAOD::Egamma* eg) const
-{
+double FourMomCombiner::getClusterPhiError(const xAOD::Egamma* eg) const{
 
   if (!eg) return 0.;
   
   const xAOD::CaloCluster* aCluster = eg->caloCluster();
   if (aCluster == 0 /*|| pars == 0*/) return 1E11;
-
   return 1e-3;
   //return pars->getPhiMatrix(tp).getError(caloEta(eg, aCluster->eta()), aCluster->e());
 }
 
-double FourMomCombiner::getClusterEtaError(const xAOD::Egamma* eg) const 
-{
-
+double FourMomCombiner::getClusterEtaError(const xAOD::Egamma* eg) const {
   if (!eg) return 0.;
 
   const xAOD::CaloCluster* aCluster = eg->caloCluster();
@@ -593,29 +592,8 @@ double FourMomCombiner::getClusterEtaError(const xAOD::Egamma* eg) const
   return 0.;
 }
 
-double FourMomCombiner::getClusterEtaPosError(const xAOD::Egamma* eg) const
-{
 
-  if (!eg) return 0.;
-
-  double clusterE(1.);
-  double eta(0.);
-  if (fabs(eta) > 8.) eta = 8.;
-  const xAOD::CaloCluster* aCluster = eg->caloCluster();
-  if (aCluster) {
-    clusterE = eg->caloCluster()->e();
-    if (clusterE < 1.) clusterE = 1.;
-    eta = aCluster->eta();
-  } else {
-    return 0.30e-3*sqrt(100./(clusterE*0.001));
-  }
-
-  return -1.;
-}
-
-
-double FourMomCombiner::getClusterEnergyError(const xAOD::Egamma* eg) const
-{
+double FourMomCombiner::getClusterEnergyError(const xAOD::Egamma* eg) const{
 
   if (!eg) return 0.;
   //if (forcePhoton) ATH_MSG_DEBUG("Treating all objects as photons");

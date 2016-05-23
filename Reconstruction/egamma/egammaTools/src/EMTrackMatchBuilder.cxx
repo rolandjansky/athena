@@ -19,6 +19,8 @@
 #include "egammaInterfaces/IEMExtrapolationTools.h"
 //
 #include "CandidateMatchHelpers.h"
+#include "FourMomUtils/P4Helpers.h"
+#include "SGTools/CurrentEventStore.h"
 
 #include <cmath>
 
@@ -245,6 +247,7 @@ StatusCode EMTrackMatchBuilder::trackExecute(egammaRec* eg, const xAOD::TrackPar
     std::vector<EL> trackParticleLinks;
     trackParticleLinks.reserve (trkMatches.size());
     std::string key = EL(*trackPC, 0).dataID();
+    IProxyDictWithPool* sg = SG::CurrentEventStore::store();
     for (const TrackMatch& m : trkMatches) {
       ATH_MSG_DEBUG("Match  dR: "<< m.dR
 		    <<" second  dR: "<< m.seconddR
@@ -252,9 +255,9 @@ StatusCode EMTrackMatchBuilder::trackExecute(egammaRec* eg, const xAOD::TrackPar
 		    <<" hitsScore: " << m.hitsScore 
 		    <<" isTRT : "<< m.isTRT);
       if (key.empty())
-        trackParticleLinks.emplace_back (*trackPC, m.trackNumber);
+        trackParticleLinks.emplace_back (*trackPC, m.trackNumber, sg);
       else
-        trackParticleLinks.emplace_back (key, m.trackNumber);
+        trackParticleLinks.emplace_back (key, m.trackNumber, sg);
     }
     eg->setTrackParticles(trackParticleLinks);
   }
@@ -535,16 +538,15 @@ EMTrackMatchBuilder::isCandidateMatch(const xAOD::CaloCluster*        cluster,
       Et = cluster->et();
     }
     //===========================================================//     
-    CandidateMatchHelpers m_matchHelper;
-    double etaclus_corrected = m_matchHelper.CorrectedEta(clusterEta,z_first,isEndCap);
-    double phiRot = m_matchHelper.PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
-    double phiRotTrack = m_matchHelper.PhiROT(track->pt(),trkEta, track->charge(),r_first ,isEndCap)  ;
+    double etaclus_corrected = CandidateMatchHelpers::CorrectedEta(clusterEta,z_first,isEndCap);
+    double phiRot = CandidateMatchHelpers::PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
+    double phiRotTrack = CandidateMatchHelpers::PhiROT(track->pt(),trkEta, track->charge(),r_first ,isEndCap)  ;
     //===========================================================//     
-    double deltaPhiStd = m_phiHelper.diff(cluster->phiBE(2), trkPhi);
-    double trkPhiCorr = m_phiHelper.diff(trkPhi, phiRot);
-    double deltaPhi2 = m_phiHelper.diff(cluster->phiBE(2), trkPhiCorr);
-    double trkPhiCorrTrack = m_phiHelper.diff(trkPhi, phiRotTrack);
-    double deltaPhi2Track = m_phiHelper.diff(cluster->phiBE(2), trkPhiCorrTrack);
+    double deltaPhiStd = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhi);
+    double trkPhiCorr = P4Helpers::deltaPhi(trkPhi, phiRot);
+    double deltaPhi2 = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorr);
+    double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
+    double deltaPhi2Track = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorrTrack);
     //===========================================================//     
     //check eta match . Both metrics need to fail in order to disgard the track
     if ( (!trkTRT) && (fabs(cluster->etaBE(2) - trkEta) > 2.*m_broadDeltaEta) && (fabs( etaclus_corrected- trkEta) > 2.*m_broadDeltaEta)){

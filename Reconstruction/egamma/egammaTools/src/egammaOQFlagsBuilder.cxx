@@ -6,9 +6,9 @@
 #include "egammaOQFlagsBuilder.h"
 #include "xAODEgamma/Egamma.h"
 #include "xAODCaloEvent/CaloCluster.h"
-
 #include <algorithm> 
 #include <math.h> 
+
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"
 #include "LArTools/LArCablingService.h"
@@ -17,11 +17,8 @@
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "CaloGeoHelpers/CaloPhiRange.h"
-
-
+#include "FourMomUtils/P4Helpers.h"
 //  END OF HEADER FILES INCLUDE
-
 
 using CLHEP::GeV;
 
@@ -31,11 +28,11 @@ egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
 					   const std::string& name,
 					   const IInterface* parent)
   : egammaBaseTool(type, name, parent),
-    //m_toolSvc(0),
     m_badChannelTool("LArBadChanTool"),
     m_larCablingSvc("LArCablingService"),
-    m_affectedTool("CaloAffectedTool"), 
+    m_affectedTool("CaloAffectedTool"),
     m_emHelper(0),
+    m_cellcoll(0),
     m_cellCentrId(0),
     m_detStore(NULL)
 {
@@ -51,7 +48,7 @@ egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
   // (declared in jobOptions file)
   declareProperty("LArBadChannelTool",m_badChannelTool,"This is the larBadChannelTool");
   declareProperty("affectedTool"    , m_affectedTool); 
-  declareProperty("CellsName",m_cellsName="AODCellContainer","Names of container which contain cells ");
+  declareProperty("CellsName",m_cellsName="AllCalo","Names of container which contain cells ");
   declareProperty("QCellCut", m_QCellCut = 4000.);
   declareProperty("QCellHECCut", m_QCellHECCut = 60000.);
   declareProperty("QCellSporCut", m_QCellSporCut = 4000.);
@@ -85,13 +82,13 @@ StatusCode egammaOQFlagsBuilder::initialize()
   //StoreGateSvc* detStore;
   sc=service("DetectorStore",m_detStore);
   if (sc.isFailure()) {
-   msg(MSG::ERROR) << "DetectorStore service not found !" << endreq;
+    msg(MSG::ERROR) << "DetectorStore service not found !" << endreq;
     return StatusCode::FAILURE;
   } else {
     //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found DetectorStore" << endreq;
   }
 
- // Get BadChannelTool
+  // Get BadChannelTool
   sc=m_badChannelTool.retrieve();
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Could not retrieve LArBadChannelTool " << m_badChannelTool << endreq;
@@ -173,67 +170,35 @@ bool egammaOQFlagsBuilder::findCentralCell(const xAOD::CaloCluster* cluster)
     float phi = cell->phi();
     float energy = cell->energy();
     CaloSampling::CaloSample layer = cell->caloDDE()->getSampling() ;
-    if(fabs(eta - clusEta)<0.025 && fabs(CaloPhiRange::diff(phi, clusPhi))<0.025 && (layer==CaloSampling::EMB2 || layer==CaloSampling::EME2) && (energy>energymax)) { 
+    if(fabs(eta - clusEta)<0.025 && fabs(P4Helpers::deltaPhi(phi, clusPhi))<0.025 && (layer==CaloSampling::EMB2 || layer==CaloSampling::EME2) && (energy>energymax)) { 
       energymax=energy;
       m_cellCentrId = cellIter->ID();
       thereIsACentrCell = true;
     }
   }
-
   return thereIsACentrCell;
 }
 
 
 // ===============================================================
 bool egammaOQFlagsBuilder::isCore(Identifier Id, const std::vector<IdentifierHash>& neighbourList) const {
-
   const IdentifierHash hashId = m_calocellId->calo_cell_hash(Id);
   std::vector<IdentifierHash>::const_iterator it=std::find(neighbourList.begin(),neighbourList.end(),hashId);
   return (it!=neighbourList.end());
-
-  /*
-
-  bool status= false;
-
-  const IdentifierHash hashId = m_calocellId->calo_cell_hash(Id);
-
-  std::vector<IdentifierHash>::iterator first=neighbourList.begin();
-  std::vector<IdentifierHash>::iterator last=neighbourList.end();
-
-  for (;last!=first; first++){
-    if( hashId == (unsigned int)(*first) ) {
-      status= true;
-      continue; //should be break, no?
-    }
-  }
-
-  return status;
-  */
 }
 
 
 // ===============================================================
-std::vector<IdentifierHash> egammaOQFlagsBuilder::findNeighbours(Identifier cellCentrId)
-{
-
+std::vector<IdentifierHash> egammaOQFlagsBuilder::findNeighbours(Identifier cellCentrId) const{
   std::vector<IdentifierHash> neighbourList;
-
-  //
-  // ... loop on cells hash
-  //
   const IdentifierHash hashId = m_calocellId->calo_cell_hash(cellCentrId);
   m_emHelper->get_neighbours(hashId, LArNeighbours::all2D, neighbourList); 
-
   return  neighbourList;
-
 }
-
-
 
 // =====================================================================
 StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
 { 
-  
   // Protection against bad pointers
   if (eg==0) return StatusCode::SUCCESS;
   const xAOD::CaloCluster* cluster = eg->caloCluster(); 
@@ -298,68 +263,68 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
       HWIdentifier LArhwid = m_larCablingSvc->createSignalChannelIDFromHash(cell->caloDDE()->calo_hash());
       LArBadChannel bc = m_badChannelTool->status(LArhwid);      
       //      if (!bc.good()){  //If it is ok, skip all checks
-	if(isACoreCell) {
-	  if((cell->provenance() & 0x0A00) == 0x0A00) { 
-	    iflag |= ( 0x1 << xAOD::EgammaParameters::MissingFEBCellCore);
-	  }
-	  if((cell->provenance() & 0x0A00) == 0x0800) {
-	    iflag |= ( 0x1 << xAOD::EgammaParameters::MaskedCellCore); 
-	  }
-	  if(bc.sporadicBurstNoise() && qual<m_QCellSporCut) {
-	    iflag |= ( 0x1 << xAOD::EgammaParameters::SporadicNoiseLowQCore);
-	  }
-	  if(bc.deadCalib() || bc.lowNoiseHG() || bc.lowNoiseMG() ||
-	     bc.lowNoiseLG() || bc.distorted() || bc.unstable() || 
-	     bc.unstableNoiseHG() || bc.unstableNoiseMG() || 
-	     bc.unstableNoiseLG() || bc.peculiarCalibrationLine() 
-	     || bc.almostDead() ||  bc.shortProblem()) { 
-	    iflag |= ( 0x1 << xAOD::EgammaParameters::AffectedCellCore);
-	  }
-	  if (qual>=4000) {
-	    iflag |= ( 0x1 << xAOD::EgammaParameters::HighQCore);
-	  }
-	}else{
-	  if((cell->provenance() & 0x0A00) == 0x0A00) { 
-	    if( layer==CaloSampling::PreSamplerB || layer==CaloSampling::PreSamplerE) {
-	      iflag |= ( 0x1 << xAOD::EgammaParameters::MissingFEBCellEdgePS);
-	    }
-  	    if( layer==CaloSampling::EMB1 || layer==CaloSampling::EME1) {
-	      iflag |= ( 0x1 << xAOD::EgammaParameters::MissingFEBCellEdgeS1);
-	      if (isStripCoreCell)  iflag |= ( 0x1 << xAOD::EgammaParameters::BadS1Core);
-	    }
-  	    if( layer==CaloSampling::EMB2 || layer==CaloSampling::EME2) iflag |= ( 0x1 << xAOD::EgammaParameters::MissingFEBCellEdgeS2);
-  	    if( layer==CaloSampling::EMB3 || layer==CaloSampling::EME3) iflag |= ( 0x1 << xAOD::EgammaParameters::MissingFEBCellEdgeS3); 
-	  }
-	  if((cell->provenance() & 0x0A00)  == 0x0800) {
-	    if( layer==CaloSampling::PreSamplerB || layer==CaloSampling::PreSamplerE){
-	      iflag |= ( 0x1 << xAOD::EgammaParameters::MaskedCellEdgePS);
-	    }
-  	    if( layer==CaloSampling::EMB1 || layer==CaloSampling::EME1) {
-	      iflag |= ( 0x1 << xAOD::EgammaParameters::MaskedCellEdgeS1);
-	      if (isStripCoreCell)  iflag |= ( 0x1 << xAOD::EgammaParameters::BadS1Core);
-	    }
-  	    if( layer==CaloSampling::EMB2 || layer==CaloSampling::EME2) iflag |= ( 0x1 << xAOD::EgammaParameters::MaskedCellEdgeS2);
-  	    if( layer==CaloSampling::EMB3 || layer==CaloSampling::EME3) iflag |= ( 0x1 << xAOD::EgammaParameters::MaskedCellEdgeS3); 
-	  }
-	  if(bc.sporadicBurstNoise() && qual<m_QCellSporCut) {
-	    iflag |= ( 0x1 << xAOD::EgammaParameters::SporadicNoiseLowQEdge);
-	  }
-	  if(bc.deadCalib() || bc.lowNoiseHG() || bc.lowNoiseMG() ||
-	     bc.lowNoiseLG() || bc.distorted() || bc.unstable() ||
-	     bc.unstableNoiseHG() || bc.unstableNoiseMG() || 
-	     bc.unstableNoiseLG() || bc.peculiarCalibrationLine() 
-	     || bc.almostDead() ||  bc.shortProblem()) { 
-	    if( layer==CaloSampling::PreSamplerB || layer==CaloSampling::PreSamplerE) {
-	      iflag |= ( 0x1 << xAOD::EgammaParameters::AffectedCellEdgePS);
-	    }
-	    if( layer==CaloSampling::EMB1 || layer==CaloSampling::EME1) iflag |= ( 0x1 << xAOD::EgammaParameters::AffectedCellEdgeS1);
-	    if( layer==CaloSampling::EMB2 || layer==CaloSampling::EME2) iflag |= ( 0x1 << xAOD::EgammaParameters::AffectedCellEdgeS2);
-	    if( layer==CaloSampling::EMB3 || layer==CaloSampling::EME3) iflag |= ( 0x1 << xAOD::EgammaParameters::AffectedCellEdgeS3);
-	  }
-	  if (qual>=4000) {
-	    iflag |= ( 0x1 << xAOD::EgammaParameters::HighQEdge);
-	  }
+      if(isACoreCell) {
+	if((cell->provenance() & 0x0A00) == 0x0A00) { 
+	  iflag |= ( 0x1 << xAOD::EgammaParameters::MissingFEBCellCore);
 	}
+	if((cell->provenance() & 0x0A00) == 0x0800) {
+	  iflag |= ( 0x1 << xAOD::EgammaParameters::MaskedCellCore); 
+	}
+	if(bc.sporadicBurstNoise() && qual<m_QCellSporCut) {
+	  iflag |= ( 0x1 << xAOD::EgammaParameters::SporadicNoiseLowQCore);
+	}
+	if(bc.deadCalib() || bc.lowNoiseHG() || bc.lowNoiseMG() ||
+	   bc.lowNoiseLG() || bc.distorted() || bc.unstable() || 
+	   bc.unstableNoiseHG() || bc.unstableNoiseMG() || 
+	   bc.unstableNoiseLG() || bc.peculiarCalibrationLine() 
+	   || bc.almostDead() ||  bc.shortProblem()) { 
+	  iflag |= ( 0x1 << xAOD::EgammaParameters::AffectedCellCore);
+	}
+	if (qual>=4000) {
+	  iflag |= ( 0x1 << xAOD::EgammaParameters::HighQCore);
+	}
+      }else{
+	if((cell->provenance() & 0x0A00) == 0x0A00) { 
+	  if( layer==CaloSampling::PreSamplerB || layer==CaloSampling::PreSamplerE) {
+	    iflag |= ( 0x1 << xAOD::EgammaParameters::MissingFEBCellEdgePS);
+	  }
+	  if( layer==CaloSampling::EMB1 || layer==CaloSampling::EME1) {
+	    iflag |= ( 0x1 << xAOD::EgammaParameters::MissingFEBCellEdgeS1);
+	    if (isStripCoreCell)  iflag |= ( 0x1 << xAOD::EgammaParameters::BadS1Core);
+	  }
+	  if( layer==CaloSampling::EMB2 || layer==CaloSampling::EME2) iflag |= ( 0x1 << xAOD::EgammaParameters::MissingFEBCellEdgeS2);
+	  if( layer==CaloSampling::EMB3 || layer==CaloSampling::EME3) iflag |= ( 0x1 << xAOD::EgammaParameters::MissingFEBCellEdgeS3); 
+	}
+	if((cell->provenance() & 0x0A00)  == 0x0800) {
+	  if( layer==CaloSampling::PreSamplerB || layer==CaloSampling::PreSamplerE){
+	    iflag |= ( 0x1 << xAOD::EgammaParameters::MaskedCellEdgePS);
+	  }
+	  if( layer==CaloSampling::EMB1 || layer==CaloSampling::EME1) {
+	    iflag |= ( 0x1 << xAOD::EgammaParameters::MaskedCellEdgeS1);
+	    if (isStripCoreCell)  iflag |= ( 0x1 << xAOD::EgammaParameters::BadS1Core);
+	  }
+	  if( layer==CaloSampling::EMB2 || layer==CaloSampling::EME2) iflag |= ( 0x1 << xAOD::EgammaParameters::MaskedCellEdgeS2);
+	  if( layer==CaloSampling::EMB3 || layer==CaloSampling::EME3) iflag |= ( 0x1 << xAOD::EgammaParameters::MaskedCellEdgeS3); 
+	}
+	if(bc.sporadicBurstNoise() && qual<m_QCellSporCut) {
+	  iflag |= ( 0x1 << xAOD::EgammaParameters::SporadicNoiseLowQEdge);
+	}
+	if(bc.deadCalib() || bc.lowNoiseHG() || bc.lowNoiseMG() ||
+	   bc.lowNoiseLG() || bc.distorted() || bc.unstable() ||
+	   bc.unstableNoiseHG() || bc.unstableNoiseMG() || 
+	   bc.unstableNoiseLG() || bc.peculiarCalibrationLine() 
+	   || bc.almostDead() ||  bc.shortProblem()) { 
+	  if( layer==CaloSampling::PreSamplerB || layer==CaloSampling::PreSamplerE) {
+	    iflag |= ( 0x1 << xAOD::EgammaParameters::AffectedCellEdgePS);
+	  }
+	  if( layer==CaloSampling::EMB1 || layer==CaloSampling::EME1) iflag |= ( 0x1 << xAOD::EgammaParameters::AffectedCellEdgeS1);
+	  if( layer==CaloSampling::EMB2 || layer==CaloSampling::EME2) iflag |= ( 0x1 << xAOD::EgammaParameters::AffectedCellEdgeS2);
+	  if( layer==CaloSampling::EMB3 || layer==CaloSampling::EME3) iflag |= ( 0x1 << xAOD::EgammaParameters::AffectedCellEdgeS3);
+	}
+	if (qual>=4000) {
+	  iflag |= ( 0x1 << xAOD::EgammaParameters::HighQEdge);
+	}
+      }
     }  // end loop over cells
     //====================================================================================================================//
 
@@ -370,31 +335,22 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
       iflag |= (0x1 << xAOD::EgammaParameters::LArQCleaning);
     }
     //=========================================//
-
   } //close if found central cell
-
-
-
 
   //========================= Check the HV components ===================================================//
   float deta=0;
   float dphi=0;
   CaloSampling::CaloSample layer;
 
-
-   //--------------> PRE SAMPLER
+  //--------------> PRE SAMPLER
   deta=0.5*0.025*cluster->getClusterEtaSize();
   dphi=0.5*0.025*cluster->getClusterPhiSize();
   layer=CaloSampling::PreSamplerE;
-//   deta=0.5*cluster->etasize(layer);
-//   dphi=0.5*cluster->phisize(layer);
+
   bool checkNNHV_PSE   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
   bool checkDEADHV_PSE = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
   layer=CaloSampling::PreSamplerB;
-//   deta=0.;
-//   dphi=0.;
-//   deta=0.5*cluster->etasize(layer);
-//   dphi=0.5*cluster->phisize(layer);
+
   bool checkNNHV_PSB   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
   bool checkDEADHV_PSB = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
   if(checkNNHV_PSE || checkNNHV_PSB)      iflag |= ( 0x1 << xAOD::EgammaParameters::NonNominalHVPS); 
@@ -403,8 +359,8 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
 
   //---------------> SAMPLING 2 : CLUSTER CORE
   layer=CaloSampling::EMB2;
-//   deta=0.;
-//   dphi=0.;
+  //   deta=0.;
+  //   dphi=0.;
   deta=0.5*0.025*3.;
   dphi=0.5*0.025*3.;
   bool checkDEADHV_CORE_B = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
@@ -416,45 +372,27 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
   deta=0.5*0.025*cluster->getClusterEtaSize();
   dphi=0.5*0.025*cluster->getClusterPhiSize();
   layer=CaloSampling::EMB1;
-//   deta=0.;
-//   dphi=0.;
-//   deta=0.5*cluster->etasize(layer);
-//   dphi=0.5*cluster->phisize(layer);
+
   bool checkNNHV_EMB1   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
   bool checkDEADHV_EMB1 = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
   layer=CaloSampling::EMB2;
-//   deta=0.;
-//   dphi=0.;
-//   deta=0.5*cluster->etasize(layer);
-//   dphi=0.5*cluster->phisize(layer);
+
   bool checkNNHV_EMB2   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
   bool checkDEADHV_EMB2 = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
   layer=CaloSampling::EMB3;
-//   deta=0.;
-//   dphi=0.;
-//   deta=0.5*cluster->etasize(layer);
-//   dphi=0.5*cluster->phisize(layer);
+
   bool checkNNHV_EMB3   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
   bool checkDEADHV_EMB3 = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
   layer=CaloSampling::EME1;
-//   deta=0.;
-//   dphi=0.;
-//   deta=0.5*cluster->etasize(layer);
-//   dphi=0.5*cluster->phisize(layer);
+
   bool checkNNHV_EME1   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
   bool checkDEADHV_EME1 = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
   layer=CaloSampling::EME2;
-//   deta=0.;
-//   dphi=0.;
-//   deta=0.5*cluster->etasize(layer);
-//   dphi=0.5*cluster->phisize(layer);
+
   bool checkNNHV_EME2   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
   bool checkDEADHV_EME2 = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
   layer=CaloSampling::EME3;
-//   deta=0.;
-//   dphi=0.;
-//   deta=0.5*cluster->etasize(layer);
-//   dphi=0.5*cluster->phisize(layer);
+
   bool checkNNHV_EME3   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
   bool checkDEADHV_EME3 = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
   if(checkNNHV_EMB1 || checkNNHV_EME1 || checkNNHV_EMB2 || checkNNHV_EME2 ||checkNNHV_EMB3 || checkNNHV_EME3) 
@@ -474,129 +412,52 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
   CaloCellList ccl(m_cellcoll,HADCal); 
   double size = 0.12;
   //------------------------ TileBar0 --------------------------------//
-  bool isbadtilebar0cell = false;
-  ccl.select(clusterEta,clusterPhi,size,size,CaloSampling::TileBar0);
-  CaloCellList::list_iterator cclIterBar0     = ccl.begin();
-  CaloCellList::list_iterator cclIterBar0End  = ccl.end();
-  for( ;cclIterBar0!=cclIterBar0End;cclIterBar0++) {
-    const CaloCell* cell = (*cclIterBar0);
-    if(cell->badcell() == true){//check of bad tile cell
-      isbadtilebar0cell = true;
-      break;
-    }
-  }
+  bool isbadtilebar0cell=isbadtilecell(ccl,clusterEta,clusterPhi,size,size,CaloSampling::TileBar0);
   //------------------------ TileExt0 --------------------------------//
-  bool isbadtileext0cell = false;
-  ccl.select(clusterEta,clusterPhi,size,size,CaloSampling::TileExt0);
-  CaloCellList::list_iterator cclIterExt0     = ccl.begin();
-  CaloCellList::list_iterator cclIterExt0End  = ccl.end();
-  for( ;cclIterExt0!=cclIterExt0End;cclIterExt0++) {
-    const CaloCell* cell = (*cclIterExt0);
-    if(cell->badcell() == true){//check of bad tile cell
-      isbadtileext0cell = true;
-      break;
-    }
-  }
+  bool isbadtileext0cell=isbadtilecell(ccl,clusterEta,clusterPhi,size,size,CaloSampling::TileExt0);
   //----------------------------------------------------------------//
 
   if( isbadtilebar0cell || isbadtileext0cell ){
     iflag |= (0x1 << xAOD::EgammaParameters::DeadCellTileS0);    
   }
-
-  if (evtStore()->contains<CaloCellContainer>("AllCalo")) {
-    //skipped if running on the AODs
-    //---------------------- TileBar1 ----------------------------------//
-    bool isbadtilebar1cell = false;
-    ccl.select(clusterEta,clusterPhi,size,size,CaloSampling::TileBar1);
-    CaloCellList::list_iterator cclIterBar1     = ccl.begin();
-    CaloCellList::list_iterator cclIterBar1End  = ccl.end();
-    for( ;cclIterBar1!=cclIterBar1End;cclIterBar1++) {
-      const CaloCell* cell = (*cclIterBar1);
-      if(cell->badcell() == true){//check of bad tile cell
-	isbadtilebar1cell = true;
-	break;
-      }
-    }
+  //---------------------- TileBar1 ----------------------------------//
+  bool isbadtilebar1cell=isbadtilecell(ccl,clusterEta,clusterPhi,size,size,CaloSampling::TileBar1);
     //---------------------- TileExt1 ----------------------------------//
-    bool isbadtileext1cell = false;
-    ccl.select(clusterEta,clusterPhi,size,size,CaloSampling::TileExt1);
-    CaloCellList::list_iterator cclIterExt1     = ccl.begin();
-    CaloCellList::list_iterator cclIterExt1End  = ccl.end();
-    for( ;cclIterExt1!=cclIterExt1End;cclIterExt1++) {
-      const CaloCell* cell = (*cclIterExt1);
-      if(cell->badcell() == true){//check of bad tile cell
-	isbadtileext1cell = true;
-	break;
-      }
-    }
+  bool isbadtileext1cell=isbadtilecell(ccl,clusterEta,clusterPhi,size,size,CaloSampling::TileExt1);
     //---------------------- TileGap1 ----------------------------------//
-    bool isbadtilegap1cell = false;
-    ccl.select(clusterEta,clusterPhi,size,size,CaloSampling::TileGap1);
-    CaloCellList::list_iterator cclIterGap1     = ccl.begin();
-    CaloCellList::list_iterator cclIterGap1End  = ccl.end();
-    for( ;cclIterGap1!=cclIterGap1End;cclIterGap1++) {
-      const CaloCell* cell = (*cclIterGap1);
-      if(cell->badcell() == true){//check of bad tile cell
-	isbadtilegap1cell = true;
-	break;
-      }
-    }
-    //---------------------- TileBar2 ----------------------------------//
-    bool isbadtilebar2cell = false;
-    ccl.select(clusterEta,clusterPhi,size,size,CaloSampling::TileBar2);
-    CaloCellList::list_iterator cclIterBar2     = ccl.begin();
-    CaloCellList::list_iterator cclIterBar2End  = ccl.end();
-    for( ;cclIterBar2!=cclIterBar2End;cclIterBar2++) {
-      const CaloCell* cell = (*cclIterBar2);
-      if(cell->badcell() == true){//check of bad tile cell
-	isbadtilebar2cell = true;
-	break;
-      }
-    }
+  bool isbadtilegap1cell=isbadtilecell(ccl,clusterEta,clusterPhi,size,size,CaloSampling::TileGap1);
+  //---------------------- TileBar2 ----------------------------------//
+  bool isbadtilebar2cell=isbadtilecell(ccl,clusterEta,clusterPhi,size,size,CaloSampling::TileBar2);
     //---------------------- TileExt2 ---------------------------------//
-    bool isbadtileext2cell = false;
-    ccl.select(clusterEta,clusterPhi,size,size,CaloSampling::TileExt2);
-    CaloCellList::list_iterator cclIterExt2     = ccl.begin();
-    CaloCellList::list_iterator cclIterExt2End  = ccl.end();
-    for( ;cclIterExt2!=cclIterExt2End;cclIterExt2++) {
-      const CaloCell* cell = (*cclIterExt2);
-      if(cell->badcell() == true){//check of bad tile cell
-	isbadtileext2cell = true;
-	break;
-      }
-    }
+  bool isbadtileext2cell=isbadtilecell(ccl,clusterEta,clusterPhi,size,size,CaloSampling::TileExt2);
     //---------------------- TileGap2 ----------------------------------//
-    bool isbadtilegap2cell = false;
-    ccl.select(clusterEta,clusterPhi,size,size,CaloSampling::TileGap2);
-    CaloCellList::list_iterator cclIterGap2     = ccl.begin();
-    CaloCellList::list_iterator cclIterGap2End  = ccl.end();
-    for( ;cclIterGap2!=cclIterGap2End;cclIterGap2++) {
-      const CaloCell* cell = (*cclIterGap2);
-      if(cell->badcell() == true){//check of bad tile cell
-	isbadtilegap2cell = true;
-	break;
-      }
-    }
-    //---------------------------------------------------------------//
+  bool isbadtilegap2cell=isbadtilecell(ccl,clusterEta,clusterPhi,size,size,CaloSampling::TileGap2);
+  //---------------------------------------------------------------//
+  if( isbadtilebar1cell || isbadtilebar2cell ||
+      isbadtileext1cell || isbadtileext2cell ||
+      isbadtilegap1cell || isbadtilegap2cell ){
+    iflag |= (0x1 << xAOD::EgammaParameters::DeadCellTileS1S2);    
+  }
 
-    if( isbadtilebar1cell || isbadtilebar2cell ||
-	isbadtileext1cell || isbadtileext2cell ||
-	isbadtilegap1cell || isbadtilegap2cell ){
-      iflag |= (0x1 << xAOD::EgammaParameters::DeadCellTileS1S2);    
-    }
-
-  }//End of the "AllCalo" condition
   //=================================================================================//
-
-  // std::cout << "TOTO " << iflag << std::endl; 
   eg->setOQ(iflag);
-  
-  
   ATH_MSG_DEBUG("Executing egammaOQFlagsBuilder::execute");
-  
-  
   return StatusCode::SUCCESS;
 }
 
+bool egammaOQFlagsBuilder::isbadtilecell ( CaloCellList& ccl, const float clusterEta, const float clusterPhi, 
+					   const double sizeEta, const double sizePhi ,const CaloSampling::CaloSample sample) const {
 
-
+  bool isbadtilecell = false;
+  ccl.select(clusterEta,clusterPhi,sizeEta,sizePhi,sample);
+  CaloCellList::list_iterator cclIter     = ccl.begin();
+  CaloCellList::list_iterator cclIterEnd  = ccl.end();
+  for( ;cclIter!=cclIterEnd;cclIter++) {
+    const CaloCell* cell = (*cclIter);
+    if(cell->badcell() == true){//check of bad tile cell
+      isbadtilecell = true;
+      break;
+      }
+  }
+  return isbadtilecell;
+}

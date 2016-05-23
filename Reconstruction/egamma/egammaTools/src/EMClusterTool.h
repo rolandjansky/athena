@@ -11,7 +11,7 @@
 #include "egammaInterfaces/IEMClusterTool.h"
 #include "egammaBaseTool.h"
 
-#include "xAODCaloEvent/CaloClusterFwd.h"
+#include "xAODCaloEvent/CaloCluster.h" // cannot use CaloClusterFwd b/c of ClusterSize
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODEgamma/EgammaEnums.h"
@@ -60,19 +60,34 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   /** @brief finalize method */
   virtual StatusCode finalize();
   
+  void fillPositionsInCalo(xAOD::CaloCluster* cluster) const ;
+ private:
+
   /** @brief Set new cluster to the egamma object, decorate the new cluster
     * with a link to the old one **/
   void setNewCluster(xAOD::Egamma *eg,
                      xAOD::CaloClusterContainer *outputClusterContainer,
-                     xAOD::EgammaParameters::EgammaType egType);
+                     xAOD::EgammaParameters::EgammaType egType) const;
   
-  /** @brief creation of new cluster based on existing one **/
-  virtual xAOD::CaloCluster* makeNewCluster(const xAOD::CaloCluster&, xAOD::Egamma *eg, xAOD::EgammaParameters::EgammaType);
+  /** @brief creation of new cluster based on existing one 
+    * Return a new cluster using the seed eta0, phi0 from the existing one, 
+    * applying cluster corrections and MVA calibration (requires the egamma object).
+    * The cluster size depends on the given EgammaType
+    */
+  virtual xAOD::CaloCluster* makeNewCluster(const xAOD::CaloCluster&, xAOD::Egamma *eg, 
+					    xAOD::EgammaParameters::EgammaType) const;
 
-  void fillPositionsInCalo(xAOD::CaloCluster* cluster);
- private:
-  /** @brief Position in Calo frame**/
+  /** @brief creation of new cluster based on existing one 
+    * Return a new cluster with the given size using the seed eta0, phi0 from the
+    * existing cluster and applying cluster corrections. 
+    * If doDecorate is true, copy the cal to the raw signal state
+    * and set the raw one to the cal e,eta,phi from the existing cluster
+    */
+  virtual xAOD::CaloCluster* makeNewCluster(const xAOD::CaloCluster&, 
+                                            const xAOD::CaloCluster::ClusterSize&) const ;
 
+  /** @brief creation of new super cluster based on existing one */
+  xAOD::CaloCluster* makeNewSuperCluster(const xAOD::CaloCluster& cluster) const ;  
 
   /** @brief Name of the output cluster container **/
   std::string m_outputClusterContainerName;
@@ -95,12 +110,10 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   /** @brief Name of tool for cluster corrections */
   std::string            m_ClusterCorrectionToolName;
   
-  /** @brief Decorate clusters with positions in calo frame? **/
-  bool m_doPositionInCalo;
-
   /** @brief Call CaloClusterStoreHelper::finalizeClusters ? **/ 
-  bool m_finalizeClusters;
-  
+  bool m_doSuperClusters;
+
+  /** @brief Position in Calo frame**/  
   std::unique_ptr<CaloCellDetPos> m_caloCellDetPos;
 };
 

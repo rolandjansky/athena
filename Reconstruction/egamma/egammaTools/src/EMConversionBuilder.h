@@ -29,7 +29,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "egammaBaseTool.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
-#include "CaloGeoHelpers/CaloPhiRange.h"
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 
@@ -53,7 +52,11 @@ class EMConversionBuilder : public egammaBaseTool, virtual public IEMConversionB
   /** @brief execute method*/
   virtual StatusCode contExecute();
   /** @brief execute method*/
+  virtual StatusCode executeRec(egammaRec* egRec);
+  /** @brief execute method*/
   virtual StatusCode hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions);
+  /** @brief execute method*/
+  virtual StatusCode vertexExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions);
   /** @brief finalize method*/
   StatusCode finalize();
 
@@ -72,8 +75,6 @@ private:
   /** @brief Name of egammaRec container*/
   std::string		m_egammaRecContainerName; 
 
-  /** @brief Helper used to compute angle differences in phi. Corrects within the +/- pi range.*/
-  CaloPhiRange          m_phiHelper; 
 
   /** @brief EMExtrapolationTools */
   ToolHandle<IEMExtrapolationTools>  m_extrapolationTool;

@@ -44,6 +44,7 @@ EMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
                             ElectronContainerName = egammaKeys.outputElectronKey(),
                             PhotonContainerName = egammaKeys.outputPhotonKey(),
                             ClusterCorrectionToolName = FullNameWrapper(egammaSwTool),
+                            doSuperCluster = jobproperties.egammaRecFlags.doSuperclusters(),
                             MVACalibTool= egammaMVATool
 )
 
@@ -63,6 +64,7 @@ EMBremCollectionBuilder = ToolFactory( egammaBremCollectionBuilder,
                                        ExtrapolationTool = EMExtrapolationTools,
                                        OutputTrackContainerName=egammaKeys.outputTrackKey(),
                                        ClusterContainerName=egammaKeys.inputClusterKey(),
+                                       UseBremFinder=jobproperties.egammaRecFlags.doBremFinding(),
                                        DoTruth=rec.doTruth()
 )
 
@@ -72,21 +74,39 @@ EMConversionBuilder = ToolFactory( egammaToolsConf.EMConversionBuilder,
                                    ConversionContainerName = egammaKeys.outputConversionKey(),
                                    ExtrapolationTool = EMExtrapolationTools)   
 
-
 from ElectronPhotonSelectorTools import ElectronPhotonSelectorToolsConf
 EGammaAmbiguityTool = ToolFactory( ElectronPhotonSelectorToolsConf.EGammaAmbiguityTool )
 
-
 EMFourMomBuilder = ToolFactory( egammaToolsConf.EMFourMomBuilder)
 
-#Extra tools for doing electron superclustering.
-if jobproperties.egammaRecFlags.doSuperclusters() :
-  egammaSuperClusterBuilder = ToolFactory( egammaToolsConf.egammaSuperClusterBuilder,
-                                           name = 'egammaSuperClusterBuilder',
-                                           InputClusterContainerName = 'EMTopoCluster430' )
+#Tools for doing superclustering.
 
-  egammaClusterOverlapMarker = ToolFactory( egammaToolsConf.egammaClusterOverlapMarker,
-                                            name = 'egammaClusterOverlapMarker' )
+egammaTopoClusterCopier = ToolFactory( egammaToolsConf.egammaTopoClusterCopier,
+                                     name = 'egammaTopoClusterCopier' ,
+                                     InputTopoCollection=jobproperties.egammaRecFlags.inputTopoClusterCollection(),
+                                     OutputTopoCollection=jobproperties.egammaRecFlags.egammaTopoClusterCollection(),
+                                     IsHadronic = True
+                                     )
+
+
+electronSuperClusterBuilder = ToolFactory( egammaToolsConf.electronSuperClusterBuilder,
+                                         name = 'electronSuperClusterBuilder',
+                                         WindowDelEtaCells = 3,
+                                         WindowDelPhiCells = 5,
+                                         SumRemaining3x5Cells=False,
+                                         InputClusterContainerName=jobproperties.egammaRecFlags.egammaTopoClusterCollection(),
+                                         ExtrapolationTool=EMExtrapolationTools,
+                                         UseBremFinder=jobproperties.egammaRecFlags.doBremFinding() )
+
+
+photonSuperClusterBuilder = ToolFactory( egammaToolsConf.photonSuperClusterBuilder,
+                                         name = 'photonSuperClusterBuilder'
+                                         )
+
+egammaTopoClusterMap = ToolFactory( egammaToolsConf.egammaTopoClusterMap,
+                                    name = 'egammaTopoClusterMap' )
+
+#End of super clustering
 
 # Electron Selectors
 from EMPIDBuilderBase import EMPIDBuilderElectronBase
@@ -106,7 +126,6 @@ from ROOT import egammaPID
 LooseForwardElectronSelector = ToolFactory( ConfiguredAsgForwardElectronIsEMSelector, name="LooseForwardElectronSelector", quality = egammaPID.ForwardElectronIDLoose )
 MediumForwardElectronSelector = ToolFactory( ConfiguredAsgForwardElectronIsEMSelector, name="MediumForwardElectronSelector", quality = egammaPID.ForwardElectronIDMedium )
 TightForwardElectronSelector = ToolFactory( ConfiguredAsgForwardElectronIsEMSelector, name="TightForwardElectronSelector", quality = egammaPID.ForwardElectronIDTight )
-
 
 #-------------------------
 

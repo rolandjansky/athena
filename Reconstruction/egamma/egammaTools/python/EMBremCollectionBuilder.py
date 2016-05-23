@@ -33,8 +33,7 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
         GSFRefitterTool = egammaTrkRefitterTool(name = 'GSFRefitterTool',
                                                 FitterTool = egammaRec.EMCommonRefitter.GSFTrackFitter,
                                                 useBeamSpot = False,
-                                                ReintegrateOutliers=True,
-                                                OutputLevel =7)
+                                                ReintegrateOutliers=True)
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += GSFRefitterTool
 
@@ -66,7 +65,6 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
             GSFBuildHoleSearchTool.SctSummarySvc = None
             
         ToolSvc += GSFBuildHoleSearchTool
-        print    GSFBuildHoleSearchTool
         #
         # Load BLayer tool
         #
@@ -79,7 +77,6 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
                                                                 PixelSummarySvc = ServiceMgr.PixelConditionsSummarySvc,
                                                                 Extrapolator    = GSFBuildInDetExtrapolator)
             ToolSvc += GSFBuildTestBLayerTool
-            print  GSFBuildTestBLayerTool
 
         # Configurable version of TRT_ElectronPidTools
         #
@@ -89,7 +86,6 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
             from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
             GSFBuildTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="GSF_TRT_LocalOccupancy")
             ToolSvc += GSFBuildTRT_LocalOccupancy
-            print GSFBuildTRT_LocalOccupancy
                 
             from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
             GSFBuildTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "GSFBuildTRT_ElectronPidTool",
@@ -97,7 +93,6 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
                                                                          isData = (globalflags.DataSource == 'data') )
  
             ToolSvc += GSFBuildTRT_ElectronPidTool
-            print GSFBuildTRT_ElectronPidTool
 
         #
         # Configurable version of PixelToTPIDTOol
@@ -108,7 +103,6 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
             GSFBuildPixelToTPIDTool = InDet__PixelToTPIDTool(name = "GSFBuildPixelToTPIDTool")
             GSFBuildPixelToTPIDTool.ReadFromCOOL = True
             ToolSvc += GSFBuildPixelToTPIDTool
-            print  GSFBuildPixelToTPIDTool
         #
         # Configrable version of loading the InDetTrackSummaryHelperTool
         #
@@ -123,7 +117,6 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
                                                                              useSCT          = DetFlags.haveRIO.SCT_on(),
                                                                              useTRT          = DetFlags.haveRIO.TRT_on())
         ToolSvc += GSFBuildTrackSummaryHelperTool
-        print      GSFBuildTrackSummaryHelperTool
         #
         # Configurable version of TrkTrackSummaryTool: no TRT_PID tool needed here (no shared hits)
         #
@@ -135,7 +128,6 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
                                                               TRT_ElectronPidTool    = GSFBuildTRT_ElectronPidTool,
                                                               PixelToTPIDTool        = GSFBuildPixelToTPIDTool)
         ToolSvc += GSFBuildInDetTrackSummaryTool
-        print      GSFBuildInDetTrackSummaryTool
         #
         # --- load patricle creator tool
         #
@@ -149,7 +141,6 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
         # Otherwise Tracks and CombinedInDetTracks will be different when slimming
 
         ToolSvc += GSFBuildInDetParticleCreatorTool
-        print GSFBuildInDetParticleCreatorTool
         #
         # --- do track slimming
         #
@@ -158,14 +149,12 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
                                                                      KeepParameters = True,
                                                                      KeepOutliers   = True )
         ToolSvc += GSFBuildInDetTrkSlimmingTool
-        print GSFBuildInDetTrkSlimmingTool
 
 
         # do the configuration
         self.ClusterContainerName="LArClusterEM"
         from InDetRecExample.InDetKeys import InDetKeys
         self.TrackParticleContainerName=InDetKeys.xAODTrackParticleContainer()
-        self.TrackParticleTruthCollectionName="TrackParticleTruthCollection"
         self.OutputTrkPartContainerName="GSFTrackParticles"
         self.OutputTrackContainerName="GSFTracks"
         self.TrackRefitTool= GSFRefitterTool

@@ -23,6 +23,7 @@ PURPOSE:  subAlgorithm which creates an EMConversion object.
 #include "xAODTracking/VertexContainer.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "egammaRecEvent/egammaRec.h"
+#include "FourMomUtils/P4Helpers.h"
 
 //  END OF HEADER FILES INCLUDE
 
@@ -129,123 +130,81 @@ StatusCode EMConversionBuilder::contExecute()
   if(evtStore()->retrieve(egammaRecs,m_egammaRecContainerName).isFailure()){
     ATH_MSG_WARNING("Could not retrieve egammaRec container! EMConversionBuilder will stop.");
     return StatusCode::SUCCESS;
-  }  
-  
-  // Extrapolate each vertex (keeping etatCalo, phiAtCalo)
-  // and try to match to each cluster
-  
-  // xAOD::Vertex does not have method isAvailable for the moment
-  // create a lambda function
-  auto isAvailable = [](const xAOD::Vertex& vertex, std::string name) { 
-    SG::AuxElement::Accessor<float> acc(name, "");
-    return acc.isAvailable(vertex); } ; 
-
-  float etaAtCalo(0), phiAtCalo(0);
-  for (unsigned int iVtx = 0; iVtx < conversions->size(); ++iVtx)
-  {
-    const xAOD::Vertex *vertex = conversions->at(iVtx);
-    
-    // Check if vertex was already decorated with etaAtCalo, phiAtCalo  
-    if (isAvailable(*vertex, "etaAtCalo") &&
-        isAvailable(*vertex, "phiAtCalo") )
-    {
-      etaAtCalo = vertex->auxdata<float>("etaAtCalo");
-      phiAtCalo = vertex->auxdata<float>("phiAtCalo");
-    }
-    // check extrapolation, skip vertex in case of failure
-    else if (!m_extrapolationTool->getEtaPhiAtCalo(vertex, &etaAtCalo, &phiAtCalo))
-      continue;
-    
-    for (auto& egRec : *egammaRecs)
-    {
-      const xAOD::CaloCluster *cluster = egRec->caloCluster();
-      if (!passPtAndEoverP(*vertex, *cluster))
-        continue;
-      if (!m_extrapolationTool->matchesAtCalo(cluster, vertex, etaAtCalo, phiAtCalo))
-        continue;
-      const ElementLink< xAOD::VertexContainer > vertexLink( *conversions, iVtx );
-      
-      // If this is the best (or the first) vertex, push front and keep deltaEta, deltaPhi
-      if (!egRec->getNumberOfVertices() || ConvVxSorter()(*vertex, *egRec->vertex()))
-      {
-        egRec->pushFrontVertex( vertexLink );
-        egRec->setDeltaEtaVtx( cluster->etaBE(2) - etaAtCalo );
-        egRec->setDeltaPhiVtx( m_phiHelper.diff(cluster->phiBE(2), phiAtCalo) );
-      }
-      else // Not the best vertex, push back
-        egRec->pushBackVertex( vertexLink );       
-    }
-    
+  }   
+  for (auto& egRec : *egammaRecs){
+    ATH_CHECK(vertexExecute(egRec,conversions));
   }
-  
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode EMConversionBuilder::executeRec(egammaRec* egRec) {
+  // retrieve Conversion Container
+  const xAOD::VertexContainer* conversions = 0;
+  if(evtStore()->retrieve(conversions,m_conversionContainerName).isFailure()){
+    ATH_MSG_WARNING("Could not retrieve Conversion container! EMConversionBuilder will stop.");
+    return StatusCode::SUCCESS;
+  }
+  ATH_CHECK(vertexExecute(egRec,conversions));
   return StatusCode::SUCCESS;
 }
 
 // =============================================================
-StatusCode EMConversionBuilder::hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions)
-{
-
-  if (!egRec || !conversions)
-  {
-    ATH_MSG_WARNING("trackExecute: NULL pointer to egammaRec or VertexContainer");
-    return StatusCode::SUCCESS;
-  }
-  
-  
-  // Extrapolate each vertex (keeping etatCalo, phiAtCalo)
-  // and try to match to each cluster
-  
-  // xAOD::Vertex does not have method isAvailable for the moment
-  // create a lambda function
-  auto isAvailable = [](const xAOD::Vertex& vertex, std::string name) { 
-    SG::AuxElement::Accessor<float> acc(name, "");
-    return acc.isAvailable(vertex); } ; 
-
-  float etaAtCalo, phiAtCalo;
-  for (unsigned int iVtx = 0; iVtx < conversions->size(); ++iVtx)
-  {
-    const xAOD::Vertex *vertex = conversions->at(iVtx);
-    
-    // Check if vertex was already decorated with etaAtCalo, phiAtCalo  
-    if (isAvailable(*vertex, "etaAtCalo") &&
-        isAvailable(*vertex, "phiAtCalo") )
-    {
-      etaAtCalo = vertex->auxdata<float>("etaAtCalo");
-      phiAtCalo = vertex->auxdata<float>("phiAtCalo");
-    }
-    // check extrapolation, skip vertex in case of failure
-    else if (!m_extrapolationTool->getEtaPhiAtCalo(vertex, &etaAtCalo, &phiAtCalo))
-      continue;
-    
-    const xAOD::CaloCluster *cluster = egRec->caloCluster();
-    if (!passPtAndEoverP(*vertex, *cluster))
-        continue;
-    if (!m_extrapolationTool->matchesAtCalo(cluster, vertex, etaAtCalo, phiAtCalo))
-      continue;
-    const ElementLink< xAOD::VertexContainer > vertexLink( *conversions, iVtx );
-    
-    // If this is the best (or the first) vertex, push front and keep deltaEta, deltaPhi
-    if (!egRec->getNumberOfVertices() || ConvVxSorter()(*vertex, *egRec->vertex()))
-      {
-        egRec->pushFrontVertex( vertexLink );
-        egRec->setDeltaEtaVtx( cluster->etaBE(2) - etaAtCalo );
-        egRec->setDeltaPhiVtx( m_phiHelper.diff(cluster->phiBE(2), phiAtCalo) );
-      }
-    else // Not the best vertex, push back
-      egRec->pushBackVertex( vertexLink );       
-  }
-  
+StatusCode EMConversionBuilder::hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions){
+  ATH_CHECK(vertexExecute(egRec,conversions));
   return StatusCode::SUCCESS;
 }
 
+StatusCode EMConversionBuilder::vertexExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions){
+  
+  if (!egRec || !conversions){
+    ATH_MSG_WARNING("trackExecute: NULL pointer to egammaRec or VertexContainer");
+    return StatusCode::SUCCESS;
+  }
+
+  static const SG::AuxElement::Accessor<float> accetaAtCalo("etaAtCalo");
+  static const SG::AuxElement::Accessor<float> accphiAtCalo("phiAtCalo");
+
+  float etaAtCalo(0), phiAtCalo(0);
+  for (unsigned int iVtx = 0; iVtx < conversions->size(); ++iVtx){
+    
+    const xAOD::Vertex *vertex = conversions->at(iVtx);    
+    // Check if vertex was already decorated with etaAtCalo, phiAtCalo  
+    if ( accetaAtCalo.isAvailable(*vertex) &&
+	 accphiAtCalo.isAvailable(*vertex) ){
+      etaAtCalo = accetaAtCalo(*vertex);
+      phiAtCalo = accphiAtCalo(*vertex);
+    }
+    // check extrapolation, skip vertex in case of failure
+    else if (!m_extrapolationTool->getEtaPhiAtCalo(vertex, &etaAtCalo, &phiAtCalo)){
+      continue;
+    }
+    const xAOD::CaloCluster *cluster = egRec->caloCluster();
+    if (!passPtAndEoverP(*vertex, *cluster)){
+      continue;
+    }
+    if (!m_extrapolationTool->matchesAtCalo(cluster, vertex, etaAtCalo, phiAtCalo)){
+      continue;
+    }
+    const ElementLink< xAOD::VertexContainer > vertexLink( *conversions, iVtx );
+    
+    // If this is the best (or the first) vertex, push front and keep deltaEta, deltaPhi
+    if (!egRec->getNumberOfVertices() || ConvVxSorter()(*vertex, *egRec->vertex())){
+      egRec->pushFrontVertex( vertexLink );
+      egRec->setDeltaEtaVtx( cluster->etaBE(2) - etaAtCalo );
+      egRec->setDeltaPhiVtx( P4Helpers::deltaPhi(cluster->phiBE(2), phiAtCalo) );
+    }
+    else {// Not the best vertex, push back
+      egRec->pushBackVertex( vertexLink );       
+    }
+  }
+  return StatusCode::SUCCESS;
+}
 
 // ==================================================================
 // FINALIZE METHOD:  
-StatusCode EMConversionBuilder::finalize()
-{
-
+StatusCode EMConversionBuilder::finalize(){
   return StatusCode::SUCCESS;
-
 }
 // ==================================================================
 bool EMConversionBuilder::passPtAndEoverP(const xAOD::Vertex& vertex, const xAOD::CaloCluster& cluster) const
@@ -269,35 +228,33 @@ bool EMConversionBuilder::passPtAndEoverP(const xAOD::Vertex& vertex, const xAOD
   }
   
   bool reject =  (
-    (isTRT && m_rejectAllTRT) ||
-    (isSingle && pt < m_minPt_singleTrack) ||
-    (!isSingle && pt < m_minSumPt_double) ||
-    (isSingle && EoverP > EoverPcut) ||
-    (convType == singleTRT && pt < m_minPt_singleTRT) ||
-    (convType == doubleTRT && pt < m_minSumPt_doubleTRT)
-  );
-  if (reject) ATH_MSG_DEBUG("Conversion failed pt or E/p cuts");
+		  (isTRT && m_rejectAllTRT) ||
+		  (isSingle && pt < m_minPt_singleTrack) ||
+		  (!isSingle && pt < m_minSumPt_double) ||
+		  (isSingle && EoverP > EoverPcut) ||
+		  (convType == singleTRT && pt < m_minPt_singleTRT) ||
+		  (convType == doubleTRT && pt < m_minSumPt_doubleTRT)
+		  );
+  
+  if (reject) {ATH_MSG_DEBUG("Conversion failed pt or E/p cuts");}
   return !reject;
 }
 
-float EMConversionBuilder::getMaxTRTTubeHitFraction(const xAOD::Vertex& vertex) const
-{
-  auto getTRTTubeHitFraction = [](const xAOD::TrackParticle *trk)
-  {
+float EMConversionBuilder::getMaxTRTTubeHitFraction(const xAOD::Vertex& vertex) const{
+  auto getTRTTubeHitFraction = [](const xAOD::TrackParticle *trk){
     uint8_t nTRT, nTRTTube;
     if (!trk || !trk->summaryValue(nTRT, xAOD::numberOfTRTHits) || !nTRT ) return 0.;
     return trk->summaryValue(nTRTTube, xAOD::numberOfTRTTubeHits) ? 1.*nTRTTube/nTRT : 0.;
   };
   
   float maxTubeHitFraction = 0.;
-  for (unsigned int i=0; i < vertex.nTrackParticles(); ++i)
-  {
-    if ( !vertex.trackParticle(i) )
+  for (unsigned int i=0; i < vertex.nTrackParticles(); ++i){
+    if ( !vertex.trackParticle(i) ){
       ATH_MSG_WARNING("NULL pointer to track particle in conversion vertex");
-    else
-    {
+    }
+    else{
       float tubeHitFraction = getTRTTubeHitFraction( vertex.trackParticle(i) );
-      if (tubeHitFraction > maxTubeHitFraction) maxTubeHitFraction = tubeHitFraction;
+      if (tubeHitFraction > maxTubeHitFraction) {maxTubeHitFraction = tubeHitFraction;}
     }
   }  
   return maxTubeHitFraction;
