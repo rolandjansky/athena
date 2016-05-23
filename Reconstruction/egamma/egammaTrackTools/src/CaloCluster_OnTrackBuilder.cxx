@@ -26,7 +26,17 @@ CaloCluster_OnTrackBuilder::CaloCluster_OnTrackBuilder(const std::string& t,
                                                        const std::string& n,
                                                        const IInterface*  p )
 : AthAlgTool(t,n,p),
-  m_calosurf("CaloSurfaceBuilder")
+  m_calosurf("CaloSurfaceBuilder"),
+  m_cellContainer(0),
+  m_eta(0),
+  m_phi(0),
+  m_deta(0),
+  m_dphi(0),
+  m_calo_dd(0),
+  m_emid(0),
+  m_sam(CaloSampling::EMB2),
+  m_subcalo(CaloCell_ID::LAREM),
+  m_barrel(0)
 {
   declareInterface<ICaloCluster_OnTrackBuilder>(this);
   declareProperty( "CaloSurfaceBuilder",     m_calosurf      );
@@ -304,10 +314,6 @@ double CaloCluster_OnTrackBuilder::getClusterPhiError( const xAOD::CaloCluster* 
   /** Note these should be take from EMError details*/
   
   double clusterEnergy =  cluster->calE()*1e-3;
-  
-  
-
-   
    
   /** Error on phi = C(eta) mrad/sqrt(Energy) */
   double error  = electronPhiResolution( cluster->eta() , clusterEnergy ); 

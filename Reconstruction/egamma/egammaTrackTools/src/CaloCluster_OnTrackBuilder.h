@@ -84,7 +84,6 @@ class CaloCluster_OnTrackBuilder : public AthAlgTool, virtual public ICaloCluste
   const LArEM_ID* m_emid;
   /** @brief CaloSample */
   mutable CaloSampling::CaloSample m_sam;
-  mutable CaloSampling::CaloSample m_sammax;
   mutable CaloCell_ID::SUBCALO m_subcalo;
   mutable bool m_barrel;
   

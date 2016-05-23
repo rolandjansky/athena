@@ -25,7 +25,6 @@ PURPOSE:  Tool which propagate track to
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "egammaInterfaces/IEMExtrapolationTools.h"
-#include "CaloGeoHelpers/CaloPhiRange.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkParameters/TrackParameters.h"
 
@@ -60,12 +59,6 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
   /** @brief finalize method */
   virtual StatusCode finalize();
 
-  /**  test for cluster/extrapolated track match, from xAOD::TrackParticle */
-  virtual bool  matchesAtCalo(const xAOD::CaloCluster*      cluster,       
-                              const xAOD::TrackParticle*    trkPB, 
-                              bool                          isTRT,
-                              unsigned int                  extrapFrom = fromPerigee);
-
 
   /**  test for cluster/extrapolated track match, from xAOD::TrackParticle,
    * returns true for good match using sampling 2, and
@@ -84,7 +77,6 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
 
   /**   get eta, phi, deltaEta, and deltaPhi at the four calorimeter
    *    layers given the Trk::ParametersBase.  */
-
   virtual StatusCode getMatchAtCalo (const xAOD::CaloCluster*      cluster, 
                                      const xAOD::TrackParticle*    trkPB,
 				     bool                          isTRT, 
@@ -101,12 +93,12 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
                               const Trk::NeutralParameters*      perigee, 
                               bool                               isTRT,
                               double&                            deltaEta,
-                              double&                            deltaPhi);
+                              double&                            deltaPhi) const;
 
 
   /** test for vertex-to-cluster match given also the positions 
-    * at the calorimeter from the vertex extrapolation  **/
-  bool matchesAtCalo(const xAOD::CaloCluster* cluster,
+      at the calorimeter from the vertex extrapolation  **/
+  virtual bool matchesAtCalo(const xAOD::CaloCluster* cluster,
                      const xAOD::Vertex *vertex,
                      float etaAtCalo,
                      float phiAtCalo)  const;
@@ -117,6 +109,12 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
   virtual bool getEtaPhiAtCalo (const xAOD::Vertex* vertex, 
                                 float *etaAtCalo,
                                 float *phiAtCalo) const;
+
+  /** get eta, phi at EM2 given NeutralParameters.
+      Return false if the extrapolation fails **/
+ virtual bool getEtaPhiAtCalo (const Trk::TrackParameters* trkPar, 
+			       float *etaAtCalo,
+			       float *phiAtCalo) const;
 
   /** get the momentum of the i-th at the vertex (designed for conversions) **/
   Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex&, unsigned int) const;
@@ -149,9 +147,6 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
   ToolHandle<Trk::IParticleCaloExtensionTool>     m_perigeeParticleCaloExtensionTool;
   ToolHandle<Trk::IExtrapolator>                  m_extrapolator;
        
-  /** @brief */
-  CaloPhiRange                           m_phiHelper;
-
   // Track-to-cluster match cuts
   double                                m_broadDeltaEta;
   double                                m_broadDeltaPhi;
