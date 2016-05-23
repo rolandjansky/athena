@@ -19,41 +19,36 @@
 #include <string>
 
 //local includes
-#include "TrkValHistUtils/PlotBase.h"
+#include "InDetPlotBase.h"
 #include "TrkValHistUtils/ParamPlots.h"
-#include "TrkValHistUtils/EfficiencyPlots.h"
-#include "TrkValHistUtils/EfficiencyPurityCalculator.h"
+
 #include "xAODBase/IParticle.h"  
+#include "xAODTracking/TrackParticle.h"
+
+#include "InDetPhysValMonitoring/IInDetPhysValDecoratorTool.h"
 
 ///class holding Pt plots for Inner Detector RTT Validation and implementing fill methods
-class InDetPerfPlot_Eff:public PlotBase {
-public:
-	InDetPerfPlot_Eff(PlotBase * pParent, const std::string & dirName, std::string particleName = "Tracks");
-	void fillNumerator(const xAOD::IParticle& particle);
-	void fillDenominator(const xAOD::IParticle& particle);
-	
-private:
+class InDetPerfPlot_Eff:public InDetPlotBase {
 
-  std::string m_sParticleType;
+ public:
+  InDetPerfPlot_Eff(InDetPlotBase * pParent, const std::string & dirName);
 
-  Trk::ParamPlots m_pDenomPlots;
-  Trk::ParamPlots m_pNumPlots;  
+  void pro_fill(const xAOD::TruthParticle& truth, float weight);
+  
+ private:
 
-  TH1* eff_eta;
-  TH1* eff_phi;
-  TH1* eff_pt;
-  TH1* eff_pti;
-
-  TH2* eff_eta_pt;
-  TH2* eff_eta_phi;
-	
-	//plot base has nop default implementation of this; we use it to book the histos
-	void initializePlots();
+  TProfile * m_trackeff_vs_eta;
+  TProfile * m_trackeff_vs_pt;
+  TProfile * m_trackeff_vs_phi;
+  TProfile * m_trackeff_vs_d0;
+  TProfile * m_trackeff_vs_z0;
+  TProfile * m_trackeff_vs_R;
+  TProfile * m_trackeff_vs_Z;
+  
+  //plot base has nop default implementation of this; we use it to book the histos
+  void initializePlots();
   void finalizePlots();
-	
+  
 };
-
-
-
 
 #endif

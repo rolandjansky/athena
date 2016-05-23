@@ -8,35 +8,36 @@
 **/
 
 #include "InDetPerfPlot_fakes.h"
-#include <math.h> //for Pi
+#include <math.h> //for M_PI
 
-InDetPerfPlot_fakes::InDetPerfPlot_fakes(PlotBase* pParent, const std::string & sDir):PlotBase(pParent, sDir){
+
+
+
+InDetPerfPlot_fakes::InDetPerfPlot_fakes(InDetPlotBase* pParent, const std::string & sDir):InDetPlotBase(pParent, sDir){
   //nop
 }
 
 
 void 
 InDetPerfPlot_fakes::initializePlots() {
-  const bool prependDirectory(false);
-    m_fakepT  = Book1D("fakepT","p_{T} of selected fake tracks (in GeV);p_{T}(GeV/c)",200,0.,200, prependDirectory);
-    m_fakePtLow  = Book1D("fakepTlow","p_{T} of selected fake tracks (in GeV);p_{T}(GeV/c)",200,0,20, prependDirectory);
-    m_fakephi = Book1D("fakephi","#phi of selected fake tracks;#phi",100,0,2*M_PI, prependDirectory);
-    m_fakeeta = Book1D("fakeeta","#eta of selected fake tracks;#eta",100,-5,5, prependDirectory);
-    m_faked0 = Book1D("faked0","d_{0} of selected fake tracks (in mm);d_{0}(mm)",200,-5,5, prependDirectory);
-    m_fakez0 = Book1D("fakez0","z_{0} of selected fake tracks (in mm);z_{0}(mm)",120,-300,300, prependDirectory);
-    //
-    m_track_fakerate_vs_eta= BookTProfile( "track_fakerate_vs_eta","Fraction of tracks with <50% truth match probability ;#eta;Fake Rate",20,-2.5,2.5,0,1, prependDirectory);
-    m_track_fakerate_vs_pt= BookTProfile( "track_fakerate_vs_pt","Fraction of tracks with <50% truth match probability ;p_{T}(GeV/c);Fake Rate",25,0,50,0,1,prependDirectory);
-    m_track_fakerate_vs_phi= BookTProfile( "track_fakerate_vs_phi","Fraction of tracks with <50% truth match probability ;#phi;Fake Rate",24,-180,180,0,100,prependDirectory);
-    m_track_fakerate_vs_d0= BookTProfile( "track_fakerate_vs_d0","Fraction of tracks with <50% truth match probability ;Fake Rate",20,-6,6,0,100,prependDirectory);
-    m_track_fakerate_vs_z0= BookTProfile( "track_fakerate_vs_z0","Fraction of tracks with <50% truth match probability ;Fake Rate",20,-300,300,0,100,prependDirectory);
-
+  book(m_fakepT, "fakepT");
+  book(m_fakePtLow, "fakepTlow");
+  book(m_fakephi, "fakephi");
+  book(m_fakeeta, "fakeeta");
+  book(m_faked0,"faked0");
+  book(m_fakez0, "fakez0");
+  //
+  book(m_track_fakerate_vs_eta, "track_fakerate_vs_eta");
+  book(m_track_fakerate_vs_pt, "track_fakerate_vs_pt");
+  book(m_track_fakerate_vs_phi, "track_fakerate_vs_phi");
+  book(m_track_fakerate_vs_d0, "track_fakerate_vs_d0");
+  book(m_track_fakerate_vs_z0, "track_fakerate_vs_z0"); 
 }
 
 void 
 InDetPerfPlot_fakes::fill(const xAOD::TrackParticle& trkprt,const bool isFake, const Category /*f*/){
 		const unsigned int fakeNum=(unsigned int)isFake;
-		static const double degreesPerRadian(180./M_PI);
+		constexpr double degreesPerRadian(180./M_PI);
 		double pt = trkprt.pt()/1000.;
 		double eta(trkprt.eta());
 		double phi(trkprt.phi());
@@ -51,8 +52,8 @@ InDetPerfPlot_fakes::fill(const xAOD::TrackParticle& trkprt,const bool isFake, c
 			m_faked0->Fill(d0);
 			m_fakez0->Fill(z0);
 		}
-		m_track_fakerate_vs_eta->Fill(pt,fakeNum);
-		m_track_fakerate_vs_pt->Fill(eta,fakeNum);
+		m_track_fakerate_vs_eta->Fill(eta,fakeNum);
+		m_track_fakerate_vs_pt->Fill(pt,fakeNum);
 		m_track_fakerate_vs_phi->Fill(phi_degrees,fakeNum);
 		m_track_fakerate_vs_d0->Fill(d0,fakeNum);
 		m_track_fakerate_vs_z0->Fill(z0,fakeNum);

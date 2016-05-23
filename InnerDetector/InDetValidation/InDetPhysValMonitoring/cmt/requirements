@@ -22,6 +22,7 @@ use InDetTrackSelectionTool InDetTrackSelectionTool-*  InnerDetector/InDetRecToo
 use AthenaBaseComps     AthenaBaseComps-*       Control
 
 private
+use AtlasXercesC        AtlasXercesC-*        	External  
 use TrkExInterfaces		TrkExInterfaces-*		Tracking/TrkExtrapolation
 use TrkToolInterfaces           TrkToolInterfaces-*     Tracking/TrkTools
 use AtlasROOT           AtlasROOT-*             External
@@ -40,13 +41,26 @@ use  MCTruthClassifier          MCTruthClassifier-*             PhysicsAnalysis
 use InDetBeamSpotService InDetBeamSpotService-* InnerDetector/InDetConditions
 use xAODJet             xAODJet-*               Event/xAOD
 use AsgTools            AsgTools-*              Control/AthToolSupport
+use PathResolver         PathResolver-*         Tools
 
 use InDetPrepRawData            InDetPrepRawData-*      InnerDetector/InDetRecEvent
+use AthenaKernel     AthenaKernel-*       Control
+use TrkTrack         TrkTrack-*           Tracking/TrkEvent
+# for the DummyTrackSlimmingTool
+use TrkToolInterfaces TrkToolInterfaces-* Tracking/TrkTools/
+
 
 branches src src/components doc
 
+# I would like to generate a dictionary, but this crashes in compilation:
+#use AtlasReflex   AtlasReflex-*   External
+#apply_pattern lcgdict dict=InDetPhysValMonitoring selectionfile=selection.xml\
+#headerfiles="../InDetPhysValMonitoring/InDetPhysValMonitoringDict.h"
 
-private
+apply_pattern declare_runtime files="*.hdef"
+apply_pattern declare_joboptions files="*.py"
+
+
 ## default is to make component library
 library InDetPhysValMonitoring *.cxx components/*.cxx
 apply_tag ROOTEGLibs
@@ -60,5 +74,4 @@ end_private
 # RTT requirement lines
 macro InDetPhysValMonitoring_TestConfiguration "../test/InDetPhysValMonitoring_TestConfiguration.xml"
 apply_pattern declare_runtime files="*.dat" extras="../test/InDetPhysValMonitoring_TestConfiguration.xml ../scripts/make*.C ../scripts/IDPerf*.py ../scripts/IDRTT_*.sh ../ExtraFiles/ALL*.html"
-
 

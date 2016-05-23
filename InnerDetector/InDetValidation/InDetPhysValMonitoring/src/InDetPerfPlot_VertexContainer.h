@@ -14,15 +14,15 @@
 #include <string>
 
 //local includes
-#include "TrkValHistUtils/PlotBase.h"
+#include "InDetPlotBase.h"
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODEventInfo/EventInfo.h"
 
 ///class holding general plots for xAOD::Vertex
-class InDetPerfPlot_VertexContainer:public PlotBase {
+class InDetPerfPlot_VertexContainer:public InDetPlotBase {
 public:
-	InDetPerfPlot_VertexContainer(PlotBase * pParent, const std::string & dirName);
+	InDetPerfPlot_VertexContainer(InDetPlotBase * pParent, const std::string & dirName);
 
 	//Fills vertex container information; also uses EventInfo
 	void fill(const xAOD::VertexContainer& vertices, const xAOD::EventInfo& ei);

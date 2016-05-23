@@ -1,0 +1,813 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" media="screen" href="hdefhtml.xsl"?>
+<?xml-stylesheet type="text/xsl" media="tty" href="hdeftty.xsl" alternate="yes"?>
+<!DOCTYPE  hdef [
+<!ENTITY PI "3.1415926">
+]>
+<hdef>
+<h id="num_truthmatch_match" type="TH1F" title="num_truthmatch_match">
+  <x title="Num. matching truth" n="10" lo="0" hi="10"/>
+  <y title="Entries"/>
+</h>
+<h id="nparticle" type="TH1F" title="Number of Truth Particles">
+  <x title="Num. truth particles" n="200" lo="0" hi="2000"/>
+  <y title="Entries"/>
+</h>
+<h id="ntracksel" type="TH1F" title="Number of Selected Tracks">
+  <x title="Num. tracks" n="200" lo="0" hi="1000"/>
+  <y title="Entries"/>
+</h>
+<h id="ntrack" type="TH1F" title="Number of Tracks">
+  <x title="Num. tracks" n="200" lo="0" hi="1000"/>
+  <y title="Entries"/>
+</h>
+<!--  -->
+<!-- testing -->
+<h id="002_Al_N_01" type="TH1F" title="Test Case: Visible E_{T} (SRoe)">
+  <x title="Visible E_{T} (sroe)" n="100" lo="0" hi="100"/>
+  <y title="Entries"/>
+</h>
+<h id="test" type="TH1F" title="Test Case: Visible E_{T} (GeV)">
+  <x title="Visible E_{T} (GeV)" n="100" lo="0" hi="100"/>
+  <y title="Entries"/>
+</h>
+<h id="testProfile" type="TProfile" title="Test of TProfile">
+  <x title="#eta" n="20" lo="-50" hi="50"/>
+  <y title="Entries" lo="0" hi="200"/>
+</h>
+<!--  -->
+<!-- pT -->
+<h id="recpT" type="TH1F" title="p_{T} of selected rec tracks (in GeV)">
+  <x title="p_{T} (GeV/c)" n="200" lo="0." hi="200"/>
+  <y title="Entries"/>
+</h>
+<h id="recPtLow" type="TH1F" title="p_{T} of selected rec tracks (in GeV)">
+  <x title="p_{T} (GeV/c)" n="200" lo="0." hi="20"/>
+  <y title="Entries"/>
+</h>
+<!--  -->
+<!-- basic plots -->
+<h id="basicd0" type="TH1F" title="d_{0} of selected tracks (in mm)">
+  <x title="d_{0}(mm)" n="200" lo="-2" hi="2"/>
+  <y title="Entries"/>
+</h>
+<h id="basicz0" type="TH1F" title="z_{0} of selected tracks (in mm)">
+  <x title="z_{0}(mm)" n="120" lo="-300" hi="300"/>
+  <y title="Entries"/>
+</h>
+<h id="basicphi" type="TH1F" title="#phi of selected tracks">
+  <x title="#phi" n="100" lo="-4" hi="4"/>
+  <y title="Entries"/>
+</h>
+<h id="basiceta" type="TH1F" title="#eta of selected tracks">
+  <x title="#eta" n="100" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="basictheta" type="TH1F" title="#theta of selected tracks">
+  <x title="#theta" n="100" lo="0" hi="&PI;"/>
+  <y title="Entries"/>
+</h>
+<h id="basicqOverP" type="TH1F" title="q/p of selected tracks (in GeV)">
+  <x title="p_{T}(GeV/c)" n="200" lo="-0.01" hi="0.01"/>
+  <y title="Entries"/>
+</h>
+<h id="truthd0" type="TH1F" title="d_{0} of selected truth (in mm)">
+  <x title="d_{0}(mm)" n="200" lo="-2" hi="2"/>
+  <y title="Entries"/>
+</h>
+<h id="truthz0" type="TH1F" title="z_{0} of selected truth (in mm)">
+  <x title="z_{0}(mm)" n="120" lo="-300" hi="300"/>
+  <y title="Entries"/>
+</h>
+<h id="truthphi" type="TH1F" title="#phi of selected truth">
+  <x title="#phi" n="100" lo="-4" hi="4"/>
+  <y title="Entries"/>
+</h>
+<h id="trutheta" type="TH1F" title="#eta of selected truth">
+  <x title="#theta" n="100" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="truththeta" type="TH1F" title="#theta of selected truth">
+  <x title="#theta" n="100" lo="0" hi="&PI;"/>
+  <y title="Entries"/>
+</h>
+<h id="truthqOverP" type="TH1F" title="q/p of selected truth (in GeV)">
+  <x title="p_{T}(GeV/c)" n="200" lo="-0.005" hi="0.005"/>
+  <y title="Entries"/>
+</h>
+<h id="truthz0st" type="TH1F" title="z_{0} sin(#theta) of selected truth ">
+  <x title="p_{T}(GeV/c)" n="200" lo="-300" hi="300"/>
+  <y title="Entries"/>
+</h>
+<h id="truthprodR" type="TH1F" title="Radial distance (r) of truth vtx parameter from origin">
+  <x title="(mm)" n="100" lo="0.0" hi="2.0"/>
+  <y title="Entries"/>
+</h>
+<h id="truthprodZ" type="TH1F" title="Longitudinal (z) distance of truth vtx parameter from origin">
+  <x title="(mm)" n="100" lo="0" hi="300"/>
+  <y title="Entries"/>
+</h>
+<!--  -->
+<!-- fakes -->
+<h id="fakepT" type="TH1F" title="p_{T} of selected fake tracks (in GeV)">
+  <x title="p_{T}(GeV/c)" n="200" lo="0." hi="200"/>
+  <y title="Entries"/>
+</h>
+<h id="fakepTlow" type="TH1F" title="p_{T} of selected fake tracks (in GeV)">
+  <x title="p_{T}(GeV/c)" n="200" lo="0" hi="20"/>
+  <y title="Entries"/>
+</h>
+<h id="fakephi" type="TH1F" title="#phi of selected fake tracks">
+  <x title="#phi" n="100" lo="-&PI;" hi="&PI;"/>
+  <y title="Entries"/>
+</h>
+<h id="fakeeta" type="TH1F" title="#eta of selected fake tracks">
+  <x title="#eta" n="100" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="faked0" type="TH1F" title="d_{0} of selected fake tracks (in mm)">
+  <x title="d_{0}(mm)" n="200" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="fakez0" type="TH1F" title="z_{0} of selected fake tracks (in mm)">
+  <x title="z_{0}(mm)" n="120" lo="-300" hi="300"/>
+  <y title="Entries"/>
+</h>
+<h id="track_fakerate_vs_eta" type="TProfile" title="Fraction of tracks with &lt;50% truth match probability">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+<h id="track_fakerate_vs_pt" type="TProfile" title="Fraction of tracks with &lt;50% truth match probability">
+  <x title="p_{T}(GeV/c)" n="25" lo="0" hi="50"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+<h id="track_fakerate_vs_phi" type="TProfile" title="Fraction of tracks with &lt;50% truth match probability">
+  <x title="#phi" n="24" lo="-180" hi="180"/>
+  <y title="Fake Rate" lo="0" hi="100"/>
+</h>
+<h id="track_fakerate_vs_d0" type="TProfile" title="Fraction of tracks with &lt;50% truth match probability">
+  <x title="d0" n="20" lo="-6" hi="6"/>
+  <y title="Fake Rate" lo="0" hi="100"/>
+</h>
+<h id="track_fakerate_vs_z0" type="TProfile" title="Fraction of tracks with &lt;50% truth match probability">
+  <x title="z0" n="20" lo="-300" hi="300"/>
+  <y title="Fake Rate" lo="0" hi="100"/>
+</h>
+<!--  -->
+<!-- GOOD eff plots -->
+<h id="trackeff_vs_eta" type="TProfile" title="Fraction of reco-matched truth track">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h> 
+<h id="trackeff_vs_pt" type="TProfile" title="Fraction of reco-matched truth track">
+  <x title="Pt (GeV)" n="40" lo="0" hi="50"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="trackeff_vs_phi" type="TProfile" title="Fraction of reco-matched truth track">
+  <x title="#phi" n="100" lo="-&PI;" hi="&PI;"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="trackeff_vs_d0" type="TProfile" title="Fraction of reco-matched truth track">
+  <x title="d0" n="100" lo="-25" hi="25"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="trackeff_vs_z0" type="TProfile" title="Fraction of reco-matched truth track">
+  <x title="z0" n="100" lo="-250" hi="250"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="trackeff_vs_R" type="TProfile" title="Fraction of reco-matched truth track">
+  <x title="R" n="100" lo="0" hi="50"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="trackeff_vs_Z" type="TProfile" title="Fraction of reco-matched truth track">
+  <x title="Z" n="100" lo="-350" hi="350"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+
+<!-- vertices -->
+<h id="vx_x" type="TH1F" title="X position of vertex">
+  <x title="X (mm)" n="200" lo="-1.0" hi="1.0"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_y" type="TH1F" title="Y position of vertex">
+  <x title="Y (mm)" n="200" lo="-1.0" hi="1.0"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_z" type="TH1F" title="Z position of vertex">
+  <x title="Z (mm)" n="100" lo="-300.0" hi="300.0"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_err_x" type="TH1F" title="X position error of vertex">
+  <x title="#sigma(X) (mm)" n="100" lo="0.0" hi="0.2"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_err_y" type="TH1F" title="Y position error of vertex">
+  <x title="#sigma(Y) (mm)" n="100" lo="0.0" hi="0.2"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_err_z" type="TH1F" title="Z position error of vertex">
+  <x title="#sigma(Z) (mm)" n="100" lo="0.0" hi="1.0"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_chi2_over_ndf" type="TH1F" title="vertex #chi^2 / ndf">
+  <x title="#chi^{2}/ndf" n="50" lo="0" hi="10."/>
+  <y title="Entries"/>
+</h>
+<h id="vx_type" type="TH1F" title="Vertex type">
+  <x title="Vertex type" n="7" lo="0" hi="7"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_nTracks" type="TH1F" title="Number of tracks at vertex">
+  <x title="Number of Tracks" n="150" lo="0" hi="150"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_track_weights" type="TH1F" title="Weights of tracks at vertex">
+  <x title="Weight" n="100" lo="0." hi="10.0"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_track_pt" type="TH1F" title="Tracks at vertex p_{T}">
+  <x title="p_{T} (GeV)" n="100" lo="0" hi="20."/>
+  <y title="Entries"/>
+</h>
+<h id="vx_track_eta" type="TH1F" title="Tracks at vertex #eta">
+  <x title="#eta" n="100" lo="-2.7" hi="2.7"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_track_nSiHits" type="TH1F" title="Tracks at vertex number of Silicon Hits">
+  <x title="Num. Si Hits" n="15" lo="5" hi="20"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_track_nSiHoles" type="TH1F" title="Tracks at vertex number of Silicon Holes">
+  <x title="Num. Si Holes" n="5" lo="0" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_track_d0" type="TH1F" title="Tracks at vertex d_{0}">
+  <x title="d_{0} (mm)" n="100" lo="-2.0" hi="2.0"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_track_err_d0" type="TH1F" title="Tracks at vertex d_{0} error">
+  <x title="#sigma(d_{0}) (mm)" n="50" lo="0.0" hi="1.0"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_track_z0" type="TH1F" title="Tracks at vertex z_{0} - z_{0}^{vertex}">
+  <x title="z_{0}-z_{0}^{vertex} (mm)" n="100" lo="-5.0" hi="5.0"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_track_err_z0" type="TH1F" title="Tracks at vertex z_{0} error">
+  <x title="#sigma(z_{0}) (mm)" n="50" lo="0.0" hi="5.0"/>
+  <y title="Entries"/>
+</h>
+<!--  -->
+
+<!--  Bad Match Rate (BMR) plots -->
+<h id="BadMatchRate" type="TProfile" title="Fraction of Tracks with &lt; 80% Truth Matching Probability">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="Bad Match Rate" lo="0.0" hi="2.0" />
+</h>
+
+<h id="ReallyFakeRate" type="TProfile" title="Fraction of Tracks with &lt; 20% Truth Matching Probability">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="Really Fake Rate" lo="0.0" hi="2.0" />
+</h>
+
+<h id="BadMatchRate_vs_logpt" type="TProfile" title="Fraction of Tracks with &lt; 80% TMP vs Log(Pt)">
+  <x title="Log(Pt)" n="10" lo="-0.5" hi="2" />
+  <y title="Bad Match Rate" lo="0.0" hi="2.0" />
+</h>
+<!-- -->
+
+<!-- Track Parameter Resolution Plots -->
+<!-- Track Parameter TH2s -->
+<h id="res_d0_vs_eta" type="TH2" title="d0: deviation vs eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="d_{0}^{rec} - d_{0}^{tru}" n="2000" lo="-1.0" hi="1.0"/>
+</h>
+<h id="res_z0_vs_eta" type="TH2" title="z0: deviation vs eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="z_{0}^{rec} - z_{0}^{tru}" n="200" lo="-1.5" hi="1.5"/>
+</h>
+<h id="res_phi_vs_eta" type="TH2" title="phi: deviation vs eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="#phi^{rec} - #phi^{tru}" n="3000" lo="-0.03" hi="0.03"/>
+</h>
+<h id="res_theta_vs_eta" type="TH2" title="theta: deviation vs eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="#theta^{rec} - #theta^{tru}" n="2000" lo="-0.1" hi="0.1"/>
+</h>
+<h id="res_z0*sin(theta)_vs_eta" type="TH2" title="z0*sin(theta): deviation vs eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru}" n="200" lo="-1.5" hi="1.5"/>
+</h>
+<h id="res_qopt_vs_eta" type="TH2" title="qopt: deviation vs eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="(q/pt)^{rec} - (q/pt)^{tru}" n="200" lo="-0.4" hi="0.4"/>
+</h>
+
+<!-- Track Parameter Means -->
+<h id="resmean_d0_vs_eta" type="TH1F" title="d_{0} Track Measurement Bias vs #eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="d_{0}^{rec} - d_{0}^{tru}"/>
+</h> 
+<h id="resmean_z0_vs_eta" type="TH1F" title="z_{0} Track Measurement Bias vs #eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="z_{0}^{rec} - z_{0}^{tru}"/>
+</h>
+<h id="resmean_phi_vs_eta" type="TH1F" title="#phi Track Measurement Bias vs #eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="#phi^{rec} - #phi^{tru}"/>
+</h>
+<h id="resmean_theta_vs_eta" type="TH1F" title="#theta Track Measurement Bias vs #eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="#theta^{rec} - #theta^{tru}"/>
+</h>
+<h id="resmean_z0*sin(theta)_vs_eta" type="TH1F" title="z_{0}*sin(#theta) Track Measurement Bias vs #eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru}"/>
+</h>
+<h id="resmean_qopt_vs_eta" type="TH1F" title="q/pt Track Measurement Bias vs #eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="(q/pt)^{rec} - (q/pt)^{tru}"/>
+</h>
+
+<!-- Track Pull TH2s -->
+<h id="pull_d0_vs_eta" type="TH2" title="d0: Pull vs #eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="(d_{0}^{rec} - d_{0}^{tru})/#sigma_d_0" n="200" lo="-5.0" hi="5.0"/>
+</h>
+<h id="pull_z0_vs_eta" type="TH2" title="z0: Pull vs #eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="(z_{0}^{rec} - z_{0}^{tru})/#sigma_z_0" n="200" lo="-5.0" hi="5.0"/>
+</h>
+<h id="pull_phi_vs_eta" type="TH2" title="#phi: Pull vs #eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="(#phi^{rec} - #phi^{tru})/#sigma_#phi" n="200" lo="-5.0" hi="5.0"/>
+</h>
+<h id="pull_theta_vs_eta" type="TH2" title="#theta: Pull vs #eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="(#theta^{rec} - #theta^{tru})/#sigma_#theta" n="200" lo="-5.0" hi="5.0"/>
+</h>
+<h id="pull_z0*sin(theta)_vs_eta" type="TH2" title="z0*sin(theta): Pull vs #eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="(z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru})/#sigma_z_{0}*sin(#theta)" n="200" lo="-5.0" hi="5.0"/>
+</h>
+<h id="pull_qopt_vs_eta" type="TH2" title="q/pt: Pull vs #eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="((q/pt)^{rec} - (q/pt)^{tru})/#sigma_(q/pt)" n="200" lo="-5.0" hi="5.0"/>
+</h>
+
+
+
+
+
+
+<!-- hitResidual plots -->
+<!-- x residuals -->
+<h id="residualx_pixel_barrel" type="TH1F" title="Residual: Pixel Barrel X">
+  <x title="x residual(#mum)" n="120" lo="-50" hi="50"/> <!-- 4-22-16 ORIGINAL: -3000 to 3000 range -->
+  <y title="Entries"/>
+</h>
+<h id="residualx_pixel_barrel_1hit" type="TH1F" title="Residual: Pixel Barrel X   1 hit">
+  <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_pixel_barrel_2ormorehits" type="TH1F" title="Residual: Pixel Barrel X   &gt;=2 hits">
+  <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_sct_barrel" type="TH1F" title="Residual: SCT Barrel X">
+  <x title="x residual(#mum)" n="140" lo="-70" hi="70"/> <!-- 4-22-16 ORIGINAL: 120 bins, -50 to 50 range -->
+  <y title="Entries"/>
+</h>
+<h id="residualx_sct_barrel_1hit" type="TH1F" title="Residual: SCT Barrel X   1 hit">
+  <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_sct_barrel_2ormorehits" type="TH1F" title="Residual: SCT Barrel X   &gt;=2 hits">
+  <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_blayer_barrel" type="TH1F" title="Residual: B-Layer Barrel X">
+  <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_blayer_barrel_1hit" type="TH1F" title="Residual: B-Layer Barrel X   1 hit">
+  <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_blayer_barrel_2ormorehits" type="TH1F" title="Residual: B-Layer Barrel X   &gt;=2 hits">
+  <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_trt_barrel" type="TH1F" title="Residual: TRT Barrel X">
+  <x title="x residual(#mum)" n="200" lo="-500" hi="500"/> <!-- 4-22-16 ORIGINAL: 120 bins, -3000 to 3000 range -->
+  <y title="Entries"/>
+</h>
+<!-- endcaps -->
+<h id="residualx_pixel_endcap" type="TH1F" title="Residual: Pixel Endcap X">
+  <x title="x residual(#mum)" n="120" lo="-50" hi="50"/> <!-- 4-22-16 ORIGINAL: -3000 to 3000 range -->
+  <y title="Entries"/>
+</h>
+<h id="residualx_pixel_endcap_1hit" type="TH1F" title="Residual: Pixel Endcap X   1 hit">
+  <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_pixel_endcap_2ormorehits" type="TH1F" title="Residual: Pixel Endcap X   &gt;=2 hits">
+  <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_sct_endcap" type="TH1F" title="Residual: SCT Endcap X">
+  <x title="x residual(#mum)" n="140" lo="-70" hi="70"/> <!-- 4-22-16 ORIGINAL: 120 bins, -3000 to 3000 range -->
+  <y title="Entries"/>
+</h>
+<h id="residualx_sct_endcap_1hit" type="TH1F" title="Residual: SCT Endcap X   1 hit">
+  <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_sct_endcap_2ormorehits" type="TH1F" title="Residual: SCT Endcap X   &gt;=2 hits">
+  <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_blayer_endcap" type="TH1F" title="Residual: B-Layer Endcap X">
+  <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_blayer_endcap_1hit" type="TH1F" title="Residual: B-Layer Endcap X   1 hit">
+  <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_blayer_endcap_2ormorehits" type="TH1F" title="Residual: B-Layer Endcap X   &gt;=2 hits">
+  <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_trt_endcap" type="TH1F" title="Residual: TRT Endcap X">
+  <x title="x residual(#mum)" n="200" lo="-500" hi="500"/> <!-- 4-22-16 ORIGINAL: 120 bins, -50 to 50 range -->
+  <y title="Entries"/>
+</h>
+<h id="residualx_dbm_neg" type="TH1F" title="Residual: DBM -side X">
+  <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_dbm_pos" type="TH1F" title="Residual: DBM +side X">
+  <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
+  <y title="Entries"/>
+</h>
+<!-- y residuals -->
+<h id="residualy_pixel_barrel" type="TH1F" title="Residual: Pixel Barrel Y">
+  <x title="y residual(#mum)" n="120" lo="-300" hi="300"/> <!--4-22-16 ORIGINAL: -50 to 50 range -->
+  <y title="Entries"/>
+</h>
+<h id="residualy_pixel_barrel_1hit" type="TH1F" title="Residual: Pixel Barrel Y   1 hit">
+  <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_pixel_barrel_2ormorehits" type="TH1F" title="Residual: Pixel Barrel Y   &gt;=2 hits">
+  <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_sct_barrel" type="TH1F" title="Residual: SCT Barrel Y">
+  <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_sct_barrel_1hit" type="TH1F" title="Residual: SCT Barrel Y   1 hit">
+  <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_sct_barrel_2ormorehits" type="TH1F" title="Residual: SCT Barrel Y   &gt;=2 hits">
+  <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_blayer_barrel" type="TH1F" title="Residual: B-Layer Barrel Y">
+  <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_blayer_barrel_1hit" type="TH1F" title="Residual: B-Layer Barrel Y   1 hit">
+  <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_blayer_barrel_2ormorehits" type="TH1F" title="Residual: B-Layer Barrel Y   &gt;=2 hits">
+  <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_trt_barrel" type="TH1F" title="Residual: TRT Barrel Y">
+  <x title="y residual(#mum)" n="120" lo="0" hi="2500"/>
+  <y title="Entries"/>
+</h>
+<!-- endcaps -->
+<h id="residualy_pixel_endcap" type="TH1F" title="Residual: Pixel Endcap Y">
+  <x title="y residual(#mum)" n="120" lo="-300" hi="300"/> <!-- 4-22-16 ORIGINAL: -50 to 50 range -->
+  <y title="Entries"/>
+</h>
+<h id="residualy_pixel_endcap_1hit" type="TH1F" title="Residual: Pixel Endcap Y   1 hit">
+  <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_pixel_endcap_2ormorehits" type="TH1F" title="Residual: Pixel Endcap Y   &gt;=2 hits">
+  <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_sct_endcap" type="TH1F" title="Residual: SCT Endcap Y">
+  <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_sct_endcap_1hit" type="TH1F" title="Residual: SCT Endcap Y   1 hit">
+  <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_sct_endcap_2ormorehits" type="TH1F" title="Residual: SCT Endcap Y   &gt;=2 hits">
+  <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_blayer_endcap" type="TH1F" title="Residual: B-Layer Endcap Y">
+  <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_blayer_endcap_1hit" type="TH1F" title="Residual: B-Layer Endcap Y   1 hit">
+  <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_blayer_endcap_2ormorehits" type="TH1F" title="Residual: B-Layer Endcap Y   &gt;=2 hits">
+  <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_trt_endcap" type="TH1F" title="Residual: TRT Endcap Y">
+  <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_dbm_neg" type="TH1F" title="Residual: DBM -side Y">
+  <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_dbm_pos" type="TH1F" title="Residual: DBM +side Y">
+  <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<!-- pulls -->
+<!-- barrel, x -->
+<h id="residualpullx_blayer_barrel" type="TH1F" title="Residualpull: B-Layer Barrel X">
+  <x title="x residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpullx_pixel_barrel" type="TH1F" title="Residualpull: Pixel Barrel X">
+  <x title="x residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpullx_sct_barrel" type="TH1F" title="Residualpull: SCT Barrel X">
+  <x title="x residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpullx_trt_barrel" type="TH1F" title="Residualpull: TRT Barrel X">
+  <x title="x residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpullx_dbm_barrel" type="TH1F" title="Residualpull: DBM -side X">
+  <x title="x residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<!-- endcap, x -->
+<h id="residualpullx_blayer_endcap" type="TH1F" title="Residualpull: B-Layer Endcap X">
+  <x title="x residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpullx_pixel_endcap" type="TH1F" title="Residualpull: Pixel Endcap X">
+  <x title="x residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpullx_sct_endcap" type="TH1F" title="Residualpull: SCT Endcap X">
+  <x title="x residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpullx_trt_endcap" type="TH1F" title="Residualpull: TRT Endcap X">
+  <x title="x residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpullx_dbm_endcap" type="TH1F" title="Residualpull: DBM +side X">
+  <x title="x residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<!-- barrel, y -->
+<h id="residualpully_blayer_barrel" type="TH1F" title="Residualpull: B-Layer Barrel Y">
+  <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpully_pixel_barrel" type="TH1F" title="Residualpull: Pixel Barrel Y">
+  <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpully_sct_barrel" type="TH1F" title="Residualpull: SCT Barrel Y">
+  <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpully_trt_barrel" type="TH1F" title="Residualpull: TRT Barrel Y">
+  <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpully_dbm_barrel" type="TH1F" title="Residualpull: DBM -side Y">
+  <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<!-- endcap,y -->
+<h id="residualpully_blayer_endcap" type="TH1F" title="Residualpull: B-Layer Endcap Y">
+  <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpully_pixel_endcap" type="TH1F" title="Residualpull: Pixel Endcap Y">
+  <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpully_sct_endcap" type="TH1F" title="Residualpull: SCT Endcap Y">
+  <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpully_trt_endcap" type="TH1F" title="Residualpull: TRT Endcap Y">
+  <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpully_dbm_endcap" type="TH1F" title="Residualpull: DBM +side Y">
+  <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<!--  -->
+<!-- TrackInJets -->
+<h id="recInJetpT" type="TH1F" title="p_{T} of selected rec tracks in jets(in GeV)">
+  <x title="p_{T}(GeV/c)" n="200" lo="0." hi="200"/>
+  <y title="Entries"/>
+</h>
+<h id="nTrackInJet" type="TH1F" title="Number of Tracks in Jet">
+  <x title="N Tracks" n="50" lo="0." hi="50"/>
+  <y title="Entries"/>
+</h>
+<h id="sumPtinJet" type="TH1F" title="Sum p_{T} of Tracks in Jet">
+  <x title="sum p_{T}(GeV/c)" n="25" lo="0" hi="500"/>
+  <y title="Entries"/>
+</h>
+<h id="fracPtInJet" type="TH1F" title="Sum p_{T} of Tracks over jet p_{T}">
+  <x title="sum Track p_{T}/jet p_{T}" n="60" lo="0" hi="3"/>
+  <y title="Entries"/>
+</h>
+<!-- spectrum plots -->
+<h id="nSCTHits" type="TH1F" title="# SCT hits">
+  <x title="# SCT Hits" n="20" lo="0." hi="20"/>
+  <y title="Entries"/>
+</h>
+<h id="nPixHits" type="TH1F" title="# Pix hits">
+  <x title="# Pix Hits" n="20" lo="0." hi="20"/>
+  <y title="Entries"/>
+</h>
+<h id="nTotHits" type="TH1F" title="# Total hits">
+  <x title="# Totat Hits" n="20" lo="0." hi="20"/>
+  <y title="Entries"/>
+</h>
+<h id="nSCTDeadSensors" type="TH1F" title="# SCT DeadSensors">
+  <x title="# SCT DeadSensors" n="20" lo="0." hi="20"/>
+  <y title="Entries"/>
+</h>
+<h id="nPixDeadSensors" type="TH1F" title="# Pix DeadSensors">
+  <x title="# Pix DeadSensors" n="20" lo="0." hi="20"/>
+  <y title="Entries"/>
+</h>
+<h id="nTotDeadSensors" type="TH1F" title="# Total DeadSensors">
+  <x title="# Total DeadSensors" n="20" lo="0." hi="20"/>
+  <y title="Entries"/>
+</h>
+<h id="nSCTHits_vs_eta" type="TProfile" title="# SCT hits vs Eta">
+  <x title="#eta" n="80" lo="-4" hi="4"/>
+  <y title="# SCT Hits" lo="0" hi="20"/>
+</h>
+<h id="nPixHits_vs_eta" type="TProfile" title="# Pix hits vs Eta">
+  <x title="#eta" n="80" lo="-4" hi="4"/>
+  <y title="# Pix Hits" lo="0" hi="20"/>
+</h>
+<h id="nTotHits_vs_eta" type="TProfile" title="# total hits vs Eta">
+  <x title="#eta" n="80" lo="-4" hi="4"/>
+  <y title="# total Hits" lo="0" hi="20"/>
+</h>
+<h id="nSCTDeadSensors_vs_eta" type="TProfile" title="# SCT deadsensors vs Eta">
+  <x title="#eta" n="80" lo="-4" hi="4"/>
+  <y title="# SCT deadsensors" lo="0" hi="20"/>
+</h>
+<h id="nPixDeadSensors_vs_eta" type="TProfile" title="# pix deadsensors vs Eta">
+  <x title="#eta" n="80" lo="-4" hi="4"/>
+  <y title="# pix deadsensors" lo="0" hi="20"/>
+</h>
+<h id="nTotDeadSensors_vs_eta" type="TProfile" title="# total deadsensors vs Eta">
+  <x title="#eta" n="80" lo="-4" hi="4"/>
+  <y title="# total deadsensors" lo="0" hi="20"/>
+</h>
+<h id="recoMatchProbabilitySpectrum" type="TH1F" title="truth match probability spectrum">
+  <x title="truth match probability" n="40" lo="0." hi="1"/>
+  <y title="Entries"/>
+</h>
+<h id="recoEtaSpectrum" type="TH1F" title="reco eta spectrum">
+  <x title="#eta" n="80" lo="-4" hi="4"/>
+  <y title="Entries"/>
+</h>
+<h id="recoPhiSpectrum" type="TH1F" title="reco phi spectrum">
+  <x title="#phi" n="60" lo="-3" hi="3"/>
+  <y title="Entries"/>
+</h>
+<h id="recoPtSpectrum" type="TH1F" title="reco pt spectrum">
+  <x title="pt (GeV/c)" n="100" lo="0." hi="100"/>
+  <y title="Entries"/>
+</h>
+<h id="truthEtaSpectrum" type="TH1F" title="truth eta spectrum">
+  <x title="#eta" n="80" lo="-4" hi="4"/>
+  <y title="Entries"/>
+</h>
+<h id="truthPhiSpectrum" type="TH1F" title="truth phi spectrum">
+  <x title="#phi" n="60" lo="-3" hi="3"/>
+  <y title="Entries"/>
+</h>
+<h id="truthPtSpectrum" type="TH1F" title="truth pt spectrum">
+  <x title="pt (GeV/c)" n="100" lo="0." hi="100"/>
+  <y title="Entries"/>
+</h>
+<!-- HitContent plots -->
+<h id="HitContent_vs_eta_NBlayerHits" type="TProfile" title="Number of B-Layer clusters">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of B-layer clusters&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NPixelHits" type="TProfile" title="Number of Pixel clusters">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of Pixel clusters&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_DBMHitsNeg" type="TProfile" title="Number of DBM Clusters">
+  <x title="#eta" n="20" lo="-3.8" hi="-2.5"/>
+  <y title="&lt;Number of DBM clusters, - side&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_DBMHitsPos" type="TProfile" title="Number of DBM Clusters">
+  <x title="#eta" n="20" lo="2.5" hi="3.8"/>
+  <y title="&lt;Number of DBM Clusters, + side&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NPixelHoles" type="TProfile" title="Number of Pixel Holes">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of Pixel Holes&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NSCTHits" type="TProfile" title="Number of SCT Clusters">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of SCT Clusters&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NSCTHoles" type="TProfile" title="Number of SCT Holes">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of SCT Holes&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NTRTHits" type="TProfile" title="Number of TRT Clusters">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of TRT Hits&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NTRTHighThresholdHits" type="TProfile" title="Number of TRT high threshold clusters">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of High Thresh TRT Hits&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NBlayerOutliers" type="TProfile" title="Number of B-layer outliers">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of B-layer Outliers&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NBlayerSharedHits" type="TProfile" title="Number of shared B-layer clusters">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of B-layer Shared Hits&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NBLayerSplitHits" type="TProfile" title="Number of split B-layer clusters">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of B-layer Split Hits&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NPixelOutliers" type="TProfile" title="Number of Pixel outliers">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of Pixel Outliers&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NPixelContribLayers" type="TProfile" title="Number of contributed Pixel layers">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of Pixel Layers&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NPixelSharedHits" type="TProfile" title="Number of shared Pixel clusters">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of Pixel Shared Hits&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NPixelSplitHits" type="TProfile" title="Number of split Pixel clusters">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of Pixel Split Hits&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NPixelGangedHits" type="TProfile" title="Number of ganged Pixel clusters">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of Pixel Ganged Hits&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NSCTOutliers" type="TProfile" title="Number of SCT Outliers">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of SCT Outliers&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NSCTDoubleHoles" type="TProfile" title="Number of SCT double holes">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of SCT Double Holes&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NSCTSharedHits" type="TProfile" title="Number of SCT Shared clusters">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of SCT Shared Hits&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NTRTOutliers" type="TProfile" title="Number of TRT outliers">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of TRT Outliers&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NTRTHighThresholdOutliers" type="TProfile" title="Number of TRT High Threshold outliers">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="&lt;Number of TRT High Thresh Outliers&gt;" lo="0" hi="100"/>
+</h>
+</hdef>

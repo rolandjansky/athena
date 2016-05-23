@@ -14,13 +14,13 @@
 #include <string>
 
 //local includes
-#include "TrkValHistUtils/PlotBase.h"
+#include "InDetPlotBase.h"
 #include "xAODTracking/VertexFwd.h"
 
 ///class holding general plots for xAOD::Vertex
-class InDetPerfPlot_Vertex:public PlotBase {
+class InDetPerfPlot_Vertex:public InDetPlotBase {
 public:
-	InDetPerfPlot_Vertex(PlotBase * pParent, const std::string & dirName);
+	InDetPerfPlot_Vertex(InDetPlotBase * pParent, const std::string & dirName);
 	void fill(const xAOD::Vertex& vertex);
 	
 private:

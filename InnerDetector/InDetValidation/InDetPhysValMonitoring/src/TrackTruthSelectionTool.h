@@ -12,31 +12,30 @@
 
 
 class TrackTruthSelectionTool: 
-  public virtual ::IAsgSelectionTool,
+public virtual ::IAsgSelectionTool,
   public asg::AsgTool  { 
-
-     ASG_TOOL_CLASS1( TrackTruthSelectionTool, IAsgSelectionTool );
-
+  ASG_TOOL_CLASS1( TrackTruthSelectionTool, IAsgSelectionTool );
  public: 
-	TrackTruthSelectionTool(const std::string& name);
-	//TrackTruthSelectionTool(const std::string& type,const std::string& name,const IInterface* parent);
+  TrackTruthSelectionTool(const std::string& name);
+  //TrackTruthSelectionTool(const std::string& type,const std::string& name,const IInterface* parent);
   virtual ~TrackTruthSelectionTool(); 
-
+  
   virtual StatusCode  initialize();
   virtual StatusCode  finalize();
   virtual const Root::TAccept& getTAccept( ) const;
   virtual const Root::TAccept& accept( const xAOD::IParticle* p) const;
   virtual const Root::TAccept& accept( const xAOD::TruthParticle* p) const;
 
-
+  
+  
  private: 
-
+  
   mutable Root::TAccept m_accept;
   std::vector<std::pair<std::string,std::string>> m_cuts;
   mutable ULong64_t m_numTruthProcessed; //!< a counter of the number of tracks proccessed
   mutable ULong64_t m_numTruthPassed; //!< a counter of the number of tracks that passed all cuts
   mutable std::vector<ULong64_t> m_numTruthPassedCuts; //!< tracks the number of tracks that passed each cut family
-
+  
   // Cut vales;
   float m_maxEta;
   float m_maxPt;

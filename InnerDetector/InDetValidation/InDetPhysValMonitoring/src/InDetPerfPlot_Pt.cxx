@@ -5,20 +5,22 @@
 /**
  * @file InDetPerfPlot_Pt.cxx
  * @author shaun roe
+ * This was the first performance plot class written in this package, more or less
+ * simply as a demonstrator. 
 **/
 
 #include "InDetPerfPlot_Pt.h"
 
-InDetPerfPlot_Pt::InDetPerfPlot_Pt(PlotBase* pParent, const std::string & sDir):PlotBase(pParent, sDir){
+InDetPerfPlot_Pt::InDetPerfPlot_Pt(InDetPlotBase* pParent, const std::string & sDir):InDetPlotBase(pParent, sDir),
+m_recPt{},
+m_recPtLow{}{
   //nop
 }
 
-
 void 
-InDetPerfPlot_Pt::initializePlots() {
-  const bool prependDirectory(false);
-  m_recPt  = Book1D("recpT","p_{T} of selected rec tracks (in GeV);p_{T}(GeV/c)",200,0.,200, prependDirectory);
-  m_recPtLow  = Book1D("recpTlow","p_{T} of selected rec tracks (in GeV);p_{T}(GeV/c)",200,0,20, prependDirectory);
+InDetPerfPlot_Pt::initializePlots() {	
+  book(m_recPt, "recpT");
+  book(m_recPtLow, "recPtLow");
 }
 
 void 

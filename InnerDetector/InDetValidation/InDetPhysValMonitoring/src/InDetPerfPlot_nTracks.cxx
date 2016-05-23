@@ -10,7 +10,7 @@
 #include "InDetPerfPlot_nTracks.h"
 
 
-InDetPerfPlot_nTracks::InDetPerfPlot_nTracks(PlotBase* pParent, const std::string & sDir):PlotBase(pParent, sDir),
+InDetPerfPlot_nTracks::InDetPerfPlot_nTracks(InDetPlotBase* pParent, const std::string & sDir):InDetPlotBase(pParent, sDir),
 m_counters{0} {
   //nop
 }
@@ -19,10 +19,14 @@ m_counters{0} {
 void 
 InDetPerfPlot_nTracks::initializePlots() {
   const bool prependDirectory(false);
-    m_counters[ALL] = Book1D("ntrack","Number of Tracks;Num. tracks",200,0,1000,prependDirectory);
-    m_counters[SELECTED] = Book1D("ntracksel","Number of Selected Tracks;Num. tracks",200,0,1000,prependDirectory);
-    m_counters[TRUTH] = Book1D("nparticle", "Number of Truth Particles;Num. truth particles",200,0,2000,prependDirectory);
-    m_counters[TRUTH_MATCHED] = Book1D("num_truthmatch_match","num_truthmatch_match; evi match	",10,0,10,prependDirectory);
+  SingleHistogramDefinition hd=retrieveDefinition("ntrack");
+  m_counters[ALL] = Book1D(hd.name,hd.allTitles,hd.nBinsX,hd.xAxis.first,hd.xAxis.second, prependDirectory);
+  hd=retrieveDefinition("ntracksel");
+  m_counters[SELECTED] = Book1D(hd.name,hd.allTitles,hd.nBinsX,hd.xAxis.first,hd.xAxis.second, prependDirectory);
+  hd=retrieveDefinition("nparticle");
+  m_counters[TRUTH] = Book1D(hd.name,hd.allTitles,hd.nBinsX,hd.xAxis.first,hd.xAxis.second, prependDirectory);
+  hd=retrieveDefinition("num_truthmatch_match");
+  m_counters[TRUTH_MATCHED] = Book1D(hd.name,hd.allTitles,hd.nBinsX,hd.xAxis.first,hd.xAxis.second, prependDirectory);
 }
 
 void 

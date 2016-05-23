@@ -35,7 +35,12 @@ AthAlgTool(type,name,parent),
 m_holeSearchTool("InDet::InDetTrackHoleSearchTool"),
 m_updatorHandle("Trk::KalmanUpdator/TrkKalmanUpdator"),
 m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-m_ptThreshold(0.8), m_isUnbiased(false), m_doUpgrade(false){
+m_ptThreshold(0.8), m_isUnbiased(false), m_doUpgrade(false),
+m_idHelper(nullptr),
+m_pixelID(nullptr),
+m_sctID(nullptr),
+m_trtID(nullptr)
+{
 declareInterface<IInDetPhysValDecoratorTool>(this);
 
 declareProperty("InDetTrackHoleSearchTool"     , m_holeSearchTool);
@@ -100,12 +105,19 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle, c
     ATH_MSG_VERBOSE ("Track link found " );
     const double pt = particle.pt(); 
     if (pt > m_ptThreshold){
-    ATH_MSG_VERBOSE ("pt is over threshold " );
+    	ATH_MSG_VERBOSE ("pt is over threshold " );
 			std::unique_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**trackLink));
-			const int numberOfHits((trackWithHoles->trackStateOnSurfaces())->size());
-			//ATH_MSG_INFO ("number of Hits "<<numberOfHits );
+			const auto &allTrackStates = *(trackWithHoles->trackStateOnSurfaces());
+			const int numberOfHits(allTrackStates.size());
+			unsigned int trackParametersCounter(numberOfHits);
 			TrackResult_t result; result.reserve(numberOfHits);
-			for (auto &thisTrackState: *(trackWithHoles->trackStateOnSurfaces())){
+			//line 3595 original
+			if (! m_updatorHandle.empty()){
+      m_isUnbiased = true;
+    } else {
+      m_isUnbiased = false;
+    }
+			for (const auto &thisTrackState: allTrackStates){
 				SingleResult_t thisResult(invalidResult);
 				if (not thisTrackState) continue;
 				const Trk::MeasurementBase* mesb=thisTrackState->measurementOnTrack();
@@ -132,6 +144,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle, c
 				ATH_MSG_VERBOSE("checking mesb and track parameters");
 				if (mesb && biasedTrackParameters) {
 					ATH_MSG_DEBUG("mesb and biased track parameters are ok");
+					//for outliers, the measurement is not part of the fit, so track parameters are already unbiased
 					const Trk::TrackParameters *trackParameters = (! thisTrackState->type(Trk::TrackStateOnSurface::Outlier)) ? getUnbiasedTrackParameters(biasedTrackParameters,mesb) : biasedTrackParameters;
 				  if (not trackParameters){
 				    ATH_MSG_DEBUG("unbiased track parameters pointer is NULL");
@@ -160,35 +173,62 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle, c
 				  }
 				  //int width = 1; //check original code
 				  int phiWidth(-1);
-				  //int zWidth(-1);
 					//copy-paste from original
 					if (hit && m_isUnbiased) {
 						// Cluster width determination
-						if((det == PIXEL) or  (det==SCT)) {
+						if((det == PIXEL) or (det==SCT)) {
 							const InDet::SiCluster* pCluster = dynamic_cast <const InDet::SiCluster*>(hit->prepRawData());
 							if(pCluster){
 								InDet::SiWidth width = pCluster->width();
 								phiWidth = int(width.colRow().x());
-								//zWidth = int(width.colRow().y());
 							}
 						}
+						ATH_MSG_VERBOSE ("hit and isUnbiased ok");
 					}
 					//end copy-paste
 				  thisResult=std::make_tuple(det, r, iLayer, residualLocX, pullLocX, residualLocY, pullLocY, phiWidth);
-				  ATH_MSG_INFO ("**result "<<iLayer<<", "<<residualLocX<<", "<<pullLocX<<", "<<residualLocY<<", "<<pullLocY<<", "<<phiWidth );
+				  ATH_MSG_DEBUG ("**dimension: result "<<det<<":"<<r<<":"<<residualPull->dimension()<<":"<<iLayer<<", "<<residualLocX<<", "<<pullLocX<<", "<<residualLocY<<", "<<pullLocY<<", "<<phiWidth );
 				  result.push_back(thisResult);
 				  //must delete the pointers?
 				} else {
-					if (not mesb) ATH_MSG_INFO("mesb not ok");
-					if (not biasedTrackParameters) ATH_MSG_INFO("biasedTrackParameters were not found");
+					if (not mesb) ATH_MSG_VERBOSE("mesb not ok");
+					if (not biasedTrackParameters) ATH_MSG_VERBOSE("biasedTrackParameters were not found");
+					--trackParametersCounter;
 				}
 			}//end of for loop
+			ATH_MSG_DEBUG("Out of "<<numberOfHits<<" hits, "<<trackParametersCounter<<" had track params, and "<<result.size()<<" had residuals." );
 			if (not result.empty()){
-			  particle.auxdecor<TrackResult_t>(prefix+"hitResiduals") = result;
-			  return true;
-			} else {
-			  ATH_MSG_INFO("No hit residual added");
-			}
+//		  particle.auxdecor<TrackResult_t>(prefix+"hitResiduals") = result; //!< no dictionary for tuple
+        const unsigned int arraySize=result.size();
+			 std::vector<int> result_det;           result_det.reserve( arraySize );
+			 std::vector<int> result_r;             result_r.reserve( arraySize);
+			 std::vector<int> result_iLayer;        result_iLayer.reserve( arraySize );
+			 std::vector<float> result_residualLocX;result_residualLocX.reserve( arraySize );
+			 std::vector<float> result_pullLocX;    result_pullLocX.reserve( arraySize );
+			 std::vector<float> result_residualLocY;result_residualLocY.reserve( arraySize );
+			 std::vector<float> result_pullLocY;    result_pullLocY.reserve( arraySize );
+			 std::vector<int> result_phiWidth;      result_phiWidth.reserve( arraySize );
+
+			 for (const SingleResult_t &single_result : result ) {
+				 result_det.push_back(std::get<0>(single_result));
+				 result_r.push_back(std::get<1>(single_result));
+				 result_iLayer.push_back(std::get<2>(single_result));
+				 result_residualLocX.push_back(std::get<3>(single_result));
+				 result_pullLocX.push_back(std::get<4>(single_result));
+				 result_residualLocY.push_back(std::get<5>(single_result));
+				 result_pullLocY.push_back(std::get<6>(single_result));
+				 result_phiWidth.push_back(std::get<7>(single_result));
+			 }
+			 particle.auxdecor<std::vector<int> >(prefix+"hitResiduals_region") = result_r;
+			 particle.auxdecor<std::vector<int> >(prefix+"hitResiduals_det") = result_det;
+			 particle.auxdecor<std::vector<int> >(prefix+"hitResiduals_iLayer") = result_iLayer;
+			 particle.auxdecor<std::vector<float> >(prefix+"hitResiduals_residualLocX") = result_residualLocX;
+			 particle.auxdecor<std::vector<float> >(prefix+"hitResiduals_pullLocX") = result_pullLocX;
+			 particle.auxdecor<std::vector<float> >(prefix+"hitResiduals_residualLocY") = result_residualLocY;
+			 particle.auxdecor<std::vector<float> >(prefix+"hitResiduals_pullLocY") = result_pullLocY;
+			 particle.auxdecor<std::vector<int> >(prefix+"hitResiduals_phiWidth") = result_phiWidth;
+			 return true;
+			} 
 		} 
 	} else {
 	  ATH_MSG_DEBUG ("No valid track link found " );
@@ -257,8 +297,8 @@ InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier & id, Subdetect
 const Trk::TrackParameters*
 InDetPhysHitDecoratorTool::getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters, const Trk::MeasurementBase* measurement ) {
 	static bool alreadyWarned(false);
-	const Trk::TrackParameters* unbiasedTrkParameters(0);
-	if (!m_updatorHandle.empty() && (m_isUnbiased) ) {
+	const Trk::TrackParameters* unbiasedTrkParameters(trkParameters);
+	if (!m_updatorHandle.empty() && (!m_isUnbiased) ) {
     if ( trkParameters->covariance() ) {
       // Get unbiased state
       unbiasedTrkParameters =m_updatorHandle->removeFromState( *trkParameters,measurement->localParameters(),measurement->localCovariance());
@@ -271,9 +311,10 @@ InDetPhysHitDecoratorTool::getUnbiasedTrackParameters(const Trk::TrackParameters
       msg(MSG::WARNING) << "TrackParameters contain no covariance, unbiased track states can not be calculated (ie. pulls and residuals will be too small)" << endreq;
       alreadyWarned = true;
       m_isUnbiased = false;
-    } else {
+    }else {
       m_isUnbiased = false;
     }// end if no measured track parameter
+    
   }
   return unbiasedTrkParameters;                                 
 }

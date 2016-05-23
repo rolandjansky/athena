@@ -1,65 +1,27 @@
-2015-05-04 Shaun Roe
+2015-10-07 Shaun Roe
 To Run Example
 'cd' to your Athena working directory
-Using setup: 
-asetup dev,rel_5,here
 
-checkout this package:
+cd MyAthena/physval
+asetup dev, rel_1,here
 cmt co InnerDetector/InDetValidation/InDetPhysValMonitoring
 
-while 20.1.X.Y releases do not need any extra check out, in dev it is 
-necessary to check out AthenaMonitoring-02-01-17:
-cmt co -r AthenaMonitoring-02-01-17 Control/AthenaMonitoring
-cd $TestArea/Control/AthenaMonitoring/cmt
-cmt broadcast cmt config
+cd  InnerDetector/InDetValidation/InDetPhysValMonitoring/cmt
+
 source setup.sh
 cmt broadcast gmake
-
-... and head of Tracking/TrkValidation/TrkValHistUtils
-cd $TestArea
-cmt co Tracking/TrkValidation/TrkValHistUtils
-
-
-build as usual:
-cd $TestArea/InnerDetector/InDetValidation/InDetPhysValMonitoring/cmt
 cmt broadcast cmt config
-source setup.sh
-cmt broadcast gmake
 
+cd ../run
+source getSomeData.sh
 
-cd to the run directory:
-cd $TestArea/InnerDetector/InDetValidation/InDetPhysValMonitoring/run
+(enter your grid pwd when prompted)
 
-you will need to link to a data set which is called AOD.pool.root.
-One possibility is to generate one; the 'q' tests can do this and a lot more,
-type:
-source qtest_run2.sh
-
-The q tests also generate an ESD file, which would be necessary for some of the plots.
-
-Another possibility is to use Rucio or dq2. To set up Rucio (note: I usually open a new
-terminal window on the same machine to do this, to avoid screwing up any environment 
-variables set by the various commands):
-setupATLAS
-localSetupRucioClients
-voms-proxy-init -voms atlas
-
-To download one (random) dataset:
-cd /tmp/<uname>
-rucio download --nrandom 1 valid1:valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.ESD.e3099_s2579_r6162
-or, for one which certainly has no track slimming:
-
-rucio download --nrandom 1 valid3:valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.ESD.e3099_s2578_r6603_tid05297574_00
-
-
-Link to AOD.pool.root in the run directory:
-cd $TestArea/InnerDetector/InDetValidation/InDetPhysValMonitoring/run
-ln -s /tmp/<uname>/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.ESD.e3099_s2579_r6162/ESD.05108991._000179.pool.root.1 AOD.pool.root
-
-running should be simply a case of typing:
 athena PhysVal_jobOptions.py
 
-within the run directory.
+
+sometimes the 'getSomeData' needs two goes, not sure why....
+
 ***NOTE: EACH TIME you wish to change the dataset and run again, DELETE THE PoolCatalog
 XML file *** or you will get the 'problem running chappy' error.
 

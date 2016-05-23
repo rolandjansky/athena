@@ -5,13 +5,20 @@
 #ifndef INDETPERFPLOT_HITDETAILED_H
 #define INDETPERFPLOT_HITDETAILED_H
 
-#include "TrkValHistUtils/PlotBase.h"
-#include "TProfile.h"
+#include "InDetPlotBase.h"
+//#include "TProfile.h"
 #include "xAODTracking/TrackParticleFwd.h"
+#include "xAODTruth/TruthParticle.h"
 
-class InDetPerfPlot_HitDetailed: public PlotBase {
+
+
+//#include "TrkValHistUtils/ParamPlots.h"
+#include "TrkValHistUtils/EfficiencyPlots.h"
+#include "TrkValHistUtils/EfficiencyPurityCalculator.h"
+
+class InDetPerfPlot_HitDetailed: public InDetPlotBase {
   public:
-    InDetPerfPlot_HitDetailed(PlotBase *pParent, std::string sDir);
+  InDetPerfPlot_HitDetailed(InDetPlotBase *pParent, std::string sDir);
     void fill(const xAOD::TrackParticle& trk);
 
     ///@name Hit content of xAOD::TrackParticle as function of eta
@@ -40,6 +47,8 @@ class InDetPerfPlot_HitDetailed: public PlotBase {
     TProfile* n_vs_eta_TRTHighThresholdHits;
     TProfile* n_vs_eta_TRTOutliers;
     TProfile* n_vs_eta_TRTHighThresholdOutliers;
+
+
     ///@}
 
   private:

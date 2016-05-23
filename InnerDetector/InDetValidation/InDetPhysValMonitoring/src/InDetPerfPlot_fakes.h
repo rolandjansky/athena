@@ -14,14 +14,17 @@
 #include <string>
 
 //local includes
-#include "TrkValHistUtils/PlotBase.h"
+#include "InDetPlotBase.h"
 #include "xAODTracking/TrackParticle.h" 
 
 ///class holding fake plots for Inner Detector RTT Validation and implementing fill methods
-class InDetPerfPlot_fakes:public PlotBase {
+class InDetPerfPlot_fakes:public InDetPlotBase {
+
+  friend class InDetPerfPlot_ExtendedFakes; // @asogaard
+
 public:
   enum Category {ALL, IN_JETS, N_FAKETYPES};
-	InDetPerfPlot_fakes(PlotBase * pParent, const std::string & dirName);
+	InDetPerfPlot_fakes(InDetPlotBase * pParent, const std::string & dirName);
 	void fill(const xAOD::TrackParticle& trkprt, const bool isFake, const Category f=ALL);
 	
 private:

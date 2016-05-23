@@ -15,7 +15,15 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-InDetPerfPlot_Vertex::InDetPerfPlot_Vertex(PlotBase* pParent, const std::string & sDir):PlotBase(pParent, sDir){
+InDetPerfPlot_Vertex::InDetPerfPlot_Vertex(InDetPlotBase* pParent, const std::string & sDir):
+	InDetPlotBase(pParent, sDir),
+	m_vx_x(nullptr), m_vx_y(nullptr), m_vx_z(nullptr),
+	m_vx_err_x(nullptr), m_vx_err_y(nullptr), m_vx_err_z(nullptr),
+	m_vx_chi2_over_ndf(nullptr), m_vx_type(nullptr), m_vx_nTracks(nullptr),
+	m_vx_sumpt2(nullptr),m_vx_track_weights(nullptr), m_vx_track_pt(nullptr),
+	m_vx_track_eta(nullptr),m_vx_track_nSiHits(nullptr),m_vx_track_nSiHoles(nullptr),
+	m_vx_track_d0(nullptr),m_vx_track_err_d0(nullptr),m_vx_track_z0(nullptr),
+	m_vx_track_err_z0(nullptr){
   //nop
 }
 
@@ -23,32 +31,30 @@ InDetPerfPlot_Vertex::InDetPerfPlot_Vertex(PlotBase* pParent, const std::string 
 void 
 InDetPerfPlot_Vertex::initializePlots() {
 
-  const bool prependDirectory(false);
+    IDPVM_BOOK(m_vx_x);
+    IDPVM_BOOK(m_vx_y);
+    IDPVM_BOOK(m_vx_z);
 
-    m_vx_x = Book1D("vx_x", "X position of vertex;X (mm);Entries",200, -1.0, 1.0,prependDirectory);
-    m_vx_y = Book1D("vx_y", "Y position of vertex;Y (mm);Entries",200, -1.0, 1.0,prependDirectory);
-    m_vx_z = Book1D("vx_z", "Z position of vertex;Z (mm);Entries",100, -300.0, 300.0,prependDirectory);
+    IDPVM_BOOK(m_vx_err_x);
+    IDPVM_BOOK(m_vx_err_y);
+    IDPVM_BOOK(m_vx_err_z);
 
-    m_vx_err_x = Book1D("vx_err_x", "X position error of vertex;#sigma(X) (mm);Entries", 100, 0.0, 0.2,prependDirectory);
-    m_vx_err_y = Book1D("vx_err_y", "Y position error of vertex;#sigma(Y) (mm);Entries", 100, 0.0, 0.2,prependDirectory);
-    m_vx_err_z = Book1D("vx_err_z", "Z position error of vertex;#sigma(Z) (mm);Entries", 100, 0.0, 1.0,prependDirectory);
+    IDPVM_BOOK(m_vx_chi2_over_ndf);
+    IDPVM_BOOK(m_vx_type);
 
-    m_vx_chi2_over_ndf = Book1D("vx_chi2_over_ndf", "vertex #chi^2 / ndf;#chi^{2}/ndf;Entries", 50, 0, 10.,prependDirectory);
-    m_vx_type = Book1D("vx_type", "Vertex type;Vertex type;Entries", 7, 0, 7,prependDirectory);
-
-    m_vx_nTracks = Book1D("vx_nTracks", "Number of tracks at vertex;Number of Tracks;Entries", 150, 0, 150,prependDirectory);
-    m_vx_track_weights = Book1D("vx_track_weights", "Weights of tracks at vertex;Weight;Entries", 100, 0., 10.0,prependDirectory);
+    IDPVM_BOOK(m_vx_nTracks);
+    IDPVM_BOOK(m_vx_track_weights);
 
     // Expert plots (iDetailLevel >= 100)
     if (m_iDetailLevel >= 100) {
-      m_vx_track_pt = Book1D("vx_track_pt", "Tracks at vertex p_{T};p_{T} (GeV);Entries", 100, 0, 20.,prependDirectory);
-      m_vx_track_eta = Book1D("vx_track_eta", "Tracks at vertex #eta;#eta;Entries", 100, -2.7, 2.7,prependDirectory);
-      m_vx_track_nSiHits = Book1D("vx_track_nSiHits", "Tracks at vertex number of Silicon Hits;N Si Hits;Entries", 15, 5, 20,prependDirectory);
-      m_vx_track_nSiHoles = Book1D("vx_track_nSiHoles", "Tracks at vertex number of Silicon Holes;N Si Holes;Entries", 5, 0, 5,prependDirectory);
-      m_vx_track_d0 = Book1D("vx_track_d0", "Tracks at vertex d_{0};d_{0} (mm);Entries", 100, -2.0, 2.0,prependDirectory);
-      m_vx_track_err_d0 = Book1D("vx_track_err_d0", "Tracks at vertex d_{0} error;#sigma(d_{0}) (mm);Entries", 50, 0.0, 1.0,prependDirectory);
-      m_vx_track_z0 = Book1D("vx_track_z0", "Tracks at vertex z_{0} - z_{0}^{vertex};z_{0}-z_{0}^{vertex} (mm);Entries", 100, -5.0, 5.0,prependDirectory);
-      m_vx_track_err_z0 = Book1D("vx_track_err_z0", "Tracks at vertex z_{0} error;#sigma(z_{0}) (mm);Entries", 50, 0.0, 5.0,prependDirectory);
+      IDPVM_BOOK(m_vx_track_pt);
+      IDPVM_BOOK(m_vx_track_eta);
+      IDPVM_BOOK(m_vx_track_nSiHits);
+      IDPVM_BOOK(m_vx_track_nSiHoles);
+      IDPVM_BOOK(m_vx_track_d0);
+      IDPVM_BOOK(m_vx_track_err_d0);
+      IDPVM_BOOK(m_vx_track_z0);
+      IDPVM_BOOK(m_vx_track_err_z0);
     }
 }
 

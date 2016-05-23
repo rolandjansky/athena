@@ -3,50 +3,57 @@
 */
 
 #include "InDetPerfPlot_Eff.h"
+#include "TrkValHistUtils/EfficiencyPurityCalculator.h"
+#include "xAODTruth/TruthParticle.h"
 
-InDetPerfPlot_Eff::InDetPerfPlot_Eff(PlotBase* pParent, const std::string & sDir, std::string particleName):PlotBase(pParent, sDir),
-  m_pDenomPlots(this, sDir+"Denom", particleName),
-  m_pNumPlots(this, sDir+"Num", particleName)
+using namespace TMath;
+
+InDetPerfPlot_Eff::InDetPerfPlot_Eff(InDetPlotBase* pParent, const std::string & sDir):
+InDetPlotBase(pParent, sDir),
+m_trackeff_vs_eta{},
+m_trackeff_vs_pt{},
+m_trackeff_vs_phi{},
+m_trackeff_vs_d0{},
+m_trackeff_vs_z0{},
+m_trackeff_vs_R{},
+m_trackeff_vs_Z{}
+
 {
-  // sDir should be unique for each instance to avoid ROOT memory nonsense
-  m_sParticleType = particleName;
+  //nop
 }
 
 
 void 
 InDetPerfPlot_Eff::initializePlots() {
-
-  const bool prependDirectory(false);
-
-   eff_eta  = Book1D("Eff_eta", m_pNumPlots.eta, "Eta Efficiency; truth eta; efficiency", prependDirectory);
-   eff_phi  = Book1D("Eff_phi", m_pNumPlots.phi, "Phi Efficiency;truth Azimuthal Angle; efficiency", prependDirectory);
-   eff_pt   = Book1D("Eff_pt" , m_pNumPlots.pt, "p_{T} Efficiency; truth Transverse Momentum [GeV]; efficiency", prependDirectory);
-   eff_pti  = Book1D("Eff_pti" , m_pNumPlots.pt, "p_{T} integrated Efficiency; Integrated truth Transverse Momentum [GeV]; efficiency", prependDirectory);
-
-   eff_eta_pt  = Book2D("Eff_eta_pt", (TH2*)m_pNumPlots.eta_pt, m_sParticleType+" truth eta vs pt;"+m_sParticleType+" eta;"+m_sParticleType+" pt; efficiency", prependDirectory);
-   eff_eta_phi = Book2D("Eff_eta_phi", (TH2*)m_pNumPlots.eta_phi, m_sParticleType+" truth eta vs phi;"+m_sParticleType+" truth eta;"+m_sParticleType+" truth phi; efficiency", prependDirectory);
-
+  book(m_trackeff_vs_eta, "trackeff_vs_eta");
+  book(m_trackeff_vs_pt, "trackeff_vs_pt");
+  book(m_trackeff_vs_phi, "trackeff_vs_phi");
+  book(m_trackeff_vs_d0, "trackeff_vs_d0");
+  book(m_trackeff_vs_z0, "trackeff_vs_z0");
+  book(m_trackeff_vs_R, "trackeff_vs_R");
+  book(m_trackeff_vs_Z, "trackeff_vs_Z");
 }
 
-void InDetPerfPlot_Eff::fillNumerator(const xAOD::IParticle& particle){
-  m_pNumPlots.fill(particle);
+void InDetPerfPlot_Eff::pro_fill(const xAOD::TruthParticle & truth, float weight){
+  double eta = truth.eta();
+  double pt = truth.pt()/1000.; //convert MeV to GeV
+  //double logpt = Log10(pt); //-3.0 switches MeV to GeV **UNUSED
+  double phi = truth.phi();
+  double d0 = truth.auxdata<float>("d0");
+  double z0 = truth.auxdata<float>("z0");
+  double R = truth.auxdata<float>("prodR");
+  double Z = truth.auxdata<float>("prodZ");
+
+  m_trackeff_vs_eta->Fill(eta, weight);
+  m_trackeff_vs_pt->Fill(pt, weight);
+  m_trackeff_vs_phi->Fill(phi, weight);
+  m_trackeff_vs_d0->Fill(d0, weight);
+  m_trackeff_vs_z0->Fill(z0, weight);
+  m_trackeff_vs_R->Fill(R, weight);
+  m_trackeff_vs_Z->Fill(Z, weight);
 }
 
-void InDetPerfPlot_Eff::fillDenominator(const xAOD::IParticle& particle){
-  m_pDenomPlots.fill(particle);
-}
 
 void InDetPerfPlot_Eff::finalizePlots() {
-  EfficiencyPurityCalculator calc;
-  calc.calculateEfficiency(m_pDenomPlots.eta, m_pNumPlots.eta, eff_eta);
-  calc.calculateEfficiency(m_pDenomPlots.phi, m_pNumPlots.phi, eff_phi);
-  calc.calculateEfficiency(m_pDenomPlots.pt, m_pNumPlots.pt, eff_pt);
-  calc.calculateIntegrated(m_pDenomPlots.pt, m_pNumPlots.pt, eff_pti, 1, EfficiencyPurityCalculator::kX);
-
-  eff_eta_pt->Sumw2();
-  eff_eta_pt->Divide( m_pNumPlots.eta_pt, m_pDenomPlots.eta_pt, 1, 1, "B" );
-  eff_eta_phi->Sumw2();
-  eff_eta_phi->Divide( m_pNumPlots.eta_phi, m_pDenomPlots.eta_phi, 1, 1, "B" );
-
 }
 

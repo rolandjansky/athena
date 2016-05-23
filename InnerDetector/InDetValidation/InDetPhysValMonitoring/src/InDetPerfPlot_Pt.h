@@ -14,13 +14,14 @@
 #include <string>
 
 //local includes
-#include "TrkValHistUtils/PlotBase.h"
-#include "xAODBase/IParticle.h"  
+#include "InDetPlotBase.h"
+#include "xAODBase/IParticle.h" 
+
 
 ///class holding Pt plots for Inner Detector RTT Validation and implementing fill methods
-class InDetPerfPlot_Pt:public PlotBase {
+class InDetPerfPlot_Pt:public InDetPlotBase {
 public:
-	InDetPerfPlot_Pt(PlotBase * pParent, const std::string & dirName);
+	InDetPerfPlot_Pt(InDetPlotBase * pParent, const std::string & dirName);
 	void fill(const xAOD::IParticle& particle);
 	
 private:
@@ -28,11 +29,8 @@ private:
 	TH1* m_recPt;
 	///Pt histogram with restricted range
 	TH1* m_recPtLow;
-	
 	//plot base has nop default implementation of this; we use it to book the histos
 	void initializePlots();
-	
-	
 };
 
 
