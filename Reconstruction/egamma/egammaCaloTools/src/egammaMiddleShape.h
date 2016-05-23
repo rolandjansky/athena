@@ -104,9 +104,9 @@ class egammaMiddleShape : public AthAlgTool, virtual public IegammaMiddleShape {
   /** @brief rel. position in eta within cell*/
   double m_poscs2;          
   /** @briefgranularity in eta of middle sampling */
-  double m_etagranularity;  
+  //double m_etagranularity;  
   /** @brief granularity in phi of middle sampling*/
-  double m_phigranularity;  
+  //double m_phigranularity;  
 
   /** @brief boolean to calculate less important variables*/
   bool m_ExecOtherVariables;
@@ -119,10 +119,10 @@ class egammaMiddleShape : public AthAlgTool, virtual public IegammaMiddleShape {
   float m_etacell;
   // Calo variables
   const CaloDetDescrManager* m_calo_dd;
-  const LArEM_ID* m_emid;
+  //const LArEM_ID* m_emid;
   /** @brief CaloSample */
   CaloSampling::CaloSample m_sam;
-  CaloSampling::CaloSample m_sammax;
+  //CaloSampling::CaloSample m_sammax;
   CaloCell_ID::SUBCALO m_subcalo;
   bool m_barrel;
   int m_sampling_or_module;

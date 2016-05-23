@@ -26,9 +26,8 @@
 
 using CLHEP::GeV;
 
-inline double proxim(double b,double a){ return b+2.*M_PI*round((a-b)/(2.*M_PI)) ;}
-inline double dim(double a,  double b)
- { return a - std::min(a,b); } 
+double proxim(const double b, const double a){ return b+2.*M_PI*round((a-b)/(2.*M_PI)) ;}
+double dim(const double a,  const double b){ return a - std::min(a,b); } 
 
 class StripArrayHelper
 {
@@ -55,27 +54,24 @@ egammaStripsShape::egammaStripsShape(const std::string& type,
 				     const std::string& name,
 				     const IInterface* parent)
   : AthAlgTool(type, name, parent),
+    m_cluster(0), 
+    m_cellContainer(0),
     m_egammaqweta1c("egammaqweta1c/egammaqweta1c"),
-    m_egammaEnergyPositionAllSamples("egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"),
-    m_TypeAnalysis("ClusterSeed")
+    m_egammaEnergyPositionAllSamples("egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples")
 { 
-
 
   // declare Interface
   declareInterface<IegammaStripsShape>(this);
 
-  // Type of seed to be considered
-  declareProperty("TypeAnalysis",m_TypeAnalysis="ClusterSeed",
-		  "Type of seed to be considered : ClusterSeed for calorimeter-based algorithm; TrackSeed for track-based algorithm");
+  declareProperty("egammaEnergyPositionAllSamplesTool",m_egammaEnergyPositionAllSamples);
 
-
+  declareProperty("egammaqweta1cTool",m_egammaqweta1c);
   //
   // calculate quantities base on information in the strips in a region
   // around the cluster. 
   // Use 2 strips in phi and cover a region of +-1.1875
   // times 0.025 in eta (corresponds to 19 strips in em barrel)
-  //
-  
+  //  
   //calculate quantities based on information in a region around the cluster. 
   declareProperty("Neta",m_neta=2.5,
 		  "Number of eta cell in each sampling in which to calculated shower shapes");
@@ -90,6 +86,8 @@ egammaStripsShape::egammaStripsShape(const std::string& type,
   // Calculate some less important variables
   declareProperty("ExecOtherVariables",m_ExecOtherVariables=true,
 		  "Calculate some less important variables");  
+
+  InitVariables();
 }
 
 // ====================================================================

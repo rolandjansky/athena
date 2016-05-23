@@ -47,9 +47,9 @@ class egammaPreSamplerShape : public AthAlgTool, virtual public IegammaPreSample
 			     const CaloCellContainer *cell_container);
   
   /** @brief return the energy in a 1x1 window in cells in eta X phi*/
-  double e011() const;
+  double e011() const { return m_e011 ;}
   /** @brief return the energy in a 3x3 window in cells in eta X phi*/
-  double e033() const;
+  double e033() const { return m_e033 ;}
 
  private: 
   /** @brief pointer to a CaloCluster*/
@@ -58,7 +58,6 @@ class egammaPreSamplerShape : public AthAlgTool, virtual public IegammaPreSample
   const CaloCellContainer* m_cellContainer;
   /** @brief tool to calculate sum of energy in all samples */
   ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples;
-
 
   /** @brief  energy in S0 in a 1x1 window in cells in eta X phi*/
   double m_e011;     
@@ -86,11 +85,5 @@ class egammaPreSamplerShape : public AthAlgTool, virtual public IegammaPreSample
   /** @brief From the original (eta,phi) position, find the location (sampling, barrel/end-cap, granularity) */
   bool FindPosition();
 };
-
-//
-// set values for the different variables in the egammaPreSamplerShape
-//
-inline double egammaPreSamplerShape::e011()   const { return m_e011   ;}
-inline double egammaPreSamplerShape::e033()   const { return m_e033   ;}
 
 #endif

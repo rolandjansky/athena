@@ -34,8 +34,6 @@ class egammaIso : public AthAlgTool, virtual public IegammaIso {
   StatusCode initialize();
   /** @brief finalize method*/
   StatusCode finalize();
-
-
   /** @brief  Method to just calculate hadronic leakage*/
   virtual StatusCode execute(const xAOD::CaloCluster *cluster, CaloCellList* had);
   /** @brief ET leakage into hadronic calorimeter with exclusion of energy in CaloSampling::TileGap3*/
@@ -46,10 +44,9 @@ class egammaIso : public AthAlgTool, virtual public IegammaIso {
   calorimeters behind the cluster calculated from ehad1*/
   double ethad1() const; 
 
+ private:
   /** @brief pointer to a Calocluster*/
   const xAOD::CaloCluster* m_cluster; 
-  /** @brief EM Calocell list*/
-  CaloCellList* m_EMCellList;
   /** @brief HAD Calocell list*/
   CaloCellList* m_HADCellList;
   

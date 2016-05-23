@@ -111,7 +111,6 @@ class egammaStripsShape : public AthAlgTool, virtual public IegammaStripsShape {
   /** @brief *return the */
   bool success() const;
 
-
  private:
 
   /** @brief initialisation of all variables*/
@@ -158,7 +157,6 @@ class egammaStripsShape : public AthAlgTool, virtual public IegammaStripsShape {
   void setFside();  
   /** @brief set F1core*/
   void setF1core();  
- 
   /** @brief pointer to a xAOD::CaloCluster*/
   const xAOD::CaloCluster* m_cluster; 
   /** @brief Cell container*/
@@ -169,17 +167,12 @@ class egammaStripsShape : public AthAlgTool, virtual public IegammaStripsShape {
   ToolHandle<Iegammaqweta1c> m_egammaqweta1c;
   /** @bried tool to calculate sum of energy in all samples */
   ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples;
-
   double m_neta;
   double m_nphi;
-  // Type of "Analysis" 
-  std::string m_TypeAnalysis;
   /** @brief boolean to calculate all variables*/
   bool m_ExecAllVariables;
   /** @brief boolean to calculate less important variables*/
   bool m_ExecOtherVariables;
-
-
   // Calo variables
   const CaloDetDescrManager* m_calo_dd;
   const LArEM_ID* m_emid;
@@ -187,7 +180,6 @@ class egammaStripsShape : public AthAlgTool, virtual public IegammaStripsShape {
   int m_sizearrayeta;
   double m_deta;
   double m_dphi;
-
 
   enum { STRIP_ARRAY_SIZE = 40 };
   enum { DOUBLE_STRIP_ARRAY_SIZE = 80 };

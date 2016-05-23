@@ -26,11 +26,26 @@
 egammaPreSamplerShape::egammaPreSamplerShape(const std::string& type,
 					     const std::string& name,
 					     const IInterface* parent)
-  : AthAlgTool(type, name, parent)
+  : AthAlgTool(type, name, parent),
+    m_cluster(0), 
+    m_cellContainer(0), 
+    m_egammaEnergyPositionAllSamples("egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"),
+    m_e011(0),
+    m_e033(0),
+    m_eta(0),
+    m_phi(0),
+    m_deta(0),
+    m_dphi(0),
+    m_calo_dd(0),
+    m_sam(CaloSampling::PreSamplerB),
+    m_sam2(CaloSampling::EMB2),
+    m_subcalo(CaloCell_ID::LAREM),
+    m_barrel(0),
+    m_sampling_or_module(0)
 { 
   // declare Interface
   declareInterface<IegammaPreSamplerShape>(this);
-
+  declareProperty("egammaEnergyPositionAllSamplesTool",m_egammaEnergyPositionAllSamples);
 }
 
 // ====================================================================
@@ -48,18 +63,7 @@ StatusCode egammaPreSamplerShape::initialize()
   // retrieve all helpers from det store
   m_calo_dd = CaloDetDescrManager::instance();
 
-  // Pointer to Tool Service
-  IToolSvc* p_toolSvc = 0;
-  StatusCode sc = service("ToolSvc", p_toolSvc);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL(" Tool Service not found ");
-    return StatusCode::FAILURE;
-  } 
-
   // Create egammaEnergyAllSamples Tool
-  std::string egammaEnergyPositionAllSamplesTool_name="egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples";
-  m_egammaEnergyPositionAllSamples=ToolHandle<IegammaEnergyPositionAllSamples>(egammaEnergyPositionAllSamplesTool_name);
-  // a priori this is not useful
   if(m_egammaEnergyPositionAllSamples.retrieve().isFailure()) {
     ATH_MSG_WARNING("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
     return StatusCode::SUCCESS;

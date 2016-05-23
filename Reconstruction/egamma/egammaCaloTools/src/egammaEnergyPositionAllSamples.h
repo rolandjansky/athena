@@ -65,11 +65,10 @@ class egammaEnergyPositionAllSamples : public AthAlgTool, virtual public Iegamma
 
  private:
  
-  void energy(); 
+  StatusCode energy(); 
   /** @brief method to check if cluster is in barrel/end-cap 
    using also information from energy deposit*/
-  bool isClusterinBarrel();
-  bool isClusterinBarrel(int is);
+  bool isClusterinBarrel(int is = 2);
 
   /** @brief pointer to a CaloCluster*/
   const xAOD::CaloCluster* m_cluster; 

@@ -26,14 +26,22 @@
 egammaBackShape::egammaBackShape(const std::string& type,
 				 const std::string& name,
 				 const IInterface* parent)
-  : AthAlgTool(type, name, parent)
+  : AthAlgTool(type, name, parent),
+    m_cluster(0),
+    m_cellContainer(0),
+    m_egammaEnergyPositionAllSamples("egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples")
 { 
   // declare Interface
   declareInterface<IegammaBackShape>(this);
+  
+  declareProperty("egammaEnergyPositionAllSamplesTool",m_egammaEnergyPositionAllSamples);
 
   // Calculate some less important variables
   declareProperty("ExecOtherVariables",m_ExecOtherVariables=true,
 		  "Calculate some less important variables");  
+
+  // initialisation of variables
+  InitVariables();
 }
 
 // ====================================================================
@@ -51,18 +59,7 @@ StatusCode egammaBackShape::initialize()
   // retrieve all helpers from det store
   m_calo_dd = CaloDetDescrManager::instance();
 
-  // Pointer to Tool Service
-  IToolSvc* p_toolSvc = 0;
-  StatusCode sc = service("ToolSvc", p_toolSvc);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL(" Tool Service not found ");
-    return StatusCode::FAILURE;
-  } 
-
   // Create egammaEnergyAllSamples Tool
-  std::string egammaEnergyPositionAllSamplesTool_name="egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples";
-  m_egammaEnergyPositionAllSamples=ToolHandle<IegammaEnergyPositionAllSamples>(egammaEnergyPositionAllSamplesTool_name);
-  // a priori this is not useful
   if(m_egammaEnergyPositionAllSamples.retrieve().isFailure()) {
     ATH_MSG_WARNING("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
     return StatusCode::SUCCESS;
@@ -198,9 +195,7 @@ void egammaBackShape::InitVariables()
   //
   // initialisation
   //
-
   double x = 0.;
-
   m_f3     = x;
   m_f3core = x;
   m_e333   = x;

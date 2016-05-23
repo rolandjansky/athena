@@ -3,8 +3,6 @@
 */
 
 #include "egammaShowerShape.h"
-#include "egammaInterfaces/Iegammaqweta1c.h"
-#include "egammaInterfaces/Iegammaqweta2c.h"
 #include "egammaInterfaces/IegammaPreSamplerShape.h"
 #include "egammaInterfaces/IegammaStripsShape.h"
 #include "egammaInterfaces/IegammaMiddleShape.h"
@@ -29,16 +27,21 @@ egammaShowerShape::egammaShowerShape(const std::string& type,
 				     const std::string& name,
 				     const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_TypeAnalysis("ClusterSeed")
+    m_cluster(0), 
+    m_cellContainer(0),
+    m_egammaPreSamplerShape("egammaPreSamplerShape/egammapresamplershape"),
+    m_egammaStripsShape("egammaStripsShape/egammastripsshape"),
+    m_egammaMiddleShape("egammaMiddleShape/egammamiddleshape"),
+    m_egammaBackShape("egammaBackShape/egammabackshape")
 { 
   // declare Interface
   declareInterface<IegammaShowerShape>(this);
 
-  // Type of seed to be considered
-  declareProperty("TypeAnalysis",m_TypeAnalysis="ClusterSeed",
-		  "Type of seed to be considered : ClusterSeed for calorimeter-based algorithm; TrackSeed for track-based algorithm");
+  declareProperty("egammaPreSamplerShapeTool",m_egammaPreSamplerShape);
+  declareProperty("egammaStripsShapeTool",m_egammaStripsShape);
+  declareProperty("egammaMiddleShapeTool",m_egammaMiddleShape);
+  declareProperty("egammaBackShapeTool",m_egammaBackShape);
 
-  
   // boolean for which algo to apply
   declareProperty("ExecAllVariables",m_ExecAllVariables=true,
 		  "flag used by trigger");  
@@ -66,6 +69,8 @@ egammaShowerShape::egammaShowerShape(const std::string& type,
   // Calculate some less important variables
   declareProperty("ExecOtherVariables",m_ExecOtherVariables=true,
 		  "Calculate some less important variables");  
+
+  InitVariables();
 }
 
 // ====================================================================
@@ -76,72 +81,26 @@ egammaShowerShape::~egammaShowerShape()
 
 // ========================================================================
 // INITIALIZE METHOD:
-StatusCode egammaShowerShape::initialize()
-{
+StatusCode egammaShowerShape::initialize(){
   ATH_MSG_DEBUG(" Initializing egammaShowerShape");
 
-  // Pointer to Tool Service
-  IToolSvc* p_toolSvc = 0;
-  StatusCode sc = service("ToolSvc", p_toolSvc);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL(" Tool Service not found ");
-    return StatusCode::FAILURE;
-  } 
-
-  // Create egammaqweta1c Tool
-  std::string egammaqweta1cTool_name="egammaqweta1c/egammaqweta1c";
-  m_egammaqweta1c=ToolHandle<Iegammaqweta1c>(egammaqweta1cTool_name);
-  // a priori this is not useful
-  if(m_egammaqweta1c.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Unable to retrieve "<<m_egammaqweta1c);
-    return StatusCode::SUCCESS;
-  } 
-  else ATH_MSG_DEBUG("Tool " << m_egammaqweta1c << " retrieved"); 
-  
-  // Create egammaqweta2c Tool
-  std::string egammaqweta2cTool_name="egammaqweta2c/egammaqweta2c";
-  m_egammaqweta2c=ToolHandle<Iegammaqweta2c>(egammaqweta2cTool_name);
-  // a priori this is not useful
-  if(m_egammaqweta2c.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Unable to retrieve "<<m_egammaqweta2c);
-    return StatusCode::SUCCESS;
-  } 
-  else ATH_MSG_DEBUG("Tool " << m_egammaqweta2c << " retrieved"); 
-
-  // Create egammaPreSamplerShape Tool
-  std::string egammaPreSamplerShapeTool_name="egammaPreSamplerShape/egammapresamplershape";
-  m_egammaPreSamplerShape=ToolHandle<IegammaPreSamplerShape>(egammaPreSamplerShapeTool_name);
-  // a priori this is not useful
   if(m_egammaPreSamplerShape.retrieve().isFailure()) {
     ATH_MSG_WARNING("Unable to retrieve "<<m_egammaPreSamplerShape);
     return StatusCode::SUCCESS;
   } 
   else ATH_MSG_DEBUG("Tool " << m_egammaPreSamplerShape << " retrieved"); 
 
-  // Create egammaStripsShape Tool
-  std::string egammaStripsShapeTool_name="egammaStripsShape/egammastripsshape";
-  m_egammaStripsShape=ToolHandle<IegammaStripsShape>(egammaStripsShapeTool_name);
-  // a priori this is not useful
   if(m_egammaStripsShape.retrieve().isFailure()) {
     ATH_MSG_WARNING("Unable to retrieve "<<m_egammaStripsShape);
     return StatusCode::SUCCESS;
   } 
   else ATH_MSG_DEBUG("Tool " << m_egammaStripsShape << " retrieved"); 
 
-  // Create egammaMiddleShape Tool
-  std::string egammaMiddleShapeTool_name="egammaMiddleShape/egammamiddleshape";
-  m_egammaMiddleShape=ToolHandle<IegammaMiddleShape>(egammaMiddleShapeTool_name);
-  // a priori this is not useful
   if(m_egammaMiddleShape.retrieve().isFailure()) {
     ATH_MSG_WARNING("Unable to retrieve "<<m_egammaMiddleShape);
     return StatusCode::SUCCESS;
   } 
-  else ATH_MSG_DEBUG("Tool " << m_egammaMiddleShape << " retrieved"); 
 
-  // Create egammaBackShape Tool
-  std::string egammaBackShapeTool_name="egammaBackShape/egammabackshape";
-  m_egammaBackShape=ToolHandle<IegammaBackShape>(egammaBackShapeTool_name);
-  // a priori this is not useful
   if(m_egammaBackShape.retrieve().isFailure()) {
     ATH_MSG_WARNING("Unable to retrieve "<<m_egammaBackShape);
     return StatusCode::SUCCESS;
@@ -153,8 +112,7 @@ StatusCode egammaShowerShape::initialize()
 
 // =====================================================================
 // FINALIZE METHOD:
-StatusCode egammaShowerShape::finalize()
-{
+StatusCode egammaShowerShape::finalize(){
   return StatusCode::SUCCESS;
 }
 
@@ -184,15 +142,6 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster *cluster,
   m_cluster = cluster;
   m_cellContainer = cell_container;
 
-  // get cell_container key in SG so functions called later 
-  // can retrieve right container
-  SG::DataProxy* proxy(evtStore()->proxy(cell_container));
-  if (proxy) {
-    m_cellsName = proxy->name();
-  }  else {
-    ATH_MSG_DEBUG(" No valid StoreGate proxy for CaloCellContainer pointer");
-    return StatusCode::SUCCESS;
-  }
 
   // initialisation of variables
   InitVariables();
@@ -248,8 +197,7 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster *cluster,
 } 
 
 // ====================================================================
-void egammaShowerShape::InitVariables()
-{
+void egammaShowerShape::InitVariables(){
   //
   // initialisation
   //
@@ -321,8 +269,7 @@ void egammaShowerShape::InitVariables()
 }
 
 // =================================================================  
-void egammaShowerShape::FillShower()
-{
+void egammaShowerShape::FillShower(){
   //
   // Fill egammaShowerShape object
   // with values from other tools
@@ -397,11 +344,9 @@ void egammaShowerShape::FillShower()
 }
 
 // =================================================================  
-StatusCode egammaShowerShape::CombinedShape()
-{ 
+StatusCode egammaShowerShape::CombinedShape(){ 
 
   // Shower shapes combining different samplings
-
   //
   // all energy values have to be initialised to zero 
   // which is equivalent to have nothing (if it does not exists)

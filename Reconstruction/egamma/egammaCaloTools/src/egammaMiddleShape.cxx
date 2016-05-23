@@ -26,11 +26,19 @@
 egammaMiddleShape::egammaMiddleShape(const std::string& type,
 				     const std::string& name,
 				     const IInterface* parent)
-  : AthAlgTool(type, name, parent)
+  : AthAlgTool(type, name, parent),
+    m_cluster(0),
+    m_cellContainer(0),
+    m_egammaEnergyPositionAllSamples("egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"),
+    m_egammaqweta2c("egammaqweta2c/egammaqweta2c")
 { 
 
   // declare Interface
   declareInterface<IegammaMiddleShape>(this);
+
+  declareProperty("egammaEnergyPositionAllSamplesTool",m_egammaEnergyPositionAllSamples);
+
+  declareProperty("egammaqweta2cTool",m_egammaqweta2c);
 
   // calculate quantities based on information in a region around the cluster. 
   declareProperty("Neta",m_neta =7.0,
@@ -42,6 +50,8 @@ egammaMiddleShape::egammaMiddleShape(const std::string& type,
   // Calculate some less important variables
   declareProperty("ExecOtherVariables",m_ExecOtherVariables=true,
 		  "Calculate some less important variables");  
+
+  InitVariables();
 }
 
 // ====================================================================
@@ -59,18 +69,7 @@ StatusCode egammaMiddleShape::initialize()
   // retrieve all helpers from det store
   m_calo_dd = CaloDetDescrManager::instance();
 
-  // Pointer to Tool Service
-  IToolSvc* p_toolSvc = 0;
-  StatusCode sc = service("ToolSvc", p_toolSvc);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL(" Tool Service not found ");
-    return StatusCode::FAILURE;
-  } 
-
   // Create egammaqweta2c Tool
-  std::string egammaqweta2cTool_name="egammaqweta2c/egammaqweta2c";
-  m_egammaqweta2c=ToolHandle<Iegammaqweta2c>(egammaqweta2cTool_name);
-  // a priori this is not useful
   if(m_egammaqweta2c.retrieve().isFailure()) {
     ATH_MSG_WARNING("Unable to retrieve "<<m_egammaqweta2c);
     return StatusCode::SUCCESS;
@@ -78,9 +77,6 @@ StatusCode egammaMiddleShape::initialize()
   else ATH_MSG_DEBUG("Tool " << m_egammaqweta2c << " retrieved"); 
 
   // Create egammaEnergyPositionAllSamples Tool
-  std::string egammaEnergyPositionAllSamplesTool_name="egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples";
-  m_egammaEnergyPositionAllSamples=ToolHandle<IegammaEnergyPositionAllSamples>(egammaEnergyPositionAllSamplesTool_name);
-  // a priori this is not useful
   if(m_egammaEnergyPositionAllSamples.retrieve().isFailure()) {
     ATH_MSG_WARNING("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
     return StatusCode::SUCCESS;
