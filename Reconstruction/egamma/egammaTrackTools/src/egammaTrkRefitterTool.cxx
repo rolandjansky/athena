@@ -17,7 +17,6 @@
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
 
-#include "VxVertex/VxContainer.h"
 #include "VxVertex/RecVertex.h"
 #include "VxVertex/VxTrackAtVertex.h"
 
@@ -57,12 +56,13 @@ egammaTrkRefitterTool::egammaTrkRefitterTool(const std::string& type, const std:
   m_egammaObject(0),
   m_oMeasPer(0),
   m_rMeasPer(0),
+  m_ParticleHypothesis(Trk::electron), 
   m_ITrackFitter("TrkKalmanFitter/AtlasKalmanFitter"),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_IVertexUpdator("Trk::KalmanVertexUpdator"),
   m_linFactory("Trk::FullLinearizedTrackFactory"),
   m_beamCondSvc("BeamCondSvc",name),
-  m_CCOTBuilder("CaloCluster_OnTrackBuilder")
+  m_CCOTBuilder("CaloCluster_OnTrackBuilder"),
+  m_idHelper(0) 
 {
   // declare interface
   declareInterface< IegammaTrkRefitterTool >(this) ;
@@ -86,7 +86,6 @@ egammaTrkRefitterTool::egammaTrkRefitterTool(const std::string& type, const std:
                    m_reintegrateOutliers = false,
                   "Switch to control addition of  outliers back for track fit");
 
-
   // Type of material interaction in extrapolation (default Electron)
   declareProperty("matEffects",
                    m_matEffects = 1,
@@ -104,9 +103,6 @@ egammaTrkRefitterTool::egammaTrkRefitterTool(const std::string& type, const std:
   declareProperty("Extrapolator",              
                    m_extrapolator );
 
-  declareProperty("primaryVertexCollection",          
-                   m_primaryVertexCollection = "VxPrimaryCandidate");
-
   declareProperty("useClusterPosition",
                   m_useClusterPosition = false, 
                   "Switch to control use of Cluster position measurement");
@@ -115,8 +111,6 @@ egammaTrkRefitterTool::egammaTrkRefitterTool(const std::string& type, const std:
                    m_CCOTBuilder);
                    
   declareProperty("RemoveTRTHits",m_RemoveTRT  = false,"RemoveTRT Hits");	  
-                 
-
 }
 
   
@@ -146,15 +140,6 @@ StatusCode egammaTrkRefitterTool::initialize()
   } else {
     ATH_MSG_INFO( "Retrieved VertexLinearizedTrackFactory tool " << m_linFactory );
   }
-
-   // KalmanVertexUpdator
-  if (m_IVertexUpdator.retrieve().isFailure()) {
-     ATH_MSG_FATAL( "Can not retrieve VertexUpdator of type " << m_IVertexUpdator.typeAndName() );
-     return StatusCode::FAILURE;
-  } else { 
-    ATH_MSG_DEBUG( "Retrieved VertexUpdator Tool " << m_IVertexUpdator.typeAndName() ); 
-  }
-
 
   // configure Atlas extrapolator
   if (m_extrapolator.retrieve().isFailure()) {
@@ -320,7 +305,7 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, const xAO
       ATH_MSG_DEBUG("Not enough measurements on track remove TRT hits?");
       m_refittedTrack = 0; 
     }
-  } 
+  }
 
 
   // Store refitted perigee pointers
@@ -353,7 +338,6 @@ Trk::Track*  egammaTrkRefitterTool::refittedTrack()
   //
   // Returns the refitted track
   //
-
   ATH_MSG_DEBUG("Getting the refitted track"); 
   if (  m_refittedTrack != 0){
     return  m_refittedTrack;    
@@ -424,19 +408,18 @@ void  egammaTrkRefitterTool::resetRefitter()
 }
 
 // ===================================================================
-const Trk::TrackParameters* egammaTrkRefitterTool::refittedEndParameters()
-{
+const Trk::TrackParameters* egammaTrkRefitterTool::refittedEndParameters(){
   return lastTrackParameters( m_refittedTrack );
 }
 
 // ==================================================================
 const Trk::TrackParameters* egammaTrkRefitterTool::originalEndParameters()
 {
-  return lastTrackParameters( const_cast<Trk::Track*>(m_originalTrack) );
+  return lastTrackParameters(m_originalTrack);
 }
 
 // ======================================================================
-const Trk::TrackParameters* egammaTrkRefitterTool::lastTrackParameters(Trk::Track* track)
+const Trk::TrackParameters* egammaTrkRefitterTool::lastTrackParameters(const Trk::Track* track)
 { 
   ATH_MSG_DEBUG("Getting the final track parameters"); 
   
@@ -452,14 +435,12 @@ const Trk::TrackParameters* egammaTrkRefitterTool::lastTrackParameters(Trk::Trac
     return 0;
   }
   
-    
   const Trk::TrackParameters* lastValidTrkParameters(0);  
   for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = oldTrackStates->rbegin(); rItTSoS != oldTrackStates->rend(); ++rItTSoS)
   { 
     if (lastValidTrkParameters!=0){
       break;
     }
-    
     if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=0 && (*rItTSoS)->measurementOnTrack()!=0)
     {
       lastValidTrkParameters = (*rItTSoS)->trackParameters()->clone();
@@ -472,18 +453,15 @@ const Trk::TrackParameters* egammaTrkRefitterTool::lastTrackParameters(Trk::Trac
   }
   ATH_MSG_DEBUG("Last Track Parameters");  
   return 0;
-
 }
 
 // =====================================================================
-double egammaTrkRefitterTool::getMaterial() 
-{
+double egammaTrkRefitterTool::getMaterial() {
   return getMaterialTraversed(m_refittedTrack);
 }
 
 // ======================================================================
-double egammaTrkRefitterTool::getMaterialTraversed(Trk::Track* track) 
-{
+double egammaTrkRefitterTool::getMaterialTraversed(Trk::Track* track) {
   ATH_MSG_DEBUG("Calculating Material Traversed by the Track");  
   
   if (!track) return 0.;
@@ -507,24 +485,14 @@ double egammaTrkRefitterTool::getMaterialTraversed(Trk::Track* track)
 }
 
 // =========================================================================
-std::vector<const Trk::MeasurementBase*> egammaTrkRefitterTool::addPointsToTrack(const Trk::Track* track, const xAOD::Electron* eg) 
-{
+std::vector<const Trk::MeasurementBase*> egammaTrkRefitterTool::addPointsToTrack(const Trk::Track* track, const xAOD::Electron* eg) {
   ATH_MSG_DEBUG("Adding a Point to the Track");  
 
-  const Trk::VertexOnTrack* vot(0);
-  if(m_useBeamSpot){
-    //vot=  provideVotFromVertex(track);
-    
-    if(!vot){
-      vot = provideVotFromBeamspot( track );
-    } 
-  }
-
-  
   //  Object to return
-  std::vector<const Trk::MeasurementBase*> vec;
-  
+  std::vector<const Trk::MeasurementBase*> vec; 
   if (track && track->trackParameters() && track->trackParameters()->size() > 0) {
+    const Trk::VertexOnTrack* vot = provideVotFromBeamspot( track );
+
     // fill the beamSpot if you have it
     if (vot){
       vec.push_back(vot);
@@ -536,12 +504,11 @@ std::vector<const Trk::MeasurementBase*> egammaTrkRefitterTool::addPointsToTrack
     std::vector<const Trk::MeasurementBase*>::const_iterator itend = vecIDHits.end();
     // Fill the track
     for (;it!=itend;++it) vec.push_back(*it);
-   
   } else {
     ATH_MSG_WARNING("Could not extract MeasurementBase from track");
     return vec;
   }
-
+  
   if (m_useClusterPosition && eg){
     int charge(0);
     if( track->perigeeParameters() ) charge  = (int)track->perigeeParameters()->charge(); 
@@ -551,88 +518,13 @@ std::vector<const Trk::MeasurementBase*> egammaTrkRefitterTool::addPointsToTrack
       m_trash.push_back(ccot);
     }
   }
+  return vec; 
+}
 
-  return vec;
-
+const Trk::VertexOnTrack* egammaTrkRefitterTool::provideVotFromBeamspot(const Trk::Track* track) const{
   
-}
-
-
-
-const Trk::VertexOnTrack* egammaTrkRefitterTool::provideVotFromVertex(const Trk::Track *originalTrack) const
-{
-
-  const Trk::VxCandidate* vtx        = 0;
-  Trk::VxTrackAtVertex* vtxTrk       = 0;
-  const Trk::VertexOnTrack * vot     = 0;
-  Trk::VxCandidate* tmpVtx           = 0;
-  Trk::VxCandidate* updatedVtx       = 0;
-
-  std::pair<const Trk::VxCandidate*, Trk::VxTrackAtVertex*> findPair;//= findAssociatedPrimaryVertex(originalTrack);  
- 
-  ATH_MSG_DEBUG("findPair in provideVotFromVertex: "<<findPair);
- 
-  if (!( 0==findPair.first || 0==findPair.second )) {
-    vtx    = findPair.first;
-    vtxTrk = findPair.second;
-    const Trk::RecVertex & rvtx = vtx->recVertex();
-    ATH_MSG_DEBUG("the vertex position in provideVotFromVertex:  "<< rvtx);
-    
-    //////////////////////////////////////////////////////////////////////////     
-    if(!vtxTrk->linState()) m_linFactory->linearize(*vtxTrk, rvtx);
-    
-    tmpVtx = vtx->clone();
-    updatedVtx = m_IVertexUpdator->remove(*tmpVtx, *vtxTrk);
-    
-    
-    if(updatedVtx){
-      ATH_MSG_DEBUG(" updated Vertex by KalmanVertexUpdator: "<<*updatedVtx);
-      
-      
-      const Amg::Vector2D localPosition(0,0);
-      Trk::LocalParameters localParams(localPosition);
-      
-      ///vertex as perigeeSurface
-      Amg::Vector3D globPos(updatedVtx->recVertex().position().x(),updatedVtx->recVertex().position().y(),updatedVtx->recVertex().position().z());
-      const Trk::PerigeeSurface* surface = new Trk::PerigeeSurface(globPos);
-      
-      const Trk::Perigee *  perigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate( *originalTrack, *surface));
-      if (!perigee) {
-        const Trk::Perigee * trackPerigee = originalTrack->perigeeParameters();
-        if ( trackPerigee && ((trackPerigee->associatedSurface())) == *surface )
-          perigee = trackPerigee->clone();
-      }
-      
-      // create the Jacobian matrix from Cartisian to Perigee
-      AmgMatrix(2,3)  Jacobian;
-      Jacobian.setZero();
-      double ptInv                                =  1./perigee->momentum().perp();
-      Jacobian(0,0)                              = -ptInv*perigee->momentum().y();
-      Jacobian(0,1)                              =  ptInv*perigee->momentum().x();
-      Jacobian(1,2)                              =  1.0;
-
-      ATH_MSG_DEBUG(" Jacobian matrix from Cartesian to Perigee: "<< Jacobian);
-      Amg::MatrixX vtxCov = updatedVtx->recVertex().covariancePosition();   
-      Amg::MatrixX covarianceMatrix(Jacobian*(vtxCov*Jacobian.transpose()));
-
-      // VertexOnTrack Object
-      vot = new Trk::VertexOnTrack(localParams, covarianceMatrix, *surface);
-
-      delete perigee;
-      delete tmpVtx;
-      delete surface;
-      ATH_MSG_DEBUG("the VertexOnTrack created from vertex: "<<*vot);
-    }
-  }
-  return vot;
-}
-
-
-const Trk::VertexOnTrack* egammaTrkRefitterTool::provideVotFromBeamspot(const Trk::Track* track) const
-{
-
   const Trk::VertexOnTrack * vot = 0;
-
+  
   Amg::Vector3D bpos = m_beamCondSvc->beamPos();
   ATH_MSG_DEBUG("beam spot: "<<bpos);
   float beamSpotX = bpos.x();
@@ -642,11 +534,9 @@ const Trk::VertexOnTrack* egammaTrkRefitterTool::provideVotFromBeamspot(const Tr
   float beamTiltY = m_beamCondSvc->beamTilt(1);
   float beamSigmaX = m_beamCondSvc->beamSigma(0);
   float beamSigmaY = m_beamCondSvc->beamSigma(1);
-  //float beamSigmaZ = m_scalingFactor * m_beamCondSvc->beamSigma(2);
 
   ATH_MSG_DEBUG("running refit with beam-spot");
 
-  
   float z0 = track->perigeeParameters()->parameters()[Trk::z0];
   float beamX = beamSpotX + tan(beamTiltX) * (z0-beamSpotZ);
   float beamY = beamSpotY + tan(beamTiltY) * (z0-beamSpotZ);
@@ -654,9 +544,7 @@ const Trk::VertexOnTrack* egammaTrkRefitterTool::provideVotFromBeamspot(const Tr
   ATH_MSG_DEBUG("constructing beam point (x,y,z) = ( "<<beamX<<" , "<<beamY<<" , "<<z0<<" )");
 
   const Trk::PerigeeSurface * surface = 0;
- 
-
-  
+   
   // covariance matrix of the beam-spot
   AmgSymMatrix(2)  beamSpotCov;
   beamSpotCov.setZero();
@@ -693,82 +581,12 @@ const Trk::VertexOnTrack* egammaTrkRefitterTool::provideVotFromBeamspot(const Tr
   delete surface;
   return vot;
 }
-/*
-std::pair<const Trk::VxCandidate*, Trk::VxTrackAtVertex*>  egammaTrkRefitterTool::findAssociatedPrimaryVertex(const Trk::Track* originalTrack)const
-{
-  const VxContainer* vxContainer(0);
-  int npv = 0;
-  StatusCode sc = evtStore()->retrieve(vxContainer, m_primaryVertexCollection);
-
-  if (sc.isFailure()) {
-    msg( MSG::WARNING ) << "Could not retrieve primary vertex info: " << m_primaryVertexCollection << endreq;
-    return std::pair<const Trk::VxCandidate*,Trk::VxTrackAtVertex*>(0,0);
-  } else {
-    ATH_MSG_DEBUG( "Found primary vertex info: " << m_primaryVertexCollection );
-    if(vxContainer) {
-      ATH_MSG_DEBUG("Nb of reco primary vertex for coll " 
-                        << " = " << vxContainer->size() );
-      VxContainer::const_iterator vxI = vxContainer->begin();
-      VxContainer::const_iterator vxE = vxContainer->end();
-      for(; vxI!=vxE; ++vxI) {
-        int nbtk = 0;
-        const std::vector<Trk::VxTrackAtVertex*>* tracks = (*vxI)->vxTrackAtVertex();
-        if (tracks) nbtk = tracks->size();
-        if (nbtk) {
-          for(int ivtk=0;ivtk<nbtk;ivtk++) {
-            Trk::VxTrackAtVertex* trk = tracks->at(ivtk);
-            if(trk) {
-              const Rec::TrackParticle* tp = getTrackParticle( trk );
-              if ( tp->trackElementLink()->isValid() ) {      
-                const Trk::Track * trktrk = tp->originalTrack();
-                if ( trktrk==originalTrack ) 
-                  return std::pair<const Trk::VxCandidate*,Trk::VxTrackAtVertex*>( (*vxI),trk ); 
-              }
-            }
-          }
-          ++npv;
-        } else {
-          ATH_MSG_DEBUG( "Vertex " << npv << " has no Tracks assciated to it!"  );
-        }   
-      }
-    } else {
-        ATH_MSG_DEBUG( "No container in collection?? " << m_primaryVertexCollection );
-    }    
-  }
-
-  return std::pair<const Trk::VxCandidate*,Trk::VxTrackAtVertex*>(0,0);
-
-}
-const Rec::TrackParticle* egammaTrkRefitterTool::getTrackParticle(Trk::VxTrackAtVertex *trkAtVx)const
-{
-
-  //find the link to the TrackParticleBase
-  const Trk::ITrackLink* trkLink = trkAtVx->trackOrParticleLink();
-  const Trk::TrackParticleBase* trkPB(0);
-  if(0!= trkLink){
-    const Trk::LinkToTrackParticleBase* linktrkPB = dynamic_cast<const Trk::LinkToTrackParticleBase *>(trkLink);
-    if(0!= linktrkPB){
-      if(linktrkPB->isValid()) trkPB = linktrkPB->cachedElement();
-    }//end of dynamic_cast check
-  }//end of ITrackLink existance check
-
-  //cast to TrackParticle
-  if(trkPB){
-    const Rec::TrackParticle* trkP = dynamic_cast<const Rec::TrackParticle*>(trkPB);
-    return trkP;
-  }else{
-    return 0;
-  }
-}
-*/
 
 
 std::vector<const Trk::MeasurementBase*> egammaTrkRefitterTool::getIDHits(const Trk::Track* track) 
-{
-  
+{ 
   std::vector<const Trk::MeasurementBase*> measurementSet;
   //store all silicon measurements into the measurementset
-
   DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurface = track->trackStateOnSurfaces()->begin();
   for ( ; trackStateOnSurface != track->trackStateOnSurfaces()->end(); ++trackStateOnSurface ) {
     
@@ -802,7 +620,6 @@ std::vector<const Trk::MeasurementBase*> egammaTrkRefitterTool::getIDHits(const 
       } 
     }
   }
-
   return measurementSet;
 }
 

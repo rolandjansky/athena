@@ -7,32 +7,19 @@ use AtlasROOT                  AtlasROOT-*           External
 use GaudiInterface	       GaudiInterface-*	     External
 use AthenaBaseComps            AthenaBaseComps-*     Control
 use DataModel                  DataModel-*           Control
-
 use egammaInterfaces           egammaInterfaces-*    Reconstruction/egamma
-
 use EventPrimitives            EventPrimitives-*     Event
+use RecoToolInterfaces         RecoToolInterfaces-*  Reconstruction/RecoTools
 
-use TrkParameters              TrkParameters-*       Tracking/TrkEvent
+use TrkParameters              TrkParameters-*        Tracking/TrkEvent
 use TrkNeutralParameters       TrkNeutralParameters-* Tracking/TrkEvent
-use TrkTrack                   TrkTrack-*            Tracking/TrkEvent
-use TrkEventPrimitives         TrkEventPrimitives-*  Tracking/TrkEvent
+use TrkTrack                   TrkTrack-*             Tracking/TrkEvent
+use TrkEventPrimitives         TrkEventPrimitives-*   Tracking/TrkEvent
 use TrkPseudoMeasurementOnTrack TrkPseudoMeasurementOnTrack-* Tracking/TrkEvent
 use TrkSurfaces                TrkSurfaces-*         Tracking/TrkDetDescr
-use RecoToolInterfaces         RecoToolInterfaces-*  Reconstruction/RecoTools
-use CaloGeoHelpers             CaloGeoHelpers-*      Calorimeter	
-use     TrkCaloExtension        TrkCaloExtension-*      Tracking/TrkEvent
-
-use TrkParameters   	       TrkParameters-*        Tracking/TrkEvent
+use TrkCaloExtension           TrkCaloExtension-*    Tracking/TrkEvent
 use TrkExInterfaces            TrkExInterfaces-*      Tracking/TrkExtrapolation
 use TrkVertexFitterInterfaces  TrkVertexFitterInterfaces-*     Tracking/TrkVertexFitter
-use CaloTrackingGeometry       CaloTrackingGeometry-* Calorimeter
-
-use xAODEgamma                 xAODEgamma-*           Event/xAOD
-use xAODCaloEvent              xAODCaloEvent-*        Event/xAOD
-use xAODTracking               xAODTracking-*         Event/xAOD
-
-apply_tag ROOTMathLibs
-
 use TrkFitterInterfaces        TrkFitterInterfaces-* Tracking/TrkFitter
 use TrkMaterialOnTrack         TrkMaterialOnTrack-*  Tracking/TrkEvent
 use TrkMeasurementBase         TrkMeasurementBase-*  Tracking/TrkEvent
@@ -43,7 +30,11 @@ use VxVertex                   VxVertex-*            Tracking/TrkEvent
 use TrkCaloCluster_OnTrack     TrkCaloCluster_OnTrack-* Tracking/TrkEvent
 use TrkParametersIdentificationHelpers TrkParametersIdentificationHelpers-* Tracking/TrkEvent
 
+use xAODEgamma                 xAODEgamma-*           Event/xAOD
+use xAODCaloEvent              xAODCaloEvent-*        Event/xAOD
+use xAODTracking               xAODTracking-*         Event/xAOD
 
+use CaloTrackingGeometry       CaloTrackingGeometry-* Calorimeter
 use CaloDetDescr               CaloDetDescr-*        Calorimeter
 use CaloEvent                  CaloEvent-*           Calorimeter
 use CaloUtils                  CaloUtils-*           Calorimeter 
@@ -55,6 +46,9 @@ use InDetIdentifier             InDetIdentifier-*             InnerDetector/InDe
 use AtlasDetDescr               AtlasDetDescr-*               DetectorDescription
 use IdDictDetDescr              IdDictDetDescr-*              DetectorDescription
 use TrkRIO_OnTrack 	        TrkRIO_OnTrack-* 	      Tracking/TrkEvent
+use FourMomUtils                FourMomUtils-*                 Event
+
+apply_tag ROOTMathLibs
 
 library egammaTrackTools  *.cxx  components/*.cxx 
 apply_pattern component_library

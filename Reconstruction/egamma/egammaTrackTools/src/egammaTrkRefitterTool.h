@@ -29,15 +29,11 @@ MODIFIED:
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "TrkTrack/Track.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
-
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-#include <iostream>
-
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 
@@ -45,13 +41,8 @@ class IBeamCondSvc;
 class ICaloCluster_OnTrackBuilder;
 class AtlasDetectorID ;
 
-
-#include "VxVertex/VxCandidate.h"
 #include "VxVertex/RecVertex.h"
 #include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
-#include "TrkVertexFitterInterfaces/IVertexUpdator.h"
-
-typedef std::pair<const Trk::VxCandidate* , int> VxPos;
 
 namespace Trk{
   class IExtrapolator;
@@ -115,9 +106,8 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
   
  private:
  
-   std::vector<const Trk::MeasurementBase*> getIDHits(const Trk::Track* track) ;
+  std::vector<const Trk::MeasurementBase*> getIDHits(const Trk::Track* track) ;
 
-   
   /** @brief Pointer to the refitted track*/  
   Trk::Track                  *m_refittedTrack; 
   
@@ -132,8 +122,6 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
   
   /** @brief Pointer to the refitted MeasuredPerigee*/   
   const Trk::Perigee          *m_rMeasPer;
-
-  
   
   /** @brief Refit the track using RIO on Track. This option is not suggested and can not run on ESD or AOD*/
   bool                        m_fitRIO_OnTrack;
@@ -155,11 +143,9 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
 
   /** @brief The track refitter */
   ToolHandle<Trk::ITrackFitter>  m_ITrackFitter;    
-
-  
-
+ 
   /** @brief Returns the final track parameters (ie track parameters furthest from the perigee)  */
-  const Trk::TrackParameters* lastTrackParameters(Trk::Track* track);
+  const Trk::TrackParameters* lastTrackParameters(const Trk::Track* track);
 
   /** @brief Returns the amount of material transversed by the track (using X0)*/
   double getMaterialTraversed(Trk::Track* track);
@@ -167,36 +153,24 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
   /** @brief Adds a beam spot to the Measurements passed to the track refitter*/  
   std::vector<const Trk::MeasurementBase*> addPointsToTrack(const Trk::Track* track, const xAOD::Electron* eg = 0 ); 
   
-
-  const Trk::VertexOnTrack*   provideVotFromVertex(const Trk::Track* eg) const;
   const Trk::VertexOnTrack*   provideVotFromBeamspot(const Trk::Track* track) const;
-  bool                        FillPrimaryVertexTrkLinkInformation();
   const xAOD::TrackParticle*  getTrackParticle(Trk::VxTrackAtVertex*) const;
-  std::pair<const Trk::VxCandidate*, Trk::VxTrackAtVertex*>  findAssociatedPrimaryVertex(const Trk::Track*) const;
 
- 
-
-
-  std::string m_primaryVertexCollection;
   ToolHandle< Trk::IExtrapolator >                      m_extrapolator;    //!< track extrapolator
-  ToolHandle< Trk::IVertexUpdator>                      m_IVertexUpdator;  //!< vertex updating tool, such as reomving one track from vertex
   ToolHandle< Trk::IVertexLinearizedTrackFactory>       m_linFactory;
-
   ServiceHandle<IBeamCondSvc>       m_beamCondSvc;     //!< condition service for beam-spot retrieval
-
+  
   /** @brief Option to use very simplistic beam spot constraint*/ 
   bool m_useBeamSpot;
   
   bool m_useClusterPosition;
   ToolHandle< ICaloCluster_OnTrackBuilder >            m_CCOTBuilder;
   
-  
   /** @brief Option to remove TRT hits from track*/
   bool m_RemoveTRT;
   const AtlasDetectorID*  m_idHelper  ;
 
   std::vector<const Trk::MeasurementBase*>  m_trash;
-  
 };
   
 #endif
