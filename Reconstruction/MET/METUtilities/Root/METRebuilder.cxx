@@ -22,6 +22,7 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauxAODHelpers.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODJet/JetAttributes.h"
 
@@ -727,21 +728,29 @@ namespace met {
     }
 		if(obj->type()==xAOD::Type::Tau) {
 			const xAOD::TauJet* tau = static_cast<const xAOD::TauJet*>(obj);
-			// now find associated tracks
-			const std::vector< ElementLink< xAOD::TrackParticleContainer > >& trackLinks = tau->trackLinks();
-			for(const auto& trklink : trackLinks) {
-				if(trklink.isValid()) {m_trkUsedDec(**trklink) = true;}
-				else { ATH_MSG_WARNING("Invalid tau track link"); }
-			}
-			const std::vector< ElementLink< xAOD::TrackParticleContainer > >& otherTrackLinks = tau->otherTrackLinks();
-			for(const auto& trklink : otherTrackLinks) {
-				if(trklink.isValid()) {
-					double dR = (*tau->jetLink())->p4().DeltaR((*trklink)->p4());
-					if(dR<0.2) {
-						m_trkUsedDec(**trklink) = true;
-					}
-				}	else { ATH_MSG_WARNING("Invalid tau track link"); }
-			}
+			//// now find associated tracks
+			//const std::vector< ElementLink< xAOD::TrackParticleContainer > >& trackLinks = tau->trackLinks();
+			//for(const auto& trklink : trackLinks) {
+			//	if(trklink.isValid()) {m_trkUsedDec(**trklink) = true;}
+			//	else { ATH_MSG_WARNING("Invalid tau track link"); }
+			//}
+			//const std::vector< ElementLink< xAOD::TrackParticleContainer > >& otherTrackLinks = tau->otherTrackLinks();
+			//for(const auto& trklink : otherTrackLinks) {
+			//	if(trklink.isValid()) {
+			//		double dR = (*tau->jetLink())->p4().DeltaR((*trklink)->p4());
+			//		if(dR<0.2) {
+			//			m_trkUsedDec(**trklink) = true;
+			//		}
+			//	}	else { ATH_MSG_WARNING("Invalid tau track link"); }
+			//}
+
+            // TauJet_v3
+            //all track links dR<0.2 no track quality
+            std::vector<ElementLink< xAOD::TrackParticleContainer> > trackLinks = xAOD::TauHelpers::trackParticleLinks(tau, xAOD::TauJetParameters::coreTrack);
+                for(const auto& trklink : trackLinks) {                                                                                                                   
+                if(trklink.isValid()) {m_trkUsedDec(**trklink) = true;}
+                else { ATH_MSG_WARNING("Invalid tau track link"); }
+            }
 		}
     if(obj->type()==xAOD::Type::Muon) {
       const xAOD::Muon* mu = static_cast<const xAOD::Muon*>(obj);
