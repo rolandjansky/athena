@@ -14,5 +14,5 @@ ByteStreamAddressProviderSvc = Service( "ByteStreamAddressProviderSvc" )
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::L1TopoRawDataContainer/L1TopoRawData"]
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::L1TopoRawDataAuxContainer/L1TopoRawDataAux."]
 
-ByteStreamAddressProviderSvc.TypeNames += [ "L1TopoRDOCollection/L1TopoRDO"]
+ByteStreamAddressProviderSvc.TypeNames += [ "L1TopoRDOCollection/L1TopoRDOCollection"]
 

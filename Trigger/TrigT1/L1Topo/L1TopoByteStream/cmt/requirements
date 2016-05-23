@@ -3,20 +3,20 @@ package L1TopoByteStream
 author Simon George <S.George@rhul.ac.uk>
 
 public
-use  AtlasPolicy                AtlasPolicy-*                   
-use  GaudiInterface             GaudiInterface-*        External
+use AtlasPolicy          AtlasPolicy-*
+use GaudiInterface       GaudiInterface-*       External
 
-apply_pattern declare_joboptions files="*.py"
+
 
 private
 use AthenaKernel         AthenaKernel-*         Control
 use StoreGate            StoreGate-*            Control
-use  DataCollection             DataCollection-*        External
-use  ByteStreamCnvSvcBase       ByteStreamCnvSvcBase-*  Event
-use  ByteStreamData             ByteStreamData-*        Event
-use  AthenaBaseComps		AthenaBaseComps-*	Control
-use  L1TopoRDO			L1TopoRDO-*		Trigger/TrigT1/L1Topo
-use  SGTools                    SGTools-*               Control
+use DataCollection       DataCollection-*       External
+use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-* Event
+use ByteStreamData       ByteStreamData-*       Event
+use AthenaBaseComps      AthenaBaseComps-*      Control
+use L1TopoRDO            L1TopoRDO-*            Trigger/TrigT1/L1Topo
+use SGTools              SGTools-*              Control
 use xAODTrigL1Calo       xAODTrigL1Calo-*       Event/xAOD
 end_private
 

@@ -129,7 +129,10 @@ StatusCode L1TopoByteStreamCnv::createObj(IOpaqueAddress* pAddr,
   // vector of pointers to L1TopoRDO and it owns the L1TopoRDOs from a memory
   // cleanup point of view
   L1TopoRDOCollection* result = new L1TopoRDOCollection();
-  StatusCode cs = m_tool->convert(nm, result);
+  StatusCode sc = m_tool->convert(nm, result);
+  if (sc.isFailure()) {
+    return sc;
+  }
   ATH_MSG_DEBUG("Converted  " << result->size() << " ROBs");
   pObj = SG::asStorable(result);
 

@@ -31,5 +31,4 @@ atlas_add_component( L1TopoByteStream
 # Install files from the package:
 atlas_install_headers( L1TopoByteStream )
 atlas_install_joboptions( share/*.py )
-atlas_install_joboptions( share/*.py )
 
