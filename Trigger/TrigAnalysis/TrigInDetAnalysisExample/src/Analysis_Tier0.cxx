@@ -8,9 +8,11 @@
 
 
 Analysis_Tier0::Analysis_Tier0(const std::string& name, double pTCut, double etaCut, double d0Cut, double z0Cut) :
-  TrackAnalysis(name), m_pTCut(pTCut), m_etaCut(etaCut), m_d0Cut(d0Cut), m_z0Cut(z0Cut), m_debug(false) {                                   ;}
+  TrackAnalysis(name), m_pTCut(pTCut), m_etaCut(etaCut), m_d0Cut(d0Cut), m_z0Cut(z0Cut), m_debug(false) {  }
 
 void Analysis_Tier0::initialise() {
+
+  //  std::cout << "Analysis_Tier0::initialise() name " << name() << std::endl; 
 
   m_debug = false;
 
@@ -232,6 +234,23 @@ void Analysis_Tier0::initialise() {
   //  addHistogram( h2d_d0vsphi ); 
   //  addHistogram( h2d_d0vsphi_rec ); 
 
+  m_vtxanal = 0;
+
+#if 0
+  /// vertex analyses if required ...
+  if ( name().find("vtx")!=std::string::npos || name().find("Vtx")!=std::string::npos ) { 
+    m_vtxanal = new VtxAnalysis("VTX");
+    store().insert( m_vtxanal, "VTX" );
+
+    /// initialise the vtx analysis
+    m_vtxanal->initialise();
+
+    /// store the historams
+    for ( unsigned i=0 ; i<m_vtxanal->objects().size() ; i++ ) addHistogram( m_vtxanal->objects()[i] );
+    for ( unsigned i=0 ; i<m_vtxanal->profs().size() ; i++ )   addHistogram( m_vtxanal->profs()[i] );
+  }
+#endif
+
 }
 
 
@@ -393,8 +412,14 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
 
 
 
-void Analysis_Tier0::finalise() {
 
+void Analysis_Tier0::execute_vtx(const std::vector<TIDA::Vertex*>& vtx0, 
+				 const std::vector<TIDA::Vertex*>& vtx1 ) { 
+  if ( m_vtxanal ) m_vtxanal->execute( vtx0, vtx1 );
+}
+
+void Analysis_Tier0::finalise() {
+  if ( m_vtxanal ) m_vtxanal->finalise();
 } 
 
 

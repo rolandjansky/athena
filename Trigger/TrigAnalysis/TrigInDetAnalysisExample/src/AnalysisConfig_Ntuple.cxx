@@ -22,6 +22,8 @@
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
+
 
 #include "TrigInDetAnalysis/TIDDirectory.h"
 #include "TrigInDetAnalysisUtils/TIDARoiDescriptorBuilder.h"
@@ -194,9 +196,9 @@ void AnalysisConfig_Ntuple::loop() {
 
 		std::vector<std::string> configuredChains  = (*m_tdt)->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
 
-		m_provider->msg(MSG::DEBUG) << "[91;1m" << configuredChains.size() << " Configured Chains" << "[m" << endreq;
+		m_provider->msg(MSG::INFO) << "[91;1m" << configuredChains.size() << " Configured Chains" << "[m" << endreq;
 		for ( unsigned i=0 ; i<configuredChains.size() ; i++ ) { 
-		  m_provider->msg(MSG::DEBUG) << "[91;1m" << "Chain " << configuredChains[i] << "   (ACN)[m" << endreq;
+		  m_provider->msg(MSG::INFO) << "[91;1m" << "Chain " << configuredChains[i] << "   (ACN)[m" << endreq;
 		  configuredHLTChains.insert( configuredChains[i] );
 		  
 		}
@@ -292,7 +294,12 @@ void AnalysisConfig_Ntuple::loop() {
 	m_event->clear();
 
 
+#if 0
 	const EventInfo* pEventInfo = 0;
+#else
+	const xAOD::EventInfo* pEventInfo = 0;
+#endif
+
 	unsigned run_number         = 0;
 	unsigned event_number       = 0;
 
@@ -306,12 +313,21 @@ void AnalysisConfig_Ntuple::loop() {
 		m_provider->msg(MSG::DEBUG) << "Failed to get EventInfo " << endreq;
 	} 
 	else {
+#if 0
 		run_number        = pEventInfo->event_ID()->run_number();
 		event_number      = pEventInfo->event_ID()->event_number();
 		lumi_block        = pEventInfo->event_ID()->lumi_block();
 		time_stamp        = pEventInfo->event_ID()->time_stamp();
 		bunch_crossing_id = pEventInfo->event_ID()->bunch_crossing_id();
 		mu_val            = pEventInfo->averageInteractionsPerCrossing();
+#else
+		run_number        = pEventInfo->runNumber();
+		event_number      = pEventInfo->eventNumber();
+		lumi_block        = pEventInfo->lumiBlock();
+		time_stamp        = pEventInfo->timeStamp();
+		bunch_crossing_id = pEventInfo->bcid();
+		mu_val            = pEventInfo->averageInteractionsPerCrossing();
+#endif
 	}
 
 	m_provider->msg(MSG::INFO) << "run "     << run_number 
@@ -350,6 +366,8 @@ void AnalysisConfig_Ntuple::loop() {
 		<< endreq;
 
 	
+	
+
 	std::vector<std::string> _conf = (*m_tdt)->getListOfTriggers("HLT_.*");
 	
 	m_provider->msg(MSG::INFO) << endreq;
@@ -359,8 +377,8 @@ void AnalysisConfig_Ntuple::loop() {
 	for ( unsigned ic=0 ; ic<_conf.size() ; ic++ ) { 
 	  bool p = (*m_tdt)->isPassed( _conf[ic] );
 	  
-	  if ( p ) m_provider->msg(MSG::INFO) << "[91;1m" << " Configured Chain " << _conf[ic] << " " << p << "[m" << endreq;
-	  else     m_provider->msg(MSG::INFO)               << " Configured Chain " << _conf[ic] << " " << p           << endreq;
+	  if ( p ) m_provider->msg(MSG::INFO) << "[91;1m" << " Configured Chain " << _conf[ic] << " " << p << "\tpassed <<<<" << "[m" << endreq;
+	  else     m_provider->msg(MSG::INFO)               << " Configured Chain " << _conf[ic] << " " << p << "\t not passed" << endreq;
 
 	}
 
@@ -878,13 +896,6 @@ void AnalysisConfig_Ntuple::loop() {
 	  m_doElectrons_tightLH,   m_doElectrons_mediumLH,   m_doElectrons_looseLH };
 
 	for ( int ielec=0 ; ielec<7 ; ielec++ ) {
-	  /// Fixme: not sure if this code is correct - it always adds selectorRef.tracks() 
-	  ///        so presumbably only ever *one* of the m_doElectrons can be set, otherwise 
-	  ///        something is messed up here
-	  ///        get electrons
-	  //
-	  //  CK: Maybe just add a check that you don't have more than one m_doElectrons as
-	  //      as true, and throw an error if there is more than one as true?
 	  if ( ElectronTypes[ielec] ) {   
 	    Nel = processElectrons( selectorRef, ielec ); ///
 	    m_event->addChain( ElectronRef[ielec] );
@@ -941,10 +952,8 @@ void AnalysisConfig_Ntuple::loop() {
 	  m_doTaus_tight_1Prong,   m_doTaus_medium_1Prong,   m_doTaus_loose_1Prong };
 
 	for ( int itau=0 ; itau<4 ; itau++ ) {
-	  // CK: See comments for doElectrons section above for possible issues with the looping
-	  //     functionality here
 	  if ( TauTypes_1Prong[itau] ) {
-	    Ntau1 = processTaus( selectorRef,false, 20000, itau  );
+	    Ntau1 = processTaus( selectorRef, false, itau, 25000 );
 	    m_event->addChain( TauRef_1Prong[itau] );
 	    m_event->back().addRoi(TIDARoiDescriptor(true));
 	    m_event->back().back().addTracks(selectorRef.tracks());
