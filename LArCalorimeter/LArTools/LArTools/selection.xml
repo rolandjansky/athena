@@ -1,8 +1,5 @@
 <lcgdict>
 
-  <class name="LArCablingService" />
-  <class name="LArCablingBase" />
-  <class name="LArSuperCellCablingTool" />
   <class name="LArMCSymTool" />
 
  <!--
