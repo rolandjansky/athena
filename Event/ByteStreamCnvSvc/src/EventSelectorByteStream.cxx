@@ -546,6 +546,26 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
             }
             break;
          }
+
+         // Validate the event
+         try {
+            m_eventSource->validateEvent();
+         }
+         catch (ByteStreamExceptions::badFragmentData) { 
+            ATH_MSG_ERROR("badFragment data encountered");
+
+            ++n_bad_events;
+            ATH_MSG_INFO("Bad event encountered, current count at " << n_bad_events);
+
+            bool toomany = (m_maxBadEvts >= 0 && n_bad_events > m_maxBadEvts);
+	    if (toomany) {ATH_MSG_FATAL("too many bad events ");}
+            if (!m_procBadEvent || toomany) {
+               // End of file
+	       it = *m_endIter;
+	       return(StatusCode::FAILURE);
+	    }
+            ATH_MSG_WARNING("Continue with bad event");
+         }
       } else {
          if (!m_skipEventSequence.empty() && m_NumEvents == m_skipEventSequence.front()) {
             m_skipEventSequence.erase(m_skipEventSequence.begin());
@@ -554,25 +574,6 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
 	 m_incidentSvc->fireIncident(Incident(name(), "SkipEvent"));
       }
 
-      // Validate the event
-      try {
-         m_eventSource->validateEvent();
-      }
-      catch (ByteStreamExceptions::badFragmentData) { 
-         ATH_MSG_ERROR("badFragment data encountered");
-
-         ++n_bad_events;
-         ATH_MSG_INFO("Bad event encountered, current count at " << n_bad_events);
-
-         bool toomany = (m_maxBadEvts >= 0 && n_bad_events > m_maxBadEvts);
-	 if (toomany) {ATH_MSG_FATAL("too many bad events ");}
-         if (!m_procBadEvent || toomany) {
-            // End of file
-	    it = *m_endIter;
-	    return(StatusCode::FAILURE);
-	 }
-         ATH_MSG_WARNING("Continue with bad event");
-      }
    } // for loop
    return(StatusCode::SUCCESS);
 }
