@@ -8,9 +8,11 @@
 
 
 Analysis_Tier0::Analysis_Tier0(const std::string& name, double pTCut, double etaCut, double d0Cut, double z0Cut) :
-  TrackAnalysis(name), m_pTCut(pTCut), m_etaCut(etaCut), m_d0Cut(d0Cut), m_z0Cut(z0Cut), m_debug(false) {                                   ;}
+  TrackAnalysis(name), m_pTCut(pTCut), m_etaCut(etaCut), m_d0Cut(d0Cut), m_z0Cut(z0Cut), m_debug(false) {  }
 
 void Analysis_Tier0::initialise() {
+
+  //  std::cout << "Analysis_Tier0::initialise() name " << name() << std::endl; 
 
   m_debug = false;
 
@@ -39,8 +41,8 @@ void Analysis_Tier0::initialise() {
   h_trkpT  = new TH1D("reftrk_pT" , "Reference track pT",  25,   &ptbins[0]   );
   h_trkphi = new TH1D("reftrk_phi", "Reference track Phi", 25,   -M_PI,   M_PI);
   h_trketa = new TH1D("reftrk_eta", "Reference track Eta", 25,   -2.5,     2.5) ;
-  h_trkd0  = new TH1D("reftrk_d0" , "Reference track d0", 101,   -5.,      5.);
-  h_trkz0  = new TH1D("reftrk_z0" , "Reference track z0",  50, -225.,    225.);
+  h_trkd0  = new TH1D("reftrk_d0" , "Reference track d0", 101,   -5.0,     5.0 );
+  h_trkz0  = new TH1D("reftrk_z0" , "Reference track z0",  50,   -225.,    225.);
 
   h_trkdd0  = new TH1D("reftrk_dd0" , "Reference track sigma(d0)", 101,   -0.5,     0.5);
   h_trkdz0  = new TH1D("reftrk_dz0" , "Reference track sigma(z0)", 101,   -2.5,     2.5);
@@ -64,13 +66,13 @@ void Analysis_Tier0::initialise() {
   h_trkpT_rec  = new TH1D("testtrk_pT" , "Test track pT",  25,   &ptbins[0]   );
   h_trkphi_rec = new TH1D("testtrk_phi", "Test track Phi", 25,   -M_PI,  M_PI);
   h_trketa_rec = new TH1D("testtrk_eta", "Test track Eta", 25,   -2.5,    2.5) ;
-  h_trkd0_rec  = new TH1D("testtrk_d0" , "Test track d0", 101,   -5.,     5.);
-  h_trkz0_rec  = new TH1D("testtrk_z0" , "Test track z0",  50, -225.,   225.);
+  h_trkd0_rec  = new TH1D("testtrk_d0" , "Test track d0", 101,   -5.0,    5.0 );
+  h_trkz0_rec  = new TH1D("testtrk_z0" , "Test track z0",  50,   -225.,   225.);
 
   h_trkdd0_rec  = new TH1D("testtrk_dd0" , "Test track sigma(d0)", 101,   -0.5,     0.5);
   h_trkdz0_rec  = new TH1D("testtrk_dz0" , "Test track sigma(z0)", 101,   -2.5,     2.5);
 
-  h_trkd0sig_rec = new TH1D("testtrk_d0sig" , "Test track d0 significance", 101,   -5.,     5.);
+  h_trkd0sig_rec = new TH1D("testtrk_d0sig" , "Test track d0 significance", 101,   -5.0,     5.0);
 
 
   addHistogram(h_trkpT_rec);
@@ -86,13 +88,22 @@ void Analysis_Tier0::initialise() {
 
   /// trigger tracking efficiencies
 
+  double d0bins[40] = { -5.0,  -4.0,  -3.0,  -2.5,   
+			-2.0,  -1.8,  -1.6,  -1.4,  -1.2,  
+			-1.05, -0.95, -0.85, -0.75, -0.65, -0.55, -0.45, -0.35, -0.25, -0.15, -0.05, 
+		 	 0.05,  0.15,  0.25,  0.35,  0.45,  0.55,  0.65,  0.75,  0.85,  0.95,  1.05,  
+			 1.2,   1.4,   1.6,   1.8,   2.0,  
+			 2.5,   3.0,   4.0,   5.0 };
+
+
+
   h_total_efficiency = new TProfile ("Eff_overall",  "total efficiency",  1, 0., 1.);
 
   // h_pTeff = new TProfile( "Eff_pT",     "pT efficiency",     25,    0.,  100.   );
   h_pTeff    = new TProfile( "Eff_pT",     "pT efficiency",     25,   &ptbins[0]   );
   h_etaeff   = new TProfile( "Eff_Eta",    "eta efficiency",    25,   -2.5,   2.5  );
   h_phieff   = new TProfile( "Eff_Phi",    "phi  efficiency",   25,   -M_PI, M_PI  );
-  h_d0eff    = new TProfile( "Eff_d0",     "d0 efficiency",    101,   -5.,   5.    );
+  h_d0eff    = new TProfile( "Eff_d0",     "d0 efficiency",     39,   d0bins    );
   h_z0eff    = new TProfile( "Eff_z0",     "z0 efficiency",     50, -225.,  225.   );
   h_nVtxeff  = new TProfile( "Eff_nVtx",   "nVtx efficiency",   41,   -0.5,  40.5  );
 
@@ -223,6 +234,23 @@ void Analysis_Tier0::initialise() {
   //  addHistogram( h2d_d0vsphi ); 
   //  addHistogram( h2d_d0vsphi_rec ); 
 
+  m_vtxanal = 0;
+
+#if 0
+  /// vertex analyses if required ...
+  if ( name().find("vtx")!=std::string::npos || name().find("Vtx")!=std::string::npos ) { 
+    m_vtxanal = new VtxAnalysis("VTX");
+    store().insert( m_vtxanal, "VTX" );
+
+    /// initialise the vtx analysis
+    m_vtxanal->initialise();
+
+    /// store the historams
+    for ( unsigned i=0 ; i<m_vtxanal->objects().size() ; i++ ) addHistogram( m_vtxanal->objects()[i] );
+    for ( unsigned i=0 ; i<m_vtxanal->profs().size() ; i++ )   addHistogram( m_vtxanal->profs()[i] );
+  }
+#endif
+
 }
 
 
@@ -279,6 +307,8 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
     h_npixvseta->Fill( referenceEta,  int(((*reference)->pixelHits()+0.5)*0.5) ); 
     h_nsctvseta->Fill( referenceEta,  (*reference)->sctHits() ); 
     h_ntrtvseta->Fill( referenceEta,  (*reference)->strawHits() ); 
+
+
 
     h_npixvsphi->Fill( referencePhi,  int(((*reference)->pixelHits()+0.5)*0.5) ); 
     h_nsctvsphi->Fill( referencePhi,  (*reference)->sctHits() ); 
@@ -365,6 +395,9 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
     
       h_ntrt_rec->Fill(  test->strawHits() ); 
 
+      h_ntrtvseta_rec->Fill( referenceEta, test->strawHits() ); 
+      h_ntrtvsphi_rec->Fill( referencePhi, test->strawHits() ); 
+
     }
     //    else { 
     //      if ( referencePT*0.001 > 10 ) { /// in GeV
@@ -379,8 +412,14 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
 
 
 
-void Analysis_Tier0::finalise() {
 
+void Analysis_Tier0::execute_vtx(const std::vector<TIDA::Vertex*>& vtx0, 
+				 const std::vector<TIDA::Vertex*>& vtx1 ) { 
+  if ( m_vtxanal ) m_vtxanal->execute( vtx0, vtx1 );
+}
+
+void Analysis_Tier0::finalise() {
+  if ( m_vtxanal ) m_vtxanal->finalise();
 } 
 
 

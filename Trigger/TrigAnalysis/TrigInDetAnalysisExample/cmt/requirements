@@ -1,6 +1,5 @@
 package TrigInDetAnalysisExample
 
-
 # ============================================================================================
 public
 
@@ -29,6 +28,7 @@ use     tauEvent                tauEvent-*                      Reconstruction
 
 use     AtlasHepMC              AtlasHepMC-*                    External
 use     EventInfo               EventInfo-*             	Event
+use     xAODEventInfo           xAODEventInfo-*             	Event/xAOD
 use 	GeneratorObjects 	GeneratorObjects-* 		Generators
 use     McParticleEvent         McParticleEvent-*               PhysicsAnalysis/TruthParticleID
 

@@ -32,6 +32,7 @@
 #include "TrigInDetAnalysisUtils/T_AnalysisConfig.h"
 
 #include "TrigInDetAnalysisExample/Analysis_Tier0.h"
+#include "TrigInDetAnalysisExample/VtxAnalysis.h"
 #include "TrigInDetAnalysisExample/ChainString.h"
 
 #include "TTree.h"
@@ -49,6 +50,7 @@
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 
 
@@ -220,10 +222,9 @@ protected:
 
       std::vector<std::string> configuredChains  = (*(m_tdt))->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
 
-      if(m_provider->msg().level() <= MSG::VERBOSE) {
+      if(m_provider->msg().level() <= MSG::INFO) {
         for ( unsigned i=0 ; i<configuredChains.size() ; i++ ) {
-          if( m_provider->msg().level() <= MSG::VERBOSE)
-            m_provider->msg(MSG::VERBOSE)  << "Chain " << configuredChains[i]  << endreq;
+	  m_provider->msg(MSG::INFO)  << "Chain " << configuredChains[i]  << endreq;
         }
       }
 
@@ -266,6 +267,7 @@ protected:
           if ( chainName.extra()!="" )   selectChains[iselected] += ":index="+chainName.extra();
           if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
           if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
+          if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
           if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 
           /// replace wildcard with actual matching chains ...
@@ -326,7 +328,11 @@ protected:
     m_event->clear();
 
     /// (obviously) get the event info
+#ifndef  XAODTRACKING_TRACKPARTICLE_H
     const EventInfo* pEventInfo;
+#else
+    const xAOD::EventInfo* pEventInfo;
+#endif
     unsigned run_number        = 0;
     unsigned event_number      = 0;
     unsigned lumi_block        = 0;
@@ -337,12 +343,22 @@ protected:
     if ( m_provider->evtStore()->retrieve(pEventInfo).isFailure() ) {
       m_provider->msg(MSG::WARNING) << "Failed to get EventInfo " << endreq;
     } else {
+
+#ifndef  XAODTRACKING_TRACKPARTICLE_H
       run_number        = pEventInfo->event_ID()->run_number();
       event_number      = pEventInfo->event_ID()->event_number();
       lumi_block        = pEventInfo->event_ID()->lumi_block();
       time_stamp        = pEventInfo->event_ID()->time_stamp();
       bunch_crossing_id = pEventInfo->event_ID()->bunch_crossing_id();
       mu_val            = pEventInfo->averageInteractionsPerCrossing();
+#else
+      run_number        = pEventInfo->runNumber();
+      event_number      = pEventInfo->eventNumber();
+      lumi_block        = pEventInfo->lumiBlock();
+      time_stamp        = pEventInfo->timeStamp();
+      bunch_crossing_id = pEventInfo->bcid();
+      mu_val            = pEventInfo->averageInteractionsPerCrossing();
+#endif
     }
   
     if(m_provider->msg().level() <= MSG::VERBOSE){
@@ -373,31 +389,36 @@ protected:
 
     bool analyse = false;
   
+    // Check HLTResult
+
     for ( unsigned ichain=0 ; ichain<m_chainNames.size() ; ichain++ ) {
       const std::string& chainname = m_chainNames[ichain].head();
 
 
       //Only for trigger chains
       if ( chainname.find("L2")  == std::string::npos &&
-        chainname.find("EF")  == std::string::npos &&
-        chainname.find("HLT") == std::string::npos ) continue;
-
+	   chainname.find("EF")  == std::string::npos &&
+	   chainname.find("HLT") == std::string::npos ) continue;
+      
       if ( m_provider->msg().level() <= MSG::DEBUG ) {
         m_provider->msg(MSG::DEBUG) << "Chain "  << chainname
                                     << "\tpass " << (*m_tdt)->isPassed(chainname)
                                     << "\tpres " << (*m_tdt)->getPrescale(chainname) << endreq;
       }
-
+      
       if ( (*(m_tdt))->isPassed(chainname) || (*(m_tdt))->getPrescale(chainname) ) analyse = true;
-
+      
     }
     
     first = false;
 
-      
-    
+    if ( (*m_tdt)->ExperimentalAndExpertMethods()->isHLTTruncated() ) {
+      m_provider->msg(MSG::WARNING) << "HLTResult truncated, skipping event" << endreq;
+      return;
+    }
+
     if ( !this->m_keepAllEvents && !analyse ) {
-      m_provider->msg(MSG::VERBOSE) << "No chains passed unprescaled - not processing this event" << endreq;
+      m_provider->msg(MSG::INFO) << "No chains passed unprescaled - not processing this event" << endreq;
       if(m_provider->msg().level() <= MSG::VERBOSE)
         m_provider->msg(MSG::VERBOSE) << "No chains passed unprescaled - not processing this event" << endreq;
       return;
@@ -431,6 +452,10 @@ protected:
     /// get the offline vertices into our structure
 
     std::vector<TIDA::Vertex> vertices;
+    std::vector<TIDA::Vertex> vertices_rec;
+
+
+#ifndef XAODTRACKING_TRACKPARTICLE_H
 
     const VxContainer* primaryVtxCollection;
 
@@ -445,17 +470,55 @@ protected:
           for ( ; vtxitr != primaryVtxCollection->end(); ++vtxitr) {
             if ( (*vtxitr)->vxTrackAtVertex()->size()>0 ) {
               vertices.push_back( TIDA::Vertex( (*vtxitr)->recVertex().position().x(),
-                (*vtxitr)->recVertex().position().y(),
-                (*vtxitr)->recVertex().position().z(),
-                0,0,0,
-                (*vtxitr)->vxTrackAtVertex()->size() ) );
+						(*vtxitr)->recVertex().position().y(),
+						(*vtxitr)->recVertex().position().z(),
+						0,0,0,
+						(*vtxitr)->vxTrackAtVertex()->size() ) );
             }
           }
         }
-
+	
         // filter_vertex.setVertex(vertices);
       }
     }
+
+#else
+
+    //std::vector<TIDA::Vertex> vertices;
+    
+    m_provider->msg(MSG::INFO) << "fetching AOD Primary vertex container" << endreq;
+
+    const xAOD::VertexContainer* xaodVtxCollection = 0;
+
+    if ( m_provider->evtStore()->retrieve( xaodVtxCollection, "PrimaryVertices" ).isFailure()) {
+      m_provider->msg(MSG::WARNING) << "xAOD Primary vertex container not found with key " << "PrimaryVertices" <<  endreq;
+    }
+    
+    if ( xaodVtxCollection!=0 ) { 
+        
+      m_provider->msg(MSG::INFO) << "xAOD Primary vertex container " << xaodVtxCollection->size() <<  " entries" << endreq;
+
+      xAOD::VertexContainer::const_iterator vtxitr = xaodVtxCollection->begin();
+      for ( ; vtxitr != xaodVtxCollection->end(); vtxitr++ ) {
+	if ( (*vtxitr)->nTrackParticles()>0 ) {
+	  vertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
+					    (*vtxitr)->y(),
+					    (*vtxitr)->z(),
+					    /// variances
+					    (*vtxitr)->covariancePosition()(Trk::x,Trk::x),
+					    (*vtxitr)->covariancePosition()(Trk::y,Trk::y),
+					    (*vtxitr)->covariancePosition()(Trk::z,Trk::z),
+					    (*vtxitr)->nTrackParticles(),
+					    /// quality
+					    (*vtxitr)->chiSquared(),
+					    (*vtxitr)->numberDoF() ) );
+	}
+      }
+    }
+
+
+#endif
+
 
     // std::cout << "here " << __LINE__ << std::endl;
 
@@ -506,8 +569,9 @@ protected:
 
       // std::string& chainname = chains[ichain];
       const std::string& chainname = m_chainNames[ichain].head();
+      const std::string&       key = m_chainNames[ichain].tail();
+      const std::string&  vtx_name = m_chainNames[ichain].vtx();
 
-      const std::string& key = m_chainNames[ichain].tail();
 
       unsigned _decisiontype = TrigDefs::Physics;
       unsigned  decisiontype;
@@ -581,8 +645,8 @@ protected:
         // std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = c->get<TrigRoiDescriptor>("forID", TrigDefs::alsoDeactivateTEs);
 
         std::vector< Trig::Feature<TrigRoiDescriptor> > initRois;
-
-	std::string roi_key = m_chainNames[ichain].roi();
+	
+        std::string roi_key = m_chainNames[ichain].roi();
 
 	if ( roi_key!="" ) { 
 	  initRois = c->get<TrigRoiDescriptor>(roi_key, decisiontype );
@@ -689,11 +753,61 @@ protected:
 
         if ( roiInfo ) delete roiInfo;
 
+	/// get vertex information 
+
+	/// now also add xAOD vertices
+
+	if ( vtx_name!="" ) { 
+
+	  m_provider->msg(MSG::INFO) << "\tFetch xAOD::VertexContainer for chain " << chainName << " with key " << vtx_name << endreq;
+
+	  std::vector< Trig::Feature<xAOD::VertexContainer> > xaodtrigvertices = c->get<xAOD::VertexContainer>(vtx_name);
+	  
+	  if ( xaodtrigvertices.empty() ) { 
+	    m_provider->msg(MSG::WARNING) << "\tNo xAOD::VertexContainer for chain " << chainName << " for key " << vtx_name << endreq;
+	  }
+	  else {
+	    
+	    m_provider->msg(MSG::INFO) << "\txAOD::VertexContainer found with size  " << xaodtrigvertices.size() << "\t" << vtx_name << endreq;
+	    
+	    for (  unsigned iv=0  ;  iv<xaodtrigvertices.size()  ;  iv++ ) {
+	      
+	      const xAOD::VertexContainer* vert = xaodtrigvertices[iv].cptr();
+	      
+	      m_provider->msg(MSG::INFO) << "\t" << iv << "  xAOD VxContainer for " << chainName << " " << vert << " key " << vtx_name << endreq;
+	      
+	      xAOD::VertexContainer::const_iterator vtxitr = vert->begin();
+	      
+	      for ( ; vtxitr != vert->end(); ++vtxitr) {
+		if ( (*vtxitr)->nTrackParticles()>0 ) {
+		  // vertices_rec.push_back( TIDA::Vertex( (*vtxitr)->x(),
+		  chain.back().addVertex( TIDA::Vertex( (*vtxitr)->x(),
+							(*vtxitr)->y(),
+							(*vtxitr)->z(),
+							/// variances
+							(*vtxitr)->covariancePosition()(Trk::x,Trk::x),
+							(*vtxitr)->covariancePosition()(Trk::y,Trk::y),
+							(*vtxitr)->covariancePosition()(Trk::z,Trk::z),
+							(*vtxitr)->nTrackParticles(),
+							/// quality
+							(*vtxitr)->chiSquared(),
+							(*vtxitr)->numberDoF() ) );
+		}
+	      }
+	    }
+	    
+	  }
+
+	}  /// retrieve online vertices
+
       }
 
       if(m_provider->msg().level() <= MSG::VERBOSE) {
         m_provider->msg(MSG::VERBOSE) << "event: " << *m_event << endreq;
       }
+
+
+      /// now loop pver the rois (again) 
 
       for ( unsigned  iroi=0 ; iroi<chain.size() ; iroi++ ) {
 
@@ -957,13 +1071,26 @@ protected:
 	  m_associator->match( ref_tracks, test_tracks );
 	  
 	  _analysis->execute( ref_tracks, test_tracks, m_associator );
+	  
+	  if ( vtx_name!="" ) { 
+	    /// get vertices for this roi - have to copy to a vector<Vertex*>
+	    std::vector<TIDA::Vertex> vr = chain.rois().at(iroi).vertices();
+	    std::vector<TIDA::Vertex*> vtx_rec;    
+	    for ( unsigned iv=0 ; iv<vr.size() ; iv++ ) vtx_rec.push_back( &vr[iv] );
+
+	    std::vector<TIDA::Vertex*> vtx;
+	    for ( unsigned iv=0 ; iv<vertices.size() ; iv++ ) vtx.push_back( &vertices[iv] );
+
+	    _analysis->execute_vtx( vtx, vtx_rec );
+	  }
+
 	}
  
 	if ( _analysis->debug() ) { 
 	  m_provider->msg(MSG::INFO) << "Missing track for " << m_chainNames[ichain]  
-				     << "\trun "   << run_number 
-				     << "\tevent " << event_number 
-				     << "\tlb "    << lumi_block << endreq;     
+				     << "\trun "             << run_number 
+				     << "\tevent "           << event_number 
+				     << "\tlb "              << lumi_block << endreq;     
 	}
 
       }
@@ -973,6 +1100,7 @@ protected:
       m_provider->msg(MSG::VERBOSE) << "\n\nEvent " << *m_event << endreq;
     }
   }
+
 
 
   virtual void book() {
@@ -1053,6 +1181,7 @@ protected:
         if ( chainName.extra()!="" )   selectChains[iselected] += ":"+chainName.extra();
         if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element();
         if ( chainName.roi()!="" )     selectChains[iselected] += ":"+chainName.roi();
+        if ( chainName.vtx()!="" )     selectChains[iselected] += ":"+chainName.vtx();
         if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 
         /// replace wildcard with actual matching chains ...

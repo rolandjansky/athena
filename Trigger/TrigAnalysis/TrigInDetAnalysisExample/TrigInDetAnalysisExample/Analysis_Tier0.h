@@ -13,6 +13,8 @@
 #include "TrigInDetAnalysis/TrackAnalysis.h"
 #include "TrigInDetAnalysis/TIDDirectory.h"
 
+#include "TrigInDetAnalysisExample/VtxAnalysis.h"
+
 class Analysis_Tier0 : public TrackAnalysis { 
   
  public:
@@ -24,6 +26,10 @@ class Analysis_Tier0 : public TrackAnalysis {
   virtual void execute(const std::vector<TIDA::Track*>& referenceTracks,
 		       const std::vector<TIDA::Track*>& testTracks,
 		       TrackAssociator* associator);
+  
+
+  virtual void execute_vtx(const std::vector<TIDA::Vertex*>& vtx0,
+			   const std::vector<TIDA::Vertex*>& vtx1 );
   
   virtual void finalise();
 
@@ -150,6 +156,8 @@ class Analysis_Tier0 : public TrackAnalysis {
   int m_nVtx;
 
   bool m_debug;
+
+  VtxAnalysis* m_vtxanal;
 
 };
 
