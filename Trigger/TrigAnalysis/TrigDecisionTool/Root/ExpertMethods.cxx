@@ -105,8 +105,8 @@ bool Trig::ExpertMethods::isHLTTruncated() const {
 #if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
 const HLT::HLTResult* res(0);
 auto navigation = dynamic_cast<HLT::NavigationCore*>(const_cast<HLT::TrigNavStructure*>(cgm()->navigation()));
-if(navigation->getAccessProxy()->retrieve(res, "HLTResult_L2").isFailure()) {
-ATH_MSG_WARNING("TDT has not ben able to get HLTResult_L2");
+if(navigation->getAccessProxy()->retrieve(res, "HLTResult_HLT").isFailure()) {
+ATH_MSG_WARNING("TDT has not ben able to get HLTResult_HLT");
 return false;
 } 
 return res->isHLTResultTruncated();    
