@@ -154,6 +154,13 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
   msg(MSG::INFO) << "TrigTestBase::book() " << gDirectory->GetName() << endreq;
 
 
+#ifdef ManagedMonitorToolBase_Uses_API_201401
+  bool newEventsBlock = newEventsBlockFlag();
+  bool newLumiBlock   = newLumiBlockFlag();
+  bool newRun         = newRunFlag();
+#endif
+
+
   msg(MSG::DEBUG) << "TrigTestBase::book() SUTT buildNtuple " << m_buildNtuple
       << "\tNewEventBlock " << newEventsBlock
       << "\tNewLumiBlock "  << newLumiBlock
@@ -428,9 +435,12 @@ StatusCode TrigTestBase::proc(bool /*endOfEventsBlock*/, bool /*endOfLumiBlock*/
 #endif
   // StatusCode TrigTestBase::procHistograms() {
 
+#ifdef ManagedMonitorToolBase_Uses_API_201401
+  bool endOfRun       = endOfRunFlag();
+#endif
 
   msg(MSG::INFO) << " ----- enter proc() ----- " << endreq;
-  if ( m_initialisePerRun && endOfRun) {
+  if ( m_initialisePerRun && endOfRun ) {
     for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->finalize();
     m_fileopen = false;
   }
