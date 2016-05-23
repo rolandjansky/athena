@@ -97,7 +97,7 @@ print muonRecFlags
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 #muonCombinedRecFlags.doCaloMuonCollection          = False
 muonCombinedRecFlags.doMuGirlLowBetaMuonCollection = False
-muonCombinedRecFlags.doMuGirl                      = False
+#muonCombinedRecFlags.doMuGirl                      = False
 muonCombinedRecFlags.printConfigurables            = True
 muonCombinedRecFlags.doTrackPerformance            = False
 print 'muonCombinedRecFlags:::'
@@ -188,3 +188,5 @@ except:
     # add DetFlags
     #from MuonRecExample.MuonRecUtils import dumpDetFlags
     #dumpDetFlags("config.txt")
+
+ServiceMgr.GeoModelSvc.SupportedGeometry=20
