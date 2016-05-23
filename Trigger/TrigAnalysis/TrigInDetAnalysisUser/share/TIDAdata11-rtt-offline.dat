@@ -28,60 +28,59 @@ z0v = 10.5;
 refChain = "Offline";
 //pdgId=11; // electron --entered in command line now
 
-TauSize = {0.2,0.2};
-BjetSize = {0.2,0.2};
-eGammaSize = {0.1,0.1};
-
 MinVertices = 0;
 
 testChains = {
-    //"Offline",
-    //"Muons",
-    //"Electrons",
-    //    "Truth",
-    "Truth",
+    //  "Offline",
+    //  "Muons",
+    //  "Electrons",
+    //  "Truth",
 
+    "Truth",
+    "Offline",
     
-    "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:0",
-    "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:1",
-    "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:2",
-    "L2_e22vh_medium_IDTrkNoCut:TrigIDSCAN_eGamma",
-    "L2_e22vh_medium_IDTrkNoCut:TrigSiTrack_eGamma",
-    "EF_e22vh_medium_IDTrkNoCut:InDetTrigParticleCreation_Electron_EFID",
+    // "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:0",
+    // "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:1",
+    // "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:2",
+    // "L2_e22vh_medium_IDTrkNoCut:TrigIDSCAN_eGamma",
+    // "L2_e22vh_medium_IDTrkNoCut:TrigSiTrack_eGamma",
+    // "EF_e22vh_medium_IDTrkNoCut:InDetTrigParticleCreation_Electron_EFID",
     
-    "L2_mu22_IDTrkNoCut_tight:TrigL2SiTrackFinder_Muon:0",
-    "L2_mu22_IDTrkNoCut_tight:TrigL2SiTrackFinder_Muon:1",
-    "L2_mu22_IDTrkNoCut_tight:TrigL2SiTrackFinder_Muon:2",
-    "EF_mu22_IDTrkNoCut_tight:InDetTrigParticleCreation_Muon_EFID",
+    // "L2_mu22_IDTrkNoCut_tight:TrigL2SiTrackFinder_Muon:0",
+    // "L2_mu22_IDTrkNoCut_tight:TrigL2SiTrackFinder_Muon:1",
+    // "L2_mu22_IDTrkNoCut_tight:TrigL2SiTrackFinder_Muon:2",
+    // "EF_mu22_IDTrkNoCut_tight:InDetTrigParticleCreation_Muon_EFID",
     
-    "L2_tau29_IDTrkNoCut:TrigL2SiTrackFinder_Tau:0",
-    "L2_tau29_IDTrkNoCut:TrigL2SiTrackFinder_Tau:1",
-    "L2_tau29_IDTrkNoCut:TrigL2SiTrackFinder_Tau:2",
-    "EF_tau29_IDTrkNoCut:InDetTrigParticleCreation_Tau_EFID",
+    // "L2_tau29_IDTrkNoCut:TrigL2SiTrackFinder_Tau:0",
+    // "L2_tau29_IDTrkNoCut:TrigL2SiTrackFinder_Tau:1",
+    // "L2_tau29_IDTrkNoCut:TrigL2SiTrackFinder_Tau:2",
+    // "EF_tau29_IDTrkNoCut:InDetTrigParticleCreation_Tau_EFID",
     
-    "L2_b50_NoCut_j50_c4cchad:TrigL2SiTrackFinder_Jet:0",
-    "L2_b50_NoCut_j50_c4cchad:TrigL2SiTrackFinder_Jet:1",
-    "L2_b50_NoCut_j50_c4cchad:TrigL2SiTrackFinder_Jet:2",
-    "EF_b55_NoCut_j55_a4tchad:InDetTrigParticleCreation_Bjet_EFID",
+    // "L2_b50_NoCut_j50_c4cchad:TrigL2SiTrackFinder_Jet:0",
+    // "L2_b50_NoCut_j50_c4cchad:TrigL2SiTrackFinder_Jet:1",
+    // "L2_b50_NoCut_j50_c4cchad:TrigL2SiTrackFinder_Jet:2",
+    // "EF_b55_NoCut_j55_a4tchad:InDetTrigParticleCreation_Bjet_EFID",
     
-    "L2_InDetMon_FS:TrigL2SiTrackFinder_FullScan:0",
-    "L2_InDetMon_FS:TrigL2SiTrackFinder_FullScan:1",
-    "L2_InDetMon_FS:TrigL2SiTrackFinder_FullScan:2",
-    "EF_InDetMon_FS:InDetTrigParticleCreation_FullScan_EFID",
-    "L2_InDetMonMergeDP_FS:TrigL2SiTrackFinder_FullScan:0",
-    "L2_InDetMonMergeDP_FS:TrigL2SiTrackFinder_FullScan:1",
-    "L2_InDetMonMergeDP_FS:TrigL2SiTrackFinder_FullScan:2",
-    "EF_InDetMonMerge_FS:InDetTrigParticleCreation_FullScan_EFID",
+    // "L2_InDetMon_FS:TrigL2SiTrackFinder_FullScan:0",
+    // "L2_InDetMon_FS:TrigL2SiTrackFinder_FullScan:1",
+    // "L2_InDetMon_FS:TrigL2SiTrackFinder_FullScan:2",
+    // "L2_InDetMon_FS:TrigL2SiTrackFinder_FullScan:3",
+    // "EF_InDetMon_FS:InDetTrigParticleCreation_FullScan_EFID",
+    // "L2_InDetMonMergeDP_FS:TrigL2SiTrackFinder_FullScan:0",
+    // "L2_InDetMonMergeDP_FS:TrigL2SiTrackFinder_FullScan:1",
+    // "L2_InDetMonMergeDP_FS:TrigL2SiTrackFinder_FullScan:2",
+    // "L2_InDetMonMergeDP_FS:TrigL2SiTrackFinder_FullScan:3",
+    // "EF_InDetMonMerge_FS:InDetTrigParticleCreation_FullScan_EFID",
     
-    "EF_e24vh_medium1_IDTrkNoCut_IDT:TrigFastTrackFinder_eGamma",
-    "EF_e24vh_medium1_IDTrkNoCut_IDT:InDetTrigParticleCreation_Electron_EFID",
-    "EF_tau29_IDTrkNoCut_IDT:TrigFastTrackFinder_Tau",    
-    "EF_tau29_IDTrkNoCut_IDT:TrigFastTrackFinder_Tau_IDTrig",    
-    "EF_tau29_IDTrkNoCut_IDT:InDetTrigParticleCreation_Tau_EFID",    
-    "EF_mu22_IDTrkNoCut_tight_IDT:TrigFastTrackFinder_Muon",
-    "EF_mu22_IDTrkNoCut_tight_IDT:InDetTrigParticleCreation_Muon_EFID",
-    "EF_b55_NoCut_j55_a4tchad_IDT:TrigFastTrackFinder_Jet",
-    "EF_b55_NoCut_j55_a4tchad_IDT:InDetTrigParticleCreation_Bjet_EFID",
+    // "EF_e24vh_medium1_IDTrkNoCut_IDT:TrigFastTrackFinder_eGamma",
+    // "EF_e24vh_medium1_IDTrkNoCut_IDT:InDetTrigParticleCreation_Electron_EFID",
+    // "EF_tau29_IDTrkNoCut_IDT:TrigFastTrackFinder_Tau",    
+    // "EF_tau29_IDTrkNoCut_IDT:TrigFastTrackFinder_Tau_IDTrig",    
+    // "EF_tau29_IDTrkNoCut_IDT:InDetTrigParticleCreation_Tau_EFID",    
+    // "EF_mu22_IDTrkNoCut_tight_IDT:TrigFastTrackFinder_Muon",
+    // "EF_mu22_IDTrkNoCut_tight_IDT:InDetTrigParticleCreation_Muon_EFID",
+    // "EF_b55_NoCut_j55_a4tchad_IDT:TrigFastTrackFinder_Jet",
+    // "EF_b55_NoCut_j55_a4tchad_IDT:InDetTrigParticleCreation_Bjet_EFID",
 
     "HLT_e24_medium_L2Star_idperf:TrigL2SiTrackFinder_eGamma:0",
     "HLT_e24_medium_L2Star_idperf:TrigL2SiTrackFinder_eGamma:1",
@@ -118,6 +117,9 @@ testChains = {
     "HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
     "HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
 
+    "HLT_mu24_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+    "HLT_mu24_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_FTK",
+
     "HLT_mu6_L2Star_idperf:TrigL2SiTrackFinder_Muon:0",
     "HLT_mu6_L2Star_idperf:TrigL2SiTrackFinder_Muon:1",
     "HLT_mu6_L2Star_idperf:TrigL2SiTrackFinder_Muon:2",
@@ -128,6 +130,9 @@ testChains = {
     "HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_EFID",
     "HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
     "HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
+
+    "HLT_mu6_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+    "HLT_mu6_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_FTK",
 
     "HLT_tau25_idperf_track:TrigFastTrackFinder_Tau",
     "HLT_tau25_idperf_track:TrigFastTrackFinder_Tau_IDTrig",
@@ -164,10 +169,19 @@ testChains = {
 
     "HLT_j55_bperf:TrigFastTrackFinder_Jet",
     "HLT_j55_bperf:InDetTrigParticleCreation_Bjet_EFID",
+    "HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+    "HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_FTF:forID",
+
     "HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_EFID",
+    "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig:forID",
+    "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF:forID",
+    "HLT_j55_bperf_split:TrigFastTrackFinder_Jet:forID",
+    "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:SuperRoi",
 
     "HLT_j55_EFID_bperf:InDetTrigParticleCreation_Bjet_EFID",
     "HLT_j55_EFID_bperf:InDetTrigTrackingxAODCnv_Bjet_EFID",
+
+    "HLT_mb_idperf_L1MBTS_2:InDetTrigTrackingxAODCnv_minBias_EFID",
 
     "HLT_id_cosmic:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID"
 }; 

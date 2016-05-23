@@ -5,7 +5,7 @@ eta    = 2.5;
 // npix   = 1;
 // nsct   = 2;
 npix   = -1;
-nsct   = -1;
+nsct   =  1;
 
 pT_rec  = 0;
 eta_rec = 5;
@@ -31,9 +31,9 @@ z0v = 1000;
 refChain = "Offline";
 //pdgId=11; // electron --entered in command line now
 
-TauSize = {0.2,0.2};
-BjetSize = {0.2,0.2};
-eGammaSize = {0.1,0.1};
+// TauSize = {0.2,0.2};
+// BjetSize = {0.2,0.2};
+// eGammaSize = {0.1,0.1};
 
 /// for cosmics, don't fileter reference tracks by RoI
 SelectRoi = 0;

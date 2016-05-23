@@ -54,14 +54,22 @@
 std::string time_str() { 
   time_t _t;
   time(&_t);
-
   std::string s(ctime(&_t));
-
   //  std::string::size_type pos = s.find("\n");
   // if ( pos != std::string::npos ) 
-
   return s.substr(0,s.find("\n"));
   //  return s;
+}
+
+
+
+/// convert string to integer with check if successful
+int atoi_check( const std::string& s ) {
+  int i = std::atoi( s.c_str() );
+  char check[128];
+  std::sprintf( check, "%d", i );
+  if ( std::string(check)!=s ) return -1;
+  else return i;
 }
 
 int Nvtx = 0;
@@ -110,7 +118,24 @@ int GetChainAuthor(std::string chainName) {
 
 }
 
+// Function to allow creation of an RoI for reference tracks, with custom widths, and which defaults to trigger roi values if none are specifed
+TIDARoiDescriptor makeCustomRefRoi(double etaHalfWidth=-999, double phiHalfWidth=-999, double zedHalfWidth=-999, const TIDARoiDescriptor& roi=TIDARoiDescriptor() ) {
 
+  double roi_eta = roi.eta();
+  double roi_phi = roi.phi();
+  double roi_zed = roi.zed();
+  
+  if ( etaHalfWidth == -999 ) etaHalfWidth = std::fabs( roi.etaPlus() - roi_eta);
+  if ( phiHalfWidth == -999 ) phiHalfWidth = std::fabs( roi.phiPlus() - roi_phi ); // !!! careful! will this always wrap correctly?
+  if ( zedHalfWidth == -999 ) zedHalfWidth = std::fabs( roi.zedPlus() - roi_zed);
+ 
+  return TIDARoiDescriptor( roi_eta, (roi_eta - etaHalfWidth), (roi_eta + etaHalfWidth),
+			    roi_phi, (roi_phi - phiHalfWidth), (roi_phi + phiHalfWidth), // do wrap phi here (done within TIDARoiDescriptor already)			   
+			    roi_zed, (roi_zed - zedHalfWidth), (roi_zed + zedHalfWidth) );
+}
+
+// Small function to be used in sorting tracks in track vectors
+bool trackPtGrtr( TIDA::Track* trackA, TIDA::Track* trackB) { return ( std::fabs(trackA->pT()) > std::fabs(trackB->pT()) ); }
 
 template<class T>
 std::ostream& operator<<(std::ostream& s, const std::vector<T>& v ) { 
@@ -217,8 +242,6 @@ std::vector<T*> pointers( std::vector<T>& v ) {
 
 int main(int argc, char** argv) 
 {
-
-  std::cout << "main() compiled " << __DATE__ << " " << __TIME__ << std::endl;
 
   //  ROOT::Cintex::Cintex::Enable();
 
@@ -356,11 +379,31 @@ int main(int argc, char** argv)
   //bool printflag = false;  // JK removed (unused)
 
   bool truthMatch = false;
-  
+
   if ( inputdata.isTagDefined("TruthMatch") )   truthMatch = ( inputdata.GetValue("TruthMatch") ? true : false );
 
+  // CK: Option to specify which ref tracks to use from ref track vector, ordered by pT
+  //     User parameter is a vector of ref track vector indices
+  //     e.g. specifyPtOrderedRefTracks = {0, 1, 5} will use the first leading, second leading, and sixth leading track
+  std::vector<int> refPtOrd_indices;
+  bool use_specified_pt_ordered_ref = false;
+  
+  std::vector<double> refPtOrd_indices_asDoubles;
+  if ( inputdata.isTagDefined("specifyPtOrderedRefTracks") ) {
+    use_specified_pt_ordered_ref = true;
+    refPtOrd_indices_asDoubles = ( inputdata.GetVector("specifyPtOrderedRefTracks") );
+    
+    for (unsigned int i = 0; i < refPtOrd_indices_asDoubles.size(); ++i) {
+      refPtOrd_indices.push_back( refPtOrd_indices_asDoubles.at(i) );
+    }
+  }
 
-  if ( inputdata.isTagDefined("pT") )   pT   = inputdata.GetValue("pT");
+  if ( inputdata.isTagDefined("pT") )      pT   = inputdata.GetValue("pT");
+
+  /// here we set a pTMax value less than pT, then only set the max pT in the 
+  /// filter if we read a pTMax value *greater* than pT
+  double pTMax = pT-1;
+  if ( inputdata.isTagDefined("pTMax") )   pTMax = inputdata.GetValue("pTMax");
 
 
   if ( inputdata.isTagDefined("NMod") )   NMod   = inputdata.GetValue("NMod");
@@ -400,17 +443,10 @@ int main(int argc, char** argv)
     }
   }
 
-  if ( testChains.size()==0 ) { 
-    if ( inputdata.isTagDefined("testChains") ) { 
-      /// a whole list of chains
-      testChains = inputdata.GetStringVector("testChains");
-    }
-    else { 
-      if ( inputdata.isTagDefined("testChain") ) {
-	/// a single chain
-	testChains.push_back( inputdata.GetString("testChain") );
-      }
-    }
+  /// get the test chains 
+  if ( testChains.size()==0 ) { ///NB: don't override command line args
+    if      ( inputdata.isTagDefined("testChains") ) testChains = inputdata.GetStringVector("testChains");
+    else if ( inputdata.isTagDefined("testChain") )  testChains.push_back( inputdata.GetString("testChain") );
   }
 
   /// new code - can extract vtx name, pt, any extra options that we want, 
@@ -431,6 +467,53 @@ int main(int argc, char** argv)
 
   /// select only tracks within the roi?
   bool select_roi = true;
+  
+
+  // CK: use a custom filter RoI for ref tracks using refFilter?
+  //     Note that if the reference chain uses a non-full-scan RoI, the custom filter RoI could be wider than the
+  //     ref chain RoI
+  bool      use_custom_ref_roi = false;
+  const int custRefRoi_nParams = 3;
+
+  double custRefRoi_params[custRefRoi_nParams] = {-999., -999., -999.};
+  std::vector<std::string> custRefRoi_chainList; // Vector of chain names to apply the custom roi to
+  std::set<std::string>    customRoi_chains;
+
+  if ( inputdata.isTagDefined("customRefRoi_etaHalfWidth") ) custRefRoi_params[0] = inputdata.GetValue("customRefRoi_etaHalfWidth");
+  if ( inputdata.isTagDefined("customRefRoi_phiHalfWidth") ) custRefRoi_params[1] = inputdata.GetValue("customRefRoi_phiHalfWidth");
+  if ( inputdata.isTagDefined("customRefRoi_zedHalfWidth") ) custRefRoi_params[2] = inputdata.GetValue("customRefRoi_zedHalfWidth");
+
+  if ( inputdata.isTagDefined("customRefRoi_chainList") ) custRefRoi_chainList = inputdata.GetStringVector("customRefRoi_chainList");
+  
+  for ( unsigned ic=0 ; ic<custRefRoi_chainList.size() ; ic++ ) customRoi_chains.insert( custRefRoi_chainList[ic] );
+
+  for ( int param_idx=0 ; param_idx<custRefRoi_nParams ; param_idx++ ) {
+    if ( custRefRoi_params[param_idx] != -999 ) {
+      select_roi         = true; // In case select_roi is ever set to default to false
+      use_custom_ref_roi = true;
+    }
+  }
+
+  // Clean this up, it's a right mess and could surely be automated
+  if ( use_custom_ref_roi ) {
+    std::cout << "****                                              \t****" << std::endl;
+    std::cout << "**** Custom RoI will be used to filter ref. tracks\t****" << std::endl;
+    if ( !custRefRoi_chainList.empty()  ) {
+      std::cout << "****    Applying custom RoI only to specified chains\t****" << std::endl;
+ 
+      if ( custRefRoi_params[0] != -999. ) std::cout << "****    etaHalfWidth = " << custRefRoi_params[0] << "\t\t\t\t****" << std::endl;
+      else                                 std::cout << "****    etaHalfWidth = value used in trigger RoI\t****" << std::endl;
+      
+      if ( custRefRoi_params[1] != -999. ) std::cout << "****    phiHalfWidth = " << custRefRoi_params[1] << "\t\t\t\t****" << std::endl;
+      else                                 std::cout << "****    phiHalfWidth = value used in trigger RoI\t****" << std::endl;
+      
+      if ( custRefRoi_params[2] != -999. ) std::cout << "****    zedHalfWidth = " << custRefRoi_params[2] << "\t\t\t\t****" << std::endl;
+      else                                 std::cout << "****    zedHalfWidth = value used in trigger RoI\t****" << std::endl;
+    }
+  }
+  
+  // Checking for SelectRoi after any other options that will set select_roi, to ensure that the value set
+  // here will be used
   if ( inputdata.isTagDefined("SelectRoi") )  { 
     select_roi = ( inputdata.GetValue("SelectRoi")!=0 ? true : false );
   }
@@ -458,21 +541,67 @@ int main(int argc, char** argv)
     }
   }
 
+
+  /// reference vertex selection 
+  
+  std::string vertexSelection = "";
+  if ( inputdata.isTagDefined("VertexSelection") ) vertexSelection = inputdata.GetString("VertexSelection");
+  
+  
+  bool bestPTVtx  = false;
+  bool bestPT2Vtx = false;
+  int  vtxind     = -1;
+  
+  if ( vertexSelection!="" ) { 
+    if      ( vertexSelection=="BestPT" )  bestPTVtx  = true;
+    else if ( vertexSelection=="BestPT2" ) bestPT2Vtx = true;
+    else vtxind = atoi_check( vertexSelection );
+  }
+  
+  
+  
+  
+  /// test vertex selection 
+  
+  std::string vertexSelection_rec = "";
+  if ( inputdata.isTagDefined("VertexSelectionRec") ) vertexSelection_rec = inputdata.GetString("VertexSelectionRec");
+  
+  bool bestPTVtx_rec  = false;
+  bool bestPT2Vtx_rec = false;
+  int  vtxind_rec     = -1;
+  
+  if ( vertexSelection_rec!="" ) { 
+    if      ( vertexSelection_rec=="BestPT" )  bestPTVtx_rec  = true;
+    else if ( vertexSelection_rec=="BestPT2" ) bestPT2Vtx_rec = true;
+    else vtxind_rec = atoi_check( vertexSelection_rec ); 
+  }
+  
+  
+
+
+#if 0
+
+  //////////////////////////////////////////////////////////////////
+  /// don't use these three options any longer 
+
   bool useBestVertex = false;
   if ( inputdata.isTagDefined("useBestVertex") ) useBestVertex = ( inputdata.GetValue("useBestVertex") ? 1 : 0 );
 
   bool useSumPtVertex = true;
   if ( inputdata.isTagDefined("useSumPtVertex") ) useSumPtVertex = ( inputdata.GetValue("useSumPtVertex") ? 1 : 0 );
 
-  bool vetoBestVertex = false;
-  if ( inputdata.isTagDefined("vetoBestVertex") ) vetoBestVertex = ( inputdata.GetValue("vetoBestVertex") ? 1 : 0 );
-
-
-  int NVtxTrackCut = 2;
-  if ( inputdata.isTagDefined("NVtxTrackCut") ) NVtxTrackCut = inputdata.GetValue("NVtxTrackCut");
-
   int MinVertices = 1;
   if ( inputdata.isTagDefined("MinVertices") ) MinVertices = inputdata.GetValue("MinVertices");
+
+  /////////////////////////////////////////////////////////////////
+
+#endif
+
+
+  
+  /// is this option needed any longer ???
+  int NVtxTrackCut = 2;
+  if ( inputdata.isTagDefined("NVtxTrackCut") ) NVtxTrackCut = inputdata.GetValue("NVtxTrackCut");
 
 
   std::vector<double> event_list;
@@ -580,6 +709,9 @@ int main(int argc, char** argv)
 
   if ( inputdata.isTagDefined("PRINT_BRESIDUALS") ) PRINT_BRESIDUALS = ( inputdata.GetValue("PRINT_BRESIDUALS")==0 ? false : true );
 
+  int selectcharge = 0;
+  if ( inputdata.isTagDefined("Charge") ) selectcharge = inputdata.GetValue("Charge");
+
 
   std::cout << "using reference " << refChain << std::endl;
   if ( refChain=="Truth" ) std::cout << "using pdgId " << pdgId << std::endl;
@@ -600,6 +732,9 @@ int main(int argc, char** argv)
   Filter_Vertex filter_vertex(a0v, z0v);
 
   Filter_Track filter_offline( eta, 1000,  2000, pT, npix, nsct, -1, nbl,  -2, -2, chi2prob ); /// include chi2 probability cut 
+  if ( selectcharge!=0 ) filter_offline.chargeSelection( selectcharge );
+  if ( pTMax>pT )        filter_offline.maxpT( pTMax );
+
   Filter_etaPT filter_etaPT(eta,pT);
   //  Filter_True filter_passthrough;
   // use an actual filter requiring at least 1 silicon hit
@@ -664,8 +799,8 @@ int main(int argc, char** argv)
   else if ( contains(refChain,"Electrons") ) refFilter = &filter_off;
   //  else if ( refChain=="ElectronsMedium" )    refFilter = &filter_off;
   else if ( refChain=="Muons" )              refFilter = &filter_muon;
-  else if ( refChain=="Taus" )               refFilter = &filter_off;
-  else if ( refChain=="Taus3" )              refFilter = &filter_off;
+  else if ( contains( refChain,"1Prong" ) )  refFilter = &filter_off;  // tau ref chains
+  else if ( contains( refChain,"3Prong" ) )  refFilter = &filter_off;  // tau ref chains
   else if ( refChain=="Truth" && pdgId!=0 )  refFilter = &filter_truth;
   else if ( refChain=="Truth" && pdgId==0 )  refFilter = &filter_off;
   else { 
@@ -714,6 +849,8 @@ int main(int argc, char** argv)
 
     ConfAnalysis* analy_conf = new ConfAnalysis(chainnames.back());
     analy_conf->initialiseFirstEvent(initialiseFirstEvent);
+    analy_conf->initialise();
+    analy_conf->setprint(false);
 
     std::string vtxTool = chainConfig[i].value("rvtx");
 
@@ -721,9 +858,6 @@ int main(int argc, char** argv)
       ConfVtxAnalysis* anal_confvtx = new ConfVtxAnalysis( vtxTool );
       analy_conf->store().insert( anal_confvtx, "rvtx" );
     }
-
-    analy_conf->initialise();
-    analy_conf->setprint(false);
 
 
     // analy_conf->setprint(true);
@@ -1077,11 +1211,6 @@ int main(int argc, char** argv)
     refPurityTracks.clear();
     //    offlineTracks.clear();
 
-    /// set the vertex in the vertex filter
-    /// this takes the first "good" vertex
-    /// NB: probably need to use the vertex  
-    ///     with most tracks
-    int good_vertex = -1;
     
     Nvtx = 0;
 
@@ -1110,65 +1239,61 @@ int main(int argc, char** argv)
       }
     }
 
-  
+
+    
+    /// select the reference offline vertices
+    
     std::vector<TIDA::Vertex> vertices;
     
-    NvtxCount = 0;
-
     const std::vector<TIDA::Vertex>& mv = track_ev->vertices();
 
-    int SumPtBest = -1;
-    double highestSumPt = 0.0;
+    int     selectvtx = -1;
+    double  selection = 0;
+    
+    //    std::vector<TIDA::Vertex>& vertices = vertices;
+     
+    if ( bestPTVtx || bestPT2Vtx )  {  
+      for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
+	double selection_ = 0.0;
+	for (unsigned itr=0; itr<offTracks.tracks().size(); itr++){
+	  TIDA::Track* tr = offTracks.tracks().at(itr);
+	  if( std::fabs(mv[iv].position()[2]-tr->z0()) < 1.5 ) { 
+	    if      ( bestPTVtx  ) selection_ += std::fabs(tr->pT());
+	    else if ( bestPT2Vtx ) selection_ += std::fabs(tr->pT())*std::fabs(tr->pT()); 
+	  }
+	}
+	if( selection_>selection){
+	  selection = selection_;
+	  selectvtx = iv;
+	}
+      }
+      if ( selectvtx!=-1 ) vertices.push_back( mv[selectvtx] );
+    }
+    else if ( vtxind>=0 ) {
+      if ( unsigned(vtxind)<mv.size() ) vertices.push_back( mv[vtxind] );
+    }
+    else { 
+      for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) vertices.push_back( mv[iv] );
+    }
+    
+    /// always push back the vector - if required there will be only one vertex on it
+    filter_vertex.setVertex( vertices );
+
+    /// calculate number of "vertex tracks"
+
+    NvtxCount = 0;
 
     for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
       int Ntracks = mv[iv].Ntracks();
-      if ( Ntracks>NVtxTrackCut ) {
+      if ( Ntracks>NVtxTrackCut ) { /// do we really want this cut ???
 	Nvtx += Ntracks;
-	vertices.push_back( mv[iv] );
+	//	vertices.push_back( mv[iv] );
         NvtxCount++;
-	if ( good_vertex == -1 || Ntracks>mv[good_vertex].Ntracks() ) { 
-	  good_vertex = iv;
-	}
-      }
-      double SumPt = 0.0;
-      for (unsigned itr=0; itr<offTracks.tracks().size(); itr++){
-	TIDA::Track* tr = offTracks.tracks().at(itr);
-	if(std::fabs(mv.at(iv).position()[2]-tr->z0())<1.5) SumPt += std::fabs(tr->pT());
-      }
-      if(SumPt>highestSumPt){
-	highestSumPt = SumPt;
-	SumPtBest = iv;
-      }
-    }//loop over vertices
-    
-    
-    
-    // all vertices *except* the best one
-    std::vector<TIDA::Vertex> vvtx;
-    if ( vetoBestVertex ) { 
-      for (unsigned int i=0 ; i<vertices.size() ; i++ ) { 
-	if ( good_vertex!=int(i) ) vvtx.push_back(vertices[i]);
-      }
-    }
-    else { 
-      for (unsigned int i=0 ; i<vertices.size() ; i++ ) vvtx.push_back(vertices[i]);
-    }
-    
-    if ( int(vvtx.size())<MinVertices ) continue;
-    
-    NvtxCount = vvtx.size();
-    if(useSumPtVertex) good_vertex = SumPtBest;
-    if ( MinVertices>0 ) { 
-      /// if no good vertex, skip this event
-      if ( good_vertex==-1 ) continue;
-      else { 
-	if ( useBestVertex )  filter_vertex.setVertex( mv[good_vertex] );
-	else                  filter_vertex.setVertex( vvtx );
       }
     }
 
     //    filter_vertex.setVertex( vvtx ) ;
-    hcorr->Fill( vvtx.size(), Nvtx ); 
+    hcorr->Fill( vertices.size(), Nvtx ); 
 
     dynamic_cast<Filter_Combined*>(refFilter)->setRoi(0);
 
@@ -1237,9 +1362,47 @@ int main(int argc, char** argv)
 	TIDA::Roi& troi = chain.rois()[ir]; 
         TIDARoiDescriptor roi( troi.roi() );
 
+	
+	/// select the test sample (trigger) vertices
+	const std::vector<TIDA::Vertex>& mvt = troi.vertices();
 
-	const std::vector<TIDA::Vertex>& vertices_test = troi.vertices();
 
+	std::vector<TIDA::Vertex> vertices_test;
+	
+	int     selectvtx = -1;
+	double  selection = 0;
+	
+	if ( bestPTVtx_rec || bestPT2Vtx_rec )  {  
+	  
+	  const std::vector<TIDA::Track>& recTracks = troi.tracks();
+	  
+	  for ( unsigned iv=0 ; iv<mvt.size() ; iv++ ) {
+	    double selection_ = 0.0;
+	    for (unsigned itr=0; itr<recTracks.size(); itr++){
+	      const TIDA::Track* tr = &recTracks[itr];
+	      if( std::fabs(mvt[iv].position()[2]-tr->z0()) < 1.5 ) { 
+		if      ( bestPTVtx_rec  ) selection_ += std::fabs(tr->pT());
+		else if ( bestPT2Vtx_rec ) selection_ += std::fabs(tr->pT())*std::fabs(tr->pT()); 
+	      }
+	    }
+	    if( selection_>selection){
+	      selection = selection_;
+	      selectvtx = iv;
+	    }
+	  }
+	  if ( selectvtx!=-1 ) vertices_test.push_back( mvt[selectvtx] );
+	}
+	else if ( vtxind_rec!=-1 ) {
+	  if ( unsigned(vtxind_rec)<mvt.size() )       vertices_test.push_back( mvt[vtxind] );
+	}
+	else { 
+	  for ( unsigned iv=0 ; iv<mvt.size() ; iv++ ) vertices_test.push_back( mvt[iv] );
+	}
+
+
+
+
+	
 	
 	//extract beamline position values from rois
 	//	const std::vector<double>& beamline = chain.rois()[ir].user();
@@ -1284,16 +1447,88 @@ int main(int argc, char** argv)
 	std::vector<TIDA::Track*> testp = testTracks.tracks();
 	
 	/// here we set the roi for the filter so we can request only those tracks 
-	/// inside the roi 
+	/// inside the roi
+
+	TIDARoiDescriptor refRoi;
 	
-	if ( select_roi ) dynamic_cast<Filter_Combined*>(refFilter)->setRoi(&roi);
+	if ( select_roi ) {
+	  bool customRefRoi_thisChain = false;
+	  if ( use_custom_ref_roi ) { // Ideally just want to say ( use_custom_ref_roi && (chain.name() in custRefRoi_chain]sist) )
+	    if ( customRoi_chains.size() ) { 
+	      if ( customRoi_chains.find( chain.name() )!=customRoi_chains.end() ) customRefRoi_thisChain = true;
+	    }
+	    else customRefRoi_thisChain = true;  // Apply custom ref roi to all chains
+	  }
+	  
+	  if ( use_custom_ref_roi && customRefRoi_thisChain ) { refRoi = makeCustomRefRoi(custRefRoi_params[0], custRefRoi_params[1], custRefRoi_params[2], roi ); }
+	  else { refRoi = roi; }
+
+	  dynamic_cast<Filter_Combined*>(refFilter)->setRoi(&refRoi);
+	}
 	
 	//	if ( debugPrintout ) { 
 	//	  std::cout << "refTracks.size() " << refTracks.size() << " before roi filtering" << std::endl; 
 	//	  std::cout << "filter with roi " << roi << std::endl; 
-	//	}	    
+	//	}
+
 	
-	const std::vector<TIDA::Track*>&  refp  = refTracks.tracks( refFilter );
+	// Now filterng ref tracks by refFilter, and performing any further filtering and selecting,
+	// before finally creating the const reference object refp
+
+	std::vector<TIDA::Track*>  refp_vecObject = refTracks.tracks( refFilter );
+	
+	// Selecting only truth matched reference tracks
+	if ( truthMatch ) { 	  
+	  /// get the truth particles ...
+	  if ( select_roi ) dynamic_cast<Filter_Combined*>(truthFilter)->setRoi(&roi);
+	  const std::vector<TIDA::Track*>&  truth = truthTracks.tracks(truthFilter);
+	  const std::vector<TIDA::Track*>&  refp_vecObject_temp = refp_vecObject;
+
+	  /// dr match against current reference selection 
+	  truth_matcher->match( refp_vecObject_temp, truth );
+
+	  std::vector<TIDA::Track*>  refp_matched;
+
+	  /// which truth tracks have a matching reference track ?
+	  for ( unsigned i=0 ; i<refp_vecObject.size() ; i++ ) { 
+	    if ( truth_matcher->matched( refp_vecObject[i] ) ) refp_matched.push_back( refp_vecObject[i] );
+	  }
+
+	  refp_vecObject.clear();
+	  refp_vecObject = refp_matched;
+	}
+	
+	// Choose the pT ordered refp tracks that have been asked for by the user
+	if ( use_specified_pt_ordered_ref ) {
+	  std::sort(refp_vecObject.begin(), refp_vecObject.end(), trackPtGrtr); // Should this sorting be done to a temporary copied object, instead of the object itself?
+	  
+	  int nRefTracks = refp_vecObject.size();
+
+	  std::vector<TIDA::Track*> refp_chosenPtOrd;
+
+	  // Checking if any user specifed track indices are out of bounds for this event
+	  for (unsigned int indexIdx = 0; indexIdx < refPtOrd_indices.size(); ++indexIdx) {
+	    if (refPtOrd_indices.at(indexIdx) > nRefTracks) {
+	      std::cout << "WARNING: for event " << event << ", pT ordered reference track at vector position " << refPtOrd_indices.at(indexIdx) << " requested but not found" << std::endl;
+	    }
+	  }
+	  
+	  for (int trackIdx = 0; trackIdx < nRefTracks; ++trackIdx) {
+	    for (unsigned int indexIdx = 0; indexIdx < refPtOrd_indices.size(); ++indexIdx) {
+	      if ( trackIdx == refPtOrd_indices.at(indexIdx) ) {
+	        refp_chosenPtOrd.push_back(refp_vecObject.at(trackIdx));
+		break;
+	      }
+	    }
+	  }
+
+	  refp_vecObject.clear();
+	  refp_vecObject = refp_chosenPtOrd; // Note: not necessarily pT ordered.
+	                                     //       Ordered by order of indices the user has passed
+	                                     //       (which is ideally pT ordered e.g. 0, 1, 3)
+	}
+	
+	const std::vector<TIDA::Track*>&  refp  =  refp_vecObject;
 	
 	//	if ( debugPrintout ) { 
 	//	  std::cout << "refp.size() " << refp.size() << " after roi filtering" << std::endl; 
@@ -1308,91 +1543,44 @@ int main(int argc, char** argv)
 
 	foutdir->cd();
 
-	if ( truthMatch ) { 
-	  
-	  /// get the truth particles ...
-	  if ( select_roi ) dynamic_cast<Filter_Combined*>(truthFilter)->setRoi(&roi);
-	  const std::vector<TIDA::Track*>&  truth = truthTracks.tracks(truthFilter);
-
-	  /// dr match against current reference selection 
-	  truth_matcher->match( refp, truth );
-
-	  /// holder for reference with matches  
-	  std::vector<TIDA::Track*>  _refp;
-	  
-	  /// which truth tracks have a matching reference track ?
-	  for ( unsigned i=0 ; i<refp.size() ; i++ ) { 
-	    if ( truth_matcher->matched( refp[i] ) ) _refp.push_back( refp[i] ); 
+	// do analysing
+	
+	if ( monitorZBeam ) { 
+	  if ( beamline_ref.size()>2 && beamline_test.size()>2 ) { 
+	    refz.push_back(  zpair( lb, beamline_ref[2]) );
+	    testz.push_back( zpair( lb, beamline_test[2]) );
 	  }
-
-	  _matcher->match( _refp, testp);
-	  analitr->second->execute( _refp, testp, _matcher );
-
-	  ConfVtxAnalysis* vtxanal = 0;
-	  analitr->second->store().find( vtxanal, "rvtx" );
-
-	  if ( vtxanal ) { 
-	    
-	    /// AAAAAARGH!!! because you cannot cast vector<T> to const vector<const T> 
-	    ///  we first need to copy the actual elements from the const vector, to a normal 
-	    ///  vector. This is because if we take the address of elements of a const vector<T>
-	    ///  they will by of type const T*, so we can only add them to a vector<const T*>
-	    ///  and all our functions are using const vector<T>&, so we would need to duplicate
-	    ///  all the functions to allow over riding with vector<T*> *and* vector<const T*> 
-	    ///  to get this nonsense to work
-	    
-	    std::vector<TIDA::Vertex> vtxcock = vertices;	    
-	    std::vector<TIDA::Vertex*> vtxp; // = pointers( vtxcock );
-
-	    vtxp.reserve( vtxcock.size() );
-	    for ( unsigned iv=0 ; iv<vtxcock.size() ; iv++ ) vtxp.push_back( &vtxcock[iv] );
-	    
-	    std::vector<TIDA::Vertex> vtxcock_test = vertices_test;
-	    std::vector<TIDA::Vertex*> vtxp_test; // = pointers( vtxcock_test );
-	    
-	    vtxp_test.reserve( vtxcock_test.size() );
-	    for ( unsigned iv=0 ; iv<vtxcock_test.size() ; iv++ ) vtxp_test.push_back( &vtxcock_test[iv] );
-	    
-	    vtxanal->execute( vtxp, vtxp_test );
-	  }
-
 	}
-	else {
+	
+	_matcher->match( refp, testp);
+	analitr->second->execute( refp, testp, _matcher );
+	
+	ConfVtxAnalysis* vtxanal = 0;
+	analitr->second->store().find( vtxanal, "rvtx" );
+	
+	if ( vtxanal ) {	  
+	  /// AAAAAARGH!!! because you cannot cast vector<T> to const vector<const T>
+	  ///  we first need to copy the actual elements from the const vector, to a normal
+	  ///  vector. This is because if we take the address of elements of a const vector<T>
+	  ///  they will by of type const T*, so we can only add them to a vector<const T*>
+	  ///  and all our functions are using const vector<T>&, so we would need to duplicate
+	  ///  all the functions to allow over riding with vector<T*> *and* vector<const T*>
+	  ///  to get this nonsense to work
 	  
-	  if ( monitorZBeam ) { 
-	    if ( beamline_ref.size()>2 && beamline_test.size()>2 ) { 
-	      refz.push_back(  zpair( lb, beamline_ref[2]) );
-	      testz.push_back( zpair( lb, beamline_test[2]) );
-	    }
-	  }
-
-	  _matcher->match( refp, testp);
-	  analitr->second->execute( refp, testp, _matcher );
-
-	  ConfVtxAnalysis* vtxanal = 0;
-	  analitr->second->store().find( vtxanal, "rvtx" );
-
-#if 1
-	  if ( vtxanal ) { 
-
-	    std::vector<TIDA::Vertex> vtxcock = vertices;
-	    std::vector<TIDA::Vertex*> vtxp; // = pointers( vtxcock );
-	    vtxp.reserve( vtxcock.size() );
-	    for ( unsigned iv=0 ; iv<vtxcock.size() ; iv++ ) vtxp.push_back( &vtxcock[iv] );
-
-	    std::vector<TIDA::Vertex> vtxcock_test = vertices_test;	    
-	    std::vector<TIDA::Vertex*> vtxp_test; //  = pointers( vtxcock_test );
-	    vtxp_test.reserve( vtxcock_test.size() );
-	    for ( unsigned iv=0 ; iv<vtxcock_test.size() ; iv++ ) vtxp_test.push_back( &vtxcock_test[iv] );
-
-	    // std::cout << "vtx ref\t"  << vtxcock << std::endl; 
-	    // std::cout << "vtx test\t" << vtxcock_test << std::endl; 
-	    
-	    vtxanal->execute( vtxp, vtxp_test );
-	    
-	  }
-#endif
-
+	  std::vector<TIDA::Vertex> vtxcck = vertices;           
+	  std::vector<TIDA::Vertex*> vtxp; // = pointers( vtxcck );
+	  
+	  vtxp.reserve( vtxcck.size() );
+	  for ( unsigned iv=0 ; iv<vtxcck.size() ; iv++ ) vtxp.push_back( &vtxcck[iv] );
+	  
+	  std::vector<TIDA::Vertex> vtxcck_test = vertices_test;
+	  std::vector<TIDA::Vertex*> vtxp_test; // = pointers( vtxcck_test );
+	  
+	  vtxp_test.reserve( vtxcck_test.size() );
+	  for ( unsigned iv=0 ; iv<vtxcck_test.size() ; iv++ ) vtxp_test.push_back( &vtxcck_test[iv] );
+	  
+	  vtxanal->execute( vtxp, vtxp_test );
+	  
 	}
 
 	
@@ -1473,9 +1661,12 @@ int main(int argc, char** argv)
   hcorr->Write();
 
   for ( int i=analyses.size() ; i-- ; ) { 
-
     // std::cout << "finalise analysis chain " << analyses[i]->name() << std::endl;
     analyses[i]->finalise();
+    
+    ConfVtxAnalysis* vtxanal = 0;
+    analyses[i]->store().find( vtxanal, "rvtx" );
+    if ( vtxanal ) vtxanal->finalise();
     
     delete analyses[i];
   }

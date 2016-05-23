@@ -45,6 +45,7 @@ public:
   void set( ReadCards& r, const std::string& n ) { 
     r.Set( n+"ptNScale",  pt_NScale );
     r.Set( n+"etaNScale", eta_NScale );
+    r.Set( n+"phiNScale", phi_NScale );
     r.Set( n+"d0NScale",  d0_NScale );
     r.Set( n+"a0NScale",  a0_NScale );
     r.Set( n+"z0NScale",  z0_NScale );

@@ -38,7 +38,7 @@ public:
     ranges( &d[0], d.size(), t );
   }
 
-  void ranges( const double* d, int N, T* t ) { 
+  void ranges( const double* d, unsigned N, T* t ) { 
     mdir.push();
     for ( unsigned i=1 ; i<N ; i++ ) { 
       this->push_back( value_type( d[i-1], new T(*t) ) );
@@ -48,6 +48,7 @@ public:
   }
 
   T* find( double d ) { 
+    if ( this->empty() ) return 0;
     for ( unsigned i=this->size()-1 ; i-- ; ) {
       if ( d>=this->at(i).first && d<this->at(i+1).first ) return this->at(i).second;
     } 
@@ -61,8 +62,8 @@ public:
     for ( unsigned i=this->size()-1 ; i-- ;  ) { 
       if ( this->at(i).second ) { 
 	char _name[64];
-	if ( s=="" ) std::printf( _name, "%s_%d", mname.c_str(), i-1 ); 
-	else         std::printf( _name, "%s_%d", s.c_str(), i-1 ); 
+	if ( s=="" ) std::sprintf( _name, "%s_%d", mname.c_str(), i-1 ); 
+	else         std::sprintf( _name, "%s_%d", s.c_str(), i-1 ); 
 	this->at(i).second->Bayes()->Write(_name);
       }  
     }

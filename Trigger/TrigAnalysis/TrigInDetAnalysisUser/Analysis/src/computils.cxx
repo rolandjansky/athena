@@ -37,6 +37,20 @@
 bool Plots::watermark = true;
 
 
+void Norm( TH1* h ) {
+  double n = 0;
+  for ( int i=h->GetNbinsX()+1 ; --i ; ) n += h->GetBinContent(i);
+  if ( n!=0 ) {
+    double in=1/n;
+    for ( int i=h->GetNbinsX()+1 ; --i ; ) {
+      h->SetBinContent(i, h->GetBinContent(i)*in );
+      h->SetBinError(i, h->GetBinError(i)*in );
+    }
+  }
+  
+}
+
+
 
 void ATLASFORAPP_LABEL( double x, double  y, int color, double size ) 
 {
@@ -82,6 +96,23 @@ bool contains( const std::string& s, const std::string& p) {
 bool fcontains( const std::string& s, const std::string& p) { 
   return (s.find(p)==0);
 }
+
+
+double plotable( TH1* h ) { // , double xlo, double xhi ) {
+  double n = 0;
+    
+  double _xlo = h->GetBinLowEdge(1);
+  double _xhi = h->GetBinLowEdge(h->GetNbinsX()+1);
+
+  //  if ( xlo!=-999 ) _xlo = xlo;
+  //  if ( xhi!=-999 ) _xhi = xhi;
+
+  for ( int i=h->GetNbinsX()+1 ; --i ; ) {
+    if ( h->GetBinCenter(i)>_xlo && h->GetBinCenter(i)<_xhi ) n += h->GetBinContent(i);
+  } 
+  return n;
+}
+
 
 
 bool exists( const std::string& filename ) { 
@@ -319,7 +350,7 @@ std::vector<int>  findxrange(TH1* h, bool symmetric ) {
     limits[1] = ihi;
   }
 
-  std::cout << "::xrange " << h->GetName() << "\t" << limits[0] << " " << limits[1] << std::endl;
+  //  std::cout << "::xrange " << h->GetName() << "\t" << limits[0] << " " << limits[1] << std::endl;
 
   return limits; 
 
