@@ -39,7 +39,7 @@ void myText( Double_t x, Double_t y, Color_t color, const std::string& text, Dou
 std::string stime();
 static std::string release;
 
-
+void Norm( TH1* h);
 
 /// does a string contain the substring
 bool contains( const std::string& s, const std::string& p);
@@ -100,7 +100,8 @@ public:
     m_symmetric(false),
     m_rangeset(false),
     m_lo(0),
-    m_hi(0)
+    m_hi(0),
+    m_norm(false)
   { 
     //    std::cout << "AxisInfo::info" << m_info << std::endl;
 
@@ -118,6 +119,10 @@ public:
       if       ( keys[i]=="lin" )   m_log = false;
       else if  ( keys[i]=="log" )   m_log = true;
       else if  ( keys[i]=="auto" )  m_autoset = true;
+      else if  ( keys[i]=="auton" )  {
+	m_autoset = true;
+	m_norm    = true;
+      }
       else if  ( keys[i]=="autosym" ) { 
 	m_autoset = true; 
 	m_symmetric = true; 
@@ -153,6 +158,8 @@ public:
   bool   log()  const { return m_log; }
 
   bool   autoset() const { return m_autoset; }
+
+  bool   normset() const { return m_norm; }
   
   bool   symmetric() const { return m_symmetric; }
 
@@ -195,6 +202,8 @@ public:
   double m_lo; 
   double m_hi;
 
+  bool m_norm;
+  
 };
 
 
@@ -337,9 +346,6 @@ public:
 	  //	  }
 	}
 	else    {
-
-	  if ( htest() ) htest()->GetXaxis()->SetMoreLogLabels(true);
-
 	  if ( tgtest() ) { 
 	    zeroErrors(htest());
 	    htest()->GetXaxis()->SetMoreLogLabels(true);

@@ -37,6 +37,20 @@
 bool Plots::watermark = true;
 
 
+void Norm( TH1* h ) {
+  double n = 0;
+  for ( int i=h->GetNbinsX()+1 ; --i ; ) n += h->GetBinContent(i);
+  if ( n!=0 ) {
+    double in=1/n;
+    for ( int i=h->GetNbinsX()+1 ; --i ; ) {
+      h->SetBinContent(i, h->GetBinContent(i)*in );
+      h->SetBinError(i, h->GetBinError(i)*in );
+    }
+  }
+  
+}
+
+
 
 void ATLASFORAPP_LABEL( double x, double  y, int color, double size ) 
 {
@@ -370,4 +384,3 @@ void xrangeuser(TH1* h, bool symmetric ) {
   std::vector<double> limits = findxrangeuser( h, symmetric );
   h->GetXaxis()->SetRangeUser( limits[0], limits[1] );
 }
-

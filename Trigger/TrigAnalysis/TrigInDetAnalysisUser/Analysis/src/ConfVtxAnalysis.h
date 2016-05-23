@@ -21,7 +21,7 @@
 #include "Resplot.h"
 
 #include "Resplot.h"
-#include "Contour.h"
+// #include "Contour.h"
 
 
 class ConfVtxAnalysis : public VertexAnalysis {
@@ -65,7 +65,7 @@ private:
   Efficiency* eff_nvtx;
   Efficiency* eff_mu;
  
-  Contour<Efficiency>* eff_zed_vs_ntrax;
+  //  Contour<Efficiency>* eff_zed_vs_ntrax;
 
 };
 

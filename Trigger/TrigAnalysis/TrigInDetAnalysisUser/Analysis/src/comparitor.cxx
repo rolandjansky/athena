@@ -760,7 +760,16 @@ int main(int argc, char** argv) {
       else { 
         htest = (TH1F*)ftest.Get((chains[j]+"/"+histos[i]).c_str()) ;
 	href  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
+
+	if ( htest==0 || href==0 ) continue;
+
 	savedhistos.push_back( chains[j]+"/"+histos[i] );
+
+	if ( yinfo.normset() ) { 
+	  Norm( htest );
+	  Norm( href );
+	}
+	
       }
 
       if ( make_ref_efficiencies ) { 
@@ -907,8 +916,8 @@ int main(int argc, char** argv) {
 	    double _max = int( (h->GetMaximum() + 20)*0.1 )*0.1*scale_eff;
 	    double _min = int( (h->GetMinimum() - 10)*0.1 )*0.1*scale_eff;
 	    
-	    if ( _max>1.0*scale_eff ) _max = 1.02*scale_eff;
-	    if ( _min<0 )             _min = 0;
+	    if ( _max>1*scale_eff ) _max = 1.02*scale_eff;
+	    if ( _min<0 )           _min = 0;
 	    
 	    h->SetMinimum(_min);
 	    h->SetMaximum(_max);
@@ -1270,4 +1279,3 @@ int main(int argc, char** argv) {
 
   return 0;
 }
-

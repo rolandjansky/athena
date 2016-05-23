@@ -1,0 +1,85 @@
+
+Detailed introductory documentation can be found for the mini workshop 
+to discuss the TrigInDetAnalysis framework. Slides can be found here
+
+https://indico.cern.ch/event/278837/sessions/143651/#20131106
+
+The slides from the "Overview of the TrigInDetAnaysis packages" 
+gives the best overview.
+
+There are some operational instruction in 
+
+https://twiki.cern.ch/twiki/bin/viewauth/Atlas/InnerDetectorTriggerRTT
+
+Basically the structure of a task is:
+
+1. run an athena job with some jo which run the TIDA analysis code ntple 
+   building stage
+   This reads through the events, looking at events that have passed the 
+   specified triggers and extracts the tracks and the relevant offline 
+   objects, and creates a custom ntple using our own classes.
+2. run a post processing job (TIDArdict.exe) on these ntples. This runs 
+   our own standalone ntple reading code and fills histograms. It has 
+   it's own style of config file. The executable is so named, since it
+   reads in and decodes usin our own dictionaries for the code (it stores
+   proper classes in the TTree file, rather than flattened structures)  
+3. run a histogram plotting job, (TIDAcomparitor.exe) to make plots from 
+   the hitograms filled in step 2.
+   This also uses it's own config file, using the same format as the file 
+   for step 2, to specify which histograms, bin ranges, axis titles, wherether 
+   histograms dhould be normalised, etc
+
+
+The comparitor has many options that can be seen with 
+
+  TIDAcomparitor.exe --help   
+
+Versions of many of the .dat files that you might find about are in 
+
+Trigger/TrigAnalysis/TrigInDetAnalysisUser/share 
+
+All the code in TrigInDetAnalysisUser is completely athena-free, 
+like our own version of rootcore, but more straightforward to 
+use, and can be compiled by itself, just linking against root 
+if required.
+
+
+There are many utilities in TIDAUser, for instance, one of the most important 
+is the reader; 
+
+  TIDAreader.exe
+
+which reads in and decodes the ntples, since they use proper classes, and are not 
+flat structures.
+
+Also, 
+
+  TIDAchains.exe
+
+will list the chains that are in the output histogram file from the 
+
+  TIDArdict.exe
+
+run, ie ...
+
+% TIDAchains.exe data-output-el.root 
+HLT_e26_lhtight_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig
+HLT_e26_lhtight_idperf_InDetTrigTrackingxAODCnv_Electron_FTF
+HLT_e24_lhmedium_idperf_L1EM20VH_InDetTrigTrackingxAODCnv_Electron_IDTrig
+HLT_e24_medium_idperf_L1EM20VH_InDetTrigTrackingxAODCnv_Electron_IDTrig
+HLT_e24_lhmedium_idperf_L1EM20VH_InDetTrigTrackingxAODCnv_Electron_FTF
+HLT_e24_medium_idperf_L1EM20VH_InDetTrigTrackingxAODCnv_Electron_FTF
+
+In the dat file for The TIDArdict.exe job there is a list of "test" chains, 
+and also a specification of which chain to use as the "reference" chain.
+
+Parameters generally are for reference selection eg
+
+ pT = 1000;
+
+means only reference tracks with pT > 1000 MeV. cuts on "test" (trigger)
+quantities, generally are appended with  _rec, eg 
+
+ pT_rec = 1000;
+
+The dat files are free formatted and take c++ style comments.

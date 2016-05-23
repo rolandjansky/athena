@@ -443,17 +443,10 @@ int main(int argc, char** argv)
     }
   }
 
-  if ( testChains.size()==0 ) { 
-    if ( inputdata.isTagDefined("testChains") ) { 
-      /// a whole list of chains
-      testChains = inputdata.GetStringVector("testChains");
-    }
-    else { 
-      if ( inputdata.isTagDefined("testChain") ) {
-	/// a single chain
-	testChains.push_back( inputdata.GetString("testChain") );
-      }
-    }
+  /// get the test chains 
+  if ( testChains.size()==0 ) { ///NB: don't override command line args
+    if      ( inputdata.isTagDefined("testChains") ) testChains = inputdata.GetStringVector("testChains");
+    else if ( inputdata.isTagDefined("testChain") )  testChains.push_back( inputdata.GetString("testChain") );
   }
 
   /// new code - can extract vtx name, pt, any extra options that we want, 

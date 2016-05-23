@@ -20,7 +20,7 @@ void ConfVtxAnalysis::initialise() {
 
   m_initialised = true;
 
-  std::cout << "ConfVtxAnalysis::initialise() " << name() << std::endl;
+  //  std::cout << "ConfVtxAnalysis::initialise() " << name() << std::endl;
 
 
   mdir = new TIDDirectory(name());
@@ -47,11 +47,7 @@ void ConfVtxAnalysis::initialise() {
   eff_nvtx  = new Efficiency( hnvtx,  "nvtx_eff" );
   //  eff_mu    = new Efficiency( hmu, "mu_eff" );
  
-  double ntrax[10] = { 0, 2, 5, 10, 15, 20, 30, 15, 100 }; 
-
-  eff_zed_vs_ntrax = new Contour<Efficiency>( "eff_zed_vs_ntrax");
-
-  eff_zed_vs_ntrax->ranges( ntrax, 9, eff_zed );
+  //  double ntrax[10] = { 0, 2, 5, 10, 15, 20, 30, 15, 100 }; 
 
   mdir->pop();
 
@@ -67,7 +63,7 @@ void ConfVtxAnalysis::execute( const std::vector<TIDA::Vertex*>& vtx0,
 
   //  if ( vtx1.size()<2 ) return;
 
-#if 1
+#if 0
     std::cout << "ConfVtxAnalysis::execute() " << name()
 	      << "\tvtx0.size() " << vtx0.size()
 	      << "\tvtx1.size() " << vtx1.size()
@@ -86,16 +82,14 @@ void ConfVtxAnalysis::execute( const std::vector<TIDA::Vertex*>& vtx0,
 
       if ( i>0 ) continue;
 
-      std::cout << i << "\tref z " << vtx0[i]->z();
+      //      std::cout << i << "\tref z " << vtx0[i]->z();
 
       hzed->Fill( vtx0[i]->z() );
       hntrax->Fill( vtx0[i]->Ntracks() );
 
-      Efficiency* eff = eff_zed_vs_ntrax->find(  vtx0[i]->Ntracks() );
-
       const TIDA::Vertex* mv = m.matched( vtx0[i] ); 
       if ( mv ) { 
-	std::cout << "\ttest z " << mv->z() << "  : delta z " << (mv->z()-vtx0[i]->z()) << std::endl;
+	//	std::cout << "\ttest z " << mv->z() << "  : delta z " << (mv->z()-vtx0[i]->z()) << std::endl;
       
 	/// ah ha ! can fill some silly old histograms here 
 	/// ...
@@ -114,16 +108,14 @@ void ConfVtxAnalysis::execute( const std::vector<TIDA::Vertex*>& vtx0,
 	eff_ntrax->Fill( vtx0[i]->Ntracks() );
 	eff_nvtx->Fill( vtx0.size() );
 
-	if ( eff ) eff->Fill( vtx0[i]->z() );
       }
       else {
-	std::cout << "\t" << "------" << std::endl;
+	//	std::cout << "\t" << "------" << std::endl;
  
 	eff_zed->FillDenom( vtx0[i]->z() );
 	eff_ntrax->FillDenom( vtx0[i]->Ntracks() );
 	eff_nvtx->FillDenom( vtx0.size() );
 	
-	if ( eff ) eff->FillDenom( vtx0[i]->z() );
       }
       
     }
@@ -135,11 +127,15 @@ void ConfVtxAnalysis::execute( const std::vector<TIDA::Vertex*>& vtx0,
   
 void ConfVtxAnalysis::finalise() { 
 
+  std::cout << "ConfVtxAnalysis::finalise() " << name() << std::endl;
+ 
   if ( !m_initialised ) return;;
 
-  std::cout << "ConfVtxAnalysis::finalise() " << name() << std::endl;
-
   mdir->push();
+
+  std::cout << "ConfVtxAnalysis::finalise() " << name() << std::endl;
+ 
+  gDirectory->pwd();
 
   hnvtx->Write();
   hzed->Write();
@@ -158,24 +154,6 @@ void ConfVtxAnalysis::finalise() {
   eff_zed->finalise();   eff_zed->Bayes()->Write( (eff_zed->name()+"_tg").c_str() );
   eff_ntrax->finalise(); eff_ntrax->Bayes()->Write( (eff_ntrax->name()+"_tg").c_str() );
   eff_nvtx->finalise();  eff_nvtx->Bayes()->Write( (eff_nvtx->name()+"_tg").c_str() );
-
-
-  eff_zed_vs_ntrax->dir()->push();
-  
-  for ( int i=eff_zed_vs_ntrax->size()-1 ; i-- ; ) { 
-    
-    Efficiency* eff =  eff_zed_vs_ntrax->at(i).second;
-
-    if ( eff ) { 
-      eff->finalise(); 
-      eff->Bayes()->Write( (eff->name()+"_tg").c_str() ); 
-    }
-
-  }
-
-  eff_zed_vs_ntrax->dir()->pop();
-
-  eff_zed_vs_ntrax->Write();
 
   mdir->pop();
 
