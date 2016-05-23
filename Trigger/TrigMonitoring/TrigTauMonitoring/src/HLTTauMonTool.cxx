@@ -110,7 +110,8 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
     declareProperty("primary_tau", 		m_primary_tau);
     declareProperty("monitoring_tau", 		m_monitoring_tau);
     declareProperty("prescaled_tau", 		m_prescaled_tau);
-    declareProperty("highpt_tau",               m_highpt_tau);
+    declareProperty("Highpt_tau",               m_highpt_tau);
+    declareProperty("Ztt_tau",                  m_ztt_tau);
     declareProperty("EffOffTauPtCut", 		m_effOffTauPtCut=20000.);
     declareProperty("TurnOnCurves", 		m_turnOnCurves=true);
     declareProperty("TurnOnCurvesDenom",        m_turnOnCurvesDenom="RecoID");
@@ -140,6 +141,10 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
     declareProperty("AbsPhiMax",		m_selection_absPhiMax=-1.);
     declareProperty("AbsPhiMin",		m_selection_absPhiMin=-1.);
 
+    m_L1TriggerCondition = 0;
+    m_HLTTriggerCondition = 0;
+    mu_offline = 0.;
+    mu_online = 0;
 }
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
@@ -184,6 +189,10 @@ StatusCode HLTTauMonTool::init() {
     for(std::vector<std::string>::iterator it = m_highpt_tau.begin(); it != m_highpt_tau.end(); ++it) {
       m_trigItemsHighPt.push_back(*it);
     }
+    for(std::vector<std::string>::iterator it = m_ztt_tau.begin(); it != m_ztt_tau.end(); ++it) {
+      m_trigItemsZtt.push_back(*it);
+    }
+
 
 //   ATH_MSG_WARNING("Retrieving HLT tau chains");
 //   const Trig::ChainGroup* m_allHLTTauItems = getTDT()->getChainGroup(".*");
@@ -229,6 +238,13 @@ StatusCode HLTTauMonTool::fill() {
     
     ATH_MSG_DEBUG(" ====== Begin fillHists() ====== ");
     StatusCode sc;
+
+
+    // skip HLTResult truncated events
+    if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+        ATH_MSG_WARNING("HLTResult truncated, skip event");
+        return StatusCode::SUCCESS;
+    }
  
 //    if(!m_trigItemsAll.size()){ 
 //      ATH_MSG_DEBUG("Retrieving HLT tau chains");

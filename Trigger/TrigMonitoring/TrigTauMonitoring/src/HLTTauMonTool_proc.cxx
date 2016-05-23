@@ -97,10 +97,10 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
     if(endOfEventsBlock || endOfLumiBlock) {}//Get rid of compilation warnings
     if(endOfRun)
     {
-        if(m_RealZtautauEff)
+/*        if(m_RealZtautauEff)
         {
             setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff");
-	    for(unsigned int i=0;i<m_trigItems.size();++i)
+	    for(unsigned int i=0;i<m_trigItemsZtt.size();++i)
 	      {
                 setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+m_trigItems[i]);
                 //plotUnderOverFlow(hist("hRealZttPtDenom"));
@@ -108,17 +108,7 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
                 //plotUnderOverFlow(hist("hRealZttHLTPtNum"));
 	      }
         }
-    
-	if(m_dijetFakeTausEff)
-          {
-            for(unsigned int i=0;i<m_trigItemsHighPt.size();++i){
-              setCurrentMonGroup("HLT/TauMon/Expert/dijetFakeTausEff/"+m_trigItemsHighPt[i]);
-              plotUnderOverFlow(hist("hdijetFakeTausPtDenom"));
-              plotUnderOverFlow(hist("hdijetFakeTausL1PtNum"));
-              plotUnderOverFlow(hist("hdijetFakeTausHLTPtNum"));
-	    }
-	    
-          }
+*/
 	
         for(unsigned int i=0;i<m_trigItems.size();++i)
 	  {
@@ -467,12 +457,7 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
 	                      divide2("hRecoHLTEtaVsPhiNum","hRecoTauEtaVsPhiDenom","hRecoHLTEtaVsPhiEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/RecoEfficiency");
                 
             }
-            if(m_RealZtautauEff)
-            {
-                //divide("hRealZttL1PtNum","hRealZttPtDenom","hRealZttL1PtEfficiency","HLT/TauMon/Expert/RealZtautauEff/"+m_trigItems[i]);
-                //divide("hRealZttHLTPtNum","hRealZttPtDenom","hRealZttHLTPtEfficiency","HLT/TauMon/Expert/RealZtautauEff/"+m_trigItems[i]);
-            }
-
+ 
 	    if (m_doTrackCurves)
 	    { divide("hrecotauNum_trk_pt","hrecotau_trk_pt","hpstau_trkeff_pt","HLT/TauMon/Expert/"+m_trigItems[i]+"/trackCurves");
 	      divide("hrecotauNum_trk_eta","hrecotau_trk_eta","hpstau_trkeff_eta","HLT/TauMon/Expert/"+m_trigItems[i]+"/trackCurves");
@@ -483,16 +468,7 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
 
 	   
         }//End of trigItem loop
-    
-	if(m_dijetFakeTausEff)
-	  {
-	    for(unsigned int i=0;i<m_trigItemsHighPt.size();++i)
-	      {
 
-		divide("hdijetFakeTausL1PtNum","hdijetFakeTausPtDenom","hdijetFakeTausL1PtEfficiency","HLT/TauMon/Expert/dijetFakeTausEff/"+m_trigItemsHighPt[i]);
-		divide("hdijetFakeTausHLTPtNum","hdijetFakeTausPtDenom","hdijetFakeTausHLTPtEfficiency","HLT/TauMon/Expert/dijetFakeTausEff/"+m_trigItemsHighPt[i]);
-	      }
-	  }
 
       
 	if(m_turnOnCurves){
@@ -627,9 +603,9 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
             cloneHistogram2("hL1RoITauClusEMIso","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
 
 	    if(m_emulation){
-		divide("hL1Emulation","hL1EmulationPassTDT","hL1Emulation","HLT/TauMon/Expert/Emulation");
+		//divide("hL1Emulation","hL1EmulationPassTDT","hL1Emulation","HLT/TauMon/Expert/Emulation");
 		setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/Emulation");
-	    	cloneHistogram("hL1Emulation","HLT/TauMon/Expert/Emulation");
+	    	cloneProfile("hL1Emulation","HLT/TauMon/Expert/Emulation");
 	    }
 
             setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/PreselectionTau");

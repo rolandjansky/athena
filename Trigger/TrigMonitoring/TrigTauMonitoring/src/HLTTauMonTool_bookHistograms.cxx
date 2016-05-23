@@ -818,10 +818,10 @@ void HLTTauMonTool::bookHistogramsAllItem(){
         const int nbin_pt = 11;
 	double bins_pt[nbin_pt] = {20.,25.,30.,35.,40.,45.,50.,60.,70.,100.,150.};
         
-	for(unsigned int i=0;i<m_trigItems.size();++i)
+	for(unsigned int i=0;i<m_trigItemsZtt.size();++i)
 	  {
-            addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/RealZtautauEff/"+m_trigItems[i],run) );
-            setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+m_trigItems[i]);
+            addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/RealZtautauEff/"+m_trigItemsZtt[i],run) );
+            setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+m_trigItemsZtt[i]);
             //addHistogram(new TH1F("hRealZttPtDenom","Offline Real Tau;Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
             //addHistogram(new TH1F("hRealZttL1PtNum","L1 vs Offline Real Tau; Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
             //addHistogram(new TH1F("hRealZttHLTPtNum","HLT vs Offline Real Tau; Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
@@ -855,21 +855,34 @@ void HLTTauMonTool::bookHistogramsAllItem(){
         addHistogram(new TH1F("hFTFnWideTrack_1step","FTF number of tracks;number of tracks;Nevents",10,0,10));
         addHistogram(new TH1F("hFTFnWideTrack_2steps","FTF number of tracks;number of tracks;Nevents",10,0,10));
     }*/
+
     if(m_dijetFakeTausEff)
       {
-        const int nbin_pt = 17;
-        double bins_pt[nbin_pt] = {380, 385, 390, 395, 400, 405, 410, 415, 420, 430, 440, 450, 460, 470, 480, 490, 500};
+        const int nbin_pt = 8;
+        float bins_pt[nbin_pt] = {100, 150, 200, 250, 300, 350, 400, 600};
        
-	for(unsigned int i=0;i<m_trigItemsHighPt.size();++i){
+        const int nbin_eta = 9;
+        double bins_eta[nbin_eta] = {-2.47,-1.52,-1.37,-0.69,0.,0.69,1.37,1.52,2.47};
+
+        const int nbin_mu = 33;
+        float bins_mu[nbin_mu] = {0.,2.,4.,6.,8.,10.,12.,14.,16.,18.,20.,22.,24.,26.,28.,30.,32.,34.,36.,38.,40., 42., 44., 44., 46., 48., 50., 52., 54., 56., 58., 60., 62};
+	for(unsigned int i=0;i<m_trigItemsHighPt.size();++i)
+          {
           addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/dijetFakeTausEff/"+m_trigItemsHighPt[i],run) );
 	  setCurrentMonGroup("HLT/TauMon/Expert/dijetFakeTausEff/"+m_trigItemsHighPt[i]);
-          addHistogram(new TH1F("hdijetFakeTausPtDenom","Offline Fake Tau;Offline Fake Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
-          addHistogram(new TH1F("hdijetFakeTausL1PtNum","L1 vs Offline Fake Tau; Offline Fake Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
-          addHistogram(new TH1F("hdijetFakeTausHLTPtNum","HLT vs Offline Fake Tau; Offline Fake Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
-          addHistogram(new TH1F("hdijetFakeTausL1PtEfficiency","L1 vs Offline Fake Tau Efficiency; Offline Fake Tau p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
-          addHistogram(new TH1F("hdijetFakeTausHLTPtEfficiency","HLT vs Offline Fake Tau Efficiency; Offline Fake Tau p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
-	}
-      }
+
+          /* histograms of efficiencies vs. PT, ETA, MU, NTRACKS */
+	  addProfile(new TProfile("TProfDijetFakeTausL1PtEfficiency", "L1 Vs Offline Fake Tau Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+	  addProfile(new TProfile("TProfDijetFakeTausL1EtaEfficiency", "L1 Vs Offline Fake Tau Efficiency; Offline Fake Tau #eta; Efficiency",nbin_eta-1,bins_eta));
+	  addProfile(new TProfile("TProfDijetFakeTausL1MuEfficiency", "L1 Vs Offline Fake Tau Efficiency; Offline Fake Tau <#mu>; Efficiency",nbin_mu-1,bins_mu));
+	  addProfile(new TProfile("TProfDijetFakeTausL1NTracksEfficiency", "L1 Vs Offline Fake Tau Efficiency; Offline Fake Tau nTracks; Efficiency",5,0,5));
+
+	  addProfile(new TProfile("TProfDijetFakeTausHLTPtEfficiency", "HLT Vs Offline Fake Tau Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+	  addProfile(new TProfile("TProfDijetFakeTausHLTEtaEfficiency", "HLT Vs Offline Fake Tau Efficiency; Offline Fake Tau #eta; Efficiency",nbin_eta-1,bins_eta));
+	  addProfile(new TProfile("TProfDijetFakeTausHLTMuEfficiency", "HLT Vs Offline Fake Tau Efficiency; Offline Fake Tau <#mu>; Efficiency",nbin_mu-1,bins_mu));
+	  addProfile(new TProfile("TProfDijetFakeTausHLTNTracksEfficiency", "HLT Vs Offline Fake Tau Efficiency; Offline Fake Tau nTracks; Efficiency",5,0,5));
+	  }
+      }//end if(m_dijetFakeTausEff)
 
     std::vector<string> lowest_names;
     lowest_names.push_back("lowest_singletau");
@@ -948,27 +961,27 @@ void HLTTauMonTool::bookHistogramsAllItem(){
         addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/Emulation",run));
         setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
         if(m_emulation_l1_tau.size() > 0) {
-            addHistogram(new TH1F("hL1EmulationPassTDT", " TDT L1 passed events;", m_emulation_l1_tau.size(), -0.5, m_emulation_l1_tau.size()-0.5));
-            addHistogram(new TH1F("hL1EmulationPassEmul", " Emulation L1 passed events;", m_emulation_l1_tau.size(), -0.5, m_emulation_l1_tau.size()-0.5));
-            addHistogram(new TH1F("hL1Emulation", " L1 Emulation-TDT Mismatched events;", m_emulation_l1_tau.size(), -0.5, m_emulation_l1_tau.size()-0.5));
+//            addHistogram(new TH1F("hL1EmulationPassTDT", " TDT L1 passed events;", m_emulation_l1_tau.size(), -0.5, m_emulation_l1_tau.size()-0.5));
+//            addHistogram(new TH1F("hL1EmulationPassEmul", " Emulation L1 passed events;", m_emulation_l1_tau.size(), -0.5, m_emulation_l1_tau.size()-0.5));
+            addProfile(new TProfile("hL1Emulation", " L1 Emulation-TDT Mismatched events;", m_emulation_l1_tau.size(), -0.5, m_emulation_l1_tau.size()-0.5));
         }
 
         if(m_emulation_hlt_tau.size() > 0) {
-            addHistogram(new TH1F("hHLTEmulationPassTDT", " TDT HLT passed events;", m_emulation_hlt_tau.size(), -0.5, m_emulation_hlt_tau.size()-0.5));
-            addHistogram(new TH1F("hHLTEmulationPassEmul", " Emulation HLT passed events;", m_emulation_hlt_tau.size(), -0.5, m_emulation_hlt_tau.size()-0.5));
-            addHistogram(new TH1F("hHLTEmulation", " HLT Emulation-TDT Mismatched events;", m_emulation_hlt_tau.size(), -0.5, m_emulation_hlt_tau.size()-0.5));
+//            addHistogram(new TH1F("hHLTEmulationPassTDT", " TDT HLT passed events;", m_emulation_hlt_tau.size(), -0.5, m_emulation_hlt_tau.size()-0.5));
+//            addHistogram(new TH1F("hHLTEmulationPassEmul", " Emulation HLT passed events;", m_emulation_hlt_tau.size(), -0.5, m_emulation_hlt_tau.size()-0.5));
+            addProfile(new TProfile("hHLTEmulation", " HLT Emulation-TDT Mismatched events;", m_emulation_hlt_tau.size(), -0.5, m_emulation_hlt_tau.size()-0.5));
         }
 
         for(unsigned int i=0; i < m_emulation_l1_tau.size(); ++i){
-            hist("hL1Emulation")->GetXaxis()->SetBinLabel(i+1, m_emulation_l1_tau.at(i).c_str());
-            hist("hL1EmulationPassTDT")->GetXaxis()->SetBinLabel(i+1, m_emulation_l1_tau.at(i).c_str());
-            hist("hL1EmulationPassEmul")->GetXaxis()->SetBinLabel(i+1, m_emulation_l1_tau.at(i).c_str());
+            profile("hL1Emulation")->GetXaxis()->SetBinLabel(i+1, m_emulation_l1_tau.at(i).c_str());
+            //hist("hL1EmulationPassTDT")->GetXaxis()->SetBinLabel(i+1, m_emulation_l1_tau.at(i).c_str());
+            //hist("hL1EmulationPassEmul")->GetXaxis()->SetBinLabel(i+1, m_emulation_l1_tau.at(i).c_str());
         }
         
         for(unsigned int i=0; i < m_emulation_hlt_tau.size(); ++i){
-            hist("hHLTEmulation")->GetXaxis()->SetBinLabel(i+1, m_emulation_hlt_tau.at(i).c_str());
-            hist("hHLTEmulationPassTDT")->GetXaxis()->SetBinLabel(i+1, m_emulation_hlt_tau.at(i).c_str());
-            hist("hHLTEmulationPassEmul")->GetXaxis()->SetBinLabel(i+1, m_emulation_hlt_tau.at(i).c_str());
+            profile("hHLTEmulation")->GetXaxis()->SetBinLabel(i+1, m_emulation_hlt_tau.at(i).c_str());
+            //hist("hHLTEmulationPassTDT")->GetXaxis()->SetBinLabel(i+1, m_emulation_hlt_tau.at(i).c_str());
+            //hist("hHLTEmulationPassEmul")->GetXaxis()->SetBinLabel(i+1, m_emulation_hlt_tau.at(i).c_str());
         }
     }
     const int nbin_pt = 13;

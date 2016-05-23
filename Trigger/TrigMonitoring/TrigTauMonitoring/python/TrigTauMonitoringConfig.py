@@ -180,14 +180,19 @@ def TrigTauMonitoringTool():
 #                'tau25_medium1_tracktwo_ptmin_no0reject_emulate'
 #	]
 
+	ztt_tau = [
+                  'tau25_idperf_tracktwo',
+                  'tau25_perf_tracktwo',
+                  'tau25_medium1_tracktwo',
+	]
+
 	highpt_tau = [
-                'tau80_medium1_tracktwo',
                 'tau80_medium1_tracktwo_L1TAU60',
-                'tau80_medium1_tracktwo_L1TAU60_tau50_medium1_tracktwo_L1TAU12',
-                'tau125_medium1_tracktwo',
-                'tau125_medium1_tracktwo_tau50_medium1_tracktwo_L1TAU12',
-		'tau125_perf_ptonly',
-                'tau125_perf_tracktwo',
+                'tau160_idperf_tracktwo',
+                'tau160_medium1_tracktwo',
+                'tau160_medium1HighptL_tracktwo',
+                'tau160_medium1HighptM_tracktwo',
+                'tau160_medium1HighptH_tracktwo'
 	]
 
 	# get the Level1 Emulation tool from the emulation python config
@@ -219,13 +224,14 @@ def TrigTauMonitoringTool():
 				  primary_tau		 = [], #full_tau, #[]
 				  prescaled_tau		 = [], #tau_track_test, #[],
 				  LowestSingleTau 	 = hltmonList.monitoring_singleTau, #"tau25_medium1_tracktwo",
-				  highpt_tau             = highpt_tau,
+				  Highpt_tau             = highpt_tau,
+				  Ztt_tau		 = ztt_tau,
 				  EffOffTauPtCut	 = 20000.,  #MeV
 				  TurnOnCurves           = True,
 				  TurnOnCurvesDenom	 = "RecoID", # combined string with combination of "Truth", "Reco", "ID" and "Presel". For Truth doTruth=True!
 				  doTruth		 = False,
 				  doRealZtautauEff       = True,
-				  dodijetFakeTausEff     = False,
+				  dodijetFakeTausEff     = True,
 				  doBootstrap		 = False,
 				  doEmulation		 = True,
 				  emulation_l1_tau       = emul_l1_tau,

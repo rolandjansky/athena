@@ -149,7 +149,6 @@ class HLTTauMonTool : public IHLTMonTool {
   void FillRelDiffHist(TH1 * hist, float val1, float val2, float checkVal, int checkMode);
   template<class T> void FillRelDiffProfile(TProfile * prof, float val1, float val2, T val3, float checkVal, int checkMode);
 
-  bool m_TracksInfo;
   bool m_turnOnCurves;
   std::string m_turnOnCurvesDenom;
   bool m_truth;
@@ -157,7 +156,6 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_emulation;
   bool m_RealZtautauEff;
   bool m_dijetFakeTausEff;
-  bool m_doFTKtest;
   bool m_doTrackCurves;
   bool m_doTopoValidation;
   std::vector<std::string> CutItems;
@@ -165,9 +163,6 @@ class HLTTauMonTool : public IHLTMonTool {
   std::vector<std::string> MuCutFlow;
   bool m_bootstrap;
 
-  unsigned int m_L1flag;
-  unsigned int m_Preselectionflag;
-  unsigned int m_HLTflag;
   unsigned int m_L1TriggerCondition;
   unsigned int m_HLTTriggerCondition;
   std::string m_L1StringCondition; 
@@ -186,7 +181,9 @@ class HLTTauMonTool : public IHLTMonTool {
   std::vector<std::string> m_trigItems;
   std::vector<std::string> m_trigItemsAll;
   std::vector<std::string> m_trigItemsHighPt;
+  std::vector<std::string> m_trigItemsZtt;
   std::vector<std::string> m_highpt_tau;
+  std::vector<std::string> m_ztt_tau;
   std::vector<std::string> m_primary_tau;
   std::vector<std::string> m_monitoring_tau;
   std::vector<std::string> m_prescaled_tau;
