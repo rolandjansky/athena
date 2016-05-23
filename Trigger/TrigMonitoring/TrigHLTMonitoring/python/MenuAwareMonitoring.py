@@ -999,6 +999,14 @@ class MenuAwareMonitoring:
             # nice spacing for user
             print ""
 
+    def does_mck_athena_version_match_current_athena_version(self, mck_id):
+        "Compares the current Athena version to the one of the requested MCK"
+        
+        mck_info = self.ms.oi.read_mck_info_from_db(mck_id)
+        mck_athena_version = mck_info['MCK_ATHENA_VERSION']
+
+        return mck_athena_version == self.current_athena_version            
+
 
     def apply_mck(self,input1="",print_output_here=""):
         "Apply an MCK to locally running tools."

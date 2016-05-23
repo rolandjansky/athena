@@ -78,8 +78,6 @@ class IHLTMonTool : public ManagedMonitorToolBase {
   // Automatically casts a TTree to ntuple
   TNtuple *ntuple(const std::string &treeName, const std::string &monGroup = "");
 
-
-
   protected:
 
   MsgStream *m_log;
