@@ -37,15 +37,20 @@ StatusCode
 AlgTestHistoDefSvc::initialize(){
   ATH_CHECK(m_histoDefSvc.retrieve());
   ATH_MSG_INFO("Test algorithm for HistogramDefinitionSvc");
+  //
   ATH_MSG_INFO("Printing histogram definition for 002_Al_N_01");
-  
-  std::string definition = m_histoDefSvc->definition("test","default").str();
+  std::string definition = m_histoDefSvc->definition("002_Al_N_01","").str();
+  ATH_MSG_INFO("Titles : "<<m_histoDefSvc->definition("002_Al_N_01","").allTitles);
   ATH_MSG_INFO(definition);
+  //
   ATH_MSG_INFO("Printing histogram definition for testProfile");
-
-  definition = m_histoDefSvc->definition("testProfile","default").str();
+  definition = m_histoDefSvc->definition("testProfile","").str();
   ATH_MSG_INFO(definition);
-
+  //
+  ATH_MSG_INFO("Printing histogram definition for test2D");
+  definition = m_histoDefSvc->definition("test2D","").str();
+  ATH_MSG_INFO(definition);
+  
   return StatusCode::SUCCESS;
 }
 

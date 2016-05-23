@@ -29,12 +29,8 @@ private:
 	TH1* m_recPt;
 	///Pt histogram with restricted range
 	TH1* m_recPtLow;
-
-	
 	//plot base has nop default implementation of this; we use it to book the histos
 	void initializePlots();
-	
-	
 };
 
 

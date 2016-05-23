@@ -11,47 +11,59 @@
 
 #include "InDetPhysValMonitoring/HistogramDefinitionSvc.h"
 #include "ReadFromText.h"
-//#include "HardWiredDefinition.h"
+#include "ReadFromXml.h"
 #include "IReadHistoDef.h"
 namespace{
   const std::pair<float, float> invalidLimits = std::make_pair(std::numeric_limits<float>::quiet_NaN(),std::numeric_limits<float>::quiet_NaN());
   const std::string defaultFormat("text/plain");
+  const std::string xmlFormat("text/xml");
 }
 
 
 HistogramDefinitionSvc::HistogramDefinitionSvc(const std::string & name, ISvcLocator * pSvcLocator):
-  AthService(name,pSvcLocator),m_format{},m_reader{}{
+  AthService(name,pSvcLocator),m_format{UNKNOWN},m_reader{}{
     declareProperty("DefinitionSource",m_source);
-    declareProperty("DefinitionFormat",m_formatString=defaultFormat);
-    
-    if (m_formatString.value()== defaultFormat) m_format = TEXT_PLAIN;
-    /**
-       if (m_format==INCODE){
-       m_reader.reset(new HardWiredDefinition());
-       }
-    **/
-    
-					  }
+    declareProperty("DefinitionFormat",m_formatString="text/plain");
+}  
+					  
 
 HistogramDefinitionSvc::~HistogramDefinitionSvc(){
 }
 
 StatusCode HistogramDefinitionSvc::initialize(){
-  ATH_MSG_INFO("Initializing HistogramDefinitionSvc");
-  ATH_MSG_INFO("File:"<<m_source.value());
+  if (m_formatString.value()== defaultFormat) m_format = TEXT_PLAIN;
+  if (m_formatString.value()==xmlFormat) m_format= TEXT_XML;
+  if (m_format == UNKNOWN) {
+  	ATH_MSG_ERROR("Unknown format for the input to the hdef service");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("hdef source:"<<m_source.value());
+  ATH_MSG_INFO("Set format:"<<m_formatString.value());
+  ATH_MSG_INFO("format "<<m_format);
   if (m_format==TEXT_PLAIN){
     m_reader.reset(new ReadFromText(m_source.value()));
   }
-  ATH_MSG_INFO("Reported source: "<<m_reader->source());
+  if (m_format==TEXT_XML){
+    m_reader.reset(new ReadFromXml(m_source.value()));
+  }
+  ATH_MSG_INFO("Reader initialising from "<<m_reader->source()<<" in "<<m_reader->format()<<" format.");
   bool ok= m_reader->initialize();
   if (not ok) ATH_MSG_WARNING("Reader did not initialise");
   ok = m_reader->histoDefinitionMap(m_histoDefMap);
-  if (ok) return StatusCode::SUCCESS;
-  ATH_MSG_WARNING("Map not filled");
-  return StatusCode::FAILURE;
+  bool allDefsOk(true);
+  for (auto & h:m_histoDefMap){
+  	if (not h.second.isValid()) {
+  	  ATH_MSG_WARNING("Invalid histogram definition: "<<h.second.str());
+  	  allDefsOk=false;
+  	}
+  }
+  if (ok and (not allDefsOk)) return StatusCode::RECOVERABLE;
+  if (not ok) return StatusCode::FAILURE;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode HistogramDefinitionSvc::finalize(){
+		ATH_MSG_INFO("Reader initialised from "<<m_reader->source()<<" in "<<m_reader->format()<<" format.");
     return StatusCode::SUCCESS;
 }
 

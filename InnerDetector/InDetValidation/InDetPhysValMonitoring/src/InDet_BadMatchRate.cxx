@@ -10,64 +10,50 @@
  */
 
 #include "InDet_BadMatchRate.h"
+#include "xAODTracking/TrackingPrimitives.h"
+#include <utility>
 
+using namespace TMath;
 
 InDet_BadMatchRate::InDet_BadMatchRate(InDetPlotBase* pParent, std::string sDir):InDetPlotBase(pParent, sDir)
-{
-  //nop
+  {										
+  //
 }
 
 
 void 
 InDet_BadMatchRate::initializePlots(){
-  book(m_base,"base");
-  book(m_badMatchRateNumerator, "badMatchRateNumerator");
-  book(m_reallyFakeNumerator,"reallyFakeNumerator");
-  book(m_badMatchRate,"badMatchRate");
-  book(m_reallyFakeRate,"reallyFakeRate");
-}
+  //Bad Match Rate plots, Truth Matching Probability < 80%
+  book(m_BadMatchRate, "BadMatchRate");
+  book(m_BMR_vs_logpt, "BadMatchRate_vs_logpt");
 
+  //Fake Rate plots, TMP < 50%
+  //book(m_trackeff_vs_eta, "trackeff_vs_eta");
 
-void
-InDet_BadMatchRate::fillDenominator(const xAOD::TrackParticle& particle){
-  const float & eta = particle.eta();
-  m_base->Fill(eta, 1);
-}
+  //Really Fake Rate plots, Truth Matching Probability < 20%
+  book(m_ReallyFakeRate, "ReallyFakeRate");
 
-void
-InDet_BadMatchRate::fillNumBMR(const xAOD::TrackParticle& particle){
-  const float & eta = particle.eta();
-  m_badMatchRateNumerator->Fill(eta, 1);
 }
 
 void
-InDet_BadMatchRate::fillNumRF(const xAOD::TrackParticle& particle){
-  const float & eta = particle.eta();
-  m_reallyFakeNumerator->Fill(eta, 1);
+InDet_BadMatchRate::fillBMR(const xAOD::TrackParticle& particle, float weight){
+  float trketa = particle.eta();
+  float trkpt = particle.pt();
+  float logpt = Log10(trkpt) - 3.0; //-3 converts from MeV to GeV
+
+  m_BadMatchRate->Fill(trketa, weight);
+  m_BMR_vs_logpt->Fill(logpt, weight);
 }
 
+void
+InDet_BadMatchRate::fillRF(const xAOD::TrackParticle& particle, Float_t weight){
+  float trketa = particle.eta();
+  //float trkpt = particle.pt();//unused
 
+  m_ReallyFakeRate->Fill(trketa, weight);
+}
+
+/*
 void InDet_BadMatchRate::finalizePlots(){
-  for(int i=0; i!=m_trackEtaBins; ++i){
-    const double step = (m_etaMax - m_etaMin)/m_trackEtaBins;
-    const double eta = m_etaMin + i*step;
-    const double denom = m_base->GetBinEntries(i);
-    const double num_bmr = m_badMatchRateNumerator->GetBinEntries(i);
-    const double num_rf = m_reallyFakeNumerator->GetBinEntries(i);
-    const double BMRate = num_bmr/denom;
-    const double fakeRate = num_rf/denom;
-    m_badMatchRate->Fill(eta, BMRate);
-    m_reallyFakeRate->Fill(eta, fakeRate);
-  }
-
-  //Remove the intermediary histograms
-  //Base->Delete();
-
-  //delete Base;
-  //NumBMR->Delete(); //Is this the proper command?
-  //delete NumRF;     //Or is this one?
-
-  //Both methods seem to cause seg-faults, but it looks like the problem is a bigger ROOT-issue
-  //It doesn't seg-fault until after this script is completed, so something about removing histos
-  //from the big file must be the cause of the problem
 }
+*/ 

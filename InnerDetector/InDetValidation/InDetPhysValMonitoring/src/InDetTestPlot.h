@@ -17,7 +17,10 @@
 #include "InDetPlotBase.h"
 #include "xAODTracking/TrackParticle.h"
 
-///class holding plots to test the histogram definition service and subsequent filling
+/**
+ * @class InDetTestPlot
+ * @brief Class holding plots to test the histogram definition service and subsequent filling
+ */
 class InDetTestPlot:public InDetPlotBase {
 public:
 	InDetTestPlot(InDetPlotBase * pParent, const std::string & dirName);
@@ -28,6 +31,7 @@ private:
 	TH1* m_test1;
 	TH1* m_test2;
 	TProfile * m_testProfile;
+	TH2* m_test2D;
 	//plot base has nop default implementation of this; we use it to book the histos
 	void initializePlots();
 	

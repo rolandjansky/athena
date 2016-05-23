@@ -15,7 +15,15 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-InDetPerfPlot_Vertex::InDetPerfPlot_Vertex(InDetPlotBase* pParent, const std::string & sDir):InDetPlotBase(pParent, sDir){
+InDetPerfPlot_Vertex::InDetPerfPlot_Vertex(InDetPlotBase* pParent, const std::string & sDir):
+	InDetPlotBase(pParent, sDir),
+	m_vx_x(nullptr), m_vx_y(nullptr), m_vx_z(nullptr),
+	m_vx_err_x(nullptr), m_vx_err_y(nullptr), m_vx_err_z(nullptr),
+	m_vx_chi2_over_ndf(nullptr), m_vx_type(nullptr), m_vx_nTracks(nullptr),
+	m_vx_sumpt2(nullptr),m_vx_track_weights(nullptr), m_vx_track_pt(nullptr),
+	m_vx_track_eta(nullptr),m_vx_track_nSiHits(nullptr),m_vx_track_nSiHoles(nullptr),
+	m_vx_track_d0(nullptr),m_vx_track_err_d0(nullptr),m_vx_track_z0(nullptr),
+	m_vx_track_err_z0(nullptr){
   //nop
 }
 

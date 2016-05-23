@@ -24,21 +24,27 @@ SingleHistogramDefinition::SingleHistogramDefinition():
     m_empty(true){
 }
 
-SingleHistogramDefinition::SingleHistogramDefinition(Titles_t thename, Titles_t thehistoType, Titles_t thetitle, NBins_t nbinsX,Var_t xLo, Var_t xHi,Titles_t xName, Titles_t yName,Titles_t thefolder):name(thename),histoType(thehistoType),title(thetitle),nBinsX(nbinsX),nBinsY(0),xTitle(xName),yTitle(yName),folder(thefolder){
+SingleHistogramDefinition::SingleHistogramDefinition(Titles_t thename, Titles_t thehistoType, 
+	Titles_t thetitle, NBins_t nbinsX,Var_t xLo, Var_t xHi,Titles_t xName, Titles_t yName,
+	Titles_t thefolder):
+		name(thename),histoType(thehistoType),title(thetitle),nBinsX(nbinsX),
+		nBinsY(0),xTitle(xName),yTitle(yName),folder(thefolder){
     //should do sanity checks here
     xAxis=std::make_pair(xLo,xHi);
     yAxis=std::make_pair(std::numeric_limits<float>::quiet_NaN(),std::numeric_limits<float>::quiet_NaN());
     m_empty=false;
-    const std::string s(";");
-    allTitles=title+s+xTitle+s+yTitle;
+    allTitles=titleDigest();
 }
-SingleHistogramDefinition::SingleHistogramDefinition(Titles_t thename, Titles_t thehistoType, Titles_t thetitle, NBins_t nbinsX,  NBins_t nbinsY,Var_t xLo, Var_t xHi, Var_t yLo, Var_t yHi, Titles_t xName, Titles_t yName,Titles_t thefolder):name(thename),histoType(thehistoType),title(thetitle),nBinsX(nbinsX),nBinsY(nbinsY),xTitle(xName),yTitle(yName),folder(thefolder){
+SingleHistogramDefinition::SingleHistogramDefinition(Titles_t thename, Titles_t thehistoType, 
+	Titles_t thetitle, NBins_t nbinsX,  NBins_t nbinsY,Var_t xLo, Var_t xHi, Var_t yLo, 
+	Var_t yHi, Titles_t xName, Titles_t yName,Titles_t thefolder):
+		name(thename),histoType(thehistoType),title(thetitle),nBinsX(nbinsX),nBinsY(nbinsY),
+		xTitle(xName),yTitle(yName),folder(thefolder){
     //should do sanity checks here
     xAxis=std::make_pair(xLo,xHi);
     yAxis=std::make_pair(yLo,yHi);
     m_empty=false;
-    const std::string s(";");
-    allTitles=title+s+xTitle+s+yTitle;
+    allTitles=titleDigest();
 }
 bool SingleHistogramDefinition::empty() const {
     return m_empty;
@@ -54,9 +60,28 @@ bool SingleHistogramDefinition::validType() const{
     return ((signature=="TH1") or (signature=="TH2") or (signature=="TPr"));
 }
 
+bool SingleHistogramDefinition::isValid() const{
+	if (name.empty() or histoType.empty()) return false;
+	bool sane(true);
+	//note: if yaxis is left undefined, the limits should be NaN, but (NaN != NaN) is always true
+	const bool sensibleLimits=(xAxis.first!=xAxis.second) and (yAxis.first != yAxis.second);
+	const bool sensibleXBins=(nBinsX!=0);
+	const bool sensibleYBins=(nBinsY!=0);
+	const bool sensibleTitles=not(title.empty() or xTitle.empty() or yTitle.empty());
+	sane=(sensibleLimits and sensibleXBins and sensibleTitles);
+	if (histoType.substr(0,3)=="TH2") sane = (sane and sensibleYBins);
+	return sane;
+}
+
 std::string SingleHistogramDefinition::stringIndex() const {
     return stringIndex(name,folder);
 }
+
+std::string SingleHistogramDefinition::titleDigest() const{
+  const std::string s(";");
+  return title+s+xTitle+s+yTitle;
+}
+
 
 std::string SingleHistogramDefinition::stringIndex(const std::string & thisname, const std::string & thisfolder){
     if (thisfolder.empty()) return thisname;

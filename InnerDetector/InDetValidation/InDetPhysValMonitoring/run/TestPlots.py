@@ -30,7 +30,8 @@ topSequence = AlgSequence()
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import HistogramDefinitionSvc
 ToolSvc = ServiceMgr.ToolSvc
 ServiceMgr+=HistogramDefinitionSvc()
-ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/inDetPhysValMonitoringPlotDefinitions.hdef"
+ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/testHDef.xml"
+ServiceMgr.HistogramDefinitionSvc.DefinitionFormat="text/xml"
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 monMan = AthenaMonManager( "PhysValMonManager" )

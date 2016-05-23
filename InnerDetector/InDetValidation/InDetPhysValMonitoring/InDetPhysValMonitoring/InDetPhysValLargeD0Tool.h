@@ -51,6 +51,11 @@ class InDetPhysValLargeD0Tool:public ManagedMonitorToolBase{
   virtual StatusCode fillHistograms();
   virtual StatusCode procHistograms();
   
+  // * @asogaard
+  bool isSignal       (const xAOD::TruthParticle* p);
+  bool isLargeD0Track (const xAOD::TrackParticle* p);
+  bool MinTrackSelection (const xAOD::TrackParticle* p);
+  // * Remove the following.
   bool isCameFromLLP(const xAOD::TruthParticle* p);
   bool isLLP(const int absPdgId);
   bool hasNoLLP(const xAOD::TruthParticle* p);
@@ -67,14 +72,17 @@ class InDetPhysValLargeD0Tool:public ManagedMonitorToolBase{
   ///EventInfo container name
   std::string m_eventInfoContainerName;
   
-  std::string m_LLP;
+  /* @asogaard */
+  std::string      m_LLP;
+  std::vector<int> m_signalIds; 
   
   ///histograms
   std::unique_ptr< InDetRttLargeD0Plots > m_LargeD0Plots;
   ///Tool for selecting tracks
   bool m_useTrackSelection;
   bool m_onlyInsideOutTracks;
-  ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
+  //ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
+  ToolHandle<IAsgSelectionTool> m_trackSelectionTool; // @asogaard
   
   ToolHandle<IAsgSelectionTool> m_truthSelectionTool;
   

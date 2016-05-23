@@ -16,14 +16,14 @@ TrackTruthSelectionTool::TrackTruthSelectionTool(const std::string& name):
   declareInterface<IAsgSelectionTool>(this);
   
   //declareProperty( "Property", m_nProperty ); //example property declaration
-  declareProperty("maxEta", m_maxEta=2.5);
-  declareProperty("maxPt",  m_maxPt=-1);
-  declareProperty("minPt",  m_minPt=400);
-  declareProperty("maxBarcode",  m_maxBarcode=200e3);
-  declareProperty("requireCharged",  m_requireCharged=true);
-  declareProperty("requireStatus1",  m_requireStatus1=true);
-  declareProperty("requireDecayBeforePixel",  m_requireDecayBeforePixel=true);
-  declareProperty("pdgId",  m_pdgId=-1);  
+  declareProperty("maxEta", m_maxEta = 2.5);
+  declareProperty("minPt",  m_minPt = 400); //4-4-16 normally 400, set to 300 for testing
+  declareProperty("maxPt",  m_maxPt = -1); 
+  declareProperty("maxBarcode",  m_maxBarcode = 200e3); //4-7-16 normally 200e3, set to 100e3 for testing
+  declareProperty("requireCharged",  m_requireCharged = true); //4-1-16 normally true, setting to false for testing
+  declareProperty("requireStatus1",  m_requireStatus1 = true); //4-1-16 normally true, setting to false for testing 
+  declareProperty("requireDecayBeforePixel",  m_requireDecayBeforePixel = true); //4-1-16 normally true, setting to false for testing
+  declareProperty("pdgId",  m_pdgId = -1);  
 }
 
 
@@ -38,12 +38,12 @@ StatusCode TrackTruthSelectionTool::initialize() {
   m_cuts.clear();
   if (m_maxEta>-1) m_cuts.push_back(std::make_pair("eta", "Cut on (absolute) particle eta"));
   if (m_minPt>-1) m_cuts.push_back(std::make_pair("min_pt", "Cut on minimum particle pT"));
-  if (m_maxPt>-1) m_cuts.push_back(std::make_pair("max_pt", "Cut on minimum particle pT"));
+  if (m_maxPt>-1) m_cuts.push_back(std::make_pair("max_pt", "Cut on maximum particle pT"));
   if (m_maxBarcode>-1) m_cuts.push_back(std::make_pair("barcode", "Cut on maximum particle barcode"));
   if (m_requireCharged) m_cuts.push_back(std::make_pair("charged", "Require charged particle"));
   if (m_requireStatus1) m_cuts.push_back(std::make_pair("status_1", "Particle status=1"));
   if (m_requireDecayBeforePixel) m_cuts.push_back(std::make_pair("decay_before_pixel", "Decays before first pixel layer"));
-  if (m_pdgId>-1) m_cuts.push_back(std::make_pair("pdgId", "Pdg Id cut"));
+  if (m_pdgId>-1) m_cuts.push_back(std::make_pair("pdgId", "Pdg Id cut")); //3-18-16 normally enabled, disabled for testing
   
   // Add cuts to the TAccept
   for (const auto& cut : m_cuts) {
@@ -93,14 +93,14 @@ const Root::TAccept& TrackTruthSelectionTool::accept( const xAOD::TruthParticle*
   m_accept.clear();
   
   // Check cuts
-  if (m_maxEta>-1) m_accept.setCutResult("eta", p->pt()>0. && (fabs(p->eta()) < m_maxEta) );
+  if (m_maxEta>-1) m_accept.setCutResult("eta", (p->pt()>1e-7 ? (fabs(p->eta()) < m_maxEta) : false) );
   if (m_minPt>-1) m_accept.setCutResult("min_pt", (p->pt() > m_minPt) );
   if (m_maxPt>-1) m_accept.setCutResult("max_pt", (p->pt() < m_maxPt) );
   if (m_maxBarcode>-1) m_accept.setCutResult("barcode", ( p->barcode() < m_maxBarcode ));
   if (m_requireCharged) m_accept.setCutResult("charged", (not (p->isNeutral())));
   if (m_requireStatus1) m_accept.setCutResult("status_1", (p->status()==1) );
   if (m_requireDecayBeforePixel) m_accept.setCutResult("decay_before_pixel", ( !p->hasProdVtx() || p->prodVtx()->perp() < 110));
-  if (m_pdgId>-1) m_accept.setCutResult("pdgId", (fabs(p->pdgId())==m_pdgId));
+  if (m_pdgId>-1) m_accept.setCutResult("pdgId", (fabs(p->pdgId())==m_pdgId));//3-18-16 normally on, disabled for testing
   
   // Book keep cuts
   for (const auto& cut : m_cuts) {

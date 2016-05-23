@@ -6,7 +6,6 @@
 #define INDETPHYSVALMONITORING_INDETPERFPLOT_DUPLICATE
 /**
  * @file InDetPerfPlot_Pt.h
- * @author shaun roe
 **/
 
 
@@ -14,70 +13,33 @@
 #include <string>
 
 //local includes
-#include "TrkValHistUtils/PlotBase.h"
-#include "xAODBase/IParticle.h"  
-#include "GaudiKernel/ServiceHandle.h"
+#include "InDetPlotBase.h"
 #include "InDetPhysValMonitoring/IHistogramDefinitionSvc.h"
 #include "xAODTracking/TrackParticle.h"
-#include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticle.h"
 
 
 
 ///class holding Pt plots for Inner Detector RTT Validation and implementing fill methods
-class InDetPerfPlot_duplicate:public PlotBase {
+class InDetPerfPlot_duplicate:public InDetPlotBase {
 public:
-  	InDetPerfPlot_duplicate(PlotBase * pParent, const std::string & dirName);
+  	InDetPerfPlot_duplicate(InDetPlotBase * pParent, const std::string & dirName);
 	//	void fill1(const xAOD::TrackParticle_v1* & trackParticle);
 	void fillSingleMatch(const xAOD::TrackParticle & trackParticle);
 	//	void fillTwoMatch(Float_t prob1,Float_t prob2,const xAOD::TrackParticle & particle1,const xAOD::TrackParticle & particle2);
-	void fillTwoMatchDuplicate(Float_t prob1,Float_t prob2,const xAOD::TrackParticle & trackParticle,const xAOD::TrackParticle & particle, const xAOD::TruthParticle& tp );
+	void fillTwoMatchDuplicate(const float prob1,const float prob2,const xAOD::TrackParticle & trackParticle,const xAOD::TrackParticle & particle, const xAOD::TruthParticle& tp );
 private:
 	///Pt Histogram with full pt range
 	TH1* m_duplicateDeltaPt;
 	TH1* m_duplicateDeltaPtZoomed;
 	TH1* m_duplicateDeltaEta;
 	TH1* m_duplicateDeltaPhi;
-        TH2* m_duplicateLPTvsHPT;       
+  TH2* m_duplicateLPTvsHPT;       
 	TH2* m_duplicateLEtavsHEta;     
 	TH2* m_duplicateLPhivsHPhi;
-
-
-	TH2* m_duplicateDeltaPTvsTruthEta;
 	TH2* m_duplicateDeltaPTvsTruthPT;
 	TH2* m_duplicateDeltaPTvsTruthPTZoomed;
-
-	TH2* m_duplicateDeltaPTvsTruthPhi;
-	TH2* m_duplicateDeltaPTvsDeltaEta;
-	TH2* m_duplicateDeltaPTvsDeltaPhi;
-
-	TH2* m_duplicateDeltaEtavsTruthPT;
-	TH2* m_duplicateDeltaEtavsTruthEta;
-	TH2* m_duplicateDeltaEtavsTruthPhi;
-	TH2* m_duplicateDeltaPhivsTruthPT;
-	TH2* m_duplicateDeltaPhivsTruthEta;
-	TH2* m_duplicateDeltaPhivsTruthPhi;
-
-	TH1* m_duplicatePT_BP1;
-	TH1* m_duplicateEta_BP1;
-	TH1* m_duplicatePhi_BP1;
-
-	TH1* m_duplicatePT_BP2;
-        TH1* m_duplicateEta_BP2;
-        TH1* m_duplicatePhi_BP2;
-
-	TH2* m_duplicateHPTvsTruthPT;
-	TH2* m_duplicateHPTvsTruthPTZoomed;
-
-	TH2* m_duplicateLPTvsTruthPT;
-	TH2* m_duplicateLPTvsTruthPTZoomed;
-	TH2* m_duplicateHEtavsTruthEta;
-	TH2* m_duplicateLEtavsTruthEta;
-	TH2* m_duplicateHPhivsTruthPhi;
-	TH2* m_duplicateLPhivsTruthPhi;
-
 	//spectrum plots
-
 	TH1* m_duplicateLPT;
 	TH1* m_duplicateLEta;
 	TH1* m_duplicateLPhi;
@@ -95,13 +57,7 @@ private:
 	TH1* m_duplicateResHPT;
 	TH1* m_duplicateResHEta;
 	TH1* m_duplicateResHPhi;
-	TH1* m_duplicateResHCharge;
-	TH1* m_duplicateResLCharge;
-	TH1* m_singleMatchResCharge;
 
-	TH1* m_duplicateLPTchisqdof;
-	TH1* m_duplicateHPTchisqdof;
-	TH1* m_singleMatchPTchisqdof;
 
 	TH1* m_duplicateLPTHoles;
 	TH1* m_duplicateHPTHoles;
@@ -112,25 +68,11 @@ private:
 	TH2* m_twoMatchHPixelvsSCTShared;
 	TH2* m_twoMatchLPixelvsSCTShared;
 	TH2* m_singleMatchPixelvsSCTShared;
-	
-	TH1*  m_singleMatchTotalHits;	
-	TH1*  m_duplicateLTotalHits;
-	TH1*  m_duplicateHTotalHits;
 
-	TH2* m_duplicateLPtChargevsHPtCharge;
-	TH2* m_duplicateLPtChargevsTruthPtCharge;
-	TH2* m_duplicateHPtChargevsTruthPtCharge;
-
-	///Histogram definition
-	IHistogramDefinitionSvc* m_histDefSvc;
-	
 	//plot base has nop default implementation of this; we use it to book the histos
 	void initializePlots();
 	
-	
 };
 
-
-
-
 #endif
+

@@ -13,6 +13,7 @@
 
 //std includes
 #include <string>
+#include <map> // @asogaard
 
 //local includes
 
@@ -25,8 +26,8 @@
 #include "TrkValHistUtils/TruthInfoPlots.h"
 #include "InDetPerfPlot_nTracks.h"
 #include "InDetPerfPlot_res.h"
-//#include "InDetPerfPlot_pull.h"
 #include "InDetPerfPlot_fakes.h"
+#include "InDetPerfPlot_ExtendedFakes.h"
 #include "InDetPerfPlot_Eff.h"
 #include "InDetPerfPlot_hitResidual.h"
 
@@ -47,35 +48,37 @@
 class InDetRttLargeD0Plots:public InDetPlotBase {
 public:
   InDetRttLargeD0Plots(InDetPlotBase * pParent, const std::string & dirName);
-  void SetPrimaryEtaCut( float eta );
   ///fill for things needing truth and track only
-  void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle);
+  //void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle); // not used. SC
   ///fill for things needing track only
   void fill(const xAOD::TrackParticle& particle);
   ///fill for things needing truth only
   void fill(const xAOD::TruthParticle& particle);
   ///fill for things needing all truth - not just the ones from the reco tracks
   void fillTruth(const xAOD::TruthParticle& particle);
-  void fillEfficiency(const xAOD::TruthParticle& particle, const bool isReconstructed, const bool isStandardTrack);
 
-  //fill the duplicate plots
-  //void fillDupTrack(const xAOD::TrackParticle& particle);
+  void pro_fill(const xAOD::TruthParticle& truth, float weight);
 
-  void fillBMR_Denom(const xAOD::TrackParticle& particle);
-  void fillBMR_Num(const xAOD::TrackParticle& particle);
-  void fillRF_Num(const xAOD::TrackParticle& particle);
+  void fillEfficiency(const xAOD::TruthParticle& particle,      \
+                      const bool isReconstructed,               \
+                      const bool isLargeD0Track = false,        \
+                      const bool isSignal       = false);
+
+
+  //fill the fake and bad match rate plots
+  void fillBMR(const xAOD::TrackParticle& track, float weight);
+  void fillRF(const xAOD::TrackParticle& track, float weight);
 
   ///fill reco-vertex related plots
   void fill(const xAOD::VertexContainer& vertexContainer);
   ///fill reco-vertex related plots that need EventInfo
   void fill(const xAOD::VertexContainer& vertexContainer, const xAOD::EventInfo& ei);
 
-
   virtual ~InDetRttLargeD0Plots(){/**nop**/};
   ///fill for Counters
   void fillCounter(const unsigned int freq, const InDetPerfPlot_nTracks::CounterCategory  counter);
   ///fill for fakes
-  void fillFakeRate(const xAOD::TrackParticle& particle, const bool match, const InDetPerfPlot_fakes::Category c = InDetPerfPlot_fakes::ALL);
+  void fillFakeRate(const xAOD::TrackParticle& particle, const bool isFake, const InDetPerfPlot_fakes::Category c = InDetPerfPlot_fakes::ALL);
 
   ///fill for fakes (Siinn)
   void fillFake(const xAOD::TrackParticle& particle);
@@ -98,6 +101,7 @@ private:
        InDetBasicPlot m_basicPlot_nonfake_ld0;
        InDetBasicPlot m_basicPlot_fake_st;
        InDetBasicPlot m_basicPlot_fake_ld0;
+       InDetBasicPlot m_basicPlot_truth;
 
        // pT plots
        InDetPerfPlot_Pt m_ptPlot_nonfake_st;
@@ -111,9 +115,21 @@ private:
        Trk::RecoInfoPlots m_TrackRecoInfoPlots_fake_st;
        Trk::RecoInfoPlots m_TrackRecoInfoPlots_fake_ld0;
 
-       // Fake rate (rather, fraction) plots.
-       InDetPerfPlot_fakes m_fakePlots;
-       InDetPerfPlot_fakes m_fakePlotsLRT;
+       // Fake rate plots.
+       InDetPerfPlot_ExtendedFakes m_fakePlots;
+       InDetPerfPlot_ExtendedFakes m_fakePlotsLRT;
+
+       // Efficiency plots
+       InDetPerfPlot_Eff m_effPlotsStd;
+       InDetPerfPlot_Eff m_effPlotsStdSignal;
+       InDetPerfPlot_Eff m_effPlotsLRT;             
+       InDetPerfPlot_Eff m_effPlotsLRTSignal;       
+       InDetPerfPlot_Eff m_effPlotsLRTnonStd;       
+       InDetPerfPlot_Eff m_effPlotsLRTnonStdSignal; 
+       InDetPerfPlot_Eff m_effPlotsAll;             
+       InDetPerfPlot_Eff m_effPlotsAllSignal;       
+
+       InDetPerfPlot_Eff m_effPlots;
 
         // The plots below are not used for the moment
        InDetPerfPlot_Pt  m_ptPlot;
@@ -125,9 +141,8 @@ private:
        InDetPerfPlot_nTracks m_nTracks;
        InDetPerfPlot_res m_resPlots;
        InDetPerfPlot_hitResidual m_hitResidualPlot;
-       //InDetPerfPlot_pull m_pullPlots;
        InDetPerfPlot_HitDetailed m_hitsDetailedPlots;
-       InDetPerfPlot_Eff m_effPlots;
+
        InDet_BadMatchRate m_BadMatchRate;
        InDetPerfPlot_VertexContainer m_verticesPlots;
        InDetPerfPlot_Vertex m_vertexPlots;
@@ -137,10 +152,6 @@ private:
        Trk::IDHitPlots m_hitsPlots;
        Trk::IDHitPlots m_hitsMatchedTracksPlots;
        Trk::IDHitPlots m_hitsFakeTracksPlots;
-       //InDetPerfPlot_fakes m_fakePlots; //fakes vs eta etc, as per original RTT code
-
-       //Set scripts to analyze the duplicates that appear
-       //InDetPerfPlot_trackDuplicates m_DuplicateTrack;
 
        std::string m_trackParticleTruthProbKey;
        float m_truthProbThreshold;

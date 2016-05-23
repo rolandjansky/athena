@@ -20,9 +20,6 @@ InDetPerfPlot_fakes::InDetPerfPlot_fakes(InDetPlotBase* pParent, const std::stri
 
 void 
 InDetPerfPlot_fakes::initializePlots() {
-  //const bool prependDirectory(false);
-  
-  //
   book(m_fakepT, "fakepT");
   book(m_fakePtLow, "fakepTlow");
   book(m_fakephi, "fakephi");

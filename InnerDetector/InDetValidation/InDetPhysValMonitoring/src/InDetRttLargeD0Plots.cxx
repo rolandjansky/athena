@@ -19,34 +19,7 @@ using std::cout;
 using std::endl;
 using std::string;
 
-namespace { //utility functions used in this area - stolen from InDetPhysValMonitoringTool and other places - not so nice as should be in a common header somewhere
-  //get truth particle associated with a track particle
-  /** unused
-  const xAOD::TruthParticle * getTruthPtr(const xAOD::TrackParticle & trackParticle){
-    typedef ElementLink<xAOD::TruthParticleContainer> ElementTruthLink_t;
-    const xAOD::TruthParticle * result(nullptr);
-               //0. is there any truth?
-               if (trackParticle.isAvailable<ElementTruthLink_t>("truthParticleLink")) {
-                       //1. ..then get link
-                       const ElementTruthLink_t ptruthContainer= trackParticle.auxdata<ElementTruthLink_t>("truthParticleLink" );
-                       if (ptruthContainer.isValid()){
-                               result= *ptruthContainer;
-                       }
-               }
-    return result;
-  }
-  **/
-
-  //get truth/track matching probability
-  /** unused
-  float getMatchingProbability(const xAOD::TrackParticle & trackParticle){
-       float result(std::numeric_limits<float>::quiet_NaN());
-       if (trackParticle.isAvailable<float>("truthMatchProbability")){
-               result = trackParticle.auxdata<float>("truthMatchProbability" );
-       }
-       return result;
-  }
-**/
+namespace { 
   bool isLargeD0Track( const xAOD::TrackParticle& tp)
   {
     const std::bitset<xAOD::NumberOfTrackRecoInfo> patternReco = tp.patternRecoInfo();
@@ -75,6 +48,7 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase* pParent, const std::st
     m_basicPlot_nonfake_ld0(this,"LargeD0/basicPlot/LargeD0Tracks/NonFakeTracks"),
     m_basicPlot_fake_st(this,"LargeD0/basicPlot/StandardTracks/FakeTracks"),
     m_basicPlot_fake_ld0(this,"LargeD0/basicPlot/LargeD0Tracks/FakeTracks"),
+    m_basicPlot_truth(this, "LargeD0/basicPlot/TruthTracks/"),
 
     // pt plots
     m_ptPlot_nonfake_st(this,"LargeD0/ptPlot/StandardTracks/NonFakeTracks"),
@@ -88,9 +62,22 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase* pParent, const std::st
     m_TrackRecoInfoPlots_fake_st(this,"LargeD0/TrackRecoInfoPlots/StandardTracks/FakeTracks"),
     m_TrackRecoInfoPlots_fake_ld0(this,"LargeD0/TrackRecoInfoPlots/LargeD0Tracks/FakeTracks"),
 
-    // Fake rate (rather, fraction) plots
-    m_fakePlots(this,"LargeD0/FakeRatePlots/StandardTracks"),
-    m_fakePlotsLRT(this,"LargeD0/FakeRatePlots/LargeD0Tracks"),
+    // Fake rate plots
+    m_fakePlots    (this,"LargeD0/FakeRatePlots/StandardTracks"),
+    m_fakePlotsLRT (this,"LargeD0/FakeRatePlots/LargeD0Tracks"),
+
+    // Efficiency plots
+    m_effPlotsStd            (this, "LargeD0/EffPlots/StandardTracks/All"),
+    m_effPlotsStdSignal      (this, "LargeD0/EffPlots/StandardTracks/Signal"),
+    m_effPlotsLRT            (this, "LargeD0/EffPlots/LargeD0Tracks/All"),
+    m_effPlotsLRTSignal      (this, "LargeD0/EffPlots/LargeD0Tracks/Signal"),
+    m_effPlotsLRTnonStd      (this, "LargeD0/EffPlots/LargeD0TracksNonStd/All"),
+    m_effPlotsLRTnonStdSignal(this, "LargeD0/EffPlots/LargeD0TracksNonStd/Signal"),
+    m_effPlotsAll            (this, "LargeD0/EffPlots/AllTracks/All"),
+    m_effPlotsAllSignal      (this, "LargeD0/EffPlots/AllTracks/Signal"),
+    m_effPlots               (this, "LargeD0/EffPlots"),
+
+    
 
     //=============================================================
     // plots not used for LargeD0
@@ -107,7 +94,7 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase* pParent, const std::st
     m_resPlots(this,"LargeD0_NOTUSED/SelectedGoodTracks"),
     m_hitResidualPlot(this, "LargeD0_NOTUSED/SelectedGoodTracks"),
     m_hitsDetailedPlots(this,"LargeD0_NOTUSED/SelectedGoodTracks"),
-    m_effPlots(this, "LargeD0_NOTUSED/SelectedGoodTracks","Selected Good Tracks"),
+    // Efficiency plots
     m_BadMatchRate(this, "LargeD0_NOTUSED/SelectedFakeTracks"),
     m_verticesPlots(this, "LargeD0_NOTUSED/Vertices/AllPrimaryVertices"),
     m_vertexPlots(this,"LargeD0_NOTUSED/Vertices/AllPrimaryVertices"),
@@ -116,8 +103,6 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase* pParent, const std::st
     m_hitsPlots(this,"LargeD0_NOTUSED/SelectedGoodTracks"),
     m_hitsMatchedTracksPlots(this,"LargeD0_NOTUSED/SelectedMatchedTracks"),
     m_hitsFakeTracksPlots(this,"LargeD0_NOTUSED/SelectedFakeTracks")
-    //m_fakePlots(this,"LargeD0_NOTUSED/SelectedFakeTracks")
-                                                                         //m_DuplicateTrack(this, "LargeD0_NOTUSED/SelectedGoodTracks"),
 {
   //These settings are probably all redundant & can be removed from this script
   m_trackParticleTruthProbKey = "truthMatchProbability";
@@ -134,31 +119,7 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase* pParent, const std::st
 //===================================================================================
 
 void
-InDetRttLargeD0Plots::fill(const xAOD::TrackParticle& particle,const xAOD::TruthParticle& truthParticle){
-  //fill measurement bias, resolution, and pull plots
-  m_resPlots.fill(particle, truthParticle);
-  m_basicPlot.fill(truthParticle);
-  //Not sure that the following hitsMatchedTracksPlots does anything...
-  float barcode = truthParticle.barcode();
-  if (barcode < 100000 && barcode != 0) { //Not sure why the barcode limit is 100k instead of 200k...
-    m_hitsMatchedTracksPlots.fill(particle);
-  }
-
-  const std::bitset<xAOD::NumberOfTrackRecoInfo> patternReco = particle.patternRecoInfo();
-  std::cout << "==================================" << std::endl;
-  if (patternReco.test(49)) { std::cout << "Large d0 track" << std::endl; }
-  if (patternReco.test(0)) { std::cout << "SiSPSeededFinder" << std::endl; }
-  if (patternReco.test(1)) { std::cout << "SiCTBTracking" << std::endl; }
-  if (patternReco.test(2)) { std::cout << "InDetAmbiguitySolver" << std::endl; }
-  if (patternReco.test(3)) { std::cout << "InDetExtensionProcessor" << std::endl; }
-  if (patternReco.test(4)) { std::cout << "TRTSeededTrackFinder" << std::endl; }
-  if (patternReco.test(8)) { std::cout << "StacoLowPt" << std::endl; }
-  if (patternReco.test(20)) { std::cout << "TRTStandalone" << std::endl; }
-  if (patternReco.test(22)) { std::cout << "TRTSeededSingleSpTrackFinder" << std::endl; }
-  if (patternReco.test(34)) { std::cout << "SiSpacePointsSeedMaker_Cosmic" << std::endl; }
-  if (patternReco.test(42)) { std::cout << "SiSpacePointsSeedMaker_ForwardTracks" << std::endl; }
-
-
+InDetRttLargeD0Plots::fill(const xAOD::TrackParticle& particle){
   // filling non-fake tracks
   if (isLargeD0Track(particle)) {
     m_hitsPlots_nonfake_ld0.fill(particle);
@@ -172,6 +133,16 @@ InDetRttLargeD0Plots::fill(const xAOD::TrackParticle& particle,const xAOD::Truth
     m_ptPlot_nonfake_st.fill(particle);
     m_TrackRecoInfoPlots_nonfake_st.fill(particle);
   }
+
+  m_hitResidualPlot.fill(particle);
+  //fill pt plots
+  m_ptPlot.fill(particle);
+  m_basicPlot.fill(particle);
+  m_PtEtaPlots.fill(particle);
+  m_IPPlots.fill(particle);
+  m_TrackRecoInfoPlots.fill(particle);
+  m_hitsPlots.fill(particle);
+  m_hitsDetailedPlots.fill(particle);
 }
 
 //===================================================================================
@@ -196,24 +167,6 @@ void InDetRttLargeD0Plots::fillFake(const xAOD::TrackParticle& trackParticle){
 
 }
 
-
-//===================================================================================
-// In the loop over all track particles
-// fillig all track particles, no selection 
-//===================================================================================
-void
-InDetRttLargeD0Plots::fill(const xAOD::TrackParticle& particle){
-  m_hitResidualPlot.fill(particle);
-  //fill pt plots
-  m_ptPlot.fill(particle);
-  m_basicPlot.fill(particle);
-  m_PtEtaPlots.fill(particle);
-  m_IPPlots.fill(particle);
-  m_TrackRecoInfoPlots.fill(particle);
-  m_hitsPlots.fill(particle);
-  m_hitsDetailedPlots.fill(particle);
-}
-
 //===================================================================================
 // In the loop over all truth particles
 // filling all truth particle, no selection 
@@ -221,13 +174,63 @@ InDetRttLargeD0Plots::fill(const xAOD::TrackParticle& particle){
 
 void
 InDetRttLargeD0Plots::fillTruth(const xAOD::TruthParticle& truth){
-  m_effPlots.fillDenominator(truth);
-  //m_hitsDetailedPlots.fillDenom(truth);
+  m_basicPlot_truth.fill(truth);
 }
 
 void
-InDetRttLargeD0Plots::fillEfficiency(const xAOD::TruthParticle& truth, const bool isReconstructed, const bool isLargeD0Track){
-  m_effPlots.fill(truth,isReconstructed,isLargeD0Track);
+InDetRttLargeD0Plots::pro_fill(const xAOD::TruthParticle& truth, float weight){
+  m_effPlots.pro_fill(truth, weight);
+}
+
+
+void
+InDetRttLargeD0Plots::fillEfficiency (const xAOD::TruthParticle& truth, \
+				      const bool isReconstructed,	\
+				      const bool isLargeD0Track,	\
+				      const bool isSignal) {
+
+  bool   isStandardTrack = !isLargeD0Track;
+
+  float weight(1);
+  if(!(isReconstructed)) weight = 0;
+  m_effPlotsAll.pro_fill(truth, weight);
+  if(!(isStandardTrack)) weight = 0;
+  m_effPlotsStd.pro_fill(truth, weight);
+  if(!(isLargeD0Track)) weight = 0;
+  m_effPlotsLRT.pro_fill(truth, weight);
+
+
+  if(isSignal){
+    float sig_weight(1);
+    if(!(isReconstructed)) weight = 0;
+    m_effPlotsAllSignal.pro_fill(truth, sig_weight);
+    if(!(isStandardTrack)) weight = 0;
+    m_effPlotsStdSignal.pro_fill(truth, sig_weight);
+    if(!(isLargeD0Track)) weight = 0;
+    m_effPlotsLRTSignal.pro_fill(truth, sig_weight);
+
+  }
+
+  //Not entirely sure what the LRTnonStd conditions should be
+
+  /*
+  m_effPlotsAll.fill(truth, isReconstructed);
+  m_effPlotsStd.fill(truth, isReconstructed && isStandardTrack);
+  m_effPlotsLRT.fill(truth, isReconstructed && isLargeD0Track);
+  if (!(isStandardTrack && isReconstructed)) {
+    m_effPlotsLRTnonStd.fill(truth, isReconstructed && isLargeD0Track);
+  }
+  
+  if (isSignal) {
+    m_effPlotsAllSignal.fill(truth, isReconstructed);
+    m_effPlotsStdSignal.fill(truth, isReconstructed && isStandardTrack);
+    m_effPlotsLRTSignal.fill(truth, isReconstructed && isLargeD0Track);
+    if (!(isStandardTrack && isReconstructed)) {
+      m_effPlotsLRTnonStdSignal.fill(truth, isReconstructed && isLargeD0Track);
+    }
+  }
+  */
+  return;
 }
 
 //===================================================================================
@@ -240,31 +243,22 @@ InDetRttLargeD0Plots::fill(const xAOD::TruthParticle& truthParticle){
   //fill truth plots
   m_TrackTruthInfoPlots.fill(truthParticle);
   // this gets called for the truth particles associated to tracks - exactly what we need!
-  m_effPlots.fillNumerator(truthParticle);
+  //m_effPlots.fillNumerator(truthParticle); // @asogaard
 }
 
-/*
+
 void
-InDetRttLargeD0Plots::fillDupTrack(const xAOD::TrackParticle& track){
-  //fill any duplicate plots requiring tracks only
-  m_DuplicateTrack.fill(track);
-}
-*/
-
-void InDetRttLargeD0Plots::fillBMR_Denom(const xAOD::TrackParticle& trackParticle){
-  //fill the plot requiring prob < 0.8
-  m_BadMatchRate.fillDenominator(trackParticle);
+InDetRttLargeD0Plots::fillBMR(const xAOD::TrackParticle& track, float weight){
+  //fill the plot requiring truth matching probability less than 80%
+  m_BadMatchRate.fillBMR(track, weight);
 }
 
-void InDetRttLargeD0Plots::fillBMR_Num(const xAOD::TrackParticle& trackParticle){
-  //fill the plot requiring prob < 0.8
-  m_BadMatchRate.fillNumBMR(trackParticle);
+void
+InDetRttLargeD0Plots::fillRF(const xAOD::TrackParticle& track, float weight){
+  //fill the plots requiring truth matching probability less than 20%
+  m_BadMatchRate.fillRF(track, weight);
 }
 
-void InDetRttLargeD0Plots::fillRF_Num(const xAOD::TrackParticle& trackParticle){
-  //fill the plot with prob < 0.2
-  m_BadMatchRate.fillNumRF(trackParticle);
-}
 
 void
 InDetRttLargeD0Plots::fill(const xAOD::VertexContainer& vertexContainer){
@@ -291,16 +285,8 @@ InDetRttLargeD0Plots::fillCounter(const unsigned int freq, const InDetPerfPlot_n
 void
 InDetRttLargeD0Plots::fillFakeRate(const xAOD::TrackParticle& particle, const bool match, const InDetPerfPlot_fakes::Category c){
   if (isLargeD0Track(particle)) {
-  m_fakePlotsLRT.fill(particle,match, c);
+    m_fakePlotsLRT.fill(particle, match, c);
   } else {
-  m_fakePlots.fill(particle,match, c);
+    m_fakePlots.fill(particle, match, c);
   }
-}
-
-void InDetRttLargeD0Plots::SetPrimaryEtaCut( float eta/*, float pt*/ ) {
-  m_truthPrimaryEtaCut = eta;
-  m_resPlots.SetEtaBinning( int(2*eta/0.25), -1*eta, eta ); //Isn't this hard-coded into res.cxx anyway?
-
-  //  m_truthPrimaryPtCut = pt;
-  //m_resPlots.SetPtBinning( 20, pt, 25*pt );
 }

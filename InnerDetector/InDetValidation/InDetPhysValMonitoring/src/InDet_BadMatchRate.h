@@ -15,32 +15,28 @@
 #include "InDetPlotBase.h"
 #include "xAODTracking/TrackParticle.h"
 
+#include "TProfile.h"
+
+class IToolSvc;
+class IExtrapolator;
+
 class TProfile;
 
 class InDet_BadMatchRate:public InDetPlotBase{
  public:
   InDet_BadMatchRate(InDetPlotBase * pParent,  std::string sDir);
-  //~virtual InDet_BadMatchRate(){/**nop**/};
 
-
-  void fillDenominator(const xAOD::TrackParticle& particle);
-  void fillNumBMR(const xAOD::TrackParticle& particle);
-  void fillNumRF(const xAOD::TrackParticle& particle);
+  void fillBMR(const xAOD::TrackParticle& particle, float weight);
+  void fillRF(const xAOD::TrackParticle& particle, float weight);
   
  private:
-  int m_trackEtaBins;
-  float m_etaMin;
-  float m_etaMax;
-  
-  TProfile* m_base;
-  TProfile* m_badMatchRateNumerator;
-  TProfile* m_reallyFakeNumerator;
+  TProfile* m_BadMatchRate;
+  TProfile* m_BMR_vs_logpt;
 
-  TProfile* m_badMatchRate;
-  TProfile* m_reallyFakeRate;
+  TProfile* m_ReallyFakeRate;
 
   void initializePlots();
-  void finalizePlots();
+  //void finalizePlots(); //I'm not 100% sure a finalize section is actually needed here
 };
 
 

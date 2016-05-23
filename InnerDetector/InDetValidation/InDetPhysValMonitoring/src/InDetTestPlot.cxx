@@ -8,6 +8,7 @@
 **/
 
 #include "InDetTestPlot.h"
+#include <random>
 
 InDetTestPlot::InDetTestPlot(InDetPlotBase* pParent, const std::string & sDir):InDetPlotBase(pParent, sDir),
   m_test(nullptr),m_test1(nullptr),m_test2(nullptr),m_testProfile(nullptr){
@@ -47,13 +48,22 @@ InDetTestPlot::initializePlots() {
    * the appropriate pointer. In this case a TProfile example is used, but also works for TH1
    **/
   book(m_testProfile, "testProfile");
+  book(m_test2D,"test2D");
 }
 
 void 
 InDetTestPlot::fill(const xAOD::TrackParticle& /*particle*/){
-    const float pt(rand() % 200);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::normal_distribution<float> d(50,4);
+    const float pt(d(gen));
     m_test->Fill(pt);
+    std::normal_distribution<float> d1(70,4);
+    m_test1->Fill(d1(gen));
     const float p(rand() % 50);
     m_testProfile->Fill(p,p,1);
+    const float eta=(rand() % 6) -3;
+    const float ybin=(rand() % 20);
+    m_test2D->Fill(eta,ybin,1);
 }
 

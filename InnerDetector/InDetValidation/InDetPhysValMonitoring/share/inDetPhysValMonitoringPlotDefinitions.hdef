@@ -10,7 +10,7 @@ TProfile testProfile "Test of TProfile" 20 -50 50 0 200 "#eta" "Entries" default
 #
 #pT
 TH1F   recpT   "p_{T} of selected rec tracks (in GeV)"  200  0.  200 "p_{T} (GeV/c)" "Entries" default
-TH1F recpTlow  "p_{T} of selected rec tracks (in GeV)"  200  0.  20  "p_{T} (GeV/c)" "Entries" default
+TH1F recpTLow  "p_{T} of selected rec tracks (in GeV)"  200  0.  20  "p_{T} (GeV/c)" "Entries" default
 #
 #basic plots
 TH1F basicd0 "d_{0} of selected tracks (in mm)" 200 -2 2 "d_{0}(mm)" "Entries" default
@@ -18,7 +18,7 @@ TH1F basicz0 "z_{0} of selected tracks (in mm)" 120 -300 300 "z_{0}(mm)" "Entrie
 TH1F basicphi "#phi of selected tracks" 100 -4 4 "#phi" "Entries" default
 TH1F basiceta "#eta of selected tracks" 100 -5 5 "#eta" "Entries" default
 TH1F basictheta "#theta of selected tracks" 100 0 3.1415926 "#theta" "Entries" default
-TH1F basicqOverP "q/p of selected truth (in GeV)" 200 -0.01 0.01 "p_{T}(GeV/c)" "Entries" default
+TH1F basicqOverP "q/p of selected tracks (in GeV)" 200 -0.01 0.01 "p_{T}(GeV/c)" "Entries" default
 TH1F truthd0 "d_{0} of selected truth (in mm)" 200 -2 2 "d_{0}(mm)" "Entries" default
 TH1F truthz0 "z_{0} of selected truth (in mm)" 120 -300 300 "z_{0}(mm)" "Entries" default
 TH1F truthphi "#phi of selected truth" 100 -4 4 "#phi" "Entries" default
@@ -37,52 +37,60 @@ TH1F fakephi "#phi of selected fake tracks" 100 -3.1415926 3.1415926 "#phi" "Ent
 TH1F fakeeta "#eta of selected fake tracks" 100 -5 5 "#eta" "Entries" default
 TH1F faked0  "d_{0} of selected fake tracks (in mm)" 200 -5 5 "d_{0}(mm)" "Entries" default
 TH1F fakez0 "z_{0} of selected fake tracks (in mm)" 120 -300 300 "z_{0}(mm)" "Entries" default
-TProfile track_fakerate_vs_eta "Fraction of tracks with <50% truth match probability" 20 -2.5 2.5 0 1 "#eta" "Fake Rate" default
-TProfile track_fakerate_vs_pt "Fraction of tracks with <50% truth match probability" 25 0 50 0 1 "p_{T}(GeV/c)" "Fake Rate" default
-TProfile track_fakerate_vs_phi "Fraction of tracks with <50% truth match probability" 24 -180 180 0 100 "#phi" "Fake Rate" default
-TProfile track_fakerate_vs_d0  "Fraction of tracks with <50% truth match probability"  20  -6  6  0  100  "d0"  "Fake Rate"   default
-TProfile  track_fakerate_vs_z0 "Fraction of tracks with <50% truth match probability" 20 -300 300 0 100 "z0"  "Fake Rate" default
+TProfile track_fakerate_vs_eta "Fraction of tracks with <50% truth match probability" 40 -4.0 4.0 0 1 "#eta" "Fake Rate" default
+TProfile track_fakerate_vs_pt "Fraction of tracks with <50% truth match probability" 40 0 200 0 1 "p_{T} [GeV]" "Fake Rate" default
+TProfile track_fakerate_vs_phi "Fraction of tracks with <50% truth match probability" 40 -3.1415926 3 .1415926 0 1 "#phi" "Fake Rate" default
+TProfile track_fakerate_vs_d0  "Fraction of tracks with <50% truth match probability"  40  -300  300  0  1  "d_{0} [mm]"  "Fake Rate"   default
+TProfile  track_fakerate_vs_z0 "Fraction of tracks with <50% truth match probability" 40 -1500 1500 0 1 "z_{0} [mm]"  "Fake Rate" default
 #
 
-#eff
-TH1F eff_pt_Numerator "p_{T} of reco-matched truth track (in GeV)" 200 0. 200 "p_{T}(GeV/c)" "Entries" default
-TH1F eff_pt_Denominator "p_{T} of truth track (in GeV)" 200 0. 200 "p_{T}(GeV/c)" "Entries" default
-TH1F eff_eta_Numerator "#eta of reco-matched truth track" 100 -5 5 "#eta" "Entries" default
-TH1F eff_eta_Denominator "#eta of truth track" 100 -5 5 "#eta" "Entries" default
-TH1F eff_phi_Numerator "#phi of reco-matched truth track" 100 -3.1415926 3.1415926 "#phi" "Entries" default
-TH1F eff_phi_Denominator "#phi of truth track" 100 -3.1415926 3.1415926 "#phi" "Entries" default
-TH1F eff_d0_Numerator "d_{0} of reco-matched truth track (in mm)" 150 -300 300 "d_{0}(mm)" "Entries" default
-TH1F eff_d0_Denominator "d_{0} of truth track (in mm)" 150 -300 300 "d_{0}(mm)" "Entries" default
-TH1F eff_z0_Numerator "z_{0} of reco-matched truth track (in mm)" 150 -1500 1500 "z_{0}(mm)" "Entries" default
-TH1F eff_z0_Denominator "z_{0} of truth track (in mm)" 150 -1500 1500 "z_{0}(mm)" "Entries" default
-TH1F eff_R_Numerator "R of reco-matched truth track (in mm)" 150 0 300 "R(mm)" "Entries" default
-TH1F eff_R_Denominator "R of truth track (in mm)" 150 0 300 "R(mm)" "Entries" default
-TH1F eff_Z_Numerator "Z of reco-matched truth track (in mm)" 150 -1500 1500 "Z(mm)" "Entries" default
-TH1F eff_Z_Denominator "Z of truth track (in mm)" 150 -1500 1500 "Z(mm)" "Entries" default
-TProfile eff_vs_pt "Fraction of reco-matched truth track" 40 0 200 0 1 "p_{T}(GeV/c)" "Efficiency" default
-TProfile eff_vs_eta "Fraction of reco-matched truth track" 40 -2.5 2.5 0 1 "#eta" "Efficiency" default
-TProfile eff_vs_phi "Fraction of reco-matched truth track" 40 -3.1415926 3.1415926 0 1 "#phi" "Efficiency" default
-TProfile eff_vs_d0 "Fraction of reco-matched truth track"  40  -300  300  0 1  "d0"  "Efficiency"   default
-TProfile eff_vs_z0 "Fraction of reco-matched truth track" 40 -1500 1500 0 1 "z0"  "Efficiency" default
-TProfile eff_vs_R "Fraction of reco-matched truth track"  40  0  300  0  1  "R"  "Efficiency"   default
-TProfile eff_vs_Z "Fraction of reco-matched truth track" 40 -1500 1500 0 1 "Z"  "Efficiency" default
+#
+# Extended fakerate plots
+#
 
-TH1F eff_pt_Numerator_st "p_{T} of reco-matched truth track (in GeV)" 200 0. 200 "p_{T}(GeV/c)" "Entries" default
-TH1F eff_eta_Numerator_st "#eta of reco-matched truth track" 100 -5 5 "#eta" "Entries" default
-TH1F eff_phi_Numerator_st "#phi of reco-matched truth track" 100 -3.1415926 3.1415926 "#phi" "Entries" default
-TH1F eff_d0_Numerator_st "d_{0} of reco-matched truth track (in mm)" 150 -300 300 "d_{0}(mm)" "Entries" default
-TH1F eff_z0_Numerator_st "z_{0} of reco-matched truth track (in mm)" 150 -1500 1500 "z_{0}(mm)" "Entries" default
-TH1F eff_R_Numerator_st "R of reco-matched truth track (in mm)" 150 0 300 "R(mm)" "Entries" default
-TH1F eff_Z_Numerator_st "Z of reco-matched truth track (in mm)" 150 -1500 1500 "Z(mm)" "Entries" default
+# -- "Kinematics"
+TProfile track_fakerate_vs_RfirstHit " " 40 0. 300. 0 1 "R of first track measurement [mm]" "Fakerate" default
+TProfile track_fakerate_vs_ZfirstHit " " 40 -1500. 1500. 0 1 "z of first track measurement [mm]" "Fak"rate" default
 
-TProfile eff_vs_pt_st "Fraction of reco-matched truth track" 40 0 200 0 1 "p_{T}(GeV/c)" "Efficiency" default
-TProfile eff_vs_eta_st "Fraction of reco-matched truth track" 40 -2.5 2.5 0 1 "#eta" "Efficiency" default
-TProfile eff_vs_phi_st "Fraction of reco-matched truth track" 40 -3.1415926 3.1415926 0 1 "#phi" "Efficiency" default
-TProfile eff_vs_d0_st "Fraction of reco-matched truth track"  40  -300  300  0 1  "d0"  "Efficiency"   default
-TProfile eff_vs_z0_st "Fraction of reco-matched truth track" 40 -1500 1500 0 1 "z0"  "Efficiency" default
-TProfile eff_vs_R_st "Fraction of reco-matched truth track"  40  0  300  0  1  "R"  "Efficiency"   default
-TProfile eff_vs_Z_st "Fraction of reco-matched truth track" 40 -1500 1500 0 1 "Z"  "Efficiency" default
+# -- B-layer
+TProfile track_fakerate_vs_nBLayerHits " " 5 -0.5 4.5 0 1 "Number of B-layer hits" "Fakerate" default
+TProfile track_fakerate_vs_nBLayerOutliers " " 5 -0.5 4.5 0 1 "Number of B-layer outliers" "Fakerate"default
+TProfile track_fakerate_vs_nBLayerSplitHits " " 5 -0.5 4.5 0 1 "Number of B-layer split hits" "Fakerate" default
+TProfile track_fakerate_vs_nBLayerSharedHits " " 5 -0.5 4.5 0 1 "Number of B-layer shared hits" "Fakerate" default
 
+# -- Pixel
+TProfile track_fakerate_vs_nPixHits " " 16 -0.5 15.5 0 1 "Number of pixel hits" "Fakerate" default
+TProfile track_fakerate_vs_nPixHoles " " 11 -0.5 10.5 0 1 "Number of pixel holes" "Fakerate" default
+TProfile track_fakerate_vs_nPixSharedHits " " 11 -0.5 10.5 0 1 "Number of pixel shared hits" "Fakerate" default
+TProfile track_fakerate_vs_nPixOutliers " " 11 -0.5 10.5 0 1 "Number of pixel outliers" "Fakerate" default
+TProfile track_fakerate_vs_nPixContribLayers " " 6 -0.5 5.5 0 1 "Number of contributing pixel layers" "Fakerate" default
+TProfile track_fakerate_vs_nPixSplitHits " " 11 -0.5 10.5 0 1 "Number of pixel split hits" "Fakerate" default
+TProfile track_fakerate_vs_nPixGangedHits " " 11 -0.5 10.5 0 1 "Number of pixel ganged hits" "Fakerate" default
+
+# -- SCT
+TProfile track_fakerate_vs_nSCTHits " " 21 -0.5 20.5 0 1 "Number of SCT hits" "Fakerate" default
+TProfile track_fakerate_vs_nSCTHoles " " 21 -0.5 20.5 0 1 "Number of SCT holes" "Fakerate" default
+TProfile track_fakerate_vs_nSCTDoubleHoles " " 21 -0.5 20.5 0 1 "Number of SCT double holes" "Fakerate" default
+TProfile track_fakerate_vs_nSCTSharedHits " " 21 -0.5 20.5 0 1 "Number of SCT shared hits" "Fakerate" default
+TProfile track_fakerate_vs_nSCTOutliers " " 21 -0.5 20.5 0 1 "Number of SCT outliers" "Fakerate" default
+
+# -- Silicon
+TProfile track_fakerate_vs_nSiHits " " 21 -0.5 20.5 0 1 "Number of Si hits" "Fakerate" default
+
+# -- TRT
+TProfile track_fakerate_vs_nTRTHits " " 61 -0.5 60.5 0 1 "Number of TRT hits" "Fakerate" default
+TProfile track_fakerate_vs_nTRTHighThresholdHits " " 61 -0.5 60.5 0 1 "Number of TRT HT hits" "Fakerate" default
+TProfile track_fakerate_vs_nTRTOutliers " " 61 -0.5 60.5 0 1 "Number of TRT outliers" "Fakerate" default
+TProfile track_fakerate_vs_nTRTHighThresholdOutliers " " 61 -0.5 60.5 0 1 "Number of TRT HT outliers" "Fakerate" default
+
+#GOOD eff plots
+TProfile trackeff_vs_eta "Fraction of reco-matched truth track" 20 -2.5 2.5 0 2 "#eta" "Efficiency" default
+TProfile trackeff_vs_pt "Fraction of reco-matched truth track"	40 0	50 0 2	"Pt (GeV)" "Efficiency" default
+TProfile trackeff_vs_phi "Fraction of reco-matched truth track"	100 -3.1415926 3.1415926 0 2 "#phi" "Efficiency" default
+TProfile trackeff_vs_d0 "Fraction of reco-matched truth track"	100 -25	 25 0 2	 "d0" "Efficiency" default
+TProfile trackeff_vs_z0 "Fraction of reco-matched truth track"  100 -250  250 0 2  "z0" "Efficiency" default
+TProfile trackeff_vs_R "Fraction of reco-matched truth track"  100 0  50 0 2  "R" "Efficiency" default
+TProfile trackeff_vs_Z "Fraction of reco-matched truth track"  100 -350  350 0 2  "Z" "Efficiency" default
 
 #vertices
 TH1F vx_x "X position of vertex" 200  -1.0 1.0 "X (mm)" "Entries" default
@@ -105,52 +113,61 @@ TH1F vx_track_z0 "Tracks at vertex z_{0} - z_{0}^{vertex}" 100 -5.0 5.0 "z_{0}-z
 TH1F vx_track_err_z0 "Tracks at vertex z_{0} error" 50 0.0 5.0 "#sigma(z_{0}) (mm)" "Entries" default
 #
 # Bad Match Rate (BMR) plots
-TProfile base "The Base Title" 20 -2.5 2.5 0 2  "#eta" "Entries" default
-TProfile badMatchRateNumerator "BMR numerator" 20 -2.5 2.5 0 2 "#eta" "Entries" default
-TProfile reallyFakeNumerator "RF numerator" 20 -2.5 2.5 0 2 "#eta" "Entries" default
-TProfile badMatchRate "The fraction of tracks with tMP < 0.8" 20 -2.5 2.5 0 1 "#eta" "Entries" default
-TProfile reallyFakeRate "The fraction of tracks with tMP < 0.2" 20 -2.5 2.5 0 1 "#eta" "Entries" default
+TProfile BadMatchRate "Fraction of Tracks with < 80% Truth Matching Probability" 20 -2.5 2.5 0 2 "x" "Bad Match Rate" default
+TProfile BadMatchRate_vs_logpt "Fraction of Tracks with < 80% TMP vs Log(Pt)" 10 -0.5 2 0 2 "x" "Bad Match Rate vs Log(Pt)" default
+
+TProfile ReallyFakeRate "Fraction of Tracks with < 20% Truth Matching Probability" 20 -2.5 2.5 0 2 "x" "Really Fake Rate" default
 #
-#pullplots 
-TH1F  pulld0all  "Pull distribution of d_{0}" 200 -5.0 5.0  "(d^{rec}_{0}-d^{tru}_{0})/#sigma_{d_{0}}" "Entries" default
-TH1F  pullz0all  "Pull distribution of z_{0}"  200 -5.0 5.0  "(z^{rec}_{0}-z^{tru}_{0})/#sigma_{z_{0}}" "Entries" default
-TH1F  pullphiall  "Pull distribution of #phi"  200 -5.0 5.0  "(#phi^{rec}-#phi^{tru})/#sigma_{#phi}" "Entries" default
-TH1F  pullthetaall  "Pull distribution of #theta"  200 -5.0 5.0 "(#theta^{rec}-#theta^{tru})/#sigma_{#theta}" "Entries" default
-TH1F  pullqOverP  "Pull distribution of q/p"  200 -5.0 5.0  "(q/p^{rec}-q/p^{tru})/#sigma_{q/p}"  "Entries" default
-#with wider limits:
-TH1F  pulld0all_wide  "Pull distribution of d_{0}" 200 -20.0 20.0  "(d^{rec}_{0}-d^{tru}_{0})/#sigma_{d_{0}}" "Entries" default
-TH1F  pullz0all_wide  "Pull distribution of z_{0}"  200 -20.0 20.0  "(z^{rec}_{0}-z^{tru}_{0})/#sigma_{z_{0}}" "Entries" default
-TH1F  pullphiall_wide  "Pull distribution of #phi"  200 -20.0 20.0  "(#phi^{rec}-#phi^{tru})/#sigma_{#phi}" "Entries" default
-TH1F  pullthetaall_wide  "Pull distribution of #theta"  200 -20.0 20.0 "(#theta^{rec}-#theta^{tru})/#sigma_{#theta}" "Entries" default
-TH1F  pullqOverP_wide  "Pull distribution of q/p"  200 -20.0 20.0  "(q/p^{rec}-q/p^{tru})/#sigma_{q/p}"  "Entries" default
+
 #
 #hitResidual plots
 #x residuals
-TH1F residualx_pixel_barrel "Residual: Pixel Barrel X"  120 -3000 3000 "x residual(#mum)" "Entries" default
+
+#TH1F residualx_pixel_barrel "Residual: Pixel Barrel X"  120 -3000 3000 "x residual(#mum)" "Entries" default #ORIGINAL LINE
+TH1F residualx_pixel_barrel "Residual: Pixel Barrel X"  120 -50 50 "x residual(#mum)" "Entries" default
+
 TH1F residualx_pixel_barrel_1hit "Residual: Pixel Barrel X   1 hit" 120 -3000 3000 "x residual(#mum)" "Entries" default
 TH1F residualx_pixel_barrel_2ormorehits "Residual: Pixel Barrel X   >=2 hits" 120 -50 50 "x residual(#mum)" "Entries" default
-TH1F residualx_sct_barrel  "Residual: SCT Barrel X"  120  -50  50 "x residual(#mum)" "Entries" default
+
+#TH1F residualx_sct_barrel  "Residual: SCT Barrel X"  120  -50  50 "x residual(#mum)" "Entries" default #ORIGINAL LINE
+TH1F residualx_sct_barrel  "Residual: SCT Barrel X"  120  -300  300 "x residual(#mum)" "Entries" default
+
 TH1F residualx_sct_barrel_1hit  "Residual: SCT Barrel X   1 hit"  120  -3000  3000 "x residual(#mum)" "Entries" default
 TH1F residualx_sct_barrel_2ormorehits  "Residual: SCT Barrel X   >=2 hits"  120  -50  50 "x residual(#mum)" "Entries" default
 TH1F residualx_blayer_barrel  "Residual: B-Layer Barrel X"  120  -3000  3000 "x residual(#mum)" "Entries" default
 TH1F residualx_blayer_barrel_1hit  "Residual: B-Layer Barrel X   1 hit"  120  -50  50 "x residual(#mum)" "Entries" default
 TH1F residualx_blayer_barrel_2ormorehits  "Residual: B-Layer Barrel X   >=2 hits"  120  -50  50 "x residual(#mum)" "Entries" default
-TH1F residualx_trt_barrel  "Residual: TRT Barrel X"  120  -3000  3000 "x residual(#mum)" "Entries" default
+
+#TH1F residualx_trt_barrel  "Residual: TRT Barrel X"  120  -3000  3000 "x residual(#mum)" "Entries" default #ORIGINAL LINE
+TH1F residualx_trt_barrel  "Residual: TRT Barrel X"  200  -500  500 "x residual(#mum)" "Entries" default
+
 #endcaps
-TH1F residualx_pixel_endcap  "Residual: Pixel Endcap X"  120  -3000  3000 "x residual(#mum)" "Entries" default
+
+#TH1F residualx_pixel_endcap  "Residual: Pixel Endcap X"  120  -3000  3000 "x residual(#mum)" "Entries" default #ORIGINAL LINE
+TH1F residualx_pixel_endcap  "Residual: Pixel Endcap X"  120  -50  50 "x residual(#mum)" "Entries" default
+
 TH1F residualx_pixel_endcap_1hit  "Residual: Pixel Endcap X   1 hit"  120  -3000  3000 "x residual(#mum)" "Entries" default
 TH1F residualx_pixel_endcap_2ormorehits  "Residual: Pixel Endcap X   >=2 hits"  120  -50  50 "x residual(#mum)" "Entries" default
-TH1F residualx_sct_endcap  "Residual: SCT Endcap X"  120  -3000  3000 "x residual(#mum)" "Entries" default
+
+#TH1F residualx_sct_endcap  "Residual: SCT Endcap X"  120  -3000  3000 "x residual(#mum)" "Entries" default #ORIGINAL LINE
+TH1F residualx_sct_endcap  "Residual: SCT Endcap X"  140  -70  70 "x residual(#mum)" "Entries" default
+
 TH1F residualx_sct_endcap_1hit  "Residual: SCT Endcap X   1 hit"  120  -3000  3000 "x residual(#mum)" "Entries" default
 TH1F residualx_sct_endcap_2ormorehits  "Residual: SCT Endcap X   >=2 hits"  120  -3000  3000 "x residual(#mum)" "Entries" default
 TH1F residualx_blayer_endcap  "Residual: B-Layer Endcap X"  120  -3000  3000 "x residual(#mum)" "Entries" default
 TH1F residualx_blayer_endcap_1hit  "Residual: B-Layer Endcap X   1 hit"  120  -3000  3000 "x residual(#mum)" "Entries" default
 TH1F residualx_blayer_endcap_2ormorehits  "Residual: B-Layer Endcap X   >=2 hits"  120  -3000  3000 "x residual(#mum)" "Entries" default
-TH1F residualx_trt_endcap  "Residual: TRT Endcap X"  120  -50  50 "x residual(#mum)" "Entries" default
+
+#TH1F residualx_trt_endcap  "Residual: TRT Endcap X"  120  -50  50 "x residual(#mum)" "Entries" default #ORIGINAL LINE
+TH1F residualx_trt_endcap  "Residual: TRT Endcap X"  200  -500  500 "x residual(#mum)" "Entries" default
+
 TH1F residualx_dbm_neg  "Residual: DBM -side X"  120  -3000  3000 "x residual(#mum)" "Entries" default
 TH1F residualx_dbm_pos  "Residual: DBM +side X"  120  -3000  3000 "x residual(#mum)" "Entries" default
 #y residuals
-TH1F residualy_pixel_barrel  "Residual: Pixel Barrel Y"  120  -50  50 "y residual(#mum)" "Entries" default
+
+#TH1F residualy_pixel_barrel  "Residual: Pixel Barrel Y"  120  -50  50 "y residual(#mum)" "Entries" default #ORIGINAL LINE
+TH1F residualy_pixel_barrel  "Residual: Pixel Barrel Y"  120  -300  300 "y residual(#mum)" "Entries" default
+
 TH1F residualy_pixel_barrel_1hit  "Residual: Pixel Barrel Y   1 hit"  120  -50  50 "y residual(#mum)" "Entries" default
 TH1F residualy_pixel_barrel_2ormorehits  "Residual: Pixel Barrel Y   >=2 hits"  120  -50  50 "x residual(#mum)" "Entries" default
 TH1F residualy_sct_barrel  "Residual: SCT Barrel Y"  120  -50  50 "y residual(#mum)" "Entries" default
@@ -160,8 +177,12 @@ TH1F residualy_blayer_barrel  "Residual: B-Layer Barrel Y"  120  -50  50 "y resi
 TH1F residualy_blayer_barrel_1hit  "Residual: B-Layer Barrel Y   1 hit"  120  -50  50 "y residual(#mum)" "Entries" default
 TH1F residualy_blayer_barrel_2ormorehits  "Residual: B-Layer Barrel Y   >=2 hits"  120  -50  50 "y residual(#mum)" "Entries" default
 TH1F residualy_trt_barrel  "Residual: TRT Barrel Y"  120  0  2500 "y residual(#mum)" "Entries" default
+
 #endcaps
-TH1F residualy_pixel_endcap  "Residual: Pixel Endcap Y"  120  -50  50 "y residual(#mum)" "Entries" default
+
+#TH1F residualy_pixel_endcap  "Residual: Pixel Endcap Y"  120  -50  50 "y residual(#mum)" "Entries" default #ORIGINAL LINE
+TH1F residualy_pixel_endcap  "Residual: Pixel Endcap Y"  120  -300  300 "y residual(#mum)" "Entries" default
+
 TH1F residualy_pixel_endcap_1hit  "Residual: Pixel Endcap Y   1 hit"  120  -50  50 "y residual(#mum)" "Entries" default
 TH1F residualy_pixel_endcap_2ormorehits  "Residual: Pixel Endcap Y   >=2 hits"  120  -50  50 "y residual(#mum)" "Entries" default
 TH1F residualy_sct_endcap  "Residual: SCT Endcap Y"  120  -50  50 "y residual(#mum)" "Entries" default
@@ -204,3 +225,48 @@ TH1F recInJetpT "p_{T} of selected rec tracks in jets(in GeV)" 200 0. 200 "p_{T}
 TH1F nTrackInJet "Number of Tracks in Jet" 50 0. 50  "N Tracks" "Entries" "default"
 TH1F sumPtinJet "Sum p_{T} of Tracks in Jet"  25 0 500 "sum p_{T}(GeV/c)" "Entries" default
 TH1F fracPtInJet "Sum p_{T} of Tracks over jet p_{T}" 60  0 3 "sum Track p_{T}/jet p_{T}" "Entries" default
+
+#spectrum plots
+TH1F nSCTHits "# SCT hits" 20 0. 20 "# SCT Hits" "Entries" default
+TH1F nPixHits "# Pix hits" 20 0. 20 "# Pix Hits" "Entries" default
+TH1F nTotHits "# Total hits" 20 0. 20 "# Totat Hits" "Entries" default
+TH1F nSCTDeadSensors "# SCT DeadSensors" 20 0. 20 "# SCT DeadSensors" "Entries" default
+TH1F nPixDeadSensors "# Pix DeadSensors" 20 0. 20 "# Pix DeadSensors" "Entries" default
+TH1F nTotDeadSensors "# Total DeadSensors" 20 0. 20 "# Total DeadSensors" "Entries" default
+TProfile nSCTHits_vs_eta "# SCT hits vs Eta" 80 -4 4 0 20 "#eta" "# SCT Hits" default
+TProfile nPixHits_vs_eta "# Pix hits vs Eta" 80 -4 4 0 20 "#eta" "# Pix Hits" default
+TProfile nTotHits_vs_eta "# total hits vs Eta" 80 -4 4 0 20 "#eta" "# total Hits" default
+TProfile nSCTDeadSensors_vs_eta "# SCT deadsensors vs Eta" 80 -4 4 0 20 "#eta" "# SCT deadsensors" default
+TProfile nPixDeadSensors_vs_eta "# pix deadsensors vs Eta" 80 -4 4 0 20 "#eta" "# pix deadsensors" default
+TProfile nTotDeadSensors_vs_eta "# total deadsensors vs Eta" 80 -4 4 0 20 "#eta" "# total deadsensors" default
+TH1F recoMatchProbabilitySpectrum "truth match probability spectrum" 40 0. 1 "truth match probability" "Entries" default
+TH1F recoEtaSpectrum "reco eta spectrum" 80 -4 4 "#eta" "Entries" default
+TH1F recoPhiSpectrum "reco phi spectrum" 60 -3 3 "#phi" "Entries" default
+TH1F recoPtSpectrum "reco pt spectrum" 100 0. 100 "pt (GeV/c)" "Entries" default
+TH1F truthEtaSpectrum "truth eta spectrum" 80 -4 4 "#eta" "Entries" default
+TH1F truthPhiSpectrum "truth phi spectrum" 60 -3 3 "#phi" "Entries" default
+TH1F truthPtSpectrum "truth pt spectrum" 100 0. 100 "pt (GeV/c)" "Entries" default
+
+#HitContent plots
+TProfile HitContent_vs_eta_NBlayerHits "Number of B-Layer clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of B-layer clusters>" default
+TProfile HitContent_vs_eta_NPixelHits "Number of Pixel clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel clusters>" default
+TProfile HitContent_vs_eta_DBMHitsNeg "Number of DBM Clusters" 20 -3.8 -2.5 0 100 "#eta" "<Number of DBM clusters, - side>" default
+TProfile HitContent_vs_eta_DBMHitsPos "Number of DBM Clusters" 20 2.5 3.8 0 100 "#eta" "<Number of DBM Clusters, + side>" default
+TProfile HitContent_vs_eta_NPixelHoles "Number of Pixel Holes" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Holes>" default
+TProfile HitContent_vs_eta_NSCTHits "Number of SCT Clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of SCT Clusters>" default
+TProfile HitContent_vs_eta_NSCTHoles "Number of SCT Holes" 20 -2.5 2.5 0 100 "#eta" "<Number of SCT Holes>" default
+TProfile HitContent_vs_eta_NTRTHits "Number of TRT Clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of TRT Hits>" default
+TProfile HitContent_vs_eta_NTRTHighThresholdHits "Number of TRT high threshold clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of High Thresh TRT Hits>" default
+TProfile HitContent_vs_eta_NBlayerOutliers "Number of B-layer outliers"  20 -2.5 2.5 0 100 "#eta" "<Number of B-layer Outliers>" default
+TProfile HitContent_vs_eta_NBlayerSharedHits "Number of shared B-layer clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of B-layer Shared Hits>" default
+TProfile HitContent_vs_eta_NBLayerSplitHits "Number of split B-layer clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of B-layer Split Hits>" default
+TProfile HitContent_vs_eta_NPixelOutliers "Number of Pixel outliers" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Outliers>" default
+TProfile HitContent_vs_eta_NPixelContribLayers "Number of contributed Pixel layers" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Layers>" default
+TProfile HitContent_vs_eta_NPixelSharedHits "Number of shared Pixel clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Shared Hits>" default
+TProfile HitContent_vs_eta_NPixelSplitHits "Number of split Pixel clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Split Hits>" default
+TProfile HitContent_vs_eta_NPixelGangedHits "Number of ganged Pixel clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Ganged Hits>" default
+TProfile HitContent_vs_eta_NSCTOutliers "Number of SCT Outliers" 20 -2.5 2.5 0 100 "#eta" "<Number of SCT Outliers>" default
+TProfile HitContent_vs_eta_NSCTDoubleHoles "Number of SCT double holes" 20 -2.5 2.5 0 100 "#eta" "<Number of SCT Double Holes>" default
+TProfile HitContent_vs_eta_NSCTSharedHits "Number of SCT Shared clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of SCT Shared Hits>" default
+TProfile HitContent_vs_eta_NTRTOutliers "Number of TRT outliers" 20 -2.5 2.5 0 100 "#eta" "<Number of TRT Outliers>" default
+TProfile HitContent_vs_eta_NTRTHighThresholdOutliers "Number of TRT High Threshold outliers" 20 -2.5 2.5 0 100 "#eta" "<Number of TRT High Thresh Outliers>" default

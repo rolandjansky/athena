@@ -6,21 +6,20 @@
 #define INDETPERFPLOT_HITDETAILED_H
 
 #include "InDetPlotBase.h"
-#include "TProfile.h"
+//#include "TProfile.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTruth/TruthParticle.h"
 
 
-#include "TrkValHistUtils/ParamPlots.h"
+
+//#include "TrkValHistUtils/ParamPlots.h"
 #include "TrkValHistUtils/EfficiencyPlots.h"
 #include "TrkValHistUtils/EfficiencyPurityCalculator.h"
 
 class InDetPerfPlot_HitDetailed: public InDetPlotBase {
   public:
-    InDetPerfPlot_HitDetailed(InDetPlotBase *pParent, std::string sDir);
+  InDetPerfPlot_HitDetailed(InDetPlotBase *pParent, std::string sDir);
     void fill(const xAOD::TrackParticle& trk);
-
-    //void fillDenom(const xAOD::TruthParticle& truth);
 
     ///@name Hit content of xAOD::TrackParticle as function of eta
     ///@{
@@ -49,15 +48,11 @@ class InDetPerfPlot_HitDetailed: public InDetPlotBase {
     TProfile* n_vs_eta_TRTOutliers;
     TProfile* n_vs_eta_TRTHighThresholdOutliers;
 
-    TH1* tru_vs_eta_BLayer;
-    TH1* BLayer_efficiency;
 
     ///@}
 
   private:
     void initializePlots();
-
-    //void finalizePlots();
 
     int m_etaNBins;
     float m_etaMin, m_etaMax, m_etaMinDBM, m_etaMaxDBM;

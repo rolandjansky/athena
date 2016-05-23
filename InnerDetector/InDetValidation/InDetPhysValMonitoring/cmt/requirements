@@ -22,6 +22,7 @@ use InDetTrackSelectionTool InDetTrackSelectionTool-*  InnerDetector/InDetRecToo
 use AthenaBaseComps     AthenaBaseComps-*       Control
 
 private
+use AtlasXercesC        AtlasXercesC-*        	External  
 use TrkExInterfaces		TrkExInterfaces-*		Tracking/TrkExtrapolation
 use TrkToolInterfaces           TrkToolInterfaces-*     Tracking/TrkTools
 use AtlasROOT           AtlasROOT-*             External

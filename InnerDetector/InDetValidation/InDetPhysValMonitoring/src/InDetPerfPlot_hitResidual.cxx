@@ -8,7 +8,6 @@
 **/
 
 #include "InDetPerfPlot_hitResidual.h"
-#include <iostream>
 
 
 
@@ -31,117 +30,100 @@ void InDetPerfPlot_hitResidual::initializePlots() {
  //x residuals
   book(m_residualx[PIXEL][BARREL],"residualx_pixel_barrel");
   book(m_residualx_1hit[PIXEL][BARREL],"residualx_pixel_barrel_1hit");
-	book(m_residualx_2ormorehits[PIXEL][BARREL],"residualx_pixel_barrel_2ormorehits");
-	//
-	book(m_residualx[SCT][BARREL],"residualx_sct_barrel");
+  book(m_residualx_2ormorehits[PIXEL][BARREL],"residualx_pixel_barrel_2ormorehits");
+  //
+  book(m_residualx[SCT][BARREL],"residualx_sct_barrel");
   book(m_residualx_1hit[SCT][BARREL],"residualx_sct_barrel_1hit");
-	book(m_residualx_2ormorehits[SCT][BARREL],"residualx_sct_barrel_2ormorehits");
-	//
-	book(m_residualx[BLAYER][BARREL],"residualx_blayer_barrel");
+  book(m_residualx_2ormorehits[SCT][BARREL],"residualx_sct_barrel_2ormorehits");
+  //
+  book(m_residualx[BLAYER][BARREL],"residualx_blayer_barrel");
   book(m_residualx_1hit[BLAYER][BARREL],"residualx_blayer_barrel_1hit");
-	book(m_residualx_2ormorehits[BLAYER][BARREL],"residualx_blayer_barrel_2ormorehits");
-	//
+  book(m_residualx_2ormorehits[BLAYER][BARREL],"residualx_blayer_barrel_2ormorehits");
+  //
   book(m_residualx[TRT][BARREL],"residualx_trt_barrel");
-	//..now endcaps
-	book(m_residualx[PIXEL][ENDCAP],"residualx_pixel_endcap");
+  //..now endcaps
+  book(m_residualx[PIXEL][ENDCAP],"residualx_pixel_endcap");
   book(m_residualx_1hit[PIXEL][ENDCAP],"residualx_pixel_endcap_1hit");
-	book(m_residualx_2ormorehits[PIXEL][ENDCAP],"residualx_pixel_endcap_2ormorehits");
-	//
-	book(m_residualx[SCT][ENDCAP],"residualx_sct_endcap");
+  book(m_residualx_2ormorehits[PIXEL][ENDCAP],"residualx_pixel_endcap_2ormorehits");
+  //
+  book(m_residualx[SCT][ENDCAP],"residualx_sct_endcap");
   book(m_residualx_1hit[SCT][ENDCAP],"residualx_sct_endcap_1hit");
-	book(m_residualx_2ormorehits[SCT][ENDCAP],"residualx_sct_endcap_2ormorehits");
-	
-	book(m_residualx[BLAYER][ENDCAP],"residualx_blayer_endcap");
+  book(m_residualx_2ormorehits[SCT][ENDCAP],"residualx_sct_endcap_2ormorehits");
+  
+  book(m_residualx[BLAYER][ENDCAP],"residualx_blayer_endcap");
   book(m_residualx_1hit[BLAYER][ENDCAP],"residualx_blayer_endcap_1hit");
-	book(m_residualx_2ormorehits[BLAYER][ENDCAP],"residualx_blayer_endcap_2ormorehits");
-	//
+  book(m_residualx_2ormorehits[BLAYER][ENDCAP],"residualx_blayer_endcap_2ormorehits");
+  //
   book(m_residualx[TRT][ENDCAP],"residualx_trt_endcap");
-	//DBM
-	book(m_residualx[DBM][0],"residualx_dbm_neg");
+  //DBM
+  book(m_residualx[DBM][0],"residualx_dbm_neg");
   book(m_residualx[DBM][1],"residualx_dbm_pos");
   //
   // y residuals
   book(m_residualy[PIXEL][BARREL],"residualy_pixel_barrel");
   book(m_residualy_1hit[PIXEL][BARREL],"residualy_pixel_barrel_1hit");
-	book(m_residualy_2ormorehits[PIXEL][BARREL],"residualy_pixel_barrel_2ormorehits");
-	//
-	book(m_residualy[SCT][BARREL],"residualy_sct_barrel");
+  book(m_residualy_2ormorehits[PIXEL][BARREL],"residualy_pixel_barrel_2ormorehits");
+  //
+  book(m_residualy[SCT][BARREL],"residualy_sct_barrel");
   book(m_residualy_1hit[SCT][BARREL],"residualy_sct_barrel_1hit");
-	book(m_residualy_2ormorehits[SCT][BARREL],"residualy_sct_barrel_2ormorehits");
-	//
-	book(m_residualy[BLAYER][BARREL],"residualy_blayer_barrel");
+  book(m_residualy_2ormorehits[SCT][BARREL],"residualy_sct_barrel_2ormorehits");
+  //
+  book(m_residualy[BLAYER][BARREL],"residualy_blayer_barrel");
   book(m_residualy_1hit[BLAYER][BARREL],"residualy_blayer_barrel_1hit");
-	book(m_residualy_2ormorehits[BLAYER][BARREL],"residualy_blayer_barrel_2ormorehits");
-	//
+  book(m_residualy_2ormorehits[BLAYER][BARREL],"residualy_blayer_barrel_2ormorehits");
+  //
   book(m_residualy[TRT][BARREL],"residualy_trt_barrel");
-	//..now endcaps
-	book(m_residualy[PIXEL][ENDCAP],"residualy_pixel_endcap");
+  //..now endcaps
+  book(m_residualy[PIXEL][ENDCAP],"residualy_pixel_endcap");
   book(m_residualy_1hit[PIXEL][ENDCAP],"residualy_pixel_endcap_1hit");
-	book(m_residualy_2ormorehits[PIXEL][ENDCAP],"residualy_pixel_endcap_2ormorehits");
-	//
-	book(m_residualy[SCT][ENDCAP],"residualy_sct_endcap");
+  book(m_residualy_2ormorehits[PIXEL][ENDCAP],"residualy_pixel_endcap_2ormorehits");
+  //
+  book(m_residualy[SCT][ENDCAP],"residualy_sct_endcap");
   book(m_residualy_1hit[SCT][ENDCAP],"residualy_sct_endcap_1hit");
-	book(m_residualy_2ormorehits[SCT][ENDCAP],"residualy_sct_endcap_2ormorehits");
-	
-	book(m_residualy[BLAYER][ENDCAP],"residualy_blayer_endcap");
+  book(m_residualy_2ormorehits[SCT][ENDCAP],"residualy_sct_endcap_2ormorehits");
+  
+  book(m_residualy[BLAYER][ENDCAP],"residualy_blayer_endcap");
   book(m_residualy_1hit[BLAYER][ENDCAP],"residualy_blayer_endcap_1hit");
-	book(m_residualy_2ormorehits[BLAYER][ENDCAP],"residualy_blayer_endcap_2ormorehits");
-	//
+  book(m_residualy_2ormorehits[BLAYER][ENDCAP],"residualy_blayer_endcap_2ormorehits");
+  //
   book(m_residualy[TRT][ENDCAP],"residualy_trt_endcap");
-	//DBM
-	book(m_residualy[DBM][0],"residualy_dbm_neg");
+  //DBM
+  book(m_residualy[DBM][0],"residualy_dbm_neg");
   book(m_residualy[DBM][1],"residualy_dbm_pos");
-	// pulls
-	//barrel
-	book(m_residualpullx[BLAYER][BARREL],"residualpullx_blayer_barrel");
-	book(m_residualpullx[PIXEL][BARREL],"residualpullx_pixel_barrel");
-	book(m_residualpullx[SCT][BARREL],"residualpullx_sct_barrel");
+  // pulls
+  //barrel
+  book(m_residualpullx[BLAYER][BARREL],"residualpullx_blayer_barrel");
+  book(m_residualpullx[PIXEL][BARREL],"residualpullx_pixel_barrel");
+  book(m_residualpullx[SCT][BARREL],"residualpullx_sct_barrel");
   book(m_residualpullx[TRT][BARREL],"residualpullx_trt_barrel");
   book(m_residualpullx[DBM][0],"residualpullx_dbm_barrel");
   //
   book(m_residualpullx[BLAYER][ENDCAP],"residualpullx_blayer_endcap");
   book(m_residualpullx[PIXEL][ENDCAP],"residualpullx_pixel_endcap");
-	book(m_residualpullx[SCT][ENDCAP],"residualpullx_sct_endcap");
+  book(m_residualpullx[SCT][ENDCAP],"residualpullx_sct_endcap");
   book(m_residualpullx[TRT][ENDCAP],"residualpullx_trt_endcap");
   book(m_residualpullx[DBM][1],"residualpullx_dbm_endcap");
   //
   //barrel
   book(m_residualpully[BLAYER][BARREL],"residualpully_blayer_barrel");
-	book(m_residualpully[PIXEL][BARREL],"residualpully_pixel_barrel");
-	book(m_residualpully[SCT][BARREL],"residualpully_sct_barrel");
+  book(m_residualpully[PIXEL][BARREL],"residualpully_pixel_barrel");
+  book(m_residualpully[SCT][BARREL],"residualpully_sct_barrel");
   book(m_residualpully[TRT][BARREL],"residualpully_trt_barrel");
   book(m_residualpully[DBM][0],"residualpully_dbm_barrel");
   //
   book(m_residualpully[BLAYER][ENDCAP],"residualpully_blayer_endcap");
   book(m_residualpully[PIXEL][ENDCAP],"residualpully_pixel_endcap");
-	book(m_residualpully[SCT][ENDCAP],"residualpully_sct_endcap");
+  book(m_residualpully[SCT][ENDCAP],"residualpully_sct_endcap");
   book(m_residualpully[TRT][ENDCAP],"residualpully_trt_endcap");
   book(m_residualpully[DBM][1],"residualpully_dbm_endcap");
-
+  
 }
 
 void InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
-  //det, r, iLayer, residualLocX, pullLocX, residualLocY, pullLocY, phiWidth
-	//typedef std::tuple<int,int,int, float, float, float, float, int> SingleResult_t;
-	//typedef std::vector<SingleResult_t> TrackResult_t;
-  //const bool hitDetailsAvailable= trkprt.isAvailable<TrackResult_t>("hitResiduals");
   const bool hitDetailsAvailable= trkprt.isAvailable<std::vector<int> >("hitResiduals_region");
   if (!hitDetailsAvailable){
      ATH_MSG_WARNING("The hit res plots dont see any data");
   } else {
-  /** tuple implementation , but no root dictionary for tuple
-    const TrackResult_t & result=trkprt.auxdata< TrackResult_t >("hitResiduals");
-    if (not result.empty()){
-    	for (const auto i:result){
-				const int det = std::get<0>(i);
-				const int region = std::get<1>(i);
-				//const int layer = std::get<2>(i);
-				const int width = std::get<7>(i);
-				const float residualLocX = std::get<3>(i);
-				const float pullLocX = std::get<4>(i);
-				const float residualLocY = std::get<5>(i);
-				const float pullLocY = std::get<6>(i);
-				**/
     const std::vector<int> &result_det = trkprt.auxdata< std::vector<int> >("hitResiduals_det");
 		if (!result_det.empty()) {
 			 const std::vector<int> & result_region=trkprt.auxdata< std::vector<int> >("hitResiduals_region");
@@ -160,8 +142,6 @@ void InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
 				 const float pullLocX = result_pullLocX.at(idx);
 				 const float residualLocY = result_residualLocY.at(idx);
 				 const float pullLocY = result_pullLocY.at(idx);
-
-				
 				if ((det == INVALID_DETECTOR) or (region==INVALID_REGION)) continue;
 				(m_residualx[det][region])->Fill(residualLocX);
 				if (not std::isnan(residualLocY)) (m_residualy[det][region])->Fill(residualLocY);

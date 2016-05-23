@@ -35,7 +35,12 @@ AthAlgTool(type,name,parent),
 m_holeSearchTool("InDet::InDetTrackHoleSearchTool"),
 m_updatorHandle("Trk::KalmanUpdator/TrkKalmanUpdator"),
 m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-m_ptThreshold(0.8), m_isUnbiased(false), m_doUpgrade(false){
+m_ptThreshold(0.8), m_isUnbiased(false), m_doUpgrade(false),
+m_idHelper(nullptr),
+m_pixelID(nullptr),
+m_sctID(nullptr),
+m_trtID(nullptr)
+{
 declareInterface<IInDetPhysValDecoratorTool>(this);
 
 declareProperty("InDetTrackHoleSearchTool"     , m_holeSearchTool);
@@ -106,6 +111,12 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle, c
 			const int numberOfHits(allTrackStates.size());
 			unsigned int trackParametersCounter(numberOfHits);
 			TrackResult_t result; result.reserve(numberOfHits);
+			//line 3595 original
+			if (! m_updatorHandle.empty()){
+      m_isUnbiased = true;
+    } else {
+      m_isUnbiased = false;
+    }
 			for (const auto &thisTrackState: allTrackStates){
 				SingleResult_t thisResult(invalidResult);
 				if (not thisTrackState) continue;
@@ -162,7 +173,6 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle, c
 				  }
 				  //int width = 1; //check original code
 				  int phiWidth(-1);
-				  //int zWidth(-1);
 					//copy-paste from original
 					if (hit && m_isUnbiased) {
 						// Cluster width determination
@@ -171,13 +181,13 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle, c
 							if(pCluster){
 								InDet::SiWidth width = pCluster->width();
 								phiWidth = int(width.colRow().x());
-								//zWidth = int(width.colRow().y());
 							}
 						}
+						ATH_MSG_VERBOSE ("hit and isUnbiased ok");
 					}
 					//end copy-paste
 				  thisResult=std::make_tuple(det, r, iLayer, residualLocX, pullLocX, residualLocY, pullLocY, phiWidth);
-				  ATH_MSG_DEBUG ("**dimension: result "<<residualPull->dimension()<<":"<<iLayer<<", "<<residualLocX<<", "<<pullLocX<<", "<<residualLocY<<", "<<pullLocY<<", "<<phiWidth );
+				  ATH_MSG_DEBUG ("**dimension: result "<<det<<":"<<r<<":"<<residualPull->dimension()<<":"<<iLayer<<", "<<residualLocX<<", "<<pullLocX<<", "<<residualLocY<<", "<<pullLocY<<", "<<phiWidth );
 				  result.push_back(thisResult);
 				  //must delete the pointers?
 				} else {
@@ -189,14 +199,15 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle, c
 			ATH_MSG_DEBUG("Out of "<<numberOfHits<<" hits, "<<trackParametersCounter<<" had track params, and "<<result.size()<<" had residuals." );
 			if (not result.empty()){
 //		  particle.auxdecor<TrackResult_t>(prefix+"hitResiduals") = result; //!< no dictionary for tuple
-			 std::vector<int> result_det;           result_det.reserve( result.size() );
-			 std::vector<int> result_r;             result_r.reserve( result.size());
-			 std::vector<int> result_iLayer;        result_iLayer.reserve( result.size() );
-			 std::vector<float> result_residualLocX;result_residualLocX.reserve( result.size() );
-			 std::vector<float> result_pullLocX;    result_pullLocX.reserve( result.size() );
-			 std::vector<float> result_residualLocY;result_residualLocY.reserve( result.size() );
-			 std::vector<float> result_pullLocY;    result_pullLocY.reserve( result.size() );
-			 std::vector<int> result_phiWidth;      result_phiWidth.reserve( result.size() );
+        const unsigned int arraySize=result.size();
+			 std::vector<int> result_det;           result_det.reserve( arraySize );
+			 std::vector<int> result_r;             result_r.reserve( arraySize);
+			 std::vector<int> result_iLayer;        result_iLayer.reserve( arraySize );
+			 std::vector<float> result_residualLocX;result_residualLocX.reserve( arraySize );
+			 std::vector<float> result_pullLocX;    result_pullLocX.reserve( arraySize );
+			 std::vector<float> result_residualLocY;result_residualLocY.reserve( arraySize );
+			 std::vector<float> result_pullLocY;    result_pullLocY.reserve( arraySize );
+			 std::vector<int> result_phiWidth;      result_phiWidth.reserve( arraySize );
 
 			 for (const SingleResult_t &single_result : result ) {
 				 result_det.push_back(std::get<0>(single_result));

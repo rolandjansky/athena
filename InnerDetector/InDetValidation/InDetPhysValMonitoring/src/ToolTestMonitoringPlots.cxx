@@ -90,7 +90,7 @@ ToolTestMonitoringPlots::bookHistograms(){
 StatusCode 
 ToolTestMonitoringPlots::procHistograms() {
     ATH_MSG_INFO ("Finalising hists " << name() << "...");
-    if (endOfRun){
+    if (endOfRunFlag()){
       m_monPlots->finalize();
     }
     return StatusCode::SUCCESS;

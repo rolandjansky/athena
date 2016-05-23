@@ -126,14 +126,11 @@ SingleHistogramDefinition ReadFromText::parseTextLine(const std::string & line){
     StringVec chunks=split(line,[](int d) -> int { return d == (int)'"';} );
     const int minimumPossibleSize(3);
     if (chunks.size() < minimumPossibleSize) return s;
-    
-    //
-    
-    //
     StringVec typeAndName=split(chunks[0]);
     m[TYPE]=typeAndName[0];m[NAME]=typeAndName[1];
     m[TITLE]=chunks[1];
     StringVec nBinsStartEnd=split(chunks[2]);
+    std::cout << "chunks[2]: '" << chunks[2] << "'" << std::endl;
     if (nBinsStartEnd.size()<3) return s;
     m[NXBINS]=nBinsStartEnd[0];m[XLO]=nBinsStartEnd[1];m[XHI]=nBinsStartEnd[2];
     if (nBinsStartEnd.size()==5){		//TProfile; limits given for Y axis also
@@ -157,8 +154,8 @@ SingleHistogramDefinition ReadFromText::parseTextLine(const std::string & line){
       found&=!(s.empty());
     }**/
    unsigned int nbinsX(0);
-   float xLo(std::nan(""));
-   float xHi(std::nan(""));
+   float xLo(std::nanf(""));
+   float xHi(std::nanf(""));
    try{
 	   nbinsX=(unsigned int)(std::stoul(m[NXBINS]));
 	   xLo=std::stof(m[XLO]);

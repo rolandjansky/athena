@@ -103,10 +103,7 @@ StatusCode InDetPhysValDecoratorAlg::execute(){
   if (truthParticles) {
     for (const auto & thisTruth: *truthParticles){      
       bool successfulDecoration = m_truthDecoratorTool->decorateTruth(*thisTruth,"");
-      if (not successfulDecoration) ATH_MSG_WARNING ("Could not retrieve some information for the truth particle.");
-      //      successfulDecoration = m_truthDecoratorTool->decorateTruth(*thisTruth,"");
-      //      if (not successfulDecoration) ATH_MSG_WARNING ("The truth particle could not be assigned a type");
-      // std::cout<<"InDetPhysValDecoratorAlg.cxx :"<<thisTruth->auxdataConst<float>("prodR") <<std::endl;
+      if (not successfulDecoration) ATH_MSG_DEBUG ("Could not retrieve some information for the truth particle.");
     }
   }
   

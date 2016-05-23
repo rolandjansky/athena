@@ -21,15 +21,36 @@
 class IHistogramDefinitionSvc;
 
 
-//mixin class to give extra capabilities to plots
+/** 
+ * @brief Mixin class to give extra capabilities to plots
+ * such as ATH_MSG and an easier booking interface, as well
+ * as access to the HistogramDefinitionSvc which allows an
+ * external configuration file (txt or xml) to define the plot
+ * limits and titles.
+ **/
 class InDetPlotBase:public PlotBase{
 public:
-  void book (TH1 * & pHisto, const SingleHistogramDefinition & hd);
-  void book (TProfile * & pHisto, const SingleHistogramDefinition & hd);
+	/// Constructor taking parent node and directory name for plots
 	InDetPlotBase(InDetPlotBase * pParent, const std::string & dirName);
+	
+	/// Retrieve a single histogram definition, given the unique string identifier
 	SingleHistogramDefinition retrieveDefinition(const std::string & histoIdentifier, const std::string & folder = "default");
-	void book(TH1 * & pHisto, const std::string & histoIdentifier, const std::string & folder = "default");
+
+	/// Book a TH1 histogram 
+  void book (TH1 * & pHisto, const SingleHistogramDefinition & hd);
+  /// Book a TH1 histogram with optional folder name
+  void book(TH1 * & pHisto, const std::string & histoIdentifier, const std::string & folder = "default");
+
+  /// Book a TProfile histogram 
+  void book (TProfile * & pHisto, const SingleHistogramDefinition & hd);
+  /// Book a TH1 histogram with optional folder name
 	void book(TProfile * & pHisto, const std::string & histoIdentifier, const std::string & folder = "default");
+	
+	/// Book a 2D histogram (TH2)
+	void book (TH2 * & pHisto, const SingleHistogramDefinition & hd);
+	/// Book a 2D histogram (TH2) with optional folder name
+	void book(TH2 * & pHisto, const std::string & histoIdentifier, const std::string & folder = "default");
+	
 protected:
   /// book, for use by macro
   template <class T>

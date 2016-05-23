@@ -39,9 +39,11 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import HistogramDefinitionSvc
-ToolSvc = ServiceMgr.ToolSvc
+HistogramDefinitionSvc.DefinitionSource="../share/testHDef.xml"
+HistogramDefinitionSvc.DefinitionFormat="text/xml"
+#ToolSvc = ServiceMgr.ToolSvc
 ServiceMgr+=HistogramDefinitionSvc()
-ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/inDetPhysValMonitoringPlotDefinitions.hdef"
+
 
 #IOVDbSvc = Service("IOVDbSvc")
 #from IOVDbSvc.CondDB import conddb
@@ -61,7 +63,7 @@ theApp.EvtMax                    = 1
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)
 #--------------------------------------------------------------
-ServiceMgr.MessageSvc.OutputLevel = WARNING
+ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.HistogramDefinitionSvc.OutputLevel = INFO
 topSequence.AlgTestHistoDefSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.infoLimit        = 100000
