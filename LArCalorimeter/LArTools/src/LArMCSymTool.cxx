@@ -12,6 +12,12 @@ LArMCSymTool::LArMCSymTool(const std::string& type,
                                const IInterface* parent) 
   : AthAlgTool(type, name, parent), 
     m_cablingService("LArCablingService"),
+    m_ncellem(0),
+    m_ncellhec(0),
+    m_ncellfcal(0),
+    m_lar_em_id(nullptr),
+    m_lar_hec_id(nullptr),
+    m_lar_fcal_id(nullptr),
     m_validCache(false)
 {
 declareInterface<ILArMCSymTool>(this);
