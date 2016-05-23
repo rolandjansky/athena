@@ -1,8 +1,5 @@
 package Geant4
 
-author Andrea DellAcqua <dellacqu@mail.cern.ch>
-author Andy Buckley <andy.buckley@cern.ch>
-
 use ExternalPolicy ExternalPolicy-*   External
 use AtlasCLHEP     AtlasCLHEP-*       External
 use AtlasXercesC   AtlasXercesC-*     External
@@ -16,15 +13,24 @@ macro Geant4_home "${SITEROOT}/atlas/offline/external/geant4/releases" \
     EXTSITE     "${SITEROOT}/geant4/releases" \
     STANDALONE  "${SITEROOT}/geant4/releases"
 
-
-macro Geant4_native_version "geant4.9.6.patch03.atlas06"
+macro Geant4_native_version "geant4.10.1.patch03.atlas01"
 macro Geant4_export_paths "$(Geant4_home)/share/${Geant4_native_version}/include $(Geant4_home)/specific/$(CMTCONFIG)/${Geant4_native_version}/lib $(Geant4_home)/share/${Geant4_native_version}/data"
 macro Geant4_follow_symlinks "" PACK yes
+# Exclude, from distribution kit, separate debuginfo files (with suffix .dbg)
+macro Geant4_debuginfo_suffix "" PACK ".dbg"
+
+## Extra tag to mark that this is Geant4MT, comment this out for single
+## threaded G4 builds.
+#apply_tag G4MT
+#macro G4MTOptions " " \
+#      G4MT                    "  -DG4MULTITHREADED -ftls-model=global-dynamic "
+#
+#macro_append cppflags "$(G4MTOptions) "
 
 private
 # copied from ExternalPolicy with modification to restrict to one Geant4 version
 # Pattern to install a symlink to the $(<package>_home) location of an external package in the InstallArea/external/<package> location.
-# Subsequent use of the $(<package>_installed_home) macro to locate items within the package are then relocatable.   
+# Subsequent use of the $(<package>_installed_home) macro to locate items within the package are then relocatable.
 # don't know how to loop in CMT language, so hardcode both paths which are currently needed here. Hope that will never change ...
 pattern install_external_home \
     apply_pattern generic_declare_for_link kind=<package>_home files=$(<package>_home)/share/${Geant4_native_version} prefix=external/<package>/releases/share ; \
@@ -35,9 +41,6 @@ pattern install_external_home \
 end_private
 
 apply_pattern install_external_home package=Geant4
-
-# *********************** This is G4 9.6 ************************
-apply_tag G496
 
 ##################################################################
 
@@ -251,4 +254,4 @@ set G4LEVELGAMMADATA   "${Geant4_data}/PhotonEvaporation"
 set G4NEUTRONHPDATA    "${Geant4_data}/G4NDL"
 set G4LEDATA           "${Geant4_data}/G4EMLOW"
 set G4NEUTRONXSDATA    "${Geant4_data}/G4NEUTRONXS"
-set G4SAIDXSDATA       "${Geant4_data}/G4SAIDXSDATA"
+set G4SAIDXSDATA       "${Geant4_data}/G4SAIDDATA"
