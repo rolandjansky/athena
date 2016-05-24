@@ -157,27 +157,7 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonConfig *config)
     m_L1NameToCPTID[_chain.getChainName()] = _chain.getCounter();
     m_CPTIDToL1Name[_chain.getCounter()] = _chain.getChainName();
 
-    // Check for signs of Bunch Group. We're going to just go by the name here as we don't keep BG info in this summary.
-    // Should be fine - can be readdressed in future if there are problems.
-    if (_chain.getChainName().find("_BPTX") != std::string::npos
-      || _chain.getChainName().find("_BGRP") != std::string::npos
-      || _chain.getChainName().find("_L1A_Mon") != std::string::npos) { // Ignore the beam pickup triggers and "L1A_MON"
-      m_L1IDToBunchGroup[_chain.getCounter()] = kBG_NONE;
-    } else if (_chain.getChainName().find("_FIRSTEMPTY") != std::string::npos) {
-      m_L1IDToBunchGroup[_chain.getCounter()] = kBG_FIRSTEMPTY;
-    } else if (_chain.getChainName().find("_EMPTY") != std::string::npos) {
-      m_L1IDToBunchGroup[_chain.getCounter()] = kBG_EMPTY;
-    } else if (_chain.getChainName().find("_UNPAIRED_ISO") != std::string::npos) {
-      m_L1IDToBunchGroup[_chain.getCounter()] = kBG_UNPAIRED_ISO;
-    } else if (_chain.getChainName().find("_UNPAIRED_NONISO") != std::string::npos) {
-      m_L1IDToBunchGroup[_chain.getCounter()] = kBG_UNPAIRED_NONISO;
-    } else if (_chain.getChainName().find("_ABORTGAPNOTCALIB") != std::string::npos) {
-      m_L1IDToBunchGroup[_chain.getCounter()] = kBG_ABORTGAPNOTCALIB;
-    } else {
-      m_L1IDToBunchGroup[_chain.getCounter()] = kBG_FILLED;
-    }
-
-    ATH_MSG_DEBUG("Recording L1Chain Name -> CPTID [" << _chain.getChainName() << " -> " << _chain.getCounter() << "], ID -> BG [" << _chain.getCounter() << " -> " << EBBunchGroupNames[ m_L1IDToBunchGroup[_chain.getCounter()] ] << "]" );
+    ATH_MSG_DEBUG("Recording L1Chain Name -> CPTID [" << _chain.getChainName() << " -> " << _chain.getCounter() << "]" );
   }
 
   m_isConfigured = true;
@@ -188,10 +168,6 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonConfig *config)
 //---------------------------------------------------------------------------------------
 void Trig::TrigNtEBWeightTool::readEBConfigFromXML(unsigned runNumber) {
   m_filterInfo.clear();
-
-  if (runNumber != 266904) {
-    ATH_MSG_ERROR("EB configuration for run " << runNumber << " is not available automatically. XML file needs to be supplied." );
-  }
 
   // Load XML info
   std::stringstream ss;
@@ -276,39 +252,8 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonEvent &event)
       return false;
     }
 
-    // First, what BG type were we? Go based on what passed
-    EBBunchGroupType _eventBG = kBG_NONE;
     const std::vector<TrigMonL1Item>& _eventL1Items = event.getL1Items();
-    for (unsigned i = 0; i < _eventL1Items.size(); ++i) {
-      unsigned _ID = _eventL1Items.at(i).getCtpId();
-      EBBunchGroupType _BG = m_L1IDToBunchGroup[ _ID ];
-      ATH_MSG_DEBUG("Event has L1 item " << m_CPTIDToL1Name[_ID]
-        << ", passes? " << _eventL1Items.at(i).isPassedBeforePrescale()
-        << ", and is in BG " << EBBunchGroupNames[_BG] );
-      if (_BG == kBG_NONE) continue;
-      if (_eventL1Items.at(i).isPassedBeforePrescale() == false) continue;
-      if (_eventBG != kBG_NONE && _eventBG != _BG) {
-        ATH_MSG_ERROR("Event has mismatched bunchgroups in it, both "
-          << EBBunchGroupNames[_BG] << " and "
-          << EBBunchGroupNames[_eventBG] );
-        for (unsigned j = 0; j < _eventL1Items.size(); ++j) {
-          ATH_MSG_ERROR("-> L1 item " << m_CPTIDToL1Name[_eventL1Items.at(j).getCtpId()]
-            << ", passes? " << _eventL1Items.at(j).isPassedBeforePrescale()
-            << ", and is in BG " << EBBunchGroupNames[ m_L1IDToBunchGroup[ _eventL1Items.at(j).getCtpId() ] ] );
-        }
-      }
-      _eventBG = _BG;
-    }
-
-    // Check we could assign the BG
-    if (_eventBG == kBG_NONE) {
-      ATH_MSG_ERROR("Unable to determine the bunch group for this event. L1 items were:");
-      for (unsigned i = 0; i < _eventL1Items.size(); ++i) {
-        ATH_MSG_ERROR("-> L1 item " << m_CPTIDToL1Name[_eventL1Items.at(i).getCtpId()]
-          << ", passes? " << _eventL1Items.at(i).isPassedBeforePrescale()
-          << ", and is in BG " << EBBunchGroupNames[ m_L1IDToBunchGroup[ _eventL1Items.at(i).getCtpId() ] ] );
-      }
-    }
+    EBBunchGroupType _eventBG = kBG_NONE;
 
     // We look to see what L1 items *could* have passed (trigger before prescale) and assign a weight based on the total prescale of the chain.
     std::map<EBTriggerType, Bool_t> _passEBTrigBeforePS;
@@ -357,7 +302,7 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonEvent &event)
           if (_EBEnum == kEb_random_physics || _EBEnum == kEb_random_empty) {
             _passedL1Raw = _eventL1Items.at(i).isPassedAfterVeto();
             _isUnbiased = _passedL1Raw;
-            ATH_MSG_DEBUG("L1Item " << _L1Name << " considered for " << _EBMappingName << (_passedL1Raw ? " PASSED after VETO." : " did NOT pass AFTER VETO.") );
+            if (_passedL1Raw) ATH_MSG_DEBUG("L1Item " << _L1Name << " considered for " << _EBMappingName << " PASSED after VETO.");
             break;
           } else { // Non RANDOM
             _passedL1Raw = _eventL1Items.at(i).isPassedBeforePrescale();
@@ -366,6 +311,12 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonEvent &event)
           }
         }
         if ( _passedL1Raw == 0 ) continue;
+ 
+        if ( _eventBG == kBG_NONE ) { // Set the event's BG
+          _eventBG = EBBunchGroupHLT[_EBEnum];
+        } else if ( _eventBG != EBBunchGroupHLT[_EBEnum]  ) { // Multiple items - check they agree
+          ATH_MSG_WARNING("BG Missmatch from EB chains " << EBBunchGroupNames[ _eventBG ] << " and " << EBBunchGroupNames[ EBBunchGroupHLT[_EBEnum] ]);
+        }
 
         _passEBTrigBeforePS[_EBEnum] = true;
         break;
@@ -385,13 +336,13 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonEvent &event)
       _weight = 1. / ( 1. - _weight );
     }
 
-    ATH_MSG_DEBUG("This event has final weight:"
+    ATH_MSG_INFO("This event has final weight:"
       << _weight << ", (float: " << (Float_t) _weight
       << ") and BG " << EBBunchGroupNames[_eventBG]
       << " and isUnbiased flag:" << _isUnbiased << "  this will be stored in locations 45, 46 and 48" );
-    event.addVar(45, (Float_t) _weight);
-    event.addVar(46, (Float_t) _eventBG);
-    event.addVar(48, (Float_t) _isUnbiased);
+    event.addVar(kEBWeight, (Float_t) _weight);
+    event.addVar(kEBBunchGroup, (Float_t) _eventBG);
+    event.addVar(kEBIsUnbiasedFlag, (Float_t) _isUnbiased);
 
     return true;
 }

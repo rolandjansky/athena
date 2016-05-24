@@ -64,6 +64,21 @@ namespace Trig
 
   ////////////////
 
+  static const EBBunchGroupType EBBunchGroupHLT[] = {
+    kBG_FILLED,
+    kBG_FILLED,
+    kBG_FILLED,
+    kBG_FILLED,
+    kBG_FILLED,
+
+    kBG_EMPTY,
+    kBG_EMPTY,
+    kBG_FIRSTEMPTY,
+    kBG_UNPAIRED_ISO,
+    kBG_UNPAIRED_NONISO,
+    kBG_ABORTGAPNOTCALIB
+  }; 
+
   static const std::string EBMappingNameHLT[] = {
     "HLT_noalg_eb_L1RD3_FILLED",
     "L1ItemNames HLT_eb_low_L1RD2_FILLED",

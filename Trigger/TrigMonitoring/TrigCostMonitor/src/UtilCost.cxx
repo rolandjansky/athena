@@ -28,7 +28,7 @@ void Trig::Print(const TrigMonEvent &event,
 
   if (verb == 0) { // Ultra compact
     float _costEvent = 0;
-    event.getVar(47, _costEvent); // 47 is magic number for this data. TODO. Put all magic numbers in an enum
+    event.getVar(kIsCostEvent, _costEvent); // 47 is magic number for this data. TODO. Put all magic numbers in an enum
     log << level 
         << "TrigMonEvent R:" << event.getRun() 
         << " L:" << event.getLumi()
@@ -100,8 +100,8 @@ void Trig::Print(const TrigMonEvent &event,
     const TrigMonRoi &roi = event.at<TrigMonRoi>(i);
     float eta = -1999.0, phi = -1999.0;
     if(roi.getVarKey().size() > 1 && roi.getVarVal().size() > 1) {
-      if(roi.getVarKey()[0] == 0) eta = roi.getVarVal()[0];
-      if(roi.getVarKey()[1] == 1) phi = roi.getVarVal()[1];
+      if(roi.getVarKey()[0] == kRoIEta) eta = roi.getVarVal()[0];
+      if(roi.getVarKey()[1] == kRoIPhi) phi = roi.getVarVal()[1];
     }
     
     unsigned rword = 0;

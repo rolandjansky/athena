@@ -33,15 +33,17 @@
 // #include "TrigConfL1Data/CTPExtraWordsFormat.h"
 
 // Local
-#include "TrigCostMonitor/UtilCost.h"
 #include "TrigCostMonitor/TrigCostTool.h"
 #include "TrigCostMonitor/TrigNtConfTool.h"
+#include "TrigCostMonitor/UtilCost.h"
 
 //---------------------------------------------------------------------------------------
 TrigCostTool::TrigCostTool(const std::string& type,
          const std::string& name,
          const IInterface* parent)
-  :AthAlgTool(type, name, parent), 
+  :AthAlgTool(type, name, parent),
+   m_appId(0),
+   m_appName(), 
    m_parentAlg(0),
    m_timer(0),
    m_timerSvc("TrigTimerSvc/TrigTimerSvc", name),
@@ -58,7 +60,6 @@ TrigCostTool::TrigCostTool(const std::string& type,
    m_run(0),
    m_lumi(0),
    m_countEvent(0),
-   m_keyTimer(0),
    m_exportedConfig(0),
    m_exportedEvents(0),
    m_costChainPS(0)
@@ -142,15 +143,12 @@ StatusCode TrigCostTool::initialize()
   // Update from old style "HLT_OPI_HLT"
   if(m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2) {
     m_keySteerOPI = "HLT_TrigOperationalInfoCollection_OPI_L2";
-    m_keyTimer    = 100;
   }
   else if(m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::EF) {
     m_keySteerOPI = "HLT_TrigOperationalInfoCollection_OPI_EF";
-    m_keyTimer    = 110;
   }
   else if(m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::HLT) {
     m_keySteerOPI = "HLT_TrigOperationalInfoCollection_OPI_HLT";
-    m_keyTimer    = 100;
   }
 
   // Only get this tool offline
@@ -219,7 +217,6 @@ StatusCode TrigCostTool::initialize()
   ATH_MSG_INFO("stopAfterNEvent  = " << m_stopAfterNEvent  );
   ATH_MSG_INFO("execPrescale     = " << m_execPrescale     );
   ATH_MSG_INFO("doOperationalInfo= " << m_doOperationalInfo);
-  ATH_MSG_INFO("keyTimer         = " << m_keyTimer         );
   ATH_MSG_INFO("printEvent       = " << m_printEvent       );
   ATH_MSG_INFO("obeyCostChainPS  = " << m_obeyCostChainPS  );
 
@@ -380,7 +377,7 @@ StatusCode TrigCostTool::fillHists()
     } else {
       ATH_MSG_DEBUG( "NOT Running ScaleTools on this event. Not a full monitoring event." );
     }
-    event->addVar(47, _ranSacleTools);
+    event->addVar(Trig::kIsCostEvent, _ranSacleTools);
 
     //
     // Fill basic event data
@@ -464,7 +461,7 @@ StatusCode TrigCostTool::fillHists()
     event_timer = m_timer->elapsed();
 
     if(m_saveEventTimers && event) {
-      event->addVar(m_keyTimer, m_timer->elapsed());
+      event->addVar(Trig::kTimeCostMonitoring, m_timer->elapsed());
     }
   }
 
@@ -707,9 +704,9 @@ void TrigCostTool::ProcessEvent(TrigMonEvent &event)
   //
   // Save DB keys
   //
-  event.addVar(66, m_config_sv.getMasterKey());
-  event.addVar(67, m_config_sv.getLV1PrescaleKey());
-  event.addVar(68, m_config_sv.getHLTPrescaleKey());
+  event.addVar(Trig::kSMK, m_config_sv.getMasterKey());
+  event.addVar(Trig::kL1PSK, m_config_sv.getLV1PrescaleKey());
+  event.addVar(Trig::kHLTPSK, m_config_sv.getHLTPrescaleKey());
 
   //
   // Read OPI from TrigSteer
@@ -735,10 +732,10 @@ void TrigCostTool::ProcessEvent(TrigMonEvent &event)
     }
     
     if(m_saveEventTimers) {
-      event.addVar(m_keyTimer+1, texec);
-      event.addVar(m_keyTimer+2, tproc);
-      event.addVar(m_keyTimer+3, tres);
-      event.addVar(m_keyTimer+4, tmon);
+      event.addVar(Trig::kTimeExec, texec);
+      event.addVar(Trig::kTimeProc, tproc);
+      event.addVar(Trig::kTimeRes, tres);
+      event.addVar(Trig::kTimeMon, tmon);
     }
   } else {
    ATH_MSG_DEBUG( "Could not find TrigOperationalInfoCollection " << m_keySteerOPI << " did the HLT process anything?" );
@@ -768,7 +765,7 @@ void TrigCostTool::ProcessEvent(TrigMonEvent &event)
       m_readLumiBlock.clearMsg();
     }
     ATH_MSG_DEBUG( "LB " << event.getLumi() << " is Length " << m_readLumiBlock.getLumiBlockLength(event.getLumi()) );
-    event.addVar(43, m_readLumiBlock.getLumiBlockLength(event.getLumi())); // 43 is lumi block length location
+    event.addVar(Trig::kEventLumiBlockLength, m_readLumiBlock.getLumiBlockLength(event.getLumi())); // 43 is lumi block length location
   }
 
 }
@@ -812,7 +809,7 @@ void TrigCostTool::SavePrevLumi(TrigMonEvent &event)
   //
   // Save current event number
   //
-  event.addVar(9999, m_countEvent);
+  event.addVar(Trig::kEventNumber, m_countEvent);
 
   //
   // Erase all lumi block counts except for current lumi block
