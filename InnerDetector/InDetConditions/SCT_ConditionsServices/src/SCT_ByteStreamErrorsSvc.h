@@ -155,6 +155,7 @@ private:
 
   bool m_disableRODs;
   double m_rodFailureFraction;
+  unsigned int m_randomSeed; // The seed of random numbers for ROD disabling
 
   std::map<boost::uint32_t, bool> m_rodDecodeStatuses;
 };

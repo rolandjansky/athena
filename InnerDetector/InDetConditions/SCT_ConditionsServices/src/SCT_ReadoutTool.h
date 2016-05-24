@@ -15,7 +15,7 @@
 #include <string> 
 #include <vector> 
 #include <bitset>
-#include <array>
+//#include <array>
 
 // Gaudi
 #include "GaudiKernel/ServiceHandle.h"

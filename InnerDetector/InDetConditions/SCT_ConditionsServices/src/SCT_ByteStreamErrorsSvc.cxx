@@ -81,6 +81,7 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   declareProperty("UseRXRedundancyInfo",m_useRXredundancy=true);
   declareProperty("disableRODs",m_disableRODs=false);
   declareProperty("RODFailureFraction",m_rodFailureFraction=0.1);
+  declareProperty("RandomNumberSeed",m_randomSeed=1); // The seed of random numbers for ROD disabling
 }
 
 /** Initialize */
@@ -224,6 +225,7 @@ SCT_ByteStreamErrorsSvc::handle(const Incident& inc) {
     
   } else if (inc.type() == "BeginEvent") {
     this->resetSets();
+    this->resetCounts();
     m_filled = false;
     m_numRODsHVon=0;
     m_numRODsTotal=0;
@@ -243,7 +245,7 @@ SCT_ByteStreamErrorsSvc::disableRODs() {
   m_cabling->getAllRods(listOfRODs);
 
  /* initialize random seed: */
-  srand ( time(NULL) );
+  srand ( m_randomSeed );
 
   /* generate secret number: */
 
